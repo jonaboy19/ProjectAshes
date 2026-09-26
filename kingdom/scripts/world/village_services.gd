@@ -305,8 +305,13 @@ func guild_menu() -> Dictionary:
 					return String(g.fail(me, cid, WorldSim.day).get("text", ""))])
 		for c: Dictionary in g.available_for(me, 0):
 			var cid2 := int(c["id"])
-			opts.append(["[%s] %s  —  %dg · %d pts · %d days" % [RAAdventurerGuild.rank_name(int(c["rank"])), c["title"],
-				c["reward"], c["points"], int(c["deadline"]) - WorldSim.day], func() -> String:
+			var label := "[%s] %s  —  %dg · %d pts · %d days" % [RAAdventurerGuild.rank_name(int(c["rank"])), c["title"],
+				c["reward"], c["points"], int(c["deadline"]) - WorldSim.day]
+			if c["type"] == "vacancy":
+				var tg: Dictionary = c.get("target", {})
+				label = "Job · %s, %s  —  %dg/day · +%d pts when hired" % [tg.get("seat", "?"),
+					String(Life.careers.org(String(tg.get("org", ""))).get("name", "")).trim_prefix("the "), int(tg.get("wage", 0)), c["points"]]
+			opts.append([label, func() -> String:
 				var why := g.accept(me, cid2, WorldSim.day)
 				return why if why != "" else "Commission accepted."])
 	var open_board := 0

@@ -175,6 +175,7 @@ func _bar(parent: Control, pos: Vector2, color: Color, height: int) -> ProgressB
 	bar.size = Vector2(268, height)
 	bar.show_percentage = false
 	bar.theme = UITheme.theme()
+	bar.add_theme_font_size_override("font_size", 1)   # the hidden % label still sets min height
 	bar.add_theme_stylebox_override("fill", UITheme.bar_fill(color))
 	parent.add_child(bar)
 	return bar
