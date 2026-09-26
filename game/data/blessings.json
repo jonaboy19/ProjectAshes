@@ -1,0 +1,8 @@
+{
+	"_note": "PLACEHOLDER element list. Replace with the canon elemental blessings of the Heavenly Way.",
+	"fire":      { "name": "Blessing of Flame",   "color": "#ff7a3d", "damage": 25, "speed": 22.0 },
+	"water":     { "name": "Blessing of Tides",   "color": "#4aa8ff", "damage": 20, "speed": 20.0 },
+	"earth":     { "name": "Blessing of Stone",   "color": "#b08a4f", "damage": 30, "speed": 16.0 },
+	"wind":      { "name": "Blessing of Gales",   "color": "#9ff2c8", "damage": 18, "speed": 28.0 },
+	"lightning": { "name": "Blessing of Thunder", "color": "#f4e04d", "damage": 28, "speed": 34.0 }
+}

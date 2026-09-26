@@ -1,0 +1,13 @@
+{
+	"_note": "PLACEHOLDER quest flow built from the four approved chapter titles only. Replace step text once the approved chapter text is in the repo.",
+	"day_of_bells": {
+		"title": "The Day of the Bells",
+		"steps": [
+			{ "id": "beyond_fence", "text": "Slip through the south gate and see the world beyond the fence." },
+			{ "id": "return_elder", "text": "Return to Aramori. The Village Elder is waiting by the bell tower." },
+			{ "id": "ring_bells", "text": "Stand before the bell tower for the Ceremony of the Thirteen Bells." },
+			{ "id": "after_silence", "text": "No bell rang. Speak with the Church acolyte by the chapel." },
+			{ "id": "examination", "text": "The Examination: drive off the Rift beasts on the south road (0/3)." }
+		]
+	}
+}

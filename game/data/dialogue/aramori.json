@@ -1,0 +1,74 @@
+{
+	"_note": "PLACEHOLDER dialogue. Only names and beats from the README are canon. Replace lines with approved chapter text.",
+	"npcs": {
+		"elder": [
+			{ "id": "elder_return", "on_step": [["day_of_bells", "return_elder"]] },
+			{ "id": "elder_after", "requires": ["no_bell_rang"] },
+			{ "id": "elder_before" }
+		],
+		"acolyte": [
+			{ "id": "acolyte_after", "on_step": [["day_of_bells", "after_silence"]] },
+			{ "id": "acolyte_exam", "requires": ["no_bell_rang"] },
+			{ "id": "acolyte_before" }
+		],
+		"child_a": [{ "id": "child_a" }],
+		"child_b": [{ "id": "child_b" }],
+		"child_c": [{ "id": "child_c" }],
+		"mother": [{ "id": "mother" }]
+	},
+	"entries": {
+		"intro": {
+			"speaker": "Sugo",
+			"lines": [
+				"Today the bells ring for every child in Aramori.",
+				"But first... just one look past the fence. Nobody will notice."
+			],
+			"on_finish": { "start_quest": "day_of_bells" }
+		},
+		"beyond_fence": {
+			"speaker": "Sugo",
+			"lines": [
+				"So this is what's out here.",
+				"...I should get back before the ceremony starts."
+			],
+			"on_finish": { "advance_quest": ["day_of_bells", "beyond_fence"] }
+		},
+		"elder_before": {
+			"speaker": "Village Elder",
+			"lines": ["The ceremony begins soon, child. Don't wander off."]
+		},
+		"elder_return": {
+			"speaker": "Village Elder",
+			"lines": [
+				"There you are, Sugo. Dust on your boots again.",
+				"Stand before the tower with the others. The Heavenly Way will answer."
+			],
+			"on_finish": { "advance_quest": ["day_of_bells", "return_elder"] }
+		},
+		"elder_after": {
+			"speaker": "Village Elder",
+			"lines": ["Silence is also an answer, Sugo. We will learn what it means."]
+		},
+		"acolyte_before": {
+			"speaker": "Church Acolyte",
+			"lines": ["Every child is known to Heaven. Every child will be called."]
+		},
+		"acolyte_after": {
+			"speaker": "Church Acolyte",
+			"lines": [
+				"No bell. None at all.",
+				"The Church has words for children like you. Come to the Examination on the south road.",
+				"If Heaven will not claim you, perhaps your hands will speak instead."
+			],
+			"on_finish": { "advance_quest": ["day_of_bells", "after_silence"] }
+		},
+		"acolyte_exam": {
+			"speaker": "Church Acolyte",
+			"lines": ["The south road, unclaimed one. The Examination waits."]
+		},
+		"child_a": { "speaker": "Village Child", "lines": ["I hope I get fire! Fire is the best."] },
+		"child_b": { "speaker": "Village Child", "lines": ["My brother got his bell last year. He says it hums in your chest."] },
+		"child_c": { "speaker": "Village Child", "lines": ["What if no bell rings for me?"] },
+		"mother": { "speaker": "Villager", "lines": ["Stand up straight at the ceremony, Sugo. The whole village is watching."] }
+	}
+}
