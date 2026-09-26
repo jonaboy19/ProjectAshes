@@ -168,7 +168,7 @@
   "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-carpenters-shop-713427c8"
  },
  {
-  "file": "cavalry-stables-upgrade.glb",
+  "file": "cavalry-stables-upgraded.glb",
   "title": "Cavalry Stables Upgraded (Medieval RTS Faction Buildings)",
   "summary": "Expanded three open stable bays with hitching rail and feed trough.",
   "triangles": 376,
@@ -448,7 +448,7 @@
   "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-infirmary-d8def116"
  },
  {
-  "file": "kingdom-e-d793ddc5-starter-scene.glb",
+  "file": "kingdom-economic-centre.glb",
   "title": "Kingdom Economic Centre (Medieval RTS Faction Buildings)",
   "summary": "Sixteen economic and civic buildings arranged on 14 m planning centres; all source models retain metre dimensions.",
   "triangles": 7808,
@@ -532,7 +532,7 @@
   "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-masons-yard-4791b167"
  },
  {
-  "file": "militia-barracks-upgrad.glb",
+  "file": "militia-barracks-upgraded.glb",
   "title": "Militia Barracks Upgraded (Medieval RTS Faction Buildings)",
   "summary": "Expanded long barracks with blue standards and outdoor spear muster rack.",
   "triangles": 532,

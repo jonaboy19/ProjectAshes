@@ -84,7 +84,7 @@
   "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-damsel-spindle-ca2d6dab"
  },
  {
-  "file": "divided-grain-storage-b.glb",
+  "file": "divided-grain-storage-bin.glb",
   "title": "Divided Grain Storage Bin (Medieval Watermill and Granary)",
   "summary": "Two-compartment planked grain bin with stout divider, grain beds and iron corner straps.",
   "triangles": 3600,
@@ -98,7 +98,7 @@
   "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-divided-grain-storage-b-1432411a"
  },
  {
-  "file": "flour-sack-filling-stan.glb",
+  "file": "flour-sack-filling-stand.glb",
   "title": "Flour Sack Filling Stand (Medieval Watermill and Granary)",
   "summary": "Twin-post sack mouth stand with iron holding ring and fitted open linen cuff under meal spout.",
   "triangles": 2160,
@@ -182,7 +182,7 @@
   "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-great-spur-wheel-d4ba0af6"
  },
  {
-  "file": "hand-cranked-grain-clea.glb",
+  "file": "hand-cranked-grain-cleaner.glb",
   "title": "Hand Cranked Grain Cleaner (Medieval Watermill and Granary)",
   "summary": "Four-leg cleaner with exposed slatted sieve, separate circular fan casing, supported crank and reject tray.",
   "triangles": 6596,
@@ -350,7 +350,7 @@
   "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-miller-accounting-desk-c7b996aa"
  },
  {
-  "file": "millers-m-2dd2481c-starter-scene.glb",
+  "file": "millers-morning.glb",
   "title": "Millers Morning (Medieval Watermill and Granary)",
   "summary": "Working-layout mill with raised grain store, stone floor, lower gearing, overshot supply, downstream footbridge and stocked delivery and maintenance bays.",
   "triangles": 286940,
@@ -420,7 +420,7 @@
   "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-overhead-launder-elbow-e32a3dbd"
  },
  {
-  "file": "overhead-launder-straig.glb",
+  "file": "overhead-launder-straight.glb",
   "title": "Overhead Launder Straight (Medieval Watermill and Granary)",
   "summary": "Raised oak water trough with bed, contained water and banded side boards; two-metre connection span.",
   "triangles": 1512,
@@ -434,7 +434,7 @@
   "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-overhead-launder-straig-111b4308"
  },
  {
-  "file": "overshot-bucket-waterwh.glb",
+  "file": "overshot-bucket-waterwheel.glb",
   "title": "Overshot Bucket Waterwheel (Medieval Watermill and Granary)",
   "summary": "Overshot wheel with twenty-four bounded oak buckets: inner backs, radial bottoms, retaining lips and paired cheek walls; open receiving mouths, ten spokes per cheek and sleeved hub.",
   "triangles": 39600,
@@ -448,7 +448,7 @@
   "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-overshot-bucket-waterwh-9acc1b8b"
  },
  {
-  "file": "replacement-wooden-gear.glb",
+  "file": "replacement-wooden-gear-tooth-set.glb",
   "title": "Replacement Wooden Gear Tooth Set (Medieval Watermill and Granary)",
   "summary": "Four replaceable hardwood cogs with narrower seating tenons arranged in a maintenance tray.",
   "triangles": 2700,
@@ -672,7 +672,7 @@
   "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-water-control-sluice-077b601b"
  },
  {
-  "file": "watermill-landscape-bas.glb",
+  "file": "watermill-landscape-base.glb",
   "title": "Watermill Landscape Base (Medieval Watermill and Granary)",
   "summary": "Compact river-valley base with raised upstream stone bank for gravity-fed leat and level mill/service terrace.",
   "triangles": 11780,

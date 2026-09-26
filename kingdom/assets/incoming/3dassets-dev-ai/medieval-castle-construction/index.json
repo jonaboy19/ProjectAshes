@@ -168,6 +168,20 @@
   "source": "https://3dassets.dev/assets/medieval-castle-construction-bell-tower-fc95039c"
  },
  {
+  "file": "blue-banner-castle-courtyard.glb",
+  "title": "Blue Banner Castle Courtyard (Medieval Castle Construction)",
+  "summary": "Closed 24 m outer fortification with a continuous 4 m-high wall-walk, 2 m-clear arched southern entrance, stair access, keep, well and working-yard equipment. Doors and interiors are static. Walk route is geometrically connected; no navmesh or collision is supplied.",
+  "triangles": 4624,
+  "animations": [],
+  "sizeMeters": [
+   24,
+   9.3,
+   24
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-castle-cour-480ed575-starter-scene"
+ },
+ {
   "file": "bread-oven.glb",
   "title": "Bread Oven (Medieval Castle Construction)",
   "summary": "Small masonry baking oven with recessed arched mouth and chimney.",
@@ -222,20 +236,6 @@
   ],
   "aiModel": "Claude Fable 5.1",
   "source": "https://3dassets.dev/assets/medieval-castle-construction-castle-connector-cases-2abdad3c"
- },
- {
-  "file": "castle-cour-480ed575-starter-scene.glb",
-  "title": "Blue Banner Castle Courtyard (Medieval Castle Construction)",
-  "summary": "Closed 24 m outer fortification with a continuous 4 m-high wall-walk, 2 m-clear arched southern entrance, stair access, keep, well and working-yard equipment. Doors and interiors are static. Walk route is geometrically connected; no navmesh or collision is supplied.",
-  "triangles": 4624,
-  "animations": [],
-  "sizeMeters": [
-   24,
-   9.3,
-   24
-  ],
-  "aiModel": "Claude Fable 5.1",
-  "source": "https://3dassets.dev/assets/medieval-castle-construction-castle-cour-480ed575-starter-scene"
  },
  {
   "file": "castle-siege-camp.glb",
@@ -490,7 +490,7 @@
   "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-end-d833e01a"
  },
  {
-  "file": "curtain-high-4m.glb",
+  "file": "curtain-high-4-m.glb",
   "title": "Curtain High 4 m (Medieval Castle Construction)",
   "summary": "4 m long curtain with 6 m deck height.",
   "triangles": 360,
@@ -518,7 +518,7 @@
   "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-low-2m-24f43a18"
  },
  {
-  "file": "curtain-low-4m.glb",
+  "file": "curtain-low-4-m.glb",
   "title": "Curtain Low 4 m (Medieval Castle Construction)",
   "summary": "4 m long curtain with 2 m deck height.",
   "triangles": 168,
@@ -574,7 +574,7 @@
   "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-straight-2m-e502053e"
  },
  {
-  "file": "curtain-straight-4m.glb",
+  "file": "curtain-straight-4-m.glb",
   "title": "Curtain Straight 4 m (Medieval Castle Construction)",
   "summary": "4 m curtain wall with 4 m deck and 1.5 m clear wall-walk.",
   "triangles": 264,
@@ -1008,7 +1008,7 @@
   "source": "https://3dassets.dev/assets/medieval-castle-construction-octagonal-tower-base-aff15391"
  },
  {
-  "file": "octagonal-tower-battlemen.glb",
+  "file": "octagonal-tower-battlement.glb",
   "title": "Octagonal Tower Battlement (Medieval Castle Construction)",
   "summary": "octagonal tower battlement. Walkable cap with crenellated perimeter.",
   "triangles": 144,
@@ -1666,7 +1666,7 @@
   "source": "https://3dassets.dev/assets/medieval-castle-construction-stairs-straight-2m-15f5cf42"
  },
  {
-  "file": "stairs-straight-4m.glb",
+  "file": "stairs-straight-4-m.glb",
   "title": "Stairs Straight 4 m (Medieval Castle Construction)",
   "summary": "4 m rise stone stair flight; 0.25 m risers and 0.375 m treads, 2 m clear width.",
   "triangles": 192,

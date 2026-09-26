@@ -1213,7 +1213,7 @@
   "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-standing-stone-7603d570"
  },
  {
-  "file": "starter-town--22d3475e-starter-scene.glb",
+  "file": "starter-town-and-outlands.glb",
   "title": "Starter Town And Outlands (Medieval MMO Starter Realm)",
   "summary": "The starter region of a low poly fantasy world, built from every piece in the pack. A walled town forty metres square stands behind nine bays of curtain wall a side, four corner towers and a gatehouse with a working portcullis and gate leaves, its wall walk running the whole...",
   "triangles": 106276,
@@ -1560,7 +1560,7 @@
   "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-wall-stair-468bc239"
  },
  {
-  "file": "wall-walk-crenellated.glb",
+  "file": "wall-walk-with-crenellations.glb",
   "title": "Wall Walk With Crenellations (Medieval MMO Starter Realm)",
   "summary": "Four metre timber decked wall walk with a crenellated outer parapet and a low inner kerb, sized to sit on the wall segment coping. Low poly medieval fantasy MMO and RPG game asset.",
   "triangles": 316,
@@ -1700,7 +1700,7 @@
   "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-wizard-tower-base-b22705d8"
  },
  {
-  "file": "wizard-tower-mid.glb",
+  "file": "wizard-tower-mid-stage.glb",
   "title": "Wizard Tower Mid Stage (Medieval MMO Starter Realm)",
   "summary": "Middle stage of a wizard tower: a narrower stone drum with three tall windows and a railed timber balcony corbelled out on its upper course. Low poly medieval fantasy MMO and RPG game asset.",
   "triangles": 1540,
@@ -1714,7 +1714,7 @@
   "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-wizard-tower-mid-0302dd9f"
  },
  {
-  "file": "wizard-tower-top.glb",
+  "file": "wizard-tower-top-stage.glb",
   "title": "Wizard Tower Top Stage (Medieval MMO Starter Realm)",
   "summary": "Top stage of a wizard tower: a short observation drum under a steep conical roof, with a slowly turning arcane crystal on the finial above it. Low poly medieval fantasy MMO and RPG game asset.",
   "triangles": 1076,

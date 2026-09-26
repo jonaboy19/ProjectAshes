@@ -1,4 +1,5 @@
 "Medieval Tournament and Jousting Ground" from 3dassets.dev (https://3dassets.dev/packs/medieval-tournament-and-jousting-ground)
 Licence: CC0 1.0 Universal (every asset verified cc0-1.0 via the site API on 2026-09-26). No attribution required.
 AI-GENERATED: the site marks this pack aiGenerated=true (models: Claude Opus 5). Review visually before shipping.
+Files were dequantized (KHR_mesh_quantization removed) with gltf-transform so Godot can import them; geometry and animations unchanged.
 A whole jousting ground: the tilt and the lists, grandstands and a royal box, blank heraldry, tourney arms, a quintain and a tournament camp. Every shield and banner ships blank; no people and no animals.

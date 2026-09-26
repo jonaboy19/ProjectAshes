@@ -8,12 +8,50 @@ licence file. About 2.3 GB total, and no single file is over 90 MB, so there's n
 
 **Formats:** glTF/GLB was kept wherever a pack has it. FBX/OBJ/Blend/Unity
 duplicates were removed. Older packs without glTF keep **FBX**, which Godot 4.4
-imports natively. A few OpenGameArt models are `.blend` only (these need Blender for
-import, or a one-time export to glTF).
+imports natively. Every `.blend`-only model now has a **`.glb` next to it**,
+converted headless with Blender 5.2 (see "Round 2" below).
 
-> Godot imports everything under `res://`. This folder is large, so the first
-> editor open will take a while. If needed, drop a `.gdignore` into packs you're
-> not using yet.
+> Packs not yet used by the game carry a `.gdignore` (the integration convention).
+> Delete a pack's `.gdignore` to enable it.
+
+**Visual previews:** `_previews/*.jpg` holds one contact sheet per new pack (every
+model rendered from a 3/4 view, with its file name). Browse these before picking assets.
+
+## Round 2 additions (2026-09-26, later): all `.gdignore`d until integrated
+
+| Folder | What | Licence |
+|---|---|---|
+| `3dassets-dev-ai/` | 12 packs, 867 GLBs: **siege engines** (counterweight trebuchets armed/loosed, mangonel, springald, ram penthouse, siege towers, mantlets, palisade, tents, portcullis, breached walls), castle construction kit (149), tournament ground, watermill and granary, monastery, RTS faction buildings, MMO starter realm, **stables with horses** (riding, draft, pony, foal, donkey; 4 coats; standing, grazing, trotting, rearing; saddles), livestock, blacksmith forge (animated bellows, doors), melee arms, canal town and windmill. `index.json` per pack lists title, triangle count and animations (111 animated). | CC0, but **AI-generated per the source site**. Quality varies: the siege engines and buildings are good; the units are blocky. Modern items (tractor, trailers, show jumps) were removed. |
+| `polypizza/` | 76 models: trebuchet, catapult, giant crossbow, tents, market stalls and scene, banners, flags, helmets, shields, bows, arrows, crossbow, horses, pigs, chickens, carts, wagons, saddle | CC0 (`cc0/`) and **CC-BY 3.0** (`cc-by/`); credits in `polypizza/LICENSE.md` |
+| `opengameart/models/` (added) | battering ram, merchant tent, archery set, longbow, horse-drawn carriage, rigged dog, chicken, rooster, wooden bridge, modular castle kit (FBX), church and interior, church bell, old windmill, wooden docks (FBX/GLB), 3TD harbour, ruins and starter packs, knight statue, medieval weapon pack, 17 medieval Freeciv units (untextured) | CC0; `LICENSE.txt` in each folder |
+| `opengameart/cc-by/models/` | saddle with bedroll, low-poly horses, horse rig, crossbow, catapult, Anglo-Saxon helmets and spears, market stall, animated windmill | **CC-BY 3.0**; credit line in each `LICENSE.txt` |
+| `opengameart/sfx/` (added) | male adventurer voice clips, crowd shouting ambience, melee sounds, horse trotting, loopable rain | CC0 |
+| `opengameart/cc-by/audio/` | horse gallop on surfaces, gallop loop, crowd cheering, Little Robot "Voices" library | **CC-BY** |
+| `opengameart/music/<subfolders>`, `opengameart/cc-by/music/` | Umplix Medieval Theme and Standoff, Dowland 1597 lute (CC0), tricksntraps pack (CC0); Matthew Pablo, Alexandr Zhelanov, Viktor Kraus, Yubatake, TAD tracks (**CC-BY**) | as marked |
+| `music-cc-by/` | Scott Buckley "Song Of The Forge", "Honour Among Thieves"; Alexander Nakarada "Medieval Loop One", "Medieval Chateau" | **CC-BY 4.0**; credits in `LICENSE.md` |
+| `lowpolyassets/low-poly-medieval-weapons/` | 62 FBX: **siege engines**, swords, axes, maces, bows, shields, spears, farming tools | CC0 |
+| `chilly-durango/retro-medieval-building-kit/` | PSX-style modular building parts and furniture (66 pieces in `_parts/`). The meshes ship with flat placeholder colours; apply the 16-colour tileable textures in `Textures/` | CC0 |
+| `styloo/the-company/` | 26 low-poly medieval fantasy characters (GLB); the author recommends unlit/emission shading | CC0 |
+| `fertile-soil/modular-village-pack/` | 155 OBJ village pieces: roofs, stucco walls, windows, arches, well, cart, boats, waterwheel and flume | CC0 |
+| `cc0gameassets/swordtember2022/` | 30 stylised swords (Draco decompressed for Godot) | CC0 |
+| `kenney/pirate-kit`, `mini-forest`, `cube-pets`, `watercraft-kit` | ships, fortress walls, animated archer and tents, animated animals, boats | CC0 |
+| `quaternius/pirate-kit`, `quaternius/background-posed-humans` | ships, docks, animated characters; 28 static posed humans for crowds | CC0 |
+| `polyhaven/models/` (added) | grasses, fern, nettle, dandelion, moss, 4 shrubs, root cluster, large iron gate, gothic statue | CC0 |
+
+**Godot compatibility fixes applied:** 3dassets.dev GLBs used `KHR_mesh_quantization`
+and the Swordtember GLBs used Draco. Godot 4.6 refuses both, so they were rewritten
+with gltf-transform (dequantized or decompressed, geometry and animations unchanged)
+and verified with a headless Godot import. The Poly Haven fir and pine trees
+(478 MB and 949 MB meshes) were removed: too heavy for the game and over GitHub's limit.
+
+**.blend conversion notes:** old (pre-2.8) files had textures outside the node tree.
+These were re-linked by name with nearest-neighbour filtering, which keeps the pixel look. Prop
+packs were also split into one GLB per object (`<name>_parts/`). Some OpenGameArt
+files reference textures that weren't in the download (helmets, catapult, crossbow,
+windmill, Freeciv units), so those render with flat material colours.
+
+**Still missing:** no free, redistributable riding or mounted humanoid animation was
+found. A sit-on-horse pose will have to be authored.
 
 ## Where to find the key things
 
@@ -46,6 +84,12 @@ import, or a one-time export to glTF).
 - "Fantasy Sound Effects Library" by **Little Robot Sound Factory**, CC BY 3.0
 - "Footsteps on different surfaces" by **congusbongus**, CC BY 3.0
 - Icons from **game-icons.net** (Lorc, Delapouite and contributors), CC BY 3.0
+- Music by **Scott Buckley** (scottbuckley.com.au) and **Alexander Nakarada** (creatorchords.com), CC BY 4.0 (`music-cc-by/LICENSE.md`)
+- OpenGameArt CC-BY music: **Matthew Pablo**, **Alexandr Zhelanov**, **Viktor Kraus** (CC BY 3.0); **Yubatake**, **TAD** (CC BY 4.0)
+- OpenGameArt CC-BY audio: **congusbongus** (gallop), **AntumDeluge** (gallop loop), **Gregor Quendel** (crowd cheering), **Little Robot Sound Factory** (voices)
+- OpenGameArt CC-BY models: **Ouren** (saddle), **jjmoser** (horse), **3D Art** (horse rig), **Lamoot** (crossbow), **Crossmeadow** (catapult), **Lotnik** (helmets and spears), **clericbob** (market stall), **WeaponGuy** (windmill)
+- Poly Pizza CC-BY models: one credit per model used (`polypizza/LICENSE.md`)
+- Every folder with a `LICENSE.txt` that says "ATTRIBUTION REQUIRED" has its exact credit line in that file
 - Optional courtesy credits (CC0): Quaternius, Kenney, Kay Lousberg (KayKit), Creatus, Poly Haven, ambientCG, BigSoundBank (Joseph Sardin), OpenGameArt authors (see `opengameart/LICENSE.md`)
 
 ## Not included, and why

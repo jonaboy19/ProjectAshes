@@ -1,322 +1,34 @@
 [
  {
-  "file": "blacksmith--bb9e9c8a-starter-scene.glb",
-  "title": "Village smithy, open fronted, with forge, anvil and armoury bench (Blacksmith Forge and Armoury)",
-  "summary": "A working blacksmith's shop 16 m by 12 m, open fronted on purpose so the whole floor can be seen and walked: timber framed walls on three sides, a shop front of a shutter counter and two open bays with the cart entrance left clear beside them, and no roof over the working...",
-  "triangles": 42072,
+  "file": "armourer-s-dishing-stump-0-78-m.glb",
+  "title": "Armourer's dishing stump, 0.78 m (Blacksmith Forge and Armoury)",
+  "summary": "Elm stump hollowed with three dishing bowls of different depths, a half finished plate lying in the largest and the raising and dishing mallets standing in the ring beside it.",
+  "triangles": 800,
   "animations": [],
   "sizeMeters": [
-   16.42,
-   4.97,
-   17.478
+   0.759,
+   0.95,
+   0.72
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith--bb9e9c8a-starter-scene"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-98d31afa"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Timber framed wall module, 4 m (Blacksmith Forge and Armoury)",
-  "summary": "Oak framed wall 4 m wide and 3.2 m tall: a sill beam, corner and middle posts with curved braces, limewashed wattle and daub infill set back between them and a top plate, with side ports on the centre line at 1.6 m.",
-  "triangles": 96,
-  "animations": [],
-  "sizeMeters": [
-   4,
-   3.2,
-   0.29
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-02d2c415"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Forge yard cobbles, 4 m (Blacksmith Forge and Armoury)",
-  "summary": "The same 4 m floor module laid as a cobbled yard instead of flags: a bedding slab under a field of small setts on the same edge ports, for the ground outside the shop front.",
-  "triangles": 2040,
-  "animations": [],
-  "sizeMeters": [
-   4.059,
-   0.135,
-   4.059
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-14fe86d1"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Open timber frame bay, 4 m (Blacksmith Forge and Armoury)",
-  "summary": "Open post and beam bay 4 m wide and 3.2 m tall: two oak posts on stone pads carrying a tie beam with curved braces and nothing between them, so a workshop can stand open to the yard on the same wall ports as a solid panel.",
-  "triangles": 108,
-  "animations": [],
-  "sizeMeters": [
-   4.2,
-   3.2,
-   0.42
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-8ad77688"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Forge floor slab, sooted, 4 m (Blacksmith Forge and Armoury)",
-  "summary": "The flagged 4 m floor module with the scale, clinker and soot of the hearth side trodden into it: raised patches of charcoal dust and a scatter of scale across the flags, on the same edge ports.",
-  "triangles": 504,
-  "animations": [],
-  "sizeMeters": [
-   4,
-   0.141,
-   4
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-e5a8336c"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Timber framed dwarf wall, 4 m (Blacksmith Forge and Armoury)",
-  "summary": "Waist high oak framed wall 4 m wide and 1.1 m tall with a capping rail, for closing the open side of a workshop without shutting the light or the view out: side ports on the centre line at 0.55 m.",
-  "triangles": 84,
-  "animations": [],
-  "sizeMeters": [
-   4,
-   1.1,
-   0.33
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-616b7758"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Forge floor slab, 4 m (Blacksmith Forge and Armoury)",
-  "summary": "Flagged stone floor module 4 m square and 130 mm thick, sixteen riven flags standing proud of a bedding slab with open joints between them, laid on a 4 m grid with edge ports on all four sides.",
-  "triangles": 204,
-  "animations": [],
-  "sizeMeters": [
-   4,
-   0.13,
-   4
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-5e6dd583"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Shutter counter shop front, 4 m (Blacksmith Forge and Armoury)",
-  "summary": "Timber framed shop front 4 m wide with a 2.4 m opening over a stone counter sill: the boarded shutter is hinged along the sill and drops forward onto two iron stays to become the selling counter, which is how a medieval shop front works.",
-  "triangles": 376,
-  "animations": [
-   "open",
-   "close"
-  ],
-  "sizeMeters": [
-   4,
-   3.2,
-   0.83
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-84dcb3e5"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Stable door module, 4 m (Blacksmith Forge and Armoury)",
-  "summary": "Timber framed wall module with a 1.2 m by 2.1 m boarded stable door in it: two leaves hung on the same jamb with strap hinges and a ring latch, so the top can stand open over a closed bottom the way a workshop door is used.",
-  "triangles": 320,
-  "animations": [
-   "open",
-   "close"
-  ],
-  "sizeMeters": [
-   4,
-   3.2,
-   0.29
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-56372f60"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Stone chimney stack, 4.6 m (Blacksmith Forge and Armoury)",
-  "summary": "Rubble stone chimney stack 4.6 m tall on a 1.15 m square base, battered in twice to a corbelled cap with an open flue mouth, for standing behind a forge hearth or against a workshop gable.",
-  "triangles": 104,
-  "animations": [],
-  "sizeMeters": [
-   1.15,
-   4.84,
-   1.15
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-bf284986"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Lean-to roof panel, 4 m (Blacksmith Forge and Armoury)",
-  "summary": "Boarded and slated lean-to roof panel 4 m wide and 2.6 m along the slope, pitched about 18 degrees on three oak rafters, for covering a coal store or a stock bay against the back wall of a yard.",
-  "triangles": 108,
-  "animations": [],
-  "sizeMeters": [
-   4,
-   1.023,
-   2.698
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-340f5530"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Stone forge hearth with hood and flue, 3.8 m (Blacksmith Forge and Armoury)",
-  "summary": "The hearth the shop is built round: a rubble stone bench 2.4 m wide with a raised firepot of coke and glowing coals, a tuyere entering from the back, a stone back wall, and a tapered hood on two iron posts carrying the flue up to 3.8 m, with the fire irons leaning at the side.",
-  "triangles": 572,
-  "animations": [],
-  "sizeMeters": [
-   2.56,
-   3.82,
-   1.78
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-f5ce9dc6"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Great double bellows on a frame, 2.2 m (Blacksmith Forge and Armoury)",
-  "summary": "Twin leather bellows on an oak frame 2.2 m long: a fixed lower board, a pleated leather body with iron nail rows, a weighted top board on its hinge nose and the blast pipe running out to the tuyere, worked by the chain hanging at the back.",
-  "triangles": 596,
-  "animations": [
-   "pump"
-  ],
-  "sizeMeters": [
-   1.1,
-   1.89,
-   2.04
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-2c5ef7d9"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Coal scuttle with shovel, 0.66 m (Blacksmith Forge and Armoury)",
-  "summary": "Riveted iron scuttle with a swing handle and a rolled rim, filled with coal and with the small fuel shovel standing in it, for carrying fuel from the store to the firepot.",
-  "triangles": 352,
-  "animations": [],
-  "sizeMeters": [
-   0.428,
-   0.81,
-   0.414
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-82037a7f"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Slack tub, 0.8 m (Blacksmith Forge and Armoury)",
-  "summary": "Coopered oak half barrel bound with three iron hoops and filled with water, the smith's slack tub for cooling tongs and hardening small work, with a dipper hooked over the rim.",
-  "triangles": 584,
+  "file": "barrel-of-blanks-0-96-m.glb",
+  "title": "Barrel of blanks, 0.96 m (Blacksmith Forge and Armoury)",
+  "summary": "Open coopered barrel standing full of forged blanks: hinge straps, hooks, staples and bar ends stood on end, the bulk work a shop turns out between commissions.",
+  "triangles": 636,
   "animations": [],
   "sizeMeters": [
    0.684,
-   1.035,
+   1.18,
    0.674
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-ab286472"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-f026a6dd"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Stone quench trough, 1.6 m (Blacksmith Forge and Armoury)",
-  "summary": "Hollowed stone quench trough 1.6 m long on two block bearers, filled with still water and with a pair of tongs laid across the rim, for taking the heat out of a forging beside the anvil.",
-  "triangles": 492,
-  "animations": [],
-  "sizeMeters": [
-   1.6,
-   0.768,
-   0.7
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-1a9c8134"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Coal store bay, 2.4 m (Blacksmith Forge and Armoury)",
-  "summary": "Boarded fuel bay 2.4 m wide with oak corner posts, a low front board and a heaped load of coal and coke behind it, the way fuel is kept dry against the back wall of a smithy.",
-  "triangles": 428,
-  "animations": [],
-  "sizeMeters": [
-   2.4,
-   1.2,
-   1.295
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-a848cf5d"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Charcoal heap on boards, 1.4 m (Blacksmith Forge and Armoury)",
-  "summary": "Loose heap of charcoal on a boarded pallet 1.4 m across, with lumps spilled round the edge and a rake mark through the top, for the fuel corner of a smithy or a charcoal burner's yard.",
-  "triangles": 368,
-  "animations": [],
-  "sizeMeters": [
-   1.517,
-   0.68,
-   1.5
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-4deb9bce"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Water butt under a spout, 1.25 m (Blacksmith Forge and Armoury)",
-  "summary": "Full height coopered water butt 1.25 m tall on a stone plinth with a lead spout over it and a wooden pail beside it, the shop's water supply for the quench trough and the slack tub.",
-  "triangles": 820,
-  "animations": [],
-  "sizeMeters": [
-   1.222,
-   1.74,
-   1.058
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-86a3006a"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Fire irons in a stand, 1.3 m (Blacksmith Forge and Armoury)",
-  "summary": "Forged rake, poker, slice and fire shovel standing in an iron ring stand on a weighted base, the tools that work the firepot and clear the clinker out of it.",
-  "triangles": 752,
-  "animations": [],
-  "sizeMeters": [
-   0.4,
-   1.246,
-   0.417
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-138465cb"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Great anvil on an oak stump, 0.98 m (Blacksmith Forge and Armoury)",
-  "summary": "A 150 kg London pattern anvil on a banded oak stump: cast body with a ground steel face, a round horn, a hardy hole and a pritchel hole in the heel, staples over the feet and the smith's hammer lying on the face.",
-  "triangles": 676,
-  "animations": [],
-  "sizeMeters": [
-   1.19,
-   1.025,
-   0.69
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-37ef9c9f"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Stake anvil in a block, 0.66 m (Blacksmith Forge and Armoury)",
-  "summary": "Small bickern stake with a round horn one side and a square bick the other, driven into an oak block and used for the light work a great anvil is too coarse for.",
-  "triangles": 160,
-  "animations": [],
-  "sizeMeters": [
-   0.603,
-   0.512,
-   0.46
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-131d6824"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
+  "file": "bench-vice-on-a-stand-1-0-m.glb",
   "title": "Bench vice on a stand, 1.0 m (Blacksmith Forge and Armoury)",
   "summary": "Heavy parallel bench vice bolted to an oak stand: a cast body with serrated steel jaw plates, a square thread screw with a sliding tommy bar and a small anvil pad cast behind the jaws.",
   "triangles": 408,
@@ -333,97 +45,63 @@
   "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-1b97ed95"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Smith's work bench, 2.0 m (Blacksmith Forge and Armoury)",
-  "summary": "Oak work bench 2 m long on braced trestle legs with a scorched top, a tool well along the back, a single deep drawer under the front and a rack of punches standing in holes bored along the edge.",
-  "triangles": 416,
-  "animations": [
-   "open",
-   "close"
-  ],
-  "sizeMeters": [
-   2,
-   1.18,
-   1.02
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-24497dd1"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Riveting bench, 1.5 m (Blacksmith Forge and Armoury)",
-  "summary": "Armourer's riveting bench 1.5 m long with a steel topped stake plate, two shallow drawers of rivets and washers, a bickern set into the top and the light hammers laid ready on it.",
-  "triangles": 932,
-  "animations": [
-   "open",
-   "close"
-  ],
-  "sizeMeters": [
-   1.5,
-   1.08,
-   0.76
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-3ed9d480"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Smith's stool, 0.56 m (Blacksmith Forge and Armoury)",
-  "summary": "Three legged oak stool with a dished seat and a wedged tenon at each leg, the seat worn pale where it is used, for the bench and the ledger desk.",
-  "triangles": 208,
+  "file": "billet-stack-on-bearers-1-2-m.glb",
+  "title": "Billet stack on bearers, 1.2 m (Blacksmith Forge and Armoury)",
+  "summary": "Stack of square iron billets and short bloom ends crossed on two oak bearers, chalked with an abstract heat mark, the way stock is kept off a damp floor.",
+  "triangles": 264,
   "animations": [],
   "sizeMeters": [
-   0.437,
-   0.57,
-   0.435
+   1.2,
+   0.51,
+   0.94
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-ac2e8d29"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-b0398499"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Hammer rack, 1.1 m (Blacksmith Forge and Armoury)",
-  "summary": "Free standing oak rack 1.1 m wide carrying the striking tools in order of weight: two cross pein hammers, a ball pein, a straight pein and a sledge, each head resting on the rail with its haft hanging through.",
-  "triangles": 1060,
+  "file": "blade-blank-rack-1-4-m.glb",
+  "title": "Blade blank rack, 1.4 m (Blacksmith Forge and Armoury)",
+  "summary": "Oak rack of forged blade blanks waiting on the grinder: knife, seax and sword blanks with their tangs drawn and their edges still thick and unsharpened, plus two scythe blades and a billhook, which is the shape the work leaves a forge in.",
+  "triangles": 336,
   "animations": [],
   "sizeMeters": [
-   1.1,
-   1.02,
-   0.34
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-4eafe2ea"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Tong rack, 1.2 m (Blacksmith Forge and Armoury)",
-  "summary": "Iron tong rack 1.2 m wide on two legs holding seven pairs of tongs jaw down: flat bit, bolt, hollow bit, box and pick up jaws, the set a smith reaches for without looking.",
-  "triangles": 2760,
-  "animations": [],
-  "sizeMeters": [
-   1.24,
-   1.028,
+   1.736,
+   1.77,
    0.36
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-1e34a918"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-b610036e"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Swage block on a stand, 0.92 m (Blacksmith Forge and Armoury)",
-  "summary": "Cast swage block 0.6 m square pierced with round, square and hexagonal holes and notched all round its edges with half round and vee swages, standing on end in an oak cradle so either face can be worked.",
-  "triangles": 832,
+  "file": "breastplate-on-a-torso-form-1-45-m.glb",
+  "title": "Breastplate on a torso form, 1.45 m (Blacksmith Forge and Armoury)",
+  "summary": "Raised breastplate with a shallow medial ridge and a turned edge, hung on a boarded torso form on a tripod post, with the fauld lames riveted along the bottom and the buckle straps hanging free.",
+  "triangles": 488,
   "animations": [],
   "sizeMeters": [
-   0.7,
-   1.02,
-   0.62
+   0.5,
+   1.58,
+   0.398
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-a369d218"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-c4075473"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
+  "file": "charcoal-heap-on-boards-1-4-m.glb",
+  "title": "Charcoal heap on boards, 1.4 m (Blacksmith Forge and Armoury)",
+  "summary": "Loose heap of charcoal on a boarded pallet 1.4 m across, with lumps spilled round the edge and a rake mark through the top, for the fuel corner of a smithy or a charcoal burner's yard.",
+  "triangles": 368,
+  "animations": [],
+  "sizeMeters": [
+   1.517,
+   0.68,
+   1.5
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-4deb9bce"
+ },
+ {
+  "file": "chisel-and-punch-tray-0-7-m.glb",
   "title": "Chisel and punch tray, 0.7 m (Blacksmith Forge and Armoury)",
   "summary": "Oak tray 0.7 m long of hot and cold chisels, round and square punches and a slitting chisel, each one a forged bar with an upset head and a drift mark, laid in the tray the way they come off the bench.",
   "triangles": 648,
@@ -437,142 +115,49 @@
   "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-4f555f57"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Swage and fuller set on a board, 0.8 m (Blacksmith Forge and Armoury)",
-  "summary": "Board of bottom and top tooling 0.8 m wide: three matched swage pairs, a top and bottom fuller, a flatter and a set hammer, each with a square shank that drops into the anvil's hardy hole.",
-  "triangles": 424,
+  "file": "coal-scuttle-with-shovel-0-66-m.glb",
+  "title": "Coal scuttle with shovel, 0.66 m (Blacksmith Forge and Armoury)",
+  "summary": "Riveted iron scuttle with a swing handle and a rolled rim, filled with coal and with the small fuel shovel standing in it, for carrying fuel from the store to the firepot.",
+  "triangles": 352,
   "animations": [],
   "sizeMeters": [
-   0.867,
-   0.26,
-   0.35
+   0.428,
+   0.81,
+   0.414
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-82a18adf"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-82037a7f"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Leg vice on a bench post, 1.25 m (Blacksmith Forge and Armoury)",
-  "summary": "Forged leg vice: a fixed jaw strapped to an oak post with its leg carried down onto a stone pad, a moving jaw on the box screw, a hand lever through the screw head and the spring that opens it, sized for hot work.",
-  "triangles": 372,
-  "animations": [
-   "open",
-   "close"
-  ],
-  "sizeMeters": [
-   0.4,
-   1.56,
-   0.69
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-bdaab8b3"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Hardy tools in a block, 0.5 m (Blacksmith Forge and Armoury)",
-  "summary": "Oak block 0.5 m wide standing the anvil's bottom tools upright: a hardy cutting tool, a bending fork, a bottom swage and a cone mandrel, all on square shanks with their edges dressed.",
-  "triangles": 168,
+  "file": "coal-store-bay-2-4-m.glb",
+  "title": "Coal store bay, 2.4 m (Blacksmith Forge and Armoury)",
+  "summary": "Boarded fuel bay 2.4 m wide with oak corner posts, a low front board and a heaped load of coal and coke behind it, the way fuel is kept dry against the back wall of a smithy.",
+  "triangles": 428,
   "animations": [],
   "sizeMeters": [
-   0.5,
-   0.71,
-   0.26
+   2.4,
+   1.2,
+   1.295
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-4aad2bb8"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-a848cf5d"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "File and rasp rack, 0.9 m (Blacksmith Forge and Armoury)",
-  "summary": "Wall rack 0.9 m wide of eight files and rasps hanging by their tangs: flat, half round, round and square cuts with turned wooden handles, the tools that take the hammer marks off finished work.",
-  "triangles": 856,
+  "file": "drawing-block-and-draw-bench-1-6-m.glb",
+  "title": "Drawing block and draw bench, 1.6 m (Blacksmith Forge and Armoury)",
+  "summary": "Oak draw bench 1.6 m long for drawing rod down to size: a cast draw plate in an iron frame at one end, a windlass with a ratchet at the other, the drawn rod lying through it and a coil of finished rod on the floor.",
+  "triangles": 1164,
   "animations": [],
   "sizeMeters": [
-   0.9,
-   0.84,
-   0.095
+   1.98,
+   1.3,
+   0.977
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-6b9a8922"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-d30c4fa5"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Wall tool board, 1.6 m (Blacksmith Forge and Armoury)",
-  "summary": "Boarded tool wall 1.6 m wide hung with the tools that are not on the bench: tongs, a set hammer, a hot cut, calipers, a square, a pair of dividers and a coil of binding wire, all on forged hooks.",
-  "triangles": 1856,
-  "animations": [],
-  "sizeMeters": [
-   1.6,
-   1.41,
-   0.189
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-f34f1618"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Leather apron on a hook, 1.0 m (Blacksmith Forge and Armoury)",
-  "summary": "Scarred smith's apron hanging on a forged hook with its neck strap over the peg, the hide scorched and cut where sparks and scale have landed on it.",
-  "triangles": 256,
-  "animations": [],
-  "sizeMeters": [
-   0.46,
-   1.12,
-   0.142
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-3ea552dc"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Polishing wheel bench, 1.1 m (Blacksmith Forge and Armoury)",
-  "summary": "Leather faced polishing wheel on an oak bench, turned by its own treadle and flywheel, with a shelf of abrasive blocks and tallow under it and a finished plate held ready against the face.",
-  "triangles": 560,
-  "animations": [
-   "spin",
-   "tilt"
-  ],
-  "sizeMeters": [
-   1.1,
-   1.36,
-   0.68
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-0c1bb1e7"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Treadle grindstone, 1.2 m (Blacksmith Forge and Armoury)",
-  "summary": "Sandstone grinding wheel 0.7 m across turning in its water trough on an oak frame, driven by a foot treadle and a crank, with a seat board across the back for the smith who is grinding.",
-  "triangles": 456,
-  "animations": [
-   "spin",
-   "tilt"
-  ],
-  "sizeMeters": [
-   1.22,
-   1.13,
-   0.84
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-d2dc5b62"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Nail header block, 0.62 m (Blacksmith Forge and Armoury)",
-  "summary": "Nail maker's stump: a bolster plate and two headers set in an oak block with a tray of finished nails in four sizes beside it, the simplest piecework a smithy ever ran on.",
-  "triangles": 616,
-  "animations": [],
-  "sizeMeters": [
-   0.835,
-   0.74,
-   0.478
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-cb737e5e"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
+  "file": "farrier-s-shoeing-box-0-62-m.glb",
   "title": "Farrier's shoeing box, 0.62 m (Blacksmith Forge and Armoury)",
   "summary": "Oak shoeing box with a carrying handle and a hinged lid over the nails, the shoe pritchel, the clenching tongs and the rasp, with finished shoes stacked on the lid.",
   "triangles": 748,
@@ -589,119 +174,21 @@
   "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-49e8720f"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Horseshoe rack, 0.9 m (Blacksmith Forge and Armoury)",
-  "summary": "Wall rack of finished horseshoes strung on three iron rods by size, front and hind patterns with the nail holes punched and the clips drawn, the standing stock of any village smithy.",
-  "triangles": 2052,
+  "file": "file-and-rasp-rack-0-9-m.glb",
+  "title": "File and rasp rack, 0.9 m (Blacksmith Forge and Armoury)",
+  "summary": "Wall rack 0.9 m wide of eight files and rasps hanging by their tangs: flat, half round, round and square cuts with turned wooden handles, the tools that take the hammer marks off finished work.",
+  "triangles": 856,
   "animations": [],
   "sizeMeters": [
    0.9,
-   1.103,
-   0.157
+   0.84,
+   0.095
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-707c8f63"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-6b9a8922"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Wire die rack, 0.85 m (Blacksmith Forge and Armoury)",
-  "summary": "Oak rack of hardened draw plates in falling sizes with a coil of drawn wire on each hook, the plates pierced with graded rows of holes and stamped with an abstract size mark.",
-  "triangles": 1704,
-  "animations": [],
-  "sizeMeters": [
-   0.81,
-   0.86,
-   0.28
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-f130331f"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Drawing block and draw bench, 1.6 m (Blacksmith Forge and Armoury)",
-  "summary": "Oak draw bench 1.6 m long for drawing rod down to size: a cast draw plate in an iron frame at one end, a windlass with a ratchet at the other, the drawn rod lying through it and a coil of finished rod on the floor.",
-  "triangles": 1164,
-  "animations": [],
-  "sizeMeters": [
-   1.98,
-   1.3,
-   0.977
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-d30c4fa5"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Iron bar stock rack, 2.4 m (Blacksmith Forge and Armoury)",
-  "summary": "Upright oak rack 2.4 m tall with five iron arms holding merchant bar on end: round, square and flat sections in mixed lengths leaning in their bays, the raw material a smithy buys in.",
-  "triangles": 532,
-  "animations": [],
-  "sizeMeters": [
-   1.5,
-   2.42,
-   0.52
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-4c47bd2d"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Billet stack on bearers, 1.2 m (Blacksmith Forge and Armoury)",
-  "summary": "Stack of square iron billets and short bloom ends crossed on two oak bearers, chalked with an abstract heat mark, the way stock is kept off a damp floor.",
-  "triangles": 264,
-  "animations": [],
-  "sizeMeters": [
-   1.2,
-   0.51,
-   0.94
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-b0398499"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Barrel of blanks, 0.96 m (Blacksmith Forge and Armoury)",
-  "summary": "Open coopered barrel standing full of forged blanks: hinge straps, hooks, staples and bar ends stood on end, the bulk work a shop turns out between commissions.",
-  "triangles": 636,
-  "animations": [],
-  "sizeMeters": [
-   0.684,
-   1.18,
-   0.674
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-f026a6dd"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Planishing stake in a block, 0.84 m (Blacksmith Forge and Armoury)",
-  "summary": "Polished steel planishing stake on a T head set in an oak block, with a bench mandrel beside it and a curved plate laid over the head, the tool that takes the hammer marks out of raised armour.",
-  "triangles": 252,
-  "animations": [],
-  "sizeMeters": [
-   0.88,
-   0.92,
-   0.44
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-46bbdac6"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Blade blank rack, 1.4 m (Blacksmith Forge and Armoury)",
-  "summary": "Oak rack of forged blade blanks waiting on the grinder: knife, seax and sword blanks with their tangs drawn and their edges still thick and unsharpened, plus two scythe blades and a billhook, which is the shape the work leaves a forge in.",
-  "triangles": 336,
-  "animations": [],
-  "sizeMeters": [
-   1.736,
-   1.77,
-   0.36
-  ],
-  "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-b610036e"
- },
- {
-  "file": "blacksmith-forge-and-armo.glb",
+  "file": "finished-goods-rack-1-6-m.glb",
   "title": "Finished goods rack, 1.6 m (Blacksmith Forge and Armoury)",
   "summary": "Shelved oak rack of finished ironwork ready to go out: hinges and hasps on the top shelf, door furniture and brackets below, hooks and pot cranes hanging off the rail and a box of nails on the floor of it.",
   "triangles": 1340,
@@ -715,79 +202,137 @@
   "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-96cbf040"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Armourer's dishing stump, 0.78 m (Blacksmith Forge and Armoury)",
-  "summary": "Elm stump hollowed with three dishing bowls of different depths, a half finished plate lying in the largest and the raising and dishing mallets standing in the ring beside it.",
-  "triangles": 800,
+  "file": "fire-irons-in-a-stand-1-3-m.glb",
+  "title": "Fire irons in a stand, 1.3 m (Blacksmith Forge and Armoury)",
+  "summary": "Forged rake, poker, slice and fire shovel standing in an iron ring stand on a weighted base, the tools that work the firepot and clear the clinker out of it.",
+  "triangles": 752,
   "animations": [],
   "sizeMeters": [
-   0.759,
-   0.95,
-   0.72
+   0.4,
+   1.246,
+   0.417
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-98d31afa"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-138465cb"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Helm on a shaping form, 1.05 m (Blacksmith Forge and Armoury)",
-  "summary": "Raised helm skull on a turned oak head form: a two piece bowl with a raised comb, a riveted brow band and the face opening cut, standing on a post so the armourer can work round it.",
-  "triangles": 872,
+  "file": "forge-floor-slab-4-m.glb",
+  "title": "Forge floor slab, 4 m (Blacksmith Forge and Armoury)",
+  "summary": "Flagged stone floor module 4 m square and 130 mm thick, sixteen riven flags standing proud of a bedding slab with open joints between them, laid on a 4 m grid with edge ports on all four sides.",
+  "triangles": 204,
   "animations": [],
   "sizeMeters": [
-   0.38,
-   1.04,
-   0.38
+   4,
+   0.13,
+   4
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-5504ec2e"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-5e6dd583"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Breastplate on a torso form, 1.45 m (Blacksmith Forge and Armoury)",
-  "summary": "Raised breastplate with a shallow medial ridge and a turned edge, hung on a boarded torso form on a tripod post, with the fauld lames riveted along the bottom and the buckle straps hanging free.",
-  "triangles": 488,
+  "file": "forge-floor-slab-sooted-4-m.glb",
+  "title": "Forge floor slab, sooted, 4 m (Blacksmith Forge and Armoury)",
+  "summary": "The flagged 4 m floor module with the scale, clinker and soot of the hearth side trodden into it: raised patches of charcoal dust and a scatter of scale across the flags, on the same edge ports.",
+  "triangles": 504,
   "animations": [],
   "sizeMeters": [
-   0.5,
-   1.58,
-   0.398
+   4,
+   0.141,
+   4
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-c4075473"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-e5a8336c"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Mail ring drum, 1.1 m (Blacksmith Forge and Armoury)",
-  "summary": "Oak tumbling drum on an iron frame turned by a crank handle, used to clean and burnish drawn mail rings in sand, with a tray of finished rings and a riveting punch on the shelf under it.",
-  "triangles": 956,
+  "file": "forge-lantern-0-42-m.glb",
+  "title": "Forge lantern, 0.42 m (Blacksmith Forge and Armoury)",
+  "summary": "Iron framed lantern with horn panes, a pierced smoke cap and a candle inside, standing on its base with the carrying ring folded over, for the dark end of a workshop.",
+  "triangles": 556,
+  "animations": [],
+  "sizeMeters": [
+   0.19,
+   0.415,
+   0.185
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-6a90de52"
+ },
+ {
+  "file": "forge-yard-cobbles-4-m.glb",
+  "title": "Forge yard cobbles, 4 m (Blacksmith Forge and Armoury)",
+  "summary": "The same 4 m floor module laid as a cobbled yard instead of flags: a bedding slab under a field of small setts on the same edge ports, for the ground outside the shop front.",
+  "triangles": 2040,
+  "animations": [],
+  "sizeMeters": [
+   4.059,
+   0.135,
+   4.059
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-14fe86d1"
+ },
+ {
+  "file": "great-anvil-on-an-oak-stump-0-98-m.glb",
+  "title": "Great anvil on an oak stump, 0.98 m (Blacksmith Forge and Armoury)",
+  "summary": "A 150 kg London pattern anvil on a banded oak stump: cast body with a ground steel face, a round horn, a hardy hole and a pritchel hole in the heel, staples over the feet and the smith's hammer lying on the face.",
+  "triangles": 676,
+  "animations": [],
+  "sizeMeters": [
+   1.19,
+   1.025,
+   0.69
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-37ef9c9f"
+ },
+ {
+  "file": "great-double-bellows-on-a-frame-2-2-m.glb",
+  "title": "Great double bellows on a frame, 2.2 m (Blacksmith Forge and Armoury)",
+  "summary": "Twin leather bellows on an oak frame 2.2 m long: a fixed lower board, a pleated leather body with iron nail rows, a weighted top board on its hinge nose and the blast pipe running out to the tuyere, worked by the chain hanging at the back.",
+  "triangles": 596,
   "animations": [
-   "spin"
+   "pump"
   ],
   "sizeMeters": [
    1.1,
-   1.165,
-   0.58
+   1.89,
+   2.04
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-cb6e8bc1"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-2c5ef7d9"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Shop counter with stock, 1.8 m (Blacksmith Forge and Armoury)",
-  "summary": "Oak selling counter 1.8 m long on a boarded front with a worn top, a shelf of finished ironwork under it and a tray of small goods, hooks and nails set out on top for a customer to pick over.",
-  "triangles": 684,
+  "file": "hammer-rack-1-1-m.glb",
+  "title": "Hammer rack, 1.1 m (Blacksmith Forge and Armoury)",
+  "summary": "Free standing oak rack 1.1 m wide carrying the striking tools in order of weight: two cross pein hammers, a ball pein, a straight pein and a sledge, each head resting on the rail with its haft hanging through.",
+  "triangles": 1060,
   "animations": [],
   "sizeMeters": [
-   1.9,
-   1.06,
-   0.76
+   1.1,
+   1.02,
+   0.34
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-a62dd463"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-4eafe2ea"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
+  "file": "hand-cart-of-ironwork-2-4-m.glb",
+  "title": "Hand cart of ironwork, 2.4 m (Blacksmith Forge and Armoury)",
+  "summary": "Two wheeled oak hand cart with iron shod spoked wheels and long drawing shafts, loaded with finished bar, cart hoops and a crate of hardware for delivery round the parish, the wheels turning on their axle.",
+  "triangles": 1068,
+  "animations": [
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   1.162,
+   0.96,
+   2.593
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-ad8ad697"
+ },
+ {
+  "file": "hanging-balance-scale-1-0-m.glb",
   "title": "Hanging balance scale, 1.0 m (Blacksmith Forge and Armoury)",
   "summary": "Iron beam balance hung from a hook with two brass pans on chains and a set of weights on the near pan, for selling ironwork by weight at the counter. The origin is the hanging hook at the top.",
   "triangles": 780,
@@ -803,7 +348,91 @@
   "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-c279a8b3"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
+  "file": "hardy-tools-in-a-block-0-5-m.glb",
+  "title": "Hardy tools in a block, 0.5 m (Blacksmith Forge and Armoury)",
+  "summary": "Oak block 0.5 m wide standing the anvil's bottom tools upright: a hardy cutting tool, a bending fork, a bottom swage and a cone mandrel, all on square shanks with their edges dressed.",
+  "triangles": 168,
+  "animations": [],
+  "sizeMeters": [
+   0.5,
+   0.71,
+   0.26
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-4aad2bb8"
+ },
+ {
+  "file": "helm-on-a-shaping-form-1-05-m.glb",
+  "title": "Helm on a shaping form, 1.05 m (Blacksmith Forge and Armoury)",
+  "summary": "Raised helm skull on a turned oak head form: a two piece bowl with a raised comb, a riveted brow band and the face opening cut, standing on a post so the armourer can work round it.",
+  "triangles": 872,
+  "animations": [],
+  "sizeMeters": [
+   0.38,
+   1.04,
+   0.38
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-5504ec2e"
+ },
+ {
+  "file": "horseshoe-rack-0-9-m.glb",
+  "title": "Horseshoe rack, 0.9 m (Blacksmith Forge and Armoury)",
+  "summary": "Wall rack of finished horseshoes strung on three iron rods by size, front and hind patterns with the nail holes punched and the clips drawn, the standing stock of any village smithy.",
+  "triangles": 2052,
+  "animations": [],
+  "sizeMeters": [
+   0.9,
+   1.103,
+   0.157
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-707c8f63"
+ },
+ {
+  "file": "iron-bar-stock-rack-2-4-m.glb",
+  "title": "Iron bar stock rack, 2.4 m (Blacksmith Forge and Armoury)",
+  "summary": "Upright oak rack 2.4 m tall with five iron arms holding merchant bar on end: round, square and flat sections in mixed lengths leaning in their bays, the raw material a smithy buys in.",
+  "triangles": 532,
+  "animations": [],
+  "sizeMeters": [
+   1.5,
+   2.42,
+   0.52
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-4c47bd2d"
+ },
+ {
+  "file": "lean-to-roof-panel-4-m.glb",
+  "title": "Lean-to roof panel, 4 m (Blacksmith Forge and Armoury)",
+  "summary": "Boarded and slated lean-to roof panel 4 m wide and 2.6 m along the slope, pitched about 18 degrees on three oak rafters, for covering a coal store or a stock bay against the back wall of a yard.",
+  "triangles": 108,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   1.023,
+   2.698
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-340f5530"
+ },
+ {
+  "file": "leather-apron-on-a-hook-1-0-m.glb",
+  "title": "Leather apron on a hook, 1.0 m (Blacksmith Forge and Armoury)",
+  "summary": "Scarred smith's apron hanging on a forged hook with its neck strap over the peg, the hide scorched and cut where sparks and scale have landed on it.",
+  "triangles": 256,
+  "animations": [],
+  "sizeMeters": [
+   0.46,
+   1.12,
+   0.142
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-3ea552dc"
+ },
+ {
+  "file": "ledger-desk-1-16-m.glb",
   "title": "Ledger desk, 1.16 m (Blacksmith Forge and Armoury)",
   "summary": "Sloped oak clerk's desk with a lifting lid over the ledger, an ink horn and a tally stick in the pen groove, its book ruled with abstract marks rather than readable writing.",
   "triangles": 276,
@@ -820,35 +449,116 @@
   "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-486137f9"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Forge lantern, 0.42 m (Blacksmith Forge and Armoury)",
-  "summary": "Iron framed lantern with horn panes, a pierced smoke cap and a candle inside, standing on its base with the carrying ring folded over, for the dark end of a workshop.",
-  "triangles": 556,
-  "animations": [],
+  "file": "leg-vice-on-a-bench-post-1-25-m.glb",
+  "title": "Leg vice on a bench post, 1.25 m (Blacksmith Forge and Armoury)",
+  "summary": "Forged leg vice: a fixed jaw strapped to an oak post with its leg carried down onto a stone pad, a moving jaw on the box screw, a hand lever through the screw head and the spring that opens it, sized for hot work.",
+  "triangles": 372,
+  "animations": [
+   "open",
+   "close"
+  ],
   "sizeMeters": [
-   0.19,
-   0.415,
-   0.185
+   0.4,
+   1.56,
+   0.69
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-6a90de52"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-bdaab8b3"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Wall candle sconce, 0.3 m (Blacksmith Forge and Armoury)",
-  "summary": "Forged wall sconce with a scrolled arm, a drip pan and a tallow candle burning in it, fixed to a boarded plate so it mounts flat on a wall or a post.",
-  "triangles": 200,
-  "animations": [],
+  "file": "mail-ring-drum-1-1-m.glb",
+  "title": "Mail ring drum, 1.1 m (Blacksmith Forge and Armoury)",
+  "summary": "Oak tumbling drum on an iron frame turned by a crank handle, used to clean and burnish drawn mail rings in sand, with a tray of finished rings and a riveting punch on the shelf under it.",
+  "triangles": 956,
+  "animations": [
+   "spin"
+  ],
   "sizeMeters": [
-   0.12,
-   0.28,
-   0.189
+   1.1,
+   1.165,
+   0.58
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-a7dcdfe3"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-cb6e8bc1"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
+  "file": "nail-header-block-0-62-m.glb",
+  "title": "Nail header block, 0.62 m (Blacksmith Forge and Armoury)",
+  "summary": "Nail maker's stump: a bolster plate and two headers set in an oak block with a tray of finished nails in four sizes beside it, the simplest piecework a smithy ever ran on.",
+  "triangles": 616,
+  "animations": [],
+  "sizeMeters": [
+   0.835,
+   0.74,
+   0.478
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-cb737e5e"
+ },
+ {
+  "file": "open-timber-frame-bay-4-m.glb",
+  "title": "Open timber frame bay, 4 m (Blacksmith Forge and Armoury)",
+  "summary": "Open post and beam bay 4 m wide and 3.2 m tall: two oak posts on stone pads carrying a tie beam with curved braces and nothing between them, so a workshop can stand open to the yard on the same wall ports as a solid panel.",
+  "triangles": 108,
+  "animations": [],
+  "sizeMeters": [
+   4.2,
+   3.2,
+   0.42
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-8ad77688"
+ },
+ {
+  "file": "planishing-stake-in-a-block-0-84-m.glb",
+  "title": "Planishing stake in a block, 0.84 m (Blacksmith Forge and Armoury)",
+  "summary": "Polished steel planishing stake on a T head set in an oak block, with a bench mandrel beside it and a curved plate laid over the head, the tool that takes the hammer marks out of raised armour.",
+  "triangles": 252,
+  "animations": [],
+  "sizeMeters": [
+   0.88,
+   0.92,
+   0.44
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-46bbdac6"
+ },
+ {
+  "file": "polishing-wheel-bench-1-1-m.glb",
+  "title": "Polishing wheel bench, 1.1 m (Blacksmith Forge and Armoury)",
+  "summary": "Leather faced polishing wheel on an oak bench, turned by its own treadle and flywheel, with a shelf of abrasive blocks and tallow under it and a finished plate held ready against the face.",
+  "triangles": 560,
+  "animations": [
+   "spin",
+   "tilt"
+  ],
+  "sizeMeters": [
+   1.1,
+   1.36,
+   0.68
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-0c1bb1e7"
+ },
+ {
+  "file": "riveting-bench-1-5-m.glb",
+  "title": "Riveting bench, 1.5 m (Blacksmith Forge and Armoury)",
+  "summary": "Armourer's riveting bench 1.5 m long with a steel topped stake plate, two shallow drawers of rivets and washers, a bickern set into the top and the light hammers laid ready on it.",
+  "triangles": 932,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   1.5,
+   1.08,
+   0.76
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-3ed9d480"
+ },
+ {
+  "file": "sand-and-flux-bin-0-8-m.glb",
   "title": "Sand and flux bin, 0.8 m (Blacksmith Forge and Armoury)",
   "summary": "Boarded oak bin with a lifting lid, divided inside for silver sand, borax flux and charcoal dust, with a scoop hanging on the end of it.",
   "triangles": 184,
@@ -865,19 +575,309 @@
   "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-c676fb6e"
  },
  {
-  "file": "blacksmith-forge-and-armo.glb",
-  "title": "Hand cart of ironwork, 2.4 m (Blacksmith Forge and Armoury)",
-  "summary": "Two wheeled oak hand cart with iron shod spoked wheels and long drawing shafts, loaded with finished bar, cart hoops and a crate of hardware for delivery round the parish, the wheels turning on their axle.",
-  "triangles": 1068,
-  "animations": [
-   "wheel-roll"
-  ],
+  "file": "shop-counter-with-stock-1-8-m.glb",
+  "title": "Shop counter with stock, 1.8 m (Blacksmith Forge and Armoury)",
+  "summary": "Oak selling counter 1.8 m long on a boarded front with a worn top, a shelf of finished ironwork under it and a tray of small goods, hooks and nails set out on top for a customer to pick over.",
+  "triangles": 684,
+  "animations": [],
   "sizeMeters": [
-   1.162,
-   0.96,
-   2.593
+   1.9,
+   1.06,
+   0.76
   ],
   "aiModel": "Claude Opus 5",
-  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-ad8ad697"
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-a62dd463"
+ },
+ {
+  "file": "shutter-counter-shop-front-4-m.glb",
+  "title": "Shutter counter shop front, 4 m (Blacksmith Forge and Armoury)",
+  "summary": "Timber framed shop front 4 m wide with a 2.4 m opening over a stone counter sill: the boarded shutter is hinged along the sill and drops forward onto two iron stays to become the selling counter, which is how a medieval shop front works.",
+  "triangles": 376,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   4,
+   3.2,
+   0.83
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-84dcb3e5"
+ },
+ {
+  "file": "slack-tub-0-8-m.glb",
+  "title": "Slack tub, 0.8 m (Blacksmith Forge and Armoury)",
+  "summary": "Coopered oak half barrel bound with three iron hoops and filled with water, the smith's slack tub for cooling tongs and hardening small work, with a dipper hooked over the rim.",
+  "triangles": 584,
+  "animations": [],
+  "sizeMeters": [
+   0.684,
+   1.035,
+   0.674
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-ab286472"
+ },
+ {
+  "file": "smith-s-stool-0-56-m.glb",
+  "title": "Smith's stool, 0.56 m (Blacksmith Forge and Armoury)",
+  "summary": "Three legged oak stool with a dished seat and a wedged tenon at each leg, the seat worn pale where it is used, for the bench and the ledger desk.",
+  "triangles": 208,
+  "animations": [],
+  "sizeMeters": [
+   0.437,
+   0.57,
+   0.435
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-ac2e8d29"
+ },
+ {
+  "file": "smith-s-work-bench-2-0-m.glb",
+  "title": "Smith's work bench, 2.0 m (Blacksmith Forge and Armoury)",
+  "summary": "Oak work bench 2 m long on braced trestle legs with a scorched top, a tool well along the back, a single deep drawer under the front and a rack of punches standing in holes bored along the edge.",
+  "triangles": 416,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   2,
+   1.18,
+   1.02
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-24497dd1"
+ },
+ {
+  "file": "stable-door-module-4-m.glb",
+  "title": "Stable door module, 4 m (Blacksmith Forge and Armoury)",
+  "summary": "Timber framed wall module with a 1.2 m by 2.1 m boarded stable door in it: two leaves hung on the same jamb with strap hinges and a ring latch, so the top can stand open over a closed bottom the way a workshop door is used.",
+  "triangles": 320,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   4,
+   3.2,
+   0.29
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-56372f60"
+ },
+ {
+  "file": "stake-anvil-in-a-block-0-66-m.glb",
+  "title": "Stake anvil in a block, 0.66 m (Blacksmith Forge and Armoury)",
+  "summary": "Small bickern stake with a round horn one side and a square bick the other, driven into an oak block and used for the light work a great anvil is too coarse for.",
+  "triangles": 160,
+  "animations": [],
+  "sizeMeters": [
+   0.603,
+   0.512,
+   0.46
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-131d6824"
+ },
+ {
+  "file": "stone-chimney-stack-4-6-m.glb",
+  "title": "Stone chimney stack, 4.6 m (Blacksmith Forge and Armoury)",
+  "summary": "Rubble stone chimney stack 4.6 m tall on a 1.15 m square base, battered in twice to a corbelled cap with an open flue mouth, for standing behind a forge hearth or against a workshop gable.",
+  "triangles": 104,
+  "animations": [],
+  "sizeMeters": [
+   1.15,
+   4.84,
+   1.15
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-bf284986"
+ },
+ {
+  "file": "stone-forge-hearth-with-hood-and-flue-3-8-m.glb",
+  "title": "Stone forge hearth with hood and flue, 3.8 m (Blacksmith Forge and Armoury)",
+  "summary": "The hearth the shop is built round: a rubble stone bench 2.4 m wide with a raised firepot of coke and glowing coals, a tuyere entering from the back, a stone back wall, and a tapered hood on two iron posts carrying the flue up to 3.8 m, with the fire irons leaning at the side.",
+  "triangles": 572,
+  "animations": [],
+  "sizeMeters": [
+   2.56,
+   3.82,
+   1.78
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-f5ce9dc6"
+ },
+ {
+  "file": "stone-quench-trough-1-6-m.glb",
+  "title": "Stone quench trough, 1.6 m (Blacksmith Forge and Armoury)",
+  "summary": "Hollowed stone quench trough 1.6 m long on two block bearers, filled with still water and with a pair of tongs laid across the rim, for taking the heat out of a forging beside the anvil.",
+  "triangles": 492,
+  "animations": [],
+  "sizeMeters": [
+   1.6,
+   0.768,
+   0.7
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-1a9c8134"
+ },
+ {
+  "file": "swage-and-fuller-set-on-a-board-0-8-m.glb",
+  "title": "Swage and fuller set on a board, 0.8 m (Blacksmith Forge and Armoury)",
+  "summary": "Board of bottom and top tooling 0.8 m wide: three matched swage pairs, a top and bottom fuller, a flatter and a set hammer, each with a square shank that drops into the anvil's hardy hole.",
+  "triangles": 424,
+  "animations": [],
+  "sizeMeters": [
+   0.867,
+   0.26,
+   0.35
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-82a18adf"
+ },
+ {
+  "file": "swage-block-on-a-stand-0-92-m.glb",
+  "title": "Swage block on a stand, 0.92 m (Blacksmith Forge and Armoury)",
+  "summary": "Cast swage block 0.6 m square pierced with round, square and hexagonal holes and notched all round its edges with half round and vee swages, standing on end in an oak cradle so either face can be worked.",
+  "triangles": 832,
+  "animations": [],
+  "sizeMeters": [
+   0.7,
+   1.02,
+   0.62
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-a369d218"
+ },
+ {
+  "file": "timber-framed-dwarf-wall-4-m.glb",
+  "title": "Timber framed dwarf wall, 4 m (Blacksmith Forge and Armoury)",
+  "summary": "Waist high oak framed wall 4 m wide and 1.1 m tall with a capping rail, for closing the open side of a workshop without shutting the light or the view out: side ports on the centre line at 0.55 m.",
+  "triangles": 84,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   1.1,
+   0.33
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-616b7758"
+ },
+ {
+  "file": "timber-framed-wall-module-4-m.glb",
+  "title": "Timber framed wall module, 4 m (Blacksmith Forge and Armoury)",
+  "summary": "Oak framed wall 4 m wide and 3.2 m tall: a sill beam, corner and middle posts with curved braces, limewashed wattle and daub infill set back between them and a top plate, with side ports on the centre line at 1.6 m.",
+  "triangles": 96,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   3.2,
+   0.29
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-02d2c415"
+ },
+ {
+  "file": "tong-rack-1-2-m.glb",
+  "title": "Tong rack, 1.2 m (Blacksmith Forge and Armoury)",
+  "summary": "Iron tong rack 1.2 m wide on two legs holding seven pairs of tongs jaw down: flat bit, bolt, hollow bit, box and pick up jaws, the set a smith reaches for without looking.",
+  "triangles": 2760,
+  "animations": [],
+  "sizeMeters": [
+   1.24,
+   1.028,
+   0.36
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-1e34a918"
+ },
+ {
+  "file": "treadle-grindstone-1-2-m.glb",
+  "title": "Treadle grindstone, 1.2 m (Blacksmith Forge and Armoury)",
+  "summary": "Sandstone grinding wheel 0.7 m across turning in its water trough on an oak frame, driven by a foot treadle and a crank, with a seat board across the back for the smith who is grinding.",
+  "triangles": 456,
+  "animations": [
+   "spin",
+   "tilt"
+  ],
+  "sizeMeters": [
+   1.22,
+   1.13,
+   0.84
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-d2dc5b62"
+ },
+ {
+  "file": "village-smithy-open-fronted-with-forge-anvil-and-armoury-bench.glb",
+  "title": "Village smithy, open fronted, with forge, anvil and armoury bench (Blacksmith Forge and Armoury)",
+  "summary": "A working blacksmith's shop 16 m by 12 m, open fronted on purpose so the whole floor can be seen and walked: timber framed walls on three sides, a shop front of a shutter counter and two open bays with the cart entrance left clear beside them, and no roof over the working...",
+  "triangles": 42072,
+  "animations": [],
+  "sizeMeters": [
+   16.42,
+   4.97,
+   17.478
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith--bb9e9c8a-starter-scene"
+ },
+ {
+  "file": "wall-candle-sconce-0-3-m.glb",
+  "title": "Wall candle sconce, 0.3 m (Blacksmith Forge and Armoury)",
+  "summary": "Forged wall sconce with a scrolled arm, a drip pan and a tallow candle burning in it, fixed to a boarded plate so it mounts flat on a wall or a post.",
+  "triangles": 200,
+  "animations": [],
+  "sizeMeters": [
+   0.12,
+   0.28,
+   0.189
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-a7dcdfe3"
+ },
+ {
+  "file": "wall-tool-board-1-6-m.glb",
+  "title": "Wall tool board, 1.6 m (Blacksmith Forge and Armoury)",
+  "summary": "Boarded tool wall 1.6 m wide hung with the tools that are not on the bench: tongs, a set hammer, a hot cut, calipers, a square, a pair of dividers and a coil of binding wire, all on forged hooks.",
+  "triangles": 1856,
+  "animations": [],
+  "sizeMeters": [
+   1.6,
+   1.41,
+   0.189
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-f34f1618"
+ },
+ {
+  "file": "water-butt-under-a-spout-1-25-m.glb",
+  "title": "Water butt under a spout, 1.25 m (Blacksmith Forge and Armoury)",
+  "summary": "Full height coopered water butt 1.25 m tall on a stone plinth with a lead spout over it and a wooden pail beside it, the shop's water supply for the quench trough and the slack tub.",
+  "triangles": 820,
+  "animations": [],
+  "sizeMeters": [
+   1.222,
+   1.74,
+   1.058
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-86a3006a"
+ },
+ {
+  "file": "wire-die-rack-0-85-m.glb",
+  "title": "Wire die rack, 0.85 m (Blacksmith Forge and Armoury)",
+  "summary": "Oak rack of hardened draw plates in falling sizes with a coil of drawn wire on each hook, the plates pierced with graded rows of holes and stamped with an abstract size mark.",
+  "triangles": 1704,
+  "animations": [],
+  "sizeMeters": [
+   0.81,
+   0.86,
+   0.28
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/blacksmith-forge-and-armoury-blacksmith-forge-and-armo-f130331f"
  }
 ]

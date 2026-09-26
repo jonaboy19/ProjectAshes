@@ -42,7 +42,7 @@
   "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-armoury-floor-slab-7faacec6"
  },
  {
-  "file": "armoury-ra-1aa5b4eb-starter-scene.glb",
+  "file": "armoury-rack-room.glb",
   "title": "Armoury Rack Room (Swords, Shields and Melee Arms)",
   "summary": "A twelve by eight metre stone flagged armoury rack room, walled on three sides with the front left open so the room can be seen into. Two five slot sword racks fill the back wall with longswords, sabres, arming swords and katanas lying flat, with two tower shields standing...",
   "triangles": 182856,
@@ -166,34 +166,6 @@
   ],
   "aiModel": "Muse Spark via T3 Code",
   "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-bollock-dagger-bc18b3a7"
- },
- {
-  "file": "buckler-steel.glb",
-  "title": "Steel Buckler (Swords, Shields and Melee Arms)",
-  "summary": "A small all steel buckler with a rolled iron rim, a raised ring, a centre spike, ten face rivets and a wooden hand grip beneath. Standard medieval game asset for adventure and RPG projects.",
-  "triangles": 2712,
-  "animations": [],
-  "sizeMeters": [
-   0.346,
-   0.135,
-   0.346
-  ],
-  "aiModel": "Muse Spark via T3 Code",
-  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-buckler-steel-1f9ba8ea"
- },
- {
-  "file": "buckler-wood.glb",
-  "title": "Wooden Buckler (Swords, Shields and Melee Arms)",
-  "summary": "A small wooden buckler with a red painted face, an iron rim, a domed boss with four rivets, eight rim rivets and a hand grip beneath. Standard medieval game asset for adventure and RPG projects.",
-  "triangles": 3008,
-  "animations": [],
-  "sizeMeters": [
-   0.328,
-   0.112,
-   0.328
-  ],
-  "aiModel": "Muse Spark via T3 Code",
-  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-buckler-wood-36f05695"
  },
  {
   "file": "coronation-arming-sword.glb",
@@ -392,6 +364,20 @@
   "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-horsemans-axe-e4659dff"
  },
  {
+  "file": "ironbound-round-shield.glb",
+  "title": "Ironbound Round Shield (Swords, Shields and Melee Arms)",
+  "summary": "A plain oak round shield bound in iron: two straps across the face, a bound rim, a steel boss and twelve rim rivets. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4092,
+  "animations": [],
+  "sizeMeters": [
+   0.636,
+   0.13,
+   0.636
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-round-shield-ironbound-46d29999"
+ },
+ {
   "file": "katana-saya.glb",
   "title": "Katana Saya (Swords, Shields and Melee Arms)",
   "summary": "A lacquered black saya with a bone collar, a knotted cord loop, stitched sides and a rounded end cap. Standard medieval game asset for adventure and RPG projects.",
@@ -560,20 +546,6 @@
   "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-rondel-dagger-8ac725d0"
  },
  {
-  "file": "round-shield-ironbound.glb",
-  "title": "Ironbound Round Shield (Swords, Shields and Melee Arms)",
-  "summary": "A plain oak round shield bound in iron: two straps across the face, a bound rim, a steel boss and twelve rim rivets. Standard medieval game asset for adventure and RPG projects.",
-  "triangles": 4092,
-  "animations": [],
-  "sizeMeters": [
-   0.636,
-   0.13,
-   0.636
-  ],
-  "aiModel": "Muse Spark via T3 Code",
-  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-round-shield-ironbound-46d29999"
- },
- {
   "file": "round-shield.glb",
   "title": "Round Shield (Swords, Shields and Melee Arms)",
   "summary": "A large round shield of oak boards painted in red and bone quarters, with a rawhide rim, a domed iron boss and sixteen rim rivets. Standard medieval game asset for adventure and RPG projects.",
@@ -656,6 +628,20 @@
   ],
   "aiModel": "Muse Spark via T3 Code",
   "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-spear-rack-610eedef"
+ },
+ {
+  "file": "steel-buckler.glb",
+  "title": "Steel Buckler (Swords, Shields and Melee Arms)",
+  "summary": "A small all steel buckler with a rolled iron rim, a raised ring, a centre spike, ten face rivets and a wooden hand grip beneath. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 2712,
+  "animations": [],
+  "sizeMeters": [
+   0.346,
+   0.135,
+   0.346
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-buckler-steel-1f9ba8ea"
  },
  {
   "file": "sword-display-stand.glb",
@@ -785,6 +771,20 @@
   ],
   "aiModel": "Muse Spark via T3 Code",
   "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-winged-spear-0e416a76"
+ },
+ {
+  "file": "wooden-buckler.glb",
+  "title": "Wooden Buckler (Swords, Shields and Melee Arms)",
+  "summary": "A small wooden buckler with a red painted face, an iron rim, a domed boss with four rivets, eight rim rivets and a hand grip beneath. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 3008,
+  "animations": [],
+  "sizeMeters": [
+   0.328,
+   0.112,
+   0.328
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-buckler-wood-36f05695"
  },
  {
   "file": "zweihander.glb",

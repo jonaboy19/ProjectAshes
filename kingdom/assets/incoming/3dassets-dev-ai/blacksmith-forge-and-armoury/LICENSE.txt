@@ -1,4 +1,5 @@
 "Blacksmith Forge and Armoury" from 3dassets.dev (https://3dassets.dev/packs/blacksmith-forge-and-armoury)
 Licence: CC0 1.0 Universal (every asset verified cc0-1.0 via the site API on 2026-09-26). No attribution required.
 AI-GENERATED: the site marks this pack aiGenerated=true (models: Claude Opus 5). Review visually before shipping.
+Files were dequantized (KHR_mesh_quantization removed) with gltf-transform so Godot can import them; geometry and animations unchanged.
 Stone forge hearth, double bellows, great anvil, vices, tongs, hammers, treadle grindstone, armourer's stakes, stock racks and a modular timber framed shop in one medieval smithy family.
