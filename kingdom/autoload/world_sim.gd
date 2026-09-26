@@ -173,10 +173,17 @@ func _spot(s: Dictionary, which: int, i: int) -> Vector2:
 	var h := hash(i * 131 + which * 17 + day * (1 if which == 2 else 0))
 	var ang := float(h % 3600) / 3600.0 * TAU
 	var t := float((h / 3600) % 1000) / 1000.0
+	var plan: Dictionary = s.get("plan", {})
+	var lots: Array = plan.get("lots", [])
+	# Homes and workshops are real buildings from the city plan: people stand at the door.
+	if not lots.is_empty() and (which == 0 or (which == 1 and i < job.size() and (job[i] == 1 or job[i] == 2))):
+		var lot: Dictionary = lots[h % lots.size()]
+		var yaw: float = lot["yaw"]
+		return lot["pos"] + Vector2(sin(yaw), cos(yaw)) * 4.6
 	var dist: float
 	match which:
 		0: dist = lerpf(r * 0.35, r * 0.85, t)                   # homes
-		2: dist = lerpf(0.0, r * 0.25, t)                        # market square
+		2: dist = lerpf(2.0, plan.get("plaza_r", r * 0.2) + 2.0, t)    # market square
 		_:
 			match job[i] if i < job.size() else 4:
 				0: dist = lerpf(r * 1.2, r * 1.9, t)             # fields

@@ -5,19 +5,39 @@ extends Node3D
 ## chunks outside the radius are freed and rebuilt identically when revisited.
 
 const CHUNK := 64.0
-const CELL := 4.0
+const CELL := 2.0
 const TREE_KINDS := ["tree_single_A", "tree_single_B", "trees_A_medium", "trees_B_medium", "trees_A_large"]
 
 @export var view_radius := 4         # chunks; 9x9 grid visible
 @export var collision_radius := 1    # chunks that also get physics
+@export var grass_radius := 1        # chunks that also get grass
 var focus := Vector3.ZERO
 
 var _chunks: Dictionary = {}         # Vector2i -> Node3D
-var _ground_material: StandardMaterial3D
+var _ground_material: ShaderMaterial
 
 
 func _ready() -> void:
-	_ground_material = Assets.flat_material(Color.WHITE, true)
+	_ground_material = ShaderMaterial.new()
+	_ground_material.shader = preload("res://shaders/terrain.gdshader")
+	_ground_material.set_shader_parameter("detail_noise", _noise_texture(0.02, 5, false))
+	_ground_material.set_shader_parameter("detail_normal", _noise_texture(0.05, 3, true))
+	_ground_material.set_shader_parameter("macro_noise", _noise_texture(0.01, 3, false))
+
+
+static func _noise_texture(freq: float, octaves: int, normal: bool) -> NoiseTexture2D:
+	var n := FastNoiseLite.new()
+	n.frequency = freq
+	n.fractal_octaves = octaves
+	var t := NoiseTexture2D.new()
+	t.width = 512
+	t.height = 512
+	t.seamless = true
+	t.noise = n
+	t.as_normal_map = normal
+	t.bump_strength = 4.0
+	t.generate_mipmaps = true
+	return t
 
 
 func chunk_of(p: Vector3) -> Vector2i:
@@ -78,6 +98,17 @@ func _update_collision(center: Vector2i) -> void:
 			chunk.add_child(body)
 		elif not near and body != null:
 			body.queue_free()
+		var grass_near := maxi(absi(key.x - center.x), absi(key.y - center.y)) <= grass_radius
+		var grass: Node = chunk.get_node_or_null("Grass")
+		if grass_near and grass == null and not chunk.has_meta("no_grass"):
+			var g := GrassField.build(Vector2(key.x * CHUNK, key.y * CHUNK), CHUNK, hash(key) ^ 0x6a55)
+			if g:
+				g.name = "Grass"
+				chunk.add_child(g)
+			else:
+				chunk.set_meta("no_grass", true)
+		elif not grass_near and grass != null:
+			grass.queue_free()
 
 
 func _build_chunk(key: Vector2i) -> Node3D:
@@ -95,36 +126,34 @@ func _build_chunk(key: Vector2i) -> Node3D:
 
 
 func _ground_mesh(origin: Vector2) -> ArrayMesh:
+	# Smooth, indexed grid. Normals come from the height function itself, so
+	# neighbouring chunks match exactly at their seams.
 	var n := int(CHUNK / CELL)
-	var heights := PackedFloat32Array()
-	heights.resize((n + 1) * (n + 1))
-	for j in n + 1:
-		for i in n + 1:
-			heights[j * (n + 1) + i] = WorldGen.height(origin.x + i * CELL, origin.y + j * CELL)
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	st.set_smooth_group(-1)
+	for j in n + 1:
+		for i in n + 1:
+			var x := origin.x + i * CELL
+			var z := origin.y + j * CELL
+			var h := WorldGen.height(x, z)
+			var normal := Vector3(WorldGen.height(x - 1.0, z) - WorldGen.height(x + 1.0, z), 2.0,
+				WorldGen.height(x, z - 1.0) - WorldGen.height(x, z + 1.0)).normalized()
+			st.set_normal(normal)
+			st.set_color(WorldGen.color_at(x, z, h, 1.0 - normal.y))
+			st.add_vertex(Vector3(x, h, z))
 	for j in n:
 		for i in n:
-			var x0 := origin.x + i * CELL
-			var z0 := origin.y + j * CELL
-			var p00 := Vector3(x0, heights[j * (n + 1) + i], z0)
-			var p10 := Vector3(x0 + CELL, heights[j * (n + 1) + i + 1], z0)
-			var p01 := Vector3(x0, heights[(j + 1) * (n + 1) + i], z0 + CELL)
-			var p11 := Vector3(x0 + CELL, heights[(j + 1) * (n + 1) + i + 1], z0 + CELL)
-			_tri(st, p00, p10, p01)
-			_tri(st, p10, p11, p01)
-	st.generate_normals()
+			var a := j * (n + 1) + i
+			var b := a + 1
+			var c := a + n + 1
+			var d := c + 1
+			st.add_index(a)
+			st.add_index(b)
+			st.add_index(c)
+			st.add_index(b)
+			st.add_index(d)
+			st.add_index(c)
 	return st.commit()
-
-
-func _tri(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3) -> void:
-	var center := (a + b + c) / 3.0
-	var normal := (c - a).cross(b - a).normalized()
-	st.set_color(WorldGen.color_at(center.x, center.z, center.y, 1.0 - absf(normal.y)))
-	st.add_vertex(a)
-	st.add_vertex(b)
-	st.add_vertex(c)
 
 
 func _add_forest(chunk: Node3D, key: Vector2i, origin: Vector2) -> void:

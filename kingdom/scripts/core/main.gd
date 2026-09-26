@@ -1,16 +1,18 @@
 extends Control
-## Entry point. Renders the 3D world at 1/PIXEL_SCALE resolution into a
-## SubViewport, upscales it with nearest-neighbour filtering and a colour
-## quantising shader (the "pixel diorama" look), and draws the UI on top at
-## full resolution. Also owns the day/night cycle and the early-game loop:
+## Entry point. Renders the 3D world into a SubViewport with modern lighting
+## (Forward+: SDFGI, SSAO, SSIL, volumetric fog, glow). An optional retro mode
+## (--pixel) renders at 1/PIXEL_SCALE with a colour-quantising shader instead.
+## The UI is drawn on top at full resolution. Also owns the day/night cycle and the early-game loop:
 ## enlist -> lead a militia -> clear raider camps -> rise in rank.
 ##
 ## Preview screenshots: godot --path kingdom -- --shot=explore --out=/tmp/x.png
 ## (shots: explore, first, town, command, battle, castle)
 
 const PIXEL_SCALE := 3
-const HOME_SPAWN := Vector2(8, 14)
-const FIRST_CAMP := Vector2(175, 95)
+## Retro pixel look; off by default, enable with the --pixel launch argument.
+var pixel_mode := false
+const HOME_SPAWN := Vector2(3, 9)
+const FIRST_CAMP := Vector2(190, 120)
 
 var viewport: SubViewport
 var world: Node3D
@@ -30,17 +32,22 @@ var _raids_cleared := 0
 
 
 func _ready() -> void:
+	pixel_mode = _user_args().has("pixel")
 	var container := SubViewportContainer.new()
 	container.set_anchors_preset(Control.PRESET_FULL_RECT)
 	container.stretch = true
-	container.stretch_shrink = PIXEL_SCALE
-	container.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var post := ShaderMaterial.new()
-	post.shader = load("res://shaders/pixel_post.gdshader")
-	container.material = post
+	if pixel_mode:
+		container.stretch_shrink = PIXEL_SCALE
+		container.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		var post := ShaderMaterial.new()
+		post.shader = load("res://shaders/pixel_post.gdshader")
+		post.set_shader_parameter("undo_double_srgb", RenderingServer.get_current_rendering_method() == "gl_compatibility")
+		container.material = post
 	add_child(container)
 	viewport = SubViewport.new()
+	viewport.msaa_3d = Viewport.MSAA_2X
+	viewport.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
 	container.add_child(viewport)
 	world = Node3D.new()
 	world.name = "World"
@@ -210,21 +217,45 @@ func _build_environment() -> void:
 	env = Environment.new()
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color("8a90b0")
-	env.ambient_light_energy = 0.6
-	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	env.tonemap_exposure = 0.9
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	env.ambient_light_energy = 0.7
+	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
+	env.tonemap_mode = Environment.TONE_MAPPER_ACES
+	env.tonemap_exposure = 1.05
+	env.tonemap_white = 6.0
+	# Modern lighting (Forward+ on desktop; the Mobile renderer skips what it can't do).
+	env.ssao_enabled = true
+	env.ssao_radius = 1.2
+	env.ssao_intensity = 1.6
+	env.ssil_enabled = true
+	env.sdfgi_enabled = true
+	env.sdfgi_use_occlusion = true
+	env.glow_enabled = true
+	env.glow_intensity = 0.5
+	env.glow_bloom = 0.04
+	env.glow_hdr_threshold = 1.1
 	env.fog_enabled = true
-	env.fog_light_color = Color("d9c3a6")
-	env.fog_density = 0.0035
-	env.fog_sky_affect = 0.25
+	env.fog_light_color = Color("c9d4e6")
+	env.fog_density = 0.0012
+	env.fog_aerial_perspective = 0.6
+	env.fog_sky_affect = 0.4
+	env.volumetric_fog_enabled = true
+	env.volumetric_fog_density = 0.006
+	env.volumetric_fog_albedo = Color("e8dccb")
+	env.volumetric_fog_length = 90.0
+	env.adjustment_enabled = true
+	env.adjustment_saturation = 1.12
+	env.adjustment_contrast = 1.06
 	var we := WorldEnvironment.new()
 	we.environment = env
 	world.add_child(we)
 	sun = DirectionalLight3D.new()
 	sun.shadow_enabled = true
-	sun.directional_shadow_max_distance = 70.0
+	sun.shadow_blur = 1.5
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+	sun.directional_shadow_max_distance = 140.0
+	sun.light_angular_distance = 0.8
+	sun.light_volumetric_fog_energy = 1.4
 	world.add_child(sun)
 
 
@@ -232,11 +263,10 @@ func _update_daylight() -> void:
 	var t := WorldSim.time_of_day
 	var day_amount := clampf(sin((t - 6.0) / 12.0 * PI) * 1.4, 0.0, 1.0)   # 0 at night, 1 at noon
 	sun.rotation = Vector3(-lerpf(0.15, 1.1, day_amount), PI * 0.25 + (t - 12.0) / 12.0 * PI * 0.5, 0)
-	sun.light_energy = lerpf(0.04, 0.75, day_amount)
-	sun.light_color = Color("ff9a5a").lerp(Color("fff0d8"), day_amount)
-	env.ambient_light_color = Color("26305a").lerp(Color("8a90b0"), day_amount)
-	env.ambient_light_energy = lerpf(0.7, 0.42, day_amount)
-	env.fog_light_color = Color("1b2238").lerp(Color("d9c3a6"), day_amount)
+	sun.light_energy = lerpf(0.05, 1.5, day_amount)
+	sun.light_color = Color("ff9a5a").lerp(Color("fff1dc"), day_amount)
+	env.ambient_light_energy = lerpf(0.25, 0.7, day_amount)
+	env.fog_light_color = Color("1b2238").lerp(Color("c9d4e6"), day_amount)
 	env.background_energy_multiplier = lerpf(0.08, 1.0, day_amount)
 	baker.set_light(lerpf(0.35, 1.0, day_amount))
 
@@ -336,6 +366,8 @@ func _user_args() -> Dictionary:
 		if arg.begins_with("--") and "=" in arg:
 			var kv := arg.substr(2).split("=", true, 1)
 			out[kv[0]] = kv[1]
+		elif arg.begins_with("--"):
+			out[arg.substr(2)] = true
 	return out
 
 
@@ -367,12 +399,34 @@ func _screenshot(shot: String, path: String) -> void:
 			warmup = 70 if shot == "command" else 18
 		"castle":
 			var c: Dictionary = WorldGen.settlements[1]
-			var p2: Vector2 = c["pos"] + Vector2(-150, 110)
+			var p2: Vector2 = c["pos"] + Vector2(-250, 185)
 			player.global_position = Vector3(p2.x, WorldGen.height(p2.x, p2.y) + 0.5, p2.y)
 			var d: Vector2 = c["pos"] - p2
 			player.set_camera(atan2(-d.x, -d.y), -0.12)
 			settlements.focus = player.global_position
 			warmup = 240
+		"city", "street":
+			var cap: Dictionary = WorldGen.settlements[1]
+			var cp: Vector2 = cap["pos"]
+			var gate: float = cap["plan"]["gates"][0]
+			var sp := cp + Vector2(cos(gate), sin(gate)) * (cap["plan"]["plaza_r"] + 30.0)
+			_teleport(sp, 0.0)
+			var look := cp - sp
+			player.set_camera(atan2(-look.x, -look.y), -0.12)
+			if shot == "city":
+				hud.visible = false
+				player.visible = false
+				var cam := Camera3D.new()
+				cam.far = 1500.0
+				viewport.get_child(0).add_child(cam)
+				var off := Vector2(cos(gate + 0.6), sin(gate + 0.6)) * 330.0
+				cam.global_position = Vector3(cp.x + off.x, cap["base_h"] + 190.0, cp.y + off.y)
+				cam.look_at(Vector3(cp.x, cap["base_h"], cp.y))
+				cam.current = true
+				terrain.focus = Vector3(cp.x, 0, cp.y)
+				terrain.view_radius = 6
+				terrain.build_all_now()
+			warmup = 90
 	for i in warmup:
 		await get_tree().process_frame
 	var img := get_viewport().get_texture().get_image()

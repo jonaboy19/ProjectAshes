@@ -37,6 +37,8 @@ static func setup(seed_value: int) -> void:
 	_initialized = true
 	_place_settlements(seed_value)
 	_connect_roads()
+	for st in settlements:
+		st["plan"] = CityPlanner.plan(st, gate_angles(st), seed_value)
 
 
 static func _raw_height(x: float, z: float) -> float:
@@ -76,6 +78,30 @@ static func road_distance(x: float, z: float) -> float:
 	return best
 
 
+## Directions (radians) of roads leaving a settlement: where its gates go.
+static func gate_angles(s: Dictionary) -> Array[float]:
+	var out: Array[float] = []
+	for r in roads:
+		var other := -1
+		if r.x == s["id"]:
+			other = r.y
+		elif r.y == s["id"]:
+			other = r.x
+		if other >= 0:
+			var d: Vector2 = settlements[other]["pos"] - s["pos"]
+			out.append(atan2(d.y, d.x))
+	return out
+
+
+## Distance to the nearest city street (INF outside settlements).
+static func street_distance(x: float, z: float) -> float:
+	var p := Vector2(x, z)
+	var near := nearest_settlement(p)
+	if near.is_empty() or not near.has("plan") or p.distance_to(near["pos"]) > near["radius"] * 1.15:
+		return INF
+	return CityPlanner.street_distance(near["plan"], p)
+
+
 static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 	var tint := _detail.get_noise_2d(x * 0.3, z * 0.3) * 0.5 + 0.5
 	var c := Color("4d7a34").lerp(Color("6b8f3c"), tint)
@@ -86,8 +112,15 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 	if h > 150.0:
 		c = Color("e8ecef")
 	var near := nearest_settlement(Vector2(x, z))
-	if not near.is_empty() and Vector2(x, z).distance_to(near["pos"]) < near["radius"] * 0.35:
-		c = Color("8a6d45").lerp(Color("977a50"), tint)
+	if not near.is_empty():
+		var dc := Vector2(x, z).distance_to(near["pos"])
+		var paved: bool = near["kind"] != "village"
+		if near.has("plan") and dc < near["plan"]["plaza_r"] + 2.0:
+			c = (Color("8d8579") if paved else Color("8a6d45")).lerp(Color("9a9184") if paved else Color("977a50"), tint)
+		elif street_distance(x, z) < 0.5:
+			c = (Color("7f776b") if paved else Color("83633d")).lerp(Color("8f8678") if paved else Color("8f6e45"), tint)
+		elif dc < near["radius"] * 0.95 and paved:
+			c = c.lerp(Color("6d6a4a"), 0.35)   # trampled yards inside the walls
 	if road_distance(x, z) < 3.0:
 		c = Color("83633d").lerp(Color("8f6e45"), tint)
 	return c
@@ -120,8 +153,8 @@ static func _place_settlements(seed_value: int) -> void:
 	rng.seed = seed_value
 	# Home village at the origin, the royal castle a ride away to the north-east.
 	var fixed := [
-		{"pos": Vector2(0, 0), "kind": "village", "radius": 45.0},
-		{"pos": Vector2(520, -380), "kind": "castle", "radius": 80.0},
+		{"pos": Vector2(0, 0), "kind": "village", "radius": 60.0},
+		{"pos": Vector2(560, -420), "kind": "castle", "radius": 175.0},
 	]
 	var attempts := 0
 	while fixed.size() < SETTLEMENT_COUNT and attempts < 4000:
@@ -136,7 +169,7 @@ static func _place_settlements(seed_value: int) -> void:
 				break
 		if ok:
 			var town := rng.randf() < 0.35
-			fixed.append({"pos": p, "kind": "town" if town else "village", "radius": 60.0 if town else 45.0})
+			fixed.append({"pos": p, "kind": "town" if town else "village", "radius": 115.0 if town else 60.0})
 	for i in fixed.size():
 		var f: Dictionary = fixed[i]
 		var pos: Vector2 = f["pos"]
