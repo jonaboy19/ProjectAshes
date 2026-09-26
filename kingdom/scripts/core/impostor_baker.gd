@@ -52,8 +52,9 @@ func bake(look_id: String, file: String, keep: Array[String], pose := "Idle") ->
 	for k in 4:
 		# Frame k shows the unit as seen from 0°, 90°, 180°, 270° around it.
 		model.rotation.y = -k * PI * 0.5
-		await RenderingServer.frame_post_draw
-		await RenderingServer.frame_post_draw
+		# Plain frame waits (not frame_post_draw) so this also works in movie-capture mode.
+		for f in 3:
+			await get_tree().process_frame
 		var img := _viewport.get_texture().get_image()
 		img.convert(Image.FORMAT_RGBA8)
 		atlas.blit_rect(img, Rect2i(Vector2i.ZERO, FRAME), Vector2i(k * FRAME.x, 0))

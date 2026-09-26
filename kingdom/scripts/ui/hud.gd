@@ -13,6 +13,7 @@ var _stats: Label
 var _where: Label
 var _perf: Label
 var _health: ProgressBar
+var _stamina: ProgressBar
 var _toast: Label
 var _toast_tween: Tween
 var _interact: TouchScreenButton
@@ -54,6 +55,8 @@ func _ready() -> void:
 	controls.add_child(stick)
 
 	_buttons["attack"] = _button("attack", "Strike", 112, Color("c9533c"))
+	_buttons["dodge"] = _button("dodge", "Dodge", 80, Color("4d8f86"))
+	_buttons["block"] = _button("block", "Block", 80, Color("7a6a9c"))
 	_buttons["view"] = _button("view_cycle", "1st/3rd", 70, Color("4d6f8f"))
 	_buttons["zoom_out"] = _button("zoom_out", "Zoom -", 70, Color("4d6f8f"))
 	_buttons["zoom_in"] = _button("zoom_in", "Zoom +", 70, Color("4d6f8f"))
@@ -82,6 +85,9 @@ func _ready() -> void:
 	_health.add_theme_stylebox_override("fill", fill)
 	_health.add_theme_stylebox_override("background", bg)
 	root.add_child(_health)
+	_stamina = _bar(root, Vector2(18, 136), Color("e0b84a"), 8)
+	_stamina.max_value = Player.MAX_STAMINA
+	_stamina.value = Player.MAX_STAMINA
 	_where = _label(root, 18, PAPER)
 	_where.anchor_left = 1.0
 	_where.anchor_right = 1.0
@@ -109,11 +115,12 @@ func _ready() -> void:
 	_loading.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.add_child(_loading)
 	_loading_label = _label(_loading, 30, GOLD)
-	_loading_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_loading_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_loading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_loading_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_loading_label.text = "Forging the realm..."
 
+	player.stamina_changed.connect(func(c: float, _m: float) -> void: _stamina.value = c)
 	player.health_changed.connect(func(c: int, m: int) -> void:
 		_health.max_value = m
 		_health.value = c)
@@ -128,6 +135,23 @@ func hide_loading() -> void:
 
 func set_loading_text(text: String) -> void:
 	_loading_label.text = text
+
+
+func _bar(parent: Control, pos: Vector2, color: Color, height: int) -> ProgressBar:
+	var bar := ProgressBar.new()
+	bar.position = pos
+	bar.custom_minimum_size = Vector2(220, height)
+	bar.show_percentage = false
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = color
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0, 0, 0, 0.55)
+	bg.border_color = INK
+	bg.set_border_width_all(2)
+	bar.add_theme_stylebox_override("fill", fill)
+	bar.add_theme_stylebox_override("background", bg)
+	parent.add_child(bar)
+	return bar
 
 
 func _label(parent: Control, size: int, color: Color) -> Label:
@@ -178,8 +202,10 @@ static func _pixel_square(size: int, color: Color) -> ImageTexture:
 func _layout() -> void:
 	var s := get_viewport().get_visible_rect().size
 	_buttons["attack"].position = s - Vector2(150, 150)
-	_interact.position = s - Vector2(270, 130)
-	_buttons["view"].position = s - Vector2(110, 250)
+	_interact.position = s - Vector2(150, 270)
+	_buttons["dodge"].position = s - Vector2(250, 115)
+	_buttons["block"].position = s - Vector2(250, 215)
+	_buttons["view"].position = Vector2(s.x - 100, 230)
 	_buttons["zoom_in"].position = Vector2(s.x - 100, 70)
 	_buttons["zoom_out"].position = Vector2(s.x - 100, 150)
 	for i in _order_buttons.size():

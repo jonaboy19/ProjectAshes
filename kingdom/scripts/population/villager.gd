@@ -22,6 +22,7 @@ static func create(id: int, file: String, keep: Array[String]) -> Villager:
 
 
 func _ready() -> void:
+	add_to_group("villager")
 	var model := Assets.character(_file, 1.7, _keep)
 	add_child(model)
 	_anim = Assets.animation_player(model)

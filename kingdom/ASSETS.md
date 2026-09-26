@@ -10,7 +10,11 @@ commercial use, no attribution required, no royalties. Credit is given anyway.
 | `assets/kaykit/medieval/` | KayKit Medieval Hexagon Pack 1.0, Kay Lousberg | CC0 (`LICENSE.txt` included) |
 
 Everything else (code, shaders, generated terrain, UI) was written for this
-project.
+project, except:
+
+| File | Source | Licence |
+|---|---|---|
+| `scripts/actors/camera_shake.gd` | Ported from the Godot TPS demo, © 2018-2021 Juan Linietsky & Godot Engine contributors | MIT |
 
 ## Rules for adding assets
 

@@ -26,6 +26,11 @@ var _file := ""
 var _keep: Array[String] = []
 var _model: Node3D
 var _anim: AnimationPlayer
+var _animator: CharacterAnimator
+var _impulse := Vector3.ZERO
+var _guard := 0.0
+## Chance to catch a hit on the shield.
+var block_chance := 0.3
 var _sprite: MeshInstance3D
 var _attack_cooldown := 0.0
 var _busy := 0.0
@@ -48,6 +53,7 @@ func _ready() -> void:
 	_model = Assets.character(_file, 1.75, _keep)
 	add_child(_model)
 	_anim = Assets.animation_player(_model)
+	_animator = CharacterAnimator.new(_model, RUN)
 	_sprite = MeshInstance3D.new()
 	_sprite.mesh = ImpostorBaker.quad()
 	_sprite.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -57,7 +63,6 @@ func _ready() -> void:
 	_sprite.visible = false
 	add_child(_sprite)
 	_retarget = randf() * 0.4
-	_play("Idle")
 
 
 func _physics_process(delta: float) -> void:
@@ -65,6 +70,7 @@ func _physics_process(delta: float) -> void:
 		return
 	_attack_cooldown -= delta
 	_busy -= delta
+	_guard -= delta
 	_retarget -= delta
 	_update_lod()
 	if _retarget <= 0.0:
@@ -89,21 +95,21 @@ func _physics_process(delta: float) -> void:
 	desired += _separation() * 2.5
 	_velocity = _velocity.lerp(desired, 8.0 * delta)
 	if _busy > 0.0:
-		_velocity *= 0.2
-	var p := global_position + _velocity * delta
+		_velocity *= 0.4
+	var p := global_position + (_velocity + _impulse) * delta
+	_impulse = _impulse.move_toward(Vector3.ZERO, 25.0 * delta)
 	p.y = WorldGen.height(p.x, p.z)
 	global_position = p
 
+	var planar := Vector2(_velocity.x, _velocity.z).length()
 	if _busy <= 0.0:
-		var planar := Vector2(_velocity.x, _velocity.z).length()
 		if planar > 0.5:
 			_face(_velocity)
-			_play("Running_A" if planar > 4.5 else "Walking_A")
 		elif not engaging:
 			_face(squad.facing if squad else Vector3.FORWARD)
-			_play("Idle")
-		else:
-			_play("Idle")
+	if _model.visible:
+		_animator.update(delta, planar)
+		_animator.set_blocking(_guard > 0.0)
 
 
 func _pick_target() -> void:
@@ -138,8 +144,8 @@ func _separation() -> Vector3:
 
 func _attack() -> void:
 	_attack_cooldown = randf_range(1.1, 1.5)
-	_busy = 0.6
-	_play("1H_Melee_Attack_Chop", 1.4, true)
+	_busy = 0.5
+	_animator.play_upper(["1H_Melee_Attack_Chop", "1H_Melee_Attack_Slice_Diagonal", "1H_Melee_Attack_Slice_Horizontal"][randi() % 3], 1.4)
 	var victim := combat_target
 	get_tree().create_timer(0.3).timeout.connect(func() -> void:
 		if not dead and is_instance_valid(victim) and not victim.get("dead") \
@@ -147,22 +153,35 @@ func _attack() -> void:
 			victim.take_damage(damage, self))
 
 
-func take_damage(amount: int, _from: Node = null) -> void:
+func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> void:
 	if dead:
 		return
+	var from_front := true
+	if from is Node3D:
+		var to := (from as Node3D).global_position - global_position
+		from_front = global_transform.basis.z.dot(Vector3(to.x, 0, to.z).normalized()) > 0.3
+	if from_front and randf() < block_chance and _busy <= 0.0:
+		_guard = 0.6
+		_impulse = knockback * 0.4
+		_animator.play_upper("Block_Hit", 1.5)
+		return
 	health -= amount
+	_impulse = knockback
 	if health <= 0:
 		_die()
 	else:
 		_busy = 0.35
-		_play("Hit_A", 1.5, true)
+		if knockback.length() > 4.0:
+			_animator.play_full("Hit_B", 1.3)
+		else:
+			_animator.play_upper("Hit_A", 1.5)
 
 
 func _die() -> void:
 	dead = true
 	remove_from_group("team%d" % team)
 	remove_from_group("combatant")
-	_play("Death_A", 1.0, true)
+	_animator.play_terminal("Death_A" if randf() < 0.5 else "Death_B")
 	died.emit(self)
 	var tween := create_tween()
 	tween.tween_interval(5.0)
@@ -175,12 +194,6 @@ func _face(dir: Vector3) -> void:
 		rotation.y = lerp_angle(rotation.y, atan2(dir.x, dir.z), 0.25)
 
 
-func _play(anim_name: String, speed := 1.0, restart := false) -> void:
-	if _anim == null or not _model.visible:
-		return
-	if restart or _anim.current_animation != anim_name:
-		_anim.play(anim_name, 0.12)
-	_anim.speed_scale = speed
 
 
 func _update_lod() -> void:
@@ -192,7 +205,4 @@ func _update_lod() -> void:
 		return
 	_sprite.visible = far
 	_model.visible = not far
-	if far:
-		_anim.pause()
-	else:
-		_anim.play()
+	_animator.set_active(not far)

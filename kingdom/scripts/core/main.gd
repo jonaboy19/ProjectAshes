@@ -102,6 +102,8 @@ func _ready() -> void:
 	var args := _user_args()
 	if args.has("shot"):
 		_screenshot(args["shot"], args.get("out", "user://shot.png"))
+	elif args.has("demo"):
+		_run_demo()
 	else:
 		Game.say("Ashford. Speak with the Captain of the Guard to enlist.")
 
@@ -129,6 +131,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("attack"):
 		player.attack()
+	elif event.is_action_pressed("dodge"):
+		player.dodge()
 	elif event.is_action_pressed("view_cycle"):
 		player.cycle_first_third()
 	elif event.is_action_pressed("zoom_out"):
@@ -235,6 +239,93 @@ func _update_daylight() -> void:
 	env.fog_light_color = Color("1b2238").lerp(Color("d9c3a6"), day_amount)
 	env.background_energy_multiplier = lerpf(0.08, 1.0, day_amount)
 	baker.set_light(lerpf(0.35, 1.0, day_amount))
+
+
+# --- Scripted demo (for trailer capture with --write-movie) ------------------------
+
+func _wait(seconds: float) -> void:
+	await get_tree().create_timer(seconds).timeout
+
+
+func _teleport(p: Vector2, yaw: float) -> void:
+	var pos := Vector3(p.x, WorldGen.height(p.x, p.y) + 0.3, p.y)
+	player.global_position = pos
+	player.velocity = Vector3.ZERO
+	player.set_camera(yaw, -0.28)
+	terrain.focus = pos
+	terrain.build_all_now()
+	settlements.focus = pos
+	for i in 4:
+		settlements.update_now()
+	population.focus = pos
+	population.refresh()
+
+
+func _run_demo() -> void:
+	WorldSim.time_of_day = 15.0
+	# 1. Morning bustle in Ashford.
+	_teleport(Vector2(20, 26), PI * 0.2)
+	Game.say("Ashford — 5,000 simulated people live in this realm.")
+	player.touch_move = Vector2(0, -0.55)
+	for i in 60:
+		player.add_look(Vector2(1.2, 0))
+		await get_tree().process_frame
+	await _wait(2.0)
+	player.touch_move = Vector2.ZERO
+	# 2. Enlist with the captain.
+	_teleport(Vector2(-7, 6.5), PI)
+	await _wait(0.8)
+	captain.interact(player, army.alive())
+	await _wait(2.5)
+	# 3. Town view as the militia forms up.
+	player.set_view(Player.View.TOWN)
+	player.touch_move = Vector2(0.3, -0.7)
+	await _wait(3.0)
+	player.touch_move = Vector2.ZERO
+	player.set_view(Player.View.THIRD)
+	# 4. The raider camp.
+	var approach := FIRST_CAMP + Vector2(-26, 4)
+	_teleport(approach, -PI * 0.5 + 0.1)
+	for s in army.soldiers:
+		s.global_position = player.global_position + Vector3(randf_range(-7, -2), 0, randf_range(-5, 5))
+	await _wait(1.0)
+	Game.say("CHARGE!")
+	army.command(Squad.Order.CHARGE)
+	player.touch_move = Vector2(0, -1)
+	await _wait(2.2)
+	player.touch_move = Vector2.ZERO
+	for i in 14:
+		player.attack()
+		await _wait(0.28)
+		if i == 5:
+			player.dodge()
+			await _wait(0.5)
+		if i == 9:
+			Input.action_press("block")
+			await _wait(1.0)
+			Input.action_release("block")
+	# 5. First person in the melee.
+	player.set_view(Player.View.FIRST)
+	for i in 8:
+		player.attack()
+		await _wait(0.35)
+	player.set_view(Player.View.THIRD)
+	# 6. Pull back to command the field.
+	player.zoom(1)
+	await _wait(1.5)
+	player.zoom(1)
+	await _wait(3.0)
+	player.set_view(Player.View.THIRD)
+	# 7. The road to the royal castle.
+	var c: Dictionary = WorldGen.settlements[1]
+	var road: Vector2 = c["pos"] + Vector2(-150, 110)
+	var d: Vector2 = c["pos"] - road
+	_teleport(road, atan2(-d.x, -d.y))
+	player.set_camera(atan2(-d.x, -d.y), -0.12)
+	Game.say("Kingsreach — seat of the crown.")
+	player.touch_move = Vector2(0, -0.6)
+	await _wait(5.0)
+	get_tree().quit()
 
 
 # --- Preview screenshots ----------------------------------------------------------

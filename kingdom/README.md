@@ -14,7 +14,9 @@ Screenshots: `../docs/kingdom/`.
 |---|---|---|
 | Move / run | WASD / Shift | left stick (push far = run) |
 | Look | right-drag | drag right half |
-| Strike | J | Strike |
+| Strike (4-hit combo, tap again to chain) | J | Strike |
+| Block (hold, uses stamina) | L | Block |
+| Dodge roll (invulnerable briefly) | Space | Dodge |
 | Talk / enlist / recruit | E | Talk button when near |
 | First ↔ third person | V | 1st/3rd |
 | Zoom: third → town → command | mouse wheel, − / = | Zoom − / Zoom + |
@@ -27,6 +29,8 @@ Screenshots: `../docs/kingdom/`.
 - **4 × 4 km world** streamed in 64 m chunks, with forests as MultiMeshes
 - **Settlements:** 10 villages and towns plus a walled castle, built from CC0 models when you approach
 - **~5,300 simulated people** as pure data (job, money, daily schedule, wages, market spending), embodied at three levels of detail: data only, directional sprite, animated character
+- **Combat:** 4-hit combo with input buffering and a finisher, target assist, shield block with guard-break, dodge roll with i-frames, stamina, knockback, hit-stop and camera shake
+- **Layered animation:** an AnimationTree built in code blends idle, walk and run by speed, plays attacks on the upper body while the legs keep running, and adds a shield-block layer. The head tracks nearby enemies (LookAtModifier3D)
 - **Formations:** squads keep formation slots behind you; soldiers steer, engage and fight; orders are Follow, Hold and Charge
 - **Impostors:** every unit type is rendered from 4 sides into a sprite atlas at startup, so distant soldiers and crowds cost almost nothing
 - **Progression loop:** Peasant → Militia → Sergeant → Captain → … (rank caps army size, gold buys recruits)
@@ -53,3 +57,8 @@ assets/      KayKit CC0 models (see ASSETS.md)
 godot --path kingdom --rendering-driver opengl3 -- --shot=explore --out=/tmp/x.png
 ```
 Shots: `explore`, `first`, `town`, `battle`, `command`, `castle`.
+
+Record the scripted gameplay demo as a video:
+```
+godot --path kingdom --rendering-driver opengl3 --write-movie /tmp/demo.avi --fixed-fps 30 -- --demo
+```
