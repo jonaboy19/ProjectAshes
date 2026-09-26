@@ -99,7 +99,43 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 					lots.append({"asset": asset, "pos": p, "yaw": atan2(face.x, face.y)})
 					blocked.append(p)
 			t += LOT_SPACING
+	_civic_lots(lots, c)
 	return result
+
+
+## Every settlement gets an Adventurer Guild hall and a healer's house on the
+## lots nearest its plaza (both Blender-built, see tools/blender). The guild is
+## wide, so lots crowding it are dropped.
+static func _civic_lots(lots: Array, c: Vector2) -> void:
+	if lots.size() < 6:
+		return
+	var order := range(lots.size())
+	order.sort_custom(func(a: int, b: int) -> bool:
+		return (lots[a]["pos"] as Vector2).distance_to(c) < (lots[b]["pos"] as Vector2).distance_to(c))
+	var inn_pos := Vector2(INF, INF)
+	for lot: Dictionary in lots:
+		if lot["asset"] == "inn":
+			inn_pos = lot["pos"]
+			break
+	var guild: Dictionary = {}
+	for i in order:
+		var cand: Dictionary = lots[i]
+		if cand["asset"] != "inn" and (cand["pos"] as Vector2).distance_to(inn_pos) > 14.0:
+			guild = cand
+			break
+	if guild.is_empty():
+		return
+	guild["asset"] = "adventurer_guild"
+	var gp: Vector2 = guild["pos"]
+	for i in range(1, order.size()):
+		var lot: Dictionary = lots[order[i]]
+		if (lot["pos"] as Vector2).distance_to(gp) > 13.0 and lot["asset"] != "inn":
+			lot["asset"] = "healer_house"
+			break
+	for i in range(lots.size() - 1, -1, -1):
+		var lot: Dictionary = lots[i]
+		if lot != guild and lot["asset"] != "inn" and lot["asset"] != "healer_house" and (lot["pos"] as Vector2).distance_to(gp) < 12.5:
+			lots.remove_at(i)
 
 
 static func _lot_ok(p: Vector2, c: Vector2, r: float, plaza_r: float, walled: bool, inner_wall: float,

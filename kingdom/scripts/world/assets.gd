@@ -49,6 +49,8 @@ const LOOKS := {
 const VILLAGE := Q + "medieval-village-pack/"
 const RTS := Q + "ultimate-fantasy-rts/glTF/"
 const BUILDINGS := {
+	"adventurer_guild": ["res://assets/generated/adventurer_guild.glb", 0.0],
+	"healer_house": ["res://assets/generated/healer_house.glb", 0.0],
 	"house_1": [VILLAGE + "Buildings/FBX/House_1.fbx", 9.0],
 	"house_2": [VILLAGE + "Buildings/FBX/House_2.fbx", 9.5],
 	"house_3": [VILLAGE + "Buildings/FBX/House_3.fbx", 9.0],

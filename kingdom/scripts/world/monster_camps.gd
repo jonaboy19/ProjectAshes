@@ -66,7 +66,7 @@ func _add_camp(pl: Dictionary, species: String, count: int) -> void:
 		for i in 6:
 			var a := TAU * i / 6.0 + rng.randf_range(-0.15, 0.15)
 			_place(root, [GEN + "orc_hut.glb", PACK + "goblin-tent.glb"], c + Vector2(cos(a), sin(a)) * r * 0.55, -a, 5.0)
-		var seg := 18
+		var seg := int(ceil(TAU * r / 5.8))     # 6 m palisade sections, slight overlap
 		for i in seg:
 			if i == 0 or i == seg - 1:
 				continue   # gate gap facing east

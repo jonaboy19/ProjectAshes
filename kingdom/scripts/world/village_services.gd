@@ -40,12 +40,24 @@ func _ready() -> void:
 			var door: Vector2 = lot["pos"] + Vector2(sin(yaw), cos(yaw)) * 5.2
 			_person("%s Inn" % home["name"], "Enter", inn_menu, door, door + Vector2(sin(yaw), cos(yaw)), "Mage")
 			break
-	# Adventurer Guild desk and the village herbalist on the plaza's far side.
+	# Adventurer Guild receptionist and the herbalist at their buildings' doors
+	# (CityPlanner puts both on the lots nearest the plaza).
 	var guild_at := c + Vector2(-4.0, -9.0)
-	guild_station = _person("Adventurer Guild", "Guild", guild_menu, guild_at, c, "Rogue_Hooded")
 	var herb_at := c + Vector2(9.0, -7.5)
-	_person("Herbalist", "Healer", healer_menu, herb_at, c, "Mage")
-	_prop("Barrel", herb_at + Vector2(1.2, -0.8), 1.0)
+	var guild_face := c
+	var herb_face := c
+	for lot: Dictionary in plan["lots"]:
+		var yaw: float = lot["yaw"]
+		var out := Vector2(sin(yaw), cos(yaw))
+		if lot["asset"] == "adventurer_guild":
+			guild_at = lot["pos"] + out * 7.2
+			guild_face = guild_at + out
+			_prop_gen("guild_board", lot["pos"] + out * 6.2 + Vector2(out.y, -out.x) * 3.2, yaw)
+		elif lot["asset"] == "healer_house":
+			herb_at = lot["pos"] + out * 4.6
+			herb_face = herb_at + out
+	guild_station = _person("Adventurer Guild", "Guild", guild_menu, guild_at, guild_face, "Rogue_Hooded")
+	_person("Herbalist", "Healer", healer_menu, herb_at, herb_face, "Mage")
 	# Notice board beside the well, facing the spawn road.
 	var board_pos := c + Vector2(3.5, -3.0)
 	var board := Station.new("Notice Board", "Read", notice_menu)
@@ -73,6 +85,16 @@ func _person(title: String, verb: String, menu: Callable, at: Vector2, face: Vec
 	var to := face - at
 	st.rotation.y = atan2(to.x, to.y)
 	return st
+
+
+func _prop_gen(asset: String, at: Vector2, yaw: float) -> void:
+	var path := "res://assets/generated/%s.glb" % asset
+	if not ResourceLoader.exists(path):
+		return
+	var n: Node3D = (load(path) as PackedScene).instantiate()
+	add_child(n)
+	n.global_position = _ground(at)
+	n.rotation.y = yaw
 
 
 func _prop(item: String, at: Vector2, scale_by: float) -> void:
