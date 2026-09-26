@@ -383,11 +383,14 @@ func _build_environment() -> void:
 	env.glow_hdr_threshold = 1.1
 	env.fog_enabled = true
 	env.fog_light_color = Color("c9d4e6")
-	env.fog_density = 0.0012
+	env.fog_density = 0.0009
+	# Ground haze that thins with altitude, so high views stay clear.
+	env.fog_height = WorldGen.height(0, 0) + 25.0
+	env.fog_height_density = 0.04
 	env.fog_aerial_perspective = 0.6
 	env.fog_sky_affect = 0.4
 	env.volumetric_fog_enabled = true
-	env.volumetric_fog_density = 0.006
+	env.volumetric_fog_density = 0.004
 	env.volumetric_fog_albedo = Color("e8dccb")
 	env.volumetric_fog_length = 90.0
 	env.adjustment_enabled = true
