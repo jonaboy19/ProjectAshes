@@ -23,7 +23,7 @@ const ELEMENTS := {
 }
 
 
-static func _material(color: Color, shape := 0, energy := 3.0) -> ShaderMaterial:
+static func _material(color: Color, shape := 0, energy := 5.0) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
 	m.shader = SHADER
 	m.set_shader_parameter("tint", color)
@@ -76,7 +76,7 @@ static func slash(parent: Node, pos: Vector3, yaw: float, tilt := 0.0, color := 
 
 
 static func _particles(parent: Node, pos: Vector3, color: Color, count: int, life: float, size: float,
-		speed: float, spread: float, gravity: Vector3, direction := Vector3.UP, stretch := false) -> GPUParticles3D:
+		speed: float, spread: float, gravity: Vector3, direction := Vector3.UP, stretch := false, solid := false) -> GPUParticles3D:
 	var p := GPUParticles3D.new()
 	p.amount = count
 	p.lifetime = life
@@ -108,13 +108,27 @@ static func _particles(parent: Node, pos: Vector3, color: Color, count: int, lif
 	p.process_material = pm
 	var quad := QuadMesh.new()
 	quad.size = Vector2(size * (0.35 if stretch else 1.0), size * (2.2 if stretch else 1.0))
-	quad.material = _material(color, 0, 3.0)
+	if solid:
+		var sm := StandardMaterial3D.new()
+		sm.albedo_color = color
+		sm.vertex_color_use_as_albedo = true
+		sm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		sm.roughness = 0.9
+		quad.material = sm
+		var box := BoxMesh.new()
+		box.size = Vector3.ONE * size * 0.6
+		box.material = sm
+		p.draw_pass_1 = box
+	else:
+		quad.material = _material(color, 0, 5.0)
 	if stretch:
 		pm.particle_flag_align_y = true
+	if not solid:
+		p.draw_pass_1 = quad
+		p.transform_align = GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD if not stretch else GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD_Y_TO_VELOCITY
 	else:
-		(quad.material as ShaderMaterial).set_shader_parameter("shape", 0)
-	p.draw_pass_1 = quad
-	p.transform_align = GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD if not stretch else GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD_Y_TO_VELOCITY
+		pm.angular_velocity_min = -360.0
+		pm.angular_velocity_max = 360.0
 	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	parent.add_child(p)
 	p.global_position = pos
@@ -139,6 +153,24 @@ static func flash(parent: Node, pos: Vector3, color: Color, energy := 2.0, secon
 	var tw := l.create_tween()
 	tw.tween_property(l, "light_energy", 0.0, seconds)
 	tw.tween_callback(l.queue_free)
+
+
+## Big soft glowing sphere-sprite that swells and fades: the "read from afar" part of a burst.
+static func core(parent: Node, pos: Vector3, color: Color, size := 2.5, seconds := 0.5) -> void:
+	var mi := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2.ONE
+	mi.mesh = q
+	var mat := _material(color, 0, 4.0)
+	mat.set_shader_parameter("billboard", true)
+	mi.material_override = mat
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(mi)
+	mi.global_position = pos
+	var tw := mi.create_tween().set_parallel()
+	tw.tween_method(func(v: float) -> void: mat.set_shader_parameter("bb_scale", v), size * 0.3, size, seconds * 0.4).set_ease(Tween.EASE_OUT)
+	tw.tween_method(func(v: float) -> void: mat.set_shader_parameter("tint", Color(color, v)), 1.0, 0.0, seconds).set_delay(seconds * 0.2)
+	tw.chain().tween_callback(mi.queue_free)
 
 
 ## Expanding flat ring on the ground (landing strikes, qi release, spell impacts).
@@ -168,9 +200,14 @@ static func shockwave(parent: Node, pos: Vector3, color := Color(1.0, 0.85, 0.4)
 static func burst(parent: Node, pos: Vector3, element := "qi", power := 1.0) -> void:
 	var e: Dictionary = ELEMENTS.get(element, ELEMENTS["qi"])
 	var col: Color = e["color"]
-	_particles(parent, pos, col, int(float(e["count"]) * power), float(e["life"]), float(e["size"]) * sqrt(power),
+	var solid := element == "earth"
+	_particles(parent, pos + Vector3(0, 0.4, 0), col, int(float(e["count"]) * power), float(e["life"]), float(e["size"]) * 1.8 * sqrt(power),
 		float(e["speed"]) * power, float(e["spread"]), Vector3(0, float(e["gravity"]), 0), Vector3.UP,
-		element == "water" or element == "lightning" or element == "earth")
+		element == "water" or element == "lightning", solid)
+	if element != "earth":
+		core(parent, pos + Vector3(0, 1.0, 0), col, 3.2 * power, float(e["life"]) * 0.8)
+	else:
+		_particles(parent, pos + Vector3(0, 0.3, 0), Color(0.7, 0.6, 0.45), 20, 1.4, 1.4, 2.5, 90.0, Vector3(0, 0.6, 0))
 	flash(parent, pos + Vector3(0, 0.6, 0), col, 3.0 * power, 0.3, 7.0 * power)
 	shockwave(parent, pos, col, 3.0 * power)
 	if element == "lightning":

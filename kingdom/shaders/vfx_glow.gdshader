@@ -7,6 +7,15 @@ uniform vec4 tint : source_color = vec4(1.0, 0.8, 0.4, 1.0);
 uniform float energy = 3.0;
 uniform int shape = 0;
 uniform float progress = 0.0;   // slash: 0..1 sweep of the leading edge
+uniform bool billboard = false; // face the camera (flash cores)
+uniform float bb_scale = 1.0;
+
+void vertex() {
+	if (billboard) {
+		MODELVIEW_MATRIX = VIEW_MATRIX * mat4(INV_VIEW_MATRIX[0], INV_VIEW_MATRIX[1], INV_VIEW_MATRIX[2], MODEL_MATRIX[3]);
+		VERTEX *= bb_scale;
+	}
+}
 
 void fragment() {
 	float a;

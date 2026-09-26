@@ -145,8 +145,8 @@ func _play_birth() -> Signal:
 	var saved_time := WorldSim.time_of_day
 	var lamp := OmniLight3D.new()
 	lamp.light_color = Color(1.0, 0.7, 0.4)
-	lamp.light_energy = 2.5
-	lamp.omni_range = 9.0
+	lamp.light_energy = 4.0
+	lamp.omni_range = 14.0
 	world.add_child(lamp)
 	lamp.global_position = Vector3(lp.home_pos.x, WorldGen.height(lp.home_pos.x, lp.home_pos.y) + 2.2, lp.home_pos.y)
 	cut.shot_started.connect(func(_i: int, shot: Dictionary) -> void:
@@ -363,11 +363,13 @@ func _update_daylight() -> void:
 	var t := WorldSim.time_of_day
 	var day_amount := clampf(sin((t - 6.0) / 12.0 * PI) * 1.4, 0.0, 1.0)   # 0 at night, 1 at noon
 	sun.rotation = Vector3(-lerpf(0.15, 1.1, day_amount), PI * 0.25 + (t - 12.0) / 12.0 * PI * 0.5, 0)
-	sun.light_energy = lerpf(0.05, 1.5, day_amount)
-	sun.light_color = Color("ff9a5a").lerp(Color("fff1dc"), day_amount)
-	env.ambient_light_energy = lerpf(0.25, 0.7, day_amount)
+	# At night the key light becomes a cool moon so the world stays readable.
+	var night := 1.0 - smoothstep(0.0, 0.25, day_amount)
+	sun.light_energy = lerpf(lerpf(0.05, 1.5, day_amount), 0.42, night)
+	sun.light_color = Color("ff9a5a").lerp(Color("fff1dc"), day_amount).lerp(Color("8fa8ff"), night)
+	env.ambient_light_energy = lerpf(lerpf(0.25, 0.7, day_amount), 0.4, night)
 	env.fog_light_color = Color("1b2238").lerp(Color("c9d4e6"), day_amount)
-	env.background_energy_multiplier = lerpf(0.08, 1.0, day_amount)
+	env.background_energy_multiplier = lerpf(0.08, 1.0, day_amount) + night * 0.12
 	baker.set_light(lerpf(0.35, 1.0, day_amount))
 
 
@@ -546,9 +548,10 @@ func _screenshot(shot: String, path: String) -> void:
 			hud.visible = false
 			_teleport(Vector2(105, -40), 0.0)
 			player.set_camera(0.0, -0.2)
-			var base := player.global_position + player.forward() * 9.0
+			var base := player.global_position + player.forward() * 7.0
 			var right := player.forward().cross(Vector3.UP).normalized()
 			late_fx = func() -> void:
+				Engine.time_scale = 0.03
 				var els := ["fire", "water", "wind", "earth", "lightning", "qi"]
 				for i in els.size():
 					var p := base + right * (i - 2.5) * 3.2
@@ -556,8 +559,6 @@ func _screenshot(shot: String, path: String) -> void:
 					VFX.burst(world, p, els[i], 1.0)
 				VFX.slash(world, player.global_position + Vector3(0, 1.2, 0) + player.forward() * 1.5, player._model.rotation.y, 0.9)
 				VFX.aura(player, Color(0.45, 0.8, 1.0))
-				await get_tree().create_timer(0.12).timeout
-				Engine.time_scale = 0.02
 			warmup = 40
 		"explore":
 			player.set_camera(PI * 0.2, -0.22)
