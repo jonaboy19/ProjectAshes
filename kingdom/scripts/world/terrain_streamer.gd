@@ -6,6 +6,8 @@ extends Node3D
 
 const CHUNK := 64.0
 const CELL := 2.0
+## Distance where Blender trees hand over to the cheap stylised stand-ins.
+const TREE_LOD := 200.0
 
 @export var view_radius := 4         # chunks; 9x9 grid visible
 @export var collision_radius := 1    # chunks that also get physics
@@ -177,21 +179,24 @@ func _add_forest(chunk: Node3D, key: Vector2i, origin: Vector2) -> void:
 		var kind := ""
 		var roll := rng.randf()
 		if roll < density:
-			# Pines on high ground, broadleaf lower down, the odd twisted or dead tree.
+			# Blender-made trees near the player; the cheap stylised set stands in far away.
 			var pine_bias := smoothstep(30.0, 70.0, h)
-			if rng.randf() < 0.06:
-				kind = ["TwistedTree_1", "TwistedTree_3", "DeadTree_2"][rng.randi() % 3]
+			var r2 := rng.randf()
+			if r2 < 0.05:
+				kind = "nature/dead_tree|DeadTree_2"
+			elif r2 < 0.12:
+				kind = "nature/sapling|Bush_Common"
 			elif rng.randf() < 0.35 + pine_bias * 0.5:
-				kind = "Pine_%d" % (1 + rng.randi() % 5)
+				kind = ["nature/pine_a|Pine_1", "nature/pine_b|Pine_3"][rng.randi() % 2]
 			else:
-				kind = "CommonTree_%d" % (1 + rng.randi() % 5)
+				kind = ["nature/oak_a|CommonTree_1", "nature/oak_b|CommonTree_3", "nature/birch_a|CommonTree_5"][rng.randi() % 3]
 		elif roll < density + 0.12 and WorldGen.road_distance(x, z) > 4.0 and WorldGen.street_distance(x, z) > 3.0:
 			# Photo-scanned undergrowth under trees, wildflowers in the open.
 			if density > 0.35:
-				kind = ["scan/fern_02", "scan/fern_02", "scan/shrub_03", "scan/nettle_plant", "Bush_Common", "scan/tree_stump_01",
+				kind = ["scan/fern_02", "scan/fern_02", "scan/shrub_03", "scan/nettle_plant", "nature/bush_a", "scan/tree_stump_01",
 					"scan/tree_stump_02", "scan/root_cluster_01", "scan/dead_tree_trunk"][rng.randi() % 9]
 			else:
-				kind = ["scan/dandelion_01", "scan/nettle_plant", "Bush_Common_Flowers", "Flower_3_Group", "Flower_4_Group", "scan/shrub_03"][rng.randi() % 6]
+				kind = ["scan/dandelion_01", "nature/bush_b", "nature/bush_a", "Flower_3_Group", "scan/shrub_03", "scan/fern_02"][rng.randi() % 6]
 		elif rng.randf() < 0.05:
 			kind = "scan/rock_moss_set_0%d_%d" % [1 + rng.randi() % 2, 1 + rng.randi() % 6]
 		if kind == "":
@@ -208,12 +213,26 @@ func _add_forest(chunk: Node3D, key: Vector2i, origin: Vector2) -> void:
 	for kind: String in buckets:
 		var list: Array[Transform3D] = []
 		list.assign(buckets[kind])
-		_multimesh(chunk, Assets.nature_mesh(kind), list)
+		if kind.contains("|"):
+			# "near|far": realistic mesh up close, stylised stand-in beyond TREE_LOD metres.
+			var near_far := kind.split("|")
+			var near_mm := _multimesh(chunk, Assets.nature_mesh(near_far[0]), list)
+			var far_mm := _multimesh(chunk, Assets.nature_mesh(near_far[1]), list)
+			if near_mm:
+				near_mm.visibility_range_end = TREE_LOD
+				near_mm.visibility_range_end_margin = 15.0
+				near_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+			if far_mm:
+				far_mm.visibility_range_begin = TREE_LOD
+				far_mm.visibility_range_begin_margin = 15.0
+				far_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+		else:
+			_multimesh(chunk, Assets.nature_mesh(kind), list)
 
 
-func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> void:
+func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> MultiMeshInstance3D:
 	if mesh == null or transforms.is_empty():
-		return
+		return null
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.mesh = mesh
@@ -224,3 +243,4 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> v
 	mmi.multimesh = mm
 	mmi.visibility_range_end = 450.0
 	parent.add_child(mmi)
+	return mmi

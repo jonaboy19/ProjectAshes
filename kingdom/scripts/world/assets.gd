@@ -491,8 +491,9 @@ static func nature_mesh(key: String) -> ArrayMesh:
 	var cache_key := "nature:" + key
 	if _building_cache.has(cache_key):
 		return _building_cache[cache_key]
-	# "scan/<name>" = decimated Poly Haven photo-scan (tools/blender/decimate_scans.py), real scale.
-	var is_scan := key.begins_with("scan/")
+	# "scan/<name>" = decimated Poly Haven photo-scan (tools/blender/decimate_scans.py);
+	# "nature/<name>" = Blender-generated trees and plants (tools/blender/make_nature.py). Real scale.
+	var is_scan := key.begins_with("scan/") or key.begins_with("nature/")
 	var mesh := merged_mesh("res://assets/generated/" + key + ".glb" if is_scan else NATURE_DIR + key + ".gltf")
 	if mesh == null:
 		return null
