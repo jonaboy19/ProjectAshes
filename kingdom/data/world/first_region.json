@@ -1,0 +1,125 @@
+{
+	"version": 1,
+	"id": "first_region",
+	"name": "The Ashford Vale",
+	"nation": "caldrenn",
+	"coords": "Metres on the X/Z ground plane relative to Ashford at (0, 0); pos = [x, z]. The streamed world is 4 x 4 km (+-2000). Matches WorldGen seed 1066: Kingsreach sits at (560, -420).",
+	"bounds": {"min": [-2000, -2000], "max": [2000, 2000]},
+	"home": "ashford",
+	"places": [
+		{
+			"id": "ashford",
+			"name": "Ashford",
+			"kind": "village",
+			"pos": [0, 0],
+			"radius": 60,
+			"settlement_id": 0,
+			"description": "The home village: timber-and-thatch houses around a runestone circle, a mill on the stream, the inn, the smithy and the guard post. Founded by folk who came 'out of the ashes' of an older town."
+		},
+		{
+			"id": "kingsreach",
+			"name": "Kingsreach",
+			"kind": "capital",
+			"pos": [560, -420],
+			"radius": 175,
+			"settlement_id": 1,
+			"description": "The royal castle-city of Caldrenn, a morning's ride north-east along the King's Ember Road."
+		},
+		{
+			"id": "emberglass_mere",
+			"name": "Emberglass Mere",
+			"kind": "lake",
+			"pos": [-420, 300],
+			"radius": 90,
+			"depth_m": 14,
+			"description": "A still, deep lake south-west of Ashford. At sunset the water turns the colour of embers. Fishers keep a jetty on the east shore; children are warned off the drop-off in the middle."
+		},
+		{
+			"id": "ashrun_river",
+			"name": "The Ashrun",
+			"kind": "river",
+			"pos": [-400, 220],
+			"width_m": 9,
+			"path": [[-150, -900], [-230, -560], [-300, -300], [-330, -150], [-360, 60], [-385, 215], [-480, 380], [-700, 640], [-1000, 900], [-1500, 1200]],
+			"flows": "from the northern hills south into Emberglass Mere, out of its south-west shore and away toward the Westfen marshes",
+			"description": "A cold, clear river fed by snowmelt. It turns the Ashford mill by a cut channel and is crossed by the Ashrun Bridge on the Oakvale road."
+		},
+		{
+			"id": "ashrun_bridge",
+			"name": "Ashrun Bridge",
+			"kind": "bridge",
+			"pos": [-318, -214],
+			"radius": 8,
+			"description": "An old stone bridge where the Oakvale road crosses the Ashrun. Toll-free, but the guard sometimes posts a watch here."
+		},
+		{
+			"id": "duskbriar_wood",
+			"name": "Duskbriar Wood",
+			"kind": "forest",
+			"pos": [380, 480],
+			"radius": 330,
+			"danger": "moderate",
+			"description": "Dense old oak and briar south-east of Ashford, past the edge of the runestone ward. Woodcutters work its northern fringe; wolves and goblins own the rest."
+		},
+		{
+			"id": "tuskridge_hold",
+			"name": "Tuskridge Hold",
+			"kind": "orc_village",
+			"pos": [300, 930],
+			"radius": 45,
+			"tribe": "tuskridge_clan",
+			"chief": {"name": "Harrok Ashmaw", "race": "orc", "age": 46, "title": "Chief of the Tuskridge", "bloodline": "iron_tusk", "temperament": "proud, pragmatic, keeps his word"},
+			"population": 140,
+			"description": "A ring of log longhouses on a hilltop beyond Duskbriar Wood, behind an earthwork and stakes. The exiled Tuskridge clan lives here under an uneasy truce with Ashford."
+		},
+		{
+			"id": "mossfang_warren",
+			"name": "Mossfang Warren",
+			"kind": "goblin_warren",
+			"pos": [560, 250],
+			"radius": 30,
+			"tribe": "mossfang_warren",
+			"danger": "moderate",
+			"description": "A burrow under the roots at Duskbriar's northern edge: tunnels, snares and a stolen-goods midden. The first real fight most Ashford youths face."
+		},
+		{
+			"id": "shrine_of_the_sleeping_flame",
+			"name": "Shrine of the Sleeping Flame",
+			"kind": "ruined_shrine",
+			"pos": [-700, -160],
+			"radius": 20,
+			"hidden_trigger": {"min_age": 8, "max_age": 8, "id": "ember_in_the_ruins", "hint": "An eight-year-old who climbs to the shrine alone and relights the cold brazier."},
+			"description": "Broken pillars and a cracked brazier on a hilltop west of the Ashrun. Older than Ashford; the carvings show a bird rising from fire. Nobody tends it now."
+		},
+		{
+			"id": "cinderpost_waystation",
+			"name": "Cinderpost Waystation",
+			"kind": "waystation",
+			"pos": [288, -199],
+			"radius": 18,
+			"services": ["stable", "water_trough", "bunkhouse", "notice_board", "patrol_post"],
+			"description": "A walled halfway post on the King's Ember Road with a stable, a trough, a bunkhouse and a patrol post. Caravans water their oxen here; the notice board carries capital news a day late."
+		},
+		{
+			"id": "kings_ember_road",
+			"name": "The King's Ember Road",
+			"kind": "road",
+			"pos": [280, -210],
+			"path": [[0, 0], [288, -199], [560, -420]],
+			"from": "ashford",
+			"to": "kingsreach",
+			"length_m": 700,
+			"safety": "safe",
+			"description": "The main road from Ashford to the capital, running north-east. Kept safe by patrols and a line of waystones; its surface is packed ash and gravel."
+		},
+		{
+			"id": "whisper_hollow",
+			"name": "Whisper Hollow",
+			"kind": "hidden_place",
+			"pos": [-560, 520],
+			"radius": 12,
+			"hidden": true,
+			"description": "A mossy dell on the Ashrun just below the Mere where the wind sounds like voices. Something lives under the old willow."
+		}
+	]
+}
