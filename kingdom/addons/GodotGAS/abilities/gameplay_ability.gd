@@ -1,0 +1,313 @@
+## Base class for all gameplay abilities in the GodotGAS framework.
+##
+## Defines the core execution logic, input routing, and effect application 
+## pipelines for an ability. Intended to be extended by specific ability scripts.
+##
+## @meta_addon: GodotGAS Version 1 (See plugin version for exact version)
+## @meta_author: YulRun (https://YulRun.Dev)
+## @meta_license: MIT
+
+@abstract
+@icon("res://addons/GodotGAS/icons/godot_gas_asc.svg")
+class_name GameplayAbility extends Node
+
+## Defines how this ability handles multiple overlapping activations.
+enum InstancingPolicy {
+	INSTANCED_PER_ACTOR,     ## Only one instance exists. Blocks subsequent casts until finished.
+	INSTANCED_PER_EXECUTION  ## Duplicates a fresh transient copy for every cast. Allows concurrent overlap.
+}
+
+## Fired when the ability finishes.
+## UI or Animation systems can listen to this to know if the cast succeeded or got interrupted.
+signal ability_ended(was_cancelled: bool)
+
+@export_category("Ability Rules")
+## How this ability handles being cast multiple times in rapid succession.
+@export var instancing_policy: InstancingPolicy = InstancingPolicy.INSTANCED_PER_ACTOR
+## The simple name to be used for logging or UI
+@export var ability_name: String = ""
+## The tag that uniquely identifies this ability.
+@export_custom(PROPERTY_HINT_NONE, "gas::tag") var ability_tag: StringName = &"Ability.None"
+## The current level of this ability, used for scaling math and effects.
+@export var ability_level: float = 1.0
+## The query evaluated against the ASC to determine if this ability is allowed to activate.
+@export var activation_query: GameplayTagQuery
+
+@export_category("Ability Mechanics")
+## The gameplay effect applied to the owner to deduct resources upon committing.
+@export var cost_effect: GameplayEffect
+## The gameplay effect applied to the owner to trigger a cooldown upon committing.
+@export var cooldown_effect: GameplayEffect
+## Any additional shared effects (like a Global Cooldown) that should be applied when cast.
+@export var shared_cooldown_effects: Array[GameplayEffect] = []
+## Explicitly list any shared cooldowns (like GCDs) this ability should respect.
+@export_custom(PROPERTY_HINT_NONE, "gas::tag") var shared_cooldown_tags: Array[StringName] = []
+
+@export_category("Ability Triggers")
+## If set, the ASC will automatically try to activate this ability when it receives this exact event tag.
+@export_custom(PROPERTY_HINT_NONE, "gas::tag") var trigger_event_tag: StringName = &""
+
+@export_category("Input Routing")
+## The integer ID this ability is currently bound to. -1 means unbound.
+## Usually handled automatically by UI Action Bars calling ASC.bind_ability_to_input().
+@export var input_id: int = -1
+
+## Temporarily holds the payload if this ability was activated via an event.
+## This can be a GameplayEffectSpec, a Dictionary, or a Godot Node!
+var current_event_payload: Variant
+
+## A reference to the AbilitySystemComponent that owns this ability.
+var owner_asc: AbilitySystemComponent
+
+## Tracks whether this ability is currently executing.
+var is_active: bool = false
+
+
+#region Initialization
+## Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	if not owner_asc:
+		var parent = get_parent()
+		if parent is AbilitySystemComponent:
+			parent.grant_ability(self)
+#endregion
+
+
+#region Execution & State
+## The public entry point. Accepts an optional payload if triggered by an event.
+func try_activate(event_payload: Variant = null) -> bool:
+	# --- INSTANCED PER EXECUTION PATH ---
+	if instancing_policy == InstancingPolicy.INSTANCED_PER_EXECUTION:
+		# 1. Gatekeeper check on the base template first
+		if not owner_asc.can_activate_ability(self, true):
+			return false
+			
+		# 2. Spawn a transient clone for this specific execution
+		var transient_ability: GameplayAbility = self.duplicate()
+		
+		# 3. Force the clone to PER_ACTOR so it executes normally without recursively cloning itself
+		transient_ability.instancing_policy = InstancingPolicy.INSTANCED_PER_ACTOR
+		
+		# 4. Attach and register the clone with the ASC so it can be canceled by tags
+		owner_asc.add_child(transient_ability)
+		transient_ability.owner_asc = owner_asc
+		owner_asc._add_active_ability(transient_ability)
+		
+		# 5. Clean up the clone from memory and ASC tracking the exact moment it finishes
+		transient_ability.ability_ended.connect(func(_was_cancelled):
+			owner_asc._remove_active_ability(transient_ability)
+			transient_ability.queue_free()
+		)
+		
+		# 6. Execute the clone (Awaited to extract the boolean from the coroutine)
+		return await transient_ability.try_activate(event_payload)
+		
+		
+	# --- INSTANCED PER ACTOR PATH (Standard) ---
+	if is_active or not owner_asc:
+		return false
+	
+	# Gatekeeper check
+	if not owner_asc.can_activate_ability(self, true):
+		return false
+		
+	is_active = true
+	current_event_payload = event_payload # Store the payload for the logic to use
+	
+	# Logic execution
+	var success = await _activate_ability()
+	
+	# Guaranteed Cleanup
+	if is_active:
+		end_ability(not success)
+		
+	current_event_payload = null # Clear it out to prevent memory leaks
+	return success
+
+
+## A standard helper to safely deduct resources and apply cooldowns at the EXACT same time.
+## Developers should call this manually inside _activate_ability() as soon as the ability is committed.
+func commit_ability() -> void:
+	if cost_effect:
+		owner_asc.apply_gameplay_effect(cost_effect, owner_asc, ability_level)
+	
+	if cooldown_effect:
+		owner_asc.apply_gameplay_effect(cooldown_effect, owner_asc, ability_level)
+	
+	for shared_effect in shared_cooldown_effects:
+		if shared_effect:
+			owner_asc.apply_gameplay_effect(shared_effect, owner_asc, ability_level)
+
+
+## Virtual internal method. Override this in your specific ability scripts.
+func _activate_ability() -> bool:
+	# Example flow:
+	# commit_ability()
+	# await play_animation()
+	# apply_effect_to_targets(...)
+	return true 
+
+
+## Forcefully interrupts the ability mid-cast.
+func abort_ability() -> void:
+	if is_active:
+		print("GAS: Ability %s was forcefully aborted." % ability_tag)
+		end_ability(true)
+
+
+## Cleans up the state of the ability.
+func end_ability(was_cancelled: bool = false) -> void:
+	is_active = false
+	# We intentionally DO NOT remove the ability from the ASC here, 
+	# otherwise it gets permanently un-granted.
+	
+	ability_ended.emit(was_cancelled)
+#endregion
+
+
+#region Helper Methods
+## Triggers multiple visual/audio cues through the ASC.
+func execute_cue(tag: StringName) -> void:
+	if owner_asc:
+		owner_asc.execute_cue(tag)
+
+
+## A massive QoL helper. Takes target data, builds the Context, wraps the Effect in a Spec, 
+## and shoots it at every target's ASC.
+func apply_effect_to_targets(effect_res: GameplayEffect, target_data: GameplayAbilityTargetData) -> void:
+	if not effect_res or not target_data:
+		return
+		
+	# The instigator and the causer both default to the persistent parent entity (e.g., the Player).
+	# Do NOT pass `self` (the transient ability) as the causer.
+	var persistent_avatar = owner_asc.get_parent()
+	var context = GameplayEffectContext.new(persistent_avatar, persistent_avatar)
+	
+	context.target_data = target_data
+	var spec = GameplayEffectSpec.new(effect_res, context, ability_level)
+	
+	var targets = target_data.get_target_nodes()
+	for target in targets:
+		var target_asc = _find_asc_on_node(target)
+		if target_asc:
+			owner_asc.apply_effect_spec_to_target(spec, target_asc)
+
+
+## Internal helper to search for an ASC on a given node or its immediate children.
+func _find_asc_on_node(node: Node) -> AbilitySystemComponent:
+	if node is AbilitySystemComponent: 
+		return node
+		
+	for child in node.get_children():
+		if child is AbilitySystemComponent: 
+			return child
+			
+	return null
+
+
+## Returns ALL tags that represent a cooldown for this ability 
+## (Personal + Shared explicitly assigned by the designer).
+func get_cooldown_tags() -> Array[StringName]:
+	var cooldown_tags: Array[StringName] = []
+	
+	# 1. Pull granted tags directly from the assigned Cooldown Resource
+	if cooldown_effect != null:
+		cooldown_tags.append_array(cooldown_effect.granted_tags)
+	
+	# 2. Automatically pull tags from the applied shared effects (like the GCD)
+	for effect in shared_cooldown_effects:
+		if effect != null:
+			cooldown_tags.append_array(effect.granted_tags)
+	
+	# 3. Pull explicit shared cooldown tags
+	cooldown_tags.append_array(shared_cooldown_tags)
+	
+	return cooldown_tags
+#endregion
+
+
+#region Input Routing
+## Virtual function triggered by the ASC when the assigned input_id is PRESSED.
+func _input_pressed(asc: AbilitySystemComponent) -> void:
+	if is_active:
+		# If already casting/channeling, route to the active override
+		_active_input_pressed(asc)
+		return
+		
+	# Kick off the robust activation pipeline (try_activate handles gatekeeping, state, and cleanup)
+	try_activate()
+
+
+## Virtual function triggered by the ASC when the assigned input_id is RELEASED.
+func _input_released(asc: AbilitySystemComponent) -> void:
+	if is_active:
+		_active_input_released(asc)
+
+
+## Triggered when the ability's input is PRESSED, but the ability is ALREADY active.
+## Override this for mechanics like 'Press again to cancel' or 'Press again to detonate'.
+func _active_input_pressed(asc: AbilitySystemComponent) -> void:
+	pass
+
+
+## Triggered when the ability's input is RELEASED, but the ability is ALREADY active.
+## Override this for 'Hold to charge, Release to fire' mechanics.
+func _active_input_released(asc: AbilitySystemComponent) -> void:
+	pass
+#endregion
+
+
+#region Async Ability Tasks
+## Pauses ability execution for a specific duration in seconds without blocking the thread.
+func task_wait_delay(duration: float) -> void:
+	if duration <= 0.0: return
+	
+	# Yield for a single frame before starting the clock. 
+	# This protects the SceneTreeTimer from instantly absorbing massive delta spikes 
+	# that occur when abilities are cast during _ready() or heavy scene loads.
+	await get_tree().process_frame
+	await get_tree().create_timer(duration).timeout
+
+
+## Yields execution until the ASC receives a specific gameplay event tag.
+## Uses a loop to continuously filter incoming signals until the correct tag is intercepted.
+func task_wait_for_event(target_tag: StringName) -> Dictionary:
+	if not owner_asc: return {}
+	
+	while is_active:
+		# Awaiting a signal with multiple parameters returns an Array in Godot 4
+		var args = await owner_asc.gameplay_event_received
+		var received_tag = args[0] if args is Array else args
+		var payload = args[1] if args is Array and args.size() > 1 else {}
+		
+		if received_tag == target_tag:
+			return payload
+			
+	return {}
+
+
+## Yields execution until a specific attribute changes on the owner's ASC.
+func task_wait_for_attribute_change(attribute_name: String) -> void:
+	if not owner_asc: return
+	
+	while is_active:
+		var args = await owner_asc.attribute_changed
+		var changed_attr = args[0] if args is Array else args
+		
+		if changed_attr == attribute_name:
+			return
+
+
+## Plays a specific animation and yields execution until that exact animation finishes.
+func task_play_animation_and_wait(anim_player: AnimationPlayer, anim_name: String) -> void:
+	if not anim_player or not anim_player.has_animation(anim_name):
+		push_warning("GodotGAS: Animation '%s' not found on %s." % [anim_name, anim_player.name])
+		return
+		
+	anim_player.play(anim_name)
+	
+	while is_active:
+		var finished_anim_name = await anim_player.animation_finished
+		if finished_anim_name == anim_name:
+			return
+#endregion

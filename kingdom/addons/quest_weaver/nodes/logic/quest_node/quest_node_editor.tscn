@@ -1,0 +1,58 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://addons/quest_weaver/nodes/logic/quest_node/quest_node_editor.gd" id="1_66u7u"]
+[ext_resource type="Theme" path="res://addons/quest_weaver/assets/themes/qw_container_style.tres" id="1_nhc80"]
+[ext_resource type="PackedScene" path="res://addons/quest_weaver/editor/components/auto_complete_line_edit.tscn" id="2_x766l"]
+
+[node name="QuestNodeEditor" type="PanelContainer" unique_id=1779776777]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 109.0
+grow_horizontal = 2
+theme = ExtResource("1_nhc80")
+script = ExtResource("1_66u7u")
+
+[node name="MainLayout" type="VBoxContainer" parent="." unique_id=883346584]
+layout_mode = 2
+
+[node name="ActionPicker" type="OptionButton" parent="MainLayout" unique_id=847272308]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 30)
+layout_mode = 2
+
+[node name="PoolPickerRow" type="HBoxContainer" parent="MainLayout" unique_id=3847291023]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+
+[node name="Label" type="Label" parent="MainLayout/PoolPickerRow" unique_id=2847291024]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Pool: "
+
+[node name="PoolPicker" type="OptionButton" parent="MainLayout/PoolPickerRow" unique_id=3847291025]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 30)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MainLayout" unique_id=1011068574]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MainLayout/HBoxContainer" unique_id=1655785641]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+text = "Quest: "
+
+[node name="TargetQuestIdEdit" parent="MainLayout/HBoxContainer" unique_id=1490652583 instance=ExtResource("2_x766l")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="MainLayout" unique_id=2041628858]
+layout_mode = 2
+
+[node name="TerminalCheckBox" type="CheckBox" parent="MainLayout" unique_id=1058294919]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Disables Output-Port(s). Helps to avoid warnings in the validator."
+text = "End of Flow"

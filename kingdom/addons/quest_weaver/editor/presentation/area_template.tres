@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="UIPanelTemplateResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/quest_weaver/editor/presentation/ui_panel_template_resource.gd" id="1_dn7o5"]
+
+[resource]
+script = ExtResource("1_dn7o5")
+panel_scene_path = "res://addons/quest_weaver/editor/presentation/area_notification.tscn"
+metadata/_custom_type_script = "res://addons/quest_weaver/editor/presentation/ui_panel_template_resource.gd"

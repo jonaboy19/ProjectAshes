@@ -20,6 +20,7 @@ var baker: ImpostorBaker
 var terrain: TerrainStreamer
 var settlements: SettlementBuilder
 var population: PopulationLOD
+var frontier: FrontierPresence
 var player: Player
 var hud: HUD
 var army: Squad
@@ -81,6 +82,9 @@ func _ready() -> void:
 	population = PopulationLOD.new()
 	world.add_child(population)
 	population.setup(baker)
+	frontier = FrontierPresence.new()
+	world.add_child(frontier)
+	Frontier.frontier_event.connect(func(text: String, _pos: Vector2) -> void: Game.say(text))
 	var spawn := Vector3(HOME_SPAWN.x, WorldGen.height(HOME_SPAWN.x, HOME_SPAWN.y) + 0.5, HOME_SPAWN.y)
 	terrain.focus = spawn
 	settlements.focus = spawn
@@ -122,6 +126,7 @@ func _process(delta: float) -> void:
 	terrain.focus = focus
 	settlements.focus = focus
 	population.focus = focus
+	frontier.focus = focus
 	terrain.view_radius = 5 if player.view == Player.View.COMMAND else 4
 	_update_daylight()
 	_status_timer -= delta
@@ -131,6 +136,7 @@ func _process(delta: float) -> void:
 			Engine.get_frames_per_second(), terrain.loaded_count(), population.full_count + population.sprite_count,
 			population.full_count, population.sprite_count, get_tree().get_nodes_in_group("combatant").size()]
 		hud.update_status(army.alive(), ["Follow", "Hold", "Charge"][army.order], player.nearest_interactable(), perf)
+		hud.update_danger(Frontier.threat_at(Vector2(focus.x, focus.z)))
 		_update_mood()
 
 
@@ -447,6 +453,23 @@ func _screenshot(shot: String, path: String) -> void:
 			player.set_view(Player.View.FIRST)
 			player.set_camera(player._yaw, -0.12)
 			warmup = 45
+		"frontier":
+			var ws: Dictionary = Frontier.runestones.stones[7] if Frontier.runestones.stones.size() > 7 else Frontier.runestones.stones[0]
+			var den: Dictionary = Frontier.ecology.dens[0]
+			var sp: Vector2 = ws["pos"] + (den["pos"] - ws["pos"]).normalized() * 6.0
+			_teleport(sp, 0.0)
+			var look2: Vector2 = den["pos"] - sp
+			player.set_camera(atan2(-look2.x, -look2.y) + PI, -0.2)
+			# Bring one pack close for the shot.
+			frontier.focus = Vector3(den["pos"].x, 0, den["pos"].y)
+			frontier._timer = 0.0
+			warmup = 30
+			for i in 3:
+				await get_tree().process_frame
+			for w in get_tree().get_nodes_in_group("team1"):
+				if w is Wolf:
+					var q: Vector2 = sp + (den["pos"] - sp).normalized() * randf_range(10.0, 18.0) + Vector2(randf_range(-5, 5), randf_range(-5, 5))
+					w.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
 		"city", "street":
 			var cap: Dictionary = WorldGen.settlements[1]
 			var cp: Vector2 = cap["pos"]

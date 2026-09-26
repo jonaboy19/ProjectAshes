@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites id="2026-09-26" name="report_1" tests="6" failures="0" skipped="0" flaky="0" time="0.000">
+	<testsuite id="0" name="test_frontier" package="tests" timestamp="2026-09-26T11:33:35" hostname="localhost" tests="6" failures="0" errors="0" skipped="0" flaky="0" time="0.171">
+		<testcase name="test_coverage_is_full_at_stone_and_zero_outside" classname="test_frontier" time="0.008">
+		</testcase>
+		<testcase name="test_damage_weakens_and_maintenance_restores" classname="test_frontier" time="0.008">
+		</testcase>
+		<testcase name="test_neglect_decays_faster" classname="test_frontier" time="0.007">
+		</testcase>
+		<testcase name="test_threat_is_lower_inside_protection" classname="test_frontier" time="0.037">
+		</testcase>
+		<testcase name="test_culling_a_den_to_zero_kills_it" classname="test_frontier" time="0.009">
+		</testcase>
+		<testcase name="test_event_modifier_raises_then_expires" classname="test_frontier" time="0.072">
+		</testcase>
+	</testsuite>
+</testsuites>

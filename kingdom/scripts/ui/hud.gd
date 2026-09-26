@@ -12,6 +12,7 @@ var controls: Control
 var _stats: Label
 var _where: Label
 var _perf: Label
+var _danger: Label
 var _health: ProgressBar
 var _stamina: ProgressBar
 var _toast: Label
@@ -102,6 +103,13 @@ func _ready() -> void:
 	_perf.offset_right = 300
 	_perf.offset_top = 8
 	_perf.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_danger = _label(root, 16, PAPER)
+	_danger.anchor_left = 1.0
+	_danger.anchor_right = 1.0
+	_danger.offset_left = -420
+	_danger.offset_right = -18
+	_danger.offset_top = 96
+	_danger.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_toast = _label(root, 24, PAPER)
 	_toast.anchor_left = 0.15
 	_toast.anchor_right = 0.85
@@ -241,6 +249,19 @@ func update_status(soldiers: int, order_name: String, target: Node3D, perf: Stri
 		_interact_label.text = target.prompt()
 	for b in _order_buttons:
 		b.visible = soldiers > 0
+
+
+## Danger readout with its biggest reasons, e.g. "Dangerous 41 · Wolf den +22 · Runestone -18".
+func update_danger(t: Dictionary) -> void:
+	var total: float = t["total"]
+	var lines: Array = t["lines"].duplicate()
+	lines.sort_custom(func(a: Array, b: Array) -> bool: return absf(a[1]) > absf(b[1]))
+	var parts := PackedStringArray()
+	for l in lines.slice(0, 3):
+		parts.append("%s %+d" % [l[0], int(l[1])])
+	_danger.text = "Danger  %s %d\n%s" % [RAThreatMap.describe(total), int(total), "\n".join(parts)]
+	var c := Color("9fe39f").lerp(Color("ff7b5c"), clampf(total / 70.0, 0.0, 1.0))
+	_danger.add_theme_color_override("font_color", c)
 
 
 static func _thousands(n: int) -> String:

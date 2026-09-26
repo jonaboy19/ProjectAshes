@@ -1,0 +1,65 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://addons/quest_weaver/editor/validation/validator_dock.gd" id="1_07710"]
+
+[sub_resource type="DPITexture" id="DPITexture_63uxm"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"#ff5d5d\" d=\"M2 1v8.586l1.293-1.293a1 1 0 0 1 1.414 0L7 10.587l2.293-2.293a1 1 0 0 1 1.414 0L13 10.586l1-1V6H9V1H2zm8 0v4h4zm-6 9.414-2 2V15h12v-2.586l-.293.293a1 1 0 0 1-1.414 0L10 10.414l-2.293 2.293a1 1 0 0 1-1.414 0L4 10.414z\"/></svg>
+"
+
+[node name="ValidatorDock" type="MarginContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_07710")
+
+[node name="HSplitContainer" type="HSplitContainer" parent="."]
+layout_mode = 2
+
+[node name="DebugContainer" type="VBoxContainer" parent="HSplitContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HSplitContainer/DebugContainer"]
+layout_mode = 2
+text = "Debug Categories"
+
+[node name="CategoryList" type="VBoxContainer" parent="HSplitContainer/DebugContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ButtonsContainer" type="VBoxContainer" parent="HSplitContainer"]
+layout_mode = 2
+
+[node name="HorizontalBox" type="HBoxContainer" parent="HSplitContainer/ButtonsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ValidateButton" type="Button" parent="HSplitContainer/ButtonsContainer/HorizontalBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Validate Active Quest"
+icon = SubResource("DPITexture_63uxm")
+
+[node name="ValidateSidePanelButton" type="Button" parent="HSplitContainer/ButtonsContainer/HorizontalBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Validate Opened Quests"
+
+[node name="ValidateAllButton" type="Button" parent="HSplitContainer/ButtonsContainer/HorizontalBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Validate All Quests"
+
+[node name="ValidationPanel" type="PanelContainer" parent="HSplitContainer/ButtonsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ResultsTree" type="Tree" parent="HSplitContainer/ButtonsContainer/ValidationPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+columns = 4
+column_titles_visible = true

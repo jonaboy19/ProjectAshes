@@ -21,7 +21,7 @@ const OUTFITS := Q + "modular-character-outfits-fantasy/Exports/glTF (Godot-Unre
 const HAIR := UBC + "Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/"
 const UAL_FILES := [Q + "universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
 	Q + "universal-animation-library-2/Unreal-Godot/UAL2_Standard.glb"]
-const WEAPONS := Q + "lowpoly-medieval-weapons/FBX/"
+const WEAPONS := Q + "fantasy-props-megakit/Exports/glTF/"
 const HELMET := Q + "lowpoly-animated-knight/FBX/Helmet1.fbx"
 ## Old KayKit clip names -> UAL clips, so gameplay code keeps using one vocabulary.
 ## (Godot's importer strips the "_Loop" suffix from looping clips and marks them looping.)
@@ -228,14 +228,13 @@ static func humanoid(look: Dictionary, height: float, keep: Array[String] = []) 
 		if part.contains("Helmet"):
 			_attach(skeleton, "Head", HELMET, 0.3, Vector3(0, 0.08, 0.02), Vector3.ZERO)
 		elif part.contains("Axe"):
-			_attach(skeleton, "hand_r", WEAPONS + "Axe.fbx", 0.75, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
+			_attach(skeleton, "hand_r", WEAPONS + "Axe_Bronze.gltf", 0.75, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
 		elif part.contains("2H_Sword"):
-			_attach(skeleton, "hand_r", WEAPONS + "Sword_Big.fbx", 1.3, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
+			_attach(skeleton, "hand_r", WEAPONS + "Sword_Bronze.gltf", 1.3, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
 		elif part.contains("Sword"):
-			_attach(skeleton, "hand_r", WEAPONS + "Sword.fbx", 0.95, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
+			_attach(skeleton, "hand_r", WEAPONS + "Sword_Bronze.gltf", 0.95, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
 		elif part.contains("Shield"):
-			var shield := "Shield_Round.fbx" if part.contains("Barbarian") else "Shield_Heater.fbx"
-			_attach(skeleton, "lowerarm_l", WEAPONS + shield, 0.62, Vector3(0.12, 0, 0.08), Vector3(0, 90, 0))
+			_attach(skeleton, "lowerarm_l", WEAPONS + "Shield_Wooden.gltf", 0.62, Vector3(0.12, 0, 0.08), Vector3(0, 90, 0))
 	# Animation player driving the base skeleton.
 	var anim := AnimationPlayer.new()
 	anim.name = "AnimationPlayer"

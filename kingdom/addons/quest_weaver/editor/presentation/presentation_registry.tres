@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="PresentationRegistry" load_steps=6 format=3]
+
+[ext_resource type="Resource" path="res://addons/quest_weaver/editor/presentation/area_template.tres" id="1_ne4do"]
+[ext_resource type="Resource" path="res://addons/quest_weaver/editor/presentation/default_template.tres" id="2_12wdi"]
+[ext_resource type="Resource" path="res://addons/quest_weaver/editor/presentation/instruction_template.tres" id="3_4v4hs"]
+[ext_resource type="Resource" path="res://addons/quest_weaver/editor/presentation/bottom_centered_template.tres" id="4_12wdi"]
+[ext_resource type="Script" path="res://addons/quest_weaver/editor/presentation/presentation_registry.gd" id="4_dq0bg"]
+
+[resource]
+script = ExtResource("4_dq0bg")
+entries = {
+"AreaName": ExtResource("1_ne4do"),
+"BottomCentered": ExtResource("4_12wdi"),
+"Default": ExtResource("2_12wdi"),
+"Instruction": ExtResource("3_4v4hs")
+}
+metadata/_custom_type_script = "res://addons/quest_weaver/editor/presentation/presentation_registry.gd"
