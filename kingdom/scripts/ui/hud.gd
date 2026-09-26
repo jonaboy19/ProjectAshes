@@ -10,8 +10,8 @@ var _stats: Label
 var _where: Label
 var _perf: Label
 var _danger: Label
-var _health: ProgressBar
-var _stamina: ProgressBar
+var _health: Meter
+var _stamina: Meter
 var _toast: Label
 var _toast_tween: Tween
 var _interact: TouchScreenButton
@@ -168,15 +168,9 @@ func set_loading_text(text: String) -> void:
 	_loading_label.text = text
 
 
-func _bar(parent: Control, pos: Vector2, color: Color, height: int) -> ProgressBar:
-	var bar := ProgressBar.new()
+func _bar(parent: Control, pos: Vector2, color: Color, height: int) -> Meter:
+	var bar := Meter.new(color, Vector2(268, height))
 	bar.position = pos
-	bar.custom_minimum_size = Vector2(268, height)
-	bar.size = Vector2(268, height)
-	bar.show_percentage = false
-	bar.theme = UITheme.theme()
-	bar.add_theme_font_size_override("font_size", 1)   # the hidden % label still sets min height
-	bar.add_theme_stylebox_override("fill", UITheme.bar_fill(color))
 	parent.add_child(bar)
 	return bar
 
