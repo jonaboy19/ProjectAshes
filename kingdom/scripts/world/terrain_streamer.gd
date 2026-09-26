@@ -194,7 +194,7 @@ func _add_forest(chunk: Node3D, key: Vector2i, origin: Vector2) -> void:
 			# Photo-scanned undergrowth under trees, wildflowers in the open.
 			if density > 0.35:
 				kind = ["scan/fern_02", "scan/fern_02", "scan/shrub_03", "scan/nettle_plant", "nature/bush_a", "scan/tree_stump_01",
-					"scan/tree_stump_02", "scan/root_cluster_01", "scan/dead_tree_trunk"][rng.randi() % 9]
+					"scan/tree_stump_02", "scan/root_cluster_01", "scan/fern_02"][rng.randi() % 9]
 			else:
 				kind = ["scan/dandelion_01", "nature/bush_b", "nature/bush_a", "Flower_3_Group", "scan/shrub_03", "scan/fern_02"][rng.randi() % 6]
 		elif rng.randf() < 0.05:

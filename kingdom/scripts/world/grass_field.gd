@@ -4,7 +4,7 @@ extends RefCounted
 ## player get grass (see TerrainStreamer.grass_radius), and each instance fades
 ## out by distance, so thousands of blades stay affordable.
 
-const CLUMPS_PER_CHUNK := 1500
+const CLUMPS_PER_CHUNK := 2600
 const FADE_END := 70.0
 const SHADER := preload("res://shaders/grass.gdshader")
 
