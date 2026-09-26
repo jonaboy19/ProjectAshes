@@ -22,7 +22,7 @@ uniform sampler2D cobble_normal : hint_normal, filter_linear_mipmap_anisotropic,
 uniform sampler2D cobble_arm : filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D macro_noise : filter_linear_mipmap, repeat_enable;
 uniform float tile_size = 4.0;            // metres per texture repeat
-uniform vec3 grass_tint : source_color = vec3(0.92, 1.0, 0.85);
+uniform vec3 grass_tint : source_color = vec3(0.85, 1.0, 0.7);
 
 varying vec3 world_pos;
 varying vec3 world_normal;
