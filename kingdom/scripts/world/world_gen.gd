@@ -11,6 +11,8 @@ const NAMES := ["Ashford", "Kingsreach", "Millbrook", "Stonehollow", "Eastmere",
 
 ## Each settlement: {id, name, pos: Vector2, radius, base_h, kind: "village"|"town"|"castle", population}
 static var settlements: Array[Dictionary] = []
+## Flattened grounds for monster camps from data/world/first_region.json: [{pos, radius, base_h}]
+static var camp_grounds: Array[Dictionary] = []
 ## Road segments as pairs of settlement ids.
 static var roads: Array[Vector2i] = []
 
@@ -66,6 +68,22 @@ static func setup(seed_value: int) -> void:
 	for st in settlements:
 		st["plan"] = CityPlanner.plan(st, gate_angles(st), seed_value)
 	_place_water(seed_value)
+	_place_camp_grounds()
+
+
+static func _place_camp_grounds() -> void:
+	camp_grounds.clear()
+	var path := "res://data/world/first_region.json"
+	if not FileAccess.file_exists(path):
+		return
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not data is Dictionary:
+		return
+	for pl: Dictionary in data.get("places", []):
+		if String(pl.get("kind", "")) in ["goblin_warren", "orc_village"]:
+			var arr: Array = pl["pos"]
+			var c := Vector2(float(arr[0]), float(arr[1]))
+			camp_grounds.append({"pos": c, "radius": float(pl.get("radius", 30.0)) * 1.15, "base_h": _raw_height(c.x, c.y)})
 
 
 static func _raw_height(x: float, z: float) -> float:
@@ -88,6 +106,11 @@ static func height(x: float, z: float) -> float:
 		var r: float = s["radius"]
 		if d < r * 1.8:
 			h = lerpf(s["base_h"], h, smoothstep(r, r * 1.8, d))
+	for g in camp_grounds:
+		var gd := p.distance_to(g["pos"])
+		var gr: float = g["radius"]
+		if gd < gr * 2.0:
+			h = lerpf(g["base_h"], h, smoothstep(gr, gr * 2.0, gd))
 	# Roads cut a gentle bed.
 	var rd := road_distance(x, z)
 	if rd < 10.0:

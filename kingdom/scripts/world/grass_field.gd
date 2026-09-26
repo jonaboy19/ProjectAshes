@@ -43,7 +43,7 @@ static func build(origin: Vector2, size: float, seed_value: int) -> MultiMeshIns
 
 
 static func _grassy(x: float, z: float) -> bool:
-	if WorldGen.road_distance(x, z) < 3.5:
+	if WorldGen.road_distance(x, z) < 3.5 or WorldGen.is_water(x, z):
 		return false
 	var near := WorldGen.nearest_settlement(Vector2(x, z))
 	if not near.is_empty():

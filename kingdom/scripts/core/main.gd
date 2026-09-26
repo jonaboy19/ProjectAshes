@@ -113,6 +113,7 @@ func _ready() -> void:
 	world.add_child(services)
 	camps = MonsterCamps.new()
 	world.add_child(camps)
+	world.add_child(Lakeside.new())
 
 	army = Squad.new().setup(0, "soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
 	army.leader = player

@@ -172,7 +172,7 @@ func _add_forest(chunk: Node3D, key: Vector2i, origin: Vector2) -> void:
 		var z := origin.y + rng.randf() * CHUNK
 		var density := WorldGen.forest_density(x, z)
 		var h := WorldGen.height(x, z)
-		if h > 115.0:
+		if h > 115.0 or WorldGen.near_water(x, z, 1.5):
 			continue
 		var kind := ""
 		var roll := rng.randf()
