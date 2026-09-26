@@ -342,8 +342,11 @@ static func _trimmed_body(mi: MeshInstance3D, skeleton: Skeleton3D, sex: String)
 		if kept.is_empty():
 			continue
 		arrays[Mesh.ARRAY_INDEX] = kept
-		var fmt := src.surface_get_format(surf)
-		var flags := fmt & (Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS | (Mesh.ARRAY_FORMAT_CUSTOM_MASK << Mesh.ARRAY_FORMAT_CUSTOM_BASE))
+		# Drop optional custom channels (their packing flags don't round-trip).
+		for ch in [Mesh.ARRAY_CUSTOM0, Mesh.ARRAY_CUSTOM1, Mesh.ARRAY_CUSTOM2, Mesh.ARRAY_CUSTOM3]:
+			arrays[ch] = null
+		var fmt: int = src.surface_get_format(surf)
+		var flags: int = fmt & Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
 		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, src.surface_get_blend_shape_arrays(surf), {}, flags)
 		out.surface_set_material(out.get_surface_count() - 1, mi.get_active_material(surf))
 	var result: Mesh = out if out.get_surface_count() > 0 else src
