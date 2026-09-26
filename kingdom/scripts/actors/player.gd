@@ -24,6 +24,7 @@ const VIEWMODEL_REST := Vector3(-0.5, 0.15, -0.35)
 const WALK := 4.2
 const RUN := 7.0
 const GRAVITY := 24.0
+const WADE_LIMIT := 1.4          # metres of water the player will walk into
 const MAX_STAMINA := 100.0
 const COMBO := [
 	{"anim": "1H_Melee_Attack_Chop", "damage": 14, "lock": 0.42, "hit": 0.2, "speed": 1.7, "cost": 10.0},
@@ -183,9 +184,18 @@ func _physics_process(delta: float) -> void:
 		speed = WALK * 0.5
 	if _swing > 0.0:
 		speed *= 0.4
+	# Water: wade slowly past knee depth, and never walk into water deeper than chest height.
+	var wade := WorldGen.water_depth(global_position.x, global_position.z)
+	if wade > 0.5:
+		speed *= lerpf(0.65, 0.35, clampf((wade - 0.5) / 0.9, 0.0, 1.0))
 	var target := dir * speed
 	if _dodge > 0.0:
 		target = _dodge_dir * lerpf(4.0, 12.0, clampf(_dodge / 0.45, 0.0, 1.0))
+	if target.length() > 0.05:
+		var ahead := global_position + target.normalized() * 0.8
+		var deep := WorldGen.water_depth(ahead.x, ahead.z)
+		if deep > WADE_LIMIT and deep >= wade:
+			target = Vector3.ZERO
 	velocity.x = lerpf(velocity.x, target.x, 12.0 * delta) + _impulse.x
 	velocity.z = lerpf(velocity.z, target.z, 12.0 * delta) + _impulse.z
 	_impulse = _impulse.move_toward(Vector3.ZERO, 30.0 * delta)
@@ -221,6 +231,9 @@ func _update_camera(delta: float) -> void:
 	camera.rotation = _shake.step(delta)
 	var cp := camera.global_position
 	var floor_h := WorldGen.height(cp.x, cp.z) + 0.6
+	var water_h := WorldGen.water_level_at(cp.x, cp.z)
+	if not is_nan(water_h):
+		floor_h = maxf(floor_h, water_h + 0.4)   # keep the camera above the surface
 	if cp.y < floor_h:
 		camera.global_position.y = floor_h
 

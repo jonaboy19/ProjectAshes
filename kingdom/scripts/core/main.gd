@@ -18,6 +18,7 @@ var viewport: SubViewport
 var world: Node3D
 var baker: ImpostorBaker
 var terrain: TerrainStreamer
+var water: WaterStreamer
 var settlements: SettlementBuilder
 var population: PopulationLOD
 var frontier: FrontierPresence
@@ -78,6 +79,8 @@ func _ready() -> void:
 	await get_tree().process_frame
 	terrain = TerrainStreamer.new()
 	world.add_child(terrain)
+	water = WaterStreamer.new()
+	world.add_child(water)
 	settlements = SettlementBuilder.new()
 	world.add_child(settlements)
 	population = PopulationLOD.new()
@@ -129,6 +132,7 @@ func _process(delta: float) -> void:
 		return
 	var focus := player.global_position
 	terrain.focus = focus
+	water.focus = focus
 	settlements.focus = focus
 	population.focus = focus
 	frontier.focus = focus
@@ -330,6 +334,8 @@ func _teleport(p: Vector2, yaw: float) -> void:
 	player.set_camera(yaw, -0.28)
 	terrain.focus = pos
 	terrain.build_all_now()
+	water.focus = pos
+	water.build_all_now()
 	settlements.focus = pos
 	for i in 4:
 		settlements.update_now()
@@ -507,6 +513,20 @@ func _screenshot(shot: String, path: String) -> void:
 					w.home = q
 					w.state = Wolf.State.STALK
 			warmup = 25
+		"lake":
+			# On the lake shore at midday, looking out over the water.
+			var lc := WorldGen.lake_center
+			var to_home := (Vector2.ZERO - lc).normalized()
+			var spot := lc + to_home * WorldGen.lake_radius
+			for step in 60:   # walk inward from the shore until the feet are just dry
+				var q := lc + to_home * (WorldGen.lake_radius * 1.4 - step * 2.0)
+				if WorldGen.water_depth(q.x, q.y) > 0.0:
+					break
+				spot = q
+			_teleport(spot, 0.0)
+			var look := lc - spot
+			player.set_camera(atan2(-look.x, -look.y) + 0.35, -0.16)
+			warmup = 90
 		"city", "street":
 			var cap: Dictionary = WorldGen.settlements[1]
 			var cp: Vector2 = cap["pos"]
