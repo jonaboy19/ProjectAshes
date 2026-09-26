@@ -459,7 +459,7 @@ func _screenshot(shot: String, path: String) -> void:
 			var sp: Vector2 = ws["pos"] + (den["pos"] - ws["pos"]).normalized() * 6.0
 			_teleport(sp, 0.0)
 			var look2: Vector2 = den["pos"] - sp
-			player.set_camera(atan2(-look2.x, -look2.y) + PI, -0.2)
+			player.set_camera(atan2(-look2.x, -look2.y), -0.18)
 			# Bring one pack close for the shot.
 			frontier.focus = Vector3(den["pos"].x, 0, den["pos"].y)
 			frontier._timer = 0.0
