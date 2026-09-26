@@ -81,7 +81,14 @@ func threat_at(p: Vector2) -> Dictionary:
 
 
 func serialize() -> Dictionary:
-	return {"runestones": runestones.serialize(), "rift": rift_instability}
+	return {"runestones": runestones.serialize(), "dens": ecology.serialize(), "rift": rift_instability}
+
+
+func deserialize(d: Dictionary) -> void:
+	runestones.deserialize(d.get("runestones", []))
+	ecology.deserialize(d.get("dens", []))
+	rift_instability = float(d.get("rift", rift_instability))
+	_last_day = WorldSim.day
 
 
 static func _compass(v: Vector2) -> String:

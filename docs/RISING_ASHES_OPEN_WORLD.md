@@ -143,6 +143,19 @@ soldier #317 → squad leader (12) → captain (85) → commander (430) → gene
 The player must be able to live several meaningful in-game days, and the village
 must feel like it functions without them.
 
+#### Slice progress
+
+| System | State | Where |
+|---|---|---|
+| Locomotion, camera, melee (combo, block, dodge) | done | `scripts/actors/player.gd` |
+| Runestone protection, danger readout, wolf ecology, wolves | done | `scripts/sim/runestone_network.gd`, `monster_ecology.gd`, `threat_map.gd`, `actors/wolf.gd` |
+| Careers with real vacancies (Guard, Smithy, Inn, Woodcutters), rank = seat + merit, shift attendance, wages, strikes/dismissal, seniority back-fill, NPC hiring | done | `scripts/sim/careers.gd`, `autoload/life.gd` |
+| Hunger and fatigue (affect stamina, speed; starvation hurts), eating, inn bed / sleeping rough with time skip | done | `scripts/sim/needs.gd`, `WorldSim.advance_hours` |
+| Inventory (GLoot, `data/items.json`), market with stock-driven prices and a merchant purse, wolf pelts/meat loot | done | `scripts/sim/market.gd`, `autoload/life.gd` |
+| Save/load (JSON, F5/F9 or Pack menu): world clock, money, careers, needs, market, inventory, frontier | done | `Life.snapshot/restore` |
+| Stations: trader, inn, notice board, Captain's menu | done | `scripts/world/village_services.gd` |
+| NPC relationships and memory, LimboAI behaviour, weather, world-event framework, equipment slots | next | |
+
 **Emotional payoff:** the starting village grows with you: home, then known
 there, then influential, then leader, then owner, then fortified trade city,
 then territorial capital. The old house is still there.

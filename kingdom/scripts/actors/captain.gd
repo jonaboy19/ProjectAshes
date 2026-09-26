@@ -27,10 +27,16 @@ func _ready() -> void:
 
 
 func prompt() -> String:
-	return "Enlist" if Game.rank == 0 else "Recruit"
+	return "Talk"
 
 
+## Direct enlist used by the scripted demo; players normally use the Captain's menu.
 func interact(player: Player, current_soldiers: int) -> void:
+	if not Life.careers.is_employed():
+		var why := Life.careers.apply("guard", "Guard", Game.merit, WorldSim.day)
+		if why != "":
+			Game.say(why)
+			return
 	if Game.rank == 0:
 		Game.promote()
 		Game.say("\"Welcome to the militia. Here are twelve men. Raiders camp in the eastern woods.\"")

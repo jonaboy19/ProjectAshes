@@ -23,6 +23,10 @@ var _order_buttons: Array[TouchScreenButton] = []
 var _buttons: Dictionary = {}
 var _loading: ColorRect
 var _loading_label: Label
+var _needs: Label
+var _menu: PanelContainer
+var _menu_source: Callable
+var _pack_button: TouchScreenButton
 
 
 func _init(p: Player) -> void:
@@ -62,6 +66,7 @@ func _ready() -> void:
 	_buttons["zoom_out"] = _button("zoom_out", "Zoom -", 70, Color("4d6f8f"))
 	_buttons["zoom_in"] = _button("zoom_in", "Zoom +", 70, Color("4d6f8f"))
 	_interact = _button("interact", "Talk", 90, Color("c9a24a"))
+	_pack_button = _button("journal", "Pack", 70, Color("8a6a3a"))
 	_interact_label = _interact.get_child(0)
 	_interact.visible = false
 	for pair in [["order_follow", "Follow"], ["order_hold", "Hold"], ["order_charge", "Charge!"]]:
@@ -72,7 +77,7 @@ func _ready() -> void:
 	_stats = _label(root, 18, PAPER)
 	_stats.position = Vector2(18, 14)
 	_health = ProgressBar.new()
-	_health.position = Vector2(18, 118)
+	_health.position = Vector2(18, 134)
 	_health.custom_minimum_size = Vector2(220, 12)
 	_health.show_percentage = false
 	_health.max_value = player.max_health
@@ -86,14 +91,16 @@ func _ready() -> void:
 	_health.add_theme_stylebox_override("fill", fill)
 	_health.add_theme_stylebox_override("background", bg)
 	root.add_child(_health)
-	_stamina = _bar(root, Vector2(18, 136), Color("e0b84a"), 8)
+	_stamina = _bar(root, Vector2(18, 152), Color("e0b84a"), 8)
 	_stamina.max_value = Player.MAX_STAMINA
 	_stamina.value = Player.MAX_STAMINA
+	_needs = _label(root, 15, PAPER)
+	_needs.position = Vector2(18, 164)
 	_where = _label(root, 18, PAPER)
 	_where.anchor_left = 1.0
 	_where.anchor_right = 1.0
-	_where.offset_left = -420
-	_where.offset_right = -18
+	_where.offset_left = -520
+	_where.offset_right = -112
 	_where.offset_top = 14
 	_where.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_perf = _label(root, 13, Color(1, 1, 1, 0.7))
@@ -106,8 +113,8 @@ func _ready() -> void:
 	_danger = _label(root, 16, PAPER)
 	_danger.anchor_left = 1.0
 	_danger.anchor_right = 1.0
-	_danger.offset_left = -420
-	_danger.offset_right = -18
+	_danger.offset_left = -520
+	_danger.offset_right = -112
 	_danger.offset_top = 96
 	_danger.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_toast = _label(root, 24, PAPER)
@@ -117,6 +124,24 @@ func _ready() -> void:
 	_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_toast.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_toast.modulate.a = 0.0
+
+	_menu = PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.06, 0.1, 0.92)
+	style.border_color = GOLD.darkened(0.3)
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(18)
+	_menu.add_theme_stylebox_override("panel", style)
+	_menu.anchor_left = 0.5
+	_menu.anchor_right = 0.5
+	_menu.anchor_top = 0.5
+	_menu.anchor_bottom = 0.5
+	_menu.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_menu.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_menu.custom_minimum_size = Vector2(520, 0)
+	_menu.visible = false
+	root.add_child(_menu)
 
 	_loading = ColorRect.new()
 	_loading.color = INK
@@ -214,6 +239,7 @@ func _layout() -> void:
 	_buttons["dodge"].position = s - Vector2(250, 115)
 	_buttons["block"].position = s - Vector2(250, 215)
 	_buttons["view"].position = Vector2(s.x - 100, 230)
+	_pack_button.position = Vector2(s.x - 100, 310)
 	_buttons["zoom_in"].position = Vector2(s.x - 100, 70)
 	_buttons["zoom_out"].position = Vector2(s.x - 100, 150)
 	for i in _order_buttons.size():
@@ -232,8 +258,19 @@ func show_toast(text: String) -> void:
 
 
 func update_status(soldiers: int, order_name: String, target: Node3D, perf: String) -> void:
-	_stats.text = "%s\nGold  %d\nSoldiers  %d / %d%s" % [Game.rank_name().to_upper(), Game.gold, soldiers,
-		Game.max_soldiers(), ("\nOrder  " + order_name) if soldiers > 0 else ""]
+	var c := Life.careers
+	var job_line := "Unemployed"
+	if c.is_employed():
+		var duty := ""
+		if c.is_on_shift(WorldSim.time_of_day):
+			var p2 := Vector2(player.global_position.x, player.global_position.z)
+			duty = "  · ON DUTY" if c.at_post(p2) else "  · AWAY FROM POST"
+		job_line = "%s, %s%s" % [c.player["seat"], c.player_org()["name"], duty]
+	_stats.text = "%s\n%s\nGold  %d   Merit  %d\nSoldiers  %d / %d%s" % [Game.rank_name().to_upper(), job_line, Game.gold,
+		Game.merit, soldiers, Game.max_soldiers(), ("  ·  " + order_name) if soldiers > 0 else ""]
+	var n := Life.needs
+	_needs.text = "%s  ·  %s" % [n.hunger_label(), n.rest_label()]
+	_needs.add_theme_color_override("font_color", PAPER if n.food >= 25.0 and n.rest >= 30.0 else Color("ff9a6a"))
 	var p := Vector2(player.global_position.x, player.global_position.z)
 	var near := WorldGen.nearest_settlement(p)
 	var place := "Wilderness"
@@ -249,6 +286,56 @@ func update_status(soldiers: int, order_name: String, target: Node3D, perf: Stri
 		_interact_label.text = target.prompt()
 	for b in _order_buttons:
 		b.visible = soldiers > 0
+
+
+## Opens a menu. `source` returns {title, body, options: [[label, Callable() -> String, enabled?]]};
+## it is called again after every choice so prices and stock stay current.
+func show_menu(source: Callable) -> void:
+	_menu_source = source
+	_rebuild_menu()
+	_menu.visible = true
+
+
+func close_menu() -> void:
+	_menu.visible = false
+
+
+func is_menu_open() -> bool:
+	return _menu.visible
+
+
+func _rebuild_menu() -> void:
+	for child in _menu.get_children():
+		child.queue_free()
+	var data: Dictionary = _menu_source.call()
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	_menu.add_child(box)
+	var head := _label(box, 26, GOLD)
+	head.text = data.get("title", "")
+	var body := _label(box, 16, PAPER)
+	body.text = data.get("body", "")
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.custom_minimum_size.x = 480
+	for opt: Array in data.get("options", []):
+		var b := Button.new()
+		b.text = opt[0]
+		b.custom_minimum_size = Vector2(480, 44)
+		b.add_theme_font_size_override("font_size", 17)
+		b.disabled = opt.size() > 2 and not opt[2]
+		var action: Callable = opt[1]
+		b.pressed.connect(func() -> void:
+			var msg: Variant = action.call()
+			if msg is String and msg != "":
+				show_toast(msg)
+			if _menu.visible:
+				_rebuild_menu())
+		box.add_child(b)
+	var close := Button.new()
+	close.text = "Leave"
+	close.custom_minimum_size = Vector2(480, 40)
+	close.pressed.connect(close_menu)
+	box.add_child(close)
 
 
 ## Danger readout with its biggest reasons, e.g. "Dangerous 41 · Wolf den +22 · Runestone -18".

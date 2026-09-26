@@ -102,3 +102,20 @@ func cull(den_id: int, count: int) -> void:
 	if den["population"] == 0:
 		den["alive"] = false
 	den_changed.emit(den)
+
+
+func serialize() -> Array:
+	var out := []
+	for den in dens:
+		out.append({"id": den["id"], "species": den["species"], "x": den["pos"].x, "y": den["pos"].y,
+			"territory": den["territory"], "population": den["population"], "food": den["food"],
+			"aggression": den["aggression"], "pressure": den["pressure"], "alive": den["alive"]})
+	return out
+
+
+func deserialize(data: Array) -> void:
+	dens.clear()
+	for d: Dictionary in data:
+		dens.append({"id": int(d["id"]), "species": String(d["species"]), "pos": Vector2(d["x"], d["y"]),
+			"territory": float(d["territory"]), "population": int(d["population"]), "food": float(d["food"]),
+			"aggression": float(d["aggression"]), "pressure": float(d["pressure"]), "alive": bool(d["alive"])})

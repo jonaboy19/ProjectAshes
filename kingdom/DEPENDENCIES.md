@@ -22,7 +22,7 @@ rumours, persistence). Important addons are wrapped behind project interfaces
 | **G.U.I.D.E** | 0.14.0 | MIT | ✅ 0 errors (autoload `GUIDE` must be registered) | ✅ | One input layer for keyboard, controller and touch; gameplay sees actions only |
 | **GdUnit4** | 6.2.1 | MIT | ✅ 0 errors | n/a (tests) | **Mandatory** tests for simulation systems |
 | **GodotGAS** | 0.9.x (main) | MIT | ✅ 0 errors | ✅ | Tags, attributes, effects and abilities for powers, elements, Echoes, buffs, injuries, beast skills (prototype first) |
-| **GLoot** | 3.0.2 | MIT | ✅ 0 errors | ✅ | Containers (backpack, chest, cart, warehouse, shop, loot). The economy owns quantities; GLoot handles item manipulation |
+| **GLoot** | 3.0.2 | MIT | ✅ 0 errors | ✅ | Containers (backpack, chest, cart, warehouse, shop, loot). The economy owns quantities; GLoot handles item manipulation. **In use:** player pack (`autoload/life.gd`, protoset `data/items.json`) |
 | **Dialogue Manager** | 4.1.0 | MIT | ✅ 0 errors | ✅ | Authored dialogue; our NPC state supplies the conditions |
 | **QuestWeaver** | 1.5.0 | MIT | ✅ 0 errors | ✅ | *Authored* quest chains only. Emergent tasks come from `RAOpportunitySystem` |
 | **Road Generator** | 0.9.3 (v0.6.0.gd4 tag) | MIT | ✅ 0 script errors | ✅ | Road geometry and intersections (plus Terrain3D shaping). Road safety, traffic and control are simulation data |

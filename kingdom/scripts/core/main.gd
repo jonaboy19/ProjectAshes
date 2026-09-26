@@ -26,6 +26,7 @@ var hud: HUD
 var army: Squad
 var raiders: Squad
 var captain: Captain
+var services: VillageServices
 var sun: DirectionalLight3D
 var env: Environment
 var _status_timer := 0.0
@@ -102,6 +103,10 @@ func _ready() -> void:
 	world.add_child(captain)
 	captain.global_position = Vector3(-7, WorldGen.height(-7, 3), 3)
 	captain.recruit_requested.connect(_recruit)
+	Life.player = player
+	services = VillageServices.new()
+	services.setup(hud, captain, func() -> int: return army.alive(), _recruit)
+	world.add_child(services)
 
 	army = Squad.new().setup(0, "soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
 	army.leader = player
@@ -116,7 +121,7 @@ func _ready() -> void:
 	elif args.has("demo"):
 		_run_demo()
 	else:
-		Game.say("Ashford. Speak with the Captain of the Guard to enlist.")
+		Game.say("Ashford. The Guard is hiring: see the Captain, or read the notice board by the well.")
 
 
 func _process(delta: float) -> void:
@@ -171,9 +176,26 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("zoom_in"):
 		player.zoom(-1)
 	elif event.is_action_pressed("interact"):
+		if hud.is_menu_open():
+			hud.close_menu()
+			return
 		var target := player.nearest_interactable()
 		if target is Captain:
-			(target as Captain).interact(player, army.alive())
+			hud.show_menu(services.captain_menu)
+		elif target is Station:
+			hud.show_menu((target as Station).open)
+	elif event.is_action_pressed("journal"):
+		if hud.is_menu_open():
+			hud.close_menu()
+		else:
+			hud.show_menu(services.pack_menu)
+	elif event.is_action_pressed("eat"):
+		var food := Life.best_food()
+		Game.say(Life.use_item(food) if food != "" else "You have nothing to eat.")
+	elif event.is_action_pressed("quick_save"):
+		Game.say("Game saved." if Life.save_game() else "Could not save.")
+	elif event.is_action_pressed("quick_load"):
+		Game.say("Game loaded." if Life.load_game() else "No save found.")
 	elif event.is_action_pressed("order_follow"):
 		army.command(Squad.Order.FOLLOW)
 		Game.say("Form up on me!")
@@ -453,6 +475,20 @@ func _screenshot(shot: String, path: String) -> void:
 			player.set_view(Player.View.FIRST)
 			player.set_camera(player._yaw, -0.12)
 			warmup = 45
+		"market", "board":
+			# Standing in the plaza: the trader (market) or the notice board (board), menu open.
+			var spot := Vector2(1.5, 1.0) if shot == "market" else Vector2(1.0, 2.5)
+			_teleport(spot, 0.0)
+			var tgt: Node3D = null
+			for st in get_tree().get_nodes_in_group("station"):
+				if (st as Station).title == ("Market Trader" if shot == "market" else "Notice Board"):
+					tgt = st
+			if tgt:
+				var d := tgt.global_position - player.global_position
+				player.set_camera(atan2(-d.x, -d.z), -0.18)
+				Life.give("wolf_pelt", 2)
+				hud.show_menu(services.merchant_menu if shot == "market" else services.notice_menu)
+			warmup = 90
 		"frontier":
 			var ws: Dictionary = Frontier.runestones.stones[7] if Frontier.runestones.stones.size() > 7 else Frontier.runestones.stones[0]
 			var den: Dictionary = Frontier.ecology.dens[0]

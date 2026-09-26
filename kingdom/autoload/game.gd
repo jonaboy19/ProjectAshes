@@ -18,6 +18,8 @@ const RECRUIT_COST := 20
 var gold := 40
 var rank := 0
 var renown := 0
+## War Merit: earned by deeds (monsters slain, raids broken). Opens senior seats.
+var merit := 0
 
 
 func _ready() -> void:
@@ -48,13 +50,25 @@ func say(text: String) -> void:
 	toast.emit(text)
 
 
+func serialize() -> Dictionary:
+	return {"gold": gold, "rank": rank, "renown": renown, "merit": merit}
+
+
+func deserialize(d: Dictionary) -> void:
+	gold = int(d.get("gold", gold))
+	rank = int(d.get("rank", rank))
+	renown = int(d.get("renown", renown))
+	merit = int(d.get("merit", merit))
+	stats_changed.emit()
+
+
 func _setup_input() -> void:
 	var keys := {
 		"move_forward": [KEY_W, KEY_UP], "move_back": [KEY_S, KEY_DOWN],
 		"move_left": [KEY_A, KEY_LEFT], "move_right": [KEY_D, KEY_RIGHT],
 		"sprint": [KEY_SHIFT], "attack": [KEY_J], "block": [KEY_L], "interact": [KEY_E],
 		"view_cycle": [KEY_V], "zoom_in": [KEY_EQUAL], "zoom_out": [KEY_MINUS],
-		"dodge": [KEY_SPACE], "order_follow": [KEY_1], "order_hold": [KEY_2], "order_charge": [KEY_3],
+		"dodge": [KEY_SPACE], "eat": [KEY_F], "quick_save": [KEY_F5], "quick_load": [KEY_F9], "journal": [KEY_TAB], "order_follow": [KEY_1], "order_hold": [KEY_2], "order_charge": [KEY_3],
 	}
 	for action: String in keys:
 		if not InputMap.has_action(action):

@@ -1,0 +1,11 @@
+{
+	"food": {"name": "Food", "category": "food", "max_stack_size": 20},
+	"bread": {"inherits": "food", "name": "Loaf of Bread", "price": 2, "nutrition": 25},
+	"apple": {"inherits": "food", "name": "Apple", "price": 1, "nutrition": 10},
+	"stew": {"inherits": "food", "name": "Bowl of Stew", "price": 5, "nutrition": 45, "max_stack_size": 4},
+	"cheese": {"inherits": "food", "name": "Wheel of Cheese", "price": 4, "nutrition": 35},
+	"wolf_meat": {"inherits": "food", "name": "Wolf Meat", "price": 2, "nutrition": 18},
+	"bandage": {"name": "Linen Bandage", "category": "healing", "price": 4, "heal": 30, "max_stack_size": 10},
+	"wolf_pelt": {"name": "Wolf Pelt", "category": "material", "price": 8, "max_stack_size": 20},
+	"firewood": {"name": "Bundle of Firewood", "category": "material", "price": 1, "max_stack_size": 20}
+}

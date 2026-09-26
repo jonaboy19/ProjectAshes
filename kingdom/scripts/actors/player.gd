@@ -178,7 +178,7 @@ func _physics_process(delta: float) -> void:
 		_start_swing()
 
 	var running := (Input.is_action_pressed("sprint") or touch_move.length() > 0.92 or view >= View.TOWN) and not blocking
-	var speed := RUN if running else WALK
+	var speed := (RUN if running else WALK) * Life.needs.speed()
 	if blocking:
 		speed = WALK * 0.5
 	if _swing > 0.0:
@@ -204,7 +204,7 @@ func _physics_process(delta: float) -> void:
 	_animator.update(delta, Vector2(velocity.x, velocity.z).length() if _dodge <= 0.0 else 0.0)
 
 	if _stamina_delay <= 0.0 and not blocking:
-		stamina = minf(stamina + 28.0 * delta, MAX_STAMINA)
+		stamina = minf(stamina + 28.0 * delta * Life.needs.stamina_regen(), MAX_STAMINA * Life.needs.stamina_cap())
 	stamina_changed.emit(stamina, MAX_STAMINA)
 	_update_look_target()
 	_update_camera(delta)
@@ -349,6 +349,18 @@ func _die() -> void:
 	stamina = MAX_STAMINA
 	dead = false
 	_animator.set_active(true)
+	health_changed.emit(health, max_health)
+
+
+func heal(amount: int) -> void:
+	if dead:
+		return
+	health = mini(health + amount, max_health)
+	health_changed.emit(health, max_health)
+
+
+func set_health(value: int) -> void:
+	health = clampi(value, 1, max_health)
 	health_changed.emit(health, max_health)
 
 

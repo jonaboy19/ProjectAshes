@@ -125,6 +125,50 @@ func _process(delta: float) -> void:
 	_simulate_slice()
 
 
+## Skip time (sleeping, waiting): steps hour by hour so every hourly listener
+## runs, then settles everyone where their schedule says they should be.
+func advance_hours(hours: float) -> void:
+	var left := hours
+	while left > 0.0:
+		var step := minf(1.0, left)
+		left -= step
+		time_of_day += step
+		if time_of_day >= 24.0:
+			time_of_day -= 24.0
+			day += 1
+		var hour := int(time_of_day)
+		if hour != _last_hour:
+			_last_hour = hour
+			hour_changed.emit(hour)
+	for i in pos.size():
+		var want := _current_phase(job[i])
+		if want != phase[i]:
+			_on_phase_change(i, phase[i], want)
+		pos[i] = target[i]
+		last_update[i] = _clock
+
+
+func serialize() -> Dictionary:
+	return {"day": day, "time": time_of_day, "treasury": Array(treasury), "money": Marshalls.raw_to_base64(money.to_byte_array())}
+
+
+func deserialize(d: Dictionary) -> void:
+	if d.is_empty():
+		return
+	day = int(d.get("day", day))
+	time_of_day = float(d.get("time", time_of_day))
+	var t: Array = d.get("treasury", [])
+	for k in mini(t.size(), treasury.size()):
+		treasury[k] = int(t[k])
+	if d.has("money"):
+		var m := Marshalls.base64_to_raw(d["money"]).to_int32_array()
+		if m.size() == money.size():
+			money = m
+	_last_hour = -1
+	for i in pos.size():
+		phase[i] = 255
+
+
 ## Schedule phase for the current hour: 0 home, 1 work, 2 market.
 func _current_phase(person_job: int) -> int:
 	var h := time_of_day

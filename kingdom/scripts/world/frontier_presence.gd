@@ -89,6 +89,7 @@ func _spawn_pack(den: Dictionary) -> void:
 		var q: Vector2 = den["pos"] + Vector2(randf_range(-8, 8), randf_range(-8, 8))
 		w.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
 		w.died.connect(func(dead_wolf: Wolf) -> void:
-			Frontier.ecology.cull(dead_wolf.den_id, 1))
+			Frontier.ecology.cull(dead_wolf.den_id, 1)
+			Life.on_wolf_killed(dead_wolf.global_position))
 		list.append(w)
 	_packs[den["id"]] = list
