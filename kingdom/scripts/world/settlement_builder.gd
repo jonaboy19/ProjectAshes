@@ -71,8 +71,8 @@ func _build(s: Dictionary) -> Node3D:
 		list.assign(batches[asset])
 		_multimesh(root, Assets.building_mesh(asset), list)
 
-	# Lived-in clutter by the doors: photo-scanned crates, barrels, baskets, buckets.
-	var clutter := {}
+	# Lived-in door_clutter by the doors: photo-scanned crates, barrels, baskets, buckets.
+	var door_clutter := {}
 	var kinds := ["scan/wooden_crate_01", "scan/wooden_barrels_01", "scan/wicker_basket_01", "scan/wooden_bucket_01"]
 	for lot in plan["lots"]:
 		var p: Vector2 = lot["pos"]
@@ -82,12 +82,12 @@ func _build(s: Dictionary) -> Node3D:
 		for k in rng.randi_range(1, 3):
 			var kind: String = kinds[rng.randi() % kinds.size()]
 			var q := p + fwd * rng.randf_range(3.6, 4.4) + side * rng.randf_range(-3.2, 3.2) * (1.0 if k % 2 == 0 else -1.0)
-			if not clutter.has(kind):
-				clutter[kind] = []
-			clutter[kind].append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(q.x, base_h, q.y)))
-	for kind: String in clutter:
+			if not door_clutter.has(kind):
+				door_clutter[kind] = []
+			door_clutter[kind].append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(q.x, base_h, q.y)))
+	for kind: String in door_clutter:
 		var list2: Array[Transform3D] = []
-		list2.assign(clutter[kind])
+		list2.assign(door_clutter[kind])
 		_multimesh(root, Assets.nature_mesh(kind), list2)
 
 	for lm in plan["landmarks"]:
@@ -131,15 +131,15 @@ func _build(s: Dictionary) -> Node3D:
 		fields.append(t)
 	_multimesh(root, Assets.mesh_of("building_grain"), fields)
 	# Street clutter.
-	var clutter: Array[Transform3D] = []
+	var street_clutter: Array[Transform3D] = []
 	for i in 30:
 		var ang := rng.randf() * TAU
 		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(plan["plaza_r"] * 0.6, plan["plaza_r"] + 3.0)
-		clutter.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(p.x, base_h, p.y)))
-	_multimesh(root, Assets.building_mesh("barrel"), clutter.slice(0, 10))
-	_multimesh(root, Assets.building_mesh("crate"), clutter.slice(10, 18))
-	_multimesh(root, Assets.building_mesh("hay"), clutter.slice(18, 24))
-	_multimesh(root, Assets.building_mesh("cart"), clutter.slice(24))
+		street_clutter.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(p.x, base_h, p.y)))
+	_multimesh(root, Assets.building_mesh("barrel"), street_clutter.slice(0, 10))
+	_multimesh(root, Assets.building_mesh("crate"), street_clutter.slice(10, 18))
+	_multimesh(root, Assets.building_mesh("hay"), street_clutter.slice(18, 24))
+	_multimesh(root, Assets.building_mesh("cart"), street_clutter.slice(24))
 	return root
 
 
