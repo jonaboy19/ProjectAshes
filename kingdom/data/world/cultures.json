@@ -1,0 +1,247 @@
+{
+	"version": 1,
+	"cultures": [
+		{
+			"id": "caldric",
+			"name": "Caldric",
+			"race": "human",
+			"element": "earth",
+			"art": "Stonesetting",
+			"art_description": "Rooted stances that draw strength from the ground. Masters set their feet and a spear-thrust carries the weight of a hillside; the old ones could wake runestones by touch.",
+			"martial_affinity": ["spear", "shield", "runecraft"],
+			"name_order": "given_first",
+			"first_names": {
+				"male": ["Aldwin", "Bram", "Corran", "Edric", "Garrett", "Halden", "Jory", "Maddoc", "Osric", "Tamsin", "Wystan", "Rowan", "Cedric", "Perrin", "Ewan"],
+				"female": ["Ailsa", "Brenna", "Elspeth", "Fenna", "Gwenna", "Isolde", "Maren", "Nessa", "Rosalind", "Tilda", "Wenna", "Hazel", "Linnet", "Orla", "Sabine"]
+			},
+			"family_names": ["Ashdown", "Barrowby", "Coldbrook", "Fairweather", "Hollins", "Marlowe", "Oakes", "Pennick", "Redfern", "Stonebridge", "Thatcher", "Wexley", "Harrow", "Millward", "Brightwater"],
+			"architecture": ["timber_frame", "thatched_roof", "fieldstone_base", "runestone_circle", "palisade", "slate_roofed_keep"],
+			"clothing_palette": [
+				{"name": "loam brown", "hex": "#6B4F36"},
+				{"name": "flax", "hex": "#D9C8A0"},
+				{"name": "moss green", "hex": "#5E6B3A"},
+				{"name": "ember red", "hex": "#A23B24"},
+				{"name": "iron grey", "hex": "#5A5F66"}
+			],
+			"values": ["hearth and kin", "earned rank", "keeping the stones", "plain speech", "hospitality to travellers"],
+			"food": ["barley bread", "mutton and leek stew", "hard cheese", "apple cider", "honey oatcakes", "smoked river trout"],
+			"festivals": [
+				{"name": "Kindling Night", "season": "winter", "description": "Every hearth is put out and relit from the runestone brazier; children carry the new flame home."},
+				{"name": "Stonewake", "season": "spring", "description": "Villagers walk the runestone circle, scrub the stones and renew the carved wards."},
+				{"name": "Last Sheaf", "season": "autumn", "description": "Harvest feast; the final sheaf is braided into a figure and kept above the door."}
+			],
+			"greeting": "\"Hearth keep you.\" (answer: \"And stone guard you.\")"
+		},
+		{
+			"id": "seirune",
+			"name": "Seirune",
+			"race": "human",
+			"element": "water",
+			"secondary_element": "lightning",
+			"art": "Tideweaving",
+			"art_description": "Flowing footwork and redirected force: a strike is received, turned and returned. Lantern-school adepts add Stormstitch, a sudden flash-step borrowed from lightning.",
+			"martial_affinity": ["blade", "hidden_arts", "water_arts"],
+			"name_order": "family_first",
+			"first_names": {
+				"male": ["Akemaru", "Renjiro", "Kaito", "Sorahiko", "Tetsuma", "Yorinaga", "Haruse", "Isamaru", "Kagero", "Toshimune", "Umihiko", "Raigen", "Shiroku", "Masune", "Nagito"],
+				"female": ["Tsubane", "Mizuhe", "Sorane", "Kaeri", "Ayuri", "Hotaru", "Minase", "Rinka", "Shizue", "Yukane", "Chiyome", "Asagi", "Kotone", "Suzume", "Nanase"]
+			},
+			"family_names": ["Amagiri", "Kurosawa", "Minazuki", "Shiranami", "Takenori", "Umikaze", "Yagumo", "Hoshimura", "Kiriyama", "Oboro", "Tsukishiro", "Sazanami"],
+			"architecture": ["curved_tile_roof", "raised_timber_floor", "paper_screen", "stone_sea_wall", "lantern_gate", "tiered_watchtower"],
+			"clothing_palette": [
+				{"name": "deep indigo", "hex": "#223A5E"},
+				{"name": "sea foam", "hex": "#CFE3DC"},
+				{"name": "lacquer red", "hex": "#9E2B25"},
+				{"name": "storm grey", "hex": "#4B5563"},
+				{"name": "pale gold", "hex": "#D8B96A"}
+			],
+			"values": ["loyalty to one's house", "composure", "discipline of the blade", "debts repaid", "the unseen hand"],
+			"food": ["rice with pickled plum", "grilled eel", "seaweed broth", "salted fish", "sweet bean cakes", "rice wine"],
+			"festivals": [
+				{"name": "Thousand Lanterns", "season": "summer", "description": "Paper lanterns are set adrift on the tide to guide the drowned home."},
+				{"name": "Blade Oath Day", "season": "spring", "description": "Young retainers swear to their house before the family sword."},
+				{"name": "First Storm", "season": "autumn", "description": "Crowds gather on the sea walls to greet the first great storm; Stormstitch duels are held in the rain."}
+			],
+			"greeting": "A shallow bow, palms flat at the sides: \"The tide returns.\""
+		},
+		{
+			"id": "ongur",
+			"name": "Ongur",
+			"race": "human",
+			"element": "wind",
+			"art": "Windstriding",
+			"art_description": "Breath-driven movement: riders who can stand in the saddle at full gallop, arrows that curve on a gust, leaps that hang in the air a heartbeat too long.",
+			"martial_affinity": ["bow", "horsemanship", "sabre", "wind_arts"],
+			"name_order": "given_first",
+			"first_names": {
+				"male": ["Temurai", "Batsar", "Khulan", "Ozbeg", "Dorgul", "Jebren", "Sukhar", "Ardai", "Borjin", "Tolun", "Mergen", "Chagun"],
+				"female": ["Oyunna", "Saranai", "Altani", "Khongor", "Yesuna", "Narantsa", "Borte", "Tsetsa", "Enkhai", "Solongo", "Gerelma", "Udval"]
+			},
+			"family_names": ["of the Seven Hooves", "of the Red Sky", "of the Long Grass", "of the White Mare", "of the Hawk Cliffs", "of the Salt Wells"],
+			"architecture": ["felt_yurt", "carved_wooden_door", "horsehair_standard", "stone_cairn", "wind_prayer_pole"],
+			"clothing_palette": [
+				{"name": "sky blue", "hex": "#4F8FC0"},
+				{"name": "saffron", "hex": "#E3A52B"},
+				{"name": "felt white", "hex": "#EFE9DC"},
+				{"name": "saddle brown", "hex": "#7A4A2A"},
+				{"name": "blood orange", "hex": "#C8552D"}
+			],
+			"values": ["freedom of the open sky", "the horse before the self", "hospitality under felt", "courage in the charge", "a khan earns loyalty yearly"],
+			"food": ["fermented mare's milk", "dried mutton", "milk tea with salt", "fried dough", "curd cheese", "boiled dumplings"],
+			"festivals": [
+				{"name": "Games of the Three Winds", "season": "summer", "description": "Wrestling, horse racing and archery; winners are named in songs across the steppe."},
+				{"name": "White Month", "season": "winter", "description": "New year: debts forgiven, elders visited, the first milk scattered to the sky."}
+			],
+			"greeting": "Both hands offered, palms up: \"Is your horse strong?\" (answer: \"As the wind.\")"
+		},
+		{
+			"id": "solenne",
+			"name": "Solenne",
+			"race": "human",
+			"element": "fire",
+			"secondary_element": "light",
+			"art": "Flamecanting",
+			"art_description": "Fire drawn from the breath and shaped by chant and stance. Temple adepts hold the Dawnflame, a white fire that burns corruption and soothes the faithful.",
+			"martial_affinity": ["mace", "greatsword", "fire_arts", "healing_arts"],
+			"name_order": "given_first",
+			"first_names": {
+				"male": ["Aurelio", "Cassian", "Lucan", "Soren", "Valerio", "Ambrose", "Ignace", "Matthias", "Orrin", "Severin", "Theron", "Evander"],
+				"female": ["Seraphine", "Aurelie", "Celestine", "Lucienne", "Solenne", "Ysolde", "Marisol", "Oriane", "Clemence", "Liora", "Vivienne", "Ottilie"]
+			},
+			"family_names": ["de Solmarch", "Aubrecourt", "Belcanto", "Dauphray", "Lumière-Vane", "Saintclaire", "Verrenois", "Ardentis", "Montaube", "Clairvaux"],
+			"architecture": ["white_limestone", "gilded_dome", "stained_glass_sunburst", "colonnade", "eternal_brazier", "cloister_garden"],
+			"clothing_palette": [
+				{"name": "temple white", "hex": "#F4F1E8"},
+				{"name": "sun gold", "hex": "#D4A020"},
+				{"name": "crimson", "hex": "#8E1F2F"},
+				{"name": "ash grey", "hex": "#8C8A86"}
+			],
+			"values": ["faith in the Undying Dawn", "purity", "charity", "ordered hierarchy", "penance and redemption"],
+			"food": ["white bread with olive oil", "roast fowl with saffron", "fig pastries", "spiced wine", "lentil soup (fast days)"],
+			"festivals": [
+				{"name": "Dawnrise", "season": "spring", "description": "The whole city keeps vigil through the night and greets the equinox sunrise with ten thousand candles."},
+				{"name": "Feast of Embers", "season": "autumn", "description": "Relics are carried through the streets; the sick are brought to the Dawnflame braziers."}
+			],
+			"greeting": "Hand over heart: \"Dawn upon you.\" (answer: \"And never dusk.\")"
+		},
+		{
+			"id": "urrokai",
+			"name": "Urrokai",
+			"race": "orc",
+			"element": "blood",
+			"art": "Bloodroar",
+			"art_description": "The orc war-art: breath, heartbeat and shout become one. A Bloodroar stance can shrug off wounds for a few moments; masters shake stone with a war-cry.",
+			"martial_affinity": ["axe", "cleaver", "unarmed_grapple", "war_cry"],
+			"name_order": "given_first",
+			"first_names": {
+				"male": ["Grask", "Durzak", "Harrok", "Mograth", "Urzul", "Borgash", "Kruvok", "Thrakk", "Zugrim", "Oshnak", "Varrog", "Gulmar"],
+				"female": ["Mogra", "Shagra", "Urzha", "Brakka", "Yazha", "Grisha", "Olgra", "Zarka", "Dugha", "Rashka", "Vorna", "Hulda"]
+			},
+			"family_names": ["Ashmaw", "Stonetusk", "Bonebreaker", "Ironhide", "Redhand", "Skullsplitter", "Emberjaw", "Grimtooth", "Boarbane", "Blackscar"],
+			"architecture": ["longhouse_of_logs", "hide_roof", "bone_totem", "earthwork_ring", "stake_palisade", "smoke_pit"],
+			"clothing_palette": [
+				{"name": "hide tan", "hex": "#9B7B55"},
+				{"name": "war red", "hex": "#8B1E14"},
+				{"name": "charcoal", "hex": "#2F2B28"},
+				{"name": "bone", "hex": "#E2D6BD"}
+			],
+			"values": ["strength proven in front of the clan", "loyalty to the chief", "sharing the kill", "honour of scars", "no debt left unpaid, good or ill"],
+			"food": ["roast boar", "tuber mash", "blood sausage", "fermented berry brew", "marrow bones"],
+			"festivals": [
+				{"name": "The Tusking", "season": "summer", "description": "Youths who have killed their first boar are given their clan scar."},
+				{"name": "Red Moon Moot", "season": "autumn", "description": "Clans meet under the red moon to settle feuds by challenge and to choose war or peace."}
+			],
+			"greeting": "Forearm clasp, foreheads touch: \"Strong blood.\" (answer: \"Stronger clan.\")"
+		},
+		{
+			"id": "shenlu",
+			"name": "Shenlu",
+			"race": "human",
+			"element": "lightning",
+			"secondary_element": "metal",
+			"art": "Thunderstep",
+			"art_description": "Cultivated qi, called 'inner current' in the peaks, is refined through realms and released through sword, palm and step. Sect masters are said to ride lightning between summits.",
+			"martial_affinity": ["sword", "fist", "cultivation", "lightning_arts"],
+			"name_order": "family_first",
+			"first_names": {
+				"male": ["Lianhe", "Jinrui", "Mingzhe", "Taoran", "Yunfei", "Zhaolin", "Qingshan", "Haoyu", "Shenwei", "Boyan", "Kaiwen", "Ruolan"],
+				"female": ["Meixue", "Lanying", "Qiuyue", "Xinyao", "Yuehua", "Zhiyin", "Wanqing", "Shuilian", "Baozhu", "Linyue", "Huaxin", "Ruoxi"]
+			},
+			"family_names": ["Lan", "Mo", "Qiu", "Shen", "Bai", "Yun", "Feng", "Luo", "Hua", "Jiang", "Tan", "Xue"],
+			"architecture": ["sweeping_eaves", "jade_green_tile", "cliffside_pavilion", "stone_stairway", "moon_gate", "bell_tower"],
+			"clothing_palette": [
+				{"name": "jade", "hex": "#3E8E6E"},
+				{"name": "cloud white", "hex": "#F2F4F2"},
+				{"name": "ink black", "hex": "#1E1E24"},
+				{"name": "thunder violet", "hex": "#5B4A9C"},
+				{"name": "cinnabar", "hex": "#C0392B"}
+			],
+			"values": ["cultivation of self", "reverence for masters", "face and reputation", "the strong protect the sect", "heaven's balance"],
+			"food": ["steamed buns", "spirit-herb soup", "hand-pulled noodles", "peak tea", "lotus seed paste", "spiced pork belly"],
+			"festivals": [
+				{"name": "Ascending Peaks Tournament", "season": "autumn", "description": "Every sect sends its best young disciples to duel on the Nine Stairs; rankings decide a decade of prestige."},
+				{"name": "Lantern of Returning Souls", "season": "summer", "description": "Families burn paper offerings at ancestral shrines."}
+			],
+			"greeting": "Fist in palm, a short bow: \"May your path ascend.\""
+		},
+		{
+			"id": "veyl",
+			"name": "Veyl",
+			"race": "veyl",
+			"element": "wood",
+			"art": "Rootsong",
+			"art_description": "Song and dance that speak to growing things: vines that bind, bark that hardens over skin, arrows whose shafts sprout thorns. Also the root of the beast-bonding arts.",
+			"martial_affinity": ["bow", "glaive", "wood_arts", "beast_bonding"],
+			"name_order": "given_first",
+			"first_names": {
+				"male": ["Aelthir", "Caelorn", "Ithren", "Loriath", "Myrdas", "Sylvren", "Taeran", "Vaelis", "Elowen", "Faerath"],
+				"female": ["Aelith", "Ilyra", "Nimriel", "Saelwen", "Thessaly", "Vaelyn", "Yllindra", "Evaine", "Lissael", "Oriel"]
+			},
+			"family_names": ["of Silverbough", "of the Hollow Oak", "of Starfall Glade", "of Mistwillow", "of the Thousand Roots", "of Dawnleaf"],
+			"architecture": ["living_tree_hall", "woven_branch_bridge", "moonstone_lamp", "leaf_canopy_roof", "spiral_stair_around_trunk"],
+			"clothing_palette": [
+				{"name": "leaf green", "hex": "#4C7A3F"},
+				{"name": "silver bark", "hex": "#C9CCC4"},
+				{"name": "twilight blue", "hex": "#3A4A7A"},
+				{"name": "autumn amber", "hex": "#C27A2C"}
+			],
+			"values": ["patience", "the forest's memory", "balance with beasts", "beauty in craft", "the long view"],
+			"food": ["honeyed nuts", "mushroom broth", "flower wine", "waybread", "berry preserves"],
+			"festivals": [
+				{"name": "Night of Falling Light", "season": "summer", "description": "Once a decade the Veyl gather in silence to watch the star shower that gave them their eyes."},
+				{"name": "Leafturn", "season": "autumn", "description": "Songs for every tree that died this year; saplings are planted in their place."}
+			],
+			"greeting": "Palm raised, fingers spread like leaves: \"Root and bough.\""
+		},
+		{
+			"id": "durrow",
+			"name": "Durrow",
+			"race": "durrow",
+			"element": "metal",
+			"secondary_element": "fire",
+			"art": "Forgeheart",
+			"art_description": "Hammer-rhythm fighting: every blow timed to a heartbeat, heat stored in the body and released through iron. Masters' hammers glow orange mid-fight.",
+			"martial_affinity": ["hammer", "axe", "crossbow", "forge_arts"],
+			"name_order": "given_first",
+			"first_names": {
+				"male": ["Hald", "Kettrik", "Borvan", "Grunmar", "Dremmik", "Olvak", "Tharn", "Brokkar", "Ulgrin", "Varrin"],
+				"female": ["Brunna", "Hilde", "Ketla", "Morra", "Sigrun", "Tova", "Ygerna", "Dagny", "Runa", "Osva"]
+			},
+			"family_names": ["Anvilborn", "Deepdelver", "Coalbeard", "Ironvein", "Stonefist", "Hammerfall", "Goldseam", "Emberforge"],
+			"architecture": ["carved_stone_hall", "geometric_relief", "brass_pipework", "forge_chimney", "vault_door", "pillared_underhall"],
+			"clothing_palette": [
+				{"name": "soot black", "hex": "#262626"},
+				{"name": "brass", "hex": "#B5872F"},
+				{"name": "rust", "hex": "#8A3F1F"},
+				{"name": "slate blue", "hex": "#4A5A6A"}
+			],
+			"values": ["craft above all", "oaths in writing", "ancestors' deeds", "thrift", "grudges recorded and settled"],
+			"food": ["black bread", "cave mushroom stew", "salted pork", "dark ale", "blood pudding"],
+			"festivals": [
+				{"name": "Founding Fire", "season": "winter", "description": "The great forge is relit; every smith strikes one blow on a communal blade."},
+				{"name": "Book of Grudges Reading", "season": "spring", "description": "Old grievances are read aloud; settled ones are struck through with ceremony."}
+			],
+			"greeting": "A knock of knuckles on the chest, twice: \"Stone and fire.\""
+		}
+	]
+}

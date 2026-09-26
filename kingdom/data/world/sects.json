@@ -1,0 +1,325 @@
+{
+	"version": 1,
+	"xiava_lake": {
+		"name": "Xiava's Lake",
+		"description": "A vast mist-covered lake and the wild lands around it, where soulbeasts are born. A later region. Passage is granted by treaty with the Veylwood Concord, and only to the holders of a Xiava Writ: the Royal Ember Academy and two sects.",
+		"region": "xiava_lake"
+	},
+	"sects": [
+		{
+			"id": "royal_ember_academy",
+			"name": "Royal Ember Academy of Kingsreach",
+			"type": "academy",
+			"nation": "caldrenn",
+			"location": "Kingsreach",
+			"discipline": ["sword", "spear", "elemental_arts", "beast_taming", "statecraft"],
+			"founded_years_ago": 312,
+			"description": "The crown's academy. Nobles' children, scholarship commoners and scouted talents study arms, arts, law and command together. Graduates fill the officer corps and the Council of Wardens.",
+			"entry_requirements": {
+				"min_age": 12,
+				"max_age": 18,
+				"talent_min": "good",
+				"test": "Three trials: an affinity reading at the Ember Stone, a sparring bout, a written examination.",
+				"fee_gold": 400,
+				"scholarship": "Waived for anyone recommended by an academy talent scout.",
+				"races": ["human", "beastkin", "veyl", "durrow"]
+			},
+			"ranks": [
+				{"id": "cadet", "title": "Ember Cadet", "tier": 0},
+				{"id": "second_year", "title": "Kindled Student", "tier": 1},
+				{"id": "senior", "title": "Flame Senior", "tier": 2},
+				{"id": "honour", "title": "Crown Scholar", "tier": 3},
+				{"id": "instructor", "title": "Instructor", "tier": 4},
+				{"id": "professor", "title": "Master Professor", "tier": 5},
+				{"id": "headmaster", "title": "Headmaster", "tier": 6}
+			],
+			"xiava_access": true,
+			"scouts": true,
+			"soulbeast_rite": "Top students of the Flame Senior year travel with instructors to Xiava's Lake to seek a soulbeast bond."
+		},
+		{
+			"id": "ninefold_sword_pavilion",
+			"name": "Ninefold Sword Pavilion",
+			"type": "sect",
+			"nation": "shenlu_peaks",
+			"location": "Ninefold Summit",
+			"discipline": ["sword", "lightning_arts", "cultivation"],
+			"founded_years_ago": 1180,
+			"description": "The oldest and proudest sect of the peaks. Its nine sword-forms each take a decade to master. It holds one of the two sect Xiava Writs and sends a small expedition each spring.",
+			"entry_requirements": {
+				"min_age": 8,
+				"max_age": 16,
+				"talent_min": "excellent",
+				"affinity": ["lightning", "metal", "wind"],
+				"test": "Climb the Nine Thousand Steps in one day, then hold a sword stance at the summit until dawn.",
+				"fee_gold": 0,
+				"races": ["human", "drakari", "beastkin"]
+			},
+			"ranks": [
+				{"id": "servant", "title": "Servant Disciple", "tier": 0},
+				{"id": "outer", "title": "Outer Disciple", "tier": 1},
+				{"id": "inner", "title": "Inner Disciple", "tier": 2},
+				{"id": "core", "title": "Core Disciple", "tier": 3},
+				{"id": "true", "title": "True Disciple", "tier": 4},
+				{"id": "elder", "title": "Sword Elder", "tier": 5},
+				{"id": "grand_elder", "title": "Grand Elder", "tier": 6},
+				{"id": "master", "title": "Pavilion Master", "tier": 7}
+			],
+			"xiava_access": true,
+			"scouts": true
+		},
+		{
+			"id": "iron_lotus_monastery",
+			"name": "Iron Lotus Monastery",
+			"type": "sect",
+			"nation": "shenlu_peaks",
+			"location": "Stone Lotus Village",
+			"discipline": ["fist", "palm", "body_tempering"],
+			"founded_years_ago": 740,
+			"description": "Monks who temper the body until it rings like a bell. They take anyone who arrives at the gate and survives three winters of chores.",
+			"entry_requirements": {
+				"min_age": 6,
+				"max_age": 30,
+				"talent_min": "any",
+				"test": "Three winters of servant work; those who leave are not asked back.",
+				"fee_gold": 0,
+				"races": ["human", "beastkin", "orc", "durrow"]
+			},
+			"ranks": [
+				{"id": "novice", "title": "Gate Novice", "tier": 0},
+				{"id": "outer", "title": "Outer Brother or Sister", "tier": 1},
+				{"id": "inner", "title": "Inner Brother or Sister", "tier": 2},
+				{"id": "iron", "title": "Iron Body Monk", "tier": 3},
+				{"id": "elder", "title": "Lotus Elder", "tier": 4},
+				{"id": "abbot", "title": "Abbot", "tier": 5}
+			],
+			"xiava_access": false,
+			"scouts": false
+		},
+		{
+			"id": "greywatch_spear_hall",
+			"name": "Greywatch Spear Hall",
+			"type": "school",
+			"nation": "caldrenn",
+			"location": "Greywatch",
+			"discipline": ["spear", "shield", "earth_arts"],
+			"founded_years_ago": 150,
+			"description": "A frontier school founded by a retired marshal. It teaches Stonesetting spear-work to farm children and soldiers alike; the Runeward Legion recruits from its best.",
+			"entry_requirements": {
+				"min_age": 10,
+				"max_age": 40,
+				"talent_min": "any",
+				"test": "Hold the Rooted Stance for an hour while senior students push.",
+				"fee_gold": 60,
+				"races": ["human", "beastkin", "orc", "durrow"]
+			},
+			"ranks": [
+				{"id": "yard", "title": "Yard Student", "tier": 0},
+				{"id": "shaft", "title": "Shaftbearer", "tier": 1},
+				{"id": "point", "title": "Spearpoint", "tier": 2},
+				{"id": "wall", "title": "Wall of the Hall", "tier": 3},
+				{"id": "instructor", "title": "Hall Instructor", "tier": 4},
+				{"id": "master", "title": "Hall Master", "tier": 5}
+			],
+			"xiava_access": false,
+			"scouts": false
+		},
+		{
+			"id": "ashford_staff_yard",
+			"name": "Old Mill Staff Yard",
+			"type": "school",
+			"nation": "caldrenn",
+			"location": "Ashford",
+			"discipline": ["staff", "fist", "earth_arts"],
+			"founded_years_ago": 22,
+			"description": "Behind Ashford's old mill a one-armed veteran, Maren Coldbrook, teaches village children to fight with a quarterstaff. Humble, but she was once a Runeward officer and she notices talent.",
+			"entry_requirements": {
+				"min_age": 6,
+				"max_age": 60,
+				"talent_min": "any",
+				"test": "Chop a week of her firewood without complaint.",
+				"fee_gold": 5,
+				"races": ["human", "beastkin", "orc", "goblin", "veyl", "durrow", "drakari"]
+			},
+			"ranks": [
+				{"id": "sprout", "title": "Sprout", "tier": 0},
+				{"id": "stick", "title": "Stick", "tier": 1},
+				{"id": "staff", "title": "Staff", "tier": 2},
+				{"id": "senior", "title": "Yard Senior", "tier": 3}
+			],
+			"xiava_access": false,
+			"scouts": false
+		},
+		{
+			"id": "hall_of_four_currents",
+			"name": "Hall of the Four Currents",
+			"type": "academy",
+			"nation": "seirune_isles",
+			"location": "Tsukiharu",
+			"discipline": ["elemental_arts", "water_arts", "wind_arts", "fire_arts", "earth_arts"],
+			"founded_years_ago": 460,
+			"description": "The islands' school of elemental arts. It teaches that every element is a current and that a master can learn to feel all four, though most students are bound to one.",
+			"entry_requirements": {
+				"min_age": 10,
+				"max_age": 20,
+				"talent_min": "good",
+				"affinity": ["water", "wind", "fire", "earth", "lightning"],
+				"test": "Move a bowl of water without touching it, by any element.",
+				"fee_gold": 250,
+				"races": ["human", "veyl", "beastkin"]
+			},
+			"ranks": [
+				{"id": "listener", "title": "Listener", "tier": 0},
+				{"id": "ripple", "title": "Ripple", "tier": 1},
+				{"id": "wave", "title": "Wave", "tier": 2},
+				{"id": "tide", "title": "Tide", "tier": 3},
+				{"id": "current_master", "title": "Current Master", "tier": 4},
+				{"id": "grand_current", "title": "Grand Current", "tier": 5}
+			],
+			"xiava_access": false,
+			"scouts": true
+		},
+		{
+			"id": "hollow_moon_school",
+			"name": "School of the Hollow Moon",
+			"type": "sect",
+			"nation": "seirune_isles",
+			"location": "Oboroshima",
+			"discipline": ["hidden_arts", "blade", "poison", "infiltration", "lightning_arts"],
+			"founded_years_ago": 390,
+			"description": "A hidden school on a fog-bound islet that trains the Veiled Lanterns. Officially it does not exist. Students learn Stormstitch flash-steps, disguise, poisons and silence.",
+			"entry_requirements": {
+				"min_age": 7,
+				"max_age": 14,
+				"talent_min": "good",
+				"test": "Unknown. Candidates are chosen, never apply; most are orphans or younger children of retainer houses.",
+				"fee_gold": 0,
+				"invitation_only": true,
+				"races": ["human"]
+			},
+			"ranks": [
+				{"id": "shade", "title": "Shade", "tier": 0},
+				{"id": "wick", "title": "Wick", "tier": 1},
+				{"id": "lantern", "title": "Lantern", "tier": 2},
+				{"id": "eclipse", "title": "Eclipse", "tier": 3},
+				{"id": "hollow_elder", "title": "Hollow Elder", "tier": 4},
+				{"id": "moonless", "title": "The Moonless (school head)", "tier": 5}
+			],
+			"xiava_access": false,
+			"scouts": true
+		},
+		{
+			"id": "verdant_oath_sanctuary",
+			"name": "Verdant Oath Sanctuary",
+			"type": "sect",
+			"nation": "veylwood",
+			"location": "Mistwillow",
+			"discipline": ["beast_taming", "wood_arts", "bow", "healing_arts"],
+			"founded_years_ago": 2100,
+			"description": "Keepers of the old road to Xiava's Lake. Their disciples bond with beasts through Rootsong; the finest are guided to the lake to meet a soulbeast. They admit a handful of outsiders each decade.",
+			"entry_requirements": {
+				"min_age": 10,
+				"max_age": 200,
+				"talent_min": "good",
+				"affinity": ["wood", "water", "wind"],
+				"test": "Spend a night alone in the Deep Grove; a wild beast must choose to approach you.",
+				"fee_gold": 0,
+				"races": ["veyl", "human", "beastkin"]
+			},
+			"ranks": [
+				{"id": "seedling", "title": "Seedling", "tier": 0},
+				{"id": "outer", "title": "Outer Bough", "tier": 1},
+				{"id": "inner", "title": "Inner Bough", "tier": 2},
+				{"id": "heartwood", "title": "Heartwood Disciple", "tier": 3},
+				{"id": "elder", "title": "Grove Elder", "tier": 4},
+				{"id": "warden", "title": "Warden of the Oath", "tier": 5}
+			],
+			"xiava_access": true,
+			"scouts": true
+		},
+		{
+			"id": "dawnflame_seminary",
+			"name": "Seminary of the Dawnflame",
+			"type": "academy",
+			"nation": "solmarch",
+			"location": "Aurelion",
+			"discipline": ["fire_arts", "healing_arts", "mace", "greatsword"],
+			"founded_years_ago": 530,
+			"description": "Where Solmarch trains its priests and paladins. Students learn Flamecanting and the white Dawnflame; the best are ordained into the Paladin Orders.",
+			"entry_requirements": {
+				"min_age": 12,
+				"max_age": 25,
+				"talent_min": "fair",
+				"affinity": ["fire", "light"],
+				"test": "Hold one's hand over the cathedral brazier while reciting the Litany of Dawn.",
+				"fee_gold": 0,
+				"faith_required": "Undying Dawn",
+				"races": ["human"]
+			},
+			"ranks": [
+				{"id": "acolyte", "title": "Acolyte", "tier": 0},
+				{"id": "novice", "title": "Candle Novice", "tier": 1},
+				{"id": "brother", "title": "Flame Brother or Sister", "tier": 2},
+				{"id": "priest", "title": "Priest of the Dawn", "tier": 3},
+				{"id": "bishop", "title": "Flame-Bishop", "tier": 4}
+			],
+			"xiava_access": false,
+			"scouts": true
+		},
+		{
+			"id": "windstep_lodge",
+			"name": "Windstep Riders' Lodge",
+			"type": "school",
+			"nation": "ongur_khanate",
+			"location": "Kharun Camp",
+			"discipline": ["bow", "horsemanship", "wind_arts", "sabre"],
+			"founded_years_ago": 210,
+			"description": "The travelling lodge where Ongur youth learn Windstriding. Its lodge-masters ride with the Great Khan's camp, and anyone who can keep up may join.",
+			"entry_requirements": {
+				"min_age": 8,
+				"max_age": 30,
+				"talent_min": "any",
+				"affinity": ["wind"],
+				"test": "Ride from dawn to dusk behind the lodge herd without falling behind.",
+				"fee_gold": 0,
+				"races": ["human", "beastkin"]
+			},
+			"ranks": [
+				{"id": "foal", "title": "Foal", "tier": 0},
+				{"id": "rider", "title": "Rider", "tier": 1},
+				{"id": "windrider", "title": "Windrider", "tier": 2},
+				{"id": "gale", "title": "Gale", "tier": 3},
+				{"id": "lodge_master", "title": "Lodge Master", "tier": 4}
+			],
+			"xiava_access": false,
+			"scouts": false
+		},
+		{
+			"id": "anvil_brotherhood",
+			"name": "Brotherhood of the Anvil",
+			"type": "school",
+			"nation": "hollowdeep",
+			"location": "Karnhollow",
+			"discipline": ["hammer", "forge_arts", "smithing", "crossbow"],
+			"founded_years_ago": 900,
+			"description": "Half forge-guild, half fighting school. Apprentices learn to make a weapon before they may learn to use it.",
+			"entry_requirements": {
+				"min_age": 14,
+				"max_age": 120,
+				"talent_min": "fair",
+				"test": "Forge a nail that the guildmaster cannot bend.",
+				"fee_gold": 150,
+				"races": ["durrow", "human", "orc"]
+			},
+			"ranks": [
+				{"id": "apprentice", "title": "Bellows Apprentice", "tier": 0},
+				{"id": "journeyman", "title": "Journeyman", "tier": 1},
+				{"id": "hammer", "title": "Hammer", "tier": 2},
+				{"id": "master", "title": "Forge Master", "tier": 3},
+				{"id": "grandmaster", "title": "Grand Anvil", "tier": 4}
+			],
+			"xiava_access": false,
+			"scouts": false
+		}
+	]
+}

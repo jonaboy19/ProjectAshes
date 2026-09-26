@@ -1,0 +1,144 @@
+{
+	"version": 1,
+	"magicule_scale": "0.0 = none, 1.0 = saturated. Affects the naming cost, the spell pool and how fast a body adapts to evolution.",
+	"races": [
+		{
+			"id": "human",
+			"name": "Human",
+			"plural": "Humans",
+			"civilised": true,
+			"monster": false,
+			"lifespan": {"adult_at": 16, "typical": 70, "max": 110},
+			"magicule_affinity": 0.45,
+			"traits": ["adaptable", "fast_learner", "wide_affinity_spread", "ambitious"],
+			"description": "Short-lived and restless, humans hold the valleys and river plains. Their strength is range: any human can learn almost any art, though few master one.",
+			"homelands": ["caldrenn", "seirune_isles", "ongur_khanate", "solmarch", "shenlu_peaks"],
+			"evolution": [],
+			"transformation": {
+				"possible": false,
+				"methods": [],
+				"note": "Humans are the usual starting point of a blood rite, never its result."
+			}
+		},
+		{
+			"id": "orc",
+			"name": "Orc",
+			"plural": "Orcs",
+			"civilised": true,
+			"monster": true,
+			"lifespan": {"adult_at": 12, "typical": 55, "max": 90},
+			"magicule_affinity": 0.35,
+			"traits": ["great_strength", "thick_hide", "fast_healing", "clan_bound", "hunger_fury"],
+			"description": "Tusked, broad-shouldered and fiercely loyal to clan and chief. Orc villages farm tubers and herd boar in the hills; outsiders mostly meet their raiders.",
+			"homelands": ["urrokai_clanlands"],
+			"evolution": [
+				{"from": "orc", "to": "high_orc", "name": "High Orc", "requires": {"level": 15, "magicules": 800, "or_named": true}, "gains": ["keen_mind", "tusk_armour"]},
+				{"from": "high_orc", "to": "orc_warlord", "name": "Orc Warlord", "requires": {"level": 30, "magicules": 3000, "followers": 50}, "gains": ["war_cry_aura", "iron_bones"]},
+				{"from": "orc_warlord", "to": "orc_sovereign", "name": "Orc Sovereign", "requires": {"level": 50, "magicules": 12000, "clans_united": 3}, "gains": ["devouring_hunger", "sovereign_presence"]}
+			],
+			"transformation": {
+				"possible": true,
+				"methods": ["blood_pact_of_the_tusk"],
+				"from": ["human", "goblin"],
+				"note": "The Tusk Pact: drink a chieftain's blood under a red moon. Rarely survived, never reversed."
+			}
+		},
+		{
+			"id": "goblin",
+			"name": "Goblin",
+			"plural": "Goblins",
+			"civilised": false,
+			"monster": true,
+			"lifespan": {"adult_at": 4, "typical": 18, "max": 40},
+			"magicule_affinity": 0.25,
+			"traits": ["small", "night_sight", "breeds_fast", "cunning", "cowardly_alone"],
+			"description": "Warren-dwellers who scavenge, trap and raid. Alone they flee; in a warren with a strong leader they are organised and dangerous. A named goblin changes overnight.",
+			"homelands": ["caldrenn", "urrokai_clanlands"],
+			"evolution": [
+				{"from": "goblin", "to": "hobgoblin", "name": "Hobgoblin", "requires": {"level": 8, "magicules": 200, "or_named": true}, "gains": ["human_height", "speech", "tool_mastery"]},
+				{"from": "hobgoblin", "to": "goblin_knight", "name": "Goblin Knight", "requires": {"level": 20, "magicules": 900, "path": "martial"}, "gains": ["weapon_discipline", "armoured"]},
+				{"from": "hobgoblin", "to": "goblin_hexer", "name": "Goblin Hexer", "requires": {"level": 20, "magicules": 900, "path": "arcane"}, "gains": ["curse_craft", "magicule_sense"]},
+				{"from": "goblin_knight", "to": "goblin_lord", "name": "Goblin Lord", "requires": {"level": 35, "magicules": 4000, "followers": 100}, "gains": ["warren_command", "lordly_frame"]}
+			],
+			"transformation": {"possible": false, "methods": [], "note": "No rite makes a goblin of anyone else."}
+		},
+		{
+			"id": "beastkin",
+			"name": "Beastkin",
+			"plural": "Beastkin",
+			"civilised": true,
+			"monster": false,
+			"lifespan": {"adult_at": 14, "typical": 65, "max": 100},
+			"magicule_affinity": 0.4,
+			"traits": ["keen_senses", "clan_totem", "fast", "instinct_arts"],
+			"lineages": ["wolfkin", "foxkin", "bearkin", "hawkkin", "tigerkin"],
+			"description": "Peoples who carry an animal's spirit: ears, tails, claws and instincts. Each lineage keeps its own totem; steppe and forest clans are the largest.",
+			"homelands": ["ongur_khanate", "veylwood"],
+			"evolution": [
+				{"from": "beastkin", "to": "greater_beastkin", "name": "Greater Beastkin", "requires": {"level": 20, "magicules": 1200}, "gains": ["partial_shift", "totem_voice"]},
+				{"from": "greater_beastkin", "to": "primal_beastkin", "name": "Primal Beastkin", "requires": {"level": 40, "magicules": 6000, "trial": "totem_hunt"}, "gains": ["full_shift", "pack_call"]}
+			],
+			"transformation": {
+				"possible": true,
+				"methods": ["totem_adoption", "bloodline_awakening"],
+				"from": ["human"],
+				"note": "A human adopted by a clan totem may slowly change over a year; a dormant beast bloodline can awaken the same way."
+			}
+		},
+		{
+			"id": "veyl",
+			"name": "Veyl",
+			"plural": "Veyl",
+			"civilised": true,
+			"monster": false,
+			"lifespan": {"adult_at": 40, "typical": 450, "max": 900},
+			"magicule_affinity": 0.8,
+			"traits": ["long_lived", "graceful", "root_sense", "slow_to_trust", "low_birthrate"],
+			"description": "Tall, slender forest folk with faintly luminous eyes. Their cities grow instead of being built. A Veyl remembers slights for centuries and favours for longer.",
+			"homelands": ["veylwood"],
+			"evolution": [
+				{"from": "veyl", "to": "high_veyl", "name": "High Veyl", "requires": {"level": 30, "magicules": 5000, "age": 200}, "gains": ["grove_speech", "seasonless"]},
+				{"from": "high_veyl", "to": "star_veyl", "name": "Star Veyl", "requires": {"level": 60, "magicules": 20000, "trial": "night_of_falling_light"}, "gains": ["starlit_body", "ancient_memory"]}
+			],
+			"transformation": {"possible": false, "methods": [], "note": "Half-Veyl children exist; nobody becomes Veyl."}
+		},
+		{
+			"id": "durrow",
+			"name": "Durrow",
+			"plural": "Durrow",
+			"civilised": true,
+			"monster": false,
+			"lifespan": {"adult_at": 30, "typical": 240, "max": 350},
+			"magicule_affinity": 0.5,
+			"traits": ["stout", "stone_sense", "heat_resistant", "master_craft", "stubborn"],
+			"description": "Short, dense and bearded (both sexes, by custom braided). The Durrow tunnel beneath the mountains and forge the best steel in the known world.",
+			"homelands": ["hollowdeep"],
+			"evolution": [
+				{"from": "durrow", "to": "deepforged_durrow", "name": "Deepforged Durrow", "requires": {"level": 30, "magicules": 4000, "masterwork": true}, "gains": ["iron_skin", "forge_breath"]}
+			],
+			"transformation": {"possible": false, "methods": [], "note": "The Durrow say you are born to stone or not at all."}
+		},
+		{
+			"id": "drakari",
+			"name": "Drakari",
+			"plural": "Drakari",
+			"civilised": true,
+			"monster": false,
+			"lifespan": {"adult_at": 25, "typical": 300, "max": 1200},
+			"magicule_affinity": 0.95,
+			"traits": ["scaled", "draconic_breath", "proud", "few_in_number", "horned"],
+			"description": "Dragonkin with scaled skin, horns and eyes like banked coals. Very few remain; most live apart on the high peaks and are treated as omens when seen.",
+			"homelands": ["shenlu_peaks"],
+			"evolution": [
+				{"from": "drakari", "to": "wyrmblooded", "name": "Wyrmblooded", "requires": {"level": 35, "magicules": 8000}, "gains": ["wings", "elemental_breath"]},
+				{"from": "wyrmblooded", "to": "ascendant_drakari", "name": "Ascendant Drakari", "requires": {"level": 70, "magicules": 40000, "trial": "sky_tribulation"}, "gains": ["true_dragon_form", "sky_tribulation_resistance"]}
+			],
+			"transformation": {
+				"possible": true,
+				"methods": ["dragon_blood_replacement", "bloodline_awakening"],
+				"from": ["human", "beastkin"],
+				"note": "Replacing one's blood with a dragon's over nine nights. Fatal for most; survivors gain scales and a century of life. A dormant Wyrmvein bloodline makes it far safer."
+			}
+		}
+	]
+}
