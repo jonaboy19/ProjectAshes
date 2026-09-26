@@ -54,7 +54,7 @@ func _build(s: Dictionary) -> Node3D:
 		if not batches.has(asset):
 			batches[asset] = []
 		var p: Vector2 = lot["pos"]
-		var t := Transform3D(Basis(Vector3.UP, lot["yaw"]).scaled(Vector3.ONE * Assets.BUILDING_SCALE), Vector3(p.x, base_h, p.y))
+		var t := Transform3D(Basis(Vector3.UP, lot["yaw"]), Vector3(p.x, base_h, p.y))
 		batches[asset].append(t)
 		var size := _footprint(asset)
 		var body := StaticBody3D.new()
@@ -69,10 +69,22 @@ func _build(s: Dictionary) -> Node3D:
 	for asset: String in batches:
 		var list: Array[Transform3D] = []
 		list.assign(batches[asset])
-		_multimesh(root, Assets.mesh_of(asset), list)
+		_multimesh(root, Assets.building_mesh(asset), list)
 
 	for lm in plan["landmarks"]:
-		_piece(root, lm["asset"], lm["pos"], base_h, lm["yaw"], lm["scale"])
+		_piece(root, lm["asset"], lm["pos"], base_h, lm["yaw"])
+	# Market stalls and carts ringing the plaza.
+	var stalls: Array[Transform3D] = []
+	var stalls2: Array[Transform3D] = []
+	var pr: float = plan["plaza_r"]
+	var n_stalls := 6 if s["kind"] == "village" else 12
+	for i in n_stalls:
+		var ang := TAU * i / n_stalls + 0.2
+		var sp: Vector2 = s["pos"] + Vector2(cos(ang), sin(ang)) * (pr - 3.0)
+		var st := Transform3D(Basis(Vector3.UP, atan2(-cos(ang), -sin(ang))), Vector3(sp.x, base_h, sp.y))
+		(stalls if i % 2 == 0 else stalls2).append(st)
+	_multimesh(root, Assets.building_mesh("market_stand_1"), stalls)
+	_multimesh(root, Assets.building_mesh("market_stand_2"), stalls2)
 
 	var c: Vector2 = s["pos"]
 	if plan["walls"]:
@@ -89,7 +101,7 @@ func _build(s: Dictionary) -> Node3D:
 		if CityPlanner._near_angle(ang, gates, 0.3):
 			continue
 		var p := c + Vector2(cos(ang), sin(ang)) * r * rng.randf_range(1.2, 1.45)
-		_piece(root, "building_windmill_yellow", p, WorldGen.height(p.x, p.y), rng.randf() * TAU, 8.0)
+		_piece(root, "mill", p, WorldGen.height(p.x, p.y), rng.randf() * TAU)
 	var fields: Array[Transform3D] = []
 	for i in 14:
 		var ang := rng.randf() * TAU
@@ -104,36 +116,43 @@ func _build(s: Dictionary) -> Node3D:
 	for i in 30:
 		var ang := rng.randf() * TAU
 		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(plan["plaza_r"] * 0.6, plan["plaza_r"] + 3.0)
-		clutter.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * 3.0), Vector3(p.x, base_h, p.y)))
-	_multimesh(root, Assets.mesh_of("barrel"), clutter.slice(0, 12))
-	_multimesh(root, Assets.mesh_of("crate_A_big"), clutter.slice(12, 22))
-	_multimesh(root, Assets.mesh_of("sack"), clutter.slice(22))
+		clutter.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(p.x, base_h, p.y)))
+	_multimesh(root, Assets.building_mesh("barrel"), clutter.slice(0, 10))
+	_multimesh(root, Assets.building_mesh("crate"), clutter.slice(10, 18))
+	_multimesh(root, Assets.building_mesh("hay"), clutter.slice(18, 24))
+	_multimesh(root, Assets.building_mesh("cart"), clutter.slice(24))
 	return root
 
 
 func _footprint(asset: String) -> Vector3:
 	if not _footprints.has(asset):
-		var mesh := Assets.mesh_of(asset)
-		_footprints[asset] = mesh.get_aabb().size * Assets.BUILDING_SCALE if mesh else Vector3(6, 7, 6)
+		var mesh := Assets.building_mesh(asset)
+		_footprints[asset] = mesh.get_aabb().size if mesh else Vector3(8, 8, 8)
 	return _footprints[asset]
 
 
-func _piece(root: Node3D, asset: String, p: Vector2, h: float, yaw: float, scale: float) -> Node3D:
-	var node := Assets.medieval(asset, scale)
-	Assets.add_footprint_collider(node)
+func _piece(root: Node3D, asset: String, p: Vector2, h: float, yaw: float) -> Node3D:
+	var node := Assets.building_node(asset)
 	node.position = Vector3(p.x, h, p.y)
 	node.rotation.y = yaw
 	root.add_child(node)
 	return node
 
 
-## Stone wall ring with towers, leaving gatehouses where roads enter.
+## Stone wall ring (Quaternius RTS pieces stretched to each segment) with towers,
+## leaving gatehouses where roads enter.
 func _wall_ring(root: Node3D, c: Vector2, radius: float, h: float, gates: Array, segments: int, tower_every: int) -> void:
-	var sample := Assets.medieval("wall_straight", 1.0)
-	var native := Assets.visual_aabb(sample)
-	sample.free()
+	var wall_mesh := Assets.building_mesh("wall")
+	var tower_mesh := Assets.building_mesh("wall_tower")
+	var gate_mesh := Assets.building_mesh("wall_gate")
+	if wall_mesh == null:
+		return
+	var native := wall_mesh.get_aabb()
 	var native_len := maxf(native.size.x, native.size.z)
 	var along_x := native.size.x > native.size.z
+	var seg_len := TAU * radius / segments
+	var s := seg_len / maxf(native_len, 0.01)          # uniform: keeps the wall's proportions
+	var tower_s := s * 1.05
 	var walls: Array[Transform3D] = []
 	var gate_walls: Array[Transform3D] = []
 	var towers: Array[Transform3D] = []
@@ -145,9 +164,8 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, h: float, gates: Array,
 		var p1 := c + Vector2(cos(a1), sin(a1)) * radius
 		var dir := p1 - p0
 		var yaw := atan2(dir.x, dir.y) + (PI * 0.5 if along_x else 0.0)
-		var s := p0.distance_to(p1) / maxf(native_len, 0.01)
 		var mp := (p0 + p1) * 0.5
-		var t := Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3(s, s * 0.9, s)), Vector3(mp.x, h, mp.y))
+		var t := Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * s), Vector3(mp.x, h, mp.y))
 		var is_gate := false
 		for g in gates:
 			if absf(wrapf(mid - g, -PI, PI)) < PI / segments:
@@ -157,17 +175,17 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, h: float, gates: Array,
 			var body := StaticBody3D.new()
 			var shape := CollisionShape3D.new()
 			var box := BoxShape3D.new()
-			box.size = Vector3(1.5, 6.0, p0.distance_to(p1))
+			box.size = Vector3(1.8, native.size.y * s, seg_len)
 			shape.shape = box
-			body.position = Vector3(mp.x, h + 3.0, mp.y)
+			body.position = Vector3(mp.x, h + native.size.y * s * 0.5, mp.y)
 			body.rotation.y = atan2(dir.x, dir.y)
 			body.add_child(shape)
 			root.add_child(body)
-		if i % tower_every == 0 or is_gate:
-			towers.append(Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * 10.0), Vector3(p0.x, h, p0.y)))
-	_multimesh(root, Assets.mesh_of("wall_straight"), walls)
-	_multimesh(root, Assets.mesh_of("wall_straight_gate"), gate_walls)
-	_multimesh(root, Assets.mesh_of("building_tower_A_blue"), towers)
+		if i % tower_every == 0 and not is_gate:
+			towers.append(Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * tower_s), Vector3(p0.x, h, p0.y)))
+	_multimesh(root, wall_mesh, walls)
+	_multimesh(root, gate_mesh if gate_mesh else wall_mesh, gate_walls)
+	_multimesh(root, tower_mesh, towers)
 
 
 func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> void:

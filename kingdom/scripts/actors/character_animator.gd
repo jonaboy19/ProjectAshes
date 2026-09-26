@@ -11,12 +11,10 @@ extends RefCounted
 ## Upper-body filtering uses the rig's bone names, so legs keep running while
 ## the arms attack. Pattern follows the Godot TPS demo / GDQuest controllers.
 
-const UPPER_BONES := ["spine", "chest", "upperarm.l", "lowerarm.l", "wrist.l", "hand.l", "handslot.l",
-	"upperarm.r", "lowerarm.r", "wrist.r", "hand.r", "handslot.r", "head", "elbowIK.l", "handIK.l",
-	"elbowIK.r", "handIK.r", "1H_Sword", "1H_Sword_Offhand", "2H_Sword", "Round_Shield", "Badge_Shield",
-	"Rectangle_Shield", "Spike_Shield", "1H_Axe", "1H_Axe_Offhand", "2H_Axe", "Barbarian_Round_Shield",
-	"Knight_Helmet", "Barbarian_Hat", "Knife", "Knife_Offhand"]
-const SKELETON_PATH := "Rig/Skeleton3D"
+## Bones that stay with the legs (everything else counts as upper body). Covers
+## the KayKit rig and the UE-style Quaternius/UAL rig.
+const LOWER_KEYS := ["root", "hips", "pelvis", "upperleg", "lowerleg", "thigh", "calf", "foot", "toes",
+	"ball", "heel", "knee", "ik_", "IK", "control-"]
 
 var tree: AnimationTree
 var player: AnimationPlayer
@@ -28,8 +26,14 @@ var _block := 0.0
 var _speed := 0.0
 
 
+var _anim_root: Node
+var _skeleton: Skeleton3D
+
+
 func _init(model: Node3D, run_speed: float, walk_anim := "Walking_A", run_anim := "Running_A", idle_anim := "Idle") -> void:
 	player = Assets.animation_player(model)
+	_anim_root = player.get_node(player.root_node)
+	_skeleton = model.find_children("*", "Skeleton3D", true, false)[0]
 	_root = AnimationNodeBlendTree.new()
 
 	var loco := AnimationNodeBlendSpace1D.new()
@@ -78,6 +82,7 @@ func _init(model: Node3D, run_speed: float, walk_anim := "Walking_A", run_anim :
 	tree.tree_root = _root
 	model.add_child(tree)
 	tree.anim_player = tree.get_path_to(player)
+	tree.root_node = tree.get_path_to(_anim_root)
 	tree.active = true
 
 
@@ -89,8 +94,16 @@ func _anim(anim_name: String) -> AnimationNodeAnimation:
 
 func _filter_upper(node: AnimationNode) -> void:
 	node.filter_enabled = true
-	for bone: String in UPPER_BONES:
-		node.set_filter_path(NodePath("%s:%s" % [SKELETON_PATH, bone]), true)
+	var sk_path := String(_anim_root.get_path_to(_skeleton))
+	for i in _skeleton.get_bone_count():
+		var bone := _skeleton.get_bone_name(i)
+		var lower := false
+		for key: String in LOWER_KEYS:
+			if bone.begins_with(key) or bone.contains(key):
+				lower = true
+				break
+		if not lower:
+			node.set_filter_path(NodePath("%s:%s" % [sk_path, bone]), true)
 
 
 ## Call every frame with the character's horizontal speed.

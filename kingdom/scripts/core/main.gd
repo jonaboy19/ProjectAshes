@@ -131,6 +131,24 @@ func _process(delta: float) -> void:
 			Engine.get_frames_per_second(), terrain.loaded_count(), population.full_count + population.sprite_count,
 			population.full_count, population.sprite_count, get_tree().get_nodes_in_group("combatant").size()]
 		hud.update_status(army.alive(), ["Follow", "Hold", "Charge"][army.order], player.nearest_interactable(), perf)
+		_update_mood()
+
+
+## Music follows the situation: battle > night > town > wilderness.
+func _update_mood() -> void:
+	Audio.listener = player.camera
+	var p := player.global_position
+	for enemy in get_tree().get_nodes_in_group("team1"):
+		if (enemy as Node3D).global_position.distance_to(p) < 45.0:
+			Audio.set_mood("battle")
+			return
+	var t := WorldSim.time_of_day
+	if t < 5.5 or t >= 21.0:
+		Audio.set_mood("night")
+		return
+	var near := WorldGen.nearest_settlement(Vector2(p.x, p.z))
+	var in_town: bool = not near.is_empty() and Vector2(p.x, p.z).distance_to(near["pos"]) < near["radius"] * 1.3
+	Audio.set_mood("town" if in_town else "wild")
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -207,13 +225,13 @@ func _on_raiders_defeated(camp: Node3D) -> void:
 # --- Environment & day/night ------------------------------------------------------
 
 func _build_environment() -> void:
-	var sky_mat := ProceduralSkyMaterial.new()
-	sky_mat.sky_top_color = Color("4f7fc0")
-	sky_mat.sky_horizon_color = Color("e9c9a3")
-	sky_mat.ground_horizon_color = Color("c9a883")
-	sky_mat.ground_bottom_color = Color("4a3f36")
+	# Real captured sky (Poly Haven HDRI, CC0) lights the scene and fills reflections.
+	var sky_mat := PanoramaSkyMaterial.new()
+	sky_mat.panorama = load("res://assets/incoming/polyhaven/hdris/kloofendal_48d_partly_cloudy_puresky_4k.hdr")
+	sky_mat.energy_multiplier = 1.0
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
+	sky.radiance_size = Sky.RADIANCE_SIZE_256
 	env = Environment.new()
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
@@ -405,6 +423,28 @@ func _screenshot(shot: String, path: String) -> void:
 			player.set_camera(atan2(-d.x, -d.y), -0.12)
 			settlements.focus = player.global_position
 			warmup = 240
+		"lineup":
+			hud.visible = false
+			var base := player.global_position + player.forward() * 5.0
+			var looks := [["Knight", ["1H_Sword", "Round_Shield"], "Idle"], ["Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"], "1H_Melee_Attack_Chop"],
+				["Barbarian", ["1H_Axe", "Barbarian_Round_Shield"], "Blocking"], ["Rogue_Hooded", [], "Walking_A"],
+				["Mage", [], "Idle"], ["Rogue", [], "Cheer"]]
+			var right := player.forward().cross(Vector3.UP).normalized()
+			for i in looks.size():
+				var keep: Array[String] = []
+				keep.assign(looks[i][1])
+				var c := Assets.character(looks[i][0], 1.78, keep)
+				world.add_child(c)
+				var pos: Vector3 = base + right * (i - 2.5) * 1.3
+				pos.y = WorldGen.height(pos.x, pos.z)
+				c.global_position = pos
+				c.look_at(player.global_position, Vector3.UP, true)
+				var ap := Assets.animation_player(c)
+				if ap:
+					ap.play(looks[i][2])
+			player.visible = false
+			player.set_camera(player._yaw, -0.08)
+			warmup = 45
 		"city", "street":
 			var cap: Dictionary = WorldGen.settlements[1]
 			var cp: Vector2 = cap["pos"]

@@ -6,7 +6,6 @@ extends Node3D
 
 const CHUNK := 64.0
 const CELL := 2.0
-const TREE_KINDS := ["tree_single_A", "tree_single_B", "trees_A_medium", "trees_B_medium", "trees_A_large"]
 
 @export var view_radius := 4         # chunks; 9x9 grid visible
 @export var collision_radius := 1    # chunks that also get physics
@@ -16,12 +15,20 @@ var focus := Vector3.ZERO
 var _chunks: Dictionary = {}         # Vector2i -> Node3D
 var _ground_material: ShaderMaterial
 
+## Poly Haven (CC0) PBR sets used for each terrain layer.
+const TEX := "res://assets/incoming/polyhaven/textures/%s/%s_%s_2k.jpg"
+const LAYERS := {"grass": "sparse_grass", "forest": "forest_ground_04", "path": "grass_path_2",
+	"rock": "rocky_terrain_02", "cobble": "cobblestone_floor_01"}
+
 
 func _ready() -> void:
 	_ground_material = ShaderMaterial.new()
 	_ground_material.shader = preload("res://shaders/terrain.gdshader")
-	_ground_material.set_shader_parameter("detail_noise", _noise_texture(0.02, 5, false))
-	_ground_material.set_shader_parameter("detail_normal", _noise_texture(0.05, 3, true))
+	for layer: String in LAYERS:
+		var tex_name: String = LAYERS[layer]
+		_ground_material.set_shader_parameter(layer + "_albedo", load(TEX % [tex_name, tex_name, "diff"]))
+		_ground_material.set_shader_parameter(layer + "_normal", load(TEX % [tex_name, tex_name, "nor_gl"]))
+		_ground_material.set_shader_parameter(layer + "_arm", load(TEX % [tex_name, tex_name, "arm"]))
 	_ground_material.set_shader_parameter("macro_noise", _noise_texture(0.01, 3, false))
 
 
@@ -160,28 +167,39 @@ func _add_forest(chunk: Node3D, key: Vector2i, origin: Vector2) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(key) ^ 0x5eed
 	var buckets := {}
-	for kind in TREE_KINDS:
-		buckets[kind] = []
-	var rocks: Array[Transform3D] = []
-	for i in 70:
+	for i in 90:
 		var x := origin.x + rng.randf() * CHUNK
 		var z := origin.y + rng.randf() * CHUNK
 		var density := WorldGen.forest_density(x, z)
 		var h := WorldGen.height(x, z)
-		if h > 110.0:
+		if h > 115.0:
 			continue
-		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * rng.randf_range(5.0, 7.5)), Vector3(x, h - 0.2, z))
-		if rng.randf() < density:
-			var kind: String = TREE_KINDS[rng.randi() % TREE_KINDS.size()]
-			buckets[kind].append(t)
-		elif rng.randf() < 0.04:
-			rocks.append(t)
+		var kind := ""
+		var roll := rng.randf()
+		if roll < density:
+			# Pines on high ground, broadleaf lower down, the odd twisted or dead tree.
+			var pine_bias := smoothstep(30.0, 70.0, h)
+			if rng.randf() < 0.06:
+				kind = ["TwistedTree_1", "TwistedTree_3", "DeadTree_2"][rng.randi() % 3]
+			elif rng.randf() < 0.35 + pine_bias * 0.5:
+				kind = "Pine_%d" % (1 + rng.randi() % 5)
+			else:
+				kind = "CommonTree_%d" % (1 + rng.randi() % 5)
+		elif roll < density + 0.12 and WorldGen.road_distance(x, z) > 4.0 and WorldGen.street_distance(x, z) > 3.0:
+			kind = ["Bush_Common", "Bush_Common_Flowers", "Fern_1", "Plant_1_Big", "Flower_3_Group", "Flower_4_Group"][rng.randi() % 6]
+		elif rng.randf() < 0.03:
+			kind = "Rock_Medium_%d" % (1 + rng.randi() % 3)
+		if kind == "":
+			continue
+		var s := rng.randf_range(0.8, 1.25)
+		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(x, h - 0.15, z))
+		if not buckets.has(kind):
+			buckets[kind] = []
+		buckets[kind].append(t)
 	for kind: String in buckets:
 		var list: Array[Transform3D] = []
 		list.assign(buckets[kind])
-		_multimesh(chunk, Assets.mesh_of(kind), list)
-	var rock_kind: String = ["rock_single_A", "rock_single_C", "rock_single_E"][absi(key.x + key.y) % 3]
-	_multimesh(chunk, Assets.mesh_of(rock_kind), rocks)
+		_multimesh(chunk, Assets.nature_mesh(kind), list)
 
 
 func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> void:
@@ -195,5 +213,5 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> v
 		mm.set_instance_transform(i, transforms[i])
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
-	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mmi.visibility_range_end = 450.0
 	parent.add_child(mmi)
