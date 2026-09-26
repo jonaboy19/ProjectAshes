@@ -102,28 +102,33 @@ static func street_distance(x: float, z: float) -> float:
 	return CityPlanner.street_distance(near["plan"], p)
 
 
+## Terrain material weights packed in a Color (see shaders/terrain.gdshader):
+## r = dirt path, g = rock, b = cobblestone street, a = forest floor; grass = rest.
 static func color_at(x: float, z: float, h: float, slope: float) -> Color:
-	var tint := _detail.get_noise_2d(x * 0.3, z * 0.3) * 0.5 + 0.5
-	var c := Color("4d7a34").lerp(Color("6b8f3c"), tint)
-	var forest := forest_density(x, z)
-	c = c.lerp(Color("3a5f2c"), forest * 0.5)
-	if slope > 0.5 or h > 90.0:
-		c = Color("7d7768").lerp(Color("948c7a"), tint)
-	if h > 150.0:
-		c = Color("e8ecef")
+	var w := Color(0, 0, 0, 0)
+	w.a = clampf(forest_density(x, z) * 1.3, 0.0, 1.0)
+	w.g = smoothstep(0.35, 0.55, slope) + smoothstep(80.0, 110.0, h)
 	var near := nearest_settlement(Vector2(x, z))
 	if not near.is_empty():
 		var dc := Vector2(x, z).distance_to(near["pos"])
 		var paved: bool = near["kind"] != "village"
+		var sd := street_distance(x, z)
 		if near.has("plan") and dc < near["plan"]["plaza_r"] + 2.0:
-			c = (Color("8d8579") if paved else Color("8a6d45")).lerp(Color("9a9184") if paved else Color("977a50"), tint)
-		elif street_distance(x, z) < 0.5:
-			c = (Color("7f776b") if paved else Color("83633d")).lerp(Color("8f8678") if paved else Color("8f6e45"), tint)
+			if paved: w.b = 1.0
+			else: w.r = 1.0
+			w.a = 0.0
+		elif sd < 1.0:
+			var k := 1.0 - smoothstep(-0.5, 1.0, sd)
+			if paved: w.b = maxf(w.b, k)
+			else: w.r = maxf(w.r, k)
+			w.a = 0.0
 		elif dc < near["radius"] * 0.95 and paved:
-			c = c.lerp(Color("6d6a4a"), 0.35)   # trampled yards inside the walls
-	if road_distance(x, z) < 3.0:
-		c = Color("83633d").lerp(Color("8f6e45"), tint)
-	return c
+			w.r = maxf(w.r, 0.35)   # trampled yards inside the walls
+	var rd := road_distance(x, z)
+	if rd < 3.5:
+		w.r = maxf(w.r, 1.0 - smoothstep(1.5, 3.5, rd))
+		w.a = 0.0
+	return w
 
 
 static func forest_density(x: float, z: float) -> float:

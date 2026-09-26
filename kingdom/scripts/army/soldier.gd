@@ -150,7 +150,8 @@ func _attack() -> void:
 	get_tree().create_timer(0.3).timeout.connect(func() -> void:
 		if not dead and is_instance_valid(victim) and not victim.get("dead") \
 				and global_position.distance_to(victim.global_position) < ATTACK_RANGE + 0.5:
-			victim.take_damage(damage, self))
+			victim.take_damage(damage, self)
+			Audio.sfx("clash" if randf() < 0.5 else "hit", global_position, -6.0))
 
 
 func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> void:

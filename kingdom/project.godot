@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 
 Game="*res://autoload/game.gd"
 WorldSim="*res://autoload/world_sim.gd"
+Audio="*res://autoload/audio.gd"
 
 [display]
 

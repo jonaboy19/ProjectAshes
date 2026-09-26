@@ -9,12 +9,10 @@ extends RefCounted
 ## ring streets -> radial lanes -> buildings lining both sides of every street,
 ## rejected where they would overlap a street, another building or the walls.
 
-const LOT_SPACING := 7.6
-const LOT_CLEARANCE := 6.8
-const HOMES := ["building_home_A_red", "building_home_B_red", "building_home_A_blue", "building_home_B_blue",
-	"building_home_A_yellow", "building_home_B_yellow", "building_home_A_green", "building_home_B_green"]
-const TRADES := ["building_tavern_red", "building_tavern_green", "building_blacksmith_blue", "building_market_red",
-	"building_market_yellow"]
+const LOT_SPACING := 10.5
+const LOT_CLEARANCE := 9.5
+const HOMES := ["house_1", "house_2", "house_3", "house_4"]
+const TRADES := ["inn", "blacksmith", "stable", "sawmill"]
 
 
 ## Returns {streets: [{a, b, w}], lots: [{asset, pos, yaw}], walls: bool,
@@ -64,16 +62,16 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 	var landmarks: Array = result["landmarks"]
 	if kind == "castle":
 		result["inner_wall"] = r * 0.2
-		landmarks.append({"asset": "building_castle_blue", "pos": c, "yaw": 0.0, "scale": 20.0})
+		landmarks.append({"asset": "castle", "pos": c, "yaw": 0.0, "scale": 1.0})
 	else:
-		landmarks.append({"asset": "building_well_red", "pos": c, "yaw": 0.0, "scale": 6.0})
+		landmarks.append({"asset": "well", "pos": c, "yaw": 0.0, "scale": 1.0})
 	var church_ang := gates[0] + PI * 0.5
-	var church_r := plaza_r + 9.0 if kind != "castle" else r * 0.27
-	landmarks.append({"asset": "building_church_blue" if kind != "village" else "building_church_red",
+	var church_r := plaza_r + (14.0 if kind != "village" else 8.0) if kind != "castle" else r * 0.3
+	landmarks.append({"asset": "temple" if kind != "village" else "bell_tower",
 		"pos": c + Vector2(cos(church_ang), sin(church_ang)) * church_r, "yaw": atan2(-cos(church_ang), -sin(church_ang)), "scale": 9.0 if kind == "village" else 11.0})
 	if kind != "village":
 		var keep_ang := gates[0] - PI * 0.5
-		landmarks.append({"asset": "building_barracks_blue", "pos": c + Vector2(cos(keep_ang), sin(keep_ang)) * (church_r + 2.0),
+		landmarks.append({"asset": "stable", "pos": c + Vector2(cos(keep_ang), sin(keep_ang)) * (church_r + 2.0),
 			"yaw": atan2(-cos(keep_ang), -sin(keep_ang)), "scale": 9.0})
 
 	# Lots along every street.
@@ -91,7 +89,7 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 		var t := LOT_SPACING * 0.5
 		while t < length:
 			for side: float in [-1.0, 1.0]:
-				var p := a + dir * t + normal * side * (w * 0.5 + 4.3)
+				var p := a + dir * t + normal * side * (w * 0.5 + 5.6)
 				if _lot_ok(p, c, r, plaza_r, walled, result["inner_wall"], streets, blocked):
 					var face := -normal * side
 					var dist_frac := p.distance_to(c) / r
@@ -113,7 +111,7 @@ static func _lot_ok(p: Vector2, c: Vector2, r: float, plaza_r: float, walled: bo
 		return false
 	for st in streets:
 		var q := Geometry2D.get_closest_point_to_segment(p, st["a"], st["b"])
-		if p.distance_to(q) < st["w"] * 0.5 + 3.4:
+		if p.distance_to(q) < st["w"] * 0.5 + 4.6:
 			return false
 	for other in blocked:
 		if p.distance_to(other) < LOT_CLEARANCE:

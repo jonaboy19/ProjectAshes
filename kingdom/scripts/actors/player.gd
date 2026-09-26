@@ -102,6 +102,8 @@ func _ready() -> void:
 ## Procedural head tracking: the head turns toward the nearest enemy or person.
 func _add_head_look(body: Node3D) -> void:
 	var skeleton: Skeleton3D = body.find_children("*", "Skeleton3D", true, false)[0]
+	if skeleton.find_bone("head") < 0:
+		return   # UE-style rig: head axes differ; head tracking to be tuned for it later
 	_look_target = Node3D.new()
 	add_child(_look_target)
 	var look := LookAtModifier3D.new()
@@ -224,6 +226,8 @@ func _update_camera(delta: float) -> void:
 
 
 func _update_look_target() -> void:
+	if _look_target == null:
+		return
 	var best: Node3D = _nearest_enemy(12.0, -1.0)
 	if best == null:
 		for v in get_tree().get_nodes_in_group("villager"):
@@ -261,6 +265,7 @@ func _start_swing() -> void:
 	if _combo == COMBO.size() - 1:
 		_combo_window = 0.0     # finisher ends the chain
 	_animator.play_upper(step["anim"], step["speed"] * (0.7 if weak else 1.0))
+	Audio.sfx("swing", null, -4.0)
 	if _viewmodel.visible:
 		var t := create_tween()
 		t.tween_property(_viewmodel, "rotation", Vector3(-0.35, 1.2 * (1 if _combo % 2 == 0 else -1), 0.5), 0.1)
@@ -280,6 +285,7 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool) -> void:
 			enemy.take_damage(damage, self, to.normalized() * knockback)
 			hits += 1
 	if hits > 0:
+		Audio.sfx("hit")
 		_hit_stop(0.09 if finisher else 0.05)
 		_shake.add(0.45 if finisher else 0.22)
 
@@ -318,6 +324,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 			Game.say("Guard broken!")
 		else:
 			_animator.play_upper("Block_Hit", 1.5)
+			Audio.sfx("clash")
 			amount = int(amount * 0.15)
 			if amount == 0:
 				return
