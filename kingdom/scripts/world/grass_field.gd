@@ -55,7 +55,8 @@ static func _grassy(x: float, z: float) -> bool:
 	var near := WorldGen.nearest_settlement(Vector2(x, z))
 	if not near.is_empty():
 		var dc := Vector2(x, z).distance_to(near["pos"])
-		if dc < near["plan"]["plaza_r"] + 3.0 or WorldGen.street_distance(x, z) < 1.5:
+		if dc < near["plan"]["plaza_r"] + 3.0 or WorldGen.street_distance(x, z) < 1.5 \
+				or (dc < near["radius"] * 1.1 and CityPlanner.path_distance(near["plan"], Vector2(x, z)) < 0.5):
 			return false
 		if near["kind"] != "village" and dc < near["radius"]:
 			return false

@@ -494,6 +494,25 @@ static func building_node(key: String, collide := true) -> Node3D:
 
 
 ## Nature mesh scaled to its catalogue height, base at y = 0.
+static var _leaf_materials := {}
+
+
+## Swaps alpha-cut leaf/needle surfaces of Blender trees to the swaying foliage shader.
+static func _windy_leaves(mesh: ArrayMesh) -> void:
+	for i in mesh.get_surface_count():
+		var m := mesh.surface_get_material(i) as BaseMaterial3D
+		if m == null or m.transparency != BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR:
+			continue
+		if not _leaf_materials.has(m):
+			var sm := ShaderMaterial.new()
+			sm.shader = preload("res://shaders/tree_wind.gdshader")
+			sm.set_shader_parameter("albedo_tex", m.albedo_texture)
+			sm.set_shader_parameter("albedo", m.albedo_color)
+			sm.set_shader_parameter("alpha_cut", m.alpha_scissor_threshold)
+			_leaf_materials[m] = sm
+		mesh.surface_set_material(i, _leaf_materials[m])
+
+
 static func nature_mesh(key: String) -> ArrayMesh:
 	var cache_key := "nature:" + key
 	if _building_cache.has(cache_key):
@@ -504,6 +523,8 @@ static func nature_mesh(key: String) -> ArrayMesh:
 	var mesh := merged_mesh("res://assets/generated/" + key + ".glb" if is_scan else NATURE_DIR + key + ".gltf")
 	if mesh == null:
 		return null
+	if key.begins_with("nature/"):
+		_windy_leaves(mesh)
 	var box := mesh.get_aabb()
 	var s: float = 1.0 if is_scan else NATURE[key] / maxf(box.size.y, 0.001)
 	mesh = _transformed(mesh, Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * s),

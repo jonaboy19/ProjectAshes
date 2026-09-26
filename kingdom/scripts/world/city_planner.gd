@@ -100,7 +100,34 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 					blocked.append(p)
 			t += LOT_SPACING
 	_civic_lots(lots, c)
+	result["paths"] = _door_paths(lots, streets)
 	return result
+
+
+## Trodden footpaths from each front door to the nearest street.
+static func _door_paths(lots: Array, streets: Array) -> Array:
+	var out := []
+	for lot: Dictionary in lots:
+		var yaw: float = lot["yaw"]
+		var door: Vector2 = lot["pos"] + Vector2(sin(yaw), cos(yaw)) * 3.8
+		var best := Vector2.ZERO
+		var bd := INF
+		for st in streets:
+			var q := Geometry2D.get_closest_point_to_segment(door, st["a"], st["b"])
+			if door.distance_to(q) < bd:
+				bd = door.distance_to(q)
+				best = q
+		if bd < 14.0:
+			out.append({"a": door, "b": best, "w": 1.3})
+	return out
+
+
+static func path_distance(plan_data: Dictionary, p: Vector2) -> float:
+	var best := INF
+	for st in plan_data.get("paths", []):
+		var q := Geometry2D.get_closest_point_to_segment(p, st["a"], st["b"])
+		best = minf(best, p.distance_to(q) - st["w"] * 0.5)
+	return best
 
 
 ## Every settlement gets an Adventurer Guild hall and a healer's house on the

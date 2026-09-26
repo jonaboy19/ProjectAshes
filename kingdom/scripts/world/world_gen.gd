@@ -538,6 +538,11 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 			w.a = 0.0
 		elif dc < near["radius"] * 0.95 and paved:
 			w.r = maxf(w.r, 0.35)   # trampled yards inside the walls
+		if near.has("plan") and dc < near["radius"] * 1.1:
+			var pd := CityPlanner.path_distance(near["plan"], Vector2(x, z))
+			if pd < 0.8:
+				w.r = maxf(w.r, (1.0 - smoothstep(-0.4, 0.8, pd)) * 0.9)
+				w.a = 0.0
 	var rd := road_distance(x, z)
 	if rd < 3.5:
 		w.r = maxf(w.r, 1.0 - smoothstep(1.5, 3.5, rd))

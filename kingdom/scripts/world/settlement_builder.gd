@@ -130,6 +130,7 @@ func _build(s: Dictionary) -> Node3D:
 		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * 9.0), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.05, p.y))
 		fields.append(t)
 	_multimesh(root, Assets.mesh_of("building_grain"), fields)
+	_greenery(root, s, plan, rng)
 	# Street clutter.
 	var street_clutter: Array[Transform3D] = []
 	for i in 30:
@@ -219,3 +220,48 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> v
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
 	parent.add_child(mmi)
+
+
+## Trees, saplings and bushes where people would leave or plant them: behind the
+## houses, at lot corners, and thinning out through the village edge. Never on
+## streets, paths, the plaza, or inside another building's footprint.
+func _greenery(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator) -> void:
+	var c: Vector2 = s["pos"]
+	var r: float = s["radius"]
+	var lots: Array = plan["lots"]
+	var picks := {}
+	var tries := 260 if s["kind"] == "village" else 420
+	for i in tries:
+		var ang := rng.randf() * TAU
+		var d := r * sqrt(rng.randf_range(0.12, 2.3))
+		var p := c + Vector2(cos(ang), sin(ang)) * d
+		if d < plan["plaza_r"] + 6.0 or CityPlanner.street_distance(plan, p) < 3.0 \
+				or CityPlanner.path_distance(plan, p) < 1.5 or WorldGen.road_distance(p.x, p.y) < 5.0 \
+				or WorldGen.near_water(p.x, p.y, 2.0):
+			continue
+		var blocked := false
+		for lot: Dictionary in lots:
+			if p.distance_to(lot["pos"]) < 7.0:
+				blocked = true
+				break
+		if blocked:
+			continue
+		# Denser near the edge, sparse inside; trees outside, bushes inside.
+		var edge := smoothstep(r * 0.5, r * 1.3, d)
+		if rng.randf() > 0.35 + edge * 0.5:
+			continue
+		var kind: String
+		var roll := rng.randf()
+		if d < r * 0.9:
+			kind = ["nature/bush_a", "nature/bush_b", "nature/sapling", "nature/birch_a"][mini(int(roll * 4.0), 3)]
+		else:
+			kind = ["nature/oak_a", "nature/oak_b", "nature/birch_a", "nature/sapling", "nature/bush_a"][mini(int(roll * 5.0), 4)]
+		var sc := rng.randf_range(0.8, 1.15)
+		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * sc), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.1, p.y))
+		if not picks.has(kind):
+			picks[kind] = []
+		picks[kind].append(t)
+	for kind: String in picks:
+		var list: Array[Transform3D] = []
+		list.assign(picks[kind])
+		_multimesh(root, Assets.nature_mesh(kind), list)
