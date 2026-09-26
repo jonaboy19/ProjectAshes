@@ -1,0 +1,20 @@
+Music by Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 4.0 License
+http://creativecommons.org/licenses/by/4.0/
+
+REQUIRED: credit each track used in the game's credits screen, e.g.:
+  "Achaidh Cheide" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License
+  "Crossing the Chasm" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License
+  "Crusade" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License
+  "Dark Walk" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License
+  "Five Armies" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License
+  "Folk Round" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License
+  "Heroic Age" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License
+  "Lost Time" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License
+  "Master of the Feast" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License
+  "Minstrel Guild" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License
+  "Suonatore di Liuto" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License
+  "Teller of the Tales" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License
+
+Suggested use: village = Suonatore di Liuto / Folk Round / Achaidh Cheide; tavern = Master of the Feast / Minstrel Guild;
+battle = Heroic Age / Five Armies / Crusade; castle = Teller of the Tales; night = Lost Time / Dark Walk; travel = Crossing the Chasm.
