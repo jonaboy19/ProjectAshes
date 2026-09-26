@@ -20,6 +20,32 @@ static var _detail := FastNoiseLite.new()
 static var _forest := FastNoiseLite.new()
 static var _initialized := false
 
+## Water: one lake near the home valley, fed by a river from the hills and
+## drained by another toward the world edge. See _place_water().
+const LAKE_DISTANCE := 450.0        # from Ashford (fallback search only)
+const LAKE_RADIUS := 110.0          # mean shoreline radius (noise adds about +-30%)
+## First-region layout from the lore (data/world/first_region.json), x/z metres
+## from Ashford, north = -z. Emberglass Mere is the lake; the Ashrun runs from
+## the northern hills, under the Ashrun Bridge (Oakvale road, about (-318, -214)),
+## into the mere and out toward the south-west edge of the world.
+const MERE_CENTER := Vector2(-420, 300)
+const ASHRUN_UPSTREAM := [Vector2(-150, -900), Vector2(-330, -150)]
+const ASHRUN_DOWNSTREAM := [Vector2(-1500, 1200)]
+const LAKE_DEPTH := 6.5
+const RIVER_STEP := 16.0            # polyline sample spacing
+const RIVER_CELL := 64.0            # spatial hash cell for river segments
+const RIVER_REACH := 150.0          # how far a river can reshape terrain
+static var lake_center := Vector2(1.0e6, 1.0e6)
+static var lake_radius := LAKE_RADIUS
+static var lake_level := 0.0
+## River polylines, each {points: PackedVector2Array, level/width/depth: PackedFloat32Array}.
+## Points run downstream: arm 0 = source -> lake, arm 1 = lake -> world edge.
+static var rivers: Array[Dictionary] = []
+static var _shore := FastNoiseLite.new()
+static var _lake_reach_sq := 0.0
+static var _seg := PackedFloat32Array()          # stride 10 per segment: ax, az, bx, bz, la, lb, wa, wb, da, db
+static var _river_grid: Dictionary = {}           # Vector2i -> PackedInt32Array of segment ids
+
 
 static func setup(seed_value: int) -> void:
 	_hills.seed = seed_value
@@ -39,6 +65,7 @@ static func setup(seed_value: int) -> void:
 	_connect_roads()
 	for st in settlements:
 		st["plan"] = CityPlanner.plan(st, gate_angles(st), seed_value)
+	_place_water(seed_value)
 
 
 static func _raw_height(x: float, z: float) -> float:
@@ -65,7 +92,371 @@ static func height(x: float, z: float) -> float:
 	var rd := road_distance(x, z)
 	if rd < 10.0:
 		h = lerpf(h - 0.4, h, smoothstep(2.0, 10.0, rd))
+	# Lake basin and river channel (cheap rejects keep this fast away from water).
+	var lake_s := 99.0
+	if p.distance_squared_to(lake_center) < _lake_reach_sq:
+		lake_s = _lake_s(p)
+		h = _carve(h, _lake_profile(lake_s), (lake_s - 1.0) * lake_radius, lake_radius * 0.3, 0.25)
+	var cell := Vector2i(floori(x / RIVER_CELL), floori(z / RIVER_CELL))
+	if _river_grid.has(cell):
+		var q := _river_query(p, _river_grid[cell])
+		if not q.is_empty():
+			var d: float = q["d"]
+			var w: float = q["w"]
+			var lv: float = q["level"]
+			var dep: float = q["depth"]
+			var f := lv - dep * (1.0 - (d / w) * (d / w)) if d < w else lv + (d - w) * 0.18
+			var hr := _carve(h, f, d - w, 12.0, 0.14)
+			# Inside the lake the river may only deepen the bed, never raise it.
+			h = lerpf(minf(h, hr), hr, smoothstep(0.55, 0.95, lake_s))
 	return h
+
+
+# --- Water ------------------------------------------------------------------------
+
+## Water surface height at (x, z), or NAN where there is no lake or river nearby.
+## Defined over a band a little wider than the wet area (so surface meshes can
+## tuck under the shore); use is_water() / water_depth() to know if it is wet.
+static func water_level_at(x: float, z: float) -> float:
+	var p := Vector2(x, z)
+	if p.distance_squared_to(lake_center) < _lake_reach_sq and _lake_s(p) < 1.25:
+		return lake_level
+	var cell := Vector2i(floori(x / RIVER_CELL), floori(z / RIVER_CELL))
+	if _river_grid.has(cell):
+		var q := _river_query(p, _river_grid[cell])
+		if not q.is_empty() and float(q["d"]) < float(q["w"]) + 10.0:
+			return q["level"]
+	return NAN
+
+
+## Metres of water above the ground (0 on land).
+static func water_depth(x: float, z: float) -> float:
+	var lv := water_level_at(x, z)
+	if is_nan(lv):
+		return 0.0
+	return maxf(lv - height(x, z), 0.0)
+
+
+static func is_water(x: float, z: float) -> bool:
+	return water_depth(x, z) > 0.0
+
+
+## Surface current in m/s: rivers run downstream, fastest mid-channel; the lake is still.
+static func water_flow(x: float, z: float) -> Vector2:
+	var p := Vector2(x, z)
+	var calm := 1.0
+	if p.distance_squared_to(lake_center) < _lake_reach_sq:
+		calm = smoothstep(0.75, 1.15, _lake_s(p))
+	var cell := Vector2i(floori(x / RIVER_CELL), floori(z / RIVER_CELL))
+	if calm <= 0.0 or not _river_grid.has(cell):
+		return Vector2.ZERO
+	var q := _river_query(p, _river_grid[cell])
+	if q.is_empty():
+		return Vector2.ZERO
+	var d: float = q["d"]
+	var w: float = q["w"]
+	if d > w + 10.0:
+		return Vector2.ZERO
+	var across := clampf(1.0 - (d / w) * (d / w), 0.15, 1.0)
+	var speed := lerpf(1.5, 0.9, clampf((w - 3.5) / 9.0, 0.0, 1.0))
+	var dir: Vector2 = q["dir"]
+	return dir * speed * across * calm
+
+
+## Approximate metres from (x, z) to the nearest lake shore or river edge
+## (negative inside the water, INF far away). Cheap: does not call height().
+static func shore_distance(x: float, z: float) -> float:
+	var p := Vector2(x, z)
+	var best := INF
+	if p.distance_squared_to(lake_center) < _lake_reach_sq:
+		best = (_lake_s(p) - 1.0) * lake_radius
+	var cell := Vector2i(floori(x / RIVER_CELL), floori(z / RIVER_CELL))
+	if _river_grid.has(cell):
+		var q := _river_query(p, _river_grid[cell])
+		if not q.is_empty():
+			best = minf(best, float(q["d"]) - float(q["w"]))
+	return best
+
+
+static func near_water(x: float, z: float, margin: float) -> bool:
+	return shore_distance(x, z) < margin
+
+
+## Normalised lake coordinate: 0 at the centre, 1 on the (noisy) shoreline.
+static func _lake_s(p: Vector2) -> float:
+	var v := p - lake_center
+	var l := v.length()
+	if l < 0.001:
+		return 0.0
+	var dir := v / l
+	var r := lake_radius * (1.0 + 0.3 * _shore.get_noise_2d(dir.x * 0.9, dir.y * 0.9) + 0.14 * dir.x * dir.y)
+	return l / r
+
+
+## Ideal lake terrain at lake coordinate s: a bowl with a shallow sandy shelf.
+static func _lake_profile(s: float) -> float:
+	if s < 1.0:
+		return lake_level + 0.25 - (LAKE_DEPTH + 0.25) * (1.0 - smoothstep(0.3, 1.0, s))
+	return lake_level + 0.25 + (s - 1.0) * lake_radius * 0.06
+
+
+## Blends terrain height `h` toward an ideal water profile `f`. `d_out` is the
+## distance outside the water edge (negative inside). Higher ground is cut back
+## with a slope-limited bank; lower ground is raised into a levee that stays
+## flat for `flat` metres then falls away at `fill_slope`, so the water never
+## spills past its intended edge.
+static func _carve(h: float, f: float, d_out: float, flat: float, fill_slope: float) -> float:
+	if h >= f:
+		var bank := minf(5.0 + (h - f) * 1.3, 85.0)
+		return lerpf(f, h, smoothstep(0.0, bank, d_out))
+	var ff := f if d_out < flat else f - (d_out - flat) * fill_slope
+	return maxf(h, ff)
+
+
+## Nearest river segment among `ids`: {d, level, w, depth, dir}.
+static func _river_query(p: Vector2, ids: PackedInt32Array) -> Dictionary:
+	var best := INF
+	var bi := -1
+	var bt := 0.0
+	for i in ids:
+		var o := i * 10
+		var a := Vector2(_seg[o], _seg[o + 1])
+		var ab := Vector2(_seg[o + 2], _seg[o + 3]) - a
+		var t := clampf((p - a).dot(ab) / maxf(ab.length_squared(), 0.0001), 0.0, 1.0)
+		var dsq := p.distance_squared_to(a + ab * t)
+		if dsq < best:
+			best = dsq
+			bi = i
+			bt = t
+	if bi < 0:
+		return {}
+	var k := bi * 10
+	return {"d": sqrt(best), "level": lerpf(_seg[k + 4], _seg[k + 5], bt), "w": lerpf(_seg[k + 6], _seg[k + 7], bt),
+		"depth": lerpf(_seg[k + 8], _seg[k + 9], bt),
+		"dir": Vector2(_seg[k + 2] - _seg[k], _seg[k + 3] - _seg[k + 1]).normalized()}
+
+
+static func _place_water(seed_value: int) -> void:
+	_shore.seed = seed_value + 51
+	_shore.frequency = 1.0
+	_shore.fractal_octaves = 2
+	rivers.clear()
+	_seg = PackedFloat32Array()
+	_river_grid.clear()
+	lake_center = Vector2(1.0e6, 1.0e6)
+	_lake_reach_sq = 0.0
+	var hp: Vector2 = settlements[0]["pos"]
+	if _lore_layout_fits(hp):
+		lake_center = hp + MERE_CENTER
+		_finish_lake()
+		var up := PackedVector2Array()
+		for c: Vector2 in ASHRUN_UPSTREAM:
+			up.append(hp + c)
+		up.append(lake_center)
+		var down := PackedVector2Array([lake_center])
+		for c: Vector2 in ASHRUN_DOWNSTREAM:
+			down.append(hp + c)
+		var last := down[down.size() - 1]
+		var out_dir := (last - down[down.size() - 2]).normalized()
+		down.append(last + out_dir * _edge_distance(last, out_dir))
+		_add_river(_polyline(up, 3.0, 28.0), true)
+		_add_river(_polyline(down, 17.0, 45.0), false)
+		return
+	# Fallback for other seeds/layouts: the spot about LAKE_DISTANCE out that keeps
+	# clearest of every road and town, on the calmest ground.
+	var best_score := -INF
+	var best := hp + Vector2(LAKE_DISTANCE, 0)
+	for i in 72:
+		var ang := TAU * i / 72.0
+		for dist: float in [LAKE_DISTANCE - 30.0, LAKE_DISTANCE, LAKE_DISTANCE + 30.0]:
+			var c := hp + Vector2(cos(ang), sin(ang)) * dist
+			var ring := _ring_stats(c, lake_radius * 1.15)
+			var score := minf(_lake_clearance(c), 60.0) - (ring.y - ring.x) * 1.5
+			if score > best_score:
+				best_score = score
+				best = c
+	lake_center = best
+	_finish_lake()
+	# Rivers: upstream (from the hills) and downstream (to the world edge) courses
+	# that stay away from towns and cross the fewest roads.
+	var out := (lake_center - hp).normalized()
+	var ups: Array[Dictionary] = []
+	var downs: Array[Dictionary] = []
+	for k in range(-4, 5):
+		var dir := out.rotated(deg_to_rad(22.0 * k))
+		var up := _polyline(PackedVector2Array([lake_center + dir * 850.0, lake_center]), 3.0 + k, 110.0)
+		ups.append({"pts": up, "dir": dir, "score": _course_score(up) + _raw_height(up[0].x, up[0].y) * 0.4})
+		var far := _edge_distance(lake_center, dir)
+		var down := _polyline(PackedVector2Array([lake_center, lake_center + dir * far]), 17.0 + k, 110.0)
+		downs.append({"pts": down, "dir": dir, "score": _course_score(down) - far * 0.03})
+	var pick := Vector2i(0, 0)
+	var pick_score := -INF
+	for a in ups.size():
+		for b in downs.size():
+			var sep := absf((ups[a]["dir"] as Vector2).angle_to(downs[b]["dir"]))
+			if sep < deg_to_rad(95.0):
+				continue
+			var sc: float = ups[a]["score"] + downs[b]["score"]
+			if sc > pick_score:
+				pick_score = sc
+				pick = Vector2i(a, b)
+	_add_river(ups[pick.x]["pts"], true)
+	_add_river(downs[pick.y]["pts"], false)
+
+
+## Metres of margin between the lake's reach and the nearest road or town.
+static func _lake_clearance(c: Vector2) -> float:
+	var clear := road_distance(c.x, c.y) - lake_radius * 1.45
+	for s in settlements:
+		clear = minf(clear, c.distance_to(s["pos"]) - float(s["radius"]) * 1.8 - lake_radius * 1.45)
+	return clear
+
+
+## The lore layout is used when the lake and river keep clear of towns and roads.
+static func _lore_layout_fits(hp: Vector2) -> bool:
+	if _lake_clearance(hp + MERE_CENTER) < 0.0:
+		return false
+	var pts := PackedVector2Array()
+	for c: Vector2 in ASHRUN_UPSTREAM + ASHRUN_DOWNSTREAM:
+		pts.append(hp + c)
+	return _course_score(pts) > -1000.0
+
+
+static func _finish_lake() -> void:
+	var stats := _ring_stats(lake_center, lake_radius * 1.15)
+	lake_level = lerpf(stats.x, stats.y, 0.3) - 1.0
+	_lake_reach_sq = pow(lake_radius * 1.5 + 200.0, 2.0)
+
+
+## (min, max) raw terrain height around a ring.
+static func _ring_stats(c: Vector2, r: float) -> Vector2:
+	var lo := INF
+	var hi := -INF
+	for i in 24:
+		var a := TAU * i / 24.0
+		var h := _raw_height(c.x + cos(a) * r, c.y + sin(a) * r)
+		lo = minf(lo, h)
+		hi = maxf(hi, h)
+	return Vector2(lo, hi)
+
+
+## Distance from `c` along `dir` to just past the world edge.
+static func _edge_distance(c: Vector2, dir: Vector2) -> float:
+	var half := WORLD_HALF + 40.0
+	var t := INF
+	if absf(dir.x) > 0.001:
+		t = minf(t, ((half if dir.x > 0.0 else -half) - c.x) / dir.x)
+	if absf(dir.y) > 0.001:
+		t = minf(t, ((half if dir.y > 0.0 else -half) - c.y) / dir.y)
+	return t
+
+
+## A gently meandering polyline through control points (which it passes
+## exactly), resampled every RIVER_STEP metres.
+static func _polyline(ctrl: PackedVector2Array, salt: float, amp: float) -> PackedVector2Array:
+	var pts := PackedVector2Array([ctrl[0]])
+	var travelled := 0.0
+	for c in ctrl.size() - 1:
+		var a := ctrl[c]
+		var b := ctrl[c + 1]
+		var length := a.distance_to(b)
+		var n := maxi(2, ceili(length / RIVER_STEP))
+		var side := (b - a).normalized().orthogonal()
+		for i in range(1, n + 1):
+			var t := float(i) / n
+			var along := travelled + t * length
+			var wiggle := _shore.get_noise_2d(along * 0.004, salt * 37.0) + _shore.get_noise_2d(along * 0.012, salt * 37.0 + 9.0) * 0.2
+			pts.append(a.lerp(b, t) + side * wiggle * amp * sin(PI * t))
+		travelled += length
+	return pts
+
+
+## Penalises courses that pass through towns or near home, or cross roads.
+static func _course_score(pts: PackedVector2Array) -> float:
+	var score := 0.0
+	var on_road := false
+	for p in pts:
+		if absf(p.x) > WORLD_HALF or absf(p.y) > WORLD_HALF:
+			continue
+		for s in settlements:
+			var keep := float(s["radius"]) * 1.8 + (140.0 if s["id"] == 0 else 50.0)
+			if p.distance_to(s["pos"]) < keep:
+				score -= 1000.0
+		var rd := road_distance(p.x, p.y)
+		if rd < 14.0 and not on_road:
+			score -= 60.0
+		elif rd < 40.0:
+			score -= 2.0     # running alongside a road
+		on_road = rd < 14.0
+	return score
+
+
+## Adds a river arm (points ordered downstream): levels that only ever fall
+## downstream, width/depth growing with the flow, shallow fords at road crossings.
+static func _add_river(pts: PackedVector2Array, feeds_lake: bool) -> void:
+	var n := pts.size()
+	var lv := PackedFloat32Array()
+	var wd := PackedFloat32Array()
+	var dp := PackedFloat32Array()
+	lv.resize(n)
+	wd.resize(n)
+	dp.resize(n)
+	var in_lake: Array[bool] = []
+	# The river follows a smoothed (+-100 m) version of the ground, so it neither
+	# climbs every hill nor has to be banked up across every hollow.
+	var raw := PackedFloat32Array()
+	raw.resize(n)
+	for i in n:
+		raw[i] = _raw_height(pts[i].x, pts[i].y)
+	var smooth := PackedFloat32Array()
+	smooth.resize(n)
+	for i in n:
+		var sum := 0.0
+		var cnt := 0
+		for j in range(maxi(0, i - 6), mini(n, i + 7)):
+			sum += raw[j]
+			cnt += 1
+		smooth[i] = minf(sum / cnt, raw[i] + 2.0)
+	var run := INF if feeds_lake else lake_level
+	for i in n:
+		var p := pts[i]
+		var t := float(i) / (n - 1)
+		in_lake.append(_lake_s(p) < 1.3)
+		if in_lake[i]:
+			lv[i] = lake_level
+		else:
+			run = minf(run, smooth[i] - 1.0)
+			lv[i] = maxf(run, lake_level) if feeds_lake else run
+		wd[i] = lerpf(3.5, 8.0, t) if feeds_lake else lerpf(9.0, 12.5, t)
+		var depth := lerpf(0.9, 1.9, t) if feeds_lake else 2.1
+		dp[i] = lerpf(0.4, depth, smoothstep(6.0, 26.0, road_distance(p.x, p.y)))
+	if feeds_lake:
+		# Keep the approach to the lake gentle (<= 3.5 % grade) rather than a cliff.
+		for i in range(n - 2, -1, -1):
+			lv[i] = minf(lv[i], lv[i + 1] + 0.035 * RIVER_STEP)
+	for pass_i in 3:
+		var sm := lv.duplicate()
+		for i in range(1, n - 1):
+			if not in_lake[i]:
+				sm[i] = lv[i - 1] * 0.25 + lv[i] * 0.5 + lv[i + 1] * 0.25
+		lv = sm
+	rivers.append({"points": pts, "level": lv, "width": wd, "depth": dp})
+	for i in n - 1:
+		var id := _seg.size() / 10
+		var a := pts[i]
+		var b := pts[i + 1]
+		_seg.append_array(PackedFloat32Array([a.x, a.y, b.x, b.y, lv[i], lv[i + 1], wd[i], wd[i + 1], dp[i], dp[i + 1]]))
+		var grow := RIVER_REACH + maxf(wd[i], wd[i + 1])
+		var lo := Vector2i(floori((minf(a.x, b.x) - grow) / RIVER_CELL), floori((minf(a.y, b.y) - grow) / RIVER_CELL))
+		var hi := Vector2i(floori((maxf(a.x, b.x) + grow) / RIVER_CELL), floori((maxf(a.y, b.y) + grow) / RIVER_CELL))
+		for cz in range(lo.y, hi.y + 1):
+			for cx in range(lo.x, hi.x + 1):
+				var key := Vector2i(cx, cz)
+				if not _river_grid.has(key):
+					_river_grid[key] = PackedInt32Array()
+				var ids: PackedInt32Array = _river_grid[key]
+				ids.append(id)
+				_river_grid[key] = ids
 
 
 static func road_distance(x: float, z: float) -> float:
@@ -128,6 +519,14 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 	if rd < 3.5:
 		w.r = maxf(w.r, 1.0 - smoothstep(1.5, 3.5, rd))
 		w.a = 0.0
+	# Shores: sandy dirt at the waterline, pebbles (rock) on the bed, more with depth.
+	var lv := water_level_at(x, z)
+	if not is_nan(lv):
+		var above := h - lv
+		var sand := 1.0 - smoothstep(0.2, 1.8, above)
+		w.r = maxf(w.r, sand * 0.85)
+		w.g = maxf(w.g, sand * (0.35 + clampf(-above * 0.2, 0.0, 0.45)))
+		w.a *= 1.0 - sand
 	return w
 
 
@@ -138,6 +537,8 @@ static func forest_density(x: float, z: float) -> float:
 		f *= smoothstep(near["radius"] * 1.2, near["radius"] * 2.2, Vector2(x, z).distance_to(near["pos"]))
 	if road_distance(x, z) < 8.0:
 		f = 0.0
+	if f > 0.0:
+		f *= smoothstep(6.0, 20.0, shore_distance(x, z))   # no trees (or wolf dens) in water or on beaches
 	return f
 
 
