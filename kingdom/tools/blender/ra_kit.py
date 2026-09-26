@@ -114,7 +114,7 @@ class Kit:
                 if grime:
                     z = l.vert.co.z - self.grime_z0
                     k = 1.0 - self.grime_amt * max(0.0, 1.0 - max(z, 0.0) / self.grime) if z < self.grime else 1.0
-                    cc = (c[0] * k, c[1] * k, c[2] * k)
+                    cc = (cc[0] * k, cc[1] * k, cc[2] * k)
                 l[self.col] = (*srgb(cc), 1.0)
         t.free()
 
@@ -402,11 +402,13 @@ class Kit:
         self._merge(t, mat, c, m, 60, 0.04, cf, grime)
 
     def grid_wall(self, w, h, loc, mat, color_fn, rot=(0, 0, 0), bw=0.9, bh=0.45,
-                  gap=0.025, push=0.03, holes=(), stagger=True, grime=True):
+                  gap=0.025, push=0.03, holes=(), stagger=True, grime=True, top_fn=None):
         """Masonry face in the XZ plane (x centred, z from 0 to h) facing -Y.
         Each block is a separate slightly pushed-out/tilted quad with a gap, so
         whatever sits ~0.2 m behind (a dark core box) reads as deep mortar.
-        `holes` are (x0, z0, x1, z1) rects kept free for doors/windows."""
+        `holes` are (x0, z0, x1, z1) rects kept free for doors/windows.
+        `top_fn(x)` (optional) clips the wall to a sloped top, e.g. a gable end:
+        blocks above it are dropped and blocks crossing it are cut to it."""
         t = bmesh.new()
         lay = t.faces.layers.int.new("cid")
         keys = []
@@ -435,14 +437,25 @@ class Kit:
                             new.append((hx1, b))
                     segs = new
             for a, b in segs:
+                ta = tb = z1 - gap / 2
+                if top_fn is not None:
+                    # keep only the part of the block whose top is above its base
+                    lim = z0 + gap + 0.04
+                    n_s = 6
+                    ok = [a + (b - a) * i / n_s for i in range(n_s + 1) if top_fn(a + (b - a) * i / n_s) > lim]
+                    if not ok:
+                        continue
+                    a, b = min(ok), max(ok)
+                    ta = min(ta, top_fn(a + gap / 2) - gap / 2)
+                    tb = min(tb, top_fn(b - gap / 2) - gap / 2)
                 if b - a < 0.08:
                     continue
                 g = gap / 2
                 y = -random.uniform(0.0, push)
                 vs = [t.verts.new((a + g, y + random.uniform(-0.008, 0.008), z0 + g)),
                       t.verts.new((b - g, y + random.uniform(-0.008, 0.008), z0 + g)),
-                      t.verts.new((b - g, y + random.uniform(-0.008, 0.008), z1 - g)),
-                      t.verts.new((a + g, y + random.uniform(-0.008, 0.008), z1 - g))]
+                      t.verts.new((b - g, y + random.uniform(-0.008, 0.008), tb)),
+                      t.verts.new((a + g, y + random.uniform(-0.008, 0.008), ta))]
                 f = t.faces.new(vs)
                 keys.append(color_fn())
                 f[lay] = len(keys) - 1
@@ -587,6 +600,179 @@ class Kit:
             for vv in tb.verts:
                 vv.co = Vector((vv.co.x * (x1 - x0 - 0.1), vv.co.y * (L - 0.1), vv.co.z * dt))
             self._merge(tb, deck_mat, deck_color, m, None, 0.02, None, False)
+
+    def panel_wall(self, w, h, loc, mat, color, rot=(0, 0, 0), holes=(), cell=0.5, var=0.07,
+                   hue=0.025, blotch=0.8, speckle=0.02, top_fn=None, top_breaks=(), grime=True,
+                   streaks=0.0):
+        """Rendered / lime-plastered wall face in the XZ plane (x centred, z 0..h)
+        facing -Y, like grid_wall. One shared-vertex grid whose vertex colours get
+        soft low-frequency blotches (`var` brightness, `hue` warm/cool shift) plus a
+        little per-vertex speckle, so a flat plaster panel reads as hand-applied.
+        `holes` (x0, z0, x1, z1) are cut out exactly; `top_fn(x)` clips to a sloped
+        top (gables) and `top_breaks` adds x values where that slope has a kink
+        (the ridge). `streaks` (0-1) adds faint vertical weathering streaks."""
+        def axis(lo, hi, extra):
+            n = max(1, math.ceil((hi - lo) / cell))
+            req = {round(lo, 5), round(hi, 5)} | {round(v, 5) for v in extra if lo < v < hi}
+            vals = sorted(req | {round(lo + (hi - lo) * i / n, 5) for i in range(n + 1)})
+            out = [vals[0]]
+            for v in vals[1:]:
+                if v - out[-1] > 0.04:
+                    out.append(v)
+                elif v in req and out[-1] not in req:
+                    out[-1] = v
+            return out
+        xs = axis(-w / 2, w / 2, [c for hh in holes for c in (hh[0], hh[2])] + list(top_breaks))
+        zs = axis(0.0, h, [c for hh in holes for c in (hh[1], hh[3])])
+        t = bmesh.new()
+        vlay = t.verts.layers.float_color.new("vc")
+        off = Vector((random.uniform(0, 100), random.uniform(0, 100), random.uniform(0, 100)))
+        grid = {}
+
+        def V(i, j):
+            if (i, j) in grid:
+                return grid[(i, j)]
+            x, z = xs[i], zs[j]
+            if top_fn is not None:
+                z = min(z, top_fn(x))
+            v = t.verts.new((x, 0.0, z))
+            q = Vector((x * blotch, z * blotch, 0.0)) + off
+            n1 = noise.noise(q)
+            n2 = noise.noise(q * 2.3 + Vector((7.1, 3.3, 1.9)))
+            k = 1.0 + var * (0.7 * n1 + 0.3 * n2) + random.uniform(-speckle, speckle)
+            wv = hue * n2
+            c = (color[0] * k * (1 + wv), color[1] * k, color[2] * k * (1 - wv))
+            if streaks:
+                s = max(0.0, noise.noise(Vector((x * 4.0, 0.3, 0.0)) + off)) * min(1.0, max(0.0, z / max(h, 0.1)))
+                c = tuple(cc * (1.0 - 0.25 * streaks * s) for cc in c)
+            v[vlay] = (*[min(1.0, max(0.0, cc)) for cc in c], 1.0)
+            grid[(i, j)] = v
+            return v
+
+        for i in range(len(xs) - 1):
+            for j in range(len(zs) - 1):
+                xc, zc = (xs[i] + xs[i + 1]) / 2, (zs[j] + zs[j + 1]) / 2
+                if any(hx0 < xc < hx1 and hz0 < zc < hz1 for hx0, hz0, hx1, hz1 in holes):
+                    continue
+                if top_fn is not None and zs[j] >= max(top_fn(xs[i]), top_fn(xs[i + 1])) - 1e-4:
+                    continue
+                pts = []
+                for v in (V(i, j), V(i + 1, j), V(i + 1, j + 1), V(i, j + 1)):
+                    if not pts or (v.co - pts[-1].co).length > 1e-4:
+                        pts.append(v)
+                if len(pts) > 1 and (pts[0].co - pts[-1].co).length < 1e-4:
+                    pts.pop()
+                if len(pts) < 3:
+                    continue
+                try:
+                    t.faces.new(pts)
+                except ValueError:
+                    pass
+        for v in [v for v in t.verts if not v.link_faces]:
+            t.verts.remove(v)
+        self._merge(t, mat, (1, 1, 1), self.xf(loc, rot), None, 0.0, None, grime,
+                    loop_fn=lambda l: tuple(l.vert[vlay])[:3])
+
+    def plank_wall(self, w, h, loc, mat, color_fn, rot=(0, 0, 0), holes=(), plank=(0.2, 0.32),
+                   gap=0.014, push=0.025, top_fn=None, grime=True, ragged=0.03):
+        """Vertical board siding in the XZ plane (x centred, z 0..h) facing -Y: each
+        board is its own quad, slightly pushed out/tilted, with a gap so a dark
+        backing box reads as the joints. Boards are cut around `holes` and to
+        `top_fn(x)` (gables); bottoms are ragged by up to `ragged` m."""
+        t = bmesh.new()
+        lay = t.faces.layers.int.new("cid")
+        keys = []
+        edges = sorted({v for hh in holes for v in (hh[0], hh[2]) if -w / 2 < v < w / 2})
+        x = -w / 2
+        while x < w / 2 - 0.02:
+            x2 = min(w / 2, x + random.uniform(*plank))
+            if w / 2 - x2 < 0.08:
+                x2 = w / 2
+            for e in edges:            # boards stop exactly at door/window edges
+                if x + 0.02 < e < x2:
+                    x2 = e
+                    break
+            xc = (x + x2) / 2
+            spans = [(random.uniform(0, ragged), h)]
+            for hx0, hz0, hx1, hz1 in holes:
+                if not (hx0 < xc < hx1):
+                    continue
+                new = []
+                for s0, s1 in spans:
+                    if s1 <= hz0 or s0 >= hz1:
+                        new.append((s0, s1))
+                        continue
+                    if s0 < hz0:
+                        new.append((s0, hz0))
+                    if s1 > hz1:
+                        new.append((hz1, s1))
+                spans = new
+            c = color_fn()
+            g = gap / 2
+            y = -random.uniform(0.0, push)
+            tl = random.uniform(-0.006, 0.006)
+            for s0, s1 in spans:
+                ta = tb = s1
+                if top_fn is not None:
+                    ta, tb = min(s1, top_fn(x + g)), min(s1, top_fn(x2 - g))
+                    if ta <= s0 + 0.02 and tb <= s0 + 0.02:
+                        continue
+                    ta, tb = max(ta, s0 + 0.02), max(tb, s0 + 0.02)
+                vs = [t.verts.new((x + g, y + tl, s0)), t.verts.new((x2 - g, y - tl, s0)),
+                      t.verts.new((x2 - g, y - tl, tb)), t.verts.new((x + g, y + tl, ta))]
+                f = t.faces.new(vs)
+                keys.append(c)
+                f[lay] = len(keys) - 1
+            x = x2
+        self._merge(t, mat, (1, 1, 1), self.xf(loc, rot), None, 0.0, lambda f: keys[f[lay]], grime)
+
+    def sheet(self, corners, nu, nv, mat, color_fn, sag=0.0, sag_fn=None, both=True, smooth=70,
+              grime=False):
+        """Bilinear cloth/canvas patch between corners (p00, p10, p01, p11) with nu x nv
+        cells (in the current frame). `sag` pulls the interior down (-Z) by a sine bump;
+        `sag_fn(u, v)` overrides that with any offset vector. `color_fn(u, v)` colours
+        vertices (stripes, dirt). `both` adds the reversed side so the underside shows."""
+        p00, p10, p01, p11 = (Vector(p) for p in corners)
+        t = bmesh.new()
+        vlay = t.verts.layers.float_color.new("vc")
+        rows = []
+        for j in range(nv + 1):
+            v_ = j / nv
+            row = []
+            for i in range(nu + 1):
+                u = i / nu
+                p = (p00 * (1 - u) + p10 * u) * (1 - v_) + (p01 * (1 - u) + p11 * u) * v_
+                if sag_fn is not None:
+                    p = p + Vector(sag_fn(u, v_))
+                elif sag:
+                    p.z -= sag * math.sin(math.pi * u) * math.sin(math.pi * v_)
+                vv = t.verts.new(p)
+                vv[vlay] = (*color_fn(u, v_), 1.0)
+                row.append(vv)
+            rows.append(row)
+        for j in range(nv):
+            for i in range(nu):
+                q = (rows[j][i], rows[j][i + 1], rows[j + 1][i + 1], rows[j + 1][i])
+                t.faces.new(q)
+                if both:
+                    dup = [t.verts.new(v.co) for v in q]
+                    for a, b in zip(dup, q):
+                        a[vlay] = b[vlay]
+                    t.faces.new(list(reversed(dup)))
+        self._merge(t, mat, (1, 1, 1), None, smooth, 0.0, None, grime,
+                    loop_fn=lambda l: tuple(l.vert[vlay])[:3])
+
+    def mirror_x(self):
+        """Mirror everything built so far across X=0, keeping outward normals and
+        colours. Used for layout variants (door / chimney / shed swap sides)."""
+        bmesh.ops.scale(self.bm, vec=(-1.0, 1.0, 1.0), verts=self.bm.verts[:])
+        bmesh.ops.reverse_faces(self.bm, faces=self.bm.faces[:])
+
+    def bounds(self):
+        """((xmin, ymin, zmin), (xmax, ymax, zmax)) of everything built so far."""
+        vs = [v.co for v in self.bm.verts]
+        return (tuple(min(v[i] for v in vs) for i in range(3)),
+                tuple(max(v[i] for v in vs) for i in range(3)))
 
     # --------------------------------------------------------------- finishing
     def tri_count(self):
