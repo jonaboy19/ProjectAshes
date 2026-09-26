@@ -1,0 +1,520 @@
+[
+ {
+  "file": "alpaca.glb",
+  "title": "alpaca (Farm Animals and Barnyard)",
+  "summary": "Adult alpaca in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1322,
+  "animations": [],
+  "sizeMeters": [
+   0.513,
+   1.565,
+   2.062
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-alpaca-150afd10"
+ },
+ {
+  "file": "bull.glb",
+  "title": "bull (Farm Animals and Barnyard)",
+  "summary": "Adult bull in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1514,
+  "animations": [],
+  "sizeMeters": [
+   0.858,
+   1.788,
+   2.767
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-bull-f7c674f7"
+ },
+ {
+  "file": "calf.glb",
+  "title": "calf (Farm Animals and Barnyard)",
+  "summary": "Young calf in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1322,
+  "animations": [],
+  "sizeMeters": [
+   0.34,
+   0.666,
+   1.312
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-calf-e8aa0c29"
+ },
+ {
+  "file": "cattle-grid.glb",
+  "title": "cattle grid (Farm Animals and Barnyard)",
+  "summary": "cattle grid with usable physical construction and a stable ground pivot.",
+  "triangles": 168,
+  "animations": [],
+  "sizeMeters": [
+   1.8,
+   0.13,
+   1.2
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-cattle-grid-fd8f511f"
+ },
+ {
+  "file": "chick.glb",
+  "title": "chick (Farm Animals and Barnyard)",
+  "summary": "chick with distinct bill, wings, tail and grounded three-toed feet.",
+  "triangles": 1360,
+  "animations": [],
+  "sizeMeters": [
+   0.144,
+   0.252,
+   0.249
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-chick-67ea1518"
+ },
+ {
+  "file": "chicken-feeder.glb",
+  "title": "chicken feeder (Farm Animals and Barnyard)",
+  "summary": "chicken feeder with usable physical construction and a stable ground pivot.",
+  "triangles": 136,
+  "animations": [],
+  "sizeMeters": [
+   0.48,
+   0.37,
+   0.48
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-chicken-feeder-24fb3ae2"
+ },
+ {
+  "file": "dairy-cow-lying.glb",
+  "title": "dairy cow lying (Farm Animals and Barnyard)",
+  "summary": "Adult dairy cow in a lying pose with species-specific head, feet and coat construction.",
+  "triangles": 1202,
+  "animations": [],
+  "sizeMeters": [
+   1.028,
+   1.018,
+   2.766
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-dairy-cow-lying-14a74618"
+ },
+ {
+  "file": "dairy-cow.glb",
+  "title": "dairy cow (Farm Animals and Barnyard)",
+  "summary": "Adult dairy cow in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1482,
+  "animations": [],
+  "sizeMeters": [
+   0.858,
+   1.608,
+   2.767
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-dairy-cow-e3d4ec22"
+ },
+ {
+  "file": "dairy-goat-kid.glb",
+  "title": "dairy goat kid (Farm Animals and Barnyard)",
+  "summary": "Young dairy goat kid in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1514,
+  "animations": [],
+  "sizeMeters": [
+   0.34,
+   0.822,
+   1.312
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-dairy-goat-kid-ab4af927"
+ },
+ {
+  "file": "domestic-boar.glb",
+  "title": "domestic boar (Farm Animals and Barnyard)",
+  "summary": "Adult domestic boar in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1514,
+  "animations": [],
+  "sizeMeters": [
+   0.643,
+   0.875,
+   2.001
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-domestic-boar-c1f4c413"
+ },
+ {
+  "file": "egg-basket.glb",
+  "title": "egg basket (Farm Animals and Barnyard)",
+  "summary": "egg basket with usable physical construction and a stable ground pivot.",
+  "triangles": 508,
+  "animations": [],
+  "sizeMeters": [
+   0.44,
+   0.349,
+   0.418
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-egg-basket-c6453f58"
+ },
+ {
+  "file": "ewe-grazing.glb",
+  "title": "ewe grazing (Farm Animals and Barnyard)",
+  "summary": "Adult ewe in a grazing pose with species-specific head, feet and coat construction.",
+  "triangles": 1658,
+  "animations": [],
+  "sizeMeters": [
+   0.616,
+   0.942,
+   2.023
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-ewe-grazing-7065fbe9"
+ },
+ {
+  "file": "ewe.glb",
+  "title": "ewe (Farm Animals and Barnyard)",
+  "summary": "Adult ewe in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1658,
+  "animations": [],
+  "sizeMeters": [
+   0.616,
+   0.942,
+   1.818
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-ewe-b2049d41"
+ },
+ {
+  "file": "feed-trough.glb",
+  "title": "feed trough (Farm Animals and Barnyard)",
+  "summary": "feed trough with usable physical construction and a stable ground pivot.",
+  "triangles": 96,
+  "animations": [],
+  "sizeMeters": [
+   1.53,
+   0.49,
+   0.52
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-feed-trough-82eb7f7b"
+ },
+ {
+  "file": "goose.glb",
+  "title": "goose (Farm Animals and Barnyard)",
+  "summary": "goose with distinct bill, wings, tail and grounded three-toed feet.",
+  "triangles": 1440,
+  "animations": [],
+  "sizeMeters": [
+   0.37,
+   0.809,
+   0.792
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-goose-ea61d868"
+ },
+ {
+  "file": "guinea-fowl.glb",
+  "title": "guinea fowl (Farm Animals and Barnyard)",
+  "summary": "guinea fowl with distinct bill, wings, tail and grounded three-toed feet.",
+  "triangles": 1440,
+  "animations": [],
+  "sizeMeters": [
+   0.329,
+   0.539,
+   0.698
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-guinea-fowl-96c4c0ec"
+ },
+ {
+  "file": "highland-cow.glb",
+  "title": "highland cow (Farm Animals and Barnyard)",
+  "summary": "Adult highland cow in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1766,
+  "animations": [],
+  "sizeMeters": [
+   0.858,
+   1.788,
+   2.767
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-highland-cow-9854c07e"
+ },
+ {
+  "file": "lamb.glb",
+  "title": "lamb (Farm Animals and Barnyard)",
+  "summary": "Young lamb in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1658,
+  "animations": [],
+  "sizeMeters": [
+   0.388,
+   0.666,
+   1.312
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-lamb-d427646f"
+ },
+ {
+  "file": "livestock-pasture.glb",
+  "title": "Livestock pasture (Farm Animals and Barnyard)",
+  "summary": "True-scale cattle and sheep pasture with existing Cozy Farm barn, fencing, gate, trough and hay references.",
+  "triangles": 6568,
+  "animations": [],
+  "sizeMeters": [
+   12.114,
+   5.249,
+   12.306
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-livestock-pa-9e348903-starter-scene"
+ },
+ {
+  "file": "llama-cria.glb",
+  "title": "llama cria (Farm Animals and Barnyard)",
+  "summary": "Young llama cria in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1322,
+  "animations": [],
+  "sizeMeters": [
+   0.323,
+   1.323,
+   1.313
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-llama-cria-e36f77a3"
+ },
+ {
+  "file": "llama.glb",
+  "title": "llama (Farm Animals and Barnyard)",
+  "summary": "Adult llama in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1322,
+  "animations": [],
+  "sizeMeters": [
+   0.513,
+   2.055,
+   2.062
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-llama-9b1cbe23"
+ },
+ {
+  "file": "milking-stool.glb",
+  "title": "milking stool (Farm Animals and Barnyard)",
+  "summary": "milking stool with usable physical construction and a stable ground pivot.",
+  "triangles": 400,
+  "animations": [],
+  "sizeMeters": [
+   0.44,
+   0.419,
+   0.418
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-milking-stool-eec1449b"
+ },
+ {
+  "file": "muscovy-drake.glb",
+  "title": "muscovy drake (Farm Animals and Barnyard)",
+  "summary": "muscovy drake with distinct bill, wings, tail and grounded three-toed feet.",
+  "triangles": 1488,
+  "animations": [],
+  "sizeMeters": [
+   0.329,
+   0.539,
+   0.698
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-muscovy-drake-567914a0"
+ },
+ {
+  "file": "ox-with-yoke.glb",
+  "title": "ox with yoke (Farm Animals and Barnyard)",
+  "summary": "Adult ox with yoke in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1574,
+  "animations": [],
+  "sizeMeters": [
+   1.3,
+   1.788,
+   2.767
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-ox-with-yoke-47bd756b"
+ },
+ {
+  "file": "piglet.glb",
+  "title": "piglet (Farm Animals and Barnyard)",
+  "summary": "Young piglet in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1322,
+  "animations": [],
+  "sizeMeters": [
+   0.342,
+   0.682,
+   1.321
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-piglet-07e27ee1"
+ },
+ {
+  "file": "poultry-yard.glb",
+  "title": "Poultry yard (Farm Animals and Barnyard)",
+  "summary": "Rooster, chicks, guinea fowl and goose around a feeding station and removable hurdle.",
+  "triangles": 5048,
+  "animations": [],
+  "sizeMeters": [
+   1.75,
+   0.809,
+   2.179
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-poultry-yard-d4974b54"
+ },
+ {
+  "file": "ram.glb",
+  "title": "ram (Farm Animals and Barnyard)",
+  "summary": "Adult ram in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1754,
+  "animations": [],
+  "sizeMeters": [
+   0.638,
+   0.97,
+   1.818
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-ram-e9f7f350"
+ },
+ {
+  "file": "rooster.glb",
+  "title": "rooster (Farm Animals and Barnyard)",
+  "summary": "rooster with distinct bill, wings, tail and grounded three-toed feet.",
+  "triangles": 1512,
+  "animations": [],
+  "sizeMeters": [
+   0.329,
+   0.61,
+   0.698
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-rooster-cf4cbece"
+ },
+ {
+  "file": "salt-lick-block.glb",
+  "title": "salt lick block (Farm Animals and Barnyard)",
+  "summary": "salt lick block with usable physical construction and a stable ground pivot.",
+  "triangles": 24,
+  "animations": [],
+  "sizeMeters": [
+   0.48,
+   0.34,
+   0.45
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-salt-lick-block-3d0fd3d5"
+ },
+ {
+  "file": "shearing-stand.glb",
+  "title": "shearing stand (Farm Animals and Barnyard)",
+  "summary": "shearing stand with usable physical construction and a stable ground pivot.",
+  "triangles": 84,
+  "animations": [],
+  "sizeMeters": [
+   1.2,
+   1.23,
+   0.6
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-shearing-stand-5a988848"
+ },
+ {
+  "file": "sheep-hurdle.glb",
+  "title": "sheep hurdle (Farm Animals and Barnyard)",
+  "summary": "sheep hurdle with usable physical construction and a stable ground pivot.",
+  "triangles": 72,
+  "animations": [],
+  "sizeMeters": [
+   1.42,
+   0.8,
+   0.06
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-sheep-hurdle-d14ac14a"
+ },
+ {
+  "file": "shorn-sheep.glb",
+  "title": "shorn sheep (Farm Animals and Barnyard)",
+  "summary": "Adult shorn sheep in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1322,
+  "animations": [],
+  "sizeMeters": [
+   0.539,
+   0.932,
+   1.818
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-shorn-sheep-656d7052"
+ },
+ {
+  "file": "sow-wallowing.glb",
+  "title": "sow wallowing (Farm Animals and Barnyard)",
+  "summary": "Adult sow in a wallowing pose with species-specific head, feet and coat construction.",
+  "triangles": 1042,
+  "animations": [],
+  "sizeMeters": [
+   0.765,
+   0.693,
+   2.001
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-sow-wallowing-0bdfeb60"
+ },
+ {
+  "file": "sow.glb",
+  "title": "sow (Farm Animals and Barnyard)",
+  "summary": "Adult sow in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1322,
+  "animations": [],
+  "sizeMeters": [
+   0.643,
+   0.875,
+   2.001
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-sow-794c89dd"
+ },
+ {
+  "file": "turkey-tom.glb",
+  "title": "turkey tom (Farm Animals and Barnyard)",
+  "summary": "turkey tom with distinct bill, wings, tail and grounded three-toed feet.",
+  "triangles": 1588,
+  "animations": [],
+  "sizeMeters": [
+   0.725,
+   0.678,
+   0.608
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-turkey-tom-68446753"
+ },
+ {
+  "file": "water-buffalo.glb",
+  "title": "water buffalo (Farm Animals and Barnyard)",
+  "summary": "Adult water buffalo in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1514,
+  "animations": [],
+  "sizeMeters": [
+   1.386,
+   1.608,
+   2.767
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-water-buffalo-bc929bba"
+ },
+ {
+  "file": "zebu.glb",
+  "title": "zebu (Farm Animals and Barnyard)",
+  "summary": "Adult zebu in a standing pose with species-specific head, feet and coat construction.",
+  "triangles": 1578,
+  "animations": [],
+  "sizeMeters": [
+   0.858,
+   1.93,
+   2.767
+  ],
+  "aiModel": "Claude Fable 5.1; GPT-6 via Codex",
+  "source": "https://3dassets.dev/assets/farm-livestock-and-barnyard-zebu-b7888239"
+ }
+]

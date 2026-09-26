@@ -1,0 +1,864 @@
+[
+ {
+  "file": "archer-crimson.glb",
+  "title": "Archer Crimson (Medieval Siege and Castle Defence)",
+  "summary": "The archer in a crimson faction gambeson.",
+  "triangles": 320,
+  "animations": [],
+  "sizeMeters": [
+   0.81,
+   2.037,
+   0.965
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-archer-red-be8d1831"
+ },
+ {
+  "file": "archer.glb",
+  "title": "Archer (Medieval Siege and Castle Defence)",
+  "summary": "Longbow archer in a padded gambeson and bascinet, bow raised in the left hand with a back quiver of arrows.",
+  "triangles": 320,
+  "animations": [],
+  "sizeMeters": [
+   0.81,
+   2.037,
+   0.965
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-archer-377dc2b3"
+ },
+ {
+  "file": "arrow-and-bolt-stock.glb",
+  "title": "Arrow and Bolt Stock (Medieval Siege and Castle Defence)",
+  "summary": "Wall-head stock rack: two open bins of crossbow bolts, four standing sheaves of arrows and a rack of spare bowstaves.",
+  "triangles": 584,
+  "animations": [],
+  "sizeMeters": [
+   2.1,
+   1.64,
+   0.94
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-missile-stock-rack-c0f1b943"
+ },
+ {
+  "file": "assault-wall-bay-4-m.glb",
+  "title": "Assault Wall Bay 4 m (Medieval Siege and Castle Defence)",
+  "summary": "Four metre limestone wall bay with a battered plinth, a buttress, arrow loops and a crenellated wall head over a 1.4 m walk.",
+  "triangles": 144,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   4.6,
+   2.45
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-assault-wall-4m-0d850b94"
+ },
+ {
+  "file": "assault-wall-bay-breached.glb",
+  "title": "Assault Wall Bay Breached (Medieval Siege and Castle Defence)",
+  "summary": "The 4 m bay opened by a breach: two jagged stubs, a rubble ramp through the gap and fallen ashlar on both faces.",
+  "triangles": 152,
+  "animations": [],
+  "sizeMeters": [
+   4.001,
+   3.9,
+   4.197
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-assault-wall-breache-5bf684bc"
+ },
+ {
+  "file": "assault-wall-bay-cracked.glb",
+  "title": "Assault Wall Bay Cracked (Medieval Siege and Castle Defence)",
+  "summary": "The same 4 m bay after a stone strike: a stepped crack through the face, a shattered merlon and spalled blocks at the foot.",
+  "triangles": 252,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   4.65,
+   3.425
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-assault-wall-cracked-6b49748c"
+ },
+ {
+  "file": "banner-bearer-crimson.glb",
+  "title": "Banner Bearer Crimson (Medieval Siege and Castle Defence)",
+  "summary": "The banner bearer under a crimson field.",
+  "triangles": 316,
+  "animations": [],
+  "sizeMeters": [
+   1.643,
+   3.72,
+   0.651
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-banner-bearer-red-6ffb9092"
+ },
+ {
+  "file": "banner-bearer.glb",
+  "title": "Banner Bearer (Medieval Siege and Castle Defence)",
+  "summary": "Standard bearer carrying a three and a half metre banner pole with a swallow-tailed field and a charge.",
+  "triangles": 316,
+  "animations": [],
+  "sizeMeters": [
+   1.643,
+   3.72,
+   0.651
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-banner-bearer-ba9fb5d5"
+ },
+ {
+  "file": "battering-ram-penthouse.glb",
+  "title": "Battering Ram Penthouse (Medieval Siege and Castle Defence)",
+  "summary": "Six metre wheeled penthouse over a slung ram beam with an iron head; the beam swings on its slings and six wheels roll.",
+  "triangles": 1168,
+  "animations": [
+   "swing",
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   3.327,
+   3.77,
+   6.3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-siege-ram-penthouse-8c424d49"
+ },
+ {
+  "file": "bell-tent-open.glb",
+  "title": "Bell Tent Open (Medieval Siege and Castle Defence)",
+  "summary": "The bell tent with its flap tied back, a straw pallet and a kit chest inside.",
+  "triangles": 364,
+  "animations": [],
+  "sizeMeters": [
+   4.593,
+   3.24,
+   4.533
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-bell-tent-open-88cc714a"
+ },
+ {
+  "file": "bell-tent.glb",
+  "title": "Bell Tent (Medieval Siege and Castle Defence)",
+  "summary": "Four man conical bell tent on a centre pole with six guy ropes, a pennant and a door flap that swings.",
+  "triangles": 340,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   4.593,
+   3.24,
+   4.507
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-bell-tent-9ace24d9"
+ },
+ {
+  "file": "bore-shelter.glb",
+  "title": "Bore Shelter (Medieval Siege and Castle Defence)",
+  "summary": "Low hide-roofed shelter on skids with an iron pick bore through the front, for working stone out of a wall foot.",
+  "triangles": 368,
+  "animations": [],
+  "sizeMeters": [
+   2.5,
+   3.26,
+   5.4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-bore-shelter-ee051cf8"
+ },
+ {
+  "file": "brattice-box.glb",
+  "title": "Brattice Box (Medieval Siege and Castle Defence)",
+  "summary": "Small timber brattice on two corbel beams: a covered box that oversails a wall face with a floor slot and a front loophole.",
+  "triangles": 104,
+  "animations": [],
+  "sizeMeters": [
+   1.5,
+   2.16,
+   1.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-brattice-box-c7b62509"
+ },
+ {
+  "file": "breach-rubble-pile.glb",
+  "title": "Breach Rubble Pile (Medieval Siege and Castle Defence)",
+  "summary": "Loose spill of fallen ashlar, broken limestone and mortar dust to fill and dress the foot of a breach.",
+  "triangles": 336,
+  "animations": [],
+  "sizeMeters": [
+   4.255,
+   0.982,
+   3.359
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-rubble-breach-pile-ab226771"
+ },
+ {
+  "file": "camp-cook-fire.glb",
+  "title": "Camp Cook Fire (Medieval Siege and Castle Defence)",
+  "summary": "Iron tripod and cauldron over a ringed fire, with a log bench, a water butt and a stack of split wood.",
+  "triangles": 884,
+  "animations": [],
+  "sizeMeters": [
+   4.844,
+   1.833,
+   3.876
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-cook-fire-36b7d93b"
+ },
+ {
+  "file": "camp-palisade-3-m.glb",
+  "title": "Camp Palisade 3 m (Medieval Siege and Castle Defence)",
+  "summary": "Three metre run of sharpened stakes driven into an earth bank, with two rear crossrails, on the 3 m camp grid.",
+  "triangles": 432,
+  "animations": [],
+  "sizeMeters": [
+   3.22,
+   2.76,
+   1.3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-camp-palisade-straig-b572dae9"
+ },
+ {
+  "file": "camp-palisade-corner.glb",
+  "title": "Camp Palisade Corner (Medieval Siege and Castle Defence)",
+  "summary": "Right angle corner for the camp palisade, with a taller corner stake, turning the run through ninety degrees.",
+  "triangles": 540,
+  "animations": [],
+  "sizeMeters": [
+   2.26,
+   3,
+   2.245
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-camp-palisade-corner-5243a368"
+ },
+ {
+  "file": "camp-palisade-gate.glb",
+  "title": "Camp Palisade Gate (Medieval Siege and Castle Defence)",
+  "summary": "Gate bay in the camp palisade: a two metre clear opening between braced gateposts under a lintel and a banner.",
+  "triangles": 252,
+  "animations": [],
+  "sizeMeters": [
+   3.22,
+   3.56,
+   1.628
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-camp-palisade-gate-d454b50b"
+ },
+ {
+  "file": "carriage-springald.glb",
+  "title": "Carriage Springald (Medieval Siege and Castle Defence)",
+  "summary": "Bolt-shooting springald on a wheeled carriage, with twisted skein boxes, a windlass slider, a loaded bolt and a pavise front.",
+  "triangles": 948,
+  "animations": [
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   2.483,
+   1.991,
+   2.68
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-carriage-springald-6d00cea5"
+ },
+ {
+  "file": "castle-wall-under-assault.glb",
+  "title": "Castle Wall Under Assault (Medieval Siege and Castle Defence)",
+  "summary": "Forty metres of defended curtain on the 4 m wall grid, with a barred gate, a cracked bay and an open breach in it. Timber hoardings bracket the wall head in two runs, defenders work the merlons over a pitch cauldron, braziers and stocked arrows, and a repair scaffold stands...",
+  "triangles": 28904,
+  "animations": [],
+  "sizeMeters": [
+   40.245,
+   9.123,
+   40.377
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-castle-639472aa-starter-scene"
+ },
+ {
+  "file": "counterweight-trebuchet-armed.glb",
+  "title": "Counterweight Trebuchet Armed (Medieval Siege and Castle Defence)",
+  "summary": "The trebuchet wound down and loaded: long arm at the ground, counterweight raised, sling laid out ready to loose.",
+  "triangles": 772,
+  "animations": [],
+  "sizeMeters": [
+   4.036,
+   6.099,
+   6.401
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-counterweight-trebuc-5c7b4bb4"
+ },
+ {
+  "file": "counterweight-trebuchet-loosed.glb",
+  "title": "Counterweight Trebuchet Loosed (Medieval Siege and Castle Defence)",
+  "summary": "The trebuchet just after release: arm swung over the frame, counterweight dropped, sling empty.",
+  "triangles": 772,
+  "animations": [],
+  "sizeMeters": [
+   4.036,
+   7.678,
+   6.228
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-counterweight-trebuc-6f58cd6a"
+ },
+ {
+  "file": "counterweight-trebuchet.glb",
+  "title": "Counterweight Trebuchet (Medieval Siege and Castle Defence)",
+  "summary": "Six metre counterweight trebuchet on a timber bed, with a rocking throwing arm, a hinged stone counterweight box and a windlass.",
+  "triangles": 772,
+  "animations": [
+   "throw"
+  ],
+  "sizeMeters": [
+   4.036,
+   4.899,
+   6.723
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-counterweight-trebuc-28bdf307"
+ },
+ {
+  "file": "crossbowman.glb",
+  "title": "Crossbowman (Medieval Siege and Castle Defence)",
+  "summary": "Crossbowman spanning a windlass crossbow, with a bolt quiver at the belt and a pavise slung on the back.",
+  "triangles": 424,
+  "animations": [],
+  "sizeMeters": [
+   0.941,
+   1.8,
+   1.268
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-crossbowman-7aac2cc9"
+ },
+ {
+  "file": "defender-at-the-merlon.glb",
+  "title": "Defender at the Merlon (Medieval Siege and Castle Defence)",
+  "summary": "Defender leaning out over a parapet with a crossbow, posed to sit against a merlon on a wall walk.",
+  "triangles": 232,
+  "animations": [],
+  "sizeMeters": [
+   0.9,
+   1.6,
+   1.415
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-defender-at-merlon-45fc9094"
+ },
+ {
+  "file": "defender-hurling-a-stone.glb",
+  "title": "Defender Hurling a Stone (Medieval Siege and Castle Defence)",
+  "summary": "Defender at full stretch heaving a block over a parapet, both arms above the head.",
+  "triangles": 164,
+  "animations": [],
+  "sizeMeters": [
+   0.762,
+   2.36,
+   0.735
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-defender-hurling-sto-4980735d"
+ },
+ {
+  "file": "dressed-shot-stack.glb",
+  "title": "Dressed Shot Stack (Medieval Siege and Castle Defence)",
+  "summary": "Graded pyramid of dressed stone shot in a timber kerb, with a mason roughing out a blank beside it.",
+  "triangles": 1052,
+  "animations": [],
+  "sizeMeters": [
+   3.567,
+   1.72,
+   2.52
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-dressed-shot-stack-7e25fdc1"
+ },
+ {
+  "file": "fascine-bundle-stack.glb",
+  "title": "Fascine Bundle Stack (Medieval Siege and Castle Defence)",
+  "summary": "Six lashed brushwood fascines stacked in a cradle, the ditch filling and revetting a siege runs on.",
+  "triangles": 1332,
+  "animations": [],
+  "sizeMeters": [
+   4.44,
+   1.01,
+   1.777
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-fascine-bundle-6f6823b9"
+ },
+ {
+  "file": "gabion-basket.glb",
+  "title": "Gabion Basket (Medieval Siege and Castle Defence)",
+  "summary": "Woven wicker basket rammed with earth, the portable cover a siege line is built from.",
+  "triangles": 452,
+  "animations": [],
+  "sizeMeters": [
+   1.215,
+   1.36,
+   1.227
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-gabion-basket-9940bbb2"
+ },
+ {
+  "file": "gabion-battery.glb",
+  "title": "Gabion Battery (Medieval Siege and Castle Defence)",
+  "summary": "Five gabions in a curved line with a second course and three fascines, the finished cover for an engine position.",
+  "triangles": 3260,
+  "animations": [],
+  "sizeMeters": [
+   5.015,
+   2.21,
+   1.878
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-gabion-battery-d2507b7a"
+ },
+ {
+  "file": "hooked-scaling-ladder-long.glb",
+  "title": "Hooked Scaling Ladder Long (Medieval Siege and Castle Defence)",
+  "summary": "The eight and a half metre reach of the same hooked ladder, for a high curtain or a wall on a bank.",
+  "triangles": 412,
+  "animations": [],
+  "sizeMeters": [
+   0.86,
+   9.122,
+   0.903
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-hooked-scaling-ladde-7e81914f"
+ },
+ {
+  "file": "hooked-scaling-ladder.glb",
+  "title": "Hooked Scaling Ladder (Medieval Siege and Castle Defence)",
+  "summary": "Six and a half metre scaling ladder with iron top hooks that bite a parapet, an iron foot shoe and spiked heels.",
+  "triangles": 340,
+  "animations": [],
+  "sizeMeters": [
+   0.86,
+   7.122,
+   0.903
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-hooked-scaling-ladde-08284588"
+ },
+ {
+  "file": "iron-bound-gate-bay-4-m.glb",
+  "title": "Iron Bound Gate Bay 4 m (Medieval Siege and Castle Defence)",
+  "summary": "Gate bay on the wall grid: an arched tunnel, two iron bound oak leaves on their hinges and a drawbar that slides into the wall socket.",
+  "triangles": 1048,
+  "animations": [
+   "gate-open",
+   "gate-close",
+   "bar-open",
+   "bar-close"
+  ],
+  "sizeMeters": [
+   4.1,
+   4.6,
+   2.471
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-assault-gate-4m-e03bd748"
+ },
+ {
+  "file": "ladder-climber.glb",
+  "title": "Ladder Climber (Medieval Siege and Castle Defence)",
+  "summary": "Attacker climbing at about seventy degrees, shield over the head, posed to sit on a scaling ladder.",
+  "triangles": 188,
+  "animations": [],
+  "sizeMeters": [
+   0.854,
+   2.02,
+   1.359
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-ladder-climber-543c424a"
+ },
+ {
+  "file": "lashed-supply-stack.glb",
+  "title": "Lashed Supply Stack (Medieval Siege and Castle Defence)",
+  "summary": "Crates and casks stacked on a dunnage pallet under a tarpaulin, roped down against the weather.",
+  "triangles": 1316,
+  "animations": [],
+  "sizeMeters": [
+   3.597,
+   1.94,
+   2.173
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-supply-stack-bb4146c6"
+ },
+ {
+  "file": "machicolation-course.glb",
+  "title": "Machicolation Course (Medieval Siege and Castle Defence)",
+  "summary": "Corbelled stone course for a wall head over a gate: five brackets, four drop openings and a crenellated parapet above.",
+  "triangles": 240,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   1.82,
+   1.49
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-machicolation-course-c6b290ca"
+ },
+ {
+  "file": "man-at-arms-crimson.glb",
+  "title": "Man at Arms Crimson (Medieval Siege and Castle Defence)",
+  "summary": "The man at arms in a crimson surcoat and shield.",
+  "triangles": 228,
+  "animations": [],
+  "sizeMeters": [
+   1.252,
+   2.5,
+   0.751
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-man-at-arms-red-6d35e467"
+ },
+ {
+  "file": "man-at-arms-green.glb",
+  "title": "Man at Arms Green (Medieval Siege and Castle Defence)",
+  "summary": "The man at arms in a green surcoat and shield.",
+  "triangles": 228,
+  "animations": [],
+  "sizeMeters": [
+   1.252,
+   2.5,
+   0.751
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-man-at-arms-green-aca4d993"
+ },
+ {
+  "file": "man-at-arms.glb",
+  "title": "Man at Arms (Medieval Siege and Castle Defence)",
+  "summary": "Armoured man at arms in a great helm, sword raised, heater shield forward over a mail hauberk and surcoat.",
+  "triangles": 228,
+  "animations": [],
+  "sizeMeters": [
+   1.252,
+   2.5,
+   0.751
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-man-at-arms-2d9af110"
+ },
+ {
+  "file": "mounted-knight.glb",
+  "title": "Mounted Knight (Medieval Siege and Castle Defence)",
+  "summary": "Knight on a caparisoned war horse, lance couched, three and a half metres to the helm crest.",
+  "triangles": 344,
+  "animations": [],
+  "sizeMeters": [
+   1.244,
+   3.52,
+   3.86
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-mounted-knight-a8771064"
+ },
+ {
+  "file": "parapet-brazier-and-fuel.glb",
+  "title": "Parapet Brazier and Fuel (Medieval Siege and Castle Defence)",
+  "summary": "Iron fire basket on three legs beside a fuel crib of split logs and four bundles of pitched faggots.",
+  "triangles": 840,
+  "animations": [],
+  "sizeMeters": [
+   3.58,
+   1.424,
+   1.026
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-parapet-brazier-51454e80"
+ },
+ {
+  "file": "parapet-hoarding-4-m.glb",
+  "title": "Parapet Hoarding 4 m (Medieval Siege and Castle Defence)",
+  "summary": "Bracketed timber fighting gallery for a wall head, with two drop shutters that lift on their top hinges and a shingled pent roof.",
+  "triangles": 204,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   4.06,
+   2.209,
+   1.802
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-parapet-hoarding-4m-b1b0a128"
+ },
+ {
+  "file": "peasant-levy.glb",
+  "title": "Peasant Levy (Medieval Siege and Castle Defence)",
+  "summary": "Levy in a hood and jerkin with a billhook and a wicker shield, no mail, the cheapest body on a siege line.",
+  "triangles": 336,
+  "animations": [],
+  "sizeMeters": [
+   1.18,
+   2.66,
+   0.625
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-peasant-levy-02c84497"
+ },
+ {
+  "file": "pitch-cauldron-on-a-tripod.glb",
+  "title": "Pitch Cauldron on a Tripod (Medieval Siege and Castle Defence)",
+  "summary": "Iron cauldron of boiling pitch swinging on trunnions in a tripod, over a fire crib, with a tipping clip.",
+  "triangles": 1056,
+  "animations": [
+   "tilt"
+  ],
+  "sizeMeters": [
+   2.02,
+   1.458,
+   1.832
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-pitch-cauldron-tripo-b05b7573"
+ },
+ {
+  "file": "siege-camp-standard.glb",
+  "title": "Siege Camp Standard (Medieval Siege and Castle Defence)",
+  "summary": "Five metre guyed standard mast over a trophy pile of taken arms, marking the besiegers headquarters.",
+  "triangles": 656,
+  "animations": [],
+  "sizeMeters": [
+   3.985,
+   5.768,
+   3.922
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-siege-camp-standard-290b2767"
+ },
+ {
+  "file": "siege-command-pavilion.glb",
+  "title": "Siege Command Pavilion (Medieval Siege and Castle Defence)",
+  "summary": "Round guyed marquee with a scalloped valance, a swinging door flap, a centre pole pennant and a map table under the eaves.",
+  "triangles": 696,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   9.1,
+   4.634,
+   8.035
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-siege-command-pavili-f3c08194"
+ },
+ {
+  "file": "siege-crew-engineer.glb",
+  "title": "Siege Crew Engineer (Medieval Siege and Castle Defence)",
+  "summary": "Engine crewman in a leather apron with a mallet and a measuring rod, no armour, reading as a worker not a soldier.",
+  "triangles": 248,
+  "animations": [],
+  "sizeMeters": [
+   0.873,
+   1.74,
+   0.85
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-siege-crew-engineer-e6de505a"
+ },
+ {
+  "file": "siege-hand-cart.glb",
+  "title": "Siege Hand Cart (Medieval Siege and Castle Defence)",
+  "summary": "Two-wheel hand cart with shafts down, loaded with dressed shot, a cask and lashed fascines; the wheels roll.",
+  "triangles": 1112,
+  "animations": [
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   2.956,
+   1.567,
+   3.825
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-siege-hand-cart-9da2fcdf"
+ },
+ {
+  "file": "siege-tower-three-stage.glb",
+  "title": "Siege Tower Three Stage (Medieval Siege and Castle Defence)",
+  "summary": "The taller three-stage belfry for a high curtain, at eight metres to the bridge hinge, on the same six-wheel chassis.",
+  "triangles": 1148,
+  "animations": [
+   "open",
+   "close",
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   4.47,
+   9.33,
+   3.59
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-siege-tower-tall-1b230d59"
+ },
+ {
+  "file": "siege-tower.glb",
+  "title": "Siege Tower (Medieval Siege and Castle Defence)",
+  "summary": "Two-stage boarded siege tower on six wheels, with hide facing, an internal ladder and a drop bridge that falls onto a parapet.",
+  "triangles": 1040,
+  "animations": [
+   "open",
+   "close",
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   4.47,
+   7.33,
+   3.59
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-siege-tower-5cd6475b"
+ },
+ {
+  "file": "spearman-crimson.glb",
+  "title": "Spearman Crimson (Medieval Siege and Castle Defence)",
+  "summary": "The spearman in a crimson faction surcoat and shield.",
+  "triangles": 300,
+  "animations": [],
+  "sizeMeters": [
+   1.055,
+   3.02,
+   0.656
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-spearman-red-44884f0c"
+ },
+ {
+  "file": "spearman-green.glb",
+  "title": "Spearman Green (Medieval Siege and Castle Defence)",
+  "summary": "The spearman in a green faction surcoat and shield.",
+  "triangles": 300,
+  "animations": [],
+  "sizeMeters": [
+   1.055,
+   3.02,
+   0.656
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-spearman-green-9d56a337"
+ },
+ {
+  "file": "spearman.glb",
+  "title": "Spearman (Medieval Siege and Castle Defence)",
+  "summary": "Levy spearman in a kettle hat and surcoat, spear grounded at the ready with a heater shield on the left arm.",
+  "triangles": 300,
+  "animations": [],
+  "sizeMeters": [
+   1.055,
+   3.02,
+   0.656
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-spearman-8d0f869a"
+ },
+ {
+  "file": "traction-mangonel.glb",
+  "title": "Traction Mangonel (Medieval Siege and Castle Defence)",
+  "summary": "Wheeled traction mangonel: a rocking throwing arm with a bowl, a padded crossbeam stop and four solid wheels that roll.",
+  "triangles": 784,
+  "animations": [
+   "throw",
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   2.765,
+   1.991,
+   4.51
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-traction-mangonel-2b9b45ea"
+ },
+ {
+  "file": "wall-repair-scaffold-and-hoist.glb",
+  "title": "Wall Repair Scaffold and Hoist (Medieval Siege and Castle Defence)",
+  "summary": "Two-lift timber scaffold with a braced jib, a turning hoist drum, a stone skip and a mortar tub for repairing a breach.",
+  "triangles": 556,
+  "animations": [
+   "spin"
+  ],
+  "sizeMeters": [
+   5.145,
+   5.08,
+   2.64
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-repair-scaffold-hois-8246e761"
+ },
+ {
+  "file": "wheeled-mantlet-screen-wide.glb",
+  "title": "Wheeled Mantlet Screen Wide (Medieval Siege and Castle Defence)",
+  "summary": "The two and a half metre mantlet with three hinged loopholes, for screening an engine crew rather than one shooter.",
+  "triangles": 456,
+  "animations": [
+   "open",
+   "close",
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   3.418,
+   2.693,
+   1.372
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-mantlet-screen-wide-3768f376"
+ },
+ {
+  "file": "wheeled-mantlet-screen.glb",
+  "title": "Wheeled Mantlet Screen (Medieval Siege and Castle Defence)",
+  "summary": "Man-high wheeled plank screen with a hinged loophole shutter, a straw padded head and a prop leg; the wheels roll.",
+  "triangles": 396,
+  "animations": [
+   "open",
+   "close",
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   2.518,
+   2.693,
+   1.372
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-wheeled-mantlet-scre-fc15f895"
+ },
+ {
+  "file": "winched-portcullis.glb",
+  "title": "Winched Portcullis (Medieval Siege and Castle Defence)",
+  "summary": "Stone gate frame with a spiked iron portcullis that lifts 2.5 m in its slots, over a squared winch drum on brackets.",
+  "triangles": 428,
+  "animations": [
+   "open",
+   "close",
+   "spin"
+  ],
+  "sizeMeters": [
+   3.74,
+   5.44,
+   1.74
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-siege-and-castle-defence-portcullis-winched-5029dd0e"
+ }
+]

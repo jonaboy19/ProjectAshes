@@ -1,0 +1,883 @@
+[
+ {
+  "file": "altar-table.glb",
+  "title": "Altar Table (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a plain medieval stone altar table on four turned shafts with a linen cloth and a woven band, for a chapel or a chantry: 2.1 m wide.",
+  "triangles": 1428,
+  "animations": [],
+  "sizeMeters": [
+   2.24,
+   1.02,
+   1
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-altar-table-87471733"
+ },
+ {
+  "file": "apothecary-jar-shelf.glb",
+  "title": "Apothecary Jar Shelf (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval apothecary jar shelf: a four tier oak stand holding twenty stone and slipware drug jars with blank parchment labels, 1.3 by 1.5 m.",
+  "triangles": 4916,
+  "animations": [],
+  "sizeMeters": [
+   1.3,
+   1.69,
+   0.3
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-apothecary-jar-shel-cf7c7d3a"
+ },
+ {
+  "file": "bell-tower-section.glb",
+  "title": "Bell Tower Section (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval monastery bell tower: a 3.4 m square ashlar shaft 7.8 m tall with two-light belfry openings on all four faces and corner pinnacles.",
+  "triangles": 16600,
+  "animations": [],
+  "sizeMeters": [
+   3.76,
+   8.333,
+   3.76
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-bell-tower-section-48ca871a"
+ },
+ {
+  "file": "book-chest.glb",
+  "title": "Book Chest (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval iron bound book chest for a monastery library: boarded oak on stile feet, three straps, a hasp and a hinged lid, 1.14 m wide.",
+  "triangles": 1872,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   1.14,
+   0.685,
+   0.666
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-book-chest-3d28010f"
+ },
+ {
+  "file": "book-press.glb",
+  "title": "Book Press (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval binder’s book press: an oak frame with two threaded wooden screws, a moving platen and a stack of sections under it, 1.02 m wide.",
+  "triangles": 3156,
+  "animations": [
+   "press"
+  ],
+  "sizeMeters": [
+   1.02,
+   1.15,
+   0.74
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-book-press-1b1725a3"
+ },
+ {
+  "file": "bread-oven.glb",
+  "title": "Bread Oven (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval stone bread oven: a limewashed beehive dome on a raised base with a brick mouth arch, a hinged iron door and a working ledge, 2.6 m wide.",
+  "triangles": 1716,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   2.4,
+   2.18,
+   2.44
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-bread-oven-2dd79126"
+ },
+ {
+  "file": "brewhouse-tun.glb",
+  "title": "Brewhouse Tun (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval brewhouse mash tun: a coopered oak vessel of twenty six staves on four iron hoops, with cross feet, a tap and a lift off cover, 1.7 m across.",
+  "triangles": 2272,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   2.023,
+   1.63,
+   1.9
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-brewhouse-tun-ec4de169"
+ },
+ {
+  "file": "candle-stand.glb",
+  "title": "Candle Stand (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval wrought iron pricket candle stand on three feet, with a drip pan and a tallow candle: 1.56 m tall.",
+  "triangles": 812,
+  "animations": [],
+  "sizeMeters": [
+   0.561,
+   1.555,
+   0.553
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-candle-stand-2c502e88"
+ },
+ {
+  "file": "censer.glb",
+  "title": "Censer (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval pierced brass censer with a domed lid, three suspension chains and a ring handle, for a chapel or a procession prop: 0.43 m tall.",
+  "triangles": 2096,
+  "animations": [],
+  "sizeMeters": [
+   0.182,
+   0.43,
+   0.187
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-censer-01ebee75"
+ },
+ {
+  "file": "chained-library-desk.glb",
+  "title": "Chained Library Desk (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval chained library desk: a raked oak reading slope on boarded standards with an iron chain bar and four chained codices, 1.5 m wide.",
+  "triangles": 6592,
+  "animations": [],
+  "sizeMeters": [
+   1.52,
+   1.06,
+   0.84
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-chained-library-des-6097a09c"
+ },
+ {
+  "file": "chapel-screen.glb",
+  "title": "Chapel Screen (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval oak chapel screen with a cusped tracery arcade, a boarded dado and a pair of hinged doors in the middle, 3.2 m wide.",
+  "triangles": 15268,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   3.2,
+   2.73,
+   0.335
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-chapel-screen-905ea0f3"
+ },
+ {
+  "file": "chapter-house-bay.glb",
+  "title": "Chapter House Bay (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval chapter house bay: a stone bench under a blind wall arcade of three arches on shafts, on the same 3 m module as the cloister walk.",
+  "triangles": 5892,
+  "animations": [],
+  "sizeMeters": [
+   3.132,
+   4.5,
+   3.05
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-chapter-house-bay-6a4c98ec"
+ },
+ {
+  "file": "cloister-arcade-bay.glb",
+  "title": "Cloister Arcade Bay (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval cloister arcade bay for a monastery game asset kit: twin shafts, two pointed arches and a range wall, on a 3 m module.",
+  "triangles": 4908,
+  "animations": [],
+  "sizeMeters": [
+   3.25,
+   4.1,
+   3.065
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-cloister-arcade-bay-2b403d58"
+ },
+ {
+  "file": "cloister-arcade-corner.glb",
+  "title": "Cloister Arcade Corner (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval cloister corner: two ashlar range walls stopping at a quoin and an angle pier carrying both arcades, for a monastery kit.",
+  "triangles": 2076,
+  "animations": [],
+  "sizeMeters": [
+   3.14,
+   4.1,
+   3.14
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-cloister-arcade-cor-5db10075"
+ },
+ {
+  "file": "cloister-garth-and-outer-court.glb",
+  "title": "Cloister Garth and Outer Court (Medieval Monastery and Scriptorium)",
+  "summary": "A working monastery round a 12 m cloister garth: sixteen arcade bays and four corners, vaulted and roofed the whole way round with the corner angles left open over the walk, a paved alley round a lawn with the well and the herb beds, the scriptorium desks, stools and...",
+  "triangles": 195904,
+  "animations": [],
+  "sizeMeters": [
+   30.252,
+   8.468,
+   30.252
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-clois-3b7f713a-starter-scene"
+ },
+ {
+  "file": "cloister-garth-lawn.glb",
+  "title": "Cloister Garth Lawn (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a 3 m cloister garth lawn tile for a medieval monastery kit: mown turf with tufts, flush with the walk paving.",
+  "triangles": 324,
+  "animations": [],
+  "sizeMeters": [
+   3,
+   0.175,
+   3
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-cloister-garth-lawn-5f9d4114"
+ },
+ {
+  "file": "cloister-lean-to-roof.glb",
+  "title": "Cloister Lean To Roof (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a lean-to stone slate roof slope with lead rolls, for a 3 m medieval cloister walk bay: eave board and a 22 degree pitch.",
+  "triangles": 756,
+  "animations": [],
+  "sizeMeters": [
+   3.001,
+   1.136,
+   2.865
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-cloister-lean-to-ro-ecf454f9"
+ },
+ {
+  "file": "cloister-vault-section.glb",
+  "title": "Cloister Vault Section (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a segmental stone vault section for a medieval cloister walk: 3 m bay, 2.35 m span, transverse ribs and a ridge rib.",
+  "triangles": 3252,
+  "animations": [],
+  "sizeMeters": [
+   3,
+   0.761,
+   2.762
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-cloister-vault-sect-d631d104"
+ },
+ {
+  "file": "cloister-well.glb",
+  "title": "Cloister Well (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval cloister well with an ashlar kerb, an oak frame and a turning windlass, for a monastery garth: 2.0 m wide, 2.7 m tall.",
+  "triangles": 1592,
+  "animations": [
+   "wind"
+  ],
+  "sizeMeters": [
+   2.596,
+   2.71,
+   1.96
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-cloister-well-2c65188e"
+ },
+ {
+  "file": "compost-bay.glb",
+  "title": "Compost Bay (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval compost and muck bay: a boarded oak bay on driven posts, open at the front, heaped with rotted matter and green waste, with a fork, 2.4 m wide.",
+  "triangles": 2348,
+  "animations": [],
+  "sizeMeters": [
+   2.598,
+   1.552,
+   1.64
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-compost-bay-c2835e90"
+ },
+ {
+  "file": "cooking-cauldron.glb",
+  "title": "Cooking Cauldron (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval iron cooking cauldron on a swinging kitchen crane: a socketed post, a jibbed arm with a pot hook and a bail handle cauldron, 2.4 m tall.",
+  "triangles": 1372,
+  "animations": [
+   "swing"
+  ],
+  "sizeMeters": [
+   1.88,
+   2.45,
+   0.66
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-cooking-cauldron-93a989a1"
+ },
+ {
+  "file": "dormitory-cot.glb",
+  "title": "Dormitory Cot (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval dormitory cot: a boarded oak bedstead on a slatted base with a straw mattress, a blanket and a bolster, 0.92 by 1.98 m.",
+  "triangles": 2376,
+  "animations": [],
+  "sizeMeters": [
+   0.92,
+   0.84,
+   1.97
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-dormitory-cot-90975dd3"
+ },
+ {
+  "file": "finished-codex.glb",
+  "title": "Finished Codex (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a finished medieval codex: oak boards in tanned leather over five raised bands, with brass corner bosses and two clasps, 0.26 by 0.36 m.",
+  "triangles": 1212,
+  "animations": [],
+  "sizeMeters": [
+   0.288,
+   0.117,
+   0.372
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-finished-codex-a925891c"
+ },
+ {
+  "file": "flagstone-floor-slab.glb",
+  "title": "Flagstone Floor Slab (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a 3 m flagstone paving slab module for a medieval monastery yard or range floor: sixteen laid flags on a bedding course.",
+  "triangles": 204,
+  "animations": [],
+  "sizeMeters": [
+   3,
+   0.126,
+   3
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-flagstone-floor-sla-cc9464c3"
+ },
+ {
+  "file": "gold-leaf-cushion.glb",
+  "title": "Gold Leaf Cushion (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval gilder’s leaf cushion: a leather pad on an oak board with a parchment draught screen, a gilding knife, loose leaves and a booklet.",
+  "triangles": 1288,
+  "animations": [],
+  "sizeMeters": [
+   0.321,
+   0.14,
+   0.241
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-gold-leaf-cushion-f6ef80ee"
+ },
+ {
+  "file": "hand-cart.glb",
+  "title": "Hand Cart (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval two wheeled hand cart: a boarded oak body on spoked wheels with iron tyres, raised sides, shafts and a load of cut logs, 1.7 m long.",
+  "triangles": 4212,
+  "animations": [
+   "roll"
+  ],
+  "sizeMeters": [
+   1.36,
+   1.042,
+   2.6
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-hand-cart-2975d4b6"
+ },
+ {
+  "file": "hanging-oil-lamp.glb",
+  "title": "Hanging Oil Lamp (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval hanging brass oil lamp: a pierced bowl with a float and a central pricket on three chains to a ring, 1.25 m from ring to base.",
+  "triangles": 2042,
+  "animations": [],
+  "sizeMeters": [
+   0.552,
+   0.758,
+   0.56
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-hanging-oil-lamp-7b413a0c"
+ },
+ {
+  "file": "herb-garden-bed.glb",
+  "title": "Herb Garden Bed (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a raised medieval herb bed: a boarded oak frame on corner posts with eighteen clumps of herbs in three rows and blank name tallies, 2.2 by 1.2 m.",
+  "triangles": 2948,
+  "animations": [],
+  "sizeMeters": [
+   2.22,
+   0.609,
+   1.22
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-herb-garden-bed-0783c0e9"
+ },
+ {
+  "file": "hung-bell.glb",
+  "title": "Hung Bell (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval bronze bell hung on an oak headstock in a braced timber frame, for a monastery or church kit: 0.74 m mouth.",
+  "triangles": 1536,
+  "animations": [
+   "ring"
+  ],
+  "sizeMeters": [
+   1.86,
+   1.7,
+   0.74
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-hung-bell-29b39992"
+ },
+ {
+  "file": "infirmary-cot.glb",
+  "title": "Infirmary Cot (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval infirmary cot: a turned oak bedstead with corded webbing, a straw mattress, sheet, coverlet and bolster, under a plain head curtain, 1.0 by 2.06 m.",
+  "triangles": 2992,
+  "animations": [],
+  "sizeMeters": [
+   1.005,
+   1.63,
+   2.07
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-infirmary-cot-5165b3f6"
+ },
+ {
+  "file": "kitchen-hearth.glb",
+  "title": "Kitchen Hearth (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval monastery kitchen hearth: a raised stone fire with a corbelled hood and flue, andirons, a pot bar and burning logs, 2.7 m wide.",
+  "triangles": 1484,
+  "animations": [],
+  "sizeMeters": [
+   2.913,
+   3.91,
+   1.639
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-kitchen-hearth-9a24bd52"
+ },
+ {
+  "file": "manuscript-in-progress.glb",
+  "title": "Manuscript In Progress (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval manuscript in progress: an open bifolium on a board, one leaf written and one ruled and started, with a worked initial and lead weights.",
+  "triangles": 4800,
+  "animations": [],
+  "sizeMeters": [
+   0.62,
+   0.198,
+   0.44
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-manuscript-in-progr-c44a61fc"
+ },
+ {
+  "file": "monastery-buttress.glb",
+  "title": "Monastery Buttress (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval stone buttress with a weathered set-off for a monastery range wall: 0.90 m projection, 3.2 m to the wall head.",
+  "triangles": 768,
+  "animations": [],
+  "sizeMeters": [
+   0.7,
+   3.21,
+   0.98
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-monastery-buttress-3128e604"
+ },
+ {
+  "file": "monastery-door-bay.glb",
+  "title": "Monastery Door Bay (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval monastery doorway bay with a hinged oak plank door on iron bands, under a two-centred stone arch: 3 m wall module.",
+  "triangles": 3356,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   3,
+   3.32,
+   0.69
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-monastery-door-bay-a5edad0f"
+ },
+ {
+  "file": "monastery-lancet-window-bay.glb",
+  "title": "Monastery Lancet Window Bay (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval monastery wall bay with a pointed lancet window: dressed jambs, a two-centred head, a moulded sill and a splayed reveal.",
+  "triangles": 2268,
+  "animations": [],
+  "sizeMeters": [
+   3,
+   3.32,
+   0.65
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-monastery-lancet-wi-c0c13950"
+ },
+ {
+  "file": "monastery-wall-bay.glb",
+  "title": "Monastery Wall Bay (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a 3 m coursed ashlar wall bay for a medieval monastery range: chamfered plinth and a moulded wall head, 3.2 m high.",
+  "triangles": 804,
+  "animations": [],
+  "sizeMeters": [
+   3,
+   3.32,
+   0.65
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-monastery-wall-bay-880936fb"
+ },
+ {
+  "file": "monks-chest.glb",
+  "title": "Monks Chest (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval iron bound personal chest for a monastery dormitory: boarded oak on stile feet, two straps, end handles and a hinged lid, 0.98 m wide.",
+  "triangles": 1228,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   0.98,
+   0.595,
+   0.576
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-monks-chest-b01d921d"
+ },
+ {
+  "file": "mortar-and-pestle-set.glb",
+  "title": "Mortar And Pestle Set (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval apothecary’s mortar and pestle: a ribbed stone mortar and a turned pestle with a dish of dried herb, on an oak tray, 0.46 m wide.",
+  "triangles": 1238,
+  "animations": [],
+  "sizeMeters": [
+   0.46,
+   0.296,
+   0.3
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-mortar-and-pestle-s-99e44b7c"
+ },
+ {
+  "file": "parchment-stretching-frame.glb",
+  "title": "Parchment Stretching Frame (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval parchment stretching frame: an oak herse with a pegged skin, twelve pippin cords and six turning tension pegs, 1.4 m wide.",
+  "triangles": 3192,
+  "animations": [
+   "tighten"
+  ],
+  "sizeMeters": [
+   1.402,
+   1.7,
+   0.947
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-parchment-stretchin-58eced40"
+ },
+ {
+  "file": "physic-bench.glb",
+  "title": "Physic Bench (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval infirmarer’s physic bench: an oak bench with two drawers, a mortar, four stone jars and a chopping board, 1.6 m wide.",
+  "triangles": 1952,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   1.64,
+   1.178,
+   0.68
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-physic-bench-8bdacba8"
+ },
+ {
+  "file": "pigment-tray.glb",
+  "title": "Pigment Tray (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval illuminator’s pigment tray: six ground colours in stone pots with a muller and a grinding slab, on a lipped oak tray, 0.44 m wide.",
+  "triangles": 1560,
+  "animations": [],
+  "sizeMeters": [
+   0.44,
+   0.125,
+   0.3
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-pigment-tray-f052d431"
+ },
+ {
+  "file": "quill-and-inkhorn-set.glb",
+  "title": "Quill And Inkhorn Set (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval scribe’s quill and inkhorn set: an iron bound inkhorn, a pounce pot, three cut quills, a penknife and a pumice, on an oak tray.",
+  "triangles": 1260,
+  "animations": [],
+  "sizeMeters": [
+   0.42,
+   0.205,
+   0.25
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-quill-and-inkhorn-s-1f609365"
+ },
+ {
+  "file": "rain-water-butt.glb",
+  "title": "Rain Water Butt (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval rain water butt: a coopered oak cask on three iron hoops under a lead downpipe and hopper head, with a pail beside it, 0.9 m across.",
+  "triangles": 1584,
+  "animations": [],
+  "sizeMeters": [
+   1.397,
+   1.07,
+   0.914
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-rain-water-butt-59a4740e"
+ },
+ {
+  "file": "readers-pulpit.glb",
+  "title": "Readers Pulpit (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval refectory reader’s pulpit: a coursed stone bay on moulded corbels with a panelled parapet, an oak reading desk and six steps up to it.",
+  "triangles": 2856,
+  "animations": [],
+  "sizeMeters": [
+   4.08,
+   2.566,
+   1.21
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-readers-pulpit-2d9f662e"
+ },
+ {
+  "file": "reading-lectern.glb",
+  "title": "Reading Lectern (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval reading lectern on a turned pillar and three feet, with a book ledge and a codex on the desk: 1.28 m tall.",
+  "triangles": 2008,
+  "animations": [
+   "tilt"
+  ],
+  "sizeMeters": [
+   0.652,
+   1.346,
+   0.593
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-reading-lectern-64681c85"
+ },
+ {
+  "file": "refectory-bench.glb",
+  "title": "Refectory Bench (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval refectory form: a 2.1 m oak bench on splayed board legs with a stretcher, for a monastery hall, refectory or tavern.",
+  "triangles": 864,
+  "animations": [],
+  "sizeMeters": [
+   2.1,
+   0.46,
+   0.4
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-refectory-bench-4935cab3"
+ },
+ {
+  "file": "refectory-long-table.glb",
+  "title": "Refectory Long Table (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval refectory table: a four board oak top on three pegged trestles with a stretcher, for a monastery hall or a tavern, 4.2 m long.",
+  "triangles": 2268,
+  "animations": [],
+  "sizeMeters": [
+   4.26,
+   0.781,
+   0.96
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-refectory-long-tabl-2252f611"
+ },
+ {
+  "file": "reliquary-casket.glb",
+  "title": "Reliquary Casket (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval house shaped reliquary casket: an oak box with brass straps, corner feet, a gabled lid and a band of painted lozenges, 0.46 m wide.",
+  "triangles": 2500,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   0.704,
+   0.383,
+   0.298
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-reliquary-casket-d5b7b155"
+ },
+ {
+  "file": "ruling-board.glb",
+  "title": "Ruling Board (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval scribe’s ruling board: a bifolium pricked and ruled into eleven lines under a straightedge, with an awl, 0.52 m wide.",
+  "triangles": 4260,
+  "animations": [],
+  "sizeMeters": [
+   0.52,
+   0.13,
+   0.4
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-ruling-board-26f9c6ad"
+ },
+ {
+  "file": "rush-light-stand.glb",
+  "title": "Rush Light Stand (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval rush light stand: a turned oak pillar on a dished base with an iron rush holder and a counterweight, 1.15 m tall.",
+  "triangles": 716,
+  "animations": [],
+  "sizeMeters": [
+   0.348,
+   1.36,
+   0.34
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-rush-light-stand-332242a2"
+ },
+ {
+  "file": "scribes-stool.glb",
+  "title": "Scribes Stool (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval three legged turned stool for a scriptorium or refectory: raked turned legs, stretcher rails and a dished elm seat, 0.61 m tall.",
+  "triangles": 772,
+  "animations": [],
+  "sizeMeters": [
+   0.443,
+   0.633,
+   0.452
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-scribes-stool-92b1909e"
+ },
+ {
+  "file": "sloped-writing-desk.glb",
+  "title": "Sloped Writing Desk (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval scriptorium writing desk with a hinged sloping lid, an ink well and a pounce pot, and a shelf of books beneath: 1.0 m wide.",
+  "triangles": 7912,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   1.02,
+   0.983,
+   0.76
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-sloped-writing-desk-fe4a1130"
+ },
+ {
+  "file": "stone-drain.glb",
+  "title": "Stone Drain (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval stone drain channel with iron grating bars and a settling trap, for a monastery yard, kitchen or laver: 2.4 m run.",
+  "triangles": 408,
+  "animations": [],
+  "sizeMeters": [
+   2.6,
+   0.46,
+   0.7
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-stone-drain-27be51d9"
+ },
+ {
+  "file": "stone-font.glb",
+  "title": "Stone Font (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval stone font on a stepped base: a lead lined bowl on a central shaft and four corner shafts, with a band of blind arcading, 1.24 m wide.",
+  "triangles": 2308,
+  "animations": [],
+  "sizeMeters": [
+   1.24,
+   1.34,
+   1.24
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-stone-font-53ab7e73"
+ },
+ {
+  "file": "stone-slate-roof-slope.glb",
+  "title": "Stone Slate Roof Slope (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a 45 degree stone slate roof slope for a 3 m medieval monastery range bay: graded courses, lead eave and a 2.97 m rafter length.",
+  "triangles": 972,
+  "animations": [],
+  "sizeMeters": [
+   3.001,
+   2.202,
+   2.214
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-stone-slate-roof-sl-a2290987"
+ },
+ {
+  "file": "stone-stair-vice.glb",
+  "title": "Stone Stair Vice (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval spiral stair vice in a coursed stone turret: twenty two winding treads on a solid newel, an arched doorway and a landing slab.",
+  "triangles": 3892,
+  "animations": [],
+  "sizeMeters": [
+   2.7,
+   4.64,
+   2.7
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-stone-stair-vice-4cd4e8bd"
+ },
+ {
+  "file": "tomb-slab.glb",
+  "title": "Tomb Slab (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval stone tomb slab with an incised stepped cross and a chamfered border, for a chapel, cloister walk or churchyard: 2.24 m long.",
+  "triangles": 1524,
+  "animations": [],
+  "sizeMeters": [
+   2.24,
+   0.238,
+   0.96
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-tomb-slab-b3f19fc6"
+ },
+ {
+  "file": "trestle-table.glb",
+  "title": "Trestle Table (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval kitchen trestle table: a three board pine top on two pegged trestles, with a chopping board, a bowl and a knife, 1.9 m long.",
+  "triangles": 1692,
+  "animations": [],
+  "sizeMeters": [
+   1.9,
+   0.862,
+   0.82
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-trestle-table-2a0801e0"
+ },
+ {
+  "file": "wall-torch-bracket.glb",
+  "title": "Wall Torch Bracket (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval wrought iron wall torch bracket with a pierced fire basket and a bound tow torch head, for a monastery or castle wall: 0.7 m tall.",
+  "triangles": 1560,
+  "animations": [],
+  "sizeMeters": [
+   0.22,
+   0.745,
+   0.42
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-wall-torch-bracket-06375a0e"
+ },
+ {
+  "file": "wood-stack.glb",
+  "title": "Wood Stack (Medieval Monastery and Scriptorium)",
+  "summary": "Free 3D model of a medieval firewood stack between two pairs of driven stakes: seventy six split logs in seven courses under a board cover, 2.8 m long.",
+  "triangles": 2768,
+  "animations": [],
+  "sizeMeters": [
+   2.73,
+   1.8,
+   0.66
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-monastery-and-scriptorium-wood-stack-dfc7f574"
+ }
+]

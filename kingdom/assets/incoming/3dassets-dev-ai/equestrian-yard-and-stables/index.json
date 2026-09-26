@@ -1,0 +1,1122 @@
+[
+ {
+  "file": "aisle-corner.glb",
+  "title": "Aisle Corner (Horse Stables and Equestrian Yard)",
+  "summary": "Square covered aisle corner joining two runs at a right angle.",
+  "triangles": 72,
+  "animations": [],
+  "sizeMeters": [
+   3.202,
+   3.02,
+   3.202
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-aisle-corner-c26236c2"
+ },
+ {
+  "file": "aisle-end.glb",
+  "title": "Aisle End (Horse Stables and Equestrian Yard)",
+  "summary": "Closed gable end that terminates a covered aisle run.",
+  "triangles": 104,
+  "animations": [],
+  "sizeMeters": [
+   3.251,
+   3.704,
+   3.604
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-aisle-end-f9627b30"
+ },
+ {
+  "file": "aisle-straight.glb",
+  "title": "Aisle Straight (Horse Stables and Equestrian Yard)",
+  "summary": "Covered aisle section 3.2 m wide with a pitched roof, running between two stall rows.",
+  "triangles": 84,
+  "animations": [],
+  "sizeMeters": [
+   3.251,
+   3.704,
+   3.602
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-aisle-straight-4abe3df5"
+ },
+ {
+  "file": "arena-rail.glb",
+  "title": "Arena Rail (Horse Stables and Equestrian Yard)",
+  "summary": "White arena boundary rail with a kick board along its base.",
+  "triangles": 100,
+  "animations": [],
+  "sizeMeters": [
+   3.124,
+   1.1,
+   0.28
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-arena-rail-2d66cd48"
+ },
+ {
+  "file": "arena-sand-footing-tile.glb",
+  "title": "Arena Sand Footing Tile (Horse Stables and Equestrian Yard)",
+  "summary": "Four-metre square of harrowed sand footing that tiles to build an arena floor.",
+  "triangles": 96,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   0.12,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-arena-footing-tile-35c2d978"
+ },
+ {
+  "file": "bridle-on-hook.glb",
+  "title": "Bridle On Hook (Horse Stables and Equestrian Yard)",
+  "summary": "Snaffle bridle hung on a tack room hook.",
+  "triangles": 1120,
+  "animations": [],
+  "sizeMeters": [
+   0.37,
+   1.297,
+   0.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-bridle-on-hook-dcef072a"
+ },
+ {
+  "file": "bridle-rack.glb",
+  "title": "Bridle Rack (Horse Stables and Equestrian Yard)",
+  "summary": "Round wall bracket for hanging a bridle without creasing it.",
+  "triangles": 92,
+  "animations": [],
+  "sizeMeters": [
+   0.16,
+   0.162,
+   0.195
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-bridle-rack-014276d5"
+ },
+ {
+  "file": "brushing-boots.glb",
+  "title": "Brushing Boots (Horse Stables and Equestrian Yard)",
+  "summary": "Set of four white brushing boots with strap fastenings.",
+  "triangles": 1440,
+  "animations": [],
+  "sizeMeters": [
+   0.594,
+   0.26,
+   0.149
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-brushing-boots-96661741"
+ },
+ {
+  "file": "donkey-standing-bay.glb",
+  "title": "Donkey Standing (Bay) (Horse Stables and Equestrian Yard)",
+  "summary": "Donkey standing square with all four hooves on the ground and the head carried level, about 1.18 m at the withers.",
+  "triangles": 2262,
+  "animations": [],
+  "sizeMeters": [
+   0.399,
+   1.671,
+   1.977
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-donkey-standing-05bb4b98"
+ },
+ {
+  "file": "donkey-standing-black.glb",
+  "title": "Donkey Standing (Black) (Horse Stables and Equestrian Yard)",
+  "summary": "Donkey standing square with all four hooves on the ground and the head carried level, about 1.18 m at the withers, black coat.",
+  "triangles": 2262,
+  "animations": [],
+  "sizeMeters": [
+   0.399,
+   1.671,
+   1.977
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-donkey-standing-black-89af73bd"
+ },
+ {
+  "file": "donkey-standing-chestnut.glb",
+  "title": "Donkey Standing (Chestnut) (Horse Stables and Equestrian Yard)",
+  "summary": "Donkey standing square with all four hooves on the ground and the head carried level, about 1.18 m at the withers, chestnut coat.",
+  "triangles": 2262,
+  "animations": [],
+  "sizeMeters": [
+   0.399,
+   1.671,
+   1.977
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-donkey-standing-chestnut-890db95d"
+ },
+ {
+  "file": "donkey-standing-grey.glb",
+  "title": "Donkey Standing (Grey) (Horse Stables and Equestrian Yard)",
+  "summary": "Donkey standing square with all four hooves on the ground and the head carried level, about 1.18 m at the withers, grey coat.",
+  "triangles": 2262,
+  "animations": [],
+  "sizeMeters": [
+   0.399,
+   1.671,
+   1.977
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-donkey-standing-grey-8f2f14dd"
+ },
+ {
+  "file": "draft-horse-standing-bay.glb",
+  "title": "Draft Horse Standing (Bay) (Horse Stables and Equestrian Yard)",
+  "summary": "Heavy draft horse standing square with all four hooves on the ground and the head carried level, about 1.80 m at the withers.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.712,
+   2.363,
+   3.205
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-draft-horse-standing-5f444c07"
+ },
+ {
+  "file": "draft-horse-standing-black.glb",
+  "title": "Draft Horse Standing (Black) (Horse Stables and Equestrian Yard)",
+  "summary": "Heavy draft horse standing square with all four hooves on the ground and the head carried level, about 1.80 m at the withers, black coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.712,
+   2.363,
+   3.205
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-draft-horse-standing-black-ccf84bdb"
+ },
+ {
+  "file": "draft-horse-standing-chestnut.glb",
+  "title": "Draft Horse Standing (Chestnut) (Horse Stables and Equestrian Yard)",
+  "summary": "Heavy draft horse standing square with all four hooves on the ground and the head carried level, about 1.80 m at the withers, chestnut coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.712,
+   2.363,
+   3.205
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-draft-horse-standing-chest-8551c6e6"
+ },
+ {
+  "file": "draft-horse-standing-grey.glb",
+  "title": "Draft Horse Standing (Grey) (Horse Stables and Equestrian Yard)",
+  "summary": "Heavy draft horse standing square with all four hooves on the ground and the head carried level, about 1.80 m at the withers, grey coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.712,
+   2.363,
+   3.205
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-draft-horse-standing-grey-b0d38250"
+ },
+ {
+  "file": "dutch-door.glb",
+  "title": "Dutch Door (Horse Stables and Equestrian Yard)",
+  "summary": "Split stable door with independently hinged top and bottom leaves, strap hinges and a bolt.",
+  "triangles": 128,
+  "animations": [],
+  "sizeMeters": [
+   1.302,
+   2.121,
+   0.191
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-dutch-door-bb0d43ed"
+ },
+ {
+  "file": "farrier-stand.glb",
+  "title": "Farrier Stand (Horse Stables and Equestrian Yard)",
+  "summary": "Farrier hoof stand with a weighted base and a cradle top.",
+  "triangles": 84,
+  "animations": [],
+  "sizeMeters": [
+   0.4,
+   0.8,
+   0.38
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-farrier-stand-7be1f1d5"
+ },
+ {
+  "file": "feed-bin.glb",
+  "title": "Feed Bin (Horse Stables and Equestrian Yard)",
+  "summary": "Lidded timber feed bin with a lifting handle.",
+  "triangles": 48,
+  "animations": [],
+  "sizeMeters": [
+   0.66,
+   0.855,
+   0.52
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-feed-bin-b58bf59d"
+ },
+ {
+  "file": "feed-bucket.glb",
+  "title": "Feed Bucket (Horse Stables and Equestrian Yard)",
+  "summary": "Blue feed bucket with a wire handle, part filled.",
+  "triangles": 276,
+  "animations": [],
+  "sizeMeters": [
+   0.434,
+   0.406,
+   0.434
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-feed-bucket-3362457c"
+ },
+ {
+  "file": "feed-chute.glb",
+  "title": "Feed Chute (Horse Stables and Equestrian Yard)",
+  "summary": "Wall feed chute with a hinged flap for filling a manger from the aisle.",
+  "triangles": 48,
+  "animations": [],
+  "sizeMeters": [
+   0.48,
+   1.1,
+   0.38
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-feed-chute-d25ebd34"
+ },
+ {
+  "file": "field-shelter.glb",
+  "title": "Field Shelter (Horse Stables and Equestrian Yard)",
+  "summary": "Three-sided timber field shelter with a mono-pitch roof, open to the front.",
+  "triangles": 96,
+  "animations": [],
+  "sizeMeters": [
+   4.212,
+   2.74,
+   3.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-field-shelter-36c29499"
+ },
+ {
+  "file": "foal-standing-bay.glb",
+  "title": "Foal Standing (Bay) (Horse Stables and Equestrian Yard)",
+  "summary": "Foal standing square with all four hooves on the ground and the head carried level, about 1.06 m at the withers.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.278,
+   1.397,
+   1.604
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-foal-standing-05fd29b3"
+ },
+ {
+  "file": "foal-standing-black.glb",
+  "title": "Foal Standing (Black) (Horse Stables and Equestrian Yard)",
+  "summary": "Foal standing square with all four hooves on the ground and the head carried level, about 1.06 m at the withers, black coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.278,
+   1.397,
+   1.604
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-foal-standing-black-163ba22d"
+ },
+ {
+  "file": "foal-standing-chestnut.glb",
+  "title": "Foal Standing (Chestnut) (Horse Stables and Equestrian Yard)",
+  "summary": "Foal standing square with all four hooves on the ground and the head carried level, about 1.06 m at the withers, chestnut coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.278,
+   1.397,
+   1.604
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-foal-standing-chestnut-dc991bed"
+ },
+ {
+  "file": "foal-standing-grey.glb",
+  "title": "Foal Standing (Grey) (Horse Stables and Equestrian Yard)",
+  "summary": "Foal standing square with all four hooves on the ground and the head carried level, about 1.06 m at the withers, grey coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.278,
+   1.397,
+   1.604
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-foal-standing-grey-2dbbdfb6"
+ },
+ {
+  "file": "grooming-kit-box.glb",
+  "title": "Grooming Kit Box (Horse Stables and Equestrian Yard)",
+  "summary": "Open grooming tote with brushes and a curry comb.",
+  "triangles": 92,
+  "animations": [],
+  "sizeMeters": [
+   0.4,
+   0.44,
+   0.26
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-grooming-kit-box-f434cad4"
+ },
+ {
+  "file": "halter-on-hook.glb",
+  "title": "Halter On Hook (Horse Stables and Equestrian Yard)",
+  "summary": "Leather headcollar hanging on a tack room hook.",
+  "triangles": 376,
+  "animations": [],
+  "sizeMeters": [
+   0.26,
+   0.638,
+   0.292
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-halter-on-hook-49c01cd5"
+ },
+ {
+  "file": "hay-bale.glb",
+  "title": "Hay Bale (Horse Stables and Equestrian Yard)",
+  "summary": "Small rectangular hay bale with two twine bands.",
+  "triangles": 36,
+  "animations": [],
+  "sizeMeters": [
+   1,
+   0.44,
+   0.48
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-hay-bale-962dfe54"
+ },
+ {
+  "file": "hay-loft-end.glb",
+  "title": "Hay Loft End (Horse Stables and Equestrian Yard)",
+  "summary": "Gable end bay with a hay loft, double loft doors and a projecting hoist beam.",
+  "triangles": 232,
+  "animations": [],
+  "sizeMeters": [
+   3.667,
+   4.17,
+   4.342
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-hay-loft-end-3fe66dce"
+ },
+ {
+  "file": "hay-net.glb",
+  "title": "Hay Net (Horse Stables and Equestrian Yard)",
+  "summary": "Filled hay net on a cord, as tied in a stall.",
+  "triangles": 540,
+  "animations": [],
+  "sizeMeters": [
+   0.46,
+   0.88,
+   0.46
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-hay-net-955e7a3c"
+ },
+ {
+  "file": "hay-ring.glb",
+  "title": "Hay Ring (Horse Stables and Equestrian Yard)",
+  "summary": "Circular steel hay ring around a round bale.",
+  "triangles": 672,
+  "animations": [],
+  "sizeMeters": [
+   1.79,
+   1.089,
+   1.79
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-hay-ring-ab333658"
+ },
+ {
+  "file": "hoof-pick.glb",
+  "title": "Hoof Pick (Horse Stables and Equestrian Yard)",
+  "summary": "Hoof pick with a moulded grip and a stiff brush end.",
+  "triangles": 48,
+  "animations": [],
+  "sizeMeters": [
+   0.06,
+   0.177,
+   0.188
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-hoof-pick-37b5c769"
+ },
+ {
+  "file": "lead-rope-coiled.glb",
+  "title": "Lead Rope Coiled (Horse Stables and Equestrian Yard)",
+  "summary": "Coiled lead rope with a trigger clip.",
+  "triangles": 1216,
+  "animations": [],
+  "sizeMeters": [
+   0.341,
+   0.464,
+   0.312
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-lead-rope-coiled-0821e6b1"
+ },
+ {
+  "file": "lunge-whip-stand.glb",
+  "title": "Lunge Whip Stand (Horse Stables and Equestrian Yard)",
+  "summary": "Weighted stand holding four lunge whips upright.",
+  "triangles": 192,
+  "animations": [],
+  "sizeMeters": [
+   0.48,
+   2.647,
+   0.457
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-lunge-whip-stand-b4d92c3e"
+ },
+ {
+  "file": "mounting-block.glb",
+  "title": "Mounting Block (Horse Stables and Equestrian Yard)",
+  "summary": "Three-step timber mounting block.",
+  "triangles": 48,
+  "animations": [],
+  "sizeMeters": [
+   0.94,
+   0.71,
+   1.02
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-mounting-block-0dbd28b6"
+ },
+ {
+  "file": "muck-fork.glb",
+  "title": "Muck Fork (Horse Stables and Equestrian Yard)",
+  "summary": "Plastic-tined muck fork with a long handle.",
+  "triangles": 256,
+  "animations": [],
+  "sizeMeters": [
+   0.32,
+   1.541,
+   0.062
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-muck-fork-7d329a60"
+ },
+ {
+  "file": "muck-heap.glb",
+  "title": "Muck Heap (Horse Stables and Equestrian Yard)",
+  "summary": "Three-sided timber muck bay with a heaped load.",
+  "triangles": 48,
+  "animations": [],
+  "sizeMeters": [
+   3.4,
+   1.1,
+   3.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-muck-heap-ddaf942d"
+ },
+ {
+  "file": "pony-standing-bay.glb",
+  "title": "Pony Standing (Bay) (Horse Stables and Equestrian Yard)",
+  "summary": "Pony standing square with all four hooves on the ground and the head carried level, about 1.28 m at the withers.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.454,
+   1.707,
+   2.222
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-pony-standing-34f15c63"
+ },
+ {
+  "file": "pony-standing-black.glb",
+  "title": "Pony Standing (Black) (Horse Stables and Equestrian Yard)",
+  "summary": "Pony standing square with all four hooves on the ground and the head carried level, about 1.28 m at the withers, black coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.454,
+   1.707,
+   2.222
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-pony-standing-black-be6cde2b"
+ },
+ {
+  "file": "pony-standing-chestnut.glb",
+  "title": "Pony Standing (Chestnut) (Horse Stables and Equestrian Yard)",
+  "summary": "Pony standing square with all four hooves on the ground and the head carried level, about 1.28 m at the withers, chestnut coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.454,
+   1.707,
+   2.222
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-pony-standing-chestnut-e343e81e"
+ },
+ {
+  "file": "pony-standing-grey.glb",
+  "title": "Pony Standing (Grey) (Horse Stables and Equestrian Yard)",
+  "summary": "Pony standing square with all four hooves on the ground and the head carried level, about 1.28 m at the withers, grey coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.454,
+   1.707,
+   2.222
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-pony-standing-grey-8870f4cc"
+ },
+ {
+  "file": "post-and-rail-fence-corner.glb",
+  "title": "Post And Rail Fence Corner (Horse Stables and Equestrian Yard)",
+  "summary": "Right-angle corner joining two three-rail fence runs.",
+  "triangles": 168,
+  "animations": [],
+  "sizeMeters": [
+   1.65,
+   1.45,
+   1.65
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-fence-rail-corner-059af103"
+ },
+ {
+  "file": "post-and-rail-fence-gate.glb",
+  "title": "Post And Rail Fence Gate (Horse Stables and Equestrian Yard)",
+  "summary": "Five-bar timber field gate hung between two heavier gate posts.",
+  "triangles": 196,
+  "animations": [],
+  "sizeMeters": [
+   3.15,
+   1.55,
+   0.15
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-fence-rail-gate-de891aaf"
+ },
+ {
+  "file": "post-and-rail-fence-straight.glb",
+  "title": "Post And Rail Fence Straight (Horse Stables and Equestrian Yard)",
+  "summary": "Three-rail timber paddock fence run between two posts.",
+  "triangles": 100,
+  "animations": [],
+  "sizeMeters": [
+   3.15,
+   1.45,
+   0.15
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-fence-rail-straight-d5a592ab"
+ },
+ {
+  "file": "riding-horse-grazing-bay.glb",
+  "title": "Riding Horse Grazing (Bay) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse grazing with the neck lowered and the muzzle at ground level, about 1.62 m at the withers.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   1.665,
+   2.574
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-grazing-b17bf85e"
+ },
+ {
+  "file": "riding-horse-grazing-black.glb",
+  "title": "Riding Horse Grazing (Black) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse grazing with the neck lowered and the muzzle at ground level, about 1.62 m at the withers, black coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   1.665,
+   2.574
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-grazing-black-1dabca5c"
+ },
+ {
+  "file": "riding-horse-grazing-chestnut.glb",
+  "title": "Riding Horse Grazing (Chestnut) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse grazing with the neck lowered and the muzzle at ground level, about 1.62 m at the withers, chestnut coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   1.665,
+   2.574
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-grazing-chestnut-722efda9"
+ },
+ {
+  "file": "riding-horse-grazing-grey.glb",
+  "title": "Riding Horse Grazing (Grey) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse grazing with the neck lowered and the muzzle at ground level, about 1.62 m at the withers, grey coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   1.665,
+   2.574
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-grazing-grey-b0a9216d"
+ },
+ {
+  "file": "riding-horse-rearing-bay.glb",
+  "title": "Riding Horse Rearing (Bay) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse rearing on the hind legs with the forelegs folded and raised and the body pitched back, about 1.62 m at the withers.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   3.497,
+   2.073
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-rearing-a4bbf2c0"
+ },
+ {
+  "file": "riding-horse-rearing-black.glb",
+  "title": "Riding Horse Rearing (Black) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse rearing on the hind legs with the forelegs folded and raised and the body pitched back, about 1.62 m at the withers, black coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   3.497,
+   2.073
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-rearing-black-4b9778cb"
+ },
+ {
+  "file": "riding-horse-rearing-chestnut.glb",
+  "title": "Riding Horse Rearing (Chestnut) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse rearing on the hind legs with the forelegs folded and raised and the body pitched back, about 1.62 m at the withers, chestnut coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   3.497,
+   2.073
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-rearing-chestnut-586a4267"
+ },
+ {
+  "file": "riding-horse-rearing-grey.glb",
+  "title": "Riding Horse Rearing (Grey) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse rearing on the hind legs with the forelegs folded and raised and the body pitched back, about 1.62 m at the withers, grey coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   3.497,
+   2.073
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-rearing-grey-427f1b89"
+ },
+ {
+  "file": "riding-horse-standing-bay.glb",
+  "title": "Riding Horse Standing (Bay) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse standing square with all four hooves on the ground and the head carried level, about 1.62 m at the withers.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   2.172,
+   2.886
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-standing-9dae15bd"
+ },
+ {
+  "file": "riding-horse-standing-black.glb",
+  "title": "Riding Horse Standing (Black) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse standing square with all four hooves on the ground and the head carried level, about 1.62 m at the withers, black coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   2.172,
+   2.886
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-standing-black-f9bdae42"
+ },
+ {
+  "file": "riding-horse-standing-chestnut.glb",
+  "title": "Riding Horse Standing (Chestnut) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse standing square with all four hooves on the ground and the head carried level, about 1.62 m at the withers, chestnut coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   2.172,
+   2.886
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-standing-chestnut-425d46ab"
+ },
+ {
+  "file": "riding-horse-standing-grey.glb",
+  "title": "Riding Horse Standing (Grey) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse standing square with all four hooves on the ground and the head carried level, about 1.62 m at the withers, grey coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   2.172,
+   2.886
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-standing-grey-f42f5735"
+ },
+ {
+  "file": "riding-horse-trotting-bay.glb",
+  "title": "Riding Horse Trotting (Bay) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse in a trot pose with one diagonal pair advanced and the near fore lifted and bent, about 1.62 m at the withers.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   2.172,
+   2.886
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-trotting-31c0f270"
+ },
+ {
+  "file": "riding-horse-trotting-black.glb",
+  "title": "Riding Horse Trotting (Black) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse in a trot pose with one diagonal pair advanced and the near fore lifted and bent, about 1.62 m at the withers, black coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   2.172,
+   2.886
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-trotting-black-9d9e7936"
+ },
+ {
+  "file": "riding-horse-trotting-chestnut.glb",
+  "title": "Riding Horse Trotting (Chestnut) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse in a trot pose with one diagonal pair advanced and the near fore lifted and bent, about 1.62 m at the withers, chestnut coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   2.172,
+   2.886
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-trotting-chestnut-83f9c03c"
+ },
+ {
+  "file": "riding-horse-trotting-grey.glb",
+  "title": "Riding Horse Trotting (Grey) (Horse Stables and Equestrian Yard)",
+  "summary": "Riding horse in a trot pose with one diagonal pair advanced and the near fore lifted and bent, about 1.62 m at the withers, grey coat.",
+  "triangles": 2356,
+  "animations": [],
+  "sizeMeters": [
+   0.469,
+   2.172,
+   2.886
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-horse-trotting-grey-127b5139"
+ },
+ {
+  "file": "round-pen-panel.glb",
+  "title": "Round Pen Panel (Horse Stables and Equestrian Yard)",
+  "summary": "Galvanised round pen panel with five rails and pin sleeves at each end.",
+  "triangles": 172,
+  "animations": [],
+  "sizeMeters": [
+   2.99,
+   1.96,
+   0.09
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-round-pen-panel-1c26f728"
+ },
+ {
+  "file": "saddle-on-rack.glb",
+  "title": "Saddle On Rack (Horse Stables and Equestrian Yard)",
+  "summary": "Saddle stored on a wall rack, ready to lift.",
+  "triangles": 888,
+  "animations": [],
+  "sizeMeters": [
+   0.63,
+   0.945,
+   0.605
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-saddle-on-rack-28a04395"
+ },
+ {
+  "file": "saddle-rack.glb",
+  "title": "Saddle Rack (Horse Stables and Equestrian Yard)",
+  "summary": "Wall-mounted timber saddle rack with a shaped bearer.",
+  "triangles": 36,
+  "animations": [],
+  "sizeMeters": [
+   0.44,
+   0.76,
+   0.49
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-saddle-rack-03935975"
+ },
+ {
+  "file": "saddle.glb",
+  "title": "Saddle (Horse Stables and Equestrian Yard)",
+  "summary": "English general purpose saddle with stirrup leathers and irons on a low block.",
+  "triangles": 864,
+  "animations": [],
+  "sizeMeters": [
+   0.63,
+   0.534,
+   0.605
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-saddle-75d1e499"
+ },
+ {
+  "file": "salt-lick-post.glb",
+  "title": "Salt Lick Post (Horse Stables and Equestrian Yard)",
+  "summary": "Paddock post holder with a white mineral lick block.",
+  "triangles": 36,
+  "animations": [],
+  "sizeMeters": [
+   0.26,
+   1.05,
+   0.26
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-salt-lick-post-28cb111e"
+ },
+ {
+  "file": "sliding-door.glb",
+  "title": "Sliding Door (Horse Stables and Equestrian Yard)",
+  "summary": "Top-hung sliding stable door on a steel track with two hangers.",
+  "triangles": 136,
+  "animations": [],
+  "sizeMeters": [
+   2.6,
+   2.46,
+   0.11
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-sliding-door-0c743083"
+ },
+ {
+  "file": "stable-yard.glb",
+  "title": "Stable Yard (Horse Stables and Equestrian Yard)",
+  "summary": "Stable yard demonstration: a four-bay aisle with stall bays either side, a tack room and wash bay, horses at the tie rail and in a stall, a muck barrow, hay bales and a trailer parked in the lane. Static layout of pack instances; no rig, collision or navigation data.",
+  "triangles": 11064,
+  "animations": [],
+  "sizeMeters": [
+   11.8,
+   4.17,
+   23.24
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-stable-yard-7720e1c9-starter-scene"
+ },
+ {
+  "file": "stall-bay-with-door.glb",
+  "title": "Stall Bay With Door (Horse Stables and Equestrian Yard)",
+  "summary": "Loose box bay with a full-height hinged stall door on a named left-hand pivot.",
+  "triangles": 452,
+  "animations": [],
+  "sizeMeters": [
+   3.602,
+   3.02,
+   3.661
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-stall-bay-door-e55a6237"
+ },
+ {
+  "file": "stall-bay.glb",
+  "title": "Stall Bay (Horse Stables and Equestrian Yard)",
+  "summary": "Open-fronted loose box bay with a boarded lower wall, barred upper front and straw bedding.",
+  "triangles": 396,
+  "animations": [],
+  "sizeMeters": [
+   3.602,
+   3.02,
+   3.602
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-stall-bay-28dd054b"
+ },
+ {
+  "file": "stall-manger.glb",
+  "title": "Stall Manger (Horse Stables and Equestrian Yard)",
+  "summary": "Corner-mounted galvanised manger on a bracket frame.",
+  "triangles": 60,
+  "animations": [],
+  "sizeMeters": [
+   1.2,
+   1.501,
+   0.42
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-stall-manger-7b9e69c2"
+ },
+ {
+  "file": "stall-partition-grille.glb",
+  "title": "Stall Partition Grille (Horse Stables and Equestrian Yard)",
+  "summary": "Timber grille panel that separates two loose boxes above the boarded wall.",
+  "triangles": 96,
+  "animations": [],
+  "sizeMeters": [
+   1.22,
+   2.2,
+   0.335
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-stall-partition-grille-5c7d46d8"
+ },
+ {
+  "file": "straw-bale.glb",
+  "title": "Straw Bale (Horse Stables and Equestrian Yard)",
+  "summary": "Small rectangular straw bale with two twine bands.",
+  "triangles": 96,
+  "animations": [],
+  "sizeMeters": [
+   1,
+   0.45,
+   0.481
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-straw-bale-e2f2115b"
+ },
+ {
+  "file": "tack-room-bay.glb",
+  "title": "Tack Room Bay (Horse Stables and Equestrian Yard)",
+  "summary": "Enclosed tack room bay with a personnel door, window and three saddle shelves.",
+  "triangles": 240,
+  "animations": [],
+  "sizeMeters": [
+   3.602,
+   3.02,
+   3.611
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-tack-room-bay-3226007e"
+ },
+ {
+  "file": "tie-rail.glb",
+  "title": "Tie Rail (Horse Stables and Equestrian Yard)",
+  "summary": "Timber tie rail with three tying rings for holding horses on the yard.",
+  "triangles": 352,
+  "animations": [],
+  "sizeMeters": [
+   3,
+   1.35,
+   0.204
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-tie-rail-e8d6420e"
+ },
+ {
+  "file": "wash-bay.glb",
+  "title": "Wash Bay (Horse Stables and Equestrian Yard)",
+  "summary": "Open wash bay with a falls-to-centre concrete pad, drain channel and a wall-mounted shower riser.",
+  "triangles": 244,
+  "animations": [],
+  "sizeMeters": [
+   3.602,
+   3.02,
+   3.602
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-wash-bay-bb9cd876"
+ },
+ {
+  "file": "water-trough.glb",
+  "title": "Water Trough (Horse Stables and Equestrian Yard)",
+  "summary": "Round galvanised water trough with a ball valve stub and water surface.",
+  "triangles": 168,
+  "animations": [],
+  "sizeMeters": [
+   0.88,
+   0.88,
+   0.88
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-water-trough-a5d0d15f"
+ },
+ {
+  "file": "weather-vane.glb",
+  "title": "Weather Vane (Horse Stables and Equestrian Yard)",
+  "summary": "Roof-ridge weather vane with cardinal arms and a horse silhouette pointer.",
+  "triangles": 148,
+  "animations": [],
+  "sizeMeters": [
+   0.8,
+   1.46,
+   0.68
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-weather-vane-d20d9af2"
+ },
+ {
+  "file": "wheelbarrow.glb",
+  "title": "Wheelbarrow (Horse Stables and Equestrian Yard)",
+  "summary": "Yard wheelbarrow with a single wheel, two legs and moulded grips.",
+  "triangles": 240,
+  "animations": [],
+  "sizeMeters": [
+   0.84,
+   0.81,
+   1.475
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-wheelbarrow-3e32ae16"
+ },
+ {
+  "file": "yard-notice-board.glb",
+  "title": "Yard Notice Board (Horse Stables and Equestrian Yard)",
+  "summary": "Covered notice board with pinned sheets and a small roof.",
+  "triangles": 104,
+  "animations": [],
+  "sizeMeters": [
+   1.42,
+   2.14,
+   1.56
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/equestrian-yard-and-stables-notice-board-1e93b220"
+ }
+]

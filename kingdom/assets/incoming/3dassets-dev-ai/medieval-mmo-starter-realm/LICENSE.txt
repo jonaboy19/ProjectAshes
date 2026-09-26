@@ -1,0 +1,5 @@
+"Medieval MMO Starter Realm" from 3dassets.dev (https://3dassets.dev/packs/medieval-mmo-starter-realm)
+Licence: CC0 1.0 Universal (every asset verified cc0-1.0 via the site API on 2026-09-26). No attribution required.
+AI-GENERATED: the site marks this pack aiGenerated=true (models: Claude Fable 5.1). Review visually before shipping.
+Files were dequantized (KHR_mesh_quantization removed) with gltf-transform so Godot can import them; geometry and animations unchanged.
+The starter region of a low poly fantasy world: a walled town of shops, guild halls and houses on a 4 m grid, with the farm, river crossings, forest, mine, goblin camp and standing stones around it.

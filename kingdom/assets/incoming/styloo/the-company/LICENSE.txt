@@ -1,0 +1,5 @@
+"The Company" asset pack by Styloo
+Source: https://styloo.itch.io/company
+Licence: CC0 1.0 Universal (public domain), https://creativecommons.org/publicdomain/zero/1.0/
+As stated on the itch.io page (verified 2026-09-26): "its cc0, so you can do whatever you want with it"
+No licence file shipped in the download; this file records the page licence.

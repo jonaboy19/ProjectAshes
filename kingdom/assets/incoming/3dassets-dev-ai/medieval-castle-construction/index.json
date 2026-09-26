@@ -1,0 +1,2088 @@
+[
+ {
+  "file": "alarm-bell.glb",
+  "title": "Alarm Bell (Medieval Castle Construction)",
+  "summary": "Small cast bell hanging inside a freestanding timber frame.",
+  "triangles": 160,
+  "animations": [],
+  "sizeMeters": [
+   1.4,
+   1.95,
+   0.9
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-alarm-bell-2f49a1b9"
+ },
+ {
+  "file": "anvil-stump.glb",
+  "title": "Anvil Stump (Medieval Castle Construction)",
+  "summary": "Horned iron anvil mounted on an octagonal stump.",
+  "triangles": 76,
+  "animations": [],
+  "sizeMeters": [
+   1.35,
+   1.17,
+   1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-anvil-stump-db97d436"
+ },
+ {
+  "file": "arch-gateway-wide.glb",
+  "title": "Arch Gateway Wide (Medieval Castle Construction)",
+  "summary": "3 m clear semicircular gateway with continuous 4 m-high wall-walk.",
+  "triangles": 780,
+  "animations": [],
+  "sizeMeters": [
+   6,
+   5,
+   2.13
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-arch-gateway-wide-b883b1c8"
+ },
+ {
+  "file": "arch-gateway.glb",
+  "title": "Arch Gateway (Medieval Castle Construction)",
+  "summary": "2 m clear semicircular gateway with continuous 4 m-high wall-walk.",
+  "triangles": 756,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5,
+   2.13
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-arch-gateway-26177d6e"
+ },
+ {
+  "file": "archery-target.glb",
+  "title": "Archery Target (Medieval Castle Construction)",
+  "summary": "Concentric straw archery target on a braced tripod.",
+  "triangles": 212,
+  "animations": [],
+  "sizeMeters": [
+   1.452,
+   2.076,
+   1.084
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-archery-target-d0908e4d"
+ },
+ {
+  "file": "arrow-barrel.glb",
+  "title": "Arrow Barrel (Medieval Castle Construction)",
+  "summary": "Stave barrel holding seven fletched arrows.",
+  "triangles": 560,
+  "animations": [],
+  "sizeMeters": [
+   0.656,
+   1.651,
+   0.656
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-arrow-barrel-fc5883b4"
+ },
+ {
+  "file": "ballista.glb",
+  "title": "Ballista (Medieval Castle Construction)",
+  "summary": "Wheeled ballista with bow limbs, drawn string and bolt rail; static display.",
+  "triangles": 960,
+  "animations": [],
+  "sizeMeters": [
+   3.059,
+   1.62,
+   2.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-ballista-d86e9ade"
+ },
+ {
+  "file": "banner-pole.glb",
+  "title": "Banner Pole (Medieval Castle Construction)",
+  "summary": "Freestanding blue banner on a weighted pole.",
+  "triangles": 116,
+  "animations": [],
+  "sizeMeters": [
+   1.825,
+   4.43,
+   1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-banner-pole-68e9f245"
+ },
+ {
+  "file": "battering-ram.glb",
+  "title": "Battering Ram (Medieval Castle Construction)",
+  "summary": "Covered wheeled ram with suspended timber and capped striking head.",
+  "triangles": 968,
+  "animations": [],
+  "sizeMeters": [
+   2.4,
+   3.6,
+   3.75
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-battering-ram-92de4511"
+ },
+ {
+  "file": "battlement-merlon.glb",
+  "title": "Battlement Merlon (Medieval Castle Construction)",
+  "summary": "Individual capped merlon for custom battlements.",
+  "triangles": 24,
+  "animations": [],
+  "sizeMeters": [
+   0.9,
+   1.05,
+   0.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-battlement-merlon-97533054"
+ },
+ {
+  "file": "beacon-tower.glb",
+  "title": "Beacon Tower (Medieval Castle Construction)",
+  "summary": "Low crenellated signal platform and large iron beacon bowl.",
+  "triangles": 240,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   4.5,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-beacon-tower-59ac9748"
+ },
+ {
+  "file": "bell-tower.glb",
+  "title": "Bell Tower (Medieval Castle Construction)",
+  "summary": "Open four-pier bell tower with pitched roof and hanging bell.",
+  "triangles": 180,
+  "animations": [],
+  "sizeMeters": [
+   3.5,
+   5.2,
+   3.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-bell-tower-fc95039c"
+ },
+ {
+  "file": "blue-banner-castle-courtyard.glb",
+  "title": "Blue Banner Castle Courtyard (Medieval Castle Construction)",
+  "summary": "Closed 24 m outer fortification with a continuous 4 m-high wall-walk, 2 m-clear arched southern entrance, stair access, keep, well and working-yard equipment. Doors and interiors are static. Walk route is geometrically connected; no navmesh or collision is supplied.",
+  "triangles": 4624,
+  "animations": [],
+  "sizeMeters": [
+   24,
+   9.3,
+   24
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-castle-cour-480ed575-starter-scene"
+ },
+ {
+  "file": "bread-oven.glb",
+  "title": "Bread Oven (Medieval Castle Construction)",
+  "summary": "Small masonry baking oven with recessed arched mouth and chimney.",
+  "triangles": 728,
+  "animations": [],
+  "sizeMeters": [
+   2.7,
+   3,
+   2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-bread-oven-ecd01d45"
+ },
+ {
+  "file": "bridge-end-ramp.glb",
+  "title": "Bridge End Ramp (Medieval Castle Construction)",
+  "summary": "4 m long solid stone bridge approach ramp.",
+  "triangles": 8,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   1,
+   2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-bridge-end-ramp-a603e0f7"
+ },
+ {
+  "file": "bucket.glb",
+  "title": "Bucket (Medieval Castle Construction)",
+  "summary": "Open wooden bucket with upright rectangular iron handle.",
+  "triangles": 164,
+  "animations": [],
+  "sizeMeters": [
+   0.635,
+   0.918,
+   0.56
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-bucket-83c68ccf"
+ },
+ {
+  "file": "castle-connector-cases.glb",
+  "title": "Castle Connector Cases (Medieval Castle Construction)",
+  "summary": "Representative aligned straight, corner, closed end, tee and stair/landing interfaces. Spaced rows are independent test assemblies.",
+  "triangles": 912,
+  "animations": [],
+  "sizeMeters": [
+   16,
+   5,
+   18
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-castle-connector-cases-2abdad3c"
+ },
+ {
+  "file": "castle-siege-camp.glb",
+  "title": "Castle Siege Camp (Medieval Castle Construction)",
+  "summary": "Static siege equipment, defenses, training and supplies arranged as a readable equipment yard.",
+  "triangles": 3792,
+  "animations": [],
+  "sizeMeters": [
+   17.85,
+   4.686,
+   14.61
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-castle-siege-camp-294a67fb"
+ },
+ {
+  "file": "cheval-de-frise.glb",
+  "title": "Cheval De Frise (Medieval Castle Construction)",
+  "summary": "Portable crossed-stake anti-cavalry barrier.",
+  "triangles": 132,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   1.47,
+   1.47
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-cheval-de-frise-ea0cf74c"
+ },
+ {
+  "file": "cobble-tile.glb",
+  "title": "Cobble Tile (Medieval Castle Construction)",
+  "summary": "2 m square courtyard paving tile with twenty-five raised cobbles.",
+  "triangles": 312,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   0.16,
+   2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-cobble-tile-f77cdcc0"
+ },
+ {
+  "file": "covered-sally-port.glb",
+  "title": "Covered Sally Port (Medieval Castle Construction)",
+  "summary": "Roofed narrow arched passage for a sally port.",
+  "triangles": 704,
+  "animations": [],
+  "sizeMeters": [
+   3.3,
+   4.7,
+   4.4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-covered-sally-port-6cfdd97b"
+ },
+ {
+  "file": "crossbow-stand.glb",
+  "title": "Crossbow Stand (Medieval Castle Construction)",
+  "summary": "Static crossbow displayed horizontally on a workshop stand.",
+  "triangles": 84,
+  "animations": [],
+  "sizeMeters": [
+   1.342,
+   1.08,
+   1.1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-crossbow-stand-83ec8dea"
+ },
+ {
+  "file": "curtain-arrow-loop-paired.glb",
+  "title": "Curtain Arrow Loop Paired (Medieval Castle Construction)",
+  "summary": "Two firing slits across a 4 m curtain.",
+  "triangles": 552,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5,
+   2.08
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-arrow-loop-paired-0ba81ba8"
+ },
+ {
+  "file": "curtain-arrow-loop.glb",
+  "title": "Curtain Arrow Loop (Medieval Castle Construction)",
+  "summary": "Curtain module with a real narrow arrow slit.",
+  "triangles": 300,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5,
+   2.08
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-arrow-loop-a093475c"
+ },
+ {
+  "file": "curtain-breached-low.glb",
+  "title": "Curtain Breached Low (Medieval Castle Construction)",
+  "summary": "Low collapsed curtain opening.",
+  "triangles": 72,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   2,
+   2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-breached-low-6f2d8794"
+ },
+ {
+  "file": "curtain-breached.glb",
+  "title": "Curtain Breached (Medieval Castle Construction)",
+  "summary": "Curtain module with an open collapsed breach.",
+  "triangles": 72,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   4,
+   2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-breached-598922fe"
+ },
+ {
+  "file": "curtain-buttressed-6m.glb",
+  "title": "Curtain Buttressed 6m (Medieval Castle Construction)",
+  "summary": "6 m curtain with end buttresses.",
+  "triangles": 336,
+  "animations": [],
+  "sizeMeters": [
+   6,
+   5,
+   2.69
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-buttressed-6m-3907ce07"
+ },
+ {
+  "file": "curtain-buttressed.glb",
+  "title": "Curtain Buttressed (Medieval Castle Construction)",
+  "summary": "Curtain module with buttress construction.",
+  "triangles": 312,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5,
+   2.69
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-buttressed-f5880d67"
+ },
+ {
+  "file": "curtain-corner-low.glb",
+  "title": "Curtain Corner Low (Medieval Castle Construction)",
+  "summary": "2 m deck-height corner.",
+  "triangles": 120,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   3,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-corner-low-a0072841"
+ },
+ {
+  "file": "curtain-corner.glb",
+  "title": "Curtain Corner (Medieval Castle Construction)",
+  "summary": "Broad 90-degree exterior wall corner with unobstructed turning deck.",
+  "triangles": 120,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-corner-abc40abb"
+ },
+ {
+  "file": "curtain-cross-loop.glb",
+  "title": "Curtain Cross Loop (Medieval Castle Construction)",
+  "summary": "Curtain module with a real cross-shaped arrow slit.",
+  "triangles": 348,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5,
+   2.08
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-cross-loop-2ce86c33"
+ },
+ {
+  "file": "curtain-cross.glb",
+  "title": "Curtain Cross (Medieval Castle Construction)",
+  "summary": "Four-way elevated wall-walk junction.",
+  "triangles": 72,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-cross-f3c88dd4"
+ },
+ {
+  "file": "curtain-drain.glb",
+  "title": "Curtain Drain (Medieval Castle Construction)",
+  "summary": "Curtain module with drain construction.",
+  "triangles": 324,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5,
+   2.08
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-drain-dda70b6f"
+ },
+ {
+  "file": "curtain-end-low.glb",
+  "title": "Curtain End Low (Medieval Castle Construction)",
+  "summary": "Curtain termination with a closed end parapet.",
+  "triangles": 156,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   3,
+   2.08
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-end-low-d2c60db1"
+ },
+ {
+  "file": "curtain-end.glb",
+  "title": "Curtain End (Medieval Castle Construction)",
+  "summary": "Curtain termination with a closed end parapet.",
+  "triangles": 252,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   5,
+   2.08
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-end-d833e01a"
+ },
+ {
+  "file": "curtain-high-4-m.glb",
+  "title": "Curtain High 4 m (Medieval Castle Construction)",
+  "summary": "4 m long curtain with 6 m deck height.",
+  "triangles": 360,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   7,
+   2.08
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-high-4m-4c3dc2a0"
+ },
+ {
+  "file": "curtain-low-2m.glb",
+  "title": "Curtain Low 2m (Medieval Castle Construction)",
+  "summary": "2 m long curtain with 2 m deck height.",
+  "triangles": 144,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   3,
+   2.08
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-low-2m-24f43a18"
+ },
+ {
+  "file": "curtain-low-4-m.glb",
+  "title": "Curtain Low 4 m (Medieval Castle Construction)",
+  "summary": "4 m long curtain with 2 m deck height.",
+  "triangles": 168,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   3,
+   2.08
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-low-4m-0ab44b3b"
+ },
+ {
+  "file": "curtain-postern.glb",
+  "title": "Curtain Postern (Medieval Castle Construction)",
+  "summary": "Curtain module with a walk-through postern arch.",
+  "triangles": 948,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5,
+   2.13
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-postern-5a8ac7c1"
+ },
+ {
+  "file": "curtain-splayed-base.glb",
+  "title": "Curtain Splayed Base (Medieval Castle Construction)",
+  "summary": "Curtain module with splay construction.",
+  "triangles": 288,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5,
+   2.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-splayed-base-55d76713"
+ },
+ {
+  "file": "curtain-straight-2m.glb",
+  "title": "Curtain Straight 2m (Medieval Castle Construction)",
+  "summary": "2 m long curtain with 4 m deck height.",
+  "triangles": 240,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   5,
+   2.08
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-straight-2m-e502053e"
+ },
+ {
+  "file": "curtain-straight-4-m.glb",
+  "title": "Curtain Straight 4 m (Medieval Castle Construction)",
+  "summary": "4 m curtain wall with 4 m deck and 1.5 m clear wall-walk.",
+  "triangles": 264,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5,
+   2.08
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-straight-4m-5338abb1"
+ },
+ {
+  "file": "curtain-straight-6m.glb",
+  "title": "Curtain Straight 6m (Medieval Castle Construction)",
+  "summary": "6 m long curtain with 4 m deck height.",
+  "triangles": 288,
+  "animations": [],
+  "sizeMeters": [
+   6,
+   5,
+   2.08
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-straight-6m-a914bcf9"
+ },
+ {
+  "file": "curtain-tee.glb",
+  "title": "Curtain Tee (Medieval Castle Construction)",
+  "summary": "T junction for joining an interior cross-wall to the curtain.",
+  "triangles": 84,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5,
+   3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-curtain-tee-3d989f0b"
+ },
+ {
+  "file": "drainage-channel.glb",
+  "title": "Drainage Channel (Medieval Castle Construction)",
+  "summary": "Open 2 m stone drainage channel with raised edges.",
+  "triangles": 36,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   0.3,
+   0.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-drainage-channel-7cbe221f"
+ },
+ {
+  "file": "drawbridge-deck.glb",
+  "title": "Drawbridge Deck (Medieval Castle Construction)",
+  "summary": "Plank drawbridge deck with iron edge rails and static lifting cables.",
+  "triangles": 192,
+  "animations": [],
+  "sizeMeters": [
+   2.8,
+   2.018,
+   4.016
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-drawbridge-deck-15c006a3"
+ },
+ {
+  "file": "drawbridge-raised.glb",
+  "title": "Drawbridge Raised (Medieval Castle Construction)",
+  "summary": "Drawbridge represented in its raised state.",
+  "triangles": 192,
+  "animations": [],
+  "sizeMeters": [
+   2.8,
+   4.023,
+   3.018
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-drawbridge-raised-b724e544"
+ },
+ {
+  "file": "forge-hearth.glb",
+  "title": "Forge Hearth (Medieval Castle Construction)",
+  "summary": "Stone smithing hearth with shallow fire bed and chimney; unlit.",
+  "triangles": 84,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   3.28,
+   1.525
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-forge-hearth-c8ddcc67"
+ },
+ {
+  "file": "gate-threshold.glb",
+  "title": "Gate Threshold (Medieval Castle Construction)",
+  "summary": "Stone threshold with edge guides, 3.6 m clear.",
+  "triangles": 36,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   0.35,
+   2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-gate-threshold-66a214e7"
+ },
+ {
+  "file": "gate-winch.glb",
+  "title": "Gate Winch (Medieval Castle Construction)",
+  "summary": "Ground-mounted drum winch and handwheel.",
+  "triangles": 264,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   1.35,
+   1.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-gate-winch-3634bfee"
+ },
+ {
+  "file": "gatehouse.glb",
+  "title": "Gatehouse (Medieval Castle Construction)",
+  "summary": "Twin square towers flank a 2 m arched gate tunnel.",
+  "triangles": 1248,
+  "animations": [],
+  "sizeMeters": [
+   12.3,
+   4.301,
+   4.301
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-gatehouse-5a3a2b6d"
+ },
+ {
+  "file": "grindstone.glb",
+  "title": "Grindstone (Medieval Castle Construction)",
+  "summary": "Vertical stone sharpening wheel on timber stand with crank.",
+  "triangles": 124,
+  "animations": [],
+  "sizeMeters": [
+   1.39,
+   1.55,
+   1.1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-grindstone-5528a63c"
+ },
+ {
+  "file": "handcart.glb",
+  "title": "Handcart (Medieval Castle Construction)",
+  "summary": "Open wooden two-wheel handcart with extended handles.",
+  "triangles": 504,
+  "animations": [],
+  "sizeMeters": [
+   1.77,
+   1.25,
+   3.206
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-handcart-787fa568"
+ },
+ {
+  "file": "hay-rack.glb",
+  "title": "Hay Rack (Medieval Castle Construction)",
+  "summary": "Slatted fodder rack with straw load and splayed rails.",
+  "triangles": 168,
+  "animations": [],
+  "sizeMeters": [
+   1.8,
+   1.311,
+   1.066
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-hay-rack-54ec061c"
+ },
+ {
+  "file": "hitching-post.glb",
+  "title": "Hitching Post (Medieval Castle Construction)",
+  "summary": "Double-post timber hitching rail.",
+  "triangles": 132,
+  "animations": [],
+  "sizeMeters": [
+   2.4,
+   1.202,
+   0.4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-hitching-post-073d0be1"
+ },
+ {
+  "file": "hoarding-gallery-corner.glb",
+  "title": "Hoarding Gallery Corner (Medieval Castle Construction)",
+  "summary": "Hoarding gallery with returning corner platform.",
+  "triangles": 116,
+  "animations": [],
+  "sizeMeters": [
+   4.4,
+   3.062,
+   3.201
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-hoarding-gallery-corner-98800f5e"
+ },
+ {
+  "file": "hoarding-gallery.glb",
+  "title": "Hoarding Gallery (Medieval Castle Construction)",
+  "summary": "Timber fighting gallery with covered roof and frontal plank guard.",
+  "triangles": 92,
+  "animations": [],
+  "sizeMeters": [
+   4.4,
+   3.062,
+   1.9
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-hoarding-gallery-f931c440"
+ },
+ {
+  "file": "horse-trough.glb",
+  "title": "Horse Trough (Medieval Castle Construction)",
+  "summary": "Open rectangular carved-stone drinking trough.",
+  "triangles": 60,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   0.65,
+   0.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-horse-trough-e231ede5"
+ },
+ {
+  "file": "iron-grille-gate.glb",
+  "title": "Iron Grille Gate (Medieval Castle Construction)",
+  "summary": "Open iron grille gate with visible bars.",
+  "triangles": 120,
+  "animations": [],
+  "sizeMeters": [
+   1.68,
+   2.5,
+   0.1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-iron-grille-gate-dc72762c"
+ },
+ {
+  "file": "keep-battlement.glb",
+  "title": "Keep Battlement (Medieval Castle Construction)",
+  "summary": "6 m keep roof terrace and crenellated enclosure.",
+  "triangles": 348,
+  "animations": [],
+  "sizeMeters": [
+   6,
+   1.3,
+   6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-keep-battlement-02168fc2"
+ },
+ {
+  "file": "keep-ground-floor.glb",
+  "title": "Keep Ground Floor (Medieval Castle Construction)",
+  "summary": "6 m square open keep shell with a 2 m wide entrance.",
+  "triangles": 792,
+  "animations": [],
+  "sizeMeters": [
+   6.1,
+   3.001,
+   6.115
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-keep-ground-floor-75bb6592"
+ },
+ {
+  "file": "keep-upper-floor-balcony.glb",
+  "title": "Keep Upper Floor Balcony (Medieval Castle Construction)",
+  "summary": "Keep upper shell with projecting timber balcony.",
+  "triangles": 840,
+  "animations": [],
+  "sizeMeters": [
+   6.1,
+   3.001,
+   7.36
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-keep-upper-floor-balcony-219bad37"
+ },
+ {
+  "file": "keep-upper-floor.glb",
+  "title": "Keep Upper Floor (Medieval Castle Construction)",
+  "summary": "6 m keep upper shell with narrow arched window.",
+  "triangles": 792,
+  "animations": [],
+  "sizeMeters": [
+   6.1,
+   3.001,
+   6.115
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-keep-upper-floor-1eff3592"
+ },
+ {
+  "file": "ladder-access.glb",
+  "title": "Ladder Access (Medieval Castle Construction)",
+  "summary": "4 m vertical access ladder with regularly spaced rungs.",
+  "triangles": 180,
+  "animations": [],
+  "sizeMeters": [
+   0.8,
+   4,
+   0.12
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-ladder-access-d9cc4196"
+ },
+ {
+  "file": "lintel-gateway.glb",
+  "title": "Lintel Gateway (Medieval Castle Construction)",
+  "summary": "Square-headed gate with 2 × 3 m clear opening.",
+  "triangles": 48,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   4.25,
+   2.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-lintel-gateway-f33e62d9"
+ },
+ {
+  "file": "long-bench.glb",
+  "title": "Long Bench (Medieval Castle Construction)",
+  "summary": "Backless plank bench with two trestles.",
+  "triangles": 72,
+  "animations": [],
+  "sizeMeters": [
+   2.2,
+   0.45,
+   0.45
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-long-bench-8a85a897"
+ },
+ {
+  "file": "mantlet.glb",
+  "title": "Mantlet (Medieval Castle Construction)",
+  "summary": "Wheeled plank shield with iron braces and rear prop.",
+  "triangles": 564,
+  "animations": [],
+  "sizeMeters": [
+   1.7,
+   2,
+   1.199
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-mantlet-3fb7dd0c"
+ },
+ {
+  "file": "market-awning.glb",
+  "title": "Market Awning (Medieval Castle Construction)",
+  "summary": "Blue cloth market canopy on four timber posts.",
+  "triangles": 68,
+  "animations": [],
+  "sizeMeters": [
+   3.4,
+   3.2,
+   2.51
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-market-awning-a3f2c2e9"
+ },
+ {
+  "file": "murder-hole-gallery.glb",
+  "title": "Murder Hole Gallery (Medieval Castle Construction)",
+  "summary": "Over-gate gallery with two real gaps through the plank floor.",
+  "triangles": 92,
+  "animations": [],
+  "sizeMeters": [
+   4.4,
+   5.1,
+   2.4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-murder-hole-gallery-14269c95"
+ },
+ {
+  "file": "notice-board.glb",
+  "title": "Notice Board (Medieval Castle Construction)",
+  "summary": "Public notice board with blank paper panels and rain hood.",
+  "triangles": 68,
+  "animations": [],
+  "sizeMeters": [
+   2.1,
+   2.4,
+   0.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-notice-board-5ad505f4"
+ },
+ {
+  "file": "octagonal-tower-base-tall.glb",
+  "title": "Octagonal Tower Base Tall (Medieval Castle Construction)",
+  "summary": "6 m tall solid tower base.",
+  "triangles": 32,
+  "animations": [],
+  "sizeMeters": [
+   4.8,
+   6,
+   4.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-octagonal-tower-base-tall-503cd46d"
+ },
+ {
+  "file": "octagonal-tower-base.glb",
+  "title": "Octagonal Tower Base (Medieval Castle Construction)",
+  "summary": "octagonal tower base. Solid structural plinth; no interior.",
+  "triangles": 32,
+  "animations": [],
+  "sizeMeters": [
+   4.8,
+   3,
+   4.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-octagonal-tower-base-aff15391"
+ },
+ {
+  "file": "octagonal-tower-battlement.glb",
+  "title": "Octagonal Tower Battlement (Medieval Castle Construction)",
+  "summary": "octagonal tower battlement. Walkable cap with crenellated perimeter.",
+  "triangles": 144,
+  "animations": [],
+  "sizeMeters": [
+   4.45,
+   1.3,
+   4.45
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-octagonal-tower-battlemen-f52a7611"
+ },
+ {
+  "file": "octagonal-tower-chamber.glb",
+  "title": "Octagonal Tower Chamber (Medieval Castle Construction)",
+  "summary": "octagonal tower chamber. Open-topped chamber.",
+  "triangles": 204,
+  "animations": [],
+  "sizeMeters": [
+   4.48,
+   3,
+   4.48
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-octagonal-tower-chamber-fe963062"
+ },
+ {
+  "file": "oil-cauldron.glb",
+  "title": "Oil Cauldron (Medieval Castle Construction)",
+  "summary": "Iron cauldron with rim and short feet; solid dark contents surface.",
+  "triangles": 168,
+  "animations": [],
+  "sizeMeters": [
+   1.14,
+   0.85,
+   1.14
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-oil-cauldron-1bed401e"
+ },
+ {
+  "file": "palisade-corner.glb",
+  "title": "Palisade Corner (Medieval Castle Construction)",
+  "summary": "Right-angle log palisade corner.",
+  "triangles": 480,
+  "animations": [],
+  "sizeMeters": [
+   2.149,
+   2.85,
+   2.199
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-palisade-corner-0fb0eaff"
+ },
+ {
+  "file": "palisade-end.glb",
+  "title": "Palisade End (Medieval Castle Construction)",
+  "summary": "Short palisade termination and rear brace.",
+  "triangles": 252,
+  "animations": [],
+  "sizeMeters": [
+   2.07,
+   2.85,
+   0.939
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-palisade-end-c0992cd5"
+ },
+ {
+  "file": "palisade-gate.glb",
+  "title": "Palisade Gate (Medieval Castle Construction)",
+  "summary": "Palisade with 1.8 m clear central access.",
+  "triangles": 264,
+  "animations": [],
+  "sizeMeters": [
+   4.01,
+   2.85,
+   0.429
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-palisade-gate-5b081f5e"
+ },
+ {
+  "file": "palisade-straight.glb",
+  "title": "Palisade Straight (Medieval Castle Construction)",
+  "summary": "4 m sharpened log palisade with two rear crossrails.",
+  "triangles": 420,
+  "animations": [],
+  "sizeMeters": [
+   4.01,
+   2.85,
+   0.429
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-palisade-straight-2aba11b6"
+ },
+ {
+  "file": "parapet-arrow-loop.glb",
+  "title": "Parapet Arrow Loop (Medieval Castle Construction)",
+  "summary": "Parapet with real rectangular firing loop.",
+  "triangles": 48,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   1,
+   0.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-parapet-arrow-loop-0b18d771"
+ },
+ {
+  "file": "parapet-corner.glb",
+  "title": "Parapet Corner (Medieval Castle Construction)",
+  "summary": "Separate L-shaped crenellated parapet corner.",
+  "triangles": 60,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   1,
+   1.75
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-parapet-corner-65f1db40"
+ },
+ {
+  "file": "parapet-straight.glb",
+  "title": "Parapet Straight (Medieval Castle Construction)",
+  "summary": "Separate 4 m crenellated parapet for deck edges.",
+  "triangles": 60,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   1,
+   0.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-parapet-straight-63e78128"
+ },
+ {
+  "file": "pointed-gateway-wide.glb",
+  "title": "Pointed Gateway Wide (Medieval Castle Construction)",
+  "summary": "3 m clear pointed gateway with continuous 4 m-high wall-walk.",
+  "triangles": 780,
+  "animations": [],
+  "sizeMeters": [
+   6,
+   5,
+   2.13
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-pointed-gateway-wide-e59a56e5"
+ },
+ {
+  "file": "pointed-gateway.glb",
+  "title": "Pointed Gateway (Medieval Castle Construction)",
+  "summary": "2 m clear pointed gateway with continuous 4 m-high wall-walk.",
+  "triangles": 756,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5,
+   2.13
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-pointed-gateway-cf641220"
+ },
+ {
+  "file": "portcullis-frame-raised.glb",
+  "title": "Portcullis Frame Raised (Medieval Castle Construction)",
+  "summary": "Arch frame with raised iron portcullis and clear passage.",
+  "triangles": 828,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   5.6,
+   2.13
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-portcullis-frame-raised-f228e1cd"
+ },
+ {
+  "file": "portcullis-frame.glb",
+  "title": "Portcullis Frame (Medieval Castle Construction)",
+  "summary": "Arch frame with lowered iron portcullis.",
+  "triangles": 828,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   4.3,
+   2.13
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-portcullis-frame-a373c1a6"
+ },
+ {
+  "file": "retaining-wall.glb",
+  "title": "Retaining Wall (Medieval Castle Construction)",
+  "summary": "Low stone terrace retaining wall with coping.",
+  "triangles": 36,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   1.25,
+   1.4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-retaining-wall-65f68c59"
+ },
+ {
+  "file": "roof-chimney.glb",
+  "title": "Roof Chimney (Medieval Castle Construction)",
+  "summary": "Stone chimney with open flue above the cap.",
+  "triangles": 72,
+  "animations": [],
+  "sizeMeters": [
+   1.1,
+   2.1,
+   1.1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-roof-chimney-370fe0b6"
+ },
+ {
+  "file": "roof-conical-small.glb",
+  "title": "Roof Conical Small (Medieval Castle Construction)",
+  "summary": "Small conical turret roof.",
+  "triangles": 24,
+  "animations": [],
+  "sizeMeters": [
+   2.8,
+   2,
+   2.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-roof-conical-small-b6ab810d"
+ },
+ {
+  "file": "roof-conical.glb",
+  "title": "Roof Conical (Medieval Castle Construction)",
+  "summary": "Sixteen-facet conical tower roof.",
+  "triangles": 32,
+  "animations": [],
+  "sizeMeters": [
+   5.2,
+   3,
+   5.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-roof-conical-687c98ab"
+ },
+ {
+  "file": "roof-dormer.glb",
+  "title": "Roof Dormer (Medieval Castle Construction)",
+  "summary": "Open dormer window frame and pitched hood.",
+  "triangles": 56,
+  "animations": [],
+  "sizeMeters": [
+   1.7,
+   2.1,
+   1.4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-roof-dormer-ba349a76"
+ },
+ {
+  "file": "roof-gable-long.glb",
+  "title": "Roof Gable Long (Medieval Castle Construction)",
+  "summary": "Long 6.5 m gable roof.",
+  "triangles": 8,
+  "animations": [],
+  "sizeMeters": [
+   4.5,
+   2,
+   6.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-roof-gable-long-100f1112"
+ },
+ {
+  "file": "roof-gable.glb",
+  "title": "Roof Gable (Medieval Castle Construction)",
+  "summary": "Closed gable roof section with solid underside.",
+  "triangles": 8,
+  "animations": [],
+  "sizeMeters": [
+   4.5,
+   2,
+   4.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-roof-gable-45c637c4"
+ },
+ {
+  "file": "roof-hipped.glb",
+  "title": "Roof Hipped (Medieval Castle Construction)",
+  "summary": "Truncated hipped roof with a flat ridge terrace.",
+  "triangles": 12,
+  "animations": [],
+  "sizeMeters": [
+   5,
+   1.7,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-roof-hipped-efebe0a2"
+ },
+ {
+  "file": "roof-pyramid.glb",
+  "title": "Roof Pyramid (Medieval Castle Construction)",
+  "summary": "Four-sided pyramidal tower roof.",
+  "triangles": 8,
+  "animations": [],
+  "sizeMeters": [
+   4.95,
+   2.8,
+   4.95
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-roof-pyramid-03676f94"
+ },
+ {
+  "file": "roof-ridge-cap.glb",
+  "title": "Roof Ridge Cap (Medieval Castle Construction)",
+  "summary": "Two-metre V-profile slate ridge cap.",
+  "triangles": 8,
+  "animations": [],
+  "sizeMeters": [
+   0.6,
+   0.25,
+   2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-roof-ridge-cap-de4976dd"
+ },
+ {
+  "file": "rope-coil.glb",
+  "title": "Rope Coil (Medieval Castle Construction)",
+  "summary": "Four-turn flat rope coil with a loose tail.",
+  "triangles": 780,
+  "animations": [],
+  "sizeMeters": [
+   1.218,
+   0.07,
+   1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-rope-coil-1d09ef25"
+ },
+ {
+  "file": "round-tower-base-tall.glb",
+  "title": "Round Tower Base Tall (Medieval Castle Construction)",
+  "summary": "6 m tall solid tower base.",
+  "triangles": 64,
+  "animations": [],
+  "sizeMeters": [
+   4.8,
+   6,
+   4.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-round-tower-base-tall-7aa5fe75"
+ },
+ {
+  "file": "round-tower-base.glb",
+  "title": "Round Tower Base (Medieval Castle Construction)",
+  "summary": "round tower base. Solid structural plinth; no interior.",
+  "triangles": 64,
+  "animations": [],
+  "sizeMeters": [
+   4.8,
+   3,
+   4.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-round-tower-base-df7755cc"
+ },
+ {
+  "file": "round-tower-battlement.glb",
+  "title": "Round Tower Battlement (Medieval Castle Construction)",
+  "summary": "round tower battlement. Walkable cap with crenellated perimeter.",
+  "triangles": 288,
+  "animations": [],
+  "sizeMeters": [
+   4.45,
+   1.3,
+   4.45
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-round-tower-battlement-671c7a76"
+ },
+ {
+  "file": "round-tower-chamber-door.glb",
+  "title": "Round Tower Chamber Door (Medieval Castle Construction)",
+  "summary": "Tower chamber with access opening.",
+  "triangles": 384,
+  "animations": [],
+  "sizeMeters": [
+   4.48,
+   3.001,
+   4.44
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-round-tower-chamber-door-c917f59c"
+ },
+ {
+  "file": "round-tower-chamber.glb",
+  "title": "Round Tower Chamber (Medieval Castle Construction)",
+  "summary": "round tower chamber. Open-topped chamber.",
+  "triangles": 396,
+  "animations": [],
+  "sizeMeters": [
+   4.48,
+   3,
+   4.48
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-round-tower-chamber-ca55018a"
+ },
+ {
+  "file": "sentry-shelter.glb",
+  "title": "Sentry Shelter (Medieval Castle Construction)",
+  "summary": "Open-front guard shelter with side walls and slate roof.",
+  "triangles": 56,
+  "animations": [],
+  "sizeMeters": [
+   1.9,
+   3.2,
+   1.9
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-sentry-shelter-f67e9e54"
+ },
+ {
+  "file": "shield-pavise.glb",
+  "title": "Shield Pavise (Medieval Castle Construction)",
+  "summary": "Tall freestanding pavise shield with rear support leg.",
+  "triangles": 44,
+  "animations": [],
+  "sizeMeters": [
+   1.1,
+   1.779,
+   0.846
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-shield-pavise-92a590f0"
+ },
+ {
+  "file": "shield-rack.glb",
+  "title": "Shield Rack (Medieval Castle Construction)",
+  "summary": "Three blue shields with metal bosses on a display rack.",
+  "triangles": 144,
+  "animations": [],
+  "sizeMeters": [
+   2.25,
+   1.8,
+   0.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-shield-rack-b978c8a8"
+ },
+ {
+  "file": "siege-ladder.glb",
+  "title": "Siege Ladder (Medieval Castle Construction)",
+  "summary": "Wide 6 m siege ladder with iron foot shoe.",
+  "triangles": 276,
+  "animations": [],
+  "sizeMeters": [
+   1.3,
+   6.03,
+   0.4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-siege-ladder-cd622bf2"
+ },
+ {
+  "file": "signal-brazier.glb",
+  "title": "Signal Brazier (Medieval Castle Construction)",
+  "summary": "Empty elevated iron signal brazier with solid fuel logs; no fire effect.",
+  "triangles": 220,
+  "animations": [],
+  "sizeMeters": [
+   1.22,
+   1.75,
+   1.22
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-signal-brazier-a736762d"
+ },
+ {
+  "file": "spear-rack.glb",
+  "title": "Spear Rack (Medieval Castle Construction)",
+  "summary": "Three upright spears in a braced timber storage rack.",
+  "triangles": 168,
+  "animations": [],
+  "sizeMeters": [
+   2.25,
+   2.6,
+   0.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-spear-rack-2521cfc5"
+ },
+ {
+  "file": "square-tower-base-tall.glb",
+  "title": "Square Tower Base Tall (Medieval Castle Construction)",
+  "summary": "6 m tall solid tower base.",
+  "triangles": 24,
+  "animations": [],
+  "sizeMeters": [
+   4.3,
+   6,
+   4.3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-square-tower-base-tall-e556e41c"
+ },
+ {
+  "file": "square-tower-base.glb",
+  "title": "Square Tower Base (Medieval Castle Construction)",
+  "summary": "square tower base. Solid structural plinth; no interior.",
+  "triangles": 24,
+  "animations": [],
+  "sizeMeters": [
+   4.3,
+   3,
+   4.3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-square-tower-base-efc63b8a"
+ },
+ {
+  "file": "square-tower-battlement.glb",
+  "title": "Square Tower Battlement (Medieval Castle Construction)",
+  "summary": "square tower battlement. Walkable cap with crenellated perimeter.",
+  "triangles": 252,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   1.3,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-square-tower-battlement-bc598a0e"
+ },
+ {
+  "file": "square-tower-chamber-door.glb",
+  "title": "Square Tower Chamber Door (Medieval Castle Construction)",
+  "summary": "Tower chamber with access opening.",
+  "triangles": 744,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   3,
+   4.065
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-square-tower-chamber-door-58ae3896"
+ },
+ {
+  "file": "square-tower-chamber.glb",
+  "title": "Square Tower Chamber (Medieval Castle Construction)",
+  "summary": "square tower chamber. Open-topped chamber.",
+  "triangles": 756,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   3,
+   4.065
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-square-tower-chamber-7eba1932"
+ },
+ {
+  "file": "stable-stall.glb",
+  "title": "Stable Stall (Medieval Castle Construction)",
+  "summary": "Covered 3 m stable stall with a fully open front.",
+  "triangles": 140,
+  "animations": [],
+  "sizeMeters": [
+   3.4,
+   4.1,
+   3.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-stable-stall-dd56fae6"
+ },
+ {
+  "file": "stair-landing-railed.glb",
+  "title": "Stair Landing Railed (Medieval Castle Construction)",
+  "summary": "Landing with timber side guards.",
+  "triangles": 36,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   5,
+   2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-stair-landing-railed-af1964d9"
+ },
+ {
+  "file": "stair-landing.glb",
+  "title": "Stair Landing (Medieval Castle Construction)",
+  "summary": "2 m square landing at 4 m elevation.",
+  "triangles": 12,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   4,
+   2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-stair-landing-639689c8"
+ },
+ {
+  "file": "stairs-quarter-turn.glb",
+  "title": "Stairs Quarter Turn (Medieval Castle Construction)",
+  "summary": "Two 2 m-rise flights with a square quarter-turn landing.",
+  "triangles": 204,
+  "animations": [],
+  "sizeMeters": [
+   5,
+   4,
+   5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-stairs-quarter-turn-2df3eecb"
+ },
+ {
+  "file": "stairs-straight-1m.glb",
+  "title": "Stairs Straight 1m (Medieval Castle Construction)",
+  "summary": "1 m rise stone stair flight; 0.25 m risers and 0.375 m treads, 2 m clear width.",
+  "triangles": 48,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   1,
+   1.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-stairs-straight-1m-46b07f25"
+ },
+ {
+  "file": "stairs-straight-2m.glb",
+  "title": "Stairs Straight 2m (Medieval Castle Construction)",
+  "summary": "2 m rise stone stair flight; 0.25 m risers and 0.375 m treads, 2 m clear width.",
+  "triangles": 96,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   2,
+   3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-stairs-straight-2m-15f5cf42"
+ },
+ {
+  "file": "stairs-straight-4-m.glb",
+  "title": "Stairs Straight 4 m (Medieval Castle Construction)",
+  "summary": "4 m rise stone stair flight; 0.25 m risers and 0.375 m treads, 2 m clear width.",
+  "triangles": 192,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   4,
+   6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-stairs-straight-4m-75489801"
+ },
+ {
+  "file": "stairs-switchback.glb",
+  "title": "Stairs Switchback (Medieval Castle Construction)",
+  "summary": "Compact returning staircase with a full intermediate landing.",
+  "triangles": 204,
+  "animations": [],
+  "sizeMeters": [
+   3.1,
+   4,
+   4.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-stairs-switchback-a6ff9ff3"
+ },
+ {
+  "file": "stake-barricade.glb",
+  "title": "Stake Barricade (Medieval Castle Construction)",
+  "summary": "Ground-braced row of sharpened defensive stakes.",
+  "triangles": 152,
+  "animations": [],
+  "sizeMeters": [
+   3.5,
+   1.541,
+   1.17
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-stake-barricade-b9f01a4c"
+ },
+ {
+  "file": "stone-ammunition-pile.glb",
+  "title": "Stone Ammunition Pile (Medieval Castle Construction)",
+  "summary": "Eight faceted stone projectiles stacked in two layers.",
+  "triangles": 512,
+  "animations": [],
+  "sizeMeters": [
+   1.476,
+   0.93,
+   0.975
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-stone-ammunition-pile-3098eec1"
+ },
+ {
+  "file": "stone-bridge-wide.glb",
+  "title": "Stone Bridge Wide (Medieval Castle Construction)",
+  "summary": "4 m wide masonry arch bridge with open underpass.",
+  "triangles": 720,
+  "animations": [],
+  "sizeMeters": [
+   6,
+   3.2,
+   4.13
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-stone-bridge-wide-73de46e0"
+ },
+ {
+  "file": "stone-bridge.glb",
+  "title": "Stone Bridge (Medieval Castle Construction)",
+  "summary": "2 m wide masonry arch bridge with open underpass.",
+  "triangles": 720,
+  "animations": [],
+  "sizeMeters": [
+   6,
+   3.2,
+   2.13
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-stone-bridge-c08cb122"
+ },
+ {
+  "file": "stone-planter.glb",
+  "title": "Stone Planter (Medieval Castle Construction)",
+  "summary": "Empty octagonal stone planter with open planting cavity.",
+  "triangles": 112,
+  "animations": [],
+  "sizeMeters": [
+   1.2,
+   0.8,
+   1.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-stone-planter-1d8c4e85"
+ },
+ {
+  "file": "sundial.glb",
+  "title": "Sundial (Medieval Castle Construction)",
+  "summary": "Stone pedestal sundial with triangular gnomon; decorative, not calibrated.",
+  "triangles": 116,
+  "animations": [],
+  "sizeMeters": [
+   1.1,
+   1.47,
+   1.1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-sundial-a677cb39"
+ },
+ {
+  "file": "supply-chest.glb",
+  "title": "Supply Chest (Medieval Castle Construction)",
+  "summary": "Iron-banded supply chest with ridged solid lid.",
+  "triangles": 56,
+  "animations": [],
+  "sizeMeters": [
+   1.2,
+   0.88,
+   0.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-supply-chest-1a7d4438"
+ },
+ {
+  "file": "supply-crate.glb",
+  "title": "Supply Crate (Medieval Castle Construction)",
+  "summary": "Cross-braced oak supply crate with reinforced corners.",
+  "triangles": 72,
+  "animations": [],
+  "sizeMeters": [
+   1.001,
+   0.92,
+   0.91
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-supply-crate-ecce95c8"
+ },
+ {
+  "file": "sword-rack.glb",
+  "title": "Sword Rack (Medieval Castle Construction)",
+  "summary": "Three straight swords in a two-level timber rack.",
+  "triangles": 180,
+  "animations": [],
+  "sizeMeters": [
+   2.25,
+   1.8,
+   0.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-sword-rack-de395282"
+ },
+ {
+  "file": "throne-chair.glb",
+  "title": "Throne Chair (Medieval Castle Construction)",
+  "summary": "Tall ceremonial oak chair with blue back cushion and armrests.",
+  "triangles": 140,
+  "animations": [],
+  "sizeMeters": [
+   1.15,
+   2.05,
+   0.91
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-throne-chair-3dfdfcce"
+ },
+ {
+  "file": "timber-gate-double-open.glb",
+  "title": "Timber Gate Double Open (Medieval Castle Construction)",
+  "summary": "Two timber gate leaves in an open arrangement.",
+  "triangles": 288,
+  "animations": [],
+  "sizeMeters": [
+   2.83,
+   2.6,
+   2.4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-timber-gate-double-open-d2a0c6bf"
+ },
+ {
+  "file": "timber-gate-double.glb",
+  "title": "Timber Gate Double (Medieval Castle Construction)",
+  "summary": "Two strapped timber gate leaves.",
+  "triangles": 288,
+  "animations": [],
+  "sizeMeters": [
+   2.4,
+   2.6,
+   0.43
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-timber-gate-double-21f64a16"
+ },
+ {
+  "file": "timber-gate-single-open.glb",
+  "title": "Timber Gate Single Open (Medieval Castle Construction)",
+  "summary": "Single gate leaf rotated ninety degrees about its hinge.",
+  "triangles": 144,
+  "animations": [],
+  "sizeMeters": [
+   0.275,
+   2.6,
+   1.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-timber-gate-single-open-4751c8e9"
+ },
+ {
+  "file": "timber-gate-single.glb",
+  "title": "Timber Gate Single (Medieval Castle Construction)",
+  "summary": "Iron-strapped plank gate leaf with a named left hinge.",
+  "triangles": 144,
+  "animations": [],
+  "sizeMeters": [
+   1.6,
+   2.6,
+   0.275
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-timber-gate-single-db1dd714"
+ },
+ {
+  "file": "timber-walkway-6m.glb",
+  "title": "Timber Walkway 6m (Medieval Castle Construction)",
+  "summary": "6 m timber footbridge.",
+  "triangles": 360,
+  "animations": [],
+  "sizeMeters": [
+   6,
+   1.12,
+   2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-timber-walkway-6m-5529811a"
+ },
+ {
+  "file": "timber-walkway-corner.glb",
+  "title": "Timber Walkway Corner (Medieval Castle Construction)",
+  "summary": "L-shaped timber walkway with a square turning platform.",
+  "triangles": 276,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   1.12,
+   4.001
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-timber-walkway-corner-3c386a29"
+ },
+ {
+  "file": "timber-walkway.glb",
+  "title": "Timber Walkway (Medieval Castle Construction)",
+  "summary": "4 m timber footbridge with open rail sides.",
+  "triangles": 264,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   1.12,
+   2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-timber-walkway-ab9cd7c3"
+ },
+ {
+  "file": "training-pell.glb",
+  "title": "Training Pell (Medieval Castle Construction)",
+  "summary": "Padded striking post with cross-arm and stable wooden foot.",
+  "triangles": 120,
+  "animations": [],
+  "sizeMeters": [
+   1.2,
+   2,
+   0.72
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-training-pell-1a86a816"
+ },
+ {
+  "file": "trebuchet.glb",
+  "title": "Trebuchet (Medieval Castle Construction)",
+  "summary": "Counterweight trebuchet with A-frame, throwing arm and hanging sling; static.",
+  "triangles": 120,
+  "animations": [],
+  "sizeMeters": [
+   2.6,
+   4.686,
+   4.85
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-trebuchet-9d55b578"
+ },
+ {
+  "file": "trestle-table.glb",
+  "title": "Trestle Table (Medieval Castle Construction)",
+  "summary": "Long oak tabletop on two broad trestles and stretcher.",
+  "triangles": 72,
+  "animations": [],
+  "sizeMeters": [
+   2.5,
+   0.85,
+   1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-trestle-table-483f5a48"
+ },
+ {
+  "file": "turret-corbel.glb",
+  "title": "Turret Corbel (Medieval Castle Construction)",
+  "summary": "Projecting octagonal turret with tapered corbel and slate cap.",
+  "triangles": 152,
+  "animations": [],
+  "sizeMeters": [
+   2.9,
+   4,
+   2.9
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-turret-corbel-6b2df76b"
+ },
+ {
+  "file": "wall-banner.glb",
+  "title": "Wall Banner (Medieval Castle Construction)",
+  "summary": "Blue pointed hanging banner with rigid side rods; mount above ground as needed.",
+  "triangles": 52,
+  "animations": [],
+  "sizeMeters": [
+   1.3,
+   2.08,
+   0.12
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-wall-banner-6b92cf25"
+ },
+ {
+  "file": "war-drum.glb",
+  "title": "War Drum (Medieval Castle Construction)",
+  "summary": "Large cylindrical war drum with rim hoops and resting beaters.",
+  "triangles": 300,
+  "animations": [],
+  "sizeMeters": [
+   1.304,
+   0.767,
+   1.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-war-drum-3806d8ad"
+ },
+ {
+  "file": "wash-basin.glb",
+  "title": "Wash Basin (Medieval Castle Construction)",
+  "summary": "Open wash basin on a short stone pedestal.",
+  "triangles": 192,
+  "animations": [],
+  "sizeMeters": [
+   0.9,
+   1,
+   0.9
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-wash-basin-cdb07b63"
+ },
+ {
+  "file": "watchtower-timber.glb",
+  "title": "Watchtower Timber (Medieval Castle Construction)",
+  "summary": "Braced timber observation platform with pitched slate canopy.",
+  "triangles": 116,
+  "animations": [],
+  "sizeMeters": [
+   3,
+   6.3,
+   3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-watchtower-timber-30e37d06"
+ },
+ {
+  "file": "water-barrel.glb",
+  "title": "Water Barrel (Medieval Castle Construction)",
+  "summary": "Closed oak water barrel with iron hoops.",
+  "triangles": 336,
+  "animations": [],
+  "sizeMeters": [
+   0.82,
+   1.03,
+   0.82
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-water-barrel-888d2c29"
+ },
+ {
+  "file": "well.glb",
+  "title": "Well (Medieval Castle Construction)",
+  "summary": "Roofed masonry well with real open centre and windlass axle.",
+  "triangles": 248,
+  "animations": [],
+  "sizeMeters": [
+   2.8,
+   3.7,
+   2.3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-well-1791f3cf"
+ },
+ {
+  "file": "woodpile.glb",
+  "title": "Woodpile (Medieval Castle Construction)",
+  "summary": "Nine stacked squared firewood logs in three stable tiers.",
+  "triangles": 108,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   0.87,
+   1.31
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-castle-construction-woodpile-5e60f1d3"
+ }
+]

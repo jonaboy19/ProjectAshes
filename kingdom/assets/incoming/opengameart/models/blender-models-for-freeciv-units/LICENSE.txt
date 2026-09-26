@@ -1,0 +1,4 @@
+"Blender models for Freeciv units" by yd
+Source: https://opengameart.org/content/blender-models-for-freeciv-units
+Licence: CC0
+Public domain; no attribution required.
