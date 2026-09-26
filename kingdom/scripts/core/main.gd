@@ -609,8 +609,8 @@ func _screenshot(shot: String, path: String) -> void:
 			warmup = 40
 		"explore":
 			# Street level on the plaza's south side, looking north across the square.
-			_teleport(Vector2(3.0, 16.0), 0.0)
-			player.set_camera(0.15, -0.14)
+			_teleport(Vector2(1.0, 7.5), 0.0)
+			player.set_camera(0.25, -0.12)
 		"first":
 			player.set_view(Player.View.FIRST)
 			player.set_camera(PI * 0.9, -0.05)
