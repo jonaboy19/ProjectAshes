@@ -45,6 +45,11 @@ enabled=PackedStringArray("res://addons/guide/plugin.cfg", "res://addons/dialogu
 
 pointing/emulate_touch_from_mouse=true
 
+[filesystem]
+
+import/blender/enabled=false
+import/fbx2gltf/enabled=false
+
 [rendering]
 
 textures/vram_compression/import_etc2_astc=true
