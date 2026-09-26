@@ -418,6 +418,10 @@ func _update_daylight() -> void:
 	env.fog_light_color = Color("1b2238").lerp(Color("c9d4e6"), day_amount)
 	env.background_energy_multiplier = lerpf(0.08, 1.0, day_amount) + night * 0.12
 	baker.set_light(lerpf(0.35, 1.0, day_amount))
+	var lamp_energy := 1.6 * night
+	for l in get_tree().get_nodes_in_group("street_lamp"):
+		(l as OmniLight3D).light_energy = lamp_energy
+		(l as OmniLight3D).visible = lamp_energy > 0.01
 
 
 # --- Scripted demo (for trailer capture with --write-movie) ------------------------
@@ -531,6 +535,19 @@ func _screenshot(shot: String, path: String) -> void:
 	var warmup := 60
 	var late_fx := Callable()
 	match shot:
+		"aerial":
+			# High 3/4 view over Ashford and its fields.
+			hud.visible = false
+			var cam := Camera3D.new()
+			world.add_child(cam)
+			var gy := WorldGen.height(0, 0)
+			cam.global_position = Vector3(95, gy + 62, 105)
+			cam.look_at(Vector3(0, gy, -5))
+			cam.fov = 55.0
+			cam.current = true
+			terrain.focus = Vector3(20, 0, 20)
+			terrain.build_all_now()
+			warmup = 80
 		"guildhall", "orcs":
 			# Establishing views of the Blender-built guild hall and the orc village.
 			var at := Vector2.ZERO

@@ -121,15 +121,9 @@ func _build(s: Dictionary) -> Node3D:
 			continue
 		var p := c + Vector2(cos(ang), sin(ang)) * r * rng.randf_range(1.2, 1.45)
 		_piece(root, "mill", p, WorldGen.height(p.x, p.y), rng.randf() * TAU)
-	var fields: Array[Transform3D] = []
-	for i in 14:
-		var ang := rng.randf() * TAU
-		if CityPlanner._near_angle(ang, gates, 0.25):
-			continue
-		var p := c + Vector2(cos(ang), sin(ang)) * r * rng.randf_range(1.15, 1.7)
-		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * 9.0), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.05, p.y))
-		fields.append(t)
-	_multimesh(root, Assets.mesh_of("building_grain"), fields)
+	_fields(root, s, plan, rng, gates)
+	_homesteads(root, s, plan, rng)
+	_square_lamps(root, s, plan)
 	_greenery(root, s, plan, rng)
 	# Street clutter.
 	var street_clutter: Array[Transform3D] = []
@@ -170,6 +164,10 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, h: float, gates: Array,
 	var native := wall_mesh.get_aabb()
 	var native_len := maxf(native.size.x, native.size.z)
 	var along_x := native.size.x > native.size.z
+	# Real-size sections (the Blender wall is 8 m long) instead of stretching a few;
+	# a tower roughly every 48 m.
+	segments = maxi(12, int(round(TAU * radius / native_len)))
+	tower_every = maxi(3, int(round(48.0 / native_len)))
 	var seg_len := TAU * radius / segments
 	var s := seg_len / maxf(native_len, 0.01)          # uniform: keeps the wall's proportions
 	var tower_s := s * 1.05
@@ -265,3 +263,109 @@ func _greenery(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberG
 		var list: Array[Transform3D] = []
 		list.assign(picks[kind])
 		_multimesh(root, Assets.nature_mesh(kind), list)
+
+
+## Fenced crop fields outside the village: 10 m wheat tiles on the terrain,
+## a rustic fence around each field with a gap for the farmer.
+func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator, gates: Array[float]) -> void:
+	var c: Vector2 = s["pos"]
+	var r: float = s["radius"]
+	var tiles: Array[Transform3D] = []
+	var fences: Array[Transform3D] = []
+	var placed: Array[Vector2] = []
+	for i in (7 if s["kind"] == "village" else 10):
+		var ang := rng.randf() * TAU
+		if CityPlanner._near_angle(ang, gates, 0.35):
+			continue
+		var fc := c + Vector2(cos(ang), sin(ang)) * r * rng.randf_range(1.35, 1.9)
+		var ok := not WorldGen.near_water(fc.x, fc.y, 20.0) and WorldGen.road_distance(fc.x, fc.y) > 22.0
+		for q in placed:
+			ok = ok and q.distance_to(fc) > 38.0
+		if not ok:
+			continue
+		placed.append(fc)
+		var nx := rng.randi_range(2, 3)
+		var nz := rng.randi_range(2, 3)
+		var yaw := ang + PI * 0.5
+		var bx := Vector2(cos(yaw), -sin(yaw))
+		var bz := Vector2(sin(yaw), cos(yaw))
+		for ix in nx:
+			for iz in nz:
+				var p := fc + bx * (ix - (nx - 1) * 0.5) * 10.0 + bz * (iz - (nz - 1) * 0.5) * 10.0
+				tiles.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.05, p.y)))
+		# Fence around the field (3 m sections), leaving a gap on one side.
+		var hx := nx * 5.0 + 1.0
+		var hz := nz * 5.0 + 1.0
+		for side in 4:
+			var along := bx if side % 2 == 0 else bz
+			var across := bz if side % 2 == 0 else bx
+			var half_len := hx if side % 2 == 0 else hz
+			var off := (hz if side % 2 == 0 else hx) * (1.0 if side < 2 else -1.0)
+			var n := int(half_len * 2.0 / 3.0)
+			for k in n:
+				if side == 0 and k == n / 2:
+					continue
+				var p := fc + across * off + along * (-half_len + 1.5 + k * 3.0)
+				var fyaw := yaw + (0.0 if side % 2 == 0 else PI * 0.5)
+				fences.append(Transform3D(Basis(Vector3.UP, fyaw), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.05, p.y)))
+		# A haystack at the field corner.
+		var hp := fc + bx * (hx + 3.0) + bz * (hz - 2.0)
+		_piece(root, "haystack", hp, WorldGen.height(hp.x, hp.y), rng.randf() * TAU)
+	_multimesh(root, Assets.building_mesh("field_crops"), tiles)
+	_multimesh(root, Assets.building_mesh("fence"), fences)
+
+
+## Behind and beside homes: vegetable gardens, woodpiles, washing lines.
+func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator) -> void:
+	var lots: Array = plan["lots"]
+	var sets := {"garden_plot": [], "woodpile": [], "washing_line": []}
+	for lot: Dictionary in lots:
+		if not String(lot["asset"]).begins_with("house"):
+			continue
+		var yaw: float = lot["yaw"]
+		var fwd := Vector2(sin(yaw), cos(yaw))
+		var side := Vector2(fwd.y, -fwd.x)
+		var p: Vector2 = lot["pos"]
+		var roll := rng.randf()
+		var kind := "garden_plot" if roll < 0.45 else ("woodpile" if roll < 0.75 else "washing_line")
+		var at := p - fwd * 7.0 if kind == "garden_plot" else p + side * (5.2 if rng.randf() < 0.5 else -5.2) - fwd * 1.0
+		if CityPlanner.street_distance(plan, at) < 3.0 or CityPlanner.path_distance(plan, at) < 1.5:
+			continue
+		var clear := true
+		for other: Dictionary in lots:
+			if other != lot and at.distance_to(other["pos"]) < 6.5:
+				clear = false
+				break
+		if clear:
+			var ky := yaw + (0.0 if kind == "garden_plot" else PI * 0.5)
+			(sets[kind] as Array).append(Transform3D(Basis(Vector3.UP, ky), Vector3(at.x, WorldGen.height(at.x, at.y) - 0.03, at.y)))
+	for kind: String in sets:
+		var list: Array[Transform3D] = []
+		list.assign(sets[kind])
+		_multimesh(root, Assets.building_mesh(kind), list)
+
+
+## Lamp posts around the square that glow at night, and a signpost where the road leaves.
+func _square_lamps(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
+	var c: Vector2 = s["pos"]
+	var pr: float = plan["plaza_r"]
+	var n := 6 if s["kind"] == "village" else 10
+	var posts: Array[Transform3D] = []
+	for i in n:
+		var a := TAU * (i + 0.5) / n
+		var p := c + Vector2(cos(a), sin(a)) * (pr + 1.2)
+		var yaw := atan2(c.x - p.x, c.y - p.y)
+		posts.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, s["base_h"], p.y)))
+		var light := OmniLight3D.new()
+		light.light_color = Color(1.0, 0.72, 0.4)
+		light.omni_range = 9.0
+		light.light_energy = 0.0
+		light.add_to_group("street_lamp")
+		root.add_child(light)
+		light.global_position = Vector3(p.x, s["base_h"] + 2.35, p.y) + Vector3(sin(yaw), 0, cos(yaw)) * 0.62
+	_multimesh(root, Assets.building_mesh("lamp_post"), posts)
+	var gates: Array = plan["gates"]
+	if not gates.is_empty():
+		var ga: float = gates[0]
+		var sp: Vector2 = c + Vector2(cos(ga), sin(ga)) * (float(s["radius"]) + 8.0) + Vector2(-sin(ga), cos(ga)) * 5.0
+		_piece(root, "signpost", sp, WorldGen.height(sp.x, sp.y), ga)
