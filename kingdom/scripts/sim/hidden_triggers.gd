@@ -112,8 +112,9 @@ static func in_window(hour: float, lo: float, hi: float) -> bool:
 ## outside the village radius, in places a curious child might wander.
 func seed_first_region(center := Vector2.ZERO, village_radius := 60.0) -> void:
 	var r := village_radius
-	add({"id": "fallen_shrine", "desc": "A moss-eaten shrine, toppled in the north-east wood.",
-		"pos": center + Vector2(r + 95.0, -(r + 60.0)), "radius": 6.0,
+	# The Shrine of the Sleeping Flame (data/world/first_region.json), a long walk west for a child.
+	add({"id": "fallen_shrine", "desc": "The Shrine of the Sleeping Flame, moss-eaten and toppled in the western wood.",
+		"pos": center + Vector2(-700.0, -160.0), "radius": 8.0,
 		"age_min": 8, "age_max": 8,
 		"grants": {"quest": "q_fallen_shrine", "flags": ["spirit_seen"],
 			"title": "spirit_touched", "class": "Spirit-touched", "ability": "spirit_sight"}})

@@ -274,6 +274,14 @@ func _start_swing() -> void:
 		t.tween_property(_viewmodel, "rotation", VIEWMODEL_REST, 0.25)
 	var damage: int = int(step["damage"] * (0.5 if weak else 1.0))
 	var knock: float = step.get("knockback", 1.5)
+	# Sword arc: tilt alternates with the combo so chops, slices and stabs read differently.
+	var tilts := [0.9, -0.9, 0.05, 0.0]
+	var yaw := _model.rotation.y
+	var arc_col := Color(1.0, 0.9, 0.7) if not weak else Color(0.7, 0.7, 0.75)
+	get_tree().create_timer(step["hit"] * 0.55).timeout.connect(func() -> void:
+		if is_inside_tree():
+			VFX.slash(get_parent(), global_position + Vector3(0, 1.15 * Life.body_scale(), 0), yaw,
+				tilts[_combo % tilts.size()], arc_col, 1.6))
 	get_tree().create_timer(step["hit"]).timeout.connect(_resolve_hit.bind(damage, knock, _combo == COMBO.size() - 1))
 
 
@@ -285,7 +293,11 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool) -> void:
 		to.y = 0.0
 		if to.length() < 2.6 and fwd.dot(to.normalized()) > 0.2:
 			enemy.take_damage(damage, self, to.normalized() * knockback)
+			VFX.sparks(get_parent(), (enemy as Node3D).global_position + Vector3(0, 0.8, 0) - to.normalized() * 0.3,
+				Color(1.0, 0.72, 0.35), 30 if finisher else 18)
 			hits += 1
+	if finisher:
+		VFX.shockwave(get_parent(), global_position + fwd * 1.2, Color(1.0, 0.85, 0.45), 3.2)
 	if hits > 0:
 		Audio.sfx("hit")
 		_hit_stop(0.09 if finisher else 0.05)

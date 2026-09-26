@@ -467,7 +467,26 @@ func _user_args() -> Dictionary:
 func _screenshot(shot: String, path: String) -> void:
 	WorldSim.time_of_day = 13.5
 	var warmup := 60
+	var late_fx := Callable()
 	match shot:
+		"vfx":
+			# Martial-arts / magic effects lined up in a field, frozen mid-burst.
+			hud.visible = false
+			_teleport(Vector2(105, -40), 0.0)
+			player.set_camera(0.0, -0.2)
+			var base := player.global_position + player.forward() * 9.0
+			var right := player.forward().cross(Vector3.UP).normalized()
+			late_fx = func() -> void:
+				var els := ["fire", "water", "wind", "earth", "lightning", "qi"]
+				for i in els.size():
+					var p := base + right * (i - 2.5) * 3.2
+					p.y = WorldGen.height(p.x, p.z)
+					VFX.burst(world, p, els[i], 1.0)
+				VFX.slash(world, player.global_position + Vector3(0, 1.2, 0) + player.forward() * 1.5, player._model.rotation.y, 0.9)
+				VFX.aura(player, Color(0.45, 0.8, 1.0))
+				await get_tree().create_timer(0.12).timeout
+				Engine.time_scale = 0.02
+			warmup = 40
 		"explore":
 			player.set_camera(PI * 0.2, -0.22)
 		"first":
@@ -531,19 +550,24 @@ func _screenshot(shot: String, path: String) -> void:
 			if not cps.is_empty():
 				var cp: CutscenePlayer = cps[0]
 				cp.advance(float(args_frame_time()))
-		"market", "board":
-			# Standing in the plaza: the trader (market) or the notice board (board), menu open.
-			var spot := Vector2(1.5, 1.0) if shot == "market" else Vector2(1.0, 2.5)
-			_teleport(spot, 0.0)
+		"market", "board", "guild":
+			# Standing in the plaza facing a station with its menu open.
+			var spots := {"market": Vector2(1.5, 1.0), "board": Vector2(1.0, 2.5), "guild": Vector2(-1.0, -4.0)}
+			var names := {"market": "Market Trader", "board": "Notice Board", "guild": "Adventurer Guild"}
+			_teleport(spots[shot], 0.0)
 			var tgt: Node3D = null
 			for st in get_tree().get_nodes_in_group("station"):
-				if (st as Station).title == ("Market Trader" if shot == "market" else "Notice Board"):
+				if (st as Station).title == names[shot]:
 					tgt = st
 			if tgt:
 				var d := tgt.global_position - player.global_position
 				player.set_camera(atan2(-d.x, -d.z), -0.18)
 				Life.give("wolf_pelt", 2)
-				hud.show_menu(services.merchant_menu if shot == "market" else services.notice_menu)
+				if shot == "guild":
+					Game.gold = 60
+					Life.join_guild()
+				var menus := {"market": services.merchant_menu, "board": services.notice_menu, "guild": services.guild_menu}
+				hud.show_menu(menus[shot])
 			warmup = 90
 		"frontier":
 			var ws: Dictionary = Frontier.runestones.stones[7] if Frontier.runestones.stones.size() > 7 else Frontier.runestones.stones[0]
@@ -586,6 +610,8 @@ func _screenshot(shot: String, path: String) -> void:
 				terrain.build_all_now()
 			warmup = 90
 	for i in warmup:
+		if i == warmup - 4 and late_fx.is_valid():
+			late_fx.call()
 		await get_tree().process_frame
 	var img := get_viewport().get_texture().get_image()
 	img.save_png(path)
