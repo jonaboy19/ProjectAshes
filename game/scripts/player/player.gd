@@ -27,13 +27,13 @@ var _pitch := -0.32
 var _pivot: Node3D
 var _spring: SpringArm3D
 var _model: Node3D
-var _sword_pivot: Node3D
+var _anim: AnimationPlayer
+var _action_time := 0.0
 var _attack_cooldown := 0.0
 var _cast_cooldown := 0.0
 var _dodge_time := 0.0
 var _dodge_dir := Vector3.ZERO
 var _hurt_cooldown := 0.0
-var _walk_cycle := 0.0
 var _nearby: Array[Interactable] = []
 var _target: Interactable = null
 
@@ -56,22 +56,21 @@ func _ready() -> void:
 func _build_model() -> void:
 	_model = Node3D.new()
 	add_child(_model)
-	var skin := Color("f1c9a0")
-	Props.part(_model, Props.cylinder(0.28, 0.36, 0.9, 8), Color("4a6b8a"), Vector3(0, 0.95, 0))   # tunic
-	Props.part(_model, Props.box(Vector3(0.62, 0.1, 0.44)), Color("5b3a24"), Vector3(0, 0.78, 0))    # belt
-	Props.part(_model, Props.cylinder(0.12, 0.14, 0.55, 6), Color("3b3b44"), Vector3(-0.13, 0.28, 0)) # legs
-	Props.part(_model, Props.cylinder(0.12, 0.14, 0.55, 6), Color("3b3b44"), Vector3(0.13, 0.28, 0))
-	Props.part(_model, Props.sphere(0.27, 10, 6), skin, Vector3(0, 1.62, 0))                         # head
-	Props.part(_model, Props.sphere(0.29, 8, 4), Color("2e2b2b"), Vector3(0, 1.72, -0.04))            # ash-black hair
-	Props.part(_model, Props.box(Vector3(0.06, 0.06, 0.02)), Color("222222"), Vector3(-0.09, 1.64, 0.26))
-	Props.part(_model, Props.box(Vector3(0.06, 0.06, 0.02)), Color("222222"), Vector3(0.09, 1.64, 0.26))
-	Props.part(_model, Props.cylinder(0.3, 0.3, 0.14, 10), Color("b3432f"), Vector3(0, 1.36, 0))     # red scarf
-	_sword_pivot = Node3D.new()
-	_sword_pivot.position = Vector3(0.38, 1.0, 0.1)
-	_model.add_child(_sword_pivot)
-	Props.part(_sword_pivot, Props.box(Vector3(0.08, 0.08, 0.95)), Props.WOOD_LIGHT, Vector3(0, 0, 0.55))
-	Props.part(_sword_pivot, Props.box(Vector3(0.3, 0.06, 0.06)), Props.WOOD, Vector3(0, 0, 0.08))
-	_sword_pivot.rotation = Vector3(deg_to_rad(-60), 0, 0)
+	# KayKit Rogue stands in for Sugo until a custom model exists; keeps only his knife.
+	var body := Assets.character("Rogue", 1.75, ["Knife"])
+	_model.add_child(body)
+	_anim = Assets.animation_player(body)
+	_play("Idle")
+
+
+func _play(anim_name: String, speed := 1.0, blend := 0.15) -> void:
+	if _anim == null or not _anim.has_animation(anim_name):
+		return
+	if _anim.current_animation == anim_name and _anim.is_playing():
+		_anim.speed_scale = speed
+		return
+	_anim.play(anim_name, blend)
+	_anim.speed_scale = speed
 
 
 func _build_camera() -> void:
@@ -150,12 +149,14 @@ func _physics_process(delta: float) -> void:
 	velocity.y = 0.0 if is_on_floor() else velocity.y - GRAVITY * delta
 	move_and_slide()
 
+	_action_time -= delta
 	if dir.length() > 0.05:
 		_model.rotation.y = lerp_angle(_model.rotation.y, atan2(dir.x, dir.z), 14.0 * delta)
-		_walk_cycle += delta * (13.0 if running else 9.0)
-		_model.position.y = absf(sin(_walk_cycle)) * 0.07
-	else:
-		_model.position.y = lerpf(_model.position.y, 0.0, 10.0 * delta)
+	if _action_time <= 0.0:
+		if dir.length() > 0.05:
+			_play("Running_A" if running else "Walking_A", 1.0 if running else 1.2)
+		else:
+			_play("Idle")
 
 	if global_position.y < -20.0:
 		global_position = spawn_point
@@ -201,11 +202,11 @@ func interact() -> void:
 func attack() -> void:
 	if _attack_cooldown > 0.0:
 		return
-	_attack_cooldown = 0.42
-	var tween := create_tween()
-	tween.tween_property(_sword_pivot, "rotation", Vector3(deg_to_rad(10), deg_to_rad(-100), 0), 0.1)
-	tween.tween_callback(_resolve_hit)
-	tween.tween_property(_sword_pivot, "rotation", Vector3(deg_to_rad(-60), 0, 0), 0.22)
+	_attack_cooldown = 0.5
+	_action_time = 0.5
+	_anim.stop()
+	_play("1H_Melee_Attack_Slice_Horizontal", 1.8, 0.05)
+	get_tree().create_timer(0.18).timeout.connect(_resolve_hit)
 
 
 func _resolve_hit() -> void:
@@ -222,8 +223,12 @@ func cast_blessing() -> void:
 	if GameState.player_blessing == "":
 		blessing_denied.emit()
 		_cast_cooldown = 1.0
+		_action_time = 0.9
+		_play("Spellcast_Raise", 1.0, 0.1)
 		return
 	var data: Dictionary = GameState.blessings[GameState.player_blessing]
+	_action_time = 0.5
+	_play("Spellcast_Shoot", 1.6, 0.05)
 	var bolt := BlessingBolt.new()
 	bolt.color = Color(data["color"])
 	bolt.damage = int(data["damage"])
@@ -241,6 +246,9 @@ func dodge() -> void:
 	_dodge_dir = Vector3(input.x, 0, input.y).rotated(Vector3.UP, _yaw).normalized() if input.length() > 0.1 else facing()
 	_dodge_time = 0.22
 	_hurt_cooldown = 0.3
+	_action_time = 0.4
+	_model.rotation.y = atan2(_dodge_dir.x, _dodge_dir.z)
+	_play("Dodge_Forward", 1.6, 0.05)
 
 
 func take_damage(amount: int, _from: Node = null) -> void:
@@ -249,9 +257,8 @@ func take_damage(amount: int, _from: Node = null) -> void:
 	_hurt_cooldown = 0.6
 	health = maxi(health - amount, 0)
 	health_changed.emit(health, max_health)
-	var tween := create_tween()
-	tween.tween_property(_model, "scale", Vector3(1.15, 0.85, 1.15), 0.06)
-	tween.tween_property(_model, "scale", Vector3.ONE, 0.12)
+	_action_time = 0.35
+	_play("Hit_A", 1.5, 0.05)
 	if health == 0:
 		GameState.toast("Sugo collapses... and wakes back in Aramori.")
 		global_position = spawn_point

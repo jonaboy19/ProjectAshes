@@ -46,7 +46,8 @@ earn skills, gear, lore → unlock the next region or ability → return to a hu
 | Save / load | ✅ basic | `user://save.json`, autosave on quest progress |
 | World | ✅ procedural | Terrain, village, fence, bell tower, forest, lake, Rift scar |
 | Audio | ⚠️ minimal | Synthesised bell tone only |
-| Real art, animation, VFX | ❌ | Placeholder low-poly primitives |
+| Real art & animation | ⚠️ partial | KayKit CC0 characters (animated), buildings, trees; bell tower, Rift beasts still placeholder |
+| VFX | ❌ | |
 | Inventory, gear, skill tree | ❌ | Next milestone |
 | Region streaming | ❌ | Needed before region 2 |
 

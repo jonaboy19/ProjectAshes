@@ -34,8 +34,18 @@ scripts/
   ui/       hud.gd, virtual_joystick.gd
 ```
 
-All art is generated from primitives in `props.gd` as placeholders. Real models
-replace those builder functions one by one.
+## Art credits
+
+Characters, buildings, trees, rocks, props and clouds are from **KayKit** by
+Kay Lousberg (www.kaylousberg.com), released under **CC0**, so they're free for
+commercial use:
+
+- `assets/kaykit/characters/` — Adventurers Character Pack 1.0 (rigged, 76 animations)
+- `assets/kaykit/medieval/` — Medieval Hexagon Pack 1.0 (curated subset)
+
+The bell tower, Rift scar, Rift beasts and lanterns are still procedural
+placeholders in `props.gd` / `rift_beast.gd`. Note: embedded textures in the
+`.glb` files only extract when Godot imports with a renderer (not `--headless`).
 
 ## Preview screenshots (headless)
 

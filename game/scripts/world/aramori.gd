@@ -16,6 +16,7 @@ var _beasts_defeated := 0
 var _bell_player: AudioStreamPlayer
 var _rng := RandomNumberGenerator.new()
 var _time := 0.0
+var _clouds: Array[Node3D] = []
 
 
 func _ready() -> void:
@@ -46,6 +47,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_time += delta
+	for cloud in _clouds:
+		cloud.position.x = wrapf(cloud.position.x + delta * 1.5, -180.0, 180.0)
 	if rift_tear:
 		rift_tear.scale = Vector3(1.0 + sin(_time * 3.0) * 0.08, 1.0 + sin(_time * 1.7) * 0.05, 1.0)
 
@@ -134,25 +137,34 @@ func _build_village() -> void:
 	tower.add_child(ring)
 	ring.interacted.connect(_on_tower_used)
 
-	_place(Props.chapel(), -22, -12, deg_to_rad(60))
-	_place(Props.well(), 9, -6)
+	_building("building_church_blue", -22, -12, deg_to_rad(60))
+	_building("building_well_red", 9, -6, 0.0, 6.0)
+	_building("building_tavern_green", 24, 8, deg_to_rad(-110))
+	_building("building_blacksmith_blue", -26, 10, deg_to_rad(110))
+	_building("building_windmill_yellow", -8, -32, deg_to_rad(10))
 
 	# Houses in a loose ring facing the plaza, leaving the south road open.
-	var angles := [200.0, 225.0, 250.0, 275.0, 300.0, 330.0, 355.0, 20.0, 45.0, 130.0, 155.0, 180.0]
+	var homes := ["building_home_A_red", "building_home_B_red", "building_home_A_blue", "building_home_B_blue",
+		"building_home_A_yellow", "building_home_B_yellow", "building_home_A_green", "building_home_B_green"]
+	var angles := [200.0, 225.0, 300.0, 330.0, 355.0, 20.0, 45.0, 140.0, 165.0, 185.0]
 	for a: float in angles:
 		var r := _rng.randf_range(20.0, 29.0)
 		var ang := deg_to_rad(a + _rng.randf_range(-6, 6))
 		var pos := Vector2(cos(ang), sin(ang)) * r
-		if pos.distance_to(Vector2(-22, -12)) < 10.0:
-			continue
 		var yaw := atan2(-pos.x, -pos.y)
-		_place(Props.house(_rng), pos.x, pos.y, yaw)
+		_building(homes[_rng.randi() % homes.size()], pos.x, pos.y, yaw)
 
 	# Market by the gate road.
-	for i in 3:
-		_place(Props.market_stall(_rng), -9 + i * 3.2, 13, PI)
-	for p: Vector2 in [Vector2(6, 11), Vector2(7, 12.2), Vector2(-13, 9), Vector2(14, -14)]:
-		_place(Props.crate(), p.x, p.y, _rng.randf() * TAU)
+	_building("building_market_red", -8, 14, PI, 6.0)
+	_building("building_market_yellow", -14, 18, PI - 0.5, 6.0)
+	var clutter := ["barrel", "crate_A_big", "crate_B_small", "sack", "bucket_water", "barrel", "sack"]
+	for p: Vector2 in [Vector2(6, 11), Vector2(7, 12.2), Vector2(-13, 9), Vector2(14, -14), Vector2(-4, 16),
+			Vector2(-11, 13.5), Vector2(20, 5), Vector2(-22, 7), Vector2(10, -4.5)]:
+		_place(Assets.medieval(clutter[_rng.randi() % clutter.size()], 3.0), p.x, p.y, _rng.randf() * TAU)
+	_place(Assets.medieval("tent", 4.0), 18, 20, -0.8)
+	_place(Assets.medieval("weaponrack", 3.0), 21, 12, -1.9)
+	_place(Assets.medieval("flag_red", 4.0), 3, 36, 0)
+	_place(Assets.medieval("flag_red", 4.0), -3, 36, 0)
 	for p: Vector2 in [Vector2(5, 5), Vector2(-5, 5), Vector2(5, -5), Vector2(-5, -5), Vector2(-4, 30), Vector2(4, 30)]:
 		_place(Props.lantern_post(), p.x, p.y)
 
@@ -166,10 +178,12 @@ func _build_village() -> void:
 			continue
 		var p0 := Vector2(cos(a0), sin(a0)) * Terrain.VILLAGE_RADIUS
 		var p1 := Vector2(cos(a1), sin(a1)) * Terrain.VILLAGE_RADIUS
-		var seg := Props.fence_segment(p0.distance_to(p1))
+		var length := p0.distance_to(p1)
+		var seg := Assets.medieval("fence_wood_straight", length / 1.15)
 		var dir := p1 - p0
-		_place(seg, p0.x, p0.y, atan2(dir.x, dir.y))
-		Props.add_box_collider(seg, Vector3(0.3, 1.6, p0.distance_to(p1)), Vector3(0, 0.8, p0.distance_to(p1) / 2.0))
+		var mid_p := (p0 + p1) / 2.0
+		_place(seg, mid_p.x, mid_p.y, atan2(dir.x, dir.y))
+		Props.add_box_collider(seg, Vector3(0.3, 1.6, length), Vector3(0, 0.8, 0))
 	# Gate posts.
 	for sx in [-1, 1]:
 		var post := Node3D.new()
@@ -181,59 +195,66 @@ func _build_village() -> void:
 
 
 func _build_wilds() -> void:
-	# Trees and rocks as MultiMeshes: hundreds of props for a handful of draw calls.
-	var trunks: Array[Transform3D] = []
-	var pines: Array[Transform3D] = []
-	var pine_colors: Array[Color] = []
-	var oaks: Array[Transform3D] = []
-	var oak_colors: Array[Color] = []
-	var rocks: Array[Transform3D] = []
+	# KayKit trees and rocks as MultiMeshes: thousands of props for a handful of draw calls.
+	var kinds := {"tree_single_A": [], "tree_single_B": [], "trees_A_medium": [], "trees_B_medium": [],
+		"trees_A_large": [], "rock_single_A": [], "rock_single_C": [], "rock_single_E": []}
 	var half := Terrain.SIZE / 2.0 - 8.0
-	for i in 5200:
+	for i in 6000:
 		var x := _rng.randf_range(-half, half)
 		var z := _rng.randf_range(-half, half)
 		var density := terrain.tree_density(x, z)
-		if _rng.randf() > density * 0.55:
-			if density > 0.0 and _rng.randf() < 0.02:
-				rocks.append(_basis_at(x, z, _rng.randf_range(0.6, 1.8)))
+		if _rng.randf() > density * 0.6:
+			if density > 0.0 and _rng.randf() < 0.03:
+				kinds[["rock_single_A", "rock_single_C", "rock_single_E"][_rng.randi() % 3]].append(_basis_at(x, z, _rng.randf_range(6.0, 12.0)))
 			continue
-		var s := _rng.randf_range(0.8, 1.5)
-		trunks.append(_basis_at(x, z, s))
-		if _rng.randf() < 0.6:
-			pines.append(_basis_at(x, z, s).translated_local(Vector3(0, 3.2, 0)))
-			pine_colors.append(Color("3f6b45").lerp(Color("5a8a4a"), _rng.randf()))
+		var roll := _rng.randf()
+		if density > 0.75 and roll < 0.25:
+			kinds["trees_A_large"].append(_basis_at(x, z, _rng.randf_range(5.0, 6.5)))
+		elif roll < 0.45:
+			kinds[["trees_A_medium", "trees_B_medium"][_rng.randi() % 2]].append(_basis_at(x, z, _rng.randf_range(4.5, 6.0)))
 		else:
-			oaks.append(_basis_at(x, z, s).translated_local(Vector3(0, 3.3, 0)))
-			oak_colors.append(Color("5f9448").lerp(Color("a3b04a"), _rng.randf() * 0.7))
-	_multimesh(Props.cylinder(0.18, 0.28, 2.4, 6), Props.WOOD, trunks, [], Vector3(0, 1.2, 0))
-	_multimesh(Props.cylinder(0.0, 1.5, 4.0, 7), Color.WHITE, pines, pine_colors)
-	_multimesh(Props.sphere(1.6, 7, 4), Color.WHITE, oaks, oak_colors)
-	_multimesh(Props.sphere(1.0, 6, 3), Props.STONE, rocks, [])
+			kinds[["tree_single_A", "tree_single_B"][_rng.randi() % 2]].append(_basis_at(x, z, _rng.randf_range(5.0, 7.5)))
+	for kind: String in kinds:
+		var transforms: Array[Transform3D] = []
+		transforms.assign(kinds[kind])
+		_multimesh_asset(Assets.mesh_of(kind), transforms)
+
+	# Drifting clouds.
+	for i in 14:
+		var cloud := Assets.medieval("cloud_big" if i % 2 == 0 else "cloud_small", _rng.randf_range(10.0, 16.0))
+		cloud.position = Vector3(_rng.randf_range(-160, 160), _rng.randf_range(95, 120), _rng.randf_range(-160, 160))
+		cloud.rotation.y = _rng.randf() * TAU
+		add_child(cloud)
+		_clouds.append(cloud)
 
 	var scar := Props.rift_scar(_rng)
 	_place(scar, Terrain.RIFT_SITE.x, Terrain.RIFT_SITE.y)
 	rift_tear = scar.get_meta("tear")
 
 
-func _basis_at(x: float, z: float, s: float) -> Transform3D:
-	var t := Transform3D(Basis(Vector3.UP, _rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(x, terrain.height(x, z) - 0.1, z))
-	return t
+func _building(asset_name: String, x: float, z: float, yaw := 0.0, scale := Assets.BUILDING_SCALE) -> Node3D:
+	var node := Assets.medieval(asset_name, scale)
+	Assets.add_footprint_collider(node)
+	return _place(node, x, z, yaw)
 
 
-func _multimesh(mesh: Mesh, color: Color, transforms: Array[Transform3D], colors: Array[Color], offset := Vector3.ZERO) -> void:
+func _multimesh_asset(mesh: Mesh, transforms: Array[Transform3D]) -> void:
+	if mesh == null or transforms.is_empty():
+		return
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.use_colors = not colors.is_empty()
 	mm.mesh = mesh
 	mm.instance_count = transforms.size()
 	for i in transforms.size():
-		mm.set_instance_transform(i, transforms[i].translated_local(offset))
-		if mm.use_colors:
-			mm.set_instance_color(i, colors[i])
+		mm.set_instance_transform(i, transforms[i])
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
-	mmi.material_override = Props.mat(color, 0.0, mm.use_colors)
 	add_child(mmi)
+
+
+func _basis_at(x: float, z: float, s: float) -> Transform3D:
+	var t := Transform3D(Basis(Vector3.UP, _rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(x, terrain.height(x, z) - 0.1, z))
+	return t
 
 
 func _spawn_player() -> void:
@@ -245,16 +266,18 @@ func _spawn_player() -> void:
 
 func _spawn_villagers() -> void:
 	var people := [
-		["elder", "Village Elder", Color("6b5b7a"), Color("d8d4cc"), 1.0, Vector2(-3, 6)],
-		["acolyte", "Church Acolyte", Color("e8e2d4"), Color("5a3b28"), 1.0, Vector2(-17, -4)],
-		["child_a", "Village Child", Color("b85c3c"), Color("2f2420"), 0.75, Vector2(3.5, 7.5)],
-		["child_b", "Village Child", Color("4f7f5a"), Color("7a4a2a"), 0.72, Vector2(6, 6)],
-		["child_c", "Village Child", Color("c9a247"), Color("222222"), 0.7, Vector2(-6.5, 8)],
-		["mother", "Villager", Color("8a4f5f"), Color("3b2a20"), 1.0, Vector2(12, 16)],
+		["elder", "Village Elder", "Mage", ["2H_Staff"], "Idle", 1.0, Vector2(-3, 6)],
+		["acolyte", "Church Acolyte", "Knight", ["Badge_Shield"], "Idle", 1.0, Vector2(-15, -2)],
+		["child_a", "Village Child", "Rogue_Hooded", [], "Cheer", 0.72, Vector2(3.5, 7.5)],
+		["child_b", "Village Child", "Barbarian", [], "Idle", 0.7, Vector2(6, 6)],
+		["child_c", "Village Child", "Rogue", [], "Sit_Floor_Idle", 0.68, Vector2(-6.5, 8)],
+		["mother", "Villager", "Mage", [], "Idle", 1.0, Vector2(12, 16)],
 	]
 	for p: Array in people:
-		var npc := NPC.create(p[0], p[1], p[2], p[3], p[4])
-		var pos: Vector2 = p[5]
+		var keep: Array[String] = []
+		keep.assign(p[3])
+		var npc := NPC.create(p[0], p[1], p[2], keep, p[4], p[5])
+		var pos: Vector2 = p[6]
 		_place(npc, pos.x, pos.y, atan2(-pos.x, -pos.y))
 
 

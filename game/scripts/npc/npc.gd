@@ -4,30 +4,33 @@ extends Node3D
 
 var npc_id := ""
 var display_name := ""
-var outfit := Color("7a6a55")
-var hair := Color("3b2a20")
+var model_file := "Mage"
+var keep_parts: Array[String] = []
+var idle_anim := "Idle"
 var height_scale := 1.0
 var _model: Node3D
-var _bob := randf() * TAU
 
 
-static func create(id: String, name_text: String, outfit_color: Color, hair_color: Color, scale_factor := 1.0) -> NPC:
+static func create(id: String, name_text: String, file: String, keep: Array[String], idle: String, scale_factor := 1.0) -> NPC:
 	var npc := NPC.new()
 	npc.npc_id = id
 	npc.display_name = name_text
-	npc.outfit = outfit_color
-	npc.hair = hair_color
+	npc.model_file = file
+	npc.keep_parts = keep
+	npc.idle_anim = idle
 	npc.height_scale = scale_factor
 	return npc
 
 
 func _ready() -> void:
 	_model = Node3D.new()
-	_model.scale = Vector3.ONE * height_scale
 	add_child(_model)
-	Props.part(_model, Props.cylinder(0.26, 0.4, 1.1, 8), outfit, Vector3(0, 0.55, 0))
-	Props.part(_model, Props.sphere(0.26, 10, 6), Color("e8bf98"), Vector3(0, 1.38, 0))
-	Props.part(_model, Props.sphere(0.28, 8, 4), hair, Vector3(0, 1.47, -0.05))
+	var character := Assets.character(model_file, 1.75 * height_scale, keep_parts)
+	_model.add_child(character)
+	var anim := Assets.animation_player(character)
+	if anim and anim.has_animation(idle_anim):
+		anim.play(idle_anim)
+		anim.seek(randf() * anim.current_animation_length, true)
 	var body := StaticBody3D.new()
 	var shape := CollisionShape3D.new()
 	var capsule := CapsuleShape3D.new()
@@ -43,17 +46,12 @@ func _ready() -> void:
 	tag.font_size = 40
 	tag.outline_size = 10
 	tag.pixel_size = 0.006
-	tag.position.y = 2.0 * height_scale
+	tag.position.y = 2.15 * height_scale
 	tag.no_depth_test = false
 	add_child(tag)
 	var talk := Interactable.make("Talk", 1.4)
 	add_child(talk)
 	talk.interacted.connect(_on_talk)
-
-
-func _process(delta: float) -> void:
-	_bob += delta * 2.0
-	_model.position.y = sin(_bob) * 0.02
 
 
 func _on_talk(by: Node) -> void:

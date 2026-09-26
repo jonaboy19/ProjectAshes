@@ -1,6 +1,7 @@
 class_name Props
 extends RefCounted
-## Procedural low-poly props: stand-ins for real art so the world is playable now.
+## Procedural low-poly props for story-specific pieces the asset packs lack
+## (bell tower, Rift scar, lanterns).
 ## Every builder returns a Node3D whose origin sits on the ground.
 
 const WOOD := Color("6b4a2f")
@@ -8,7 +9,6 @@ const WOOD_LIGHT := Color("9a7048")
 const STONE := Color("8d8a86")
 const BRONZE := Color("c08a3e")
 const PLASTER := Color("e8d9bc")
-const ROOF_COLORS := [Color("9c3b2e"), Color("7a4632"), Color("5b5f7a"), Color("8a5a2b")]
 
 static var _materials: Dictionary = {}
 
@@ -78,52 +78,8 @@ static func add_box_collider(parent: Node3D, size: Vector3, pos: Vector3) -> voi
 	parent.add_child(body)
 
 
-static func house(rng: RandomNumberGenerator) -> Node3D:
-	var root := Node3D.new()
-	var w := rng.randf_range(4.5, 6.5)
-	var d := rng.randf_range(4.0, 5.5)
-	var h := rng.randf_range(2.6, 3.4)
-	var roof_color: Color = ROOF_COLORS[rng.randi() % ROOF_COLORS.size()]
-	# Stone footing, plaster walls, timber corners.
-	part(root, box(Vector3(w + 0.3, 0.5, d + 0.3)), STONE, Vector3(0, 0.25, 0))
-	part(root, box(Vector3(w, h, d)), PLASTER, Vector3(0, 0.5 + h / 2.0, 0))
-	for sx in [-1, 1]:
-		for sz in [-1, 1]:
-			part(root, box(Vector3(0.25, h, 0.25)), WOOD, Vector3(sx * w / 2.0, 0.5 + h / 2.0, sz * d / 2.0))
-	part(root, box(Vector3(w + 0.1, 0.25, d + 0.1)), WOOD, Vector3(0, 0.5 + h, 0))
-	# Gabled roof.
-	var roof := PrismMesh.new()
-	roof.size = Vector3(w + 1.0, 2.0, d + 1.0)
-	part(root, roof, roof_color, Vector3(0, 0.5 + h + 1.1, 0))
-	# Door faces +Z (toward the plaza once rotated), plus windows.
-	part(root, box(Vector3(1.1, 1.9, 0.12)), WOOD, Vector3(0, 1.45, d / 2.0 + 0.02))
-	for sx in [-1, 1]:
-		part(root, box(Vector3(0.8, 0.7, 0.1)), Color("3a2c22"), Vector3(sx * w * 0.3, 2.2, d / 2.0 + 0.02))
-	# Chimney on some houses.
-	if rng.randf() < 0.6:
-		part(root, box(Vector3(0.6, 1.8, 0.6)), STONE, Vector3(w * 0.25, 0.5 + h + 1.6, -d * 0.2))
-	add_box_collider(root, Vector3(w, h + 1.5, d), Vector3(0, (h + 1.5) / 2.0, 0))
-	return root
 
 
-static func chapel() -> Node3D:
-	var root := Node3D.new()
-	part(root, box(Vector3(7.4, 0.5, 11.4)), STONE, Vector3(0, 0.25, 0))
-	part(root, box(Vector3(7, 4.5, 11)), Color("efe8dc"), Vector3(0, 2.75, 0))
-	var roof := PrismMesh.new()
-	roof.size = Vector3(8, 3, 12)
-	part(root, roof, Color("4d5570"), Vector3(0, 6.5, 0))
-	# Steeple over the entrance (+Z).
-	part(root, box(Vector3(2.6, 5, 2.6)), Color("efe8dc"), Vector3(0, 7.5, 4.2))
-	part(root, cylinder(0.0, 2.0, 4.0, 4), Color("4d5570"), Vector3(0, 12, 4.2), Vector3(0, PI / 4.0, 0))
-	part(root, box(Vector3(0.15, 1.4, 0.15)), Color("e9c46a"), Vector3(0, 14.6, 4.2))
-	part(root, box(Vector3(0.8, 0.15, 0.15)), Color("e9c46a"), Vector3(0, 14.8, 4.2))
-	part(root, box(Vector3(1.6, 2.6, 0.15)), WOOD, Vector3(0, 1.8, 5.52))
-	for z in [-3.0, 0.0]:
-		for sx in [-1, 1]:
-			part(root, box(Vector3(0.12, 1.8, 0.9)), Color("6f8fb5"), Vector3(sx * 3.52, 3.0, z))
-	add_box_collider(root, Vector3(7, 6, 11), Vector3(0, 3, 0))
-	return root
 
 
 ## Bell tower with thirteen bells. Returns the root; bells are in root.get_meta("bells").
@@ -167,45 +123,12 @@ static func bell_material() -> StandardMaterial3D:
 	return m
 
 
-static func fence_segment(length: float) -> Node3D:
-	var root := Node3D.new()
-	part(root, box(Vector3(0.22, 1.6, 0.22)), WOOD, Vector3(0, 0.8, 0))
-	for y in [0.55, 1.15]:
-		part(root, box(Vector3(0.1, 0.14, length)), WOOD_LIGHT, Vector3(0, y, length / 2.0))
-	return root
 
 
-static func well() -> Node3D:
-	var root := Node3D.new()
-	part(root, cylinder(1.0, 1.1, 0.9, 10), STONE, Vector3(0, 0.45, 0))
-	part(root, cylinder(0.8, 0.8, 0.05, 10), Color("2d4b66"), Vector3(0, 0.8, 0))
-	for sx in [-1, 1]:
-		part(root, box(Vector3(0.15, 2.0, 0.15)), WOOD, Vector3(sx * 0.9, 1.4, 0))
-	var roof := PrismMesh.new()
-	roof.size = Vector3(2.4, 0.8, 1.6)
-	part(root, roof, ROOF_COLORS[0], Vector3(0, 2.7, 0))
-	add_box_collider(root, Vector3(2.2, 1.2, 2.2), Vector3(0, 0.6, 0))
-	return root
 
 
-static func market_stall(rng: RandomNumberGenerator) -> Node3D:
-	var root := Node3D.new()
-	var cloth: Color = [Color("c9533c"), Color("d9a441"), Color("5b8c6b"), Color("6a5d9c")][rng.randi() % 4]
-	part(root, box(Vector3(2.4, 0.9, 1.2)), WOOD, Vector3(0, 0.45, 0))
-	for sx in [-1, 1]:
-		for sz in [-1, 1]:
-			part(root, box(Vector3(0.1, 2.2, 0.1)), WOOD, Vector3(sx * 1.15, 1.1, sz * 0.55))
-	part(root, box(Vector3(2.7, 0.08, 1.6)), cloth, Vector3(0, 2.25, 0), Vector3(0.15, 0, 0))
-	for i in 3:
-		part(root, sphere(0.16, 6, 3), [Color("d94f3d"), Color("e3b448"), Color("7fae4d")][i], Vector3(-0.6 + i * 0.6, 1.0, 0))
-	add_box_collider(root, Vector3(2.4, 1.0, 1.2), Vector3(0, 0.5, 0))
-	return root
 
 
-static func crate() -> Node3D:
-	var root := Node3D.new()
-	part(root, box(Vector3(0.9, 0.9, 0.9)), WOOD_LIGHT, Vector3(0, 0.45, 0))
-	return root
 
 
 static func lantern_post() -> Node3D:
