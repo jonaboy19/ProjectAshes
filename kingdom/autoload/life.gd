@@ -8,6 +8,7 @@ extends Node
 
 signal inventory_changed
 signal employment_changed
+signal grown(age: int)
 
 const PROTOSET := "res://data/items.json"
 const SAVE_PATH := "user://save_%d.json"
@@ -15,6 +16,14 @@ const SAVE_VERSION := 1
 ## Radius around the home village the guard counts as "at post" (walls, ring, gate).
 const GUARD_POST_MARGIN := 45.0
 
+## You are born in the first village and play from childhood.
+const START_AGE := 6
+const ADULT_AGE := 16
+
+var life_path := RALifePath.new()
+var titles := RATitles.new()
+var archetypes := RAArchetypes.new()
+var triggers := RAHiddenTriggers.new()
 var careers := RACareers.new()
 var needs := RANeeds.new()
 var market := RAMarket.new()
@@ -40,6 +49,90 @@ func _ready() -> void:
 	WorldSim.hour_changed.connect(_on_hour)
 	_last_abs = _abs_hours()
 	give("bread", 2)
+	_begin_life()
+	life_path.birthday.connect(func(age: int) -> void:
+		Game.say("Happy birthday! You are %d." % age)
+		grown.emit(age))
+	life_path.stage_changed.connect(func(stage: int) -> void:
+		Game.say("You are now %s." % ("a " + RALifePath.STAGE_NAMES[stage].to_lower())))
+	titles.earned.connect(func(t: Dictionary) -> void:
+		Game.say("Title earned: %s" % t.get("name", t.get("id", "?"))))
+	triggers.triggered.connect(_on_trigger)
+
+
+# --- life from birth ------------------------------------------------------------
+
+## A child of two real villagers, living in one of the village's houses.
+func _begin_life() -> void:
+	var home: Dictionary = WorldGen.settlements[0]
+	var r: Vector2i = WorldSim.ranges[0]
+	var mother := r.x + 3
+	var father := r.x + 8
+	var family := WorldSim.person_name(father).get_slice(" ", 1)
+	var house := Vector2(14, 9)
+	var lots: Array = home["plan"].get("lots", [])
+	for lot: Dictionary in lots:
+		if String(lot["asset"]).begins_with("house") and (lot["pos"] as Vector2).length() < 25.0:
+			house = lot["pos"]
+			break
+	var mname := WorldSim.person_name(mother).get_slice(" ", 0) + " " + family
+	life_path.begin(WorldSim.day, WorldSim.time_of_day, "Ren", family,
+		[{"id": mother, "name": mname, "role": "mother"},
+		 {"id": father, "name": WorldSim.person_name(father), "role": "father"}], 0, house)
+	life_path.set_age(START_AGE, WorldSim.day, WorldSim.time_of_day)
+	triggers.seed_first_region(home["pos"], home["radius"])
+
+
+func age() -> int:
+	return life_path.age_years(WorldSim.day, WorldSim.time_of_day)
+
+
+func is_adult() -> bool:
+	return age() >= ADULT_AGE
+
+
+## 0.62 of adult height at 6, full height at 16.
+func body_scale() -> float:
+	return clampf(lerpf(0.62, 1.0, (age() - START_AGE) / float(ADULT_AGE - START_AGE)), 0.55, 1.0)
+
+
+func record(tag: String, weight := 1.0) -> void:
+	life_path.record(tag, weight, WorldSim.day)
+
+
+func build_summary() -> String:
+	var lead := archetypes.leading(life_path.actions, _title_bonus(), 3)
+	var parts := PackedStringArray()
+	for a: Dictionary in lead:
+		parts.append("%s %d%%" % [a["name"], int(float(a["affinity"]) * 100)])
+	return ", ".join(parts)
+
+
+func _title_bonus() -> Dictionary:
+	return titles.earned_ids
+
+
+func _life_tick(hour: int) -> void:
+	life_path.update(WorldSim.day, hour)
+	titles.evaluate({"actions": life_path.actions, "stats": {"gold": Game.gold, "merit": Game.merit},
+		"age": age(), "flags": life_path.flags, "day": WorldSim.day})
+	if player and is_instance_valid(player):
+		triggers.check(Vector2(player.global_position.x, player.global_position.z), age(), float(hour), life_path.flags)
+
+
+func _on_trigger(t: Dictionary) -> void:
+	var g: Dictionary = t.get("grants", {})
+	for f in g.get("flags", []):
+		life_path.set_flag(String(f))
+	if g.get("title", "") != "":
+		titles.grant(g["title"], WorldSim.day)
+	if g.get("class", "") != "":
+		life_path.set_flag("class:" + String(g["class"]))
+		Game.say("Something awakens in you. Class gained: %s" % g["class"])
+	if g.get("ability", "") != "":
+		life_path.set_flag("ability:" + String(g["ability"]))
+	if g.get("quest", "") != "":
+		life_path.set_flag("quest:" + String(g["quest"]))
 
 
 # --- world setup -------------------------------------------------------------
@@ -143,6 +236,7 @@ func _process(_delta: float) -> void:
 
 
 func _on_hour(hour: int) -> void:
+	_life_tick(hour)
 	if careers.is_employed():
 		var sh: Vector2 = careers.player_org()["shift"]
 		if hour == int(sh.y):
@@ -182,6 +276,7 @@ func add_merit(amount: int, reason: String) -> void:
 
 func on_wolf_killed(_where: Vector3) -> void:
 	add_merit(5, "wolf slain")
+	record("hunted")
 	give("wolf_pelt", 1)
 	if randf() < 0.6:
 		give("wolf_meat", 1)
@@ -259,6 +354,8 @@ func best_food() -> String:
 
 func buy(item: String) -> String:
 	var paid := market.buy(item, Game.gold)
+	if paid >= 0:
+		record("traded", 0.3)
 	if paid < 0:
 		return market.can_buy(item, Game.gold)
 	Game.add_gold(-paid)
@@ -274,6 +371,7 @@ func sell(item: String) -> String:
 		return "The merchant can't afford it today."
 	take(item)
 	Game.add_gold(got)
+	record("traded", 0.5)
 	return "Sold %s for %d gold." % [item_name(item), got]
 
 
@@ -289,6 +387,9 @@ func snapshot() -> Dictionary:
 		"market": market.serialize(),
 		"inventory": inventory.serialize(),
 		"frontier": Frontier.serialize(),
+		"life_path": life_path.serialize(),
+		"titles": titles.serialize(),
+		"triggers": triggers.serialize(),
 	}
 	if player and is_instance_valid(player):
 		d["player"] = {"x": player.global_position.x, "y": player.global_position.y,
@@ -309,6 +410,10 @@ func restore(d: Dictionary) -> void:
 	market.deserialize(d.get("market", {}))
 	inventory.deserialize(d.get("inventory", {}))
 	Frontier.deserialize(d.get("frontier", {}))
+	if d.has("life_path"):
+		life_path.deserialize(d["life_path"])
+		titles.deserialize(d.get("titles", {}))
+		triggers.deserialize(d.get("triggers", {}))
 	_last_abs = _abs_hours()
 	if d.has("player") and player and is_instance_valid(player):
 		var p: Dictionary = d["player"]

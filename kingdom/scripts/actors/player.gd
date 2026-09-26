@@ -85,6 +85,8 @@ func _ready() -> void:
 	_pivot = Node3D.new()
 	_pivot.position.y = 1.55
 	add_child(_pivot)
+	apply_age()
+	Life.grown.connect(func(_age: int) -> void: apply_age())
 	camera = Camera3D.new()
 	camera.far = 900.0
 	camera.fov = 65.0
@@ -350,6 +352,13 @@ func _die() -> void:
 	dead = false
 	_animator.set_active(true)
 	health_changed.emit(health, max_health)
+
+
+## Children are smaller; the body and camera height follow Life.body_scale().
+func apply_age() -> void:
+	var k := Life.body_scale()
+	_model.scale = Vector3.ONE * k
+	_pivot.position.y = 1.55 * k
 
 
 func heal(amount: int) -> void:

@@ -146,6 +146,8 @@ func notice_menu() -> Dictionary:
 
 
 func _apply(org_id: String, title: String) -> String:
+	if not Life.is_adult() and org_id != "inn":
+		return "\"Come back when you're grown, little one.\" (age %d of %d)" % [Life.age(), Life.ADULT_AGE]
 	var why := Life.careers.apply(org_id, title, Game.merit, WorldSim.day)
 	return why
 
@@ -190,6 +192,8 @@ func _resign() -> String:
 
 
 func _enlist() -> String:
+	if not Life.is_adult():
+		return "\"The Guard takes no children. Grow strong, and come back at %d.\"" % Life.ADULT_AGE
 	var why := Life.careers.apply("guard", "Guard", Game.merit, WorldSim.day)
 	if why != "":
 		return why
@@ -210,6 +214,13 @@ func pack_menu() -> Dictionary:
 			int(sh.x), int(sh.y), c.player["attended"], c.player["strikes"], RACareers.STRIKES_TO_DISMISS])
 	else:
 		lines.append("No employment. The notice board lists open posts.")
+	lines.append("%s, age %d (%s).  Build: %s" % [Life.life_path.full_name(), Life.age(),
+		Life.life_path.stage_name(WorldSim.day, WorldSim.time_of_day), Life.build_summary()])
+	var shown := PackedStringArray()
+	for t: Dictionary in Life.titles.earned_list():
+		shown.append(String(t.get("name", t.get("id", ""))))
+	if not shown.is_empty():
+		lines.append("Titles: " + ", ".join(shown))
 	lines.append("Food %d  ·  Rest %d  ·  Gold %d  ·  Merit %d" % [int(n.food), int(n.rest), Game.gold, Game.merit])
 	var items := PackedStringArray()
 	var opts: Array = []

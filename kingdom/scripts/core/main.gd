@@ -116,12 +116,55 @@ func _ready() -> void:
 
 	hud.hide_loading()
 	var args := _user_args()
+	if (args.has("shot") and args["shot"] != "birth") or args.has("demo") or args.has("adult"):
+		Life.life_path.set_age(18, WorldSim.day, WorldSim.time_of_day)
+		player.apply_age()
 	if args.has("shot"):
 		_screenshot(args["shot"], args.get("out", "user://shot.png"))
 	elif args.has("demo"):
 		_run_demo()
+	elif args.has("skipintro"):
+		_after_birth()
 	else:
-		Game.say("Ashford. The Guard is hiring: see the Captain, or read the notice board by the well.")
+		_play_birth()
+
+
+## New life: the birth cutscene, then "six years later" as a child at home.
+func _play_birth() -> Signal:
+	var lp := Life.life_path
+	var home: Dictionary = WorldGen.settlements[0]
+	var cut := CutscenePlayer.new()
+	world.add_child(cut)      # inside the SubViewport so its camera renders the world
+	var saved_time := WorldSim.time_of_day
+	var lamp := OmniLight3D.new()
+	lamp.light_color = Color(1.0, 0.7, 0.4)
+	lamp.light_energy = 2.5
+	lamp.omni_range = 9.0
+	world.add_child(lamp)
+	lamp.global_position = Vector3(lp.home_pos.x, WorldGen.height(lp.home_pos.x, lp.home_pos.y) + 2.2, lp.home_pos.y)
+	cut.shot_started.connect(func(_i: int, shot: Dictionary) -> void:
+		if shot.has("time"):
+			WorldSim.time_of_day = float(shot["time"])
+			_update_daylight())
+	hud.visible = false
+	cut.play(BirthCutscene.build(lp.given_name, lp.family_name, lp.parent("mother")["name"],
+		lp.parent("father")["name"], home["pos"], lp.home_pos, String(home["name"])))
+	cut.finished.connect(func() -> void:
+		lamp.queue_free()
+		cut.queue_free()
+		WorldSim.time_of_day = maxf(saved_time, 8.0)
+		_after_birth())
+	return cut.finished
+
+
+func _after_birth() -> void:
+	hud.visible = true
+	var lp := Life.life_path
+	var door: Vector2 = lp.home_pos + Vector2(0, 5.5)
+	_teleport(door, 0.0)
+	player.apply_age()
+	Game.say("%d years later. %s, child of %s and %s, wakes to a bright morning in %s." % [Life.START_AGE,
+		lp.given_name, lp.parent("mother")["name"], lp.parent("father")["name"], WorldGen.settlements[0]["name"]])
 
 
 func _process(delta: float) -> void:
@@ -406,6 +449,10 @@ func _run_demo() -> void:
 
 # --- Preview screenshots ----------------------------------------------------------
 
+func args_frame_time() -> float:
+	return float(_user_args().get("t", "9"))
+
+
 func _user_args() -> Dictionary:
 	var out := {}
 	for arg in OS.get_cmdline_user_args():
@@ -475,6 +522,15 @@ func _screenshot(shot: String, path: String) -> void:
 			player.set_view(Player.View.FIRST)
 			player.set_camera(player._yaw, -0.12)
 			warmup = 45
+		"birth":
+			# Frame from the birth cutscene (the crane onto the lit house).
+			_play_birth()
+			await get_tree().create_timer(0.1).timeout
+			warmup = 40
+			var cps := world.get_children().filter(func(n: Node) -> bool: return n is CutscenePlayer)
+			if not cps.is_empty():
+				var cp: CutscenePlayer = cps[0]
+				cp.advance(float(args_frame_time()))
 		"market", "board":
 			# Standing in the plaza: the trader (market) or the notice board (board), menu open.
 			var spot := Vector2(1.5, 1.0) if shot == "market" else Vector2(1.0, 2.5)
