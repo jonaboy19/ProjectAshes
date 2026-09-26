@@ -27,6 +27,7 @@ var army: Squad
 var raiders: Squad
 var captain: Captain
 var services: VillageServices
+var camps: MonsterCamps
 var sun: DirectionalLight3D
 var env: Environment
 var _status_timer := 0.0
@@ -107,6 +108,8 @@ func _ready() -> void:
 	services = VillageServices.new()
 	services.setup(hud, captain, func() -> int: return army.alive(), _recruit)
 	world.add_child(services)
+	camps = MonsterCamps.new()
+	world.add_child(camps)
 
 	army = Squad.new().setup(0, "soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
 	army.leader = player
@@ -175,6 +178,7 @@ func _process(delta: float) -> void:
 	settlements.focus = focus
 	population.focus = focus
 	frontier.focus = focus
+	camps.focus = focus
 	terrain.view_radius = 5 if player.view == Player.View.COMMAND else 4
 	_update_daylight()
 	_status_timer -= delta
@@ -227,6 +231,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			hud.show_menu(services.captain_menu)
 		elif target is Station:
 			hud.show_menu((target as Station).open)
+		elif target is CampMonster:
+			hud.show_menu(services.naming_menu.bind(target))
 	elif event.is_action_pressed("journal"):
 		if hud.is_menu_open():
 			hud.close_menu()
@@ -469,6 +475,29 @@ func _screenshot(shot: String, path: String) -> void:
 	var warmup := 60
 	var late_fx := Callable()
 	match shot:
+		"camp":
+			# The goblin warren from its edge; one goblin has yielded, naming menu open.
+			var w: Dictionary = Life.lore.place("mossfang_warren")
+			var wc: Vector2 = w["pos"]
+			_teleport(wc + Vector2(-22, 10), 0.0)
+			camps.spawn_all_near(player.global_position)
+			await get_tree().process_frame
+			var d := Vector3(wc.x, 0, wc.y) - player.global_position
+			player.set_camera(atan2(-d.x, -d.z), -0.15)
+			for m in camps.get_children():
+				if m is CampMonster:
+					(m as CampMonster).hostile = false
+					(m as CampMonster)._set_team(false)
+			var first: CampMonster = null
+			for m in camps.get_children():
+				if m is CampMonster:
+					first = m
+					break
+			if first:
+				first.global_position = player.global_position + player.forward() * 3.0
+				first._yield()
+				hud.show_menu(services.naming_menu.bind(first))
+			warmup = 60
 		"vfx":
 			# Martial-arts / magic effects lined up in a field, frozen mid-burst.
 			hud.visible = false

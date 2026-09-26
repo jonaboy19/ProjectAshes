@@ -329,3 +329,39 @@ func healer_menu() -> Dictionary:
 	if menu.is_empty():
 		body += "\nYou are unhurt."
 	return {"title": "Herbalist", "body": body, "options": opts}
+
+
+# --- naming ---------------------------------------------------------------------
+
+func naming_menu(m: CampMonster) -> Dictionary:
+	if not is_instance_valid(m) or m.dead:
+		return {"title": "Gone", "body": "", "options": []}
+	var pv := Life.naming.preview(Life.magicules, Life.player_level(), m.species, m.level, Life.injuries)
+	if m.get_meta("given", "") == "":
+		m.set_meta("given", m.random_name())
+	var given: String = m.get_meta("given")
+	var risk := float(pv["risk"])
+	var body := "A %s (level %d) kneels before you. Name it, and it becomes a %s bound to you.\n" % [m.species, m.level, pv["form"]]
+	body += "Cost %d magicules (you have %d / %d)  ·  risk %d%%" % [pv["cost"], int(Life.magicules.current),
+		int(Life.magicules.effective_max()), int(risk * 100)]
+	if risk > 0.3:
+		body += "\nNaming beyond your strength can cost levels or crack your soul-core; only a healer mends that."
+	var opts: Array = []
+	for k: String in pv["classes"]:
+		opts.append(["Name it \"%s\" the %s" % [given, k.capitalize()], _do_name.bind(m, given, k), bool(pv["possible"])])
+	opts.append(["Think of another name", func() -> String:
+		m.set_meta("given", m.random_name())
+		return ""])
+	opts.append(["Let it go", func() -> String:
+		hud.close_menu()
+		m.state = CampMonster.State.WANDER
+		m.hostile = false
+		m._set_team(false)
+		m._refresh_label()
+		return "It scrambles back toward its camp."])
+	return {"title": "Naming", "body": body, "options": opts}
+
+
+func _do_name(m: CampMonster, given: String, k: String) -> String:
+	hud.close_menu()
+	return Life.name_monster(m, given, k)

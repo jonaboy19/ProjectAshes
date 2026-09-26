@@ -265,6 +265,9 @@ func update_status(soldiers: int, order_name: String, target: Node3D, perf: Stri
 	if not near.is_empty():
 		var d := p.distance_to(near["pos"])
 		place = near["name"] if d < near["radius"] * 1.6 else "Road to %s  (%dm)" % [near["name"], int(d)]
+		var named := Life.place_at(p)
+		if d >= near["radius"] * 1.6 and not named.is_empty():
+			place = "%s  ·  %s %dm" % [named["name"], near["name"], int(d)]
 	var t := WorldSim.time_of_day
 	_where.text = "%s\nDay %d  %02d:%02d\nRealm  %s souls" % [place, WorldSim.day, int(t), int(fmod(t, 1.0) * 60.0),
 		_thousands(WorldSim.population())]

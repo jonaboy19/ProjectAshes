@@ -25,6 +25,7 @@ var titles := RATitles.new()
 var archetypes := RAArchetypes.new()
 var triggers := RAHiddenTriggers.new()
 var careers := RACareers.new()
+var lore := RAWorldLore.new()
 var guild := RAAdventurerGuild.new()
 var magicules := RAMagicules.new()
 var naming := RANaming.new()
@@ -102,6 +103,20 @@ func _begin_life() -> void:
 		 {"id": father, "name": WorldSim.person_name(father), "role": "father"}], 0, house)
 	life_path.set_age(START_AGE, WorldSim.day, WorldSim.time_of_day)
 	triggers.seed_first_region(home["pos"], home["radius"])
+
+
+## The smallest named place (from data/world/first_region.json) containing p, or {}.
+func place_at(p: Vector2) -> Dictionary:
+	var best := {}
+	var best_r := INF
+	for pl: Dictionary in lore.places_in_region():
+		if not pl.has("radius") or pl.get("kind", "") in ["village", "capital", "hidden_place"]:
+			continue
+		var r := float(pl["radius"])
+		if p.distance_to(pl["pos"]) <= r and r < best_r:
+			best = pl
+			best_r = r
+	return best
 
 
 func age() -> int:
@@ -208,6 +223,25 @@ func answer_offer(event_id: int, yes: bool) -> String:
 				life_path.set_flag("permit:xiava_lake")
 			return String(r.get("text", "You accept the offer."))
 	return ""
+
+
+## Effective level for naming: grows with merit, reduced while levels are lost to naming.
+func player_level() -> int:
+	return maxi(1, 1 + int(sqrt(float(Game.merit))) + age() / 4 - naming.level_penalty(WorldSim.day))
+
+
+## Name a yielded monster: pays magicules, may cost levels or cause injuries.
+func name_monster(m: CampMonster, given: String, klass: String) -> String:
+	var r := naming.name_monster(magicules, injuries, player_level(), m.species, m.level, given, klass, WorldSim.day)
+	if not r.get("ok", false):
+		return String(r.get("text", "The name does not take."))
+	m.become_named(given, klass)
+	record("named", 3.0)
+	var dmg := int(r.get("damage", 0))
+	if dmg > 0 and player and player.has_method("set_health"):
+		player.set_health(int(player.get("health")) - dmg)
+	magicules.apply_effects(injuries.effects())
+	return String(r.get("text", ""))
 
 
 func join_guild() -> String:
@@ -385,6 +419,12 @@ func add_merit(amount: int, reason: String) -> void:
 	if not up.is_empty():
 		Game.say("A %s's seat is open in %s. Report to the %s." % [up["title"], careers.player_org()["name"],
 			careers.player_org()["recruiter"]])
+
+
+func on_monster_killed(species: String) -> void:
+	guild.on_kill(RAAdventurerGuild.PLAYER, species, -1)
+	add_merit(12 if species == "orc" else 6, "%s slain" % species)
+	record("hunted")
 
 
 func on_wolf_killed(_where: Vector3, den_id := -1) -> void:
