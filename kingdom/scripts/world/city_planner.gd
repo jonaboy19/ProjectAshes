@@ -11,8 +11,8 @@ extends RefCounted
 
 const LOT_SPACING := 10.5
 const LOT_CLEARANCE := 9.5
-const HOMES := ["house_1", "house_2", "house_3", "house_4"]
-const TRADES := ["inn", "blacksmith", "stable", "sawmill"]
+const HOMES := ["house_1", "house_2", "house_3", "house_4", "house_5", "house_6", "house_7", "house_8"]
+const TRADES := ["inn", "blacksmith", "stable", "blacksmith"]
 
 
 ## Returns {streets: [{a, b, w}], lots: [{asset, pos, yaw}], walls: bool,
