@@ -506,7 +506,17 @@ func _screenshot(shot: String, path: String) -> void:
 			var dv := Vector3(look.x, 0, look.y) - player.global_position
 			player.set_camera(atan2(-dv.x, -dv.z), -0.02 if shot == "guildhall" else -0.2)
 			if shot == "guildhall":
-				player.visible = false
+				# Free camera above the street, 3/4 view down onto the hall's front.
+				var cam := Camera3D.new()
+				world.add_child(cam)
+				var gy := WorldGen.height(look.x, look.y)
+				var dir := (at - look).normalized()
+				var side := Vector2(dir.y, -dir.x)
+				var cp := look + dir * 13.0 + side * 9.0
+				cam.global_position = Vector3(cp.x, gy + 10.0, cp.y)
+				cam.look_at(Vector3(look.x, gy + 4.5, look.y))
+				cam.fov = 62.0
+				cam.current = true
 			warmup = 70
 		"camp":
 			# The goblin warren from its edge; one goblin has yielded, naming menu open.
