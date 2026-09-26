@@ -484,11 +484,11 @@ func _screenshot(shot: String, path: String) -> void:
 					if lot["asset"] == "adventurer_guild":
 						var yaw: float = lot["yaw"]
 						look = lot["pos"]
-						at = look + Vector2(sin(yaw), cos(yaw)) * 17.0 + Vector2(cos(yaw), -sin(yaw)) * 5.0
+						at = look + Vector2(sin(yaw), cos(yaw)) * 11.5
 			else:
 				var hold: Dictionary = Life.lore.place("tuskridge_hold")
 				look = hold["pos"]
-				at = look + Vector2(62, 18)
+				at = look + Vector2(30, 6)
 			_teleport(at, 0.0)
 			hud.visible = false
 			camps.spawn_all_near(player.global_position)
@@ -497,7 +497,9 @@ func _screenshot(shot: String, path: String) -> void:
 					(m as CampMonster).hostile = false
 					(m as CampMonster)._set_team(false)
 			var dv := Vector3(look.x, 0, look.y) - player.global_position
-			player.set_camera(atan2(-dv.x, -dv.z), -0.12 if shot == "guildhall" else -0.2)
+			player.set_camera(atan2(-dv.x, -dv.z), -0.02 if shot == "guildhall" else -0.2)
+			if shot == "guildhall":
+				player.visible = false
 			warmup = 70
 		"camp":
 			# The goblin warren from its edge; one goblin has yielded, naming menu open.
