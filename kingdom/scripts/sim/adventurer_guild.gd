@@ -306,7 +306,11 @@ func _make_cull(d: Dictionary, source: String, day: int) -> Dictionary:
 	var species := String(d.get("species", "wolf"))
 	c["target"] = {"den": int(d["id"]), "species": species}
 	c["required"] = kills
-	c["title"] = "Cull %d %ss near den %d" % [kills, species, int(d["id"])]
+	var plural: String = ({"wolf": "wolves"} as Dictionary).get(species, species + "s") if kills != 1 else species
+	var where := String(d.get("place", ""))
+	if where == "":
+		where = "%dm %s" % [int(d.get("distance", 0.0)), String(d.get("compass", "out"))]
+	c["title"] = "Cull %d %s (%s)" % [kills, plural, where]
 	return c
 
 

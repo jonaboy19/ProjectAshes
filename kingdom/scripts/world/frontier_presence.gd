@@ -90,6 +90,6 @@ func _spawn_pack(den: Dictionary) -> void:
 		w.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
 		w.died.connect(func(dead_wolf: Wolf) -> void:
 			Frontier.ecology.cull(dead_wolf.den_id, 1)
-			Life.on_wolf_killed(dead_wolf.global_position))
+			Life.on_wolf_killed(dead_wolf.global_position, dead_wolf.den_id))
 		list.append(w)
 	_packs[den["id"]] = list

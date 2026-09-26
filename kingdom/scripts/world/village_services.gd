@@ -9,6 +9,7 @@ const BOARD := "res://assets/generated/notice_board.glb"
 const BED_PRICE := 3
 
 var hud: HUD
+var guild_station: Station
 var captain: Captain
 var soldiers: Callable      # () -> int, current company size
 var recruit: Callable       # (count) -> void
@@ -39,6 +40,12 @@ func _ready() -> void:
 			var door: Vector2 = lot["pos"] + Vector2(sin(yaw), cos(yaw)) * 5.2
 			_person("%s Inn" % home["name"], "Enter", inn_menu, door, door + Vector2(sin(yaw), cos(yaw)), "Mage")
 			break
+	# Adventurer Guild desk and the village herbalist on the plaza's far side.
+	var guild_at := c + Vector2(-4.0, -9.0)
+	guild_station = _person("Adventurer Guild", "Guild", guild_menu, guild_at, c, "Rogue_Hooded")
+	var herb_at := c + Vector2(9.0, -7.5)
+	_person("Herbalist", "Healer", healer_menu, herb_at, c, "Mage")
+	_prop("Barrel", herb_at + Vector2(1.2, -0.8), 1.0)
 	# Notice board beside the well, facing the spawn road.
 	var board_pos := c + Vector2(3.5, -3.0)
 	var board := Station.new("Notice Board", "Read", notice_menu)
@@ -234,6 +241,18 @@ func pack_menu() -> Dictionary:
 		if float(it.get_property("nutrition", 0.0)) > 0.0 or int(it.get_property("heal", 0)) > 0:
 			opts.append(["Use %s" % Life.item_name(id), Life.use_item.bind(id)])
 	lines.append("Pack: " + (", ".join(items) if not items.is_empty() else "empty"))
+	for e: Dictionary in Life.pending_offers:
+		var eid := int(e["id"])
+		var offer: Dictionary = e.get("offer", {})
+		lines.append("Offer: %s (%s) wants you as %s." % [e["scout"].get("name", "?"), e["org"].get("name", "?"), offer.get("role", "recruit")])
+		opts.append(["Accept offer from %s" % e["org"].get("name", "?"), Life.answer_offer.bind(eid, true)])
+		opts.append(["Decline offer from %s" % e["org"].get("name", "?"), Life.answer_offer.bind(eid, false)])
+	var inj := PackedStringArray()
+	for i: Dictionary in Life.injuries.active:
+		inj.append(Life.injuries.label(i))
+	if not inj.is_empty():
+		lines.append("Injuries: " + ", ".join(inj))
+	lines.append("Magicules %d / %d" % [int(Life.magicules.current), int(Life.magicules.effective_max())])
 	opts.append(["Sleep rough here", _sleep_rough, n.rest < 80.0])
 	opts.append(["Save game", _save])
 	opts.append(["Load game", _load, Life.has_save()])
@@ -252,3 +271,61 @@ func _save() -> String:
 func _load() -> String:
 	hud.close_menu()
 	return "Game loaded." if Life.load_game() else "No save found."
+
+
+# --- guild & healer ---------------------------------------------------------------
+
+func guild_menu() -> Dictionary:
+	var g := Life.guild
+	var me := RAAdventurerGuild.PLAYER
+	var opts: Array = []
+	var body := ""
+	if not g.is_member(me):
+		body = "\"Welcome to the %s. Membership is %d gold; every adventurer starts at F rank. Commissions pay by rank.\"" % [
+			g.branch(0).get("name", "Guild Hall"), RAAdventurerGuild.MEMBERSHIP_FEE]
+		opts.append(["Register as an adventurer (%dg)" % RAAdventurerGuild.MEMBERSHIP_FEE, Life.join_guild,
+			Game.gold >= RAAdventurerGuild.MEMBERSHIP_FEE])
+	else:
+		var m := g.member(me)
+		var rank := int(m.get("rank", 0))
+		var next_pts: int = RAAdventurerGuild.RANK_POINTS[mini(rank + 1, 6)]
+		body = "%s-rank adventurer · %d / %d points" % [RAAdventurerGuild.rank_name(rank), int(m.get("points", 0)), next_pts]
+		if int(m.get("debt", 0)) > 0:
+			body += " · debt %dg" % int(m["debt"])
+			opts.append(["Pay guild debt", func() -> String:
+				var paid := g.settle_debt(me, Game.gold)
+				Game.add_gold(-paid)
+				return "Paid %d gold." % paid, Game.gold > 0])
+		for c: Dictionary in g.active_for(me):
+			var cid := int(c["id"])
+			if g.is_ready(cid):
+				opts.append(["✔ Turn in: %s  (+%dg)" % [c["title"], c["reward"]], Life.turn_in.bind(cid)])
+			else:
+				opts.append(["Abandon: %s  (%d/%d)" % [c["title"], c["progress"], c["required"]], func() -> String:
+					return String(g.fail(me, cid, WorldSim.day).get("text", ""))])
+		for c: Dictionary in g.available_for(me, 0):
+			var cid2 := int(c["id"])
+			opts.append(["[%s] %s  —  %dg · %d pts · %d days" % [RAAdventurerGuild.rank_name(int(c["rank"])), c["title"],
+				c["reward"], c["points"], int(c["deadline"]) - WorldSim.day], func() -> String:
+				var why := g.accept(me, cid2, WorldSim.day)
+				return why if why != "" else "Commission accepted."])
+	var open_board := 0
+	for c: Dictionary in g.board(0):
+		if c["state"] == "open":
+			open_board += 1
+	body += "\n%d commissions on the board." % open_board
+	return {"title": "Adventurer Guild", "body": body, "options": opts}
+
+
+func healer_menu() -> Dictionary:
+	var opts: Array = []
+	var menu := Life.injuries.healer_menu("herbalist")
+	for q: Dictionary in menu:
+		opts.append(["Treat %s  —  %s" % [q["name"], ("%dg, %dh" % [q["cost"], int(ceil(float(q["hours"])))]) if q["ok"] else "beyond my skill"],
+			Life.treat.bind(int(q["uid"]), "herbalist"), bool(q["ok"]) and Game.gold >= int(q["cost"])])
+	opts.append(["Buy a linen bandage (%dg)" % Life.market.price("bandage"), Life.buy.bind("bandage"),
+		Life.market.can_buy("bandage", Game.gold) == ""])
+	var body := "\"Cuts, bites, fevers, I can mend. A cracked soul-core needs a temple, child.\""
+	if menu.is_empty():
+		body += "\nYou are unhurt."
+	return {"title": "Herbalist", "body": body, "options": opts}

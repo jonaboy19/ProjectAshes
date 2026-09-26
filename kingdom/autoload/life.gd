@@ -25,6 +25,14 @@ var titles := RATitles.new()
 var archetypes := RAArchetypes.new()
 var triggers := RAHiddenTriggers.new()
 var careers := RACareers.new()
+var guild := RAAdventurerGuild.new()
+var magicules := RAMagicules.new()
+var naming := RANaming.new()
+var injuries := RAInjuries.new()
+var scouts := RAScouts.new()
+## Scout offers waiting for an answer: [event]
+var pending_offers: Array = []
+const GUILD_MIN_AGE := 12
 var needs := RANeeds.new()
 var market := RAMarket.new()
 var inventory: Inventory
@@ -58,6 +66,19 @@ func _ready() -> void:
 	titles.earned.connect(func(t: Dictionary) -> void:
 		Game.say("Title earned: %s" % t.get("name", t.get("id", "?"))))
 	triggers.triggered.connect(_on_trigger)
+	guild.add_branch(0, "%s Guild Hall" % WorldGen.settlements[0]["name"])
+	guild.context = _guild_context
+	guild.tick_day(WorldSim.day)
+	guild.rank_changed.connect(func(who: int, rank: int) -> void:
+		if who == RAAdventurerGuild.PLAYER:
+			Game.say("Guild rank up: %s-rank adventurer!" % RAAdventurerGuild.rank_name(rank))
+			if rank == 2:
+				_offer(scouts.on_scenario(scout_profile(), "guild_rank_d", WorldSim.day)))
+	careers.seat_filled.connect(func(o: Dictionary, s: Dictionary, who: int) -> void:
+		if who == RACareers.PLAYER and guild.is_member(RAAdventurerGuild.PLAYER):
+			var r := guild.on_hired(RAAdventurerGuild.PLAYER, o["id"], s["title"], WorldSim.day)
+			if r.get("ok", false):
+				Game.say(String(r.get("text", ""))))
 
 
 # --- life from birth ------------------------------------------------------------
@@ -133,6 +154,88 @@ func _on_trigger(t: Dictionary) -> void:
 		life_path.set_flag("ability:" + String(g["ability"]))
 	if g.get("quest", "") != "":
 		life_path.set_flag("quest:" + String(g["quest"]))
+
+
+# --- guild, magic, injuries, scouts ------------------------------------------------
+
+func _guild_context(settlement: int, _day: int) -> Dictionary:
+	var home: Vector2 = WorldGen.settlements[settlement]["pos"]
+	var dens := []
+	for den in Frontier.ecology.dens:
+		if not den["alive"]:
+			continue
+		var p: Vector2 = den["pos"]
+		var threat := float(Frontier.ecology.pressure_at(p).get("total", 10.0))
+		dens.append({"id": den["id"], "species": den["species"], "population": den["population"],
+			"threat": threat, "distance": p.distance_to(home), "compass": Frontier._compass(p - home).trim_prefix("toward the ")})
+	var gathering := []
+	for item: String in market.stock:
+		if int(market.stock[item]) < int(market.target[item]) / 2 and item in ["wolf_pelt", "firewood", "wolf_meat"]:
+			gathering.append({"item": item, "amount": int(market.target[item]) - int(market.stock[item])})
+	var rumours := []
+	for m: Dictionary in Frontier.threat.modifiers:
+		rumours.append({"id": hash(m.get("label", "")), "label": m.get("label", "Strange signs"), "threat": m.get("value", 10.0)})
+	return {"dens": dens, "caravans": [], "gathering": gathering, "deliveries": [], "rumours": rumours,
+		"vacancies": RAAdventurerGuild.vacancies_from(careers, settlement)}
+
+
+func scout_profile() -> Dictionary:
+	return {"id": -1, "name": life_path.full_name(), "age": age(), "titles": titles.earned_ids.keys(),
+		"feats": life_path.flags.keys().filter(func(f: String) -> bool: return f.begins_with("class:")),
+		"reputation": clampf(Game.merit / 10.0, 0.0, 100.0),
+		"guild_rank": int(guild.member(RAAdventurerGuild.PLAYER).get("rank", -1))}
+
+
+func _offer(e: Dictionary) -> void:
+	if e.is_empty():
+		return
+	pending_offers.append(e)
+	var sc: Dictionary = e.get("scout", {})
+	var org: Dictionary = e.get("org", {})
+	Game.say("%s of %s has been watching you. (See your Pack to answer.)" % [sc.get("name", "A stranger"), org.get("name", "somewhere")])
+
+
+func answer_offer(event_id: int, yes: bool) -> String:
+	for e: Dictionary in pending_offers.duplicate():
+		if int(e["id"]) == event_id:
+			pending_offers.erase(e)
+			if not yes:
+				scouts.decline(event_id)
+				return "You decline, politely."
+			var r := scouts.accept(event_id, WorldSim.day)
+			life_path.set_flag("recruited:" + String(e["org"].get("id", "?")))
+			if bool(e["offer"].get("soulbeast_path", false)):
+				life_path.set_flag("permit:xiava_lake")
+			return String(r.get("text", "You accept the offer."))
+	return ""
+
+
+func join_guild() -> String:
+	if age() < GUILD_MIN_AGE:
+		return "\"Adventurers start at %d. Come back then, and bring your parents' blessing.\"" % GUILD_MIN_AGE
+	var r := guild.join(RAAdventurerGuild.PLAYER, 0, Game.gold, WorldSim.day)
+	if r.get("ok", false):
+		Game.add_gold(-int(r.get("fee", 0)))
+		record("adventured", 1.0)
+	return String(r.get("text", ""))
+
+
+func turn_in(cid: int) -> String:
+	var r := guild.complete(RAAdventurerGuild.PLAYER, cid, WorldSim.day)
+	if r.get("ok", false):
+		Game.add_gold(int(r.get("gold", 0)))
+		record("adventured", 2.0)
+	return String(r.get("text", ""))
+
+
+func treat(uid: int, healer: String) -> String:
+	var r := injuries.treat(uid, healer, Game.gold, WorldSim.day)
+	if r.get("ok", false):
+		Game.add_gold(-int(r["cost"]))
+		WorldSim.advance_hours(float(r["hours"]))
+		_last_abs = _abs_hours()
+		magicules.apply_effects(injuries.effects())
+	return String(r.get("text", ""))
 
 
 # --- world setup -------------------------------------------------------------
@@ -226,6 +329,7 @@ func _process(_delta: float) -> void:
 	if dh <= 0.0 or dh > 2.0:
 		return
 	needs.tick(dh)
+	magicules.regenerate(dh)
 	if player and is_instance_valid(player):
 		var p := Vector2(player.global_position.x, player.global_position.z)
 		if careers.is_on_shift(WorldSim.time_of_day) and careers.at_post(p):
@@ -248,6 +352,15 @@ func _on_hour(hour: int) -> void:
 			if not careers.is_employed():
 				employment_changed.emit()
 	if hour == 5:
+		for e: Dictionary in guild.tick_day(WorldSim.day):
+			if e.get("type", "") == "failed":
+				Game.say(String(e.get("text", "")))
+		for h: Dictionary in injuries.tick_day(WorldSim.day):
+			Game.say("Your %s has healed." % String(RAInjuries.info(String(h["type"])).get("name", "injury")).to_lower())
+		magicules.apply_effects(injuries.effects())
+		naming.tick_day(WorldSim.day)
+		scouts.tick_day(WorldSim.day)
+		_offer(scouts.daily_roll(scout_profile(), WorldSim.day))
 		careers.tick_day(_hire)
 		market.tick_day(WorldSim.ranges[0].y - WorldSim.ranges[0].x)
 
@@ -274,7 +387,10 @@ func add_merit(amount: int, reason: String) -> void:
 			careers.player_org()["recruiter"]])
 
 
-func on_wolf_killed(_where: Vector3) -> void:
+func on_wolf_killed(_where: Vector3, den_id := -1) -> void:
+	for c: Dictionary in guild.on_kill(RAAdventurerGuild.PLAYER, "wolf", den_id):
+		if guild.is_ready(int(c["id"])):
+			Game.say("Commission ready to turn in: %s" % c.get("title", ""))
 	add_merit(5, "wolf slain")
 	record("hunted")
 	give("wolf_pelt", 1)
@@ -390,6 +506,11 @@ func snapshot() -> Dictionary:
 		"life_path": life_path.serialize(),
 		"titles": titles.serialize(),
 		"triggers": triggers.serialize(),
+		"guild": guild.serialize(),
+		"magicules": magicules.serialize(),
+		"naming": naming.serialize(),
+		"injuries": injuries.serialize(),
+		"scouts": scouts.serialize(),
 	}
 	if player and is_instance_valid(player):
 		d["player"] = {"x": player.global_position.x, "y": player.global_position.y,
@@ -414,6 +535,9 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts"]:
+		if d.has(key):
+			get(key).deserialize(d[key])
 	_last_abs = _abs_hours()
 	if d.has("player") and player and is_instance_valid(player):
 		var p: Dictionary = d["player"]
