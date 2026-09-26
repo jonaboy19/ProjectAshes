@@ -1,0 +1,2 @@
+All textures from ambientCG (https://ambientcg.com) by Lennart Demes, licensed CC0 1.0 (public domain). Free for commercial use, no attribution required.
+2K JPG. Use the *_NormalGL maps in Godot (DirectX normals removed).
