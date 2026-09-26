@@ -608,7 +608,9 @@ func _screenshot(shot: String, path: String) -> void:
 				VFX.aura(player, Color(0.45, 0.8, 1.0))
 			warmup = 40
 		"explore":
-			player.set_camera(PI * 0.2, -0.22)
+			# Street level on the plaza's south side, looking north across the square.
+			_teleport(Vector2(3.0, 16.0), 0.0)
+			player.set_camera(0.15, -0.14)
 		"first":
 			player.set_view(Player.View.FIRST)
 			player.set_camera(PI * 0.9, -0.05)

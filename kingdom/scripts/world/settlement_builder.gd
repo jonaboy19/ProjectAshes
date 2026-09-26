@@ -136,9 +136,9 @@ func _build(s: Dictionary) -> Node3D:
 		var ang := rng.randf() * TAU
 		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(plan["plaza_r"] * 0.6, plan["plaza_r"] + 3.0)
 		street_clutter.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(p.x, base_h, p.y)))
-	_multimesh(root, Assets.building_mesh("barrel"), street_clutter.slice(0, 10))
-	_multimesh(root, Assets.building_mesh("crate"), street_clutter.slice(10, 18))
-	_multimesh(root, Assets.building_mesh("hay"), street_clutter.slice(18, 24))
+	_multimesh(root, Assets.nature_mesh("scan/wooden_barrels_01"), street_clutter.slice(0, 10))
+	_multimesh(root, Assets.nature_mesh("scan/wooden_crate_01"), street_clutter.slice(10, 18))
+	_multimesh(root, Assets.nature_mesh("scan/wicker_basket_01"), street_clutter.slice(18, 24))
 	_multimesh(root, Assets.building_mesh("cart"), street_clutter.slice(24))
 	return root
 
