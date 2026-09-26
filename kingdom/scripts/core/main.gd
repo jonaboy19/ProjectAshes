@@ -193,7 +193,7 @@ func _stage_birth_room(house: Vector2) -> Node3D:
 	var mother := Assets.character("Rogue_Hooded", 1.68, [])
 	root.add_child(mother)
 	mother.position = Vector3(-1.75, 0.45, -1.0)
-	mother.rotation.y = PI * 0.5
+	mother.rotation.y = PI * 0.2       # turned toward the open wall (camera)
 	var mp := Assets.animation_player(mother)
 	if mp:
 		for a in ["Sitting_Idle", "Idle"]:
