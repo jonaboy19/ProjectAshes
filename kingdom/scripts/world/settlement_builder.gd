@@ -73,7 +73,7 @@ func _build(s: Dictionary) -> Node3D:
 
 	# Lived-in door_clutter by the doors: photo-scanned crates, barrels, baskets, buckets.
 	var door_clutter := {}
-	var kinds := ["scan/wooden_crate_01", "scan/wooden_barrels_01", "scan/wicker_basket_01", "scan/wooden_bucket_01"]
+	var kinds := ["scan/wooden_crate_01", "scan/wicker_basket_01", "scan/wooden_bucket_01"]
 	for lot in plan["lots"]:
 		var p: Vector2 = lot["pos"]
 		var yaw: float = lot["yaw"]
@@ -136,7 +136,7 @@ func _build(s: Dictionary) -> Node3D:
 		var ang := rng.randf() * TAU
 		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(plan["plaza_r"] * 0.6, plan["plaza_r"] + 3.0)
 		street_clutter.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(p.x, base_h, p.y)))
-	_multimesh(root, Assets.nature_mesh("scan/wooden_barrels_01"), street_clutter.slice(0, 10))
+	_multimesh(root, Assets.building_mesh("barrel"), street_clutter.slice(0, 10))
 	_multimesh(root, Assets.nature_mesh("scan/wooden_crate_01"), street_clutter.slice(10, 18))
 	_multimesh(root, Assets.nature_mesh("scan/wicker_basket_01"), street_clutter.slice(18, 24))
 	_multimesh(root, Assets.building_mesh("cart"), street_clutter.slice(24))

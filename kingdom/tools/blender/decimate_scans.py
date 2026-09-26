@@ -19,7 +19,6 @@ JOBS = {
     "nettle_plant": (500, False),
     "stone_fire_pit": (1500, False),
     "wooden_crate_01": (600, False),
-    "wooden_barrels_01": (1500, False),
     "wicker_basket_01": (800, False),
     "wooden_bucket_01": (500, False),
 }
