@@ -67,3 +67,12 @@ licences. Nothing "personal use only". Nothing Unreal-only if it's meant for God
 ---
 When it's pushed, tell the dev Claude: *"New assets are in `kingdom/assets/incoming/`,
 please integrate them."*
+
+
+## Round 5 wishes (found gaps while building)
+- **Orc character, rigged and animated (CC0/CC-BY).** Orcs currently use the
+  Quaternius goblin scaled up and tinted. Candidates: Quaternius "Ultimate
+  Monsters" pack, or any CC0 orc on poly.pizza / OpenGameArt with a humanoid rig.
+- **Child character models** (or a CC0 kid base mesh): the player is a scaled-down
+  adult until age 16.
+- **A reference screenshot of the "Total Showdown" menus** so the UI palette can match.

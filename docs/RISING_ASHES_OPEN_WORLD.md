@@ -154,7 +154,16 @@ must feel like it functions without them.
 | Inventory (GLoot, `data/items.json`), market with stock-driven prices and a merchant purse, wolf pelts/meat loot | done | `scripts/sim/market.gd`, `autoload/life.gd` |
 | Save/load (JSON, F5/F9 or Pack menu): world clock, money, careers, needs, market, inventory, frontier | done | `Life.snapshot/restore` |
 | Stations: trader, inn, notice board, Captain's menu | done | `scripts/world/village_services.gd` |
-| NPC relationships and memory, LimboAI behaviour, weather, world-event framework, equipment slots | next | |
+| Born in Ashford: birth cutscene, play from age 6, body grows with age, parents are real villagers | done | `sim/life_path.gd`, `cinematic/*`, `Life._begin_life` |
+| Titles, achievements, build archetypes from what you do, hidden age/place triggers (age-8 shrine) | done | `sim/titles.gd`, `archetypes.gd`, `hidden_triggers.gd` |
+| Adventurer Guild F–S: board from real vacancies, dens, shortages; accept/turn in/fail/debt | done | `sim/adventurer_guild.gd`, `VillageServices.guild_menu` |
+| Magicules, naming (cost, level loss, Fractured Core), injuries, herbalist; talent scouts (very rare) | done | `sim/magicules.gd`, `naming.gd`, `injuries.gd`, `scouts.gd` |
+| Goblin warren and orc village; beaten monsters yield and can be named into subordinates | done | `actors/monster.gd` (CampMonster), `world/monster_camps.gd` |
+| World lore: races, cultures, nations (incl. shinobi/samurai divisions), sects, bloodlines, military ladder | done (data) | `data/world/*.json`, `sim/world_lore.gd`, `sim/military.gd`, `docs/WORLD_LORE.md` |
+| VFX: sword arcs, sparks, elemental bursts, shockwaves, qi aura | done | `scripts/vfx/vfx.gd` |
+| Modern mobile HUD (round icon buttons, glass cards, themed menus) | done, palette pending | `scripts/ui/ui_theme.gd` |
+| Water (lake, river), region buildings from Blender | in progress | agents |
+| Parent quests, NPC relationships and memory, LimboAI behaviour, weather, equipment slots, sects/academies in play | next | |
 
 **Emotional payoff:** the starting village grows with you: home, then known
 there, then influential, then leader, then owner, then fortified trade city,
