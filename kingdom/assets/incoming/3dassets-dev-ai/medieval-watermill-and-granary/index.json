@@ -1,0 +1,716 @@
+[
+ {
+  "file": "axle-grease-pot.glb",
+  "title": "Axle Grease Pot (Medieval Watermill and Granary)",
+  "summary": "Thick hollow glazed grease pot with contained dark grease and supported spreading stick.",
+  "triangles": 1040,
+  "animations": [],
+  "sizeMeters": [
+   0.276,
+   0.318,
+   0.24
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-axle-grease-pot-538db1b9"
+ },
+ {
+  "file": "bed-millstone.glb",
+  "title": "Bed Millstone (Medieval Watermill and Granary)",
+  "summary": "Fixed bed millstone on two oak bearers; upper working face has sixteen bounded dressed lands and recessed radial furrows.",
+  "triangles": 2904,
+  "animations": [],
+  "sizeMeters": [
+   1.324,
+   0.317,
+   1.324
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-bed-millstone-0129ecf2"
+ },
+ {
+  "file": "bolting-reel-cradle.glb",
+  "title": "Bolting Reel Cradle (Medieval Watermill and Granary)",
+  "summary": "Two braced end bearings and lengthwise rails, fitted to matching bolting reel journals.",
+  "triangles": 3592,
+  "animations": [],
+  "sizeMeters": [
+   0.95,
+   0.89,
+   1.78
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-bolting-reel-cradle-735f1e02"
+ },
+ {
+  "file": "bushel-weighing-balance.glb",
+  "title": "Bushel Weighing Balance (Medieval Watermill and Granary)",
+  "summary": "Two shallow suspended weighing pans on iron beam, central pivot and broad timber base.",
+  "triangles": 1484,
+  "animations": [],
+  "sizeMeters": [
+   1.36,
+   0.83,
+   0.5
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-bushel-weighing-balance-ef1b4581"
+ },
+ {
+  "file": "cloth-bolting-reel.glb",
+  "title": "Cloth Bolting Reel (Medieval Watermill and Granary)",
+  "summary": "Hollow cylindrical bolting reel with three annular frames, twelve ribs and fine cloth mesh on a supported through spindle.",
+  "triangles": 17808,
+  "animations": [],
+  "sizeMeters": [
+   0.64,
+   0.64,
+   1.8
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-cloth-bolting-reel-d28dc796"
+ },
+ {
+  "file": "damsel-spindle.glb",
+  "title": "Damsel Spindle (Medieval Watermill and Granary)",
+  "summary": "Four-lobed oak damsel mounted on iron spindle; static cam projects beside feed shoe.",
+  "triangles": 1584,
+  "animations": [],
+  "sizeMeters": [
+   0.12,
+   0.5,
+   0.12
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-damsel-spindle-ca2d6dab"
+ },
+ {
+  "file": "divided-grain-storage-b.glb",
+  "title": "Divided Grain Storage Bin (Medieval Watermill and Granary)",
+  "summary": "Two-compartment planked grain bin with stout divider, grain beds and iron corner straps.",
+  "triangles": 3600,
+  "animations": [],
+  "sizeMeters": [
+   1.365,
+   0.811,
+   0.915
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-divided-grain-storage-b-1432411a"
+ },
+ {
+  "file": "flour-sack-filling-stan.glb",
+  "title": "Flour Sack Filling Stand (Medieval Watermill and Granary)",
+  "summary": "Twin-post sack mouth stand with iron holding ring and fitted open linen cuff under meal spout.",
+  "triangles": 2160,
+  "animations": [],
+  "sizeMeters": [
+   0.85,
+   0.86,
+   0.574
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-flour-sack-filling-stan-8fcd68c0"
+ },
+ {
+  "file": "grain-bin-loft.glb",
+  "title": "Grain Bin Loft (Medieval Watermill and Granary)",
+  "summary": "Structural oak mezzanine fitted to mill rear wall with five divided grain compartments, deep underside beams, posts and a reserved hoist hatch at right.",
+  "triangles": 29700,
+  "animations": [],
+  "sizeMeters": [
+   8.003,
+   4.32,
+   1.8
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-grain-bin-loft-bc02edf4"
+ },
+ {
+  "file": "grain-delivery-cart.glb",
+  "title": "Grain Delivery Cart (Medieval Watermill and Granary)",
+  "summary": "Two-wheel oak cart with ten-spoke wheels, supported axle, boarded load bed, retaining sides and twin draw shafts.",
+  "triangles": 11200,
+  "animations": [],
+  "sizeMeters": [
+   1.9,
+   1.1,
+   3.52
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-grain-delivery-cart-b9f73ab5"
+ },
+ {
+  "file": "grain-feed-hopper.glb",
+  "title": "Grain Feed Hopper (Medieval Watermill and Granary)",
+  "summary": "Open four-wall converging oak grain hopper with thick iron-edged mouth and narrow feed outlet.",
+  "triangles": 776,
+  "animations": [],
+  "sizeMeters": [
+   0.81,
+   0.606,
+   0.749
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-grain-feed-hopper-6da0becb"
+ },
+ {
+  "file": "grain-measure-vessel.glb",
+  "title": "Grain Measure Vessel (Medieval Watermill and Granary)",
+  "summary": "Open stave measure with actual internal capacity, hoops and raised carrying handle.",
+  "triangles": 1848,
+  "animations": [],
+  "sizeMeters": [
+   0.375,
+   0.267,
+   0.475
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-grain-measure-vessel-b4d3d423"
+ },
+ {
+  "file": "great-spur-wheel.glb",
+  "title": "Great Spur Wheel (Medieval Watermill and Granary)",
+  "summary": "Twenty-four replaceable timber teeth on horizontal great spur wheel with pinned sockets and iron hub.",
+  "triangles": 19616,
+  "animations": [],
+  "sizeMeters": [
+   1.48,
+   0.28,
+   1.48
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-great-spur-wheel-d4ba0af6"
+ },
+ {
+  "file": "hand-cranked-grain-clea.glb",
+  "title": "Hand Cranked Grain Cleaner (Medieval Watermill and Granary)",
+  "summary": "Four-leg cleaner with exposed slatted sieve, separate circular fan casing, supported crank and reject tray.",
+  "triangles": 6596,
+  "animations": [],
+  "sizeMeters": [
+   1.05,
+   1.03,
+   0.9
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-hand-cranked-grain-clea-41940b32"
+ },
+ {
+  "file": "hoist-floor-trapdoor.glb",
+  "title": "Hoist Floor Trapdoor (Medieval Watermill and Granary)",
+  "summary": "Nine-board hoist hatch with underside ledgers, hinge leaves and recessed lifting ring.",
+  "triangles": 3212,
+  "animations": [],
+  "sizeMeters": [
+   0.892,
+   0.225,
+   0.9
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-hoist-floor-trapdoor-fac38b1e"
+ },
+ {
+  "file": "hopper-horse-frame.glb",
+  "title": "Hopper Horse Frame (Medieval Watermill and Granary)",
+  "summary": "Four-post hopper horse with joined top perimeter beams and clearance above the runner eye.",
+  "triangles": 2400,
+  "animations": [],
+  "sizeMeters": [
+   1.17,
+   0.82,
+   0.8
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-hopper-horse-frame-f944efd2"
+ },
+ {
+  "file": "lantern-wallower-gear.glb",
+  "title": "Lantern Wallower Gear (Medieval Watermill and Granary)",
+  "summary": "Eight separate hardwood lantern rollers captured between two thick annular cheek plates and bored hub.",
+  "triangles": 2880,
+  "animations": [],
+  "sizeMeters": [
+   0.5,
+   0.45,
+   0.5
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-lantern-wallower-gear-bca9ce8b"
+ },
+ {
+  "file": "launder-support-bent.glb",
+  "title": "Launder Support Bent (Medieval Watermill and Granary)",
+  "summary": "Braced elevated timber bent on paired stone shoes supporting launder bed at waterwheel crown height.",
+  "triangles": 1884,
+  "animations": [],
+  "sizeMeters": [
+   1.62,
+   3.83,
+   0.42
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-launder-support-bent-55d28816"
+ },
+ {
+  "file": "leat-corner.glb",
+  "title": "Leat Corner (Medieval Watermill and Granary)",
+  "summary": "Right angle stone lined leat with continuous turn bed and retained water.",
+  "triangles": 1288,
+  "animations": [],
+  "sizeMeters": [
+   3.22,
+   0.45,
+   2.165
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-leat-corner-bb74f914"
+ },
+ {
+  "file": "leat-straight.glb",
+  "title": "Leat Straight (Medieval Watermill and Granary)",
+  "summary": "Stone lined two-metre leat, thick channel bed, closed side walls and contained static water.",
+  "triangles": 912,
+  "animations": [],
+  "sizeMeters": [
+   1.22,
+   0.45,
+   2
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-leat-straight-ecb2cabf"
+ },
+ {
+  "file": "meal-collection-bin.glb",
+  "title": "Meal Collection Bin (Medieval Watermill and Granary)",
+  "summary": "Sloped open receiving hopper on paired timber skids with four short support legs and a framed front discharge gate.",
+  "triangles": 5488,
+  "animations": [],
+  "sizeMeters": [
+   0.86,
+   0.9,
+   1
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-meal-collection-bin-53dd73af"
+ },
+ {
+  "file": "meal-discharge-spout.glb",
+  "title": "Meal Discharge Spout (Medieval Watermill and Granary)",
+  "summary": "Open sloping wooden meal chute with thick bed and retaining side cheeks.",
+  "triangles": 2964,
+  "animations": [],
+  "sizeMeters": [
+   0.345,
+   1.6,
+   0.879
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-meal-discharge-spout-af501283"
+ },
+ {
+  "file": "mill-bill-tool-rack.glb",
+  "title": "Mill Bill Tool Rack (Medieval Watermill and Granary)",
+  "summary": "Five dressing bills with socketed wooden handles, tapered steel cutting heads and fitted standing rack.",
+  "triangles": 3520,
+  "animations": [],
+  "sizeMeters": [
+   0.75,
+   0.46,
+   0.33
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-mill-bill-tool-rack-6928e6a2"
+ },
+ {
+  "file": "mill-toll-ledger-board.glb",
+  "title": "Mill Toll Ledger Board (Medieval Watermill and Granary)",
+  "summary": "Reusable wooden tally board with original incised-looking rows and abstract toll marks.",
+  "triangles": 588,
+  "animations": [],
+  "sizeMeters": [
+   0.48,
+   0.046,
+   0.36
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-mill-toll-ledger-board-16012fdb"
+ },
+ {
+  "file": "miller-accounting-desk.glb",
+  "title": "Miller Accounting Desk (Medieval Watermill and Granary)",
+  "summary": "Sloped writing desk with deep ledger cubby pedestal, fitted drawer, raised flat document ledge and open central knee clearance.",
+  "triangles": 4800,
+  "animations": [],
+  "sizeMeters": [
+   1.38,
+   1.01,
+   0.78
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-miller-accounting-desk-c7b996aa"
+ },
+ {
+  "file": "millers-m-2dd2481c-starter-scene.glb",
+  "title": "Millers Morning (Medieval Watermill and Granary)",
+  "summary": "Working-layout mill with raised grain store, stone floor, lower gearing, overshot supply, downstream footbridge and stocked delivery and maintenance bays.",
+  "triangles": 286940,
+  "animations": [],
+  "sizeMeters": [
+   18,
+   7.155,
+   16
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-millers-m-2dd2481c-starter-scene"
+ },
+ {
+  "file": "millpond-weir.glb",
+  "title": "Millpond Weir (Medieval Watermill and Granary)",
+  "summary": "Stone weir with six removable oak stop logs between pier grooves and retained pond surface.",
+  "triangles": 3000,
+  "animations": [],
+  "sizeMeters": [
+   2.7,
+   1.37,
+   1.15
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-millpond-weir-f3ac4c3a"
+ },
+ {
+  "file": "millstone-casing.glb",
+  "title": "Millstone Casing (Medieval Watermill and Granary)",
+  "summary": "Thick annular oak millstone tun with two iron hoops and clearance around seated stone pair.",
+  "triangles": 6160,
+  "animations": [],
+  "sizeMeters": [
+   1.578,
+   0.482,
+   1.578
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-millstone-casing-fd6d242b"
+ },
+ {
+  "file": "millstone-lifting-crane.glb",
+  "title": "Millstone Lifting Crane (Medieval Watermill and Granary)",
+  "summary": "Rotating timber stone crane with foot, bound mast, braced jib, pulley and supported lifting rope.",
+  "triangles": 3416,
+  "animations": [],
+  "sizeMeters": [
+   1.975,
+   2.56,
+   0.9
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-millstone-lifting-crane-a9b52a61"
+ },
+ {
+  "file": "overhead-launder-elbow.glb",
+  "title": "Overhead Launder Elbow (Medieval Watermill and Granary)",
+  "summary": "Right angle raised oak launder directing supply from rear leat toward upper receiving wheel quadrant.",
+  "triangles": 1288,
+  "animations": [],
+  "sizeMeters": [
+   2.32,
+   0.45,
+   1.565
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-overhead-launder-elbow-e32a3dbd"
+ },
+ {
+  "file": "overhead-launder-straig.glb",
+  "title": "Overhead Launder Straight (Medieval Watermill and Granary)",
+  "summary": "Raised oak water trough with bed, contained water and banded side boards; two-metre connection span.",
+  "triangles": 1512,
+  "animations": [],
+  "sizeMeters": [
+   0.96,
+   0.45,
+   2
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-overhead-launder-straig-111b4308"
+ },
+ {
+  "file": "overshot-bucket-waterwh.glb",
+  "title": "Overshot Bucket Waterwheel (Medieval Watermill and Granary)",
+  "summary": "Overshot wheel with twenty-four bounded oak buckets: inner backs, radial bottoms, retaining lips and paired cheek walls; open receiving mouths, ten spokes per cheek and sleeved hub.",
+  "triangles": 39600,
+  "animations": [],
+  "sizeMeters": [
+   3.066,
+   3.066,
+   0.96
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-overshot-bucket-waterwh-9acc1b8b"
+ },
+ {
+  "file": "replacement-wooden-gear.glb",
+  "title": "Replacement Wooden Gear Tooth Set (Medieval Watermill and Granary)",
+  "summary": "Four replaceable hardwood cogs with narrower seating tenons arranged in a maintenance tray.",
+  "triangles": 2700,
+  "animations": [],
+  "sizeMeters": [
+   0.46,
+   0.125,
+   0.33
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-replacement-wooden-gear-8f9c8a98"
+ },
+ {
+  "file": "roofed-watermill-house.glb",
+  "title": "Roofed Watermill House (Medieval Watermill and Granary)",
+  "summary": "Closed stone and oak watermill with fitted raised stone platform and ten-step service stair, fully supported clear glazed roof and front giving machinery access for inspection.",
+  "triangles": 18484,
+  "animations": [],
+  "sizeMeters": [
+   9,
+   6.76,
+   6.03
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-roofed-watermill-house-d0e0cae0"
+ },
+ {
+  "file": "runner-millstone.glb",
+  "title": "Runner Millstone (Medieval Watermill and Granary)",
+  "summary": "Runner stone with open grain eye, seated driving iron and furrows on lower working face.",
+  "triangles": 2796,
+  "animations": [],
+  "sizeMeters": [
+   1.324,
+   0.23,
+   1.324
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-runner-millstone-e91be767"
+ },
+ {
+  "file": "sack-hoist.glb",
+  "title": "Sack Hoist (Medieval Watermill and Granary)",
+  "summary": "Two-post winding hoist with rope drum, banded ends, descending rope and seated lifting eye.",
+  "triangles": 2756,
+  "animations": [],
+  "sizeMeters": [
+   1.24,
+   1.995,
+   0.65
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-sack-hoist-5024b4e7"
+ },
+ {
+  "file": "sluice-control-linkage.glb",
+  "title": "Sluice Control Linkage (Medieval Watermill and Granary)",
+  "summary": "Supported pivoted timber lever and long iron pull rod with terminal eye for the sluice screw coupling.",
+  "triangles": 1604,
+  "animations": [],
+  "sizeMeters": [
+   0.65,
+   0.97,
+   1.995
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-sluice-control-linkage-d53bd0a9"
+ },
+ {
+  "file": "stone-dressing-bench.glb",
+  "title": "Stone Dressing Bench (Medieval Watermill and Granary)",
+  "summary": "Heavy dressing bench with thick replaceable top, four braced legs and low tool shelf.",
+  "triangles": 2400,
+  "animations": [],
+  "sizeMeters": [
+   1.8,
+   0.76,
+   1.5
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-stone-dressing-bench-545625c1"
+ },
+ {
+  "file": "stone-lifting-dogs.glb",
+  "title": "Stone Lifting Dogs (Medieval Watermill and Granary)",
+  "summary": "Paired curved lifting dogs with inward stone-gripping heels and shared upper suspension eye.",
+  "triangles": 1368,
+  "animations": [],
+  "sizeMeters": [
+   1.45,
+   0.743,
+   0.08
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-stone-lifting-dogs-77eb5fe8"
+ },
+ {
+  "file": "stone-nut-gear.glb",
+  "title": "Stone Nut Gear (Medieval Watermill and Granary)",
+  "summary": "Eight-tooth small stone nut gear with matching tooth pitch, hub and independent mounting bore.",
+  "triangles": 7136,
+  "animations": [],
+  "sizeMeters": [
+   0.62,
+   0.28,
+   0.62
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-stone-nut-gear-7cccc5d8"
+ },
+ {
+  "file": "tailrace-channel.glb",
+  "title": "Tailrace Channel (Medieval Watermill and Granary)",
+  "summary": "Broad dissipating tailrace with battered stone banks, six external buttresses and four low cross-bed baffles; original inlet/outlet water levels retained.",
+  "triangles": 3400,
+  "animations": [],
+  "sizeMeters": [
+   1.98,
+   0.6,
+   3.018
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-tailrace-channel-723d6d24"
+ },
+ {
+  "file": "tailrace-footbridge.glb",
+  "title": "Tailrace Footbridge (Medieval Watermill and Granary)",
+  "summary": "Short oak pedestrian bridge with underside stringers, deck boards and two complete supported handrails.",
+  "triangles": 4800,
+  "animations": [],
+  "sizeMeters": [
+   1.16,
+   1.18,
+   1.83
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-tailrace-footbridge-b2922845"
+ },
+ {
+  "file": "tentering-beam-assembly.glb",
+  "title": "Tentering Beam Assembly (Medieval Watermill and Granary)",
+  "summary": "Supported tenter beam with adjustable screw, crank bar and seated lower spindle bearing.",
+  "triangles": 1840,
+  "animations": [],
+  "sizeMeters": [
+   1.161,
+   0.715,
+   0.4
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-tentering-beam-assembly-f91c11c7"
+ },
+ {
+  "file": "tied-flour-sack.glb",
+  "title": "Tied Flour Sack (Medieval Watermill and Granary)",
+  "summary": "Bulged linen flour sack with gathered pleats, narrowed tied neck and cord.",
+  "triangles": 1696,
+  "animations": [],
+  "sizeMeters": [
+   0.5,
+   0.68,
+   0.5
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-tied-flour-sack-056b8630"
+ },
+ {
+  "file": "timber-pit-wheel.glb",
+  "title": "Timber Pit Wheel (Medieval Watermill and Granary)",
+  "summary": "Twenty-four axial wooden cogs on supported oak pit wheel rim and eight spokes; geared crown face engages wallower.",
+  "triangles": 17536,
+  "animations": [],
+  "sizeMeters": [
+   1.6,
+   1.6,
+   0.375
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-timber-pit-wheel-07402433"
+ },
+ {
+  "file": "upright-drive-shaft.glb",
+  "title": "Upright Drive Shaft (Medieval Watermill and Granary)",
+  "summary": "Oak upright drive shaft with fitted upper and lower journal collars and structural mounting blocks.",
+  "triangles": 1688,
+  "animations": [],
+  "sizeMeters": [
+   0.42,
+   2.729,
+   0.38
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-upright-drive-shaft-907f0f04"
+ },
+ {
+  "file": "vibrating-feed-shoe.glb",
+  "title": "Vibrating Feed Shoe (Medieval Watermill and Granary)",
+  "summary": "Open feed shoe with raised sides, rear stop and suspension cords; discharge end remains open toward runner eye.",
+  "triangles": 1328,
+  "animations": [],
+  "sizeMeters": [
+   0.23,
+   0.36,
+   0.4
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-vibrating-feed-shoe-a06346f8"
+ },
+ {
+  "file": "water-control-sluice.glb",
+  "title": "Water Control Sluice (Medieval Watermill and Granary)",
+  "summary": "Grooved stop gate in fitted race bed with screw spindle and six-spoke horizontal control wheel.",
+  "triangles": 4400,
+  "animations": [],
+  "sizeMeters": [
+   1.4,
+   1.754,
+   1.1
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-water-control-sluice-077b601b"
+ },
+ {
+  "file": "watermill-landscape-bas.glb",
+  "title": "Watermill Landscape Base (Medieval Watermill and Granary)",
+  "summary": "Compact river-valley base with raised upstream stone bank for gravity-fed leat and level mill/service terrace.",
+  "triangles": 11780,
+  "animations": [],
+  "sizeMeters": [
+   18,
+   3.65,
+   16
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-watermill-landscape-bas-b30f7408"
+ },
+ {
+  "file": "wheel-axle.glb",
+  "title": "Wheel Axle (Medieval Watermill and Granary)",
+  "summary": "Long oak through-wall axle with fitted iron bearing bands; exact matching support and wheel hub diameter.",
+  "triangles": 2240,
+  "animations": [],
+  "sizeMeters": [
+   0.264,
+   0.264,
+   4.17
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-wheel-axle-a465d207"
+ },
+ {
+  "file": "wheel-bearing-pier.glb",
+  "title": "Wheel Bearing Pier (Medieval Watermill and Granary)",
+  "summary": "Masonry bearing pier with timber cap, bolted iron saddle and bored journal for the wheel axle.",
+  "triangles": 4796,
+  "animations": [],
+  "sizeMeters": [
+   0.65,
+   1.98,
+   0.6
+  ],
+  "aiModel": "GPT-6",
+  "source": "https://3dassets.dev/assets/medieval-watermill-and-granary-wheel-bearing-pier-2569d4d8"
+ }
+]

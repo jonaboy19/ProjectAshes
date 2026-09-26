@@ -1,0 +1,4 @@
+"Canal Town and Windmill" from 3dassets.dev (https://3dassets.dev/packs/canal-town-and-windmill)
+Licence: CC0 1.0 Universal (every asset verified cc0-1.0 via the site API on 2026-09-26). No attribution required.
+AI-GENERATED: the site marks this pack aiGenerated=true (models: Claude Opus 5). Review visually before shipping.
+A northern European canal town on a 4 m grid: stepped and bell gable house fronts with pantile roofs, a quay, bridges, a lock and the craft that work them, and a tower mill whose cap winds and whose four sails turn.

@@ -1,0 +1,868 @@
+[
+ {
+  "file": "canal-barge-hull.glb",
+  "title": "Canal Barge Hull (Canal Town and Windmill)",
+  "summary": "Free 3D model of a canal barge hull for a historical waterway kit: 12.6 m flat bottomed carrier with a boarded hold, leeboards, mast tabernacle and a working tiller.",
+  "triangles": 13472,
+  "animations": [
+   "steer"
+  ],
+  "sizeMeters": [
+   3.618,
+   4.995,
+   13.189
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-barge-hull-df431a75"
+ },
+ {
+  "file": "canal-drawbridge.glb",
+  "title": "Canal Drawbridge (Canal Town and Windmill)",
+  "summary": "Free 3D model of a flat drawbridge with a counterweight beam for a historical canal town kit: the leaf lifts and the weighted balance beam swings with it.",
+  "triangles": 6420,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   3.9,
+   4.872,
+   7.89
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-drawbridge-3c317687"
+ },
+ {
+  "file": "canal-duckboard-walkway.glb",
+  "title": "Canal Duckboard Walkway (Canal Town and Windmill)",
+  "summary": "Free 3D model of a duckboard walkway module for a historical canal town kit: 3 m of planking on three bearers with edge rails.",
+  "triangles": 2052,
+  "animations": [],
+  "sizeMeters": [
+   1.2,
+   0.285,
+   3
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-duckboard-walkway-fb17558f"
+ },
+ {
+  "file": "canal-fender-piles.glb",
+  "title": "Canal Fender Piles (Canal Town and Windmill)",
+  "summary": "Free 3D model of canal fender piles with a rubbing timber for a historical quayside kit: three driven oak piles, iron hoops and three rope fenders.",
+  "triangles": 1086,
+  "animations": [],
+  "sizeMeters": [
+   3.6,
+   1.98,
+   0.708
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-fender-piles-a63d9eb8"
+ },
+ {
+  "file": "canal-house-corner-block.glb",
+  "title": "Canal House Corner Block (Canal Town and Windmill)",
+  "summary": "Free 3D model of a corner canal house for a historical town kit: stepped gable front with a 4 m return wall down the side street and a wall lantern on the corner.",
+  "triangles": 8924,
+  "animations": [
+   "door-open",
+   "door-close",
+   "shutter-open",
+   "shutter-close"
+  ],
+  "sizeMeters": [
+   5.3,
+   8.973,
+   4.801
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-house-corner-block-2b7f1aa4"
+ },
+ {
+  "file": "canal-house-front-bell-gable.glb",
+  "title": "Canal House Front Bell Gable (Canal Town and Windmill)",
+  "summary": "Free 3D model of a bell gable canal house front for a historical town game asset kit: curved brick gable with stone scrolls, a blank gable stone and working shutters.",
+  "triangles": 7232,
+  "animations": [
+   "door-open",
+   "door-close",
+   "shutter-open",
+   "shutter-close"
+  ],
+  "sizeMeters": [
+   4.16,
+   9.34,
+   0.81
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-house-front-bell-gable-950e4b1c"
+ },
+ {
+  "file": "canal-house-front-medium.glb",
+  "title": "Canal House Front Medium (Canal Town and Windmill)",
+  "summary": "Free 3D model of a stepped gable canal house front for a historical town game asset kit: 4.2 m brick facade with a hoist beam, panelled door and working shutters.",
+  "triangles": 5992,
+  "animations": [
+   "door-open",
+   "door-close",
+   "shutter-open",
+   "shutter-close"
+  ],
+  "sizeMeters": [
+   4.16,
+   9.1,
+   1.39
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-house-front-medium-71ffaaf9"
+ },
+ {
+  "file": "canal-house-front-narrow.glb",
+  "title": "Canal House Front Narrow (Canal Town and Windmill)",
+  "summary": "Free 3D model of a narrow stepped gable canal house front for a historical town game asset kit: brick facade, panelled door and shutters that open.",
+  "triangles": 4492,
+  "animations": [
+   "door-open",
+   "door-close",
+   "shutter-open",
+   "shutter-close"
+  ],
+  "sizeMeters": [
+   3.159,
+   9.1,
+   1.39
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-house-front-narrow-7e9216de"
+ },
+ {
+  "file": "canal-house-front-wide.glb",
+  "title": "Canal House Front Wide (Canal Town and Windmill)",
+  "summary": "Free 3D model of a wide stepped gable canal house front for a historical town game asset kit: 5.2 m brick facade, tall ground floor window and working shutters.",
+  "triangles": 6316,
+  "animations": [
+   "door-open",
+   "door-close",
+   "shutter-open",
+   "shutter-close"
+  ],
+  "sizeMeters": [
+   5.16,
+   9.39,
+   1.39
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-house-front-wide-bef69b8b"
+ },
+ {
+  "file": "canal-humpback-bridge.glb",
+  "title": "Canal Humpback Bridge (Canal Town and Windmill)",
+  "summary": "Free 3D model of a humpback brick canal bridge for a historical canal town kit: 10 m segmental arch with a stone voussoir ring, cobbled deck and brick parapets.",
+  "triangles": 12108,
+  "animations": [],
+  "sizeMeters": [
+   10.8,
+   4.165,
+   3.4
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-humpback-bridge-9590734c"
+ },
+ {
+  "file": "canal-lock-gate-pair.glb",
+  "title": "Canal Lock Gate Pair (Canal Town and Windmill)",
+  "summary": "Free 3D model of a mitred canal lock gate pair for a historical waterway kit: two planked oak leaves on heel posts with balance beams, both swinging.",
+  "triangles": 3104,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   11.76,
+   3.78,
+   3.3
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-lock-gate-pair-3b0b9277"
+ },
+ {
+  "file": "canal-punt.glb",
+  "title": "Canal Punt (Canal Town and Windmill)",
+  "summary": "Free 3D model of a flat bottomed canal punt for a historical waterway kit: 5.4 m planked platform with raked ends, two thwarts and a quant pole shipped aboard.",
+  "triangles": 3696,
+  "animations": [],
+  "sizeMeters": [
+   1.29,
+   0.636,
+   5.714
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-punt-f6e10158"
+ },
+ {
+  "file": "canal-quay-crane.glb",
+  "title": "Canal Quay Crane (Canal Town and Windmill)",
+  "summary": "Free 3D model of a timber post crane for a historical canal quay kit: stone base, oak post and a braced jib with a sheave, hook and winch drum that slew together.",
+  "triangles": 1048,
+  "animations": [
+   "slew"
+  ],
+  "sizeMeters": [
+   1.6,
+   4.928,
+   3.979
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-quay-crane-fbb483b8"
+ },
+ {
+  "file": "canal-quay-edge.glb",
+  "title": "Canal Quay Edge (Canal Town and Windmill)",
+  "summary": "Free 3D model of a brick canal quay edge with mooring rings and a bollard for a historical canal town kit: 4 m module with a stone coping.",
+  "triangles": 942,
+  "animations": [],
+  "sizeMeters": [
+   4.074,
+   1.8,
+   0.925
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-quay-edge-7ff35b35"
+ },
+ {
+  "file": "canal-rowing-boat.glb",
+  "title": "Canal Rowing Boat (Canal Town and Windmill)",
+  "summary": "Free 3D model of a clinker built rowing boat for a historical canal town kit: 3.9 m hull with lapped strakes, three thwarts and a pair of oars shipped inboard.",
+  "triangles": 12744,
+  "animations": [],
+  "sizeMeters": [
+   1.608,
+   0.876,
+   3.924
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-rowing-boat-8609513a"
+ },
+ {
+  "file": "canal-stepped-landing.glb",
+  "title": "Canal Stepped Landing (Canal Town and Windmill)",
+  "summary": "Free 3D model of a stepped stone canal landing for a historical canal town kit: seven treads down the quay face into the water, iron handrails and a mooring ring.",
+  "triangles": 1764,
+  "animations": [],
+  "sizeMeters": [
+   4.024,
+   2.174,
+   1.67
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-stepped-landing-8b15cf0f"
+ },
+ {
+  "file": "canal-town-quay--3bebfcd5-starter-scene.glb",
+  "title": "Canal Town Quay and Mill (Canal Town and Windmill)",
+  "summary": "A working canal cut through a brick town. A terrace of five gabled fronts stands along the far bank, turning a corner at one end and roofed in pantiles from the kit with dormers, chimneys and a party wall run closing the back; its street runs between the fronts and the quay,...",
+  "triangles": 187230,
+  "animations": [],
+  "sizeMeters": [
+   33.262,
+   15.002,
+   29.458
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-town-quay--3bebfcd5-starter-scene"
+ },
+ {
+  "file": "canal-water-module.glb",
+  "title": "Canal Water Module (Canal Town and Windmill)",
+  "summary": "Free 3D model of a canal water tile for a historical canal town game asset kit: 4 m square dark green surface with low swells, ports on all four edges.",
+  "triangles": 864,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   0.911,
+   4
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-canal-water-module-4a9bd252"
+ },
+ {
+  "file": "cheese-stack-on-board.glb",
+  "title": "Cheese Stack On Board (Canal Town and Windmill)",
+  "summary": "Free 3D model of a stack of waxed cheeses on a market board for a historical canal town kit: eight round cheeses with red rinds on a planked trestle.",
+  "triangles": 1876,
+  "animations": [],
+  "sizeMeters": [
+   1.3,
+   0.89,
+   0.87
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-cheese-stack-on-board-bc1cf9a0"
+ },
+ {
+  "file": "cobbled-street-module.glb",
+  "title": "Cobbled Street Module (Canal Town and Windmill)",
+  "summary": "Free 3D model of a cobbled street tile for a historical canal town kit: 4 m square of sunk granite setts on a bedding slab with a gutter channel.",
+  "triangles": 1140,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   0.133,
+   4
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-cobbled-street-module-79614337"
+ },
+ {
+  "file": "dairy-butter-churn.glb",
+  "title": "Dairy Butter Churn (Canal Town and Windmill)",
+  "summary": "Free 3D model of a staved butter churn for a historical canal town dairy kit: hooped barrel on a trestle with a cranked lid and paddle that turn.",
+  "triangles": 1230,
+  "animations": [
+   "spin"
+  ],
+  "sizeMeters": [
+   0.954,
+   1.37,
+   0.68
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-dairy-butter-churn-ca51f19e"
+ },
+ {
+  "file": "delivery-bicycle.glb",
+  "title": "Delivery Bicycle (Canal Town and Windmill)",
+  "summary": "Free 3D model of a step through delivery bicycle with a front carrier for a historical canal town kit: spoked wheels that roll, a crate and a sack in the basket.",
+  "triangles": 3870,
+  "animations": [
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   0.748,
+   1.265,
+   2.19
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-delivery-bicycle-13493bc2"
+ },
+ {
+  "file": "flower-bulb-crate.glb",
+  "title": "Flower Bulb Crate (Canal Town and Windmill)",
+  "summary": "Free 3D model of a slatted crate of flower bulbs for a historical canal town market kit: open case with eighteen bulbs and a blank label panel.",
+  "triangles": 1848,
+  "animations": [],
+  "sizeMeters": [
+   0.86,
+   0.36,
+   0.645
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-flower-bulb-crate-9acc548e"
+ },
+ {
+  "file": "market-stall-with-awning.glb",
+  "title": "Market Stall With Awning (Canal Town and Windmill)",
+  "summary": "Free 3D model of a canal town market stall with an awning for a historical street kit: trestle board, striped canopy, crates and waxed cheeses on the board.",
+  "triangles": 3156,
+  "animations": [],
+  "sizeMeters": [
+   2.9,
+   2.364,
+   1.327
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-market-stall-with-awning-a330661e"
+ },
+ {
+  "file": "mill-cap-and-tail-pole.glb",
+  "title": "Mill Cap And Tail Pole (Canal Town and Windmill)",
+  "summary": "Free 3D model of a boarded windmill cap with windshaft and tail pole for a historical tower mill kit: the whole cap winds round on its curb as one node.",
+  "triangles": 3318,
+  "animations": [
+   "turn"
+  ],
+  "sizeMeters": [
+   6.361,
+   3.101,
+   8.747
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-mill-cap-and-tail-pole-b202be11"
+ },
+ {
+  "file": "mill-entry-door-unit.glb",
+  "title": "Mill Entry Door Unit (Canal Town and Windmill)",
+  "summary": "Free 3D model of a stone windmill doorway with a hinged plank door for a historical mill kit: jambs, head beam, a step and a blank carved gable stone.",
+  "triangles": 1864,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   2.02,
+   3.65,
+   1.005
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-mill-entry-door-unit-fb54166e"
+ },
+ {
+  "file": "mill-flour-cart.glb",
+  "title": "Mill Flour Cart (Canal Town and Windmill)",
+  "summary": "Free 3D model of a two wheel flour cart for a historical mill and canal town kit: spoked iron tyred wheels, boarded body, shafts and sacks of flour.",
+  "triangles": 3788,
+  "animations": [
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   2.18,
+   1.717,
+   2.72
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-mill-flour-cart-156904a4"
+ },
+ {
+  "file": "mill-grain-hopper-and-chute.glb",
+  "title": "Mill Grain Hopper And Chute (Canal Town and Windmill)",
+  "summary": "Free 3D model of a windmill grain hopper and chute on a timber frame for a historical mill kit: raking boarded hopper, boxed spout and a sack stand.",
+  "triangles": 1416,
+  "animations": [],
+  "sizeMeters": [
+   2.13,
+   2.155,
+   2.25
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-mill-grain-hopper-and-chute-2111998e"
+ },
+ {
+  "file": "mill-grain-sacks.glb",
+  "title": "Mill Grain Sacks (Canal Town and Windmill)",
+  "summary": "Free 3D model of a group of tied grain sacks for a historical mill and quayside kit: three standing and one lying, corded at the neck.",
+  "triangles": 924,
+  "animations": [],
+  "sizeMeters": [
+   1.689,
+   1.022,
+   1.402
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-mill-grain-sacks-5b7598bd"
+ },
+ {
+  "file": "mill-hoist-beam-and-hook.glb",
+  "title": "Mill Hoist Beam And Hook (Canal Town and Windmill)",
+  "summary": "Free 3D model of a mill hoist beam with a pulley and a sack hook for a historical windmill kit: bracketed oak beam, cased sheave, chain and hook that lift.",
+  "triangles": 1204,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   0.56,
+   2.53,
+   2.6
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-mill-hoist-beam-and-hook-71764b90"
+ },
+ {
+  "file": "mill-millstones-and-tun.glb",
+  "title": "Mill Millstones And Tun (Canal Town and Windmill)",
+  "summary": "Free 3D model of a windmill millstone pair in a wooden tun for a historical mill kit: dressed runner stone turning on its spindle over the bedstone.",
+  "triangles": 4240,
+  "animations": [
+   "spin"
+  ],
+  "sizeMeters": [
+   2.8,
+   2.16,
+   2.84
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-mill-millstones-and-tun-cd6f8efc"
+ },
+ {
+  "file": "mill-sail-cross.glb",
+  "title": "Mill Sail Cross (Canal Town and Windmill)",
+  "summary": "Free 3D model of a four sail windmill cross for a historical tower mill kit: whip, sail bars and spread cloth on a cast hub, turning as one node.",
+  "triangles": 8364,
+  "animations": [
+   "spin"
+  ],
+  "sizeMeters": [
+   10.4,
+   10.4,
+   0.83
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-mill-sail-cross-409ea4d1"
+ },
+ {
+  "file": "mill-spare-sail-frame.glb",
+  "title": "Mill Spare Sail Frame (Canal Town and Windmill)",
+  "summary": "Free 3D model of a spare windmill sail frame on trestles for a historical mill yard: whip, sail bars and leading board, laid out uncovered.",
+  "triangles": 2052,
+  "animations": [],
+  "sizeMeters": [
+   1.7,
+   0.662,
+   5.1
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-mill-spare-sail-frame-a0450e8d"
+ },
+ {
+  "file": "mill-stage-gallery.glb",
+  "title": "Mill Stage Gallery (Canal Town and Windmill)",
+  "summary": "Free 3D model of a windmill stage gallery with railing for a historical tower mill kit: planked octagonal deck on raking brackets, painted handrail.",
+  "triangles": 14880,
+  "animations": [],
+  "sizeMeters": [
+   8.344,
+   1.987,
+   8.344
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-mill-stage-gallery-dbfa36b3"
+ },
+ {
+  "file": "mill-tower-lower-stage.glb",
+  "title": "Mill Tower Lower Stage (Canal Town and Windmill)",
+  "summary": "Free 3D model of a brick tower mill lower stage for a historical canal town game asset kit: battered octagonal body, stone plinth and a lined door reveal.",
+  "triangles": 656,
+  "animations": [],
+  "sizeMeters": [
+   7.12,
+   4.22,
+   7.12
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-mill-tower-lower-stage-bb445c4d"
+ },
+ {
+  "file": "mill-tower-upper-stage.glb",
+  "title": "Mill Tower Upper Stage (Canal Town and Windmill)",
+  "summary": "Free 3D model of a brick tower mill upper stage with a stone curb ring for a historical windmill game asset kit: four glazed lights, battered octagonal body.",
+  "triangles": 1000,
+  "animations": [],
+  "sizeMeters": [
+   5.9,
+   3.33,
+   5.9
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-mill-tower-upper-stage-9509f5db"
+ },
+ {
+  "file": "pantile-dormer-window.glb",
+  "title": "Pantile Dormer Window (Canal Town and Windmill)",
+  "summary": "Free 3D model of a boarded dormer window for a historical canal town roof kit: shuttered light, weatherboarded cheeks and a tiled gable roof.",
+  "triangles": 2264,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   1.902,
+   2.23,
+   1.358
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-pantile-dormer-window-c219ac17"
+ },
+ {
+  "file": "pantile-ridge-cap.glb",
+  "title": "Pantile Ridge Cap (Canal Town and Windmill)",
+  "summary": "Free 3D model of a pantile ridge cap module for a historical canal town kit: 4 m of half round ridge tiles on a bedding timber.",
+  "triangles": 396,
+  "animations": [],
+  "sizeMeters": [
+   4.107,
+   0.354,
+   0.348
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-pantile-ridge-cap-ddaa8e22"
+ },
+ {
+  "file": "pantile-roof-slope.glb",
+  "title": "Pantile Roof Slope (Canal Town and Windmill)",
+  "summary": "Free 3D model of a pantile roof slope module for a historical canal town kit: 4 m of rolled clay pantiles on boarded rafters at 45 degrees, with a painted fascia.",
+  "triangles": 1332,
+  "animations": [],
+  "sizeMeters": [
+   4.12,
+   2.872,
+   2.832
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-pantile-roof-slope-9f4556b8"
+ },
+ {
+  "file": "quayside-bench.glb",
+  "title": "Quayside Bench (Canal Town and Windmill)",
+  "summary": "Free 3D model of a slatted quayside bench for a historical canal town street kit: cast iron ends with scroll arms and six timber slats.",
+  "triangles": 1240,
+  "animations": [],
+  "sizeMeters": [
+   1.8,
+   1.051,
+   0.6
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-quayside-bench-13badf82"
+ },
+ {
+  "file": "quayside-oak-barrels.glb",
+  "title": "Quayside Oak Barrels (Canal Town and Windmill)",
+  "summary": "Free 3D model of a group of oak barrels for a historical canal quay kit: three standing casks with iron hoops and one rolled on its side.",
+  "triangles": 1536,
+  "animations": [],
+  "sizeMeters": [
+   2.126,
+   0.934,
+   1.73
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-quayside-oak-barrels-331e1518"
+ },
+ {
+  "file": "quayside-packing-crates.glb",
+  "title": "Quayside Packing Crates (Canal Town and Windmill)",
+  "summary": "Free 3D model of a stack of timber packing crates for a historical canal quay kit: four battened cases with blank shipping panels, stacked and skewed.",
+  "triangles": 3072,
+  "animations": [],
+  "sizeMeters": [
+   1.879,
+   1.54,
+   0.998
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-quayside-packing-crates-3199787b"
+ },
+ {
+  "file": "shopfront-bay-front.glb",
+  "title": "Shopfront Bay Front (Canal Town and Windmill)",
+  "summary": "Free 3D model of a canal town shopfront with a glazed bay and awning for a historical street kit: painted shop bay, blank hanging sign and a stepped gable over it.",
+  "triangles": 4160,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   4.16,
+   8.89,
+   2.17
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-shopfront-bay-front-95289f9b"
+ },
+ {
+  "file": "street-handcart.glb",
+  "title": "Street Handcart (Canal Town and Windmill)",
+  "summary": "Free 3D model of a two wheel street handcart for a historical canal town kit: boarded body, shafts and spoked iron tyred wheels that roll.",
+  "triangles": 3120,
+  "animations": [
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   1.74,
+   0.897,
+   2.23
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-street-handcart-e85e9ee4"
+ },
+ {
+  "file": "street-water-pump.glb",
+  "title": "Street Water Pump (Canal Town and Windmill)",
+  "summary": "Free 3D model of a cased street water pump for a historical canal town kit: painted column, brass spout, a bucket under it and a handle that rocks.",
+  "triangles": 1004,
+  "animations": [
+   "pump"
+  ],
+  "sizeMeters": [
+   0.9,
+   2.16,
+   1.835
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-street-water-pump-cb57e753"
+ },
+ {
+  "file": "town-chimney-stack.glb",
+  "title": "Town Chimney Stack (Canal Town and Windmill)",
+  "summary": "Free 3D model of a brick chimney stack with clay pots for a historical canal town roof kit: corbelled head, stone weathering and two pots.",
+  "triangles": 720,
+  "animations": [],
+  "sizeMeters": [
+   1.34,
+   3.4,
+   0.98
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-town-chimney-stack-bb7ad8be"
+ },
+ {
+  "file": "town-doorstep-and-railing.glb",
+  "title": "Town Doorstep And Railing (Canal Town and Windmill)",
+  "summary": "Free 3D model of a stone doorstep with iron railings for a historical canal town street kit: two treads, area railings, brass finials and a boot scraper.",
+  "triangles": 752,
+  "animations": [],
+  "sizeMeters": [
+   2.6,
+   1.26,
+   1.2
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-town-doorstep-and-railing-9fd09f87"
+ },
+ {
+  "file": "town-hitching-post.glb",
+  "title": "Town Hitching Post (Canal Town and Windmill)",
+  "summary": "Free 3D model of a stone hitching post with an iron ring for a historical canal town street kit: turned post, moulded cap and a tethering ring.",
+  "triangles": 242,
+  "animations": [],
+  "sizeMeters": [
+   0.285,
+   1.22,
+   0.3
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-town-hitching-post-28eb6d39"
+ },
+ {
+  "file": "town-party-wall-run.glb",
+  "title": "Town Party Wall Run (Canal Town and Windmill)",
+  "summary": "Free 3D model of a blank brick party wall run for a historical canal town kit: 4 m module with small lights and a stone coped head.",
+  "triangles": 2088,
+  "animations": [],
+  "sizeMeters": [
+   4.16,
+   7.2,
+   0.82
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-town-party-wall-run-092848b7"
+ },
+ {
+  "file": "town-signpost-blank-boards.glb",
+  "title": "Town Signpost Blank Boards (Canal Town and Windmill)",
+  "summary": "Free 3D model of a painted canal town signpost with three blank finger boards for a historical street kit: turned post, stone collar and pointed boards.",
+  "triangles": 910,
+  "animations": [],
+  "sizeMeters": [
+   1.739,
+   3.16,
+   2.411
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-town-signpost-blank-boards-5e143417"
+ },
+ {
+  "file": "town-street-lamp.glb",
+  "title": "Town Street Lamp (Canal Town and Windmill)",
+  "summary": "Free 3D model of a cast iron canal town street lamp for a historical street kit: fluted column, glazed four pane lantern and a brass finial.",
+  "triangles": 1052,
+  "animations": [],
+  "sizeMeters": [
+   0.647,
+   4.92,
+   0.68
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-town-street-lamp-2c561969"
+ },
+ {
+  "file": "tulip-trough.glb",
+  "title": "Tulip Trough (Canal Town and Windmill)",
+  "summary": "Free 3D model of a planted tulip trough for a historical canal town street kit: painted timber trough with fourteen red tulips in two rows.",
+  "triangles": 4512,
+  "animations": [],
+  "sizeMeters": [
+   1.68,
+   1.09,
+   0.7
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-tulip-trough-8346114c"
+ },
+ {
+  "file": "warehouse-front-with-hoist.glb",
+  "title": "Warehouse Front With Hoist (Canal Town and Windmill)",
+  "summary": "Free 3D model of a canal warehouse front with a gable hoist for a historical town kit: three tiers of loading shutters that open, a stepped gable and a sheave beam.",
+  "triangles": 7312,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   5.16,
+   9.19,
+   1.99
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-warehouse-front-with-hoist-afaa53f4"
+ },
+ {
+  "file": "window-box-with-flowers.glb",
+  "title": "Window Box With Flowers (Canal Town and Windmill)",
+  "summary": "Free 3D model of a painted window box of red geraniums for a historical canal town kit: planted box with nine blooms and trailing foliage.",
+  "triangles": 3204,
+  "animations": [],
+  "sizeMeters": [
+   1.15,
+   0.594,
+   0.3
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-window-box-with-flowers-db87b3e4"
+ },
+ {
+  "file": "yard-broom.glb",
+  "title": "Yard Broom (Canal Town and Windmill)",
+  "summary": "Free 3D model of a bound birch yard broom for a historical canal town street kit: twig head on an iron hoop with a long tapered handle.",
+  "triangles": 2596,
+  "animations": [],
+  "sizeMeters": [
+   0.739,
+   1.784,
+   0.308
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-yard-broom-4b22ca03"
+ },
+ {
+  "file": "yard-clothes-line-frame.glb",
+  "title": "Yard Clothes Line Frame (Canal Town and Windmill)",
+  "summary": "Free 3D model of a clothes line on a timber frame for a historical canal town yard kit: two braced posts, three lines and seven pieces of washing hung out.",
+  "triangles": 2316,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   2.1,
+   0.856
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-yard-clothes-line-frame-22d7a120"
+ },
+ {
+  "file": "yard-wheelbarrow.glb",
+  "title": "Yard Wheelbarrow (Canal Town and Windmill)",
+  "summary": "Free 3D model of a timber and iron wheelbarrow for a historical canal town yard kit: riveted tray, long handles, a spoked wheel that rolls and a load of rubble.",
+  "triangles": 2452,
+  "animations": [
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   0.769,
+   0.805,
+   2.425
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/canal-town-and-windmill-yard-wheelbarrow-99feba61"
+ }
+]

@@ -1,0 +1,1038 @@
+[
+ {
+  "file": "archery-range-upgraded.glb",
+  "title": "Archery Range Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded roofed shooting line with three targets and side safety fencing.",
+  "triangles": 652,
+  "animations": [],
+  "sizeMeters": [
+   10.06,
+   6,
+   8.05
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-archery-range-upgraded-4e004eda"
+ },
+ {
+  "file": "archery-range.glb",
+  "title": "Archery Range (Medieval RTS Faction Buildings)",
+  "summary": "Roofed shooting line with three targets and side safety fencing.",
+  "triangles": 476,
+  "animations": [],
+  "sizeMeters": [
+   6.52,
+   3.2,
+   7.51
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-archery-range-6ecd8399"
+ },
+ {
+  "file": "armoury.glb",
+  "title": "Armoury (Medieval RTS Faction Buildings)",
+  "summary": "Stone armoury with iron doors, shield plaques and weapon storage porch.",
+  "triangles": 168,
+  "animations": [],
+  "sizeMeters": [
+   5.6,
+   4.75,
+   4.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-armoury-c03a89ac"
+ },
+ {
+  "file": "arrow-tower-upgraded.glb",
+  "title": "Arrow Tower Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded square defensive tower with projecting firing gallery and blue pointed roof.",
+  "triangles": 256,
+  "animations": [],
+  "sizeMeters": [
+   8.921,
+   9,
+   5.922
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-arrow-tower-upgraded-3198b808"
+ },
+ {
+  "file": "arrow-tower.glb",
+  "title": "Arrow Tower (Medieval RTS Faction Buildings)",
+  "summary": "Square defensive tower with projecting firing gallery and blue pointed roof.",
+  "triangles": 80,
+  "animations": [],
+  "sizeMeters": [
+   4.243,
+   9,
+   4.243
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-arrow-tower-79c83e9c"
+ },
+ {
+  "file": "bakery.glb",
+  "title": "Bakery (Medieval RTS Faction Buildings)",
+  "summary": "Bakery cottage with external vaulted oven and flour sacks.",
+  "triangles": 932,
+  "animations": [],
+  "sizeMeters": [
+   7.15,
+   4.25,
+   4.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-bakery-7e1a3a12"
+ },
+ {
+  "file": "beacon-post.glb",
+  "title": "Beacon Post (Medieval RTS Faction Buildings)",
+  "summary": "Sloped timber beacon support with broad iron signal basket.",
+  "triangles": 144,
+  "animations": [],
+  "sizeMeters": [
+   2.2,
+   3.915,
+   2.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-beacon-post-6846f245"
+ },
+ {
+  "file": "blacksmith.glb",
+  "title": "Blacksmith (Medieval RTS Faction Buildings)",
+  "summary": "Open forge hall with furnace, horned anvil and coal bin.",
+  "triangles": 208,
+  "animations": [],
+  "sizeMeters": [
+   5.9,
+   5.18,
+   5.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-blacksmith-656cfc3c"
+ },
+ {
+  "file": "border-checkpoint.glb",
+  "title": "Border Checkpoint (Medieval RTS Faction Buildings)",
+  "summary": "Two guard huts and a raised timber inspection barrier across a clear lane.",
+  "triangles": 316,
+  "animations": [],
+  "sizeMeters": [
+   8.6,
+   4.25,
+   2.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-border-checkpoint-664963e9"
+ },
+ {
+  "file": "brewery.glb",
+  "title": "Brewery (Medieval RTS Faction Buildings)",
+  "summary": "Brewhouse with three large outdoor fermentation vats and high flue.",
+  "triangles": 1172,
+  "animations": [],
+  "sizeMeters": [
+   7.22,
+   5.18,
+   6.015
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-brewery-4bf8a37c"
+ },
+ {
+  "file": "butchery.glb",
+  "title": "Butchery (Medieval RTS Faction Buildings)",
+  "summary": "Open-front butcher shelter with hanging frame and cutting slab.",
+  "triangles": 200,
+  "animations": [],
+  "sizeMeters": [
+   3.6,
+   4.25,
+   4.7
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-butchery-bca920d9"
+ },
+ {
+  "file": "carpenters-shop.glb",
+  "title": "Carpenters Shop (Medieval RTS Faction Buildings)",
+  "summary": "Timber workshop with long workbench, cut planks and exposed roof truss.",
+  "triangles": 212,
+  "animations": [],
+  "sizeMeters": [
+   6.3,
+   4.25,
+   5.75
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-carpenters-shop-713427c8"
+ },
+ {
+  "file": "cavalry-stables-upgrade.glb",
+  "title": "Cavalry Stables Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded three open stable bays with hitching rail and feed trough.",
+  "triangles": 376,
+  "animations": [],
+  "sizeMeters": [
+   10.15,
+   6,
+   6.881
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-cavalry-stables-upgrade-c637ba16"
+ },
+ {
+  "file": "cavalry-stables.glb",
+  "title": "Cavalry Stables (Medieval RTS Faction Buildings)",
+  "summary": "Three open stable bays with hitching rail and feed trough.",
+  "triangles": 200,
+  "animations": [],
+  "sizeMeters": [
+   6.7,
+   4.7,
+   5.431
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-cavalry-stables-53f9485b"
+ },
+ {
+  "file": "chapel-upgraded.glb",
+  "title": "Chapel Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded cross-plan stone chapel with open doorway, bell cote and simple finial.",
+  "triangles": 512,
+  "animations": [],
+  "sizeMeters": [
+   10.1,
+   6,
+   7.1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-chapel-upgraded-26a1e37c"
+ },
+ {
+  "file": "chapel.glb",
+  "title": "Chapel (Medieval RTS Faction Buildings)",
+  "summary": "Cross-plan stone chapel with open doorway, bell cote and simple finial.",
+  "triangles": 336,
+  "animations": [],
+  "sizeMeters": [
+   6.6,
+   5.8,
+   6.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-chapel-f8818b77"
+ },
+ {
+  "file": "command-tent.glb",
+  "title": "Command Tent (Medieval RTS Faction Buildings)",
+  "summary": "Large peaked blue command pavilion with open front and entrance standards.",
+  "triangles": 96,
+  "animations": [],
+  "sizeMeters": [
+   4.9,
+   4.2,
+   4.79
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-command-tent-2eebb2b8"
+ },
+ {
+  "file": "construction-foundation.glb",
+  "title": "Construction Foundation (Medieval RTS Faction Buildings)",
+  "summary": "Outlined 6 m building foundation with corner footing blocks and stacked supplies.",
+  "triangles": 156,
+  "animations": [],
+  "sizeMeters": [
+   6.5,
+   2.04,
+   6.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-construction-foundation-6b71cea2"
+ },
+ {
+  "file": "construction-scaffold.glb",
+  "title": "Construction Scaffold (Medieval RTS Faction Buildings)",
+  "summary": "Braced two-level construction scaffold with access rungs and plank decks.",
+  "triangles": 120,
+  "animations": [],
+  "sizeMeters": [
+   4.3,
+   4.024,
+   1.7
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-construction-scaffold-32f8c4ae"
+ },
+ {
+  "file": "fishing-dock.glb",
+  "title": "Fishing Dock (Medieval RTS Faction Buildings)",
+  "summary": "Raised plank dock with covered net shelter, bollards and fish-drying rack.",
+  "triangles": 380,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   4.2,
+   7
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-fishing-dock-075a0b03"
+ },
+ {
+  "file": "fountain-plaza.glb",
+  "title": "Fountain Plaza (Medieval RTS Faction Buildings)",
+  "summary": "Octagonal civic basin with tiered central fountain and paved base; no water effect.",
+  "triangles": 240,
+  "animations": [],
+  "sizeMeters": [
+   6,
+   2.6,
+   6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-fountain-plaza-be32412a"
+ },
+ {
+  "file": "grain-mill-upgraded.glb",
+  "title": "Grain Mill Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded four-sailed tower windmill with raised stone base and milling shed.",
+  "triangles": 460,
+  "animations": [],
+  "sizeMeters": [
+   9.8,
+   7,
+   5.99
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-grain-mill-upgraded-18000557"
+ },
+ {
+  "file": "grain-mill.glb",
+  "title": "Grain Mill (Medieval RTS Faction Buildings)",
+  "summary": "Four-sailed tower windmill with raised stone base and milling shed.",
+  "triangles": 284,
+  "animations": [],
+  "sizeMeters": [
+   7.8,
+   7,
+   4.19
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-grain-mill-aa591f46"
+ },
+ {
+  "file": "grain-stockpile.glb",
+  "title": "Grain Stockpile (Medieval RTS Faction Buildings)",
+  "summary": "Food resource marker: tied grain sacks on a low pallet.",
+  "triangles": 396,
+  "animations": [],
+  "sizeMeters": [
+   2.3,
+   1.02,
+   1.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-grain-stockpile-3aaa323c"
+ },
+ {
+  "file": "granary-upgraded.glb",
+  "title": "Granary Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded raised granary with stone vermin barriers and external loading stair.",
+  "triangles": 620,
+  "animations": [],
+  "sizeMeters": [
+   9.1,
+   6,
+   8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-granary-upgraded-0008f94f"
+ },
+ {
+  "file": "granary.glb",
+  "title": "Granary (Medieval RTS Faction Buildings)",
+  "summary": "Raised granary with stone vermin barriers and external loading stair.",
+  "triangles": 444,
+  "animations": [],
+  "sizeMeters": [
+   4.6,
+   5.25,
+   7
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-granary-807bb3c9"
+ },
+ {
+  "file": "guardhouse.glb",
+  "title": "Guardhouse (Medieval RTS Faction Buildings)",
+  "summary": "Stone guard quarters with gated inspection porch and roof parapet.",
+  "triangles": 860,
+  "animations": [],
+  "sizeMeters": [
+   5.2,
+   5,
+   5.865
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-guardhouse-a5d241c8"
+ },
+ {
+  "file": "guildhall.glb",
+  "title": "Guildhall (Medieval RTS Faction Buildings)",
+  "summary": "Wealthy timber guildhall with jettied upper floor and ornamental blue hangings.",
+  "triangles": 316,
+  "animations": [],
+  "sizeMeters": [
+   7.2,
+   7.25,
+   5.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-guildhall-a06ebadd"
+ },
+ {
+  "file": "housing-cottage.glb",
+  "title": "Housing Cottage (Medieval RTS Faction Buildings)",
+  "summary": "Compact dwelling with chimney, porch and external wood store.",
+  "triangles": 212,
+  "animations": [],
+  "sizeMeters": [
+   6.3,
+   4.25,
+   5.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-housing-cottage-9d8c6b79"
+ },
+ {
+  "file": "housing-row.glb",
+  "title": "Housing Row (Medieval RTS Faction Buildings)",
+  "summary": "Three connected narrow dwellings with separate entrances and stepped roofline.",
+  "triangles": 420,
+  "animations": [],
+  "sizeMeters": [
+   6.6,
+   4.75,
+   4.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-housing-row-bb178a39"
+ },
+ {
+  "file": "infirmary-upgraded.glb",
+  "title": "Infirmary Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded low care hall with sheltered porch, blue cloth symbol and herb drying rack.",
+  "triangles": 420,
+  "animations": [],
+  "sizeMeters": [
+   10.1,
+   6,
+   8.05
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-infirmary-upgraded-a47ee1d9"
+ },
+ {
+  "file": "infirmary.glb",
+  "title": "Infirmary (Medieval RTS Faction Buildings)",
+  "summary": "Low care hall with sheltered porch, blue cloth symbol and herb drying rack.",
+  "triangles": 244,
+  "animations": [],
+  "sizeMeters": [
+   6.6,
+   4.25,
+   6.55
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-infirmary-d8def116"
+ },
+ {
+  "file": "kingdom-e-d793ddc5-starter-scene.glb",
+  "title": "Kingdom Economic Centre (Medieval RTS Faction Buildings)",
+  "summary": "Sixteen economic and civic buildings arranged on 14 m planning centres; all source models retain metre dimensions.",
+  "triangles": 7808,
+  "animations": [],
+  "sizeMeters": [
+   49.3,
+   8,
+   50.05
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-kingdom-e-d793ddc5-starter-scene"
+ },
+ {
+  "file": "kingdom-military-camp.glb",
+  "title": "Kingdom Military Camp (Medieval RTS Faction Buildings)",
+  "summary": "Military production, training and defense compound with sixteen distinct roles on spacious planning centres.",
+  "triangles": 5236,
+  "animations": [],
+  "sizeMeters": [
+   54.9,
+   9,
+   56.365
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-kingdom-military-camp-f43ead3d"
+ },
+ {
+  "file": "library-upgraded.glb",
+  "title": "Library Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded stone book hall with elevated central reading room and exterior book emblem.",
+  "triangles": 480,
+  "animations": [],
+  "sizeMeters": [
+   10.1,
+   7.75,
+   6.104
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-library-upgraded-bf4c693a"
+ },
+ {
+  "file": "library.glb",
+  "title": "Library (Medieval RTS Faction Buildings)",
+  "summary": "Stone book hall with elevated central reading room and exterior book emblem.",
+  "triangles": 304,
+  "animations": [],
+  "sizeMeters": [
+   6.6,
+   7.75,
+   4.604
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-library-105fdfb0"
+ },
+ {
+  "file": "market-square.glb",
+  "title": "Market Square (Medieval RTS Faction Buildings)",
+  "summary": "Four blue market stalls around a clear central pedestrian cross.",
+  "triangles": 272,
+  "animations": [],
+  "sizeMeters": [
+   9.5,
+   3.2,
+   8.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-market-square-b6b4cb4f"
+ },
+ {
+  "file": "masons-yard.glb",
+  "title": "Masons Yard (Medieval RTS Faction Buildings)",
+  "summary": "Masonry workshop with carving bench and differently worked blocks.",
+  "triangles": 204,
+  "animations": [],
+  "sizeMeters": [
+   5.8,
+   4.25,
+   4.9
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-masons-yard-4791b167"
+ },
+ {
+  "file": "militia-barracks-upgrad.glb",
+  "title": "Militia Barracks Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded long barracks with blue standards and outdoor spear muster rack.",
+  "triangles": 532,
+  "animations": [],
+  "sizeMeters": [
+   10.1,
+   6,
+   7.4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-militia-barracks-upgrad-2f566555"
+ },
+ {
+  "file": "militia-barracks.glb",
+  "title": "Militia Barracks (Medieval RTS Faction Buildings)",
+  "summary": "Long barracks with blue standards and outdoor spear muster rack.",
+  "triangles": 356,
+  "animations": [],
+  "sizeMeters": [
+   6.6,
+   4.7,
+   6.4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-militia-barracks-e88c71de"
+ },
+ {
+  "file": "mine-entrance-upgraded.glb",
+  "title": "Mine Entrance Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded buttressed stone mine portal with timber shoring and rail approach.",
+  "triangles": 956,
+  "animations": [],
+  "sizeMeters": [
+   9.3,
+   6,
+   9.3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-mine-entrance-upgraded-33632c4a"
+ },
+ {
+  "file": "mine-entrance.glb",
+  "title": "Mine Entrance (Medieval RTS Faction Buildings)",
+  "summary": "Buttressed stone mine portal with timber shoring and rail approach.",
+  "triangles": 780,
+  "animations": [],
+  "sizeMeters": [
+   5,
+   4,
+   6.565
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-mine-entrance-5db603e7"
+ },
+ {
+  "file": "monastery.glb",
+  "title": "Monastery (Medieval RTS Faction Buildings)",
+  "summary": "Three-wing cloister around a sheltered open courtyard.",
+  "triangles": 516,
+  "animations": [],
+  "sizeMeters": [
+   12.6,
+   4.75,
+   8.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-monastery-f83ac1a6"
+ },
+ {
+  "file": "observatory.glb",
+  "title": "Observatory (Medieval RTS Faction Buildings)",
+  "summary": "Octagonal observation tower with open roof ring and angled telescope.",
+  "triangles": 120,
+  "animations": [],
+  "sizeMeters": [
+   4.6,
+   5.767,
+   4.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-observatory-2eebea15"
+ },
+ {
+  "file": "ore-smelter-upgraded.glb",
+  "title": "Ore Smelter Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded tall masonry furnace with charge mouth, chimney and iron tapping trough.",
+  "triangles": 1280,
+  "animations": [],
+  "sizeMeters": [
+   8.55,
+   6,
+   7.05
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-ore-smelter-upgraded-5b120fd9"
+ },
+ {
+  "file": "ore-smelter.glb",
+  "title": "Ore Smelter (Medieval RTS Faction Buildings)",
+  "summary": "Tall masonry furnace with charge mouth, chimney and iron tapping trough.",
+  "triangles": 1104,
+  "animations": [],
+  "sizeMeters": [
+   4.56,
+   5.18,
+   5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-ore-smelter-97c32519"
+ },
+ {
+  "file": "ore-stockpile.glb",
+  "title": "Ore Stockpile (Medieval RTS Faction Buildings)",
+  "summary": "Ore resource marker: faceted dark ore nodules inside a timber bin.",
+  "triangles": 612,
+  "animations": [],
+  "sizeMeters": [
+   2.12,
+   1.12,
+   2.003
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-ore-stockpile-3e51ade8"
+ },
+ {
+  "file": "outpost-upgraded.glb",
+  "title": "Outpost Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded small fortified command yard with open gate, timber hall and corner platforms.",
+  "triangles": 1120,
+  "animations": [],
+  "sizeMeters": [
+   11.05,
+   6,
+   9.065
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-outpost-upgraded-e5572848"
+ },
+ {
+  "file": "outpost.glb",
+  "title": "Outpost (Medieval RTS Faction Buildings)",
+  "summary": "Small fortified command yard with open gate, timber hall and corner platforms.",
+  "triangles": 944,
+  "animations": [],
+  "sizeMeters": [
+   8.5,
+   4.25,
+   9.065
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-outpost-9f6474e3"
+ },
+ {
+  "file": "pottery-kiln.glb",
+  "title": "Pottery Kiln (Medieval RTS Faction Buildings)",
+  "summary": "Potters shelter with round masonry kiln, chimney and drying pots.",
+  "triangles": 532,
+  "animations": [],
+  "sizeMeters": [
+   6.95,
+   4.25,
+   4.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-pottery-kiln-bc6aa111"
+ },
+ {
+  "file": "quarry-office.glb",
+  "title": "Quarry Office (Medieval RTS Faction Buildings)",
+  "summary": "Stonecutters office beside squared stone blocks and lifting gantry.",
+  "triangles": 212,
+  "animations": [],
+  "sizeMeters": [
+   6,
+   4.25,
+   4.3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-quarry-office-7cc89270"
+ },
+ {
+  "file": "quartermaster-store.glb",
+  "title": "Quartermaster Store (Medieval RTS Faction Buildings)",
+  "summary": "Supply depot with covered issue counter and stacked crates and casks.",
+  "triangles": 596,
+  "animations": [],
+  "sizeMeters": [
+   7.4,
+   4.25,
+   5.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-quartermaster-store-856f1d65"
+ },
+ {
+  "file": "rally-standard.glb",
+  "title": "Rally Standard (Medieval RTS Faction Buildings)",
+  "summary": "Three pennants on a stone-based rally standard, readable from overhead.",
+  "triangles": 108,
+  "animations": [],
+  "sizeMeters": [
+   2.15,
+   4.2,
+   1.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-rally-standard-d8c4157d"
+ },
+ {
+  "file": "research-monument.glb",
+  "title": "Research Monument (Medieval RTS Faction Buildings)",
+  "summary": "Faceted obelisk and four smaller stones on a stepped research plaza.",
+  "triangles": 96,
+  "animations": [],
+  "sizeMeters": [
+   3,
+   3.8,
+   3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-research-monument-ead27cae"
+ },
+ {
+  "file": "sawmill-upgraded.glb",
+  "title": "Sawmill Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded long timber saw shed with exposed saw frame and log feed table.",
+  "triangles": 412,
+  "animations": [],
+  "sizeMeters": [
+   9.1,
+   6,
+   8.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-sawmill-upgraded-9c201d9a"
+ },
+ {
+  "file": "sawmill.glb",
+  "title": "Sawmill (Medieval RTS Faction Buildings)",
+  "summary": "Long timber saw shed with exposed saw frame and log feed table.",
+  "triangles": 236,
+  "animations": [],
+  "sizeMeters": [
+   6.3,
+   4.25,
+   7.7
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-sawmill-d8251d20"
+ },
+ {
+  "file": "siege-workshop-upgraded.glb",
+  "title": "Siege Workshop Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded tall assembly shed with visible crane gantry, spare wheels and throwing arm.",
+  "triangles": 592,
+  "animations": [],
+  "sizeMeters": [
+   10.1,
+   6.069,
+   7.925
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-siege-workshop-upgraded-9d785963"
+ },
+ {
+  "file": "siege-workshop.glb",
+  "title": "Siege Workshop (Medieval RTS Faction Buildings)",
+  "summary": "Tall assembly shed with visible crane gantry, spare wheels and throwing arm.",
+  "triangles": 416,
+  "animations": [],
+  "sizeMeters": [
+   8.2,
+   5.819,
+   7.425
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-siege-workshop-a2441a34"
+ },
+ {
+  "file": "stone-stockpile.glb",
+  "title": "Stone Stockpile (Medieval RTS Faction Buildings)",
+  "summary": "Stone resource marker: nine ashlar blocks arranged on a pallet.",
+  "triangles": 120,
+  "animations": [],
+  "sizeMeters": [
+   2.5,
+   1.25,
+   2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-stone-stockpile-ed885f2e"
+ },
+ {
+  "file": "supply-wagon.glb",
+  "title": "Supply Wagon (Medieval RTS Faction Buildings)",
+  "summary": "Four-wheel supply wagon with boxed cargo and two shafts.",
+  "triangles": 1032,
+  "animations": [],
+  "sizeMeters": [
+   2.2,
+   2.94,
+   4.553
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-supply-wagon-35ba6104"
+ },
+ {
+  "file": "tannery.glb",
+  "title": "Tannery (Medieval RTS Faction Buildings)",
+  "summary": "Tannery workshop with open rectangular tanning pits and drying frame.",
+  "triangles": 308,
+  "animations": [],
+  "sizeMeters": [
+   6.45,
+   4.25,
+   4.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-tannery-77a9d0bb"
+ },
+ {
+  "file": "tavern.glb",
+  "title": "Tavern (Medieval RTS Faction Buildings)",
+  "summary": "Timber tavern with covered serving porch and oversized barrel sign.",
+  "triangles": 544,
+  "animations": [],
+  "sizeMeters": [
+   5.6,
+   4.25,
+   7.55
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-tavern-cf4e3a5e"
+ },
+ {
+  "file": "timber-stockpile.glb",
+  "title": "Timber Stockpile (Medieval RTS Faction Buildings)",
+  "summary": "Timber resource marker: stacked beam bundles with retaining stakes.",
+  "triangles": 132,
+  "animations": [],
+  "sizeMeters": [
+   2.32,
+   1.4,
+   1.32
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-timber-stockpile-71baa9b0"
+ },
+ {
+  "file": "town-hall-upgraded.glb",
+  "title": "Town Hall Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded civic hall with broad entrance stair, tower and prominent blue banner.",
+  "triangles": 396,
+  "animations": [],
+  "sizeMeters": [
+   10.1,
+   8,
+   8.05
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-town-hall-upgraded-558fd08a"
+ },
+ {
+  "file": "town-hall.glb",
+  "title": "Town Hall (Medieval RTS Faction Buildings)",
+  "summary": "Civic hall with broad entrance stair, tower and prominent blue banner.",
+  "triangles": 220,
+  "animations": [],
+  "sizeMeters": [
+   6.6,
+   8,
+   7.05
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-town-hall-267c17e1"
+ },
+ {
+  "file": "trade-cart.glb",
+  "title": "Trade Cart (Medieval RTS Faction Buildings)",
+  "summary": "Covered merchants wagon with blue canopy and side rails.",
+  "triangles": 980,
+  "animations": [],
+  "sizeMeters": [
+   2.3,
+   4.1,
+   4.553
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-trade-cart-92da31ce"
+ },
+ {
+  "file": "trading-post.glb",
+  "title": "Trading Post (Medieval RTS Faction Buildings)",
+  "summary": "Trade shelter with service counter, blue awning and parcel stacks.",
+  "triangles": 316,
+  "animations": [],
+  "sizeMeters": [
+   6.9,
+   4.25,
+   6.55
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-trading-post-fe3bbbca"
+ },
+ {
+  "file": "training-arena.glb",
+  "title": "Training Arena (Medieval RTS Faction Buildings)",
+  "summary": "Octagonal fenced training ring with striking posts and viewing platform.",
+  "triangles": 300,
+  "animations": [],
+  "sizeMeters": [
+   7.2,
+   1.95,
+   7.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-training-arena-30a1beee"
+ },
+ {
+  "file": "war-academy.glb",
+  "title": "War Academy (Medieval RTS Faction Buildings)",
+  "summary": "Twin-wing stone military academy with central bannered lecture tower.",
+  "triangles": 444,
+  "animations": [],
+  "sizeMeters": [
+   10.6,
+   8.75,
+   5.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-war-academy-029c3732"
+ },
+ {
+  "file": "warehouse-upgraded.glb",
+  "title": "Warehouse Upgraded (Medieval RTS Faction Buildings)",
+  "summary": "Expanded wide warehouse with loading porch, double bay and large supply stacks.",
+  "triangles": 544,
+  "animations": [],
+  "sizeMeters": [
+   10.1,
+   6,
+   8.315
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-warehouse-upgraded-4c885729"
+ },
+ {
+  "file": "warehouse.glb",
+  "title": "Warehouse (Medieval RTS Faction Buildings)",
+  "summary": "Wide warehouse with loading porch, double bay and large supply stacks.",
+  "triangles": 368,
+  "animations": [],
+  "sizeMeters": [
+   8.4,
+   5.25,
+   7.815
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-warehouse-d2f51991"
+ },
+ {
+  "file": "watch-post.glb",
+  "title": "Watch Post (Medieval RTS Faction Buildings)",
+  "summary": "Open four-leg watch platform with ladder and small peaked roof.",
+  "triangles": 236,
+  "animations": [],
+  "sizeMeters": [
+   3,
+   6.042,
+   3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-watch-post-905d70e2"
+ },
+ {
+  "file": "weavers-workshop.glb",
+  "title": "Weavers Workshop (Medieval RTS Faction Buildings)",
+  "summary": "Weaving cottage with external loom and cloth drying rolls.",
+  "triangles": 344,
+  "animations": [],
+  "sizeMeters": [
+   4.6,
+   4.25,
+   5.4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-weavers-workshop-b24102dc"
+ },
+ {
+  "file": "woodcutters-yard.glb",
+  "title": "Woodcutters Yard (Medieval RTS Faction Buildings)",
+  "summary": "Open timber-processing lean-to, log stacks and splitting block.",
+  "triangles": 272,
+  "animations": [],
+  "sizeMeters": [
+   5.8,
+   4.25,
+   4.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-rts-faction-buildings-woodcutters-yard-d2320bc1"
+ }
+]

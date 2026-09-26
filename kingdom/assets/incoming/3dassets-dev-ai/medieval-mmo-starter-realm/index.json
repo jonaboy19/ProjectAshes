@@ -1,0 +1,1732 @@
+[
+ {
+  "file": "allotment-bed.glb",
+  "title": "Allotment Bed (Medieval MMO Starter Realm)",
+  "summary": "Boarded allotment bed of ten cabbages in two rows on turned soil, the small crop plot behind every cottage. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 880,
+  "animations": [],
+  "sizeMeters": [
+   2.62,
+   0.66,
+   1.72
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-allotment-bed-c64535ba"
+ },
+ {
+  "file": "altar-table.glb",
+  "title": "Altar Table (Medieval MMO Starter Realm)",
+  "summary": "Stone altar table on two moulded piers with a red cloth, a gilded chalice and an open book on its top. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 372,
+  "animations": [],
+  "sizeMeters": [
+   2.1,
+   1.65,
+   1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-altar-table-d3a1b708"
+ },
+ {
+  "file": "altar-with-candles.glb",
+  "title": "Altar With Candles (Medieval MMO Starter Realm)",
+  "summary": "Stone altar with a moulded cap and base, four lit candles of different heights, a red cloth and a gilded offering box on its top. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 576,
+  "animations": [],
+  "sizeMeters": [
+   2.4,
+   2.19,
+   1.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-altar-with-candles-1cd4bbf8"
+ },
+ {
+  "file": "anvil.glb",
+  "title": "Anvil (Medieval MMO Starter Realm)",
+  "summary": "Iron anvil with a horn and a stepped waist on a squat timber block, with a hot billet resting on its face. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 134,
+  "animations": [],
+  "sizeMeters": [
+   1.7,
+   1,
+   0.7
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-anvil-bc5d9d28"
+ },
+ {
+  "file": "apple-tree.glb",
+  "title": "Apple Tree (Medieval MMO Starter Realm)",
+  "summary": "Round crowned apple tree five metres tall with three leaf masses and six ripe red apples in the canopy. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 413,
+  "animations": [],
+  "sizeMeters": [
+   3.714,
+   6.04,
+   3.705
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-apple-tree-ac43fca0"
+ },
+ {
+  "file": "armour-stand.glb",
+  "title": "Armour Stand (Medieval MMO Starter Realm)",
+  "summary": "Turned timber stand carrying a plate cuirass, pauldrons and a visored helm, the display piece of an armoury or a guild hall. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 332,
+  "animations": [],
+  "sizeMeters": [
+   1.04,
+   2.2,
+   0.88
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-armour-stand-755883bb"
+ },
+ {
+  "file": "bank-counter.glb",
+  "title": "Bank Counter (Medieval MMO Starter Realm)",
+  "summary": "Bank counter with a grilled teller window, two pull out cash drawers, a set of scales and a stack of coin on the top. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 980,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   2.97,
+   2.15,
+   1.063
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-bank-counter-57074744"
+ },
+ {
+  "file": "banner-pole.glb",
+  "title": "Banner Pole (Medieval MMO Starter Realm)",
+  "summary": "Five metre banner mast on a stone foot, with a gilded finial and a long blue banner hanging from a cross arm. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 312,
+  "animations": [
+   "banner-sway"
+  ],
+  "sizeMeters": [
+   2.11,
+   5.54,
+   0.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-banner-pole-3c98a610"
+ },
+ {
+  "file": "barrel.glb",
+  "title": "Barrel (Medieval MMO Starter Realm)",
+  "summary": "Bulged oak barrel just under a metre tall with two iron hoops, a fitted lid and a small bung plate, for ale, salt fish or oil. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 268,
+  "animations": [],
+  "sizeMeters": [
+   0.734,
+   1,
+   0.734
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-barrel-35a62ed3"
+ },
+ {
+  "file": "bed.glb",
+  "title": "Bed (Medieval MMO Starter Realm)",
+  "summary": "Timber framed bed with a straw mattress, a red woollen blanket turned down and a bolster pillow at the head. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 396,
+  "animations": [],
+  "sizeMeters": [
+   1.9,
+   1.22,
+   2.3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-bed-0e98fed9"
+ },
+ {
+  "file": "bedroll.glb",
+  "title": "Bedroll (Medieval MMO Starter Realm)",
+  "summary": "Straw bedroll with a red blanket folded back, a rolled bundle at its head and a pack at its foot, the camp bed of a traveller. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 160,
+  "animations": [],
+  "sizeMeters": [
+   0.85,
+   0.96,
+   2.01
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-bedroll-7ae3ab53"
+ },
+ {
+  "file": "bench.glb",
+  "title": "Bench (Medieval MMO Starter Realm)",
+  "summary": "Two metre oak bench on two plank ends with a slatted seat and a low back rail. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 332,
+  "animations": [],
+  "sizeMeters": [
+   2.1,
+   1.14,
+   0.56
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-bench-788fbe4b"
+ },
+ {
+  "file": "bookshelf.glb",
+  "title": "Bookshelf (Medieval MMO Starter Realm)",
+  "summary": "Two metre oak bookcase of four shelves carrying about thirty coloured volumes, with a moulded cornice on top. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1540,
+  "animations": [],
+  "sizeMeters": [
+   1.7,
+   2.24,
+   0.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-bookshelf-e3a549f0"
+ },
+ {
+  "file": "boulder-large.glb",
+  "title": "Boulder Large (Medieval MMO Starter Realm)",
+  "summary": "Faceted grey boulder two and a half metres across with a mossy cap and two chips broken off at its foot. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 168,
+  "animations": [],
+  "sizeMeters": [
+   2.835,
+   1.7,
+   2.181
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-boulder-large-d33fc947"
+ },
+ {
+  "file": "boulder-small.glb",
+  "title": "Boulder Small (Medieval MMO Starter Realm)",
+  "summary": "Single faceted grey stone about a metre across, the loose rock a field or a stream bed is scattered with. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 66,
+  "animations": [],
+  "sizeMeters": [
+   1.029,
+   0.7,
+   0.718
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-boulder-small-bcd61ff8"
+ },
+ {
+  "file": "bush.glb",
+  "title": "Bush (Medieval MMO Starter Realm)",
+  "summary": "Low round bush a metre and a half across, built from three overlapping leaf masses on a short woody base. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 167,
+  "animations": [],
+  "sizeMeters": [
+   1.95,
+   1.4,
+   1.674
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-bush-a8f78fd2"
+ },
+ {
+  "file": "campfire-with-spit.glb",
+  "title": "Campfire With Spit (Medieval MMO Starter Realm)",
+  "summary": "Ring of nine stones round a burning fire, with a cooking pot hung from an iron spit bar on two forked stakes. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 654,
+  "animations": [],
+  "sizeMeters": [
+   2.4,
+   1.526,
+   2.049
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-campfire-with-spit-946ceb5c"
+ },
+ {
+  "file": "canoe.glb",
+  "title": "Canoe (Medieval MMO Starter Realm)",
+  "summary": "Narrow four and a half metre dugout canoe with two low thwarts and a single bladed paddle laid across it. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 324,
+  "animations": [],
+  "sizeMeters": [
+   1.183,
+   1.12,
+   4.693
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-canoe-15489e3c"
+ },
+ {
+  "file": "cargo-cart.glb",
+  "title": "Cargo Cart (Medieval MMO Starter Realm)",
+  "summary": "Four wheeled cargo cart with a boarded bed, a tailboard, draw shafts and a crate and barrel loaded on it. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1656,
+  "animations": [
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   2.635,
+   1.561,
+   4.016
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-cargo-cart-a0651119"
+ },
+ {
+  "file": "cauldron-on-tripod.glb",
+  "title": "Cauldron On Tripod (Medieval MMO Starter Realm)",
+  "summary": "Iron cauldron hung on a three legged stand over a ring of stones, filled to the rim with a dark green brew. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 656,
+  "animations": [],
+  "sizeMeters": [
+   2.141,
+   1.735,
+   2.105
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-cauldron-on-tripod-ac3143f1"
+ },
+ {
+  "file": "cave-mouth.glb",
+  "title": "Cave Mouth (Medieval MMO Starter Realm)",
+  "summary": "Dark cave opening in a three part rock face four and a half metres high, with fallen stones scattered across its threshold. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 419,
+  "animations": [],
+  "sizeMeters": [
+   8.685,
+   4.6,
+   6.335
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-cave-mouth-1eb46440"
+ },
+ {
+  "file": "chandelier.glb",
+  "title": "Chandelier (Medieval MMO Starter Realm)",
+  "summary": "Iron ring chandelier with six lit candles on their pricket spikes, six suspension rods and a chain to a hanging ring at the top. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 516,
+  "animations": [],
+  "sizeMeters": [
+   1.49,
+   1.968,
+   1.369
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-chandelier-4150e55e"
+ },
+ {
+  "file": "chicken-coop.glb",
+  "title": "Chicken Coop (Medieval MMO Starter Realm)",
+  "summary": "Raised board chicken coop with a pop hole, a landing board and a pitched roof hinged along its back edge so the nest boxes can be reached. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 492,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   1.9,
+   1.71,
+   1.69
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-chicken-coop-c072c415"
+ },
+ {
+  "file": "cobble-road-corner.glb",
+  "title": "Cobble Road Corner (Medieval MMO Starter Realm)",
+  "summary": "Four metre cobbled corner tile turning the street a quarter turn, with the kerb carried round the outside of the bend. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 428,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   0.24,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-cobble-road-corner-8c8b194f"
+ },
+ {
+  "file": "cobble-road-junction.glb",
+  "title": "Cobble Road Junction (Medieval MMO Starter Realm)",
+  "summary": "Four metre cobbled crossroads tile with kerb stubs on all four corners and a drain grate at the centre. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 608,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   0.24,
+   4.125
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-cobble-road-junction-39f2e1d0"
+ },
+ {
+  "file": "cobble-road-tile.glb",
+  "title": "Cobble Road Tile (Medieval MMO Starter Realm)",
+  "summary": "Four metre cobbled street tile with a kerb along each verge, laid in an offset pattern of rounded setts. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 488,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   0.24,
+   4.142
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-cobble-road-tile-9ec1d90e"
+ },
+ {
+  "file": "cooks-kitchen.glb",
+  "title": "Cooks Kitchen (Medieval MMO Starter Realm)",
+  "summary": "Small cookhouse with a serving hatch and awning on the street, a bread oven mouth glowing in the flank and a broad stone chimney. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 2096,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   6.45,
+   6.76,
+   5.456
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-cooks-kitchen-c0ea4421"
+ },
+ {
+  "file": "cow-pen-fence.glb",
+  "title": "Cow Pen Fence (Medieval MMO Starter Realm)",
+  "summary": "Four metre post and rail pen fence of three round posts and two heavy rails, the open stock fence a paddock is enclosed with. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 204,
+  "animations": [],
+  "sizeMeters": [
+   4.06,
+   1.25,
+   0.662
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-cow-pen-fence-3b78287e"
+ },
+ {
+  "file": "crate-stack.glb",
+  "title": "Crate Stack (Medieval MMO Starter Realm)",
+  "summary": "Three slatted timber crates of different sizes stacked two high with a sacking cover on the middle one, the loot pile of a camp or a dock. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 836,
+  "animations": [],
+  "sizeMeters": [
+   1.735,
+   1.601,
+   1.325
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-crate-stack-661f1e3f"
+ },
+ {
+  "file": "dead-tree.glb",
+  "title": "Dead Tree (Medieval MMO Starter Realm)",
+  "summary": "Bare dead tree four and a half metres tall with a split trunk and seven broken branches, no leaf left on it. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 120,
+  "animations": [],
+  "sizeMeters": [
+   2.834,
+   4.519,
+   1.696
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-dead-tree-e07b06a3"
+ },
+ {
+  "file": "dirt-path-tile.glb",
+  "title": "Dirt Path Tile (Medieval MMO Starter Realm)",
+  "summary": "Four metre beaten earth path tile with two shallow cart ruts, loose stones and grass creeping in at the verges. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 150,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   0.543,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-dirt-path-tile-aec68d8f"
+ },
+ {
+  "file": "farmhouse-and-barn.glb",
+  "title": "Farmhouse And Barn (Medieval MMO Starter Realm)",
+  "summary": "Thatched farmhouse with a board sided barn beside it, the barn closed by a pair of braced doors under a heavy lintel beam. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 3548,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   13.4,
+   7.02,
+   6.801
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-farmhouse-and-barn-bf08417d"
+ },
+ {
+  "file": "fence-gate.glb",
+  "title": "Fence Gate (Medieval MMO Starter Realm)",
+  "summary": "Four metre braced field gate hung on one post, matching the paling fence run and swinging outward on its hinge stile. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 276,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   4,
+   1.86,
+   0.3
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-fence-gate-38bc8ee9"
+ },
+ {
+  "file": "fence-run.glb",
+  "title": "Fence Run (Medieval MMO Starter Realm)",
+  "summary": "Four metre paling fence of nine pointed boards on two rails and three posts, the boundary a starter village puts round every plot. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 616,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   1.35,
+   0.171
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-fence-run-c84b656e"
+ },
+ {
+  "file": "fern-clump.glb",
+  "title": "Fern Clump (Medieval MMO Starter Realm)",
+  "summary": "Clump of seven ferns a metre across, the undergrowth of the forest edge. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 340,
+  "animations": [],
+  "sizeMeters": [
+   1.035,
+   0.965,
+   0.921
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-fern-clump-7ebeffc4"
+ },
+ {
+  "file": "ferry-raft.glb",
+  "title": "Ferry Raft (Medieval MMO Starter Realm)",
+  "summary": "Log ferry raft four metres square, nine bound trunks with two deck runners, corner posts, side rails and a punting pole. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 672,
+  "animations": [],
+  "sizeMeters": [
+   3.9,
+   3.435,
+   4.4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-ferry-raft-6b875923"
+ },
+ {
+  "file": "fishing-boat.glb",
+  "title": "Fishing Boat (Medieval MMO Starter Realm)",
+  "summary": "Six metre single masted fishing boat with a square cream sail on its yard, two thwarts, a net pile amidships and a catch crate aft. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 528,
+  "animations": [],
+  "sizeMeters": [
+   2.33,
+   5.1,
+   6.307
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-fishing-boat-9714358d"
+ },
+ {
+  "file": "fishing-hut-on-stilts.glb",
+  "title": "Fishing Hut On Stilts (Medieval MMO Starter Realm)",
+  "summary": "Board sided fishing hut raised on timber piles with a thatched roof and a planked dock reaching out over the water, with a mooring post and drying nets. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 2420,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   5,
+   6.44,
+   8.7
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-fishing-hut-on-stilts-59b8278b"
+ },
+ {
+  "file": "fletcher-shop.glb",
+  "title": "Fletcher Shop (Medieval MMO Starter Realm)",
+  "summary": "Thatched fletcher and bowyer shop with a bundle of arrow shafts in a block by the door, a stave leaning on the wall and a painted trade sign. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 2524,
+  "animations": [
+   "open",
+   "close",
+   "sign-sway"
+  ],
+  "sizeMeters": [
+   6.22,
+   5.76,
+   6.1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-fletcher-shop-dbf8b108"
+ },
+ {
+  "file": "flower-patch.glb",
+  "title": "Flower Patch (Medieval MMO Starter Realm)",
+  "summary": "Patch of meadow flowers a metre and a half across: fourteen stems in red, blue and gold over low grass. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 770,
+  "animations": [],
+  "sizeMeters": [
+   1.561,
+   0.697,
+   1.371
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-flower-patch-1283d7ce"
+ },
+ {
+  "file": "general-store.glb",
+  "title": "General Store (Medieval MMO Starter Realm)",
+  "summary": "Timber framed general store with an open shutter counter on the street, stock barrels and a crate outside, a tiled roof and a hanging trade sign. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 2988,
+  "animations": [
+   "open",
+   "close",
+   "sign-sway"
+  ],
+  "sizeMeters": [
+   7.19,
+   6.28,
+   6.286
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-general-store-5f2ce273"
+ },
+ {
+  "file": "goblin-tent.glb",
+  "title": "Goblin Tent (Medieval MMO Starter Realm)",
+  "summary": "Crude hide tent on four leaning poles with a ridge pole, a split entrance flap weighted with stones and a red rag tied to the front pole. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 266,
+  "animations": [],
+  "sizeMeters": [
+   3.459,
+   2.679,
+   3.14
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-goblin-tent-a8b1ac75"
+ },
+ {
+  "file": "goblin-totem.glb",
+  "title": "Goblin Totem (Medieval MMO Starter Realm)",
+  "summary": "Camp totem: a rough pole on a mound carrying two carved faces, a straw topknot and two hanging bone charms, the marker a raiding camp claims ground with. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 558,
+  "animations": [],
+  "sizeMeters": [
+   1.68,
+   3.82,
+   0.984
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-goblin-totem-da673fbd"
+ },
+ {
+  "file": "grass-ground-tile.glb",
+  "title": "Grass Ground Tile (Medieval MMO Starter Realm)",
+  "summary": "Four metre meadow ground tile with scattered tufts and one small stone, the filler the whole region is laid on. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 134,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   0.554,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-grass-ground-tile-485d1337"
+ },
+ {
+  "file": "grass-tuft-cluster.glb",
+  "title": "Grass Tuft Cluster (Medieval MMO Starter Realm)",
+  "summary": "Cluster of eleven long grass tufts a metre and a half across, for breaking up open ground. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 88,
+  "animations": [],
+  "sizeMeters": [
+   1.413,
+   0.74,
+   1.268
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-grass-tuft-cluster-fc4f05be"
+ },
+ {
+  "file": "gravestone-set.glb",
+  "title": "Gravestone Set (Medieval MMO Starter Realm)",
+  "summary": "Small churchyard plot of three round headed headstones of different heights on a grass base, with a fallen stone and tufts at their feet. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 476,
+  "animations": [],
+  "sizeMeters": [
+   3.262,
+   1.64,
+   2.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-gravestone-set-73d5db06"
+ },
+ {
+  "file": "grindstone.glb",
+  "title": "Grindstone (Medieval MMO Starter Realm)",
+  "summary": "Treadle grindstone: a turning stone wheel on an iron shaft in a timber frame, with a treadle bar below the bench. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 360,
+  "animations": [
+   "spin"
+  ],
+  "sizeMeters": [
+   1.5,
+   1.83,
+   1.1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-grindstone-d634310f"
+ },
+ {
+  "file": "guard-barracks.glb",
+  "title": "Guard Barracks (Medieval MMO Starter Realm)",
+  "summary": "Long single storey guard barracks with a covered walk on two posts, town banners at each end, spears stood in a block by the door and a tiled roof. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 3556,
+  "animations": [
+   "open",
+   "close",
+   "banner-sway"
+  ],
+  "sizeMeters": [
+   10.22,
+   6.36,
+   6.35
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-guard-barracks-8e59d1cc"
+ },
+ {
+  "file": "hand-cart.glb",
+  "title": "Hand Cart (Medieval MMO Starter Realm)",
+  "summary": "Two wheeled hand cart with a small boarded body, twin pull handles, a prop leg and a sack of grain in the bed. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 656,
+  "animations": [
+   "wheel-roll"
+  ],
+  "sizeMeters": [
+   1.535,
+   1.14,
+   2.191
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-hand-cart-ed86a89c"
+ },
+ {
+  "file": "hay-bale.glb",
+  "title": "Hay Bale (Medieval MMO Starter Realm)",
+  "summary": "Round hay bale one and a half metres across, bound with three timber bands and loose straw standing out of its top. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 336,
+  "animations": [],
+  "sizeMeters": [
+   1.6,
+   1.58,
+   1.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-hay-bale-12135bfd"
+ },
+ {
+  "file": "hitching-post.glb",
+  "title": "Hitching Post (Medieval MMO Starter Realm)",
+  "summary": "Low hitching rail on two capped posts with two iron tether rings, standing on a worn patch of bare earth. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 456,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   1.47,
+   0.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-hitching-post-4a5c35bf"
+ },
+ {
+  "file": "hunters-hide.glb",
+  "title": "Hunters Hide (Medieval MMO Starter Realm)",
+  "summary": "Low brushwood hide on four leaning poles, thatched with cut branches over a straw floor, with a bench inside and an open front. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 708,
+  "animations": [],
+  "sizeMeters": [
+   2.626,
+   1.962,
+   2.34
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-hunters-hide-e2649677"
+ },
+ {
+  "file": "lamp-post.glb",
+  "title": "Lamp Post (Medieval MMO Starter Realm)",
+  "summary": "Cast iron street lamp three and a half metres tall with a glazed lantern box and a pointed cap, the lantern faces emissive. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 344,
+  "animations": [],
+  "sizeMeters": [
+   0.68,
+   3.78,
+   0.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-lamp-post-1ddf5658"
+ },
+ {
+  "file": "lily-pads.glb",
+  "title": "Lily Pads (Medieval MMO Starter Realm)",
+  "summary": "Raft of six lily pads and two open flowers, sitting flat on a water surface. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 326,
+  "animations": [],
+  "sizeMeters": [
+   1.802,
+   0.25,
+   1.868
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-lily-pads-49b86ea9"
+ },
+ {
+  "file": "log-pile.glb",
+  "title": "Log Pile (Medieval MMO Starter Realm)",
+  "summary": "Stack of thirteen cut logs in three courses between two stake ends, the fuel store beside a cottage door. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 848,
+  "animations": [],
+  "sizeMeters": [
+   2.51,
+   2.55,
+   1.93
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-log-pile-3ae4cf7b"
+ },
+ {
+  "file": "loom.glb",
+  "title": "Loom (Medieval MMO Starter Realm)",
+  "summary": "Upright warp weighted loom with fourteen taut threads, a woven red band growing at the bottom and a beater bar across the frame. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 992,
+  "animations": [],
+  "sizeMeters": [
+   1.9,
+   2.104,
+   1.06
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-loom-62bfb665"
+ },
+ {
+  "file": "loot-sack.glb",
+  "title": "Loot Sack (Medieval MMO Starter Realm)",
+  "summary": "Bulging sacking bag tied at the neck with a cord, spilling a small gold pile at its side. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 210,
+  "animations": [],
+  "sizeMeters": [
+   1.08,
+   1.14,
+   0.92
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-loot-sack-c9b0f199"
+ },
+ {
+  "file": "market-stall-blue.glb",
+  "title": "Market Stall Blue (Medieval MMO Starter Realm)",
+  "summary": "Three metre market stall with a plank counter, a slatted display shelf, a stock crate and barrel underneath and a blue striped awning on four posts. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1308,
+  "animations": [],
+  "sizeMeters": [
+   3.16,
+   3.02,
+   2.36
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-market-stall-blue-f5cbc408"
+ },
+ {
+  "file": "market-stall-cream.glb",
+  "title": "Market Stall Cream (Medieval MMO Starter Realm)",
+  "summary": "Three metre market stall with a plank counter, a slatted display shelf, a stock crate and barrel underneath and a cream striped awning on four posts. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1308,
+  "animations": [],
+  "sizeMeters": [
+   3.16,
+   3.02,
+   2.36
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-market-stall-cream-e095e409"
+ },
+ {
+  "file": "market-stall.glb",
+  "title": "Market Stall (Medieval MMO Starter Realm)",
+  "summary": "Three metre market stall with a plank counter, a slatted display shelf, a stock crate and barrel underneath and a red striped awning on four posts. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1308,
+  "animations": [],
+  "sizeMeters": [
+   3.16,
+   3.02,
+   2.36
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-market-stall-e0677cc9"
+ },
+ {
+  "file": "mine-entrance.glb",
+  "title": "Mine Entrance (Medieval MMO Starter Realm)",
+  "summary": "Timber portal driven into a rock face, with a braced head beam, sleepers and iron cart rails running out of the adit and a lantern on a post beside it. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 861,
+  "animations": [],
+  "sizeMeters": [
+   9.931,
+   6.4,
+   9.63
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-mine-entrance-f884e898"
+ },
+ {
+  "file": "mushroom-ring.glb",
+  "title": "Mushroom Ring (Medieval MMO Starter Realm)",
+  "summary": "Fairy ring of nine red capped mushrooms two metres across on a worn grass disc. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 472,
+  "animations": [],
+  "sizeMeters": [
+   2.2,
+   0.59,
+   2.092
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-mushroom-ring-93a90fb5"
+ },
+ {
+  "file": "notice-board.glb",
+  "title": "Notice Board (Medieval MMO Starter Realm)",
+  "summary": "Roofed town notice board on two posts, carrying three blank pinned parchments a quest or bounty texture can be written onto. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 284,
+  "animations": [],
+  "sizeMeters": [
+   2.7,
+   2.54,
+   0.7
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-notice-board-b5d85d20"
+ },
+ {
+  "file": "oak-tree.glb",
+  "title": "Oak Tree (Medieval MMO Starter Realm)",
+  "summary": "Broad oak seven metres tall on a thick trunk, with four heavy leaf masses and a spread of roots at its foot. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 395,
+  "animations": [],
+  "sizeMeters": [
+   5.278,
+   8.52,
+   5.265
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-oak-tree-c7fbe965"
+ },
+ {
+  "file": "pine-tree.glb",
+  "title": "Pine Tree (Medieval MMO Starter Realm)",
+  "summary": "Tall conifer eight metres high with four tiers of needled boughs on a bare lower trunk. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 104,
+  "animations": [],
+  "sizeMeters": [
+   3.237,
+   8.2,
+   3.321
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-pine-tree-76a5817f"
+ },
+ {
+  "file": "plaza-paving-tile.glb",
+  "title": "Plaza Paving Tile (Medieval MMO Starter Realm)",
+  "summary": "Eight metre market square paving tile with a raised kerb on every side and a turned centre stone the town cross or well stands on. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1028,
+  "animations": [],
+  "sizeMeters": [
+   8,
+   0.26,
+   8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-plaza-paving-tile-6d950a64"
+ },
+ {
+  "file": "ploughed-field-tile.glb",
+  "title": "Ploughed Field Tile (Medieval MMO Starter Realm)",
+  "summary": "Four metre ploughed field tile of nine turned furrow ridges in bare soil with two stones turned up by the share. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 524,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   0.24,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-ploughed-field-tile-1a6ae5ac"
+ },
+ {
+  "file": "potion-shelf.glb",
+  "title": "Potion Shelf (Medieval MMO Starter Realm)",
+  "summary": "Narrow apothecary shelf of three tiers holding about a dozen stoppered flasks in red, blue, green, gold and glowing blue. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1088,
+  "animations": [],
+  "sizeMeters": [
+   1.4,
+   2.02,
+   0.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-potion-shelf-93343bc4"
+ },
+ {
+  "file": "range-and-oven.glb",
+  "title": "Range And Oven (Medieval MMO Starter Realm)",
+  "summary": "Stone cooking range with a glowing bread oven mouth, an iron pot set into the hotplate and a hinged iron lid over the second well. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 372,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   2.05,
+   2.76,
+   1.07
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-range-and-oven-cf4046b4"
+ },
+ {
+  "file": "reed-clump.glb",
+  "title": "Reed Clump (Medieval MMO Starter Realm)",
+  "summary": "Stand of fourteen tall reeds a metre across, for a river edge or a pond margin. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 144,
+  "animations": [],
+  "sizeMeters": [
+   0.627,
+   1.791,
+   0.933
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-reed-clump-8c546655"
+ },
+ {
+  "file": "river-bank-tile.glb",
+  "title": "River Bank Tile (Medieval MMO Starter Realm)",
+  "summary": "Four metre river edge tile: dry grassed bank on one half, open water on the other, with reeds and a stone along the waterline. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 314,
+  "animations": [],
+  "sizeMeters": [
+   4.001,
+   2.08,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-river-bank-tile-648ea2ea"
+ },
+ {
+  "file": "river-bend-tile.glb",
+  "title": "River Bend Tile (Medieval MMO Starter Realm)",
+  "summary": "Four metre river tile turning the channel a quarter turn between the west and north edges, with the bank cut wide on the outside of the bend. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 558,
+  "animations": [],
+  "sizeMeters": [
+   4.001,
+   1.159,
+   4.167
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-river-bend-tile-a1572ad5"
+ },
+ {
+  "file": "river-tile-straight.glb",
+  "title": "River Tile Straight (Medieval MMO Starter Realm)",
+  "summary": "Four metre straight river tile with grassed banks on both sides, an earth waterline lip and a still teal surface 0.16 m below the bank top. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 338,
+  "animations": [],
+  "sizeMeters": [
+   4.002,
+   1.183,
+   4.03
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-river-tile-straight-392b7e01"
+ },
+ {
+  "file": "road-signpost.glb",
+  "title": "Road Signpost (Medieval MMO Starter Realm)",
+  "summary": "Timber fingerpost on a stone foot with two blank pointed arms facing opposite ways, ready for place names painted on. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 126,
+  "animations": [],
+  "sizeMeters": [
+   2.63,
+   3.1,
+   0.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-road-signpost-ee7ae8fe"
+ },
+ {
+  "file": "rock-outcrop.glb",
+  "title": "Rock Outcrop (Medieval MMO Starter Realm)",
+  "summary": "Layered rock outcrop four metres across and three high, three stepped masses with grass in the joints, high enough to stand a tower on. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 181,
+  "animations": [],
+  "sizeMeters": [
+   4.982,
+   3,
+   3.719
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-rock-outcrop-fad503eb"
+ },
+ {
+  "file": "rope-bridge.glb",
+  "title": "Rope Bridge (Medieval MMO Starter Realm)",
+  "summary": "Eight metre rope and plank bridge slung between two stone footings and paired timber A frames, sagging half a metre at midspan. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 2292,
+  "animations": [],
+  "sizeMeters": [
+   1.8,
+   4.1,
+   8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-rope-bridge-a8d75580"
+ },
+ {
+  "file": "rowing-boat.glb",
+  "title": "Rowing Boat (Medieval MMO Starter Realm)",
+  "summary": "Four metre clinker rowing boat with two thwarts, a pair of oars shipped in their rowlocks and a coil of rope in the stern. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 544,
+  "animations": [],
+  "sizeMeters": [
+   3.16,
+   0.72,
+   4.307
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-rowing-boat-4dd8c04d"
+ },
+ {
+  "file": "rug.glb",
+  "title": "Rug (Medieval MMO Starter Realm)",
+  "summary": "Woven wool rug two and a half metres long in red, blue and gold bands with a knotted fringe at both ends. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 348,
+  "animations": [],
+  "sizeMeters": [
+   2.54,
+   0.12,
+   1.62
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-rug-5064c4c7"
+ },
+ {
+  "file": "scarecrow.glb",
+  "title": "Scarecrow (Medieval MMO Starter Realm)",
+  "summary": "Straw scarecrow on a cross frame with a red smock, straw hands, a stuffed head with button eyes and a wide brimmed hat. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 430,
+  "animations": [],
+  "sizeMeters": [
+   1.94,
+   2.78,
+   1.053
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-scarecrow-64081717"
+ },
+ {
+  "file": "shop-counter.glb",
+  "title": "Shop Counter (Medieval MMO Starter Realm)",
+  "summary": "Shop counter with two drawers, a set of open shelves behind it stocked with jars and bolts of cloth and a pair of scales on the top. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1296,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   2.8,
+   3.32,
+   1.463
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-shop-counter-21030a3c"
+ },
+ {
+  "file": "smithy.glb",
+  "title": "Smithy (Medieval MMO Starter Realm)",
+  "summary": "Village smithy with an open forge front on two posts, a stone hearth with a glowing fire, a leather bellows on its beam, an anvil on its block and a tall chimney. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 2224,
+  "animations": [
+   "open",
+   "close",
+   "bellows-pump",
+   "sign-sway"
+  ],
+  "sizeMeters": [
+   6.8,
+   6.96,
+   6.015
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-smithy-c320a869"
+ },
+ {
+  "file": "spinning-wheel.glb",
+  "title": "Spinning Wheel (Medieval MMO Starter Realm)",
+  "summary": "Three legged spinning wheel with an eight spoke drive wheel, a distaff of wool and a spindle across the bed. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 428,
+  "animations": [
+   "spin"
+  ],
+  "sizeMeters": [
+   0.962,
+   1.813,
+   1
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-spinning-wheel-5d1139e4"
+ },
+ {
+  "file": "standing-stone.glb",
+  "title": "Standing Stone (Medieval MMO Starter Realm)",
+  "summary": "Leaning monolith three and a half metres tall on a low earth mound, with lichen patches on its weathered face and grass at its foot. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 226,
+  "animations": [],
+  "sizeMeters": [
+   2.497,
+   3.7,
+   1.957
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-standing-stone-7603d570"
+ },
+ {
+  "file": "starter-town--22d3475e-starter-scene.glb",
+  "title": "Starter Town And Outlands (Medieval MMO Starter Realm)",
+  "summary": "The starter region of a low poly fantasy world, built from every piece in the pack. A walled town forty metres square stands behind nine bays of curtain wall a side, four corner towers and a gatehouse with a working portcullis and gate leaves, its wall walk running the whole...",
+  "triangles": 106276,
+  "animations": [],
+  "sizeMeters": [
+   76.7,
+   20.881,
+   80.001
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-starter-town--22d3475e-starter-scene"
+ },
+ {
+  "file": "stone-arch-bridge.glb",
+  "title": "Stone Arch Bridge (Medieval MMO Starter Realm)",
+  "summary": "Eight metre single span stone bridge with a cambered deck, abutments at both ends and a low parapet each side, wide enough for a cart. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1144,
+  "animations": [],
+  "sizeMeters": [
+   2.98,
+   2.285,
+   8.02
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-stone-arch-bridge-b3fd2e89"
+ },
+ {
+  "file": "stone-church.glb",
+  "title": "Stone Church (Medieval MMO Starter Realm)",
+  "summary": "Stone church with a tall lancet windowed nave, a slate roof, a gilded finial over the door and a ten metre bell tower carrying a swinging bronze bell. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 3148,
+  "animations": [
+   "open",
+   "close",
+   "bell-ring"
+  ],
+  "sizeMeters": [
+   8.8,
+   11.8,
+   8.125
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-stone-church-dc47dafb"
+ },
+ {
+  "file": "stone-circle-slab.glb",
+  "title": "Stone Circle Slab (Medieval MMO Starter Realm)",
+  "summary": "Raised circular dais four metres across with a kerb of eight stones, a turfed top and a carved altar slab marked with four glowing runes. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 656,
+  "animations": [],
+  "sizeMeters": [
+   4.227,
+   0.79,
+   4.067
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-stone-circle-slab-99fa950f"
+ },
+ {
+  "file": "straw-target.glb",
+  "title": "Straw Target (Medieval MMO Starter Realm)",
+  "summary": "Straw archery butt on a timber stand, faced with a red and white ringed target the fletcher sets up outside the shop. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 324,
+  "animations": [],
+  "sizeMeters": [
+   1.85,
+   1.99,
+   0.865
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-straw-target-c8e22f31"
+ },
+ {
+  "file": "stump-with-axe.glb",
+  "title": "Stump With Axe (Medieval MMO Starter Realm)",
+  "summary": "Cut tree stump with a splitting axe struck into it, split logs beside it and chips on the ground. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 220,
+  "animations": [],
+  "sizeMeters": [
+   2.043,
+   1.78,
+   1.764
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-stump-with-axe-03937997"
+ },
+ {
+  "file": "table-and-stools.glb",
+  "title": "Table And Stools (Medieval MMO Starter Realm)",
+  "summary": "Two metre trestle table with four block stools round it, a brass tankard and a wooden bowl left on the top. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 714,
+  "animations": [],
+  "sizeMeters": [
+   3.2,
+   1.12,
+   2.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-table-and-stools-bbf6ffbc"
+ },
+ {
+  "file": "thatched-cottage.glb",
+  "title": "Thatched Cottage (Medieval MMO Starter Realm)",
+  "summary": "Low thatched cottage with a deep straw roof reaching almost to the eaves, one shuttered window, a stone chimney and firewood stacked by the door. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 2308,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   6.22,
+   5.36,
+   5.075
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-thatched-cottage-3921d162"
+ },
+ {
+  "file": "timber-house-large.glb",
+  "title": "Timber House Large (Medieval MMO Starter Realm)",
+  "summary": "Large two storey merchant house with a deep overhanging jetty, eight shuttered windows, two stone chimneys and a tiled roof. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 5800,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   8.64,
+   10.36,
+   6.975
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-timber-house-large-4ffa48c3"
+ },
+ {
+  "file": "timber-house-medium.glb",
+  "title": "Timber House Medium (Medieval MMO Starter Realm)",
+  "summary": "Two storey timber framed townhouse with a jetty band, curved corner braces, four shuttered windows and a tiled roof. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 3688,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   7.22,
+   8.76,
+   5.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-timber-house-medium-81d882c1"
+ },
+ {
+  "file": "timber-house-small.glb",
+  "title": "Timber House Small (Medieval MMO Starter Realm)",
+  "summary": "Small single storey timber framed house with a thatched roof, blue shutters, a stone chimney and a patch of garden at the door. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 2564,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   6.22,
+   5.76,
+   5.8
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-timber-house-small-25223f49"
+ },
+ {
+  "file": "timber-plank-bridge.glb",
+  "title": "Timber Plank Bridge (Medieval MMO Starter Realm)",
+  "summary": "Eight metre plank bridge on four timber trestles with a boarded deck and a rail on each side, the cheap crossing a starter village builds first. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1320,
+  "animations": [],
+  "sizeMeters": [
+   2.82,
+   2.27,
+   8.001
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-timber-plank-bridge-cd3beec2"
+ },
+ {
+  "file": "torch-sconce.glb",
+  "title": "Torch Sconce (Medieval MMO Starter Realm)",
+  "summary": "Iron wall sconce on a flat back plate, holding a burning pitch torch in a small basket bracket. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 136,
+  "animations": [],
+  "sizeMeters": [
+   0.34,
+   1.49,
+   0.635
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-torch-sconce-bbc63c09"
+ },
+ {
+  "file": "town-bank.glb",
+  "title": "Town Bank (Medieval MMO Starter Realm)",
+  "summary": "Stone town bank with a columned porch, a hipped slate roof, a hanging coin sign and a round banded vault door set into the strongroom flank. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 2496,
+  "animations": [
+   "door-open",
+   "door-close",
+   "vault-open",
+   "vault-close",
+   "sign-sway"
+  ],
+  "sizeMeters": [
+   8.14,
+   6.42,
+   7.23
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-town-bank-7b8bb313"
+ },
+ {
+  "file": "town-hall.glb",
+  "title": "Town Hall (Medieval MMO Starter Realm)",
+  "summary": "Two storey town hall with a stone ground floor, a timber framed upper storey, a porch on two piers, hanging banners and a gilded clock with turning hands in the gable. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 5548,
+  "animations": [
+   "open",
+   "close",
+   "hands-spin",
+   "banner-sway"
+  ],
+  "sizeMeters": [
+   9,
+   9.1,
+   8.279
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-town-hall-ac34bb40"
+ },
+ {
+  "file": "town-wall-segment.glb",
+  "title": "Town Wall Segment (Medieval MMO Starter Realm)",
+  "summary": "Four metre stone curtain wall segment with a battered plinth, proud face blocks and a flat coping the wall walk sits on. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 204,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   3.26,
+   1.34
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-town-wall-segment-09028049"
+ },
+ {
+  "file": "town-well.glb",
+  "title": "Town Well (Medieval MMO Starter Realm)",
+  "summary": "Round stone well on a cobbled apron with a thatched canopy on two posts, a winding drum, a crank handle and an oak bucket on its rope. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 660,
+  "animations": [],
+  "sizeMeters": [
+   2.7,
+   4.2,
+   2.63
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-town-well-2cdec208"
+ },
+ {
+  "file": "treasure-chest.glb",
+  "title": "Treasure Chest (Medieval MMO Starter Realm)",
+  "summary": "Banded oak chest with a barrel lid hinged along its back edge, iron straps at both ends and a brass lock plate on the front. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 214,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   1.6,
+   0.96,
+   0.83
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-treasure-chest-80de5db7"
+ },
+ {
+  "file": "village-tavern.glb",
+  "title": "Village Tavern (Medieval MMO Starter Realm)",
+  "summary": "Two storey timber framed tavern with a jettied upper floor, a porch canopy over the door, ale casks on a bench outside and a large hanging painted sign. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 4832,
+  "animations": [
+   "open",
+   "close",
+   "sign-sway"
+  ],
+  "sizeMeters": [
+   8.22,
+   9.76,
+   7.5
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-village-tavern-55158e5e"
+ },
+ {
+  "file": "wall-corner-tower.glb",
+  "title": "Wall Corner Tower (Medieval MMO Starter Realm)",
+  "summary": "Square four metre corner tower with a battered plinth, arrow slits on each face and a crenellated open roof, tall enough to command the wall walk. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1760,
+  "animations": [],
+  "sizeMeters": [
+   4.25,
+   6.12,
+   4.25
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-wall-corner-tower-b337300d"
+ },
+ {
+  "file": "wall-gatehouse.glb",
+  "title": "Wall Gatehouse (Medieval MMO Starter Realm)",
+  "summary": "Four metre gatehouse with a 2.2 m arch, a lifting iron portcullis in its runners and a pair of banded oak gate leaves on the outer jambs, between two crenellated turrets. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1716,
+  "animations": [
+   "portcullis-open",
+   "portcullis-close",
+   "gate-open",
+   "gate-close"
+  ],
+  "sizeMeters": [
+   4.3,
+   6.72,
+   3.64
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-wall-gatehouse-56290f64"
+ },
+ {
+  "file": "wall-stair.glb",
+  "title": "Wall Stair (Medieval MMO Starter Realm)",
+  "summary": "Straight stone stair of eleven treads climbing 3.2 m to the wall walk, with a stepped parapet down one side. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 748,
+  "animations": [],
+  "sizeMeters": [
+   2.41,
+   3.34,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-wall-stair-468bc239"
+ },
+ {
+  "file": "wall-walk-crenellated.glb",
+  "title": "Wall Walk With Crenellations (Medieval MMO Starter Realm)",
+  "summary": "Four metre timber decked wall walk with a crenellated outer parapet and a low inner kerb, sized to sit on the wall segment coping. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 316,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   0.98,
+   1.7
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-wall-walk-crenellated-12d0fae6"
+ },
+ {
+  "file": "wardrobe.glb",
+  "title": "Wardrobe (Medieval MMO Starter Realm)",
+  "summary": "Tall oak wardrobe with a moulded cornice and plinth and a pair of panelled doors on iron ring handles. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 436,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   1.62,
+   2.36,
+   0.908
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-wardrobe-7ae1185f"
+ },
+ {
+  "file": "watchtower.glb",
+  "title": "Watchtower (Medieval MMO Starter Realm)",
+  "summary": "Eight metre timber watchtower on a stone base, with a ladder to a railed lookout deck, a tiled cap roof and a red pennant at the corner. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 2344,
+  "animations": [
+   "open",
+   "close",
+   "banner-sway"
+  ],
+  "sizeMeters": [
+   4.2,
+   9.4,
+   4.2
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-watchtower-e7eabfff"
+ },
+ {
+  "file": "water-trough.glb",
+  "title": "Water Trough (Medieval MMO Starter Realm)",
+  "summary": "Hollowed timber water trough on two blocks, iron banded and filled to within a hand of its rim. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 352,
+  "animations": [],
+  "sizeMeters": [
+   1.94,
+   0.9,
+   0.72
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-water-trough-c939498f"
+ },
+ {
+  "file": "weapon-rack.glb",
+  "title": "Weapon Rack (Medieval MMO Starter Realm)",
+  "summary": "Empty timber weapon rack with six shaped slots in its base and two upper rails, ready to be filled with a pack of arms. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 484,
+  "animations": [],
+  "sizeMeters": [
+   1.7,
+   2.14,
+   0.6
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-weapon-rack-968be2f5"
+ },
+ {
+  "file": "wheat-field-tile.glb",
+  "title": "Wheat Field Tile (Medieval MMO Starter Realm)",
+  "summary": "Four metre wheat field tile of seventy two ripe stalks in eight drilled rows on bare soil, the skill plot a starter region trains farming on. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1196,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   1.555,
+   4
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-wheat-field-tile-466e69d5"
+ },
+ {
+  "file": "willow-tree.glb",
+  "title": "Willow Tree (Medieval MMO Starter Realm)",
+  "summary": "Riverside willow five metres tall with a low spreading crown and eleven trailing curtains of leaf hanging almost to the ground. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 564,
+  "animations": [],
+  "sizeMeters": [
+   5.057,
+   4.7,
+   5.13
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-willow-tree-e1efef2c"
+ },
+ {
+  "file": "windmill.glb",
+  "title": "Windmill (Medieval MMO Starter Realm)",
+  "summary": "Round stone tower windmill nine metres to the cap, with rubble courses, a conical cap and four cloth covered sails on a single turning shaft. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 2672,
+  "animations": [
+   "open",
+   "close",
+   "sails-spin"
+  ],
+  "sizeMeters": [
+   9.4,
+   13.6,
+   6.777
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-windmill-64271c05"
+ },
+ {
+  "file": "wizard-tower-base.glb",
+  "title": "Wizard Tower Base (Medieval MMO Starter Realm)",
+  "summary": "Round stone base stage of a wizard tower, six metres tall with a battered foot, banded rubble courses, a barred window and the entrance door. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1412,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   5.8,
+   6.34,
+   5.581
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-wizard-tower-base-b22705d8"
+ },
+ {
+  "file": "wizard-tower-mid.glb",
+  "title": "Wizard Tower Mid Stage (Medieval MMO Starter Realm)",
+  "summary": "Middle stage of a wizard tower: a narrower stone drum with three tall windows and a railed timber balcony corbelled out on its upper course. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1540,
+  "animations": [],
+  "sizeMeters": [
+   6.2,
+   4.2,
+   5.896
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-wizard-tower-mid-0302dd9f"
+ },
+ {
+  "file": "wizard-tower-top.glb",
+  "title": "Wizard Tower Top Stage (Medieval MMO Starter Realm)",
+  "summary": "Top stage of a wizard tower: a short observation drum under a steep conical roof, with a slowly turning arcane crystal on the finial above it. Low poly medieval fantasy MMO and RPG game asset.",
+  "triangles": 1076,
+  "animations": [
+   "crystal-spin"
+  ],
+  "sizeMeters": [
+   4.85,
+   8,
+   4.924
+  ],
+  "aiModel": "Claude Fable 5.1",
+  "source": "https://3dassets.dev/assets/medieval-mmo-starter-realm-wizard-tower-top-ef55c481"
+ }
+]

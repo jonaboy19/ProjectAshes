@@ -1,0 +1,803 @@
+[
+ {
+  "file": "arming-scabbard.glb",
+  "title": "Arming Scabbard (Swords, Shields and Melee Arms)",
+  "summary": "A leather arming scabbard with an oak mouth, a brass throat and chape, stitched edges and two suspension rings for a baldric. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 2892,
+  "animations": [],
+  "sizeMeters": [
+   0.119,
+   0.035,
+   0.842
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-arming-scabbard-d705eadc"
+ },
+ {
+  "file": "arming-sword.glb",
+  "title": "Arming Sword (Swords, Shields and Melee Arms)",
+  "summary": "A one handed arming sword with a straight double edged blade, a ground spine rib, a plain iron crossguard, a cord wrapped grip and a disc pommel. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 3616,
+  "animations": [],
+  "sizeMeters": [
+   0.226,
+   0.044,
+   0.959
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-arming-sword-38b19f2b"
+ },
+ {
+  "file": "armoury-floor-slab.glb",
+  "title": "Armoury Floor Slab (Swords, Shields and Melee Arms)",
+  "summary": "A flagged stone floor module 4 m square: sixteen riven flags standing proud of a bedding slab with open joints, laid on a 4 m grid. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 2604,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   0.16,
+   4
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-armoury-floor-slab-7faacec6"
+ },
+ {
+  "file": "armoury-ra-1aa5b4eb-starter-scene.glb",
+  "title": "Armoury Rack Room (Swords, Shields and Melee Arms)",
+  "summary": "A twelve by eight metre stone flagged armoury rack room, walled on three sides with the front left open so the room can be seen into. Two five slot sword racks fill the back wall with longswords, sabres, arming swords and katanas lying flat, with two tower shields standing...",
+  "triangles": 182856,
+  "animations": [],
+  "sizeMeters": [
+   12.004,
+   3.13,
+   8.127
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-armoury-ra-1aa5b4eb-starter-scene"
+ },
+ {
+  "file": "armoury-shelf-unit.glb",
+  "title": "Armoury Shelf Unit (Swords, Shields and Melee Arms)",
+  "summary": "A three shelf oak store unit with iron strapped uprights, holding daggers, bucklers and scabbards lying flat. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 1080,
+  "animations": [],
+  "sizeMeters": [
+   1.6,
+   1.285,
+   0.5
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-armoury-shelf-unit-a1e3769e"
+ },
+ {
+  "file": "armoury-wall-panel.glb",
+  "title": "Armoury Wall Panel (Swords, Shields and Melee Arms)",
+  "summary": "An oak framed wall panel 4 m wide and 3 m tall with limewashed infill set back between the posts, braces and a top plate. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 588,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   3,
+   0.293
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-armoury-wall-panel-055b589c"
+ },
+ {
+  "file": "baselard-dagger.glb",
+  "title": "Baselard Dagger (Swords, Shields and Melee Arms)",
+  "summary": "A baselard dagger with a broad tapering blade, a wide I shaped guard, a short wrapped grip and a disc pommel. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 3472,
+  "animations": [],
+  "sizeMeters": [
+   0.186,
+   0.039,
+   0.469
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-baselard-dagger-d07d114e"
+ },
+ {
+  "file": "bastard-sword.glb",
+  "title": "Bastard Sword (Swords, Shields and Melee Arms)",
+  "summary": "A bastard sword between arming blade and longsword: a straight double edged blade, a crossguard with ball finials and a grip for one hand or two. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4388,
+  "animations": [],
+  "sizeMeters": [
+   0.266,
+   0.046,
+   1.102
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-bastard-sword-10675c11"
+ },
+ {
+  "file": "bearded-axe.glb",
+  "title": "Bearded Axe (Swords, Shields and Melee Arms)",
+  "summary": "A one handed bearded axe with a long lower beard, a wedged eye, langets down the haft, a cord whipping and a wrapped grip. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4772,
+  "animations": [],
+  "sizeMeters": [
+   0.041,
+   0.138,
+   0.775
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-bearded-axe-1f257670"
+ },
+ {
+  "file": "bill.glb",
+  "title": "Bill (Swords, Shields and Melee Arms)",
+  "summary": "A bill with a hooked cutting blade and a top spike on a socketed head, with langets and a butt spike. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 6240,
+  "animations": [],
+  "sizeMeters": [
+   0.057,
+   0.043,
+   2.261
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-bill-42b13ecd"
+ },
+ {
+  "file": "blade-store.glb",
+  "title": "Blade Store (Swords, Shields and Melee Arms)",
+  "summary": "An eight by eight metre stone flagged blade store holding every design the rack room has no room for. A sword rack carries the zweihander and the ring pommel sword; a spear rack carries the bill and the Dane axe; a shield rack carries the ironbound round shield, the pavise...",
+  "triangles": 132928,
+  "animations": [],
+  "sizeMeters": [
+   8.004,
+   3.13,
+   8.177
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-blade-store-c57684ae"
+ },
+ {
+  "file": "bollock-dagger.glb",
+  "title": "Bollock Dagger (Swords, Shields and Melee Arms)",
+  "summary": "A bollock dagger with a tapering blade, twin lobed guard swellings, a wrapped grip and a ball pommel. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 3860,
+  "animations": [],
+  "sizeMeters": [
+   0.226,
+   0.04,
+   0.442
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-bollock-dagger-bc18b3a7"
+ },
+ {
+  "file": "buckler-steel.glb",
+  "title": "Steel Buckler (Swords, Shields and Melee Arms)",
+  "summary": "A small all steel buckler with a rolled iron rim, a raised ring, a centre spike, ten face rivets and a wooden hand grip beneath. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 2712,
+  "animations": [],
+  "sizeMeters": [
+   0.346,
+   0.135,
+   0.346
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-buckler-steel-1f9ba8ea"
+ },
+ {
+  "file": "buckler-wood.glb",
+  "title": "Wooden Buckler (Swords, Shields and Melee Arms)",
+  "summary": "A small wooden buckler with a red painted face, an iron rim, a domed boss with four rivets, eight rim rivets and a hand grip beneath. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 3008,
+  "animations": [],
+  "sizeMeters": [
+   0.328,
+   0.112,
+   0.328
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-buckler-wood-36f05695"
+ },
+ {
+  "file": "coronation-arming-sword.glb",
+  "title": "Coronation Arming Sword (Swords, Shields and Melee Arms)",
+  "summary": "A ceremonial arming sword with brass crossguard and disc pommel, a straight double edged blade with a spine rib and a dark wrapped grip with brass rivets. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 3616,
+  "animations": [],
+  "sizeMeters": [
+   0.246,
+   0.045,
+   0.979
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-coronation-arming-sword-40340fcf"
+ },
+ {
+  "file": "cutlass.glb",
+  "title": "Cutlass (Swords, Shields and Melee Arms)",
+  "summary": "A broad bladed naval cutlass with a bellied single edge, a knucklebow guard, a short wrapped grip and a disc pommel. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4016,
+  "animations": [],
+  "sizeMeters": [
+   0.151,
+   0.041,
+   0.879
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-cutlass-eb189908"
+ },
+ {
+  "file": "dagger-sheath.glb",
+  "title": "Dagger Sheath (Swords, Shields and Melee Arms)",
+  "summary": "A short leather dagger sheath with a brass throat and chape, stitched edges and a riveted belt loop. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 2620,
+  "animations": [],
+  "sizeMeters": [
+   0.084,
+   0.082,
+   0.362
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-dagger-sheath-20d2e7d4"
+ },
+ {
+  "file": "dane-axe.glb",
+  "title": "Dane Axe (Swords, Shields and Melee Arms)",
+  "summary": "A long hafted Dane axe with a broad thin bit, a wedged eye, long langets, a whipping below the head and a two handed wrapped grip. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 5924,
+  "animations": [],
+  "sizeMeters": [
+   0.045,
+   0.179,
+   1.31
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-dane-axe-9fec51b6"
+ },
+ {
+  "file": "falchion-scabbard.glb",
+  "title": "Falchion Scabbard (Swords, Shields and Melee Arms)",
+  "summary": "A broad leather falchion scabbard with a wide mouth, a brass throat and chape, stitched edges and two suspension rings. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 2892,
+  "animations": [],
+  "sizeMeters": [
+   0.136,
+   0.035,
+   0.782
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-falchion-scabbard-0a8c3b4c"
+ },
+ {
+  "file": "falchion.glb",
+  "title": "Falchion (Swords, Shields and Melee Arms)",
+  "summary": "A cleaver pointed falchion with a broad bellied single edged blade, a straight crossguard, a wrapped grip and a disc pommel. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 3616,
+  "animations": [],
+  "sizeMeters": [
+   0.226,
+   0.049,
+   0.899
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-falchion-0854c2af"
+ },
+ {
+  "file": "flanged-mace.glb",
+  "title": "Flanged Mace (Swords, Shields and Melee Arms)",
+  "summary": "A flanged mace with six steel flanges round a central core, a top spike, a collared socket and a wrapped grip. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 5120,
+  "animations": [],
+  "sizeMeters": [
+   0.053,
+   0.06,
+   0.69
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-flanged-mace-f37a8bfa"
+ },
+ {
+  "file": "francisca.glb",
+  "title": "Francisca (Swords, Shields and Melee Arms)",
+  "summary": "A light throwing francisca with an upswept bit, a compact eye, short langets and a plain oak haft with a wrapped grip. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 3944,
+  "animations": [],
+  "sizeMeters": [
+   0.037,
+   0.107,
+   0.55
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-francisca-0c18d2b1"
+ },
+ {
+  "file": "glaive.glb",
+  "title": "Glaive (Swords, Shields and Melee Arms)",
+  "summary": "A glaive with a single edged cutting blade on a long socket, a small rear hook, langets and a butt spike. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 6324,
+  "animations": [],
+  "sizeMeters": [
+   0.056,
+   0.043,
+   2.541
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-glaive-57b96cbf"
+ },
+ {
+  "file": "greatsword.glb",
+  "title": "Greatsword (Swords, Shields and Melee Arms)",
+  "summary": "A two handed greatsword with a long straight blade, a broad crossguard, a long cord wrapped grip and a heavy disc pommel that balances the blade. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 5632,
+  "animations": [],
+  "sizeMeters": [
+   0.326,
+   0.049,
+   1.449
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-greatsword-8fe90729"
+ },
+ {
+  "file": "grosse-messer.glb",
+  "title": "Grosse Messer (Swords, Shields and Melee Arms)",
+  "summary": "A long single edged grosse messer with a clipped point, a straight crossguard with a side nail, a wrapped grip and a slab sided pommel cap. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4048,
+  "animations": [],
+  "sizeMeters": [
+   0.206,
+   0.04,
+   1.009
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-grosse-messer-f6e74508"
+ },
+ {
+  "file": "halberd.glb",
+  "title": "Halberd (Swords, Shields and Melee Arms)",
+  "summary": "A halberd combining an axe bit, a top spike and a rear hook on a socketed head, with long langets and a butt spike. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 6392,
+  "animations": [],
+  "sizeMeters": [
+   0.045,
+   0.148,
+   2.37
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-halberd-51cc2b29"
+ },
+ {
+  "file": "heater-shield.glb",
+  "title": "Heater Shield (Swords, Shields and Melee Arms)",
+  "summary": "A small heater shield with a blue field, a bone chevron, a leather rim, an iron boss and rim rivets. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4296,
+  "animations": [],
+  "sizeMeters": [
+   0.526,
+   0.123,
+   0.643
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-heater-shield-81d557d5"
+ },
+ {
+  "file": "horsemans-axe.glb",
+  "title": "Horsemans Axe (Swords, Shields and Melee Arms)",
+  "summary": "A short horsemans axe with a narrow bit, a rear piercing spike, a brass bound eye and a wrapped grip with a steel butt cap. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4116,
+  "animations": [],
+  "sizeMeters": [
+   0.039,
+   0.096,
+   0.65
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-horsemans-axe-e4659dff"
+ },
+ {
+  "file": "katana-saya.glb",
+  "title": "Katana Saya (Swords, Shields and Melee Arms)",
+  "summary": "A lacquered black saya with a bone collar, a knotted cord loop, stitched sides and a rounded end cap. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 3244,
+  "animations": [],
+  "sizeMeters": [
+   0.11,
+   0.035,
+   0.782
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-katana-saya-b16d8227"
+ },
+ {
+  "file": "katana.glb",
+  "title": "Katana (Swords, Shields and Melee Arms)",
+  "summary": "A curved single edged katana with a round guard, a brass collar and seppa at the blade mouth, a long wrapped grip with brass menuki dots and a cap pommel. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 6152,
+  "animations": [],
+  "sizeMeters": [
+   0.084,
+   0.04,
+   1.047
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-katana-dc914408"
+ },
+ {
+  "file": "kite-shield.glb",
+  "title": "Kite Shield (Swords, Shields and Melee Arms)",
+  "summary": "A long kite shield tapering to a point, painted with a red cross on bone, with a leather rim, an iron boss and rim rivets. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 5416,
+  "animations": [],
+  "sizeMeters": [
+   0.588,
+   0.133,
+   0.956
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-kite-shield-2d0f381c"
+ },
+ {
+  "file": "knightly-arming-sword.glb",
+  "title": "Knightly Arming Sword (Swords, Shields and Melee Arms)",
+  "summary": "A knightly arming sword with a longer tapering blade, a wide crossguard with ball finials, a leather wrapped grip and a scent stopper pommel of ball and spike. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 3812,
+  "animations": [],
+  "sizeMeters": [
+   0.266,
+   0.048,
+   1.022
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-knightly-arming-sword-b557e86c"
+ },
+ {
+  "file": "knobbed-mace.glb",
+  "title": "Knobbed Mace (Swords, Shields and Melee Arms)",
+  "summary": "A knobbed mace with a round studded head, four side studs and a top spike on a short haft with a wrapped grip. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4772,
+  "animations": [],
+  "sizeMeters": [
+   0.079,
+   0.079,
+   0.61
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-knobbed-mace-0785d190"
+ },
+ {
+  "file": "longsword-scabbard.glb",
+  "title": "Longsword Scabbard (Swords, Shields and Melee Arms)",
+  "summary": "A long charcoal scabbard with iron throat and chape, stitched edges, an oak mouth and two suspension rings. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 2892,
+  "animations": [],
+  "sizeMeters": [
+   0.119,
+   0.035,
+   1.022
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-longsword-scabbard-24493666"
+ },
+ {
+  "file": "longsword.glb",
+  "title": "Longsword (Swords, Shields and Melee Arms)",
+  "summary": "A hand and a half longsword with a straight double edged blade, a long crossguard, a two handed cord wrapped grip and a disc pommel. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4768,
+  "animations": [],
+  "sizeMeters": [
+   0.286,
+   0.046,
+   1.219
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-longsword-39b030d0"
+ },
+ {
+  "file": "nodachi.glb",
+  "title": "Nodachi (Swords, Shields and Melee Arms)",
+  "summary": "A very long curved nodachi for use two handed: a single edged blade, a round guard, a brass collar and an extra long wrapped grip. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 6728,
+  "animations": [],
+  "sizeMeters": [
+   0.084,
+   0.04,
+   1.377
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-nodachi-9fe7aaac"
+ },
+ {
+  "file": "pavise.glb",
+  "title": "Pavise (Swords, Shields and Melee Arms)",
+  "summary": "A tall pavise with a red field, a bone central stripe, a raised centre ridge, a leather rim and an iron boss. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4468,
+  "animations": [],
+  "sizeMeters": [
+   0.701,
+   0.126,
+   1.326
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-pavise-7a334710"
+ },
+ {
+  "file": "pike.glb",
+  "title": "Pike (Swords, Shields and Melee Arms)",
+  "summary": "A very long pike with a small leaf head on a socket, short langets and a butt spike, for holding a line at distance. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 6824,
+  "animations": [],
+  "sizeMeters": [
+   0.046,
+   0.04,
+   2.861
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-pike-16ec6bcc"
+ },
+ {
+  "file": "ring-pommel-sword.glb",
+  "title": "Ring Pommel Sword (Swords, Shields and Melee Arms)",
+  "summary": "An early ring pommel sword with a straight double edged blade, no guard, a cord wrapped grip and an iron ring pommel for a wrist thong. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 3100,
+  "animations": [],
+  "sizeMeters": [
+   0.052,
+   0.052,
+   0.937
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-ring-pommel-sword-7ea4fa7d"
+ },
+ {
+  "file": "rondel-dagger.glb",
+  "title": "Rondel Dagger (Swords, Shields and Melee Arms)",
+  "summary": "An armour piercing rondel dagger with a stiff diamond section blade, a round guard disc, a ribbed grip and a matching round pommel disc. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 3364,
+  "animations": [],
+  "sizeMeters": [
+   0.073,
+   0.033,
+   0.489
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-rondel-dagger-8ac725d0"
+ },
+ {
+  "file": "round-shield-ironbound.glb",
+  "title": "Ironbound Round Shield (Swords, Shields and Melee Arms)",
+  "summary": "A plain oak round shield bound in iron: two straps across the face, a bound rim, a steel boss and twelve rim rivets. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4092,
+  "animations": [],
+  "sizeMeters": [
+   0.636,
+   0.13,
+   0.636
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-round-shield-ironbound-46d29999"
+ },
+ {
+  "file": "round-shield.glb",
+  "title": "Round Shield (Swords, Shields and Melee Arms)",
+  "summary": "A large round shield of oak boards painted in red and bone quarters, with a rawhide rim, a domed iron boss and sixteen rim rivets. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4596,
+  "animations": [],
+  "sizeMeters": [
+   0.672,
+   0.135,
+   0.672
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-round-shield-6c2a8164"
+ },
+ {
+  "file": "sabre.glb",
+  "title": "Sabre (Swords, Shields and Melee Arms)",
+  "summary": "A curved cavalry sabre with a single edged blade, a knucklebow from guard to pommel, a wrapped grip and a cap pommel. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4160,
+  "animations": [],
+  "sizeMeters": [
+   0.141,
+   0.037,
+   1.009
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-sabre-5ccd5d63"
+ },
+ {
+  "file": "scimitar.glb",
+  "title": "Scimitar (Swords, Shields and Melee Arms)",
+  "summary": "A deeply curved scimitar with a flaring single edged blade, a short crossguard and a wrapped grip with a flared disc pommel. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 3760,
+  "animations": [],
+  "sizeMeters": [
+   0.166,
+   0.039,
+   0.969
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-scimitar-3763147a"
+ },
+ {
+  "file": "seax.glb",
+  "title": "Seax (Swords, Shields and Melee Arms)",
+  "summary": "A single edged seax with a broad clipped blade, an oak grip with iron ferrules, brass grip rivets and a steel end cap. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 2980,
+  "animations": [],
+  "sizeMeters": [
+   0.055,
+   0.043,
+   0.567
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-seax-fd07fefe"
+ },
+ {
+  "file": "shield-rack.glb",
+  "title": "Shield Rack (Swords, Shields and Melee Arms)",
+  "summary": "A three shelf oak shield rack holding six shields lying flat in pairs, with a raised lip on each shelf and iron strapped uprights. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 1404,
+  "animations": [],
+  "sizeMeters": [
+   1.4,
+   1.13,
+   1
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-shield-rack-25e773a2"
+ },
+ {
+  "file": "spear-rack.glb",
+  "title": "Spear Rack (Swords, Shields and Melee Arms)",
+  "summary": "A four slot oak spear rack, wider and deeper than the sword rack, holding polearms lying flat with their heads clear of the posts. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 1512,
+  "animations": [],
+  "sizeMeters": [
+   3.05,
+   0.86,
+   0.6
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-spear-rack-610eedef"
+ },
+ {
+  "file": "sword-display-stand.glb",
+  "title": "Sword Display Stand (Swords, Shields and Melee Arms)",
+  "summary": "A low oak display stand with crossed legs and a notched crossbar that carries one sword lying flat, with a brass centre stud. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 1020,
+  "animations": [],
+  "sizeMeters": [
+   0.78,
+   0.643,
+   0.24
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-sword-display-stand-d2787769"
+ },
+ {
+  "file": "targe.glb",
+  "title": "Targe (Swords, Shields and Melee Arms)",
+  "summary": "A small round targe with a blue painted field, a brass bound rim, eight brass studs round a steel boss and brass rim rivets. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4260,
+  "animations": [],
+  "sizeMeters": [
+   0.51,
+   0.122,
+   0.51
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-targe-6a7713bd"
+ },
+ {
+  "file": "tournament-shield.glb",
+  "title": "Tournament Shield (Swords, Shields and Melee Arms)",
+  "summary": "A large flat tournament shield with a lance notch cut in the top corner, painted in yellow and blue halves with a riveted border. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4732,
+  "animations": [],
+  "sizeMeters": [
+   0.742,
+   0.118,
+   0.982
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-tournament-shield-955ebe2a"
+ },
+ {
+  "file": "tower-shield.glb",
+  "title": "Tower Shield (Swords, Shields and Melee Arms)",
+  "summary": "A tall curved tower shield of oak with iron rails top and bottom, a raised centre spine, a red painted stripe and a domed boss. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 2780,
+  "animations": [],
+  "sizeMeters": [
+   0.827,
+   1.05,
+   0.204
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-tower-shield-6b5d5cec"
+ },
+ {
+  "file": "wakizashi.glb",
+  "title": "Wakizashi (Swords, Shields and Melee Arms)",
+  "summary": "A short curved wakizashi, companion to the katana: a single edged blade, a round guard, a brass collar and a wrapped grip with menuki dots. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4712,
+  "animations": [],
+  "sizeMeters": [
+   0.084,
+   0.04,
+   0.637
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-wakizashi-00c5c802"
+ },
+ {
+  "file": "wall-sword-rack.glb",
+  "title": "Wall Sword Rack (Swords, Shields and Melee Arms)",
+  "summary": "A five slot oak sword rack with notched top rail, lower rest rail and iron strapped posts, holding long arms lying flat. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 1620,
+  "animations": [],
+  "sizeMeters": [
+   1.85,
+   1.01,
+   0.5
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-wall-sword-rack-15d9635d"
+ },
+ {
+  "file": "war-hammer.glb",
+  "title": "War Hammer (Swords, Shields and Melee Arms)",
+  "summary": "A footmans war hammer with a square striking face, a rear piercing spike, a brass bound eye and a wrapped grip. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 4348,
+  "animations": [],
+  "sizeMeters": [
+   0.114,
+   0.058,
+   0.68
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-war-hammer-911b3c40"
+ },
+ {
+  "file": "weapon-chest.glb",
+  "title": "Weapon Chest (Swords, Shields and Melee Arms)",
+  "summary": "An iron bound oak weapon chest with a hinged lid, three bands, a lock plate with a brass keyhole and side lifting handles. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 1972,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   0.962,
+   0.57,
+   0.54
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-weapon-chest-72d816d5"
+ },
+ {
+  "file": "winged-spear.glb",
+  "title": "Winged Spear (Swords, Shields and Melee Arms)",
+  "summary": "A winged spear with a leaf shaped head, a socket with side lugs, long langets and a steel butt spike on a two metre ash haft. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 6464,
+  "animations": [],
+  "sizeMeters": [
+   0.071,
+   0.043,
+   2.341
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-winged-spear-0e416a76"
+ },
+ {
+  "file": "zweihander.glb",
+  "title": "Zweihander (Swords, Shields and Melee Arms)",
+  "summary": "A very long two handed sword with parrying lugs below the guard, a straight blade with a spine rib, a broad crossguard and a long wrapped grip. Standard medieval game asset for adventure and RPG projects.",
+  "triangles": 5816,
+  "animations": [],
+  "sizeMeters": [
+   0.346,
+   0.05,
+   1.549
+  ],
+  "aiModel": "Muse Spark via T3 Code",
+  "source": "https://3dassets.dev/assets/swords-shields-and-melee-arms-zweihander-a80d138f"
+ }
+]

@@ -1,0 +1,947 @@
+[
+ {
+  "file": "-10f3fa4c-starter-scene.glb",
+  "title": "Tournament Ground On The Day (Medieval Tournament and Jousting Ground)",
+  "summary": "A whole tournament ground inside a closed 36 by 27 m fence of lists: the tilt runs down the middle on churned mud with broken lances lying where they fell, four grandstands and the royal box face it from the south under banners and pennant lines, and the head of the lists...",
+  "triangles": 25916,
+  "animations": [],
+  "sizeMeters": [
+   40,
+   7.53,
+   32.254
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground--10f3fa4c-starter-scene"
+ },
+ {
+  "file": "ale-barrel.glb",
+  "title": "Ale Barrel (Medieval Tournament and Jousting Ground)",
+  "summary": "Hooped ale barrel laid on a timber stillage with a tap driven in and two cups on top.",
+  "triangles": 484,
+  "animations": [],
+  "sizeMeters": [
+   1.32,
+   1.38,
+   1.1
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-ale-barrel-bf2e72bb"
+ },
+ {
+  "file": "ale-jugs.glb",
+  "title": "Ale Jugs (Medieval Tournament and Jousting Ground)",
+  "summary": "Three glazed jugs and four turned cups on a low serving stool, for the ale line behind the stands.",
+  "triangles": 668,
+  "animations": [],
+  "sizeMeters": [
+   0.9,
+   0.87,
+   0.64
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-ale-jugs-11c884d9"
+ },
+ {
+  "file": "archery-butt.glb",
+  "title": "Archery Butt (Medieval Tournament and Jousting Ground)",
+  "summary": "Straw boss on a timber trestle with three plain concentric rings and a straw kicker at its foot.",
+  "triangles": 1312,
+  "animations": [],
+  "sizeMeters": [
+   1.9,
+   1.957,
+   1.34
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-archery-butt-d93ed48c"
+ },
+ {
+  "file": "archery-line-m.glb",
+  "title": "Archery Line Marker (Medieval Tournament and Jousting Ground)",
+  "summary": "Low marker post with a blank board and a ground rope, for setting a shooting line or a run out.",
+  "triangles": 112,
+  "animations": [],
+  "sizeMeters": [
+   2.49,
+   1.4,
+   0.4
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-archery-line-m-eab2b04c"
+ },
+ {
+  "file": "armour-stand-h.glb",
+  "title": "Armour Stand Harness (Medieval Tournament and Jousting Ground)",
+  "summary": "Full tournament harness dressed on a timber stand: breast and back plate, pauldrons, vambraces, tassets and a great helm.",
+  "triangles": 460,
+  "animations": [],
+  "sizeMeters": [
+   1.063,
+   2.02,
+   0.9
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-armour-stand-h-c8e55f55"
+ },
+ {
+  "file": "baggage-cart.glb",
+  "title": "Baggage Cart (Medieval Tournament and Jousting Ground)",
+  "summary": "Two wheel baggage cart with shafts, a boarded body, a barrel, sacks and a straw load, wheels that roll.",
+  "triangles": 924,
+  "animations": [
+   "roll"
+  ],
+  "sizeMeters": [
+   1.89,
+   1.7,
+   3.808
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-baggage-cart-ee564549"
+ },
+ {
+  "file": "banner-pole-bl.glb",
+  "title": "Banner Pole Blank (Medieval Tournament and Jousting Ground)",
+  "summary": "Five metre banner pole on a stone pad carrying a blank hanging banner with a weighted hem.",
+  "triangles": 532,
+  "animations": [],
+  "sizeMeters": [
+   1.155,
+   5.53,
+   0.78
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-banner-pole-bl-ebd0312f"
+ },
+ {
+  "file": "banner-pole-ta.glb",
+  "title": "Banner Pole Tall (Medieval Tournament and Jousting Ground)",
+  "summary": "Seven metre banner pole with a wider blank banner, for the corners of the lists and the royal enclosure.",
+  "triangles": 532,
+  "animations": [],
+  "sizeMeters": [
+   1.455,
+   7.53,
+   0.78
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-banner-pole-ta-a6fa568f"
+ },
+ {
+  "file": "barding-stand.glb",
+  "title": "Barding Stand (Medieval Tournament and Jousting Ground)",
+  "summary": "Trestle stand carrying a blank caparison and a padded roll, the way barding is aired between courses.",
+  "triangles": 248,
+  "animations": [],
+  "sizeMeters": [
+   1.7,
+   1.524,
+   1.5
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-barding-stand-650755e5"
+ },
+ {
+  "file": "brazier.glb",
+  "title": "Brazier (Medieval Tournament and Jousting Ground)",
+  "summary": "Iron brazier on three splayed legs with a charcoal bed and a poker, unlit.",
+  "triangles": 312,
+  "animations": [],
+  "sizeMeters": [
+   1.151,
+   1.264,
+   0.971
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-brazier-e42a7f2c"
+ },
+ {
+  "file": "bread-and-pie-.glb",
+  "title": "Bread And Pie Board (Medieval Tournament and Jousting Ground)",
+  "summary": "Serving board of three loaves and two latticed pies on chocks, the food a tournament crowd is fed on.",
+  "triangles": 484,
+  "animations": [],
+  "sizeMeters": [
+   1.52,
+   0.53,
+   0.73
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-bread-and-pie--92128462"
+ },
+ {
+  "file": "churned-ground.glb",
+  "title": "Churned Ground Patch (Medieval Tournament and Jousting Ground)",
+  "summary": "Four metre patch of churned earth with six hoof cut ruts, for laying over turf where the running is heaviest.",
+  "triangles": 144,
+  "animations": [],
+  "sizeMeters": [
+   4,
+   0.18,
+   4
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-churned-ground-a455698c"
+ },
+ {
+  "file": "coin-table.glb",
+  "title": "Coin Table (Medieval Tournament and Jousting Ground)",
+  "summary": "Cloth covered counting table with a strongbox, a pair of scales, coin stacks and tally sticks.",
+  "triangles": 412,
+  "animations": [],
+  "sizeMeters": [
+   1.41,
+   1.34,
+   0.9
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-coin-table-ffee51b3"
+ },
+ {
+  "file": "cook-fire-spit.glb",
+  "title": "Cook Fire With Spit And Cauldron (Medieval Tournament and Jousting Ground)",
+  "summary": "Stone ringed cook fire with a turning spit on two forks and a cauldron on an iron tripod beside it.",
+  "triangles": 620,
+  "animations": [
+   "spin"
+  ],
+  "sizeMeters": [
+   3.454,
+   1.511,
+   1.759
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-cook-fire-spit-f45c7b48"
+ },
+ {
+  "file": "farriers-anvil.glb",
+  "title": "Farriers Anvil (Medieval Tournament and Jousting Ground)",
+  "summary": "Horned anvil on a stump with a tool bench, hammer, tongs, a rack of shoes and a quenching bucket.",
+  "triangles": 636,
+  "animations": [],
+  "sizeMeters": [
+   2.38,
+   1.02,
+   0.909
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-farriers-anvil-b82c546f"
+ },
+ {
+  "file": "farriers-tool-.glb",
+  "title": "Farriers Tool Chest (Medieval Tournament and Jousting Ground)",
+  "summary": "Iron banded oak tool chest with a hinged lid that lifts, and a rolled cloth on top.",
+  "triangles": 96,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   1.16,
+   0.76,
+   0.701
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-farriers-tool--6215e868"
+ },
+ {
+  "file": "feed-sack-stac.glb",
+  "title": "Feed Sack Stack (Medieval Tournament and Jousting Ground)",
+  "summary": "Six tied canvas feed sacks stacked two courses high with the necks gathered and corded.",
+  "triangles": 288,
+  "animations": [],
+  "sizeMeters": [
+   1.861,
+   1.5,
+   0.596
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-feed-sack-stac-f6ad1489"
+ },
+ {
+  "file": "gonfalon-frame.glb",
+  "title": "Gonfalon Frame (Medieval Tournament and Jousting Ground)",
+  "summary": "Freestanding braced frame hanging a blank three tailed gonfalon, for marking an entrance to the lists.",
+  "triangles": 132,
+  "animations": [],
+  "sizeMeters": [
+   1.94,
+   2.92,
+   1.1
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-gonfalon-frame-bd568b09"
+ },
+ {
+  "file": "hay-bale-stack.glb",
+  "title": "Hay Bale Stack (Medieval Tournament and Jousting Ground)",
+  "summary": "Six hay bales stacked three courses high with the courses turned against each other.",
+  "triangles": 288,
+  "animations": [],
+  "sizeMeters": [
+   2.771,
+   2.229,
+   1.894
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-hay-bale-stack-187a267e"
+ },
+ {
+  "file": "hay-bale.glb",
+  "title": "Hay Bale (Medieval Tournament and Jousting Ground)",
+  "summary": "Single corded hay bale 1.2 m long, for the feed lines and for blocking off a corner of the camp.",
+  "triangles": 48,
+  "animations": [],
+  "sizeMeters": [
+   1.24,
+   0.75,
+   0.84
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-hay-bale-14be885c"
+ },
+ {
+  "file": "hay-rick.glb",
+  "title": "Hay Rick (Medieval Tournament and Jousting Ground)",
+  "summary": "Thatched hay rick on a staddle stone base with a ladder up its side, four metres to the finial.",
+  "triangles": 384,
+  "animations": [],
+  "sizeMeters": [
+   4.7,
+   4.5,
+   4.47
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-hay-rick-65892841"
+ },
+ {
+  "file": "helm-on-block.glb",
+  "title": "Helm On Block (Medieval Tournament and Jousting Ground)",
+  "summary": "Great helm resting on an oak block with its crest ring, as a helm is shown before a course.",
+  "triangles": 180,
+  "animations": [],
+  "sizeMeters": [
+   0.68,
+   1.11,
+   0.647
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-helm-on-block-5a8402f4"
+ },
+ {
+  "file": "heralds-platfo.glb",
+  "title": "Heralds Platform (Medieval Tournament and Jousting Ground)",
+  "summary": "Raised 2.6 m platform with a rail, a three tread stair and a reading desk, where the herald calls the courses.",
+  "triangles": 636,
+  "animations": [],
+  "sizeMeters": [
+   2.625,
+   2.46,
+   2.9
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-heralds-platfo-c66eb977"
+ },
+ {
+  "file": "hurdle-fence-r.glb",
+  "title": "Hurdle Fence Run (Medieval Tournament and Jousting Ground)",
+  "summary": "Woven hazel hurdle 2.4 m long for penning the camp and the practice ground off the lists.",
+  "triangles": 180,
+  "animations": [],
+  "sizeMeters": [
+   2.44,
+   1.3,
+   0.14
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-hurdle-fence-r-1d806650"
+ },
+ {
+  "file": "lance-rack.glb",
+  "title": "Lance Rack (Medieval Tournament and Jousting Ground)",
+  "summary": "Standing rack of six tourney lances with coronel heads, upright in a floor trough behind a braced frame.",
+  "triangles": 1068,
+  "animations": [],
+  "sizeMeters": [
+   1.9,
+   3.54,
+   1.18
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-lance-rack-661cfa58"
+ },
+ {
+  "file": "lance-shattere.glb",
+  "title": "Lance Shattered (Medieval Tournament and Jousting Ground)",
+  "summary": "Broken lance on the ground: the splintered butt half, a loose forward half and seven splinters.",
+  "triangles": 300,
+  "animations": [],
+  "sizeMeters": [
+   3.411,
+   0.393,
+   1.397
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-lance-shattere-864af08e"
+ },
+ {
+  "file": "lance-whole.glb",
+  "title": "Lance Whole (Medieval Tournament and Jousting Ground)",
+  "summary": "Single 3.4 m tourney lance with vamplate, grip and coronel head, resting on two chocks.",
+  "triangles": 188,
+  "animations": [],
+  "sizeMeters": [
+   3.58,
+   0.45,
+   0.5
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-lance-whole-c0c35e0f"
+ },
+ {
+  "file": "lists-fence-co.glb",
+  "title": "Lists Fence Corner Post (Medieval Tournament and Jousting Ground)",
+  "summary": "Right angle corner newel for the lists fence, with a stone pad, a finial and a blank canvas strip.",
+  "triangles": 124,
+  "animations": [],
+  "sizeMeters": [
+   0.46,
+   1.6,
+   0.46
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-lists-fence-co-480a147b"
+ },
+ {
+  "file": "lists-fence-ga.glb",
+  "title": "Lists Fence Gate (Medieval Tournament and Jousting Ground)",
+  "summary": "Three metre lists gate with a braced oak leaf that swings clear on its own hinge post.",
+  "triangles": 168,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   3.18,
+   1.76,
+   0.277
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-lists-fence-ga-1369e268"
+ },
+ {
+  "file": "lists-fence-pa.glb",
+  "title": "Lists Fence Panel (Medieval Tournament and Jousting Ground)",
+  "summary": "Three metre post and rail panel that encloses the lists, with capped oak posts and a ground sill.",
+  "triangles": 84,
+  "animations": [],
+  "sizeMeters": [
+   3.12,
+   1.26,
+   0.26
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-lists-fence-pa-23344aa8"
+ },
+ {
+  "file": "lists-fence-pa.glb",
+  "title": "Lists Fence Panel Draped (Medieval Tournament and Jousting Ground)",
+  "summary": "Lists fence bay dressed for the day with a blank valance and four plain pennants on the top rail.",
+  "triangles": 168,
+  "animations": [],
+  "sizeMeters": [
+   3.12,
+   1.38,
+   0.26
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-lists-fence-pa-60d0affc"
+ },
+ {
+  "file": "melee-ring-fen.glb",
+  "title": "Melee Ring Fence Panel (Medieval Tournament and Jousting Ground)",
+  "summary": "Heavy 2.5 m ring fence bay with three posts, three rails and rear raking braces for the foot combat ring.",
+  "triangles": 108,
+  "animations": [],
+  "sizeMeters": [
+   2.56,
+   1.35,
+   0.812
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-melee-ring-fen-8998bedc"
+ },
+ {
+  "file": "merchant-stall.glb",
+  "title": "Merchant Stall (Medieval Tournament and Jousting Ground)",
+  "summary": "Two and a half metre trader stall with a raking canvas awning, a counter of goods, a pot shelf and pennant bunting.",
+  "triangles": 752,
+  "animations": [],
+  "sizeMeters": [
+   2.9,
+   2.36,
+   1.48
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-merchant-stall-9a839369"
+ },
+ {
+  "file": "pavilion-tent-.glb",
+  "title": "Pavilion Tent Large (Medieval Tournament and Jousting Ground)",
+  "summary": "Five metre round pavilion with the door flaps rolled open, a centre pole, six guy ropes and a plain finial pennant.",
+  "triangles": 864,
+  "animations": [],
+  "sizeMeters": [
+   6.789,
+   4.46,
+   7.279
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-pavilion-tent--1b262451"
+ },
+ {
+  "file": "pavilion-tent-.glb",
+  "title": "Pavilion Tent Small (Medieval Tournament and Jousting Ground)",
+  "summary": "Three and a half metre round pavilion with an open doorway, for a squire, a marshal or an armourer.",
+  "triangles": 744,
+  "animations": [],
+  "sizeMeters": [
+   5.407,
+   3.81,
+   5.79
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-pavilion-tent--ba3331ba"
+ },
+ {
+  "file": "pell-post.glb",
+  "title": "Pell Post (Medieval Tournament and Jousting Ground)",
+  "summary": "Hacked oak pell set in a stone socket with a strawed head, the post a fighter trains cuts against.",
+  "triangles": 444,
+  "animations": [],
+  "sizeMeters": [
+   1.44,
+   2.7,
+   1.404
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-pell-post-06bcf469"
+ },
+ {
+  "file": "pennant-line.glb",
+  "title": "Pennant Line (Medieval Tournament and Jousting Ground)",
+  "summary": "Six metre line of eight plain triangular pennants slung between two poles, for dressing the lists fence.",
+  "triangles": 240,
+  "animations": [],
+  "sizeMeters": [
+   6.7,
+   3.48,
+   0.5
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-pennant-line-95642bba"
+ },
+ {
+  "file": "quintain.glb",
+  "title": "Quintain (Medieval Tournament and Jousting Ground)",
+  "summary": "Training quintain with a free turning arm, a target board on one end and a sandbag swinging from the other.",
+  "triangles": 616,
+  "animations": [
+   "spin",
+   "swing"
+  ],
+  "sizeMeters": [
+   3.26,
+   3.26,
+   1.6
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-quintain-9452f23b"
+ },
+ {
+  "file": "royal-box.glb",
+  "title": "Royal Box (Medieval Tournament and Jousting Ground)",
+  "summary": "Six metre raised box open on three sides under a canvas canopy, with three chairs, a carpeted deck and blank shields on the breast rail.",
+  "triangles": 968,
+  "animations": [],
+  "sizeMeters": [
+   6.6,
+   4.78,
+   4.6
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-royal-box-2748e366"
+ },
+ {
+  "file": "saddle-trestle.glb",
+  "title": "Saddle Trestle (Medieval Tournament and Jousting Ground)",
+  "summary": "War saddle with a high cantle on a timber trestle, with skirts, stirrup leathers and irons hanging.",
+  "triangles": 364,
+  "animations": [],
+  "sizeMeters": [
+   1.2,
+   1.582,
+   1.02
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-saddle-trestle-7741271f"
+ },
+ {
+  "file": "shield-on-stan.glb",
+  "title": "Shield On Stand (Medieval Tournament and Jousting Ground)",
+  "summary": "Single blank heater shield on a timber tripod, for a challenger to set at the head of the lists.",
+  "triangles": 148,
+  "animations": [],
+  "sizeMeters": [
+   0.826,
+   1.213,
+   0.715
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-shield-on-stan-38907aa8"
+ },
+ {
+  "file": "shield-on-stan.glb",
+  "title": "Shield On Stand Chevron (Medieval Tournament and Jousting Ground)",
+  "summary": "The same stand carrying an invented abstract charge: a chevron over a bar, raised proud of the field.",
+  "triangles": 184,
+  "animations": [],
+  "sizeMeters": [
+   0.826,
+   1.213,
+   0.715
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-shield-on-stan-17962b13"
+ },
+ {
+  "file": "shield-rack-em.glb",
+  "title": "Shield Rack Empty (Medieval Tournament and Jousting Ground)",
+  "summary": "The same standing rack with no shields on it, for a ground being set up or struck.",
+  "triangles": 84,
+  "animations": [],
+  "sizeMeters": [
+   2.4,
+   1.35,
+   0.7
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-shield-rack-em-75a89c26"
+ },
+ {
+  "file": "shield-rack.glb",
+  "title": "Shield Rack (Medieval Tournament and Jousting Ground)",
+  "summary": "Standing rack of five blank heater shields, the rack a challenger touches to call a course.",
+  "triangles": 264,
+  "animations": [],
+  "sizeMeters": [
+   2.4,
+   1.35,
+   0.7
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-shield-rack-02af235a"
+ },
+ {
+  "file": "spectator-benc.glb",
+  "title": "Spectator Bench (Medieval Tournament and Jousting Ground)",
+  "summary": "Loose 2.4 m plank bench on trestle feet, for the standing ground beside the lists.",
+  "triangles": 72,
+  "animations": [],
+  "sizeMeters": [
+   2.4,
+   0.54,
+   0.4
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-spectator-benc-a870601e"
+ },
+ {
+  "file": "spectator-stan.glb",
+  "title": "Spectator Stand Lower Tier (Medieval Tournament and Jousting Ground)",
+  "summary": "Six metre open fronted stand of two bench tiers on a braced timber frame, the front row of a tournament grandstand.",
+  "triangles": 288,
+  "animations": [],
+  "sizeMeters": [
+   6,
+   2.5,
+   2.41
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-spectator-stan-554097b3"
+ },
+ {
+  "file": "spectator-stan.glb",
+  "title": "Spectator Stand Upper Tier (Medieval Tournament and Jousting Ground)",
+  "summary": "Six metre raised stand of two bench tiers at 1.85 and 2.4 m with a front breast board, standing behind the lower tier.",
+  "triangles": 324,
+  "animations": [],
+  "sizeMeters": [
+   6,
+   3.9,
+   2.42
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-spectator-stan-99d4b2c9"
+ },
+ {
+  "file": "spectator-stan.glb",
+  "title": "Spectator Stand Stair (Medieval Tournament and Jousting Ground)",
+  "summary": "Five tread access stair with handrails that closes the end of a stand run at deck height.",
+  "triangles": 264,
+  "animations": [],
+  "sizeMeters": [
+   1.32,
+   1.7,
+   2.01
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-spectator-stan-86ad5269"
+ },
+ {
+  "file": "squires-work-b.glb",
+  "title": "Squires Work Bench (Medieval Tournament and Jousting Ground)",
+  "summary": "Two metre armourers bench with a vice, a tool rail, a half finished breastplate and rag bundles.",
+  "triangles": 240,
+  "animations": [],
+  "sizeMeters": [
+   2,
+   1.46,
+   0.88
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-squires-work-b-50b50539"
+ },
+ {
+  "file": "stocks.glb",
+  "title": "Stocks (Medieval Tournament and Jousting Ground)",
+  "summary": "Camp stocks with a hinged upper board that lifts, a bench behind and stone footings.",
+  "triangles": 204,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   2.3,
+   1.35,
+   1.09
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-stocks-6c592363"
+ },
+ {
+  "file": "supply-crate.glb",
+  "title": "Supply Crate (Medieval Tournament and Jousting Ground)",
+  "summary": "Cross braced oak supply crate with corner battens and a hinged lid that lifts on its back edge.",
+  "triangles": 96,
+  "animations": [
+   "open",
+   "close"
+  ],
+  "sizeMeters": [
+   1.06,
+   0.87,
+   0.9
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-supply-crate-1ea0172d"
+ },
+ {
+  "file": "tack-rack.glb",
+  "title": "Tack Rack (Medieval Tournament and Jousting Ground)",
+  "summary": "Standing rack of four bridles with stirrup irons and two girths, for the tourney camp lines.",
+  "triangles": 1188,
+  "animations": [],
+  "sizeMeters": [
+   2.04,
+   1.75,
+   0.86
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-tack-rack-0a9e68a1"
+ },
+ {
+  "file": "tally-board.glb",
+  "title": "Tally Board (Medieval Tournament and Jousting Ground)",
+  "summary": "Standing slate tally board ruled into columns with chalk strokes, where the courses are scored.",
+  "triangles": 240,
+  "animations": [],
+  "sizeMeters": [
+   1.64,
+   2.02,
+   0.8
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-tally-board-ad137794"
+ },
+ {
+  "file": "tilt-barrier-e.glb",
+  "title": "Tilt Barrier End Post (Medieval Tournament and Jousting Ground)",
+  "summary": "Capped end post for the tilt with a stone pad, an iron finial and a blank canvas panel.",
+  "triangles": 148,
+  "animations": [],
+  "sizeMeters": [
+   0.62,
+   2.1,
+   1.26
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-tilt-barrier-e-54dde689"
+ },
+ {
+  "file": "tilt-barrier-s.glb",
+  "title": "Tilt Barrier Section (Medieval Tournament and Jousting Ground)",
+  "summary": "Four metre section of the tilt: a cloth faced barrier on oak posts with rear braces and foot sills.",
+  "triangles": 264,
+  "animations": [],
+  "sizeMeters": [
+   4.04,
+   1.24,
+   1.119
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-tilt-barrier-s-11f47614"
+ },
+ {
+  "file": "torch-post.glb",
+  "title": "Torch Post (Medieval Tournament and Jousting Ground)",
+  "summary": "Standing torch post with an iron cresset basket of faggots on a stone pad, unlit.",
+  "triangles": 280,
+  "animations": [],
+  "sizeMeters": [
+   0.696,
+   2.66,
+   0.5
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-torch-post-d85b6549"
+ },
+ {
+  "file": "tournament-gro.glb",
+  "title": "Tournament Ground Module (Medieval Tournament and Jousting Ground)",
+  "summary": "Eight metre square turf tile with worn earth patches and grass tufts, the tiling floor of a tournament field.",
+  "triangles": 240,
+  "animations": [],
+  "sizeMeters": [
+   8,
+   0.28,
+   8
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-tournament-gro-a09cb837"
+ },
+ {
+  "file": "tournament-gro.glb",
+  "title": "Tournament Ground Module Mud (Medieval Tournament and Jousting Ground)",
+  "summary": "Eight metre square tile of churned mud with dried ruts, for the run of the tilt and the gateways.",
+  "triangles": 216,
+  "animations": [],
+  "sizeMeters": [
+   8,
+   0.195,
+   8
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-tournament-gro-736353db"
+ },
+ {
+  "file": "tournament-pla.glb",
+  "title": "Tournament Platform Deck (Medieval Tournament and Jousting Ground)",
+  "summary": "Three metre square timber deck 600 mm up on stub legs, the module stands and boxes are built out of.",
+  "triangles": 156,
+  "animations": [],
+  "sizeMeters": [
+   3.002,
+   0.601,
+   2.98
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-tournament-pla-9d62299e"
+ },
+ {
+  "file": "tournament-pla.glb",
+  "title": "Tournament Platform Step (Medieval Tournament and Jousting Ground)",
+  "summary": "Three tread timber step run that meets a platform deck at 600 mm, with stringers and a ground sill.",
+  "triangles": 180,
+  "animations": [],
+  "sizeMeters": [
+   2.9,
+   1.3,
+   1.45
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-tournament-pla-9d27e039"
+ },
+ {
+  "file": "trestle-bench.glb",
+  "title": "Trestle Bench (Medieval Tournament and Jousting Ground)",
+  "summary": "Short 1.8 m camp bench on splayed trestle feet, to go with the trestle table.",
+  "triangles": 96,
+  "animations": [],
+  "sizeMeters": [
+   1.98,
+   0.551,
+   0.34
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-trestle-bench-fbfd8f9f"
+ },
+ {
+  "file": "trestle-table.glb",
+  "title": "Trestle Table (Medieval Tournament and Jousting Ground)",
+  "summary": "Two and a half metre board on splayed trestles, the table a tourney camp eats and works at.",
+  "triangles": 132,
+  "animations": [],
+  "sizeMeters": [
+   2.62,
+   0.852,
+   0.86
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-trestle-table-103bebd0"
+ },
+ {
+  "file": "water-trough.glb",
+  "title": "Water Trough (Medieval Tournament and Jousting Ground)",
+  "summary": "Hollowed stone water trough 2.2 m long with a still water surface and a pail beside it.",
+  "triangles": 228,
+  "animations": [],
+  "sizeMeters": [
+   2.7,
+   0.72,
+   0.86
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-water-trough-cc49903b"
+ },
+ {
+  "file": "weapon-rack-bl.glb",
+  "title": "Weapon Rack Blunted (Medieval Tournament and Jousting Ground)",
+  "summary": "Rack of rebated tourney arms: four blunt swords, two padded maces and a rebated axe, standing in a floor trough.",
+  "triangles": 500,
+  "animations": [],
+  "sizeMeters": [
+   1.92,
+   1.54,
+   0.9
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-weapon-rack-bl-408e4379"
+ },
+ {
+  "file": "whetstone-whee.glb",
+  "title": "Whetstone Wheel (Medieval Tournament and Jousting Ground)",
+  "summary": "Treadle grindstone on a timber frame with a water tray under the wheel, for rebating tournament arms.",
+  "triangles": 228,
+  "animations": [
+   "spin"
+  ],
+  "sizeMeters": [
+   1.2,
+   1.42,
+   1.08
+  ],
+  "aiModel": "Claude Opus 5",
+  "source": "https://3dassets.dev/assets/medieval-tournament-and-jousting-ground-whetstone-whee-2100d4db"
+ }
+]

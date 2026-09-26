@@ -1,0 +1,4 @@
+"Horse Stables and Equestrian Yard" from 3dassets.dev (https://3dassets.dev/packs/equestrian-yard-and-stables)
+Licence: CC0 1.0 Universal (every asset verified cc0-1.0 via the site API on 2026-09-26). No attribution required.
+AI-GENERATED: the site marks this pack aiGenerated=true (models: Claude Fable 5.1). Review visually before shipping.
+Low-poly horses, modular stable bays, paddock fencing, arenas, show jumps, tack and yard equipment.
