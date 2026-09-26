@@ -54,6 +54,13 @@ func _update(pos: Vector2) -> void:
 
 
 func _draw() -> void:
-	draw_circle(_center, RADIUS, Color(0, 0, 0, 0.28))
-	draw_arc(_center, RADIUS, 0, TAU, 48, Color(1, 1, 1, 0.45), 3.0, true)
-	draw_circle(_knob, KNOB, Color(1, 0.93, 0.85, 0.75))
+	var active := _touch_index != -1
+	draw_circle(_center, RADIUS, Color(0.05, 0.06, 0.1, 0.38 if active else 0.24))
+	draw_arc(_center, RADIUS, 0, TAU, 64, Color(1, 1, 1, 0.22), 2.0, true)
+	if output.length() > 0.05:
+		# Direction arc toward the push.
+		var a := output.angle()
+		draw_arc(_center, RADIUS - 3.0, a - 0.5, a + 0.5, 24, UITheme.ACCENT, 4.0, true)
+	draw_circle(_knob, KNOB + 3.0, Color(0, 0, 0, 0.25))
+	draw_circle(_knob, KNOB, Color(1, 1, 1, 0.82 if active else 0.62))
+	draw_arc(_knob, KNOB - 1.0, 0, TAU, 48, Color(1, 1, 1, 0.9), 1.5, true)
