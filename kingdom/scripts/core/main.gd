@@ -423,6 +423,28 @@ func _screenshot(shot: String, path: String) -> void:
 			player.set_camera(atan2(-d.x, -d.y), -0.12)
 			settlements.focus = player.global_position
 			warmup = 240
+		"lineup":
+			hud.visible = false
+			var base := player.global_position + player.forward() * 5.0
+			var looks := [["Knight", ["1H_Sword", "Round_Shield"], "Idle"], ["Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"], "1H_Melee_Attack_Chop"],
+				["Barbarian", ["1H_Axe", "Barbarian_Round_Shield"], "Blocking"], ["Rogue_Hooded", [], "Walking_A"],
+				["Mage", [], "Idle"], ["Rogue", [], "Cheer"]]
+			var right := player.forward().cross(Vector3.UP).normalized()
+			for i in looks.size():
+				var keep: Array[String] = []
+				keep.assign(looks[i][1])
+				var c := Assets.character(looks[i][0], 1.78, keep)
+				world.add_child(c)
+				var pos: Vector3 = base + right * (i - 2.5) * 1.3
+				pos.y = WorldGen.height(pos.x, pos.z)
+				c.global_position = pos
+				c.look_at(player.global_position, Vector3.UP, true)
+				var ap := Assets.animation_player(c)
+				if ap:
+					ap.play(looks[i][2])
+			player.visible = false
+			player.set_camera(player._yaw, -0.08)
+			warmup = 45
 		"city", "street":
 			var cap: Dictionary = WorldGen.settlements[1]
 			var cp: Vector2 = cap["pos"]
