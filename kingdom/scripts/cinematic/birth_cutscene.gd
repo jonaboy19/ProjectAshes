@@ -126,8 +126,8 @@ static func _set_shots(o: Vector3, mother: String, father: String, baby: String,
 		"text": "A cry breaks the quiet.",
 	})
 	out.append({
-		"from": o + Vector3(-1.2, 1.5, 1.4), "to": o + Vector3(-1.4, 1.4, 0.9),
-		"look": bed, "fov": 42.0, "fov_to": 38.0, "duration": 4.5, "ease": "linear", "time": 0.0,
+		"from": o + Vector3(-0.4, 1.55, 1.6), "to": o + Vector3(-0.6, 1.5, 1.2),
+		"look": o + Vector3(-1.75, 1.2, -1.0), "fov": 46.0, "fov_to": 42.0, "duration": 4.5, "ease": "linear", "time": 0.0,
 		"speaker": mother, "text": "Look at you. Welcome, little one.",
 	})
 	out.append({

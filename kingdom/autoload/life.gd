@@ -90,17 +90,22 @@ func _begin_life() -> void:
 	var r: Vector2i = WorldSim.ranges[0]
 	var mother := r.x + 3
 	var father := r.x + 8
-	var family := WorldSim.person_name(father).get_slice(" ", 1)
+	# Parents are named from the Caldric (home kingdom) culture, by gender.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = WorldSim.SEED + 7
+	var father_name := lore.random_name("caldric", rng, "male")
+	var mother_given := lore.random_name("caldric", rng, "female").get_slice(" ", 0)
+	var family := father_name.get_slice(" ", 1)
+	var mname := "%s %s" % [mother_given, family]
 	var house := Vector2(14, 9)
 	var lots: Array = home["plan"].get("lots", [])
 	for lot: Dictionary in lots:
 		if String(lot["asset"]).begins_with("house") and (lot["pos"] as Vector2).length() < 25.0:
 			house = lot["pos"]
 			break
-	var mname := WorldSim.person_name(mother).get_slice(" ", 0) + " " + family
 	life_path.begin(WorldSim.day, WorldSim.time_of_day, "Ren", family,
 		[{"id": mother, "name": mname, "role": "mother"},
-		 {"id": father, "name": WorldSim.person_name(father), "role": "father"}], 0, house)
+		 {"id": father, "name": father_name, "role": "father"}], 0, house)
 	life_path.set_age(START_AGE, WorldSim.day, WorldSim.time_of_day)
 	triggers.seed_first_region(home["pos"], home["radius"])
 
