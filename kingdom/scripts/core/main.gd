@@ -456,20 +456,21 @@ func _screenshot(shot: String, path: String) -> void:
 		"frontier":
 			var ws: Dictionary = Frontier.runestones.stones[7] if Frontier.runestones.stones.size() > 7 else Frontier.runestones.stones[0]
 			var den: Dictionary = Frontier.ecology.dens[0]
-			var sp: Vector2 = ws["pos"] + (den["pos"] - ws["pos"]).normalized() * 6.0
+			var dir: Vector2 = (den["pos"] - ws["pos"]).normalized()
+			var side := Vector2(-dir.y, dir.x)
+			var sp: Vector2 = den["pos"] - dir * 40.0 - side * 2.5   # out in the forest near a den
 			_teleport(sp, 0.0)
-			var look2: Vector2 = den["pos"] - sp
-			player.set_camera(atan2(-look2.x, -look2.y), -0.18)
-			# Bring one pack close for the shot.
+			player.set_camera(atan2(-dir.x, -dir.y), -0.14)
 			frontier.focus = Vector3(den["pos"].x, 0, den["pos"].y)
 			frontier._timer = 0.0
-			warmup = 30
-			for i in 3:
-				await get_tree().process_frame
+			frontier._process(0.0)
 			for w in get_tree().get_nodes_in_group("team1"):
 				if w is Wolf:
-					var q: Vector2 = sp + (den["pos"] - sp).normalized() * randf_range(10.0, 18.0) + Vector2(randf_range(-5, 5), randf_range(-5, 5))
+					var q: Vector2 = sp + dir * randf_range(12.0, 22.0) + side * randf_range(-7.0, 7.0)
 					w.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
+					w.home = q
+					w.state = Wolf.State.STALK
+			warmup = 25
 		"city", "street":
 			var cap: Dictionary = WorldGen.settlements[1]
 			var cp: Vector2 = cap["pos"]

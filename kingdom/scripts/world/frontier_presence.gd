@@ -5,8 +5,9 @@ extends Node3D
 ## range. Killed wolves are culled from their den in the ecology.
 
 const RUNESTONE := "res://assets/generated/runestone.glb"
-const PACK_RANGE := 260.0
-const DESPAWN_RANGE := 360.0
+## Packs get bodies when the player nears their territory and lose them well past it.
+const PACK_MARGIN := 120.0
+const DESPAWN_MARGIN := 260.0
 
 var focus := Vector3.ZERO
 var _stone_nodes: Dictionary = {}     # stone id -> {node, light}
@@ -66,9 +67,10 @@ func _process(delta: float) -> void:
 	for den in Frontier.ecology.dens:
 		var id: int = den["id"]
 		var d := p.distance_to(den["pos"])
-		if den["alive"] and d < PACK_RANGE and not _packs.has(id):
+		var terr: float = den["territory"]
+		if den["alive"] and d < terr + PACK_MARGIN and not _packs.has(id):
 			_spawn_pack(den)
-		elif _packs.has(id) and d > DESPAWN_RANGE:
+		elif _packs.has(id) and d > terr + DESPAWN_MARGIN:
 			for w in _packs[id]:
 				if is_instance_valid(w):
 					w.queue_free()
