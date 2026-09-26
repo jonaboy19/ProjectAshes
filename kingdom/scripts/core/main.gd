@@ -11,7 +11,7 @@ extends Control
 const PIXEL_SCALE := 3
 ## Retro pixel look; off by default, enable with the --pixel launch argument.
 var pixel_mode := false
-const HOME_SPAWN := Vector2(3, 9)
+const HOME_SPAWN := Vector2(2, 4.5)
 const FIRST_CAMP := Vector2(190, 120)
 
 var viewport: SubViewport
@@ -425,7 +425,8 @@ func _screenshot(shot: String, path: String) -> void:
 			warmup = 240
 		"lineup":
 			hud.visible = false
-			var base := player.global_position + player.forward() * 5.0
+			_teleport(Vector2(105, -40), 0.0)
+			var base := player.global_position + player.forward() * 3.4
 			var looks := [["Knight", ["1H_Sword", "Round_Shield"], "Idle"], ["Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"], "1H_Melee_Attack_Chop"],
 				["Barbarian", ["1H_Axe", "Barbarian_Round_Shield"], "Blocking"], ["Rogue_Hooded", [], "Walking_A"],
 				["Mage", [], "Idle"], ["Rogue", [], "Cheer"]]
@@ -435,7 +436,7 @@ func _screenshot(shot: String, path: String) -> void:
 				keep.assign(looks[i][1])
 				var c := Assets.character(looks[i][0], 1.78, keep)
 				world.add_child(c)
-				var pos: Vector3 = base + right * (i - 2.5) * 1.3
+				var pos: Vector3 = base + right * (i - 2.5) * 1.1
 				pos.y = WorldGen.height(pos.x, pos.z)
 				c.global_position = pos
 				c.look_at(player.global_position, Vector3.UP, true)
@@ -443,7 +444,8 @@ func _screenshot(shot: String, path: String) -> void:
 				if ap:
 					ap.play(looks[i][2])
 			player.visible = false
-			player.set_camera(player._yaw, -0.08)
+			player.set_view(Player.View.FIRST)
+			player.set_camera(player._yaw, -0.12)
 			warmup = 45
 		"city", "street":
 			var cap: Dictionary = WorldGen.settlements[1]

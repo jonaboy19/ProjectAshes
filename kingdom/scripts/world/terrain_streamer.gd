@@ -17,7 +17,7 @@ var _ground_material: ShaderMaterial
 
 ## Poly Haven (CC0) PBR sets used for each terrain layer.
 const TEX := "res://assets/incoming/polyhaven/textures/%s/%s_%s_2k.jpg"
-const LAYERS := {"grass": "sparse_grass", "forest": "forest_ground_04", "path": "grass_path_2",
+const LAYERS := {"grass": "leafy_grass", "forest": "forest_ground_04", "path": "grass_path_2",
 	"rock": "rocky_terrain_02", "cobble": "cobblestone_floor_01"}
 
 

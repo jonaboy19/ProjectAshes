@@ -24,14 +24,15 @@ const UAL_FILES := [Q + "universal-animation-library/Unreal-Godot/UAL1_Standard.
 const WEAPONS := Q + "lowpoly-medieval-weapons/FBX/"
 const HELMET := Q + "lowpoly-animated-knight/FBX/Helmet1.fbx"
 ## Old KayKit clip names -> UAL clips, so gameplay code keeps using one vocabulary.
+## (Godot's importer strips the "_Loop" suffix from looping clips and marks them looping.)
 const UAL_ALIASES := {
-	"Idle": "Idle_Loop", "Walking_A": "Walk_Loop", "Running_A": "Jog_Fwd_Loop",
+	"Walking_A": "Walk", "Running_A": "Jog_Fwd",
 	"1H_Melee_Attack_Chop": "Sword_Regular_A", "1H_Melee_Attack_Slice_Diagonal": "Sword_Regular_B",
 	"1H_Melee_Attack_Slice_Horizontal": "Sword_Regular_C", "1H_Melee_Attack_Stab": "Sword_Attack",
-	"Blocking": "Idle_Shield_Loop", "Block_Hit": "Sword_Block", "Dodge_Forward": "Roll",
+	"Blocking": "Idle_Shield", "Block_Hit": "Sword_Block", "Dodge_Forward": "Roll",
 	"Dodge_Backward": "Roll", "Hit_A": "Hit_Chest", "Hit_B": "Hit_Knockback", "Death_A": "Death01",
 	"Death_B": "Death01", "Cheer": "Yes", "Spellcast_Shoot": "Spell_Simple_Shoot",
-	"Spellcast_Raise": "Spell_Simple_Enter", "Sit_Floor_Idle": "Sitting_Idle_Loop",
+	"Spellcast_Raise": "Spell_Simple_Enter", "Sit_Floor_Idle": "Sitting_Idle",
 	"2H_Melee_Idle": "Sword_Idle", "Interact": "Interact",
 }
 ## KayKit look names used around the game -> humanoid recipes.
@@ -89,6 +90,10 @@ static var _mesh_cache: Dictionary = {}
 static var _building_cache: Dictionary = {}
 static var _ual_library: AnimationLibrary
 static var _ual_skeleton_path := ""
+static var _trimmed_bodies: Dictionary = {}
+const HAIR_COLORS := [Color("2b1d14"), Color("4a3020"), Color("6b4a2b"), Color("a67b4b"), Color("1a1a1a"), Color("8a3b1c"), Color("c9a86b")]
+## Base-body bones kept when clothing is worn (the rest would clip through outfits).
+const EXPOSED_KEYS := ["Head", "neck", "hand", "thumb", "index", "middle", "ring", "pinky"]
 static var _materials: Dictionary = {}
 
 
@@ -207,13 +212,17 @@ static func humanoid(look: Dictionary, height: float, keep: Array[String] = []) 
 	var base: Node3D = (load(UBC + "Base Characters/Godot - UE/Superhero_%s_FullBody.gltf" % sex) as PackedScene).instantiate()
 	root.add_child(base)
 	var skeleton: Skeleton3D = base.find_children("*", "Skeleton3D", true, false)[0]
+	for mi in skeleton.find_children("*", "MeshInstance3D", false, false):
+		if String(mi.name).to_lower().begins_with("superhero"):
+			(mi as MeshInstance3D).mesh = _trimmed_body(mi as MeshInstance3D, skeleton, sex)
 	_bind_meshes(OUTFITS + outfit + ".gltf", skeleton, look.get("hide", []))
 	var hair: String = look.get("hair", "")
 	if sex == "Female" and hair.contains("Beard"):
 		hair = "Hair_Long"
 	if hair != "":
-		_bind_meshes(HAIR + hair + ".gltf", skeleton, [])
-		_bind_meshes(HAIR + ("Eyebrows_Female" if sex == "Female" else "Eyebrows_Regular") + ".gltf", skeleton, [])
+		var tint: Color = HAIR_COLORS[randi() % HAIR_COLORS.size()]
+		_bind_meshes(HAIR + hair + ".gltf", skeleton, [], tint)
+		_bind_meshes(HAIR + ("Eyebrows_Female" if sex == "Female" else "Eyebrows_Regular") + ".gltf", skeleton, [], tint)
 	# Props from the old KayKit part names.
 	for part in keep:
 		if part.contains("Helmet"):
@@ -248,7 +257,7 @@ static func humanoid(look: Dictionary, height: float, keep: Array[String] = []) 
 	return root
 
 
-static func _bind_meshes(path: String, skeleton: Skeleton3D, hide: Array) -> void:
+static func _bind_meshes(path: String, skeleton: Skeleton3D, hide: Array, tint := Color.WHITE) -> void:
 	if not ResourceLoader.exists(path):
 		push_warning("Missing humanoid part: " + path)
 		return
@@ -262,9 +271,17 @@ static func _bind_meshes(path: String, skeleton: Skeleton3D, hide: Array) -> voi
 		if skip:
 			continue
 		m.get_parent().remove_child(m)
+		m.owner = null
 		m.transform = Transform3D.IDENTITY
 		skeleton.add_child(m)
 		m.skeleton = NodePath("..")
+		if tint != Color.WHITE:
+			for surf in m.mesh.get_surface_count():
+				var mat := m.get_active_material(surf)
+				if mat is BaseMaterial3D:
+					var tinted := (mat as BaseMaterial3D).duplicate() as BaseMaterial3D
+					tinted.albedo_color = tint
+					m.set_surface_override_material(surf, tinted)
 	scene.free()
 
 
@@ -277,11 +294,77 @@ static func _attach(skeleton: Skeleton3D, bone: String, path: String, length: fl
 	var prop: Node3D = (load(path) as PackedScene).instantiate()
 	var box := visual_aabb(prop)
 	var longest := maxf(box.size.x, maxf(box.size.y, box.size.z))
-	# Bone space is in the skeleton's units; divide out the character scale later applied to root.
-	prop.scale = Vector3.ONE * (length / maxf(longest, 0.001))
-	prop.position = offset
+	# Bone space is in the rig's own units (the UE rig is in centimetres under a
+	# scaled Armature), so convert metres into skeleton units.
+	var rig_scale := _rig_scale(skeleton)
+	prop.scale = Vector3.ONE * (length / maxf(longest, 0.001) / rig_scale)
+	prop.position = offset / rig_scale
 	prop.rotation_degrees = rot_deg
 	att.add_child(prop)
+
+
+## The base body cut down to head, neck and hands: triangles whose vertices are
+## mostly skinned to exposed bones. Cached per sex.
+static func _trimmed_body(mi: MeshInstance3D, skeleton: Skeleton3D, sex: String) -> Mesh:
+	if _trimmed_bodies.has(sex):
+		return _trimmed_bodies[sex]
+	var src := mi.mesh
+	var keep_bind := {}
+	var skin := mi.skin
+	for b in skin.get_bind_count():
+		var bone_name := String(skin.get_bind_name(b))
+		if bone_name == "" and skin.get_bind_bone(b) >= 0:
+			bone_name = skeleton.get_bone_name(skin.get_bind_bone(b))
+		for key: String in EXPOSED_KEYS:
+			if bone_name.begins_with(key) or bone_name.contains("_" + key) or bone_name == key:
+				keep_bind[b] = true
+	var out := ArrayMesh.new()
+	for surf in src.get_surface_count():
+		var arrays := src.surface_get_arrays(surf)
+		var bones: PackedInt32Array = arrays[Mesh.ARRAY_BONES]
+		var weights: PackedFloat32Array = arrays[Mesh.ARRAY_WEIGHTS]
+		var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+		var per := bones.size() / maxi((arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array).size(), 1)
+		var exposed := func(v: int) -> bool:
+			var best := 0
+			var best_w := -1.0
+			for k in per:
+				if weights[v * per + k] > best_w:
+					best_w = weights[v * per + k]
+					best = bones[v * per + k]
+			return keep_bind.has(best)
+		var kept := PackedInt32Array()
+		for t in range(0, indices.size(), 3):
+			if exposed.call(indices[t]) and exposed.call(indices[t + 1]) and exposed.call(indices[t + 2]):
+				kept.append(indices[t])
+				kept.append(indices[t + 1])
+				kept.append(indices[t + 2])
+		if kept.is_empty():
+			continue
+		arrays[Mesh.ARRAY_INDEX] = kept
+		# Drop optional custom channels (their packing flags don't round-trip).
+		for ch in [Mesh.ARRAY_CUSTOM0, Mesh.ARRAY_CUSTOM1, Mesh.ARRAY_CUSTOM2, Mesh.ARRAY_CUSTOM3]:
+			arrays[ch] = null
+		var fmt: int = src.surface_get_format(surf)
+		var flags: int = fmt & Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
+		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, src.surface_get_blend_shape_arrays(surf), {}, flags)
+		out.surface_set_material(out.get_surface_count() - 1, mi.get_active_material(surf))
+	var result: Mesh = out if out.get_surface_count() > 0 else src
+	_trimmed_bodies[sex] = result
+	return result
+
+
+## Accumulated scale from the skeleton up to the character's base scene.
+static func _rig_scale(skeleton: Skeleton3D) -> float:
+	var sc := 1.0
+	var node: Node = skeleton
+	while node != null and node.get_parent() != null and not (node.get_parent() is Node3D and node.get_parent().get_parent() == null):
+		if node is Node3D:
+			sc *= (node as Node3D).scale.x
+		if node.name.begins_with("Superhero") or node.name.begins_with("SuperHero"):
+			break
+		node = node.get_parent()
+	return maxf(sc, 0.0001)
 
 
 ## UAL clips with track paths rewritten for this skeleton path, plus aliases. Cached.
@@ -300,15 +383,16 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 				var colon := tp.find(":")
 				if colon > 0:
 					a.track_set_path(t, NodePath(sk + tp.substr(colon)))
-			var looping := anim_name.ends_with("_Loop") or anim_name == "Sword_Idle"
-			a.loop_mode = Animation.LOOP_LINEAR if looping else Animation.LOOP_NONE
+			if anim_name == "Sword_Idle":
+				a.loop_mode = Animation.LOOP_LINEAR
 			if not lib.has_animation(anim_name):
 				lib.add_animation(anim_name, a)
 		inst.free()
 	for alias: String in UAL_ALIASES:
 		var target: String = UAL_ALIASES[alias]
 		if lib.has_animation(target) and not lib.has_animation(alias):
-			lib.add_animation(alias, lib.get_animation(target))
+			# A separate copy: the mixer caches tracks per Animation resource.
+			lib.add_animation(alias, lib.get_animation(target).duplicate(true))
 	_ual_library = lib
 	_ual_skeleton_path = sk
 	return lib
