@@ -136,8 +136,8 @@ static func _set_shots(o: Vector3, mother: String, father: String, baby: String,
 		"speaker": father, "text": "%s. Your name is %s." % [baby, baby],
 	})
 	out.append({
-		"from": cradle + Vector3(0.1, 1.0, 0.7), "to": cradle + Vector3(0.1, 0.75, 0.45),
-		"look": cradle, "fov": 36.0, "fov_to": 30.0, "duration": 4.0, "ease": "in_out", "time": 0.2, "fade_out": 1.2,
+		"from": cradle + Vector3(-0.2, 1.7, 1.6), "to": cradle + Vector3(-0.1, 1.45, 1.25),
+		"look": cradle, "fov": 44.0, "fov_to": 40.0, "duration": 4.0, "ease": "in_out", "time": 0.2, "fade_out": 1.2,
 		"text": "%s, child of %s and %s." % [full, mother, father],
 	})
 	return out

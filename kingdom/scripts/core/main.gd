@@ -178,10 +178,10 @@ func _stage_birth_room(house: Vector2) -> Node3D:
 	world.add_child(root)
 	root.global_position = Vector3(house.x, WorldGen.height(house.x, house.y) - 60.0, house.y)
 	root.add_child((load(path) as PackedScene).instantiate())
-	var lights := [[Vector3(0, 0.5, -2.0), Color(1.0, 0.55, 0.25), 3.5, 7.0],
-		[Vector3(1.62, 1.1, 0.72), Color(1.0, 0.75, 0.45), 1.6, 4.0],
-		[Vector3(-2.6, 1.5, -0.95), Color(0.55, 0.65, 1.0), 0.5, 4.0],
-		[Vector3(0, 2.4, 1.5), Color(1.0, 0.8, 0.6), 0.6, 6.0]]
+	var lights := [[Vector3(0, 0.5, -1.9), Color(1.0, 0.6, 0.32), 1.8, 6.5],
+		[Vector3(1.62, 1.1, 0.72), Color(1.0, 0.78, 0.5), 0.7, 3.5],
+		[Vector3(-2.6, 1.5, -0.95), Color(0.55, 0.65, 1.0), 0.6, 4.5],
+		[Vector3(0, 2.5, 2.0), Color(0.85, 0.8, 0.9), 0.35, 7.0]]
 	for l: Array in lights:
 		var o := OmniLight3D.new()
 		o.position = l[0]
