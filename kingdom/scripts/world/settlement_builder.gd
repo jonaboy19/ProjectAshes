@@ -71,6 +71,25 @@ func _build(s: Dictionary) -> Node3D:
 		list.assign(batches[asset])
 		_multimesh(root, Assets.building_mesh(asset), list)
 
+	# Lived-in clutter by the doors: photo-scanned crates, barrels, baskets, buckets.
+	var clutter := {}
+	var kinds := ["scan/wooden_crate_01", "scan/wooden_barrels_01", "scan/wicker_basket_01", "scan/wooden_bucket_01"]
+	for lot in plan["lots"]:
+		var p: Vector2 = lot["pos"]
+		var yaw: float = lot["yaw"]
+		var fwd := Vector2(sin(yaw), cos(yaw))
+		var side := Vector2(fwd.y, -fwd.x)
+		for k in rng.randi_range(1, 3):
+			var kind: String = kinds[rng.randi() % kinds.size()]
+			var q := p + fwd * rng.randf_range(3.6, 4.4) + side * rng.randf_range(-3.2, 3.2) * (1.0 if k % 2 == 0 else -1.0)
+			if not clutter.has(kind):
+				clutter[kind] = []
+			clutter[kind].append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(q.x, base_h, q.y)))
+	for kind: String in clutter:
+		var list2: Array[Transform3D] = []
+		list2.assign(clutter[kind])
+		_multimesh(root, Assets.nature_mesh(kind), list2)
+
 	for lm in plan["landmarks"]:
 		_piece(root, lm["asset"], lm["pos"], base_h, lm["yaw"])
 	# Market stalls and carts ringing the plaza.

@@ -186,12 +186,21 @@ func _add_forest(chunk: Node3D, key: Vector2i, origin: Vector2) -> void:
 			else:
 				kind = "CommonTree_%d" % (1 + rng.randi() % 5)
 		elif roll < density + 0.12 and WorldGen.road_distance(x, z) > 4.0 and WorldGen.street_distance(x, z) > 3.0:
-			kind = ["Bush_Common", "Bush_Common_Flowers", "Fern_1", "Plant_1_Big", "Flower_3_Group", "Flower_4_Group"][rng.randi() % 6]
-		elif rng.randf() < 0.03:
-			kind = "Rock_Medium_%d" % (1 + rng.randi() % 3)
+			# Photo-scanned undergrowth under trees, wildflowers in the open.
+			if density > 0.35:
+				kind = ["scan/fern_02", "scan/fern_02", "scan/shrub_03", "scan/nettle_plant", "Bush_Common", "scan/tree_stump_01",
+					"scan/tree_stump_02", "scan/root_cluster_01", "scan/dead_tree_trunk"][rng.randi() % 9]
+			else:
+				kind = ["scan/dandelion_01", "scan/nettle_plant", "Bush_Common_Flowers", "Flower_3_Group", "Flower_4_Group", "scan/shrub_03"][rng.randi() % 6]
+		elif rng.randf() < 0.05:
+			kind = "scan/rock_moss_set_0%d_%d" % [1 + rng.randi() % 2, 1 + rng.randi() % 6]
 		if kind == "":
 			continue
 		var s := rng.randf_range(0.8, 1.25)
+		if kind.contains("dandelion") or kind.contains("nettle"):
+			s *= 2.6            # tiny real-scale plants read as a patch
+		elif kind.begins_with("scan/rock"):
+			s = rng.randf_range(0.5, 1.7)
 		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(x, h - 0.15, z))
 		if not buckets.has(kind):
 			buckets[kind] = []

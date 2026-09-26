@@ -366,9 +366,10 @@ func _build_environment() -> void:
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_energy = 0.7
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
-	env.tonemap_mode = Environment.TONE_MAPPER_ACES
-	env.tonemap_exposure = 1.05
-	env.tonemap_white = 6.0
+	# AgX: filmic highlight roll-off and natural colour (less "cartoon" than ACES + saturation).
+	env.tonemap_mode = Environment.TONE_MAPPER_AGX
+	env.tonemap_exposure = 1.15
+	env.tonemap_white = 8.0
 	# Modern lighting (Forward+ on desktop; the Mobile renderer skips what it can't do).
 	env.ssao_enabled = true
 	env.ssao_radius = 1.2
@@ -390,8 +391,8 @@ func _build_environment() -> void:
 	env.volumetric_fog_albedo = Color("e8dccb")
 	env.volumetric_fog_length = 90.0
 	env.adjustment_enabled = true
-	env.adjustment_saturation = 1.12
-	env.adjustment_contrast = 1.06
+	env.adjustment_saturation = 1.02
+	env.adjustment_contrast = 1.08
 	var we := WorldEnvironment.new()
 	we.environment = env
 	world.add_child(we)
@@ -526,7 +527,7 @@ func _user_args() -> Dictionary:
 
 
 func _screenshot(shot: String, path: String) -> void:
-	WorldSim.time_of_day = 13.5
+	WorldSim.time_of_day = float(_user_args().get("hour", "16.2"))   # late-afternoon side light
 	var warmup := 60
 	var late_fx := Callable()
 	match shot:

@@ -491,11 +491,13 @@ static func nature_mesh(key: String) -> ArrayMesh:
 	var cache_key := "nature:" + key
 	if _building_cache.has(cache_key):
 		return _building_cache[cache_key]
-	var mesh := merged_mesh(NATURE_DIR + key + ".gltf")
+	# "scan/<name>" = decimated Poly Haven photo-scan (tools/blender/decimate_scans.py), real scale.
+	var is_scan := key.begins_with("scan/")
+	var mesh := merged_mesh("res://assets/generated/" + key + ".glb" if is_scan else NATURE_DIR + key + ".gltf")
 	if mesh == null:
 		return null
 	var box := mesh.get_aabb()
-	var s: float = NATURE[key] / maxf(box.size.y, 0.001)
+	var s: float = 1.0 if is_scan else NATURE[key] / maxf(box.size.y, 0.001)
 	mesh = _transformed(mesh, Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * s),
 		Vector3(-(box.position.x + box.size.x * 0.5) * s, -box.position.y * s, -(box.position.z + box.size.z * 0.5) * s)))
 	_building_cache[cache_key] = mesh
