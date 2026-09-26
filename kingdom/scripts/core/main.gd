@@ -149,19 +149,65 @@ func _play_birth() -> Signal:
 	lamp.omni_range = 14.0
 	world.add_child(lamp)
 	lamp.global_position = Vector3(lp.home_pos.x, WorldGen.height(lp.home_pos.x, lp.home_pos.y) + 2.2, lp.home_pos.y)
+	var stage := _stage_birth_room(lp.home_pos)
 	cut.shot_started.connect(func(_i: int, shot: Dictionary) -> void:
 		if shot.has("time"):
 			WorldSim.time_of_day = float(shot["time"])
 			_update_daylight())
 	hud.visible = false
 	cut.play(BirthCutscene.build(lp.given_name, lp.family_name, lp.parent("mother")["name"],
-		lp.parent("father")["name"], home["pos"], lp.home_pos, String(home["name"])))
+		lp.parent("father")["name"], home["pos"], lp.home_pos, String(home["name"]), Callable(),
+		stage.global_position if stage else Vector3.INF))
 	cut.finished.connect(func() -> void:
 		lamp.queue_free()
+		if stage:
+			stage.queue_free()
 		cut.queue_free()
 		WorldSim.time_of_day = maxf(saved_time, 8.0)
 		_after_birth())
 	return cut.finished
+
+
+## The cottage interior film set, hidden 60 m under the family's house, lit by
+## its hearth and candles, with the parents in place.
+func _stage_birth_room(house: Vector2) -> Node3D:
+	var path := "res://assets/generated/cottage_interior.glb"
+	if not ResourceLoader.exists(path):
+		return null
+	var root := Node3D.new()
+	world.add_child(root)
+	root.global_position = Vector3(house.x, WorldGen.height(house.x, house.y) - 60.0, house.y)
+	root.add_child((load(path) as PackedScene).instantiate())
+	var lights := [[Vector3(0, 0.5, -2.0), Color(1.0, 0.55, 0.25), 3.5, 7.0],
+		[Vector3(1.62, 1.1, 0.72), Color(1.0, 0.75, 0.45), 1.6, 4.0],
+		[Vector3(-2.6, 1.5, -0.95), Color(0.55, 0.65, 1.0), 0.5, 4.0],
+		[Vector3(0, 2.4, 1.5), Color(1.0, 0.8, 0.6), 0.6, 6.0]]
+	for l: Array in lights:
+		var o := OmniLight3D.new()
+		o.position = l[0]
+		o.light_color = l[1]
+		o.light_energy = l[2]
+		o.omni_range = l[3]
+		o.shadow_enabled = true
+		root.add_child(o)
+	var mother := Assets.character("Rogue_Hooded", 1.68, [])
+	root.add_child(mother)
+	mother.position = Vector3(-1.75, 0.45, -1.0)
+	mother.rotation.y = PI * 0.5
+	var mp := Assets.animation_player(mother)
+	if mp:
+		for a in ["Sitting_Idle", "Idle"]:
+			if mp.has_animation(a):
+				mp.play(a)
+				break
+	var father := Assets.character("Rogue", 1.8, [])
+	root.add_child(father)
+	father.position = Vector3(1.9, 0, -0.6)
+	father.look_at(root.global_position + Vector3(1.0, 0, -1.2), Vector3.UP, true)
+	var fp := Assets.animation_player(father)
+	if fp and fp.has_animation("Idle"):
+		fp.play("Idle")
+	return root
 
 
 func _after_birth() -> void:
@@ -465,7 +511,7 @@ func _run_demo() -> void:
 # --- Preview screenshots ----------------------------------------------------------
 
 func args_frame_time() -> float:
-	return float(_user_args().get("t", "9"))
+	return float(_user_args().get("t", "25"))
 
 
 func _user_args() -> Dictionary:

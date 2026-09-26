@@ -28,7 +28,7 @@ const DEFAULT_HOUSE := Vector2(14.0, 9.0)
 ## when invalid, WorldGen.height is used.
 static func build(baby: String, family: String, mother: String, father: String,
 		village := Vector2.ZERO, house := DEFAULT_HOUSE, village_name := "the village",
-		height_fn := Callable()) -> Array:
+		height_fn := Callable(), interior := Vector3.INF) -> Array:
 	var hf := height_fn if height_fn.is_valid() else Callable(WorldGen, "height")
 	var v_ground := float(hf.call(village.x, village.y))
 	var h_ground := float(hf.call(house.x, house.y))
@@ -63,38 +63,42 @@ static func build(baby: String, family: String, mother: String, father: String,
 		"duration": 8.0, "ease": "in_out", "time": 23.7,
 		"fade_out": 0.6,
 	})
-	# 3. Interior: a simple, warm framing over the cradle by the hearth.
-	var cradle := h + Vector3(0, 0.7, 0) + side * 0.8
-	shots.append({
-		"from": h + Vector3(0, 1.55, 0) - side * 1.6 + out * 1.4,
-		"to": h + Vector3(0, 1.45, 0) - side * 1.3 + out * 1.1,
-		"look": cradle,
-		"fov": 46.0, "fov_to": 42.0,
-		"duration": 4.0, "ease": "out", "fade_in": 0.6, "time": 23.9,
-		"text": "A cry breaks the quiet.",
-	})
-	# 4-6. The parents name the child. Slow push-in, subtitles carry the names.
-	shots.append({
-		"from": h + Vector3(0, 1.45, 0) - side * 1.3 + out * 1.1,
-		"to": h + Vector3(0, 1.3, 0) - side * 1.0 + out * 0.8,
-		"look": cradle, "fov": 42.0, "fov_to": 38.0,
-		"duration": 4.5, "ease": "linear", "time": 0.0,
-		"speaker": mother, "text": "Look at you. Welcome, little one.",
-	})
-	shots.append({
-		"from": h + Vector3(0, 1.75, 0) + side * 1.4 + out * 1.0,
-		"to": h + Vector3(0, 1.65, 0) + side * 1.2 + out * 0.8,
-		"look": cradle, "fov": 40.0, "fov_to": 37.0,
-		"duration": 4.5, "ease": "linear", "time": 0.1,
-		"speaker": father, "text": "%s. Your name is %s." % [baby, baby],
-	})
-	shots.append({
-		"from": cradle + Vector3(0, 0.9, 0) + out * 0.5,
-		"to": cradle + Vector3(0, 0.7, 0) + out * 0.35,
-		"look": cradle, "fov": 36.0, "fov_to": 32.0,
-		"duration": 4.0, "ease": "in_out", "time": 0.2, "fade_out": 1.2,
-		"text": "%s, child of %s and %s." % [full, mother, father],
-	})
+	if interior != Vector3.INF:
+		shots.append_array(_set_shots(interior, mother, father, baby, full))
+	else:
+		# 3. Interior: a simple, warm framing over the cradle by the hearth.
+		var cradle := h + Vector3(0, 0.7, 0) + side * 0.8
+		shots.append({
+			"from": h + Vector3(0, 1.55, 0) - side * 1.6 + out * 1.4,
+			"to": h + Vector3(0, 1.45, 0) - side * 1.3 + out * 1.1,
+			"look": cradle,
+			"fov": 46.0, "fov_to": 42.0,
+			"duration": 4.0, "ease": "out", "fade_in": 0.6, "time": 23.9,
+			"text": "A cry breaks the quiet.",
+		})
+		# 4-6. The parents name the child. Slow push-in, subtitles carry the names.
+		shots.append({
+			"from": h + Vector3(0, 1.45, 0) - side * 1.3 + out * 1.1,
+			"to": h + Vector3(0, 1.3, 0) - side * 1.0 + out * 0.8,
+			"look": cradle, "fov": 42.0, "fov_to": 38.0,
+			"duration": 4.5, "ease": "linear", "time": 0.0,
+			"speaker": mother, "text": "Look at you. Welcome, little one.",
+		})
+		shots.append({
+			"from": h + Vector3(0, 1.75, 0) + side * 1.4 + out * 1.0,
+			"to": h + Vector3(0, 1.65, 0) + side * 1.2 + out * 0.8,
+			"look": cradle, "fov": 40.0, "fov_to": 37.0,
+			"duration": 4.5, "ease": "linear", "time": 0.1,
+			"speaker": father, "text": "%s. Your name is %s." % [baby, baby],
+		})
+		shots.append({
+			"from": cradle + Vector3(0, 0.9, 0) + out * 0.5,
+			"to": cradle + Vector3(0, 0.7, 0) + out * 0.35,
+			"look": cradle, "fov": 36.0, "fov_to": 32.0,
+			"duration": 4.0, "ease": "in_out", "time": 0.2, "fade_out": 1.2,
+			"text": "%s, child of %s and %s." % [full, mother, father],
+		})
+
 	# 7. Dawn establishing shot over the village.
 	shots.append({
 		"from": v + Vector3(0, 32, 0) - out * 90.0 - side * 40.0,
@@ -106,3 +110,34 @@ static func build(baby: String, family: String, mother: String, father: String,
 		"text": "Dawn comes to %s. A new life begins." % village_name,
 	})
 	return shots
+
+
+## Shots 3-6 filmed on the cottage interior set (assets/generated/cottage_interior.glb)
+## whose floor centre is `o`; the open wall faces +Z. Positions from its docstring.
+static func _set_shots(o: Vector3, mother: String, father: String, baby: String, full: String) -> Array:
+	var cradle := o + Vector3(1.05, 0.42, -1.2)
+	var bed := o + Vector3(-2.35, 0.9, -1.2)
+	var hearth := o + Vector3(0.0, 0.8, -2.1)
+	var out: Array = []
+	out.append({
+		"from": o + Vector3(-0.6, 1.9, 3.6), "to": o + Vector3(-0.2, 1.7, 2.9),
+		"look": hearth, "look_to": o + Vector3(0.2, 0.9, -1.6),
+		"fov": 50.0, "fov_to": 46.0, "duration": 4.5, "ease": "out", "fade_in": 0.8, "time": 23.9,
+		"text": "A cry breaks the quiet.",
+	})
+	out.append({
+		"from": o + Vector3(-1.2, 1.5, 1.4), "to": o + Vector3(-1.4, 1.4, 0.9),
+		"look": bed, "fov": 42.0, "fov_to": 38.0, "duration": 4.5, "ease": "linear", "time": 0.0,
+		"speaker": mother, "text": "Look at you. Welcome, little one.",
+	})
+	out.append({
+		"from": o + Vector3(2.4, 1.6, 0.6), "to": o + Vector3(2.1, 1.5, 0.2),
+		"look": cradle + Vector3(-0.3, 0.3, 0), "fov": 40.0, "fov_to": 36.0, "duration": 4.5, "ease": "linear", "time": 0.1,
+		"speaker": father, "text": "%s. Your name is %s." % [baby, baby],
+	})
+	out.append({
+		"from": cradle + Vector3(0.1, 1.0, 0.7), "to": cradle + Vector3(0.1, 0.75, 0.45),
+		"look": cradle, "fov": 36.0, "fov_to": 30.0, "duration": 4.0, "ease": "in_out", "time": 0.2, "fade_out": 1.2,
+		"text": "%s, child of %s and %s." % [full, mother, father],
+	})
+	return out
