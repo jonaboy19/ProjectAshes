@@ -159,3 +159,54 @@ must feel like it functions without them.
 **Emotional payoff:** the starting village grows with you: home, then known
 there, then influential, then leader, then owner, then fortified trade city,
 then territorial capital. The old house is still there.
+
+## Brief addendum (user, round 4)
+
+Tone and inspiration: Tensura (naming, magicules, monster evolution), Soul Land
+(soul beasts, sects, academies), donghua/xianxia, Naruto (much of it expressed as
+martial arts), Avatar: The Last Airbender (cultures bound to elements, bending as
+martial art). Must look current, never "2010": no lazy placeholders.
+
+**Life from birth**
+- You are born a human child in the first village. Birth cutscene. You grow up
+  there; parents give quests. Childhood choices and the places you go shape
+  your build, titles and later outcomes.
+- Hidden age-gated triggers: e.g. go to a specific spot outside the village at
+  age 8 (most players won't) and a quest grants an ability or class.
+- Titles, achievements, hidden triggers shape your archetype (villager, hunter,
+  assassin, merchant, scholar, martial artist... many more), chosen by what you
+  do, not a menu.
+- Transformation paths later: monsters evolve; blood replacement and other means
+  alter race.
+- Cinematic cutscenes per quest (camera angles). Quests and cutscene content come
+  **last**; build the framework now if cheap.
+
+**Society**
+- **Adventurer Guild**: ranks, commissions, jobs and vacancies posted there too.
+- Jobs everywhere: farmer, trader, guard, hire others as you grow rich.
+- **Merchants and traders** who move goods between places.
+- **Scouts** (military/academy/sect talent scouts) appear in real scenarios and
+  can recruit people; scouting must be really rare.
+- **Military** with real rank structures (Chinese-style depth: squads,
+  divisions, officer grades); some nations have special divisions (ninja,
+  samurai, etc.).
+- Many countries, cultures, tribes, bloodlines, sects and martial-arts schools.
+  Kingdoms have distinct cities and villages; eventually everything can be owned
+  (endgame, not now).
+- Races: humans plus orcs and other monster races with their own villages.
+- **Naming** (Tensura): name a monster to make it a subordinate with a class.
+  Costs **magicules**; risks losing levels and permanent injuries that must be
+  treated at a **healer**.
+- **Soulbeasts** are very rare: obtained via a kingdom academy or a sect allowed
+  to travel to **Xiava's Lake** (land of soulbeasts; a later region).
+
+**Systems & feel**
+- Stamina system (exists), VFX for magic and martial arts, abilities later.
+- Mechanics many games don't have. Easy options for becoming whatever you want.
+- The region needs water (lakes, rivers, coast).
+- Balanced economy; you can buy things.
+- UI: modern, responsive, mobile-first; colours to match the "Total Showdown"
+  palette (reference screenshot requested from the user).
+
+**Order now**: basics and the first region, perfect and integrated, using open
+source where licences allow and the pushed asset packs; Blender work in parallel.
