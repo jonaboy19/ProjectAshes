@@ -409,9 +409,9 @@ func _screenshot(shot: String, path: String) -> void:
 			var cap: Dictionary = WorldGen.settlements[1]
 			var cp: Vector2 = cap["pos"]
 			var gate: float = cap["plan"]["gates"][0]
-			var sp := cp + Vector2(cos(gate), sin(gate)) * (cap["plan"]["plaza_r"] + 30.0)
+			var sp: Vector2 = cp + Vector2(cos(gate), sin(gate)) * (cap["plan"]["plaza_r"] + 30.0)
 			_teleport(sp, 0.0)
-			var look := cp - sp
+			var look: Vector2 = cp - sp
 			player.set_camera(atan2(-look.x, -look.y), -0.12)
 			if shot == "city":
 				hud.visible = false
