@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://l1icfqvg2y0r"
+path="res://.godot/imported/yell5.wav-82c051b29c343c611bb00ca39425201b.sample"
+
+[deps]
+
+source_file="res://assets/incoming/opengameart/sfx/male-yelling-haeldb/yelling sounds/yell5.wav"
+dest_files=["res://.godot/imported/yell5.wav-82c051b29c343c611bb00ca39425201b.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

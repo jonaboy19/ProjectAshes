@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dssrv7kv7o5jr"
+path="res://.godot/imported/3grunt3.wav-c5c7915ea42febeefa57519d0804bfce.sample"
+
+[deps]
+
+source_file="res://assets/incoming/opengameart/sfx/male-yelling-haeldb/yelling sounds/3grunt3.wav"
+dest_files=["res://.godot/imported/3grunt3.wav-c5c7915ea42febeefa57519d0804bfce.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2
