@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rising Ashes · Animation Motion Review</title>
+<style>
+:root{color-scheme:dark;--bg:#121616;--panel:#1c2422;--line:#34413b;--ink:#edf1e8;--muted:#b5c0b4;--accent:#d59d60;--green:#88ad86}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#35423a 0,#121616 60%);color:var(--ink);font:15px/1.45 system-ui,Segoe UI,sans-serif}
+main{max-width:1440px;margin:auto;padding:32px 24px 60px}h1{margin:0;font-size:clamp(28px,4vw,44px);letter-spacing:-.03em}h2{font-size:18px;margin:0 0 12px}p{margin:8px 0;color:var(--muted)}.intro{max-width:850px;margin:10px 0 22px}
+.toolbar{position:sticky;top:8px;z-index:2;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px;background:#18201eeF;border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(12px)}button,select,input{font:inherit;color:var(--ink);background:#222d28;border:1px solid #506056;border-radius:7px;padding:8px 11px}button{cursor:pointer}button:hover{border-color:var(--accent)}button[aria-pressed=true]{background:#354634;border-color:var(--green)}input{min-width:210px}.status{color:var(--muted);margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,390px),1fr));gap:16px;margin-top:18px}.card{background:linear-gradient(155deg,#222c28,#19201e);border:1px solid var(--line);border-radius:13px;padding:15px;min-width:0}.card h2{display:flex;gap:8px;align-items:center}.tag{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#1b241e;background:var(--green);border-radius:99px;padding:3px 7px}.tag.warn{background:#d5a76f}.card p{font-size:13px;min-height:38px}
+.frames{display:grid;grid-template-columns:1fr 1fr;gap:10px}.frames.single{grid-template-columns:1fr}.frame-block{min-width:0}.frame-label{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);margin:0 0 5px}.sprite{width:100%;aspect-ratio:160/214;background-repeat:no-repeat;background-position:0 0;background-size:800% 100%;border:1px solid #66766a;border-radius:7px;background-color:#dadecf;animation:cycle var(--duration,1s) steps(8,end) infinite;animation-play-state:paused}.playing .sprite{animation-play-state:running}@keyframes cycle{to{background-position:100% 0}}
+.meta{border-top:1px solid var(--line);padding-top:9px;margin-top:11px;font:12px/1.4 ui-monospace,Consolas,monospace;color:#aab9ad}.foot{margin-top:22px;padding:15px;border-left:3px solid var(--accent);background:#1a211f;color:var(--muted);font-size:13px}.foot a{color:#e8b77d}
+@media(prefers-reduced-motion:reduce){.sprite{animation:none!important}}@media(max-width:500px){main{padding:22px 12px 40px}.frames{grid-template-columns:1fr 1fr}.status{width:100%;margin-left:0}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Animation Motion Review</h1>
+  <p class="intro">A quick visual pass over the game’s current animation samples. Press play to loop the eight evenly sampled poses, compare the fox source against the derived gallop, and slow clips down to inspect foot contact, snapping, balance and recovery.</p>
+  <div class="toolbar" role="group" aria-label="Preview controls">
+    <button id="play" aria-pressed="false">Play all</button>
+    <label for="speed">Playback</label>
+    <select id="speed"><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option></select>
+    <input id="filter" type="search" placeholder="Filter: fox, villager, combat…" aria-label="Filter previews">
+    <span class="status" id="status" aria-live="polite">Paused · samples use game QA frame strips</span>
+  </div>
+  <section class="grid" id="grid" aria-label="Animation previews">
+    <article class="card" data-tags="fox animal locomotion gallop run source derived tail">
+      <h2>Fox gallop <span class="tag warn">needs live speed review</span></h2>
+      <p>Source and tail-corrected variant. The source strip is the prior 1× sample; the derived strip reflects current 2.5× playback. Compare tail shape and poses; use the speed QA for cadence. The gallop still has measurable paw slip and a loop hitch.</p>
+      <div class="frames">
+        <div class="frame-block"><div class="frame-label"><span>Source</span><span>0.54 s @ 1×</span></div><div class="sprite" data-src="anim_strips/animal_fox__Run_source.jpg" style="--duration:0.54s" role="img" aria-label="Fox source gallop loop at native rate"></div></div>
+        <div class="frame-block"><div class="frame-label"><span>Derived</span><span>0.216 s @ 2.5×</span></div><div class="sprite" data-src="anim_strips/animal_fox__Run.jpg" style="--duration:0.216s" role="img" aria-label="Fox derived gallop loop at 2.5 times rate"></div></div>
+      </div>
+      <div class="meta">5.00 m/s · Tail1 stretch 30.3% → 1.7% · foot contact unverified</div>
+    </article>
+    <article class="card" data-tags="fox animal walk locomotion">
+      <h2>Fox walk <span class="tag warn">slip fail</span></h2>
+      <p>Review the slow walk’s foot plant and weight transfer. This clip currently has 27 cm/s planted-foot slip in the sampler.</p>
+      <div class="frames single"><div class="frame-block"><div class="frame-label"><span>In-game movement speed sample</span><span>0.57 s @ 1.82×</span></div><div class="sprite" data-src="anim_strips/animal_fox__Walk.jpg" style="--duration:0.57s" role="img" aria-label="Fox walk loop at 1.82 times rate"></div></div></div>
+      <div class="meta">0.80 m/s · measured clip speed 0.44 m/s</div>
+    </article>
+    <article class="card" data-tags="villager human npc walk locomotion">
+      <h2>Villager walk <span class="tag warn">slip warn</span></h2>
+      <p>Check the foot roll and vertical bounce at the game’s walking speed. Use this to assess whether the ordinary village pace feels grounded.</p>
+      <div class="frames single"><div class="frame-block"><div class="frame-label"><span>Walking_A</span><span>0.82 s @ 1.63×</span></div><div class="sprite" data-src="anim_strips/villager_man_a__Walking_A.jpg" style="--duration:0.82s" role="img" aria-label="Villager walk loop at 1.63 times rate"></div></div></div>
+      <div class="meta">1.60 m/s · measured clip speed 0.98 m/s · 20 cm/s slip p75</div>
+    </article>
+    <article class="card" data-tags="villager human npc run locomotion">
+      <h2>Villager catch-up run</h2>
+      <p>Compare foot cadence to travel speed and watch for float during the airborne portion of the cycle.</p>
+      <div class="frames single"><div class="frame-block"><div class="frame-label"><span>Running_A</span><span>1.13 s @ 0.82×</span></div><div class="sprite" data-src="anim_strips/villager_man_a__Running_A.jpg" style="--duration:1.13s" role="img" aria-label="Villager run loop at 0.82 times rate"></div></div></div>
+      <div class="meta">5.82 m/s clip speed · 0.27 s airborne · 12 cm/s slip p75</div>
+    </article>
+    <article class="card" data-tags="combat hit dodge human villager reaction">
+      <h2>Hit reaction and dodge</h2>
+      <p>Look for a readable recoil followed by a stable recovery. These one-shot strips loop in this review board only; the dodge currently has a long all-feet-off interval and a visible pose pop in the QA metrics.</p>
+      <div class="frames">
+        <div class="frame-block"><div class="frame-label"><span>Hit_B</span><span>0.83 s</span></div><div class="sprite" data-src="anim_strips/villager_man_a__Hit_B.jpg" style="--duration:0.83s" role="img" aria-label="Villager Hit B reaction"></div></div>
+        <div class="frame-block"><div class="frame-label"><span>Dodge_Forward</span><span>1.47 s</span></div><div class="sprite" data-src="anim_strips/villager_man_a__Dodge_Forward.jpg" style="--duration:1.47s" role="img" aria-label="Villager forward dodge"></div></div>
+      </div>
+      <div class="meta">Hit_B: floor penetration and leg slip · Dodge: 0.67 s airborne, 3 pose pops</div>
+    </article>
+    <article class="card" data-tags="combat goblin monster punch attack">
+      <h2>Goblin punch</h2>
+      <p>Inspect the shoulder arc and torso contribution. The shared punch clip’s shoulder stretch is reported on goblins and orcs; it needs review at a slower speed before editing.</p>
+      <div class="frames single"><div class="frame-block"><div class="frame-label"><span>Punch</span><span>see QA strip labels</span></div><div class="sprite" data-src="anim_strips/q_goblin_male__Punch.jpg" style="--duration:1.0s" role="img" aria-label="Goblin punch animation"></div></div></div>
+      <div class="meta">Shared clip · shoulder stretch 94.1% in QA · inspect retarget/shoulder keys</div>
+    </article>
+  </section>
+  <div class="foot"><strong>Reading this board:</strong> these are game-loader QA poses arranged as an eight-frame contact strip, not a live gameplay capture. Playback loops those sampled frames for quick inspection; it is useful for spotting gross rhythm and pose issues, but it cannot prove input feel, collision, foot contact between samples or terrain adaptation. For those, use the full report and an in-game route capture. <a href="anim_qa_report.md">Open the measured animation report</a>.</div>
+</main>
+<script>
+const sprites=[...document.querySelectorAll('.sprite')];
+for(const el of sprites){el.style.backgroundImage=`url("${el.dataset.src}")`;const img=new Image();img.onload=()=>{if(img.naturalWidth!==1280||img.naturalHeight!==214)el.title=`Unexpected source dimensions ${img.naturalWidth}×${img.naturalHeight}`};img.onerror=()=>{el.style.background='#5a2929';el.textContent=`Missing preview: ${el.dataset.src}`};img.src=el.dataset.src}
+const play=document.querySelector('#play'),speed=document.querySelector('#speed'),filter=document.querySelector('#filter'),status=document.querySelector('#status');let playing=false;
+function setPlaying(value){playing=value;document.body.classList.toggle('playing',playing);play.setAttribute('aria-pressed',String(playing));play.textContent=playing?'Pause all':'Play all';status.textContent=`${playing?'Playing':'Paused'} · ${speed.value}× · eight sampled poses`}
+play.addEventListener('click',()=>setPlaying(!playing));speed.addEventListener('change',()=>{for(const el of sprites){const base=parseFloat(getComputedStyle(el).getPropertyValue('--duration'))||1;el.style.animationDuration=`${base/parseFloat(speed.value)}s`}status.textContent=`${playing?'Playing':'Paused'} · ${speed.value}× · eight sampled poses`});filter.addEventListener('input',()=>{const q=filter.value.trim().toLowerCase();for(const card of document.querySelectorAll('.card'))card.hidden=!!q&&!(`${card.dataset.tags} ${card.innerText}`).toLowerCase().includes(q)});
+</script>
+</body>
+</html>

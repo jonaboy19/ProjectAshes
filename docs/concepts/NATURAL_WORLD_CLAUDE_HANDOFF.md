@@ -8,7 +8,7 @@
 
 The latest Claude commits for performance and audio have been merged into `gpt/ai3d-assets`. The merge kept the calibrated humanoid gait speeds, near-player actor collision, and corrected terminal death clip while bringing in Claude's audio director and performance measurements. A focused animal pass now eases critter starts, stops and turns, then sets playback rate from actual eased movement speed. Blender QA also produced a derived fox gallop with the source `Tail1` vertical curve removed; measured tail stretch improved from 30.3% to 1.7% without changing the original CC0 GLB. See [`docs/qa/animal_fox_review.html`](../../qa/animal_fox_review.html) for the visual comparison and [`docs/qa/anim_qa_report_only_animal_fox.md`](../../qa/anim_qa_report_only_animal_fox.md) for the measured results.
 
-The route graph, visible-impostor obstacle guidance, resident-to-resident physical spacing, precise door/collider profiles, and full live-gameplay feel route remain open. The fox gallop still lacks a measurable planted-foot interval, and its walk clip still fails the slip threshold. Keep both gates visible in follow-up work.
+The route graph, visible-impostor obstacle guidance, resident-to-resident physical spacing, precise door/collider profiles, and full live-gameplay feel route remain open. The animation sampler now checks animal gaits at 120 Hz: fox Run measures 1.87 m/s and rate-matches its 5 m/s flee speed at 2.5×, but still fails on paw slip, loop seam and leg pops; fox Walk still fails slip. See the refreshed full report and interactive motion-review page before taking the next animation task.
 
 ## The experience to build
 

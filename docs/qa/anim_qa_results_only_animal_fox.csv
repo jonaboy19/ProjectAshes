@@ -1,0 +1,5 @@
+group,subject,clip,kind,game_uses,status,length_s,looping,slide_cm_s,ground_speed_m_s,penetration_cm,hover_cm,airborne_s,stretch_pct,scale_pct,pops,max_ang_acc_deg_f2,seam_deg,seam_cm,drift_cm,tpose_frames,notes
+animals,animal_fox,Idle,loop,true,PASS,3.33,true,0.1,0.00,0.0,0.0,0.00,0.00,0.00,0,1.2,0.0,0.0,0.0,401,""
+animals,animal_fox,Walk,loco,true,FAIL,1.04,true,34.4,0.44,1.9,0.0,0.00,0.00,0.00,0,34.0,2.8,0.0,0.0,0,"planted foot slips 34 cm/s (p75); loop seam jumps 2.8 deg ('BackLowerLeg.R')"
+animals,animal_fox,Run,loco,true,FAIL,0.54,true,62.6,1.87,2.3,0.0,0.01,1.74,0.00,3,317.7,17.2,0.4,0.4,0,"2.3 cm below floor (foot joint); planted foot slips 63 cm/s (p75); bone 'Tail1' stretches 1.7 %; 3 pop(s), worst on 'FrontLowerLeg.L' at 0.33 s (318 deg/frame^2); loop seam jumps 17.2 deg ('FrontLowerLeg.L')"
+animals,animal_fox,Eat,loop,true,FAIL,2.50,true,4.7,0.00,1.5,0.0,0.00,0.00,0.00,7,51.4,0.4,0.1,0.2,26,"7 pop(s), worst on 'Head' at 0.50 s (51 deg/frame^2)"

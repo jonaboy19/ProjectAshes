@@ -24,7 +24,7 @@ const ANIM_GROUND_SPEEDS := {
 	"donkey": {"Walk": 1.30},
 	"deer": {"Walk": 1.06},
 	"stag": {"Walk": 1.31},
-	"fox": {"Walk": 0.44},
+	"fox": {"Walk": 0.44, "Run": 1.87},
 	"goat": {"Walk": 0.76},
 }
 ## kind -> [file, walk speed, run speed, wander radius, skittish distance (0 = tame)]

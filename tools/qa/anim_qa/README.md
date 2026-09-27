@@ -30,6 +30,7 @@ Debug one clip frame by frame (foot heights, contact vertex, hips):
 | `docs/qa/anim_qa_results.csv` | every row with all numbers |
 | `docs/qa/anim_strips/<id>__<clip>.jpg` | 8 frames, side view, ground grid; locomotion strips move the model at the game speed so a sliding foot shows against the grid |
 | `docs/qa/anim_sheet_<group>.jpg` | contact sheets: villagers, armored, creatures, animals (4 frames per clip) |
+| `docs/qa/ANIMATION_MOTION_REVIEW.html` | local review board that loops selected eight-pose strips and compares source/derived fox gaits |
 
 ## What it tests (and how it stays honest)
 
@@ -44,8 +45,11 @@ Debug one clip frame by frame (foot heights, contact vertex, hips):
   `Soldier.WALK/RUN`, `Villager._process`, `CampMonster.SPECIES`, `Wolf` and
   `Critter.KINDS`. **When those constants change, update `speed_cases()` in
   `catalog.gd`.** When a new character or clip is added to the game, add it there too.
-* Each clip is sampled at 30 fps (loop mode off while sampling, so the seam can be
-  measured). Contact points are the lowest skinned vertices of each foot (feet are the
+* Most clips are sampled at 30 fps. Animal locomotion and loop clips are sampled at
+  120 fps so short quadruped paw contacts are less likely to fall between samples;
+  angular-acceleration checks are normalized back to the 30 fps scale. Loop mode is
+  off while sampling, so the seam can be measured. Contact points are the lowest
+  skinned vertices of each foot (feet are the
   UAL `foot/ball` bones, or clustered sole vertices for other rigs), so foot roll does
   not count as sliding. The clip's natural ground speed is the median backward speed of
   planted feet (for UAL rigs from the ball joints, independent of skin weights).

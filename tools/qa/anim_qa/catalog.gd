@@ -175,7 +175,7 @@ const CRITTER_CLIP_SPEEDS := {
 	"sheep": {"Run": 1.92}, "pig": {"Run": 1.29},
 	"horse": {"Walk": 1.41, "Run": 5.86}, "horse_grey": {"Walk": 1.36, "Run": 5.68},
 	"horse_draft": {"Walk": 1.53, "Run": 6.41}, "donkey": {"Walk": 1.30},
-	"deer": {"Walk": 1.06}, "stag": {"Walk": 1.31}, "fox": {"Walk": 0.44},
+	"deer": {"Walk": 1.06}, "stag": {"Walk": 1.31}, "fox": {"Walk": 0.44, "Run": 1.87},
 	"goat": {"Walk": 0.76},
 }
 
