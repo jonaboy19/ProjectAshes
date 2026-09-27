@@ -8,6 +8,7 @@ commercial use, no attribution required, no royalties. Credit is given anyway.
 | `assets/kaykit/characters/` | KayKit Adventurers Character Pack 1.0, Kay Lousberg (kaylousberg.com), github.com/KayKit-Game-Assets | CC0 (`LICENSE.txt` included) |
 | `assets/kaykit/weapons/` | same pack, weapon models | CC0 |
 | `assets/kaykit/medieval/` | KayKit Medieval Hexagon Pack 1.0, Kay Lousberg | CC0 (`LICENSE.txt` included) |
+| `assets/incoming/kenney/impact-sounds/` | Kenney Impact Sounds 1.0 | CC0 (`License.txt` included); used for terrain-aware steps |
 
 Everything else (code, shaders, generated terrain, UI) was written for this
 project, except:

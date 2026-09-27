@@ -4,23 +4,30 @@
 
 ## Implementation status
 
-First collision pass is now implemented on `gpt/ai3d-assets`:
+Collision and animation feel passes are in progress on `gpt/ai3d-assets`:
 
 - The player collides with nearby embodied residents. Only the existing capped near-player villager LOD uses physics bodies; the distant population remains data and impostors.
 - Villagers move through `CharacterBody3D` and a capsule, collide with solid world geometry, and write their resolved position back to `WorldSim` when a player or building blocks them.
+- Nearby villagers use soft personal-space steering around the player and one another, and their heads turn toward the player at conversation distance.
 - Village market stalls and solid plaza clutter now receive simple box colliders. Decorative plants remain non-colliding.
 - House-lot and individual landmark collider footprints were tightened to cover more of their visible model.
+- The camera now uses a spherical spring-arm cast to stay outside nearby world geometry. Movement, facing, camera easing, and animation blend smoothing use frame-rate-independent exponential response.
+- Idle residents play work and social clips from the included Quaternius UAL set based on their job and current schedule. Blender 5.2 inspection confirmed the available clips and their source cycle lengths.
+- Player, nearby villagers, and visible soldiers produce varied grass or stone footfalls based on actual distance moved and the terrain's material weights. Kenney Impact Sounds is CC0 and its licence is included with the project assets.
+- Soldiers now become `CharacterBody3D` actors only within 16 m of the player, with a capsule and world collision; at greater distances they keep the original inexpensive steering. The player's collision mask includes the near-soldier layer.
 
-The game has not yet been playtested after these changes. The next pass should check player/resident blocking, crowded doorways, market paths, and whether any collider feels like an invisible wall before expanding physics to combat units.
+Animation calibration from Blender: the UAL1 file imports at 24 fps; its walk cycle is 32 frames (about 1.33 s) and jog cycle is 22 frames (about 0.92 s). Locomotion blend points now match the player/soldier walk and run speeds, and footfall spacing follows those cycle cadences rather than a fixed timer.
+
+The game has not yet been playtested after these changes. The next pass should check player/resident/soldier blocking, camera clearance, activity clip transitions, step timing, crowded doorways, market paths, and whether any collider feels like an invisible wall. Wolves and camp monsters still use direct movement and need the same close-range collision pass; they can still overlap the player until that is implemented.
 
 ## What the current build already gives us
 
 The Kingdom project already has a third-person player controller, multi-scale camera, stamina combat, buffered combo input, dodge, hit reactions, layered `AnimationTree` locomotion, head look, squads, a population simulation, animated nearby people, and sprite impostors for distant units. The world is streamed and settlements are procedurally placed. The best next step is to improve how the systems meet at close range and how movement is presented.
 
-The inspected source explains the most visible collision problem:
+The inspected source explains the most visible collision problem and current coverage:
 
 - `Player` is a `CharacterBody3D` with a capsule and `move_and_slide()`.
-- `Villager`, `Soldier`, and `CampMonster` are `Node3D`s that update their positions directly. They have no rigid or character body collision, so they can pass through the player and buildings.
+- Villagers use near-range `CharacterBody3D` collision and feed their corrected position back to `WorldSim`. Soldiers now use a close-range capsule and `move_and_slide()` while near the player, then return to direct low-cost movement farther away. Wolves and `CampMonster` still update their positions directly, so they can pass through the player and buildings.
 - Settlements create some simple `StaticBody3D` building and wall colliders. These do not automatically guarantee that every imported or newly generated Meshy model has a correctly sized collision shape.
 - Soldiers have a small squad-only separation force. This is steering, not solid collision, and does not cover villagers or other squads.
 - `CharacterAnimator` already blends idle/walk/run and layers attacks and blocks. The player and soldier movement currently use fixed acceleration/turn values and do not tie their movement step to animation foot contact.
@@ -103,7 +110,7 @@ Profile busy scenes on the target PC and phone. Keep the existing actor LOD and 
 ## Suggested implementation order and deliverables
 
 1. **Collision audit:** scene/asset checklist, named physics layers, debug view/report, collider coverage for current buildings and solid props.
-2. **Near-character collision:** player + nearby NPC capsule blocking, NPC-to-player collision, position handoff to/from `WorldSim`, doorway and crowd tuning.
+2. **Near-character collision:** player + nearby NPC and enemy capsule blocking, NPC-to-player collision, position handoff to/from `WorldSim`, doorway and crowd tuning. Finish wolves and camp monsters, then check friendly/hostile units for sensible yielding and separation.
 3. **Movement and animation tuning:** acceleration/braking/turn curves, animation blend updates, footsteps and surface tags.
 4. **Combat synchronization:** timed hit windows and wall checks, consistent attack recovery/cancel rules, impact synchronization.
 5. **Village life:** nav-driven schedule stops, small contextual behaviors, distant update budgets.

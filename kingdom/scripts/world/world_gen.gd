@@ -559,6 +559,15 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 	return w
 
 
+## Footstep family follows the same material weights used to paint the terrain.
+static func footstep_surface(x: float, z: float) -> String:
+	var h := height(x, z)
+	var normal := Vector3(height(x - 1.0, z) - height(x + 1.0, z), 2.0,
+		height(x, z - 1.0) - height(x, z + 1.0)).normalized()
+	var weights := color_at(x, z, h, 1.0 - normal.y)
+	return "stone" if weights.b > 0.3 or weights.g > 0.5 else "grass"
+
+
 static func forest_density(x: float, z: float) -> float:
 	var f := clampf(_forest.get_noise_2d(x, z) * 1.8 + 0.25, 0.0, 1.0)
 	var near := nearest_settlement(Vector2(x, z))

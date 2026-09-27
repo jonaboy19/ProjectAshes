@@ -30,7 +30,7 @@ var _anim_root: Node
 var _skeleton: Skeleton3D
 
 
-func _init(model: Node3D, run_speed: float, walk_anim := "Walking_A", run_anim := "Running_A", idle_anim := "Idle") -> void:
+func _init(model: Node3D, run_speed: float, walk_speed := -1.0, walk_anim := "Walking_A", run_anim := "Running_A", idle_anim := "Idle") -> void:
 	player = Assets.animation_player(model)
 	_anim_root = player.get_node(player.root_node)
 	_skeleton = model.find_children("*", "Skeleton3D", true, false)[0]
@@ -39,8 +39,9 @@ func _init(model: Node3D, run_speed: float, walk_anim := "Walking_A", run_anim :
 	var loco := AnimationNodeBlendSpace1D.new()
 	loco.min_space = 0.0
 	loco.max_space = run_speed
+	var gait_speed := walk_speed if walk_speed > 0.0 else run_speed * 0.5
 	loco.add_blend_point(_anim(idle_anim), 0.0)
-	loco.add_blend_point(_anim(walk_anim), run_speed * 0.5)
+	loco.add_blend_point(_anim(walk_anim), gait_speed)
 	loco.add_blend_point(_anim(run_anim), run_speed)
 	_root.add_node("loco", loco, Vector2(0, 0))
 
@@ -108,7 +109,7 @@ func _filter_upper(node: AnimationNode) -> void:
 
 ## Call every frame with the character's horizontal speed.
 func update(delta: float, speed: float) -> void:
-	_speed = lerpf(_speed, speed, clampf(delta * 10.0, 0.0, 1.0))
+	_speed = lerpf(_speed, maxf(speed, 0.0), 1.0 - exp(-10.0 * delta))
 	tree["parameters/loco/blend_position"] = _speed
 	_block = move_toward(_block, _block_target, delta * 6.0)
 	tree["parameters/block/blend_amount"] = _block
