@@ -1,6 +1,6 @@
 # Rising Ashes: Natural World and Game Feel — Claude Handoff
 
-**Purpose:** give the game-code owner a practical, staged route from the current systems to smoother movement, believable crowds, reliable collision, and a world that appears to have routines. This is a design and implementation brief only. It does not change game scripts, scenes, or project settings.
+**Purpose:** give the game-code owner a practical, staged route from the current systems to smoother movement, believable crowds, reliable collision, and a world that appears to have routines. Start with [`CLAUDE_GAME_FEEL_BRIEF.md`](CLAUDE_GAME_FEEL_BRIEF.md) for the prioritized task list and acceptance criteria. This is a design and implementation brief only. It does not change game scripts, scenes, or project settings.
 
 **Branch context:** prepared on `gpt/ai3d-assets` after fetching `origin/claude/focused-curie-m09hbd` on 2026-09-27. Read `docs/LOCAL_SESSION_HANDOFF.md` before implementation and fetch/merge the latest Claude work first. The remote branch has a performance pass (`docs/qa/PERFORMANCE.md`) and location/time-aware audio director; coordinate around those live changes. Do not copy from the Codex checkout or force-push over either owner's branch.
 
