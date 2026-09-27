@@ -16,9 +16,9 @@ const WORLD_LAYER := 1
 const ENEMY_LAYER := 4
 const SPECIES := {
 	"goblin": {"models": ["Goblin_Male", "Goblin_Female"], "height": 1.1, "health": 32, "damage": 6,
-		"walk": 1.4, "run": 5.2, "level": [1, 4], "tint": Color(1, 1, 1)},
+		"walk": 0.7, "run": 2.6, "level": [1, 4], "tint": Color(1, 1, 1)},
 	"orc": {"models": ["Goblin_Male"], "height": 2.05, "health": 95, "damage": 15,
-		"walk": 1.3, "run": 4.6, "level": [5, 9], "tint": Color(0.62, 0.72, 0.5)},
+		"walk": 1.3, "run": 3.4, "level": [5, 9], "tint": Color(0.62, 0.72, 0.5)},
 }
 const NAMES := ["Gobta", "Rigur", "Kurra", "Snag", "Brek", "Mossa", "Tuk", "Hesk", "Grom", "Varka",
 	"Orrin", "Dazh", "Ruuk", "Pell", "Zagra", "Hollo", "Krith", "Ushna", "Bram", "Tessik"]
@@ -185,7 +185,11 @@ func _physics_process(delta: float) -> void:
 			p.y = WorldGen.height(p.x, p.z)
 			global_position = p
 	if _busy <= 0.0 and state != State.YIELD:
-		_play("Run" if _speed > 3.0 else ("Walk" if _speed > 0.3 else "Idle"))
+		var running := _speed > float(sp["walk"]) * 1.4
+		var gait := "Run" if running else ("Walk" if _speed > 0.3 else "Idle")
+		var scale_to_goblin := float(sp["height"]) / 1.1
+		var clip_speed := (1.7 if running else 0.65) * scale_to_goblin
+		_play(gait, false, clampf(_speed / clip_speed, 0.7, 1.8))
 
 
 func _decide(player: Node3D) -> void:
@@ -318,6 +322,11 @@ func random_name() -> String:
 	return NAMES[randi() % NAMES.size()]
 
 
-func _play(anim_name: String, restart := false) -> void:
-	if _anim and _anim.has_animation(anim_name) and (restart or _anim.current_animation != anim_name):
-		_anim.play(anim_name, 0.15)
+func _play(anim_name: String, restart := false, rate := 1.0) -> void:
+	if _anim == null or not _anim.has_animation(anim_name):
+		return
+	_anim.speed_scale = rate
+	if restart or _anim.current_animation != anim_name:
+		var old := _anim.current_animation
+		var blend := 0.28 if old in ["Walk", "Run"] and anim_name in ["Walk", "Run"] else 0.15
+		_anim.play(anim_name, blend)

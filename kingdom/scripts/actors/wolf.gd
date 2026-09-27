@@ -71,20 +71,20 @@ func _physics_process(delta: float) -> void:
 	var want := 0.0
 	match state:
 		State.ROAM:
-			want = 1.6
+			want = 0.7
 			if Vector2(_target.x - global_position.x, _target.z - global_position.z).length() < 2.0:
 				_pick_roam_target()
 		State.STALK:
-			want = 3.5
+			want = 1.0
 			_target = player.global_position
 		State.ATTACK:
 			_target = player.global_position
 			var d := global_position.distance_to(_target)
-			want = 7.5 if d > 1.8 else 0.0
+			want = 4.5 if d > 1.8 else 0.0
 			if d <= 1.9 and _attack_cd <= 0.0:
 				_bite(player)
 		State.FLEE:
-			want = 8.0
+			want = 4.8
 	if _busy > 0.0:
 		want = 0.0
 	_speed = lerpf(_speed, want, 6.0 * delta)
@@ -106,7 +106,9 @@ func _physics_process(delta: float) -> void:
 			p.y = WorldGen.height(p.x, p.z)
 			global_position = p
 	if _busy <= 0.0:
-		_play("Gallop" if _speed > 4.5 else ("Walk" if _speed > 0.4 else "Idle"))
+		var locomotion := "Gallop" if _speed > 1.5 else ("Walk" if _speed > 0.25 else "Idle")
+		var authored_speed := 2.63 if locomotion == "Gallop" else 0.64
+		_play(locomotion, false, clampf(_speed / authored_speed, 0.7, 1.8))
 
 
 func _decide(player: Node3D, cov: float) -> void:
@@ -181,6 +183,11 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 			state = State.ATTACK
 
 
-func _play(anim_name: String, restart := false) -> void:
-	if _anim and _anim.has_animation(anim_name) and (restart or _anim.current_animation != anim_name):
-		_anim.play(anim_name, 0.15)
+func _play(anim_name: String, restart := false, rate := 1.0) -> void:
+	if _anim == null or not _anim.has_animation(anim_name):
+		return
+	_anim.speed_scale = rate
+	if restart or _anim.current_animation != anim_name:
+		var old := _anim.current_animation
+		var blend := 0.28 if old in ["Walk", "Gallop"] and anim_name in ["Walk", "Gallop"] else 0.15
+		_anim.play(anim_name, blend)

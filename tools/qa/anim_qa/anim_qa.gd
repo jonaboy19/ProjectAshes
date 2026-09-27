@@ -1023,7 +1023,11 @@ func _speed_table() -> Array[Dictionary]:
 		else:
 			v_eff = natural.get(sid + "|" + String(c["clip"]), 0.0)
 			desc = String(c["clip"])
-		var ratio := speed / v_eff if v_eff > 0.01 else INF
+		var playback_rate := float(c.get("rate", 1.0))
+		var driven_clip_speed := v_eff * playback_rate
+		if not is_equal_approx(playback_rate, 1.0):
+			desc += " x%.2f" % playback_rate
+		var ratio := speed / driven_clip_speed if driven_clip_speed > 0.01 else INF
 		var status := "PASS"
 		if ratio < SPEED_WARN[0] or ratio > SPEED_WARN[1]:
 			status = "FAIL"
@@ -1035,9 +1039,10 @@ func _speed_table() -> Array[Dictionary]:
 		elif ratio < SPEED_OK[0]:
 			effect = "moonwalk / treadmill (feet outrun the body)"
 		out.append({"agent": c["agent"], "subject": sid, "speed": speed, "anim": desc, "clip_speed": v_eff,
+			"clip": String(c.get("clip", "")), "rate": playback_rate,
 			"ratio": ratio, "status": status, "effect": effect, "src": c["src"],
-			"slip_cm_s": absf(speed - v_eff) * 100.0,
-			"fix_scale": speed / v_eff if v_eff > 0.01 else 0.0})
+			"slip_cm_s": absf(speed - driven_clip_speed) * 100.0,
+			"fix_scale": speed / driven_clip_speed if driven_clip_speed > 0.01 else 0.0})
 	return out
 
 
@@ -1318,10 +1323,14 @@ func _render_all(subs: Array[Dictionary], speeds: Array[Dictionary]) -> void:
 		if wanted.has(r["subject"]) and not (wanted[r["subject"]] as Array).has(r["clip"]):
 			(wanted[r["subject"]] as Array).append(r["clip"])
 	var game_speed := {}
+	var game_rate := {}
 	for c in speeds:
-		var k := String(c["subject"]) + "|" + String(c["anim"])
+		if not c.has("clip"):
+			continue
+		var k := String(c["subject"]) + "|" + String(c["clip"])
 		if not game_speed.has(k):
 			game_speed[k] = c["speed"]
+			game_rate[k] = float(c.get("rate", 1.0))
 	var groups := {}
 	for s in subs:
 		if only != "" and not String(s["id"]).contains(only):
@@ -1346,11 +1355,14 @@ func _render_all(subs: Array[Dictionary], speeds: Array[Dictionary]) -> void:
 				continue
 			var kind: String = (s["clips"] as Dictionary).get(clip, {"kind": "once"})["kind"]
 			var spd := 0.0
+			var rate := 1.0
 			var spd_note := ""
 			if kind == "loco":
-				spd = game_speed.get(String(s["id"]) + "|" + clip, natural.get(String(s["id"]) + "|" + clip, 0.0))
-				spd_note = " @%.1f m/s" % spd
-			var img := await _strip(s, node, ap, sk, clip, kind, spd, box, spd_note)
+				var speed_key := String(s["id"]) + "|" + clip
+				spd = game_speed.get(speed_key, natural.get(speed_key, 0.0))
+				rate = float(game_rate.get(speed_key, 1.0))
+				spd_note = " @%.1f m/s x%.2f" % [spd, rate]
+			var img := await _strip(s, node, ap, sk, clip, kind, spd, rate, box, spd_note)
 			var fname := "%s__%s.jpg" % [s["id"], clip]
 			img.save_jpg(out_dir.path_join("anim_strips/" + fname), 0.72)
 			var g: String = s["group"]
@@ -1371,7 +1383,7 @@ func _skinned_box(node: Node3D) -> AABB:
 
 
 func _strip(s: Dictionary, node: Node3D, ap: AnimationPlayer, sk: Skeleton3D, clip: String, kind: String,
-		spd: float, box: AABB, spd_note: String) -> Image:
+		spd: float, rate: float, box: AABB, spd_note: String) -> Image:
 	var anim := ap.get_animation(clip)
 	var L := anim.length
 	var loop_mode := anim.loop_mode
@@ -1385,8 +1397,9 @@ func _strip(s: Dictionary, node: Node3D, ap: AnimationPlayer, sk: Skeleton3D, cl
 	var out := Image.create(TILE_W * TILES, TILE_H, false, Image.FORMAT_RGB8)
 	var face: float = float((subject_info.get(s["id"], {}) as Dictionary).get("face", 1.0))
 	for i in TILES:
-		var t := (L * i / TILES) if kind in ["loop", "loco"] else (L * i / (TILES - 1))
-		ap.seek(t, true)
+		var t := (L * i / TILES / maxf(rate, 0.01)) if kind in ["loop", "loco"] else (L * i / (TILES - 1))
+		var clip_t := t * rate if kind == "loco" else t
+		ap.seek(fposmod(clip_t, L) if kind in ["loop", "loco"] else clip_t, true)
 		# locomotion: move the model along its facing at the speed the game uses, camera follows,
 		# so planted feet should stay still against the grid.
 		var z := spd * t * face

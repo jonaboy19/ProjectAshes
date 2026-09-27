@@ -40,7 +40,7 @@
     <div class="eyebrow">Rising Ashes · Feel pass</div>
     <h1>A world that feels solid and alive</h1>
     <p class="lead">A visual handoff for Claude: keep the existing world, improve movement, animation, collision and daily life in small steps. These stills show the current art direction; they are not proof of live animation or collision behavior.</p>
-    <span class="status">Documentation handoff · no new game-code changes in this update</span>
+    <span class="status">Animation calibration pass recorded · live play review pending</span>
   </header>
 
   <h2>What the world looks like today</h2>
@@ -70,16 +70,16 @@
   </section>
 
   <h2>Animation evidence and review</h2>
-  <p>Claude's branch already contains an animation QA runner that produces these full-size sheets and frame strips. The sheets inspect imported motion; they do not prove that the runtime controller, collision, or camera feels right.</p>
+  <p>The existing animation QA runner now checks runtime playback-rate calibration. The sample strip below shows the villager walk at its current movement speed and animation rate. These posed frames inspect motion timing; they do not prove that traversal, collision, or camera behavior feels right in the level.</p>
   <section class="grid">
-    <article class="card"><a href="../qa/anim_sheet_villagers.jpg"><img loading="lazy" src="../qa/anim_sheet_villagers.jpg" alt="Animation QA sheet for villager characters"></a><div class="card-body"><h3>Villager motion sheet</h3><p>Existing animation QA output from Claude's branch. Open the image for the full contact sheet.</p><a href="../qa/anim_qa_report.md">Read the QA report</a></div></article>
+    <article class="card"><a href="../qa/anim_strips/villager_man_a__Walking_A.jpg"><img loading="lazy" src="../qa/anim_strips/villager_man_a__Walking_A.jpg" alt="Villager walk frames sampled at 1.6 meters per second"></a><div class="card-body"><h3>Villager walk at game speed</h3><p>Eight sampled frames from the current walk clip, played at the current villager rate. This helps review stride and foot travel.</p><a href="../qa/anim_qa_report.md">Read the full QA report</a> · <a href="../qa/anim_qa_report_only_villager_man_a.md">Read the focused check</a></div></article>
     <article class="card"><a href="../qa/anim_sheet_armored.jpg"><img loading="lazy" src="../qa/anim_sheet_armored.jpg" alt="Animation QA sheet for armored characters"></a><div class="card-body"><h3>Armored motion sheet</h3><p>Existing QA contact sheet. Foot-slide fixes must be checked against game movement speed and play feel.</p><a href="../../tools/qa/anim_qa/README.md">Open the QA tool and instructions</a></div></article>
   </section>
 
   <h2>Review route</h2>
   <div class="callout">Village spawn → cross the square → walk through the market → circle the inn → pass a resident in a doorway → run and stop → enter a frontier encounter. Check for wall clipping, body overlap, foot skating, camera clipping, stalled residents, and hits that land out of sync with the visible swing.</div>
   <nav class="links" aria-label="Project review documents"><a href="REAL_WORLD_GAME_FEEL_PLAN.md">Open the full improvement plan</a><a href="../qa/PLAYTEST_REPORT.md">Open Claude's playtest report</a><a href="../qa/">Browse QA images and results</a></nav>
-  <footer>All screenshots are static project captures. They can show composition and art direction, but cannot verify movement, animation, collision, NPC intent or frame rate. The diagram is explanatory. Follow the review route in a live build and log findings in the existing QA report.</footer>
+  <footer>All screenshots are static project captures. They can show composition and art direction, but cannot verify movement, animation, collision, NPC intent or frame rate. The diagram is explanatory. The latest animation changes need the existing QA runner and a live review route before their visual result can be claimed.</footer>
 </main>
 </body>
 </html>

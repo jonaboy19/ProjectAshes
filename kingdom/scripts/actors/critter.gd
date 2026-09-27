@@ -6,6 +6,25 @@ extends Node3D
 ## so dozens cost almost nothing.
 
 const DIR := "res://assets/incoming/animals/"
+## Reliable ground speeds from docs/qa/anim_qa_report.md. Entries with a zero
+## measurement are intentionally omitted: the tiny, stylized cycles need visual
+## authoring rather than a misleading speed inferred from bad foot contacts.
+const ANIM_GROUND_SPEEDS := {
+	"dog": {"Walk": 0.70, "Run": 1.71},
+	"sheepdog": {"Walk": 0.71, "Run": 1.73},
+	"cow": {"Walk": 1.06, "Run": 4.99},
+	"ox": {"Walk": 1.01, "Run": 4.64},
+	"sheep": {"Run": 1.92},
+	"pig": {"Run": 1.29},
+	"horse": {"Walk": 1.41, "Run": 5.86},
+	"horse_grey": {"Walk": 1.36, "Run": 5.68},
+	"horse_draft": {"Walk": 1.53, "Run": 6.41},
+	"donkey": {"Walk": 1.30},
+	"deer": {"Walk": 1.06},
+	"stag": {"Walk": 1.31},
+	"fox": {"Walk": 0.44},
+	"goat": {"Walk": 0.76},
+}
 ## kind -> [file, walk speed, run speed, wander radius, skittish distance (0 = tame)]
 const KINDS := {
 	"chicken": ["procedural/chicken.glb", 0.6, 2.2, 5.0, 2.5],
@@ -93,11 +112,17 @@ func _physics_process(delta: float) -> void:
 	var p := here + step
 	global_position = Vector3(p.x, WorldGen.height(p.x, p.y), p.y)
 	rotation.y = lerp_angle(rotation.y, atan2(to.x, to.y), 8.0 * delta)
-	_play("Run" if _fleeing > 0.0 else "Walk")
+	var gait := "Run" if _fleeing > 0.0 else "Walk"
+	var authored_speed := float(ANIM_GROUND_SPEEDS.get(kind, {}).get(gait, 0.0))
+	var rate := speed / authored_speed if authored_speed > 0.0 else 1.0
+	_play(gait, clampf(rate, 0.35, 2.5))
 
 
-func _play(n: String) -> void:
-	if _anim and _anim.has_animation(n) and _anim.current_animation != n:
+func _play(n: String, rate := 1.0) -> void:
+	if _anim == null:
+		return
+	_anim.speed_scale = rate
+	if _anim.has_animation(n) and _anim.current_animation != n:
 		_anim.play(n, 0.2)
-	elif _anim and n == "Eat" and not _anim.has_animation("Eat") and _anim.has_animation("Idle"):
+	elif n == "Eat" and not _anim.has_animation("Eat") and _anim.has_animation("Idle"):
 		_anim.play("Idle", 0.2)

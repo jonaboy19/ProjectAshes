@@ -15,6 +15,10 @@ extends RefCounted
 ## the KayKit rig and the UE-style Quaternius/UAL rig.
 const LOWER_KEYS := ["root", "hips", "pelvis", "upperleg", "lowerleg", "thigh", "calf", "foot", "toes",
 	"ball", "heel", "knee", "ik_", "IK", "control-"]
+## Measured on the 1.7–1.8 m UAL rigs by tools/qa/anim_qa. Blend-space
+## coordinates represent the speed covered by the clip, not a gameplay stat.
+const WALK_CLIP_SPEED := 1.0
+const RUN_CLIP_SPEED := 6.0
 
 var tree: AnimationTree
 var player: AnimationPlayer
@@ -30,7 +34,7 @@ var _anim_root: Node
 var _skeleton: Skeleton3D
 
 
-func _init(model: Node3D, run_speed: float, walk_speed := -1.0, walk_anim := "Walking_A", run_anim := "Running_A", idle_anim := "Idle") -> void:
+func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "Walking_A", run_anim := "Running_A", idle_anim := "Idle") -> void:
 	player = Assets.animation_player(model)
 	_anim_root = player.get_node(player.root_node)
 	_skeleton = model.find_children("*", "Skeleton3D", true, false)[0]
@@ -38,11 +42,10 @@ func _init(model: Node3D, run_speed: float, walk_speed := -1.0, walk_anim := "Wa
 
 	var loco := AnimationNodeBlendSpace1D.new()
 	loco.min_space = 0.0
-	loco.max_space = run_speed
-	var gait_speed := walk_speed if walk_speed > 0.0 else run_speed * 0.5
+	loco.max_space = maxf(run_speed, 7.5)
 	loco.add_blend_point(_anim(idle_anim), 0.0)
-	loco.add_blend_point(_anim(walk_anim), gait_speed)
-	loco.add_blend_point(_anim(run_anim), run_speed)
+	loco.add_blend_point(_anim(walk_anim), WALK_CLIP_SPEED)
+	loco.add_blend_point(_anim(run_anim), RUN_CLIP_SPEED)
 	_root.add_node("loco", loco, Vector2(0, 0))
 
 	_root.add_node("block_anim", _anim("Blocking"), Vector2(0, 200))

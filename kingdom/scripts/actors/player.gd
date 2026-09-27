@@ -21,8 +21,8 @@ const VIEW_NAMES := ["First person", "Third person", "Town view", "Command view"
 const VIEW_RIG := [[0.0, -0.1], [5.5, -0.32], [26.0, -0.72], [85.0, -1.2]]
 const VIEWMODEL_REST := Vector3(-0.5, 0.15, -0.35)
 
-const WALK := 4.2
-const RUN := 7.0
+const WALK := 2.4
+const RUN := 6.5
 const MOVE_ACCEL := 14.0
 const MOVE_BRAKE := 20.0
 const GRAVITY := 24.0
@@ -413,7 +413,9 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 
 func _die() -> void:
 	dead = true
-	_animator.play_terminal("Death_A")
+	# Death_A resolves to the long Mesh2Motion stagger/fall clip and can outlast
+	# the respawn timer. Use the short terminal fall for the playable character.
+	_animator.play_terminal("Death01")
 	Game.say("You fall... and wake in the village, bruised.")
 	await get_tree().create_timer(3.0).timeout
 	global_position = spawn_point

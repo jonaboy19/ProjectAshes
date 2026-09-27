@@ -7,6 +7,10 @@ extends CharacterBody3D
 const WORLD_LAYER := 1
 const LOCAL_ACTOR_LAYER := 2
 const WALK_SPEED := 1.6
+const WALK_CLIP_SPEED := 0.98
+const WALK_CYCLE_SECONDS := 1.33
+const RUN_CLIP_SPEED := 5.82
+const RUN_CYCLE_SECONDS := 0.93
 
 var person := -1
 ## Set by PopulationLOD for the single nearest villager.
@@ -95,12 +99,15 @@ func _physics_process(delta: float) -> void:
 		_activity_needs_start = true
 		var facing := atan2(velocity.x, velocity.z)
 		rotation.y = lerp_angle(rotation.y, facing, 1.0 - exp(-8.0 * delta))
-		_play("Walking_A")
-		var animation_rate := clampf(planar_speed / WALK_SPEED, 0.65, 2.0)
+		var running := planar_speed > 2.2
+		var clip_speed := RUN_CLIP_SPEED if running else WALK_CLIP_SPEED
+		var cycle_seconds := RUN_CYCLE_SECONDS if running else WALK_CYCLE_SECONDS
+		_play("Running_A" if running else "Walking_A")
+		var animation_rate := clampf(planar_speed / clip_speed, 0.65, 2.0)
 		if _anim:
 			_anim.speed_scale = animation_rate
 		_step_distance += planar_speed * delta
-		var stride := planar_speed / (1.5 * animation_rate)
+		var stride := planar_speed * cycle_seconds / (2.0 * animation_rate)
 		if _step_distance >= stride:
 			_step_distance = fmod(_step_distance, stride)
 			Audio.sfx("step_" + WorldGen.footstep_surface(global_position.x, global_position.z), global_position, -15.0)
@@ -181,6 +188,7 @@ func _update_activity(delta: float) -> void:
 	_step_distance = 0.0
 	if _anim == null:
 		return
+	_anim.speed_scale = 1.0
 	var activity := _activity_for_person()
 	if activity != _activity_name:
 		_activity_name = activity

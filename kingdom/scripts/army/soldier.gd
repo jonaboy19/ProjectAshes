@@ -7,7 +7,7 @@ extends CharacterBody3D
 signal died(soldier: Soldier)
 
 const LOD_DISTANCE := 45.0
-const WALK := 3.6
+const WALK := 2.4
 const RUN := 5.8
 const ATTACK_RANGE := 1.7
 const ENGAGE_RANGE := 9.0
@@ -232,7 +232,7 @@ func _die() -> void:
 	dead = true
 	remove_from_group("team%d" % team)
 	remove_from_group("combatant")
-	_animator.play_terminal("Death_A" if randf() < 0.5 else "Death_B")
+	_animator.play_terminal("Death01")
 	died.emit(self)
 	var tween := create_tween()
 	tween.tween_interval(5.0)
