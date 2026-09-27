@@ -1803,7 +1803,7 @@ RECIPES = [
     P(name="elder_woman", gender=0.0, age=70, race={"caucasian": 0.7, "asian": 0.3},
       muscle=0.35, weight=0.6, height=0.35, proportions=0.5, seed=606,
       outfit=["dress", "apron", "boots", "cloak"], hood_up=True, sleeve=1.0,
-      palette=dict(dress=(0.45, 0.28, 0.4), apron=(0.86, 0.82, 0.7), boots=(0.27, 0.2, 0.15), cloak=(0.52, 0.43, 0.32), hair=(0.82, 0.8, 0.76))),
+      palette=dict(dress=(0.45, 0.28, 0.4), apron=(0.86, 0.82, 0.7), boots=(0.27, 0.2, 0.15), cloak=(0.28, 0.31, 0.36), hair=(0.82, 0.8, 0.76))),
     P(name="child_boy", gender=1.0, age=8, race={"caucasian": 0.6, "african": 0.4},
       muscle=0.5, weight=0.5, height=0.7, proportions=0.6, seed=707, body_budget=1900,
       outfit=["tunic", "belt", "trousers", "boots"], hair="child", sleeve=0.7, pouch=False, tunic_len=0.25,
