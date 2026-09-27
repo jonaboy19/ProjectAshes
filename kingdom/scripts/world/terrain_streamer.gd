@@ -9,8 +9,8 @@ const CELL := 2.0
 ## Distance where Blender trees hand over to the cheap stylised stand-ins.
 const TREE_LOD := 200.0
 ## Painterly region trees (generated/region/nature): LOD0 -> LOD1 -> 4-tri impostor
-## card (_lod2) at these distances (Quality scales them: LOW x0.55 = 22 / 50 m).
-const REGION_LODS := [40.0, 90.0]
+## card (_lod2) at these distances (Quality scales them: LOW x0.55 = 22 / 66 m; the crossed cards read as an X from a steep aerial camera, so not closer).
+const REGION_LODS := [40.0, 120.0]
 const REGION := "region/nature/"
 
 @export var view_radius := 4         # chunks; 9x9 grid visible

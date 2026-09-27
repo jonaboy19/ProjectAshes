@@ -727,6 +727,52 @@ static func _region_materials(mesh: ArrayMesh, key: String) -> void:
 			mesh.surface_set_material(i, load(REGION_NATURE + tres))
 
 
+## The region impostors are two crossed vertical cards, which read as an "X" from a
+## steep (zoomed-out) camera. Adds a horizontal card at crown height that shows the
+## crown part of the same atlas cell: a leafy blob from above, +2 triangles.
+static func _impostor_top_card(mesh: ArrayMesh) -> ArrayMesh:
+	var arr := mesh.surface_get_arrays(0)
+	var verts: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+	var uvs: PackedVector2Array = arr[Mesh.ARRAY_TEX_UV]
+	if verts.size() < 4 or uvs.size() != verts.size():
+		return mesh
+	var box := AABB(verts[0], Vector3.ZERO)
+	var uv_min := uvs[0]
+	var uv_max := uvs[0]
+	var v_top := uvs[0].y          # v at the highest vertex = top of the tree
+	var y_top := verts[0].y
+	for i in verts.size():
+		box = box.expand(verts[i])
+		uv_min = uv_min.min(uvs[i])
+		uv_max = uv_max.max(uvs[i])
+		if verts[i].y > y_top:
+			y_top = verts[i].y
+			v_top = uvs[i].y
+	var v_bot := uv_max.y if is_equal_approx(v_top, uv_min.y) else uv_min.y
+	var v_crown := lerpf(v_top, v_bot, 0.65)
+	var half := maxf(box.size.x, box.size.z) * (0.3 if box.size.y > 1.25 * maxf(box.size.x, box.size.z) else 0.5)   # conifers: small
+	var y := box.position.y + box.size.y * 0.55
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.append_from(mesh, 0, Transform3D.IDENTITY)
+	st.deindex()
+	var has_color: bool = arr[Mesh.ARRAY_COLOR] != null
+	var has_tangent: bool = arr[Mesh.ARRAY_TANGENT] != null
+	var corners := [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]
+	var cuv := [Vector2(uv_min.x, v_crown), Vector2(uv_max.x, v_crown), Vector2(uv_max.x, v_top), Vector2(uv_min.x, v_top)]
+	for c in [0, 1, 2, 0, 2, 3]:
+		st.set_normal(Vector3.UP)
+		st.set_uv(cuv[c])
+		if has_color:
+			st.set_color(Color.WHITE)
+		if has_tangent:
+			st.set_tangent(Plane(1, 0, 0, 1))
+		st.add_vertex(Vector3(corners[c].x * half, y, corners[c].y * half))
+	var out := st.commit()
+	out.surface_set_material(0, mesh.surface_get_material(0))
+	return out
+
+
 static func nature_mesh(key: String) -> ArrayMesh:
 	var cache_key := "nature:" + key
 	if _building_cache.has(cache_key):
@@ -741,6 +787,8 @@ static func nature_mesh(key: String) -> ArrayMesh:
 	if mesh == null:
 		return null
 	if region:
+		if key.ends_with("_lod2"):
+			mesh = _impostor_top_card(mesh)
 		_region_materials(mesh, key)
 		_building_cache[cache_key] = mesh
 		return mesh

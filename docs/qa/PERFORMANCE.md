@@ -82,52 +82,104 @@ Screenshots of the same view: `docs/qa/quality_low.png` (LOW) and `docs/qa/quali
 Mobile renderer. LOW has no sun shadows and a softer 540p image but reads well: same colours, materials
 and layout, people and stalls intact. UI: `docs/qa/ui_settings.png`, `docs/qa/ui_credits.png`.
 
+## Low-end budget pass (2026-09-27, later the same day)
+
+Goal: LOW inside a Mali-G52 / Adreno 610 budget in the village: **<= 300k triangles, <= 250 draw
+calls, <= 150 MB textures**. Same PC, Mobile renderer, 1280x720, bench.gd uncapped; other agents'
+Godot/Blender jobs were running, so compare counts, not fps. Draw calls include the HUD (~55 in the
+village; `--png` runs hide it).
+
+| Scene, tier | Draws before -> after | Primitives before -> after | Texture VRAM on PC (`tex_mb`) | Phone export texture estimate |
+|---|---|---|---|---|
+| Village LOW | 336 -> **294** (3D only: **234**) | 0.83 M -> **0.29 M** | 948 -> 224 MB | **~121 MB** |
+| Capital LOW | 237 -> 265 | 1.55 M -> **0.42 M** | 948 -> 225 MB | ~118 MB |
+| Battle LOW | 229 -> **186** | 0.58 M -> **0.18 M** | 933 -> 220 MB | ~113 MB |
+| Village HIGH | 680 -> **617** | 5.14 M -> **1.89 M** | -> 286 MB | ~133 MB |
+| Capital HIGH | 565 -> 592 | 4.83 M -> **1.82 M** | -> 288 MB | ~136 MB |
+| Battle HIGH | 539 -> **478** | 4.35 M -> **1.46 M** | -> 285 MB | ~130 MB |
+
+Raw lines: `docs/qa/bench_results.jsonl`. "Phone export estimate" = textures in use after the mobile
+export caps below, at 1 B/px ASTC/ETC2 incl. mips (`bench.gd --textures`).
+
+Village LOW vs the budget: **triangles 0.29 M (in), draw calls 234 in 3D / 294 with the HUD, textures
+~121 MB (in)**. The capital is still over on triangles (0.42 M) and at the limit on draws.
+
+What changed (commits a9a49831, 9bb0a44e, 96880162 and the one with this doc):
+
+1. **Meshy buildings: clean LOD chain.** `tools/meshy/bake_lod.py` (voxel shell + decimate + colour
+   bake from LOD0, so nothing shreds) made LOD2 (hero 7k, houses 3.5-5.5k tris, 512 px) and LOD3
+   (0.9-1.6k tris, 256 px) for all 9 Meshy buildings, and rebaked the **broken LOD1s** of the inn,
+   healer, trader, family house and peasant_b (collapse decimation had shredded them into shiny,
+   crumpled shells: the "crumpled distant houses" in the store shots). Meshy meshes no longer get
+   `generate_lods()` on top of their own LOD files. Chain: LOD0 -> LOD1 at 45/70 m -> LOD2 at
+   100/150 m -> LOD3 at 160/220 m (x0.55 on LOW). **LOW never loads LOD0**: LOD1 < 25 m, LOD2 < 55 m,
+   LOD3 beyond. The 16 Blender village houses, barn and chapel got a baked 1.2k-tri LOD2 too.
+   Previews: `docs/kingdom/blender_previews/lod2/*_lods.png` (LOD0/1/2 side by side); aerial
+   before/after: `docs/qa/lod_aerial_before.png` / `lod_aerial_after.png`.
+2. **Per-cell batches.** A MultiMesh switches LOD and visibility as a whole (by its bounds' centre),
+   so one town-wide batch drew every house at the near LOD. Meshy buildings and village greenery are
+   batched per 40 m cell, yard clutter per 80 m cell (120 m range), town walls per 150 m. The Blender
+   houses stay one batch per town (4-6 materials each: cells cost more draws than they save).
+3. **Trees.** The painterly region trees (0.7-1.6k tris, `generated/region/nature`) replace the
+   5-6k Blender trees and the megakit far stand-ins wherever trees are placed (forest chunks,
+   village greenery): LOD0 < 40 m, LOD1 < 120 m, 4-tri impostor beyond (x0.55 on LOW). A chunk's far
+   impostors are merged into one mesh (one draw per distant chunk) and get a horizontal crown card
+   so they don't read as an "X" from the zoomed-out camera. Their wind ShaderMaterials are applied
+   in `Assets` (the `.glb.import` swap the region README describes was missing, so COLOR_0 wind data
+   tinted trunks black and leaves red). Bushes -> region bushes (316 vs 1489 tris), field fence ->
+   region rail fence (72 vs 594 tris, x120 in a village).
+4. **Textures.** 410 shipped 3D textures were still imported **Lossless** (the editor never flagged
+   them as 3D because the world is built from scripts): 4 B/px uncompressed on a phone.
+   `tools/qa/texture_vram.py` sets VRAM compression + mipmaps (normal maps flagged) on every texture
+   the Android export ships: PC texture memory 948 -> 224 MB. **Mobile-only size caps:**
+   `addons/mobile_texture_limit` (EditorExportPlugin, enabled in project.godot) downsizes
+   `res://assets` textures to 1024 px (512 for photo-scanned clutter and animals) as ETC2 (Android) /
+   ASTC (iOS) at export time; the editor and desktop keep 2048, so HIGH/ULTRA on PC stay sharp.
+   Verified with `--export-pack Android`: e.g. `inn_lod0_Image_0.jpg` loads from the pck as a
+   1024x1024 PortableCompressedTexture2D and decodes correctly. Run
+   `py tools/qa/texture_vram.py --write` after adding textures (new glTF images import Lossless).
+5. **Draw calls.** Contact-shadow quads batched per settlement (28 -> 12 in Ashford), haystacks one
+   MultiMesh per town instead of a node each (5 surfaces per stack), 7 tree kinds per chunk.
+
+Screenshots (Mobile renderer): `docs/qa/quality_low.png`, `docs/qa/quality_high.png` (street, same
+view as before) and `quality_low_aerial.png` / `quality_high_aerial.png`. LOW still reads well at
+street level. Playtest bot (`--steps=boot,village`): runs through, no new errors, 1 known finding
+(no blacksmith lot).
+
 ## What LOW means for an old phone
 
 Typical budgets for 30 fps on a Mali-G52 (e.g. Galaxy A21s/A32) or Adreno 610 (Galaxy A11/A12,
-Redmi 9 class): **~150-300 draw calls** and **~150-300k triangles per frame**, and ~300-500 MB of
+Redmi 9 class): **~150-300 draw calls** and **~150-300k triangles per frame**, and ~150-300 MB of
 texture memory before the OS starts killing the app on a 3 GB device. The GPU here is ~15-25x faster.
 
-| Village, LOW (Mobile) | Measured | Old-phone budget | Verdict |
-|---|---|---|---|
-| Draw calls | 282 | 150-300 | at the limit |
-| Primitives | ~0.82 M | 150-300 k | **~3x over** |
-| GPU time here | 2.4-4 ms | x15-25 on Mali-G52 -> 35-100 ms | 30 fps likely only in light scenes |
-| Textures in use | ~354 MB at 1 B/px (ASTC/ETC2), 204 textures, most 2048 px | 300-500 MB | tight |
-| Main thread | 9-15 ms here | x3-4 on a Cortex-A55 phone | **the biggest risk** |
+| Village, LOW (Mobile) | Before this pass | Now | Budget | Verdict |
+|---|---|---|---|---|
+| Draw calls | 336 (HUD incl.) | 294 (234 without HUD) | <= 250 | 3D in; the HUD's ~55 push it over |
+| Primitives | ~0.83 M | **~0.29 M** | <= 300 k | in |
+| Textures | "354 MB at 1 B/px", but most were Lossless (4 B/px) | ~121 MB in the phone export | <= 150 MB | in |
+| GPU time here | 2.4-4 ms | ~0.8 ms | x15-25 on Mali-G52 -> ~12-20 ms | fits 30 fps |
+| Main thread | 9-15 ms | 7-9 ms (noisy) | x3-4 on a Cortex-A55 | **still the biggest risk** |
 
-So: LOW is playable on mid-range phones today; on the oldest phones it needs the geometry and
-CPU items below. A real-device run is still required (see docs/RELEASE.md).
+A real-device run is still required (see docs/RELEASE.md).
 
-## Top 5 remaining costs
+## Top remaining costs (after the budget pass)
 
-1. **Main-thread CPU (biggest).** The PC is CPU-bound in every scene: frame 10-35 ms while the GPU
-   needs 3-14 ms. Toggling systems off one at a time (`bench.gd --profile`) showed no single script
-   dominating (noise from the other agents' Godot runs); the cost is spread over draw submission
-   (up to 2186 draw calls on Forward+ ULTRA), WorldSim (5,000 people), streaming and 24 animated
-   villagers. Next: profile on a device with the Godot profiler; lower `WorldSim` slice size and
-   `PopulationLOD.refresh()` rate on LOW.
-2. **Triangles in town (LOW 0.8 M).** Settlements are ~600k of it (`bench.gd --gpuprof`): Meshy
-   hero buildings are 20-40k tris each at LOD0 and in-town trees 5-6k. Fixed cheaply: merged meshes
-   had lost their LODs (13 M -> 5 M primitives at HIGH, see commit 77a1c958), LOW uses a
-   stronger LOD threshold. Remaining fix (asset side): real `_lod1` trees (~800 tris) or tree impostors,
-   and Meshy LOD1 at a shorter distance on LOW.
-3. **Texture memory.** ~354 MB in view on LOW, most textures 2048 px (Poly Haven terrain x15,
-   nature megakit bark/leaves, Meshy buildings, props trim sheets). Fix: 1024 px mobile variants
-   (import `process/size_limit=1024` per asset, or gltf-transform resize) for everything but the
-   terrain's near layers. The 4K HDR sky (64 MB half-float) is now imported at 2048 (fixed).
-4. **Draw calls.** 282 (Mobile LOW) / 506 (Compatibility LOW) / 680-2186 (HIGH/ULTRA): one
-   MultiMesh per plant kind per 64 m chunk, per-building near/far pairs, contact-shadow quads.
-   Fix: fewer scatter kinds per chunk on LOW, merge chunk scatter into one MultiMesh per kind per
-   2x2 chunks.
-5. **Shadows at HIGH/ULTRA.** Forest trees cast into 2-4 cascades; the battle scene's GPU time is
-   mostly shadows (16.6 ms at HIGH). Fixed cheaply: small props (<1 m) no longer cast below ULTRA
-   (-100 draw calls in the village), local lights fade out by distance (street lamps, camp fires),
-   no omni shadows below HIGH.
+1. **Main-thread CPU.** Unchanged in kind: WorldSim, population LOD, streaming, draw submission.
+   Next: device profile; lower `WorldSim` slice size and `PopulationLOD.refresh()` rate on LOW.
+2. **Capital at LOW: 0.42 M primitives, 265 draws.** The Blender houses (house_1..16) are 16 kinds x
+   4-6 materials in town-wide batches: their LOD1 (2-3.6k tris) draws everywhere and each kind costs
+   ~5 draws. Next: atlas them to one material so they can be cell-batched cheaply (then their baked
+   LOD2 kicks in by distance); the town wall ring (~0.36 M LOD0 tris) needs a real low-poly LOD.
+3. **HUD draw calls (~55 in the village).** Labels, panels, icons; batch/atlas the HUD or drop the
+   debug fps line in release builds. 16-30 chickens/critters are individual MeshInstances
+   (animation-owned code, left alone).
+4. **Door/street clutter** (photo-scanned crates, baskets, buckets: 730-850 tris each, town-wide
+   batches): swap to the props-atlas props for one shared material and fewer triangles.
+5. **LOD1 trees from a steep camera** read as crossed cards (region LOD1 is a few large cards); a
+   horizontal crown card in the region generator's LOD1 would fix it.
 
-Also fixed: the impostor-bake SubViewport rendered every frame for the whole game
-(`UPDATE_ALWAYS`); it now idles between bakes. The root viewport no longer runs FXAA/MSAA over the
-UI (the world renders in its own SubViewport).
+Also fixed earlier: the impostor-bake SubViewport idles between bakes; the root viewport no longer
+runs FXAA/MSAA over the UI.
 
 ## How to reproduce
 
@@ -137,6 +189,9 @@ TIERS="low medium high ultra" RENDERERS=mobile SCENES=village bash tools/qa/benc
 # one run with a per-layer GPU/primitive breakdown:
 godot --path kingdom --rendering-method mobile -s <abs>/tools/qa/bench/bench.gd -- \
       --adult --skipintro --quality=low --scene=village --uncapped --gpuprof
-# --census (LOD0 tris by mesh), --textures (textures in use), --png=<file> (screenshot, HUD hidden)
+# --census (LOD0 tris by mesh), --textures (textures in use + phone export estimate),
+# --drawcensus (draws and triangles in view by owner/model), --png=<file> (screenshot, HUD hidden)
+py tools/qa/texture_vram.py [--write]          # every shipped 3D texture VRAM-compressed
+godot --headless --path kingdom --export-pack "Android" /tmp/a.pck   # applies the mobile texture caps
 godot --headless --path kingdom -s <abs>/tools/qa/bench/check_clips.gd   # clip library check
 ```

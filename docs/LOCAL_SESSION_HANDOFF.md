@@ -101,3 +101,16 @@ Commits 62c06d0e, 13c66309, 63db0337, 82f50dca, 77a1c958 and the perf/doc commit
   keeps the LODs.
 - **For the cloud (optional):** main.gd `_build_environment()` still enables SDFGI/SSIL/volumetric fog before
   Quality turns them off, which prints harmless "only available in Forward+" warnings on phones.
+
+## Low-end phone budget pass: DONE by the local session (2026-09-27)
+Numbers and details: `docs/qa/PERFORMANCE.md` ("Low-end budget pass"). Village LOW: 0.83 M -> 0.29 M
+primitives, 336 -> 294 draws (234 without HUD), ~121 MB textures in the phone export. Notes for the cloud:
+- **Buildings:** `Assets.BUILDINGS` entries may now carry `lod2`/`lod3` pairs (`[lod0, size, lod1, d1, lod2, d2, lod3, d3]`);
+  `building_lod_level_mesh/_distance()`. Meshy meshes skip `generate_lods()` (they have their own LOD files). On LOW,
+  `SettlementBuilder` never loads LOD0 of buildings that have a LOD2. Buildings with a LOD3 and greenery are batched per
+  40 m cell. New Meshy LODs: `tools/meshy/bake_lod.py` (voxel + bake; doesn't shred), check with `tools/meshy/compare_lods.py`.
+- **Trees:** forest and village greenery use `region/nature/*` trees via `TerrainStreamer.region_tree_chain()`;
+  `Assets.nature_mesh("region/...")` applies the wind materials itself (the region `.glb.import` files don't).
+- **Textures:** new glTF/texture imports come in Lossless (4 B/px on phones) because nobody opens them in the editor.
+  After adding assets run `py tools/qa/texture_vram.py --write` and reimport. `addons/mobile_texture_limit` caps textures
+  at 1024 px (512 for scans/animals) in Android/iOS exports only; keep it enabled.
