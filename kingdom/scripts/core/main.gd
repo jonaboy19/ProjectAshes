@@ -360,7 +360,7 @@ func _on_raiders_defeated(camp: Node3D) -> void:
 func _build_environment() -> void:
 	# Real captured sky (Poly Haven HDRI, CC0) lights the scene and fills reflections.
 	var sky_mat := PanoramaSkyMaterial.new()
-	sky_mat.panorama = load("res://assets/incoming/polyhaven/hdris/kloofendal_43d_clear_puresky_4k.hdr")
+	sky_mat.panorama = load("res://assets/generated/sky/kloofendal_43d_clear_puresky_2k.hdr")
 	sky_mat.energy_multiplier = 1.0
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
