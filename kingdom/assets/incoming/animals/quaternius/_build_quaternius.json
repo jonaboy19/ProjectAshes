@@ -1,0 +1,299 @@
+{
+ "horse_riding": {
+  "tris": 2182,
+  "bones": 30,
+  "anims": [
+   "Attack",
+   "Attack_Kick",
+   "Death",
+   "Eat",
+   "Hit",
+   "Hit_Alt",
+   "Idle",
+   "Idle_Alt",
+   "Idle_HeadLow",
+   "Jump",
+   "Jump_Land",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.68,
+   2.75,
+   2.34
+  ],
+  "kb": 859
+ },
+ "horse_grey": {
+  "tris": 2182,
+  "bones": 30,
+  "anims": [
+   "Attack",
+   "Attack_Kick",
+   "Death",
+   "Eat",
+   "Hit",
+   "Hit_Alt",
+   "Idle",
+   "Idle_Alt",
+   "Idle_HeadLow",
+   "Jump",
+   "Jump_Land",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.66,
+   2.67,
+   2.27
+  ],
+  "kb": 859
+ },
+ "horse_draft": {
+  "tris": 2182,
+  "bones": 30,
+  "anims": [
+   "Attack",
+   "Attack_Kick",
+   "Death",
+   "Eat",
+   "Hit",
+   "Hit_Alt",
+   "Idle",
+   "Idle_Alt",
+   "Idle_HeadLow",
+   "Jump",
+   "Jump_Land",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.91,
+   3.01,
+   2.56
+  ],
+  "kb": 859
+ },
+ "donkey": {
+  "tris": 2000,
+  "bones": 30,
+  "anims": [
+   "Attack",
+   "Attack_Kick",
+   "Death",
+   "Eat",
+   "Hit",
+   "Hit_Alt",
+   "Idle",
+   "Idle_Alt",
+   "Idle_HeadLow",
+   "Jump",
+   "Jump_Land",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.51,
+   2.06,
+   1.73
+  ],
+  "kb": 844
+ },
+ "cow": {
+  "tris": 2450,
+  "bones": 26,
+  "anims": [
+   "Attack",
+   "Attack_Kick",
+   "Death",
+   "Eat",
+   "Hit",
+   "Hit_Alt",
+   "Idle",
+   "Idle_Alt",
+   "Idle_HeadLow",
+   "Jump",
+   "Jump_Land",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.92,
+   3.2,
+   1.82
+  ],
+  "kb": 852
+ },
+ "ox": {
+  "tris": 2418,
+  "bones": 26,
+  "anims": [
+   "Attack",
+   "Attack_Kick",
+   "Death",
+   "Eat",
+   "Hit",
+   "Hit_Alt",
+   "Idle",
+   "Idle_Alt",
+   "Idle_HeadLow",
+   "Jump",
+   "Jump_Land",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.93,
+   2.97,
+   1.69
+  ],
+  "kb": 848
+ },
+ "deer": {
+  "tris": 2098,
+  "bones": 30,
+  "anims": [
+   "Attack",
+   "Attack_Kick",
+   "Death",
+   "Eat",
+   "Hit",
+   "Hit_Alt",
+   "Idle",
+   "Idle_Alt",
+   "Idle_HeadLow",
+   "Jump",
+   "Jump_Land",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.51,
+   1.53,
+   1.49
+  ],
+  "kb": 923
+ },
+ "goat": {
+  "tris": 2182,
+  "bones": 30,
+  "anims": [
+   "Attack",
+   "Attack_Kick",
+   "Death",
+   "Eat",
+   "Hit",
+   "Hit_Alt",
+   "Idle",
+   "Idle_Alt",
+   "Idle_HeadLow",
+   "Jump",
+   "Jump_Land",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.37,
+   1.1,
+   1.11
+  ],
+  "kb": 934
+ },
+ "stag": {
+  "tris": 3670,
+  "bones": 26,
+  "anims": [
+   "Attack",
+   "Attack_Kick",
+   "Death",
+   "Eat",
+   "Hit",
+   "Hit_Alt",
+   "Idle",
+   "Idle_Alt",
+   "Idle_HeadLow",
+   "Jump",
+   "Jump_Land",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   1.17,
+   2.19,
+   2.48
+  ],
+  "kb": 1098
+ },
+ "fox": {
+  "tris": 1848,
+  "bones": 30,
+  "anims": [
+   "Attack",
+   "Death",
+   "Eat",
+   "Hit",
+   "Hit_Alt",
+   "Idle",
+   "Idle_Alt",
+   "Idle_HeadLow",
+   "Jump",
+   "Jump_Land",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.2,
+   1.11,
+   0.5
+  ],
+  "kb": 741
+ },
+ "dog": {
+  "tris": 1950,
+  "bones": 30,
+  "anims": [
+   "Attack",
+   "Death",
+   "Eat",
+   "Hit",
+   "Hit_Alt",
+   "Idle",
+   "Idle_Alt",
+   "Idle_HeadLow",
+   "Jump",
+   "Jump_Land",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.27,
+   0.99,
+   0.78
+  ],
+  "kb": 759
+ },
+ "sheepdog": {
+  "tris": 1920,
+  "bones": 30,
+  "anims": [
+   "Attack",
+   "Death",
+   "Eat",
+   "Hit",
+   "Hit_Alt",
+   "Idle",
+   "Idle_Alt",
+   "Idle_HeadLow",
+   "Jump",
+   "Jump_Land",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.25,
+   0.97,
+   0.8
+  ],
+  "kb": 755
+ }
+}

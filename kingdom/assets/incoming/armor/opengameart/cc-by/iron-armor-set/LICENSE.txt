@@ -1,0 +1,5 @@
+"Iron armor set" and "Basic male" by rogerdv (Alejandro CG, for The Key of the World project)
+Source: https://opengameart.org/content/iron-armor-set  and https://opengameart.org/content/basic-male
+Licence: CC-BY 3.0 https://creativecommons.org/licenses/by/3.0/
+ATTRIBUTION REQUIRED: "Iron armor set" by Alejandro CG (rogerdv), created for The Key of the World project, opengameart.org, CC-BY 3.0.
+Modified: converted to GLB, scaled to metres (x0.0724), texture rewired.

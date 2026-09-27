@@ -1,0 +1,4 @@
+"Orc barbarian" (ork.blend) by umask007
+Source: https://opengameart.org/content/orc-barbarian
+Licence: CC-BY 3.0 https://creativecommons.org/licenses/by/3.0/
+ATTRIBUTION REQUIRED: "Orc barbarian" by umask007 (opengameart.org), CC-BY 3.0. Modified: weapons removed, armour faces extracted, converted to GLB, scaled.

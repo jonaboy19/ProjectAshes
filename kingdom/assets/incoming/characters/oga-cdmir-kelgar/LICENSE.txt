@@ -1,0 +1,6 @@
+Old Lady and Monk by CDmir (collaborator TinyWorlds), made for the Kelgar project
+Sources: https://opengameart.org/content/old-lady  (oldlady-v2.blend)
+         https://opengameart.org/content/monk       (MONK_1.blend)
+Licence: CC0 1.0 Universal (public domain) - https://creativecommons.org/publicdomain/zero/1.0/
+Verified on the OpenGameArt pages on 2026-09-27.
+NOTE: the separate "Monk animated" by hwoarangmy is CC-BY-SA 3.0 and was deliberately NOT downloaded.

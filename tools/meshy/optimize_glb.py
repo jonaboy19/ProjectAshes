@@ -14,6 +14,9 @@ BUDGETS = {
     "house":    [("lod0", 20000, 1024), ("lod1", 6000, 512)],     # ordinary homes, sheds, stalls
     "prop":     [("lod0", 4000, 512),   ("lod1", 1200, 256)],     # barrels, carts, benches, signs
     "small":    [("lod0", 1500, 512),   ("lod1", 500, 256)],      # weapons, items, clutter
+    # thin geometry (stall canopies, awnings, poles) shreds when collapsed further:
+    # feed a Meshy remesh at ~4k in and keep the mesh, only shrink the texture for lod1
+    "thin":     [("lod0", 4000, 512),   ("lod1", 4000, 256)],
     "creature": [("lod0", 15000, 1024), ("lod1", 5000, 512)],     # rigged mobs (rig lod0 first)
 }
 
@@ -40,9 +43,18 @@ def tris(o):
 
 print("RAW", name, tris(obj))
 for tag, target, tex in BUDGETS[budget]:
-    if tris(obj) > target:
+    # Collapse stalls early on AI meshes full of loose islands, so repeat passes;
+    # if still over budget, weld small gaps and try again.
+    for attempt in range(8):
+        if tris(obj) <= target * 1.05:
+            break
+        if attempt == 4:
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.mesh.remove_doubles(threshold=0.002)
+            bpy.ops.object.mode_set(mode='OBJECT')
         m = obj.modifiers.new("dec", 'DECIMATE')
-        m.ratio = target / tris(obj)
+        m.ratio = max(0.05, target / tris(obj))
         m.use_collapse_triangulate = True
         bpy.ops.object.modifier_apply(modifier="dec")
     for img in bpy.data.images:

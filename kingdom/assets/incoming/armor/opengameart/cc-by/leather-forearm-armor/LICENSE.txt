@@ -1,0 +1,4 @@
+"Leather ForeArm Armor" by weaponguy
+Source: https://opengameart.org/content/leather-forearm-armor
+Licence: CC-BY 3.0 https://creativecommons.org/licenses/by/3.0/
+ATTRIBUTION REQUIRED: "Leather ForeArm Armor" by weaponguy (opengameart.org), CC-BY 3.0. Modified: converted to GLB, scaled.

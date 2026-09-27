@@ -37,6 +37,8 @@ B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"
 | small | 1.5k / 512 | 500 / 256 |
 | creature | 15k / 1024 | 5k / 512 |
 
+**When Blender decimation fails, use Meshy remesh (5 cr).** Thin geometry (stall canopies, poles, fences, awnings) gets shredded by collapse decimation, and loose-strand meshes (thatch roofs) stall above budget. Run `meshy_remesh` on the original Meshy task with `target_polycount` set to the LOD target, then pass the result through `optimize_glb.py` for the texture size. The texture is re-baked and the result is clean (this fixed the stalls and the peasant_a LOD1 on 2026-09-27). **Always look at the preview.** Triangle counts alone don't catch a shredded mesh.
+
 Characters: player ≤ 15k tris, NPC ≤ 6–8k, ≤ 60 bones. No Draco/meshopt (Godot can't read them). In Godot, use VRAM-compressed textures, visibility ranges for LOD switching, and instancing for repeated props.
 
 ## 5. Interiors

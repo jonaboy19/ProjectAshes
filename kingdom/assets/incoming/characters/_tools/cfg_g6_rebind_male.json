@@ -1,0 +1,101 @@
+{
+ "source": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/oga-system-g6-modular-rpg/modular_rpg_characters/human_male.blend",
+ "ual": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "map": {
+  "pelvis": "pelvis",
+  "spine_01": "torso",
+  "Head": "head",
+  "clavicle_l": "shoulder_L",
+  "upperarm_l": "arm_upper_L",
+  "lowerarm_l": "arm_lower_L",
+  "hand_l": "palm_L",
+  "thigh_l": "leg_upper_L",
+  "calf_l": "leg_lower_L",
+  "foot_l": "foot_L",
+  "ball_l": "toes_L",
+  "thumb_01_l": "thumb_upper_L",
+  "thumb_02_l": "thumb_lower_L",
+  "index_01_l": "index_upper_L",
+  "index_02_l": "index_lower_L",
+  "middle_01_l": "middle_upper_L",
+  "middle_02_l": "middle_lower_L",
+  "ring_01_l": "ring_upper_L",
+  "ring_02_l": "ring_lower_L",
+  "pinky_01_l": "pinky_upper_L",
+  "pinky_02_l": "pinky_lower_L",
+  "clavicle_r": "shoulder_R",
+  "upperarm_r": "arm_upper_R",
+  "lowerarm_r": "arm_lower_R",
+  "hand_r": "palm_R",
+  "thigh_r": "leg_upper_R",
+  "calf_r": "leg_lower_R",
+  "foot_r": "foot_R",
+  "ball_r": "toes_R",
+  "thumb_01_r": "thumb_upper_R",
+  "thumb_02_r": "thumb_lower_R",
+  "index_01_r": "index_upper_R",
+  "index_02_r": "index_lower_R",
+  "middle_01_r": "middle_upper_R",
+  "middle_02_r": "middle_lower_R",
+  "ring_01_r": "ring_upper_R",
+  "ring_02_r": "ring_lower_R",
+  "pinky_01_r": "pinky_upper_R",
+  "pinky_02_r": "pinky_lower_R"
+ },
+ "weights": "map",
+ "merge": {
+  "heel_L": "foot_l",
+  "heel_R": "foot_r",
+  "wep_pos_L": "hand_l",
+  "wep_pos_R": "hand_r"
+ },
+ "split": {
+  "torso": [
+   "spine_01",
+   "spine_02",
+   "spine_03"
+  ],
+  "head": [
+   "neck_01",
+   "Head"
+  ]
+ },
+ "variants": [
+  {
+   "name": "villager_tunic",
+   "show": "^human_male_(head_default|hands_default|hair_2|light_armor_2|light_boots_2)$"
+  },
+  {
+   "name": "blacksmith_apron",
+   "show": "^human_male_(head_4|hands_default|hair_4|light_armor_3|light_boots_2)$"
+  },
+  {
+   "name": "worker_apron",
+   "show": "^human_male_(head_6|hands_default|hair_6|light_armor_4|light_boots)$"
+  },
+  {
+   "name": "hunter_leather",
+   "show": "^human_male_(head_default|hair_1|medium_armor|medium_boots|medium_gloves)$"
+  },
+  {
+   "name": "modular_all",
+   "show": "^human_male_(body_default|feet_default|hands_default|head_\\w+|hair_\\d|light_\\w+|medium_(armor|boots|gloves))$"
+  }
+ ],
+ "out_dir": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/g6-ual",
+ "prefix": "g6_m_",
+ "autotex": true,
+ "max_tex": 1024,
+ "tint_images": {
+  "(head|hands|body)_": [
+   1.0,
+   0.9,
+   0.8
+  ],
+  "light_boots": [
+   0.7,
+   0.58,
+   0.44
+  ]
+ }
+}
