@@ -100,3 +100,7 @@ Commits 62c06d0e, 13c66309, 63db0337, 82f50dca, 77a1c958 and the perf/doc commit
   keeps the LODs.
 - **For the cloud (optional):** main.gd `_build_environment()` still enables SDFGI/SSIL/volumetric fog before
   Quality turns them off, which prints harmless "only available in Forward+" warnings on phones.
+
+## Codex natural-world/animation handoff (2026-09-27)
+
+The separate `gpt/ai3d-assets` branch has merged the latest Claude performance and audio commits. It keeps the Codex gait calibration and near-actor collision work, and adds eased starts/stops/turns for roaming animals plus a Blender-derived fox gallop. Read `docs/concepts/NATURAL_WORLD_CLAUDE_HANDOFF.md` for the implementation sequence and `docs/qa/animal_fox_review.html` for the source/derived animation comparison. The original fox GLB is unchanged; its derived clip reduces measured Tail1 stretch from 30.3% to 1.7%. Fox Run speed is still not verified by the foot-contact sampler. Please preserve the source asset and keep the remaining QA failure visible during future merges.

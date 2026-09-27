@@ -141,7 +141,10 @@ static func subjects() -> Array[Dictionary]:
 		var cfg: Array = CRITTERS[kind]
 		var clips := {"Idle": {"kind": "loop", "game": true}, "Walk": {"kind": "loco", "game": true},
 			"Run": {"kind": "loco", "game": true}, "Eat": {"kind": "loop", "game": true}}
-		out.append({"id": "animal_" + kind, "kind": "critter", "file": ANIMALS + String(cfg[0]), "height": 0.0,
+		var animal_file := String(cfg[0])
+		if not animal_file.begins_with("res://"):
+			animal_file = ANIMALS + animal_file
+		out.append({"id": "animal_" + kind, "kind": "critter", "file": animal_file, "height": 0.0,
 			"group": "animals", "clips": clips, "strips": ["Idle", "Walk", "Run", "Eat"], "biped": false, "face": 1.0,
 			"loops": ["Idle", "Walk", "Run", "Eat", "Walk_Slow"], "feet": []})
 	return out
@@ -160,7 +163,7 @@ const CRITTERS := {
 	"horse": ["quaternius/horse_riding.glb", 0.9, 5.0], "horse_grey": ["quaternius/horse_grey.glb", 0.9, 5.0],
 	"horse_draft": ["quaternius/horse_draft.glb", 0.8, 4.0], "donkey": ["quaternius/donkey.glb", 0.7, 3.0],
 	"deer": ["quaternius/deer.glb", 0.9, 7.0], "stag": ["quaternius/stag.glb", 0.9, 7.0],
-	"fox": ["quaternius/fox.glb", 0.8, 5.0],
+	"fox": ["res://assets/generated/animals/fox_gallop.glb", 0.8, 5.0],
 }
 
 ## Reliable clip ground speeds from docs/qa/anim_qa_report.md, in metres/sec.

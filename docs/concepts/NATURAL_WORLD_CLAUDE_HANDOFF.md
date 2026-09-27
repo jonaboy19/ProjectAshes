@@ -4,6 +4,12 @@
 
 **Branch context:** prepared on `gpt/ai3d-assets` after fetching `origin/claude/focused-curie-m09hbd` on 2026-09-27. Read `docs/LOCAL_SESSION_HANDOFF.md` before implementation and fetch/merge the latest Claude work first. The remote branch has a performance pass (`docs/qa/PERFORMANCE.md`) and location/time-aware audio director; coordinate around those live changes. Do not copy from the Codex checkout or force-push over either owner's branch.
 
+## Codex branch progress (2026-09-27)
+
+The latest Claude commits for performance and audio have been merged into `gpt/ai3d-assets`. The merge kept the calibrated humanoid gait speeds, near-player actor collision, and corrected terminal death clip while bringing in Claude's audio director and performance measurements. A focused animal pass now eases critter starts, stops and turns, then sets playback rate from actual eased movement speed. Blender QA also produced a derived fox gallop with the source `Tail1` vertical curve removed; measured tail stretch improved from 30.3% to 1.7% without changing the original CC0 GLB. See [`docs/qa/animal_fox_review.html`](../../qa/animal_fox_review.html) for the visual comparison and [`docs/qa/anim_qa_report_only_animal_fox.md`](../../qa/anim_qa_report_only_animal_fox.md) for the measured results.
+
+The route graph, visible-impostor obstacle guidance, resident-to-resident physical spacing, precise door/collider profiles, and full live-gameplay feel route remain open. The fox gallop still lacks a measurable planted-foot interval, and its walk clip still fails the slip threshold. Keep both gates visible in follow-up work.
+
 ## The experience to build
 
 The player should feel in control while the body has weight. A person should travel along a plausible route, slow down before a destination, make room in a crowd, and react briefly to nearby events before resuming their routine. Buildings and substantial props should stop the player and near characters, while doors, lanes, and plazas remain open. Distant people should keep the same broad schedule without paying the cost of a full physics character.

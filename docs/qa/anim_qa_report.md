@@ -16,6 +16,7 @@ The selected villager strip now samples the authored walk cycle at the same play
 - Villagers play the run clip when catching up and apply measured walk/run playback rates. The rate resets before idle and work activities. Footstep spacing follows clip cadence and playback rate.
 - Wolf speeds now match a believable creature gait, and fleeing speed stays below the player sprint so a wounded wolf can be caught. Goblin/orc rates and crossfades were adjusted against estimated species-scaled speeds.
 - Domestic animal clips with reliable foot-contact extraction receive speed-matched playback. Unreliable zero-contact clips remain visible as failures and need retargeting or manual review.
+- Critter locomotion now eases into and out of travel; gait playback rate follows actual eased movement speed, and facing response is frame-rate independent. A Blender-derived fox gallop removes the source `Tail1` vertical translation, reducing its measured stretch from 30.3% to 1.7%; the original CC0 GLB remains available. Visual comparison: [`animal_fox_review.html`](animal_fox_review.html). The fox run speed remains unverified because the contact sampler finds no grounded interval, and its walk still fails the slip threshold.
 - The QA speed checker includes `AnimationPlayer.speed_scale`. Full catalog: 984 clip checks (452 PASS, 179 WARN, 353 FAIL); 62 movement checks (34 PASS, 0 WARN, 28 FAIL).
 
 ### Still needs gameplay review
@@ -1720,4 +1721,3 @@ Columns: slide = p90 planted-foot slip (cm/s); pen = deepest point below the flo
 | Walk | FAIL | 27 | 1.9 | 0.0 | 0.00 | 0.0 | 0.0 | 0 | 0.0 | 0 | planted foot slips 27 cm/s (p75) |
 | Run | FAIL | - | 2.1 | 0.0 | 0.00 | 30.3 | 0.0 | 0 | 4.0 | 0 | 2.1 cm below floor (foot joint); no ground-contact frames found; bone 'Tail1' stretches 30.3 %; loop seam jumps 4.0 deg ('FrontLowerLeg.L') |
 | Eat | PASS | 5 | 1.5 | 0.0 | 0.00 | 0.0 | 0.0 | 0 | 0.0 | 0 |  |
-
