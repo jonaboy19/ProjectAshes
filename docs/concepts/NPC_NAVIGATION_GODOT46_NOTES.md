@@ -1,7 +1,8 @@
 # NPC movement: Godot 4.6 implementation notes
 
-**Audience:** Claude's gameplay branch `claude/focused-curie-m09hbd`  
-**Purpose:** turn the broad NPC and collision plan into a Godot-specific movement contract.  
+**Audience:** Claude's gameplay branch `claude/focused-curie-m09hbd`
+
+**Purpose:** turn the broad NPC and collision plan into a Godot-specific movement contract.
 **Reviewed game source:** `claude/focused-curie-m09hbd` at `e3563fc4`; refresh before implementing. This branch contains documentation and review artifacts only.
 
 ## Current movement ownership in the inspected source
