@@ -1,0 +1,13 @@
+name  tris  lod1_tris  natural_height_m  metres_per_model_unit
+villager_man_a 5349 2137 1.746 1.0163
+villager_man_b 5350 2140 1.780 1.0367
+villager_woman_a 5263 2104 1.612 0.8929
+villager_woman_b 5909 2363 1.521 0.8379
+elder_man 6199 2479 1.705 0.9785
+elder_woman 5945 2378 1.479 0.8036
+child_boy 5136 2053 1.355 0.7725
+child_girl 4835 1934 1.274 0.7151
+guard 5596 2238 1.863 1.0951
+player_young 5346 2138 1.662 0.9715
+mother 5259 2102 1.644 0.9122
+father 5348 2139 1.740 1.0117
