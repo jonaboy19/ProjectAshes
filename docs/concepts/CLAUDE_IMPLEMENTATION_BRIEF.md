@@ -6,12 +6,13 @@ This brief points to the evidence and proposes a safe implementation sequence. I
 
 1. [Natural world feel plan](NATURAL_WORLD_FEEL_PLAN.md) — full system design, phased work, and acceptance checklist.
 2. [Collision visual audit](COLLISION_VISUAL_AUDIT.html) and [method/notes](COLLISION_VISUAL_AUDIT.md) — current fitted building collider shapes and visible door/footprint issues.
-3. [NPC route audit](NPC_ROUTE_AUDIT.html) and [method/notes](NPC_ROUTE_AUDIT.md) — static Ashford target segments crossing collider footprints.
-4. [Locomotion speed review](LOCOMOTION_SPEED_REVIEW.html) and [findings](LOCOMOTION_SPEED_REVIEW.md), then [player blend-space audit](PLAYER_BLENDSPACE_AUDIT.html) — measured movement/clip mismatches.
-5. [NPC gait phase review](NPC_PHASE_REVIEW.html) — visual demonstration of synchronized versus per-actor walk-cycle phase.
-6. [Player impulse response review](PLAYER_IMPULSE_REVIEW.html) and [source notes](PLAYER_MECHANICS_RESPONSE_REVIEW.md) — calculated impact of applying a decaying knockback vector each physics tick.
-7. [NPC life-loop design](NPC_LIFE_LOOP_DESIGN.md) — state priorities, goal anchors, physical movement ownership, and playtest matrix.
-8. [Open-world pattern study](OPEN_WORLD_PATTERN_STUDY.md) — project patterns and source/license distinctions.
+3. [Collision facade review](COLLISION_FACADE_REVIEW.html) — four-sided views of the inn, blacksmith, healer house, and guild with current proxy dimensions overlaid.
+4. [NPC route audit](NPC_ROUTE_AUDIT.html) and [method/notes](NPC_ROUTE_AUDIT.md) — static Ashford target segments crossing collider footprints.
+5. [Locomotion speed review](LOCOMOTION_SPEED_REVIEW.html) and [findings](LOCOMOTION_SPEED_REVIEW.md), then [player blend-space audit](PLAYER_BLENDSPACE_AUDIT.html) — measured movement/clip mismatches.
+6. [NPC gait phase review](NPC_PHASE_REVIEW.html) — visual demonstration of synchronized versus per-actor walk-cycle phase.
+7. [Player impulse response review](PLAYER_IMPULSE_REVIEW.html) and [source notes](PLAYER_MECHANICS_RESPONSE_REVIEW.md) — calculated impact of applying a decaying knockback vector each physics tick.
+8. [NPC life-loop design](NPC_LIFE_LOOP_DESIGN.md) — state priorities, goal anchors, physical movement ownership, and playtest matrix.
+9. [Open-world pattern study](OPEN_WORLD_PATTERN_STUDY.md) — project patterns and source/license distinctions.
 
 ## Baseline and evidence
 

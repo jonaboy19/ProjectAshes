@@ -51,7 +51,7 @@ Add temporary or opt-in debug views during implementation: physics collision sha
 
 ### Phase 1 — Make geometry agree with what the player sees
 
-Start with the [Meshy collision visual audit](COLLISION_VISUAL_AUDIT.html) and its [findings](COLLISION_VISUAL_AUDIT.md). The orange boxes reproduce the current simple collider approximation at fitted game scale and flag the openings/covered spaces that need a runtime walk-through.
+Start with the [Meshy collision visual audit](COLLISION_VISUAL_AUDIT.html), the [four-sided hero building facade review](COLLISION_FACADE_REVIEW.html), and its [findings](COLLISION_VISUAL_AUDIT.md). The orange boxes reproduce the current simple collider approximation at fitted game scale and flag the openings/covered spaces that need a runtime walk-through.
 
 Create a small asset collision profile keyed by the existing building/prop asset key. Keep render meshes and collision profiles separate. For each common asset, inspect its visible silhouette, intended entrances, eaves/awnings, porch, stairs, and pass-through openings. Prefer a few boxes/capsules in local asset space; use a C-shaped or segmented wall profile around an open doorway. Rotate the profile with the same lot yaw and align its base with the existing fitted model bounds.
 

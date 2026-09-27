@@ -4,6 +4,8 @@
 
 Open [`COLLISION_VISUAL_AUDIT.html`](COLLISION_VISUAL_AUDIT.html) to compare each fitted mesh with a wireframe of the current collider. It works from the checkout without external services. Every card has a three-quarter view and a top view.
 
+For a closer check of the main entrances and facades, open the [four-sided hero building review](COLLISION_FACADE_REVIEW.html). It covers the inn, blacksmith, healer house, and adventurer guild with the same proxy dimensions.
+
 ## What is shown
 
 The previews use the current Meshy LOD0 GLBs, scale their longest horizontal dimension to the target metres in `kingdom/scripts/world/assets.gd`, center the footprint, and place the mesh base on the ground. Orange wireframes visualize the collider shape used by `SettlementBuilder`: a box 80% of the mesh AABB in both horizontal dimensions and 100% of its height. The model is rendered in a neutral material so the geometry and openings are easier to inspect.
