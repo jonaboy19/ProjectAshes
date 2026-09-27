@@ -20,7 +20,12 @@ const UBC := Q + "universal-base-characters/"
 const OUTFITS := Q + "modular-character-outfits-fantasy/Exports/glTF (Godot-Unreal)/Outfits/"
 const HAIR := UBC + "Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/"
 const UAL_FILES := [Q + "universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
-	Q + "universal-animation-library-2/Unreal-Godot/UAL2_Standard.glb"]
+	Q + "universal-animation-library-2/Unreal-Godot/UAL2_Standard.glb",
+	# 119 extra CC0 clips retargeted onto UAL (incoming/characters/README.md, "Recommendation"):
+	# dodges, deaths, bow/crossbow, climb, two-handed, farm work, fishing, social.
+	"res://assets/incoming/characters/_library/UAL_Extra_Mesh2Motion.glb",
+	"res://assets/incoming/characters/_library/UAL_Extra_Mocap.glb",
+	"res://assets/incoming/characters/_library/UAL_Extra_G6_male.glb"]
 const WEAPONS := Q + "fantasy-props-megakit/Exports/glTF/"
 const HELMET := Q + "lowpoly-animated-knight/FBX/Helmet1.fbx"
 ## Old KayKit clip names -> UAL clips, so gameplay code keeps using one vocabulary.
@@ -127,8 +132,8 @@ const NATURE := {
 
 static var _mesh_cache: Dictionary = {}
 static var _building_cache: Dictionary = {}
-static var _ual_library: AnimationLibrary
-static var _ual_skeleton_path := ""
+## One clip library per skeleton path (MakeHuman, G6/CDmir and Meshy rigs differ), built once.
+static var _ual_cache := {}
 static var _trimmed_bodies: Dictionary = {}
 const HAIR_COLORS := [Color("2b1d14"), Color("4a3020"), Color("6b4a2b"), Color("a67b4b"), Color("1a1a1a"), Color("8a3b1c"), Color("c9a86b")]
 ## Base-body bones kept when clothing is worn (the rest would clip through outfits).
@@ -478,8 +483,8 @@ static func _rig_scale(skeleton: Skeleton3D) -> float:
 ## UAL clips with track paths rewritten for this skeleton path, plus aliases. Cached.
 static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 	var sk := String(skeleton_path)
-	if _ual_library and _ual_skeleton_path == sk:
-		return _ual_library
+	if _ual_cache.has(sk):
+		return _ual_cache[sk]
 	var lib := AnimationLibrary.new()
 	for file: String in UAL_FILES:
 		var inst: Node = (load(file) as PackedScene).instantiate()
@@ -501,8 +506,7 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 		if lib.has_animation(target) and not lib.has_animation(alias):
 			# A separate copy: the mixer caches tracks per Animation resource.
 			lib.add_animation(alias, lib.get_animation(target).duplicate(true))
-	_ual_library = lib
-	_ual_skeleton_path = sk
+	_ual_cache[sk] = lib
 	return lib
 
 
