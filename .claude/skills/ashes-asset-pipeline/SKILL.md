@@ -48,3 +48,9 @@ Meshy buildings are solid shells. A door triggers loading a **separate interior 
 - **Look** at the turnaround render with Read before calling it done. Check it matches the style and has no holes, floating parts or smeared backs.
 - Output goes to `kingdom/assets/incoming/ai3d/meshy/` (Meshy) or the matching incoming pack; previews go in `_previews/`.
 - Commit to `claude/focused-curie-m09hbd` (shared with the cloud session). `git pull --ff-only` first. Keep every file under 90 MB.
+
+## Parallel agents: rules
+- **Never** kill Blender globally (`taskkill /IM blender.exe`). Other agents run headless Blender jobs at the same time. Kill only your own process by its PID.
+- The Meshy account is shared, so check the balance before and after and report only your own task costs (log them in `tasks.tsv`).
+- Agents don't commit. The main session reviews the previews and commits specific paths.
+- Rigged monsters are in `ai3d/meshy/creatures/`. Meshy biped rigs strip Hips scale keys (Meshy idle clips scale the hips by about 1.18). Quadrupeds reuse the CC0 Quaternius Ultimate Animated Animals rigs. See `tools/meshy/creature_rig/`.
