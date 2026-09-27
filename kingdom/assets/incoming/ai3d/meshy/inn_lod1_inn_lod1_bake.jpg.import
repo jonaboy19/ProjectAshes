@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dtq44bruw0tr0"
-path="res://.godot/imported/inn_lod1_inn_lod1_bake.jpg-6202deec074ea4da077b91d35130b3f9.ctex"
+path.s3tc="res://.godot/imported/inn_lod1_inn_lod1_bake.jpg-6202deec074ea4da077b91d35130b3f9.s3tc.ctex"
+path.etc2="res://.godot/imported/inn_lod1_inn_lod1_bake.jpg-6202deec074ea4da077b91d35130b3f9.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "c517e807182145a3d7158f87683da612"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/inn_lod1_inn_lod1_bake.jpg"
-dest_files=["res://.godot/imported/inn_lod1_inn_lod1_bake.jpg-6202deec074ea4da077b91d35130b3f9.ctex"]
+dest_files=["res://.godot/imported/inn_lod1_inn_lod1_bake.jpg-6202deec074ea4da077b91d35130b3f9.s3tc.ctex", "res://.godot/imported/inn_lod1_inn_lod1_bake.jpg-6202deec074ea4da077b91d35130b3f9.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

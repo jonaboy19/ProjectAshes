@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cvh7g7habmys2"
-path="res://.godot/imported/guild_lod0_Image_0.jpg-b83928e769d2af1b299e8ec18539ac65.ctex"
+path.s3tc="res://.godot/imported/guild_lod0_Image_0.jpg-b83928e769d2af1b299e8ec18539ac65.s3tc.ctex"
+path.etc2="res://.godot/imported/guild_lod0_Image_0.jpg-b83928e769d2af1b299e8ec18539ac65.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "6b545c63abca09f6eb32b07c86e78eab"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/guild_lod0_Image_0.jpg"
-dest_files=["res://.godot/imported/guild_lod0_Image_0.jpg-b83928e769d2af1b299e8ec18539ac65.ctex"]
+dest_files=["res://.godot/imported/guild_lod0_Image_0.jpg-b83928e769d2af1b299e8ec18539ac65.s3tc.ctex", "res://.godot/imported/guild_lod0_Image_0.jpg-b83928e769d2af1b299e8ec18539ac65.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

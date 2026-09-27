@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://kqrx6wslevy5"
-path="res://.godot/imported/g6_f_worker_apron_tex_human_female_head_2.png-090e1640f58b50504d957ddb784d16e0.ctex"
+path.s3tc="res://.godot/imported/g6_f_worker_apron_tex_human_female_head_2.png-090e1640f58b50504d957ddb784d16e0.s3tc.ctex"
+path.etc2="res://.godot/imported/g6_f_worker_apron_tex_human_female_head_2.png-090e1640f58b50504d957ddb784d16e0.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "69ef6f2556f6b30909cc9817efbdd58a"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_f_worker_apron_tex_human_female_head_2.png"
-dest_files=["res://.godot/imported/g6_f_worker_apron_tex_human_female_head_2.png-090e1640f58b50504d957ddb784d16e0.ctex"]
+dest_files=["res://.godot/imported/g6_f_worker_apron_tex_human_female_head_2.png-090e1640f58b50504d957ddb784d16e0.s3tc.ctex", "res://.godot/imported/g6_f_worker_apron_tex_human_female_head_2.png-090e1640f58b50504d957ddb784d16e0.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://j5db0uf0xoor"
-path="res://.godot/imported/cdmir_monk_monk-tuc-head.png-d301028942f96d0197457f765d553eb1.ctex"
+path.s3tc="res://.godot/imported/cdmir_monk_monk-tuc-head.png-d301028942f96d0197457f765d553eb1.s3tc.ctex"
+path.etc2="res://.godot/imported/cdmir_monk_monk-tuc-head.png-d301028942f96d0197457f765d553eb1.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8c96942c77bd0f8309aecccdd6830923"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/cdmir-ual/cdmir_monk_monk-tuc-head.png"
-dest_files=["res://.godot/imported/cdmir_monk_monk-tuc-head.png-d301028942f96d0197457f765d553eb1.ctex"]
+dest_files=["res://.godot/imported/cdmir_monk_monk-tuc-head.png-d301028942f96d0197457f765d553eb1.s3tc.ctex", "res://.godot/imported/cdmir_monk_monk-tuc-head.png-d301028942f96d0197457f765d553eb1.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

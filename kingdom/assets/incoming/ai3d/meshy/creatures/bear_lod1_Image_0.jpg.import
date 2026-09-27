@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://do432ne5cceeg"
-path="res://.godot/imported/bear_lod1_Image_0.jpg-ebc3e09117e96d17b4c498dfc23fd85f.ctex"
+path.s3tc="res://.godot/imported/bear_lod1_Image_0.jpg-ebc3e09117e96d17b4c498dfc23fd85f.s3tc.ctex"
+path.etc2="res://.godot/imported/bear_lod1_Image_0.jpg-ebc3e09117e96d17b4c498dfc23fd85f.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "f5cb1c10d6cb65af1ce7f81d5c342c7a"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/creatures/bear_lod1_Image_0.jpg"
-dest_files=["res://.godot/imported/bear_lod1_Image_0.jpg-ebc3e09117e96d17b4c498dfc23fd85f.ctex"]
+dest_files=["res://.godot/imported/bear_lod1_Image_0.jpg-ebc3e09117e96d17b4c498dfc23fd85f.s3tc.ctex", "res://.godot/imported/bear_lod1_Image_0.jpg-ebc3e09117e96d17b4c498dfc23fd85f.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

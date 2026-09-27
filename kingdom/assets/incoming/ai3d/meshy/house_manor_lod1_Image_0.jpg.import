@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://kxddv0of2vaj"
-path="res://.godot/imported/house_manor_lod1_Image_0.jpg-b04a63001130181d6bfa9026b06a827b.ctex"
+path.s3tc="res://.godot/imported/house_manor_lod1_Image_0.jpg-b04a63001130181d6bfa9026b06a827b.s3tc.ctex"
+path.etc2="res://.godot/imported/house_manor_lod1_Image_0.jpg-b04a63001130181d6bfa9026b06a827b.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "1cd5ebf30fb98c6b8dc99411f9c36f9d"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/house_manor_lod1_Image_0.jpg"
-dest_files=["res://.godot/imported/house_manor_lod1_Image_0.jpg-b04a63001130181d6bfa9026b06a827b.ctex"]
+dest_files=["res://.godot/imported/house_manor_lod1_Image_0.jpg-b04a63001130181d6bfa9026b06a827b.s3tc.ctex", "res://.godot/imported/house_manor_lod1_Image_0.jpg-b04a63001130181d6bfa9026b06a827b.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

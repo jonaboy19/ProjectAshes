@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://daiclf1jrrixm"
-path="res://.godot/imported/house_peasant_a_lod2_house_peasant_a_lod2_bake.jpg-18640678265dc40c6a5daa0e38168353.ctex"
+path.s3tc="res://.godot/imported/house_peasant_a_lod2_house_peasant_a_lod2_bake.jpg-18640678265dc40c6a5daa0e38168353.s3tc.ctex"
+path.etc2="res://.godot/imported/house_peasant_a_lod2_house_peasant_a_lod2_bake.jpg-18640678265dc40c6a5daa0e38168353.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8bbb8288b2b1628550094959799e4fa3"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/house_peasant_a_lod2_house_peasant_a_lod2_bake.jpg"
-dest_files=["res://.godot/imported/house_peasant_a_lod2_house_peasant_a_lod2_bake.jpg-18640678265dc40c6a5daa0e38168353.ctex"]
+dest_files=["res://.godot/imported/house_peasant_a_lod2_house_peasant_a_lod2_bake.jpg-18640678265dc40c6a5daa0e38168353.s3tc.ctex", "res://.godot/imported/house_peasant_a_lod2_house_peasant_a_lod2_bake.jpg-18640678265dc40c6a5daa0e38168353.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

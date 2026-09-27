@@ -59,8 +59,8 @@ const MESHY := "res://assets/incoming/ai3d/meshy/"
 const BUILDINGS := {
 	# Hero buildings generated with Meshy from the concept sheets (user, see
 	# docs/art_reference/concept_*.png), decimated to lod0/lod1 by tools/meshy.
-	"adventurer_guild": [MESHY + "guild_lod0.glb", 16.0, MESHY + "guild_lod1.glb", 70.0, MESHY + "guild_lod2.glb", 150.0],
-	"healer_house": [MESHY + "healer_lod0.glb", 9.5, MESHY + "healer_lod1.glb", 70.0, MESHY + "healer_lod2.glb", 150.0],
+	"adventurer_guild": [MESHY + "guild_lod0.glb", 16.0, MESHY + "guild_lod1.glb", 70.0, MESHY + "guild_lod2.glb", 150.0, MESHY + "guild_lod3.glb", 220.0],
+	"healer_house": [MESHY + "healer_lod0.glb", 9.5, MESHY + "healer_lod1.glb", 70.0, MESHY + "healer_lod2.glb", 150.0, MESHY + "healer_lod3.glb", 220.0],
 	"house_1": [GEN + "village_house_a.glb", 0.0, GEN + "village_house_a_lod1.glb", 45.0],
 	"house_2": [GEN + "village_house_b.glb", 0.0, GEN + "village_house_b_lod1.glb", 45.0],
 	"house_3": [GEN + "village_house_c.glb", 0.0, GEN + "village_house_c_lod1.glb", 45.0],
@@ -78,13 +78,13 @@ const BUILDINGS := {
 	"house_15": [GEN + "village_house_c_4.glb", 0.0, GEN + "village_house_c_4_lod1.glb", 45.0],
 	"house_16": [GEN + "village_house_d_4.glb", 0.0, GEN + "village_house_d_4_lod1.glb", 45.0],
 	# Meshy house types (user, paid plan): fitted to the 10.5 m lots.
-	"mhouse_peasant_a": [MESHY + "house_peasant_a_lod0.glb", 7.5, MESHY + "house_peasant_a_lod1.glb", 45.0, MESHY + "house_peasant_a_lod2.glb", 100.0],
-	"mhouse_peasant_b": [MESHY + "house_peasant_b_lod0.glb", 8.0, MESHY + "house_peasant_b_lod1.glb", 45.0, MESHY + "house_peasant_b_lod2.glb", 100.0],
-	"mhouse_family": [MESHY + "house_family_lod0.glb", 9.0, MESHY + "house_family_lod1.glb", 45.0, MESHY + "house_family_lod2.glb", 100.0],
-	"mhouse_trader": [MESHY + "house_trader_lod0.glb", 8.5, MESHY + "house_trader_lod1.glb", 45.0, MESHY + "house_trader_lod2.glb", 100.0],
-	"mhouse_manor": [MESHY + "house_manor_lod0.glb", 10.0, MESHY + "house_manor_lod1.glb", 45.0, MESHY + "house_manor_lod2.glb", 110.0],
-	"inn": [MESHY + "inn_lod0.glb", 13.5, MESHY + "inn_lod1.glb", 70.0, MESHY + "inn_lod2.glb", 150.0],
-	"blacksmith": [MESHY + "blacksmith_lod0.glb", 11.0, MESHY + "blacksmith_lod1.glb", 70.0, MESHY + "blacksmith_lod2.glb", 150.0],
+	"mhouse_peasant_a": [MESHY + "house_peasant_a_lod0.glb", 7.5, MESHY + "house_peasant_a_lod1.glb", 45.0, MESHY + "house_peasant_a_lod2.glb", 100.0, MESHY + "house_peasant_a_lod3.glb", 160.0],
+	"mhouse_peasant_b": [MESHY + "house_peasant_b_lod0.glb", 8.0, MESHY + "house_peasant_b_lod1.glb", 45.0, MESHY + "house_peasant_b_lod2.glb", 100.0, MESHY + "house_peasant_b_lod3.glb", 160.0],
+	"mhouse_family": [MESHY + "house_family_lod0.glb", 9.0, MESHY + "house_family_lod1.glb", 45.0, MESHY + "house_family_lod2.glb", 100.0, MESHY + "house_family_lod3.glb", 160.0],
+	"mhouse_trader": [MESHY + "house_trader_lod0.glb", 8.5, MESHY + "house_trader_lod1.glb", 45.0, MESHY + "house_trader_lod2.glb", 100.0, MESHY + "house_trader_lod3.glb", 160.0],
+	"mhouse_manor": [MESHY + "house_manor_lod0.glb", 10.0, MESHY + "house_manor_lod1.glb", 45.0, MESHY + "house_manor_lod2.glb", 110.0, MESHY + "house_manor_lod3.glb", 160.0],
+	"inn": [MESHY + "inn_lod0.glb", 13.5, MESHY + "inn_lod1.glb", 70.0, MESHY + "inn_lod2.glb", 150.0, MESHY + "inn_lod3.glb", 220.0],
+	"blacksmith": [MESHY + "blacksmith_lod0.glb", 11.0, MESHY + "blacksmith_lod1.glb", 70.0, MESHY + "blacksmith_lod2.glb", 150.0, MESHY + "blacksmith_lod3.glb", 220.0],
 	"stable": [GEN + "village_barn.glb", 0.0, GEN + "village_barn_lod1.glb", 45.0],
 	"sawmill": [VILLAGE + "Buildings/FBX/Sawmill.fbx", 12.0],
 	"mill": [VILLAGE + "Buildings/FBX/Mill.fbx", 11.0],
@@ -96,7 +96,7 @@ const BUILDINGS := {
 	"market_stand_4": [GEN + "village_stall_4.glb", 0.0],
 	"planter_box": [GEN + "planter_box.glb", 0.0],
 	"flower_bed": [GEN + "flower_bed.glb", 0.0],
-	"fence": [GEN + "fence_section.glb", 0.0],
+	"fence": [GEN + "region/farm/fence_rail.glb", 3.1],   # painterly rail fence, 72 tris (was 594)
 	"well": [GEN + "village_well.glb", 0.0],
 	"cart": [GEN + "market_cart.glb", 0.0],
 	"hand_cart": [GEN + "hand_cart.glb", 0.0],
@@ -564,22 +564,34 @@ static func building_lod_mesh(key: String) -> ArrayMesh:
 	return building_mesh(key + ":lod1")
 
 
-## Third, lightest version (Meshy buildings: 3.5-7k tris, 512 px baked texture), or null.
-static func building_lod2_mesh(key: String) -> ArrayMesh:
-	return building_mesh(key + ":lod2") if BUILDINGS.get(key, []).size() > 5 else null
+## Meshy buildings: [lod0, size, lod1, d1, lod2, d2, lod3, d3]. LOD2 = 3.5-7k tris /
+## 512 px, LOD3 = 0.9-1.6k tris / 256 px (baked by tools/meshy/bake_lod.py).
+## Mesh of LOD `level` (1-3), or null if the building has no such level.
+static func building_lod_level_mesh(key: String, level: int) -> ArrayMesh:
+	if BUILDINGS.get(key, []).size() <= level * 2:
+		return null
+	return building_mesh(key + ":lod%d" % level)
 
 
-## Distance where a building swaps from its LOD1 to its LOD2 (0 = no LOD2).
-static func building_lod2_distance(key: String) -> float:
+## Distance where a building switches to LOD `level` (0 = no such level).
+static func building_lod_level_distance(key: String, level: int) -> float:
 	var entry: Array = BUILDINGS.get(key, [])
-	return float(entry[5]) if entry.size() > 5 else 0.0
+	return float(entry[level * 2 + 1]) if entry.size() > level * 2 + 1 else 0.0
+
+
+static func building_lod2_mesh(key: String) -> ArrayMesh:
+	return building_lod_level_mesh(key, 2)
+
+
+static func building_lod2_distance(key: String) -> float:
+	return building_lod_level_distance(key, 2)
 
 
 static func building_mesh(key: String) -> ArrayMesh:
 	if _building_cache.has(key):
 		return _building_cache[key]
-	var lod := 2 if key.ends_with(":lod2") else (1 if key.ends_with(":lod1") else 0)
-	var entry: Array = BUILDINGS[key.trim_suffix(":lod1").trim_suffix(":lod2")]
+	var lod := int(key.get_slice(":lod", 1)) if key.contains(":lod") else 0
+	var entry: Array = BUILDINGS[key.get_slice(":lod", 0)]
 	var path: String = entry[lod * 2]
 	var mesh := merged_mesh(path)
 	if mesh == null:
@@ -685,16 +697,53 @@ static func _windy_leaves(mesh: ArrayMesh) -> void:
 		mesh.surface_set_material(i, _leaf_materials[m])
 
 
+## Region nature GLBs carry wind data in COLOR_0 (R sway, G phase, B AO), so their
+## RG_* materials must be the wind ShaderMaterials next to them; the imported
+## StandardMaterial3D would multiply COLOR into albedo (black trunks, red leaves).
+const REGION_NATURE := "res://assets/generated/region/nature/"
+static func _region_materials(mesh: ArrayMesh, key: String) -> void:
+	var ground := key.contains("grass") or key.contains("flower") or key.contains("fern")
+	for i in mesh.get_surface_count():
+		var m := mesh.surface_get_material(i)
+		var n := String(m.resource_name) if m else ""
+		var tres := ""
+		if n.begins_with("RG_Foliage"):
+			tres = "rg_foliage_ground.tres" if ground else "rg_foliage.tres"
+		elif n.begins_with("RG_Bark"):
+			tres = "rg_bark.tres"
+		elif n.begins_with("RG_Rock"):
+			tres = "rg_rock.tres"
+		elif n.begins_with("RG_Moss"):
+			tres = "rg_moss.tres"
+		elif n.begins_with("RG_Impostor") and m is BaseMaterial3D:
+			# Lighting is baked into the impostor cards: unshaded matches LOD1 best.
+			if not _leaf_materials.has(m):
+				var imp := (m as BaseMaterial3D).duplicate() as BaseMaterial3D
+				imp.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+				imp.vertex_color_use_as_albedo = false
+				_leaf_materials[m] = imp
+			mesh.surface_set_material(i, _leaf_materials[m])
+		if tres != "":
+			mesh.surface_set_material(i, load(REGION_NATURE + tres))
+
+
 static func nature_mesh(key: String) -> ArrayMesh:
 	var cache_key := "nature:" + key
 	if _building_cache.has(cache_key):
 		return _building_cache[cache_key]
 	# "scan/<name>" = decimated Poly Haven photo-scan (tools/blender/decimate_scans.py);
 	# "nature/<name>" = Blender-generated trees and plants (tools/blender/make_nature.py). Real scale.
-	var is_scan := key.begins_with("scan/") or key.begins_with("nature/")
+	# "region/nature/<name>[_lod1|_lod2]" = painterly region set (generated/region/README.md):
+	# real scale, origin already at the base centre, wind materials from its import, own LOD files.
+	var region := key.begins_with("region/")
+	var is_scan := key.begins_with("scan/") or key.begins_with("nature/") or region
 	var mesh := merged_mesh("res://assets/generated/" + key + ".glb" if is_scan else NATURE_DIR + key + ".gltf")
 	if mesh == null:
 		return null
+	if region:
+		_region_materials(mesh, key)
+		_building_cache[cache_key] = mesh
+		return mesh
 	if key.begins_with("nature/"):
 		_windy_leaves(mesh)
 	var box := mesh.get_aabb()

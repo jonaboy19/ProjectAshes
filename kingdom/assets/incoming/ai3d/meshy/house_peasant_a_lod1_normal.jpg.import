@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://drs5kgg41aewl"
-path="res://.godot/imported/house_peasant_a_lod1_normal.jpg-832578671c6221e06085be2f431b36c9.ctex"
+path.s3tc="res://.godot/imported/house_peasant_a_lod1_normal.jpg-832578671c6221e06085be2f431b36c9.s3tc.ctex"
+path.etc2="res://.godot/imported/house_peasant_a_lod1_normal.jpg-832578671c6221e06085be2f431b36c9.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9dc39250f8b81aebe70515f68f773fe6"
@@ -14,17 +16,17 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/house_peasant_a_lod1_normal.jpg"
-dest_files=["res://.godot/imported/house_peasant_a_lod1_normal.jpg-832578671c6221e06085be2f431b36c9.ctex"]
+dest_files=["res://.godot/imported/house_peasant_a_lod1_normal.jpg-832578671c6221e06085be2f431b36c9.s3tc.ctex", "res://.godot/imported/house_peasant_a_lod1_normal.jpg-832578671c6221e06085be2f431b36c9.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

@@ -3,6 +3,8 @@ extends Node3D
 
 ## Distance where Meshy hero buildings swap to their light LOD.
 const HERO_LOD := 70.0
+## Buildings and greenery are batched per model per LOD_CELL x LOD_CELL metres.
+const LOD_CELL := 40.0
 ## Builds settlements from their CityPlanner layout when the focus comes within
 ## BUILD_RANGE and frees them past FREE_RANGE. Buildings of the same model are
 ## drawn as one MultiMesh (a capital has ~300 buildings but only ~15 draw
@@ -50,15 +52,18 @@ func _build(s: Dictionary) -> Node3D:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 9001 + s["id"]
 
-	# Houses and shops, batched by model.
+	# Houses and shops, batched by model and LOD_CELL: a MultiMesh switches LOD as a
+	# whole (by its bounds' centre), so one town-wide batch drew every house at the
+	# near LOD; per-cell batches let the far side of town use LOD2/LOD3.
 	var batches := {}
 	for lot in plan["lots"]:
-		var asset: String = lot["asset"]
-		if not batches.has(asset):
-			batches[asset] = []
 		var p: Vector2 = lot["pos"]
+		var asset: String = lot["asset"]
+		var bkey := "%s@%d,%d" % [asset, floori(p.x / LOD_CELL), floori(p.y / LOD_CELL)]
+		if not batches.has(bkey):
+			batches[bkey] = []
 		var t := Transform3D(Basis(Vector3.UP, lot["yaw"]), Vector3(p.x, base_h, p.y))
-		batches[asset].append(t)
+		batches[bkey].append(t)
 		var size := _footprint(asset)
 		var body := StaticBody3D.new()
 		var shape := CollisionShape3D.new()
@@ -69,39 +74,38 @@ func _build(s: Dictionary) -> Node3D:
 		body.rotation.y = lot["yaw"]
 		body.add_child(shape)
 		root.add_child(body)
-	for asset: String in batches:
+	for bkey: String in batches:
+		var asset := bkey.get_slice("@", 0)
 		var list: Array[Transform3D] = []
-		list.assign(batches[asset])
+		list.assign(batches[bkey])
 		var lod := Assets.building_lod_mesh(asset)
 		if lod:
-			# Detailed hero model up close, its light version beyond HERO_LOD metres,
-			# and (Meshy buildings) a third, 3.5-7k-tri version past the LOD2 distance.
+			# LOD chain as MultiMeshes with hard range switches: detailed model up close,
+			# its light version beyond HERO_LOD / the entry's distance, and (Meshy
+			# buildings) LOD2 (3.5-7k tris) and LOD3 (~1k tris) further out.
 			# LOW (old phones) never loads the 20-40k LOD0: LOD1 up close, LOD2 past
-			# ~25 m (45 m x LOW's 0.55 range scale). Applies to towns built after a tier change.
-			var lod2 := Assets.building_lod2_mesh(asset)
-			var low := lod2 != null and _low()
-			var lod_d := Assets.building_lod_distance(asset)
-			if lod_d <= 0.0:
-				lod_d = HERO_LOD
+			# ~25 m, LOD3 past ~55 m (45 / 100 m x LOW's 0.55 range scale).
+			# Applies to towns built after a tier change.
+			var low := Assets.building_lod2_mesh(asset) != null and _low()
+			var chain: Array = []      # [mesh, begin distance]
+			var d1 := Assets.building_lod_distance(asset)
+			if d1 <= 0.0:
+				d1 = HERO_LOD
 			if low:
-				lod_d = minf(lod_d, 45.0)
-			var near_mm := _multimesh(root, lod if low else Assets.building_mesh(asset), list)
-			var far_mm := _multimesh(root, lod2 if low else lod, list, false)
-			near_mm.visibility_range_end = lod_d
-			near_mm.visibility_range_end_margin = 10.0
-			near_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
-			far_mm.visibility_range_begin = lod_d
-			far_mm.visibility_range_begin_margin = 10.0
-			far_mm.visibility_range_end = 0.0
-			far_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
-			if lod2 and not low:
-				var lod2_d := Assets.building_lod2_distance(asset)
-				far_mm.visibility_range_end = lod2_d
-				far_mm.visibility_range_end_margin = 10.0
-				var far2_mm := _multimesh(root, lod2, list, false)
-				far2_mm.visibility_range_begin = lod2_d
-				far2_mm.visibility_range_begin_margin = 10.0
-				far2_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+				chain = [[lod, 0.0], [Assets.building_lod_level_mesh(asset, 2), 45.0], [Assets.building_lod_level_mesh(asset, 3), 100.0]]
+			else:
+				chain = [[Assets.building_mesh(asset), 0.0], [lod, d1]]
+				for lv in [2, 3]:
+					if Assets.building_lod_level_mesh(asset, lv):
+						chain.append([Assets.building_lod_level_mesh(asset, lv), Assets.building_lod_level_distance(asset, lv)])
+			chain = chain.filter(func(c: Array) -> bool: return c[0] != null)
+			for i in chain.size():
+				var mm := _multimesh(root, chain[i][0], list, i == 0)
+				mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+				mm.visibility_range_begin = chain[i][1]
+				mm.visibility_range_begin_margin = 10.0 if i > 0 else 0.0
+				mm.visibility_range_end = chain[i + 1][1] if i + 1 < chain.size() else 0.0
+				mm.visibility_range_end_margin = 10.0 if i + 1 < chain.size() else 0.0
 		else:
 			_multimesh(root, Assets.building_mesh(asset), list)
 		_chimney_smoke(root, asset, list, rng)
@@ -187,6 +191,7 @@ func _build(s: Dictionary) -> Node3D:
 	_multimesh(root, Assets.nature_mesh("scan/wooden_crate_01"), street_clutter.slice(10, 18))
 	_multimesh(root, Assets.nature_mesh("scan/wicker_basket_01"), street_clutter.slice(18, 24))
 	_multimesh(root, Assets.building_mesh("cart"), street_clutter.slice(24))
+	_flush_contact_shadows(root)
 	return root
 
 
@@ -296,29 +301,49 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 static var _blob_mesh: PlaneMesh
 
 
-func _contact_shadows(parent: Node3D, box: AABB, transforms: Array[Transform3D], cull: float) -> void:
+## Contact-shadow quads are batched per settlement (one draw per cull class and
+## 48 m cell instead of one per model kind: ~30 -> ~8 draws in a village) and
+## written out by _flush_contact_shadows() at the end of _build().
+var _blob_batch := {}     # Vector3i(cell x, cell z, cull) -> Array[Transform3D]
+
+
+func _contact_shadows(_parent: Node3D, box: AABB, transforms: Array[Transform3D], cull: float) -> void:
+	var centre := Vector3(box.get_center().x, 0.0, box.get_center().z)
+	var size := Vector3(box.size.x * 1.35 + 0.6, 1.0, box.size.z * 1.35 + 0.6)
+	# Big-range blobs (houses) can share one batch per town; small props stay in cells
+	# so their short visibility range still works per neighbourhood.
+	var cell := 48.0 if cull > 0.0 and cull < 300.0 else 100000.0
+	for t: Transform3D in transforms:
+		var b := t.basis * Basis.from_scale(size)
+		var o := t * centre + Vector3(0, 0.04, 0)
+		var k := Vector3i(floori(o.x / cell), floori(o.z / cell), int(cull))
+		if not _blob_batch.has(k):
+			_blob_batch[k] = []
+		(_blob_batch[k] as Array).append(Transform3D(b, o))
+
+
+func _flush_contact_shadows(parent: Node3D) -> void:
 	if _blob_mesh == null:
 		_blob_mesh = PlaneMesh.new()
 		_blob_mesh.size = Vector2.ONE
 		var mat := ShaderMaterial.new()
 		mat.shader = preload("res://shaders/contact_shadow.gdshader")
 		_blob_mesh.material = mat
-	var mm := MultiMesh.new()
-	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.mesh = _blob_mesh
-	mm.instance_count = transforms.size()
-	var centre := Vector3(box.get_center().x, 0.0, box.get_center().z)
-	var size := Vector3(box.size.x * 1.35 + 0.6, 1.0, box.size.z * 1.35 + 0.6)
-	for i in transforms.size():
-		var t: Transform3D = transforms[i]
-		var b := t.basis * Basis.from_scale(size)
-		mm.set_instance_transform(i, Transform3D(b, t * centre + Vector3(0, 0.04, 0)))
-	var mmi := MultiMeshInstance3D.new()
-	mmi.multimesh = mm
-	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	if cull > 0.0:
-		mmi.visibility_range_end = cull * 0.8
-	parent.add_child(mmi)
+	for k: Vector3i in _blob_batch:
+		var list: Array = _blob_batch[k]
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.mesh = _blob_mesh
+		mm.instance_count = list.size()
+		for i in list.size():
+			mm.set_instance_transform(i, list[i])
+		var mmi := MultiMeshInstance3D.new()
+		mmi.multimesh = mm
+		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if k.z > 0:
+			mmi.visibility_range_end = k.z * 0.8
+		parent.add_child(mmi)
+	_blob_batch.clear()
 
 
 ## Trees, saplings and bushes where people would leave or plant them: behind the
@@ -352,18 +377,23 @@ func _greenery(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberG
 		var kind: String
 		var roll := rng.randf()
 		if d < r * 0.9:
-			kind = ["nature/bush_a", "nature/bush_b", "nature/sapling", "nature/birch_a"][mini(int(roll * 4.0), 3)]
+			kind = ["region/nature/bush_round", "region/nature/bush_hazel", "region/nature/young_oak", "region/nature/beech_a"][mini(int(roll * 4.0), 3)]
 		else:
-			kind = ["nature/oak_a", "nature/oak_b", "nature/birch_a", "nature/sapling", "nature/bush_a"][mini(int(roll * 5.0), 4)]
+			kind = ["region/nature/oak_a", "region/nature/oak_b", "region/nature/beech_a", "region/nature/young_oak", "region/nature/bush_round"][mini(int(roll * 5.0), 4)]
 		var sc := rng.randf_range(0.8, 1.15)
 		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * sc), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.1, p.y))
-		if not picks.has(kind):
-			picks[kind] = []
-		picks[kind].append(t)
-	for kind: String in picks:
+		var gkey := "%s@%d,%d" % [kind, floori(p.x / LOD_CELL), floori(p.y / LOD_CELL)]   # per cell: see LOD_CELL
+		if not picks.has(gkey):
+			picks[gkey] = []
+		picks[gkey].append(t)
+	for gkey: String in picks:
+		var kind := gkey.get_slice("@", 0)
 		var list: Array[Transform3D] = []
-		list.assign(picks[kind])
-		_multimesh(root, Assets.nature_mesh(kind), list, false)
+		list.assign(picks[gkey])
+		if kind.begins_with("region/") and ResourceLoader.exists("res://assets/generated/%s_lod2.glb" % kind):
+			TerrainStreamer.region_tree_chain(root, kind, list)   # painterly trees with LOD1 + impostor
+		else:
+			_multimesh(root, Assets.nature_mesh(kind), list, false)
 
 
 ## Fenced crop fields outside the village: 10 m wheat tiles on the terrain,
@@ -476,7 +506,7 @@ func _square_lamps(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 ## Flowers and bushes hugging house fronts and corners, as in the reference art:
 ## clumps either side of the door (never on the footpath), a bush at a corner.
 func _front_gardens(root: Node3D, plan: Dictionary, rng: RandomNumberGenerator) -> void:
-	var sets := {"nature/flowers_a": [], "nature/bush_b": [], "nature/grass_clump_tall": []}
+	var sets := {"nature/flowers_a": [], "region/nature/bush_round": [], "nature/grass_clump_tall": []}
 	var planters: Array[Transform3D] = []
 	for lot: Dictionary in plan["lots"]:
 		var yaw: float = lot["yaw"]
@@ -499,7 +529,7 @@ func _front_gardens(root: Node3D, plan: Dictionary, rng: RandomNumberGenerator) 
 		if rng.randf() < 0.7:
 			var corner := p + fwd * 3.4 + side * (4.2 if rng.randf() < 0.5 else -4.2)
 			if CityPlanner.street_distance(plan, corner) > 1.2:
-				(sets["nature/bush_b"] as Array).append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * rng.randf_range(0.7, 1.0)),
+				(sets["region/nature/bush_round"] as Array).append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * rng.randf_range(0.7, 1.0)),
 					Vector3(corner.x, WorldGen.height(corner.x, corner.y) - 0.05, corner.y)))
 	for kind: String in sets:
 		var list: Array[Transform3D] = []

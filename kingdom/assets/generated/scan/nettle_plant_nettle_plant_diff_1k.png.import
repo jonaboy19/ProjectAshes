@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bkil0p3pvur38"
-path="res://.godot/imported/nettle_plant_nettle_plant_diff_1k.png-a8540591ba1c0ef0947966912484adfe.ctex"
+path.s3tc="res://.godot/imported/nettle_plant_nettle_plant_diff_1k.png-a8540591ba1c0ef0947966912484adfe.s3tc.ctex"
+path.etc2="res://.godot/imported/nettle_plant_nettle_plant_diff_1k.png-a8540591ba1c0ef0947966912484adfe.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "c8b807aabfddf9f2e292a6b5724dca9b"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/nettle_plant_nettle_plant_diff_1k.png"
-dest_files=["res://.godot/imported/nettle_plant_nettle_plant_diff_1k.png-a8540591ba1c0ef0947966912484adfe.ctex"]
+dest_files=["res://.godot/imported/nettle_plant_nettle_plant_diff_1k.png-a8540591ba1c0ef0947966912484adfe.s3tc.ctex", "res://.godot/imported/nettle_plant_nettle_plant_diff_1k.png-a8540591ba1c0ef0947966912484adfe.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

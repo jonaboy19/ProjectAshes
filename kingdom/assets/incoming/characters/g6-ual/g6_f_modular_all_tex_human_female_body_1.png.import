@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bauljypu0dcdx"
-path="res://.godot/imported/g6_f_modular_all_tex_human_female_body_1.png-9a4f63a7227920fb8dba17f982d80264.ctex"
+path.s3tc="res://.godot/imported/g6_f_modular_all_tex_human_female_body_1.png-9a4f63a7227920fb8dba17f982d80264.s3tc.ctex"
+path.etc2="res://.godot/imported/g6_f_modular_all_tex_human_female_body_1.png-9a4f63a7227920fb8dba17f982d80264.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "83bbaee9dc5a504ebee77a1b97e1f131"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_f_modular_all_tex_human_female_body_1.png"
-dest_files=["res://.godot/imported/g6_f_modular_all_tex_human_female_body_1.png-9a4f63a7227920fb8dba17f982d80264.ctex"]
+dest_files=["res://.godot/imported/g6_f_modular_all_tex_human_female_body_1.png-9a4f63a7227920fb8dba17f982d80264.s3tc.ctex", "res://.godot/imported/g6_f_modular_all_tex_human_female_body_1.png-9a4f63a7227920fb8dba17f982d80264.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

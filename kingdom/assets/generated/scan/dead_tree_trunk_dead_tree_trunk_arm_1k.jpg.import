@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://nxoh4ude8eqf"
-path="res://.godot/imported/dead_tree_trunk_dead_tree_trunk_arm_1k.jpg-3a5fb0ca8782bf319ffca7a6952574d5.ctex"
+path.s3tc="res://.godot/imported/dead_tree_trunk_dead_tree_trunk_arm_1k.jpg-3a5fb0ca8782bf319ffca7a6952574d5.s3tc.ctex"
+path.etc2="res://.godot/imported/dead_tree_trunk_dead_tree_trunk_arm_1k.jpg-3a5fb0ca8782bf319ffca7a6952574d5.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "19d235d09d700d7ae7243d04b2169296"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/dead_tree_trunk_dead_tree_trunk_arm_1k.jpg"
-dest_files=["res://.godot/imported/dead_tree_trunk_dead_tree_trunk_arm_1k.jpg-3a5fb0ca8782bf319ffca7a6952574d5.ctex"]
+dest_files=["res://.godot/imported/dead_tree_trunk_dead_tree_trunk_arm_1k.jpg-3a5fb0ca8782bf319ffca7a6952574d5.s3tc.ctex", "res://.godot/imported/dead_tree_trunk_dead_tree_trunk_arm_1k.jpg-3a5fb0ca8782bf319ffca7a6952574d5.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ckwdlklsvub53"
-path="res://.godot/imported/donkey_animals_atlas.png-4cc597d9df5363ee98d0e620459dc710.ctex"
+path.s3tc="res://.godot/imported/donkey_animals_atlas.png-4cc597d9df5363ee98d0e620459dc710.s3tc.ctex"
+path.etc2="res://.godot/imported/donkey_animals_atlas.png-4cc597d9df5363ee98d0e620459dc710.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "08878b3e9ca73a8f1083f2dae1c2ba65"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/animals/quaternius/donkey_animals_atlas.png"
-dest_files=["res://.godot/imported/donkey_animals_atlas.png-4cc597d9df5363ee98d0e620459dc710.ctex"]
+dest_files=["res://.godot/imported/donkey_animals_atlas.png-4cc597d9df5363ee98d0e620459dc710.s3tc.ctex", "res://.godot/imported/donkey_animals_atlas.png-4cc597d9df5363ee98d0e620459dc710.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://h0xwdyp4amh2"
-path="res://.godot/imported/dead_tree_trunk_dead_tree_trunk_nor_gl_1k.jpg-d4f57f916482cd034732f8e1716b7d6b.ctex"
+path.s3tc="res://.godot/imported/dead_tree_trunk_dead_tree_trunk_nor_gl_1k.jpg-d4f57f916482cd034732f8e1716b7d6b.s3tc.ctex"
+path.etc2="res://.godot/imported/dead_tree_trunk_dead_tree_trunk_nor_gl_1k.jpg-d4f57f916482cd034732f8e1716b7d6b.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "924bb4d4e33b108a95d0c50b1e4565ff"
@@ -14,17 +16,17 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/dead_tree_trunk_dead_tree_trunk_nor_gl_1k.jpg"
-dest_files=["res://.godot/imported/dead_tree_trunk_dead_tree_trunk_nor_gl_1k.jpg-d4f57f916482cd034732f8e1716b7d6b.ctex"]
+dest_files=["res://.godot/imported/dead_tree_trunk_dead_tree_trunk_nor_gl_1k.jpg-d4f57f916482cd034732f8e1716b7d6b.s3tc.ctex", "res://.godot/imported/dead_tree_trunk_dead_tree_trunk_nor_gl_1k.jpg-d4f57f916482cd034732f8e1716b7d6b.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

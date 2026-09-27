@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://136alf4xuqns"
-path="res://.godot/imported/cdmir_old_lady_oldlady-skin+AO.png-f5b807b039448d985efdcf7f769a8b56.ctex"
+path.s3tc="res://.godot/imported/cdmir_old_lady_oldlady-skin+AO.png-f5b807b039448d985efdcf7f769a8b56.s3tc.ctex"
+path.etc2="res://.godot/imported/cdmir_old_lady_oldlady-skin+AO.png-f5b807b039448d985efdcf7f769a8b56.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "cc213c95b7aaea506e736c8181716492"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/cdmir-ual/cdmir_old_lady_oldlady-skin+AO.png"
-dest_files=["res://.godot/imported/cdmir_old_lady_oldlady-skin+AO.png-f5b807b039448d985efdcf7f769a8b56.ctex"]
+dest_files=["res://.godot/imported/cdmir_old_lady_oldlady-skin+AO.png-f5b807b039448d985efdcf7f769a8b56.s3tc.ctex", "res://.godot/imported/cdmir_old_lady_oldlady-skin+AO.png-f5b807b039448d985efdcf7f769a8b56.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

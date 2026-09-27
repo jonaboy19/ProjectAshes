@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dpk5odstukmts"
-path="res://.godot/imported/stall_produce_lod1_texture_0_metallic_roughness.jpg-87dc1534406017bb2a89d6848c307d68.ctex"
+path.s3tc="res://.godot/imported/stall_produce_lod1_texture_0_metallic_roughness.jpg-87dc1534406017bb2a89d6848c307d68.s3tc.ctex"
+path.etc2="res://.godot/imported/stall_produce_lod1_texture_0_metallic_roughness.jpg-87dc1534406017bb2a89d6848c307d68.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "bbbe0509220fdf299ec0fdebbad3d5b5"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/stall_produce_lod1_texture_0_metallic_roughness.jpg"
-dest_files=["res://.godot/imported/stall_produce_lod1_texture_0_metallic_roughness.jpg-87dc1534406017bb2a89d6848c307d68.ctex"]
+dest_files=["res://.godot/imported/stall_produce_lod1_texture_0_metallic_roughness.jpg-87dc1534406017bb2a89d6848c307d68.s3tc.ctex", "res://.godot/imported/stall_produce_lod1_texture_0_metallic_roughness.jpg-87dc1534406017bb2a89d6848c307d68.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

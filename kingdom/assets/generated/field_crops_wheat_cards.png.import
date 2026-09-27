@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://1jwhjhsjxh2a"
-path="res://.godot/imported/field_crops_wheat_cards.png-70f2a314c8297124e3d54f58210926a4.ctex"
+path.s3tc="res://.godot/imported/field_crops_wheat_cards.png-70f2a314c8297124e3d54f58210926a4.s3tc.ctex"
+path.etc2="res://.godot/imported/field_crops_wheat_cards.png-70f2a314c8297124e3d54f58210926a4.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "7859070c8a5577caf476a5d7fac54ccc"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/field_crops_wheat_cards.png"
-dest_files=["res://.godot/imported/field_crops_wheat_cards.png-70f2a314c8297124e3d54f58210926a4.ctex"]
+dest_files=["res://.godot/imported/field_crops_wheat_cards.png-70f2a314c8297124e3d54f58210926a4.s3tc.ctex", "res://.godot/imported/field_crops_wheat_cards.png-70f2a314c8297124e3d54f58210926a4.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ryqlpd63w4uc"
-path="res://.godot/imported/house_trader_lod2_house_trader_lod2_bake.jpg-6389198f37290ef10702b1b3354e282d.ctex"
+path.s3tc="res://.godot/imported/house_trader_lod2_house_trader_lod2_bake.jpg-6389198f37290ef10702b1b3354e282d.s3tc.ctex"
+path.etc2="res://.godot/imported/house_trader_lod2_house_trader_lod2_bake.jpg-6389198f37290ef10702b1b3354e282d.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "7ba077c98cec787a6c009bbcdf50477d"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/house_trader_lod2_house_trader_lod2_bake.jpg"
-dest_files=["res://.godot/imported/house_trader_lod2_house_trader_lod2_bake.jpg-6389198f37290ef10702b1b3354e282d.ctex"]
+dest_files=["res://.godot/imported/house_trader_lod2_house_trader_lod2_bake.jpg-6389198f37290ef10702b1b3354e282d.s3tc.ctex", "res://.godot/imported/house_trader_lod2_house_trader_lod2_bake.jpg-6389198f37290ef10702b1b3354e282d.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

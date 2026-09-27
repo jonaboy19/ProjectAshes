@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://18s8qka138jf"
-path="res://.godot/imported/g6_m_modular_all_tex_human_male_hair_1.png-226cf9a329e8b7071e6bf07ce10417dc.ctex"
+path.s3tc="res://.godot/imported/g6_m_modular_all_tex_human_male_hair_1.png-226cf9a329e8b7071e6bf07ce10417dc.s3tc.ctex"
+path.etc2="res://.godot/imported/g6_m_modular_all_tex_human_male_hair_1.png-226cf9a329e8b7071e6bf07ce10417dc.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "c1a1ccef3aaf060040840ad1ff22a49f"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_m_modular_all_tex_human_male_hair_1.png"
-dest_files=["res://.godot/imported/g6_m_modular_all_tex_human_male_hair_1.png-226cf9a329e8b7071e6bf07ce10417dc.ctex"]
+dest_files=["res://.godot/imported/g6_m_modular_all_tex_human_male_hair_1.png-226cf9a329e8b7071e6bf07ce10417dc.s3tc.ctex", "res://.godot/imported/g6_m_modular_all_tex_human_male_hair_1.png-226cf9a329e8b7071e6bf07ce10417dc.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

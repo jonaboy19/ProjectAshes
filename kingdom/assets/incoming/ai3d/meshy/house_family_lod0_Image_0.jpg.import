@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cci5v6k4gv748"
-path="res://.godot/imported/house_family_lod0_Image_0.jpg-43832d369d0c58356c90267c64bf2a53.ctex"
+path.s3tc="res://.godot/imported/house_family_lod0_Image_0.jpg-43832d369d0c58356c90267c64bf2a53.s3tc.ctex"
+path.etc2="res://.godot/imported/house_family_lod0_Image_0.jpg-43832d369d0c58356c90267c64bf2a53.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "285d52d20323f23a21cbea85195ec88f"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/house_family_lod0_Image_0.jpg"
-dest_files=["res://.godot/imported/house_family_lod0_Image_0.jpg-43832d369d0c58356c90267c64bf2a53.ctex"]
+dest_files=["res://.godot/imported/house_family_lod0_Image_0.jpg-43832d369d0c58356c90267c64bf2a53.s3tc.ctex", "res://.godot/imported/house_family_lod0_Image_0.jpg-43832d369d0c58356c90267c64bf2a53.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

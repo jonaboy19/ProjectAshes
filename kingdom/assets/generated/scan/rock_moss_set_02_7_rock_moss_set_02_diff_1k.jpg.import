@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ktfsbq8xj83l"
-path="res://.godot/imported/rock_moss_set_02_7_rock_moss_set_02_diff_1k.jpg-6529aaab8912032e8ed94cfe903b2e61.ctex"
+path.s3tc="res://.godot/imported/rock_moss_set_02_7_rock_moss_set_02_diff_1k.jpg-6529aaab8912032e8ed94cfe903b2e61.s3tc.ctex"
+path.etc2="res://.godot/imported/rock_moss_set_02_7_rock_moss_set_02_diff_1k.jpg-6529aaab8912032e8ed94cfe903b2e61.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "662a875483aeb5dc737b405fa3005e17"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/rock_moss_set_02_7_rock_moss_set_02_diff_1k.jpg"
-dest_files=["res://.godot/imported/rock_moss_set_02_7_rock_moss_set_02_diff_1k.jpg-6529aaab8912032e8ed94cfe903b2e61.ctex"]
+dest_files=["res://.godot/imported/rock_moss_set_02_7_rock_moss_set_02_diff_1k.jpg-6529aaab8912032e8ed94cfe903b2e61.s3tc.ctex", "res://.godot/imported/rock_moss_set_02_7_rock_moss_set_02_diff_1k.jpg-6529aaab8912032e8ed94cfe903b2e61.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

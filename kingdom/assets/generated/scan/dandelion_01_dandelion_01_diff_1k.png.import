@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ckc8mwip1ovoh"
-path="res://.godot/imported/dandelion_01_dandelion_01_diff_1k.png-61da8905abdeffa7f4bad01b74b147f5.ctex"
+path.s3tc="res://.godot/imported/dandelion_01_dandelion_01_diff_1k.png-61da8905abdeffa7f4bad01b74b147f5.s3tc.ctex"
+path.etc2="res://.godot/imported/dandelion_01_dandelion_01_diff_1k.png-61da8905abdeffa7f4bad01b74b147f5.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b47f1e2d84009fd223876b8b46692329"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/dandelion_01_dandelion_01_diff_1k.png"
-dest_files=["res://.godot/imported/dandelion_01_dandelion_01_diff_1k.png-61da8905abdeffa7f4bad01b74b147f5.ctex"]
+dest_files=["res://.godot/imported/dandelion_01_dandelion_01_diff_1k.png-61da8905abdeffa7f4bad01b74b147f5.s3tc.ctex", "res://.godot/imported/dandelion_01_dandelion_01_diff_1k.png-61da8905abdeffa7f4bad01b74b147f5.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

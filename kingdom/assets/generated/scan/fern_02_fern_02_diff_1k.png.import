@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://impytobr2tn6"
-path="res://.godot/imported/fern_02_fern_02_diff_1k.png-d2536a0afa90a9cf47023fa707070df8.ctex"
+path.s3tc="res://.godot/imported/fern_02_fern_02_diff_1k.png-d2536a0afa90a9cf47023fa707070df8.s3tc.ctex"
+path.etc2="res://.godot/imported/fern_02_fern_02_diff_1k.png-d2536a0afa90a9cf47023fa707070df8.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9267d2642f4e51f6b61af7290d353c0f"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/fern_02_fern_02_diff_1k.png"
-dest_files=["res://.godot/imported/fern_02_fern_02_diff_1k.png-d2536a0afa90a9cf47023fa707070df8.ctex"]
+dest_files=["res://.godot/imported/fern_02_fern_02_diff_1k.png-d2536a0afa90a9cf47023fa707070df8.s3tc.ctex", "res://.godot/imported/fern_02_fern_02_diff_1k.png-d2536a0afa90a9cf47023fa707070df8.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

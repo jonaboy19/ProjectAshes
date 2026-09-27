@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d2okhth021xak"
-path="res://.godot/imported/mercenary_lod1_mercenary_tex_lod1.jpg-7e44abf99c10e157ddc3955e1ff30c93.ctex"
+path.s3tc="res://.godot/imported/mercenary_lod1_mercenary_tex_lod1.jpg-7e44abf99c10e157ddc3955e1ff30c93.s3tc.ctex"
+path.etc2="res://.godot/imported/mercenary_lod1_mercenary_tex_lod1.jpg-7e44abf99c10e157ddc3955e1ff30c93.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "70bd83283cc5852284a845ca75ad0159"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/armored/mercenary_lod1_mercenary_tex_lod1.jpg"
-dest_files=["res://.godot/imported/mercenary_lod1_mercenary_tex_lod1.jpg-7e44abf99c10e157ddc3955e1ff30c93.ctex"]
+dest_files=["res://.godot/imported/mercenary_lod1_mercenary_tex_lod1.jpg-7e44abf99c10e157ddc3955e1ff30c93.s3tc.ctex", "res://.godot/imported/mercenary_lod1_mercenary_tex_lod1.jpg-7e44abf99c10e157ddc3955e1ff30c93.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

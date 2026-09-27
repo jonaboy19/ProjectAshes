@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://r3h7jsoblo0v"
-path="res://.godot/imported/healer_lod1_healer_lod1_bake.jpg-29c6135fc3c2aa0ceae217603e302648.ctex"
+path.s3tc="res://.godot/imported/healer_lod1_healer_lod1_bake.jpg-29c6135fc3c2aa0ceae217603e302648.s3tc.ctex"
+path.etc2="res://.godot/imported/healer_lod1_healer_lod1_bake.jpg-29c6135fc3c2aa0ceae217603e302648.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "62c3e37f43a2b0742a004c4aade452ce"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/healer_lod1_healer_lod1_bake.jpg"
-dest_files=["res://.godot/imported/healer_lod1_healer_lod1_bake.jpg-29c6135fc3c2aa0ceae217603e302648.ctex"]
+dest_files=["res://.godot/imported/healer_lod1_healer_lod1_bake.jpg-29c6135fc3c2aa0ceae217603e302648.s3tc.ctex", "res://.godot/imported/healer_lod1_healer_lod1_bake.jpg-29c6135fc3c2aa0ceae217603e302648.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

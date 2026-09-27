@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://rordh00f3cw1"
-path="res://.godot/imported/anglo_saxon_helm5_helm3.jpg-34cedbcffc2d6ce2d9c3c830e56eb214.ctex"
+path.s3tc="res://.godot/imported/anglo_saxon_helm5_helm3.jpg-34cedbcffc2d6ce2d9c3c830e56eb214.s3tc.ctex"
+path.etc2="res://.godot/imported/anglo_saxon_helm5_helm3.jpg-34cedbcffc2d6ce2d9c3c830e56eb214.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "45d72acec6fbfcfb42d62fc498b9ff2d"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/armor/opengameart/cc-by/anglo-saxon-helmets/anglo_saxon_helm5_helm3.jpg"
-dest_files=["res://.godot/imported/anglo_saxon_helm5_helm3.jpg-34cedbcffc2d6ce2d9c3c830e56eb214.ctex"]
+dest_files=["res://.godot/imported/anglo_saxon_helm5_helm3.jpg-34cedbcffc2d6ce2d9c3c830e56eb214.s3tc.ctex", "res://.godot/imported/anglo_saxon_helm5_helm3.jpg-34cedbcffc2d6ce2d9c3c830e56eb214.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

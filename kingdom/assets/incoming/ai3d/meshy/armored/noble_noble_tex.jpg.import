@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cp0l3a5vwrtad"
-path="res://.godot/imported/noble_noble_tex.jpg-9ffaa5bc15e1e9ac65da1d5bc62386e3.ctex"
+path.s3tc="res://.godot/imported/noble_noble_tex.jpg-9ffaa5bc15e1e9ac65da1d5bc62386e3.s3tc.ctex"
+path.etc2="res://.godot/imported/noble_noble_tex.jpg-9ffaa5bc15e1e9ac65da1d5bc62386e3.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "da01cb9ececd1d8bf529ca07536c5b13"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/armored/noble_noble_tex.jpg"
-dest_files=["res://.godot/imported/noble_noble_tex.jpg-9ffaa5bc15e1e9ac65da1d5bc62386e3.ctex"]
+dest_files=["res://.godot/imported/noble_noble_tex.jpg-9ffaa5bc15e1e9ac65da1d5bc62386e3.s3tc.ctex", "res://.godot/imported/noble_noble_tex.jpg-9ffaa5bc15e1e9ac65da1d5bc62386e3.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

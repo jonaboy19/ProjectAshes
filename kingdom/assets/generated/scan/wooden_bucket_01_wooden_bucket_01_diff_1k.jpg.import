@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bsgbe1h2s74ad"
-path="res://.godot/imported/wooden_bucket_01_wooden_bucket_01_diff_1k.jpg-2508b919b2da994984f6a538cab32b72.ctex"
+path.s3tc="res://.godot/imported/wooden_bucket_01_wooden_bucket_01_diff_1k.jpg-2508b919b2da994984f6a538cab32b72.s3tc.ctex"
+path.etc2="res://.godot/imported/wooden_bucket_01_wooden_bucket_01_diff_1k.jpg-2508b919b2da994984f6a538cab32b72.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "fe8bc0c4a0338f8c807b45d77379fdad"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/wooden_bucket_01_wooden_bucket_01_diff_1k.jpg"
-dest_files=["res://.godot/imported/wooden_bucket_01_wooden_bucket_01_diff_1k.jpg-2508b919b2da994984f6a538cab32b72.ctex"]
+dest_files=["res://.godot/imported/wooden_bucket_01_wooden_bucket_01_diff_1k.jpg-2508b919b2da994984f6a538cab32b72.s3tc.ctex", "res://.godot/imported/wooden_bucket_01_wooden_bucket_01_diff_1k.jpg-2508b919b2da994984f6a538cab32b72.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

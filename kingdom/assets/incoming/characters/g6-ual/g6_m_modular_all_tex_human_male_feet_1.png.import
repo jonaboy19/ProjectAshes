@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://comievshe4ie0"
-path="res://.godot/imported/g6_m_modular_all_tex_human_male_feet_1.png-be5dcee846811746eb00ba51d6caaedf.ctex"
+path.s3tc="res://.godot/imported/g6_m_modular_all_tex_human_male_feet_1.png-be5dcee846811746eb00ba51d6caaedf.s3tc.ctex"
+path.etc2="res://.godot/imported/g6_m_modular_all_tex_human_male_feet_1.png-be5dcee846811746eb00ba51d6caaedf.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9174b8b38c92f78bf2966aa07d642eaa"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_m_modular_all_tex_human_male_feet_1.png"
-dest_files=["res://.godot/imported/g6_m_modular_all_tex_human_male_feet_1.png-be5dcee846811746eb00ba51d6caaedf.ctex"]
+dest_files=["res://.godot/imported/g6_m_modular_all_tex_human_male_feet_1.png-be5dcee846811746eb00ba51d6caaedf.s3tc.ctex", "res://.godot/imported/g6_m_modular_all_tex_human_male_feet_1.png-be5dcee846811746eb00ba51d6caaedf.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

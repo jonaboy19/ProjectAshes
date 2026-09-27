@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://rxylwogfmfyh"
-path="res://.godot/imported/guard_guard_tex.jpg-d526b8d73e5dad06c73c242597a14de9.ctex"
+path.s3tc="res://.godot/imported/guard_guard_tex.jpg-d526b8d73e5dad06c73c242597a14de9.s3tc.ctex"
+path.etc2="res://.godot/imported/guard_guard_tex.jpg-d526b8d73e5dad06c73c242597a14de9.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "481d355d10dd456619cedb8a5c454801"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/armored/guard_guard_tex.jpg"
-dest_files=["res://.godot/imported/guard_guard_tex.jpg-d526b8d73e5dad06c73c242597a14de9.ctex"]
+dest_files=["res://.godot/imported/guard_guard_tex.jpg-d526b8d73e5dad06c73c242597a14de9.s3tc.ctex", "res://.godot/imported/guard_guard_tex.jpg-d526b8d73e5dad06c73c242597a14de9.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

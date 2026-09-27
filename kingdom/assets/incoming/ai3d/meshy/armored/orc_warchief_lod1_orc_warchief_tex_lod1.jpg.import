@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://gxq5s1u8sp2p"
-path="res://.godot/imported/orc_warchief_lod1_orc_warchief_tex_lod1.jpg-00ac541f864a87fa1d7d716663172789.ctex"
+path.s3tc="res://.godot/imported/orc_warchief_lod1_orc_warchief_tex_lod1.jpg-00ac541f864a87fa1d7d716663172789.s3tc.ctex"
+path.etc2="res://.godot/imported/orc_warchief_lod1_orc_warchief_tex_lod1.jpg-00ac541f864a87fa1d7d716663172789.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "7dd22fac2133b9ddfdcb3ad4d4136742"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/armored/orc_warchief_lod1_orc_warchief_tex_lod1.jpg"
-dest_files=["res://.godot/imported/orc_warchief_lod1_orc_warchief_tex_lod1.jpg-00ac541f864a87fa1d7d716663172789.ctex"]
+dest_files=["res://.godot/imported/orc_warchief_lod1_orc_warchief_tex_lod1.jpg-00ac541f864a87fa1d7d716663172789.s3tc.ctex", "res://.godot/imported/orc_warchief_lod1_orc_warchief_tex_lod1.jpg-00ac541f864a87fa1d7d716663172789.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

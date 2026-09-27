@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bcxsomrmpu0o7"
-path="res://.godot/imported/knight_knight_tex.jpg-7ed80a4b9ec15c08db7be09587294fb1.ctex"
+path.s3tc="res://.godot/imported/knight_knight_tex.jpg-7ed80a4b9ec15c08db7be09587294fb1.s3tc.ctex"
+path.etc2="res://.godot/imported/knight_knight_tex.jpg-7ed80a4b9ec15c08db7be09587294fb1.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "d2f703686dce21197b1f5279102c8247"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/armored/knight_knight_tex.jpg"
-dest_files=["res://.godot/imported/knight_knight_tex.jpg-7ed80a4b9ec15c08db7be09587294fb1.ctex"]
+dest_files=["res://.godot/imported/knight_knight_tex.jpg-7ed80a4b9ec15c08db7be09587294fb1.s3tc.ctex", "res://.godot/imported/knight_knight_tex.jpg-7ed80a4b9ec15c08db7be09587294fb1.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

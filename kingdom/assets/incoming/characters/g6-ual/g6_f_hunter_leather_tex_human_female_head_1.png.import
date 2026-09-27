@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c50ixu01h7mrl"
-path="res://.godot/imported/g6_f_hunter_leather_tex_human_female_head_1.png-22e3acdd0f47bb13c70de1519f4304d7.ctex"
+path.s3tc="res://.godot/imported/g6_f_hunter_leather_tex_human_female_head_1.png-22e3acdd0f47bb13c70de1519f4304d7.s3tc.ctex"
+path.etc2="res://.godot/imported/g6_f_hunter_leather_tex_human_female_head_1.png-22e3acdd0f47bb13c70de1519f4304d7.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "045c4319e47ef60198dc7f552ef003c9"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_f_hunter_leather_tex_human_female_head_1.png"
-dest_files=["res://.godot/imported/g6_f_hunter_leather_tex_human_female_head_1.png-22e3acdd0f47bb13c70de1519f4304d7.ctex"]
+dest_files=["res://.godot/imported/g6_f_hunter_leather_tex_human_female_head_1.png-22e3acdd0f47bb13c70de1519f4304d7.s3tc.ctex", "res://.godot/imported/g6_f_hunter_leather_tex_human_female_head_1.png-22e3acdd0f47bb13c70de1519f4304d7.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

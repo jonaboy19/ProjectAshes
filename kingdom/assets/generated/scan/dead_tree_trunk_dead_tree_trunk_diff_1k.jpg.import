@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cabvujdcynuc3"
-path="res://.godot/imported/dead_tree_trunk_dead_tree_trunk_diff_1k.jpg-f111b744b892cc70adff602f26b8ddd0.ctex"
+path.s3tc="res://.godot/imported/dead_tree_trunk_dead_tree_trunk_diff_1k.jpg-f111b744b892cc70adff602f26b8ddd0.s3tc.ctex"
+path.etc2="res://.godot/imported/dead_tree_trunk_dead_tree_trunk_diff_1k.jpg-f111b744b892cc70adff602f26b8ddd0.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ea80ef76f5e6a8c345698a228cc83b4e"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/dead_tree_trunk_dead_tree_trunk_diff_1k.jpg"
-dest_files=["res://.godot/imported/dead_tree_trunk_dead_tree_trunk_diff_1k.jpg-f111b744b892cc70adff602f26b8ddd0.ctex"]
+dest_files=["res://.godot/imported/dead_tree_trunk_dead_tree_trunk_diff_1k.jpg-f111b744b892cc70adff602f26b8ddd0.s3tc.ctex", "res://.godot/imported/dead_tree_trunk_dead_tree_trunk_diff_1k.jpg-f111b744b892cc70adff602f26b8ddd0.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

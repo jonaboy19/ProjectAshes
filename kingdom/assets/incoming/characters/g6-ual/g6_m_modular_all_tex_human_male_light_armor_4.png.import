@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dyj13c2c6tdik"
-path="res://.godot/imported/g6_m_modular_all_tex_human_male_light_armor_4.png-1ed790f7ec40245649ec252d027ace85.ctex"
+path.s3tc="res://.godot/imported/g6_m_modular_all_tex_human_male_light_armor_4.png-1ed790f7ec40245649ec252d027ace85.s3tc.ctex"
+path.etc2="res://.godot/imported/g6_m_modular_all_tex_human_male_light_armor_4.png-1ed790f7ec40245649ec252d027ace85.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9f6c223da6623b89124869229b0d554a"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_m_modular_all_tex_human_male_light_armor_4.png"
-dest_files=["res://.godot/imported/g6_m_modular_all_tex_human_male_light_armor_4.png-1ed790f7ec40245649ec252d027ace85.ctex"]
+dest_files=["res://.godot/imported/g6_m_modular_all_tex_human_male_light_armor_4.png-1ed790f7ec40245649ec252d027ace85.s3tc.ctex", "res://.godot/imported/g6_m_modular_all_tex_human_male_light_armor_4.png-1ed790f7ec40245649ec252d027ace85.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

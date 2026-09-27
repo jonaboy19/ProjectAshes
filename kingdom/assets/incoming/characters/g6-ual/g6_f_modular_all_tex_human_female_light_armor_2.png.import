@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bmt5rnm2sp3ix"
-path="res://.godot/imported/g6_f_modular_all_tex_human_female_light_armor_2.png-109781b7ae7290a777e5d84cdf1fb0ab.ctex"
+path.s3tc="res://.godot/imported/g6_f_modular_all_tex_human_female_light_armor_2.png-109781b7ae7290a777e5d84cdf1fb0ab.s3tc.ctex"
+path.etc2="res://.godot/imported/g6_f_modular_all_tex_human_female_light_armor_2.png-109781b7ae7290a777e5d84cdf1fb0ab.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "4594714b05340e9ab47b10d2963d7d9c"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_f_modular_all_tex_human_female_light_armor_2.png"
-dest_files=["res://.godot/imported/g6_f_modular_all_tex_human_female_light_armor_2.png-109781b7ae7290a777e5d84cdf1fb0ab.ctex"]
+dest_files=["res://.godot/imported/g6_f_modular_all_tex_human_female_light_armor_2.png-109781b7ae7290a777e5d84cdf1fb0ab.s3tc.ctex", "res://.godot/imported/g6_f_modular_all_tex_human_female_light_armor_2.png-109781b7ae7290a777e5d84cdf1fb0ab.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

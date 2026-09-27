@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bf50bwwa5e048"
-path="res://.godot/imported/blacksmith_lod2_blacksmith_lod2_bake.jpg-1e45a6535767bad83fb711203a0a24de.ctex"
+path.s3tc="res://.godot/imported/blacksmith_lod2_blacksmith_lod2_bake.jpg-1e45a6535767bad83fb711203a0a24de.s3tc.ctex"
+path.etc2="res://.godot/imported/blacksmith_lod2_blacksmith_lod2_bake.jpg-1e45a6535767bad83fb711203a0a24de.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "53703908866d21d51726e760cfb26f56"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/blacksmith_lod2_blacksmith_lod2_bake.jpg"
-dest_files=["res://.godot/imported/blacksmith_lod2_blacksmith_lod2_bake.jpg-1e45a6535767bad83fb711203a0a24de.ctex"]
+dest_files=["res://.godot/imported/blacksmith_lod2_blacksmith_lod2_bake.jpg-1e45a6535767bad83fb711203a0a24de.s3tc.ctex", "res://.godot/imported/blacksmith_lod2_blacksmith_lod2_bake.jpg-1e45a6535767bad83fb711203a0a24de.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

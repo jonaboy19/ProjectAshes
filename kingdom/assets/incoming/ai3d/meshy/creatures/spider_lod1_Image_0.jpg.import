@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://uin8vhpvxis"
-path="res://.godot/imported/spider_lod1_Image_0.jpg-bb00f62a1c05e95d9a07ebe4593a378d.ctex"
+path.s3tc="res://.godot/imported/spider_lod1_Image_0.jpg-bb00f62a1c05e95d9a07ebe4593a378d.s3tc.ctex"
+path.etc2="res://.godot/imported/spider_lod1_Image_0.jpg-bb00f62a1c05e95d9a07ebe4593a378d.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "81e16cc393447a6eaffa63e126631778"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/creatures/spider_lod1_Image_0.jpg"
-dest_files=["res://.godot/imported/spider_lod1_Image_0.jpg-bb00f62a1c05e95d9a07ebe4593a378d.ctex"]
+dest_files=["res://.godot/imported/spider_lod1_Image_0.jpg-bb00f62a1c05e95d9a07ebe4593a378d.s3tc.ctex", "res://.godot/imported/spider_lod1_Image_0.jpg-bb00f62a1c05e95d9a07ebe4593a378d.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

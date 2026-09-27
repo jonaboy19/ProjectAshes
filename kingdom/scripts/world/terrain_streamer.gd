@@ -8,6 +8,10 @@ const CHUNK := 64.0
 const CELL := 2.0
 ## Distance where Blender trees hand over to the cheap stylised stand-ins.
 const TREE_LOD := 200.0
+## Painterly region trees (generated/region/nature): LOD0 -> LOD1 -> 4-tri impostor
+## card (_lod2) at these distances (Quality scales them: LOW x0.55 = 22 / 50 m).
+const REGION_LODS := [40.0, 90.0]
+const REGION := "region/nature/"
 
 @export var view_radius := 4         # chunks; 9x9 grid visible
 @export var collision_radius := 1    # chunks that also get physics
@@ -182,21 +186,23 @@ func _add_forest(chunk: Node3D, key: Vector2i, origin: Vector2) -> void:
 			# Blender-made trees near the player; the cheap stylised set stands in far away.
 			var pine_bias := smoothstep(30.0, 70.0, h)
 			var r2 := rng.randf()
+			# Painterly region trees (0.7-1.6k tris, 1024 atlases) with their own LOD chain.
 			if r2 < 0.05:
-				kind = "nature/dead_tree|DeadTree_2"
+				kind = REGION + "dead_snag"
 			elif r2 < 0.12:
-				kind = "nature/sapling|Bush_Common"
+				kind = REGION + "young_oak"
 			elif rng.randf() < 0.35 + pine_bias * 0.5:
-				kind = ["nature/pine_a|Pine_1", "nature/pine_b|Pine_3"][rng.randi() % 2]
+				kind = REGION + ["spruce_a", "pine_scots"][rng.randi() % 2]
 			else:
-				kind = ["nature/oak_a|CommonTree_1", "nature/oak_b|CommonTree_3", "nature/birch_a|CommonTree_5"][rng.randi() % 3]
+				# (7 tree kinds per chunk like the old set: every kind is a draw call per LOD.)
+				kind = REGION + ["oak_a", "oak_b", "beech_a"][rng.randi() % 3]
 		elif roll < density + 0.12 and WorldGen.road_distance(x, z) > 4.0 and WorldGen.street_distance(x, z) > 3.0:
 			# Photo-scanned undergrowth under trees, wildflowers in the open.
 			if density > 0.35:
-				kind = ["scan/fern_02", "scan/fern_02", "scan/shrub_03", "scan/nettle_plant", "nature/bush_a", "scan/tree_stump_01",
+				kind = ["scan/fern_02", "scan/fern_02", "scan/shrub_03", "scan/nettle_plant", REGION + "bush_round", "scan/tree_stump_01",
 					"scan/tree_stump_02", "scan/root_cluster_01", "scan/fern_02"][rng.randi() % 9]
 			else:
-				kind = ["scan/dandelion_01", "nature/bush_b", "nature/bush_a", "Flower_3_Group", "scan/shrub_03", "scan/fern_02"][rng.randi() % 6]
+				kind = ["scan/dandelion_01", REGION + "bush_berry", REGION + "bush_hazel", REGION + "flowers_warm", "scan/shrub_03", "scan/fern_02"][rng.randi() % 6]
 		elif rng.randf() < 0.05:
 			kind = "scan/rock_moss_set_0%d_%d" % [1 + rng.randi() % 2, 1 + rng.randi() % 6]
 		if kind == "":
@@ -210,10 +216,25 @@ func _add_forest(chunk: Node3D, key: Vector2i, origin: Vector2) -> void:
 		if not buckets.has(kind):
 			buckets[kind] = []
 		buckets[kind].append(t)
+	var impostors := SurfaceTool.new()
+	var impostor_n := 0
 	for kind: String in buckets:
 		var list: Array[Transform3D] = []
 		list.assign(buckets[kind])
-		if kind.contains("|"):
+		if kind.begins_with(REGION) and ResourceLoader.exists("res://assets/generated/" + kind + "_lod2.glb"):
+			region_tree_chain(chunk, kind, list, false)
+			# Far impostor cards of every kind in this chunk share one atlas material:
+			# merged into one mesh, so a distant chunk is a single draw call.
+			var card := Assets.nature_mesh(kind + "_lod2")
+			if card:
+				if impostor_n == 0:
+					impostors.begin(Mesh.PRIMITIVE_TRIANGLES)
+					impostors.set_material(card.surface_get_material(0))
+				for t: Transform3D in list:
+					for surf in card.get_surface_count():
+						impostors.append_from(card, surf, t)
+				impostor_n += list.size()
+		elif kind.contains("|"):
 			# "near|far": realistic mesh up close, stylised stand-in beyond TREE_LOD metres.
 			var near_far := kind.split("|")
 			var near_mm := _multimesh(chunk, Assets.nature_mesh(near_far[0]), list)
@@ -228,9 +249,37 @@ func _add_forest(chunk: Node3D, key: Vector2i, origin: Vector2) -> void:
 				far_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 		else:
 			_multimesh(chunk, Assets.nature_mesh(kind), list)
+	if impostor_n > 0:
+		var mi := MeshInstance3D.new()
+		mi.name = "TreeImpostors"
+		mi.mesh = impostors.commit()
+		mi.visibility_range_begin = REGION_LODS[1]
+		mi.visibility_range_begin_margin = 5.0
+		mi.visibility_range_end = 450.0
+		mi.visibility_range_end_margin = 8.0
+		mi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+		chunk.add_child(mi)
 
 
-func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> MultiMeshInstance3D:
+## A region tree kind as three MultiMeshes: LOD0, LOD1 and the impostor card past
+## REGION_LODS[1] (out to _multimesh's 450 m). Hard switches with a margin: fading
+## would put every tree in the transparent pass while it crosses over.
+static func region_tree_chain(parent: Node3D, kind: String, list: Array[Transform3D], with_impostor := true) -> void:
+	var keys := [kind, kind + "_lod1", kind + "_lod2"]
+	for i in (3 if with_impostor else 2):
+		var mmi := _multimesh(parent, Assets.nature_mesh(keys[i]), list)
+		if mmi == null:
+			continue
+		if i > 0:
+			mmi.visibility_range_begin = REGION_LODS[i - 1]
+			mmi.visibility_range_begin_margin = 5.0
+		if i < 2:
+			mmi.visibility_range_end = REGION_LODS[i]
+			mmi.visibility_range_end_margin = 5.0
+			mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+
+
+static func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> MultiMeshInstance3D:
 	if mesh == null or transforms.is_empty():
 		return null
 	var mm := MultiMesh.new()

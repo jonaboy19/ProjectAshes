@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://kfn1i0b6gsvt"
-path="res://.godot/imported/fern_02_fern_02_arm_1k.jpg-b6a9712dd089dc1581ba9eb9d559e316.ctex"
+path.s3tc="res://.godot/imported/fern_02_fern_02_arm_1k.jpg-b6a9712dd089dc1581ba9eb9d559e316.s3tc.ctex"
+path.etc2="res://.godot/imported/fern_02_fern_02_arm_1k.jpg-b6a9712dd089dc1581ba9eb9d559e316.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ba67a9ecc79af1668056b289d98a91a3"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/fern_02_fern_02_arm_1k.jpg"
-dest_files=["res://.godot/imported/fern_02_fern_02_arm_1k.jpg-b6a9712dd089dc1581ba9eb9d559e316.ctex"]
+dest_files=["res://.godot/imported/fern_02_fern_02_arm_1k.jpg-b6a9712dd089dc1581ba9eb9d559e316.s3tc.ctex", "res://.godot/imported/fern_02_fern_02_arm_1k.jpg-b6a9712dd089dc1581ba9eb9d559e316.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

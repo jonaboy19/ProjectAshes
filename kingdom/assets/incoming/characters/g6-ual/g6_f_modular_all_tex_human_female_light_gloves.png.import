@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ydm8ppptrxv"
-path="res://.godot/imported/g6_f_modular_all_tex_human_female_light_gloves.png-795ec2764d3be893d347d21e780dbd0e.ctex"
+path.s3tc="res://.godot/imported/g6_f_modular_all_tex_human_female_light_gloves.png-795ec2764d3be893d347d21e780dbd0e.s3tc.ctex"
+path.etc2="res://.godot/imported/g6_f_modular_all_tex_human_female_light_gloves.png-795ec2764d3be893d347d21e780dbd0e.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "e72546f13b1f19bf85fbbe4a2fd10d81"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_f_modular_all_tex_human_female_light_gloves.png"
-dest_files=["res://.godot/imported/g6_f_modular_all_tex_human_female_light_gloves.png-795ec2764d3be893d347d21e780dbd0e.ctex"]
+dest_files=["res://.godot/imported/g6_f_modular_all_tex_human_female_light_gloves.png-795ec2764d3be893d347d21e780dbd0e.s3tc.ctex", "res://.godot/imported/g6_f_modular_all_tex_human_female_light_gloves.png-795ec2764d3be893d347d21e780dbd0e.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

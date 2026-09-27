@@ -136,6 +136,8 @@ func _finish() -> void:
 		_texture_census()
 	if args.has("census"):
 		_census()
+	if args.has("drawcensus"):
+		_draw_census()
 	var line := JSON.stringify(r)
 	print("BENCH ", line)
 	if args.has("csv"):
@@ -234,6 +236,86 @@ func _census() -> void:
 	print("CENSUS total LOD0 tris in range: %d" % total)
 	for k in keys.slice(0, int(args.get("census_n", "40"))):
 		print("CENSUS %9d  %s%s" % [groups[k], k, "  (casts shadow)" if shadow_tris.has(k) else ""])
+
+
+## --drawcensus: geometry instances the camera draws (in frustum and visibility
+## range), grouped by owner and mesh, with their surface count (~ draw calls in the
+## colour pass; shadow and depth passes add more). Shows what to merge.
+func _draw_census() -> void:
+	var cam := world_vp.get_camera_3d()
+	var cp := cam.global_position
+	var planes := cam.get_frustum()
+	var names := {}
+	var cache: Dictionary = load("res://scripts/world/assets.gd").get("_building_cache")
+	for k in cache:
+		names[cache[k]] = String(k)
+	var groups := {}
+	var tri_groups := {}
+	var by_owner := {}
+	var total := 0
+	for n in root.find_children("*", "GeometryInstance3D", true, false):
+		var g := n as GeometryInstance3D
+		if not g.is_visible_in_tree():
+			continue
+		var box: AABB = g.global_transform * g.get_aabb()
+		var d := box.get_center().distance_to(cp)
+		if (g.visibility_range_end > 0.0 and d > g.visibility_range_end) or d < g.visibility_range_begin:
+			continue
+		var inside := true
+		for pl in planes:
+			var c := box.get_center()
+			var e := box.size * 0.5
+			var r := absf(pl.normal.x) * e.x + absf(pl.normal.y) * e.y + absf(pl.normal.z) * e.z
+			if pl.distance_to(c) > r:
+				inside = false
+				break
+		if not inside:
+			continue
+		var mesh: Mesh = null
+		if g is MeshInstance3D:
+			mesh = (g as MeshInstance3D).mesh
+		elif g is MultiMeshInstance3D and (g as MultiMeshInstance3D).multimesh:
+			mesh = (g as MultiMeshInstance3D).multimesh.mesh
+		var surf := mesh.get_surface_count() if mesh else 1
+		var owner := "?"
+		var p := g.get_parent()
+		while p != null and p != main.world:
+			owner = String(p.name).get_slice("_", 0).get_slice("@", 0)
+			if p.get_parent() == main.world or p.get_parent() == main.terrain or p.get_parent() == main.settlements:
+				break
+			p = p.get_parent()
+		owner = owner.rstrip("0123456789")
+		var mname := (mesh.resource_path.get_file() if mesh and mesh.resource_path != "" else (mesh.get_class() if mesh else g.get_class()))
+		if mesh and names.has(mesh):
+			mname = names[mesh]
+		var inst := 1
+		if g is MultiMeshInstance3D:
+			var mmx := (g as MultiMeshInstance3D).multimesh
+			inst = mmx.instance_count if mmx.visible_instance_count < 0 else mmx.visible_instance_count
+		var tris := 0
+		if mesh is ArrayMesh:
+			for si in mesh.get_surface_count():
+				var ia: PackedInt32Array = mesh.surface_get_arrays(si)[Mesh.ARRAY_INDEX]
+				tris += ia.size() / 3 if ia.size() > 0 else (mesh.surface_get_arrays(si)[Mesh.ARRAY_VERTEX] as PackedVector3Array).size() / 3
+		var key := "%-14s %-22s %-34s %6d tris x%-4d" % [owner.left(14), g.get_class().left(22), mname.left(34), tris, inst]
+		groups[key] = groups.get(key, 0) + surf
+		tri_groups[key] = tri_groups.get(key, 0) + tris * inst
+		by_owner[owner] = by_owner.get(owner, 0) + surf
+		total += surf
+	print("DRAWS total surfaces in view: %d" % total)
+	for o in by_owner:
+		print("DRAWS owner %-14s %d" % [o, by_owner[o]])
+	var keys := groups.keys()
+	keys.sort_custom(func(a, b) -> bool: return groups[a] > groups[b])
+	for k in keys.slice(0, 30):
+		print("DRAWS %4d  %s" % [groups[k], k])
+	keys.sort_custom(func(a, b) -> bool: return tri_groups[a] > tri_groups[b])
+	var tsum := 0
+	for k in keys:
+		tsum += tri_groups[k]
+	print("TRIS in view (LOD0 of each in-range level, before mesh LOD): %d" % tsum)
+	for k in keys.slice(0, 30):
+		print("TRIS %8d  %s" % [tri_groups[k], k])
 
 
 ## --profile: after measuring, switch off _process/_physics_process on one system
@@ -399,5 +481,19 @@ func _texture_census() -> void:
 	for t in list:
 		total += t.get_width() * t.get_height() * 1.33
 	print("TEXTURES %d textures in use, %.0f Mpx incl. mips (~%.0f MB at 1 B/px ASTC/ETC2)" % [list.size(), total / 1e6, total / 1048576.0])
+	# What a phone export holds: addons/mobile_texture_limit caps res://assets/ textures at
+	# 1024 px (512 for scans/animals); lossless (non-VRAM) textures cost 4 B/px.
+	var mobile := 0.0
+	var lossless := 0
+	for t in list:
+		var path: String = t.resource_path
+		var cap := 512 if (path.begins_with("res://assets/generated/scan/") or path.begins_with("res://assets/incoming/animals/")) else 1024
+		var k := minf(1.0, float(cap) / maxf(t.get_width(), t.get_height())) if path.begins_with("res://assets/") and not path.ends_with(".hdr") else 1.0
+		var bpp := 1.0
+		if t is CompressedTexture2D and (t as CompressedTexture2D).get_image() and not (t as CompressedTexture2D).get_image().is_compressed():
+			bpp = 4.0
+			lossless += 1
+		mobile += t.get_width() * t.get_height() * k * k * 1.33 * bpp
+	print("TEXTURES mobile export estimate: ~%.0f MB (%d uncompressed textures at 4 B/px)" % [mobile / 1048576.0, lossless])
 	for t in list.slice(0, int(args.get("tex_n", "40"))):
 		print("TEXTURES %5dx%-5d %s" % [t.get_width(), t.get_height(), t.resource_path if t.resource_path != "" else t.get_class()])

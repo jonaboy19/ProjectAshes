@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bqosj1tewgt47"
-path="res://.godot/imported/stone_fire_pit_stone_fire_pit_diff_1k.jpg-a309317197c6760a027217eb12d08a03.ctex"
+path.s3tc="res://.godot/imported/stone_fire_pit_stone_fire_pit_diff_1k.jpg-a309317197c6760a027217eb12d08a03.s3tc.ctex"
+path.etc2="res://.godot/imported/stone_fire_pit_stone_fire_pit_diff_1k.jpg-a309317197c6760a027217eb12d08a03.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "470cb3f02b60fe4f3106fa13b2d0c2fd"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/stone_fire_pit_stone_fire_pit_diff_1k.jpg"
-dest_files=["res://.godot/imported/stone_fire_pit_stone_fire_pit_diff_1k.jpg-a309317197c6760a027217eb12d08a03.ctex"]
+dest_files=["res://.godot/imported/stone_fire_pit_stone_fire_pit_diff_1k.jpg-a309317197c6760a027217eb12d08a03.s3tc.ctex", "res://.godot/imported/stone_fire_pit_stone_fire_pit_diff_1k.jpg-a309317197c6760a027217eb12d08a03.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

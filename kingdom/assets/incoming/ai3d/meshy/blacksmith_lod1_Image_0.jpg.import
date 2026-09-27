@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bdu27oassidba"
-path="res://.godot/imported/blacksmith_lod1_Image_0.jpg-3ce3036af6323113aa3521b1aa7ccf03.ctex"
+path.s3tc="res://.godot/imported/blacksmith_lod1_Image_0.jpg-3ce3036af6323113aa3521b1aa7ccf03.s3tc.ctex"
+path.etc2="res://.godot/imported/blacksmith_lod1_Image_0.jpg-3ce3036af6323113aa3521b1aa7ccf03.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "d8fb9964deefc193abd4dadc5a751f7e"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/blacksmith_lod1_Image_0.jpg"
-dest_files=["res://.godot/imported/blacksmith_lod1_Image_0.jpg-3ce3036af6323113aa3521b1aa7ccf03.ctex"]
+dest_files=["res://.godot/imported/blacksmith_lod1_Image_0.jpg-3ce3036af6323113aa3521b1aa7ccf03.s3tc.ctex", "res://.godot/imported/blacksmith_lod1_Image_0.jpg-3ce3036af6323113aa3521b1aa7ccf03.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

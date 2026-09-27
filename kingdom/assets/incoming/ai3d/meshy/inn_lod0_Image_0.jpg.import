@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dkgcm6owxp34t"
-path="res://.godot/imported/inn_lod0_Image_0.jpg-bed937af6f6f614e160e8c2e7b06c036.ctex"
+path.s3tc="res://.godot/imported/inn_lod0_Image_0.jpg-bed937af6f6f614e160e8c2e7b06c036.s3tc.ctex"
+path.etc2="res://.godot/imported/inn_lod0_Image_0.jpg-bed937af6f6f614e160e8c2e7b06c036.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "39b21a03a42a4db8de5c630cb4a72954"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/inn_lod0_Image_0.jpg"
-dest_files=["res://.godot/imported/inn_lod0_Image_0.jpg-bed937af6f6f614e160e8c2e7b06c036.ctex"]
+dest_files=["res://.godot/imported/inn_lod0_Image_0.jpg-bed937af6f6f614e160e8c2e7b06c036.s3tc.ctex", "res://.godot/imported/inn_lod0_Image_0.jpg-bed937af6f6f614e160e8c2e7b06c036.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

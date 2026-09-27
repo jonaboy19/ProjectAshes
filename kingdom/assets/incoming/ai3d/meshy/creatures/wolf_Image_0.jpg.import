@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dub505img1fd7"
-path="res://.godot/imported/wolf_Image_0.jpg-cd21afc54dd6d4c2369d265e36bf82d6.ctex"
+path.s3tc="res://.godot/imported/wolf_Image_0.jpg-cd21afc54dd6d4c2369d265e36bf82d6.s3tc.ctex"
+path.etc2="res://.godot/imported/wolf_Image_0.jpg-cd21afc54dd6d4c2369d265e36bf82d6.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "6c80d1ae1eadcdc17e4130ac7d989897"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/creatures/wolf_Image_0.jpg"
-dest_files=["res://.godot/imported/wolf_Image_0.jpg-cd21afc54dd6d4c2369d265e36bf82d6.ctex"]
+dest_files=["res://.godot/imported/wolf_Image_0.jpg-cd21afc54dd6d4c2369d265e36bf82d6.s3tc.ctex", "res://.godot/imported/wolf_Image_0.jpg-cd21afc54dd6d4c2369d265e36bf82d6.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

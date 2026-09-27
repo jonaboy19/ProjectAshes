@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cv8j5g6t53ci6"
-path="res://.godot/imported/g6_f_modular_all_tex_human_female_hair_1.png-20cc99f151c73151499e22bc98b8d5d3.ctex"
+path.s3tc="res://.godot/imported/g6_f_modular_all_tex_human_female_hair_1.png-20cc99f151c73151499e22bc98b8d5d3.s3tc.ctex"
+path.etc2="res://.godot/imported/g6_f_modular_all_tex_human_female_hair_1.png-20cc99f151c73151499e22bc98b8d5d3.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "65d53b61c44d852ff73843330ef128e1"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_f_modular_all_tex_human_female_hair_1.png"
-dest_files=["res://.godot/imported/g6_f_modular_all_tex_human_female_hair_1.png-20cc99f151c73151499e22bc98b8d5d3.ctex"]
+dest_files=["res://.godot/imported/g6_f_modular_all_tex_human_female_hair_1.png-20cc99f151c73151499e22bc98b8d5d3.s3tc.ctex", "res://.godot/imported/g6_f_modular_all_tex_human_female_hair_1.png-20cc99f151c73151499e22bc98b8d5d3.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

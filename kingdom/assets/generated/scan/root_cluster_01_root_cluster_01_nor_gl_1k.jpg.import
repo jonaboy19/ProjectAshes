@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://biooqwwr7u7mx"
-path="res://.godot/imported/root_cluster_01_root_cluster_01_nor_gl_1k.jpg-a5b45bcb4fe8e9c89c04bd4f95ff0387.ctex"
+path.s3tc="res://.godot/imported/root_cluster_01_root_cluster_01_nor_gl_1k.jpg-a5b45bcb4fe8e9c89c04bd4f95ff0387.s3tc.ctex"
+path.etc2="res://.godot/imported/root_cluster_01_root_cluster_01_nor_gl_1k.jpg-a5b45bcb4fe8e9c89c04bd4f95ff0387.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "083c51d6423f5e18a880b206ba3fdcf2"
@@ -14,17 +16,17 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/root_cluster_01_root_cluster_01_nor_gl_1k.jpg"
-dest_files=["res://.godot/imported/root_cluster_01_root_cluster_01_nor_gl_1k.jpg-a5b45bcb4fe8e9c89c04bd4f95ff0387.ctex"]
+dest_files=["res://.godot/imported/root_cluster_01_root_cluster_01_nor_gl_1k.jpg-a5b45bcb4fe8e9c89c04bd4f95ff0387.s3tc.ctex", "res://.godot/imported/root_cluster_01_root_cluster_01_nor_gl_1k.jpg-a5b45bcb4fe8e9c89c04bd4f95ff0387.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

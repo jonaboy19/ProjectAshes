@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://brotvk3jnpvja"
-path="res://.godot/imported/wyvern_lod1_Image_0.jpg-a614c5579df3db99c40200e925a5aa59.ctex"
+path.s3tc="res://.godot/imported/wyvern_lod1_Image_0.jpg-a614c5579df3db99c40200e925a5aa59.s3tc.ctex"
+path.etc2="res://.godot/imported/wyvern_lod1_Image_0.jpg-a614c5579df3db99c40200e925a5aa59.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "d7171b089061c539453877ef748ba2c6"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/creatures/wyvern_lod1_Image_0.jpg"
-dest_files=["res://.godot/imported/wyvern_lod1_Image_0.jpg-a614c5579df3db99c40200e925a5aa59.ctex"]
+dest_files=["res://.godot/imported/wyvern_lod1_Image_0.jpg-a614c5579df3db99c40200e925a5aa59.s3tc.ctex", "res://.godot/imported/wyvern_lod1_Image_0.jpg-a614c5579df3db99c40200e925a5aa59.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

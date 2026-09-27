@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b50hogtc2o4be"
-path="res://.godot/imported/root_cluster_01_root_cluster_01_diff_1k.jpg-e2ebcb1c09cb56d51b9f1a2c5d63e928.ctex"
+path.s3tc="res://.godot/imported/root_cluster_01_root_cluster_01_diff_1k.jpg-e2ebcb1c09cb56d51b9f1a2c5d63e928.s3tc.ctex"
+path.etc2="res://.godot/imported/root_cluster_01_root_cluster_01_diff_1k.jpg-e2ebcb1c09cb56d51b9f1a2c5d63e928.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "c8edccb07a521f1724f234ca83db5a5c"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/root_cluster_01_root_cluster_01_diff_1k.jpg"
-dest_files=["res://.godot/imported/root_cluster_01_root_cluster_01_diff_1k.jpg-e2ebcb1c09cb56d51b9f1a2c5d63e928.ctex"]
+dest_files=["res://.godot/imported/root_cluster_01_root_cluster_01_diff_1k.jpg-e2ebcb1c09cb56d51b9f1a2c5d63e928.s3tc.ctex", "res://.godot/imported/root_cluster_01_root_cluster_01_diff_1k.jpg-e2ebcb1c09cb56d51b9f1a2c5d63e928.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

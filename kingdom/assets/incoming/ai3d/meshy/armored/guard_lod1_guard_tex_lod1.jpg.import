@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://hbpoq0av4fc0"
-path="res://.godot/imported/guard_lod1_guard_tex_lod1.jpg-65875cbb7147e8759e96040c7110ef36.ctex"
+path.s3tc="res://.godot/imported/guard_lod1_guard_tex_lod1.jpg-65875cbb7147e8759e96040c7110ef36.s3tc.ctex"
+path.etc2="res://.godot/imported/guard_lod1_guard_tex_lod1.jpg-65875cbb7147e8759e96040c7110ef36.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "6d40e990b160860ca66dae6c7cbd58c8"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/armored/guard_lod1_guard_tex_lod1.jpg"
-dest_files=["res://.godot/imported/guard_lod1_guard_tex_lod1.jpg-65875cbb7147e8759e96040c7110ef36.ctex"]
+dest_files=["res://.godot/imported/guard_lod1_guard_tex_lod1.jpg-65875cbb7147e8759e96040c7110ef36.s3tc.ctex", "res://.godot/imported/guard_lod1_guard_tex_lod1.jpg-65875cbb7147e8759e96040c7110ef36.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

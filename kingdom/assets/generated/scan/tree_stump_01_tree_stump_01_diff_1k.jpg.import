@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bmqmor5cr17el"
-path="res://.godot/imported/tree_stump_01_tree_stump_01_diff_1k.jpg-6cc195a757c7bd4312c772e415090142.ctex"
+path.s3tc="res://.godot/imported/tree_stump_01_tree_stump_01_diff_1k.jpg-6cc195a757c7bd4312c772e415090142.s3tc.ctex"
+path.etc2="res://.godot/imported/tree_stump_01_tree_stump_01_diff_1k.jpg-6cc195a757c7bd4312c772e415090142.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "3b935c3a369a6bd8ec59fd5675f5f83b"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/tree_stump_01_tree_stump_01_diff_1k.jpg"
-dest_files=["res://.godot/imported/tree_stump_01_tree_stump_01_diff_1k.jpg-6cc195a757c7bd4312c772e415090142.ctex"]
+dest_files=["res://.godot/imported/tree_stump_01_tree_stump_01_diff_1k.jpg-6cc195a757c7bd4312c772e415090142.s3tc.ctex", "res://.godot/imported/tree_stump_01_tree_stump_01_diff_1k.jpg-6cc195a757c7bd4312c772e415090142.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

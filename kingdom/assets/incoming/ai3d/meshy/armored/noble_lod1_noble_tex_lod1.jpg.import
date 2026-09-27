@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c0641d8se8ui2"
-path="res://.godot/imported/noble_lod1_noble_tex_lod1.jpg-c0bcebb2162ece0f2a1adee76c1ad331.ctex"
+path.s3tc="res://.godot/imported/noble_lod1_noble_tex_lod1.jpg-c0bcebb2162ece0f2a1adee76c1ad331.s3tc.ctex"
+path.etc2="res://.godot/imported/noble_lod1_noble_tex_lod1.jpg-c0bcebb2162ece0f2a1adee76c1ad331.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "68b25ed0462aefb582752eb1069352fa"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/armored/noble_lod1_noble_tex_lod1.jpg"
-dest_files=["res://.godot/imported/noble_lod1_noble_tex_lod1.jpg-c0bcebb2162ece0f2a1adee76c1ad331.ctex"]
+dest_files=["res://.godot/imported/noble_lod1_noble_tex_lod1.jpg-c0bcebb2162ece0f2a1adee76c1ad331.s3tc.ctex", "res://.godot/imported/noble_lod1_noble_tex_lod1.jpg-c0bcebb2162ece0f2a1adee76c1ad331.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

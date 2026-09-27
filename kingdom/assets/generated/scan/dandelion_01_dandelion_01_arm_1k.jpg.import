@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://boouy1t3y5qxj"
-path="res://.godot/imported/dandelion_01_dandelion_01_arm_1k.jpg-989cee4e36c420f491141da3d3d7aee2.ctex"
+path.s3tc="res://.godot/imported/dandelion_01_dandelion_01_arm_1k.jpg-989cee4e36c420f491141da3d3d7aee2.s3tc.ctex"
+path.etc2="res://.godot/imported/dandelion_01_dandelion_01_arm_1k.jpg-989cee4e36c420f491141da3d3d7aee2.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8199c3e5dd27ac6edfb2cc9cb46babe4"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/dandelion_01_dandelion_01_arm_1k.jpg"
-dest_files=["res://.godot/imported/dandelion_01_dandelion_01_arm_1k.jpg-989cee4e36c420f491141da3d3d7aee2.ctex"]
+dest_files=["res://.godot/imported/dandelion_01_dandelion_01_arm_1k.jpg-989cee4e36c420f491141da3d3d7aee2.s3tc.ctex", "res://.godot/imported/dandelion_01_dandelion_01_arm_1k.jpg-989cee4e36c420f491141da3d3d7aee2.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

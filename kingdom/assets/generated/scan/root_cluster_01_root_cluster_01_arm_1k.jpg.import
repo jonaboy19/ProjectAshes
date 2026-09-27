@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c55g2ic571i1y"
-path="res://.godot/imported/root_cluster_01_root_cluster_01_arm_1k.jpg-207331afca850a2198860afae7e2c18d.ctex"
+path.s3tc="res://.godot/imported/root_cluster_01_root_cluster_01_arm_1k.jpg-207331afca850a2198860afae7e2c18d.s3tc.ctex"
+path.etc2="res://.godot/imported/root_cluster_01_root_cluster_01_arm_1k.jpg-207331afca850a2198860afae7e2c18d.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "5fa5593a53fba85eb9d8071352b78ef8"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/root_cluster_01_root_cluster_01_arm_1k.jpg"
-dest_files=["res://.godot/imported/root_cluster_01_root_cluster_01_arm_1k.jpg-207331afca850a2198860afae7e2c18d.ctex"]
+dest_files=["res://.godot/imported/root_cluster_01_root_cluster_01_arm_1k.jpg-207331afca850a2198860afae7e2c18d.s3tc.ctex", "res://.godot/imported/root_cluster_01_root_cluster_01_arm_1k.jpg-207331afca850a2198860afae7e2c18d.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

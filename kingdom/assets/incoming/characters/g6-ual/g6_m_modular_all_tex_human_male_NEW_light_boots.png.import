@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://qcgnddbce056"
-path="res://.godot/imported/g6_m_modular_all_tex_human_male_NEW_light_boots.png-14f9bbcb8185291c95d6fa3adb7ba4f3.ctex"
+path.s3tc="res://.godot/imported/g6_m_modular_all_tex_human_male_NEW_light_boots.png-14f9bbcb8185291c95d6fa3adb7ba4f3.s3tc.ctex"
+path.etc2="res://.godot/imported/g6_m_modular_all_tex_human_male_NEW_light_boots.png-14f9bbcb8185291c95d6fa3adb7ba4f3.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "1ca5e9f27aa76b218c96c22648d110c5"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_m_modular_all_tex_human_male_NEW_light_boots.png"
-dest_files=["res://.godot/imported/g6_m_modular_all_tex_human_male_NEW_light_boots.png-14f9bbcb8185291c95d6fa3adb7ba4f3.ctex"]
+dest_files=["res://.godot/imported/g6_m_modular_all_tex_human_male_NEW_light_boots.png-14f9bbcb8185291c95d6fa3adb7ba4f3.s3tc.ctex", "res://.godot/imported/g6_m_modular_all_tex_human_male_NEW_light_boots.png-14f9bbcb8185291c95d6fa3adb7ba4f3.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

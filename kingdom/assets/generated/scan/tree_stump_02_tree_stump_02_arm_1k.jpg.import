@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dl1g0sykgpmll"
-path="res://.godot/imported/tree_stump_02_tree_stump_02_arm_1k.jpg-8c2ca4af4f76098f57ccc7398b03b5df.ctex"
+path.s3tc="res://.godot/imported/tree_stump_02_tree_stump_02_arm_1k.jpg-8c2ca4af4f76098f57ccc7398b03b5df.s3tc.ctex"
+path.etc2="res://.godot/imported/tree_stump_02_tree_stump_02_arm_1k.jpg-8c2ca4af4f76098f57ccc7398b03b5df.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "adea22fe0e5c83c79d44ed9b334fe95e"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/generated/scan/tree_stump_02_tree_stump_02_arm_1k.jpg"
-dest_files=["res://.godot/imported/tree_stump_02_tree_stump_02_arm_1k.jpg-8c2ca4af4f76098f57ccc7398b03b5df.ctex"]
+dest_files=["res://.godot/imported/tree_stump_02_tree_stump_02_arm_1k.jpg-8c2ca4af4f76098f57ccc7398b03b5df.s3tc.ctex", "res://.godot/imported/tree_stump_02_tree_stump_02_arm_1k.jpg-8c2ca4af4f76098f57ccc7398b03b5df.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

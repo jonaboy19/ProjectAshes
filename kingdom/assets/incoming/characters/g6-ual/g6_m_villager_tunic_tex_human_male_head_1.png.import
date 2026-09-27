@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://2f3w0c6q3ijs"
-path="res://.godot/imported/g6_m_villager_tunic_tex_human_male_head_1.png-e70c5c074e1e361d2a8cfd7960c1050e.ctex"
+path.s3tc="res://.godot/imported/g6_m_villager_tunic_tex_human_male_head_1.png-e70c5c074e1e361d2a8cfd7960c1050e.s3tc.ctex"
+path.etc2="res://.godot/imported/g6_m_villager_tunic_tex_human_male_head_1.png-e70c5c074e1e361d2a8cfd7960c1050e.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "2a35d7d44965bf3e4527b38514a26c78"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/characters/g6-ual/g6_m_villager_tunic_tex_human_male_head_1.png"
-dest_files=["res://.godot/imported/g6_m_villager_tunic_tex_human_male_head_1.png-e70c5c074e1e361d2a8cfd7960c1050e.ctex"]
+dest_files=["res://.godot/imported/g6_m_villager_tunic_tex_human_male_head_1.png-e70c5c074e1e361d2a8cfd7960c1050e.s3tc.ctex", "res://.godot/imported/g6_m_villager_tunic_tex_human_male_head_1.png-e70c5c074e1e361d2a8cfd7960c1050e.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
