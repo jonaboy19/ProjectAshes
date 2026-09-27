@@ -234,6 +234,7 @@ source where licences allow and the pushed asset packs; Blender work in parallel
 - Distance: LODs, HLOD or impostors, aggressive culling, instancing, texture atlases. Distant decoration uses simplified meshes.
 - Avoid: blindly raising poly counts, unnecessary dynamic lights, excessive transparency, very high-resolution textures, thousands of tiny objects.
 - Asset workflow: Meshy (fast generation, on the user's PC) → Blender cleanup, decimation and LODs (here) → Godot.
+- **Never use Higgsfield** (user rule), for any asset, image, audio or video.
 
 ## Target look (user reference, round 6)
 
