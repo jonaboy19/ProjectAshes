@@ -389,7 +389,7 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 	var lots: Array = plan["lots"]
 	var sets := {"garden_plot": [], "woodpile": [], "washing_line": []}
 	for lot: Dictionary in lots:
-		if not String(lot["asset"]).begins_with("house"):
+		if not (String(lot["asset"]).begins_with("house") or String(lot["asset"]).begins_with("mhouse")):
 			continue
 		var yaw: float = lot["yaw"]
 		var fwd := Vector2(sin(yaw), cos(yaw))
