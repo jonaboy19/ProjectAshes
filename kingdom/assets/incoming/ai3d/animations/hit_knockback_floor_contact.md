@@ -15,8 +15,14 @@ The source action has no vertical translation on its `root` bone. A smoothed, lo
 
 ## Measurement
 
-Blender evaluated the reference mannequin's skinned mesh at 201 points across the clip after re-importing the exported GLB. Its worst floor penetration changed from 9.65 cm in the original action to 0.09 cm in the adjusted action. This is a source-rig result only. The project's game-loader report measured 5–34 cm across 27 humanoid profiles for the original `Hit_B`; this candidate has **not** yet been measured across those profiles or played in the game. Do not treat the source-rig improvement as proof that it fixes retargeted characters.
+Blender re-imported the exported GLB successfully. On the reference mannequin, 201 skinned-mesh samples reduced the worst floor penetration from 9.65 cm to 0.09 cm.
 
-## Integration note for Claude
+A scratch copy of the Godot game-loader animation QA harness injected the candidate clip into the same `AnimationLibrary` used by 27 humanoid profiles. The run reached `ANIM_QA_DONE`; Godot then crashed during shutdown with resources still in use, consistent with the existing harness shutdown issue. The measurements were written before shutdown. Floor penetration improved for all 27, with the worst case moving from 34.3 cm to 27.8 cm and the median from 12.3 cm to 7.4 cm. **Fourteen profiles still penetrate at least 5 cm.** Maximum planted-foot slip rose from 64.4 to 84.8 cm/s. This is not a finished shared-clip fix. The foot metrics are imperfect for a lying pose, but the remaining mesh penetration is clear.
 
-If reviewing in the game, load this clip before `UAL2_Standard.glb` in the animation-library search order so the existing `Hit_Knockback` name wins, while keeping the `Hit_B` alias. Re-run the full humanoid animation QA and inspect player guard-break plus soldier heavy-hit at their actual playback rates. Check both floor contact and any newly visible hovering, hit timing, movement recovery, and LOD transitions. Keep or reject the candidate based on those results; this file does not change game wiring.
+See the interactive [retarget review board](../../../../../docs/concepts/HIT_KNOCKBACK_RETARGET_REVIEW.html) for every profile and the [Blender source-rig comparison](../../../../../docs/concepts/hit_knockback_floor_contact_preview.jpg).
+
+## Integration status
+
+**Do not replace the shared `Hit_B` alias with this candidate as-is.** It demonstrates that a single shared root-height curve reduces penetration, but the correction needed varies substantially by character profile. Keep the current game wiring unchanged until a retarget-aware correction or better authored action passes the full avatar QA and live combat review.
+
+The asset is retained as a non-integrated experiment for further animation work. The original UAL2 clip and all game scripts remain unchanged.

@@ -12,6 +12,7 @@ This file is the current implementation work order. Use the deeper design and ev
 - [`NATURAL_WORLD_CLAUDE_HANDOFF.md`](NATURAL_WORLD_CLAUDE_HANDOFF.md) — existing systems, routing and crowd design, reference patterns.
 - [`REAL_WORLD_GAME_FEEL_PLAN.md`](REAL_WORLD_GAME_FEEL_PLAN.md) — code observations, previous QA, and prior Codex-side work.
 - [`OPEN_WORLD_PATTERN_STUDY.md`](OPEN_WORLD_PATTERN_STUDY.md) — architecture ideas and licence cautions.
+- [`HIT_KNOCKBACK_RETARGET_REVIEW.html`](HIT_KNOCKBACK_RETARGET_REVIEW.html) — latest 27-profile game-loader evaluation of the shared knockdown clip; the current one-curve cleanup is not ready for integration.
 - [`../LOCAL_SESSION_HANDOFF.md`](../LOCAL_SESSION_HANDOFF.md) — ownership, active work, asset status and merge coordination.
 - [`../qa/PERFORMANCE.md`](../qa/PERFORMANCE.md) — actor and device budgets.
 
