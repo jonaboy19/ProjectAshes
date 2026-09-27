@@ -101,6 +101,8 @@ Separate acceleration, braking, and turning response from animation blending. Us
 
 Review the [player impulse response audit](PLAYER_IMPULSE_REVIEW.html) before changing attack lunge or hit recoil. The current player controller adds its decaying `_impulse` vector to horizontal velocity on every physics tick. Decide whether each use means a one-time velocity kick or a delta-scaled acceleration, keep melee lunge separate from received/block recoil, and compare the current 60 Hz response against collision and combat captures before tuning.
 
+For enemy groups, delayed hit checks, combatant wall clipping, and the observed lethal multi-enemy fights, use the focused [combat pressure and readability handoff](COMBAT_PRESSURE_AND_READABILITY.md) and its [interactive timing model](COMBAT_PRESSURE_WINDOW_REVIEW.html). It separates source facts from playtest outcomes and design hypotheses, and gives Claude encounter-level acceptance checks without prescribing a wholesale combat rewrite.
+
 Use animation events or authored normalized hit windows for combat contact rather than allowing visual swing timing to drift from fixed damage timers. Keep hitbox activation, recovery, cancel windows, stamina cost, and movement lock visible in the move definition. Dodge displacement must agree with the dodge clip and still stop at walls. Camera shake and hit-stop should reinforce a confirmed impact and scale by hit strength, not fire on a miss.
 
 Build a reusable clip acceptance matrix for player, villager rigs, guards, enemies, and animals: ground penetration, planted-foot slip, loop seam, pose pop, bone stretch, facing/heading, and playback-speed match. Repair bad retargets or select a better clip; do not hide broken gait by changing every actor to one unnatural speed.

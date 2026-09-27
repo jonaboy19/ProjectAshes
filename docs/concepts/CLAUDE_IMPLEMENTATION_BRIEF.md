@@ -16,6 +16,7 @@ This brief points to the evidence and proposes a safe implementation sequence. I
 10. [Open-world pattern study](OPEN_WORLD_PATTERN_STUDY.md) — project patterns and source/license distinctions.
 11. [Current playtest visual and movement review](CURRENT_RUN_VISUAL_REVIEW.md) — a reproducible camera obstruction, a clear line between static screenshot evidence and unverified NPC collision, and a focused moving-runtime capture matrix.
 12. [Near-NPC follower and gait-state review](NPC_FOLLOWER_ANIMATION_REVIEW.html) and [source notes](NPC_FOLLOWER_ANIMATION_REVIEW.md) — interactive model of population-sliced gait selection and frame-dependent turn easing.
+13. [Combat pressure and readability handoff](COMBAT_PRESSURE_AND_READABILITY.md) and [pressure-window viewer](COMBAT_PRESSURE_WINDOW_REVIEW.html) — source-backed diagnosis, encounter sequencing, fair hit validation, and acceptance checks. The interactive chart is a design model, not runtime evidence or a balance simulator.
 
 ## Baseline and evidence
 

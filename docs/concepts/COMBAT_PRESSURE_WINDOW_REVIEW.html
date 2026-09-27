@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Combat pressure window review</title>
+<style>
+:root{color-scheme:dark;--bg:#15191d;--panel:#20272d;--line:#3a464f;--text:#edf2f4;--muted:#a9b5bb;--red:#ec806e;--gold:#e6c36b;--blue:#73b7e8;--green:#85cba4}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,sans-serif}main{max-width:1100px;margin:auto;padding:28px 20px 48px}h1,h2{line-height:1.2}h1{font-size:clamp(1.7rem,4vw,2.5rem);margin:0 0 8px}.intro,.note{color:var(--muted);max-width:80ch}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:18px}.controls{display:flex;flex-wrap:wrap;gap:16px 22px;align-items:end}.control{min-width:145px}.control label{display:block;color:var(--muted);font-size:.88rem;margin-bottom:5px}.control input{width:100%;accent-color:var(--gold)}.value{font-variant-numeric:tabular-nums;color:var(--gold)}.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:16px}.tile{padding:12px;background:#171d21;border-radius:8px}.tile strong{display:block;font-size:1.15rem}.chart{margin-top:20px;overflow:auto}.row{display:grid;grid-template-columns:130px minmax(450px,1fr);gap:12px;align-items:center;margin:10px 0}.label{color:var(--muted);font-size:.9rem}.track{height:26px;position:relative;background:#111619;border-radius:5px;overflow:hidden}.segment{height:100%;position:absolute;border-radius:4px;opacity:.92}.tick{position:absolute;top:0;bottom:0;width:1px;background:#ffffff21}.tick span{position:absolute;top:27px;left:3px;color:var(--muted);font-size:11px;white-space:nowrap}.legend{display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:.9rem}.key{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px}button{background:#36434a;color:var(--text);border:1px solid #65747c;border-radius:6px;padding:8px 12px;font:inherit;cursor:pointer}button:hover{background:#46565f}a{color:#9fd2f2}footer{color:var(--muted);font-size:.9rem;margin-top:22px}@media(max-width:650px){main{padding:20px 12px}.row{grid-template-columns:1fr;gap:5px}.track{min-width:450px}.chart{overflow-x:auto}}
+</style>
+<main>
+<h1>Combat pressure window review</h1>
+<p class="intro">A small editable design model for thinking about simultaneous enemy attacks, impact delays, and player protection windows. It helps frame a fairness discussion; it does not simulate Rising Ashes or predict actual damage.</p>
+<section class="panel" aria-labelledby="inputs">
+<h2 id="inputs">Encounter assumptions</h2>
+<div class="controls">
+<div class="control"><label for="count">Attackers: <span class="value" id="countV"></span></label><input id="count" type="range" min="1" max="8" value="4"></div>
+<div class="control"><label for="cadence">Attack cooldown (seconds): <span class="value" id="cadenceV"></span></label><input id="cadence" type="range" min="0.8" max="2.2" value="1.5" step="0.1"></div>
+<div class="control"><label for="delay">Wind-up to impact (seconds): <span class="value" id="delayV"></span></label><input id="delay" type="range" min="0.15" max="0.6" value="0.25" step="0.05"></div>
+<div class="control"><label for="hurt">Player hurt cooldown (seconds): <span class="value" id="hurtV"></span></label><input id="hurt" type="range" min="0.1" max="0.8" value="0.35" step="0.05"></div>
+<div class="control"><label for="dodge">Dodge invulnerability (seconds): <span class="value" id="dodgeV"></span></label><input id="dodge" type="range" min="0" max="0.6" value="0.35" step="0.05"></div>
+<div class="control"><label for="slots">Proposed attack slots: <span class="value" id="slotsV"></span></label><input id="slots" type="range" min="1" max="4" value="1"></div>
+<button id="reset" type="button">Reset source example</button>
+</div>
+<div class="summary" id="summary"></div>
+<div class="legend"><span><i class="key" style="background:var(--red)"></i>Enemy attack wind-up to impact</span><span><i class="key" style="background:var(--blue)"></i>Hurt cooldown</span><span><i class="key" style="background:var(--green)"></i>Dodge invulnerability example</span><span><i class="key" style="background:var(--gold)"></i>Reserved attack slot example</span></div>
+<div class="chart" id="chart" aria-label="Illustrative encounter timeline"></div>
+<p class="note">The independent-attacker rows use a simple evenly spaced cadence to make overlap visible. Real code randomizes cooldowns and also has approach distance, target movement, blocks, missed attacks and other constraints. Slot timing is schematic and does not imply a recommended final cadence. No hit probability or expected DPS is calculated.</p>
+</section>
+<section class="panel"><h2>Source facts represented</h2><ul><li>Wolf bite: 9 damage, 0.25 s delayed check, randomized cooldown 1.2–1.8 s.</li><li>Player: 0.35 s hurt cooldown and 0.35 s dodge invulnerability during a 0.45 s dodge.</li><li>These are read from the reviewed source snapshot; verify against the current gameplay branch before using them as implementation values.</li></ul><p><a href="COMBAT_PRESSURE_AND_READABILITY.md">Read the combat implementation handoff</a></p></section>
+<footer>Design artifact only. It is an illustration of timer overlap, not runtime evidence, a combat simulator, or a balance prescription.</footer>
+</main>
+<script>
+const ids=['count','cadence','delay','hurt','dodge','slots'];const get=id=>document.getElementById(id);function fmt(v){return Number(v).toFixed(2)}
+function render(){const n=+get('count').value,c=+get('cadence').value,d=+get('delay').value,h=+get('hurt').value,g=+get('dodge').value,s=+get('slots').value;for(const id of ids)get(id+'V').textContent=id==='count'||id==='slots'?get(id).value:fmt(get(id).value);
+const span=Math.max(5,c*3.5),step=span/100;let html='';function row(name,segments){html+=`<div class="row"><div class="label">${name}</div><div class="track">${Array.from({length:6},(_,i)=>`<i class="tick" style="left:${i*20}%"><span>${fmt(span*i/5)}s</span></i>`).join('')}${segments.map(x=>`<i class="segment" title="${x.title}" style="left:${x.start/span*100}%;width:${Math.max(.8,(x.end-x.start)/span*100)}%;background:${x.color}"></i>`).join('')}</div></div>`}
+row('Independent attacks',Array.from({length:n},(_,i)=>{const t=i*c/n;return{start:t,end:Math.min(t+d,span),color:'var(--red)',title:`Attacker ${i+1}: illustrative wind-up`}}));
+row('Player hurt cooldown',Array.from({length:Math.ceil(span/(c/n))},(_,i)=>{let t=i*(c/n);return{start:t,end:Math.min(t+h,span),color:'var(--blue)',title:'Illustrative hurt cooldown'}}));
+row('Dodge example',Array.from({length:Math.ceil(span/1.1)},(_,i)=>{let t=.45+i*1.1;return{start:t,end:Math.min(t+g,span),color:'var(--green)',title:'Illustrative dodge invulnerability'}}));
+row('Shared slot example',Array.from({length:Math.ceil(span/c)},(_,i)=>{let t=i*c;return{start:t,end:Math.min(t+d,span),color:'var(--gold)',title:`One of ${s} proposed slot(s), schematic timing`}}));get('chart').innerHTML=html;
+const wolfRaw=9/c*n;get('summary').innerHTML=`<div class="tile"><strong>${fmt(wolfRaw)} raw dmg/s</strong>Wolf-only cooldown upper-bound arithmetic if every listed attack lands; not expected or observed DPS.</div><div class="tile"><strong>${s} slot${s===1?'':'s'}</strong>Illustrative simultaneous-commit cap for discussion, not a recommendation.</div><div class="tile"><strong>${fmt(h)} s / ${fmt(g)} s</strong>Source example for player hurt cooldown / dodge invulnerability.</div>`}
+for(const id of ids)get(id).addEventListener('input',render);get('reset').addEventListener('click',()=>{Object.assign(get('count'),{value:4});Object.assign(get('cadence'),{value:1.5});Object.assign(get('delay'),{value:.25});Object.assign(get('hurt'),{value:.35});Object.assign(get('dodge'),{value:.35});Object.assign(get('slots'),{value:1});render()});render();
+</script>
+</html>
