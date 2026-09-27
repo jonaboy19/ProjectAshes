@@ -16,6 +16,8 @@ The most useful ideas are:
 
 The strongest newly found “ambitious project that slowed down” is [Voxel Quest](https://github.com/gavanw/vqisosmall), but it is not a finished or AAA-quality game. The author described its planned NPC reasoning as deterministic score maximization over needs, wealth, social standing, and known facts, and later development notes list advanced pathfinding, basic character AI, physical animation responses, and LOD. The useful lesson is to keep motives and knowledge in world simulation, then let physical actors execute reachable goals. It is not evidence that the prototype achieved a complete living world, and its architecture is not a shortcut around Rising Ashes' current collision, route, and animation bugs.
 
+For high-budget open-world AI design rather than reusable open-source code, the Warhorse Studios / Charles University paper [“An AI System for Large Open Virtual World”](https://ojs.aaai.org/index.php/AIIDE/article/view/12705) is a stronger primary source. It describes ambient routines, behavior components with priority, coordinated switch-out/switch-in transitions, suspension/resumption, animation/world-action synchronization, LOD AI, and performance/debugging concerns. These concepts map directly to Rising Ashes' schedule + `PopulationLOD` + near-actor split; the focused [NPC transition design](NPC_ANIMATION_TRANSITION_DESIGN.md) translates the safe-interruption pattern into this project's current states. The paper is a system description, not an open-source codebase or rights to the game's assets.
+
 ## Projects worth studying
 
 | Project | Current status and license | Pattern to study | What not to assume |
@@ -59,3 +61,4 @@ Use these projects to learn how to structure routes, simulation tiers, authored 
 - [REGoth predecessor notice](https://github.com/REGoth-project/REGoth) and [successor repository/license](https://github.com/REGoth-project/REGoth-bs)
 - [Archived 0 A.D. GitHub mirror](https://github.com/0ad/0ad) and [official 0 A.D. licensing/release page](https://play0ad.com/)
 - [Godot 4.6 navigation overview](https://docs.godotengine.org/en/4.6/tutorials/navigation/navigation_introduction_3d.html): navigation regions, agents, and movement are separate responsibilities.
+- [Warhorse Studios / Charles University, “An AI System for Large Open Virtual World,” AIIDE 2014](https://ojs.aaai.org/index.php/AIIDE/article/view/12705) and its [PDF](https://ojs.aaai.org/index.php/AIIDE/article/download/12705/12553/16222): published ambient AI, behavior hierarchy, safe interruption, LOD, and profiling design.

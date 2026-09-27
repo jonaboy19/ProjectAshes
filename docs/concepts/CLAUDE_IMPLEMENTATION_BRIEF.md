@@ -18,6 +18,7 @@ This brief points to the evidence and proposes a safe implementation sequence. I
 12. [Near-NPC follower and gait-state review](NPC_FOLLOWER_ANIMATION_REVIEW.html) and [source notes](NPC_FOLLOWER_ANIMATION_REVIEW.md) — interactive model of population-sliced gait selection and frame-dependent turn easing.
 13. [Combat pressure and readability handoff](COMBAT_PRESSURE_AND_READABILITY.md) and [pressure-window viewer](COMBAT_PRESSURE_WINDOW_REVIEW.html) — source-backed diagnosis, encounter sequencing, fair hit validation, and acceptance checks. The interactive chart is a design model, not runtime evidence or a balance simulator.
 14. [Godot 4.6 NPC navigation notes](NPC_NAVIGATION_GODOT46_NOTES.md) and [motion-pipeline review](NPC_MOTION_PIPELINE_REVIEW.html) — movement ownership, NavigationAgent/avoidance/physics distinctions, streamed map synchronization, and source-linked NPC collision failures.
+15. [NPC behavior/animation transition design](NPC_ANIMATION_TRANSITION_DESIGN.md) and [interactive handoff viewer](NPC_TRANSITION_HANDOFF_REVIEW.html) — priority interruptions with safe switch-out, action cleanup, readable entry poses, and goal revalidation, informed by published Warhorse ambient-AI research.
 
 ## Baseline and evidence
 

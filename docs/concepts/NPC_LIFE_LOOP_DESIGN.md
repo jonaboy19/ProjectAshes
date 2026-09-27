@@ -60,6 +60,8 @@ Use a small state set with explicit entry/exit behavior. It can be an enum plus 
 
 Priorities are evaluated in that order, but persistent activities should not restart every frame. State changes should be event-driven or checked at a bounded rate. Add hysteresis to threat, distance, and path-failure thresholds so an actor does not chatter between states.
 
+Use an explicit switch-out/switch-in contract when a higher-priority state interrupts a resident. Finish or safely cancel the current action, release its route, anchor, held-item, speech, or attack reservation, then initialize the new owner and its entry pose. Preserve the old goal as intent and revalidate it before resuming. Do not let two states drive the same body transform. The research-grounded details and three annotated interruption examples are in [behavior and animation transition design](NPC_ANIMATION_TRANSITION_DESIGN.md) and its [interactive handoff viewer](NPC_TRANSITION_HANDOFF_REVIEW.html).
+
 ## Goals and activity anchors
 
 A position alone does not describe a believable destination. Represent a goal as a stable identity and a small anchor record:
