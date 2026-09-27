@@ -88,6 +88,8 @@ Avoidance is not free. Enable it for actors currently close enough to meet, not 
 
 ### Phase 4 — Calibrate animation and movement as one system
 
+Start with the [locomotion speed review](LOCOMOTION_SPEED_REVIEW.html) and its [prioritized findings](LOCOMOTION_SPEED_REVIEW.md). The current game-loader QA reports 54 failing speed cases out of 62; player blocking, villager catch-up, and wolf stalking are the most obvious examples.
+
 The [27-profile knockback retarget review](HIT_KNOCKBACK_RETARGET_REVIEW.html) is a concrete example of why a source-rig improvement cannot be accepted from one mannequin: the prototype reduces reference-rig floor penetration but still leaves severe failures across avatar profiles and worsens the worst planted-foot slip. The matching incoming GLB is marked as an experiment and must not replace the shared gameplay alias as-is.
 
 Start from the existing `CharacterAnimator`, `AnimationTree`, UAL aliases, and QA harness. Build a per-rig locomotion calibration table for walk, jog/run, strafe, and backward movement. Compare clip ground speed and planted-foot slip to actual movement at the rig's in-game scale. Use the existing QA report as the baseline and target a game-speed/clip-speed ratio of **0.85–1.18** for ordinary locomotion, then review clips visually for contact quality. The current player walk, blocking walk, and villager walk are clear first targets.
