@@ -1,7 +1,7 @@
 # Current playtest visual and movement review
 
-**Purpose:** give Claude a small, source-grounded review target from the latest local playtest artifacts without editing game code.  
-**Inspected baseline:** `claude/focused-curie-m09hbd` at `e3563fc4`; its animation report, autoplay output, and screenshots were still in progress and uncommitted when reviewed on 2026-09-27.  
+**Purpose:** give Claude a small, source-grounded review target from the latest local playtest artifacts without editing game code.
+**Inspected baseline:** `claude/focused-curie-m09hbd` at `e3563fc4`; its animation report, autoplay output, and screenshots were still in progress and uncommitted when reviewed on 2026-09-27.
 **Scope:** visible camera obstruction, what the current screenshots prove about NPCs, and the evidence needed to verify collision and route behavior.
 
 ## 1. The first-walk camera is still heavily obstructed
