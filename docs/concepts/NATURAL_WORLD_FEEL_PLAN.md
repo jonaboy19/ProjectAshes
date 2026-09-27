@@ -1,7 +1,7 @@
 # Rising Ashes: natural world feel plan
 
 **Status:** implementation handoff for Claude  
-**Scope:** design and acceptance plan only. This change adds documentation; it does not alter game scripts, scenes, assets, or project settings.  
+**Scope:** implementation handoff. This branch adds documentation, visual review artifacts, and one explicitly non-integrated animation experiment; it does not edit game scripts, scenes, or project settings.  
 **Baseline inspected:** `e8ad02de` on `claude/focused-curie-m09hbd` (Godot 4.6).
 
 ## Goal
@@ -87,6 +87,8 @@ Avoidance is not free. Enable it for actors currently close enough to meet, not 
 **Done when:** a villager walks around a house to its front door, routes around a stall row, reaches a target on the other side of a wall only through a valid path, and handles a chunk boundary without snapping through geometry.
 
 ### Phase 4 — Calibrate animation and movement as one system
+
+The [27-profile knockback retarget review](HIT_KNOCKBACK_RETARGET_REVIEW.html) is a concrete example of why a source-rig improvement cannot be accepted from one mannequin: the prototype reduces reference-rig floor penetration but still leaves severe failures across avatar profiles and worsens the worst planted-foot slip. The matching incoming GLB is marked as an experiment and must not replace the shared gameplay alias as-is.
 
 Start from the existing `CharacterAnimator`, `AnimationTree`, UAL aliases, and QA harness. Build a per-rig locomotion calibration table for walk, jog/run, strafe, and backward movement. Compare clip ground speed and planted-foot slip to actual movement at the rig's in-game scale. Use the existing QA report as the baseline and target a game-speed/clip-speed ratio of **0.85–1.18** for ordinary locomotion, then review clips visually for contact quality. The current player walk, blocking walk, and villager walk are clear first targets.
 
