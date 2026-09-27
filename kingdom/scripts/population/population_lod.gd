@@ -7,6 +7,8 @@ extends Node3D
 
 const FULL_RANGE := 45.0
 const SPRITE_RANGE := 220.0
+const NEAR_ALWAYS := 9.0     # metres: never a sprite this close to the player
+const NEAR_HARD_CAP := 12    # but never more than this many full models in total
 const MAX_FULL := 24
 const MAX_SPRITES := 300
 const MAX_SPAWNS_PER_TICK := 3
@@ -62,8 +64,12 @@ func refresh() -> void:
 	dists.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
 
 	var want_full := {}
+	# Anyone this close must be a real model: a flat sprite at arm's length looks broken,
+	# so the tier budget may be exceeded up to NEAR_HARD_CAP inside NEAR_ALWAYS.
 	for entry in dists:
-		if want_full.size() >= mini(MAX_FULL, Quality.npc_full) or entry[0] > FULL_RANGE * FULL_RANGE:
+		var within_budget: bool = want_full.size() < mini(MAX_FULL, Quality.npc_full) and entry[0] <= FULL_RANGE * FULL_RANGE
+		var too_close_for_sprite: bool = entry[0] <= NEAR_ALWAYS * NEAR_ALWAYS and want_full.size() < NEAR_HARD_CAP
+		if not (within_budget or too_close_for_sprite):
 			break
 		want_full[entry[1]] = true
 	for id in _full.keys():

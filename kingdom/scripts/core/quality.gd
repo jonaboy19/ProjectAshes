@@ -41,7 +41,7 @@ const TIERS := [
 		"shadow": 0, "shadow_size": 1024, "shadow_dist": 0.0, "soft_shadow": 0, "omni_shadows": false,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
 		"lod_threshold": 8.0, "range": 0.55, "scatter": 0.3, "particles": 0.35, "aniso": 0,
-		"msaa": 0, "fxaa": false, "npc_full": 6, "npc_sprites": 40, "view_radius": 2, "light_fade": 35.0, "town_far": 420.0,
+		"msaa": 0, "fxaa": false, "npc_full": 8, "npc_sprites": 40, "view_radius": 2, "light_fade": 35.0, "town_far": 420.0,
 	},
 	{   # MEDIUM: mid-range phones (Adreno 618-650, Mali-G57..G77, Apple A11-A12)
 		"max_3d_height": 720, "scaling": "fsr", "fps": 60,
