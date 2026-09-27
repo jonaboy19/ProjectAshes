@@ -1,0 +1,15 @@
+      1 WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+      1 WARNING: 958 RIDs of type "VertexBuffer" were leaked.
+      1 WARNING: 614 RIDs of type "VertexArray" were leaked.
+      1 WARNING: 249 RIDs of type "UniformBuffer" were leaked.
+      1 WARNING: 246 RIDs of type "Texture" were leaked.
+      1 WARNING: 1194 RIDs of type "IndexBuffer" were leaked.
+      1 WARNING: 1194 RIDs of type "IndexArray" were leaked.
+      1 WARNING: 'res://assets/incoming/ai3d/meshy/armored/orc_warchief.glb': In external resource #0, invalid UID: 'uid://4vjwiu0wfg3g' - using text path instead: 'res://assets/incoming/ai3d/meshy/armored/orc_warchief_orc_warchief_tex.jpg'.
+      1 ERROR: Lambda capture at index 0 was freed. Passed "null" instead.
+      1 ERROR: 406 resources still in use at exit (run with --verbose for details).
+      1 ERROR: 249 RID allocations of type 'N10RendererRD15MaterialStorage8MaterialE' were leaked at exit.
+      1 ERROR: 132 RID allocations of type 'N10RendererRD14TextureStorage7TextureE' were leaked at exit.
+      1 ERROR: 13 shaders of type SceneForwardClusteredShaderRD were never freed
+      1 ERROR: 13 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.
+      1 ERROR: 122 RID allocations of type 'N10RendererRD11MeshStorage4MeshE' were leaked at exit.

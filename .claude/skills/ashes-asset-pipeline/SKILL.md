@@ -60,3 +60,11 @@ The user wants to **see a PNG of everything that gets made**. After each batch:
 - The Meshy account is shared, so check the balance before and after and report only your own task costs (log them in `tasks.tsv`).
 - Agents don't commit. The main session reviews the previews and commits specific paths.
 - Rigged monsters are in `ai3d/meshy/creatures/`. Meshy biped rigs strip Hips scale keys (Meshy idle clips scale the hips by about 1.18). Quadrupeds reuse the CC0 Quaternius Ultimate Animated Animals rigs. See `tools/meshy/creature_rig/`.
+
+## Playtest bot
+Run it **after any change a player would notice** (new assets placed in Ashford, lighting, UI, combat, performance work), before telling the user something "looks good in game":
+```bash
+kingdom/tools_qa/autoplay/run_autoplay.sh             # ~4 min, windowed on the real GPU
+kingdom/tools_qa/autoplay/run_autoplay.sh --uncapped  # vsync/fps cap off, to see GPU headroom
+```
+It boots the real game and plays it through the real input path (joystick and camera touches, HUD buttons, keys, menu clicks): birth cutscene skip, a walk round Ashford with NPCs, notice board / guild / trader / Captain, the inn interior, wolves and the goblin warren, inn sleep and night, F5/F9. Output in `docs/qa/playtest/`: `NN_<step>.jpg` screenshots, `log.txt` (actions, a perf line every 0.5 s with fps, GPU ms, draw calls, primitives and nodes, per-step summaries, `FINDING` lines, engine errors counted), `summary.json`, `errors.txt`. **Look at every screenshot** (T-poses, camera inside walls, floating props, pink/white textures, UI overlap) and write up what you see in `docs/qa/PLAYTEST_REPORT.md`. Details and how to add a step: `kingdom/tools_qa/autoplay/README.md`. A Godot run can rewrite `.import` files: revert only the ones your run changed.

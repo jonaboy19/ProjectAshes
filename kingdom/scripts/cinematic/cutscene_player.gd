@@ -77,6 +77,15 @@ func _init() -> void:
 
 func _ready() -> void:
 	set_process(playing)
+	# main.gd plays cutscenes inside the world SubViewport, whose container ignores the
+	# mouse, so taps and clicks never reach _input there. Listen on the window as well.
+	if get_viewport() != get_tree().root:
+		get_tree().root.window_input.connect(_on_window_input)
+
+
+func _on_window_input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch or (event is InputEventMouseButton and event.device != InputEvent.DEVICE_ID_EMULATION):
+		_input(event)   # (a tap also arrives as an emulated click; count it once)
 
 
 func _process(delta: float) -> void:
