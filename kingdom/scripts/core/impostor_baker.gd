@@ -41,6 +41,7 @@ func _ready() -> void:
 
 ## Bakes one look. `keep` = weapon/hat parts to show, `pose` = animation frame to freeze.
 func bake(look_id: String, file: String, keep: Array[String], pose := "Idle") -> void:
+	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	var model := Assets.character(file, 1.75, keep)
 	_holder.add_child(model)
 	var anim := Assets.animation_player(model)
@@ -59,6 +60,8 @@ func bake(look_id: String, file: String, keep: Array[String], pose := "Idle") ->
 		img.convert(Image.FORMAT_RGBA8)
 		atlas.blit_rect(img, Rect2i(Vector2i.ZERO, FRAME), Vector2i(k * FRAME.x, 0))
 	model.queue_free()
+	# Idle between bakes: an always-updating viewport costs a render pass every frame.
+	_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	var mat := ShaderMaterial.new()
 	mat.shader = SHADER
 	mat.set_shader_parameter("atlas", ImageTexture.create_from_image(atlas))

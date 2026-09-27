@@ -278,6 +278,9 @@ func pack_menu() -> Dictionary:
 	opts.append(["Sleep rough here", _sleep_rough, n.rest < 80.0])
 	opts.append(["Save game", _save])
 	opts.append(["Load game", _load, Life.has_save()])
+	opts.append(["Settings & Credits", func() -> String:
+		hud.show_menu(SettingsMenu.menu.bind(hud))
+		return ""])
 	return {"title": "Pack & Journal", "body": "\n".join(lines), "options": opts}
 
 

@@ -125,6 +125,7 @@ func _ready() -> void:
 	_spawn_raiders(FIRST_CAMP, 12)
 
 	hud.hide_loading()
+	Quality.start_adaptive()
 	var args := _user_args()
 	if (args.has("shot") and args["shot"] != "birth") or args.has("demo") or args.has("adult"):
 		Life.life_path.set_age(18, WorldSim.day, WorldSim.time_of_day)
@@ -234,7 +235,7 @@ func _process(delta: float) -> void:
 	frontier.focus = focus
 	camps.focus = focus
 	ambient.focus = focus
-	terrain.view_radius = 5 if player.view == Player.View.COMMAND else 4
+	terrain.view_radius = mini(5 if player.view == Player.View.COMMAND else 4, Quality.view_radius)
 	_update_daylight()
 	_status_timer -= delta
 	if _status_timer <= 0.0:
