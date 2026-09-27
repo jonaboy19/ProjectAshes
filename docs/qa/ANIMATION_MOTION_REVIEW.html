@@ -54,14 +54,20 @@ main{max-width:1440px;margin:auto;padding:32px 24px 60px}h1{margin:0;font-size:c
       <div class="frames single"><div class="frame-block"><div class="frame-label"><span>Running_A</span><span>1.13 s @ 0.82×</span></div><div class="sprite" data-src="anim_strips/villager_man_a__Running_A.jpg" style="--duration:1.13s" role="img" aria-label="Villager run loop at 0.82 times rate"></div></div></div>
       <div class="meta">5.82 m/s clip speed · 0.27 s airborne · 12 cm/s slip p75</div>
     </article>
-    <article class="card" data-tags="combat hit dodge human villager reaction">
-      <h2>Hit reaction and dodge</h2>
-      <p>Look for a readable recoil followed by a stable recovery. These one-shot strips loop in this review board only; the dodge currently has a long all-feet-off interval and a visible pose pop in the QA metrics.</p>
+    <article class="card" data-tags="combat hit human villager reaction flinch knockdown">
+      <h2>Hit response: flinch vs knockdown <span class="tag warn">review Hit_B floor contact</span></h2>
+      <p>Hit_A is the short upper-body flinch; Hit_B is a full-body knockdown with a large backward fall. The Codex QA snapshot records Hit_A PASS and Hit_B FAIL on all 27 tested humanoid profiles. The strip shows Hit_B's landing pose extending through the floor; confirm that heavy-hit/guard-break gameplay still reads correctly before changing its use.</p>
       <div class="frames">
-        <div class="frame-block"><div class="frame-label"><span>Hit_B</span><span>0.83 s</span></div><div class="sprite" data-src="anim_strips/villager_man_a__Hit_B.jpg" style="--duration:0.83s" role="img" aria-label="Villager Hit B reaction"></div></div>
-        <div class="frame-block"><div class="frame-label"><span>Dodge_Forward</span><span>1.47 s</span></div><div class="sprite" data-src="anim_strips/villager_man_a__Dodge_Forward.jpg" style="--duration:1.47s" role="img" aria-label="Villager forward dodge"></div></div>
+        <div class="frame-block"><div class="frame-label"><span>Hit_A · upper-body flinch</span><span>0.33 s</span></div><div class="sprite" data-src="anim_strips/villager_man_a__Hit_A.jpg" style="--duration:0.33s" role="img" aria-label="Villager Hit A upper-body flinch"></div></div>
+        <div class="frame-block"><div class="frame-label"><span>Hit_B · full-body knockdown</span><span>0.83 s</span></div><div class="sprite" data-src="anim_strips/villager_man_a__Hit_B.jpg" style="--duration:0.83s" role="img" aria-label="Villager Hit B full-body knockdown"></div></div>
       </div>
-      <div class="meta">Hit_B: floor penetration and leg slip · Dodge: 0.67 s airborne, 3 pose pops</div>
+      <div class="meta">27/27 Hit_A PASS · 27/27 Hit_B FAIL · Hit_B reaches 5–34 cm below floor across tested profiles</div>
+    </article>
+    <article class="card" data-tags="combat dodge roll human villager reaction">
+      <h2>Dodge recovery <span class="tag warn">airtime and pops</span></h2>
+      <p>Check that the dodge stays purposeful, clears the attack, and returns to a stable standing pose. The raw Dodge_Forward clip rises into an extended forward flip before its final recovery pose.</p>
+      <div class="frames single"><div class="frame-block"><div class="frame-label"><span>Dodge_Forward</span><span>1.47 s</span></div><div class="sprite" data-src="anim_strips/villager_man_a__Dodge_Forward.jpg" style="--duration:1.47s" role="img" aria-label="Villager forward dodge"></div></div></div>
+      <div class="meta">0.67 s airborne · 3 pose pops · inspect current 1.5× playback and 0.45 s dodge window in play</div>
     </article>
     <article class="card" data-tags="combat goblin monster punch attack">
       <h2>Goblin punch</h2>
