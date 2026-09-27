@@ -1,0 +1,27 @@
+#
+## Alias OBJ Material File
+# Exported from SketchUp, (c) 2000-2012 Trimble Navigation Limited
+
+newmtl Metal_Corrugated_Shiny
+Ka 0.000000 0.000000 0.000000
+Kd 0.756863 0.756863 0.756863
+Ks 0.330000 0.330000 0.330000
+map_Kd spiked_shield/Metal_Corrugated_Shiny.jpg
+
+newmtl Wood_Veneer_02
+Ka 0.000000 0.000000 0.000000
+Kd 0.745098 0.501961 0.356863
+Ks 0.330000 0.330000 0.330000
+map_Kd spiked_shield/Wood_Veneer_02.jpg
+
+newmtl FrontColor
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.330000 0.330000 0.330000
+
+newmtl Wood_Veneer_01
+Ka 0.000000 0.000000 0.000000
+Kd 0.470588 0.274510 0.145098
+Ks 0.330000 0.330000 0.330000
+map_Kd spiked_shield/Wood_Veneer_01.jpg
+

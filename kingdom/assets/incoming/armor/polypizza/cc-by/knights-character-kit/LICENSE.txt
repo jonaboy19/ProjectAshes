@@ -1,0 +1,5 @@
+"Knights Character Kit" by Jacques Fourie
+Source: https://poly.pizza/m/3r2JcOZShpE
+Licence: CC-BY 3.0 https://creativecommons.org/licenses/by/3.0/
+ATTRIBUTION REQUIRED: "Knights Character Kit" by Jacques Fourie (poly.pizza), CC-BY 3.0.
+Modified: split into separate parts, uniformly scaled x0.45 to metres, steel-blue flat colours toned to warm neutral steel.

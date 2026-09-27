@@ -1,0 +1,3 @@
+Quaternius (https://quaternius.com)
+Licence: CC0 1.0 Universal https://creativecommons.org/publicdomain/zero/1.0/ (per the licence files in the source packs)
+Source: kingdom/assets/incoming/quaternius/modular-character-outfits-fantasy (free Standard version, License_Standard.txt = CC0), https://quaternius.com/packs/modularcharacteroutfitsfantasy.html. Converted to GLB, decimated to <=3.2k tris, textures 1024 px JPEG.

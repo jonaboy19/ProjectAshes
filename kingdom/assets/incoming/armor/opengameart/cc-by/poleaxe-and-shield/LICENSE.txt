@@ -1,0 +1,4 @@
+"Poleaxe and Shield" by Ouren
+Source: https://opengameart.org/content/poleaxe-and-shield
+Licence: CC-BY 3.0 https://creativecommons.org/licenses/by/3.0/
+ATTRIBUTION REQUIRED: "Poleaxe and Shield" by Ouren (opengameart.org), CC-BY 3.0. Modified: shield converted to GLB, scaled.
