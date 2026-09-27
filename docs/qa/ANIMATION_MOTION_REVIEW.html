@@ -56,12 +56,12 @@ main{max-width:1440px;margin:auto;padding:32px 24px 60px}h1{margin:0;font-size:c
     </article>
     <article class="card" data-tags="combat hit human villager reaction flinch knockdown">
       <h2>Hit response: flinch vs knockdown <span class="tag warn">review Hit_B floor contact</span></h2>
-      <p>Hit_A is the short upper-body flinch; Hit_B is a full-body knockdown with a large backward fall. The Codex QA snapshot records Hit_A PASS and Hit_B FAIL on all 27 tested humanoid profiles. The strip shows Hit_B's landing pose extending through the floor; confirm that heavy-hit/guard-break gameplay still reads correctly before changing its use.</p>
+      <p>Hit_A is the short upper-body flinch; Hit_B is a full-body knockdown with a large backward fall. The Codex QA snapshot records Hit_A PASS and Hit_B FAIL on all 27 tested humanoid profiles. The strip shows Hit_B's landing pose extending through the floor; confirm that heavy-hit/guard-break gameplay still reads correctly before changing its use. Timing also needs review: soldiers slow to 40% movement for 0.35 s, while this clip lasts about 0.64 s at 1.3×.</p>
       <div class="frames">
         <div class="frame-block"><div class="frame-label"><span>Hit_A · upper-body flinch</span><span>0.33 s</span></div><div class="sprite" data-src="anim_strips/villager_man_a__Hit_A.jpg" style="--duration:0.33s" role="img" aria-label="Villager Hit A upper-body flinch"></div></div>
         <div class="frame-block"><div class="frame-label"><span>Hit_B · full-body knockdown</span><span>0.83 s</span></div><div class="sprite" data-src="anim_strips/villager_man_a__Hit_B.jpg" style="--duration:0.83s" role="img" aria-label="Villager Hit B full-body knockdown"></div></div>
       </div>
-      <div class="meta">27/27 Hit_A PASS · 27/27 Hit_B FAIL · Hit_B reaches 5–34 cm below floor across tested profiles</div>
+      <div class="meta">27/27 Hit_A PASS · 27/27 Hit_B FAIL · 5–34 cm floor penetration · 0.29 s soldier response gap</div>
     </article>
     <article class="card" data-tags="combat dodge roll human villager reaction">
       <h2>Dodge recovery <span class="tag warn">airtime and pops</span></h2>
