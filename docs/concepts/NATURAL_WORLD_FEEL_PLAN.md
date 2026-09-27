@@ -2,7 +2,7 @@
 
 **Status:** implementation handoff for Claude  
 **Scope:** implementation handoff. This branch adds documentation, visual review artifacts, and one explicitly non-integrated animation experiment; it does not edit game scripts, scenes, or project settings.  
-**Baseline inspected:** `e8ad02de` on `claude/focused-curie-m09hbd` (Godot 4.6).
+**Gameplay baseline inspected:** `e8ad02de` on `claude/focused-curie-m09hbd` (Godot 4.6). **PR rebased onto current Claude head:** `e3563fc4`; intervening commits update store/sky/character appearance assets, not the movement, NPC, or animation-controller scripts reviewed here.
 
 ## Goal
 
