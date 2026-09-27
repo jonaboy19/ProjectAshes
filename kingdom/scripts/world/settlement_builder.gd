@@ -1,5 +1,8 @@
 class_name SettlementBuilder
 extends Node3D
+
+## Distance where Meshy hero buildings swap to their light LOD.
+const HERO_LOD := 70.0
 ## Builds settlements from their CityPlanner layout when the focus comes within
 ## BUILD_RANGE and frees them past FREE_RANGE. Buildings of the same model are
 ## drawn as one MultiMesh (a capital has ~300 buildings but only ~15 draw
@@ -69,7 +72,20 @@ func _build(s: Dictionary) -> Node3D:
 	for asset: String in batches:
 		var list: Array[Transform3D] = []
 		list.assign(batches[asset])
-		_multimesh(root, Assets.building_mesh(asset), list)
+		var lod := Assets.building_lod_mesh(asset)
+		if lod:
+			# Detailed hero model up close, its light version beyond HERO_LOD metres.
+			var near_mm := _multimesh(root, Assets.building_mesh(asset), list)
+			var far_mm := _multimesh(root, lod, list, false)
+			near_mm.visibility_range_end = HERO_LOD
+			near_mm.visibility_range_end_margin = 10.0
+			near_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+			far_mm.visibility_range_begin = HERO_LOD
+			far_mm.visibility_range_begin_margin = 10.0
+			far_mm.visibility_range_end = 0.0
+			far_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+		else:
+			_multimesh(root, Assets.building_mesh(asset), list)
 
 	# Lived-in door_clutter by the doors: photo-scanned crates, barrels, baskets, buckets.
 	var door_clutter := {}
@@ -208,9 +224,9 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, h: float, gates: Array,
 
 ## Instanced placement. Culls by object size (small clutter vanishes first) and,
 ## unless blob is false, grounds each instance with a soft contact shadow.
-func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob := true) -> void:
+func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob := true) -> MultiMeshInstance3D:
 	if mesh == null or transforms.is_empty():
-		return
+		return null
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.mesh = mesh
@@ -229,6 +245,7 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 	parent.add_child(mmi)
 	if blob and extent < 18.0:
 		_contact_shadows(parent, box, transforms, cull)
+	return mmi
 
 
 static var _blob_mesh: PlaneMesh

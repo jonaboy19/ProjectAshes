@@ -50,9 +50,12 @@ const VILLAGE := Q + "medieval-village-pack/"
 const RTS := Q + "ultimate-fantasy-rts/glTF/"
 ## Blender-built village set (tools/blender/make_village_*.py); the old pack paths are gone.
 const GEN := "res://assets/generated/"
+const MESHY := "res://assets/incoming/ai3d/meshy/"
 const BUILDINGS := {
-	"adventurer_guild": [GEN + "adventurer_guild.glb", 0.0],
-	"healer_house": [GEN + "healer_house.glb", 0.0],
+	# Hero buildings generated with Meshy from the concept sheets (user, see
+	# docs/art_reference/concept_*.png), decimated to lod0/lod1 by tools/meshy.
+	"adventurer_guild": [MESHY + "guild_lod0.glb", 16.0, MESHY + "guild_lod1.glb"],
+	"healer_house": [MESHY + "healer_lod0.glb", 9.5, MESHY + "healer_lod1.glb"],
 	"house_1": [GEN + "village_house_a.glb", 0.0],
 	"house_2": [GEN + "village_house_b.glb", 0.0],
 	"house_3": [GEN + "village_house_c.glb", 0.0],
@@ -61,8 +64,8 @@ const BUILDINGS := {
 	"house_6": [GEN + "village_house_b_2.glb", 0.0],
 	"house_7": [GEN + "village_house_c_2.glb", 0.0],
 	"house_8": [GEN + "village_house_d_2.glb", 0.0],
-	"inn": [GEN + "village_inn.glb", 0.0],
-	"blacksmith": [GEN + "village_smithy.glb", 0.0],
+	"inn": [MESHY + "inn_lod0.glb", 13.5, MESHY + "inn_lod1.glb"],
+	"blacksmith": [MESHY + "blacksmith_lod0.glb", 11.0, MESHY + "blacksmith_lod1.glb"],
 	"stable": [GEN + "village_barn.glb", 0.0],
 	"sawmill": [VILLAGE + "Buildings/FBX/Sawmill.fbx", 12.0],
 	"mill": [VILLAGE + "Buildings/FBX/Mill.fbx", 11.0],
@@ -468,11 +471,20 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 ## One merged mesh per building (all parts, grouped by material), scaled so its
 ## longest horizontal side is the catalogue size (0 = native size), centred on
 ## x/z with its base at y = 0. Ready for MultiMesh instancing.
+## Far-distance version of a building, or null if it has none.
+static func building_lod_mesh(key: String) -> ArrayMesh:
+	var entry: Array = BUILDINGS.get(key, [])
+	if entry.size() < 3:
+		return null
+	return building_mesh(key + ":lod1")
+
+
 static func building_mesh(key: String) -> ArrayMesh:
 	if _building_cache.has(key):
 		return _building_cache[key]
-	var entry: Array = BUILDINGS[key]
-	var mesh := merged_mesh(entry[0])
+	var is_lod := key.ends_with(":lod1")
+	var entry: Array = BUILDINGS[key.trim_suffix(":lod1")]
+	var mesh := merged_mesh(entry[2] if is_lod else entry[0])
 	if mesh == null:
 		return null
 	var box := mesh.get_aabb()
