@@ -1,0 +1,6 @@
+"Footsteps on different surfaces" by congusbongus
+Source: https://opengameart.org/content/footsteps-on-different-surfaces
+Licence: CC-BY 3.0 (https://creativecommons.org/licenses/by/3.0/), verified on the source page 2026-09-27
+ATTRIBUTION REQUIRED: "Footsteps on different surfaces" by congusbongus (opengameart.org), CC-BY 3.0.
+Each surface folder carries the licence of the freesound recording it was derived from (gravel: CC0, Ali_6868).
+Used in the game: gravel/0-5 -> kingdom/assets/audio/sfx/footsteps/step_cobble_*.

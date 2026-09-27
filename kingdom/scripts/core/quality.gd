@@ -40,29 +40,29 @@ const TIERS := [
 		"max_3d_height": 540, "scaling": "bilinear", "fps": 30,
 		"shadow": 0, "shadow_size": 1024, "shadow_dist": 0.0, "soft_shadow": 0, "omni_shadows": false,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
-		"lod_threshold": 4.0, "range": 0.55, "scatter": 0.3, "particles": 0.35, "aniso": 0,
-		"msaa": 0, "fxaa": false, "npc_full": 6, "npc_sprites": 40, "view_radius": 2, "light_fade": 35.0,
+		"lod_threshold": 8.0, "range": 0.55, "scatter": 0.3, "particles": 0.35, "aniso": 0,
+		"msaa": 0, "fxaa": false, "npc_full": 6, "npc_sprites": 40, "view_radius": 2, "light_fade": 35.0, "town_far": 420.0,
 	},
 	{   # MEDIUM: mid-range phones (Adreno 618-650, Mali-G57..G77, Apple A11-A12)
 		"max_3d_height": 720, "scaling": "fsr", "fps": 60,
 		"shadow": 1, "shadow_size": 2048, "shadow_dist": 55.0, "soft_shadow": 1, "omni_shadows": false,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
 		"lod_threshold": 2.0, "range": 0.75, "scatter": 0.6, "particles": 0.6, "aniso": 1,
-		"msaa": 0, "fxaa": false, "npc_full": 12, "npc_sprites": 120, "view_radius": 3, "light_fade": 50.0,
+		"msaa": 0, "fxaa": false, "npc_full": 12, "npc_sprites": 120, "view_radius": 3, "light_fade": 50.0, "town_far": 600.0,
 	},
 	{   # HIGH: recent phones (Adreno 7xx, Mali-G710+, Apple A13+), integrated PC GPUs
 		"max_3d_height": 900, "scaling": "fsr", "fps": 60,
 		"shadow": 2, "shadow_size": 4096, "shadow_dist": 100.0, "soft_shadow": 2, "omni_shadows": true,
 		"ssao": true, "ssil": false, "sdfgi": false, "glow": true, "vol_fog": false, "ssr": false,
 		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 2,
-		"msaa": 0, "fxaa": true, "npc_full": 24, "npc_sprites": 300, "view_radius": 4, "light_fade": 80.0,
+		"msaa": 0, "fxaa": true, "npc_full": 24, "npc_sprites": 300, "view_radius": 4, "light_fade": 80.0, "town_far": 0.0,
 	},
 	{   # ULTRA: desktop GPUs; the full Forward+ look the game was lit for
 		"max_3d_height": 0, "scaling": "bilinear", "fps": 0,
 		"shadow": 4, "shadow_size": 4096, "shadow_dist": 140.0, "soft_shadow": 3, "omni_shadows": true,
 		"ssao": true, "ssil": true, "sdfgi": true, "glow": true, "vol_fog": true, "ssr": false,
 		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 3,
-		"msaa": 2, "fxaa": true, "npc_full": 24, "npc_sprites": 300, "view_radius": 5, "light_fade": 0.0,
+		"msaa": 2, "fxaa": true, "npc_full": 24, "npc_sprites": 300, "view_radius": 5, "light_fade": 0.0, "town_far": 0.0,
 	},
 ]
 
@@ -462,13 +462,21 @@ func _apply_local_light(l: Light3D) -> void:
 func _apply_geometry(g: GeometryInstance3D) -> void:
 	var mul: float = value("range")
 	# Visibility ranges: remember the author's values once, then scale them.
+	if not g.has_meta("q_range"):
+		var town := g is MultiMeshInstance3D and _under(g, "SettlementBuilder")
+		if g.visibility_range_end > 0.0 or g.visibility_range_begin > 0.0 or town:
+			g.set_meta("q_range", Vector4(g.visibility_range_begin, g.visibility_range_begin_margin, g.visibility_range_end, g.visibility_range_end_margin))
+			g.set_meta("q_town", town)
 	if g.has_meta("q_range"):
-		var base: Vector4 = g.get_meta("q_range")
-		_set_ranges(g, base, mul)
-	elif g.visibility_range_end > 0.0 or g.visibility_range_begin > 0.0:
-		var base := Vector4(g.visibility_range_begin, g.visibility_range_begin_margin, g.visibility_range_end, g.visibility_range_end_margin)
-		g.set_meta("q_range", base)
-		_set_ranges(g, base, mul)
+		_set_ranges(g, g.get_meta("q_range"), mul)
+		var far: float = value("town_far")
+		if g.get_meta("q_town", false) and g.visibility_range_end <= 0.0 and far > 0.0:
+			# Whole towns (buildings with no range, far LODs) stop at the fog line on
+			# LOW/MEDIUM: from Ashford the capital's ~40 buildings were 600k tris.
+			g.visibility_range_end = far
+			g.visibility_range_end_margin = far * 0.15
+			g.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	_small_shadow(g)
 	if g is MultiMeshInstance3D:
 		_thin_scatter(g as MultiMeshInstance3D)
 	elif g is GPUParticles3D:
@@ -504,6 +512,15 @@ func _thin_scatter(mmi: MultiMeshInstance3D) -> void:
 	mm.visible_instance_count = -1 if keep >= 0.999 else int(mm.instance_count * keep)
 
 
+static func _under(n: Node, cls: String) -> bool:
+	var p := n.get_parent()
+	while p != null:
+		if p.get_script() and p.get_script().get_global_name() == cls:
+			return true
+		p = p.get_parent()
+	return false
+
+
 static func _under_terrain(n: Node) -> bool:
 	var p := n.get_parent()
 	while p != null:
@@ -524,3 +541,21 @@ func _adapt_floor() -> int:
 	if not _is_mobile() and RenderingServer.get_video_adapter_type() == RenderingDevice.DEVICE_TYPE_DISCRETE_GPU:
 		return HIGH
 	return LOW
+
+
+## Props under ~1 m (crates, buckets, flowers, clutter) stop casting sun shadows
+## below ULTRA: a shadow-map pass for each of them costs more than it shows.
+func _small_shadow(g: GeometryInstance3D) -> void:
+	if not g.has_meta("q_cast"):
+		var mesh: Mesh = null
+		if g is MeshInstance3D:
+			mesh = (g as MeshInstance3D).mesh
+		elif g is MultiMeshInstance3D and (g as MultiMeshInstance3D).multimesh:
+			mesh = (g as MultiMeshInstance3D).multimesh.mesh
+		if mesh == null or g.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF:
+			return
+		var s := mesh.get_aabb().size * (g as Node3D).global_transform.basis.get_scale()
+		if maxf(maxf(s.x, s.y), s.z) >= 1.0 or (g is MeshInstance3D and (g as MeshInstance3D).skin != null):
+			return
+		g.set_meta("q_cast", g.cast_shadow)
+	g.cast_shadow = g.get_meta("q_cast") if tier == ULTRA else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

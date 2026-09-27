@@ -26,3 +26,18 @@ Fonts: Cinzel by Natanael Gama, SIL OFL 1.1.
 - **LimboAI** (c) 2023-2025 Serhii Snitsaruk and contributors, MIT. **Terrain3D** (c) 2023-2026 Cory Petkovsek, Roope Palmroos and contributors, MIT.
 - **Sky3D** (c) 2023-2025 Cory Petkovsek and contributors, (c) 2021 J. Cuéllar, MIT; moon map (c) 2019 GPoSM, MIT.
 - **Road Generator** (c) 2024 Moo-Ack! Productions, MIT. **ProtonScatter** (c) 2019 HungryProton, MIT.
+
+## Audio (added 2026-09-27, see `assets/audio/README.md` for every file, source and licence)
+
+CC-BY sounds used in the game (credit required):
+
+- **"Fantasy Sound Effects Library"** by **Little Robot Sound Factory** (www.littlerobotsoundfactory.com), CC BY 3.0 — goblin voices, wyvern screeches, coin, menu and fanfare jingles. https://opengameart.org/content/fantasy-sound-effects-library
+- **"Footsteps on different surfaces"** by **congusbongus**, CC BY 3.0 — cobblestone footsteps. https://opengameart.org/content/footsteps-on-different-surfaces
+
+CC0 / public domain (no attribution required; credited with thanks):
+
+- Nature, village, animal, fire, weather and foley recordings by **Joseph Sardin, BigSoundBank** (bigsoundbank.com), CC0.
+- **Kenney** (kenney.nl): Impact Sounds, RPG Audio, Interface Sounds, UI Audio, Music Jingles, CC0.
+- OpenGameArt CC0: **rubberduck** (80 creature SFX, 100 SFX), **StarNinjas** (sword attacks and clashes), **artisticdude** (RPG Sound Pack, Swishes), **Ogrebane** (battle SFX), **remaxim** (3 melee sounds), **wolfwoot** (Male Adventurer voice clips), **Wolfgang_** (crickets loop), **Ylmir** (rain loop).
+- Music (OpenGameArt, CC0): **RandomMind** (Market Day, Minstrel Dance, The Old Tower Inn, The Bard's Tale, King's Feast), **cynicmusic** (Battle Theme A; cynicmusic.com, pixelsphere.org), **Umplix** (Medieval Theme, Medieval Standoff), **Of Far Different Nature** (John Dowland, "If my complaints could passions move", 1597).
+- Bellows and spider hiss: generated for the game (filtered noise), no third-party audio.
