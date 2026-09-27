@@ -28,6 +28,8 @@ enum { LOW, MEDIUM, HIGH, ULTRA }
 const AUTO := -1
 const NAMES := ["Low", "Medium", "High", "Ultra"]
 const SETTINGS_PATH := "user://settings.cfg"
+## Bump when detect_tier() changes so saved AUTO results are re-detected.
+const DETECT_VERSION := 3
 
 ## Per-tier settings. `max_3d_height`: the 3D view is rendered at most this many
 ## pixels tall (0 = native) and upscaled, so a 1440p phone costs no more than a
@@ -168,6 +170,8 @@ func _load() -> void:
 		return
 	choice = int(cf.get_value("graphics", "choice", AUTO))
 	auto_tier = int(cf.get_value("graphics", "auto_tier", -1))
+	if int(cf.get_value("graphics", "detect_version", 0)) != DETECT_VERSION:
+		auto_tier = -1
 	battery_saver = bool(cf.get_value("graphics", "battery_saver", false))
 
 
@@ -176,6 +180,7 @@ func _save() -> void:
 	cf.load(SETTINGS_PATH)     # keep other sections
 	cf.set_value("graphics", "choice", choice)
 	cf.set_value("graphics", "auto_tier", auto_tier)
+	cf.set_value("graphics", "detect_version", DETECT_VERSION)
 	cf.set_value("graphics", "battery_saver", battery_saver)
 	cf.save(SETTINGS_PATH)
 
@@ -210,16 +215,18 @@ func detect_tier() -> int:
 		if cores > 0 and cores <= 4:
 			t = mini(t, LOW)
 	else:
-		var rd := RenderingServer.get_rendering_device()
-		var type: int = rd.get_device_type() if rd else -1
-		if type == RenderingDevice.DEVICE_TYPE_DISCRETE_GPU:
+		# Desktop: discrete GPU -> ULTRA, integrated -> MEDIUM (adaptation refines it).
+		var type := RenderingServer.get_video_adapter_type()
+		var g := gpu.to_lower()
+		if type == RenderingDevice.DEVICE_TYPE_DISCRETE_GPU or g.contains("rtx") or g.contains("radeon rx") or g.contains("arc a"):
 			t = ULTRA
 		elif type == RenderingDevice.DEVICE_TYPE_INTEGRATED_GPU:
 			t = MEDIUM
 		else:
 			t = HIGH if ram_gb >= 8.0 else MEDIUM
 	if renderer() == "gl_compatibility":
-		t = LOW              # the fallback renderer only runs on old GPUs / drivers
+		# The fallback renderer: an old phone GPU/driver, or a desktop without Vulkan.
+		t = LOW if _is_mobile() else mini(t, MEDIUM)
 	detected_reason = why
 	return t
 
@@ -273,7 +280,7 @@ static func _first_number(s: String) -> int:
 ## Called once the world is playable (after loading). In AUTO mode, measures the
 ## frame time for ~20 s and steps the tier down while the target isn't held.
 func start_adaptive() -> void:
-	if _forced or choice != AUTO or tier == LOW:
+	if _forced or choice != AUTO or tier <= _adapt_floor():
 		return
 	_measuring = true
 	_measure_time = 0.0
@@ -294,12 +301,12 @@ func _process(delta: float) -> void:
 		return
 	var avg_fps := _frame_n / maxf(_frame_sum, 0.001)
 	var target := float(_target_fps())
-	if avg_fps < target * 0.85 and tier > LOW:
+	if avg_fps < target * 0.85 and tier > _adapt_floor():
 		print("Quality: %.1f fps avg at %s (target %d) -> stepping down" % [avg_fps, NAMES[tier], int(target)])
 		auto_tier = tier - 1
 		_save()
 		_set_tier(auto_tier)
-		_measuring = tier > LOW
+		_measuring = tier > _adapt_floor()
 		_measure_time = WARMUP * 0.5     # shorter settle after a change
 		_frame_sum = 0.0
 		_frame_n = 0
@@ -407,7 +414,7 @@ func _apply_viewport(v: Viewport) -> void:
 	v.anisotropic_filtering_level = value("aniso")
 	var msaa: int = value("msaa")
 	v.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_2X, Viewport.MSAA_4X][clampi(msaa, 0, 3)] if msaa > 0 else Viewport.MSAA_DISABLED
-	v.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if value("fxaa") else Viewport.SCREEN_SPACE_AA_DISABLED
+	v.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if value("fxaa") and not compat else Viewport.SCREEN_SPACE_AA_DISABLED
 	v.positional_shadow_atlas_size = 2048 if value("omni_shadows") else 0
 
 
@@ -504,3 +511,16 @@ static func _under_terrain(n: Node) -> bool:
 			return true
 		p = p.get_parent()
 	return false
+
+
+static func _is_mobile() -> bool:
+	return OS.has_feature("mobile") or OS.has_feature("android") or OS.has_feature("ios")
+
+
+## Lowest tier adaptation may step down to. A desktop discrete GPU keeps HIGH:
+## there the limit is usually the CPU (simulation, draw submission), which
+## LOW's 3D settings wouldn't fix, and the player can still pick lower by hand.
+func _adapt_floor() -> int:
+	if not _is_mobile() and RenderingServer.get_video_adapter_type() == RenderingDevice.DEVICE_TYPE_DISCRETE_GPU:
+		return HIGH
+	return LOW

@@ -22,12 +22,12 @@ static func open(hud: CanvasLayer) -> CreditsScreen:
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	theme = UITheme.theme()
 	var dim := ColorRect.new()
 	dim.color = Color(0, 0, 0, 0.55)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -53,6 +53,8 @@ func _ready() -> void:
 	_text = RichTextLabel.new()
 	_text.bbcode_enabled = true
 	_text.fit_content = true
+	_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_text.custom_minimum_size = Vector2(0, 0)
 	_text.scroll_active = false
 	_text.selection_enabled = false
 	_text.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -85,6 +87,8 @@ func _ready() -> void:
 
 func _layout() -> void:
 	var vw := get_viewport().get_visible_rect().size
+	position = Vector2.ZERO
+	size = vw
 	var panel: Control = get_child(1)
 	var w := clampf(vw.x * 0.94, 320.0, 960.0)
 	var h := vw.y * 0.92
@@ -96,6 +100,8 @@ func _layout() -> void:
 	panel.offset_right = w * 0.5
 	panel.offset_top = -h * 0.5
 	panel.offset_bottom = h * 0.5
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 
 
 func _unhandled_input(event: InputEvent) -> void:
