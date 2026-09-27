@@ -1,0 +1,8 @@
+01|LIVE A WHOLE LIFE|in a living medieval village
+02|FIGHT BEYOND THE WALLS|goblin warrens and wolf packs roam the wilds
+03|JOIN THE ADVENTURERS' GUILD|take contracts and climb from rank F to S
+04|THE RUNESTONES PROTECT YOU|step past their reach and danger rises
+05|RISE FROM PEASANT TO LORD|earn merit, win promotion, lead your own soldiers
+06|WORK, TRADE AND REST|take a job, sell your spoils, rent a bed at the inn
+07|FROM DAWN TO LAMPLIGHT|a full day and night cycle
+08|ASHFORD AWAITS|your village, your story

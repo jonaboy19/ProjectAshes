@@ -1,0 +1,8 @@
+plaza:tag=market:hour=10.5:px=10:pz=-10:cy=4:lx=0:lz=2
+guild:tag=guildhall:hour=10.8
+inn:tag=inn
+runestone:tag=runestone:stone=3:hour=16
+night:tag=night:hour=21.8:px=10:pz=-10:cy=3.5:lx=0:lz=2
+aerial:tag=aerial:hour=11:ax=70:ay=38:az=80:alx=0:alz=-10
+goblins:tag=goblins:hour=13:gox=12:goz=10:cb=3.4:cs=1.2:ch=1.7:burst=3:burst_gap=0.15
+knight:tag=knight:hour=11:px=6:pz=-4:kfz=-1:kd=3.0:ks=0.9:kly=1.45:fov=38:burst=2:burst_gap=0.4
