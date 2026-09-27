@@ -105,7 +105,12 @@ found. A sit-on-horse pose will have to be authored.
 - **LOWPO Fantasy Army, Amir low-poly horses:** their licences forbid redistributing the raw files (or leave it unclear).
 - **Quaternius "Pro"/"Source" tiers and KayKit "Extra" tiers:** paid. The free tiers are included.
 
-## Recommended Godot addons (MIT; not vendored, add through the AssetLib if wanted)
+## Recommended Godot addons (MIT)
+
+**Update 2026-09-27:** Terrain3D, Sky3D, ProtonScatter, LimboAI and Dialogue Manager (plus
+GLoot, G.U.I.D.E, QuestWeaver, GodotGAS, Road Generator and GdUnit4) are now vendored in
+`kingdom/addons/`; see `kingdom/DEPENDENCIES.md` and `docs/OPEN_SOURCE_AUDIT.md`. The rest of
+this list is still only a recommendation.
 
 Terrain3D (TokisanGames) for the 4 × 4 km terrain; Sky3D for day/night; Proton Scatter
 or Spatial Gardener for foliage and prop painting; SimpleGrassTextured; Waterways

@@ -10,8 +10,10 @@ BoneMap / retargeting at import**. Verified in Godot 4.6 (headless): every
 character below loads with 65 bones, 204 clips, **0 unresolved tracks**, no
 exploding bones (see "Verification").
 
-Every folder has a `.gdignore` (repo convention for packs the game does not use
-yet). Delete the `.gdignore` of a folder when wiring it in.
+Folders the game does not use yet carry a `.gdignore` (repo convention). Delete the
+`.gdignore` of a folder when wiring it in. As of 2026-09-27, `g6-ual/` and `cdmir-ual/`
+are wired in (no `.gdignore`); `_library/`, `mesh2motion/` and the `oga-*` sources are
+still `.gdignore`d (see `docs/OPEN_SOURCE_AUDIT.md`).
 
 ## Previews (look at these first)
 
