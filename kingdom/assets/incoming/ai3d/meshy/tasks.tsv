@@ -35,3 +35,9 @@ troll_anim_hit(178)	anim	01a0e1aa-c5d8-702c-8abc-456fe91f9db5	3
 troll_anim_death(189)	anim	01a0e1aa-e050-744c-a029-80e386d1d0a3	3
 troll_anim_slam(127)	anim	01a0e1aa-e1b7-739d-b773-2d501bd9524c	3
 orc_anim_attack(4)	anim	01a0e1b9-543d-77de-875e-d59d2c180082	3
+armored_guard	concept+i23d	01a0e1e6-c326-74a3-bfe2-ab2a7b5a92c7	36
+armored_knight	concept+i23d	01a0e1e6-ccc8-7620-bd21-5ab9de1426d7	36
+armored_mercenary	concept+i23d	01a0e1e6-d8ba-7537-b07a-27ee79669529	36
+armored_bandit	concept+i23d	01a0e1e6-e50e-75f0-bfc2-2bd9b9a0ea98	36
+armored_noble	concept+i23d	01a0e1e6-efe2-72f7-b104-00b3a3f813f9	36
+armored_orc_warchief	concept+i23d	01a0e1e6-f8d0-739e-a798-64a4f383c1d7	36
