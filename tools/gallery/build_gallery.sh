@@ -43,6 +43,7 @@ img{width:100%;display:block;background:#fff}figcaption{padding:6px 8px;font-siz
 EOF
 echo "<div id=s1></div>";  section "Hero buildings (Meshy)" "$M/guild_*" "$M/inn_*" "$M/blacksmith_lod*" "$M/healer_*"
 echo "<div id=s2></div>";  section "Houses and market stalls (Meshy)" "$M/houses_round2_sheet.png" "$M/house_*" "$M/stall_*"
+echo "<div id=s2b></div>"; section "Landmarks (Meshy)" "$M/landmarks_sheet.png" "$M/landmark_*"
 echo "<div id=s3></div>";  section "Creatures (Meshy, rigged and animated)" "$M/creatures_lineup.png" "$M/*_anim.png"
 echo "<div id=s4></div>";  section "Armored characters (Meshy)" "$M/armored_*"
 echo "<div id=s5></div>";  section "Interiors" "$B/_interiors_sheet.png" "$B/interior_*"

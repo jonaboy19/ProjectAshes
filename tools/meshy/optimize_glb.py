@@ -17,6 +17,7 @@ BUDGETS = {
     # thin geometry (stall canopies, awnings, poles) shreds when collapsed further:
     # feed a Meshy remesh at ~4k in and keep the mesh, only shrink the texture for lod1
     "thin":     [("lod0", 4000, 1024),  ("lod1", 4000, 256)],
+    "landmark": [("lod0", 8000, 1024),  ("lod1", 2500, 512)],     # repeated landmarks: runestones, shrines
     "creature": [("lod0", 15000, 1024), ("lod1", 5000, 512)],     # rigged mobs (rig lod0 first)
 }
 
