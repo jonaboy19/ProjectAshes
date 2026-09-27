@@ -1,0 +1,12 @@
+{"name": "skeleton", "src": "kingdom/assets/incoming/quaternius/animated-monster/FBX/Skeleton.fbx",
+ "out_dir": "kingdom/assets/incoming/monsters/quaternius", "measure": "z", "size": 1.78, "yaw": 0,
+ "proportions": [{"bone": "Head", "scale": 0.62}],
+ "clips": {"idle": "Skeleton_Idle", "walk": {"alias": "run"}, "run": "Skeleton_Running", "attack": "Skeleton_Attack",
+           "hit": {"synth": {"bones": [{"bone": "Torso", "axis": [1,0,0], "deg": -16}, {"bone": "Head", "axis": [1,0,0], "deg": -12}]}},
+           "death": "Skeleton_Death", "spawn": "Skeleton_Spawn"},
+ "palette": {".*": [0.80, 0.74, 0.62]},
+ "paint": {"mottle": 0.28, "grain": 0.16, "shadow_tint": [0.25, 0.22, 0.20], "shadow_mix": 0.55, "ao_min": 0.3, "ao_dist": 0.05,
+           "accent": {".*": [0.52, 0.47, 0.34]}, "accent_scale": 5.0, "accent_mix": 0.65,
+           "strokes": 0.18, "stroke_axis": "z", "stroke_along": 5, "stroke_across": 50,
+           "foot_dark": 0.55, "head_light": 1.05, "edge": 0.25},
+ "subdiv": 1, "lod0": 8000, "lod1": 2500, "tex": 512}

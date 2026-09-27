@@ -1,0 +1,9 @@
+{"name": "giant_bat", "src": "kingdom/assets/incoming/quaternius/animated-monster/FBX/Bat.fbx", "out_dir": "kingdom/assets/incoming/monsters/quaternius",
+ "measure": "x", "size": 1.3, "hover": 1.1, "proportions": [{"bone": "Head", "scale": 0.78}, {"bone": "Body", "groups": ["Root", "BodyRoot", "Body", "Neck", "UpperLeg.L", "LowerLeg.L", "Feet.L", "UpperLeg.R", "LowerLeg.R", "Feet.R"], "scale": 0.72}],
+ "clips": {"idle": "Bat_Flying", "walk": {"alias": "idle"}, "run": {"alias": "idle"}, "attack": "Bat_Attack", "attack2": "Bat_Attack2", "hit": "Bat_Hit", "death": "Bat_Death"},
+ "delete_mats": ["Eyes"],
+ "palette": {"Main": [0.33, 0.27, 0.24], "Belly": [0.50, 0.40, 0.33], "Black": [0.24, 0.18, 0.17], "Nose": [0.56, 0.40, 0.37]},
+ "paint": {"mottle": 0.25, "grain": 0.14, "shadow_tint": [0.16, 0.14, 0.2], "shadow_mix": 0.45, "strokes": 0.3, "stroke_axis": "z", "stroke_along": 5, "stroke_across": 60,
+           "accent": {"Main": [0.24, 0.22, 0.22]}, "accent_mix": 0.6, "foot_dark": 0.85},
+ "eyes": {"bone": "Head", "spread": 0.35, "up": 0.5, "r": 0.02, "tol": 0.05, "color": [0.12, 0.03, 0.02]},
+ "subdiv": 1, "lod0": 8000, "lod1": 2500, "tex": 512}

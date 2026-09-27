@@ -1,0 +1,13 @@
+Monsters in this folder are derived from free packs by Quaternius (https://quaternius.com).
+All source packs are released under CC0 1.0 Universal (public domain dedication):
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Source packs (licence verified on each pack page on 2026-09-27; originals and their License.txt are kept in
+kingdom/assets/incoming/quaternius/<pack>/):
+- Ultimate Monsters      https://quaternius.com/packs/ultimatemonsters.html   (CC0) -> rift_wraith, fungal_brute, blackcap_brute
+- Easy Enemy Pack        https://quaternius.com/packs/easyenemy.html          (CC0) -> giant_rat, blight_rat, giant_wasp, bog_toad
+- Animated Monster Pack  https://quaternius.com/packs/animatedmonster.html    (CC0) -> rift_slime
+- Animated Zombie Pack   https://quaternius.com/packs/animatedzombie.html     (CC0) -> ghoul
+
+Modifications (retexture, proportions, scale, clip renames, pruned bones, synthesised hit/death clips) are
+our own work and are also released under CC0. No attribution is required; crediting Quaternius is appreciated.

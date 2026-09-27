@@ -1,0 +1,8 @@
+{"name": "giant_wasp", "src": "kingdom/assets/incoming/quaternius/easy-enemy/FBX/Wasp.fbx", "out_dir": "kingdom/assets/incoming/monsters/quaternius",
+ "measure": "y", "size": 1.0, "hover": 1.2, "yaw": -90,
+ "clips": {"idle": "Wasp_Flying", "walk": {"alias": "idle"}, "run": {"alias": "idle"}, "attack": "Wasp_Attack",
+           "hit": {"synth": {"bones": [{"bone": "Body", "axis": [1,0,0], "deg": -18}]}}, "death": "Wasp_Death"},
+ "palette": {"Yellow": [0.70, 0.50, 0.17], "Black": [0.13, 0.10, 0.08], "Orange": [0.52, 0.26, 0.10], "LightBlue": [0.70, 0.66, 0.56]},
+ "paint": {"mottle": 0.22, "grain": 0.12, "shadow_tint": [0.15, 0.12, 0.12], "shadow_mix": 0.4, "strokes": 0.2, "stroke_axis": "y", "stroke_along": 5, "stroke_across": 60,
+           "accent": {"Yellow": [0.55, 0.36, 0.12]}, "accent_mix": 0.5, "foot_dark": 0.8},
+ "subdiv": 1, "lod0": 8000, "lod1": 2500, "tex": 512}

@@ -1,0 +1,8 @@
+{"name": "bog_toad", "src": "kingdom/assets/incoming/quaternius/easy-enemy/FBX/Frog.fbx", "out_dir": "kingdom/assets/incoming/monsters/quaternius",
+ "measure": "z", "size": 0.55,
+ "clips": {"idle": "Frog_Idle", "walk": "Frog_Jump", "run": {"alias": "walk"}, "attack": "Frog_Attack",
+           "hit": {"synth": {"bones": [{"bone": "Body", "axis": [1,0,0], "deg": -12}, {"bone": "Head", "axis": [1,0,0], "deg": -12}]}}, "death": "Frog_Death"},
+ "palette": {"Green": [0.36, 0.35, 0.21], "Yellow": [0.60, 0.53, 0.37], "Red": [0.62, 0.40, 0.10], "Black": [0.05, 0.04, 0.03]},
+ "paint": {"mottle": 0.35, "grain": 0.14, "shadow_tint": [0.14, 0.16, 0.12], "shadow_mix": 0.45,
+           "accent": {"Green": [0.26, 0.22, 0.14]}, "accent_scale": 9.0, "accent_mix": 0.85, "foot_dark": 0.7},
+ "subdiv": 1, "lod0": 8000, "lod1": 2500, "tex": 512}

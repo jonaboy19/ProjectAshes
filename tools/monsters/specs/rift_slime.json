@@ -1,0 +1,10 @@
+{"name": "rift_slime", "src": "kingdom/assets/incoming/quaternius/animated-monster/FBX/Slime.fbx", "out_dir": "kingdom/assets/incoming/monsters/quaternius",
+ "measure": "z", "size": 0.75,
+ "clips": {"idle": "Slime_Idle", "walk": "Slime_Walk", "run": {"alias": "walk"}, "attack": "Slime_Attack",
+           "hit": {"synth": {"bones": [{"bone": "Body", "axis": [1,0,0], "deg": -14}, {"bone": "Head", "axis": [1,0,0], "deg": -10}]}}, "death": "Slime_Death"},
+ "delete_mats": ["Eyes"],
+ "palette": {"Body": [0.34, 0.22, 0.52]},
+ "paint": {"mottle": 0.3, "grain": 0.1, "accent": {"Body": [0.20, 0.42, 0.55]}, "accent_scale": 3.0, "accent_mix": 0.7,
+           "shadow_tint": [0.10, 0.08, 0.22], "shadow_mix": 0.5, "foot_dark": 0.55, "head_light": 1.2, "top_light": 1.25, "edge": 0.1},
+ "glow": {"mats": "all", "color": [0.35, 0.95, 1.0], "mask": "veins", "scale": 2.5, "band": [0.485, 0.515], "strength": 2.5},
+ "roughness": 0.35, "subdiv": 1, "lod0": 6000, "lod1": 1000, "tex": 512}

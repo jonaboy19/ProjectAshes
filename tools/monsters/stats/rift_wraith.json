@@ -1,0 +1,28 @@
+{
+ "name": "rift_wraith",
+ "src": "kingdom/assets/incoming/quaternius/ultimate-monsters/Flying_glTF/Ghost_Skull.gltf",
+ "tris_lod0": 8000,
+ "tris_lod1": 2500,
+ "bones": 38,
+ "tex": 512,
+ "fps": 30,
+ "clips": {
+  "idle": 1.17,
+  "run": 0.83,
+  "attack": 1.17,
+  "hit": 0.47,
+  "death": 0.67,
+  "walk": 1.17
+ },
+ "synthesised": [],
+ "aliases": {
+  "walk": "idle"
+ },
+ "pruned_bones": [],
+ "size_m": [
+  1.92,
+  1.38,
+  1.9
+ ],
+ "hover": 0.2
+}

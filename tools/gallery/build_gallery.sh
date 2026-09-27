@@ -39,12 +39,13 @@ figure{margin:0;background:var(--card);border:1px solid var(--line);border-radiu
 img{width:100%;display:block;background:#fff}figcaption{padding:6px 8px;font-size:12px;word-break:break-all}
 </style></head><body>
 <h1>Rising Ashes: asset gallery</h1><p class=sub>Every preview render in the repo. Click an image to open it full size. Rebuild with <code>bash tools/gallery/build_gallery.sh</code>.</p>
-<nav><a href=#s1>Hero buildings</a><a href=#s2>Houses and stalls</a><a href=#s3>Creatures</a><a href=#s4>Armored characters</a><a href=#s5>Interiors</a><a href=#s6>Props</a><a href=#s7>Characters</a><a href=#s8>Animals</a><a href=#s9>Armor</a><a href=#s10>Concepts</a><a href=#s11>Game screenshots</a><a href=#s12>Older Blender builds</a></nav>
+<nav><a href=#s1>Hero buildings</a><a href=#s2>Houses and stalls</a><a href=#s3>Creatures</a><a href=#s3m>Monsters</a><a href=#s4>Armored characters</a><a href=#s5>Interiors</a><a href=#s6>Props</a><a href=#s7>Characters</a><a href=#s8>Animals</a><a href=#s9>Armor</a><a href=#s10>Concepts</a><a href=#s11>Game screenshots</a><a href=#s12>Older Blender builds</a></nav>
 EOF
 echo "<div id=s1></div>";  section "Hero buildings (Meshy)" "$M/guild_*" "$M/inn_*" "$M/blacksmith_lod*" "$M/healer_*"
 echo "<div id=s2></div>";  section "Houses and market stalls (Meshy)" "$M/houses_round2_sheet.png" "$M/house_*" "$M/stall_*"
 echo "<div id=s2b></div>"; section "Landmarks (Meshy)" "$M/landmarks_sheet.png" "$M/landmark_*"
 echo "<div id=s3></div>";  section "Creatures (Meshy, rigged and animated)" "$M/creatures_lineup.png" "$M/*_anim.png"
+echo "<div id=s3m></div>"; section "Monsters (CC0 packs, harmonised)" "kingdom/assets/incoming/monsters/_previews/monsters_lineup.png" "kingdom/assets/incoming/monsters/_previews/monsters_poses.png" "kingdom/assets/incoming/monsters/_previews/*_anim.png"
 echo "<div id=s4></div>";  section "Armored characters (Meshy)" "$M/armored_*"
 echo "<div id=s4b></div>"; section "Region: nature, farm, mine, roads, ruins (Blender)" "$B/region_forest_scene.png" "$B/region_*"
 echo "<div id=s5></div>";  section "Interiors" "$B/_interiors_sheet.png" "$B/interior_*"

@@ -1,0 +1,12 @@
+{"name": "blight_rat", "src": "kingdom/assets/incoming/quaternius/easy-enemy/FBX/Rat.fbx",
+ "out_dir": "kingdom/assets/incoming/monsters/quaternius", "measure": "z", "size": 0.62, "yaw": 0,
+ "clips": {"idle": "Rat_Idle", "walk": "Rat_Walk", "run": "Rat_Run", "attack": "Rat_Attack",
+           "hit": {"synth": {"bones": [{"bone": "Neck", "axis": [1,0,0], "deg": -18}, {"bone": "Back", "axis": [1,0,0], "deg": -8}]}},
+           "death": "Rat_Death"},
+ "palette": {"Grey": [0.22, 0.20, 0.19], "Pink": [0.50, 0.36, 0.34]},
+ "paint": {"mottle": 0.22, "grain": 0.10, "shadow_tint": [0.22, 0.20, 0.26], "shadow_mix": 0.4,
+           "accent": {"Grey": [0.30, 0.24, 0.18]}, "accent_scale": 4.0, "accent_mix": 0.7,
+           "strokes": 0.35, "stroke_axis": "y", "stroke_along": 6, "stroke_across": 70,
+           "foot_dark": 0.7, "head_light": 1.12, "under_dark": 0.8, "top_light": 1.15},
+ "eyes": {"bone": "Head", "fwd": 0.38, "up": 0.62, "r": 0.016, "glow": [0.9, 0.35, 0.12]},
+ "subdiv": 1, "lod0": 8000, "lod1": 2500, "tex": 512}

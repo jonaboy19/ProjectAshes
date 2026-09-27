@@ -1,0 +1,32 @@
+{
+ "name": "ghoul",
+ "src": "kingdom/assets/incoming/quaternius/animated-zombie/FBX/Zombie.fbx",
+ "tris_lod0": 8000,
+ "tris_lod1": 2500,
+ "bones": 40,
+ "tex": 512,
+ "fps": 24,
+ "clips": {
+  "idle": 5.54,
+  "walk": 4.0,
+  "run": 0.79,
+  "attack": 5.04,
+  "crawl": 5.12,
+  "hit": 0.46,
+  "death": 1.5
+ },
+ "synthesised": [
+  "hit",
+  "death"
+ ],
+ "aliases": {},
+ "pruned_bones": [
+  "HeadTop_End"
+ ],
+ "size_m": [
+  0.91,
+  0.66,
+  1.72
+ ],
+ "hover": 0.0
+}

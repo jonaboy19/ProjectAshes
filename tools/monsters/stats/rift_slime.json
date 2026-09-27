@@ -1,0 +1,30 @@
+{
+ "name": "rift_slime",
+ "src": "kingdom/assets/incoming/quaternius/animated-monster/FBX/Slime.fbx",
+ "tris_lod0": 1984,
+ "tris_lod1": 1000,
+ "bones": 12,
+ "tex": 512,
+ "fps": 24,
+ "clips": {
+  "idle": 2.5,
+  "walk": 0.83,
+  "attack": 0.62,
+  "death": 0.42,
+  "hit": 0.46,
+  "run": 0.83
+ },
+ "synthesised": [
+  "hit"
+ ],
+ "aliases": {
+  "run": "walk"
+ },
+ "pruned_bones": [],
+ "size_m": [
+  0.98,
+  1.18,
+  0.75
+ ],
+ "hover": 0.0
+}

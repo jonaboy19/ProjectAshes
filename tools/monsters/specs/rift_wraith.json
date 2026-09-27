@@ -1,0 +1,8 @@
+{"name": "rift_wraith", "src": "kingdom/assets/incoming/quaternius/ultimate-monsters/Flying_glTF/Ghost_Skull.gltf", "out_dir": "kingdom/assets/incoming/monsters/quaternius",
+ "measure": "z", "size": 1.9, "hover": 0.2, "proportions": [{"bone": "Head", "scale": 0.72}],
+ "clips": {"idle": "Flying_Idle", "walk": {"alias": "idle"}, "run": "Fast_Flying", "attack": "Punch", "hit": "HitReact", "death": "Death"},
+ "atlas_remap": [[[0.44, 0.28, 0.47], [0.46, 0.42, 0.56]], [[0.82, 0.77, 0.70], [0.70, 0.64, 0.54]]],
+ "grade": {"sat": 0.9, "val": 1.0, "tint": [0.85, 0.82, 0.95], "tint_mix": 0.25},
+ "paint": {"mottle": 0.3, "grain": 0.14, "shadow_tint": [0.08, 0.06, 0.16], "shadow_mix": 0.6, "strokes": 0.3, "stroke_axis": "z", "stroke_along": 3, "stroke_across": 40, "foot_dark": 0.55, "ao_min": 0.6},
+ "glow": {"mats": "all", "color": [0.45, 0.85, 1.0], "mask": "veins", "scale": 3.5, "band": [0.49, 0.51], "strength": 2.0},
+ "subdiv": 1, "lod0": 8000, "lod1": 2500, "tex": 512}

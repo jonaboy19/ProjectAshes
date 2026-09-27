@@ -1,0 +1,31 @@
+{
+ "name": "fungal_brute",
+ "src": "kingdom/assets/incoming/quaternius/ultimate-monsters/Big_glTF/MushroomKing.gltf",
+ "tris_lod0": 7999,
+ "tris_lod1": 2500,
+ "bones": 39,
+ "tex": 512,
+ "fps": 30,
+ "clips": {
+  "idle": 1.0,
+  "walk": 1.0,
+  "run": 0.57,
+  "attack": 0.87,
+  "hit": 0.6,
+  "death": 0.77
+ },
+ "synthesised": [],
+ "aliases": {},
+ "pruned_bones": [
+  "PoleTarget.L",
+  "PoleTarget.R",
+  "Pinky3.R",
+  "Pinky3.L"
+ ],
+ "size_m": [
+  1.7,
+  0.99,
+  1.7
+ ],
+ "hover": 0.0
+}

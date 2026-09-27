@@ -1,0 +1,30 @@
+{
+ "name": "bog_toad",
+ "src": "kingdom/assets/incoming/quaternius/easy-enemy/FBX/Frog.fbx",
+ "tris_lod0": 8000,
+ "tris_lod1": 2500,
+ "bones": 28,
+ "tex": 512,
+ "fps": 24,
+ "clips": {
+  "idle": 2.5,
+  "walk": 0.88,
+  "attack": 0.75,
+  "death": 0.83,
+  "hit": 0.46,
+  "run": 0.88
+ },
+ "synthesised": [
+  "hit"
+ ],
+ "aliases": {
+  "run": "walk"
+ },
+ "pruned_bones": [],
+ "size_m": [
+  1.31,
+  1.2,
+  0.55
+ ],
+ "hover": 0.0
+}

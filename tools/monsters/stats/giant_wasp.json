@@ -1,0 +1,31 @@
+{
+ "name": "giant_wasp",
+ "src": "kingdom/assets/incoming/quaternius/easy-enemy/FBX/Wasp.fbx",
+ "tris_lod0": 7998,
+ "tris_lod1": 2500,
+ "bones": 29,
+ "tex": 512,
+ "fps": 24,
+ "clips": {
+  "idle": 1.5,
+  "attack": 0.75,
+  "death": 0.75,
+  "hit": 0.46,
+  "walk": 1.5,
+  "run": 1.5
+ },
+ "synthesised": [
+  "hit"
+ ],
+ "aliases": {
+  "walk": "idle",
+  "run": "idle"
+ },
+ "pruned_bones": [],
+ "size_m": [
+  0.49,
+  1.0,
+  0.76
+ ],
+ "hover": 1.2
+}
