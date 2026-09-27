@@ -61,6 +61,15 @@ The user wants to **see a PNG of everything that gets made**. After each batch:
 - Agents don't commit. The main session reviews the previews and commits specific paths.
 - Rigged monsters are in `ai3d/meshy/creatures/`. Meshy biped rigs strip Hips scale keys (Meshy idle clips scale the hips by about 1.18). Quadrupeds reuse the CC0 Quaternius Ultimate Animated Animals rigs. See `tools/meshy/creature_rig/`.
 
+## Animation QA
+Run it **after adding or changing any rigged character, creature, animal or clip library**, after re-rigging / re-exporting a GLB, and after the game changes movement speeds or which clips it plays:
+```bash
+bash tools/qa/anim_qa/run.sh               # metrics + 8-frame strips + contact sheets (GPU window)
+bash tools/qa/anim_qa/run.sh --no-strips   # headless metrics only (~2 min)
+bash tools/qa/anim_qa/run.sh --only=<id>   # one character/creature
+```
+It loads every type through the game's own loaders, samples each clip at 30 fps and grades foot sliding, floor penetration, floating, bone stretch, scale keys, pops, loop seams, T-pose leaks, root drift and clip speed vs. the in-game movement speed. Read `docs/qa/anim_qa_report.md` (ranked problems first) and **look** at `docs/qa/anim_sheet_<group>.jpg` and the worst `docs/qa/anim_strips/*.jpg`. New character types or clips must be added to `tools/qa/anim_qa/catalog.gd` (details in `tools/qa/anim_qa/README.md`). The script reverts `.import` files the Godot run rewrites; never kill other agents' Godot processes.
+
 ## Playtest bot
 Run it **after any change a player would notice** (new assets placed in Ashford, lighting, UI, combat, performance work), before telling the user something "looks good in game":
 ```bash
