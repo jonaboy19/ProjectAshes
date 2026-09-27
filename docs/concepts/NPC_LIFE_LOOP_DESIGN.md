@@ -43,6 +43,8 @@ Keep `WorldSim` as owner of schedule, job, home, money, long-term goal, and low-
 
 When a resident is promoted to the near tier, initialize the body at the stored world position and let its physics controller own motion while embodied. It reports its resolved position and arrival/goal status back at a controlled cadence. Do not have both the simulation and the body advance the same resident at once. On demotion, store the body’s final position and meaningful state before freeing it. Promotion/demotion must never snap an actor through a wall or back to an old simulation point.
 
+The [contact and LOD contract](NPC_CONTACT_LOD_CONTRACT.md) makes this handoff concrete and addresses a cap exception: model selection and three-spawns-per-refresh do not guarantee that every close visible resident has a full model. Separate contact eligibility from skeleton budgets, define an overflow/density policy, and preserve one movement owner through proxy/full-model swaps.
+
 ### State set and interrupt order
 
 Use a small state set with explicit entry/exit behavior. It can be an enum plus data, an existing behavior-tree tool, or another fitting structure; preserve the existing project architecture unless evidence justifies a dependency.
