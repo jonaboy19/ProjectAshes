@@ -385,9 +385,9 @@ func _build_environment() -> void:
 	env.glow_hdr_threshold = 1.1
 	env.fog_enabled = true
 	env.fog_light_color = Color("c9d4e6")
-	env.fog_density = 0.0009
+	env.fog_density = 0.0006
 
-	env.fog_aerial_perspective = 0.6
+	env.fog_aerial_perspective = 0.3
 	env.fog_sky_affect = 0.4
 	env.volumetric_fog_enabled = true
 	env.volumetric_fog_density = 0.0025
