@@ -172,7 +172,27 @@ static func mesh_of(asset_name: String) -> Mesh:
 
 ## Animated character standing `height` metres tall. Body parts always show;
 ## weapons/hats only if named in `keep`.
+## MakeHuman (CC0) villagers rigged on the UAL skeleton (tools/blender/make_humans.py).
+const MH_DIR := "res://assets/generated/characters/"
+## Look names -> MakeHuman character GLBs (one is picked at random).
+const MH_LOOKS := {
+	"Rogue_Hooded": ["villager_man_a", "villager_man_b", "villager_woman_a", "villager_woman_b", "elder_man", "elder_woman"],
+	"Barbarian": ["villager_man_a", "villager_man_b", "father"],
+	"Mage": ["villager_woman_a", "villager_woman_b", "mother", "elder_woman"],
+	"Rogue": ["villager_man_b", "elder_man", "villager_man_a"],
+	"Knight": ["guard"],
+	"Player": ["player_young"], "Guard": ["guard"],
+	"Mother": ["mother"], "Father": ["father"],
+	"Child_Boy": ["child_boy"], "Child_Girl": ["child_girl"],
+	"Elder_Man": ["elder_man"], "Elder_Woman": ["elder_woman"],
+}
+const USE_MAKEHUMAN := true
+
+
 static func character(file_name: String, height: float, keep: Array[String] = []) -> Node3D:
+	if USE_MAKEHUMAN and MH_LOOKS.has(file_name):
+		var files: Array = MH_LOOKS[file_name]
+		return mh_character(files[randi() % files.size()], height, keep)
 	if USE_REALISTIC and LOOKS.has(file_name):
 		return humanoid(LOOKS[file_name], height, keep)
 	var model: Node3D = (load(CHAR_DIR + file_name + ".glb") as PackedScene).instantiate()
@@ -220,6 +240,34 @@ static func visual_aabb(root: Node3D) -> AABB:
 ## Builds a rigged humanoid: base body (head, hands), outfit and hair meshes bound
 ## to the base skeleton, props on bone attachments, and an AnimationPlayer with
 ## the UAL clips (plus KayKit-name aliases).
+## A MakeHuman GLB on the UAL skeleton, `height` metres tall, with the UAL clips.
+static func mh_character(file: String, height: float, keep: Array[String] = [], lod1 := false) -> Node3D:
+	var root := Node3D.new()
+	var base: Node3D = (load(MH_DIR + file + ("_lod1" if lod1 else "") + ".glb") as PackedScene).instantiate()
+	root.add_child(base)
+	var skeleton: Skeleton3D = base.find_children("*", "Skeleton3D", true, false)[0]
+	for part in keep:      # same props as humanoid(); the rig is in metres
+		if part.contains("Helmet"):
+			_attach(skeleton, "Head", HELMET, 0.3, Vector3(0, 0.08, 0.02), Vector3.ZERO)
+		elif part.contains("Axe"):
+			_attach(skeleton, "hand_r", WEAPONS + "Axe_Bronze.gltf", 0.75, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
+		elif part.contains("2H_Sword"):
+			_attach(skeleton, "hand_r", WEAPONS + "Sword_Bronze.gltf", 1.3, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
+		elif part.contains("Sword"):
+			_attach(skeleton, "hand_r", WEAPONS + "Sword_Bronze.gltf", 0.95, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
+		elif part.contains("Shield"):
+			_attach(skeleton, "lowerarm_l", WEAPONS + "Shield_Wooden.gltf", 0.62, Vector3(0.12, 0, 0.08), Vector3(0, 90, 0))
+	var anim := AnimationPlayer.new()
+	anim.name = "AnimationPlayer"
+	base.add_child(anim)
+	anim.root_node = anim.get_path_to(base)
+	anim.add_animation_library("", _ual_for(base.get_path_to(skeleton)))
+	var head := skeleton.find_bone("Head")
+	var native := skeleton.get_bone_global_rest(head).origin.y * 1.1
+	root.scale = Vector3.ONE * (height / maxf(native, 0.01))
+	return root
+
+
 static func humanoid(look: Dictionary, height: float, keep: Array[String] = []) -> Node3D:
 	var sex: String = look["sex"]
 	var outfit: String = look["outfit"]

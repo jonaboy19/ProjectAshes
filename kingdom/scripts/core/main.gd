@@ -190,7 +190,7 @@ func _stage_birth_room(house: Vector2) -> Node3D:
 		o.omni_range = l[3]
 		o.shadow_enabled = true
 		root.add_child(o)
-	var mother := Assets.character("Rogue_Hooded", 1.68, [])
+	var mother := Assets.character("Mother", 1.64, [])
 	root.add_child(mother)
 	mother.position = Vector3(-1.75, 0.45, -1.0)
 	mother.rotation.y = PI * 0.2       # turned toward the open wall (camera)
@@ -200,7 +200,7 @@ func _stage_birth_room(house: Vector2) -> Node3D:
 			if mp.has_animation(a):
 				mp.play(a)
 				break
-	var father := Assets.character("Rogue", 1.8, [])
+	var father := Assets.character("Father", 1.8, [])
 	root.add_child(father)
 	father.position = Vector3(1.9, 0, -0.6)
 	father.look_at(root.global_position + Vector3(1.0, 0, -1.2), Vector3.UP, true)

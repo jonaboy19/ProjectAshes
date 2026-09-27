@@ -79,7 +79,7 @@ func _ready() -> void:
 	add_child(shape)
 	_model = Node3D.new()
 	add_child(_model)
-	var body := Assets.character("Knight", 1.8, ["1H_Sword", "Round_Shield"])
+	var body := Assets.character("Player", 1.8, ["1H_Sword", "Round_Shield"])
 	_model.add_child(body)
 	_animator = CharacterAnimator.new(body, RUN)
 	_add_head_look(body)
