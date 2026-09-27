@@ -60,6 +60,7 @@ For close actors, the debug view should make the following visible at once: acto
 ## Relationship to ongoing work
 
 - Claude's local `docs/qa/anim_qa_report.md` is already the active clip and locomotion-speed review. This note does not repeat its speed table or ask for competing animation edits.
+- The autoplay report's ignored-library/import request predates the inspected branch packaging: the four extra-library import descriptors are now tracked, `.gdignore` is absent for that library, and the loader checks resource existence. Refresh report requests against source; a clean Godot import and actual required-clip playback remain unverified by this source check.
 - [NPC life-loop design](NPC_LIFE_LOOP_DESIGN.md) describes schedule, anchor, near-body, route, and LOD behavior contracts.
 - [Collision visual audit](COLLISION_VISUAL_AUDIT.html) and [NPC route audit](NPC_ROUTE_AUDIT.html) cover static fitted-collider geometry and straight-line route intersections. The cases above add the missing moving-runtime evidence.
 - [Natural world feel plan](NATURAL_WORLD_FEEL_PLAN.md) remains the broad implementation sequence. Re-run this focused capture after the camera and near-actor movement pass.

@@ -49,6 +49,8 @@ Two newer raw benchmark rows were appended at 17:32: village LOW/Mobile measured
 
 Use Claude's current source and latest QA before each implementation step; these local files can change independently of the branch commit. Keep the game checkout untouched while preparing this documentation handoff. The navigation plan addresses the gap between visible NPC behavior and physical world contact; it does not duplicate the active animation/asset QA.
 
+The playtest report's issue 12 (ignored extra-animation library and uncommitted import descriptors) is an older packaging snapshot. At the current `e3563fc4` branch, all four `UAL_Extra_*` GLBs and `.glb.import` descriptors are tracked, the library's `.gdignore` is absent from tracked files, and `_ual_for()` checks `ResourceLoader.exists()` before loading. Do not repeat that packaging change based on the report alone. This does not prove a fresh import/export passes: the existence check still does not validate the loaded scene, its AnimationPlayer, or required gameplay clips. Keep fresh-import playback as an acceptance check. The separate death-alias behavior is still present: aliases are added only when their names are missing, so an existing `Death_A` can win over the intended alias target.
+
 ## Suggested first implementation slice
 
 Start with a reproducible village doorway and crowd QA route, then fix the solid-world collision profiles that route exposes. This addresses the visible “walk through Meshy buildings” fault and creates a safe basis for navigation and NPC contact work.
