@@ -1,7 +1,7 @@
 # Near-NPC follower and gait-state review
 
-**Status:** source-level diagnosis with an interactive arithmetic model; game code was not changed.  
-**Gameplay source checked:** `claude/focused-curie-m09hbd` at `e3563fc4`.  
+**Status:** source-level diagnosis with an interactive arithmetic model; game code was not changed.
+**Gameplay source checked:** `claude/focused-curie-m09hbd` at `e3563fc4`.
 **Related current evidence:** the local autoplay HUD reports 5,280 total simulated souls; see the [current screenshot review](CURRENT_RUN_VISUAL_REVIEW.md). Refresh that number after future world-generation changes.
 
 Open [NPC_FOLLOWER_ANIMATION_REVIEW.html](NPC_FOLLOWER_ANIMATION_REVIEW.html), choose population and frame rate, then run the short trace. It models the source update cadence and shows how often the full villager selects `Walking_A` versus `Idle` while the simulation moves.
