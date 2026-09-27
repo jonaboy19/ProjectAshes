@@ -46,6 +46,7 @@ echo "<div id=s2></div>";  section "Houses and market stalls (Meshy)" "$M/houses
 echo "<div id=s2b></div>"; section "Landmarks (Meshy)" "$M/landmarks_sheet.png" "$M/landmark_*"
 echo "<div id=s3></div>";  section "Creatures (Meshy, rigged and animated)" "$M/creatures_lineup.png" "$M/*_anim.png"
 echo "<div id=s4></div>";  section "Armored characters (Meshy)" "$M/armored_*"
+echo "<div id=s4b></div>"; section "Region: nature, farm, mine, roads, ruins (Blender)" "$B/region_forest_scene.png" "$B/region_*"
 echo "<div id=s5></div>";  section "Interiors" "$B/_interiors_sheet.png" "$B/interior_*"
 echo "<div id=s6></div>";  section "Village props (Blender)" "$B/_props_round3_sheet.png" "$B/prop_*"
 echo "<div id=s7></div>";  section "Characters and animations" "kingdom/assets/incoming/characters/_previews/*.png" "$B/characters*.png"
