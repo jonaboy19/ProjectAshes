@@ -1,0 +1,62 @@
+Sounds by Joseph Sardin, BigSoundBank (https://bigsoundbank.com)
+Licence: CC0 1.0 / public domain ("Free and royalty-free"). Copying, modification, distribution and
+commercial use allowed; attribution optional (credited anyway in kingdom/CREDITS.md).
+Licence page: https://bigsoundbank.com/droit.html  (checked 2026-09-27: "Royalty-Free Sound License (CC0-like)",
+"Use, including for commercial purposes", "CC0 1.0 Universal").
+Every sound page below was fetched on 2026-09-27 and shows "License: CC0 (public domain): Free and royalty-free".
+Files were downloaded as OGG from https://bigsoundbank.com/UPLOAD/ogg/<id>.ogg.
+Some long recordings were cut (stream copy, no re-encode) to the part the game uses; the note says so.
+
+file | sound page
+annoyed_hen_s0453.ogg | https://bigsoundbank.com/annoyed-hen-s0453.html
+awakening_birds_s0222.ogg | https://bigsoundbank.com/awakening-birds-s0222.html
+barking_dog_2_s2954.ogg | https://bigsoundbank.com/barking-dog-2-s2954.html
+barking_dog_s0916.ogg | https://bigsoundbank.com/barking-dog-s0916.html (cut to first 93 s)
+big_branching_fire_1_s0987.ogg | https://bigsoundbank.com/big-branching-fire-1-s0987.html
+campaign_at_night_4_s1880.ogg | https://bigsoundbank.com/campaign-at-night-4-s1880.html (cut to first 113 s)
+cat_roar_1_s1881.ogg | https://bigsoundbank.com/cat-roar-1-s1881.html
+cat_roar_3_s1883.ogg | https://bigsoundbank.com/cat-roar-3-s1883.html
+clink_of_glass_toast_1_s2886.ogg | https://bigsoundbank.com/clink-of-glass-toast-1-s2886.html
+common_blackbird_2_s3474.ogg | https://bigsoundbank.com/common-blackbird-2-s3474.html
+cow_moos_2_s2382.ogg | https://bigsoundbank.com/cow-moos-2-s2382.html
+cow_moos_4_s2384.ogg | https://bigsoundbank.com/cow-moos-4-s2384.html
+cow_moos_s0546.ogg | https://bigsoundbank.com/cow-moos-s0546.html
+crowd_of_50_60_people_1_s3515.ogg | https://bigsoundbank.com/crowd-of-50-60-people-1-s3515.html
+dog_singing_1_s2450.ogg | https://bigsoundbank.com/dog-singing-1-s2450.html
+donkey_braying_1_s1549.ogg | https://bigsoundbank.com/donkey-braying-1-s1549.html
+evening_birds_s1859.ogg | https://bigsoundbank.com/evening-birds-s1859.html (cut to first 103 s)
+feet_in_leaves_2_s2889.ogg | https://bigsoundbank.com/feet-in-leaves-2-s2889.html
+fire_foley_s3322.ogg | https://bigsoundbank.com/fire-foley-s3322.html
+fireplace_1_s0030.ogg | https://bigsoundbank.com/fireplace-1-s0030.html
+fireplace_2_s0031.ogg | https://bigsoundbank.com/fireplace-2-s0031.html
+forest_and_stream_1_s2713.ogg | https://bigsoundbank.com/forest-and-stream-1-s2713.html (cut to first 143 s)
+forest_wind_in_the_trees_s0904.ogg | https://bigsoundbank.com/forest-wind-in-the-trees-s0904.html
+goat_1_s1380.ogg | https://bigsoundbank.com/goat-1-s1380.html
+growling_cat_1_s1885.ogg | https://bigsoundbank.com/growling-cat-1-s1885.html
+growling_cat_3_s1887.ogg | https://bigsoundbank.com/growling-cat-3-s1887.html
+grumpy_pig_1_s1658.ogg | https://bigsoundbank.com/grumpy-pig-1-s1658.html
+grumpy_pig_2_s1659.ogg | https://bigsoundbank.com/grumpy-pig-2-s1659.html
+hen_lays_1_s0975.ogg | https://bigsoundbank.com/hen-lays-1-s0975.html
+hen_scared_s1040.ogg | https://bigsoundbank.com/hen-scared-s1040.html
+metal_bucket_s0543.ogg | https://bigsoundbank.com/metal-bucket-s0543.html
+nail_and_hammer_1_s0005.ogg | https://bigsoundbank.com/nail-and-hammer-1-s0005.html
+owls_s0429.ogg | https://bigsoundbank.com/owls-s0429.html
+pages_that_turn_s0493.ogg | https://bigsoundbank.com/pages-that-turn-s0493.html
+rooster_s0104.ogg | https://bigsoundbank.com/rooster-s0104.html
+rope_s3417.ogg | https://bigsoundbank.com/rope-s3417.html (cut to first 18 s)
+sheep_1_s2343.ogg | https://bigsoundbank.com/sheep-1-s2343.html
+sheep_3_s2345.ogg | https://bigsoundbank.com/sheep-3-s2345.html
+sheep_5_s2347.ogg | https://bigsoundbank.com/sheep-5-s2347.html
+small_dogs_bark_growl_s1060.ogg | https://bigsoundbank.com/small-dogs-bark-growl-s1060.html
+small_restaurant_conversations_s3542.ogg | https://bigsoundbank.com/small-restaurant-conversations-s3542.html (cut to first 103 s)
+small_stream_s0823.ogg | https://bigsoundbank.com/small-stream-s0823.html (cut to first 93 s)
+song_of_rooster_s0283.ogg | https://bigsoundbank.com/song-of-rooster-s0283.html
+storm_and_rain_3_s2717.ogg | https://bigsoundbank.com/storm-and-rain-3-s2717.html
+strong_wind_and_trees_1_s1450.ogg | https://bigsoundbank.com/strong-wind-and-trees-1-s1450.html
+strong_wind_in_a_village_s0625.ogg | https://bigsoundbank.com/strong-wind-in-a-village-s0625.html
+tawny_owl_1_s1763.ogg | https://bigsoundbank.com/tawny-owl-1-s1763.html
+tawny_owl_2_s1764.ogg | https://bigsoundbank.com/tawny-owl-2-s1764.html
+thunder_s2718.ogg | https://bigsoundbank.com/thunder-s2718.html
+turned_page_s0164.ogg | https://bigsoundbank.com/turned-page-s0164.html
+whistling_of_the_wind_1_s0147.ogg | https://bigsoundbank.com/whistling-of-the-wind-1-s0147.html (cut to first 103 s)
+wind_in_a_tree_s0659.ogg | https://bigsoundbank.com/wind-in-a-tree-s0659.html

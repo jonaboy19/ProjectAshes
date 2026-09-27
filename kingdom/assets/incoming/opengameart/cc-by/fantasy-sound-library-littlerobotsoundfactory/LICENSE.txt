@@ -1,0 +1,6 @@
+"Fantasy Sound Effects Library" by Little Robot Sound Factory
+Source: https://opengameart.org/content/fantasy-sound-effects-library
+Licence: CC-BY 3.0 (https://creativecommons.org/licenses/by/3.0/), verified on the source page 2026-09-27
+ATTRIBUTION REQUIRED: "Fantasy Sound Effects Library" by Little Robot Sound Factory (www.littlerobotsoundfactory.com), CC-BY 3.0.
+Source page notice: "Attribute Little Robot Sound Factory, and provide this link where possible: www.littlerobotsoundfactory.com"
+Used in the game (processed, see kingdom/assets/audio/README.md): goblin voices, wyvern screeches, UI coin/menu/jingles.
