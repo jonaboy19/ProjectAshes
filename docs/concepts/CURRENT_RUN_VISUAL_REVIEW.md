@@ -26,7 +26,15 @@ The separate low-mobile benchmark also shows the visual density and camera proxi
 
 ![Low-mobile village benchmark frame](qa_evidence/bench_village_low_mobile.png)
 
-## 3. Current playtest coverage does not prove the NPC movement requirements
+## 3. Forest foliage hides the wolf contact
+
+The saved wolf-player-hurt frame is dominated by conifer branches; the attacking wolf and player contact point cannot be read clearly. This is direct evidence of a combat sightline problem. It is not usable visual proof of whether the wolf mesh, root, or collision body penetrates the player.
+
+![The wolf encounter is largely hidden behind foreground conifer branches](qa_evidence/34_wolf_player_hurt.jpg)
+
+Repeat the bite at the same location with a normal-play capture and a debug capture. The normal camera should keep the combatants readable as the player circles or backs away; if a nearby branch crosses the view, fade that foliage smoothly. The debug capture should show the wolf's body shape, root position, attack reach, player capsule, and contact frame. Evaluate foliage readability and physical contact as separate outcomes.
+
+## 4. Current playtest coverage does not prove the NPC movement requirements
 
 The autoplay route drives the player with virtual joystick inputs and visits buildings and NPC interaction targets. Its saved screenshots and log are strong evidence for player reachability and menu flows, but they do not record a villager being assigned a destination behind a building, following a path, meeting another resident, colliding with the player, or crossing an LOD boundary while travelling. Those are the cases behind the reported “NPCs walk through Meshy buildings and players” problem, so that issue remains unverified by this playtest even when every player `walk_to` succeeds.
 
