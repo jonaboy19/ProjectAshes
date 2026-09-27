@@ -16,7 +16,7 @@ BUDGETS = {
     "small":    [("lod0", 1500, 512),   ("lod1", 500, 256)],      # weapons, items, clutter
     # thin geometry (stall canopies, awnings, poles) shreds when collapsed further:
     # feed a Meshy remesh at ~4k in and keep the mesh, only shrink the texture for lod1
-    "thin":     [("lod0", 4000, 512),   ("lod1", 4000, 256)],
+    "thin":     [("lod0", 4000, 1024),  ("lod1", 4000, 256)],
     "creature": [("lod0", 15000, 1024), ("lod1", 5000, 512)],     # rigged mobs (rig lod0 first)
 }
 

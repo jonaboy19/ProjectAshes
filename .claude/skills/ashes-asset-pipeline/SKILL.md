@@ -49,6 +49,12 @@ Meshy buildings are solid shells. A door triggers loading a **separate interior 
 - Output goes to `kingdom/assets/incoming/ai3d/meshy/` (Meshy) or the matching incoming pack; previews go in `_previews/`.
 - Commit to `claude/focused-curie-m09hbd` (shared with the cloud session). `git pull --ff-only` first. Keep every file under 90 MB.
 
+## Always show the user
+The user wants to **see a PNG of everything that gets made**. After each batch:
+1. Send the preview sheet(s) to the user (SendUserFile).
+2. Rebuild the gallery with `bash tools/gallery/build_gallery.sh` (add a section there for any new category) and commit `docs/asset_gallery/`.
+3. The gallery is browsable at http://localhost:8765 via `tools/gallery/serve.ps1` (in the desktop app, use preview_start with the `asset-gallery` launch config).
+
 ## Parallel agents: rules
 - **Never** kill Blender globally (`taskkill /IM blender.exe`). Other agents run headless Blender jobs at the same time. Kill only your own process by its PID.
 - The Meshy account is shared, so check the balance before and after and report only your own task costs (log them in `tasks.tsv`).

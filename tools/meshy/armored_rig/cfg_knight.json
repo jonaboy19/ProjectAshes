@@ -1,0 +1,9 @@
+{
+ "name": "knight",
+ "height": 1.85,
+ "source": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/ai3d/meshy/armored/_work/knight_remesh_raw.glb",
+ "ual": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out_dir": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/ai3d/meshy/armored",
+ "lod0_tris": 12000, "lod1_tris": 4000, "tex_lod0": 1024, "tex_lod1": 512,
+ "overrides": {"shoulder_x": 0.2}
+}
