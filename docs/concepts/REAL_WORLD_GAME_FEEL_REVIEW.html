@@ -76,9 +76,16 @@
     <article class="card"><a href="../qa/anim_sheet_armored.jpg"><img loading="lazy" src="../qa/anim_sheet_armored.jpg" alt="Animation QA sheet for armored characters"></a><div class="card-body"><h3>Armored motion sheet</h3><p>Existing QA contact sheet. Foot-slide fixes must be checked against game movement speed and play feel.</p><a href="../../tools/qa/anim_qa/README.md">Open the QA tool and instructions</a></div></article>
   </section>
 
+  <h2>Building collision fit</h2>
+  <p>These images use the game's production building loader and static box proxies. A blue wireframe marks the solid collision volume. Review the full gallery for Meshy houses, hero buildings, stalls and landmarks.</p>
+  <section class="grid">
+    <article class="card"><a href="../qa/collision_preview/mhouse_manor.png"><img loading="lazy" src="../qa/collision_preview/mhouse_manor.png" alt="Meshy manor with its blue box collision proxy"></a><div class="card-body"><h3>Meshy manor proxy</h3><p>The current proxy follows the model's overall bounds. Door gaps and irregular outlines need in-game checks.</p><a href="../qa/collision_preview/index.html">Open the complete collider gallery</a> · <a href="../../kingdom/tools_qa/collision_preview/README.md">Run the viewer</a></div></article>
+    <article class="card"><a href="../qa/collision_preview/market_stand_1.png"><img loading="lazy" src="../qa/collision_preview/market_stand_1.png" alt="Meshy market stall with its blue box collision proxy"></a><div class="card-body"><h3>Market stall proxy</h3><p>The box includes the awning and baskets; check whether the solid footprint leaves enough room around the market lane.</p><a href="../qa/collision_preview/index.html">Open the complete collider gallery</a></div></article>
+  </section>
+
   <h2>Review route</h2>
   <div class="callout">Village spawn → cross the square → walk through the market → circle the inn → pass a resident in a doorway → run and stop → enter a frontier encounter. Check for wall clipping, body overlap, foot skating, camera clipping, stalled residents, and hits that land out of sync with the visible swing.</div>
-  <nav class="links" aria-label="Project review documents"><a href="REAL_WORLD_GAME_FEEL_PLAN.md">Open the full improvement plan</a><a href="../qa/PLAYTEST_REPORT.md">Open Claude's playtest report</a><a href="../qa/">Browse QA images and results</a></nav>
+  <nav class="links" aria-label="Project review documents"><a href="REAL_WORLD_GAME_FEEL_PLAN.md">Open the full improvement plan</a><a href="../qa/collision_preview/index.html">Open the collider gallery</a><a href="../../kingdom/tools_qa/collision_preview/README.md">Open the collision preview tool instructions</a><a href="../qa/PLAYTEST_REPORT.md">Open the current playtest report</a><a href="../qa/">Browse QA images and results</a></nav>
   <footer>All screenshots are static project captures. They can show composition and art direction, but cannot verify movement, animation, collision, NPC intent or frame rate. The diagram is explanatory. The latest animation changes need the existing QA runner and a live review route before their visual result can be claimed.</footer>
 </main>
 </body>
