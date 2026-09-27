@@ -60,7 +60,7 @@ func _build(s: Dictionary) -> Node3D:
 		var body := StaticBody3D.new()
 		var shape := CollisionShape3D.new()
 		var box := BoxShape3D.new()
-		box.size = Vector3(size.x * 0.8, size.y, size.z * 0.8)
+		box.size = Vector3(size.x * 0.92, size.y, size.z * 0.92)
 		shape.shape = box
 		body.position = Vector3(p.x, base_h + size.y * 0.5, p.y)
 		body.rotation.y = lot["yaw"]
@@ -102,8 +102,8 @@ func _build(s: Dictionary) -> Node3D:
 		var sp: Vector2 = s["pos"] + Vector2(cos(ang), sin(ang)) * (pr - 3.0)
 		var st := Transform3D(Basis(Vector3.UP, atan2(-cos(ang), -sin(ang))), Vector3(sp.x, base_h, sp.y))
 		(stalls if i % 2 == 0 else stalls2).append(st)
-	_multimesh(root, Assets.building_mesh("market_stand_1"), stalls)
-	_multimesh(root, Assets.building_mesh("market_stand_2"), stalls2)
+	_multimesh(root, Assets.building_mesh("market_stand_1"), stalls, true, true)
+	_multimesh(root, Assets.building_mesh("market_stand_2"), stalls2, true, true)
 
 	var c: Vector2 = s["pos"]
 	if plan["walls"]:
@@ -131,10 +131,10 @@ func _build(s: Dictionary) -> Node3D:
 		var ang := rng.randf() * TAU
 		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(plan["plaza_r"] * 0.6, plan["plaza_r"] + 3.0)
 		street_clutter.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(p.x, base_h, p.y)))
-	_multimesh(root, Assets.building_mesh("barrel"), street_clutter.slice(0, 10))
-	_multimesh(root, Assets.nature_mesh("scan/wooden_crate_01"), street_clutter.slice(10, 18))
-	_multimesh(root, Assets.nature_mesh("scan/wicker_basket_01"), street_clutter.slice(18, 24))
-	_multimesh(root, Assets.building_mesh("cart"), street_clutter.slice(24))
+	_multimesh(root, Assets.building_mesh("barrel"), street_clutter.slice(0, 10), true, true)
+	_multimesh(root, Assets.nature_mesh("scan/wooden_crate_01"), street_clutter.slice(10, 18), true, true)
+	_multimesh(root, Assets.nature_mesh("scan/wicker_basket_01"), street_clutter.slice(18, 24), true, true)
+	_multimesh(root, Assets.building_mesh("cart"), street_clutter.slice(24), true, true)
 	return root
 
 
@@ -208,7 +208,7 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, h: float, gates: Array,
 
 ## Instanced placement. Culls by object size (small clutter vanishes first) and,
 ## unless blob is false, grounds each instance with a soft contact shadow.
-func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob := true) -> void:
+func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob := true, collide := false) -> void:
 	if mesh == null or transforms.is_empty():
 		return
 	var mm := MultiMesh.new()
@@ -227,8 +227,28 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 		mmi.visibility_range_end_margin = cull * 0.1
 		mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	parent.add_child(mmi)
+	if collide:
+		_add_instance_colliders(parent, mesh, transforms)
 	if blob and extent < 18.0:
 		_contact_shadows(parent, box, transforms, cull)
+
+
+## MultiMesh instances are render-only. Add cheap box proxies for the small set
+## of placed props that should stop the player; foliage stays non-colliding.
+func _add_instance_colliders(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> void:
+	var box := mesh.get_aabb()
+	if box.size == Vector3.ZERO:
+		return
+	for instance_transform in transforms:
+		var scale := instance_transform.basis.get_scale()
+		var body := StaticBody3D.new()
+		var shape := CollisionShape3D.new()
+		var collider := BoxShape3D.new()
+		collider.size = Vector3(box.size.x * scale.x * 0.9, box.size.y * scale.y, box.size.z * scale.z * 0.9)
+		shape.shape = collider
+		body.transform = Transform3D(instance_transform.basis.orthonormalized(), instance_transform * box.get_center())
+		body.add_child(shape)
+		parent.add_child(body)
 
 
 static var _blob_mesh: PlaneMesh

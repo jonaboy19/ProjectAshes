@@ -77,6 +77,10 @@ func _ready() -> void:
 	shape.shape = capsule
 	shape.position.y = 0.85
 	add_child(shape)
+	# Nearby embodied residents use layer 2. Keep the player on the default
+	# world layer and include both layers in the movement mask.
+	collision_layer = 1
+	collision_mask = 1 | 2
 	_model = Node3D.new()
 	add_child(_model)
 	var body := Assets.character("Knight", 1.8, ["1H_Sword", "Round_Shield"])
