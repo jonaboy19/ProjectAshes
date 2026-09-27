@@ -59,7 +59,11 @@ func _build(s: Dictionary) -> Node3D:
 	for lot in plan["lots"]:
 		var p: Vector2 = lot["pos"]
 		var asset: String = lot["asset"]
-		var bkey := "%s@%d,%d" % [asset, floori(p.x / LOD_CELL), floori(p.y / LOD_CELL)]
+		# (Only models with a LOD chain gain from cells; the rest stay one batch per town.)
+		# (Meshy only: the Blender houses have 4-6 materials each, so per-cell batches
+		# of them cost more draw calls than their triangles save.)
+		var celled := Assets.building_lod_level_distance(asset, 3) > 0.0
+		var bkey := "%s@%d,%d" % [asset, floori(p.x / LOD_CELL), floori(p.y / LOD_CELL)] if celled else asset + "@"
 		if not batches.has(bkey):
 			batches[bkey] = []
 		var t := Transform3D(Basis(Vector3.UP, lot["yaw"]), Vector3(p.x, base_h, p.y))
@@ -267,9 +271,11 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, h: float, gates: Array,
 			root.add_child(body)
 		if i % tower_every == 0 and not is_gate:
 			towers.append(Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * tower_s), Vector3(p0.x, h, p0.y)))
-	_multimesh(root, wall_mesh, walls, false)
+	# Per 150 m stretch of wall, so the automatic mesh LODs pick the far side's
+	# distance instead of the whole ring's (a capital ring is ~160 pieces, 0.4 M tris).
+	_multimesh_cells(root, wall_mesh, walls, 150.0, 0.0, false)
 	_multimesh(root, gate_mesh if gate_mesh else wall_mesh, gate_walls, false)
-	_multimesh(root, tower_mesh, towers, false)
+	_multimesh_cells(root, tower_mesh, towers, 150.0, 0.0, false)
 
 
 ## Instanced placement. Culls by object size (small clutter vanishes first) and,
@@ -296,6 +302,24 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 	if blob and extent < 18.0:
 		_contact_shadows(parent, box, transforms, cull)
 	return mmi
+
+
+## _multimesh() split into cell x cell metre batches, so visibility ranges (and
+## LOD) work per neighbourhood instead of per town; `cull` > 0 overrides the range.
+func _multimesh_cells(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], cell: float, cull := 0.0, blob := true) -> void:
+	var groups := {}
+	for t: Transform3D in transforms:
+		var k := Vector2i(floori(t.origin.x / cell), floori(t.origin.z / cell))
+		if not groups.has(k):
+			groups[k] = []
+		(groups[k] as Array).append(t)
+	for k: Vector2i in groups:
+		var list: Array[Transform3D] = []
+		list.assign(groups[k])
+		var mmi := _multimesh(parent, mesh, list, blob)
+		if mmi and cull > 0.0:
+			mmi.visibility_range_end = cull
+			mmi.visibility_range_end_margin = cull * 0.1
 
 
 static var _blob_mesh: PlaneMesh
@@ -403,6 +427,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 	var r: float = s["radius"]
 	var tiles: Array[Transform3D] = []
 	var fences: Array[Transform3D] = []
+	var stacks: Array[Transform3D] = []
 	var placed: Array[Vector2] = []
 	for i in (7 if s["kind"] == "village" else 10):
 		var ang := rng.randf() * TAU
@@ -441,7 +466,20 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 				fences.append(Transform3D(Basis(Vector3.UP, fyaw), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.05, p.y)))
 		# A haystack at the field corner.
 		var hp := fc + bx * (hx + 3.0) + bz * (hz - 2.0)
-		_piece(root, "haystack", hp, WorldGen.height(hp.x, hp.y), rng.randf() * TAU)
+		var hy := rng.randf() * TAU
+		stacks.append(Transform3D(Basis(Vector3.UP, hy), Vector3(hp.x, WorldGen.height(hp.x, hp.y), hp.y)))
+		var hsize := _footprint("haystack")
+		var body := StaticBody3D.new()
+		var shape := CollisionShape3D.new()
+		var hbox := BoxShape3D.new()
+		hbox.size = Vector3(hsize.x * 0.85, hsize.y, hsize.z * 0.85)
+		shape.shape = hbox
+		body.position = stacks[-1].origin + Vector3(0, hsize.y * 0.5, 0)
+		body.rotation.y = hy
+		body.add_child(shape)
+		root.add_child(body)
+	# One batch instead of a node per haystack (5 surfaces each: 25 draws in view).
+	_multimesh(root, Assets.building_mesh("haystack"), stacks, false)
 	_multimesh(root, Assets.building_mesh("field_crops"), tiles, false)
 	_multimesh(root, Assets.building_mesh("fence"), fences, false)
 
@@ -473,7 +511,9 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 	for kind: String in sets:
 		var list: Array[Transform3D] = []
 		list.assign(sets[kind])
-		_multimesh(root, Assets.building_mesh(kind), list)
+		# Yard clutter per 80 m cell with a 120 m range (66 m on LOW): a capital has
+		# ~200 of these, and as one town-wide batch they were all drawn from anywhere.
+		_multimesh_cells(root, Assets.building_mesh(kind), list, 80.0, 120.0)
 	_front_gardens(root, plan, rng)
 
 

@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bd01ohrolyh3l"
-path.s3tc="res://.godot/imported/house_family_lod3_house_family_lod3_bake.jpg-0989a1cd0c073f2134461cbb4a54b6cc.s3tc.ctex"
-path.etc2="res://.godot/imported/house_family_lod3_house_family_lod3_bake.jpg-0989a1cd0c073f2134461cbb4a54b6cc.etc2.ctex"
+uid="uid://b1pjn7qwanba2"
+path.s3tc="res://.godot/imported/village_house_b_lod2_village_house_b_lod2_bake.jpg-a3b7604315c4a280edbee1f96166f1aa.s3tc.ctex"
+path.etc2="res://.godot/imported/village_house_b_lod2_village_house_b_lod2_bake.jpg-a3b7604315c4a280edbee1f96166f1aa.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "8f6b9c5edc81b59f6e3d106071850e10"
+"md5": "be44978129e299f6f2eeeb18a5fd730d"
 }
 
 [deps]
 
-source_file="res://assets/incoming/ai3d/meshy/house_family_lod3_house_family_lod3_bake.jpg"
-dest_files=["res://.godot/imported/house_family_lod3_house_family_lod3_bake.jpg-0989a1cd0c073f2134461cbb4a54b6cc.s3tc.ctex", "res://.godot/imported/house_family_lod3_house_family_lod3_bake.jpg-0989a1cd0c073f2134461cbb4a54b6cc.etc2.ctex"]
+source_file="res://assets/generated/village_house_b_lod2_village_house_b_lod2_bake.jpg"
+dest_files=["res://.godot/imported/village_house_b_lod2_village_house_b_lod2_bake.jpg-a3b7604315c4a280edbee1f96166f1aa.s3tc.ctex", "res://.godot/imported/village_house_b_lod2_village_house_b_lod2_bake.jpg-a3b7604315c4a280edbee1f96166f1aa.etc2.ctex"]
 
 [params]
 

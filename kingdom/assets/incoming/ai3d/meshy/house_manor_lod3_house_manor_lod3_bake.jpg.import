@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ck31hxo0750n6"
-path="res://.godot/imported/house_manor_lod3_house_manor_lod3_bake.jpg-ac61c8b444820b8e9503225829b412b4.ctex"
+path.s3tc="res://.godot/imported/house_manor_lod3_house_manor_lod3_bake.jpg-ac61c8b444820b8e9503225829b412b4.s3tc.ctex"
+path.etc2="res://.godot/imported/house_manor_lod3_house_manor_lod3_bake.jpg-ac61c8b444820b8e9503225829b412b4.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b3ccd69e73ccada90578e9ff0f2bae40"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/house_manor_lod3_house_manor_lod3_bake.jpg"
-dest_files=["res://.godot/imported/house_manor_lod3_house_manor_lod3_bake.jpg-ac61c8b444820b8e9503225829b412b4.ctex"]
+dest_files=["res://.godot/imported/house_manor_lod3_house_manor_lod3_bake.jpg-ac61c8b444820b8e9503225829b412b4.s3tc.ctex", "res://.godot/imported/house_manor_lod3_house_manor_lod3_bake.jpg-ac61c8b444820b8e9503225829b412b4.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
