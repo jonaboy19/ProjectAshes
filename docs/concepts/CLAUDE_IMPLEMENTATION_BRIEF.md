@@ -25,6 +25,7 @@ This brief points to the evidence and proposes a safe implementation sequence. S
 19. [Recorded movement trace viewer](NPC_CAPTURE_TRACE_VIEWER.html) and [export format](NPC_CAPTURE_TRACE_VIEWER.md) — offline CSV review of body/animation speeds, actor states, and movement-owner/LOD changes; starts empty and labels synthetic examples.
 20. [Rig deformation visual handoff](RIG_DEFORMATION_VISUAL_HANDOFF.md) — captured dress walk/run and pig walk examples, precise Blender diagnosis, and per-rig/LOD acceptance requirements.
 21. [Footstep and activity sound handoff](FOOTSTEP_ACTIVITY_AUDIO_HANDOFF.md) — reuse the active audio director, synchronize visible plants/work impacts, suppress roll/idle cues, and retain bounded voice costs.
+22. [Door and service interaction contract](DOOR_SERVICE_INTERACTION_CONTRACT.md) — shared entrance identity, clear service approaches, consistent prompt/input selection, safe return placement, and resident indoor handoffs.
 
 ## Baseline and evidence
 
