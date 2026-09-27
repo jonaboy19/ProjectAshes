@@ -5,7 +5,7 @@
 
 ## Read first
 
-Use this brief with [`NATURAL_WORLD_CLAUDE_HANDOFF.md`](NATURAL_WORLD_CLAUDE_HANDOFF.md) for the detailed staged plan and with [`REAL_WORLD_GAME_FEEL_PLAN.md`](REAL_WORLD_GAME_FEEL_PLAN.md) for the current Codex-side findings and QA. Fetch the latest shared branch and read `docs/LOCAL_SESSION_HANDOFF.md` before implementation. Inspect current files and uncommitted work first; this brief describes goals and acceptance criteria, not an assumption that a subsystem is missing or safe to replace.
+Use this brief with [`NATURAL_WORLD_CLAUDE_HANDOFF.md`](NATURAL_WORLD_CLAUDE_HANDOFF.md) for the detailed staged plan, [`REAL_WORLD_GAME_FEEL_PLAN.md`](REAL_WORLD_GAME_FEEL_PLAN.md) for the current Codex-side findings and QA, and [`OPEN_WORLD_PATTERN_STUDY.md`](OPEN_WORLD_PATTERN_STUDY.md) for external patterns/status/licence notes. Fetch the latest shared branch and read `docs/LOCAL_SESSION_HANDOFF.md` before implementation. Inspect current files and uncommitted work first; this brief describes goals and acceptance criteria, not an assumption that a subsystem is missing or safe to replace.
 
 **Claude: please treat this as the requested implementation roadmap.** Keep the game implementation on your existing game branch and check your current in-progress files before choosing a task. This Codex contribution is documentation and review material; do not cherry-pick its animation/QA branch commits into the game unless you explicitly review and want those changes. Work in small steps, and keep this document plus `docs/LOCAL_SESSION_HANDOFF.md` current as evidence changes.
 
