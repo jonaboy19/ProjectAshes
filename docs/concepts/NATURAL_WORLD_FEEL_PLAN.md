@@ -93,6 +93,8 @@ Start with the [locomotion speed review](LOCOMOTION_SPEED_REVIEW.html), the [pla
 
 The [27-profile knockback retarget review](HIT_KNOCKBACK_RETARGET_REVIEW.html) is a concrete example of why a source-rig improvement cannot be accepted from one mannequin: the prototype reduces reference-rig floor penetration but still leaves severe failures across avatar profiles and worsens the worst planted-foot slip. The matching incoming GLB is marked as an experiment and must not replace the shared gameplay alias as-is.
 
+The [near-NPC follower/gait inspector](NPC_FOLLOWER_ANIMATION_REVIEW.html) catches a separate controller-level risk that clip sampling cannot: at the inspected population and 60 FPS, sliced world-position updates may stay below the current 0.15 m threshold that selects `Walking_A`, even while the embodied body follows those updates. Confirm the actual clip against resolved body velocity before tuning further animation assets.
+
 Start from the existing `CharacterAnimator`, `AnimationTree`, UAL aliases, and QA harness. Build a per-rig locomotion calibration table for walk, jog/run, strafe, and backward movement. Compare clip ground speed and planted-foot slip to actual movement at the rig's in-game scale. Use the existing QA report as the baseline and target a game-speed/clip-speed ratio of **0.85–1.18** for ordinary locomotion, then review clips visually for contact quality. The current player walk, blocking walk, and villager walk are clear first targets.
 
 Separate acceleration, braking, and turning response from animation blending. Use measured body velocity, not raw input, for the blend. Add or tune transitions for idle → start → walk → run, run → stop, pivots, strafing, backing up, block locomotion, hit reaction, attack recovery, and dodge recovery. Use turn-in-place or a controlled pivot when the requested direction differs sharply from facing. Crossfade state changes without restarting a clip every frame. Preserve the existing upper-body attack layering where the clip/rig supports it; validate bone filters per skeleton family.
@@ -147,6 +149,7 @@ Do not land all phases as one large rewrite. Each phase should be a small review
 - [ ] NPCs yield, wait, sidestep, and resume without jitter, teleportation, or permanent deadlock.
 - [ ] No simulation update overwrites a moving near physics actor's position every frame; handoffs preserve its real location.
 - [ ] Player/villager/animal gait matches measured travel speed within the agreed band and passes visual review.
+- [ ] Near-NPC locomotion state follows resolved movement at the current population across 30/60 FPS; simulation update pulses do not leave travelling villagers in idle or chatter between idle and walk.
 - [ ] Turns, starts, stops, blocks, attacks, hits, dodges, and recoveries blend without animation snapping or movement/clip mismatch.
 - [ ] No close crowd pile-ups at doors, counters, or narrow streets; interaction spots have occupancy and fallback behavior.
 - [ ] LOW/HIGH benchmarks record frame-time, physics time, body count, collider count, avoidance count, and nav update cost.
