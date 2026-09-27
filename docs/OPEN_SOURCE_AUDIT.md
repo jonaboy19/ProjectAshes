@@ -50,7 +50,7 @@ anywhere in the repo.**
    "ESO/S. Brunier", CC BY 4.0, checked on eso.org). The plugin is enabled, so the JPGs get exported. **Added** the credit
    to CREDITS.md. Also added a courtesy credit for **Dejawolf**, whose chainmail texture is in Lotnik's helmet pack (the
    source page names Dejawolf).
-3. **Meshy output relies on the plan status at generation time.** The terms (updated 2026-09-19) were verified: paid-plan
+3. **RESOLVED 2026-09-27: the user confirmed the Meshy account is a paid plan, so all Meshy output is owned by the user and needs no attribution.** Original note: Meshy output relies on the plan status at generation time. The terms (updated 2026-09-19) were verified: paid-plan
    customers "own their Customer Output". Free-plan output belongs to Meshy and is licensed CC BY 4.0, with credit to
    Meshy required. The repo can't show which plan each of the 51 tasks in `tasks.tsv` (1,077 credits) ran under.
    **Check the Meshy billing history** covers every task date. If any ran on the free tier, add "Created with Meshy" to
