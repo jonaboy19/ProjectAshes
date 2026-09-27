@@ -9,8 +9,9 @@ This brief points to the evidence and proposes a safe implementation sequence. I
 3. [NPC route audit](NPC_ROUTE_AUDIT.html) and [method/notes](NPC_ROUTE_AUDIT.md) — static Ashford target segments crossing collider footprints.
 4. [Locomotion speed review](LOCOMOTION_SPEED_REVIEW.html) and [findings](LOCOMOTION_SPEED_REVIEW.md), then [player blend-space audit](PLAYER_BLENDSPACE_AUDIT.html) — measured movement/clip mismatches.
 5. [NPC gait phase review](NPC_PHASE_REVIEW.html) — visual demonstration of synchronized versus per-actor walk-cycle phase.
-6. [NPC life-loop design](NPC_LIFE_LOOP_DESIGN.md) — state priorities, goal anchors, physical movement ownership, and playtest matrix.
-7. [Open-world pattern study](OPEN_WORLD_PATTERN_STUDY.md) — project patterns and source/license distinctions.
+6. [Player impulse response review](PLAYER_IMPULSE_REVIEW.html) and [source notes](PLAYER_MECHANICS_RESPONSE_REVIEW.md) — calculated impact of applying a decaying knockback vector each physics tick.
+7. [NPC life-loop design](NPC_LIFE_LOOP_DESIGN.md) — state priorities, goal anchors, physical movement ownership, and playtest matrix.
+8. [Open-world pattern study](OPEN_WORLD_PATTERN_STUDY.md) — project patterns and source/license distinctions.
 
 ## Baseline and evidence
 
