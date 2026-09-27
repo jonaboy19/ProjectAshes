@@ -3,10 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://bdsvshyo7mphn"
+path="res://.godot/imported/castle_keep_lod2.glb-f75e4f8dc9fdc532fa438bfef4aec1aa.scn"
 
 [deps]
 
 source_file="res://assets/generated/castle_keep_lod2.glb"
+dest_files=["res://.godot/imported/castle_keep_lod2.glb-f75e4f8dc9fdc532fa438bfef4aec1aa.scn"]
 
 [params]
 
@@ -36,25 +39,25 @@ materials/extract_format=0
 materials/extract_path=""
 _subresources={
 "materials": {
-"RA_Matte": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_stone.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_stone.tres"
-},
-"RA_Wood": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
-},
 "RA_Cloth": {
 "use_external/enabled": true,
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_cloth.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_cloth.tres"
 },
+"RA_Matte": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_stone.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_stone.tres"
+},
 "RA_Roof": {
 "use_external/enabled": true,
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_roof.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_roof.tres"
+},
+"RA_Wood": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
 }
 }
 }

@@ -11,7 +11,8 @@ extends RefCounted
 
 const LOT_SPACING := 10.5
 const LOT_CLEARANCE := 9.5
-const HOMES := ["house_1", "house_2", "house_3", "house_4", "house_5", "house_6", "house_7", "house_8"]
+const HOMES := ["house_1", "house_2", "house_3", "house_4", "house_5", "house_6", "house_7", "house_8",
+	"house_9", "house_10", "house_11", "house_12", "house_13", "house_14", "house_15", "house_16"]
 const TRADES := ["inn", "blacksmith", "stable", "blacksmith"]
 
 

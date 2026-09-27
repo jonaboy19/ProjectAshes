@@ -3,10 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://c5g57wwmbx7xk"
+path="res://.godot/imported/village_house_b_2_lod1.glb-d22c2e3e4915e5c4aea5f3c71dc89ecb.scn"
 
 [deps]
 
 source_file="res://assets/generated/village_house_b_2_lod1.glb"
+dest_files=["res://.godot/imported/village_house_b_2_lod1.glb-d22c2e3e4915e5c4aea5f3c71dc89ecb.scn"]
 
 [params]
 
@@ -46,15 +49,15 @@ _subresources={
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_plaster.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_plaster.tres"
 },
-"RA_Wood": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
-},
 "RA_Roof": {
 "use_external/enabled": true,
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_roof.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_roof.tres"
+},
+"RA_Wood": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
 }
 }
 }

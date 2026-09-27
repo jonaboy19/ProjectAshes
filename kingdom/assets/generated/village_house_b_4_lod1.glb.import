@@ -3,10 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://cjdsw8jyhji42"
+path="res://.godot/imported/village_house_b_4_lod1.glb-42693baf099699c3d2fd7c10e535bb6a.scn"
 
 [deps]
 
 source_file="res://assets/generated/village_house_b_4_lod1.glb"
+dest_files=["res://.godot/imported/village_house_b_4_lod1.glb-42693baf099699c3d2fd7c10e535bb6a.scn"]
 
 [params]
 
@@ -41,25 +44,25 @@ _subresources={
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_stone.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_stone.tres"
 },
-"RA_Plaster": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_plaster.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_plaster.tres"
-},
-"RA_Wood": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
-},
 "RA_Metal": {
 "use_external/enabled": true,
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_iron.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_iron.tres"
 },
+"RA_Plaster": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_plaster.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_plaster.tres"
+},
 "RA_Roof": {
 "use_external/enabled": true,
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_roof.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_roof.tres"
+},
+"RA_Wood": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
 }
 }
 }

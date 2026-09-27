@@ -39,35 +39,35 @@ materials/extract_format=0
 materials/extract_path=""
 _subresources={
 "materials": {
-"RA_Wood": {
+"RA_Cloth": {
 "use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
-},
-"RA_Metal": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_iron.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_iron.tres"
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_cloth.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_cloth.tres"
 },
 "RA_Matte": {
 "use_external/enabled": true,
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_stone.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_stone.tres"
 },
-"RA_Roof": {
+"RA_Metal": {
 "use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_roof.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_roof.tres"
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_iron.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_iron.tres"
 },
 "RA_Plaster": {
 "use_external/enabled": true,
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_plaster.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_plaster.tres"
 },
-"RA_Cloth": {
+"RA_Roof": {
 "use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_cloth.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_cloth.tres"
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_roof.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_roof.tres"
+},
+"RA_Wood": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
 }
 }
 }

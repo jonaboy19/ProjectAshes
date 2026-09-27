@@ -3,10 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://d3tfpwvermfb2"
+path="res://.godot/imported/village_stall_3.glb-8b002ab7a64c641f065423ad8c888588.scn"
 
 [deps]
 
 source_file="res://assets/generated/village_stall_3.glb"
+dest_files=["res://.godot/imported/village_stall_3.glb-8b002ab7a64c641f065423ad8c888588.scn"]
 
 [params]
 
@@ -36,25 +39,25 @@ materials/extract_format=0
 materials/extract_path=""
 _subresources={
 "materials": {
-"RA_Wood": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
-},
 "RA_Cloth": {
 "use_external/enabled": true,
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_cloth.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_cloth.tres"
+},
+"RA_Matte": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_stone.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_stone.tres"
 },
 "RA_Metal": {
 "use_external/enabled": true,
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_iron.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_iron.tres"
 },
-"RA_Matte": {
+"RA_Wood": {
 "use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_stone.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_stone.tres"
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
 }
 }
 }

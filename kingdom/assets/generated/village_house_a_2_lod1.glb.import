@@ -3,10 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://ughsf6tl538w"
+path="res://.godot/imported/village_house_a_2_lod1.glb-c8f86202543d30ba2dffc97a7b7e7901.scn"
 
 [deps]
 
 source_file="res://assets/generated/village_house_a_2_lod1.glb"
+dest_files=["res://.godot/imported/village_house_a_2_lod1.glb-c8f86202543d30ba2dffc97a7b7e7901.scn"]
 
 [params]
 
@@ -46,15 +49,15 @@ _subresources={
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_plaster.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_plaster.tres"
 },
-"RA_Wood": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
-},
 "RA_Thatch": {
 "use_external/enabled": true,
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_thatch.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_thatch.tres"
+},
+"RA_Wood": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
 }
 }
 }

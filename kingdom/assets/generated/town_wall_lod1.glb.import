@@ -3,10 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://ccbjfosw8hcxi"
+path="res://.godot/imported/town_wall_lod1.glb-3936550ea511cc2b849df93dba186608.scn"
 
 [deps]
 
 source_file="res://assets/generated/town_wall_lod1.glb"
+dest_files=["res://.godot/imported/town_wall_lod1.glb-3936550ea511cc2b849df93dba186608.scn"]
 
 [params]
 

@@ -44,15 +44,15 @@ _subresources={
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_stone.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_stone.tres"
 },
-"RA_Wood": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
-},
 "RA_Metal": {
 "use_external/enabled": true,
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_iron.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_iron.tres"
+},
+"RA_Wood": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
 }
 }
 }

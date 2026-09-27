@@ -54,25 +54,37 @@ const MESHY := "res://assets/incoming/ai3d/meshy/"
 const BUILDINGS := {
 	# Hero buildings generated with Meshy from the concept sheets (user, see
 	# docs/art_reference/concept_*.png), decimated to lod0/lod1 by tools/meshy.
-	"adventurer_guild": [MESHY + "guild_lod0.glb", 16.0, MESHY + "guild_lod1.glb"],
-	"healer_house": [MESHY + "healer_lod0.glb", 9.5, MESHY + "healer_lod1.glb"],
-	"house_1": [GEN + "village_house_a.glb", 0.0],
-	"house_2": [GEN + "village_house_b.glb", 0.0],
-	"house_3": [GEN + "village_house_c.glb", 0.0],
-	"house_4": [GEN + "village_house_d.glb", 0.0],
-	"house_5": [GEN + "village_house_a_2.glb", 0.0],
-	"house_6": [GEN + "village_house_b_2.glb", 0.0],
-	"house_7": [GEN + "village_house_c_2.glb", 0.0],
-	"house_8": [GEN + "village_house_d_2.glb", 0.0],
-	"inn": [MESHY + "inn_lod0.glb", 13.5, MESHY + "inn_lod1.glb"],
-	"blacksmith": [MESHY + "blacksmith_lod0.glb", 11.0, MESHY + "blacksmith_lod1.glb"],
-	"stable": [GEN + "village_barn.glb", 0.0],
+	"adventurer_guild": [MESHY + "guild_lod0.glb", 16.0, MESHY + "guild_lod1.glb", 70.0],
+	"healer_house": [MESHY + "healer_lod0.glb", 9.5, MESHY + "healer_lod1.glb", 70.0],
+	"house_1": [GEN + "village_house_a.glb", 0.0, GEN + "village_house_a_lod1.glb", 45.0],
+	"house_2": [GEN + "village_house_b.glb", 0.0, GEN + "village_house_b_lod1.glb", 45.0],
+	"house_3": [GEN + "village_house_c.glb", 0.0, GEN + "village_house_c_lod1.glb", 45.0],
+	"house_4": [GEN + "village_house_d.glb", 0.0, GEN + "village_house_d_lod1.glb", 45.0],
+	"house_5": [GEN + "village_house_a_2.glb", 0.0, GEN + "village_house_a_2_lod1.glb", 45.0],
+	"house_6": [GEN + "village_house_b_2.glb", 0.0, GEN + "village_house_b_2_lod1.glb", 45.0],
+	"house_7": [GEN + "village_house_c_2.glb", 0.0, GEN + "village_house_c_2_lod1.glb", 45.0],
+	"house_8": [GEN + "village_house_d_2.glb", 0.0, GEN + "village_house_d_2_lod1.glb", 45.0],
+	"house_9": [GEN + "village_house_a_3.glb", 0.0, GEN + "village_house_a_3_lod1.glb", 45.0],
+	"house_10": [GEN + "village_house_b_3.glb", 0.0, GEN + "village_house_b_3_lod1.glb", 45.0],
+	"house_11": [GEN + "village_house_c_3.glb", 0.0, GEN + "village_house_c_3_lod1.glb", 45.0],
+	"house_12": [GEN + "village_house_d_3.glb", 0.0, GEN + "village_house_d_3_lod1.glb", 45.0],
+	"house_13": [GEN + "village_house_a_4.glb", 0.0, GEN + "village_house_a_4_lod1.glb", 45.0],
+	"house_14": [GEN + "village_house_b_4.glb", 0.0, GEN + "village_house_b_4_lod1.glb", 45.0],
+	"house_15": [GEN + "village_house_c_4.glb", 0.0, GEN + "village_house_c_4_lod1.glb", 45.0],
+	"house_16": [GEN + "village_house_d_4.glb", 0.0, GEN + "village_house_d_4_lod1.glb", 45.0],
+	"inn": [MESHY + "inn_lod0.glb", 13.5, MESHY + "inn_lod1.glb", 70.0],
+	"blacksmith": [MESHY + "blacksmith_lod0.glb", 11.0, MESHY + "blacksmith_lod1.glb", 70.0],
+	"stable": [GEN + "village_barn.glb", 0.0, GEN + "village_barn_lod1.glb", 45.0],
 	"sawmill": [VILLAGE + "Buildings/FBX/Sawmill.fbx", 12.0],
 	"mill": [VILLAGE + "Buildings/FBX/Mill.fbx", 11.0],
 	"bell_tower": [GEN + "bell_tower.glb", 0.0],
-	"chapel": [GEN + "chapel.glb", 0.0],
+	"chapel": [GEN + "chapel.glb", 0.0, GEN + "chapel_lod1.glb", 60.0],
 	"market_stand_1": [GEN + "village_stall.glb", 0.0],
 	"market_stand_2": [GEN + "village_stall_2.glb", 0.0],
+	"market_stand_3": [GEN + "village_stall_3.glb", 0.0],
+	"market_stand_4": [GEN + "village_stall_4.glb", 0.0],
+	"planter_box": [GEN + "planter_box.glb", 0.0],
+	"flower_bed": [GEN + "flower_bed.glb", 0.0],
 	"fence": [GEN + "fence_section.glb", 0.0],
 	"well": [GEN + "village_well.glb", 0.0],
 	"cart": [GEN + "market_cart.glb", 0.0],
@@ -471,6 +483,44 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 ## One merged mesh per building (all parts, grouped by material), scaled so its
 ## longest horizontal side is the catalogue size (0 = native size), centred on
 ## x/z with its base at y = 0. Ready for MultiMesh instancing.
+## Chimney openings of a building in its fitted mesh space (from `chimney_top*`
+## marker nodes the Blender generators export), for smoke emitters.
+static var _chimney_cache := {}
+
+
+static func chimney_points(key: String) -> Array[Vector3]:
+	if _chimney_cache.has(key):
+		return _chimney_cache[key]
+	var out: Array[Vector3] = []
+	var entry: Array = BUILDINGS.get(key, [])
+	if entry.is_empty() or not ResourceLoader.exists(entry[0]):
+		_chimney_cache[key] = out
+		return out
+	var raw := merged_mesh(entry[0])
+	var inst: Node3D = (load(entry[0]) as PackedScene).instantiate()
+	if raw:
+		var box := raw.get_aabb()
+		var target: float = entry[1]
+		var sc := 1.0 if target <= 0.0 else target / maxf(maxf(box.size.x, box.size.z), 0.001)
+		var off := Vector3(-(box.position.x + box.size.x * 0.5), -box.position.y, -(box.position.z + box.size.z * 0.5))
+		for n in inst.find_children("chimney_top*", "Node3D", true, false):
+			var t := Transform3D.IDENTITY
+			var cur: Node = n
+			while cur != null and cur != inst:
+				t = (cur as Node3D).transform * t
+				cur = cur.get_parent()
+			out.append((t.origin + off) * sc)
+	inst.free()
+	_chimney_cache[key] = out
+	return out
+
+
+## Distance where a building swaps to its far version (0 = no LOD).
+static func building_lod_distance(key: String) -> float:
+	var entry: Array = BUILDINGS.get(key, [])
+	return float(entry[3]) if entry.size() > 3 else 0.0
+
+
 ## Far-distance version of a building, or null if it has none.
 static func building_lod_mesh(key: String) -> ArrayMesh:
 	var entry: Array = BUILDINGS.get(key, [])

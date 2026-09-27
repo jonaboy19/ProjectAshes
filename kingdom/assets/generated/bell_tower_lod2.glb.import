@@ -3,10 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://cngpp8d64ted3"
+path="res://.godot/imported/bell_tower_lod2.glb-f7fcf67db4b5926c1c5c1f3e764a095d.scn"
 
 [deps]
 
 source_file="res://assets/generated/bell_tower_lod2.glb"
+dest_files=["res://.godot/imported/bell_tower_lod2.glb-f7fcf67db4b5926c1c5c1f3e764a095d.scn"]
 
 [params]
 
@@ -41,11 +44,6 @@ _subresources={
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_stone.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_stone.tres"
 },
-"RA_Wood": {
-"use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
-},
 "RA_Metal": {
 "use_external/enabled": true,
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_iron.tres",
@@ -55,6 +53,11 @@ _subresources={
 "use_external/enabled": true,
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_roof.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_roof.tres"
+},
+"RA_Wood": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
 }
 }
 }
