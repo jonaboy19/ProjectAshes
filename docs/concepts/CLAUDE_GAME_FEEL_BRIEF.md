@@ -7,6 +7,8 @@
 
 Use this brief with [`NATURAL_WORLD_CLAUDE_HANDOFF.md`](NATURAL_WORLD_CLAUDE_HANDOFF.md) for the detailed staged plan and with [`REAL_WORLD_GAME_FEEL_PLAN.md`](REAL_WORLD_GAME_FEEL_PLAN.md) for the current Codex-side findings and QA. Fetch the latest shared branch and read `docs/LOCAL_SESSION_HANDOFF.md` before implementation. Inspect current files and uncommitted work first; this brief describes goals and acceptance criteria, not an assumption that a subsystem is missing or safe to replace.
 
+**Claude: please treat this as the requested implementation roadmap.** Keep the game implementation on your existing game branch and check your current in-progress files before choosing a task. This Codex contribution is documentation and review material; do not cherry-pick its animation/QA branch commits into the game unless you explicitly review and want those changes. Work in small steps, and keep this document plus `docs/LOCAL_SESSION_HANDOFF.md` current as evidence changes.
+
 The project already has a third-person controller, streamed settlements, scheduled population simulation, nearby physics actors, distant impostors, combat, animation blending, terrain-aware audio and collision preview tools. Keep those systems and improve their handoffs. Make focused changes in reviewable stages. Do not start over with a new controller, crowd framework or world architecture.
 
 ## Priority order
@@ -60,5 +62,20 @@ Repeat the route at close and zoomed-out camera distances, across a doorway, slo
 
 ## Suggested first pull request
 
-Start with the settlement route and collision audit, then fix the highest-impact false wall or missing solid collider revealed by it. Include the route notes, before/after evidence and a focused collision regression check. Do not combine a broad controller rewrite, full crowd rewrite, animation overhaul and collision overhaul into one change. After the audit, take the routing foundation as the next isolated milestone.
+Start with a **repeatable settlement feel route and collision audit**. Use the collision preview to pick one Meshy building or prop where the visible shape and the production collider disagree. Fix that one proxy while preserving doors and awnings, then capture the same player route before and after. In the same review, record whether the player can pass through a resident and whether residents visibly walk through that building. This creates a trustworthy baseline before changing navigation or movement.
+
+Then take **distant resident route guidance** as the next isolated milestone. Reuse the generated `CityPlanner` street, door-path, gate and lot data; keep `WorldSim` as schedule/position authority. Audit the route legs against actual building footprints and the collision preview, not circles alone. Use the cheapest suitable route method for distant people, and reserve full physics plus local avoidance for the nearby actor budget. Confirm a person keeps position and heading when the population LOD changes.
+
+After that, tune **near-crowd yielding and player/NPC blocking**, then **movement/animation timing**, then **daily reactions and ambience**, using the same route to compare each step. Keep each review limited to one subsystem and include reproduction steps, before/after evidence, performance cost and remaining failures. Do not bundle a controller rewrite, full crowd rewrite, animation overhaul and collision overhaul into one change.
+
+## Claude's completion checklist
+
+- [ ] Player stops at solid Meshy walls, large props and nearby bodies; doors, gates, stalls and intended walkways remain open.
+- [ ] Near residents have real collision and yield or sidestep without trapping the player or blocking doorways indefinitely.
+- [ ] Mid/far residents follow settlement lanes and do not cut through buildings; route changes remain stable through LOD promotion/demotion.
+- [ ] Start, stop, turn, slope and blocked movement keep animation, foot contact, sound and body speed in agreement.
+- [ ] Combat windup, active hit, impact, hit reaction and recovery read as one action without silently changing balance.
+- [ ] Residents show time/place routines and short interruptible reactions, then return to their prior task.
+- [ ] The baseline route passes at the supported quality tiers, and the existing actor/physics/performance budgets are recorded.
+- [ ] `docs/LOCAL_SESSION_HANDOFF.md` names what changed, what is still broken and which branch/files are in progress.
 
