@@ -29,6 +29,7 @@ var raiders: Squad
 var captain: Captain
 var services: VillageServices
 var camps: MonsterCamps
+var ambient: AmbientLife
 var sun: DirectionalLight3D
 var env: Environment
 var _status_timer := 0.0
@@ -114,6 +115,8 @@ func _ready() -> void:
 	camps = MonsterCamps.new()
 	world.add_child(camps)
 	world.add_child(Lakeside.new())
+	ambient = AmbientLife.new()
+	world.add_child(ambient)
 
 	army = Squad.new().setup(0, "soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
 	army.leader = player
@@ -230,6 +233,7 @@ func _process(delta: float) -> void:
 	population.focus = focus
 	frontier.focus = focus
 	camps.focus = focus
+	ambient.focus = focus
 	terrain.view_radius = 5 if player.view == Player.View.COMMAND else 4
 	_update_daylight()
 	_status_timer -= delta

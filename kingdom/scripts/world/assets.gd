@@ -195,12 +195,23 @@ static func mesh_of(asset_name: String) -> Mesh:
 ## weapons/hats only if named in `keep`.
 ## MakeHuman (CC0) villagers rigged on the UAL skeleton (tools/blender/make_humans.py).
 const MH_DIR := "res://assets/generated/characters/"
+## Guard gear from the armor library (CC-BY 3.0: Lotnik; Jacques Fourie; see CREDITS.md).
+const GUARD_HELM := "res://assets/incoming/armor/opengameart/cc-by/anglo-saxon-helmets/anglo_saxon_helm2.glb"
+const GUARD_SHIELD := "res://assets/incoming/armor/polypizza_sel/shield_round_wood_boss.glb"
 ## Look names -> MakeHuman character GLBs (one is picked at random).
+## Paths containing "/" are full resource paths without ".glb" (the CC0 G6 and
+## CDmir villagers in incoming/characters, already on the UAL skeleton).
+const G6 := "res://assets/incoming/characters/g6-ual/"
+const CDMIR := "res://assets/incoming/characters/cdmir-ual/"
 const MH_LOOKS := {
-	"Rogue_Hooded": ["villager_man_a", "villager_man_b", "villager_woman_a", "villager_woman_b", "elder_man", "elder_woman"],
-	"Barbarian": ["villager_man_a", "villager_man_b", "father"],
-	"Mage": ["villager_woman_a", "villager_woman_b", "mother", "elder_woman"],
-	"Rogue": ["villager_man_b", "elder_man", "villager_man_a"],
+	"Rogue_Hooded": ["villager_man_a", "villager_man_b", "villager_woman_a", "villager_woman_b", "elder_man", "elder_woman",
+		G6 + "g6_m_villager_tunic", G6 + "g6_f_villager_tunic", G6 + "g6_f_worker_apron"],
+	"Barbarian": ["villager_man_a", "villager_man_b", "father", G6 + "g6_m_worker_apron", G6 + "g6_m_hunter_leather"],
+	"Mage": ["villager_woman_a", "villager_woman_b", "mother", "elder_woman", G6 + "g6_f_villager_tunic", G6 + "g6_f_blacksmith_apron"],
+	"Rogue": ["villager_man_b", "elder_man", "villager_man_a", G6 + "g6_m_villager_tunic", G6 + "g6_m_hunter_leather"],
+	"Blacksmith": [G6 + "g6_m_blacksmith_apron"], "Innkeeper": [G6 + "g6_m_worker_apron", G6 + "g6_f_worker_apron"],
+	"Hunter": [G6 + "g6_m_hunter_leather", G6 + "g6_f_hunter_leather"], "Monk": [CDMIR + "cdmir_monk"],
+	"Herbalist": [CDMIR + "cdmir_old_lady"], "Trader": [G6 + "g6_m_villager_tunic", G6 + "g6_f_worker_apron"],
 	"Knight": ["guard"],
 	"Player": ["player_young"], "Guard": ["guard"],
 	"Mother": ["mother"], "Father": ["father"],
@@ -264,12 +275,13 @@ static func visual_aabb(root: Node3D) -> AABB:
 ## A MakeHuman GLB on the UAL skeleton, `height` metres tall, with the UAL clips.
 static func mh_character(file: String, height: float, keep: Array[String] = [], lod1 := false) -> Node3D:
 	var root := Node3D.new()
-	var base: Node3D = (load(MH_DIR + file + ("_lod1" if lod1 else "") + ".glb") as PackedScene).instantiate()
+	var path := (file if file.contains("/") else MH_DIR + file) + ("_lod1" if lod1 and not file.contains("/") else "") + ".glb"
+	var base: Node3D = (load(path) as PackedScene).instantiate()
 	root.add_child(base)
 	var skeleton: Skeleton3D = base.find_children("*", "Skeleton3D", true, false)[0]
 	for part in keep:      # same props as humanoid(); the rig is in metres
 		if part.contains("Helmet"):
-			_attach(skeleton, "Head", HELMET, 0.3, Vector3(0, 0.08, 0.02), Vector3.ZERO)
+			_attach(skeleton, "Head", GUARD_HELM, 0.27, Vector3(0, 0.07, 0.01), Vector3.ZERO)
 		elif part.contains("Axe"):
 			_attach(skeleton, "hand_r", WEAPONS + "Axe_Bronze.gltf", 0.75, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
 		elif part.contains("2H_Sword"):
@@ -277,7 +289,7 @@ static func mh_character(file: String, height: float, keep: Array[String] = [], 
 		elif part.contains("Sword"):
 			_attach(skeleton, "hand_r", WEAPONS + "Sword_Bronze.gltf", 0.95, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
 		elif part.contains("Shield"):
-			_attach(skeleton, "lowerarm_l", WEAPONS + "Shield_Wooden.gltf", 0.62, Vector3(0.12, 0, 0.08), Vector3(0, 90, 0))
+			_attach(skeleton, "lowerarm_l", GUARD_SHIELD, 0.65, Vector3(0.12, 0, 0.08), Vector3(0, 90, 0))
 	var anim := AnimationPlayer.new()
 	anim.name = "AnimationPlayer"
 	base.add_child(anim)
@@ -313,7 +325,7 @@ static func humanoid(look: Dictionary, height: float, keep: Array[String] = []) 
 	# Props from the old KayKit part names.
 	for part in keep:
 		if part.contains("Helmet"):
-			_attach(skeleton, "Head", HELMET, 0.3, Vector3(0, 0.08, 0.02), Vector3.ZERO)
+			_attach(skeleton, "Head", GUARD_HELM, 0.27, Vector3(0, 0.07, 0.01), Vector3.ZERO)
 		elif part.contains("Axe"):
 			_attach(skeleton, "hand_r", WEAPONS + "Axe_Bronze.gltf", 0.75, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
 		elif part.contains("2H_Sword"):
