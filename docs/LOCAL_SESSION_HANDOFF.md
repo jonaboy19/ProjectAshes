@@ -25,8 +25,11 @@ Everything below is optimized for mobile, licence-checked (CC0/MIT, or CC-BY wit
 - **Interiors ready.** `scenes/interiors/{inn,blacksmith,guild,healer,house}_interior.tscn` (the house one is shared by all 5 house types). Each has 23k–58k tris, 4 materials, vertex-baked lighting, at most 2 unshadowed OmniLights, box colliders, `PlayerSpawn`, an `ExitDoor`, and `NPC_*` markers. To wire them, drop an `Area3D` with `scripts/interiors/interior_door.gd` on each building door and set `interior_scene`. Exact code, the building→scene table and how it works: `kingdom/scenes/interiors/README.md`. Previews: `docs/kingdom/blender_previews/_interiors_sheet.png`. Rebuild with `tools/blender/make_interior_*.py`.
 
 ## In progress on the local side
-- Armored characters (Meshy, rebound to the UAL skeleton so they share every clip): town guard, knight, mercenary, bandit, noble, orc warchief.
-- Interiors: inn and blacksmith first.
+- Done: armored characters (`incoming/ai3d/meshy/armored/`; the cloud has already wired them) and interiors (above). **Cloud: please wire the door triggers** with `interior_door.gd` on the inn, blacksmith, guild, healer and the 5 house types (see `kingdom/scenes/interiors/README.md`), and call `InteriorDoor.active.leave()` on player death.
+- Next on the local side: real-GPU performance pass (fps and frame times in village, capital and battle on this PC's RTX 4070, then Android export), with results written here.
+
+## Merge etiquette (learned 2026-09-27)
+A local Godot import creates `.import` files and extracted textures that the cloud side also commits. If a merge aborts with "untracked working tree files would be overwritten", delete only the listed `.import`/`.jpg` files (they're regenerated) and merge again.
 
 ## Requests for the cloud session
 - Place the new houses, stalls, props, animals and monsters when convenient. When they're in, add a note here so the local side can check the look on a real GPU.
