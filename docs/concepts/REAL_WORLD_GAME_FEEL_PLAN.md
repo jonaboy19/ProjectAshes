@@ -14,11 +14,13 @@ Collision and animation feel passes are in progress on `gpt/ai3d-assets`:
 - The camera now uses a spherical spring-arm cast to stay outside nearby world geometry. Movement, facing, camera easing, and animation blend smoothing use frame-rate-independent exponential response.
 - Idle residents play work and social clips from the included Quaternius UAL set based on their job and current schedule. Blender 5.2 inspection confirmed the available clips and their source cycle lengths.
 - Player, nearby villagers, and visible soldiers produce varied grass or stone footfalls based on actual distance moved and the terrain's material weights. Kenney Impact Sounds is CC0 and its licence is included with the project assets.
-- Soldiers now become `CharacterBody3D` actors only within 16 m of the player, with a capsule and world collision; at greater distances they keep the original inexpensive steering. The player's collision mask includes the near-soldier layer.
+- Soldiers, wolves, and camp monsters now become `CharacterBody3D` actors only within 16 m of the player, with capsules and world collision; farther away they keep inexpensive steering. The player's collision mask includes the near-actor layer. Friendly and hostile actors still need crowd-specific yielding so they do not form a wall together.
 
 Animation calibration from Blender: the UAL1 file imports at 24 fps; its walk cycle is 32 frames (about 1.33 s) and jog cycle is 22 frames (about 0.92 s). Locomotion blend points now match the player/soldier walk and run speeds, and footfall spacing follows those cycle cadences rather than a fixed timer.
 
-The game has not yet been playtested after these changes. The next pass should check player/resident/soldier blocking, camera clearance, activity clip transitions, step timing, crowded doorways, market paths, and whether any collider feels like an invisible wall. Wolves and camp monsters still use direct movement and need the same close-range collision pass; they can still overlap the player until that is implemented.
+The game has not yet been playtested after these changes. The next pass should check player/resident/soldier/creature blocking, camera clearance, activity clip transitions, step timing, crowded doorways, market paths, and whether any collider feels like an invisible wall. Creature collision is implemented as a code pass but still needs runtime play review.
+
+**Coordination with the latest Claude branch:** it already has `tools/qa/anim_qa/` with animation contact sheets, frame strips, measured gait speeds and a playtest report under `docs/qa/`. Reuse those tools and findings instead of making another animation checker. Its handoff assigns locomotion and animation fixes to this Codex session; its recent code work also includes asset placement, camera behavior, menus, export support and world content. Review `docs/LOCAL_SESSION_HANDOFF.md` after each update from Claude. A browser-friendly review board is in [`REAL_WORLD_GAME_FEEL_REVIEW.html`](REAL_WORLD_GAME_FEEL_REVIEW.html).
 
 ## What the current build already gives us
 
@@ -27,7 +29,7 @@ The Kingdom project already has a third-person player controller, multi-scale ca
 The inspected source explains the most visible collision problem and current coverage:
 
 - `Player` is a `CharacterBody3D` with a capsule and `move_and_slide()`.
-- Villagers use near-range `CharacterBody3D` collision and feed their corrected position back to `WorldSim`. Soldiers now use a close-range capsule and `move_and_slide()` while near the player, then return to direct low-cost movement farther away. Wolves and `CampMonster` still update their positions directly, so they can pass through the player and buildings.
+- Villagers use near-range `CharacterBody3D` collision and feed their corrected position back to `WorldSim`. Soldiers, wolves, and `CampMonster` now use close-range capsules and `move_and_slide()` near the player, then return to low-cost direct movement farther away.
 - Settlements create some simple `StaticBody3D` building and wall colliders. These do not automatically guarantee that every imported or newly generated Meshy model has a correctly sized collision shape.
 - Soldiers have a small squad-only separation force. This is steering, not solid collision, and does not cover villagers or other squads.
 - `CharacterAnimator` already blends idle/walk/run and layers attacks and blocks. The player and soldier movement currently use fixed acceleration/turn values and do not tie their movement step to animation foot contact.
@@ -55,7 +57,7 @@ Checklist: Can I walk through a wall? Can an NPC overlap me? Does a stop skid? D
 
 For generated GLBs, add a companion manifest to the asset workflow describing its intended solid footprint and scale. At import/placement time, validate that a solid asset has a collider; make missing-collider assets visible in a debug report. Keep foliage, banners, fence decorations, signs, and other non-blocking details out of the body collision layer. Use trigger areas for doors, talk ranges, and interaction prompts.
 
-**Collision layers:** define named layers for world geometry, player, local NPCs, enemies, triggers, and projectiles. Set each body’s layer/mask explicitly. The player must collide with world geometry and near actors. A local NPC must collide with the world and player and use actor avoidance for other NPCs. Projectiles and interaction rays should query only their intended layers.
+**Collision layers:** current code uses layer 1 for world geometry, layer 2 for embodied residents, and layer 4 for near soldiers/creatures. The player mask includes layers 1, 2, and 4. Continue to centralize these in named constants and keep triggers/projectiles on their own query layers as those systems are extended. Villagers collide with the world; social spacing handles NPC-to-NPC yielding separately.
 
 **Acceptance:** no walking through building shells or designated solid props; doors/gates work; no collision on decoration that should be walked through; colliders fit the visible footprint closely enough to avoid invisible walls.
 
@@ -110,7 +112,7 @@ Profile busy scenes on the target PC and phone. Keep the existing actor LOD and 
 ## Suggested implementation order and deliverables
 
 1. **Collision audit:** scene/asset checklist, named physics layers, debug view/report, collider coverage for current buildings and solid props.
-2. **Near-character collision:** player + nearby NPC and enemy capsule blocking, NPC-to-player collision, position handoff to/from `WorldSim`, doorway and crowd tuning. Finish wolves and camp monsters, then check friendly/hostile units for sensible yielding and separation.
+2. **Near-character collision:** player + nearby NPC and enemy capsule blocking, NPC-to-player collision, position handoff to/from `WorldSim`, doorway and crowd tuning. Check friendly/hostile units for sensible yielding and separation.
 3. **Movement and animation tuning:** acceleration/braking/turn curves, animation blend updates, footsteps and surface tags.
 4. **Combat synchronization:** timed hit windows and wall checks, consistent attack recovery/cancel rules, impact synchronization.
 5. **Village life:** nav-driven schedule stops, small contextual behaviors, distant update budgets.
@@ -126,8 +128,11 @@ Each item should land as a small change with a short before/after clip and a man
 - [GDQuest 3D third-person controller](https://github.com/gdquest-demos/godot-4-3d-third-person-controller): already referenced in the project’s source notes for camera-relative control and facing behavior.
 - [Godot Navigation Agents Demo](https://github.com/viksl/Godot-Navigation-Agents-Demo): optional experiment for crowd-agent scaling; take performance ideas only after profiling this game's expected near-agent count.
 - [Godot 4 third-person combat prototype](https://github.com/Snaiel/Godot4ThirdPersonCombatPrototype): inspect as a reference for controller/combat structure, not as a drop-in replacement.
+- [Veloren](https://github.com/veloren/veloren) and its [architecture guide](https://veloren.gitlab.io/book/contributors/developers/codebase-structure.html): a large, active open-source voxel RPG with useful discussions of modularity, world simulation, and distant-world cost. It is written in Rust and built around a voxel world, so its code and asset pipeline are not a fit to transplant into this Godot project. Borrow only high-level ideas; do not reuse its code or art. Its repository is GPL-3.0, so any future code-level reuse needs an explicit licence review.
 
 Before copying any code or asset, re-check the exact repository licence and retain required notices. Prefer learning a narrowly scoped pattern (movement blend, path steering, hit window) and adapting it to the existing `CharacterAnimator`, `WorldSim`, `Player`, `Soldier`, and streamed settlement architecture. Do not import a full open-world starter project into this game.
+
+The search did not turn up a discontinued open-world project that is both substantially more complete and a safe drop-in for this game's architecture. The practical reference set is therefore maintained projects and official Godot examples; treat these as design studies, not asset sources. Rising Ashes keeps its own art, names, world and code.
 
 ## Scope guardrails
 

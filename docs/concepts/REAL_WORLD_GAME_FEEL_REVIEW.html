@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rising Ashes — World Feel Review</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111713; --panel:#1b241e; --line:#36483a; --ink:#f2f0df; --muted:#b8c2b7; --gold:#e7bd69; --green:#92c99a; }
+    * { box-sizing:border-box }
+    body { margin:0; background:radial-gradient(ellipse at 12% 0,#35422d 0,transparent 34rem),var(--bg); color:var(--ink); font:16px/1.55 system-ui,Segoe UI,sans-serif }
+    main { width:min(1180px,94vw); margin:40px auto 72px }
+    h1,h2,h3 { line-height:1.15; letter-spacing:.01em }
+    h1 { font-size:clamp(2rem,5vw,3.7rem); margin:.25rem 0 }
+    h2 { margin-top:2.6rem; font-size:1.65rem }
+    p { color:var(--muted) }
+    a { color:#f1ce83 }
+    .eyebrow { color:var(--gold); text-transform:uppercase; letter-spacing:.15em; font-size:.78rem; font-weight:700 }
+    .lead { max-width:780px; font-size:1.1rem }
+    .status { display:inline-flex; gap:.5rem; align-items:center; border:1px solid #58765d; color:#c5e3c6; background:#233328; border-radius:999px; padding:.35rem .8rem; font-size:.82rem }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr)); gap:16px }
+    .card { border:1px solid var(--line); border-radius:14px; overflow:hidden; background:linear-gradient(145deg,#202a23,var(--panel)); box-shadow:0 12px 30px #0003 }
+    .card img { display:block; width:100%; aspect-ratio:16/9; object-fit:cover; background:#0b100d }
+    .card-body { padding:16px 18px 18px }
+    .card h3 { margin:0 0 6px; font-size:1.12rem }
+    .card p { margin:0 }
+    .diagram { padding:20px; min-height:220px; display:grid; place-items:center; background:linear-gradient(#222e25,#131a16) }
+    .diagram svg { width:100%; max-width:590px; height:auto }
+    .tag { display:inline-block; margin:8px 6px 0 0; border:1px solid #536455; color:#c8d3c7; border-radius:999px; padding:.18rem .55rem; font-size:.73rem }
+    .tag.todo { border-color:#856e41; color:#f0d391 }
+    .callout { border-left:3px solid var(--gold); background:#22271e; padding:12px 16px; color:#d5d8c9; border-radius:0 8px 8px 0 }
+    .links { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px }
+    .links a { display:inline-block; border:1px solid #647450; padding:9px 13px; border-radius:8px; text-decoration:none; background:#202c22 }
+    footer { margin-top:38px; padding-top:16px; border-top:1px solid var(--line); color:#9eaa9e; font-size:.85rem }
+    @media (prefers-reduced-motion:no-preference) { .card { transition:transform .18s ease,border-color .18s ease } .card:hover { transform:translateY(-3px); border-color:#789564 } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Rising Ashes · Feel pass</div>
+    <h1>A world that feels solid and alive</h1>
+    <p class="lead">A quick visual review board for the movement, crowd, animation and collision work. Open this file in a browser; each image opens at full size. The game screenshots show the existing project, while the collision drawing explains the current near-actor design.</p>
+    <span class="status">Plan and code pass recorded · in-game feel still needs a hands-on check</span>
+  </header>
+
+  <h2>What the world looks like today</h2>
+  <section class="grid" aria-label="Current game screenshots">
+    <article class="card"><a href="../kingdom/modern/village_market.png"><img src="../kingdom/modern/village_market.png" alt="Rising Ashes village market screenshot"></a><div class="card-body"><h3>Village market</h3><p>Existing project screenshot. Use this route to review stalls, paths, player scale and market crowd flow.</p><span class="tag">Current art</span><span class="tag todo">Collision needs play check</span></div></article>
+    <article class="card"><a href="../kingdom/modern/characters.png"><img src="../kingdom/modern/characters.png" alt="Rising Ashes character lineup screenshot"></a><div class="card-body"><h3>Characters and scale</h3><p>Existing character reference. The new movement changes keep the current models and animator setup.</p><span class="tag">Existing assets</span><span class="tag todo">Animation pacing needs play check</span></div></article>
+    <article class="card"><a href="../kingdom/modern/frontier_wolves.png"><img src="../kingdom/modern/frontier_wolves.png" alt="Rising Ashes frontier wolf encounter screenshot"></a><div class="card-body"><h3>Frontier encounter</h3><p>Existing screenshot. Wolves and camp monsters are still on the collision follow-up list.</p><span class="tag">Current encounter</span><span class="tag todo">Enemy collision follow-up</span></div></article>
+  </section>
+
+  <h2>How nearby actors should meet the player</h2>
+  <section class="card">
+    <div class="diagram">
+      <svg viewBox="0 0 760 260" role="img" aria-labelledby="diagram-title diagram-desc">
+        <title id="diagram-title">Near and far actor collision diagram</title>
+        <desc id="diagram-desc">A player capsule is blocked by nearby villagers and soldiers. Far residents remain lightweight simulation records. Buildings use separate solid collision shapes.</desc>
+        <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#e7bd69"/></marker></defs>
+        <rect x="28" y="35" width="158" height="178" rx="12" fill="#594b37" stroke="#c6a66a" stroke-width="3"/><path d="M28 78h158M107 78v135" stroke="#8e7953" stroke-width="3"/><text x="107" y="132" fill="#fff0cf" text-anchor="middle" font-size="16">solid building</text><text x="107" y="155" fill="#dfcda8" text-anchor="middle" font-size="12">explicit proxy</text>
+        <circle cx="323" cy="130" r="45" fill="#304a37" stroke="#92c99a" stroke-width="4"/><circle cx="323" cy="130" r="17" fill="#e9c576"/><text x="323" y="197" text-anchor="middle" fill="#f2f0df" font-size="15">player</text>
+        <circle cx="437" cy="89" r="26" fill="#364839" stroke="#92c99a" stroke-width="3"/><text x="437" y="94" text-anchor="middle" fill="#f2f0df" font-size="11">villager</text>
+        <circle cx="455" cy="169" r="26" fill="#4a3d32" stroke="#d9a277" stroke-width="3"/><text x="455" y="174" text-anchor="middle" fill="#f2f0df" font-size="11">soldier</text>
+        <path d="M370 120 C394 105 400 100 407 96" stroke="#e7bd69" stroke-width="3" fill="none" marker-end="url(#arrow)"/><path d="M370 143 C398 153 401 161 426 166" stroke="#e7bd69" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+        <circle cx="637" cy="82" r="14" fill="#4b584b" stroke="#89978a" stroke-dasharray="4 4" stroke-width="2"/><circle cx="682" cy="124" r="14" fill="#4b584b" stroke="#89978a" stroke-dasharray="4 4" stroke-width="2"/><circle cx="625" cy="177" r="14" fill="#4b584b" stroke="#89978a" stroke-dasharray="4 4" stroke-width="2"/><text x="653" y="222" text-anchor="middle" fill="#c1c8bc" font-size="13">far crowd stays light</text>
+        <path d="M492 70 Q548 130 492 190" stroke="#789564" stroke-width="2" stroke-dasharray="5 5" fill="none"/><text x="550" y="130" text-anchor="middle" fill="#d2dfcf" font-size="12">near physics</text>
+      </svg>
+    </div>
+    <div class="card-body"><h3>Close actors block; distant crowds stay cheap</h3><p>The current code pass gives villagers and soldiers capsules near the player, and feeds embodied villager positions back into the population simulation. Explicit building proxies provide the solid world. This is a design diagram, not a captured gameplay frame.</p><span class="tag">Villagers</span><span class="tag">Near soldiers</span><span class="tag todo">Wolves / camp monsters next</span></div>
+  </section>
+
+  <h2>Animation evidence and review</h2>
+  <p>Claude's branch already contains an animation QA runner that produces these full-size sheets and frame strips. The sheets inspect imported motion; they do not prove that the runtime controller, collision, or camera feels right.</p>
+  <section class="grid">
+    <article class="card"><a href="../qa/anim_sheet_villagers.jpg"><img loading="lazy" src="../qa/anim_sheet_villagers.jpg" alt="Animation QA sheet for villager characters"></a><div class="card-body"><h3>Villager motion sheet</h3><p>Existing animation QA output from Claude's branch. Open the image for the full contact sheet.</p><a href="../qa/anim_qa_report.md">Read the QA report</a></div></article>
+    <article class="card"><a href="../qa/anim_sheet_armored.jpg"><img loading="lazy" src="../qa/anim_sheet_armored.jpg" alt="Animation QA sheet for armored characters"></a><div class="card-body"><h3>Armored motion sheet</h3><p>Existing QA contact sheet. Foot-slide fixes must be checked against game movement speed and play feel.</p><a href="../../tools/qa/anim_qa/README.md">Open the QA tool and instructions</a></div></article>
+  </section>
+
+  <h2>Review route</h2>
+  <div class="callout">Village spawn → cross the square → walk through the market → circle the inn → pass a resident in a doorway → run and stop → enter a frontier encounter. Check for wall clipping, body overlap, foot skating, camera clipping, stalled residents, and hits that land out of sync with the visible swing.</div>
+  <nav class="links" aria-label="Project review documents"><a href="REAL_WORLD_GAME_FEEL_PLAN.md">Open the full improvement plan</a><a href="../qa/PLAYTEST_REPORT.md">Open Claude's playtest report</a><a href="../qa/">Browse QA images and results</a></nav>
+  <footer>Project screenshots are existing concept/game references. The actor drawing is explanatory. Runtime collision and animation changes have not been visually playtested in this environment.</footer>
+</main>
+</body>
+</html>

@@ -1,15 +1,19 @@
 class_name CampMonster
-extends Node3D
+extends CharacterBody3D
 ## Humanoid monster (goblins, orcs) living in a camp. Wanders its camp, turns on
 ## intruders who come close, and yields (kneels) when beaten instead of dying,
 ## unless finished off. A yielded monster can be named (Tensura-style) through
 ## Life.name_monster: it evolves into its greater form, takes a class and
 ## follows the player as a subordinate that fights the player's enemies.
-## Not a physics body; follows the terrain like wolves and soldiers.
+## Uses close-range collision with the player and world; distant monsters keep
+## low-cost terrain steering rather than participating in full crowd physics.
 
 signal died(monster: CampMonster)
 
 const MODELS := "res://assets/incoming/quaternius/ultimate-animated-character/glTF/"
+const PLAYER_SOLID_RANGE := 16.0
+const WORLD_LAYER := 1
+const ENEMY_LAYER := 4
 const SPECIES := {
 	"goblin": {"models": ["Goblin_Male", "Goblin_Female"], "height": 1.1, "health": 32, "damage": 6,
 		"walk": 1.4, "run": 5.2, "level": [1, 4], "tint": Color(1, 1, 1)},
@@ -41,10 +45,23 @@ var _attack_cd := 0.0
 var _busy := 0.0
 var _speed := 0.0
 var _foe: Node3D
+var _actor_shape: CollisionShape3D
 
 
 func _ready() -> void:
 	var sp: Dictionary = SPECIES[species]
+	collision_layer = ENEMY_LAYER
+	collision_mask = WORLD_LAYER
+	floor_snap_length = 0.25
+	safe_margin = 0.03
+	_actor_shape = CollisionShape3D.new()
+	var capsule := CapsuleShape3D.new()
+	capsule.height = maxf(0.8, float(sp["height"]) * 0.9)
+	capsule.radius = clampf(float(sp["height"]) * 0.22, 0.22, 0.42)
+	_actor_shape.shape = capsule
+	_actor_shape.position.y = capsule.height * 0.5
+	_actor_shape.disabled = true
+	add_child(_actor_shape)
 	var models: Array = sp["models"]
 	var model: Node3D = (load(MODELS + String(models[randi() % models.size()]) + ".gltf") as PackedScene).instantiate()
 	var box := Assets.visual_aabb(model)
@@ -152,14 +169,21 @@ func _physics_process(delta: float) -> void:
 	if _busy > 0.0:
 		want = 0.0
 	_speed = lerpf(_speed, want, 6.0 * delta)
+	_update_player_collision(player)
 	var to := _target - global_position
 	to.y = 0.0
 	if to.length() > 0.3:
 		rotation.y = lerp_angle(rotation.y, atan2(to.x, to.z), 6.0 * delta)
 	if to.length() > 0.3 and _speed > 0.05:
-		var p := global_position + to.normalized() * _speed * delta
-		p.y = WorldGen.height(p.x, p.z)
-		global_position = p
+		var step_velocity := to.normalized() * _speed
+		if _near_player(player):
+			velocity = step_velocity
+			move_and_slide()
+			global_position.y = WorldGen.height(global_position.x, global_position.z)
+		else:
+			var p := global_position + step_velocity * delta
+			p.y = WorldGen.height(p.x, p.z)
+			global_position = p
 	if _busy <= 0.0 and state != State.YIELD:
 		_play("Run" if _speed > 3.0 else ("Walk" if _speed > 0.3 else "Idle"))
 
@@ -203,6 +227,14 @@ func _nearest(group: String, radius: float) -> Node3D:
 			bd = d
 			best = n
 	return best
+
+
+func _near_player(player: Node3D) -> bool:
+	return player != null and player.global_position.distance_squared_to(global_position) < PLAYER_SOLID_RANGE * PLAYER_SOLID_RANGE
+
+
+func _update_player_collision(player: Node3D) -> void:
+	_actor_shape.set_deferred("disabled", not _near_player(player))
 
 
 func _pick_wander() -> void:

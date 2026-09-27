@@ -1,13 +1,16 @@
 class_name Wolf
-extends Node3D
+extends CharacterBody3D
 ## Forest wolf (Quaternius Ultimate Animated Animals, CC0). Small state machine:
 ## roam its den's territory -> stalk -> attack -> flee when hurt or when it
-## wanders into strong runestone protection. Not a physics body: follows the
-## terrain like soldiers do. Behaviour moves to LimboAI once trees are authored.
+## wanders into strong runestone protection. A cheap capsule blocks the player
+## and world nearby; distant animals keep terrain-based steering.
 
 signal died(wolf: Wolf)
 
 const MODEL := "res://assets/incoming/quaternius/ultimate-animated-animals/glTF/Wolf.gltf"
+const PLAYER_SOLID_RANGE := 16.0
+const WORLD_LAYER := 1
+const ENEMY_LAYER := 4
 enum State { ROAM, STALK, ATTACK, FLEE }
 
 var den_id := -1
@@ -24,9 +27,22 @@ var _think := 0.0
 var _attack_cd := 0.0
 var _busy := 0.0
 var _speed := 0.0
+var _actor_shape: CollisionShape3D
 
 
 func _ready() -> void:
+	collision_layer = ENEMY_LAYER
+	collision_mask = WORLD_LAYER
+	floor_snap_length = 0.25
+	safe_margin = 0.03
+	_actor_shape = CollisionShape3D.new()
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.34
+	capsule.height = 1.1
+	_actor_shape.shape = capsule
+	_actor_shape.position.y = capsule.height * 0.5
+	_actor_shape.disabled = true
+	add_child(_actor_shape)
 	add_to_group("team1")
 	add_to_group("combatant")
 	var model: Node3D = (load(MODEL) as PackedScene).instantiate()
@@ -72,6 +88,7 @@ func _physics_process(delta: float) -> void:
 	if _busy > 0.0:
 		want = 0.0
 	_speed = lerpf(_speed, want, 6.0 * delta)
+	_update_player_collision(player)
 	var to := _target - global_position
 	to.y = 0.0
 	if state == State.FLEE:
@@ -79,9 +96,15 @@ func _physics_process(delta: float) -> void:
 	if to.length() > 0.3 and _speed > 0.05:
 		var dir := to.normalized()
 		rotation.y = lerp_angle(rotation.y, atan2(dir.x, dir.z), 6.0 * delta)
-		var p := global_position + dir * _speed * delta
-		p.y = WorldGen.height(p.x, p.z)
-		global_position = p
+		var step_velocity := dir * _speed
+		if _near_player(player):
+			velocity = step_velocity
+			move_and_slide()
+			global_position.y = WorldGen.height(global_position.x, global_position.z)
+		else:
+			var p := global_position + step_velocity * delta
+			p.y = WorldGen.height(p.x, p.z)
+			global_position = p
 	if _busy <= 0.0:
 		_play("Gallop" if _speed > 4.5 else ("Walk" if _speed > 0.4 else "Idle"))
 
@@ -108,6 +131,14 @@ func _decide(player: Node3D, cov: float) -> void:
 		state = State.STALK
 	else:
 		state = State.ROAM
+
+
+func _near_player(player: Node3D) -> bool:
+	return player != null and player.global_position.distance_squared_to(global_position) < PLAYER_SOLID_RANGE * PLAYER_SOLID_RANGE
+
+
+func _update_player_collision(player: Node3D) -> void:
+	_actor_shape.set_deferred("disabled", not _near_player(player))
 
 
 func _pick_roam_target() -> void:
