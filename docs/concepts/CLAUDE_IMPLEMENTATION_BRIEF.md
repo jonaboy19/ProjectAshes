@@ -22,6 +22,7 @@ This brief points to the evidence and proposes a safe implementation sequence. S
 16. [Locomotion phase and foot-contact design](LOCOMOTION_PHASE_AND_FOOT_CONTACT_DESIGN.md) — a post-QA walk/run phase-sync A/B, bounded TwoBoneIK foot-contact experiment, Blender/game-loader review strip, and measurable per-rig acceptance evidence.
 17. [NPC contact and LOD contract](NPC_CONTACT_LOD_CONTRACT.md) — close crowd overflow, model-spawn latency, separate contact/presentation budgets, and atomic movement ownership handoffs.
 18. [Locomotion start/stop/turn contract](LOCOMOTION_START_STOP_TURN_CONTRACT.md) — the current double speed filtering, actual-travel signals, directional gait gaps, and paired Blender/game-loader response captures.
+19. [Recorded movement trace viewer](NPC_CAPTURE_TRACE_VIEWER.html) and [export format](NPC_CAPTURE_TRACE_VIEWER.md) — offline CSV review of body/animation speeds, actor states, and movement-owner/LOD changes; starts empty and labels synthetic examples.
 
 ## Baseline and evidence
 
