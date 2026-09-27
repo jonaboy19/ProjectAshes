@@ -219,3 +219,18 @@ martial art). Must look current, never "2010": no lazy placeholders.
 
 **Order now**: basics and the first region, perfect and integrated, using open
 source where licences allow and the pushed asset packs; Blender work in parallel.
+
+## Art direction rule (user, round 6)
+
+**More detailed appearance ≠ more polygons.** Polish, don't bloat. Preserve or improve FPS on mobile.
+
+- Keep the current ground/terrain style; it works (texture variation, dirt/grass breakup, irregularity).
+- Put the effort into buildings, market stalls, props and characters:
+  - Buildings: small bevels on timber, roof thickness, window frames, foundation edges, chimneys, doors seated in walls, slight material imperfections.
+  - Stalls: better cloth shapes, wood texture, ropes and supports, item placement, material variation.
+  - NPCs: one coherent character style that matches the environment.
+- Make things feel grounded: ambient and contact shadowing under barrels, boxes, carts and stalls.
+- Build 5–8 strong modular kits and vary them procedurally (roofs, walls, signs, extensions, windows, clutter) rather than many unique heavy houses.
+- Distance: LODs, HLOD or impostors, aggressive culling, instancing, texture atlases. Distant decoration uses simplified meshes.
+- Avoid: blindly raising poly counts, unnecessary dynamic lights, excessive transparency, very high-resolution textures, thousands of tiny objects.
+- Asset workflow: Meshy (fast generation, on the user's PC) → Blender cleanup, decimation and LODs (here) → Godot.
