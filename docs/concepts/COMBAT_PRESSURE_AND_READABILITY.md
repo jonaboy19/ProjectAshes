@@ -1,6 +1,7 @@
 # Combat pressure and readable encounters
 
-**Audience:** Claude implementation branch `claude/focused-curie-m09hbd`  
+**Audience:** Claude implementation branch `claude/focused-curie-m09hbd`
+
 **Scope:** design and implementation handoff only. This document does not change game scripts, scenes, assets, or project settings.
 
 ## Why this needs its own pass
