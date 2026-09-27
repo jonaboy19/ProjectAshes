@@ -8,7 +8,8 @@ This brief points to the evidence and proposes a safe implementation sequence. I
 2. [Collision visual audit](COLLISION_VISUAL_AUDIT.html) and [method/notes](COLLISION_VISUAL_AUDIT.md) — current fitted building collider shapes and visible door/footprint issues.
 3. [NPC route audit](NPC_ROUTE_AUDIT.html) and [method/notes](NPC_ROUTE_AUDIT.md) — static Ashford target segments crossing collider footprints.
 4. [Locomotion speed review](LOCOMOTION_SPEED_REVIEW.html) and [findings](LOCOMOTION_SPEED_REVIEW.md), then [player blend-space audit](PLAYER_BLENDSPACE_AUDIT.html) — measured movement/clip mismatches.
-5. [Open-world pattern study](OPEN_WORLD_PATTERN_STUDY.md) — project patterns and source/license distinctions.
+5. [NPC life-loop design](NPC_LIFE_LOOP_DESIGN.md) — state priorities, goal anchors, physical movement ownership, and playtest matrix.
+6. [Open-world pattern study](OPEN_WORLD_PATTERN_STUDY.md) — project patterns and source/license distinctions.
 
 ## Baseline and evidence
 
