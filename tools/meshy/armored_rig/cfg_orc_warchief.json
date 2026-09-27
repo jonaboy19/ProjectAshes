@@ -1,0 +1,18 @@
+{
+ "name": "orc_warchief",
+ "height": 2.2,
+ "source": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/ai3d/meshy/armored/_work/orc_warchief_remesh_raw.glb",
+ "ual": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out_dir": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/ai3d/meshy/armored",
+ "lod0_tris": 12000, "lod1_tris": 4000, "tex_lod0": 1024, "tex_lod1": 512,
+ "overrides": {
+  "arm_pts": {"sh": [0.30, 1.62], "elb": [0.54, 1.46], "wri": [0.87, 1.24], "tip": [0.97, 1.06]},
+  "head_rigid_x": 0.32,
+  "rigid_boxes": [
+   {"min": [0.30, -0.5, 1.53], "max": [0.65, 0.5, 2.12], "weights": {"upperarm_l": 0.7, "clavicle_l": 0.3}},
+   {"min": [0.19, -0.5, 1.56], "max": [0.30, 0.5, 1.90], "weights": {"upperarm_l": 0.7, "clavicle_l": 0.3}},
+   {"min": [-0.65, -0.5, 1.53], "max": [-0.30, 0.5, 2.12], "weights": {"upperarm_r": 0.7, "clavicle_r": 0.3}},
+   {"min": [-0.30, -0.5, 1.56], "max": [-0.19, 0.5, 1.90], "weights": {"upperarm_r": 0.7, "clavicle_r": 0.3}}
+  ]
+ }
+}
