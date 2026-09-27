@@ -12,9 +12,13 @@ In the first playable movement capture, a nearby dark building surface fills rou
 
 **Review check:** reproduce the saved position and camera yaw, then walk and rotate around the building corner. Capture the camera origin, desired camera point, ray hit point/normal, collider owner, and final camera point in a QA overlay. Confirm the camera stays outside solid surfaces during both slow movement and turns, and that it returns smoothly when the obstruction clears.
 
-## 2. The market capture is useful for composition, not collision proof
+## 2. The market sightline needs a moving camera check
 
-The market frame shows several full 3D residents around stalls, but it is a single instant. It cannot establish that residents avoid stalls, that two bodies collide, that a player cannot pass through them, or that a character has a natural start/stop/turn cycle. Keep it as a location and crowd-composition reference only.
+The market frame shows several full 3D residents around stalls, but it is a single instant. The fixed low-mobile benchmark camera places a large foreground stall across most of the right side and top of the view, narrowing the visible route through the plaza. The benchmark deliberately teleports the player to a fixed coordinate and sets one camera angle; this flags a framing/readability risk, but does not prove that the live camera is colliding with the stall or that NPCs pass through it.
+
+Use the marked plaza lane as a camera and crowd QA route: walk past the foreground stall on both sides, turn toward the service counter, and watch a resident approach and leave it. Capture the live camera boom and obstacle hit, player capsule, stall collision shapes, NPC path/target, and two normal-play frames before/after the turn. The stall should remain legible as a service point while the pedestrian lane and approaching characters stay visible; keep counters and support posts solid where the art shows them.
+
+The market playtest image is still useful as a location and crowd-composition reference, but it cannot establish that residents avoid stalls, two bodies collide, the player cannot pass through them, or a character has a natural start/stop/turn cycle.
 
 ![Market residents and stall layout from the current playtest](qa_evidence/16_npc_villager.jpg)
 
