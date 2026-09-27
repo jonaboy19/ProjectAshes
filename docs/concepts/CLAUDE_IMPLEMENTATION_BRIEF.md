@@ -35,9 +35,15 @@ The evidence identifies structural problems to address before adding lots of new
 
 These findings describe a baseline, not proof that every bug still reproduces on the latest game branch. Re-run the small relevant check before changing its system.
 
-## Parallel work observed during this refresh
+## Current Claude checkout and evidence snapshot
 
-On 2026-09-27, Claude's local game checkout was still at `e3563fc4` with an active, uncommitted animation QA and performance pass. Its current work includes a manual review of clips, gait speeds, skinning fixes for armored boots, refreshed benchmark output, and related captures. Keep that work as the source for clip/rig follow-up; this documentation update does not edit the game checkout or duplicate its asset edits. The navigation handoff focuses on the separate gap: routes, physical contact, and transfer of movement ownership for visible NPCs. The local working-copy state may change; check Claude's current source/QA before implementation.
+Checked 2026-09-27 (local evening): Claude's game checkout is still on `claude/focused-curie-m09hbd` at `e3563fc4`. Its working tree has generated QA and Blender-preview outputs, but no tracked gameplay-source edits were present at this check. The animation report was regenerated at 13:47 and still records 54 of 62 speed cases as failing; it is not evidence that a locomotion fix has landed. The report also documents the existing armored-boot weight repair, so do not redo that asset work without finding a regression.
+
+The current playtest report lists a villager standing inside a house front and wolves clipping into the player during bites (`docs/qa/PLAYTEST_REPORT.md`, issue 13). Treat those as reported runtime failures with likely causes, not fully verified visual diagnoses: screenshot 16 is a plaza view, while screenshot 34 is heavily obscured by conifer branches. Reproduce both with collision shapes, NPC target/path, wolf root/body, and attack reach visible before accepting the reported cause. Preserve real doorways; do not fix either symptom by disabling collision or moving visible meshes away from their intended footprints.
+
+Two newer raw benchmark rows were appended at 17:32: village LOW/Mobile measured 56.1 FPS average, 17.8 ms frame average, 42.8 ms p95, 235 draw calls, and about 292k primitives with 12 full NPCs; village HIGH/Forward+ measured 39.0 FPS, 25.7 ms average, 32.1 ms p95, and 948 draw calls with 24 full NPCs. These differ from earlier tables and are one short local run, so treat them as a fresh signal to reproduce, not a new device guarantee or proof that the performance pass is complete. Compare quiet-machine runs and inspect CPU time as well as GPU time before spending performance budget on more embodied actors.
+
+Use Claude's current source and latest QA before each implementation step; these local files can change independently of the branch commit. Keep the game checkout untouched while preparing this documentation handoff. The navigation plan addresses the gap between visible NPC behavior and physical world contact; it does not duplicate the active animation/asset QA.
 
 ## Suggested first implementation slice
 

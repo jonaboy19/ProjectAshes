@@ -43,11 +43,11 @@ The first fixes should address those structural causes. Adding more animations, 
 
 ### Phase 0 — Lock a reproducible baseline
 
-Before changing behavior, record a short repeatable route through the village and a representative fight. Capture the same camera view and settings after each phase. Record current frame-time percentiles and counts for full NPCs, sprites, colliders, and active navigation/avoidance agents.
+Before changing behavior, record a short repeatable route through the village and a representative fight. Capture the same camera view and settings after each phase. Record current frame-time percentiles and counts for full NPCs, sprites, colliders, and active navigation/avoidance agents. Reproduce the playtest report's house-front villager and wolf-bite overlap with collision shapes, target/path, wolf body/root, and attack reach visible. The existing screenshots are not enough to identify the exact contact failure: one is a plaza view and the wolf is mostly hidden by foliage.
 
 Add temporary or opt-in debug views during implementation: physics collision shapes, navmesh, actor target/path, desired and actual velocity, animation state/blend value, and actor LOD. Keep diagnostics out of normal play and remove or disable them before the final delivery.
 
-**Done when:** a reviewer can replay the same player route and crowd scene on LOW and HIGH, see the relevant collision/path data, and compare before/after captures and measurements.
+**Done when:** a reviewer can replay the same player route and crowd scene on LOW and HIGH, see the relevant collision/path data, and compare before/after captures and measurements. The house-front and wolf-bite overlap reports have either been reproduced with a confirmed cause or explicitly cleared as non-reproducible on the current branch.
 
 ### Phase 1 — Make geometry agree with what the player sees
 
