@@ -372,8 +372,10 @@ func _build_environment() -> void:
 	env.tonemap_white = 8.0
 	# Modern lighting (Forward+ on desktop; the Mobile renderer skips what it can't do).
 	env.ssao_enabled = true
-	env.ssao_radius = 1.2
-	env.ssao_intensity = 1.6
+	env.ssao_radius = 1.4
+	env.ssao_intensity = 2.0
+	env.ssao_detail = 0.6          # tighter occlusion where objects meet the ground
+	env.ssao_light_affect = 0.15
 	env.ssil_enabled = true
 	env.sdfgi_enabled = true
 	env.sdfgi_use_occlusion = true

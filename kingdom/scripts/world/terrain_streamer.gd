@@ -241,6 +241,13 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> M
 		mm.set_instance_transform(i, transforms[i])
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
-	mmi.visibility_range_end = 450.0
+	# Small undergrowth vanishes early; trees and big rocks stay to the horizon.
+	var box := mesh.get_aabb()
+	var extent := maxf(maxf(box.size.x, box.size.z), box.size.y)
+	mmi.visibility_range_end = 60.0 if extent < 1.2 else (140.0 if extent < 3.5 else 450.0)
+	mmi.visibility_range_end_margin = 8.0
+	mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	if extent < 3.5:
+		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	parent.add_child(mmi)
 	return mmi

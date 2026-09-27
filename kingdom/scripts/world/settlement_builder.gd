@@ -201,12 +201,14 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, h: float, gates: Array,
 			root.add_child(body)
 		if i % tower_every == 0 and not is_gate:
 			towers.append(Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * tower_s), Vector3(p0.x, h, p0.y)))
-	_multimesh(root, wall_mesh, walls)
-	_multimesh(root, gate_mesh if gate_mesh else wall_mesh, gate_walls)
-	_multimesh(root, tower_mesh, towers)
+	_multimesh(root, wall_mesh, walls, false)
+	_multimesh(root, gate_mesh if gate_mesh else wall_mesh, gate_walls, false)
+	_multimesh(root, tower_mesh, towers, false)
 
 
-func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> void:
+## Instanced placement. Culls by object size (small clutter vanishes first) and,
+## unless blob is false, grounds each instance with a soft contact shadow.
+func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob := true) -> void:
 	if mesh == null or transforms.is_empty():
 		return
 	var mm := MultiMesh.new()
@@ -217,6 +219,43 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> v
 		mm.set_instance_transform(i, transforms[i])
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
+	var box := mesh.get_aabb()
+	var extent := maxf(box.size.x, box.size.z)
+	var cull := 70.0 if extent < 1.6 else (150.0 if extent < 4.5 else (380.0 if extent < 12.0 else 0.0))
+	if cull > 0.0:
+		mmi.visibility_range_end = cull
+		mmi.visibility_range_end_margin = cull * 0.1
+		mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	parent.add_child(mmi)
+	if blob and extent < 18.0:
+		_contact_shadows(parent, box, transforms, cull)
+
+
+static var _blob_mesh: PlaneMesh
+
+
+func _contact_shadows(parent: Node3D, box: AABB, transforms: Array[Transform3D], cull: float) -> void:
+	if _blob_mesh == null:
+		_blob_mesh = PlaneMesh.new()
+		_blob_mesh.size = Vector2.ONE
+		var mat := ShaderMaterial.new()
+		mat.shader = preload("res://shaders/contact_shadow.gdshader")
+		_blob_mesh.material = mat
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = _blob_mesh
+	mm.instance_count = transforms.size()
+	var centre := Vector3(box.get_center().x, 0.0, box.get_center().z)
+	var size := Vector3(box.size.x * 1.35 + 0.6, 1.0, box.size.z * 1.35 + 0.6)
+	for i in transforms.size():
+		var t: Transform3D = transforms[i]
+		var b := t.basis * Basis.from_scale(size)
+		mm.set_instance_transform(i, Transform3D(b, t * centre + Vector3(0, 0.04, 0)))
+	var mmi := MultiMeshInstance3D.new()
+	mmi.multimesh = mm
+	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	if cull > 0.0:
+		mmi.visibility_range_end = cull * 0.8
 	parent.add_child(mmi)
 
 
@@ -262,7 +301,7 @@ func _greenery(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberG
 	for kind: String in picks:
 		var list: Array[Transform3D] = []
 		list.assign(picks[kind])
-		_multimesh(root, Assets.nature_mesh(kind), list)
+		_multimesh(root, Assets.nature_mesh(kind), list, false)
 
 
 ## Fenced crop fields outside the village: 10 m wheat tiles on the terrain,
@@ -311,8 +350,8 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		# A haystack at the field corner.
 		var hp := fc + bx * (hx + 3.0) + bz * (hz - 2.0)
 		_piece(root, "haystack", hp, WorldGen.height(hp.x, hp.y), rng.randf() * TAU)
-	_multimesh(root, Assets.building_mesh("field_crops"), tiles)
-	_multimesh(root, Assets.building_mesh("fence"), fences)
+	_multimesh(root, Assets.building_mesh("field_crops"), tiles, false)
+	_multimesh(root, Assets.building_mesh("fence"), fences, false)
 
 
 ## Behind and beside homes: vegetable gardens, woodpiles, washing lines.
