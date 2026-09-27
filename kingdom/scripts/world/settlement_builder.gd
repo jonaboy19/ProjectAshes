@@ -129,6 +129,14 @@ func _build(s: Dictionary) -> Node3D:
 		(st_a if k % 2 == 0 else st_b).append(stalls[k])
 	for k in stalls2.size():
 		(st_a if k % 2 == 1 else st_b).append(stalls2[k])
+	# The Meshy stalls (1 and 2) were modelled facing the other way: turn them to the plaza.
+	var turn := Basis(Vector3.UP, PI)
+	for k in st_a.size():
+		if k < (st_a.size() + 1) / 2:
+			st_a[k] = Transform3D(st_a[k].basis * turn, st_a[k].origin)
+	for k in st_b.size():
+		if k < (st_b.size() + 1) / 2:
+			st_b[k] = Transform3D(st_b[k].basis * turn, st_b[k].origin)
 	_multimesh(root, Assets.building_mesh("market_stand_1"), st_a.slice(0, (st_a.size() + 1) / 2))
 	_multimesh(root, Assets.building_mesh("market_stand_3"), st_a.slice((st_a.size() + 1) / 2))
 	_multimesh(root, Assets.building_mesh("market_stand_2"), st_b.slice(0, (st_b.size() + 1) / 2))
