@@ -1,0 +1,131 @@
+{
+ "chicken": {
+  "tris": 384,
+  "bones": 9,
+  "anims": [
+   "Death",
+   "Eat",
+   "Flutter",
+   "Idle",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.22,
+   0.47,
+   0.46
+  ],
+  "kb": 162
+ },
+ "rooster": {
+  "tris": 404,
+  "bones": 9,
+  "anims": [
+   "Death",
+   "Eat",
+   "Flutter",
+   "Idle",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.23,
+   0.57,
+   0.56
+  ],
+  "kb": 165
+ },
+ "duck": {
+  "tris": 328,
+  "bones": 9,
+  "anims": [
+   "Death",
+   "Eat",
+   "Fly",
+   "Glide",
+   "Idle",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.22,
+   0.51,
+   0.34
+  ],
+  "kb": 163
+ },
+ "goose": {
+  "tris": 332,
+  "bones": 9,
+  "anims": [
+   "Death",
+   "Eat",
+   "Fly",
+   "Glide",
+   "Idle",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.31,
+   0.72,
+   0.7
+  ],
+  "kb": 163
+ },
+ "pigeon": {
+  "tris": 356,
+  "bones": 9,
+  "anims": [
+   "Death",
+   "Eat",
+   "Fly",
+   "Glide",
+   "Idle",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.15,
+   0.36,
+   0.24
+  ],
+  "kb": 166
+ },
+ "crow": {
+  "tris": 356,
+  "bones": 9,
+  "anims": [
+   "Death",
+   "Eat",
+   "Fly",
+   "Glide",
+   "Idle",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.17,
+   0.51,
+   0.31
+  ],
+  "kb": 166
+ },
+ "rabbit": {
+  "tris": 534,
+  "bones": 10,
+  "anims": [
+   "Death",
+   "Eat",
+   "Idle",
+   "Run",
+   "Walk"
+  ],
+  "size_m": [
+   0.17,
+   0.34,
+   0.3
+  ],
+  "kb": 179
+ }
+}

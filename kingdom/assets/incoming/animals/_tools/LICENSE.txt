@@ -1,0 +1,1 @@
+Scripts written for Rising Ashes (project code). palette.py generates the shared animals_atlas texture (CC0).

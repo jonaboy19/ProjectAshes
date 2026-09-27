@@ -1,0 +1,20 @@
+Licence: CC0 1.0 Universal (public domain) - https://creativecommons.org/publicdomain/zero/1.0/
+Author: Quaternius (https://quaternius.com). No attribution required (credit appreciated).
+
+Source packs (licence verified at the source pages on 2026-09-27):
+- Ultimate Animated Animal Pack - https://quaternius.com/packs/ultimateanimatedanimals.html
+  (also https://poly.pizza/bundle/Animated-Animal-Pack-ILAPXeUYiS, "Public Domain (CC0)")
+  -> horse_riding, horse_grey, horse_draft, donkey, cow, ox, deer, goat (deer kitbash), stag, fox, dog (Shiba Inu), sheepdog (Husky)
+  local source: kingdom/assets/incoming/quaternius/ultimate-animated-animals/
+- Farm Animal Pack (LowPoly Animated Farm Animals) - https://quaternius.com/packs/farmanimal.html
+  -> sheep, pig (walk/run/death retargeted from the pack's cow)
+  local source: kingdom/assets/incoming/quaternius/lowpoly-animated-animals/
+- Animal Pack Vol.2 - https://opengameart.org/content/animated-animales-low-poly (licence field: CC0)
+  -> cat, cat_ginger          local source: ../_sources/quaternius-animal-pack-vol2/
+- Animated Fish Pack - https://quaternius.com/packs/animatedfish.html , https://opengameart.org/content/animated-fish (CC0)
+  -> fish_trout (Fish1), fish_carp (Fish3)   local source: ../_sources/quaternius-animated-fish/
+- Rat by Quaternius - https://poly.pizza/m/iltq5bVNaV (page licence: "CC0 1.0")
+  -> rat                      local source: ../_sources/polypizza-quaternius/
+
+Modifications (Rising Ashes): recoloured onto the shared hand-painted palette atlas, bones reduced to <= 30,
+rescaled to real-world metres, animations renamed, extra procedural Eat/Death/Run clips, goat horns/beard added.
