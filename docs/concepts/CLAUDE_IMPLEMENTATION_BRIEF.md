@@ -1,6 +1,6 @@
 # Claude handoff: make the world feel physical and alive
 
-This brief points to the evidence and proposes a safe implementation sequence. It is for the game implementation branch `claude/focused-curie-m09hbd`; the `gpt/natural-world-plan` branch contains documentation and review artifacts only. Do not merge a broad rewrite. Make each step a small change with a visible before/after result.
+This brief points to the evidence and proposes a safe implementation sequence. Start with the [visual review dashboard](NATURAL_WORLD_REVIEW_DASHBOARD.html) for one-page access to the existing captures, route audits, motion inspectors, and design notes. It is for the game implementation branch `claude/focused-curie-m09hbd`; the `gpt/natural-world-plan` branch contains documentation and review artifacts only. Do not merge a broad rewrite. Make each step a small change with a visible before/after result.
 
 ## Read these first
 
