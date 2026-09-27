@@ -147,6 +147,8 @@ Do not land all phases as one large rewrite. Each phase should be a small review
 
 ## Reference material
 
+For open-world project patterns and source/art license distinctions, read the [open-world pattern study](OPEN_WORLD_PATTERN_STUDY.md).
+
 Use these as technical references and pattern studies, not as a directive to import another game's code or art. Check the license and version before copying any implementation.
 
 - [Godot 4.6 Navigation overview](https://docs.godotengine.org/en/4.6/tutorials/navigation/navigation_introduction_3d.html) — navigation maps/regions, agents, and the separation between navigation and custom actor movement.
