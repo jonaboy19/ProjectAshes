@@ -24,6 +24,7 @@ This brief points to the evidence and proposes a safe implementation sequence. S
 18. [Locomotion start/stop/turn contract](LOCOMOTION_START_STOP_TURN_CONTRACT.md) — the current double speed filtering, actual-travel signals, directional gait gaps, and paired Blender/game-loader response captures.
 19. [Recorded movement trace viewer](NPC_CAPTURE_TRACE_VIEWER.html) and [export format](NPC_CAPTURE_TRACE_VIEWER.md) — offline CSV review of body/animation speeds, actor states, and movement-owner/LOD changes; starts empty and labels synthetic examples.
 20. [Rig deformation visual handoff](RIG_DEFORMATION_VISUAL_HANDOFF.md) — captured dress walk/run and pig walk examples, precise Blender diagnosis, and per-rig/LOD acceptance requirements.
+21. [Footstep and activity sound handoff](FOOTSTEP_ACTIVITY_AUDIO_HANDOFF.md) — reuse the active audio director, synchronize visible plants/work impacts, suppress roll/idle cues, and retain bounded voice costs.
 
 ## Baseline and evidence
 
