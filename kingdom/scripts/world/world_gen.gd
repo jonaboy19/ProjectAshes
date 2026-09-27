@@ -528,7 +528,8 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 		var paved: bool = near["kind"] != "village"
 		var sd := street_distance(x, z)
 		if near.has("plan") and dc < near["plan"]["plaza_r"] + 2.0:
-			if paved: w.b = 1.0
+			var pr: float = near["plan"]["plaza_r"]
+			if paved or dc < pr - 1.5: w.b = 1.0
 			else: w.r = 1.0
 			w.a = 0.0
 		elif sd < 1.0:

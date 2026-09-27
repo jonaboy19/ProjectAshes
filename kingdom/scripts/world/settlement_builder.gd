@@ -382,6 +382,7 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 		var list: Array[Transform3D] = []
 		list.assign(sets[kind])
 		_multimesh(root, Assets.building_mesh(kind), list)
+	_front_gardens(root, plan, rng)
 
 
 ## Lamp posts around the square that glow at night, and a signpost where the road leaves.
@@ -408,3 +409,32 @@ func _square_lamps(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 		var ga: float = gates[0]
 		var sp: Vector2 = c + Vector2(cos(ga), sin(ga)) * (float(s["radius"]) + 8.0) + Vector2(-sin(ga), cos(ga)) * 5.0
 		_piece(root, "signpost", sp, WorldGen.height(sp.x, sp.y), ga)
+
+
+## Flowers and bushes hugging house fronts and corners, as in the reference art:
+## clumps either side of the door (never on the footpath), a bush at a corner.
+func _front_gardens(root: Node3D, plan: Dictionary, rng: RandomNumberGenerator) -> void:
+	var sets := {"nature/flowers_a": [], "nature/bush_b": [], "nature/grass_clump_tall": []}
+	for lot: Dictionary in plan["lots"]:
+		var yaw: float = lot["yaw"]
+		var fwd := Vector2(sin(yaw), cos(yaw))
+		var side := Vector2(fwd.y, -fwd.x)
+		var p: Vector2 = lot["pos"]
+		for k in rng.randi_range(3, 6):
+			var sgn := 1.0 if k % 2 == 0 else -1.0
+			var at := p + fwd * rng.randf_range(3.9, 4.6) + side * sgn * rng.randf_range(1.4, 3.6)
+			if CityPlanner.path_distance(plan, at) < 0.6 or CityPlanner.street_distance(plan, at) < 0.8:
+				continue
+			var kind := "nature/flowers_a" if rng.randf() < 0.7 else "nature/grass_clump_tall"
+			var sc := rng.randf_range(0.9, 1.5)
+			(sets[kind] as Array).append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * sc),
+				Vector3(at.x, WorldGen.height(at.x, at.y) - 0.02, at.y)))
+		if rng.randf() < 0.7:
+			var corner := p + fwd * 3.4 + side * (4.2 if rng.randf() < 0.5 else -4.2)
+			if CityPlanner.street_distance(plan, corner) > 1.2:
+				(sets["nature/bush_b"] as Array).append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * rng.randf_range(0.7, 1.0)),
+					Vector3(corner.x, WorldGen.height(corner.x, corner.y) - 0.05, corner.y)))
+	for kind: String in sets:
+		var list: Array[Transform3D] = []
+		list.assign(sets[kind])
+		_multimesh(root, Assets.nature_mesh(kind), list, false)

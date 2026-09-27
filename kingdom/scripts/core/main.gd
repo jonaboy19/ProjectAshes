@@ -355,7 +355,7 @@ func _on_raiders_defeated(camp: Node3D) -> void:
 func _build_environment() -> void:
 	# Real captured sky (Poly Haven HDRI, CC0) lights the scene and fills reflections.
 	var sky_mat := PanoramaSkyMaterial.new()
-	sky_mat.panorama = load("res://assets/incoming/polyhaven/hdris/kloofendal_48d_partly_cloudy_puresky_4k.hdr")
+	sky_mat.panorama = load("res://assets/incoming/polyhaven/hdris/kloofendal_43d_clear_puresky_4k.hdr")
 	sky_mat.energy_multiplier = 1.0
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
@@ -368,8 +368,8 @@ func _build_environment() -> void:
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	# AgX: filmic highlight roll-off and natural colour (less "cartoon" than ACES + saturation).
 	env.tonemap_mode = Environment.TONE_MAPPER_AGX
-	env.tonemap_exposure = 1.15
-	env.tonemap_white = 8.0
+	env.tonemap_exposure = 1.2
+	env.tonemap_white = 7.0
 	# Modern lighting (Forward+ on desktop; the Mobile renderer skips what it can't do).
 	env.ssao_enabled = true
 	env.ssao_radius = 1.4
@@ -380,8 +380,8 @@ func _build_environment() -> void:
 	env.sdfgi_enabled = true
 	env.sdfgi_use_occlusion = true
 	env.glow_enabled = true
-	env.glow_intensity = 0.5
-	env.glow_bloom = 0.04
+	env.glow_intensity = 0.6
+	env.glow_bloom = 0.07
 	env.glow_hdr_threshold = 1.1
 	env.fog_enabled = true
 	env.fog_light_color = Color("c9d4e6")
@@ -394,8 +394,9 @@ func _build_environment() -> void:
 	env.volumetric_fog_albedo = Color("e8dccb")
 	env.volumetric_fog_length = 64.0
 	env.adjustment_enabled = true
-	env.adjustment_saturation = 1.02
-	env.adjustment_contrast = 1.08
+	# Cosy stylised target (docs/art_reference): warm and saturated, not grey-photoreal.
+	env.adjustment_saturation = 1.28
+	env.adjustment_contrast = 1.1
 	var we := WorldEnvironment.new()
 	we.environment = env
 	world.add_child(we)
@@ -415,8 +416,8 @@ func _update_daylight() -> void:
 	sun.rotation = Vector3(-lerpf(0.15, 1.1, day_amount), PI * 0.25 + (t - 12.0) / 12.0 * PI * 0.5, 0)
 	# At night the key light becomes a cool moon so the world stays readable.
 	var night := 1.0 - smoothstep(0.0, 0.25, day_amount)
-	sun.light_energy = lerpf(lerpf(0.05, 1.5, day_amount), 0.42, night)
-	sun.light_color = Color("ff9a5a").lerp(Color("fff1dc"), day_amount).lerp(Color("8fa8ff"), night)
+	sun.light_energy = lerpf(lerpf(0.05, 1.7, day_amount), 0.42, night)
+	sun.light_color = Color("ff9a5a").lerp(Color("ffe2b0"), day_amount).lerp(Color("8fa8ff"), night)
 	env.ambient_light_energy = lerpf(lerpf(0.25, 0.7, day_amount), 0.4, night)
 	env.fog_light_color = Color("1b2238").lerp(Color("c9d4e6"), day_amount)
 	env.background_energy_multiplier = lerpf(0.08, 1.0, day_amount) + night * 0.12

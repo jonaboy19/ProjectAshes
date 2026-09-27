@@ -50,10 +50,10 @@ void fragment() {
 	layer(grass_albedo, grass_normal, grass_arm, uv, m2, ga, gn, go);
 	// Natural variation: broad dry/lush patches plus finer mottling, so a field
 	// never reads as one flat carpet.
-	float dry = smoothstep(0.5, 0.9, texture(macro_noise, world_pos.xz * 0.0011 + vec2(0.4, 0.1)).r) * 0.7;
+	float dry = smoothstep(0.55, 0.9, texture(macro_noise, world_pos.xz * 0.0011 + vec2(0.4, 0.1)).r) * 0.45;
 	float mottle = texture(macro_noise, world_pos.xz * 0.023).r;
-	vec3 lush = vec3(0.70, 0.95, 0.52);
-	vec3 parched = vec3(1.08, 0.97, 0.62);
+	vec3 lush = vec3(0.62, 1.05, 0.40);
+	vec3 parched = vec3(0.95, 1.0, 0.55);
 	ga *= mix(lush, parched, dry) * mix(0.82, 1.12, macro) * mix(0.9, 1.08, mottle);
 	layer(forest_albedo, forest_normal, forest_arm, uv * 0.8, m2, fa, fn, fo);
 	layer(path_albedo, path_normal, path_arm, uv * 0.9, m2, pa, pn, po);
