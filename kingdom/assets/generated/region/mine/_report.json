@@ -1,0 +1,248 @@
+{
+ "mine_cart": {
+  "b0": 1500,
+  "b1": 500,
+  "markers": [],
+  "mats": [
+   "RG_Planks",
+   "RG_Iron",
+   "RG_Cliff",
+   "RG_Timber"
+  ],
+  "ok": true,
+  "size": [
+   0.99,
+   1.62,
+   1.02
+  ],
+  "tris0": 452,
+  "tris1": 240
+ },
+ "mine_entrance": {
+  "b0": 8000,
+  "b1": 2400,
+  "markers": [],
+  "mats": [
+   "RG_Cliff",
+   "RG_Soil",
+   "RG_Timber",
+   "RG_Planks",
+   "RG_Glow",
+   "RG_Iron"
+  ],
+  "ok": true,
+  "size": [
+   14.43,
+   10.41,
+   9.98
+  ],
+  "tris0": 2868,
+  "tris1": 780
+ },
+ "mine_props": {
+  "b0": 3000,
+  "b1": 1000,
+  "markers": [],
+  "mats": [
+   "RG_Planks",
+   "RG_Timber",
+   "RG_Iron",
+   "RG_Cliff"
+  ],
+  "ok": true,
+  "size": [
+   3.21,
+   2.61,
+   1.3
+  ],
+  "tris0": 868,
+  "tris1": 504
+ },
+ "mine_winch": {
+  "b0": 4000,
+  "b1": 1200,
+  "markers": [],
+  "mats": [
+   "RG_Timber",
+   "RG_Iron",
+   "RG_Hay",
+   "RG_Planks",
+   "RG_Log"
+  ],
+  "ok": true,
+  "size": [
+   4.34,
+   6.21,
+   6.37
+  ],
+  "tris0": 944,
+  "tris1": 484
+ },
+ "miners_hut": {
+  "b0": 5000,
+  "b1": 1500,
+  "markers": [
+   [
+    "chimney_top",
+    [
+     2.65,
+     0.4,
+     4.889
+    ]
+   ]
+  ],
+  "mats": [
+   "RG_Stone",
+   "RG_Log",
+   "RG_Plaster",
+   "RG_Timber",
+   "RG_Planks",
+   "RG_Iron",
+   "RG_Shingle",
+   "RG_Glow"
+  ],
+  "ok": true,
+  "size": [
+   5.85,
+   5.04,
+   4.85
+  ],
+  "tris0": 1464,
+  "tris1": 720
+ },
+ "ore_pile_coal": {
+  "b0": 3000,
+  "b1": 800,
+  "markers": [],
+  "mats": [
+   "RG_Soil",
+   "RG_Cliff",
+   "RG_Timber",
+   "RG_Iron"
+  ],
+  "ok": true,
+  "size": [
+   2.57,
+   2.15,
+   1.11
+  ],
+  "tris0": 544,
+  "tris1": 160
+ },
+ "ore_pile_copper": {
+  "b0": 3000,
+  "b1": 800,
+  "markers": [],
+  "mats": [
+   "RG_Soil",
+   "RG_Cliff",
+   "RG_Timber",
+   "RG_Iron"
+  ],
+  "ok": true,
+  "size": [
+   2.52,
+   2.33,
+   1.11
+  ],
+  "tris0": 544,
+  "tris1": 160
+ },
+ "ore_pile_iron": {
+  "b0": 3000,
+  "b1": 800,
+  "markers": [],
+  "mats": [
+   "RG_Soil",
+   "RG_Cliff",
+   "RG_Timber",
+   "RG_Iron"
+  ],
+  "ok": true,
+  "size": [
+   2.62,
+   2.37,
+   1.11
+  ],
+  "tris0": 544,
+  "tris1": 160
+ },
+ "rail_curve": {
+  "b0": 1000,
+  "b1": 300,
+  "markers": [
+   [
+    "track_end",
+    [
+     -1.757,
+     4.243,
+     0.0
+    ]
+   ]
+  ],
+  "mats": [
+   "RG_Iron",
+   "RG_Timber"
+  ],
+  "ok": true,
+  "size": [
+   2.87,
+   4.62,
+   0.17
+  ],
+  "tris0": 240,
+  "tris1": 120
+ },
+ "rail_end": {
+  "b0": 800,
+  "b1": 300,
+  "markers": [],
+  "mats": [
+   "RG_Iron",
+   "RG_Timber",
+   "RG_Soil"
+  ],
+  "ok": true,
+  "size": [
+   2.59,
+   3.84,
+   0.91
+  ],
+  "tris0": 200,
+  "tris1": 128
+ },
+ "rail_straight": {
+  "b0": 600,
+  "b1": 200,
+  "markers": [],
+  "mats": [
+   "RG_Iron",
+   "RG_Timber"
+  ],
+  "ok": true,
+  "size": [
+   1.4,
+   4.0,
+   0.17
+  ],
+  "tris0": 108,
+  "tris1": 60
+ },
+ "tunnel_support": {
+  "b0": 800,
+  "b1": 250,
+  "markers": [],
+  "mats": [
+   "RG_Timber",
+   "RG_Planks"
+  ],
+  "ok": true,
+  "size": [
+   3.2,
+   1.75,
+   3.23
+  ],
+  "tris0": 132,
+  "tris1": 84
+ }
+}

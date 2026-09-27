@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://assets/generated/region/nature/region_nature_opaque.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://assets/generated/region/textures/bark_atlas.png" id="2"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1")
+shader_parameter/albedo_texture = ExtResource("2")
+shader_parameter/roughness = 0.95

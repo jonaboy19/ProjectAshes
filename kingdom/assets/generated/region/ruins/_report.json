@@ -1,0 +1,211 @@
+{
+ "bandit_lean_to": {
+  "b0": 1500,
+  "b1": 500,
+  "markers": [],
+  "mats": [
+   "RG_Log",
+   "RG_Canvas",
+   "RG_Planks",
+   "RG_Timber"
+  ],
+  "ok": true,
+  "size": [
+   3.6,
+   2.89,
+   1.9
+  ],
+  "tris0": 256,
+  "tris1": 72
+ },
+ "bandit_palisade": {
+  "b0": 1500,
+  "b1": 500,
+  "markers": [],
+  "mats": [
+   "RG_Log"
+  ],
+  "ok": true,
+  "size": [
+   4.1,
+   0.4,
+   3.13
+  ],
+  "tris0": 274,
+  "tris1": 108
+ },
+ "bandit_stash": {
+  "b0": 3000,
+  "b1": 1000,
+  "markers": [],
+  "mats": [
+   "RG_Planks",
+   "RG_Timber",
+   "RG_Iron",
+   "RG_Canvas"
+  ],
+  "ok": true,
+  "size": [
+   3.75,
+   2.78,
+   2.15
+  ],
+  "tris0": 740,
+  "tris1": 368
+ },
+ "bandit_tent": {
+  "b0": 1500,
+  "b1": 500,
+  "markers": [],
+  "mats": [
+   "RG_Log",
+   "RG_Canvas",
+   "RG_Timber",
+   "RG_Hay"
+  ],
+  "ok": true,
+  "size": [
+   4.42,
+   4.02,
+   2.35
+  ],
+  "tris0": 334,
+  "tris1": 74
+ },
+ "campfire": {
+  "b0": 2000,
+  "b1": 600,
+  "markers": [
+   [
+    "fire",
+    [
+     0.0,
+     0.0,
+     0.4
+    ]
+   ]
+  ],
+  "mats": [
+   "RG_Cliff",
+   "RG_Soil",
+   "RG_Log",
+   "RG_Glow",
+   "RG_Timber",
+   "RG_Iron"
+  ],
+  "ok": true,
+  "size": [
+   3.6,
+   1.84,
+   1.16
+  ],
+  "tris0": 448,
+  "tris1": 188
+ },
+ "collapsed_tower": {
+  "b0": 8000,
+  "b1": 2400,
+  "markers": [
+   [
+    "interior",
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  ],
+  "mats": [
+   "RG_Stone",
+   "RG_Timber",
+   "RG_Crop"
+  ],
+  "ok": true,
+  "size": [
+   11.49,
+   9.02,
+   10.07
+  ],
+  "tris0": 618,
+  "tris1": 234
+ },
+ "goblin_totem_a": {
+  "b0": 2000,
+  "b1": 600,
+  "markers": [],
+  "mats": [
+   "RG_Log",
+   "RG_Canvas",
+   "RG_Timber",
+   "RG_Glow",
+   "RG_Plaster",
+   "RG_Hay",
+   "RG_Cliff"
+  ],
+  "ok": true,
+  "size": [
+   1.45,
+   1.04,
+   3.61
+  ],
+  "tris0": 470,
+  "tris1": 200
+ },
+ "goblin_totem_b": {
+  "b0": 2000,
+  "b1": 600,
+  "markers": [
+   [
+    "warning",
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  ],
+  "mats": [
+   "RG_Log",
+   "RG_Plaster",
+   "RG_Timber",
+   "RG_Hay",
+   "RG_Canvas"
+  ],
+  "ok": true,
+  "size": [
+   2.62,
+   0.32,
+   2.95
+  ],
+  "tris0": 734,
+  "tris1": 308
+ },
+ "overgrown_shrine": {
+  "b0": 5000,
+  "b1": 1500,
+  "markers": [
+   [
+    "altar",
+    [
+     0.0,
+     0.3,
+     1.0
+    ]
+   ]
+  ],
+  "mats": [
+   "RG_Stone",
+   "RG_Plaster",
+   "RG_Glow",
+   "RG_Crop"
+  ],
+  "ok": true,
+  "size": [
+   6.81,
+   7.92,
+   5.17
+  ],
+  "tris0": 676,
+  "tris1": 332
+ }
+}

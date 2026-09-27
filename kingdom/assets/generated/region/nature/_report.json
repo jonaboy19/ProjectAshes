@@ -1,0 +1,416 @@
+{
+ "beech_a": {
+  "kind": "tree",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   8.0,
+   6.95,
+   9.97
+  ],
+  "tris0": 1332,
+  "tris1": 406
+ },
+ "beech_b": {
+  "kind": "tree",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   6.04,
+   6.5,
+   8.18
+  ],
+  "tris0": 1058,
+  "tris1": 330
+ },
+ "boulder_large": {
+  "kind": "rock",
+  "mats": [
+   "RG_Rock",
+   "RG_Moss"
+  ],
+  "ok": true,
+  "size": [
+   2.24,
+   1.46,
+   1.75
+  ],
+  "tris0": 1280,
+  "tris1": 80
+ },
+ "bush_berry": {
+  "kind": "bush",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   2.06,
+   1.81,
+   1.37
+  ],
+  "tris0": 316,
+  "tris1": 84
+ },
+ "bush_dark": {
+  "kind": "bush",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   2.25,
+   2.18,
+   1.62
+  ],
+  "tris0": 316,
+  "tris1": 84
+ },
+ "bush_hazel": {
+  "kind": "bush",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   2.99,
+   3.11,
+   2.27
+  ],
+  "tris0": 356,
+  "tris1": 96
+ },
+ "bush_round": {
+  "kind": "bush",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   2.23,
+   2.4,
+   1.59
+  ],
+  "tris0": 316,
+  "tris1": 84
+ },
+ "dark_oak": {
+  "kind": "tree",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   7.98,
+   7.04,
+   7.41
+  ],
+  "tris0": 727,
+  "tris1": 379
+ },
+ "dead_snag": {
+  "kind": "tree",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   8.54,
+   6.83,
+   8.31
+  ],
+  "tris0": 894,
+  "tris1": 380
+ },
+ "fern_a": {
+  "kind": "ground",
+  "mats": [
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   1.93,
+   1.9,
+   0.59
+  ],
+  "tris0": 54,
+  "tris1": 6
+ },
+ "fern_b": {
+  "kind": "ground",
+  "mats": [
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   1.04,
+   0.91,
+   0.49
+  ],
+  "tris0": 42,
+  "tris1": 4
+ },
+ "flowers_cool": {
+  "kind": "ground",
+  "mats": [
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   0.83,
+   0.84,
+   0.6
+  ],
+  "tris0": 36,
+  "tris1": 6
+ },
+ "flowers_warm": {
+  "kind": "ground",
+  "mats": [
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   0.96,
+   0.84,
+   0.63
+  ],
+  "tris0": 36,
+  "tris1": 6
+ },
+ "grass_a": {
+  "kind": "ground",
+  "mats": [
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   0.81,
+   0.85,
+   0.62
+  ],
+  "tris0": 40,
+  "tris1": 6
+ },
+ "grass_tall": {
+  "kind": "ground",
+  "mats": [
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   1.2,
+   1.06,
+   1.08
+  ],
+  "tris0": 40,
+  "tris1": 6
+ },
+ "log_branchy": {
+  "kind": "prop",
+  "mats": [
+   "RG_Bark",
+   "RG_Moss"
+  ],
+  "ok": true,
+  "size": [
+   3.24,
+   1.15,
+   0.81
+  ],
+  "tris0": 190,
+  "tris1": 76
+ },
+ "log_mossy": {
+  "kind": "prop",
+  "mats": [
+   "RG_Bark",
+   "RG_Moss"
+  ],
+  "ok": true,
+  "size": [
+   4.24,
+   0.72,
+   0.62
+  ],
+  "tris0": 136,
+  "tris1": 40
+ },
+ "oak_a": {
+  "kind": "tree",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   9.38,
+   8.05,
+   8.29
+  ],
+  "tris0": 1606,
+  "tris1": 482
+ },
+ "oak_b": {
+  "kind": "tree",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   7.56,
+   8.61,
+   7.62
+  ],
+  "tris0": 1280,
+  "tris1": 392
+ },
+ "pine_scots": {
+  "kind": "tree",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   8.04,
+   9.15,
+   11.0
+  ],
+  "tris0": 1202,
+  "tris1": 376
+ },
+ "rock_cluster": {
+  "kind": "rock",
+  "mats": [
+   "RG_Rock",
+   "RG_Moss"
+  ],
+  "ok": true,
+  "size": [
+   2.43,
+   1.71,
+   1.35
+  ],
+  "tris0": 960,
+  "tris1": 240
+ },
+ "rock_medium": {
+  "kind": "rock",
+  "mats": [
+   "RG_Rock",
+   "RG_Moss"
+  ],
+  "ok": true,
+  "size": [
+   1.37,
+   0.96,
+   0.84
+  ],
+  "tris0": 320,
+  "tris1": 80
+ },
+ "rock_slab": {
+  "kind": "rock",
+  "mats": [
+   "RG_Rock",
+   "RG_Moss"
+  ],
+  "ok": true,
+  "size": [
+   1.77,
+   1.34,
+   0.77
+  ],
+  "tris0": 320,
+  "tris1": 80
+ },
+ "spruce_a": {
+  "kind": "tree",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   7.73,
+   7.73,
+   13.25
+  ],
+  "tris0": 1493,
+  "tris1": 139
+ },
+ "spruce_b": {
+  "kind": "tree",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   5.71,
+   5.99,
+   8.75
+  ],
+  "tris0": 1277,
+  "tris1": 129
+ },
+ "stump_broken": {
+  "kind": "prop",
+  "mats": [
+   "RG_Bark",
+   "RG_Moss"
+  ],
+  "ok": true,
+  "size": [
+   1.2,
+   1.16,
+   1.42
+  ],
+  "tris0": 164,
+  "tris1": 119
+ },
+ "stump_mossy": {
+  "kind": "prop",
+  "mats": [
+   "RG_Bark",
+   "RG_Moss"
+  ],
+  "ok": true,
+  "size": [
+   1.43,
+   1.41,
+   0.58
+  ],
+  "tris0": 142,
+  "tris1": 103
+ },
+ "young_oak": {
+  "kind": "tree",
+  "mats": [
+   "RG_Bark",
+   "RG_Foliage"
+  ],
+  "ok": true,
+  "size": [
+   4.17,
+   4.43,
+   4.7
+  ],
+  "tris0": 656,
+  "tris1": 246
+ }
+}
