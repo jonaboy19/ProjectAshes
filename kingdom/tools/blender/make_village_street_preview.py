@@ -14,9 +14,11 @@ from ra_kit import render_preview
 
 SRC, PNG = sys.argv[1], sys.argv[2]
 # (asset, x offset along the street, y offset, rotation about Z)
-ROW = [("village_house_a", 0.0), ("village_house_b_2", 8.2), ("village_house_d", 15.6), ("village_house_c", 23.6),
-       ("village_house_a_2", 32.4), ("village_house_d_2", 39.2)]
-EXTRA = [("village_stall", 12.0, -6.0, 0.0), ("village_stall_2", 36.0, -6.2, 0.15)]
+ROW = [("village_house_a", 0.0), ("village_house_b_4", 8.2), ("village_house_d", 15.6), ("village_house_c_3", 23.6),
+       ("village_house_a_4", 32.4), ("village_house_d_4", 39.2)]
+EXTRA = [("village_stall", 12.0, -6.0, 0.0), ("village_stall_3", 36.0, -6.2, 0.15),
+         ("flower_bed", 4.0, -3.9, 0.0), ("planter_box", 20.0, -4.4, 0.0), ("flower_bed", 28.4, -4.6, 0.2),
+         ("planter_box", 43.0, -4.5, 0.0)]
 FENCE = [(x, -3.9) for x in (-3.0, 0.0)] + [(x, -3.9) for x in (27.0, 30.0)]
 
 bpy.ops.wm.read_factory_settings(use_empty=True)

@@ -25,6 +25,8 @@ PAL = {
                box="natural"),
     2: palette(plaster="blue", timber="oak", accent="mustard", roof="clay", stone="warm", door="green"),
     3: palette(plaster="white", timber="red", accent="green", roof="shingle_grey", stone="field", door="natural"),
+    4: palette(plaster="cream", timber="dark", accent="blue", roof="slate_teal", stone="grey", door="oxblood",
+               box="natural"),
 }[V]
 k = VK("VillageHouseD" + ("" if V == 1 else f"_{V}"), seed=404 + V * 7, pal=PAL)
 
@@ -110,7 +112,18 @@ k.crate(-HX + 0.4, Y0 - 0.45, s=0.55, rz=0.1)
 k.basket(-1.35, Y0 - 0.38, goods="apple")
 k.basket(-0.8, Y0 - 0.4, r=0.2, goods="cabbage", n=5)
 k.stage("props")
+# ---------------------------------------------------------------- variant dressing (procedural kit extras)
+if V == 3:
+    k.dormer(1.0, r["eave"], r["run"], r["rise"], cy=0.0, side=1, along="y", w=1.1, wall_h=0.95, inset=0.8)
+    with k.side("front", HX, (Y1 - Y0) / 2, cy=(Y0 + Y1) / 2):
+        k.hanging_sign(-HX + 0.3, 2.7, emblem="leaf", board_c=hexc("5a3a24"), emb_c=hexc("9ad07a"), arm=0.9,
+                       size=0.6, shape="square", lantern=False)
+elif V == 4:
+    k.dormer(0.6, r["eave"], r["run"], r["rise"], cy=0.0, side=1, along="y", w=1.1, wall_h=0.95, inset=0.8)
+    with k.side("front", HX, (Y1 - Y0) / 2, cy=(Y0 + Y1) / 2):
+        k.ivy([(-HX + 0.2, 0.4), (-HX + 0.35, 1.5), (-HX + 0.2, 2.6)], width=0.4)
+k.stage("variant")
 
-if V == 2:
+if V in (2, 4):
     k.mirror_x()
 k.finish_checked((6.0, 8.0), 12000, cam_dir=(1.0, -1.6, 0.62), fit=0.95)

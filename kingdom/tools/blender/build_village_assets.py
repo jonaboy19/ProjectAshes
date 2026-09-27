@@ -7,7 +7,10 @@ Run from the repo root:
 Names are output names (e.g. village_house_a_2); default is the full set.
 Outputs go to kingdom/assets/generated/<name>.glb and
 docs/kingdom/blender_previews/<name>.png. Needs the bpy module (Blender 5.x).
-Colour variants: <asset>_2.glb is the same generator run with --variant=2.
+Colour variants: <asset>_N.glb is the same generator run with --variant=N (houses
+have 4 variants each: palette, roof, dormers, signs, ivy, planters, mirroring).
+Buildings also write <name>_lod1.glb. Shared detail textures come from
+make_village_textures.py (run automatically if village_tex/ is missing).
 """
 import os, sys, subprocess, time, re
 
@@ -15,10 +18,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 OUT = os.path.join(ROOT, "kingdom", "assets", "generated")
 PREV = os.path.join(ROOT, "docs", "kingdom", "blender_previews")
-ASSETS = ["village_house_a", "village_house_a_2", "village_house_b", "village_house_b_2",
-          "village_house_c", "village_house_c_2", "village_house_d", "village_house_d_2",
-          "village_inn", "village_smithy", "village_barn", "village_stall", "village_stall_2",
-          "fence_section"]
+ASSETS = ([f"village_house_{t}{s}" for t in "abcd" for s in ("", "_2", "_3", "_4")] +
+          ["village_inn", "village_smithy", "village_barn", "village_stall", "village_stall_2", "village_stall_3",
+           "village_stall_4", "fence_section", "planter_box", "flower_bed"])
+# buildings also get <name>_lod1.glb (same build, detail faces swapped for stand-ins)
+LOD1 = ("village_house_", "village_inn", "village_smithy", "village_barn")
 
 
 def main():
@@ -32,6 +36,8 @@ def main():
     preview = "--no-preview" not in argv
     os.makedirs(out_dir, exist_ok=True)
     os.makedirs(prev_dir, exist_ok=True)
+    if not os.path.exists(os.path.join(ROOT, "kingdom", "assets", "generated", "village_tex", "ra_wood_alb.png")):
+        subprocess.run([sys.executable, os.path.join(HERE, "make_village_textures.py")], check=True)
     ok = True
     for n in names:
         m = re.match(r"(.+?)_(\d+)$", n)
@@ -40,6 +46,8 @@ def main():
                f"--variant={variant}"]
         if preview:
             cmd.append(os.path.join(prev_dir, f"{n}.png"))
+        if n.startswith(LOD1):
+            cmd.append("--lod1")
         t0 = time.time()
         r = subprocess.run(cmd, capture_output=True, text=True)
         fp = next((l for l in r.stdout.splitlines() if l.startswith("footprint")), "")

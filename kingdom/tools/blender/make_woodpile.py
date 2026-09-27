@@ -73,8 +73,13 @@ for i in range(4):
 for i in range(14):
     a = random.uniform(0, math.tau)
     rr = random.uniform(0.25, 0.6)
-    k.box((0.06, 0.03, 0.01), (cx + math.cos(a) * rr, cy + math.sin(a) * rr, 0.005), W,
-          vary(hexc("d8b27e"), 0.12), rot=(0, 0, random.uniform(0, 3)), grime=False)
+    c = vary(hexc("d8b27e"), 0.12)
+    rot = (0, 0, random.uniform(0, 3))
+    if i % 3 != 0:        # fewer chips; burn the draws a box would take so the layout stays put
+        for _ in range(14):
+            random.random()
+        continue
+    k.box((0.06, 0.03, 0.01), (cx + math.cos(a) * rr, cy + math.sin(a) * rr, 0.005), W, c, rot=rot, grime=False)
 GR = [hexc("5f8a3e"), hexc("6f9448"), hexc("7f9a50"), hexc("4f7a34")]
 for i in range(8):
     x = random.choice((-1, 1)) * random.uniform(1.15, 1.35)

@@ -1,6 +1,9 @@
-"""Healer's house: a whitewashed half-timber cottage-clinic with a thick thatch
-roof, a porch with drying herb bundles, a round green-cross-and-leaf sign, a
-glowing healing-crystal lamp, and a fenced herb garden with raised beds.
+"""Healer's house (hero building, concept_healer.png): a whitewashed half-timber
+cottage-clinic under a green slate roof with a dormer and finials, a green-and-
+cream canvas awning over the herb porch with drying bundles, a green-cross sign
+on an iron bracket with a lantern, a glowing healing-crystal lamp, ivy on the
+walls, flower boxes, pots and planters, a chalkboard by the gate and a fenced
+herb garden with raised beds. The chimney top carries an empty chimney_top.
 
 Run: python3 make_healer_house.py <out.glb> [preview.png]   (bpy, Blender 5.x)
 
@@ -15,14 +18,18 @@ is x in [-0.6, 0.6] at y=-3.5; the door is at x=0 on the wall y=-0.3.
 import os, sys, math, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ra_kit import Kit, hexc, vary, mix
+from village_kit import VK, palette
 
-k = Kit("HealerHouse", seed=77)
+k = VK("HealerHouse", seed=77, pal=palette(plaster="white", timber="oak", accent="sage", roof="slate_green",
+                                             stone="grey", door="green", box="natural"))
+k.lit_ratio = 0.5
 MATTE = k.material("Matte", rough=0.93)
 WOOD = k.material("Wood", rough=0.75)
 THATCH = k.material("Thatch", rough=1.0, spec=0.2)
 PLANT = k.material("Plant", rough=0.8, spec=0.3)
 METAL = k.material("Metal", rough=0.4, metal=1.0)
-GLASS = k.material("Glass", rough=0.06, metal=0.35, emission=hexc("ffb060"), strength=0.12, spec=1.0)
+GLASS = k.material("Glass", rough=0.12, metal=0.2, emission=hexc("ffb060"), strength=0.1, spec=0.8)
+LIT = k.M("WindowLit")
 CRYSTAL = k.material("Crystal", rough=0.2, emission=hexc("63ffb0"), strength=3.0)
 
 PLASTER = hexc("f1e9d6")
@@ -62,7 +69,7 @@ for loc, rz, L, holes in (((0, Y0, F0), 0.0, X1 - X0, door_hole), ((0, Y1, F0), 
     k.grid_wall(L, 0.75, loc, MATTE, stone, rot=(0, 0, rz), bw=0.55, bh=0.25, holes=holes, gap=0.03, push=0.03)
     k.push(loc, (0, 0, rz))
     k.box((L + 0.04, 0.12, 0.1), (0, -0.02, 0.78), WOOD, TIMBER_D)          # sole plate on the stone skirt
-    k.box((L + 0.04, 0.12, 0.14), (0, -0.02, WT - F0 - 0.07), WOOD, TIMBER_D)  # top plate
+    k.box((L + 0.04, 0.12, 0.14), (0, -0.02, WT - F0 - 0.2), WOOD, TIMBER_D)   # top plate (clear of the roof)
     k.pop()
 
 def frame_wall(L, posts, braces):
@@ -75,7 +82,11 @@ def frame_wall(L, posts, braces):
 
 def window(x, z0, w, h, shutters=True, box=True):
     zc = z0 + h / 2
-    k.quad(w, h, (x, -0.02, zc), GLASS, GLASS_C, var=0.05, grime=False)
+    if k.prng.random() < k.lit_ratio:
+        k.quad(w, h, (x, -0.02, zc), LIT, hexc("ffc27a"), var=0.05, grime=False)
+    else:
+        k.quad(w, h, (x, -0.02, zc), GLASS, GLASS_C, var=0.05, grime=False)
+    k.add_sill(x, z0 - 0.06, w + 0.2)
     for sx in (-1, 1):
         k.box((0.08, 0.1, h + 0.08), (x + sx * (w / 2 + 0.03), -0.05, zc), WOOD, TIMBER_D)
     k.box((w + 0.14, 0.1, 0.08), (x, -0.05, z0 + h + 0.03), WOOD, TIMBER_D)
@@ -138,19 +149,24 @@ for sx in (-1, 1):
     window(0, WT + RISE * 0.3 + 0.2, 0.5, 0.6, shutters=False, box=False)
     k.pop()
 
-# ------------------------------------------------------------------ thatch roof
+# ------------------------------------------------------------------ green slate roof
 k.push((0, CY, EAVE))
+st0 = random.getstate()
 for rz in (0.0, math.pi):
-    k.thatch_side(X0 - 0.45, X1 + 0.45, HD + OVER, RIDGE - EAVE, THATCH, STRAWS, th=0.34,
-                  deck_mat=THATCH, deck_color=hexc("5e4628"), rot=(0, 0, rz), ridge_color=hexc("6f5733"))
+    k.shingle_side(X0 - 0.4, X1 + 0.4, HD + OVER, RIDGE - EAVE, k.M("Roof"), k.tile, tile_w=(0.3, 0.5),
+                   course=0.32, th=0.028, deck_mat=WOOD, deck_color=TIMBER_D, rot=(0, 0, rz), jag=0.035, droop=0.015)
 k.pop()
-# ridge roll with bound scallops
-k.log((X0 - 0.5, CY, RIDGE + 0.2), (X1 + 0.5, CY, RIDGE + 0.2), 0.3, THATCH, hexc("6f5733"), segs=10, noise_amt=0.04)
-for i in range(11):   # hazel binding rods over the ridge roll
-    x = X0 - 0.3 + i * (X1 - X0 + 0.6) / 10
-    k.cyl(0.315, 0.05, (x, CY, RIDGE + 0.2), WOOD, hexc("5a4128"), rot=(0, math.pi / 2, 0), segs=10, base=False,
-          caps=False)
-
+random.setstate(st0)
+RC = mix(k.p["roof"][2], (0, 0, 0), 0.35)
+for sd in (-1, 1):   # ridge cap
+    k.bar((X0 - 0.45, CY + sd * 0.1, RIDGE + 0.05), (X1 + 0.45, CY + sd * 0.1, RIDGE + 0.05), 0.26, 0.05, k.M("Roof"),
+          RC, up=(0, sd * math.cos(PITCH), -math.sin(PITCH)), bevel=0.01)
+for sx in (-1, 1):   # barge boards and finials
+    for sd in (-1, 1):
+        k.bar((sx * (X1 + 0.43), CY + sd * (HD + OVER + 0.02), EAVE - 0.1), (sx * (X1 + 0.43), CY, RIDGE - 0.02), 0.24,
+              0.07, WOOD, TIMBER_D, up=(0, 0, 1), bevel=0.015)
+    k.finial(sx * (X1 + 0.43), CY, RIDGE + 0.1, h=0.6, color=TIMBER_D)
+k.dormer(-1.6, EAVE, HD + OVER, RIDGE - EAVE, cy=CY, side=-1, along="x", w=1.2, wall_h=1.0, inset=1.25)
 # Chimney on the back-left
 cx, cy = -1.9, Y1 - 0.9
 z = RIDGE - 1.4
@@ -159,6 +175,7 @@ while z < RIDGE + 1.2:
     k.box((0.7 + random.uniform(-0.02, 0.02), 0.7, h - 0.02), (cx, cy, z + h / 2), MATTE, stone())
     z += h
 k.box((0.85, 0.85, 0.1), (cx, cy, z + 0.05), MATTE, hexc("7d776d"), bevel=0.02)
+k.add_marker("chimney_top", (cx, cy, z + 0.1))
 
 # ------------------------------------------------------------------ porch + drying herbs
 PZ = 2.55
@@ -167,11 +184,7 @@ for sx in (-1, 1):
     k.log((sx * 1.05, -1.25, 0.02), (sx * 1.05, -1.25, PZ), 0.08, WOOD, TIMBER, segs=8, noise_amt=0.01)
     k.beam((sx * 1.05, -1.25, PZ - 0.5), (sx * 1.05, -0.9, PZ - 0.08), 0.08, WOOD, TIMBER_D, bevel=0)
 k.box((2.4, 0.12, 0.14), (0, -1.25, PZ), WOOD, TIMBER_D)
-porch_run, porch_rise = 1.55, 0.55
-k.push((0, 0.05, PZ - 0.1))
-k.thatch_side(-1.35, 1.35, porch_run, porch_rise, THATCH, STRAWS, th=0.2, du=0.22, band=0.42, step=0.05,
-              deck_mat=THATCH, deck_color=hexc("5e4628"))
-k.pop()
+k.striped_awning(-1.45, 1.45, PZ + 0.5, 1.45, 0.55, [hexc("5f8f58"), hexc("efe6cf")], posts=False, sag=0.07)
 # herb bundles hanging from the porch beam
 HERBS = [hexc("6d8f4e"), hexc("8a9a5b"), hexc("a07cc0"), hexc("5f7f45"), hexc("b8a04a"), hexc("7c9b6a")]
 for i in range(9):
@@ -200,21 +213,28 @@ for a in range(3):
            (0.9 + math.cos(ang) * 0.05, -0.55 + math.sin(ang) * 0.05, 1.82), 0.02, METAL, hexc("b08a3a"), bevel=0)
 k.pop()
 
-# ------------------------------------------------------------------ hanging sign: green cross + leaf
-k.box((0.75, 0.06, 0.06), (-1.42, Y0 - 1.25, 2.25), METAL, hexc("333333"))          # arm off the porch post
-k.beam((-1.05, Y0 - 1.25, 1.95), (-1.5, Y0 - 1.25, 2.23), 0.035, METAL, hexc("333333"), bevel=0)
-for dx in (-0.2, 0.2):
-    k.box((0.015, 0.015, 0.14), (-1.6 + dx, Y0 - 1.25, 2.16), METAL, hexc("333333"))
-k.push((-1.6, Y0 - 1.25, 1.7))
-k.cyl(0.4, 0.07, (0, 0, 0), WOOD, hexc("efe6cf"), rot=(math.pi / 2, 0, 0), segs=18, base=False, smooth=None)
-k.ring(0.4, 0.47, 0.1, (0, 0, 0), WOOD, TIMBER_D, segs=18)
-for side in (-1, 1):
-    y = side * 0.05
-    k.box((0.46, 0.03, 0.15), (0, y, 0.05), MATTE, hexc("249a52"), var=0)
-    k.box((0.15, 0.03, 0.46), (0, y * 1.1, 0.05), MATTE, hexc("249a52"), var=0)
-    leaf = [(0, 0), (0.07, 0.04), (0.11, 0.12), (0.08, 0.2), (0.0, 0.25), (-0.04, 0.12)]
-    k.prism(leaf, 0.02, (0.03, y, -0.33), MATTE, hexc("6cbf45"), rot=(0, 1.0, 0))
-    k.prism(leaf, 0.02, (-0.03, y, -0.33), MATTE, hexc("58a838"), rot=(0, -1.0 + math.pi, 0))
+# ------------------------------------------------------------------ green-cross sign with lantern, ivy, pots
+with k.side("front", HW, HD, cy=CY):
+    k.hanging_sign(2.75, 2.6, emblem="cross", board_c=hexc("6a4a2c"), emb_c=hexc("5fd35a"), arm=1.2, size=0.8,
+                   shape="square")
+    k.ivy([(-HW + 0.15, 0.4), (-HW + 0.3, 1.3), (-HW + 0.2, 2.2), (-HW + 0.35, 2.9)], width=0.42)
+    k.ivy([(0.75, 0.9), (0.85, 1.9), (0.7, 2.6)], width=0.34)
+    k.planter(-0.95, -0.3, L=0.46, H=0.4, kind="pot")
+    k.planter(1.3, -0.3, L=0.4, H=0.36, kind="pot")
+with k.side("left", HW, HD, cy=CY):
+    k.ivy([(-HD + 0.3, 0.5), (-HD + 0.5, 1.6), (-HD + 0.35, 2.7)], width=0.4)
+# chalkboard by the gate
+k.push((1.2, -3.1, 0), (0, 0, -0.25))
+for sy in (-1, 1):
+    k.bar((-0.28, sy * 0.18, 0.0), (-0.28, sy * 0.02, 0.95), 0.04, 0.04, WOOD, TIMBER, bevel=0)
+    k.bar((0.28, sy * 0.18, 0.0), (0.28, sy * 0.02, 0.95), 0.04, 0.04, WOOD, TIMBER, bevel=0)
+k.box((0.6, 0.04, 0.75), (0, -0.11, 0.52), WOOD, TIMBER, rot=(-0.19, 0, 0), var=0)
+k.box((0.5, 0.02, 0.64), (0, -0.14, 0.52), MATTE, hexc("2b302c"), rot=(-0.19, 0, 0), var=0)
+with k.detail():
+    for j in range(3):
+        k.box((0.3 - j * 0.07, 0.01, 0.025), (-0.03, -0.155, 0.7 - j * 0.12), MATTE, hexc("e8e6dc"),
+              rot=(-0.19, 0, 0), var=0)
+    k.emblem("leaf", 0.12, 0.34, 0.07, -0.16, hexc("8fd07a"), depth=0.01, mat=MATTE)
 k.pop()
 
 # ------------------------------------------------------------------ herb garden + fence
@@ -299,5 +319,4 @@ for hz in (0.15, 0.7):
 k.cyl(0.25, 0.22, (-0.9, -1.05, 0.0), WOOD, hexc("b89a64"), segs=8, r2=0.3, caps=True)
 k.sphere(0.24, (-0.9, -1.05, 0.25), PLANT, hexc("6f9a4e"), scale=(1, 1, 0.4), subdiv=0, noise_amt=0.03)
 
-print("triangles:", k.tri_count())
-k.finish(cam_dir=(1.0, -1.5, 0.75), fit=0.9)
+k.finish_checked((8.4, 8.2), 18000, cam_dir=(1.0, -1.5, 0.75), fit=0.9)

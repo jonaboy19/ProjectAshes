@@ -21,7 +21,9 @@ V = variant_arg()
 PAL = {
     1: palette(plaster="cream", timber="dark", accent="green", roof="shingle_brown", stone="grey", box="natural"),
     2: palette(plaster="rose", timber="black", accent="blue", roof="shingle_grey", stone="cool", door="oxblood"),
-    3: palette(plaster="sage", timber="oak", accent="mustard", roof="shingle_brown", stone="warm", door="teal"),
+    3: palette(plaster="sage", timber="oak", accent="mustard", roof="slate_teal", stone="warm", door="teal"),
+    4: palette(plaster="white", timber="red", accent="green", roof="clay", stone="grey", door="natural",
+               box="natural"),
 }[V]
 k = VK("VillageHouseB" + ("" if V == 1 else f"_{V}"), seed=202 + V * 31, pal=PAL)
 
@@ -72,7 +74,8 @@ for s in ("left", "right"):
 k.stage("upper")
 
 # ---------------------------------------------------------------- roof
-r = k.gable_roof("shingle", -HX, HX, UY0, UY1, U1, PITCH, over=0.4, verge=0.32, tile_w=(0.36, 0.6), course=0.42)
+RK = "slate" if PAL["roof_kind"].startswith("slate") else "shingle"
+r = k.gable_roof(RK, -HX, HX, UY0, UY1, U1, PITCH, over=0.4, verge=0.32, tile_w=(0.36, 0.6), course=0.42)
 for s in ("left", "right"):
     with k.side(s, HX, UHY, cy=UCY):
         k.gable_wall(UHY, U1, lambda u: r["gable"](u), style="timber", window=True)
@@ -89,7 +92,20 @@ k.sack(1.35, -HY - 0.35, s=0.8, rz=1.4)
 k.plant_pot(door_x - 0.85, -HY - 0.3)
 k.wheel(-HX - 0.12, -0.6, r=0.48, rz=math.pi / 2, lean=0.2)
 k.stage("props")
+# ---------------------------------------------------------------- variant dressing (procedural kit extras)
+if V == 3:
+    for u in (-1.6, 1.4):
+        k.dormer(u, r["eave"], r["run"], r["rise"], cy=UCY, side=-1, w=1.15, wall_h=0.95, inset=0.95)
+    k.planter(-2.3, -HY - 0.33, L=0.9, D=0.34, H=0.32)
+elif V == 4:
+    k.dormer(0.0, r["eave"], r["run"], r["rise"], cy=UCY, side=-1, w=1.25, wall_h=1.0, inset=0.95)
+    with k.side("front", HX, HY):
+        k.hanging_sign(HX - 0.25, 2.55, emblem="shield", board_c=hexc("2f4a78"), emb_c=hexc("e0b040"), arm=1.0,
+                       size=0.65, shape="shield", lantern=False)
+        k.ivy([(-HX + 0.2, 0.7), (-HX + 0.35, 1.8), (-HX + 0.2, 2.8)], width=0.4)
+    k.planter(-2.3, -HY - 0.33, L=0.5, H=0.4, kind="pot")
+k.stage("variant")
 
-if V == 2:
+if V in (2, 4):
     k.mirror_x()
 k.finish_checked((8.0, 7.0), 12000, cam_dir=(1.0, -1.5, 0.72), fit=0.95)

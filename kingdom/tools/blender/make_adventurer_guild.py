@@ -1,13 +1,16 @@
-"""Adventurer Guild hall: two storeys, dressed-stone ground floor with an arched
-double door, jettied half-timbered upper floor, slate-shingle gable roof with a
-front cross gable (round window), stone chimney, guild banners, lanterns and a
-hanging shield-and-swords sign on an iron bracket.
+"""Adventurer Guild hall (hero building, concept_guild.png): two storeys, a
+dressed-stone ground floor with an arched double door up steps from a raised
+stone terrace (planters along its wall), a jettied half-timbered upper floor, a
+blue slate roof with a front cross gable (round window), two dormers, finials
+and two stone chimneys, blue guild banners with a gold compass star, lanterns,
+a hanging banner sign on an iron bracket, a shield-and-swords sign and a quest
+board on the terrace. Chimney tops carry empties chimney_top, chimney_top_2.
 
 Run: python3 make_adventurer_guild.py <out.glb> [preview.png]   (bpy, Blender 5.x)
 
 Scale/facing: metres. Walls 14.0 m (X) x 10.0 m (Y) at ground level (upper
-floor overhangs 0.35 m front/back, roof eaves ~0.6 m, steps 1.2 m out front,
-chimney 0.9 m out on +X). Ridge ~11.5 m, chimney top ~12.6 m. Origin at ground
+floor overhangs 0.35 m front/back, roof eaves ~0.6 m, terrace + steps 1.5 m
+out front, chimney 0.9 m out on +X). Ridge ~11.5 m, chimney top ~12.6 m. Origin at ground
 centre; floor level (door threshold) at z=0.5 on a stone plinth.
 Front (main doors, sign) faces Blender -Y = Godot +Z. Door opening: x in
 [-1.1, 1.1], front wall face at y=-5.0.
@@ -15,15 +18,20 @@ Front (main doors, sign) faces Blender -Y = Godot +Z. Door opening: x in
 import os, sys, math, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ra_kit import Kit, hexc, vary, mix
+from village_kit import VK, palette
 
-k = Kit("AdventurerGuild", seed=41)
+k = VK("AdventurerGuild", seed=41, pal=palette(plaster="cream", timber="oak", accent="blue", roof="slate_blue",
+                                                  stone="warm", door="natural", box="natural"))
+k.lit_ratio = 0.55
 MATTE = k.material("Matte", rough=0.92)          # stone, plaster, cloth
 WOOD = k.material("Wood", rough=0.72)
 ROOF = k.material("Roof", rough=0.68, spec=0.5)
 METAL = k.material("Metal", rough=0.38, metal=1.0)
-GLASS = k.material("Glass", rough=0.06, metal=0.35, emission=hexc("ffb060"), strength=0.12, spec=1.0)
+GLASS = k.material("Glass", rough=0.12, metal=0.2, emission=hexc("ffb060"), strength=0.1, spec=0.8)
+LIT = k.M("WindowLit")
+ROYAL = hexc("2c4f96")
 
-STONES = [hexc("9a958a"), hexc("8a867e"), hexc("a8a193"), hexc("7d7b76"), hexc("b0a896"), hexc("8e8578")]
+STONES = [hexc("c6b394"), hexc("b4a080"), hexc("d4c4a3"), hexc("a99776"), hexc("cab08a"), hexc("bba583")]
 def stone():
     c = random.choice(STONES)
     if random.random() < 0.08:
@@ -39,12 +47,16 @@ GOLD = hexc("d4a63a")
 CRIMSON = hexc("9b1d24")
 NAVY = hexc("1f3b66")
 GLASS_C = hexc("58768e")
-SLATES = [hexc("3f5b6e"), hexc("476577"), hexc("37505f"), hexc("4d6a78"), hexc("3a4f5c")]
+SLATES = [hexc("3e5f88"), hexc("4a6d96"), hexc("34547c"), hexc("5a7ca3"), hexc("436690"), hexc("5f84ae"),
+          hexc("2f4b70")]
 def slate(t):  # noqa: shingle colour, t = 0 at eave .. 1 at ridge
     c = random.choice(SLATES)
-    if random.random() < 0.06:
+    r = random.random()
+    if r < 0.06:
         c = mix(c, hexc("6d7f55"), 0.4)
-    return vary(c, 0.09, 0.02)
+    elif r < 0.14:
+        c = mix(c, (0.95, 0.95, 0.95), 0.16)
+    return vary(c, 0.12, 0.035)
 
 W, D = 14.0, 10.0
 HX, HY = W / 2, D / 2
@@ -104,7 +116,11 @@ for cx in (-1, 1):
 def window(x, z0, w, h, recess, upper=False, shutter_c=None, flowers=False):
     """Window in the current wall frame (face at y=0, outward -Y)."""
     zc = z0 + h / 2
-    k.quad(w, h, (x, recess - 0.005, zc), GLASS, GLASS_C, var=0.05, grime=False)
+    if k.prng.random() < k.lit_ratio:
+        k.quad(w, h, (x, recess - 0.005, zc), LIT, hexc("ffc27a"), var=0.05, grime=False)
+    else:
+        k.quad(w, h, (x, recess - 0.005, zc), GLASS, GLASS_C, var=0.05, grime=False)
+    k.add_sill(x, z0 - 0.08, w + 0.2)
     fd = recess + 0.08   # frame depth
     yc = recess - fd / 2
     ft = 0.09
@@ -224,7 +240,7 @@ def timber_wall(L, posts, win_bays, brace_bays, banner_bays=(), shutter_c=None, 
     t = 0.2
     y = -0.04
     k.box((L + 0.1, 0.16, t), (0, y, U0 + t / 2), WOOD, TIMBER, bevel=0.02)            # sole plate
-    k.box((L + 0.1, 0.16, t), (0, y, U1 - t / 2), WOOD, TIMBER, bevel=0.02)            # top plate
+    k.box((L + 0.1, 0.16, t), (0, y, U1 - t / 2 - 0.07), WOOD, TIMBER, bevel=0.02)     # top plate (under the roof deck)
     for x in posts:
         k.box((t, 0.14, U1 - U0 - 2 * t), (x, y, (U0 + U1) / 2), WOOD, vary(TIMBER, 0.1))
     mid = U0 + (U1 - U0) * 0.36
@@ -248,17 +264,9 @@ posts_y = [-(HY + J) + i * (D + 2 * J) / 6 for i in range(7)]
 SHUT = hexc("2f6b73")
 k.push((0, -HY - J, 0))
 timber_wall(W, posts_x, win_bays=(1, 3, 4, 6), brace_bays=(0, 7), banner_bays=(2, 5), shutter_c=SHUT, flowers=True)
-# Banners hanging in bays 2 and 5
+# Banners hanging in bays 2 and 5: royal blue, gold trim, gold compass star
 for bx in (posts_x[2] + W / 16, posts_x[5] + W / 16):
-    k.cyl(0.04, 1.3, (bx - 0.65, -0.25, U1 - 0.35), METAL, IRON, rot=(0, math.pi / 2, 0), segs=6)
-    for sx in (-1, 1):
-        k.sphere(0.06, (bx + sx * 0.68, -0.25, U1 - 0.35), METAL, GOLD, subdiv=0)
-    ban = [(-0.5, 0.0), (0.5, 0.0), (0.5, -2.1), (0.0, -1.75), (-0.5, -2.1)]
-    k.prism(ban, 0.03, (bx, -0.22, U1 - 0.4), MATTE, CRIMSON, var=0.03)
-    k.prism([(-0.42, -0.08), (0.42, -0.08), (0.42, -0.16), (-0.42, -0.16)], 0.02, (bx, -0.245, U1 - 0.4), MATTE, GOLD)
-    emb = [(0, -0.45), (0.28, -0.8), (0, -1.2), (-0.28, -0.8)]
-    k.prism(emb, 0.02, (bx, -0.245, U1 - 0.4), MATTE, GOLD, var=0.02)
-    k.prism([(0, -0.6), (0.14, -0.8), (0, -1.02), (-0.14, -0.8)], 0.02, (bx, -0.26, U1 - 0.4), MATTE, NAVY, var=0.02)
+    k.banner(bx, U1 - 0.35, w=1.0, h=2.2, color=ROYAL, trim=GOLD, emblem="star", y=-0.22)
 k.pop()
 k.push((0, HY + J, 0), (0, 0, math.pi))
 timber_wall(W, posts_x, win_bays=(1, 3, 4, 6), brace_bays=(0, 7), shutter_c=SHUT)
@@ -388,5 +396,60 @@ for (bx, by, rr) in ((3.0, -HY - 0.75, 0.35), (3.65, -HY - 0.6, 0.32)):
         k.cyl(rr * 1.03, 0.06, (bx, by, hz), METAL, IRON, segs=10, caps=False)
 k.box((0.7, 0.7, 0.6), (-3.3, -HY - 0.7, 0.3), WOOD, hexc("8a6238"), bevel=0.03, rot=(0, 0, 0.2))
 
-print("triangles:", k.tri_count())
-k.finish(cam_dir=(1.0, -1.45, 0.62), fit=0.95)
+# ---------------------------------------------------------------- round-6 dressing
+# raised stone terrace in front of the ground floor: low parapet wall with planters, steps up the middle
+TY = -HY - 1.25
+with k.side("front", HX, 0.0, cy=TY):
+    for (x0, x1) in ((-HX + 0.2, -2.3), (2.3, HX - 0.2)):
+        L = x1 - x0
+        k.box((L - 0.1, 0.4, 0.6), ((x0 + x1) / 2, 0.22, 0.3), MATTE, MORTAR, var=0)
+        k.grid_wall(L, 0.62, ((x0 + x1) / 2, 0, 0), MATTE, stone, bw=0.7, bh=0.31, gap=0.03, push=0.03)
+        k.box((L + 0.08, 0.5, 0.1), ((x0 + x1) / 2, 0.2, 0.67), MATTE, vary(hexc("b3ab9b"), 0.04), bevel=0.02)
+        n = max(1, round(L / 1.6))
+        for i in range(n):
+            fx = x0 + (i + 0.5) * L / n
+            k.planter(fx, 0.22, L=min(1.2, L / n - 0.25), D=0.38, H=0.3, box_c=hexc("6e4b2e"))
+    for sx in (-1, 1):   # banner poles on the terrace wall ends by the steps
+        k.cyl(0.05, 2.9, (sx * 2.2, 0.2, 0.72), WOOD, TIMBER, segs=6)
+        k.sphere(0.08, (sx * 2.2, 0.2, 3.66), METAL, GOLD, subdiv=0, grime=False)
+        k.box((0.75, 0.05, 0.05), (sx * 2.2 - sx * 0.3, 0.2, 3.5), METAL, IRON, var=0)
+        k.banner(sx * 2.2 - sx * 0.35, 3.45, w=0.55, h=1.35, color=ROYAL, trim=GOLD, emblem="star", y=0.2,
+                 rod=False, tail="swallow")
+k.box((W - 0.6, 1.3, 0.12), (0, -HY - 0.62, 0.06), MATTE, vary(hexc("8d877c"), 0.03), var=0)   # terrace paving
+# big banners flanking the arched door
+k.push((0, -HY, F0))
+for sx in (-1, 1):
+    for bx in (sx * 1.9, sx * 4.55):
+        k.banner(bx, G1 - F0 - 0.25, w=0.85, h=2.0, color=ROYAL, trim=GOLD, emblem="star", y=-0.08)
+k.pop()
+# quest board on the terrace (left), weather-roofed
+QX, QY = -HX + 1.6, -HY - 0.75
+k.push((QX, QY, 0.0))
+for sx in (-1, 1):
+    k.box((0.14, 0.14, 2.2), (sx * 0.8, 0, 1.1), WOOD, TIMBER, bevel=0.015)
+k.box((1.5, 0.08, 1.0), (0, 0, 1.45), WOOD, hexc("7a5a3a"), var=0)
+with k.detail():
+    for i, (px, pz, pw, ph) in enumerate(((-0.45, 1.6, 0.34, 0.42), (0.02, 1.62, 0.3, 0.36), (0.42, 1.52, 0.32, 0.44),
+                                          (-0.2, 1.18, 0.3, 0.32), (0.3, 1.14, 0.28, 0.3))):
+        k.box((pw, 0.01, ph), (px, -0.05, pz), MATTE, vary(hexc("e8dcb8"), 0.05), rot=(0, (i - 2) * 0.05, 0), var=0)
+k.push((0, 0.1, 2.2))
+k.shingle_side(-1.0, 1.0, 0.45, 0.2, ROOF, slate, tile_w=(0.25, 0.4), course=0.22, th=0.02, deck_mat=WOOD,
+               deck_color=TIMBER)
+k.shingle_side(-1.0, 1.0, 0.45, 0.2, ROOF, slate, tile_w=(0.25, 0.4), course=0.22, th=0.02, deck_mat=WOOD,
+               deck_color=TIMBER, rot=(0, 0, math.pi))
+k.pop()
+k.pop()
+# dormers either side of the cross gable, finials on the gables
+for u in (-4.6, 4.6):
+    k.dormer(u, EAVE, RUN, RIDGE - EAVE, cy=0.0, side=-1, w=1.4, wall_h=1.2, inset=1.4, flowers=True)
+for sx in (-1, 1):
+    k.finial(sx * (HX + 0.72), 0.0, RIDGE + 0.12, h=0.7, color=TIMBER)
+k.finial(0.0, y0 - 0.05, U1 + CG_RISE + 0.12, h=0.7, color=TIMBER)
+# second (smaller) chimney through the back slope on the -X side
+k.chimney(-3.6, 2.4, RIDGE - 2.4 * math.tan(PITCH) - 0.4, RIDGE + 0.9, sx=0.85, sy=0.85, pots=2)
+k.add_marker("chimney_top", (CX, CY, z + 0.6))
+# lanterns at the terrace steps
+for sx in (-1, 1):
+    k.box((0.09, 0.09, 1.6), (sx * 2.2, TY + 0.2, 0.72 + 0.8), WOOD, TIMBER)
+k.stage("dressing")
+k.finish_checked((17.0, 14.5), 21800, cam_dir=(1.0, -1.45, 0.62), fit=0.95)
