@@ -18,6 +18,9 @@ PREV = os.path.join(ROOT, "docs", "kingdom", "blender_previews")
 ASSETS = ["village_well", "bell_tower", "chapel", "temple", "town_wall", "town_wall_tower", "town_gate",
           "castle_keep", "market_cart", "hand_cart", "lamp_post", "signpost", "haystack", "woodpile",
           "washing_line", "garden_plot", "field_crops"]
+# <name>_lod1.glb for buildings, plus a remeshed <name>_lod2.glb proxy for the big landmarks
+LOD1 = {"bell_tower", "chapel", "temple", "town_wall", "town_wall_tower", "town_gate", "castle_keep"}
+LOD2 = {"temple", "castle_keep", "town_gate", "bell_tower"}
 
 
 def main():
@@ -36,6 +39,10 @@ def main():
         cmd = [sys.executable, os.path.join(HERE, f"make_{n}.py"), os.path.join(out_dir, f"{n}.glb")]
         if preview:
             cmd.append(os.path.join(prev_dir, f"{n}.png"))
+        if n in LOD2:
+            cmd.append("--lod2")
+        elif n in LOD1:
+            cmd.append("--lod1")
         t0 = time.time()
         r = subprocess.run(cmd, capture_output=True, text=True)
         fp = next((l for l in r.stdout.splitlines() if l.startswith("footprint")), "")

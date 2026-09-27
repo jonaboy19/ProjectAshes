@@ -24,6 +24,8 @@ def main():
         cmd = [sys.executable, os.path.join(HERE, f"make_{n}.py"), os.path.join(OUT, f"{n}.glb")]
         if preview:
             cmd.append(os.path.join(PREV, f"{n}.png"))
+        if n in ("adventurer_guild", "healer_house"):
+            cmd.append("--lod1")
         t0 = time.time()
         r = subprocess.run(cmd, capture_output=True, text=True)
         line = next((l for l in r.stdout.splitlines() if l.startswith("wrote")), None)

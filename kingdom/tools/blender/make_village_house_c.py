@@ -23,6 +23,8 @@ PAL = {
                box="natural"),
     2: palette(plaster="cream", timber="oak", accent="teal", roof="slate_purple", stone="warm", door="teal"),
     3: palette(plaster="white", timber="dark", accent="green", roof="slate_blue", stone="cool", door="green"),
+    4: palette(plaster="ochre", timber="oak", accent="oxblood", roof="clay", stone="warm", door="oxblood",
+               box="natural"),
 }[V]
 k = VK("VillageHouseC" + ("" if V == 1 else f"_{V}"), seed=303 + V * 13, pal=PAL)
 
@@ -57,7 +59,8 @@ k.quoins(X0, X1, -HY, HY, 0.0, WT, n=10)
 k.stage("walls")
 
 # ---------------------------------------------------------------- roof + gables
-r = k.gable_roof("slate", X0, X1, -HY, HY, WT, PITCH, over=0.42, verge=0.3)
+r = k.gable_roof("slate" if V != 4 else "shingle", X0, X1, -HY, HY, WT, PITCH, over=0.42, verge=0.3,
+                 tile_w=None if V != 4 else (0.36, 0.58), course=None if V != 4 else 0.38)
 for s in ("left", "right"):
     with k.side(s, HX, HY, cx=CX):
         k.gable_wall(HY, WT, r["gable"], style="stone", window=(s == "left"))
@@ -103,7 +106,17 @@ k.hay_bale(-3.35, -HY - 0.5, z=0.42, rz=0.05, s=(0.9, 0.48, 0.4))
 k.plant_pot(1.15, -HY - 0.3)
 k.bucket(-0.5, -HY - 0.3)
 k.stage("props")
+# ---------------------------------------------------------------- variant dressing (procedural kit extras)
+if V == 3:
+    k.dormer(CX - 0.4, r["eave"], r["run"], r["rise"], side=-1, w=1.2, wall_h=1.0, inset=0.95)
+    k.planter(-0.6, -HY - 0.33, L=0.8, D=0.34, H=0.32)
+elif V == 4:
+    k.dormer(CX + 0.2, r["eave"], r["run"], r["rise"], side=-1, w=1.2, wall_h=1.0, inset=0.95)
+    with k.side("front", HX, HY, cx=CX):
+        k.ivy([(-HX + 0.25, 0.5), (-HX + 0.4, 1.6), (-HX + 0.25, 2.7), (-HX + 0.4, 3.6)], width=0.45)
+    k.planter(-0.6, -HY - 0.33, L=0.45, H=0.38, kind="pot")
+k.stage("variant")
 
-if V == 2:
+if V in (2, 4):
     k.mirror_x()
 k.finish_checked((9.0, 7.0), 12000, cam_dir=(1.0, -1.45, 0.7), fit=0.95)
