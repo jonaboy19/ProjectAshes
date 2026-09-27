@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dyf7rkqqi3ecb"
-path="res://.godot/imported/house_trader_lod1_Image_0.jpg-04bc9dd57db797392395a4e14435626c.ctex"
+uid="uid://ryqlpd63w4uc"
+path="res://.godot/imported/house_trader_lod2_house_trader_lod2_bake.jpg-6389198f37290ef10702b1b3354e282d.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "e3d2c6aea29d643fe5cb8cfb4b2369ee"
+"md5": "7ba077c98cec787a6c009bbcdf50477d"
 }
 
 [deps]
 
-source_file="res://assets/incoming/ai3d/meshy/house_trader_lod1_Image_0.jpg"
-dest_files=["res://.godot/imported/house_trader_lod1_Image_0.jpg-04bc9dd57db797392395a4e14435626c.ctex"]
+source_file="res://assets/incoming/ai3d/meshy/house_trader_lod2_house_trader_lod2_bake.jpg"
+dest_files=["res://.godot/imported/house_trader_lod2_house_trader_lod2_bake.jpg-6389198f37290ef10702b1b3354e282d.ctex"]
 
 [params]
 

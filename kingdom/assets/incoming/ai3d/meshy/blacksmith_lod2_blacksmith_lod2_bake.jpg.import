@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://43uer0kohivo"
-path="res://.godot/imported/house_family_lod1_Image_0.jpg-73488842834196095aa143fbef746565.ctex"
+uid="uid://bf50bwwa5e048"
+path="res://.godot/imported/blacksmith_lod2_blacksmith_lod2_bake.jpg-1e45a6535767bad83fb711203a0a24de.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "526964ae2d52d5079797b57cdef7ca1b"
+"md5": "53703908866d21d51726e760cfb26f56"
 }
 
 [deps]
 
-source_file="res://assets/incoming/ai3d/meshy/house_family_lod1_Image_0.jpg"
-dest_files=["res://.godot/imported/house_family_lod1_Image_0.jpg-73488842834196095aa143fbef746565.ctex"]
+source_file="res://assets/incoming/ai3d/meshy/blacksmith_lod2_blacksmith_lod2_bake.jpg"
+dest_files=["res://.godot/imported/blacksmith_lod2_blacksmith_lod2_bake.jpg-1e45a6535767bad83fb711203a0a24de.ctex"]
 
 [params]
 

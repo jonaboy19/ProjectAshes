@@ -232,7 +232,7 @@ func _census() -> void:
 	for k in keys:
 		total += groups[k]
 	print("CENSUS total LOD0 tris in range: %d" % total)
-	for k in keys.slice(0, 25):
+	for k in keys.slice(0, int(args.get("census_n", "40"))):
 		print("CENSUS %9d  %s%s" % [groups[k], k, "  (casts shadow)" if shadow_tris.has(k) else ""])
 
 
@@ -399,5 +399,5 @@ func _texture_census() -> void:
 	for t in list:
 		total += t.get_width() * t.get_height() * 1.33
 	print("TEXTURES %d textures in use, %.0f Mpx incl. mips (~%.0f MB at 1 B/px ASTC/ETC2)" % [list.size(), total / 1e6, total / 1048576.0])
-	for t in list.slice(0, 30):
+	for t in list.slice(0, int(args.get("tex_n", "40"))):
 		print("TEXTURES %5dx%-5d %s" % [t.get_width(), t.get_height(), t.resource_path if t.resource_path != "" else t.get_class()])

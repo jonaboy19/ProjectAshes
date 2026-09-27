@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ctqekm15omyw8"
-path="res://.godot/imported/house_peasant_b_lod1_Image_0.jpg-9b73224206f4be50a24ff35e9ad46b5b.ctex"
+uid="uid://cuod3x7adhf56"
+path="res://.godot/imported/guild_lod2_guild_lod2_bake.jpg-5814f9c0c62094143a7527b96a0d011d.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "3040cab1dacc44428b86670a80b5cd7c"
+"md5": "94740498faf673e029620c4f68659c88"
 }
 
 [deps]
 
-source_file="res://assets/incoming/ai3d/meshy/house_peasant_b_lod1_Image_0.jpg"
-dest_files=["res://.godot/imported/house_peasant_b_lod1_Image_0.jpg-9b73224206f4be50a24ff35e9ad46b5b.ctex"]
+source_file="res://assets/incoming/ai3d/meshy/guild_lod2_guild_lod2_bake.jpg"
+dest_files=["res://.godot/imported/guild_lod2_guild_lod2_bake.jpg-5814f9c0c62094143a7527b96a0d011d.ctex"]
 
 [params]
 

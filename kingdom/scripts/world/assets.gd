@@ -59,8 +59,8 @@ const MESHY := "res://assets/incoming/ai3d/meshy/"
 const BUILDINGS := {
 	# Hero buildings generated with Meshy from the concept sheets (user, see
 	# docs/art_reference/concept_*.png), decimated to lod0/lod1 by tools/meshy.
-	"adventurer_guild": [MESHY + "guild_lod0.glb", 16.0, MESHY + "guild_lod1.glb", 70.0],
-	"healer_house": [MESHY + "healer_lod0.glb", 9.5, MESHY + "healer_lod1.glb", 70.0],
+	"adventurer_guild": [MESHY + "guild_lod0.glb", 16.0, MESHY + "guild_lod1.glb", 70.0, MESHY + "guild_lod2.glb", 150.0],
+	"healer_house": [MESHY + "healer_lod0.glb", 9.5, MESHY + "healer_lod1.glb", 70.0, MESHY + "healer_lod2.glb", 150.0],
 	"house_1": [GEN + "village_house_a.glb", 0.0, GEN + "village_house_a_lod1.glb", 45.0],
 	"house_2": [GEN + "village_house_b.glb", 0.0, GEN + "village_house_b_lod1.glb", 45.0],
 	"house_3": [GEN + "village_house_c.glb", 0.0, GEN + "village_house_c_lod1.glb", 45.0],
@@ -78,13 +78,13 @@ const BUILDINGS := {
 	"house_15": [GEN + "village_house_c_4.glb", 0.0, GEN + "village_house_c_4_lod1.glb", 45.0],
 	"house_16": [GEN + "village_house_d_4.glb", 0.0, GEN + "village_house_d_4_lod1.glb", 45.0],
 	# Meshy house types (user, paid plan): fitted to the 10.5 m lots.
-	"mhouse_peasant_a": [MESHY + "house_peasant_a_lod0.glb", 7.5, MESHY + "house_peasant_a_lod1.glb", 45.0],
-	"mhouse_peasant_b": [MESHY + "house_peasant_b_lod0.glb", 8.0, MESHY + "house_peasant_b_lod1.glb", 45.0],
-	"mhouse_family": [MESHY + "house_family_lod0.glb", 9.0, MESHY + "house_family_lod1.glb", 45.0],
-	"mhouse_trader": [MESHY + "house_trader_lod0.glb", 8.5, MESHY + "house_trader_lod1.glb", 45.0],
-	"mhouse_manor": [MESHY + "house_manor_lod0.glb", 10.0, MESHY + "house_manor_lod1.glb", 45.0],
-	"inn": [MESHY + "inn_lod0.glb", 13.5, MESHY + "inn_lod1.glb", 70.0],
-	"blacksmith": [MESHY + "blacksmith_lod0.glb", 11.0, MESHY + "blacksmith_lod1.glb", 70.0],
+	"mhouse_peasant_a": [MESHY + "house_peasant_a_lod0.glb", 7.5, MESHY + "house_peasant_a_lod1.glb", 45.0, MESHY + "house_peasant_a_lod2.glb", 100.0],
+	"mhouse_peasant_b": [MESHY + "house_peasant_b_lod0.glb", 8.0, MESHY + "house_peasant_b_lod1.glb", 45.0, MESHY + "house_peasant_b_lod2.glb", 100.0],
+	"mhouse_family": [MESHY + "house_family_lod0.glb", 9.0, MESHY + "house_family_lod1.glb", 45.0, MESHY + "house_family_lod2.glb", 100.0],
+	"mhouse_trader": [MESHY + "house_trader_lod0.glb", 8.5, MESHY + "house_trader_lod1.glb", 45.0, MESHY + "house_trader_lod2.glb", 100.0],
+	"mhouse_manor": [MESHY + "house_manor_lod0.glb", 10.0, MESHY + "house_manor_lod1.glb", 45.0, MESHY + "house_manor_lod2.glb", 110.0],
+	"inn": [MESHY + "inn_lod0.glb", 13.5, MESHY + "inn_lod1.glb", 70.0, MESHY + "inn_lod2.glb", 150.0],
+	"blacksmith": [MESHY + "blacksmith_lod0.glb", 11.0, MESHY + "blacksmith_lod1.glb", 70.0, MESHY + "blacksmith_lod2.glb", 150.0],
 	"stable": [GEN + "village_barn.glb", 0.0, GEN + "village_barn_lod1.glb", 45.0],
 	"sawmill": [VILLAGE + "Buildings/FBX/Sawmill.fbx", 12.0],
 	"mill": [VILLAGE + "Buildings/FBX/Mill.fbx", 11.0],
@@ -564,12 +564,24 @@ static func building_lod_mesh(key: String) -> ArrayMesh:
 	return building_mesh(key + ":lod1")
 
 
+## Third, lightest version (Meshy buildings: 3.5-7k tris, 512 px baked texture), or null.
+static func building_lod2_mesh(key: String) -> ArrayMesh:
+	return building_mesh(key + ":lod2") if BUILDINGS.get(key, []).size() > 5 else null
+
+
+## Distance where a building swaps from its LOD1 to its LOD2 (0 = no LOD2).
+static func building_lod2_distance(key: String) -> float:
+	var entry: Array = BUILDINGS.get(key, [])
+	return float(entry[5]) if entry.size() > 5 else 0.0
+
+
 static func building_mesh(key: String) -> ArrayMesh:
 	if _building_cache.has(key):
 		return _building_cache[key]
-	var is_lod := key.ends_with(":lod1")
-	var entry: Array = BUILDINGS[key.trim_suffix(":lod1")]
-	var mesh := merged_mesh(entry[2] if is_lod else entry[0])
+	var lod := 2 if key.ends_with(":lod2") else (1 if key.ends_with(":lod1") else 0)
+	var entry: Array = BUILDINGS[key.trim_suffix(":lod1").trim_suffix(":lod2")]
+	var path: String = entry[lod * 2]
+	var mesh := merged_mesh(path)
 	if mesh == null:
 		return null
 	var box := mesh.get_aabb()
@@ -577,7 +589,9 @@ static func building_mesh(key: String) -> ArrayMesh:
 	var s := 1.0 if target <= 0.0 else target / maxf(maxf(box.size.x, box.size.z), 0.001)
 	var fit := Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * s),
 		Vector3(-(box.position.x + box.size.x * 0.5) * s, -box.position.y * s, -(box.position.z + box.size.z * 0.5) * s))
-	mesh = _transformed(mesh, fit)
+	# Meshy buildings carry their own LOD chain (lod0/1/2 files): automatic LODs on
+	# top of already-decimated meshes crumpled their walls and roofs at mid range.
+	mesh = _transformed(mesh, fit, not path.begins_with(MESHY))
 	_building_cache[key] = mesh
 	return mesh
 
@@ -617,7 +631,7 @@ static func merged_mesh(path: String) -> ArrayMesh:
 	return out if out.get_surface_count() > 0 else null
 
 
-static func _transformed(mesh: ArrayMesh, xform: Transform3D) -> ArrayMesh:
+static func _transformed(mesh: ArrayMesh, xform: Transform3D, auto_lods := true) -> ArrayMesh:
 	# Built through ImporterMesh so the merged mesh gets automatic LODs again
 	# (SurfaceTool merging drops the importer's LODs; without them every tree and
 	# building draws full detail at any distance).
@@ -627,7 +641,8 @@ static func _transformed(mesh: ArrayMesh, xform: Transform3D) -> ArrayMesh:
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 		st.append_from(mesh, surf, xform)
 		im.add_surface(Mesh.PRIMITIVE_TRIANGLES, st.commit_to_arrays(), [], {}, mesh.surface_get_material(surf))
-	im.generate_lods(25.0, 60.0, [])
+	if auto_lods:
+		im.generate_lods(25.0, 60.0, [])
 	return im.get_mesh()
 
 

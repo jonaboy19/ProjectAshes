@@ -74,12 +74,19 @@ func _build(s: Dictionary) -> Node3D:
 		list.assign(batches[asset])
 		var lod := Assets.building_lod_mesh(asset)
 		if lod:
-			# Detailed hero model up close, its light version beyond HERO_LOD metres.
-			var near_mm := _multimesh(root, Assets.building_mesh(asset), list)
-			var far_mm := _multimesh(root, lod, list, false)
+			# Detailed hero model up close, its light version beyond HERO_LOD metres,
+			# and (Meshy buildings) a third, 3.5-7k-tri version past the LOD2 distance.
+			# LOW (old phones) never loads the 20-40k LOD0: LOD1 up close, LOD2 past
+			# ~25 m (45 m x LOW's 0.55 range scale). Applies to towns built after a tier change.
+			var lod2 := Assets.building_lod2_mesh(asset)
+			var low := lod2 != null and _low()
 			var lod_d := Assets.building_lod_distance(asset)
 			if lod_d <= 0.0:
 				lod_d = HERO_LOD
+			if low:
+				lod_d = minf(lod_d, 45.0)
+			var near_mm := _multimesh(root, lod if low else Assets.building_mesh(asset), list)
+			var far_mm := _multimesh(root, lod2 if low else lod, list, false)
 			near_mm.visibility_range_end = lod_d
 			near_mm.visibility_range_end_margin = 10.0
 			near_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
@@ -87,6 +94,14 @@ func _build(s: Dictionary) -> Node3D:
 			far_mm.visibility_range_begin_margin = 10.0
 			far_mm.visibility_range_end = 0.0
 			far_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+			if lod2 and not low:
+				var lod2_d := Assets.building_lod2_distance(asset)
+				far_mm.visibility_range_end = lod2_d
+				far_mm.visibility_range_end_margin = 10.0
+				var far2_mm := _multimesh(root, lod2, list, false)
+				far2_mm.visibility_range_begin = lod2_d
+				far2_mm.visibility_range_begin_margin = 10.0
+				far2_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
 		else:
 			_multimesh(root, Assets.building_mesh(asset), list)
 		_chimney_smoke(root, asset, list, rng)
@@ -177,9 +192,18 @@ func _build(s: Dictionary) -> Node3D:
 
 func _footprint(asset: String) -> Vector3:
 	if not _footprints.has(asset):
-		var mesh := Assets.building_mesh(asset)
+		# (LOD1 is fitted to the same size; on LOW it keeps LOD0 from loading at all.)
+		var low := _low() and Assets.building_lod2_distance(asset) > 0.0
+		var mesh := Assets.building_lod_mesh(asset) if low else Assets.building_mesh(asset)
 		_footprints[asset] = mesh.get_aabb().size if mesh else Vector3(8, 8, 8)
 	return _footprints[asset]
+
+
+## True on the LOW quality tier (looked up by path so tools running without autoloads still work).
+static func _low() -> bool:
+	var tree := Engine.get_main_loop() as SceneTree
+	var q: Node = tree.root.get_node_or_null("/root/Quality") if tree else null
+	return q != null and q.tier == q.LOW
 
 
 func _piece(root: Node3D, asset: String, p: Vector2, h: float, yaw: float) -> Node3D:
