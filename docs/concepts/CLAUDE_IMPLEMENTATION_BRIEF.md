@@ -17,6 +17,7 @@ This brief points to the evidence and proposes a safe implementation sequence. I
 11. [Current playtest visual and movement review](CURRENT_RUN_VISUAL_REVIEW.md) — a reproducible camera obstruction, a clear line between static screenshot evidence and unverified NPC collision, and a focused moving-runtime capture matrix.
 12. [Near-NPC follower and gait-state review](NPC_FOLLOWER_ANIMATION_REVIEW.html) and [source notes](NPC_FOLLOWER_ANIMATION_REVIEW.md) — interactive model of population-sliced gait selection and frame-dependent turn easing.
 13. [Combat pressure and readability handoff](COMBAT_PRESSURE_AND_READABILITY.md) and [pressure-window viewer](COMBAT_PRESSURE_WINDOW_REVIEW.html) — source-backed diagnosis, encounter sequencing, fair hit validation, and acceptance checks. The interactive chart is a design model, not runtime evidence or a balance simulator.
+14. [Godot 4.6 NPC navigation notes](NPC_NAVIGATION_GODOT46_NOTES.md) and [motion-pipeline review](NPC_MOTION_PIPELINE_REVIEW.html) — movement ownership, NavigationAgent/avoidance/physics distinctions, streamed map synchronization, and source-linked NPC collision failures.
 
 ## Baseline and evidence
 
@@ -31,6 +32,10 @@ The evidence identifies structural problems to address before adding lots of new
 - Near/far population LOD is already the right performance boundary. Detailed physics and avoidance should apply only to nearby embodied actors.
 
 These findings describe a baseline, not proof that every bug still reproduces on the latest game branch. Re-run the small relevant check before changing its system.
+
+## Parallel work observed during this refresh
+
+On 2026-09-27, Claude's local game checkout was still at `e3563fc4` with an active, uncommitted animation QA and performance pass. Its current work includes a manual review of clips, gait speeds, skinning fixes for armored boots, refreshed benchmark output, and related captures. Keep that work as the source for clip/rig follow-up; this documentation update does not edit the game checkout or duplicate its asset edits. The navigation handoff focuses on the separate gap: routes, physical contact, and transfer of movement ownership for visible NPCs. The local working-copy state may change; check Claude's current source/QA before implementation.
 
 ## Suggested first implementation slice
 
