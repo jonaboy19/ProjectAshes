@@ -487,6 +487,9 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 		return _ual_cache[sk]
 	var lib := AnimationLibrary.new()
 	for file: String in UAL_FILES:
+		if not ResourceLoader.exists(file):
+			push_warning("Missing clip library (not imported?): " + file)
+			continue
 		var inst: Node = (load(file) as PackedScene).instantiate()
 		var ap: AnimationPlayer = inst.find_children("*", "AnimationPlayer", true, false)[0]
 		for anim_name in ap.get_animation_list():
@@ -615,14 +618,17 @@ static func merged_mesh(path: String) -> ArrayMesh:
 
 
 static func _transformed(mesh: ArrayMesh, xform: Transform3D) -> ArrayMesh:
-	var out := ArrayMesh.new()
+	# Built through ImporterMesh so the merged mesh gets automatic LODs again
+	# (SurfaceTool merging drops the importer's LODs; without them every tree and
+	# building draws full detail at any distance).
+	var im := ImporterMesh.new()
 	for surf in mesh.get_surface_count():
 		var st := SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 		st.append_from(mesh, surf, xform)
-		st.commit(out)
-		out.surface_set_material(surf, mesh.surface_get_material(surf))
-	return out
+		im.add_surface(Mesh.PRIMITIVE_TRIANGLES, st.commit_to_arrays(), [], {}, mesh.surface_get_material(surf))
+	im.generate_lods(25.0, 60.0, [])
+	return im.get_mesh()
 
 
 ## Static building node with a box collider (for landmarks placed individually).
