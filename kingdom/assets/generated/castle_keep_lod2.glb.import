@@ -1,0 +1,65 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+uid="uid://bdsvshyo7mphn"
+path="res://.godot/imported/castle_keep_lod2.glb-f75e4f8dc9fdc532fa438bfef4aec1aa.scn"
+
+[deps]
+
+source_file="res://assets/generated/castle_keep_lod2.glb"
+dest_files=["res://.godot/imported/castle_keep_lod2.glb-f75e4f8dc9fdc532fa438bfef4aec1aa.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/root_script=null
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
+nodes/use_name_suffixes=true
+nodes/use_node_type_suffixes=true
+meshes/ensure_tangents=true
+meshes/generate_lods=true
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
+import_script/path=""
+materials/extract=0
+materials/extract_format=0
+materials/extract_path=""
+_subresources={
+"materials": {
+"RA_Cloth": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_cloth.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_cloth.tres"
+},
+"RA_Matte": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_stone.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_stone.tres"
+},
+"RA_Roof": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_roof.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_roof.tres"
+},
+"RA_Wood": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
+}
+}
+}
+gltf/naming_version=2
+gltf/embedded_image_handling=1

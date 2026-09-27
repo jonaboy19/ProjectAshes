@@ -1,0 +1,36 @@
+{"label": "REF MakeHuman villager_man_a", "tris": 5347, "native_h": 1.753, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/01.png"}
+{"label": "REF MakeHuman villager_woman_a", "tris": 5263, "native_h": 1.834, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/02.png"}
+{"label": "Q UBC+Peasant M", "tris": 29497, "native_h": 1.849, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/03.png"}
+{"label": "Q UBC+Peasant F", "tris": 33014, "native_h": 1.786, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/04.png"}
+{"label": "Q UBC+Ranger M", "tris": 42334, "native_h": 1.875, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/05.png"}
+{"label": "OGA G6 male light_armor_2", "tris": 3678, "native_h": 4.221, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/06.png"}
+{"label": "OGA G6 male light_armor_3", "tris": 3838, "native_h": 4.208, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/07.png"}
+{"label": "OGA G6 male light_armor_4", "tris": 3782, "native_h": 4.203, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/08.png"}
+{"label": "OGA G6 male medium_armor", "tris": 4040, "native_h": 4.21, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/09.png"}
+{"label": "OGA G6 female light_armor_2", "tris": 3830, "native_h": 4.018, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/10.png"}
+{"label": "OGA G6 female light_armor_3", "tris": 4008, "native_h": 4.018, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/11.png"}
+{"label": "OGA CDmir Old Lady", "tris": 3995, "native_h": 180.094, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/12.png"}
+{"label": "OGA CDmir Monk", "tris": 3942, "native_h": 1.769, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/13.png"}
+{"label": "Q UltModMen Farmer", "tris": 5476, "native_h": 1.856, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/14.png"}
+{"label": "Q UltModMen King", "tris": 11110, "native_h": 1.904, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/15.png"}
+{"label": "Q UltModMen Worker", "tris": 5240, "native_h": 1.866, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/16.png"}
+{"label": "Q UltModWomen Medieval", "tris": 7276, "native_h": 1.877, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/17.png"}
+{"label": "Q UltModWomen Witch", "tris": 6872, "native_h": 2.045, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/18.png"}
+{"label": "Q UltModWomen Worker", "tris": 6112, "native_h": 1.861, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/19.png"}
+{"label": "Q UltAnimChar Worker_Male", "tris": 2524, "native_h": 3.336, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/20.png"}
+{"label": "Q UltAnimChar OldClassy_Female", "tris": 7008, "native_h": 3.772, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/21.png"}
+{"label": "Q UltAnimChar Chef_Male", "tris": 5452, "native_h": 3.205, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/22.png"}
+{"label": "Q UltAnimChar Viking_Female", "tris": 7320, "native_h": 3.204, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/23.png"}
+{"label": "Q UltAnimChar Wizard", "tris": 6482, "native_h": 4.096, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/24.png"}
+{"label": "Q UltAnimChar Knight_Male", "tris": 2992, "native_h": 3.589, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/25.png"}
+{"label": "Q RPGChars Cleric", "tris": 5104, "native_h": 2.992, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/26.png"}
+{"label": "Q RPGChars Ranger", "tris": 3806, "native_h": 2.957, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/27.png"}
+{"label": "Q RPGChars Warrior", "tris": 5402, "native_h": 2.942, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/28.png"}
+{"label": "KayKit Knight", "tris": 6952, "native_h": 2.467, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/30.png"}
+{"label": "KayKit Rogue_Hooded", "tris": 6035, "native_h": 2.251, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/31.png"}
+{"label": "Styloo knightclean4", "tris": 7444, "native_h": 2.073, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/32.png"}
+{"label": "Styloo mageclean4", "tris": 9600, "native_h": 2.025, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/33.png"}
+{"label": "Styloo nain4export", "tris": 8800, "native_h": 1.603, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/34.png"}
+{"label": "Creatus Knight1final", "tris": 16296, "native_h": 3.003, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/35.png"}
+{"label": "Creatus Kingfinal", "tris": 21424, "native_h": 3.397, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/37.png"}
+{"label": "Kenney mini male-a", "tris": 723, "native_h": 0.671, "out": "C:/Users/Jonna/Documents/ProjectAshes/kingdom/assets/incoming/characters/_tools/tiles/38.png"}

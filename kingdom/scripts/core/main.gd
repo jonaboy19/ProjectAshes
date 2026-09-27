@@ -29,6 +29,7 @@ var raiders: Squad
 var captain: Captain
 var services: VillageServices
 var camps: MonsterCamps
+var ambient: AmbientLife
 var sun: DirectionalLight3D
 var env: Environment
 var _status_timer := 0.0
@@ -114,6 +115,8 @@ func _ready() -> void:
 	camps = MonsterCamps.new()
 	world.add_child(camps)
 	world.add_child(Lakeside.new())
+	ambient = AmbientLife.new()
+	world.add_child(ambient)
 
 	army = Squad.new().setup(0, "soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
 	army.leader = player
@@ -122,6 +125,7 @@ func _ready() -> void:
 	_spawn_raiders(FIRST_CAMP, 12)
 
 	hud.hide_loading()
+	Quality.start_adaptive()
 	var args := _user_args()
 	if (args.has("shot") and args["shot"] != "birth") or args.has("demo") or args.has("adult"):
 		Life.life_path.set_age(18, WorldSim.day, WorldSim.time_of_day)
@@ -190,7 +194,7 @@ func _stage_birth_room(house: Vector2) -> Node3D:
 		o.omni_range = l[3]
 		o.shadow_enabled = true
 		root.add_child(o)
-	var mother := Assets.character("Rogue_Hooded", 1.68, [])
+	var mother := Assets.character("Mother", 1.64, [])
 	root.add_child(mother)
 	mother.position = Vector3(-1.75, 0.45, -1.0)
 	mother.rotation.y = PI * 0.2       # turned toward the open wall (camera)
@@ -200,7 +204,7 @@ func _stage_birth_room(house: Vector2) -> Node3D:
 			if mp.has_animation(a):
 				mp.play(a)
 				break
-	var father := Assets.character("Rogue", 1.8, [])
+	var father := Assets.character("Father", 1.8, [])
 	root.add_child(father)
 	father.position = Vector3(1.9, 0, -0.6)
 	father.look_at(root.global_position + Vector3(1.0, 0, -1.2), Vector3.UP, true)
@@ -230,7 +234,8 @@ func _process(delta: float) -> void:
 	population.focus = focus
 	frontier.focus = focus
 	camps.focus = focus
-	terrain.view_radius = 5 if player.view == Player.View.COMMAND else 4
+	ambient.focus = focus
+	terrain.view_radius = mini(5 if player.view == Player.View.COMMAND else 4, Quality.view_radius)
 	_update_daylight()
 	_status_timer -= delta
 	if _status_timer <= 0.0:
@@ -385,9 +390,9 @@ func _build_environment() -> void:
 	env.glow_hdr_threshold = 1.1
 	env.fog_enabled = true
 	env.fog_light_color = Color("c9d4e6")
-	env.fog_density = 0.0009
+	env.fog_density = 0.0006
 
-	env.fog_aerial_perspective = 0.6
+	env.fog_aerial_perspective = 0.3
 	env.fog_sky_affect = 0.4
 	env.volumetric_fog_enabled = true
 	env.volumetric_fog_density = 0.0025

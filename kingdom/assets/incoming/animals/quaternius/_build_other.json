@@ -1,0 +1,90 @@
+{
+ "sheep": {
+  "tris": 612,
+  "bones": 24,
+  "anims": [
+   "Death",
+   "Eat",
+   "Idle",
+   "Jump",
+   "Run",
+   "Walk",
+   "Walk_Slow"
+  ],
+  "kb": 387
+ },
+ "pig": {
+  "tris": 562,
+  "bones": 24,
+  "anims": [
+   "Death",
+   "Eat",
+   "Idle",
+   "Jump",
+   "Run",
+   "Walk",
+   "Walk_Slow"
+  ],
+  "kb": 386
+ },
+ "cat": {
+  "tris": 807,
+  "bones": 20,
+  "anims": [
+   "Death",
+   "Eat",
+   "Idle",
+   "Run",
+   "Walk"
+  ],
+  "kb": 265
+ },
+ "cat_ginger": {
+  "tris": 807,
+  "bones": 20,
+  "anims": [
+   "Death",
+   "Eat",
+   "Idle",
+   "Run",
+   "Walk"
+  ],
+  "kb": 265
+ },
+ "rat": {
+  "tris": 1421,
+  "bones": 29,
+  "anims": [
+   "Attack",
+   "Death",
+   "Eat",
+   "Idle",
+   "Jump",
+   "Run",
+   "Walk"
+  ],
+  "kb": 488
+ },
+ "fish_trout": {
+  "tris": 544,
+  "bones": 8,
+  "anims": [
+   "Death",
+   "Idle",
+   "Swim",
+   "Swim_Fast"
+  ],
+  "kb": 157
+ },
+ "fish_carp": {
+  "tris": 686,
+  "bones": 6,
+  "anims": [
+   "Death",
+   "Idle",
+   "Swim",
+   "Swim_Fast"
+  ],
+  "kb": 164
+ }
+}

@@ -20,7 +20,12 @@ const UBC := Q + "universal-base-characters/"
 const OUTFITS := Q + "modular-character-outfits-fantasy/Exports/glTF (Godot-Unreal)/Outfits/"
 const HAIR := UBC + "Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/"
 const UAL_FILES := [Q + "universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
-	Q + "universal-animation-library-2/Unreal-Godot/UAL2_Standard.glb"]
+	Q + "universal-animation-library-2/Unreal-Godot/UAL2_Standard.glb",
+	# 119 extra CC0 clips retargeted onto UAL (incoming/characters/README.md, "Recommendation"):
+	# dodges, deaths, bow/crossbow, climb, two-handed, farm work, fishing, social.
+	"res://assets/incoming/characters/_library/UAL_Extra_Mesh2Motion.glb",
+	"res://assets/incoming/characters/_library/UAL_Extra_Mocap.glb",
+	"res://assets/incoming/characters/_library/UAL_Extra_G6_male.glb"]
 const WEAPONS := Q + "fantasy-props-megakit/Exports/glTF/"
 const HELMET := Q + "lowpoly-animated-knight/FBX/Helmet1.fbx"
 ## Old KayKit clip names -> UAL clips, so gameplay code keeps using one vocabulary.
@@ -50,26 +55,47 @@ const VILLAGE := Q + "medieval-village-pack/"
 const RTS := Q + "ultimate-fantasy-rts/glTF/"
 ## Blender-built village set (tools/blender/make_village_*.py); the old pack paths are gone.
 const GEN := "res://assets/generated/"
+const MESHY := "res://assets/incoming/ai3d/meshy/"
 const BUILDINGS := {
-	"adventurer_guild": [GEN + "adventurer_guild.glb", 0.0],
-	"healer_house": [GEN + "healer_house.glb", 0.0],
-	"house_1": [GEN + "village_house_a.glb", 0.0],
-	"house_2": [GEN + "village_house_b.glb", 0.0],
-	"house_3": [GEN + "village_house_c.glb", 0.0],
-	"house_4": [GEN + "village_house_d.glb", 0.0],
-	"house_5": [GEN + "village_house_a_2.glb", 0.0],
-	"house_6": [GEN + "village_house_b_2.glb", 0.0],
-	"house_7": [GEN + "village_house_c_2.glb", 0.0],
-	"house_8": [GEN + "village_house_d_2.glb", 0.0],
-	"inn": [GEN + "village_inn.glb", 0.0],
-	"blacksmith": [GEN + "village_smithy.glb", 0.0],
-	"stable": [GEN + "village_barn.glb", 0.0],
+	# Hero buildings generated with Meshy from the concept sheets (user, see
+	# docs/art_reference/concept_*.png), decimated to lod0/lod1 by tools/meshy.
+	"adventurer_guild": [MESHY + "guild_lod0.glb", 16.0, MESHY + "guild_lod1.glb", 70.0],
+	"healer_house": [MESHY + "healer_lod0.glb", 9.5, MESHY + "healer_lod1.glb", 70.0],
+	"house_1": [GEN + "village_house_a.glb", 0.0, GEN + "village_house_a_lod1.glb", 45.0],
+	"house_2": [GEN + "village_house_b.glb", 0.0, GEN + "village_house_b_lod1.glb", 45.0],
+	"house_3": [GEN + "village_house_c.glb", 0.0, GEN + "village_house_c_lod1.glb", 45.0],
+	"house_4": [GEN + "village_house_d.glb", 0.0, GEN + "village_house_d_lod1.glb", 45.0],
+	"house_5": [GEN + "village_house_a_2.glb", 0.0, GEN + "village_house_a_2_lod1.glb", 45.0],
+	"house_6": [GEN + "village_house_b_2.glb", 0.0, GEN + "village_house_b_2_lod1.glb", 45.0],
+	"house_7": [GEN + "village_house_c_2.glb", 0.0, GEN + "village_house_c_2_lod1.glb", 45.0],
+	"house_8": [GEN + "village_house_d_2.glb", 0.0, GEN + "village_house_d_2_lod1.glb", 45.0],
+	"house_9": [GEN + "village_house_a_3.glb", 0.0, GEN + "village_house_a_3_lod1.glb", 45.0],
+	"house_10": [GEN + "village_house_b_3.glb", 0.0, GEN + "village_house_b_3_lod1.glb", 45.0],
+	"house_11": [GEN + "village_house_c_3.glb", 0.0, GEN + "village_house_c_3_lod1.glb", 45.0],
+	"house_12": [GEN + "village_house_d_3.glb", 0.0, GEN + "village_house_d_3_lod1.glb", 45.0],
+	"house_13": [GEN + "village_house_a_4.glb", 0.0, GEN + "village_house_a_4_lod1.glb", 45.0],
+	"house_14": [GEN + "village_house_b_4.glb", 0.0, GEN + "village_house_b_4_lod1.glb", 45.0],
+	"house_15": [GEN + "village_house_c_4.glb", 0.0, GEN + "village_house_c_4_lod1.glb", 45.0],
+	"house_16": [GEN + "village_house_d_4.glb", 0.0, GEN + "village_house_d_4_lod1.glb", 45.0],
+	# Meshy house types (user, paid plan): fitted to the 10.5 m lots.
+	"mhouse_peasant_a": [MESHY + "house_peasant_a_lod0.glb", 7.5, MESHY + "house_peasant_a_lod1.glb", 45.0],
+	"mhouse_peasant_b": [MESHY + "house_peasant_b_lod0.glb", 8.0, MESHY + "house_peasant_b_lod1.glb", 45.0],
+	"mhouse_family": [MESHY + "house_family_lod0.glb", 9.0, MESHY + "house_family_lod1.glb", 45.0],
+	"mhouse_trader": [MESHY + "house_trader_lod0.glb", 8.5, MESHY + "house_trader_lod1.glb", 45.0],
+	"mhouse_manor": [MESHY + "house_manor_lod0.glb", 10.0, MESHY + "house_manor_lod1.glb", 45.0],
+	"inn": [MESHY + "inn_lod0.glb", 13.5, MESHY + "inn_lod1.glb", 70.0],
+	"blacksmith": [MESHY + "blacksmith_lod0.glb", 11.0, MESHY + "blacksmith_lod1.glb", 70.0],
+	"stable": [GEN + "village_barn.glb", 0.0, GEN + "village_barn_lod1.glb", 45.0],
 	"sawmill": [VILLAGE + "Buildings/FBX/Sawmill.fbx", 12.0],
 	"mill": [VILLAGE + "Buildings/FBX/Mill.fbx", 11.0],
 	"bell_tower": [GEN + "bell_tower.glb", 0.0],
-	"chapel": [GEN + "chapel.glb", 0.0],
-	"market_stand_1": [GEN + "village_stall.glb", 0.0],
-	"market_stand_2": [GEN + "village_stall_2.glb", 0.0],
+	"chapel": [GEN + "chapel.glb", 0.0, GEN + "chapel_lod1.glb", 60.0],
+	"market_stand_1": [MESHY + "stall_produce_lod0.glb", 3.8, MESHY + "stall_produce_lod1.glb", 40.0],
+	"market_stand_2": [MESHY + "stall_cloth_lod0.glb", 3.8, MESHY + "stall_cloth_lod1.glb", 40.0],
+	"market_stand_3": [GEN + "village_stall_3.glb", 0.0],
+	"market_stand_4": [GEN + "village_stall_4.glb", 0.0],
+	"planter_box": [GEN + "planter_box.glb", 0.0],
+	"flower_bed": [GEN + "flower_bed.glb", 0.0],
 	"fence": [GEN + "fence_section.glb", 0.0],
 	"well": [GEN + "village_well.glb", 0.0],
 	"cart": [GEN + "market_cart.glb", 0.0],
@@ -106,8 +132,8 @@ const NATURE := {
 
 static var _mesh_cache: Dictionary = {}
 static var _building_cache: Dictionary = {}
-static var _ual_library: AnimationLibrary
-static var _ual_skeleton_path := ""
+## One clip library per skeleton path (MakeHuman, G6/CDmir and Meshy rigs differ), built once.
+static var _ual_cache := {}
 static var _trimmed_bodies: Dictionary = {}
 const HAIR_COLORS := [Color("2b1d14"), Color("4a3020"), Color("6b4a2b"), Color("a67b4b"), Color("1a1a1a"), Color("8a3b1c"), Color("c9a86b")]
 ## Base-body bones kept when clothing is worn (the rest would clip through outfits).
@@ -172,7 +198,42 @@ static func mesh_of(asset_name: String) -> Mesh:
 
 ## Animated character standing `height` metres tall. Body parts always show;
 ## weapons/hats only if named in `keep`.
+## MakeHuman (CC0) villagers rigged on the UAL skeleton (tools/blender/make_humans.py).
+const MH_DIR := "res://assets/generated/characters/"
+## Guard gear from the armor library (CC-BY 3.0: Lotnik; Jacques Fourie; see CREDITS.md).
+const GUARD_HELM := "res://assets/incoming/armor/opengameart/cc-by/anglo-saxon-helmets/anglo_saxon_helm2.glb"
+const GUARD_SHIELD := "res://assets/incoming/armor/polypizza_sel/shield_round_wood_boss.glb"
+## Look names -> MakeHuman character GLBs (one is picked at random).
+## Paths containing "/" are full resource paths without ".glb" (the CC0 G6 and
+## CDmir villagers in incoming/characters, already on the UAL skeleton).
+const G6 := "res://assets/incoming/characters/g6-ual/"
+## Meshy armored humanoids re-rigged to UAL (user's PC session); their helmets are part of the mesh.
+const ARMORED := "res://assets/incoming/ai3d/meshy/armored/"
+const CDMIR := "res://assets/incoming/characters/cdmir-ual/"
+const MH_LOOKS := {
+	"Rogue_Hooded": ["villager_man_a", "villager_man_b", "villager_woman_a", "villager_woman_b", "elder_man", "elder_woman",
+		G6 + "g6_m_villager_tunic", G6 + "g6_f_villager_tunic", G6 + "g6_f_worker_apron"],
+	"Barbarian": ["villager_man_a", "villager_man_b", "father", G6 + "g6_m_worker_apron", G6 + "g6_m_hunter_leather"],
+	"Mage": ["villager_woman_a", "villager_woman_b", "mother", "elder_woman", G6 + "g6_f_villager_tunic", G6 + "g6_f_blacksmith_apron"],
+	"Rogue": ["villager_man_b", "elder_man", "villager_man_a", G6 + "g6_m_villager_tunic", G6 + "g6_m_hunter_leather"],
+	"Blacksmith": [G6 + "g6_m_blacksmith_apron"], "Innkeeper": [G6 + "g6_m_worker_apron", G6 + "g6_f_worker_apron"],
+	"Hunter": [G6 + "g6_m_hunter_leather", G6 + "g6_f_hunter_leather"], "Monk": [CDMIR + "cdmir_monk"],
+	"Herbalist": [CDMIR + "cdmir_old_lady"], "Trader": [G6 + "g6_m_villager_tunic", G6 + "g6_f_worker_apron"],
+	"Knight": [ARMORED + "guard", ARMORED + "mercenary"],
+	"Player": ["player_young"], "Guard": [ARMORED + "guard"], "Plate_Knight": [ARMORED + "knight"],
+	"Mercenary": [ARMORED + "mercenary"], "Bandit": [ARMORED + "bandit"], "Noble": [ARMORED + "noble"],
+	"Orc_Warchief": [ARMORED + "orc_warchief"],
+	"Mother": ["mother"], "Father": ["father"],
+	"Child_Boy": ["child_boy"], "Child_Girl": ["child_girl"],
+	"Elder_Man": ["elder_man"], "Elder_Woman": ["elder_woman"],
+}
+const USE_MAKEHUMAN := true
+
+
 static func character(file_name: String, height: float, keep: Array[String] = []) -> Node3D:
+	if USE_MAKEHUMAN and MH_LOOKS.has(file_name):
+		var files: Array = MH_LOOKS[file_name]
+		return mh_character(files[randi() % files.size()], height, keep)
 	if USE_REALISTIC and LOOKS.has(file_name):
 		return humanoid(LOOKS[file_name], height, keep)
 	var model: Node3D = (load(CHAR_DIR + file_name + ".glb") as PackedScene).instantiate()
@@ -220,6 +281,41 @@ static func visual_aabb(root: Node3D) -> AABB:
 ## Builds a rigged humanoid: base body (head, hands), outfit and hair meshes bound
 ## to the base skeleton, props on bone attachments, and an AnimationPlayer with
 ## the UAL clips (plus KayKit-name aliases).
+## A MakeHuman GLB on the UAL skeleton, `height` metres tall, with the UAL clips.
+static func mh_character(file: String, height: float, keep: Array[String] = [], lod1 := false) -> Node3D:
+	var root := Node3D.new()
+	var path := (file if file.contains("/") else MH_DIR + file) + ("_lod1" if lod1 and not file.contains("/") else "") + ".glb"
+	var base: Node3D = (load(path) as PackedScene).instantiate()
+	root.add_child(base)
+	var skeleton: Skeleton3D = base.find_children("*", "Skeleton3D", true, false)[0]
+	var armored := file.begins_with(ARMORED)
+	for part in keep:      # same props as humanoid(); the rig is in metres
+		if armored and part.contains("Helmet"):
+			continue
+		if part.contains("Helmet"):
+			_attach(skeleton, "Head", GUARD_HELM, 0.27, Vector3(0, 0.07, 0.01), Vector3.ZERO)
+		elif part.contains("Axe"):
+			_attach(skeleton, "hand_r", WEAPONS + "Axe_Bronze.gltf", 0.75, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
+		elif part.contains("2H_Sword"):
+			_attach(skeleton, "hand_r", WEAPONS + "Sword_Bronze.gltf", 1.3, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
+		elif part.contains("Sword"):
+			_attach(skeleton, "hand_r", WEAPONS + "Sword_Bronze.gltf", 0.95, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
+		elif part.contains("Shield"):
+			_attach(skeleton, "lowerarm_l", GUARD_SHIELD, 0.65, Vector3(0.12, 0, 0.08), Vector3(0, 90, 0))
+	var anim := AnimationPlayer.new()
+	anim.name = "AnimationPlayer"
+	base.add_child(anim)
+	anim.root_node = anim.get_path_to(base)
+	anim.add_animation_library("", _ual_for(base.get_path_to(skeleton)))
+	var head := skeleton.find_bone("Head")
+	var native := skeleton.get_bone_global_rest(head).origin.y * 1.1
+	# Helmets/hoods sit above the head bone: scale armored models so the helmet top
+	# lands near the requested height (ratios from ai3d/meshy/armored/README.md).
+	var k := 0.9 if armored else 1.0
+	root.scale = Vector3.ONE * (height * k / maxf(native, 0.01))
+	return root
+
+
 static func humanoid(look: Dictionary, height: float, keep: Array[String] = []) -> Node3D:
 	var sex: String = look["sex"]
 	var outfit: String = look["outfit"]
@@ -244,7 +340,7 @@ static func humanoid(look: Dictionary, height: float, keep: Array[String] = []) 
 	# Props from the old KayKit part names.
 	for part in keep:
 		if part.contains("Helmet"):
-			_attach(skeleton, "Head", HELMET, 0.3, Vector3(0, 0.08, 0.02), Vector3.ZERO)
+			_attach(skeleton, "Head", GUARD_HELM, 0.27, Vector3(0, 0.07, 0.01), Vector3.ZERO)
 		elif part.contains("Axe"):
 			_attach(skeleton, "hand_r", WEAPONS + "Axe_Bronze.gltf", 0.75, Vector3(0.05, 0.02, 0), Vector3(0, 0, -90))
 		elif part.contains("2H_Sword"):
@@ -387,8 +483,8 @@ static func _rig_scale(skeleton: Skeleton3D) -> float:
 ## UAL clips with track paths rewritten for this skeleton path, plus aliases. Cached.
 static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 	var sk := String(skeleton_path)
-	if _ual_library and _ual_skeleton_path == sk:
-		return _ual_library
+	if _ual_cache.has(sk):
+		return _ual_cache[sk]
 	var lib := AnimationLibrary.new()
 	for file: String in UAL_FILES:
 		var inst: Node = (load(file) as PackedScene).instantiate()
@@ -410,8 +506,7 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 		if lib.has_animation(target) and not lib.has_animation(alias):
 			# A separate copy: the mixer caches tracks per Animation resource.
 			lib.add_animation(alias, lib.get_animation(target).duplicate(true))
-	_ual_library = lib
-	_ual_skeleton_path = sk
+	_ual_cache[sk] = lib
 	return lib
 
 
@@ -420,11 +515,58 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 ## One merged mesh per building (all parts, grouped by material), scaled so its
 ## longest horizontal side is the catalogue size (0 = native size), centred on
 ## x/z with its base at y = 0. Ready for MultiMesh instancing.
+## Chimney openings of a building in its fitted mesh space (from `chimney_top*`
+## marker nodes the Blender generators export), for smoke emitters.
+static var _chimney_cache := {}
+
+
+static func chimney_points(key: String) -> Array[Vector3]:
+	if _chimney_cache.has(key):
+		return _chimney_cache[key]
+	var out: Array[Vector3] = []
+	var entry: Array = BUILDINGS.get(key, [])
+	if entry.is_empty() or not ResourceLoader.exists(entry[0]):
+		_chimney_cache[key] = out
+		return out
+	var raw := merged_mesh(entry[0])
+	var inst: Node3D = (load(entry[0]) as PackedScene).instantiate()
+	if raw:
+		var box := raw.get_aabb()
+		var target: float = entry[1]
+		var sc := 1.0 if target <= 0.0 else target / maxf(maxf(box.size.x, box.size.z), 0.001)
+		var off := Vector3(-(box.position.x + box.size.x * 0.5), -box.position.y, -(box.position.z + box.size.z * 0.5))
+		for n in inst.find_children("chimney_top*", "Node3D", true, false):
+			var t := Transform3D.IDENTITY
+			var cur: Node = n
+			while cur != null and cur != inst:
+				t = (cur as Node3D).transform * t
+				cur = cur.get_parent()
+			out.append((t.origin + off) * sc)
+	inst.free()
+	_chimney_cache[key] = out
+	return out
+
+
+## Distance where a building swaps to its far version (0 = no LOD).
+static func building_lod_distance(key: String) -> float:
+	var entry: Array = BUILDINGS.get(key, [])
+	return float(entry[3]) if entry.size() > 3 else 0.0
+
+
+## Far-distance version of a building, or null if it has none.
+static func building_lod_mesh(key: String) -> ArrayMesh:
+	var entry: Array = BUILDINGS.get(key, [])
+	if entry.size() < 3:
+		return null
+	return building_mesh(key + ":lod1")
+
+
 static func building_mesh(key: String) -> ArrayMesh:
 	if _building_cache.has(key):
 		return _building_cache[key]
-	var entry: Array = BUILDINGS[key]
-	var mesh := merged_mesh(entry[0])
+	var is_lod := key.ends_with(":lod1")
+	var entry: Array = BUILDINGS[key.trim_suffix(":lod1")]
+	var mesh := merged_mesh(entry[2] if is_lod else entry[0])
 	if mesh == null:
 		return null
 	var box := mesh.get_aabb()

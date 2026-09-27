@@ -1,0 +1,560 @@
+[   0.01] Rising Ashes autoplay playtest  2026-09-27T13:26:12
+[   0.01] GPU: NVIDIA GeForce RTX 4070 Laptop GPU | 1.4.341 | renderer forward_plus | Godot 4.6-stable (official)
+[   0.91] === STEP 01_boot ===
+[   1.43]   perf 01_boot        fps   1 | frame 1000.0 ms | cpu  0.00 ms | 3D gpu  0.00 ms | draws     0 | prims        0 | objs     0 | nodes     97 | vram    0 MB
+[   1.94]   perf 01_boot        fps   1 | frame 1000.0 ms | cpu 38.31 ms | 3D gpu  0.00 ms | draws    40 | prims    15238 | objs   158 | nodes    114 | vram  138 MB
+[   2.45]   perf 01_boot        fps  25 | frame  40.0 ms | cpu 135.02 ms | 3D gpu  0.00 ms | draws    35 | prims     3989 | objs   153 | nodes     91 | vram  123 MB
+[   2.96]   perf 01_boot        fps  25 | frame  40.0 ms | cpu 135.02 ms | 3D gpu  0.00 ms | draws    39 | prims     2948 | objs   157 | nodes     95 | vram  131 MB
+[   3.50]   perf 01_boot        fps  29 | frame  34.5 ms | cpu 116.39 ms | 3D gpu  0.00 ms | draws    35 | prims     3819 | objs   153 | nodes     91 | vram  123 MB
+[  17.26] Loading screen gone at 17.26s (ok)
+[  17.40] ENGINE WARNING: 'res://assets/incoming/ai3d/meshy/armored/orc_warchief.glb': In external resource #0, invalid UID: 'uid://4vjwiu0wfg3g' - using text path instead: 'res://assets/incoming/ai3d/meshy/armored/orc_warchief_orc_warchief_tex.jpg'.  (core/io/resource_format_binary.cpp:1089 open)
+[  17.40]   perf 01_boot        fps  29 | frame  34.5 ms | cpu 116.39 ms | 3D gpu  0.00 ms | draws    34 | prims     2502 | objs   149 | nodes   1517 | vram  138 MB
+[  19.57] Birth cutscene playing (7 shots, 39.5 s long)
+[  19.58]   perf 01_boot        fps  29 | frame  34.5 ms | cpu 116.39 ms | 3D gpu  0.00 ms | draws     6 | prims      256 | objs     8 | nodes   3169 | vram 1097 MB
+[  20.09]   perf 01_boot        fps  19 | frame  52.6 ms | cpu 15539.48 ms | 3D gpu  0.62 ms | draws    10 | prims      584 | objs   172 | nodes   3200 | vram 1099 MB
+[  20.59]   perf 01_boot        fps  25 | frame  40.0 ms | cpu 13.15 ms | 3D gpu  1.04 ms | draws    33 | prims    84693 | objs   409 | nodes   3200 | vram 1099 MB
+[  21.09]   perf 01_boot        fps  25 | frame  40.0 ms | cpu 13.15 ms | 3D gpu  1.03 ms | draws    33 | prims    84693 | objs   409 | nodes   3200 | vram 1099 MB
+[  21.59]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 12.71 ms | 3D gpu  1.96 ms | draws    56 | prims    91457 | objs   448 | nodes   3138 | vram 1098 MB
+[  22.12]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 12.71 ms | 3D gpu  1.97 ms | draws    61 | prims    92098 | objs   453 | nodes   3138 | vram 1098 MB
+[  22.62]   perf 01_boot        fps  30 | frame  33.3 ms | cpu  7.24 ms | 3D gpu  5.57 ms | draws   139 | prims   248176 | objs   534 | nodes   3138 | vram 1098 MB
+[  23.12]   perf 01_boot        fps  30 | frame  33.3 ms | cpu  7.24 ms | 3D gpu 20.11 ms | draws   249 | prims   492988 | objs   644 | nodes   3138 | vram 1098 MB
+[  23.17] SHOT 01_birth_cutscene.jpg  (pos (2.0, 18.6, 4.5), yaw 0.47, hour 23.6, hp 120)
+[  23.65]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 26.04 ms | 3D gpu  2.29 ms | draws   358 | prims   573130 | objs   766 | nodes   3138 | vram 1098 MB
+[  24.15]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 26.04 ms | 3D gpu  3.30 ms | draws   466 | prims   661303 | objs   881 | nodes   3138 | vram 1098 MB
+[  24.65]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 10.38 ms | 3D gpu  3.57 ms | draws   508 | prims   678516 | objs   923 | nodes   3138 | vram 1098 MB
+[  25.19]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 10.38 ms | 3D gpu  5.59 ms | draws   502 | prims   612070 | objs   703 | nodes   3138 | vram 1098 MB
+[  25.27] SHOT 02_birth_cutscene_2.jpg  (pos (2.0, 18.6, 4.5), yaw 0.47, hour 23.7, hp 120)
+[  25.69]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 21.64 ms | 3D gpu  6.23 ms | draws   481 | prims   614800 | objs   680 | nodes   3138 | vram 1098 MB
+[  25.79]   after first tap: skip hint alpha 0.85
+[  25.92]   double tap skip: skipped
+[  25.92] ENGINE ERROR: Lambda capture at index 0 was freed. Passed "null" instead.  (modules/gdscript/gdscript_lambda_callable.cpp:110 call)
+[  25.99] FIRST PLAYABLE FRAME at 25.99s after launch (player at (14.8, 19.0, 13.9), age 6)
+[  26.22]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 21.64 ms | 3D gpu  3.82 ms | draws   599 | prims  1635965 | objs  1371 | nodes   3140 | vram 1144 MB
+[  26.75]   perf 01_boot        fps  28 | frame  35.7 ms | cpu 127.50 ms | 3D gpu  4.48 ms | draws   599 | prims  1635989 | objs  1383 | nodes   3171 | vram 1144 MB
+[  27.25]   perf 01_boot        fps  28 | frame  35.7 ms | cpu 127.50 ms | 3D gpu  4.84 ms | draws   599 | prims  1635989 | objs  1383 | nodes   3171 | vram 1144 MB
+[  27.60] SHOT 03_first_playable_child.jpg  (pos (14.8, 19.0, 13.9), yaw 0.00, hour 8.2, hp 120)
+[  27.75]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 11.75 ms | 3D gpu  6.35 ms | draws   604 | prims  1693246 | objs  1397 | nodes   3192 | vram 1146 MB
+[  28.25]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 11.75 ms | 3D gpu  5.51 ms | draws   368 | prims   922789 | objs  1357 | nodes   3192 | vram 1146 MB
+[  28.79]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 60.68 ms | 3D gpu  5.90 ms | draws   379 | prims   929755 | objs  1378 | nodes   3192 | vram 1146 MB
+[  29.32]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 60.68 ms | 3D gpu  5.96 ms | draws   350 | prims   771957 | objs  1235 | nodes   3192 | vram 1146 MB
+[  29.82]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 10.86 ms | 3D gpu  5.87 ms | draws   327 | prims   741843 | objs   905 | nodes   3220 | vram 1147 MB
+[  30.35]   walk_to (14.8, 19.9): arrived in 2.7s, 1.1 m left, stuck 0
+[  30.35]   perf 01_boot        fps  30 | frame  33.3 ms | cpu 10.86 ms | 3D gpu  6.10 ms | draws   314 | prims   722204 | objs   852 | nodes   3224 | vram 1146 MB
+[  30.53] SHOT 04_child_walks.jpg  (pos (15.3, 19.0, 19.1), yaw -3.73, hour 8.2, hp 120)
+[  30.53] SUMMARY 01_boot: fps avg 27 (min 1) | 3D gpu 3.65 ms avg (max 20.11) | draws avg 258 max 604 | prims avg 534036 max 1693246 | nodes 2561 | worst frame 13436 ms | hitches>50ms 13
+[  30.55] === STEP 02_village ===
+[  30.55] [HOOK] aged the player to 18, clock 10:00
+[  30.55] Ashford lots: { "healer_house": 1, "mhouse_trader": 4, "mhouse_family": 5, "mhouse_peasant_b": 4, "inn": 1, "adventurer_guild": 1, "house_16": 1, "house_9": 2, "mhouse_peasant_a": 4, "mhouse_manor": 1, "house_6": 1, "house_3": 1, "house_10": 1, "house_12": 1, "house_15": 1, "house_8": 1, "house_4": 2 }
+[  30.55] Danger in village: total=0.0, coverage=0.9
+[  30.85]   perf 02_village     fps  30 | frame  33.3 ms | cpu 18.95 ms | 3D gpu  6.04 ms | draws   428 | prims   682995 | objs   972 | nodes   3224 | vram 1146 MB
+[  31.39]   perf 02_village     fps  30 | frame  33.3 ms | cpu 38.59 ms | 3D gpu  6.55 ms | draws   428 | prims   682993 | objs   972 | nodes   3220 | vram 1137 MB
+[  31.92]   perf 02_village     fps  30 | frame  33.3 ms | cpu 38.59 ms | 3D gpu  6.91 ms | draws   428 | prims   682995 | objs   972 | nodes   3241 | vram 1137 MB
+[  32.42]   perf 02_village     fps  30 | frame  33.3 ms | cpu 30.06 ms | 3D gpu  7.32 ms | draws   428 | prims   682993 | objs   972 | nodes   3237 | vram 1137 MB
+[  32.92]   perf 02_village     fps  30 | frame  33.3 ms | cpu 30.06 ms | 3D gpu  7.73 ms | draws   428 | prims   682993 | objs   972 | nodes   3237 | vram 1137 MB
+[  33.42]   perf 02_village     fps  30 | frame  33.3 ms | cpu  9.41 ms | 3D gpu  8.24 ms | draws   429 | prims   685624 | objs   973 | nodes   3237 | vram 1137 MB
+[  33.92]   perf 02_village     fps  30 | frame  33.3 ms | cpu  9.41 ms | 3D gpu  8.35 ms | draws   432 | prims   691674 | objs   976 | nodes   3237 | vram 1137 MB
+[  34.42]   perf 02_village     fps  30 | frame  33.3 ms | cpu 15.10 ms | 3D gpu  9.31 ms | draws   436 | prims   707763 | objs   979 | nodes   3237 | vram 1137 MB
+[  34.92]   perf 02_village     fps  30 | frame  33.3 ms | cpu 15.10 ms | 3D gpu  8.70 ms | draws   423 | prims   681211 | objs   967 | nodes   3241 | vram 1137 MB
+[  35.42]   perf 02_village     fps  30 | frame  33.3 ms | cpu 10.80 ms | 3D gpu  8.66 ms | draws   424 | prims   689301 | objs   964 | nodes   3241 | vram 1137 MB
+[  35.92]   perf 02_village     fps  30 | frame  33.3 ms | cpu 10.80 ms | 3D gpu  8.71 ms | draws   428 | prims   707527 | objs   967 | nodes   3245 | vram 1126 MB
+[  36.45]   perf 02_village     fps  30 | frame  33.3 ms | cpu 18.73 ms | 3D gpu 10.05 ms | draws   431 | prims   712713 | objs   971 | nodes   3241 | vram 1127 MB
+[  36.95]   perf 02_village     fps  30 | frame  33.3 ms | cpu 18.73 ms | 3D gpu  9.18 ms | draws   407 | prims   754069 | objs   952 | nodes   3241 | vram 1126 MB
+[  37.45]   perf 02_village     fps  30 | frame  33.3 ms | cpu 14.34 ms | 3D gpu  8.85 ms | draws   397 | prims   747800 | objs   942 | nodes   3237 | vram 1126 MB
+[  37.48]   walk_to (0.0, 4.0): arrived in 6.9s, 2.0 m left, stuck 2
+[  37.98]   perf 02_village     fps  30 | frame  33.3 ms | cpu 14.34 ms | 3D gpu 15.42 ms | draws   647 | prims  1856282 | objs  1206 | nodes   3237 | vram 1127 MB
+[  38.50] SHOT 05_plaza_look_90.jpg  (pos (1.6, 18.6, 4.8), yaw -6.78, hour 10.3, hp 120)
+[  38.50]   perf 02_village     fps  30 | frame  33.3 ms | cpu 10.86 ms | 3D gpu 10.58 ms | draws   648 | prims  1859265 | objs  1207 | nodes   3237 | vram 1127 MB
+[  39.02]   perf 02_village     fps  30 | frame  33.3 ms | cpu 10.86 ms | 3D gpu  8.75 ms | draws   516 | prims   957481 | objs  1283 | nodes   3237 | vram 1127 MB
+[  39.37] SHOT 06_plaza_look_180.jpg  (pos (1.6, 18.6, 4.8), yaw -8.36, hour 10.3, hp 120)
+[  39.52]   perf 02_village     fps  30 | frame  33.3 ms | cpu 27.57 ms | 3D gpu  8.76 ms | draws   442 | prims   834077 | objs  1059 | nodes   3237 | vram 1127 MB
+[  40.05]   perf 02_village     fps  30 | frame  33.3 ms | cpu 27.57 ms | 3D gpu  7.70 ms | draws   407 | prims   966995 | objs  1069 | nodes   3237 | vram 1127 MB
+[  40.23] SHOT 07_plaza_look_270.jpg  (pos (1.6, 18.6, 4.8), yaw -9.93, hour 10.3, hp 120)
+[  40.55]   perf 02_village     fps  30 | frame  33.3 ms | cpu 25.50 ms | 3D gpu  7.23 ms | draws   391 | prims   745392 | objs   936 | nodes   3241 | vram 1137 MB
+[  41.05]   perf 02_village     fps  30 | frame  33.3 ms | cpu 25.50 ms | 3D gpu  7.46 ms | draws   391 | prims   745188 | objs   936 | nodes   3241 | vram 1137 MB
+[  41.11] SHOT 08_plaza_look_360.jpg  (pos (1.6, 18.6, 4.8), yaw -11.50, hour 10.4, hp 120)
+[  41.93]   perf 02_village     fps  30 | frame  33.3 ms | cpu 51.86 ms | 3D gpu  7.98 ms | draws   394 | prims   754519 | objs   939 | nodes   3259 | vram 1138 MB
+[  42.44]   perf 02_village     fps   8 | frame 125.0 ms | cpu 463.59 ms | 3D gpu 10.83 ms | draws   384 | prims   781099 | objs   929 | nodes   3344 | vram 1138 MB
+[  43.00]   perf 02_village     fps   8 | frame 125.0 ms | cpu 463.59 ms | 3D gpu 11.93 ms | draws   389 | prims   812004 | objs   927 | nodes   3361 | vram 1145 MB
+[  43.51]   perf 02_village     fps  12 | frame  83.3 ms | cpu 346.17 ms | 3D gpu 25.35 ms | draws   406 | prims   831649 | objs   945 | nodes   3457 | vram 1144 MB
+[  44.03]   perf 02_village     fps  12 | frame  83.3 ms | cpu 346.17 ms | 3D gpu  1.83 ms | draws   400 | prims   836595 | objs   939 | nodes   3454 | vram 1138 MB
+[  44.53]   perf 02_village     fps  31 | frame  32.3 ms | cpu 26.70 ms | 3D gpu  2.43 ms | draws   404 | prims   854735 | objs   943 | nodes   3454 | vram 1138 MB
+[  44.97]   walk_to (-15.1, -8.5): arrived in 3.9s, 1.6 m left, stuck 0
+[  45.07]   perf 02_village     fps  31 | frame  32.3 ms | cpu 26.70 ms | 3D gpu  2.45 ms | draws   390 | prims   851305 | objs   929 | nodes   3450 | vram 1138 MB
+[  45.60]   perf 02_village     fps  30 | frame  33.3 ms | cpu 12.69 ms | 3D gpu  5.62 ms | draws   620 | prims  1877889 | objs  1179 | nodes   3450 | vram 1138 MB
+[  45.78] SHOT 09_guild_hall.jpg  (pos (-14.0, 18.6, -7.6), yaw -13.02, hour 10.5, hp 120)
+[  45.90]   walk_to (-14.7, -9.1): arrived in 0.1s, 1.6 m left, stuck 0
+[  46.10]   perf 02_village     fps  30 | frame  33.3 ms | cpu 12.69 ms | 3D gpu  4.09 ms | draws   392 | prims   806370 | objs   921 | nodes   3450 | vram 1149 MB
+[  46.63]   perf 02_village     fps  30 | frame  33.3 ms | cpu 54.31 ms | 3D gpu  4.97 ms | draws   443 | prims   878243 | objs   972 | nodes   3450 | vram 1149 MB
+[  46.82] SHOT 10_inn.jpg  (pos (-14.0, 18.6, -7.8), yaw -10.17, hour 10.5, hp 120)
+[  46.82] FINDING [minor] No 'blacksmith' lot in Ashford's plan
+[  47.13]   perf 02_village     fps  30 | frame  33.3 ms | cpu 54.31 ms | 3D gpu  6.45 ms | draws   817 | prims  2051643 | objs  1409 | nodes   3450 | vram 1149 MB
+[  47.63]   perf 02_village     fps  30 | frame  33.3 ms | cpu 24.88 ms | 3D gpu  7.55 ms | draws   801 | prims  1958680 | objs  1375 | nodes   3454 | vram 1138 MB
+[  48.14]   perf 02_village     fps  30 | frame  33.3 ms | cpu 24.88 ms | 3D gpu  7.50 ms | draws   802 | prims  1939713 | objs  1376 | nodes   3458 | vram 1148 MB
+[  48.67]   perf 02_village     fps  30 | frame  33.3 ms | cpu 47.42 ms | 3D gpu  8.24 ms | draws   777 | prims  1881794 | objs  1351 | nodes   3454 | vram 1148 MB
+[  49.45]   perf 02_village     fps  30 | frame  33.3 ms | cpu 47.42 ms | 3D gpu  8.03 ms | draws   770 | prims  1889011 | objs  1343 | nodes   3482 | vram 1148 MB
+[  49.98]   perf 02_village     fps  23 | frame  43.5 ms | cpu 342.09 ms | 3D gpu  9.66 ms | draws   718 | prims  1901857 | objs  1279 | nodes   3478 | vram 1147 MB
+[  50.48]   perf 02_village     fps  28 | frame  35.7 ms | cpu 19.52 ms | 3D gpu  9.78 ms | draws   694 | prims  1855561 | objs  1250 | nodes   3482 | vram 1138 MB
+[  50.98]   perf 02_village     fps  28 | frame  35.7 ms | cpu 19.52 ms | 3D gpu  9.76 ms | draws   694 | prims  1876067 | objs  1266 | nodes   3482 | vram 1147 MB
+[  51.25]   walk_to (12.2, -12.4): arrived in 4.4s, 1.6 m left, stuck 0
+[  51.48]   perf 02_village     fps  30 | frame  33.3 ms | cpu 49.23 ms | 3D gpu 10.41 ms | draws   617 | prims  1762466 | objs  1172 | nodes   3482 | vram 1147 MB
+[  52.01]   perf 02_village     fps  30 | frame  33.3 ms | cpu 49.23 ms | 3D gpu  7.43 ms | draws   381 | prims   721098 | objs   926 | nodes   3482 | vram 1147 MB
+[  52.16] SHOT 11_healer.jpg  (pos (10.8, 18.6, -12.0), yaw -5.84, hour 10.7, hp 120)
+[  52.16] 11 house lots
+[  52.51]   perf 02_village     fps  30 | frame  33.3 ms | cpu 26.01 ms | 3D gpu  7.04 ms | draws   521 | prims   705794 | objs  1067 | nodes   3486 | vram 1158 MB
+[  53.02]   perf 02_village     fps  30 | frame  33.3 ms | cpu 26.01 ms | 3D gpu  7.30 ms | draws   493 | prims   701235 | objs  1023 | nodes   3486 | vram 1158 MB
+[  53.52]   perf 02_village     fps  30 | frame  33.3 ms | cpu 58.70 ms | 3D gpu  8.44 ms | draws   483 | prims   704012 | objs  1012 | nodes   3482 | vram 1148 MB
+[  54.50]   perf 02_village     fps  30 | frame  33.3 ms | cpu 58.70 ms | 3D gpu  9.49 ms | draws   472 | prims   733340 | objs  1001 | nodes   3482 | vram 1158 MB
+[  55.03]   perf 02_village     fps  18 | frame  55.6 ms | cpu 561.70 ms | 3D gpu  8.89 ms | draws   449 | prims   757589 | objs   983 | nodes   3482 | vram 1158 MB
+[  55.59]   perf 02_village     fps  25 | frame  40.0 ms | cpu 109.83 ms | 3D gpu  8.27 ms | draws   433 | prims   708748 | objs   967 | nodes   3478 | vram 1160 MB
+[  56.12]   perf 02_village     fps  25 | frame  40.0 ms | cpu 109.83 ms | 3D gpu  8.10 ms | draws   434 | prims   713844 | objs   968 | nodes   3478 | vram 1158 MB
+[  56.62]   perf 02_village     fps  27 | frame  37.0 ms | cpu 86.75 ms | 3D gpu  8.63 ms | draws   438 | prims   712344 | objs   972 | nodes   3482 | vram 1158 MB
+[  57.15]   perf 02_village     fps  27 | frame  37.0 ms | cpu 86.75 ms | 3D gpu 12.46 ms | draws   432 | prims   823756 | objs   966 | nodes   3478 | vram 1148 MB
+[  57.65]   perf 02_village     fps  30 | frame  33.3 ms | cpu 23.53 ms | 3D gpu 16.38 ms | draws   415 | prims   778121 | objs   962 | nodes   3470 | vram 1138 MB
+[  58.19]   perf 02_village     fps  30 | frame  33.3 ms | cpu 23.53 ms | 3D gpu  3.59 ms | draws   391 | prims   786733 | objs   938 | nodes   3470 | vram 1138 MB
+[  58.69]   perf 02_village     fps  29 | frame  34.5 ms | cpu 61.67 ms | 3D gpu  4.07 ms | draws   366 | prims   752055 | objs   900 | nodes   3474 | vram 1147 MB
+[  59.19]   perf 02_village     fps  29 | frame  34.5 ms | cpu 61.67 ms | 3D gpu  4.17 ms | draws   356 | prims   745595 | objs   890 | nodes   3474 | vram 1147 MB
+[  59.69]   perf 02_village     fps  31 | frame  32.3 ms | cpu 18.16 ms | 3D gpu  4.22 ms | draws   329 | prims   713369 | objs   863 | nodes   3474 | vram 1147 MB
+[  60.19]   perf 02_village     fps  31 | frame  32.3 ms | cpu 18.16 ms | 3D gpu  6.41 ms | draws   323 | prims   582428 | objs   857 | nodes   3474 | vram 1147 MB
+[  60.72]   perf 02_village     fps  30 | frame  33.3 ms | cpu 18.48 ms | 3D gpu  6.47 ms | draws   317 | prims   583098 | objs   851 | nodes   3474 | vram 1147 MB
+[  60.98]   walk_to (-32.6, -20.0): arrived in 8.8s, 1.6 m left, stuck 0
+[  61.22]   perf 02_village     fps  30 | frame  33.3 ms | cpu 18.48 ms | 3D gpu  7.19 ms | draws   347 | prims   623412 | objs   876 | nodes   3470 | vram 1138 MB
+[  61.40] SHOT 12_house_house_16.jpg  (pos (-31.3, 18.6, -19.5), yaw -3.90, hour 11.0, hp 120)
+[  61.72]   perf 02_village     fps  30 | frame  33.3 ms | cpu 14.63 ms | 3D gpu  7.23 ms | draws   508 | prims  1592114 | objs  1042 | nodes   3470 | vram 1138 MB
+[  62.25]   perf 02_village     fps  30 | frame  33.3 ms | cpu 14.63 ms | 3D gpu  9.82 ms | draws   564 | prims  1607434 | objs  1117 | nodes   3470 | vram 1138 MB
+[  62.32]   walk_to (-30.9, -22.7): arrived in 0.9s, 1.6 m left, stuck 0
+[  62.62] SHOT 13_house_house_9.jpg  (pos (-31.4, 18.6, -21.4), yaw -6.85, hour 11.0, hp 120)
+[  62.75]   perf 02_village     fps  30 | frame  33.3 ms | cpu 24.45 ms | 3D gpu 10.51 ms | draws   833 | prims  1841708 | objs  1400 | nodes   3474 | vram 1149 MB
+[  63.25]   perf 02_village     fps  30 | frame  33.3 ms | cpu 24.45 ms | 3D gpu  7.56 ms | draws   577 | prims   751746 | objs  1287 | nodes   3474 | vram 1149 MB
+[  63.75]   perf 02_village     fps  30 | frame  33.3 ms | cpu 57.78 ms | 3D gpu  7.76 ms | draws   574 | prims   744345 | objs  1285 | nodes   3474 | vram 1149 MB
+[  64.25]   perf 02_village     fps  30 | frame  33.3 ms | cpu 57.78 ms | 3D gpu  8.07 ms | draws   556 | prims   746659 | objs  1285 | nodes   3478 | vram 1149 MB
+[  64.75]   perf 02_village     fps  30 | frame  33.3 ms | cpu 13.84 ms | 3D gpu  8.19 ms | draws   568 | prims   756248 | objs  1285 | nodes   3482 | vram 1149 MB
+[  65.25]   perf 02_village     fps  30 | frame  33.3 ms | cpu 13.84 ms | 3D gpu  8.18 ms | draws   573 | prims   785382 | objs  1294 | nodes   3486 | vram 1148 MB
+[  65.78]   perf 02_village     fps  30 | frame  33.3 ms | cpu 17.20 ms | 3D gpu  8.43 ms | draws   570 | prims   790503 | objs  1291 | nodes   3486 | vram 1148 MB
+[  65.99]   walk_to (-18.1, -7.4): arrived in 3.4s, 1.0 m left, stuck 0
+[  66.29] SHOT 14_npc_innkeeper.jpg  (pos (-18.7, 18.7, -8.1), yaw -8.69, hour 11.2, hp 120)
+[  66.29]   perf 02_village     fps  30 | frame  33.3 ms | cpu 17.20 ms | 3D gpu  8.42 ms | draws   574 | prims   816265 | objs  1360 | nodes   3486 | vram 1148 MB
+[  66.82]   perf 02_village     fps  30 | frame  33.3 ms | cpu 48.81 ms | 3D gpu  9.07 ms | draws   580 | prims   858214 | objs  1365 | nodes   3486 | vram 1149 MB
+[  67.35]   perf 02_village     fps  30 | frame  33.3 ms | cpu 48.81 ms | 3D gpu  9.77 ms | draws   564 | prims   853505 | objs  1332 | nodes   3486 | vram 1149 MB
+[  67.89]   perf 02_village     fps  30 | frame  33.3 ms | cpu 15.68 ms | 3D gpu  9.97 ms | draws   547 | prims   886504 | objs  1256 | nodes   3482 | vram 1149 MB
+[  68.39]   perf 02_village     fps  30 | frame  33.3 ms | cpu 56.25 ms | 3D gpu 10.22 ms | draws   542 | prims   895538 | objs  1256 | nodes   3485 | vram 1144 MB
+[  68.89]   perf 02_village     fps  30 | frame  33.3 ms | cpu 56.25 ms | 3D gpu 12.49 ms | draws   503 | prims   880244 | objs  1203 | nodes   3481 | vram 1144 MB
+[  69.08]   walk_to (-8.6, 1.5): arrived in 2.8s, 1.0 m left, stuck 0
+[  69.37] SHOT 15_npc_captain_guard.jpg  (pos (-9.1, 18.8, 0.8), yaw -8.67, hour 11.2, hp 120)
+[  69.37] 6 villager nodes (full 3D) in the tree
+[  69.37]   walk_to (-9.0, 0.7): arrived in 0.0s, 0.1 m left, stuck 0
+[  69.42]   perf 02_village     fps  21 | frame  47.6 ms | cpu 362.38 ms | 3D gpu 11.07 ms | draws   541 | prims   951356 | objs  1320 | nodes   3481 | vram 1144 MB
+[  69.77] SHOT 16_npc_villager.jpg  (pos (-9.1, 18.8, 0.8), yaw -7.47, hour 11.3, hp 120)
+[  69.77] SUMMARY 02_village: fps avg 28 (min 8) | 3D gpu 8.39 ms avg (max 25.35) | draws avg 498 max 833 | prims avg 983282 max 2051643 | nodes 3400 | worst frame 583 ms | hitches>50ms 37
+[  69.77] === STEP 03_interact ===
+[  69.92]   perf 03_interact    fps  21 | frame  47.6 ms | cpu 362.38 ms | 3D gpu 11.59 ms | draws   818 | prims  1978689 | objs  1402 | nodes   3481 | vram 1144 MB
+[  70.58]   perf 03_interact    fps  21 | frame  47.6 ms | cpu 362.38 ms | 3D gpu 11.02 ms | draws   819 | prims  1986114 | objs  1403 | nodes   3478 | vram 1138 MB
+[  71.11]   perf 03_interact    fps  27 | frame  37.0 ms | cpu 342.56 ms | 3D gpu 11.44 ms | draws   790 | prims  1963817 | objs  1362 | nodes   3482 | vram 1148 MB
+[  71.64]   perf 03_interact    fps  24 | frame  41.7 ms | cpu 66.19 ms | 3D gpu 11.15 ms | draws   768 | prims  1912306 | objs  1339 | nodes   3482 | vram 1149 MB
+[  72.17]   perf 03_interact    fps  24 | frame  41.7 ms | cpu 66.19 ms | 3D gpu 12.52 ms | draws   762 | prims  1909100 | objs  1333 | nodes   3482 | vram 1149 MB
+[  72.54]   walk_to (2.0, -2.5): arrived in 2.8s, 0.8 m left, stuck 0
+[  72.67]   perf 03_interact    fps  21 | frame  47.6 ms | cpu 393.14 ms | 3D gpu  9.29 ms | draws   760 | prims  1901822 | objs  1341 | nodes   3482 | vram 1149 MB
+[  73.20]   perf 03_interact    fps  21 | frame  47.6 ms | cpu 393.14 ms | 3D gpu  9.26 ms | draws   784 | prims  1905648 | objs  2401 | nodes   3497 | vram 1149 MB
+[  73.24]   interact notice board -> menu OPEN 'Notice Board'
+[  73.24]   menu rect [P: (340.0, 105.0), S: (600.0, 510.0)] (min (600.0, 510.0), 1 children, box min (560.0, 470.0))
+[  73.70]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 14.53 ms | 3D gpu  9.27 ms | draws   784 | prims  1905648 | objs  2401 | nodes   3497 | vram 1149 MB
+[  73.76] SHOT 17_notice_board_menu.jpg  (pos (1.3, 18.6, -2.4), yaw -7.56, hour 11.4, hp 120)
+[  74.21]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 14.53 ms | 3D gpu  7.29 ms | draws   449 | prims   776746 | objs   998 | nodes   3497 | vram 1149 MB
+[  74.92]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 32.42 ms | 3D gpu  6.32 ms | draws   445 | prims   736081 | objs   990 | nodes   3497 | vram 1149 MB
+[  75.44]   perf 03_interact    fps  20 | frame  50.0 ms | cpu 367.27 ms | 3D gpu  8.59 ms | draws   412 | prims   733389 | objs   955 | nodes   3497 | vram 1149 MB
+[  75.95]   perf 03_interact    fps  20 | frame  50.0 ms | cpu 367.27 ms | 3D gpu  8.45 ms | draws   430 | prims   761784 | objs   964 | nodes   3501 | vram 1149 MB
+[  76.45]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 71.23 ms | 3D gpu  8.95 ms | draws   414 | prims   756377 | objs   948 | nodes   3501 | vram 1149 MB
+[  76.98]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 71.23 ms | 3D gpu  9.65 ms | draws   416 | prims   769737 | objs   963 | nodes   3501 | vram 1149 MB
+[  77.18]   walk_to (-11.6, -10.7): arrived in 3.2s, 0.8 m left, stuck 0
+[  77.52]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 13.84 ms | 3D gpu  9.54 ms | draws   425 | prims   772125 | objs  1411 | nodes   3499 | vram 1149 MB
+[  77.92]   interact guild receptionist -> menu OPEN 'Adventurer Guild'
+[  77.92]   menu rect [P: (340.0, 213.0), S: (600.0, 294.0)] (min (600.0, 294.0), 1 children, box min (560.0, 254.0))
+[  78.02]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 13.84 ms | 3D gpu  9.52 ms | draws   425 | prims   772125 | objs  1411 | nodes   3499 | vram 1149 MB
+[  78.44] SHOT 18_guild_menu.jpg  (pos (-11.0, 18.6, -10.5), yaw -5.25, hour 11.5, hp 120)
+[  78.52]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 14.45 ms | 3D gpu 10.08 ms | draws   425 | prims   772063 | objs  1411 | nodes   3499 | vram 1149 MB
+[  78.88]   clicked 'Register as an adventurer (10g)' at (640.0, 398.0): pressed
+[  79.05]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 14.45 ms | 3D gpu  9.55 ms | draws   446 | prims   775669 | objs  1725 | nodes   3507 | vram 1149 MB
+[  79.50] SHOT 19_guild_menu_after_join.jpg  (pos (-11.0, 18.6, -10.5), yaw -5.25, hour 11.6, hp 120)
+[  79.55]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 33.09 ms | 3D gpu  9.57 ms | draws   416 | prims   769327 | objs  1106 | nodes   3507 | vram 1149 MB
+[  80.05]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 33.09 ms | 3D gpu  9.37 ms | draws   568 | prims   822517 | objs  1387 | nodes   3507 | vram 1149 MB
+[  80.55]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 31.35 ms | 3D gpu 10.43 ms | draws   587 | prims   974007 | objs  1499 | nodes   3507 | vram 1149 MB
+[  81.05]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 31.35 ms | 3D gpu 10.74 ms | draws   591 | prims   976263 | objs  1503 | nodes   3507 | vram 1149 MB
+[  81.58]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 13.67 ms | 3D gpu 10.81 ms | draws   583 | prims   949148 | objs  1494 | nodes   3507 | vram 1149 MB
+[  82.42]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 13.67 ms | 3D gpu 11.82 ms | draws   582 | prims  1440636 | objs  1461 | nodes   3503 | vram 1149 MB
+[  82.94]   perf 03_interact    fps  22 | frame  45.5 ms | cpu 349.27 ms | 3D gpu  8.13 ms | draws   573 | prims  1234210 | objs  1302 | nodes   3507 | vram 1149 MB
+[  83.44]   perf 03_interact    fps  29 | frame  34.5 ms | cpu 18.84 ms | 3D gpu  8.12 ms | draws   586 | prims  1257074 | objs  1315 | nodes   3511 | vram 1138 MB
+[  83.95]   perf 03_interact    fps  29 | frame  34.5 ms | cpu 18.84 ms | 3D gpu  8.14 ms | draws   585 | prims  1235030 | objs  1313 | nodes   3511 | vram 1138 MB
+[  84.04]   walk_to (5.9, 0.6): arrived in 4.4s, 0.8 m left, stuck 0
+[  84.25] [HOOK] gave 2 wolf pelts to test selling
+[  84.48]   perf 03_interact    fps  21 | frame  47.6 ms | cpu 366.70 ms | 3D gpu  7.90 ms | draws   581 | prims   876527 | objs  1810 | nodes   3508 | vram 1138 MB
+[  84.74]   interact market trader -> menu OPEN 'Market Trader'
+[  84.74]   menu rect [P: (336.0, 92.5), S: (608.0, 535.0)] (min (608.0, 535.0), 1 children, box min (568.0, 495.0))
+[  85.01]   perf 03_interact    fps  21 | frame  47.6 ms | cpu 366.70 ms | 3D gpu  8.86 ms | draws   581 | prims   876501 | objs  1810 | nodes   3508 | vram 1138 MB
+[  85.16] SHOT 20_trader_menu.jpg  (pos (5.3, 18.6, 0.3), yaw -2.11, hour 11.7, hp 120)
+[  85.54]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 29.34 ms | 3D gpu  9.31 ms | draws   580 | prims   876695 | objs  1885 | nodes   3504 | vram 1138 MB
+[  85.61]   clicked 'Buy Loaf of Bread  —  2g  (30 in stock)' at (636.0, 252.5): pressed
+[  86.04]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 29.34 ms | 3D gpu  9.31 ms | draws   580 | prims   876665 | objs  1870 | nodes   3504 | vram 1138 MB
+[  86.11]   clicked 'Sell Wolf Pelt ×2  —  4g each' at (636.0, 542.5): pressed
+[  86.11]   trade: gold 30 -> after buy 28 -> after sell 32; bread 3, pelts 1
+[  86.53] SHOT 21_trader_after_trade.jpg  (pos (5.3, 18.6, 0.3), yaw -2.11, hour 11.8, hp 120)
+[  86.55]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 59.24 ms | 3D gpu  9.74 ms | draws   575 | prims   876251 | objs  1865 | nodes   3504 | vram 1149 MB
+[  87.08]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 59.24 ms | 3D gpu  7.40 ms | draws   509 | prims   801189 | objs  1123 | nodes   3504 | vram 1149 MB
+[  87.58]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 29.15 ms | 3D gpu 10.09 ms | draws   453 | prims   818135 | objs  1054 | nodes   3500 | vram 1149 MB
+[  88.40]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 29.15 ms | 3D gpu 10.08 ms | draws   454 | prims   785718 | objs  1055 | nodes   3500 | vram 1149 MB
+[  88.92]   perf 03_interact    fps  14 | frame  71.4 ms | cpu 593.91 ms | 3D gpu  9.11 ms | draws   453 | prims   765222 | objs  1054 | nodes   3496 | vram 1149 MB
+[  89.42]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 21.72 ms | 3D gpu  9.47 ms | draws   450 | prims   761566 | objs  1051 | nodes   3496 | vram 1149 MB
+[  89.62]   walk_to (-5.2, 2.6): arrived in 2.9s, 0.7 m left, stuck 0
+[  89.95]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 21.72 ms | 3D gpu  9.30 ms | draws   447 | prims   745701 | objs  1511 | nodes   3491 | vram 1149 MB
+[  90.32]   interact captain -> menu OPEN 'Captain of the Guard'
+[  90.32]   menu rect [P: (340.0, 213.0), S: (600.0, 294.0)] (min (600.0, 294.0), 1 children, box min (560.0, 254.0))
+[  90.45]   perf 03_interact    fps  30 | frame  33.3 ms | cpu 20.64 ms | 3D gpu  9.31 ms | draws   444 | prims   745253 | objs  1447 | nodes   3491 | vram 1149 MB
+[  90.75] SHOT 22_talk_captain.jpg  (pos (-4.6, 18.6, 2.6), yaw -4.54, hour 11.9, hp 120)
+[  90.92] SUMMARY 03_interact: fps avg 27 (min 14) | 3D gpu 9.50 ms avg (max 12.52) | draws avg 558 max 819 | prims avg 1091099 max 1986114 | nodes 3499 | worst frame 618 ms | hitches>50ms 17
+[  90.92] === STEP 04_interior ===
+[  90.92] InteriorDoor entrances in the world: 0
+[  90.92] FINDING [major] Interior doors are not wired into the world (0 InteriorDoor nodes); buildings can't be entered. The bot adds a test door at the inn to check the room itself.
+[  90.92] [HOOK] test InteriorDoor at the inn front (-17.7, 18.8, -4.6)
+[  90.95]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 20.64 ms | 3D gpu  9.85 ms | draws   430 | prims   743247 | objs   977 | nodes   3494 | vram 1149 MB
+[  91.49]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 46.68 ms | 3D gpu 10.29 ms | draws   425 | prims   789141 | objs   967 | nodes   3494 | vram 1149 MB
+[  92.51]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 46.68 ms | 3D gpu 10.39 ms | draws   417 | prims   824805 | objs   949 | nodes   3494 | vram 1149 MB
+[  93.05]   perf 04_interior    fps  14 | frame  71.4 ms | cpu 703.57 ms | 3D gpu  9.56 ms | draws   408 | prims   838636 | objs   939 | nodes   3494 | vram 1149 MB
+[  93.55]   perf 04_interior    fps  26 | frame  38.5 ms | cpu 20.37 ms | 3D gpu  9.55 ms | draws   411 | prims   840057 | objs   942 | nodes   3494 | vram 1149 MB
+[  94.08]   perf 04_interior    fps  26 | frame  38.5 ms | cpu 20.37 ms | 3D gpu 16.61 ms | draws   411 | prims   840057 | objs   942 | nodes   3494 | vram 1149 MB
+[  94.61]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 17.74 ms | 3D gpu 12.80 ms | draws   411 | prims   840057 | objs   942 | nodes   3494 | vram 1149 MB
+[  95.73]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 17.74 ms | 3D gpu 16.52 ms | draws   389 | prims   840116 | objs   925 | nodes   3494 | vram 1149 MB
+[  96.25]   perf 04_interior    fps  21 | frame  47.6 ms | cpu 688.93 ms | 3D gpu  2.77 ms | draws   375 | prims   803678 | objs   911 | nodes   3490 | vram 1149 MB
+[  96.99]   perf 04_interior    fps  21 | frame  47.6 ms | cpu 688.93 ms | 3D gpu  2.77 ms | draws   378 | prims   825347 | objs   914 | nodes   3490 | vram 1149 MB
+[  97.49]   perf 04_interior    fps  12 | frame  83.3 ms | cpu 25.25 ms | 3D gpu  2.82 ms | draws   390 | prims   827786 | objs   926 | nodes   3494 | vram 1149 MB
+[  98.02]   perf 04_interior    fps  12 | frame  83.3 ms | cpu 25.25 ms | 3D gpu  5.13 ms | draws   392 | prims   829554 | objs   928 | nodes   3494 | vram 1149 MB
+[  98.52]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 17.30 ms | 3D gpu  5.47 ms | draws   392 | prims   829554 | objs   928 | nodes   3494 | vram 1149 MB
+[  99.03]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 17.30 ms | 3D gpu  5.86 ms | draws   392 | prims   829556 | objs   928 | nodes   3490 | vram 1138 MB
+[  99.52]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 20.62 ms | 3D gpu  5.62 ms | draws   428 | prims   864901 | objs   959 | nodes   3490 | vram 1138 MB
+[ 100.02]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 20.62 ms | 3D gpu  7.67 ms | draws   415 | prims   839853 | objs   951 | nodes   3486 | vram 1138 MB
+[ 100.53]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 28.90 ms | 3D gpu  7.35 ms | draws   397 | prims   823427 | objs   946 | nodes   3486 | vram 1138 MB
+[ 101.03]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 28.90 ms | 3D gpu  7.44 ms | draws   386 | prims   760992 | objs   935 | nodes   3486 | vram 1138 MB
+[ 101.56]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 22.92 ms | 3D gpu  8.08 ms | draws   393 | prims   775378 | objs   932 | nodes   3486 | vram 1138 MB
+[ 102.09]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 22.92 ms | 3D gpu  8.44 ms | draws   397 | prims   772855 | objs   936 | nodes   3486 | vram 1138 MB
+[ 102.59]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 16.96 ms | 3D gpu  9.14 ms | draws   409 | prims   854467 | objs   948 | nodes   3486 | vram 1138 MB
+[ 103.09]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 16.96 ms | 3D gpu  9.49 ms | draws   390 | prims   802670 | objs   929 | nodes   3486 | vram 1138 MB
+[ 103.12]   walk_to (-17.6631, -4.645159): stuck near (-16.63149, -6.051952) (blocked by geometry?)
+[ 103.59]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 19.31 ms | 3D gpu  9.40 ms | draws   403 | prims   777365 | objs   952 | nodes   3486 | vram 1138 MB
+[ 104.09]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 19.31 ms | 3D gpu  9.73 ms | draws   420 | prims   825002 | objs   959 | nodes   3486 | vram 1138 MB
+[ 104.59]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 20.41 ms | 3D gpu  9.97 ms | draws   392 | prims   766370 | objs   941 | nodes   3486 | vram 1138 MB
+[ 105.12]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 20.41 ms | 3D gpu  9.57 ms | draws   378 | prims   750785 | objs   927 | nodes   3486 | vram 1138 MB
+[ 105.62]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 16.90 ms | 3D gpu  9.48 ms | draws   393 | prims   779798 | objs   932 | nodes   3486 | vram 1138 MB
+[ 106.16]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 16.90 ms | 3D gpu 10.18 ms | draws   404 | prims   830851 | objs   943 | nodes   3486 | vram 1138 MB
+[ 106.69]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 17.16 ms | 3D gpu  9.44 ms | draws   437 | prims   725165 | objs  1044 | nodes   3486 | vram 1138 MB
+[ 107.19]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 17.16 ms | 3D gpu  9.81 ms | draws   508 | prims   724445 | objs  1121 | nodes   3486 | vram 1138 MB
+[ 107.72]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 17.46 ms | 3D gpu 10.13 ms | draws   438 | prims   789321 | objs  1081 | nodes   3486 | vram 1138 MB
+[ 108.26]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 17.46 ms | 3D gpu 10.50 ms | draws   443 | prims   825277 | objs  1207 | nodes   3486 | vram 1138 MB
+[ 108.76]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 17.47 ms | 3D gpu 10.33 ms | draws   416 | prims   883500 | objs  1180 | nodes   3486 | vram 1138 MB
+[ 109.26]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 17.47 ms | 3D gpu 10.27 ms | draws   416 | prims   876753 | objs  1179 | nodes   3486 | vram 1138 MB
+[ 109.79]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 16.81 ms | 3D gpu 10.82 ms | draws   407 | prims   808484 | objs   956 | nodes   3486 | vram 1138 MB
+[ 110.32]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 16.81 ms | 3D gpu 10.29 ms | draws   408 | prims   811387 | objs   957 | nodes   3486 | vram 1138 MB
+[ 110.82]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 20.74 ms | 3D gpu  9.76 ms | draws   392 | prims   768449 | objs   941 | nodes   3486 | vram 1138 MB
+[ 111.32]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 20.74 ms | 3D gpu  9.46 ms | draws   393 | prims   770106 | objs   935 | nodes   3486 | vram 1138 MB
+[ 111.82]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 23.44 ms | 3D gpu  9.52 ms | draws   399 | prims   788902 | objs   938 | nodes   3486 | vram 1138 MB
+[ 112.32]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 23.44 ms | 3D gpu 10.75 ms | draws   410 | prims   834434 | objs   949 | nodes   3486 | vram 1138 MB
+[ 112.83]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 24.44 ms | 3D gpu  9.80 ms | draws   442 | prims   728188 | objs  1042 | nodes   3486 | vram 1138 MB
+[ 113.33]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 24.44 ms | 3D gpu  9.86 ms | draws   499 | prims   722853 | objs  1094 | nodes   3486 | vram 1138 MB
+[ 113.86]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 25.51 ms | 3D gpu 10.01 ms | draws   441 | prims   814515 | objs  1100 | nodes   3486 | vram 1138 MB
+[ 114.36]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 25.51 ms | 3D gpu 10.26 ms | draws   445 | prims   829230 | objs  1209 | nodes   3486 | vram 1138 MB
+[ 114.89]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 18.23 ms | 3D gpu 10.19 ms | draws   416 | prims   879638 | objs  1180 | nodes   3486 | vram 1138 MB
+[ 115.39]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 19.24 ms | 3D gpu 10.23 ms | draws   407 | prims   843785 | objs  1095 | nodes   3486 | vram 1138 MB
+[ 115.92]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 19.24 ms | 3D gpu 10.80 ms | draws   406 | prims   809515 | objs   955 | nodes   3486 | vram 1138 MB
+[ 116.42]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 22.59 ms | 3D gpu 10.29 ms | draws   416 | prims   816283 | objs   961 | nodes   3490 | vram 1138 MB
+[ 116.93]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 22.59 ms | 3D gpu  9.82 ms | draws   389 | prims   766304 | objs   938 | nodes   3494 | vram 1149 MB
+[ 117.45]   perf 04_interior    fps  28 | frame  35.7 ms | cpu 112.49 ms | 3D gpu  8.54 ms | draws   389 | prims   760158 | objs   938 | nodes   3494 | vram 1149 MB
+[ 117.98]   perf 04_interior    fps  28 | frame  35.7 ms | cpu 112.49 ms | 3D gpu  8.56 ms | draws   399 | prims   787560 | objs   938 | nodes   3494 | vram 1149 MB
+[ 118.45]   walk_to (-17.7, -4.6): FAILED in 27.5s, 1.8 m left, stuck 8
+[ 118.52]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 18.21 ms | 3D gpu  9.26 ms | draws   410 | prims   840621 | objs   949 | nodes   3494 | vram 1149 MB
+[ 118.75] SHOT 23_interior_door_outside.jpg  (pos (-16.5, 18.7, -6.0), yaw -3.76, hour 12.8, hp 120)
+[ 118.75]   nearest interactable at the door: Node3D 'Ashford Inn'
+[ 119.05]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 18.21 ms | 3D gpu  9.85 ms | draws   407 | prims   812340 | objs  1222 | nodes   3496 | vram 1149 MB
+[ 119.58]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 45.97 ms | 3D gpu  9.81 ms | draws   411 | prims   810232 | objs  1226 | nodes   3500 | vram 1149 MB
+[ 120.08]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 45.97 ms | 3D gpu  9.84 ms | draws   410 | prims   807559 | objs  1225 | nodes   3500 | vram 1149 MB
+[ 120.35] FINDING [major] At the inn door, E opens the innkeeper's menu instead of entering: the innkeeper Station (3.2 m interact radius) is closer than the door, and InteriorDoor yields to any nearer interactable
+[ 120.65] [HOOK] called door.enter() directly
+[ 120.66]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 17.90 ms | 3D gpu  9.82 ms | draws   394 | prims   805269 | objs   933 | nodes   3573 | vram 1149 MB
+[ 121.18]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 17.90 ms | 3D gpu  2.70 ms | draws    74 | prims    73877 | objs   600 | nodes   3569 | vram 1144 MB
+[ 121.65]   inside: player (-18.9, 318.8, -1.1), interior InnInterior
+[ 121.74] SHOT 24_interior_inside.jpg  (pos (-18.9, 318.8, -1.1), yaw 0.00, hour 12.9, hp 120)
+[ 121.75]   perf 04_interior    fps  27 | frame  37.0 ms | cpu 140.07 ms | 3D gpu  2.73 ms | draws    74 | prims    73877 | objs   600 | nodes   3569 | vram 1144 MB
+[ 122.25]   perf 04_interior    fps  27 | frame  37.0 ms | cpu 140.07 ms | 3D gpu  2.77 ms | draws    77 | prims    74029 | objs   603 | nodes   3569 | vram 1144 MB
+[ 122.75]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 38.09 ms | 3D gpu  2.76 ms | draws    77 | prims    74029 | objs   603 | nodes   3569 | vram 1144 MB
+[ 123.25]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 38.09 ms | 3D gpu  2.77 ms | draws    77 | prims    74029 | objs   603 | nodes   3569 | vram 1144 MB
+[ 123.79]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 15.33 ms | 3D gpu  2.94 ms | draws    77 | prims    74029 | objs   603 | nodes   3569 | vram 1144 MB
+[ 124.28]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 15.33 ms | 3D gpu  2.91 ms | draws    77 | prims    71355 | objs   603 | nodes   3569 | vram 1144 MB
+[ 124.82]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 19.38 ms | 3D gpu  3.03 ms | draws    77 | prims    74029 | objs   603 | nodes   3573 | vram 1155 MB
+[ 125.32]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 19.38 ms | 3D gpu  2.94 ms | draws    77 | prims    71355 | objs   603 | nodes   3573 | vram 1155 MB
+[ 125.68]   walk_to (-17.7, -6.6): arrived in 3.9s, 0.9 m left, stuck 1
+[ 125.88] SHOT 25_interior_walk.jpg  (pos (-18.3, 318.8, -6.1), yaw -0.96, hour 13.0, hp 120)
+[ 125.88]   perf 04_interior    fps  29 | frame  34.5 ms | cpu 90.93 ms | 3D gpu  2.95 ms | draws    74 | prims    71203 | objs   600 | nodes   3573 | vram 1155 MB
+[ 126.38]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 38.04 ms | 3D gpu  3.09 ms | draws    74 | prims    76977 | objs   600 | nodes   3573 | vram 1155 MB
+[ 126.78] SHOT 26_interior_look_90.jpg  (pos (-18.3, 318.8, -6.2), yaw -2.53, hour 13.1, hp 120)
+[ 126.88]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 38.04 ms | 3D gpu  3.07 ms | draws    74 | prims    76977 | objs   600 | nodes   3573 | vram 1155 MB
+[ 127.41]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 40.52 ms | 3D gpu  2.95 ms | draws    73 | prims    68529 | objs   599 | nodes   3573 | vram 1155 MB
+[ 127.64] SHOT 27_interior_look_180.jpg  (pos (-18.3, 318.8, -6.2), yaw -4.10, hour 13.1, hp 120)
+[ 127.92]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 40.52 ms | 3D gpu  2.88 ms | draws    73 | prims    68529 | objs   599 | nodes   3573 | vram 1144 MB
+[ 128.42]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 43.45 ms | 3D gpu  2.83 ms | draws    73 | prims    68529 | objs   599 | nodes   3573 | vram 1144 MB
+[ 128.51] SHOT 28_interior_look_270.jpg  (pos (-18.3, 318.8, -6.2), yaw -5.67, hour 13.1, hp 120)
+[ 128.95]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 43.45 ms | 3D gpu  2.96 ms | draws    74 | prims    71203 | objs   600 | nodes   3577 | vram 1144 MB
+[ 129.37] SHOT 29_interior_look_360.jpg  (pos (-18.3, 318.8, -6.2), yaw -7.24, hour 13.1, hp 120)
+[ 129.45]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 39.90 ms | 3D gpu  2.94 ms | draws    77 | prims    71355 | objs   603 | nodes   3577 | vram 1144 MB
+[ 129.98]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 39.90 ms | 3D gpu  3.01 ms | draws    77 | prims    74455 | objs   603 | nodes   3577 | vram 1144 MB
+[ 130.48]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 15.00 ms | 3D gpu  3.02 ms | draws    77 | prims    74455 | objs   603 | nodes   3577 | vram 1144 MB
+[ 130.98]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 15.00 ms | 3D gpu  3.02 ms | draws    77 | prims    74455 | objs   603 | nodes   3577 | vram 1144 MB
+[ 131.48]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 14.66 ms | 3D gpu  3.03 ms | draws    77 | prims    74455 | objs   603 | nodes   3577 | vram 1144 MB
+[ 131.98]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 14.66 ms | 3D gpu  2.67 ms | draws    77 | prims    71355 | objs   603 | nodes   3577 | vram 1144 MB
+[ 132.52]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 18.70 ms | 3D gpu  2.75 ms | draws    77 | prims    74029 | objs   603 | nodes   3577 | vram 1144 MB
+[ 133.05]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 18.70 ms | 3D gpu  2.63 ms | draws    76 | prims    68681 | objs   602 | nodes   3577 | vram 1144 MB
+[ 133.58]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 21.45 ms | 3D gpu  2.53 ms | draws    78 | prims    65614 | objs   617 | nodes   3581 | vram 1144 MB
+[ 133.81]   walk_to (-18.9, -0.1): arrived in 4.4s, 0.5 m left, stuck 1
+[ 134.23]   perf 04_interior    fps  30 | frame  33.3 ms | cpu 21.45 ms | 3D gpu  2.52 ms | draws   368 | prims   747055 | objs   916 | nodes   3508 | vram 1181 MB
+[ 134.39]   exit via ExitDoor + E: ok
+[ 134.76]   perf 04_interior    fps  20 | frame  50.0 ms | cpu 257.88 ms | 3D gpu  2.47 ms | draws   616 | prims  1837162 | objs  1185 | nodes   3500 | vram 1185 MB
+[ 135.19]   back outside at (-16.7, 18.7, -6.1) (start inside was (-18.8631, -1.145159))
+[ 135.29] SHOT 30_interior_exit_outside.jpg  (pos (-16.7, 18.7, -6.1), yaw -0.59, hour 13.3, hp 120)
+[ 135.29] SUMMARY 04_interior: fps avg 29 (min 12) | 3D gpu 7.19 ms avg (max 16.61) | draws avg 311 max 616 | prims avg 597135 max 1837162 | nodes 3516 | worst frame 741 ms | hitches>50ms 16
+[ 135.29] === STEP 05_combat_wolves ===
+[ 135.29] [HOOK] fast travel toward den 6 at (-95.65613, 354.9619) (368 m from Ashford)
+[ 141.34]   perf 05_combat_wolves fps  20 | frame  50.0 ms | cpu 257.88 ms | 3D gpu  2.46 ms | draws   616 | prims  1836392 | objs  1185 | nodes   3982 | vram 1185 MB
+[ 141.86]   perf 05_combat_wolves fps  28 | frame  35.7 ms | cpu 6128.95 ms | 3D gpu  4.34 ms | draws   248 | prims   697653 | objs   947 | nodes   2923 | vram 1176 MB
+[ 142.35] Danger: village {total=0.0, coverage=0.8} -> here {total=46.4, coverage=0.0}
+[ 142.39]   perf 05_combat_wolves fps  22 | frame  45.5 ms | cpu 114.62 ms | 3D gpu  3.39 ms | draws   248 | prims   697653 | objs   947 | nodes   2923 | vram 1169 MB
+[ 142.45] SHOT 31_outside_runestone_danger.jpg  (pos (-81.3, 20.9, 301.9), yaw 2.88, hour 13.4, hp 120)
+[ 142.89]   perf 05_combat_wolves fps  22 | frame  45.5 ms | cpu 114.62 ms | 3D gpu  3.22 ms | draws   253 | prims   742284 | objs   952 | nodes   2937 | vram 1170 MB
+[ 143.42]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 49.11 ms | 3D gpu  2.12 ms | draws   245 | prims   696063 | objs   936 | nodes   2937 | vram 1170 MB
+[ 143.92]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 49.11 ms | 3D gpu  3.76 ms | draws   239 | prims   746605 | objs   924 | nodes   2937 | vram 1170 MB
+[ 144.43]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 10.61 ms | 3D gpu  4.89 ms | draws   242 | prims   747771 | objs   911 | nodes   2937 | vram 1170 MB
+[ 144.46]   walk_to (-95.7, 355.0): FAILED in 2.0s, 41.2 m left, stuck 0
+[ 144.96]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 10.61 ms | 3D gpu  5.82 ms | draws   246 | prims   809003 | objs   911 | nodes   2937 | vram 1170 MB
+[ 146.27]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 10.61 ms | 3D gpu  5.85 ms | draws   249 | prims   831899 | objs   914 | nodes   2850 | vram 1170 MB
+[ 146.62]   walk_to (-95.7, 355.0): FAILED in 2.1s, 33.3 m left, stuck 0
+[ 146.81]   perf 05_combat_wolves fps   1 | frame 1000.0 ms | cpu 157.30 ms | 3D gpu 24.70 ms | draws   285 | prims   867396 | objs   943 | nodes   2918 | vram 1170 MB
+[ 146.98] Wolves within 22 m: 1 (all team1 within 80 m: 4)
+[ 147.08] SHOT 32_wolves_approach.jpg  (pos (-87.2, 21.3, 323.3), yaw 2.88, hour 13.5, hp 120)
+[ 147.33]   perf 05_combat_wolves fps   1 | frame 1000.0 ms | cpu 157.30 ms | 3D gpu 18.61 ms | draws   255 | prims   902172 | objs   833 | nodes   2941 | vram 1170 MB
+[ 147.83]   perf 05_combat_wolves fps  16 | frame  62.5 ms | cpu 164.87 ms | 3D gpu  2.55 ms | draws   248 | prims   846319 | objs   829 | nodes   2941 | vram 1170 MB
+[ 148.36]   perf 05_combat_wolves fps  16 | frame  62.5 ms | cpu 164.87 ms | 3D gpu  1.96 ms | draws   240 | prims   801665 | objs   818 | nodes   2941 | vram 1170 MB
+[ 148.82] SHOT 33_wolf_contact.jpg  (pos (-91.2, 20.8, 330.4), yaw 2.64, hour 13.5, hp 120)
+[ 148.87]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 12.88 ms | 3D gpu  1.90 ms | draws   237 | prims   801513 | objs   815 | nodes   2941 | vram 1170 MB
+[ 149.09] SHOT 34_wolf_player_hurt.jpg  (pos (-90.9, 20.9, 329.9), yaw 2.64, hour 13.6, hp 111)
+[ 149.40]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 51.99 ms | 3D gpu  2.43 ms | draws   243 | prims   840396 | objs   824 | nodes   2942 | vram 1170 MB
+[ 149.90]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 51.99 ms | 3D gpu  4.09 ms | draws   244 | prims   840406 | objs   825 | nodes   2942 | vram 1170 MB
+[ 150.42]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 55.65 ms | 3D gpu  4.66 ms | draws   246 | prims   840850 | objs   827 | nodes   2945 | vram 1170 MB
+[ 150.66] SHOT 35_wolf_block.jpg  (pos (-90.0, 21.0, 328.3), yaw 2.64, hour 13.6, hp 111)
+[ 150.94]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 55.65 ms | 3D gpu  5.11 ms | draws   244 | prims   841080 | objs   825 | nodes   2942 | vram 1170 MB
+[ 151.26] SHOT 36_wolf_melee.jpg  (pos (-90.0, 21.0, 328.3), yaw 2.64, hour 13.6, hp 110)
+[ 151.44]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 67.53 ms | 3D gpu  5.26 ms | draws   244 | prims   841056 | objs   825 | nodes   2942 | vram 1170 MB
+[ 151.97]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 67.53 ms | 3D gpu  5.46 ms | draws   249 | prims   842228 | objs   879 | nodes   2947 | vram 1170 MB
+[ 152.03]   wolf down (dead)
+[ 152.47]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 25.93 ms | 3D gpu  5.44 ms | draws   248 | prims   842192 | objs   878 | nodes   2945 | vram 1170 MB
+[ 152.93] SHOT 37_wolf_death_anim_1.jpg  (pos (-90.7, 20.9, 330.2), yaw 2.64, hour 13.7, hp 101)
+[ 152.97]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 25.93 ms | 3D gpu  5.84 ms | draws   323 | prims   994017 | objs  1157 | nodes   2942 | vram 1170 MB
+[ 153.33] SHOT 38_wolf_dodge.jpg  (pos (-93.0, 20.5, 329.8), yaw 3.00, hour 13.7, hp 92)
+[ 153.50]   perf 05_combat_wolves fps  29 | frame  34.5 ms | cpu 43.90 ms | 3D gpu  8.80 ms | draws   316 | prims   907271 | objs  1150 | nodes   2942 | vram 1170 MB
+[ 154.00]   perf 05_combat_wolves fps  29 | frame  34.5 ms | cpu 43.90 ms | 3D gpu  8.86 ms | draws   321 | prims  1007294 | objs  1167 | nodes   2942 | vram 1170 MB
+[ 154.50]   perf 05_combat_wolves fps  31 | frame  32.3 ms | cpu 11.38 ms | 3D gpu  9.28 ms | draws   323 | prims  1009057 | objs  1169 | nodes   2942 | vram 1170 MB
+[ 155.00]   perf 05_combat_wolves fps  31 | frame  32.3 ms | cpu 11.38 ms | 3D gpu  9.31 ms | draws   322 | prims  1009021 | objs  1168 | nodes   2941 | vram 1170 MB
+[ 155.54]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 30.25 ms | 3D gpu  9.82 ms | draws   293 | prims   808186 | objs  1127 | nodes   2944 | vram 1170 MB
+[ 156.04]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 30.25 ms | 3D gpu  9.55 ms | draws   288 | prims   800782 | objs  1073 | nodes   2945 | vram 1170 MB
+[ 156.57]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 12.98 ms | 3D gpu 11.80 ms | draws   711 | prims  1913138 | objs  1343 | nodes   2942 | vram 1170 MB
+[ 157.10]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 12.98 ms | 3D gpu  7.49 ms | draws   294 | prims   641254 | objs   875 | nodes   2942 | vram 1170 MB
+[ 157.60]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 13.60 ms | 3D gpu  7.64 ms | draws   538 | prims  1509470 | objs  1153 | nodes   2942 | vram 1170 MB
+[ 158.14]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 13.60 ms | 3D gpu  7.66 ms | draws   288 | prims   625414 | objs   869 | nodes   2941 | vram 1170 MB
+[ 158.67]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 13.16 ms | 3D gpu  9.57 ms | draws   475 | prims   821226 | objs  1075 | nodes   2942 | vram 1170 MB
+[ 159.20]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 13.16 ms | 3D gpu 10.08 ms | draws   470 | prims   819228 | objs  1070 | nodes   2934 | vram 1170 MB
+[ 159.74]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 12.62 ms | 3D gpu  7.58 ms | draws   239 | prims   531452 | objs   820 | nodes   2935 | vram 1170 MB
+[ 160.24]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 12.62 ms | 3D gpu  5.64 ms | draws   231 | prims   587651 | objs   812 | nodes   2935 | vram 1170 MB
+[ 160.77]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 11.35 ms | 3D gpu  6.64 ms | draws   237 | prims   612494 | objs   818 | nodes   2935 | vram 1170 MB
+[ 161.30]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 11.35 ms | 3D gpu  7.17 ms | draws   236 | prims   612500 | objs   817 | nodes   2936 | vram 1170 MB
+[ 161.80]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 12.81 ms | 3D gpu 13.08 ms | draws   231 | prims   636003 | objs   812 | nodes   2935 | vram 1170 MB
+[ 162.34]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 12.81 ms | 3D gpu 12.95 ms | draws   230 | prims   635967 | objs   811 | nodes   2934 | vram 1170 MB
+[ 162.87]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 11.73 ms | 3D gpu 14.99 ms | draws   230 | prims   635749 | objs   811 | nodes   2934 | vram 1170 MB
+[ 163.37]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 11.73 ms | 3D gpu  2.35 ms | draws   230 | prims   635967 | objs   811 | nodes   2934 | vram 1170 MB
+[ 163.87]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 11.66 ms | 3D gpu  1.99 ms | draws   208 | prims   595419 | objs   789 | nodes   2937 | vram 1170 MB
+[ 164.37]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 11.66 ms | 3D gpu  4.62 ms | draws   592 | prims  1820578 | objs  1203 | nodes   2938 | vram 1170 MB
+[ 164.87]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 26.97 ms | 3D gpu  4.44 ms | draws   660 | prims  1718101 | objs  1293 | nodes   2935 | vram 1170 MB
+[ 165.37]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 26.97 ms | 3D gpu  7.20 ms | draws   663 | prims  1718601 | objs  1296 | nodes   2935 | vram 1170 MB
+[ 165.87]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 15.90 ms | 3D gpu  8.33 ms | draws   689 | prims  1865072 | objs  1321 | nodes   2935 | vram 1170 MB
+[ 166.00]   PLAYER DIED at 18.9s into the wolf fight
+[ 166.40]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 16.13 ms | 3D gpu  8.09 ms | draws   687 | prims  1864175 | objs  1431 | nodes   2935 | vram 1170 MB
+[ 166.94]   perf 05_combat_wolves fps  30 | frame  33.3 ms | cpu 16.13 ms | 3D gpu  8.62 ms | draws   686 | prims  1864139 | objs  1430 | nodes   2934 | vram 1170 MB
+[ 167.23]   death anim: 'Death_A' -> 'Death_A', hips 0.88 m -> 0.93 m above the feet
+[ 167.23] FINDING [major] Player death animation does not play: hips stay at 0.93 m 1.2 s after dying (wolf fight)
+[ 167.33] SHOT 39_wolf_player_death.jpg  (pos (-90.4, 20.8, 332.8), yaw 12.14, hour 14.1, hp 0)
+[ 167.44]   perf 05_combat_wolves fps  29 | frame  34.5 ms | cpu 45.44 ms | 3D gpu  8.80 ms | draws   688 | prims  1864351 | objs  1432 | nodes   2934 | vram 1170 MB
+[ 167.97]   perf 05_combat_wolves fps  29 | frame  34.5 ms | cpu 45.44 ms | 3D gpu  9.19 ms | draws   688 | prims  1864351 | objs  1432 | nodes   2934 | vram 1170 MB
+[ 168.47]   perf 05_combat_wolves fps  31 | frame  32.3 ms | cpu 13.52 ms | 3D gpu  9.42 ms | draws   688 | prims  1864351 | objs  1432 | nodes   2934 | vram 1170 MB
+[ 169.00]   perf 05_combat_wolves fps  31 | frame  32.3 ms | cpu 13.52 ms | 3D gpu  9.67 ms | draws   526 | prims  1578801 | objs  1249 | nodes   2934 | vram 1170 MB
+[ 169.53]   enemy hp (first seen -> last seen): 45->1, 45->13, 45->31, 45->17
+[ 169.53] FIGHT wolf: 22.5s, swings 38, blocks 4, dodges 3, kills/yields 1, enemies left 0, hp 120 -> min 2 -> 120, died true
+[ 169.54]   perf 05_combat_wolves fps  31 | frame  32.3 ms | cpu 13.52 ms | 3D gpu  5.62 ms | draws   532 | prims  1627013 | objs  1255 | nodes   2432 | vram 1170 MB
+[ 170.51] SHOT 40_wolf_after_fight.jpg  (pos (2.0, 18.6, 4.5), yaw 12.14, hour 14.2, hp 120)
+[ 170.51] SUMMARY 05_combat_wolves: fps avg 28 (min 1) | 3D gpu 7.22 ms avg (max 24.70) | draws avg 365 max 711 | prims avg 1035383 max 1913138 | nodes 2946 | worst frame 6107 ms | hitches>50ms 28
+[ 170.51] === STEP 05b_combat_goblins ===
+[ 170.51] [HOOK] fast travel to the goblin warren edge (530.0, 262.0)
+[ 176.35]   perf 05b_combat_goblins fps  20 | frame  50.0 ms | cpu 513.88 ms | 3D gpu  9.35 ms | draws   543 | prims  1675919 | objs  1202 | nodes   3099 | vram 1168 MB
+[ 176.87]   perf 05b_combat_goblins fps   1 | frame 1000.0 ms | cpu 31.71 ms | 3D gpu  2.68 ms | draws   409 | prims  1555829 | objs   967 | nodes   2741 | vram 1170 MB
+[ 177.37]   perf 05b_combat_goblins fps   1 | frame 1000.0 ms | cpu 31.71 ms | 3D gpu  2.90 ms | draws   409 | prims  1555829 | objs   967 | nodes   2741 | vram 1170 MB
+[ 177.66] SHOT 41_goblin_warren.jpg  (pos (530.0, 58.2, 262.0), yaw -1.19, hour 14.3, hp 120)
+[ 177.87]   perf 05b_combat_goblins fps  25 | frame  40.0 ms | cpu 95.74 ms | 3D gpu  2.24 ms | draws   265 | prims   523350 | objs   818 | nodes   2741 | vram 1170 MB
+[ 178.37]   perf 05b_combat_goblins fps  25 | frame  40.0 ms | cpu 95.74 ms | 3D gpu  1.53 ms | draws   266 | prims   575271 | objs   823 | nodes   2741 | vram 1170 MB
+[ 178.87]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 36.17 ms | 3D gpu  1.86 ms | draws   261 | prims   564895 | objs   818 | nodes   2741 | vram 1170 MB
+[ 179.42]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 11.07 ms | 3D gpu  5.06 ms | draws   253 | prims   544012 | objs   810 | nodes   2741 | vram 1170 MB
+[ 179.66]   walk_to (560.0, 250.0): FAILED in 2.0s, 18.4 m left, stuck 0
+[ 179.93]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 11.07 ms | 3D gpu  5.76 ms | draws   266 | prims   588823 | objs   812 | nodes   2741 | vram 1170 MB
+[ 180.36] SHOT 42_goblin_contact.jpg  (pos (542.1, 58.2, 256.9), yaw -1.41, hour 14.4, hp 120)
+[ 180.43]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 40.81 ms | 3D gpu  6.14 ms | draws   263 | prims   588333 | objs   809 | nodes   2741 | vram 1170 MB
+[ 180.89] SHOT 43_goblin_player_hurt.jpg  (pos (541.0, 58.2, 257.0), yaw -1.41, hour 14.4, hp 110)
+[ 180.97]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 40.81 ms | 3D gpu  6.40 ms | draws   266 | prims   590072 | objs   812 | nodes   2750 | vram 1170 MB
+[ 181.47]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 41.03 ms | 3D gpu  6.51 ms | draws   269 | prims   592859 | objs   815 | nodes   2750 | vram 1170 MB
+[ 181.97]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 41.03 ms | 3D gpu  6.66 ms | draws   269 | prims   593219 | objs   815 | nodes   2750 | vram 1170 MB
+[ 182.47]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 22.50 ms | 3D gpu  6.88 ms | draws   269 | prims   592981 | objs   816 | nodes   2750 | vram 1170 MB
+[ 183.00]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 22.50 ms | 3D gpu  8.03 ms | draws   338 | prims  1380408 | objs   895 | nodes   2754 | vram 1170 MB
+[ 183.23] SHOT 44_goblin_block.jpg  (pos (537.5, 58.2, 257.7), yaw -1.08, hour 14.4, hp 99)
+[ 183.50]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 38.61 ms | 3D gpu  7.87 ms | draws   337 | prims  1380372 | objs   894 | nodes   2751 | vram 1170 MB
+[ 184.00] SHOT 45_goblin_melee.jpg  (pos (537.9, 58.2, 257.5), yaw -1.13, hour 14.5, hp 89)
+[ 184.01]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 38.61 ms | 3D gpu  7.93 ms | draws   303 | prims  1115998 | objs   860 | nodes   2750 | vram 1170 MB
+[ 184.53]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 41.99 ms | 3D gpu  8.55 ms | draws   304 | prims  1109373 | objs   861 | nodes   2756 | vram 1170 MB
+[ 185.03]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 41.99 ms | 3D gpu  9.97 ms | draws   429 | prims  1596689 | objs   992 | nodes   2752 | vram 1170 MB
+[ 185.53]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 12.63 ms | 3D gpu  9.34 ms | draws   500 | prims  1015668 | objs  1059 | nodes   2752 | vram 1170 MB
+[ 186.35]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 12.63 ms | 3D gpu  9.36 ms | draws   499 | prims  1015644 | objs  1058 | nodes   2769 | vram 1170 MB
+[ 186.54] SHOT 46_goblin_dodge.jpg  (pos (539.0, 58.2, 255.1), yaw 1.75, hour 14.5, hp 69)
+[ 186.99]   perf 05b_combat_goblins fps   9 | frame 111.1 ms | cpu 732.74 ms | 3D gpu  9.34 ms | draws   288 | prims   901246 | objs  1020 | nodes   2846 | vram 1170 MB
+[ 187.51]   perf 05b_combat_goblins fps  15 | frame  66.7 ms | cpu 133.22 ms | 3D gpu 10.38 ms | draws   259 | prims   887573 | objs   994 | nodes   2844 | vram 1170 MB
+[ 188.01]   perf 05b_combat_goblins fps  15 | frame  66.7 ms | cpu 133.22 ms | 3D gpu  9.78 ms | draws   288 | prims   929304 | objs  1023 | nodes   2847 | vram 1170 MB
+[ 188.51]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 24.52 ms | 3D gpu  9.93 ms | draws   286 | prims   928404 | objs  1021 | nodes   2848 | vram 1170 MB
+[ 188.71]   goblin down (yielded/freed)
+[ 189.01]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 24.52 ms | 3D gpu 10.52 ms | draws   292 | prims   889426 | objs  1134 | nodes   2849 | vram 1170 MB
+[ 189.51]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 18.20 ms | 3D gpu 10.49 ms | draws   290 | prims   889354 | objs  1132 | nodes   2847 | vram 1170 MB
+[ 189.60] SHOT 47_goblin_death_anim_1.jpg  (pos (539.1, 58.2, 254.9), yaw 3.01, hour 14.6, hp 29)
+[ 189.61]   goblin down (yielded/freed)
+[ 190.01]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 18.20 ms | 3D gpu  8.74 ms | draws   304 | prims   902083 | objs  1149 | nodes   2844 | vram 1170 MB
+[ 190.51] SHOT 48_goblin_death_anim_2.jpg  (pos (539.1, 58.2, 254.9), yaw 3.32, hour 14.7, hp 29)
+[ 190.51]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 44.47 ms | 3D gpu  8.77 ms | draws   304 | prims   902083 | objs  1149 | nodes   2844 | vram 1170 MB
+[ 191.01]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 44.47 ms | 3D gpu 12.04 ms | draws   464 | prims  1566057 | objs  1120 | nodes   2844 | vram 1170 MB
+[ 191.51]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 42.27 ms | 3D gpu 10.15 ms | draws   444 | prims  1541387 | objs  1090 | nodes   2844 | vram 1170 MB
+[ 192.01]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 42.27 ms | 3D gpu  9.59 ms | draws   426 | prims  1481933 | objs  1071 | nodes   2844 | vram 1170 MB
+[ 192.51]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 11.84 ms | 3D gpu  9.41 ms | draws   423 | prims  1482169 | objs   971 | nodes   2844 | vram 1170 MB
+[ 193.04]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 11.84 ms | 3D gpu  9.66 ms | draws   422 | prims  1510464 | objs   970 | nodes   2844 | vram 1170 MB
+[ 193.58]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 55.68 ms | 3D gpu 10.73 ms | draws   423 | prims  1510488 | objs   971 | nodes   2845 | vram 1170 MB
+[ 194.08]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 55.68 ms | 3D gpu 10.87 ms | draws   442 | prims  1541401 | objs   991 | nodes   2845 | vram 1170 MB
+[ 194.58]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 11.74 ms | 3D gpu 11.16 ms | draws   647 | prims  1825078 | objs  1259 | nodes   2844 | vram 1170 MB
+[ 195.11]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 11.74 ms | 3D gpu 10.92 ms | draws   647 | prims  1824426 | objs  1259 | nodes   2847 | vram 1170 MB
+[ 195.61]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 28.24 ms | 3D gpu 10.70 ms | draws   661 | prims  1835847 | objs  1273 | nodes   2846 | vram 1170 MB
+[ 196.11]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 28.24 ms | 3D gpu 10.26 ms | draws   661 | prims  1862032 | objs  1266 | nodes   2845 | vram 1170 MB
+[ 196.61]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 29.33 ms | 3D gpu 10.57 ms | draws   686 | prims  1927267 | objs  1298 | nodes   2849 | vram 1170 MB
+[ 197.14]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 29.33 ms | 3D gpu  9.03 ms | draws   416 | prims  1555281 | objs   954 | nodes   2853 | vram 1170 MB
+[ 197.68]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 14.28 ms | 3D gpu  9.29 ms | draws   412 | prims  1555313 | objs   950 | nodes   2848 | vram 1170 MB
+[ 197.94]   PLAYER DIED at 18.2s into the goblin fight
+[ 198.18]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 14.28 ms | 3D gpu  9.61 ms | draws   416 | prims  1555657 | objs  1051 | nodes   2854 | vram 1170 MB
+[ 198.68]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 31.77 ms | 3D gpu  9.53 ms | draws   420 | prims  1555695 | objs  1065 | nodes   2852 | vram 1170 MB
+[ 199.17]   death anim: 'Death_A' -> 'Death_A', hips 0.16 m -> 0.93 m above the feet
+[ 199.18] FINDING [major] Player death animation does not play: hips stay at 0.93 m 1.2 s after dying (goblin fight)
+[ 199.18]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 31.77 ms | 3D gpu  9.41 ms | draws   416 | prims  1555727 | objs  1061 | nodes   2845 | vram 1170 MB
+[ 199.27] SHOT 49_goblin_player_death.jpg  (pos (550.0, 58.2, 254.0), yaw 5.37, hour 14.9, hp 0)
+[ 199.71]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 38.64 ms | 3D gpu  9.41 ms | draws   415 | prims  1555703 | objs  1060 | nodes   2844 | vram 1170 MB
+[ 200.21]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 38.64 ms | 3D gpu 10.09 ms | draws   415 | prims  1555703 | objs  1060 | nodes   2844 | vram 1170 MB
+[ 200.71]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 12.02 ms | 3D gpu 10.11 ms | draws   415 | prims  1555703 | objs  1060 | nodes   2844 | vram 1170 MB
+[ 201.56]   goblin down (yielded/freed)
+[ 201.56]   goblin down (yielded/freed)
+[ 201.56]   enemy hp (first seen -> last seen): 48->6, 48->6, 40->40, 40->3, 40->3, 44->37, 48->48
+[ 201.56] FIGHT goblin: 21.8s, swings 25, blocks 4, dodges 2, kills/yields 4, enemies left 0, hp 120 -> min 3 -> 120, died true
+[ 201.56]   perf 05b_combat_goblins fps  30 | frame  33.3 ms | cpu 12.02 ms | 3D gpu  7.07 ms | draws   539 | prims  1635046 | objs  1175 | nodes   2219 | vram 1170 MB
+[ 202.54] SHOT 50_goblin_after_fight.jpg  (pos (2.0, 18.6, 4.5), yaw 5.37, hour 15.0, hp 120)
+[ 202.54] SUMMARY 05b_combat_goblins: fps avg 27 (min 1) | 3D gpu 8.42 ms avg (max 12.04) | draws avg 393 max 686 | prims avg 1232110 max 1927267 | nodes 2800 | worst frame 6341 ms | hitches>50ms 22
+[ 202.54] === STEP 06_sleep_night ===
+[ 202.54] [HOOK] fast travel back to Ashford
+[ 207.46]   perf 06_sleep_night fps  20 | frame  50.0 ms | cpu 564.76 ms | 3D gpu 12.43 ms | draws   552 | prims  1684032 | objs  1185 | nodes   2786 | vram 1168 MB
+[ 208.44]   perf 06_sleep_night fps   1 | frame 1000.0 ms | cpu 918.83 ms | 3D gpu 62.36 ms | draws   565 | prims  1831260 | objs  1201 | nodes   3241 | vram 1187 MB
+[ 209.51]   perf 06_sleep_night fps   1 | frame 1000.0 ms | cpu 44.24 ms | 3D gpu 59.57 ms | draws   389 | prims   804518 | objs  1010 | nodes   3263 | vram 1185 MB
+[ 210.06]   perf 06_sleep_night fps   2 | frame 500.0 ms | cpu 996.11 ms | 3D gpu 47.82 ms | draws   379 | prims   781229 | objs   913 | nodes   3248 | vram 1183 MB
+[ 210.59]   perf 06_sleep_night fps   3 | frame 333.3 ms | cpu 319.12 ms | 3D gpu 51.89 ms | draws   381 | prims   739012 | objs   913 | nodes   3291 | vram 1183 MB
+[ 211.82]   perf 06_sleep_night fps   3 | frame 333.3 ms | cpu 319.12 ms | 3D gpu  2.88 ms | draws   377 | prims   744578 | objs   906 | nodes   3306 | vram 1184 MB
+[ 212.47]   perf 06_sleep_night fps  10 | frame 100.0 ms | cpu 871.24 ms | 3D gpu  2.78 ms | draws   401 | prims   838300 | objs   933 | nodes   3377 | vram 1183 MB
+[ 212.97]   perf 06_sleep_night fps   3 | frame 333.3 ms | cpu 300.60 ms | 3D gpu  4.30 ms | draws   397 | prims   839543 | objs   925 | nodes   3398 | vram 1183 MB
+[ 213.47]   perf 06_sleep_night fps  24 | frame  41.7 ms | cpu 28.82 ms | 3D gpu  4.54 ms | draws   394 | prims   846138 | objs   922 | nodes   3398 | vram 1183 MB
+[ 213.97]   perf 06_sleep_night fps  24 | frame  41.7 ms | cpu 28.82 ms | 3D gpu 20.87 ms | draws   391 | prims   841664 | objs   935 | nodes   3398 | vram 1183 MB
+[ 214.17]   walk_to (-15.4, -5.2): arrived in 5.7s, 0.7 m left, stuck 0
+[ 214.37] [HOOK] clock 19:30, rest 30 (tired), gold 32
+[ 214.48]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 27.52 ms | 3D gpu  3.73 ms | draws   400 | prims   837480 | objs  1214 | nodes   3398 | vram 1184 MB
+[ 214.90]   interact innkeeper -> menu OPEN 'Ashford Inn'
+[ 214.90]   menu rect [P: (340.0, 167.5), S: (600.0, 385.0)] (min (600.0, 385.0), 1 children, box min (560.0, 345.0))
+[ 215.19]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 27.52 ms | 3D gpu  3.58 ms | draws   421 | prims   843750 | objs  1238 | nodes   3410 | vram 1194 MB
+[ 215.24] SHOT 51_inn_menu.jpg  (pos (-14.8, 18.7, -4.9), yaw 1.07, hour 19.5, hp 120)
+[ 215.67]   clicked 'Rent a bed and sleep  —  3g' at (640.0, 385.5): pressed
+[ 215.70]   perf 06_sleep_night fps  22 | frame  45.5 ms | cpu 253.62 ms | 3D gpu  3.58 ms | draws   386 | prims   832807 | objs  1003 | nodes   3340 | vram 1172 MB
+[ 216.20]   perf 06_sleep_night fps  22 | frame  45.5 ms | cpu 253.62 ms | 3D gpu  5.81 ms | draws   386 | prims   832807 | objs  1003 | nodes   3340 | vram 1172 MB
+[ 216.27]   slept: Rent a bed and sleep  —  3g -> day 1 19.5h -> day 2 1.6h
+[ 216.37] SHOT 52_after_sleep.jpg  (pos (-14.8, 18.7, -4.9), yaw 1.07, hour 1.6, hp 120)
+[ 216.37] [HOOK] clock 22:30 for the night check
+[ 216.74]   perf 06_sleep_night fps  31 | frame  32.3 ms | cpu 43.45 ms | 3D gpu  6.02 ms | draws   552 | prims   966777 | objs  1406 | nodes   3340 | vram 1172 MB
+[ 217.24]   perf 06_sleep_night fps  31 | frame  32.3 ms | cpu 43.45 ms | 3D gpu  6.77 ms | draws   547 | prims   962211 | objs  1385 | nodes   3340 | vram 1172 MB
+[ 217.77]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 14.09 ms | 3D gpu  7.70 ms | draws   548 | prims   904168 | objs  1387 | nodes   3340 | vram 1172 MB
+[ 218.82]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 14.09 ms | 3D gpu  7.67 ms | draws   545 | prims   916520 | objs  1384 | nodes   3340 | vram 1172 MB
+[ 219.34]   perf 06_sleep_night fps  21 | frame  47.6 ms | cpu 755.72 ms | 3D gpu  9.43 ms | draws   534 | prims   904009 | objs  1382 | nodes   3340 | vram 1172 MB
+[ 219.84]   perf 06_sleep_night fps  17 | frame  58.8 ms | cpu 15.04 ms | 3D gpu  8.54 ms | draws   466 | prims   874786 | objs  1221 | nodes   3340 | vram 1172 MB
+[ 220.07]   walk_to (0.0, 6.0): arrived in 3.7s, 2.0 m left, stuck 0
+[ 220.37]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 14.87 ms | 3D gpu 10.28 ms | draws   679 | prims  1870722 | objs  1216 | nodes   3340 | vram 1172 MB
+[ 220.91]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 14.87 ms | 3D gpu 10.83 ms | draws   660 | prims  1891300 | objs  1198 | nodes   3340 | vram 1172 MB
+[ 221.44]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 17.34 ms | 3D gpu 10.84 ms | draws   660 | prims  1891300 | objs  1198 | nodes   3340 | vram 1172 MB
+[ 221.94]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 17.34 ms | 3D gpu 10.82 ms | draws   660 | prims  1891300 | objs  1198 | nodes   3340 | vram 1172 MB
+[ 222.04] Night: 16 street lamps, 16 lit; sun energy 0.42
+[ 222.14] SHOT 53_night_plaza.jpg  (pos (-1.4, 18.6, 4.9), yaw 6.00, hour 22.7, hp 120)
+[ 222.44]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 47.19 ms | 3D gpu 10.19 ms | draws   675 | prims  1836956 | objs  1216 | nodes   3340 | vram 1172 MB
+[ 222.97]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 47.19 ms | 3D gpu  9.82 ms | draws   675 | prims  1836956 | objs  1216 | nodes   3340 | vram 1172 MB
+[ 223.03] SHOT 54_night_look_90.jpg  (pos (-1.4, 18.6, 4.9), yaw 4.43, hour 22.7, hp 120)
+[ 223.47]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 40.35 ms | 3D gpu  7.58 ms | draws   397 | prims   899127 | objs  1138 | nodes   3340 | vram 1172 MB
+[ 223.90] SHOT 55_night_look_180.jpg  (pos (-1.4, 18.6, 4.9), yaw 2.86, hour 22.7, hp 120)
+[ 223.97]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 40.35 ms | 3D gpu  8.02 ms | draws   352 | prims   814897 | objs   874 | nodes   3340 | vram 1172 MB
+[ 224.47]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 41.54 ms | 3D gpu  8.53 ms | draws   428 | prims   768906 | objs   951 | nodes   3340 | vram 1172 MB
+[ 224.77] SHOT 56_night_look_270.jpg  (pos (-1.4, 18.6, 4.9), yaw 1.29, hour 22.8, hp 120)
+[ 224.97]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 41.54 ms | 3D gpu  9.44 ms | draws   482 | prims  1468009 | objs  1000 | nodes   3340 | vram 1172 MB
+[ 225.51]   perf 06_sleep_night fps  30 | frame  33.3 ms | cpu 41.89 ms | 3D gpu 10.85 ms | draws   661 | prims  1891452 | objs  1199 | nodes   3340 | vram 1172 MB
+[ 225.64] SHOT 57_night_look_360.jpg  (pos (-1.4, 18.6, 4.9), yaw -0.28, hour 22.8, hp 120)
+[ 225.64] SUMMARY 06_sleep_night: fps avg 22 (min 1) | 3D gpu 14.18 ms avg (max 62.36) | draws avg 495 max 679 | prims avg 1157629 max 1891452 | nodes 3322 | worst frame 5432 ms | hitches>50ms 26
+[ 225.64] === STEP 07_save_load ===
+[ 226.01]   perf 07_save_load   fps  30 | frame  33.3 ms | cpu 41.89 ms | 3D gpu  7.18 ms | draws   416 | prims   929593 | objs  1169 | nodes   3379 | vram 1172 MB
+[ 226.55]   perf 07_save_load   fps  25 | frame  40.0 ms | cpu 148.39 ms | 3D gpu  7.86 ms | draws   406 | prims   951144 | objs  1172 | nodes   3405 | vram 1179 MB
+[ 226.82]   walk_to (-3.0, 8.0): arrived in 1.2s, 1.5 m left, stuck 0
+[ 227.08]   perf 07_save_load   fps  25 | frame  40.0 ms | cpu 148.39 ms | 3D gpu  7.94 ms | draws   393 | prims   945456 | objs  1159 | nodes   3433 | vram 1179 MB
+[ 227.41] state before save: { "pos": (-2.74151, 18.60083, 6.678406), "health": 95, "gold": 29, "hour": 12.06, "day": 2, "apples": 0, "bread": 3 }
+[ 227.58]   perf 07_save_load   fps  31 | frame  32.3 ms | cpu 35.47 ms | 3D gpu  8.64 ms | draws   396 | prims   945838 | objs  1190 | nodes   3433 | vram 1179 MB
+[ 228.11] SHOT 58_saved.jpg  (pos (-2.7, 18.6, 6.7), yaw 2.93, hour 12.1, hp 95)
+[ 228.11]   perf 07_save_load   fps  31 | frame  32.3 ms | cpu 35.47 ms | 3D gpu  9.04 ms | draws   396 | prims   946146 | objs  1190 | nodes   3433 | vram 1179 MB
+[ 228.62]   perf 07_save_load   fps  30 | frame  33.3 ms | cpu 42.51 ms | 3D gpu 12.40 ms | draws   679 | prims  1844343 | objs  1283 | nodes   3426 | vram 1173 MB
+[ 229.57]   perf 07_save_load   fps  30 | frame  33.3 ms | cpu 42.51 ms | 3D gpu 11.55 ms | draws   667 | prims  1840931 | objs  1271 | nodes   3426 | vram 1173 MB
+[ 230.08]   perf 07_save_load   fps  14 | frame  71.4 ms | cpu 760.39 ms | 3D gpu  4.98 ms | draws   663 | prims  1890846 | objs  1267 | nodes   3429 | vram 1173 MB
+[ 231.29]   perf 07_save_load   fps  22 | frame  45.5 ms | cpu 910.31 ms | 3D gpu  4.54 ms | draws   678 | prims  1890621 | objs  1280 | nodes   3445 | vram 1184 MB
+[ 231.82]   perf 07_save_load   fps   2 | frame 500.0 ms | cpu 42.46 ms | 3D gpu  4.17 ms | draws   668 | prims  1885793 | objs  1254 | nodes   3450 | vram 1184 MB
+[ 232.44]   perf 07_save_load   fps   2 | frame 500.0 ms | cpu 42.46 ms | 3D gpu  6.77 ms | draws   640 | prims  1887242 | objs  1216 | nodes   3485 | vram 1187 MB
+[ 232.97]   perf 07_save_load   fps  30 | frame  33.3 ms | cpu 133.86 ms | 3D gpu  7.25 ms | draws   622 | prims  1763837 | objs  1173 | nodes   3485 | vram 1187 MB
+[ 233.47]   walk_to (12.0, -12.0): arrived in 5.4s, 1.4 m left, stuck 0
+[ 233.50]   perf 07_save_load   fps  29 | frame  34.5 ms | cpu 28.19 ms | 3D gpu  8.09 ms | draws   602 | prims  1736943 | objs  1153 | nodes   3485 | vram 1187 MB
+[ 233.57] state changed:     { "pos": (11.27474, 18.60208, -10.85563), "health": 120, "gold": 106, "hour": 13.72, "day": 2, "apples": 3, "bread": 3 }
+[ 233.67] SHOT 59_changed_before_load.jpg  (pos (11.3, 18.6, -10.9), yaw 5.71, hour 13.7, hp 120)
+[ 234.97]   perf 07_save_load   fps  29 | frame  34.5 ms | cpu 28.19 ms | 3D gpu  8.28 ms | draws   708 | prims  1924211 | objs  1316 | nodes   3485 | vram 1188 MB
+[ 235.50]   perf 07_save_load   fps   8 | frame 125.0 ms | cpu 230.15 ms | 3D gpu  2.77 ms | draws   706 | prims  1937066 | objs  1314 | nodes   3496 | vram 1185 MB
+[ 236.00]   perf 07_save_load   fps   8 | frame 125.0 ms | cpu 230.15 ms | 3D gpu  2.90 ms | draws   710 | prims  1937852 | objs  1316 | nodes   3496 | vram 1185 MB
+[ 236.03] state after load:  { "pos": (-2.73447, 18.60084, 6.667564), "health": 95, "gold": 29, "hour": 12.1, "day": 2, "apples": 0, "bread": 3 }
+[ 236.13] SHOT 60_after_load.jpg  (pos (-2.7, 18.6, 6.7), yaw 5.71, hour 12.1, hp 95)
+[ 236.13]   restore pos      OK
+[ 236.13]   restore health   OK
+[ 236.13]   restore gold     OK
+[ 236.13]   restore hour     OK
+[ 236.13]   restore day      OK
+[ 236.13]   restore apples   OK
+[ 236.13]   restore bread    OK
+[ 236.13] SUMMARY 07_save_load: fps avg 22 (min 2) | 3D gpu 7.15 ms avg (max 12.40) | draws avg 584 max 710 | prims avg 1578616 max 1937852 | nodes 3449 | worst frame 1245 ms | hitches>50ms 15
+[ 236.13] === STEP end ===
+[ 236.13] === FINDINGS (5) ===
+[ 236.13]   [minor] 02_village: No 'blacksmith' lot in Ashford's plan (after shot 10)
+[ 236.13]   [major] 04_interior: Interior doors are not wired into the world (0 InteriorDoor nodes); buildings can't be entered. The bot adds a test door at the inn to check the room itself. (after shot 22)
+[ 236.13]   [major] 04_interior: At the inn door, E opens the innkeeper's menu instead of entering: the innkeeper Station (3.2 m interact radius) is closer than the door, and InteriorDoor yields to any nearer interactable (after shot 23)
+[ 236.13]   [major] 05_combat_wolves: Player death animation does not play: hips stay at 0.93 m 1.2 s after dying (wolf fight) (after shot 38)
+[ 236.13]   [major] 05b_combat_goblins: Player death animation does not play: hips stay at 0.93 m 1.2 s after dying (goblin fight) (after shot 48)
+[ 236.13] Engine errors/warnings captured in-process: 2
+[ 236.13]        1x WARNING: 'res://assets/incoming/ai3d/meshy/armored/orc_warchief.glb': In external resource #0, invalid UID: 'uid://4vjwiu0wfg3g' - using text path instead: 'res
+[ 236.13]        1x ERROR: Lambda capture at index 0 was freed. Passed "null" instead.  (modules/gdscript/gdscript_lambda_callable.cpp:110 call)
+[ 236.14] done in 236.1s

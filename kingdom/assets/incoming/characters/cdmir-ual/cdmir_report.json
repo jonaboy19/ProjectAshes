@@ -1,0 +1,13 @@
+[
+ {
+  "name": "old_lady",
+  "file": "cdmir_old_lady.glb",
+  "tris": 3994,
+  "parts": [
+   "Hair",
+   "OldLady"
+  ],
+  "height_model_units": 1.795,
+  "max_tex": 1024
+ }
+]

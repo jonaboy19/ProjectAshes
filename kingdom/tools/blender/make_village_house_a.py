@@ -11,6 +11,9 @@ thatch eaves, chimney and yard clutter <= 7.0 x 6.0 m. Origin at ground centre.
 Front door faces Blender -Y (Godot +Z); floor level z=0.25.
 Variant 2 is a mirrored layout (door / chimney swap sides) with an ochre
 limewash, oak frame, oxblood shutters, warm stone and aged thatch.
+Variant 3: rose limewash, black frame, herbalist's leaf sign, ivy and planters.
+Variant 4 (mirrored): cream + oak under a blue slate roof with a dormer, porch pots.
+The chimney top carries an empty named chimney_top.
 """
 import os, sys, math, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -22,6 +25,8 @@ PAL = {
     1: palette(plaster="white", timber="dark", accent="teal", stone="grey", thatch="golden", box="natural"),
     2: palette(plaster="ochre", timber="oak", accent="oxblood", stone="warm", thatch="aged", door="green"),
     3: palette(plaster="rose", timber="black", accent="sage", stone="field", thatch="golden", door="blue"),
+    4: palette(plaster="cream", timber="oak", accent="blue", stone="grey", roof="slate_blue", door="natural",
+               box="natural"),
 }[V]
 k = VK("VillageHouseA" + ("" if V == 1 else f"_{V}"), seed=101 + V * 17, pal=PAL)
 
@@ -50,7 +55,7 @@ with k.side("left", HX, HY):
 
 k.stage("walls")
 # ---------------------------------------------------------------- roof + gables
-r = k.gable_roof("thatch", -HX, HX, -HY, HY, WT, PITCH, over=0.42, verge=0.4)
+r = k.gable_roof("thatch" if V != 4 else "slate", -HX, HX, -HY, HY, WT, PITCH, over=0.42, verge=0.4)
 for s in ("left", "right"):
     with k.side(s, HX, HY):
         k.gable_wall(HY, WT, r["gable"], style="timber", window=(s == "right"))
@@ -72,7 +77,19 @@ k.bush(-HX - 0.1, -HY - 0.3, r=0.38, c=hexc("4c7534"))
 k.crate(-HX + 0.2, HY + 0.45, s=0.55, rz=0.2)
 
 k.stage("props")
-if V == 2:
+# ---------------------------------------------------------------- variant dressing (procedural kit extras)
+if V == 3:
+    with k.side("front", HX, HY):
+        k.hanging_sign(-HX + 0.3, 2.75, emblem="leaf", board_c=hexc("6a4a2c"), emb_c=hexc("8fd07a"), arm=1.0,
+                       size=0.6, shape="square", lantern=False)
+        k.ivy([(HX - 0.2, 0.9), (HX - 0.35, 1.9), (HX - 0.2, 2.9)], width=0.4)
+    k.planter(-1.1, -HY - 0.38, L=0.8, D=0.34, H=0.32)
+elif V == 4:
+    k.dormer(-1.2, r["eave"], r["run"], r["rise"], side=-1, w=1.1, wall_h=0.95, inset=0.95)
+    k.planter(0.45, -HY - 0.62, L=0.42, H=0.38, kind="pot")
+    k.planter(1.3, -HY - 0.35, L=0.8, D=0.34, H=0.32)
+k.stage("variant")
+if V in (2, 4):
     k.mirror_x()
 print("triangles:", k.tri_count())
 k.finish_checked((7.0, 6.0), 12000, cam_dir=(1.0, -1.5, 0.7), fit=0.95)

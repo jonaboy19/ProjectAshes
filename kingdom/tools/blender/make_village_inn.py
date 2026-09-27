@@ -1,8 +1,10 @@
-"""Village inn: a big two-storey coaching inn. Stone ground floor with dressed
-quoins and an arched double door, half-timbered upper floor, a slate roof
-with a front cross gable and two chimneys, a full-width covered porch on
-posts with benches, a trestle table and barrels, and a hanging tankard sign
-on an iron bracket.
+"""Village inn (hero building, concept_inn.png): a big two-storey coaching inn.
+Stone ground floor with dressed quoins and an arched double door, half-timbered
+upper floor full of warm glowing windows, a red tile roof with a front cross
+gable, two dormers and three chimneys, a timber balcony with flower boxes on
+posts across most of the front, a striped canvas awning over the outdoor table
+on the right, benches and barrels on the plank deck, ivy on a corner and a
+hanging tankard sign with a lantern on an iron bracket.
 
 Run: python3 make_village_inn.py <out.glb> [preview.png] [--variant=N]
 
@@ -11,6 +13,7 @@ porch runs the full front, 1.7 m deep. Overall footprint incl. eaves, porch,
 sign and clutter <= 13.0 x 10.0 m. Ridge ~10.3 m. Origin at ground centre;
 front door and porch face Blender -Y (Godot +Z). Floor level z=0.35.
 Variant 2 swaps to warm sandstone, ochre limewash and a shingle roof.
+Chimney tops carry empties named chimney_top, chimney_top_2, chimney_top_3.
 """
 import os, sys, math, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -19,11 +22,12 @@ from ra_kit import hexc, mix, vary
 
 V = variant_arg()
 PAL = {
-    1: palette(plaster="cream", timber="dark", accent="oxblood", roof="slate_grey", stone="grey", door="natural",
+    1: palette(plaster="cream", timber="oak", accent="green", roof="clay", stone="warm", door="natural",
                box="natural"),
     2: palette(plaster="ochre", timber="black", accent="green", roof="shingle_brown", stone="warm", door="oxblood"),
 }[V]
 k = VK("VillageInn" + ("" if V == 1 else f"_{V}"), seed=505 + V * 11, pal=PAL)
+k.lit_ratio = 0.85        # an inn glows
 ROOF_KIND = "slate" if PAL["roof_kind"].startswith("slate") else "shingle"
 
 HX = 5.6
@@ -96,7 +100,11 @@ k.stage("roofs")
 for cx in (-HX + 0.9, HX - 0.9):
     k.chimney(cx, CY + 0.9, r["ridge"] - 0.9 * r["tan"] - 0.4, r["ridge"] + 0.8, sx=0.8, sy=0.8,
               pots=1)
+k.chimney(0.6, CY + 1.4, r["ridge"] - 1.4 * r["tan"] - 0.4, r["ridge"] + 1.0, sx=0.9, sy=0.8, pots=2)
 k.stage("chimneys")
+for u in (-3.7, 3.7):
+    k.dormer(u, r["eave"], r["run"], r["rise"], cy=CY, side=-1, w=1.25, wall_h=1.05, inset=1.05, flowers=True)
+k.stage("dormers")
 
 # ---------------------------------------------------------------- porch
 P_TOP, P_LOW = 3.45, 2.75
@@ -108,31 +116,21 @@ k.pop()
 for i in range(2):       # steps up to the door
     k.box((2.2 + 0.3 * (1 - i), 0.35, 0.15), (0, PY - 0.17 - 0.35 * (1 - i) * 0.5, 0.075 + 0.15 * i - 0.075 * i),
           k.M("Matte"), vary(hexc("8d877c"), 0.06), bevel=0.02)
-posts = [-HX + 0.2, -3.3, -1.15, 1.15, 3.3, HX - 0.2]
-for x in posts:
-    k.box((0.22, 0.22, 0.12), (x, PY + 0.2, 0.36), W, k.timber())
-    k.box((0.18, 0.18, P_LOW - 0.4), (x, PY + 0.2, 0.3 + (P_LOW - 0.4) / 2), W, k.timber(), bevel=0.02)
-    for sx in (-1, 1):
-        if (x == posts[0] and sx < 0) or (x == posts[-1] and sx > 0):
-            continue
-        k.bar((x, PY + 0.2, P_LOW - 0.65), (x + sx * 0.55, PY + 0.2, P_LOW - 0.1), 0.12, 0.12, W, k.timber(),
-              up=(-sx, 0, 1), bevel=0)
-k.box((2 * HX + 0.2, 0.2, 0.24), (0, PY + 0.2, P_LOW - 0.12), W, k.timber(), bevel=0.02)
-k.box((2 * HX, 0.16, 0.2), (0, Y0 - 0.06, P_TOP - 0.1), W, k.timber(), bevel=0.02)
-run = Y0 - PY + 0.22
-slope = (P_TOP - P_LOW) / (Y0 - PY - 0.2)
-k.push((0, Y0, P_TOP - run * slope))
-k.shingle_side(-HX - 0.2, HX + 0.2, run, run * slope, k.M("Roof"), k.tile,
-               tile_w=tw, course=co,
-               th=0.028, deck_mat=W, deck_color=k.timber())
-k.pop()
+BX1 = 1.55                   # balcony spans x in [-HX, BX1]; striped awning beyond
+with side("front"):
+    k.balcony(-HX - 0.05, BX1, U0 - 0.02, Y0 - PY + 0.05, rail_h=0.95, posts_to_ground=True, flowers=True)
+    k.striped_awning(BX1 + 0.25, HX + 0.1, 3.2, Y0 - PY - 0.05, 0.75,
+                     [hexc("b3342a"), hexc("efe3c6")] if V == 1 else [hexc("3f6b44"), hexc("e8d7a8")],
+                     posts=True, sag=0.07)
+    k.ivy([(-HX + 0.25, 0.3), (-HX + 0.35, 1.6), (-HX + 0.2, 2.9), (-HX + 0.45, 3.9), (-HX + 0.3, 5.2)],
+          width=0.45, y=-0.05)
 # lanterns hanging from the porch beam
-for x in (-2.25, 2.25):
-    k.lantern((x, PY + 0.2, P_LOW - 0.24), s=0.9)
+for x in (-3.4, -0.6):
+    k.lantern((x, PY + 0.08, U0 - 0.4), s=0.9)
 # benches, a trestle table with tankards, barrels
-for x in (-4.3, 4.3):
+for x in (-4.3, -2.2):
     k.bench(x, Y0 - 0.35, L=1.6)
-k.push((-3.25, PY + 0.95, 0.3))
+k.push((3.6, PY + 0.95, 0.3))
 k.box((1.6, 0.75, 0.06), (0, 0, 0.74), W, hexc("8a6238"), bevel=0.012)
 for sx in (-1, 1):
     k.bar((sx * 0.6, -0.3, 0.0), (sx * 0.6, 0.0, 0.72), 0.06, 0.08, W, hexc("6b4a2f"), up=(1, 0, 0), bevel=0)
@@ -144,8 +142,10 @@ for (tx, ty) in ((-0.4, -0.12), (0.15, 0.1), (0.5, -0.15)):
     k.cyl(0.055, 0.14, (tx, ty, 0.77), W, hexc("8a6a48"), segs=8)
     k.cyl(0.05, 0.02, (tx, ty, 0.91), k.M("Cloth"), hexc("f3ecd8"), segs=8)
 k.pop()
-k.barrel(HX - 0.4, PY + 0.6, z=0.3, r=0.34)
-k.barrel(HX - 0.95, PY + 0.5, z=0.3, r=0.32)
+k.barrel(-HX + 1.0, PY + 0.6, z=0.3, r=0.34)
+k.barrel(-HX + 1.6, PY + 0.5, z=0.3, r=0.32)
+k.planter(-1.6, PY + 0.3, L=0.9, D=0.4, H=0.38)
+k.planter(1.2, PY + 0.3, L=0.5, H=0.42, kind="pot")
 k.barrel(-HX + 0.45, PY + 0.55, z=0.3, r=0.33, water=True)
 k.plant_pot(-1.35, PY + 0.35)
 k.stage("porch")
@@ -182,4 +182,4 @@ k.pop()
 k.pop()
 k.stage("sign")
 
-k.finish_checked((13.0, 10.0), 16000, cam_dir=(1.0, -1.45, 0.62), fit=0.95)
+k.finish_checked((13.0, 10.0), 23000, cam_dir=(1.0, -1.45, 0.62), fit=0.95)

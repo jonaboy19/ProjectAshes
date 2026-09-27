@@ -1,0 +1,8 @@
+Mesh2Motion (Scott Petrovic and contributors)
+Source: https://github.com/Mesh2Motion/mesh2motion-app  (static/animations, static/rigs, static/models, static/models-variation)
+Licence of art assets (3D models, rigs, animations): CC0 1.0 - see LICENSE-CC0.MD (copied from the repo)
+Code licence: MIT - see LICENSE-MIT.MD. Site: https://mesh2motion.org/
+male.glb / female.glb: attribution "Quaternius", licence CC0 (per src/lib/RigModelVariations.ts).
+horse.glb: CC0 (default in RigModelVariations.ts).
+human-mocap-animations.glb is derived from the CMU Graphics Lab Motion Capture Database (free for any use incl. commercial).
+Verified at the source on 2026-09-27. Variants that are CC-BY / CC-SA (sophia, jay, sintel, bunny) were NOT downloaded.

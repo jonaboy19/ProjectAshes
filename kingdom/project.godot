@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+Quality="*res://scripts/core/quality.gd"
 Game="*res://autoload/game.gd"
 WorldSim="*res://autoload/world_sim.gd"
 Audio="*res://autoload/audio.gd"
@@ -40,18 +41,23 @@ window/handheld/orientation=4
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/guide/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/quest_weaver/plugin.cfg", "res://addons/GodotGAS/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/gloot/plugin.cfg", "res://addons/road-generator/plugin.cfg", "res://addons/proton_scatter/plugin.cfg", "res://addons/gdUnit4/plugin.cfg", "res://addons/terrain_3d/plugin.cfg")
+enabled=PackedStringArray("res://addons/guide/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/quest_weaver/plugin.cfg", "res://addons/GodotGAS/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/gloot/plugin.cfg", "res://addons/road-generator/plugin.cfg", "res://addons/proton_scatter/plugin.cfg", "res://addons/gdUnit4/plugin.cfg")
+
+[filesystem]
+
+import/fbx2gltf/enabled=false
+import/blender/enabled=false
 
 [input_devices]
 
 pointing/emulate_touch_from_mouse=true
 
-[filesystem]
-
-import/blender/enabled=false
-import/fbx2gltf/enabled=false
-
 [rendering]
+
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="mobile"
+rendering_device/fallback_to_opengl3=true
+gl_compatibility/fallback_to_angle=true
 
 textures/vram_compression/import_etc2_astc=true
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3

@@ -187,7 +187,9 @@ func _separation() -> Vector3:
 
 func _update_player_collision() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node3D
-	_actor_shape.set_deferred("disabled", player == null or player.global_position.distance_squared_to(global_position) > PLAYER_SOLID_RANGE * PLAYER_SOLID_RANGE)
+	var should_disable := player == null or player.global_position.distance_squared_to(global_position) > PLAYER_SOLID_RANGE * PLAYER_SOLID_RANGE
+	if _actor_shape.disabled != should_disable:
+		_actor_shape.set_deferred("disabled", should_disable)
 
 
 func _attack() -> void:

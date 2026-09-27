@@ -1,0 +1,220 @@
+{
+ "bridge_stone": {
+  "b0": 3000,
+  "b1": 1000,
+  "markers": [],
+  "mats": [
+   "RG_Stone",
+   "RG_Soil"
+  ],
+  "ok": true,
+  "size": [
+   3.7,
+   12.56,
+   3.16
+  ],
+  "tris0": 310,
+  "tris1": 222
+ },
+ "bridge_wood": {
+  "b0": 3000,
+  "b1": 1000,
+  "markers": [],
+  "mats": [
+   "RG_Planks",
+   "RG_Timber",
+   "RG_Log"
+  ],
+  "ok": true,
+  "size": [
+   3.2,
+   14.06,
+   2.6
+  ],
+  "tris0": 856,
+  "tris1": 332
+ },
+ "caravan_wagon": {
+  "b0": 4000,
+  "b1": 1200,
+  "markers": [],
+  "mats": [
+   "RG_Planks",
+   "RG_Timber",
+   "RG_Iron",
+   "RG_Canvas",
+   "RG_Glow"
+  ],
+  "ok": true,
+  "size": [
+   6.18,
+   2.16,
+   2.58
+  ],
+  "tris0": 2304,
+  "tris1": 940
+ },
+ "checkpoint_barrier": {
+  "b0": 1200,
+  "b1": 400,
+  "markers": [
+   [
+    "boom_pivot",
+    [
+     -2.2,
+     0.0,
+     1.05
+    ]
+   ]
+  ],
+  "mats": [
+   "RG_Log",
+   "RG_Timber",
+   "RG_Planks",
+   "RG_Stone",
+   "RG_Iron",
+   "RG_Canvas"
+  ],
+  "ok": true,
+  "size": [
+   5.22,
+   0.42,
+   1.25
+  ],
+  "tris0": 196,
+  "tris1": 112
+ },
+ "checkpoint_boom": {
+  "b0": 600,
+  "b1": 200,
+  "markers": [],
+  "mats": [
+   "RG_Planks",
+   "RG_Stone",
+   "RG_Iron"
+  ],
+  "ok": true,
+  "size": [
+   5.17,
+   0.4,
+   0.2
+  ],
+  "tris0": 128,
+  "tris1": 80
+ },
+ "milestone": {
+  "b0": 400,
+  "b1": 150,
+  "markers": [],
+  "mats": [
+   "RG_Stone",
+   "RG_Cliff",
+   "RG_Timber"
+  ],
+  "ok": true,
+  "size": [
+   0.7,
+   0.5,
+   1.31
+  ],
+  "tris0": 108,
+  "tris1": 80
+ },
+ "roadside_inn": {
+  "b0": 12000,
+  "b1": 3600,
+  "markers": [
+   [
+    "chimney_top",
+    [
+     -5.1,
+     0.8,
+     10.303
+    ]
+   ],
+   [
+    "door",
+    [
+     -1.0,
+     -3.3,
+     0.0
+    ]
+   ]
+  ],
+  "mats": [
+   "RG_Stone",
+   "RG_Plaster",
+   "RG_Timber",
+   "RG_Planks",
+   "RG_Iron",
+   "RG_Glow",
+   "RG_Slate",
+   "RG_Shingle",
+   "RG_Canvas",
+   "RG_Thatch",
+   "RG_Hay"
+  ],
+  "ok": true,
+  "size": [
+   13.07,
+   8.5,
+   10.28
+  ],
+  "tris0": 2320,
+  "tris1": 1480
+ },
+ "toll_booth": {
+  "b0": 3000,
+  "b1": 1000,
+  "markers": [],
+  "mats": [
+   "RG_Stone",
+   "RG_Planks",
+   "RG_Timber",
+   "RG_Shingle",
+   "RG_Iron",
+   "RG_Glow",
+   "RG_Log",
+   "RG_Canvas"
+  ],
+  "ok": true,
+  "size": [
+   3.64,
+   3.2,
+   3.6
+  ],
+  "tris0": 700,
+  "tris1": 364
+ },
+ "wayshrine": {
+  "b0": 1500,
+  "b1": 500,
+  "markers": [
+   [
+    "interact",
+    [
+     0.0,
+     -1.0,
+     0.0
+    ]
+   ]
+  ],
+  "mats": [
+   "RG_Stone",
+   "RG_Timber",
+   "RG_Plaster",
+   "RG_Shingle",
+   "RG_Planks",
+   "RG_Glow",
+   "RG_Crop"
+  ],
+  "ok": true,
+  "size": [
+   1.6,
+   1.85,
+   2.68
+  ],
+  "tris0": 254,
+  "tris1": 215
+ }
+}

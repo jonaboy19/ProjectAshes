@@ -1,0 +1,50 @@
+{
+ "name": "blacksmith",
+ "stats": {
+  "room_tris": 38904,
+  "prop_tris": 10452,
+  "total": 49356,
+  "materials": [
+   "RA_Wood",
+   "RA_Plaster",
+   "RA_Ember",
+   "RA_Props"
+  ],
+  "size_mb": 5.900648
+ },
+ "markers": [
+  [
+   "NPC_Blacksmith",
+   [
+    1.05,
+    0,
+    -0.44999999999999996
+   ],
+   0.0,
+   {
+    "look": "Barbarian",
+    "height": 1.85,
+    "anim": "Idle",
+    "role": "blacksmith"
+   }
+  ]
+ ],
+ "spawn": [
+  [
+   -2.5,
+   0.05,
+   2.5
+  ],
+  0.0
+ ],
+ "lights": [
+  [
+   "ForgeLight",
+   [
+    1.2,
+    1.5499999999999998,
+    -2.3
+   ]
+  ]
+ ]
+}

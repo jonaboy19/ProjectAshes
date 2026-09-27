@@ -30,7 +30,7 @@ func _ready() -> void:
 	# Merchant in front of the first plaza stall (see SettlementBuilder).
 	var ang := 0.2
 	var stall := c + Vector2(cos(ang), sin(ang)) * (pr - 4.6)
-	_person("Market Trader", "Trade", merchant_menu, stall, c, "Rogue")
+	_person("Market Trader", "Trade", merchant_menu, stall, c, "Trader")
 	_prop("Barrel_Apples", stall + Vector2(-sin(ang), cos(ang)) * 1.6, 1.0)
 	_prop("FarmCrate_Apple", stall + Vector2(sin(ang), -cos(ang)) * 1.5, 1.0)
 	# Innkeeper at the inn's door.
@@ -38,7 +38,7 @@ func _ready() -> void:
 		if lot["asset"] == "inn":
 			var yaw: float = lot["yaw"]
 			var door: Vector2 = lot["pos"] + Vector2(sin(yaw), cos(yaw)) * 5.2
-			_person("%s Inn" % home["name"], "Enter", inn_menu, door, door + Vector2(sin(yaw), cos(yaw)), "Mage")
+			_person("%s Inn" % home["name"], "Enter", inn_menu, door, door + Vector2(sin(yaw), cos(yaw)), "Innkeeper")
 			break
 	# Adventurer Guild receptionist and the herbalist at their buildings' doors
 	# (CityPlanner puts both on the lots nearest the plaza).
@@ -57,7 +57,7 @@ func _ready() -> void:
 			herb_at = lot["pos"] + out * 4.6
 			herb_face = herb_at + out
 	guild_station = _person("Adventurer Guild", "Guild", guild_menu, guild_at, guild_face, "Rogue_Hooded")
-	_person("Herbalist", "Healer", healer_menu, herb_at, herb_face, "Mage")
+	_person("Herbalist", "Healer", healer_menu, herb_at, herb_face, "Herbalist")
 	# Notice board beside the well, facing the spawn road.
 	var board_pos := c + Vector2(3.5, -3.0)
 	var board := Station.new("Notice Board", "Read", notice_menu)
@@ -278,6 +278,9 @@ func pack_menu() -> Dictionary:
 	opts.append(["Sleep rough here", _sleep_rough, n.rest < 80.0])
 	opts.append(["Save game", _save])
 	opts.append(["Load game", _load, Life.has_save()])
+	opts.append(["Settings & Credits", func() -> String:
+		hud.show_menu(SettingsMenu.menu.bind(hud))
+		return ""])
 	return {"title": "Pack & Journal", "body": "\n".join(lines), "options": opts}
 
 

@@ -1,0 +1,3 @@
+Licence: CC0 1.0 Universal - original work generated for Rising Ashes by
+kingdom/assets/incoming/animals/_tools/make_small_animals.py (Blender 5.2 script, no third-party geometry).
+chicken, rooster, duck, goose, pigeon, crow, rabbit.

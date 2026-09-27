@@ -1,0 +1,94 @@
+[
+ {
+  "name": "villager_tunic",
+  "file": "g6_m_villager_tunic.glb",
+  "tris": 2794,
+  "parts": [
+   "human_male_hands_default",
+   "human_male_head_default",
+   "human_male_light_armor_2",
+   "human_male_light_boots_2",
+   "human_male_hair_2"
+  ],
+  "height_model_units": 1.864,
+  "max_tex": 1024
+ },
+ {
+  "name": "blacksmith_apron",
+  "file": "g6_m_blacksmith_apron.glb",
+  "tris": 2954,
+  "parts": [
+   "human_male_hands_default",
+   "human_male_light_boots_2",
+   "human_male_light_armor_3",
+   "human_male_hair_4",
+   "human_male_head_4"
+  ],
+  "height_model_units": 1.857,
+  "max_tex": 1024
+ },
+ {
+  "name": "worker_apron",
+  "file": "g6_m_worker_apron.glb",
+  "tris": 2898,
+  "parts": [
+   "human_male_hands_default",
+   "human_male_light_boots",
+   "human_male_light_armor_4",
+   "human_male_head_6",
+   "human_male_hair_6"
+  ],
+  "height_model_units": 1.856,
+  "max_tex": 1024
+ },
+ {
+  "name": "hunter_leather",
+  "file": "g6_m_hunter_leather.glb",
+  "tris": 3268,
+  "parts": [
+   "human_male_head_default",
+   "human_male_medium_armor",
+   "human_male_medium_boots",
+   "human_male_medium_gloves",
+   "human_male_hair_1"
+  ],
+  "height_model_units": 1.86,
+  "max_tex": 1024
+ },
+ {
+  "name": "modular_all",
+  "file": "g6_m_modular_all.glb",
+  "tris": 15394,
+  "parts": [
+   "human_male_feet_default",
+   "human_male_hands_default",
+   "human_male_body_default",
+   "human_male_head_default",
+   "human_male_light_armor",
+   "human_male_light_boots",
+   "human_male_light_gloves",
+   "human_male_light_helmet",
+   "human_male_medium_armor",
+   "human_male_medium_boots",
+   "human_male_medium_gloves",
+   "human_male_light_armor_2",
+   "human_male_light_boots_2",
+   "human_male_light_gloves_3",
+   "human_male_light_armor_3",
+   "human_male_light_armor_4",
+   "human_male_head_6",
+   "human_male_hair_1",
+   "human_male_hair_2",
+   "human_male_hair_3",
+   "human_male_hair_4",
+   "human_male_hair_5",
+   "human_male_hair_6",
+   "human_male_head_2",
+   "human_male_head_3",
+   "human_male_head_4",
+   "human_male_head_5"
+  ],
+  "height_model_units": 1.933,
+  "max_tex": 1024
+ }
+]

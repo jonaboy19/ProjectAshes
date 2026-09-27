@@ -1,0 +1,85 @@
+{
+ "name": "inn",
+ "stats": {
+  "room_tris": 49976,
+  "prop_tris": 8294,
+  "total": 58270,
+  "materials": [
+   "RA_Wood",
+   "RA_Plaster",
+   "RA_Ember",
+   "RA_Props"
+  ],
+  "size_mb": 6.193696
+ },
+ "markers": [
+  [
+   "NPC_Innkeeper",
+   [
+    4.55,
+    0,
+    0.3
+   ],
+   1.5707963267948966,
+   {
+    "look": "Barbarian",
+    "height": 1.78,
+    "anim": "Idle",
+    "role": "innkeeper"
+   }
+  ],
+  [
+   "NPC_Patron",
+   [
+    -1.2999999999999998,
+    0,
+    -2.2
+   ],
+   0.9272952180016123,
+   {
+    "look": "Rogue_Hooded",
+    "height": 1.75,
+    "anim": "Idle",
+    "role": "patron"
+   }
+  ],
+  [
+   "BedSpawn",
+   [
+    2.0,
+    3.73,
+    -2.6
+   ],
+   0.0,
+   {
+    "role": "rest_point"
+   }
+  ]
+ ],
+ "spawn": [
+  [
+   -1.2,
+   0.05,
+   3.5
+  ],
+  0.0
+ ],
+ "lights": [
+  [
+   "FireLight",
+   [
+    -2.799999952316284,
+    0.550000011920929,
+    -4.25
+   ]
+  ],
+  [
+   "BedroomLight",
+   [
+    -0.35,
+    4.68,
+    -4.3
+   ]
+  ]
+ ]
+}

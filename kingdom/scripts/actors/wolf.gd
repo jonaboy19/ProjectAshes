@@ -138,7 +138,9 @@ func _near_player(player: Node3D) -> bool:
 
 
 func _update_player_collision(player: Node3D) -> void:
-	_actor_shape.set_deferred("disabled", not _near_player(player))
+	var should_disable := not _near_player(player)
+	if _actor_shape.disabled != should_disable:
+		_actor_shape.set_deferred("disabled", should_disable)
 
 
 func _pick_roam_target() -> void:

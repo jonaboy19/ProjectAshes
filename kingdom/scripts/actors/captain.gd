@@ -10,7 +10,7 @@ var title := "Captain of the Guard"
 
 func _ready() -> void:
 	add_to_group("interactable")
-	var model := Assets.character("Knight", 1.85, ["Knight_Helmet", "2H_Sword"])
+	var model := Assets.character("Guard", 1.85, ["Knight_Helmet", "2H_Sword"])
 	add_child(model)
 	var anim := Assets.animation_player(model)
 	if anim:

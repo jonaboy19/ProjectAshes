@@ -1,5 +1,8 @@
 class_name SettlementBuilder
 extends Node3D
+
+## Distance where Meshy hero buildings swap to their light LOD.
+const HERO_LOD := 70.0
 ## Builds settlements from their CityPlanner layout when the focus comes within
 ## BUILD_RANGE and frees them past FREE_RANGE. Buildings of the same model are
 ## drawn as one MultiMesh (a capital has ~300 buildings but only ~15 draw
@@ -69,7 +72,24 @@ func _build(s: Dictionary) -> Node3D:
 	for asset: String in batches:
 		var list: Array[Transform3D] = []
 		list.assign(batches[asset])
-		_multimesh(root, Assets.building_mesh(asset), list)
+		var lod := Assets.building_lod_mesh(asset)
+		if lod:
+			# Detailed hero model up close, its light version beyond HERO_LOD metres.
+			var near_mm := _multimesh(root, Assets.building_mesh(asset), list)
+			var far_mm := _multimesh(root, lod, list, false)
+			var lod_d := Assets.building_lod_distance(asset)
+			if lod_d <= 0.0:
+				lod_d = HERO_LOD
+			near_mm.visibility_range_end = lod_d
+			near_mm.visibility_range_end_margin = 10.0
+			near_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+			far_mm.visibility_range_begin = lod_d
+			far_mm.visibility_range_begin_margin = 10.0
+			far_mm.visibility_range_end = 0.0
+			far_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+		else:
+			_multimesh(root, Assets.building_mesh(asset), list)
+		_chimney_smoke(root, asset, list, rng)
 
 	# Lived-in door_clutter by the doors: photo-scanned crates, barrels, baskets, buckets.
 	var door_clutter := {}
@@ -102,8 +122,26 @@ func _build(s: Dictionary) -> Node3D:
 		var sp: Vector2 = s["pos"] + Vector2(cos(ang), sin(ang)) * (pr - 3.0)
 		var st := Transform3D(Basis(Vector3.UP, atan2(-cos(ang), -sin(ang))), Vector3(sp.x, base_h, sp.y))
 		(stalls if i % 2 == 0 else stalls2).append(st)
-	_multimesh(root, Assets.building_mesh("market_stand_1"), stalls, true, true)
-	_multimesh(root, Assets.building_mesh("market_stand_2"), stalls2, true, true)
+	# Keep the current four-model layout; each visible stall gets a box proxy.
+	# Four stall palettes, alternated around the plaza.
+	var st_a: Array[Transform3D] = []
+	var st_b: Array[Transform3D] = []
+	for k in stalls.size():
+		(st_a if k % 2 == 0 else st_b).append(stalls[k])
+	for k in stalls2.size():
+		(st_a if k % 2 == 1 else st_b).append(stalls2[k])
+	# The Meshy stalls (1 and 2) were modelled facing the other way: turn them to the plaza.
+	var turn := Basis(Vector3.UP, PI)
+	for k in st_a.size():
+		if k < (st_a.size() + 1) / 2:
+			st_a[k] = Transform3D(st_a[k].basis * turn, st_a[k].origin)
+	for k in st_b.size():
+		if k < (st_b.size() + 1) / 2:
+			st_b[k] = Transform3D(st_b[k].basis * turn, st_b[k].origin)
+	_multimesh(root, Assets.building_mesh("market_stand_1"), st_a.slice(0, (st_a.size() + 1) / 2), true, true)
+	_multimesh(root, Assets.building_mesh("market_stand_3"), st_a.slice((st_a.size() + 1) / 2), true, true)
+	_multimesh(root, Assets.building_mesh("market_stand_2"), st_b.slice(0, (st_b.size() + 1) / 2), true, true)
+	_multimesh(root, Assets.building_mesh("market_stand_4"), st_b.slice((st_b.size() + 1) / 2), true, true)
 
 	var c: Vector2 = s["pos"]
 	if plan["walls"]:
@@ -208,9 +246,9 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, h: float, gates: Array,
 
 ## Instanced placement. Culls by object size (small clutter vanishes first) and,
 ## unless blob is false, grounds each instance with a soft contact shadow.
-func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob := true, collide := false) -> void:
+func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob := true, collide := false) -> MultiMeshInstance3D:
 	if mesh == null or transforms.is_empty():
-		return
+		return null
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.mesh = mesh
@@ -231,6 +269,7 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 		_add_instance_colliders(parent, mesh, transforms)
 	if blob and extent < 18.0:
 		_contact_shadows(parent, box, transforms, cull)
+	return mmi
 
 
 ## MultiMesh instances are render-only. Add cheap box proxies for the small set
@@ -379,7 +418,7 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 	var lots: Array = plan["lots"]
 	var sets := {"garden_plot": [], "woodpile": [], "washing_line": []}
 	for lot: Dictionary in lots:
-		if not String(lot["asset"]).begins_with("house"):
+		if not (String(lot["asset"]).begins_with("house") or String(lot["asset"]).begins_with("mhouse")):
 			continue
 		var yaw: float = lot["yaw"]
 		var fwd := Vector2(sin(yaw), cos(yaw))
@@ -435,6 +474,7 @@ func _square_lamps(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 ## clumps either side of the door (never on the footpath), a bush at a corner.
 func _front_gardens(root: Node3D, plan: Dictionary, rng: RandomNumberGenerator) -> void:
 	var sets := {"nature/flowers_a": [], "nature/bush_b": [], "nature/grass_clump_tall": []}
+	var planters: Array[Transform3D] = []
 	for lot: Dictionary in plan["lots"]:
 		var yaw: float = lot["yaw"]
 		var fwd := Vector2(sin(yaw), cos(yaw))
@@ -449,6 +489,10 @@ func _front_gardens(root: Node3D, plan: Dictionary, rng: RandomNumberGenerator) 
 			var sc := rng.randf_range(0.9, 1.5)
 			(sets[kind] as Array).append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * sc),
 				Vector3(at.x, WorldGen.height(at.x, at.y) - 0.02, at.y)))
+		if rng.randf() < 0.4:
+			var pl := p + fwd * 3.9 + side * (1.6 if rng.randf() < 0.5 else -1.6)
+			if CityPlanner.path_distance(plan, pl) > 0.8:
+				planters.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(pl.x, WorldGen.height(pl.x, pl.y), pl.y)))
 		if rng.randf() < 0.7:
 			var corner := p + fwd * 3.4 + side * (4.2 if rng.randf() < 0.5 else -4.2)
 			if CityPlanner.street_distance(plan, corner) > 1.2:
@@ -458,3 +502,71 @@ func _front_gardens(root: Node3D, plan: Dictionary, rng: RandomNumberGenerator) 
 		var list: Array[Transform3D] = []
 		list.assign(sets[kind])
 		_multimesh(root, Assets.nature_mesh(kind), list, false)
+	_multimesh(root, Assets.building_mesh("planter_box"), planters)
+
+
+## Thin wood smoke from some chimneys (read from the models' chimney_top markers).
+## A few particles each, culled with distance; not every house has its fire lit.
+func _chimney_smoke(root: Node3D, asset: String, transforms: Array[Transform3D], rng: RandomNumberGenerator) -> void:
+	var points := Assets.chimney_points(asset)
+	if points.is_empty():
+		return
+	for t in transforms:
+		if rng.randf() > 0.55:
+			continue
+		for pt in points:
+			root.add_child(_smoke_emitter(t * pt))
+
+
+static var _smoke_mat: ParticleProcessMaterial
+static var _smoke_mesh: QuadMesh
+
+
+static func _smoke_emitter(at: Vector3) -> GPUParticles3D:
+	if _smoke_mat == null:
+		_smoke_mat = ParticleProcessMaterial.new()
+		_smoke_mat.direction = Vector3(0.25, 1, 0.1)
+		_smoke_mat.spread = 12.0
+		_smoke_mat.initial_velocity_min = 0.35
+		_smoke_mat.initial_velocity_max = 0.6
+		_smoke_mat.gravity = Vector3(0.18, 0.12, 0.05)
+		_smoke_mat.scale_min = 0.6
+		_smoke_mat.scale_max = 1.0
+		var sc := Curve.new()
+		sc.add_point(Vector2(0, 0.4))
+		sc.add_point(Vector2(1, 2.6))
+		var sct := CurveTexture.new()
+		sct.curve = sc
+		_smoke_mat.scale_curve = sct
+		var g := Gradient.new()
+		g.set_color(0, Color(0.8, 0.78, 0.75, 0.0))
+		g.add_point(0.15, Color(0.75, 0.73, 0.7, 0.35))
+		g.set_color(g.get_point_count() - 1, Color(0.85, 0.85, 0.85, 0.0))
+		var gt := GradientTexture1D.new()
+		gt.gradient = g
+		_smoke_mat.color_ramp = gt
+		_smoke_mesh = QuadMesh.new()
+		_smoke_mesh.size = Vector2(1.8, 1.8)
+		var m := StandardMaterial3D.new()
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.vertex_color_use_as_albedo = true
+		m.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+		var img := Image.create(64, 64, false, Image.FORMAT_RGBA8)
+		for y in 64:
+			for x in 64:
+				var d := Vector2(x - 31.5, y - 31.5).length() / 32.0
+				img.set_pixel(x, y, Color(1, 1, 1, pow(clampf(1.0 - d, 0.0, 1.0), 1.8)))
+		m.albedo_texture = ImageTexture.create_from_image(img)
+		_smoke_mesh.material = m
+	var p := GPUParticles3D.new()
+	p.amount = 16
+	p.lifetime = 7.0
+	p.preprocess = 6.0
+	p.process_material = _smoke_mat
+	p.draw_pass_1 = _smoke_mesh
+	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	p.visibility_range_end = 140.0
+	p.visibility_aabb = AABB(Vector3(-4, 0, -4), Vector3(8, 10, 8))
+	p.position = at
+	return p

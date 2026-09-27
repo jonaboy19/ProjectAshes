@@ -19,6 +19,7 @@ from ra_kit import hexc, mix, vary
 
 V = variant_arg()
 k = VK("FenceSection" + ("" if V == 1 else f"_{V}"), seed=909 + V, pal=palette())
+k.deform_amp = k.deform_sag = 0      # tiles end to end: no bow / sag (seams must match)
 W, MT, PL = k.M("Wood"), k.M("Metal"), k.M("Plant")
 k.grime = 0.35
 WOOD = hexc("7f6a54") if V == 1 else hexc("6b5540")

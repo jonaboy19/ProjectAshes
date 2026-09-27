@@ -1,0 +1,88 @@
+[
+ {
+  "name": "villager_tunic",
+  "file": "g6_f_villager_tunic.glb",
+  "tris": 2800,
+  "parts": [
+   "human_female_hands_default",
+   "human_female_head_default",
+   "human_female_light_armor_2",
+   "human_female_light_boots_2",
+   "human_female_hair_2"
+  ],
+  "height_model_units": 1.772,
+  "max_tex": 1024
+ },
+ {
+  "name": "blacksmith_apron",
+  "file": "g6_f_blacksmith_apron.glb",
+  "tris": 3076,
+  "parts": [
+   "human_female_hands_default",
+   "human_female_light_boots_2",
+   "human_female_light_armor_3",
+   "human_female_hair_1",
+   "human_female_head_3"
+  ],
+  "height_model_units": 1.772,
+  "max_tex": 1024
+ },
+ {
+  "name": "worker_apron",
+  "file": "g6_f_worker_apron.glb",
+  "tris": 3132,
+  "parts": [
+   "human_female_hands_default",
+   "human_female_light_boots",
+   "human_female_light_armor_4",
+   "human_female_hair_3",
+   "human_female_head_2"
+  ],
+  "height_model_units": 1.772,
+  "max_tex": 1024
+ },
+ {
+  "name": "hunter_leather",
+  "file": "g6_f_hunter_leather.glb",
+  "tris": 3516,
+  "parts": [
+   "human_female_head_default",
+   "human_female_medium_armor",
+   "human_female_medium_boots",
+   "human_female_medium_gloves",
+   "human_female_hair_1"
+  ],
+  "height_model_units": 1.772,
+  "max_tex": 1024
+ },
+ {
+  "name": "modular_all",
+  "file": "g6_f_modular_all.glb",
+  "tris": 13972,
+  "parts": [
+   "human_female_feet_default",
+   "human_female_hands_default",
+   "human_female_body_default",
+   "human_female_head_default",
+   "human_female_light_armor",
+   "human_female_light_boots",
+   "human_female_light_gloves",
+   "human_female_light_helmet",
+   "human_female_medium_armor",
+   "human_female_medium_boots",
+   "human_female_medium_gloves",
+   "human_female_light_armor_2",
+   "human_female_light_boots_2",
+   "human_female_light_gloves_3",
+   "human_female_light_armor_3",
+   "human_female_light_armor_4",
+   "human_female_hair_1",
+   "human_female_hair_2",
+   "human_female_hair_3",
+   "human_female_head_2",
+   "human_female_head_3"
+  ],
+  "height_model_units": 1.834,
+  "max_tex": 1024
+ }
+]

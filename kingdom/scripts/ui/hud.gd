@@ -292,7 +292,11 @@ func is_menu_open() -> bool:
 
 func _rebuild_menu() -> void:
 	for child in _menu.get_children():
+		child.visible = false     # stop the outgoing page from sizing the panel
 		child.queue_free()
+	# Controls grow but never shrink: without this the panel keeps the height of the
+	# tallest page shown before and ends up mostly off screen (playtest 03_interact).
+	_fit_menu.call_deferred()
 	var data: Dictionary = _menu_source.call()
 	var vw := get_viewport().get_visible_rect().size
 	var width := clampf(vw.x * 0.9, 340.0, 560.0)
@@ -343,6 +347,22 @@ func _rebuild_menu() -> void:
 	close.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	close.pressed.connect(close_menu)
 	box.add_child(close)
+
+
+## Shrink the (centre-anchored) menu panel to its content and keep it centred.
+func _fit_menu() -> void:
+	# Wait for layout: the autowrapped body label first measures at zero width (one word
+	# per line, a very tall minimum) and only settles once it has its real width.
+	for i in 2:
+		await get_tree().process_frame
+	var s := _menu.get_combined_minimum_size()
+	# The panel can hold a stale size that its offsets no longer describe, so assigning the
+	# same offsets again would be a no-op: set the size itself too.
+	_menu.size = s
+	_menu.offset_left = -s.x * 0.5
+	_menu.offset_right = s.x * 0.5
+	_menu.offset_top = -s.y * 0.5
+	_menu.offset_bottom = s.y * 0.5
 
 
 ## Danger readout with its biggest reasons, e.g. "Dangerous 41 · Wolf den +22 · Runestone -18".

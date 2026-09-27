@@ -1,0 +1,3 @@
+Quaternius (https://quaternius.com)
+Licence: CC0 1.0 Universal https://creativecommons.org/publicdomain/zero/1.0/ (per the licence files in the source packs)
+Sources: kingdom/assets/incoming/quaternius/lowpoly-animated-knight (https://quaternius.com/packs/knightcharacter.html) and ultimate-rpg-items (https://quaternius.com/packs/ultimaterpg.html). FBX converted to GLB, scaled to metres, colours toned.

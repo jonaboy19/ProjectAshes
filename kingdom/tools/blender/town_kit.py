@@ -153,7 +153,7 @@ class TK(VK):
                     if qb - pa < 0.03:
                         continue
                     out.append((pa, qb, bl + (g if bl == z0 else 0.0), br + (g if br == z0 else 0.0),
-                                tl - g, tr - g, y0 + tilt * (pa - a), y0 + tilt * (qb - a), col))
+                                tl - g, tr - g, y0 + tilt * (pa - a), y0 + tilt * (qb - a), col, r))
         return out
 
     def stone_face(self, w, h, loc=(0, 0, 0), rot=(0, 0, 0), holes=(), mat=None, grime=True, **kw):
@@ -162,10 +162,14 @@ class TK(VK):
         pieces = self._layout(w, h, holes, **kw)
         self.push(loc, rot)
         polys, cols = [], []
-        for pa, qb, bl, br, tl, tr, ya, yb, c in pieces:
+        for pa, qb, bl, br, tl, tr, ya, yb, c, r in pieces:
             polys.append(((pa, ya, bl), (qb, yb, br), (qb, yb, tr), (pa, ya, tl)))
             cols.append(c)
-        self.quads(polys, cols, mat or self.M("Matte"), grime=grime)
+        with self.detail():
+            self.quads(polys, cols, mat or self.M("Matte"), grime=grime)
+        push = kw.get("push", 0.035)
+        self._course_standin([(r, pa, qb, bl, br, tl, tr, c) for pa, qb, bl, br, tl, tr, ya, yb, c, r in pieces],
+                             -push / 2, mat or self.M("Matte"), None, grime)
         self.pop()
 
     def stone_ring(self, cx, cy, r, z0, z1, holes=(), r_top=None, inward=False, mat=None, start=math.pi / 2,
@@ -186,11 +190,16 @@ class TK(VK):
             rr = r + (rt - r) * (z / h) - sgn * y
             a = start + u / r
             return (cx + math.cos(a) * rr, cy + math.sin(a) * rr, z0 + z)
-        for pa, qb, bl, br, tl, tr, ya, yb, c in pieces:
+        for pa, qb, bl, br, tl, tr, ya, yb, c, row in pieces:
             pp = [P(pa, bl, ya), P(qb, br, yb), P(qb, tr, yb), P(pa, tl, ya)]
             polys.append(tuple(reversed(pp)) if inward else tuple(pp))
             cols.append(c)
-        self.quads(polys, cols, mat or self.M("Matte"), grime=grime)
+        with self.detail():
+            self.quads(polys, cols, mat or self.M("Matte"), grime=grime)
+        push = kw.get("push", 0.035)
+        self._course_standin([(row, pa, qb, bl, br, tl, tr, c) for pa, qb, bl, br, tl, tr, ya, yb, c, row in pieces],
+                             -push / 2, mat or self.M("Matte"), None, grime, mapper=P, max_len=max(0.6, r * 0.5),
+                             flip=inward)
 
     @staticmethod
     def ang_u(r, ang, start=math.pi / 2):
@@ -204,11 +213,17 @@ class TK(VK):
         color_fn = color_fn or (lambda: vary(mix(self.stone(), hexc("6c6862"), 0.25), 0.1))
         pieces = self._layout(w, d, (), bw=size[0], bh=size[1], gap=gap, push=0.0, color_fn=color_fn, x0=x0)
         polys, cols = [], []
-        for pa, qb, bl, br, tl, tr, ya, yb, c in pieces:
+        for pa, qb, bl, br, tl, tr, ya, yb, c, r in pieces:
             dz = random.uniform(-0.012, 0.012)
             polys.append(((pa, y0 + bl, z + dz), (qb, y0 + br, z + dz), (qb, y0 + tr, z + dz), (pa, y0 + tl, z + dz)))
             cols.append(c)
-        self.quads(polys, cols, mat or self.M("Matte"), grime=grime)
+        with self.detail():
+            self.quads(polys, cols, mat or self.M("Matte"), grime=grime)
+        if cols:
+            ca = tuple(sum(c[i] for c in cols) / len(cols) for i in range(3))
+            with self.lod1_only():
+                self.quads([((x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z))], [ca], mat or self.M("Matte"),
+                           grime=grime)
         if base:
             self.box((w, d, 0.1), ((x0 + x1) / 2, (y0 + y1) / 2, z - 0.06), self.M("Matte"),
                      base_c or hexc("3b3732"), var=0, grime=False)
@@ -236,11 +251,18 @@ class TK(VK):
                 a = amax - amax * ((t - 0.5) / 0.5)
                 c = cx - off
             return (c + math.cos(a) * (Rp + rad_add), spring + math.sin(a) * (Rp + rad_add))
-        for i in range(n):
-            t0, t1 = i / n, (i + 1) / n
-            ex = 0.1 if (key and i == n // 2) else 0.0
-            pts = [pts_at(t0, 0), pts_at(t0, ring + ex), pts_at(t1, ring + ex), pts_at(t1, 0)]
-            self.prism(pts, depth, (0, y, 0), mat or self.M("Matte"), color_fn(), var=0, bevel=0.0)
+        cols = []
+        with self.detail():
+            for i in range(n):
+                t0, t1 = i / n, (i + 1) / n
+                ex = 0.1 if (key and i == n // 2) else 0.0
+                pts = [pts_at(t0, 0), pts_at(t0, ring + ex), pts_at(t1, ring + ex), pts_at(t1, 0)]
+                cols.append(color_fn())
+                self.prism(pts, depth, (0, y, 0), mat or self.M("Matte"), cols[-1], var=0, bevel=0.0)
+        with self.lod1_only():     # one curved band instead of n voussoirs
+            n1 = max(3, n // 2)
+            pts = [pts_at(i / n1, 0) for i in range(n1 + 1)] + [pts_at(1 - i / n1, ring) for i in range(n1 + 1)]
+            self.prism(pts, depth, (0, y, 0), mat or self.M("Matte"), cols[len(cols) // 2], var=0, bevel=0.0)
 
     def vault(self, cx, R, spring, y0, y1, n=12, nd=None, Rp=None, color_fn=None, mat=None):
         """Barrel-vault soffit of a passage from y0 to y1 (wall frame), faces inward."""
@@ -267,10 +289,14 @@ class TK(VK):
         MA = self.M("Matte")
         self.push((xc, y + th / 2, z), (0, 0, rz))
         h1 = h * random.uniform(0.45, 0.55)
-        self.box((mw - 0.03, th - 0.03, h1), (0, 0, h1 / 2), MA, self.stone(), var=0, grime=False)
-        top_h = h - h1
-        self.box((mw + (0.03 if cap else 0), th + (0.03 if cap else 0), top_h), (0, 0, h1 + top_h / 2), MA,
-                 mix(self.stone(), hexc("a8a192"), 0.25) if cap else self.stone(), var=0, grime=False)
+        with self.detail():
+            c0 = self.stone()
+            self.box((mw - 0.03, th - 0.03, h1), (0, 0, h1 / 2), MA, c0, var=0, grime=False)
+            top_h = h - h1
+            self.box((mw + (0.03 if cap else 0), th + (0.03 if cap else 0), top_h), (0, 0, h1 + top_h / 2), MA,
+                     mix(self.stone(), hexc("a8a192"), 0.25) if cap else self.stone(), var=0, grime=False)
+        with self.lod1_only():
+            self.box((mw, th, h), (0, 0, h / 2), MA, c0, var=0, grime=False)
         self.pop()
 
     def merlons(self, x0, x1, z, h=1.0, th=0.5, mw=1.0, cw=0.6, y=0.0, start=None, slits=False):
@@ -302,6 +328,10 @@ class TK(VK):
         """Arrow slit with dressed jambs (wall frame)."""
         MA = self.M("Matte")
         self.quad(w, h, (x, y - 0.045, z0 + h / 2), MA, hexc("1b1917"), var=0, grime=False)
+        with self.detail():
+            self._slit_frame(x, z0, h, w, y, MA)
+
+    def _slit_frame(self, x, z0, h, w, y, MA):
         for sx in (-1, 1):
             self.box((0.22, 0.1, h + 0.1), (x + sx * (w / 2 + 0.11), y - 0.02, z0 + h / 2), MA, self.dressed(0.12),
                      var=0)
@@ -316,6 +346,7 @@ class TK(VK):
         """Ring of stepped stone corbels under an overhanging parapet/storey."""
         MA = self.M("Matte")
         for i in range(n):
+          with self.detail():
             a = i * math.tau / n
             self.push((cx + math.cos(a) * r, cy + math.sin(a) * r, z), (0, 0, a + math.pi / 2))
             c = self.dressed(0.25)
@@ -340,6 +371,7 @@ class TK(VK):
         def P(u, s, n):
             return Vector((u, 0, 0)) + base + d * s + nrm * n
         polys, cols = [], []
+        spolys, scols = [], []
         n_c = max(1, math.ceil(L / course))
         cl = L / n_c
         for i in range(n_c):
@@ -349,6 +381,7 @@ class TK(VK):
             xb0, xb1 = lim(min(1.0, s_hi / L))
             if xa1 - xa0 < 0.05:
                 break
+            ncol0 = len(cols)
             # tiles laid across the lower edge; the row narrows toward its top edge
             u = xa0
             while u < xa1 - 0.03:
@@ -375,12 +408,29 @@ class TK(VK):
                 polys.append((P(u + g, sl, bottom), P(u2 - g, sl, bottom), v[1], v[0]))
                 cols.append(tuple(x * butt_dark for x in c))
                 u = u2
+            # LOD1 strip for this course (a few segments, colours sampled from its tiles)
+            cc = cols[ncol0::2] or [(0.4, 0.35, 0.3)]
+            nseg = max(1, round((xa1 - xa0) / 3.5))
+            bottom = -0.06 if i == 0 else 0.0
+            for j in range(nseg):
+                fa, fb = j / nseg, (j + 1) / nseg
+                ua, ub = xa0 + (xa1 - xa0) * fa, xa0 + (xa1 - xa0) * fb
+                ta, tb = xb0 + (xb1 - xb0) * fa, xb0 + (xb1 - xb0) * fb
+                c = cc[min(len(cc) - 1, int(len(cc) * (fa + fb) / 2))]
+                v = [P(ua, s_lo, 2 * th), P(ub, s_lo, 2 * th), P(tb, s_hi, th * 0.3), P(ta, s_hi, th * 0.3)]
+                spolys.append(v)
+                scols.append(c)
+                spolys.append((P(ua, s_lo, bottom), P(ub, s_lo, bottom), v[1], v[0]))
+                scols.append(tuple(x * butt_dark for x in c))
         self.push(loc, rot)
-        self.quads(polys, cols, mat, grime=False)
+        with self.detail():
+            self.quads(polys, cols, mat, grime=False)
+        with self.lod1_only():
+            self.quads(spolys, scols, mat, grime=False)
         if deck_mat:
             e0, e1 = lim(0.0)
             t0, t1 = lim(1.0)
-            q = [P(e0, 0, -0.005), P(e1, 0, -0.005), P(t1, L, -0.005), P(t0, L, -0.005)]
+            q = [P(e0, 0, -0.05), P(e1, 0, -0.05), P(t1, L, -0.05), P(t0, L, -0.05)]
             q2 = [p - nrm * deck_th for p in q]
             polys = [q, list(reversed(q2)), (q2[0], q2[1], q[1], q[0]), (q2[1], q2[2], q[2], q[1]),
                      (q2[3], q2[0], q[0], q[3])]
@@ -443,6 +493,7 @@ class TK(VK):
         L = math.hypot(r0, h)
         ca, sa = h / L, r0 / L         # normal = (ca*cos, ca*sin, sa)
         polys, cols = [], []
+        spolys, scols = [], []
 
         def P(s, t, n):
             rr = r0 * (1 - s / L)
@@ -471,7 +522,22 @@ class TK(VK):
                 b = -0.06 if i == 0 else 0.0
                 polys.append((P(sl, t0 + gt, b), P(sl, t1 - gt, b), v[1], v[0]))
                 cols.append(tuple(x * butt_dark for x in c))
-        self.quads(polys, cols, mat, grime=False)
+            cc = cols[-2 * nt::2]
+            n1 = max(6, round(math.tau * rr / 1.1))
+            b = -0.06 if i == 0 else 0.0
+            for j in range(n1):
+                t0 = ph + j * math.tau / n1
+                t1 = ph + (j + 1) * math.tau / n1
+                c = cc[int(j * len(cc) / n1)]
+                v = [P(s_lo, t0, 2 * th), P(s_lo, t1, 2 * th), P(s_hi, t1, th * 0.3), P(s_hi, t0, th * 0.3)]
+                spolys.append(v)
+                scols.append(c)
+                spolys.append((P(s_lo, t0, b), P(s_lo, t1, b), v[1], v[0]))
+                scols.append(tuple(x * butt_dark for x in c))
+        with self.detail():
+            self.quads(polys, cols, mat, grime=False)
+        with self.lod1_only():
+            self.quads(spolys, scols, mat, grime=False)
         # deck cone underneath (covers gaps, gives the eave its underside)
         self.cyl(r0 - 0.02, h - 0.05, (cx, cy, z0 - 0.08), self.M("Wood"), deck_c or self.timber(), segs=16, r2=0.02,
                  smooth=None, caps=True, var=0, grime=False)
@@ -576,12 +642,20 @@ class TK(VK):
         self.arch_ring(x, spring, R, ring=ring, depth=0.34, y=0.02, Rp=Rp if pointed else None, color_fn=color_fn,
                        n=(5 if w < 1.6 else 9) if cheap else (7 if w < 1.2 else 9))
         nj = 1 if cheap else max(2, round((spring - z0) / 0.45))
+        tag0 = self.lod_tag
+        if nj > 1:
+            self.lod_tag = tag0 | 1
+            with self.lod1_only():
+                for sx in (-1, 1):
+                    self.box((ring + 0.03, 0.34, spring - z0), (x + sx * (R + (ring + 0.03) / 2), 0.02, (z0 + spring) / 2),
+                             MA, color_fn(), var=0)
         for r in range(nj):
             wd = ring + (0.08 if r % 2 == 0 else -0.02) - (0.04 if cheap else 0.0)
             hh = (spring - z0) / nj
             for sx in (-1, 1):
                 self.box((wd, 0.34, hh - 0.025), (x + sx * (R + wd / 2), 0.02, z0 + (r + 0.5) * hh), MA, color_fn(),
                          var=0)
+        self.lod_tag = tag0
         if sill:
             self.box((w + 2 * ring + 0.12, 0.42, 0.13), (x, -0.02, z0 - 0.06), MA, color_fn(), var=0)
         top = arch_top(x, R, spring, Rp)
@@ -590,13 +664,17 @@ class TK(VK):
         if fill == "louvre":
             self.quads([[(px, 0.3, pz) for px, pz in pts]], [hexc("1c1a18")], MA, grime=False)
             nb = max(3, int((spring - z0) / (0.5 if cheap else 0.26)))
+            with self.lod1_only():
+                self.quads([[(px, 0.12, pz) for px, pz in pts]], [hexc("4a3b2e")], self.M("Wood"), grime=False)
             for j in range(nb):
+              with self.detail():
                 zz = z0 + 0.15 + j * (spring - z0 - 0.1) / nb
                 self.box((w, 0.26, 0.04), (x, 0.16, zz), self.M("Wood"), vary(hexc("5e4a38"), 0.08),
                          rot=(0.6, 0, 0), var=0, grime=False)
             return spring
         self.quads([[(px, depth, pz) for px, pz in pts]], [vary(GLASS_C, 0.06)], self.M("Glass"), grime=False)
         if bars:
+          with self.detail():
             MT = self.M("Metal")
             nz = max(2, round(h / 0.4)) if not cheap else 2
             for j in range(1, nz):
@@ -622,7 +700,8 @@ class TK(VK):
         self.ring(r, r * 1.45, 0.34, (x, 0.02, zc), MA, c, segs=16)
         self.ring(r * 0.3, r * 0.42, 0.16, (x, 0.08, zc), MA, c, segs=12)
         for i in range(spokes // 2):
-            self.box((2 * r, 0.12, 0.08), (x, 0.1, zc), MA, c, rot=(0, i * math.pi / (spokes // 2), 0), var=0)
+            with self.detail():
+                self.box((2 * r, 0.12, 0.08), (x, 0.1, zc), MA, c, rot=(0, i * math.pi / (spokes // 2), 0), var=0)
 
     def buttress(self, x0, x1, y_out, z_steps, color_fn=None, top_c=None, bw=0.55, bh=0.42):
         """Stepped wall buttress in the wall frame: spans x0..x1 on the face,

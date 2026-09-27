@@ -22,6 +22,7 @@ from town_kit import TK, palette, IRON, MORTAR, WALLSTONE, rect_hole
 from ra_kit import hexc, vary, mix
 
 k = TK("TownWall", seed=77, pal=palette(stone="grey"))
+k.deform_amp = k.deform_sag = 0      # tiles end to end: no bow / sag (seams must match)
 k.p["stone"] = WALLSTONE
 MA, PL = k.M("Matte"), k.M("Plant")
 k.grime = 1.4

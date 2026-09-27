@@ -88,7 +88,7 @@ func _ready() -> void:
 	collision_mask = 1 | 2 | 4
 	_model = Node3D.new()
 	add_child(_model)
-	var body := Assets.character("Knight", 1.8, ["1H_Sword", "Round_Shield"])
+	var body := Assets.character("Player", 1.8, ["1H_Sword", "Round_Shield"])
 	_model.add_child(body)
 	_animator = CharacterAnimator.new(body, RUN, WALK)
 	_add_head_look(body)
@@ -274,6 +274,15 @@ func _update_camera(delta: float) -> void:
 		floor_h = maxf(floor_h, water_h + 0.4)   # keep the camera above the surface
 	if cp.y < floor_h:
 		camera.global_position.y = floor_h
+	# Keep the chase camera out of walls, stalls and roofs: pull it in front of whatever
+	# lies between the head and the camera (playtest: camera inside the guild hall / stalls).
+	if view == View.THIRD and InteriorDoor.active == null:
+		var from := _pivot.global_position
+		var q := PhysicsRayQueryParameters3D.create(from, camera.global_position)
+		q.exclude = [get_rid()]
+		var hit := get_world_3d().direct_space_state.intersect_ray(q)
+		if not hit.is_empty():
+			camera.global_position = (hit["position"] as Vector3) + (from - camera.global_position).normalized() * 0.3
 
 
 func _update_look_target() -> void:

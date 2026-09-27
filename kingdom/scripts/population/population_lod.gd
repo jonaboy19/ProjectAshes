@@ -63,7 +63,7 @@ func refresh() -> void:
 
 	var want_full := {}
 	for entry in dists:
-		if want_full.size() >= MAX_FULL or entry[0] > FULL_RANGE * FULL_RANGE:
+		if want_full.size() >= mini(MAX_FULL, Quality.npc_full) or entry[0] > FULL_RANGE * FULL_RANGE:
 			break
 		want_full[entry[1]] = true
 	for id in _full.keys():
@@ -89,7 +89,7 @@ func refresh() -> void:
 			continue
 		var look: String = JOB_LOOK[WorldSim.job[id]]
 		var n: int = used[look]
-		if n >= MAX_SPRITES:
+		if n >= mini(MAX_SPRITES, Quality.npc_sprites):
 			continue
 		var pp: Vector2 = WorldSim.pos[id]
 		var heading: Vector2 = WorldSim.target[id] - pp
