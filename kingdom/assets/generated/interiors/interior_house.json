@@ -1,0 +1,50 @@
+{
+ "name": "house",
+ "stats": {
+  "room_tris": 19768,
+  "prop_tris": 3358,
+  "total": 23126,
+  "materials": [
+   "RA_Wood",
+   "RA_Plaster",
+   "RA_Ember",
+   "RA_Props"
+  ],
+  "size_mb": 2.3618
+ },
+ "markers": [
+  [
+   "NPC_Resident",
+   [
+    0.35,
+    0,
+    -1.0
+   ],
+   2.761086276477428,
+   {
+    "look": "Rogue_Hooded",
+    "height": 1.75,
+    "anim": "Idle",
+    "role": "resident"
+   }
+  ]
+ ],
+ "spawn": [
+  [
+   1.8,
+   0.05,
+   1.6
+  ],
+  0.0
+ ],
+ "lights": [
+  [
+   "FireLight",
+   [
+    -1.2000000476837158,
+    0.550000011920929,
+    -2.25
+   ]
+  ]
+ ]
+}

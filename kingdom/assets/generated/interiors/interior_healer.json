@@ -1,0 +1,58 @@
+{
+ "name": "healer",
+ "stats": {
+  "room_tris": 33530,
+  "prop_tris": 4172,
+  "total": 37702,
+  "materials": [
+   "RA_Wood",
+   "RA_Plaster",
+   "RA_Ember",
+   "RA_Props"
+  ],
+  "size_mb": 4.009776
+ },
+ "markers": [
+  [
+   "NPC_Healer",
+   [
+    0.7,
+    0,
+    -2.0
+   ],
+   3.141592653589793,
+   {
+    "look": "Elder_Woman",
+    "height": 1.65,
+    "anim": "Idle",
+    "role": "healer"
+   }
+  ]
+ ],
+ "spawn": [
+  [
+   -2.2,
+   0.05,
+   2.1
+  ],
+  0.0
+ ],
+ "lights": [
+  [
+   "FireLight",
+   [
+    3.25,
+    0.550000011920929,
+    -1.600000023841858
+   ]
+  ],
+  [
+   "TableCandle",
+   [
+    0.09999999999999998,
+    1.1,
+    -1.45
+   ]
+  ]
+ ]
+}

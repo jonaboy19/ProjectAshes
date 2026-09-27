@@ -1,0 +1,73 @@
+{
+ "name": "guild",
+ "stats": {
+  "room_tris": 41620,
+  "prop_tris": 6038,
+  "total": 47658,
+  "materials": [
+   "RA_Wood",
+   "RA_Plaster",
+   "RA_Ember",
+   "RA_Props"
+  ],
+  "size_mb": 5.082072
+ },
+ "markers": [
+  [
+   "NPC_Receptionist",
+   [
+    0.0,
+    0,
+    -3.4
+   ],
+   3.141592653589793,
+   {
+    "look": "Mage",
+    "height": 1.7,
+    "anim": "Idle",
+    "role": "receptionist"
+   }
+  ],
+  [
+   "NPC_Adventurer",
+   [
+    -4.6,
+    0,
+    0.6
+   ],
+   1.4711276743037345,
+   {
+    "look": "Rogue",
+    "height": 1.8,
+    "anim": "Idle",
+    "role": "adventurer"
+   }
+  ]
+ ],
+ "spawn": [
+  [
+   0.0,
+   0.05,
+   3.5
+  ],
+  0.0
+ ],
+ "lights": [
+  [
+   "FireLight",
+   [
+    5.249999523162842,
+    0.550000011920929,
+    0.9999999403953552
+   ]
+  ],
+  [
+   "DeskCandles",
+   [
+    0.0,
+    1.9,
+    -2.4
+   ]
+  ]
+ ]
+}

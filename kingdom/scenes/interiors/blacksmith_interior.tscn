@@ -1,0 +1,228 @@
+[gd_scene load_steps=28 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/generated/interiors/interior_blacksmith.glb" id="1_room"]
+[ext_resource type="Script" path="res://scripts/interiors/interior_door.gd" id="2_door"]
+[ext_resource type="Script" path="res://scripts/interiors/interior_room.gd" id="3_room"]
+
+[sub_resource type="Environment" id="Environment_room"]
+background_mode = 1
+background_color = Color(0.035, 0.028, 0.022, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 0.84, 0.66, 1)
+ambient_light_energy = 0.7
+reflected_light_source = 1
+tonemap_mode = 4
+tonemap_exposure = 1.0
+tonemap_white = 6.0
+glow_enabled = true
+glow_intensity = 0.7
+glow_bloom = 0.08
+glow_hdr_threshold = 0.95
+adjustment_enabled = true
+adjustment_saturation = 1.15
+adjustment_contrast = 1.05
+
+[sub_resource type="BoxShape3D" id="Box_0"]
+size = Vector3(10.3, 4, 0.3)
+
+[sub_resource type="BoxShape3D" id="Box_1"]
+size = Vector3(8.3, 4, 0.3)
+
+[sub_resource type="BoxShape3D" id="Box_2"]
+size = Vector3(10.3, 4, 0.3)
+
+[sub_resource type="BoxShape3D" id="Box_3"]
+size = Vector3(8.3, 4, 0.3)
+
+[sub_resource type="BoxShape3D" id="Box_4"]
+size = Vector3(10, 0.5, 8)
+
+[sub_resource type="BoxShape3D" id="Box_5"]
+size = Vector3(10, 0.4, 8)
+
+[sub_resource type="BoxShape3D" id="Box_6"]
+size = Vector3(2.7, 1.25, 1.6)
+
+[sub_resource type="BoxShape3D" id="Box_7"]
+size = Vector3(0.9, 1.2, 0.8)
+
+[sub_resource type="BoxShape3D" id="Box_8"]
+size = Vector3(0.9, 0.93, 0.8)
+
+[sub_resource type="BoxShape3D" id="Box_9"]
+size = Vector3(1.921, 0.476, 0.765)
+
+[sub_resource type="BoxShape3D" id="Box_10"]
+size = Vector3(1.2, 0.4, 0.8)
+
+[sub_resource type="BoxShape3D" id="Box_11"]
+size = Vector3(1.8, 2.061, 0.72)
+
+[sub_resource type="BoxShape3D" id="Box_12"]
+size = Vector3(1.386, 1.109, 0.9831)
+
+[sub_resource type="BoxShape3D" id="Box_13"]
+size = Vector3(0.69, 0.9, 0.69)
+
+[sub_resource type="BoxShape3D" id="Box_14"]
+size = Vector3(0.5525, 0.544, 0.5525)
+
+[sub_resource type="BoxShape3D" id="Box_15"]
+size = Vector3(1.3, 0.8, 0.55)
+
+[sub_resource type="BoxShape3D" id="Box_16"]
+size = Vector3(2.019, 0.8946, 1.024)
+
+[sub_resource type="BoxShape3D" id="Box_17"]
+size = Vector3(1.141, 1.17, 0.9018)
+
+[sub_resource type="BoxShape3D" id="Box_18"]
+size = Vector3(0.69, 0.9, 0.69)
+
+[sub_resource type="BoxShape3D" id="Box_19"]
+size = Vector3(0.69, 0.9, 0.69)
+
+[sub_resource type="BoxShape3D" id="Box_20"]
+size = Vector3(1.168, 0.968, 1.032)
+
+[sub_resource type="BoxShape3D" id="Box_21"]
+size = Vector3(1.92, 0.904, 0.72)
+
+[sub_resource type="BoxShape3D" id="Box_exit"]
+size = Vector3(1.9, 2.4, 1)
+
+[node name="BlacksmithInterior" type="Node3D"]
+script = ExtResource("3_room")
+metadata/title = "Blacksmith"
+
+[node name="Room" parent="." instance=ExtResource("1_room")]
+
+[node name="Colliders" type="StaticBody3D" parent="."]
+
+[node name="C0" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -4.13)
+shape = SubResource("Box_0")
+
+[node name="C1" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, -1, 0, 1, 0, 1, 0, -4.3711e-08, 5.13, 2, 5.6825e-09)
+shape = SubResource("Box_1")
+
+[node name="C2" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-1, 0, -8.7423e-08, 0, 1, 0, 8.7423e-08, 0, -1, 1.1365e-08, 2, 4.13)
+shape = SubResource("Box_2")
+
+[node name="C3" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, 1, 0, 1, 0, -1, 0, -4.3711e-08, -5.13, 2, 5.6825e-09)
+shape = SubResource("Box_3")
+
+[node name="C4" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+shape = SubResource("Box_4")
+
+[node name="C5" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.25, 0)
+shape = SubResource("Box_5")
+
+[node name="C6" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 0.625, -3.25)
+shape = SubResource("Box_6")
+
+[node name="C7" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0.6, -3.2)
+shape = SubResource("Box_7")
+
+[node name="C8" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-0.98877, 0, -0.14944, 0, 1, 0, 0.14944, 0, -0.98877, 1, 0.465, -1.2)
+shape = SubResource("Box_8")
+
+[node name="C9" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, 1, 0, 1, 0, -1, 0, -4.3711e-08, 3.4, 0.238, -1.9)
+shape = SubResource("Box_9")
+
+[node name="C10" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2, 0.2, -3.45)
+shape = SubResource("Box_10")
+
+[node name="C11" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, -1, 0, 1, 0, 1, 0, -4.3711e-08, -4.4, 1.0305, -1.2)
+shape = SubResource("Box_11")
+
+[node name="C12" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, -1, 0, 1, 0, 1, 0, -4.3711e-08, -4.2469, 0.55128, 1.4)
+shape = SubResource("Box_12")
+
+[node name="C13" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(0.95534, 0, 0.29552, 0, 1, 0, -0.29552, 0, 0.95534, -4.45, 0.45, 3.4)
+shape = SubResource("Box_13")
+
+[node name="C14" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(0.96891, 0, 0.2474, 0, 1, 0, -0.2474, 0, 0.96891, -4.5, 0.272, 2.65)
+shape = SubResource("Box_14")
+
+[node name="C15" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 0.4, 3.45)
+shape = SubResource("Box_15")
+
+[node name="C16" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, 1, 0, 1, 0, -1, 0, -4.3711e-08, 4.3973, 0.4475, 1.5)
+shape = SubResource("Box_16")
+
+[node name="C17" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(0.92106, 0, 0.38942, 0, 1, 0, -0.38942, 0, 0.92106, -1.8633, 0.58785, 2.667)
+shape = SubResource("Box_17")
+
+[node name="C18" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(0.92106, 0, 0.38942, 0, 1, 0, -0.38942, 0, 0.92106, 4.45, 0.45, 3.45)
+shape = SubResource("Box_18")
+
+[node name="C19" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(0.16997, 0, 0.98545, 0, 1, 0, -0.98545, 0, 0.16997, 3.75, 0.45, 3.5)
+shape = SubResource("Box_19")
+
+[node name="C20" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-4.3711e-08, 0, 1, 0, 1, 0, -1, 0, -4.3711e-08, 4.2, 0.484, -0.2)
+shape = SubResource("Box_20")
+
+[node name="C21" type="CollisionShape3D" parent="Colliders"]
+transform = Transform3D(-1, 0, -8.7423e-08, 0, 1, 0, 8.7423e-08, 0, -1, -3.6, 0.452, -3.5)
+shape = SubResource("Box_21")
+
+[node name="PlayerSpawn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0.05, 2.5)
+
+[node name="ExitDoor" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, 3.55)
+script = ExtResource("2_door")
+is_exit = true
+prompt_text = "Leave"
+
+[node name="Shape" type="CollisionShape3D" parent="ExitDoor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+shape = SubResource("Box_exit")
+
+[node name="NPCs" type="Node3D" parent="."]
+
+[node name="NPC_Blacksmith" type="Marker3D" parent="NPCs"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.05, 0, -0.45)
+metadata/look = "Barbarian"
+metadata/height = 1.85
+metadata/anim = "Idle"
+metadata/role = "blacksmith"
+
+[node name="ForgeLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 1.55, -2.3)
+light_color = Color(1, 0.5, 0.2, 1)
+light_energy = 2.2
+light_specular = 0.3
+shadow_enabled = false
+omni_range = 7.5
+omni_attenuation = 1.4
+metadata/flicker = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_room")
+
+[node name="PreviewCamera" type="Camera3D" parent="."]
+transform = Transform3D(0.78087, 0.12735, -0.61158, 3.9837e-09, 0.979, 0.20386, 0.6247, -0.15919, 0.76447, -3.6, 2.5, 3.2)
+current = true
+fov = 58.7
