@@ -20,6 +20,8 @@ The full villager is a `Node3D`; it chases the simulation's direct position and 
 
 There is a second frame-rate-dependent detail: `rotation.y` is eased with `lerp_angle(..., 0.15)` once per rendered frame. A constant per-frame interpolation factor turns faster in wall-clock time at higher FPS. The game should use a delta-aware exponential factor or a bounded turn rate, then compare the same turn capture at LOW and HIGH frame rates.
 
+For a 90° heading change, the current factor rotates about 34.7° after 0.1 seconds at 30 FPS (3 updates), versus 56.1° at 60 FPS (6 updates). A time-normalized equivalent that preserves the 60 FPS response uses `alpha = 1 - pow(1 - 0.15, delta * 60)` each frame. The inspector compares these curves; a final game turn profile still needs human review, because frame-rate consistency alone does not make a turn feel natural.
+
 `_play()` crossfades with a fixed 0.2-second blend. At the inspected population and 60 FPS, that is over three times the average row-revisit interval (~0.059 seconds). If the gait threshold is crossed at lower frame rates or larger populations, rapid walk/idle state changes can interrupt one another before the blend settles.
 
 ## Recommended implementation direction for Claude

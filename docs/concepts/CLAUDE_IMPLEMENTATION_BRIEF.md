@@ -15,7 +15,7 @@ This brief points to the evidence and proposes a safe implementation sequence. I
 9. [World daily-rhythm review](WORLD_DAILY_RHYTHM_REVIEW.html) and [design notes](WORLD_DAILY_RHYTHM_DESIGN.md) — current job-group clock boundaries and a deterministic schedule-stagger design.
 10. [Open-world pattern study](OPEN_WORLD_PATTERN_STUDY.md) — project patterns and source/license distinctions.
 11. [Current playtest visual and movement review](CURRENT_RUN_VISUAL_REVIEW.md) — a reproducible camera obstruction, a clear line between static screenshot evidence and unverified NPC collision, and a focused moving-runtime capture matrix.
-12. [Near-NPC follower and gait-state review](NPC_FOLLOWER_ANIMATION_REVIEW.html) and [source notes](NPC_FOLLOWER_ANIMATION_REVIEW.md) — interactive model of the 1,500-row update slice against the 0.15 m walk/idle threshold at selectable population and FPS.
+12. [Near-NPC follower and gait-state review](NPC_FOLLOWER_ANIMATION_REVIEW.html) and [source notes](NPC_FOLLOWER_ANIMATION_REVIEW.md) — interactive model of population-sliced gait selection and frame-dependent turn easing.
 
 ## Baseline and evidence
 
