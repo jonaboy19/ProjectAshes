@@ -83,6 +83,7 @@ func _run(shots: PackedStringArray) -> void:
 			break
 		await frames(1)
 	await wait(2.0)
+	_fix_sky()
 	print("STORE: booted in %.1fs, quality %s" % [(Time.get_ticks_msec() - t) / 1000.0, Quality.tier_name()])
 	for tok in shots:
 		# "name:key=val:key=val" overrides args for one shot; saved as name-<tag>
@@ -99,11 +100,45 @@ func _run(shots: PackedStringArray) -> void:
 	get_tree().quit()
 
 
+## The imported sky panorama (kloofendal_43d .hdr with size_limit=2048) comes out all black,
+## so the sky renders black and the depth fog paints it flat grey. If the imported texture is
+## black, feed the sky the source .hdr decoded at runtime instead (presentation only).
+func _fix_sky() -> void:
+	if _args().has("nosky_fix"):
+		return
+	var env: Environment = main.get("env")
+	if env == null or env.sky == null or not (env.sky.sky_material is PanoramaSkyMaterial):
+		return
+	var mat := env.sky.sky_material as PanoramaSkyMaterial
+	if mat.panorama == null:
+		return
+	var im := mat.panorama.get_image()
+	var peak := 0.0
+	for i in 16:
+		var c := im.get_pixel(int(im.get_width() * (i + 0.5) / 16.0), int(im.get_height() * 0.25))
+		peak = maxf(peak, c.r + c.g + c.b)
+	if peak > 0.01:
+		print("STORE: sky panorama OK")
+		return
+	var src := mat.panorama.resource_path
+	var raw := Image.load_from_file(ProjectSettings.globalize_path(src))
+	if raw == null or raw.is_empty():
+		print("STORE: sky fix failed to load ", src)
+		return
+	if raw.get_width() > 4096:
+		raw.resize(4096, 2048, Image.INTERPOLATE_BILINEAR)
+	mat.panorama = ImageTexture.create_from_image(raw)
+	print("STORE: sky panorama was black; loaded %s at runtime (%dx%d)" % [src, raw.get_width(), raw.get_height()])
+
+
 func _reset() -> void:
 	for n in _extra:
 		if is_instance_valid(n):
 			n.queue_free()
 	_extra.clear()
+	var pop: Node = main.get("population")
+	if pop:
+		pop.set_process(true)
 	if InteriorDoor.active != null:
 		InteriorDoor.active.leave()
 	if _cam and is_instance_valid(_cam):
@@ -134,12 +169,44 @@ func _clean_overlays() -> void:
 	if env:
 		env.volumetric_fog_sky_affect = float(_args().get("fogsky", "0.0"))
 		env.fog_sky_affect = float(_args().get("fogsky2", "0.4"))
+		# Generic per-shot overrides: env_<property>=<value> (e.g. env_fog_enabled=false).
+		for k: String in _args():
+			if k.begins_with("env_"):
+				env.set(k.substr(4), str_to_var(String(_args()[k])))
+
+
+## Flat villager sprites (PopulationLOD impostors) read as pixelated cut-outs within ~30 m,
+## and a busy plaza exhausts the full-model budget long before that. For the capture, freeze
+## the crowd LOD and drop the sprites near the camera (`sprite_hide=<m>`, 0 = keep all).
+func _hide_near_sprites() -> void:
+	var r := float(_args().get("sprite_hide", "32"))
+	var pop: Node = main.get("population")
+	var cam := get_viewport().get_camera_3d() if _cam == null else _cam
+	if r <= 0.0 or pop == null or cam == null:
+		return
+	pop.set_process(false)
+	var zero := Transform3D(Basis.from_scale(Vector3.ZERO), Vector3(0, -1000, 0))
+	var hidden := 0
+	for mm: MultiMesh in (pop.get("_multimeshes") as Dictionary).values():
+		for i in mm.visible_instance_count:
+			if mm.get_instance_transform(i).origin.distance_to(cam.global_position) < r:
+				mm.set_instance_transform(i, zero)
+				hidden += 1
+	if hidden:
+		print("STORE: hid %d villager sprites within %.0f m" % [hidden, r])
+	# `clear=<m>`: also hide full-model villagers who wander in front of a staged shot.
+	var cr := float(_args().get("clear", "0"))
+	if cr > 0.0:
+		for v in pop.get_children():
+			if v is Villager and (v as Node3D).global_position.distance_to(cam.global_position) < cr:
+				(v as Node3D).visible = false
 
 
 func _capture(sname: String, hud_on: bool) -> void:
 	var burst := int(_args().get("burst", str(BURST)))
 	for b in burst:
 		_clean_overlays()
+		_hide_near_sprites()
 		var img: Image
 		if hud_on:
 			await frames(2)

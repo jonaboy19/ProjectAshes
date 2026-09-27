@@ -73,6 +73,25 @@ driver sets it to 0 (phones never run volumetric fog); and the full-model NPC bu
 48 so more villagers are fully modelled. The inn's `NPC_*` markers are populated with villagers
 because the game doesn't spawn them there yet.
 
+More runtime tweaks (all in `store_shots.gd`, no game files touched):
+- **Sky**: the imported `kloofendal_43d_clear_puresky_4k.hdr` (its `.import` has
+  `size_limit=2048`) decodes as an all-black texture, so the game's sky is black and the depth
+  fog paints it flat grey. The driver checks the panorama at boot and, if it is black, loads the
+  source `.hdr` at runtime (`STORE: sky panorama was black…` in the log). `--nosky_fix` turns
+  this off. (The game itself still has the black sky until that import is fixed.)
+- **Crowd sprites**: flat villager impostors look pixelated up close, so before each capture the
+  crowd LOD is frozen and sprites within 32 m of the camera are dropped (`sprite_hide=<m>`,
+  0 keeps them). `clear=<m>` also hides full-model villagers within that distance of the camera
+  (used on `night` and `knight` so passers-by don't block the shot).
+- `env_<property>=<value>` sets any `Environment` property for a shot (sticks for later shots).
+
+Picks: `02` is burst frame 2, `05` burst frame 0. The 2688×1242 `05` is shot on its own
+(`make_screenshots.sh <out> 2688 1242 "$(grep ^knight tools/store/shotlist.txt)" --seed=7`)
+because the soldiers' looks depend on the RNG sequence; rerun with another `--seed` if a
+soldier or villager comes out wrong. Key art for the feature graphic:
+`make_screenshots.sh <out> 2048 1000 "aerial:tag=keyart:hour=11:ax=55:ay=28:az=62:alx=0:alz=-12:fov=50"`,
+copy it to `store/_work/keyart_2048x1000.png`, then run `make_feature.sh`.
+
 ## Checklist: what you have to do yourself
 
 **Accounts and legal**
