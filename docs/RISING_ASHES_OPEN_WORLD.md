@@ -262,3 +262,11 @@ References: `docs/art_reference/village_target_1.png` and `village_target_2.png`
   - dormers, balconies
   - banners in faction colours
 - **Characters:** small, stylised-realistic, readable at distance, warm clothing colours.
+
+### Building concept sheets (user)
+
+Each sheet shows front, side and back views plus detail close-ups. The Blender generators should match them.
+- `concept_healer.png`: green slate roof, green-cross sign on a bracket with a lantern, herb stall under a canvas awning, ivy, flower boxes and potted plants, stone steps, a chalkboard.
+- `concept_inn.png`: red tile roof, two storeys with a wraparound balcony and flower boxes, a hanging tankard sign, many warm glowing windows, a striped awning over outdoor tables, three chimneys with smoke.
+- `concept_blacksmith.png`: dark slate roof, stone ground floor, an open forge wing with a glowing hearth and anvil, a grindstone, weapon racks, fence, anvil sign, a big stone chimney.
+- `concept_guild.png`: blue slate roof with dormers, stone base with a raised terrace and steps, an arched double door, blue banners with a gold compass-star emblem, a quest board, lanterns.
