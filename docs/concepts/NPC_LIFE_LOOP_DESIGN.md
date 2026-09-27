@@ -7,6 +7,8 @@
 
 ## What the current code does
 
+The [interactive daily-rhythm viewer](WORLD_DAILY_RHYTHM_REVIEW.html) exposes an additional source-level behavior risk: residents with the same job change phase on exact shared clock boundaries, and the simulation applies their new targets in a short update burst. The schedule table, real-time conversion, and a deterministic staggering design are in [WORLD_DAILY_RHYTHM_DESIGN.md](WORLD_DAILY_RHYTHM_DESIGN.md).
+
 The current system has a strong foundation: all residents exist cheaply as data in `WorldSim`; `PopulationLOD` promotes only a limited near set to full models; and work/home/market intent is already derived from the time of day. The gap is between that intent and what the player sees.
 
 - `WorldSim._current_phase()` selects only home, work, or market. `_on_phase_change()` replaces a person's target with a newly selected point. `_simulate_slice()` advances the position directly toward it at `WALK_SPEED`, in a straight line.

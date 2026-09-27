@@ -12,7 +12,8 @@ This brief points to the evidence and proposes a safe implementation sequence. I
 6. [NPC gait phase review](NPC_PHASE_REVIEW.html) — visual demonstration of synchronized versus per-actor walk-cycle phase.
 7. [Player impulse response review](PLAYER_IMPULSE_REVIEW.html) and [source notes](PLAYER_MECHANICS_RESPONSE_REVIEW.md) — calculated impact of applying a decaying knockback vector each physics tick.
 8. [NPC life-loop design](NPC_LIFE_LOOP_DESIGN.md) — state priorities, goal anchors, physical movement ownership, and playtest matrix.
-9. [Open-world pattern study](OPEN_WORLD_PATTERN_STUDY.md) — project patterns and source/license distinctions.
+9. [World daily-rhythm review](WORLD_DAILY_RHYTHM_REVIEW.html) and [design notes](WORLD_DAILY_RHYTHM_DESIGN.md) — current job-group clock boundaries and a deterministic schedule-stagger design.
+10. [Open-world pattern study](OPEN_WORLD_PATTERN_STUDY.md) — project patterns and source/license distinctions.
 
 ## Baseline and evidence
 
