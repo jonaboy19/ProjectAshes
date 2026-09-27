@@ -234,3 +234,31 @@ source where licences allow and the pushed asset packs; Blender work in parallel
 - Distance: LODs, HLOD or impostors, aggressive culling, instancing, texture atlases. Distant decoration uses simplified meshes.
 - Avoid: blindly raising poly counts, unnecessary dynamic lights, excessive transparency, very high-resolution textures, thousands of tiny objects.
 - Asset workflow: Meshy (fast generation, on the user's PC) → Blender cleanup, decimation and LODs (here) → Godot.
+
+## Target look (user reference, round 6)
+
+References: `docs/art_reference/village_target_1.png` and `village_target_2.png`. Keep the existing village **layout**; change the **look**.
+
+- **Style:** cosy, hand-painted stylised fantasy (think polished stylised RPG), not photoreal.
+  - Chunky, characterful proportions.
+  - Crisp readable silhouettes.
+  - Painterly textures with visible stone blocks, planks and slates.
+- **Light:** warm golden sun, clear blue sky, saturated but not garish colour, soft bloom. Windows glow warm. Chimneys smoke.
+- **Greenery everywhere:**
+  - lush bright-green grass
+  - flower beds and planters at house fronts
+  - bushes hugging walls and fences
+  - trees between buildings
+  - wildflowers along fences
+- **Ground:**
+  - cobblestone plaza edges and rings
+  - pebbly, sandy dirt paths
+  - low stone walls and wooden fences
+- **Clutter with purpose:** crates, barrels, sacks, lanterns on posts, hanging signs, goods on stalls, carts.
+- **Buildings:**
+  - weathered stone bases
+  - timber framing
+  - blue, red and green slate roofs with colour variation
+  - dormers, balconies
+  - banners in faction colours
+- **Characters:** small, stylised-realistic, readable at distance, warm clothing colours.
