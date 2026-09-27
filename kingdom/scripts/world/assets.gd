@@ -202,6 +202,8 @@ const GUARD_SHIELD := "res://assets/incoming/armor/polypizza_sel/shield_round_wo
 ## Paths containing "/" are full resource paths without ".glb" (the CC0 G6 and
 ## CDmir villagers in incoming/characters, already on the UAL skeleton).
 const G6 := "res://assets/incoming/characters/g6-ual/"
+## Meshy armored humanoids re-rigged to UAL (user's PC session); their helmets are part of the mesh.
+const ARMORED := "res://assets/incoming/ai3d/meshy/armored/"
 const CDMIR := "res://assets/incoming/characters/cdmir-ual/"
 const MH_LOOKS := {
 	"Rogue_Hooded": ["villager_man_a", "villager_man_b", "villager_woman_a", "villager_woman_b", "elder_man", "elder_woman",
@@ -212,8 +214,10 @@ const MH_LOOKS := {
 	"Blacksmith": [G6 + "g6_m_blacksmith_apron"], "Innkeeper": [G6 + "g6_m_worker_apron", G6 + "g6_f_worker_apron"],
 	"Hunter": [G6 + "g6_m_hunter_leather", G6 + "g6_f_hunter_leather"], "Monk": [CDMIR + "cdmir_monk"],
 	"Herbalist": [CDMIR + "cdmir_old_lady"], "Trader": [G6 + "g6_m_villager_tunic", G6 + "g6_f_worker_apron"],
-	"Knight": ["guard"],
-	"Player": ["player_young"], "Guard": ["guard"],
+	"Knight": [ARMORED + "guard", ARMORED + "mercenary"],
+	"Player": ["player_young"], "Guard": [ARMORED + "guard"], "Plate_Knight": [ARMORED + "knight"],
+	"Mercenary": [ARMORED + "mercenary"], "Bandit": [ARMORED + "bandit"], "Noble": [ARMORED + "noble"],
+	"Orc_Warchief": [ARMORED + "orc_warchief"],
 	"Mother": ["mother"], "Father": ["father"],
 	"Child_Boy": ["child_boy"], "Child_Girl": ["child_girl"],
 	"Elder_Man": ["elder_man"], "Elder_Woman": ["elder_woman"],
@@ -279,7 +283,10 @@ static func mh_character(file: String, height: float, keep: Array[String] = [], 
 	var base: Node3D = (load(path) as PackedScene).instantiate()
 	root.add_child(base)
 	var skeleton: Skeleton3D = base.find_children("*", "Skeleton3D", true, false)[0]
+	var armored := file.begins_with(ARMORED)
 	for part in keep:      # same props as humanoid(); the rig is in metres
+		if armored and part.contains("Helmet"):
+			continue
 		if part.contains("Helmet"):
 			_attach(skeleton, "Head", GUARD_HELM, 0.27, Vector3(0, 0.07, 0.01), Vector3.ZERO)
 		elif part.contains("Axe"):
@@ -297,7 +304,10 @@ static func mh_character(file: String, height: float, keep: Array[String] = [], 
 	anim.add_animation_library("", _ual_for(base.get_path_to(skeleton)))
 	var head := skeleton.find_bone("Head")
 	var native := skeleton.get_bone_global_rest(head).origin.y * 1.1
-	root.scale = Vector3.ONE * (height / maxf(native, 0.01))
+	# Helmets/hoods sit above the head bone: scale armored models so the helmet top
+	# lands near the requested height (ratios from ai3d/meshy/armored/README.md).
+	var k := 0.9 if armored else 1.0
+	root.scale = Vector3.ONE * (height * k / maxf(native, 0.01))
 	return root
 
 

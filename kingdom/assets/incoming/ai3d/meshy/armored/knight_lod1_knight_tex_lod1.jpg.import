@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://coqkv6n8i3pru"
-path="res://.godot/imported/stall_produce_lod0_normal.jpg-612b798eaeae1602a02028e325a84259.ctex"
+uid="uid://bfh52kma83ojf"
+path="res://.godot/imported/knight_lod1_knight_tex_lod1.jpg-ebf75e97f789ca6aa851bc7ea2a27d08.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "b28fc682615191d8d1f999a3a8da0d1a"
+"md5": "2e86ce1ac54fbe572f7fa58a63cea60f"
 }
 
 [deps]
 
-source_file="res://assets/incoming/ai3d/meshy/stall_produce_lod0_normal.jpg"
-dest_files=["res://.godot/imported/stall_produce_lod0_normal.jpg-612b798eaeae1602a02028e325a84259.ctex"]
+source_file="res://assets/incoming/ai3d/meshy/armored/knight_lod1_knight_tex_lod1.jpg"
+dest_files=["res://.godot/imported/knight_lod1_knight_tex_lod1.jpg-ebf75e97f789ca6aa851bc7ea2a27d08.ctex"]
 
 [params]
 

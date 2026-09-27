@@ -73,6 +73,25 @@ func _add_camp(pl: Dictionary, species: String, count: int) -> void:
 			var a := TAU * i / seg
 			_place(root, [GEN + "orc_palisade.glb"], c + Vector2(cos(a), sin(a)) * r, -a + PI * 0.5, 0.0)
 		_place(root, [GEN + "orc_totem.glb", PACK + "goblin-totem.glb"], c, 0.0, 4.5)
+		# The chief (Meshy orc warchief on the UAL rig) holds court by the totem.
+		var chief := Assets.character("Orc_Warchief", 2.2, [])
+		root.add_child(chief)
+		var cp := c + Vector2(3.0, -2.0)
+		chief.global_position = _ground(cp)
+		chief.rotation.y = atan2(-3.0, 2.0)
+		var ap := Assets.animation_player(chief)
+		if ap:
+			ap.play("Idle" if ap.has_animation("Idle") else ap.get_animation_list()[0])
+		var tag := Label3D.new()
+		var chief_info: Dictionary = pl.get("chief", {})
+		tag.text = "%s · %s" % [chief_info.get("name", "Orc Warchief"), chief_info.get("title", "Warchief")]
+		tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		tag.pixel_size = 0.008
+		tag.font_size = 30
+		tag.outline_size = 8
+		tag.modulate = Color("ffb070")
+		tag.position.y = 2.6
+		chief.add_child(tag)
 		_place(root, [PACK + "campfire-with-spit.glb"], c + Vector2(5, 4), 0.0, 1.4)
 	var fire := OmniLight3D.new()
 	fire.light_color = Color(1.0, 0.6, 0.3)

@@ -2,19 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://coqkv6n8i3pru"
-path="res://.godot/imported/stall_produce_lod0_normal.jpg-612b798eaeae1602a02028e325a84259.ctex"
+uid="uid://b7yyy7j8s5beg"
+path="res://.godot/imported/armored_mercenary_anim.png-d2ce74e7a4f92167ab731c8b56fb8384.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "b28fc682615191d8d1f999a3a8da0d1a"
 }
 
 [deps]
 
-source_file="res://assets/incoming/ai3d/meshy/stall_produce_lod0_normal.jpg"
-dest_files=["res://.godot/imported/stall_produce_lod0_normal.jpg-612b798eaeae1602a02028e325a84259.ctex"]
+source_file="res://assets/incoming/ai3d/meshy/_previews/armored_mercenary_anim.png"
+dest_files=["res://.godot/imported/armored_mercenary_anim.png-d2ce74e7a4f92167ab731c8b56fb8384.ctex"]
 
 [params]
 
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
