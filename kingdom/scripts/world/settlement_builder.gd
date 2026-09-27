@@ -498,8 +498,8 @@ static func _smoke_emitter(at: Vector3) -> GPUParticles3D:
 		_smoke_mat = ParticleProcessMaterial.new()
 		_smoke_mat.direction = Vector3(0.25, 1, 0.1)
 		_smoke_mat.spread = 12.0
-		_smoke_mat.initial_velocity_min = 0.5
-		_smoke_mat.initial_velocity_max = 0.9
+		_smoke_mat.initial_velocity_min = 0.35
+		_smoke_mat.initial_velocity_max = 0.6
 		_smoke_mat.gravity = Vector3(0.18, 0.12, 0.05)
 		_smoke_mat.scale_min = 0.6
 		_smoke_mat.scale_max = 1.0
@@ -517,7 +517,7 @@ static func _smoke_emitter(at: Vector3) -> GPUParticles3D:
 		gt.gradient = g
 		_smoke_mat.color_ramp = gt
 		_smoke_mesh = QuadMesh.new()
-		_smoke_mesh.size = Vector2(0.9, 0.9)
+		_smoke_mesh.size = Vector2(1.8, 1.8)
 		var m := StandardMaterial3D.new()
 		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -531,8 +531,8 @@ static func _smoke_emitter(at: Vector3) -> GPUParticles3D:
 		m.albedo_texture = ImageTexture.create_from_image(img)
 		_smoke_mesh.material = m
 	var p := GPUParticles3D.new()
-	p.amount = 10
-	p.lifetime = 6.0
+	p.amount = 16
+	p.lifetime = 7.0
 	p.preprocess = 6.0
 	p.process_material = _smoke_mat
 	p.draw_pass_1 = _smoke_mesh
