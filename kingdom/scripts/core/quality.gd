@@ -427,6 +427,7 @@ func _apply_env(we: WorldEnvironment) -> void:
 	env.ssil_enabled = value("ssil") and fwd
 	env.sdfgi_enabled = value("sdfgi") and fwd
 	env.volumetric_fog_enabled = value("vol_fog") and fwd
+	env.volumetric_fog_sky_affect = 0.0   # default 1.0 greys out a clear sky on Ultra
 	env.ssr_enabled = value("ssr") and fwd
 	env.glow_enabled = value("glow")
 	if not env.has_meta("q_fog"):

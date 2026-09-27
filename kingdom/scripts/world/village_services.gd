@@ -101,7 +101,10 @@ func _prop(item: String, at: Vector2, scale_by: float) -> void:
 	var path := MEGAKIT + item + ".gltf"
 	if not ResourceLoader.exists(path):
 		return
-	var n: Node3D = (load(path) as PackedScene).instantiate()
+	var scene := load(path) as PackedScene
+	if scene == null:   # exists but failed to load (e.g. not imported): skip instead of erroring every boot
+		return
+	var n: Node3D = scene.instantiate()
 	n.scale = Vector3.ONE * scale_by
 	add_child(n)
 	n.global_position = _ground(at)
