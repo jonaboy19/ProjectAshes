@@ -39,15 +39,15 @@
   <header>
     <div class="eyebrow">Rising Ashes · Feel pass</div>
     <h1>A world that feels solid and alive</h1>
-    <p class="lead">A quick visual review board for the movement, crowd, animation and collision work. Open this file in a browser; each image opens at full size. The game screenshots show the existing project, while the collision drawing explains the current near-actor design.</p>
-    <span class="status">Plan and code pass recorded · in-game feel still needs a hands-on check</span>
+    <p class="lead">A visual handoff for Claude: keep the existing world, improve movement, animation, collision and daily life in small steps. These stills show the current art direction; they are not proof of live animation or collision behavior.</p>
+    <span class="status">Documentation handoff · no new game-code changes in this update</span>
   </header>
 
   <h2>What the world looks like today</h2>
   <section class="grid" aria-label="Current game screenshots">
-    <article class="card"><a href="../kingdom/modern/village_market.png"><img src="../kingdom/modern/village_market.png" alt="Rising Ashes village market screenshot"></a><div class="card-body"><h3>Village market</h3><p>Existing project screenshot. Use this route to review stalls, paths, player scale and market crowd flow.</p><span class="tag">Current art</span><span class="tag todo">Collision needs play check</span></div></article>
-    <article class="card"><a href="../kingdom/modern/characters.png"><img src="../kingdom/modern/characters.png" alt="Rising Ashes character lineup screenshot"></a><div class="card-body"><h3>Characters and scale</h3><p>Existing character reference. The new movement changes keep the current models and animator setup.</p><span class="tag">Existing assets</span><span class="tag todo">Animation pacing needs play check</span></div></article>
-    <article class="card"><a href="../kingdom/modern/frontier_wolves.png"><img src="../kingdom/modern/frontier_wolves.png" alt="Rising Ashes frontier wolf encounter screenshot"></a><div class="card-body"><h3>Frontier encounter</h3><p>Existing screenshot. Wolves and camp monsters are still on the collision follow-up list.</p><span class="tag">Current encounter</span><span class="tag todo">Enemy collision follow-up</span></div></article>
+    <article class="card"><a href="../kingdom/modern/guildhall_life.png"><img src="../kingdom/modern/guildhall_life.png" alt="Rising Ashes guildhall village screenshot"></a><div class="card-body"><h3>Guildhall and market lane</h3><p>Busy, detailed setting. Review sightlines and keep the main walking route clear of crates, stalls and overlapping name labels.</p><span class="tag">Current world still</span><span class="tag todo">Crowd and lane readability</span></div></article>
+    <article class="card"><a href="../kingdom/modern/explore_polish.png"><img src="../kingdom/modern/explore_polish.png" alt="Rising Ashes forest exploration screenshot"></a><div class="card-body"><h3>Forest exploration</h3><p>Existing environment reference. Camera clearance through foliage and signs of wildlife or activity need live review.</p><span class="tag">Current world still</span><span class="tag todo">Camera and ambient life</span></div></article>
+    <article class="card"><a href="../kingdom/modern/orcs_life.png"><img src="../kingdom/modern/orcs_life.png" alt="Rising Ashes orc camp screenshot"></a><div class="card-body"><h3>Orc camp</h3><p>Existing encounter reference. Check enemy spacing, readable intent, solid world boundaries and combat timing during play.</p><span class="tag">Current world still</span><span class="tag todo">Runtime behavior review</span></div></article>
   </section>
 
   <h2>How nearby actors should meet the player</h2>
@@ -66,7 +66,7 @@
         <path d="M492 70 Q548 130 492 190" stroke="#789564" stroke-width="2" stroke-dasharray="5 5" fill="none"/><text x="550" y="130" text-anchor="middle" fill="#d2dfcf" font-size="12">near physics</text>
       </svg>
     </div>
-    <div class="card-body"><h3>Close actors block; distant crowds stay cheap</h3><p>The current code pass gives villagers and soldiers capsules near the player, and feeds embodied villager positions back into the population simulation. Explicit building proxies provide the solid world. This is a design diagram, not a captured gameplay frame.</p><span class="tag">Villagers</span><span class="tag">Near soldiers</span><span class="tag todo">Wolves / camp monsters next</span></div>
+    <div class="card-body"><h3>Close actors block; distant crowds stay cheap</h3><p>Target architecture: nearby characters use collision and yielding; far residents stay simulation-driven. Use explicit building and prop proxies, plus intentional door openings. This drawing is a design diagram, not a captured gameplay frame.</p><span class="tag">Near physics</span><span class="tag">Far crowd LOD</span><span class="tag todo">Verify in a live play session</span></div>
   </section>
 
   <h2>Animation evidence and review</h2>
@@ -79,7 +79,7 @@
   <h2>Review route</h2>
   <div class="callout">Village spawn → cross the square → walk through the market → circle the inn → pass a resident in a doorway → run and stop → enter a frontier encounter. Check for wall clipping, body overlap, foot skating, camera clipping, stalled residents, and hits that land out of sync with the visible swing.</div>
   <nav class="links" aria-label="Project review documents"><a href="REAL_WORLD_GAME_FEEL_PLAN.md">Open the full improvement plan</a><a href="../qa/PLAYTEST_REPORT.md">Open Claude's playtest report</a><a href="../qa/">Browse QA images and results</a></nav>
-  <footer>Project screenshots are existing concept/game references. The actor drawing is explanatory. Runtime collision and animation changes have not been visually playtested in this environment.</footer>
+  <footer>All screenshots are static project captures. They can show composition and art direction, but cannot verify movement, animation, collision, NPC intent or frame rate. The diagram is explanatory. Follow the review route in a live build and log findings in the existing QA report.</footer>
 </main>
 </body>
 </html>
