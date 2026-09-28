@@ -10,7 +10,12 @@ extends Node3D
 ## the CC0 Quaternius monsters are imported, blight rats and a fungal brute in
 ## the deepest forest. They defend themselves and fight with the same attack
 ## tokens and wind-ups as wolves.
+## Wild deer, stags, rabbits and foxes are huntable (Critter.take_damage); boars
+## drop pork and a tusk. A ForageNodes child keeps a few herbs, mushrooms,
+## berries and firewood to pick around the player.
 
+const Gathering := preload("res://scripts/sim/gathering_items.gd")
+const ForageNodes := preload("res://scripts/world/forage_nodes.gd")
 const SPAWN := 110.0
 const DESPAWN := 170.0
 const WILD_RINGS := 3          # wildlife groups kept around the player in forests
@@ -22,9 +27,14 @@ var focus := Vector3.ZERO
 var _groups: Array[Dictionary] = []    # {pos, kinds: [[kind, n]], radius, nodes: Array}
 var _wild: Array[Dictionary] = []
 var _timer := 0.0
+var forage: Node3D
 
 
 func _ready() -> void:
+	Gathering.register(Life)
+	forage = ForageNodes.new()
+	forage.name = "ForageNodes"
+	add_child(forage)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 5150
 	for s in WorldGen.settlements:
@@ -77,6 +87,7 @@ func _process(delta: float) -> void:
 	if _timer > 0.0:
 		return
 	_timer = 1.0
+	forage.set("focus", focus)
 	var p := Vector2(focus.x, focus.z)
 	for g in _groups:
 		_update_group(g, p)
@@ -166,5 +177,9 @@ func _spawn_beast(g: Dictionary, kind: String, nodes: Array) -> void:
 	var r: float = g["radius"]
 	var q: Vector2 = g["pos"] + Vector2(randf_range(-r, r), randf_range(-r, r)) * 0.5
 	b.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
-	b.died.connect(func(dead_b: Wolf) -> void: Life.on_monster_killed(dead_b.species))
+	b.died.connect(func(dead_b: Wolf) -> void:
+		Life.on_monster_killed(dead_b.species)
+		var got := Gathering.give_drops(Life, dead_b.species)
+		if got != "":
+			Game.say("%s butchered. %s" % [dead_b.species.capitalize(), got]))
 	nodes.append(b)

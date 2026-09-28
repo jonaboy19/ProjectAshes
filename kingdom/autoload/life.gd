@@ -323,6 +323,7 @@ func _setup_market() -> void:
 	market.add_good("wolf_pelt", 8, 6, 0)
 	market.add_good("wolf_meat", 2, 10, 0)
 	market.add_good("firewood", 1, 30, 6)
+	preload("res://scripts/sim/gathering_items.gd").register(self)
 
 
 ## Local people of a settlement who aren't already in an organisation, laborers first.
