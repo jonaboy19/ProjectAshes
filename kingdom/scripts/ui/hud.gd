@@ -16,6 +16,11 @@ extends CanvasLayer
 signal fast_travel_requested(pos: Vector2)
 signal place_discovered(place: Dictionary)
 
+const InventoryScreen := preload("res://scripts/ui/inventory_screen.gd")
+const CraftingScreen := preload("res://scripts/ui/crafting_screen.gd")
+const TechniqueButtons := preload("res://scripts/ui/technique_buttons.gd")
+const SkillsScreen := preload("res://scripts/ui/skills_screen.gd")
+var skills_screen: Control
 const Discovery := preload("res://scripts/sim/discovery.gd")
 const CompassBar := preload("res://scripts/ui/compass.gd")
 const WorldMap := preload("res://scripts/ui/world_map.gd")
@@ -116,6 +121,9 @@ func _ready() -> void:
 		var b := _button(pair[0], pair[1], 72, Color("5fae6b"), pair[2])
 		b.visible = false
 		_order_buttons.append(b)
+	var techniques := TechniqueButtons.new()
+	controls.add_child(techniques)
+	techniques.open_skills_requested.connect(func() -> void: skills_screen.open())
 
 	# Status card, top left.
 	var card := Panel.new()
@@ -533,10 +541,15 @@ func _build_navigation(root: Control) -> void:
 	root.add_child(banner)
 	add_action_button("map", "Map", "world_map", "glyph:map", UITheme.ACTION_TALK.darkened(0.15))
 	add_action_button("photo", "Photo", "photo_mode", "glyph:camera")
+	add_action_button("skills", "Arts", func() -> void: skills_screen.toggle(), "glyph:compass")
+	add_action_button("items", "Items", func() -> void: InventoryScreen.open_for(self), "knapsack")
+	add_action_button("craft", "Craft", func() -> void: CraftingScreen.open_for(self), "hand")
 
 
 ## Map, photo mode and the travel fade sit above the HUD root (not hidden with it).
 func _build_overlays() -> void:
+	skills_screen = SkillsScreen.new()
+	add_child(skills_screen)
 	world_map = WorldMap.new()
 	world_map.player = player
 	world_map.travel_check = _travel_block_reason

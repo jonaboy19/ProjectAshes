@@ -66,6 +66,7 @@ func _ready() -> void:
 
 	_build_environment()
 	player = Player.new()
+	player.add_child(preload("res://scripts/actors/technique_caster.gd").new())
 	hud = HUD.new(player)
 	add_child(hud)
 	hud.fast_travel_requested.connect(func(at: Vector2) -> void: _teleport(at, 0.0))
@@ -138,6 +139,9 @@ func _ready() -> void:
 	weather.setup(env, sun, player.camera)
 	ambient = AmbientLife.new()
 	world.add_child(ambient)
+	var ore := preload("res://scripts/world/ore_vein.gd").new()
+	ore.name = "OreVeins"
+	world.add_child(ore)
 
 	army = Squad.new().setup(0, "soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
 	army.leader = player

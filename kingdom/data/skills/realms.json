@@ -1,0 +1,122 @@
+{
+	"version": 1,
+	"realms": [
+		{
+			"id": "mortal",
+			"name": "Mortal Body",
+			"stages": 1,
+			"qi": 20,
+			"regen": 0.4,
+			"xp": 40,
+			"power": 1.0,
+			"chance": 1.0,
+			"level": 1,
+			"magicules": 0,
+			"desc": "Untrained flesh. Qi slips through you like water through sand."
+		},
+		{
+			"id": "qi_condensation",
+			"name": "Qi Condensation",
+			"stages": 9,
+			"qi": 60,
+			"regen": 1.0,
+			"xp": 60,
+			"power": 1.15,
+			"chance": 0.85,
+			"level": 3,
+			"magicules": 10,
+			"desc": "Nine layers of gathering qi into the dantian."
+		},
+		{
+			"id": "foundation",
+			"name": "Foundation Establishment",
+			"stages": 4,
+			"qi": 150,
+			"regen": 2.0,
+			"xp": 150,
+			"power": 1.35,
+			"chance": 0.7,
+			"level": 10,
+			"magicules": 20,
+			"desc": "The dantian solidifies; the path is truly begun."
+		},
+		{
+			"id": "core",
+			"name": "Core Formation",
+			"stages": 4,
+			"qi": 320,
+			"regen": 3.5,
+			"xp": 300,
+			"power": 1.6,
+			"chance": 0.55,
+			"level": 18,
+			"magicules": 35,
+			"desc": "A golden core condenses. Sects call you elder now."
+		},
+		{
+			"id": "nascent_soul",
+			"name": "Nascent Soul",
+			"stages": 4,
+			"qi": 600,
+			"regen": 6.0,
+			"xp": 520,
+			"power": 1.9,
+			"chance": 0.45,
+			"level": 28,
+			"magicules": 60,
+			"desc": "The core cracks and a soul is born within it."
+		},
+		{
+			"id": "soul_transformation",
+			"name": "Soul Transformation",
+			"stages": 4,
+			"qi": 1000,
+			"regen": 9.0,
+			"xp": 800,
+			"power": 2.3,
+			"chance": 0.35,
+			"level": 38,
+			"magicules": 90,
+			"desc": "The soul reshapes body and fate."
+		},
+		{
+			"id": "void_refinement",
+			"name": "Void Refinement",
+			"stages": 4,
+			"qi": 1600,
+			"regen": 14.0,
+			"xp": 1200,
+			"power": 2.8,
+			"chance": 0.28,
+			"level": 50,
+			"magicules": 130,
+			"desc": "You touch the void between heaven and earth."
+		},
+		{
+			"id": "tribulation",
+			"name": "Tribulation Transcendence",
+			"stages": 4,
+			"qi": 2500,
+			"regen": 20.0,
+			"xp": 1800,
+			"power": 3.4,
+			"chance": 0.2,
+			"level": 62,
+			"magicules": 180,
+			"desc": "Heaven sends lightning to test you. Survive it."
+		},
+		{
+			"id": "ascension",
+			"name": "Immortal Ascension",
+			"stages": 1,
+			"qi": 4000,
+			"regen": 30.0,
+			"xp": 2600,
+			"power": 4.2,
+			"chance": 0.12,
+			"level": 75,
+			"magicules": 250,
+			"desc": "Few in any age. The world will remember your name."
+		}
+	]
+}

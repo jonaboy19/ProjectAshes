@@ -1,0 +1,177 @@
+{
+	"id": "earth",
+	"name": "Earth Arts",
+	"category": "elemental",
+	"element": "earth",
+	"color": "#c29a5b",
+	"desc": "Stonesetting. Caldric walls stand because the ground agreed to hold them.",
+	"sects": [
+		"hall_of_four_currents",
+		"greywatch_spear_hall",
+		"ashford_staff_yard"
+	],
+	"techniques": [
+		{
+			"id": "earth_stone_bullet",
+			"name": "Stone Bullet",
+			"desc": "Rip a stone from the ground and fire it.",
+			"tier": 1,
+			"col": 0,
+			"resource": "magicules",
+			"cost": 4,
+			"cooldown": 2.2,
+			"damage": 22,
+			"shape": "projectile",
+			"range": 14.0,
+			"speed": 20.0,
+			"knockback": 4.0,
+			"anim": "Throw_Object",
+			"anim_speed": 1.4,
+			"hit_time": 0.28,
+			"vfx": "stone_bullet",
+			"element": "earth",
+			"max_rank": 3
+		},
+		{
+			"id": "earth_rooted",
+			"name": "Rooted Stance",
+			"desc": "Plant your feet: take less damage.",
+			"tier": 2,
+			"col": -1,
+			"kind": "passive",
+			"passive": {
+				"damage_taken": -0.05,
+				"earth_damage": 0.05
+			},
+			"requires": [
+				"earth_stone_bullet"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "earth_spike",
+			"name": "Earth Spike",
+			"desc": "Stone spears burst from the ground under your target.",
+			"tier": 2,
+			"col": 1,
+			"resource": "magicules",
+			"cost": 9,
+			"cooldown": 7.0,
+			"damage": 36,
+			"shape": "target_aoe",
+			"range": 12.0,
+			"radius": 1.8,
+			"knockback": 6.0,
+			"effect": {
+				"stun": 0.5
+			},
+			"anim": "Attack_Ground_Pound",
+			"anim_mode": "full",
+			"anim_speed": 1.4,
+			"hit_time": 0.4,
+			"vfx": "earth_spike",
+			"element": "earth",
+			"requires": [
+				"earth_stone_bullet"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "earth_stone_skin",
+			"name": "Stone Skin",
+			"desc": "Coat yourself in stone for a while.",
+			"tier": 3,
+			"col": -1,
+			"resource": "magicules",
+			"cost": 10,
+			"cooldown": 25.0,
+			"damage": 0,
+			"shape": "buff",
+			"radius": 0.0,
+			"effect": {
+				"buff": {
+					"damage_taken": -0.35
+				},
+				"duration": 8.0
+			},
+			"anim": "G6_power_up_3",
+			"anim_mode": "full",
+			"hit_time": 0.4,
+			"vfx": "stone_skin",
+			"element": "earth",
+			"requires": [
+				"earth_rooted"
+			],
+			"needs": {
+				"level": 6
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "earth_quake",
+			"name": "Quake",
+			"desc": "The ground rolls; every foe near you stumbles.",
+			"tier": 3,
+			"col": 1,
+			"resource": "magicules",
+			"cost": 18,
+			"cooldown": 16.0,
+			"damage": 40,
+			"shape": "aoe",
+			"radius": 6.5,
+			"effect": {
+				"stun": 1.2
+			},
+			"anim": "Attack_Ground_Pound",
+			"anim_mode": "full",
+			"anim_speed": 1.1,
+			"hit_time": 0.5,
+			"vfx": "quake",
+			"element": "earth",
+			"requires": [
+				"earth_spike"
+			],
+			"needs": {
+				"level": 10
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "earth_greywatch_wall",
+			"name": "Greywatch Rampart",
+			"desc": "Raise a wall of stone that shatters outward.",
+			"tier": 4,
+			"col": 0,
+			"resource": "magicules",
+			"cost": 26,
+			"cooldown": 24.0,
+			"damage": 60,
+			"shape": "cone",
+			"range": 7.0,
+			"angle": 100.0,
+			"knockback": 12.0,
+			"anim": "G6_cast_off_hand_shield",
+			"anim_mode": "full",
+			"hit_time": 0.5,
+			"vfx": "stone_wall",
+			"element": "earth",
+			"requires": [
+				"earth_quake",
+				"earth_stone_skin"
+			],
+			"needs": {
+				"sect": [
+					"greywatch_spear_hall",
+					"hall_of_four_currents"
+				],
+				"realm": 2
+			},
+			"points": 2,
+			"seals": [
+				"boar",
+				"rat",
+				"tiger"
+			]
+		}
+	]
+}

@@ -1,0 +1,141 @@
+{
+	"id": "farming",
+	"name": "Farming",
+	"category": "life",
+	"element": "wood",
+	"color": "#9ccf5a",
+	"desc": "Rootsong. The soil repays attention more faithfully than any lord.",
+	"sects": [
+		"verdant_oath_sanctuary"
+	],
+	"techniques": [
+		{
+			"id": "farm_green_thumb",
+			"name": "Green Thumb",
+			"desc": "Crops you tend grow faster.",
+			"tier": 1,
+			"col": 0,
+			"kind": "passive",
+			"passive": {
+				"crop_growth": 0.1
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "farm_bountiful_harvest",
+			"name": "Bountiful Harvest",
+			"desc": "Harvest everything within reach in one sweep (emits a harvest event).",
+			"tier": 2,
+			"col": -1,
+			"resource": "stamina",
+			"cost": 15,
+			"cooldown": 30.0,
+			"damage": 0,
+			"shape": "utility",
+			"radius": 6.0,
+			"effect": {
+				"harvest": 6.0
+			},
+			"anim": "Farm_Harvest",
+			"anim_mode": "full",
+			"hit_time": 0.8,
+			"vfx": "leaves",
+			"element": "wood",
+			"requires": [
+				"farm_green_thumb"
+			]
+		},
+		{
+			"id": "farm_rain_call",
+			"name": "Call the Rain",
+			"desc": "Water every field around you at once.",
+			"tier": 2,
+			"col": 1,
+			"resource": "magicules",
+			"cost": 6,
+			"cooldown": 60.0,
+			"damage": 0,
+			"shape": "utility",
+			"radius": 10.0,
+			"effect": {
+				"water_crops": 10.0
+			},
+			"anim": "Farm_Watering",
+			"anim_mode": "full",
+			"hit_time": 0.8,
+			"vfx": "rain",
+			"element": "water",
+			"requires": [
+				"farm_green_thumb"
+			]
+		},
+		{
+			"id": "farm_beast_friend",
+			"name": "Beast Friend",
+			"desc": "Animals trust you: better yields from livestock.",
+			"tier": 3,
+			"col": -1,
+			"kind": "passive",
+			"passive": {
+				"livestock_yield": 0.15,
+				"tame_chance": 0.05
+			},
+			"requires": [
+				"farm_bountiful_harvest"
+			]
+		},
+		{
+			"id": "farm_spirit_herbs",
+			"name": "Spirit Herb Lore",
+			"desc": "Grow and find spirit herbs for pills.",
+			"tier": 3,
+			"col": 1,
+			"kind": "passive",
+			"passive": {
+				"herb_yield": 0.2,
+				"harvest_yield": 0.1
+			},
+			"requires": [
+				"farm_rain_call"
+			],
+			"needs": {
+				"level": 5
+			}
+		},
+		{
+			"id": "farm_rootsong",
+			"name": "Rootsong",
+			"desc": "Sing to the roots: vines bind foes and crops leap upward.",
+			"tier": 4,
+			"col": 0,
+			"resource": "magicules",
+			"cost": 14,
+			"cooldown": 35.0,
+			"damage": 10,
+			"shape": "aoe",
+			"radius": 6.0,
+			"effect": {
+				"slow": 4.0,
+				"harvest": 6.0
+			},
+			"anim": [
+				"Magic_Casting",
+				"G6_channel_unarmed_magic"
+			],
+			"anim_mode": "full",
+			"hit_time": 0.6,
+			"vfx": "vines",
+			"element": "wood",
+			"requires": [
+				"farm_beast_friend",
+				"farm_spirit_herbs"
+			],
+			"needs": {
+				"sect": [
+					"verdant_oath_sanctuary"
+				]
+			},
+			"points": 2
+		}
+	]
+}

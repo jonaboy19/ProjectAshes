@@ -1,0 +1,227 @@
+{
+	"id": "fist_palm",
+	"name": "Fist and Palm",
+	"category": "martial",
+	"element": "qi",
+	"color": "#f0a35e",
+	"desc": "The body is the weapon. Iron Lotus forms: jab, palm, hook and the breaking kick.",
+	"sects": [
+		"iron_lotus_monastery",
+		"ashford_staff_yard"
+	],
+	"techniques": [
+		{
+			"id": "fist_twin_jab",
+			"name": "Twin Dragon Jab",
+			"desc": "Two lightning-quick jabs.",
+			"tier": 1,
+			"col": 0,
+			"resource": "stamina",
+			"cost": 8,
+			"cooldown": 1.5,
+			"damage": 12,
+			"shape": "melee",
+			"range": 2.2,
+			"hits": 2,
+			"hit_interval": 0.14,
+			"anim": [
+				"Karate_Punch",
+				"Punch_Jab"
+			],
+			"anim_speed": 1.6,
+			"hit_time": 0.14,
+			"vfx": "impact",
+			"element": "qi",
+			"max_rank": 3
+		},
+		{
+			"id": "fist_breaking_kick",
+			"name": "Mountain-Breaking Kick",
+			"desc": "A front kick that drives the foe back several paces.",
+			"tier": 2,
+			"col": -1,
+			"resource": "stamina",
+			"cost": 16,
+			"cooldown": 5.0,
+			"damage": 28,
+			"shape": "melee",
+			"range": 2.5,
+			"knockback": 10.0,
+			"effect": {
+				"stun": 0.6
+			},
+			"anim": [
+				"Karate_Kick",
+				"Kick_Breach"
+			],
+			"anim_mode": "full",
+			"anim_speed": 1.3,
+			"hit_time": 0.3,
+			"vfx": "impact",
+			"element": "earth",
+			"requires": [
+				"fist_twin_jab"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "fist_iron_skin",
+			"name": "Iron Skin",
+			"desc": "Body tempering: more stamina, fist damage up.",
+			"tier": 2,
+			"col": 1,
+			"kind": "passive",
+			"passive": {
+				"max_stamina": 0.05,
+				"fist_damage": 0.05
+			},
+			"requires": [
+				"fist_twin_jab"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "fist_qi_palm",
+			"name": "Surging Qi Palm",
+			"desc": "Strike with an open palm and a wave of qi follows through.",
+			"tier": 3,
+			"col": 0,
+			"resource": "qi",
+			"cost": 16,
+			"cooldown": 6.0,
+			"damage": 34,
+			"shape": "projectile",
+			"range": 9.0,
+			"speed": 16.0,
+			"knockback": 8.0,
+			"anim": [
+				"Karate_Punch",
+				"Punch_Cross"
+			],
+			"anim_speed": 1.3,
+			"hit_time": 0.2,
+			"vfx": "qi_palm",
+			"element": "qi",
+			"requires": [
+				"fist_breaking_kick",
+				"fist_iron_skin"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "fist_lotus_hook",
+			"name": "Iron Lotus Hook",
+			"desc": "A rising hook that crushes guard and bone.",
+			"tier": 3,
+			"col": 1,
+			"resource": "stamina",
+			"cost": 20,
+			"cooldown": 6.0,
+			"damage": 40,
+			"shape": "melee",
+			"range": 2.3,
+			"knockback": 5.0,
+			"effect": {
+				"stun": 1.0
+			},
+			"anim": "Melee_Hook",
+			"anim_speed": 1.3,
+			"hit_time": 0.24,
+			"vfx": "impact",
+			"element": "qi",
+			"requires": [
+				"fist_iron_skin"
+			],
+			"needs": {
+				"sect": [
+					"iron_lotus_monastery"
+				]
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "fist_deflecting_palm",
+			"name": "Deflecting Palm",
+			"desc": "Turn a blow aside with an open palm; for a moment nothing lands.",
+			"tier": 3,
+			"col": -1,
+			"resource": "stamina",
+			"cost": 12,
+			"cooldown": 8.0,
+			"damage": 0,
+			"shape": "buff",
+			"effect": {
+				"buff": {
+					"damage_taken": -0.6
+				},
+				"duration": 1.5
+			},
+			"anim": [
+				"Parry_Quick",
+				"Karate_Block",
+				"Sword_Block"
+			],
+			"anim_speed": 1.4,
+			"hit_time": 0.05,
+			"vfx": "qi_shield",
+			"element": "qi",
+			"requires": [
+				"fist_breaking_kick"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "fist_earthshaker",
+			"name": "Earth-Shaking Fist",
+			"desc": "Slam the ground; the shockwave throws everything nearby.",
+			"tier": 4,
+			"col": 0,
+			"resource": "qi",
+			"cost": 38,
+			"cooldown": 15.0,
+			"damage": 55,
+			"shape": "aoe",
+			"radius": 4.5,
+			"knockback": 9.0,
+			"effect": {
+				"stun": 0.8
+			},
+			"anim": "Attack_Ground_Pound",
+			"anim_mode": "full",
+			"anim_speed": 1.2,
+			"hit_time": 0.45,
+			"vfx": "earth_spike",
+			"element": "earth",
+			"requires": [
+				"fist_qi_palm"
+			],
+			"needs": {
+				"realm": 2
+			},
+			"points": 2,
+			"max_rank": 3
+		},
+		{
+			"id": "fist_diamond_body",
+			"name": "Diamond Body",
+			"desc": "The monastery's secret: the body no longer breaks.",
+			"tier": 5,
+			"col": 0,
+			"kind": "passive",
+			"passive": {
+				"max_stamina": 0.12,
+				"fist_damage": 0.1,
+				"damage_taken": -0.08
+			},
+			"requires": [
+				"fist_earthshaker",
+				"fist_lotus_hook"
+			],
+			"needs": {
+				"title": "iron_body",
+				"realm": 3
+			},
+			"points": 3
+		}
+	]
+}

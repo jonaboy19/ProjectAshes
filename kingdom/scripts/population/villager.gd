@@ -15,13 +15,19 @@ extends CharacterBody3D
 ##  - Gait: accelerates, brakes into arrival, turns at a bounded rate and slows
 ##    for sharp corners; the walk clip plays at the body's resolved speed over
 ##    its measured ground speed, so feet don't slide.
-##  - Daily rhythm: DailyRhythm staggers departures per person and adds an
-##    evening at the inn.
-##  - Thinking (schedule, contact tier, spacing, stuck checks) runs every
+##  - Choices: a UtilityBrain scores what to do next (sleep, eat, work, shop,
+##    chat, inn, pray, fetch water, shelter from rain, flee, watch the player)
+##    every DECIDE_INTERVAL on a per-person phase; DailyRhythm's staggered
+##    schedule is one of its considerations, so the street still fills and
+##    empties gradually. This body executes the chosen act: walk the route,
+##    perform at the spot (clip, facing, going indoors), idle otherwise.
+##  - Thinking (contact tier, spacing, stuck checks, facing) runs every
 ##    THINK_INTERVAL on a per-person phase, not every frame.
 
 const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
+const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
+const Act := UtilityBrain.Act
 
 const WORLD_LAYER := 1
 const LOCAL_ACTOR_LAYER := 2
@@ -49,6 +55,30 @@ const YIELD_RADIUS := 1.7
 const SEPARATION_RADIUS := 0.9
 const PERSONAL_SPACE := 1.2
 const THINK_INTERVAL := 0.3
+## Utility decisions: slow, staggered per person (a multiple of THINK_INTERVAL).
+const DECIDE_INTERVAL := 0.9
+## Real seconds an act is held (commitment bonus) after arriving at its spot.
+const MIN_PERFORM := 8.0
+## Pace multipliers: running from danger, hurrying out of the rain.
+const FLEE_PACE := 2.7
+const SHELTER_PACE := 1.35
+## Seconds each speaker holds the floor in a chat.
+const TURN_SECONDS := 4.0
+## Clip candidates per act, first one the rig has wins (UAL / UAL extras).
+const ACT_CLIPS := {
+	Act.SHOP: ["Idle_Talking", "Interact"],
+	Act.INN: ["Idle_Talking", "Cheering_Two_Hands"],
+	Act.PRAY: ["G6_pray", "Meditate", "Fixing_Kneeling"],
+	Act.WATER: ["G6_gathering", "Interact", "PickUp_Table"],
+	Act.SHELTER: ["Shivering", "Idle_Subtle"],
+	Act.FLEE: ["Shivering", "Idle_Hurt"],
+	Act.WATCH: ["Idle_Listening", "Idle_Subtle"],
+	Act.SLEEP: ["Sitting_Idle"], Act.HOME: ["Sitting_Idle"], Act.EAT: ["Consume_Item", "Sitting_Idle"],
+}
+const TALK_CLIPS := ["Idle_Talking"]
+const LISTEN_CLIPS := ["Idle_Listening", "Head_Nod", "Idle_Talking"]
+const ALONE_CLIPS := ["Idle_Subtle"]
+const JOB_CLIPS := [["Farm_Harvest"], ["Fixing_Kneeling"], ["Idle_Talking"], ["Idle_Shield"], ["Interact"], ["TreeChopping"]]
 ## Stuck check window and the progress expected in it.
 const STUCK_WINDOW := 1.2
 const STUCK_PROGRESS := 0.3
@@ -86,6 +116,22 @@ var _path_i := 0
 var _needs_route := false
 var _arrived := false
 var _think := 0.0
+
+# Choice (UtilityBrain) and its execution.
+var _brain: UtilityBrain
+var _act := -1
+var _decide := 0.0
+var _perform_time := 0.0
+var _plan_indoors := false
+var _indoors := false
+var _face_pref := Vector2.INF     # direction to stand facing at the spot
+var _look_point := Vector2.INF    # WATCH: what to look at
+var _partner := -1                # SOCIAL: chat partner person
+var _partner_node: Node3D
+var _face_now := Vector2.INF      # resolved each think tick
+var _pace := 1.0
+var _activity_want := ""
+var _clip_cache := {}
 
 # Motion.
 var _walk_speed := WALK_SPEED
@@ -145,6 +191,7 @@ func _ready() -> void:
 	add_child(model)
 	_anim = Assets.animation_player(model)
 	_add_head_look(model)
+	_attach_components(model)
 	_graph = StreetGraph.for_person(person) as StreetGraph
 	# Promotion: start where the simulation had this person, moved out of any
 	# footprint it cut through, facing the way they were heading.
@@ -169,7 +216,40 @@ func _ready() -> void:
 	_tag.modulate = Color(1, 0.95, 0.85)
 	add_child(_tag)
 	_tag.text = WorldSim.describe(person)
+	_brain = _make_brain()
+	UtilityBrain.register_body(person, self)
+	# First decision now, later ones on this person's own phase.
+	_decide = 0.0
 	_think_tick()
+	_decide = float((h / 7) % 1000) / 1000.0 * DECIDE_INTERVAL
+
+
+func _exit_tree() -> void:
+	UtilityBrain.unregister_body(person)
+
+
+## Components other systems attach to an embodied villager's model go here
+## (e.g. a procedural rig: `model.add_child(ProceduralRig.new())`). Called once,
+## right after the model, AnimationPlayer and head look exist.
+func _attach_components(_model: Node3D) -> void:
+	pass
+
+
+## Brain for this person: seeded personality, career shift if they hold a seat,
+## needs seeded from the hour they were met.
+func _make_brain() -> UtilityBrain:
+	var shift := Vector2(-1, -1)
+	var org_id := ""
+	var life := get_node_or_null("/root/Life")
+	if life and life.get("careers") != null:
+		var held: Dictionary = life.careers.holder_of(person)
+		if not held.is_empty():
+			var org: Dictionary = held["org"]
+			shift = org.get("shift", shift)
+			org_id = String(org.get("id", ""))
+	var b := UtilityBrain.new(person, WorldSim.job[person], shift, org_id)
+	b.seed_needs(DailyRhythm.local_time(person), WorldSim.day)
+	return b
 
 
 ## Resolved position for WorldSim (PopulationLOD writes it back).
@@ -196,6 +276,13 @@ func resync() -> void:
 	_stuck_from = p
 	_stuck_count = 0
 	_step_distance = 0.0
+	# Hours may have passed: fresh needs, fresh choice.
+	UtilityBrain.chat_leave(person)
+	_set_indoors(false)
+	_act = -1
+	_brain.act = -1
+	_brain.seed_needs(DailyRhythm.local_time(person), WorldSim.day)
+	_decide = 0.0
 
 
 func _physics_process(delta: float) -> void:
@@ -203,6 +290,15 @@ func _physics_process(delta: float) -> void:
 	if _think <= 0.0:
 		_think += THINK_INTERVAL
 		_think_tick()
+	if _indoors:
+		# Inside a building: nothing to move, draw or animate until the next choice.
+		_perform_time += delta
+		return
+	if _arrived and _yield_time <= 0.0:
+		_perform_time += delta
+		if _plan_indoors:
+			_set_indoors(true)
+			return
 	var here := Vector2(global_position.x, global_position.z)
 	if _contact:
 		_check_yield(here, delta)
@@ -231,16 +327,15 @@ func _think_tick() -> void:
 	var player_distance := INF
 	if _player:
 		player_distance = here.distance_to(Vector2(_player.global_position.x, _player.global_position.z))
-	_set_contact(player_distance < CONTACT_ENTER or (_contact and player_distance < CONTACT_EXIT))
-	# Schedule: a new state means a new goal; small moves of the same goal don't re-plan.
-	var st := DailyRhythm.state(person)
-	if st != _state:
-		_state = st
-		var goal := DailyRhythm.goal(person, st, _graph)
-		if _goal == Vector2.INF or goal.distance_to(_goal) > 1.0:
-			_goal = goal
-			_needs_route = true
-			_arrived = false
+	_set_contact(not _indoors and (player_distance < CONTACT_ENTER or (_contact and player_distance < CONTACT_EXIT)))
+	_decide -= THINK_INTERVAL
+	if _decide <= 0.0:
+		_decide += DECIDE_INTERVAL
+		_decide_act(here)
+	if _indoors:
+		return
+	_update_facing(here)
+	_activity_want = _activity_for_person()
 	if _needs_route and _yield_time <= 0.0 and _wait <= 0.0 and StreetGraph.take_route_budget():
 		_plan_route(here)
 	var travelling := _path_i < _path.size()
@@ -260,7 +355,102 @@ func _think_tick() -> void:
 	_tag_timer -= THINK_INTERVAL
 	if show_tag and _tag_timer <= 0.0:
 		_tag_timer = 1.0
-		_tag.text = "%s\n%s" % [WorldSim.describe(person), DailyRhythm.label(person, _state, travelling)]
+		_tag.text = "%s\n%s" % [WorldSim.describe(person), UtilityBrain.label(_act, travelling)]
+
+
+# ---------------------------------------------------------------- choosing
+## One utility decision (every DECIDE_INTERVAL): sense, update needs, score,
+## and turn a new act into a goal. Same act: only dynamic goals are refreshed.
+func _decide_act(here: Vector2) -> void:
+	var tree := get_tree()
+	var hazards := UtilityBrain.hazards(tree)
+	var danger := UtilityBrain.danger_at(here, hazards)
+	var player_p := Vector2.INF
+	if _player:
+		player_p = Vector2(_player.global_position.x, _player.global_position.z)
+	var sight := UtilityBrain.spectacle_at(here, player_p, hazards)
+	var performing := _indoors or (_arrived and _yield_time <= 0.0)
+	_brain.tick(WorldSim.day * 24.0 + WorldSim.time_of_day, _act if performing else -1)
+	_state = DailyRhythm.state(person)
+	var sid: int = WorldSim.home[person]
+	var company := UtilityBrain.chat_waiting(sid, person) or UtilityBrain.chat_partner(person) >= 0
+	var ctx := _brain.context(DailyRhythm.local_time(person), _state, UtilityBrain.is_raining(tree),
+		danger[0], sight[0], company, float(WorldSim.money[person]) / 60.0, WorldSim.day)
+	var committed := not performing or _perform_time < MIN_PERFORM
+	var act := _brain.decide(ctx, committed)
+	if act != _act:
+		if _act == Act.SOCIAL:
+			UtilityBrain.chat_leave(person)
+		_act = act
+		_apply_plan(here, danger[1], sight[1])
+		return
+	match act:
+		Act.FLEE:
+			# Still in danger at the end of the run: keep going from here.
+			if _arrived and not _plan_indoors:
+				_apply_plan(here, danger[1], sight[1])
+		Act.WATCH:
+			if sight[1] != Vector2.INF and (sight[1] as Vector2).distance_to(_look_point) > 3.0:
+				_apply_plan(here, danger[1], sight[1])
+		Act.SOCIAL:
+			if _partner < 0:
+				_partner = UtilityBrain.chat_partner(person)
+
+
+func _apply_plan(here: Vector2, hazard: Vector2, look: Vector2) -> void:
+	var plan := _brain.plan_goal(_act, here, _graph, hazard, look)
+	var goal: Vector2 = plan["goal"]
+	_plan_indoors = plan["indoors"]
+	_face_pref = plan["face"]
+	_look_point = plan["look"]
+	_partner = plan["partner"]
+	_pace = FLEE_PACE if _act == Act.FLEE else (SHELTER_PACE if _act == Act.SHELTER else 1.0)
+	_perform_time = 0.0
+	_interrupt_activity()
+	var was_inside := _indoors
+	_set_indoors(false)
+	if was_inside and _plan_indoors and goal.distance_to(sim_position()) < 1.0:
+		_set_indoors(true)    # e.g. eat -> sleep: stay in
+		return
+	if _goal == Vector2.INF or goal.distance_to(_goal) > 1.0 or not _arrived:
+		_goal = goal
+		_needs_route = true
+		_arrived = false
+
+
+## Inside a building: hidden, no capsule, not a talk target.
+func _set_indoors(on: bool) -> void:
+	if on == _indoors:
+		return
+	_indoors = on
+	visible = not on
+	if on:
+		remove_from_group("villager")
+		_set_contact(false)
+		_move_speed = 0.0
+		_resolved_speed = 0.0
+		_walking = false
+		_path = PackedVector2Array()
+		_path_i = 0
+	else:
+		add_to_group("villager")
+
+
+## Which way to stand while performing: the chat partner, what is being
+## watched, or the spot's own facing. Resolved on think ticks only.
+func _update_facing(here: Vector2) -> void:
+	_face_now = Vector2.INF
+	if _partner >= 0 and UtilityBrain.chat_partner(person) != _partner:
+		_partner = -1    # they walked off: carry on alone
+	_partner_node = UtilityBrain.body_of(_partner) if _partner >= 0 else null
+	if not _arrived:
+		return
+	if _partner_node:
+		_face_now = Vector2(_partner_node.global_position.x, _partner_node.global_position.z) - here
+	elif _look_point != Vector2.INF:
+		_face_now = _look_point - here
+	elif _face_pref != Vector2.INF:
+		_face_now = _face_pref
 
 
 func _plan_route(here: Vector2) -> void:
@@ -422,7 +612,7 @@ func _steer(here: Vector2, delta: float) -> Vector2:
 			_path_i += 1
 		else:
 			dir = to / maxf(d, 0.001)
-			target_speed = _walk_speed
+			target_speed = _walk_speed * _pace
 			if last:
 				# Brake into the arrival spot instead of overshooting it.
 				target_speed = minf(target_speed, sqrt(2.0 * BRAKING * maxf(d - ARRIVE_RADIUS * 0.5, 0.0)))
@@ -440,12 +630,15 @@ func _steer(here: Vector2, delta: float) -> Vector2:
 		target_speed = 0.35
 	if target_speed > 0.0 and steer.length_squared() > 0.0001:
 		face = steer
+	elif face == Vector2.INF and _face_now != Vector2.INF:
+		# At the spot: turn to the partner, the spectacle or the spot's facing.
+		face = _face_now
 	if face != Vector2.INF and face.length_squared() > 0.0001:
 		var diff := wrapf(atan2(face.x, face.y) - _heading, -PI, PI)
 		_heading = wrapf(_heading + clampf(diff, -TURN_RATE * delta, TURN_RATE * delta), -PI, PI)
 		# Turn on the spot rather than moonwalk: slow while facing away.
 		target_speed *= clampf(cos(diff) * 0.6 + 0.4, 0.15, 1.0)
-	var response := ACCELERATION if target_speed > _move_speed else BRAKING
+	var response := ACCELERATION * (2.0 if _pace > 2.0 else 1.0) if target_speed > _move_speed else BRAKING
 	_move_speed = move_toward(_move_speed, target_speed, response * delta)
 	if _move_speed < 0.005:
 		return Vector2.ZERO
@@ -531,6 +724,10 @@ func _update_head_look(delta: float) -> void:
 	var target := global_position + Vector3(0, 1.45, 0) + forward * 3.0
 	if _player and is_instance_valid(_player) and global_position.distance_squared_to(_player.global_position) < 25.0:
 		target = _player.global_position + Vector3(0, 1.45, 0)
+	elif _arrived and _partner_node and is_instance_valid(_partner_node):
+		target = _partner_node.global_position + Vector3(0, 1.45, 0)
+	elif _look_point != Vector2.INF:
+		target = Vector3(_look_point.x, WorldGen.height(_look_point.x, _look_point.y) + 1.3, _look_point.y)
 	_look_target.global_position = _look_target.global_position.lerp(target, 1.0 - exp(-7.0 * delta))
 
 
@@ -540,7 +737,7 @@ func _update_activity(delta: float) -> void:
 		return
 	_anim.speed_scale = 1.0
 	# Work only once actually at the spot; waiting, yielding or stopped mid-route idles.
-	var activity := _activity_for_person() if _arrived and _yield_time <= 0.0 else ""
+	var activity := _activity_want if _arrived and _yield_time <= 0.0 else ""
 	if activity != _activity_name:
 		_activity_name = activity
 		_activity_needs_start = true
@@ -587,20 +784,38 @@ func _work_cue(activity: String) -> void:
 	Audio.play_sfx(cue[0], global_position + Vector3(0, 0.6, 0), -9.0, 0.1)
 
 
+## Clip for the current act at its spot (resolved on think ticks, not per frame).
 func _activity_for_person() -> String:
 	var job: int = WorldSim.job[person]
-	match _state:
-		DailyRhythm.State.MARKET, DailyRhythm.State.INN:
-			return "Idle_Talking" if job != 3 else "Idle_Shield"
-		DailyRhythm.State.WORK:
-			match job:
-				0: return "Farm_Harvest"
-				1: return "Fixing_Kneeling"
-				2: return "Idle_Talking"
-				3: return "Idle_Shield"
-				4: return "Interact"
-				5: return "TreeChopping"
-	return ""
+	match _act:
+		Act.WORK:
+			return _first_clip(JOB_CLIPS[job])
+		Act.SOCIAL:
+			if _partner_node == null:
+				return _first_clip(ALONE_CLIPS)
+			# Take turns: one talks while the other listens, swapping every few seconds.
+			var turn := int(Time.get_ticks_msec() / int(TURN_SECONDS * 1000.0)) % 2 == 0
+			return _first_clip(TALK_CLIPS if turn == (person < _partner) else LISTEN_CLIPS)
+		Act.SHOP, Act.INN:
+			if job == 3:
+				return _first_clip(JOB_CLIPS[3])
+	return _first_clip(ACT_CLIPS.get(_act, []))
+
+
+## First clip in `names` the rig has ("" when none), cached per list.
+func _first_clip(names: Array) -> String:
+	if names.is_empty() or _anim == null:
+		return ""
+	var key := "|".join(PackedStringArray(names))
+	if _clip_cache.has(key):
+		return _clip_cache[key]
+	var found := ""
+	for n: String in names:
+		if _anim.has_animation(n):
+			found = n
+			break
+	_clip_cache[key] = found
+	return found
 
 
 func _play(anim_name: String) -> void:

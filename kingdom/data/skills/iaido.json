@@ -1,0 +1,125 @@
+{
+	"id": "iaido",
+	"name": "Iaido",
+	"category": "samurai",
+	"element": "metal",
+	"color": "#ff4f6d",
+	"desc": "The draw is the cut. Seirune blade-schools settle a duel before the sheath is empty.",
+	"sects": [
+		"ninefold_sword_pavilion"
+	],
+	"techniques": [
+		{
+			"id": "iaido_quick_draw",
+			"name": "Quick Draw",
+			"desc": "A cut straight out of the sheath.",
+			"tier": 1,
+			"col": 0,
+			"resource": "stamina",
+			"cost": 12,
+			"cooldown": 2.5,
+			"damage": 24,
+			"shape": "melee",
+			"range": 3.0,
+			"anim": "Sword_Regular_A",
+			"anim_speed": 1.8,
+			"hit_time": 0.12,
+			"vfx": "iaido_flash",
+			"element": "metal",
+			"max_rank": 3
+		},
+		{
+			"id": "iaido_calm_mind",
+			"name": "Calm Mind",
+			"desc": "Stillness before the cut: crits more often.",
+			"tier": 2,
+			"col": -1,
+			"kind": "passive",
+			"passive": {
+				"crit_chance": 0.04,
+				"stamina_cost": -0.05
+			},
+			"requires": [
+				"iaido_quick_draw"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "iaido_flash_step",
+			"name": "Flash Step Cut",
+			"desc": "Dash past the enemy, cutting as you pass.",
+			"tier": 2,
+			"col": 1,
+			"resource": "stamina",
+			"cost": 20,
+			"cooldown": 6.0,
+			"damage": 34,
+			"shape": "dash",
+			"range": 7.0,
+			"anim": "Sword_Dash",
+			"anim_mode": "full",
+			"anim_speed": 1.5,
+			"hit_time": 0.12,
+			"vfx": "iaido_flash",
+			"element": "metal",
+			"requires": [
+				"iaido_quick_draw"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "iaido_crescent_moon",
+			"name": "Crescent Moon",
+			"desc": "A wide horizontal draw that cuts all in front.",
+			"tier": 3,
+			"col": 0,
+			"resource": "stamina",
+			"cost": 26,
+			"cooldown": 9.0,
+			"damage": 42,
+			"shape": "cone",
+			"range": 4.5,
+			"angle": 120.0,
+			"anim": "G6_cast_two_handed_melee_3",
+			"anim_speed": 1.3,
+			"hit_time": 0.25,
+			"vfx": "sword_arc",
+			"element": "metal",
+			"requires": [
+				"iaido_calm_mind",
+				"iaido_flash_step"
+			],
+			"needs": {
+				"level": 8
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "iaido_thousand_cuts",
+			"name": "Thousand Cuts in One Breath",
+			"desc": "Sheathe. Everything around you falls apart a moment later.",
+			"tier": 4,
+			"col": 0,
+			"resource": "qi",
+			"cost": 45,
+			"cooldown": 26.0,
+			"damage": 130,
+			"shape": "aoe",
+			"radius": 5.0,
+			"hit_time": 0.9,
+			"anim": "Sword_Idle",
+			"anim_mode": "full",
+			"anim_speed": 1.0,
+			"vfx": "iaido_flash",
+			"element": "metal",
+			"requires": [
+				"iaido_crescent_moon"
+			],
+			"needs": {
+				"realm": 2,
+				"manual": "manual_thousand_cuts"
+			},
+			"points": 3
+		}
+	]
+}

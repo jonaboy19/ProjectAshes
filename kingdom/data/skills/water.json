@@ -1,0 +1,216 @@
+{
+	"id": "water",
+	"name": "Water Arts",
+	"category": "elemental",
+	"element": "water",
+	"color": "#4fb3ff",
+	"desc": "Tideweaving. Water yields, surrounds and drowns; it never breaks.",
+	"sects": [
+		"hall_of_four_currents"
+	],
+	"techniques": [
+		{
+			"id": "water_whip",
+			"name": "Water Whip",
+			"desc": "A lashing whip of water that strikes at range.",
+			"tier": 1,
+			"col": 0,
+			"resource": "magicules",
+			"cost": 4,
+			"cooldown": 2.0,
+			"damage": 18,
+			"shape": "cone",
+			"range": 5.5,
+			"angle": 30.0,
+			"knockback": 3.0,
+			"anim": [
+				"Magic_Cast_R",
+				"G6_cast_unarmed_magic_2"
+			],
+			"anim_speed": 1.4,
+			"hit_time": 0.22,
+			"vfx": "water_whip",
+			"element": "water",
+			"max_rank": 3
+		},
+		{
+			"id": "water_mending_tide",
+			"name": "Mending Tide",
+			"desc": "Cool water closes wounds.",
+			"tier": 2,
+			"col": -1,
+			"resource": "magicules",
+			"cost": 8,
+			"cooldown": 14.0,
+			"damage": 0,
+			"shape": "buff",
+			"radius": 5.0,
+			"effect": {
+				"heal": 25
+			},
+			"anim": [
+				"Magic_Casting",
+				"G6_channel_unarmed_magic"
+			],
+			"anim_mode": "full",
+			"anim_speed": 1.2,
+			"hit_time": 0.5,
+			"vfx": "water_heal",
+			"element": "water",
+			"requires": [
+				"water_whip"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "water_ice_lance",
+			"name": "Frost Lance",
+			"desc": "Freeze water into a lance and throw it.",
+			"tier": 2,
+			"col": 1,
+			"resource": "magicules",
+			"cost": 7,
+			"cooldown": 5.0,
+			"damage": 30,
+			"shape": "projectile",
+			"range": 20.0,
+			"speed": 26.0,
+			"effect": {
+				"slow": 2.5
+			},
+			"anim": "OverhandThrow",
+			"anim_speed": 1.3,
+			"hit_time": 0.3,
+			"vfx": "ice_lance",
+			"element": "water",
+			"requires": [
+				"water_whip"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "water_tide_sense",
+			"name": "Tide Sense",
+			"desc": "Hear the water: reveals foes around you and slows them.",
+			"tier": 3,
+			"col": -1,
+			"resource": "magicules",
+			"cost": 6,
+			"cooldown": 20.0,
+			"damage": 0,
+			"shape": "aoe",
+			"radius": 12.0,
+			"effect": {
+				"slow": 4.0,
+				"reveal": 8.0
+			},
+			"anim": "Meditate",
+			"anim_mode": "full",
+			"anim_speed": 1.5,
+			"hit_time": 0.4,
+			"vfx": "water_ring",
+			"element": "water",
+			"requires": [
+				"water_whip"
+			],
+			"needs": {
+				"flag": "ability:tide_sense"
+			},
+			"hidden": true,
+			"points": 0
+		},
+		{
+			"id": "water_tidal_crash",
+			"name": "Tidal Crash",
+			"desc": "Call a wave that crashes over everything ahead.",
+			"tier": 3,
+			"col": 1,
+			"resource": "magicules",
+			"cost": 16,
+			"cooldown": 12.0,
+			"damage": 44,
+			"shape": "cone",
+			"range": 8.0,
+			"angle": 80.0,
+			"knockback": 10.0,
+			"anim": "G6_cast_two_handed_staff",
+			"anim_mode": "full",
+			"anim_speed": 1.2,
+			"hit_time": 0.45,
+			"vfx": "tidal_wave",
+			"element": "water",
+			"requires": [
+				"water_ice_lance",
+				"water_mending_tide"
+			],
+			"needs": {
+				"level": 8
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "water_four_currents",
+			"name": "Four Currents Vortex",
+			"desc": "The Hall's signature: a whirlpool that drags foes inward.",
+			"tier": 4,
+			"col": 0,
+			"resource": "magicules",
+			"cost": 28,
+			"cooldown": 22.0,
+			"damage": 20,
+			"shape": "target_aoe",
+			"range": 12.0,
+			"radius": 4.0,
+			"hits": 4,
+			"hit_interval": 0.4,
+			"effect": {
+				"pull": 6.0,
+				"slow": 3.0
+			},
+			"anim": [
+				"Magic_Casting",
+				"G6_channel_two_handed_staff"
+			],
+			"anim_mode": "full",
+			"hit_time": 0.4,
+			"vfx": "whirlpool",
+			"element": "water",
+			"requires": [
+				"water_tidal_crash"
+			],
+			"needs": {
+				"sect": [
+					"hall_of_four_currents"
+				],
+				"realm": 2
+			},
+			"points": 2,
+			"seals": [
+				"rat",
+				"dragon",
+				"snake",
+				"bird"
+			]
+		},
+		{
+			"id": "water_flowing_body",
+			"name": "Flowing Body",
+			"desc": "Move like water: faster, harder to hit.",
+			"tier": 5,
+			"col": 0,
+			"kind": "passive",
+			"passive": {
+				"move_speed": 0.05,
+				"damage_taken": -0.05,
+				"water_damage": 0.12
+			},
+			"requires": [
+				"water_four_currents"
+			],
+			"needs": {
+				"title": "moon_child"
+			},
+			"points": 2
+		}
+	]
+}

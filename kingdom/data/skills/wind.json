@@ -1,0 +1,175 @@
+{
+	"id": "wind",
+	"name": "Wind Arts",
+	"category": "elemental",
+	"element": "wind",
+	"color": "#a8f0d8",
+	"desc": "Windstriding. The steppe teaches that the fastest blade is air.",
+	"sects": [
+		"hall_of_four_currents",
+		"windstep_lodge"
+	],
+	"techniques": [
+		{
+			"id": "wind_blade",
+			"name": "Wind Blade",
+			"desc": "A thin crescent of pressurised air.",
+			"tier": 1,
+			"col": 0,
+			"resource": "magicules",
+			"cost": 4,
+			"cooldown": 1.8,
+			"damage": 16,
+			"shape": "projectile",
+			"range": 16.0,
+			"speed": 30.0,
+			"pierce": true,
+			"anim": [
+				"Magic_Cast_R",
+				"Spell_Simple_Shoot"
+			],
+			"anim_speed": 1.5,
+			"hit_time": 0.2,
+			"vfx": "wind_blade",
+			"element": "wind",
+			"max_rank": 3
+		},
+		{
+			"id": "wind_light_step",
+			"name": "Light Step",
+			"desc": "The wind carries you: move speed up.",
+			"tier": 2,
+			"col": -1,
+			"kind": "passive",
+			"passive": {
+				"move_speed": 0.05,
+				"stamina_cost": -0.05
+			},
+			"requires": [
+				"wind_blade"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "wind_gale_burst",
+			"name": "Gale Burst",
+			"desc": "A blast of wind hurls everyone around you away.",
+			"tier": 2,
+			"col": 1,
+			"resource": "magicules",
+			"cost": 8,
+			"cooldown": 8.0,
+			"damage": 12,
+			"shape": "aoe",
+			"radius": 4.5,
+			"knockback": 14.0,
+			"anim": "G6_power_up_2",
+			"anim_mode": "full",
+			"anim_speed": 1.5,
+			"hit_time": 0.25,
+			"vfx": "whirlwind",
+			"element": "wind",
+			"requires": [
+				"wind_blade"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "wind_dash",
+			"name": "Windstride",
+			"desc": "Become a gust and cross the field in a blink.",
+			"tier": 3,
+			"col": -1,
+			"resource": "magicules",
+			"cost": 6,
+			"cooldown": 6.0,
+			"damage": 14,
+			"shape": "dash",
+			"range": 9.0,
+			"anim": "Slide",
+			"anim_mode": "full",
+			"anim_speed": 1.5,
+			"hit_time": 0.1,
+			"vfx": "wind_trail",
+			"element": "wind",
+			"requires": [
+				"wind_light_step"
+			],
+			"needs": {
+				"level": 5
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "wind_whirlwind",
+			"name": "Whirlwind Prison",
+			"desc": "A tornado that holds foes and cuts them over and over.",
+			"tier": 3,
+			"col": 1,
+			"resource": "magicules",
+			"cost": 18,
+			"cooldown": 14.0,
+			"damage": 10,
+			"shape": "target_aoe",
+			"range": 14.0,
+			"radius": 3.0,
+			"hits": 6,
+			"hit_interval": 0.3,
+			"effect": {
+				"pull": 3.0
+			},
+			"anim": [
+				"Magic_Casting",
+				"G6_channel_unarmed_magic"
+			],
+			"anim_mode": "full",
+			"hit_time": 0.35,
+			"vfx": "whirlwind",
+			"element": "wind",
+			"requires": [
+				"wind_gale_burst"
+			],
+			"needs": {
+				"level": 9
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "wind_sky_arrow",
+			"name": "Heaven's Arrow",
+			"desc": "Windstep lodge secret: an arrow of compressed sky.",
+			"tier": 4,
+			"col": 0,
+			"resource": "magicules",
+			"cost": 24,
+			"cooldown": 18.0,
+			"damage": 95,
+			"shape": "projectile",
+			"range": 40.0,
+			"speed": 45.0,
+			"pierce": true,
+			"anim": "Bow_Release",
+			"anim_speed": 1.1,
+			"hit_time": 0.3,
+			"vfx": "wind_blade",
+			"element": "wind",
+			"requires": [
+				"wind_dash",
+				"wind_whirlwind"
+			],
+			"needs": {
+				"sect": [
+					"windstep_lodge",
+					"hall_of_four_currents"
+				],
+				"realm": 2
+			},
+			"points": 2,
+			"seals": [
+				"bird",
+				"dragon",
+				"tiger"
+			]
+		}
+	]
+}

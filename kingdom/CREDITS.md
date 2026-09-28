@@ -53,3 +53,15 @@ CC0 / public domain (no attribution required; credited with thanks):
 
 - `shaders/grass.gdshader`: clump colour/height noise, view-space blade widening, fake subsurface backlight and wind turbulence are ideas from **GodotGrass** by **Ethan Truong (2Retr0)**, (c) 2024, MIT (https://github.com/2Retr0/GodotGrass). Reimplemented for our card clumps; no code copied, but credited under its MIT licence.
 - `shaders/water.gdshader`: interaction ripples and shoreline foam bands draw on ideas from **Stylized-Water-Shader** by **Malidos**, CC0 (https://github.com/Malidos/Stylized-Water-Shader). Credited with thanks; no code copied.
+
+## Procedural animation (added 2026-09-28)
+
+- Foot IK in `scripts/actors/procedural_rig.gd` (one downward ray per foot, the hips lowered to the lower foot, feet aligned to the ground normal) follows the approach of **Godot-Foot-IK** by **SeaKrill** (https://github.com/SeaKrill/Godot-Foot-IK), (c) 2023 SeaKrill, MIT. Reimplemented in our style on Godot 4.6's `TwoBoneIK3D`, `LookAtModifier3D` and `SpringBoneSimulator3D` nodes; no code copied, credited under its MIT licence.
+
+## Villager utility AI (added 2026-09-28)
+
+- `scripts/population/utility_brain.gd` follows the design of two MIT utility-AI addons for Godot: **godot-utility-ai** by **John Pennycook** (https://github.com/Pennycook/godot-utility-ai), (c) 2023 John Pennycook, MIT (considerations mapped through binary/linear/exponential/logistic response curves, behaviours aggregated as a product, the best option chosen), and **godot-utility-ai** by **Vinicius Gerevini** (https://github.com/viniciusgerevini/godot-utility-ai), (c) 2023 Vinicius Gerevini, MIT (an agent's actions each scored by multiplied considerations, the top action handed to the game to execute). Reimplemented lean as a const action table with pure static scoring; no code copied, credited under their MIT licences. The product compensation factor is from Dave Mark and Rez Graham, "An Introduction to Utility Theory" (Game AI Pro, ch. 9).
+
+## Living-world ambience (added 2026-09-28)
+
+- `scripts/world/ambient_fx.gd` with `shaders/ambient_*.gdshader` (bird flocks, fireflies, butterflies, falling leaves, dust motes, chimney embers, fish jumps and a school of fish): written for the game. All sprites and silhouettes are procedural (drawn in the shaders or built as meshes in code); no third-party textures or code are used, so nothing was vendored under `assets/incoming/vfx/ambient/`.

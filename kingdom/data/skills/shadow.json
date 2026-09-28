@@ -1,0 +1,162 @@
+{
+	"id": "shadow",
+	"name": "Shadow Arts",
+	"category": "ninja",
+	"element": "shadow",
+	"color": "#8a6cff",
+	"desc": "Hidden arts of the Hollow Moon. Strike from where no one is looking.",
+	"sects": [
+		"hollow_moon_school"
+	],
+	"techniques": [
+		{
+			"id": "shadow_shuriken",
+			"name": "Shuriken Fan",
+			"desc": "Throw three star blades in a fan.",
+			"tier": 1,
+			"col": 0,
+			"resource": "stamina",
+			"cost": 10,
+			"cooldown": 3.0,
+			"damage": 12,
+			"shape": "projectile",
+			"range": 15.0,
+			"speed": 28.0,
+			"count": 3,
+			"spread": 18.0,
+			"anim": "Throw_Object",
+			"anim_speed": 1.6,
+			"hit_time": 0.2,
+			"vfx": "shuriken",
+			"element": "shadow",
+			"max_rank": 3
+		},
+		{
+			"id": "shadow_silent_step",
+			"name": "Silent Step",
+			"desc": "Quieter steps and a sharper backstab.",
+			"tier": 2,
+			"col": -1,
+			"kind": "passive",
+			"passive": {
+				"stealth": 0.08,
+				"backstab": 0.25
+			},
+			"requires": [
+				"shadow_shuriken"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "shadow_smoke",
+			"name": "Smoke Veil",
+			"desc": "A smoke bomb: foes nearby lose you and stumble.",
+			"tier": 2,
+			"col": 1,
+			"resource": "stamina",
+			"cost": 14,
+			"cooldown": 18.0,
+			"damage": 0,
+			"shape": "aoe",
+			"radius": 4.0,
+			"effect": {
+				"slow": 3.0,
+				"blind": 3.0
+			},
+			"anim": "OverhandThrow",
+			"anim_speed": 1.5,
+			"hit_time": 0.25,
+			"vfx": "smoke_bomb",
+			"element": "shadow",
+			"requires": [
+				"shadow_shuriken"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "shadow_step",
+			"name": "Shadow Step",
+			"desc": "Vanish and reappear behind your target, blade first.",
+			"tier": 3,
+			"col": -1,
+			"resource": "qi",
+			"cost": 14,
+			"cooldown": 10.0,
+			"damage": 45,
+			"shape": "blink",
+			"range": 10.0,
+			"knockback": 3.0,
+			"anim": "NinjaJump_Start",
+			"anim_mode": "full",
+			"anim_speed": 1.4,
+			"hit_time": 0.3,
+			"vfx": "shadow_step",
+			"element": "shadow",
+			"requires": [
+				"shadow_silent_step",
+				"shadow_smoke"
+			],
+			"needs": {
+				"level": 7
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "shadow_clone",
+			"name": "Shadow Clone Strike",
+			"desc": "Split into shadows that cut from every side.",
+			"tier": 4,
+			"col": 0,
+			"resource": "qi",
+			"cost": 30,
+			"cooldown": 22.0,
+			"damage": 18,
+			"shape": "aoe",
+			"radius": 4.0,
+			"hits": 5,
+			"hit_interval": 0.15,
+			"anim": "Backflip",
+			"anim_mode": "full",
+			"anim_speed": 1.2,
+			"hit_time": 0.3,
+			"vfx": "shadow_clone",
+			"element": "shadow",
+			"requires": [
+				"shadow_step"
+			],
+			"needs": {
+				"sect": [
+					"hollow_moon_school"
+				],
+				"realm": 1
+			},
+			"points": 2,
+			"max_rank": 3,
+			"seals": [
+				"tiger",
+				"snake",
+				"rat"
+			]
+		},
+		{
+			"id": "shadow_unseen",
+			"name": "Unseen Blade",
+			"desc": "What the watch never saw coming.",
+			"tier": 5,
+			"col": 0,
+			"kind": "passive",
+			"passive": {
+				"stealth": 0.15,
+				"backstab": 0.5,
+				"crit_chance": 0.05
+			},
+			"requires": [
+				"shadow_clone"
+			],
+			"needs": {
+				"title": "unseen"
+			},
+			"points": 2
+		}
+	]
+}

@@ -1,0 +1,58 @@
+{
+	"version": 1,
+	"manuals": [
+		{
+			"id": "manual_heaven_splitting",
+			"name": "Heaven-Splitting Sword Manual",
+			"points": 1,
+			"teaches": [
+				"sword_heaven_splitter"
+			],
+			"where": "A ruined sword tomb in the Shenlu peaks.",
+			"desc": "Brittle pages, one form drawn over and over in the margins."
+		},
+		{
+			"id": "manual_thousand_cuts",
+			"name": "Scroll of the Empty Sheath",
+			"points": 1,
+			"teaches": [
+				"iaido_thousand_cuts"
+			],
+			"where": "Carried by a Seirune duellist who will not hand it over willingly.",
+			"desc": "One line of text: 'The sword returns before it leaves.'"
+		},
+		{
+			"id": "manual_basic_breathing",
+			"name": "Breathing Exercises for Beginners",
+			"points": 1,
+			"teaches": [
+				"qi_gathering"
+			],
+			"grant": true,
+			"where": "Sold by wandering monks; sometimes found in old shrines.",
+			"desc": "A cheap copy of a copy. It still works."
+		},
+		{
+			"id": "manual_ember_primer",
+			"name": "Ember Academy Fire Primer",
+			"points": 1,
+			"teaches": [
+				"fire_ember_orb"
+			],
+			"grant": true,
+			"where": "Academy libraries; smugglers sell stolen copies.",
+			"desc": "Chapter one: do not set yourself on fire."
+		},
+		{
+			"id": "manual_lodge_winds",
+			"name": "Windstep Riders' Field Notes",
+			"points": 1,
+			"teaches": [
+				"wind_blade"
+			],
+			"grant": true,
+			"where": "Traded by Ongur riders at the steppe markets.",
+			"desc": "Sketches of hawks, arrows and very fast horses."
+		}
+	]
+}
