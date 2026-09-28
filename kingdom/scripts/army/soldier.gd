@@ -3,6 +3,9 @@ extends CharacterBody3D
 ## One soldier. At a distance it follows terrain with inexpensive steering;
 ## close to the player its capsule becomes solid and movement uses physics.
 ## Beyond LOD_DISTANCE from the camera it swaps its skinned model for a sprite.
+## Deaths go physical (ragdoll.gd, capped world-wide, Death01 as the fallback);
+## a heavy hit (knockback >= 6 or a parried swing) knocks it down for a second,
+## then the locomotion tree blends back in (the UAL set has no get-up clip).
 
 signal died(soldier: Soldier)
 
@@ -14,6 +17,7 @@ const ENGAGE_RANGE := 9.0
 const PLAYER_SOLID_RANGE := 16.0
 const WORLD_LAYER := 1
 const SOLDIER_LAYER := 4
+const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 
 var team := 0
 var squad: Squad
@@ -41,6 +45,8 @@ var _busy := 0.0
 var _retarget := 0.0
 var _velocity := Vector3.ZERO
 var _step_distance := 0.0
+var _ragdoll: Node
+var _hit_from := Vector3.INF
 
 
 static func create(team_id: int, look: String, file: String, keep: Array[String]) -> Soldier:
@@ -70,6 +76,7 @@ func _ready() -> void:
 	add_child(_model)
 	_anim = Assets.animation_player(_model)
 	_animator = CharacterAnimator.new(_model, RUN, WALK)
+	_ragdoll = Ragdoll.attach(self, _model, [_animator.tree, _anim])
 	_sprite = MeshInstance3D.new()
 	_sprite.mesh = ImpostorBaker.quad()
 	_sprite.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -107,7 +114,7 @@ func _physics_process(delta: float) -> void:
 		if _attack_cooldown <= 0.0 and _busy <= 0.0:
 			_attack()
 	elif dist > 0.4:
-		var speed := RUN if dist > 6.0 or engaging else WALK
+		var speed := (RUN if dist > 6.0 or engaging else WALK) * (squad.speed_mult() if squad else 1.0)
 		desired = to_goal / dist * minf(speed, dist * 3.0)
 	desired += _separation() * 2.5
 	_velocity = _velocity.lerp(desired, 8.0 * delta)
@@ -136,7 +143,7 @@ func _physics_process(delta: float) -> void:
 		if planar > 0.5:
 			_face(_velocity)
 		elif not engaging:
-			_face(squad.facing if squad else Vector3.FORWARD)
+			_face(squad.facing_for(self) if squad else Vector3.FORWARD)
 	if _model.visible:
 		_animator.update(delta, planar)
 		_animator.set_blocking(_guard > 0.0)
@@ -156,6 +163,9 @@ func _physics_process(delta: float) -> void:
 
 
 func _pick_target() -> void:
+	if squad and not squad.soldiers.is_empty():
+		combat_target = null if squad.is_routed() else squad.target_for(self)
+		return
 	var order := squad.order if squad else Squad.Order.HOLD
 	var reach := INF if order == Squad.Order.CHARGE else ENGAGE_RANGE
 	var best: Node3D = null
@@ -208,6 +218,14 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 	if dead:
 		return
 	var from_front := true
+	_hit_from = (from as Node3D).global_position if from is Node3D else Vector3.INF
+	if _ragdoll and _ragdoll.is_down():
+		if squad:
+			amount = roundi(amount * squad.incoming_mult(self, from))
+		health -= amount              # on the ground: no block, no flinch
+		if health <= 0:
+			_die()
+		return
 	if from is Node3D:
 		var to := (from as Node3D).global_position - global_position
 		from_front = global_transform.basis.z.dot(Vector3(to.x, 0, to.z).normalized()) > 0.3
@@ -216,10 +234,17 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		_impulse = knockback * 0.4
 		_animator.play_upper("Block_Hit", 1.5)
 		return
+	if squad:
+		amount = roundi(amount * squad.incoming_mult(self, from))
 	health -= amount
 	_impulse = knockback
 	if health <= 0:
 		_die()
+	elif Ragdoll.is_heavy(amount, from, knockback) and _ragdoll \
+			and _ragdoll.knock_down(knockback, _hit_from, _get_up):
+		_impulse = Vector3.ZERO
+		_velocity = Vector3.ZERO
+		_busy = Ragdoll.KNOCK_TIME + 0.4
 	else:
 		_busy = 0.35
 		if knockback.length() > 4.0:
@@ -232,12 +257,21 @@ func _die() -> void:
 	dead = true
 	remove_from_group("team%d" % team)
 	remove_from_group("combatant")
-	_animator.play_terminal("Death01")
+	_actor_shape.set_deferred("disabled", true)
+	if not (_ragdoll and _ragdoll.die(_impulse, _hit_from)):
+		_animator.play_terminal("Death01")
 	died.emit(self)
 	var tween := create_tween()
 	tween.tween_interval(5.0)
-	tween.tween_property(self, "scale", Vector3(1, 0.01, 1), 0.6)
+	# Squash the model, not the body: Jolt rejects non-uniform body scale.
+	tween.tween_property(_model, "scale", _model.scale * Vector3(1, 0.01, 1), 0.6)
 	tween.tween_callback(queue_free)
+
+
+## Knockdown over (ragdoll.gd moved us under the hips and re-enabled the tree).
+func _get_up() -> void:
+	_animator.stop_full()
+	_animator.stop_upper()
 
 
 func _face(dir: Vector3) -> void:

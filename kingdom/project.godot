@@ -52,6 +52,10 @@ import/blender/enabled=false
 
 pointing/emulate_touch_from_mouse=true
 
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
 [rendering]
 
 renderer/rendering_method="forward_plus"

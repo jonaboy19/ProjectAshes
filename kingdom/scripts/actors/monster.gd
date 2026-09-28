@@ -16,11 +16,15 @@ extends CharacterBody3D
 ## is still in reach, in front and not behind a wall at the contact frame.
 ## Models: Meshy goblin / orc / troll (creature_models.gd); the yield kneel and
 ## stand-up are cut from the orc's charged-chop clip.
+## Deaths go physical (ragdoll.gd, capped world-wide) and fall back to the death
+## clip; a heavy hit (knockback >= 6 or a parried swing) knocks a living monster
+## down for a second, then it gets up through the stand-up clip.
 
 signal died(monster: CampMonster)
 
 const Models := preload("res://scripts/actors/creature_models.gd")
 const Tokens := preload("res://scripts/actors/creature_attack_tokens.gd")
+const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const PLAYER_SOLID_RANGE := 16.0
 const WORLD_LAYER := 1
 const ENEMY_LAYER := 4
@@ -85,6 +89,10 @@ var _orbit_dir := 1.0
 var _orbit_pace := 1.0
 var _orbit_flip := 0.0
 var _was_yielded := false
+var _ragdoll: Node
+var _model: Node3D
+var _hit_push := Vector3.ZERO
+var _hit_from := Vector3.INF
 
 
 func _ready() -> void:
@@ -113,10 +121,12 @@ func _ready() -> void:
 		# Fallback model: scale the shared goblin body to this species.
 		model.scale *= float(sp["height"]) / float(Models.info(_kind)["fit_height"])
 	add_child(model)
+	_model = model
 	var tint: Color = sp["tint"]
 	if tint != Color(1, 1, 1) and _kind != String(sp["model"]):
 		_tint(model, tint)    # only the stand-in body needs recolouring
 	_anim = Assets.animation_player(model)
+	_ragdoll = Ragdoll.attach(self, model, [_anim])
 	var info := Models.info(_kind)
 	_clips = Models.clips(_kind)
 	var size_ratio := float(sp["height"]) / float(info["fit_height"]) if info.has("fit_height") else 1.0
@@ -437,6 +447,8 @@ func _show_telegraph(on: bool) -> void:
 func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> void:
 	if dead:
 		return
+	_hit_push = knockback
+	_hit_from = (from as Node3D).global_position if from is Node3D else Vector3.INF
 	if state == State.YIELD:
 		# Striking a creature that has yielded kills it.
 		_die()
@@ -458,6 +470,16 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		_winding = 0.0
 		_strike_target = null
 		_show_telegraph(false)
+	if _ragdoll and _ragdoll.is_down():
+		_busy = maxf(_busy, 0.3)     # already on the ground
+		return
+	if Ragdoll.is_heavy(amount, from, knockback) and _ragdoll \
+			and _ragdoll.knock_down(knockback, _hit_from, _get_up):
+		_speed = 0.0
+		_busy = Ragdoll.KNOCK_TIME + 1.2
+		if state == State.ATTACK:
+			_end_turn(2.0)
+		return
 	_busy = 0.3
 	_play("hit", true)
 	if state == State.ATTACK and not _circling:
@@ -482,12 +504,26 @@ func _die() -> void:
 	Tokens.release(self)
 	_winding = 0.0
 	_set_team(false)
-	_play("death", true)
+	_actor_shape.set_deferred("disabled", true)
+	if not (_ragdoll and _ragdoll.die(_hit_push, _hit_from)):
+		_play("death", true)
 	died.emit(self)
 	var t := create_tween()
 	t.tween_interval(6.0)
-	t.tween_property(self, "scale", Vector3(1, 0.01, 1), 0.5)
+	# Squash the model, not the body: Jolt rejects non-uniform body scale.
+	t.tween_property(_model, "scale", _model.scale * Vector3(1, 0.01, 1), 0.5)
 	t.tween_callback(queue_free)
+
+
+## Knockdown over (ragdoll.gd moved us under the hips): back on our feet.
+func _get_up() -> void:
+	if dead:
+		return
+	if state == State.YIELD:
+		_play("kneel", true, 1.0, 0.2)
+	elif not _play("stand_up", true, 1.0, 0.2):
+		_play("idle", true, 1.0, 0.2)
+		_busy = minf(_busy, 0.4)
 
 
 ## Called by Life after a successful naming.

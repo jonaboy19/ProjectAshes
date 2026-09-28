@@ -65,3 +65,7 @@ CC0 / public domain (no attribution required; credited with thanks):
 ## Living-world ambience (added 2026-09-28)
 
 - `scripts/world/ambient_fx.gd` with `shaders/ambient_*.gdshader` (bird flocks, fireflies, butterflies, falling leaves, dust motes, chimney embers, fish jumps and a school of fish): written for the game. All sprites and silhouettes are procedural (drawn in the shaders or built as meshes in code); no third-party textures or code are used, so nothing was vendored under `assets/incoming/vfx/ambient/`.
+
+## Ragdolls (added 2026-09-28)
+
+- `scripts/actors/ragdoll.gd` (physical deaths and knockdowns) follows the approach of the **3D Ragdoll Physics** demo in **godot-demo-projects** (https://github.com/godotengine/godot-demo-projects/tree/master/3d/ragdoll_physics), (c) 2014-present Godot Engine contributors, MIT: a `PhysicalBoneSimulator3D` under the skeleton, `physical_bones_start_simulation()` and blending its `influence`. Rewritten for our rigs: capsules and joints are built at runtime from the current pose instead of an editor-made physical skeleton; no demo code ships.

@@ -15,11 +15,15 @@ extends CharacterBody3D
 ##   target is still in reach, in front and not behind a wall at that moment;
 ## - a wounded beast flees below the player's run speed, then limps home and
 ##   recovers, so the chase always ends one way or the other.
+## - deaths go physical (ragdoll.gd, capped world-wide; the death clip is the
+##   fallback) and a heavy hit (knockback >= 6 or a parried bite) knocks a living
+##   beast over for a second before it blends back into its idle.
 
 signal died(wolf: Wolf)
 
 const Models := preload("res://scripts/actors/creature_models.gd")
 const Tokens := preload("res://scripts/actors/creature_attack_tokens.gd")
+const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const LEGACY_MODEL := "res://assets/incoming/quaternius/ultimate-animated-animals/glTF/Wolf.gltf"
 const LEGACY_CLIPS := {"idle": "Idle", "walk": "Walk", "run": "Gallop", "attack": "Attack",
 	"hit": "Idle_HitReact1", "death": "Death"}
@@ -94,6 +98,8 @@ var _flee_time := 0.0
 var _provoked := 0.0
 var _escape_told := false
 var _regen := 0.0
+var _ragdoll: Node
+var _model: Node3D
 
 
 func _ready() -> void:
@@ -131,7 +137,9 @@ func _ready() -> void:
 		queue_free()        # model not imported yet
 		return
 	add_child(model)
+	_model = model
 	_anim = Assets.animation_player(model)
+	_ragdoll = Ragdoll.attach(self, model, [_anim])
 	if _kind == "" and _anim:
 		for a in ["Idle", "Walk", "Gallop"]:
 			if _anim.has_animation(a):
@@ -407,17 +415,21 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		return
 	health -= amount
 	global_position += knockback * 0.12
+	var hit_from := (from as Node3D).global_position if from is Node3D else Vector3.INF
 	if health <= 0:
 		dead = true
 		Tokens.release(self)
 		_winding = 0.0
 		remove_from_group("team1")
 		remove_from_group("combatant")
-		_play("death", true)
+		_actor_shape.set_deferred("disabled", true)
+		if not (_ragdoll and _ragdoll.die(knockback, hit_from)):
+			_play("death", true)
 		died.emit(self)
 		var t := create_tween()
 		t.tween_interval(6.0)
-		t.tween_property(self, "scale", Vector3(1, 0.01, 1), 0.5)
+		# Squash the model, not the body: Jolt rejects non-uniform body scale.
+		t.tween_property(_model, "scale", _model.scale * Vector3(1, 0.01, 1), 0.5)
 		t.tween_callback(queue_free)
 		return
 	if from is Node3D:
@@ -426,10 +438,27 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		return                        # heavy beasts shrug off hits mid-swing
 	_winding = 0.0
 	_strike_target = null
+	if _ragdoll and _ragdoll.is_down():
+		_busy = maxf(_busy, 0.3)      # already on the ground
+		return
+	if Ragdoll.is_heavy(amount, from, knockback) and _ragdoll \
+			and _ragdoll.knock_down(knockback, hit_from, _get_up):
+		_speed = 0.0
+		_busy = Ragdoll.KNOCK_TIME + 0.5
+		if state == State.ATTACK:
+			_end_turn(1.6)
+		return
 	_busy = 0.3
 	_play("hit", true)
 	if state == State.ATTACK and not _circling:
 		_end_turn(0.8)                # hit reaction gives up the slot
+
+
+## Knockdown over (ragdoll.gd moved us under the hips): no get-up clip on these
+## rigs, so the physics pose blends straight back into the idle.
+func _get_up() -> void:
+	if not dead:
+		_play("idle", true)
 
 
 func _play(role: String, restart := false, rate := 1.0) -> void:
