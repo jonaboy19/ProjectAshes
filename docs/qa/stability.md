@@ -238,3 +238,6 @@ Suspect: threaded loads plus the stale UID cache. Follow-up: re-import `assets/i
 then loop the load 10x (`--quality=high --route=village_forest --nocapture`) and count completions.
 - Follow-up 2026-09-28: 5 back-to-back HIGH village_forest runs (after rig, LOD and flee fixes) all **completed 5/5**, 51-57 fps avg, p99 28-33 ms.
   The earlier silent exit didn't come back. Its cause is still unknown, but it's rare. Keep the invalid-UID megakit re-import as a cleanup item.
+- 2026-09-28: the silent exit happened again in 1 of 4 movement-QA boots, at the same point (village_services `_prop` loading megakit `FarmCrate_Apple` / `Barrel_Apples`,
+  whose *local* `.godot/imported/*.scn` cache referenced stale texture UIDs). Rebuilt those two caches: invalid-UID warnings 6 → 0, and the next boot was clean.
+  The cache isn't tracked, so exports and other machines were never affected. If the exit happens again **without** the UID warnings, the cause is elsewhere (next: threaded loads in main.gd:130).
