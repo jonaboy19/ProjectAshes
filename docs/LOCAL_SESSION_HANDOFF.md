@@ -401,3 +401,11 @@ specifically emptier than the capital needs a per-settlement-size budget.
   IK and springs. The player is always active. If an NPC looks stiff up close, raise the budget. Don't remove it.
 - The village lag was an **engine error flood** ("axis must be normalized" from `Vector3.slerp` / `set_axis_angle` on non-unit vectors) costing ~16 ms per rig stage.
   Please normalize vectors before `slerp`, `Quaternion(axis, angle)` and `rotated()`, and check your logs for per-frame ERROR spam. See `docs/qa/PERFORMANCE.md`.
+
+## 2026-09-28: engine switched to Godot 4.6.3 (all sessions, please use it)
+- Path: `C:\Users\Jonna\Downloads\Godot_v4.6.3-stable_win64\Godot_v4.6.3-stable_win64(_console).exe` (official build, SHA512 verified).
+  The launchers and all `tools/qa/*` / `kingdom/tools_qa/*` scripts now default to it; the bats fall back to 4.6.0 if it's missing.
+- Why: 4.6.0 crashed (0xC0000005) on **every** quit, even from an empty SceneTree script. 4.6.3 exits cleanly, and on the village route
+  it measured p99 29.3 → 24.9 ms and hitches 43 → 21. Details in `docs/qa/stability.md`.
+- Heads-up: `kingdom/.godot/extension_list.cfg` was missing, so Terrain3D, LimboAI and godot-sqlite were **not loaded** in dev and QA runs
+  (exports do load them). Opening the editor once regenerates it.

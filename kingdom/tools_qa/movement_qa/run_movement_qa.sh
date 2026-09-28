@@ -10,7 +10,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 KINGDOM="$(cd "$HERE/../.." && pwd)"
 REPO="$(cd "$KINGDOM/.." && pwd)"
 OUT="$REPO/docs/qa/movement/v2/after"
-GODOT="${GODOT:-/c/Users/Jonna/Downloads/Godot_v4.6-stable_win64.exe/Godot_v4.6-stable_win64_console.exe}"
+GODOT="${GODOT:-/c/Users/Jonna/Downloads/Godot_v4.6.3-stable_win64/Godot_v4.6.3-stable_win64_console.exe}"
 for arg in "$@"; do
 	case "$arg" in
 		--out=*) OUT="${arg#--out=}" ;;

@@ -5,7 +5,7 @@
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 REPO="$(cd "$HERE/../.." && pwd)"
-GODOT="${GODOT:-/c/Users/Jonna/Downloads/Godot_v4.6-stable_win64.exe/Godot_v4.6-stable_win64_console.exe}"
+GODOT="${GODOT:-/c/Users/Jonna/Downloads/Godot_v4.6.3-stable_win64/Godot_v4.6.3-stable_win64_console.exe}"
 OUT="$1"; W="$2"; H="$3"; SHOTS="$4"; shift 4
 SCENE="$(cygpath -m "$HERE/store_shots.tscn" 2>/dev/null || echo "$HERE/store_shots.tscn")"
 OUTW="$(cygpath -m "$OUT" 2>/dev/null || echo "$OUT")"

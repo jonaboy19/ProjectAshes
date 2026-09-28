@@ -6,7 +6,7 @@
 # Close other Godot instances first: they share the GPU and skew the numbers.
 set -u
 REPO="$(cd "$(dirname "$0")/../../.." && pwd)"
-GODOT="${GODOT:-/c/Users/Jonna/Downloads/Godot_v4.6-stable_win64.exe/Godot_v4.6-stable_win64_console.exe}"
+GODOT="${GODOT:-/c/Users/Jonna/Downloads/Godot_v4.6.3-stable_win64/Godot_v4.6.3-stable_win64_console.exe}"
 SCRIPT="$REPO/tools/qa/bench/bench.gd"
 command -v cygpath >/dev/null 2>&1 && SCRIPT="$(cygpath -m "$SCRIPT")"
 OUT="$REPO/docs/qa/bench_results.jsonl"

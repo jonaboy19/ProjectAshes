@@ -27,7 +27,7 @@ Repo: `C:\Users\Jonna\Documents\ProjectAshes` (GitHub jonaboy19/ProjectAshes), b
 When you start work that touches another side's files, add a dated line to `docs/LOCAL_SESSION_HANDOFF.md` ("local is editing X now") and push it first. Cancel the line if you stop. The user's word decides ownership (e.g. "Codex is doing animation").
 
 ## Tools on this PC
-- Godot 4.6: `/c/Users/Jonna/Downloads/Godot_v4.6-stable_win64.exe/Godot_v4.6-stable_win64_console.exe`. Launchers: `Open Godot Editor.bat` and `Play Game.bat` in the repo root.
+- Godot 4.6: `/c/Users/Jonna/Downloads/Godot_v4.6.3-stable_win64/Godot_v4.6.3-stable_win64_console.exe`. Launchers: `Open Godot Editor.bat` and `Play Game.bat` in the repo root.
 - Blender 5.2: `/c/Program Files/Blender Foundation/Blender 5.2/blender.exe`. No Python on PATH: use Blender's Python, or PowerShell for images.
 - Never kill Godot or Blender globally; other agents run jobs. Kill only your own PID.
 - Screen control can't drive Godot (portable exe), so test through the playtest bot and bench scripts, and **look at their screenshots**.
