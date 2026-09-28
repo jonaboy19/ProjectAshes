@@ -154,6 +154,14 @@ var _separation := Vector2.ZERO
 var _player_push := Vector2.ZERO
 var _avoid := Vector2.ZERO
 var _contact := false
+## Set by PopulationLOD (once per refresh, ~4 Hz): true for only the nearest
+## MAX_PHYSICS_CONTACT contact-range villagers to the player. During a crowd
+## event (e.g. a flee hazard) many villagers can be in contact range at once;
+## running move_and_slide() for all of them is the expensive part (narrow-phase
+## collision against each other), so the rest fall back to the same direct
+## kinematic move non-contact villagers already use. Steering, speed, animation
+## and footsteps are unaffected -- only which capsules resolve collisions.
+var physics_active := true
 var _yield_time := 0.0
 var _yield_cooldown := 0.0
 var _yield_to := Vector2.ZERO
@@ -317,7 +325,7 @@ func _physics_process(delta: float) -> void:
 	if _contact:
 		_check_yield(here, delta)
 	var planar := _steer(here, delta)
-	if _contact:
+	if _contact and physics_active:
 		velocity = Vector3(planar.x, 0.0, planar.y)
 		move_and_slide()
 	elif planar != Vector2.ZERO:

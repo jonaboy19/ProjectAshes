@@ -25,6 +25,13 @@ const MAX_FULL := 24
 ## per look. Quality.npc_sprites narrows this further per tier.
 const MAX_SPRITES := 140
 const MAX_SPAWNS_PER_TICK := 3
+## Contact-range villagers that actually run move_and_slide() each physics frame,
+## nearest-to-player first. A crowd event (flee hazard) can put many more than
+## this into contact range at once; move_and_slide()'s narrow-phase collision
+## cost against a dense cluster of capsules is the expensive part, so the rest
+## fall back to plain kinematic movement (see Villager.physics_active) -- same
+## steering, speed and animation, just no per-pair collision resolution.
+const MAX_PHYSICS_CONTACT := 8
 ## Embodied villagers rank at this fraction of their squared distance (about
 ## 13% closer), so promotion and demotion don't chatter at the budget edge.
 const KEEP_BIAS := 0.75
@@ -133,6 +140,13 @@ func refresh() -> void:
 			nearest_id = entry[1]
 	for id in _full:
 		(_full[id] as Villager).show_tag = id == nearest_id
+	var physics_slots := 0
+	for entry in dists:
+		if not _full.has(entry[1]):
+			continue
+		var v: Villager = _full[entry[1]]
+		v.physics_active = physics_slots < MAX_PHYSICS_CONTACT
+		physics_slots += 1
 
 	var used := {}
 	for look in _multimeshes:
