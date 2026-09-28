@@ -5,10 +5,18 @@ extends Node3D
 ## sheep and pigs by the fields, ducks and geese on the lake shore, deer,
 ## rabbits and foxes in the woods. Groups get bodies inside SPAWN and are freed
 ## beyond DESPAWN, so the living world costs nothing far away.
+## Now and then a wild group is a beast instead (Wolf controller with another
+## species): boars rooting in the woods, a lone bear in dense forest, and, once
+## the CC0 Quaternius monsters are imported, blight rats and a fungal brute in
+## the deepest forest. They defend themselves and fight with the same attack
+## tokens and wind-ups as wolves.
 
 const SPAWN := 110.0
 const DESPAWN := 170.0
 const WILD_RINGS := 3          # wildlife groups kept around the player in forests
+const Models := preload("res://scripts/actors/creature_models.gd")
+## Beast kinds (spawned as Wolf with this species) -> home territory radius.
+const BEASTS := {"boar": 45.0, "bear": 60.0, "blight_rat": 35.0, "fungal_brute": 30.0}
 
 var focus := Vector3.ZERO
 var _groups: Array[Dictionary] = []    # {pos, kinds: [[kind, n]], radius, nodes: Array}
@@ -81,6 +89,9 @@ func _update_group(g: Dictionary, p: Vector2) -> void:
 	if d < SPAWN and nodes.is_empty():
 		for pair: Array in g["kinds"]:
 			for k in int(pair[1]):
+				if BEASTS.has(pair[0]):
+					_spawn_beast(g, String(pair[0]), nodes)
+					continue
 				var cr := Critter.new()
 				cr.kind = pair[0]
 				cr.home = g["pos"]
@@ -114,9 +125,46 @@ func _update_wild(p: Vector2) -> void:
 		var near := WorldGen.nearest_settlement(q)
 		if not near.is_empty() and q.distance_to(near["pos"]) < float(near["radius"]) * 1.3:
 			continue
-		var roll := randf()
-		var kinds: Array = [["deer", randi_range(2, 4)], ["stag", 1]] if roll < 0.4 else \
-			([["rabbit", randi_range(2, 4)]] if roll < 0.75 else ([["fox", 1]] if roll < 0.9 else [["crow", randi_range(3, 5)]]))
+		var kinds := _beast_kinds(q)
+		if kinds.is_empty():
+			var roll := randf()
+			kinds = [["deer", randi_range(2, 4)], ["stag", 1]] if roll < 0.4 else \
+				([["rabbit", randi_range(2, 4)]] if roll < 0.75 else ([["fox", 1]] if roll < 0.9 else [["crow", randi_range(3, 5)]]))
 		var g := {"pos": q, "kinds": kinds, "radius": 14.0, "nodes": []}
 		_wild.append(g)
 		_update_group(g, p)
+
+
+## Roughly one wild group in five is a beast, rarer and tougher in denser forest,
+## never inside runestone protection. Empty when the roll gives ordinary wildlife.
+func _beast_kinds(q: Vector2) -> Array:
+	if Frontier.runestones.coverage(q) > 0.4:
+		return []
+	var dense := WorldGen.forest_density(q.x, q.y)
+	var roll := randf()
+	if roll < 0.10:
+		return [["boar", randi_range(1, 3)]]
+	if roll < 0.14 and dense > 0.55:
+		return [["bear", 1]]
+	if roll < 0.18 and dense > 0.6 and Models.has("blight_rat"):
+		return [["blight_rat", randi_range(2, 3)]]
+	if roll < 0.21 and dense > 0.65 and Models.has("fungal_brute"):
+		return [["fungal_brute", 1]]
+	return []
+
+
+func _spawn_beast(g: Dictionary, kind: String, nodes: Array) -> void:
+	if not Models.has(kind):
+		return
+	var b := Wolf.new()
+	b.species = kind
+	b.home = g["pos"]
+	b.territory = float(BEASTS[kind])
+	add_child(b)
+	if b.is_queued_for_deletion():
+		return
+	var r: float = g["radius"]
+	var q: Vector2 = g["pos"] + Vector2(randf_range(-r, r), randf_range(-r, r)) * 0.5
+	b.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
+	b.died.connect(func(dead_b: Wolf) -> void: Life.on_monster_killed(dead_b.species))
+	nodes.append(b)

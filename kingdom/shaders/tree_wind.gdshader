@@ -1,8 +1,12 @@
 // Leaf / needle cards of the Blender trees and bushes: alpha-cut, double-sided,
 // soft light through the leaves, and a gentle wind sway that grows with height
 // (trunk base still, crown moving) with a per-tree phase from its world position.
+// Leaves near the lens or between the chase camera and the player are dithered
+// away (foliage_fade.gdshaderinc): alpha-scissor discard only, no sorting.
 shader_type spatial;
 render_mode cull_disabled, depth_prepass_alpha;
+
+#include "res://shaders/foliage_fade.gdshaderinc"
 
 uniform sampler2D albedo_tex : source_color, filter_linear_mipmap_anisotropic;
 uniform vec4 albedo : source_color = vec4(1.0);
@@ -24,6 +28,9 @@ void vertex() {
 }
 
 void fragment() {
+	if (foliage_fade_discard(VERTEX, FRAGCOORD.xy, PROJECTION_MATRIX)) {
+		discard;
+	}
 	vec4 c = texture(albedo_tex, UV) * albedo * COLOR;
 	if (c.a < alpha_cut) {
 		discard;

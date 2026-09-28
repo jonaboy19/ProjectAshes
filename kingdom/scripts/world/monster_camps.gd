@@ -3,6 +3,8 @@ extends Node3D
 ## CampMonster settlements from data/world/first_region.json: the goblin warren and
 ## the orc village. Props are placed once; residents get bodies while the
 ## player is within range (like wolf packs) and lose them far away.
+## Residents fight as a group but take turns: CampMonster shares attack tokens,
+## so only two or three swing at the player at a time while the rest circle.
 
 const PACK := "res://assets/incoming/3dassets-dev-ai/medieval-mmo-starter-realm/"
 const GEN := "res://assets/generated/"
@@ -10,7 +12,7 @@ const SPAWN_RANGE := 260.0
 const DESPAWN_RANGE := 420.0
 
 var focus := Vector3.ZERO
-var _camps: Array[Dictionary] = []   # {place, species, count, root, residents: Array}
+var _camps: Array[Dictionary] = []   # {place, species, roster: [[species, n]], root, residents: Array}
 var _timer := 0.0
 
 
@@ -18,9 +20,10 @@ func _ready() -> void:
 	for pl: Dictionary in Life.lore.places_in_region():
 		match String(pl.get("kind", "")):
 			"goblin_warren":
-				_add_camp(pl, "goblin", 7)
+				_add_camp(pl, "goblin", [["goblin", 7]])
 			"orc_village":
-				_add_camp(pl, "orc", 6)
+				# Five orcs and the warchief's troll (Meshy troll, 3 m) guarding the hold.
+				_add_camp(pl, "orc", [["orc", 5], ["troll", 1]])
 
 
 func _ground(p: Vector2) -> Vector3:
@@ -47,7 +50,7 @@ func _place(root: Node3D, paths: Array, at: Vector2, yaw: float, height := 0.0) 
 	n.rotation.y = yaw
 
 
-func _add_camp(pl: Dictionary, species: String, count: int) -> void:
+func _add_camp(pl: Dictionary, species: String, roster: Array) -> void:
 	var c: Vector2 = pl["pos"]
 	var r := float(pl.get("radius", 30.0))
 	var root := Node3D.new()
@@ -99,7 +102,7 @@ func _add_camp(pl: Dictionary, species: String, count: int) -> void:
 	fire.omni_range = 12.0
 	root.add_child(fire)
 	fire.global_position = _ground(c) + Vector3(0, 1.5, 0)
-	_camps.append({"place": pl, "species": species, "count": count, "root": root, "residents": []})
+	_camps.append({"place": pl, "species": species, "roster": roster, "root": root, "residents": []})
 
 
 func _process(delta: float) -> void:
@@ -131,13 +134,16 @@ func spawn_all_near(p: Vector3) -> void:
 func _spawn(camp: Dictionary) -> void:
 	var c: Vector2 = camp["place"]["pos"]
 	var r := float(camp["place"].get("radius", 30.0))
-	for i in int(camp["count"]):
-		var m := CampMonster.new()
-		m.species = camp["species"]
-		m.home = c
-		m.home_radius = r * 0.8
-		add_child(m)
-		m.died.connect(func(dead_m: CampMonster) -> void: Life.on_monster_killed(dead_m.species))
-		var q := c + Vector2(randf_range(-r, r), randf_range(-r, r)) * 0.5
-		m.global_position = _ground(q)
-		(camp["residents"] as Array).append(m)
+	for entry: Array in camp["roster"]:
+		for i in int(entry[1]):
+			var m := CampMonster.new()
+			m.species = entry[0]
+			m.home = c
+			m.home_radius = r * (0.45 if entry[0] == "troll" else 0.8)
+			add_child(m)
+			if m.is_queued_for_deletion():
+				continue        # model not available
+			m.died.connect(func(dead_m: CampMonster) -> void: Life.on_monster_killed(dead_m.species))
+			var q := c + Vector2(randf_range(-r, r), randf_range(-r, r)) * 0.5
+			m.global_position = _ground(q)
+			(camp["residents"] as Array).append(m)

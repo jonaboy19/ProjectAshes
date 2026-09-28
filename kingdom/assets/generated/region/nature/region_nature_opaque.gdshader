@@ -4,6 +4,7 @@
 // leaf cards move together (keep wind_* uniforms equal on both materials).
 shader_type spatial;
 render_mode cull_back, diffuse_burley, specular_schlick_ggx;
+#include "res://shaders/foliage_fade.gdshaderinc"
 
 uniform sampler2D albedo_texture : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform vec4 tint : source_color = vec4(1.0);
@@ -24,6 +25,9 @@ void vertex() {
 }
 
 void fragment() {
+	if (foliage_fade_discard(VERTEX, FRAGCOORD.xy, PROJECTION_MATRIX)) {
+		discard;
+	}
 	ALBEDO = texture(albedo_texture, UV).rgb * tint.rgb * mix(1.0, COLOR.b, ao_strength);
 	ROUGHNESS = roughness;
 	SPECULAR = 0.2;

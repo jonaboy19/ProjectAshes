@@ -1,26 +1,79 @@
 class_name Wolf
 extends CharacterBody3D
-## Forest wolf (Quaternius Ultimate Animated Animals, CC0). Small state machine:
-## roam its den's territory -> stalk -> attack -> flee when hurt or when it
-## wanders into strong runestone protection. A cheap capsule blocks the player
-## and world nearby; distant animals keep terrain-based steering.
+## Forest beast: wolf (Meshy mesh on the CC0 Quaternius wolf rig), plus boar,
+## bear and the CC0 blight rat / fungal brute when `species` is set before
+## add_child. Small state machine: roam its territory -> stalk -> attack ->
+## flee when badly hurt -> retreat home. Also retreats from strong runestone
+## protection. A cheap capsule blocks the player and world nearby; distant
+## animals keep terrain-based steering.
+##
+## Readable pressure (docs/concepts/COMBAT_PRESSURE_AND_READABILITY.md):
+## - attack tokens: only slot holders close in and strike; the rest circle at a
+##   ring around the target and take turns (creature_attack_tokens.gd);
+## - every attack has a wind-up: the beast stops, growls and plays its attack
+##   clip slowed so the contact frame lands at `windup`; damage only lands if the
+##   target is still in reach, in front and not behind a wall at that moment;
+## - a wounded beast flees below the player's run speed, then limps home and
+##   recovers, so the chase always ends one way or the other.
 
 signal died(wolf: Wolf)
 
-const MODEL := "res://assets/incoming/quaternius/ultimate-animated-animals/glTF/Wolf.gltf"
+const Models := preload("res://scripts/actors/creature_models.gd")
+const Tokens := preload("res://scripts/actors/creature_attack_tokens.gd")
+const LEGACY_MODEL := "res://assets/incoming/quaternius/ultimate-animated-animals/glTF/Wolf.gltf"
+const LEGACY_CLIPS := {"idle": "Idle", "walk": "Walk", "run": "Gallop", "attack": "Attack",
+	"hit": "Idle_HitReact1", "death": "Death"}
 const PLAYER_SOLID_RANGE := 16.0
 const WORLD_LAYER := 1
 const ENEMY_LAYER := 4
-enum State { ROAM, STALK, ATTACK, FLEE }
+const ESCAPE_DISTANCE := 30.0     # a fleeing beast this far from the player has got away
+## The player walks at 2.4 m/s and runs at 6.5 m/s (player.gd WALK / RUN).
+## Chase, charge and flee speeds all stay below the run, so the player can always
+## either finish a wounded animal or break off a fight.
+## windup: seconds from the start of the attack to contact; recover: seconds after
+## contact before moving again; slots: most of this kind attacking one target at
+## once; ring: circling distance while waiting for a turn; poise: not interrupted
+## by hits; flee_below: health at which it runs (0 = fights to the death).
+const SPECIES := {
+	"wolf": {"health": 45, "damage": 9, "knock": 1.5, "walk": 0.8, "trot": 1.5, "run": 4.5,
+		"flee": 5.2, "limp": 3.6, "aggro": 14.0, "stalk": 35.0, "stalk_speed": 1.0, "reach": 2.3,
+		"strike": 1.9, "windup": 0.5, "recover": 0.45, "cooldown": [1.4, 2.0], "flee_below": 15,
+		"slots": 2, "ring": 5.5, "radius": 0.34, "height": 1.1, "poise": false, "voice": "wolf_growl"},
+	"boar": {"health": 60, "damage": 11, "knock": 3.5, "walk": 0.5, "trot": 1.2, "run": 4.8,
+		"flee": 5.0, "limp": 3.4, "aggro": 7.0, "stalk": 0.0, "stalk_speed": 0.0, "reach": 2.2,
+		"strike": 1.8, "windup": 0.55, "recover": 0.5, "cooldown": [1.6, 2.2], "flee_below": 18,
+		"slots": 2, "ring": 5.0, "radius": 0.36, "height": 0.9, "poise": false, "voice": "boar_grunt"},
+	"bear": {"health": 150, "damage": 18, "knock": 4.0, "walk": 1.2, "trot": 1.5, "run": 4.8,
+		"flee": 4.6, "limp": 3.2, "aggro": 9.0, "stalk": 18.0, "stalk_speed": 0.0, "reach": 2.8,
+		"strike": 2.2, "windup": 0.75, "recover": 0.6, "cooldown": [2.0, 2.8], "flee_below": 25,
+		"slots": 1, "ring": 6.0, "radius": 0.55, "height": 1.4, "poise": true, "voice": "bear_growl"},
+	"blight_rat": {"health": 18, "damage": 5, "knock": 0.0, "walk": 0.35, "trot": 1.1, "run": 3.4,
+		"flee": 3.6, "limp": 3.0, "aggro": 10.0, "stalk": 16.0, "stalk_speed": 0.6, "reach": 1.6,
+		"strike": 1.2, "windup": 0.45, "recover": 0.35, "cooldown": [1.2, 1.8], "flee_below": 0,
+		"slots": 2, "ring": 3.5, "radius": 0.22, "height": 0.5, "poise": false, "voice": ""},
+	"fungal_brute": {"health": 110, "damage": 16, "knock": 4.0, "walk": 1.0, "trot": 1.2, "run": 1.9,
+		"flee": 1.9, "limp": 1.5, "aggro": 9.0, "stalk": 14.0, "stalk_speed": 0.0, "reach": 2.4,
+		"strike": 1.9, "windup": 0.8, "recover": 0.6, "cooldown": [2.0, 2.8], "flee_below": 0,
+		"slots": 1, "ring": 5.0, "radius": 0.42, "height": 1.6, "poise": true, "voice": ""},
+}
+enum State { ROAM, STALK, ATTACK, FLEE, RETREAT }
 
+var species := "wolf"
 var den_id := -1
 var home := Vector2.ZERO
 var territory := 200.0
 var health := 45
+var max_health := 45
 var dead := false
 var team := 1
 var state := State.ROAM
 
+var _sp: Dictionary
+var _kind := ""                  # creature_models key ("" = legacy Quaternius wolf)
+var _clips := {}
+var _walk_clip_speed := 0.64
+var _run_clip_speed := 2.63
+var _impact_time := 0.25
 var _anim: AnimationPlayer
 var _target := Vector3.ZERO
 var _think := 0.0
@@ -28,32 +81,68 @@ var _attack_cd := 0.0
 var _busy := 0.0
 var _speed := 0.0
 var _actor_shape: CollisionShape3D
+var _winding := 0.0              # > 0 while an attack winds up
+var _strike_target: Node3D
+var _turn_rest := 0.0            # waits this long before asking for another slot
+var _turn_time := 0.0            # how long the current slot has been held
+var _strikes_left := 1
+var _orbit := 0.0
+var _orbit_dir := 1.0
+var _orbit_flip := 0.0
+var _circling := false
+var _flee_time := 0.0
+var _provoked := 0.0
+var _escape_told := false
+var _regen := 0.0
 
 
 func _ready() -> void:
+	_sp = SPECIES.get(species, SPECIES["wolf"])
+	max_health = int(_sp["health"])
+	health = max_health
 	collision_layer = ENEMY_LAYER
 	collision_mask = WORLD_LAYER
 	floor_snap_length = 0.25
 	safe_margin = 0.03
 	_actor_shape = CollisionShape3D.new()
 	var capsule := CapsuleShape3D.new()
-	capsule.radius = 0.34
-	capsule.height = 1.1
+	capsule.radius = float(_sp["radius"])
+	capsule.height = maxf(float(_sp["height"]), capsule.radius * 2.0 + 0.05)
 	_actor_shape.shape = capsule
 	_actor_shape.position.y = capsule.height * 0.5
 	_actor_shape.disabled = true
 	add_child(_actor_shape)
 	add_to_group("team1")
 	add_to_group("combatant")
-	var model: Node3D = (load(MODEL) as PackedScene).instantiate()
-	var box := Assets.visual_aabb(model)
-	model.scale = Vector3.ONE * (0.85 / maxf(box.size.y, 0.01))   # ~85 cm at the shoulder
+	var model: Node3D = Models.instance(species) if Models.has(species) else null
+	if model:
+		_kind = species
+		_clips = Models.clips(species)
+		var info := Models.info(species)
+		_walk_clip_speed = float(info["walk"])
+		_run_clip_speed = float(info["run"])
+		_impact_time = float(info["impact"])
+	elif species == "wolf" and ResourceLoader.exists(LEGACY_MODEL):
+		model = (load(LEGACY_MODEL) as PackedScene).instantiate()
+		var box := Assets.visual_aabb(model)
+		model.scale = Vector3.ONE * (0.85 / maxf(box.size.y, 0.01))   # ~85 cm at the shoulder
+		_clips = LEGACY_CLIPS
+	else:
+		queue_free()        # model not imported yet
+		return
 	add_child(model)
 	_anim = Assets.animation_player(model)
-	for a in ["Idle", "Walk", "Gallop", "Idle_2"]:
-		if _anim and _anim.has_animation(a):
-			_anim.get_animation(a).loop_mode = Animation.LOOP_LINEAR
+	if _kind == "" and _anim:
+		for a in ["Idle", "Walk", "Gallop"]:
+			if _anim.has_animation(a):
+				_anim.get_animation(a).loop_mode = Animation.LOOP_LINEAR
+	_orbit_dir = 1.0 if randf() < 0.5 else -1.0
+	_strikes_left = randi_range(1, 2)
 	_pick_roam_target()
+
+
+func _exit_tree() -> void:
+	Tokens.release(self)
 
 
 func _physics_process(delta: float) -> void:
@@ -62,40 +151,58 @@ func _physics_process(delta: float) -> void:
 	_think -= delta
 	_attack_cd -= delta
 	_busy -= delta
+	_turn_rest -= delta
+	_provoked -= delta
+	_orbit_flip -= delta
 	var player := get_tree().get_first_node_in_group("player") as Node3D
+	if _winding > 0.0:
+		_winding -= delta
+		if is_instance_valid(_strike_target) and _winding > float(_sp["windup"]) * 0.4:
+			_face(_strike_target.global_position, delta)   # tracks early, then commits
+		if _winding <= 0.0:
+			_impact()
 	var here := Vector2(global_position.x, global_position.z)
 	var cov := Frontier.runestones.coverage(here)
 	if _think <= 0.0:
 		_think = 0.3
 		_decide(player, cov)
 	var want := 0.0
+	var face_player := false
 	match state:
 		State.ROAM:
-			want = 0.7
+			want = float(_sp["walk"])
 			if Vector2(_target.x - global_position.x, _target.z - global_position.z).length() < 2.0:
 				_pick_roam_target()
 		State.STALK:
-			want = 1.0
+			want = float(_sp["stalk_speed"])
 			_target = player.global_position
+			face_player = true
 		State.ATTACK:
-			_target = player.global_position
-			var d := global_position.distance_to(_target)
-			want = 4.5 if d > 1.8 else 0.0
-			if d <= 1.9 and _attack_cd <= 0.0:
-				_bite(player)
+			want = _attack_move(player, delta)
+			face_player = _circling
 		State.FLEE:
-			want = 4.8
-	if _busy > 0.0:
+			_flee_time += delta
+			want = lerpf(float(_sp["flee"]), float(_sp["limp"]), clampf(_flee_time / 6.0, 0.0, 1.0))
+			_target = global_position + _flee_dir(player) * 6.0
+		State.RETREAT:
+			want = float(_sp["trot"])
+			_target = Vector3(home.x, 0.0, home.y)
+			_regen += delta * 1.5           # slow recovery on the way home
+			if _regen >= 1.0:
+				_regen -= 1.0
+				health = mini(max_health, health + 1)
+	if _busy > 0.0 or _winding > 0.0:
 		want = 0.0
 	_speed = lerpf(_speed, want, 6.0 * delta)
 	_update_player_collision(player)
 	var to := _target - global_position
 	to.y = 0.0
-	if state == State.FLEE:
-		to = -to
+	if face_player and player and _winding <= 0.0:
+		_face(player.global_position, delta)
 	if to.length() > 0.3 and _speed > 0.05:
 		var dir := to.normalized()
-		rotation.y = lerp_angle(rotation.y, atan2(dir.x, dir.z), 6.0 * delta)
+		if not face_player and _winding <= 0.0:
+			rotation.y = lerp_angle(rotation.y, atan2(dir.x, dir.z), 6.0 * delta)
 		var step_velocity := dir * _speed
 		if _near_player(player):
 			velocity = step_velocity
@@ -105,34 +212,140 @@ func _physics_process(delta: float) -> void:
 			var p := global_position + step_velocity * delta
 			p.y = WorldGen.height(p.x, p.z)
 			global_position = p
-	if _busy <= 0.0:
-		var locomotion := "Gallop" if _speed > 1.5 else ("Walk" if _speed > 0.25 else "Idle")
-		var authored_speed := 2.63 if locomotion == "Gallop" else 0.64
-		_play(locomotion, false, clampf(_speed / authored_speed, 0.7, 1.8))
+	if _busy <= 0.0 and _winding <= 0.0:
+		var running := _speed > _walk_clip_speed * 1.8 and _run_clip_speed > _walk_clip_speed * 1.2
+		var locomotion := "run" if running else ("walk" if _speed > 0.2 else "idle")
+		var authored := _run_clip_speed if running else _walk_clip_speed
+		var rate := 1.0 if locomotion == "idle" else clampf(_speed / authored, 0.6, 1.9)
+		_play(locomotion, false, rate)
+
+
+## Movement in ATTACK: slot holders close in and strike; others circle.
+func _attack_move(player: Node3D, delta: float) -> float:
+	if player == null:
+		return 0.0
+	var d := global_position.distance_to(player.global_position)
+	var has_slot := Tokens.holds(self, player)
+	if has_slot:
+		_circling = false
+		_turn_time += delta
+		_target = player.global_position
+		if _turn_time > Tokens.HOLD_TIME - 0.5 and _winding <= 0.0 and _busy <= 0.0:
+			_end_turn(1.0)            # couldn't land it in time: let another try
+		if d <= float(_sp["strike"]) and _attack_cd <= 0.0 and _busy <= 0.0 and _winding <= 0.0 \
+				and Tokens.try_strike(player):
+			_begin_attack(player)
+		return float(_sp["run"]) if d > float(_sp["strike"]) * 0.9 else 0.0
+	# Waiting for a turn: hold a spot on a ring around the target, drifting round.
+	if not _circling:
+		_circling = true
+		var from := global_position - player.global_position
+		_orbit = atan2(from.z, from.x)
+	if _orbit_flip <= 0.0:
+		_orbit_flip = randf_range(2.5, 5.0)
+		if randf() < 0.35:
+			_orbit_dir = -_orbit_dir
+	var ring := float(_sp["ring"])
+	_orbit += _orbit_dir * (float(_sp["trot"]) * 0.45 / ring) * delta
+	_target = player.global_position + Vector3(cos(_orbit), 0.0, sin(_orbit)) * ring
+	var gap := Vector2(_target.x - global_position.x, _target.z - global_position.z).length()
+	if gap < 0.6:
+		return 0.0
+	return float(_sp["run"]) * 0.7 if gap > 1.5 else float(_sp["trot"])
 
 
 func _decide(player: Node3D, cov: float) -> void:
-	if health < 15 or cov > 0.55:
-		state = State.FLEE
-		_target = Vector3(home.x, 0, home.y) if cov > 0.55 else (player.global_position if player else global_position)
-		if health >= 15 and cov < 0.3:
+	var flee_below := int(_sp["flee_below"])
+	if flee_below > 0 and health < flee_below and state != State.RETREAT:
+		if state != State.FLEE:
+			state = State.FLEE
+			_flee_time = 0.0
+			_stop_fighting()
+		if player == null or player.get("dead") or global_position.distance_to(player.global_position) > ESCAPE_DISTANCE:
+			_escape(player)
+		return
+	if state == State.RETREAT:
+		var at_home := Vector2(global_position.x, global_position.z).distance_to(home) < 8.0
+		var player_close: bool = player != null and not player.get("dead") and global_position.distance_to(player.global_position) < 10.0
+		if player_close and health < flee_below:
+			state = State.FLEE          # cornered on the way home: bolt again
+			_flee_time = 2.0
+			return
+		if at_home or (cov < 0.3 and health >= flee_below):
+			if at_home:
+				health = maxi(health, int(max_health * 0.6))
 			state = State.ROAM
+			_escape_told = false
+			_pick_roam_target()
+		return
+	if cov > 0.55:
+		state = State.RETREAT           # strong runestone protection: head home
+		_stop_fighting()
 		return
 	if player == null or player.get("dead"):
-		state = State.ROAM
+		_set_state(State.ROAM)
 		return
 	var pp := Vector2(player.global_position.x, player.global_position.z)
 	var d := global_position.distance_to(player.global_position)
 	var player_cov := Frontier.runestones.coverage(pp)
 	var in_territory := pp.distance_to(home) < territory * 1.3
+	var aggro := float(_sp["aggro"]) if _provoked <= 0.0 else maxf(float(_sp["aggro"]), 22.0)
 	if player_cov > 0.5:
-		state = State.ROAM            # won't follow prey into protected land
-	elif d < 14.0 and in_territory:
-		state = State.ATTACK
-	elif d < 35.0 and in_territory:
-		state = State.STALK
+		_set_state(State.ROAM)            # won't follow prey into protected land
+	elif d < aggro and (in_territory or _provoked > 0.0):
+		_set_state(State.ATTACK)
+		Tokens.engage(self, player)
+		if _turn_rest <= 0.0 and not Tokens.holds(self, player):
+			if Tokens.request(self, player, int(_sp["slots"])):
+				_turn_time = 0.0
+	elif d < float(_sp["stalk"]) and in_territory:
+		_set_state(State.STALK)
 	else:
-		state = State.ROAM
+		_set_state(State.ROAM)
+
+
+func _set_state(s: State) -> void:
+	if s != State.ATTACK and state == State.ATTACK:
+		_stop_fighting()
+	state = s
+
+
+func _stop_fighting() -> void:
+	Tokens.release(self)
+	_circling = false
+	if _winding > 0.0:
+		_winding = 0.0
+		_busy = 0.2
+
+
+func _end_turn(rest: float) -> void:
+	Tokens.yield_slot(self)
+	_turn_rest = rest
+	_turn_time = 0.0
+	_strikes_left = randi_range(1, 2)
+	_circling = false
+
+
+## Away from the player, bending toward the den when that isn't back past them.
+func _flee_dir(player: Node3D) -> Vector3:
+	var away := Vector3.FORWARD
+	if player:
+		away = global_position - player.global_position
+		away.y = 0.0
+		away = away.normalized() if away.length() > 0.1 else Vector3.FORWARD
+	var to_home := Vector3(home.x - global_position.x, 0.0, home.y - global_position.z)
+	if to_home.length() > 4.0:
+		to_home = to_home.normalized()
+		if to_home.dot(away) > -0.2:
+			away = (away + to_home * 0.6).normalized()
+	return away
+
+
+func _escape(player: Node3D) -> void:
+	state = State.RETREAT
+	if not _escape_told and player and global_position.distance_to(player.global_position) < 60.0:
+		_escape_told = true
+		Game.say("The wounded %s slinks away toward its den." % species.replace("_", " "))
 
 
 func _near_player(player: Node3D) -> bool:
@@ -147,18 +360,42 @@ func _update_player_collision(player: Node3D) -> void:
 
 func _pick_roam_target() -> void:
 	var ang := randf() * TAU
-	var p := home + Vector2(cos(ang), sin(ang)) * randf_range(10.0, territory * 0.8)
+	var p := home + Vector2(cos(ang), sin(ang)) * randf_range(minf(10.0, territory * 0.3), territory * 0.8)
 	_target = Vector3(p.x, WorldGen.height(p.x, p.y), p.y)
 
 
-func _bite(player: Node3D) -> void:
-	_attack_cd = randf_range(1.2, 1.8)
-	_busy = 0.5
-	_play("Attack", true)
-	get_tree().create_timer(0.25).timeout.connect(func() -> void:
-		if not dead and is_instance_valid(player) and global_position.distance_to(player.global_position) < 2.4:
-			player.take_damage(9, self)
-			Audio.sfx("hit", global_position, -8.0))
+func _face(at: Vector3, delta: float) -> void:
+	var to := at - global_position
+	if Vector2(to.x, to.z).length() > 0.1:
+		rotation.y = lerp_angle(rotation.y, atan2(to.x, to.z), 8.0 * delta)
+
+
+## Wind-up: stop, growl, play the attack clip slowed so contact lands at `windup`.
+func _begin_attack(target: Node3D) -> void:
+	var windup := float(_sp["windup"])
+	_attack_cd = randf_range(float(_sp["cooldown"][0]), float(_sp["cooldown"][1]))
+	_winding = windup
+	_busy = windup + float(_sp["recover"])
+	_strike_target = target
+	_play("attack", true, clampf(_impact_time / windup, 0.3, 1.5))
+	var voice := String(_sp["voice"])
+	if voice != "" and Audio.has_sound(voice):
+		Audio.play_sfx(voice, global_position + Vector3.UP * 0.6, -4.0, 0.1)
+
+
+func _impact() -> void:
+	if _anim:
+		_anim.speed_scale = 1.0
+	var target := _strike_target
+	_strike_target = null
+	if Tokens.can_hit(self, target, float(_sp["reach"]), WORLD_LAYER) and target.has_method("take_damage"):
+		var push := (target.global_position - global_position)
+		push.y = 0.0
+		target.take_damage(int(_sp["damage"]), self, push.normalized() * float(_sp["knock"]))
+		Audio.sfx("hit", global_position, -8.0)
+	_strikes_left -= 1
+	if _strikes_left <= 0:
+		_end_turn(randf_range(1.4, 2.6))
 
 
 func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> void:
@@ -168,26 +405,35 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 	global_position += knockback * 0.12
 	if health <= 0:
 		dead = true
+		Tokens.release(self)
+		_winding = 0.0
 		remove_from_group("team1")
 		remove_from_group("combatant")
-		_play("Death", true)
+		_play("death", true)
 		died.emit(self)
 		var t := create_tween()
 		t.tween_interval(6.0)
 		t.tween_property(self, "scale", Vector3(1, 0.01, 1), 0.5)
 		t.tween_callback(queue_free)
-	else:
-		_busy = 0.3
-		_play("Idle_HitReact1", true)
-		if from is Node3D:
-			state = State.ATTACK
+		return
+	if from is Node3D:
+		_provoked = 15.0
+	if bool(_sp["poise"]) and _winding > 0.0:
+		return                        # heavy beasts shrug off hits mid-swing
+	_winding = 0.0
+	_strike_target = null
+	_busy = 0.3
+	_play("hit", true)
+	if state == State.ATTACK and not _circling:
+		_end_turn(0.8)                # hit reaction gives up the slot
 
 
-func _play(anim_name: String, restart := false, rate := 1.0) -> void:
+func _play(role: String, restart := false, rate := 1.0) -> void:
+	var anim_name := String(_clips.get(role, role))
 	if _anim == null or not _anim.has_animation(anim_name):
 		return
 	_anim.speed_scale = rate
 	if restart or _anim.current_animation != anim_name:
-		var old := _anim.current_animation
-		var blend := 0.28 if old in ["Walk", "Gallop"] and anim_name in ["Walk", "Gallop"] else 0.15
+		var loco := [_clips.get("walk", ""), _clips.get("run", "")]
+		var blend := 0.28 if _anim.current_animation in loco and anim_name in loco else 0.15
 		_anim.play(anim_name, blend)

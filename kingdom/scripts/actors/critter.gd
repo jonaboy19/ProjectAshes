@@ -22,12 +22,17 @@ const ANIM_GROUND_SPEEDS := {
 	"horse_grey": {"Walk": 1.36, "Run": 5.68},
 	"horse_draft": {"Walk": 1.53, "Run": 6.41},
 	"donkey": {"Walk": 1.30},
-	"deer": {"Walk": 1.06},
-	"stag": {"Walk": 1.31},
+	"deer": {"Walk": 1.06, "Run": 2.4},
+	"stag": {"Walk": 1.31, "Run": 2.8},
 	"fox": {"Walk": 0.44, "Run": 1.87},
 	"goat": {"Walk": 0.76},
 }
+## Deer/stag Run: planted-foot probe of the Run clip (2026-09-28), scaled by the
+## same factor that maps the probe's Walk onto the QA report's Walk value.
 ## kind -> [file, walk speed, run speed, wander radius, skittish distance (0 = tame)]
+## Flee bursts last two seconds. Deer and stag bolt at 6.0 / 6.2 m/s, just under
+## the player's 6.5 m/s run (player.gd), so a hunter who keeps after them closes
+## in slowly between bursts; everything else is slower still.
 const KINDS := {
 	"chicken": ["procedural/chicken.glb", 0.6, 2.2, 5.0, 2.5],
 	"rooster": ["procedural/rooster.glb", 0.6, 2.2, 5.0, 2.5],
@@ -49,8 +54,8 @@ const KINDS := {
 	"horse_grey": ["quaternius/horse_grey.glb", 0.9, 5.0, 4.0, 0.0],
 	"horse_draft": ["quaternius/horse_draft.glb", 0.8, 4.0, 4.0, 0.0],
 	"donkey": ["quaternius/donkey.glb", 0.7, 3.0, 4.0, 0.0],
-	"deer": ["quaternius/deer.glb", 0.9, 7.0, 18.0, 16.0],
-	"stag": ["quaternius/stag.glb", 0.9, 7.0, 18.0, 18.0],
+	"deer": ["quaternius/deer.glb", 0.9, 6.0, 18.0, 16.0],
+	"stag": ["quaternius/stag.glb", 0.9, 6.2, 18.0, 18.0],
 	"fox": ["res://assets/generated/animals/fox_gallop.glb", 0.8, 5.0, 14.0, 9.0],
 }
 

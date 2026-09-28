@@ -8,6 +8,7 @@
 // (no automatic flip) so a crown shades as one soft painterly volume from every side.
 shader_type spatial;
 render_mode cull_disabled, depth_draw_opaque, diffuse_burley, specular_schlick_ggx;
+#include "res://shaders/foliage_fade.gdshaderinc"
 
 uniform sampler2D albedo_texture : source_color, filter_linear_mipmap_anisotropic, repeat_disable;
 uniform vec4 tint : source_color = vec4(1.0);
@@ -37,6 +38,9 @@ void vertex() {
 }
 
 void fragment() {
+	if (foliage_fade_discard(VERTEX, FRAGCOORD.xy, PROJECTION_MATRIX)) {
+		discard;
+	}
 	vec4 t = texture(albedo_texture, UV);
 	ALBEDO = t.rgb * tint.rgb * mix(1.0, COLOR.b, ao_strength);
 	ALPHA = t.a;
