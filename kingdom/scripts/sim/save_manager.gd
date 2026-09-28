@@ -608,7 +608,13 @@ func _player() -> Node3D:
 	if life == null:
 		return null
 	var p: Variant = life.get("player")
-	return p if p is Node3D and is_instance_valid(p) and (p as Node3D).is_inside_tree() else null
+	# is_instance_valid() MUST run before `p is Node3D`: once the player node is freed
+	# (death/respawn, scene reload, a QA harness freeing the game scene on exit), `p`
+	# is a dangling reference and `is` on it throws "Left operand of 'is' is a
+	# previously freed instance" -- every frame, since this runs from _process(). Found
+	# during the stability soak (docs/qa/stability.md): it flooded the log and kept
+	# SaveManager polling a dead node instead of going quiet.
+	return p if is_instance_valid(p) and p is Node3D and (p as Node3D).is_inside_tree() else null
 
 
 func _snapshot() -> Dictionary:

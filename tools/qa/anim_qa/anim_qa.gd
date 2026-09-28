@@ -98,6 +98,18 @@ func _main() -> void:
 	if strips_on:
 		await _render_all(subs, speeds)
 	print("ANIM_QA_DONE rows=%d" % results.size())
+	# Free the analysis stage and the strip-rendering SubViewport (root.add_child(vp) in
+	# _setup_stage(), never freed) before quit(). Skipping this raced WorkerThreadPool/
+	# RenderingServer teardown against live RIDs and produced the ntdll heap-corruption
+	# crashes in the Windows event log -- see docs/qa/stability.md.
+	if is_instance_valid(stage):
+		stage.queue_free()
+		stage = null
+	if is_instance_valid(vp):
+		vp.queue_free()
+		vp = null
+	for i in 10:
+		await process_frame
 	quit()
 
 

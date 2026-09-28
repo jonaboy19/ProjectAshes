@@ -151,6 +151,18 @@ func _finish() -> void:
 		var img := root.get_texture().get_image()
 		img.save_png(args["png"])
 		print("Saved ", args["png"])
+	await _shutdown()
+
+
+## See perf_visual.gd's _shutdown() for why: quitting while main.tscn is still live
+## races WorkerThreadPool/threaded-load cleanup against RenderingServer teardown and
+## produced the ntdll heap-corruption crashes logged in docs/qa/stability.md.
+func _shutdown() -> void:
+	if main:
+		main.queue_free()
+		main = null
+	for i in 10:
+		await process_frame
 	quit()
 
 

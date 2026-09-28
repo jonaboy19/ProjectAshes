@@ -396,6 +396,22 @@ func _finish() -> void:
 		for l in _cadence_report:
 			af.store_line(l)
 		af.close()
+	await _shutdown()
+
+
+## Clean exit: free the loaded game scene and give freed nodes (TerrainStreamer's
+## WorkerThreadPool tasks, ResourceLoader threaded requests, RenderingServer RIDs)
+## several frames to unwind before quit(). Calling quit() while res://scenes/main.tscn
+## is still live left thousands of RIDs (meshes/materials/textures/shaders) and worker
+## threads mid-flight; the resulting race during engine teardown was the root cause of
+## the ntdll heap-corruption crashes (exit code 0xc0000005) seen in the Windows event
+## log for every QA harness that skipped this step. See docs/qa/stability.md.
+func _shutdown() -> void:
+	if main:
+		main.queue_free()
+		main = null
+	for i in 10:
+		await process_frame
 	quit()
 
 

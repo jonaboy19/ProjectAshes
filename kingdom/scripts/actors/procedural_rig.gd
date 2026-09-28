@@ -398,7 +398,14 @@ func _physics_process(_delta: float) -> void:
 		_hit[i] = not hit.is_empty()
 		if _hit[i]:
 			_hit_y[i] = (hit["position"] as Vector3).y
-			_hit_n[i] = hit["normal"]
+			# A ray that starts inside a collider (foot clipped into geometry for a frame)
+			# comes back with normal = Vector3.ZERO -- Godot's own documented behaviour for
+			# intersect_ray. That zero vector reached Vector3.slerp() in _pre_modify() below
+			# and threw "axis must be normalized" every physics tick (1215x in one soak run,
+			# docs/qa/stability.md): keep the last good normal instead of a degenerate one.
+			var n: Vector3 = hit["normal"]
+			if n.length_squared() > 0.0001:
+				_hit_n[i] = n
 
 
 # --- Modifier stages -----------------------------------------------------------------
@@ -441,7 +448,17 @@ func _pre_modify(delta: float) -> void:
 			d = clampf(_hit_y[i] - base.y, -max_drop, _leg_len * 0.5)
 			n = _hit_n[i]
 		_ground[i] = lerpf(_ground[i], d, a)
-		_normal[i] = _normal[i].slerp(n, a).normalized()
+		# Vector3.slerp() requires BOTH operands exactly unit-length (it derives a rotation
+		# axis internally and asserts on it). A raycast normal off a non-uniformly-scaled
+		# collision shape, or one _normal[i] already nudged off unit length by a previous
+		# .normalized() float rounding, was enough to trip "axis must be normalized" every
+		# physics tick this foot was grounded (still 417x in one soak run after only
+		# guarding against a zero vector -- see docs/qa/stability.md). Re-normalize both
+		# operands right at the call site instead of trusting upstream state.
+		if _normal[i].length_squared() > 0.0001 and n.length_squared() > 0.0001:
+			_normal[i] = _normal[i].normalized().slerp(n.normalized(), a).normalized()
+		elif n.length_squared() > 0.0001:
+			_normal[i] = n.normalized()
 		var lift := _foot_anim[i].y - base.y - _ankle_rest
 		_plant[i] = 1.0 - smoothstep(0.03 * _leg_len, 0.2 * _leg_len, lift)
 		lowest = minf(lowest, _ground[i])
