@@ -187,6 +187,8 @@ func _build_part(root: Node3D, site: Dictionary, part: Array) -> void:
 		_collider(n, box)
 	if String(part[0]) == "farm/windmill":
 		_add_sails(n)
+	if not String(part[0]).begins_with("props/"):
+		_base_clutter(root, world, basis * Basis(Vector3.UP, float(part[2])), box)
 
 
 func _build_light(root: Node3D, l: Array) -> void:
@@ -203,6 +205,33 @@ func _build_light(root: Node3D, l: Array) -> void:
 	light.global_position = Vector3(at.x, WorldGen.height(at.x, at.z) + lp.y, at.z)
 	if bool(l[3]):
 		_flicker.append(light)
+
+
+## A couple of small stones or weeds tucked against a farm/mine/camp building's
+## base, matching WorldGen.color_at()'s new dirt ring around every site clearing
+## (see world_gen.gd). Skipped for small props (crates, barrels...); only worth
+## it for building-sized footprints. Sites are few, so plain child nodes (no
+## MultiMesh batching) are cheap enough.
+func _base_clutter(root: Node3D, world: Vector3, basis: Basis, box: AABB) -> void:
+	if box.size.x * box.size.z < 3.0:
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(Vector2(world.x, world.z))
+	var hug := maxf(box.size.x, box.size.z) * 0.5 + 0.3
+	for k in 2:
+		var ang := rng.randf() * TAU
+		var at := world + basis * (Vector3(cos(ang), 0, sin(ang)) * hug)
+		var picks: Array[String] = ["rock_moss_set_01_%d" % (1 + rng.randi() % 6), "dandelion_01", "fern_02"]
+		var kind: String = "scan/" + picks[rng.randi() % picks.size()]
+		var mesh := Assets.nature_mesh(kind)
+		if mesh == null:
+			continue
+		var mi := MeshInstance3D.new()
+		mi.mesh = mesh
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(mi)
+		mi.rotation.y = rng.randf() * TAU
+		mi.global_position = Vector3(at.x, WorldGen.height(at.x, at.z) - 0.03, at.z)
 
 
 func _footprint_ground(world: Vector3, basis: Basis, box: AABB) -> float:

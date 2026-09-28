@@ -562,10 +562,32 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 			if pd < 0.8:
 				w.r = maxf(w.r, (1.0 - smoothstep(-0.4, 0.8, pd)) * 0.9)
 				w.a = 0.0
+			# Worn dirt ring around every building's base, so a house never meets grass
+			# with a hard edge (the "sits like a sticker" look). Lots are a short list
+			# (tens per settlement), and this only runs near a settlement already.
+			if dc < near["radius"] * 1.05:
+				for lot: Dictionary in near["plan"]["lots"]:
+					var lp: Vector2 = lot["pos"]
+					var ld := Vector2(x, z).distance_to(lp)
+					if ld < 7.0:
+						var k := (1.0 - smoothstep(2.8, 7.0, ld)) * 0.65
+						w.r = maxf(w.r, k)
+						w.a *= 1.0 - clampf(k * 1.5, 0.0, 1.0)
+						break   # one nearby lot is enough; footprints rarely overlap
 	var rd := road_distance(x, z)
 	if rd < 3.5:
 		w.r = maxf(w.r, 1.0 - smoothstep(1.5, 3.5, rd))
 		w.a = 0.0
+	# Worn dirt around region sites (farms, mines, bandit camps, wayshrines, ruins):
+	# their buildings and clutter otherwise sit straight on unbroken grass. `clearings`
+	# is a short list (one entry per site), already walked by forest_density().
+	for c in clearings:
+		var cd: float = Vector2(x, z).distance_to(c["pos"])
+		var cr: float = c["radius"]
+		if cd < cr + 6.0:
+			var k := (1.0 - smoothstep(cr - 1.0, cr + 6.0, cd)) * 0.55
+			w.r = maxf(w.r, k)
+			w.a *= 1.0 - clampf(k * 1.4, 0.0, 1.0)
 	# Shores: sandy dirt at the waterline, pebbles (rock) on the bed, more with depth.
 	var lv := water_level_at(x, z)
 	if not is_nan(lv):

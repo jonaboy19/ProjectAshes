@@ -357,7 +357,19 @@ func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 			s *= 2.6            # tiny real-scale plants read as a patch
 		elif kind.begins_with("scan/rock"):
 			s = rng.randf_range(0.5, 1.7)
-		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(x, h - 0.15, z))
+		# A flat -0.15 sink hides the base on flat ground, but on a slope the
+		# uphill edge of a wide canopy/root footprint still pokes up out of the
+		# ground (found by tools/qa/grounding: forest scatter was the single
+		# biggest floating/buried source, far more than buildings or props,
+		# which snap to their footprint's lowest corner -- see
+		# RegionDressing._footprint_ground()). Individual per-instance footprint
+		# sampling isn't affordable here (up to ~90 placements/chunk on the
+		# worker thread already), so scale the sink with the local slope instead
+		# -- two more WorldGen.height() samples per instance, still worker-thread
+		# side, no per-frame cost.
+		var slope := absf(WorldGen.height(x + 0.6, z) - h) + absf(WorldGen.height(x, z + 0.6) - h)
+		var sink := 0.15 + minf(slope * 0.7, 0.55)
+		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(x, h - sink, z))
 		if not buckets.has(kind):
 			buckets[kind] = []
 		buckets[kind].append(t)

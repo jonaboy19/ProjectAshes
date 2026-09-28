@@ -187,6 +187,7 @@ func _build(s: Dictionary) -> Node3D:
 		_piece(root, "mill", p, WorldGen.height(p.x, p.y), rng.randf() * TAU)
 	_fields(root, s, plan, rng, gates)
 	_homesteads(root, s, plan, rng)
+	_footprint_clutter(root, plan, rng)
 	_square_lamps(root, s, plan)
 	_greenery(root, s, plan, rng)
 	# Street clutter.
@@ -610,6 +611,34 @@ func _square_lamps(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 		var ga: float = gates[0]
 		var sp: Vector2 = c + Vector2(cos(ga), sin(ga)) * (float(s["radius"]) + 8.0) + Vector2(-sin(ga), cos(ga)) * 5.0
 		_piece(root, "signpost", sp, WorldGen.height(sp.x, sp.y), ga)
+
+
+## A couple of small stones or weeds tucked against each building's base (the
+## dirt ring from WorldGen.color_at() gives the ground colour; this adds a little
+## 3D relief so the wall doesn't meet flat grass in a hard line). Cheap: 2 pieces
+## per lot, one shared MultiMesh batch per kind per settlement.
+func _footprint_clutter(root: Node3D, plan: Dictionary, rng: RandomNumberGenerator) -> void:
+	var kinds := {"scan/rock_moss_set_01_2": [], "scan/dandelion_01": [], "scan/fern_02": []}
+	for lot: Dictionary in plan["lots"]:
+		var yaw: float = lot["yaw"]
+		var fwd := Vector2(sin(yaw), cos(yaw))
+		var side := Vector2(fwd.y, -fwd.x)
+		var p: Vector2 = lot["pos"]
+		var size := _footprint(lot["asset"])
+		var hug := maxf(size.x, size.z) * 0.5 + rng.randf_range(0.15, 0.5)
+		for k in 2:
+			var corner_side := side if k == 0 else -side
+			var along := rng.randf_range(-0.6, 0.6) * size.z * 0.5
+			var at := p + corner_side * hug + fwd * along
+			if CityPlanner.path_distance(plan, at) < 0.6 or CityPlanner.street_distance(plan, at) < 0.8:
+				continue
+			var kind: String = ["scan/rock_moss_set_01_2", "scan/dandelion_01", "scan/fern_02"][rng.randi() % 3]
+			(kinds[kind] as Array).append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * rng.randf_range(0.7, 1.3)),
+				Vector3(at.x, WorldGen.height(at.x, at.y) - 0.03, at.y)))
+	for kind: String in kinds:
+		var list: Array[Transform3D] = []
+		list.assign(kinds[kind])
+		_multimesh_cells(root, Assets.nature_mesh(kind), list, 80.0, 90.0)
 
 
 ## Flowers and bushes hugging house fronts and corners, as in the reference art:
