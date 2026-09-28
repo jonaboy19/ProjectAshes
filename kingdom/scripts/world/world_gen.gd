@@ -15,6 +15,11 @@ static var settlements: Array[Dictionary] = []
 static var camp_grounds: Array[Dictionary] = []
 ## Road segments as pairs of settlement ids.
 static var roads: Array[Vector2i] = []
+## Places between settlements (RegionSites.plan): farms, bridges, ruins, landmarks.
+static var sites: Array[Dictionary] = []
+## Ground those sites claim: [{pos, radius, flatten, base_h}]. No trees inside;
+## flattened ones level the terrain like camp grounds.
+static var clearings: Array[Dictionary] = []
 
 static var _hills := FastNoiseLite.new()
 static var _ridges := FastNoiseLite.new()
@@ -69,6 +74,13 @@ static func setup(seed_value: int) -> void:
 		st["plan"] = CityPlanner.plan(st, gate_angles(st), seed_value)
 	_place_water(seed_value)
 	_place_camp_grounds()
+	clearings.clear()
+	sites = RegionSites.plan(seed_value)
+	for site in sites:
+		if float(site["clear"]) > 0.0:
+			var c: Vector2 = site["pos"]
+			clearings.append({"pos": c, "radius": float(site["clear"]), "flatten": bool(site["flatten"]),
+				"base_h": _raw_height(c.x, c.y)})
 
 
 static func _place_camp_grounds() -> void:
@@ -111,6 +123,12 @@ static func height(x: float, z: float) -> float:
 		var gr: float = g["radius"]
 		if gd < gr * 2.0:
 			h = lerpf(g["base_h"], h, smoothstep(gr, gr * 2.0, gd))
+	for c in clearings:
+		if c["flatten"]:
+			var cr: float = c["radius"]
+			var cd := p.distance_to(c["pos"])
+			if cd < cr * 1.8:
+				h = lerpf(c["base_h"], h, smoothstep(cr * 0.8, cr * 1.8, cd))
 	# Roads cut a gentle bed.
 	var rd := road_distance(x, z)
 	if rd < 10.0:
@@ -575,6 +593,9 @@ static func forest_density(x: float, z: float) -> float:
 		f *= smoothstep(near["radius"] * 1.2, near["radius"] * 2.2, Vector2(x, z).distance_to(near["pos"]))
 	if road_distance(x, z) < 8.0:
 		f = 0.0
+	for c in clearings:
+		if f > 0.0:
+			f *= smoothstep(float(c["radius"]), float(c["radius"]) + 10.0, Vector2(x, z).distance_to(c["pos"]))
 	if f > 0.0:
 		f *= smoothstep(6.0, 20.0, shore_distance(x, z))   # no trees (or wolf dens) in water or on beaches
 	return f

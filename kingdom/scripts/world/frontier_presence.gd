@@ -5,6 +5,10 @@ extends Node3D
 ## range. Killed wolves are culled from their den in the ecology.
 
 const RUNESTONE := "res://assets/generated/runestone.glb"
+## Meshy runestone with glowing channels (local session); the Blender one is the fallback.
+const RUNESTONE_MESHY := "res://assets/incoming/ai3d/meshy/landmark_runestone_lod0.glb"
+const RUNESTONE_MESHY_FAR := "res://assets/incoming/ai3d/meshy/landmark_runestone_lod1.glb"
+const RUNESTONE_HEIGHT := 3.4
 ## Packs get bodies when the player nears their territory and lose them well past it.
 const PACK_MARGIN := 120.0
 const DESPAWN_MARGIN := 260.0
@@ -27,9 +31,25 @@ func _build_stone(s: Dictionary) -> void:
 	var p: Vector2 = s["pos"]
 	root.position = Vector3(p.x, WorldGen.height(p.x, p.y) - 0.1, p.y)
 	root.rotation.y = atan2(-p.x, -p.y)
-	var model: Node3D = (load(RUNESTONE) as PackedScene).instantiate()
-	model.scale = Vector3.ONE * 1.25
-	root.add_child(model)
+	if ResourceLoader.exists(RUNESTONE_MESHY):
+		for i in 2:
+			var path := RUNESTONE_MESHY if i == 0 else RUNESTONE_MESHY_FAR
+			if not ResourceLoader.exists(path):
+				continue
+			var m: Node3D = (load(path) as PackedScene).instantiate()
+			var box := Assets.visual_aabb(m)
+			var k := RUNESTONE_HEIGHT / maxf(box.size.y, 0.01)
+			m.scale = Vector3.ONE * k
+			m.position.y = -box.position.y * k - 0.05
+			for g in m.find_children("*", "GeometryInstance3D", true, false):
+				var gi := g as GeometryInstance3D
+				gi.visibility_range_begin = 0.0 if i == 0 else 60.0
+				gi.visibility_range_end = 60.0 if i == 0 else 500.0
+			root.add_child(m)
+	else:
+		var model: Node3D = (load(RUNESTONE) as PackedScene).instantiate()
+		model.scale = Vector3.ONE * 1.25
+		root.add_child(model)
 	var light := OmniLight3D.new()
 	light.light_color = Color(0.4, 0.85, 1.0)
 	light.omni_range = 9.0
