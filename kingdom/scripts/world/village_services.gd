@@ -8,6 +8,7 @@ extends Node3D
 ## so the innkeeper, smith, receptionist and healer in a room get a Station.
 
 const CraftingScreen := preload("res://scripts/ui/crafting_screen.gd")
+const InventoryScreen := preload("res://scripts/ui/inventory_screen.gd")
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const MEGAKIT := "res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/"
 const BOARD := "res://assets/generated/notice_board.glb"
@@ -375,6 +376,22 @@ func pack_menu() -> Dictionary:
 	lines.append("Food %d  ·  Rest %d  ·  Gold %d  ·  Merit %d" % [int(n.food), int(n.rest), Game.gold, Game.merit])
 	var items := PackedStringArray()
 	var opts: Array = []
+	opts.append(["Inventory & equipment", func() -> String:
+		hud.close_menu()
+		InventoryScreen.open_for(hud)
+		return ""])
+	opts.append(["Crafting", func() -> String:
+		hud.close_menu()
+		CraftingScreen.open_for(hud)
+		return ""])
+	opts.append(["Arts & cultivation", func() -> String:
+		hud.close_menu()
+		hud.skills_screen.open()
+		return ""])
+	opts.append(["Photo mode", func() -> String:
+		hud.close_menu()
+		hud.open_photo_mode()
+		return ""])
 	var seen := {}
 	for it in Life.inventory.get_items():
 		var id := it.get_prototype().get_prototype_id()

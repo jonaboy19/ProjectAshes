@@ -24,6 +24,7 @@ var population: PopulationLOD
 var frontier: FrontierPresence
 var region: RegionDressing
 var weather: Node3D
+var ambient_fx: Node3D
 var _order_from: Variant = null   # command view: where the current drag order started
 var player: Player
 var hud: HUD
@@ -138,6 +139,9 @@ func _ready() -> void:
 	weather.add_to_group("weather")
 	world.add_child(weather)
 	weather.setup(env, sun, player.camera)
+	ambient_fx = preload("res://scripts/world/ambient_fx.gd").new()
+	ambient_fx.name = "AmbientFX"
+	world.add_child(ambient_fx)
 	ambient = AmbientLife.new()
 	world.add_child(ambient)
 	var ore := preload("res://scripts/world/ore_vein.gd").new()
@@ -264,6 +268,7 @@ func _process(delta: float) -> void:
 	population.focus = focus
 	frontier.focus = focus
 	region.focus = focus
+	ambient_fx.focus = focus
 	camps.focus = focus
 	ambient.focus = focus
 	terrain.view_radius = mini(5 if player.view == Player.View.COMMAND else 4, Quality.view_radius)

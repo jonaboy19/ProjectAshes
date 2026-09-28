@@ -170,12 +170,11 @@ func _ready() -> void:
 	_perf.offset_bottom = -4
 	_perf.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_danger = _label(root, 14, UITheme.TEXT)
-	_danger.anchor_left = 1.0
-	_danger.anchor_right = 1.0
-	_danger.offset_left = -560
-	_danger.offset_right = -96 - DOCK_SIZE - 12
-	_danger.offset_top = 94
-	_danger.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	# Under the status card, clear of the right-hand dock and the combat buttons.
+	_danger.offset_left = 20
+	_danger.offset_right = 420
+	_danger.offset_top = 216
+	_danger.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_toast_box = PanelContainer.new()
 	_toast_box.add_theme_stylebox_override("panel", UITheme.pill(UITheme.BG, UITheme.ACCENT.darkened(0.3), 22))
 	_toast_box.anchor_left = 0.5
@@ -547,10 +546,8 @@ func _build_navigation(root: Control) -> void:
 	banner = DiscoveryBanner.new()
 	root.add_child(banner)
 	add_action_button("map", "Map", "world_map", "glyph:map", UITheme.ACTION_TALK.darkened(0.15))
-	add_action_button("photo", "Photo", "photo_mode", "glyph:camera")
-	add_action_button("skills", "Arts", func() -> void: skills_screen.toggle(), "glyph:compass")
-	add_action_button("items", "Items", func() -> void: InventoryScreen.open_for(self), "knapsack")
-	add_action_button("craft", "Craft", func() -> void: CraftingScreen.open_for(self), "hand")
+	# Photo mode, inventory, crafting and the arts live in the Pack menu (the dock stays
+	# short so it never crowds the combat cluster); keys P, K and the pack key still work.
 
 
 ## Map, photo mode and the travel fade sit above the HUD root (not hidden with it).
