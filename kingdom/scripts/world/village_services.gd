@@ -7,12 +7,14 @@ extends Node3D
 ## the same menus are offered inside: wire_settlement() hooks every InteriorDoor
 ## so the innkeeper, smith, receptionist and healer in a room get a Station.
 
+const TradeScreen := preload("res://scripts/ui/trade_screen.gd")
 const CraftingScreen := preload("res://scripts/ui/crafting_screen.gd")
 const InventoryScreen := preload("res://scripts/ui/inventory_screen.gd")
 const BuildMenu := preload("res://scripts/ui/build_menu.gd")
 const CareerScreen := preload("res://scripts/ui/career_screen.gd")
 const SaveScreen := preload("res://scripts/ui/save_screen.gd")
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
+const RAProperty := preload("res://scripts/sim/property.gd")
 const MEGAKIT := "res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/"
 const BOARD := "res://assets/generated/notice_board.glb"
 const BED_PRICE := 3
@@ -134,7 +136,7 @@ func wire_settlement(root: Node) -> void:
 	for d in holder.get_children():
 		var door := d as InteriorDoor
 		if door and not door.is_exit and not door.interior_entered.is_connected(_on_interior_entered):
-			door.interior_entered.connect(_on_interior_entered)
+			door.interior_entered.connect(_on_interior_entered.bind(door))
 
 
 ## Role (NPC marker metadata) -> [title, verb, menu].
@@ -153,8 +155,10 @@ func _role_service(role: String) -> Array:
 
 ## A room was loaded: put a Station on each service NPC's marker. The markers
 ## exist right away (the NPC models spawn a frame later), and the Stations are
-## children of the room, so they are freed with it.
-func _on_interior_entered(room: Node3D) -> void:
+## children of the room, so they are freed with it. `door` (the InteriorDoor
+## that loaded this room) is used to spot the player's own home: a house lot
+## they own or rent gets a storage chest and, on a bed marker, a place to sleep.
+func _on_interior_entered(room: Node3D, door: InteriorDoor = null) -> void:
 	Life.crafting.scan_interior(room)
 	for m in room.find_children("NPC_*", "Marker3D", true, false):
 		var svc := _role_service(String(m.get_meta("role", "")))
@@ -164,6 +168,43 @@ func _on_interior_entered(room: Node3D) -> void:
 		st.name = "Service_" + String(m.name).trim_prefix("NPC_")
 		room.add_child(st)
 		st.global_position = (m as Marker3D).global_position
+	if door and door.has_meta("lot_pos"):
+		var lot_id: String = Life.property.find_by_pos(door.get_meta("lot_pos"))
+		if lot_id != "" and Life.property.is_held(lot_id):
+			_furnish_home(room, lot_id)
+
+
+const HomeChest := preload("res://scripts/world/home_chest.gd")
+
+## Puts a storage chest (if the property has one, i.e. it isn't a bare inn
+## room) and, on a "BedSpawn" marker, a free "Sleep" station and sets the
+## respawn point there.
+func _furnish_home(room: Node3D, lot_id: String) -> void:
+	var spawn := room.find_child("PlayerSpawn", true, false) as Node3D
+	var origin := spawn.global_position if spawn else room.global_position
+	if Life.property.can_store(lot_id):
+		var chest := HomeChest.new()
+		chest.lot_id = lot_id
+		room.add_child(chest)
+		var marker := room.find_child("StorageMarker", true, false) as Node3D
+		chest.global_position = marker.global_position if marker else origin + Vector3(1.4, 0, 1.4)
+	var bed := room.find_child("BedSpawn", true, false) as Node3D
+	if bed:
+		var st := Station.new("Bed", "Sleep", func() -> Dictionary:
+			return {"title": "Your bed", "body": "It's yours; sleeping here costs nothing.",
+				"options": [["Sleep", _sleep_at_home.bind(bed.global_position)]]})
+		room.add_child(st)
+		st.global_position = bed.global_position
+
+
+## Sleeping in your own bed is free and sets it as your respawn point
+## (player.gd's `spawn_point`, read back on death — main.gd sets it once at
+## world start, then whatever last set it holds).
+func _sleep_at_home(spawn_pos: Vector3) -> String:
+	hud.close_menu()
+	if Life.player and is_instance_valid(Life.player) and "spawn_point" in Life.player:
+		Life.player.spawn_point = spawn_pos
+	return Life.sleep(1.0)
 
 
 func _ground(p: Vector2) -> Vector3:
@@ -221,6 +262,7 @@ func merchant_menu() -> Dictionary:
 		if n > 0:
 			opts.append(["Sell %s ×%d  —  %dg each" % [Life.item_name(item), n, m.sell_price(item)],
 				Life.sell.bind(item), m.purse >= m.sell_price(item)])
+	opts.append(["Trade routes & caravans", TradeScreen.open_for.bind(hud), true])
 	opts.append(_talk_option("trader"))
 	return {"title": "Market Trader",
 		"body": "\"Fresh from the farms. Pelts wanted: the tanner's short.\"\nYou carry %d gold. Trader's purse: %d gold." % [Game.gold, m.purse],
@@ -233,6 +275,9 @@ func inn_menu() -> Dictionary:
 		["Hot stew  —  %dg" % Life.market.price("stew"), _buy_stew, Life.market.can_buy("stew", Game.gold) == ""],
 		["Rent a bed and sleep  —  %dg" % BED_PRICE, _rent_bed, Game.gold >= BED_PRICE and n.rest < 90.0],
 	]
+	if Life.property.has_inn_room(0):
+		var room_rent := int(Life.property.info(Life.property.inn_room_id(0))["rent"])
+		opts.append(["Rent a room for a week  —  %dg" % room_rent, _rent_room, Game.gold >= room_rent])
 	var server := Life.careers.seat("inn", "Server")
 	if not Life.careers.is_employed() and Life.careers.open_count(server) > 0:
 		opts.append(["Ask for work as a Server (%dg/day)" % server["wage"], _apply.bind("inn", "Server")])
@@ -278,6 +323,10 @@ func _rent_bed() -> String:
 	return Life.sleep(1.0)
 
 
+func _rent_room() -> String:
+	return Life.property.rent_room(0, 1)
+
+
 func notice_menu() -> Dictionary:
 	var lines := PackedStringArray()
 	var opts: Array = []
@@ -302,7 +351,30 @@ func notice_menu() -> Dictionary:
 			continue
 		var price := int(Life.homestead.plots()[i]["price"])
 		opts.append(["Buy homestead plot %d (%dg)" % [i + 1, price], Life.homestead.buy.bind(i), Game.gold >= price])
+	lines.append_array(_notice_houses(opts))
 	return {"title": "Notice Board", "body": "\n".join(lines), "options": opts}
+
+
+## Houses for sale / rent in the home town: every currently-vacant house lot,
+## with price, weekly rent and seasonal land tax. Returns the lines to show
+## (PackedStringArray is a value type in GDScript, so this can't mutate a
+## caller's array directly); `opts` (a reference type) is appended to in place.
+func _notice_houses(opts: Array) -> PackedStringArray:
+	var lines := PackedStringArray()
+	var town := String(WorldGen.settlements[0]["name"])
+	var ids: Array[String] = Life.property.available(0)
+	if ids.is_empty():
+		return lines
+	lines.append("\nHouses for sale / rent in %s:" % town)
+	for lot_id: String in ids:
+		var i: Dictionary = Life.property.info(lot_id)
+		lines.append("  %s  —  buy %dg, rent %dg/week, land tax %dg/season (owed to %s)" %
+			[String(i["name"]), int(i["price"]), int(i["rent"]), int(i["tax"]), String(i["landlord_id"])])
+		opts.append(["Buy %s (%dg)" % [String(i["name"]).to_lower(), int(i["price"])],
+			Life.property.buy.bind(lot_id), Game.gold >= int(i["price"])])
+		opts.append(["Rent %s for a week (%dg)" % [String(i["name"]).to_lower(), int(i["rent"])],
+			Life.property.rent.bind(lot_id, 1), Game.gold >= int(i["rent"])])
+	return lines
 
 
 func _apply(org_id: String, title: String) -> String:
@@ -442,6 +514,10 @@ func pack_menu() -> Dictionary:
 	opts.append(["People & reputation", func() -> String:
 		hud.show_menu(people_menu)
 		return ""])
+	if not Life.property.owned().is_empty() or not Life.property.rented().is_empty():
+		opts.append(["Your properties", func() -> String:
+			hud.show_menu(properties_menu)
+			return ""])
 	if radiant().active.size() > 1:
 		opts.append(["Track next quest", func() -> String:
 			return _track_next()])
@@ -863,6 +939,9 @@ func _pick_rumour() -> String:
 	var stones: Array = Frontier.runestones.rumours()
 	if not stones.is_empty() and randf() < 0.45:
 		return String(stones[randi() % stones.size()])
+	var prices: Array = Life.economy.rumour_prices()
+	if not prices.is_empty() and randf() < 0.35:
+		return String(prices[randi() % prices.size()])
 	var r: Dictionary = _gossip_data().get("rumours", {})
 	var home := _home_pos()
 	var cands: Array = []   # [category, vars]
@@ -1148,3 +1227,41 @@ func people_menu() -> Dictionary:
 		"options": [["Back to pack", func() -> String:
 			hud.show_menu(pack_menu)
 			return ""]]}
+
+
+# --- property: houses, rooms, dues, storage -----------------------------------------
+
+## Every property the player owns or rents: dues owed, storage, and the
+## option to pay up or sell.
+func properties_menu() -> Dictionary:
+	var prop: RAProperty = Life.property
+	var lines := PackedStringArray()
+	var opts: Array = []
+	for i: Dictionary in prop.owned():
+		lines.append("%s in %s (owned)  ·  tax %dg/season%s" % [String(i["name"]), String(i["settlement_name"]),
+			int(i["tax"]), ("  ·  %dg tax owed" % int(i["tax_debt"])) if int(i["tax_debt"]) > 0 else ""])
+		var stacks: int = (i["storage"] as Array).size()
+		lines.append("  Chest: %d / %d slots used." % [stacks, prop.storage_capacity(String(i["lot_id"]))])
+		if bool(i["workshop"]):
+			lines.append("  Has a workshop: you can craft at home here.")
+		if not (i["servants"] as Array).is_empty():
+			lines.append("  Servants: %s." % ", ".join(PackedStringArray(i["servants"])))
+		opts.append(["Sell %s (80%% back)" % String(i["name"]).to_lower(), prop.sell.bind(String(i["lot_id"]))])
+	for i: Dictionary in prop.rented():
+		var is_room := String(i["kind"]) == "inn_room"
+		lines.append("%s in %s (rented)  ·  rent %dg/week%s" % [String(i["name"]), String(i["settlement_name"]),
+			int(i["rent"]), ("  ·  %dg rent owed" % int(i["debt"])) if int(i["debt"]) > 0 else ""])
+		if not is_room:
+			var stacks: int = (i["storage"] as Array).size()
+			lines.append("  Chest: %d / %d slots used." % [stacks, prop.storage_capacity(String(i["lot_id"]))])
+	var owed := prop.total_debt()
+	if owed > 0:
+		lines.append("\nTotal dues owed: %dg." % owed)
+		opts.append(["Pay all dues (%dg)" % mini(owed, Game.gold), func() -> String:
+			return prop.pay_due()])
+	if lines.is_empty():
+		lines.append("You hold no property.")
+	opts.append(["Back to pack", func() -> String:
+		hud.show_menu(pack_menu)
+		return ""])
+	return {"title": "Your Properties", "body": "\n".join(lines), "options": opts}

@@ -43,6 +43,7 @@ var skills := preload("res://scripts/sim/skills.gd").new()
 ## the biography keeps every chapter and reputation across career changes.
 var mastery := preload("res://scripts/sim/mastery.gd").new()
 var biography := preload("res://scripts/sim/biography.gd").new()
+var property := preload("res://scripts/sim/property.gd").new()
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
 var career_id := ""            # career_ladders.gd key, "" = none yet
 var career_rank := ""          # rank id within that career
@@ -69,6 +70,8 @@ var pending_offers: Array = []
 const GUILD_MIN_AGE := 12
 var needs := RANeeds.new()
 var market := RAMarket.new()
+## Regional markets, caravans, contracts; Ashford keeps using `market` (docs/RISING_ASHES_LIFE_SIM_DESIGN.md).
+var economy := preload("res://scripts/sim/economy.gd").new()
 var inventory: Inventory
 var player: Node3D        # set by main once the player exists
 
@@ -544,6 +547,8 @@ func _setup_market() -> void:
 	market.add_good("wolf_meat", 2, 10, 0)
 	market.add_good("firewood", 1, 30, 6)
 	preload("res://scripts/sim/gathering_items.gd").register(self)
+	economy.setup(0)
+	economy.bind_home_market(0, market)
 	for id: String in ["iron_ingot", "leather", "plank", "arrowheads", "horseshoe", "healing_salve", "antidote", "stamina_draught", "grilled_fish", "berry_pie", "saddle"]:
 		market.add_good(id, int(item_prop(id, "price", 1)), 4, 0)
 
@@ -602,6 +607,12 @@ func _process(_delta: float) -> void:
 
 
 func _on_hour(hour: int) -> void:
+	economy.refresh_road_risk(Frontier.runestones)
+	for r: Dictionary in economy.tick_hour(1.0, {
+			"season": WorldSim.season, "festival": not WorldSim.seasons.festival_today().is_empty(),
+			"at_war": bool(life_path.flags.get("at_war", false)), "mine_opened": bool(life_path.flags.get("mine_opened", false)),
+			"abs_hours": _abs_hours()}):
+		Game.say(String(r["text"]))
 	_life_tick(hour)
 	if careers.is_employed():
 		var sh: Vector2 = careers.player_org()["shift"]
@@ -613,6 +624,9 @@ func _on_hour(hour: int) -> void:
 				Game.say(r["text"])
 			if not careers.is_employed():
 				employment_changed.emit()
+	if hour == 6:
+		for msg: String in property.daily(WorldSim.day):
+			Game.say(msg)
 	if hour == 5:
 		for e: Dictionary in guild.tick_day(WorldSim.day):
 			if e.get("type", "") == "failed":
@@ -772,6 +786,7 @@ func snapshot() -> Dictionary:
 		"careers": careers.serialize(),
 		"needs": needs.serialize(),
 		"market": market.serialize(),
+		"economy": economy.serialize(),
 		"inventory": inventory.serialize(),
 		"frontier": Frontier.serialize(),
 		"life_path": life_path.serialize(),
@@ -786,6 +801,7 @@ func snapshot() -> Dictionary:
 		"relationships": relationships.serialize(),
 		"mastery": mastery.serialize(),
 		"biography": biography.serialize(),
+		"property": property.serialize(),
 		"career": {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier},
 		"radiant": radiant.serialize(),
 		"crafting": crafting.serialize(),
@@ -818,13 +834,14 @@ func restore(d: Dictionary) -> void:
 					WorldSim.job[who] = o["job"]
 	needs.deserialize(d.get("needs", {}))
 	market.deserialize(d.get("market", {}))
+	economy.deserialize(d.get("economy", {}), 0, market)
 	inventory.deserialize(d.get("inventory", {}))
 	Frontier.deserialize(d.get("frontier", {}))
 	if d.has("life_path"):
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	_last_abs = _abs_hours()
@@ -915,6 +932,8 @@ func _career_daily() -> void:
 		"at_war": bool(life_path.flags.get("at_war", false)), "sponsor_tier": career_sponsor_tier,
 		"owns_plot": not homestead.owned.is_empty(),
 	}
+	economy.has_shop = property.owned().any(func(p: Variant) -> bool: return p is Dictionary and String(p.get("kind", "")) == "trader")
+	ctx.merge(economy.ladder_ctx())
 	if bool(CareerLadders.check_promotion(ctx)["eligible"]):
 		var r: Dictionary = CareerLadders.promote(ctx)
 		career_rank = String(r["rank"])

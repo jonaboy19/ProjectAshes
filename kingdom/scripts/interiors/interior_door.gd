@@ -90,6 +90,13 @@ static func tag_player(player: CollisionObject3D) -> void:
 
 
 func prompt() -> String:
+	# A house lot the player owns or rents (scripts/sim/property.gd) reads
+	# "Enter your home" instead of the generic prompt. Guarded so a build
+	# without Life.property (or a non-house door with no "lot_pos" meta)
+	# behaves exactly as before.
+	if not is_exit and has_meta("lot_pos") and "property" in Life and Life.property != null \
+			and Life.property.is_yours(get_meta("lot_pos")):
+		return "Enter your home"
 	return prompt_text
 
 
