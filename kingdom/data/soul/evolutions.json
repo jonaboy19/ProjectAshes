@@ -1,0 +1,91 @@
+{
+	"version": 1,
+	"evolutions": {
+		"fire": [
+			{"context": "forge", "uses": 40, "id": "temper_flame", "name": "Temper Flame",
+				"flavour": "Your fire has learned patience: a steady, even heat instead of a blaze.",
+				"modifiers": {"forge_quality": 0.12, "forge_speed": 0.08}},
+			{"context": "combat", "uses": 40, "id": "searing_brand", "name": "Searing Brand",
+				"flavour": "Your fire has learned violence: it jumps to wherever it can hurt.",
+				"modifiers": {"combat_damage": 0.12, "burn_chance": 0.1}},
+			{"context": "hearth", "uses": 40, "id": "hearth_ember", "name": "Hearth Ember",
+				"flavour": "Your fire has learned gentleness: it warms a room and never scorches a meal.",
+				"modifiers": {"cook_quality": 0.15, "warmth": 0.1}}
+		],
+		"water": [
+			{"context": "heal", "uses": 40, "id": "mending_tide", "name": "Mending Tide",
+				"flavour": "Your water has learned to knit rather than to cut.",
+				"modifiers": {"heal_potency": 0.15, "poison_resist": 0.08}},
+			{"context": "combat", "uses": 40, "id": "cutting_current", "name": "Cutting Current",
+				"flavour": "Your water has learned to find the gap in an opponent's guard.",
+				"modifiers": {"combat_damage": 0.1, "combat_accuracy": 0.08}},
+			{"context": "farm", "uses": 40, "id": "steady_irrigant", "name": "Steady Irrigant",
+				"flavour": "Your water has learned the rhythm of fields: never too much, never too little.",
+				"modifiers": {"crop_yield": 0.12, "drought_resist": 0.1}}
+		],
+		"earth": [
+			{"context": "forge", "uses": 40, "id": "oreheart_grip", "name": "Oreheart Grip",
+				"flavour": "Your earth has learned the grain of metal before the hammer finds it.",
+				"modifiers": {"forge_quality": 0.1, "mining_yield": 0.08}},
+			{"context": "farm", "uses": 40, "id": "loamkeeper_hand", "name": "Loamkeeper Hand",
+				"flavour": "Your earth has learned to coax rather than to break.",
+				"modifiers": {"crop_yield": 0.15, "livestock_health": 0.08}},
+			{"context": "combat", "uses": 40, "id": "bulwark_stance", "name": "Bulwark Stance",
+				"flavour": "Your earth has learned to hold a line and not give an inch.",
+				"modifiers": {"defense": 0.15, "stagger_resist": 0.1}}
+		],
+		"wind": [
+			{"context": "hunt", "uses": 40, "id": "silent_gale", "name": "Silent Gale",
+				"flavour": "Your wind has learned to carry no sound at all.",
+				"modifiers": {"stealth": 0.15, "hunt_yield": 0.1}},
+			{"context": "combat", "uses": 40, "id": "razor_draft", "name": "Razor Draft",
+				"flavour": "Your wind has learned to cut on the exhale.",
+				"modifiers": {"combat_speed": 0.12, "combat_accuracy": 0.08}},
+			{"context": "meditate", "uses": 40, "id": "clearing_breath", "name": "Clearing Breath",
+				"flavour": "Your wind has learned to settle a racing mind as easily as it stirs a storm.",
+				"modifiers": {"stamina_regen": 0.12, "focus": 0.1}}
+		],
+		"lightning": [
+			{"context": "combat", "uses": 40, "id": "storm_edge", "name": "Storm Edge",
+				"flavour": "Your lightning has learned to strike before the thought finishes forming.",
+				"modifiers": {"combat_speed": 0.15, "combat_crit": 0.06}},
+			{"context": "forge", "uses": 40, "id": "arcwright_spark", "name": "Arcwright Spark",
+				"flavour": "Your lightning has learned to leave a truer line through metal than any chisel.",
+				"modifiers": {"forge_quality": 0.1, "inscription_power": 0.12}},
+			{"context": "technique", "uses": 40, "id": "quickcast_charge", "name": "Quickcast Charge",
+				"flavour": "Your lightning has learned to arrive at a technique's end before the casting is done.",
+				"modifiers": {"technique_cost": -0.1, "cooldown_reduction": 0.1}}
+		],
+		"qi": [
+			{"context": "meditate", "uses": 40, "id": "still_reservoir", "name": "Still Reservoir",
+				"flavour": "Your qi has learned to pool deep and calm instead of racing off at the first call.",
+				"modifiers": {"qi_max": 0.15, "qi_regen": 0.1}},
+			{"context": "technique", "uses": 40, "id": "flowing_form", "name": "Flowing Form",
+				"flavour": "Your qi has learned the shortest path between one technique and the next.",
+				"modifiers": {"technique_cost": -0.1, "cooldown_reduction": 0.08}},
+			{"context": "heal", "uses": 40, "id": "warm_current", "name": "Warm Current",
+				"flavour": "Your qi has learned to settle into someone else's body as gently as your own.",
+				"modifiers": {"heal_potency": 0.12, "stamina_regen": 0.08}}
+		]
+	},
+	"mutations": [
+		{"element": "fire", "contexts": ["forge", "combat"], "uses": 90, "id": "warbrand_forge", "name": "Warbrand Forge",
+			"flavour": "Your fire has become one thing whether it is folding steel or ending a fight: unforgiving heat with an exact purpose.",
+			"modifiers": {"forge_quality": 0.1, "combat_damage": 0.1}},
+		{"element": "water", "contexts": ["heal", "combat"], "uses": 90, "id": "lifeblood_current", "name": "Lifeblood Current",
+			"flavour": "Your water no longer distinguishes between mending and unmaking a body — it simply understands them both completely.",
+			"modifiers": {"heal_potency": 0.1, "combat_damage": 0.08}},
+		{"element": "earth", "contexts": ["forge", "farm"], "uses": 90, "id": "worldshaper_hand", "name": "Worldshaper Hand",
+			"flavour": "Ore and soil answer you the same way now: as things waiting to be given a shape.",
+			"modifiers": {"forge_quality": 0.08, "crop_yield": 0.1}},
+		{"element": "wind", "contexts": ["hunt", "combat"], "uses": 90, "id": "stormstalker", "name": "Stormstalker",
+			"flavour": "Silence and violence have become the same motion for you.",
+			"modifiers": {"stealth": 0.1, "combat_speed": 0.1}},
+		{"element": "lightning", "contexts": ["combat", "technique"], "uses": 90, "id": "thunderweave", "name": "Thunderweave",
+			"flavour": "Your techniques and your strikes have fused into a single, near-instant reflex.",
+			"modifiers": {"combat_speed": 0.1, "technique_cost": -0.12}},
+		{"element": "qi", "contexts": ["meditate", "technique"], "uses": 90, "id": "unbroken_circuit", "name": "Unbroken Circuit",
+			"flavour": "Stillness and technique have stopped being separate states for you.",
+			"modifiers": {"qi_max": 0.1, "technique_cost": -0.1}}
+	]
+}

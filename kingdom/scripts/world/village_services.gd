@@ -16,6 +16,7 @@ const CareerScreen := preload("res://scripts/ui/career_screen.gd")
 const SaveScreen := preload("res://scripts/ui/save_screen.gd")
 const NobilityScreen := preload("res://scripts/ui/nobility_screen.gd")
 const ChronicleScreen := preload("res://scripts/ui/chronicle_screen.gd")
+const SoulScreen := preload("res://scripts/ui/soul_screen.gd")
 const FamilyScreen := preload("res://scripts/ui/family_screen.gd")
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const RAProperty := preload("res://scripts/sim/property.gd")
@@ -505,6 +506,13 @@ func pack_menu() -> Dictionary:
 		hud.close_menu()
 		CareerScreen.open_for(hud)
 		return ""])
+	opts.append(["Soul", func() -> String:
+		hud.close_menu()
+		SoulScreen.open_for(hud)
+		return ""])
+	opts.append(["Echoes", func() -> String:
+		hud.show_menu(echoes_menu)
+		return ""])
 	opts.append(["Nobility", func() -> String:
 		hud.close_menu()
 		NobilityScreen.open_for(hud)
@@ -691,6 +699,11 @@ func naming_menu(m: CampMonster) -> Dictionary:
 	var opts: Array = []
 	for k: String in pv["classes"]:
 		opts.append(["Name it \"%s\" the %s" % [given, k.capitalize()], _do_name.bind(m, given, k), bool(pv["possible"])])
+	var tier: int = Life.soul.tier()
+	var room: bool = Life.naming.soul_bonds.size() < RANaming.bond_limit(tier)
+	opts.append(["Speak \"%s\" as its Soul Name (shares your Soul Power forever)" % given if tier >= RANaming.MIN_SOUL_TIER
+		else "Soul Name ritual (needs a Tempered soul)", _do_soul_name_monster.bind(m, given),
+		tier >= RANaming.MIN_SOUL_TIER and room])
 	opts.append(["Think of another name", func() -> String:
 		m.set_meta("given", m.random_name())
 		return ""])
@@ -702,6 +715,64 @@ func naming_menu(m: CampMonster) -> Dictionary:
 		m._refresh_label()
 		return "It scrambles back toward its camp."])
 	return {"title": "Naming", "body": body, "options": opts}
+
+
+func _ritual_ctx() -> Dictionary:
+	var h := WorldSim.time_of_day
+	var night := h >= 20.0 or h < 5.0
+	var shrine := false
+	for st: Dictionary in WorldGen.sites:
+		if String(st["kind"]) in ["shrine", "temple", "waystone_shrine"] and (st["pos"] as Vector2).distance_to(_player_pos()) < 30.0:
+			shrine = true
+	return {"at_shrine": shrine, "festival_night": night and not WorldSim.seasons.festival_today().is_empty()}
+
+
+func _do_soul_name_monster(m: CampMonster, given: String) -> String:
+	hud.close_menu()
+	var r: Dictionary = Life.naming.soul_name_ritual(Life.magicules, Life.soul.tier(),
+		{"kind": "monster", "species": m.species, "level": m.level, "name": given}, given, WorldSim.day, _ritual_ctx())
+	if bool(r.get("ok", false)):
+		Life.name_monster(m, given, String(RANaming.CLASSES.keys()[0]))
+		Life.biography.add_highlight("Gave %s a Soul Name" % given, WorldSim.day)
+	return String(r.get("text", ""))
+
+
+func _do_soul_name_person(info: Dictionary) -> String:
+	var rel := relationships()
+	var r: Dictionary = Life.naming.soul_name_ritual(Life.magicules, Life.soul.tier(),
+		{"kind": "person", "id": int(info.get("person", -1)), "name": String(info["name"]),
+		"trust": float(rel.opinion(info["id"], _now())), "tendencies": [], "element": ""},
+		String(info["name"]), WorldSim.day, _ritual_ctx())
+	if bool(r.get("ok", false)):
+		Life.biography.add_highlight("Spoke %s's Soul Name" % String(info["name"]), WorldSim.day)
+	return String(r.get("text", ""))
+
+
+## Echoes the player carries: attune within the soul tier's limit, or call one.
+func echoes_menu() -> Dictionary:
+	var e: Object = Life.echoes
+	var tier: int = Life.soul.tier()
+	var opts: Array = []
+	for ec: Dictionary in e.echoes:
+		var id := int(ec["id"])
+		var on: bool = id in e.attuned
+		var label := "%s (from %s)" % [String(e.type_info(String(ec["type"])).get("name", "Echo")), String(ec.get("source_name", "?"))]
+		if on:
+			opts.append(["Call: " + label, func() -> String: return String(e.echo_call(id, WorldSim.day).get("text", ""))])
+			opts.append(["Release: " + label, func() -> String:
+				e.unattune(id)
+				return "The Echo quiets."])
+		else:
+			opts.append(["Attune: " + label, func() -> String: return String(e.attune(id, tier).get("text", ""))])
+	var body := "Echoes are what powerful souls leave behind. Attuned: %d / %d." % [e.attuned.size(), e.attune_limit(tier)]
+	if e.echoes.is_empty():
+		body += "
+You carry none yet. Great beasts, lost companions and the Rift leave them."
+	if e.inner_world_unlocked(tier):
+		var iw: Dictionary = e.inner_world_state(tier, String(Life.soul.path_info().get("id", "")), Life.naming.soul_bonds)
+		body += "
+Your Inner World: %s." % String(iw.get("biome", "unformed"))
+	return {"title": "Echoes", "body": body, "options": opts}
 
 
 func _do_name(m: CampMonster, given: String, k: String) -> String:
@@ -1151,6 +1222,11 @@ func _talk_page() -> Dictionary:
 	for c: Dictionary in DialogueRunner.choices(d, _talk["node"], ctx):
 		opts.append([c["text"], _choose.bind(c)])
 	_add_courtship_options(opts, info)
+	if Life.soul.tier() >= RANaming.MIN_SOUL_TIER and String(info.get("id", "")) != "" \
+			and rel.opinion(info["id"], now) >= RANaming.PERSON_TRUST_MIN \
+			and Life.naming.soul_bonds.size() < RANaming.bond_limit(Life.soul.tier()):
+		opts.append(["Offer %s a Soul Name (shares your Soul Power forever)" % String(info["name"]).get_slice(" ", 0),
+			_do_soul_name_person.bind(info)])
 	var why := PackedStringArray()
 	for b: Array in rel.breakdown(info["id"], now).slice(0, 3):
 		why.append("%s %+d" % [b[0], b[1]])

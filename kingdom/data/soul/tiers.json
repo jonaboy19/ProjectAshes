@@ -1,0 +1,29 @@
+{
+	"version": 1,
+	"tiers": [
+		{"id": "ember", "name": "Ember", "threshold": 0, "pool": 0.0, "regen": 0.0,
+			"flavour": "A spark most people carry and never notice."},
+		{"id": "kindled", "name": "Kindled", "threshold": 40, "pool": 6.0, "regen": 0.2,
+			"flavour": "Something in you has caught. It does not go out on its own anymore."},
+		{"id": "warmed", "name": "Warmed", "threshold": 120, "pool": 8.0, "regen": 0.3,
+			"flavour": "Villagers who watch closely start to say you carry yourself differently."},
+		{"id": "tempered", "name": "Tempered", "threshold": 300, "pool": 12.0, "regen": 0.4,
+			"flavour": "The first true test. Past here, growth is no longer automatic — it is earned at a cost."},
+		{"id": "forged", "name": "Forged", "threshold": 650, "pool": 16.0, "regen": 0.55,
+			"flavour": "A shape has settled into you: the mark of how you have spent your days."},
+		{"id": "burning", "name": "Burning", "threshold": 1300, "pool": 22.0, "regen": 0.7,
+			"flavour": "Strangers feel it before you say a word. Some step back; some step closer."},
+		{"id": "blazing", "name": "Blazing", "threshold": 2400, "pool": 30.0, "regen": 0.9,
+			"flavour": "Priests write your name down. Nobles start asking after you by name."},
+		{"id": "roaring", "name": "Roaring", "threshold": 4200, "pool": 40.0, "regen": 1.15,
+			"flavour": "Few in a generation carry this much soul. Fewer still hold onto themselves at it."},
+		{"id": "unbound", "name": "Unbound", "threshold": 7000, "pool": 52.0, "regen": 1.45,
+			"flavour": "The old limits that shaped your body and reach quietly stop applying."},
+		{"id": "ascendant", "name": "Ascendant", "threshold": 11500, "pool": 68.0, "regen": 1.85,
+			"flavour": "Kingdoms keep records of people like you. Most of those records end badly."},
+		{"id": "transcendent", "name": "Transcendent", "threshold": 18500, "pool": 88.0, "regen": 2.3,
+			"flavour": "What you do now reshapes the ground you stand on, sometimes literally."},
+		{"id": "worldsoul", "name": "Worldsoul", "threshold": 30000, "pool": 115.0, "regen": 3.0,
+			"flavour": "Myth stopped being the right word for you some tiers ago."}
+	]
+}

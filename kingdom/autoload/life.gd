@@ -48,6 +48,15 @@ var nobility := preload("res://scripts/sim/nobility.gd").new()
 var lordship := preload("res://scripts/sim/lordship.gd").new()
 var family := preload("res://scripts/sim/family.gd").new()
 ## Notable NPCs who age, marry, work, die (Phase 4) and the war with a neighbour.
+## Phase 5 soul system: tiers and Paths, usage-driven evolution, Echoes (naming.gd holds Soul Names).
+var soul := preload("res://scripts/sim/soul.gd").new()
+var skill_evolution := preload("res://scripts/sim/skill_evolution.gd").new()
+var echoes := preload("res://scripts/sim/echoes.gd").new()
+const RECORD_TO_SOUL := {
+	"helped_farmer": "farm", "farmed": "farm", "hunted": "hunt", "fished": "hunt",
+	"trained_sword": "combat", "trained_bow": "combat", "adventured": "combat", "studied": "technique",
+	"meditated": "meditate",
+}
 var life_courses := preload("res://scripts/sim/life_courses.gd").new()
 var war := preload("res://scripts/sim/war_sim.gd").new()
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
@@ -107,7 +116,29 @@ func _ready() -> void:
 	crafting.crafted.connect(func(res: Dictionary) -> void:
 		var sk := String(res.get("skill", ""))
 		if mastery.DISCIPLINES.has(sk):
-			mastery.gain(sk, float(res.get("xp", 0)) * 0.1, WorldSim.day))
+			mastery.gain(sk, float(res.get("xp", 0)) * 0.1, WorldSim.day)
+		if sk in ["smithing", "forging", "blacksmithing"]:
+			soul.gain("forge", float(res.get("xp", 0)) * 0.05, WorldSim.day)
+			skill_evolution.record_use(_soul_element(), "forge", WorldSim.day)
+		elif sk in ["alchemy", "herbalism"]:
+			soul.gain("heal", float(res.get("xp", 0)) * 0.05, WorldSim.day)
+			skill_evolution.record_use(_soul_element(), "heal", WorldSim.day)
+		elif sk == "cooking":
+			skill_evolution.record_use(_soul_element(), "hearth", WorldSim.day))
+	soul.tier_up.connect(func(_idx: int, _id: String) -> void:
+		var info: Dictionary = soul.tier_info()
+		magicules.grow(float(info.get("pool", 0.0)), float(info.get("regen", 0.0)))
+		if soul.tier() <= 3:
+			Game.say("Your soul settles into a new tier: %s." % String(info.get("name", "?"))))
+	soul.breakthrough_result.connect(func(r: Dictionary) -> void:
+		Game.say(String(r.get("text", "")))
+		if bool(r.get("success", false)):   # tier_up already grew the pool
+			biography.add_highlight("Broke through to %s" % String(soul.tier_info().get("name", "")), WorldSim.day))
+	soul.path_chosen.connect(func(_id: String) -> void:
+		biography.add_highlight("Took up %s" % String(soul.path_info().get("name", "a Path")), WorldSim.day))
+	skill_evolution.evolved.connect(func(evo: Dictionary) -> void:
+		Game.say("Your %s has changed with use: %s." % [String(evo.get("element", "power")), String(evo.get("name", "?"))])
+		biography.add_highlight("Awakened %s" % String(evo.get("name", "")), WorldSim.day))
 	careers.vacancy_opened.connect(_on_vacancy)
 	careers.vacancy_opened.connect(func(o: Dictionary, st: Dictionary) -> void: life_courses.on_vacancy(o, st, careers))
 	childhood_events.life_courses = life_courses
@@ -212,6 +243,25 @@ func record(tag: String, weight := 1.0) -> void:
 	tendencies.record(tag, weight)
 	if RECORD_TO_MASTERY.has(tag):
 		mastery.gain(RECORD_TO_MASTERY[tag], weight, WorldSim.day)
+	if RECORD_TO_SOUL.has(tag):
+		soul.gain(RECORD_TO_SOUL[tag], weight, WorldSim.day)
+		if tag in ["farmed", "helped_farmer"]:
+			skill_evolution.record_use(_soul_element(), "farm", WorldSim.day)
+		elif tag == "meditated":
+			skill_evolution.record_use(_soul_element(), "meditate", WorldSim.day)
+
+
+## The element the player's Blessing gave ("qi" when none): what their power grows from.
+func _soul_element() -> String:
+	return awakening.element if awakening.element != "" else "qi"
+
+
+## TechniqueCaster reports every successful cast: Soul Power, and the element
+## evolving toward how it is used (a fight vs. training alone).
+func on_technique_cast(_id: String, def: Dictionary, in_combat: bool) -> void:
+	soul.gain("combat" if in_combat else "technique", 0.5, WorldSim.day)
+	var el := String(def.get("element", _soul_element()))
+	skill_evolution.record_use(el if el != "" else "qi", "combat" if in_combat else "technique", WorldSim.day)
 
 
 func build_summary() -> String:
@@ -359,6 +409,7 @@ func _awakening_text(r: Dictionary) -> String:
 
 
 func _grant_blessing(r: Dictionary) -> void:
+	soul.set_blessing(String(r.get("element", "")), String(r.get("dual", "")))
 	if bool(r.get("none", false)):
 		magicules.grow(3.0, 0.02)
 		return
@@ -746,6 +797,13 @@ func on_wolf_killed(_where: Vector3, den_id := -1) -> void:
 			Game.say("Commission ready to turn in: %s" % c.get("title", ""))
 	add_merit(5, "wolf slain")
 	record("hunted")
+	if den_id >= 0 and den_id < Frontier.ecology.dens.size():
+		var species := String(Frontier.ecology.dens[den_id].get("species", "wolf"))
+		if species in ["troll", "bear", "wyvern", "corrupted_wolf"]:
+			soul.gain("hunt", 4.0, WorldSim.day)
+			if species != "corrupted_wolf" or randf() < 0.25:
+				echoes.add_echo(species + "_echo", "the " + species.replace("_", " "), WorldSim.day, 1.0)
+				Game.say("Something of the %s lingers with you: an Echo." % species.replace("_", " "))
 	give("wolf_pelt", 1)
 	if randf() < 0.6:
 		give("wolf_meat", 1)
@@ -875,6 +933,9 @@ func snapshot() -> Dictionary:
 		"family": family.serialize(),
 		"life_courses": life_courses.serialize(),
 		"war": war.serialize(),
+		"soul": soul.serialize(),
+		"skill_evolution": skill_evolution.serialize(),
+		"echoes": echoes.serialize(),
 		"career": {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier},
 		"radiant": radiant.serialize(),
 		"crafting": crafting.serialize(),
@@ -914,7 +975,7 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	_last_abs = _abs_hours()

@@ -256,6 +256,8 @@ func cast_technique(id: String, sealed := false) -> Dictionary:
 	var t := get_tree().create_timer(float(def["hit_time"]))
 	t.timeout.connect(_resolve.bind(id, def, dmg, target))
 	cast.emit(id, def)
+	if player != null and player == Life.player:
+		Life.on_technique_cast(id, def, target != null)
 	return r
 
 
