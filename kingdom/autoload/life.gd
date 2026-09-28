@@ -45,6 +45,7 @@ var mastery := preload("res://scripts/sim/mastery.gd").new()
 var biography := preload("res://scripts/sim/biography.gd").new()
 var property := preload("res://scripts/sim/property.gd").new()
 var nobility := preload("res://scripts/sim/nobility.gd").new()
+var lordship := preload("res://scripts/sim/lordship.gd").new()
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
 var career_id := ""            # career_ladders.gd key, "" = none yet
 var career_rank := ""          # rank id within that career
@@ -104,6 +105,14 @@ func _ready() -> void:
 		if mastery.DISCIPLINES.has(sk):
 			mastery.gain(sk, float(res.get("xp", 0)) * 0.1, WorldSim.day))
 	careers.vacancy_opened.connect(_on_vacancy)
+	lordship.village_changed.connect(func(idx: int) -> void:
+		var v: Dictionary = lordship.villages.get(idx, {})
+		if not v.is_empty() and int(v.get("granted_day", -1)) == WorldSim.day and not bool(v.get("_noted", false)):
+			v["_noted"] = true
+			var place: String = lordship.settlement_name(idx)
+			biography.start_chapter("lord", "", "lord", place, WorldSim.day)
+			biography.add_highlight("Granted the village of %s" % place, WorldSim.day)
+			Game.say("You are now lord of %s." % place))
 	WorldSim.hour_changed.connect(_on_hour)
 	_last_abs = _abs_hours()
 	give("bread", 2)
@@ -632,6 +641,8 @@ func _on_hour(hour: int) -> void:
 			Game.say(msg)
 		for msg: String in nobility.daily(WorldSim.day):
 			Game.say(msg)
+		for msg: String in lordship.daily_tick(WorldSim.day, {"season": WorldSim.season, "at_war": bool(life_path.flags.get("at_war", false))}):
+			Game.say(msg)
 	if hour == 5:
 		for e: Dictionary in guild.tick_day(WorldSim.day):
 			if e.get("type", "") == "failed":
@@ -808,6 +819,7 @@ func snapshot() -> Dictionary:
 		"biography": biography.serialize(),
 		"property": property.serialize(),
 		"nobility": nobility.serialize(),
+		"lordship": lordship.serialize(),
 		"career": {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier},
 		"radiant": radiant.serialize(),
 		"crafting": crafting.serialize(),
@@ -847,7 +859,7 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	_last_abs = _abs_hours()

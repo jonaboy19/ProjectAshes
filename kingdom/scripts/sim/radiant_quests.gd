@@ -78,6 +78,13 @@ const SICK_NAMES := ["old Wren", "the miller's boy", "widow Coldbrook", "the sta
 const GOODS := ["salted mutton", "barley sacks", "lamp oil", "horseshoes", "wool bolts", "cider casks"]
 const COMMISSION_ITEMS := ["iron_sword", "iron_dagger", "iron_helm", "leather_jerkin"]
 
+## A quest kind for lordship decisions (lordship.gd): "Clear the wolves",
+## "Repair the runestone" and the like. Not part of KINDS/CAREER_KINDS, so it
+## never appears from generate()/available_kinds() -- lordship.gd hands a
+## ready-made spec straight to add_lord_task() instead, already active with
+## no offer stage (the player chose it by making the decision).
+const LORD_TASK_ROLE := "lord"
+
 var offers: Array[Dictionary] = []
 var active: Array[Dictionary] = []
 var completed := 0
@@ -437,6 +444,37 @@ func abandon(id: String) -> void:
 	failed += 1
 	if tracked == id:
 		tracked = ""
+
+
+## Adds a quest spawned directly by a lordship decision (lordship.gd's
+## decisions_for()/decide() `quest_spec`), already active with no offer stage.
+## `spec`: {title, desc, kind ("kill_den"/"gather"/"reach"), pos, radius,
+## den_id, kills, item, amount, reward {gold}, days}.
+func add_lord_task(spec: Dictionary, day: int) -> Dictionary:
+	var pos: Vector2 = spec.get("pos", Vector2.ZERO)
+	var desc := String(spec.get("desc", spec.get("title", "")))
+	var stages: Array = []
+	match String(spec.get("kind", "reach")):
+		"kill_den":
+			stages.append(_stage("kill_den", desc, pos, float(spec.get("radius", 40.0)),
+				{"den_id": int(spec.get("den_id", -1)), "kills": int(spec.get("kills", 3))}))
+		"gather":
+			stages.append(_stage("gather", desc, pos, float(spec.get("radius", 6.0)),
+				{"item": String(spec.get("item", "")), "amount": int(spec.get("amount", 1))}))
+		_:
+			stages.append(_stage("reach", desc, pos, float(spec.get("radius", 12.0))))
+	var reward: Dictionary = spec.get("reward", {})
+	var days := int(spec.get("days", 6))
+	var id := "lord_%d_%d" % [day, active.size() + completed + failed + 1]
+	var q := {"id": id, "kind": "lord_task", "giver_role": LORD_TASK_ROLE, "giver": "", "giver_name": "",
+		"giver_pos": pos, "title": String(spec.get("title", "A lord's task")), "desc": desc,
+		"stage": 0, "state": "active", "progress": 0, "baseline": -1, "deadline": day + days,
+		"data": {}, "stages": stages, "reward": {"gold": int(reward.get("gold", 0))}, "days": days,
+		"offered_day": day}
+	active.append(q)
+	if tracked == "":
+		tracked = id
+	return q
 
 
 static func current_stage(q: Dictionary) -> Dictionary:

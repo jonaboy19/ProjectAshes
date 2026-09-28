@@ -32,6 +32,7 @@ var homestead_view: Node3D
 var weather: Node3D
 var ambient_fx: Node3D
 var noble_courts: Node3D
+var lord_hall: Node3D
 var _order_from: Variant = null   # command view: where the current drag order started
 var player: Player
 var hud: HUD
@@ -133,6 +134,11 @@ func _ready() -> void:
 	services = VillageServices.new()
 	services.setup(hud, captain, func() -> int: return army.alive(), _recruit)
 	world.add_child(services)
+	lord_hall = preload("res://scripts/world/lord_hall.gd").new()
+	lord_hall.setup(hud)
+	world.add_child(lord_hall)
+	for s: Dictionary in WorldGen.settlements:
+		lord_hall.spawn_for(s)
 	# Keepers inside the rooms get their menus (doors of towns built so far, then new ones).
 	services.wire_settlement(settlements)
 	settlements.settlement_built.connect(func(_s: Dictionary, root: Node3D) -> void: services.wire_settlement(root))
