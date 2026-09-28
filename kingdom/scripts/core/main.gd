@@ -583,6 +583,9 @@ func _screenshot(shot: String, path: String) -> void:
 	WorldSim.time_of_day = float(_user_args().get("hour", "16.2"))   # late-afternoon side light
 	var warmup := 60
 	var late_fx := Callable()
+	var forced_weather := String(_user_args().get("weather", ""))
+	if forced_weather != "" and weather:
+		weather.set_weather(forced_weather, 0.1)
 	if shot.begins_with("site_"):
 		# A region site (RegionSites kind) seen from in front, e.g. site_farm, site_mine.
 		var kind := shot.substr(5)

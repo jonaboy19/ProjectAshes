@@ -281,7 +281,7 @@ func _layout() -> void:
 		_order_buttons[i].position = Vector2(s.x * 0.5 - 130 + i * 92, s.y - 110)
 	# Dock: a column left of the utility column, then further columns, kept clear
 	# of the interact / attack cluster at the bottom right.
-	var top := 92.0
+	var top := 118.0   # clear of the place / day / realm lines
 	var bottom := s.y - 300.0 - 8.0
 	var rows := maxi(1, int((bottom - top - DOCK_SIZE) / DOCK_STEP) + 1)
 	for i in _dock.size():
@@ -291,9 +291,12 @@ func _layout() -> void:
 	for b: TouchScreenButton in _anchored:
 		b.position = s - (_anchored[b] as Vector2)
 	if compass:
-		var w := clampf(s.x - 2.0 * 340.0, 300.0, 520.0)
+		var w := clampf(s.x - 2.0 * 430.0, 260.0, 480.0)
 		compass.size = Vector2(w, compass.custom_minimum_size.y)
 		compass.position = Vector2((s.x - w) * 0.5, 10.0)
+		# The place line lives right of the compass and wraps rather than running under it.
+		_where.offset_left = -(s.x - (compass.position.x + w + 14.0))
+		_where.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 
 func show_toast(text: String) -> void:
