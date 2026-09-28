@@ -1109,9 +1109,11 @@ def g_tunic(h, r, pal, parts, cov, kind="tunic"):
                             body_axis_groups(h, {"arms", "torso"}), grime=0.18, seed=r["seed"]))
     cov |= covered(h, m)
     top_pts = sh["v"]
-    skirt = make_skirt(h, kind + "_skirt", bz + 0.01, hem, tile, col, flare=0.05 if kind == "gambeson" else 0.07,
-                       ease=0.018 + d, segs=26, rows=7, inner_pts=top_pts, seed=r["seed"] + 3,
-                       folds=0.006 if kind == "gambeson" else 0.01)
+    flare = r.get("tunic_flare", 0.05 if kind == "gambeson" else 0.07)
+    skirt = make_skirt(h, kind + "_skirt", bz + 0.01, hem, tile, col, flare=flare,
+                       ease=0.018 + d, segs=r.get("tunic_hem_segs", 26), rows=7, inner_pts=top_pts,
+                       seed=r["seed"] + 3,
+                       folds=r.get("tunic_hem_folds", 0.006 if kind == "gambeson" else 0.01))
     parts.append(skirt)
     # hips/thighs under the skirt stay (trousers cover them)
     return top_pts, bz
@@ -1227,8 +1229,57 @@ def g_apron(h, r, pal, parts, wz, dress_pts):
     parts.append(p)
 
 
+def flatten_torso(h, sh, z_lo, z_hi, straighten=0.5, broaden=0.03, ang_w=0.4, z_w_bump=0.05, z_w_row=0.07):
+    """Cylindrifies part of an offset torso shell instead of leaving it follow
+    the body surface's own bust/waist curvature. Every vertex's radius (about
+    the body's front-back centre) is replaced by a continuous weighted
+    average of nearby vertices' radii (weighted by both angular and vertical
+    distance -- a 2D blur, not a bucketed average, so it doesn't facet/zigzag
+    the result): this kills a localised bust bump (two separate bumps either
+    side of the sternum read as breasts even on a male body) while still
+    respecting the taper at each height. It's then blended, per point, toward
+    a soft (smooth) maximum of that same blurred radius among vertices at a
+    similar height, by `straighten` (0 = untouched, 1 = a straight cylinder
+    at each height) -- this removes the waist pinch. Finally `broaden` adds
+    extra radius at the side angles (shoulders), fading out toward the
+    bottom of the band, for broader shoulders. Operates in place on `sh["v"]`
+    and re-pushes the result outside the body surface, so it must be called
+    before the shell's Part/skirt are built from it."""
+    V = sh["v"]
+    z = V[:, 2]
+    band = (z >= z_lo) & (z <= z_hi)
+    if not band.any():
+        return sh
+    idx = np.where(band)[0]
+    cy = center_y(h, 0.5 * (z_lo + z_hi))
+    dx = V[idx, 0]
+    dy = V[idx, 1] - cy
+    ang = np.arctan2(dx, dy)
+    rad = np.hypot(dx, dy)
+    zz = z[idx]
+    adiff = np.abs((ang[:, None] - ang[None, :] + math.pi) % (2 * math.pi) - math.pi)
+    zdiff = np.abs(zz[:, None] - zz[None, :])
+    w_bump = np.exp(-(adiff / ang_w) ** 2) * np.exp(-(zdiff / z_w_bump) ** 2)
+    smoothed = (w_bump @ rad) / w_bump.sum(axis=1)
+    if straighten:
+        w_row = np.exp(-(zdiff / z_w_row) ** 2)
+        p = 10.0
+        soft_max = ((w_row @ (smoothed ** p)) / w_row.sum(axis=1)) ** (1.0 / p)
+        smoothed = smoothed * (1 - straighten) + soft_max * straighten
+    if broaden:
+        t = np.clip((zz - z_lo) / max(z_hi - z_lo, 1e-6), 0, 1)
+        side = np.abs(np.sin(ang))                  # 1 at the sides (shoulders), 0 front/back
+        smoothed = smoothed + broaden * t ** 1.5 * side
+    V[idx, 0] = np.sin(ang) * smoothed
+    V[idx, 1] = cy + np.cos(ang) * smoothed
+    V[idx] = push_out(h, V[idx], 0.004)
+    sh["v"] = V
+    return sh
+
+
 def g_vest(h, r, pal, parts, cov, name, pal_key, hem_frac=0.16, offset=0.026, neck_depth=0.05,
-           neck_width=0.09, flare=0.06, grime=0.15, seed_off=20, trim_key=None, tile="wool"):
+           neck_width=0.09, flare=0.06, min_flare=0.09, skirt_ease=0.05, grime=0.15, seed_off=20,
+           trim_key=None, tile="wool"):
     """Sleeveless overlay garment (waistcoat / tabard / sleeveless overtunic),
     built further off the body than whatever is already on the torso so it
     sits visibly outside it. `hem_frac` is the tunic-style fraction between
@@ -1244,6 +1295,13 @@ def g_vest(h, r, pal, parts, cov, name, pal_key, hem_frac=0.16, offset=0.026, ne
     # muscular male bodies -- a lightly-smoothed second shell over it reads as
     # a bust. smooth=8 for the same reason.
     sh = shell(h, m, offset, smooth=8, taubin=25)
+    if r.get("flat_chest"):
+        # Cylindrify the shell instead of leaving it trace the body's own
+        # bust/waist curvature: kills the twin chest bumps and the hourglass
+        # taper so a male torso reads flat/broad under the garment.
+        flatten_torso(h, sh, bz - 0.06, h.z("neck_01") - 0.05,
+                      straighten=r.get("chest_straighten", 0.55),
+                      broaden=r.get("chest_broaden", 0.03))
     part = shell_part(h, name, sh, tile, color, 550, body_axis_groups(h, {"torso"}),
                       grime=grime, seed=r["seed"] + seed_off)
     if trim_key and trim_key in pal:
@@ -1257,8 +1315,8 @@ def g_vest(h, r, pal, parts, cov, name, pal_key, hem_frac=0.16, offset=0.026, ne
     # A generous, fold-free ease keeps this skirt's radius safely outside
     # whatever wavy under-layer skirt (tunic/gambeson) it's covering at every
     # angle, so the under-layer never pokes through the hem.
-    skirt = make_skirt(h, name + "_skirt", bz + 0.01, hem, tile, color, flare=max(flare, 0.09),
-                       ease=0.05 + offset, segs=segs, rows=rows, inner_pts=top_pts,
+    skirt = make_skirt(h, name + "_skirt", bz + 0.01, hem, tile, color, flare=max(flare, min_flare),
+                       ease=skirt_ease + offset, segs=segs, rows=rows, inner_pts=top_pts,
                        seed=r["seed"] + seed_off + 3, folds=0.0)
     if trim_key and trim_key in pal:
         tc = srgb2lin(np.array(pal[trim_key])) / srgb2lin(0.88)
@@ -1343,21 +1401,31 @@ def g_mantle(h, r, pal, parts, pal_key="mantle", drop=0.10, tile="felt", seed_of
     parts.append(Part("mantle", V, F, uvs, W, col, tile, 260))
 
 
-def g_beard(h, r, pal, parts, pal_key="hair", width=0.058, top_pad=0.014, bot_pad=0.03):
-    """Short beard + moustache: a thin shell hugging the jaw/chin/upper-lip
-    contour (not a floating blob), coloured like the hair by default."""
+def g_beard(h, r, pal, parts, pal_key="hair", width_jaw=0.062, width_chin=0.026,
+           mouth_gap=0.010, mustache_h=0.016, mustache_w=0.03, bot_pad=0.006):
+    """Short beard: jaw + chin (below the mouth, tapering from wide at the jaw
+    hinge to narrow at the chin point) plus a thin separate moustache patch
+    just above the lip -- a real gap sits at the lip line itself so neither
+    piece ever covers the mouth or reaches the nose. A thin shell hugging the
+    skin, coloured like the hair by default."""
     color = pal.get("beard", pal[pal_key])
     P = h.P[:h.nb]
     c = h.head_c
-    top = h.mouth[2] + top_pad
+    mouth_z = h.mouth[2]
+    top = mouth_z - mouth_gap
     bot = h.chin_z - bot_pad
-    ax = np.abs(P[:, 0] - c[0])
     front = P[:, 1] < c[1] - 0.01               # front of the face only
-    m = h.mask("head") & front & ~h.ear
-    m &= (P[:, 2] < top) & (P[:, 2] > bot) & (ax < width)
+    base = h.mask("head") & front & ~h.ear
+    t = np.clip((P[:, 2] - bot) / max(top - bot, 1e-6), 0, 1)
+    width = width_chin + (width_jaw - width_chin) * t
+    jaw = base & (P[:, 2] < top) & (P[:, 2] > bot) & (np.abs(P[:, 0] - c[0]) < width)
+    must_top = mouth_z + mouth_gap + mustache_h
+    must_bot = mouth_z + mouth_gap
+    mustache = base & (P[:, 2] < must_top) & (P[:, 2] > must_bot) & (np.abs(P[:, 0] - c[0]) < mustache_w)
+    m = jaw | mustache
     if not m.any():
         return
-    sh = shell(h, m, 0.009, smooth=4, noise_amp=0.006, seed=r["seed"] + 80)
+    sh = shell(h, m, 0.005, smooth=8, taubin=10, dmin=0.003, seed=r["seed"] + 80)
     parts.append(shell_part(h, "beard", sh, "hair", color, 220, hair_uv_groups(h), grime=0.0,
                             seed=r["seed"] + 80, rim_dark=0.75,
                             weights=np.tile(one_hot("Head"), (len(sh["v"]), 1))))
@@ -1478,8 +1546,12 @@ def g_cloak(h, r, pal, parts, hood="down", pal_key="cloak", collar_roll=True, wa
     sleeve = (obst[:, 2] > h.z("upperarm_l") - 0.13) & (np.abs(obst[:, 0]) > abs(h.J["upperarm_l"][0]) - 0.02)
     obst = obst[~sleeve]                                                        # not the (T-posed) sleeves
     top = h.z("neck_01") + 0.005
-    hem = h.z("calf_l") - 0.16 * (h.z("calf_l") - h.z("foot_l")) - 0.12
-    rows, segs = 11, 22
+    # A fitted coat (waist_hug) is knee-length, like the tunic underneath it
+    # (same hem convention: a small fraction above the calf/knee joint), not
+    # the longer ankle-length drape of a cloak.
+    hem = (h.z("calf_l") + 0.16 * (h.z("thigh_l") - h.z("calf_l")) if waist_hug
+           else h.z("calf_l") - 0.16 * (h.z("calf_l") - h.z("foot_l")) - 0.12)
+    rows, segs = (16, 22) if waist_hug else (11, 22)
     cy = center_y(h, h.z("spine_03"))
     zs = np.linspace(top, hem, rows)
     t_waist = np.clip((top - belt_z(h)) / max(top - hem, 1e-6), 0, 1) if waist_hug else 0.0
@@ -1492,14 +1564,25 @@ def g_cloak(h, r, pal, parts, hood="down", pal_key="cloak", collar_roll=True, wa
         phis = np.linspace(-phmax, phmax, segs)
         env = envelope(h, z, phis, (0, cy))
         if len(obst):
-            env = np.maximum(env, envelope(h, z, phis, (0, cy), pts=obst, ring_h=0.035) - 0.01)
+            # Keep the coat safely outside whatever it's covering (waistcoat,
+            # tunic skirt): a wider sampling ring and a positive margin so the
+            # under-layer never pokes through at a sampled row (a negative
+            # margin here let the waistcoat show through as dimples/dark spots).
+            margin = 0.015 if waist_hug else -0.01
+            ring_h = 0.05 if waist_hug else 0.035
+            env = np.maximum(env, envelope(h, z, phis, (0, cy), pts=obst, ring_h=ring_h) + margin)
         if waist_hug:
-            # A fitted coat: hug the body down to the waist, only flare below it.
+            # A fitted, straight knee-length coat with only a slight A-line
+            # flare toward the hem -- not a bell/sack widening from the waist.
             below = max(0.0, (t - t_waist) / max(1 - t_waist, 1e-6))
-            r_ = env + 0.016 + 0.10 * below ** 1.3
+            r_ = env + 0.022 + 0.012 * below
         else:
             r_ = env + 0.03 + 0.05 * t
-        if prev is not None:
+        if prev is not None and not waist_hug:
+            # A draped cloak only ever gets wider going down; a fitted coat
+            # must be free to narrow again below a waistcoat/hem bulge it had
+            # to clear higher up, or that bulge propagates into a bell shape
+            # all the way to the coat's own hem.
             r_ = np.maximum(r_, prev * 0.985)
         r_ += 0.01 * t * np.sin(phis * 7 + 1.3)
         prev = r_
@@ -1810,7 +1893,8 @@ def build_parts(h, r):
         if "vest" in o:
             top_pts, bz = g_vest(h, r, pal, parts, cov, r.get("vest_name", "vest"), r.get("vest_key", "vest"),
                                  hem_frac=r.get("vest_len", 0.16), offset=r.get("vest_offset", 0.026),
-                                 trim_key=r.get("vest_trim"))
+                                 min_flare=r.get("vest_min_flare", 0.09),
+                                 skirt_ease=r.get("vest_skirt_ease", 0.05), trim_key=r.get("vest_trim"))
         if not r.get("no_belt"):
             g_belt(h, r, pal, parts, top_pts, bz, pouch=r.get("pouch", True), pouch_count=r.get("pouch_count", 1))
         if "apron_full" in o:
@@ -2127,16 +2211,19 @@ RECIPES = [
     # ---- new villager archetypes (reference sheets, 2026-09-28) ------------
     P(name="villager_farmer", gender=1.0, age=35, race={"caucasian": 0.85, "african": 0.1, "asian": 0.05},
       muscle=0.62, weight=0.58, height=0.52, proportions=0.65, seed=2001,
-      outfit=["tunic", "vest", "belt", "trousers", "boots"], hair="short", sleeve=0.6,
+      outfit=["tunic", "vest", "belt", "trousers", "boots", "beard"], hair="short", sleeve=0.6,
       tunic_len=0.16, tunic_tile="linen", vest_len=0.16, vest_key="vest", vest_offset=0.024,
+      flat_chest=True, chest_straighten=0.6, chest_broaden=0.032,
       extras={"nose/nose-hump-incr": 0.2, "chin/chin-prominent-incr": 0.2},
       palette=dict(tunic=(0.85, 0.8, 0.68), vest=(0.4, 0.45, 0.24), trousers=(0.34, 0.28, 0.22),
                    belt=(0.28, 0.18, 0.1), boots=(0.3, 0.21, 0.14), hair=(0.18, 0.11, 0.07),
                    pouch=(0.34, 0.22, 0.13))),
     P(name="villager_merchant", gender=1.0, age=55, race={"caucasian": 0.9, "asian": 0.1},
       muscle=0.42, weight=0.72, height=0.5, proportions=0.55, seed=2002,
-      outfit=["tunic", "vest", "belt", "trousers", "boots", "coat"], hair="fringe", sleeve=0.9,
+      outfit=["tunic", "vest", "belt", "trousers", "boots", "coat", "beard"], hair="fringe", sleeve=0.9,
       tunic_tile="linen", vest_len=0.5, vest_key="vest", vest_offset=0.022, skin_mul=0.94,
+      tunic_hem_segs=36, tunic_hem_folds=0.0, tunic_flare=0.025, vest_min_flare=0.018,
+      vest_skirt_ease=0.014,
       extras={"nose/nose-scale-vert-incr": 0.2, "head/head-age-incr": 0.3},
       palette=dict(tunic=(0.9, 0.86, 0.74), vest=(0.72, 0.58, 0.22), coat=(0.55, 0.22, 0.14),
                    trousers=(0.22, 0.21, 0.22), belt=(0.3, 0.19, 0.1), boots=(0.32, 0.22, 0.15),
