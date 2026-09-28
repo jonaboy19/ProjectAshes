@@ -88,6 +88,59 @@ var level_losses: Array[Dictionary] = []
 var _next_id := 1
 var _rng := RandomNumberGenerator.new()
 
+## --- Soul Name ritual (Rising Ashes pillar 4) -------------------------------------
+## A rarer, deeper naming: the caster permanently shares a fraction of their max
+## Soul Power (magicules.grow with a negative value) to forge a Soul Bond with a
+## monster OR a trusted person. It requires a soul tier of at least MIN_SOUL_TIER
+## (see scripts/sim/soul.gd's `tier()`), and is safer at a shrine or on a festival
+## night. Concurrent bonds are limited by tier. Distinct from, and does not touch,
+## the ordinary `name_monster` roster above.
+##
+## INTEGRATION (for Life; not wired yet):
+## - `naming.soul_name_ritual(magicules, Soul.tier(), target, given_name, WorldSim.day,
+##   {"at_shrine": true})` where target is {"kind": "monster", "species", "level",
+##   "name"} or {"kind": "person", "id", "name", "trust", "tendencies", "element"}.
+## - Save: already covered by `naming.serialize()` (soul_bonds are included).
+
+## Soul tier required before a Soul Name can be spoken at all.
+const MIN_SOUL_TIER := 3
+## Concurrent Soul-Named bonds allowed, keyed by the lowest tier that grants the count.
+const BOND_LIMITS_BY_TIER := [[3, 1], [5, 2], [7, 3], [9, 4], [11, 6]]
+## Fraction of the caster's effective max Soul Power permanently shared per ritual.
+const SHARE_FRACTION := 0.08
+const SHARE_REGEN_FRACTION := 0.02
+const PERSON_TRUST_MIN := 40.0
+const BOND_LOYALTY := 90
+## Ritual risk (of Soul Fatigue backlash): base, plus a penalty away from a proper
+## site/time, minus a reduction per tier above the minimum.
+const RITUAL_BASE_RISK := 0.08
+const RITUAL_SITE_RISK := 0.22
+const RITUAL_TIER_RISK_REDUCTION := 0.03
+const RITUAL_MAX_RISK := 0.85
+
+## species -> possible evolved Soul-Named forms (one is chosen deterministically
+## from the seeded RNG so outcomes stay reproducible).
+const SOUL_FORMS := {
+	"wolf": ["Dire Wolf", "Ashwolf"],
+	"goblin": ["Goblin Chief", "Ashmarked Goblin"],
+	"kobold": ["Deep Kobold", "Ashvein Kobold"],
+	"slime": ["Ember Slime", "Soulglass Slime"],
+	"lizardfolk": ["Drakekin Lizardfolk", "Ashscale Lizardfolk"],
+	"orc": ["Warlord Orc", "Ashbrand Orc"],
+	"spider": ["Nightweb Spider", "Ashspun Spider"],
+	"ogre": ["Ashborn Warlord", "Cinder Ogre"],
+	"bear": ["Ironhide Bear", "Ashclaw Bear"],
+	"troll": ["Ashhide Troll", "Deeproot Troll"],
+}
+
+## Soul Bonds forged by the ritual: [{id, kind: "monster"|"person", soul_name,
+##   target_name, target_id, species, form/title, day, loyalty, tendencies,
+##   element, level}]
+var soul_bonds: Array[Dictionary] = []
+## Total Soul Power permanently given away across all rituals (for display/lore).
+var soul_power_shared := 0.0
+var _next_bond_id := 1
+
 
 func _init(seed_value := 8128) -> void:
 	_rng.seed = seed_value
@@ -247,6 +300,117 @@ func tick_day(day: int) -> Array:
 	return events
 
 
+## How many concurrent Soul Bonds a soul of this tier may hold.
+static func bond_limit(caster_tier: int) -> int:
+	var n := 0
+	for pair in BOND_LIMITS_BY_TIER:
+		if caster_tier >= int(pair[0]):
+			n = int(pair[1])
+	return n
+
+
+## Risk (0..RITUAL_MAX_RISK) of Soul Fatigue backlash from the ritual.
+static func ritual_risk(caster_tier: int, ctx := {}) -> float:
+	var r := RITUAL_BASE_RISK
+	if not (bool(ctx.get("at_shrine", false)) or bool(ctx.get("festival_night", false))):
+		r += RITUAL_SITE_RISK
+	r -= maxf(0.0, float(caster_tier - MIN_SOUL_TIER)) * RITUAL_TIER_RISK_REDUCTION
+	return clampf(r, 0.0, RITUAL_MAX_RISK)
+
+
+func soul_bond(id: int) -> Dictionary:
+	for b in soul_bonds:
+		if int(b["id"]) == id:
+			return b
+	return {}
+
+
+func adjust_bond_loyalty(id: int, delta: int) -> int:
+	var b := soul_bond(id)
+	if b.is_empty():
+		return -1
+	b["loyalty"] = clampi(int(b["loyalty"]) + delta, 0, 100)
+	return int(b["loyalty"])
+
+
+func dismiss_bond(id: int) -> void:
+	var b := soul_bond(id)
+	if not b.is_empty():
+		soul_bonds.erase(b)
+
+
+func _soul_form(species: String) -> String:
+	var forms: Array = SOUL_FORMS.get(species, ["Soul-Bound " + species.capitalize()])
+	return String(forms[_rng.randi() % forms.size()])
+
+
+## Speak a Soul Name over a monster or a trusted person, permanently sharing a
+## fraction of the caster's Soul Power. `target`:
+##   monster: {"kind": "monster", "species", "level", "name" (optional flavour name)}
+##   person:  {"kind": "person", "id", "name", "trust", "tendencies" (Array),
+##             "element" (String, optional)}
+## `ctx`: {"at_shrine": bool, "festival_night": bool}. Returns {ok, text, bond,
+## shared, risk, soul_fatigue_days}.
+func soul_name_ritual(caster: RAMagicules, caster_tier: int, target: Dictionary, name: String, day: int,
+		ctx := {}) -> Dictionary:
+	var out := {"ok": false, "text": "", "bond": {}, "shared": 0.0, "risk": 0.0, "soul_fatigue_days": 0}
+	if name.strip_edges() == "":
+		out["text"] = "A Soul Name must be spoken."
+		return out
+	if caster_tier < MIN_SOUL_TIER:
+		out["text"] = "Your soul is not yet strong enough to speak a Soul Name (tier %d needed)." % MIN_SOUL_TIER
+		return out
+	var limit := bond_limit(caster_tier)
+	if soul_bonds.size() >= limit:
+		out["text"] = "Your soul cannot hold another bond; it already carries %d of %d it can bear." % [
+			soul_bonds.size(), limit]
+		return out
+	var kind := String(target.get("kind", "monster"))
+	if kind == "person":
+		var trust := float(target.get("trust", 0.0))
+		if trust < PERSON_TRUST_MIN:
+			out["text"] = "%s does not trust you enough for this." % String(target.get("name", "They"))
+			return out
+	var r := ritual_risk(caster_tier, ctx)
+	out["risk"] = r
+	var shared := caster.effective_max() * SHARE_FRACTION
+	caster.grow(-shared, -shared * SHARE_REGEN_FRACTION)
+	soul_power_shared += shared
+	out["shared"] = shared
+	var given := name.strip_edges()
+	var bond: Dictionary
+	if kind == "person":
+		var pid := int(target.get("id", -1))
+		var target_name := String(target.get("name", "Someone"))
+		var tendencies: Array = (target.get("tendencies", []) as Array).duplicate()
+		var element := String(target.get("element", ""))
+		bond = {"id": _next_bond_id, "kind": "person", "target_id": pid, "target_name": target_name,
+			"soul_name": given, "title": "the Soul-Named", "day": day, "loyalty": BOND_LOYALTY,
+			"tendencies": tendencies, "element": element, "species": "", "form": "", "level": 0}
+		bond["text"] = ("You speak %s's Soul Name: %s. Something in them deepens and steadies; they are known " +
+			"from now on as %s, %s.") % [target_name, given, target_name, bond["title"]]
+	else:
+		var species := String(target.get("species", "wolf"))
+		var target_name2 := String(target.get("name", given))
+		var form := _soul_form(species)
+		bond = {"id": _next_bond_id, "kind": "monster", "species": species, "target_name": target_name2,
+			"soul_name": given, "form": form, "day": day, "loyalty": BOND_LOYALTY,
+			"level": int(target.get("level", 1)), "title": "", "tendencies": [], "element": "", "target_id": -1}
+		bond["text"] = "You speak the %s's Soul Name: %s. It changes before you: %s becomes %s, %s." % [
+			species, given, target_name2, given, form]
+	_next_bond_id += 1
+	soul_bonds.append(bond)
+	out["ok"] = true
+	out["bond"] = bond
+	var lines: Array[String] = [String(bond["text"])]
+	if _rng.randf() < r:
+		var days := 1 + int(ceil(r * 5.0))
+		out["soul_fatigue_days"] = days
+		lines.append("The ritual draws deep: Soul Fatigue settles over you (%d days)." % days)
+	out["text"] = " ".join(lines)
+	return out
+
+
 func serialize() -> Dictionary:
 	var r := []
 	for s in roster:
@@ -254,7 +418,11 @@ func serialize() -> Dictionary:
 	var l := []
 	for x in level_losses:
 		l.append(x.duplicate())
-	return {"roster": r, "level_losses": l, "next_id": _next_id, "rng": str(_rng.state)}
+	var b := []
+	for x in soul_bonds:
+		b.append(x.duplicate(true))
+	return {"roster": r, "level_losses": l, "next_id": _next_id, "rng": str(_rng.state),
+		"soul_bonds": b, "soul_power_shared": soul_power_shared, "next_bond_id": _next_bond_id}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -268,5 +436,16 @@ func deserialize(d: Dictionary) -> void:
 	for l: Dictionary in d.get("level_losses", []):
 		level_losses.append({"levels": int(l["levels"]), "until_day": int(l["until_day"])})
 	_next_id = int(d.get("next_id", _next_id))
+	soul_bonds.clear()
+	for x: Dictionary in d.get("soul_bonds", []):
+		soul_bonds.append({"id": int(x["id"]), "kind": String(x.get("kind", "monster")),
+			"target_id": int(x.get("target_id", -1)), "target_name": String(x.get("target_name", "")),
+			"soul_name": String(x.get("soul_name", "")), "title": String(x.get("title", "")),
+			"day": int(x.get("day", 0)), "loyalty": int(x.get("loyalty", BOND_LOYALTY)),
+			"tendencies": (x.get("tendencies", []) as Array).duplicate(),
+			"element": String(x.get("element", "")), "species": String(x.get("species", "")),
+			"form": String(x.get("form", "")), "level": int(x.get("level", 0))})
+	soul_power_shared = float(d.get("soul_power_shared", 0.0))
+	_next_bond_id = int(d.get("next_bond_id", _next_bond_id))
 	if d.has("rng"):
 		_rng.state = String(d["rng"]).to_int()

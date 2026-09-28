@@ -1,0 +1,124 @@
+{
+	"echoes": [
+		{
+			"id": "troll_echo",
+			"name": "Troll's Echo",
+			"kind": "apex_monster",
+			"source_hint": "a defeated troll den-lord",
+			"desc": "The troll's stubborn will to knit itself back together lingers in you.",
+			"modifiers": {"health_regen": 0.15, "poison_resist": 0.1},
+			"active": {"name": "Troll's Mend", "desc": "Flesh knits closed at speed, once in a while.",
+				"cooldown_days": 5, "effect": {"heal_fraction": 0.3}}
+		},
+		{
+			"id": "bear_echo",
+			"name": "Bear's Echo",
+			"kind": "apex_monster",
+			"source_hint": "a defeated apex bear",
+			"desc": "A patient, crushing strength settles into your shoulders.",
+			"modifiers": {"carry_weight": 0.2, "stagger_resist": 0.15},
+			"active": {"name": "Bear's Roar", "desc": "A roar that shakes nearby beasts' nerve.",
+				"cooldown_days": 4, "effect": {"beast_fear": 0.5, "radius": 10.0}}
+		},
+		{
+			"id": "wyvern_echo",
+			"name": "Wyvern's Echo",
+			"kind": "apex_monster",
+			"source_hint": "a defeated wyvern",
+			"desc": "You land softer than you should, as if wings remember for you.",
+			"modifiers": {"fall_damage": -0.5, "perception": 0.1},
+			"active": {"name": "Wyvern's Dive", "desc": "A short, weightless glide toward danger.",
+				"cooldown_days": 3, "effect": {"glide_seconds": 4.0}}
+		},
+		{
+			"id": "corrupted_wolf_echo",
+			"name": "Corrupted Wolf's Echo",
+			"kind": "apex_monster",
+			"source_hint": "a defeated corrupted wolf",
+			"desc": "Your eyes catch what little light there is; beasts sense the wrongness in you and hesitate.",
+			"modifiers": {"night_sight": 1, "beast_fear": 0.2},
+			"active": {"name": "Howl of the Pack", "desc": "A corrupted howl that scatters lesser beasts.",
+				"cooldown_days": 6, "effect": {"beast_flee_chance": 0.4, "radius": 15.0}}
+		},
+		{
+			"id": "spider_queen_echo",
+			"name": "Spider Queen's Echo",
+			"kind": "apex_monster",
+			"source_hint": "a defeated spider queen",
+			"desc": "You notice the thread before it moves.",
+			"modifiers": {"perception": 0.2, "trap_sense": 0.25},
+			"active": {"name": "Silkbind", "desc": "Threads of old silk snare a foe's feet.",
+				"cooldown_days": 4, "effect": {"root_seconds": 3.0}}
+		},
+		{
+			"id": "ogre_echo",
+			"name": "Ogre Warlord's Echo",
+			"kind": "apex_monster",
+			"source_hint": "a defeated ogre warlord",
+			"desc": "A slow, ember-hot temper you can call on, and put away again.",
+			"modifiers": {"attack": 0.1, "stamina_max": 0.1},
+			"active": {"name": "Ashborn Fury", "desc": "A brief surge of an ogre's raw strength.",
+				"cooldown_days": 5, "effect": {"attack_burst": 0.35, "seconds": 8.0}}
+		},
+		{
+			"id": "companion_echo",
+			"name": "Companion's Echo",
+			"kind": "companion_death",
+			"source_hint": "a Soul-Named companion who has died",
+			"desc": "The bond doesn't break; it just stops needing them beside you.",
+			"modifiers": {"loyalty_bonus": 0.1, "beast_fear": 0.1},
+			"active": {"name": "Call the Bond", "desc": "For a moment, you fight as they once did at your side.",
+				"cooldown_days": 7, "effect": {"summon_echo_seconds": 20.0}}
+		},
+		{
+			"id": "guardian_companion_echo",
+			"name": "Guardian's Echo",
+			"kind": "companion_death",
+			"source_hint": "a Soul-Named guardian who has died protecting you",
+			"desc": "A steadiness that was theirs, now yours to lean on.",
+			"modifiers": {"defense": 0.15, "health_max": 0.05},
+			"active": {"name": "Guardian's Stand", "desc": "Briefly, nothing gets through.",
+				"cooldown_days": 6, "effect": {"damage_reduction": 0.6, "seconds": 6.0}}
+		},
+		{
+			"id": "mentor_echo",
+			"name": "Mentor's Echo",
+			"kind": "mentor_death",
+			"source_hint": "a fallen mentor",
+			"desc": "Their lessons keep teaching, long after the lesson is over.",
+			"modifiers": {"skill_xp": 0.08, "technique_cooldown": -0.05},
+			"active": {"name": "Mentor's Guidance", "desc": "For a while, every strike lands the way they showed you.",
+				"cooldown_days": 5, "effect": {"crit_chance": 0.25, "seconds": 10.0}}
+		},
+		{
+			"id": "family_echo",
+			"name": "Family Echo",
+			"kind": "mentor_death",
+			"source_hint": "a fallen family member",
+			"desc": "Home is quieter now, but it still holds you up.",
+			"modifiers": {"home_comfort": 0.15, "stress_recovery": 0.1},
+			"active": {"name": "Ancestor's Blessing", "desc": "A moment of calm that steadies hands and nerve.",
+				"cooldown_days": 4, "effect": {"stamina_regen": 0.5, "seconds": 15.0}}
+		},
+		{
+			"id": "rift_whisper_echo",
+			"name": "Rift Whisper",
+			"kind": "rift",
+			"source_hint": "standing too near an opening Rift",
+			"desc": "Something on the other side noticed you, and left a mark.",
+			"modifiers": {"magicule_regen": 0.1, "rift_sense": 1},
+			"active": {"name": "Rift Step", "desc": "A short, sickening lurch sideways through the world.",
+				"cooldown_days": 8, "effect": {"blink_distance": 6.0}}
+		},
+		{
+			"id": "rift_scar_echo",
+			"name": "Rift Scar",
+			"kind": "rift",
+			"source_hint": "surviving a Rift phenomenon at close range",
+			"desc": "A cold that never quite leaves, and never quite hurts either.",
+			"modifiers": {"magicule_max": 0.1, "fear_resist": 0.15},
+			"active": {"name": "Scarred Calm", "desc": "Fear slides off you, briefly, entirely.",
+				"cooldown_days": 6, "effect": {"fear_immune_seconds": 12.0}}
+		}
+	]
+}
