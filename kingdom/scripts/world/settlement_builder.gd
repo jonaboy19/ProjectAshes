@@ -17,6 +17,13 @@ const Breakable := preload("res://scripts/world/breakable.gd")
 
 const BUILD_RANGE := 650.0
 const FREE_RANGE := 850.0
+## Mirrors Player.CAMERA_BLOCKER_LAYER: a camera-only occlusion layer for props
+## whose walk-collision box is deliberately smaller than their visual mesh
+## (market stall awnings/cloth canopies extend past the ~0.9x footprint box
+## used for walking), so the chase camera still gets pulled out from inside
+## them. Never added to the player's own collision_mask, so movement is
+## unaffected.
+const CAMERA_BLOCKER_LAYER := 1 << 9
 
 signal settlement_built(settlement: Dictionary, root: Node3D)
 
@@ -187,10 +194,22 @@ func _build(s: Dictionary) -> Node3D:
 	for k in st_b.size():
 		if k < (st_b.size() + 1) / 2:
 			st_b[k] = Transform3D(st_b[k].basis * turn, st_b[k].origin)
-	_multimesh(root, Assets.building_mesh("market_stand_1"), st_a.slice(0, (st_a.size() + 1) / 2), true, true)
-	_multimesh(root, Assets.building_mesh("market_stand_3"), st_a.slice((st_a.size() + 1) / 2), true, true)
-	_multimesh(root, Assets.building_mesh("market_stand_2"), st_b.slice(0, (st_b.size() + 1) / 2), true, true)
-	_multimesh(root, Assets.building_mesh("market_stand_4"), st_b.slice((st_b.size() + 1) / 2), true, true)
+	var stand_1_a := st_a.slice(0, (st_a.size() + 1) / 2)
+	var stand_3_a := st_a.slice((st_a.size() + 1) / 2)
+	var stand_2_b := st_b.slice(0, (st_b.size() + 1) / 2)
+	var stand_4_b := st_b.slice((st_b.size() + 1) / 2)
+	_multimesh(root, Assets.building_mesh("market_stand_1"), stand_1_a, true, true)
+	_multimesh(root, Assets.building_mesh("market_stand_3"), stand_3_a, true, true)
+	_multimesh(root, Assets.building_mesh("market_stand_2"), stand_2_b, true, true)
+	_multimesh(root, Assets.building_mesh("market_stand_4"), stand_4_b, true, true)
+	# Camera-only occlusion: the walk-collision boxes above are shrunk 0.9x and
+	# don't reliably cover cloth awnings/canopies that billow past the stall's
+	# footprint, which let the chase camera dip inside them (playtest: black
+	# awning-interior fill in Ashford's market). See _add_camera_blockers().
+	_add_camera_blockers(root, Assets.building_mesh("market_stand_1"), stand_1_a)
+	_add_camera_blockers(root, Assets.building_mesh("market_stand_3"), stand_3_a)
+	_add_camera_blockers(root, Assets.building_mesh("market_stand_2"), stand_2_b)
+	_add_camera_blockers(root, Assets.building_mesh("market_stand_4"), stand_4_b)
 
 	var c: Vector2 = s["pos"]
 	if plan["walls"]:
@@ -498,6 +517,29 @@ func _add_instance_colliders(parent: Node3D, mesh: Mesh, transforms: Array[Trans
 		var shape := CollisionShape3D.new()
 		var collider := BoxShape3D.new()
 		collider.size = Vector3(box.size.x * scale.x * 0.9, box.size.y * scale.y, box.size.z * scale.z * 0.9)
+		shape.shape = collider
+		body.transform = Transform3D(instance_transform.basis.orthonormalized(), instance_transform * box.get_center())
+		body.add_child(shape)
+		parent.add_child(body)
+
+
+## Camera-only box proxies covering the FULL visual AABB (no shrink, unlike the
+## 0.9x walk-collision boxes from _add_instance_colliders): keeps the chase
+## camera out of stall awnings/canopies whose cloth extends past the footprint
+## used for walking, without changing what the player can walk through. Layer
+## CAMERA_BLOCKER_LAYER only; mask 0 (never collides with anything itself).
+func _add_camera_blockers(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> void:
+	var box := mesh.get_aabb()
+	if box.size == Vector3.ZERO:
+		return
+	for instance_transform in transforms:
+		var scale := instance_transform.basis.get_scale()
+		var body := StaticBody3D.new()
+		body.collision_layer = CAMERA_BLOCKER_LAYER
+		body.collision_mask = 0
+		var shape := CollisionShape3D.new()
+		var collider := BoxShape3D.new()
+		collider.size = Vector3(box.size.x * scale.x, box.size.y * scale.y, box.size.z * scale.z)
 		shape.shape = collider
 		body.transform = Transform3D(instance_transform.basis.orthonormalized(), instance_transform * box.get_center())
 		body.add_child(shape)

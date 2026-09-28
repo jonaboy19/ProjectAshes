@@ -96,9 +96,16 @@ const DASH_COOLDOWN := 4.0
 const DASH_INVULNERABLE := 0.4
 const GRAVITY := 24.0
 const MAX_STAMINA := 100.0
-## Only static world geometry (terrain, buildings, props: layer 1) may pull the
-## chase camera in. Villagers (2), soldiers and enemies (4) never do.
-const CAMERA_MASK := 1
+## Camera-only occlusion layer: cheap full-AABB box proxies over props whose
+## walk-collision box is intentionally smaller than their visual mesh (market
+## stall awnings/cloth canopies), so the chase camera still gets pulled out of
+## them without shrinking or growing what the player can walk through. Not in
+## the player's own collision_mask, so it never affects movement.
+const CAMERA_BLOCKER_LAYER := 1 << 9
+## Only static world geometry (terrain, buildings, props: layer 1) plus the
+## camera-only blocker layer above may pull the chase camera in. Villagers
+## (2), soldiers and enemies (4) never do.
+const CAMERA_MASK := 1 | CAMERA_BLOCKER_LAYER
 const BODY_RADIUS := 0.35
 ## Riding.
 const MountController := preload("res://scripts/actors/mount_controller.gd")
