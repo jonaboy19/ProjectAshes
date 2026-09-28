@@ -80,6 +80,9 @@ func setup(baker: ImpostorBaker) -> void:
 		mm.instance_count = MAX_SPRITES
 		mm.visible_instance_count = 0
 		var mmi := MultiMeshInstance3D.new()
+		# Updated from _process at 4 Hz: physics interpolation only warned
+		# ("triggered from outside physics process") and could jitter the sprites.
+		mmi.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 		mmi.multimesh = mm
 		mmi.material_override = baker.materials.get(look)
 		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

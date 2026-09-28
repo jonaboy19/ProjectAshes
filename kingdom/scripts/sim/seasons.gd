@@ -97,12 +97,12 @@ static func ensure_globals() -> void:
 		return
 	_globals_added = true
 	Engine.set_meta(&"ashes_season_globals", true)
-	var known := RenderingServer.global_shader_parameter_get_list()
+	# The globals are declared in project.godot [shader_globals], so the engine
+	# registers them at startup. (This used RenderingServer.global_shader_parameter_get_list(),
+	# an editor-only call that syncs with the render thread — and _static_init can
+	# run on a loader thread. It printed an error every boot; suspect in the boot crashes.)
 	for g: StringName in GLOBAL_DEFAULTS:
 		var v: Variant = GLOBAL_DEFAULTS[g]
-		if known.has(g):
-			RenderingServer.global_shader_parameter_set(g, v)
-			continue
 		if ProjectSettings.has_setting("shader_globals/" + String(g)):
 			continue
 		var t := RenderingServer.GLOBAL_VAR_TYPE_VEC3 if v is Vector3 else RenderingServer.GLOBAL_VAR_TYPE_FLOAT

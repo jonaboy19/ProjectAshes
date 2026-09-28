@@ -143,7 +143,7 @@ func use() -> void:
 func enter(player: Node3D) -> void:
 	if player == null or active != null or interior_scene == "":
 		return
-	var packed := load(interior_scene) as PackedScene
+	var packed := Assets.scene(interior_scene)
 	if packed == null:
 		push_warning("InteriorDoor: cannot load %s" % interior_scene)
 		return

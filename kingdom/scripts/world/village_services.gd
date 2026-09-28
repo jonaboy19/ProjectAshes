@@ -108,7 +108,7 @@ func _ready() -> void:
 	var board := Station.new("Notice Board", "Read", notice_menu)
 	add_child(board)
 	board.global_position = _ground(board_pos)
-	var model: Node3D = (load(BOARD) as PackedScene).instantiate()
+	var model: Node3D = Assets.scene(BOARD).instantiate()
 	board.add_child(model)
 	board.look_at(_ground(board_pos + Vector2(-1.0, 3.0)), Vector3.UP, true)
 	board.rotate_y(PI)
@@ -233,7 +233,7 @@ func _prop_gen(asset: String, at: Vector2, yaw: float) -> void:
 	var path := "res://assets/generated/%s.glb" % asset
 	if not ResourceLoader.exists(path):
 		return
-	var n: Node3D = (load(path) as PackedScene).instantiate()
+	var n: Node3D = Assets.scene(path).instantiate()
 	add_child(n)
 	n.global_position = _ground(at)
 	n.rotation.y = yaw
@@ -243,7 +243,7 @@ func _prop(item: String, at: Vector2, scale_by: float) -> void:
 	var path := MEGAKIT + item + ".gltf"
 	if not ResourceLoader.exists(path):
 		return
-	var scene := load(path) as PackedScene
+	var scene := Assets.scene(path)
 	if scene == null:   # exists but failed to load (e.g. not imported): skip instead of erroring every boot
 		return
 	var n: Node3D = scene.instantiate()

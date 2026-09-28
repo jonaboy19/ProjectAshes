@@ -102,7 +102,7 @@ static func instance(kind: String) -> Node3D:
 	if path == "":
 		return null
 	var m: Dictionary = MODELS[kind]
-	var model: Node3D = (load(path) as PackedScene).instantiate()
+	var model: Node3D = Assets.scene(path).instantiate()
 	if m.has("fit_height"):
 		var box := Assets.visual_aabb(model)
 		model.scale = Vector3.ONE * (float(m["fit_height"]) / maxf(box.size.y, 0.01))
@@ -129,7 +129,7 @@ static func _add_kneel(kind: String, model: Node3D, ap: AnimationPlayer) -> void
 	var src_path := path_for(KNEEL_SOURCE)
 	if dst_skel == null or src_path == "":
 		return
-	var src_model: Node3D = (load(src_path) as PackedScene).instantiate()
+	var src_model: Node3D = Assets.scene(src_path).instantiate()
 	var src_ap := Assets.animation_player(src_model)
 	var src_skel := _skeleton(src_model)
 	if src_ap == null or src_skel == null or not src_ap.has_animation(KNEEL_CLIP):

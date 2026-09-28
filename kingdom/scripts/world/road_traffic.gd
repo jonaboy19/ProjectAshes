@@ -104,7 +104,7 @@ func _build_visual(kind: String) -> Node3D:
 			var path := WAGON if ResourceLoader.exists(WAGON) else CARAVAN_WAGON
 			if not ResourceLoader.exists(path):
 				return null
-			return (load(path) as PackedScene).instantiate()
+			return Assets.scene(path).instantiate()
 		"rider":
 			var c := Critter.new()
 			c.kind = "horse"

@@ -33,6 +33,13 @@ var _requested: Dictionary = {}      # path -> true (threaded load requested)
 
 
 func _ready() -> void:
+	# Start the threaded preloads only after boot: running them while main.gd's
+	# _ready() was still doing synchronous load()s on the main thread overlapped
+	# the two loaders and crashed ~1 in 7 boots (0xC0000005, 2026-09-28 bootloop).
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if not is_inside_tree():
+		return
 	for site in WorldGen.sites:
 		for part: Array in site.get("parts", []):
 			for path in _paths(String(part[0])):
@@ -281,12 +288,12 @@ func _lod_pair(lod0: String, lod1: String, dist: float) -> Node3D:
 	if not ResourceLoader.exists(lod0):
 		return null
 	var holder := Node3D.new()
-	var near: Node3D = (load(lod0) as PackedScene).instantiate()
+	var near: Node3D = Assets.scene(lod0).instantiate()
 	holder.add_child(near)
 	var extent := Assets.visual_aabb(near).size.length()
 	var far_end := 120.0 if extent < 3.0 else (260.0 if extent < 10.0 else 600.0)
 	if dist > 0.0 and lod1 != "" and ResourceLoader.exists(lod1):
-		var far: Node3D = (load(lod1) as PackedScene).instantiate()
+		var far: Node3D = Assets.scene(lod1).instantiate()
 		holder.add_child(far)
 		_ranges(near, 0.0, dist)
 		_ranges(far, dist, far_end)
