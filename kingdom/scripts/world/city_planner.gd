@@ -13,6 +13,7 @@ const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 
 const LOT_SPACING := 10.5
 const LOT_CLEARANCE := 9.5
+const TOWNHOUSES := ["house_town_a", "house_town_b", "house_town_c", "house_town_d"]
 const HOMES := ["house_1", "house_2", "house_3", "house_4", "house_5", "house_6", "house_7", "house_8",
 	"house_9", "house_10", "house_11", "house_12", "house_13", "house_14", "house_15", "house_16",
 	# Meshy house types, weighted so they make up about half of the homes.
@@ -103,13 +104,16 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 		var t := LOT_SPACING * 0.5
 		while t < length:
 			for side: float in [-1.0, 1.0]:
-				var p := a + dir * t + normal * side * (w * 0.5 + 5.6)
+				var gate_road := w >= 11.0   # broad market road: tall townhouses set back behind the stalls
+				var p := a + dir * t + normal * side * (w * 0.5 + (8.4 if gate_road else 5.6))
 				if _lot_ok(p, c, r, plaza_r, walled, result["inner_wall"], streets, blocked):
 					var face := -normal * side
 					var dist_frac := p.distance_to(c) / r
 					var asset: String = HOMES[rng.randi() % HOMES.size()]
 					if dist_frac < 0.5 and rng.randf() < 0.3:
 						asset = TRADES[rng.randi() % TRADES.size()]
+					elif gate_road:
+						asset = TOWNHOUSES[rng.randi() % TOWNHOUSES.size()]
 					lots.append({"asset": asset, "pos": p, "yaw": atan2(face.x, face.y)})
 					blocked.append(p)
 			t += LOT_SPACING

@@ -19,9 +19,11 @@ ASSETS = ["village_well", "bell_tower", "chapel", "temple", "town_wall", "town_w
           "castle_keep", "market_cart", "hand_cart", "lamp_post", "signpost", "haystack", "woodpile",
           "washing_line", "garden_plot", "field_crops",
           "market_stall_red", "market_stall_green", "street_lamp", "banner_pole", "wall_banner", "shop_sign",
-          "bunting", "flower_strip", "barrel_cluster"]
+          "bunting", "flower_strip", "barrel_cluster",
+          "townhouse_a", "townhouse_b", "townhouse_c", "townhouse_d"]
 # <name>_lod1.glb for buildings, plus a remeshed <name>_lod2.glb proxy for the big landmarks
-LOD1 = {"bell_tower", "chapel", "temple", "town_wall", "town_wall_tower", "town_gate", "castle_keep"}
+LOD1 = {"bell_tower", "chapel", "temple", "town_wall", "town_wall_tower", "town_gate", "castle_keep",
+        "townhouse_a", "townhouse_b", "townhouse_c", "townhouse_d"}
 LOD2 = {"temple", "castle_keep", "town_gate", "bell_tower"}
 
 

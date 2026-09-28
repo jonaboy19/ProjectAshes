@@ -134,6 +134,11 @@ const BUILDINGS := {
 	"wall": [GEN + "town_wall.glb", 0.0],
 	"wall_tower": [GEN + "town_wall_tower.glb", 0.0],
 	"wall_gate": [GEN + "town_gate.glb", 0.0],
+	# Tall jettied townhouses lining walled towns' gate roads (Kingsreach reference).
+	"house_town_a": [GEN + "townhouse_a.glb", 0.0, GEN + "townhouse_a_lod1.glb", 60.0],
+	"house_town_b": [GEN + "townhouse_b.glb", 0.0, GEN + "townhouse_b_lod1.glb", 60.0],
+	"house_town_c": [GEN + "townhouse_c.glb", 0.0, GEN + "townhouse_c_lod1.glb", 60.0],
+	"house_town_d": [GEN + "townhouse_d.glb", 0.0, GEN + "townhouse_d_lod1.glb", 60.0],
 	# Kingsreach gate-market dressing (main art reference): stalls, lamps, banners, bunting.
 	"market_stall_red": [GEN + "market_stall_red.glb", 0.0],
 	"market_stall_green": [GEN + "market_stall_green.glb", 0.0],

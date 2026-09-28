@@ -21,6 +21,10 @@ const SIZE := {
 	"mhouse_family": Vector3(7.67, 9.06, 9.0),
 	"mhouse_trader": Vector3(8.5, 9.77, 7.97),
 	"mhouse_manor": Vector3(10.0, 8.62, 6.33),
+	"house_town_a": Vector3(7.75, 14.22, 10.49),
+	"house_town_b": Vector3(7.74, 14.43, 10.51),
+	"house_town_c": Vector3(7.74, 14.28, 10.5),
+	"house_town_d": Vector3(7.74, 14.23, 10.51),
 }
 ## Blender village houses (house_1..16) are 5.6-7.6 m deep; this is their typical size.
 const HOUSE_SIZE := Vector3(6.7, 7.5, 6.0)

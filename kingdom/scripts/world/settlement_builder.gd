@@ -827,7 +827,7 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 				elif k % 3 == 1 and side > 0.0 or k % 3 == 2 and side < 0.0:
 					add.call("banner_pole", edge, face)
 				if near_gate and (k % 3 != 0 or rng.randf() < 0.5):
-					var sp := p + nrm * side * (half + 2.2)
+					var sp := p + nrm * side * (half + 1.7)
 					add.call("market_stall_red" if rng.randf() < 0.55 else "market_stall_green", sp, face)
 					if rng.randf() < 0.6:
 						add.call("barrel_cluster", sp + dir * 2.5 + nrm * side * 0.3, face + rng.randf_range(-0.4, 0.4))
