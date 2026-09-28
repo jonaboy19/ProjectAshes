@@ -208,6 +208,12 @@ func _ready() -> void:
 		for path: String in _lib[key]:
 			if path.contains("/sfx/") or path.contains("/ui/"):
 				ResourceLoader.load_threaded_request(path, "AudioStream")
+	# Ambience beds too: each is a multi-MB loop, and loading one on the frame the
+	# player walks into a new area was a 90-100 ms hitch (perf_visual run 2026-09-28).
+	for bed: String in BED_FILE:
+		var bed_path := ROOT + "ambience/" + String(BED_FILE[bed]) + ".ogg"
+		if ResourceLoader.exists(bed_path):
+			ResourceLoader.load_threaded_request(bed_path, "AudioStream")
 
 
 # ------------------------------------------------------------------ public API
