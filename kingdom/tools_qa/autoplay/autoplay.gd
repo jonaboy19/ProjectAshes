@@ -849,9 +849,13 @@ func _step_interior() -> void:
 		door.rotation.y = yaw
 		log_line("[HOOK] test InteriorDoor at the inn front %s" % _v(door.global_position))
 	else:
+		# The nearest inn: every town has one, and the first match could be in the capital.
 		door = doors[0]
+		var best := INF
 		for d: InteriorDoor in doors:
-			if "inn" in d.interior_scene:
+			var dd := player.global_position.distance_to(d.global_position)
+			if "inn" in d.interior_scene and dd < best:
+				best = dd
 				door = d
 	var dp := Vector2(door.global_position.x, door.global_position.z)
 	# Stand in the door area; the innkeeper stands close by, so step to the side of him.

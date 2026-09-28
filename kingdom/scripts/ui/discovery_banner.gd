@@ -68,7 +68,8 @@ func _draw() -> void:
 	var a := _alpha()
 	if a <= 0.001:
 		return
-	var vw := size
+	# The viewport, not our own rect: the HUD root this sits in may not be full-size.
+	var vw := get_viewport_rect().size
 	var scale_k := clampf(vw.x / 1280.0, 0.7, 1.4)
 	var cy := vw.y * 0.3
 	var band_h := 150.0 * scale_k

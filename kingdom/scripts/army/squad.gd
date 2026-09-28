@@ -1054,6 +1054,10 @@ func _update_banner() -> void:
 	# A formation marker for command view: not in cutscenes, not through the whole world.
 	var vis := cam != null and cam.current and cam.get_parent() is not CutscenePlayer \
 		and dist > 22.0 and dist < 260.0 and not get_tree().get_nodes_in_group("cutscene_active").size()
+	# Our own army's standard only shows in the command / overview cameras, not over the
+	# plaza while it follows us around town (playtest: "12 · Line" hanging over Ashford).
+	if vis and leader and is_instance_valid(leader) and leader.get("view") != null:
+		vis = int(leader.get("view")) >= 2
 	if vis and not banner.visible:
 		_standard.global_position = _banner_pos    # appear in place, don't slide in
 	banner.visible = vis

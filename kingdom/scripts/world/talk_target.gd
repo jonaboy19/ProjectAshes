@@ -55,6 +55,11 @@ func _nearest() -> Node3D:
 		if _player == null:
 			return null
 	var from := _player.global_position
+	# Services, doors and pickups win: a passer-by must never steal the button from
+	# the guild counter or an entrance (playtest: "Villager" instead of the guild).
+	for n in get_tree().get_nodes_in_group("interactable"):
+		if n != self and n is Node3D and from.distance_squared_to((n as Node3D).global_position) < 3.4 * 3.4:
+			return null
 	var best: Node3D = null
 	var best_d := RANGE * RANGE
 	for n in get_tree().get_nodes_in_group("villager"):
