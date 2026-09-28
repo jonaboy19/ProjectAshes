@@ -31,6 +31,7 @@ var magicules := RAMagicules.new()
 var naming := RANaming.new()
 var injuries := RAInjuries.new()
 var scouts := RAScouts.new()
+var discovery := preload("res://scripts/sim/discovery.gd").new()
 ## Scout offers waiting for an answer: [event]
 var pending_offers: Array = []
 const GUILD_MIN_AGE := 12
@@ -560,6 +561,7 @@ func snapshot() -> Dictionary:
 		"naming": naming.serialize(),
 		"injuries": injuries.serialize(),
 		"scouts": scouts.serialize(),
+		"discovery": discovery.serialize(),
 	}
 	if player and is_instance_valid(player):
 		d["player"] = {"x": player.global_position.x, "y": player.global_position.y,
@@ -584,7 +586,7 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	_last_abs = _abs_hours()

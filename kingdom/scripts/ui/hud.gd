@@ -2,7 +2,34 @@ class_name HUD
 extends CanvasLayer
 ## Full-resolution UI drawn over the low-resolution pixel render: stats, orders,
 ## touch controls and messages. Crisp text on top of chunky pixels.
+##
+## Navigation: a compass strip (top centre), place discovery with a cinematic
+## banner, a full-screen world map with fast travel, and photo mode. The map and
+## photo mode are children of this layer but not of the HUD root, so hiding the
+## root (photo mode) keeps them on screen.
+##
+## Wiring for main.gd: `hud.fast_travel_requested.connect(func(p: Vector2) -> void: _teleport(p, 0.0))`.
+## More touch buttons: `hud.add_action_button("ride", "Ride", "ride", "walk")`.
 
+## Fast travel confirmed on the map. The screen is already black and the clock
+## advanced; teleport the player to `pos` (x/z) synchronously in the handler.
+signal fast_travel_requested(pos: Vector2)
+signal place_discovered(place: Dictionary)
+
+const Discovery := preload("res://scripts/sim/discovery.gd")
+const CompassBar := preload("res://scripts/ui/compass.gd")
+const WorldMap := preload("res://scripts/ui/world_map.gd")
+const PhotoMode := preload("res://scripts/ui/photo_mode.gd")
+const DiscoveryBanner := preload("res://scripts/ui/discovery_banner.gd")
+const MapIcons := preload("res://scripts/ui/map_icons.gd")
+
+const DISCOVERY_RATE := 0.25       # s between discovery checks
+const MARKER_RATE := 1.0           # s between compass marker rebuilds
+const COMPASS_RANGE := 400.0       # discovered places shown on the compass
+const HOSTILE_RANGE := 250.0       # camps shown (red) even before they are found
+const COMBAT_RANGE := 45.0         # enemies this close block fast travel (same as the battle music)
+const DOCK_SIZE := 58
+const DOCK_STEP := 78              # button + caption
 
 var player: Player
 var controls: Control
@@ -26,6 +53,22 @@ var _toast_box: PanelContainer
 var _menu: PanelContainer
 var _menu_source: Callable
 var _pack_button: TouchScreenButton
+var _root: Control
+var compass: Control               # scripts/ui/compass.gd
+var banner: Control                # scripts/ui/discovery_banner.gd
+var world_map: Control             # scripts/ui/world_map.gd
+var photo_mode: Control            # scripts/ui/photo_mode.gd
+var discovery: RefCounted          # scripts/sim/discovery.gd (Life.discovery when Life owns one)
+var _fade: ColorRect
+var _dock: Array[TouchScreenButton] = []     # auto-placed action buttons, in order
+var _anchored: Dictionary = {}               # TouchScreenButton -> offset from the bottom-right corner
+var _nav_timer := 0.0
+var _marker_timer := 0.0
+var _quest_override: Variant = null
+## Anything with active_objective_position() -> Vector2|null (e.g. the radiant
+## quest tracker: `hud.quest_source = services.radiant()`). Life.radiant is used
+## automatically when Life owns one.
+var quest_source: Object
 
 
 func _init(p: Player) -> void:
@@ -38,6 +81,7 @@ func _ready() -> void:
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
+	_root = root
 	controls = Control.new()
 	controls.set_anchors_preset(Control.PRESET_FULL_RECT)
 	controls.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -103,22 +147,25 @@ func _ready() -> void:
 	_perf = _label(root, 12, Color(1, 1, 1, 0.55))
 	_perf.anchor_left = 0.5
 	_perf.anchor_right = 0.5
+	_perf.anchor_top = 1.0
+	_perf.anchor_bottom = 1.0
 	_perf.offset_left = -300
 	_perf.offset_right = 300
-	_perf.offset_top = 6
+	_perf.offset_top = -22
+	_perf.offset_bottom = -4
 	_perf.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_danger = _label(root, 14, UITheme.TEXT)
 	_danger.anchor_left = 1.0
 	_danger.anchor_right = 1.0
-	_danger.offset_left = -520
-	_danger.offset_right = -96
+	_danger.offset_left = -560
+	_danger.offset_right = -96 - DOCK_SIZE - 12
 	_danger.offset_top = 94
 	_danger.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_toast_box = PanelContainer.new()
 	_toast_box.add_theme_stylebox_override("panel", UITheme.pill(UITheme.BG, UITheme.ACCENT.darkened(0.3), 22))
 	_toast_box.anchor_left = 0.5
 	_toast_box.anchor_right = 0.5
-	_toast_box.offset_top = 64
+	_toast_box.offset_top = 80
 	_toast_box.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_toast_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_toast_box.modulate.a = 0.0
@@ -127,6 +174,8 @@ func _ready() -> void:
 	_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_toast.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_toast.custom_minimum_size.x = 420
+
+	_build_navigation(root)
 
 	_menu = PanelContainer.new()
 	_menu.theme = UITheme.theme()
@@ -156,12 +205,14 @@ func _ready() -> void:
 		_health.max_value = m
 		_health.value = c)
 	Game.toast.connect(show_toast)
+	_build_overlays()
 	get_viewport().size_changed.connect(_layout)
 	_layout()
 
 
 func hide_loading() -> void:
 	_loading.visible = false
+	world_map.start_bake()      # paint the map terrain in the background now the world exists
 
 
 func set_loading_text(text: String) -> void:
@@ -189,9 +240,12 @@ func _label(parent: Control, size: int, color: Color) -> Label:
 
 
 func _button(action: String, text: String, size: int, color: Color, icon_name := "") -> TouchScreenButton:
+	return _make_button(action, text, size, color, UITheme.icon(icon_name) if icon_name != "" else null)
+
+
+func _make_button(action: String, text: String, size: int, color: Color, ic: Texture2D) -> TouchScreenButton:
 	var b := TouchScreenButton.new()
 	b.action = action
-	var ic := UITheme.icon(icon_name) if icon_name != "" else null
 	b.texture_normal = UITheme.round_button(size, color, ic)
 	b.texture_pressed = UITheme.round_button(size, color, ic, true)
 	var circle := CircleShape2D.new()
@@ -225,6 +279,21 @@ func _layout() -> void:
 	_pack_button.position = Vector2(col, 288)
 	for i in _order_buttons.size():
 		_order_buttons[i].position = Vector2(s.x * 0.5 - 130 + i * 92, s.y - 110)
+	# Dock: a column left of the utility column, then further columns, kept clear
+	# of the interact / attack cluster at the bottom right.
+	var top := 92.0
+	var bottom := s.y - 300.0 - 8.0
+	var rows := maxi(1, int((bottom - top - DOCK_SIZE) / DOCK_STEP) + 1)
+	for i in _dock.size():
+		@warning_ignore("integer_division")
+		var c := i / rows
+		_dock[i].position = Vector2(col - (c + 1) * (DOCK_SIZE + 12), top + (i % rows) * DOCK_STEP)
+	for b: TouchScreenButton in _anchored:
+		b.position = s - (_anchored[b] as Vector2)
+	if compass:
+		var w := clampf(s.x - 2.0 * 340.0, 300.0, 520.0)
+		compass.size = Vector2(w, compass.custom_minimum_size.y)
+		compass.position = Vector2((s.x - w) * 0.5, 10.0)
 
 
 func show_toast(text: String) -> void:
@@ -386,3 +455,265 @@ static func _thousands(n: int) -> String:
 			out += ","
 		out += s[i]
 	return out
+
+
+# --- action buttons ----------------------------------------------------------------
+
+## Adds a round touch button and returns it (also kept in the button table under
+## `button_name`). `action` is an InputMap action name (the button presses it, like
+## the attack button) or a Callable run on press. `icon_name` is an SVG in
+## assets/ui/icons/ or "glyph:<name>" for a UITheme.glyph ("map", "camera",
+## "compass"). By default the button joins the dock next to the utility column;
+## pass `anchor` (offset from the bottom-right corner, like the attack cluster)
+## to place it yourself. Call after the HUD is in the tree.
+##   hud.add_action_button("ride", "Ride", "ride", "walk")
+##   hud.add_action_button("lock_on", "Lock", "lock_on", "eye-target", UITheme.ACTION_BLOCK, 72, Vector2(330, 200))
+func add_action_button(button_name: String, label: String, action: Variant, icon_name := "",
+		color := UITheme.ACTION_UTIL, size := DOCK_SIZE, anchor := Vector2.INF) -> TouchScreenButton:
+	var ic: Texture2D = null
+	if icon_name.begins_with("glyph:"):
+		ic = UITheme.glyph(icon_name.trim_prefix("glyph:"))
+	elif icon_name != "":
+		ic = UITheme.icon(icon_name)
+	var b := _make_button(action if action is String else "", label, size, color, ic)
+	if action is Callable:
+		b.pressed.connect(action)
+	if ic != null:
+		var cap: Label = b.get_child(0)
+		cap.add_theme_font_size_override("font_size", 12)
+		cap.add_theme_color_override("font_color", UITheme.TEXT_DIM)
+	var old: Variant = _buttons.get(button_name)
+	if old is TouchScreenButton and (_dock.has(old) or _anchored.has(old)):
+		remove_action_button(button_name)   # re-adding replaces; built-in buttons are never replaced
+	_buttons[button_name] = b
+	if anchor == Vector2.INF:
+		_dock.append(b)
+	else:
+		_anchored[b] = anchor
+	_layout()
+	return b
+
+
+func remove_action_button(button_name: String) -> void:
+	var b: TouchScreenButton = _buttons.get(button_name)
+	if b == null:
+		return
+	_buttons.erase(button_name)
+	_dock.erase(b)
+	_anchored.erase(b)
+	b.queue_free()
+	_layout()
+
+
+func get_action_button(button_name: String) -> TouchScreenButton:
+	return _buttons.get(button_name)
+
+
+# --- navigation: discovery, compass, map, photo mode ---------------------------------
+
+func _build_navigation(root: Control) -> void:
+	for pair: Array in [["world_map", KEY_M], ["photo_mode", KEY_P]]:
+		if not InputMap.has_action(pair[0]):
+			InputMap.add_action(pair[0])
+			var ev := InputEventKey.new()
+			ev.physical_keycode = pair[1]
+			InputMap.action_add_event(pair[0], ev)
+	compass = CompassBar.new()
+	compass.player = player
+	compass.tapped.connect(toggle_map)
+	root.add_child(compass)
+	banner = DiscoveryBanner.new()
+	root.add_child(banner)
+	add_action_button("map", "Map", "world_map", "glyph:map", UITheme.ACTION_TALK.darkened(0.15))
+	add_action_button("photo", "Photo", "photo_mode", "glyph:camera")
+
+
+## Map, photo mode and the travel fade sit above the HUD root (not hidden with it).
+func _build_overlays() -> void:
+	world_map = WorldMap.new()
+	world_map.player = player
+	world_map.travel_check = _travel_block_reason
+	world_map.travel_requested.connect(_on_travel_requested)
+	add_child(world_map)
+	photo_mode = PhotoMode.new()
+	photo_mode.closed.connect(func() -> void: _root.visible = true)
+	photo_mode.screenshot_saved.connect(func(path: String) -> void: print("[photo] saved ", path))
+	add_child(photo_mode)
+	_fade = ColorRect.new()
+	_fade.color = Color(0, 0, 0, 0)
+	_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fade.process_mode = Node.PROCESS_MODE_ALWAYS
+	_fade.visible = false
+	add_child(_fade)
+
+
+## The discovery tracker: Life's when Life owns one (so it is saved), else the HUD's.
+func get_discovery() -> RefCounted:
+	if discovery == null:
+		var owned: Variant = Life.get("discovery")
+		discovery = owned if owned is RefCounted else Discovery.new()
+	if discovery.places.is_empty() and not WorldGen.settlements.is_empty():
+		discovery.build_from_world(Life.lore.places_in_region())
+	return discovery
+
+
+## Overrides the compass/map quest marker (Vector2 x/z), or null to go back to
+## the accepted guild commission's target.
+func set_quest_target(pos: Variant) -> void:
+	_quest_override = pos
+	_marker_timer = 0.0
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _loading.visible or not visible:
+		return
+	if event.is_action_pressed("world_map"):
+		toggle_map()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("photo_mode"):
+		open_photo_mode()
+		get_viewport().set_input_as_handled()
+
+
+func toggle_map() -> void:
+	if world_map.visible:
+		world_map.close()
+		return
+	if photo_mode.is_active() or _loading.visible or _fade.visible:
+		return
+	close_menu()
+	world_map.discovery = get_discovery()
+	world_map.quest_target = _quest_target()
+	world_map.open()
+
+
+func open_photo_mode() -> void:
+	if photo_mode.is_active() or world_map.visible or _loading.visible or _fade.visible:
+		return
+	close_menu()
+	_root.visible = false
+	photo_mode.open(player)
+
+
+func _process(delta: float) -> void:
+	if not visible or _loading.visible or player == null or not player.is_inside_tree():
+		return
+	_nav_timer -= delta
+	if _nav_timer <= 0.0:
+		_nav_timer = DISCOVERY_RATE
+		_check_discovery()
+	_marker_timer -= delta
+	if _marker_timer <= 0.0:
+		_marker_timer = MARKER_RATE
+		_refresh_markers()
+
+
+func _player_xz() -> Vector2:
+	return Vector2(player.global_position.x, player.global_position.z)
+
+
+func _check_discovery() -> void:
+	if InteriorDoor.active != null:
+		return
+	var d := get_discovery()
+	for pl: Dictionary in d.update(_player_xz(), WorldSim.day):
+		banner.show_place(pl["name"], Discovery.kind_label(String(pl["kind"])))
+		place_discovered.emit(pl)
+		_reward_discovery(pl)
+		_marker_timer = 0.0
+
+
+## A little experience for finding a place: Life's XP API if it has one, else
+## merit (which drives Life.player_level), granted after the banner so the
+## "+merit" toast does not talk over it.
+func _reward_discovery(pl: Dictionary) -> void:
+	var amount := 5 if pl["category"] == "settlement" else 3
+	var reason := "discovered %s" % pl["name"]
+	get_tree().create_timer(DiscoveryBanner.DURATION * 0.8, false).timeout.connect(func() -> void:
+		if Life.has_method("add_xp"):
+			Life.call("add_xp", amount * 10, reason)
+		elif Life.has_method("add_merit"):
+			Life.add_merit(amount, reason))
+
+
+func _refresh_markers() -> void:
+	var d := get_discovery()
+	var p := _player_xz()
+	var list := []
+	var seen := {}
+	for pl: Dictionary in d.nearby(p, COMPASS_RANGE):
+		seen[pl["id"]] = true
+		list.append({"pos": pl["pos"], "kind": pl["kind"], "color": MapIcons.color_for(pl), "hostile": pl["hostile"]})
+	for pl: Dictionary in d.nearby(p, HOSTILE_RANGE, true):
+		if pl["hostile"] and not seen.has(pl["id"]):
+			list.append({"pos": pl["pos"], "kind": pl["kind"], "color": MapIcons.HOSTILE, "hostile": true})
+	compass.markers = list
+	compass.quest_target = _quest_target()
+
+
+## Where the active objective is: an override, the tracked radiant quest's stage,
+## else the first accepted guild
+## commission with a place (cull -> its den, deliver/escort -> the destination
+## settlement, investigate -> the rumour's location). null when there is none.
+func _quest_target() -> Variant:
+	if _quest_override is Vector2:
+		return _quest_override
+	for src: Variant in [quest_source, Life.get("radiant")]:
+		if src is Object and is_instance_valid(src) and (src as Object).has_method("active_objective_position"):
+			var qp: Variant = (src as Object).call("active_objective_position")
+			if qp is Vector2:
+				return qp
+	for c: Dictionary in Life.guild.active_for(RAAdventurerGuild.PLAYER):
+		var t: Dictionary = c.get("target", {})
+		match String(c.get("type", "")):
+			"cull":
+				for den: Dictionary in Frontier.ecology.dens:
+					if int(den["id"]) == int(t.get("den", -1)) and den.get("alive", true):
+						return den["pos"]
+			"deliver", "escort":
+				for s: Dictionary in WorldGen.settlements:
+					if s["name"] == String(t.get("to", "")):
+						return s["pos"]
+			"investigate":
+				for m: Dictionary in Frontier.threat.modifiers:
+					if str(hash(m.get("label", ""))) == String(t.get("rumour", "")) and m.has("pos"):
+						return m["pos"]
+	return null
+
+
+## "" when fast travel is allowed, else why not.
+func _travel_block_reason() -> String:
+	if player.dead:
+		return "You cannot travel now."
+	if InteriorDoor.active != null:
+		return "Step outside first."
+	var p := player.global_position
+	for e in get_tree().get_nodes_in_group("team1"):
+		if e is Node3D and (e as Node3D).global_position.distance_to(p) < COMBAT_RANGE:
+			return "Enemies are near. You cannot fast travel during combat."
+	return ""
+
+
+func _on_travel_requested(pos: Vector2, hours: float, place: Dictionary) -> void:
+	_fade.visible = true
+	_fade.color.a = 0.0
+	var tw := create_tween()
+	tw.tween_property(_fade, "color:a", 1.0, 0.45)
+	await tw.finished
+	WorldSim.advance_hours(hours)
+	if fast_travel_requested.get_connections().is_empty():
+		# Not wired yet: move the player directly (terrain streams in around them).
+		player.global_position = Vector3(pos.x, WorldGen.height(pos.x, pos.y) + 0.5, pos.y)
+		player.velocity = Vector3.ZERO
+	else:
+		fast_travel_requested.emit(pos)
+	for i in 3:
+		await get_tree().process_frame
+	_nav_timer = 0.0
+	_marker_timer = 0.0
+	var tw2 := create_tween()
+	tw2.tween_property(_fade, "color:a", 0.0, 0.7)
+	await tw2.finished
+	_fade.visible = false
+	show_toast("Arrived at %s  ·  %s on the road" % [place.get("name", "your destination"), WorldMap.fmt_hours(hours)])

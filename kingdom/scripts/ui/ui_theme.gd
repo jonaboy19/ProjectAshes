@@ -90,6 +90,22 @@ static func theme() -> Theme:
 	var bar_bg := pill(Color(0, 0, 0, 0.45), Color(1, 1, 1, 0.08), 6)
 	bar_bg.set_content_margin_all(0)
 	t.set_stylebox("background", "ProgressBar", bar_bg)
+	# Sliders (photo mode): slim dark track, gold fill, a round white-rimmed grabber.
+	var track := pill(Color(0, 0, 0, 0.45), Color(1, 1, 1, 0.08), 4)
+	track.set_content_margin_all(0)
+	track.content_margin_top = 3
+	track.content_margin_bottom = 3
+	t.set_stylebox("slider", "HSlider", track)
+	var fill := pill(ACCENT.darkened(0.1), Color(0, 0, 0, 0), 4)
+	fill.set_content_margin_all(0)
+	fill.content_margin_top = 3
+	fill.content_margin_bottom = 3
+	t.set_stylebox("grabber_area", "HSlider", fill)
+	t.set_stylebox("grabber_area_highlight", "HSlider", fill)
+	var knob := _knob_texture(26)
+	t.set_icon("grabber", "HSlider", knob)
+	t.set_icon("grabber_highlight", "HSlider", knob)
+	t.set_constant("center_grabber", "HSlider", 1)
 	_theme = t
 	return t
 
@@ -139,3 +155,85 @@ static func round_button(size: int, color: Color, icon_tex: Texture2D = null, pr
 						var dst := img.get_pixel(off.x + x, off.y + y)
 						img.set_pixel(off.x + x, off.y + y, dst.lerp(Color(1, 1, 1, maxf(dst.a, p.a)), p.a * 0.95))
 	return ImageTexture.create_from_image(img)
+
+
+static func _knob_texture(size: int) -> ImageTexture:
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var c := Vector2(size, size) * 0.5
+	var r := size * 0.5 - 1.5
+	for y in size:
+		for x in size:
+			var d := Vector2(x + 0.5, y + 0.5).distance_to(c)
+			var a := clampf(r - d + 0.5, 0.0, 1.0)
+			if a > 0.0:
+				var rim := clampf(1.0 - absf(d - (r - 1.5)) / 1.5, 0.0, 1.0)
+				var col := TEXT.lerp(ACCENT, rim)
+				img.set_pixel(x, y, Color(col.r, col.g, col.b, a))
+	return ImageTexture.create_from_image(img)
+
+
+static var _glyphs := {}
+
+
+## White line-art glyphs drawn procedurally (no imported SVG needed) for HUD
+## buttons: "map", "camera", "compass". Works as `icon_tex` for round_button().
+static func glyph(glyph_name: String, size := 96) -> ImageTexture:
+	var key := "%s:%d" % [glyph_name, size]
+	if _glyphs.has(key):
+		return _glyphs[key]
+	var s := float(size)
+	var w := s * 0.045                         # stroke half-width
+	var segs: Array = []                       # [a, b] stroked segments
+	var rings: Array = []                      # [centre, radius] stroked circles
+	var discs: Array = []                      # [centre, radius] filled circles
+	match glyph_name:
+		"map":
+			var pts := [Vector2(0.12, 0.24), Vector2(0.38, 0.14), Vector2(0.62, 0.24), Vector2(0.88, 0.14),
+				Vector2(0.88, 0.76), Vector2(0.62, 0.86), Vector2(0.38, 0.76), Vector2(0.12, 0.86)]
+			for i in pts.size():
+				segs.append([pts[i] * s, pts[(i + 1) % pts.size()] * s])
+			segs.append([pts[1] * s, pts[6] * s])
+			segs.append([pts[2] * s, pts[5] * s])
+		"camera":
+			var body := [Vector2(0.1, 0.32), Vector2(0.34, 0.32), Vector2(0.4, 0.2), Vector2(0.6, 0.2),
+				Vector2(0.66, 0.32), Vector2(0.9, 0.32), Vector2(0.9, 0.8), Vector2(0.1, 0.8)]
+			for i in body.size():
+				segs.append([body[i] * s, body[(i + 1) % body.size()] * s])
+			rings.append([Vector2(0.5, 0.55) * s, s * 0.15])
+			discs.append([Vector2(0.78, 0.43) * s, s * 0.035])
+		"compass":
+			rings.append([Vector2(0.5, 0.5) * s, s * 0.38])
+			segs.append([Vector2(0.5, 0.22) * s, Vector2(0.58, 0.5) * s])
+			segs.append([Vector2(0.58, 0.5) * s, Vector2(0.5, 0.78) * s])
+			segs.append([Vector2(0.5, 0.78) * s, Vector2(0.42, 0.5) * s])
+			segs.append([Vector2(0.42, 0.5) * s, Vector2(0.5, 0.22) * s])
+		_:
+			rings.append([Vector2(0.5, 0.5) * s, s * 0.3])
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	for y in size:
+		for x in size:
+			var p := Vector2(x + 0.5, y + 0.5)
+			var d := INF
+			for sg: Array in segs:
+				d = minf(d, p.distance_to(Geometry2D.get_closest_point_to_segment(p, sg[0], sg[1])) - w)
+			for rg: Array in rings:
+				d = minf(d, absf(p.distance_to(rg[0]) - rg[1]) - w)
+			for dc: Array in discs:
+				d = minf(d, p.distance_to(dc[0]) - dc[1])
+			var a := clampf(0.5 - d, 0.0, 1.0)
+			if a > 0.0:
+				img.set_pixel(x, y, Color(1, 1, 1, a))
+	var tex := ImageTexture.create_from_image(img)
+	_glyphs[key] = tex
+	return tex
+
+
+## Serif display font at a weight (Cinzel is a variable font): headings, banners.
+static func title_font_weight(weight := 600) -> Font:
+	var base := title_font()
+	if not base is FontFile:
+		return base
+	var fv := FontVariation.new()
+	fv.base_font = base
+	fv.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): weight}
+	return fv

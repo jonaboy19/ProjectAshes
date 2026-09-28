@@ -68,6 +68,7 @@ func _ready() -> void:
 	player = Player.new()
 	hud = HUD.new(player)
 	add_child(hud)
+	hud.fast_travel_requested.connect(func(at: Vector2) -> void: _teleport(at, 0.0))
 
 	hud.set_loading_text("Painting sprites...")
 	await get_tree().process_frame
