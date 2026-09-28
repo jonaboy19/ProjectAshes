@@ -17,3 +17,11 @@
 ## Verification: v1 was INVALID
 The main session reviewed `docs/qa/movement/01_walk`–`04_turn180`. In walk, run and stop the player was pinned against a market stall, so the frames are identical and **nothing about walking or running was tested**. In `04_turn180` the camera clips into the character's head.
 The re-test in open ground, and the camera fix / Phantom Camera evaluation, go in `docs/qa/movement/v2/`.
+
+## v2 (2026-09-28): 11/11 PASS, visually checked
+Open ground, real key input (`kingdom/tools_qa/movement_qa/run_movement_qa.sh`, frames in `docs/qa/movement/v2/after/`):
+walk 4.7 m / 2 s, run 12 m / 2 s, stop to 0.00 m/s (no ice-slide), turn 180, walk back (turns to face the travel direction, **no afterimage**),
+strafe while blocking, slope 22 m at 6.5 m/s on a real 2.3 m descent (grounded, air_time 0), wall (no bounce), crowd, Space dodge 2.4 m, R dash 3.7 m plus cooldown refusal.
+The frames were reviewed by eye: run pose, feet on the ground, 60 fps in the open field.
+Harness fix: the slope scenario used to teleport into the village (flat ground, pushing into crates) and start timing before the teleport
+(it reported "100 m displacement"). It now picks the steepest heading from the open spawn and starts after the teleport.

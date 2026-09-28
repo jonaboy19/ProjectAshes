@@ -1,0 +1,269 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+ERROR: This function should never be used outside the editor, it can severely damage performance.
+   at: global_shader_parameter_get_list (servers/rendering/renderer_rd/storage_rd/material_storage.cpp:1665)
+   GDScript backtrace (most recent call first):
+       [0] ensure_globals (res://scripts/sim/seasons.gd:100)
+       [1] _static_init (res://scripts/sim/seasons.gd:85)
+       [2] @static_initializer (res://scripts/sim/seasons.gd:1)
+Quality: High (auto)
+MOVEQA [   0.00] Rising Ashes movement QA v2  2026-09-28T16:03:25
+[audio] mood silence -> wilderness (threat 0, hostiles 0, interior )
+[audio] music silence -> wild_a (mood wilderness, intensity 0.00)
+WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/Barrel_Apples.gltf': In external resource #0, invalid UID: 'uid://dbdte54pcl156' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Furniture_BaseColor.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] _prop (res://scripts/world/village_services.gd:200)
+       [1] _ready (res://scripts/world/village_services.gd:70)
+       [2] _ready (res://scripts/core/main.gd:130)
+WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/Barrel_Apples.gltf': In external resource #4, invalid UID: 'uid://dxvof53ojlfq2' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Metal_ORM.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] _prop (res://scripts/world/village_services.gd:200)
+       [1] _ready (res://scripts/world/village_services.gd:70)
+       [2] _ready (res://scripts/core/main.gd:130)
+WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/Barrel_Apples.gltf': In external resource #5, invalid UID: 'uid://klvcfnyssfao' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Metal_Normal.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] _prop (res://scripts/world/village_services.gd:200)
+       [1] _ready (res://scripts/world/village_services.gd:70)
+       [2] _ready (res://scripts/core/main.gd:130)
+WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/FarmCrate_Apple.gltf': In external resource #0, invalid UID: 'uid://dbdte54pcl156' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Furniture_BaseColor.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] _prop (res://scripts/world/village_services.gd:200)
+       [1] _ready (res://scripts/world/village_services.gd:71)
+       [2] _ready (res://scripts/core/main.gd:130)
+WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/FarmCrate_Apple.gltf': In external resource #4, invalid UID: 'uid://dxvof53ojlfq2' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Metal_ORM.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] _prop (res://scripts/world/village_services.gd:200)
+       [1] _ready (res://scripts/world/village_services.gd:71)
+       [2] _ready (res://scripts/core/main.gd:130)
+WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/FarmCrate_Apple.gltf': In external resource #5, invalid UID: 'uid://klvcfnyssfao' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Metal_Normal.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] _prop (res://scripts/world/village_services.gd:200)
+       [1] _ready (res://scripts/world/village_services.gd:71)
+       [2] _ready (res://scripts/core/main.gd:130)
+MOVEQA [  34.76] open ground found at (68.0, -51.0) (gate_angle=-0.64, dist=85.0, attempt 1)
+[audio] bed -> meadow_day (interior=, t=13.0 h)
+MOVEQA [  40.18] teleported to open ground (68.0, -51.0)
+MOVEQA [  40.18] --- scenario: 01_walk ---
+MOVEQA [  40.21]   frame 01_start.jpg speed=0.00 m/s pos=(68.0, -51.0) y=17.91
+MOVEQA [  40.41]   frame 02.jpg speed=2.40 m/s pos=(68.00092, -51.40835) y=17.91
+MOVEQA [  40.61]   frame 03.jpg speed=2.40 m/s pos=(68.00201, -51.88756) y=17.92
+MOVEQA [  40.81]   frame 04.jpg speed=2.40 m/s pos=(68.00311, -52.37115) y=17.91
+MOVEQA [  41.02]   frame 05.jpg speed=2.40 m/s pos=(68.0042, -52.8562) y=17.89
+MOVEQA [  41.22]   frame 06.jpg speed=2.40 m/s pos=(68.0053, -53.34127) y=17.88
+MOVEQA [  41.41]   frame 07.jpg speed=2.40 m/s pos=(68.0064, -53.82633) y=17.87
+MOVEQA [  41.61]   frame 08.jpg speed=2.40 m/s pos=(68.00755, -54.26591) y=17.87
+MOVEQA [  41.80]   frame 09.jpg speed=2.40 m/s pos=(68.00883, -54.74162) y=17.88
+MOVEQA [  41.98]   frame 10.jpg speed=2.40 m/s pos=(68.01001, -55.17769) y=17.89
+MOVEQA [  42.19]   frame 11.jpg speed=2.40 m/s pos=(68.01129, -55.6534) y=17.90
+MOVEQA [  42.19]   [PASS] displacement=4.65m expected>=2.90m (60% of naive 4.84m over 2.02s)
+MOVEQA [  42.81] --- scenario: 02_run ---
+MOVEQA [  42.84]   frame 01_start.jpg speed=0.00 m/s pos=(68.01153, -55.72886) y=17.90
+MOVEQA [  43.04]   frame 02.jpg speed=4.69 m/s pos=(68.01286, -56.23755) y=17.92
+MOVEQA [  43.23]   frame 03.jpg speed=6.50 m/s pos=(68.01536, -57.43202) y=17.99
+MOVEQA [  43.42]   frame 04.jpg speed=6.50 m/s pos=(68.01795, -58.60792) y=18.06
+MOVEQA [  43.63]   frame 05.jpg speed=6.50 m/s pos=(68.02079, -59.88915) y=18.15
+MOVEQA [  43.81]   frame 06.jpg speed=6.50 m/s pos=(68.02399, -61.18525) y=18.17
+MOVEQA [  44.00]   frame 07.jpg speed=6.50 m/s pos=(68.0269, -62.37664) y=18.17
+MOVEQA [  44.20]   frame 08.jpg speed=6.50 m/s pos=(68.02965, -63.68273) y=18.11
+MOVEQA [  44.39]   frame 09.jpg speed=6.50 m/s pos=(68.03257, -64.98738) y=18.08
+MOVEQA [  44.59]   frame 10.jpg speed=6.50 m/s pos=(68.03532, -66.18293) y=18.05
+MOVEQA [  44.78]   frame 11.jpg speed=6.50 m/s pos=(68.03809, -67.48801) y=18.01
+MOVEQA [  44.78]   [PASS] displacement=11.76m expected>=7.69m (60% of naive 12.82m over 1.97s)
+MOVEQA [  44.78] --- scenario: 03_stop ---
+MOVEQA [  44.92]   frame 01.jpg speed=2.50 m/s pos=(68.04017, -68.05894) y=17.99
+MOVEQA [  45.06]   frame 02.jpg speed=0.00 m/s pos=(68.04124, -68.14866) y=17.98
+MOVEQA [  45.21]   frame 03.jpg speed=0.00 m/s pos=(68.04124, -68.14866) y=17.98
+MOVEQA [  45.35]   frame 04.jpg speed=0.00 m/s pos=(68.04124, -68.14866) y=17.98
+MOVEQA [  45.49]   frame 05.jpg speed=0.00 m/s pos=(68.04124, -68.14866) y=17.98
+MOVEQA [  45.63]   frame 06.jpg speed=0.00 m/s pos=(68.04124, -68.14866) y=17.98
+MOVEQA [  45.77]   frame 07.jpg speed=0.00 m/s pos=(68.04124, -68.14866) y=17.98
+MOVEQA [  45.91]   frame 08.jpg speed=0.00 m/s pos=(68.04124, -68.14866) y=17.98
+MOVEQA [  45.91]   [PASS] stop end speed=0.00 m/s < 0.5 (was 6.50, no ice-slide)
+MOVEQA [  46.32] --- scenario: 04_turn180 ---
+[audio] bed -> forest_day (interior=, t=13.2 h)
+MOVEQA [  47.19]   frame 01_before.jpg speed=0.00 m/s pos=(69.31399, -68.1534) y=17.69
+MOVEQA [  47.33]   frame 02.jpg speed=1.84 m/s pos=(69.23013, -68.15387) y=17.71
+MOVEQA [  47.47]   frame 03.jpg speed=2.40 m/s pos=(68.95605, -68.15479) y=17.77
+MOVEQA [  47.61]   frame 04.jpg speed=2.40 m/s pos=(68.64486, -68.15582) y=17.84
+MOVEQA [  47.76]   frame 05.jpg speed=2.40 m/s pos=(68.36825, -68.15674) y=17.90
+[audio] bed -> meadow_day (interior=, t=13.3 h)
+MOVEQA [  47.89]   frame 06.jpg speed=2.40 m/s pos=(68.05573, -68.15783) y=17.97
+MOVEQA [  48.03]   frame 07.jpg speed=2.40 m/s pos=(67.76848, -68.15882) y=18.02
+MOVEQA [  48.17]   frame 08.jpg speed=2.40 m/s pos=(67.4813, -68.1598) y=18.08
+MOVEQA [  48.31]   frame 09.jpg speed=2.40 m/s pos=(67.15823, -68.1609) y=18.13
+MOVEQA [  48.31]   [PASS] facing reversed (before.dot(after)=-1.00, expect <0)
+WARNING: [Physics interpolation] MultiMesh interpolation is being triggered from outside physics process, this might lead to issues (possibly benign).
+   at: multimesh_instance_set_transform (servers/rendering/storage/mesh_storage.cpp:110)
+   GDScript backtrace (most recent call first):
+       [0] refresh (res://scripts/population/population_lod.gd:187)
+       [1] _process (res://scripts/population/population_lod.gd:84)
+MOVEQA [  48.72] --- scenario: 05_backward ---
+MOVEQA [  48.76]   frame 01_start.jpg speed=0.00 m/s pos=(67.09492, -68.16122) y=18.15
+MOVEQA [  48.96]   frame 02.jpg speed=2.40 m/s pos=(67.09717, -67.80084) y=18.16
+MOVEQA [  49.15]   frame 03.jpg speed=2.40 m/s pos=(67.09959, -67.35932) y=18.16
+MOVEQA [  49.35]   frame 04.jpg speed=2.40 m/s pos=(67.1022, -66.88013) y=18.16
+MOVEQA [  49.55]   frame 05.jpg speed=2.40 m/s pos=(67.10458, -66.40589) y=18.18
+MOVEQA [  49.76]   frame 06.jpg speed=2.40 m/s pos=(67.10695, -65.93151) y=18.19
+MOVEQA [  49.95]   frame 07.jpg speed=2.40 m/s pos=(67.10933, -65.45636) y=18.20
+MOVEQA [  50.15]   frame 08.jpg speed=2.40 m/s pos=(67.11171, -64.98103) y=18.22
+MOVEQA [  50.35]   frame 09.jpg speed=2.40 m/s pos=(67.11409, -64.50486) y=18.23
+MOVEQA [  50.55]   frame 10.jpg speed=2.40 m/s pos=(67.11647, -64.02869) y=18.24
+MOVEQA [  50.75]   frame 11.jpg speed=2.40 m/s pos=(67.11904, -63.55743) y=18.26
+MOVEQA [  50.75]   [PASS] displacement=4.60m expected>=2.92m (60% of naive 4.87m over 2.03s)
+MOVEQA [  51.16] --- scenario: 06_strafe ---
+MOVEQA [  51.20]   frame 01_start.jpg speed=0.00 m/s pos=(67.11948, -63.483) y=18.26
+MOVEQA [  51.42]   frame 02.jpg speed=1.20 m/s pos=(67.32781, -63.48372) y=18.23
+MOVEQA [  51.62]   frame 03.jpg speed=1.20 m/s pos=(67.59232, -63.48459) y=18.19
+MOVEQA [  51.82]   frame 04.jpg speed=1.20 m/s pos=(67.85725, -63.48532) y=18.15
+MOVEQA [  52.02]   frame 05.jpg speed=1.20 m/s pos=(68.12206, -63.48606) y=18.11
+MOVEQA [  52.22]   frame 06.jpg speed=1.20 m/s pos=(68.38641, -63.4868) y=18.07
+MOVEQA [  52.42]   frame 07.jpg speed=1.20 m/s pos=(68.65076, -63.48755) y=18.03
+MOVEQA [  52.62]   frame 08.jpg speed=1.20 m/s pos=(68.91511, -63.4883) y=17.99
+MOVEQA [  52.82]   frame 09.jpg speed=1.20 m/s pos=(69.17946, -63.48905) y=17.95
+MOVEQA [  53.02]   frame 10.jpg speed=1.20 m/s pos=(69.44381, -63.4898) y=17.91
+MOVEQA [  53.22]   frame 11.jpg speed=1.20 m/s pos=(69.70892, -63.49043) y=17.86
+MOVEQA [  53.22]   [PASS] displacement=2.59m expected>=1.48m (60% of naive 2.47m over 2.06s)
+MOVEQA [  54.05] --- scenario: 07_slope ---
+MOVEQA [  54.05]   slope heading: 3.7 m height change over 30 m
+MOVEQA [  54.09]   frame 01_start.jpg speed=0.00 m/s pos=(68.0, -51.0) y=17.91
+MOVEQA [  54.34]   frame 02.jpg speed=5.75 m/s pos=(68.62773, -51.62539) y=17.85
+MOVEQA [  54.58]   frame 03.jpg speed=6.50 m/s pos=(69.77363, -52.76885) y=17.71
+MOVEQA [  54.84]   frame 04.jpg speed=6.50 m/s pos=(70.9304, -53.92372) y=17.58
+MOVEQA [  55.08]   frame 05.jpg speed=6.50 m/s pos=(72.08549, -55.07827) y=17.42
+MOVEQA [  55.34]   frame 06.jpg speed=6.50 m/s pos=(73.24085, -56.23448) y=17.30
+MOVEQA [  55.58]   frame 07.jpg speed=6.50 m/s pos=(74.39633, -57.39053) y=17.19
+MOVEQA [  55.84]   frame 08.jpg speed=6.50 m/s pos=(75.55199, -58.54642) y=17.06
+MOVEQA [  56.09]   frame 09.jpg speed=6.50 m/s pos=(76.70639, -59.69964) y=16.89
+MOVEQA [  56.34]   frame 10.jpg speed=6.50 m/s pos=(77.85643, -60.84952) y=16.64
+MOVEQA [  56.59]   frame 11.jpg speed=6.50 m/s pos=(79.08174, -62.07557) y=16.36
+MOVEQA [  56.84]   frame 12.jpg speed=6.50 m/s pos=(80.23074, -63.22527) y=16.04
+MOVEQA [  57.09]   frame 13.jpg speed=6.50 m/s pos=(81.38146, -64.37579) y=15.77
+MOVEQA [  57.34]   frame 14.jpg speed=6.50 m/s pos=(82.53687, -65.52918) y=15.59
+MOVEQA [  57.59]   frame 15.jpg speed=6.50 m/s pos=(83.69311, -66.68376) y=15.44
+MOVEQA [  57.59]   [PASS] displacement=22.19m expected>=6.91m (60% of naive 11.52m over 3.55s)
+MOVEQA [  57.59]   [PASS] grounded at slope end (no bounce/launch), air_time=0.00
+MOVEQA [  58.01] --- scenario: 08_wall_collision ---
+MOVEQA [  58.49]   frame 01_before.jpg speed=0.00 m/s pos=(79.92432, -3.478991) y=17.64
+MOVEQA [  58.66]   frame 02.jpg speed=4.38 m/s pos=(79.51829, -3.460871) y=17.69
+MOVEQA [  58.80]   frame 03.jpg speed=6.50 m/s pos=(78.69726, -3.424807) y=17.80
+MOVEQA [  58.95]   frame 04.jpg speed=6.50 m/s pos=(77.75566, -3.383491) y=17.91
+MOVEQA [  59.10]   frame 05.jpg speed=6.50 m/s pos=(76.81149, -3.342027) y=18.02
+[audio] bed -> village_day (interior=, t=13.7 h)
+[audio] mood wilderness -> town_day (threat 0, hostiles 0, interior )
+[audio] music wild_a -> town_day_b (mood town_day, intensity 0.00)
+MOVEQA [  59.26]   frame 06.jpg speed=6.50 m/s pos=(75.86816, -3.300571) y=18.13
+MOVEQA [  59.40]   frame 07.jpg speed=6.50 m/s pos=(74.92499, -3.259131) y=18.24
+MOVEQA [  59.56]   frame 08.jpg speed=6.50 m/s pos=(73.98154, -3.21769) y=18.35
+MOVEQA [  59.70]   frame 09.jpg speed=6.50 m/s pos=(73.02847, -3.175886) y=18.44
+MOVEQA [  59.85]   frame 10.jpg speed=6.50 m/s pos=(72.07411, -3.134097) y=18.52
+MOVEQA [  60.00]   frame 11.jpg speed=6.50 m/s pos=(71.11614, -3.092127) y=18.59
+MOVEQA [  60.15]   frame 12.jpg speed=6.50 m/s pos=(70.15511, -3.050175) y=18.65
+MOVEQA [  60.30]   frame 13.jpg speed=6.50 m/s pos=(69.19481, -3.008249) y=18.71
+MOVEQA [  60.46]   frame 14.jpg speed=6.50 m/s pos=(68.234, -2.966341) y=18.77
+MOVEQA [  60.61]   frame 15.jpg speed=6.50 m/s pos=(67.27135, -2.92436) y=18.83
+MOVEQA [  60.78]   frame 16.jpg speed=6.50 m/s pos=(66.20094, -2.877697) y=18.88
+MOVEQA [  60.93]   frame 17.jpg speed=6.50 m/s pos=(65.1262, -2.830874) y=18.92
+MOVEQA [  61.09]   frame 18.jpg speed=6.50 m/s pos=(64.15794, -2.7887) y=18.95
+MOVEQA [  61.24]   frame 19.jpg speed=6.50 m/s pos=(63.18725, -2.746428) y=18.97
+MOVEQA [  61.39]   frame 20.jpg speed=6.50 m/s pos=(62.21585, -2.70413) y=18.99
+MOVEQA [  61.54]   frame 21.jpg speed=6.50 m/s pos=(61.24303, -2.661779) y=18.99
+MOVEQA [  61.70]   frame 22.jpg speed=6.50 m/s pos=(60.26982, -2.619413) y=19.00
+[audio] stinger discovery
+MOVEQA [  61.85]   frame 23.jpg speed=6.50 m/s pos=(59.29601, -2.577023) y=19.00
+MOVEQA [  62.00]   frame 24.jpg speed=6.50 m/s pos=(58.21367, -2.529909) y=19.00
+MOVEQA [  62.14]   frame 25.jpg speed=6.50 m/s pos=(57.3478, -2.492218) y=19.00
+MOVEQA [  62.14]   [PASS] no bounce against wall: max frame-to-frame speed jump=0.00 m/s (<2.0)
+MOVEQA [  62.55] --- scenario: 09_crowd ---
+WARNING: [Physics interpolation] MultiMesh interpolation is being triggered from outside physics process, this might lead to issues (possibly benign).
+   at: multimesh_instance_set_transform (servers/rendering/storage/mesh_storage.cpp:110)
+   GDScript backtrace (most recent call first):
+       [0] refresh (res://scripts/population/population_lod.gd:187)
+       [1] _teleport (res://scripts/core/main.gd:541)
+       [2] _run (res://tools_qa/movement_qa/movement_qa.gd:376)
+       [3] wait (res://tools_qa/movement_qa/movement_qa.gd:90)
+MOVEQA [  66.07]   frame 01_start.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  66.26]   frame 02.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  66.46]   frame 03.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  66.67]   frame 04.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  66.87]   frame 05.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  67.06]   frame 06.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  67.26]   frame 07.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  67.46]   frame 08.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  67.66]   frame 09.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  67.86]   frame 10.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  68.07]   frame 11.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  68.27]   frame 12.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  68.47]   frame 13.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  68.66]   frame 14.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  68.86]   frame 15.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  69.06]   frame 16.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  69.26]   frame 17.jpg speed=0.00 m/s pos=(0.000004, 1.4546) y=18.60
+MOVEQA [  69.26]   crowd walk end pos=(0.000004, 1.4546) (villagers nearby=16)
+[audio] bed -> meadow_day (interior=, t=13.9 h)
+[audio] mood town_day -> wilderness (threat 0, hostiles 0, interior )
+[audio] music town_day_b -> wild_b (mood wilderness, intensity 0.00)
+MOVEQA [  70.30] --- scenario: 10_dodge_space ---
+MOVEQA [  70.35]   frame 01_before.jpg speed=0.00 m/s pos=(68.0, -51.0) y=17.91
+MOVEQA [  70.47]   frame 02.jpg speed=6.01 m/s pos=(68.00082, -50.24842) y=17.91
+MOVEQA [  70.58]   frame 03.jpg speed=5.03 m/s pos=(68.00154, -49.61452) y=17.92
+MOVEQA [  70.70]   frame 04.jpg speed=4.04 m/s pos=(68.00213, -49.09745) y=17.93
+[audio] voices 0/12, long streams 3, music wilderness/wild_b threat 0, surface dirt, played { "step_grass_02": 18, "step_dirt_02": 5, "step_dirt_01": 3, "step_grass_01": 17, "step_grass_03": 21, "bird_blackbird": 3, "step_grass_05": 17, "step_grass_04": 11, "sheep_02": 1, "cow_02": 2, "step_dirt_03": 1, "bird_chirp_04": 1, "step_dirt_06": 2, "step_cobble_03": 6, "step_cobble_06": 3, "step_cobble_04": 5, "step_cobble_05": 5, "step_cobble_01": 5, "chicken_cluck_02": 1, "step_cobble_02": 3, "dodge_02": 1 }
+MOVEQA [  70.82]   frame 05.jpg speed=2.70 m/s pos=(68.00268, -48.70118) y=17.95
+MOVEQA [  70.94]   frame 06.jpg speed=0.00 m/s pos=(68.0029, -48.60363) y=17.95
+MOVEQA [  71.06]   frame 07.jpg speed=0.00 m/s pos=(68.0029, -48.60363) y=17.95
+MOVEQA [  71.18]   frame 08.jpg speed=0.00 m/s pos=(68.0029, -48.60363) y=17.95
+MOVEQA [  71.29]   frame 09.jpg speed=0.00 m/s pos=(68.0029, -48.60363) y=17.95
+MOVEQA [  71.41]   frame 10.jpg speed=0.00 m/s pos=(68.0029, -48.60363) y=17.95
+MOVEQA [  71.53]   frame 11.jpg speed=0.00 m/s pos=(68.0029, -48.60363) y=17.95
+MOVEQA [  71.53]   [PASS] displacement=2.40m expected>=1.88m (60% of naive 3.13m over 1.23s)
+MOVEQA [  71.53] dodge(space) invulnerable=-0.83 dodging_ability=false
+MOVEQA [  72.14] --- scenario: 11_ability_dash_r ---
+MOVEQA [  72.18]   frame 01_before.jpg speed=0.00 m/s pos=(68.0029, -48.60363) y=17.95
+MOVEQA [  72.32]   frame 02.jpg speed=9.63 m/s pos=(68.00337, -47.19198) y=18.02
+MOVEQA [  72.44]   frame 03.jpg speed=7.56 m/s pos=(68.00359, -46.21896) y=18.09
+MOVEQA [  72.55]   frame 04.jpg speed=5.48 m/s pos=(68.00351, -45.48908) y=18.14
+MOVEQA [  72.66]   frame 05.jpg speed=3.50 m/s pos=(68.00333, -45.05895) y=18.18
+MOVEQA [  72.77]   frame 06.jpg speed=0.00 m/s pos=(68.00319, -44.89311) y=18.19
+MOVEQA [  72.87]   frame 07.jpg speed=0.00 m/s pos=(68.00319, -44.89311) y=18.19
+MOVEQA [  72.98]   frame 08.jpg speed=0.00 m/s pos=(68.00319, -44.89311) y=18.19
+MOVEQA [  73.09]   frame 09.jpg speed=0.00 m/s pos=(68.00319, -44.89311) y=18.19
+MOVEQA [  73.20]   frame 10.jpg speed=0.00 m/s pos=(68.00319, -44.89311) y=18.19
+MOVEQA [  73.31]   frame 11.jpg speed=0.00 m/s pos=(68.00319, -44.89311) y=18.19
+MOVEQA [  73.31]   [PASS] displacement=3.71m expected>=2.81m (60% of naive 4.68m over 1.17s)
+MOVEQA [  73.31] ability_dash(R) dash_cooldown=2.87 (should be 4.0 right after use)
+MOVEQA [  74.08]   frame 12_cooldown_block.jpg speed=0.00 m/s pos=(68.00319, -44.89311) y=18.19
+MOVEQA [  74.24]   frame 13_cooldown_block.jpg speed=0.00 m/s pos=(68.00319, -44.89311) y=18.19
+MOVEQA [  74.40]   frame 14_cooldown_block.jpg speed=0.00 m/s pos=(68.00319, -44.89311) y=18.19
+MOVEQA [  74.57]   frame 15_cooldown_block.jpg speed=0.00 m/s pos=(68.00319, -44.89311) y=18.19
+MOVEQA [  74.57]   [PASS] second dash refused while on cooldown (dodge_state=-1.93, expect 0)
+MOVEQA [  74.57] DONE  failures=0
+ERROR: 68 RID allocations of type 'P11JoltShape3D' were leaked at exit.
+ERROR: 21 shaders of type SceneForwardClusteredShaderRD were never freed
+   at: ~ShaderRD (servers/rendering/renderer_rd/shader_rd.cpp:1056)
+ERROR: 165 RID allocations of type 'N10RendererRD11MeshStorage4MeshE' were leaked at exit.
+ERROR: 264 RID allocations of type 'N10RendererRD15MaterialStorage8MaterialE' were leaked at exit.
+ERROR: 21 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.
+ERROR: 158 RID allocations of type 'N10RendererRD14TextureStorage7TextureE' were leaked at exit.
+WARNING: 264 RIDs of type "UniformBuffer" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 1143 RIDs of type "IndexArray" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 1143 RIDs of type "IndexBuffer" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 457 RIDs of type "VertexArray" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 1035 RIDs of type "VertexBuffer" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 282 RIDs of type "Texture" were leaked.
+   at: finalize (servers/rendering/rendering_device.cpp:7505)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 469 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

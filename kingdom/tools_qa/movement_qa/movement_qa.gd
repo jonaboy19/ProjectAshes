@@ -301,13 +301,23 @@ func _run() -> void:
 	assert_moved(Player.WALK * 0.5)   # blocking caps speed to WALK * 0.5
 	await wait(0.4)
 
-	# 7. Slope: head toward the forest/camp road, which climbs and dips.
-	begin_scenario("07_slope")
-	var s: Dictionary = WorldGen.settlements[0]
-	var slope_target: Vector2 = s["pos"] + Vector2(90, 40)
-	var slope_start: Vector2 = s["pos"] + Vector2(20, 30)
+	# 7. Slope: from the open-ground spawn, run up the steepest nearby heading.
+	#    (Was: a fixed village offset that landed on flat ground against a house, and
+	#    begin_scenario ran BEFORE the teleport so "displacement" counted the jump.)
+	var slope_start := flat
+	var slope_target := flat
+	var best_rise := -1.0
+	for i in 16:
+		var a := TAU * i / 16.0
+		var tgt := flat + Vector2(cos(a), sin(a)) * 30.0
+		var rise := absf(WorldGen.height(tgt.x, tgt.y) - WorldGen.height(flat.x, flat.y))
+		if rise > best_rise:
+			best_rise = rise
+			slope_target = tgt
 	main._teleport(slope_start, 0.0)
 	await wait(0.4)
+	begin_scenario("07_slope")
+	log_line("  slope heading: %.1f m height change over 30 m" % best_rise)
 	var to := slope_target - Vector2(player.global_position.x, player.global_position.z)
 	player.set_camera(atan2(-to.x, -to.y), -0.2)
 	await shot("start")
