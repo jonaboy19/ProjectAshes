@@ -131,6 +131,65 @@ const SPECIAL_DIVISIONS := {
 }
 
 
+## Battlefield troop types, after the classic Chinese arms: the dao swordsman
+## with his round shield (pai), the spearman (qiang), the crossbowman (nu) and
+## the horseman (qi). Squads read these (scripts/army/squad.gd).
+## formations: the ones the troop drills, first is the default (Formation.Type
+## names). morale: base steadiness 0..100. defence/damage/speed multiply the
+## soldier's block chance, blow and march speed. anti_cavalry and charge scale
+## the square/wedge effects. "requires": "horses" means cavalry only exists
+## where the army can mount it. keep: character props (placeholders where the
+## asset set has no spear or crossbow yet).
+const UNIT_TYPES := {
+	"sabre": {"name": "Dao Swordsmen", "short": "Sabres", "role": "line infantry with sabre and round shield",
+		"formations": ["LINE", "SHIELD_WALL", "COLUMN", "WEDGE", "SQUARE", "SKIRMISH"],
+		"morale": 70, "defence": 1.0, "damage": 1.0, "speed": 1.0, "anti_cavalry": 0.6, "charge": 1.0,
+		"ranged": false, "keep": ["Knight_Helmet", "1H_Sword", "Round_Shield"]},
+	"spear": {"name": "Spearmen", "short": "Spears", "role": "close-order pikes, the answer to horse",
+		"formations": ["LINE", "SQUARE", "SHIELD_WALL", "COLUMN", "WEDGE"],
+		"morale": 68, "defence": 1.1, "damage": 0.9, "speed": 0.95, "anti_cavalry": 1.5, "charge": 0.8,
+		"ranged": false, "keep": ["Knight_Helmet", "2H_Sword"]},
+	"crossbow": {"name": "Crossbowmen", "short": "Crossbows", "role": "massed crossbow volleys from loose order",
+		"formations": ["SKIRMISH", "LINE", "COLUMN"],
+		"morale": 55, "defence": 0.7, "damage": 0.7, "speed": 1.05, "anti_cavalry": 0.3, "charge": 0.5,
+		"ranged": true, "range": 60.0, "keep": ["Knight_Helmet", "1H_Sword"]},
+	"cavalry": {"name": "Horsemen", "short": "Cavalry", "role": "shock horse that breaks wavering lines",
+		"formations": ["WEDGE", "LINE", "COLUMN", "SKIRMISH"],
+		"morale": 75, "defence": 0.9, "damage": 1.3, "speed": 1.9, "anti_cavalry": 0.2, "charge": 1.8,
+		"ranged": false, "requires": "horses", "keep": ["Knight_Helmet", "1H_Sword", "Round_Shield"]},
+}
+
+## How much a present officer of this rank steadies men near him (morale
+## points). NCOs steady their file, officers their company, generals the army.
+const OFFICER_STEADINESS := {"nco": 6.0, "officer": 14.0, "general": 22.0}
+## And how far his voice carries, metres.
+const OFFICER_RADIUS := {"nco": 10.0, "officer": 20.0, "general": 35.0}
+
+
+static func unit_type(type_id: String) -> Dictionary:
+	return UNIT_TYPES.get(type_id, UNIT_TYPES["sabre"])
+
+
+## Troop types an army can field: cavalry needs horses.
+static func available_unit_types(has_horses: bool) -> Array[String]:
+	var out: Array[String] = []
+	for id: String in UNIT_TYPES:
+		if UNIT_TYPES[id].get("requires", "") == "horses" and not has_horses:
+			continue
+		out.append(id)
+	return out
+
+
+## Morale an officer of this rank adds to men within officer_radius(). Enlisted
+## soldiers add nothing.
+static func steadiness(rank_id: String) -> float:
+	return float(OFFICER_STEADINESS.get(str(rank(rank_id).get("grade", "")), 0.0))
+
+
+static func officer_radius(rank_id: String) -> float:
+	return float(OFFICER_RADIUS.get(str(rank(rank_id).get("grade", "")), 0.0))
+
+
 # --- Ladder queries (static) -------------------------------------------------
 
 static func rank_index(rank_id: String) -> int:

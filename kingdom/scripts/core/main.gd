@@ -24,6 +24,7 @@ var population: PopulationLOD
 var frontier: FrontierPresence
 var region: RegionDressing
 var weather: Node3D
+var _order_from: Variant = null   # command view: where the current drag order started
 var player: Player
 var hud: HUD
 var army: Squad
@@ -144,6 +145,7 @@ func _ready() -> void:
 	world.add_child(ore)
 
 	army = Squad.new().setup(0, "soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
+	army.routed.connect(func(_s: Squad) -> void: Game.say("Our men are breaking!"))
 	army.leader = player
 	army.order = Squad.Order.FOLLOW
 	world.add_child(army)
@@ -271,7 +273,7 @@ func _process(delta: float) -> void:
 		var perf := "%d fps · %d chunks · %d people nearby (%d full / %d sprites) · %d soldiers" % [
 			Engine.get_frames_per_second(), terrain.loaded_count(), population.full_count + population.sprite_count,
 			population.full_count, population.sprite_count, get_tree().get_nodes_in_group("combatant").size()]
-		hud.update_status(army.alive(), ["Follow", "Hold", "Charge"][army.order], player.nearest_interactable(), perf)
+		hud.update_status(army.alive(), army.order_name(), player.nearest_interactable(), perf)
 		hud.update_danger(Frontier.threat_at(Vector2(focus.x, focus.z)))
 		_update_mood()
 
@@ -340,6 +342,24 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("order_charge"):
 		army.command(Squad.Order.CHARGE)
 		Game.say("CHARGE!")
+	elif event.is_action_pressed("order_retreat"):
+		Game.say("Fall back!" if army.command(Squad.Order.RETREAT) else "They won't listen.")
+	elif event.is_action_pressed("order_formation"):
+		Game.say(army.cycle_formation())
+	elif player.view == Player.View.COMMAND and (event is InputEventScreenTouch or event is InputEventMouseButton):
+		# Command view: press marks the spot, drag sets the facing, release gives the order.
+		if event.pressed:
+			_order_from = Squad.pick_ground(player.camera, event.position)
+		elif _order_from != null:
+			var to: Variant = Squad.pick_ground(player.camera, event.position)
+			var face: Vector3 = (to - _order_from) if to != null and (to - _order_from).length() > 2.0 else Vector3.ZERO
+			army.clear_preview()
+			army.move_to(_order_from, face)
+			_order_from = null
+	elif player.view == Player.View.COMMAND and (event is InputEventScreenDrag or event is InputEventMouseMotion) and _order_from != null:
+		var cur: Variant = Squad.pick_ground(player.camera, event.position)
+		if cur != null:
+			army.preview_order(_order_from, cur - _order_from)
 
 
 ## Dying inside a building: leave the room first, so the respawn (player.gd puts

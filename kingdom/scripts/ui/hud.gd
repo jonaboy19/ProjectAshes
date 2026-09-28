@@ -117,7 +117,14 @@ func _ready() -> void:
 	_pack_button = _button("journal", "", 58, UITheme.ACTION_UTIL, "knapsack")
 	_interact_label = _interact.get_child(0)
 	_interact.visible = false
-	for pair in [["order_follow", "Follow", "walk"], ["order_hold", "Hold", "flag-objective"], ["order_charge", "Charge", "charging-bull"]]:
+	for extra: Array in [["order_retreat", KEY_G], ["order_formation", KEY_B]]:
+		if not InputMap.has_action(extra[0]):
+			InputMap.add_action(extra[0])
+			var ev := InputEventKey.new()
+			ev.physical_keycode = extra[1]
+			InputMap.action_add_event(extra[0], ev)
+	for pair in [["order_follow", "Follow", "walk"], ["order_hold", "Hold", "flag-objective"], ["order_charge", "Charge", "charging-bull"],
+			["order_retreat", "Retreat", "dodge"], ["order_formation", "Form", "checked-shield"]]:
 		var b := _button(pair[0], pair[1], 72, Color("5fae6b"), pair[2])
 		b.visible = false
 		_order_buttons.append(b)
