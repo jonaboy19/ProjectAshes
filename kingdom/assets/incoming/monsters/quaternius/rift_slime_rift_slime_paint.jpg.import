@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dm1cvxd4835gr"
-path="res://.godot/imported/rift_slime_rift_slime_paint.jpg-f212a12ba8a189d8996549e806148c7e.ctex"
+path.s3tc="res://.godot/imported/rift_slime_rift_slime_paint.jpg-f212a12ba8a189d8996549e806148c7e.s3tc.ctex"
+path.etc2="res://.godot/imported/rift_slime_rift_slime_paint.jpg-f212a12ba8a189d8996549e806148c7e.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "022a4922a18f2140d052290c665a21ff"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/monsters/quaternius/rift_slime_rift_slime_paint.jpg"
-dest_files=["res://.godot/imported/rift_slime_rift_slime_paint.jpg-f212a12ba8a189d8996549e806148c7e.ctex"]
+dest_files=["res://.godot/imported/rift_slime_rift_slime_paint.jpg-f212a12ba8a189d8996549e806148c7e.s3tc.ctex", "res://.godot/imported/rift_slime_rift_slime_paint.jpg-f212a12ba8a189d8996549e806148c7e.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

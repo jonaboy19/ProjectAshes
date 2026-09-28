@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://doemtrqbdkeng"
-path="res://.godot/imported/ghoul_lod1_ghoul_lod1_paint.jpg-0f8a710f6ca523ca1d08da9d95f0dfbe.ctex"
+path.s3tc="res://.godot/imported/ghoul_lod1_ghoul_lod1_paint.jpg-0f8a710f6ca523ca1d08da9d95f0dfbe.s3tc.ctex"
+path.etc2="res://.godot/imported/ghoul_lod1_ghoul_lod1_paint.jpg-0f8a710f6ca523ca1d08da9d95f0dfbe.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "64ce6e9e862cae8b10fd178f9d186fba"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/monsters/quaternius/ghoul_lod1_ghoul_lod1_paint.jpg"
-dest_files=["res://.godot/imported/ghoul_lod1_ghoul_lod1_paint.jpg-0f8a710f6ca523ca1d08da9d95f0dfbe.ctex"]
+dest_files=["res://.godot/imported/ghoul_lod1_ghoul_lod1_paint.jpg-0f8a710f6ca523ca1d08da9d95f0dfbe.s3tc.ctex", "res://.godot/imported/ghoul_lod1_ghoul_lod1_paint.jpg-0f8a710f6ca523ca1d08da9d95f0dfbe.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

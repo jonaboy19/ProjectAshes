@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://6y6qmwh5ufbm"
-path="res://.godot/imported/landmark_rift_lod1_Image_0.jpg-b955e42da5f4096413f6ddd4760d55e5.ctex"
+path.s3tc="res://.godot/imported/landmark_rift_lod1_Image_0.jpg-b955e42da5f4096413f6ddd4760d55e5.s3tc.ctex"
+path.etc2="res://.godot/imported/landmark_rift_lod1_Image_0.jpg-b955e42da5f4096413f6ddd4760d55e5.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "76bfb8b6f6dbb4f54a81dcbdec0cc901"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/landmark_rift_lod1_Image_0.jpg"
-dest_files=["res://.godot/imported/landmark_rift_lod1_Image_0.jpg-b955e42da5f4096413f6ddd4760d55e5.ctex"]
+dest_files=["res://.godot/imported/landmark_rift_lod1_Image_0.jpg-b955e42da5f4096413f6ddd4760d55e5.s3tc.ctex", "res://.godot/imported/landmark_rift_lod1_Image_0.jpg-b955e42da5f4096413f6ddd4760d55e5.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

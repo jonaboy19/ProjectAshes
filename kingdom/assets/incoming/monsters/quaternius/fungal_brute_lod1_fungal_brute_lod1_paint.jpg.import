@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b2b0lfmvgrley"
-path="res://.godot/imported/fungal_brute_lod1_fungal_brute_lod1_paint.jpg-850ffd6c011329a066c1b2b352564b51.ctex"
+path.s3tc="res://.godot/imported/fungal_brute_lod1_fungal_brute_lod1_paint.jpg-850ffd6c011329a066c1b2b352564b51.s3tc.ctex"
+path.etc2="res://.godot/imported/fungal_brute_lod1_fungal_brute_lod1_paint.jpg-850ffd6c011329a066c1b2b352564b51.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "f4dd49b1c01f5627d6bbc65e53708402"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/monsters/quaternius/fungal_brute_lod1_fungal_brute_lod1_paint.jpg"
-dest_files=["res://.godot/imported/fungal_brute_lod1_fungal_brute_lod1_paint.jpg-850ffd6c011329a066c1b2b352564b51.ctex"]
+dest_files=["res://.godot/imported/fungal_brute_lod1_fungal_brute_lod1_paint.jpg-850ffd6c011329a066c1b2b352564b51.s3tc.ctex", "res://.godot/imported/fungal_brute_lod1_fungal_brute_lod1_paint.jpg-850ffd6c011329a066c1b2b352564b51.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

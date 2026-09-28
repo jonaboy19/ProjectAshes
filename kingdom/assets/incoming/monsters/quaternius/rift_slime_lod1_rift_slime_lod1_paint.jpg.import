@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bm46clcvxqkhs"
-path="res://.godot/imported/rift_slime_lod1_rift_slime_lod1_paint.jpg-42e7d6ae3d01573c630815e91e39373e.ctex"
+path.s3tc="res://.godot/imported/rift_slime_lod1_rift_slime_lod1_paint.jpg-42e7d6ae3d01573c630815e91e39373e.s3tc.ctex"
+path.etc2="res://.godot/imported/rift_slime_lod1_rift_slime_lod1_paint.jpg-42e7d6ae3d01573c630815e91e39373e.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "7b1d68f4622f02b8b9c6aebe0e2e9ba2"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/monsters/quaternius/rift_slime_lod1_rift_slime_lod1_paint.jpg"
-dest_files=["res://.godot/imported/rift_slime_lod1_rift_slime_lod1_paint.jpg-42e7d6ae3d01573c630815e91e39373e.ctex"]
+dest_files=["res://.godot/imported/rift_slime_lod1_rift_slime_lod1_paint.jpg-42e7d6ae3d01573c630815e91e39373e.s3tc.ctex", "res://.godot/imported/rift_slime_lod1_rift_slime_lod1_paint.jpg-42e7d6ae3d01573c630815e91e39373e.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

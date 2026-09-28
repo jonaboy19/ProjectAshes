@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bquy8oojvnxef"
-path="res://.godot/imported/blight_rat_blight_rat_paint.jpg-1e9fca4ef79092ba60241e1cccdddd64.ctex"
+path.s3tc="res://.godot/imported/blight_rat_blight_rat_paint.jpg-1e9fca4ef79092ba60241e1cccdddd64.s3tc.ctex"
+path.etc2="res://.godot/imported/blight_rat_blight_rat_paint.jpg-1e9fca4ef79092ba60241e1cccdddd64.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "29aa3fee4656edb03b05f1202f5b57d4"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/monsters/quaternius/blight_rat_blight_rat_paint.jpg"
-dest_files=["res://.godot/imported/blight_rat_blight_rat_paint.jpg-1e9fca4ef79092ba60241e1cccdddd64.ctex"]
+dest_files=["res://.godot/imported/blight_rat_blight_rat_paint.jpg-1e9fca4ef79092ba60241e1cccdddd64.s3tc.ctex", "res://.godot/imported/blight_rat_blight_rat_paint.jpg-1e9fca4ef79092ba60241e1cccdddd64.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

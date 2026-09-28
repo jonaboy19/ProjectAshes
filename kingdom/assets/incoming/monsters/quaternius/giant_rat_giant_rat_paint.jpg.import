@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://wpioj175cvio"
-path="res://.godot/imported/giant_rat_giant_rat_paint.jpg-516f0bee1755a87a5845cb96737afcee.ctex"
+path.s3tc="res://.godot/imported/giant_rat_giant_rat_paint.jpg-516f0bee1755a87a5845cb96737afcee.s3tc.ctex"
+path.etc2="res://.godot/imported/giant_rat_giant_rat_paint.jpg-516f0bee1755a87a5845cb96737afcee.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "4feb180719029f27f541c1782b8df015"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/monsters/quaternius/giant_rat_giant_rat_paint.jpg"
-dest_files=["res://.godot/imported/giant_rat_giant_rat_paint.jpg-516f0bee1755a87a5845cb96737afcee.ctex"]
+dest_files=["res://.godot/imported/giant_rat_giant_rat_paint.jpg-516f0bee1755a87a5845cb96737afcee.s3tc.ctex", "res://.godot/imported/giant_rat_giant_rat_paint.jpg-516f0bee1755a87a5845cb96737afcee.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

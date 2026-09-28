@@ -143,7 +143,15 @@ func _spawn(asset: String) -> Node3D:
 		return holder
 	if asset.begins_with("nature:"):
 		var name := asset.substr(7)
-		return _lod_pair(REGION + "nature/" + name + ".glb", REGION + "nature/" + name + "_lod1.glb", LOD_DIST)
+		var nat := _lod_pair(REGION + "nature/" + name + ".glb", REGION + "nature/" + name + "_lod1.glb", LOD_DIST)
+		if nat:
+			# COLOR_0 on these is wind data, not colour: swap in the wind/AO materials
+			# the terrain streamer uses (Assets._region_materials), or they render blue.
+			for mi in nat.find_children("*", "MeshInstance3D", true, false):
+				var mesh := (mi as MeshInstance3D).mesh as ArrayMesh
+				if mesh:
+					Assets._region_materials(mesh, "region/nature/" + name)
+		return nat
 	if asset.begins_with("props/"):
 		return _lod_pair(GEN + asset + ".glb", "", 0.0)
 	return _lod_pair(REGION + asset + ".glb", REGION + asset + "_lod1.glb", LOD_DIST)

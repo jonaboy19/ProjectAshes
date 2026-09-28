@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d2o7pbktfi0mu"
-path="res://.godot/imported/landmark_watchfort_lod1_Image_0.jpg-c84c14a46280eb18c5c1d9c724793c8e.ctex"
+path.s3tc="res://.godot/imported/landmark_watchfort_lod1_Image_0.jpg-c84c14a46280eb18c5c1d9c724793c8e.s3tc.ctex"
+path.etc2="res://.godot/imported/landmark_watchfort_lod1_Image_0.jpg-c84c14a46280eb18c5c1d9c724793c8e.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "67a42d46c8c56240b776b63e091d272d"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/landmark_watchfort_lod1_Image_0.jpg"
-dest_files=["res://.godot/imported/landmark_watchfort_lod1_Image_0.jpg-c84c14a46280eb18c5c1d9c724793c8e.ctex"]
+dest_files=["res://.godot/imported/landmark_watchfort_lod1_Image_0.jpg-c84c14a46280eb18c5c1d9c724793c8e.s3tc.ctex", "res://.godot/imported/landmark_watchfort_lod1_Image_0.jpg-c84c14a46280eb18c5c1d9c724793c8e.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

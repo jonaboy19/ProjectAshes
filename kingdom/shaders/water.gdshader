@@ -63,7 +63,7 @@ group_uniforms sunset;
 uniform float sunset : hint_range(0.0, 1.0) = 0.0;   // Emberglass Mere turns ember at dusk
 uniform vec3 ember_color : source_color = vec3(1.0, 0.46, 0.14);
 uniform vec3 ember_deep : source_color = vec3(0.30, 0.06, 0.05);
-uniform float ember_glow : hint_range(0.0, 2.0) = 0.6;
+uniform float ember_glow : hint_range(0.0, 2.0) = 0.28;
 
 // Shared with grass.gdshader; set by scripts/world/grass_interactors.gd.
 global uniform vec4 ashes_interactor_0;
@@ -252,7 +252,7 @@ void fragment() {
 	if (sunset > 0.001) {
 		float still = 1.0 - clamp(length(flow) * 0.9, 0.0, 1.0);
 		float s = sunset * (0.35 + 0.65 * still);
-		body = mix(body, mix(ember_color * 0.3, ember_deep, murk), s * 0.45);
+		body = mix(body, mix(ember_color * 0.3, ember_deep, murk), s * 0.2);
 		// Slow breathing sheen, strongest toward the horizon.
 		float breathe = 0.65 + 0.35 * sin(TIME * 0.5 + world_pos.x * 0.03 + world_pos.z * 0.02 + fn * 3.0);
 		// Fine glitter off the ripple normals.

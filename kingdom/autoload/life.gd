@@ -267,6 +267,7 @@ func turn_in(cid: int) -> String:
 	if r.get("ok", false):
 		Game.add_gold(int(r.get("gold", 0)))
 		record("adventured", 2.0)
+		Audio.play_ui("quest_complete")
 	return String(r.get("text", ""))
 
 
