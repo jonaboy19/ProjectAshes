@@ -80,3 +80,31 @@ CC0 / public domain (no attribution required; credited with thanks):
 
 - Souls-like combat, magic-casting, parry, roll and interaction animations (`assets/incoming/animations/souls_cat/`) and the foley SFX in `assets/audio/sfx_souls/` are from the **Modular Souls-like Template** by **Cat Prisbrey** (https://github.com/catprisbrey/Cats-Godot4-Modular-Souls-like-Template), Unlicense / CC0. Credit isn't required but is given with thanks. The clips were retargeted onto the UAL skeleton.
 - Karate, tai chi, swordplay, swimming, chore and lie-down motion (`assets/incoming/animations/cmu_mocap/`): "Motion capture data from the **CMU Graphics Lab Motion Capture Database** (mocap.cs.cmu.edu), created with funding from NSF EIA-0196217." BVH conversion by **Bruce Hahne** (cgspeed.com). Free for research and commercial use, with no restrictions; the credit line is the one CMU requests.
+
+## World database (added 2026-09-28)
+
+- `addons/godot-sqlite/` (`kingdom/addons/godot-sqlite/`) is **godot-sqlite** by **Piet Bronders & Jeroen De Geeter**, (c) 2019-2026, MIT (https://github.com/2shady4u/godot-sqlite), vendored at release v4.8 ("Update to Godot 4.6.3"). Vendored binaries: Windows x86_64 (debug + release), Linux x86_64 (debug + release), macOS (debug + release), Android arm64-v8a + x86_64 (debug + release) and iOS arm64 device (debug + release, simulator slices stripped to keep files small); the web/wasm binaries were not vendored (not needed for a mobile/desktop build). Upstream has never shipped an armeabi-v7a (32-bit ARM Android) binary for any Godot 4 GDExtension release; `scripts/core/world_db.gd` degrades gracefully on that architecture (see its header comment) and the game still exports `armeabi-v7a` for older phones. `scripts/core/world_db.gd` is a small first-party wrapper around it (open/exec/query/transactions); it is vendoring only and is not yet wired into the save system.
+
+  ```
+  MIT License
+
+  Copyright (c) 2019-2026 Piet Bronders & Jeroen De Geeter
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+  ```

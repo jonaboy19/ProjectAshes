@@ -249,3 +249,43 @@ func close() -> void
 Every method fails soft (no push_error, no exceptions) when SQLite isn't available or the db isn't open, so a caller that forgets to check `available()`/`is_open()` degrades instead of crashing. **Cloud: whenever you decide to move any world state onto this, you still need to keep the existing JSON save path as the fallback for `WorldDB.available() == false` (armeabi-v7a devices) — this wrapper does not and will not silently choose a storage backend for you.** No save-system code was touched.
 
 Test: `kingdom/tests/test_world_db.gd` (gdUnit4) — open/exec/query/close round trip, an `available()`-false soft-degrade check, and a 10k-row bulk insert (single transaction) + full query-back with measured timing (printed by the test and reported in this session's final report). Verified headless on Windows.
+
+## DONE: outdoor grounding/look (2026-09-28)
+
+Visual QA + fix pass for the outdoor world (village, forest, camp), per the user's
+"looks fake outside the city, things aren't on the floor" report. Full writeup:
+`docs/qa/grounding/report.md` and `docs/qa/grounding/animation_timing.md`.
+
+- **`tools/qa/perf_visual/perf_visual.gd`** now drives the player through the real
+  touch-input path (joystick + camera, same `InputEventScreenTouch/Drag` calls as
+  `tools_qa/autoplay/autoplay.gd`) instead of teleporting every frame, cycling
+  idle/walk/run so walk/run animations actually play during a capture and the
+  recorder window titles itself so it's clear it's a QA bot, not broken input.
+  `--teleport` keeps the old mode for pure streaming benchmarks.
+- **New `tools/qa/grounding/grounding_check.gd`**: samples every placed prop/tree/
+  building/character within 150 m of several locations against `WorldGen.height()`.
+  Found forest scatter (trees/rocks placed by `TerrainStreamer._plan_forest`) was
+  the dominant floating/buried source on slopes — **fixed** with a slope-scaled
+  sink. Also found (not fixed, flagged for follow-up): village building/prop
+  batches in `settlement_builder.gd` float more than the region-site buildings do
+  (median 29 cm), because they don't use `RegionDressing._footprint_ground()`'s
+  per-corner snap. Also found and worked around a real asset bug: every GLB under
+  `kingdom/assets/generated/region/**` has an invalid embedded resource UID,
+  making every load fall back to slow text-path re-resolution — worth a reimport,
+  separate from this pass.
+- **"Fake look" fixes** (`world_gen.gd` `color_at()`, `settlement_builder.gd`,
+  `region_dressing.gd`): every building/prop footprint and region-site clearing now
+  gets a worn-dirt ring in the terrain vertex colours (previously only streets/
+  paths/plaza did — buildings elsewhere met grass with a hard edge), plus small
+  base clutter (stones/weeds/ferns) at building bases in villages and at farm/mine/
+  camp buildings. SSAO/contact-shadow settings in `main.gd` were reviewed and left
+  alone (already reasonable). ProtonScatter/terrain_layered_shader (surveyed in
+  `docs/qa/github_tools_survey.md`) were deliberately not adopted this pass — the
+  in-house `WorldGen.color_at()` approach was cheaper and lower-risk given the time
+  available; ProtonScatter's ground-projection modifier is still a good follow-up
+  for scatter variety.
+- Not done: `settlement_builder.gd` per-corner footprint snap (flagged above, not
+  implemented), region-site numeric grounding re-verification (region build is slow,
+  see above — checked by code review instead), and a full per-NPC/animal animation-
+  timing sweep (`animation_timing.md` covers the player in detail; NPCs/animals were
+  only spot-checked by eye).

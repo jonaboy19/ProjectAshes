@@ -155,6 +155,7 @@ Legend: **Lic ✓** = licence verified this session; **Attr** = attribution lega
 | addons/quest_weaver | code | github.com/undomick/godot_nexus_quest_weaver | yes (MIT) | MIT notice | yes (added) | autoloaded; only mentioned in a comment (`hidden_triggers.gd`) | 4 | **No LICENSE file in repo** |
 | addons/GodotGAS | code | github.com/yulrun/godot-gas | yes (MIT) | MIT notice | yes (added) | autoload `GameplayCueManager`; no ability code yet | 2 | |
 | addons/gdUnit4 | code | github.com/MikeSchulze/gdUnit4 | yes (MIT) | MIT notice if shipped | n/a (tests) | tests only (7 test files) | 5 | Exclude from exports |
+| addons/godot-sqlite | code (C++ GDExtension) | github.com/2shady4u/godot-sqlite | yes (MIT) | MIT notice | yes (added) | vendored only, used by `scripts/core/world_db.gd` (thin wrapper, not wired into saves) | 111 | v4.8 ("Update to Godot 4.6.3"). No armeabi-v7a Android binary in any upstream Godot-4 release (checked v4.0-v4.9); `world_db.gd` degrades gracefully (`WorldDB.available()`), JSON saves remain the fallback. iOS/Android binaries present, so red flag 7 does not apply |
 
 (Addons are counted in the addon line of the summary, not in the 20 unused packs.)
 
