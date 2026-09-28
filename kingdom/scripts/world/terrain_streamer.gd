@@ -49,6 +49,10 @@ func _ready() -> void:
 		_ground_material.set_shader_parameter(layer + "_albedo", load(TEX % [tex_name, tex_name, "diff"]))
 		_ground_material.set_shader_parameter(layer + "_normal", load(TEX % [tex_name, tex_name, "nor_gl"]))
 		_ground_material.set_shader_parameter(layer + "_arm", load(TEX % [tex_name, tex_name, "arm"]))
+	# Streets: the user's hand-painted honey cobbles (art reference) instead of the scanned set.
+	_ground_material.set_shader_parameter("cobble_albedo", load("res://assets/art/textures/cobblestone.png"))
+	_ground_material.set_shader_parameter("cobble_normal", load("res://assets/art/textures/cobblestone_normal.png"))
+	_ground_material.set_shader_parameter("cobble_arm", load("res://assets/art/textures/cobblestone_arm.png"))   # AO, rough, metal
 	_ground_material.set_shader_parameter("macro_noise", _noise_texture(0.01, 3, false))
 	for tree: String in REGION_TREES:
 		var kind: String = REGION + tree
