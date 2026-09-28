@@ -68,12 +68,12 @@ const TURN_SECONDS := 4.0
 const ACT_CLIPS := {
 	Act.SHOP: ["Idle_Talking", "Interact"],
 	Act.INN: ["Idle_Talking", "Cheering_Two_Hands"],
-	Act.PRAY: ["G6_pray", "Meditate", "Fixing_Kneeling"],
-	Act.WATER: ["G6_gathering", "Interact", "PickUp_Table"],
+	Act.PRAY: ["G6_pray", "Taichi_Idle", "Meditate", "Fixing_Kneeling"],
+	Act.WATER: ["G6_gathering", "Chore_Pick_Up_Box", "Interact", "PickUp_Table"],
 	Act.SHELTER: ["Shivering", "Idle_Subtle"],
 	Act.FLEE: ["Shivering", "Idle_Hurt"],
 	Act.WATCH: ["Idle_Listening", "Idle_Subtle"],
-	Act.SLEEP: ["Sitting_Idle"], Act.HOME: ["Sitting_Idle"], Act.EAT: ["Consume_Item", "Sitting_Idle"],
+	Act.SLEEP: ["Lie_Down_Idle", "Sitting_Idle"], Act.HOME: ["Chore_Sweep", "Sitting_Idle"], Act.EAT: ["Consume_Item", "Sitting_Idle"],
 }
 const TALK_CLIPS := ["Idle_Talking"]
 const LISTEN_CLIPS := ["Idle_Listening", "Head_Nod", "Idle_Talking"]
