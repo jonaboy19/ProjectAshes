@@ -837,6 +837,18 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 				add.call("bunting", p, atan2(nrm.x, nrm.y) + PI * 0.5, 4.2, (half * 2.0 + 1.2) / 8.0)
 			t += 5.5
 			k += 1
+	# Flowers and a barrel or two at the foot of every townhouse front, either side of the door.
+	for lot: Dictionary in plan["lots"]:
+		if not String(lot["asset"]).begins_with("house_town"):
+			continue
+		var yaw: float = lot["yaw"]
+		var fwd := Vector2(sin(yaw), cos(yaw))
+		var right := Vector2(fwd.y, -fwd.x)
+		var front: Vector2 = lot["pos"] + fwd * 4.3
+		for sd: float in [-1.0, 1.0]:
+			add.call("flower_strip", front + right * sd * 2.4, yaw + PI * 0.5)
+		if rng.randf() < 0.5:
+			add.call("barrel_cluster", front + right * 3.0 + fwd * 0.8, yaw + rng.randf_range(-0.5, 0.5))
 	# Red-and-gold banners hung along the inner face of the walls either side of each gate.
 	var wall_mesh := Assets.building_mesh("wall")
 	if plan["walls"] and wall_mesh != null:
