@@ -24,7 +24,12 @@ static var _material: ShaderMaterial
 
 
 static func build(origin: Vector2, size: float, seed_value: int) -> Node3D:
-	Interactors.ensure_running()
+	return build_from_plan(plan(origin, size, seed_value))
+
+
+## Where every clump goes: pure maths on WorldGen's read-only data, so it is safe
+## to run on a worker thread (TerrainStreamer does). Kind -> Array of Transform3D.
+static func plan(origin: Vector2, size: float, seed_value: int) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	# Blender-made alpha-card clumps (tools/blender/make_nature.py) with the wind
@@ -40,6 +45,12 @@ static func build(origin: Vector2, size: float, seed_value: int) -> Node3D:
 		var s := rng.randf_range(0.75, 1.35)
 		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.85, 1.25), s))
 		(kinds[kind] as Array).append(Transform3D(basis, Vector3(x, WorldGen.height(x, z) - 0.03, z)))
+	return kinds
+
+
+## The nodes for a plan (main thread only). Null if the plan is empty.
+static func build_from_plan(kinds: Dictionary) -> Node3D:
+	Interactors.ensure_running()
 	var root := Node3D.new()
 	for kind: String in kinds:
 		var list: Array = kinds[kind]
