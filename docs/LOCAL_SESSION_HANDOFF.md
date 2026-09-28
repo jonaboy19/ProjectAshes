@@ -138,3 +138,38 @@ The separate `gpt/ai3d-assets` branch has merged the latest Claude performance a
 - **Upgraded village props** (`generated/props`): lamp post, signpost, barrel, crate, bench, hay bales, plus
   new keys in `Assets.BUILDINGS`.
 - **Interiors** are wired on every building (see `scenes/interiors/README.md`).
+
+
+## Cloud session, 2026-09-28: new systems to check on a real GPU and phone
+All are merged on `claude/focused-curie-m09hbd` and `main` (214 GdUnit tests pass). Cost notes are the cloud's
+estimates; the local side owns the real numbers.
+- **World:**
+  - weather (`scripts/world/weather.gd`: mist, rain, storm with lightning, wet terrain);
+  - seasons (`scripts/sim/seasons.gd`, global shader params `season_tint`, `autumn_amount`, `winter_amount`, `snow_amount`, `bloom_amount`; force one with `--season=autumn`);
+  - GPU ambience (`scripts/world/ambient_fx.gd`: flocks, fireflies, butterflies, leaves, motes, embers, fish);
+  - grass trampling and water ripples (`grass_interactors.gd`, eight `ashes_interactor_*` globals);
+  - Jolt physics (`project.godot [physics]`).
+- **Characters:**
+  - foot IK and secondary motion (`procedural_rig.gd`, near the camera only);
+  - ragdolls (`ragdoll.gd`, cap 3, frozen after 3 s);
+  - 66 new UAL clips (`assets/incoming/animations/`);
+  - utility-AI villagers (`population/utility_brain.gd`, 0.9 s ticks).
+- **Combat and army:**
+  - attack tokens, parry, lock-on, stealth noise radius;
+  - formations and morale (`army/formation.gd`, `morale.gd`);
+  - VFX library (`scripts/vfx/*`; `VFX.warmup()` at boot pre-compiles the shaders).
+- **Life systems:**
+  - hunting, fishing, foraging;
+  - crafting and equipment;
+  - skills and cultivation (`data/skills/*`);
+  - dialogue, relationships and radiant quests (`dialogue/*.json`);
+  - homestead building (`homestead.gd`, `build_menu.gd`);
+  - discovery, compass, world map, fast travel, photo mode;
+  - adaptive music (`scripts/audio/*`);
+  - save slots, autosave and backups (`save_manager.gd`, `user://saves/`).
+- **HUD:** Items, Crafting, Arts, Photo and Save/Load live in the Pack menu. The dock holds Map, Lock and Sneak; the four technique slots sit on an arc left of Attack.
+- **Please check on a GPU:**
+  - frame time with 3 ragdolls plus rain plus ambience in the village;
+  - the new shaders on the Mobile renderer (terrain wetness and snow, grass, water sunset);
+  - the `--shot=homestead` view;
+  - touch sizes of the technique arc and the seal pad on a phone.
