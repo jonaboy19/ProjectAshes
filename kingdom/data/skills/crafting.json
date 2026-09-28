@@ -1,0 +1,123 @@
+{
+	"id": "crafting",
+	"name": "Crafting",
+	"category": "life",
+	"element": "none",
+	"color": "#d08a4a",
+	"desc": "Forgeheart. Things that last are made by hands that were patient.",
+	"sects": [
+		"anvil_brotherhood"
+	],
+	"techniques": [
+		{
+			"id": "craft_apprentice",
+			"name": "Apprentice Hands",
+			"desc": "Better quality on everything you make.",
+			"tier": 1,
+			"col": 0,
+			"kind": "passive",
+			"passive": {
+				"craft_quality": 0.05
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "craft_field_repair",
+			"name": "Field Repair",
+			"desc": "Kneel and patch your gear (restores stamina, emits a repair event).",
+			"tier": 2,
+			"col": -1,
+			"resource": "stamina",
+			"cost": 10,
+			"cooldown": 45.0,
+			"damage": 0,
+			"shape": "utility",
+			"effect": {
+				"repair": 0.25,
+				"stamina": 20
+			},
+			"anim": "Fixing_Kneeling",
+			"anim_mode": "full",
+			"hit_time": 1.0,
+			"vfx": "sparks",
+			"element": "none",
+			"requires": [
+				"craft_apprentice"
+			]
+		},
+		{
+			"id": "craft_thrifty",
+			"name": "Thrifty Maker",
+			"desc": "Waste less: recipes cost fewer materials.",
+			"tier": 2,
+			"col": 1,
+			"kind": "passive",
+			"passive": {
+				"craft_materials": -0.1
+			},
+			"requires": [
+				"craft_apprentice"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "craft_smith",
+			"name": "Journeyman Smith",
+			"desc": "Forge arms: weapon quality and sword damage up.",
+			"tier": 3,
+			"col": -1,
+			"kind": "passive",
+			"passive": {
+				"craft_quality": 0.08,
+				"weapon_quality": 0.1,
+				"sword_damage": 0.03
+			},
+			"requires": [
+				"craft_field_repair"
+			],
+			"needs": {
+				"level": 6
+			}
+		},
+		{
+			"id": "craft_alchemy",
+			"name": "Pill Refining",
+			"desc": "Refine qi pills (better breakthrough odds when used).",
+			"tier": 3,
+			"col": 1,
+			"kind": "passive",
+			"passive": {
+				"pill_quality": 0.15,
+				"breakthrough": 0.05
+			},
+			"requires": [
+				"craft_thrifty"
+			],
+			"needs": {
+				"realm": 1
+			}
+		},
+		{
+			"id": "craft_forgeheart",
+			"name": "Forgeheart Mastery",
+			"desc": "The Brotherhood's secret temper: legendary work.",
+			"tier": 4,
+			"col": 0,
+			"kind": "passive",
+			"passive": {
+				"craft_quality": 0.2,
+				"weapon_quality": 0.25
+			},
+			"requires": [
+				"craft_smith",
+				"craft_alchemy"
+			],
+			"needs": {
+				"sect": [
+					"anvil_brotherhood"
+				]
+			},
+			"points": 2
+		}
+	]
+}

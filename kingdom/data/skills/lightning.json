@@ -1,0 +1,158 @@
+{
+	"id": "lightning",
+	"name": "Lightning Arts",
+	"category": "elemental",
+	"element": "lightning",
+	"color": "#9fb4ff",
+	"desc": "Thunderstep. The fastest and most dangerous of the arts; it punishes hesitation.",
+	"sects": [
+		"ninefold_sword_pavilion",
+		"hollow_moon_school",
+		"hall_of_four_currents"
+	],
+	"techniques": [
+		{
+			"id": "lightning_spark",
+			"name": "Spark Needle",
+			"desc": "A needle of lightning that finds the nearest foe.",
+			"tier": 1,
+			"col": 0,
+			"resource": "magicules",
+			"cost": 5,
+			"cooldown": 2.0,
+			"damage": 20,
+			"shape": "chain",
+			"range": 12.0,
+			"chains": 0,
+			"effect": {
+				"stun": 0.2
+			},
+			"anim": [
+				"Magic_Cast_R",
+				"Spell_Simple_Shoot"
+			],
+			"anim_speed": 1.6,
+			"hit_time": 0.15,
+			"vfx": "lightning_chain",
+			"element": "lightning",
+			"max_rank": 3
+		},
+		{
+			"id": "lightning_chain",
+			"name": "Chain Lightning",
+			"desc": "Lightning leaps from foe to foe.",
+			"tier": 2,
+			"col": 0,
+			"resource": "magicules",
+			"cost": 11,
+			"cooldown": 7.0,
+			"damage": 26,
+			"shape": "chain",
+			"range": 14.0,
+			"chains": 4,
+			"chain_range": 7.0,
+			"effect": {
+				"stun": 0.3
+			},
+			"anim": [
+				"Magic_Cast_L",
+				"G6_cast_unarmed_magic"
+			],
+			"anim_speed": 1.3,
+			"hit_time": 0.25,
+			"vfx": "lightning_chain",
+			"element": "lightning",
+			"requires": [
+				"lightning_spark"
+			],
+			"needs": {
+				"level": 4
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "lightning_quick_nerves",
+			"name": "Quickened Nerves",
+			"desc": "Lightning in the blood: shorter cooldowns.",
+			"tier": 2,
+			"col": 1,
+			"kind": "passive",
+			"passive": {
+				"cooldown": -0.05,
+				"lightning_damage": 0.05
+			},
+			"requires": [
+				"lightning_spark"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "lightning_thunderstep",
+			"name": "Thunderstep",
+			"desc": "Flash forward as a bolt, shocking foes along the path.",
+			"tier": 3,
+			"col": 1,
+			"resource": "magicules",
+			"cost": 10,
+			"cooldown": 7.0,
+			"damage": 30,
+			"shape": "dash",
+			"range": 10.0,
+			"effect": {
+				"stun": 0.4
+			},
+			"anim": "Sword_Dash",
+			"anim_mode": "full",
+			"anim_speed": 1.6,
+			"hit_time": 0.1,
+			"vfx": "lightning_trail",
+			"element": "lightning",
+			"requires": [
+				"lightning_quick_nerves"
+			],
+			"needs": {
+				"sect": [
+					"ninefold_sword_pavilion",
+					"hollow_moon_school"
+				]
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "lightning_heaven_strike",
+			"name": "Heavenly Tribulation Bolt",
+			"desc": "Call the sky's judgement down on a foe.",
+			"tier": 4,
+			"col": 0,
+			"resource": "magicules",
+			"cost": 30,
+			"cooldown": 20.0,
+			"damage": 110,
+			"shape": "target_aoe",
+			"range": 18.0,
+			"radius": 2.5,
+			"effect": {
+				"stun": 1.5
+			},
+			"anim": "G6_cast_two_handed_staff",
+			"anim_mode": "full",
+			"hit_time": 0.6,
+			"vfx": "thunder_strike",
+			"element": "lightning",
+			"requires": [
+				"lightning_chain",
+				"lightning_thunderstep"
+			],
+			"needs": {
+				"realm": 3
+			},
+			"points": 3,
+			"seals": [
+				"dragon",
+				"rat",
+				"bird",
+				"tiger"
+			]
+		}
+	]
+}

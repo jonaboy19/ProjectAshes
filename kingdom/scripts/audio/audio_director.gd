@@ -622,7 +622,7 @@ func _music_intensity() -> float:
 
 
 func _player_dead() -> bool:
-	return _player != null and is_instance_valid(_player) and bool(_player.get("dead"))
+	return _player != null and is_instance_valid(_player) and (_player.get("dead") == true)
 
 
 func _underwater() -> bool:
@@ -670,7 +670,7 @@ func _poll_player() -> void:
 		if float(dodge) > 0.3 and _last_dodge <= 0.0:
 			play_sfx("dodge", pos, -2.0)
 		_last_dodge = float(dodge)
-	if not footsteps_enabled or bool(_player.get("dead")):
+	if not footsteps_enabled or (_player.get("dead") == true):
 		return
 	var on_floor: bool = _player.call("is_on_floor") if _player.has_method("is_on_floor") else true
 	if not on_floor or moved > 3.0:      # teleports (doors, respawn) don't make steps
@@ -714,7 +714,7 @@ func _poll_creatures() -> void:
 		var hp: Variant = c.get("health")
 		if not hp is int:
 			continue
-		var dead := int(hp) <= 0 or bool(c.get("dead"))
+		var dead: bool = int(hp) <= 0 or (c.get("dead") == true)
 		if not dead:
 			hostiles += 1
 			if _in_combat and _is_boss(c):
@@ -749,7 +749,7 @@ func _creature_idle() -> void:
 	var best: Node3D = null
 	for n in get_tree().get_nodes_in_group("combatant"):
 		var c := n as Node3D
-		if c == null or _species(c) == "" or bool(c.get("dead")):
+		if c == null or _species(c) == "" or (c.get("dead") == true):
 			continue
 		var d := c.global_position.distance_to(lp)
 		if d < 28.0 and (best == null or randf() < 0.4):

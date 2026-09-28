@@ -34,6 +34,9 @@ var scouts := RAScouts.new()
 var discovery := preload("res://scripts/sim/discovery.gd").new()
 var relationships := preload("res://scripts/sim/relationships.gd").new()
 var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
+var crafting := preload("res://scripts/sim/crafting.gd").new()
+var equipment := preload("res://scripts/sim/equipment.gd").new()
+var skills := preload("res://scripts/sim/skills.gd").new()
 ## Scout offers waiting for an answer: [event]
 var pending_offers: Array = []
 const GUILD_MIN_AGE := 12
@@ -46,6 +49,13 @@ var _last_abs := -1.0     # absolute in-game hours at the last tick
 
 
 func _ready() -> void:
+	equipment.clock = _abs_hours
+	skills.breakthrough.connect(func(r: Dictionary) -> void:
+		Game.say(String(r["text"]))
+		if r["success"]:
+			magicules.grow(float(r["magicule_growth"]), float(r["magicule_growth"]) * 0.05)
+		elif int(r["damage"]) > 0 and player and player.has_method("set_health"):
+			player.set_health(int(player.get("health")) - int(r["damage"])))
 	inventory = Inventory.new()
 	inventory.name = "PlayerInventory"
 	inventory.protoset = load(PROTOSET)
@@ -160,6 +170,8 @@ func _life_tick(hour: int) -> void:
 	life_path.update(WorldSim.day, hour)
 	titles.evaluate({"actions": life_path.actions, "stats": {"gold": Game.gold, "merit": Game.merit},
 		"age": age(), "flags": life_path.flags, "day": WorldSim.day})
+	for msg: String in skills.sync_progress(skills.ctx_from_life(self)):
+		Game.say(msg)
 	if player and is_instance_valid(player):
 		triggers.check(Vector2(player.global_position.x, player.global_position.z), age(), float(hour), life_path.flags)
 
@@ -328,6 +340,8 @@ func _setup_market() -> void:
 	market.add_good("wolf_meat", 2, 10, 0)
 	market.add_good("firewood", 1, 30, 6)
 	preload("res://scripts/sim/gathering_items.gd").register(self)
+	for id: String in ["iron_ingot", "leather", "plank", "arrowheads", "horseshoe", "healing_salve", "antidote", "stamina_draught", "grilled_fish", "berry_pie", "saddle"]:
+		market.add_good(id, int(item_prop(id, "price", 1)), 4, 0)
 
 
 ## Local people of a settlement who aren't already in an organisation, laborers first.
@@ -567,6 +581,9 @@ func snapshot() -> Dictionary:
 		"discovery": discovery.serialize(),
 		"relationships": relationships.serialize(),
 		"radiant": radiant.serialize(),
+		"crafting": crafting.serialize(),
+		"equipment": equipment.serialize(),
+		"skills": skills.serialize(),
 	}
 	if player and is_instance_valid(player):
 		d["player"] = {"x": player.global_position.x, "y": player.global_position.y,
@@ -591,7 +608,7 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	_last_abs = _abs_hours()

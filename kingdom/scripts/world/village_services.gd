@@ -7,6 +7,7 @@ extends Node3D
 ## the same menus are offered inside: wire_settlement() hooks every InteriorDoor
 ## so the innkeeper, smith, receptionist and healer in a room get a Station.
 
+const CraftingScreen := preload("res://scripts/ui/crafting_screen.gd")
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const MEGAKIT := "res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/"
 const BOARD := "res://assets/generated/notice_board.glb"
@@ -150,6 +151,7 @@ func _role_service(role: String) -> Array:
 ## exist right away (the NPC models spawn a frame later), and the Stations are
 ## children of the room, so they are freed with it.
 func _on_interior_entered(room: Node3D) -> void:
+	Life.crafting.scan_interior(room)
 	for m in room.find_children("NPC_*", "Marker3D", true, false):
 		var svc := _role_service(String(m.get_meta("role", "")))
 		if svc.is_empty():
@@ -230,6 +232,7 @@ func inn_menu() -> Dictionary:
 	var server := Life.careers.seat("inn", "Server")
 	if not Life.careers.is_employed() and Life.careers.open_count(server) > 0:
 		opts.append(["Ask for work as a Server (%dg/day)" % server["wage"], _apply.bind("inn", "Server")])
+	opts.append(CraftingScreen.menu_option(hud, ["hearth"], "Cook at the hearth", "Inn Hearth"))
 	opts.append(_talk_option("innkeeper"))
 	return {"title": "%s Inn" % WorldGen.settlements[0]["name"],
 		"body": "The common room smells of smoke and onions.\nYou are %s and %s. It is %02d:00." % [
@@ -255,6 +258,7 @@ func smith_menu() -> Dictionary:
 	var body := "The forge roars; the smith doesn't look up from the anvil.\n\"Wood for the fire, or a strong back. Nothing else I need today.\""
 	if opts.is_empty():
 		body += "\nYou have nothing the smith wants."
+	opts.append(CraftingScreen.menu_option(hud, ["anvil", "workbench"], "Work the anvil & bench", "Smithy"))
 	opts.append(_talk_option("smith"))
 	return {"title": "Blacksmith", "body": body, "options": opts}
 
@@ -502,6 +506,7 @@ func healer_menu() -> Dictionary:
 		opts.append(["Ask about work (%d)" % herb_jobs.size(), func() -> String:
 			hud.show_menu(_quest_menu.bind(hinfo))
 			return ""])
+	opts.append(CraftingScreen.menu_option(hud, ["alchemy_table"], "Mix remedies at the table", "Healer's Table"))
 	opts.append(_talk_option("herbalist"))
 	return {"title": "Herbalist", "body": body, "options": opts}
 

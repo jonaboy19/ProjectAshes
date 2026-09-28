@@ -1,0 +1,20 @@
+{
+	"version": 1,
+	"trees": [
+		"swordsmanship",
+		"fist_palm",
+		"fire",
+		"water",
+		"wind",
+		"earth",
+		"lightning",
+		"qi",
+		"shadow",
+		"iaido",
+		"command",
+		"crafting",
+		"farming"
+	],
+	"realms": "realms.json",
+	"manuals": "manuals.json"
+}

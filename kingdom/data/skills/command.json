@@ -1,0 +1,163 @@
+{
+	"id": "command",
+	"name": "Command",
+	"category": "military",
+	"element": "none",
+	"color": "#7fbf6a",
+	"desc": "Leadership. Soldiers follow the voice that does not waver.",
+	"sects": [
+		"royal_ember_academy",
+		"greywatch_spear_hall",
+		"army"
+	],
+	"techniques": [
+		{
+			"id": "command_rally",
+			"name": "Rally Cry",
+			"desc": "Restore stamina to yourself and nearby allies.",
+			"tier": 1,
+			"col": 0,
+			"resource": "stamina",
+			"cost": 6,
+			"cooldown": 20.0,
+			"damage": 0,
+			"shape": "buff",
+			"radius": 12.0,
+			"effect": {
+				"stamina": 40
+			},
+			"anim": "Cheering_Two_Hands",
+			"anim_mode": "full",
+			"anim_speed": 1.3,
+			"hit_time": 0.3,
+			"vfx": "rally",
+			"element": "none"
+		},
+		{
+			"id": "command_drill",
+			"name": "Drill Sergeant",
+			"desc": "Your troops hit harder and hold longer.",
+			"tier": 2,
+			"col": -1,
+			"kind": "passive",
+			"passive": {
+				"troop_damage": 0.08,
+				"troop_morale": 0.1
+			},
+			"requires": [
+				"command_rally"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "command_war_cry",
+			"name": "War Cry",
+			"desc": "A roar that staggers the enemy's courage.",
+			"tier": 2,
+			"col": 1,
+			"resource": "stamina",
+			"cost": 12,
+			"cooldown": 18.0,
+			"damage": 0,
+			"shape": "aoe",
+			"radius": 8.0,
+			"effect": {
+				"slow": 3.0,
+				"fear": 2.5
+			},
+			"anim": "Angry",
+			"anim_mode": "full",
+			"anim_speed": 1.3,
+			"hit_time": 0.35,
+			"vfx": "war_cry",
+			"element": "none",
+			"requires": [
+				"command_rally"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "command_hold_line",
+			"name": "Hold the Line",
+			"desc": "You and your allies brace: take much less damage.",
+			"tier": 3,
+			"col": -1,
+			"resource": "stamina",
+			"cost": 15,
+			"cooldown": 30.0,
+			"damage": 0,
+			"shape": "buff",
+			"radius": 12.0,
+			"effect": {
+				"buff": {
+					"damage_taken": -0.3
+				},
+				"duration": 8.0
+			},
+			"anim": "Salute",
+			"anim_mode": "full",
+			"hit_time": 0.4,
+			"vfx": "rally",
+			"element": "none",
+			"requires": [
+				"command_drill"
+			],
+			"needs": {
+				"level": 8
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "command_charge",
+			"name": "Lead the Charge",
+			"desc": "Sprint forward with your banner; foes in the way are trampled.",
+			"tier": 3,
+			"col": 1,
+			"resource": "stamina",
+			"cost": 24,
+			"cooldown": 20.0,
+			"damage": 30,
+			"shape": "dash",
+			"range": 10.0,
+			"knockback": 8.0,
+			"anim": "Sprint",
+			"anim_mode": "full",
+			"anim_speed": 1.3,
+			"hit_time": 0.2,
+			"vfx": "rally",
+			"element": "none",
+			"requires": [
+				"command_war_cry"
+			],
+			"needs": {
+				"sect": [
+					"army",
+					"royal_ember_academy",
+					"greywatch_spear_hall"
+				]
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "command_generalship",
+			"name": "Generalship",
+			"desc": "Your name alone steadies an army.",
+			"tier": 4,
+			"col": 0,
+			"kind": "passive",
+			"passive": {
+				"troop_damage": 0.15,
+				"troop_morale": 0.25,
+				"command_slots": 4
+			},
+			"requires": [
+				"command_hold_line",
+				"command_charge"
+			],
+			"needs": {
+				"level": 20
+			},
+			"points": 3
+		}
+	]
+}

@@ -1,0 +1,209 @@
+{
+	"id": "fire",
+	"name": "Fire Arts",
+	"category": "elemental",
+	"element": "fire",
+	"color": "#ff6a2b",
+	"desc": "Flamecanting. Fire is hunger given shape: feed it magicules and it answers.",
+	"sects": [
+		"hall_of_four_currents",
+		"dawnflame_seminary",
+		"royal_ember_academy"
+	],
+	"techniques": [
+		{
+			"id": "fire_ember_orb",
+			"name": "Ember Orb",
+			"desc": "Hurl a ball of fire that bursts on contact.",
+			"tier": 1,
+			"col": 0,
+			"resource": "magicules",
+			"cost": 5,
+			"cooldown": 2.5,
+			"damage": 22,
+			"shape": "projectile",
+			"range": 18.0,
+			"speed": 18.0,
+			"radius": 1.5,
+			"effect": {
+				"burn": 3.0
+			},
+			"anim": [
+				"Magic_Cast_R",
+				"Spell_Simple_Shoot"
+			],
+			"anim_speed": 1.3,
+			"hit_time": 0.25,
+			"vfx": "fireball",
+			"element": "fire",
+			"max_rank": 3
+		},
+		{
+			"id": "fire_kindled_heart",
+			"name": "Kindled Heart",
+			"desc": "Your core runs hot: fire damage up.",
+			"tier": 2,
+			"col": -1,
+			"kind": "passive",
+			"passive": {
+				"fire_damage": 0.08
+			},
+			"requires": [
+				"fire_ember_orb"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "fire_flame_wave",
+			"name": "Flame Wave",
+			"desc": "A sweeping fan of fire in front of you.",
+			"tier": 2,
+			"col": 1,
+			"resource": "magicules",
+			"cost": 9,
+			"cooldown": 6.0,
+			"damage": 30,
+			"shape": "cone",
+			"range": 6.0,
+			"angle": 70.0,
+			"effect": {
+				"burn": 3.0
+			},
+			"anim": [
+				"Magic_Cast_L",
+				"G6_cast_unarmed_magic"
+			],
+			"anim_speed": 1.2,
+			"hit_time": 0.3,
+			"vfx": "flame_wave",
+			"element": "fire",
+			"requires": [
+				"fire_ember_orb"
+			],
+			"max_rank": 3
+		},
+		{
+			"id": "fire_pillar",
+			"name": "Pillar of Flame",
+			"desc": "A column of fire erupts beneath your foe.",
+			"tier": 3,
+			"col": 0,
+			"resource": "magicules",
+			"cost": 14,
+			"cooldown": 10.0,
+			"damage": 48,
+			"shape": "target_aoe",
+			"range": 14.0,
+			"radius": 2.2,
+			"effect": {
+				"burn": 4.0
+			},
+			"anim": [
+				"Magic_Cast_L",
+				"Spell_Simple_Enter"
+			],
+			"anim_speed": 1.1,
+			"hit_time": 0.5,
+			"vfx": "fire_pillar",
+			"element": "fire",
+			"requires": [
+				"fire_kindled_heart",
+				"fire_flame_wave"
+			],
+			"needs": {
+				"level": 6
+			},
+			"max_rank": 3
+		},
+		{
+			"id": "fire_ember_step",
+			"name": "Ember Step",
+			"desc": "Dash through fire, leaving a burning trail.",
+			"tier": 3,
+			"col": 1,
+			"resource": "magicules",
+			"cost": 8,
+			"cooldown": 8.0,
+			"damage": 20,
+			"shape": "dash",
+			"range": 7.0,
+			"effect": {
+				"burn": 2.0
+			},
+			"anim": "Roll",
+			"anim_mode": "full",
+			"anim_speed": 1.6,
+			"hit_time": 0.15,
+			"vfx": "flame_wave",
+			"element": "fire",
+			"requires": [
+				"fire_ember_orb"
+			],
+			"needs": {
+				"flag": "ability:ember_step"
+			},
+			"hidden": true,
+			"points": 0
+		},
+		{
+			"id": "fire_dawnflame_nova",
+			"name": "Dawnflame Nova",
+			"desc": "The Seminary's rite: a sunburst that sears the wicked.",
+			"tier": 4,
+			"col": 0,
+			"resource": "magicules",
+			"cost": 30,
+			"cooldown": 24.0,
+			"damage": 85,
+			"shape": "aoe",
+			"radius": 6.0,
+			"knockback": 6.0,
+			"effect": {
+				"burn": 5.0
+			},
+			"anim": "G6_power_up",
+			"anim_mode": "full",
+			"anim_speed": 1.2,
+			"hit_time": 0.6,
+			"vfx": "fire_nova",
+			"element": "fire",
+			"requires": [
+				"fire_pillar"
+			],
+			"needs": {
+				"sect": [
+					"dawnflame_seminary",
+					"hall_of_four_currents"
+				],
+				"realm": 2
+			},
+			"points": 2,
+			"seals": [
+				"snake",
+				"tiger",
+				"bird"
+			]
+		},
+		{
+			"id": "fire_phoenix_core",
+			"name": "Phoenix Core",
+			"desc": "Fire no longer burns you; it feeds you.",
+			"tier": 5,
+			"col": 0,
+			"kind": "passive",
+			"passive": {
+				"fire_damage": 0.15,
+				"fire_resist": 0.25,
+				"magicule_regen": 0.1
+			},
+			"requires": [
+				"fire_dawnflame_nova"
+			],
+			"needs": {
+				"title": "ash_walker",
+				"realm": 3
+			},
+			"points": 3
+		}
+	]
+}
