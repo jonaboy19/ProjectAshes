@@ -49,6 +49,7 @@ var _timer := 0.0
 var _villagers: Array = []        # the Villager nodes in _full, shared with each of them
 var _held: Dictionary = {}        # person id -> true while its departure is held back
 var _last_time := -1.0
+var _sprite_cache: Dictionary = {}   # person id -> [raw pos, pushed-out ground point]
 
 
 func setup(baker: ImpostorBaker) -> void:
@@ -147,10 +148,22 @@ func refresh() -> void:
 		var yaw := atan2(heading.x, heading.y) if heading.length() > 0.1 else float(id % 628) / 100.0
 		# WorldSim moves distant residents in straight lines; never draw one
 		# standing inside a house it is cutting through.
-		var graph := StreetGraph.for_person(id) as StreetGraph
-		if graph and entry[0] < 90.0 * 90.0:
-			pp = graph.push_out(pp, 0.3)
-		var t := Transform3D(Basis(Vector3.UP, yaw), Vector3(pp.x, WorldGen.height(pp.x, pp.y), pp.y))
+		# push_out + terrain height for up to 1200 sprites every refresh made a 4 Hz
+		# spike in the capital; reuse the result while the person hasn't moved.
+		if _sprite_cache.size() > 4000:
+			_sprite_cache.clear()
+		var cached: Array = _sprite_cache.get(id, [])
+		var ground: Vector3
+		if not cached.is_empty() and (cached[0] as Vector2).distance_squared_to(pp) < 0.0025:
+			ground = cached[1]
+		else:
+			var raw := pp
+			var graph := StreetGraph.for_person(id) as StreetGraph
+			if graph and entry[0] < 90.0 * 90.0:
+				pp = graph.push_out(pp, 0.3)
+			ground = Vector3(pp.x, WorldGen.height(pp.x, pp.y), pp.y)
+			_sprite_cache[id] = [raw, ground]
+		var t := Transform3D(Basis(Vector3.UP, yaw), ground)
 		(_multimeshes[look] as MultiMesh).set_instance_transform(n, t)
 		used[look] = n + 1
 	sprite_count = 0

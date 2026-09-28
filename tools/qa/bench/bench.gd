@@ -342,7 +342,8 @@ func _profile_start() -> void:
 func _prof_next() -> void:
 	if _prof_i >= 0:
 		var n: Node = _prof_targets[_prof_i]
-		print("PROFILE %-28s saves %6.1f ms/frame (%.1f -> %.1f)" % [String(n.name).left(28), _prof_base - _prof_acc / maxi(_prof_n, 1), _prof_base, _prof_acc / maxi(_prof_n, 1)])
+		var sn: String = n.get_script().resource_path.get_file() if n.get_script() else n.get_class()
+		print("PROFILE %-28s %-26s saves %6.1f ms/frame (%.1f -> %.1f)" % [String(n.name).left(28), sn.left(26), _prof_base - _prof_acc / maxi(_prof_n, 1), _prof_base, _prof_acc / maxi(_prof_n, 1)])
 		n.process_mode = Node.PROCESS_MODE_INHERIT
 	_prof_i += 1
 	_prof_t = 0.0

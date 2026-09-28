@@ -97,8 +97,18 @@ func build_all_now() -> void:
 		pass
 
 
+## Once every chunk around the player is built (and its collision and grass are in),
+## nothing changes until the player crosses into another chunk, so skip the scan.
+## (The per-frame scan cost ~5 ms/frame in the capital profile, 2026-09-28.)
+var _idle_center := Vector2i(1 << 30, 0)
+
+
 func _process(_delta: float) -> void:
-	_step(false)
+	var center := chunk_of(focus)
+	if center == _idle_center:
+		return
+	if not _step(false) and _tasks.is_empty():
+		_idle_center = center
 
 
 ## Frees far chunks, queues the nearest missing ones on worker threads and turns at
@@ -122,8 +132,8 @@ func _step(sync: bool) -> bool:
 				missing.append([dx * dx + dz * dz, key])
 	missing.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
 	if missing.is_empty():
-		_update_collision(center)
-		return false
+		# Still true while collision/grass are being added one per frame.
+		return _update_collision(center)
 	if sync:
 		var key: Vector2i = missing[0][1]
 		if _tasks.has(key):
@@ -180,7 +190,7 @@ func _has_plan(key: Vector2i) -> bool:
 ## Physics and grass for chunks next to the player. Creating either costs a few ms,
 ## so at most one body and one grass field are added per frame (the rest follow
 ## on the next frames instead of all landing in the frame a boundary is crossed).
-func _update_collision(center: Vector2i) -> void:
+func _update_collision(center: Vector2i) -> bool:
 	var added_body := false
 	var added_grass := false
 	for key: Vector2i in _chunks:
@@ -221,6 +231,7 @@ func _update_collision(center: Vector2i) -> void:
 			added_grass = true
 		elif ring > grass_radius and grass != null:
 			grass.queue_free()
+	return added_body or added_grass
 
 
 ## Everything about a chunk that is pure maths (thread-safe: reads WorldGen's

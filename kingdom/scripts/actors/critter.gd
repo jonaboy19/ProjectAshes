@@ -138,11 +138,40 @@ func _pick() -> void:
 	_target = home + Vector2(cos(a), sin(a)) * randf_range(0.5, r)
 
 
+## Update-rate LOD (performance, not behaviour): the brain of an animal far from the
+## player runs every Nth physics frame with the accumulated delta, staggered per
+## instance. Near ones (where anyone would notice) run every frame. Capital profile
+## 2026-09-28: all ambient animals cost ~9 ms/frame at full rate.
+const LOD_NEAR := 30.0
+const LOD_MID := 70.0
+static var _player_ref: Node3D
+var _lod_acc := 0.0
+var _lod_tick := -1
+
+
+static func _the_player(tree: SceneTree) -> Node3D:
+	if not is_instance_valid(_player_ref):
+		_player_ref = tree.get_first_node_in_group("player") as Node3D
+	return _player_ref
+
+
 func _physics_process(delta: float) -> void:
 	if dead or claimed:
 		return
+	if _lod_tick < 0:
+		_lod_tick = get_instance_id() % 6
+	var pl := _the_player(get_tree())
+	if pl and not rider_owned and _stagger <= 0.0:
+		var d2 := pl.global_position.distance_squared_to(global_position)
+		var every := 1 if d2 < LOD_NEAR * LOD_NEAR else (3 if d2 < LOD_MID * LOD_MID else 6)
+		_lod_tick += 1
+		_lod_acc += delta
+		if every > 1 and _lod_tick % every != 0:
+			return
+		delta = _lod_acc
+	_lod_acc = 0.0
 	if rider_owned:
-		var rider := get_tree().get_first_node_in_group("player") as Node3D
+		var rider := _the_player(get_tree())
 		if rider and rider.global_position.distance_squared_to(global_position) > RIDER_DESPAWN * RIDER_DESPAWN:
 			queue_free()
 			return
@@ -151,7 +180,7 @@ func _physics_process(delta: float) -> void:
 	var player: Node3D = null
 	var to_player := INF
 	if shy > 0.0 or huntable:
-		player = get_tree().get_first_node_in_group("player") as Node3D
+		player = _the_player(get_tree())
 		if player:
 			to_player = here.distance_to(Vector2(player.global_position.x, player.global_position.z))
 	if huntable:
@@ -277,7 +306,7 @@ func _flee_from(from: Vector2, dist: float, seconds: float, speed := 0.0) -> voi
 func _update_hunt_group(to_player: float) -> void:
 	var near := to_player < HUNT_REACH
 	if near:
-		var player := get_tree().get_first_node_in_group("player")
+		var player := _the_player(get_tree())
 		var swing: Variant = player.get("_swing") if player else null
 		if swing is float and float(swing) <= 0.0:
 			near = false
