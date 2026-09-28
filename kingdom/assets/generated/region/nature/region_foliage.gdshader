@@ -20,6 +20,7 @@ uniform vec2 wind_direction = vec2(1.0, 0.35);   // world XZ
 uniform float wind_strength = 0.22;               // metres of sway where COLOR.r = 1
 uniform float wind_speed = 1.1;
 uniform float flutter = 0.035;                    // small per-cluster shimmer (metres)
+uniform float weather_wind = 1.0;                 // scripts/world/weather.gd: 1 = calm default, ~2.4 storm
 
 void vertex() {
 	vec3 origin = MODEL_MATRIX[3].xyz;
@@ -29,9 +30,9 @@ void vertex() {
 	vec2 dir = normalize(wind_direction);
 	float t = TIME * wind_speed + dot(origin.xz, vec2(0.131, 0.073));
 	float gust = 0.45 + 0.4 * sin(t) + 0.15 * sin(t * 2.3 + 1.3);
-	vec3 off = vec3(dir.x, 0.0, dir.y) * gust * wind_strength * sway;
+	vec3 off = vec3(dir.x, 0.0, dir.y) * gust * wind_strength * weather_wind * sway;
 	off += vec3(sin(TIME * 4.1 + ph + wp.x * 1.3), 0.4 * sin(TIME * 3.3 + ph * 1.7),
-			cos(TIME * 3.7 + ph + wp.z * 1.1)) * flutter * sway;
+			cos(TIME * 3.7 + ph + wp.z * 1.1)) * flutter * weather_wind * sway;
 	// world offset -> local (valid for rotation + uniform scale)
 	float s2 = dot(MODEL_MATRIX[0].xyz, MODEL_MATRIX[0].xyz);
 	VERTEX += (vec4(off, 0.0) * MODEL_MATRIX).xyz / max(s2, 1e-4);

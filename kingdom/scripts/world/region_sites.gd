@@ -370,14 +370,14 @@ static func _mine(taken: Array[Dictionary]) -> Dictionary:
 			var sl := _slope(q)
 			if sl < 0.18 or sl > 0.8 or not _free(q, 16.0, taken, 25.0):
 				continue
-			var score := minf(sl, 0.45) * 4.0 - absf(q.length() - 520.0) / 200.0
+			var score := minf(sl, 0.45) * 4.0 - absf(q.length() - 520.0) / 200.0 - WorldGen.forest_density(q.x, q.y) * 3.0
 			if score > best_score:
 				best_score = score
 				best = q
 	if best == Vector2.INF:
 		return {}
 	var down := _downhill(best)
-	var site := _site("Greyseam Mine", "mine", best, _yaw_to(down), 18.0, false)
+	var site := _site("Greyseam Mine", "mine", best, _yaw_to(down), 28.0, false)
 	_part(site, "mine/mine_entrance", Vector2.ZERO, 0.0, true)
 	_part(site, "mine/mine_winch", Vector2(-7, 5), 0.4, true)
 	_part(site, "mine/miners_hut", Vector2(9, 8), -0.5, true)

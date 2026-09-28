@@ -15,6 +15,8 @@ uniform float sway = 0.12;          // metres at the crown top per 10 m of heigh
 uniform float flutter = 0.03;       // small per-leaf shimmer
 uniform float speed = 1.1;
 uniform float backlight_amount = 0.35;
+// Set by scripts/world/weather.gd on the shared leaf materials (1 = calm default, ~2.4 in a storm).
+uniform float weather_wind = 1.0;
 
 void vertex() {
 	vec3 origin = MODEL_MATRIX[3].xyz;
@@ -22,8 +24,8 @@ void vertex() {
 	float h = max(VERTEX.y, 0.0);
 	float bend = h * h * 0.01;
 	float t = TIME * speed + phase;
-	vec3 wind = vec3(sin(t) + 0.35 * sin(t * 2.3), 0.0, cos(t * 0.8) * 0.6) * sway * bend;
-	wind += vec3(sin(TIME * 5.1 + VERTEX.x * 3.0 + VERTEX.z * 2.0), 0.0, 0.0) * flutter * min(h, 3.0) * 0.3;
+	vec3 wind = vec3(sin(t) + 0.35 * sin(t * 2.3), 0.0, cos(t * 0.8) * 0.6) * sway * bend * weather_wind;
+	wind += vec3(sin(TIME * 5.1 + VERTEX.x * 3.0 + VERTEX.z * 2.0), 0.0, 0.0) * flutter * weather_wind * min(h, 3.0) * 0.3;
 	VERTEX += (inverse(MODEL_MATRIX) * vec4(wind, 0.0)).xyz;
 }
 

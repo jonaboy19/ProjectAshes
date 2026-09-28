@@ -23,6 +23,10 @@ uniform sampler2D cobble_arm : filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D macro_noise : filter_linear_mipmap, repeat_enable;
 uniform float tile_size = 4.0;            // metres per texture repeat
 uniform vec3 grass_tint : source_color = vec3(0.85, 1.0, 0.7);
+// Rain soak, driven by scripts/world/weather.gd (0 = dry: the look is unchanged).
+// Flat ground darkens and turns glossy, streets and paths more than grass, and
+// low spots in the macro noise collect mirror-smooth puddles.
+uniform float wetness : hint_range(0.0, 1.0) = 0.0;
 
 varying vec3 world_pos;
 varying vec3 world_normal;
@@ -77,11 +81,25 @@ void fragment() {
 	vec3 normal = (gn * wg + pn * w.r + rn * w.g + cn * w.b + fn * w.a) / total;
 	vec3 orm = (go * wg + po * w.r + ro * w.g + co * w.b + fo * w.a) / total;
 
+	float rough = orm.g;
+	if (wetness > 0.0) {
+		float flat_amt = smoothstep(0.8, 0.96, world_normal.y);
+		float hard = clamp(w.r + w.g + w.b, 0.0, 1.0);          // path, rock, cobble take the shine
+		float wet = wetness * mix(0.35, 1.0, flat_amt);
+		albedo *= mix(1.0, mix(0.72, 0.58, hard), wet);
+		rough = mix(rough, mix(0.5, 0.22, hard), wet * flat_amt);
+		float hollow = smoothstep(0.42, 0.3, macro + grain * 0.3);
+		float puddle = clamp(wetness * wetness * flat_amt * hollow * mix(0.35, 1.0, hard), 0.0, 1.0);
+		albedo *= mix(1.0, 0.8, puddle);
+		rough = mix(rough, 0.05, puddle);
+		normal = mix(normal, vec3(0.5, 0.5, 1.0), puddle);
+	}
+
 	ALBEDO = albedo;
 	NORMAL_MAP = normal;
 	NORMAL_MAP_DEPTH = 1.0;
 	AO = orm.r;
 	AO_LIGHT_AFFECT = 0.4;
-	ROUGHNESS = orm.g;
+	ROUGHNESS = rough;
 	METALLIC = 0.0;
 }

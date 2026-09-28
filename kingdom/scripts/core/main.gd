@@ -23,6 +23,7 @@ var settlements: SettlementBuilder
 var population: PopulationLOD
 var frontier: FrontierPresence
 var region: RegionDressing
+var weather: Node3D
 var player: Player
 var hud: HUD
 var army: Squad
@@ -126,6 +127,10 @@ func _ready() -> void:
 	world.add_child(Lakeside.new())
 	region = RegionDressing.new()
 	world.add_child(region)
+	weather = preload("res://scripts/world/weather.gd").new()
+	weather.name = "Weather"
+	world.add_child(weather)
+	weather.setup(env, sun, player.camera)
 	ambient = AmbientLife.new()
 	world.add_child(ambient)
 
@@ -567,6 +572,40 @@ func _screenshot(shot: String, path: String) -> void:
 	WorldSim.time_of_day = float(_user_args().get("hour", "16.2"))   # late-afternoon side light
 	var warmup := 60
 	var late_fx := Callable()
+	if shot.begins_with("site_"):
+		# A region site (RegionSites kind) seen from in front, e.g. site_farm, site_mine.
+		var kind := shot.substr(5)
+		for site in WorldGen.sites:
+			if site["kind"] == kind:
+				var c: Vector2 = site["pos"]
+				var yaw: float = site["yaw"]
+				var dist := 12.0 + float(site["clear"]) * 0.8
+				var front := Vector2(sin(yaw), cos(yaw))
+				var sp := c + front.rotated(0.45) * dist
+				_teleport(sp, 0.0)
+				var look := c - sp
+				player.set_camera(atan2(-look.x, -look.y), -0.14)
+				region.focus = player.global_position
+				region.build_all_now()
+				break
+		warmup = 90
+		shot = ""
+	elif shot.begins_with("interior_"):
+		# Walk through a building's door: interior_inn, interior_blacksmith, interior_guild, interior_healer, interior_house.
+		var want := shot.substr(9)
+		var door: InteriorDoor = null
+		for n in world.find_children("*", "InteriorDoor", true, false):
+			var id := n as InteriorDoor
+			if id.interior_scene.contains(want + "_interior"):
+				door = id
+				break
+		if door:
+			_teleport(Vector2(door.global_position.x, door.global_position.z), 0.0)
+			await get_tree().process_frame
+			door.enter(player)
+			await get_tree().process_frame
+		warmup = 60
+		shot = ""
 	match shot:
 		"aerial":
 			# High 3/4 view over Ashford and its fields.

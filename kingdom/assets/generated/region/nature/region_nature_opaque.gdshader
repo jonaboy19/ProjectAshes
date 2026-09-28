@@ -13,13 +13,14 @@ uniform float roughness : hint_range(0.0, 1.0) = 0.92;
 uniform vec2 wind_direction = vec2(1.0, 0.35);
 uniform float wind_strength = 0.22;
 uniform float wind_speed = 1.1;
+uniform float weather_wind = 1.0;   // scripts/world/weather.gd (keep equal to the foliage material)
 
 void vertex() {
 	vec3 origin = MODEL_MATRIX[3].xyz;
 	vec2 dir = normalize(wind_direction);
 	float t = TIME * wind_speed + dot(origin.xz, vec2(0.131, 0.073));
 	float gust = 0.45 + 0.4 * sin(t) + 0.15 * sin(t * 2.3 + 1.3);
-	vec3 off = vec3(dir.x, 0.0, dir.y) * gust * wind_strength * COLOR.r;
+	vec3 off = vec3(dir.x, 0.0, dir.y) * gust * wind_strength * weather_wind * COLOR.r;
 	float s2 = dot(MODEL_MATRIX[0].xyz, MODEL_MATRIX[0].xyz);
 	VERTEX += (vec4(off, 0.0) * MODEL_MATRIX).xyz / max(s2, 1e-4);
 }
