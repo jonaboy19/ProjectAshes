@@ -457,6 +457,9 @@ func _update_daylight() -> void:
 	env.fog_light_color = Color("1b2238").lerp(Color("c9d4e6"), day_amount)
 	env.background_energy_multiplier = lerpf(0.08, 1.0, day_amount) + night * 0.12
 	baker.set_light(lerpf(0.35, 1.0, day_amount))
+	# Emberglass Mere turns ember-coloured around sunset (lore); rain rings follow the weather.
+	var rain: float = weather.rain_amount() if weather else 0.0
+	water.set_weather(rain, clampf(1.0 - absf(t - 18.3) / 1.3, 0.0, 1.0) * (1.0 - rain))
 	var lamp_energy := 1.6 * night
 	for l in get_tree().get_nodes_in_group("street_lamp"):
 		(l as OmniLight3D).light_energy = lamp_energy

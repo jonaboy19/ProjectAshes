@@ -45,3 +45,8 @@ CC0 / public domain (no attribution required; credited with thanks):
 ## Breakable props (added 2026-09-28)
 
 - Breakable barrels, crates and baskets (`scripts/world/breakable.gd`) follow the approach of **godot-destruction-plugin** by **Jummit and contributors** (https://github.com/Jummit/godot-destruction-plugin), (c) 2023 Jummit, MIT: swap the intact prop for cached shard meshes/shapes thrown as rigid bodies, then shrink them out. Rewritten in our style with runtime mesh slicing instead of pre-fractured scenes; no plugin code ships.
+
+## Grass and water shaders (added 2026-09-28)
+
+- `shaders/grass.gdshader`: clump colour/height noise, view-space blade widening, fake subsurface backlight and wind turbulence are ideas from **GodotGrass** by **Ethan Truong (2Retr0)**, (c) 2024, MIT (https://github.com/2Retr0/GodotGrass). Reimplemented for our card clumps; no code copied, but credited under its MIT licence.
+- `shaders/water.gdshader`: interaction ripples and shoreline foam bands draw on ideas from **Stylized-Water-Shader** by **Malidos**, CC0 (https://github.com/Malidos/Stylized-Water-Shader). Credited with thanks; no code copied.

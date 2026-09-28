@@ -3,16 +3,28 @@ extends RefCounted
 ## Builds the grass MultiMesh for one terrain chunk. Only chunks next to the
 ## player get grass (see TerrainStreamer.grass_radius), and each instance fades
 ## out by distance, so thousands of blades stay affordable.
+##
+## Every clump MultiMesh draws with shaders/grass.gdshader (material_override):
+## the same painted meadow atlas and wind data as the imported
+## meadow_wind_material.tres, plus clump colour/height noise, view-space
+## widening, fake subsurface backlight, travelling gusts and trampling by the
+## player, villagers and critters (fed by grass_interactors.gd).
 
 const CLUMPS_PER_CHUNK := 2600
 const FADE_END := 70.0
 const SHADER := preload("res://shaders/grass.gdshader")
+const Interactors := preload("res://scripts/world/grass_interactors.gd")
+## Imported card material: its atlas and wind settings seed our grass material.
+const MEADOW_MATERIAL := "res://assets/generated/nature/meadow_wind_material.tres"
+## Weather.wind_strength (1 calm, ~2.4 storm) scales the sway via weather_wind.
+const Weather := preload("res://scripts/world/weather.gd")
 
 static var _mesh: ArrayMesh
 static var _material: ShaderMaterial
 
 
 static func build(origin: Vector2, size: float, seed_value: int) -> Node3D:
+	Interactors.ensure_running()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	# Blender-made alpha-card clumps (tools/blender/make_nature.py) with the wind
@@ -41,6 +53,9 @@ static func build(origin: Vector2, size: float, seed_value: int) -> Node3D:
 			mm.set_instance_transform(i, list[i])
 		var mmi := MultiMeshInstance3D.new()
 		mmi.multimesh = mm
+		var mat := _get_material()
+		if mat != null:
+			mmi.material_override = mat
 		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		mmi.visibility_range_end = FADE_END
 		mmi.visibility_range_end_margin = 10.0
@@ -83,8 +98,35 @@ static func _clump_mesh(kind: String) -> Mesh:
 	return mesh
 
 
+## One shared grass material for every chunk and clump kind. Returns null (and
+## the clumps keep their imported material) if the meadow material is missing.
 static func _get_material() -> ShaderMaterial:
 	if _material == null:
+		Interactors.ensure_globals()
+		var src := load(MEADOW_MATERIAL) as ShaderMaterial
+		if src == null or src.get_shader_parameter("albedo_texture") == null:
+			return null
 		_material = ShaderMaterial.new()
 		_material.shader = SHADER
+		# Copy the art-tuned values (atlas, tint, cutout, wind) so edits to the
+		# imported material keep flowing through.
+		for u: Dictionary in SHADER.get_shader_uniform_list():
+			var v: Variant = src.get_shader_parameter(u["name"])
+			if v != null:
+				_material.set_shader_parameter(u["name"], v)
+		Interactors.on_slow_tick(_sync_weather)
+		_sync_weather()
 	return _material
+
+
+static var _weather_wind := -1.0
+
+
+## 2 Hz (from the interactor feeder): push the weather's wind into the grass.
+static func _sync_weather() -> void:
+	if _material == null:
+		return
+	var w: float = Weather.wind_strength
+	if absf(w - _weather_wind) > 0.01:
+		_weather_wind = w
+		_material.set_shader_parameter("weather_wind", w)

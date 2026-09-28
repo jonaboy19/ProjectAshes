@@ -27,6 +27,13 @@ func _ready() -> void:
 	_material.set_shader_parameter("use_refraction", RenderingServer.get_current_rendering_method() != "gl_compatibility")
 
 
+## Weather and light on the water: rain rings (0..1) and the ember sunset glow (0..1).
+func set_weather(rain: float, sunset: float) -> void:
+	if _material:
+		_material.set_shader_parameter("rain_ripples", clampf(rain, 0.0, 1.0))
+		_material.set_shader_parameter("sunset", clampf(sunset, 0.0, 1.0))
+
+
 static func _noise(freq: float, octaves: int, normal: bool, bump: float, seed_value: int) -> NoiseTexture2D:
 	var n := FastNoiseLite.new()
 	n.seed = seed_value
