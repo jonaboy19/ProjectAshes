@@ -236,3 +236,5 @@ One of 3 identical perf_visual runs (HIGH, village_forest) quit with no output w
 Quaternius megakit props, which have invalid-UID warnings. There was no Windows Event 1000 and no Godot crash handler output. The next run was fine.
 Suspect: threaded loads plus the stale UID cache. Follow-up: re-import `assets/incoming/quaternius/fantasy-props-megakit` to fix the UIDs,
 then loop the load 10x (`--quality=high --route=village_forest --nocapture`) and count completions.
+- Follow-up 2026-09-28: 5 back-to-back HIGH village_forest runs (after rig, LOD and flee fixes) all **completed 5/5**, 51-57 fps avg, p99 28-33 ms.
+  The earlier silent exit didn't come back. Its cause is still unknown, but it's rare. Keep the invalid-UID megakit re-import as a cleanup item.
