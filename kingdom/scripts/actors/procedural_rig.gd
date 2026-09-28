@@ -308,17 +308,50 @@ func _notification(what: int) -> void:
 	# The stages live under the skeleton. A rig freed on its own (the model stays)
 	# takes them along; when the model goes, the skeleton frees them itself.
 	if what == NOTIFICATION_PREDELETE:
+		_candidates.erase(get_instance_id())
 		for mod: Node in [_pre, _ik, _post, _springs]:
 			if is_instance_valid(mod) and not mod.is_queued_for_deletion():
 				mod.queue_free()
+
+
+## Performance budget: only the nearest few NPC rigs run their modifiers (the
+## player's rig is exempt via always_near). Every active rig runs GDScript stages
+## inside the skeleton update each frame; with ~30 villagers, soldiers and animals
+## within ACTIVE_RANGE in the village this cost 50-100 ms frames (perf_visual
+## ablation 2026-09-28: 260 -> 23 hitches with rigs off). Distance-ranked, refreshed
+## on each rig's CHECK_INTERVAL timer; per-tier count from Quality ("rig_budget").
+static var _candidates: Dictionary = {}   # rig instance id -> squared camera distance
+
+
+static func _budget() -> int:
+	var tree := Engine.get_main_loop() as SceneTree
+	var q: Node = tree.root.get_node_or_null("/root/Quality") if tree else null
+	if q and q.has_method("value"):
+		var v: Variant = q.call("value", "rig_budget")
+		if v != null:
+			return int(v)
+	return 6
 
 
 func _check_range() -> void:
 	if _camera == null or not is_instance_valid(_camera) or not _camera.current:
 		_camera = get_viewport().get_camera_3d() if is_inside_tree() else null
 	var near := false
+	var id := get_instance_id()
 	if _camera and not paused and _model.is_visible_in_tree():
-		near = _camera.global_position.distance_squared_to(_model.global_position) < ACTIVE_RANGE * ACTIVE_RANGE
+		var d2 := _camera.global_position.distance_squared_to(_model.global_position)
+		near = d2 < ACTIVE_RANGE * ACTIVE_RANGE
+		if near and not always_near:
+			_candidates[id] = d2
+			var closer := 0
+			for other: float in _candidates.values():
+				if other < d2:
+					closer += 1
+			near = closer < _budget()
+		else:
+			_candidates.erase(id)
+	else:
+		_candidates.erase(id)
 	if near != _near:
 		_set_near(near)
 
@@ -456,7 +489,12 @@ func _pre_modify(delta: float) -> void:
 		# guarding against a zero vector -- see docs/qa/stability.md). Re-normalize both
 		# operands right at the call site instead of trusting upstream state.
 		if _normal[i].length_squared() > 0.0001 and n.length_squared() > 0.0001:
-			_normal[i] = _normal[i].normalized().slerp(n.normalized(), a).normalized()
+			# lerp + normalize, NOT slerp: for two nearly equal normals (flat ground, the
+			# common case) Vector3.slerp builds its rotation axis from a tiny cross product
+			# that float rounding leaves just off unit length, so the engine printed
+			# "axis must be normalized" ~2000x per minute (each print costs ms: 50-100 ms
+			# frames in the village, perf_visual 2026-09-28). Same look for small angles.
+			_normal[i] = _normal[i].lerp(n, a).normalized()
 		elif n.length_squared() > 0.0001:
 			_normal[i] = n.normalized()
 		var lift := _foot_anim[i].y - base.y - _ankle_rest
@@ -532,8 +570,8 @@ func _torso_spring(delta: float) -> void:
 	if _lean.length() < 0.0005:
 		return
 	var skel_q := _skeleton.global_basis.get_rotation_quaternion()
-	var right := basis.x
-	var fwd := basis.z
+	var right := basis.x.normalized()   # must be exactly unit: a scaled model left it at ~0.996 and Quaternion(axis, a) printed "axis must be normalized" twice per call (~16 ms each)
+	var fwd := basis.z.normalized()
 	for entry: Array in _torso:
 		var bone: int = entry[0]
 		var share: float = entry[1]

@@ -41,28 +41,28 @@ const TIERS := [
 		"shadow": 0, "shadow_size": 1024, "shadow_dist": 0.0, "soft_shadow": 0, "omni_shadows": false,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
 		"lod_threshold": 8.0, "range": 0.55, "scatter": 0.3, "particles": 0.35, "aniso": 0,
-		"msaa": 0, "fxaa": false, "npc_full": 6, "npc_sprites": 14, "view_radius": 2, "light_fade": 35.0, "town_far": 420.0,
+		"msaa": 0, "fxaa": false, "npc_full": 6, "rig_budget": 0, "npc_sprites": 14, "view_radius": 2, "light_fade": 35.0, "town_far": 420.0,
 	},
 	{   # MEDIUM: mid-range phones (Adreno 618-650, Mali-G57..G77, Apple A11-A12)
 		"max_3d_height": 720, "scaling": "fsr", "fps": 60,
 		"shadow": 1, "shadow_size": 2048, "shadow_dist": 55.0, "soft_shadow": 1, "omni_shadows": false,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
 		"lod_threshold": 2.0, "range": 0.75, "scatter": 0.6, "particles": 0.6, "aniso": 1,
-		"msaa": 0, "fxaa": false, "npc_full": 10, "npc_sprites": 35, "view_radius": 3, "light_fade": 50.0, "town_far": 600.0,
+		"msaa": 0, "fxaa": false, "npc_full": 10, "rig_budget": 3, "npc_sprites": 35, "view_radius": 3, "light_fade": 50.0, "town_far": 600.0,
 	},
 	{   # HIGH: recent phones (Adreno 7xx, Mali-G710+, Apple A13+), integrated PC GPUs
 		"max_3d_height": 900, "scaling": "fsr", "fps": 60,
 		"shadow": 2, "shadow_size": 4096, "shadow_dist": 100.0, "soft_shadow": 2, "omni_shadows": true,
 		"ssao": true, "ssil": false, "sdfgi": false, "glow": true, "vol_fog": false, "ssr": false,
 		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 2,
-		"msaa": 0, "fxaa": true, "npc_full": 16, "npc_sprites": 55, "view_radius": 4, "light_fade": 80.0, "town_far": 0.0,
+		"msaa": 0, "fxaa": true, "npc_full": 16, "rig_budget": 6, "npc_sprites": 55, "view_radius": 4, "light_fade": 80.0, "town_far": 0.0,
 	},
 	{   # ULTRA: desktop GPUs; the full Forward+ look the game was lit for
 		"max_3d_height": 0, "scaling": "bilinear", "fps": 0,
 		"shadow": 4, "shadow_size": 4096, "shadow_dist": 140.0, "soft_shadow": 3, "omni_shadows": true,
 		"ssao": true, "ssil": true, "sdfgi": true, "glow": true, "vol_fog": true, "ssr": false,
 		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 3,
-		"msaa": 2, "fxaa": true, "npc_full": 20, "npc_sprites": 70, "view_radius": 5, "light_fade": 0.0, "town_far": 0.0,
+		"msaa": 2, "fxaa": true, "npc_full": 20, "rig_budget": 10, "npc_sprites": 70, "view_radius": 5, "light_fade": 0.0, "town_far": 0.0,
 	},
 ]
 

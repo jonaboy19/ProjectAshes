@@ -195,3 +195,13 @@ py tools/qa/texture_vram.py [--write]          # every shipped 3D texture VRAM-c
 godot --headless --path kingdom --export-pack "Android" /tmp/a.pck   # applies the mobile texture caps
 godot --headless --path kingdom -s <abs>/tools/qa/bench/check_clips.gd   # clip library check
 ```
+
+## 2026-09-28: the village/forest run lag was an error flood (procedural_rig.gd)
+- Real-input perf_visual with `--ablate` pinned 50-100 ms frames on `procedural_rig.gd`. Each stage callback took ~16 ms because the engine
+  printed "The axis Vector3 must be normalized" (`set_axis_angle`) thousands of times: once from the torso spring (`basis.x/z` not unit) and once
+  from `Vector3.slerp` on two nearly equal foot normals (its internal cross-product axis is ~0.999 long). Fix: normalize the axes and use lerp+normalize.
+  **Rule: any engine error printed per frame costs milliseconds. `grep -c ERROR` the log of every perf run.**
+- Rig budget: only the nearest `Quality.value("rig_budget")` NPC rigs (LOW 0 / MED 3 / HIGH 6 / ULTRA 10) within 25 m run IK and springs. The player always does.
+- HIGH, village_forest, speed 7, real input: before avg ~48 fps, p99 63 ms, 278-312 hitches >33 ms → after **58 fps, p99 29.3 ms, max 42.7 ms, 43 hitches, 0 errors**.
+  Remaining yellow (20-25 ms) is the walk back into Ashford with ~70 people nearby. That's crowd cost, next target (VAT crowds).
+  Evidence: `docs/qa/perf_visual/rig_fix/`.

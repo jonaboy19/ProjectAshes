@@ -99,6 +99,7 @@ func _process(delta: float) -> bool:
 			if t > float(args.get("settle", "8")):
 				phase = "run"
 				t = 0.0
+				_ablate()
 				if args.has("uncapped"):
 					Engine.max_fps = 0
 					DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
@@ -418,3 +419,31 @@ func _shutdown() -> void:
 ## Game classes are loaded at runtime (a SceneTree script can't see class_name globals).
 func _wg() -> Script:
 	return load("res://scripts/world/world_gen.gd")
+
+
+## --ablate=soldier.gd,procedural_rig.gd,...: switch off processing on every node
+## whose script file name is listed (re-checked every 2 s so newly spawned ones are
+## caught too), to find what a hitch pattern costs by comparing runs.
+var _ablate_list: PackedStringArray = []
+
+
+func _ablate() -> void:
+	if not args.has("ablate"):
+		return
+	_ablate_list = String(args["ablate"]).split(",", false)
+	print("PERFVIS ablating: ", _ablate_list)
+	_ablate_pass()
+
+
+func _ablate_pass() -> void:
+	var n := 0
+	for node in root.find_children("*", "", true, false):
+		var s: Script = node.get_script()
+		if s and s.resource_path.get_file() in _ablate_list:
+			if node.process_mode != Node.PROCESS_MODE_DISABLED:
+				node.process_mode = Node.PROCESS_MODE_DISABLED
+				n += 1
+	if n > 0:
+		print("PERFVIS ablated %d nodes" % n)
+	if phase == "run":
+		root.get_tree().create_timer(2.0).timeout.connect(_ablate_pass)
