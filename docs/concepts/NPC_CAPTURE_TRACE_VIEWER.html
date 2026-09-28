@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rising Ashes movement capture viewer</title>
+<style>
+*{box-sizing:border-box}body{background:#111714;color:#e6ecdf;font:16px/1.5 system-ui;margin:0;padding:24px}main{max-width:1100px;margin:auto}h1{font:32px Georgia;margin:0 0 12px}a{color:#efc783}button,select,input{font:inherit}button,select{background:#263428;color:#eef3e8;border:1px solid #61765d;border-radius:6px;padding:8px}input[type=range]{width:100%}.panel{background:#1b241d;border:1px solid #3d5140;padding:16px;border-radius:10px;margin:16px 0}.controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px}#status{color:#edcb8b}canvas{width:100%;height:320px;background:#101713}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:7px;border-bottom:1px solid #39493a}tr.selected{background:#374837}.scroll{overflow:auto}.muted{color:#b2c2ad}code{overflow-wrap:anywhere}#point{white-space:pre-wrap}label{display:inline-flex;gap:8px;align-items:center}
+</style></head><body><main>
+<h1>Inspect a recorded movement trace</h1>
+<p>Load a CSV exported from the game to compare body speed, animation input, and state changes for one actor. Files stay in this page. This viewer does not connect to Godot or measure foot slip, collision penetration, or visual quality.</p>
+<div class="panel controls"><label>Capture CSV <input id="file" type="file" accept=".csv,text/csv"></label><button id="demo">Load synthetic demo</button><label>Actor <select id="actor" disabled></select></label></div>
+<p id="status" role="status">No capture loaded. No gameplay conclusions are available.</p>
+<div class="panel"><p class="muted">Body speed: green · animation speed input: gold · requested speed: blue (when recorded). Values in m/s. The animation input is not a measured clip ground speed.</p><canvas id="plot" aria-label="Speed trace for selected actor"></canvas><input id="cursor" type="range" min="0" max="0" value="0" disabled aria-label="Selected capture sample"><div id="point">Select a capture first.</div></div>
+<div class="panel scroll"><table><thead><tr><th>Time s</th><th>State</th><th>Body m/s</th><th>Animation m/s</th><th>Gap m</th><th>Owner</th><th>LOD</th><th>Clip</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="panel"><strong>Export contract</strong><p>Required columns: <code>time_s,actor_id,body_speed_mps,anim_speed_mps,state</code>. Optional: <code>request_speed_mps,gap_m,owner,lod,clip</code>. One row per sampled actor per time, seconds from capture start, nonnegative speed magnitudes. Times must be strictly increasing for each actor. Quote fields containing commas or quotes. Export actor ownership, resolved movement, and animation input after the corresponding physics movement; record metadata beside the CSV.</p><p><a href="NPC_CAPTURE_TRACE_VIEWER.md">Capture instructions and limits</a> · <a href="NPC_CONTACT_LOD_CONTRACT.md">Contact/LOD contract</a> · <a href="LOCOMOTION_START_STOP_TURN_CONTRACT.md">Locomotion response</a> · <a href="NATURAL_WORLD_REVIEW_DASHBOARD.html">Review dashboard</a></p></div>
+<script>
+'use strict';
+function parseTrace(text){
+  const cells=[];let row=[],field='',quoted=false,afterQuote=false;
+  text=text.replace(/^\uFEFF/,'');
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(quoted){if(c==='"'){if(text[i+1]==='"'){field+='"';i++;}else{quoted=false;afterQuote=true;}}else field+=c;continue;}
+    if(c==='"'){if(field!==''||afterQuote)throw Error('Unexpected quote in CSV field.');quoted=true;continue;}
+    if(c===','||c==='\n'||c==='\r'){row.push(field);field='';afterQuote=false;if(c!==','){if(c==='\r'&&text[i+1]==='\n')i++;if(row.some(v=>v!==''))cells.push(row);row=[];}continue;}
+    if(afterQuote)throw Error('Characters after a closing CSV quote.');field+=c;
+  }
+  if(quoted)throw Error('Unclosed CSV quote.');if(field!==''||row.length){row.push(field);cells.push(row);}
+  if(cells.length<2)throw Error('CSV needs a header and at least one sample.');
+  const header=cells.shift().map(v=>v.trim());if(new Set(header).size!==header.length)throw Error('Duplicate column name.');
+  const required=['time_s','actor_id','body_speed_mps','anim_speed_mps','state'];for(const key of required)if(!header.includes(key))throw Error('Missing column: '+key);
+  const last=new Map();const samples=cells.map((values,index)=>{
+    if(values.length!==header.length)throw Error('Wrong field count at data row '+(index+1));
+    const item=Object.fromEntries(header.map((key,i)=>[key,values[i]]));
+    for(const key of ['time_s','body_speed_mps','anim_speed_mps','request_speed_mps','gap_m']){
+      if(!header.includes(key))continue;
+      if(item[key].trim()===''){if(required.includes(key))throw Error('Empty '+key+' at data row '+(index+1));item[key]=null;continue;}
+      const value=Number(item[key]);if(!Number.isFinite(value)||value<0)throw Error('Invalid '+key+' at data row '+(index+1));item[key]=value;
+    }
+    if(!item.actor_id.trim()||!item.state.trim())throw Error('Empty actor/state at data row '+(index+1));
+    if(last.has(item.actor_id)&&item.time_s<=last.get(item.actor_id))throw Error('Time must increase for actor '+item.actor_id);last.set(item.actor_id,item.time_s);return item;
+  });return samples;
+}
+let samples=[],active=[],source='';const byId=id=>document.getElementById(id);const plot=byId('plot');
+function setData(data,label){samples=data;source=label;const select=byId('actor');select.replaceChildren();for(const id of new Set(data.map(r=>r.actor_id))){const option=document.createElement('option');option.value=id;option.textContent=id;select.append(option);}select.disabled=false;selectActor();}
+function selectActor(){active=samples.filter(r=>r.actor_id===byId('actor').value);byId('cursor').max=String(active.length-1);byId('cursor').value='0';byId('cursor').disabled=false;render();}
+function render(){
+  if(!active.length)return;const index=Number(byId('cursor').value);const current=active[index];
+  byId('status').textContent=source+' · '+active.length+' samples · actor '+current.actor_id;
+  byId('point').textContent='t = '+current.time_s.toFixed(3)+' s | state: '+current.state+' | body: '+current.body_speed_mps.toFixed(3)+' m/s | animation input: '+current.anim_speed_mps.toFixed(3)+' m/s';
+  const width=Math.max(300,plot.clientWidth),height=320,dpr=window.devicePixelRatio||1;plot.width=width*dpr;plot.height=height*dpr;const ctx=plot.getContext('2d');ctx.scale(dpr,dpr);
+  const left=52,right=18,top=20,bottom=38,t0=active[0].time_s,duration=Math.max(.001,active.at(-1).time_s-t0);let maximum=1;for(const r of active)maximum=Math.max(maximum,r.body_speed_mps,r.anim_speed_mps,r.request_speed_mps||0);
+  const x=t=>left+(t-t0)/duration*(width-left-right),y=v=>height-bottom-v/maximum*(height-top-bottom);ctx.font='12px system-ui';
+  for(let i=0;i<=4;i++){const v=maximum*i/4;ctx.strokeStyle='#334538';ctx.beginPath();ctx.moveTo(left,y(v));ctx.lineTo(width-right,y(v));ctx.stroke();ctx.fillStyle='#b1c1ab';ctx.fillText(v.toFixed(1),5,y(v)+4);}
+  for(const [key,color] of [['body_speed_mps','#a0d394'],['anim_speed_mps','#efc783'],['request_speed_mps','#8abbd9']]){ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();let started=false;for(const r of active){if(r[key]===null||r[key]===undefined){started=false;continue;}if(!started){ctx.moveTo(x(r.time_s),y(r[key]));started=true;}else ctx.lineTo(x(r.time_s),y(r[key]));}ctx.stroke();}
+  ctx.strokeStyle='#e8ede2';ctx.beginPath();ctx.moveTo(x(current.time_s),top);ctx.lineTo(x(current.time_s),height-bottom);ctx.stroke();
+  for(const [key,color] of [['body_speed_mps','#a0d394'],['anim_speed_mps','#efc783'],['request_speed_mps','#8abbd9']]){if(current[key]===null||current[key]===undefined)continue;ctx.fillStyle=color;ctx.beginPath();ctx.arc(x(current.time_s),y(current[key]),4,0,Math.PI*2);ctx.fill();}
+  ctx.fillStyle='#b1c1ab';ctx.fillText(t0.toFixed(2)+' s',left,height-10);ctx.fillText(active.at(-1).time_s.toFixed(2)+' s',width-70,height-10);
+  const body=byId('rows');body.replaceChildren();for(let i=Math.max(0,index-4);i<Math.min(active.length,index+6);i++){const r=active[i],tr=document.createElement('tr');if(i===index)tr.className='selected';for(const key of ['time_s','state','body_speed_mps','anim_speed_mps','gap_m','owner','lod','clip']){const td=document.createElement('td');td.textContent=r[key]===null||r[key]===undefined?'—':typeof r[key]==='number'?r[key].toFixed(3):r[key];tr.append(td);}body.append(tr);}
+}
+byId('file').addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;try{if(file.size>8*1024*1024)throw Error('Capture exceeds the 8 MB viewer limit; export a shorter trace.');const data=parseTrace(await file.text());setData(data,'RECORDED CSV: '+file.name+' (provenance supplied by exporter)');}catch(error){byId('status').textContent='Load rejected: '+error.message+' Previous view, if present, remains unchanged.';}});
+byId('demo').addEventListener('click',()=>{const demo=[];for(let i=0;i<=120;i++){const t=i/30,body=t<.6?0:t<1.2?(t-.6)*2:t<2.7?1.2:Math.max(0,1.2-(t-2.7)*2);demo.push({time_s:t,actor_id:'synthetic-resident',body_speed_mps:body,anim_speed_mps:Math.max(0,body-(t<1.2?.25:0)),state:body>.01?'travel':'idle',owner:'demo',lod:'demo',clip:body>.01?'demo walk':'demo idle'});}setData(demo,'SYNTHETIC DEMO — not gameplay evidence');});
+byId('actor').addEventListener('change',selectActor);byId('cursor').addEventListener('input',render);window.addEventListener('resize',render);
+</script></main></body></html>
