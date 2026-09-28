@@ -237,7 +237,7 @@ func _stage_birth_room(house: Vector2) -> Node3D:
 	var root := Node3D.new()
 	world.add_child(root)
 	root.global_position = Vector3(house.x, WorldGen.height(house.x, house.y) - 60.0, house.y)
-	root.add_child((load(path) as PackedScene).instantiate())
+	root.add_child(Assets.scene(path).instantiate())
 	var lights := [[Vector3(0, 0.5, -1.9), Color(1.0, 0.6, 0.32), 1.8, 6.5],
 		[Vector3(1.62, 1.1, 0.72), Color(1.0, 0.78, 0.5), 0.7, 3.5],
 		[Vector3(-2.6, 1.5, -0.95), Color(0.55, 0.65, 1.0), 0.6, 4.5],

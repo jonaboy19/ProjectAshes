@@ -113,7 +113,7 @@ func _ready() -> void:
 	if not ResourceLoader.exists(path):
 		queue_free()
 		return
-	var model: Node3D = (load(path) as PackedScene).instantiate()
+	var model: Node3D = Assets.scene(path).instantiate()
 	add_child(model)
 	_anim = Assets.animation_player(model)
 	if _anim:

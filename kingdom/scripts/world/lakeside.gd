@@ -115,7 +115,7 @@ func _spot(at: Vector3, cast: Vector3, river: bool, water_name: String) -> void:
 func _spawn(path: String, height := 0.0) -> Node3D:
 	if not ResourceLoader.exists(path):
 		return null
-	var n: Node3D = (load(path) as PackedScene).instantiate()
+	var n: Node3D = Assets.scene(path).instantiate()
 	if height > 0.0:
 		var box := Assets.visual_aabb(n)
 		n.scale = Vector3.ONE * (height / maxf(box.size.y, 0.01))

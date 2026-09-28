@@ -33,7 +33,7 @@ func _ground(p: Vector2) -> Vector3:
 func _model(paths: Array, height := 0.0) -> Node3D:
 	for path: String in paths:
 		if ResourceLoader.exists(path):
-			var n: Node3D = (load(path) as PackedScene).instantiate()
+			var n: Node3D = Assets.scene(path).instantiate()
 			if height > 0.0:
 				var box := Assets.visual_aabb(n)
 				n.scale = Vector3.ONE * (height / maxf(box.size.y, 0.01))

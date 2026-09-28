@@ -294,7 +294,7 @@ func _spawn(asset: String) -> Node3D:
 		path = GEN + asset + ".glb"
 	if path == "" or not ResourceLoader.exists(path):
 		return null
-	return (load(path) as PackedScene).instantiate()
+	return Assets.scene(path).instantiate()
 
 
 func _collider(n: Node3D, box: AABB) -> void:

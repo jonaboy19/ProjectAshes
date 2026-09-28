@@ -50,7 +50,7 @@ func _build_stone(s: Dictionary) -> void:
 			var path := RUNESTONE_MESHY if i == 0 else RUNESTONE_MESHY_FAR
 			if not ResourceLoader.exists(path):
 				continue
-			var m: Node3D = (load(path) as PackedScene).instantiate()
+			var m: Node3D = Assets.scene(path).instantiate()
 			var box := Assets.visual_aabb(m)
 			var k := RUNESTONE_HEIGHT / maxf(box.size.y, 0.01)
 			m.scale = Vector3.ONE * k
@@ -61,7 +61,7 @@ func _build_stone(s: Dictionary) -> void:
 				gi.visibility_range_end = 60.0 if i == 0 else 500.0
 			root.add_child(m)
 	else:
-		var model: Node3D = (load(RUNESTONE) as PackedScene).instantiate()
+		var model: Node3D = Assets.scene(RUNESTONE).instantiate()
 		model.scale = Vector3.ONE * 1.25
 		root.add_child(model)
 	var light := OmniLight3D.new()

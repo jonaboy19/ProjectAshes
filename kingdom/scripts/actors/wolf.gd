@@ -142,7 +142,7 @@ func _ready() -> void:
 		_run_clip_speed = float(info["run"])
 		_impact_time = float(info["impact"])
 	elif species == "wolf" and ResourceLoader.exists(LEGACY_MODEL):
-		model = (load(LEGACY_MODEL) as PackedScene).instantiate()
+		model = Assets.scene(LEGACY_MODEL).instantiate()
 		var box := Assets.visual_aabb(model)
 		model.scale = Vector3.ONE * (0.85 / maxf(box.size.y, 0.01))   # ~85 cm at the shoulder
 		_clips = LEGACY_CLIPS

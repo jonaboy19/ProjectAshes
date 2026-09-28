@@ -156,6 +156,22 @@ const HAIR_COLORS := [Color("2b1d14"), Color("4a3020"), Color("6b4a2b"), Color("
 ## Base-body bones kept when clothing is worn (the rest would clip through outfits).
 const EXPOSED_KEYS := ["Head", "neck", "hand", "thumb", "index", "middle", "ring", "pinky"]
 static var _materials: Dictionary = {}
+static var _scenes: Dictionary = {}   # path -> PackedScene
+
+
+## load(path) as PackedScene, kept for the whole session. Before this, every spawn
+## called load() and dropped the scene, so the next spawn of a sheep/villager/tent
+## re-parsed the .scn from disk (a hitch each time). That free -> reload cycle is
+## also exactly where the random 0xC0000005 crashes hit (3/25 and 1/15 boots,
+## always mid-reload of a model just freed; 2026-09-28 bootloop).
+## Main thread only (the cache Dictionary isn't locked).
+static func scene(path: String) -> PackedScene:
+	var s: PackedScene = _scenes.get(path)
+	if s == null:
+		s = load(path) as PackedScene
+		if s != null:
+			_scenes[path] = s
+	return s
 
 
 static func flat_material(color: Color, vertex_colors := false) -> StandardMaterial3D:
@@ -174,14 +190,14 @@ static func flat_material(color: Color, vertex_colors := false) -> StandardMater
 
 static func medieval(asset_name: String, scale := BUILDING_SCALE) -> Node3D:
 	var root := Node3D.new()
-	var model: Node3D = (load(MED_DIR + asset_name + ".gltf") as PackedScene).instantiate()
+	var model: Node3D = Assets.scene(MED_DIR + asset_name + ".gltf").instantiate()
 	model.scale = Vector3.ONE * scale
 	root.add_child(model)
 	return root
 
 
 static func weapon(asset_name: String) -> Node3D:
-	return (load(WEAPON_DIR + asset_name + ".gltf") as PackedScene).instantiate()
+	return Assets.scene(WEAPON_DIR + asset_name + ".gltf").instantiate()
 
 
 static func add_footprint_collider(root: Node3D, shrink := 0.8) -> void:
@@ -201,7 +217,7 @@ static func add_footprint_collider(root: Node3D, shrink := 0.8) -> void:
 static func mesh_of(asset_name: String) -> Mesh:
 	if _mesh_cache.has(asset_name):
 		return _mesh_cache[asset_name]
-	var inst := (load(MED_DIR + asset_name + ".gltf") as PackedScene).instantiate()
+	var inst := Assets.scene(MED_DIR + asset_name + ".gltf").instantiate()
 	var mesh: Mesh = null
 	var found := inst.find_children("*", "MeshInstance3D", true, false)
 	if not found.is_empty():
@@ -253,7 +269,7 @@ static func character(file_name: String, height: float, keep: Array[String] = []
 		return mh_character(files[randi() % files.size()], height, keep)
 	if USE_REALISTIC and LOOKS.has(file_name):
 		return humanoid(LOOKS[file_name], height, keep)
-	var model: Node3D = (load(CHAR_DIR + file_name + ".glb") as PackedScene).instantiate()
+	var model: Node3D = Assets.scene(CHAR_DIR + file_name + ".glb").instantiate()
 	for node in model.find_children("*", "MeshInstance3D", true, false):
 		var n := String(node.name)
 		var is_body := n.contains("Arm") or n.contains("Body") or n.contains("Leg") or n.contains("Head") or n.contains("Cape")
@@ -302,7 +318,7 @@ static func visual_aabb(root: Node3D) -> AABB:
 static func mh_character(file: String, height: float, keep: Array[String] = [], lod1 := false) -> Node3D:
 	var root := Node3D.new()
 	var path := (file if file.contains("/") else MH_DIR + file) + ("_lod1" if lod1 and not file.contains("/") else "") + ".glb"
-	var base: Node3D = (load(path) as PackedScene).instantiate()
+	var base: Node3D = Assets.scene(path).instantiate()
 	root.add_child(base)
 	var skeleton: Skeleton3D = base.find_children("*", "Skeleton3D", true, false)[0]
 	var armored := file.begins_with(ARMORED)
@@ -340,7 +356,7 @@ static func humanoid(look: Dictionary, height: float, keep: Array[String] = []) 
 		outfit = look["alt"]
 		sex = "Female"
 	var root := Node3D.new()
-	var base: Node3D = (load(UBC + "Base Characters/Godot - UE/Superhero_%s_FullBody.gltf" % sex) as PackedScene).instantiate()
+	var base: Node3D = Assets.scene(UBC + "Base Characters/Godot - UE/Superhero_%s_FullBody.gltf" % sex).instantiate()
 	root.add_child(base)
 	var skeleton: Skeleton3D = base.find_children("*", "Skeleton3D", true, false)[0]
 	for mi in skeleton.find_children("*", "MeshInstance3D", false, false):
@@ -391,7 +407,7 @@ static func _bind_meshes(path: String, skeleton: Skeleton3D, hide: Array, tint :
 	if not ResourceLoader.exists(path):
 		push_warning("Missing humanoid part: " + path)
 		return
-	var scene: Node = (load(path) as PackedScene).instantiate()
+	var scene: Node = Assets.scene(path).instantiate()
 	for mi in scene.find_children("*", "MeshInstance3D", true, false):
 		var m := mi as MeshInstance3D
 		var skip := false
@@ -421,7 +437,7 @@ static func _attach(skeleton: Skeleton3D, bone: String, path: String, length: fl
 	var att := BoneAttachment3D.new()
 	att.bone_name = bone
 	skeleton.add_child(att)
-	var prop: Node3D = (load(path) as PackedScene).instantiate()
+	var prop: Node3D = Assets.scene(path).instantiate()
 	var box := visual_aabb(prop)
 	var longest := maxf(box.size.x, maxf(box.size.y, box.size.z))
 	# Bone space is in the rig's own units (the UE rig is in centimetres under a
@@ -507,7 +523,7 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 		if not ResourceLoader.exists(file):
 			push_warning("Missing clip library (not imported?): " + file)
 			continue
-		var inst: Node = (load(file) as PackedScene).instantiate()
+		var inst: Node = Assets.scene(file).instantiate()
 		var ap: AnimationPlayer = inst.find_children("*", "AnimationPlayer", true, false)[0]
 		var root_motion_lib := file.begins_with(UAL_ANIM_DIR)
 		for anim_name in ap.get_animation_list():
@@ -552,7 +568,7 @@ static func chimney_points(key: String) -> Array[Vector3]:
 		_chimney_cache[key] = out
 		return out
 	var raw := merged_mesh(entry[0])
-	var inst: Node3D = (load(entry[0]) as PackedScene).instantiate()
+	var inst: Node3D = Assets.scene(entry[0]).instantiate()
 	if raw:
 		var box := raw.get_aabb()
 		var target: float = entry[1]
@@ -632,7 +648,7 @@ static func merged_mesh(path: String) -> ArrayMesh:
 	if not ResourceLoader.exists(path):
 		push_warning("Missing building: " + path)
 		return null
-	var inst: Node = (load(path) as PackedScene).instantiate()
+	var inst: Node = Assets.scene(path).instantiate()
 	var tools := {}          # material -> SurfaceTool
 	var root3d := inst as Node3D
 	for node in inst.find_children("*", "MeshInstance3D", true, false):
