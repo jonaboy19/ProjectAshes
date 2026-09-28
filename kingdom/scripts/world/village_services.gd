@@ -9,6 +9,7 @@ extends Node3D
 
 const CraftingScreen := preload("res://scripts/ui/crafting_screen.gd")
 const InventoryScreen := preload("res://scripts/ui/inventory_screen.gd")
+const BuildMenu := preload("res://scripts/ui/build_menu.gd")
 const SaveScreen := preload("res://scripts/ui/save_screen.gd")
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const MEGAKIT := "res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/"
@@ -295,6 +296,11 @@ func notice_menu() -> Dictionary:
 	var guard := Life.careers.seat("guard", "Guard")
 	if Life.careers.open_count(guard) > 0:
 		lines.append("\nThe Guard is hiring: %d posts open. See the Captain of the Guard." % Life.careers.open_count(guard))
+	for i in Life.homestead.plots().size():
+		if Life.homestead.is_owned(i):
+			continue
+		var price := int(Life.homestead.plots()[i]["price"])
+		opts.append(["Buy homestead plot %d (%dg)" % [i + 1, price], Life.homestead.buy.bind(i), Game.gold >= price])
 	return {"title": "Notice Board", "body": "\n".join(lines), "options": opts}
 
 
@@ -393,6 +399,12 @@ func pack_menu() -> Dictionary:
 		hud.close_menu()
 		hud.open_photo_mode()
 		return ""])
+	var homestead_plot := Life.homestead.plot_at(_player_pos())
+	if homestead_plot >= 0 and Life.homestead.is_owned(homestead_plot):
+		opts.append(["Build on your homestead", func() -> String:
+			hud.close_menu()
+			BuildMenu.open_for(hud)
+			return ""])
 	opts.append(["Save / Load", func() -> String:
 		hud.close_menu()
 		SaveScreen.open_for(hud)

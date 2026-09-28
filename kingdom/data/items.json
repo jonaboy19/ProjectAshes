@@ -64,5 +64,10 @@
 	"wood_axe": {"inherits": "gear", "name": "Wood Axe", "price": 18, "slot": "main_hand", "damage": 5, "tool": "woodcutting", "durability": 140,
 		"description": "Fells trees. Bites into wolves too."},
 	"pickaxe": {"inherits": "gear", "name": "Pickaxe", "price": 22, "slot": "main_hand", "damage": 4, "tool": "mining", "durability": 160,
-		"description": "Carry one and ore veins give more."}
+		"description": "Carry one and ore veins give more."},
+
+	"wheat": {"name": "Wheat", "category": "material", "price": 2, "max_stack_size": 30,
+		"description": "Grain from your own field. Millers pay for it, or grind it yourself."},
+	"cabbage": {"inherits": "food", "name": "Cabbage", "price": 2, "nutrition": 14,
+		"description": "A homegrown head of cabbage."}
 }

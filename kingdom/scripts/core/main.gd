@@ -23,6 +23,8 @@ var settlements: SettlementBuilder
 var population: PopulationLOD
 var frontier: FrontierPresence
 var region: RegionDressing
+const HomesteadView := preload("res://scripts/world/homestead_view.gd")
+var homestead_view: Node3D
 var weather: Node3D
 var ambient_fx: Node3D
 var _order_from: Variant = null   # command view: where the current drag order started
@@ -134,6 +136,8 @@ func _ready() -> void:
 	world.add_child(Lakeside.new())
 	region = RegionDressing.new()
 	world.add_child(region)
+	homestead_view = HomesteadView.new()
+	world.add_child(homestead_view)
 	weather = preload("res://scripts/world/weather.gd").new()
 	weather.name = "Weather"
 	weather.add_to_group("weather")
@@ -268,6 +272,7 @@ func _process(delta: float) -> void:
 	population.focus = focus
 	frontier.focus = focus
 	region.focus = focus
+	homestead_view.focus = focus
 	ambient_fx.focus = focus
 	camps.focus = focus
 	ambient.focus = focus
@@ -840,6 +845,40 @@ func _screenshot(shot: String, path: String) -> void:
 					w.home = q
 					w.state = Wolf.State.STALK
 			warmup = 25
+		"homestead":
+			# A furnished homestead on plot 1 (QA view of the build system).
+			Game.gold = 5000
+			Life.give("plank", 60)
+			Life.give("iron_ingot", 20)
+			Life.homestead.buy(0)
+			Life.homestead.place(0, "cottage", Vector2i(2, 6), 0)
+			Life.homestead.place(0, "barn", Vector2i(7, 6), 1)
+			Life.homestead.place(0, "fence", Vector2i(0, 2), 0)
+			Life.homestead.place(0, "fence", Vector2i(1, 2), 0)
+			Life.homestead.place(0, "gate", Vector2i(2, 2), 0)
+			Life.homestead.place(0, "fence", Vector2i(3, 2), 0)
+			Life.homestead.place(0, "chicken_coop", Vector2i(6, 1), 0)
+			Life.homestead.place(0, "pig_sty", Vector2i(3, 1), 0)
+			Life.homestead.place(0, "well", Vector2i(1, 4), 0)
+			Life.homestead.place(0, "woodpile", Vector2i(0, 5), 0)
+			Life.homestead.place(0, "lamp_post", Vector2i(9, 4), 0)
+			Life.homestead.place(0, "bench", Vector2i(9, 5), 0)
+			Life.homestead.place(0, "crop_plot", Vector2i(4, 8), 0)
+			Life.homestead.place(0, "crop_plot", Vector2i(5, 8), 0)
+			Life.homestead.place(0, "crop_plot", Vector2i(6, 8), 0)
+			Life.homestead.plant(0, Vector2i(4, 8), "wheat")
+			Life.homestead.plant(0, Vector2i(5, 8), "wheat")
+			Life.homestead.plant(0, Vector2i(6, 8), "cabbage")
+			WorldSim.day += 3
+			var hpos: Vector2 = Life.homestead.plots()[0]["pos"]
+			var hyaw: float = Life.homestead.plots()[0]["yaw"]
+			var hfront := Vector2(sin(hyaw), cos(hyaw))
+			var hspot := hpos - hfront.rotated(-0.5) * 20.0
+			_teleport(hspot, 0.0)
+			player.set_camera(atan2(-(hpos - hspot).x, -(hpos - hspot).y), -0.16)
+			homestead_view.focus = player.global_position
+			homestead_view.build_all_now()
+			warmup = 90
 		"lake":
 			# On the lake shore at midday, looking out over the water.
 			var lc := WorldGen.lake_center

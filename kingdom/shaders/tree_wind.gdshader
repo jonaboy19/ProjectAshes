@@ -62,10 +62,12 @@ void fragment() {
 		float top = clamp(NORMAL.y, 0.0, 1.0);
 		col = mix(col, vec3(0.96, 0.97, 1.0), snow_amount * top * top * 0.85);
 	}
-	// Spring: a few blossom speckles, thinning out as bloom fades.
-	// Sparse: only the top slice of leaves by COLOR.g flush pink, and only softly.
-	if (bloom_amount > 0.0 && COLOR.g > 0.9) {
-		col = mix(col, vec3(0.97, 0.85, 0.9), bloom_amount * 0.5);
+	// Spring: sparse blossom speckles, thinning out as bloom fades.
+	if (bloom_amount > 0.0) {
+		float speck = fract(sin(dot(floor(UV * 96.0), vec2(12.9898, 78.233))) * 43758.5453);
+		if (COLOR.g > 0.55 && speck > 0.88) {
+			col = mix(col, vec3(0.98, 0.86, 0.91), bloom_amount * 0.7);
+		}
 	}
 	ALBEDO = col;
 	ROUGHNESS = 0.8;

@@ -242,7 +242,7 @@ static func _season_look(s: int, pos: float) -> Dictionary:
 	match s:
 		SPRING:
 			v["tint"] = Vector3(0.93, 1.06, 0.9)                        # fresh, greener
-			v["bloom"] = lerpf(1.0, 0.45, smoothstep(12.0, 24.0, pos))  # blossom peaks early
+			v["bloom"] = lerpf(0.8, 0.3, smoothstep(10.0, 24.0, pos))  # blossom peaks early, then fades
 		SUMMER:
 			pass
 		AUTUMN:
