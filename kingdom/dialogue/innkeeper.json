@@ -1,0 +1,57 @@
+{
+  "id": "innkeeper",
+  "start": "greet",
+  "nodes": {
+    "greet": {
+      "lines": [
+        {"text": "\"{greeting} Sit anywhere that isn't sticky.\""},
+        {"text": "\"Milk or cider, little one? Milk. Definitely milk.\"", "if": {"child": true}, "p": 2},
+        {"text": "\"Early bird. Porridge isn't on yet, but the kettle is.\"", "if": {"time": "morning"}, "p": 1},
+        {"text": "\"Busy tonight. Find a corner and shout if you want the stew.\"", "if": {"time": "evening"}, "p": 1},
+        {"text": "\"We're closing, friend. One cup, then home.\"", "if": {"time": "night"}, "p": 2},
+        {"text": "\"Come in out of the wet! Hang your cloak by the fire.\"", "if": {"weather": ["rain", "storm"]}, "p": 2},
+        {"text": "\"My best customer! Your usual corner's free.\"", "if": {"min_tier": "friend"}, "p": 3},
+        {"text": "\"You. Pay first this time.\"", "if": {"tier": ["rival", "enemy"]}, "p": 5},
+        {"text": "\"Half the village is drinking to your health tonight, you know.\"", "if": {"event": "quest_done"}, "p": 4}
+      ],
+      "choices": [
+        {"text": "\"What are people talking about?\"", "goto": "gossip"},
+        {"text": "\"What's good today?\"", "goto": "food"},
+        {"text": "\"Anyone need a job done?\"", "goto": "", "if": {"has": "quest_offer"}, "do": [["quests"]]},
+        {"text": "\"The job's done.\"", "goto": "", "if": {"has": "quest_ready"}, "do": [["turn_in"]]},
+        {"text": "Offer a gift…", "goto": "", "if": {"has": "has_gift_items"}, "do": [["gift"]]}
+      ]
+    },
+    "gossip": {
+      "lines": [
+        {"text": "\"An inn hears everything, and repeats half of it. {rumour}\"", "if": {"has": "rumour"}},
+        {"text": "\"Quiet night. The smith lost at dice again, if that counts.\""},
+        {"text": "The innkeeper polishes a mug that is already clean. \"{hint}\"", "if": {"has": "hint", "min_tier": "acquaintance"}, "p": 2, "do": [["tell_hint"]]},
+        {"text": "\"Tuskridge traders were in last market day. Paid in good hides, drank little, left early. Folk still stared.\"", "if": {"chance": 0.3}, "p": 1}
+      ],
+      "choices": [
+        {"text": "\"Anything else?\"", "goto": "gossip2"},
+        {"text": "\"Thanks.\"", "goto": "greet", "do": [["opinion", "chat", "Good company", 2, 5]]}
+      ]
+    },
+    "gossip2": {
+      "lines": [
+        {"text": "\"That's all I've got. Buy a drink and maybe my memory improves.\""},
+        {"text": "\"{rumour}\"", "if": {"has": "rumour", "chance": 0.5}, "p": 1}
+      ],
+      "choices": [
+        {"text": "\"Right.\"", "goto": "greet"}
+      ]
+    },
+    "food": {
+      "lines": [
+        {"text": "\"Mutton and leek stew, barley bread, hard cheese. Same as always, and nobody's complained. Much.\""},
+        {"text": "\"Smoked river trout, if the fishermen came back. Honey oatcakes for the little ones.\"", "if": {"time": ["morning", "afternoon"]}},
+        {"text": "\"Bring me venison and I'll pay better than the market. Trout too.\"", "if": {"min_tier": "acquaintance"}, "p": 1}
+      ],
+      "choices": [
+        {"text": "\"Sounds good.\"", "goto": "greet"}
+      ]
+    }
+  }
+}

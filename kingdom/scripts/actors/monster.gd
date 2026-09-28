@@ -313,7 +313,12 @@ func _decide(player: Node3D) -> void:
 		var d := global_position.distance_to(player.global_position)
 		var pp := Vector2(player.global_position.x, player.global_position.z)
 		var near_home := pp.distance_to(home) < home_radius + 22.0
-		if d < 9.0 or (near_home and d < 16.0):
+		# Stealth: player.noise_radius() (10 m at a walk) scales how close it must
+		# come before the creature attacks; a fight already under way keeps going.
+		var hear := 1.0
+		if state != State.ATTACK and player.has_method("noise_radius"):
+			hear = clampf(float(player.call("noise_radius")) / 10.0, 0.4, 1.6)
+		if d < 9.0 * hear or (near_home and d < 16.0 * hear):
 			state = State.ATTACK
 			_foe = player
 		elif d < 24.0:

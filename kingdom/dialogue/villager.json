@@ -1,0 +1,149 @@
+{
+  "id": "villager",
+  "start": "greet",
+  "nodes": {
+    "greet": {
+      "lines": [
+        {"text": "{first} looks you up and down and says nothing at all.", "if": {"tier": "enemy"}, "p": 5},
+        {"text": "\"You again. Say what you want and be quick about it.\"", "if": {"tier": "rival"}, "p": 5},
+        {"text": "\"You've a nerve, talking to me after what you said.\"", "if": {"event": "insulted", "tier_not": ["friend", "close_friend"]}, "p": 6},
+
+        {"text": "\"There's my helper! My back still thanks you for yesterday.\"", "if": {"event": "helped_recently", "min_tier": "acquaintance"}, "p": 4},
+        {"text": "\"Word is you sorted out that business for us. Ashford owes you a drink.\"", "if": {"event": "quest_done"}, "p": 4},
+        {"text": "\"Gods, you're bleeding. Get yourself to the herbalist before you fall over.\"", "if": {"event": "injured"}, "p": 4},
+        {"text": "\"You look half-starved, {kid}. The inn does a fair stew.\"", "if": {"event": "hungry"}, "p": 3},
+
+        {"text": "\"{greeting}\" {first} waits a beat. \"...You're meant to say '{reply}'. Where'd you grow up, a barn?\"", "if": {"tier": "stranger", "child": false}, "p": 1},
+        {"text": "\"Hm? Oh. Hello, {kid}. Does your mother know where you are?\"", "if": {"tier": "stranger", "child": true}, "p": 1},
+        {"text": "\"Stranger in the square. Well, not for long in a village this size. I'm {first}.\"", "if": {"tier": "stranger"}, "p": 1},
+
+        {"text": "\"Morning, {player}. The dew's still on the barley.\"", "if": {"tier": "acquaintance", "time": "morning"}, "p": 2},
+        {"text": "\"Afternoon. Hot work, whatever the work is.\"", "if": {"tier": "acquaintance", "time": "afternoon"}, "p": 2},
+        {"text": "\"Evening, {player}. Heading for the inn? Everyone is.\"", "if": {"tier": "acquaintance", "time": "evening"}, "p": 2},
+        {"text": "\"Bit late to be out, isn't it? The stones only keep so much away.\"", "if": {"tier": "acquaintance", "time": "night"}, "p": 2},
+        {"text": "\"Past your bedtime, {kid}. Home with you.\"", "if": {"time": "night", "child": true, "tier_not": ["enemy", "rival"]}, "p": 3},
+
+        {"text": "\"{player}! Good to see a friendly face.\"", "if": {"tier": "friend"}, "p": 2},
+        {"text": "\"Ah, it's you. Pull up a barrel, I was just about to stop for a breather.\"", "if": {"tier": "friend", "time": ["afternoon", "evening"]}, "p": 2},
+        {"text": "\"If it isn't my favourite {kid} in Ashford. What's the news?\"", "if": {"tier": "close_friend"}, "p": 2},
+        {"text": "\"{player}. I was hoping you'd come by. Walk with me a moment?\"", "if": {"tier": "close_friend", "child": false}, "p": 2},
+
+        {"text": "\"Soaked to the bone. Rain's good for the fields and bad for everything else.\"", "if": {"weather": ["rain", "storm"], "tier_not": ["enemy", "rival"], "chance": 0.5}, "p": 2},
+        {"text": "\"Can't see the end of the lane in this fog. Don't wander off the road.\"", "if": {"weather": "fog", "tier_not": ["enemy", "rival"]}, "p": 2},
+        {"text": "\"Thunder like that, the old ones say the Flame is turning in its sleep.\"", "if": {"weather": "storm", "tier_not": ["enemy", "rival"], "chance": 0.5}, "p": 3},
+
+        {"text": "\"Hello there.\""}
+      ],
+      "choices": [
+        {"text": "\"How are you keeping?\"", "goto": "chat", "if": {"tier_not": ["enemy"]}},
+        {"text": "\"Heard any news?\"", "goto": "gossip", "if": {"tier_not": ["enemy", "rival"]}},
+        {"text": "\"Need a hand with anything?\"", "goto": "work", "if": {"tier_not": ["enemy"]}},
+        {"text": "\"I've done what you asked.\"", "goto": "", "if": {"has": "quest_ready"}, "do": [["turn_in"]]},
+        {"text": "Offer a gift…", "goto": "", "if": {"has": "has_gift_items"}, "do": [["gift"]]},
+        {"text": "\"I'm sorry for what I said before.\"", "goto": "sorry", "if": {"event": "insulted"}},
+        {"text": "\"Out of my way, peasant.\"", "goto": "insulted", "if": {"child": false, "tier_not": ["enemy"]}, "do": [["opinion", "insult", "Insulted", -15, 45]]},
+        {"text": "\"You smell like a goat.\"", "goto": "insulted", "if": {"child": true, "tier_not": ["enemy"]}, "do": [["opinion", "insult", "Insulted", -8, 20]]}
+      ]
+    },
+    "chat": {
+      "lines": [
+        {"text": "\"Can't complain. Well, I can, but who'd listen?\""},
+        {"text": "\"Tired. The {role} never rests, not in Ashford.\"", "if": {"role": ["farmer", "laborer", "woodcutter", "blacksmith"]}, "p": 1},
+        {"text": "\"The fields are coming on. If the wolves leave the sheep be, it'll be a fair year.\"", "if": {"role": "farmer"}, "p": 2},
+        {"text": "\"Prices at the stall would make a saint swear. Salt's dear since the road got dangerous.\"", "if": {"role": "merchant"}, "p": 2},
+        {"text": "\"Quiet on the walls. Quiet is good. Quiet is what they pay me for.\"", "if": {"role": "guard"}, "p": 2},
+        {"text": "\"Duskbriar's full of good oak and bad things. I cut near the edge and keep my ears open.\"", "if": {"role": "woodcutter"}, "p": 2},
+        {"text": "\"The smith's got me hauling charcoal again. My arms'll be as thick as his one day.\"", "if": {"role": "laborer"}, "p": 2},
+        {"text": "\"Better for seeing you. Truly.\"", "if": {"tier": "close_friend"}, "p": 3},
+        {"text": "\"What's it to you?\"", "if": {"tier": "rival"}, "p": 5}
+      ],
+      "choices": [
+        {"text": "\"What do you think of the Crown these days?\"", "goto": "crown", "if": {"child": false, "min_tier": "acquaintance"}},
+        {"text": "\"What's Ashford like to live in?\"", "goto": "values", "if": {"min_tier": "stranger"}},
+        {"text": "\"Anything else?\"", "goto": "greet"}
+      ]
+    },
+    "values": {
+      "lines": [
+        {"text": "\"Hearth and kin, {kid}. Keep your fire lit, keep your word plain, and never turn a traveller from the door.\""},
+        {"text": "\"We keep the stones. Every spring we scrub the runes on Stonewake and every winter we relight our fires from the brazier on Kindling Night.\""},
+        {"text": "\"Rank's earned here, not born. My grandfather was a Guard and he ate at the Captain's table.\""}
+      ],
+      "choices": [
+        {"text": "\"Thanks.\"", "goto": "greet", "do": [["opinion", "chat", "Pleasant talk", 2, 5]]}
+      ]
+    },
+    "crown": {
+      "lines": [
+        {"text": "\"King Aldric's old, and the Princess is sharp. Taxes are fair enough. It's the orcs in the south they ought to worry about.\""},
+        {"text": "\"The Crown sends a tax man twice a year and a soldier never. That's the Crown for you.\"", "if": {"max_op": 40}},
+        {"text": "\"Say what you like about Kingsreach, the King's Ember Road's safe by day. Mostly.\""}
+      ],
+      "choices": [
+        {"text": "\"Fair enough.\"", "goto": "greet"}
+      ]
+    },
+    "gossip": {
+      "lines": [
+        {"text": "\"Not much to tell. Sheep, rain, taxes. The usual.\""},
+        {"text": "\"{rumour}\"", "if": {"has": "rumour"}, "p": 1},
+        {"text": "{first} lowers their voice. \"{hint}\"", "if": {"has": "hint", "min_tier": "acquaintance", "chance": 0.6}, "p": 2, "do": [["tell_hint"]]},
+        {"text": "{first} leans in close. \"I shouldn't say, but you're a friend. {hint}\"", "if": {"has": "hint", "min_tier": "friend"}, "p": 3, "do": [["tell_hint"]]},
+        {"text": "\"Gossip? With you? Ha.\"", "if": {"tier": "rival"}, "p": 5}
+      ],
+      "choices": [
+        {"text": "\"Anything else?\"", "goto": "gossip2"},
+        {"text": "\"Thanks for telling me.\"", "goto": "greet", "do": [["opinion", "chat", "Pleasant talk", 2, 5]]}
+      ]
+    },
+    "gossip2": {
+      "lines": [
+        {"text": "\"That's all I know. Ask at the inn, they hear everything there.\""},
+        {"text": "\"{rumour}\"", "if": {"has": "rumour", "chance": 0.5}, "p": 1}
+      ],
+      "choices": [
+        {"text": "\"Right.\"", "goto": "greet"}
+      ]
+    },
+    "work": {
+      "lines": [
+        {"text": "\"Not a thing, thank you.\""},
+        {"text": "\"Help? From you? I'd sooner ask the goat.\"", "if": {"tier": "rival"}, "p": 5},
+        {"text": "\"You don't know me, {kid}. Maybe once you do.\"", "if": {"tier": "stranger", "has": "quest_offer"}, "p": 3},
+        {"text": "\"As it happens, there's something. Hear me out.\"", "if": {"has": "quest_offer", "min_tier": "acquaintance"}, "p": 2},
+        {"text": "\"The woodpile won't stack itself, if you've an hour to spare.\"", "if": {"not_has": "chores_today", "tier_not": ["rival", "enemy"]}, "p": 1}
+      ],
+      "choices": [
+        {"text": "\"Tell me about the job.\"", "goto": "", "if": {"has": "quest_offer", "min_tier": "acquaintance"}, "do": [["quests"]]},
+        {"text": "\"I'll do some chores for you. (1 hour)\"", "goto": "chores_done", "if": {"not_has": "chores_today", "tier_not": ["rival", "enemy"]}, "do": [["chores"], ["opinion", "chores", "Helped with chores", 10, 30], ["rep", "ashford", 1], ["record", "helped_farmer", 1]]},
+        {"text": "\"Never mind.\"", "goto": "greet"}
+      ]
+    },
+    "chores_done": {
+      "lines": [
+        {"text": "An hour of stacking, sweeping and hauling later, {first} claps you on the shoulder. \"You're a good sort.\""},
+        {"text": "\"Look at that. Done in half the time. Here, have an apple for your trouble.\"", "if": {"child": true}, "p": 1, "do": [["give", "apple", 1]]}
+      ],
+      "choices": [
+        {"text": "\"Any time.\"", "goto": "greet"}
+      ]
+    },
+    "insulted": {
+      "lines": [
+        {"text": "{first} stiffens. \"I'll remember that.\""},
+        {"text": "\"Charming. Your mother would be proud.\"", "if": {"child": true}, "p": 1}
+      ],
+      "choices": [
+        {"text": "Walk away.", "goto": "@end"}
+      ]
+    },
+    "sorry": {
+      "lines": [
+        {"text": "\"...Hm. Well. Words are cheap, but it's a start.\""}
+      ],
+      "choices": [
+        {"text": "\"It won't happen again.\"", "goto": "greet", "do": [["opinion", "apology", "Apologised", 6, 20]]}
+      ]
+    }
+  }
+}

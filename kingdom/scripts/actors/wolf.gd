@@ -290,6 +290,10 @@ func _decide(player: Node3D, cov: float) -> void:
 	var player_cov := Frontier.runestones.coverage(pp)
 	var in_territory := pp.distance_to(home) < territory * 1.3
 	var aggro := float(_sp["aggro"]) if _provoked <= 0.0 else maxf(float(_sp["aggro"]), 22.0)
+	# Stealth: a sneaking player (player.noise_radius(), 10 m at a walk) is noticed
+	# closer, a running one farther. Once fighting, the range stays as it is.
+	if _provoked <= 0.0 and state != State.ATTACK and player.has_method("noise_radius"):
+		aggro *= clampf(float(player.call("noise_radius")) / 10.0, 0.4, 1.6)
 	if player_cov > 0.5:
 		_set_state(State.ROAM)            # won't follow prey into protected land
 	elif d < aggro and (in_territory or _provoked > 0.0):

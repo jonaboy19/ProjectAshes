@@ -1,0 +1,45 @@
+{
+  "id": "guild",
+  "start": "greet",
+  "nodes": {
+    "greet": {
+      "lines": [
+        {"text": "\"Welcome to the Guild Hall. Registering, posting a commission, or just sheltering from the weather?\""},
+        {"text": "\"Aren't you a bit small for monster hunting? Come back at twelve and I'll write your name in the book myself.\"", "if": {"child": true, "max_age": 11}, "p": 2},
+        {"text": "\"Our newest F-rank! The board's that way. Try not to die, the paperwork is dreadful.\"", "if": {"event": "guild_member", "max_op": 29}, "p": 2},
+        {"text": "\"{player}! My favourite adventurer. Don't tell the others.\"", "if": {"event": "guild_member", "min_tier": "friend"}, "p": 3},
+        {"text": "\"Morning. Fresh commissions went up at dawn, first come first served.\"", "if": {"time": "morning"}, "p": 1},
+        {"text": "\"You're dripping on my floor. Contracts are on the board, towels are not.\"", "if": {"weather": ["rain", "storm"]}, "p": 2},
+        {"text": "\"Report's ready to file, I see. Let's have it.\"", "if": {"has": "quest_ready"}, "p": 4},
+        {"text": "\"You're hurt. The herbalist is two doors down. Commissions will keep.\"", "if": {"event": "injured"}, "p": 4}
+      ],
+      "choices": [
+        {"text": "\"What contracts are posted?\"", "goto": "", "do": [["quests"]]},
+        {"text": "\"Here's my report.\"", "goto": "", "if": {"has": "quest_ready"}, "do": [["turn_in"]]},
+        {"text": "\"How do the ranks work?\"", "goto": "ranks"},
+        {"text": "\"Any monster news?\"", "goto": "rumours"},
+        {"text": "Offer a gift…", "goto": "", "if": {"has": "has_gift_items"}, "do": [["gift"]]}
+      ]
+    },
+    "ranks": {
+      "lines": [
+        {"text": "\"F to S. Everyone starts at F, no matter whose child you are. Finish commissions for points; enough points and the branch master signs your next rank.\""},
+        {"text": "\"Fail a commission and it costs you points, and sometimes coin. Take what you can finish.\""}
+      ],
+      "choices": [
+        {"text": "\"Understood.\"", "goto": "greet"}
+      ]
+    },
+    "rumours": {
+      "lines": [
+        {"text": "\"Quiet week. Which in this trade means something big is about to happen.\""},
+        {"text": "\"{rumour}\"", "if": {"has": "rumour"}, "p": 1},
+        {"text": "\"Between us, the Mossfang goblins have been bolder since the rift started glowing. Nobody's paid to deal with them yet.\"", "if": {"min_tier": "friend"}, "p": 1, "do": [["rep", "adventurer_guild", 1]]},
+        {"text": "\"Adventurers who've been out west come back talking about a hollow where the trees whisper. Nobody posts contracts there. Nobody needs to.\"", "if": {"min_tier": "acquaintance", "chance": 0.4}, "p": 1}
+      ],
+      "choices": [
+        {"text": "\"I'll keep my eyes open.\"", "goto": "greet"}
+      ]
+    }
+  }
+}

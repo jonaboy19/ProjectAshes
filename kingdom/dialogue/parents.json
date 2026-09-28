@@ -1,0 +1,120 @@
+{
+  "id": "parents",
+  "start": "greet",
+  "nodes": {
+    "greet": {
+      "lines": [
+        {"text": "\"There you are! Where have you been? Come here, let me look at you.\"", "if": {"child": true}},
+        {"text": "\"Hello, love.\"", "if": {"child": false}},
+
+        {"text": "\"Up with the sun, are we? Porridge is on the hearth. Eat before you run off.\"", "if": {"bond": "mother", "time": "morning", "child": true}, "p": 2},
+        {"text": "\"Morning, sprout. I'm off to work soon. Mind your mother today.\"", "if": {"bond": "father", "time": "morning", "child": true}, "p": 2},
+        {"text": "\"Supper's nearly ready. Wash those hands, they're filthy.\"", "if": {"bond": "mother", "time": "evening", "child": true}, "p": 2},
+        {"text": "\"Long day. Come sit with your old father a while before supper.\"", "if": {"bond": "father", "time": "evening"}, "p": 2},
+        {"text": "\"What are you doing up? Bed. Now. The stones don't keep the night-things out of little rooms that aren't in bed.\"", "if": {"time": "night", "child": true}, "p": 3},
+        {"text": "\"Out so late? I worry, you know. Even now you're grown.\"", "if": {"time": "night", "child": false, "bond": "mother"}, "p": 3},
+
+        {"text": "\"Look at you, drenched! Get by the fire before you catch your death.\"", "if": {"weather": ["rain", "storm"], "bond": "mother"}, "p": 3},
+        {"text": "\"Hear that thunder? Your grandmother used to say it was the Flame dreaming.\"", "if": {"weather": "storm", "bond": "father"}, "p": 3},
+
+        {"text": "\"You're hurt! Sit down. No, don't argue, sit.\"", "if": {"event": "injured"}, "p": 5},
+        {"text": "\"You look hungry. There's bread in the crock, take it.\"", "if": {"event": "hungry", "bond": "mother"}, "p": 4},
+        {"text": "\"The whole village is talking about you helping out. I'm proud of you, you know.\"", "if": {"event": "helped_recently"}, "p": 4},
+        {"text": "\"An adventurer. My child, an adventurer. Promise me you'll be careful out there.\"", "if": {"event": "guild_member", "bond": "mother"}, "p": 3},
+        {"text": "\"Guild papers, eh? I carried a spear for the Guard at your age. Keep your guard up and your feet planted.\"", "if": {"event": "guild_member", "bond": "father"}, "p": 3},
+        {"text": "\"You've a title to your name now. I heard it at the well before I heard it from you!\"", "if": {"event": "new_title"}, "p": 4},
+        {"text": "{first} gives you a long, strange look. \"You've been to the old shrine, haven't you? You've the same look my grandmother had.\"", "if": {"flag": "spirit_seen"}, "p": 3},
+
+        {"text": "{first} barely looks up. \"Oh. It's you.\"", "if": {"max_op": 20}, "p": 6}
+      ],
+      "choices": [
+        {"text": "\"Tell me a story!\"", "goto": "story", "if": {"child": true}},
+        {"text": "\"Can I help around the house?\"", "goto": "help", "if": {"not_has": "chores_today"}, "do": [["chores"], ["bond", 4], ["opinion", "chores", "Helped around the house", 8, 20], ["record", "helped_parent", 1]]},
+        {"text": "\"What's the village saying?\"", "goto": "gossip"},
+        {"text": "\"I want to be an adventurer.\"", "goto": "adventure", "if": {"not_has": "guild_member"}},
+        {"text": "\"Tell me about our family.\"", "goto": "family"},
+        {"text": "Give them a hug.", "goto": "hug", "if": {"child": true}, "do": [["bond", 1], ["opinion", "hug", "Hugged", 3, 3]]},
+        {"text": "Offer a gift…", "goto": "", "if": {"has": "has_gift_items"}, "do": [["gift"]]},
+        {"text": "\"I'm not a baby any more! Leave me alone!\"", "goto": "sulk", "if": {"child": true, "min_age": 11}, "do": [["bond", -3], ["opinion", "sulk", "Snapped at them", -6, 10]]}
+      ]
+    },
+    "story": {
+      "lines": [
+        {"text": "\"Long ago, the people who founded Ashford carried fire in their blood. When the village burned, they walked out of the ashes and built it again. That's why we're called Ash-ford.\""},
+        {"text": "\"There's a shrine in the western wood, where the Sleeping Flame dozes. They say it only wakes for a child who is exactly eight. Silly, isn't it?\"", "if": {"max_age": 8}, "p": 1},
+        {"text": "\"Once, a boy from Millbrook found a pond that sang to him in the moonlight. He grew up to be a Warden of the King.\""},
+        {"text": "\"The goblins of Mossfang steal shiny things and children who don't go to sleep. So you'll go to sleep, won't you?\"", "if": {"bond": "mother"}},
+        {"text": "\"When I was a lad, I saw an orc from Tuskridge carry a calf out of the Ashrun in flood. Not every tusk means trouble, sprout.\"", "if": {"bond": "father"}}
+      ],
+      "choices": [
+        {"text": "\"Another one!\"", "goto": "story2", "do": [["bond", 1]]},
+        {"text": "\"Thank you.\"", "goto": "greet"}
+      ]
+    },
+    "story2": {
+      "lines": [
+        {"text": "\"One more, then bed. Once upon a time, there was a child who asked for one more story...\""},
+        {"text": "\"Your father's old hunting blind is still up in an oak east of the fields. Maybe one day he'll show you, if you go hunting with him.\"", "if": {"bond": "mother", "no_flag": "found_blind"}, "p": 1}
+      ],
+      "choices": [
+        {"text": "\"Goodnight.\"", "goto": "@end"},
+        {"text": "\"I'm not tired.\"", "goto": "greet"}
+      ]
+    },
+    "help": {
+      "lines": [
+        {"text": "You spend an hour fetching water, sweeping the hearth and feeding the hens. \"What would I do without you?\"", "if": {"bond": "mother"}},
+        {"text": "You spend an hour splitting kindling and mending the fence. \"Good arm on you. Keep it up.\"", "if": {"bond": "father"}}
+      ],
+      "choices": [
+        {"text": "\"Happy to help.\"", "goto": "greet"}
+      ]
+    },
+    "gossip": {
+      "lines": [
+        {"text": "\"Nothing much. The miller's feuding with the smith again.\""},
+        {"text": "\"{rumour}\"", "if": {"has": "rumour"}, "p": 1},
+        {"text": "\"Don't tell anyone I told you, but... {hint}\"", "if": {"has": "hint"}, "p": 2, "do": [["tell_hint"]]}
+      ],
+      "choices": [
+        {"text": "\"Thanks.\"", "goto": "greet"}
+      ]
+    },
+    "adventure": {
+      "lines": [
+        {"text": "\"An adventurer! At your age? The Guild won't take you before you're twelve, and even then I'd want to meet the people you go out with.\"", "if": {"bond": "mother", "max_age": 11}},
+        {"text": "\"Twelve, and not a day before. Then we'll talk about it. Until then, learn to run fast and climb well.\"", "if": {"bond": "father", "max_age": 11}},
+        {"text": "\"You're old enough now, I suppose. The Guild hall's by the square. Membership's five gold. Don't make me regret saying so.\"", "if": {"min_age": 12}}
+      ],
+      "choices": [
+        {"text": "\"I'll be careful.\"", "goto": "greet", "do": [["bond", 1]]}
+      ]
+    },
+    "family": {
+      "lines": [
+        {"text": "\"Your mother is {mother} and your father is {father}. We've lived in Ashford all our lives, and our parents before us.\""},
+        {"text": "\"The {family} name goes back to the founding, or so your grandfather claimed. He also claimed he wrestled a bear.\"", "if": {"bond": "father"}, "p": 1}
+      ],
+      "choices": [
+        {"text": "\"I love you.\"", "goto": "greet", "do": [["bond", 1], ["opinion", "love", "Said they love them", 4, 7]]}
+      ]
+    },
+    "hug": {
+      "lines": [
+        {"text": "{first} squeezes you tight and kisses the top of your head. \"Off with you, then.\""}
+      ],
+      "choices": [
+        {"text": "Grin.", "goto": "greet"}
+      ]
+    },
+    "sulk": {
+      "lines": [
+        {"text": "{first} looks hurt, then sighs. \"No. You're not. But you're still mine.\""}
+      ],
+      "choices": [
+        {"text": "Stomp off.", "goto": "@end"},
+        {"text": "\"...Sorry.\"", "goto": "greet", "do": [["bond", 2], ["opinion", "sulk_sorry", "Apologised", 5, 10]]}
+      ]
+    }
+  }
+}

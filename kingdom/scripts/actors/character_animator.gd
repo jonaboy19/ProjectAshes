@@ -5,6 +5,7 @@ extends RefCounted
 ##
 ##   locomotion (idle <-> phase-synced walk/run gait, rate-matched to ground speed)
 ##     -> strafe  (guard stance: forward/back/side steps chosen by travel direction)
+##     -> stance  (optional: crouch / swim / ride sets replace the whole locomotion)
 ##     -> block   (Blend2, upper body only: shield raised while walking)
 ##     -> upper   (OneShot, upper body only: swing a sword while running)
 ##     -> full    (OneShot, whole body: dodge rolls, big hits)
@@ -59,6 +60,16 @@ const MAX_CADENCE := 1.4
 ## Guard-stance shuffles read fine quicker than a gait, which keeps the soles
 ## planted at the controllers' block speeds (1.2 m/s player).
 const MAX_STRAFE_CADENCE := 1.7
+## Alternate locomotion sets (built only with `with_stances`): name ->
+## [idle clips, moving clips, ground speed of the moving clip at rate 1 (0 =
+## static pose)]. The first clip the library has wins. Crouch_Fwd and Swim_Fwd
+## speeds are estimates from their stride (not in the anim QA report yet).
+const STANCES := {
+	"crouch": [["Crouch_Idle"], ["Crouch_Fwd", "Walk_Stealth"], 1.1],
+	"swim": [["Swim_Idle"], ["Swim_Fwd"], 2.2],
+	"ride": [["Driving", "Sitting_Idle", "Sit_Floor_Idle"], ["Driving", "Sitting_Idle", "Sit_Floor_Idle"], 0.0],
+}
+const STANCE_BLEND := 5.0        # 1/s cross-fade into and out of a stance
 
 var tree: AnimationTree
 var player: AnimationPlayer
@@ -91,9 +102,16 @@ var _strafe_r := STRAFE_RIGHT_CLIP
 var _strafe_cadence := Vector2.ONE   # (side, back) natural cycles per second
 var _phase := 0.0
 var _step_ready := false
+var _strafe_target := 0.0
+var _strafe := 0.0
+var _has_stances := false
+var _stance := ""
+var _stance_w := 0.0
+var _stance_clip_speed := 0.0
+var _stance_lens := Vector2.ONE   # (idle, move) clip lengths
 
 
-func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "Walking_A", run_anim := "Running_A", idle_anim := "Idle") -> void:
+func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "Walking_A", run_anim := "Running_A", idle_anim := "Idle", with_stances := false) -> void:
 	_model = model
 	player = Assets.animation_player(model)
 	_anim_root = player.get_node(player.root_node)
@@ -148,6 +166,24 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 		_root.connect_node("guard_feet", 1, "strafe_rate")
 		loco_out = "guard_feet"
 
+	if with_stances:
+		# Stance set: its own idle and moving loops, each on a stretched one-second
+		# timeline with its own rate, mixed by speed and faded over the gait.
+		_has_stances = true
+		_root.add_node("st_idle", _cycle(idle_anim), Vector2(-400, 600))
+		_root.add_node("st_idle_rate", AnimationNodeTimeScale.new(), Vector2(-250, 600))
+		_root.add_node("st_move", _cycle(walk_anim), Vector2(-400, 750))
+		_root.add_node("st_move_rate", AnimationNodeTimeScale.new(), Vector2(-250, 750))
+		_root.add_node("st_mix", AnimationNodeBlend2.new(), Vector2(-100, 650))
+		_root.add_node("stance", AnimationNodeBlend2.new(), Vector2(100, 400))
+		_root.connect_node("st_idle_rate", 0, "st_idle")
+		_root.connect_node("st_move_rate", 0, "st_move")
+		_root.connect_node("st_mix", 0, "st_idle_rate")
+		_root.connect_node("st_mix", 1, "st_move_rate")
+		_root.connect_node("stance", 0, loco_out)
+		_root.connect_node("stance", 1, "st_mix")
+		loco_out = "stance"
+
 	_root.add_node("block_anim", _anim("Blocking"), Vector2(0, 200))
 	var block := AnimationNodeBlend2.new()
 	_filter_upper(block)
@@ -188,6 +224,8 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 	tree.anim_player = tree.get_path_to(player)
 	tree.root_node = tree.get_path_to(_anim_root)
 	tree["parameters/gait_rate/scale"] = 1.0 / _walk_len
+	if _has_stances:
+		tree["parameters/stance/blend_amount"] = 0.0
 	tree.active = true
 
 
@@ -278,8 +316,23 @@ func update(delta: float, speed: float, move_dir := Vector3.ZERO) -> void:
 
 	_block = move_toward(_block, _block_target, delta * 6.0)
 	tree["parameters/block/blend_amount"] = _block
+	_strafe = move_toward(_strafe, _strafe_target, delta * 6.0)
 	if _has_strafe:
 		_update_strafe()
+	if _has_stances:
+		_update_stance(delta)
+
+
+func _update_stance(delta: float) -> void:
+	_stance_w = move_toward(_stance_w, 1.0 if _stance != "" else 0.0, delta * STANCE_BLEND)
+	tree["parameters/stance/blend_amount"] = _stance_w
+	if _stance_w <= 0.0:
+		return
+	var v := _speed
+	tree["parameters/st_mix/blend_amount"] = smoothstep(0.05, 0.5, v) if _stance_clip_speed > 0.0 else 0.0
+	tree["parameters/st_idle_rate/scale"] = 1.0 / _stance_lens.x
+	var cadence := clampf(v / _stance_clip_speed, 0.5, 1.6) if _stance_clip_speed > 0.0 else 1.0
+	tree["parameters/st_move_rate/scale"] = cadence / _stance_lens.y
 
 
 func _track_motion(delta: float, move_dir: Vector3) -> void:
@@ -308,8 +361,9 @@ func _track_motion(delta: float, move_dir: Vector3) -> void:
 ## Guard stance: pick forward, backward and side steps by the travel direction
 ## relative to the facing, at a rate that matches that direction's ground speed.
 func _update_strafe() -> void:
-	tree["parameters/guard_feet/blend_amount"] = _block
-	if _block <= 0.001:
+	var guard := maxf(_block, _strafe)
+	tree["parameters/guard_feet/blend_amount"] = guard
+	if guard <= 0.001:
 		return
 	var local := Vector2.ZERO
 	if _model.is_inside_tree() and _move_dir != Vector3.ZERO:
@@ -383,6 +437,47 @@ func stop_upper() -> void:
 
 func set_blocking(on: bool) -> void:
 	_block_target = 1.0 if on else 0.0
+
+
+## Lock-on footwork: directional strafe steps without raising the shield.
+func set_strafing(on: bool) -> void:
+	_strafe_target = 1.0 if on else 0.0
+
+
+## Swaps the whole locomotion for a STANCES set ("" = normal gait). Needs
+## `with_stances`; unknown or unavailable sets fall back to the normal gait.
+func set_stance(stance_name: String) -> void:
+	if not _has_stances or stance_name == _stance:
+		return
+	if stance_name == "" or not STANCES.has(stance_name):
+		_stance = ""
+		return
+	var cfg: Array = STANCES[stance_name]
+	var idle := _first_clip(cfg[0])
+	var move := _first_clip(cfg[1])
+	if idle == "" and move == "":
+		_stance = ""
+		return
+	if idle == "":
+		idle = move
+	if move == "":
+		move = idle
+	(_root.get_node("st_idle") as AnimationNodeAnimation).animation = idle
+	(_root.get_node("st_move") as AnimationNodeAnimation).animation = move
+	_stance_lens = Vector2(_clip_length(idle), _clip_length(move))
+	_stance_clip_speed = float(cfg[2])
+	_stance = stance_name
+
+
+func stance() -> String:
+	return _stance
+
+
+func _first_clip(names: Array) -> String:
+	for n: String in names:
+		if player.has_animation(n):
+			return n
+	return ""
 
 
 func is_upper_busy() -> bool:

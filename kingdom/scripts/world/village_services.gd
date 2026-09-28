@@ -11,12 +11,40 @@ const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const MEGAKIT := "res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/"
 const BOARD := "res://assets/generated/notice_board.glb"
 const BED_PRICE := 3
+const Relationships := preload("res://scripts/sim/relationships.gd")
+const RadiantQuests := preload("res://scripts/sim/radiant_quests.gd")
+const DialogueRunner := preload("res://scripts/sim/dialogue_runner.gd")
+const TalkTarget := preload("res://scripts/world/talk_target.gd")
+const QUEST_SEED := 1066 * 31
+const SOCIAL_TICK := 0.5
+## Service keepers you can talk to: id -> [role, dialogue file, radiant giver role].
+const KEEPERS := {
+	"innkeeper": ["innkeeper", "innkeeper", "villager"],
+	"receptionist": ["receptionist", "guild", "guild"],
+	"herbalist": ["healer", "villager", "healer"],
+	"trader": ["trader", "villager", "villager"],
+	"smith": ["blacksmith", "villager", ""],
+}
 
 var hud: HUD
 var guild_station: Station
 var captain: Captain
 var soldiers: Callable      # () -> int, current company size
 var recruit: Callable       # (count) -> void
+var talk_target: Node3D
+## Used until Life owns `relationships` / `radiant` (see relationships()).
+var _rel_local: Relationships = Relationships.new()
+var _radiant_local: RadiantQuests = RadiantQuests.new()
+## The conversation on screen: {id, info, file, node, line, hint_id}.
+var _talk: Dictionary = {}
+var _rng := RandomNumberGenerator.new()
+var _social_timer := 0.0
+var _last_day := -999
+var _last_quest_day := -999
+var _weather: Node
+var _weather_search := 0.0
+var _gossip: Dictionary = {}
+var _keeper_pos: Dictionary = {}     # keeper id -> Vector2 (where to report back)
 
 
 func setup(p_hud: HUD, p_captain: Captain, p_soldiers: Callable, p_recruit: Callable) -> void:
@@ -44,6 +72,7 @@ func _ready() -> void:
 			var yaw: float = lot["yaw"]
 			var at := BuildingProfiles.keeper_point(lot, 1.0)
 			_person("%s Inn" % home["name"], "Food & bed", inn_menu, at, at + Vector2(sin(yaw), cos(yaw)), "Innkeeper")
+			_keeper_pos["innkeeper"] = at
 			break
 	# Adventurer Guild receptionist and the herbalist beside their buildings'
 	# entrances (CityPlanner puts both on the lots nearest the plaza).
@@ -72,6 +101,17 @@ func _ready() -> void:
 	board.add_child(model)
 	board.look_at(_ground(board_pos + Vector2(-1.0, 3.0)), Vector3.UP, true)
 	board.rotate_y(PI)
+	# People: one "Talk" interactable that follows the nearest villager.
+	_rng.seed = WorldSim.SEED + 99
+	relationships().add_sects(Life.lore.sects)
+	talk_target = TalkTarget.new(hud, talk_menu)
+	add_child(talk_target)
+	# Compass / map marker for the tracked radiant quest (HUD asks active_objective_position()).
+	if hud and "quest_source" in hud and hud.get("quest_source") == null:
+		hud.set("quest_source", self)
+	_keeper_pos["receptionist"] = guild_at
+	_keeper_pos["herbalist"] = herb_at
+	_keeper_pos["trader"] = stall
 
 
 # --- interiors -------------------------------------------------------------------
@@ -175,6 +215,7 @@ func merchant_menu() -> Dictionary:
 		if n > 0:
 			opts.append(["Sell %s ×%d  —  %dg each" % [Life.item_name(item), n, m.sell_price(item)],
 				Life.sell.bind(item), m.purse >= m.sell_price(item)])
+	opts.append(_talk_option("trader"))
 	return {"title": "Market Trader",
 		"body": "\"Fresh from the farms. Pelts wanted: the tanner's short.\"\nYou carry %d gold. Trader's purse: %d gold." % [Game.gold, m.purse],
 		"options": opts}
@@ -189,6 +230,7 @@ func inn_menu() -> Dictionary:
 	var server := Life.careers.seat("inn", "Server")
 	if not Life.careers.is_employed() and Life.careers.open_count(server) > 0:
 		opts.append(["Ask for work as a Server (%dg/day)" % server["wage"], _apply.bind("inn", "Server")])
+	opts.append(_talk_option("innkeeper"))
 	return {"title": "%s Inn" % WorldGen.settlements[0]["name"],
 		"body": "The common room smells of smoke and onions.\nYou are %s and %s. It is %02d:00." % [
 			n.hunger_label().to_lower(), n.rest_label().to_lower(), int(WorldSim.time_of_day)],
@@ -213,6 +255,7 @@ func smith_menu() -> Dictionary:
 	var body := "The forge roars; the smith doesn't look up from the anvil.\n\"Wood for the fire, or a strong back. Nothing else I need today.\""
 	if opts.is_empty():
 		body += "\nYou have nothing the smith wants."
+	opts.append(_talk_option("smith"))
 	return {"title": "Blacksmith", "body": body, "options": opts}
 
 
@@ -350,6 +393,15 @@ func pack_menu() -> Dictionary:
 	if not inj.is_empty():
 		lines.append("Injuries: " + ", ".join(inj))
 	lines.append("Magicules %d / %d" % [int(Life.magicules.current), int(Life.magicules.effective_max())])
+	var jl: PackedStringArray = radiant().journal_lines()
+	if not jl.is_empty():
+		lines.append("Quests:\n  " + "\n  ".join(jl))
+	opts.append(["People & reputation", func() -> String:
+		hud.show_menu(people_menu)
+		return ""])
+	if radiant().active.size() > 1:
+		opts.append(["Track next quest", func() -> String:
+			return _track_next()])
 	opts.append(["Sleep rough here", _sleep_rough, n.rest < 80.0])
 	opts.append(["Save game", _save])
 	opts.append(["Load game", _load, Life.has_save()])
@@ -419,6 +471,15 @@ func guild_menu() -> Dictionary:
 		if c["state"] == "open":
 			open_board += 1
 	body += "\n%d commissions on the board." % open_board
+	var rq := radiant()
+	var contracts := rq.offers_for("guild", 5).size()
+	var reports := rq.ready_for("receptionist", "guild").size()
+	if contracts + reports > 0 and g.is_member(me):
+		body += "  %d local contract%s posted." % [contracts, "" if contracts == 1 else "s"]
+		opts.append(["Local contracts%s" % (("  (%d to report)" % reports) if reports > 0 else ""), func() -> String:
+			hud.show_menu(_quest_menu.bind(_keeper_info("receptionist")))
+			return ""])
+	opts.append(_talk_option("receptionist"))
 	return {"title": "Adventurer Guild", "body": body, "options": opts}
 
 
@@ -433,6 +494,15 @@ func healer_menu() -> Dictionary:
 	var body := "\"Cuts, bites, fevers, I can mend. A cracked soul-core needs a temple, child.\""
 	if menu.is_empty():
 		body += "\nYou are unhurt."
+	var hinfo := _keeper_info("herbalist")
+	for q: Dictionary in radiant().ready_for("herbalist", "healer"):
+		opts.append(["✔ Hand in: %s" % q["title"], _turn_in.bind(String(q["id"]), hinfo)])
+	var herb_jobs := radiant().offers_for("healer", 5)
+	if not herb_jobs.is_empty():
+		opts.append(["Ask about work (%d)" % herb_jobs.size(), func() -> String:
+			hud.show_menu(_quest_menu.bind(hinfo))
+			return ""])
+	opts.append(_talk_option("herbalist"))
 	return {"title": "Herbalist", "body": body, "options": opts}
 
 
@@ -470,3 +540,557 @@ func naming_menu(m: CampMonster) -> Dictionary:
 func _do_name(m: CampMonster, given: String, k: String) -> String:
 	hud.close_menu()
 	return Life.name_monster(m, given, k)
+
+
+# --- people: talk, gifts, reputation, radiant quests --------------------------------
+# Relationships and radiant quests live on Life once its hooks are in (Life.relationships,
+# Life.radiant: saved with the game); until then these fall back to local copies.
+
+func relationships() -> Relationships:
+	var r: Variant = Life.get("relationships")
+	return r if r != null else _rel_local
+
+
+func radiant() -> RadiantQuests:
+	var r: Variant = Life.get("radiant")
+	return r if r != null else _radiant_local
+
+
+## Where the compass should point for the tracked radiant quest (Vector2 or null).
+func active_objective_position() -> Variant:
+	return radiant().active_objective_position()
+
+
+func _now() -> float:
+	return WorldSim.day + WorldSim.time_of_day / 24.0
+
+
+func _home_pos() -> Vector2:
+	return WorldGen.settlements[0]["pos"]
+
+
+func _player_pos() -> Vector2:
+	var p: Node3D = Life.player
+	if p == null or not is_instance_valid(p):
+		return Vector2.INF
+	return Vector2(p.global_position.x, p.global_position.z)
+
+
+func _process(delta: float) -> void:
+	_social_timer -= delta
+	if _social_timer > 0.0:
+		return
+	_social_timer = SOCIAL_TICK
+	var rq := radiant()
+	if WorldSim.day != _last_day:
+		_last_day = WorldSim.day
+		relationships().prune(_now())
+		for e: Dictionary in rq.tick_day(WorldSim.day, world_from_game(), QUEST_SEED):
+			Game.say(String(e["text"]))
+			_qw_event(&"radiant_failed", e["quest"])
+	if rq.active.is_empty():
+		return
+	for e: Dictionary in rq.update(_quest_ctx()):
+		var q: Dictionary = e["quest"]
+		match String(e["type"]):
+			"complete":
+				Game.say("%s  %s" % [e["text"], _pay(q)])
+				_qw_event(&"radiant_completed", q)
+			"ready":
+				Game.say("%s: %s" % [q["title"], e["text"]])
+			_:
+				Game.say("%s: %s" % [q["title"], e["text"]])
+
+
+## The live world for radiant quest generation (see RadiantQuests.generate).
+func world_from_game() -> Dictionary:
+	var dens: Array = []
+	for d: Dictionary in Frontier.ecology.dens:
+		dens.append({"id": d["id"], "species": d["species"], "pos": d["pos"], "population": d["population"], "alive": d["alive"]})
+	var sites: Array = []
+	for st: Dictionary in WorldGen.sites:
+		sites.append({"name": st["name"], "kind": st["kind"], "pos": st["pos"]})
+	return {"home": _home_pos(), "dens": dens, "sites": sites, "places": Life.lore.places}
+
+
+func _quest_ctx() -> Dictionary:
+	return {"pos": _player_pos(), "day": _now(), "count_item": Life.count, "den_population": _den_population}
+
+
+func _den_population(id: int) -> int:
+	var dens: Array = Frontier.ecology.dens
+	if id < 0 or id >= dens.size() or not dens[id]["alive"]:
+		return -1
+	return int(dens[id]["population"])
+
+
+## Pays a finished quest's reward; returns the summary text.
+func _pay(q: Dictionary) -> String:
+	var r: Dictionary = q.get("reward", {})
+	var parts := PackedStringArray()
+	var gold := int(r.get("gold", 0))
+	if gold > 0:
+		Game.add_gold(gold)
+		parts.append("+%dg" % gold)
+	var rel := relationships()
+	var reps: Dictionary = r.get("rep", {})
+	for f: String in reps:
+		rel.change_rep(f, float(reps[f]))
+		parts.append("%s %+d" % [rel.faction_name(f), int(reps[f])])
+	var giver := String(q.get("giver", ""))
+	if giver != "" and int(r.get("opinion", 0)) != 0:
+		rel.add_modifier(giver, "quest", "Did me a good turn", float(r["opinion"]), _now(), 60.0, 3)
+	_last_quest_day = WorldSim.day
+	Life.record("adventured" if q.get("giver_role", "") == "guild" else "helped_villager", 1.5)
+	return "(" + ", ".join(parts) + ")"
+
+
+func _turn_in(id: String, info: Dictionary) -> String:
+	var r: Dictionary = radiant().turn_in(id, Life.count)
+	if not r.get("ok", false):
+		return String(r.get("text", ""))
+	var take: Dictionary = r.get("take", {})
+	for item: String in take:
+		Life.take(item, int(take[item]))
+	var q: Dictionary = r["quest"]
+	if String(q.get("giver", "")) == "":
+		q["giver"] = info.get("id", "")
+	_qw_event(&"radiant_completed", q)
+	return "%s  %s" % [r["text"], _pay(q)]
+
+
+func _track_next() -> String:
+	var rq := radiant()
+	if rq.active.is_empty():
+		return ""
+	var i := 0
+	for k in rq.active.size():
+		if rq.active[k]["id"] == rq.tracked:
+			i = k
+	var q: Dictionary = rq.active[(i + 1) % rq.active.size()]
+	rq.tracked = q["id"]
+	return "Tracking: %s" % q["title"]
+
+
+## Mirrors radiant quest events onto Quest Weaver's event bus, so graph quests
+## authored in the editor can react (listen for radiant_accepted / _completed / _failed).
+func _qw_event(event: StringName, q: Dictionary) -> void:
+	var qw := get_node_or_null("/root/QuestWeaverGlobal")
+	if qw and qw.has_signal("quest_event_fired"):
+		qw.emit_signal("quest_event_fired", event, {"id": q.get("id", ""), "kind": q.get("kind", ""),
+			"title": q.get("title", ""), "giver": q.get("giver", "")})
+
+
+# --- who is this ----------------------------------------------------------------
+
+func _keeper_info(id: String) -> Dictionary:
+	var k: Array = KEEPERS.get(id, ["villager", "villager", "villager"])
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([WorldSim.SEED, id])
+	var nm := Life.lore.random_name("caldric", rng)
+	return {"id": id, "person": -1, "name": nm if nm != "" else id.capitalize(), "role": k[0], "file": k[1],
+		"quest_role": k[2], "culture": "caldric", "faction": "ashford", "bond": "",
+		"pos": _keeper_pos.get(id, _home_pos())}
+
+
+## Fills in who a villager (TalkTarget.npc_of) or keeper is: name, role, culture,
+## faction, dialogue file, family bond.
+func _npc_info(npc: Dictionary) -> Dictionary:
+	var id := String(npc.get("id", ""))
+	if KEEPERS.has(id):
+		return _keeper_info(id)
+	var person := int(npc.get("person", -1))
+	var info := {"id": id, "person": person, "name": String(npc.get("name", "Villager")), "role": "villager",
+		"file": "villager", "quest_role": "villager", "culture": "caldric", "faction": "ashford", "bond": "",
+		"pos": _home_pos()}
+	if person < 0:
+		return info
+	info["name"] = WorldSim.person_name(person)
+	info["role"] = String(WorldSim.JOBS[WorldSim.job[person]]).to_lower()
+	if WorldSim.home[person] != 0:
+		info["faction"] = "crown_caldrenn"
+	for p: Dictionary in Life.life_path.parents:
+		if int(p["id"]) == person:
+			info["name"] = p["name"]
+			info["bond"] = p["role"]
+			info["file"] = "parents"
+			info["quest_role"] = ""
+	return info
+
+
+func _sync(info: Dictionary) -> void:
+	var rel := relationships()
+	var fresh: bool = not rel.has_npc(info["id"])
+	rel.ensure(info["id"], info)
+	if info["bond"] != "":
+		rel.set_bond(info["id"], info["bond"], Life.life_path.bond(info["bond"]))
+	elif fresh:
+		# First impressions: a little warmth for a local child, a little wariness for strangers' kids.
+		var h := hash(info["id"]) % 21 - 6
+		rel.ensure(info["id"], {"base": float(h)})
+
+
+# --- conversation context ---------------------------------------------------------
+
+func _weather_name() -> String:
+	if _weather == null or not is_instance_valid(_weather):
+		_weather = get_tree().get_first_node_in_group("weather")
+		if _weather == null and Time.get_ticks_msec() / 1000.0 > _weather_search:
+			_weather_search = Time.get_ticks_msec() / 1000.0 + 10.0
+			var scan: Array = []
+			if get_parent():
+				scan.append_array(get_parent().get_children())
+			if get_tree().current_scene:
+				scan.append_array(get_tree().current_scene.get_children())
+			for n: Node in scan:
+				if n.has_method("current_name") and n.has_signal("weather_changed"):
+					_weather = n
+					break
+	return String(_weather.current_name()) if _weather else "clear"
+
+
+func _gossip_data() -> Dictionary:
+	if _gossip.is_empty():
+		_gossip = DialogueRunner.load_file("gossip")
+	return _gossip
+
+
+static func _culture_greeting(c: Dictionary) -> Array:
+	var g := String(c.get("greeting", ""))
+	var parts := g.split("\"")
+	var hello := parts[1] if parts.size() > 1 else "Good day."
+	var reply := parts[3] if parts.size() > 3 else "And to you."
+	return [hello, reply]
+
+
+func _recent_events(id: String, now: float) -> Array:
+	var rel := relationships()
+	var ev: Array = []
+	if rel.has_modifier(id, "insult", now) and now - rel.modifier_day(id, "insult") < 20.0:
+		ev.append("insulted")
+	if now - rel.modifier_day(id, "chores") < 2.0:
+		ev.append("helped_recently")
+	if now - rel.modifier_day(id, "gift") < 1.0:
+		ev.append("gifted_recently")
+	if now - rel.modifier_day(id, "quest") < 3.0 or WorldSim.day - _last_quest_day <= 1:
+		ev.append("quest_done")
+	if not Life.injuries.active.is_empty():
+		ev.append("injured")
+	if Life.needs.food < 25.0:
+		ev.append("hungry")
+	if Life.guild.is_member(RAAdventurerGuild.PLAYER):
+		ev.append("guild_member")
+	for t: String in Life.titles.earned_ids:
+		if WorldSim.day - int(Life.titles.earned_ids[t]) <= 3:
+			ev.append("new_title")
+			break
+	return ev
+
+
+## A hidden-trigger hint this child could still act on: [trigger id, text] or [].
+func _pick_hint() -> Array:
+	var hints: Dictionary = _gossip_data().get("hints", {})
+	var age := Life.age()
+	var fresh: Array = []
+	var told: Array = []
+	for t: Dictionary in Life.triggers.triggers:
+		var id := String(t["id"])
+		if Life.triggers.has_fired(id) or not hints.has(id):
+			continue
+		if age > int(t["age_max"]) or age < int(t["age_min"]) - 2:
+			continue
+		(told if Life.life_path.has_flag("hint_told:" + id) else fresh).append(id)
+	var pool := fresh if not fresh.is_empty() else told
+	if pool.is_empty():
+		return []
+	var pick: String = pool[_rng.randi() % pool.size()]
+	var texts: Array = hints[pick]
+	return [pick, String(texts[_rng.randi() % texts.size()])]
+
+
+## One rumour from the state of the world (dens, threats, places, the guild).
+func _pick_rumour() -> String:
+	var r: Dictionary = _gossip_data().get("rumours", {})
+	var home := _home_pos()
+	var cands: Array = []   # [category, vars]
+	var near_den: Dictionary = {}
+	for d: Dictionary in Frontier.ecology.dens:
+		if d["alive"] and (near_den.is_empty() or home.distance_to(d["pos"]) < home.distance_to(near_den["pos"])):
+			near_den = d
+	if not near_den.is_empty():
+		var v: Vector2 = near_den["pos"] - home
+		cands.append(["den", {"dir": RadiantQuests._compass(v), "dist": int(v.length()), "count": int(near_den["population"])}])
+	for m: Dictionary in Frontier.threat.modifiers:
+		cands.append(["threat", {"label": String(m.get("label", "Strange signs"))}])
+	var open := 0
+	for c: Dictionary in Life.guild.board(0):
+		if c["state"] == "open":
+			open += 1
+	if open > 0:
+		cands.append(["guild", {"count": open}])
+	for cat: String in ["waystation", "hollow", "orcs", "goblins", "crown"]:
+		cands.append([cat, {}])
+	var pick: Array = cands[_rng.randi() % cands.size()]
+	var texts: Array = r.get(pick[0], [])
+	if texts.is_empty():
+		return ""
+	return String(texts[_rng.randi() % texts.size()]).format(pick[1])
+
+
+func _talk_ctx(info: Dictionary) -> Dictionary:
+	var rel := relationships()
+	var now := _now()
+	var id: String = info["id"]
+	var greet := _culture_greeting(Life.lore.culture(String(info.get("culture", "caldric"))))
+	var tier_s: String = rel.tier(id, now)
+	var qrole := String(info.get("quest_role", ""))
+	var gift_items := false
+	for it in Life.inventory.get_items():
+		gift_items = true
+		break
+	var chores_day: float = rel.modifier_day(id, "chores")
+	return {
+		"id": id, "tier": tier_s, "bond": String(info.get("bond", "")), "opinion": rel.opinion(id, now),
+		"time": DialogueRunner.time_bucket(WorldSim.time_of_day), "weather": _weather_name(),
+		"child": not Life.is_adult(), "age": Life.age(), "role": String(info.get("role", "")),
+		"flags": Life.life_path.flags, "events": _recent_events(id, now),
+		"name": info["name"], "first": String(info["name"]).get_slice(" ", 0),
+		"player": Life.life_path.given_name, "town": WorldGen.settlements[0]["name"],
+		"greeting": greet[0], "reply": greet[1],
+		"mother": Life.life_path.parent("mother").get("name", "your mother"),
+		"father": Life.life_path.parent("father").get("name", "your father"),
+		"kid": "little one" if not Life.is_adult() else "friend",
+		"rumour": String(_talk.get("rumour", "")), "hint": String(_talk.get("hint", "")),
+		"quest_offer": qrole != "" and not radiant().offers_for(qrole, Relationships.tier_rank(tier_s)).is_empty(),
+		"quest_ready": not _ready_quests(info).is_empty(),
+		"has_gift_items": gift_items,
+		"chores_today": floorf(chores_day) == floorf(now),
+		"guild_member": Life.guild.is_member(RAAdventurerGuild.PLAYER),
+		"vars": {"family": Life.life_path.family_name},
+	}
+
+
+func _ready_quests(info: Dictionary) -> Array:
+	var qrole := String(info.get("quest_role", ""))
+	return radiant().ready_for(info["id"], qrole if KEEPERS.has(info["id"]) else "")
+
+
+# --- conversation menu --------------------------------------------------------------
+
+## A keeper menu's "Talk" button.
+func _talk_option(keeper: String) -> Array:
+	var info := _keeper_info(keeper)
+	return ["Talk with %s" % String(info["name"]).get_slice(" ", 0), func() -> String:
+		_begin_talk(info)
+		hud.show_menu(talk_menu.bind({"id": keeper}))
+		return ""]
+
+
+## Menu source for talking to someone ({id, person} from TalkTarget, or a keeper id).
+## A fresh open (menu closed) starts the conversation from its greeting.
+func talk_menu(npc: Dictionary) -> Dictionary:
+	var info := _npc_info(npc)
+	if _talk.get("id", "") != info["id"] or not hud.is_menu_open():
+		_begin_talk(info)
+	return _talk_page()
+
+
+func _begin_talk(info: Dictionary) -> void:
+	_sync(info)
+	_talk = {"id": info["id"], "info": info, "file": info["file"], "node": "", "line": ""}
+	var d := DialogueRunner.load_file(info["file"])
+	_enter(DialogueRunner.start_node(d))
+	var rel := relationships()
+	if rel.note_talk(info["id"], _now()):
+		rel.add_modifier(info["id"], "talked", "Chatted recently", 3.0, _now(), 4.0)
+
+
+## Moves to a dialogue node: fresh rumour/hint, picks and applies the line.
+func _enter(node: String) -> void:
+	var info: Dictionary = _talk["info"]
+	var h := _pick_hint()
+	_talk["node"] = node
+	_talk["rumour"] = _pick_rumour()
+	_talk["hint_id"] = h[0] if not h.is_empty() else ""
+	_talk["hint"] = h[1] if not h.is_empty() else ""
+	var d := DialogueRunner.load_file(_talk["file"])
+	var line := DialogueRunner.pick_line(d, node, _talk_ctx(info), _rng)
+	_talk["line"] = String(line.get("text", "…"))
+	var msg := _do_actions(line.get("do", []))
+	if msg != "":
+		_talk["line"] += "\n\n" + msg
+
+
+func _talk_page() -> Dictionary:
+	var info: Dictionary = _talk["info"]
+	var rel := relationships()
+	var now := _now()
+	var ctx := _talk_ctx(info)
+	var d := DialogueRunner.load_file(_talk["file"])
+	var opts: Array = []
+	for c: Dictionary in DialogueRunner.choices(d, _talk["node"], ctx):
+		opts.append([c["text"], _choose.bind(c)])
+	var why := PackedStringArray()
+	for b: Array in rel.breakdown(info["id"], now).slice(0, 3):
+		why.append("%s %+d" % [b[0], b[1]])
+	var status := "%s · opinion %+d" % [rel.tier_label(info["id"], now), rel.opinion(info["id"], now)]
+	if not why.is_empty():
+		status += "\n" + ", ".join(why)
+	var role := String(info.get("bond", "")) if info.get("bond", "") != "" else String(info.get("role", ""))
+	return {"title": "%s  ·  %s" % [info["name"], role.capitalize()],
+		"body": "%s\n\n%s" % [_talk["line"], status], "options": opts}
+
+
+func _choose(c: Dictionary) -> String:
+	var msg := _do_actions(c.get("do", []))
+	if not hud.is_menu_open() or _talk.is_empty():
+		return msg
+	var g := String(c.get("goto", ""))
+	if g == "@end":
+		hud.close_menu()
+	elif g != "":
+		_enter(g)
+	return msg
+
+
+## Applies dialogue actions (see DialogueRunner). Returns a message to show, or "".
+func _do_actions(actions: Array) -> String:
+	if actions.is_empty() or _talk.is_empty():
+		return ""
+	var info: Dictionary = _talk["info"]
+	var id: String = info["id"]
+	var rel := relationships()
+	var now := _now()
+	var out := PackedStringArray()
+	for a: Variant in actions:
+		var act: Array = a if a is Array else [a]
+		match String(act[0]):
+			"opinion":
+				rel.add_modifier(id, String(act[1]), String(act[2]), float(act[3]), now, float(act[4]) if act.size() > 4 else 0.0)
+			"rep":
+				rel.change_rep(String(act[1]), float(act[2]))
+			"bond":
+				if info["bond"] != "":
+					Life.life_path.adjust_bond(info["bond"], float(act[1]))
+					rel.set_bond(id, info["bond"], Life.life_path.bond(info["bond"]))
+			"flag":
+				Life.life_path.set_flag(String(act[1]))
+			"record":
+				Life.record(String(act[1]), float(act[2]) if act.size() > 2 else 1.0)
+			"give":
+				Life.give(String(act[1]), int(act[2]) if act.size() > 2 else 1)
+			"chores":
+				WorldSim.advance_hours(1.0)
+			"tell_hint":
+				if String(_talk.get("hint_id", "")) != "":
+					Life.life_path.set_flag("hint_told:" + String(_talk["hint_id"]))
+			"close":
+				hud.close_menu()
+			"gift":
+				hud.show_menu(_gift_menu.bind(info))
+			"quests":
+				hud.show_menu(_quest_menu.bind(info))
+			"turn_in":
+				for q: Dictionary in _ready_quests(info):
+					out.append(_turn_in(String(q["id"]), info))
+	return "\n".join(out)
+
+
+func _back_to_talk(info: Dictionary) -> String:
+	hud.show_menu(talk_menu.bind({"id": info["id"], "person": info["person"]}))
+	return ""
+
+
+func _gift_menu(info: Dictionary) -> Dictionary:
+	var rel := relationships()
+	var id: String = info["id"]
+	var opts: Array = []
+	var seen := {}
+	var today := rel.gifted_today(id, _now())
+	for it in Life.inventory.get_items():
+		var item := it.get_prototype().get_prototype_id()
+		if seen.has(item):
+			continue
+		seen[item] = true
+		var known: String = rel.known_reaction(id, item)
+		var note := ("  (%s it)" % {"loves": "loves", "likes": "likes", "neutral": "doesn't mind", "dislikes": "dislikes"}[known]) if known != "" else ""
+		opts.append(["%s ×%d%s" % [Life.item_name(item), Life.count(item), note], _give.bind(info, item), not today])
+	opts.append(["Back", _back_to_talk.bind(info)])
+	var body := "What might %s like?" % String(info["name"]).get_slice(" ", 0)
+	if today:
+		body += "\nYou've already given a gift today."
+	return {"title": "A gift for %s" % info["name"], "body": body, "options": opts}
+
+
+func _give(info: Dictionary, item: String) -> String:
+	var r: Dictionary = relationships().give_gift(info["id"], item, _now())
+	if r.get("ok", false):
+		Life.take(item)
+		Life.record("gave_gift", 0.5)
+	_back_to_talk(info)
+	_talk["line"] = "%s\n(%s)" % [r["text"], ("opinion %+d" % int(r["delta"])) if r.get("ok", false) else "no gift given"]
+	return ""
+
+
+func _quest_menu(info: Dictionary) -> Dictionary:
+	var rel := relationships()
+	var rq := radiant()
+	var id: String = info["id"]
+	var tr: int = Relationships.tier_rank(rel.tier(id, _now())) if not KEEPERS.has(id) else 5
+	var qrole := String(info.get("quest_role", "villager"))
+	var opts: Array = []
+	var lines := PackedStringArray()
+	for q: Dictionary in _ready_quests(info):
+		opts.append(["✔ Report: %s" % q["title"], _turn_in.bind(String(q["id"]), info)])
+	var offers := rq.offers_for(qrole, tr)
+	if qrole == "guild" and not Life.guild.is_member(RAAdventurerGuild.PLAYER):
+		offers.clear()
+		lines.append("\"Contracts are for registered adventurers. Sign the book first.\"")
+	for q: Dictionary in offers:
+		var rw: Dictionary = q["reward"]
+		lines.append("• %s: %s" % [q["title"], q["desc"]])
+		var why: String = rq.can_accept(q["id"])
+		opts.append(["Accept: %s  —  %dg · %d days" % [q["title"], int(rw["gold"]), int(q.get("days", 5))],
+			_accept.bind(String(q["id"]), info), why == ""])
+	opts.append(["Back", _back_to_talk.bind(info)])
+	var body := "\n".join(lines) if not lines.is_empty() else "\"Nothing I need right now.\""
+	body += "\nActive jobs: %d / %d" % [rq.active.size(), RadiantQuests.MAX_ACTIVE]
+	return {"title": "Work from %s" % info["name"], "body": body, "options": opts}
+
+
+func _accept(qid: String, info: Dictionary) -> String:
+	var rel := relationships()
+	var id: String = info["id"]
+	var bonus := 5 if Relationships.tier_rank(rel.tier(id, _now())) >= 4 else 0
+	var q: Dictionary = radiant().find(qid)
+	var why: String = radiant().accept(qid, WorldSim.day, id, String(info["name"]), info.get("pos", _home_pos()), _quest_ctx(), bonus)
+	if why != "":
+		return why
+	_qw_event(&"radiant_accepted", q)
+	return "Accepted: %s. %s" % [q["title"], RadiantQuests.current_stage(q).get("text", "")]
+
+
+## Everyone the player knows, and where they stand with each faction.
+func people_menu() -> Dictionary:
+	var rel := relationships()
+	var now := _now()
+	var lines := PackedStringArray()
+	var fl := PackedStringArray()
+	for f: String in rel.reputation:
+		if float(rel.reputation[f]) != 0.0 or Relationships.FACTIONS.has(f):
+			fl.append("%s: %s (%+d)" % [rel.faction_name(f), rel.standing(f), int(rel.rep(f))])
+	lines.append("Factions\n  " + "\n  ".join(fl))
+	var people: Array = []
+	for id: String in rel.npcs:
+		if int(rel.npcs[id]["talks"]) > 0:
+			people.append([id, rel.opinion(id, now)])
+	people.sort_custom(func(a: Array, b: Array) -> bool: return a[1] > b[1])
+	var pl := PackedStringArray()
+	for p: Array in people.slice(0, 14):
+		var e: Dictionary = rel.npcs[p[0]]
+		pl.append("%s — %s (%+d)" % [e["name"], rel.tier_label(p[0], now), p[1]])
+	lines.append("People\n  " + ("\n  ".join(pl) if not pl.is_empty() else "You haven't really talked to anyone yet."))
+	return {"title": "People & Reputation", "body": "\n\n".join(lines),
+		"options": [["Back to pack", func() -> String:
+			hud.show_menu(pack_menu)
+			return ""]]}

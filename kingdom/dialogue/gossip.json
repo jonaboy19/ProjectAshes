@@ -1,0 +1,56 @@
+{
+  "id": "gossip",
+  "note": "Hints for hidden triggers (keyed by RAHiddenTriggers id) and rumour templates. Hints are vague on purpose: where, and a nudge on when or who, never the reward. Rumour tokens: {dir} compass direction, {dist} metres, {count} a number, {label} a threat label, {name} a place name.",
+  "hints": {
+    "fallen_shrine": [
+      "The old ones say the Sleeping Flame only stirs for a child of eight. Its shrine lies toppled in the western wood, a long walk past the fields.",
+      "Eight is a lucky age in Ashford. Something in the western wood knows it, my gran used to say."
+    ],
+    "moonlit_pond": [
+      "There's a still pond west of the fields that sings to little ones, but only late, after the inn has shut and the moon's up.",
+      "Children who can't sleep sometimes hear the pond past the western fields humming. Grown folk never do."
+    ],
+    "old_hunters_blind": [
+      "Your father kept a hunting blind high in an oak east of here, years back. Go hunting with him and he might mention it.",
+      "There's a blind in the oaks east of the fields that nobody's climbed since your father was young."
+    ],
+    "burnt_watchtower": [
+      "The burnt watchtower on the south-west ridge? Honest youngsters who climb it come down different. Thieves come down with nothing.",
+      "They say the ash on the south-west ridge remembers who's been good. Don't go up there with sticky fingers."
+    ]
+  },
+  "rumours": {
+    "den": [
+      "Wolves have been howling {dir} of the village. {count} of them at least, the shepherds reckon.",
+      "Old Hob lost a ewe to wolves out {dir}. The den's maybe {dist} paces off the road."
+    ],
+    "threat": [
+      "People are saying: {label}. I'd keep to the road if I were you.",
+      "{label}, or so the Guard says. They don't say much else."
+    ],
+    "waystation": [
+      "The Cinderpost Waystation keeps a lamp lit all night for travellers on the King's Ember Road.",
+      "Carts from Kingsreach stop at Cinderpost before they come on to us. That's where the news comes from."
+    ],
+    "hollow": [
+      "Don't go near Whisper Hollow after dark. Kids who do come home with strange stories, if they come home at all.",
+      "Lights in the trees out past the western lake. The old folk call that place Whisper Hollow."
+    ],
+    "orcs": [
+      "The Tuskridge orcs trade hides at the market twice a season. Chief Harrok keeps them in line, mostly.",
+      "Tuskridge Hold is south, past the Duskbriar. They're exiles, not raiders, whatever the Guard grumbles."
+    ],
+    "goblins": [
+      "Mossfang goblins pinched a whole cartload of turnips last week. Turnips! What does a goblin want with turnips?",
+      "There's a goblin warren east, under the roots. Mossfang, they call themselves. Nasty little biters."
+    ],
+    "guild": [
+      "The Guild's posted {count} commissions this week. Good coin for anyone handy with a blade.",
+      "Adventurers in and out of the Guild Hall all day. Something's stirring out there."
+    ],
+    "crown": [
+      "The King's tax man is due before the Last Sheaf festival. Hide your good cider.",
+      "Princess Isolde rode through Millbrook with only four guards. Brave, or foolish."
+    ]
+  }
+}

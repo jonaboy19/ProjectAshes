@@ -70,6 +70,8 @@ func _ready() -> void:
 	add_child(hud)
 	hud.fast_travel_requested.connect(func(at: Vector2) -> void: _teleport(at, 0.0))
 	hud.place_discovered.connect(func(_place: Variant) -> void: Audio.play_discovery())
+	hud.add_action_button("lock_on", "Lock", "lock_on", "eye-target")
+	hud.add_action_button("crouch", "Sneak", "crouch", "walk")
 
 	hud.set_loading_text("Painting sprites...")
 	await get_tree().process_frame
@@ -131,6 +133,7 @@ func _ready() -> void:
 	world.add_child(region)
 	weather = preload("res://scripts/world/weather.gd").new()
 	weather.name = "Weather"
+	weather.add_to_group("weather")
 	world.add_child(weather)
 	weather.setup(env, sun, player.camera)
 	ambient = AmbientLife.new()
