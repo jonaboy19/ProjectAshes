@@ -18,16 +18,47 @@ extends Node
 ## Sounds live in res://assets/audio/<category>/<name>_NN.ogg; a name without the
 ## _NN suffix picks a random variant ("hit_flesh" -> hit_flesh_01..05).
 ##
-## Phone budget: max 12 positional SFX voices (oldest stolen), 2 ambience spot
-## voices, 2 footstep voices, 4 UI voices, 2+2 ambience bed players (crossfade),
-## 2 music players (crossfade). Streams are OGG Vorbis (decoded on the fly).
+## Adaptive music (adaptive_music.gd + music_bank.gd): one AudioStreamInteractive
+## with a clip per mood (town day / night, wilderness, wild night, danger, combat,
+## boss, tavern, silence), bar- or beat-synced crossfades, and AudioStreamSynchronized
+## percussion stems that rise with threat (Frontier threat, camps, stalking monsters).
+## Stingers (combat, victory, discovery) play over the score while it dips.
+## Environment (environment_audio.gd): wind / rain / thunder hooks for the weather
+## system, birds by day and crickets by night by forest density, per-room reverb,
+## muffled weather indoors, low-pass underwater. Buses: audio_buses.gd (runtime).
+##
+## Public hooks for other systems (all safe to call at any time):
+##   weather: set_weather(kind), set_weather_intensity(0..1) / set_rain(0..1),
+##            set_wind(strength, 1 = calm .. 2.4 = storm), thunder(delay_s),
+##            play_sfx("thunder", null, vol) also works (near / far variant by vol).
+##   combat:  set_mood("battle") every tick while fighting (main.gd does), set_boss(on),
+##            play_victory(), play_discovery(), set_music_intensity(0..1) override.
+##   misc:    set_underwater(on) override (auto-detected from the listener otherwise).
+##
+## Phone budget: max 12 positional SFX voices (oldest stolen), 3 ambience spot
+## voices, 2 footstep voices, 4 UI voices. Long streams: 1-2 ambience bed (crossfade),
+## music base + stem (2), wind or rain (1, 2 briefly), so ~4 decoding at once.
+## Streams are OGG Vorbis (decoded on the fly); silence is a 4 KB WAV.
+
+const AudioBuses := preload("res://scripts/audio/audio_buses.gd")
+const MusicBank := preload("res://scripts/audio/music_bank.gd")
+const AdaptiveMusic := preload("res://scripts/audio/adaptive_music.gd")
+const EnvironmentAudio := preload("res://scripts/audio/environment_audio.gd")
 
 const ROOT := "res://assets/audio/"
 const MAX_SFX_VOICES := 12
 const MAX_UI_VOICES := 4
 const MAX_DISTANCE := 45.0
+## Beyond this, one-shots go through the SFXFar bus (extra air-absorption low-pass).
+const FAR_DISTANCE := 24.0
 const BED_FADE := 2.5
-const MUSIC_FADE := 3.0
+## Music moods: threat (Frontier.threat_at total, 0..100) where the drums start / where
+## the score moves to the danger clip.
+const THREAT_LAYER_START := 15.0
+const THREAT_DANGER := 50.0
+const COMBAT_HOLD := 6.0
+## A combatant this tough (or flagged is_boss / in group "boss") makes combat a boss fight.
+const BOSS_HEALTH := 200
 
 ## Bed name -> volume offset (dB) on top of the -24 LUFS files.
 const BEDS := {
@@ -59,16 +90,6 @@ const SPOTS := {
 	"house": [["page_turn", 1, -10.0]],
 	"guild": [["page_turn", 2, -8.0], ["mug_knock", 1, -10.0]],
 }
-const MUSIC := {
-	"village": ["mus_village_day", "mus_village_day_02"],
-	"explore": ["mus_explore", "mus_explore_02", "mus_explore_03"],
-	"night": ["mus_night"],
-	"tavern": ["mus_tavern"],
-	"combat": ["mus_combat"],
-}
-const MUSIC_DB := {"village": -3.0, "explore": -4.0, "night": -7.0, "tavern": -4.0, "combat": -2.0}
-## Tracks that loop without a pause; the rest leave a quiet gap before the next one.
-const MUSIC_LOOPS := ["tavern", "combat"]
 ## Old Audio.sfx() kinds -> new sound names.
 const LEGACY := {"swing": "swing", "hit": "hit_flesh", "clash": "block", "bell": "bell_tower"}
 ## Creature species -> idle, hurt, death sound names (falls back to monster_*).
@@ -108,15 +129,24 @@ var _mood_battle_until := 0.0
 var _bed_a: AudioStreamPlayer
 var _bed_b: AudioStreamPlayer
 var _bed := ""
-var _weather_a: AudioStreamPlayer
-var _weather_b: AudioStreamPlayer
-var _weather_now := ""
-var _music_a: AudioStreamPlayer
-var _music_b: AudioStreamPlayer
-var _music_ctx := ""
-var _music_track := ""
-var _music_gap := 0.0
+var _music: Node                   # adaptive_music.gd
+var _env: Node                     # environment_audio.gd
+var _music_mood: StringName = &"silence"
+var _outdoor_mood: StringName = &"wilderness"   # kept (muffled) while inside a non-tavern room
 var _combat_hold := 0.0
+var _in_combat := false
+var _boss_forced := false
+var _boss_seen_until := 0.0
+var _threat := 0.0                 # Frontier threat at the player, 0..100
+var _in_town := false
+var _at_camp := false
+var _forest := 0.0
+var _hostiles_near := 0            # living non-player combatants within 30 m
+var _last_kill := -100.0
+var _intensity_override := -1.0
+var _underwater_forced := -1       # -1 auto, 0 / 1 forced by set_underwater()
+var _water_timer := 0.0
+var _music_walled := false
 
 var _pool3d: Array[AudioStreamPlayer3D] = []
 var _spots3d: Array[AudioStreamPlayer3D] = []
@@ -151,15 +181,20 @@ var _log_timer := 30.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	AudioBuses.ensure_layout()
 	_scan(ROOT)
 	_bed_a = _player2d("Ambience")
 	_bed_b = _player2d("Ambience")
-	_weather_a = _player2d("Ambience")
-	_weather_b = _player2d("Ambience")
-	_music_a = _player2d("Music")
-	_music_b = _player2d("Music")
-	_music_a.finished.connect(_on_music_finished.bind(_music_a))
-	_music_b.finished.connect(_on_music_finished.bind(_music_b))
+	_music = AdaptiveMusic.new()
+	_music.name = "AdaptiveMusic"
+	_music.log_changes = _log
+	add_child(_music)
+	_env = EnvironmentAudio.new()
+	_env.name = "EnvironmentAudio"
+	_env.spot_fn = _nature_spot
+	_env.has_fn = has_sound
+	_env.pick_fn = _pick
+	add_child(_env)
 	for i in MAX_UI_VOICES:
 		_ui.append(_player2d("UI"))
 	for i in 2:
@@ -178,28 +213,94 @@ func _ready() -> void:
 # ------------------------------------------------------------------ public API
 ## Positional one-shot. `position` = Vector3 (world) or null (at the listener).
 func play_sfx(sound: String, position: Variant = null, volume_db := 0.0, pitch_jitter := 0.06) -> void:
+	if sound == "thunder" and _env:
+		# weather.gd calls this after each strike's travel delay: near crack or far roll
+		_env.play_thunder(volume_db, volume_db > -5.0)
+		return
 	var stream := _pick(sound)
 	if stream == null or _cooling(sound, 0.05):
 		return
 	if position is Vector3 and _listener_ok():
-		if listener.global_position.distance_to(position) > MAX_DISTANCE:
+		var d3: float = listener.global_position.distance_to(position)
+		if d3 > MAX_DISTANCE:
 			return
 		var p := _voice3d(_pool3d)
 		if p == null:
 			return
 		p.global_position = position
-		p.bus = "Interior" if _interior != "" else "SFX"
+		p.bus = _sfx_bus(d3)
 		_start(p, stream, volume_db, pitch_jitter)
 	else:
 		var falloff := 0.0
+		var d := 0.0
 		if position is Vector3 and listener and is_instance_valid(listener):
-			var d: float = listener.global_position.distance_to(position)
+			d = listener.global_position.distance_to(position)
 			if d > MAX_DISTANCE:
 				return
 			falloff = -d * 0.45
 		var q := _voice2d(_pool2d)
-		q.bus = "Interior" if _interior != "" else "SFX"
+		q.bus = _sfx_bus(d)
 		_start(q, stream, volume_db + falloff, pitch_jitter)
+
+
+## Wind bed level. `strength` uses weather.gd's scale: 1 = calm breeze, 2.4 = storm (0..3).
+func set_wind(strength: float) -> void:
+	if _env:
+		_env.set_wind(strength)
+
+
+## Rain bed level 0..1 (light rain bed, crossing into the heavy storm bed above ~0.8).
+func set_rain(amount: float) -> void:
+	if _env:
+		_env.set_rain(amount)
+
+
+## Same as set_rain(); weather.gd calls it with rain_amount().
+func set_weather_intensity(amount: float) -> void:
+	set_rain(amount)
+
+
+## Thunder heard `delay` seconds from now (lightning distance / 343 m/s). Short
+## delays give the close crack, long ones a soft low roll. Muffled indoors.
+func thunder(delay := 0.0) -> void:
+	if _env:
+		_env.thunder(delay)
+
+
+## Forces boss music while in combat (true) or returns to auto-detection (false).
+func set_boss(on: bool) -> void:
+	_boss_forced = on
+
+
+## Victory stinger over the score (the director also plays it by itself when a fight
+## ends right after a kill with nothing hostile left nearby).
+func play_victory() -> void:
+	if _music:
+		_music.stinger(&"victory")
+
+
+## Discovery swell (new place found). Skipped during combat.
+func play_discovery() -> void:
+	if _music and not _in_combat:
+		_music.stinger(&"discovery", -2.0)
+
+
+## Overrides the music threat intensity (0..1); a negative value returns to auto.
+func set_music_intensity(amount: float) -> void:
+	_intensity_override = amount
+
+
+## Forces the underwater muffle on / off; call with `auto = true` to go back to
+## detecting it from the listener's position against WorldGen water.
+func set_underwater(on: bool, auto := false) -> void:
+	_underwater_forced = -1 if auto else int(on)
+	if not auto and _env:
+		_env.set_underwater(on)
+
+
+## Name of the music mood right now (for debug overlays and tests).
+func music_mood() -> StringName:
+	return _music_mood
 
 
 ## Interface sound, never positional, never pitched: tap, open, close, coin, error,
@@ -229,9 +330,11 @@ func play_footstep(position: Vector3, surface := "", volume_db := 0.0) -> void:
 	_start(p, stream, volume_db - 4.0, 0.08)
 
 
-## Weather layer: "", "rain" or "storm" (future weather system).
+## Weather bed: "", "rain", "storm" or "wind" (weather.gd calls this on changes).
 func set_weather(kind: String) -> void:
 	weather = kind
+	if _env:
+		_env.set_weather(kind)
 
 
 ## Old API (main.gd calls this every 0.2 s): "town", "wild", "night" or "battle".
@@ -277,6 +380,11 @@ func _process(delta: float) -> void:
 	if _ctx_timer <= 0.0:
 		_ctx_timer = 0.5
 		_update_context()
+		_env.nature_tick(0.5, _is_night(), WorldSim.time_of_day, _forest, _in_town)
+	_water_timer -= delta
+	if _water_timer <= 0.0:
+		_water_timer = 0.1
+		_update_underwater()
 	_update_music(delta)
 	_spot_timer -= delta
 	if _spot_timer <= 0.0:
@@ -293,7 +401,8 @@ func _process(delta: float) -> void:
 			var busy := 0
 			for p in _pool3d:
 				busy += 1 if p.playing else 0
-			print("[audio] voices %d/%d, surface %s, played %s" % [busy, _pool3d.size(), _surface, _counts])
+			print("[audio] voices %d/%d, long streams %d, music %s/%s threat %.0f, surface %s, played %s" % [
+				busy, _pool3d.size(), long_streams(), _music_mood, _music.current_clip(), _threat, _surface, _counts])
 			_counts.clear()
 	_idle_timer -= delta
 	if _idle_timer <= 0.0:
@@ -309,6 +418,7 @@ func _update_context() -> void:
 	if _player == null or not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group("player") as Node3D
 	_interior = _interior_kind()
+	_env.set_indoors(_interior)
 	var bed := ""
 	var night := _is_night()
 	if _interior != "":
@@ -317,27 +427,27 @@ func _update_context() -> void:
 		var p := _player.global_position
 		var p2 := Vector2(p.x, p.z)
 		var near := WorldGen.nearest_settlement(p2)
-		var in_town: bool = not near.is_empty() and p2.distance_to(near["pos"]) < float(near["radius"]) * 1.3
-		var at_camp := false
+		_in_town = not near.is_empty() and p2.distance_to(near["pos"]) < float(near["radius"]) * 1.3
+		_at_camp = false
 		for c: Dictionary in WorldGen.camp_grounds:
 			if p2.distance_to(c["pos"]) < float(c["radius"]) * 1.8:
-				at_camp = true
+				_at_camp = true
 				break
-		var threat := float(Frontier.threat_at(p2).get("total", 0.0))
-		if at_camp:
+		_threat = float(Frontier.threat_at(p2).get("total", 0.0))
+		_forest = WorldGen.forest_density(p.x, p.z)
+		if _at_camp:
 			bed = "camp"
-		elif in_town:
+		elif _in_town:
 			bed = "village_night" if night else "village_day"
-		elif threat > 55.0:
+		elif _threat > 55.0:
 			bed = "danger"
-		elif WorldGen.forest_density(p.x, p.z) > 0.3:
+		elif _forest > 0.3:
 			bed = "forest_night" if night else "forest_day"
 		elif WorldGen.near_water(p.x, p.z, 22.0) and not night:
 			bed = "creek"
 		else:
 			bed = "village_night" if night else "meadow_day"
 	_set_bed(bed)
-	_set_weather_layer("" if _interior != "" else weather)
 
 
 func _interior_kind() -> String:
@@ -377,19 +487,6 @@ func _set_bed(bed: String) -> void:
 	_bed_b = t
 
 
-func _set_weather_layer(kind: String) -> void:
-	if kind == _weather_now:
-		return
-	_weather_now = kind
-	var stream: AudioStream = null
-	if kind != "":
-		stream = _load(ROOT + "ambience/amb_" + kind + ".ogg", true)
-	_crossfade(_weather_a, _weather_b, stream, 0.0, BED_FADE * 2.0)
-	var t := _weather_a
-	_weather_a = _weather_b
-	_weather_b = t
-
-
 ## Fades `out_p` down and `in_p` (the idle one) up with `stream`. Beds start at a
 ## random point so re-entering an area doesn't replay the same opening seconds.
 func _crossfade(out_p: AudioStreamPlayer, in_p: AudioStreamPlayer, stream: AudioStream, db_target: float,
@@ -408,8 +505,6 @@ func _crossfade(out_p: AudioStreamPlayer, in_p: AudioStreamPlayer, stream: Audio
 
 func _play_spot() -> void:
 	var list: Array = SPOTS.get(_bed, [])
-	if _weather_now == "storm" and randf() < 0.35:
-		list = [["thunder", 1, -2.0]]
 	if list.is_empty():
 		return
 	var total := 0
@@ -427,13 +522,32 @@ func _play_spot() -> void:
 				var a := randf() * TAU
 				var d := randf_range(6.0, 18.0) if _interior != "" else randf_range(12.0, 30.0)
 				p.global_position = listener.global_position + Vector3(cos(a) * d, randf_range(0.0, 4.0), sin(a) * d)
-				p.bus = "Ambience"
+				p.bus = AudioBuses.INTERIOR if _interior != "" else AudioBuses.AMBIENCE
 				_start(p, stream, float(e[2]) + 6.0, 0.05)
 			else:
 				var q := _voice2d(_pool2d)
-				q.bus = "Ambience"
+				q.bus = AudioBuses.INTERIOR if _interior != "" else AudioBuses.AMBIENCE
 				_start(q, stream, float(e[2]), 0.05)
 			return
+
+
+## Environment spot (birds, crickets) around the listener: `sound` at a random bearing,
+## min_d..max_d metres away and min_h..max_h metres up. Uses the ambience spot voices.
+func _nature_spot(sound: String, min_d: float, max_d: float, min_h: float, max_h: float, volume_db: float) -> void:
+	var stream := _pick(sound)
+	if stream == null:
+		return
+	if _listener_ok():
+		var p := _voice3d(_spots3d)
+		var a := randf() * TAU
+		var d := randf_range(min_d, max_d)
+		p.global_position = listener.global_position + Vector3(cos(a) * d, randf_range(min_h, max_h), sin(a) * d)
+		p.bus = AudioBuses.AMBIENCE
+		_start(p, stream, volume_db + 6.0, 0.08)
+	else:
+		var q := _voice2d(_pool2d)
+		q.bus = AudioBuses.AMBIENCE
+		_start(q, stream, volume_db - 2.0, 0.08)
 
 
 func _on_hour(hour: int) -> void:
@@ -444,92 +558,99 @@ func _on_hour(hour: int) -> void:
 
 # ------------------------------------------------------------------ music
 func _update_music(delta: float) -> void:
-	var ctx := _music_context()
-	if ctx == "combat":
-		_combat_hold = 6.0
-	elif _music_ctx == "combat" and _combat_hold > 0.0:
+	var battle := _now() < _mood_battle_until
+	if battle:
+		_combat_hold = COMBAT_HOLD
+	elif _combat_hold > 0.0:
 		_combat_hold -= delta
-		ctx = "combat"
-	if ctx != _music_ctx:
-		var entering_combat := ctx == "combat"
-		_music_ctx = ctx
-		_music_gap = 0.0
-		if entering_combat:
-			_stinger()
-		_next_track(entering_combat)
-		return
-	if _music_gap > 0.0:
-		_music_gap -= delta
-		if _music_gap <= 0.0:
-			_next_track(false)
+	var fighting := battle or _combat_hold > 0.0
+	if fighting != _in_combat:
+		_in_combat = fighting
+		if fighting:
+			_music.stinger(&"combat", -3.0)
+		elif _now() - _last_kill < COMBAT_HOLD + 4.0 and _hostiles_near == 0 and not _player_dead():
+			_music.stinger(&"victory")
+	var mood := _music_mood_now()
+	if mood != _music_mood and _log:
+		print("[audio] mood %s -> %s (threat %.0f, hostiles %d, interior %s)" % [_music_mood, mood, _threat, _hostiles_near, _interior])
+	_music_mood = mood
+	_music.enabled = music_enabled
+	_music.set_mood(mood)
+	_music.intensity = _music_intensity()
+	# muffled "through the walls" score inside rooms that have no music of their own
+	var through_walls := _interior != "" and mood != &"tavern" and mood != &"silence"
+	if through_walls != _music_walled and not _underwater():
+		_music_walled = through_walls
+		AudioBuses.muffle(self, AudioBuses.MUSIC, 1100.0 if through_walls else AudioBuses.OPEN_HZ, -5.0 if through_walls else 0.0, 0.8)
 
 
-func _music_context() -> String:
+func _music_mood_now() -> StringName:
 	if not music_enabled:
-		return ""
-	if _now() < _mood_battle_until:
-		return "combat"
-	match _interior:
-		"tavern":
-			return "tavern"
-		"smithy", "healer", "house", "guild":
-			return ""
-	if _is_night():
-		return "night"
-	if _bed.begins_with("village") or _mood == "town":
-		return "village"
-	return "explore"
+		return &"silence"
+	if _in_combat:
+		return &"boss" if _boss_forced or _now() < _boss_seen_until else &"combat"
+	if _interior == "tavern":
+		return &"tavern"
+	var night := _is_night()
+	if _interior != "":
+		return _outdoor_mood
+	var mood: StringName
+	var stalked := _hostiles_near > 0
+	if not _in_town and (_threat >= THREAT_DANGER or _at_camp or stalked):
+		mood = &"danger"
+	elif _in_town or (_mood == "town" and _player == null):
+		mood = &"town_night" if night else &"town_day"
+	else:
+		mood = &"wild_night" if night else &"wilderness"
+	# what keeps playing (muffled) if the player steps into a house now
+	_outdoor_mood = mood if mood != &"danger" else (&"wild_night" if night else &"wilderness")
+	return mood
 
 
-func _next_track(delay_start: bool) -> void:
-	var stream: AudioStream = null
-	var db_target := 0.0
-	if _music_ctx != "":
-		var list: Array = MUSIC[_music_ctx]
-		var name: String = list[randi() % list.size()]
-		if list.size() > 1 and name == _music_track:
-			name = list[(list.find(name) + 1) % list.size()]
-		_music_track = name
-		if _log:
-			print("[audio] music %s -> %s" % [_music_ctx, name])
-		stream = _load(ROOT + "music/" + name + ".ogg", _music_ctx in MUSIC_LOOPS)
-		db_target = float(MUSIC_DB[_music_ctx])
-	if stream != null and delay_start:
-		# let the stinger speak first
-		_crossfade(_music_a, _music_b, null, 0.0, 1.0)
-		get_tree().create_timer(1.6).timeout.connect(func() -> void:
-			if _music_ctx == "combat":
-				_crossfade(_music_a, _music_b, stream, db_target, 1.0, false)
-				_swap_music())
+## 0..1 drum layer amount from the threat inputs: Frontier threat (dens, camps,
+## wilderness, runestones, patrols), standing in a camp, monsters prowling nearby.
+func _music_intensity() -> float:
+	if _intensity_override >= 0.0:
+		return clampf(_intensity_override, 0.0, 1.0)
+	var k := smoothstep(THREAT_LAYER_START, THREAT_DANGER, _threat)
+	if _music_mood == &"danger":
+		# inside the danger clip: its own drums grow from half to full
+		k = 0.45 + 0.55 * maxf(smoothstep(THREAT_DANGER, 85.0, _threat), minf(_hostiles_near * 0.3, 1.0))
+		if _at_camp:
+			k = maxf(k, 0.8)
+	return k
+
+
+func _player_dead() -> bool:
+	return _player != null and is_instance_valid(_player) and bool(_player.get("dead"))
+
+
+func _underwater() -> bool:
+	return _env != null and _env.underwater
+
+
+func _update_underwater() -> void:
+	if _underwater_forced >= 0:
 		return
-	_crossfade(_music_a, _music_b, stream, db_target, MUSIC_FADE, false)
-	_swap_music()
+	var under := false
+	if _listener_ok() and _interior == "":
+		var lp := listener.global_position
+		var level := WorldGen.water_level_at(lp.x, lp.z)
+		under = not is_nan(level) and lp.y < level - 0.05
+	if under != _env.underwater:
+		_env.set_underwater(under)
 
 
-func _stinger() -> void:
-	var s := _pick("mus_combat_stinger")
-	if s == null:
-		return
-	var p := _ui[_ui_i]
-	_ui_i = (_ui_i + 1) % _ui.size()
-	p.bus = "Music"
-	p.stream = s
-	p.volume_db = -3.0
-	p.play()
-	p.finished.connect(func() -> void: p.bus = "UI", CONNECT_ONE_SHOT)
-
-
-func _swap_music() -> void:
-	var t := _music_a
-	_music_a = _music_b
-	_music_b = t
-
-
-func _on_music_finished(p: AudioStreamPlayer) -> void:
-	if p != _music_a or _music_ctx == "":
-		return
-	# a quiet stretch between tracks keeps the world from feeling like a jukebox
-	_music_gap = randf_range(20.0, 50.0) if _music_ctx != "night" else randf_range(40.0, 90.0)
+## Long streams currently decoding (beds, weather, music layers), for the budget log.
+func long_streams() -> int:
+	var n := 0
+	for p: AudioStreamPlayer in [_bed_a, _bed_b]:
+		n += 1 if p.playing else 0
+	for c in _env.get_children():
+		n += 1 if (c as AudioStreamPlayer).playing else 0
+	if _music.current_clip() != &"silence":
+		n += 1 + (1 if _music.bank and _music.bank.has_stem(_music.current_clip()) else 0)
+	return n
 
 
 # ------------------------------------------------------------------ footsteps & creatures
@@ -578,6 +699,7 @@ func _poll_creatures() -> void:
 				play_sfx("player_death" if int(hp) <= 0 else "player_hurt", _player.global_position, -2.0)
 			_last_player_hp = int(hp)
 	var seen := {}
+	var hostiles := 0
 	for n in get_tree().get_nodes_in_group("combatant"):
 		var c := n as Node3D
 		if c == null or c == _player:
@@ -592,15 +714,30 @@ func _poll_creatures() -> void:
 		var hp: Variant = c.get("health")
 		if not hp is int:
 			continue
+		var dead := int(hp) <= 0 or bool(c.get("dead"))
+		if not dead:
+			hostiles += 1
+			if _in_combat and _is_boss(c):
+				_boss_seen_until = _now() + 3.0
 		var last: int = _health.get(id, int(hp))
 		if int(hp) < last:
 			var names: Array = CREATURES.get(sp, ["", "monster_hurt", "monster_death"])
-			var dead := int(hp) <= 0 or bool(c.get("dead"))
 			play_sfx(String(names[2]) if dead else String(names[1]), c.global_position + Vector3(0, 1, 0))
+			if dead:
+				_last_kill = _now()
 		_health[id] = int(hp)
 	for id in _health.keys():
 		if not seen.has(id):
 			_health.erase(id)
+	_hostiles_near = hostiles
+
+
+func _is_boss(c: Node) -> bool:
+	var flag: Variant = c.get("is_boss")
+	if c.is_in_group("boss") or bool(c.get_meta("is_boss", false)) or (flag is bool and flag):
+		return true
+	var mh: Variant = c.get("max_health")
+	return mh is int and int(mh) >= BOSS_HEALTH
 
 
 func _creature_idle() -> void:
@@ -707,12 +844,13 @@ func _build_pool3d(vp: Viewport) -> void:
 	_pool3d_root = Node3D.new()
 	_pool3d_root.name = "AudioDirectorVoices"
 	vp.add_child(_pool3d_root)
-	for i in MAX_SFX_VOICES + 2:
+	for i in MAX_SFX_VOICES + 3:
 		var p := AudioStreamPlayer3D.new()
 		p.unit_size = 7.0
 		p.max_distance = MAX_DISTANCE + 15.0
-		p.attenuation_filter_cutoff_hz = 6000.0
-		p.attenuation_filter_db = -18.0
+		# distance low-pass per voice (air absorption); SFXFar adds more past FAR_DISTANCE
+		p.attenuation_filter_cutoff_hz = 5000.0
+		p.attenuation_filter_db = -24.0
 		p.doppler_tracking = AudioStreamPlayer3D.DOPPLER_TRACKING_DISABLED
 		p.bus = "SFX"
 		_pool3d_root.add_child(p)
@@ -759,6 +897,14 @@ func _start(p: Node, stream: AudioStream, volume_db: float, jitter: float) -> vo
 		_counts[key] = int(_counts.get(key, 0)) + 1
 
 
+## Bus for a one-shot `dist` metres away: the room reverb inside, the distance
+## low-pass outside past FAR_DISTANCE, plain SFX otherwise.
+func _sfx_bus(dist: float) -> String:
+	if _interior != "":
+		return AudioBuses.INTERIOR
+	return AudioBuses.SFX_FAR if dist > FAR_DISTANCE else AudioBuses.SFX
+
+
 func _player2d(bus: String) -> AudioStreamPlayer:
 	var p := AudioStreamPlayer.new()
 	p.bus = bus if AudioServer.get_bus_index(bus) >= 0 else "Master"
@@ -791,8 +937,8 @@ func _load(path: String, loop: bool) -> AudioStream:
 	var s: AudioStream = null
 	if ResourceLoader.load_threaded_get_status(path) != ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
 		s = ResourceLoader.load_threaded_get(path) as AudioStream
-	if s == null and ResourceLoader.exists(path):
-		s = load(path) as AudioStream
+	if s == null:
+		s = MusicBank.load_stream(path)   # also reads files the editor hasn't imported yet
 	if s is AudioStreamOggVorbis:
 		(s as AudioStreamOggVorbis).loop = loop
 	_cache[path] = s

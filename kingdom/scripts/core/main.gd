@@ -69,6 +69,7 @@ func _ready() -> void:
 	hud = HUD.new(player)
 	add_child(hud)
 	hud.fast_travel_requested.connect(func(at: Vector2) -> void: _teleport(at, 0.0))
+	hud.place_discovered.connect(func(_place: Variant) -> void: Audio.play_discovery())
 
 	hud.set_loading_text("Painting sprites...")
 	await get_tree().process_frame
@@ -460,6 +461,9 @@ func _update_daylight() -> void:
 	# Emberglass Mere turns ember-coloured around sunset (lore); rain rings follow the weather.
 	var rain: float = weather.rain_amount() if weather else 0.0
 	water.set_weather(rain, clampf(1.0 - absf(t - 18.3) / 1.3, 0.0, 1.0) * (1.0 - rain))
+	if weather:
+		Audio.set_weather_intensity(rain)
+		Audio.set_wind(preload("res://scripts/world/weather.gd").wind_strength)
 	var lamp_energy := 1.6 * night
 	for l in get_tree().get_nodes_in_group("street_lamp"):
 		(l as OmniLight3D).light_energy = lamp_energy

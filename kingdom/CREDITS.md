@@ -33,6 +33,8 @@ CC-BY sounds used in the game (credit required):
 
 - **"Fantasy Sound Effects Library"** by **Little Robot Sound Factory** (www.littlerobotsoundfactory.com), CC BY 3.0 — goblin voices, wyvern screeches, coin, menu and fanfare jingles. https://opengameart.org/content/fantasy-sound-effects-library
 - **"Footsteps on different surfaces"** by **congusbongus**, CC BY 3.0 — cobblestone footsteps. https://opengameart.org/content/footsteps-on-different-surfaces
+- **"Five Armies"** and **"Heroic Age"** by **Kevin MacLeod** (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License (http://creativecommons.org/licenses/by/4.0/) — boss music and the victory stinger.
+- Music by **North Fantasy Music** ("Dark and Mysterious", "New Dawn" from "Fantasy Music and Drum Loops Pack"), CC BY 4.0 — danger / stalk music and the discovery stinger. https://opengameart.org/content/fantasy-music-and-drum-loops-pack
 
 CC0 / public domain (no attribution required; credited with thanks):
 
@@ -41,6 +43,7 @@ CC0 / public domain (no attribution required; credited with thanks):
 - OpenGameArt CC0: **rubberduck** (80 creature SFX, 100 SFX), **StarNinjas** (sword attacks and clashes), **artisticdude** (RPG Sound Pack, Swishes), **Ogrebane** (battle SFX), **remaxim** (3 melee sounds), **wolfwoot** (Male Adventurer voice clips), **Wolfgang_** (crickets loop), **Ylmir** (rain loop).
 - Music (OpenGameArt, CC0): **RandomMind** (Market Day, Minstrel Dance, The Old Tower Inn, The Bard's Tale, King's Feast), **cynicmusic** (Battle Theme A; cynicmusic.com, pixelsphere.org), **Umplix** (Medieval Theme, Medieval Standoff), **Of Far Different Nature** (John Dowland, "If my complaints could passions move", 1597).
 - Bellows and spider hiss: generated for the game (filtered noise), no third-party audio.
+- Adaptive music percussion stems: synthesized for the game, no third-party audio. Bird, cricket and thunder spots cut from BigSoundBank and Wolfgang_ recordings above (CC0). See `assets/audio/music_interactive/CREDITS.md`.
 
 ## Breakable props (added 2026-09-28)
 
