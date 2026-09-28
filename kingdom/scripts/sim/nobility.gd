@@ -129,11 +129,17 @@ static func _seeded_shuffle(arr: Array, rng: RandomNumberGenerator) -> void:
 		arr[j] = tmp
 
 
+## The Caldric culture, read straight from the data file: houses are generated while
+## the Life autoload itself is still being built, so Life.lore may not exist yet.
 func _culture() -> Dictionary:
-	if Life.get("lore") != null:
-		var c: Dictionary = Life.lore.culture("caldric")
-		if not c.is_empty():
-			return c
+	var path := "res://data/world/cultures.json"
+	if not FileAccess.file_exists(path):
+		return {}
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if data is Dictionary:
+		for c: Variant in (data as Dictionary).get("cultures", []):
+			if c is Dictionary and String((c as Dictionary).get("id", "")) == "caldric":
+				return c
 	return {}
 
 
