@@ -1,17 +1,57 @@
 class_name VFX
 extends RefCounted
-## Combat and magic effects, all procedural (no texture assets): sword arcs,
-## impact sparks, elemental bursts for martial arts and magic, shockwave rings,
-## flashes and a rising qi aura. Every effect frees itself.
+## Magic and martial-arts effects. Every effect is one static call that spawns
+## under `parent` (the world node) and frees itself; looping ones return a node
+## you pass to VFX.stop(). Built from one 1024 greyscale atlas (CC0 Kenney +
+## RPicster sprites, assets/incoming/vfx/) coloured by hot/tint/edge ramps in
+## shaders/vfx_*.gdshader, a procedural rune-circle shader and mesh ribbons.
+## Mobile friendly: small GPUParticles3D counts (scaled by the Quality autoload),
+## additive unshaded materials, tween-driven shader parameters (no per-frame
+## GDScript). Low tier drops lights, smoke and secondary layers.
 ##
-##   VFX.slash(world, pos, yaw, tilt, color)        melee arc
-##   VFX.sparks(world, pos, color, count)           impact
-##   VFX.burst(world, pos, "fire"|"water"|"wind"|"earth"|"lightning"|"qi")
-##   VFX.shockwave(world, pos, color, radius)
-##   VFX.aura(node, color) -> GPUParticles3D        persistent; free it yourself
-## Mobile renderer friendly: GPUParticles3D with small counts, unshaded additive.
+## Primitives
+##   VFX.slash(world, pos, yaw, tilt, color, radius)     smear sword arc (player combos)
+##   VFX.sparks(world, pos, color, count)                hit sparks
+##   VFX.flash(world, pos, color, energy, seconds, range) light pop
+##   VFX.core(world, pos, color, size, seconds)          glow sprite
+##   VFX.shockwave(world, pos, color, radius, seconds)   ground ring
+##   VFX.burst(world, ground_pos, element, power)        elemental burst
+##   VFX.aura(node, color, height) -> GPUParticles3D     rising qi streaks (free it)
+## Spells
+##   VFX.magic_circle(world, pos, element, radius, seconds) -> MeshInstance3D  (seconds <= 0: keep)
+##   VFX.cast_sigil(world, hand_pos, dir, element, size)
+##   VFX.fireball / wind_blade / qi_palm / stone_bullet / qi_bolt / ice_lance / shuriken / sword_qi
+##       (world, from, to, power, speed) -> Node3D missile. Flies itself unless the caller moves it;
+##       the impact plays wherever it is when freed (technique_caster.gd contract).
+##   VFX.water_whip(world, from, to, power) -> float     lash time
+##   VFX.earth_spike(world, from, to, power, radius) -> float  line, or ring when from is above to
+##   VFX.lightning_chain(world, from, to, power, extra_points) -> float
+##   VFX.fire_pillar / whirlwind / earthquake (world, target, radius, seconds)
+##   VFX.tidal_ring(world, target, radius); VFX.thunderstorm(world, target, radius, strikes, seconds)
+##   VFX.impact(world, pos, element, power)
+## Martial
+##   VFX.slash_arc(world, pos, yaw, tilt, element, radius, sweep)
+##   VFX.impact_frame(world, at, strength, seconds)      screen-space radial lines
+##   VFX.afterimage(world, character, color, count, interval, life)  dash ghosts
+##   VFX.qi_flames(character, element, height) -> Node3D  looping, VFX.stop() it
+##   VFX.heal(world, pos, power)
+## Status / story
+##   VFX.status(character, "burning"|"frozen"|"shocked"|"poisoned"|"blessed", seconds, height) -> Node3D
+##   VFX.naming(world, pos, height) -> float              golden naming spiral
+##   VFX.rift(world, pos, radius, seconds) -> Node3D      Rift cracks, tear and motes
+##   VFX.stop(fx)                                         fade out any looping effect
+##   VFX.showcase(world, origin) -> float                 every effect in a grid
+##   VFX.warmup(world)                                    precompile shaders at load (no first-cast hitch)
+## Technique ids (data/skills/*.json "vfx", called by technique_caster.gd with
+## world, from = chest, to = ground point, radius / power): see the list at the end.
 
 const SHADER := preload("res://shaders/vfx_glow.gdshader")
+const K := preload("res://scripts/vfx/vfx_kit.gd")
+const Spells := preload("res://scripts/vfx/vfx_spells.gd")
+const Martial := preload("res://scripts/vfx/vfx_martial.gd")
+const Status := preload("res://scripts/vfx/vfx_status.gd")
+const Tech := preload("res://scripts/vfx/vfx_techniques.gd")
+const Showcase := preload("res://scripts/vfx/vfx_showcase.gd")
 
 const ELEMENTS := {
 	"fire": {"color": Color(1.0, 0.45, 0.12), "up": 5.0, "gravity": 2.5, "spread": 55.0, "speed": 4.0, "count": 60, "size": 0.35, "life": 0.9},
@@ -33,250 +73,308 @@ static func _material(color: Color, shape := 0, energy := 5.0) -> ShaderMaterial
 
 
 static func _free_after(node: Node, seconds: float) -> void:
-	node.get_tree().create_timer(seconds).timeout.connect(node.queue_free)
+	K.free_after(node, seconds)
 
 
-## Curved ribbon arc in front of `pos`, sweeping over 0.16 s then fading.
+# --- primitives (original API, new look) ----------------------------------------
+
+## Smear arc in front of `pos`, sweeping over 0.12 s then burning away.
 ## `tilt` rolls the arc (0 = horizontal slice, ±1.2 = diagonal).
 static func slash(parent: Node, pos: Vector3, yaw: float, tilt := 0.0, color := Color(1.0, 0.9, 0.7), radius := 1.5) -> void:
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var segs := 18
-	var arc := deg_to_rad(150.0)
-	var inner := radius * 0.55
-	for i in segs:
-		for k in 2:
-			pass
-	for i in segs:
-		var t0 := float(i) / segs
-		var t1 := float(i + 1) / segs
-		var a0 := -arc * 0.5 + arc * t0
-		var a1 := -arc * 0.5 + arc * t1
-		var p0i := Vector3(sin(a0) * inner, 0, cos(a0) * inner)
-		var p0o := Vector3(sin(a0) * radius, 0, cos(a0) * radius)
-		var p1i := Vector3(sin(a1) * inner, 0, cos(a1) * inner)
-		var p1o := Vector3(sin(a1) * radius, 0, cos(a1) * radius)
-		for v in [[p0i, Vector2(t0, 0)], [p0o, Vector2(t0, 1)], [p1o, Vector2(t1, 1)],
-				[p0i, Vector2(t0, 0)], [p1o, Vector2(t1, 1)], [p1i, Vector2(t1, 0)]]:
-			st.set_color(Color.WHITE)
-			st.set_uv(v[1])
-			st.add_vertex(v[0])
-	var mi := MeshInstance3D.new()
-	mi.mesh = st.commit()
-	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	var mat := _material(color, 1, 4.0)
-	mi.material_override = mat
-	parent.add_child(mi)
-	mi.global_position = pos
-	mi.rotation = Vector3(0, yaw, tilt)
-	var tw := mi.create_tween()
-	tw.tween_method(func(v: float) -> void: mat.set_shader_parameter("progress", v), 0.0, 1.0, 0.16)
-	tw.tween_method(func(v: float) -> void: mat.set_shader_parameter("progress", v), 1.0, 1.6, 0.18)
-	tw.tween_callback(mi.queue_free)
-
-
-static func _particles(parent: Node, pos: Vector3, color: Color, count: int, life: float, size: float,
-		speed: float, spread: float, gravity: Vector3, direction := Vector3.UP, stretch := false, solid := false) -> GPUParticles3D:
-	var p := GPUParticles3D.new()
-	p.amount = count
-	p.lifetime = life
-	p.one_shot = true
-	p.explosiveness = 0.95
-	p.local_coords = false
-	var pm := ParticleProcessMaterial.new()
-	pm.direction = direction
-	pm.spread = spread
-	pm.initial_velocity_min = speed * 0.5
-	pm.initial_velocity_max = speed
-	pm.gravity = gravity
-	pm.damping_min = 1.0
-	pm.damping_max = 3.0
-	pm.scale_min = 0.5
-	pm.scale_max = 1.0
-	var curve := Curve.new()
-	curve.add_point(Vector2(0, 1))
-	curve.add_point(Vector2(1, 0))
-	var ct := CurveTexture.new()
-	ct.curve = curve
-	pm.scale_curve = ct
-	var grad := Gradient.new()
-	grad.set_color(0, Color(1, 1, 1, 1))
-	grad.set_color(1, Color(1, 1, 1, 0))
-	var gt := GradientTexture1D.new()
-	gt.gradient = grad
-	pm.color_ramp = gt
-	p.process_material = pm
-	var quad := QuadMesh.new()
-	quad.size = Vector2(size * (0.35 if stretch else 1.0), size * (2.2 if stretch else 1.0))
-	if solid:
-		var sm := StandardMaterial3D.new()
-		sm.albedo_color = color
-		sm.vertex_color_use_as_albedo = true
-		sm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		sm.roughness = 0.9
-		quad.material = sm
-		var box := BoxMesh.new()
-		box.size = Vector3.ONE * size * 0.6
-		box.material = sm
-		p.draw_pass_1 = box
-	else:
-		quad.material = _material(color, 0, 5.0)
-	if stretch:
-		pm.particle_flag_align_y = true
-	if not solid:
-		p.draw_pass_1 = quad
-		p.transform_align = GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD if not stretch else GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD_Y_TO_VELOCITY
-	else:
-		pm.angular_velocity_min = -360.0
-		pm.angular_velocity_max = 360.0
-	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	parent.add_child(p)
-	p.global_position = pos
-	p.emitting = true
-	_free_after(p, life + 0.5)
-	return p
+	Martial.slash_arc(parent, pos, yaw, tilt, K.pal_from(color), radius)
 
 
 static func sparks(parent: Node, pos: Vector3, color := Color(1.0, 0.75, 0.35), count := 24) -> void:
-	_particles(parent, pos, color, count, 0.35, 0.16, 9.0, 70.0, Vector3(0, -14, 0), Vector3.UP, true)
+	var p := K.pal_from(color)
+	K.emit(parent, pos, {"amount": count, "life": 0.35, "v": Vector2(4.5, 9.0), "spread": 70.0, "gravity": Vector3(0, -14, 0),
+		"damping": Vector2(1, 3), "size": Vector2(0.05, 0.35), "stretch": true, "mat": K.sprite_mat(K.DOT, p, 5.0, {"heat": 1.5})})
+	K.glow(parent, pos, p, 1.1, 0.16, K.STAR, 4.0)
 	flash(parent, pos, color, 1.5, 0.12)
 
 
 static func flash(parent: Node, pos: Vector3, color: Color, energy := 2.0, seconds := 0.2, light_range := 5.0) -> void:
-	var l := OmniLight3D.new()
-	l.light_color = color
-	l.light_energy = energy
-	l.omni_range = light_range
-	l.shadow_enabled = false
-	parent.add_child(l)
-	l.global_position = pos
-	var tw := l.create_tween()
-	tw.tween_property(l, "light_energy", 0.0, seconds)
-	tw.tween_callback(l.queue_free)
+	K.light(parent, pos, color, energy, seconds, light_range)
 
 
-## Big soft glowing sphere-sprite that swells and fades: the "read from afar" part of a burst.
+## Big soft glowing sprite that swells and fades: the "read from afar" part of a burst.
 static func core(parent: Node, pos: Vector3, color: Color, size := 2.5, seconds := 0.5) -> void:
-	var mi := MeshInstance3D.new()
-	var q := QuadMesh.new()
-	q.size = Vector2.ONE
-	mi.mesh = q
-	var mat := _material(color, 0, 4.0)
-	mat.set_shader_parameter("billboard", true)
-	mi.material_override = mat
-	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	parent.add_child(mi)
-	mi.global_position = pos
-	var tw := mi.create_tween().set_parallel()
-	tw.tween_method(func(v: float) -> void: mat.set_shader_parameter("bb_scale", v), size * 0.3, size, seconds * 0.4).set_ease(Tween.EASE_OUT)
-	tw.tween_method(func(v: float) -> void: mat.set_shader_parameter("tint", Color(color, v)), 1.0, 0.0, seconds).set_delay(seconds * 0.2)
-	tw.chain().tween_callback(mi.queue_free)
+	K.glow(parent, pos, K.pal_from(color), size, seconds)
 
 
-## Expanding flat ring on the ground (landing strikes, qi release, spell impacts).
+## Expanding ring on the ground (landing strikes, qi release, spell impacts).
 static func shockwave(parent: Node, pos: Vector3, color := Color(1.0, 0.85, 0.4), radius := 4.0, seconds := 0.45) -> void:
-	var mi := MeshInstance3D.new()
-	var ring := TorusMesh.new()
-	ring.inner_radius = 0.92
-	ring.outer_radius = 1.0
-	ring.rings = 48
-	ring.ring_segments = 4
-	mi.mesh = ring
-	var mat := _material(color, 0, 3.0)
-	mat.set_shader_parameter("shape", 1)
-	mat.set_shader_parameter("progress", 1.2)
-	mi.material_override = mat
-	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	parent.add_child(mi)
-	mi.global_position = pos + Vector3(0, 0.08, 0)
-	mi.scale = Vector3(0.3, 0.05, 0.3)
-	var tw := mi.create_tween().set_parallel()
-	tw.tween_property(mi, "scale", Vector3(radius, 0.05, radius), seconds).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	tw.tween_method(func(v: float) -> void: mat.set_shader_parameter("tint", Color(color, v)), 1.0, 0.0, seconds)
-	tw.chain().tween_callback(mi.queue_free)
+	Tech._ring(parent, pos, K.pal_from(color), radius, seconds)
 
 
-## Elemental burst: the building block for martial arts and spells.
+## Elemental burst at a ground position: the building block for martial arts and spells.
 static func burst(parent: Node, pos: Vector3, element := "qi", power := 1.0) -> void:
-	var e: Dictionary = ELEMENTS.get(element, ELEMENTS["qi"])
-	var col: Color = e["color"]
-	var solid := element == "earth"
-	_particles(parent, pos + Vector3(0, 0.4, 0), col, int(float(e["count"]) * power), float(e["life"]), float(e["size"]) * 1.8 * sqrt(power),
-		float(e["speed"]) * power, float(e["spread"]), Vector3(0, float(e["gravity"]), 0), Vector3.UP,
-		element == "water" or element == "lightning", solid)
-	if element != "earth":
-		core(parent, pos + Vector3(0, 1.0, 0), col, 3.2 * power, float(e["life"]) * 0.8)
-	else:
-		_particles(parent, pos + Vector3(0, 0.3, 0), Color(0.7, 0.6, 0.45), 20, 1.4, 1.4, 2.5, 90.0, Vector3(0, 0.6, 0))
-	flash(parent, pos + Vector3(0, 0.6, 0), col, 3.0 * power, 0.3, 7.0 * power)
-	shockwave(parent, pos, col, 3.0 * power)
+	Spells.impact(parent, pos + Vector3(0, 0.9, 0), element, power)
 	if element == "lightning":
-		_bolt(parent, pos + Vector3(0, 9, 0), pos, col)
-	if element == "fire":
-		_particles(parent, pos, Color(0.25, 0.22, 0.2), 16, 1.6, 0.9, 1.5, 30.0, Vector3(0, 1.2, 0))
+		Spells._bolt(parent, pos + Vector3(0, 9, 0), pos, K.pal("lightning"), 0.14, false)
 
 
-static func _bolt(parent: Node, from: Vector3, to: Vector3, color: Color) -> void:
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var pts: Array[Vector3] = [from]
-	for i in range(1, 9):
-		var t := i / 9.0
-		pts.append(from.lerp(to, t) + Vector3(randf_range(-0.6, 0.6), 0, randf_range(-0.6, 0.6)))
-	pts.append(to)
-	var w := 0.12
-	for i in pts.size() - 1:
-		var a := pts[i]
-		var b := pts[i + 1]
-		var side := (b - a).cross(Vector3.FORWARD).normalized() * w
-		for v in [[a - side, Vector2(0, 0)], [a + side, Vector2(0, 1)], [b + side, Vector2(1, 1)],
-				[a - side, Vector2(0, 0)], [b + side, Vector2(1, 1)], [b - side, Vector2(1, 0)]]:
-			st.set_color(Color.WHITE)
-			st.set_uv(v[1])
-			st.add_vertex(v[0])
-	var mi := MeshInstance3D.new()
-	mi.mesh = st.commit()
-	var mat := _material(color, 1, 6.0)
-	mat.set_shader_parameter("progress", 1.0)
-	mi.material_override = mat
-	parent.add_child(mi)
-	var tw := mi.create_tween()
-	tw.tween_interval(0.08)
-	tw.tween_method(func(v: float) -> void: mat.set_shader_parameter("tint", Color(color, v)), 1.0, 0.0, 0.18)
-	tw.tween_callback(mi.queue_free)
-
-
-## Rising qi aura around a character (cultivation, power-up, martial stance).
+## Rising qi streaks around a character (cultivation, power-up, martial stance).
+## Persistent: free it (or VFX.stop it) yourself.
 static func aura(node: Node3D, color := Color(1.0, 0.85, 0.35), height := 1.8) -> GPUParticles3D:
-	var p := GPUParticles3D.new()
-	p.amount = 40
-	p.lifetime = 1.2
-	p.local_coords = true
-	var pm := ParticleProcessMaterial.new()
-	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_RING
-	pm.emission_ring_axis = Vector3.UP
-	pm.emission_ring_radius = 0.55
-	pm.emission_ring_inner_radius = 0.35
-	pm.emission_ring_height = 0.1
-	pm.direction = Vector3.UP
-	pm.spread = 8.0
-	pm.initial_velocity_min = height * 0.6
-	pm.initial_velocity_max = height * 1.1
-	pm.gravity = Vector3.ZERO
-	var grad := Gradient.new()
-	grad.set_color(0, Color(1, 1, 1, 0))
-	grad.add_point(0.2, Color(1, 1, 1, 1))
-	grad.set_color(grad.get_point_count() - 1, Color(1, 1, 1, 0))
-	var gt := GradientTexture1D.new()
-	gt.gradient = grad
-	pm.color_ramp = gt
-	p.process_material = pm
-	var quad := QuadMesh.new()
-	quad.size = Vector2(0.08, 0.5)
-	quad.material = _material(color, 0, 2.5)
-	pm.particle_flag_align_y = true
-	p.transform_align = GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD_Y_TO_VELOCITY
-	p.draw_pass_1 = quad
-	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	node.add_child(p)
-	return p
+	return K.emit(node, node.global_position + Vector3(0, 0.05, 0), {"amount": 36, "life": 1.2, "one_shot": false, "local": true,
+		"shape": "ring", "radius": 0.55, "inner": 0.35, "v": Vector2(height * 0.6, height * 1.1), "spread": 8.0,
+		"size": Vector2(0.07, 0.55), "stretch": true, "alpha": "inout", "grow": "flat",
+		"mat": K.sprite_mat(K.DOT, K.pal_from(color), 3.0, {"heat": 1.3})})
+
+
+# --- spells ---------------------------------------------------------------------
+
+static func magic_circle(parent: Node, pos: Vector3, element := "qi", radius := 1.6, seconds := 1.4) -> MeshInstance3D:
+	return Spells.magic_circle(parent, pos, element, radius, seconds)
+
+
+static func cast_sigil(parent: Node, pos: Vector3, dir: Vector3, element := "qi", size := 1.0) -> void:
+	Spells.cast_sigil(parent, pos, dir, element, size)
+
+
+## Elemental hit at `pos`. With `target` (the technique caster's melee point) the
+## hit lands between the two and adds an impact frame: punches and kicks.
+static func impact(parent: Node, pos: Vector3, element := "qi", power := 1.0, target := Vector3.INF) -> void:
+	if target.is_finite():
+		var at := pos.lerp(Vector3(target.x, pos.y - 0.1, target.z), 0.7)
+		Spells.impact(parent, at, element, power * 0.7)
+		Martial.impact_frame(parent, at, 0.6, 0.1)
+	else:
+		Spells.impact(parent, pos, element, power)
+
+
+static func fireball(parent: Node, from: Vector3, to: Vector3, power := 1.0, speed := 16.0) -> Node3D:
+	return Spells.fireball(parent, from, to, power, speed)
+
+
+static func wind_blade(parent: Node, from: Vector3, to: Vector3, power := 1.0, speed := 22.0) -> Node3D:
+	return Spells.wind_blade(parent, from, to, power, speed)
+
+
+static func qi_palm(parent: Node, from: Vector3, to: Vector3, power := 1.0, speed := 14.0) -> Node3D:
+	return Spells.qi_palm(parent, from, to, power, speed)
+
+
+## Water lash from the hand to `to` (a ground point is lifted to chest height).
+static func water_whip(parent: Node, from: Vector3, to: Vector3, power := 1.0) -> float:
+	var end := to
+	if end.y < from.y - 0.8:
+		end.y = from.y - 0.3
+	return Spells.water_whip(parent, from, end, power)
+
+
+static func earth_spike(parent: Node, from: Vector3, to: Vector3, power := 1.0, radius := 2.5) -> float:
+	return Spells.earth_spike(parent, from, to, power, radius)
+
+
+## Bolt from `from` to `to`, then on through `extra` points (0.07 s per hop).
+static func lightning_chain(parent: Node, from: Vector3, to: Vector3, power := 1.0, extra: Array = []) -> float:
+	return Spells.lightning_chain(parent, from, [to] + extra, power)
+
+
+static func fire_pillar(parent: Node, target: Vector3, radius := 1.2, seconds := 1.8) -> void:
+	Spells.fire_pillar(parent, target, clampf(radius * 0.55, 0.8, 2.0), seconds)
+
+
+static func whirlwind(parent: Node, target: Vector3, radius := 1.5, seconds := 2.5) -> void:
+	Spells.whirlwind(parent, target, clampf(radius * 0.5, 1.0, 2.5), seconds)
+
+
+static func tidal_ring(parent: Node, target: Vector3, radius := 4.0) -> void:
+	Spells.tidal_ring(parent, target, radius)
+
+
+static func earthquake(parent: Node, target: Vector3, radius := 4.0, seconds := 2.0) -> void:
+	Spells.earthquake(parent, target, radius, seconds)
+
+
+static func thunderstorm(parent: Node, target: Vector3, radius := 4.0, strikes := 5, seconds := 2.0) -> void:
+	Spells.thunderstorm(parent, target, radius, strikes, seconds)
+
+
+# --- martial --------------------------------------------------------------------
+
+static func slash_arc(parent: Node, pos: Vector3, yaw: float, tilt := 0.0, element := "metal", radius := 1.6, sweep := 0.12) -> void:
+	Martial.slash_arc(parent, pos, yaw, tilt, K.pal(element), radius, sweep)
+
+
+static func impact_frame(parent: Node, at: Vector3, strength := 1.0, seconds := 0.12) -> void:
+	Martial.impact_frame(parent, at, strength, seconds)
+
+
+static func afterimage(parent: Node, character: Node3D, color := Color(0.45, 0.8, 1.0), count := 4, interval := 0.05, life := 0.35) -> void:
+	Martial.afterimage(parent, character, color, count, interval, life)
+
+
+static func qi_flames(character: Node3D, element := "qi", height := 1.8) -> Node3D:
+	return Martial.qi_flames(character, K.pal(element), height)
+
+
+static func heal(parent: Node, pos: Vector3, power := 1.0) -> void:
+	Martial.heal(parent, pos, power)
+
+
+# --- status / story -------------------------------------------------------------
+
+static func status(character: Node3D, kind: String, seconds := 0.0, height := 1.7) -> Node3D:
+	return Status.status(character, kind, seconds, height)
+
+
+static func naming(parent: Node, pos: Vector3, height := 1.6) -> float:
+	return Status.naming(parent, pos, height)
+
+
+static func rift(parent: Node, pos: Vector3, radius := 3.0, seconds := 0.0) -> Node3D:
+	return Status.rift(parent, pos, radius, seconds)
+
+
+static func stop(fx: Variant) -> void:
+	Status.stop(fx)
+
+
+static func showcase(parent: Node, origin: Vector3, seconds := 8.0) -> float:
+	return Showcase.showcase(parent, origin, seconds)
+
+
+## Draw every VFX shader once, invisibly, in front of the camera so the first
+## real cast doesn't hitch on pipeline compilation. Call once after the world loads.
+static func warmup(parent: Node) -> void:
+	var cam := parent.get_viewport().get_camera_3d() if parent.get_viewport() else null
+	if cam == null:
+		return
+	var at := cam.global_position - cam.global_basis.z * 3.0
+	var p := K.pal("qi")
+	var mats: Array[Material] = [K.sprite_mat(K.DOT, p, 3.0, {"particle": false, "fade": 0.0}),
+		K.sprite_mat(K.SMOKE_PUFF, p, 1.0, {"particle": false, "mix": true, "fade": 0.0}),
+		K.fx_mat(K.SMEAR, p, 3.0, {"fade": 0.0}), K.shader_mat(K.GHOST), Spells._circle_mat("qi")]
+	(mats[3] as ShaderMaterial).set_shader_parameter("fade", 0.0)
+	(mats[4] as ShaderMaterial).set_shader_parameter("fade", 0.0)
+	for m in mats:
+		var mi := K.quad(parent, at, m, 0.05)
+		K.free_after(mi, 0.25)
+	K.emit(parent, at, {"amount": 1, "life": 0.1, "size": 0.01, "mat": K.sprite_mat(K.DOT, p, 0.0)})
+	K.emit(parent, at, {"amount": 1, "life": 0.1, "size": 0.01, "stretch": true, "mat": K.sprite_mat(K.DOT, p, 0.0, {"mix": true})})
+
+
+# --- technique ids (data/skills/*.json) -----------------------------------------
+# technique_caster.gd matches arguments by name: world, from (chest), to (ground
+# point or target), radius, power. Projectile ids return the missile Node3D.
+
+static func rally(parent: Node, _from: Vector3, to: Vector3, radius := 8.0) -> void:
+	Tech.rally(parent, to, radius)
+
+
+static func war_cry(parent: Node, from: Vector3, to: Vector3, radius := 8.0) -> void:
+	Tech.war_cry(parent, from, to, radius)
+
+
+static func stone_bullet(parent: Node, from: Vector3, to: Vector3, power := 1.0, speed := 24.0) -> Node3D:
+	return Tech.stone_bullet(parent, from, to, power, speed)
+
+
+static func stone_skin(parent: Node, _from: Vector3, to: Vector3) -> void:
+	Tech.stone_skin(parent, to)
+
+
+static func quake(parent: Node, _from: Vector3, to: Vector3, radius := 6.0) -> void:
+	Spells.earthquake(parent, to, minf(radius, 7.0), 2.0)
+
+
+static func stone_wall(parent: Node, from: Vector3, to: Vector3, radius := 6.0) -> void:
+	Tech.stone_wall(parent, from, to, radius)
+
+
+static func leaves(parent: Node, _from: Vector3, to: Vector3, radius := 6.0) -> void:
+	Tech.leaves(parent, to, radius)
+
+
+static func rain(parent: Node, _from: Vector3, to: Vector3, radius := 8.0) -> void:
+	Tech.rain(parent, to, radius)
+
+
+static func vines(parent: Node, _from: Vector3, to: Vector3, radius := 6.0) -> void:
+	Tech.vines(parent, to, radius)
+
+
+static func flame_wave(parent: Node, from: Vector3, to: Vector3, radius := 4.0) -> void:
+	Tech.flame_wave(parent, from, to, radius)
+
+
+static func fire_nova(parent: Node, _from: Vector3, to: Vector3, radius := 6.0) -> void:
+	Tech.fire_nova(parent, to, radius)
+
+
+static func iaido_flash(parent: Node, from: Vector3, to: Vector3, radius := 3.0) -> void:
+	Tech.iaido_flash(parent, from, to, radius)
+
+
+static func sword_arc(parent: Node, from: Vector3, to: Vector3, radius := 3.0, color := Color(0.8, 0.9, 1.0)) -> void:
+	Tech.sword_arc(parent, from, to, radius, color)
+
+
+static func sword_qi(parent: Node, from: Vector3, to: Vector3, power := 1.0, speed := 24.0) -> Node3D:
+	return Tech.sword_qi(parent, from, to, power, speed)
+
+
+static func lightning_trail(parent: Node, from: Vector3, to: Vector3) -> void:
+	Tech.lightning_trail(parent, from, to)
+
+
+static func thunder_strike(parent: Node, _from: Vector3, to: Vector3, radius := 2.5) -> void:
+	Tech.thunder_strike(parent, to, radius)
+
+
+static func qi_aura(parent: Node, _from: Vector3, to: Vector3) -> void:
+	Tech.qi_aura(parent, to)
+
+
+static func qi_bolt(parent: Node, from: Vector3, to: Vector3, power := 1.0, speed := 20.0) -> Node3D:
+	return Tech.qi_bolt(parent, from, to, power, speed)
+
+
+static func qi_shield(parent: Node, _from: Vector3, to: Vector3, radius := 3.0) -> void:
+	Tech.qi_shield(parent, to, radius)
+
+
+static func qi_nova(parent: Node, _from: Vector3, to: Vector3, radius := 7.0) -> void:
+	Tech.qi_nova(parent, to, radius)
+
+
+static func shuriken(parent: Node, from: Vector3, to: Vector3, power := 1.0, speed := 28.0) -> Node3D:
+	return Tech.shuriken(parent, from, to, power, speed)
+
+
+static func smoke_bomb(parent: Node, _from: Vector3, to: Vector3, radius := 4.0) -> void:
+	Tech.smoke_bomb(parent, to, radius)
+
+
+static func shadow_step(parent: Node, from: Vector3, to: Vector3) -> void:
+	Tech.shadow_step(parent, from, to)
+
+
+static func shadow_clone(parent: Node, _from: Vector3, to: Vector3, radius := 4.0) -> void:
+	Tech.shadow_clone(parent, to, radius)
+
+
+static func water_heal(parent: Node, _from: Vector3, to: Vector3, radius := 5.0) -> void:
+	Tech.water_heal(parent, to, radius)
+
+
+static func ice_lance(parent: Node, from: Vector3, to: Vector3, power := 1.0, speed := 26.0) -> Node3D:
+	return Tech.ice_lance(parent, from, to, power, speed)
+
+
+static func water_ring(parent: Node, _from: Vector3, to: Vector3, radius := 12.0) -> void:
+	Tech.water_ring(parent, to, radius)
+
+
+static func tidal_wave(parent: Node, from: Vector3, to: Vector3, radius := 8.0) -> void:
+	Tech.tidal_wave(parent, from, to, radius)
+
+
+static func whirlpool(parent: Node, _from: Vector3, to: Vector3, radius := 4.0) -> void:
+	Tech.whirlpool(parent, to, radius)
+
+
+static func wind_trail(parent: Node, from: Vector3, to: Vector3) -> void:
+	Tech.wind_trail(parent, from, to)

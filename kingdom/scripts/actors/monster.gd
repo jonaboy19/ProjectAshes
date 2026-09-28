@@ -539,7 +539,7 @@ func become_named(given: String, chosen_class: String) -> void:
 	if _play("stand_up", true, 1.0, 0.3):
 		_busy = 1.0
 	_refresh_label()
-	VFX.burst(get_parent(), global_position, "qi", 1.2)
+	VFX.naming(get_parent(), global_position, 1.6)
 	VFX.aura(self, Color(1.0, 0.85, 0.4), 1.4)
 
 

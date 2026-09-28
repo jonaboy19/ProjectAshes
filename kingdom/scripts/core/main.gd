@@ -153,6 +153,7 @@ func _ready() -> void:
 
 	hud.hide_loading()
 	Quality.start_adaptive()
+	VFX.warmup(world)   # pre-draw every effect shader so the first cast doesn't hitch
 	var args := _user_args()
 	if (args.has("shot") and args["shot"] != "birth") or args.has("demo") or args.has("adult"):
 		Life.life_path.set_age(18, WorldSim.day, WorldSim.time_of_day)
@@ -728,15 +729,10 @@ func _screenshot(shot: String, path: String) -> void:
 			var base := player.global_position + player.forward() * 7.0
 			var right := player.forward().cross(Vector3.UP).normalized()
 			late_fx = func() -> void:
-				Engine.time_scale = 0.03
-				var els := ["fire", "water", "wind", "earth", "lightning", "qi"]
-				for i in els.size():
-					var p := base + right * (i - 2.5) * 3.2
-					p.y = WorldGen.height(p.x, p.z)
-					VFX.burst(world, p, els[i], 1.0)
-				VFX.slash(world, player.global_position + Vector3(0, 1.2, 0) + player.forward() * 1.5, player._model.rotation.y, 0.9)
-				VFX.aura(player, Color(0.45, 0.8, 1.0))
-			warmup = 40
+				var origin := base + right * 0.0
+				origin.y = WorldGen.height(origin.x, origin.z)
+				VFX.showcase(world, origin)
+			warmup = 60
 		"explore":
 			# Street level on the plaza's south side, looking north across the square.
 			_teleport(Vector2(1.0, 7.5), 0.0)

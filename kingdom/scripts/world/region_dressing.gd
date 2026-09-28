@@ -152,6 +152,8 @@ func _build(site: Dictionary) -> Node3D:
 	var yaw: float = site["yaw"]
 	root.global_position = Vector3(c.x, WorldGen.height(c.x, c.y), c.y)
 	root.rotation.y = yaw
+	if site["kind"] == "rift":
+		VFX.rift(root, root.global_position + Vector3.UP * 0.2, 6.0, 0.0)   # freed with the site
 	if site["kind"] == "bridge":
 		_build_bridge(root, site)
 		return root
