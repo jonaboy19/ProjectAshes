@@ -1,0 +1,481 @@
+[
+ {
+  "name": "Karate_Mae_Geri",
+  "loop": false,
+  "seconds": 1.7,
+  "frames": 52,
+  "keys": 772,
+  "source": "135/135_04.bvh",
+  "range_s": [
+   2.6,
+   4.3
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.87,
+  "hip_scale": 0.0528
+ },
+ {
+  "name": "Karate_Mawashi_Geri",
+  "loop": false,
+  "seconds": 1.8,
+  "frames": 55,
+  "keys": 881,
+  "source": "135/135_07.bvh",
+  "range_s": [
+   0.4,
+   2.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.002,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 0.66,
+  "hip_scale": 0.0528
+ },
+ {
+  "name": "Karate_Yoko_Geri",
+  "loop": false,
+  "seconds": 2.2,
+  "frames": 67,
+  "keys": 970,
+  "source": "135/135_11.bvh",
+  "range_s": [
+   2.2,
+   4.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.007,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.005,
+  "travel_m": 0.89,
+  "hip_scale": 0.0528
+ },
+ {
+  "name": "Karate_Oi_Zuki",
+  "loop": false,
+  "seconds": 2.0,
+  "frames": 61,
+  "keys": 671,
+  "source": "135/135_09.bvh",
+  "range_s": [
+   1.9,
+   3.9
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.022,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.78,
+  "hip_scale": 0.0528
+ },
+ {
+  "name": "Karate_Gedan_Barai",
+  "loop": false,
+  "seconds": 1.9,
+  "frames": 58,
+  "keys": 709,
+  "source": "135/135_05.bvh",
+  "range_s": [
+   0.5,
+   2.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.021,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.79,
+  "hip_scale": 0.0528
+ },
+ {
+  "name": "Karate_Shuto_Uke",
+  "loop": false,
+  "seconds": 1.8,
+  "frames": 55,
+  "keys": 622,
+  "source": "135/135_10.bvh",
+  "range_s": [
+   1.5,
+   3.3
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.025,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.68,
+  "hip_scale": 0.0528
+ },
+ {
+  "name": "Kata_Heian_Shodan",
+  "loop": false,
+  "seconds": 24.47,
+  "frames": 735,
+  "keys": 9133,
+  "source": "135/135_06.bvh",
+  "range_s": [
+   0.3,
+   null
+  ],
+  "autotrim": [
+   1.53,
+   26.03
+  ],
+  "loop_pts": null,
+  "floor_fix_m": -0.002,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 0.19,
+  "hip_scale": 0.0528
+ },
+ {
+  "name": "Kata_Bassai",
+  "loop": false,
+  "seconds": 50.03,
+  "frames": 1502,
+  "keys": 17224,
+  "source": "135/135_01.bvh",
+  "range_s": [
+   0.3,
+   null
+  ],
+  "autotrim": [
+   0.63,
+   50.7
+  ],
+  "loop_pts": null,
+  "floor_fix_m": -0.011,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 0.86,
+  "hip_scale": 0.0528
+ },
+ {
+  "name": "Kata_Empi",
+  "loop": false,
+  "seconds": 40.4,
+  "frames": 1213,
+  "keys": 13907,
+  "source": "135/135_02.bvh",
+  "range_s": [
+   0.3,
+   null
+  ],
+  "autotrim": [
+   0.7,
+   41.13
+  ],
+  "loop_pts": null,
+  "floor_fix_m": -0.019,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.005,
+  "travel_m": 0.73,
+  "hip_scale": 0.0528
+ },
+ {
+  "name": "Taichi_Idle",
+  "loop": true,
+  "seconds": 12.7,
+  "frames": 382,
+  "keys": 1496,
+  "source": "012/12_04.bvh",
+  "range_s": [
+   5.0,
+   21.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   1.9,
+   14.6,
+   2.59
+  ],
+  "floor_fix_m": -0.009,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.001,
+  "travel_m": 0.04,
+  "hip_scale": 0.0552
+ },
+ {
+  "name": "Taichi_Form",
+  "loop": false,
+  "seconds": 40.0,
+  "frames": 1201,
+  "keys": 6328,
+  "source": "012/12_04.bvh",
+  "range_s": [
+   21.0,
+   61.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.003,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.32,
+  "hip_scale": 0.0552
+ },
+ {
+  "name": "Swordplay_A",
+  "loop": false,
+  "seconds": 18.43,
+  "frames": 554,
+  "keys": 6381,
+  "source": "002/02_07.bvh",
+  "range_s": [
+   0.3,
+   null
+  ],
+  "autotrim": [
+   0.0,
+   18.47
+  ],
+  "loop_pts": null,
+  "floor_fix_m": 0.001,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.01,
+  "travel_m": 0.03,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Swordplay_B",
+  "loop": false,
+  "seconds": 12.2,
+  "frames": 367,
+  "keys": 4181,
+  "source": "002/02_08.bvh",
+  "range_s": [
+   0.3,
+   null
+  ],
+  "autotrim": [
+   0.0,
+   12.23
+  ],
+  "loop_pts": null,
+  "floor_fix_m": -0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.24,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Swordplay_C",
+  "loop": false,
+  "seconds": 8.3,
+  "frames": 250,
+  "keys": 3033,
+  "source": "002/02_09.bvh",
+  "range_s": [
+   0.3,
+   null
+  ],
+  "autotrim": [
+   0.0,
+   8.33
+  ],
+  "loop_pts": null,
+  "floor_fix_m": -0.017,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.05,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Swim_Breaststroke",
+  "loop": true,
+  "seconds": 4.77,
+  "frames": 144,
+  "keys": 1745,
+  "source": "125/125_01.bvh",
+  "range_s": [
+   8.0,
+   16.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   1.67,
+   6.43,
+   3.47
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.191,
+  "travel_m": 0.02,
+  "hip_scale": 0.0517
+ },
+ {
+  "name": "Swim_Freestyle",
+  "loop": true,
+  "seconds": 5.0,
+  "frames": 151,
+  "keys": 2137,
+  "source": "125/125_06.bvh",
+  "range_s": [
+   12.0,
+   22.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   2.6,
+   7.6,
+   1.53
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.061,
+  "min_foot_m": 0.249,
+  "travel_m": 0.01,
+  "hip_scale": 0.0517
+ },
+ {
+  "name": "Swim_Backstroke",
+  "loop": true,
+  "seconds": 5.23,
+  "frames": 158,
+  "keys": 2383,
+  "source": "126/126_01.bvh",
+  "range_s": [
+   4.0,
+   14.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   2.93,
+   8.17,
+   3.39
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.037,
+  "min_foot_m": -0.069,
+  "travel_m": 0.01,
+  "hip_scale": 0.0517
+ },
+ {
+  "name": "Chore_Sweep",
+  "loop": true,
+  "seconds": 1.73,
+  "frames": 53,
+  "keys": 891,
+  "source": "143/143_28.bvh",
+  "range_s": [
+   0.4,
+   4.2
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   1.37,
+   3.1,
+   2.35
+  ],
+  "floor_fix_m": -0.012,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 1.03,
+  "hip_scale": 0.0592
+ },
+ {
+  "name": "Chore_Stool_Sit_Stand",
+  "loop": false,
+  "seconds": 3.8,
+  "frames": 115,
+  "keys": 1723,
+  "source": "143/143_19.bvh",
+  "range_s": [
+   0.5,
+   4.3
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.019,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.0592
+ },
+ {
+  "name": "Chore_Pick_Up_Box",
+  "loop": false,
+  "seconds": 2.4,
+  "frames": 73,
+  "keys": 1204,
+  "source": "143/143_11.bvh",
+  "range_s": [
+   1.2,
+   3.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.008,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.56,
+  "hip_scale": 0.0592
+ },
+ {
+  "name": "Lie_Down",
+  "loop": false,
+  "seconds": 5.7,
+  "frames": 172,
+  "keys": 2017,
+  "source": "113/113_08.bvh",
+  "range_s": [
+   0.3,
+   6.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.028,
+  "contact_lift_m": 0.034,
+  "min_foot_m": -0.069,
+  "travel_m": 0.52,
+  "hip_scale": 0.0548
+ },
+ {
+  "name": "Lie_Down_Idle",
+  "loop": true,
+  "seconds": 2.43,
+  "frames": 74,
+  "keys": 372,
+  "source": "113/113_08.bvh",
+  "range_s": [
+   5.5,
+   9.3
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.93,
+   3.37,
+   0.93
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.044,
+  "min_foot_m": -0.069,
+  "travel_m": 0.0,
+  "hip_scale": 0.0548
+ },
+ {
+  "name": "Lie_Down_Get_Up",
+  "loop": false,
+  "seconds": 6.0,
+  "frames": 181,
+  "keys": 2166,
+  "source": "113/113_08.bvh",
+  "range_s": [
+   9.0,
+   15.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.031,
+  "contact_lift_m": 0.024,
+  "min_foot_m": -0.069,
+  "travel_m": 0.34,
+  "hip_scale": 0.0548
+ }
+]

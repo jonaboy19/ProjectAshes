@@ -1,0 +1,240 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations/cmu_mocap/UAL_CMU_Mocap.glb",
+ "smooth": 0.015,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "clips": [
+  {
+   "name": "Karate_Mae_Geri",
+   "file": "135/135_04.bvh",
+   "start": 2.6,
+   "end": 4.3,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Karate_Mawashi_Geri",
+   "file": "135/135_07.bvh",
+   "start": 0.4,
+   "end": 2.2,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Karate_Yoko_Geri",
+   "file": "135/135_11.bvh",
+   "start": 2.2,
+   "end": 4.4,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Karate_Oi_Zuki",
+   "file": "135/135_09.bvh",
+   "start": 1.9,
+   "end": 3.9,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Karate_Gedan_Barai",
+   "file": "135/135_05.bvh",
+   "start": 0.5,
+   "end": 2.4,
+   "fingers": "fist",
+   "smooth": 0.01
+  },
+  {
+   "name": "Karate_Shuto_Uke",
+   "file": "135/135_10.bvh",
+   "start": 1.5,
+   "end": 3.3,
+   "fingers": "flat",
+   "smooth": 0.01
+  },
+  {
+   "name": "Kata_Heian_Shodan",
+   "file": "135/135_06.bvh",
+   "start": 0.3,
+   "autotrim": true,
+   "fingers": "fist",
+   "inplace_sigma": 0.6
+  },
+  {
+   "name": "Kata_Bassai",
+   "file": "135/135_01.bvh",
+   "start": 0.3,
+   "autotrim": true,
+   "fingers": "fist",
+   "inplace_sigma": 0.6
+  },
+  {
+   "name": "Kata_Empi",
+   "file": "135/135_02.bvh",
+   "start": 0.3,
+   "autotrim": true,
+   "fingers": "fist",
+   "inplace_sigma": 0.6
+  },
+  {
+   "name": "Taichi_Idle",
+   "file": "012/12_04.bvh",
+   "start": 5.0,
+   "end": 21.0,
+   "loop": true,
+   "loop_search": 1.5,
+   "loop_min": 12,
+   "loop_blend": 0.6,
+   "inplace": "linear",
+   "smooth": 0.03
+  },
+  {
+   "name": "Taichi_Form",
+   "file": "012/12_04.bvh",
+   "start": 21.0,
+   "end": 61.0,
+   "inplace_sigma": 0.8,
+   "smooth": 0.03
+  },
+  {
+   "name": "Swordplay_A",
+   "file": "002/02_07.bvh",
+   "start": 0.3,
+   "autotrim": true,
+   "fingers": "fist"
+  },
+  {
+   "name": "Swordplay_B",
+   "file": "002/02_08.bvh",
+   "start": 0.3,
+   "autotrim": true,
+   "fingers": "fist"
+  },
+  {
+   "name": "Swordplay_C",
+   "file": "002/02_09.bvh",
+   "start": 0.3,
+   "autotrim": true,
+   "fingers": "fist"
+  },
+  {
+   "name": "Swim_Breaststroke",
+   "file": "125/125_01.bvh",
+   "start": 8.0,
+   "end": 16.0,
+   "loop": true,
+   "loop_search": 1.6,
+   "loop_min": 1.2,
+   "floor": "none",
+   "inplace": "linear",
+   "fingers": "flat"
+  },
+  {
+   "name": "Swim_Freestyle",
+   "file": "125/125_06.bvh",
+   "start": 12.0,
+   "end": 22.0,
+   "loop": true,
+   "loop_search": 2.5,
+   "loop_min": 1.5,
+   "floor": "none",
+   "inplace": "linear",
+   "fingers": "flat"
+  },
+  {
+   "name": "Swim_Backstroke",
+   "file": "126/126_01.bvh",
+   "start": 4.0,
+   "end": 14.0,
+   "loop": true,
+   "loop_search": 3.0,
+   "loop_min": 2.0,
+   "floor": "none",
+   "inplace": "linear",
+   "fingers": "flat"
+  },
+  {
+   "name": "Chore_Sweep",
+   "file": "143/143_28.bvh",
+   "start": 0.4,
+   "end": 4.2,
+   "loop": true,
+   "loop_search": 1.2,
+   "loop_min": 1.0,
+   "inplace": "linear",
+   "fingers": "fist"
+  },
+  {
+   "name": "Chore_Stool_Sit_Stand",
+   "file": "143/143_19.bvh",
+   "start": 0.5,
+   "end": 4.3,
+   "inplace": "none"
+  },
+  {
+   "name": "Chore_Pick_Up_Box",
+   "file": "143/143_11.bvh",
+   "start": 1.2,
+   "end": 3.6
+  },
+  {
+   "name": "Lie_Down",
+   "file": "113/113_08.bvh",
+   "start": 0.3,
+   "end": 6.0
+  },
+  {
+   "name": "Lie_Down_Idle",
+   "file": "113/113_08.bvh",
+   "start": 5.5,
+   "end": 9.3,
+   "loop": true,
+   "loop_search": 0.8,
+   "loop_min": 1.5,
+   "inplace": "none",
+   "floor": "none"
+  },
+  {
+   "name": "Lie_Down_Get_Up",
+   "file": "113/113_08.bvh",
+   "start": 9.0,
+   "end": 15.0
+  }
+ ]
+}

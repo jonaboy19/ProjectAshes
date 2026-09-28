@@ -19,13 +19,21 @@ const Q := "res://assets/incoming/quaternius/"
 const UBC := Q + "universal-base-characters/"
 const OUTFITS := Q + "modular-character-outfits-fantasy/Exports/glTF (Godot-Unreal)/Outfits/"
 const HAIR := UBC + "Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/"
+## Libraries built by tools/anim/retarget_clips_to_ual.py: clips are in place; horizontal
+## travel is kept on the `root` bone position track, disabled here. To use root motion, set
+## AnimationPlayer.root_motion_track to "<skeleton>:root" and re-enable that track.
+const UAL_ANIM_DIR := "res://assets/incoming/animations/"
 const UAL_FILES := [Q + "universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
 	Q + "universal-animation-library-2/Unreal-Godot/UAL2_Standard.glb",
 	# 119 extra CC0 clips retargeted onto UAL (incoming/characters/README.md, "Recommendation"):
 	# dodges, deaths, bow/crossbow, climb, two-handed, farm work, fishing, social.
 	"res://assets/incoming/characters/_library/UAL_Extra_Mesh2Motion.glb",
 	"res://assets/incoming/characters/_library/UAL_Extra_Mocap.glb",
-	"res://assets/incoming/characters/_library/UAL_Extra_G6_male.glb"]
+	"res://assets/incoming/characters/_library/UAL_Extra_G6_male.glb",
+	# Souls-like combat, magic casting, parry, roll, interactions (Cat Prisbrey, Unlicense)
+	# and CMU mocap karate / tai chi / swim / chores / lie down (assets/incoming/animations/README.md).
+	UAL_ANIM_DIR + "souls_cat/UAL_Souls_Cat.glb",
+	UAL_ANIM_DIR + "cmu_mocap/UAL_CMU_Mocap.glb"]
 const WEAPONS := Q + "fantasy-props-megakit/Exports/glTF/"
 const HELMET := Q + "lowpoly-animated-knight/FBX/Helmet1.fbx"
 ## Old KayKit clip names -> UAL clips, so gameplay code keeps using one vocabulary.
@@ -501,6 +509,7 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 			continue
 		var inst: Node = (load(file) as PackedScene).instantiate()
 		var ap: AnimationPlayer = inst.find_children("*", "AnimationPlayer", true, false)[0]
+		var root_motion_lib := file.begins_with(UAL_ANIM_DIR)
 		for anim_name in ap.get_animation_list():
 			var a: Animation = ap.get_animation(anim_name).duplicate(true)
 			for t in a.get_track_count():
@@ -508,6 +517,8 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 				var colon := tp.find(":")
 				if colon > 0:
 					a.track_set_path(t, NodePath(sk + tp.substr(colon)))
+					if root_motion_lib and tp.substr(colon) == ":root" and a.track_get_type(t) == Animation.TYPE_POSITION_3D:
+						a.track_set_enabled(t, false)
 			if anim_name == "Sword_Idle":
 				a.loop_mode = Animation.LOOP_LINEAR
 			if not lib.has_animation(anim_name):
