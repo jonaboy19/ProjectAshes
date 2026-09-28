@@ -849,6 +849,22 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 			add.call("flower_strip", front + right * sd * 2.4, yaw + PI * 0.5)
 		if rng.randf() < 0.5:
 			add.call("barrel_cluster", front + right * 3.0 + fwd * 0.8, yaw + rng.randf_range(-0.5, 0.5))
+	# A pair of town guards standing watch just inside every gate, as in the reference.
+	if plan["walls"]:
+		for g: float in plan["gates"]:
+			var gd := Vector2(cos(g), sin(g))
+			var gside := Vector2(-gd.y, gd.x)
+			for sd: float in [-1.0, 1.0]:
+				var gp: Vector2 = c + gd * (r - 7.0) + gside * sd * 4.2
+				var guard := Assets.character("Guard", 1.8, [])
+				if guard == null:
+					continue
+				root.add_child(guard)
+				guard.global_position = Vector3(gp.x, WorldGen.height(gp.x, gp.y), gp.y)
+				guard.rotation.y = atan2(-gd.x, -gd.y)   # facing into town, watching the street
+				var ganim := Assets.animation_player(guard)
+				if ganim:
+					ganim.play("Idle" if ganim.has_animation("Idle") else ganim.get_animation_list()[0])
 	# Red-and-gold banners hung along the inner face of the walls either side of each gate.
 	var wall_mesh := Assets.building_mesh("wall")
 	if plan["walls"] and wall_mesh != null:
