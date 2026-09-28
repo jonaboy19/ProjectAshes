@@ -33,6 +33,7 @@ func _init(p_hud: Node = null, p_talk_menu := Callable()) -> void:
 ## Station adds a floating title; villagers already carry their own tag, so this
 ## node skips it and only manages the groups.
 func _ready() -> void:
+	set_meta("low_priority", true)   # player.nearest_interactable prefers doors and services
 	add_to_group("station")
 	set_process(true)
 

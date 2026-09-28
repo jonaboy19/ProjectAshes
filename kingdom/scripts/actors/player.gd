@@ -1276,6 +1276,9 @@ func nearest_interactable() -> Node3D:
 	var best_d := 3.2
 	for node in get_tree().get_nodes_in_group("interactable"):
 		var d := global_position.distance_to((node as Node3D).global_position)
+		# Doors, services and pickups beat a passer-by's "Talk" when both are in reach.
+		if node.has_meta("low_priority") and d < 3.2:
+			d = minf(d + 1.6, 3.19)
 		if d < best_d:
 			best_d = d
 			best = node
