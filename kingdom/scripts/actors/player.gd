@@ -499,6 +499,7 @@ func _keep_above_ground() -> void:
 	if global_position.y < ground - 0.5:
 		global_position.y = ground + 0.1
 		velocity.y = 0.0
+		reset_physics_interpolation()   # a snap-up, not a smooth fall: don't smear the camera
 
 
 # --- Riding -----------------------------------------------------------------------
@@ -529,6 +530,7 @@ func toggle_mount(target: Node3D = null) -> void:
 	var horse := MountController.take(target, get_parent())
 	_mount = MountController.new(horse)
 	global_position = horse.global_position + Vector3.UP * 0.05
+	reset_physics_interpolation()
 	velocity = Vector3.ZERO
 	_move_speed = 0.0
 	_impulse = Vector3.ZERO
@@ -552,6 +554,7 @@ func _dismount() -> void:
 	_model.rotation = Vector3(0.0, yaw, 0.0)
 	_animator.set_stance("")
 	global_position = spot
+	reset_physics_interpolation()
 	velocity = Vector3.ZERO
 	_move_speed = 0.0
 	_move_dir = facing()
@@ -979,13 +982,23 @@ func _update_camera(delta: float) -> void:
 		camera.global_position.y = floor_h
 	# Keep the chase camera out of walls, stalls and roofs: pull it in front of whatever
 	# lies between the head and the camera (playtest: camera inside the guild hall / stalls).
+	# This runs on top of the spring arm's own collision, which alone missed thin
+	# awnings/roofs; snapping straight to the corrected point every tick made the
+	# camera visibly jerk whenever the ray flickered in and out (corners, foliage) —
+	# so the pull-IN (new occlusion) is instant (never show through a wall for even
+	# one frame) but the release back OUT eases, which absorbs that flicker.
 	if view == View.THIRD and InteriorDoor.active == null:
 		var from := _pivot.global_position
 		var q := PhysicsRayQueryParameters3D.create(from, camera.global_position, CAMERA_MASK)
 		q.exclude = [get_rid()]
 		var hit := get_world_3d().direct_space_state.intersect_ray(q)
+		var camera_target := camera.global_position
 		if not hit.is_empty():
-			camera.global_position = (hit["position"] as Vector3) + (from - camera.global_position).normalized() * 0.3
+			camera_target = (hit["position"] as Vector3) + (from - camera.global_position).normalized() * 0.3
+		if camera_target.distance_to(from) < camera.global_position.distance_to(from):
+			camera.global_position = camera_target
+		else:
+			camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-14.0 * delta))
 	# Pinned against a wall so tight the lens would sit inside the head: hide the body.
 	if view != View.FIRST:
 		_model.visible = camera.global_position.distance_to(_pivot.global_position) > 0.45 * Life.body_scale()
@@ -1239,6 +1252,7 @@ func _die() -> void:
 	Game.say("You fall... and wake in the village, bruised.")
 	await get_tree().create_timer(3.0).timeout
 	global_position = spawn_point
+	reset_physics_interpolation()
 	_move_speed = 0.0
 	_impulse = Vector3.ZERO
 	_attack_buffer = 0.0

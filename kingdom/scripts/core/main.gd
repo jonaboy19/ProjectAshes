@@ -524,6 +524,12 @@ func _teleport(p: Vector2, yaw: float) -> void:
 	player.global_position = pos
 	player.velocity = Vector3.ZERO
 	player.set_camera(yaw, -0.28)
+	# With physics/common/physics_interpolation on, a teleport would otherwise
+	# smear the camera across the screen for one frame as it interpolates from
+	# the old position to the new one. reset_physics_interpolation() snaps the
+	# whole subtree (player, camera rig, viewmodel, lock marker) to the new
+	# transform with nothing to interpolate from.
+	player.reset_physics_interpolation()
 	terrain.focus = pos
 	terrain.build_all_now()
 	water.focus = pos
