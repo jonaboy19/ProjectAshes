@@ -327,6 +327,16 @@ func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 			continue
 		var kind := ""
 		var roll := rng.randf()
+		# Rocks roll independently of forest_density (unlike trees/undergrowth
+		# below), so without this they could still spawn right inside a
+		# settlement's height() flatten-to-natural slope (radius..radius*1.8,
+		# see height() in world_gen.gd) -- a rock's footprint corners sampled on
+		# that slope produced the same bogus multi-metre "floating" the tree
+		# canopy fix above addresses. Skip that band for rocks too.
+		var on_settlement_slope := false
+		var near_settlement := WorldGen.nearest_settlement(Vector2(x, z))
+		if not near_settlement.is_empty():
+			on_settlement_slope = Vector2(x, z).distance_to(near_settlement["pos"]) < float(near_settlement["radius"]) * 1.8
 		if roll < density:
 			# Blender-made trees near the player; the cheap stylised set stands in far away.
 			var pine_bias := smoothstep(30.0, 70.0, h)
@@ -348,7 +358,7 @@ func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 					"scan/tree_stump_02", "scan/root_cluster_01", "scan/fern_02"][rng.randi() % 9]
 			else:
 				kind = ["scan/dandelion_01", REGION + "bush_berry", REGION + "bush_hazel", REGION + "flowers_warm", "scan/shrub_03", "scan/fern_02"][rng.randi() % 6]
-		elif rng.randf() < 0.05:
+		elif not on_settlement_slope and rng.randf() < 0.05:
 			kind = "scan/rock_moss_set_0%d_%d" % [1 + rng.randi() % 2, 1 + rng.randi() % 6]
 		if kind == "":
 			continue

@@ -137,8 +137,21 @@ func _scan(loc_name: String, center: Vector2) -> void:
 	var world: Node = main.get_node_or_null("World")
 	if world == null:
 		world = main
-	_scan_node(world, center, loc_name)
 	# Characters: player, villagers, combatants (soldiers/monsters/wolves/critters).
+	# Collected up front and passed into _scan_node so it can skip their whole
+	# subtree -- a character's own body-part meshes (armour, hair) and anything
+	# held in a bone-attached hand (sword, axe, shield) have bind-pose-space
+	# AABBs that mean nothing in world space and produced huge bogus "floating"
+	# entries (a raised sword read as a 5-11 m floater). _scan_character below
+	# already covers the character itself via its feet/global_position.
+	var characters: Array = []
+	if main.get("player"):
+		characters.append(main.player)
+	for g in ["villager", "combatant"]:
+		for n in get_nodes_in_group(g):
+			if n is Node3D:
+				characters.append(n)
+	_scan_node(world, center, loc_name, characters)
 	if main.get("player"):
 		_scan_character(main.player, center, loc_name, "player")
 	for g in ["villager", "combatant"]:
@@ -160,11 +173,19 @@ func _scan_character(n: Node3D, center: Vector2, loc_name: String, kind: String)
 
 ## MeshInstance3D / MultiMeshInstance3D nodes: footprint corners in world space
 ## vs. WorldGen.height, lowest-point gap (visual AABB bottom).
-func _scan_node(n: Node, center: Vector2, loc_name: String) -> void:
+func _scan_node(n: Node, center: Vector2, loc_name: String, characters: Array) -> void:
 	if not is_instance_valid(n) or n.is_queued_for_deletion():
 		return
 	if n is Node3D and not (n as Node3D).is_inside_tree():
 		return   # a chunk/site mid-free (queue_free is deferred): skip, don't touch its transform
+	if n in characters or n is CharacterBody3D:
+		# This whole subtree is a character's rig/equipment (see _scan() note).
+		# `n is CharacterBody3D` is the real guard -- it catches every character
+		# (player.gd, villager.gd, monster.gd, wolf.gd all extend it) even ones
+		# not currently in the "villager"/"combatant" groups (e.g. a wandering
+		# critter, or a villager mid-transition); `characters` is kept too in
+		# case a future character root isn't a CharacterBody3D.
+		return
 	if n is MeshInstance3D:
 		# Terrain chunk ground meshes and merged tree-impostor batches (TerrainStreamer)
 		# build their ArrayMesh with vertices already in WORLD space and an identity
@@ -176,8 +197,19 @@ func _scan_node(n: Node, center: Vector2, loc_name: String) -> void:
 		# Individual trees/props are separately correct: they're MultiMeshInstance3D
 		# with per-instance transforms, handled below.
 		var pname: String = (n.get_parent().name if n.get_parent() else "")
-		if n.name not in ["Ground", "TreeImpostors"] and not pname.begins_with("Chunk_"):
-			_check_mesh(n as MeshInstance3D, (n as MeshInstance3D).mesh, (n as MeshInstance3D).global_transform, center, loc_name, "mesh")
+		var mesh_res: Mesh = (n as MeshInstance3D).mesh
+		# A never-explicitly-named node ("@MeshInstance3D@1234", i.e. no author
+		# ever called .name = ...), with no scene owner and a mesh built at
+		# runtime (no resource_path -- not loaded from a .glb/.tres), is a
+		# transient effect, not authored level content: ambient_fx.gd's leaping
+		# fish/splash rings, technique_caster.gd/vfx_*.gd's spell and weapon-
+		# trail effects, etc. These are deliberately mid-air and moving every
+		# frame -- sampling one gave a "floating 11 m" entry that was really
+		# just a fish mid-jump. Grounding doesn't apply to them.
+		var is_anon_runtime_fx := n.owner == null and String(n.name).contains("@") \
+			and (mesh_res == null or mesh_res.resource_path == "")
+		if n.name not in ["Ground", "TreeImpostors"] and not pname.begins_with("Chunk_") and not is_anon_runtime_fx:
+			_check_mesh(n as MeshInstance3D, mesh_res, (n as MeshInstance3D).global_transform, center, loc_name, "mesh")
 	elif n is MultiMeshInstance3D:
 		var mmi := n as MultiMeshInstance3D
 		var mm := mmi.multimesh
@@ -202,7 +234,7 @@ func _scan_node(n: Node, center: Vector2, loc_name: String) -> void:
 				_check_box(box, inst, center, loc_name, "instance:" + _owner_name(n, mm))
 				i += stride
 	for c in n.get_children():
-		_scan_node(c, center, loc_name)
+		_scan_node(c, center, loc_name, characters)
 
 
 func _owner_name(n: Node, mm: MultiMesh = null) -> String:

@@ -564,7 +564,10 @@ func _greenery(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberG
 	var tries := 260 if s["kind"] == "village" else 420
 	for i in tries:
 		var ang := rng.randf() * TAU
-		var d := r * sqrt(rng.randf_range(0.12, 2.3))
+		# Range widened from 2.3 to 3.4 so a tree (see the d < r*1.8 split below)
+		# can still land past the settlement's flatten-to-natural slope instead
+		# of only ever inside it.
+		var d := r * sqrt(rng.randf_range(0.12, 3.4))
 		var p := c + Vector2(cos(ang), sin(ang)) * d
 		if d < plan["plaza_r"] + 6.0 or CityPlanner.street_distance(plan, p) < 3.0 \
 				or CityPlanner.path_distance(plan, p) < 1.5 or WorldGen.road_distance(p.x, p.y) < 5.0 \
@@ -583,7 +586,14 @@ func _greenery(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberG
 			continue
 		var kind: String
 		var roll := rng.randf()
-		if d < r * 0.9:
+		# height() blends this settlement's flat plateau into natural terrain out
+		# to radius*1.8 (see height() in world_gen.gd). A wide-canopy tree's
+		# footprint corners, sampled several metres from the trunk, could land on
+		# that slope and read as floating by several metres (tools/qa/grounding's
+		# single biggest bad category) even though the trunk itself was grounded
+		# correctly -- so full-size trees are only picked past that point; the
+		# small-footprint bushes below it are unaffected by the same slope.
+		if d < r * 1.8:
 			kind = ["region/nature/bush_round", "region/nature/bush_hazel", "region/nature/young_oak", "region/nature/beech_a"][mini(int(roll * 4.0), 3)]
 		else:
 			kind = ["region/nature/oak_a", "region/nature/oak_b", "region/nature/beech_a", "region/nature/young_oak", "region/nature/bush_round"][mini(int(roll * 5.0), 4)]
