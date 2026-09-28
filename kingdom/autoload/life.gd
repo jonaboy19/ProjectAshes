@@ -622,23 +622,52 @@ func restore(d: Dictionary) -> void:
 	Game.stats_changed.emit()
 
 
+## Slots, autosaves, backups and migration live in scripts/sim/save_manager.gd
+## (JSON in user://saves/). The old single file user://save_N.json (SAVE_PATH)
+## is moved into manual slot N on first run. `saves.last_error` explains failures.
+const SaveManager := preload("res://scripts/sim/save_manager.gd")
+var saves: Node = _make_save_manager()
+
+
+func _make_save_manager() -> Node:
+	var m: Node = SaveManager.new()
+	m.name = "SaveManager"
+	add_child(m)
+	return m
+
+
+## Slot 1-3: manual slots (the old API); 0: the quicksave.
+func _slot_id(slot: int) -> String:
+	return SaveManager.QUICK if slot == 0 else SaveManager.manual_id(clampi(slot, 1, SaveManager.MANUAL_SLOTS))
+
+
 func save_game(slot := 1) -> bool:
-	var f := FileAccess.open(SAVE_PATH % slot, FileAccess.WRITE)
-	if f == null:
-		return false
-	f.store_string(JSON.stringify(snapshot()))
-	return true
+	return saves.save_slot(_slot_id(slot))
 
 
 func load_game(slot := 1) -> bool:
-	if not FileAccess.file_exists(SAVE_PATH % slot):
-		return false
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH % slot))
-	if not data is Dictionary or int(data.get("version", 0)) != SAVE_VERSION:
-		return false
-	restore(data)
-	return true
+	return saves.load_slot(_slot_id(slot))
 
 
 func has_save(slot := 1) -> bool:
-	return FileAccess.file_exists(SAVE_PATH % slot)
+	return saves.has_slot(_slot_id(slot))
+
+
+func quick_save() -> bool:
+	return saves.quick_save()
+
+
+func quick_load() -> bool:
+	return saves.quick_load()
+
+
+## Loads the newest save of any kind (manual, quick or auto).
+func load_latest() -> bool:
+	var id: String = saves.latest_id()
+	return id != "" and saves.load_slot(id)
+
+
+## Autosave hook for other systems (sleep, fast travel, quest steps). Returns the
+## slot used, or "" when skipped (combat, cutscene, just saved).
+func autosave(reason := "auto") -> String:
+	return saves.autosave(reason)
