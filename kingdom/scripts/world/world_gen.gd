@@ -668,7 +668,17 @@ static func forest_density(x: float, z: float) -> float:
 	var f := clampf(_forest.get_noise_2d(x, z) * 1.8 + 0.25, 0.0, 1.0)
 	var near := nearest_settlement(Vector2(x, z))
 	if not near.is_empty():
-		f *= smoothstep(near["radius"] * 1.2, near["radius"] * 2.2, Vector2(x, z).distance_to(near["pos"]))
+		# Fade starts at radius*1.8, not 1.2: height() blends a settlement's flat
+		# plateau into natural terrain out to radius*1.8 (see height() above), so
+		# starting the forest fade earlier let trees roll (at partial density) on
+		# ground that was still mid-slope-transition. A tree's wide canopy AABB
+		# samples WorldGen.height() at its footprint corners, several metres from
+		# the trunk -- on that transition slope those corners could land metres
+		# above/below the trunk's own ground, reading as a 3-5 m "floating" tree
+		# in tools/qa/grounding even though the trunk itself was correctly
+		# grounded. Waiting until the terrain is fully natural again removes the
+		# slope, not just the probability.
+		f *= smoothstep(near["radius"] * 1.8, near["radius"] * 2.8, Vector2(x, z).distance_to(near["pos"]))
 	if road_distance(x, z) < 8.0:
 		f = 0.0
 	for c in clearings:

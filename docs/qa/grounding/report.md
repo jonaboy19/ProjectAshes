@@ -211,3 +211,79 @@ prop, not 4.
 (`kind` in the scanner only distinguishes "prop" vs. character group name; see
 finding #2 for why per-building/per-prop-type breakdown needs a scanner
 improvement, not just more runs.)
+
+## Follow-up (2026-09-28, later session): fixing the two worst offenders + scanner false positives
+
+A fresh scan (`%TEMP%\gr3`) still showed a `mesh:@MeshInstance3D@1453/1454` pair
+floating 5.8/11.2 m and `instance:Chunk_-3_0` (forest scatter near the home
+village plaza) floating 3-5.5 m as the worst entries. Investigated both with a
+throwaway debug tool (`tools/qa/grounding/debug_floaters.gd`, not part of the
+regular scan) that prints node path/owner/parent chain for anything near a
+given world position.
+
+**mesh:@MeshInstance3D@1453/1454 -- not a real floater, a scanner blind spot.**
+Nothing was actually wrong in the game. Two different things were being
+mis-scanned as static props:
+1. A character's own body/equipment meshes (villager/player skin, held
+   axe/sword, shield) -- their bind-pose-space AABBs mean nothing in world
+   space, and a raised weapon read as a multi-metre "floater". Root cause: the
+   scanner's generic node walk recursed into character subtrees even though
+   `_scan_character()` already covers the character itself.
+2. An anonymous, ownerless, procedurally-built `MeshInstance3D` with no
+   `resource_path` -- traced to a transient VFX (ambient_fx.gd leaping
+   fish/splash ring or a spell/weapon-trail effect near the raider camp),
+   deliberately airborne and moving every frame, not placed level content.
+
+Fixed in `tools/qa/grounding/grounding_check.gd`: the generic prop walk now
+skips (a) any `CharacterBody3D` subtree (covers player/villager/monster/wolf,
+even ones outside the villager/combatant groups) and (b) any never-explicitly-
+named, owner-less `MeshInstance3D` whose mesh has no `resource_path` (runtime
+VFX, not authored content). Result: `mesh` bad count 383 -> 106 on the next
+scan, and the worst-floating table is now topped by the already-known-legitimate
+windmill sails/roof/ridge entries instead.
+
+**instance:Chunk_-3_0 (and instance:Ashford) -- real placement bug, root-caused.**
+The forest scatter's trunk position was always correctly grounded (a debug
+dump of the actual multimesh transforms showed gaps of -0.17 to -0.23 m at the
+trunk). The scanner's footprint-corner check samples a tree's *canopy* AABB
+corners, several metres from the trunk -- and `WorldGen.height()` blends a
+settlement's flat plateau into natural terrain out to `radius*1.8`. Trees could
+still roll (at partial `forest_density`) starting at `radius*1.2`, and a rock
+could roll with no radius gating at all, so canopy corners landed on that
+slope and read as floating by several metres even though the trunk was fine.
+Same bug, independently, in `SettlementBuilder._greenery()`: full-size trees
+could be placed as close as `radius*0.9` from a settlement centre, well inside
+the same slope.
+
+Fixes (build-time only, no per-frame cost):
+- `world_gen.gd` `forest_density()`: settlement fade now starts at
+  `radius*1.8` (where `height()` is fully natural again) instead of `radius*1.2`.
+- `terrain_streamer.gd` `_plan_forest()`: the independent rocks roll now also
+  skips the `radius*1.8` settlement-slope band.
+- `settlement_builder.gd` `_greenery()`: full-size trees only picked past
+  `radius*1.8`; the small-footprint bush pool (unaffected by the same slope)
+  now covers the inner ring instead, widened sampling range so trees can still
+  land past that point.
+
+Next scan: `instance` bad count 4,991 -> 3,588; floating 2,699 -> 1,802;
+buried 2,675 -> 1,892. Worst `instance:Chunk_*`/`instance:Ashford` entries
+dropped from 3-5.5 m to ~2.0 m and 1.7 m respectively (small residual gaps are
+grass/undergrowth on real slopes elsewhere, not this bug).
+
+**Visual proof:** `tools/qa/grounding/shots.gd` (new -- the `--shots` capture
+companion mentioned in `grounding_check.gd`'s header didn't exist yet) stands
+the player a fixed distance from a given world position, hides the HUD, and
+saves a screenshot. Ran once against the pre-fix code (`git stash` of the
+three fix files) and once after, at 5 of the exact worst-floating positions
+from the report. Pairs in `docs/qa/grounding/before_after/`:
+- `01_chunk_forest_a_*`, `02_chunk_forest_b_*`, `03_chunk_forest_c_*`: trees
+  planted directly against the village's steep earthen bank in "before" are
+  gone from "after" (pushed out past the slope, per the `forest_density` fix).
+- `04_ashford_greenery_a_*`, `05_ashford_greenery_b_*`: a full tree clipping
+  right in front of the player near Ashford in "before" is replaced by a
+  correctly-grounded bush in "after".
+
+Not touched: animation logic, `procedural_rig.gd`, `villager.gd`,
+`population_lod.gd`. The quit-time crash (0xC0000005 / SIGSEGV) is the known,
+separate engine-teardown bug -- every run here still wrote its report/images
+first.
