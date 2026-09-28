@@ -38,28 +38,40 @@ const ESCAPE_DISTANCE := 30.0     # a fleeing beast this far from the player has
 ## contact before moving again; slots: most of this kind attacking one target at
 ## once; ring: circling distance while waiting for a turn; poise: not interrupted
 ## by hits; flee_below: health at which it runs (0 = fights to the death).
+## ward_response (docs/RISING_ASHES_LIFE_SIM_DESIGN.md, roads pillar): how this
+## species treats runestone coverage. "shun": weak, avoids it outright.
+## "brief": strong enough to push in for a while before it gives up and
+## leaves. "ignore": corrupted/Rift-touched, barely notices it.
 const SPECIES := {
 	"wolf": {"health": 45, "damage": 9, "knock": 1.5, "walk": 0.8, "trot": 1.5, "run": 4.5,
 		"flee": 5.2, "limp": 3.6, "aggro": 14.0, "stalk": 35.0, "stalk_speed": 1.0, "reach": 2.3,
 		"strike": 1.9, "windup": 0.5, "recover": 0.45, "cooldown": [1.4, 2.0], "flee_below": 15,
-		"slots": 2, "ring": 5.5, "radius": 0.34, "height": 1.1, "poise": false, "voice": "wolf_growl"},
+		"slots": 2, "ring": 5.5, "radius": 0.34, "height": 1.1, "poise": false, "voice": "wolf_growl",
+		"ward": "shun"},
 	"boar": {"health": 60, "damage": 11, "knock": 3.5, "walk": 0.5, "trot": 1.2, "run": 4.8,
 		"flee": 5.0, "limp": 3.4, "aggro": 7.0, "stalk": 0.0, "stalk_speed": 0.0, "reach": 2.2,
 		"strike": 1.8, "windup": 0.55, "recover": 0.5, "cooldown": [1.6, 2.2], "flee_below": 18,
-		"slots": 2, "ring": 5.0, "radius": 0.36, "height": 0.9, "poise": false, "voice": "boar_grunt"},
+		"slots": 2, "ring": 5.0, "radius": 0.36, "height": 0.9, "poise": false, "voice": "boar_grunt",
+		"ward": "shun"},
 	"bear": {"health": 150, "damage": 18, "knock": 4.0, "walk": 1.2, "trot": 1.5, "run": 4.8,
 		"flee": 4.6, "limp": 3.2, "aggro": 9.0, "stalk": 18.0, "stalk_speed": 0.0, "reach": 2.8,
 		"strike": 2.2, "windup": 0.75, "recover": 0.6, "cooldown": [2.0, 2.8], "flee_below": 25,
-		"slots": 1, "ring": 6.0, "radius": 0.55, "height": 1.4, "poise": true, "voice": "bear_growl"},
+		"slots": 1, "ring": 6.0, "radius": 0.55, "height": 1.4, "poise": true, "voice": "bear_growl",
+		"ward": "brief"},
 	"blight_rat": {"health": 18, "damage": 5, "knock": 0.0, "walk": 0.35, "trot": 1.1, "run": 3.4,
 		"flee": 3.6, "limp": 3.0, "aggro": 10.0, "stalk": 16.0, "stalk_speed": 0.6, "reach": 1.6,
 		"strike": 1.2, "windup": 0.45, "recover": 0.35, "cooldown": [1.2, 1.8], "flee_below": 0,
-		"slots": 2, "ring": 3.5, "radius": 0.22, "height": 0.5, "poise": false, "voice": ""},
+		"slots": 2, "ring": 3.5, "radius": 0.22, "height": 0.5, "poise": false, "voice": "",
+		"ward": "shun"},
 	"fungal_brute": {"health": 110, "damage": 16, "knock": 4.0, "walk": 1.0, "trot": 1.2, "run": 1.9,
 		"flee": 1.9, "limp": 1.5, "aggro": 9.0, "stalk": 14.0, "stalk_speed": 0.0, "reach": 2.4,
 		"strike": 1.9, "windup": 0.8, "recover": 0.6, "cooldown": [2.0, 2.8], "flee_below": 0,
-		"slots": 1, "ring": 5.0, "radius": 0.42, "height": 1.6, "poise": true, "voice": ""},
+		"slots": 1, "ring": 5.0, "radius": 0.42, "height": 1.6, "poise": true, "voice": "",
+		"ward": "ignore"},
 }
+## "brief" wards (bears...) may sit inside strong coverage this long before the
+## usual retreat-at-strong-coverage rule catches up with them.
+const WARD_BRIEF_LINGER := 22.0
 enum State { ROAM, STALK, ATTACK, FLEE, RETREAT }
 
 var species := "wolf"
@@ -100,6 +112,7 @@ var _escape_told := false
 var _regen := 0.0
 var _ragdoll: Node
 var _model: Node3D
+var _ward_timer := 0.0            # seconds spent inside strong coverage (ward "brief")
 
 
 func _ready() -> void:
@@ -171,6 +184,19 @@ func _physics_process(delta: float) -> void:
 			_impact()
 	var here := Vector2(global_position.x, global_position.z)
 	var cov := Frontier.runestones.coverage(here)
+	# Behaviour by class, not walls (roads pillar): shun avoids coverage as
+	# below; brief can push in for a while before it gives up; ignore (Rift/
+	# corrupted) never reads coverage as a reason to leave at all.
+	var ward := String(_sp.get("ward", "shun"))
+	if ward == "ignore":
+		cov = 0.0
+	elif ward == "brief":
+		if cov > 0.25:
+			_ward_timer += delta
+		else:
+			_ward_timer = maxf(0.0, _ward_timer - delta * 2.0)
+		if _ward_timer < WARD_BRIEF_LINGER:
+			cov = minf(cov, 0.5)      # not yet worn out its welcome: stays below the retreat threshold
 	if _think <= 0.0:
 		_think = 0.3
 		_decide(player, cov)
@@ -295,9 +321,10 @@ func _decide(player: Node3D, cov: float) -> void:
 		return
 	var pp := Vector2(player.global_position.x, player.global_position.z)
 	var d := global_position.distance_to(player.global_position)
-	var player_cov := Frontier.runestones.coverage(pp)
+	var ward := String(_sp.get("ward", "shun"))
+	var player_cov := 0.0 if ward == "ignore" else Frontier.runestones.coverage(pp)
 	var in_territory := pp.distance_to(home) < territory * 1.3
-	var aggro := float(_sp["aggro"]) if _provoked <= 0.0 else maxf(float(_sp["aggro"]), 22.0)
+	var aggro := (float(_sp["aggro"]) if _provoked <= 0.0 else maxf(float(_sp["aggro"]), 22.0)) * Frontier.danger_mult(WorldSim.time_of_day)
 	# Stealth: a sneaking player (player.noise_radius(), 10 m at a walk) is noticed
 	# closer, a running one farther. Once fighting, the range stays as it is.
 	if _provoked <= 0.0 and state != State.ATTACK and player.has_method("noise_radius"):

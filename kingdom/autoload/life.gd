@@ -16,8 +16,10 @@ const SAVE_VERSION := 1
 ## Radius around the home village the guard counts as "at post" (walls, ring, gate).
 const GUARD_POST_MARGIN := 45.0
 
-## You are born in the first village and play from childhood.
-const START_AGE := 6
+## You are born in the first village and play from childhood, a person, not a
+## class: the age-12 Blessing (awakening.gd) is a cultural event, not a class
+## pick, and the world opens up at ADULT_AGE.
+const START_AGE := 4
 const ADULT_AGE := 16
 
 var life_path := RALifePath.new()
@@ -38,6 +40,15 @@ var crafting := preload("res://scripts/sim/crafting.gd").new()
 var equipment := preload("res://scripts/sim/equipment.gd").new()
 var skills := preload("res://scripts/sim/skills.gd").new()
 var homestead := preload("res://scripts/sim/homestead.gd").new()
+## Hidden childhood leanings, the Blessing/Awakening and the childhood event
+## pool (see docs/RISING_ASHES_LIFE_SIM_DESIGN.md, "Life stages").
+var tendencies := preload("res://scripts/sim/tendencies.gd").new()
+var childhood_events := preload("res://scripts/sim/childhood_events.gd").new()
+var awakening := preload("res://scripts/sim/awakening.gd").new()
+const LifeEventPopup := preload("res://scripts/ui/life_event_popup.gd")
+## Blessing tier -> magicule pool growth granted at the ceremony.
+const _AWAKENING_MAGICULES := {"faint": 5.0, "common": 10.0, "strong": 18.0, "exceptional": 25.0}
+var _hud: Node = null
 ## Scout offers waiting for an answer: [event]
 var pending_offers: Array = []
 const GUILD_MIN_AGE := 12
@@ -75,7 +86,9 @@ func _ready() -> void:
 	_begin_life()
 	life_path.birthday.connect(func(age: int) -> void:
 		Game.say("Happy birthday! You are %d." % age)
-		grown.emit(age))
+		grown.emit(age)
+		if age == ADULT_AGE:
+			_coming_of_age())
 	life_path.stage_changed.connect(func(stage: int) -> void:
 		Game.say("You are now %s." % ("a " + RALifePath.STAGE_NAMES[stage].to_lower())))
 	titles.earned.connect(func(t: Dictionary) -> void:
@@ -122,6 +135,7 @@ func _begin_life() -> void:
 		 {"id": father, "name": father_name, "role": "father"}], 0, house)
 	life_path.set_age(START_AGE, WorldSim.day, WorldSim.time_of_day)
 	triggers.seed_first_region(home["pos"], home["radius"])
+	childhood_events.seed_from(WorldSim.SEED, life_path.full_name())
 
 
 ## The smallest named place (from data/world/first_region.json) containing p, or {}.
@@ -146,13 +160,15 @@ func is_adult() -> bool:
 	return age() >= ADULT_AGE
 
 
-## 0.62 of adult height at 6, full height at 16.
+## 0.58 of adult height at START_AGE (a small child), full height at ADULT_AGE.
+## Clamped so a very young start (age 4) never scales the body unreasonably small.
 func body_scale() -> float:
-	return clampf(lerpf(0.62, 1.0, (age() - START_AGE) / float(ADULT_AGE - START_AGE)), 0.55, 1.0)
+	return clampf(lerpf(0.58, 1.0, (age() - START_AGE) / float(ADULT_AGE - START_AGE)), 0.55, 1.0)
 
 
 func record(tag: String, weight := 1.0) -> void:
 	life_path.record(tag, weight, WorldSim.day)
+	tendencies.record(tag, weight)
 
 
 func build_summary() -> String:
@@ -174,7 +190,170 @@ func _life_tick(hour: int) -> void:
 	for msg: String in skills.sync_progress(skills.ctx_from_life(self)):
 		Game.say(msg)
 	if player and is_instance_valid(player):
-		triggers.check(Vector2(player.global_position.x, player.global_position.z), age(), float(hour), life_path.flags)
+		var p := Vector2(player.global_position.x, player.global_position.z)
+		triggers.check(p, age(), float(hour), life_path.flags)
+		_life_events_tick(p, hour)
+
+
+# --- childhood, tendencies and the Blessing -----------------------------------------
+
+## The smallest place kind a childhood event cares about (see childhood_events.gd's
+## "place" condition): "home" / "settlement" close to the family house or the
+## village, "forest_edge" / "road" from place_at()'s named places, else "outskirts".
+func _place_kind(pos: Vector2) -> String:
+	var home: Dictionary = WorldGen.settlements[0]
+	var c: Vector2 = home["pos"]
+	var r: float = home["radius"]
+	var d := pos.distance_to(c)
+	if d < r * 0.35:
+		return "home"
+	if d < r:
+		return "settlement"
+	match String(place_at(pos).get("kind", "")):
+		"forest":
+			return "forest_edge"
+		"road":
+			return "road"
+		_:
+			return "outskirts"
+
+
+## While a child or adolescent: rolls the childhood event pool at a gentle rate
+## and, once at 12 in the home settlement, runs the Blessing ceremony.
+func _life_events_tick(pos: Vector2, hour: int) -> void:
+	var a := age()
+	if a >= ADULT_AGE:
+		return
+	var place := _place_kind(pos)
+	if hour >= 6 and hour <= 21:
+		var now_days := float(WorldSim.day) + float(hour) / 24.0
+		var ev := childhood_events.roll(a, place, WorldSim.season, life_path.flags, now_days)
+		if not ev.is_empty():
+			childhood_events.mark_seen(String(ev["id"]), now_days)
+			_present_childhood_event(ev)
+	if a == 12 and not awakening.has_happened() and hour == 7 and place in ["home", "settlement"]:
+		_run_awakening()
+
+
+func _find_hud() -> Node:
+	if _hud != null and is_instance_valid(_hud):
+		return _hud
+	if not is_inside_tree():
+		return null
+	_hud = _find_hud_in(get_tree().root)
+	return _hud
+
+
+static func _find_hud_in(n: Node) -> Node:
+	if n is HUD:
+		return n
+	for c in n.get_children():
+		var r := _find_hud_in(c)
+		if r != null:
+			return r
+	return null
+
+
+func _present_childhood_event(ev: Dictionary) -> void:
+	var hud := _find_hud()
+	if hud == null:
+		return
+	var opts: Array = []
+	for c: Dictionary in ev.get("choices", []):
+		opts.append([String(c.get("text", "…")), _childhood_choice.bind(c)])
+	LifeEventPopup.present(hud, {"title": "Growing Up", "body": String(ev.get("text", "")), "choices": opts})
+
+
+func _childhood_choice(c: Dictionary) -> void:
+	tendencies.nudge_many(c.get("tendency", {}))
+	for f: String in c.get("flags", []):
+		life_path.set_flag(f)
+	var bond: Dictionary = c.get("bond", {})
+	for role: String in bond:
+		life_path.adjust_bond(role, float(bond[role]))
+	if c.has("item"):
+		give(String(c["item"]), 1)
+
+
+## The age-12 Blessing ceremony: a popup, a magic circle underfoot, the outcome
+## stored as flags (dialogue and skills read "blessing:<element>" /
+## "blessing_tier:<tier>" / "blessing_dual" / "blessing:none"), and starting
+## Soul Power by tier.
+func _run_awakening() -> void:
+	var culture := "caldric"
+	var r := awakening.roll(tendencies, culture, WorldSim.SEED, life_path.full_name(), WorldSim.day)
+	for f: String in awakening.flags():
+		life_path.set_flag(f)
+	_grant_blessing(r)
+	if player and is_instance_valid(player):
+		VFX.magic_circle(player.get_parent(), player.global_position,
+			awakening.element if awakening.element != "" else "qi", 2.4, 3.5)
+	var hud := _find_hud()
+	var body := _awakening_text(r)
+	if hud:
+		LifeEventPopup.present(hud, {"title": "The Blessing", "body": body, "choices": [["...", Callable()]]})
+	else:
+		Game.say(body)
+
+
+func _awakening_text(r: Dictionary) -> String:
+	if bool(r.get("none", false)):
+		return "The bell tolls, the temple lights every candle it has, and... nothing answers. No element comes to you. Whatever you become, you will make yourself."
+	var tier_words := {"faint": "the faintest whisper of", "common": "a clear, steady", "strong": "a strong",
+		"exceptional": "an extraordinary"}
+	var el: String = r["element"]
+	var text := "The temple bell tolls, and %s leaning toward %s answers your call." % [
+		tier_words.get(String(r["tier"]), "a"), el]
+	if String(r.get("dual", "")) != "":
+		text += " A second element, %s, answers too — rare enough that the whole village will talk about it." % String(r["dual"])
+	return text
+
+
+func _grant_blessing(r: Dictionary) -> void:
+	if bool(r.get("none", false)):
+		magicules.grow(3.0, 0.02)
+		return
+	var tier := String(r.get("tier", "common"))
+	var bonus := float(_AWAKENING_MAGICULES.get(tier, 10.0))
+	magicules.grow(bonus, bonus * 0.03)
+	var tech := awakening.first_technique(String(r.get("element", "")))
+	if tech != "":
+		skills.grant(tech)
+	var dual := String(r.get("dual", ""))
+	if dual != "":
+		var dual_tech := awakening.first_technique(dual)
+		if dual_tech != "":
+			skills.grant(dual_tech)
+		magicules.grow(bonus * 0.5, 0.0)
+	if tier in ["strong", "exceptional"]:
+		skills.award_points(2 if tier == "exceptional" else 1, "blessing:" + tier)
+
+
+## Age 16: "The world is yours now." Summarises the childhood from tendencies
+## and flags. (No hard gate on child travel was found to lift; the flag and
+## summary mark the transition for dialogue and other systems.)
+func _coming_of_age() -> void:
+	life_path.set_flag("came_of_age")
+	var body := _childhood_summary()
+	var hud := _find_hud()
+	if hud:
+		LifeEventPopup.present(hud, {"title": "The World Is Yours Now", "body": body, "choices": [["Step forward.", Callable()]]})
+	else:
+		Game.say(body)
+
+
+func _childhood_summary() -> String:
+	var lines := PackedStringArray()
+	lines.append("You are sixteen. The world is yours now.")
+	lines.append(tendencies.describe())
+	if life_path.has_flag("blessing:none"):
+		lines.append("No Blessing ever came for you. Whatever you become, you'll make yourself.")
+	elif life_path.has_flag("blessing_dual"):
+		lines.append("Two elements answered your Blessing, rare enough that people still whisper about it.")
+	for f: String in life_path.flags:
+		if f.begins_with("apprentice:"):
+			lines.append("Years apprenticed in the %s shaped your hands." % f.trim_prefix("apprentice:"))
+	return "\n".join(lines)
 
 
 func _on_trigger(t: Dictionary) -> void:
@@ -586,6 +765,9 @@ func snapshot() -> Dictionary:
 		"equipment": equipment.serialize(),
 		"skills": skills.serialize(),
 		"homestead": homestead.serialize(),
+		"tendencies": tendencies.serialize(),
+		"childhood_events": childhood_events.serialize(),
+		"awakening": awakening.serialize(),
 	}
 	if player and is_instance_valid(player):
 		d["player"] = {"x": player.global_position.x, "y": player.global_position.y,
@@ -610,7 +792,7 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	_last_abs = _abs_hours()

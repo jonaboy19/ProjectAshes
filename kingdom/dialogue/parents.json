@@ -25,6 +25,16 @@
         {"text": "\"You've a title to your name now. I heard it at the well before I heard it from you!\"", "if": {"event": "new_title"}, "p": 4},
         {"text": "{first} gives you a long, strange look. \"You've been to the old shrine, haven't you? You've the same look my grandmother had.\"", "if": {"flag": "spirit_seen"}, "p": 3},
 
+        {"text": "\"Fire, is it? Well, the smith's always wanted an apprentice with a spark in them.\"", "if": {"flag": "blessing:fire"}, "p": 4},
+        {"text": "\"Water. The healers at the temple will be glad to hear it. Calm hands, calm mind, they say.\"", "if": {"flag": "blessing:water"}, "p": 4},
+        {"text": "\"Wind, eh? Don't let it carry you further than your old parents can follow.\"", "if": {"flag": "blessing:wind"}, "p": 4},
+        {"text": "\"Earth answered you, same as our people always have. Your grandfather would be proud.\"", "if": {"flag": "blessing:earth"}, "p": 4},
+        {"text": "\"Lightning! Fast hands, fast temper, mind you keep both in check.\"", "if": {"flag": "blessing:lightning"}, "p": 4},
+        {"text": "\"Qi, is it. The cultivators say it's the quietest path and the hardest one. Be patient with yourself.\"", "if": {"flag": "blessing:qi"}, "p": 4},
+        {"text": "\"Two elements at your Blessing? {first} still hasn't stopped talking about it to the neighbours.\"", "if": {"flag": "blessing_dual"}, "p": 5},
+        {"text": "\"No Blessing came, and that's all right. Plenty of good, strong lives were built without one.\"", "if": {"flag": "blessing:none"}, "p": 4},
+        {"text": "\"Sixteen now. You don't need us telling you where to go any more, though we'll worry regardless.\"", "if": {"flag": "came_of_age"}, "p": 3},
+
         {"text": "{first} barely looks up. \"Oh. It's you.\"", "if": {"max_op": 20}, "p": 6}
       ],
       "choices": [

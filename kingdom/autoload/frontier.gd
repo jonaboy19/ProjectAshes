@@ -39,6 +39,9 @@ func _seed_frontier() -> void:
 		for k in 3:
 			var p := c + dir * (r + 140.0 + k * 170.0)
 			runestones.add_stone(p, 110.0, 0, "Waystone %d" % (k + 1))
+	# Stones along every kingdom and rural road, spaced so their radii overlap;
+	# frontier (village-to-village) roads get wide, weak gaps.
+	runestones.seed_road_stones()
 	# Wolf dens in forest, outside the protected ring.
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 77
@@ -78,6 +81,20 @@ func report(label: String, pos: Vector2, radius: float, value: float, days: int)
 
 func threat_at(p: Vector2) -> Dictionary:
 	return threat.evaluate(p)
+
+
+## How much more dangerous the wilds are at this hour (0..24): day, dusk,
+## night, then the loneliest stretch before dawn. Monster aggression range,
+## ambush frequency and the rare apex encounter all scale with this.
+func danger_mult(hour: float) -> float:
+	var h := fposmod(hour, 24.0)
+	if h >= 6.0 and h < 17.0:
+		return 1.0
+	elif h >= 17.0 and h < 20.0:
+		return 1.5
+	elif h >= 20.0 or h < 2.0:
+		return 2.5
+	return 3.0
 
 
 func serialize() -> Dictionary:

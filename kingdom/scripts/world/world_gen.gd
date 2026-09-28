@@ -129,10 +129,13 @@ static func height(x: float, z: float) -> float:
 			var cd := p.distance_to(c["pos"])
 			if cd < cr * 1.8:
 				h = lerpf(c["base_h"], h, smoothstep(cr * 0.8, cr * 1.8, cd))
-	# Roads cut a gentle bed.
-	var rd := road_distance(x, z)
-	if rd < 10.0:
-		h = lerpf(h - 0.4, h, smoothstep(2.0, 10.0, rd))
+	# Roads cut a gentle bed, wider under a kingdom road than a frontier trail.
+	var rinfo := road_info(x, z)
+	var half_w: float = float(rinfo["width"]) * 0.5
+	var rd: float = rinfo["dist"]
+	var cut_r := half_w + 6.0
+	if rd < cut_r:
+		h = lerpf(h - 0.4, h, smoothstep(half_w, cut_r, rd))
 	# Lake basin and river channel (cheap rejects keep this fast away from water).
 	var lake_s := 99.0
 	if p.distance_squared_to(lake_center) < _lake_reach_sq:
@@ -510,6 +513,45 @@ static func road_distance(x: float, z: float) -> float:
 	return best
 
 
+## Road tiers by the size of the settlements they join: "kingdom" (touches the
+## capital), "rural" (touches a town) or "frontier" (village to village).
+const ROAD_WIDTH := {"kingdom": 7.0, "rural": 4.5, "frontier": 2.5}
+
+
+static func _settlement_rank(kind: String) -> int:
+	match kind:
+		"castle": return 2
+		"town": return 1
+		_: return 0
+
+
+static func road_tier(a: int, b: int) -> String:
+	var top := maxi(_settlement_rank(settlements[a]["kind"]), _settlement_rank(settlements[b]["kind"]))
+	if top >= 2:
+		return "kingdom"
+	elif top >= 1:
+		return "rural"
+	return "frontier"
+
+
+## Cheap per-point road lookup: {tier, width (metres, full road width), dist
+## (metres to the centreline)}. Reuses road_distance's loop so callers that
+## need both distance and tier (colour, height, traffic, ambush placement)
+## pay for the settlement loop once.
+static func road_info(x: float, z: float) -> Dictionary:
+	var p := Vector2(x, z)
+	var best := INF
+	var best_tier := "frontier"
+	for r in roads:
+		var a: Vector2 = settlements[r.x]["pos"]
+		var b: Vector2 = settlements[r.y]["pos"]
+		var d := p.distance_to(Geometry2D.get_closest_point_to_segment(p, a, b))
+		if d < best:
+			best = d
+			best_tier = road_tier(r.x, r.y)
+	return {"tier": best_tier, "width": float(ROAD_WIDTH[best_tier]), "dist": best}
+
+
 ## Directions (radians) of roads leaving a settlement: where its gates go.
 static func gate_angles(s: Dictionary) -> Array[float]:
 	var out: Array[float] = []
@@ -574,10 +616,24 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 						w.r = maxf(w.r, k)
 						w.a *= 1.0 - clampf(k * 1.5, 0.0, 1.0)
 						break   # one nearby lot is enough; footprints rarely overlap
-	var rd := road_distance(x, z)
-	if rd < 3.5:
-		w.r = maxf(w.r, 1.0 - smoothstep(1.5, 3.5, rd))
+	var rinfo := road_info(x, z)
+	var rd: float = rinfo["dist"]
+	var half_w: float = float(rinfo["width"]) * 0.5
+	# Painterly edge: a little noise wobble so the road margin isn't a ruler line.
+	var wobble := _detail.get_noise_2d(x * 0.35, z * 0.35) * 0.5
+	var edge := half_w + 1.5 + wobble
+	if rd < edge:
+		var k := 1.0 - smoothstep(half_w - 0.5, edge, rd)
+		var paved_here := not near.is_empty() and Vector2(x, z).distance_to(near["pos"]) < float(near["radius"]) * 1.8
+		if paved_here:
+			w.b = maxf(w.b, k)          # cobble near settlements, on any tier
+		else:
+			w.r = maxf(w.r, k)          # packed dirt / trail out on the open road
 		w.a = 0.0
+		# Drainage ditch: a darker, slightly rockier verge just outside the surface.
+		if rd > half_w - 0.4:
+			var ditch := (1.0 - smoothstep(half_w - 0.4, edge + 1.0, rd)) * 0.3
+			w.g = maxf(w.g, ditch)
 	# Worn dirt around region sites (farms, mines, bandit camps, wayshrines, ruins):
 	# their buildings and clutter otherwise sit straight on unbroken grass. `clearings`
 	# is a short list (one entry per site), already walked by forest_density().

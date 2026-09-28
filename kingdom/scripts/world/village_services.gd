@@ -10,6 +10,7 @@ extends Node3D
 const CraftingScreen := preload("res://scripts/ui/crafting_screen.gd")
 const InventoryScreen := preload("res://scripts/ui/inventory_screen.gd")
 const BuildMenu := preload("res://scripts/ui/build_menu.gd")
+const CareerScreen := preload("res://scripts/ui/career_screen.gd")
 const SaveScreen := preload("res://scripts/ui/save_screen.gd")
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const MEGAKIT := "res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/"
@@ -398,6 +399,10 @@ func pack_menu() -> Dictionary:
 	opts.append(["Photo mode", func() -> String:
 		hud.close_menu()
 		hud.open_photo_mode()
+		return ""])
+	opts.append(["Career & life", func() -> String:
+		hud.close_menu()
+		CareerScreen.open_for(hud)
 		return ""])
 	var homestead_plot := Life.homestead.plot_at(_player_pos())
 	if homestead_plot >= 0 and Life.homestead.is_owned(homestead_plot):

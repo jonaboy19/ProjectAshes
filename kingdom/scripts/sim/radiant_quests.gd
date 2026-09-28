@@ -10,11 +10,27 @@ extends RefCounted
 ##   escort       - meet a trader in the square and walk them to the waystation
 ##   lost_child   - search near Whisper Hollow and bring the child home
 ##
+## Career-born work (replaces "!" quests for whoever holds the post), only
+## offered when `world.career_rank` names the player's current career_ladders.gd
+## career and rank:
+##   farmer_deliver_grain    - N sacks of grain before the season turns
+##   soldier_patrol          - report to a fort/waystation for patrol duty
+##   soldier_escort_caravan  - escort a caravan to the waystation
+##   soldier_clear_den       - clear a den near a road (Frontier.ecology.dens)
+##   soldier_night_guard     - stand night guard at the walls
+##   merchant_carry_goods    - carry goods to another settlement for a profit
+##   blacksmith_commission   - a commission of N items by a deadline
+##   hunter_bounty           - thin a den for the bounty board
+##   healer_deliver_medicine - bring medicine to someone who can't come for it
+##   innkeeper_stock_larder  - stock the larder before the guests arrive
+##
 ## Generation is pure and deterministic: generate(world, seed, day) gives the
 ## same quests for the same inputs. `world` is a plain Dictionary so tests can
 ## build one by hand (world_from_game() in VillageServices builds the live one):
 ##   {home: Vector2, dens: [{id, species, pos: Vector2, population, alive}],
-##    sites: [{name, kind, pos: Vector2}], places: {id: {name, kind, pos: Vector2, radius}}}
+##    sites: [{name, kind, pos: Vector2}], places: {id: {name, kind, pos: Vector2, radius}},
+##    career_rank: {career, rank} (optional), at_war: bool (optional),
+##    days_left_in_season: int (optional, default 20)}
 ##
 ## Progress is polled, so no other system has to call in: update(ctx) with
 ##   ctx = {pos: Vector2, day: float, count_item: Callable(item) -> int,
@@ -27,15 +43,40 @@ extends RefCounted
 ## editor, so generated quests are tracked here; VillageServices mirrors their
 ## life cycle onto QuestWeaverGlobal.quest_event_fired for graph quests to hear.
 
+const Crafting := preload("res://scripts/sim/crafting.gd")
+
+const CAREER_KINDS := ["farmer_deliver_grain", "soldier_patrol", "soldier_escort_caravan",
+	"soldier_clear_den", "soldier_night_guard", "merchant_carry_goods", "blacksmith_commission",
+	"hunter_bounty", "healer_deliver_medicine", "innkeeper_stock_larder"]
+## Kinds offered to anyone, regardless of career (unit-tested to all appear
+## together, so career-born kinds live in CAREER_KINDS instead: those only
+## appear once world.career_rank names the player's career).
 const KINDS := ["fetch_herbs", "clear_wolves", "deliver", "escort", "lost_child"]
 const KIND_ROLE := {"fetch_herbs": "healer", "clear_wolves": "guild", "deliver": "villager",
-	"escort": "guild", "lost_child": "villager"}
+	"escort": "guild", "lost_child": "villager",
+	"farmer_deliver_grain": "career", "soldier_patrol": "career", "soldier_escort_caravan": "career",
+	"soldier_clear_den": "career", "soldier_night_guard": "career", "merchant_carry_goods": "career",
+	"blacksmith_commission": "career", "hunter_bounty": "career", "healer_deliver_medicine": "career",
+	"innkeeper_stock_larder": "career"}
+## career_ladders.gd career id -> the career-born kinds it can offer.
+const CAREER_KIND_FOR := {
+	"farmer": ["farmer_deliver_grain"],
+	"soldier": ["soldier_patrol", "soldier_escort_caravan", "soldier_clear_den", "soldier_night_guard"],
+	"guard": ["soldier_patrol", "soldier_night_guard"],
+	"merchant": ["merchant_carry_goods"],
+	"blacksmith": ["blacksmith_commission"],
+	"hunter": ["hunter_bounty"],
+	"healer": ["healer_deliver_medicine"],
+	"innkeeper": ["innkeeper_stock_larder"],
+}
 const MAX_ACTIVE := 3
 const BOARD_SIZE := 5
 const OFFER_DAYS := 4
 const CHILD_NAMES := ["Pip", "Tam", "Wren", "Lotte", "Hob", "Merry", "Col", "Bess", "Nell", "Dunny"]
 const TRADER_NAMES := ["Odo Farrow", "Gilda Pennick", "Sten Coldbrook", "Maris Hollins", "Bertil Oakes"]
+const SICK_NAMES := ["old Wren", "the miller's boy", "widow Coldbrook", "the stablehand", "goodwife Farrow"]
 const GOODS := ["salted mutton", "barley sacks", "lamp oil", "horseshoes", "wool bolts", "cider casks"]
+const COMMISSION_ITEMS := ["iron_sword", "iron_dagger", "iron_helm", "leather_jerkin"]
 
 var offers: Array[Dictionary] = []
 var active: Array[Dictionary] = []
@@ -82,14 +123,40 @@ static func available_kinds(world: Dictionary) -> Array:
 		out.append("escort")
 	if (world.get("places", {}) as Dictionary).has("whisper_hollow"):
 		out.append("lost_child")
+	var cr: Dictionary = world.get("career_rank", {})
+	var career := String(cr.get("career", ""))
+	for kind: String in (CAREER_KIND_FOR.get(career, []) as Array):
+		match kind:
+			"soldier_escort_caravan":
+				if not _waystation(world).is_empty():
+					out.append(kind)
+			"soldier_clear_den":
+				if not _live_dens(world).is_empty():
+					out.append(kind)
+			"merchant_carry_goods":
+				if not _waystation(world).is_empty():
+					out.append(kind)
+			"hunter_bounty":
+				if not _live_dens(world).is_empty():
+					out.append(kind)
+			_:
+				out.append(kind)
 	return out
 
 
 static func _live_wolf_dens(world: Dictionary) -> Array:
+	return _live_dens(world, "wolf")
+
+
+## Living dens (any species when `species` is ""), most senior id first.
+static func _live_dens(world: Dictionary, species := "") -> Array:
 	var out: Array = []
 	for d: Dictionary in world.get("dens", []):
-		if bool(d.get("alive", true)) and String(d.get("species", "")) == "wolf" and int(d.get("population", 0)) > 0:
-			out.append(d)
+		if not bool(d.get("alive", true)) or int(d.get("population", 0)) <= 0:
+			continue
+		if species != "" and String(d.get("species", "")) != species:
+			continue
+		out.append(d)
 	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["id"]) < int(b["id"]))
 	return out
 
@@ -177,6 +244,101 @@ static func _make(kind: String, world: Dictionary, rng: RandomNumberGenerator) -
 			q["reward"] = {"gold": 12, "rep": {"ashford": 8}, "opinion": 15}
 			q["data"] = {"child": child}
 			q["days"] = 3
+		"farmer_deliver_grain":
+			var n3 := rng.randi_range(20, 40)
+			q["title"] = "Grain before the season turns"
+			q["desc"] = "The granary wants %d sacks of grain before the season ends." % n3
+			q["stages"] = [_stage("gather", "Gather %d sacks of wheat" % n3, home, 6.0, {"item": "wheat", "amount": n3}),
+				_stage("return", "Deliver the grain to the granary", home, 6.0)]
+			q["reward"] = {"gold": 6 + n3 * 2, "rep": {"ashford": 3}, "opinion": 6}
+			q["days"] = int(world.get("days_left_in_season", 20))
+		"soldier_patrol":
+			var post := _waystation(world)
+			if post.is_empty():
+				post = {"name": "the watch post", "pos": home + Vector2(60.0, 0.0)}
+			q["title"] = "Report for patrol duty"
+			q["desc"] = "The watch wants a soldier at %s to walk the patrol line." % post["name"]
+			q["stages"] = [_stage("reach", "Report to %s" % post["name"], post["pos"], 10.0)]
+			q["reward"] = {"gold": 10, "rep": {"ashford": 2, "crown_caldrenn": 2}, "opinion": 4}
+			q["days"] = 4
+		"soldier_escort_caravan":
+			var w3 := _waystation(world)
+			var trader2: String = TRADER_NAMES[rng.randi() % TRADER_NAMES.size()]
+			var meet2 := home + Vector2(rng.randf_range(-6.0, 6.0), rng.randf_range(-6.0, 6.0))
+			q["title"] = "Escort duty: %s" % trader2
+			q["desc"] = "%s needs a soldier's blade on the road to %s." % [trader2, w3["name"]]
+			q["stages"] = [_stage("reach", "Meet %s in Ashford's square" % trader2, meet2, 8.0),
+				_stage("reach", "Escort %s to %s" % [trader2, w3["name"]], w3["pos"], 18.0)]
+			q["reward"] = {"gold": 16 + int((w3["pos"] as Vector2).distance_to(home)) / 30, "rep": {"crown_caldrenn": 4, "ashford": 3}, "opinion": 5}
+			q["data"] = {"trader": trader2}
+			q["days"] = 4
+		"soldier_clear_den":
+			var dens2 := _live_dens(world)
+			var den2: Dictionary = dens2[rng.randi() % dens2.size()]
+			var p2b: Vector2 = den2["pos"]
+			var kills2 := clampi(rng.randi_range(2, 4), 1, int(den2["population"]))
+			q["title"] = "Clear the den on the road %s" % _compass(p2b - home)
+			q["desc"] = "A %s den by the road %s threatens travellers. Kill %d and report back." % [String(den2.get("species", "beast")), _compass(p2b - home), kills2]
+			q["stages"] = [_stage("kill_den", "Kill %d near the den" % kills2, p2b, 40.0, {"den_id": int(den2["id"]), "kills": kills2}),
+				_stage("return", "Report to the watch", home, 6.0)]
+			q["reward"] = {"gold": 12 + kills2 * 5, "rep": {"ashford": 4, "crown_caldrenn": 3}, "opinion": 6}
+			q["days"] = 8
+		"soldier_night_guard":
+			q["title"] = "Stand night guard"
+			q["desc"] = "The walls need eyes after dark. Stand the watch tonight."
+			q["stages"] = [_stage("reach", "Stand night watch at the walls", home, 10.0)]
+			q["reward"] = {"gold": 6, "rep": {"ashford": 2}, "opinion": 3}
+			q["days"] = 1
+		"merchant_carry_goods":
+			var w4 := _waystation(world)
+			var goods2: String = GOODS[rng.randi() % GOODS.size()]
+			var profit := rng.randi_range(10, 30)
+			q["title"] = "Carry %s to %s" % [goods2, w4["name"]]
+			q["desc"] = "A trader wants %s carried to %s and sold on; keep the difference." % [goods2, w4["name"]]
+			q["stages"] = [_stage("reach", "Deliver the %s to %s" % [goods2, w4["name"]], w4["pos"], 16.0)]
+			q["reward"] = {"gold": 8 + profit, "rep": {"ashford": 1}, "opinion": 3}
+			q["data"] = {"goods": goods2, "profit": profit}
+			q["days"] = 6
+		"blacksmith_commission":
+			var item: String = COMMISSION_ITEMS[rng.randi() % COMMISSION_ITEMS.size()]
+			var n4 := rng.randi_range(3, 8)
+			q["title"] = "A commission of %d %s" % [n4, Crafting.item_name(item)]
+			q["desc"] = "A standing customer wants %d %s forged by a deadline." % [n4, Crafting.item_name(item)]
+			q["stages"] = [_stage("gather", "Forge %d %s" % [n4, Crafting.item_name(item)], home, 6.0, {"item": item, "amount": n4}),
+				_stage("return", "Deliver the commission", home, 6.0)]
+			q["reward"] = {"gold": 6 * n4, "rep": {"ashford": 3}, "opinion": 6}
+			q["data"] = {"item": item}
+			q["days"] = 10
+		"hunter_bounty":
+			var dens3 := _live_dens(world)
+			var den3: Dictionary = dens3[rng.randi() % dens3.size()]
+			var p3b: Vector2 = den3["pos"]
+			var kills3 := clampi(rng.randi_range(2, 5), 1, int(den3["population"]))
+			q["title"] = "Bounty: %s %s" % [String(den3.get("species", "beast")).capitalize(), _compass(p3b - home)]
+			q["desc"] = "The bounty board wants %d %s thinned %s of the village." % [kills3, String(den3.get("species", "beast")), _compass(p3b - home)]
+			q["stages"] = [_stage("kill_den", "Kill %d %s" % [kills3, String(den3.get("species", "beast"))], p3b, 40.0, {"den_id": int(den3["id"]), "kills": kills3}),
+				_stage("return", "Claim your bounty", home, 6.0)]
+			q["reward"] = {"gold": 8 + kills3 * 6, "rep": {"ashford": 3, "adventurer_guild": 4}, "opinion": 5}
+			q["days"] = 8
+		"healer_deliver_medicine":
+			var sick: String = SICK_NAMES[rng.randi() % SICK_NAMES.size()]
+			var angm := rng.randf() * TAU
+			var spot2 := home + Vector2(cos(angm), sin(angm)) * rng.randf_range(20.0, 60.0)
+			q["title"] = "Medicine for %s" % sick
+			q["desc"] = "%s is too ill to come to you. Bring healing salve to them." % sick
+			q["stages"] = [_stage("gather", "Prepare a healing salve", home, 6.0, {"item": "healing_salve", "amount": 1}),
+				_stage("reach", "Bring the salve to %s" % sick, spot2, 8.0)]
+			q["reward"] = {"gold": 8, "rep": {"ashford": 4}, "opinion": 8}
+			q["data"] = {"patient": sick}
+			q["days"] = 5
+		"innkeeper_stock_larder":
+			var n5 := rng.randi_range(6, 12)
+			q["title"] = "Stock the larder"
+			q["desc"] = "Guests are coming; the larder wants %d loaves of bread before they arrive." % n5
+			q["stages"] = [_stage("gather", "Gather %d bread" % n5, home, 6.0, {"item": "bread", "amount": n5}),
+				_stage("return", "Bring the bread to the larder", home, 6.0)]
+			q["reward"] = {"gold": 4 + n5, "rep": {"ashford": 2}, "opinion": 4}
+			q["days"] = 4
 		_:
 			return {}
 	return q

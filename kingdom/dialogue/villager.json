@@ -32,6 +32,14 @@
         {"text": "\"Can't see the end of the lane in this fog. Don't wander off the road.\"", "if": {"weather": "fog", "tier_not": ["enemy", "rival"]}, "p": 2},
         {"text": "\"Thunder like that, the old ones say the Flame is turning in its sleep.\"", "if": {"weather": "storm", "tier_not": ["enemy", "rival"], "chance": 0.5}, "p": 3},
 
+        {"text": "\"Fire answered your Blessing, they say. The smithy could use hands like that.\"", "if": {"flag": "blessing:fire", "min_tier": "acquaintance"}, "p": 3},
+        {"text": "\"Water-blessed, are you? The temple's healers would take you in a heartbeat.\"", "if": {"flag": "blessing:water", "min_tier": "acquaintance"}, "p": 3},
+        {"text": "\"Wind at your back from the Blessing itself. The scouts always want fast feet.\"", "if": {"flag": "blessing:wind", "min_tier": "acquaintance"}, "p": 3},
+        {"text": "\"Earth-blessed. Steady as stone, that's what they'll say of you.\"", "if": {"flag": "blessing:earth", "min_tier": "acquaintance"}, "p": 3},
+        {"text": "\"Lightning, I heard. Careful with that temper of yours, {kid}.\"", "if": {"flag": "blessing:lightning", "min_tier": "acquaintance"}, "p": 3},
+        {"text": "\"A dual Blessing! The whole village is still talking about it. Some sect will come sniffing around, mark my words.\"", "if": {"flag": "blessing_dual"}, "p": 4},
+        {"text": "\"No Blessing at all, they say. Well, plenty made something of themselves without one.\"", "if": {"flag": "blessing:none", "min_tier": "acquaintance"}, "p": 3},
+
         {"text": "\"Hello there.\""}
       ],
       "choices": [

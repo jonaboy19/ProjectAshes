@@ -33,20 +33,26 @@ const ENEMY_LAYER := 4
 ## distance at which a token holder starts its swing; reach: contact range at the
 ## contact frame; ring: circling distance while waiting for a turn; poise: hits
 ## don't interrupt its wind-up.
+## ward_response (roads pillar): "shun" avoids runestone coverage outright
+## (weak, e.g. goblins alone); "brief" can push into coverage for a while
+## before giving up and heading home (strong: orcs, trolls).
 const SPECIES := {
 	"goblin": {"model": "goblin", "fallback": "goblin_uac", "height": 1.1, "health": 32, "damage": 6,
 		"walk": 0.7, "run": 2.6, "level": [1, 4], "tint": Color(1, 1, 1), "windup": 0.5, "recover": 0.45,
 		"strike": 1.6, "reach": 2.2, "ring": 4.5, "cooldown": [1.4, 2.0], "knock": 2.0, "poise": false,
-		"voice": ""},
+		"voice": "", "ward": "shun"},
 	"orc": {"model": "orc", "fallback": "goblin_uac", "height": 2.05, "health": 95, "damage": 15,
 		"walk": 1.3, "run": 3.8, "level": [5, 9], "tint": Color(0.62, 0.72, 0.5), "windup": 0.85,
 		"recover": 0.6, "strike": 2.0, "reach": 2.6, "ring": 5.5, "cooldown": [2.0, 2.8], "knock": 3.0,
-		"poise": false, "voice": "orc_roar"},
+		"poise": false, "voice": "orc_roar", "ward": "brief"},
 	"troll": {"model": "troll", "fallback": "", "height": 3.0, "health": 220, "damage": 22,
 		"walk": 1.2, "run": 2.8, "level": [10, 12], "tint": Color(1, 1, 1), "windup": 1.1, "recover": 0.8,
 		"strike": 2.6, "reach": 3.2, "ring": 7.0, "cooldown": [2.6, 3.4], "knock": 6.0, "poise": true,
-		"voice": "bear_growl"},
+		"voice": "bear_growl", "ward": "brief"},
 }
+## "brief" wards may sit inside strong coverage this long before the ward
+## logic below sends them home regardless of what they were doing.
+const WARD_BRIEF_LINGER := 22.0
 const NAMES := ["Gobta", "Rigur", "Kurra", "Snag", "Brek", "Mossa", "Tuk", "Hesk", "Grom", "Varka",
 	"Orrin", "Dazh", "Ruuk", "Pell", "Zagra", "Hollo", "Krith", "Ushna", "Bram", "Tessik"]
 enum State { WANDER, ALERT, ATTACK, YIELD, FOLLOW }
@@ -93,6 +99,7 @@ var _ragdoll: Node
 var _model: Node3D
 var _hit_push := Vector3.ZERO
 var _hit_from := Vector3.INF
+var _ward_timer := 0.0            # seconds spent inside strong coverage (ward "brief")
 
 
 func _ready() -> void:
@@ -215,9 +222,10 @@ func _physics_process(delta: float) -> void:
 		_was_yielded = false          # let go or named: get up before moving off
 		if _play("stand_up", true, 1.0, 0.3):
 			_busy = maxf(_busy, 1.0)
+	var cov := _ward_coverage(delta)
 	if _think <= 0.0:
 		_think = 0.35
-		_decide(player)
+		_decide(player, cov)
 	var want := 0.0
 	var face_foe := false
 	var sp: Dictionary = SPECIES[species]
@@ -303,8 +311,36 @@ func _attack_move(foe: Node3D, delta: float) -> float:
 	return float(sp["run"]) * 0.8 if gap > 1.5 else float(sp["walk"]) * 1.3
 
 
-func _decide(player: Node3D) -> void:
+## Runestone coverage at this monster's position, shaped by its ward_response
+## (roads pillar): "ignore" never reads it, "brief" can sit inside strong
+## coverage for a while before it counts against it.
+func _ward_coverage(delta: float) -> float:
+	var here := Vector2(global_position.x, global_position.z)
+	var cov := Frontier.runestones.coverage(here)
+	var ward := String(SPECIES[species].get("ward", "shun"))
+	if ward == "ignore":
+		return 0.0
+	if ward == "brief":
+		if cov > 0.25:
+			_ward_timer += delta
+		else:
+			_ward_timer = maxf(0.0, _ward_timer - delta * 2.0)
+		if _ward_timer < WARD_BRIEF_LINGER:
+			return minf(cov, 0.5)
+	return cov
+
+
+func _decide(player: Node3D, cov := 0.0) -> void:
 	if state == State.YIELD:
+		return
+	# Behaviour by class, not walls: worn out its welcome (or simply weak)
+	# inside strong runestone coverage, it heads back to camp instead of
+	# fighting on (bandits are human and ignore this entirely; see road_events.gd).
+	if cov > 0.6 and state != State.FOLLOW and hostile:
+		state = State.WANDER
+		_foe = null
+		_stop_fighting()
+		_target = Vector3(home.x, WorldGen.height(home.x, home.y), home.y)
 		return
 	var prev_foe := _foe
 	if state == State.FOLLOW or not hostile:
@@ -328,6 +364,7 @@ func _decide(player: Node3D) -> void:
 		var hear := 1.0
 		if state != State.ATTACK and player.has_method("noise_radius"):
 			hear = clampf(float(player.call("noise_radius")) / 10.0, 0.4, 1.6)
+		hear *= Frontier.danger_mult(WorldSim.time_of_day)   # bolder after dark, away from the road
 		if d < 9.0 * hear or (near_home and d < 16.0 * hear):
 			state = State.ATTACK
 			_foe = player

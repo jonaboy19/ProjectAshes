@@ -1,0 +1,2059 @@
+{
+	"version": 1,
+	"events": [
+		{
+			"id": "follow_father_fields",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"home",
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "Your father is heading out to the fields before dawn. \"Coming, little one?\"",
+			"choices": [
+				{
+					"text": "Trot along beside him all morning.",
+					"tendency": {
+						"farming": 0.06
+					},
+					"bond": {
+						"father": 3
+					}
+				},
+				{
+					"text": "Ask to carry the seed basket.",
+					"tendency": {
+						"farming": 0.08,
+						"leadership": 0.02
+					}
+				},
+				{
+					"text": "Stay home with your mother instead.",
+					"bond": {
+						"mother": 2
+					}
+				}
+			]
+		},
+		{
+			"id": "soldiers_pass_through",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"settlement",
+				"road"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "A column of soldiers marches through on the kingdom road, spears catching the light.",
+			"choices": [
+				{
+					"text": "Stand at attention and salute as they pass.",
+					"tendency": {
+						"martial": 0.07
+					}
+				},
+				{
+					"text": "Hide behind your mother's skirts.",
+					"tendency": {
+						"faith": 0.02
+					}
+				},
+				{
+					"text": "Ask one of them what it's like to fight.",
+					"tendency": {
+						"martial": 0.05,
+						"scholarship": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "merchant_caravan",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"settlement",
+				"road"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "A merchant caravan rolls into the village square, wheels creaking under bolts of cloth and clay jars.",
+			"choices": [
+				{
+					"text": "Help unload a crate for a copper coin.",
+					"tendency": {
+						"trade": 0.07
+					},
+					"item": "apple"
+				},
+				{
+					"text": "Stare at all the strange goods from far away.",
+					"tendency": {
+						"scholarship": 0.03,
+						"wilderness": 0.02
+					}
+				},
+				{
+					"text": "Try to swipe a sweet when no one's looking.",
+					"tendency": {
+						"mischief": 0.08
+					}
+				}
+			]
+		},
+		{
+			"id": "rift_stories_fire",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"home"
+			],
+			"season": [
+				"autumn",
+				"winter"
+			],
+			"weight": 1.0,
+			"text": "By the hearth, an old traveler tells of the Rifts, doors to other worlds where the laws of nature bend.",
+			"choices": [
+				{
+					"text": "Listen wide-eyed, begging for more.",
+					"tendency": {
+						"scholarship": 0.05,
+						"wilderness": 0.02
+					}
+				},
+				{
+					"text": "Ask if the stories are really true.",
+					"tendency": {
+						"scholarship": 0.06
+					}
+				},
+				{
+					"text": "Fall asleep before the story ends.",
+					"tendency": {
+						"faith": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "first_soulbeast_carcass",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"settlement",
+				"road"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "A hunter drags a strange, faintly glowing carcass through the square. A crowd gathers.",
+			"choices": [
+				{
+					"text": "Push to the front to look closely.",
+					"tendency": {
+						"wilderness": 0.06,
+						"martial": 0.02
+					}
+				},
+				{
+					"text": "Look away, a little scared.",
+					"tendency": {
+						"compassion": 0.02
+					}
+				},
+				{
+					"text": "Ask the hunter a hundred questions.",
+					"tendency": {
+						"scholarship": 0.05,
+						"wilderness": 0.03
+					}
+				}
+			]
+		},
+		{
+			"id": "festival_dance",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "Today is a festival: drums, dancing, and honeyed cakes fill the square.",
+			"choices": [
+				{
+					"text": "Dance until you're dizzy.",
+					"tendency": {
+						"leadership": 0.03,
+						"compassion": 0.02
+					}
+				},
+				{
+					"text": "Sneak a second helping of cake.",
+					"tendency": {
+						"mischief": 0.04
+					}
+				},
+				{
+					"text": "Watch from the edge of the crowd.",
+					"tendency": {
+						"scholarship": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "noble_procession",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"settlement",
+				"road"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "A noble's carriage rolls through, banners snapping, guards at every corner.",
+			"choices": [
+				{
+					"text": "Wave and cheer with the crowd.",
+					"tendency": {
+						"leadership": 0.03
+					}
+				},
+				{
+					"text": "Wonder what it's like to live in a castle.",
+					"tendency": {
+						"scholarship": 0.03,
+						"trade": 0.02
+					}
+				},
+				{
+					"text": "Scowl at the guards keeping everyone back.",
+					"tendency": {
+						"mischief": 0.03
+					}
+				}
+			]
+		},
+		{
+			"id": "watching_smith",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "The smithy's hammer rings out; sparks fly bright against the dark forge.",
+			"choices": [
+				{
+					"text": "Watch, transfixed, until your feet fall asleep.",
+					"tendency": {
+						"craft": 0.07
+					}
+				},
+				{
+					"text": "Ask the smith to teach you something.",
+					"tendency": {
+						"craft": 0.08,
+						"leadership": 0.01
+					}
+				},
+				{
+					"text": "Try to sneak a touch of the hot iron.",
+					"tendency": {
+						"mischief": 0.05
+					},
+					"flags": [
+						"scorched_finger"
+					]
+				}
+			]
+		},
+		{
+			"id": "sneak_forest_edge",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"forest_edge"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "You've wandered further than you're allowed, right up to where the trees close in dark and close.",
+			"choices": [
+				{
+					"text": "Take three steps into the shadow and dare yourself to stay.",
+					"tendency": {
+						"wilderness": 0.09,
+						"mischief": 0.03
+					}
+				},
+				{
+					"text": "Turn back before you're missed.",
+					"tendency": {
+						"faith": 0.02
+					}
+				},
+				{
+					"text": "Collect a handful of pretty leaves and run home.",
+					"tendency": {
+						"wilderness": 0.04
+					}
+				}
+			]
+		},
+		{
+			"id": "feeding_animals",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"home",
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "The chickens need feeding and the goat is hungry again.",
+			"choices": [
+				{
+					"text": "Feed them all without being asked twice.",
+					"tendency": {
+						"farming": 0.06,
+						"compassion": 0.02
+					}
+				},
+				{
+					"text": "Name every single chicken.",
+					"tendency": {
+						"compassion": 0.03,
+						"wilderness": 0.02
+					}
+				},
+				{
+					"text": "Chase the goat around the yard instead.",
+					"tendency": {
+						"mischief": 0.04
+					}
+				}
+			]
+		},
+		{
+			"id": "learning_letters",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"home",
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "A village elder is teaching the local children their letters in the shade of the plaza.",
+			"choices": [
+				{
+					"text": "Sit still and learn every rune.",
+					"tendency": {
+						"scholarship": 0.08
+					}
+				},
+				{
+					"text": "Draw pictures in the dirt instead of letters.",
+					"tendency": {
+						"craft": 0.03,
+						"mischief": 0.02
+					}
+				},
+				{
+					"text": "Ask endless questions until the elder sighs.",
+					"tendency": {
+						"scholarship": 0.06
+					}
+				}
+			]
+		},
+		{
+			"id": "being_disciplined",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"home"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "You broke something you shouldn't have, and your parents are not pleased.",
+			"choices": [
+				{
+					"text": "Own up right away.",
+					"tendency": {
+						"compassion": 0.02
+					},
+					"bond": {
+						"mother": 2,
+						"father": 2
+					}
+				},
+				{
+					"text": "Blame it on the wind.",
+					"tendency": {
+						"mischief": 0.06
+					},
+					"bond": {
+						"mother": -1
+					}
+				},
+				{
+					"text": "Cry until they forget to be angry.",
+					"tendency": {
+						"mischief": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "helping_mother_bake",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"home"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "Your mother is baking bread and could use small, flour-covered hands.",
+			"choices": [
+				{
+					"text": "Knead the dough carefully, just as shown.",
+					"tendency": {
+						"craft": 0.05,
+						"farming": 0.02
+					},
+					"bond": {
+						"mother": 3
+					}
+				},
+				{
+					"text": "Eat more dough than you knead.",
+					"tendency": {
+						"mischief": 0.03
+					},
+					"bond": {
+						"mother": 1
+					}
+				},
+				{
+					"text": "Ask why bread rises at all.",
+					"tendency": {
+						"scholarship": 0.04
+					}
+				}
+			]
+		},
+		{
+			"id": "rainy_day_indoors",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"home"
+			],
+			"season": [
+				"autumn",
+				"spring"
+			],
+			"weight": 1.0,
+			"text": "Rain drums on the roof all day; there's nothing to do but stay in.",
+			"choices": [
+				{
+					"text": "Listen to your parents' old stories.",
+					"tendency": {
+						"faith": 0.03,
+						"scholarship": 0.02
+					}
+				},
+				{
+					"text": "Build a fort out of blankets and pretend to be a knight.",
+					"tendency": {
+						"martial": 0.03,
+						"leadership": 0.02
+					}
+				},
+				{
+					"text": "Practice your letters by the window.",
+					"tendency": {
+						"scholarship": 0.05
+					}
+				}
+			]
+		},
+		{
+			"id": "found_stray_kitten",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"settlement",
+				"home"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "A thin, half-wild kitten is hiding under the woodpile, hissing at everyone.",
+			"choices": [
+				{
+					"text": "Sit quietly until it trusts you enough to eat.",
+					"tendency": {
+						"compassion": 0.06,
+						"wilderness": 0.03
+					}
+				},
+				{
+					"text": "Try to grab it and end up scratched.",
+					"tendency": {
+						"wilderness": 0.02
+					}
+				},
+				{
+					"text": "Leave it be; wild things belong wild.",
+					"tendency": {
+						"wilderness": 0.03
+					}
+				}
+			]
+		},
+		{
+			"id": "market_day_sweets",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "The market stall has fresh honey oatcakes out to cool, unwatched for a moment.",
+			"choices": [
+				{
+					"text": "Take one without asking.",
+					"tendency": {
+						"mischief": 0.07
+					},
+					"flags": [
+						"stole_oatcake"
+					]
+				},
+				{
+					"text": "Wait patiently and ask nicely.",
+					"tendency": {
+						"compassion": 0.03
+					},
+					"item": "bread"
+				},
+				{
+					"text": "Offer to sweep the stall for a treat.",
+					"tendency": {
+						"trade": 0.05,
+						"craft": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "scared_of_thunder",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"home"
+			],
+			"season": [
+				"summer",
+				"autumn"
+			],
+			"weight": 1.0,
+			"text": "A storm rattles the shutters; thunder cracks close overhead.",
+			"choices": [
+				{
+					"text": "Run to your parents' bed.",
+					"bond": {
+						"mother": 2
+					}
+				},
+				{
+					"text": "Count the seconds between flash and thunder, fascinated.",
+					"tendency": {
+						"scholarship": 0.05
+					}
+				},
+				{
+					"text": "Stand at the window and watch the lightning.",
+					"tendency": {
+						"wilderness": 0.04
+					}
+				}
+			]
+		},
+		{
+			"id": "watching_guard_drill",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "The village guard drills in the square, spears thumping in unison.",
+			"choices": [
+				{
+					"text": "Copy their stances with a stick for a spear.",
+					"tendency": {
+						"martial": 0.07
+					}
+				},
+				{
+					"text": "Count how many mistakes they make.",
+					"tendency": {
+						"scholarship": 0.03
+					}
+				},
+				{
+					"text": "Ask the sergeant if children can join.",
+					"tendency": {
+						"martial": 0.04,
+						"leadership": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "gift_from_traveler",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"settlement",
+				"road"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "A weary traveler passing through gives you a small trinket for helping carry their pack a way.",
+			"choices": [
+				{
+					"text": "Thank them and treasure it.",
+					"tendency": {
+						"compassion": 0.03
+					},
+					"item": "apple"
+				},
+				{
+					"text": "Ask where they've been and what they've seen.",
+					"tendency": {
+						"wilderness": 0.04,
+						"scholarship": 0.02
+					}
+				},
+				{
+					"text": "Try to trade it for something better at the stall.",
+					"tendency": {
+						"trade": 0.06
+					}
+				}
+			]
+		},
+		{
+			"id": "lost_in_market",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "For one heart-pounding minute, you can't find your mother in the crowded market.",
+			"choices": [
+				{
+					"text": "Stand still and wait, just as you were taught.",
+					"tendency": {
+						"faith": 0.02
+					},
+					"bond": {
+						"mother": 2
+					}
+				},
+				{
+					"text": "Push through the crowd calling for her.",
+					"tendency": {
+						"leadership": 0.02
+					}
+				},
+				{
+					"text": "Follow the smell of the bakery to somewhere familiar.",
+					"tendency": {
+						"wilderness": 0.03
+					}
+				}
+			]
+		},
+		{
+			"id": "sang_at_hearth",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"home"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "Your family sings an old Caldric hearth-song after supper.",
+			"choices": [
+				{
+					"text": "Sing along as loud as you can.",
+					"tendency": {
+						"leadership": 0.03,
+						"faith": 0.02
+					}
+				},
+				{
+					"text": "Listen and learn every word by heart.",
+					"tendency": {
+						"scholarship": 0.03,
+						"faith": 0.02
+					}
+				},
+				{
+					"text": "Make up your own silly verse.",
+					"tendency": {
+						"mischief": 0.03
+					}
+				}
+			]
+		},
+		{
+			"id": "helped_carry_water",
+			"age_min": 4,
+			"age_max": 7,
+			"place": [
+				"home",
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "The well bucket is heavy, but the house needs water for the evening.",
+			"choices": [
+				{
+					"text": "Carry it yourself, spilling half along the way.",
+					"tendency": {
+						"farming": 0.04,
+						"martial": 0.02
+					}
+				},
+				{
+					"text": "Ask a passing villager to help.",
+					"tendency": {
+						"trade": 0.02,
+						"compassion": 0.02
+					}
+				},
+				{
+					"text": "Race another child to the well and back.",
+					"tendency": {
+						"martial": 0.03,
+						"mischief": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "shrine_curiosity",
+			"age_min": 5,
+			"age_max": 7,
+			"place": [
+				"forest_edge",
+				"outskirts"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "Someone mentions a toppled shrine in the western wood, moss-eaten and forgotten.",
+			"choices": [
+				{
+					"text": "Ask everyone you know about it.",
+					"tendency": {
+						"scholarship": 0.05,
+						"faith": 0.03
+					}
+				},
+				{
+					"text": "Decide you'll go looking for it yourself one day.",
+					"tendency": {
+						"wilderness": 0.05,
+						"mischief": 0.02
+					}
+				},
+				{
+					"text": "Shrug it off as an old tale.",
+					"tendency": {
+						"scholarship": 0.01
+					}
+				}
+			]
+		},
+		{
+			"id": "first_bow_and_arrow",
+			"age_min": 5,
+			"age_max": 7,
+			"place": [
+				"home",
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "Someone whittles you a toy bow. It's clumsy, but it's yours.",
+			"choices": [
+				{
+					"text": "Practice on a knot in the fence all afternoon.",
+					"tendency": {
+						"martial": 0.06,
+						"wilderness": 0.02
+					}
+				},
+				{
+					"text": "Turn it into a game with the other children.",
+					"tendency": {
+						"leadership": 0.03
+					}
+				},
+				{
+					"text": "Take it apart to see how it works.",
+					"tendency": {
+						"scholarship": 0.04,
+						"craft": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "helping_harvest",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement",
+				"home"
+			],
+			"season": [
+				"autumn"
+			],
+			"weight": 1.4,
+			"text": "The whole village turns out for the harvest; even small hands are welcome.",
+			"choices": [
+				{
+					"text": "Work the fields until your back aches.",
+					"tendency": {
+						"farming": 0.08
+					},
+					"bond": {
+						"father": 2
+					}
+				},
+				{
+					"text": "Organize the other children into a faster line.",
+					"tendency": {
+						"leadership": 0.07,
+						"farming": 0.02
+					}
+				},
+				{
+					"text": "Sneak off early to nap in the hay.",
+					"tendency": {
+						"mischief": 0.05
+					}
+				}
+			]
+		},
+		{
+			"id": "travelling_martial_instructor",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "A travelling martial instructor offers to teach the village children a few real stances, for a fee.",
+			"choices": [
+				{
+					"text": "Beg your parents for the coin.",
+					"tendency": {
+						"martial": 0.09
+					},
+					"bond": {
+						"father": 1
+					}
+				},
+				{
+					"text": "Watch from the fence and copy for free.",
+					"tendency": {
+						"martial": 0.05,
+						"mischief": 0.02
+					}
+				},
+				{
+					"text": "Decide fighting isn't for you.",
+					"tendency": {
+						"scholarship": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "bandit_raid_farm",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement",
+				"outskirts"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.9,
+			"text": "Word spreads that bandits raided a farm on the edge of the region last night. The village is shaken.",
+			"choices": [
+				{
+					"text": "Ask the guard everything about what happened.",
+					"tendency": {
+						"martial": 0.05,
+						"scholarship": 0.02
+					}
+				},
+				{
+					"text": "Help the frightened farm family however you can.",
+					"tendency": {
+						"compassion": 0.07
+					}
+				},
+				{
+					"text": "Lie awake imagining what you'd do if it happened here.",
+					"tendency": {
+						"martial": 0.04,
+						"leadership": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "wounded_adventurer",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement",
+				"road"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "An adventurer limps into the village, bloodied but alive, muttering about something in the woods.",
+			"choices": [
+				{
+					"text": "Fetch the herbalist as fast as you can.",
+					"tendency": {
+						"compassion": 0.07,
+						"wilderness": 0.02
+					}
+				},
+				{
+					"text": "Ask them what they fought.",
+					"tendency": {
+						"martial": 0.05,
+						"wilderness": 0.03
+					}
+				},
+				{
+					"text": "Stare at their strange, scorched gear.",
+					"tendency": {
+						"craft": 0.03,
+						"wilderness": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "friend_goes_missing",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement",
+				"forest_edge"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.8,
+			"text": "A friend from the village hasn't been seen since yesterday. Everyone is worried.",
+			"choices": [
+				{
+					"text": "Join the search party, however small you are.",
+					"tendency": {
+						"leadership": 0.05,
+						"wilderness": 0.04
+					}
+				},
+				{
+					"text": "Check the forest edge where you two used to play.",
+					"tendency": {
+						"wilderness": 0.06
+					},
+					"flags": [
+						"knows_the_glade"
+					]
+				},
+				{
+					"text": "Pray at the hearth for their safe return.",
+					"tendency": {
+						"faith": 0.05
+					}
+				}
+			]
+		},
+		{
+			"id": "strange_object_forest",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"forest_edge"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.7,
+			"text": "Half-buried at the edge of the wood, a smooth, faintly warm stone unlike any other you've seen.",
+			"choices": [
+				{
+					"text": "Pocket it and tell no one.",
+					"tendency": {
+						"mischief": 0.04,
+						"wilderness": 0.03
+					},
+					"item": "healing_herb"
+				},
+				{
+					"text": "Bring it straight to the priest.",
+					"tendency": {
+						"faith": 0.06
+					},
+					"flags": [
+						"shown_priest_stone"
+					]
+				},
+				{
+					"text": "Leave it exactly where it lay.",
+					"tendency": {
+						"faith": 0.03
+					}
+				}
+			]
+		},
+		{
+			"id": "priest_notices_soul_power",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.8,
+			"text": "During a festival blessing, the priest pauses over you a moment too long, murmuring something to themselves.",
+			"choices": [
+				{
+					"text": "Ask what they saw.",
+					"tendency": {
+						"faith": 0.07,
+						"scholarship": 0.02
+					}
+				},
+				{
+					"text": "Pretend you didn't notice.",
+					"tendency": {
+						"faith": 0.02
+					}
+				},
+				{
+					"text": "Tell your parents the moment you get home.",
+					"tendency": {
+						"faith": 0.04
+					},
+					"bond": {
+						"mother": 1
+					}
+				}
+			]
+		},
+		{
+			"id": "childhood_rival",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "Another child your age keeps besting you at everything, on purpose, and loves rubbing it in.",
+			"choices": [
+				{
+					"text": "Train harder to beat them next time.",
+					"tendency": {
+						"martial": 0.06,
+						"leadership": 0.02
+					},
+					"flags": [
+						"has_rival"
+					]
+				},
+				{
+					"text": "Laugh it off and befriend them instead.",
+					"tendency": {
+						"compassion": 0.05
+					},
+					"flags": [
+						"befriended_rival"
+					]
+				},
+				{
+					"text": "Get even with a well-placed prank.",
+					"tendency": {
+						"mischief": 0.07
+					},
+					"flags": [
+						"has_rival"
+					]
+				}
+			]
+		},
+		{
+			"id": "local_bully",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "An older child has taken to shoving the younger ones around near the well.",
+			"choices": [
+				{
+					"text": "Stand between them and the younger children.",
+					"tendency": {
+						"martial": 0.05,
+						"compassion": 0.05
+					}
+				},
+				{
+					"text": "Report it to a parent or the guard.",
+					"tendency": {
+						"leadership": 0.03,
+						"faith": 0.02
+					}
+				},
+				{
+					"text": "Avoid the well until they lose interest.",
+					"tendency": {
+						"scholarship": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "first_trip_market_town",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"road",
+				"outskirts"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.8,
+			"text": "Your family takes the cart to the nearest market town, a whole morning's ride away.",
+			"choices": [
+				{
+					"text": "Soak in every sight, sound and smell of a bigger place.",
+					"tendency": {
+						"trade": 0.05,
+						"scholarship": 0.03
+					}
+				},
+				{
+					"text": "Watch the road the whole way for anything dangerous.",
+					"tendency": {
+						"martial": 0.03,
+						"wilderness": 0.03
+					}
+				},
+				{
+					"text": "Haggle for a trinket yourself.",
+					"tendency": {
+						"trade": 0.07
+					}
+				}
+			]
+		},
+		{
+			"id": "caught_stealing_apple",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.6,
+			"text": "You're caught red-handed with a stolen apple in your pocket.",
+			"choices": [
+				{
+					"text": "Apologize and offer to work it off.",
+					"tendency": {
+						"compassion": 0.04
+					},
+					"bond": {
+						"mother": -1
+					}
+				},
+				{
+					"text": "Run for it.",
+					"tendency": {
+						"mischief": 0.08
+					},
+					"flags": [
+						"caught_stealing"
+					]
+				},
+				{
+					"text": "Claim you found it on the ground.",
+					"tendency": {
+						"mischief": 0.05
+					}
+				}
+			]
+		},
+		{
+			"id": "learned_to_swim",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"forest_edge",
+				"outskirts"
+			],
+			"season": [
+				"summer"
+			],
+			"weight": 1.0,
+			"text": "The older children are swimming in the river; it's time you learned too.",
+			"choices": [
+				{
+					"text": "Jump straight in, sputtering and laughing.",
+					"tendency": {
+						"wilderness": 0.06,
+						"martial": 0.02
+					}
+				},
+				{
+					"text": "Watch carefully first, then try.",
+					"tendency": {
+						"scholarship": 0.03,
+						"wilderness": 0.03
+					}
+				},
+				{
+					"text": "Stay on the bank; the water looks too cold.",
+					"tendency": {
+						"compassion": 0.01
+					}
+				}
+			]
+		},
+		{
+			"id": "helped_smith_apprentice",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "The smith's apprentice needs an extra pair of hands pumping the bellows.",
+			"choices": [
+				{
+					"text": "Pump until your arms burn.",
+					"tendency": {
+						"craft": 0.08
+					}
+				},
+				{
+					"text": "Ask to try striking the metal yourself.",
+					"tendency": {
+						"craft": 0.06,
+						"martial": 0.02
+					}
+				},
+				{
+					"text": "Get distracted watching the sparks fly.",
+					"tendency": {
+						"scholarship": 0.02,
+						"craft": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "read_forbidden_book",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"home",
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "You find an old book tucked away that you're fairly sure you're not meant to read.",
+			"choices": [
+				{
+					"text": "Read it in secret by candlelight.",
+					"tendency": {
+						"scholarship": 0.08,
+						"mischief": 0.03
+					}
+				},
+				{
+					"text": "Ask a parent about it instead.",
+					"tendency": {
+						"scholarship": 0.04
+					},
+					"bond": {
+						"father": 1
+					}
+				},
+				{
+					"text": "Put it back, a little spooked.",
+					"tendency": {
+						"faith": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "cared_for_sick_parent",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"home"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.7,
+			"text": "One of your parents is laid up sick in bed for days.",
+			"choices": [
+				{
+					"text": "Take over their chores without being asked.",
+					"tendency": {
+						"compassion": 0.08,
+						"farming": 0.02
+					},
+					"bond": {
+						"mother": 2,
+						"father": 2
+					}
+				},
+				{
+					"text": "Fetch the herbalist yourself.",
+					"tendency": {
+						"compassion": 0.05,
+						"wilderness": 0.02
+					}
+				},
+				{
+					"text": "Sit by the bed telling stories to keep their spirits up.",
+					"tendency": {
+						"faith": 0.03,
+						"compassion": 0.04
+					}
+				}
+			]
+		},
+		{
+			"id": "runestone_flicker",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"road",
+				"outskirts"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.5,
+			"text": "A runestone along the road flickers dim for a moment before steadying again. Nobody else seems to notice.",
+			"choices": [
+				{
+					"text": "Tell the guard captain right away.",
+					"tendency": {
+						"leadership": 0.04,
+						"faith": 0.03
+					}
+				},
+				{
+					"text": "Touch the stone, just to see.",
+					"tendency": {
+						"faith": 0.05,
+						"wilderness": 0.03
+					}
+				},
+				{
+					"text": "Say nothing, unsure what you even saw.",
+					"tendency": {
+						"scholarship": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "joined_hunting_trip",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"forest_edge"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "Your father finally agrees to take you along on a short hunting trip.",
+			"choices": [
+				{
+					"text": "Track the prints exactly as he shows you.",
+					"tendency": {
+						"wilderness": 0.08,
+						"martial": 0.02
+					},
+					"flags": [
+						"hunted_with_father"
+					],
+					"bond": {
+						"father": 3
+					}
+				},
+				{
+					"text": "Get impatient waiting in the blind.",
+					"tendency": {
+						"martial": 0.03
+					}
+				},
+				{
+					"text": "Ask more questions than a hunt allows.",
+					"tendency": {
+						"scholarship": 0.04,
+						"wilderness": 0.03
+					}
+				}
+			]
+		},
+		{
+			"id": "sold_first_crafted_item",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "Something you made with your own hands actually sells at the market stall.",
+			"choices": [
+				{
+					"text": "Spend it all on sweets immediately.",
+					"tendency": {
+						"trade": 0.04,
+						"mischief": 0.03
+					}
+				},
+				{
+					"text": "Save it carefully in a tin under your bed.",
+					"tendency": {
+						"trade": 0.06,
+						"craft": 0.02
+					}
+				},
+				{
+					"text": "Make another one right away, better this time.",
+					"tendency": {
+						"craft": 0.08
+					}
+				}
+			]
+		},
+		{
+			"id": "winter_solstice_vigil",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"winter"
+			],
+			"weight": 1.0,
+			"text": "The village keeps vigil through the solstice night, candles lit against the dark.",
+			"choices": [
+				{
+					"text": "Stay awake the whole night, proud of it.",
+					"tendency": {
+						"faith": 0.06
+					}
+				},
+				{
+					"text": "Fall asleep against your mother's shoulder.",
+					"bond": {
+						"mother": 2
+					}
+				},
+				{
+					"text": "Count the candles instead of praying.",
+					"tendency": {
+						"scholarship": 0.03
+					}
+				}
+			]
+		},
+		{
+			"id": "dared_into_forest",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"forest_edge"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.7,
+			"text": "The other children dare you to go further into the wood than anyone your age has.",
+			"choices": [
+				{
+					"text": "Go further than anyone expects.",
+					"tendency": {
+						"wilderness": 0.09,
+						"mischief": 0.03
+					},
+					"flags": [
+						"forest_dare_won"
+					]
+				},
+				{
+					"text": "Go partway and turn back, calling it a win.",
+					"tendency": {
+						"wilderness": 0.04
+					}
+				},
+				{
+					"text": "Refuse; it isn't worth the risk.",
+					"tendency": {
+						"faith": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "noble_visit_school",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.6,
+			"text": "A minor noble tours the village and stops to ask the children their letters.",
+			"choices": [
+				{
+					"text": "Answer confidently, showing off a little.",
+					"tendency": {
+						"leadership": 0.05,
+						"scholarship": 0.04
+					}
+				},
+				{
+					"text": "Go shy and mumble your answer.",
+					"tendency": {
+						"scholarship": 0.02
+					}
+				},
+				{
+					"text": "Ask the noble a bold question of your own.",
+					"tendency": {
+						"leadership": 0.06
+					}
+				}
+			]
+		},
+		{
+			"id": "first_real_fight",
+			"age_min": 8,
+			"age_max": 11,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.6,
+			"text": "A shoving match with another child turns into a real scrap before anyone pulls you apart.",
+			"choices": [
+				{
+					"text": "Stand your ground.",
+					"tendency": {
+						"martial": 0.07
+					},
+					"bond": {
+						"father": 1
+					}
+				},
+				{
+					"text": "Try to talk your way out first.",
+					"tendency": {
+						"leadership": 0.04
+					}
+				},
+				{
+					"text": "Run and tell an adult instead.",
+					"tendency": {
+						"compassion": 0.02
+					}
+				}
+			]
+		},
+		{
+			"id": "apprentice_offer_smithy",
+			"age_min": 12,
+			"age_max": 15,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.2,
+			"text": "The smith looks you over and grunts. \"Strong arms. Ever thought about the forge?\"",
+			"choices": [
+				{
+					"text": "Accept the apprenticeship.",
+					"tendency": {
+						"craft": 0.1
+					},
+					"flags": [
+						"apprentice:smithy"
+					]
+				},
+				{
+					"text": "Ask for a day to think it over.",
+					"tendency": {
+						"craft": 0.02
+					}
+				},
+				{
+					"text": "Politely decline."
+				}
+			],
+			"flags": [
+				"blessing:fire"
+			]
+		},
+		{
+			"id": "apprentice_offer_farm",
+			"age_min": 12,
+			"age_max": 15,
+			"place": [
+				"settlement",
+				"home"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.1,
+			"text": "A neighboring farmer asks if you'd like steady work in the fields.",
+			"choices": [
+				{
+					"text": "Accept the work.",
+					"tendency": {
+						"farming": 0.1
+					},
+					"flags": [
+						"apprentice:farm"
+					]
+				},
+				{
+					"text": "Ask about the pay first.",
+					"tendency": {
+						"trade": 0.03,
+						"farming": 0.03
+					}
+				},
+				{
+					"text": "Say you have other plans."
+				}
+			],
+			"flags": [
+				"blessing:earth"
+			]
+		},
+		{
+			"id": "apprentice_offer_merchant",
+			"age_min": 12,
+			"age_max": 15,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "A trader passing through offers to take you on as a cart hand and, if you're any good, an apprentice.",
+			"choices": [
+				{
+					"text": "Sign on for the road.",
+					"tendency": {
+						"trade": 0.1,
+						"wilderness": 0.02
+					},
+					"flags": [
+						"apprentice:merchant"
+					]
+				},
+				{
+					"text": "Ask your parents first.",
+					"tendency": {
+						"trade": 0.03
+					}
+				},
+				{
+					"text": "Turn the offer down."
+				}
+			]
+		},
+		{
+			"id": "apprentice_offer_guard",
+			"age_min": 12,
+			"age_max": 15,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "The Captain of the Guard mentions there's always room for a promising recruit once you're old enough.",
+			"choices": [
+				{
+					"text": "Say you'll be ready when the time comes.",
+					"tendency": {
+						"martial": 0.09,
+						"leadership": 0.02
+					},
+					"flags": [
+						"apprentice:guard"
+					]
+				},
+				{
+					"text": "Ask what training looks like.",
+					"tendency": {
+						"martial": 0.04
+					}
+				},
+				{
+					"text": "Shrug it off for now."
+				}
+			],
+			"flags": [
+				"blessing:lightning"
+			]
+		},
+		{
+			"id": "apprentice_offer_temple",
+			"age_min": 12,
+			"age_max": 15,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "The temple could use another pair of hands, the priest says, and perhaps more than that.",
+			"choices": [
+				{
+					"text": "Take up the temple work.",
+					"tendency": {
+						"faith": 0.1
+					},
+					"flags": [
+						"apprentice:temple"
+					]
+				},
+				{
+					"text": "Help out without committing yet.",
+					"tendency": {
+						"faith": 0.04
+					}
+				},
+				{
+					"text": "Decline; it isn't your calling."
+				}
+			],
+			"flags": [
+				"blessing:water"
+			]
+		},
+		{
+			"id": "apprentice_offer_hunter",
+			"age_min": 12,
+			"age_max": 15,
+			"place": [
+				"forest_edge",
+				"outskirts"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "A local hunter offers to teach you the trails, if you're willing to learn the hard way.",
+			"choices": [
+				{
+					"text": "Follow them into the wilds.",
+					"tendency": {
+						"wilderness": 0.1
+					},
+					"flags": [
+						"apprentice:hunter"
+					]
+				},
+				{
+					"text": "Ask to try it for a season first.",
+					"tendency": {
+						"wilderness": 0.04
+					}
+				},
+				{
+					"text": "Say hunting isn't for you."
+				}
+			],
+			"flags": [
+				"blessing:wind"
+			]
+		},
+		{
+			"id": "apprentice_offer_healer",
+			"age_min": 12,
+			"age_max": 15,
+			"place": [
+				"settlement"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 1.0,
+			"text": "The herbalist notices your steady hands and asks if you'd like to learn the healing trade.",
+			"choices": [
+				{
+					"text": "Accept and start learning remedies.",
+					"tendency": {
+						"compassion": 0.1,
+						"scholarship": 0.03
+					},
+					"flags": [
+						"apprentice:healer"
+					]
+				},
+				{
+					"text": "Ask to see the healer's table first.",
+					"tendency": {
+						"compassion": 0.03
+					}
+				},
+				{
+					"text": "Decline for now."
+				}
+			]
+		},
+		{
+			"id": "apprentice_offer_sect_strong",
+			"age_min": 13,
+			"age_max": 15,
+			"place": [
+				"settlement",
+				"road"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.8,
+			"text": "A traveler in unfamiliar robes asks careful questions about you, then leaves a token with your parents.",
+			"choices": [
+				{
+					"text": "Keep the token close, curious.",
+					"tendency": {
+						"faith": 0.05,
+						"scholarship": 0.03
+					},
+					"flags": [
+						"sect_attention"
+					]
+				},
+				{
+					"text": "Ask your parents what it means.",
+					"tendency": {
+						"faith": 0.03
+					}
+				},
+				{
+					"text": "Hide it away and say nothing.",
+					"tendency": {
+						"mischief": 0.03
+					}
+				}
+			],
+			"flags": [
+				"blessing_tier:strong"
+			]
+		},
+		{
+			"id": "apprentice_offer_sect_dual",
+			"age_min": 13,
+			"age_max": 15,
+			"place": [
+				"settlement",
+				"road"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.9,
+			"text": "Word of your dual Blessing has clearly traveled further than the village; a stranger comes asking after you by name.",
+			"choices": [
+				{
+					"text": "Meet them and hear them out.",
+					"tendency": {
+						"leadership": 0.04,
+						"faith": 0.03
+					},
+					"flags": [
+						"sect_attention"
+					]
+				},
+				{
+					"text": "Avoid them entirely.",
+					"tendency": {
+						"mischief": 0.02
+					}
+				},
+				{
+					"text": "Tell the guard about the stranger.",
+					"tendency": {
+						"martial": 0.02
+					}
+				}
+			],
+			"flags": [
+				"blessing_dual"
+			]
+		},
+		{
+			"id": "hidden_mentor_none",
+			"age_min": 13,
+			"age_max": 15,
+			"place": [
+				"forest_edge",
+				"outskirts"
+			],
+			"season": [
+				"any"
+			],
+			"weight": 0.9,
+			"text": "With no Blessing to your name, most doors stay shut \u2014 but an odd, unaffiliated old wanderer seems to watch you with real interest.",
+			"choices": [
+				{
+					"text": "Approach the wanderer.",
+					"tendency": {
+						"wilderness": 0.05,
+						"scholarship": 0.04
+					},
+					"flags": [
+						"hidden_mentor"
+					]
+				},
+				{
+					"text": "Keep your distance; you've had enough attention.",
+					"tendency": {
+						"mischief": 0.02
+					}
+				},
+				{
+					"text": "Ask around about who they are.",
+					"tendency": {
+						"scholarship": 0.03
+					}
+				}
+			],
+			"flags": [
+				"blessing:none"
+			]
+		}
+	]
+}
