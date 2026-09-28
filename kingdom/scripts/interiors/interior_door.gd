@@ -18,6 +18,13 @@ extends Area3D
 ##
 ## While the player is in range the door joins the "interactable" group and
 ## offers `prompt()`, so the HUD shows its button like any other station.
+##
+## Cost: a town builds one door per house, so an idle door does no per-frame
+## work at all. Only the door the player stands in processes (and only when no
+## external dispatcher handles "interact", see `external_dispatch`), and only the
+## active entrance runs the camera ray in _physics_process. Street doors use
+## `PLAYER_TRIGGER_LAYER` as their only mask so they never pair with terrain or
+## building colliders.
 
 signal player_in_range_changed(in_range: bool)
 ## The interior was instanced and the player moved inside.
@@ -48,7 +55,15 @@ signal exit_requested
 ## Force the third-person view while inside (the town/command zooms don't fit a room).
 @export var force_third_person := true
 
+## Physics layer 20: the player carries it (main.gd) so door triggers can mask
+## only the player instead of every body on layer 1.
+const PLAYER_TRIGGER_LAYER := 1 << 19
+
 static var active: InteriorDoor = null
+## True when the game's own interact handler calls use() on the nearest door
+## (main.gd does). Doors then never poll input, so one key press can't both
+## close a menu / open a service and walk through a door.
+static var external_dispatch := false
 
 var interior: Node3D = null
 var _player: Node3D = null
@@ -65,6 +80,13 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	process_physics_priority = 100    # after the player moved its camera
+	set_process(false)
+	set_physics_process(active == self)
+
+
+## Makes `player` detectable by street doors that mask PLAYER_TRIGGER_LAYER.
+static func tag_player(player: CollisionObject3D) -> void:
+	player.collision_layer |= PLAYER_TRIGGER_LAYER
 
 
 func prompt() -> String:
@@ -76,6 +98,7 @@ func _on_body_entered(body: Node3D) -> void:
 		_player = body
 		_near = true
 		add_to_group("interactable")
+		set_process(not external_dispatch)
 		player_in_range_changed.emit(true)
 
 
@@ -84,10 +107,14 @@ func _on_body_exited(body: Node3D) -> void:
 		_near = false
 		if is_in_group("interactable"):
 			remove_from_group("interactable")
+		set_process(false)
 		player_in_range_changed.emit(false)
 
 
 func _process(_delta: float) -> void:
+	if external_dispatch:
+		set_process(false)
+		return
 	if not _near or _player == null or not Input.is_action_just_pressed("interact"):
 		return
 	# Another interactable (an NPC, a station) closer to the player wins the key press.
@@ -130,6 +157,7 @@ func enter(player: Node3D) -> void:
 	host.add_child(interior)
 	interior.global_transform = Transform3D(Basis.IDENTITY, global_position + interior_offset)
 	active = self
+	set_physics_process(camera_collision)
 	if hide_exterior:
 		for c in host.get_children():
 			if c == player or c == interior or not (c is Node3D) or c.is_ancestor_of(self):
@@ -184,6 +212,7 @@ func leave() -> void:
 		interior.queue_free()
 	interior = null
 	active = null
+	set_physics_process(false)
 	if is_instance_valid(_player):
 		var out := global_transform * return_offset
 		var away := (out - global_position)

@@ -22,6 +22,7 @@ var water: WaterStreamer
 var settlements: SettlementBuilder
 var population: PopulationLOD
 var frontier: FrontierPresence
+var region: RegionDressing
 var player: Player
 var hud: HUD
 var army: Squad
@@ -103,6 +104,11 @@ func _ready() -> void:
 	player.global_position = spawn
 	player.spawn_point = spawn
 	player.set_camera(PI * 0.15, -0.3)
+	# Building doors: street doors mask only the player's trigger layer, and this
+	# script's interact handler drives them (no per-door input polling).
+	InteriorDoor.tag_player(player)
+	InteriorDoor.external_dispatch = true
+	player.health_changed.connect(_on_player_health)
 
 	captain = Captain.new()
 	world.add_child(captain)
@@ -112,9 +118,14 @@ func _ready() -> void:
 	services = VillageServices.new()
 	services.setup(hud, captain, func() -> int: return army.alive(), _recruit)
 	world.add_child(services)
+	# Keepers inside the rooms get their menus (doors of towns built so far, then new ones).
+	services.wire_settlement(settlements)
+	settlements.settlement_built.connect(func(_s: Dictionary, root: Node3D) -> void: services.wire_settlement(root))
 	camps = MonsterCamps.new()
 	world.add_child(camps)
 	world.add_child(Lakeside.new())
+	region = RegionDressing.new()
+	world.add_child(region)
 	ambient = AmbientLife.new()
 	world.add_child(ambient)
 
@@ -235,6 +246,7 @@ func _process(delta: float) -> void:
 	settlements.focus = focus
 	population.focus = focus
 	frontier.focus = focus
+	region.focus = focus
 	camps.focus = focus
 	ambient.focus = focus
 	terrain.view_radius = mini(5 if player.view == Player.View.COMMAND else 4, Quality.view_radius)
@@ -291,6 +303,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			hud.show_menu((target as Station).open)
 		elif target is CampMonster:
 			hud.show_menu(services.naming_menu.bind(target))
+		elif target is InteriorDoor:
+			(target as InteriorDoor).use()
 	elif event.is_action_pressed("journal"):
 		if hud.is_menu_open():
 			hud.close_menu()
@@ -312,6 +326,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("order_charge"):
 		army.command(Squad.Order.CHARGE)
 		Game.say("CHARGE!")
+
+
+## Dying inside a building: leave the room first, so the respawn (player.gd puts
+## the player back at spawn_point) lands in a visible world with its own camera
+## environment and view restored.
+func _on_player_health(current: int, _maximum: int) -> void:
+	if current <= 0 and InteriorDoor.active != null:
+		InteriorDoor.active.leave()
 
 
 func _recruit(count: int) -> void:

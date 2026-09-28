@@ -3,7 +3,11 @@ extends Node3D
 ## The starting village's places to live a life: the market stall, the inn,
 ## the notice board (jobs with real vacancies) and the Captain's office.
 ## Each is a Station whose menu reads and drives the Life autoload.
+## Keepers stand beside their building's entrance (never on the door line), and
+## the same menus are offered inside: wire_settlement() hooks every InteriorDoor
+## so the innkeeper, smith, receptionist and healer in a room get a Station.
 
+const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const MEGAKIT := "res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/"
 const BOARD := "res://assets/generated/notice_board.glb"
 const BED_PRICE := 3
@@ -33,15 +37,16 @@ func _ready() -> void:
 	_person("Market Trader", "Trade", merchant_menu, stall, c, "Trader")
 	_prop("Barrel_Apples", stall + Vector2(-sin(ang), cos(ang)) * 1.6, 1.0)
 	_prop("FarmCrate_Apple", stall + Vector2(sin(ang), -cos(ang)) * 1.5, 1.0)
-	# Innkeeper at the inn's door.
+	# Innkeeper beside the inn's entrance, clear of the InteriorDoor (he is also
+	# behind the bar inside). The door threshold is BuildingProfiles.door_point.
 	for lot: Dictionary in plan["lots"]:
 		if lot["asset"] == "inn":
 			var yaw: float = lot["yaw"]
-			var door: Vector2 = lot["pos"] + Vector2(sin(yaw), cos(yaw)) * 5.2
-			_person("%s Inn" % home["name"], "Enter", inn_menu, door, door + Vector2(sin(yaw), cos(yaw)), "Innkeeper")
+			var at := BuildingProfiles.keeper_point(lot, 1.0)
+			_person("%s Inn" % home["name"], "Food & bed", inn_menu, at, at + Vector2(sin(yaw), cos(yaw)), "Innkeeper")
 			break
-	# Adventurer Guild receptionist and the herbalist at their buildings' doors
-	# (CityPlanner puts both on the lots nearest the plaza).
+	# Adventurer Guild receptionist and the herbalist beside their buildings'
+	# entrances (CityPlanner puts both on the lots nearest the plaza).
 	var guild_at := c + Vector2(-4.0, -9.0)
 	var herb_at := c + Vector2(9.0, -7.5)
 	var guild_face := c
@@ -50,11 +55,11 @@ func _ready() -> void:
 		var yaw: float = lot["yaw"]
 		var out := Vector2(sin(yaw), cos(yaw))
 		if lot["asset"] == "adventurer_guild":
-			guild_at = lot["pos"] + out * 7.2
+			guild_at = BuildingProfiles.keeper_point(lot, -1.0)    # the board takes the other side
 			guild_face = guild_at + out
 			_prop_gen("guild_board", lot["pos"] + out * 6.2 + Vector2(out.y, -out.x) * 3.2, yaw)
 		elif lot["asset"] == "healer_house":
-			herb_at = lot["pos"] + out * 4.6
+			herb_at = BuildingProfiles.keeper_point(lot, 1.0)
 			herb_face = herb_at + out
 	guild_station = _person("Adventurer Guild", "Guild", guild_menu, guild_at, guild_face, "Rogue_Hooded")
 	_person("Herbalist", "Healer", healer_menu, herb_at, herb_face, "Herbalist")
@@ -67,6 +72,52 @@ func _ready() -> void:
 	board.add_child(model)
 	board.look_at(_ground(board_pos + Vector2(-1.0, 3.0)), Vector3.UP, true)
 	board.rotate_y(PI)
+
+
+# --- interiors -------------------------------------------------------------------
+
+## Hooks the InteriorDoors a SettlementBuilder made under `root` (a settlement
+## root with a "Doors" child, or the builder itself) so their rooms' keepers get
+## menus. Safe to call again for the same doors.
+func wire_settlement(root: Node) -> void:
+	var holder := root.get_node_or_null("Doors")
+	if holder == null:
+		for child in root.get_children():
+			if child.get_node_or_null("Doors") != null:
+				wire_settlement(child)
+		return
+	for d in holder.get_children():
+		var door := d as InteriorDoor
+		if door and not door.is_exit and not door.interior_entered.is_connected(_on_interior_entered):
+			door.interior_entered.connect(_on_interior_entered)
+
+
+## Role (NPC marker metadata) -> [title, verb, menu].
+func _role_service(role: String) -> Array:
+	match role:
+		"innkeeper":
+			return ["Innkeeper", "Food & bed", inn_menu]
+		"blacksmith":
+			return ["Blacksmith", "Talk", smith_menu]
+		"receptionist":
+			return ["Guild Receptionist", "Guild", guild_menu]
+		"healer":
+			return ["Healer", "Healer", healer_menu]
+	return []
+
+
+## A room was loaded: put a Station on each service NPC's marker. The markers
+## exist right away (the NPC models spawn a frame later), and the Stations are
+## children of the room, so they are freed with it.
+func _on_interior_entered(room: Node3D) -> void:
+	for m in room.find_children("NPC_*", "Marker3D", true, false):
+		var svc := _role_service(String(m.get_meta("role", "")))
+		if svc.is_empty():
+			continue
+		var st := Station.new(svc[0], svc[1], svc[2])
+		st.name = "Service_" + String(m.name).trim_prefix("NPC_")
+		room.add_child(st)
+		st.global_position = (m as Marker3D).global_position
 
 
 func _ground(p: Vector2) -> Vector3:
@@ -142,6 +193,27 @@ func inn_menu() -> Dictionary:
 		"body": "The common room smells of smoke and onions.\nYou are %s and %s. It is %02d:00." % [
 			n.hunger_label().to_lower(), n.rest_label().to_lower(), int(WorldSim.time_of_day)],
 		"options": opts}
+
+
+## The smithy: no smith goods in the market yet, so the smith takes firewood for
+## the forge and hires apprentices (the "smithy" org in Life).
+func smith_menu() -> Dictionary:
+	var m := Life.market
+	var opts: Array = []
+	var wood := Life.count("firewood")
+	if wood > 0:
+		opts.append(["Sell firewood for the forge ×%d  —  %dg each" % [wood, m.sell_price("firewood")],
+			Life.sell.bind("firewood"), m.purse >= m.sell_price("firewood")])
+	if not Life.careers.is_employed():
+		for title: String in ["Apprentice", "Journeyman"]:
+			var s := Life.careers.seat("smithy", title)
+			if not s.is_empty() and Life.careers.open_count(s) > 0:
+				var why := Life.careers.check_application("smithy", title, Game.merit)
+				opts.append(["Ask for work as a %s (%dg/day)" % [title, s["wage"]], _apply.bind("smithy", title), why == ""])
+	var body := "The forge roars; the smith doesn't look up from the anvil.\n\"Wood for the fire, or a strong back. Nothing else I need today.\""
+	if opts.is_empty():
+		body += "\nYou have nothing the smith wants."
+	return {"title": "Blacksmith", "body": body, "options": opts}
 
 
 func _buy_stew() -> String:

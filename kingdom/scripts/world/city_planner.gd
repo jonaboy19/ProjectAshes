@@ -9,6 +9,8 @@ extends RefCounted
 ## ring streets -> radial lanes -> buildings lining both sides of every street,
 ## rejected where they would overlap a street, another building or the walls.
 
+const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
+
 const LOT_SPACING := 10.5
 const LOT_CLEARANCE := 9.5
 const HOMES := ["house_1", "house_2", "house_3", "house_4", "house_5", "house_6", "house_7", "house_8",
@@ -110,12 +112,13 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 	return result
 
 
-## Trodden footpaths from each front door to the nearest street.
+## Trodden footpaths from each front door to the nearest street. The door is
+## the building's real entrance threshold (BuildingProfiles.door_point), the
+## same point SettlementBuilder puts its InteriorDoor on.
 static func _door_paths(lots: Array, streets: Array) -> Array:
 	var out := []
 	for lot: Dictionary in lots:
-		var yaw: float = lot["yaw"]
-		var door: Vector2 = lot["pos"] + Vector2(sin(yaw), cos(yaw)) * 3.8
+		var door := door_point(lot)
 		var best := Vector2.ZERO
 		var bd := INF
 		for st in streets:
@@ -126,6 +129,11 @@ static func _door_paths(lots: Array, streets: Array) -> Array:
 		if bd < 14.0:
 			out.append({"a": door, "b": best, "w": 1.3})
 	return out
+
+
+## World XZ of a lot's front-door threshold ({asset, pos, yaw}).
+static func door_point(lot: Dictionary) -> Vector2:
+	return BuildingProfiles.door_point(lot)
 
 
 static func path_distance(plan_data: Dictionary, p: Vector2) -> float:

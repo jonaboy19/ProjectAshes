@@ -8,7 +8,11 @@ const LOD_CELL := 40.0
 ## Builds settlements from their CityPlanner layout when the focus comes within
 ## BUILD_RANGE and frees them past FREE_RANGE. Buildings of the same model are
 ## drawn as one MultiMesh (a capital has ~300 buildings but only ~15 draw
-## calls); each lot still gets a simple box collider so streets feel solid.
+## calls); each lot still gets a cheap compound collider (BuildingProfiles:
+## body + porch/eaves boxes, shapes shared per model) so streets feel solid,
+## and every enterable building an InteriorDoor at its front door.
+
+const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 
 const BUILD_RANGE := 650.0
 const FREE_RANGE := 850.0
@@ -69,14 +73,9 @@ func _build(s: Dictionary) -> Node3D:
 		var t := Transform3D(Basis(Vector3.UP, lot["yaw"]), Vector3(p.x, base_h, p.y))
 		batches[bkey].append(t)
 		var size := _footprint(asset)
-		var body := StaticBody3D.new()
-		var shape := CollisionShape3D.new()
-		var box := BoxShape3D.new()
-		box.size = Vector3(size.x * 0.92, size.y, size.z * 0.92)
-		shape.shape = box
-		body.position = Vector3(p.x, base_h + size.y * 0.5, p.y)
+		var body := BuildingProfiles.make_body(asset, size)
+		body.position = Vector3(p.x, base_h, p.y)
 		body.rotation.y = lot["yaw"]
-		body.add_child(shape)
 		root.add_child(body)
 	for bkey: String in batches:
 		var asset := bkey.get_slice("@", 0)
@@ -113,6 +112,8 @@ func _build(s: Dictionary) -> Node3D:
 		else:
 			_multimesh(root, Assets.building_mesh(asset), list)
 		_chimney_smoke(root, asset, list, rng)
+
+	_interior_doors(root, plan["lots"], base_h)
 
 	# Lived-in door_clutter by the doors: photo-scanned crates, barrels, baskets, buckets.
 	var door_clutter := {}
@@ -198,6 +199,41 @@ func _build(s: Dictionary) -> Node3D:
 	_multimesh(root, Assets.building_mesh("cart"), street_clutter.slice(24), true, true)
 	_flush_contact_shadows(root)
 	return root
+
+
+## One InteriorDoor per enterable lot (inn, smithy, guild, healer, every house),
+## on the ground at its front door, local +Z out into the street. They are idle
+## triggers: masked to the player's trigger layer only, not monitorable, and
+## with no per-frame work until the player stands in one (see interior_door.gd).
+## Kept under "Doors" so VillageServices can find them.
+func _interior_doors(root: Node3D, lots: Array, base_h: float) -> void:
+	var holder := Node3D.new()
+	holder.name = "Doors"
+	root.add_child(holder)
+	for lot: Dictionary in lots:
+		var asset: String = lot["asset"]
+		if not BuildingProfiles.is_enterable(asset):
+			continue
+		var p: Vector2 = lot["pos"]
+		var yaw: float = lot["yaw"]
+		var local := BuildingProfiles.door_local(asset, _footprint(asset))
+		var at := BuildingProfiles.door_point(lot, _footprint(asset))
+		var door := InteriorDoor.new()
+		door.name = "Door_%s_%d" % [asset, holder.get_child_count()]
+		door.interior_scene = BuildingProfiles.interior_scene(asset)
+		door.prompt_text = BuildingProfiles.prompt(asset)
+		door.collision_layer = 0
+		door.collision_mask = InteriorDoor.PLAYER_TRIGGER_LAYER
+		door.monitorable = false
+		door.set_meta("asset", asset)
+		door.set_meta("lot_pos", p)
+		var shape := CollisionShape3D.new()
+		shape.shape = BuildingProfiles.door_shape()
+		shape.position.y = 1.1
+		door.add_child(shape)
+		door.position = Vector3(at.x, base_h + local.y, at.y)
+		door.rotation.y = yaw
+		holder.add_child(door)
 
 
 func _footprint(asset: String) -> Vector3:
