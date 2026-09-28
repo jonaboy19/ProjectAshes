@@ -40,6 +40,10 @@
         {"text": "\"A dual Blessing! The whole village is still talking about it. Some sect will come sniffing around, mark my words.\"", "if": {"flag": "blessing_dual"}, "p": 4},
         {"text": "\"No Blessing at all, they say. Well, plenty made something of themselves without one.\"", "if": {"flag": "blessing:none", "min_tier": "acquaintance"}, "p": 3},
 
+        {"text": "\"Sweet on someone, are you? The whole square's noticed how you look at them.\"", "if": {"tier": "close_friend", "no_flag": ["engaged", "married"], "child": false, "chance": 0.3}, "p": 3},
+        {"text": "\"Betrothed! Well, it's about time. When's the wedding?\"", "if": {"flag": "engaged", "no_flag": "married", "min_tier": "acquaintance"}, "p": 5},
+        {"text": "\"Married life suits you. Give my best to your spouse.\"", "if": {"flag": "married", "min_tier": "acquaintance"}, "p": 4},
+
         {"text": "\"Hello there.\""}
       ],
       "choices": [

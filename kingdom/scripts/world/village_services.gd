@@ -15,6 +15,8 @@ const BuildMenu := preload("res://scripts/ui/build_menu.gd")
 const CareerScreen := preload("res://scripts/ui/career_screen.gd")
 const SaveScreen := preload("res://scripts/ui/save_screen.gd")
 const NobilityScreen := preload("res://scripts/ui/nobility_screen.gd")
+const ChronicleScreen := preload("res://scripts/ui/chronicle_screen.gd")
+const FamilyScreen := preload("res://scripts/ui/family_screen.gd")
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const RAProperty := preload("res://scripts/sim/property.gd")
 const MEGAKIT := "res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/"
@@ -482,6 +484,15 @@ func pack_menu() -> Dictionary:
 		hud.close_menu()
 		NobilityScreen.open_for(hud)
 		return ""])
+	opts.append(["Chronicle", func() -> String:
+		hud.close_menu()
+		ChronicleScreen.open_for(hud)
+		return ""])
+	if Life.get("family") != null:
+		opts.append(["Family", func() -> String:
+			hud.close_menu()
+			FamilyScreen.open_for(hud)
+			return ""])
 	var homestead_plot := Life.homestead.plot_at(_player_pos())
 	if homestead_plot >= 0:
 		opts.append([("Build on your homestead" if Life.homestead.owns_or_leases(homestead_plot) else "Buy or lease this plot"), func() -> String:
@@ -953,6 +964,11 @@ func _pick_rumour() -> String:
 	var prices: Array = Life.economy.rumour_prices()
 	if not prices.is_empty() and randf() < 0.35:
 		return String(prices[randi() % prices.size()])
+	var lc: Object = Life.get("life_courses")
+	if lc != null:
+		var chronicle: Array = lc.rumours()
+		if not chronicle.is_empty() and randf() < 0.2:
+			return String(chronicle[randi() % chronicle.size()])
 	var r: Dictionary = _gossip_data().get("rumours", {})
 	var home := _home_pos()
 	var cands: Array = []   # [category, vars]
@@ -1073,6 +1089,7 @@ func _talk_page() -> Dictionary:
 	var opts: Array = []
 	for c: Dictionary in DialogueRunner.choices(d, _talk["node"], ctx):
 		opts.append([c["text"], _choose.bind(c)])
+	_add_courtship_options(opts, info)
 	var why := PackedStringArray()
 	for b: Array in rel.breakdown(info["id"], now).slice(0, 3):
 		why.append("%s %+d" % [b[0], b[1]])
@@ -1082,6 +1099,29 @@ func _talk_page() -> Dictionary:
 	var role := String(info.get("bond", "")) if info.get("bond", "") != "" else String(info.get("role", ""))
 	return {"title": "%s  ·  %s" % [info["name"], role.capitalize()],
 		"body": "%s\n\n%s" % [_talk["line"], status], "options": opts}
+
+
+## Family/courtship actions layered on top of the dialogue file's own choices
+## (Life.get("family") is guarded: nothing shows until autoload/life.gd owns
+## one — see the hook lines in the PR notes).
+func _add_courtship_options(opts: Array, info: Dictionary) -> void:
+	var fam: Object = Life.get("family")
+	if fam == null or String(info.get("bond", "")) != "" or String(info.get("id", "")) == "":
+		return
+	var npc_id: String = info["id"]
+	var first: String = String(info.get("name", "them")).get_slice(" ", 0)
+	if bool(fam.is_married()):
+		return
+	var st: String = String(fam.stage(npc_id))
+	if st == "":
+		if String(fam.can_court(npc_id)) == "":
+			opts.append(["Court %s" % first, func() -> String: return fam.court(npc_id)])
+		return
+	opts.append(["Take %s on a date" % first, func() -> String: return fam.date(npc_id)])
+	if String(fam.can_propose(npc_id)) == "":
+		opts.append(["Propose to %s" % first, func() -> String: return fam.propose(npc_id)])
+	if st == "betrothed" and String(fam.can_marry(npc_id)) == "":
+		opts.append(["Marry %s" % first, func() -> String: return fam.marry(npc_id)])
 
 
 func _choose(c: Dictionary) -> String:

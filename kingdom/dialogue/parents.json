@@ -34,6 +34,10 @@
         {"text": "\"Two elements at your Blessing? {first} still hasn't stopped talking about it to the neighbours.\"", "if": {"flag": "blessing_dual"}, "p": 5},
         {"text": "\"No Blessing came, and that's all right. Plenty of good, strong lives were built without one.\"", "if": {"flag": "blessing:none"}, "p": 4},
         {"text": "\"Sixteen now. You don't need us telling you where to go any more, though we'll worry regardless.\"", "if": {"flag": "came_of_age"}, "p": 3},
+        {"text": "\"Betrothed! Oh, come here. I always hoped I'd see this day.\"", "if": {"flag": "engaged", "no_flag": "married"}, "p": 5},
+        {"text": "\"Married, and under my roof I raised you! I couldn't be happier for you, love.\"", "if": {"flag": "married", "bond": "mother"}, "p": 5},
+        {"text": "\"Married. Good. A house needs more than one pair of hands. Treat them well.\"", "if": {"flag": "married", "bond": "father"}, "p": 5},
+        {"text": "\"Grandchildren! Never thought I'd see the day. Bring them by, won't you?\"", "if": {"flag": "married", "min_op": 40, "chance": 0.4}, "p": 4},
 
         {"text": "{first} barely looks up. \"Oh. It's you.\"", "if": {"max_op": 20}, "p": 6}
       ],

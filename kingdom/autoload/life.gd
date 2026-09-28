@@ -46,6 +46,7 @@ var biography := preload("res://scripts/sim/biography.gd").new()
 var property := preload("res://scripts/sim/property.gd").new()
 var nobility := preload("res://scripts/sim/nobility.gd").new()
 var lordship := preload("res://scripts/sim/lordship.gd").new()
+var family := preload("res://scripts/sim/family.gd").new()
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
 var career_id := ""            # career_ladders.gd key, "" = none yet
 var career_rank := ""          # rank id within that career
@@ -643,6 +644,10 @@ func _on_hour(hour: int) -> void:
 			Game.say(msg)
 		for msg: String in lordship.daily_tick(WorldSim.day, {"season": WorldSim.season, "at_war": bool(life_path.flags.get("at_war", false))}):
 			Game.say(msg)
+		for msg: String in family.daily_tick(WorldSim.day):
+			Game.say(msg)
+		if family.check_old_age_death(age(), WorldSim.day):
+			_on_old_age_death()
 	if hour == 5:
 		for e: Dictionary in guild.tick_day(WorldSim.day):
 			if e.get("type", "") == "failed":
@@ -820,6 +825,7 @@ func snapshot() -> Dictionary:
 		"property": property.serialize(),
 		"nobility": nobility.serialize(),
 		"lordship": lordship.serialize(),
+		"family": family.serialize(),
 		"career": {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier},
 		"radiant": radiant.serialize(),
 		"crafting": crafting.serialize(),
@@ -859,7 +865,7 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	_last_abs = _abs_hours()
@@ -958,3 +964,16 @@ func _career_daily() -> void:
 		career_rank = String(r["rank"])
 		career_since_day = WorldSim.day
 		Game.say(String(r["text"]))
+
+
+## Dying of old age: the family carries on through the eldest heir (docs: "Families and
+## generations"); with no heir the story ends here, told by the biography.
+func _on_old_age_death() -> void:
+	var heirs: Array = family.heir_candidates()
+	var story := "\n".join(biography.summary(WorldSim.day))
+	if heirs.is_empty():
+		Game.say("%s dies in old age, with no heir to carry the name.\n%s" % [life_path.full_name(), story])
+		return
+	var heir: Dictionary = heirs[0]
+	Game.say("%s dies in old age. %s carries on the family.\n%s" % [life_path.full_name(), String(heir.get("name", "Your heir")), story])
+	family.succeed_to(heir["id"])
