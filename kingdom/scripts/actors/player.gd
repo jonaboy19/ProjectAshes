@@ -90,6 +90,9 @@ const CAMERA_MASK := 1
 const BODY_RADIUS := 0.35
 ## Riding.
 const MountController := preload("res://scripts/actors/mount_controller.gd")
+## Foot IK on slopes and steps, torso and weapon/shield secondary motion.
+const ProceduralRig := preload("res://scripts/actors/procedural_rig.gd")
+const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const MOUNTED_RADIUS := 0.6      # wider body while mounted so the horse's chest meets walls
 const MOUNTED_CAMERA := 7.5      # third-person distance on horseback
 ## Swimming. Depths are for a full-size body and scale with Life.body_scale().
@@ -146,6 +149,8 @@ var _pivot: Node3D
 var _camera_arm: SpringArm3D
 var _model: Node3D
 var _animator: CharacterAnimator
+var _rig: Node
+var _ragdoll: Node
 var _viewmodel: Node3D
 var _shake := CameraShake.new()
 var _look_target: Node3D
@@ -215,7 +220,12 @@ func _ready() -> void:
 	var body := Assets.character("Player", 1.8, ["1H_Sword", "Round_Shield"])
 	_model.add_child(body)
 	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true)
+	_ragdoll = Ragdoll.attach(self, body, [_animator.tree, _animator.player])
 	_add_head_look(body)
+	# After the look-at: the rig orders the skeleton's modifiers as
+	# animation -> look-at -> foot IK -> secondary motion.
+	_rig = ProceduralRig.attach(body, self, true)
+	_animator.rig = _rig
 	_pivot = Node3D.new()
 	_pivot.position.y = 1.55
 	add_child(_pivot)
@@ -296,12 +306,14 @@ func _menu_open() -> bool:
 ## Procedural head tracking: the head turns toward the nearest enemy or person.
 func _add_head_look(body: Node3D) -> void:
 	var skeleton: Skeleton3D = body.find_children("*", "Skeleton3D", true, false)[0]
-	if skeleton.find_bone("head") < 0:
-		return   # UE-style rig: head axes differ; head tracking to be tuned for it later
+	# The UAL rig names it "Head" (its +Z faces forward, like the KayKit "head").
+	var head := "Head" if skeleton.find_bone("Head") >= 0 else "head"
+	if skeleton.find_bone(head) < 0:
+		return
 	_look_target = Node3D.new()
 	add_child(_look_target)
 	var look := LookAtModifier3D.new()
-	look.bone_name = "head"
+	look.bone_name = head
 	look.forward_axis = SkeletonModifier3D.BONE_AXIS_PLUS_Z
 	look.use_angle_limitation = true
 	look.symmetry_limitation = true
@@ -444,6 +456,10 @@ func _physics_process(delta: float) -> void:
 	var real := get_real_velocity()
 	var travel := Vector3(real.x, 0.0, real.z)
 	_animator.update(delta, travel.length() if _dodge <= 0.0 else 0.0, travel)
+	if _rig:
+		# Feet off the ground: airborne, swimming, rolling, dead. Big hits ease the IK off.
+		_rig.call("set_state", travel.length(), is_on_floor(), swimming or dead or _dodge > 0.0,
+				_animator.is_full_busy())
 	_update_lean(delta)
 	_update_footsteps(delta, dir, grounded and not swimming)
 
@@ -546,6 +562,8 @@ func _physics_mounted(delta: float) -> void:
 	_move_speed = _mount.speed
 	_move_dir = _mount.facing()
 	_animator.update(delta, 0.0)
+	if _rig:
+		_rig.call("set_state", 0.0, true, true)   # seated: legs follow the saddle clip
 	if _stamina_delay <= 0.0:
 		stamina = minf(stamina + 28.0 * delta * Life.needs.stamina_regen(), MAX_STAMINA * Life.needs.stamina_cap())
 	stamina_changed.emit(stamina, MAX_STAMINA)
@@ -792,6 +810,7 @@ func _parry(from: Node) -> void:
 	if from and is_instance_valid(from) and from.has_method("take_damage"):
 		from.call_deferred("take_damage", 0, self, push)
 	_animator.play_upper("Block_Hit", 1.8)
+	VFX.impact_frame(get_parent(), global_position + Vector3.UP * 1.2, 0.5)
 	Audio.sfx("clash")
 	VFX.sparks(get_parent(), at, Color(1.0, 0.97, 0.75), 42)
 	VFX.flash(get_parent(), at, Color(1.0, 0.9, 0.6), 3.0, 0.15, 5.0)
@@ -1067,16 +1086,21 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 		return
 	var fwd := forward() if view == View.FIRST else facing()
 	var hits := 0
+	var first_hit := Vector3.INF
 	for enemy in get_tree().get_nodes_in_group("team1"):
 		var to: Vector3 = (enemy as Node3D).global_position - global_position
 		to.y = 0.0
 		if to.length() < 2.6 and fwd.dot(to.normalized()) > 0.2:
 			enemy.take_damage(damage, self, to.normalized() * knockback)
-			VFX.sparks(get_parent(), (enemy as Node3D).global_position + Vector3(0, 0.8, 0) - to.normalized() * 0.3,
-				Color(1.0, 0.72, 0.35), 30 if finisher else 18)
+			var point: Vector3 = (enemy as Node3D).global_position + Vector3(0, 0.8, 0) - to.normalized() * 0.3
+			VFX.sparks(get_parent(), point, Color(1.0, 0.72, 0.35), 30 if finisher else 18)
+			if hits == 0:
+				first_hit = point
 			hits += 1
 	if finisher:
 		VFX.shockwave(get_parent(), global_position + fwd * 1.2, Color(1.0, 0.85, 0.45), 3.2)
+		if hits > 0:
+			VFX.impact_frame(get_parent(), first_hit, 0.7)
 	if hits > 0:
 		Audio.sfx("hit")
 		_hit_stop(0.09 if finisher else 0.05)
@@ -1100,6 +1124,7 @@ func _start_dodge() -> void:
 	_attack_buffer = 0.0
 	_impulse = Vector3.ZERO
 	_animator.play_full("Dodge_Backward" if backward else "Dodge_Forward", DODGE_ANIM_RATE)
+	VFX.afterimage(get_parent(), _model, Color(0.6, 0.85, 1.0), 3)
 	get_tree().create_timer(DODGE_TIME).timeout.connect(_end_dodge_anim)
 
 
@@ -1164,7 +1189,10 @@ func _die() -> void:
 	dead = true
 	# Death_A resolves to the long Mesh2Motion stagger/fall clip and can outlast
 	# the respawn timer. Use the short terminal fall for the playable character.
-	_animator.play_terminal("Death01")
+	if _rig:
+		_rig.call("set_paused", true)   # no foot IK or springs under the ragdoll or death clip
+	if not (_ragdoll and _ragdoll.call("die")):
+		_animator.play_terminal("Death01")
 	Game.say("You fall... and wake in the village, bruised.")
 	await get_tree().create_timer(3.0).timeout
 	global_position = spawn_point
@@ -1175,7 +1203,11 @@ func _die() -> void:
 	health = max_health
 	stamina = MAX_STAMINA
 	dead = false
+	if _ragdoll:
+		_ragdoll.call("revive")
 	_animator.set_active(true)
+	if _rig:
+		_rig.call("set_paused", false)
 	health_changed.emit(health, max_health)
 
 
@@ -1192,6 +1224,7 @@ func heal(amount: int) -> void:
 	if dead:
 		return
 	health = mini(health + amount, max_health)
+	VFX.heal(get_parent(), global_position)
 	health_changed.emit(health, max_health)
 
 

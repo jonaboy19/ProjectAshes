@@ -76,6 +76,10 @@ var player: AnimationPlayer
 ## Extra stride multiplier for a body scaled after construction (the player's
 ## child years). Leg length at construction is measured automatically.
 var stride_scale := 1.0
+## Optional procedural rig (scripts/actors/procedural_rig.gd) fed from update():
+## foot IK eases off for whole-body actions and turns off for swim/ride stances
+## and terminal poses. Owners with more state (airborne) call its set_state after.
+var rig: Node
 var _root: AnimationNodeBlendTree
 var _upper_anim: AnimationNodeAnimation
 var _full_anim: AnimationNodeAnimation
@@ -321,6 +325,9 @@ func update(delta: float, speed: float, move_dir := Vector3.ZERO) -> void:
 		_update_strafe()
 	if _has_stances:
 		_update_stance(delta)
+	if rig:
+		var off := not tree.active or _stance == "swim" or _stance == "ride"
+		rig.call("set_state", maxf(speed, 0.0), true, off, is_full_busy())
 
 
 func _update_stance(delta: float) -> void:
