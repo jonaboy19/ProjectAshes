@@ -18,6 +18,15 @@ uniform float backlight_amount = 0.35;
 // Set by scripts/world/weather.gd on the shared leaf materials (1 = calm default, ~2.4 in a storm).
 uniform float weather_wind = 1.0;
 
+// Season look, set by scripts/sim/seasons.gd (RenderingServer globals). All defaults
+// are neutral (white tint, everything else 0), so with no seasons node the look is
+// unchanged. COLOR.g (where the mesh has it) varies the autumn colour per tree/leaf.
+global uniform vec3 season_tint;
+global uniform float autumn_amount;
+global uniform float winter_amount;
+global uniform float snow_amount;
+global uniform float bloom_amount;
+
 void vertex() {
 	vec3 origin = MODEL_MATRIX[3].xyz;
 	float phase = dot(origin.xz, vec2(0.137, 0.091));
@@ -37,8 +46,29 @@ void fragment() {
 	if (c.a < alpha_cut) {
 		discard;
 	}
-	ALBEDO = c.rgb;
+	vec3 col = c.rgb * season_tint;
+	// Autumn: gold/orange/red, varied per leaf by COLOR.g so a crown isn't one flat hue.
+	if (autumn_amount > 0.0) {
+		vec3 fall = mix(vec3(0.85, 0.55, 0.08), vec3(0.75, 0.14, 0.06), COLOR.g);
+		col = mix(col, fall * (0.6 + 0.4 * col), autumn_amount);
+	}
+	// Winter: bare, desaturated crowns (leaves that remain read as dry and grey).
+	if (winter_amount > 0.0) {
+		float l = dot(col, vec3(0.299, 0.587, 0.114));
+		col = mix(col, vec3(l) * vec3(0.85, 0.82, 0.8), winter_amount * 0.7);
+	}
+	// Snow settling on the top-facing leaf cards.
+	if (snow_amount > 0.0) {
+		float top = clamp(NORMAL.y, 0.0, 1.0);
+		col = mix(col, vec3(0.96, 0.97, 1.0), snow_amount * top * top * 0.85);
+	}
+	// Spring: a few blossom speckles, thinning out as bloom fades.
+	// Sparse: only the top slice of leaves by COLOR.g flush pink, and only softly.
+	if (bloom_amount > 0.0 && COLOR.g > 0.9) {
+		col = mix(col, vec3(0.97, 0.85, 0.9), bloom_amount * 0.5);
+	}
+	ALBEDO = col;
 	ROUGHNESS = 0.8;
 	SPECULAR = 0.25;
-	BACKLIGHT = c.rgb * backlight_amount;
+	BACKLIGHT = col * backlight_amount;
 }

@@ -11,6 +11,8 @@ extends Node
 
 signal hour_changed(hour: int)
 
+const SeasonsScript := preload("res://scripts/sim/seasons.gd")
+
 const SEED := 1066
 const JOBS := ["Farmer", "Blacksmith", "Merchant", "Guard", "Laborer", "Woodcutter"]
 const WAGES := [6, 12, 15, 9, 5, 7]
@@ -24,6 +26,12 @@ const LAST := ["Smith", "Cooper", "Fletcher", "Thatcher", "Miller", "Ward", "Bro
 
 var time_of_day := 8.0      # hours, 0..24
 var day := 1
+
+## Four-season calendar (scripts/sim/seasons.gd), advanced off our own
+## hour_changed signal. "spring" / "summer" / "autumn" / "winter".
+var seasons: Node = null
+var season: String:
+	get: return seasons.season_name() if seasons else "spring"
 
 # Per-person columns.
 var home := PackedInt32Array()
@@ -44,8 +52,11 @@ var _last_hour := -1
 
 
 func _ready() -> void:
+	SeasonsScript.ensure_globals()   # shader globals must exist before shaders compile
 	WorldGen.setup(SEED)
 	_populate()
+	seasons = SeasonsScript.new()
+	add_child(seasons)
 
 
 func population() -> int:
@@ -149,7 +160,8 @@ func advance_hours(hours: float) -> void:
 
 
 func serialize() -> Dictionary:
-	return {"day": day, "time": time_of_day, "treasury": Array(treasury), "money": Marshalls.raw_to_base64(money.to_byte_array())}
+	return {"day": day, "time": time_of_day, "treasury": Array(treasury), "money": Marshalls.raw_to_base64(money.to_byte_array()),
+		"season": seasons.serialize() if seasons else {}}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -164,6 +176,8 @@ func deserialize(d: Dictionary) -> void:
 		var m := Marshalls.base64_to_raw(d["money"]).to_int32_array()
 		if m.size() == money.size():
 			money = m
+	if seasons and d.has("season"):
+		seasons.deserialize(d["season"])
 	_last_hour = -1
 	for i in pos.size():
 		phase[i] = 255

@@ -16,6 +16,7 @@ extends Node3D
 ## main.gd also calls use(), the per-frame guard stops a double pick.
 
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
+const SeasonsScript := preload("res://scripts/sim/seasons.gd")
 const MAX_NODES := 12
 const SPAWN := 55.0
 const DESPAWN := 80.0
@@ -106,7 +107,7 @@ func _refresh(p: Vector2) -> void:
 			if _active.has(c) or harvested.has(c):
 				continue
 			var info := _cell(c)
-			if not bool(info["ok"]):
+			if not bool(info["ok"]) or not _in_season(info):
 				continue
 			var pos: Vector3 = info["pos"]
 			var d := Vector2(pos.x, pos.z).distance_to(p)
@@ -133,10 +134,24 @@ func _cell(c: Vector2i) -> Dictionary:
 	var chance := 0.42 if forest >= 0.35 else 0.22
 	if rng.randf() < chance and _spot_ok(q):
 		var kind := Gathering.forage_kind(forest, rng.randf())
+		# Fixed per-cell luck so a few mushroom patches also hold outside
+		# autumn ("mostly in autumn"), without the spot flickering day to day.
 		out = {"ok": true, "kind": kind, "pos": Vector3(q.x, WorldGen.height(q.x, q.y), q.y),
-			"yaw": rng.randf() * TAU}
+			"yaw": rng.randf() * TAU, "off_season": rng.randf() < 0.2}
 	_cells[c] = out
 	return out
+
+
+## Berries only grow in summer/autumn; mushrooms are mostly an autumn thing,
+## with a few patches (see "off_season" above) fruiting year-round.
+func _in_season(info: Dictionary) -> bool:
+	var kind := String(info.get("kind", ""))
+	if kind != "berries" and kind != "mushroom":
+		return true
+	var cal_day: int = WorldSim.seasons.current_day() if WorldSim.seasons else int(WorldSim.day)
+	if SeasonsScript.forage_in_season(kind, cal_day):
+		return true
+	return kind == "mushroom" and bool(info.get("off_season", false))
 
 
 func _spot_ok(q: Vector2) -> bool:

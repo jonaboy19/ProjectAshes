@@ -27,6 +27,13 @@ uniform vec3 grass_tint : source_color = vec3(0.85, 1.0, 0.7);
 // Flat ground darkens and turns glossy, streets and paths more than grass, and
 // low spots in the macro noise collect mirror-smooth puddles.
 uniform float wetness : hint_range(0.0, 1.0) = 0.0;
+// Season look, set by scripts/sim/seasons.gd (RenderingServer globals). All defaults
+// are neutral, so with no seasons node the ground looks exactly as it did before.
+global uniform vec3 season_tint;
+global uniform float autumn_amount;
+global uniform float winter_amount;
+global uniform float snow_amount;
+global uniform float bloom_amount;
 
 varying vec3 world_pos;
 varying vec3 world_normal;
@@ -95,6 +102,29 @@ void fragment() {
 		normal = mix(normal, vec3(0.5, 0.5, 1.0), puddle);
 	}
 
+	albedo *= season_tint;
+	// Autumn: a warm tint and a scatter of leaf litter on soft ground.
+	if (autumn_amount > 0.0) {
+		float litter = smoothstep(0.55, 0.85, texture(macro_noise, world_pos.xz * 0.07).r) * (1.0 - clamp(w.r + w.b, 0.0, 1.0));
+		albedo = mix(albedo, albedo * vec3(1.15, 0.75, 0.35), autumn_amount * 0.35);
+		albedo = mix(albedo, vec3(0.55, 0.32, 0.12), autumn_amount * litter * 0.5);
+	}
+	// Winter: snow settles on flat ground, thinner on slopes, with paths and
+	// rock/cobble still slightly visible through it (never fully buried).
+	if (snow_amount > 0.0) {
+		float flat_amt = smoothstep(0.55, 0.9, world_normal.y);
+		float hard = clamp(w.r + w.g + w.b, 0.0, 1.0);       // path / rock / cobble peek through
+		float cover = snow_amount * flat_amt * mix(1.0, 0.45, hard);
+		vec3 snow_col = vec3(0.92, 0.95, 1.0);
+		albedo = mix(albedo, snow_col, clamp(cover, 0.0, 0.92));
+		rough = mix(rough, 0.75, clamp(cover, 0.0, 1.0));
+	} else if (winter_amount > 0.0) {
+		float l = dot(albedo, vec3(0.299, 0.587, 0.114));
+		albedo = mix(albedo, vec3(l) * vec3(0.85, 0.85, 0.88), winter_amount * 0.35);
+	}
+	if (bloom_amount > 0.0) {
+		albedo = mix(albedo, albedo * vec3(0.92, 1.04, 0.9), bloom_amount * 0.3);
+	}
 	ALBEDO = albedo;
 	NORMAL_MAP = normal;
 	NORMAL_MAP_DEPTH = 1.0;

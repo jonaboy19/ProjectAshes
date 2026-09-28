@@ -22,6 +22,14 @@ uniform float wind_speed = 1.1;
 uniform float flutter = 0.035;                    // small per-cluster shimmer (metres)
 uniform float weather_wind = 1.0;                 // scripts/world/weather.gd: 1 = calm default, ~2.4 storm
 
+// Season look, set by scripts/sim/seasons.gd (RenderingServer globals). All defaults
+// are neutral, so with no seasons node the canopy looks exactly as it did before.
+global uniform vec3 season_tint;
+global uniform float autumn_amount;
+global uniform float winter_amount;
+global uniform float snow_amount;
+global uniform float bloom_amount;
+
 void vertex() {
 	vec3 origin = MODEL_MATRIX[3].xyz;
 	vec3 wp = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
@@ -43,7 +51,27 @@ void fragment() {
 		discard;
 	}
 	vec4 t = texture(albedo_texture, UV);
-	ALBEDO = t.rgb * tint.rgb * mix(1.0, COLOR.b, ao_strength);
+	vec3 col = t.rgb * tint.rgb * season_tint * mix(1.0, COLOR.b, ao_strength);
+	// Autumn: gold/orange/red, varied per cluster by COLOR.g.
+	if (autumn_amount > 0.0) {
+		vec3 fall = mix(vec3(0.85, 0.55, 0.08), vec3(0.75, 0.14, 0.06), COLOR.g);
+		col = mix(col, fall * (0.6 + 0.4 * col), autumn_amount);
+	}
+	// Winter: desaturated, bare-looking canopy.
+	if (winter_amount > 0.0) {
+		float l = dot(col, vec3(0.299, 0.587, 0.114));
+		col = mix(col, vec3(l) * vec3(0.85, 0.82, 0.8), winter_amount * 0.7);
+	}
+	// Snow on the top-facing canopy cards.
+	if (snow_amount > 0.0) {
+		float top = clamp(NORMAL.y, 0.0, 1.0);
+		col = mix(col, vec3(0.96, 0.97, 1.0), snow_amount * top * top * 0.85);
+	}
+	// Sparse: only the top slice of leaves by COLOR.g flush pink, and only softly.
+	if (bloom_amount > 0.0 && COLOR.g > 0.9) {
+		col = mix(col, vec3(0.97, 0.85, 0.9), bloom_amount * 0.5);
+	}
+	ALBEDO = col;
 	ALPHA = t.a;
 	ALPHA_SCISSOR_THRESHOLD = alpha_cut;
 	ROUGHNESS = roughness;

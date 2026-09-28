@@ -40,6 +40,14 @@ uniform float wind_speed = 1.4;
 uniform float gust_scale = 0.07;                  // spatial frequency of gust waves (1/m)
 uniform float weather_wind = 1.0;                 // Weather.wind_strength: 1 calm, ~2.4 storm (GrassField sets it)
 
+// Season look, set by scripts/sim/seasons.gd (RenderingServer globals). All defaults
+// are neutral, so with no seasons node the meadow looks exactly as it did before.
+global uniform vec3 season_tint;
+global uniform float autumn_amount;
+global uniform float winter_amount;
+global uniform float snow_amount;
+global uniform float bloom_amount;
+
 group_uniforms clumping;
 uniform float clump_scale = 0.09;                 // colour patches per metre
 uniform float clump_height : hint_range(0.0, 0.5) = 0.16;
@@ -175,12 +183,28 @@ void vertex() {
 
 void fragment() {
 	vec4 t = texture(albedo_texture, UV);
-	vec3 col = t.rgb * tint.rgb;
+	vec3 col = t.rgb * tint.rgb * season_tint;
 	vec3 patch_tint = mix(lush_tint, dry_tint, smoothstep(0.3, 0.75, clump));
 	col *= mix(vec3(1.0), patch_tint, clump_tint_amount);
 	col *= mix(1.0 - root_shade, 1.0, smoothstep(0.0, 0.55, blade_h));
 	col *= 1.0 + tip_lift * smoothstep(0.5, 1.0, blade_h);
 	col *= 1.0 - flatten * 0.08;                   // pressed grass sits in its own shade
+	// Autumn: grass yellows, more so near the tips.
+	if (autumn_amount > 0.0) {
+		vec3 yellow = vec3(0.72, 0.6, 0.22);
+		col = mix(col, col * yellow * 1.6, autumn_amount * mix(0.6, 1.0, blade_h));
+	}
+	// Winter: short, frosty, desaturated grass.
+	if (winter_amount > 0.0) {
+		float l = dot(col, vec3(0.299, 0.587, 0.114));
+		col = mix(col, vec3(l) * vec3(0.82, 0.84, 0.86), winter_amount * 0.65);
+	}
+	if (snow_amount > 0.0) {
+		col = mix(col, vec3(0.95, 0.97, 1.0), snow_amount * smoothstep(0.5, 1.0, blade_h) * 0.8);
+	}
+	if (bloom_amount > 0.0) {
+		col = mix(col, col * vec3(0.9, 1.05, 0.88), bloom_amount * 0.5);
+	}
 	ALBEDO = col;
 	ALPHA = t.a;
 	ALPHA_SCISSOR_THRESHOLD = alpha_cut;
