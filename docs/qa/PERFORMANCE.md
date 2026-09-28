@@ -205,3 +205,41 @@ godot --headless --path kingdom -s <abs>/tools/qa/bench/check_clips.gd   # clip 
 - HIGH, village_forest, speed 7, real input: before avg ~48 fps, p99 63 ms, 278-312 hitches >33 ms → after **58 fps, p99 29.3 ms, max 42.7 ms, 43 hitches, 0 errors**.
   Remaining yellow (20-25 ms) is the walk back into Ashford with ~70 people nearby. That's crowd cost, next target (VAT crowds).
   Evidence: `docs/qa/perf_visual/rig_fix/`.
+
+## 2026-09-28: distant-NPC LOD throttle (villager.gd), and why it barely moved the number
+
+**Where the cost actually is.** `tools/qa/bench/bench.gd --profile` (village, HIGH, forward_plus, 16 full
+NPCs / 55 sprites) disables one subtree at a time and measures the frame-time delta. `population_lod.gd`
+(the whole node, including every embodied `Villager`'s `_physics_process`, animation and the sprite
+MultiMesh refresh) only saved **1.1 ms** off a 16.4 ms frame — smaller than `WorldSim` (1.5 ms), `Life`
+(1.4 ms) or `frontier_presence.gd` (1.4 ms) alone. Full NPCs are comparatively cheap in the profiler's
+static village view; the 20-25 ms frames the goal cites happen during the walk back into Ashford, where a
+hazard event (`fleeing!`) puts ~15-20 villagers into **contact range** at once (route re-planning, capsule
+`move_and_slide()`, per-frame steering) — cost that isn't specific to "distant" NPCs and isn't safe to
+throttle without touching locomotion, which is out of scope here (Codex owns animation/locomotion; the
+task also excludes `procedural_rig.gd`, already fixed).
+
+**What shipped.** `kingdom/scripts/population/villager.gd`: full NPCs outside contact range (not about to
+be touched or stepped around) and beyond 12 m now run their `AnimationPlayer` in
+`ANIMATION_CALLBACK_MODE_PROCESS_MANUAL` instead of per-frame `PROCESS_IDLE`, advanced manually at ~12 Hz
+(clip, blend and speed choice are untouched — only how often the pose is refreshed). Beyond 15 m their
+mesh instances also stop casting a sun shadow (`SHADOW_CASTING_SETTING_OFF`), matching the shadow-cost
+tier logic `quality.gd` already applies to small props but explicitly skips for skinned meshes. Both
+thresholds are re-checked on each `THINK_INTERVAL` (0.3 s, already staggered per person), not every
+frame, so there's no per-frame branch cost added beyond a couple of field comparisons.
+
+**Verification.** `tools/qa/perf_visual/perf_visual.gd --route=village_forest --quality=high --speed=7`,
+3 runs same session (1 without the change, 2 with):
+  - without: `fps=55 p99=33.3 max=63.0 hitches>33ms=64` (0 per-frame errors; 8 errors are all
+    shutdown-time RID/resource leak warnings, not printed during play)
+  - with: `fps=56 p99=33.3 max=89.1 hitches>33ms=61` and `fps=56 p99=33.3 max=65.4 hitches>33ms=63`
+  All three are close to each other and *worse* than the `58 fps / p99 29.3 / 43 hitches` baseline logged
+  above for the same route — this session's machine was noisier (this file's own caveat: shared-GPU runs
+  read ~30% low), not a regression from the change. The two "with" runs agree with each other, so the
+  throttle itself is measurement-noise-neutral on this scene: it doesn't hurt, and it structurally removes
+  cost that scales with NPC count (fewer AnimationMixer pose evaluations and shadow-map draws per distant
+  NPC), which matters more as Ashford's `Realm` population grows and on phone GPUs where shadow map
+  passes are relatively far more expensive than on an RTX 4070. It is not, by itself, a fix for the
+  contact-range flee-event spike; that needs the still-open VAT/crowd-system item this doc already flags.
+  Visual check: `docs/qa/perf_visual/verify6/0104_HITCH_39ms_92.5s.jpg` and `0106_94.4s.jpg` (71 people
+  nearby, 16 full / 55 sprites, mid-flee) — NPCs animate normally, no T-poses, no floating, no popping.

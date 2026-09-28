@@ -50,6 +50,14 @@ const WAYPOINT_RADIUS := 0.8
 ## At the player's 6.5 m/s run, 14 m is two seconds of warning.
 const CONTACT_ENTER := 14.0
 const CONTACT_EXIT := 17.0
+## Beyond this (and out of contact range), the AnimationPlayer stops advancing
+## every physics frame and is stepped manually at LOD_ANIM_HZ instead: a distant
+## villager's gait reads the same at 12 Hz, and skinned-mesh update is most of a
+## full NPC's per-frame cost. Beyond LOD_SHADOW_DIST it also stops casting a sun
+## shadow: at that range the shadow map contribution isn't visible under the body.
+const LOD_ANIM_DIST := 12.0
+const LOD_ANIM_HZ := 12.0
+const LOD_SHADOW_DIST := 15.0
 ## Step aside when the player comes this close.
 const YIELD_RADIUS := 1.7
 const SEPARATION_RADIUS := 0.9
@@ -100,6 +108,10 @@ var neighbours: Array = []
 var _file := ""
 var _keep: Array[String] = []
 var _anim: AnimationPlayer
+var _meshes: Array[GeometryInstance3D] = []
+var _anim_lod := false
+var _anim_accum := 0.0
+var _shadow_lod := false
 var _tag: Label3D
 var _tag_timer := 0.0
 var _shape: CollisionShape3D
@@ -190,6 +202,8 @@ func _ready() -> void:
 	var model := Assets.character(_file, 1.7, _keep)
 	add_child(model)
 	_anim = Assets.animation_player(model)
+	for n in model.find_children("*", "MeshInstance3D", true, false):
+		_meshes.append(n as GeometryInstance3D)
 	_add_head_look(model)
 	_attach_components(model)
 	_graph = StreetGraph.for_person(person) as StreetGraph
@@ -314,7 +328,18 @@ func _physics_process(delta: float) -> void:
 	# Animation follows the resolved body speed (a blocked villager stops its feet).
 	var measured := moved.length() / maxf(delta, 0.001)
 	_resolved_speed = lerpf(_resolved_speed, measured, 1.0 - exp(-14.0 * delta))
-	_update_animation(delta)
+	if _anim_lod:
+		# Throttled: accumulate real time and refresh the clip/pose at LOD_ANIM_HZ
+		# instead of every physics tick, stepping the manual player by what elapsed.
+		_anim_accum += delta
+		if _anim_accum >= 1.0 / LOD_ANIM_HZ:
+			var step := _anim_accum
+			_anim_accum = 0.0
+			_update_animation(step)
+			if _anim:
+				_anim.advance(step)
+	else:
+		_update_animation(delta)
 	_update_head_look(delta)
 	_tag.visible = show_tag
 
@@ -328,6 +353,7 @@ func _think_tick() -> void:
 	if _player:
 		player_distance = here.distance_to(Vector2(_player.global_position.x, _player.global_position.z))
 	_set_contact(not _indoors and (player_distance < CONTACT_ENTER or (_contact and player_distance < CONTACT_EXIT)))
+	_apply_distance_lod(player_distance)
 	_decide -= THINK_INTERVAL
 	if _decide <= 0.0:
 		_decide += DECIDE_INTERVAL
@@ -477,6 +503,26 @@ func _set_contact(on: bool) -> void:
 	if not on:
 		velocity = Vector3.ZERO
 		_player_push = Vector2.ZERO
+
+
+## Distance-only throttling: never changes what plays, only how often it's
+## refreshed. Contact-range villagers (about to be touched or stepped around)
+## are excluded from both, so nothing changes for anyone the player can reach.
+func _apply_distance_lod(player_distance: float) -> void:
+	var want_anim := player_distance > LOD_ANIM_DIST and not _contact
+	if want_anim != _anim_lod:
+		_anim_lod = want_anim
+		if _anim:
+			_anim.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL if want_anim \
+				else AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_IDLE
+			_anim_accum = 0.0
+	var want_shadow := player_distance > LOD_SHADOW_DIST
+	if want_shadow != _shadow_lod:
+		_shadow_lod = want_shadow
+		var mode := GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if want_shadow else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		for m in _meshes:
+			if is_instance_valid(m):
+				m.cast_shadow = mode
 
 
 func _neighbour_push(here: Vector2) -> Vector2:
