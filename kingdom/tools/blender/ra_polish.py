@@ -522,9 +522,17 @@ def add_markers(ob, markers):
     return out
 
 
+ART_DIR = os.path.join(ROOT, "kingdom", "assets", "art")   # hand-painted textures/emblems: also shared, not embedded
+
+
+def _is_shared_tex(im):
+    d = os.path.dirname(os.path.abspath(bpy.path.abspath(im.filepath)))
+    return d == TEX_DIR or (os.path.commonpath([d, ART_DIR]) == ART_DIR if os.path.isdir(ART_DIR) else False)
+
+
 def export_glb(ob, out_glb, extra=()):
-    """glTF-separate export (textures stay in village_tex/ by relative URI), then
-    pack .gltf + .bin into one .glb that still points at the shared textures."""
+    """glTF-separate export (textures stay in village_tex/ or assets/art/ by relative
+    URI), then pack .gltf + .bin into one .glb that still points at the shared textures."""
     bpy.ops.object.select_all(action="DESELECT")
     for e in extra:
         e.select_set(True)
@@ -533,8 +541,7 @@ def export_glb(ob, out_glb, extra=()):
     out_glb = os.path.abspath(out_glb)
     used = {n.image for m in ob.data.materials if m and m.node_tree for n in m.node_tree.nodes
             if n.type == "TEX_IMAGE" and n.image}
-    if any(not im.filepath or os.path.dirname(os.path.abspath(bpy.path.abspath(im.filepath))) != TEX_DIR
-           for im in used):
+    if any(not im.filepath or not _is_shared_tex(im) for im in used):
         # an asset with its own generated texture (e.g. field_crops' wheat cards): embed as before
         bpy.ops.export_scene.gltf(filepath=out_glb, export_format="GLB", export_apply=True, use_selection=True,
                                   export_vertex_color="MATERIAL")

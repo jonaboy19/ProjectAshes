@@ -133,7 +133,7 @@ def _pad(b, fill=b"\x00"):
     return b
 
 
-def write_skinned_glb(path, skel, joint_pos_b, mesh, material, images, name="Character"):
+def write_skinned_glb(path, skel, joint_pos_b, mesh, material, images, name="Character", extra=None):
     """Write a GLB with node tree  Armature > [root > ... bones, <name> mesh].
 
     joint_pos_b : {bone: global position, Blender space}
@@ -142,6 +142,10 @@ def write_skinned_glb(path, skel, joint_pos_b, mesh, material, images, name="Cha
                   idx (M,) — all in Blender space
     material    : dict(name, rough, metal, normal_scale)
     images      : dict(albedo=uri, orm=uri or None, normal=uri or None)
+    extra       : optional list of {"mesh": <same shape as `mesh`>, "images": {"albedo": uri},
+                  "alpha": "MASK"|"BLEND"|"OPAQUE", "cutoff": float, "name": str} -- each becomes
+                  an extra primitive (its own unlit-ish material) sharing this mesh's skin, e.g.
+                  a small emblem/decal quad. Does not affect the primary primitive/material.
     """
     bin_ = bytearray()
     views, accs = [], []
@@ -233,15 +237,45 @@ def write_skinned_glb(path, skel, joint_pos_b, mesh, material, images, name="Cha
     if images.get("normal"):
         mat["normalTexture"] = {"index": tex(images["normal"]), "scale": material.get("normal_scale", 1.0)}
 
+    primitives = [{"attributes": attrs, "indices": iacc, "material": 0}]
+    materials = [mat]
+    if extra:
+        for e in extra:
+            em = e["mesh"]
+            epos = (em["pos"] @ G2B).astype(np.float32)
+            enrm = (em["nrm"] @ G2B).astype(np.float32)
+            enrm /= np.maximum(np.linalg.norm(enrm, axis=1, keepdims=True), 1e-8)
+            eattrs = {
+                "POSITION": add(epos, 5126, "VEC3", 34962, minmax=True),
+                "NORMAL": add(enrm, 5126, "VEC3", 34962),
+                "TEXCOORD_0": add(np.stack([em["uv"][:, 0], 1 - em["uv"][:, 1]], 1).astype(np.float32), 5126, "VEC2", 34962),
+                "COLOR_0": add(em["col"].astype(np.float32), 5126, "VEC4", 34962),
+                "JOINTS_0": add(em["joints"].astype(np.uint16), 5123, "VEC4", 34962),
+                "WEIGHTS_0": add(em["weights"].astype(np.float32), 5126, "VEC4", 34962),
+            }
+            eidx = em["idx"]
+            eict = 5123 if eidx.max() < 65535 else 5125
+            eiacc = add(eidx.astype(np.uint16 if eict == 5123 else np.uint32), eict, "SCALAR", 34963)
+            alpha = e.get("alpha", "MASK")
+            emat = {"name": e.get("name", "Decal"), "doubleSided": True, "alphaMode": alpha,
+                    "pbrMetallicRoughness": {"baseColorFactor": [1, 1, 1, 1], "metallicFactor": 0.0,
+                                            "roughnessFactor": 1.0}}
+            if alpha == "MASK":
+                emat["alphaCutoff"] = e.get("cutoff", 0.5)
+            if e["images"].get("albedo"):
+                emat["pbrMetallicRoughness"]["baseColorTexture"] = {"index": tex(e["images"]["albedo"])}
+            materials.append(emat)
+            primitives.append({"attributes": eattrs, "indices": eiacc, "material": len(materials) - 1})
+
     gl = {
         "asset": {"version": "2.0", "generator": "Rising Ashes make_humans.py"},
         "scene": 0,
         "scenes": [{"name": name, "nodes": [0]}],
         "nodes": nodes,
-        "meshes": [{"name": name, "primitives": [{"attributes": attrs, "indices": iacc, "material": 0}]}],
+        "meshes": [{"name": name, "primitives": primitives}],
         "skins": [{"name": "Armature", "joints": [node_of[n] for n in names],
                    "inverseBindMatrices": ibm_acc, "skeleton": node_of["root"]}],
-        "materials": [mat],
+        "materials": materials,
         "accessors": accs,
         "bufferViews": views,
         "buffers": [{"byteLength": len(bin_)}],

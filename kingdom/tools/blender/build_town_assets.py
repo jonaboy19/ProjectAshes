@@ -17,7 +17,9 @@ OUT = os.path.join(ROOT, "kingdom", "assets", "generated")
 PREV = os.path.join(ROOT, "docs", "kingdom", "blender_previews")
 ASSETS = ["village_well", "bell_tower", "chapel", "temple", "town_wall", "town_wall_tower", "town_gate",
           "castle_keep", "market_cart", "hand_cart", "lamp_post", "signpost", "haystack", "woodpile",
-          "washing_line", "garden_plot", "field_crops"]
+          "washing_line", "garden_plot", "field_crops",
+          "market_stall_red", "market_stall_green", "street_lamp", "banner_pole", "wall_banner", "shop_sign",
+          "bunting", "flower_strip", "barrel_cluster"]
 # <name>_lod1.glb for buildings, plus a remeshed <name>_lod2.glb proxy for the big landmarks
 LOD1 = {"bell_tower", "chapel", "temple", "town_wall", "town_wall_tower", "town_gate", "castle_keep"}
 LOD2 = {"temple", "castle_keep", "town_gate", "bell_tower"}

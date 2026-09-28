@@ -952,6 +952,24 @@ class VK(Kit):
         with self.lod1_only():
             self.box(s, (x, y, z + s[2] / 2), self.M("Thatch"), hexc("c9ab62"), rot=(rx, 0, rz), var=0)
 
+    def jug(self, x, y, z=0.0, r=0.11, h=0.24, c=None, handle=True):
+        """Squat pottery jug (market-stall goods): footring, bulging body, short
+        neck, lip and a loop handle."""
+        with self.detail():
+            MA = self.M("Matte")
+            c = c or vary(hexc("9a6a44"), 0.08)
+            self.cyl(r * 0.55, h * 0.16, (x, y, z), MA, mix(c, (0, 0, 0), 0.1), segs=8, r2=r * 0.8, grime=False)
+            self.cyl(r, h * 0.5, (x, y, z + h * 0.16), MA, c, segs=8, r2=r * 0.85, grime=False)
+            self.cyl(r * 0.8, h * 0.22, (x, y, z + h * 0.66), MA, c, segs=8, r2=r * 0.38, grime=False)
+            self.cyl(r * 0.36, h * 0.1, (x, y, z + h * 0.88), MA, mix(c, (0, 0, 0), 0.12), segs=8, r2=r * 0.42,
+                     grime=False)
+            if handle:
+                self.tube([(x + r * 0.82, y, z + h * 0.5), (x + r * 1.5, y, z + h * 0.66),
+                           (x + r * 0.82, y, z + h * 0.8)], [0.016, 0.016, 0.016], MA, c, segs=5, point_end=False,
+                          cap_start=False)
+        with self.lod1_only():
+            self.cyl(r * 0.9, h, (x, y, z), self.M("Matte"), c or hexc("9a6a44"), segs=6, r2=r * 0.45, var=0)
+
     def basket(self, x, y, z=0.0, r=0.22, h=0.2, goods="apple", n=None):
         with self.detail():
             W = self.M("Wood")

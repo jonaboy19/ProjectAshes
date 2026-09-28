@@ -44,7 +44,7 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 	for g in gates:
 		var d := Vector2(cos(g), sin(g))
 		# Walled towns get a broad gate road wide enough for a market (Kingsreach reference).
-		streets.append({"a": c + d * plaza_r, "b": c + d * r * 1.05, "w": 13.0 if walled else 8.0})
+		streets.append({"a": c + d * plaza_r, "b": c + d * r * 1.05, "w": 11.0 if walled else 8.0})
 	# Ring streets.
 	var rings: Array[float] = []
 	match kind:

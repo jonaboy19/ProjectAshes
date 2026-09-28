@@ -1117,17 +1117,20 @@ def g_tunic(h, r, pal, parts, cov, kind="tunic"):
     return top_pts, bz
 
 
-def g_belt(h, r, pal, parts, top_pts, bz, pouch=True):
+def g_belt(h, r, pal, parts, top_pts, bz, pouch=True, pouch_count=1):
     p, env, cy = band(h, "belt", bz - 0.022, bz + 0.022, "leather", pal["belt"], top_pts, extra_r=0.007, seed=r["seed"])
     parts.append(p)
     front_r = env[len(env) // 2]
     parts.append(box_part(h, "buckle", (0, cy - front_r - 0.012, bz), (0.042, 0.008, 0.036), "metal", (0.62, 0.58, 0.5)))
     if pouch:
-        ang = math.radians(115)
-        k = int((ang + math.pi) / (2 * math.pi) * len(env)) % len(env)
-        rr = env[k] + 0.03
-        c = (math.sin(ang) * rr, cy + math.cos(ang) * rr, bz - 0.055)
-        parts.append(box_part(h, "pouch", c, (0.095, 0.045, 0.11), "leather", pal.get("pouch", pal["belt"]), rot=-ang))
+        angles = [115] if pouch_count <= 1 else [95, 265][:pouch_count]
+        for pi, ang_deg in enumerate(angles):
+            ang = math.radians(ang_deg)
+            k = int((ang + math.pi) / (2 * math.pi) * len(env)) % len(env)
+            rr = env[k] + 0.03
+            c = (math.sin(ang) * rr, cy + math.cos(ang) * rr, bz - 0.055)
+            parts.append(box_part(h, f"pouch_{pi}", c, (0.09, 0.045, 0.10), "leather",
+                                  pal.get("pouch", pal["belt"]), rot=-ang))
 
 
 def g_trousers(h, r, pal, parts, cov, top_z, boot_top):
@@ -1224,7 +1227,242 @@ def g_apron(h, r, pal, parts, wz, dress_pts):
     parts.append(p)
 
 
-def g_cloak(h, r, pal, parts, hood="down"):
+def g_vest(h, r, pal, parts, cov, name, pal_key, hem_frac=0.16, offset=0.026, neck_depth=0.05,
+           neck_width=0.09, flare=0.06, grime=0.15, seed_off=20, trim_key=None, tile="wool"):
+    """Sleeveless overlay garment (waistcoat / tabard / sleeveless overtunic),
+    built further off the body than whatever is already on the torso so it
+    sits visibly outside it. `hem_frac` is the tunic-style fraction between
+    the belt (0) and the calf (1); a small value ~0.16 is knee-length, ~0.5
+    is hip-length (waistcoat)."""
+    bz = belt_z(h)
+    color = pal[pal_key]
+    P = h.P[:h.nb]
+    m = h.mask("torso", "neck")
+    m &= P[:, 2] > bz - 0.06
+    m &= P[:, 2] < neck_cut(h, P, neck_depth, neck_width)
+    # taubin=25 (matching the base tunic) is needed to flatten the pec bulge on
+    # muscular male bodies -- a lightly-smoothed second shell over it reads as
+    # a bust. smooth=8 for the same reason.
+    sh = shell(h, m, offset, smooth=8, taubin=25)
+    part = shell_part(h, name, sh, tile, color, 550, body_axis_groups(h, {"torso"}),
+                      grime=grime, seed=r["seed"] + seed_off)
+    if trim_key and trim_key in pal:
+        tc = srgb2lin(np.array(pal[trim_key])) / srgb2lin(0.88)
+        part.c[sh["rim"]] = part.c[sh["rim"]] * 0.15 + tc * 0.85
+    parts.append(part)
+    cov |= covered(h, m)
+    top_pts = sh["v"]
+    hem = h.z("calf_l") + hem_frac * (h.z("thigh_l") - h.z("calf_l"))
+    segs, rows = 24, 7
+    # A generous, fold-free ease keeps this skirt's radius safely outside
+    # whatever wavy under-layer skirt (tunic/gambeson) it's covering at every
+    # angle, so the under-layer never pokes through the hem.
+    skirt = make_skirt(h, name + "_skirt", bz + 0.01, hem, tile, color, flare=max(flare, 0.09),
+                       ease=0.05 + offset, segs=segs, rows=rows, inner_pts=top_pts,
+                       seed=r["seed"] + seed_off + 3, folds=0.0)
+    if trim_key and trim_key in pal:
+        tc = srgb2lin(np.array(pal[trim_key])) / srgb2lin(0.88)
+        idxs = np.arange((rows - 1) * segs, rows * segs)
+        idxs = idxs[idxs < len(skirt.c)]
+        skirt.c[idxs] = skirt.c[idxs] * 0.1 + tc * 0.9
+    parts.append(skirt)
+    return top_pts, bz
+
+
+def g_undersleeve(h, r, pal, parts, cov, pal_key, cut_from, cut_to=0.97, tile="linen", grime=0.08, seed_off=40):
+    """Contrast chemise sleeve showing beyond a shorter over-garment sleeve
+    (cut_from..cut_to are |x| fractions along the arm, elbow..wrist ~ sleeve_x)."""
+    color = pal[pal_key]
+    P = h.P[:h.nb]
+    m = h.mask("uarm", "larm")
+    ax = np.abs(P[:, 0])
+    m &= (ax > cut_from) & (ax < cut_to)
+    if not m.any():
+        return
+    sh = shell(h, m, 0.010, smooth=5, taubin=10)
+    part = shell_part(h, "undersleeve", sh, tile, color, 260, body_axis_groups(h, {"arms"}),
+                      grime=grime, seed=r["seed"] + seed_off)
+    parts.append(part)
+    cov |= covered(h, m)
+
+
+def g_apron_full(h, r, pal, parts, top_pts, bz, pal_key="apron"):
+    """Full bib apron (blacksmith-style): narrows at the chest, flares toward
+    the knee, with a visible neck strap and a waist tie band."""
+    color = pal[pal_key]
+    chest_z = h.z("neck_01") - 0.02
+    hem = h.z("calf_l") + 0.16 * (h.z("thigh_l") - h.z("calf_l"))
+    segs, rows = 16, 9
+    # Small `ease` hugs the chest (a narrow bib); `flare` only grows toward the hem.
+    skirt = make_skirt(h, "apron_full", chest_z, hem, "leather", color, flare=0.13, ease=0.015,
+                       segs=segs, rows=rows, inner_pts=top_pts, seed=r["seed"] + 70, folds=0.004,
+                       phi_range=(math.pi - 0.9, math.pi + 0.9), offset=0.012, grime=0.18, hem_dark=0.85)
+    parts.append(skirt)
+    phis = np.linspace(-math.pi, math.pi, 20, endpoint=False)
+    cy_chest = center_y(h, chest_z)
+    front_chest = envelope(h, chest_z, phis, (0, cy_chest))[len(phis) // 2]
+    top_c = np.array([0.0, cy_chest - front_chest - 0.032, chest_z])
+    z_neck = h.z("neck_01") - 0.01
+    cy_neck = center_y(h, z_neck)
+    front_neck = envelope(h, z_neck, phis, (0, cy_neck))[len(phis) // 2]
+    neck_c = np.array([0.0, cy_neck - front_neck - 0.016, z_neck])
+    mid = (top_c + neck_c) / 2 + np.array([0.0, -0.006, 0.0])
+    path = np.array([top_c, mid, neck_c])
+    radii = np.array([0.013, 0.012, 0.011])
+    parts.append(tube(h, "apron_strap", path, radii, color, r["seed"] + 71, segs=6))
+    waist_z = chest_z - 0.62 * (chest_z - hem)
+    wb, _, _ = band(h, "apron_tie", waist_z - 0.014, waist_z + 0.014, "leather", color, top_pts,
+                   extra_r=0.006, seed=r["seed"] + 72)
+    parts.append(wb)
+
+
+def g_mantle(h, r, pal, parts, pal_key="mantle", drop=0.10, tile="felt", seed_off=50):
+    """Short shoulder cape (healer's mantle): a shallow poncho over the chest/back."""
+    color = pal[pal_key]
+    top = h.z("neck_01") + 0.01
+    hem = top - drop
+    rows, segs = 6, 20
+    cy = center_y(h, h.z("spine_03"))
+    zs = np.linspace(top, hem, rows)
+    rings = []
+    prev = None
+    for i, z in enumerate(zs):
+        t = i / (rows - 1)
+        phis = np.linspace(-math.pi, math.pi, segs, endpoint=False)
+        env = envelope(h, z, phis, (0, cy))
+        r_ = env + 0.014 + 0.024 * t
+        if prev is not None:
+            r_ = np.maximum(r_, prev * 0.99)
+        prev = r_
+        rings.append(np.stack([np.sin(phis) * r_, cy + np.cos(phis) * r_, np.full(segs, z)], axis=1))
+    rings = np.array(rings)
+    V, F, UV = loft(rings, closed=True)
+    uvs = pack_islands([UV])[0]
+    W = nearest_weights(h, V, restrict=~h.mask("uarm", "larm", "hand", "head"))
+    col = paint(color, len(V), None, 0.03, r["seed"] + seed_off)
+    parts.append(Part("mantle", V, F, uvs, W, col, tile, 260))
+
+
+def g_beard(h, r, pal, parts, pal_key="hair", width=0.058, top_pad=0.014, bot_pad=0.03):
+    """Short beard + moustache: a thin shell hugging the jaw/chin/upper-lip
+    contour (not a floating blob), coloured like the hair by default."""
+    color = pal.get("beard", pal[pal_key])
+    P = h.P[:h.nb]
+    c = h.head_c
+    top = h.mouth[2] + top_pad
+    bot = h.chin_z - bot_pad
+    ax = np.abs(P[:, 0] - c[0])
+    front = P[:, 1] < c[1] - 0.01               # front of the face only
+    m = h.mask("head") & front & ~h.ear
+    m &= (P[:, 2] < top) & (P[:, 2] > bot) & (ax < width)
+    if not m.any():
+        return
+    sh = shell(h, m, 0.009, smooth=4, noise_amp=0.006, seed=r["seed"] + 80)
+    parts.append(shell_part(h, "beard", sh, "hair", color, 220, hair_uv_groups(h), grime=0.0,
+                            seed=r["seed"] + 80, rim_dark=0.75,
+                            weights=np.tile(one_hot("Head"), (len(sh["v"]), 1))))
+
+
+def g_breastplate(h, r, pal, parts, pal_key="armor"):
+    """Steel chest plate: sits outside the gambeson but under the tabard,
+    covering the same collar/shoulder line as the gambeson's own collar so a
+    ring of steel shows above/around the tabard's neckline."""
+    color = pal[pal_key]
+    P = h.P[:h.nb]
+    m = h.mask("torso", "neck")
+    m &= P[:, 2] < h.z("neck_01") + 0.035
+    m &= P[:, 2] > belt_z(h) + 0.05
+    sh = shell(h, m, 0.020, smooth=6, taubin=22)
+    parts.append(shell_part(h, "breastplate", sh, "metal", color, 460, body_axis_groups(h, {"torso"}),
+                            grime=0.04, seed=r["seed"] + 65))
+
+
+def g_pauldrons(h, r, pal, parts, pal_key="armor"):
+    color = pal[pal_key]
+    for sd, sgn in (("l", 1), ("r", -1)):
+        c = h.J["upperarm_" + sd] + np.array([0.02 * sgn, 0, 0.025])
+        w = one_hot("upperarm_" + sd)
+        parts.append(ellipsoid(h, "pauldron_" + sd, c, (0.066, 0.07, 0.05), color, w))
+        parts[-1].tile = "metal"
+
+
+def g_bracers(h, r, pal, parts, pal_key="armor"):
+    color = pal[pal_key]
+    for sd in "lr":
+        c = (h.J["lowerarm_" + sd] + h.J["hand_" + sd]) / 2
+        w = one_hot("lowerarm_" + sd)
+        parts.append(box_part(h, "bracer_" + sd, c, (0.05, 0.075, 0.05), "metal", color, weights_from=w))
+
+
+def g_gorget(h, r, pal, parts, pal_key="armor"):
+    color = pal[pal_key]
+    z0 = h.z("neck_01") - 0.045
+    z1 = h.z("neck_01") - 0.015
+    pts = h.P[:h.nb][h.mask("neck")]
+    p, env, cy = band(h, "gorget", z0, z1, "metal", color, pts, extra_r=0.006, seed=r["seed"] + 60)
+    parts.append(p)
+
+
+def build_emblem_object(h, name, center, right_dir, up_dir, size, weights_bone="spine_03", preview_image=None):
+    """A small flat double-sided quad (a tabard/coat emblem decal), rigid to
+    one bone. Built directly as a bpy object (not through Part/part_object,
+    which remaps UVs into the shared atlas -- this one keeps full 0..1 UVs
+    for its own separate emblem texture)."""
+    right = right_dir / np.linalg.norm(right_dir)
+    up = up_dir / np.linalg.norm(up_dir)
+    hw, hh = size[0] / 2, size[1] / 2
+    V = np.array([center - right * hw - up * hh, center + right * hw - up * hh,
+                  center + right * hw + up * hh, center - right * hw + up * hh])
+    F = [(0, 1, 2, 3)]
+    me = bpy.data.meshes.new(name)
+    me.from_pydata(V.tolist(), [], F)
+    me.validate(clean_customdata=False)
+    uvl = me.uv_layers.new(name="UVMap")
+    uvl.data.foreach_set("uv", np.array([(0, 0), (1, 0), (1, 1), (0, 1)], np.float32).ravel())
+    ca = me.color_attributes.new("Col", "FLOAT_COLOR", "POINT")
+    ca.data.foreach_set("color", np.tile([1.0, 1.0, 1.0, 1.0], (4, 1)).astype(np.float32).ravel())
+    ob = bpy.data.objects.new(name, me)
+    bpy.context.collection.objects.link(ob)
+    vg = ob.vertex_groups.new(name=weights_bone)
+    vg.add([0, 1, 2, 3], 1.0, "REPLACE")
+    for poly in me.polygons:
+        poly.use_smooth = False
+    if preview_image and os.path.exists(preview_image):
+        m = bpy.data.materials.new(name + "Preview")
+        m.use_nodes = True
+        try:
+            m.blend_method = "CLIP"
+        except Exception:
+            pass
+        nt = m.node_tree
+        bsdf = nt.nodes["Principled BSDF"]
+        tx = nt.nodes.new("ShaderNodeTexImage")
+        tx.image = bpy.data.images.load(preview_image, check_existing=True)
+        nt.links.new(tx.outputs["Color"], bsdf.inputs["Base Color"])
+        nt.links.new(tx.outputs["Alpha"], bsdf.inputs["Alpha"])
+        me.materials.append(m)
+    return ob
+
+
+def build_emblem(h, r, size=(0.09, 0.10), z_above_belt=0.20, stand_off=0.034):
+    """Chest emblem quad (e.g. the guard's tower-crown tabard decal), placed
+    on the body's front midline just outside the vest/tabard shell."""
+    bz = belt_z(h)
+    z_ch = bz + z_above_belt
+    phis = np.linspace(-math.pi, math.pi, 24, endpoint=False)
+    cy = center_y(h, z_ch)
+    env = envelope(h, z_ch, phis, (0, cy))
+    front_r = env[len(env) // 2]
+    y = cy - front_r - stand_off
+    center = np.array([0.0, y, z_ch])
+    right = np.array([1.0, 0.0, 0.0])
+    up = np.array([0.0, 0.0, 1.0])
+    img_path = os.path.join(EMBLEM_DIR, r["emblem"] + ".png")
+    return build_emblem_object(h, "emblem", center, right, up, size, weights_bone="spine_03",
+                               preview_image=img_path)
+
+
+def g_cloak(h, r, pal, parts, hood="down", pal_key="cloak", collar_roll=True, waist_hug=False):
     """Back-draped cloak with a collar; lined inside (second layer). Drapes
     over everything already built (skirts, belts, pouches)."""
     pts = []
@@ -1244,6 +1482,7 @@ def g_cloak(h, r, pal, parts, hood="down"):
     rows, segs = 11, 22
     cy = center_y(h, h.z("spine_03"))
     zs = np.linspace(top, hem, rows)
+    t_waist = np.clip((top - belt_z(h)) / max(top - hem, 1e-6), 0, 1) if waist_hug else 0.0
     rings = []
     prev = None
     zs_ = []
@@ -1254,7 +1493,12 @@ def g_cloak(h, r, pal, parts, hood="down"):
         env = envelope(h, z, phis, (0, cy))
         if len(obst):
             env = np.maximum(env, envelope(h, z, phis, (0, cy), pts=obst, ring_h=0.035) - 0.01)
-        r_ = env + 0.03 + 0.05 * t
+        if waist_hug:
+            # A fitted coat: hug the body down to the waist, only flare below it.
+            below = max(0.0, (t - t_waist) / max(1 - t_waist, 1e-6))
+            r_ = env + 0.016 + 0.10 * below ** 1.3
+        else:
+            r_ = env + 0.03 + 0.05 * t
         if prev is not None:
             r_ = np.maximum(r_, prev * 0.985)
         r_ += 0.01 * t * np.sin(phis * 7 + 1.3)
@@ -1287,10 +1531,10 @@ def g_cloak(h, r, pal, parts, hood="down"):
     W = Wn * (1 - a) + Wd * a
     W /= W.sum(axis=1, keepdims=True)
     g = dirt(h, V2, 0.3, hem, r["seed"] + 11, knees=False)
-    col = paint(pal["cloak"], len(V2), g, 0.03, r["seed"])
+    col = paint(pal[pal_key], len(V2), g, 0.03, r["seed"])
     col[n:] *= 0.62
-    parts.append(Part("cloak", V2, F2, uvs, W, col, "felt", None))
-    if hood == "down":
+    parts.append(Part(pal_key, V2, F2, uvs, W, col, "felt", None))
+    if hood == "down" and collar_roll:
         # bunched hood lying on the shoulders/back (a thick collar roll)
         phis = np.linspace(-math.pi, math.pi, 20, endpoint=False)
         z0 = h.z("neck_01") + 0.02
@@ -1306,7 +1550,7 @@ def g_cloak(h, r, pal, parts, hood="down"):
         V, F, UV = loft(np.array(rings), closed=True)
         uvs = pack_islands([UV])[0]
         W = nearest_weights(h, V, restrict=~h.mask("uarm", "larm", "hand", "head"))
-        col = paint(pal["cloak"], len(V), None, 0.03, r["seed"]) * 0.95
+        col = paint(pal[pal_key], len(V), None, 0.03, r["seed"]) * 0.95
         parts.append(Part("hood_down", V, F, uvs, W, col, "felt", None))
     # clasp at the throat
     zc = h.z("neck_01") - 0.03
@@ -1383,9 +1627,20 @@ def g_hair(h, r, pal, parts, cov, style):
         d = 0.011 + (0.026 if style == "bob" else 0.005) * below + 0.014 * smoothstep(ez, top, P[:, 2])
         sh = shell(h, m, d, smooth=5, noise_amp=0.003, seed=seed)
         budget = 460
+    elif style == "bun":               # curly hair pulled back into a bun, no braid
+        m, phi = head_region(h, ez + 0.06, ez + 0.01, nz + 0.02, sideburn=0.02)
+        P = h.P[:h.nb]
+        crown = smoothstep(ez, top, P[:, 2])
+        d = 0.011 + 0.022 * crown
+        sh = shell(h, m, d, smooth=4, noise_amp=0.014, seed=seed)
+        budget = 440
     parts.append(shell_part(h, "hair", sh, "hair", col, budget, hair_uv_groups(h), grime=0.0, seed=seed,
                             rim_dark=0.7, weights=np.tile(one_hot("Head"), (len(sh["v"]), 1))))
     cov |= covered(h, m, rings=1)
+    if style == "bun":
+        hb = h.head_back
+        c = np.array([0.0, hb + 0.018, ez + 0.015])
+        parts.append(ellipsoid(h, "bun", c, (0.046, 0.04, 0.043), col, one_hot("Head")))
     if style == "long":
         # low bun + a braid hanging between the shoulder blades
         hb = h.head_back
@@ -1537,15 +1792,44 @@ def build_parts(h, r):
         dpts, wz = g_dress(h, r, pal, parts, cov)
         if "apron" in o:
             g_apron(h, r, pal, parts, wz, dpts)
+        if "undersleeve" in o:
+            g_undersleeve(h, r, pal, parts, cov, r.get("undersleeve_key", "undersleeve"),
+                          cut_from=sleeve_x(h, r.get("sleeve", 0.5)))
+        if "belt" in o:
+            g_belt(h, r, pal, parts, dpts, wz, pouch=r.get("pouch", True), pouch_count=r.get("pouch_count", 1))
+        if "mantle" in o:
+            g_mantle(h, r, pal, parts, pal_key=r.get("mantle_key", "mantle"))
     if "tunic" in o or "gambeson" in o:
         kind = "gambeson" if "gambeson" in o else "tunic"
         top_pts, bz = g_tunic(h, r, pal, parts, cov, kind)
-        g_belt(h, r, pal, parts, top_pts, bz, pouch=r.get("pouch", True))
+        if "undersleeve" in o:
+            g_undersleeve(h, r, pal, parts, cov, r.get("undersleeve_key", "undersleeve"),
+                          cut_from=sleeve_x(h, r.get("sleeve", 0.8)))
+        if "breastplate" in o:
+            g_breastplate(h, r, pal, parts, pal_key=r.get("armor_key", "armor"))
+        if "vest" in o:
+            top_pts, bz = g_vest(h, r, pal, parts, cov, r.get("vest_name", "vest"), r.get("vest_key", "vest"),
+                                 hem_frac=r.get("vest_len", 0.16), offset=r.get("vest_offset", 0.026),
+                                 trim_key=r.get("vest_trim"))
+        if not r.get("no_belt"):
+            g_belt(h, r, pal, parts, top_pts, bz, pouch=r.get("pouch", True), pouch_count=r.get("pouch_count", 1))
+        if "apron_full" in o:
+            g_apron_full(h, r, pal, parts, top_pts, bz, pal_key=r.get("apron_key", "apron"))
         g_trousers(h, r, pal, parts, cov, bz + 0.01, boot_top)
     if "boots" in o:
         g_boots(h, r, pal, parts, cov, boot_top)
+    if "coat" in o:
+        g_cloak(h, r, pal, parts, hood="down", pal_key="coat", collar_roll=False, waist_hug=True)
     if "cloak" in o:
         g_cloak(h, r, pal, parts, hood="up" if r.get("hood_up") else "down")
+    if "pauldrons" in o:
+        g_pauldrons(h, r, pal, parts, pal_key=r.get("armor_key", "armor"))
+    if "bracers" in o:
+        g_bracers(h, r, pal, parts, pal_key=r.get("armor_key", "armor"))
+    if "gorget" in o:
+        g_gorget(h, r, pal, parts, pal_key=r.get("armor_key", "armor"))
+    if "beard" in o:
+        g_beard(h, r, pal, parts, pal_key=r.get("beard_key", "hair"))
     if r.get("hood_up"):
         g_hood_up(h, r, pal, parts, cov)
     elif r.get("hair"):
@@ -1731,13 +2015,23 @@ def extract(ob):
     }
 
 
-def export(ob, h, path):
+EMBLEM_DIR = os.path.join(KINGDOM, "assets", "art", "emblems")
+
+
+def export(ob, h, path, decals=None):
+    """decals: optional list of (bpy_object, emblem_filename, alpha_mode)."""
     data = extract(ob)
     rel = os.path.relpath(TEX_DIR, os.path.dirname(path)).replace(os.sep, "/")
+    extra = None
+    if decals:
+        erel = os.path.relpath(EMBLEM_DIR, os.path.dirname(path)).replace(os.sep, "/")
+        extra = [{"mesh": extract(dob), "images": {"albedo": f"{erel}/{fname}"}, "alpha": alpha, "name": fname}
+                 for dob, fname, alpha in decals]
     ual_rig.write_skinned_glb(path, UAL, h.J, data,
                               {"name": "CharacterAtlas", "rough": 1.0, "metal": 1.0, "normal_scale": 0.6},
                               {"albedo": f"{rel}/character_albedo.png", "orm": f"{rel}/character_orm.png",
-                               "normal": f"{rel}/character_normal.png"}, name=os.path.splitext(os.path.basename(path))[0])
+                               "normal": f"{rel}/character_normal.png"}, name=os.path.splitext(os.path.basename(path))[0],
+                              extra=extra)
     return len(data["idx"]) // 3
 
 
@@ -1829,6 +2123,56 @@ RECIPES = [
       muscle=0.65, weight=0.5, height=0.45, proportions=0.7, seed=1212,
       outfit=["tunic", "belt", "trousers", "boots"], hair="short", sleeve=0.75, tunic_tile="wool",
       palette=dict(tunic=(0.6, 0.3, 0.2), trousers=(0.55, 0.45, 0.3), belt=(0.3, 0.19, 0.11), boots=(0.35, 0.24, 0.16), hair=(0.22, 0.14, 0.08))),
+
+    # ---- new villager archetypes (reference sheets, 2026-09-28) ------------
+    P(name="villager_farmer", gender=1.0, age=35, race={"caucasian": 0.85, "african": 0.1, "asian": 0.05},
+      muscle=0.62, weight=0.58, height=0.52, proportions=0.65, seed=2001,
+      outfit=["tunic", "vest", "belt", "trousers", "boots"], hair="short", sleeve=0.6,
+      tunic_len=0.16, tunic_tile="linen", vest_len=0.16, vest_key="vest", vest_offset=0.024,
+      extras={"nose/nose-hump-incr": 0.2, "chin/chin-prominent-incr": 0.2},
+      palette=dict(tunic=(0.85, 0.8, 0.68), vest=(0.4, 0.45, 0.24), trousers=(0.34, 0.28, 0.22),
+                   belt=(0.28, 0.18, 0.1), boots=(0.3, 0.21, 0.14), hair=(0.18, 0.11, 0.07),
+                   pouch=(0.34, 0.22, 0.13))),
+    P(name="villager_merchant", gender=1.0, age=55, race={"caucasian": 0.9, "asian": 0.1},
+      muscle=0.42, weight=0.72, height=0.5, proportions=0.55, seed=2002,
+      outfit=["tunic", "vest", "belt", "trousers", "boots", "coat"], hair="fringe", sleeve=0.9,
+      tunic_tile="linen", vest_len=0.5, vest_key="vest", vest_offset=0.022, skin_mul=0.94,
+      extras={"nose/nose-scale-vert-incr": 0.2, "head/head-age-incr": 0.3},
+      palette=dict(tunic=(0.9, 0.86, 0.74), vest=(0.72, 0.58, 0.22), coat=(0.55, 0.22, 0.14),
+                   trousers=(0.22, 0.21, 0.22), belt=(0.3, 0.19, 0.1), boots=(0.32, 0.22, 0.15),
+                   hair=(0.55, 0.53, 0.5), pouch=(0.4, 0.27, 0.15))),
+    P(name="villager_guard", gender=1.0, age=28, race={"caucasian": 0.8, "asian": 0.2},
+      muscle=0.75, weight=0.52, height=0.6, proportions=0.72, seed=2003,
+      outfit=["gambeson", "belt", "trousers", "boots", "breastplate", "vest", "pauldrons", "bracers", "gorget"],
+      hair="short", pouch=False, vest_len=0.16, vest_key="vest", vest_offset=0.03, vest_trim="trim",
+      armor_key="armor", emblem="tower_crown",
+      extras={"chin/chin-jaw-drop-incr": 0.15, "nose/nose-hump-incr": 0.3},
+      palette=dict(gambeson=(0.16, 0.17, 0.2), vest=(0.5, 0.07, 0.08), trim=(0.78, 0.63, 0.22),
+                   trousers=(0.2, 0.19, 0.2), belt=(0.26, 0.16, 0.09), boots=(0.26, 0.18, 0.11),
+                   hair=(0.18, 0.13, 0.09), armor=(0.62, 0.64, 0.67))),
+    P(name="villager_smith", gender=0.0, age=40, race={"african": 0.9, "caucasian": 0.1},
+      muscle=0.7, weight=0.5, height=0.52, proportions=0.7, seed=2004,
+      outfit=["tunic", "apron_full", "trousers", "boots"], hair="bun", sleeve=0.4, tunic_tile="linen",
+      no_belt=True, apron_key="apron",
+      extras={"nose/nose-flaring-incr": 0.2},
+      palette=dict(tunic=(0.82, 0.74, 0.58), trousers=(0.32, 0.35, 0.38), belt=(0.24, 0.14, 0.08),
+                   boots=(0.3, 0.2, 0.13), hair=(0.05, 0.045, 0.04), apron=(0.32, 0.16, 0.09))),
+    P(name="villager_healer", gender=0.0, age=60, race={"caucasian": 0.6, "asian": 0.4},
+      muscle=0.35, weight=0.5, height=0.42, proportions=0.5, seed=2005,
+      outfit=["dress", "undersleeve", "belt", "mantle", "boots"], hair="long", sleeve=0.35,
+      undersleeve_key="undersleeve", mantle_key="mantle", pouch_count=2,
+      extras={"head/head-age-incr": 0.4},
+      palette=dict(dress=(0.48, 0.55, 0.4), undersleeve=(0.92, 0.88, 0.78), mantle=(0.35, 0.24, 0.15),
+                   belt=(0.28, 0.18, 0.1), boots=(0.3, 0.2, 0.13), hair=(0.75, 0.75, 0.74),
+                   pouch=(0.32, 0.2, 0.11))),
+    P(name="villager_baker", gender=0.0, age=30, race={"caucasian": 0.9, "asian": 0.1},
+      muscle=0.42, weight=0.5, height=0.5, proportions=0.75, seed=2006,
+      outfit=["dress", "undersleeve", "apron", "belt", "boots"], hair="long", sleeve=0.5,
+      undersleeve_key="undersleeve", pouch_count=1,
+      extras={"eyebrows/eyebrows-angle-up": 0.15},
+      palette=dict(dress=(0.35, 0.47, 0.72), undersleeve=(0.93, 0.9, 0.82), apron=(0.88, 0.84, 0.72),
+                   belt=(0.3, 0.2, 0.12), boots=(0.32, 0.22, 0.15), hair=(0.55, 0.28, 0.14),
+                   pouch=(0.34, 0.22, 0.14))),
 ]
 
 
@@ -1910,24 +2254,95 @@ def main():
         if only and r["name"] not in only:
             continue
         ob, h = build_character(base, r, mat)
+        decals = None
+        decal_obj = None
+        if r.get("emblem"):
+            decal_obj = build_emblem(h, r)
+            decal_obj.parent = ob            # follows ob if it's later moved/rotated for previews
+            decals = [(decal_obj, r["emblem"] + ".png", "MASK")]
         out = os.path.join(OUT_DIR, r["name"] + ".glb")
-        tris = export(ob, h, out)
+        tris = export(ob, h, out, decals=decals)
         lod = ob.copy()
         lod.data = ob.data.copy()
         bpy.context.collection.objects.link(lod)
         decimate(lod, int(tris * 0.4))
-        tris1 = export(lod, h, os.path.join(OUT_DIR, r["name"] + "_lod1.glb"))
+        tris1 = export(lod, h, os.path.join(OUT_DIR, r["name"] + "_lod1.glb"), decals=decals)
         bpy.data.objects.remove(lod)
         report.append((r["name"], tris, tris1, h.native_height, h.native_scale))
         built.append((r["name"], ob, h))
         print(f"  wrote {out}: {tris} tris (lod1 {tris1}); natural height {h.native_height:.2f} m")
-    with open(os.path.join(OUT_DIR, "build_report.txt"), "w") as f:
+    # Merge into build_report.txt (don't clobber rows for variants not in this run: `--only`
+    # builds a subset, and other variants' rows must stay byte-identical).
+    report_path = os.path.join(OUT_DIR, "build_report.txt")
+    rows = {}
+    order = []
+    if os.path.exists(report_path):
+        with open(report_path) as f:
+            next(f, None)
+            for line in f:
+                parts = line.split()
+                if len(parts) == 5:
+                    rows[parts[0]] = line if line.endswith("\n") else line + "\n"
+                    order.append(parts[0])
+    for row in report:
+        line = "%s %d %d %.3f %.4f\n" % row
+        if row[0] not in rows:
+            order.append(row[0])
+        rows[row[0]] = line
+    with open(report_path, "w") as f:
         f.write("name  tris  lod1_tris  natural_height_m  metres_per_model_unit\n")
-        for row in report:
-            f.write("%s %d %d %.3f %.4f\n" % row)
+        for name in order:
+            f.write(rows[name])
     if "--no-preview" in args:
         return
+    if "--sixsheet" in args:
+        six_sheet(built, os.path.join(PREVIEW_DIR, "characters_reference_six.png"))
+        return
     lineup(built, "--closeups" in args, "--turn" in args)
+
+
+def load_img_native(path):
+    """Like load_img() but keeps the image's own resolution (no forced square scale)."""
+    im = bpy.data.images.load(path, check_existing=False)
+    w, h = im.size
+    a = np.array(im.pixels[:], dtype=np.float32).reshape(h, w, 4)
+    bpy.data.images.remove(im)
+    return a
+
+
+def six_sheet(built, out_png, cell=(480, 860)):
+    """Renders a front+back turntable of each built character and stitches
+    them into one sheet: one column per character, front row on top, back
+    row below (docs/kingdom/blender_previews/characters_reference_six.png)."""
+    os.makedirs(PREVIEW_DIR, exist_ok=True)
+    tmp_dir = os.path.join(PREVIEW_DIR, "_six_tmp")
+    os.makedirs(tmp_dir, exist_ok=True)
+    cw, ch = cell
+    n = len(built)
+    sheet = np.zeros((ch * 2, cw * n, 4), np.float32)
+    for i, (name, ob, h) in enumerate(built):
+        for _, o2, _ in built:
+            hide = o2 is not ob
+            o2.hide_render = hide
+            for c in o2.children:        # e.g. a chest emblem decal parented to o2
+                c.hide_render = hide
+        world_h = h.head_top + 0.10       # ob has no scale applied: h.P is already in metres
+        d = fit_camera(0.85, world_h * 1.12, cell, 50)
+        base_rot = ob.rotation_euler.copy()
+        for row, rz in enumerate((0, 180)):
+            ob.rotation_euler = (base_rot[0], base_rot[1], base_rot[2] + math.radians(rz))
+            tmp = os.path.join(tmp_dir, f"{name}_{row}.png")
+            setup_scene_preview([], tmp, cam_loc=(0, -d, world_h * 0.5), cam_target=(0, 0, world_h * 0.5),
+                                lens=50, res=cell, samples=40)
+            img = load_img_native(tmp)
+            sheet[row * ch:(row + 1) * ch, i * cw:(i + 1) * cw] = img
+        ob.rotation_euler = base_rot
+    for _, o2, _ in built:
+        o2.hide_render = False
+        for c in o2.children:
+            c.hide_render = False
+    save_png(sheet, out_png)
+    print("wrote", out_png)
 
 
 def fit_camera(W, H, res, lens, elev=0.0):

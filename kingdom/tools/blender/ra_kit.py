@@ -441,6 +441,63 @@ class Kit:
         c = vary(color, var) if var else color
         self._merge(t, mat, c, self.xf(loc, rot), None, 0.0, None, grime)
 
+    def image_material(self, path, key=None, double_sided=True, cutoff=0.5, rough=0.6, emissive=0.0):
+        """Material that samples the image at `path` directly (alpha-MASK cutout),
+        for icon decals (crown/lion emblems) and the hand-painted texture PNGs in
+        kingdom/assets/art/textures/ (repeat the UVs for tiling). `path` outside
+        village_tex/ or assets/art/ makes the exporting GLB embed it (see
+        ra_polish.export_glb), so keep new asset textures inside assets/art/."""
+        key = key or ("Img_" + os.path.splitext(os.path.basename(path))[0])
+        if key in self.mats:
+            return key
+        m = bpy.data.materials.new(f"RA_{key}")
+        m.use_nodes = True
+        nt = m.node_tree
+        bsdf = nt.nodes["Principled BSDF"]
+        tex = nt.nodes.new("ShaderNodeTexImage")
+        tex.image = bpy.data.images.load(os.path.abspath(path), check_existing=True)
+        nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+        lt = nt.nodes.new("ShaderNodeMath")
+        lt.operation = "LESS_THAN"
+        lt.inputs[1].default_value = cutoff
+        nt.links.new(tex.outputs["Alpha"], lt.inputs[0])
+        sub = nt.nodes.new("ShaderNodeMath")
+        sub.operation = "SUBTRACT"
+        sub.inputs[0].default_value = 1.0
+        nt.links.new(lt.outputs[0], sub.inputs[1])
+        nt.links.new(sub.outputs[0], bsdf.inputs["Alpha"])
+        bsdf.inputs["Roughness"].default_value = rough
+        if emissive:
+            nt.links.new(tex.outputs["Color"], bsdf.inputs["Emission Color"])
+            bsdf.inputs["Emission Strength"].default_value = emissive
+        m.use_backface_culling = not double_sided
+        try:
+            m.surface_render_method = "DITHERED"
+        except Exception:
+            pass
+        self.mats[key] = (len(self.mats), m)
+        return key
+
+    def image_quad(self, path, w, h, loc, rot=(0, 0, 0), key=None, double_sided=True,
+                   repeat=(1.0, 1.0), cutoff=0.5, rough=0.6, emissive=0.0):
+        """Flat quad in the local XZ plane (facing -Y, like quad()) textured with the
+        image at `path` (see image_material). `repeat` tiles the image across w x h
+        (use >1 for a tileable hand-painted texture; leave at 1,1 for a single
+        centred icon/emblem decal)."""
+        key = self.image_material(path, key, double_sided, cutoff, rough, emissive)
+        t = bmesh.new()
+        hw, hh = w / 2.0, h / 2.0
+        vs = [t.verts.new(p) for p in ((-hw, 0, -hh), (hw, 0, -hh), (hw, 0, hh), (-hw, 0, hh))]
+        f = t.faces.new(vs)
+        su, sv = repeat
+        uv_corners = ((0, 0), (su, 0), (su, sv), (0, sv))
+        before = len(self.bm.faces)
+        self._merge(t, key, (1, 1, 1), self.xf(loc, rot), None, 0.0, None, False)
+        self.bm.faces.ensure_lookup_table()
+        for l, uv in zip(self.bm.faces[before].loops, uv_corners):
+            l[self.uv].uv = uv
+        return key
+
     def sword(self, loc, rot, mat_blade, mat_hilt, length=1.0, blade_c=(0.8, 0.82, 0.86),
               hilt_c=(0.75, 0.6, 0.25), grip_c=(0.25, 0.15, 0.1)):
         """Flat stylised sword in the local XZ plane, point down (-Z), hilt at +Z."""

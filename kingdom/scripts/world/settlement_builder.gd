@@ -798,10 +798,10 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 	var pr: float = plan["plaza_r"]
 	var batches := {}   # asset key -> Array[Transform3D]
 	var lights: Array[Vector3] = []
-	var add := func(key: String, p: Vector2, yaw: float, lift := 0.0) -> void:
+	var add := func(key: String, p: Vector2, yaw: float, lift := 0.0, stretch := 1.0) -> void:
 		if not batches.has(key):
 			batches[key] = [] as Array[Transform3D]
-		(batches[key] as Array[Transform3D]).append(Transform3D(Basis(Vector3.UP, yaw),
+		(batches[key] as Array[Transform3D]).append(Transform3D(Basis(Vector3.UP, yaw) * Basis.from_scale(Vector3(stretch, 1.0, 1.0)),
 			Vector3(p.x, WorldGen.height(p.x, p.y) - 0.03 + lift, p.y)))
 	for st: Dictionary in plan["streets"]:
 		if float(st["w"]) < 7.5:
@@ -826,22 +826,39 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 					lights.append(Vector3(edge.x, WorldGen.height(edge.x, edge.y) + 3.4, edge.y))
 				elif k % 3 == 1 and side > 0.0 or k % 3 == 2 and side < 0.0:
 					add.call("banner_pole", edge, face)
-				if near_gate and k % 2 == int(side > 0.0):
-					var sp := p + nrm * side * (half + 2.6)
+				if near_gate and (k % 3 != 0 or rng.randf() < 0.5):
+					var sp := p + nrm * side * (half + 2.2)
 					add.call("market_stall_red" if rng.randf() < 0.55 else "market_stall_green", sp, face)
-					var bp := sp + dir * 2.4 + nrm * side * 0.4
-					add.call("barrel_cluster", bp, face + rng.randf_range(-0.4, 0.4))
+					if rng.randf() < 0.6:
+						add.call("barrel_cluster", sp + dir * 2.5 + nrm * side * 0.3, face + rng.randf_range(-0.4, 0.4))
 				elif k % 2 == 0:
 					add.call("flower_strip", p + nrm * side * (half + 1.4), face + PI * 0.5)
 			if k % 4 == 1:
-				add.call("bunting", p, atan2(nrm.x, nrm.y) + PI * 0.5, 4.6)
+				add.call("bunting", p, atan2(nrm.x, nrm.y) + PI * 0.5, 4.2, (half * 2.0 + 1.2) / 8.0)
 			t += 5.5
 			k += 1
+	# Red-and-gold banners hung along the inner face of the walls either side of each gate.
+	var wall_mesh := Assets.building_mesh("wall")
+	if plan["walls"] and wall_mesh != null:
+		var wall_h := wall_mesh.get_aabb().size.y
+		for g: float in plan["gates"]:
+			for j in range(-6, 7):
+				if absi(j) < 2:
+					continue   # the gatehouse itself
+				var ang := g + j * 7.5 / r
+				var wp := c + Vector2(cos(ang), sin(ang)) * (r - 1.3)
+				var inward := atan2(c.x - wp.x, c.y - wp.y)
+				add.call("wall_banner", wp, inward, wall_h - 1.4)
+				add.call("flower_strip", c + Vector2(cos(ang), sin(ang)) * (r - 2.2), inward + PI * 0.5)
 	for key: String in batches:
 		var mesh := Assets.building_mesh(key)
 		if mesh != null:
-			var solid: bool = key.begins_with("market_stall") or key == "barrel_cluster"
-			_multimesh(root, mesh, batches[key], key != "bunting", solid)
+			# Per-neighbourhood batches: a town-wide MultiMesh's AABB centre is the plaza,
+			# so its visibility range would hide stalls standing right beside the player.
+			_multimesh_cells(root, mesh, batches[key], 40.0, 0.0, key != "bunting")
+			if key.begins_with("market_stall") or key == "barrel_cluster":
+				_add_instance_colliders(root, mesh, batches[key])
+				_add_camera_blockers(root, mesh, batches[key])
 	for lp: Vector3 in lights.slice(0, 24):
 		var light := OmniLight3D.new()
 		light.light_color = Color(1.0, 0.72, 0.4)

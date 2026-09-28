@@ -19,11 +19,18 @@ the wall-walk. The flanking towers swallow the first ~3 m of each wall run.
 """
 import os, sys, math, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from town_kit import TK, palette, IRON, MORTAR, WALLSTONE, arch_hole, rect_hole, arch_top
+from town_kit import TK, palette, IRON, MORTAR, arch_hole, rect_hole, arch_top
 from ra_kit import hexc, vary, mix
 
-k = TK("TownGate", seed=515, pal=palette(stone="grey", roof="slate_blue", accent="oxblood"))
-k.p["stone"] = WALLSTONE
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+CROWN = os.path.join(ROOT, "kingdom", "assets", "art", "emblems", "tower_crown.png")
+
+k = TK("TownGate", seed=515, pal=palette(stone="warm", roof="slate_blue", accent="oxblood"))
+# warm beige/tan dressed stone (the reference's sunlit gatehouse), not the cool
+# grey-green WALLSTONE the fortification kit uses by default
+WARM_DRESSED = hexc("dcc79c")
+k.dressed = lambda amt=0.35: mix(k.stone(), WARM_DRESSED, amt)
 MA, W, MT, PL, CL = k.M("Matte"), k.M("Wood"), k.M("Metal"), k.M("Plant"), k.M("Cloth")
 k.grime = 1.5
 k.grime_amt = 0.28
@@ -80,7 +87,7 @@ for sx in (-1, 1):
     k.pop()
 k.vault(0, R, SPRING, -HY + 0.2, HY - 0.2, n=16, nd=6)
 k.flagstones(-R, R, -HY - 0.6, HY + 0.6, 0.04, size=(1.1, 0.75),
-             color_fn=lambda: vary(mix(random.choice(WALLSTONE), hexc("6c6862"), 0.45), 0.06))
+             color_fn=lambda: vary(mix(random.choice(k.p["stone"]), hexc("6c6862"), 0.45), 0.06))
 for sx in (-1, 1):      # cart ruts: darker worn strips
     k.box((0.35, 2 * HY + 1.1, 0.01), (sx * 0.8, 0, 0.055), MA, hexc("4f4a44"), var=0, grime=False)
 
@@ -156,7 +163,7 @@ for sx in (-1, 1):
     k.corbels(cx, cy, TR1 - 0.05, TZ + 0.02, 13, drop=0.6, out=0.36, w=0.34)
     RU = 2.22
     k.cyl(RU - 0.18, 1.2, (cx, cy, TZ - 0.05), MA, MORTAR, segs=16, var=0, smooth=None, grime=False)
-    k.cyl(RU + 0.02, 0.1, (cx, cy, TZ - 0.04), MA, mix(WALLSTONE[0], MORTAR, 0.4), segs=18, var=0, smooth=None,
+    k.cyl(RU + 0.02, 0.1, (cx, cy, TZ - 0.04), MA, mix(k.p["stone"][0], MORTAR, 0.4), segs=18, var=0, smooth=None,
           grime=False)
     uh = []
     for ang in (-math.pi / 2, -math.pi / 2 + sx * 1.4, math.pi / 2 + sx * 0.3):
@@ -175,15 +182,18 @@ for sx in (-1, 1):
     k.banner_pole(cx, cy, apex - 0.05, h=1.2, color=CRIMSON, trim=GOLD, rz=-0.5, flag_len=1.1, flag_h=0.5,
                   wave=0.1)
 
-# ---------------------------------------------------------------- arms and banners over the arch
+# ---------------------------------------------------------------- royal banners over the arch (gold crown on red)
 with k.side("front", HX, HY):
+    # a stone bracket holding a central red banner (replaces the old cross-and-shield motif)
     k.push((0, -0.1, 8.55))
-    sh = [(0, -0.75), (0.4, -0.5), (0.6, -0.05), (0.62, 0.45), (0.0, 0.58), (-0.62, 0.45), (-0.6, -0.05),
-          (-0.4, -0.5)]
-    k.prism([(x * 1.12, z * 1.12) for x, z in sh], 0.12, (0, 0.02, 0), MA, k.dressed(0.4), var=0)
-    k.prism(sh, 0.1, (0, -0.06, 0), MA, CRIMSON, var=0)
-    k.prism([(-0.08, -0.45), (0.08, -0.45), (0.08, 0.4), (-0.08, 0.4)], 0.04, (0, -0.12, 0), MA, GOLD, var=0)
-    k.prism([(-0.45, 0.05), (0.45, 0.05), (0.45, 0.2), (-0.45, 0.2)], 0.04, (0, -0.12, 0), MA, GOLD, var=0)
+    k.box((0.16, 0.14, 0.16), (0, 0.02, 0.62), MA, k.dressed(0.4), bevel=0.02, var=0)
+    k.box((0.9, 0.045, 0.05), (0, 0.0, 0.62), MT, IRON, var=0)
+    for sxx in (-1, 1):
+        k.sphere(0.045, (sxx * 0.5, 0.0, 0.62), MT, GOLD, subdiv=0, grime=False)
+    ban = [(-0.42, 0.62), (0.42, 0.62), (0.42, -0.55), (0.0, -0.85), (-0.42, -0.55)]
+    k.prism(ban, 0.03, (0, -0.08, 0), CL, CRIMSON, var=0.02)
+    k.prism([(-0.34, 0.52), (0.34, 0.52), (0.34, 0.44), (-0.34, 0.44)], 0.02, (0, -0.1, 0), CL, GOLD, var=0)
+    k.image_quad(CROWN, 0.5, 0.5, (0, -0.11, 0.0), key="Crown", double_sided=True)
     k.pop()
     for bx in (-2.6, 2.6):
         k.cyl(0.04, 1.4, (bx - 0.7, -0.3, WALK - 0.75), MT, IRON, rot=(0, math.pi / 2, 0), segs=6)
@@ -192,7 +202,7 @@ with k.side("front", HX, HY):
         ban = [(-0.55, 0.0), (0.55, 0.0), (0.55, -2.6), (0.0, -2.2), (-0.55, -2.6)]
         k.prism(ban, 0.03, (bx, -0.27, WALK - 0.8), CL, CRIMSON, var=0.03)
         k.prism([(-0.47, -0.1), (0.47, -0.1), (0.47, -0.2), (-0.47, -0.2)], 0.02, (bx, -0.29, WALK - 0.8), CL, GOLD)
-        k.prism([(0, -0.6), (0.3, -1.05), (0, -1.5), (-0.3, -1.05)], 0.02, (bx, -0.29, WALK - 0.8), CL, GOLD)
+        k.image_quad(CROWN, 0.65, 0.65, (bx, -0.31, WALK - 1.55), key="Crown", double_sided=True)
 # lanterns either side of the arch on the town side
 with k.side("back", HX, HY):
     for sx in (-1, 1):
