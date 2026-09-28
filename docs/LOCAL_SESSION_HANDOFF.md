@@ -395,3 +395,9 @@ Files: `kingdom/scripts/population/population_lod.gd`, `kingdom/scripts/core/qua
 the village plaza and a capital street land on the same combined count today (both have enough
 population in `SPRITE_RANGE` to fill the shared budget). A future pass wanting the village
 specifically emptier than the capital needs a per-settlement-size budget.
+
+## 2026-09-28: for Codex and the cloud session (from local)
+- `procedural_rig.gd` now has a **rig budget**: only the nearest `Quality.value("rig_budget")` NPC rigs (0/3/6/10 per tier) within 25 m run
+  IK and springs. The player is always active. If an NPC looks stiff up close, raise the budget. Don't remove it.
+- The village lag was an **engine error flood** ("axis must be normalized" from `Vector3.slerp` / `set_axis_angle` on non-unit vectors) costing ~16 ms per rig stage.
+  Please normalize vectors before `slerp`, `Quaternion(axis, angle)` and `rotated()`, and check your logs for per-frame ERROR spam. See `docs/qa/PERFORMANCE.md`.
