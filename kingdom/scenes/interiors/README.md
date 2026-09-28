@@ -147,3 +147,17 @@ rack, anvil stump, water trough and flower planter come from `assets/generated/p
 tables, benches, chairs, cabinet, cauldron, workbench, grinding wheel, weapon stand, shields, swords, books
 and coins come from Quaternius Fantasy Props MegaKit (CC0, `assets/incoming/quaternius/fantasy-props-megakit`),
 with their colours baked into vertex colours and warm-graded.
+
+## In the game now (cloud session)
+
+Doors are wired by `settlement_builder.gd` `_interior_doors()` on every enterable lot, using
+`scripts/world/building_profiles.gd` for door positions, interior scenes and compound porch collision.
+Two changes to the behaviour described above:
+
+- `InteriorDoor.external_dispatch = true` (set by main.gd): doors never poll input. main.gd's interact
+  handler calls `use()` on the nearest door, so one press can't both close a menu and enter.
+- Door areas watch only `InteriorDoor.PLAYER_TRIGGER_LAYER` (layer 20); `tag_player()` puts the player on
+  it. `_process` runs only while the player stands in a door; the camera ray only on the active door.
+
+Service NPCs get their menus from `village_services.gd` `wire_settlement()` (innkeeper, blacksmith,
+receptionist, healer), and death inside calls `InteriorDoor.active.leave()`.

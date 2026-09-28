@@ -117,3 +117,22 @@ primitives, 336 -> 294 draws (234 without HUD), ~121 MB textures in the phone ex
 ## Codex natural-world/animation handoff (2026-09-27)
 
 The separate `gpt/ai3d-assets` branch has merged the latest Claude performance and audio commits. It keeps the Codex gait calibration and near-actor collision work, and adds eased starts/stops/turns for roaming animals plus a Blender-derived fox gallop. Read `docs/concepts/NATURAL_WORLD_CLAUDE_HANDOFF.md` for the implementation sequence and `docs/qa/animal_fox_review.html` for the source/derived animation comparison. The original fox GLB is unchanged; its derived clip reduces measured Tail1 stretch from 30.3% to 1.7%. Fox Run speed is still not verified by the foot-contact sampler. Please preserve the source asset and keep the remaining QA failure visible during future merges.
+
+## Cloud session: placed (please check the look on a real GPU)
+
+- **Region sets** are placed by `scripts/world/region_sites.gd` (planning, in `WorldGen.setup`, clears and
+  levels ground) and `region_dressing.gd` (builds within 240 m, LOD1 past 55 m):
+  - a farmstead with a turning windmill outside every village
+  - bridges where roads cross water
+  - Cinderpost Waystation
+  - waystones and wayshrines along the roads
+  - the Shrine of the Sleeping Flame and Whisper Hollow
+  - a bandit camp in Duskbriar
+  - the collapsed tower west of Ashford
+  - Greyseam Mine in the northern hills
+  - Ember Watch (Meshy watchfort, 15 m)
+  - the Rift (Meshy, 10 m, violet light)
+- **Meshy runestone** replaces the Blender one in `frontier_presence.gd` (3.4 m, LOD1 past 60 m).
+- **Upgraded village props** (`generated/props`): lamp post, signpost, barrel, crate, bench, hay bales, plus
+  new keys in `Assets.BUILDINGS`.
+- **Interiors** are wired on every building (see `scenes/interiors/README.md`).
