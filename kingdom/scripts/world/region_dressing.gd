@@ -22,9 +22,76 @@ var _flicker: Array[OmniLight3D] = []
 var _timer := 0.0
 var _t := 0.0
 
+## Hitch-free streaming: a site's parts used to be loaded from disk and instanced
+## in one frame (50-66 ms spikes when a farmstead came within BUILD). Now every
+## site asset is requested on a loader thread at startup, and parts are built from
+## a queue within BUILD_BUDGET_MS per frame; a part whose file isn't loaded yet
+## simply waits for a later frame.
+const BUILD_BUDGET_MS := 2.0
+var _queue: Array = []               # [root, site, kind, index] work items
+var _requested: Dictionary = {}      # path -> true (threaded load requested)
+
+
+func _ready() -> void:
+	for site in WorldGen.sites:
+		for part: Array in site.get("parts", []):
+			for path in _paths(String(part[0])):
+				_request(path)
+	for path in [REGION + "farm/windmill_sails.glb", REGION + "road/bridge_stone.glb", REGION + "road/bridge_wood.glb"]:
+		_request(path)
+
+
+func _request(path: String) -> void:
+	if path == "" or _requested.has(path) or not ResourceLoader.exists(path):
+		return
+	_requested[path] = true
+	ResourceLoader.load_threaded_request(path)
+
+
+## True once every file this asset needs is in memory (so instancing won't block on disk).
+func _ready_to_spawn(asset: String) -> bool:
+	for path in _paths(asset):
+		if path != "" and _requested.has(path) and ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+			return false
+	return true
+
+
+## The GLB paths _spawn will load for an asset key (LOD0 and LOD1).
+func _paths(asset: String) -> Array:
+	if asset.begins_with("meshy:"):
+		var n := asset.substr(6).split("@")[0]
+		return [MESHY + n + "_lod0.glb", MESHY + n + "_lod1.glb"]
+	if asset.begins_with("nature:"):
+		var nm := asset.substr(7)
+		return [REGION + "nature/" + nm + ".glb", REGION + "nature/" + nm + "_lod1.glb"]
+	if asset.begins_with("props/"):
+		return [GEN + asset + ".glb"]
+	return [REGION + asset + ".glb", REGION + asset + "_lod1.glb"]
+
+
+## Builds queued site parts until the frame budget is spent.
+func _drain_queue() -> void:
+	var t0 := Time.get_ticks_usec()
+	while not _queue.is_empty() and Time.get_ticks_usec() - t0 < BUILD_BUDGET_MS * 1000.0:
+		var item: Array = _queue[0]
+		var root: Node3D = item[0]
+		if not is_instance_valid(root):
+			_queue.pop_front()
+			continue
+		var site: Dictionary = item[1]
+		if item[2] == "part":
+			var part: Array = site["parts"][item[3]]
+			if not _ready_to_spawn(String(part[0])):
+				return          # still loading from disk: try again next frame
+			_build_part(root, site, part)
+		else:
+			_build_light(root, site["lights"][item[3]])
+		_queue.pop_front()
+
 
 func _process(delta: float) -> void:
 	Breakable.tick(delta)   # breakable props: melee sweep + regrowth (once per frame)
+	_drain_queue()
 	_t += delta
 	for s in _sails:
 		if is_instance_valid(s):
@@ -42,6 +109,11 @@ func _process(delta: float) -> void:
 	for site in WorldGen.sites:
 		var id: int = site["id"]
 		var d := p.distance_to(site["pos"])
+		if d < BUILD + 150.0 and not _built.has(id) and not site.has("_req"):
+			site["_req"] = true      # start disk loads well before the site is needed
+			for part: Array in site.get("parts", []):
+				for path in _paths(String(part[0])):
+					_request(path)
 		if d < BUILD and not _built.has(id):
 			_built[id] = _build(site)
 		elif d > FREE and _built.has(id):
@@ -53,11 +125,19 @@ func _process(delta: float) -> void:
 			_flicker = _flicker.filter(func(x: OmniLight3D) -> bool: return is_instance_valid(x) and not n.is_ancestor_of(x))
 
 
-## Builds every site at once (screenshots, tests).
+## Builds every site at once (screenshots, tests, teleports): blocks on purpose.
 func build_all_now() -> void:
 	for site in WorldGen.sites:
 		if not _built.has(site["id"]):
 			_built[site["id"]] = _build(site)
+	while not _queue.is_empty():
+		var item: Array = _queue.pop_front()
+		if not is_instance_valid(item[0]):
+			continue
+		if item[2] == "part":
+			_build_part(item[0], item[1], item[1]["parts"][item[3]])
+		else:
+			_build_light(item[0], item[1]["lights"][item[3]])
 
 
 func built_count() -> int:
@@ -75,43 +155,52 @@ func _build(site: Dictionary) -> Node3D:
 	if site["kind"] == "bridge":
 		_build_bridge(root, site)
 		return root
-	var basis := Basis(Vector3.UP, yaw)
-	for part: Array in site["parts"]:
-		var off: Vector2 = part[1]
-		var local := Vector3(off.x, 0.0, off.y)
-		var world := root.global_position + basis * local
-		var n := _spawn(String(part[0]))
-		if n == null:
-			continue
-		root.add_child(n)
-		n.rotation.y = float(part[2])
-		# Settle on the lowest ground under the footprint so nothing floats on a slope.
-		var box := Assets.visual_aabb(n)
-		var ground := _footprint_ground(world, basis * Basis(Vector3.UP, float(part[2])), box)
-		n.global_position = Vector3(world.x, ground, world.z)
-		var prop := String(part[0]).trim_prefix("props/")
-		if String(part[0]).begins_with("props/") and Breakable.is_breakable(prop):
-			var b: StaticBody3D = Breakable.new()   # barrels, crates, sacks: smashable, always solid
-			b.setup_node(n, box, prop)
-			n.add_child(b)
-		elif bool(part[3]):
-			_collider(n, box)
-		if String(part[0]) == "farm/windmill":
-			_add_sails(n)
-	for l: Array in site["lights"]:
-		var light := OmniLight3D.new()
-		light.light_color = l[1]
-		light.omni_range = l[2]
-		light.light_energy = 1.4
-		light.shadow_enabled = false
-		light.set_meta("base", 1.4)
-		root.add_child(light)
-		var lp: Vector3 = l[0]
-		var at := root.global_position + basis * Vector3(lp.x, 0.0, lp.z)
-		light.global_position = Vector3(at.x, WorldGen.height(at.x, at.z) + lp.y, at.z)
-		if bool(l[3]):
-			_flicker.append(light)
+	# Parts and lights are queued and built a few per frame (see _drain_queue).
+	for i in site["parts"].size():
+		_queue.append([root, site, "part", i])
+	for i in site["lights"].size():
+		_queue.append([root, site, "light", i])
 	return root
+
+
+func _build_part(root: Node3D, site: Dictionary, part: Array) -> void:
+	var basis := Basis(Vector3.UP, float(site["yaw"]))
+	var off: Vector2 = part[1]
+	var world := root.global_position + basis * Vector3(off.x, 0.0, off.y)
+	var n := _spawn(String(part[0]))
+	if n == null:
+		return
+	root.add_child(n)
+	n.rotation.y = float(part[2])
+	# Settle on the lowest ground under the footprint so nothing floats on a slope.
+	var box := Assets.visual_aabb(n)
+	var ground := _footprint_ground(world, basis * Basis(Vector3.UP, float(part[2])), box)
+	n.global_position = Vector3(world.x, ground, world.z)
+	var prop := String(part[0]).trim_prefix("props/")
+	if String(part[0]).begins_with("props/") and Breakable.is_breakable(prop):
+		var b: StaticBody3D = Breakable.new()   # barrels, crates, sacks: smashable, always solid
+		b.setup_node(n, box, prop)
+		n.add_child(b)
+	elif bool(part[3]):
+		_collider(n, box)
+	if String(part[0]) == "farm/windmill":
+		_add_sails(n)
+
+
+func _build_light(root: Node3D, l: Array) -> void:
+	var basis := root.global_transform.basis
+	var light := OmniLight3D.new()
+	light.light_color = l[1]
+	light.omni_range = l[2]
+	light.light_energy = 1.4
+	light.shadow_enabled = false
+	light.set_meta("base", 1.4)
+	root.add_child(light)
+	var lp: Vector3 = l[0]
+	var at := root.global_position + basis * Vector3(lp.x, 0.0, lp.z)
+	light.global_position = Vector3(at.x, WorldGen.height(at.x, at.z) + lp.y, at.z)
+	if bool(l[3]):
+		_flicker.append(light)
 
 
 func _footprint_ground(world: Vector3, basis: Basis, box: AABB) -> float:
