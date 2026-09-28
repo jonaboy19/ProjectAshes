@@ -305,3 +305,15 @@ No code changes were committed for the crash itself this pass (no fix was found 
   So Terrain3D, LimboAI and godot-sqlite are absent at runtime here (hence "sqlite doesn't register"), while an export generates the list and **does** load them.
   Open the project once in the editor to regenerate it, and re-test with them loaded.
 - The installed engine is 4.6.0 (2026-01-26); 4.6.1, 4.6.2 and 4.6.3 (2026-05-20) have shipped since. Next: try 4.6.3 with the same repro before any further bisecting.
+
+## 2026-09-28: ROOT CAUSE of the random 0xC0000005 during boot/play (about 1 in 8 boots): FIXED
+- Found with WinDbg (cdb) on 3 crash dumps from Godot 4.6.3. All three had the identical 10-frame chain on a `WorkerThread N`:
+  `HashSet::_insert` (core/templates/hash_set.h) ← BaseMaterial3D shader update (material dirty list and shader-code strings)
+  ← `ArrayMesh::_set_surfaces` (scene/resources/mesh.cpp) ← resource loader. The crash reads a hash bucket with a garbage index.
+- Cause: `RegionDressing` preloaded region GLBs with `ResourceLoader.load_threaded_request()`. A worker loading a mesh
+  updates the engine's shared material/shader tables while the main thread creates StandardMaterial3Ds, which tears the HashSet.
+- Fix: those scenes are now loaded once on the main thread during boot through `Assets.scene()` (cached; about 250 ms), with no threaded loads.
+  Rule added to the `ashes-performance` skill: never threaded-load anything carrying meshes or materials.
+- Verification: before the fix, 3/25, 1/15 and 1/7 boots crashed. After it, **16/16 clean boots** (each confirmed the world loaded;
+  the loop was cut short by a session restart, not a crash). Run more boots with a zz_boot-style loop when convenient.
+- Ruled out along the way: terrain plan threads, runtime LOD generation (90 stress rounds clean), physics interpolation, and GDExtensions.

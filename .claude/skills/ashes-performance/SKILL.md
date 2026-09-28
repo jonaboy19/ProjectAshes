@@ -29,7 +29,8 @@ Measured on the RTX 4070 laptop with the Mobile renderer: **GPU 0.7–3.6 ms, CP
 
 ## Rules for code (tell the other sessions too)
 - No heavy work in `_process` or `_physics_process`: use timers, slices spread over frames (a budget in ms per frame), and caches. Never allocate big arrays or dictionaries per frame.
-- Streaming and spawning are spread out: at most N instantiations per frame, loaded in the background (`ResourceLoader.load_threaded_request`), with nothing blocking `load()` during play.
+- Streaming and spawning are spread out: at most N instantiations per frame. Scenes are loaded once and cached (`Assets.scene(path)`), preloaded during boot, with nothing blocking `load()` during play.
+- **NEVER `ResourceLoader.load_threaded_request` or WorkerThreadPool-load anything carrying meshes or materials** (GLB/.tscn/.tres/materials). It was the random 0xC0000005 crash (about 1 in 8 boots): a worker loading a mesh updates BaseMaterial3D shaders (a shared engine HashSet) while the main thread creates materials, which tears the table. Audio streams and pure data (Images, JSON, math) are fine on threads. See `docs/qa/stability.md`.
 - Distant simulation runs at a lower rate (e.g. 2–5 Hz) and uses LOD for AI.
 - Skinned characters are costly: cap full models by tier, share animation libraries, use sprites far away (but never within 9 m, see `population_lod.gd`).
 - Rendering: MultiMesh for repeated things, cell batching, visibility ranges, shared atlases, no shadows from small props, and no realtime lights beyond the tier's budget.

@@ -24,42 +24,37 @@ var _t := 0.0
 
 ## Hitch-free streaming: a site's parts used to be loaded from disk and instanced
 ## in one frame (50-66 ms spikes when a farmstead came within BUILD). Now every
-## site asset is requested on a loader thread at startup, and parts are built from
-## a queue within BUILD_BUDGET_MS per frame; a part whose file isn't loaded yet
-## simply waits for a later frame.
+## site asset is loaded once while the game is still booting (Assets.scene keeps
+## it for the session), and parts are built from a queue within BUILD_BUDGET_MS
+## per frame.
+##
+## NOT on a loader thread: load_threaded_request() of these GLBs was THE random
+## 0xC0000005 crash (~1 in 8 boots, 2026-09-28). A worker thread loading a mesh
+## runs ArrayMesh::_set_surfaces -> BaseMaterial3D shader update, which touches
+## the engine's shared material/shader HashSet while the main thread creates
+## StandardMaterial3Ds (flat materials, VFX, region materials) -> torn hash table.
+## (Found with WinDbg on the crash dumps: HashSet::_insert <- material shader
+## update <- mesh.cpp _set_surfaces <- resource loader, on "WorkerThread N".)
+## Rule for this project: never threaded-load anything that carries materials.
 const BUILD_BUDGET_MS := 2.0
 var _queue: Array = []               # [root, site, kind, index] work items
-var _requested: Dictionary = {}      # path -> true (threaded load requested)
 
 
 func _ready() -> void:
-	# Start the threaded preloads only after boot: running them while main.gd's
-	# _ready() was still doing synchronous load()s on the main thread overlapped
-	# the two loaders and crashed ~1 in 7 boots (0xC0000005, 2026-09-28 bootloop).
-	await get_tree().process_frame
-	await get_tree().process_frame
-	if not is_inside_tree():
-		return
+	var t0 := Time.get_ticks_msec()
+	var n := 0
+	var paths: Array = [REGION + "farm/windmill_sails.glb", REGION + "road/bridge_stone.glb", REGION + "road/bridge_wood.glb"]
 	for site in WorldGen.sites:
 		for part: Array in site.get("parts", []):
-			for path in _paths(String(part[0])):
-				_request(path)
-	for path in [REGION + "farm/windmill_sails.glb", REGION + "road/bridge_stone.glb", REGION + "road/bridge_wood.glb"]:
-		_request(path)
+			paths.append_array(_paths(String(part[0])))
+	for path: String in paths:
+		if path != "" and ResourceLoader.exists(path) and Assets.scene(path) != null:
+			n += 1
+	print("RegionDressing: preloaded %d region scenes in %d ms (main thread)" % [n, Time.get_ticks_msec() - t0])
 
 
-func _request(path: String) -> void:
-	if path == "" or _requested.has(path) or not ResourceLoader.exists(path):
-		return
-	_requested[path] = true
-	ResourceLoader.load_threaded_request(path)
-
-
-## True once every file this asset needs is in memory (so instancing won't block on disk).
-func _ready_to_spawn(asset: String) -> bool:
-	for path in _paths(asset):
-		if path != "" and _requested.has(path) and ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
-			return false
+## Every file is loaded at boot now, so any part can be built right away.
+func _ready_to_spawn(_asset: String) -> bool:
 	return true
 
 
@@ -116,11 +111,6 @@ func _process(delta: float) -> void:
 	for site in WorldGen.sites:
 		var id: int = site["id"]
 		var d := p.distance_to(site["pos"])
-		if d < BUILD + 150.0 and not _built.has(id) and not site.has("_req"):
-			site["_req"] = true      # start disk loads well before the site is needed
-			for part: Array in site.get("parts", []):
-				for path in _paths(String(part[0])):
-					_request(path)
 		if d < BUILD and not _built.has(id):
 			_built[id] = _build(site)
 		elif d > FREE and _built.has(id):
