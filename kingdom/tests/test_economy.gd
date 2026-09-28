@@ -305,3 +305,15 @@ func test_serialize_round_trip() -> void:
 	assert_bool(restored.known_prices.has(vid)).is_true()
 	assert_int(restored.caravans.caravans.size()).is_equal(1)
 	assert_int(restored.contracts.size()).is_equal(1)
+
+
+func test_war_contract_pays_a_premium_and_completes() -> void:
+	var eco := _economy()
+	assert_dict(eco.add_war_contract(1, {})).is_empty()
+	var c := eco.add_war_contract(1, {"good": "iron_sword", "quantity": 4, "pay_mult": 1.5})
+	assert_bool(bool(c["war"])).is_true()
+	assert_int(int(c["reward"])).is_greater(0)
+	eco.contract_progress(int(c["id"]), 4)
+	var r := eco.complete_contract(int(c["id"]), 2)
+	assert_bool(bool(r["ok"])).is_true()
+	assert_int(int(r["reward"])).is_equal(int(c["reward"]))

@@ -628,6 +628,30 @@ func _process(_delta: float) -> void:
 			player.take_damage(1, null)
 
 
+## Merchant contracts appear when markets run short, army orders during war,
+## and the crown requisitions part of the farm's stores once a week in wartime.
+func _contracts_daily() -> void:
+	economy.expire_contracts(WorldSim.day)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([WorldSim.SEED, "contracts", WorldSim.day])
+	if economy.contracts.size() < 3 and WorldSim.day % 3 == 0:
+		economy.roll_contract(WorldSim.day, rng)
+	if war.is_at_war() and WorldSim.day % 5 == 0:
+		var c: Dictionary = economy.add_war_contract(WorldSim.day, war.contract_for_merchant(WorldSim.day))
+		if not c.is_empty():
+			Game.say("The army quartermaster wants %d %s. See the market trader." % [int(c["amount"]), item_name(String(c["item"]))])
+	var frac: float = war.crop_requisition_fraction()
+	if frac > 0.0 and WorldSim.day % 7 == 0:
+		var taken := 0
+		for crop: String in homestead.storage.keys():
+			var n := int(floor(int(homestead.storage[crop]) * frac))
+			if n > 0:
+				homestead.storage[crop] = int(homestead.storage[crop]) - n
+				taken += n
+		if taken > 0:
+			Game.say("Crown requisition officers took %d sacks from your farm stores for the war." % taken)
+
+
 func _on_hour(hour: int) -> void:
 	if hour == 6:
 		# War first: economy, lordship levies and promotion speed read the at_war flag this hour.
@@ -661,6 +685,7 @@ func _on_hour(hour: int) -> void:
 			Game.say(msg)
 		for msg: String in family.daily_tick(WorldSim.day):
 			Game.say(msg)
+		_contracts_daily()
 		var threat := 0.0
 		if player and is_instance_valid(player):
 			var t: Dictionary = Frontier.threat_at(Vector2(player.global_position.x, player.global_position.z))

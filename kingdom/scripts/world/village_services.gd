@@ -255,6 +255,24 @@ func _prop(item: String, at: Vector2, scale_by: float) -> void:
 
 # --- menus ---------------------------------------------------------------------
 
+## The trader forwards contract goods by wagon; the reward is paid on completion.
+func _deliver_contract(id: int) -> String:
+	for c: Dictionary in Life.economy.contracts:
+		if int(c["id"]) != id:
+			continue
+		var need := int(c["amount"]) - int(c["filled"])
+		if not Life.take(String(c["item"]), need):
+			return "You don't have enough."
+		Life.economy.contract_progress(id, need)
+		var r: Dictionary = Life.economy.complete_contract(id, int(WorldSim.day))
+		if int(r["reward"]) > 0:
+			Game.add_gold(int(r["reward"]))
+			Life.biography.change_rep("trade", 2.0)
+			Life.mastery.gain("trading", 3.0, WorldSim.day)
+		return String(r["text"])
+	return "That contract is gone."
+
+
 func merchant_menu() -> Dictionary:
 	var m := Life.market
 	var opts: Array = []
@@ -266,6 +284,13 @@ func merchant_menu() -> Dictionary:
 		if n > 0:
 			opts.append(["Sell %s ×%d  —  %dg each" % [Life.item_name(item), n, m.sell_price(item)],
 				Life.sell.bind(item), m.purse >= m.sell_price(item)])
+	for c: Dictionary in Life.economy.contracts:
+		var need := int(c["amount"]) - int(c["filled"])
+		var have := Life.count(String(c["item"]))
+		opts.append(["%s: %d %s for %s by day %d  —  %dg  (you have %d)" % [
+			"Army order" if bool(c.get("war", false)) else "Contract", need, Life.item_name(String(c["item"])),
+			Life.economy._settlement_name(int(c["to"])), int(c["due_day"]), int(c["reward"]), have],
+			_deliver_contract.bind(int(c["id"])), have >= need])
 	opts.append(["Trade routes & caravans", TradeScreen.open_for.bind(hud), true])
 	opts.append(_talk_option("trader"))
 	return {"title": "Market Trader",

@@ -495,6 +495,21 @@ func roll_contract(day: int, rng: RandomNumberGenerator) -> Dictionary:
 	return contract
 
 
+## An army quartermaster's order during war (war_sim.gd contract_for_merchant()).
+func add_war_contract(day: int, spec: Dictionary) -> Dictionary:
+	if spec.is_empty():
+		return {}
+	var item := String(spec["good"])
+	var m: RAMarket = markets.get(0)
+	var unit := m.price(item) if m != null and m.base_price.has(item) else 40
+	var contract := {"id": _next_contract_id, "to": 0, "item": item, "amount": int(spec["quantity"]),
+		"reward": int(round(unit * int(spec["quantity"]) * float(spec.get("pay_mult", 1.5)))),
+		"due_day": day + 8, "filled": 0, "war": true}
+	_next_contract_id += 1
+	contracts.append(contract)
+	return contract
+
+
 func contract_progress(id: int, item_count: int) -> void:
 	for c: Dictionary in contracts:
 		if int(c["id"]) == id:
