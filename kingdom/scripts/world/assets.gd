@@ -134,6 +134,16 @@ const BUILDINGS := {
 	"wall": [GEN + "town_wall.glb", 0.0],
 	"wall_tower": [GEN + "town_wall_tower.glb", 0.0],
 	"wall_gate": [GEN + "town_gate.glb", 0.0],
+	# Kingsreach gate-market dressing (main art reference): stalls, lamps, banners, bunting.
+	"market_stall_red": [GEN + "market_stall_red.glb", 0.0],
+	"market_stall_green": [GEN + "market_stall_green.glb", 0.0],
+	"street_lamp": [GEN + "street_lamp.glb", 0.0],
+	"banner_pole": [GEN + "banner_pole.glb", 0.0],
+	"wall_banner": [GEN + "wall_banner.glb", 0.0],
+	"shop_sign": [GEN + "shop_sign.glb", 0.0],
+	"bunting": [GEN + "bunting.glb", 0.0],
+	"flower_strip": [GEN + "flower_strip.glb", 0.0],
+	"barrel_cluster": [GEN + "barrel_cluster.glb", 0.0],
 }
 
 ## Nature (Quaternius Stylized Nature MegaKit, CC0): key -> target height in metres.

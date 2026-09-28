@@ -43,7 +43,8 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 	# Main streets: plaza to each gate.
 	for g in gates:
 		var d := Vector2(cos(g), sin(g))
-		streets.append({"a": c + d * plaza_r, "b": c + d * r * 1.05, "w": 8.0})
+		# Walled towns get a broad gate road wide enough for a market (Kingsreach reference).
+		streets.append({"a": c + d * plaza_r, "b": c + d * r * 1.05, "w": 13.0 if walled else 8.0})
 	# Ring streets.
 	var rings: Array[float] = []
 	match kind:
@@ -201,7 +202,7 @@ static func _civic_lots(lots: Array, c: Vector2) -> void:
 static func _lot_ok(p: Vector2, c: Vector2, r: float, plaza_r: float, walled: bool, inner_wall: float,
 		streets: Array, blocked: Array[Vector2]) -> bool:
 	var d := p.distance_to(c)
-	if d < plaza_r + 5.0 or d > r * (0.93 if walled else 1.0):
+	if d < plaza_r + 5.0 or d > r * (0.95 if walled else 1.0):
 		return false
 	if inner_wall > 0.0 and d < inner_wall + 6.0:
 		return false

@@ -231,6 +231,8 @@ func _build(s: Dictionary) -> Node3D:
 	_homesteads(root, s, plan, rng)
 	_footprint_clutter(root, plan, rng)
 	_square_lamps(root, s, plan)
+	if s["kind"] != "village":
+		_gate_market(root, s, plan, rng)
 	_greenery(root, s, plan, rng)
 	# Street clutter.
 	var street_clutter: Array[Transform3D] = []
@@ -782,6 +784,72 @@ func _square_lamps(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 		var ga: float = gates[0]
 		var sp: Vector2 = c + Vector2(cos(ga), sin(ga)) * (float(s["radius"]) + 8.0) + Vector2(-sin(ga), cos(ga)) * 5.0
 		_piece(root, "signpost", sp, WorldGen.height(sp.x, sp.y), ga)
+
+
+## The gate road as in the Kingsreach reference: striped stalls packed with goods
+## on both sides near the gate, tall lanterns, red-and-gold banner poles, bunting
+## strung across the street and flowers along the edges, thinning toward the plaza.
+## Every piece is one MultiMesh batch per settlement.
+func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator) -> void:
+	if not ResourceLoader.exists(Assets.GEN + "market_stall_red.glb"):
+		return
+	var c: Vector2 = s["pos"]
+	var r: float = plan["wall_radius"]
+	var pr: float = plan["plaza_r"]
+	var batches := {}   # asset key -> Array[Transform3D]
+	var lights: Array[Vector3] = []
+	var add := func(key: String, p: Vector2, yaw: float, lift := 0.0) -> void:
+		if not batches.has(key):
+			batches[key] = [] as Array[Transform3D]
+		(batches[key] as Array[Transform3D]).append(Transform3D(Basis(Vector3.UP, yaw),
+			Vector3(p.x, WorldGen.height(p.x, p.y) - 0.03 + lift, p.y)))
+	for st: Dictionary in plan["streets"]:
+		if float(st["w"]) < 7.5:
+			continue   # main streets only (plaza to gate)
+		var a: Vector2 = st["a"]
+		var b: Vector2 = st["b"]
+		var dir := (b - a).normalized()
+		var nrm := Vector2(-dir.y, dir.x)
+		var half := float(st["w"]) * 0.5
+		var start := 6.0
+		var stop := minf(a.distance_to(b), r - pr) - 8.0   # stay inside the gate
+		var t := start
+		var k := 0
+		while t < stop:
+			var p := a + dir * t
+			var near_gate := t > (stop - start) * 0.35
+			for side: float in [-1.0, 1.0]:
+				var edge := p + nrm * side * (half + 0.6)
+				var face := atan2(-nrm.x * side, -nrm.y * side)   # toward the street centre
+				if k % 3 == 0:
+					add.call("street_lamp", edge, face)
+					lights.append(Vector3(edge.x, WorldGen.height(edge.x, edge.y) + 3.4, edge.y))
+				elif k % 3 == 1 and side > 0.0 or k % 3 == 2 and side < 0.0:
+					add.call("banner_pole", edge, face)
+				if near_gate and k % 2 == int(side > 0.0):
+					var sp := p + nrm * side * (half + 2.6)
+					add.call("market_stall_red" if rng.randf() < 0.55 else "market_stall_green", sp, face)
+					var bp := sp + dir * 2.4 + nrm * side * 0.4
+					add.call("barrel_cluster", bp, face + rng.randf_range(-0.4, 0.4))
+				elif k % 2 == 0:
+					add.call("flower_strip", p + nrm * side * (half + 1.4), face + PI * 0.5)
+			if k % 4 == 1:
+				add.call("bunting", p, atan2(nrm.x, nrm.y) + PI * 0.5, 4.6)
+			t += 5.5
+			k += 1
+	for key: String in batches:
+		var mesh := Assets.building_mesh(key)
+		if mesh != null:
+			var solid: bool = key.begins_with("market_stall") or key == "barrel_cluster"
+			_multimesh(root, mesh, batches[key], key != "bunting", solid)
+	for lp: Vector3 in lights.slice(0, 24):
+		var light := OmniLight3D.new()
+		light.light_color = Color(1.0, 0.72, 0.4)
+		light.omni_range = 8.0
+		light.light_energy = 0.0
+		light.add_to_group("street_lamp")
+		root.add_child(light)
+		light.global_position = lp
 
 
 ## A couple of small stones or weeds tucked against each building's base (the

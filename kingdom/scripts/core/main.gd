@@ -962,6 +962,15 @@ func _screenshot(shot: String, path: String) -> void:
 			var look := lc - spot
 			player.set_camera(atan2(-look.x, -look.y) + 0.35, -0.16)
 			warmup = 90
+		"gate":   # Kingsreach gate market, as in the main art reference: down the gate road toward the gatehouse
+			var capg: Dictionary = WorldGen.settlements[1]
+			var cpg: Vector2 = capg["pos"]
+			var ga: float = capg["plan"]["gates"][0]
+			var dirg := Vector2(cos(ga), sin(ga))
+			var spg: Vector2 = cpg + dirg * (float(capg["radius"]) - 42.0)
+			_teleport(spg, 0.0)
+			player.set_camera(atan2(-dirg.x, -dirg.y), -0.05)
+			warmup = 120
 		"city", "street":
 			var cap: Dictionary = WorldGen.settlements[1]
 			var cp: Vector2 = cap["pos"]
