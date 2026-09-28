@@ -145,7 +145,9 @@ class Kit:
         fam = RP.TYPE_OF.get(key) if tex == "auto" else tex
         if emission or key in RP.EMISSIVE:
             fam = None
-        m = bpy.data.materials.new(f"RA_{key}")
+        # hand-painted art families get their own material names (RA_Wood_hp ...) so the Godot import
+        # maps them to art-texture materials while older GLBs keep the generated detail sets
+        m = bpy.data.materials.new(f"RA_{key}_hp" if fam in RP.ART_FAMS else f"RA_{key}")
         m.use_nodes = True
         nt = m.node_tree
         bsdf = nt.nodes["Principled BSDF"]
@@ -198,7 +200,7 @@ class Kit:
         M_full = xform.copy()
         fam = self.mat_fam.get(self.mats[mat][0])
         t.faces.index_update()
-        uvs = RP.project_uvs(t, fam, self.prng, self.grain) if fam else {}
+        uvs = RP.project_uvs(t, fam, self.prng, self.grain, xform) if fam else {}
         bmesh.ops.transform(t, matrix=xform, verts=t.verts)
         t.normal_update()
         if smooth_angle is not None:

@@ -44,10 +44,10 @@ _subresources={
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_cloth.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_cloth.tres"
 },
-"RA_Wood": {
+"RA_Wood_hp": {
 "use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_hp_wood.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_hp_wood.tres"
 }
 }
 }

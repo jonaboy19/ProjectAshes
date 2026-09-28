@@ -120,3 +120,11 @@ on one MeshInstance3D / MultiMeshInstance3D per level, with ~5 m hysteresis marg
 Buildings with chimneys carry empties (Node3D in Godot) named `chimney_top`, `chimney_top_2`, and so on,
 at the top centre of each chimney opening, for cheap smoke particles. `Assets.merged_mesh()` ignores
 them, because it only collects MeshInstance3D.
+
+## Hand-painted art textures (round 7)
+
+Stone (`RA_Matte_hp`/`RA_Stone_hp`), wood (`RA_Wood_hp`, `RA_Plank_hp`...), blue slate roofs (`RA_Roof_hp`) and
+paving/plinths (`RA_Paving_hp`) now use the user's textures in `kingdom/assets/art/textures/`
+(`stone_wall_blocks`, `wood_planks`, `roof_slate_blue`, `cobblestone`). They are albedo-only, shared by relative URI, and
+mapped to `ra_hp_<family>.tres` by `write_village_godot_materials.py`. Config: `ra_polish.ART_FAMS` (tile size, tint
+strength). Terracotta / shingle / thatch / non-blue slate roofs keep the generated sets; older GLBs (interiors) keep `RA_Wood`/`RA_Matte`.

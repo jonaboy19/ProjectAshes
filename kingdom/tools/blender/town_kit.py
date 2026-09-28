@@ -166,7 +166,7 @@ class TK(VK):
             polys.append(((pa, ya, bl), (qb, yb, br), (qb, yb, tr), (pa, ya, tl)))
             cols.append(c)
         with self.detail():
-            self.quads(polys, cols, mat or self.M("Matte"), grime=grime)
+            self.quads(polys, cols, mat or self.M("Paving"), grime=grime)
         push = kw.get("push", 0.035)
         self._course_standin([(r, pa, qb, bl, br, tl, tr, c) for pa, qb, bl, br, tl, tr, ya, yb, c, r in pieces],
                              -push / 2, mat or self.M("Matte"), None, grime)
@@ -195,7 +195,7 @@ class TK(VK):
             polys.append(tuple(reversed(pp)) if inward else tuple(pp))
             cols.append(c)
         with self.detail():
-            self.quads(polys, cols, mat or self.M("Matte"), grime=grime)
+            self.quads(polys, cols, mat or self.M("Paving"), grime=grime)
         push = kw.get("push", 0.035)
         self._course_standin([(row, pa, qb, bl, br, tl, tr, c) for pa, qb, bl, br, tl, tr, ya, yb, c, row in pieces],
                              -push / 2, mat or self.M("Matte"), None, grime, mapper=P, max_len=max(0.6, r * 0.5),
@@ -218,11 +218,11 @@ class TK(VK):
             polys.append(((pa, y0 + bl, z + dz), (qb, y0 + br, z + dz), (qb, y0 + tr, z + dz), (pa, y0 + tl, z + dz)))
             cols.append(c)
         with self.detail():
-            self.quads(polys, cols, mat or self.M("Matte"), grime=grime)
+            self.quads(polys, cols, mat or self.M("Paving"), grime=grime)
         if cols:
             ca = tuple(sum(c[i] for c in cols) / len(cols) for i in range(3))
             with self.lod1_only():
-                self.quads([((x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z))], [ca], mat or self.M("Matte"),
+                self.quads([((x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z))], [ca], mat or self.M("Paving"),
                            grime=grime)
         if base:
             self.box((w, d, 0.1), ((x0 + x1) / 2, (y0 + y1) / 2, z - 0.06), self.M("Matte"),

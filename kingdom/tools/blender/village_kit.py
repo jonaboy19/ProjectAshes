@@ -104,6 +104,7 @@ def variant_arg(default=1):
 
 MATSPEC = {
     "Matte": dict(rough=0.92),
+    "Paving": dict(rough=0.9),
     "Plaster": dict(rough=0.95, spec=0.3),
     "Wood": dict(rough=0.74),
     "Roof": dict(rough=0.7, spec=0.45),
@@ -123,6 +124,12 @@ class VK(Kit):
     def __init__(self, name, seed, pal):
         super().__init__(name, seed=seed)
         self.p = pal
+
+    def material(self, key, *a, **kw):
+        # blue slate roofs wear the hand-painted slate texture; clay / shingle / thatch / teal... keep the old sets
+        if key == "Roof" and kw.get("tex", "auto") == "auto" and self.p.get("roof_kind") == "slate_blue":
+            kw["tex"] = "slate"
+        return super().material(key, *a, **kw)
 
     def M(self, key):
         if key not in self.mats:
@@ -378,7 +385,7 @@ class VK(Kit):
     def plinth(self, x0, x1, y0, y1, h, over=0.12, c=None):
         c = c or mix(self.p["stone"][3], hexc("6c6862"), 0.4)
         self.box((x1 - x0 + 2 * over, y1 - y0 + 2 * over, h), ((x0 + x1) / 2, (y0 + y1) / 2, h / 2),
-                 self.M("Matte"), c, bevel=0.04)
+                 self.M("Paving"), c, bevel=0.04)
 
     def stone_skirt(self, hx, hy, h, cx=0.0, cy=0.0, out=0.06, bw=0.44, bh=0.2, opens_front=()):
         """Low fieldstone base course around a box (under timber/plaster walls)."""
