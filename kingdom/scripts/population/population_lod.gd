@@ -21,7 +21,9 @@ const SPRITE_RANGE := 220.0
 const NEAR_ALWAYS := 9.0     # metres: never a sprite this close to the player
 const NEAR_HARD_CAP := 12    # but never more than this many full models in total
 const MAX_FULL := 24
-const MAX_SPRITES := 300
+## Ceiling on total sprites drawn (all job looks combined; see `refresh()`), not
+## per look. Quality.npc_sprites narrows this further per tier.
+const MAX_SPRITES := 140
 const MAX_SPAWNS_PER_TICK := 3
 ## Embodied villagers rank at this fraction of their squared distance (about
 ## 13% closer), so promotion and demotion don't chatter at the budget edge.
@@ -135,21 +137,25 @@ func refresh() -> void:
 	var used := {}
 	for look in _multimeshes:
 		used[look] = 0
+	var sprite_budget: int = mini(MAX_SPRITES, Quality.npc_sprites)
+	var sprite_total := 0
 	for entry in dists:
+		# dists is sorted nearest-first, so once the budget is spent everyone
+		# further away is skipped: the crowd is capped in total, not per look.
+		if sprite_total >= sprite_budget:
+			break
 		var id: int = entry[1]
 		if _full.has(id):
 			continue
 		var look: String = JOB_LOOK[WorldSim.job[id]]
 		var n: int = used[look]
-		if n >= mini(MAX_SPRITES, Quality.npc_sprites):
-			continue
 		var pp: Vector2 = WorldSim.pos[id]
 		var heading: Vector2 = WorldSim.target[id] - pp
 		var yaw := atan2(heading.x, heading.y) if heading.length() > 0.1 else float(id % 628) / 100.0
 		# WorldSim moves distant residents in straight lines; never draw one
 		# standing inside a house it is cutting through.
-		# push_out + terrain height for up to 1200 sprites every refresh made a 4 Hz
-		# spike in the capital; reuse the result while the person hasn't moved.
+		# push_out + terrain height for every sprite each refresh was a spike in
+		# the capital; reuse the result while the person hasn't moved.
 		if _sprite_cache.size() > 4000:
 			_sprite_cache.clear()
 		var cached: Array = _sprite_cache.get(id, [])
@@ -166,6 +172,7 @@ func refresh() -> void:
 		var t := Transform3D(Basis(Vector3.UP, yaw), ground)
 		(_multimeshes[look] as MultiMesh).set_instance_transform(n, t)
 		used[look] = n + 1
+		sprite_total += 1
 	sprite_count = 0
 	for look in _multimeshes:
 		(_multimeshes[look] as MultiMesh).visible_instance_count = used[look]

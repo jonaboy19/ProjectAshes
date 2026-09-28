@@ -15,8 +15,11 @@ const StreetGraph := preload("res://scripts/population/street_graph.gd")
 
 enum State { HOME, WORK, MARKET, INN }
 
-## Largest departure delay, in game hours (0.9 h = 27 real seconds).
-const MAX_DELAY := 0.9
+## Largest departure delay, in game hours (2.0 h = 60 real seconds). Wider than
+## the original 0.9 h so a schedule boundary (e.g. the 17:00 market call) empties
+## and fills the street gradually over a couple of minutes instead of every
+## resident of a job stepping outside in the same few seconds.
+const MAX_DELAY := 2.0
 ## Evening at the inn runs from the end of the market until this hour.
 const INN_OPEN := 19.5
 const INN_CLOSE := 22.5
