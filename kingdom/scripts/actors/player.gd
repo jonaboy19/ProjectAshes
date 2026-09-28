@@ -10,6 +10,12 @@ extends CharacterBody3D
 ## shield block (stamina), dodge roll with invulnerability frames, hit-stop
 ## and camera shake. Animations layer through CharacterAnimator so attacks
 ## play on the upper body while the legs keep moving.
+##
+## Movement: separate acceleration / braking / turn rates, a committed brake
+## on reversals, turn-in-place before setting off, a slight lean, coyote
+## grounding, one-off impulses that stop at walls, and buffered attack/dodge
+## presses with cancel windows (swing recovery -> swing, swing -> roll outside
+## the hit frames, roll tail -> attack).
 
 signal health_changed(current: int, maximum: int)
 signal stamina_changed(current: float, maximum: float)
@@ -23,8 +29,45 @@ const VIEWMODEL_REST := Vector3(-0.5, 0.15, -0.35)
 
 const WALK := 2.4
 const RUN := 6.5
-const MOVE_ACCEL := 14.0
-const MOVE_BRAKE := 20.0
+## Movement response (LOCOMOTION_START_STOP_TURN_CONTRACT.md): acceleration,
+## braking and turning are separate rules instead of one smoothing constant.
+## Acceleration is strongest from a standstill (the first step answers the
+## stick at once) and eases off toward top speed, so a run still builds.
+const ACCEL_START := 34.0        # m/s² at rest
+const ACCEL_TOP := 11.0          # m/s² near RUN
+const MOVE_BRAKE := 30.0         # m/s² when the stick is released or the target speed drops
+const PIVOT_BRAKE := 42.0        # m/s² when reversing out of a run: plant, then go
+const PIVOT_ANGLE := 2.3         # rad (~130°) between travel and stick that triggers a pivot
+const PIVOT_EXIT_SPEED := 1.2    # a pivot sets off in the new direction below this speed
+## Travel direction swings toward the stick at a bounded rate; facing turns
+## faster than travel, so the body leads a turn instead of sliding sideways.
+const TRAVEL_TURN_WALK := 16.0   # rad/s
+const TRAVEL_TURN_RUN := 9.0
+const FACE_TURN_IDLE := 20.0     # rad/s: 180° turn on the spot in ~0.17 s
+const FACE_TURN_RUN := 11.0
+const FACE_SHARPNESS := 16.0
+## Air control after the coyote window, as a fraction of ground response.
+const AIR_CONTROL := 0.3
+const COYOTE_TIME := 0.12
+## Lean into turns (roll) and against acceleration (pitch). Cosmetic only.
+const LEAN_ROLL_MAX := 0.13
+const LEAN_PITCH_MAX := 0.06
+## Impulses are one-off velocity kicks (m/s) that then decay; they are never
+## re-added each tick (PLAYER_MECHANICS_RESPONSE_REVIEW.md).
+const IMPULSE_DECEL := 12.0
+const ATTACK_LUNGE := 3.0
+const BLOCK_PUSH := 3.0
+const FLINCH_TIME := 0.18        # brief slowdown when hit, legs stay on the ground
+## Input buffering and cancel windows.
+const ATTACK_BUFFER := 0.35      # s an early attack press is remembered
+const DODGE_BUFFER := 0.25
+const SWING_CANCEL := 0.22       # last fraction of a swing's recovery that the next swing may cut
+const DODGE_ATTACK_CANCEL := 0.12  # s left in a roll when an attack may cut it
+const DODGE_CHAIN := 0.06        # s left in a roll when another roll may start
+const ACTIVE_BEFORE := 0.03      # s around the hit frame when a dodge waits instead of cancelling
+const ACTIVE_AFTER := 0.05
+const DODGE_TIME := 0.45
+const DODGE_ANIM_RATE := 1.8
 const GRAVITY := 24.0
 const WADE_LIMIT := 1.4          # metres of water the player will walk into
 const MAX_STAMINA := 100.0
@@ -59,8 +102,13 @@ var _shake := CameraShake.new()
 var _look_target: Node3D
 var _combo := -1
 var _swing := 0.0
+var _swing_cancel := 0.0
+var _swing_elapsed := 0.0
+var _swing_hit := 0.0
+var _swing_id := 0
 var _combo_window := 0.0
-var _buffered := false
+var _attack_buffer := 0.0
+var _dodge_buffer := 0.0
 var _dodge := 0.0
 var _dodge_dir := Vector3.ZERO
 var _invulnerable := 0.0
@@ -69,6 +117,16 @@ var _hurt_cooldown := 0.0
 var _stamina_delay := 0.0
 var _impulse := Vector3.ZERO
 var _step_distance := 0.0
+var _move_dir := Vector3.FORWARD
+var _move_speed := 0.0
+var _pivoting := false
+var _air_time := 0.0
+var _flinch := 0.0
+var _yaw_rate := 0.0
+var _lean := Vector2.ZERO
+var _lean_speed := 0.0
+var _hit_stop_token := 0
+var _hit_stopping := false
 
 
 func _ready() -> void:
@@ -86,6 +144,8 @@ func _ready() -> void:
 	collision_layer = 1
 	# Layer 2 is near villagers; layer 4 is near soldiers and hostile actors.
 	collision_mask = 1 | 2 | 4
+	# Hold the ground over small drops and slope changes instead of hopping off them.
+	floor_snap_length = 0.35
 	_model = Node3D.new()
 	add_child(_model)
 	var body := Assets.character("Player", 1.8, ["1H_Sword", "Round_Shield"])
@@ -146,7 +206,9 @@ func forward() -> Vector3:
 
 
 func facing() -> Vector3:
-	return _model.global_transform.basis.z
+	# From the yaw alone: the lean and a child's body scale must not tilt or shrink it.
+	var r := _model.global_rotation.y
+	return Vector3(sin(r), 0.0, cos(r))
 
 
 func set_view(v: int) -> void:
@@ -184,19 +246,21 @@ func _input_dir() -> Vector3:
 
 func _physics_process(delta: float) -> void:
 	_swing -= delta
+	_swing_elapsed += delta
 	_combo_window -= delta
 	_dodge -= delta
 	_invulnerable -= delta
 	_stunned -= delta
 	_hurt_cooldown -= delta
 	_stamina_delay -= delta
+	_flinch -= delta
+	_attack_buffer -= delta
+	_dodge_buffer -= delta
 
 	var dir := Vector3.ZERO if dead or _stunned > 0.0 else _input_dir()
 	blocking = Input.is_action_pressed("block") and stamina > 0.0 and _dodge <= 0.0 and not dead and _stunned <= 0.0
 	_animator.set_blocking(blocking)
-	if _swing <= 0.0 and _buffered:
-		_buffered = false
-		_start_swing()
+	_consume_buffers()
 
 	var running := (Input.is_action_pressed("sprint") or touch_move.length() > 0.92 or view >= View.TOWN) and not blocking
 	var speed := (RUN if running else WALK) * Life.needs.speed()
@@ -204,37 +268,46 @@ func _physics_process(delta: float) -> void:
 		speed = WALK * 0.5
 	if _swing > 0.0:
 		speed *= 0.4
+	if _flinch > 0.0:
+		speed *= 0.5
 	# Water: wade slowly past knee depth, and never walk into water deeper than chest height.
 	var wade := WorldGen.water_depth(global_position.x, global_position.z)
 	if wade > 0.5:
 		speed *= lerpf(0.65, 0.35, clampf((wade - 0.5) / 0.9, 0.0, 1.0))
 	var target := dir * speed
-	if _dodge > 0.0:
-		target = _dodge_dir * lerpf(4.0, 12.0, clampf(_dodge / 0.45, 0.0, 1.0))
 	if target.length() > 0.05:
 		var ahead := global_position + target.normalized() * 0.8
 		var deep := WorldGen.water_depth(ahead.x, ahead.z)
 		if deep > WADE_LIMIT and deep >= wade:
 			target = Vector3.ZERO
-	var response := MOVE_ACCEL if target.length_squared() > 0.01 else MOVE_BRAKE
-	var response_alpha := 1.0 - exp(-response * delta)
-	velocity.x = lerpf(velocity.x, target.x, response_alpha) + _impulse.x
-	velocity.z = lerpf(velocity.z, target.z, response_alpha) + _impulse.z
-	_impulse = _impulse.move_toward(Vector3.ZERO, 30.0 * delta)
+	_air_time = 0.0 if is_on_floor() else _air_time + delta
+	var grounded := _air_time <= COYOTE_TIME
+	if _dodge > 0.0:
+		# The roll owns movement: its own speed curve, no input smoothing.
+		var roll_speed := lerpf(4.0, 12.0, clampf(_dodge / DODGE_TIME, 0.0, 1.0))
+		_move_dir = _dodge_dir
+		_move_speed = roll_speed
+	else:
+		_steer(target, delta, 1.0 if grounded else AIR_CONTROL)
+	var planar := _move_dir * _move_speed + _impulse
+	velocity.x = planar.x
+	velocity.z = planar.z
+	_impulse = _impulse.move_toward(Vector3.ZERO, IMPULSE_DECEL * delta)
 	velocity.y = -1.0 if is_on_floor() else velocity.y - GRAVITY * delta
 	move_and_slide()
+	_resolve_contacts()
 	# Never fall through unloaded/streaming ground.
 	var ground := WorldGen.height(global_position.x, global_position.z)
 	if global_position.y < ground - 0.5:
 		global_position.y = ground + 0.1
 		velocity.y = 0.0
 
-	if view == View.FIRST or blocking:
-		_model.rotation.y = lerp_angle(_model.rotation.y, _yaw + PI, 1.0 - exp(-15.0 * delta))
-	elif dir.length() > 0.05 and _swing <= 0.0 and _dodge <= 0.0:
-		_model.rotation.y = lerp_angle(_model.rotation.y, atan2(dir.x, dir.z), 1.0 - exp(-12.0 * delta))
-	_animator.update(delta, Vector2(velocity.x, velocity.z).length() if _dodge <= 0.0 else 0.0)
-	_update_footsteps(delta, dir)
+	_update_facing(dir, delta)
+	var real := get_real_velocity()
+	var travel := Vector3(real.x, 0.0, real.z)
+	_animator.update(delta, travel.length() if _dodge <= 0.0 else 0.0, travel)
+	_update_lean(delta)
+	_update_footsteps(delta, dir, grounded)
 
 	if _stamina_delay <= 0.0 and not blocking:
 		stamina = minf(stamina + 28.0 * delta * Life.needs.stamina_regen(), MAX_STAMINA * Life.needs.stamina_cap())
@@ -243,18 +316,106 @@ func _physics_process(delta: float) -> void:
 	_update_camera(delta)
 
 
-func _update_footsteps(delta: float, input_dir: Vector3) -> void:
+## Body response: speed and travel direction are tuned separately. `control`
+## scales every rate (reduced in the air).
+func _steer(target: Vector3, delta: float, control: float) -> void:
+	var want_speed := target.length()
+	if want_speed < 0.05:
+		_pivoting = false
+		_move_speed = move_toward(_move_speed, 0.0, MOVE_BRAKE * control * delta)
+		return
+	var want_dir := target / want_speed
+	var run_t := clampf(_move_speed / RUN, 0.0, 1.0)
+	if _move_speed < 0.3:
+		_move_dir = want_dir   # from rest, go where the stick points; the body turns to follow
+	else:
+		var angle := _move_dir.signed_angle_to(want_dir, Vector3.UP)
+		if absf(angle) > PIVOT_ANGLE:
+			_pivoting = true
+		if _pivoting:
+			# Reversal: brake hard along the old line (no wide arc), then set off.
+			_move_speed = move_toward(_move_speed, 0.0, PIVOT_BRAKE * control * delta)
+			if _move_speed < PIVOT_EXIT_SPEED or absf(angle) < PIVOT_ANGLE * 0.5:
+				_pivoting = false
+				_move_dir = want_dir
+			return
+		var turn_rate := lerpf(TRAVEL_TURN_WALK, TRAVEL_TURN_RUN, run_t) * control
+		_move_dir = _move_dir.rotated(Vector3.UP, clampf(angle, -turn_rate * delta, turn_rate * delta)).normalized()
+	if want_speed > _move_speed:
+		var accel := lerpf(ACCEL_START, ACCEL_TOP, run_t) * control
+		# Starting against the facing: turn on the spot first, then drive.
+		if _move_speed < WALK and view != View.FIRST and not blocking:
+			var align := facing().dot(want_dir)
+			accel *= clampf(0.5 + 0.5 * align, 0.3, 1.0)
+		_move_speed = move_toward(_move_speed, want_speed, accel * delta)
+	else:
+		_move_speed = move_toward(_move_speed, want_speed, MOVE_BRAKE * control * delta)
+
+
+## After the physics step: walls stop momentum and impulses instead of letting
+## the body (and its run cycle) keep pressing into them.
+func _resolve_contacts() -> void:
+	if not is_on_wall():
+		return
+	for i in get_slide_collision_count():
+		var n := get_slide_collision(i).get_normal()
+		n.y = 0.0
+		if n.length_squared() < 0.01:
+			continue
+		n = n.normalized()
+		var into := _impulse.dot(n)
+		if into < 0.0:
+			_impulse -= n * into
+	var real := get_real_velocity()
+	_move_speed = minf(_move_speed, Vector2(real.x, real.z).length() + 0.5)
+
+
+func _update_facing(dir: Vector3, delta: float) -> void:
+	var before := _model.rotation.y
+	var want := before
+	var rate := 0.0
+	if view == View.FIRST or blocking:
+		want = _yaw + PI
+		rate = FACE_TURN_IDLE
+	elif dir.length() > 0.05 and _swing <= 0.0 and _dodge <= 0.0 and _stunned <= 0.0:
+		want = atan2(dir.x, dir.z)
+		rate = lerpf(FACE_TURN_IDLE, FACE_TURN_RUN, clampf(_move_speed / RUN, 0.0, 1.0))
+	if rate > 0.0:
+		var diff := angle_difference(before, want)
+		var step := clampf(diff * (1.0 - exp(-FACE_SHARPNESS * delta)), -rate * delta, rate * delta)
+		_model.rotation.y = before + step
+	_yaw_rate = angle_difference(before, _model.rotation.y) / maxf(delta, 0.0001)
+
+
+## A small lean into turns and against speed changes. Pivots at the feet (the
+## model origin), so the soles stay on the ground.
+func _update_lean(delta: float) -> void:
+	var roll := 0.0
+	var pitch := 0.0
+	if _dodge <= 0.0 and not dead and view != View.FIRST:
+		var speed_t := clampf(_move_speed / RUN, 0.0, 1.0)
+		# Lateral acceleration = speed × yaw rate; lean toward the inside of the turn.
+		roll = clampf(-_yaw_rate * _move_speed * 0.012, -LEAN_ROLL_MAX, LEAN_ROLL_MAX) * speed_t
+		var accel := (_move_speed - _lean_speed) / maxf(delta, 0.0001)
+		pitch = clampf(accel * 0.002, -LEAN_PITCH_MAX, LEAN_PITCH_MAX)
+	_lean_speed = _move_speed
+	var a := 1.0 - exp(-10.0 * delta)
+	_lean = _lean.lerp(Vector2(pitch, roll), a)
+	_model.rotation.x = _lean.x
+	_model.rotation.z = _lean.y
+
+
+## Step sounds land on the gait's footfalls (the animator's shared walk/run phase).
+func _update_footsteps(delta: float, input_dir: Vector3, grounded: bool) -> void:
 	var speed := Vector2(velocity.x, velocity.z).length()
-	if input_dir.length_squared() < 0.01 or speed < 0.6 or _dodge > 0.0 or dead:
+	var footfall := _animator.consume_footstep()
+	if input_dir.length_squared() < 0.01 or speed < 0.6 or _dodge > 0.0 or dead or not grounded:
 		_step_distance = 0.0
 		return
 	_step_distance += speed * delta
-	var gait := clampf((speed - WALK) / (RUN - WALK), 0.0, 1.0)
-	var authored_stride := lerpf(WALK / 1.5, RUN / (2.0 * 24.0 / 22.0), gait)
-	var gait_speed := lerpf(WALK, RUN, gait)
-	var stride := authored_stride * speed / gait_speed
-	if _step_distance >= stride:
-		_step_distance = fmod(_step_distance, stride)
+	# Fallback spacing in case the animator is inactive: never go silent over ~1.6 m.
+	if footfall or _step_distance > 1.6:
+		_step_distance = 0.0
 		Audio.sfx("step_" + WorldGen.footstep_surface(global_position.x, global_position.z), global_position, -6.0)
 
 
@@ -301,15 +462,55 @@ func _update_look_target() -> void:
 # --- Combat -----------------------------------------------------------------------
 
 func attack() -> void:
-	if dead or _stunned > 0.0 or _dodge > 0.0:
+	if dead:
 		return
-	if _swing > 0.0:
-		_buffered = true          # queue the next hit of the combo
+	if _can_attack():
+		_start_swing()
+	else:
+		_attack_buffer = ATTACK_BUFFER   # early press: fire at the next opening
+
+
+func dodge() -> void:
+	if dead:
 		return
-	_start_swing()
+	if _can_dodge():
+		_start_dodge()
+	elif stamina >= 15.0:
+		_dodge_buffer = DODGE_BUFFER
+
+
+## An attack may start when idle, in the cancel tail of the previous swing, or
+## as a roll finishes.
+func _can_attack() -> bool:
+	return not dead and _stunned <= 0.0 and _dodge <= DODGE_ATTACK_CANCEL and _swing <= _swing_cancel
+
+
+## A roll may cut a swing's startup or recovery, but not its hit frames (it
+## waits for them), and may chain from the very end of another roll.
+func _can_dodge() -> bool:
+	if dead or _stunned > 0.0 or stamina < 15.0 or _dodge > DODGE_CHAIN:
+		return false
+	return not _in_active_frames()
+
+
+func _in_active_frames() -> bool:
+	return _swing > 0.0 and _swing_elapsed >= _swing_hit - ACTIVE_BEFORE and _swing_elapsed <= _swing_hit + ACTIVE_AFTER
+
+
+func _consume_buffers() -> void:
+	if _dodge_buffer > 0.0 and _can_dodge():
+		_dodge_buffer = 0.0
+		_attack_buffer = 0.0
+		_start_dodge()
+	elif _attack_buffer > 0.0 and _can_attack():
+		_attack_buffer = 0.0
+		_start_swing()
 
 
 func _start_swing() -> void:
+	if _dodge > 0.0:
+		_dodge = 0.0                 # roll attack: the swing takes over the roll's tail
+		_animator.stop_full()
 	_combo = (_combo + 1) % COMBO.size() if _combo_window > 0.0 else 0
 	var step: Dictionary = COMBO[_combo]
 	var weak: bool = stamina < step["cost"]
@@ -319,11 +520,16 @@ func _start_swing() -> void:
 	if target:
 		var to := target.global_position - global_position
 		_model.rotation.y = atan2(to.x, to.z)
-	_impulse = facing() * 2.5
+	_kick(facing() * ATTACK_LUNGE)
+	_swing_id += 1
 	_swing = step["lock"]
+	_swing_elapsed = 0.0
+	_swing_hit = step["hit"]
+	_swing_cancel = step["lock"] * SWING_CANCEL
 	_combo_window = step["lock"] + COMBO_WINDOW
 	if _combo == COMBO.size() - 1:
 		_combo_window = 0.0     # finisher ends the chain
+		_swing_cancel = 0.0     # and commits to its full recovery
 	_animator.play_upper(step["anim"], step["speed"] * (0.7 if weak else 1.0))
 	Audio.sfx("swing", null, -4.0)
 	if _viewmodel.visible:
@@ -336,14 +542,20 @@ func _start_swing() -> void:
 	var tilts := [0.9, -0.9, 0.05, 0.0]
 	var yaw := _model.rotation.y
 	var arc_col := Color(1.0, 0.9, 0.7) if not weak else Color(0.7, 0.7, 0.75)
+	var id := _swing_id
+	var combo := _combo
 	get_tree().create_timer(step["hit"] * 0.55).timeout.connect(func() -> void:
-		if is_inside_tree():
+		if is_inside_tree() and id == _swing_id:
 			VFX.slash(get_parent(), global_position + Vector3(0, 1.15 * Life.body_scale(), 0), yaw,
-				tilts[_combo % tilts.size()], arc_col, 1.6))
-	get_tree().create_timer(step["hit"]).timeout.connect(_resolve_hit.bind(damage, knock, _combo == COMBO.size() - 1))
+				tilts[combo % tilts.size()], arc_col, 1.6))
+	get_tree().create_timer(step["hit"]).timeout.connect(_resolve_hit.bind(damage, knock, _combo == COMBO.size() - 1, id))
 
 
-func _resolve_hit(damage: int, knockback: float, finisher: bool) -> void:
+func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> void:
+	if id >= 0 and id != _swing_id:
+		return    # the swing was cancelled (dodge) before its hit frame
+	if dead or not is_inside_tree():
+		return
 	var fwd := forward() if view == View.FIRST else facing()
 	var hits := 0
 	for enemy in get_tree().get_nodes_in_group("team1"):
@@ -362,20 +574,35 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool) -> void:
 		_shake.add(0.45 if finisher else 0.22)
 
 
-func dodge() -> void:
-	if dead or _dodge > 0.0 or _stunned > 0.0 or stamina < 15.0:
-		return
+func _start_dodge() -> void:
 	_spend(22.0)
 	var dir := _input_dir()
 	var backward := dir.length() < 0.1
 	_dodge_dir = -facing() if backward else dir.normalized()
 	if not backward:
 		_model.rotation.y = atan2(_dodge_dir.x, _dodge_dir.z)
-	_dodge = 0.45
+	_dodge = DODGE_TIME
 	_invulnerable = 0.35
+	if _swing > 0.0:
+		_swing_id += 1          # a pending hit frame no longer lands
+		_animator.stop_upper()
 	_swing = 0.0
-	_buffered = false
-	_animator.play_full("Dodge_Backward" if backward else "Dodge_Forward", 1.5)
+	_attack_buffer = 0.0
+	_impulse = Vector3.ZERO
+	_animator.play_full("Dodge_Backward" if backward else "Dodge_Forward", DODGE_ANIM_RATE)
+	get_tree().create_timer(DODGE_TIME).timeout.connect(_end_dodge_anim)
+
+
+## When the roll's movement ends and the player is already steering, hand the
+## legs straight back to locomotion instead of finishing the get-up on the spot.
+func _end_dodge_anim() -> void:
+	if _dodge <= 0.0 and _input_dir().length() > 0.1 and not dead:
+		_animator.stop_full()
+
+
+## One-off horizontal velocity kick. It replaces any kick still decaying.
+func _kick(v: Vector3) -> void:
+	_impulse = Vector3(v.x, 0.0, v.z)
 
 
 func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> void:
@@ -388,11 +615,14 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		from_front = facing().dot(to.normalized()) > 0.3
 	if blocking and from_front:
 		_spend(amount * 1.6)
-		_impulse = -facing() * 3.0
+		_kick(-facing() * BLOCK_PUSH)
 		_shake.add(0.15)
 		if stamina <= 0.0:
 			_stunned = 0.9          # guard broken
-			_animator.play_full("Hit_B", 1.2)
+			_swing = 0.0
+			_swing_id += 1
+			# Heavy stagger with both feet planted (CharacterAnimator.PREFERRED_CLIPS).
+			_animator.play_full("Hit_B", 1.3)
 			Game.say("Guard broken!")
 		else:
 			_animator.play_upper("Block_Hit", 1.5)
@@ -403,11 +633,13 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 	_hurt_cooldown = 0.35
 	health = maxi(health - amount, 0)
 	health_changed.emit(health, max_health)
-	_impulse = knockback
+	if knockback.length_squared() > 0.0001:
+		_kick(knockback)
 	_shake.add(0.3)
 	if health == 0:
 		_die()
 	elif not blocking:
+		_flinch = FLINCH_TIME
 		_animator.play_upper("Hit_A", 1.5)
 
 
@@ -419,6 +651,10 @@ func _die() -> void:
 	Game.say("You fall... and wake in the village, bruised.")
 	await get_tree().create_timer(3.0).timeout
 	global_position = spawn_point
+	_move_speed = 0.0
+	_impulse = Vector3.ZERO
+	_attack_buffer = 0.0
+	_dodge_buffer = 0.0
 	health = max_health
 	stamina = MAX_STAMINA
 	dead = false
@@ -430,6 +666,8 @@ func _die() -> void:
 func apply_age() -> void:
 	var k := Life.body_scale()
 	_model.scale = Vector3.ONE * k
+	if _animator:
+		_animator.stride_scale = k   # a child's shorter legs cover less ground per step
 	_pivot.position.y = 1.55 * k
 
 
@@ -452,9 +690,20 @@ func _spend(amount: float) -> void:
 
 ## Brief freeze on impact: sells the weight of a hit.
 func _hit_stop(duration: float) -> void:
+	_hit_stop_token += 1
+	var token := _hit_stop_token
+	_hit_stopping = true
 	Engine.time_scale = 0.05
 	await get_tree().create_timer(duration, true, false, true).timeout
-	Engine.time_scale = 1.0
+	if token == _hit_stop_token:   # an overlapping, later hit-stop restores time itself
+		_hit_stopping = false
+		Engine.time_scale = 1.0
+
+
+func _exit_tree() -> void:
+	if _hit_stopping:
+		_hit_stopping = false
+		Engine.time_scale = 1.0   # never leave the world frozen if removed mid hit-stop
 
 
 func _nearest_enemy(max_dist: float, min_dot: float) -> Node3D:
