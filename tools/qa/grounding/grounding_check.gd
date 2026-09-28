@@ -60,7 +60,7 @@ func _process(delta: float) -> bool:
 				t = 0.0
 			elif t > 40.0:
 				print("GROUNDING boot timed out (player never became ready)")
-				quit()
+				_shutdown()
 		"goto":
 			var loc: Array = locations[loc_i]
 			var p: Vector2 = loc[1]
@@ -175,7 +175,7 @@ func _scan_node(n: Node, center: Vector2, loc_name: String) -> void:
 		# node's own transform.origin is the origin, not the mesh's actual position).
 		# Individual trees/props are separately correct: they're MultiMeshInstance3D
 		# with per-instance transforms, handled below.
-		var pname := (n.get_parent().name if n.get_parent() else "")
+		var pname: String = (n.get_parent().name if n.get_parent() else "")
 		if n.name not in ["Ground", "TreeImpostors"] and not pname.begins_with("Chunk_"):
 			_check_mesh(n as MeshInstance3D, (n as MeshInstance3D).mesh, (n as MeshInstance3D).global_transform, center, loc_name, "mesh")
 	elif n is MultiMeshInstance3D:
@@ -194,13 +194,17 @@ func _scan_node(n: Node, center: Vector2, loc_name: String) -> void:
 			var i := 0
 			while i < mm.instance_count:
 				var inst := mmi.global_transform * mm.get_instance_transform(i)
-				_check_box(box, inst, center, loc_name, "instance:" + _owner_name(n))
+				_check_box(box, inst, center, loc_name, "instance:" + _owner_name(n, mm))
 				i += stride
 	for c in n.get_children():
 		_scan_node(c, center, loc_name)
 
 
-func _owner_name(n: Node) -> String:
+func _owner_name(n: Node, mm: MultiMesh = null) -> String:
+	if not String(n.name).contains("@"):
+		return n.name   # explicitly named (e.g. "BuildingPlinths", "ContactShadows")
+	if mm and mm.mesh and mm.mesh.resource_path != "":
+		return mm.mesh.resource_path.get_file().get_basename()
 	var p := n.get_parent()
 	return (p.name if p else n.name)
 
@@ -240,6 +244,19 @@ func _check_box(box: AABB, xform: Transform3D, center: Vector2, loc_name: String
 func _finish() -> void:
 	_write_report()
 	print("GROUNDING samples=%d" % samples.size())
+	_shutdown()
+
+
+## See tools/qa/perf_visual/perf_visual.gd's _shutdown() for why: quitting while
+## main.tscn is still live races WorkerThreadPool/threaded-load cleanup against
+## RenderingServer teardown and produced the ntdll heap-corruption crashes logged
+## in docs/qa/stability.md.
+func _shutdown() -> void:
+	if main:
+		main.queue_free()
+		main = null
+	for i in 10:
+		await process_frame
 	quit()
 
 

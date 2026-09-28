@@ -54,14 +54,26 @@ func _build(s: Dictionary) -> Node3D:
 	root.name = s["name"]
 	add_child(root)
 	var plan: Dictionary = s["plan"]
-	var base_h: float = s["base_h"]
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 9001 + s["id"]
 
 	# Houses and shops, batched by model and LOD_CELL: a MultiMesh switches LOD as a
 	# whole (by its bounds' centre), so one town-wide batch drew every house at the
 	# near LOD; per-cell batches let the far side of town use LOD2/LOD3.
+	# Grounding: every lot used to sit at the settlement's single flat base_h.
+	# WorldGen.height() *does* flatten the ground to base_h inside the settlement
+	# radius (see world_gen.gd height()), but it also cuts a shallow bed under
+	# streets (-0.4 m) inside that same flattened area, and a lot's footprint can
+	# poke past the flatten radius into the blended slope beyond it -- both put
+	# real ground below/above the flat base_h a building was drawn at, which is
+	# exactly what the grounding scanner caught (median 29 cm, max 1.9 m). Snap
+	# each lot to its own footprint's ground per-instance instead, the same way
+	# RegionDressing._footprint_ground() already does for region-site buildings,
+	# and applied here before the per-cell MultiMesh batching below (so it costs
+	# nothing per frame -- one extra WorldGen.height() sample per corner, once,
+	# at settlement-build time).
 	var batches := {}
+	var plinths: Array = []   # [pos, yaw, size, ground_y] for _plinths() below
 	for lot in plan["lots"]:
 		var p: Vector2 = lot["pos"]
 		var asset: String = lot["asset"]
@@ -72,13 +84,16 @@ func _build(s: Dictionary) -> Node3D:
 		var bkey := "%s@%d,%d" % [asset, floori(p.x / LOD_CELL), floori(p.y / LOD_CELL)] if celled else asset + "@"
 		if not batches.has(bkey):
 			batches[bkey] = []
-		var t := Transform3D(Basis(Vector3.UP, lot["yaw"]), Vector3(p.x, base_h, p.y))
-		batches[bkey].append(t)
 		var size := _footprint(asset)
+		var gh := _ground_snap(p, lot["yaw"], size)
+		var t := Transform3D(Basis(Vector3.UP, lot["yaw"]), Vector3(p.x, gh, p.y))
+		batches[bkey].append(t)
 		var body := BuildingProfiles.make_body(asset, size)
-		body.position = Vector3(p.x, base_h, p.y)
+		body.position = Vector3(p.x, gh, p.y)
 		body.rotation.y = lot["yaw"]
 		root.add_child(body)
+		plinths.append([p, lot["yaw"], size, gh])
+	_plinths(root, plinths)
 	for bkey: String in batches:
 		var asset := bkey.get_slice("@", 0)
 		var list: Array[Transform3D] = []
@@ -115,9 +130,12 @@ func _build(s: Dictionary) -> Node3D:
 			_multimesh(root, Assets.building_mesh(asset), list)
 		_chimney_smoke(root, asset, list, rng)
 
-	_interior_doors(root, plan["lots"], base_h)
+	_interior_doors(root, plan["lots"])
 
 	# Lived-in door_clutter by the doors: photo-scanned crates, barrels, baskets, buckets.
+	# Small props (< 4 sqm), so _ground_snap point-samples under each one instead of
+	# assuming the lot's flat base_h -- avoids a crate floating/sinking by the same
+	# amount the building next to it now corrects for.
 	var door_clutter := {}
 	var kinds := ["scan/wooden_crate_01", "scan/wicker_basket_01", "scan/wooden_bucket_01"]
 	for lot in plan["lots"]:
@@ -130,23 +148,28 @@ func _build(s: Dictionary) -> Node3D:
 			var q := p + fwd * rng.randf_range(3.6, 4.4) + side * rng.randf_range(-3.2, 3.2) * (1.0 if k % 2 == 0 else -1.0)
 			if not door_clutter.has(kind):
 				door_clutter[kind] = []
-			door_clutter[kind].append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(q.x, base_h, q.y)))
+			door_clutter[kind].append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(q.x, WorldGen.height(q.x, q.y) - 0.03, q.y)))
 	for kind: String in door_clutter:
 		var list2: Array[Transform3D] = []
 		list2.assign(door_clutter[kind])
 		_multimesh(root, Assets.nature_mesh(kind), list2)
 
 	for lm in plan["landmarks"]:
-		_piece(root, lm["asset"], lm["pos"], base_h, lm["yaw"])
-	# Market stalls and carts ringing the plaza.
+		var lm_size := _footprint(lm["asset"])
+		_piece(root, lm["asset"], lm["pos"], _ground_snap(lm["pos"], lm["yaw"], lm_size), lm["yaw"])
+	# Market stalls and carts ringing the plaza. Plaza-radius footprint estimate
+	# (real stall assets are ~3-4 m): close enough for a per-instance ground snap,
+	# and cheap since it only samples the 4 corners once per stall at build time.
 	var stalls: Array[Transform3D] = []
 	var stalls2: Array[Transform3D] = []
 	var pr: float = plan["plaza_r"]
 	var n_stalls := 6 if s["kind"] == "village" else 12
+	var stall_size := Vector3(3.5, 2.5, 3.5)
 	for i in n_stalls:
 		var ang := TAU * i / n_stalls + 0.2
 		var sp: Vector2 = s["pos"] + Vector2(cos(ang), sin(ang)) * (pr - 3.0)
-		var st := Transform3D(Basis(Vector3.UP, atan2(-cos(ang), -sin(ang))), Vector3(sp.x, base_h, sp.y))
+		var syaw := atan2(-cos(ang), -sin(ang))
+		var st := Transform3D(Basis(Vector3.UP, syaw), Vector3(sp.x, _ground_snap(sp, syaw, stall_size), sp.y))
 		(stalls if i % 2 == 0 else stalls2).append(st)
 	# Keep the current four-model layout; each visible stall gets a box proxy.
 	# Four stall palettes, alternated around the plaza.
@@ -171,9 +194,9 @@ func _build(s: Dictionary) -> Node3D:
 
 	var c: Vector2 = s["pos"]
 	if plan["walls"]:
-		_wall_ring(root, c, plan["wall_radius"], base_h, plan["gates"], 40, 5)
+		_wall_ring(root, c, plan["wall_radius"], plan["gates"], 40, 5)
 	if plan["inner_wall"] > 0.0:
-		_wall_ring(root, c, plan["inner_wall"], base_h, [plan["gates"][0]], 16, 4)
+		_wall_ring(root, c, plan["inner_wall"], [plan["gates"][0]], 16, 4)
 
 	# Countryside: windmills, lumber mill and fields outside the walls.
 	var r: float = s["radius"]
@@ -195,7 +218,7 @@ func _build(s: Dictionary) -> Node3D:
 	for i in 30:
 		var ang := rng.randf() * TAU
 		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(plan["plaza_r"] * 0.6, plan["plaza_r"] + 3.0)
-		street_clutter.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(p.x, base_h, p.y)))
+		street_clutter.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.03, p.y)))
 	# Barrels, crates and baskets break when struck (see breakable.gd); carts stay solid.
 	_multimesh(root, Assets.building_mesh("barrel"), street_clutter.slice(0, 10), true, true, "barrel")
 	_multimesh(root, Assets.nature_mesh("scan/wooden_crate_01"), street_clutter.slice(10, 18), true, true, "scan/wooden_crate_01")
@@ -210,7 +233,7 @@ func _build(s: Dictionary) -> Node3D:
 ## triggers: masked to the player's trigger layer only, not monitorable, and
 ## with no per-frame work until the player stands in one (see interior_door.gd).
 ## Kept under "Doors" so VillageServices can find them.
-func _interior_doors(root: Node3D, lots: Array, base_h: float) -> void:
+func _interior_doors(root: Node3D, lots: Array) -> void:
 	var holder := Node3D.new()
 	holder.name = "Doors"
 	root.add_child(holder)
@@ -220,8 +243,10 @@ func _interior_doors(root: Node3D, lots: Array, base_h: float) -> void:
 			continue
 		var p: Vector2 = lot["pos"]
 		var yaw: float = lot["yaw"]
-		var local := BuildingProfiles.door_local(asset, _footprint(asset))
-		var at := BuildingProfiles.door_point(lot, _footprint(asset))
+		var size := _footprint(asset)
+		var local := BuildingProfiles.door_local(asset, size)
+		var at := BuildingProfiles.door_point(lot, size)
+		var gh := _ground_snap(p, yaw, size)
 		var door := InteriorDoor.new()
 		door.name = "Door_%s_%d" % [asset, holder.get_child_count()]
 		door.interior_scene = BuildingProfiles.interior_scene(asset)
@@ -235,9 +260,92 @@ func _interior_doors(root: Node3D, lots: Array, base_h: float) -> void:
 		shape.shape = BuildingProfiles.door_shape()
 		shape.position.y = 1.1
 		door.add_child(shape)
-		door.position = Vector3(at.x, base_h + local.y, at.y)
+		door.position = Vector3(at.x, gh + local.y, at.y)
 		door.rotation.y = yaw
 		holder.add_child(door)
+
+
+## Footprint-aware ground height for a building/prop lot, mirroring
+## RegionDressing._footprint_ground() (same corner-snap idea, applied here to
+## settlement buildings/props instead of region-site parts). Lowest of the
+## footprint's 4 corners (shrunk so a rotated corner doesn't oversample past a
+## neighbouring lot's lower ground) minus a small sink, so the object never
+## floats -- it sits very slightly into the uphill side of its own footprint
+## instead. See _plinths() for hiding that with a stone base.
+static func _ground_snap(p: Vector2, yaw: float, size: Vector3, sink: float = 0.08) -> float:
+	var lowest := WorldGen.height(p.x, p.y)
+	if size.x * size.z < 4.0:
+		return lowest - sink
+	var basis := Basis(Vector3.UP, yaw)
+	var hx := size.x * 0.4
+	var hz := size.z * 0.4
+	for c in [Vector2(-hx, -hz), Vector2(hx, -hz), Vector2(-hx, hz), Vector2(hx, hz)]:
+		var off := basis * Vector3(c.x, 0.0, c.y)
+		lowest = minf(lowest, WorldGen.height(p.x + off.x, p.y + off.y))
+	return lowest - sink
+
+
+## How much the footprint's ground varies corner to corner (0 on flat ground),
+## so _plinths() can reach the highest corner too.
+static func _ground_spread(p: Vector2, yaw: float, size: Vector3) -> float:
+	if size.x * size.z < 4.0:
+		return 0.0
+	var basis := Basis(Vector3.UP, yaw)
+	var hx := size.x * 0.4
+	var hz := size.z * 0.4
+	var lo := INF
+	var hi := -INF
+	for c in [Vector2(-hx, -hz), Vector2(hx, -hz), Vector2(-hx, hz), Vector2(hx, hz)]:
+		var off := basis * Vector3(c.x, 0.0, c.y)
+		var h := WorldGen.height(p.x + off.x, p.y + off.y)
+		lo = minf(lo, h)
+		hi = maxf(hi, h)
+	return hi - lo
+
+
+static var _plinth_mesh: BoxMesh
+
+
+## A stone plinth under every building lot, sized to its footprint and
+## reaching down to the lowest corner WorldGen actually put under it (plus a
+## margin) so a sloped or street-adjacent lot never shows a gap on its uphill
+## side -- the Meshy/Blender house models have no base geometry of their own.
+## One shared unit box mesh, one MultiMesh for the whole settlement (not per
+## model): this is purely a grounding fix, it doesn't need per-asset LOD
+## batching. Built once at settlement-build time, no per-frame cost.
+func _plinths(root: Node3D, lots: Array) -> void:
+	if lots.is_empty():
+		return
+	if _plinth_mesh == null:
+		_plinth_mesh = BoxMesh.new()
+		_plinth_mesh.size = Vector3.ONE
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0.42, 0.39, 0.36)
+		mat.roughness = 0.95
+		_plinth_mesh.material = mat
+	var transforms: Array[Transform3D] = []
+	for entry in lots:
+		var p: Vector2 = entry[0]
+		var yaw: float = entry[1]
+		var size: Vector3 = entry[2]
+		var gh: float = entry[3]
+		var spread: float = _ground_spread(p, yaw, size)
+		var h: float = maxf(0.2, spread + 0.25)   # always at least a visible course of stone
+		transforms.append(Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3(size.x * 0.92, h, size.z * 0.92)),
+			Vector3(p.x, gh - 0.1 + h * 0.5, p.y)))
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = _plinth_mesh
+	mm.instance_count = transforms.size()
+	for i in transforms.size():
+		mm.set_instance_transform(i, transforms[i])
+	var mmi := MultiMeshInstance3D.new()
+	mmi.name = "BuildingPlinths"
+	mmi.multimesh = mm
+	mmi.visibility_range_end = 200.0
+	mmi.visibility_range_end_margin = 20.0
+	mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	root.add_child(mmi)
 
 
 func _footprint(asset: String) -> Vector3:
@@ -266,7 +374,7 @@ func _piece(root: Node3D, asset: String, p: Vector2, h: float, yaw: float) -> No
 
 ## Stone wall ring (Quaternius RTS pieces stretched to each segment) with towers,
 ## leaving gatehouses where roads enter.
-func _wall_ring(root: Node3D, c: Vector2, radius: float, h: float, gates: Array, segments: int, tower_every: int) -> void:
+func _wall_ring(root: Node3D, c: Vector2, radius: float, gates: Array, segments: int, tower_every: int) -> void:
 	var wall_mesh := Assets.building_mesh("wall")
 	var tower_mesh := Assets.building_mesh("wall_tower")
 	var gate_mesh := Assets.building_mesh("wall_gate")
@@ -294,6 +402,10 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, h: float, gates: Array,
 		var dir := p1 - p0
 		var yaw := atan2(dir.x, dir.y) + (PI * 0.5 if along_x else 0.0)
 		var mp := (p0 + p1) * 0.5
+		# Per-segment ground sample (not the settlement's flat base_h): the wall
+		# ring sits right at the edge of WorldGen's flatten radius, where a segment
+		# can already be in the blended slope beyond it.
+		var h := WorldGen.height(mp.x, mp.y) - 0.05
 		var t := Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * s), Vector3(mp.x, h, mp.y))
 		var is_gate := false
 		for g in gates:
@@ -432,6 +544,7 @@ func _flush_contact_shadows(parent: Node3D) -> void:
 		for i in list.size():
 			mm.set_instance_transform(i, list[i])
 		var mmi := MultiMeshInstance3D.new()
+		mmi.name = "ContactShadows"
 		mmi.multimesh = mm
 		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		if k.z > 0:
@@ -518,7 +631,12 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		for ix in nx:
 			for iz in nz:
 				var p := fc + bx * (ix - (nx - 1) * 0.5) * 10.0 + bz * (iz - (nz - 1) * 0.5) * 10.0
-				tiles.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.05, p.y)))
+				# Fields sit well outside the settlement's flattened plateau (1.35-1.9x
+				# its radius, see fc above), on real, often sloped terrain -- a flat 10 m
+				# tile sampled only at its centre (the old code) could float or bury by
+				# most of the local slope across its width. Corner-snap it like a
+				# building lot instead.
+				tiles.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, _ground_snap(p, yaw, Vector3(10.0, 1.0, 10.0), 0.05), p.y)))
 		# Fence around the field (3 m sections), leaving a gap on one side.
 		var hx := nx * 5.0 + 1.0
 		var hz := nz * 5.0 + 1.0
@@ -597,14 +715,15 @@ func _square_lamps(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 		var a := TAU * (i + 0.5) / n
 		var p := c + Vector2(cos(a), sin(a)) * (pr + 1.2)
 		var yaw := atan2(c.x - p.x, c.y - p.y)
-		posts.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, s["base_h"], p.y)))
+		var gy := WorldGen.height(p.x, p.y) - 0.03
+		posts.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, gy, p.y)))
 		var light := OmniLight3D.new()
 		light.light_color = Color(1.0, 0.72, 0.4)
 		light.omni_range = 9.0
 		light.light_energy = 0.0
 		light.add_to_group("street_lamp")
 		root.add_child(light)
-		light.global_position = Vector3(p.x, s["base_h"] + 2.35, p.y) + Vector3(sin(yaw), 0, cos(yaw)) * 0.62
+		light.global_position = Vector3(p.x, gy + 2.35, p.y) + Vector3(sin(yaw), 0, cos(yaw)) * 0.62
 	_multimesh(root, Assets.building_mesh("lamp_post"), posts)
 	var gates: Array = plan["gates"]
 	if not gates.is_empty():
