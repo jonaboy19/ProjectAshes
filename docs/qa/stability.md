@@ -230,3 +230,9 @@ detector, exactly as the task instructions already specified.
   `kingdom/tools_qa/collision_preview/collision_preview.gd`,
   `tools/qa/anim_qa/anim_qa.gd`, `tools/qa/bench/bench.gd`,
   `tools/qa/perf_visual/perf_visual.gd`).
+
+## 2026-09-28: one silent exit during village load (not reproduced)
+One of 3 identical perf_visual runs (HIGH, village_forest) quit with no output while `village_services.gd:_prop` was loading
+Quaternius megakit props, which have invalid-UID warnings. There was no Windows Event 1000 and no Godot crash handler output. The next run was fine.
+Suspect: threaded loads plus the stale UID cache. Follow-up: re-import `assets/incoming/quaternius/fantasy-props-megakit` to fix the UIDs,
+then loop the load 10x (`--quality=high --route=village_forest --nocapture`) and count completions.
