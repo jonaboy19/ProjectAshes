@@ -12,6 +12,7 @@ const MESHY := "res://assets/incoming/ai3d/meshy/"
 const BUILD := 240.0
 const FREE := 330.0
 const LOD_DIST := 55.0
+const Breakable := preload("res://scripts/world/breakable.gd")
 const BRIDGE_DECK := {"road/bridge_stone": [2.6, 12.0], "road/bridge_wood": [1.6, 14.0]}
 
 var focus := Vector3.ZERO
@@ -23,6 +24,7 @@ var _t := 0.0
 
 
 func _process(delta: float) -> void:
+	Breakable.tick(delta)   # breakable props: melee sweep + regrowth (once per frame)
 	_t += delta
 	for s in _sails:
 		if is_instance_valid(s):
@@ -87,7 +89,12 @@ func _build(site: Dictionary) -> Node3D:
 		var box := Assets.visual_aabb(n)
 		var ground := _footprint_ground(world, basis * Basis(Vector3.UP, float(part[2])), box)
 		n.global_position = Vector3(world.x, ground, world.z)
-		if bool(part[3]):
+		var prop := String(part[0]).trim_prefix("props/")
+		if String(part[0]).begins_with("props/") and Breakable.is_breakable(prop):
+			var b: StaticBody3D = Breakable.new()   # barrels, crates, sacks: smashable, always solid
+			b.setup_node(n, box, prop)
+			n.add_child(b)
+		elif bool(part[3]):
 			_collider(n, box)
 		if String(part[0]) == "farm/windmill":
 			_add_sails(n)

@@ -41,3 +41,7 @@ CC0 / public domain (no attribution required; credited with thanks):
 - OpenGameArt CC0: **rubberduck** (80 creature SFX, 100 SFX), **StarNinjas** (sword attacks and clashes), **artisticdude** (RPG Sound Pack, Swishes), **Ogrebane** (battle SFX), **remaxim** (3 melee sounds), **wolfwoot** (Male Adventurer voice clips), **Wolfgang_** (crickets loop), **Ylmir** (rain loop).
 - Music (OpenGameArt, CC0): **RandomMind** (Market Day, Minstrel Dance, The Old Tower Inn, The Bard's Tale, King's Feast), **cynicmusic** (Battle Theme A; cynicmusic.com, pixelsphere.org), **Umplix** (Medieval Theme, Medieval Standoff), **Of Far Different Nature** (John Dowland, "If my complaints could passions move", 1597).
 - Bellows and spider hiss: generated for the game (filtered noise), no third-party audio.
+
+## Breakable props (added 2026-09-28)
+
+- Breakable barrels, crates and baskets (`scripts/world/breakable.gd`) follow the approach of **godot-destruction-plugin** by **Jummit and contributors** (https://github.com/Jummit/godot-destruction-plugin), (c) 2023 Jummit, MIT: swap the intact prop for cached shard meshes/shapes thrown as rigid bodies, then shrink them out. Rewritten in our style with runtime mesh slicing instead of pre-fractured scenes; no plugin code ships.

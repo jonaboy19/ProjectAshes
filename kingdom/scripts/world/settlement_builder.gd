@@ -13,6 +13,7 @@ const LOD_CELL := 40.0
 ## and every enterable building an InteriorDoor at its front door.
 
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
+const Breakable := preload("res://scripts/world/breakable.gd")
 
 const BUILD_RANGE := 650.0
 const FREE_RANGE := 850.0
@@ -26,6 +27,7 @@ var _footprints: Dictionary = {} # asset -> Vector3 size at BUILDING_SCALE
 
 
 func _process(delta: float) -> void:
+	Breakable.tick(delta)   # breakable clutter: melee sweep + regrowth (once per frame)
 	_timer -= delta
 	if _timer > 0.0:
 		return
@@ -193,9 +195,10 @@ func _build(s: Dictionary) -> Node3D:
 		var ang := rng.randf() * TAU
 		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(plan["plaza_r"] * 0.6, plan["plaza_r"] + 3.0)
 		street_clutter.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(p.x, base_h, p.y)))
-	_multimesh(root, Assets.building_mesh("barrel"), street_clutter.slice(0, 10), true, true)
-	_multimesh(root, Assets.nature_mesh("scan/wooden_crate_01"), street_clutter.slice(10, 18), true, true)
-	_multimesh(root, Assets.nature_mesh("scan/wicker_basket_01"), street_clutter.slice(18, 24), true, true)
+	# Barrels, crates and baskets break when struck (see breakable.gd); carts stay solid.
+	_multimesh(root, Assets.building_mesh("barrel"), street_clutter.slice(0, 10), true, true, "barrel")
+	_multimesh(root, Assets.nature_mesh("scan/wooden_crate_01"), street_clutter.slice(10, 18), true, true, "scan/wooden_crate_01")
+	_multimesh(root, Assets.nature_mesh("scan/wicker_basket_01"), street_clutter.slice(18, 24), true, true, "scan/wicker_basket_01")
 	_multimesh(root, Assets.building_mesh("cart"), street_clutter.slice(24), true, true)
 	_flush_contact_shadows(root)
 	return root
@@ -317,7 +320,8 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, h: float, gates: Array,
 
 ## Instanced placement. Culls by object size (small clutter vanishes first) and,
 ## unless blob is false, grounds each instance with a soft contact shadow.
-func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob := true, collide := false) -> MultiMeshInstance3D:
+## A `breakable` kind (Breakable.KINDS) makes each instance collider breakable.
+func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob := true, collide := false, breakable := "") -> MultiMeshInstance3D:
 	if mesh == null or transforms.is_empty():
 		return null
 	var mm := MultiMesh.new()
@@ -337,7 +341,7 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 		mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	parent.add_child(mmi)
 	if collide:
-		_add_instance_colliders(parent, mesh, transforms)
+		_add_instance_colliders(parent, mesh, transforms, mm, breakable)
 	if blob and extent < 18.0:
 		_contact_shadows(parent, box, transforms, cull)
 	return mmi
@@ -363,9 +367,17 @@ func _multimesh_cells(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]
 
 ## MultiMesh instances are render-only. Add cheap box proxies for the small set
 ## of placed props that should stop the player; foliage stays non-colliding.
-func _add_instance_colliders(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> void:
+## Breakable kinds get a Breakable body (group "breakable", duck-typed
+## take_damage) that hides its own MultiMesh instance when smashed.
+func _add_instance_colliders(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], mm: MultiMesh = null, breakable := "") -> void:
 	var box := mesh.get_aabb()
 	if box.size == Vector3.ZERO:
+		return
+	if mm and Breakable.is_breakable(breakable):
+		for i in transforms.size():
+			var b: StaticBody3D = Breakable.new()
+			b.setup_instance(mm, i, transforms[i], mesh, breakable)
+			parent.add_child(b)
 		return
 	for instance_transform in transforms:
 		var scale := instance_transform.basis.get_scale()
