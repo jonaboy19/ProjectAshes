@@ -214,6 +214,8 @@ func _life_tick(hour: int) -> void:
 		"age": age(), "flags": life_path.flags, "day": WorldSim.day})
 	if hour == 0:
 		_career_daily()
+		for msg: String in homestead.daily_tick(WorldSim.day):
+			Game.say(msg)
 	for msg: String in skills.sync_progress(skills.ctx_from_life(self)):
 		Game.say(msg)
 	if player and is_instance_valid(player):
@@ -931,6 +933,7 @@ func _career_daily() -> void:
 		"mastery": mastery, "biography": biography, "careers": careers, "gold": Game.gold,
 		"at_war": bool(life_path.flags.get("at_war", false)), "sponsor_tier": career_sponsor_tier,
 		"owns_plot": not homestead.owned.is_empty(),
+		"leased_plot": not homestead.leased.is_empty(),
 	}
 	economy.has_shop = property.owned().any(func(p: Variant) -> bool: return p is Dictionary and String(p.get("kind", "")) == "trader")
 	ctx.merge(economy.ladder_ctx())

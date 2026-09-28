@@ -7,6 +7,7 @@ extends Node3D
 ## the same menus are offered inside: wire_settlement() hooks every InteriorDoor
 ## so the innkeeper, smith, receptionist and healer in a room get a Station.
 
+const FarmLedger := preload("res://scripts/ui/farm_ledger.gd")
 const TradeScreen := preload("res://scripts/ui/trade_screen.gd")
 const CraftingScreen := preload("res://scripts/ui/crafting_screen.gd")
 const InventoryScreen := preload("res://scripts/ui/inventory_screen.gd")
@@ -477,10 +478,15 @@ func pack_menu() -> Dictionary:
 		CareerScreen.open_for(hud)
 		return ""])
 	var homestead_plot := Life.homestead.plot_at(_player_pos())
-	if homestead_plot >= 0 and Life.homestead.is_owned(homestead_plot):
-		opts.append(["Build on your homestead", func() -> String:
+	if homestead_plot >= 0:
+		opts.append([("Build on your homestead" if Life.homestead.owns_or_leases(homestead_plot) else "Buy or lease this plot"), func() -> String:
 			hud.close_menu()
 			BuildMenu.open_for(hud)
+			return ""])
+	if not Life.homestead.owned.is_empty() or not Life.homestead.leased.is_empty():
+		opts.append(["Farm ledger", func() -> String:
+			hud.close_menu()
+			FarmLedger.open_for(hud)
 			return ""])
 	opts.append(["Save / Load", func() -> String:
 		hud.close_menu()

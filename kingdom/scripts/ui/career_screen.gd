@@ -187,6 +187,7 @@ func _promotion_ctx(career: String, rank: String, mastery: Object, biography: Ob
 		"mastery": mastery, "biography": biography, "careers": Life.careers,
 		"gold": Game.gold, "at_war": bool(flags.get("at_war", false)),
 		"sponsor_tier": int(Life.get("career_sponsor_tier")) if Life.get("career_sponsor_tier") != null else 0,
+		"leased_plot": not Life.homestead.leased.is_empty(),
 		"owns_plot": not Life.homestead.owned.is_empty(),
 	}
 
