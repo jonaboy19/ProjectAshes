@@ -31,6 +31,7 @@ const HomesteadView := preload("res://scripts/world/homestead_view.gd")
 var homestead_view: Node3D
 var weather: Node3D
 var ambient_fx: Node3D
+var noble_courts: Node3D
 var _order_from: Variant = null   # command view: where the current drag order started
 var player: Player
 var hud: HUD
@@ -156,6 +157,9 @@ func _ready() -> void:
 	ambient_fx = preload("res://scripts/world/ambient_fx.gd").new()
 	ambient_fx.name = "AmbientFX"
 	world.add_child(ambient_fx)
+	noble_courts = preload("res://scripts/world/noble_courts.gd").new()
+	noble_courts.setup(hud, Life.nobility)
+	world.add_child(noble_courts)
 	ambient = AmbientLife.new()
 	world.add_child(ambient)
 	var ore := preload("res://scripts/world/ore_vein.gd").new()
@@ -286,6 +290,7 @@ func _process(delta: float) -> void:
 	road_events.focus = focus
 	homestead_view.focus = focus
 	ambient_fx.focus = focus
+	noble_courts.focus = focus
 	camps.focus = focus
 	ambient.focus = focus
 	terrain.view_radius = mini(5 if player.view == Player.View.COMMAND else 4, Quality.view_radius)

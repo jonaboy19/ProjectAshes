@@ -144,7 +144,16 @@ static func _seeded_shuffle(arr: Array, rng: RandomNumberGenerator) -> void:
 		arr[j] = tmp
 
 
+## "Lord of <village>" / "the Crown" by default, or a noble house's name once
+## scripts/sim/nobility.gd is wired in as Life.nobility (Phase 3: nobility and
+## lordship): it knows which house (or the Crown, or the player) actually
+## holds each settlement as a fief.
 static func _landlord_for(s: Dictionary) -> String:
+	var nobility: Object = Life.get("nobility")
+	if nobility != null and nobility.has_method("landlord_for_settlement"):
+		var info: Dictionary = nobility.landlord_for_settlement(int(s["id"]))
+		if not String(info.get("name", "")).is_empty():
+			return String(info["name"])
 	return ("Lord of %s" % String(s["name"])) if String(s["kind"]) == "village" else "the Crown"
 
 

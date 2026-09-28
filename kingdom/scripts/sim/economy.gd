@@ -403,6 +403,17 @@ func refresh_road_risk(network: RARunestoneNetwork) -> void:
 		road_risk[r.y] = maxf(float(road_risk.get(r.y, 0.0)), danger)
 
 
+## Toll a noble house charges to cross the road between `a` and `b` (0 if the
+## road is a crown road, unowned, or scripts/sim/nobility.gd isn't wired in as
+## Life.nobility yet). Callers that tax a caravan's revenue (caravans.gd,
+## trade_screen.gd) can subtract this per leg.
+func toll_for_road(a: int, b: int) -> int:
+	var nobility: Object = Life.get("nobility")
+	if nobility != null and nobility.has_method("toll_for_road"):
+		return int(nobility.toll_for_road(a, b))
+	return 0
+
+
 # --- merchant assets -----------------------------------------------------------------
 
 ## Buys a cart at `settlement` (must be a town or the capital). "" on success,

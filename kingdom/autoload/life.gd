@@ -44,6 +44,7 @@ var skills := preload("res://scripts/sim/skills.gd").new()
 var mastery := preload("res://scripts/sim/mastery.gd").new()
 var biography := preload("res://scripts/sim/biography.gd").new()
 var property := preload("res://scripts/sim/property.gd").new()
+var nobility := preload("res://scripts/sim/nobility.gd").new()
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
 var career_id := ""            # career_ladders.gd key, "" = none yet
 var career_rank := ""          # rank id within that career
@@ -629,6 +630,8 @@ func _on_hour(hour: int) -> void:
 	if hour == 6:
 		for msg: String in property.daily(WorldSim.day):
 			Game.say(msg)
+		for msg: String in nobility.daily(WorldSim.day):
+			Game.say(msg)
 	if hour == 5:
 		for e: Dictionary in guild.tick_day(WorldSim.day):
 			if e.get("type", "") == "failed":
@@ -804,6 +807,7 @@ func snapshot() -> Dictionary:
 		"mastery": mastery.serialize(),
 		"biography": biography.serialize(),
 		"property": property.serialize(),
+		"nobility": nobility.serialize(),
 		"career": {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier},
 		"radiant": radiant.serialize(),
 		"crafting": crafting.serialize(),
@@ -843,7 +847,7 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	_last_abs = _abs_hours()
