@@ -175,6 +175,7 @@ Legend: **Lic ✓** = licence verified this session; **Attr** = attribution lega
 | polypizza (76 models, cc0 + cc-by) | model | poly.pizza (per-model URLs in LICENSE.md) | not verified per model | **yes** for cc-by | n/a | NOT-IMP | 20 | 47 CC-BY rows, credits in LICENSE.md |
 | armor/opengameart (17 pieces except the Anglo-Saxon helmets), armor/kaykit, armor/polypizza, armor/quaternius | model | see `armor/README.md` | not verified (OGA 502) except the Knights kit | **yes** for cc-by | lines in armor/README | NOT-IMP | 55 | |
 | characters/_library (UAL extra clips), mesh2motion, oga-cdmir-kelgar, oga-system-g6-modular-rpg | anim/model | github.com/Mesh2Motion/mesh2motion-app; OGA | yes (Mesh2Motion: code MIT, art CC0; OGA via Wayback) | no | n/a | NOT-IMP | 64 | The 166 extra UAL clips are ready but not in `UAL_FILES` |
+| characters/_library/UAL_Extra_100STYLE.glb | anim | github.com/orangeduck/100style-retarget (data: ianxmason.github.io/100style) | yes (CC BY 4.0, fetched the repo README this session) | **yes** (added to CREDITS.md) | **yes (added)** | NOT-IMP (not yet in `UAL_FILES`) | 1.6 | 14 clips: directional/styled locomotion (strafe, backward walk, sprint, start/stop, turn-in-place, march/old/wounded/sneak/shielded walk styles, punch idle). Only BVH motion channels used; the bundled "Geno" mesh (non-commercial-research-only) was never downloaded. Source zip is 4.6 GB; fetched only ~437 MB of relevant files via HTTP range requests against the zip's own central directory (not the full archive), and only these 14 trimmed/retargeted clips were committed |
 | animals/_sources, _tools, _previews; armor/_tools, _previews; characters/_tools, _previews; incoming/_previews | tools/renders | own | – | – | – | NOT-IMP | 25 | |
 | incompetech (12 Kevin MacLeod tracks) | music | incompetech.com/music/royalty-free/licenses/ | partly (page says CC "credit the music"; version not shown). LICENSE.txt says CC BY 4.0 | **yes** | not needed yet | NOT-IMP | 71 | |
 | music-cc-by (Scott Buckley ×2, Alexander Nakarada ×2) | music | scottbuckley.com.au/library ; free-stock-music.com | Buckley yes (CC BY 4.0); Nakarada not fetched | **yes** | not needed yet | NOT-IMP | 29 | |
@@ -252,6 +253,15 @@ gameplay yet.
 Also worth a look: **Spatial Gardener** (MIT, Godot 4.2+; overlaps ProtonScatter), **Waterways** (MIT; Godot 4
 support unclear from the README), **godot-statecharts** (MIT; overlaps LimboAI's HSM).
 
+- **2026-09-28 sourcing pass:** added `characters/_library/UAL_Extra_100STYLE.glb` (14 CC BY 4.0 locomotion-style
+  clips: strafe, backward walk, sprint, start/stop, turn-in-place, march/old/wounded/sneak/shielded walks, punch
+  idle — see `characters/README.md`). Checked and rejected: Quaternius "Ultimate Monsters" (CC0 but chibi/toy style,
+  clashes with the painterly Meshy creatures), GODOT-VFX-LIBRARY (MIT but 2D-only), kevdev "Human Basic Motions"
+  (still no licence text on either the paid or free page). Separately, `assets/incoming/animations/` (souls_cat +
+  cmu_mocap, added by another session on 2026-09-28) already covers block/parry/combos/knockdown-getup/karate/
+  swimming/chores, so those are no longer gaps. VFX particle textures and CC0 UI icon packs (Kenney) already sit
+  unused in the repo (`incoming/kenney/particle-pack`, `smoke-particles`, `fantasy-ui-borders`, `game-icons`,
+  `ui-pack-rpg-expansion`, `incoming/vfx/`) — wiring them in is a game-code task, not a sourcing gap.
 - **Riding animations:** no free, redistributable rider clips turned up in this session either. Meshy's own gallery
   models are advertised as CC0, but that was a search result, not a fetched page. Options: author `Ride_Idle`/`Ride_Trot`/
   `Ride_Gallop` on the UAL rig in Blender and mount on the Mesh2Motion or Quaternius horse, or try Meshy's paid-plan

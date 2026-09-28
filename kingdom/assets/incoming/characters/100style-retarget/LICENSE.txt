@@ -1,0 +1,33 @@
+Source: 100STYLE dataset (Ian Mason, Sebastian Starke, Taku Komura, University of Edinburgh),
+retargeted to a common skeleton by Daniel Holden (orangeduck):
+https://github.com/orangeduck/100style-retarget/
+Original dataset: https://ianxmason.github.io/100style/
+
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+We used ONLY the motion capture data (BVH skeleton + rotation channels), never the
+"Geno" skinned character mesh that ships alongside it in the same repo (that mesh is
+marked "free for non-commercial research use" on the repo README and is NOT CC BY;
+we did not download, use, or redistribute it in any form). The BVH motion data itself
+carries no such restriction; it is CC BY 4.0 like the rest of the 100STYLE dataset.
+
+Required credit (per CC BY 4.0), included in kingdom/CREDITS.md:
+  "100STYLE Dataset" by Ian Mason, Sebastian Starke and Taku Komura (University of
+  Edinburgh), CC BY 4.0 (https://ianxmason.github.io/100style/), retarget rig by
+  Daniel Holden (https://github.com/orangeduck/100style-retarget/).
+
+Citation (dataset authors' request for academic use; included here for completeness,
+not required for this game credit):
+  Mason, I., Starke, S., & Komura, T. (2022). Real-Time Style Modelling of Human
+  Locomotion via Feature-Wise Transformations and Local Motion Phases. Proceedings
+  of the ACM on Computer Graphics and Interactive Techniques, 5(1), Article 6.
+
+What's in this folder:
+  UAL_Extra_100STYLE.glb - 14 clips retargeted onto the exact Quaternius UAL skeleton
+  (same method as characters/_tools/retarget_to_ual.py used for Mesh2Motion/G6/CDmir),
+  picked from the 100STYLE BVH set (12 MB of ~4.6 GB total; only the clips we needed
+  were downloaded via HTTP range requests against the zip's central directory, not the
+  full archive). Raw .bvh source windows are NOT kept in the repo (large, and easily
+  re-cut from the public zip if ever needed again); only the small retargeted library
+  GLB is committed.

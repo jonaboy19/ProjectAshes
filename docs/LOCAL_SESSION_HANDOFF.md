@@ -27,6 +27,34 @@ Everything below is optimized for mobile, licence-checked (CC0/MIT, or CC-BY wit
 - **Interiors ready.** `scenes/interiors/{inn,blacksmith,guild,healer,house}_interior.tscn` (the house one is shared by all 5 house types). Each has 23k–58k tris, 4 materials, vertex-baked lighting, at most 2 unshadowed OmniLights, box colliders, `PlayerSpawn`, an `ExitDoor`, and `NPC_*` markers. To wire them, drop an `Area3D` with `scripts/interiors/interior_door.gd` on each building door and set `interior_scene`. Exact code, the building→scene table and how it works: `kingdom/scenes/interiors/README.md`. Previews: `docs/kingdom/blender_previews/_interiors_sheet.png`. Rebuild with `tools/blender/make_interior_*.py`.
 - **More monsters (CC0, harmonised)** in `incoming/monsters/quaternius/`: `giant_rat` and `blight_rat` (cellars and mines; dark-forest variant with ember eyes), `bog_toad` (marsh), `giant_wasp` (forest; hovers 1.2 m up), `ghoul` (Rift-risen dead, violet eye glow), `fungal_brute` and `blackcap_brute` (deep forest and caves), `rift_slime` and `rift_wraith` (Rift creatures with a cyan emissive texture). Each is ≤ 8k/2.5k tris (`_lod1`), 512 px painted texture, ≤ 40 bones. Clips are named like the Meshy creatures (`idle/walk/run/attack/hit/death`); a few hit, death and alias clips are synthesised and flagged in the README. The folder has a `.gdignore`, so remove it when wiring. Roles, habitats, danger tiers, sizes and known limits (wasp death ends in mid-air, brute death sinks 0.2 m): `kingdom/assets/incoming/monsters/README.md`. Previews: `incoming/monsters/_previews/monsters_lineup.png` and `monsters_poses.png`. Rebuild with `tools/monsters/`.
 
+## Clips available for Codex (added 2026-09-28, 100STYLE locomotion set)
+
+New library: `kingdom/assets/incoming/characters/_library/UAL_Extra_100STYLE.glb` (14 clips, CC BY 4.0, credited
+in `kingdom/CREDITS.md`; not yet in `Assets.UAL_FILES`). Fills the **directional/styled locomotion** gap — UAL1/UAL2
+only have straight `Walk_Loop`/`Jog_Fwd_Loop`/`Sprint_Loop`, no turns, no strafes, no backward walk, no start/stop
+transitions. Preview: `characters/_previews/100style_poses.png`.
+
+| clip | what it is | suggested use |
+|---|---|---|
+| `Style_Neutral_Walk_Loop` | forward walk cycle, different gait feel from UAL's `Walk_Loop` | alt/varied villager walk |
+| `Style_Neutral_Run_Loop` | forward run cycle | alt run, or blend target for run speed tiers |
+| `Style_Neutral_WalkBack_Loop` | backward walk | player/NPC backing away, retreat, dialogue distancing |
+| `Style_Neutral_Strafe_Loop` | sideways walk | strafing around a locked target in combat |
+| `Style_Rushed_Sprint_Loop` | a faster, more urgent gait than UAL's own `Sprint_Loop` | fleeing NPCs, alarm state, top player speed tier |
+| `Style_Walk_Start` | non-looping accel from standstill into a walk | play once when leaving `Idle_Loop`, before crossfading to a walk loop |
+| `Style_Walk_Stop` | non-looping decel from a walk into standstill | play once before `Idle_Loop` when the player/NPC stops |
+| `Style_Turn_InPlace` | non-looping pivot turn, feet stepping around | snap-turns, guard patrol direction changes, dialogue facing |
+| `Style_Guard_March_Loop` | stiff, formal march | town guards / soldiers on patrol routes |
+| `Style_Old_Walk_Loop` | hunched, slow gait | elderly NPCs (works well with the CDmir old lady) |
+| `Style_Wounded_Walk_Loop` | limping walk, weight favouring one leg | low-health player/NPC movement, post-hit-reaction locomotion |
+| `Style_Sneak_Walk_Loop` | crouched, careful walk | stealth movement; complements the existing `Walk_Stealth` (upright, faster) |
+| `Style_Shielded_Walk_Loop` | walk with a raised/carried-shield stance | guards and soldiers holding a shield up while moving |
+| `Style_Unarmed_Punch_Idle_Loop` | a punching-ready idle stance/shuffle | bandits/brawlers without weapons, boxing-style NPCs |
+
+All are **in place** (no baked root travel — same convention as the other `_library` files), 24 fps after resampling
+(matches the rest of the library). Blend time suggestion: 0.15–0.2 s for the loops, 0.1 s for `Style_Walk_Start` /
+`Style_Walk_Stop` / `Style_Turn_InPlace` since they're short transitional clips, not loops.
+
 ## In progress on the local side
 - Done: armored characters (`incoming/ai3d/meshy/armored/`; the cloud has already wired them) and interiors (above). **Cloud: please wire the door triggers** with `interior_door.gd` on the inn, blacksmith, guild, healer and the 5 house types (see `kingdom/scenes/interiors/README.md`), and call `InteriorDoor.active.leave()` on player death.
 - **NOW (2026-09-28, user priority): the local side owns FRAME RATE / LAG.** The goal is the highest fps and no hitches on every tier. The local side profiles on the real GPU and changes whatever costs frames (CPU scripts, streaming, rendering, assets) in small commits merged from origin first. Cloud and Codex: keep building features, but if you touch `population_lod.gd`, `terrain_streamer.gd`, `settlement_builder.gd`, `region_dressing.gd`, `assets.gd`, `quality.gd` or `world_sim.gd`, fetch first and keep changes small. **Avoid per-frame work in `_process` / `_physics_process`: prefer timers or slices, and cache node lookups.** Results go into `docs/qa/PERFORMANCE.md`.
