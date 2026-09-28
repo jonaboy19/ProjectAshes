@@ -35,6 +35,7 @@ const HOSTILE_RANGE := 250.0       # camps shown (red) even before they are foun
 const COMBAT_RANGE := 45.0         # enemies this close block fast travel (same as the battle music)
 const DOCK_SIZE := 58
 const DOCK_STEP := 78              # button + caption
+const ABILITY_DASH_COLOR := Color("6d5cff")   # violet: distinct from the teal plain dodge
 
 var player: Player
 var controls: Control
@@ -48,6 +49,7 @@ var _toast: Label
 var _toast_tween: Tween
 var _interact: TouchScreenButton
 var _interact_label: Label
+var _dash_cooldown_label: Label
 var _order_buttons: Array[TouchScreenButton] = []
 var _buttons: Dictionary = {}
 var _loading: ColorRect
@@ -110,6 +112,20 @@ func _ready() -> void:
 	_buttons["attack"] = _button("attack", "", 128, UITheme.ACTION_ATTACK, "broadsword")
 	_buttons["dodge"] = _button("dodge", "", 84, UITheme.ACTION_DODGE, "dodge")
 	_buttons["block"] = _button("block", "", 84, UITheme.ACTION_BLOCK, "checked-shield")
+	# Shadow Dash: a separate ability button (cooldown, own icon tint) so it
+	# never gets confused with the plain dodge above.
+	_buttons["ability_dash"] = _button("ability_dash", "", 72, ABILITY_DASH_COLOR, "dodge")
+	_dash_cooldown_label = Label.new()
+	_dash_cooldown_label.position = Vector2(-36, -36)
+	_dash_cooldown_label.size = Vector2(72, 72)
+	_dash_cooldown_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_dash_cooldown_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_dash_cooldown_label.add_theme_font_size_override("font_size", 22)
+	_dash_cooldown_label.add_theme_color_override("font_color", Color.WHITE)
+	_dash_cooldown_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	_dash_cooldown_label.add_theme_constant_override("shadow_outline_size", 4)
+	_dash_cooldown_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_buttons["ability_dash"].add_child(_dash_cooldown_label)
 	_buttons["view"] = _button("view_cycle", "", 58, UITheme.ACTION_UTIL, "eye-target")
 	_buttons["zoom_out"] = _button("zoom_out", "−", 58, UITheme.ACTION_UTIL, "")
 	_buttons["zoom_in"] = _button("zoom_in", "+", 58, UITheme.ACTION_UTIL, "")
@@ -117,7 +133,7 @@ func _ready() -> void:
 	_pack_button = _button("journal", "", 58, UITheme.ACTION_UTIL, "knapsack")
 	_interact_label = _interact.get_child(0)
 	_interact.visible = false
-	for extra: Array in [["order_retreat", KEY_G], ["order_formation", KEY_B]]:
+	for extra: Array in [["order_retreat", KEY_G], ["order_formation", KEY_B], ["ability_dash", KEY_R]]:
 		if not InputMap.has_action(extra[0]):
 			InputMap.add_action(extra[0])
 			var ev := InputEventKey.new()
@@ -285,6 +301,7 @@ func _layout() -> void:
 	_buttons["attack"].position = s - Vector2(168, 168)
 	_buttons["dodge"].position = s - Vector2(270, 112)
 	_buttons["block"].position = s - Vector2(240, 226)
+	_buttons["ability_dash"].position = s - Vector2(340, 60)
 	_interact.position = s - Vector2(150, 300)
 	var col := s.x - 80
 	_buttons["zoom_in"].position = Vector2(col, 84)
@@ -631,6 +648,22 @@ func _process(delta: float) -> void:
 	if _marker_timer <= 0.0:
 		_marker_timer = MARKER_RATE
 		_refresh_markers()
+	_update_dash_button()
+
+
+## Shadow Dash cooldown: dim the button and show the seconds left while it
+## recharges, like the technique slots' cooldown dim.
+func _update_dash_button() -> void:
+	var left: float = player.dash_cooldown
+	var b: TouchScreenButton = _buttons.get("ability_dash")
+	if b == null:
+		return
+	if left > 0.05:
+		b.modulate.a = 0.35
+		_dash_cooldown_label.text = "%d" % ceili(left)
+	else:
+		b.modulate.a = 1.0
+		_dash_cooldown_label.text = ""
 
 
 func _player_xz() -> Vector2:

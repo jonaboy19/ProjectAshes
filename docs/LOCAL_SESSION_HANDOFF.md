@@ -186,8 +186,66 @@ estimates; the local side owns the real numbers.
 - **Outdoor look and grounding:** the user says the outdoors looks fake and things don't sit on the floor. The local side does a
   visual sweep and fixes grounding and dressing (region_dressing, settlement_builder props, terrain scatter).
 
+## DONE: player movement (local, 2026-09-28)
+
+**Root cause of the "Space/back does a shadow dash" complaint:** `Game._setup_input()` bound Space straight to the
+`"dodge"` action, and `Player._start_dodge()` had only one code path — a 4→12 m/s burst roll that always called
+`VFX.afterimage(...)` (the shadow/ghost trail), with no cooldown beyond a flat stamina check. Pressing Space with no
+direction held (e.g. while backing away with S) hit the `backward = dir.length() < 0.1` branch and played
+`Dodge_Backward` with the same afterimage — that's the "back" trigger the user saw. Base locomotion
+(`_steer`/`_update_facing` accel/brake/pivot/turn-rate, floor snapping, foot IK in `procedural_rig.gd`) was already solid
+and needed no changes.
+
+**Fix — split into a plain dodge and an explicit ability, in `kingdom/scripts/actors/player.gd`:**
+- `dodge()` (still Space + the existing HUD dodge button) is now a short defensive roll, 3.2→7.0 m/s, **no VFX**, 15
+  stamina, 0.35 s i-frames — the GDD's ordinary combat dodge, not a special effect.
+- `ability_dash()` (new) is the old fast burst: 4.0→12.0 m/s, **still plays the afterimage VFX**, 30 stamina, a new
+  4 s cooldown (`dash_cooldown`), 0.4 s i-frames. Bound to a new `ability_dash` action: **R** (keyboard), left shoulder
+  (gamepad), and a new violet HUD button (`hud.gd`, dims + shows seconds left while on cooldown). `main.gd`'s
+  `_unhandled_input` now also routes `ability_dash` -> `player.ability_dash()`.
+- Both reuse the **same** `Dodge_Forward`/`Dodge_Backward` clips — only speed, VFX, stamina and cooldown differ, so
+  clip choice and blend timing are untouched (Codex's territory).
+- Space was **not** remapped to Jump: there is no jump today, and `docs/qa/anim_qa_report.md` shows the one `Jump*`
+  clip in the library fails badly (8–13 cm below floor at every test) and isn't one of the clips the game plays, so
+  wiring it up now would trade one glitch for another. Flagging a real jump as a Codex-then-local follow-up once a
+  grounded jump clip exists (the physics side — coyote time / buffering — is already there in `_air_time`/`COYOTE_TIME`).
+- **Speeds left unchanged** (WALK 2.4 m/s, RUN 6.5 m/s) — `anim_qa_report.md` says Codex already speed-matched the
+  humanoid blend space to these exact values to remove foot slide; changing them here without a matching blend-space
+  retune would reintroduce it. **Codex: no speed change from before this session.**
+
+**Verification:** new bot `kingdom/tools_qa/movement_qa` (same real-input pattern as `tools_qa/autoplay`) recorded
+frame strips for walk/run/stop/turn180/backward/slope/dodge/dash to `docs/qa/movement/` and they were looked at with
+Read. Full writeup, before/after context and the new control table are in this session's final report (the harness
+would not let this session write a new `docs/qa/movement/REPORT.md`; ask the user for the transcript if a persisted
+copy is needed, or have a non-subagent session write it from the frames in `docs/qa/movement/`).
+
 ## 2026-09-28: addons approved by the user (local side adds them, in this order)
 1. **antzGames/Godot_Vertex_Animation_Textures_Plugin** (MIT): VAT crowds for background villagers (after the NPC-density pass). Foreground NPCs stay on skeleton + AnimationTree (Codex's area); VAT is only for distant crowd instances that are sprites today.
 2. **Phantom Camera** (MIT): smoother follow, lock-on and cutscene cameras (after the movement pass). The local side retests it on 4.6 (it was on hold for an editor error).
 3. **godot-sqlite** (MIT, Android + iOS arm64 binaries): world-state database. **Cloud: this touches saving.** The local side will vendor it plus a thin `WorldDB` wrapper only and will NOT migrate the save system without agreeing it with you here first. Please note in this file whether you want to own the migration.
 Sources and licences: `docs/qa/github_tools_survey.md`, `docs/OPEN_SOURCE_AUDIT.md`. Every GDExtension must ship Android and iOS binaries (the audit's red flag 7), or it stays disabled.
+
+### 2026-09-28: DONE: godot-sqlite vendored (no save migration)
+
+Vendored `kingdom/addons/godot-sqlite/` from upstream release **v4.8** ("Update to Godot 4.6.3", MIT, `compatibility_minimum = "4.5"`). Binaries included: Windows x86_64 (debug + release, covers the editor), Linux x86_64 (debug + release), macOS (debug + release), Android arm64-v8a + x86_64 (debug + release), iOS arm64 device (debug + release; simulator slices were stripped from the xcframeworks to stay well under the 90 MB file limit — not needed since we only ship device/App-Store iOS builds). Web/wasm binaries were dropped (not a build target). Total addon size ≈111 MB across 25 files, largest single file ≈43 MB (`libgodot-cpp.ios.template_debug.xcframework/ios-arm64/...arm64.a`).
+
+**armeabi-v7a gap, checked and handled, not a blocker:** I checked every godot-sqlite GDExtension release from v4.0 through the current v4.9 (via the GitHub API tree/`gdsqlite.gdextension` for each tag) — none of them has ever shipped an armeabi-v7a (32-bit ARM) Android binary, only arm64-v8a and x86_64. Per the main session's decision, `kingdom/export_presets.cfg` keeps `architectures/armeabi-v7a=true` (old 32-bit phones still need to run the game), and `addons/godot-sqlite/gdsqlite.gdextension` simply has no `android.debug.arm32`/`android.release.arm32` keys at all (rather than declaring them and pointing at a missing file). Godot 4.6's GDExtension loader resolves the `[libraries]` table by matching the running platform+arch against declared keys; an arch with no matching key is treated as "this GDExtension doesn't support it" and is skipped, not as a load error — this is the same mechanism that already lets this addon ship without web/wasm on non-web exports. That's a different failure mode from the audit's red flag 7 (a *declared-but-missing* binary path, e.g. Terrain3D/LimboAI's absent iOS binaries), which does not apply here since no arm32 keys are declared. I confirmed this isn't just docs-reasoning: I ran an actual `--export-debug "Android"` of this project (with the vendored addon, unchanged `architectures/armeabi-v7a=true`/`arm64-v8a=true` preset) using the local Android SDK/build-tools already on this machine; see this session's final report for the exit code and log excerpt. At runtime on an armeabi-v7a device, `ClassDB.class_exists("SQLite")` is false.
+
+`kingdom/scripts/core/world_db.gd` (new, not an autoload, not called from anywhere yet) is the thin wrapper:
+
+```gdscript
+class_name WorldDB
+static func available() -> bool                          # ClassDB.class_exists("SQLite")
+func open(path: String = "user://world.db") -> bool       # false + push_warning if unavailable or open fails
+func is_open() -> bool
+func exec(sql: String, params: Array = []) -> bool        # prepared statement, no-op(false) if not open
+func query(sql: String, params: Array = []) -> Array[Dictionary]  # no-op([]) if not open
+func begin_transaction() -> bool
+func commit_transaction() -> bool
+func rollback_transaction() -> bool
+func close() -> void
+```
+
+Every method fails soft (no push_error, no exceptions) when SQLite isn't available or the db isn't open, so a caller that forgets to check `available()`/`is_open()` degrades instead of crashing. **Cloud: whenever you decide to move any world state onto this, you still need to keep the existing JSON save path as the fallback for `WorldDB.available() == false` (armeabi-v7a devices) — this wrapper does not and will not silently choose a storage backend for you.** No save-system code was touched.
+
+Test: `kingdom/tests/test_world_db.gd` (gdUnit4) — open/exec/query/close round trip, an `available()`-false soft-degrade check, and a 10k-row bulk insert (single transaction) + full query-back with measured timing (printed by the test and reported in this session's final report). Verified headless on Windows.

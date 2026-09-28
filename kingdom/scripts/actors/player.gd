@@ -82,6 +82,18 @@ const ACTIVE_BEFORE := 0.03      # s around the hit frame when a dodge waits ins
 const ACTIVE_AFTER := 0.05
 const DODGE_TIME := 0.45
 const DODGE_ANIM_RATE := 1.8
+## Plain dodge-roll (default action / HUD dodge button): a short defensive
+## step with i-frames, no VFX. Distinct from the Shadow Dash ability below.
+const DODGE_SPEED_MIN := 3.2
+const DODGE_SPEED_MAX := 7.0
+const DODGE_STAMINA := 15.0
+## Shadow Dash (explicit ability, own input + HUD button, cooldown-gated):
+## the fast burst with the afterimage VFX that used to fire on every dodge.
+const DASH_SPEED_MIN := 4.0
+const DASH_SPEED_MAX := 12.0
+const DASH_STAMINA := 30.0
+const DASH_COOLDOWN := 4.0
+const DASH_INVULNERABLE := 0.4
 const GRAVITY := 24.0
 const MAX_STAMINA := 100.0
 ## Only static world geometry (terrain, buildings, props: layer 1) may pull the
@@ -165,6 +177,10 @@ var _attack_buffer := 0.0
 var _dodge_buffer := 0.0
 var _dodge := 0.0
 var _dodge_dir := Vector3.ZERO
+var _dodging_ability := false   # true while the current roll is the Shadow Dash (fast + VFX)
+## Seconds left before Shadow Dash can be used again. Public: the HUD reads
+## this (and DASH_COOLDOWN below) to draw the ability button's cooldown.
+var dash_cooldown := 0.0
 var _invulnerable := 0.0
 var _stunned := 0.0
 var _hurt_cooldown := 0.0
@@ -262,6 +278,8 @@ func _ensure_actions() -> void:
 	var wanted := {
 		"lock_on": [KEY_Q, MOUSE_BUTTON_MIDDLE, JOY_BUTTON_RIGHT_STICK],
 		"crouch": [KEY_C, JOY_BUTTON_LEFT_STICK],
+		# Shadow Dash: an explicit ability, not the default dodge (KEY_SPACE).
+		"ability_dash": [KEY_R, JOY_BUTTON_LEFT_SHOULDER],
 	}
 	for action: String in wanted:
 		if InputMap.has_action(action):
@@ -382,6 +400,7 @@ func _physics_process(delta: float) -> void:
 	_swing_elapsed += delta
 	_combo_window -= delta
 	_dodge -= delta
+	dash_cooldown = maxf(dash_cooldown - delta, 0.0)
 	_invulnerable -= delta
 	_stunned -= delta
 	_hurt_cooldown -= delta
@@ -435,7 +454,9 @@ func _physics_process(delta: float) -> void:
 	var grounded := _air_time <= COYOTE_TIME
 	if _dodge > 0.0:
 		# The roll owns movement: its own speed curve, no input smoothing.
-		var roll_speed := lerpf(4.0, 12.0, clampf(_dodge / DODGE_TIME, 0.0, 1.0))
+		var speed_lo := DASH_SPEED_MIN if _dodging_ability else DODGE_SPEED_MIN
+		var speed_hi := DASH_SPEED_MAX if _dodging_ability else DODGE_SPEED_MAX
+		var roll_speed := lerpf(speed_lo, speed_hi, clampf(_dodge / DODGE_TIME, 0.0, 1.0))
 		_move_dir = _dodge_dir
 		_move_speed = roll_speed
 	else:
@@ -994,13 +1015,28 @@ func attack() -> void:
 		_attack_buffer = ATTACK_BUFFER   # early press: fire at the next opening
 
 
+## Plain dodge-roll: short i-frame step, no VFX, no cooldown beyond stamina.
+## Bound to the "dodge" action (KEY_SPACE) and the HUD dodge button.
 func dodge() -> void:
 	if dead or swimming or _mount != null:
 		return
 	if _can_dodge():
-		_start_dodge()
-	elif stamina >= 15.0:
+		_start_dodge(false)
+	elif stamina >= DODGE_STAMINA:
 		_dodge_buffer = DODGE_BUFFER
+
+
+## Shadow Dash: the fast burst with afterimages, gated by its own cooldown
+## and a higher stamina cost. Bound to "ability_dash" (KEY_R) and the HUD
+## ability button. Never fires from ordinary movement or the plain dodge.
+func ability_dash() -> void:
+	if dead or swimming or _mount != null:
+		return
+	if dash_cooldown > 0.0 or stamina < DASH_STAMINA:
+		return
+	if not _can_dodge():
+		return
+	_start_dodge(true)
 
 
 ## An attack may start when idle, in the cancel tail of the previous swing, or
@@ -1012,7 +1048,7 @@ func _can_attack() -> bool:
 ## A roll may cut a swing's startup or recovery, but not its hit frames (it
 ## waits for them), and may chain from the very end of another roll.
 func _can_dodge() -> bool:
-	if dead or swimming or _mount != null or _stunned > 0.0 or stamina < 15.0 or _dodge > DODGE_CHAIN:
+	if dead or swimming or _mount != null or _stunned > 0.0 or stamina < DODGE_STAMINA or _dodge > DODGE_CHAIN:
 		return false
 	return not _in_active_frames()
 
@@ -1025,7 +1061,7 @@ func _consume_buffers() -> void:
 	if _dodge_buffer > 0.0 and _can_dodge():
 		_dodge_buffer = 0.0
 		_attack_buffer = 0.0
-		_start_dodge()
+		_start_dodge(false)
 	elif _attack_buffer > 0.0 and _can_attack():
 		_attack_buffer = 0.0
 		_start_swing()
@@ -1107,8 +1143,13 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 		_shake.add(0.45 if finisher else 0.22)
 
 
-func _start_dodge() -> void:
-	_spend(22.0)
+func _start_dodge(is_ability: bool) -> void:
+	_dodging_ability = is_ability
+	if is_ability:
+		_spend(DASH_STAMINA)
+		dash_cooldown = DASH_COOLDOWN
+	else:
+		_spend(DODGE_STAMINA)
 	var dir := _input_dir()
 	var backward := dir.length() < 0.1
 	_dodge_dir = -facing() if backward else dir.normalized()
@@ -1116,7 +1157,7 @@ func _start_dodge() -> void:
 		_model.rotation.y = atan2(_dodge_dir.x, _dodge_dir.z)
 	_set_crouch(false)
 	_dodge = DODGE_TIME
-	_invulnerable = 0.35
+	_invulnerable = DASH_INVULNERABLE if is_ability else 0.35
 	if _swing > 0.0:
 		_swing_id += 1          # a pending hit frame no longer lands
 		_animator.stop_upper()
@@ -1124,7 +1165,9 @@ func _start_dodge() -> void:
 	_attack_buffer = 0.0
 	_impulse = Vector3.ZERO
 	_animator.play_full("Dodge_Backward" if backward else "Dodge_Forward", DODGE_ANIM_RATE)
-	VFX.afterimage(get_parent(), _model, Color(0.6, 0.85, 1.0), 3)
+	if is_ability:
+		# Shadow Dash only: the afterimage trail that used to play on every dodge.
+		VFX.afterimage(get_parent(), _model, Color(0.6, 0.85, 1.0), 3)
 	get_tree().create_timer(DODGE_TIME).timeout.connect(_end_dodge_anim)
 
 

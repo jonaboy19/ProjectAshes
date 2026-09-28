@@ -313,6 +313,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		player.attack()
 	elif event.is_action_pressed("dodge"):
 		player.dodge()
+	elif event.is_action_pressed("ability_dash"):
+		player.ability_dash()
 	elif event.is_action_pressed("view_cycle"):
 		player.cycle_first_third()
 	elif event.is_action_pressed("zoom_out"):
