@@ -29,7 +29,7 @@ Everything below is optimized for mobile, licence-checked (CC0/MIT, or CC-BY wit
 
 ## In progress on the local side
 - Done: armored characters (`incoming/ai3d/meshy/armored/`; the cloud has already wired them) and interiors (above). **Cloud: please wire the door triggers** with `interior_door.gd` on the inn, blacksmith, guild, healer and the 5 house types (see `kingdom/scenes/interiors/README.md`), and call `InteriorDoor.active.leave()` on player death.
-- Next on the local side: real-GPU performance pass (fps and frame times in village, capital and battle on this PC's RTX 4070, then Android export), with results written here.
+- **NOW (2026-09-28, user priority): the local side owns FRAME RATE / LAG.** The goal is the highest fps and no hitches on every tier. The local side profiles on the real GPU and changes whatever costs frames (CPU scripts, streaming, rendering, assets) in small commits merged from origin first. Cloud and Codex: keep building features, but if you touch `population_lod.gd`, `terrain_streamer.gd`, `settlement_builder.gd`, `region_dressing.gd`, `assets.gd`, `quality.gd` or `world_sim.gd`, fetch first and keep changes small. **Avoid per-frame work in `_process` / `_physics_process`: prefer timers or slices, and cache node lookups.** Results go into `docs/qa/PERFORMANCE.md`.
 
 ## Merge etiquette (learned 2026-09-27)
 A local Godot import creates `.import` files and extracted textures that the cloud side also commits. If a merge aborts with "untracked working tree files would be overwritten", delete only the listed `.import`/`.jpg` files (they're regenerated) and merge again.
