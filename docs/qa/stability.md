@@ -241,3 +241,57 @@ then loop the load 10x (`--quality=high --route=village_forest --nocapture`) and
 - 2026-09-28: the silent exit happened again in 1 of 4 movement-QA boots, at the same point (village_services `_prop` loading megakit `FarmCrate_Apple` / `Barrel_Apples`,
   whose *local* `.godot/imported/*.scn` cache referenced stale texture UIDs). Rebuilt those two caches: invalid-UID warnings 6 → 0, and the next boot was clean.
   The cache isn't tracked, so exports and other machines were never affected. If the exit happens again **without** the UID warnings, the cause is elsewhere (next: threaded loads in main.gd:130).
+
+## 2026-09-28: quit-crash is NOT fixed — the earlier "fix" (queue_free + 10-frame wait) does not stop the 0xC0000005 crash; real root cause is an interaction between the `Quality` and `GUIDE` autoloads, not isolated
+
+**This pass re-verified crash (a) from scratch and found the previously "verified" fix (commit `44a91577`, described above) does not actually work.**
+
+**Repro, with real OS exit codes** (`Start-Process -Wait -PassThru`, not bash, per the methodology note above):
+- `grounding_check.gd` (which already has the queue_free-then-await-10-frames `_shutdown()` from the earlier pass) run via `godot --path kingdom -s tools/qa/grounding/grounding_check.gd -- --adult --skipintro --out=...`: completes its scan (`GROUNDING samples=35679` printed), then **exit code 0xC0000005**. stderr showed the same RID-leak block as before (68 JoltShape3D, 165 Mesh, 264 Material, 158 Texture, ~1000s of buffer RIDs) — i.e. despite `main.queue_free()` + 10 awaited `process_frame`s, those RIDs are still not actually released before shutdown. The 10-frame wait does not do what the earlier pass believed.
+- Also found (real bug, separate from the crash, not yet fixed): `_finish()` calls `_shutdown()` **without `await`**, and `_shutdown()`'s own first `await process_frame` returns control immediately, so `_process()` keeps running every subsequent frame while `phase` is still stuck at `"scan"` with `loc_i` already at `locations.size()`. Result: `locations[loc_i]` is read out of bounds every frame for the ~10 frames until `_shutdown()`'s coroutine finally reaches `quit()` (`SCRIPT ERROR: Out of bounds get index '6' (on base: 'Array')` at `grounding_check.gd:103`, repeated). Harmless to the crash (confirmed by the isolation below, which reproduces the crash with zero game code loaded), but worth a real fix later: `_finish()` should `await _shutdown()` and/or set `phase` to something terminal first.
+
+**Isolation.** Per the task's step 1, tested whether the crash needs game code at all. It does not:
+```gdscript
+extends SceneTree
+func _initialize() -> void:
+    print("TRIVIAL_BOOT_OK")
+    call_deferred("quit")
+```
+run as `godot --headless --path kingdom -s trivial_quit.gd` — **no main.tscn, no scene, no threads, one frame, immediate quit** — still exits **0xC0000005**. Also crashes identically without `--headless`, so it is unrelated to Vulkan/RenderingServer/window teardown (rules out the entire theory in the "Crash 1" section above about WorkerThreadPool/RenderingServer teardown races — that section's fix doesn't touch the actual cause).
+
+**Bisection (all via the trivial script above, so every result below is with zero game/world code loaded — only `project.godot`'s `[autoload]` list was changed between runs, restored after):**
+
+| Autoloads enabled | Exit code |
+|---|---|
+| none (all commented out) | 0x00000000 clean |
+| `Quality, Game, WorldSim, Audio, Frontier, Life` (first 6) | 0x00000000 clean |
+| `GameplayCueManager, GUIDE, DialogueManager` (addon group) | 0x00000000 clean |
+| `QuestWeaverGlobal, QuestWeaverServices, QuestWeaverGameState` | 0x00000000 clean |
+| first 6 + `GameplayCueManager, GUIDE, DialogueManager` (i.e. everything except QuestWeaver) | **0xC0000005** |
+| `Quality` + `GameplayCueManager, GUIDE, DialogueManager` | **0xC0000005** |
+| `Quality` + `GameplayCueManager` only | 0x00000000 clean |
+| `Quality` + `GUIDE` only | **0xC0000005** |
+| `GUIDE` only (no Quality) | 0x00000000 clean |
+| `Quality` only (no GUIDE) | 0x00000000 clean |
+
+**Conclusion so far: `Quality` (`kingdom/scripts/core/quality.gd`) and `GUIDE` (`kingdom/addons/guide/guide.gd`) autoloads together, and only together, cause the crash** — removing either one is reliably clean, every other autoload and combination tested is clean, and QuestWeaver (the group with the most static caches) is not involved at all.
+
+**Narrowed further, and this is the confusing part:** with `Quality` + `GUIDE` both enabled,
+1. No-opping `GUIDEInputTracker._instrument()` (the function that adds an internal child Node to the root Viewport and connects `gui_focus_changed` — the most obvious "touches the root viewport" suspect) still crashes.
+2. No-opping **all** of `GUIDE._ready()` (`process_mode`, node creation, both signal connects — replaced with an immediate `return` after a print) **still crashes** with the same 0xC0000005.
+
+So the trigger is not runtime logic in `GUIDE._ready()` at all — it reproduces from `GUIDE.gd` merely being loaded/instantiated as an autload alongside `Quality`, before any of its own code executes. That points to something at script-load/parse time (the file's top-level `preload()`s of `GUIDESet`/`GUIDEReset`/`GUIDEInputTracker`, or its typed member declarations like `var _active_action_mappings:Array[GUIDEActionMapping]`) interacting with `Quality`'s boot-time work (`Quality._ready()` reconfigures the root Viewport's MSAA/scaling/shadow atlas via `RenderingServer` calls and connects to `get_tree().node_added`), or — most likely given how these bugs usually behave — this is a **pre-existing marginal memory-corruption bug** (a real double-free/use-after-free somewhere in engine-adjacent code, e.g. Jolt physics or another GDExtension) that is **allocation-layout-sensitive**: adding or removing almost any code changes whether it's hit, which is consistent with it reproducing via a completely inert `GUIDE._ready()` and with the original "Crash 1" fix (queue_free + wait) not helping at all, since that fix targeted the wrong layer (scene-tree/thread teardown) rather than this.
+
+**Not fixed in this pass — do not treat `44a91577`'s QA-harness change as a real fix for crash (a).** It's still a reasonable defensive change to keep (freeing the loaded scene in an orderly way before quitting is correct practice regardless), but it is not sufficient and the "Verified: zero new Event ID 1000 entries" claim in the "Crash 1" section above was against a run that either got lucky or predates this Quality+GUIDE interaction being present.
+
+**Ruled out this pass** (each confirmed with a real `Start-Process` exit code, not bash's unreliable one):
+- WorkerThreadPool / threaded ResourceLoader / scene-tree teardown ordering (crash reproduces with zero threads and no scene at all).
+- RenderingServer / Vulkan / window teardown (`--headless` crashes identically).
+- Static Resource-holding caches in game scripts (`assets.gd`, `grass_field.gd`, `breakable.gd`, `procedural_rig.gd`, etc.) — never loaded in the trivial repro.
+- QuestWeaver's three autoloads (its own static caches were the leading suspect in the bug's original hypothesis) — clean alone, and not required for the crash to occur with the others.
+- `GameplayCueManager` (GodotGAS) and `DialogueManager` — neither is required; only `Quality` + `GUIDE` together are necessary and sufficient in every combination tried.
+- `GUIDEInputTracker._instrument()`'s root-viewport child-node injection specifically, and all of `GUIDE._ready()`'s runtime logic — crash persists with both fully no-op'd, so it's not in `_ready()`'s behavior.
+
+**Not yet found:** the exact statement/mechanism inside `Quality`+`GUIDE`'s combined script-load that trips this. Next steps for whoever picks this up: (1) bisect `Quality._ready()` itself line-by-line the same way (no-op pieces of it with `GUIDE` fully enabled, rather than the reverse) — not yet tried, since every no-op attempt so far was on the `GUIDE` side; (2) get a real Windows crash dump (`%LOCALAPPDATA%\CrashDumps`, not checked this pass — worth enabling `WerFault` dump collection for this exe) and open it in a debugger to get the actual faulting call stack instead of continuing to bisect blind; (3) try Godot's ASan/debug build if available, since `ntdll.dll+0xfa7d` heap-corruption crashes are exactly the class of bug ASan is built to catch immediately, versus days of manual bisection.
+
+No code changes were committed for the crash itself this pass (no fix was found safe/confident enough to ship) — reverted all temporary diagnostic edits (`project.godot` autoload comment-outs, `guide.gd`/`guide_input_tracker.gd` no-ops) back to the committed originals; only this documentation section is new. `tools/qa/grounding/grounding_check.gd` has an unrelated, uncommitted change from a concurrent session (a scan-scope fix for character subtrees) that was left untouched.
