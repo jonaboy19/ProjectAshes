@@ -48,7 +48,11 @@ func test_every_vacant_lot_is_actually_a_house_and_priced_by_kind() -> void:
 		assert_int(int(i["price"])).is_greater(0)
 		assert_int(int(i["rent"])).is_greater(0)
 		assert_int(int(i["tax"])).is_greater(0)
-		assert_str(String(i["landlord_id"])).is_equal("Lord of %s" % String(WorldGen.settlements[0]["name"]))
+		# The fief's noble house when nobility is wired (Life.nobility), else "Lord of <town>" / the Crown.
+		var expected := "Lord of %s" % String(WorldGen.settlements[0]["name"])
+		if Life.get("nobility") != null:
+			expected = String(Life.nobility.landlord_for_settlement(0)["name"])
+		assert_str(String(i["landlord_id"])).is_equal(expected)
 
 
 # --- buy / sell ------------------------------------------------------------------------
