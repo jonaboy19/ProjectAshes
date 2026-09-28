@@ -700,6 +700,15 @@ static func nearest_settlement(p: Vector2) -> Dictionary:
 	return best
 
 
+## Beyond Duskbriar Wood toward Tuskridge Hold (data/world/first_region.json,
+## both fixed lore anchors), where the fortified frontier holds sit.
+const TUSKRIDGE_POS := Vector2(300, 930)
+const DUSKBRIAR_POS := Vector2(380, 480)
+const DUSKBRIAR_RADIUS := 330.0
+const TOWN_RADIUS := 115.0
+const FRONTIER_TOWN_RADIUS := 75.0
+
+
 static func _place_settlements(seed_value: int) -> void:
 	settlements.clear()
 	var rng := RandomNumberGenerator.new()
@@ -723,16 +732,133 @@ static func _place_settlements(seed_value: int) -> void:
 		if ok:
 			var town := rng.randf() < 0.35
 			fixed.append({"pos": p, "kind": "town" if town else "village", "radius": 115.0 if town else 60.0})
+	# Frontier towns: small fortified holds toward the dangerous edges, added on
+	# top of SETTLEMENT_COUNT rather than competing with it for a slot. Its own
+	# RNG stream (not the one above, whose state at this point depends on how
+	# many attempts the random-village loop happened to take) keeps this step
+	# reproducible on its own terms.
+	var frontier_rng := RandomNumberGenerator.new()
+	frontier_rng.seed = seed_value + 4051
+	_place_frontier_towns(fixed, frontier_rng)
+	# Guarantee kingdom rings: a fixed seed can otherwise roll zero "town"-kind
+	# settlements at all (see docs/RISING_ASHES_LIFE_SIM_DESIGN.md, "World
+	# structure (rings)"), leaving nothing between the capital and the villages.
+	_promote_kingdom_towns(fixed)
 	for i in fixed.size():
 		var f: Dictionary = fixed[i]
 		var pos: Vector2 = f["pos"]
 		# ~33-35% fewer residents than the original 320/1100/2400: markets and
 		# streets stayed lively but too crowded (docs/qa/PERFORMANCE.md).
-		var pop: int = {"village": 210, "town": 720, "castle": 1600}[f["kind"]]
+		var pop: int = {"village": 210, "town": 720, "castle": 1600, "frontier_town": 380}[f["kind"]]
 		settlements.append({
 			"id": i, "name": NAMES[i % NAMES.size()], "pos": pos, "radius": f["radius"],
 			"base_h": _raw_height(pos.x, pos.y), "kind": f["kind"], "population": pop,
 		})
+
+
+## The minimum-spanning-tree road edges over `positions` (same algorithm as
+## _connect_roads(), duplicated here since roads aren't built yet when
+## settlements are still being placed/promoted).
+static func _mst_edges(positions: Array[Vector2]) -> Array[Vector2i]:
+	var edges: Array[Vector2i] = []
+	var linked := {0: true}
+	while linked.size() < positions.size():
+		var best := Vector2i(-1, -1)
+		var best_d := INF
+		for a in linked:
+			for b in positions.size():
+				if linked.has(b):
+					continue
+				var d: float = positions[a].distance_to(positions[b])
+				if d < best_d:
+					best_d = d
+					best = Vector2i(a, b)
+		edges.append(best)
+		linked[best.y] = true
+	return edges
+
+
+## True if every road the final MST would draw over `positions` keeps at least
+## `margin` clear of `danger` -- used so a new settlement's own road, or the
+## way it reshapes everyone else's MST edges, never cuts across a stretch of
+## road the design (or a test) relies on staying open ground.
+static func _mst_clears_point(positions: Array[Vector2], danger: Vector2, margin: float) -> bool:
+	for e in _mst_edges(positions):
+		var a: Vector2 = positions[e.x]
+		var b: Vector2 = positions[e.y]
+		if Geometry2D.get_closest_point_to_segment(danger, a, b).distance_to(danger) < margin:
+			return false
+	return true
+
+
+## 1-2 small palisade-style holds beyond Duskbriar Wood on the way to Tuskridge,
+## clear of the orc hold itself, the wood's centre and every other settlement,
+## and never routed (directly or by reshaping the road network) across the
+## safe stretch of the King's Ember Road 500 m south of its midpoint.
+static func _place_frontier_towns(fixed: Array, rng: RandomNumberGenerator) -> void:
+	var base_dir := (TUSKRIDGE_POS - DUSKBRIAR_POS).normalized()
+	var home: Vector2 = fixed[0]["pos"]
+	var capital: Vector2 = fixed[1]["pos"]
+	var kingdom_road_danger := home.lerp(capital, 0.5) + Vector2(0, 500)
+	var placed: Array[Vector2] = []
+	for n in 2:
+		var best := Vector2.INF
+		var best_score := -INF
+		for i in 900:
+			var ang := rng.randf_range(-0.8, 0.8)
+			var dist := DUSKBRIAR_RADIUS * 1.05 + rng.randf_range(60.0, 480.0)
+			var p := DUSKBRIAR_POS + base_dir.rotated(ang) * dist
+			if _raw_height(p.x, p.y) > 130.0 or p.distance_to(TUSKRIDGE_POS) < 150.0:
+				continue
+			var ok := true
+			for f in fixed:
+				if p.distance_to(f["pos"]) < 340.0:
+					ok = false
+					break
+			if ok:
+				for q in placed:
+					if p.distance_to(q) < 260.0:
+						ok = false
+						break
+			if not ok:
+				continue
+			var positions: Array[Vector2] = []
+			for f in fixed:
+				positions.append(f["pos"])
+			positions.append(p)
+			if not _mst_clears_point(positions, kingdom_road_danger, 320.0):
+				continue
+			var score := -absf(p.distance_to(TUSKRIDGE_POS) - 230.0) + rng.randf() * 15.0
+			if score > best_score:
+				best_score = score
+				best = p
+		if best != Vector2.INF:
+			placed.append(best)
+			fixed.append({"pos": best, "kind": "frontier_town", "radius": FRONTIER_TOWN_RADIUS})
+
+
+## The settlements closest to the King's Ember Road corridor (Ashford to the
+## capital), or simply nearest the capital, become "town" kind: larger, walled,
+## with a real market -- so the kingdom always has towns between the capital
+## and the villages, not just the two lore anchors. Never touches Ashford
+## (index 0) or the capital (index 1), and never demotes an existing town.
+static func _promote_kingdom_towns(fixed: Array) -> void:
+	var home: Vector2 = fixed[0]["pos"]
+	var capital: Vector2 = fixed[1]["pos"]
+	var scored: Array = []
+	for i in range(2, fixed.size()):
+		var f: Dictionary = fixed[i]
+		if f["kind"] == "frontier_town":
+			continue
+		var p: Vector2 = f["pos"]
+		var corridor := p.distance_to(Geometry2D.get_closest_point_to_segment(p, home, capital))
+		var to_capital := p.distance_to(capital)
+		scored.append({"i": i, "score": minf(corridor, to_capital * 0.4)})
+	scored.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["score"] < b["score"])
+	for n in mini(3, scored.size()):
+		var idx: int = scored[n]["i"]
+		fixed[idx]["kind"] = "town"
+		fixed[idx]["radius"] = TOWN_RADIUS
 
 
 static func _connect_roads() -> void:

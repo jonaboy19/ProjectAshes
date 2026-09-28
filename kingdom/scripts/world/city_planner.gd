@@ -58,7 +58,12 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 			var a1 := TAU * (i + 1) / segs
 			streets.append({"a": c + Vector2(cos(a0), sin(a0)) * rr, "b": c + Vector2(cos(a1), sin(a1)) * rr, "w": 5.5})
 	# Radial lanes between the first ring and the walls, avoiding the main streets.
-	var lanes := 5 if kind == "village" else (8 if kind == "town" else 11)
+	var lanes := 5
+	match kind:
+		"village": lanes = 5
+		"frontier_town": lanes = 6   # small palisade hold: fewer lanes than a real town
+		"town": lanes = 8
+		"castle": lanes = 11
 	for i in lanes:
 		var ang := TAU * (i + 0.5) / lanes + rng.randf_range(-0.12, 0.12)
 		if _near_angle(ang, gates, 0.3):

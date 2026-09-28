@@ -25,7 +25,11 @@ static func plan(seed_value: int) -> Array[Dictionary]:
 	var places := _places()
 	var out: Array[Dictionary] = []
 	for s in WorldGen.settlements:
-		if s["kind"] == "village":
+		# Farmland rings every settlement people actually live in: one farm
+		# outside a village, town or frontier town, a ring of 2-3 around the
+		# capital's suburbs.
+		var count := 3 if s["kind"] == "castle" else (1 if s["kind"] in ["village", "town", "frontier_town"] else 0)
+		for i in count:
 			var farm := _farmstead(s, rng, out)
 			if not farm.is_empty():
 				out.append(farm)
@@ -46,7 +50,12 @@ static func plan(seed_value: int) -> Array[Dictionary]:
 	if not mine.is_empty():
 		out.append(mine)
 	out.append(_watchfort(places, out))
-	out.append(_rift(out))
+	out.append_array(_forts(rng, out))
+	var rift := _rift(out)
+	out.append(rift)
+	var outpost := _rift_outpost(rift, out, rng)
+	if not outpost.is_empty():
+		out.append(outpost)
 	for i in out.size():
 		out[i]["id"] = i
 	return out
@@ -415,6 +424,119 @@ static func _watchfort(places: Dictionary, taken: Array[Dictionary]) -> Dictiona
 	_part(site, "props/weapon_rack", Vector2(9, 8), 0.0)
 	_part(site, "props/crate_stack", Vector2(-9, 8), 0.4)
 	site["lights"].append([Vector3(0, 12.0, 0), Color(1.0, 0.6, 0.3), 14.0, true])
+	return site
+
+
+## Two military forts guarding the outer rings: one on the kingdom road toward
+## the border (past the capital), one out on the frontier (past the fortified
+## frontier towns, toward Tuskridge and the wild). Reuses the Meshy watchfort
+## landmark as the keep, a full palisade ring (ruins/bandit_palisade, the same
+## kit the bandit camp and Cinderpost's stockade use), a barn for barracks and
+## a garrison's weapon racks and crates. HOOK: garrison AI/Station is not wired
+## up here -- a future guard-spawn system can key off site["kind"] == "fort"
+## and site["garrison_point"] (barracks position, world space) to place its
+## Station without touching this file again.
+static func _forts(rng: RandomNumberGenerator, taken: Array[Dictionary]) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var home: Vector2 = WorldGen.settlements[0]["pos"]
+	var capital := Vector2.INF
+	var capital_radius := 175.0
+	for s in WorldGen.settlements:
+		if s["kind"] == "castle":
+			capital = s["pos"]
+			capital_radius = float(s["radius"])
+			break
+	var spacing := taken.duplicate()
+	if capital != Vector2.INF:
+		var border := capital + (capital - home).normalized() * 400.0
+		var kingdom_fort := _fort("Kingsroad Bastion", capital, border, spacing, rng, capital_radius)
+		if not kingdom_fort.is_empty():
+			out.append(kingdom_fort)
+			spacing.append(kingdom_fort)
+	var frontier_town := Vector2.INF
+	var frontier_radius := WorldGen.FRONTIER_TOWN_RADIUS
+	var frontier_best := -INF
+	for s in WorldGen.settlements:
+		if s["kind"] == "frontier_town" and s["pos"].distance_to(home) > frontier_best:
+			frontier_best = s["pos"].distance_to(home)
+			frontier_town = s["pos"]
+			frontier_radius = float(s["radius"])
+	var frontier_center: Vector2 = frontier_town if frontier_town != Vector2.INF else WorldGen.DUSKBRIAR_POS
+	var guard_r: float = frontier_radius if frontier_town != Vector2.INF else WorldGen.DUSKBRIAR_RADIUS
+	var frontier_fort := _fort("Farwatch Bastion", frontier_center, WorldGen.TUSKRIDGE_POS, spacing, rng, guard_r)
+	if not frontier_fort.is_empty():
+		out.append(frontier_fort)
+	return out
+
+
+## One fortified garrison: a watchfort keep facing `toward`, a barracks barn, a
+## weapon rack and crates, ringed by a full palisade. Searches an annulus
+## around `center` (the settlement it guards, or a wood/hold it watches) for
+## dry, free ground on the way toward `toward`.
+static func _fort(name: String, center: Vector2, toward: Vector2, taken: Array[Dictionary], rng: RandomNumberGenerator, guard_radius := 60.0) -> Dictionary:
+	var dir := toward - center
+	dir = dir.normalized() if dir.length() > 0.01 else Vector2(0, 1)
+	# Clear of the guarded settlement's own flatten-to-natural blend (out to
+	# radius * 1.8, see WorldGen.height()) so the fort sits on real, untouched
+	# ground of its own instead of crowding the settlement's suburbs.
+	var near := guard_radius * 1.8 + 50.0
+	var far := near + 260.0
+	var best := Vector2.INF
+	var best_h := -INF
+	for i in 80:
+		var q := center + dir.rotated(rng.randf_range(-0.5, 0.5)) * rng.randf_range(near, far)
+		if not _free(q, 24.0, taken, 20.0) or _slope(q) > 0.3:
+			continue
+		var h := WorldGen.height(q.x, q.y)
+		if h > best_h:
+			best_h = h
+			best = q
+	if best == Vector2.INF:
+		return {}
+	var face := (center - best).normalized()
+	var site := _site(name, "fort", best, _yaw_to(face), 30.0, true)
+	site["garrison_point"] = best + Vector2(-15, 8).rotated(_yaw_to(face))
+	_part(site, "meshy:landmark_watchfort@17", Vector2.ZERO, 0.0, true)
+	_part(site, "farm/barn", Vector2(-15, 8), PI * 0.5, true)
+	_part(site, "props/weapon_rack", Vector2(11, 10), 0.0)
+	_part(site, "props/crate_stack", Vector2(14, 7), 0.3)
+	_part(site, "props/water_trough", Vector2(-11, 2), 0.0)
+	for i in 12:
+		var a := TAU * i / 12.0
+		_part(site, "ruins/bandit_palisade", Vector2(cos(a), sin(a)) * 24.0, -a + PI * 0.5, true)
+	site["lights"].append([Vector3(0, 13.0, 0), Color(1.0, 0.55, 0.25), 15.0, true])
+	site["lights"].append([Vector3(-14, 3.5, 10), Color(1.0, 0.6, 0.3), 7.0, true])
+	return site
+
+
+## A small forward camp right at the Rift's edge: the last waypoint before the
+## wound in the world. Palisade, tents, a watchfort keep and an expedition
+## noticeboard for the quests that send adventurers out here.
+static func _rift_outpost(rift: Dictionary, taken: Array[Dictionary], rng: RandomNumberGenerator) -> Dictionary:
+	if rift.is_empty():
+		return {}
+	var rp: Vector2 = rift["pos"]
+	var best := Vector2.INF
+	for i in 50:
+		var a := rng.randf() * TAU
+		var q := rp + Vector2(cos(a), sin(a)) * rng.randf_range(60.0, 95.0)
+		if _free(q, 18.0, taken, 20.0):
+			best = q
+			break
+	if best == Vector2.INF:
+		return {}
+	var face := (rp - best).normalized()
+	var site := _site("Rift's Edge Camp", "rift_outpost", best, _yaw_to(face), 20.0, true)
+	_part(site, "meshy:landmark_watchfort@13", Vector2.ZERO, 0.0, true)
+	_part(site, "ruins/bandit_tent", Vector2(-8, 6), 0.4, true)
+	_part(site, "ruins/bandit_tent", Vector2(7, 7), -0.5, true)
+	_part(site, "props/notice_board", Vector2(0, 10), 0.0, true)
+	_part(site, "props/crate_stack", Vector2(9, 3), 0.2)
+	_part(site, "props/weapon_rack", Vector2(-9, 2), 0.0)
+	for i in 8:
+		var a := TAU * i / 8.0 + 0.3
+		_part(site, "ruins/bandit_palisade", Vector2(cos(a), sin(a)) * 16.0, -a + PI * 0.5, true)
+	site["lights"].append([Vector3(0, 3.5, 0), Color(0.65, 0.4, 0.95), 12.0, true])
 	return site
 
 
