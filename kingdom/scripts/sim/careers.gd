@@ -235,6 +235,19 @@ func tick_day(hire: Callable, leave_chance := 0.015, apply_chance := 0.2) -> voi
 				seat_filled.emit(o, junior, who)
 
 
+## Seats a person from outside the normal hire pool (e.g. a life_courses.gd
+## notable) into an open seat. `who` only needs to not collide with a real
+## WorldSim index or PLAYER (-1); life_courses.gd encodes its own ids well
+## below either. Returns false if the seat doesn't exist or has no room.
+func fill_vacancy_with(org_id: String, title: String, who: int) -> bool:
+	var s := seat(org_id, title)
+	if s.is_empty() or open_count(s) <= 0:
+		return false
+	s["holders"].append(who)
+	seat_filled.emit(org(org_id), s, who)
+	return true
+
+
 ## A holder died or left for reasons outside the sim (killed by wolves...).
 func remove_person(who: int) -> void:
 	for o in orgs:

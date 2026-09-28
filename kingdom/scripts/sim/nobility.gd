@@ -608,6 +608,22 @@ func rumours() -> Array[String]:
 	return out
 
 
+## A noble died in the life-course simulation (scripts/sim/life_courses.gd):
+## the eldest heir takes over as head, or the line falls into doubt.
+func on_member_died(name: String) -> void:
+	for h: Dictionary in houses:
+		if String(h["head"].get("name", "")) == name:
+			var heirs: Array = h["heirs"]
+			if not heirs.is_empty():
+				h["head"] = heirs.pop_front()
+				_log(WorldSim.day, "%s has died; %s succeeds as head of %s." % [name, h["head"]["name"], h["name"]])
+			else:
+				_log(WorldSim.day, "%s has died without an heir; %s's line is in doubt." % [name, h["name"]])
+			return
+		h["heirs"] = (h["heirs"] as Array).filter(func(m: Dictionary) -> bool: return String(m.get("name", "")) != name)
+		h["members"] = (h["members"] as Array).filter(func(m: Dictionary) -> bool: return String(m.get("name", "")) != name)
+
+
 # --- daily politics ------------------------------------------------------------------
 
 func _log(day: int, text: String) -> void:

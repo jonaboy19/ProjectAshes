@@ -756,6 +756,8 @@ func world_from_game() -> Dictionary:
 	if Life.career_id != "":
 		world["career_rank"] = {"career": Life.career_id, "rank": Life.career_rank}
 	world["at_war"] = bool(Life.life_path.flags.get("at_war", false))
+	world["war_front"] = Life.war.front()
+	world["apex_hunts"] = Frontier.ecology.pending_apex_hunts()
 	return world
 
 
@@ -955,6 +957,34 @@ func _pick_hint() -> Array:
 	return [pick, String(texts[_rng.randi() % texts.size()])]
 
 
+## What the last week of monster migrations looks like from a tavern bench.
+func _ecology_rumours() -> Array[String]:
+	var out: Array[String] = []
+	var eco = Frontier.ecology
+	for e: Dictionary in eco.events_since(maxi(0, int(eco.current_day()) - 7)):
+		var near := _nearest_settlement_name(e.get("pos", e.get("to", Vector2.ZERO)))
+		match String(e.get("type", "")):
+			"livestock_taken": out.append("Wolves took livestock near %s. Farmers are furious." % near)
+			"displaced": out.append("The wolves near %s moved off their old den. Something drove them out." % near)
+			"apex_hunt_available": out.append("Hunters say it isn't the wolves at all near %s. Something bigger has moved in." % near)
+			"apex_arrival": out.append("Shepherds by %s swear they heard something huge in the dark." % near)
+			"rift_den": out.append("Black-furred wolves by the Rift outpost. Their eyes glow, they say.")
+	return out
+
+
+func _nearest_settlement_name(p: Variant) -> String:
+	if not (p is Vector2):
+		return "the villages"
+	var best := "the villages"
+	var bd := INF
+	for st: Dictionary in WorldGen.settlements:
+		var d := (st["pos"] as Vector2).distance_to(p)
+		if d < bd:
+			bd = d
+			best = String(st["name"])
+	return best
+
+
 ## One rumour from the state of the world (dens, threats, places, the guild).
 func _pick_rumour() -> String:
 	# Failing runestones are the talk of every road (docs/RISING_ASHES_LIFE_SIM_DESIGN.md).
@@ -969,6 +999,12 @@ func _pick_rumour() -> String:
 		var chronicle: Array = lc.rumours()
 		if not chronicle.is_empty() and randf() < 0.2:
 			return String(chronicle[randi() % chronicle.size()])
+	var war_talk: Array = Life.war.rumours()
+	if not war_talk.is_empty() and randf() < (0.5 if Life.war.is_at_war() else 0.15):
+		return String(war_talk[randi() % war_talk.size()])
+	var beasts := _ecology_rumours()
+	if not beasts.is_empty() and randf() < 0.35:
+		return String(beasts[randi() % beasts.size()])
 	var r: Dictionary = _gossip_data().get("rumours", {})
 	var home := _home_pos()
 	var cands: Array = []   # [category, vars]

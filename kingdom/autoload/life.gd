@@ -47,6 +47,9 @@ var property := preload("res://scripts/sim/property.gd").new()
 var nobility := preload("res://scripts/sim/nobility.gd").new()
 var lordship := preload("res://scripts/sim/lordship.gd").new()
 var family := preload("res://scripts/sim/family.gd").new()
+## Notable NPCs who age, marry, work, die (Phase 4) and the war with a neighbour.
+var life_courses := preload("res://scripts/sim/life_courses.gd").new()
+var war := preload("res://scripts/sim/war_sim.gd").new()
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
 var career_id := ""            # career_ladders.gd key, "" = none yet
 var career_rank := ""          # rank id within that career
@@ -106,6 +109,8 @@ func _ready() -> void:
 		if mastery.DISCIPLINES.has(sk):
 			mastery.gain(sk, float(res.get("xp", 0)) * 0.1, WorldSim.day))
 	careers.vacancy_opened.connect(_on_vacancy)
+	careers.vacancy_opened.connect(func(o: Dictionary, st: Dictionary) -> void: life_courses.on_vacancy(o, st, careers))
+	childhood_events.life_courses = life_courses
 	lordship.village_changed.connect(func(idx: int) -> void:
 		var v: Dictionary = lordship.villages.get(idx, {})
 		if not v.is_empty() and int(v.get("granted_day", -1)) == WorldSim.day and not bool(v.get("_noted", false)):
@@ -170,6 +175,8 @@ func _begin_life() -> void:
 	life_path.set_age(START_AGE, WorldSim.day, WorldSim.time_of_day)
 	triggers.seed_first_region(home["pos"], home["radius"])
 	childhood_events.seed_from(WorldSim.SEED, life_path.full_name())
+	life_courses.seed_from(WorldSim.SEED)
+	life_courses.populate_region(150, WorldSim.day)
 
 
 ## The smallest named place (from data/world/first_region.json) containing p, or {}.
@@ -269,7 +276,7 @@ func _life_events_tick(pos: Vector2, hour: int) -> void:
 		var now_days := float(WorldSim.day) + float(hour) / 24.0
 		var ev := childhood_events.roll(a, place, WorldSim.season, life_path.flags, now_days)
 		if not ev.is_empty():
-			childhood_events.mark_seen(String(ev["id"]), now_days)
+			childhood_events.mark_seen(String(ev["id"]), now_days, life_path.birth_day, life_path.home_settlement, "caldric")
 			_present_childhood_event(ev)
 	if a == 12 and not awakening.has_happened() and hour == 7 and place in ["home", "settlement"]:
 		_run_awakening()
@@ -313,6 +320,8 @@ func _childhood_choice(c: Dictionary) -> void:
 		life_path.adjust_bond(role, float(bond[role]))
 	if c.has("item"):
 		give(String(c["item"]), 1)
+	if "befriended_rival" in c.get("flags", []):
+		childhood_events.on_rival_befriended()
 
 
 ## The age-12 Blessing ceremony: a popup, a magic circle underfoot, the outcome
@@ -620,6 +629,12 @@ func _process(_delta: float) -> void:
 
 
 func _on_hour(hour: int) -> void:
+	if hour == 6:
+		# War first: economy, lordship levies and promotion speed read the at_war flag this hour.
+		for msg: String in war.tick_day(WorldSim.day, {"feud_count": nobility.feuds().size(),
+				"rift_instability": Frontier.rift_instability, "season": WorldSim.season}):
+			Game.say(msg)
+		life_path.set_flag("at_war", war.is_at_war())
 	economy.refresh_road_risk(Frontier.runestones)
 	for r: Dictionary in economy.tick_hour(1.0, {
 			"season": WorldSim.season, "festival": not WorldSim.seasons.festival_today().is_empty(),
@@ -645,6 +660,13 @@ func _on_hour(hour: int) -> void:
 		for msg: String in lordship.daily_tick(WorldSim.day, {"season": WorldSim.season, "at_war": bool(life_path.flags.get("at_war", false))}):
 			Game.say(msg)
 		for msg: String in family.daily_tick(WorldSim.day):
+			Game.say(msg)
+		var threat := 0.0
+		if player and is_instance_valid(player):
+			var t: Dictionary = Frontier.threat_at(Vector2(player.global_position.x, player.global_position.z))
+			threat = float(t.get("total", t.get("threat", 0.0)))
+		for msg: String in life_courses.tick_day(WorldSim.day, {"at_war": war.is_at_war(),
+				"frontier_threat": clampf(threat, 0.0, 100.0), "careers": careers, "nobility": nobility}):
 			Game.say(msg)
 		if family.check_old_age_death(age(), WorldSim.day):
 			_on_old_age_death()
@@ -826,6 +848,8 @@ func snapshot() -> Dictionary:
 		"nobility": nobility.serialize(),
 		"lordship": lordship.serialize(),
 		"family": family.serialize(),
+		"life_courses": life_courses.serialize(),
+		"war": war.serialize(),
 		"career": {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier},
 		"radiant": radiant.serialize(),
 		"crafting": crafting.serialize(),
@@ -865,7 +889,7 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	_last_abs = _abs_hours()

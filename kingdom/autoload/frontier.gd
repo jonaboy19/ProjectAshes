@@ -66,11 +66,34 @@ func _on_hour(_hour: int) -> void:
 func advance_day(day: int) -> void:
 	runestones.tick_day(day)
 	ecology.tick_day(runestones.coverage, rift_instability, false)
+	_maybe_apex_moves_in(day)
 	threat.expire(day)
 	for s in runestones.stones:
 		if s["condition"] < 0.35:
 			frontier_event.emit("%s is failing (%d%%)." % [s["name"], int(s["condition"] * 100)], s["pos"])
 	day_advanced.emit(day)
+
+
+## Now and then a bear or troll claims territory deep in the forest, starting the
+## chain: wolves displaced toward farms, livestock lost, hunters find the real cause.
+func _maybe_apex_moves_in(day: int) -> void:
+	if day < 10:
+		return
+	for d: Dictionary in ecology.dens:
+		if d["alive"] and bool(d.get("apex", false)):
+			return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([WorldSim.SEED, "apex", day])
+	if rng.randf() > 1.0 / 30.0:
+		return
+	var c: Vector2 = WorldGen.settlements[0]["pos"]
+	for _t in 60:
+		var ang := rng.randf() * TAU
+		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(900.0, 1700.0)
+		if WorldGen.forest_density(p.x, p.y) < 0.4 or runestones.coverage(p) > 0.02:
+			continue
+		ecology.spawn_apex("troll" if rng.randf() < 0.4 else "bear", p, ecology.current_day())
+		return
 
 
 ## World event hooks used by gameplay (patrol killed, nest destroyed, etc.).
@@ -98,12 +121,15 @@ func danger_mult(hour: float) -> float:
 
 
 func serialize() -> Dictionary:
-	return {"runestones": runestones.serialize(), "dens": ecology.serialize(), "rift": rift_instability}
+	return {"runestones": runestones.serialize(), "dens": ecology.serialize(), "eco": ecology.serialize_state(), "rift": rift_instability}
 
 
 func deserialize(d: Dictionary) -> void:
 	runestones.deserialize(d.get("runestones", []))
-	ecology.deserialize(d.get("dens", []))
+	if d.has("eco"):
+		ecology.deserialize_state(d["eco"])
+	else:
+		ecology.deserialize(d.get("dens", []))
 	rift_instability = float(d.get("rift", rift_instability))
 	_last_day = WorldSim.day
 

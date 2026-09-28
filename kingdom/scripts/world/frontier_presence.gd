@@ -184,6 +184,13 @@ func _spawn_pack(den: Dictionary) -> void:
 	var count := mini(int(den["population"]), RAMonsterEcology.SPECIES[den["species"]]["pack"])
 	for i in count:
 		var w := Wolf.new()
+		# Apex and Rift-tainted dens reuse the closest body until they get their own models.
+		var sp := String(den["species"])
+		w.species = {"troll": "bear", "wyvern": "bear", "bear": "bear", "corrupted_wolf": "wolf"}.get(sp, sp)
+		if sp == "troll" or sp == "wyvern":
+			w.scale = Vector3.ONE * 1.9
+		elif sp == "corrupted_wolf":
+			w.scale = Vector3.ONE * 1.2
 		w.den_id = den["id"]
 		w.home = den["pos"]
 		w.territory = den["territory"]

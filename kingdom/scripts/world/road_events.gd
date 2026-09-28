@@ -14,6 +14,10 @@ const SETTLEMENT_MARGIN := 2.0        # x radius: never spawn this close to a se
 const SPAWN_RANGE := Vector2(35.0, 85.0)
 ## Roughly this many ambushes across a full in-game day, scaled by time-of-day danger.
 const AMBUSHES_PER_DAY := 3.0
+## War makes roads more dangerous (soldiers gone, bandits bolder). A caller
+## (life.gd's hook: `road_events.danger_mult = 1.6 if war.is_at_war() else 1.0`)
+## can raise this; it multiplies straight onto the per-tick ambush chance.
+var danger_mult := 1.0
 const AMBUSH_LOOK := "raider"
 const AMBUSH_FILE := "Barbarian"
 const AMBUSH_KEEP: Array[String] = ["1H_Axe", "Barbarian_Round_Shield", "Barbarian_Hat"]
@@ -51,7 +55,7 @@ func _maybe_spawn() -> void:
 	if not near.is_empty() and p.distance_to(near["pos"]) < float(near["radius"]) * SETTLEMENT_MARGIN:
 		return         # never inside a settlement
 	var per_tick := AMBUSHES_PER_DAY * (CHECK_INTERVAL / WorldSim.DAY_LENGTH)
-	if randf() > per_tick * Frontier.danger_mult(WorldSim.time_of_day):
+	if randf() > per_tick * Frontier.danger_mult(WorldSim.time_of_day) * danger_mult * (1.6 if Life.war.is_at_war() else 1.0):
 		return
 	_spawn_ambush(p)
 

@@ -23,6 +23,15 @@ extends RefCounted
 ##   hunter_bounty           - thin a den for the bounty board
 ##   healer_deliver_medicine - bring medicine to someone who can't come for it
 ##   innkeeper_stock_larder  - stock the larder before the guests arrive
+##   war_muster              - report for muster (only while world.at_war)
+##   war_battle              - march to a front-line region and fight (only while world.at_war)
+##
+## World-event work, offered to anyone once the world has raised it (not
+## gated by career, but not always available either -- see available_kinds()):
+##   apex_hunt - investigate a den displaced by an apex creature
+##               (monster_ecology.gd's migration chains), then confront the
+##               apex. world.apex_hunts: [{id, pos, species, displaced_pos
+##               (optional)}], usually ecology.pending_apex_hunts().
 ##
 ## Generation is pure and deterministic: generate(world, seed, day) gives the
 ## same quests for the same inputs. `world` is a plain Dictionary so tests can
@@ -30,6 +39,8 @@ extends RefCounted
 ##   {home: Vector2, dens: [{id, species, pos: Vector2, population, alive}],
 ##    sites: [{name, kind, pos: Vector2}], places: {id: {name, kind, pos: Vector2, radius}},
 ##    career_rank: {career, rank} (optional), at_war: bool (optional),
+##    war_front: [{name, pos: Vector2}] (optional, war_sim.gd's front()),
+##    apex_hunts: [{id, pos: Vector2, species, displaced_pos (optional)}] (optional),
 ##    days_left_in_season: int (optional, default 20)}
 ##
 ## Progress is polled, so no other system has to call in: update(ctx) with
@@ -47,22 +58,25 @@ const Crafting := preload("res://scripts/sim/crafting.gd")
 
 const CAREER_KINDS := ["farmer_deliver_grain", "soldier_patrol", "soldier_escort_caravan",
 	"soldier_clear_den", "soldier_night_guard", "merchant_carry_goods", "blacksmith_commission",
-	"hunter_bounty", "healer_deliver_medicine", "innkeeper_stock_larder"]
+	"hunter_bounty", "healer_deliver_medicine", "innkeeper_stock_larder", "war_muster", "war_battle"]
 ## Kinds offered to anyone, regardless of career (unit-tested to all appear
 ## together, so career-born kinds live in CAREER_KINDS instead: those only
-## appear once world.career_rank names the player's career).
+## appear once world.career_rank names the player's career). "apex_hunt" is
+## neither: it only appears once world.apex_hunts is non-empty (see
+## available_kinds()), so it's excluded from this always-available list too.
 const KINDS := ["fetch_herbs", "clear_wolves", "deliver", "escort", "lost_child"]
 const KIND_ROLE := {"fetch_herbs": "healer", "clear_wolves": "guild", "deliver": "villager",
-	"escort": "guild", "lost_child": "villager",
+	"escort": "guild", "lost_child": "villager", "apex_hunt": "guild",
 	"farmer_deliver_grain": "career", "soldier_patrol": "career", "soldier_escort_caravan": "career",
 	"soldier_clear_den": "career", "soldier_night_guard": "career", "merchant_carry_goods": "career",
 	"blacksmith_commission": "career", "hunter_bounty": "career", "healer_deliver_medicine": "career",
-	"innkeeper_stock_larder": "career"}
+	"innkeeper_stock_larder": "career", "war_muster": "career", "war_battle": "career"}
 ## career_ladders.gd career id -> the career-born kinds it can offer.
 const CAREER_KIND_FOR := {
 	"farmer": ["farmer_deliver_grain"],
-	"soldier": ["soldier_patrol", "soldier_escort_caravan", "soldier_clear_den", "soldier_night_guard"],
-	"guard": ["soldier_patrol", "soldier_night_guard"],
+	"soldier": ["soldier_patrol", "soldier_escort_caravan", "soldier_clear_den", "soldier_night_guard",
+		"war_muster", "war_battle"],
+	"guard": ["soldier_patrol", "soldier_night_guard", "war_muster"],
 	"merchant": ["merchant_carry_goods"],
 	"blacksmith": ["blacksmith_commission"],
 	"hunter": ["hunter_bounty"],
@@ -132,6 +146,7 @@ static func available_kinds(world: Dictionary) -> Array:
 		out.append("lost_child")
 	var cr: Dictionary = world.get("career_rank", {})
 	var career := String(cr.get("career", ""))
+	var at_war := bool(world.get("at_war", false))
 	for kind: String in (CAREER_KIND_FOR.get(career, []) as Array):
 		match kind:
 			"soldier_escort_caravan":
@@ -146,8 +161,15 @@ static func available_kinds(world: Dictionary) -> Array:
 			"hunter_bounty":
 				if not _live_dens(world).is_empty():
 					out.append(kind)
+			"war_muster", "war_battle":
+				if at_war:
+					out.append(kind)
 			_:
 				out.append(kind)
+	# "The player (or a quest) finds the displaced den" (apex migration chains,
+	# monster_ecology.gd): once one is noticed, offered to anyone, like clear_wolves.
+	if not (world.get("apex_hunts", []) as Array).is_empty():
+		out.append("apex_hunt")
 	return out
 
 
@@ -338,6 +360,37 @@ static func _make(kind: String, world: Dictionary, rng: RandomNumberGenerator) -
 			q["reward"] = {"gold": 8, "rep": {"ashford": 4}, "opinion": 8}
 			q["data"] = {"patient": sick}
 			q["days"] = 5
+		"war_muster":
+			var post := _waystation(world)
+			if post.is_empty():
+				post = {"name": "the muster ground", "pos": home + Vector2(60.0, 0.0)}
+			q["title"] = "Muster for the war"
+			q["desc"] = "The crown has called its soldiers to arms. Report to %s to muster." % post["name"]
+			q["stages"] = [_stage("reach", "Report to %s" % post["name"], post["pos"], 10.0)]
+			q["reward"] = {"gold": 14, "rep": {"ashford": 2, "crown_caldrenn": 5}, "opinion": 6}
+			q["days"] = 3
+		"war_battle":
+			var wfront: Array = world.get("war_front", [])
+			var chosen: Dictionary = wfront[rng.randi() % wfront.size()] if not wfront.is_empty() else {"name": "the front line", "pos": home + Vector2(700.0, 0.0)}
+			var fpos: Vector2 = chosen["pos"]
+			q["title"] = "Join the battle at %s" % String(chosen["name"])
+			q["desc"] = "The line at %s needs every blade it can get, %d m %s of home." % [String(chosen["name"]), int(fpos.distance_to(home)), _compass(fpos - home)]
+			q["stages"] = [_stage("reach", "March to %s and fight" % String(chosen["name"]), fpos, 30.0)]
+			q["reward"] = {"gold": 30 + rng.randi_range(0, 20), "rep": {"crown_caldrenn": 10, "ashford": 3}, "opinion": 10}
+			q["days"] = 6
+		"apex_hunt":
+			var hunts: Array = world.get("apex_hunts", [])
+			var hunt: Dictionary = hunts[rng.randi() % hunts.size()]
+			var apex_pos: Vector2 = hunt["pos"]
+			var displaced_pos: Vector2 = hunt.get("displaced_pos", apex_pos)
+			var species_name: String = String(hunt.get("species", "beast"))
+			q["title"] = "Something bigger moved in"
+			q["desc"] = "Wolves have been driven from their territory %s of the village. Track them back to whatever pushed them out." % _compass(displaced_pos - home)
+			q["stages"] = [_stage("reach", "Investigate the empty den", displaced_pos, 30.0),
+				_stage("kill_den", "Confront the %s" % species_name, apex_pos, 70.0, {"den_id": int(hunt["id"]), "kills": 1})]
+			q["reward"] = {"gold": 60 + rng.randi_range(0, 30), "rep": {"ashford": 10, "adventurer_guild": 10}, "opinion": 20}
+			q["data"] = {"species": species_name}
+			q["days"] = 10
 		"innkeeper_stock_larder":
 			var n5 := rng.randi_range(6, 12)
 			q["title"] = "Stock the larder"

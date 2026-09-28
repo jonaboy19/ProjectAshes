@@ -26,9 +26,26 @@ const PATH := "res://data/childhood/events.json"
 const MIN_GAP_DAYS := 1.0
 const MAX_GAP_DAYS := 2.2
 
+## Event ids that introduce a named childhood peer, and what they are:
+## "childhood_friend" or "childhood_rival" (scripts/sim/life_courses.gd).
+## `friend_goes_missing` reads as the player already having this friend.
+const PEER_EVENTS := {
+	"childhood_rival": "childhood_rival",
+	"friend_goes_missing": "childhood_friend",
+}
+## A choice flag that means a rival became a friend instead (see the
+## "childhood_rival" event's "Laugh it off and befriend them" choice).
+const BEFRIEND_RIVAL_FLAG := "befriended_rival"
+
 var pool: Array = []
 ## Fired event ids -> true. Every event is one-shot.
 var seen: Dictionary = {}
+## Optional link to the notable population (scripts/sim/life_courses.gd, set
+## by Life once it owns one — see the hook line in the task report). When
+## set, a rival or a missing friend becomes a real, ageing named NPC.
+var life_courses: Object = null
+## Event id -> the life_courses id of the peer that event introduced.
+var peers: Dictionary = {}
 var _rng := RandomNumberGenerator.new()
 var _next_due := 0.0
 var _loaded := false
@@ -119,14 +136,32 @@ func roll(age: int, place: String, season: String, flags: Dictionary, now_days: 
 	return cands[cands.size() - 1]
 
 
-## Marks an event as shown and rolls the next gap (call right after presenting it).
-func mark_seen(id: String, now_days: float) -> void:
+## Marks an event as shown and rolls the next gap (call right after presenting
+## it). `birth_day`/`settlement`/`culture` are the player's own (so a new
+## peer is registered the same age, in the same place) and are only used the
+## first time a PEER_EVENTS id fires; pass them whenever life_courses is set.
+func mark_seen(id: String, now_days: float, birth_day := 0, settlement := 0, culture := "caldric") -> void:
 	seen[id] = true
 	_next_due = now_days + _rng.randf_range(MIN_GAP_DAYS, MAX_GAP_DAYS)
+	if life_courses != null and PEER_EVENTS.has(id) and not peers.has(id):
+		var relation: String = PEER_EVENTS[id]
+		var pid: int = life_courses.register_childhood_peer("", relation, settlement, culture, birth_day)
+		peers[id] = pid
+
+
+## Call when a choice sets BEFRIEND_RIVAL_FLAG: turns the rival from
+## "childhood_rival" into a "childhood_friend" on record.
+func on_rival_befriended() -> void:
+	if life_courses == null or not peers.has("childhood_rival"):
+		return
+	life_courses.update_peer_relation(int(peers["childhood_rival"]), "childhood_friend")
 
 
 func serialize() -> Dictionary:
-	return {"seen": seen.keys(), "next_due": _next_due, "rng": str(_rng.state)}
+	var p := {}
+	for id: String in peers:
+		p[id] = int(peers[id])
+	return {"seen": seen.keys(), "next_due": _next_due, "rng": str(_rng.state), "peers": p}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -136,3 +171,7 @@ func deserialize(d: Dictionary) -> void:
 	_next_due = float(d.get("next_due", 0.0))
 	if d.has("rng"):
 		_rng.state = String(d["rng"]).to_int()
+	peers.clear()
+	var p: Dictionary = d.get("peers", {})
+	for id: String in p:
+		peers[id] = int(p[id])

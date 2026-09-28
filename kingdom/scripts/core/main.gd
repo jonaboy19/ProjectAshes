@@ -38,6 +38,8 @@ var player: Player
 var hud: HUD
 var army: Squad
 var raiders: Squad
+## An enemy host at the war front while Life.war is at war (scripts/sim/war_sim.gd).
+var war_host: Squad
 var captain: Captain
 var services: VillageServices
 var camps: MonsterCamps
@@ -178,6 +180,7 @@ func _ready() -> void:
 	army.order = Squad.Order.FOLLOW
 	world.add_child(army)
 	_spawn_raiders(FIRST_CAMP, 12)
+	WorldSim.hour_changed.connect(func(_h: int) -> void: _maybe_spawn_war_battle())
 
 	hud.hide_loading()
 	Quality.start_adaptive()
@@ -436,6 +439,37 @@ func _spawn_raiders(where: Vector2, count: int) -> void:
 	world.add_child(raiders)
 	raiders.add_soldiers(count, base)
 	raiders.wiped_out.connect(func(_s: Squad) -> void: _on_raiders_defeated(camp))
+
+
+## While the realm is at war, the most contested front holds an enemy host; ride
+## within reach of it and it is there to fight.
+func _maybe_spawn_war_battle() -> void:
+	if war_host != null and is_instance_valid(war_host):
+		if not Life.war.is_at_war():
+			war_host.queue_free()
+			war_host = null
+		return
+	if not Life.war.is_at_war() or player == null:
+		return
+	var b: Dictionary = Life.war.battle_at_front()
+	if b.is_empty():
+		return
+	var at: Vector2 = b["pos"]
+	var p := Vector2(player.global_position.x, player.global_position.z)
+	if p.distance_to(at) > 400.0:
+		return
+	var base := Vector3(at.x, WorldGen.height(at.x, at.y), at.y)
+	war_host = Squad.new().setup(1, "raider", "Barbarian", ["1H_Axe", "Barbarian_Round_Shield", "Barbarian_Hat"])
+	war_host.anchor = base
+	war_host.aggro_radius = 40.0
+	world.add_child(war_host)
+	war_host.add_soldiers(clampi(int(b.get("size", 10)), 6, 30), base)
+	war_host.wiped_out.connect(func(_s: Squad) -> void:
+		Game.add_gold(150)
+		Life.biography.add_highlight("Broke an enemy host at %s" % String(b.get("name", "the front")), WorldSim.day)
+		Game.say("The enemy host at %s is broken! +150 gold." % String(b.get("name", "the front")))
+		war_host = null)
+	Game.say("An enemy host holds the field at %s." % String(b.get("name", "the front")))
 
 
 func _on_raiders_defeated(camp: Node3D) -> void:
