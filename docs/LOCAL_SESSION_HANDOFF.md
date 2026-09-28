@@ -173,3 +173,15 @@ estimates; the local side owns the real numbers.
   - the new shaders on the Mobile renderer (terrain wetness and snow, grass, water sunset);
   - the `--shot=homestead` view;
   - touch sizes of the technique arc and the seal pad on a phone.
+
+## 2026-09-28: local session takes PLAYER MOVEMENT FEEL + NPC DENSITY + OUTDOOR GROUNDING (user request)
+- **Player movement/controls** (`scripts/actors/player.gd` movement, input and dodge only): the user finds movement glitchy and
+  "Space/back does a shadow dash with afterimage". It should be an **ability** (cooldown, its own button), not the default on
+  Space/back. The local side reworks locomotion feel (acceleration, turning, grounding, slopes, jump/dodge mapping) using proven
+  open-source Godot 4 controllers as reference. **Codex:** clip choice and blend timing stay yours; the local side only changes
+  speeds, input and state flow and will list any animation hooks it needs here. **Cloud:** please avoid the movement block of
+  `player.gd` until the local side notes it's done.
+- **NPC density:** the user says there are far too many NPCs walking around. The local side tunes the crowd counts (WorldSim
+  local density, PopulationLOD budgets per tier).
+- **Outdoor look and grounding:** the user says the outdoors looks fake and things don't sit on the floor. The local side does a
+  visual sweep and fixes grounding and dressing (region_dressing, settlement_builder props, terrain scatter).
