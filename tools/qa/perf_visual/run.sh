@@ -13,7 +13,7 @@
 # LOOK at timeline.png and every HITCH frame with Read - that's the point of this tool.
 set -e
 REPO="$(cd "$(dirname "$0")/../../.." && pwd)"
-GODOT="${GODOT:-/c/Users/Jonna/Downloads/Godot_v4.6-stable_win64.exe/Godot_v4.6-stable_win64_console.exe}"
+GODOT="${GODOT:-/c/Users/Jonna/Downloads/Godot_v4.6.3-stable_win64/Godot_v4.6.3-stable_win64_console.exe}"
 Q="${1:-high}"; ROUTE="${2:-village_forest}"; SPEED="${3:-7}"
 OUT="$REPO/docs/qa/perf_visual/${Q}_${ROUTE}"
 rm -rf "$OUT"; mkdir -p "$OUT"

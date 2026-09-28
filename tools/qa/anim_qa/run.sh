@@ -11,7 +11,7 @@
 # Exit code: 0 if the run completed (not "no FAILs"; read the report).
 set -u
 REPO="$(cd "$(dirname "$0")/../../.." && pwd)"
-GODOT="${GODOT:-/c/Users/Jonna/Downloads/Godot_v4.6-stable_win64.exe/Godot_v4.6-stable_win64.exe}"
+GODOT="${GODOT:-/c/Users/Jonna/Downloads/Godot_v4.6.3-stable_win64/Godot_v4.6.3-stable_win64.exe}"
 SCRIPT="$REPO/tools/qa/anim_qa/anim_qa.gd"
 command -v cygpath >/dev/null 2>&1 && SCRIPT="$(cygpath -m "$SCRIPT")"
 LOG="${TMPDIR:-/tmp}/anim_qa_$$.log"

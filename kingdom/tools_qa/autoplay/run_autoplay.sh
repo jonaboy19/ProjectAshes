@@ -8,7 +8,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 KINGDOM="$(cd "$HERE/../.." && pwd)"
 REPO="$(cd "$KINGDOM/.." && pwd)"
 OUT="$REPO/docs/qa/playtest"
-GODOT="${GODOT:-/c/Users/Jonna/Downloads/Godot_v4.6-stable_win64.exe/Godot_v4.6-stable_win64_console.exe}"
+GODOT="${GODOT:-/c/Users/Jonna/Downloads/Godot_v4.6.3-stable_win64/Godot_v4.6.3-stable_win64_console.exe}"
 mkdir -p "$OUT"
 "$GODOT" --path "$KINGDOM" --rendering-driver vulkan --windowed --resolution 1280x720 \
 	res://tools_qa/autoplay/autoplay.tscn -- --outdir="$OUT" "$@" > "$OUT/godot_stdout.txt" 2>&1

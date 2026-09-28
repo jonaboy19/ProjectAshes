@@ -73,8 +73,11 @@ func person_name(i: int) -> String:
 func is_indoors(i: int) -> bool:
 	if phase[i] == 0:
 		return pos[i].distance_squared_to(target[i]) < 1.0
+	# Craftsmen work inside their shop most of the time: 3 in 4 stay indoors once
+	# they've arrived (was 2 in 3), so fewer bodies are idling on the street at
+	# a given moment without changing where anyone actually is.
 	if phase[i] == 1 and (job[i] == 1 or job[i] == 2):
-		return i % 3 != 0 and pos[i].distance_squared_to(target[i]) < 1.0
+		return i % 4 != 0 and pos[i].distance_squared_to(target[i]) < 1.0
 	return false
 
 

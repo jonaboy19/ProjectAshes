@@ -33,7 +33,7 @@ static func present(host: Node, event: Dictionary) -> Control:
 		host.add_child(p)
 	if host.has_method("close_menu"):
 		host.call("close_menu")
-	p.call("_open_card", event)
+	p.call("open", event)   # was "_open_card", which doesn't exist: no life-event card ever opened
 	return p
 
 

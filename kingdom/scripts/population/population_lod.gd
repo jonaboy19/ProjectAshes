@@ -2,8 +2,8 @@ class_name PopulationLOD
 extends Node3D
 ## Gives simulated people a body near the player:
 ##   within FULL_RANGE (nearest MAX_FULL)  -> animated character with a name tag
-##   within SPRITE_RANGE                   -> directional sprite in a MultiMesh
-##   beyond                                -> data only (WorldSim)
+##   within SPRITE_RANGE, outside SPRITE_MIN_DIST -> directional sprite in a MultiMesh
+##   beyond, or inside SPRITE_MIN_DIST without a full-model slot -> data only (WorldSim)
 ##
 ## Embodied villagers own their movement; each refresh writes their resolved
 ## positions back into WorldSim (the one hand-off point), and a time skip
@@ -20,6 +20,16 @@ const FULL_RANGE := 45.0
 const SPRITE_RANGE := 220.0
 const NEAR_ALWAYS := 9.0     # metres: never a sprite this close to the player
 const NEAR_HARD_CAP := 12    # but never more than this many full models in total
+## Below this, a flat sprite impostor reads as a blocky pixel person right next
+## to the camera. NEAR_ALWAYS/NEAR_HARD_CAP above are meant to keep everyone this
+## close in a full model, but when the full-model budget (Quality.npc_full) is
+## smaller than NEAR_HARD_CAP a nearby resident can still lose out on the full-model
+## race; rather than fall back to a sprite this close, they simply aren't drawn
+## this refresh (WorldSim still tracks them; they reappear once a slot frees up
+## or they step further out). SPRITE_MIN_DIST_RELEASE adds hysteresis so someone
+## hovering right at the boundary doesn't pop in and out every refresh.
+const SPRITE_MIN_DIST := 20.0
+const SPRITE_MIN_DIST_RELEASE := 26.0
 const MAX_FULL := 24
 ## Ceiling on total sprites drawn (all job looks combined; see `refresh()`), not
 ## per look. Quality.npc_sprites narrows this further per tier.
@@ -59,6 +69,7 @@ var _villagers: Array = []        # the Villager nodes in _full, shared with eac
 var _held: Dictionary = {}        # person id -> true while its departure is held back
 var _last_time := -1.0
 var _sprite_cache: Dictionary = {}   # person id -> [raw pos, pushed-out ground point]
+var _sprite_hidden: Dictionary = {}  # person id -> true while suppressed inside SPRITE_MIN_DIST
 
 
 func setup(baker: ImpostorBaker) -> void:
@@ -153,6 +164,10 @@ func refresh() -> void:
 		used[look] = 0
 	var sprite_budget: int = mini(MAX_SPRITES, Quality.npc_sprites)
 	var sprite_total := 0
+	if _sprite_hidden.size() > 4000:
+		_sprite_hidden.clear()
+	var enter_r2 := SPRITE_MIN_DIST * SPRITE_MIN_DIST
+	var release_r2 := SPRITE_MIN_DIST_RELEASE * SPRITE_MIN_DIST_RELEASE
 	for entry in dists:
 		# dists is sorted nearest-first, so once the budget is spent everyone
 		# further away is skipped: the crowd is capped in total, not per look.
@@ -160,6 +175,16 @@ func refresh() -> void:
 			break
 		var id: int = entry[1]
 		if _full.has(id):
+			_sprite_hidden.erase(id)
+			continue
+		# Nobody without a full model is drawn as a sprite this close (see
+		# SPRITE_MIN_DIST above); hysteresis keeps the on/off edge from chattering.
+		if _sprite_hidden.get(id, false):
+			if entry[0] < release_r2:
+				continue
+			_sprite_hidden.erase(id)
+		elif entry[0] < enter_r2:
+			_sprite_hidden[id] = true
 			continue
 		var look: String = JOB_LOOK[WorldSim.job[id]]
 		var n: int = used[look]
