@@ -654,7 +654,11 @@ func world_from_game() -> Dictionary:
 	var sites: Array = []
 	for st: Dictionary in WorldGen.sites:
 		sites.append({"name": st["name"], "kind": st["kind"], "pos": st["pos"]})
-	return {"home": _home_pos(), "dens": dens, "sites": sites, "places": Life.lore.places}
+	var world := {"home": _home_pos(), "dens": dens, "sites": sites, "places": Life.lore.places}
+	if Life.career_id != "":
+		world["career_rank"] = {"career": Life.career_id, "rank": Life.career_rank}
+	world["at_war"] = bool(Life.life_path.flags.get("at_war", false))
+	return world
 
 
 func _quest_ctx() -> Dictionary:

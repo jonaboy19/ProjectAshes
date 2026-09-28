@@ -23,6 +23,10 @@ var settlements: SettlementBuilder
 var population: PopulationLOD
 var frontier: FrontierPresence
 var region: RegionDressing
+const RoadTraffic := preload("res://scripts/world/road_traffic.gd")
+const RoadEvents := preload("res://scripts/world/road_events.gd")
+var road_traffic: Node3D
+var road_events: Node3D
 const HomesteadView := preload("res://scripts/world/homestead_view.gd")
 var homestead_view: Node3D
 var weather: Node3D
@@ -136,6 +140,12 @@ func _ready() -> void:
 	world.add_child(Lakeside.new())
 	region = RegionDressing.new()
 	world.add_child(region)
+	road_traffic = RoadTraffic.new()
+	road_traffic.name = "RoadTraffic"
+	world.add_child(road_traffic)
+	road_events = RoadEvents.new()
+	road_events.name = "RoadEvents"
+	world.add_child(road_events)
 	homestead_view = HomesteadView.new()
 	world.add_child(homestead_view)
 	weather = preload("res://scripts/world/weather.gd").new()
@@ -176,7 +186,7 @@ func _ready() -> void:
 		_play_birth()
 
 
-## New life: the birth cutscene, then "six years later" as a child at home.
+## New life: the birth cutscene, then "four years later" as a small child at home.
 func _play_birth() -> Signal:
 	var lp := Life.life_path
 	var home: Dictionary = WorldGen.settlements[0]
@@ -272,6 +282,8 @@ func _process(delta: float) -> void:
 	population.focus = focus
 	frontier.focus = focus
 	region.focus = focus
+	road_traffic.focus = focus
+	road_events.focus = focus
 	homestead_view.focus = focus
 	ambient_fx.focus = focus
 	camps.focus = focus
@@ -384,7 +396,11 @@ func _on_player_health(current: int, _maximum: int) -> void:
 
 
 func _recruit(count: int) -> void:
-	army.add_soldiers(count, player.global_position - player.forward() * 4.0)
+	# Once on the soldier ladder, the troops you may lead follow your rank (0, 5, 20, 60, 200).
+	var room := count
+	if String(Life.career_id) == "soldier":
+		room = mini(count, maxi(0, Life.CareerLadders.troops_for_rank(Life.career_rank) - army.alive()))
+	army.add_soldiers(room, player.global_position - player.forward() * 4.0)
 
 
 func _spawn_raiders(where: Vector2, count: int) -> void:

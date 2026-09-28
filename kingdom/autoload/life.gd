@@ -39,6 +39,21 @@ var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
 var crafting := preload("res://scripts/sim/crafting.gd").new()
 var equipment := preload("res://scripts/sim/equipment.gd").new()
 var skills := preload("res://scripts/sim/skills.gd").new()
+## Careers as biography (docs/RISING_ASHES_LIFE_SIM_DESIGN.md): mastery only grows by doing,
+## the biography keeps every chapter and reputation across career changes.
+var mastery := preload("res://scripts/sim/mastery.gd").new()
+var biography := preload("res://scripts/sim/biography.gd").new()
+const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
+var career_id := ""            # career_ladders.gd key, "" = none yet
+var career_rank := ""          # rank id within that career
+var career_since_day := 0      # WorldSim.day the current rank began
+var career_sponsor_tier := 0   # best sponsor's Relationships tier rank (>= 4 = friend)
+const RECORD_TO_MASTERY := {
+	"helped_farmer": "farming", "farmed": "farming", "hunted": "hunting", "fished": "fishing",
+	"trained_sword": "swordsmanship", "trained_bow": "archery", "traded": "trading",
+	"adventured": "soldiering", "studied": "scholarship", "meditated": "faith", "worked": "farming",
+}
+const ORG_TO_CAREER := {"guard": "soldier", "smithy": "blacksmith", "inn": "innkeeper"}
 var homestead := preload("res://scripts/sim/homestead.gd").new()
 ## Hidden childhood leanings, the Blessing/Awakening and the childhood event
 ## pool (see docs/RISING_ASHES_LIFE_SIM_DESIGN.md, "Life stages").
@@ -78,7 +93,12 @@ func _ready() -> void:
 	_setup_market()
 	careers.player_changed.connect(func(text: String) -> void:
 		Game.say(text)
+		_on_career_post_changed()
 		employment_changed.emit())
+	crafting.crafted.connect(func(res: Dictionary) -> void:
+		var sk := String(res.get("skill", ""))
+		if mastery.DISCIPLINES.has(sk):
+			mastery.gain(sk, float(res.get("xp", 0)) * 0.1, WorldSim.day))
 	careers.vacancy_opened.connect(_on_vacancy)
 	WorldSim.hour_changed.connect(_on_hour)
 	_last_abs = _abs_hours()
@@ -169,6 +189,8 @@ func body_scale() -> float:
 func record(tag: String, weight := 1.0) -> void:
 	life_path.record(tag, weight, WorldSim.day)
 	tendencies.record(tag, weight)
+	if RECORD_TO_MASTERY.has(tag):
+		mastery.gain(RECORD_TO_MASTERY[tag], weight, WorldSim.day)
 
 
 func build_summary() -> String:
@@ -187,6 +209,8 @@ func _life_tick(hour: int) -> void:
 	life_path.update(WorldSim.day, hour)
 	titles.evaluate({"actions": life_path.actions, "stats": {"gold": Game.gold, "merit": Game.merit},
 		"age": age(), "flags": life_path.flags, "day": WorldSim.day})
+	if hour == 0:
+		_career_daily()
 	for msg: String in skills.sync_progress(skills.ctx_from_life(self)):
 		Game.say(msg)
 	if player and is_instance_valid(player):
@@ -760,6 +784,9 @@ func snapshot() -> Dictionary:
 		"scouts": scouts.serialize(),
 		"discovery": discovery.serialize(),
 		"relationships": relationships.serialize(),
+		"mastery": mastery.serialize(),
+		"biography": biography.serialize(),
+		"career": {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier},
 		"radiant": radiant.serialize(),
 		"crafting": crafting.serialize(),
 		"equipment": equipment.serialize(),
@@ -776,6 +803,11 @@ func snapshot() -> Dictionary:
 
 
 func restore(d: Dictionary) -> void:
+	var cd: Dictionary = d.get("career", {})
+	career_id = String(cd.get("id", ""))
+	career_rank = String(cd.get("rank", ""))
+	career_since_day = int(cd.get("since_day", 0))
+	career_sponsor_tier = int(cd.get("sponsor_tier", 0))
 	WorldSim.deserialize(d.get("world", {}))
 	Game.deserialize(d.get("game", {}))
 	careers.deserialize(d.get("careers", {}))
@@ -792,7 +824,7 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	_last_abs = _abs_hours()
@@ -855,3 +887,36 @@ func load_latest() -> bool:
 ## slot used, or "" when skipped (combat, cutscene, just saved).
 func autosave(reason := "auto") -> String:
 	return saves.autosave(reason)
+
+
+## A new post at an org starts (or continues) a biography chapter on the matching ladder.
+func _on_career_post_changed() -> void:
+	if not careers.is_employed():
+		return
+	var org_id := String(careers.player["org"])
+	if not ORG_TO_CAREER.has(org_id):
+		return
+	var cid: String = ORG_TO_CAREER[org_id]
+	if cid != career_id:
+		career_id = cid
+		career_rank = CareerLadders.first_rank(cid)
+		career_since_day = WorldSim.day
+		var place := String(WorldGen.settlements[0]["name"]) if not WorldGen.settlements.is_empty() else ""
+		biography.start_chapter(cid, org_id, career_rank, place, WorldSim.day)
+
+
+## Once a day: promotion on the current ladder when every requirement is met.
+func _career_daily() -> void:
+	if career_id == "":
+		return
+	var ctx := {
+		"career": career_id, "rank": career_rank, "since_day": career_since_day, "day": WorldSim.day,
+		"mastery": mastery, "biography": biography, "careers": careers, "gold": Game.gold,
+		"at_war": bool(life_path.flags.get("at_war", false)), "sponsor_tier": career_sponsor_tier,
+		"owns_plot": not homestead.owned.is_empty(),
+	}
+	if bool(CareerLadders.check_promotion(ctx)["eligible"]):
+		var r: Dictionary = CareerLadders.promote(ctx)
+		career_rank = String(r["rank"])
+		career_since_day = WorldSim.day
+		Game.say(String(r["text"]))
