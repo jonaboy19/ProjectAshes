@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rising Ashes — World Feel Review</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111713; --panel:#1b241e; --line:#36483a; --ink:#f2f0df; --muted:#b8c2b7; --gold:#e7bd69; --green:#92c99a; }
+    * { box-sizing:border-box }
+    body { margin:0; background:radial-gradient(ellipse at 12% 0,#35422d 0,transparent 34rem),var(--bg); color:var(--ink); font:16px/1.55 system-ui,Segoe UI,sans-serif }
+    main { width:min(1180px,94vw); margin:40px auto 72px }
+    h1,h2,h3 { line-height:1.15; letter-spacing:.01em }
+    h1 { font-size:clamp(2rem,5vw,3.7rem); margin:.25rem 0 }
+    h2 { margin-top:2.6rem; font-size:1.65rem }
+    p { color:var(--muted) }
+    a { color:#f1ce83 }
+    .eyebrow { color:var(--gold); text-transform:uppercase; letter-spacing:.15em; font-size:.78rem; font-weight:700 }
+    .lead { max-width:780px; font-size:1.1rem }
+    .status { display:inline-flex; gap:.5rem; align-items:center; border:1px solid #58765d; color:#c5e3c6; background:#233328; border-radius:999px; padding:.35rem .8rem; font-size:.82rem }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr)); gap:16px }
+    .card { border:1px solid var(--line); border-radius:14px; overflow:hidden; background:linear-gradient(145deg,#202a23,var(--panel)); box-shadow:0 12px 30px #0003 }
+    .card img { display:block; width:100%; aspect-ratio:16/9; object-fit:cover; background:#0b100d }
+    .card-body { padding:16px 18px 18px }
+    .card h3 { margin:0 0 6px; font-size:1.12rem }
+    .card p { margin:0 }
+    .diagram { padding:20px; min-height:220px; display:grid; place-items:center; background:linear-gradient(#222e25,#131a16) }
+    .diagram svg { width:100%; max-width:590px; height:auto }
+    .tag { display:inline-block; margin:8px 6px 0 0; border:1px solid #536455; color:#c8d3c7; border-radius:999px; padding:.18rem .55rem; font-size:.73rem }
+    .tag.todo { border-color:#856e41; color:#f0d391 }
+    .callout { border-left:3px solid var(--gold); background:#22271e; padding:12px 16px; color:#d5d8c9; border-radius:0 8px 8px 0 }
+    .links { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px }
+    .links a { display:inline-block; border:1px solid #647450; padding:9px 13px; border-radius:8px; text-decoration:none; background:#202c22 }
+    footer { margin-top:38px; padding-top:16px; border-top:1px solid var(--line); color:#9eaa9e; font-size:.85rem }
+    @media (prefers-reduced-motion:no-preference) { .card { transition:transform .18s ease,border-color .18s ease } .card:hover { transform:translateY(-3px); border-color:#789564 } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Rising Ashes · Feel pass</div>
+    <h1>A world that feels solid and alive</h1>
+    <p class="lead">A visual handoff for Claude: keep the existing world, improve movement, animation, collision and daily life in small steps. These stills show the current art direction; they are not proof of live animation or collision behavior.</p>
+    <span class="status">Animation calibration pass recorded · live play review pending</span>
+  </header>
+
+  <h2>What the world looks like today</h2>
+  <section class="grid" aria-label="Current game screenshots">
+    <article class="card"><a href="../kingdom/modern/guildhall_life.png"><img src="../kingdom/modern/guildhall_life.png" alt="Rising Ashes guildhall village screenshot"></a><div class="card-body"><h3>Guildhall and market lane</h3><p>Busy, detailed setting. Review sightlines and keep the main walking route clear of crates, stalls and overlapping name labels.</p><span class="tag">Current world still</span><span class="tag todo">Crowd and lane readability</span></div></article>
+    <article class="card"><a href="../kingdom/modern/explore_polish.png"><img src="../kingdom/modern/explore_polish.png" alt="Rising Ashes forest exploration screenshot"></a><div class="card-body"><h3>Forest exploration</h3><p>Existing environment reference. Camera clearance through foliage and signs of wildlife or activity need live review.</p><span class="tag">Current world still</span><span class="tag todo">Camera and ambient life</span></div></article>
+    <article class="card"><a href="../kingdom/modern/orcs_life.png"><img src="../kingdom/modern/orcs_life.png" alt="Rising Ashes orc camp screenshot"></a><div class="card-body"><h3>Orc camp</h3><p>Existing encounter reference. Check enemy spacing, readable intent, solid world boundaries and combat timing during play.</p><span class="tag">Current world still</span><span class="tag todo">Runtime behavior review</span></div></article>
+  </section>
+
+  <h2>How nearby actors should meet the player</h2>
+  <section class="card">
+    <div class="diagram">
+      <svg viewBox="0 0 760 260" role="img" aria-labelledby="diagram-title diagram-desc">
+        <title id="diagram-title">Near and far actor collision diagram</title>
+        <desc id="diagram-desc">A player capsule is blocked by nearby villagers and soldiers. Far residents remain lightweight simulation records. Buildings use separate solid collision shapes.</desc>
+        <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#e7bd69"/></marker></defs>
+        <rect x="28" y="35" width="158" height="178" rx="12" fill="#594b37" stroke="#c6a66a" stroke-width="3"/><path d="M28 78h158M107 78v135" stroke="#8e7953" stroke-width="3"/><text x="107" y="132" fill="#fff0cf" text-anchor="middle" font-size="16">solid building</text><text x="107" y="155" fill="#dfcda8" text-anchor="middle" font-size="12">explicit proxy</text>
+        <circle cx="323" cy="130" r="45" fill="#304a37" stroke="#92c99a" stroke-width="4"/><circle cx="323" cy="130" r="17" fill="#e9c576"/><text x="323" y="197" text-anchor="middle" fill="#f2f0df" font-size="15">player</text>
+        <circle cx="437" cy="89" r="26" fill="#364839" stroke="#92c99a" stroke-width="3"/><text x="437" y="94" text-anchor="middle" fill="#f2f0df" font-size="11">villager</text>
+        <circle cx="455" cy="169" r="26" fill="#4a3d32" stroke="#d9a277" stroke-width="3"/><text x="455" y="174" text-anchor="middle" fill="#f2f0df" font-size="11">soldier</text>
+        <path d="M370 120 C394 105 400 100 407 96" stroke="#e7bd69" stroke-width="3" fill="none" marker-end="url(#arrow)"/><path d="M370 143 C398 153 401 161 426 166" stroke="#e7bd69" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+        <circle cx="637" cy="82" r="14" fill="#4b584b" stroke="#89978a" stroke-dasharray="4 4" stroke-width="2"/><circle cx="682" cy="124" r="14" fill="#4b584b" stroke="#89978a" stroke-dasharray="4 4" stroke-width="2"/><circle cx="625" cy="177" r="14" fill="#4b584b" stroke="#89978a" stroke-dasharray="4 4" stroke-width="2"/><text x="653" y="222" text-anchor="middle" fill="#c1c8bc" font-size="13">far crowd stays light</text>
+        <path d="M492 70 Q548 130 492 190" stroke="#789564" stroke-width="2" stroke-dasharray="5 5" fill="none"/><text x="550" y="130" text-anchor="middle" fill="#d2dfcf" font-size="12">near physics</text>
+      </svg>
+    </div>
+    <div class="card-body"><h3>Close actors block; distant crowds stay cheap</h3><p>Target architecture: nearby characters use collision and yielding; far residents stay simulation-driven. Use explicit building and prop proxies, plus intentional door openings. This drawing is a design diagram, not a captured gameplay frame.</p><span class="tag">Near physics</span><span class="tag">Far crowd LOD</span><span class="tag todo">Verify in a live play session</span></div>
+  </section>
+
+  <h2>Animation evidence and review</h2>
+  <p>The existing animation QA runner now checks runtime playback-rate calibration. The sample strip below shows the villager walk at its current movement speed and animation rate. These posed frames inspect motion timing; they do not prove that traversal, collision, or camera behavior feels right in the level.</p>
+  <section class="grid">
+    <article class="card"><a href="../qa/anim_strips/villager_man_a__Walking_A.jpg"><img loading="lazy" src="../qa/anim_strips/villager_man_a__Walking_A.jpg" alt="Villager walk frames sampled at 1.6 meters per second"></a><div class="card-body"><h3>Villager walk at game speed</h3><p>Eight sampled frames from the current walk clip, played at the current villager rate. This helps review stride and foot travel.</p><a href="../qa/anim_qa_report.md">Read the full QA report</a> · <a href="../qa/anim_qa_report_only_villager_man_a.md">Read the focused check</a></div></article>
+    <article class="card"><a href="../qa/anim_sheet_armored.jpg"><img loading="lazy" src="../qa/anim_sheet_armored.jpg" alt="Animation QA sheet for armored characters"></a><div class="card-body"><h3>Armored motion sheet</h3><p>Existing QA contact sheet. Foot-slide fixes must be checked against game movement speed and play feel.</p><a href="../../tools/qa/anim_qa/README.md">Open the QA tool and instructions</a></div></article>
+  </section>
+
+  <h2>Building collision fit</h2>
+  <p>These images use the game's production building loader and static box proxies. A blue wireframe marks the solid collision volume. Review the full gallery for Meshy houses, hero buildings, stalls and landmarks.</p>
+  <section class="grid">
+    <article class="card"><a href="../qa/collision_preview/mhouse_manor.png"><img loading="lazy" src="../qa/collision_preview/mhouse_manor.png" alt="Meshy manor with its blue box collision proxy"></a><div class="card-body"><h3>Meshy manor proxy</h3><p>The current proxy follows the model's overall bounds. Door gaps and irregular outlines need in-game checks.</p><a href="../qa/collision_preview/index.html">Open the complete collider gallery</a> · <a href="../../kingdom/tools_qa/collision_preview/README.md">Run the viewer</a></div></article>
+    <article class="card"><a href="../qa/collision_preview/market_stand_1.png"><img loading="lazy" src="../qa/collision_preview/market_stand_1.png" alt="Meshy market stall with its blue box collision proxy"></a><div class="card-body"><h3>Market stall proxy</h3><p>The box includes the awning and baskets; check whether the solid footprint leaves enough room around the market lane.</p><a href="../qa/collision_preview/index.html">Open the complete collider gallery</a></div></article>
+  </section>
+
+  <h2>Review route</h2>
+  <div class="callout">Village spawn → cross the square → walk through the market → circle the inn → pass a resident in a doorway → run and stop → enter a frontier encounter. Check for wall clipping, body overlap, foot skating, camera clipping, stalled residents, and hits that land out of sync with the visible swing.</div>
+  <nav class="links" aria-label="Project review documents"><a href="REAL_WORLD_GAME_FEEL_PLAN.md">Open the full improvement plan</a><a href="../qa/collision_preview/index.html">Open the collider gallery</a><a href="../../kingdom/tools_qa/collision_preview/README.md">Open the collision preview tool instructions</a><a href="../qa/PLAYTEST_REPORT.md">Open the current playtest report</a><a href="../qa/">Browse QA images and results</a></nav>
+  <footer>All screenshots are static project captures. They can show composition and art direction, but cannot verify movement, animation, collision, NPC intent or frame rate. The diagram is explanatory. The latest animation changes need the existing QA runner and a live review route before their visual result can be claimed.</footer>
+</main>
+</body>
+</html>

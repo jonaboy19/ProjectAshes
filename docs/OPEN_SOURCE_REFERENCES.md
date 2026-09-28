@@ -10,6 +10,8 @@ the copyright notice (put it in the credits / a `THIRD_PARTY.md`).
 |---|---|---|
 | [godotengine/tps-demo](https://github.com/godotengine/tps-demo) | Code MIT, art CC-BY 3.0 | Camera trauma shake (ported to `kingdom/scripts/actors/camera_shake.gd`); AnimationTree blend-space pattern for locomotion |
 | [GDQuest/godot-4-3d-third-person-controller](https://github.com/GDQuest/godot-4-3d-third-person-controller) | MIT | Reference for camera-relative movement, "last strong direction" facing, attack impulse. Our player already follows the same structure |
+| [Quaternius Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html) | CC0 | Existing in project as UAL1/UAL2; Blender 5.2 confirmed the locomotion, work, talking, guard, and combat clips used by the animation system |
+| [Kenney Impact Sounds](https://kenney.nl/assets/impact-sounds) | CC0 | Existing in project; varied grass and concrete footfalls now match the terrain's material weights |
 
 ## Recommended next (by topic)
 

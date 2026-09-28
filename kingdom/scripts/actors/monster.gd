@@ -1,20 +1,24 @@
 class_name CampMonster
-extends Node3D
+extends CharacterBody3D
 ## Humanoid monster (goblins, orcs) living in a camp. Wanders its camp, turns on
 ## intruders who come close, and yields (kneels) when beaten instead of dying,
 ## unless finished off. A yielded monster can be named (Tensura-style) through
 ## Life.name_monster: it evolves into its greater form, takes a class and
 ## follows the player as a subordinate that fights the player's enemies.
-## Not a physics body; follows the terrain like wolves and soldiers.
+## Uses close-range collision with the player and world; distant monsters keep
+## low-cost terrain steering rather than participating in full crowd physics.
 
 signal died(monster: CampMonster)
 
 const MODELS := "res://assets/incoming/quaternius/ultimate-animated-character/glTF/"
+const PLAYER_SOLID_RANGE := 16.0
+const WORLD_LAYER := 1
+const ENEMY_LAYER := 4
 const SPECIES := {
 	"goblin": {"models": ["Goblin_Male", "Goblin_Female"], "height": 1.1, "health": 32, "damage": 6,
-		"walk": 1.4, "run": 5.2, "level": [1, 4], "tint": Color(1, 1, 1)},
+		"walk": 0.7, "run": 2.6, "level": [1, 4], "tint": Color(1, 1, 1)},
 	"orc": {"models": ["Goblin_Male"], "height": 2.05, "health": 95, "damage": 15,
-		"walk": 1.3, "run": 4.6, "level": [5, 9], "tint": Color(0.62, 0.72, 0.5)},
+		"walk": 1.3, "run": 3.4, "level": [5, 9], "tint": Color(0.62, 0.72, 0.5)},
 }
 const NAMES := ["Gobta", "Rigur", "Kurra", "Snag", "Brek", "Mossa", "Tuk", "Hesk", "Grom", "Varka",
 	"Orrin", "Dazh", "Ruuk", "Pell", "Zagra", "Hollo", "Krith", "Ushna", "Bram", "Tessik"]
@@ -41,10 +45,23 @@ var _attack_cd := 0.0
 var _busy := 0.0
 var _speed := 0.0
 var _foe: Node3D
+var _actor_shape: CollisionShape3D
 
 
 func _ready() -> void:
 	var sp: Dictionary = SPECIES[species]
+	collision_layer = ENEMY_LAYER
+	collision_mask = WORLD_LAYER
+	floor_snap_length = 0.25
+	safe_margin = 0.03
+	_actor_shape = CollisionShape3D.new()
+	var capsule := CapsuleShape3D.new()
+	capsule.height = maxf(0.8, float(sp["height"]) * 0.9)
+	capsule.radius = clampf(float(sp["height"]) * 0.22, 0.22, 0.42)
+	_actor_shape.shape = capsule
+	_actor_shape.position.y = capsule.height * 0.5
+	_actor_shape.disabled = true
+	add_child(_actor_shape)
 	var models: Array = sp["models"]
 	var model: Node3D = (load(MODELS + String(models[randi() % models.size()]) + ".gltf") as PackedScene).instantiate()
 	var box := Assets.visual_aabb(model)
@@ -152,16 +169,27 @@ func _physics_process(delta: float) -> void:
 	if _busy > 0.0:
 		want = 0.0
 	_speed = lerpf(_speed, want, 6.0 * delta)
+	_update_player_collision(player)
 	var to := _target - global_position
 	to.y = 0.0
 	if to.length() > 0.3:
 		rotation.y = lerp_angle(rotation.y, atan2(to.x, to.z), 6.0 * delta)
 	if to.length() > 0.3 and _speed > 0.05:
-		var p := global_position + to.normalized() * _speed * delta
-		p.y = WorldGen.height(p.x, p.z)
-		global_position = p
+		var step_velocity := to.normalized() * _speed
+		if _near_player(player):
+			velocity = step_velocity
+			move_and_slide()
+			global_position.y = WorldGen.height(global_position.x, global_position.z)
+		else:
+			var p := global_position + step_velocity * delta
+			p.y = WorldGen.height(p.x, p.z)
+			global_position = p
 	if _busy <= 0.0 and state != State.YIELD:
-		_play("Run" if _speed > 3.0 else ("Walk" if _speed > 0.3 else "Idle"))
+		var running := _speed > float(sp["walk"]) * 1.4
+		var gait := "Run" if running else ("Walk" if _speed > 0.3 else "Idle")
+		var scale_to_goblin := float(sp["height"]) / 1.1
+		var clip_speed := (1.7 if running else 0.65) * scale_to_goblin
+		_play(gait, false, clampf(_speed / clip_speed, 0.7, 1.8))
 
 
 func _decide(player: Node3D) -> void:
@@ -203,6 +231,16 @@ func _nearest(group: String, radius: float) -> Node3D:
 			bd = d
 			best = n
 	return best
+
+
+func _near_player(player: Node3D) -> bool:
+	return player != null and player.global_position.distance_squared_to(global_position) < PLAYER_SOLID_RANGE * PLAYER_SOLID_RANGE
+
+
+func _update_player_collision(player: Node3D) -> void:
+	var should_disable := not _near_player(player)
+	if _actor_shape.disabled != should_disable:
+		_actor_shape.set_deferred("disabled", should_disable)
 
 
 func _pick_wander() -> void:
@@ -284,6 +322,11 @@ func random_name() -> String:
 	return NAMES[randi() % NAMES.size()]
 
 
-func _play(anim_name: String, restart := false) -> void:
-	if _anim and _anim.has_animation(anim_name) and (restart or _anim.current_animation != anim_name):
-		_anim.play(anim_name, 0.15)
+func _play(anim_name: String, restart := false, rate := 1.0) -> void:
+	if _anim == null or not _anim.has_animation(anim_name):
+		return
+	_anim.speed_scale = rate
+	if restart or _anim.current_animation != anim_name:
+		var old := _anim.current_animation
+		var blend := 0.28 if old in ["Walk", "Run"] and anim_name in ["Walk", "Run"] else 0.15
+		_anim.play(anim_name, blend)

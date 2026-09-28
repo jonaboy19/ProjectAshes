@@ -669,7 +669,7 @@ static func building_node(key: String, collide := true) -> Node3D:
 		var body := StaticBody3D.new()
 		var shape := CollisionShape3D.new()
 		var bs := BoxShape3D.new()
-		bs.size = Vector3(box.size.x * 0.85, box.size.y, box.size.z * 0.85)
+		bs.size = Vector3(box.size.x * 0.92, box.size.y, box.size.z * 0.92)
 		shape.shape = bs
 		body.position = box.get_center()
 		body.add_child(shape)

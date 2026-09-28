@@ -141,7 +141,10 @@ static func subjects() -> Array[Dictionary]:
 		var cfg: Array = CRITTERS[kind]
 		var clips := {"Idle": {"kind": "loop", "game": true}, "Walk": {"kind": "loco", "game": true},
 			"Run": {"kind": "loco", "game": true}, "Eat": {"kind": "loop", "game": true}}
-		out.append({"id": "animal_" + kind, "kind": "critter", "file": ANIMALS + String(cfg[0]), "height": 0.0,
+		var animal_file := String(cfg[0])
+		if not animal_file.begins_with("res://"):
+			animal_file = ANIMALS + animal_file
+		out.append({"id": "animal_" + kind, "kind": "critter", "file": animal_file, "height": 0.0,
 			"group": "animals", "clips": clips, "strips": ["Idle", "Walk", "Run", "Eat"], "biped": false, "face": 1.0,
 			"loops": ["Idle", "Walk", "Run", "Eat", "Walk_Slow"], "feet": []})
 	return out
@@ -160,44 +163,73 @@ const CRITTERS := {
 	"horse": ["quaternius/horse_riding.glb", 0.9, 5.0], "horse_grey": ["quaternius/horse_grey.glb", 0.9, 5.0],
 	"horse_draft": ["quaternius/horse_draft.glb", 0.8, 4.0], "donkey": ["quaternius/donkey.glb", 0.7, 3.0],
 	"deer": ["quaternius/deer.glb", 0.9, 7.0], "stag": ["quaternius/stag.glb", 0.9, 7.0],
-	"fox": ["quaternius/fox.glb", 0.8, 5.0],
+	"fox": ["res://assets/generated/animals/fox_gallop.glb", 0.8, 5.0],
+}
+
+## Reliable clip ground speeds from docs/qa/anim_qa_report.md, in metres/sec.
+## Missing entries intentionally stay at native speed: the contact extractor
+## cannot reliably measure the tiny hop cycles or several quadruped run clips.
+const CRITTER_CLIP_SPEEDS := {
+	"dog": {"Walk": 0.70, "Run": 1.71}, "sheepdog": {"Walk": 0.71, "Run": 1.73},
+	"cow": {"Walk": 1.06, "Run": 4.99}, "ox": {"Walk": 1.01, "Run": 4.64},
+	"sheep": {"Run": 1.92}, "pig": {"Run": 1.29},
+	"horse": {"Walk": 1.41, "Run": 5.86}, "horse_grey": {"Walk": 1.36, "Run": 5.68},
+	"horse_draft": {"Walk": 1.53, "Run": 6.41}, "donkey": {"Walk": 1.30},
+	"deer": {"Walk": 1.06}, "stag": {"Walk": 1.31}, "fox": {"Walk": 0.44, "Run": 1.87},
+	"goat": {"Walk": 0.76},
 }
 
 
 ## Movement-speed checks: who plays which locomotion clip at which ground speed.
-## "blend": the CharacterAnimator BlendSpace1D points [idle 0, walk at run*0.5, run at run]
-## (clips play at their own speed; the blend weight follows the character speed).
+## "blend": the CharacterAnimator BlendSpace1D points [idle 0, measured walk, measured run].
+## "rate": AnimationPlayer speed_scale or a measured blend-space correction, when the actor uses it.
 static func speed_cases() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
-	var player_blend := [["Idle", 0.0], ["Walking_A", 3.5], ["Running_A", 7.0]]      # CharacterAnimator.new(body, RUN=7.0)
-	out.append({"agent": "Player walk (Player.WALK)", "subject": "player_young", "speed": 4.2, "blend": player_blend,
-		"src": "scripts/actors/player.gd:24 WALK := 4.2; character_animator.gd:39-41 blend points"})
-	out.append({"agent": "Player run (Player.RUN)", "subject": "player_young", "speed": 7.0, "blend": player_blend,
-		"src": "scripts/actors/player.gd:25 RUN := 7.0"})
-	out.append({"agent": "Player blocking (WALK*0.5)", "subject": "player_young", "speed": 2.1, "blend": player_blend,
+	var player_blend := [["Idle", 0.0], ["Walking_A", 1.0], ["Running_A", 6.0]]
+	out.append({"agent": "Player walk (Player.WALK)", "subject": "player_young", "speed": 2.4, "blend": player_blend,
+		"src": "scripts/actors/player.gd:24 WALK := 2.4; character_animator.gd measured blend points"})
+	out.append({"agent": "Player run (Player.RUN)", "subject": "player_young", "speed": 6.5, "blend": player_blend,
+		"src": "scripts/actors/player.gd:25 RUN := 6.5"})
+	out.append({"agent": "Player blocking (WALK*0.5)", "subject": "player_young", "speed": 1.2, "blend": player_blend,
 		"src": "scripts/actors/player.gd:186"})
-	var soldier_blend := [["Idle", 0.0], ["Walking_A", 2.9], ["Running_A", 5.8]]
-	out.append({"agent": "Soldier walk (Soldier.WALK)", "subject": "guard", "speed": 3.6, "blend": soldier_blend,
-		"src": "scripts/army/soldier.gd:10 WALK := 3.6"})
+	var soldier_blend := [["Idle", 0.0], ["Walking_A", 1.0], ["Running_A", 6.0]]
+	out.append({"agent": "Soldier walk (Soldier.WALK)", "subject": "guard", "speed": 2.4, "blend": soldier_blend,
+		"src": "scripts/army/soldier.gd:10 WALK := 2.4"})
 	out.append({"agent": "Soldier run (Soldier.RUN)", "subject": "guard", "speed": 5.8, "blend": soldier_blend,
 		"src": "scripts/army/soldier.gd:11 RUN := 5.8"})
 	out.append({"agent": "Villager walk", "subject": "villager_man_a", "speed": 1.6, "clip": "Walking_A",
-		"src": "scripts/population/villager.gd:48 (1.6 m/s, Walking_A)"})
-	out.append({"agent": "Villager catch-up (x3)", "subject": "villager_man_a", "speed": 4.8, "clip": "Walking_A",
-		"src": "scripts/population/villager.gd:48 (x3.0 when > 4 m away, still Walking_A)"})
-	out.append({"agent": "Goblin walk", "subject": "q_goblin_male", "speed": 1.4, "clip": "Walk", "src": "scripts/actors/monster.gd:15 walk 1.4"})
-	out.append({"agent": "Goblin follow (walk*1.6)", "subject": "q_goblin_male", "speed": 2.24, "clip": "Walk", "src": "scripts/actors/monster.gd:149"})
-	out.append({"agent": "Goblin run", "subject": "q_goblin_male", "speed": 5.2, "clip": "Run", "src": "scripts/actors/monster.gd:15 run 5.2"})
-	out.append({"agent": "Orc walk", "subject": "q_orc", "speed": 1.3, "clip": "Walk", "src": "scripts/actors/monster.gd:17 walk 1.3"})
-	out.append({"agent": "Orc run", "subject": "q_orc", "speed": 4.6, "clip": "Run", "src": "scripts/actors/monster.gd:17 run 4.6"})
-	out.append({"agent": "Wolf roam", "subject": "q_wolf", "speed": 1.6, "clip": "Walk", "src": "scripts/actors/wolf.gd:58"})
-	out.append({"agent": "Wolf stalk (Walk clip)", "subject": "q_wolf", "speed": 3.5, "clip": "Walk", "src": "scripts/actors/wolf.gd:62 + :86 (Walk below 4.5 m/s)"})
-	out.append({"agent": "Wolf attack run", "subject": "q_wolf", "speed": 7.5, "clip": "Gallop", "src": "scripts/actors/wolf.gd:67"})
-	out.append({"agent": "Wolf flee", "subject": "q_wolf", "speed": 8.0, "clip": "Gallop", "src": "scripts/actors/wolf.gd:71"})
+		"rate": clampf(1.6 / 0.98, 0.65, 2.0), "src": "scripts/population/villager.gd walk clip rate"})
+	out.append({"agent": "Villager catch-up", "subject": "villager_man_a", "speed": 4.8, "clip": "Running_A",
+		"rate": clampf(4.8 / 5.82, 0.65, 2.0), "src": "scripts/population/villager.gd catch-up run clip rate"})
+	out.append({"agent": "Goblin walk", "subject": "q_goblin_male", "speed": 0.7, "clip": "Walk",
+		"rate": clampf(0.7 / 0.65, 0.7, 1.8), "src": "scripts/actors/monster.gd goblin walk"})
+	out.append({"agent": "Goblin follow", "subject": "q_goblin_male", "speed": 1.12, "clip": "Run",
+		"rate": clampf(1.12 / 1.7, 0.7, 1.8), "src": "scripts/actors/monster.gd follow uses Run above walk * 1.4"})
+	out.append({"agent": "Goblin run", "subject": "q_goblin_male", "speed": 2.6, "clip": "Run",
+		"rate": clampf(2.6 / 1.7, 0.7, 1.8), "src": "scripts/actors/monster.gd goblin run"})
+	var orc_scale := 2.05 / 1.1
+	out.append({"agent": "Orc walk", "subject": "q_orc", "speed": 1.3, "clip": "Walk",
+		"rate": clampf(1.3 / (0.65 * orc_scale), 0.7, 1.8), "src": "scripts/actors/monster.gd orc walk"})
+	out.append({"agent": "Orc run", "subject": "q_orc", "speed": 3.4, "clip": "Run",
+		"rate": clampf(3.4 / (1.7 * orc_scale), 0.7, 1.8), "src": "scripts/actors/monster.gd orc run"})
+	out.append({"agent": "Wolf roam", "subject": "q_wolf", "speed": 0.7, "clip": "Walk",
+		"rate": clampf(0.7 / 0.64, 0.7, 1.8), "src": "scripts/actors/wolf.gd roam"})
+	out.append({"agent": "Wolf stalk", "subject": "q_wolf", "speed": 1.0, "clip": "Walk",
+		"rate": clampf(1.0 / 0.64, 0.7, 1.8), "src": "scripts/actors/wolf.gd stalk"})
+	out.append({"agent": "Wolf attack run", "subject": "q_wolf", "speed": 4.5, "clip": "Gallop",
+		"rate": clampf(4.5 / 2.63, 0.7, 1.8), "src": "scripts/actors/wolf.gd attack"})
+	out.append({"agent": "Wolf flee", "subject": "q_wolf", "speed": 4.8, "clip": "Gallop",
+		"rate": clampf(4.8 / 2.63, 0.7, 1.8), "src": "scripts/actors/wolf.gd flee"})
 	for kind: String in CRITTERS:
 		var cfg: Array = CRITTERS[kind]
-		out.append({"agent": kind.capitalize() + " walk", "subject": "animal_" + kind, "speed": float(cfg[1]), "clip": "Walk",
+		var walk_speed: float = float(cfg[1])
+		var run_speed: float = float(cfg[2])
+		var walk_clip_speed := float(CRITTER_CLIP_SPEEDS.get(kind, {}).get("Walk", 0.0))
+		var run_clip_speed := float(CRITTER_CLIP_SPEEDS.get(kind, {}).get("Run", 0.0))
+		var walk_rate := clampf(walk_speed / walk_clip_speed, 0.35, 2.5) if walk_clip_speed > 0.0 else 1.0
+		var run_rate := clampf(run_speed / run_clip_speed, 0.35, 2.5) if run_clip_speed > 0.0 else 1.0
+		out.append({"agent": kind.capitalize() + " walk", "subject": "animal_" + kind, "speed": walk_speed, "clip": "Walk", "rate": walk_rate,
 			"src": "scripts/actors/critter.gd KINDS[\"%s\"][1]" % kind})
-		out.append({"agent": kind.capitalize() + " run", "subject": "animal_" + kind, "speed": float(cfg[2]), "clip": "Run",
+		out.append({"agent": kind.capitalize() + " run", "subject": "animal_" + kind, "speed": run_speed, "clip": "Run", "rate": run_rate,
 			"src": "scripts/actors/critter.gd KINDS[\"%s\"][2]" % kind})
 	return out

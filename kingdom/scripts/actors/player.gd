@@ -21,8 +21,10 @@ const VIEW_NAMES := ["First person", "Third person", "Town view", "Command view"
 const VIEW_RIG := [[0.0, -0.1], [5.5, -0.32], [26.0, -0.72], [85.0, -1.2]]
 const VIEWMODEL_REST := Vector3(-0.5, 0.15, -0.35)
 
-const WALK := 4.2
-const RUN := 7.0
+const WALK := 2.4
+const RUN := 6.5
+const MOVE_ACCEL := 14.0
+const MOVE_BRAKE := 20.0
 const GRAVITY := 24.0
 const WADE_LIMIT := 1.4          # metres of water the player will walk into
 const MAX_STAMINA := 100.0
@@ -49,6 +51,7 @@ var _yaw := 0.0
 var _pitch := -0.32
 var _distance := 5.5
 var _pivot: Node3D
+var _camera_arm: SpringArm3D
 var _model: Node3D
 var _animator: CharacterAnimator
 var _viewmodel: Node3D
@@ -65,6 +68,7 @@ var _stunned := 0.0
 var _hurt_cooldown := 0.0
 var _stamina_delay := 0.0
 var _impulse := Vector3.ZERO
+var _step_distance := 0.0
 
 
 func _ready() -> void:
@@ -77,21 +81,35 @@ func _ready() -> void:
 	shape.shape = capsule
 	shape.position.y = 0.85
 	add_child(shape)
+	# Nearby embodied residents use layer 2. Keep the player on the default
+	# world layer and include both layers in the movement mask.
+	collision_layer = 1
+	# Layer 2 is near villagers; layer 4 is near soldiers and hostile actors.
+	collision_mask = 1 | 2 | 4
 	_model = Node3D.new()
 	add_child(_model)
 	var body := Assets.character("Player", 1.8, ["1H_Sword", "Round_Shield"])
 	_model.add_child(body)
-	_animator = CharacterAnimator.new(body, RUN)
+	_animator = CharacterAnimator.new(body, RUN, WALK)
 	_add_head_look(body)
 	_pivot = Node3D.new()
 	_pivot.position.y = 1.55
 	add_child(_pivot)
+	_camera_arm = SpringArm3D.new()
+	_camera_arm.spring_length = _distance
+	_camera_arm.margin = 0.18
+	_camera_arm.collision_mask = 1
+	var camera_sweep := SphereShape3D.new()
+	camera_sweep.radius = 0.22
+	_camera_arm.shape = camera_sweep
+	_camera_arm.add_excluded_object(get_rid())
+	_pivot.add_child(_camera_arm)
 	apply_age()
 	Life.grown.connect(func(_age: int) -> void: apply_age())
 	camera = Camera3D.new()
 	camera.far = 900.0
 	camera.fov = 65.0
-	_pivot.add_child(camera)
+	_camera_arm.add_child(camera)
 	camera.current = true
 	_viewmodel = Assets.weapon("sword_1handed")
 	_viewmodel.scale = Vector3.ONE * 0.3
@@ -198,8 +216,10 @@ func _physics_process(delta: float) -> void:
 		var deep := WorldGen.water_depth(ahead.x, ahead.z)
 		if deep > WADE_LIMIT and deep >= wade:
 			target = Vector3.ZERO
-	velocity.x = lerpf(velocity.x, target.x, 12.0 * delta) + _impulse.x
-	velocity.z = lerpf(velocity.z, target.z, 12.0 * delta) + _impulse.z
+	var response := MOVE_ACCEL if target.length_squared() > 0.01 else MOVE_BRAKE
+	var response_alpha := 1.0 - exp(-response * delta)
+	velocity.x = lerpf(velocity.x, target.x, response_alpha) + _impulse.x
+	velocity.z = lerpf(velocity.z, target.z, response_alpha) + _impulse.z
 	_impulse = _impulse.move_toward(Vector3.ZERO, 30.0 * delta)
 	velocity.y = -1.0 if is_on_floor() else velocity.y - GRAVITY * delta
 	move_and_slide()
@@ -210,10 +230,11 @@ func _physics_process(delta: float) -> void:
 		velocity.y = 0.0
 
 	if view == View.FIRST or blocking:
-		_model.rotation.y = lerp_angle(_model.rotation.y, _yaw + PI, 15.0 * delta)
+		_model.rotation.y = lerp_angle(_model.rotation.y, _yaw + PI, 1.0 - exp(-15.0 * delta))
 	elif dir.length() > 0.05 and _swing <= 0.0 and _dodge <= 0.0:
-		_model.rotation.y = lerp_angle(_model.rotation.y, atan2(dir.x, dir.z), 12.0 * delta)
+		_model.rotation.y = lerp_angle(_model.rotation.y, atan2(dir.x, dir.z), 1.0 - exp(-12.0 * delta))
 	_animator.update(delta, Vector2(velocity.x, velocity.z).length() if _dodge <= 0.0 else 0.0)
+	_update_footsteps(delta, dir)
 
 	if _stamina_delay <= 0.0 and not blocking:
 		stamina = minf(stamina + 28.0 * delta * Life.needs.stamina_regen(), MAX_STAMINA * Life.needs.stamina_cap())
@@ -222,14 +243,29 @@ func _physics_process(delta: float) -> void:
 	_update_camera(delta)
 
 
+func _update_footsteps(delta: float, input_dir: Vector3) -> void:
+	var speed := Vector2(velocity.x, velocity.z).length()
+	if input_dir.length_squared() < 0.01 or speed < 0.6 or _dodge > 0.0 or dead:
+		_step_distance = 0.0
+		return
+	_step_distance += speed * delta
+	var gait := clampf((speed - WALK) / (RUN - WALK), 0.0, 1.0)
+	var authored_stride := lerpf(WALK / 1.5, RUN / (2.0 * 24.0 / 22.0), gait)
+	var gait_speed := lerpf(WALK, RUN, gait)
+	var stride := authored_stride * speed / gait_speed
+	if _step_distance >= stride:
+		_step_distance = fmod(_step_distance, stride)
+		Audio.sfx("step_" + WorldGen.footstep_surface(global_position.x, global_position.z), global_position, -6.0)
+
+
 func _update_camera(delta: float) -> void:
 	var rig: Array = VIEW_RIG[view]
-	_distance = lerpf(_distance, rig[0], clampf(delta * 5.0, 0.0, 1.0))
+	_distance = lerpf(_distance, rig[0], 1.0 - exp(-5.0 * delta))
 	var pitch: float = _pitch if view <= View.THIRD else rig[1]
 	if view == View.THIRD and absf(_pitch - rig[1]) > 0.9:
 		_pitch = rig[1]
-	_pivot.rotation = Vector3(lerp_angle(_pivot.rotation.x, pitch, clampf(delta * 6.0, 0.0, 1.0)), _yaw, 0)
-	camera.position = Vector3(0, 0, _distance)
+	_pivot.rotation = Vector3(lerp_angle(_pivot.rotation.x, pitch, 1.0 - exp(-6.0 * delta)), _yaw, 0)
+	_camera_arm.spring_length = _distance
 	camera.rotation = _shake.step(delta)
 	var cp := camera.global_position
 	var floor_h := WorldGen.height(cp.x, cp.z) + 0.6
@@ -377,7 +413,9 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 
 func _die() -> void:
 	dead = true
-	_animator.play_terminal("Death_A")
+	# Death_A resolves to the long Mesh2Motion stagger/fall clip and can outlast
+	# the respawn timer. Use the short terminal fall for the playable character.
+	_animator.play_terminal("Death01")
 	Game.say("You fall... and wake in the village, bruised.")
 	await get_tree().create_timer(3.0).timeout
 	global_position = spawn_point

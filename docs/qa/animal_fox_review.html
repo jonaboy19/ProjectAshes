@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rising Ashes — Fox gallop review</title>
+<style>
+:root{color-scheme:dark;--bg:#171914;--panel:#22251e;--ink:#eee9d7;--muted:#bbb59f;--accent:#dfb76d;--line:#49493b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+main{max-width:1440px;margin:auto;padding:32px 22px 54px}h1,h2{line-height:1.2}h1{font-size:clamp(1.8rem,4vw,3rem);margin:0 0 8px}h2{font-size:1.2rem;margin:0 0 12px}p{margin:8px 0;color:var(--muted)}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:24px 0}.metric,.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}.metric strong{display:block;color:var(--accent);font-size:1.45rem}.metric span{color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,580px),1fr));gap:16px}.card img{display:block;width:100%;height:auto;background:#b8b8b0;border-radius:6px}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--accent);font-size:.82rem}a{color:#f1cf87}footer{margin-top:20px;border-top:1px solid var(--line);padding-top:16px;font-size:.9rem}
+</style>
+</head>
+<body><main>
+<span class="pill">CC0 source · Blender 5.2 · Godot 4.6 QA</span>
+<h1>Fox gallop: source and cleaned variant</h1>
+<p>The variant removes one vertical location curve from the base of the tail in the 14-frame Run clip. The original GLB remains untouched. Both strips use the game's fox rig, model scale, and 5 m/s movement preview.</p>
+<section class="summary" aria-label="Animation QA results">
+  <div class="metric"><strong>30.3% → 1.7%</strong><span>Maximum Tail1 chain stretch</span></div>
+  <div class="metric"><strong>2 FAIL → 1 FAIL</strong><span>Clip checks; remaining Walk slip is 27 cm/s</span></div>
+  <div class="metric"><strong>0.127 m</strong><span>Source vertical displacement on Tail1</span></div>
+  <div class="metric"><strong>0.51 m</strong><span>Fox height at source scale</span></div>
+</section>
+<section class="grid" aria-label="Source and cleaned run strips">
+  <article class="card"><h2>Source Run</h2><p>Original Quaternius CC0 GLB.</p><img src="anim_strips/animal_fox__Run_source.jpg" alt="Eight frame source fox gallop contact sheet"></article>
+  <article class="card"><h2>Tail cleaned</h2><p>Derived GLB used by the fox configuration in this branch.</p><img src="anim_strips/animal_fox__Run.jpg" alt="Eight frame cleaned fox gallop contact sheet"></article>
+</section>
+<footer>
+  <p>The sampler still cannot find a planted-foot interval in this gallop clip, so the 5 m/s speed match is not proven by its foot-contact metric. The derived clip has a 1.7% Tail1 stretch warning and a 2.1 cm foot-joint penetration reading; assess this strip in motion and review against terrain before expanding the edit.</p>
+  <p><a href="anim_qa_report_only_animal_fox.md">Open the targeted QA report</a> · Blender recipe: <code>kingdom/tools/blender/fix_fox_gallop.py</code> · Source licence and provenance: <code>kingdom/assets/incoming/animals/README.md</code>.</p>
+</footer>
+</main></body></html>

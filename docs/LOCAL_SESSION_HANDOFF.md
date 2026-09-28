@@ -114,3 +114,6 @@ primitives, 336 -> 294 draws (234 without HUD), ~121 MB textures in the phone ex
 - **Textures:** new glTF/texture imports come in Lossless (4 B/px on phones) because nobody opens them in the editor.
   After adding assets run `py tools/qa/texture_vram.py --write` and reimport. `addons/mobile_texture_limit` caps textures
   at 1024 px (512 for scans/animals) in Android/iOS exports only; keep it enabled.
+## Codex natural-world/animation handoff (2026-09-27)
+
+The separate `gpt/ai3d-assets` branch has merged the latest Claude performance and audio commits. It keeps the Codex gait calibration and near-actor collision work, and adds eased starts/stops/turns for roaming animals plus a Blender-derived fox gallop. Read `docs/concepts/NATURAL_WORLD_CLAUDE_HANDOFF.md` for the implementation sequence and `docs/qa/animal_fox_review.html` for the source/derived animation comparison. The original fox GLB is unchanged; its derived clip reduces measured Tail1 stretch from 30.3% to 1.7%. Fox Run speed is still not verified by the foot-contact sampler. Please preserve the source asset and keep the remaining QA failure visible during future merges.

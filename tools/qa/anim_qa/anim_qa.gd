@@ -1,7 +1,8 @@
 extends SceneTree
 ## Animation QA for Rising Ashes. Loads every character / creature / animal type the
 ## game uses through the game's own loaders (Assets.mh_character, the CampMonster /
-## Wolf / Critter setup), samples each clip at 30 fps and measures foot sliding,
+## Wolf / Critter setup), samples most clips at 30 fps and quadruped gaits at 120 fps,
+## and measures foot sliding,
 ## ground penetration, floating, bone stretch, pops and loop seams, T-pose / scale
 ## leaks, root drift and clip speed vs. the movement speed the game drives it at.
 ## Optionally renders 8-frame side-view strips and contact sheets on the GPU.
@@ -11,6 +12,7 @@ extends SceneTree
 ## Outputs: docs/qa/anim_qa_report.md, docs/qa/anim_qa_results.csv, docs/qa/anim_strips/, docs/qa/anim_sheet_*.png
 
 const FPS := 30.0
+const CRITTER_GAIT_FPS := 120.0 # Short quadruped contacts can fall between 30 Hz samples.
 const Catalog := preload("catalog.gd")
 
 # ---- thresholds (see the report's "Thresholds" section for the reasoning) ----
@@ -568,6 +570,7 @@ func _analyse(s: Dictionary, node: Node3D) -> void:
 
 func _measure(s: Dictionary, r: Rig, clip: String, info: Dictionary) -> Dictionary:
 	var kind: String = info["kind"]
+	var sample_fps := CRITTER_GAIT_FPS if String(s.get("group", "")) == "animals" and kind in ["loco", "loop"] else FPS
 	var sk := r.sk
 	var ap := r.ap
 	var anim := ap.get_animation(clip)
@@ -576,7 +579,7 @@ func _measure(s: Dictionary, r: Rig, clip: String, info: Dictionary) -> Dictiona
 	anim.loop_mode = Animation.LOOP_NONE
 	sk.reset_bone_poses()
 	ap.play(clip, 0.0)
-	var n := maxi(2, int(round(L * FPS)))
+	var n := maxi(2, int(round(L * sample_fps)))
 	var xf := sk.global_transform
 	var nb := sk.get_bone_count()
 	var sole: Array = []          # per frame: PackedFloat32Array per foot (cm)
@@ -593,7 +596,7 @@ func _measure(s: Dictionary, r: Rig, clip: String, info: Dictionary) -> Dictiona
 	var tpose_frames := 0
 	var min_foot_joint := INF
 	for i in n + 1:
-		var t := minf(i / FPS, L)
+		var t := minf(i / sample_fps, L)
 		ap.seek(t, true)
 		var gp := PackedVector3Array()
 		gp.resize(nb)
@@ -717,7 +720,7 @@ func _measure(s: Dictionary, r: Rig, clip: String, info: Dictionary) -> Dictiona
 					all_up = false
 			streak = streak + 1 if all_up else 0
 			best = maxi(best, streak)
-		air_s = best / FPS
+		air_s = best / sample_fps
 		st["airborne"] = _grade(air_s, AIR_WARN, AIR_FAIL)
 		if air_s >= AIR_WARN:
 			notes.append("all feet off the ground for %.2f s" % air_s)
@@ -735,7 +738,7 @@ func _measure(s: Dictionary, r: Rig, clip: String, info: Dictionary) -> Dictiona
 	# ---- foot sliding and natural ground speed ----
 	var slide := -1.0
 	var ground_speed := 0.0
-	var dt := 1.0 / FPS
+	var dt := 1.0 / sample_fps
 	if nf > 0 and kind != "death":
 		var vels: Array[Vector2] = []
 		var hip_v := Vector2.ZERO
@@ -744,7 +747,7 @@ func _measure(s: Dictionary, r: Rig, clip: String, info: Dictionary) -> Dictiona
 			hip_v = Vector2(d.x, d.z) / maxf(L, dt)
 		if dump != "" and clip == dump:
 			for i in range(1, sole.size() - 1):
-				var line := "%5.2f" % (i / FPS)
+				var line := "%5.2f" % (i / sample_fps)
 				for fi in nf:
 					var sel: Vector2 = footxz[i][fi]
 					var p: Vector3 = (footpts[i][fi] as PackedVector3Array)[int(sel.x)] if sel.y > 0.5 else (gps[i] as PackedVector3Array)[int(sel.x)]
@@ -831,7 +834,8 @@ func _measure(s: Dictionary, r: Rig, clip: String, info: Dictionary) -> Dictiona
 				var dq: Quaternion = (rots[i - 1][j] as Quaternion).inverse() * (rots[i][j] as Quaternion)
 				var rv := _rotvec(dq)
 				if i >= 2:
-					accs.append(rad_to_deg((rv - prev).length()))
+					# Normalize to the original 30 Hz threshold scale.
+					accs.append(rad_to_deg((rv - prev).length()) * pow(sample_fps / FPS, 2.0))
 				prev = rv
 			var p90 := _pct(accs, 0.9)
 			for k in accs.size():
@@ -843,7 +847,7 @@ func _measure(s: Dictionary, r: Rig, clip: String, info: Dictionary) -> Dictiona
 					if a >= worst_pop:
 						worst_pop = a
 						pop_bone = sk.get_bone_name(r.major[j])
-						pop_t = (k + 1) / FPS
+						pop_t = (k + 1) / sample_fps
 	row["max_ang_acc"] = max_acc
 	row["pops"] = pops
 	if pops > 0:
@@ -1023,7 +1027,11 @@ func _speed_table() -> Array[Dictionary]:
 		else:
 			v_eff = natural.get(sid + "|" + String(c["clip"]), 0.0)
 			desc = String(c["clip"])
-		var ratio := speed / v_eff if v_eff > 0.01 else INF
+		var playback_rate := float(c.get("rate", 1.0))
+		var driven_clip_speed := v_eff * playback_rate
+		if not is_equal_approx(playback_rate, 1.0):
+			desc += " x%.2f" % playback_rate
+		var ratio := speed / driven_clip_speed if driven_clip_speed > 0.01 else INF
 		var status := "PASS"
 		if ratio < SPEED_WARN[0] or ratio > SPEED_WARN[1]:
 			status = "FAIL"
@@ -1035,9 +1043,10 @@ func _speed_table() -> Array[Dictionary]:
 		elif ratio < SPEED_OK[0]:
 			effect = "moonwalk / treadmill (feet outrun the body)"
 		out.append({"agent": c["agent"], "subject": sid, "speed": speed, "anim": desc, "clip_speed": v_eff,
+			"clip": String(c.get("clip", "")), "rate": playback_rate,
 			"ratio": ratio, "status": status, "effect": effect, "src": c["src"],
-			"slip_cm_s": absf(speed - v_eff) * 100.0,
-			"fix_scale": speed / v_eff if v_eff > 0.01 else 0.0})
+			"slip_cm_s": absf(speed - driven_clip_speed) * 100.0,
+			"fix_scale": speed / driven_clip_speed if driven_clip_speed > 0.01 else 0.0})
 	return out
 
 
@@ -1102,9 +1111,10 @@ func _write_report(speeds: Array[Dictionary]) -> void:
 	var L: PackedStringArray = []
 	L.append("# Animation QA report")
 	L.append("")
-	L.append("Generated by `tools/qa/anim_qa/run.sh` on %s (Godot %s). Every character, creature and animal type is loaded through the game's own loader (`Assets.mh_character`, or a copy of the `CampMonster` / `Wolf` / `Critter` setup code), each clip is sampled at 30 fps at the in-game size, and the numbers below are measured on the posed skeleton and skinned mesh." % [Time.get_datetime_string_from_system(false, true), Engine.get_version_info()["string"]])
+	L.append("Generated by `tools/qa/anim_qa/run.sh` on %s (Godot %s). Every character, creature and animal type is loaded through the game's own loader (`Assets.mh_character`, or a copy of the `CampMonster` / `Wolf` / `Critter` setup code). Clips are sampled at the in-game size; animal locomotion and loop clips use 120 fps to catch short paw contacts, and other clips use 30 fps. The numbers below are measured on the posed skeleton and skinned mesh." % [Time.get_datetime_string_from_system(false, true), Engine.get_version_info()["string"]])
 	L.append("")
-	L.append("**Clip checks: %d rows: %d PASS, %d WARN, %d FAIL** (clips the game plays today: %d PASS, %d WARN, %d FAIL).  " % [results.size(), counts["PASS"], counts["WARN"], counts["FAIL"], game_counts["PASS"], game_counts["WARN"], game_counts["FAIL"]])
+	L.append("**Clip checks: %d rows: %d PASS, %d WARN, %d FAIL** (clips the game plays today: %d PASS, %d WARN, %d FAIL)." % [results.size(), counts["PASS"], counts["WARN"], counts["FAIL"], game_counts["PASS"], game_counts["WARN"], game_counts["FAIL"]])
+	L.append("")
 	L.append("**Speed checks: %d cases: %d PASS, %d WARN, %d FAIL.**" % [speeds.size(), sp_counts["PASS"], sp_counts["WARN"], sp_counts["FAIL"]])
 	L.append("")
 	L.append(manual)
@@ -1318,10 +1328,14 @@ func _render_all(subs: Array[Dictionary], speeds: Array[Dictionary]) -> void:
 		if wanted.has(r["subject"]) and not (wanted[r["subject"]] as Array).has(r["clip"]):
 			(wanted[r["subject"]] as Array).append(r["clip"])
 	var game_speed := {}
+	var game_rate := {}
 	for c in speeds:
-		var k := String(c["subject"]) + "|" + String(c["anim"])
+		if not c.has("clip"):
+			continue
+		var k := String(c["subject"]) + "|" + String(c["clip"])
 		if not game_speed.has(k):
 			game_speed[k] = c["speed"]
+			game_rate[k] = float(c.get("rate", 1.0))
 	var groups := {}
 	for s in subs:
 		if only != "" and not String(s["id"]).contains(only):
@@ -1346,11 +1360,14 @@ func _render_all(subs: Array[Dictionary], speeds: Array[Dictionary]) -> void:
 				continue
 			var kind: String = (s["clips"] as Dictionary).get(clip, {"kind": "once"})["kind"]
 			var spd := 0.0
+			var rate := 1.0
 			var spd_note := ""
 			if kind == "loco":
-				spd = game_speed.get(String(s["id"]) + "|" + clip, natural.get(String(s["id"]) + "|" + clip, 0.0))
-				spd_note = " @%.1f m/s" % spd
-			var img := await _strip(s, node, ap, sk, clip, kind, spd, box, spd_note)
+				var speed_key := String(s["id"]) + "|" + clip
+				spd = game_speed.get(speed_key, natural.get(speed_key, 0.0))
+				rate = float(game_rate.get(speed_key, 1.0))
+				spd_note = " @%.1f m/s x%.2f" % [spd, rate]
+			var img := await _strip(s, node, ap, sk, clip, kind, spd, rate, box, spd_note)
 			var fname := "%s__%s.jpg" % [s["id"], clip]
 			img.save_jpg(out_dir.path_join("anim_strips/" + fname), 0.72)
 			var g: String = s["group"]
@@ -1371,7 +1388,7 @@ func _skinned_box(node: Node3D) -> AABB:
 
 
 func _strip(s: Dictionary, node: Node3D, ap: AnimationPlayer, sk: Skeleton3D, clip: String, kind: String,
-		spd: float, box: AABB, spd_note: String) -> Image:
+		spd: float, rate: float, box: AABB, spd_note: String) -> Image:
 	var anim := ap.get_animation(clip)
 	var L := anim.length
 	var loop_mode := anim.loop_mode
@@ -1385,8 +1402,9 @@ func _strip(s: Dictionary, node: Node3D, ap: AnimationPlayer, sk: Skeleton3D, cl
 	var out := Image.create(TILE_W * TILES, TILE_H, false, Image.FORMAT_RGB8)
 	var face: float = float((subject_info.get(s["id"], {}) as Dictionary).get("face", 1.0))
 	for i in TILES:
-		var t := (L * i / TILES) if kind in ["loop", "loco"] else (L * i / (TILES - 1))
-		ap.seek(t, true)
+		var t := (L * i / TILES / maxf(rate, 0.01)) if kind in ["loop", "loco"] else (L * i / (TILES - 1))
+		var clip_t := t * rate if kind == "loco" else t
+		ap.seek(fposmod(clip_t, L) if kind in ["loop", "loco"] else clip_t, true)
 		# locomotion: move the model along its facing at the speed the game uses, camera follows,
 		# so planted feet should stay still against the grid.
 		var z := spd * t * face

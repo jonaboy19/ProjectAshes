@@ -20,6 +20,10 @@ const SFX := {
 	"hit": ["bigsoundbank/sword_cut_s0127.ogg", "bigsoundbank/sword_s0129.ogg"],
 	"clash": ["opengameart/sfx/sword-clashes-starninjas/sword_clash.1.ogg", "opengameart/sfx/sword-clashes-starninjas/sword_clash.3.ogg",
 		"opengameart/sfx/sword-clashes-starninjas/sword_clash.5.ogg", "opengameart/sfx/sword-clashes-starninjas/sword_clash.7.ogg"],
+	"step_grass": ["kenney/impact-sounds/Audio/footstep_grass_000.ogg", "kenney/impact-sounds/Audio/footstep_grass_001.ogg",
+		"kenney/impact-sounds/Audio/footstep_grass_002.ogg", "kenney/impact-sounds/Audio/footstep_grass_003.ogg", "kenney/impact-sounds/Audio/footstep_grass_004.ogg"],
+	"step_stone": ["kenney/impact-sounds/Audio/footstep_concrete_000.ogg", "kenney/impact-sounds/Audio/footstep_concrete_001.ogg",
+		"kenney/impact-sounds/Audio/footstep_concrete_002.ogg", "kenney/impact-sounds/Audio/footstep_concrete_003.ogg", "kenney/impact-sounds/Audio/footstep_concrete_004.ogg"],
 	"bell": ["bigsoundbank/church_bell_s0135.ogg"],
 }
 
