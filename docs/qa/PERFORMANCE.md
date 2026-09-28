@@ -313,3 +313,9 @@ renders as a flat sprite, and the total simulated population feeding that budget
 compare: `docs/qa/npc_density_shots/before_ashford_market.jpg` / `after_ashford_market.jpg` (market cart,
 ~29 s into the route) and `before_ashford_dusk.jpg` / `after_ashford_dusk.jpg` (~105 s, dusk, the frame
 with the blocky close sprite before the fix — gone after).
+
+## 2026-09-28: lower on-screen NPC caps (the user said "way too many NPCs")
+`npc_full`/`npc_sprites`: LOW 6/14 → 5/10, MED 10/35 → 8/22, HIGH 16/55 → 12/32, ULTRA 20/70 → 16/45.
+Ashford market on HIGH: 71 → 44 people nearby. On Godot 4.6.3 with the GDExtensions loaded: fps 60, p99 16.7 ms, 5 hitches >33 ms, clean exit.
+Consecutive 0.5 s frames show no popping; the market still reads as lively (`docs/qa/npc_density_shots/after_caps_market.jpg`).
+Note for Codex: perf_visual `anim_bad` rose (52 → 117-128) once LimboAI and the other GDExtensions loaded and the crowd shrank. Worth a look at the anim-timing report.
