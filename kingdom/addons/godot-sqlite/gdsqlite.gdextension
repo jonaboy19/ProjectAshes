@@ -1,0 +1,41 @@
+[configuration]
+
+entry_symbol = "sqlite_library_init"
+compatibility_minimum = "4.5"
+
+[libraries]
+
+; Desktop editor + optional desktop export targets.
+windows.debug.x86_64 = "res://addons/godot-sqlite/bin/libgdsqlite.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/godot-sqlite/bin/libgdsqlite.windows.template_release.x86_64.dll"
+linux.debug.x86_64 = "res://addons/godot-sqlite/bin/libgdsqlite.linux.template_debug.x86_64.so"
+linux.release.x86_64 = "res://addons/godot-sqlite/bin/libgdsqlite.linux.template_release.x86_64.so"
+macos.debug = "res://addons/godot-sqlite/bin/libgdsqlite.macos.template_debug.framework"
+macos.release = "res://addons/godot-sqlite/bin/libgdsqlite.macos.template_release.framework"
+
+; Mobile export targets. Upstream godot-sqlite (all releases through v4.9, checked
+; back to the first GDExtension build v4.0) has never shipped an armeabi-v7a
+; (32-bit ARM) Android binary, only arm64-v8a and x86_64. There is intentionally
+; no android.debug.arm32 / android.release.arm32 key here: Godot 4.6 treats an
+; unlisted arch as "this GDExtension doesn't support it" and simply skips loading
+; the library on that arch (see docs/OPEN_SOURCE_AUDIT.md red flag 7 and the
+; armeabi-v7a export smoke test noted in docs/LOCAL_SESSION_HANDOFF.md) rather
+; than failing the export, unlike a *declared-but-missing* binary path. On an
+; armeabi-v7a device, ClassDB.class_exists("SQLite") returns false and callers
+; must use the JSON save fallback (see scripts/core/world_db.gd).
+android.debug.arm64 = "res://addons/godot-sqlite/bin/libgdsqlite.android.template_debug.arm64.so"
+android.release.arm64 = "res://addons/godot-sqlite/bin/libgdsqlite.android.template_release.arm64.so"
+android.debug.x86_64 = "res://addons/godot-sqlite/bin/libgdsqlite.android.template_debug.x86_64.so"
+android.release.x86_64 = "res://addons/godot-sqlite/bin/libgdsqlite.android.template_release.x86_64.so"
+
+ios.debug = "res://addons/godot-sqlite/bin/libgdsqlite.ios.template_debug.xcframework"
+ios.release = "res://addons/godot-sqlite/bin/libgdsqlite.ios.template_release.xcframework"
+
+[dependencies]
+
+ios.debug = {
+    "res://addons/godot-sqlite/bin/libgodot-cpp.ios.template_debug.xcframework": ""
+}
+ios.release = {
+    "res://addons/godot-sqlite/bin/libgodot-cpp.ios.template_release.xcframework": ""
+}

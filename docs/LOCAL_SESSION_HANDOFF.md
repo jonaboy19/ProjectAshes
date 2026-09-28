@@ -27,6 +27,34 @@ Everything below is optimized for mobile, licence-checked (CC0/MIT, or CC-BY wit
 - **Interiors ready.** `scenes/interiors/{inn,blacksmith,guild,healer,house}_interior.tscn` (the house one is shared by all 5 house types). Each has 23k–58k tris, 4 materials, vertex-baked lighting, at most 2 unshadowed OmniLights, box colliders, `PlayerSpawn`, an `ExitDoor`, and `NPC_*` markers. To wire them, drop an `Area3D` with `scripts/interiors/interior_door.gd` on each building door and set `interior_scene`. Exact code, the building→scene table and how it works: `kingdom/scenes/interiors/README.md`. Previews: `docs/kingdom/blender_previews/_interiors_sheet.png`. Rebuild with `tools/blender/make_interior_*.py`.
 - **More monsters (CC0, harmonised)** in `incoming/monsters/quaternius/`: `giant_rat` and `blight_rat` (cellars and mines; dark-forest variant with ember eyes), `bog_toad` (marsh), `giant_wasp` (forest; hovers 1.2 m up), `ghoul` (Rift-risen dead, violet eye glow), `fungal_brute` and `blackcap_brute` (deep forest and caves), `rift_slime` and `rift_wraith` (Rift creatures with a cyan emissive texture). Each is ≤ 8k/2.5k tris (`_lod1`), 512 px painted texture, ≤ 40 bones. Clips are named like the Meshy creatures (`idle/walk/run/attack/hit/death`); a few hit, death and alias clips are synthesised and flagged in the README. The folder has a `.gdignore`, so remove it when wiring. Roles, habitats, danger tiers, sizes and known limits (wasp death ends in mid-air, brute death sinks 0.2 m): `kingdom/assets/incoming/monsters/README.md`. Previews: `incoming/monsters/_previews/monsters_lineup.png` and `monsters_poses.png`. Rebuild with `tools/monsters/`.
 
+## Clips available for Codex (added 2026-09-28, 100STYLE locomotion set)
+
+New library: `kingdom/assets/incoming/characters/_library/UAL_Extra_100STYLE.glb` (14 clips, CC BY 4.0, credited
+in `kingdom/CREDITS.md`; not yet in `Assets.UAL_FILES`). Fills the **directional/styled locomotion** gap — UAL1/UAL2
+only have straight `Walk_Loop`/`Jog_Fwd_Loop`/`Sprint_Loop`, no turns, no strafes, no backward walk, no start/stop
+transitions. Preview: `characters/_previews/100style_poses.png`.
+
+| clip | what it is | suggested use |
+|---|---|---|
+| `Style_Neutral_Walk_Loop` | forward walk cycle, different gait feel from UAL's `Walk_Loop` | alt/varied villager walk |
+| `Style_Neutral_Run_Loop` | forward run cycle | alt run, or blend target for run speed tiers |
+| `Style_Neutral_WalkBack_Loop` | backward walk | player/NPC backing away, retreat, dialogue distancing |
+| `Style_Neutral_Strafe_Loop` | sideways walk | strafing around a locked target in combat |
+| `Style_Rushed_Sprint_Loop` | a faster, more urgent gait than UAL's own `Sprint_Loop` | fleeing NPCs, alarm state, top player speed tier |
+| `Style_Walk_Start` | non-looping accel from standstill into a walk | play once when leaving `Idle_Loop`, before crossfading to a walk loop |
+| `Style_Walk_Stop` | non-looping decel from a walk into standstill | play once before `Idle_Loop` when the player/NPC stops |
+| `Style_Turn_InPlace` | non-looping pivot turn, feet stepping around | snap-turns, guard patrol direction changes, dialogue facing |
+| `Style_Guard_March_Loop` | stiff, formal march | town guards / soldiers on patrol routes |
+| `Style_Old_Walk_Loop` | hunched, slow gait | elderly NPCs (works well with the CDmir old lady) |
+| `Style_Wounded_Walk_Loop` | limping walk, weight favouring one leg | low-health player/NPC movement, post-hit-reaction locomotion |
+| `Style_Sneak_Walk_Loop` | crouched, careful walk | stealth movement; complements the existing `Walk_Stealth` (upright, faster) |
+| `Style_Shielded_Walk_Loop` | walk with a raised/carried-shield stance | guards and soldiers holding a shield up while moving |
+| `Style_Unarmed_Punch_Idle_Loop` | a punching-ready idle stance/shuffle | bandits/brawlers without weapons, boxing-style NPCs |
+
+All are **in place** (no baked root travel — same convention as the other `_library` files), 24 fps after resampling
+(matches the rest of the library). Blend time suggestion: 0.15–0.2 s for the loops, 0.1 s for `Style_Walk_Start` /
+`Style_Walk_Stop` / `Style_Turn_InPlace` since they're short transitional clips, not loops.
+
 ## In progress on the local side
 - Done: armored characters (`incoming/ai3d/meshy/armored/`; the cloud has already wired them) and interiors (above). **Cloud: please wire the door triggers** with `interior_door.gd` on the inn, blacksmith, guild, healer and the 5 house types (see `kingdom/scenes/interiors/README.md`), and call `InteriorDoor.active.leave()` on player death.
 - **NOW (2026-09-28, user priority): the local side owns FRAME RATE / LAG.** The goal is the highest fps and no hitches on every tier. The local side profiles on the real GPU and changes whatever costs frames (CPU scripts, streaming, rendering, assets) in small commits merged from origin first. Cloud and Codex: keep building features, but if you touch `population_lod.gd`, `terrain_streamer.gd`, `settlement_builder.gd`, `region_dressing.gd`, `assets.gd`, `quality.gd` or `world_sim.gd`, fetch first and keep changes small. **Avoid per-frame work in `_process` / `_physics_process`: prefer timers or slices, and cache node lookups.** Results go into `docs/qa/PERFORMANCE.md`.
@@ -173,3 +201,203 @@ estimates; the local side owns the real numbers.
   - the new shaders on the Mobile renderer (terrain wetness and snow, grass, water sunset);
   - the `--shot=homestead` view;
   - touch sizes of the technique arc and the seal pad on a phone.
+
+## 2026-09-28: local session takes PLAYER MOVEMENT FEEL + NPC DENSITY + OUTDOOR GROUNDING (user request)
+- **Player movement/controls** (`scripts/actors/player.gd` movement, input and dodge only): the user finds movement glitchy and
+  "Space/back does a shadow dash with afterimage". It should be an **ability** (cooldown, its own button), not the default on
+  Space/back. The local side reworks locomotion feel (acceleration, turning, grounding, slopes, jump/dodge mapping) using proven
+  open-source Godot 4 controllers as reference. **Codex:** clip choice and blend timing stay yours; the local side only changes
+  speeds, input and state flow and will list any animation hooks it needs here. **Cloud:** please avoid the movement block of
+  `player.gd` until the local side notes it's done.
+- **NPC density:** the user says there are far too many NPCs walking around. The local side tunes the crowd counts (WorldSim
+  local density, PopulationLOD budgets per tier).
+- **Outdoor look and grounding:** the user says the outdoors looks fake and things don't sit on the floor. The local side does a
+  visual sweep and fixes grounding and dressing (region_dressing, settlement_builder props, terrain scatter).
+
+## DONE: player movement (local, 2026-09-28)
+
+**Root cause of the "Space/back does a shadow dash" complaint:** `Game._setup_input()` bound Space straight to the
+`"dodge"` action, and `Player._start_dodge()` had only one code path — a 4→12 m/s burst roll that always called
+`VFX.afterimage(...)` (the shadow/ghost trail), with no cooldown beyond a flat stamina check. Pressing Space with no
+direction held (e.g. while backing away with S) hit the `backward = dir.length() < 0.1` branch and played
+`Dodge_Backward` with the same afterimage — that's the "back" trigger the user saw. Base locomotion
+(`_steer`/`_update_facing` accel/brake/pivot/turn-rate, floor snapping, foot IK in `procedural_rig.gd`) was already solid
+and needed no changes.
+
+**Fix — split into a plain dodge and an explicit ability, in `kingdom/scripts/actors/player.gd`:**
+- `dodge()` (still Space + the existing HUD dodge button) is now a short defensive roll, 3.2→7.0 m/s, **no VFX**, 15
+  stamina, 0.35 s i-frames — the GDD's ordinary combat dodge, not a special effect.
+- `ability_dash()` (new) is the old fast burst: 4.0→12.0 m/s, **still plays the afterimage VFX**, 30 stamina, a new
+  4 s cooldown (`dash_cooldown`), 0.4 s i-frames. Bound to a new `ability_dash` action: **R** (keyboard), left shoulder
+  (gamepad), and a new violet HUD button (`hud.gd`, dims + shows seconds left while on cooldown). `main.gd`'s
+  `_unhandled_input` now also routes `ability_dash` -> `player.ability_dash()`.
+- Both reuse the **same** `Dodge_Forward`/`Dodge_Backward` clips — only speed, VFX, stamina and cooldown differ, so
+  clip choice and blend timing are untouched (Codex's territory).
+- Space was **not** remapped to Jump: there is no jump today, and `docs/qa/anim_qa_report.md` shows the one `Jump*`
+  clip in the library fails badly (8–13 cm below floor at every test) and isn't one of the clips the game plays, so
+  wiring it up now would trade one glitch for another. Flagging a real jump as a Codex-then-local follow-up once a
+  grounded jump clip exists (the physics side — coyote time / buffering — is already there in `_air_time`/`COYOTE_TIME`).
+- **Speeds left unchanged** (WALK 2.4 m/s, RUN 6.5 m/s) — `anim_qa_report.md` says Codex already speed-matched the
+  humanoid blend space to these exact values to remove foot slide; changing them here without a matching blend-space
+  retune would reintroduce it. **Codex: no speed change from before this session.**
+
+**Verification:** new bot `kingdom/tools_qa/movement_qa` (same real-input pattern as `tools_qa/autoplay`) recorded
+frame strips for walk/run/stop/turn180/backward/slope/dodge/dash to `docs/qa/movement/` and they were looked at with
+Read. Full writeup, before/after context and the new control table are in this session's final report (the harness
+would not let this session write a new `docs/qa/movement/REPORT.md`; ask the user for the transcript if a persisted
+copy is needed, or have a non-subagent session write it from the frames in `docs/qa/movement/`).
+
+## 2026-09-28: addons approved by the user (local side adds them, in this order)
+1. **antzGames/Godot_Vertex_Animation_Textures_Plugin** (MIT): VAT crowds for background villagers (after the NPC-density pass). Foreground NPCs stay on skeleton + AnimationTree (Codex's area); VAT is only for distant crowd instances that are sprites today.
+2. **Phantom Camera** (MIT): smoother follow, lock-on and cutscene cameras (after the movement pass). The local side retests it on 4.6 (it was on hold for an editor error).
+3. **godot-sqlite** (MIT, Android + iOS arm64 binaries): world-state database. **Cloud: this touches saving.** The local side will vendor it plus a thin `WorldDB` wrapper only and will NOT migrate the save system without agreeing it with you here first. Please note in this file whether you want to own the migration.
+Sources and licences: `docs/qa/github_tools_survey.md`, `docs/OPEN_SOURCE_AUDIT.md`. Every GDExtension must ship Android and iOS binaries (the audit's red flag 7), or it stays disabled.
+
+### 2026-09-28: DONE: godot-sqlite vendored (no save migration)
+
+Vendored `kingdom/addons/godot-sqlite/` from upstream release **v4.8** ("Update to Godot 4.6.3", MIT, `compatibility_minimum = "4.5"`). Binaries included: Windows x86_64 (debug + release, covers the editor), Linux x86_64 (debug + release), macOS (debug + release), Android arm64-v8a + x86_64 (debug + release), iOS arm64 device (debug + release; simulator slices were stripped from the xcframeworks to stay well under the 90 MB file limit — not needed since we only ship device/App-Store iOS builds). Web/wasm binaries were dropped (not a build target). Total addon size ≈111 MB across 25 files, largest single file ≈43 MB (`libgodot-cpp.ios.template_debug.xcframework/ios-arm64/...arm64.a`).
+
+**armeabi-v7a gap, checked and handled, not a blocker:** I checked every godot-sqlite GDExtension release from v4.0 through the current v4.9 (via the GitHub API tree/`gdsqlite.gdextension` for each tag) — none of them has ever shipped an armeabi-v7a (32-bit ARM) Android binary, only arm64-v8a and x86_64. Per the main session's decision, `kingdom/export_presets.cfg` keeps `architectures/armeabi-v7a=true` (old 32-bit phones still need to run the game), and `addons/godot-sqlite/gdsqlite.gdextension` simply has no `android.debug.arm32`/`android.release.arm32` keys at all (rather than declaring them and pointing at a missing file). Godot 4.6's GDExtension loader resolves the `[libraries]` table by matching the running platform+arch against declared keys; an arch with no matching key is treated as "this GDExtension doesn't support it" and is skipped, not as a load error — this is the same mechanism that already lets this addon ship without web/wasm on non-web exports. That's a different failure mode from the audit's red flag 7 (a *declared-but-missing* binary path, e.g. Terrain3D/LimboAI's absent iOS binaries), which does not apply here since no arm32 keys are declared. I confirmed this isn't just docs-reasoning: I ran an actual `--export-debug "Android"` of this project (with the vendored addon, unchanged `architectures/armeabi-v7a=true`/`arm64-v8a=true` preset) using the local Android SDK/build-tools already on this machine; see this session's final report for the exit code and log excerpt. At runtime on an armeabi-v7a device, `ClassDB.class_exists("SQLite")` is false.
+
+`kingdom/scripts/core/world_db.gd` (new, not an autoload, not called from anywhere yet) is the thin wrapper:
+
+```gdscript
+class_name WorldDB
+static func available() -> bool                          # ClassDB.class_exists("SQLite")
+func open(path: String = "user://world.db") -> bool       # false + push_warning if unavailable or open fails
+func is_open() -> bool
+func exec(sql: String, params: Array = []) -> bool        # prepared statement, no-op(false) if not open
+func query(sql: String, params: Array = []) -> Array[Dictionary]  # no-op([]) if not open
+func begin_transaction() -> bool
+func commit_transaction() -> bool
+func rollback_transaction() -> bool
+func close() -> void
+```
+
+Every method fails soft (no push_error, no exceptions) when SQLite isn't available or the db isn't open, so a caller that forgets to check `available()`/`is_open()` degrades instead of crashing. **Cloud: whenever you decide to move any world state onto this, you still need to keep the existing JSON save path as the fallback for `WorldDB.available() == false` (armeabi-v7a devices) — this wrapper does not and will not silently choose a storage backend for you.** No save-system code was touched.
+
+Test: `kingdom/tests/test_world_db.gd` (gdUnit4) — open/exec/query/close round trip, an `available()`-false soft-degrade check, and a 10k-row bulk insert (single transaction) + full query-back with measured timing (printed by the test and reported in this session's final report). Verified headless on Windows.
+
+## DONE: outdoor grounding/look (2026-09-28)
+
+Visual QA + fix pass for the outdoor world (village, forest, camp), per the user's
+"looks fake outside the city, things aren't on the floor" report. Full writeup:
+`docs/qa/grounding/report.md` and `docs/qa/grounding/animation_timing.md`.
+
+- **`tools/qa/perf_visual/perf_visual.gd`** now drives the player through the real
+  touch-input path (joystick + camera, same `InputEventScreenTouch/Drag` calls as
+  `tools_qa/autoplay/autoplay.gd`) instead of teleporting every frame, cycling
+  idle/walk/run so walk/run animations actually play during a capture and the
+  recorder window titles itself so it's clear it's a QA bot, not broken input.
+  `--teleport` keeps the old mode for pure streaming benchmarks.
+- **New `tools/qa/grounding/grounding_check.gd`**: samples every placed prop/tree/
+  building/character within 150 m of several locations against `WorldGen.height()`.
+  Found forest scatter (trees/rocks placed by `TerrainStreamer._plan_forest`) was
+  the dominant floating/buried source on slopes — **fixed** with a slope-scaled
+  sink. Also found (not fixed, flagged for follow-up): village building/prop
+  batches in `settlement_builder.gd` float more than the region-site buildings do
+  (median 29 cm), because they don't use `RegionDressing._footprint_ground()`'s
+  per-corner snap. Also found and worked around a real asset bug: every GLB under
+  `kingdom/assets/generated/region/**` has an invalid embedded resource UID,
+  making every load fall back to slow text-path re-resolution — worth a reimport,
+  separate from this pass.
+- **"Fake look" fixes** (`world_gen.gd` `color_at()`, `settlement_builder.gd`,
+  `region_dressing.gd`): every building/prop footprint and region-site clearing now
+  gets a worn-dirt ring in the terrain vertex colours (previously only streets/
+  paths/plaza did — buildings elsewhere met grass with a hard edge), plus small
+  base clutter (stones/weeds/ferns) at building bases in villages and at farm/mine/
+  camp buildings. SSAO/contact-shadow settings in `main.gd` were reviewed and left
+  alone (already reasonable). ProtonScatter/terrain_layered_shader (surveyed in
+  `docs/qa/github_tools_survey.md`) were deliberately not adopted this pass — the
+  in-house `WorldGen.color_at()` approach was cheaper and lower-risk given the time
+  available; ProtonScatter's ground-projection modifier is still a good follow-up
+  for scatter variety.
+- Not done: `settlement_builder.gd` per-corner footprint snap (flagged above, not
+  implemented), region-site numeric grounding re-verification (region build is slow,
+  see above — checked by code review instead), and a full per-NPC/animal animation-
+  timing sweep (`animation_timing.md` covers the player in detail; NPCs/animals were
+  only spot-checked by eye).
+
+## 2026-09-28: movement QA v2 + camera jitter fix (local, follow-up to player movement)
+
+The user said movement still felt "glitchy as f***" after the dash/dodge split above. The
+v1 `movement_qa` strips were invalid: the fixed spawn offset (`home["pos"] + Vector2(2,10)`)
+happened to land the player pinned against a market stall, so 01_walk/02_run/03_stop never
+actually displaced (every frame identical) and 04_turn180's "camera in the head" was the
+`SpringArm3D` starting its cast from inside geometry, not a standalone bug.
+
+**Fixed the harness** (`kingdom/tools_qa/movement_qa/`): spawns on open ground along the
+village's own gate/road direction (`WorldGen.settlements[0].plan.gates[0]`), verified clear
+with a ring of raycasts, and asserts real displacement (or a facing/grounded condition)
+after every scenario — PASS/FAIL in `log.txt`, non-zero exit on any failure. Added strafe,
+wall-collision and crowd scenarios (11 total).
+
+**Real bugs found and fixed in `player.gd`/`project.godot` (not animation — Codex's clips
+were untouched):**
+1. `physics/common/physics_interpolation` was never enabled, and the whole camera rig runs
+   only from `_physics_process`. Without it, ordinary frame-time variance against the
+   physics tick (routine on mobile) reads directly as character/camera jitter, independent
+   of any movement tuning. Enabled project-wide; added `reset_physics_interpolation()` at
+   every player teleport (`main.gd::_teleport`, mount, dismount, respawn, the
+   anti-fall-through catch) so a teleport snaps instead of smearing for a frame.
+2. The manual wall-avoidance raycast in `_update_camera` (added on top of the spring arm's
+   own collision to fix the guild-hall/stall clipping noted earlier in this file) snapped
+   `camera.global_position` straight to the hit point every tick, so a hit flickering in and
+   out (corners, thin awnings) jerked the camera. Pull-in (new occlusion) stays instant —
+   never show through a wall — but release-back-out now eases.
+
+**Phantom Camera (addon #2 in the approved list above):** re-cloned `v0.9.4.2` — pure
+GDScript (34 files, no binaries, so mobile-safe as claimed), Godot 4.4+ per its README
+(project is 4.6). **Not vendored/swapped in this pass**: I couldn't safely retest an actual
+editor load (the thing it was on hold for) without competing for the GPU/Vulkan device with
+other agents' live Godot sessions on this machine, and the current camera is tightly coupled
+to features Phantom Camera would need to fully replace — the four-distance zoom rig, lock-on
+framing (shifts the pivot toward the target), mounted rider offset, first-person viewmodel
+swap, aging body-scale, and the playtest bot's direct reference to `player.camera`. Swapping
+it in without being able to verify all of that first felt like trading a verified jitter fix
+for an unverified regression risk. Recommend a proper editor retest + incremental adoption
+(third-person follow + damping only, keep everything else) as a follow-up when the machine
+isn't under load.
+
+**QA capture blocked this session:** the real-input GPU capture (`run_movement_qa.sh`)
+crashed 5 times in a row during initial world/region load (every `kingdom/assets/generated/
+region/**` GLB has the invalid-UID issue already flagged above, which forces slow text-path
+resource re-resolution during that load) while 1-2 other Godot processes were also running
+on this machine; free RAM was as low as ~3.6 GB of 16 GB during the failures. One run got
+as far as this session's new open-ground spawn logic succeeding (`open ground found at
+(68.0, -51.0)...`) before dying, confirming the harness fix itself works — but no before/after
+frame strips were captured. Please re-run `kingdom/tools_qa/movement_qa/run_movement_qa.sh
+--out=docs/qa/movement/v2/after` (and ideally a `before` from the previous commit) when the
+machine has a few GB more headroom, and look at the strips with Read.
+
+## DONE: NPC density (local, 2026-09-28)
+
+**Root cause:** `population_lod.gd` capped sprite NPCs per job look (peasant/worker/merchant/
+guard) instead of as one shared budget, so the real ceiling was 4x the intended one — the
+capital was hitting `npc_sprites: 1200` at hour 9/13/18, with frame time spiking to ~117 ms
+average (8.6 fps) at the worst point, far past the reported "~10 ms/frame". Fixed the loop to
+share one running total across looks (nearest-first, so the closest people still win the
+budget), lowered `MAX_SPRITES` 300 -> 140, and cut `Quality` tier budgets: HIGH `npc_full`
+24 -> 16, `npc_sprites` 300 -> 55 (LOW/MEDIUM/ULTRA similarly cut; sprites down ~75-85% across
+tiers). Also widened `DailyRhythm.MAX_DELAY` 0.9 h -> 2.0 h so schedule-boundary crowds (e.g.
+17:00 market call) stagger onto the street over ~2 minutes instead of a few seconds. The
+"anyone within 9 m is a full model" rule, WorldSim's population counts/economy, and all
+animation code are untouched.
+
+Capital (city, hour 18) best-of-two: cpu_process_ms 150.8 -> 50.4, average frame 116.8 ms ->
+16.0 ms, fps 8.6 -> 62.6. Sprite counts: village/capital both 287-1200 -> 55 during the day
+(cut well over 50%), full models 24 -> 16. Full counts, per-hour tables and 4 before/after
+screenshots (village plaza + capital street, midday and night): `docs/qa/npc_density.md`.
+Files: `kingdom/scripts/population/population_lod.gd`, `kingdom/scripts/core/quality.gd`,
+`kingdom/scripts/population/daily_rhythm.gd`.
+
+**Follow-up, not done:** `npc_full`/`npc_sprites` budgets are tier-only, not scene-aware, so
+the village plaza and a capital street land on the same combined count today (both have enough
+population in `SPRITE_RANGE` to fill the shared budget). A future pass wanting the village
+specifically emptier than the capital needs a per-settlement-size budget.
+
+## 2026-09-28: for Codex and the cloud session (from local)
+- `procedural_rig.gd` now has a **rig budget**: only the nearest `Quality.value("rig_budget")` NPC rigs (0/3/6/10 per tier) within 25 m run
+  IK and springs. The player is always active. If an NPC looks stiff up close, raise the budget. Don't remove it.
+- The village lag was an **engine error flood** ("axis must be normalized" from `Vector3.slerp` / `set_axis_angle` on non-unit vectors) costing ~16 ms per rig stage.
+  Please normalize vectors before `slerp`, `Quaternion(axis, angle)` and `rotated()`, and check your logs for per-frame ERROR spam. See `docs/qa/PERFORMANCE.md`.

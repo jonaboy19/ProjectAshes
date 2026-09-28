@@ -97,8 +97,18 @@ func build_all_now() -> void:
 		pass
 
 
+## Once every chunk around the player is built (and its collision and grass are in),
+## nothing changes until the player crosses into another chunk, so skip the scan.
+## (The per-frame scan cost ~5 ms/frame in the capital profile, 2026-09-28.)
+var _idle_center := Vector2i(1 << 30, 0)
+
+
 func _process(_delta: float) -> void:
-	_step(false)
+	var center := chunk_of(focus)
+	if center == _idle_center:
+		return
+	if not _step(false) and _tasks.is_empty():
+		_idle_center = center
 
 
 ## Frees far chunks, queues the nearest missing ones on worker threads and turns at
@@ -122,8 +132,8 @@ func _step(sync: bool) -> bool:
 				missing.append([dx * dx + dz * dz, key])
 	missing.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
 	if missing.is_empty():
-		_update_collision(center)
-		return false
+		# Still true while collision/grass are being added one per frame.
+		return _update_collision(center)
 	if sync:
 		var key: Vector2i = missing[0][1]
 		if _tasks.has(key):
@@ -180,7 +190,7 @@ func _has_plan(key: Vector2i) -> bool:
 ## Physics and grass for chunks next to the player. Creating either costs a few ms,
 ## so at most one body and one grass field are added per frame (the rest follow
 ## on the next frames instead of all landing in the frame a boundary is crossed).
-func _update_collision(center: Vector2i) -> void:
+func _update_collision(center: Vector2i) -> bool:
 	var added_body := false
 	var added_grass := false
 	for key: Vector2i in _chunks:
@@ -221,6 +231,7 @@ func _update_collision(center: Vector2i) -> void:
 			added_grass = true
 		elif ring > grass_radius and grass != null:
 			grass.queue_free()
+	return added_body or added_grass
 
 
 ## Everything about a chunk that is pure maths (thread-safe: reads WorldGen's
@@ -346,7 +357,19 @@ func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 			s *= 2.6            # tiny real-scale plants read as a patch
 		elif kind.begins_with("scan/rock"):
 			s = rng.randf_range(0.5, 1.7)
-		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(x, h - 0.15, z))
+		# A flat -0.15 sink hides the base on flat ground, but on a slope the
+		# uphill edge of a wide canopy/root footprint still pokes up out of the
+		# ground (found by tools/qa/grounding: forest scatter was the single
+		# biggest floating/buried source, far more than buildings or props,
+		# which snap to their footprint's lowest corner -- see
+		# RegionDressing._footprint_ground()). Individual per-instance footprint
+		# sampling isn't affordable here (up to ~90 placements/chunk on the
+		# worker thread already), so scale the sink with the local slope instead
+		# -- two more WorldGen.height() samples per instance, still worker-thread
+		# side, no per-frame cost.
+		var slope := absf(WorldGen.height(x + 0.6, z) - h) + absf(WorldGen.height(x, z + 0.6) - h)
+		var sink := 0.15 + minf(slope * 0.7, 0.55)
+		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(x, h - sink, z))
 		if not buckets.has(kind):
 			buckets[kind] = []
 		buckets[kind].append(t)

@@ -3,7 +3,13 @@
 #   bash tools/qa/perf_visual/run.sh [quality=high] [route=village_forest] [speed=7]
 # Routes: village_forest (plaza -> road -> fields -> woods -> camp -> back), to_capital, village_loop.
 # Speeds: 7 = running, 14 = riding/galloping. Output: docs/qa/perf_visual/<quality>_<route>/
-#   timeline.png (whole run), NNNN_*.jpg frames (HITCH_* = frame-time spikes), log.txt.
+#   timeline.png (whole run), NNNN_*.jpg frames (HITCH_* = frame-time spikes), log.txt,
+#   anim_timing.txt (player speed vs. animation mismatches).
+# By default the player is driven through the REAL input path (on-screen joystick
+# touches + camera aim, same as tools_qa/autoplay), cycling idle/walk/run, so
+# walking/running animations actually play and streaming reacts as in real play.
+# Pass EXTRA="--teleport" for the old teleport-along-the-route mode (pure
+# streaming/GPU benchmark, no real movement or animation).
 # LOOK at timeline.png and every HITCH frame with Read - that's the point of this tool.
 set -e
 REPO="$(cd "$(dirname "$0")/../../.." && pwd)"

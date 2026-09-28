@@ -187,6 +187,10 @@ func _capture_all() -> void:
 		cards.append("<article><a href='%s'><img src='%s' alt='%s mesh with its physics proxy'></a><h2>%s</h2><p>Mesh AABB: %.2f × %.2f × %.2f m<br>Box proxy: %.2f × %.2f × %.2f m</p></article>" % [file, file, key, key, size.x, size.y, size.z, _proxy_size.x, _proxy_size.y, _proxy_size.z])
 	_build_html(out_path, cards)
 	print("COLLISION_PREVIEW_DONE assets=%d output=%s" % [_assets.size(), out_path])
+	if is_instance_valid(_stage):
+		_stage.queue_free()
+	for i in 5:
+		await get_tree().process_frame
 	get_tree().quit()
 
 

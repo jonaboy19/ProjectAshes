@@ -1,0 +1,22 @@
+      2 WARNING: [Physics interpolation] MultiMesh interpolation is being triggered from outside physics process, this might lead to issues (possibly benign).
+      1 WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+      1 WARNING: 457 RIDs of type "VertexArray" were leaked.
+      1 WARNING: 282 RIDs of type "Texture" were leaked.
+      1 WARNING: 264 RIDs of type "UniformBuffer" were leaked.
+      1 WARNING: 1143 RIDs of type "IndexBuffer" were leaked.
+      1 WARNING: 1143 RIDs of type "IndexArray" were leaked.
+      1 WARNING: 1035 RIDs of type "VertexBuffer" were leaked.
+      1 WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/FarmCrate_Apple.gltf': In external resource #5, invalid UID: 'uid://klvcfnyssfao' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Metal_Normal.png'.
+      1 WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/FarmCrate_Apple.gltf': In external resource #4, invalid UID: 'uid://dxvof53ojlfq2' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Metal_ORM.png'.
+      1 WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/FarmCrate_Apple.gltf': In external resource #0, invalid UID: 'uid://dbdte54pcl156' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Furniture_BaseColor.png'.
+      1 WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/Barrel_Apples.gltf': In external resource #5, invalid UID: 'uid://klvcfnyssfao' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Metal_Normal.png'.
+      1 WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/Barrel_Apples.gltf': In external resource #4, invalid UID: 'uid://dxvof53ojlfq2' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Metal_ORM.png'.
+      1 WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/Barrel_Apples.gltf': In external resource #0, invalid UID: 'uid://dbdte54pcl156' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Furniture_BaseColor.png'.
+      1 ERROR: This function should never be used outside the editor, it can severely damage performance.
+      1 ERROR: 68 RID allocations of type 'P11JoltShape3D' were leaked at exit.
+      1 ERROR: 469 resources still in use at exit (run with --verbose for details).
+      1 ERROR: 264 RID allocations of type 'N10RendererRD15MaterialStorage8MaterialE' were leaked at exit.
+      1 ERROR: 21 shaders of type SceneForwardClusteredShaderRD were never freed
+      1 ERROR: 21 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.
+      1 ERROR: 165 RID allocations of type 'N10RendererRD11MeshStorage4MeshE' were leaked at exit.
+      1 ERROR: 158 RID allocations of type 'N10RendererRD14TextureStorage7TextureE' were leaked at exit.

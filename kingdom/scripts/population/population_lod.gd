@@ -21,8 +21,17 @@ const SPRITE_RANGE := 220.0
 const NEAR_ALWAYS := 9.0     # metres: never a sprite this close to the player
 const NEAR_HARD_CAP := 12    # but never more than this many full models in total
 const MAX_FULL := 24
-const MAX_SPRITES := 300
+## Ceiling on total sprites drawn (all job looks combined; see `refresh()`), not
+## per look. Quality.npc_sprites narrows this further per tier.
+const MAX_SPRITES := 140
 const MAX_SPAWNS_PER_TICK := 3
+## Contact-range villagers that actually run move_and_slide() each physics frame,
+## nearest-to-player first. A crowd event (flee hazard) can put many more than
+## this into contact range at once; move_and_slide()'s narrow-phase collision
+## cost against a dense cluster of capsules is the expensive part, so the rest
+## fall back to plain kinematic movement (see Villager.physics_active) -- same
+## steering, speed and animation, just no per-pair collision resolution.
+const MAX_PHYSICS_CONTACT := 8
 ## Embodied villagers rank at this fraction of their squared distance (about
 ## 13% closer), so promotion and demotion don't chatter at the budget edge.
 const KEEP_BIAS := 0.75
@@ -49,6 +58,7 @@ var _timer := 0.0
 var _villagers: Array = []        # the Villager nodes in _full, shared with each of them
 var _held: Dictionary = {}        # person id -> true while its departure is held back
 var _last_time := -1.0
+var _sprite_cache: Dictionary = {}   # person id -> [raw pos, pushed-out ground point]
 
 
 func setup(baker: ImpostorBaker) -> void:
@@ -130,29 +140,53 @@ func refresh() -> void:
 			nearest_id = entry[1]
 	for id in _full:
 		(_full[id] as Villager).show_tag = id == nearest_id
+	var physics_slots := 0
+	for entry in dists:
+		if not _full.has(entry[1]):
+			continue
+		var v: Villager = _full[entry[1]]
+		v.physics_active = physics_slots < MAX_PHYSICS_CONTACT
+		physics_slots += 1
 
 	var used := {}
 	for look in _multimeshes:
 		used[look] = 0
+	var sprite_budget: int = mini(MAX_SPRITES, Quality.npc_sprites)
+	var sprite_total := 0
 	for entry in dists:
+		# dists is sorted nearest-first, so once the budget is spent everyone
+		# further away is skipped: the crowd is capped in total, not per look.
+		if sprite_total >= sprite_budget:
+			break
 		var id: int = entry[1]
 		if _full.has(id):
 			continue
 		var look: String = JOB_LOOK[WorldSim.job[id]]
 		var n: int = used[look]
-		if n >= mini(MAX_SPRITES, Quality.npc_sprites):
-			continue
 		var pp: Vector2 = WorldSim.pos[id]
 		var heading: Vector2 = WorldSim.target[id] - pp
 		var yaw := atan2(heading.x, heading.y) if heading.length() > 0.1 else float(id % 628) / 100.0
 		# WorldSim moves distant residents in straight lines; never draw one
 		# standing inside a house it is cutting through.
-		var graph := StreetGraph.for_person(id) as StreetGraph
-		if graph and entry[0] < 90.0 * 90.0:
-			pp = graph.push_out(pp, 0.3)
-		var t := Transform3D(Basis(Vector3.UP, yaw), Vector3(pp.x, WorldGen.height(pp.x, pp.y), pp.y))
+		# push_out + terrain height for every sprite each refresh was a spike in
+		# the capital; reuse the result while the person hasn't moved.
+		if _sprite_cache.size() > 4000:
+			_sprite_cache.clear()
+		var cached: Array = _sprite_cache.get(id, [])
+		var ground: Vector3
+		if not cached.is_empty() and (cached[0] as Vector2).distance_squared_to(pp) < 0.0025:
+			ground = cached[1]
+		else:
+			var raw := pp
+			var graph := StreetGraph.for_person(id) as StreetGraph
+			if graph and entry[0] < 90.0 * 90.0:
+				pp = graph.push_out(pp, 0.3)
+			ground = Vector3(pp.x, WorldGen.height(pp.x, pp.y), pp.y)
+			_sprite_cache[id] = [raw, ground]
+		var t := Transform3D(Basis(Vector3.UP, yaw), ground)
 		(_multimeshes[look] as MultiMesh).set_instance_transform(n, t)
 		used[look] = n + 1
+		sprite_total += 1
 	sprite_count = 0
 	for look in _multimeshes:
 		(_multimeshes[look] as MultiMesh).visible_instance_count = used[look]

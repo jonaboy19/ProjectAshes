@@ -55,6 +55,13 @@ pointing/emulate_touch_from_mouse=true
 [physics]
 
 3d/physics_engine="Jolt Physics"
+; Interpolates every node's rendered transform between physics ticks instead of
+; holding it at the last tick's value. Camera and player were both driven from
+; _physics_process only; without this, frame time varying even slightly from
+; the physics step (routine on mobile) reads as jitter/stutter in the character
+; and the chase camera, independent of any movement tuning (movement QA v2,
+; 2026-09-28).
+common/physics_interpolation=true
 
 [rendering]
 

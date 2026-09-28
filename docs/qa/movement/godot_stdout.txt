@@ -1,0 +1,510 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+ERROR: This function should never be used outside the editor, it can severely damage performance.
+   at: global_shader_parameter_get_list (servers/rendering/renderer_rd/storage_rd/material_storage.cpp:1665)
+   GDScript backtrace (most recent call first):
+       [0] ensure_globals (res://scripts/sim/seasons.gd:100)
+       [1] _static_init (res://scripts/sim/seasons.gd:85)
+       [2] @static_initializer (res://scripts/sim/seasons.gd:1)
+Quality: High (auto)
+MOVEQA [   0.01] Rising Ashes movement QA  2026-09-28T13:35:03
+[audio] mood silence -> wilderness (threat 0, hostiles 0, interior )
+[audio] music silence -> wild_b (mood wilderness, intensity 0.00)
+WARNING: 'res://assets/generated/region/farm/fence_rail.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] merged_mesh (res://scripts/world/assets.gd:635)
+       [1] building_mesh (res://scripts/world/assets.gd:616)
+       [2] _fields (res://scripts/world/settlement_builder.gd:554)
+       [3] _build (res://scripts/world/settlement_builder.gd:188)
+       [4] update_now (res://scripts/world/settlement_builder.gd:44)
+       [5] _ready (res://scripts/core/main.gd:111)
+WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/Barrel_Apples.gltf': In external resource #0, invalid UID: 'uid://dbdte54pcl156' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Furniture_BaseColor.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] _prop (res://scripts/world/village_services.gd:200)
+       [1] _ready (res://scripts/world/village_services.gd:70)
+       [2] _ready (res://scripts/core/main.gd:130)
+WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/Barrel_Apples.gltf': In external resource #4, invalid UID: 'uid://dxvof53ojlfq2' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Metal_ORM.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] _prop (res://scripts/world/village_services.gd:200)
+       [1] _ready (res://scripts/world/village_services.gd:70)
+       [2] _ready (res://scripts/core/main.gd:130)
+WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/Barrel_Apples.gltf': In external resource #5, invalid UID: 'uid://klvcfnyssfao' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Metal_Normal.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] _prop (res://scripts/world/village_services.gd:200)
+       [1] _ready (res://scripts/world/village_services.gd:70)
+       [2] _ready (res://scripts/core/main.gd:130)
+WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/FarmCrate_Apple.gltf': In external resource #0, invalid UID: 'uid://dbdte54pcl156' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Furniture_BaseColor.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] _prop (res://scripts/world/village_services.gd:200)
+       [1] _ready (res://scripts/world/village_services.gd:71)
+       [2] _ready (res://scripts/core/main.gd:130)
+WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/FarmCrate_Apple.gltf': In external resource #4, invalid UID: 'uid://dxvof53ojlfq2' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Metal_ORM.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] _prop (res://scripts/world/village_services.gd:200)
+       [1] _ready (res://scripts/world/village_services.gd:71)
+       [2] _ready (res://scripts/core/main.gd:130)
+WARNING: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/FarmCrate_Apple.gltf': In external resource #5, invalid UID: 'uid://klvcfnyssfao' - using text path instead: 'res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/T_Trim_Metal_Normal.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] _prop (res://scripts/world/village_services.gd:200)
+       [1] _ready (res://scripts/world/village_services.gd:71)
+       [2] _ready (res://scripts/core/main.gd:130)
+WARNING: 'res://assets/generated/region/farm/windmill.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+WARNING: 'res://assets/generated/region/farm/windmill_lod1.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/barn.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/windmill.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/barn.glb': In external resource #1, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/farm/barn_lod1.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/windmill_lod1.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/farm/windmill.glb': In external resource #3, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/farm/barn.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/barn_lod1.glb': In external resource #1, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/farm/windmill_lod1.glb': In external resource #3, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/windmill_lod1.glb': In external resource #4, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/farm/barn.glb': In external resource #3, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/farm/barn_lod1.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/farm/windmill.glb': In external resource #4, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/barn_lod1.glb': In external resource #3, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/windmill.glb': In external resource #5, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/granary.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/granary_lod1.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+WARNING: 'res://assets/generated/region/farm/chicken_coop.glb': In external resource #0, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/granary.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/farm/granary_lod1.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/farm/chicken_coop.glb': In external resource #1, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/farm/chicken_coop_lod1.glb': In external resource #0, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/granary.glb': In external resource #2, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/farm/granary_lod1.glb': In external resource #2, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/farm/chicken_coop.glb': In external resource #3, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/chicken_coop_lod1.glb': In external resource #1, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/farm/granary.glb': In external resource #3, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/granary_lod1.glb': In external resource #3, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/farm/granary.glb': In external resource #5, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/pig_sty.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/pig_sty.glb': In external resource #1, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/pig_sty_lod1.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+WARNING: 'res://assets/generated/region/farm/pig_sty.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/farm/hay_wagon.glb': In external resource #0, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/pig_sty_lod1.glb': In external resource #1, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/pig_sty.glb': In external resource #3, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+WARNING: 'res://assets/generated/region/farm/hay_wagon.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/pig_sty_lod1.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/farm/hay_wagon_lod1.glb': In external resource #0, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/farm/hay_wagon.glb': In external resource #2, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/pig_sty_lod1.glb': In external resource #3, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+WARNING: 'res://assets/generated/region/farm/hay_wagon_lod1.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/hay_wagon_lod1.glb': In external resource #2, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/crop_wheat.glb': In external resource #0, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/crop_wheat_lod1.glb': In external resource #0, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/crop_cabbage.glb': In external resource #0, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/crop_wheat.glb': In external resource #1, invalid UID: 'uid://1nrhvw3hlr3c' - using text path instead: 'res://assets/generated/region/textures/foliage_atlas.png'.
+WARNING: 'res://assets/generated/region/farm/crop_cabbage_lod1.glb': In external resource #0, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+WARNING: 'res://assets/generated/region/farm/crop_wheat_lod1.glb': In external resource #1, invalid UID: 'uid://1nrhvw3hlr3c' - using text path instead: 'res://assets/generated/region/textures/foliage_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/crop_cabbage.glb': In external resource #2, invalid UID: 'uid://1nrhvw3hlr3c' - using text path instead: 'res://assets/generated/region/textures/foliage_atlas.png'.
+WARNING: 'res://assets/generated/region/farm/scarecrow.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/scarecrow.glb': In external resource #1, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/scarecrow_lod1.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+WARNING: 'res://assets/generated/region/farm/scarecrow.glb': In external resource #3, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/fence_rail_lod1.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/fence_rail.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+WARNING: 'res://assets/generated/region/farm/scarecrow_lod1.glb': In external resource #1, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/fence_gate.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/fence_gate_lod1.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/fence_gate.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/roadside_inn.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/fence_gate.glb': In external resource #2, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/road/roadside_inn_lod1.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+WARNING: 'res://assets/generated/region/farm/fence_gate_lod1.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/road/toll_booth.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+WARNING: 'res://assets/generated/region/road/toll_booth_lod1.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+WARNING: 'res://assets/generated/region/road/roadside_inn.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/roadside_inn_lod1.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/farm/fence_gate_lod1.glb': In external resource #2, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/road/roadside_inn.glb': In external resource #3, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/toll_booth.glb': In external resource #1, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/roadside_inn.glb': In external resource #4, invalid UID: 'uid://b1dahf0xm2a0g' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/road/checkpoint_barrier.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/toll_booth.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/road/toll_booth_lod1.glb': In external resource #1, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/roadside_inn.glb': In external resource #7, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+WARNING: 'res://assets/generated/region/road/roadside_inn_lod1.glb': In external resource #3, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/road/checkpoint_barrier.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/road/toll_booth.glb': In external resource #4, invalid UID: 'uid://b1dahf0xm2a0g' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/checkpoint_barrier_lod1.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/checkpoint_barrier.glb': In external resource #2, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/toll_booth_lod1.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/road/roadside_inn_lod1.glb': In external resource #4, invalid UID: 'uid://b1dahf0xm2a0g' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/road/checkpoint_barrier_lod1.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/checkpoint_barrier.glb': In external resource #3, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+WARNING: 'res://assets/generated/region/road/roadside_inn_lod1.glb': In external resource #7, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+WARNING: 'res://assets/generated/region/road/checkpoint_barrier_lod1.glb': In external resource #2, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/toll_booth_lod1.glb': In external resource #4, invalid UID: 'uid://b1dahf0xm2a0g' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/checkpoint_barrier.glb': In external resource #4, invalid UID: 'uid://b1dahf0xm2a0g' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/road/toll_booth.glb': In external resource #5, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/checkpoint_barrier_lod1.glb': In external resource #3, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/toll_booth.glb': In external resource #6, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+WARNING: 'res://assets/generated/region/road/caravan_wagon.glb': In external resource #0, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/checkpoint_barrier.glb': In external resource #5, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+WARNING: 'res://assets/generated/region/road/checkpoint_barrier_lod1.glb': In external resource #4, invalid UID: 'uid://b1dahf0xm2a0g' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/caravan_wagon_lod1.glb': In external resource #0, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/road/caravan_wagon.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/caravan_wagon.glb': In external resource #2, invalid UID: 'uid://b1dahf0xm2a0g' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/road/caravan_wagon_lod1.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/caravan_wagon_lod1.glb': In external resource #2, invalid UID: 'uid://b1dahf0xm2a0g' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/caravan_wagon.glb': In external resource #3, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+WARNING: 'res://assets/generated/region/ruins/bandit_palisade.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/caravan_wagon_lod1.glb': In external resource #3, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/milestone.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_palisade_lod1.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+WARNING: 'res://assets/generated/region/road/milestone_lod1.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+WARNING: 'res://assets/generated/region/road/milestone.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/wayshrine_lod1.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/milestone_lod1.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/road/wayshrine.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/wayshrine_lod1.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/wayshrine.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/road/wayshrine_lod1.glb': In external resource #4, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/overgrown_shrine.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+WARNING: 'res://assets/generated/region/road/wayshrine.glb': In external resource #4, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/overgrown_shrine_lod1.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+WARNING: 'res://assets/generated/region/road/wayshrine.glb': In external resource #5, invalid UID: 'uid://bqg31iqaw6ykn' - using text path instead: 'res://assets/generated/region/textures/foliage_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/overgrown_shrine.glb': In external resource #2, invalid UID: 'uid://bqg31iqaw6ykn' - using text path instead: 'res://assets/generated/region/textures/foliage_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/campfire.glb': In external resource #2, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+WARNING: 'res://assets/generated/region/ruins/campfire_lod1.glb': In external resource #2, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+WARNING: 'res://assets/generated/region/ruins/bandit_lean_to.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_tent.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_lean_to_lod1.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+WARNING: 'res://assets/generated/region/ruins/bandit_lean_to.glb': In external resource #1, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_tent_lod1.glb': In external resource #0, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_tent.glb': In external resource #1, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/campfire.glb': In external resource #3, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_lean_to_lod1.glb': In external resource #1, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+WARNING: 'res://assets/generated/region/ruins/bandit_lean_to.glb': In external resource #2, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_tent.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_tent_lod1.glb': In external resource #1, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+WARNING: 'res://assets/generated/region/ruins/bandit_lean_to.glb': In external resource #3, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/ruins/bandit_stash.glb': In external resource #0, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/ruins/campfire.glb': In external resource #4, invalid UID: 'uid://b1dahf0xm2a0g' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_stash_lod1.glb': In external resource #0, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_stash.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_tent_lod1.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_stash.glb': In external resource #2, invalid UID: 'uid://b1dahf0xm2a0g' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_stash_lod1.glb': In external resource #1, invalid UID: 'uid://b1dahf0xm2a0g' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/ruins/bandit_stash.glb': In external resource #3, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/collapsed_tower.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+WARNING: 'res://assets/generated/region/ruins/bandit_stash_lod1.glb': In external resource #2, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/collapsed_tower_lod1.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+WARNING: 'res://assets/generated/region/ruins/collapsed_tower.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/ruins/bandit_stash_lod1.glb': In external resource #3, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/ruins/collapsed_tower.glb': In external resource #2, invalid UID: 'uid://bqg31iqaw6ykn' - using text path instead: 'res://assets/generated/region/textures/foliage_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_entrance.glb': In external resource #0, invalid UID: 'uid://dtonb02wmtph4' - using text path instead: 'res://assets/generated/region/textures/rock.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_winch.glb': In external resource #0, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_entrance.glb': In external resource #1, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_entrance_lod1.glb': In external resource #0, invalid UID: 'uid://dtonb02wmtph4' - using text path instead: 'res://assets/generated/region/textures/rock.png'.
+WARNING: 'res://assets/generated/region/mine/miners_hut.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+WARNING: 'res://assets/generated/region/mine/miners_hut_lod1.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/ore_pile_iron.glb': In external resource #0, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+WARNING: 'res://assets/generated/region/mine/mine_winch.glb': In external resource #1, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/mine/mine_winch_lod1.glb': In external resource #0, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_entrance.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/mine/miners_hut_lod1.glb': In external resource #1, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+WARNING: 'res://assets/generated/region/mine/mine_entrance_lod1.glb': In external resource #1, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+WARNING: 'res://assets/generated/region/mine/miners_hut.glb': In external resource #1, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/ore_pile_iron.glb': In external resource #1, invalid UID: 'uid://dtonb02wmtph4' - using text path instead: 'res://assets/generated/region/textures/rock.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_winch_lod1.glb': In external resource #1, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/mine/mine_entrance.glb': In external resource #3, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/mine/mine_winch.glb': In external resource #3, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/mine/mine_entrance_lod1.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/miners_hut_lod1.glb': In external resource #3, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/mine/ore_pile_iron.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/mine/miners_hut.glb': In external resource #3, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/mine/mine_entrance_lod1.glb': In external resource #3, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_winch.glb': In external resource #4, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+WARNING: 'res://assets/generated/region/mine/mine_winch_lod1.glb': In external resource #3, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/mine/mine_entrance.glb': In external resource #4, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/mine/miners_hut_lod1.glb': In external resource #4, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/miners_hut.glb': In external resource #4, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/mine/mine_winch_lod1.glb': In external resource #4, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+WARNING: 'res://assets/generated/region/mine/mine_entrance_lod1.glb': In external resource #4, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/miners_hut_lod1.glb': In external resource #5, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/mine/ore_pile_iron.glb': In external resource #3, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/miners_hut.glb': In external resource #5, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/ore_pile_iron_lod1.glb': In external resource #0, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+WARNING: 'res://assets/generated/region/mine/ore_pile_coal.glb': In external resource #0, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/ore_pile_copper.glb': In external resource #0, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_props.glb': In external resource #0, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/mine/ore_pile_coal_lod1.glb': In external resource #0, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+WARNING: 'res://assets/generated/region/mine/ore_pile_iron_lod1.glb': In external resource #1, invalid UID: 'uid://dtonb02wmtph4' - using text path instead: 'res://assets/generated/region/textures/rock.png'.
+WARNING: 'res://assets/generated/region/mine/mine_props_lod1.glb': In external resource #0, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/ore_pile_copper_lod1.glb': In external resource #0, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+WARNING: 'res://assets/generated/region/mine/ore_pile_copper.glb': In external resource #1, invalid UID: 'uid://dtonb02wmtph4' - using text path instead: 'res://assets/generated/region/textures/rock.png'.
+WARNING: 'res://assets/generated/region/mine/ore_pile_coal.glb': In external resource #1, invalid UID: 'uid://dtonb02wmtph4' - using text path instead: 'res://assets/generated/region/textures/rock.png'.
+WARNING: 'res://assets/generated/region/mine/mine_props_lod1.glb': In external resource #1, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_props.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_props_lod1.glb': In external resource #2, invalid UID: 'uid://dtonb02wmtph4' - using text path instead: 'res://assets/generated/region/textures/rock.png'.
+WARNING: 'res://assets/generated/region/mine/ore_pile_coal_lod1.glb': In external resource #1, invalid UID: 'uid://dtonb02wmtph4' - using text path instead: 'res://assets/generated/region/textures/rock.png'.
+WARNING: 'res://assets/generated/region/mine/mine_cart.glb': In external resource #0, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/ore_pile_copper_lod1.glb': In external resource #1, invalid UID: 'uid://dtonb02wmtph4' - using text path instead: 'res://assets/generated/region/textures/rock.png'.
+WARNING: 'res://assets/generated/region/mine/ore_pile_copper.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/ore_pile_coal.glb': In external resource #2, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/mine/mine_props.glb': In external resource #2, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/mine/mine_props_lod1.glb': In external resource #3, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/mine/ore_pile_copper.glb': In external resource #3, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/mine/mine_cart.glb': In external resource #1, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_cart_lod1.glb': In external resource #0, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+WARNING: 'res://assets/generated/region/mine/mine_cart.glb': In external resource #2, invalid UID: 'uid://dtonb02wmtph4' - using text path instead: 'res://assets/generated/region/textures/rock.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_cart.glb': In external resource #3, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_cart_lod1.glb': In external resource #1, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/mine/rail_straight.glb': In external resource #0, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/mine/ore_pile_coal.glb': In external resource #3, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_props.glb': In external resource #3, invalid UID: 'uid://dtonb02wmtph4' - using text path instead: 'res://assets/generated/region/textures/rock.png'.
+WARNING: 'res://assets/generated/region/mine/rail_straight_lod1.glb': In external resource #0, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/mine/rail_end.glb': In external resource #0, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/rail_end_lod1.glb': In external resource #0, invalid UID: 'uid://bwhjx510yeyag' - using text path instead: 'res://assets/generated/region/textures/iron.png'.
+WARNING: 'res://assets/generated/region/mine/mine_cart_lod1.glb': In external resource #2, invalid UID: 'uid://dtonb02wmtph4' - using text path instead: 'res://assets/generated/region/textures/rock.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/rail_end.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/rail_straight_lod1.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/rail_straight.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/mine_cart_lod1.glb': In external resource #3, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+WARNING: 'res://assets/generated/region/mine/rail_end.glb': In external resource #2, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/rail_end_lod1.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/mine/rail_end_lod1.glb': In external resource #2, invalid UID: 'uid://c72cqx5g023bh' - using text path instead: 'res://assets/generated/region/textures/soil.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/windmill_sails.glb': In external resource #0, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/bridge_stone.glb': In external resource #0, invalid UID: 'uid://dal0wjswwn5cv' - using text path instead: 'res://assets/generated/region/textures/stone_wall.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/farm/windmill_sails.glb': In external resource #1, invalid UID: 'uid://b1raqwhoj5j0o' - using text path instead: 'res://assets/generated/region/textures/canvas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/bridge_wood.glb': In external resource #0, invalid UID: 'uid://u0bc1uvo3nw3' - using text path instead: 'res://assets/generated/region/textures/planks.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/bridge_wood.glb': In external resource #1, invalid UID: 'uid://cwke4kxdw4b53' - using text path instead: 'res://assets/generated/region/textures/timber.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+WARNING: 'res://assets/generated/region/road/bridge_wood.glb': In external resource #2, invalid UID: 'uid://kc3166a73v7y' - using text path instead: 'res://assets/generated/region/textures/bark_atlas.png'.
+   at: open (core/io/resource_format_binary.cpp:1089)

@@ -195,3 +195,84 @@ py tools/qa/texture_vram.py [--write]          # every shipped 3D texture VRAM-c
 godot --headless --path kingdom --export-pack "Android" /tmp/a.pck   # applies the mobile texture caps
 godot --headless --path kingdom -s <abs>/tools/qa/bench/check_clips.gd   # clip library check
 ```
+
+## 2026-09-28: the village/forest run lag was an error flood (procedural_rig.gd)
+- Real-input perf_visual with `--ablate` pinned 50-100 ms frames on `procedural_rig.gd`. Each stage callback took ~16 ms because the engine
+  printed "The axis Vector3 must be normalized" (`set_axis_angle`) thousands of times: once from the torso spring (`basis.x/z` not unit) and once
+  from `Vector3.slerp` on two nearly equal foot normals (its internal cross-product axis is ~0.999 long). Fix: normalize the axes and use lerp+normalize.
+  **Rule: any engine error printed per frame costs milliseconds. `grep -c ERROR` the log of every perf run.**
+- Rig budget: only the nearest `Quality.value("rig_budget")` NPC rigs (LOW 0 / MED 3 / HIGH 6 / ULTRA 10) within 25 m run IK and springs. The player always does.
+- HIGH, village_forest, speed 7, real input: before avg ~48 fps, p99 63 ms, 278-312 hitches >33 ms → after **58 fps, p99 29.3 ms, max 42.7 ms, 43 hitches, 0 errors**.
+  Remaining yellow (20-25 ms) is the walk back into Ashford with ~70 people nearby. That's crowd cost, next target (VAT crowds).
+  Evidence: `docs/qa/perf_visual/rig_fix/`.
+
+## 2026-09-28: distant-NPC LOD throttle (villager.gd), and why it barely moved the number
+
+**Where the cost actually is.** `tools/qa/bench/bench.gd --profile` (village, HIGH, forward_plus, 16 full
+NPCs / 55 sprites) disables one subtree at a time and measures the frame-time delta. `population_lod.gd`
+(the whole node, including every embodied `Villager`'s `_physics_process`, animation and the sprite
+MultiMesh refresh) only saved **1.1 ms** off a 16.4 ms frame — smaller than `WorldSim` (1.5 ms), `Life`
+(1.4 ms) or `frontier_presence.gd` (1.4 ms) alone. Full NPCs are comparatively cheap in the profiler's
+static village view; the 20-25 ms frames the goal cites happen during the walk back into Ashford, where a
+hazard event (`fleeing!`) puts ~15-20 villagers into **contact range** at once (route re-planning, capsule
+`move_and_slide()`, per-frame steering) — cost that isn't specific to "distant" NPCs and isn't safe to
+throttle without touching locomotion, which is out of scope here (Codex owns animation/locomotion; the
+task also excludes `procedural_rig.gd`, already fixed).
+
+**What shipped.** `kingdom/scripts/population/villager.gd`: full NPCs outside contact range (not about to
+be touched or stepped around) and beyond 12 m now run their `AnimationPlayer` in
+`ANIMATION_CALLBACK_MODE_PROCESS_MANUAL` instead of per-frame `PROCESS_IDLE`, advanced manually at ~12 Hz
+(clip, blend and speed choice are untouched — only how often the pose is refreshed). Beyond 15 m their
+mesh instances also stop casting a sun shadow (`SHADOW_CASTING_SETTING_OFF`), matching the shadow-cost
+tier logic `quality.gd` already applies to small props but explicitly skips for skinned meshes. Both
+thresholds are re-checked on each `THINK_INTERVAL` (0.3 s, already staggered per person), not every
+frame, so there's no per-frame branch cost added beyond a couple of field comparisons.
+
+**Verification.** `tools/qa/perf_visual/perf_visual.gd --route=village_forest --quality=high --speed=7`,
+3 runs same session (1 without the change, 2 with):
+  - without: `fps=55 p99=33.3 max=63.0 hitches>33ms=64` (0 per-frame errors; 8 errors are all
+    shutdown-time RID/resource leak warnings, not printed during play)
+  - with: `fps=56 p99=33.3 max=89.1 hitches>33ms=61` and `fps=56 p99=33.3 max=65.4 hitches>33ms=63`
+  All three are close to each other and *worse* than the `58 fps / p99 29.3 / 43 hitches` baseline logged
+  above for the same route — this session's machine was noisier (this file's own caveat: shared-GPU runs
+  read ~30% low), not a regression from the change. The two "with" runs agree with each other, so the
+  throttle itself is measurement-noise-neutral on this scene: it doesn't hurt, and it structurally removes
+  cost that scales with NPC count (fewer AnimationMixer pose evaluations and shadow-map draws per distant
+  NPC), which matters more as Ashford's `Realm` population grows and on phone GPUs where shadow map
+  passes are relatively far more expensive than on an RTX 4070. It is not, by itself, a fix for the
+  contact-range flee-event spike; that needs the still-open VAT/crowd-system item this doc already flags.
+  Visual check: `docs/qa/perf_visual/verify6/0104_HITCH_39ms_92.5s.jpg` and `0106_94.4s.jpg` (71 people
+  nearby, 16 full / 55 sprites, mid-flee) — NPCs animate normally, no T-poses, no floating, no popping.
+
+## 2026-09-28: contact-range flee crowd — cap concurrent move_and_slide()
+
+**Where the cost is.** Not route re-planning (`street_graph.gd` already spreads that over
+`MAX_ROUTES_PER_FRAME := 2`) and not the sensing/steering math (already cached or grid-bound). It's
+`move_and_slide()` itself: during the Ashford flee event ~15-20 villagers enter the player's contact
+range (< 14 m, `Villager.CONTACT_ENTER`) at once and each calls `move_and_slide()` every physics frame.
+Godot's narrow-phase collision resolution against a dense, bunched cluster of capsules scales with local
+density, so this is the classic crowd O(n²)-ish cost the task description called out — confirmed by a
+same-session control run (below) with the fix reverted.
+
+**What shipped.** `kingdom/scripts/population/villager.gd`: added `physics_active` (public var, default
+true). `_physics_process` now only calls `move_and_slide()` when `_contact and physics_active`; when
+`physics_active` is false it falls back to the same plain kinematic move already used for out-of-contact
+villagers (`global_position += planar * delta`) — same `_steer()` output, same speed, same animation,
+same footsteps/yield logic (untouched). `kingdom/scripts/population/population_lod.gd`: `refresh()`
+(already runs at 4 Hz) now walks its existing nearest-first `dists` list once and sets
+`physics_active = true` for only the nearest `MAX_PHYSICS_CONTACT := 8` full villagers; farther
+contact-range villagers (background of the crowd) get `physics_active = false`. No new per-frame work:
+the ranking reuses a sort `refresh()` already does, and the villager-side check is one extra boolean.
+`procedural_rig.gd` and animation/locomotion code are untouched.
+
+**Verification.** `tools/qa/perf_visual/perf_visual.gd --route=village_forest --quality=high --speed=7`,
+same session, same machine, back-to-back (fix stashed for the control run):
+  - control (no fix): `fps=46 p99=38.5 max=104.3 hitches>33ms=79` (8 errors, all shutdown-time
+    RID/resource leaks per the rule above, none per-frame)
+  - with fix: `fps=51 p99=35.1 max=70.3 hitches>33ms=66` (8 errors, same shutdown-time set)
+  Both runs read low vs. the session-baseline 55-58 fps logged elsewhere in this doc (shared-GPU noise
+  this doc already flags), but they're back-to-back on the same noisy machine, so the comparison is
+  apples-to-apples: +5 fps, p99 down 3.4 ms, worst frame down 34 ms (104.3 -> 70.3 ms), hitches down 13.
+  Visual check: `docs/qa/perf_visual/flee/0104_HITCH_54ms_95.0s.jpg` and `0106_HITCH_43ms_96.3s.jpg`
+  (71 people nearby, mid-flee, "fleeing" tags visible) — villagers still run normally away from the
+  hazard, no freezing, no sliding, no T-poses.

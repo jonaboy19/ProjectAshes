@@ -1210,6 +1210,17 @@ func _finish() -> void:
 	log_line("done in %.1fs" % now())
 	_log.close()
 	_log = null
+	# Free the game scene and give it several frames to unwind (TerrainStreamer's
+	# WorkerThreadPool tasks, threaded resource loads, RenderingServer RIDs) before
+	# quit(). Calling get_tree().quit() while `main` was still a live child left
+	# thousands of RIDs and worker threads mid-flight, racing RenderingServer
+	# teardown -- the root cause of the ntdll heap-corruption crashes (0xc0000005)
+	# in the Windows event log. See docs/qa/stability.md.
+	if is_instance_valid(main):
+		main.queue_free()
+		main = null
+	for i in 10:
+		await get_tree().process_frame
 	get_tree().quit()
 
 
