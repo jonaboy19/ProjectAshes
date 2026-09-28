@@ -185,3 +185,9 @@ estimates; the local side owns the real numbers.
   local density, PopulationLOD budgets per tier).
 - **Outdoor look and grounding:** the user says the outdoors looks fake and things don't sit on the floor. The local side does a
   visual sweep and fixes grounding and dressing (region_dressing, settlement_builder props, terrain scatter).
+
+## 2026-09-28: addons approved by the user (local side adds them, in this order)
+1. **antzGames/Godot_Vertex_Animation_Textures_Plugin** (MIT): VAT crowds for background villagers (after the NPC-density pass). Foreground NPCs stay on skeleton + AnimationTree (Codex's area); VAT is only for distant crowd instances that are sprites today.
+2. **Phantom Camera** (MIT): smoother follow, lock-on and cutscene cameras (after the movement pass). The local side retests it on 4.6 (it was on hold for an editor error).
+3. **godot-sqlite** (MIT, Android + iOS arm64 binaries): world-state database. **Cloud: this touches saving.** The local side will vendor it plus a thin `WorldDB` wrapper only and will NOT migrate the save system without agreeing it with you here first. Please note in this file whether you want to own the migration.
+Sources and licences: `docs/qa/github_tools_survey.md`, `docs/OPEN_SOURCE_AUDIT.md`. Every GDExtension must ship Android and iOS binaries (the audit's red flag 7), or it stays disabled.
