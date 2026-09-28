@@ -289,3 +289,55 @@ Visual QA + fix pass for the outdoor world (village, forest, camp), per the user
   see above — checked by code review instead), and a full per-NPC/animal animation-
   timing sweep (`animation_timing.md` covers the player in detail; NPCs/animals were
   only spot-checked by eye).
+
+## 2026-09-28: movement QA v2 + camera jitter fix (local, follow-up to player movement)
+
+The user said movement still felt "glitchy as f***" after the dash/dodge split above. The
+v1 `movement_qa` strips were invalid: the fixed spawn offset (`home["pos"] + Vector2(2,10)`)
+happened to land the player pinned against a market stall, so 01_walk/02_run/03_stop never
+actually displaced (every frame identical) and 04_turn180's "camera in the head" was the
+`SpringArm3D` starting its cast from inside geometry, not a standalone bug.
+
+**Fixed the harness** (`kingdom/tools_qa/movement_qa/`): spawns on open ground along the
+village's own gate/road direction (`WorldGen.settlements[0].plan.gates[0]`), verified clear
+with a ring of raycasts, and asserts real displacement (or a facing/grounded condition)
+after every scenario — PASS/FAIL in `log.txt`, non-zero exit on any failure. Added strafe,
+wall-collision and crowd scenarios (11 total).
+
+**Real bugs found and fixed in `player.gd`/`project.godot` (not animation — Codex's clips
+were untouched):**
+1. `physics/common/physics_interpolation` was never enabled, and the whole camera rig runs
+   only from `_physics_process`. Without it, ordinary frame-time variance against the
+   physics tick (routine on mobile) reads directly as character/camera jitter, independent
+   of any movement tuning. Enabled project-wide; added `reset_physics_interpolation()` at
+   every player teleport (`main.gd::_teleport`, mount, dismount, respawn, the
+   anti-fall-through catch) so a teleport snaps instead of smearing for a frame.
+2. The manual wall-avoidance raycast in `_update_camera` (added on top of the spring arm's
+   own collision to fix the guild-hall/stall clipping noted earlier in this file) snapped
+   `camera.global_position` straight to the hit point every tick, so a hit flickering in and
+   out (corners, thin awnings) jerked the camera. Pull-in (new occlusion) stays instant —
+   never show through a wall — but release-back-out now eases.
+
+**Phantom Camera (addon #2 in the approved list above):** re-cloned `v0.9.4.2` — pure
+GDScript (34 files, no binaries, so mobile-safe as claimed), Godot 4.4+ per its README
+(project is 4.6). **Not vendored/swapped in this pass**: I couldn't safely retest an actual
+editor load (the thing it was on hold for) without competing for the GPU/Vulkan device with
+other agents' live Godot sessions on this machine, and the current camera is tightly coupled
+to features Phantom Camera would need to fully replace — the four-distance zoom rig, lock-on
+framing (shifts the pivot toward the target), mounted rider offset, first-person viewmodel
+swap, aging body-scale, and the playtest bot's direct reference to `player.camera`. Swapping
+it in without being able to verify all of that first felt like trading a verified jitter fix
+for an unverified regression risk. Recommend a proper editor retest + incremental adoption
+(third-person follow + damping only, keep everything else) as a follow-up when the machine
+isn't under load.
+
+**QA capture blocked this session:** the real-input GPU capture (`run_movement_qa.sh`)
+crashed 5 times in a row during initial world/region load (every `kingdom/assets/generated/
+region/**` GLB has the invalid-UID issue already flagged above, which forces slow text-path
+resource re-resolution during that load) while 1-2 other Godot processes were also running
+on this machine; free RAM was as low as ~3.6 GB of 16 GB during the failures. One run got
+as far as this session's new open-ground spawn logic succeeding (`open ground found at
+(68.0, -51.0)...`) before dying, confirming the harness fix itself works — but no before/after
+frame strips were captured. Please re-run `kingdom/tools_qa/movement_qa/run_movement_qa.sh
+--out=docs/qa/movement/v2/after` (and ideally a `before` from the previous commit) when the
+machine has a few GB more headroom, and look at the strips with Read.
