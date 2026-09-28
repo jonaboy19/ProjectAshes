@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b06kbv651ngcr"
-path="res://.godot/imported/bog_toad_lod1_bog_toad_lod1_paint.jpg-b9af4c0de6fcbfdf0e14a4c01cf2f776.ctex"
+path.s3tc="res://.godot/imported/bog_toad_lod1_bog_toad_lod1_paint.jpg-b9af4c0de6fcbfdf0e14a4c01cf2f776.s3tc.ctex"
+path.etc2="res://.godot/imported/bog_toad_lod1_bog_toad_lod1_paint.jpg-b9af4c0de6fcbfdf0e14a4c01cf2f776.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "bad5975b1324d6080d619aeb2e043711"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/monsters/quaternius/bog_toad_lod1_bog_toad_lod1_paint.jpg"
-dest_files=["res://.godot/imported/bog_toad_lod1_bog_toad_lod1_paint.jpg-b9af4c0de6fcbfdf0e14a4c01cf2f776.ctex"]
+dest_files=["res://.godot/imported/bog_toad_lod1_bog_toad_lod1_paint.jpg-b9af4c0de6fcbfdf0e14a4c01cf2f776.s3tc.ctex", "res://.godot/imported/bog_toad_lod1_bog_toad_lod1_paint.jpg-b9af4c0de6fcbfdf0e14a4c01cf2f776.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

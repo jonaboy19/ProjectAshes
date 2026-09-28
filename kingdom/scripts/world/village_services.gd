@@ -653,6 +653,7 @@ func _turn_in(id: String, info: Dictionary) -> String:
 	for item: String in take:
 		Life.take(item, int(take[item]))
 	var q: Dictionary = r["quest"]
+	Audio.play_ui("quest_complete")
 	if String(q.get("giver", "")) == "":
 		q["giver"] = info.get("id", "")
 	_qw_event(&"radiant_completed", q)
@@ -1067,6 +1068,7 @@ func _accept(qid: String, info: Dictionary) -> String:
 	if why != "":
 		return why
 	_qw_event(&"radiant_accepted", q)
+	Audio.play_ui("quest_accepted")
 	return "Accepted: %s. %s" % [q["title"], RadiantQuests.current_stage(q).get("text", "")]
 
 

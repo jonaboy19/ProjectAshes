@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dsv847ifqa2y"
-path="res://.godot/imported/blackcap_brute_lod1_blackcap_brute_lod1_paint.jpg-1295e8e684a541ef6e42e68adcd05660.ctex"
+path.s3tc="res://.godot/imported/blackcap_brute_lod1_blackcap_brute_lod1_paint.jpg-1295e8e684a541ef6e42e68adcd05660.s3tc.ctex"
+path.etc2="res://.godot/imported/blackcap_brute_lod1_blackcap_brute_lod1_paint.jpg-1295e8e684a541ef6e42e68adcd05660.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "150252f99ac36cfa19143cd4efc7338f"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/monsters/quaternius/blackcap_brute_lod1_blackcap_brute_lod1_paint.jpg"
-dest_files=["res://.godot/imported/blackcap_brute_lod1_blackcap_brute_lod1_paint.jpg-1295e8e684a541ef6e42e68adcd05660.ctex"]
+dest_files=["res://.godot/imported/blackcap_brute_lod1_blackcap_brute_lod1_paint.jpg-1295e8e684a541ef6e42e68adcd05660.s3tc.ctex", "res://.godot/imported/blackcap_brute_lod1_blackcap_brute_lod1_paint.jpg-1295e8e684a541ef6e42e68adcd05660.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

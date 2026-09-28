@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d2gqgtjbu38xp"
-path="res://.godot/imported/ghoul_ghoul_glow.jpg-839fe7a18c5f927616e35ea2e93e67de.ctex"
+path.s3tc="res://.godot/imported/ghoul_ghoul_glow.jpg-839fe7a18c5f927616e35ea2e93e67de.s3tc.ctex"
+path.etc2="res://.godot/imported/ghoul_ghoul_glow.jpg-839fe7a18c5f927616e35ea2e93e67de.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ae712cd467cb896887ec046531f6df4f"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/monsters/quaternius/ghoul_ghoul_glow.jpg"
-dest_files=["res://.godot/imported/ghoul_ghoul_glow.jpg-839fe7a18c5f927616e35ea2e93e67de.ctex"]
+dest_files=["res://.godot/imported/ghoul_ghoul_glow.jpg-839fe7a18c5f927616e35ea2e93e67de.s3tc.ctex", "res://.godot/imported/ghoul_ghoul_glow.jpg-839fe7a18c5f927616e35ea2e93e67de.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://g5vqqs8ssat6"
-path="res://.godot/imported/blight_rat_lod1_blight_rat_lod1_glow.jpg-c1ad18dfbf20b4c7f7309d68c63123d6.ctex"
+path.s3tc="res://.godot/imported/blight_rat_lod1_blight_rat_lod1_glow.jpg-c1ad18dfbf20b4c7f7309d68c63123d6.s3tc.ctex"
+path.etc2="res://.godot/imported/blight_rat_lod1_blight_rat_lod1_glow.jpg-c1ad18dfbf20b4c7f7309d68c63123d6.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ced6ad124ff4694a8ad5b8f6c1d723e5"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/monsters/quaternius/blight_rat_lod1_blight_rat_lod1_glow.jpg"
-dest_files=["res://.godot/imported/blight_rat_lod1_blight_rat_lod1_glow.jpg-c1ad18dfbf20b4c7f7309d68c63123d6.ctex"]
+dest_files=["res://.godot/imported/blight_rat_lod1_blight_rat_lod1_glow.jpg-c1ad18dfbf20b4c7f7309d68c63123d6.s3tc.ctex", "res://.godot/imported/blight_rat_lod1_blight_rat_lod1_glow.jpg-c1ad18dfbf20b4c7f7309d68c63123d6.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://km2dh3qyha3c"
-path="res://.godot/imported/landmark_runestone_lod0_Image_0.jpg-669a5e948c5d4b831aba33f365a5b2c5.ctex"
+path.s3tc="res://.godot/imported/landmark_runestone_lod0_Image_0.jpg-669a5e948c5d4b831aba33f365a5b2c5.s3tc.ctex"
+path.etc2="res://.godot/imported/landmark_runestone_lod0_Image_0.jpg-669a5e948c5d4b831aba33f365a5b2c5.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "6f855fc79c05c1853652718248ae83e0"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/ai3d/meshy/landmark_runestone_lod0_Image_0.jpg"
-dest_files=["res://.godot/imported/landmark_runestone_lod0_Image_0.jpg-669a5e948c5d4b831aba33f365a5b2c5.ctex"]
+dest_files=["res://.godot/imported/landmark_runestone_lod0_Image_0.jpg-669a5e948c5d4b831aba33f365a5b2c5.s3tc.ctex", "res://.godot/imported/landmark_runestone_lod0_Image_0.jpg-669a5e948c5d4b831aba33f365a5b2c5.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

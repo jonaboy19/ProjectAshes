@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dnesn46bw84fs"
-path="res://.godot/imported/rift_wraith_rift_wraith_glow.jpg-537ebe1a1fb015d533780457827d1431.ctex"
+path.s3tc="res://.godot/imported/rift_wraith_rift_wraith_glow.jpg-537ebe1a1fb015d533780457827d1431.s3tc.ctex"
+path.etc2="res://.godot/imported/rift_wraith_rift_wraith_glow.jpg-537ebe1a1fb015d533780457827d1431.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "87abf73039a0efcc59b8f2bd491a9146"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/incoming/monsters/quaternius/rift_wraith_rift_wraith_glow.jpg"
-dest_files=["res://.godot/imported/rift_wraith_rift_wraith_glow.jpg-537ebe1a1fb015d533780457827d1431.ctex"]
+dest_files=["res://.godot/imported/rift_wraith_rift_wraith_glow.jpg-537ebe1a1fb015d533780457827d1431.s3tc.ctex", "res://.godot/imported/rift_wraith_rift_wraith_glow.jpg-537ebe1a1fb015d533780457827d1431.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

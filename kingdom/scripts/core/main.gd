@@ -415,8 +415,11 @@ func _build_environment() -> void:
 	env.ssao_intensity = 2.0
 	env.ssao_detail = 0.6          # tighter occlusion where objects meet the ground
 	env.ssao_light_affect = 0.15
-	env.ssil_enabled = true
-	env.sdfgi_enabled = true
+	# SSIL, SDFGI and volumetric fog are Forward+ only; asking for them on the Mobile /
+	# Compatibility renderers just prints warnings before Quality turns them off.
+	var forward_plus := RenderingServer.get_current_rendering_method() == "forward_plus"
+	env.ssil_enabled = forward_plus
+	env.sdfgi_enabled = forward_plus
 	env.sdfgi_use_occlusion = true
 	env.glow_enabled = true
 	env.glow_intensity = 0.6
@@ -428,7 +431,7 @@ func _build_environment() -> void:
 
 	env.fog_aerial_perspective = 0.3
 	env.fog_sky_affect = 0.4
-	env.volumetric_fog_enabled = true
+	env.volumetric_fog_enabled = forward_plus
 	env.volumetric_fog_density = 0.0025
 	env.volumetric_fog_albedo = Color("e8dccb")
 	env.volumetric_fog_length = 64.0

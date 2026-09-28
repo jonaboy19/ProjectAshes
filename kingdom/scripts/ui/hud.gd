@@ -349,12 +349,16 @@ func update_status(soldiers: int, order_name: String, target: Node3D, perf: Stri
 ## Opens a menu. `source` returns {title, body, options: [[label, Callable() -> String, enabled?]]};
 ## it is called again after every choice so prices and stock stay current.
 func show_menu(source: Callable) -> void:
+	if not _menu.visible:
+		Audio.play_ui("open")
 	_menu_source = source
 	_rebuild_menu()
 	_menu.visible = true
 
 
 func close_menu() -> void:
+	if _menu.visible:
+		Audio.play_ui("close")
 	_menu.visible = false
 
 
