@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bbej213frcrwf"
-path="res://.godot/imported/Superhero_Male_FullBody.gltf-f93d5d83eecd1dcd8386ba87de97c12a.scn"
+uid="uid://bpdnb2s01m232"
+path="res://.godot/imported/landmark_watchfort_lod0.glb-e22004a7ca9f8bcac8da946270c5286e.scn"
 
 [deps]
 
-source_file="res://assets/incoming/quaternius/universal-base-characters/Base Characters/Godot - UE/Superhero_Male_FullBody.gltf"
-dest_files=["res://.godot/imported/Superhero_Male_FullBody.gltf-f93d5d83eecd1dcd8386ba87de97c12a.scn"]
+source_file="res://assets/incoming/ai3d/meshy/landmark_watchfort_lod0.glb"
+dest_files=["res://.godot/imported/landmark_watchfort_lod0.glb-e22004a7ca9f8bcac8da946270c5286e.scn"]
 
 [params]
 
@@ -38,5 +38,5 @@ materials/extract=0
 materials/extract_format=0
 materials/extract_path=""
 _subresources={}
-gltf/naming_version=1
+gltf/naming_version=2
 gltf/embedded_image_handling=1

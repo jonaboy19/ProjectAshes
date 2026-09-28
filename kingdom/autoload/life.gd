@@ -406,7 +406,10 @@ func _on_hour(hour: int) -> void:
 
 ## Sleep until rested (or at most until the next morning), then wake.
 func sleep(quality := 1.0) -> String:
-	var hours := clampf(needs.hours_to_rest(quality), 1.0, 10.0)
+	# Sleep through to the next morning (about 06:30); a nap if it's already morning.
+	var t := WorldSim.time_of_day
+	var until_morning := fposmod(6.5 - t, 24.0)
+	var hours := clampf(maxf(needs.hours_to_rest(quality), until_morning if until_morning <= 12.0 else 0.0), 1.0, 12.0)
 	needs.sleep(hours, quality)
 	WorldSim.advance_hours(hours)
 	_last_abs = _abs_hours()

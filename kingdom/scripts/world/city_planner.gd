@@ -142,6 +142,20 @@ static func path_distance(plan_data: Dictionary, p: Vector2) -> float:
 static func _civic_lots(lots: Array, c: Vector2) -> void:
 	if lots.size() < 6:
 		return
+	var has_smithy := false
+	for lot: Dictionary in lots:
+		if lot["asset"] == "blacksmith":
+			has_smithy = true
+	if not has_smithy:
+		# The third-nearest home to the plaza becomes the smithy.
+		var homes := []
+		for i in lots.size():
+			if String(lots[i]["asset"]).begins_with("house") or String(lots[i]["asset"]).begins_with("mhouse"):
+				homes.append(i)
+		homes.sort_custom(func(a: int, b: int) -> bool:
+			return (lots[a]["pos"] as Vector2).distance_to(c) < (lots[b]["pos"] as Vector2).distance_to(c))
+		if homes.size() > 4:
+			lots[homes[3]]["asset"] = "blacksmith"
 	var order := range(lots.size())
 	order.sort_custom(func(a: int, b: int) -> bool:
 		return (lots[a]["pos"] as Vector2).distance_to(c) < (lots[b]["pos"] as Vector2).distance_to(c))

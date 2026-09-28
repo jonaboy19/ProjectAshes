@@ -218,7 +218,9 @@ func _after_birth() -> void:
 	hud.visible = true
 	var lp := Life.life_path
 	var door: Vector2 = lp.home_pos + Vector2(0, 5.5)
-	_teleport(door, 0.0)
+	# Face away from the family house, toward the street and village.
+	var away := door - lp.home_pos
+	_teleport(door, atan2(-away.x, -away.y) + PI)
 	player.apply_age()
 	Game.say("%d years later. %s, child of %s and %s, wakes to a bright morning in %s." % [Life.START_AGE,
 		lp.given_name, lp.parent("mother")["name"], lp.parent("father")["name"], WorldGen.settlements[0]["name"]])

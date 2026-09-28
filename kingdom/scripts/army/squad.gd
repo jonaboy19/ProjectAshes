@@ -105,7 +105,10 @@ func _update_banner() -> void:
 	center /= soldiers.size()
 	banner.global_position = center + Vector3(0, 4.0, 0)
 	var cam := get_viewport().get_camera_3d()
-	banner.visible = cam != null and cam.global_position.distance_to(center) > 22.0
+	var dist := cam.global_position.distance_to(center) if cam else 0.0
+	# A formation marker for command view: not in cutscenes, not through the whole world.
+	banner.visible = cam != null and cam.current and cam.get_parent() is not CutscenePlayer \
+		and dist > 22.0 and dist < 260.0 and not get_tree().get_nodes_in_group("cutscene_active").size()
 	banner.text = "%s %d" % ["⚑" if team == 0 else "☠", soldiers.size()]
 
 

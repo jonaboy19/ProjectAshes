@@ -94,6 +94,7 @@ func _process(delta: float) -> void:
 
 ## Starts playing `list` (Array of shot Dictionaries). Replaces any cutscene in progress.
 func play(list: Array) -> void:
+	add_to_group("cutscene_active")
 	if playing:
 		_end(false, false)
 	shots = list.duplicate()
@@ -247,6 +248,7 @@ func _apply() -> void:
 
 
 func _end(complete: bool, was_skipped: bool) -> void:
+	remove_from_group("cutscene_active")
 	playing = false
 	set_process(false)
 	_layer.visible = false
