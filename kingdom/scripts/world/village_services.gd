@@ -859,6 +859,10 @@ func _pick_hint() -> Array:
 
 ## One rumour from the state of the world (dens, threats, places, the guild).
 func _pick_rumour() -> String:
+	# Failing runestones are the talk of every road (docs/RISING_ASHES_LIFE_SIM_DESIGN.md).
+	var stones: Array = Frontier.runestones.rumours()
+	if not stones.is_empty() and randf() < 0.45:
+		return String(stones[randi() % stones.size()])
 	var r: Dictionary = _gossip_data().get("rumours", {})
 	var home := _home_pos()
 	var cands: Array = []   # [category, vars]
