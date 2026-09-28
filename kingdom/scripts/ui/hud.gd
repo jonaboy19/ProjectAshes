@@ -301,7 +301,7 @@ func _layout() -> void:
 	_buttons["attack"].position = s - Vector2(168, 168)
 	_buttons["dodge"].position = s - Vector2(270, 112)
 	_buttons["block"].position = s - Vector2(240, 226)
-	_buttons["ability_dash"].position = s - Vector2(340, 60)
+	_buttons["ability_dash"].position = s - Vector2(357, 96)   # left of Dodge, below the technique arc
 	_interact.position = s - Vector2(150, 300)
 	var col := s.x - 80
 	_buttons["zoom_in"].position = Vector2(col, 84)

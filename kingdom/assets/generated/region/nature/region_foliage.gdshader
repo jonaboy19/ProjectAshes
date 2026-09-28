@@ -72,9 +72,9 @@ void fragment() {
 	if (bloom_amount > 0.0) {
 		vec2 cell = floor(UV * 4.0);
 		bool conifer = cell.y == 1.0 && cell.x < 2.0;
-		float speck = fract(sin(dot(floor(UV * 96.0), vec2(12.9898, 78.233))) * 43758.5453);
+		float speck = fract(sin(dot(floor(UV * 384.0), vec2(12.9898, 78.233))) * 43758.5453);
 		if (!conifer && COLOR.g > 0.55 && speck > 0.86) {
-			col = mix(col, vec3(0.98, 0.86, 0.91), bloom_amount * 0.7);
+			col = mix(col, vec3(0.98, 0.86, 0.91), bloom_amount * 0.55);
 		}
 	}
 	ALBEDO = col;

@@ -20,7 +20,7 @@ const SLOT_SIZE := 72
 ## (104, 104) from the bottom-right corner. Slots ring it outside dodge / block / talk.
 const ATTACK_CENTER := Vector2(104, 104)
 const RING_RADIUS := 252.0
-const RING_ANGLES := [0.0, 24.0, 48.0, 72.0]    # degrees: 0 = left of the attack button; stops short of the Talk button and the dock above it
+const RING_ANGLES := [10.0, 32.0, 54.0, 76.0]    # degrees: 0 = left of the attack button; stops short of the Talk button and the dock above it
 const SEAL_SIZE := 84
 const SEAL_COLOR := Color("6d8bff")
 const TREE_ICONS := {"swordsmanship": "broadsword", "iaido": "broadsword", "command": "flag-objective",
