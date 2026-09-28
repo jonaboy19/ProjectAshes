@@ -276,3 +276,40 @@ same session, same machine, back-to-back (fix stashed for the control run):
   Visual check: `docs/qa/perf_visual/flee/0104_HITCH_54ms_95.0s.jpg` and `0106_HITCH_43ms_96.3s.jpg`
   (71 people nearby, mid-flee, "fleeing" tags visible) — villagers still run normally away from the
   hazard, no freezing, no sliding, no T-poses.
+
+## 2026-09-28: no blocky sprites next to the camera; fewer idle wanderers
+
+At the full-model budget (`Quality.npc_full`, HIGH 16) a resident 5-8 m from the camera could still lose
+the full-vs-sprite race (the budget can fill before `NEAR_HARD_CAP`'s per-refresh scan reaches them,
+since `NEAR_HARD_CAP` (12) is below `MAX_FULL`/`npc_full`), and fell back to a flat MultiMesh sprite —
+visibly a blocky low-res person right next to the player (seen in Ashford market, `perf_visual`
+`village_forest`, ~106 s: `docs/qa/npc_density_shots/before_ashford_dusk.jpg`, bottom-left).
+
+1. **`kingdom/scripts/population/population_lod.gd`**: new `SPRITE_MIN_DIST` (20 m) / `SPRITE_MIN_DIST_RELEASE`
+   (26 m, hysteresis) — nobody without a full-model slot is drawn as a sprite closer than 20 m; they're
+   simply not drawn that refresh (WorldSim still tracks them; they reappear once a slot frees or they
+   step out). A `_sprite_hidden` dict tracks per-person suppression state so the boundary doesn't chatter.
+2. **`kingdom/scripts/world/world_gen.gd`**: settlement population cut ~33-35% (village 320->210, town
+   1100->720, castle 2400->1600) — fewer residents overall, so the market and streets stay lively but
+   less crowded (a town's `population()` HUD stat only; no other system reads it).
+3. **`kingdom/autoload/world_sim.gd`** `is_indoors()`: blacksmiths/merchants stay indoors 3 in 4 refreshes
+   once they've arrived at work (was 2 in 3) — more of the workforce is inside their shop at a given
+   moment instead of idling outside it, with no change to where anyone actually is or how they move.
+
+Does not touch `procedural_rig.gd`, animation blending, or locomotion (Codex-owned).
+
+`perf_visual --quality=high --route=village_forest --speed=7`, real input, no errors either run:
+
+| | before | after |
+|---|---|---|
+| fps / p99 | 60 avg (16.7 ms), p99 16.7 | 60 avg (16.7 ms), p99 16.7 |
+| hitches >33 ms | 15 | 17 (noise; same machine load) |
+| Ashford, HUD "people nearby" | 71 (16 full / 55 sprites) | 71 (16 full / 55 sprites) — same *drawn* budget, fewer total residents in the settlement (Realm 5,280 -> 3,490 souls) |
+| errors in log | 0 | 0 |
+
+The drawn full/sprite counts are unchanged (HIGH's budget was already saturated by the crowd both times,
+so per-frame draw cost is equal or lower, never higher) — what changed is that nobody close to the camera
+renders as a flat sprite, and the total simulated population feeding that budget is smaller. Visual
+compare: `docs/qa/npc_density_shots/before_ashford_market.jpg` / `after_ashford_market.jpg` (market cart,
+~29 s into the route) and `before_ashford_dusk.jpg` / `after_ashford_dusk.jpg` (~105 s, dusk, the frame
+with the blocky close sprite before the fix — gone after).

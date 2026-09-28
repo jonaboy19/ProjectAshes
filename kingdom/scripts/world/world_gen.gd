@@ -726,7 +726,9 @@ static func _place_settlements(seed_value: int) -> void:
 	for i in fixed.size():
 		var f: Dictionary = fixed[i]
 		var pos: Vector2 = f["pos"]
-		var pop: int = {"village": 320, "town": 1100, "castle": 2400}[f["kind"]]
+		# ~33-35% fewer residents than the original 320/1100/2400: markets and
+		# streets stayed lively but too crowded (docs/qa/PERFORMANCE.md).
+		var pop: int = {"village": 210, "town": 720, "castle": 1600}[f["kind"]]
 		settlements.append({
 			"id": i, "name": NAMES[i % NAMES.size()], "pos": pos, "radius": f["radius"],
 			"base_h": _raw_height(pos.x, pos.y), "kind": f["kind"], "population": pop,
