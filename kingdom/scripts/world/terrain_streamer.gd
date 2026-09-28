@@ -21,6 +21,20 @@ var focus := Vector3.ZERO
 var _chunks: Dictionary = {}         # Vector2i -> Node3D
 var _ground_material: ShaderMaterial
 
+## Threaded streaming: the maths for a chunk (ground grid, collision faces, forest
+## and grass placement, merged impostor cards) runs on WorkerThreadPool; the main
+## thread only turns a finished plan into nodes, one chunk per frame. Before this,
+## every new chunk cost 120-150 ms on the main thread (visible hitches while moving).
+const MAX_IN_FLIGHT := 2
+var _tasks: Dictionary = {}          # Vector2i -> WorkerThreadPool task id
+var _plans: Dictionary = {}          # Vector2i -> finished plan (guarded by _mutex)
+var _mutex := Mutex.new()
+## Impostor card geometry per region tree kind, read on the main thread once so the
+## worker can merge cards without touching resources. kind -> [arrays, material]
+var _cards: Dictionary = {}
+const REGION_TREES := ["dead_snag", "young_oak", "spruce_a", "pine_scots", "oak_a", "oak_b", "beech_a",
+	"bush_round", "bush_berry", "bush_hazel", "flowers_warm"]
+
 ## Poly Haven (CC0) PBR sets used for each terrain layer.
 const TEX := "res://assets/incoming/polyhaven/textures/%s/%s_%s_2k.jpg"
 const LAYERS := {"grass": "leafy_grass", "forest": "forest_ground_04", "path": "grass_path_2",
@@ -36,6 +50,22 @@ func _ready() -> void:
 		_ground_material.set_shader_parameter(layer + "_normal", load(TEX % [tex_name, tex_name, "nor_gl"]))
 		_ground_material.set_shader_parameter(layer + "_arm", load(TEX % [tex_name, tex_name, "arm"]))
 	_ground_material.set_shader_parameter("macro_noise", _noise_texture(0.01, 3, false))
+	for tree: String in REGION_TREES:
+		var kind: String = REGION + tree
+		if not ResourceLoader.exists("res://assets/generated/" + kind + "_lod2.glb"):
+			continue
+		var card := Assets.nature_mesh(kind + "_lod2")
+		if card and card.get_surface_count() > 0:
+			var surfs := []
+			for s in card.get_surface_count():
+				surfs.append(card.surface_get_arrays(s))
+			_cards[kind] = [surfs, card.surface_get_material(0)]
+
+
+func _exit_tree() -> void:
+	for key: Vector2i in _tasks:
+		WorkerThreadPool.wait_for_task_completion(_tasks[key])
+	_tasks.clear()
 
 
 static func _noise_texture(freq: float, octaves: int, normal: bool) -> NoiseTexture2D:
@@ -61,89 +91,152 @@ func loaded_count() -> int:
 	return _chunks.size()
 
 
-## Build every chunk in range right now (used on spawn / teleport).
+## Build every chunk in range right now (used on spawn / teleport; blocks on purpose).
 func build_all_now() -> void:
-	while _step():
+	while _step(true):
 		pass
 
 
 func _process(_delta: float) -> void:
-	_step()
+	_step(false)
 
 
-## Builds the nearest missing chunk and frees far ones. Returns true if work was done.
-func _step() -> bool:
+## Frees far chunks, queues the nearest missing ones on worker threads and turns at
+## most one finished plan into nodes. Returns true if work remains (sync mode only).
+func _step(sync: bool) -> bool:
 	var center := chunk_of(focus)
 	for key: Vector2i in _chunks.keys():
 		if maxi(absi(key.x - center.x), absi(key.y - center.y)) > view_radius + 1:
 			_chunks[key].queue_free()
 			_chunks.erase(key)
-	var best := Vector2i.ZERO
-	var best_d := INF
+	# Collect finished worker plans.
+	for key: Vector2i in _tasks.keys():
+		if WorkerThreadPool.is_task_completed(_tasks[key]):
+			WorkerThreadPool.wait_for_task_completion(_tasks[key])
+			_tasks.erase(key)
+	var missing: Array = []
 	for dz in range(-view_radius, view_radius + 1):
 		for dx in range(-view_radius, view_radius + 1):
 			var key := center + Vector2i(dx, dz)
-			if _chunks.has(key):
-				continue
-			var d := float(dx * dx + dz * dz)
-			if d < best_d:
-				best_d = d
-				best = key
-	if best_d == INF:
+			if not _chunks.has(key):
+				missing.append([dx * dx + dz * dz, key])
+	missing.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	if missing.is_empty():
 		_update_collision(center)
 		return false
-	_chunks[best] = _build_chunk(best)
+	if sync:
+		var key: Vector2i = missing[0][1]
+		if _tasks.has(key):
+			WorkerThreadPool.wait_for_task_completion(_tasks[key])
+			_tasks.erase(key)
+		var p: Dictionary = _take_plan(key)
+		_chunks[key] = _build_chunk(key, p if not p.is_empty() else _plan_chunk(key))
+		_update_collision(center)
+		return true
+	# Async: finish the nearest ready chunk (one per frame), keep the workers fed.
+	var built := false
+	for m: Array in missing:
+		var key: Vector2i = m[1]
+		if not built:
+			var p: Dictionary = _take_plan(key)
+			if not p.is_empty():
+				_chunks[key] = _build_chunk(key, p)
+				built = true
+				continue
+		if _tasks.size() < MAX_IN_FLIGHT and not _tasks.has(key) and not _has_plan(key):
+			_tasks[key] = WorkerThreadPool.add_task(_plan_worker.bind(key), false, "terrain chunk")
+	# Drop plans that fell out of range before they were used.
+	_mutex.lock()
+	for key: Vector2i in _plans.keys():
+		if maxi(absi(key.x - center.x), absi(key.y - center.y)) > view_radius + 1:
+			_plans.erase(key)
+	_mutex.unlock()
 	_update_collision(center)
 	return true
 
 
+func _plan_worker(key: Vector2i) -> void:
+	var p := _plan_chunk(key)
+	_mutex.lock()
+	_plans[key] = p
+	_mutex.unlock()
+
+
+func _take_plan(key: Vector2i) -> Dictionary:
+	_mutex.lock()
+	var p: Dictionary = _plans.get(key, {})
+	_plans.erase(key)
+	_mutex.unlock()
+	return p
+
+
+func _has_plan(key: Vector2i) -> bool:
+	_mutex.lock()
+	var h := _plans.has(key)
+	_mutex.unlock()
+	return h
+
+
+## Physics and grass for chunks next to the player. Creating either costs a few ms,
+## so at most one body and one grass field are added per frame (the rest follow
+## on the next frames instead of all landing in the frame a boundary is crossed).
 func _update_collision(center: Vector2i) -> void:
+	var added_body := false
+	var added_grass := false
 	for key: Vector2i in _chunks:
 		var chunk: Node3D = _chunks[key]
-		var near := maxi(absi(key.x - center.x), absi(key.y - center.y)) <= collision_radius
+		var ring := maxi(absi(key.x - center.x), absi(key.y - center.y))
 		var body: StaticBody3D = chunk.get_node_or_null("Body")
-		if near and body == null:
+		if ring <= collision_radius and body == null:
+			# The chunk under the player first (ring 0), never deferred.
+			if added_body and ring > 0:
+				continue
 			body = StaticBody3D.new()
 			body.name = "Body"
 			var shape := CollisionShape3D.new()
-			shape.shape = (chunk.get_node("Ground") as MeshInstance3D).mesh.create_trimesh_shape()
+			var faces: PackedVector3Array = chunk.get_meta("faces", PackedVector3Array())
+			if faces.is_empty():
+				shape.shape = (chunk.get_node("Ground") as MeshInstance3D).mesh.create_trimesh_shape()
+			else:
+				var cs := ConcavePolygonShape3D.new()
+				cs.set_faces(faces)
+				shape.shape = cs
 			body.add_child(shape)
 			chunk.add_child(body)
-		elif not near and body != null:
+			added_body = true
+		elif ring > collision_radius and body != null:
 			body.queue_free()
-		var grass_near := maxi(absi(key.x - center.x), absi(key.y - center.y)) <= grass_radius
 		var grass: Node = chunk.get_node_or_null("Grass")
-		if grass_near and grass == null and not chunk.has_meta("no_grass"):
-			var g := GrassField.build(Vector2(key.x * CHUNK, key.y * CHUNK), CHUNK, hash(key) ^ 0x6a55)
+		if ring <= grass_radius and grass == null and not chunk.has_meta("no_grass"):
+			if added_grass:
+				continue
+			var plan: Dictionary = chunk.get_meta("grass_plan", {})
+			var g := GrassField.build_from_plan(plan) if not plan.is_empty() \
+				else GrassField.build(Vector2(key.x * CHUNK, key.y * CHUNK), CHUNK, hash(key) ^ 0x6a55)
 			if g:
 				g.name = "Grass"
 				chunk.add_child(g)
 			else:
 				chunk.set_meta("no_grass", true)
-		elif not grass_near and grass != null:
+			added_grass = true
+		elif ring > grass_radius and grass != null:
 			grass.queue_free()
 
 
-func _build_chunk(key: Vector2i) -> Node3D:
-	var chunk := Node3D.new()
-	chunk.name = "Chunk_%d_%d" % [key.x, key.y]
+## Everything about a chunk that is pure maths (thread-safe: reads WorldGen's
+## static data and the pre-read impostor cards only).
+func _plan_chunk(key: Vector2i) -> Dictionary:
 	var origin := Vector2(key.x * CHUNK, key.y * CHUNK)
-	var ground := MeshInstance3D.new()
-	ground.name = "Ground"
-	ground.mesh = _ground_mesh(origin)
-	ground.material_override = _ground_material
-	chunk.add_child(ground)
-	_add_forest(chunk, key, origin)
-	add_child(chunk)
-	return chunk
-
-
-func _ground_mesh(origin: Vector2) -> ArrayMesh:
 	# Smooth, indexed grid. Normals come from the height function itself, so
 	# neighbouring chunks match exactly at their seams.
 	var n := int(CHUNK / CELL)
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var verts := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var colors := PackedColorArray()
+	verts.resize((n + 1) * (n + 1))
+	normals.resize(verts.size())
+	colors.resize(verts.size())
+	var vi := 0
 	for j in n + 1:
 		for i in n + 1:
 			var x := origin.x + i * CELL
@@ -151,25 +244,66 @@ func _ground_mesh(origin: Vector2) -> ArrayMesh:
 			var h := WorldGen.height(x, z)
 			var normal := Vector3(WorldGen.height(x - 1.0, z) - WorldGen.height(x + 1.0, z), 2.0,
 				WorldGen.height(x, z - 1.0) - WorldGen.height(x, z + 1.0)).normalized()
-			st.set_normal(normal)
-			st.set_color(WorldGen.color_at(x, z, h, 1.0 - normal.y))
-			st.add_vertex(Vector3(x, h, z))
+			verts[vi] = Vector3(x, h, z)
+			normals[vi] = normal
+			colors[vi] = WorldGen.color_at(x, z, h, 1.0 - normal.y)
+			vi += 1
+	var indices := PackedInt32Array()
+	indices.resize(n * n * 6)
+	var faces := PackedVector3Array()
+	faces.resize(n * n * 6)
+	var ii := 0
 	for j in n:
 		for i in n:
 			var a := j * (n + 1) + i
 			var b := a + 1
 			var c := a + n + 1
 			var d := c + 1
-			st.add_index(a)
-			st.add_index(b)
-			st.add_index(c)
-			st.add_index(b)
-			st.add_index(d)
-			st.add_index(c)
-	return st.commit()
+			for idx in [a, b, c, b, d, c]:
+				indices[ii] = idx
+				faces[ii] = verts[idx]
+				ii += 1
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_COLOR] = colors
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var forest := _plan_forest(key, origin)
+	return {
+		"ground": arrays, "faces": faces, "forest": forest,
+		"impostors": _plan_impostors(forest),
+		"grass": GrassField.plan(origin, CHUNK, hash(key) ^ 0x6a55),
+	}
 
 
-func _add_forest(chunk: Node3D, key: Vector2i, origin: Vector2) -> void:
+func _build_chunk(key: Vector2i, plan: Dictionary) -> Node3D:
+	var chunk := Node3D.new()
+	chunk.name = "Chunk_%d_%d" % [key.x, key.y]
+	var ground := MeshInstance3D.new()
+	ground.name = "Ground"
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, plan["ground"])
+	ground.mesh = mesh
+	ground.material_override = _ground_material
+	chunk.add_child(ground)
+	chunk.set_meta("faces", plan["faces"])
+	var grass_plan: Dictionary = plan["grass"]
+	var any_grass := false
+	for k: String in grass_plan:
+		if not (grass_plan[k] as Array).is_empty():
+			any_grass = true
+	if any_grass:
+		chunk.set_meta("grass_plan", grass_plan)
+	else:
+		chunk.set_meta("no_grass", true)
+	_add_forest(chunk, plan["forest"], plan["impostors"])
+	add_child(chunk)
+	return chunk
+
+
+## kind -> Array[Transform3D] for the trees, undergrowth and rocks of a chunk.
+func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(key) ^ 0x5eed
 	var buckets := {}
@@ -216,24 +350,57 @@ func _add_forest(chunk: Node3D, key: Vector2i, origin: Vector2) -> void:
 		if not buckets.has(kind):
 			buckets[kind] = []
 		buckets[kind].append(t)
-	var impostors := SurfaceTool.new()
-	var impostor_n := 0
+	return buckets
+
+
+## Far impostor cards of every region tree in the chunk share one atlas material:
+## merged into one mesh (a distant chunk is a single draw call). Built from the card
+## arrays read in _ready, so it runs on the worker. Returns [arrays, material] or [].
+func _plan_impostors(forest: Dictionary) -> Array:
+	var v := PackedVector3Array()
+	var nrm := PackedVector3Array()
+	var uv := PackedVector2Array()
+	var idx := PackedInt32Array()
+	var mat: Material = null
+	for kind: String in forest:
+		if not _cards.has(kind):
+			continue
+		mat = _cards[kind][1]
+		for t: Transform3D in forest[kind]:
+			for s: Array in _cards[kind][0]:
+				var base := v.size()
+				var sv: PackedVector3Array = s[Mesh.ARRAY_VERTEX]
+				var sn: PackedVector3Array = s[Mesh.ARRAY_NORMAL] if s[Mesh.ARRAY_NORMAL] != null else PackedVector3Array()
+				var su: PackedVector2Array = s[Mesh.ARRAY_TEX_UV] if s[Mesh.ARRAY_TEX_UV] != null else PackedVector2Array()
+				for k in sv.size():
+					v.append(t * sv[k])
+					nrm.append((t.basis * (sn[k] if k < sn.size() else Vector3.UP)).normalized())
+					uv.append(su[k] if k < su.size() else Vector2.ZERO)
+				var si: PackedInt32Array = s[Mesh.ARRAY_INDEX] if s[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+				if si.is_empty():
+					for k in sv.size():
+						idx.append(base + k)
+				else:
+					for k in si:
+						idx.append(base + k)
+	if v.is_empty():
+		return []
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = v
+	arrays[Mesh.ARRAY_NORMAL] = nrm
+	arrays[Mesh.ARRAY_TEX_UV] = uv
+	arrays[Mesh.ARRAY_INDEX] = idx
+	return [arrays, mat]
+
+
+## Nodes for a planned forest (main thread): one MultiMesh chain per kind.
+func _add_forest(chunk: Node3D, buckets: Dictionary, impostor: Array) -> void:
 	for kind: String in buckets:
 		var list: Array[Transform3D] = []
 		list.assign(buckets[kind])
-		if kind.begins_with(REGION) and ResourceLoader.exists("res://assets/generated/" + kind + "_lod2.glb"):
+		if _cards.has(kind):
 			region_tree_chain(chunk, kind, list, false)
-			# Far impostor cards of every kind in this chunk share one atlas material:
-			# merged into one mesh, so a distant chunk is a single draw call.
-			var card := Assets.nature_mesh(kind + "_lod2")
-			if card:
-				if impostor_n == 0:
-					impostors.begin(Mesh.PRIMITIVE_TRIANGLES)
-					impostors.set_material(card.surface_get_material(0))
-				for t: Transform3D in list:
-					for surf in card.get_surface_count():
-						impostors.append_from(card, surf, t)
-				impostor_n += list.size()
 		elif kind.contains("|"):
 			# "near|far": realistic mesh up close, stylised stand-in beyond TREE_LOD metres.
 			var near_far := kind.split("|")
@@ -249,10 +416,13 @@ func _add_forest(chunk: Node3D, key: Vector2i, origin: Vector2) -> void:
 				far_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 		else:
 			_multimesh(chunk, Assets.nature_mesh(kind), list)
-	if impostor_n > 0:
+	if not impostor.is_empty():
 		var mi := MeshInstance3D.new()
 		mi.name = "TreeImpostors"
-		mi.mesh = impostors.commit()
+		var am := ArrayMesh.new()
+		am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, impostor[0])
+		am.surface_set_material(0, impostor[1])
+		mi.mesh = am
 		mi.visibility_range_begin = REGION_LODS[1]
 		mi.visibility_range_begin_margin = 5.0
 		mi.visibility_range_end = 450.0
