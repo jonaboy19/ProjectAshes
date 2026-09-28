@@ -189,10 +189,15 @@ func _scan_node(n: Node, center: Vector2, loc_name: String) -> void:
 			# the scan stays fast instead of walking every blade.
 			if maxf(box.size.x, box.size.z) < 0.35:
 				return
-			var n_check: int = mini(mm.instance_count, 150)
-			var stride: int = maxi(1, mm.instance_count / n_check)
+			# Only the drawn slots: population_lod/ambient_fx leave slots past
+			# visible_instance_count uninitialised (garbage like 1e37 m, not a bug).
+			var count: int = mm.instance_count if mm.visible_instance_count < 0 else mini(mm.visible_instance_count, mm.instance_count)
+			if count <= 0 or not mmi.is_visible_in_tree():
+				return
+			var n_check: int = mini(count, 150)
+			var stride: int = maxi(1, count / n_check)
 			var i := 0
-			while i < mm.instance_count:
+			while i < count:
 				var inst := mmi.global_transform * mm.get_instance_transform(i)
 				_check_box(box, inst, center, loc_name, "instance:" + _owner_name(n, mm))
 				i += stride
