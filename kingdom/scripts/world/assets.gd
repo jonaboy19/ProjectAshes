@@ -266,7 +266,7 @@ const MH_LOOKS := {
 	"Rogue": ["villager_man_b", "elder_man", "villager_man_a", G6 + "g6_m_villager_tunic", G6 + "g6_m_hunter_leather"],
 	"Blacksmith": [G6 + "g6_m_blacksmith_apron", "villager_smith"], "Innkeeper": [G6 + "g6_m_worker_apron", G6 + "g6_f_worker_apron"],
 	"Hunter": [G6 + "g6_m_hunter_leather", G6 + "g6_f_hunter_leather"], "Monk": [CDMIR + "cdmir_monk"],
-	"Herbalist": [CDMIR + "cdmir_old_lady", "villager_healer"], "Trader": [G6 + "g6_m_villager_tunic", G6 + "g6_f_worker_apron"],
+	"Herbalist": [CDMIR + "cdmir_old_lady", "villager_healer"], "Trader": [G6 + "g6_m_villager_tunic", G6 + "g6_f_worker_apron", "villager_merchant"],
 	"Knight": [ARMORED + "guard", ARMORED + "mercenary"],
 	"Player": ["player_young"], "Guard": [ARMORED + "guard", "villager_guard"], "Baker": ["villager_baker"], "Plate_Knight": [ARMORED + "knight"],
 	"Mercenary": [ARMORED + "mercenary"], "Bandit": [ARMORED + "bandit"], "Noble": [ARMORED + "noble"],

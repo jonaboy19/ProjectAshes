@@ -43,21 +43,25 @@ ATLAS = 1024
 # Atlas regions (u0, v0, u1, v1), v up (Blender convention).
 REG = {
     "skin": (0.0, 0.5, 0.5, 1.0),
+    "wool": (0.0, 0.0, 0.5, 0.5),
     "linen": (0.5, 0.75, 0.75, 1.0),
-    "wool": (0.75, 0.75, 1.0, 1.0),
-    "leather": (0.5, 0.5, 0.75, 0.75),
+    "coarse": (0.75, 0.75, 1.0, 1.0),
+    "leather": (0.5, 0.5, 0.75, 0.6875),
+    "strap": (0.5, 0.6875, 0.75, 0.75),
     "hair": (0.75, 0.5, 1.0, 0.75),
-    "coarse": (0.0, 0.0, 0.5, 0.5),
     "quilt": (0.5, 0.25, 0.75, 0.5),
-    "check": (0.75, 0.25, 1.0, 0.5),
-    "eye": (0.5, 0.125, 0.625, 0.25),
+    "eye": (0.75, 0.25, 0.875, 0.375),
+    "eye_blue": (0.875, 0.25, 1.0, 0.375),
+    "eye_green": (0.75, 0.375, 0.875, 0.5),
+    "eye_grey": (0.875, 0.375, 1.0, 0.5),
+    "bag": (0.5, 0.125, 0.625, 0.25),
     "metal": (0.625, 0.125, 0.75, 0.25),
     "felt": (0.75, 0.0, 1.0, 0.25),
     "sole": (0.5, 0.0, 0.75, 0.125),
 }
-ROUGH = {"skin": 0.52, "linen": 0.93, "wool": 0.97, "leather": 0.62, "hair": 0.58,
-         "coarse": 0.97, "quilt": 0.95, "check": 0.93, "eye": 0.12, "metal": 0.38,
-         "felt": 0.98, "sole": 0.8}
+ROUGH = {"skin": 0.52, "linen": 0.93, "wool": 0.96, "leather": 0.62, "hair": 0.5,
+         "coarse": 0.97, "quilt": 0.95, "strap": 0.6, "bag": 0.6, "eye": 0.14, "eye_blue": 0.14,
+         "eye_green": 0.14, "eye_grey": 0.14, "metal": 0.38, "felt": 0.98, "sole": 0.8}
 METAL = {"metal": 0.85}
 
 UAL = ual_rig.UALSkeleton()
@@ -194,8 +198,40 @@ def dilate(img, cov, it=6):
 
 # ============================================================ atlas
 
+def vnoise(shape, sy, sx, seed, octaves=2):
+    """Periodic value noise with an independent grid size per axis (anisotropic strokes)."""
+    rng = np.random.default_rng(seed)
+    h, w = shape
+    out = np.zeros(shape, np.float32)
+    amp, tot = 1.0, 0.0
+    for o in range(octaves):
+        ny = max(2, int(sy * 2 ** o)); nx = max(2, int(sx * 2 ** o))
+        g = rng.random((ny + 1, nx + 1)).astype(np.float32)
+        g[-1, :] = g[0, :]; g[:, -1] = g[:, 0]
+        ys = np.linspace(0, ny, h, endpoint=False); xs = np.linspace(0, nx, w, endpoint=False)
+        y0 = ys.astype(int); x0 = xs.astype(int)
+        fy = (ys - y0)[:, None]; fx = (xs - x0)[None, :]
+        fy = fy * fy * (3 - 2 * fy); fx = fx * fx * (3 - 2 * fx)
+        a = g[y0][:, x0]; b = g[y0][:, x0 + 1]; c = g[y0 + 1][:, x0]; d = g[y0 + 1][:, x0 + 1]
+        out += amp * (a * (1 - fx) * (1 - fy) + b * fx * (1 - fy) + c * (1 - fx) * fy + d * fx * fy)
+        tot += amp; amp *= 0.5
+    return out / tot
+
+
+def stitch_line(w, h, y, period=9, dash=5.5, width=0.0035, x_off=0.0):
+    """(h,w) mask of a dashed stitch line at v=y."""
+    xs = np.arange(w)[None, :]
+    ys = np.linspace(0, 1, h)[:, None]
+    d = (((xs + x_off) % period) < dash).astype(np.float32)
+    line = np.exp(-((ys - y) / width) ** 2)
+    return line * d
+
+
 def build_atlas(base):
-    """Writes character_albedo.png / _normal.png / _orm.png (1024, shared)."""
+    """Writes character_albedo.png / _normal.png / _orm.png (1024, shared).
+    Hand-painted look: fabrics with brush strokes, fold streaks, stitched hems;
+    leather with pebble grain, scuffs and stitched straps; radial hair strands
+    with a painted highlight band; painted eyes in four iris colours."""
     os.makedirs(TEX_DIR, exist_ok=True)
     A = np.ones((ATLAS, ATLAS, 3), np.float32) * 0.8
     N = np.zeros((ATLAS, ATLAS, 3), np.float32); N[...] = (0.5, 0.5, 1.0)
@@ -203,115 +239,248 @@ def build_atlas(base):
     O[..., 0] = 1.0
     O[..., 1] = 0.9
 
-    def put(name, alb, nrm=None, rough=None):
+    def put(name, alb, nrm=None, rough=None, ao=None):
         u0, v0, u1, v1 = REG[name]
-        x0, x1 = int(u0 * ATLAS), int(u1 * ATLAS)
-        y0, y1 = int(v0 * ATLAS), int(v1 * ATLAS)
+        x0, x1 = int(round(u0 * ATLAS)), int(round(u1 * ATLAS))
+        y0, y1 = int(round(v0 * ATLAS)), int(round(v1 * ATLAS))
         A[y0:y1, x0:x1] = alb[..., :3]
         if nrm is not None:
             N[y0:y1, x0:x1] = nrm[..., :3]
         r = ROUGH[name] if rough is None else rough
         O[y0:y1, x0:x1, 1] = r
         O[y0:y1, x0:x1, 2] = METAL.get(name, 0.0)
+        if ao is not None:
+            O[y0:y1, x0:x1, 0] = ao
 
     def region_size(name):
         u0, v0, u1, v1 = REG[name]
-        return int((u1 - u0) * ATLAS), int((v1 - v0) * ATLAS)
+        return int(round((u1 - u0) * ATLAS)), int(round((v1 - v0) * ATLAS))
 
-    def fabric(name, src, seed, bright=0.9, slub=0.10, contrast=0.8, nstr=1.0, extra=None):
-        w, h = region_size(name)
-        s = max(w, h)
-        col = load_img(os.path.join(AMBIENTCG, src, f"{src}_2K-JPG_Color.jpg"), s)[:h, :w, :3]
-        nrm = load_img(os.path.join(AMBIENTCG, src, f"{src}_2K-JPG_NormalGL.jpg"), s)[:h, :w, :3]
-        lum = col.mean(axis=2, keepdims=True)
-        # painterly: soften the weave (it aliases at 256 px) and keep only a faint trace
-        soft = blur(lum[..., 0], 2)[..., None]
-        lum = (0.35 * lum + 0.65 * soft)
-        lum = (lum - lum.mean()) * contrast * 0.45 + 1.0
-        mott = value_noise((h, w), 3, seed, 4)[..., None]
-        streak = value_noise((h, 8), 2, seed + 1, 3)[:, :1][..., None]  # horizontal slubs
-        alb = lum * bright * (1 - slub * (mott - 0.5) * 2) * (1 - 0.05 * (streak - 0.5))
-        alb = np.repeat(alb, 3, axis=2)
-        if extra is not None:
-            alb = extra(alb)
-        nrm = (nrm - 0.5) * nstr * 0.5 + 0.5
-        put(name, np.clip(alb, 0, 1), nrm)
+    def cloth(name, src, seed, bright=0.92, weave=0.05, slub=0.0, folds=0.09, hem=0.034,
+              mott=0.07, nstr=1.0, twill=0.0):
+        w, hh = region_size(name)
+        s = max(w, hh)
+        rng = np.random.default_rng(seed)
+        col = load_img(os.path.join(AMBIENTCG, src, f"{src}_2K-JPG_Color.jpg"), s)[:hh, :w, :3]
+        wl = col.mean(axis=2)
+        wl = blur(wl, 5)
+        wl = (wl - wl.mean()) / max(wl.std(), 1e-3)
+        xs = np.linspace(0, 1, w, endpoint=False)[None, :]
+        ys = np.linspace(0, 1, hh, endpoint=False)[:, None]
+        m1 = vnoise((hh, w), 4, 4, seed + 1, 4)
+        brush = vnoise((hh, w), 5, max(20, w // 4), seed + 2, 2)
+        brush2 = vnoise((hh, w), max(20, hh // 5), 6, seed + 3, 2)
+        f = np.zeros((hh, w), np.float32)
+        for k in range(4):
+            fr = rng.uniform(2.5, 9.0); ph = rng.uniform(0, 1)
+            f += rng.uniform(0.5, 1.0) * np.sin(2 * math.pi * (fr * xs + ph + 0.12 * np.sin(2 * math.pi * ys * 0.8 + k)))
+        f /= 2.4
+        dep = np.exp(-ys * 2.6)
+        L = 1 + weave * wl + mott * (m1 - 0.5) * 2 + 0.06 * (brush - 0.5) * 2 + 0.03 * (brush2 - 0.5) * 2 + folds * f * dep
+        L += 0.022 * np.sin(2 * math.pi * xs * (w / (6.0 if w > 300 else 4.0))) * np.sin(2 * math.pi * ys * (hh / (6.0 if w > 300 else 4.0)))
+        if twill:
+            L += twill * np.sin(2 * math.pi * (xs * w / 6.0 + ys * hh / 6.0))
+        if slub:
+            for _ in range(int(hh * 0.18)):
+                yy = rng.integers(0, hh)
+                L[yy, :] *= 1 + slub * rng.uniform(-1, 1) * (0.4 + vnoise((1, w), 1, 6, int(rng.integers(1e6)), 1)[0])
+            for _ in range(int(w * 0.14)):
+                xx = rng.integers(0, w)
+                L[:, xx] *= 1 + slub * rng.uniform(-1, 1)
+        alb = L * bright
+        # turned hem at the bottom of the tile (v = 0 is always the garment hem)
+        yh = hem
+        band = ys < yh
+        alb = np.where(band, alb * 0.93, alb)
+        alb *= 1 - 0.22 * np.exp(-(ys / 0.006) ** 2)                           # hem edge shadow
+        alb *= 1 - 0.28 * np.exp(-((ys - yh) / 0.0045) ** 2)                   # fold-over seam
+        alb *= 1 - 0.30 * stitch_line(w, hh, yh * 0.5, period=max(6, w // 40), dash=max(4, w // 62), width=0.0028)
+        alb = np.clip(alb, 0, 1)
+        hgt = 0.35 * wl * 0.05 + 0.02 * f * dep + 0.03 * (brush - 0.5) - 0.05 * np.exp(-((ys - yh) / 0.006) ** 2) \
+            - 0.04 * stitch_line(w, hh, yh * 0.5, period=max(6, w // 40), dash=max(4, w // 62), width=0.003)
+        put(name, np.repeat(alb[..., None], 3, 2) * np.array([1.0, 0.995, 0.985], np.float32),
+            height_to_normal(hgt, 14 * nstr))
 
-    fabric("linen", "Fabric061", 11, bright=0.92, slub=0.08)
-    fabric("wool", "Fabric066", 12, bright=0.9, slub=0.12)
-    fabric("coarse", "Fabric066", 13, bright=0.88, slub=0.16, contrast=1.3)
-    fabric("check", "Fabric083", 14, bright=0.93, slub=0.06, contrast=0.55)
+    cloth("linen", "Fabric061", 11, bright=0.93, weave=0.025, slub=0.018, folds=0.08)
+    cloth("wool", "Fabric066", 12, bright=0.9, weave=0.035, folds=0.1, mott=0.08, twill=0.012)
+    cloth("coarse", "Fabric066", 13, bright=0.88, weave=0.06, folds=0.08, mott=0.1, slub=0.04)
 
-    # Felt (cloaks/hoods): soft noise, almost no weave.
+    # Felt / cloak wool: soft fibres, stitched hem.
     w, h = region_size("felt")
-    n1 = value_noise((h, w), 6, 21, 5)
-    n2 = value_noise((h, w), 40, 22, 2)
-    alb = 0.88 * (1 - 0.12 * (n1 - 0.5) * 2 - 0.05 * (n2 - 0.5) * 2)
-    put("felt", np.repeat(alb[..., None], 3, 2), height_to_normal(n2 * 0.4 + n1 * 0.6, 1.2))
+    n1 = vnoise((h, w), 5, 5, 21, 5); n2 = vnoise((h, w), 60, 60, 22, 2)
+    ys = np.linspace(0, 1, h, endpoint=False)[:, None]; xs = np.linspace(0, 1, w, endpoint=False)[None, :]
+    rng = np.random.default_rng(23)
+    f = sum(rng.uniform(0.5, 1) * np.sin(2 * math.pi * (rng.uniform(3, 8) * xs + rng.uniform(0, 1))) for _ in range(4)) / 2.4
+    alb = 0.9 * (1 - 0.10 * (n1 - 0.5) * 2 - 0.05 * (n2 - 0.5) * 2 + 0.09 * f * np.exp(-ys * 2.6))
+    alb *= 1 - 0.22 * np.exp(-(ys / 0.006) ** 2) * 1 - 0.0
+    alb *= 1 - 0.28 * np.exp(-((ys - 0.04) / 0.0045) ** 2)
+    alb *= 1 - 0.30 * stitch_line(w, h, 0.02, period=8, dash=5, width=0.003)
+    put("felt", np.repeat(np.clip(alb, 0, 1)[..., None], 3, 2), height_to_normal(n2 * 0.4 + n1 * 0.6 + f * 0.05, 1.4))
 
-    # Quilted gambeson: vertical channels with stitch lines.
+    # Quilted gambeson: vertical puffed channels with stitch lines, stitched hem.
     w, h = region_size("quilt")
-    xs = np.linspace(0, 1, w)[None, :].repeat(h, 0)
-    ys = np.linspace(0, 1, h)[:, None].repeat(w, 1)
-    ch = 7.0
+    xs = np.linspace(0, 1, w, endpoint=False)[None, :].repeat(h, 0)
+    ys = np.linspace(0, 1, h, endpoint=False)[:, None].repeat(w, 1)
+    ch = 12.0
     ph = (xs * ch) % 1.0
     puff = np.sin(ph * math.pi) ** 0.6
-    stitch = np.exp(-((ph - 0.0) ** 2) / 0.0015) + np.exp(-((ph - 1.0) ** 2) / 0.0015)
-    dash = (np.sin(ys * 90 * math.pi) > -0.2).astype(np.float32)
-    n1 = value_noise((h, w), 5, 31, 4)
+    stitch = np.exp(-((ph - 0.0) ** 2) / 0.0012) + np.exp(-((ph - 1.0) ** 2) / 0.0012)
+    dash = (np.sin(ys * 120 * math.pi) > -0.3).astype(np.float32)
+    n1 = vnoise((h, w), 5, 5, 31, 4)
     hgt = puff - 0.6 * stitch * dash
-    alb = 0.9 * (0.78 + 0.22 * puff) * (1 - 0.35 * stitch * dash) * (1 - 0.1 * (n1 - 0.5))
+    alb = 0.92 * (0.74 + 0.26 * puff) * (1 - 0.4 * stitch * dash) * (1 - 0.1 * (n1 - 0.5))
     base_lin = load_img(os.path.join(AMBIENTCG, "Fabric061", "Fabric061_2K-JPG_Color.jpg"), w)[:h, :w, :3].mean(axis=2)
-    alb = alb * (0.85 + 0.3 * (base_lin - base_lin.mean()) + 0.15)
-    put("quilt", np.repeat(alb[..., None], 3, 2), height_to_normal(hgt, 6))
+    alb = alb * (0.9 + 0.25 * (base_lin - base_lin.mean()))
+    yh = 0.04
+    alb *= 1 - 0.3 * np.exp(-((ys - yh) / 0.005) ** 2)
+    alb *= 1 - 0.3 * stitch_line(w, h, yh * 0.5, 8, 5, 0.003)
+    put("quilt", np.clip(np.repeat(alb[..., None], 3, 2), 0, 1), height_to_normal(hgt, 6))
 
-    # Leather: grain + creases + scuffs.
+    # Leather: pebbled grain, creases, scuffs (light) and dark patina.
     w, h = region_size("leather")
-    g1 = value_noise((h, w), 60, 41, 2)
-    g2 = value_noise((h, w), 8, 42, 4)
-    cre = np.abs(value_noise((h, w), 5, 43, 3) - 0.5) < 0.02
-    alb = 0.82 * (1 - 0.18 * (g2 - 0.5) * 2) * (1 - 0.06 * (g1 - 0.5) * 2) * (1 - 0.15 * cre)
-    put("leather", np.repeat(alb[..., None], 3, 2), height_to_normal(g1 * 0.5 + g2 * 0.3 - cre * 0.2, 5),
-        rough=None)
-    O_l = O  # roughness variation on leather (scuffed = rougher)
+    g1 = vnoise((h, w), 70, 90, 41, 2)
+    g2 = vnoise((h, w), 10, 12, 42, 3)
+    peb = np.clip((vnoise((h, w), 70, 90, 44, 1) - 0.5) * 3 + 0.5, 0, 1)
+    cre = (np.abs(vnoise((h, w), 4, 5, 43, 3) - 0.5) < 0.018).astype(np.float32)
+    scuff = np.clip((vnoise((h, w), 16, 20, 45, 2) - 0.7) * 5, 0, 1) * 0.3
+    alb = 0.80 * (1 - 0.12 * (g2 - 0.5) * 2) * (1 - 0.04 * (g1 - 0.5) * 2) * (1 - 0.025 * peb) * (1 - 0.12 * cre) * (1 + 0.28 * scuff)
+    put("leather", np.repeat(np.clip(alb, 0, 1)[..., None], 3, 2), height_to_normal(peb * 0.06 + g1 * 0.05 + g2 * 0.08 - cre * 0.05, 3))
     u0, v0, u1, v1 = REG["leather"]
-    O_l[int(v0 * ATLAS):int(v1 * ATLAS), int(u0 * ATLAS):int(u1 * ATLAS), 1] = 0.55 + 0.25 * g2
+    O[int(v0 * ATLAS):int(v1 * ATLAS), int(u0 * ATLAS):int(u1 * ATLAS), 1] = 0.5 + 0.28 * g2 - 0.15 * scuff
+
+    # Strap / belt strip (u along the strap, v across): edge paint, bevel, double stitching, holes.
+    w, h = region_size("strap")
+    ys = np.linspace(0, 1, h)[:, None].repeat(w, 1)
+    xs = np.arange(w)[None, :].repeat(h, 0).astype(np.float32)
+    gn = vnoise((h, w), 6, 90, 46, 3)
+    alb = 0.82 * (1 - 0.2 * (gn - 0.5) * 2)
+    edge = np.minimum(ys, 1 - ys)
+    alb *= 1 - 0.42 * np.exp(-(edge / 0.05) ** 2)                       # dark painted edge
+    alb *= 1 + 0.16 * np.exp(-((edge - 0.115) / 0.03) ** 2)             # bevel highlight
+    for yy in (0.24, 0.76):
+        alb *= 1 - 0.55 * stitch_line(w, h, yy, period=11, dash=7, width=0.028)
+    holes = np.zeros((h, w), np.float32)
+    for k in range(5):
+        cx = w - 14 - k * 16
+        holes += np.exp(-(((xs - cx) / 3.2) ** 2 + ((ys - 0.5) * h / 3.2) ** 2))
+    alb *= 1 - 0.7 * np.clip(holes, 0, 1)
+    hg = -0.3 * np.exp(-(edge / 0.06) ** 2) - 0.25 * np.clip(holes, 0, 1)
+    for yy in (0.24, 0.76):
+        hg -= 0.2 * stitch_line(w, h, yy, 11, 7, 0.03)
+    put("strap", np.repeat(np.clip(alb, 0, 1)[..., None], 3, 2), height_to_normal(hg + gn * 0.05, 8))
+
+    # Bag panel (pouches / satchel): stitched border, flap line, brass stud.
+    w, h = region_size("bag")
+    ys = np.linspace(0, 1, h)[:, None].repeat(w, 1)
+    xs = np.linspace(0, 1, w)[None, :].repeat(h, 0)
+    gn = vnoise((h, w), 8, 8, 47, 4)
+    alb = 0.82 * (1 - 0.2 * (gn - 0.5) * 2)
+    bx = np.minimum(xs, 1 - xs); by = np.minimum(ys, 1 - ys); ed = np.minimum(bx, by)
+    alb *= 1 - 0.4 * np.exp(-(ed / 0.03) ** 2)
+    box = np.maximum(np.abs(xs - 0.5) / 0.4, np.abs(ys - 0.5) / 0.4)
+    ring = np.exp(-((box - 1.0) / 0.03) ** 2)
+    ang = np.arctan2(ys - 0.5, xs - 0.5)
+    alb *= 1 - 0.5 * ring * (np.sin((xs + ys) * 90) > -0.2)
+    flap = 0.42 + 0.06 * np.sin(xs * math.pi * 2) * 0 - 0.25 * (xs - 0.5) ** 2
+    alb *= 1 - 0.45 * np.exp(-((ys - flap) / 0.018) ** 2)
+    alb *= 1 + 0.15 * np.exp(-((ys - flap + 0.04) / 0.03) ** 2)
+    stud = np.exp(-(((xs - 0.5) ** 2 + (ys - flap + 0.09) ** 2) / 0.0012))
+    albc = np.repeat(np.clip(alb, 0, 1)[..., None], 3, 2)
+    albc = albc * (1 - stud[..., None]) + stud[..., None] * np.array([0.95, 0.8, 0.45], np.float32)
+    hg = -0.25 * ring - 0.3 * np.exp(-((ys - flap) / 0.02) ** 2) + 0.4 * stud
+    put("bag", albc, height_to_normal(hg + gn * 0.04, 8))
 
     # Boot soles / dark leather.
     w, h = region_size("sole")
-    n = value_noise((h, w), 20, 51, 3)
-    put("sole", np.repeat((0.55 + 0.1 * n)[..., None], 3, 2))
+    n = vnoise((h, w), 20, 30, 51, 3)
+    put("sole", np.repeat((0.55 + 0.12 * n)[..., None], 3, 2), height_to_normal(n, 3))
 
-    # Hair strands: vertical strands (v direction), clumps, highlights.
+    # Hair strands: radial from the crown (u = azimuth, v = polar angle), clumps, sheen band.
     w, h = region_size("hair")
     rng = np.random.default_rng(61)
-    cols = np.zeros(w, np.float32)
-    for _ in range(420):
-        x = rng.integers(0, w)
-        cols[x:x + rng.integers(1, 3)] += rng.random() * 0.6
-    cols = np.convolve(np.concatenate([cols, cols[:4]]), [0.25, 0.5, 0.25], "same")[:w]
-    clump = value_noise((1, w), 12, 62, 3)[0]
-    strand = np.clip(0.55 + 0.45 * cols / cols.max(), 0, 1) * (0.75 + 0.25 * clump)
-    wav = value_noise((h, w), 4, 63, 3)
-    alb = strand[None, :] * (0.85 + 0.15 * wav)
-    alb = 0.95 * alb / alb.max()
-    hh = strand[None, :].repeat(h, 0) * 0.7 + wav * 0.3
-    put("hair", np.repeat(alb[..., None], 3, 2), height_to_normal(hh, 3))
+    xs = np.linspace(0, 1, w, endpoint=False)[None, :]
+    ys = np.linspace(0, 1, h, endpoint=False)[:, None]
+    line = np.zeros((h, w), np.float32)
+    for _ in range(90):
+        x0 = rng.random(); wd = rng.uniform(0.0012, 0.0035); dk = rng.uniform(0.25, 0.7)
+        drift = rng.uniform(-0.03, 0.03); wob = rng.uniform(0, 6.28)
+        xc = x0 + drift * ys + 0.004 * np.sin(ys * 9 + wob)
+        d = np.abs((xs - xc + 0.5) % 1.0 - 0.5)
+        line += dk * np.exp(-(d / wd) ** 2) * (0.5 + 0.5 * np.sin(ys * rng.uniform(1, 3) + rng.uniform(0, 6)) ** 2)
+    line = np.clip(line, 0, 1)
+    clump = vnoise((h, w), 3, 16, 62, 3)
+    hi = np.zeros((h, w), np.float32)
+    for _ in range(70):
+        x0 = rng.random(); wd = rng.uniform(0.0015, 0.004)
+        xc = x0 + 0.004 * np.sin(ys * 8 + rng.uniform(0, 6))
+        d = np.abs((xs - xc + 0.5) % 1.0 - 0.5)
+        hi += rng.uniform(0.3, 0.9) * np.exp(-(d / wd) ** 2)
+    hi = np.clip(hi, 0, 1)
+    sheen = np.exp(-((ys - 0.36) / 0.09) ** 2) * (0.55 + 0.45 * vnoise((h, w), 2, 9, 64, 2))
+    alb = 0.66 * (0.82 + 0.18 * clump) * (1 - 0.45 * line) + 0.34 * hi * (0.35 + 0.65 * sheen) + 0.16 * sheen * (1 - line)
+    alb *= 0.86 + 0.14 * smoothstep(0.0, 0.22, ys)                      # dark parting at the crown
+    alb = np.clip(alb, 0, 1)
+    put("hair", np.repeat(alb[..., None], 3, 2), height_to_normal(-line * 0.5 + hi * 0.3 + clump * 0.2, 3.5))
 
-    # Metal (buckles).
+    # Metal: brushed, scratched iron/steel with soft bevel light.
     w, h = region_size("metal")
-    n = value_noise((h, w), 10, 71, 3)
-    put("metal", np.repeat((0.6 + 0.2 * n)[..., None], 3, 2))
+    br = vnoise((h, w), 40, 4, 71, 3); sc = vnoise((h, w), 3, 7, 72, 3)
+    ys = np.linspace(0, 1, h)[:, None]
+    alb = 0.72 * (1 + 0.16 * (br - 0.5) * 2) * (1 - 0.1 * (sc - 0.5) * 2) * (0.92 + 0.12 * ys)
+    put("metal", np.repeat(np.clip(alb, 0, 1)[..., None], 3, 2), height_to_normal(br * 0.3, 2))
 
-    # Eyes (MakeHuman brown eye texture, sclera toned down a little).
-    w, h = region_size("eye")
-    eye = load_img(os.path.join(mh.MHDATA, "eyes", "materials", "brown_eye.png"), w)[:, :, :3]
-    eye = eye * 0.9
-    put("eye", eye)
+    # Eyes: painted iris (4 colours), limbal ring, pupil, catchlight, warm sclera with shaded rim.
+    # Layout copied from the MakeHuman eye texture: two discs, iris r=.114, sclera r=.283 (of 1024).
+    iris_cols = {"eye": (0.36, 0.20, 0.09), "eye_blue": (0.22, 0.42, 0.66),
+                 "eye_green": (0.30, 0.50, 0.24), "eye_grey": (0.45, 0.50, 0.55)}
+    ew, eh = region_size("eye")
+    SS = 512
+    yy, xx = np.mgrid[0:SS, 0:SS].astype(np.float32) / SS
+    for nm, ic in iris_cols.items():
+        img = np.ones((SS, SS, 3), np.float32) * np.array([0.9, 0.88, 0.84], np.float32)
+        ic = np.array(ic, np.float32)
+        for cx, cyi in ((0.705, 1 - 0.296), (0.288, 1 - 0.708)):        # centres (x, v up)
+            dx = xx - cx; dy = yy - cyi
+            r = np.sqrt(dx * dx + dy * dy)
+            th = np.arctan2(dy, dx)
+            rs = r / 0.283
+            scl = np.array([0.95, 0.93, 0.89], np.float32) * (1 - 0.32 * smoothstep(0.55, 1.0, rs))[..., None]
+            scl = scl * (1 - 0.12 * smoothstep(0.35, 0.5, rs) * (1 - smoothstep(0.5, 0.6, rs)))[..., None]
+            ri = r / 0.114
+            rad = 0.5 + 0.5 * np.sin(th * 34 + 3 * np.sin(th * 5)) * np.sin(th * 13 + 1.0)
+            inner = np.clip(1.25 - ri, 0, 1)[..., None]
+            iris = ic[None, None, :] * (0.55 + 0.5 * inner) * (0.85 + 0.3 * rad[..., None])
+            iris += np.array([0.10, 0.08, 0.02], np.float32) * smoothstep(0.35, 0.7, ri)[..., None] * (1 - smoothstep(0.7, 0.85, ri))[..., None]
+            limb = smoothstep(0.78, 1.0, ri)[..., None]
+            iris = iris * (1 - 0.8 * limb)
+            pup = smoothstep(0.36, 0.30, ri)[..., None]
+            iris = iris * (1 - pup) + 0.02 * pup
+            mix_i = smoothstep(1.02, 0.96, ri)[..., None]
+            e = scl * (1 - mix_i) + iris * mix_i
+            # catchlight up-left of the pupil (sphere up = +v)
+            cl = np.exp(-(((xx - (cx - 0.045)) ** 2 + (yy - (cyi + 0.05)) ** 2) / 0.00028))
+            cl2 = np.exp(-(((xx - (cx + 0.035)) ** 2 + (yy - (cyi - 0.04)) ** 2) / 0.00012)) * 0.5
+            e = e * (1 - np.clip(cl + cl2, 0, 1)[..., None]) + np.clip(cl + cl2, 0, 1)[..., None]
+            m = (r < 0.30)[..., None]
+            img = np.where(m, e, img)
+        tile = img.reshape(ew, SS // ew, ew, SS // ew, 3).mean(axis=(1, 3))
+        put(nm, tile, None, rough=0.14)
 
     # ---------------- skin, painted in MakeHuman UV space
-    w, h = region_size("skin")
-    S = w
+    skin_paint(base, put, O)
+
+    paths = {k: os.path.join(TEX_DIR, f"character_{k}.png") for k in ("albedo", "normal", "orm")}
+    save_png(A, paths["albedo"])
+    save_png(N, paths["normal"], noncolor=True)
+    save_png(O, paths["orm"], noncolor=True)
+    print("atlas written", paths)
+    return paths
+
+
+def skin_paint(base, put, O):
+    """Skin tile painted in MakeHuman UV space with analytic face features."""
+    u0, v0, u1, v1 = REG["skin"]
+    S = int(round((u1 - u0) * ATLAS))
     fidx = base.faces_of_group("body")
     vb = mh.to_blender(base.v)
     tri_uv, tri_pos = [], []
@@ -332,53 +501,68 @@ def build_atlas(base):
     nails = mask("mpfb_fingernails.jpg") + mask("mpfb_toenails.jpg")
     ears = mask("mpfb_ears.jpg")
     px, py, pz = posmap[..., 0], posmap[..., 1], posmap[..., 2]
-    # Base: warm neutral with blotches and pores.
-    b1 = value_noise((S, S), 6, 81, 4)
+    b1 = vnoise((S, S), 5, 5, 81, 4)
     b2 = value_noise((S, S), 90, 82, 2)
-    skin = np.ones((S, S, 3), np.float32)
-    skin *= np.array([0.97, 0.92, 0.9], np.float32)
-    skin *= (1 - 0.05 * (b1 - 0.5) * 2 - 0.025 * (b2 - 0.5) * 2)[..., None]
-    # Face features (analytic, in base-mesh space).
+    b3 = vnoise((S, S), 40, 40, 84, 3)
+    skin = np.ones((S, S, 3), np.float32) * np.array([0.98, 0.93, 0.90], np.float32)
+    skin *= (1 - 0.05 * (b1 - 0.5) * 2 - 0.015 * (b2 - 0.5) * 2)[..., None]
     le, re_ = joints["joint-l-eye"], joints["joint-r-eye"]
+    mo = joints["joint-mouth"]
     eye_z = (le[2] + re_[2]) / 2
     eye_x = abs(le[0])
-    front = py < le[1] + 0.02
+    front = (py < le[1] + 0.02) & (py < le[1] - 0.005 + 0.03)
     head = pz > eye_z - 0.16
     ax = np.abs(px)
-    # Eyebrows: arc above each eye.
-    s = (ax - (eye_x - 0.019)) / 0.047
-    zc = eye_z + 0.019 + 0.006 * np.sin(np.clip(s, 0, 1) * math.pi * 0.85) - 0.003 * s
-    half = 0.0042 * (1 - np.clip(s, 0, 1)) + 0.0018
-    d = np.abs(pz - zc)
-    brow = (1 - smoothstep(half * 0.6, half * 1.25, d)) * smoothstep(-0.08, 0.06, s) * (1 - smoothstep(0.85, 1.05, s))
-    hairy = value_noise((S, S), 180, 83, 1)
-    brow *= (0.75 + 0.25 * hairy) * front * head
-    # Cheeks, nose tip, ears: blood.
-    cheek = np.exp(-(((ax - eye_x * 0.95) / 0.022) ** 2 + ((pz - (eye_z - 0.035)) / 0.02) ** 2)) * front * head
-    nose = np.exp(-((ax / 0.012) ** 2 + ((pz - (eye_z - 0.04)) / 0.015) ** 2)) * front * head
-    red = np.clip(cheek * 0.8 + nose * 0.6 + ears * 0.5, 0, 1)
+    fh = front * head
+    # warm/cool painterly zones: ruddy nose, cheeks and ears; cooler, slightly green temples/jaw
+    cheek = np.exp(-(((ax - eye_x * 1.0) / 0.026) ** 2 + ((pz - (eye_z - 0.04)) / 0.022) ** 2)) * fh
+    nose = np.exp(-((ax / 0.013) ** 2 + ((pz - (eye_z - 0.043)) / 0.016) ** 2)) * fh
+    red = np.clip(cheek * 1.0 + nose * 0.7 + ears * 0.6, 0, 1)
     skin *= (1 - red[..., None] * np.array([0.0, 0.10, 0.10], np.float32))
-    # Eye sockets / lids: slightly darker, cooler.
-    sock = np.exp(-(((ax - eye_x) / 0.02) ** 2 + ((pz - eye_z) / 0.013) ** 2)) * front * head
-    skin *= (1 - (sock * 0.10 + lids * 0.12)[..., None] * np.array([1.0, 1.05, 0.9], np.float32))
-    # Lips.
-    skin = skin * (1 - lips[..., None]) + skin * np.array([0.84, 0.6, 0.6], np.float32) * lips[..., None]
-    # Brows (dark neutral; the per-character skin tint colours them).
-    skin *= (1 - brow[..., None] * 0.62)
-    # Nails lighter.
+    temple = np.exp(-(((ax - eye_x * 1.7) / 0.03) ** 2 + ((pz - (eye_z + 0.005)) / 0.03) ** 2)) * fh
+    skin *= (1 - temple[..., None] * np.array([0.03, 0.0, 0.03], np.float32))
+    # forehead highlight
+    fore = np.exp(-((ax / 0.05) ** 2 + ((pz - (eye_z + 0.06)) / 0.03) ** 2)) * fh
+    skin *= (1 + 0.03 * fore)[..., None]
+    # eye sockets
+    sock = np.exp(-(((ax - eye_x) / 0.024) ** 2 + ((pz - eye_z) / 0.016) ** 2)) * fh
+    skin *= (1 - (sock * 0.13 + lids * 0.12)[..., None] * np.array([1.0, 1.05, 0.85], np.float32))
+    # upper lash line (thick, winged) and soft lower lash
+    ex = ax - eye_x
+    ell = np.sqrt((ex / 0.0175) ** 2 + ((pz - (eye_z + 0.0015)) / 0.0105) ** 2)
+    upper = np.exp(-((ell - 1.0) / 0.10) ** 2) * (pz > eye_z - 0.002) * (0.9 + 0.5 * np.clip(ex / 0.017, 0, 1))
+    lower = np.exp(-((ell - 1.05) / 0.10) ** 2) * (pz <= eye_z - 0.002) * 0.22
+    crease = np.exp(-(((np.sqrt((ex / 0.019) ** 2 + ((pz - (eye_z + 0.0075)) / 0.0115) ** 2)) - 1.0) / 0.2) ** 2) * (pz > eye_z + 0.004) * 0.28
+    lash = np.clip(upper + lower, 0, 1) * fh
+    skin *= (1 - lash[..., None] * 0.8)
+    skin *= (1 - (crease * fh)[..., None] * np.array([0.35, 0.45, 0.5], np.float32))
+    # eyebrows: bold tapered arcs
+    s = (ax - (eye_x - 0.020)) / 0.052
+    zc = eye_z + 0.0225 + 0.007 * np.sin(np.clip(s, 0, 1) * math.pi * 0.85) - 0.0045 * s
+    half = 0.0034 * (1 - np.clip(s, 0, 1) ** 1.3) + 0.0012
+    d = np.abs(pz - zc)
+    brow = (1 - smoothstep(half * 0.55, half * 1.2, d)) * smoothstep(-0.08, 0.06, s) * (1 - smoothstep(0.85, 1.05, s))
+    hairy = vnoise((S, S), 60, 180, 83, 2)
+    brow *= (0.75 + 0.25 * hairy) * fh
+    skin *= (1 - brow[..., None] * np.array([0.62, 0.68, 0.76], np.float32))
+    # nostrils / nose wings shading
+    nos = np.exp(-((((ax - 0.0085) / 0.005) ** 2) + ((pz - (eye_z - 0.0525)) / 0.0036) ** 2)) * fh
+    skin *= (1 - 0.40 * nos[..., None])
+    wing = np.exp(-((((ax - 0.0175) / 0.006) ** 2) + ((pz - (eye_z - 0.047)) / 0.008) ** 2)) * fh
+    skin *= (1 - 0.08 * wing[..., None])
+    # lips: rose colour, darker mouth line, brighter lower lip
+    lipc = np.array([0.82, 0.52, 0.56], np.float32)
+    skin = skin * (1 - lips[..., None]) + skin * lipc * lips[..., None]
+    mline = np.exp(-(((pz - mo[2]) / 0.0016) ** 2)) * (ax < 0.02) * fh * (1 - smoothstep(0.012, 0.02, ax) * 0.6)
+    skin *= (1 - 0.42 * mline[..., None])
+    lowlip = np.exp(-((ax / 0.012) ** 2 + ((pz - (mo[2] - 0.0075)) / 0.0035) ** 2)) * fh
+    skin *= (1 + 0.06 * lowlip)[..., None]
     skin = skin * (1 - nails[..., None] * 0.5) + np.array([1.0, 0.93, 0.9], np.float32) * nails[..., None] * 0.5
-    hgt = b2 * 0.5 + b1 * 0.2
-    put("skin", np.clip(skin, 0, 1), height_to_normal(hgt, 1.2))
-    u0, v0, u1, v1 = REG["skin"]
+    # knuckles / elbows / knees: slightly ruddy
+    hgt = b2 * 0.4 + b1 * 0.2 + b3 * 0.15
+    put("skin", np.clip(skin, 0, 1), height_to_normal(hgt, 1.0))
     O[int(v0 * ATLAS):int(v1 * ATLAS), int(u0 * ATLAS):int(u1 * ATLAS), 1] = \
-        ROUGH["skin"] + 0.12 * (b2 - 0.5) - 0.1 * lips + 0.1 * brow
-
-    paths = {k: os.path.join(TEX_DIR, f"character_{k}.png") for k in ("albedo", "normal", "orm")}
-    save_png(A, paths["albedo"])
-    save_png(N, paths["normal"], noncolor=True)
-    save_png(O, paths["orm"], noncolor=True)
-    print("atlas written", paths)
-    return paths
+        ROUGH["skin"] + 0.10 * (b2 - 0.5) - 0.12 * lips + 0.12 * brow - 0.05 * lowlip
 
 
 # ============================================================ body
@@ -397,6 +581,25 @@ SEG_GROUPS = {
 }
 
 
+_LIPS = {}
+
+
+def lips_mask_sampler(base):
+    if "img" not in _LIPS:
+        im = bpy.data.images.load(os.path.join(mh.MPFB, "textures", "mpfb_lips.jpg"), check_existing=False)
+        w, hh = im.size
+        _LIPS["img"] = np.array(im.pixels[:], dtype=np.float32).reshape(hh, w, 4)[..., 0]
+        bpy.data.images.remove(im)
+    a = _LIPS["img"]
+    hh, w = a.shape
+
+    def f(uv):
+        x = np.clip((uv[:, 0] * w).astype(int), 0, w - 1)
+        y = np.clip((uv[:, 1] * hh).astype(int), 0, hh - 1)
+        return a[y, x]
+    return f
+
+
 class Human:
     """Posed (UAL T-pose), normalised MakeHuman body at full resolution."""
 
@@ -407,7 +610,7 @@ class Human:
                                weight=r.get("weight", 0.5), height=r.get("height", 0.5),
                                proportions=r.get("proportions", 0.6), race=r["race"],
                                cupsize=r.get("cup", 0.5), firmness=r.get("firm", 0.5))
-        extras = {"eyes/l-eye-scale-incr": 0.35, "eyes/r-eye-scale-incr": 0.35,
+        extras = {"eyes/l-eye-scale-incr": 0.18, "eyes/r-eye-scale-incr": 0.18,
                   "mouth/mouth-upperlip-volume-incr": 0.2, "mouth/mouth-lowerlip-volume-incr": 0.2}
         extras.update(r.get("extras", {}))
         v = mh.morph(base, stack, extras)
@@ -487,13 +690,25 @@ class Human:
         # landmark joints in posed/normalised space (head verts are skinned to Head only)
         self.eye_l = self.P[base.group_verts("helper-l-eye")].mean(axis=0)
         self.eye_r = self.P[base.group_verts("helper-r-eye")].mean(axis=0)
-        self.mouth = self._head_pt(jn["joint-mouth"], vb, self.P)
+        lipm = lips_mask_sampler(base)
+        lv = lipm(vuv[:nb]) > 0.5
+        self.mouth = self.P[:nb][lv].mean(axis=0) if lv.sum() > 4 else self._head_pt(jn["joint-mouth"], vb, self.P)
         self.head_top = self.P[:nb][self.seg == "head"][:, 2].max()
         hv = self.P[:nb][self.seg == "head"]
         self.head_c = np.array([0.0, hv[:, 1].mean(), (hv[:, 2].max() + self.eye_l[2]) / 2 - 0.01])
         self.head_back = hv[:, 1].max()
         self.head_front = hv[:, 1].min()
         self.chin_z = hv[np.abs(hv[:, 0]) < 0.01][:, 2].min()
+
+    def ear_near(self, P):
+        e = self.P[:self.nb][self.ear]
+        if len(e) == 0:
+            return np.zeros(len(P), bool)
+        kd = kdtree.KDTree(len(e))
+        for i, p in enumerate(e):
+            kd.insert(Vector(p), i)
+        kd.balance()
+        return np.array([kd.find(Vector(p))[2] < 0.02 for p in P])
 
     def _stylise(self, sc):
         """Slightly larger head, hands and feet (readable at distance): scale the
@@ -762,12 +977,64 @@ def pack_islands(islands, margin=0.03):
     return out
 
 
-def island_uvs(P, faces, groups):
-    """groups: list of (face_index_list, axis_pt, axis_dir). Cylindrical per group, packed."""
+def pack_hem(islands, margin=0.012):
+    """Garment packer: islands (metres, v up = away from the hem) share one
+    row, bottom aligned at the tile's v = margin, so the hem / cuff of every
+    garment always lands on the painted stitched hem strip of its tile."""
+    boxes = []
+    for isl in islands:
+        pts = np.array([p for f in isl for p in f])
+        lo, hi = pts.min(0), pts.max(0)
+        boxes.append((lo, hi - lo))
+    n = len(boxes)
+    wsum = sum(b[1][0] for b in boxes)
+    hmax = max(b[1][1] for b in boxes)
+    scale = min((1 - margin * (n + 1)) / max(wsum, 1e-6), (1 - 2 * margin) / max(hmax, 1e-6))
+    out = []
+    x = margin
+    for i, isl in enumerate(islands):
+        lo = boxes[i][0]
+        out.append([[((u - lo[0]) * scale + x, (v - lo[1]) * scale + margin) for (u, v) in f] for f in isl])
+        x += boxes[i][1][0] * scale + margin
+    return out
+
+
+def fullmap_uv(UV, inset=0.0):
+    """Both axes stretched to the tile (straps / belts: u along, v across)."""
+    pts = np.array([p for f in UV for p in f])
+    lo, hi = pts.min(0), pts.max(0)
+    sp = np.maximum(hi - lo, 1e-6)
+    return [[(inset + (u - lo[0]) / sp[0] * (1 - 2 * inset), inset + (v - lo[1]) / sp[1] * (1 - 2 * inset)) for (u, v) in f] for f in UV]
+
+
+def sphere_uv(P, faces, centre):
+    """Hair UVs: u = azimuth around the vertical axis (seam at the back),
+    v = polar angle from the crown, so painted strands radiate from the crown."""
+    Q = P - centre
+    az = np.arctan2(Q[:, 0], -Q[:, 1])
+    th = np.arccos(np.clip(Q[:, 2] / np.maximum(np.linalg.norm(Q, axis=1), 1e-9), -1, 1))
+    uvs = []
+    for f in faces:
+        a = [az[i] for i in f]
+        a0 = a[0]
+        a = [x + 2 * math.pi if x - a0 < -math.pi else (x - 2 * math.pi if x - a0 > math.pi else x) for x in a]
+        uvs.append([(0.02 + 0.96 * (a[k] + math.pi) / (2 * math.pi), min(max(th[f[k]] / 2.3, 0.0), 1.0)) for k in range(len(f))])
+    return uvs
+
+
+def island_uvs(P, faces, groups, hem=False):
+    """groups: list of (face_index_list, axis_pt, axis_dir). Cylindrical per group, packed.
+    axis_dir None = spherical (hair). hem=True: hem-aligned row packing (cloth)."""
+    if all(ad is None for _, _, ad in groups):
+        uvs = [None] * len(faces)
+        for fl, ap, _ in groups:
+            for fi, uv in zip(fl, sphere_uv(P, [faces[i] for i in fl], ap)):
+                uvs[fi] = uv
+        return uvs
     islands = []
     for fl, ap, ad in groups:
         islands.append(cyl_uv(P, [faces[i] for i in fl], ap, ad))
-    packed = pack_islands(islands)
+    packed = pack_hem(islands) if hem else pack_islands(islands)
     uvs = [None] * len(faces)
     for (fl, _, _), isl in zip(groups, packed):
         for fi, uv in zip(fl, isl):
@@ -805,6 +1072,9 @@ def paint(base_srgb, n, grime=None, var=0.0, seed=0):
     return np.clip(col, 0, 1.0)
 
 
+CLOTH_TILES = ("linen", "wool", "coarse", "felt", "quilt")
+
+
 def weights_from_src(h, src):
     return h.W[src]
 
@@ -813,7 +1083,7 @@ def shell_part(h, name, sh, tile, color_srgb, budget, groups_fn, grime=0.2, hem_
                rim_dark=0.85, weights=None):
     P, F = sh["v"], sh["f"]
     groups = groups_fn(P, F, sh)
-    uvs = island_uvs(P, F, groups)
+    uvs = island_uvs(P, F, groups, hem=tile in CLOTH_TILES)
     g = dirt(h, P, grime, hem_z, seed)
     col = paint(color_srgb, len(P), g, 0.04, seed)
     col[sh["rim"]] *= rim_dark
@@ -849,7 +1119,7 @@ def body_axis_groups(h, parts):
             if key.startswith("arm"):
                 sd = key[-1]
                 a = h.J["upperarm_" + sd]; b = h.J["hand_" + sd]
-                out.append((fl, a, b - a))
+                out.append((fl, a, a - b))
             elif key.startswith("leg"):
                 sd = key[-1]
                 a = h.J["thigh_" + sd]; b = h.J["foot_" + sd]
@@ -982,37 +1252,75 @@ def skirt_weights(h, P, z_top, z_hem, long=False):
     return W / W.sum(axis=1, keepdims=True)
 
 
+def _smooth_ring(v, passes=2):
+    """Periodic 1-2-1 smoothing of a per-angle vector."""
+    for _ in range(passes):
+        v = 0.5 * v + 0.25 * (np.roll(v, 1) + np.roll(v, -1))
+    return v
+
+
 def make_skirt(h, name, z_top, z_hem, tile, color, flare=0.10, ease=0.02, segs=28, rows=8,
                long=False, inner_pts=None, grime=0.25, seed=0, folds=0.012, budget=None, phi_range=None,
-               offset=0.0, hem_dark=0.7):
-    """Lofted skirt from z_top down to z_hem around the hips/legs."""
+               offset=0.0, hem_dark=0.7, pleats=None):
+    """Lofted skirt from z_top down to z_hem around the hips/legs.
+    A-line profile (never narrower than the hips), gathered pleats that deepen
+    towards the hem, a gently wavy hem and rows packed densely near the hem.
+    Fold shading is baked into the vertex colours."""
     full = phi_range is None
     if full:
         phis = np.linspace(-math.pi, math.pi, segs, endpoint=False)
     else:
         phis = np.linspace(phi_range[0], phi_range[1], segs)
-    zs = z_top - (z_top - z_hem) * (np.linspace(0, 1, rows) ** 1.1)
+    tl = np.linspace(0, 1, rows)
+    zs = z_top - (z_top - z_hem) * (1 - (1 - tl) ** 1.5)
     cy = center_y(h, z_top)
-    rings = []
-    prev = None
     rng = np.random.default_rng(seed)
-    fold_ph = rng.random() * 6.28
+    p1, p2 = rng.random() * 6.28, rng.random() * 6.28
+    k1 = pleats if pleats is not None else (8 if long else 7)
+    k2 = 3
+    env0 = None
+    base_r = []
     for i, z in enumerate(zs):
-        t = i / (rows - 1)
         env = envelope(h, z, phis, (0, cy), pts=inner_pts if (inner_pts is not None and i == 0) else None,
                        ring_h=0.05 if (inner_pts is not None and i == 0) else 0.018)
         if inner_pts is not None and i == 0:
             env = np.maximum(env, envelope(h, z, phis, (0, cy)) + 0.006) - ease + 0.004
-        r = env + ease + flare * t ** 1.3 + offset
-        if prev is not None:
-            r = np.maximum(r, prev * 0.99)
-        r = r + folds * t * np.sin(phis * 9 + fold_ph + t * 1.5) + folds * 0.5 * t * np.sin(phis * 5 + fold_ph * 2)
-        prev = r
-        pts = np.stack([np.sin(phis) * r, cy + np.cos(phis) * r, np.full(len(phis), z)], axis=1)
+        if full:
+            env = _smooth_ring(env, 3)
+        if env0 is None:
+            env0 = env.copy()
+        base_r.append(env)
+    rings = []
+    shade = []
+    prev = None
+    for i, z in enumerate(zs):
+        t = tl[i]
+        env = np.maximum(base_r[i], env0 * (0.94 + 0.06 * t))
+        r = env + ease + flare * t ** 1.15 + offset
+        s = 0.65 * np.cos(phis * k1 + p1 + 0.8 * t) + 0.35 * np.cos(phis * k2 + p2 + 1.7 * t)
+        s = np.sign(s) * np.abs(s) ** 0.85
+        amp = folds * (t ** 1.25)
+        r = r + amp * s
+        zz = np.full(len(phis), z) - 0.012 * (t ** 2.5) * (0.5 + 0.5 * s) * (folds > 0)
+        pts = np.stack([np.sin(phis) * r, cy + np.cos(phis) * r, zz], axis=1)
         rings.append(pts)
+        shade.append(1 + 0.16 * s * (0.15 + 0.85 * t ** 0.8) * (folds > 0))
     rings = np.array(rings)
+    # smooth the profile down the rows (removes bell kinks), keep the waist and hem rows
+    if rows > 4:
+        R = rings.copy()
+        for _ in range(2):
+            R[1:-1, :, :2] = 0.25 * R[:-2, :, :2] + 0.5 * R[1:-1, :, :2] + 0.25 * R[2:, :, :2]
+        # never let the smoothing pull the skirt inside the hips
+        cen = np.array([0, cy])
+        for i in range(1, rows - 1):
+            d0 = np.linalg.norm(rings[i, :, :2] - cen, axis=1)
+            d1 = np.linalg.norm(R[i, :, :2] - cen, axis=1)
+            k = np.where(d1 < d0, d0 / np.maximum(d1, 1e-6), 1.0)
+            R[i, :, :2] = cen + (R[i, :, :2] - cen) * k[:, None]
+        rings = R
+    shade = np.array(shade).reshape(-1)
     V, F, UV = loft(rings, closed=full)
-    # hem turned in
     S = len(phis)
     last = rings[-1]
     cen = np.array([0, cy, 0])
@@ -1025,10 +1333,11 @@ def make_skirt(h, name, z_top, z_hem, tile, color, flare=0.10, ease=0.02, segs=2
         a, b = (rows - 1) * S + j, (rows - 1) * S + j2
         F.append((b, base + j2, base + j, a))
         UV.append([UV[-1][0], UV[-1][0], UV[-1][0], UV[-1][0]])
-    uvs = pack_islands([UV])[0]
+    uvs = pack_hem([UV])[0]
     W = skirt_weights(h, V, z_top, z_hem, long)
     g = dirt(h, V, grime, z_hem, seed, knees=False)
     col = paint(color, len(V), g, 0.03, seed)
+    col[:base] *= shade[:, None]
     col[base:] *= hem_dark
     return Part(name, V, F, uvs, W, col, tile, budget)
 
@@ -1039,13 +1348,18 @@ def band(h, name, z0, z1, tile, color, pts, extra_r=0.006, segs=32, seed=0, cy=N
     cy = center_y(h, (z0 + z1) / 2) if cy is None else cy
     zm = (z0 + z1) / 2
     env = np.maximum(envelope(h, zm, phis, (0, cy), pts=pts, ring_h=0.03), envelope(h, zm, phis, (0, cy)))
-    prof = [(z0, 0.0), (z0 + 0.004, extra_r), (z1 - 0.004, extra_r), (z1, 0.0)]
+    prof = [(z0, 0.0), (z0 + 0.003, extra_r * 0.75), (z0 + 0.008, extra_r), (z1 - 0.008, extra_r), (z1 - 0.003, extra_r * 0.75), (z1, 0.0)]
     rings = []
     for z, dr in prof:
         r = env + dr + 0.002
         rings.append(np.stack([np.sin(phis) * r, cy + np.cos(phis) * r, np.full(segs, z)], axis=1))
     V, F, UV = loft(np.array(rings), closed=True)
-    uvs = pack_islands([UV])[0]
+    if tile == "strap":
+        uvs = fullmap_uv(UV, 0.0)
+    elif tile in CLOTH_TILES:
+        uvs = pack_hem([UV])[0]
+    else:
+        uvs = pack_islands([UV])[0]
     W = nearest_weights(h, V)
     col = paint(color, len(V), None, 0.05, seed)
     return Part(name, V, F, uvs, W, col, tile, None), env, cy
@@ -1090,14 +1404,14 @@ def belt_z(h):
     return h.z("pelvis") + 0.35 * (h.z("spine_01") - h.z("pelvis")) + 0.02
 
 
-def g_tunic(h, r, pal, parts, cov, kind="tunic"):
+def g_tunic(h, r, pal, parts, cov, kind="tunic", key="tunic", skirt=True):
     bz = belt_z(h)
     if kind == "gambeson":
         sl, d, tile, col = sleeve_x(h, 0.97), 0.02, "quilt", pal["gambeson"]
         m = top_mask(h, bz - 0.05, sl, collar=True)
         hem = h.z("pelvis") - 0.55 * (h.z("pelvis") - h.z("calf_l"))
     else:
-        sl, d, tile, col = sleeve_x(h, r.get("sleeve", 0.8)), 0.016, r.get("tunic_tile", "linen"), pal["tunic"]
+        sl, d, tile, col = sleeve_x(h, r.get("sleeve", 0.8)), 0.016, r.get("tunic_tile", "linen"), pal[key]
         m = top_mask(h, bz - 0.05, sl, neck_depth=0.035)
         hem = h.z("calf_l") + r.get("tunic_len", 0.16) * (h.z("thigh_l") - h.z("calf_l"))
     P = h.P[:h.nb]
@@ -1105,40 +1419,54 @@ def g_tunic(h, r, pal, parts, cov, kind="tunic"):
     # looser over the belly and chest, tighter at the neck
     dd += 0.006 * smoothstep(h.z("neck_01") - 0.02, h.z("spine_02"), P[:, 2])[()] * 0
     sh = shell(h, m, dd, smooth=8 if kind == "gambeson" else 6, taubin=25)
-    parts.append(shell_part(h, kind, sh, tile, col, 1200 if kind == "gambeson" else 950,
+    parts.append(shell_part(h, kind, sh, tile, col, 900 if kind == "gambeson" else 820,
                             body_axis_groups(h, {"arms", "torso"}), grime=0.18, seed=r["seed"]))
     cov |= covered(h, m)
     top_pts = sh["v"]
-    flare = r.get("tunic_flare", 0.05 if kind == "gambeson" else 0.07)
+    if not skirt:
+        return top_pts, bz
+    flare = r.get("tunic_flare", 0.03 if kind == "gambeson" else 0.04)
     skirt = make_skirt(h, kind + "_skirt", bz + 0.01, hem, tile, col, flare=flare,
-                       ease=0.018 + d, segs=r.get("tunic_hem_segs", 26), rows=7, inner_pts=top_pts,
+                       ease=0.018 + d, segs=r.get("tunic_hem_segs", 36), rows=10, inner_pts=top_pts,
                        seed=r["seed"] + 3,
-                       folds=r.get("tunic_hem_folds", 0.006 if kind == "gambeson" else 0.01))
+                       folds=r.get("tunic_hem_folds", 0.006 if kind == "gambeson" else 0.01), budget=r.get("skirt_budget", 560))
     parts.append(skirt)
     # hips/thighs under the skirt stay (trousers cover them)
     return top_pts, bz
 
 
 def g_belt(h, r, pal, parts, top_pts, bz, pouch=True, pouch_count=1):
-    p, env, cy = band(h, "belt", bz - 0.022, bz + 0.022, "leather", pal["belt"], top_pts, extra_r=0.007, seed=r["seed"])
+    p, env, cy = band(h, "belt", bz - 0.024, bz + 0.024, "strap", pal["belt"], top_pts, extra_r=0.010, seed=r["seed"], segs=28)
+    p.budget = 200
     parts.append(p)
     front_r = env[len(env) // 2]
-    parts.append(box_part(h, "buckle", (0, cy - front_r - 0.012, bz), (0.042, 0.008, 0.036), "metal", (0.62, 0.58, 0.5)))
+    fy = cy - front_r - 0.014
+    brass = (0.8, 0.66, 0.32)
+    w_pel = one_hot("spine_01") * 0.5 + one_hot("pelvis") * 0.5
+    # buckle: brass frame + tongue, and the strap tail hanging down
+    for nm, c, sz in (("buckle_l", (-0.021, fy, bz), (0.007, 0.007, 0.046)), ("buckle_r", (0.021, fy, bz), (0.007, 0.007, 0.046)),
+                      ("buckle_t", (0, fy, bz + 0.019), (0.05, 0.007, 0.008)), ("buckle_b", (0, fy, bz - 0.019), (0.05, 0.007, 0.008)),
+                      ("buckle_p", (0, fy - 0.002, bz), (0.004, 0.006, 0.036))):
+        parts.append(box_part(h, nm, c, sz, "metal", brass, weights_from=w_pel))
+    parts.append(box_part(h, "belt_tail", (0.045, fy + 0.002, bz - 0.06), (0.03, 0.007, 0.125), "strap", pal["belt"], weights_from=w_pel))
     if pouch:
         angles = [115] if pouch_count <= 1 else [95, 265][:pouch_count]
         for pi, ang_deg in enumerate(angles):
             ang = math.radians(ang_deg)
             k = int((ang + math.pi) / (2 * math.pi) * len(env)) % len(env)
             rr = env[k] + 0.03
-            c = (math.sin(ang) * rr, cy + math.cos(ang) * rr, bz - 0.055)
-            parts.append(box_part(h, f"pouch_{pi}", c, (0.09, 0.045, 0.10), "leather",
-                                  pal.get("pouch", pal["belt"]), rot=-ang))
+            c = (math.sin(ang) * rr, cy + math.cos(ang) * rr, bz - 0.06)
+            pc = pal.get("pouch", pal["belt"])
+            parts.append(rbox_part(h, f"pouch_{pi}", c, (0.09, 0.04, 0.09), "bag", pc, weights=w_pel, rot=-ang, bevel=0.008, seed=pi, bev_seg=1))
+            fc = (math.sin(ang) * (rr + 0.005), cy + math.cos(ang) * (rr + 0.005), bz - 0.03)
+            parts.append(rbox_part(h, f"pouch_flap_{pi}", fc, (0.094, 0.044, 0.05), "bag", tuple(np.clip(np.array(pc) * 1.08, 0, 1)),
+                                   weights=w_pel, rot=-ang, bevel=0.008, seed=pi + 5, bev_seg=1))
 
 
 def g_trousers(h, r, pal, parts, cov, top_z, boot_top):
     P = h.P[:h.nb]
     m = h.mask("torso", "thigh", "calf")
-    m &= (P[:, 2] < top_z) & (P[:, 2] > boot_top - 0.11)   # leg rows are ~5 cm apart: overlap well
+    m &= (P[:, 2] < top_z) & (P[:, 2] > boot_top - 0.15)   # leg rows are ~5 cm apart: overlap well
     sh = shell(h, m, 0.008, smooth=6, taubin=15)
     parts.append(shell_part(h, "trousers", sh, r.get("trouser_tile", "wool"), pal["trousers"], 650,
                             body_axis_groups(h, {"legs"}), grime=0.3, seed=r["seed"] + 5))
@@ -1203,12 +1531,12 @@ def g_dress(h, r, pal, parts, cov):
     sl = sleeve_x(h, r.get("sleeve", 0.95))
     m = top_mask(h, wz - 0.03, sl, neck_depth=0.05, neck_width=0.085)
     sh = shell(h, m, 0.008, smooth=6, taubin=15)
-    parts.append(shell_part(h, "bodice", sh, r.get("dress_tile", "wool"), pal["dress"], 900,
+    parts.append(shell_part(h, "bodice", sh, r.get("dress_tile", "wool"), pal["dress"], 760,
                             body_axis_groups(h, {"arms", "torso"}), grime=0.15, seed=r["seed"]))
     cov |= covered(h, m)
     hem = 0.06
     sk = make_skirt(h, "dress_skirt", wz, hem, r.get("dress_tile", "wool"), pal["dress"], flare=0.16, ease=0.03,
-                    segs=30, rows=10, long=True, inner_pts=sh["v"], seed=r["seed"] + 1, folds=0.014)
+                    segs=40, rows=12, long=True, inner_pts=sh["v"], seed=r["seed"] + 1, folds=0.026, budget=720)
     parts.append(sk)
     # legs are hidden under a long skirt: drop thighs and upper calves
     P = h.P[:h.nb]
@@ -1217,15 +1545,223 @@ def g_dress(h, r, pal, parts, cov):
     return sh["v"], wz
 
 
+
+# ------------------------------------------------------------ surface helpers, straps, bags
+
+class Surf:
+    """Ray casting against the outermost garments built so far."""
+
+    def __init__(self, parts, skip=("eyes", "hair", "hair_locks", "bun", "braid", "beard", "belt", "buckle")):
+        Vs, Fs, off = [], [], 0
+        for p in parts:
+            if p.name in skip or p.name.startswith(("pouch", "satchel", "buckle", "belt")):
+                continue
+            Vs.append(p.v)
+            Fs += [tuple(i + off for i in f) for f in p.f]
+            off += len(p.v)
+        self.bvh = bvhtree.BVHTree.FromPolygons([tuple(v) for v in np.concatenate(Vs)], Fs)
+
+    def ray(self, origin, direction, dist=3.0):
+        d = np.asarray(direction, float)
+        d = d / np.linalg.norm(d)
+        loc, n, _, _ = self.bvh.ray_cast(Vector(origin), Vector(d), dist)
+        if loc is None:
+            return None
+        n = np.array(n)
+        if np.dot(n, d) > 0:
+            n = -n
+        return np.array(loc), n
+
+
+def ribbon_part(h, name, pts, nrm, width, thick, tile, color, weights=None, closed=False, seed=0, restrict=None):
+    """Flat strap along a path lying on a surface (normals nrm)."""
+    pts = np.asarray(pts, float); nrm = np.asarray(nrm, float)
+    if closed:
+        pts = np.vstack([pts, pts[:1]]); nrm = np.vstack([nrm, nrm[:1]])
+    R = len(pts)
+    rings = []
+    for k in range(R):
+        if closed:
+            tg = pts[(k + 1) % (R - 1)] - pts[(k - 1) % (R - 1)]
+        else:
+            tg = pts[min(k + 1, R - 1)] - pts[max(k - 1, 0)]
+        tg = tg / max(np.linalg.norm(tg), 1e-9)
+        n = nrm[k] - tg * np.dot(nrm[k], tg)
+        n /= max(np.linalg.norm(n), 1e-9)
+        b = np.cross(n, tg); b /= max(np.linalg.norm(b), 1e-9)
+        p = pts[k] + n * 0.002
+        w2 = width / 2
+        rings.append([p + b * w2 + n * thick * 0.6, p + b * (w2 + thick * 0.4) + n * thick * 0.25,
+                      p + b * (w2 + thick * 0.4) + n * 0.0, p - b * (w2 + thick * 0.4) + n * 0.0,
+                      p - b * (w2 + thick * 0.4) + n * thick * 0.25, p - b * w2 + n * thick * 0.6])
+    V, F, UV = loft(np.array(rings), closed=True)
+    UV = [[(v, u) for (u, v) in f] for f in UV]
+    uvs = fullmap_uv(UV)
+    W = nearest_weights(h, V, restrict=restrict) if weights is None else np.tile(weights, (len(V), 1))
+    col = paint(color, len(V), None, 0.05, seed)
+    return Part(name, V, F, uvs, W, col, tile, None)
+
+
+def rbox_part(h, name, center, size, tile, color, weights=None, rot=0.0, bevel=0.006, seed=0, bag_uv=True, bev_seg=2):
+    """Bevelled box with per-face planar UVs (whole tile per big face)."""
+    bm = bmesh.new()
+    bmesh.ops.create_cube(bm, size=1.0)
+    for v in bm.verts:
+        v.co = (v.co.x * size[0], v.co.y * size[1], v.co.z * size[2])
+    bmesh.ops.bevel(bm, geom=list(bm.edges), offset=bevel, segments=bev_seg, profile=0.5)
+    bm.verts.ensure_lookup_table()
+    V = np.array([v.co[:] for v in bm.verts])
+    F = [tuple(v.index for v in f.verts) for f in bm.faces]
+    bm.free()
+    sx, sy, sz = size
+    UV = []
+    for f in F:
+        q = V[list(f)]
+        nn = np.cross(q[1] - q[0], q[2] - q[0])
+        ax = int(np.argmax(np.abs(nn)))
+        uv = []
+        for p in q:
+            if ax == 1:
+                uv.append((p[0] / sx + 0.5, p[2] / sz + 0.5))
+            elif ax == 0:
+                uv.append((p[1] / sy + 0.5, p[2] / sz + 0.5))
+            else:
+                uv.append((p[0] / sx + 0.5, p[1] / sy + 0.5))
+        UV.append([(min(max(u, 0.02), 0.98), min(max(v, 0.02), 0.98)) for u, v in uv])
+    if rot:
+        cr, sr = math.cos(rot), math.sin(rot)
+        V = V @ np.array([[cr, sr, 0], [-sr, cr, 0], [0, 0, 1]])
+    V = V + np.array(center)
+    W = nearest_weights(h, V) if weights is None else np.tile(weights, (len(V), 1))
+    col = paint(color, len(V), None, 0.05, seed)
+    return Part(name, V, F, UV, W, col, tile, None)
+
+
+def g_satchel(h, r, pal, parts, bz, side="l"):
+    """Leather satchel on the left hip with a bandolier strap over the right
+    shoulder and across the chest and back (the hero's bag in the reference)."""
+    sf = Surf(parts)
+    sgn = 1.0 if side == "l" else -1.0
+    cy = center_y(h, bz + 0.1)
+    zn = h.z("neck_01")
+    z_sh = zn - 0.035
+    x_sh = -sgn * 0.105
+    bag_top = bz - 0.07
+    pts, nrm = [], []
+
+    def add(res):
+        if res is not None:
+            pts.append(res[0]); nrm.append(res[1])
+    # front diagonal (right shoulder -> left hip), rays from the front
+    N = 8
+    fr = []
+    for k in range(N + 1):
+        t = k / N
+        x = x_sh + (sgn * 0.185 - x_sh) * t
+        z = (z_sh - 0.03) + (bag_top - (z_sh - 0.03)) * t
+        fr.append(sf.ray((x, cy - 1.0, z), (0, 1, 0)))
+    for res in fr:
+        add(res)
+    # around the hip (left side), from the front to the back
+    for yy in (-0.06, 0.0, 0.06):
+        add(sf.ray((sgn * 1.0, cy + yy, bag_top), (-sgn, 0, 0)))
+    # back diagonal, from the back
+    for k in range(N + 1):
+        t = 1 - k / N
+        x = x_sh + (sgn * 0.185 - x_sh) * t
+        z = (z_sh - 0.03) + (bag_top - (z_sh - 0.03)) * t
+        add(sf.ray((x, cy + 1.0, z), (0, -1, 0)))
+    # over the right shoulder, back -> front
+    for yy in (0.045, 0.0, -0.045):
+        add(sf.ray((x_sh, cy + yy, zn + 0.3), (0, 0, -1)))
+    if len(pts) > 8:
+        parts.append(ribbon_part(h, "satchel_strap", pts, nrm, 0.042, 0.011, "strap", pal.get("satchel_strap", pal["belt"]),
+                                 closed=True, seed=r["seed"] + 31,
+                                 restrict=h.mask("torso", "neck")))
+    # bag on the hip, outside the tunic skirt
+    res = sf.ray((sgn * 1.0, cy + 0.01, bag_top - 0.09), (-sgn, 0, 0))
+    hx = res[0][0] if res is not None else sgn * 0.24
+    w = one_hot("pelvis") * 0.7 + one_hot("spine_01") * 0.3
+    bc = np.array([hx + sgn * 0.045, cy + 0.01, bag_top - 0.085])
+    bagc = pal.get("satchel", pal["belt"])
+    parts.append(rbox_part(h, "satchel_bag", bc, (0.07, 0.21, 0.17), "bag", bagc, weights=w, bevel=0.012, seed=r["seed"] + 32))
+    parts.append(rbox_part(h, "satchel_flap", bc + np.array([sgn * 0.006, 0, 0.045]), (0.078, 0.218, 0.085), "bag",
+                           tuple(np.clip(np.array(bagc) * 1.08, 0, 1)), weights=w, bevel=0.012, seed=r["seed"] + 33))
+    # strap loop rising from the bag to the bandolier, and a brass stud
+    parts.append(box_part(h, "satchel_stud", bc + np.array([sgn * 0.043, 0.0, 0.03]), (0.008, 0.02, 0.02), "metal",
+                          (0.85, 0.68, 0.3), weights_from=w))
+
+
+def g_boot_cuffs(h, r, pal, parts, top):
+    bp = [p for p in parts if p.name == "boots"]
+    if not bp:
+        return
+    B = bp[0]
+    for sd, sgn in (("l", 1), ("r", -1)):
+        sel = (B.v[:, 0] * sgn > 0) & (B.v[:, 2] > top - 0.045) & (B.v[:, 2] < top + 0.003)
+        if sel.sum() < 6:
+            continue
+        Q = B.v[sel]
+        cxy = Q[:, :2].mean(axis=0)
+        phis = np.linspace(-math.pi, math.pi, 18, endpoint=False)
+        dx = Q[:, 0] - cxy[0]; dy = Q[:, 1] - cxy[1]
+        ang = np.arctan2(dx, dy); rad = np.hypot(dx, dy)
+        rr = np.zeros(len(phis))
+        for k, ph in enumerate(phis):
+            dif = np.abs((ang - ph + math.pi) % (2 * math.pi) - math.pi)
+            s = dif < 0.4
+            rr[k] = rad[s].max() if s.any() else rad.mean()
+        rr = _smooth_ring(rr, 2)
+        prof = [(top - 0.052, 0.002), (top - 0.048, 0.011), (top - 0.004, 0.012), (top + 0.001, 0.006)]
+        rings = [np.stack([cxy[0] + np.sin(phis) * (rr + dr), cxy[1] + np.cos(phis) * (rr + dr), np.full(len(phis), z)], axis=1)
+                 for z, dr in prof]
+        V, F, UV = loft(np.array(rings), closed=True)
+        uvs = fullmap_uv(UV)
+        W = nearest_weights(h, V, restrict=h.mask("foot", "calf"))
+        col = paint(tuple(np.clip(np.array(pal["boots"]) * 1.12, 0, 1)), len(V), None, 0.05, r["seed"])
+        parts.append(Part("boot_cuff_" + sd, V, F, uvs, W, col, "strap", None))
+
+
+def g_laces(h, r, pal, parts, wz, n=4):
+    """Criss-cross lacing over a chemise panel on the bodice front (reference baker)."""
+    sf = Surf(parts)
+    cy = center_y(h, wz + 0.1)
+    z0 = wz + 0.03
+    dz = 0.032
+    # chemise panel
+    pp, pn = [], []
+    for k in range(n + 2):
+        res = sf.ray((0.0, cy - 1.0, z0 + k * dz - 0.01), (0, 1, 0))
+        if res is not None:
+            pp.append(res[0]); pn.append(res[1])
+    if len(pp) > 3:
+        parts.append(ribbon_part(h, "chemise_panel", pp, pn, 0.05, 0.004, "linen", pal.get("undersleeve", (0.92, 0.88, 0.78)),
+                                 seed=r["seed"] + 41, restrict=h.mask("torso")))
+    lc = pal.get("lace", (0.34, 0.21, 0.11))
+    for k in range(n):
+        za = z0 + k * dz
+        for a, b in ((-0.026, 0.026), (0.026, -0.026)):
+            pp, pn = [], []
+            for t in (0.0, 0.5, 1.0):
+                x = a + (b - a) * t
+                z = za + dz * t
+                res = sf.ray((x, cy - 1.0, z), (0, 1, 0))
+                if res is not None:
+                    pp.append(res[0] + res[1] * 0.004); pn.append(res[1])
+            if len(pp) == 3:
+                parts.append(ribbon_part(h, f"lace_{k}", pp, pn, 0.0065, 0.004, "strap", lc, seed=r["seed"] + 42 + k,
+                                         restrict=h.mask("torso")))
+
 def g_apron(h, r, pal, parts, wz, dress_pts):
-    ap = make_skirt(h, "apron", wz - 0.004, h.z("calf_l") - 0.12, "linen", pal["apron"], flare=0.2, ease=0.055,
-                    segs=12, rows=6, long=True, seed=r["seed"] + 9, folds=0.0, phi_range=(math.pi - 1.0, math.pi + 1.0),
+    ap = make_skirt(h, "apron", wz - 0.004, h.z("calf_l") - 0.12, "linen", pal["apron"], flare=0.12, ease=0.04,
+                    segs=18, rows=9, long=True, seed=r["seed"] + 9, folds=0.005, budget=230, phi_range=(math.pi - 1.0, math.pi + 1.0),
                     inner_pts=dress_pts, offset=0.008,
                     grime=0.08, hem_dark=0.95)
     # phi_range around the front: remap angles > pi
     parts.append(ap)
     p, env, cy = band(h, "apron_band", wz - 0.012, wz + 0.018, "linen", pal["apron"], dress_pts, extra_r=0.005,
-                      seed=r["seed"])
+                      seed=r["seed"], segs=22)
+    p.budget = 110
     parts.append(p)
 
 
@@ -1279,7 +1815,7 @@ def flatten_torso(h, sh, z_lo, z_hi, straighten=0.5, broaden=0.03, ang_w=0.4, z_
 
 def g_vest(h, r, pal, parts, cov, name, pal_key, hem_frac=0.16, offset=0.026, neck_depth=0.05,
            neck_width=0.09, flare=0.06, min_flare=0.09, skirt_ease=0.05, grime=0.15, seed_off=20,
-           trim_key=None, tile="wool"):
+           trim_key=None, tile="wool", skirt=True):
     """Sleeveless overlay garment (waistcoat / tabard / sleeveless overtunic),
     built further off the body than whatever is already on the torso so it
     sits visibly outside it. `hem_frac` is the tunic-style fraction between
@@ -1302,7 +1838,7 @@ def g_vest(h, r, pal, parts, cov, name, pal_key, hem_frac=0.16, offset=0.026, ne
         flatten_torso(h, sh, bz - 0.06, h.z("neck_01") - 0.05,
                       straighten=r.get("chest_straighten", 0.55),
                       broaden=r.get("chest_broaden", 0.03))
-    part = shell_part(h, name, sh, tile, color, 550, body_axis_groups(h, {"torso"}),
+    part = shell_part(h, name, sh, tile, color, 450, body_axis_groups(h, {"torso"}),
                       grime=grime, seed=r["seed"] + seed_off)
     if trim_key and trim_key in pal:
         tc = srgb2lin(np.array(pal[trim_key])) / srgb2lin(0.88)
@@ -1310,14 +1846,16 @@ def g_vest(h, r, pal, parts, cov, name, pal_key, hem_frac=0.16, offset=0.026, ne
     parts.append(part)
     cov |= covered(h, m)
     top_pts = sh["v"]
+    if not skirt:
+        return top_pts, bz
     hem = h.z("calf_l") + hem_frac * (h.z("thigh_l") - h.z("calf_l"))
-    segs, rows = 24, 7
+    segs, rows = 32, 9
     # A generous, fold-free ease keeps this skirt's radius safely outside
     # whatever wavy under-layer skirt (tunic/gambeson) it's covering at every
     # angle, so the under-layer never pokes through the hem.
     skirt = make_skirt(h, name + "_skirt", bz + 0.01, hem, tile, color, flare=max(flare, min_flare),
-                       ease=skirt_ease + offset, segs=segs, rows=rows, inner_pts=top_pts,
-                       seed=r["seed"] + seed_off + 3, folds=0.0)
+                       ease=skirt_ease * 0.6 + offset * 0.6, segs=segs, rows=rows, inner_pts=top_pts,
+                       seed=r["seed"] + seed_off + 3, folds=0.0, budget=420)
     if trim_key and trim_key in pal:
         tc = srgb2lin(np.array(pal[trim_key])) / srgb2lin(0.88)
         idxs = np.arange((rows - 1) * segs, rows * segs)
@@ -1327,7 +1865,7 @@ def g_vest(h, r, pal, parts, cov, name, pal_key, hem_frac=0.16, offset=0.026, ne
     return top_pts, bz
 
 
-def g_undersleeve(h, r, pal, parts, cov, pal_key, cut_from, cut_to=0.97, tile="linen", grime=0.08, seed_off=40):
+def g_undersleeve(h, r, pal, parts, cov, pal_key, cut_from, cut_to=0.97, tile="linen", grime=0.08, seed_off=40, d=0.010, name="undersleeve"):
     """Contrast chemise sleeve showing beyond a shorter over-garment sleeve
     (cut_from..cut_to are |x| fractions along the arm, elbow..wrist ~ sleeve_x)."""
     color = pal[pal_key]
@@ -1337,8 +1875,8 @@ def g_undersleeve(h, r, pal, parts, cov, pal_key, cut_from, cut_to=0.97, tile="l
     m &= (ax > cut_from) & (ax < cut_to)
     if not m.any():
         return
-    sh = shell(h, m, 0.010, smooth=5, taubin=10)
-    part = shell_part(h, "undersleeve", sh, tile, color, 260, body_axis_groups(h, {"arms"}),
+    sh = shell(h, m, d, smooth=5, taubin=10)
+    part = shell_part(h, name, sh, tile, color, 260, body_axis_groups(h, {"arms"}),
                       grime=grime, seed=r["seed"] + seed_off)
     parts.append(part)
     cov |= covered(h, m)
@@ -1402,7 +1940,7 @@ def g_mantle(h, r, pal, parts, pal_key="mantle", drop=0.10, tile="felt", seed_of
 
 
 def g_beard(h, r, pal, parts, pal_key="hair", width_jaw=0.062, width_chin=0.026,
-           mouth_gap=0.010, mustache_h=0.016, mustache_w=0.03, bot_pad=0.006):
+           mouth_gap=0.010, mustache_h=0.011, mustache_w=0.026, bot_pad=0.006):
     """Short beard: jaw + chin (below the mouth, tapering from wide at the jaw
     hinge to narrow at the chin point) plus a thin separate moustache patch
     just above the lip -- a real gap sits at the lip line itself so neither
@@ -1419,8 +1957,8 @@ def g_beard(h, r, pal, parts, pal_key="hair", width_jaw=0.062, width_chin=0.026,
     t = np.clip((P[:, 2] - bot) / max(top - bot, 1e-6), 0, 1)
     width = width_chin + (width_jaw - width_chin) * t
     jaw = base & (P[:, 2] < top) & (P[:, 2] > bot) & (np.abs(P[:, 0] - c[0]) < width)
-    must_top = mouth_z + mouth_gap + mustache_h
-    must_bot = mouth_z + mouth_gap
+    must_top = mouth_z + 0.010 + mustache_h
+    must_bot = mouth_z + 0.010
     mustache = base & (P[:, 2] < must_top) & (P[:, 2] > must_bot) & (np.abs(P[:, 0] - c[0]) < mustache_w)
     m = jaw | mustache
     if not m.any():
@@ -1535,7 +2073,7 @@ def g_cloak(h, r, pal, parts, hood="down", pal_key="cloak", collar_roll=True, wa
     over everything already built (skirts, belts, pouches)."""
     pts = []
     for p in parts:
-        if p.name in ("eyes", "hair", "bun", "braid"):
+        if p.name in ("eyes", "hair", "hair_locks", "bun", "braid"):
             continue
         pts.append(p.v)
         for f in p.f:            # densify: points along each face (skirt rows are ~9 cm apart)
@@ -1598,7 +2136,7 @@ def g_cloak(h, r, pal, parts, hood="down", pal_key="cloak", collar_roll=True, wa
     V2 = np.concatenate([V, Vin])
     F2 = F + Fin
     UV2 = UV + UVin
-    uvs = pack_islands([UV2])[0]
+    uvs = pack_hem([UV2])[0]
     # weights: top follows the shoulders; lower rows spine/pelvis, a little thigh at the bottom
     Wn = nearest_weights(h, V2, restrict=~h.mask("uarm", "larm", "hand", "head"))
     t = np.clip((top - V2[:, 2]) / (top - hem), 0, 1)
@@ -1616,7 +2154,7 @@ def g_cloak(h, r, pal, parts, hood="down", pal_key="cloak", collar_roll=True, wa
     g = dirt(h, V2, 0.3, hem, r["seed"] + 11, knees=False)
     col = paint(pal[pal_key], len(V2), g, 0.03, r["seed"])
     col[n:] *= 0.62
-    parts.append(Part(pal_key, V2, F2, uvs, W, col, "felt", None))
+    parts.append(Part(pal_key, V2, F2, uvs, W, col, "felt", r.get("cloak_budget", 900) if waist_hug else None))
     if hood == "down" and collar_roll:
         # bunched hood lying on the shoulders/back (a thick collar roll)
         phis = np.linspace(-math.pi, math.pi, 20, endpoint=False)
@@ -1668,8 +2206,66 @@ def head_region(h, hairline_front, hairline_side, hairline_back, sideburn=0.0, e
 
 def hair_uv_groups(h):
     def fn(P, F, sh):
-        return [(list(range(len(F))), h.head_c, np.array([0, 0, 1.0]))]
+        return [(list(range(len(F))), np.array([0.0, h.head_c[1], h.head_c[2] - 0.02]), None)]
     return fn
+
+
+def hair_lock_geom(h, spec, capd, seed):
+    """One tapered hair clump (flat lens cross-section) lying on the scalp:
+    path = strand direction radiating from the crown (fixed azimuth phi, polar
+    angle th0 -> th1), snapped to the skin by ray casting and lifted by the cap
+    thickness. Returns (V, F, UV) with hair-tile UVs (strand grooves run along the lock)."""
+    phi, th0, th1, width, thick, lift = spec[:6]
+    twist = spec[6] if len(spec) > 6 else 0.0
+    ez = (h.eye_l[2] + h.eye_r[2]) / 2
+    c = Vector((0.0, h.head_c[1], ez + 0.03))
+    steps = 5
+    pts, nrm = [], []
+    for k in range(steps + 1):
+        t = k / steps
+        th = math.radians(th0 + (th1 - th0) * t)
+        ph = math.radians(phi + twist * t)
+        d = Vector((math.sin(th) * math.sin(ph), -math.sin(th) * math.cos(ph), math.cos(th)))
+        loc, n, _, _ = h.bvh.ray_cast(c + d * 0.5, -d)
+        if loc is None:
+            loc, n = c + d * 0.09, d
+        off = capd(loc[2]) + 0.004 + lift * t ** 2
+        pts.append(np.array(loc) + np.array(n) * off)
+        nrm.append(np.array(n))
+    pts = np.array(pts); nrm = np.array(nrm)
+    rings = []
+    A = 5
+    for k in range(steps + 1):
+        t = k / steps
+        tg = pts[min(k + 1, steps)] - pts[max(k - 1, 0)]
+        tg /= max(np.linalg.norm(tg), 1e-9)
+        n = nrm[k] - tg * np.dot(nrm[k], tg); n /= max(np.linalg.norm(n), 1e-9)
+        b = np.cross(n, tg); b /= max(np.linalg.norm(b), 1e-9)
+        wk = width * (0.6 + 0.4 * math.sin(min(1, t * 2.2) * math.pi / 2)) * (1 - 0.62 * t ** 2.0)
+        tk = thick * (1 - 0.5 * t ** 2)
+        ring = [pts[k] + b * wk * math.cos(2 * math.pi * a / A) + n * tk * (0.6 + 0.4 * math.sin(2 * math.pi * a / A)) * (1 if math.sin(2 * math.pi * a / A) > 0 else 0.5)
+                for a in range(A)]
+        rings.append(ring)
+    V, F, UV = loft(np.array(rings), closed=True)
+    rng = np.random.default_rng(seed)
+    u0 = rng.uniform(0.05, 0.8)
+    UV = fullmap_uv(UV)
+    UV = [[(u0 + 0.12 * u, 0.1 + 0.6 * (1 - v)) for (u, v) in f] for f in UV]
+    return V, F, UV
+
+
+def hair_locks(h, specs, capd, color, seed, name="hair_locks"):
+    if not specs:
+        return None
+    Vs, Fs, UVs, off = [], [], [], 0
+    for i, s in enumerate(specs):
+        V, F, UV = hair_lock_geom(h, s, capd, seed + i * 7)
+        Vs.append(V); Fs += [tuple(x + off for x in f) for f in F]; UVs += UV
+        off += len(V)
+    V = np.concatenate(Vs)
+    W = np.tile(one_hot("Head"), (len(V), 1))
+    col = paint(color, len(V), None, 0.10, seed)
+    return Part(name, V, Fs, UVs, W, col, "hair", None)
 
 
 def g_hair(h, r, pal, parts, cov, style):
@@ -1683,8 +2279,8 @@ def g_hair(h, r, pal, parts, cov, style):
         P = h.P[:h.nb]
         crown = smoothstep(ez, top, P[:, 2])
         back = np.clip(-np.cos(phi), 0, 1)
-        d = 0.010 + 0.018 * crown + 0.006 * back * crown
-        sh = shell(h, m, d, smooth=4, noise_amp=0.007, seed=seed)
+        d = 0.009 + 0.026 * crown ** 1.3 + 0.008 * back * crown
+        sh = shell(h, m, d, smooth=4, noise_amp=0.011, seed=seed)
         budget = 420
     elif style == "fringe":            # elderly horseshoe
         m, phi = head_region(h, ez + 0.075, ez + 0.02, nz + 0.03, sideburn=0.03)
@@ -1720,6 +2316,36 @@ def g_hair(h, r, pal, parts, cov, style):
     parts.append(shell_part(h, "hair", sh, "hair", col, budget, hair_uv_groups(h), grime=0.0, seed=seed,
                             rim_dark=0.7, weights=np.tile(one_hot("Head"), (len(sh["v"]), 1))))
     cov |= covered(h, m, rings=1)
+    capd = lambda z: 0.011 + 0.014 * float(smoothstep(ez, top, z))
+    rng = np.random.default_rng(seed + 5)
+    nl = r.get("hair_locks", 1.0)
+    sp = []
+    def add(phis, th0, th1, w, t, lift, tw=8):
+        for p in phis:
+            sp.append((p + rng.uniform(-4, 4), th0 + rng.uniform(-3, 3), th1 + rng.uniform(-3, 4), w * rng.uniform(0.85, 1.2), t, lift * rng.uniform(0.7, 1.3), rng.uniform(-tw, tw)))
+    if style in ("short", "child", "bun"):
+        add([-40, -22, -4, 14, 32][::(1 if nl >= 1 else 2)], 14, 62, 0.034, 0.012, 0.004, 5)
+        if style != "bun":
+            add(list(range(30, 340, 62 if nl >= 1 else 100)), 8, 36, 0.028, 0.010, 0.004, 14)
+        add([-80, 80], 60, 94, 0.016, 0.007, 0.004, 3)
+        add([158, 180, 202], 78, 116, 0.024, 0.008, 0.008)
+    elif style == "fringe":
+        add([-78, 78], 66, 100, 0.017, 0.006, 0.004, 3)
+        add([150, 180, 210], 80, 112, 0.022, 0.007, 0.006)
+    elif style in ("long", "bob"):
+        add([-30, -10, 10, 30], 14, 54, 0.03, 0.009, 0.003, 5)
+        add([-58, -68, 58, 68], 42, 100, 0.018, 0.007, 0.005, 4)
+        add([-100, 100], 75, 108, 0.02, 0.008, 0.01, 3)
+    if r.get("hair_tail"):
+        hb = h.head_back
+        c = np.array([0.0, hb + 0.012, ez - 0.005])
+        b_ = ellipsoid(h, "tail_knot", c, (0.036, 0.034, 0.036), col, one_hot("Head"))
+        parts.append(b_)
+        path = [c + np.array([0, 0.005, -0.02]), c + np.array([0, 0.03, -0.06]), c + np.array([0, 0.04, -0.11]), c + np.array([0, 0.04, -0.16])]
+        parts.append(tube(h, "braid", np.array(path), np.array([0.02, 0.019, 0.015, 0.008]), col, seed))
+    lk = hair_locks(h, sp, capd, col, seed + 11)
+    if lk is not None:
+        parts.append(lk)
     if style == "bun":
         hb = h.head_back
         c = np.array([0.0, hb + 0.018, ez + 0.015])
@@ -1817,7 +2443,7 @@ def g_hood_up(h, r, pal, parts, cov):
     cov |= covered(h, m, rings=1)
 
 
-def g_eyes(h, parts):
+def g_eyes(h, parts, tile="eye"):
     path = os.path.join(mh.MHDATA, "eyes", "low-poly")
     refs = []
     with open(os.path.join(path, "low-poly.mhclo")) as f:
@@ -1851,7 +2477,7 @@ def g_eyes(h, parts):
     uvs = [[tuple(vts[t]) for t in ft] for ft in fts]
     W = np.tile(one_hot("Head"), (len(V), 1))
     col = np.ones((len(V), 3))
-    parts.append(Part("eyes", V, fs, uvs, W, col, "eye", None))
+    parts.append(Part("eyes", V, fs, uvs, W, col, tile, None))
 
 
 # ============================================================ assembly
@@ -1873,6 +2499,8 @@ def build_parts(h, r):
     boot_top = h.z("foot_l") + (0.075 if "dress" in o else 0.2) * (h.z("calf_l") - h.z("foot_l")) / 0.43
     if "dress" in o:
         dpts, wz = g_dress(h, r, pal, parts, cov)
+        if "laces" in o:
+            g_laces(h, r, pal, parts, wz)
         if "apron" in o:
             g_apron(h, r, pal, parts, wz, dpts)
         if "undersleeve" in o:
@@ -1882,7 +2510,24 @@ def build_parts(h, r):
             g_belt(h, r, pal, parts, dpts, wz, pouch=r.get("pouch", True), pouch_count=r.get("pouch_count", 1))
         if "mantle" in o:
             g_mantle(h, r, pal, parts, pal_key=r.get("mantle_key", "mantle"))
-    if "tunic" in o or "gambeson" in o:
+    if "shirt" in o:                     # the hero: cream shirt, green over-tunic, leather vest, bandolier bag
+        r2 = dict(r); r2["sleeve"] = 0.97; r2["tunic_tile"] = "linen"
+        top_pts, bz = g_tunic(h, r2, pal, parts, cov, "tunic", key="shirt", skirt=False)
+        top_pts, bz = g_vest(h, r, pal, parts, cov, "tunic_over", "tunic", hem_frac=0.1, offset=0.024, neck_depth=0.11,
+                             neck_width=0.06, flare=0.04, min_flare=0.04, skirt_ease=0.03, seed_off=22, tile="wool")
+        top_pts, bz = g_vest(h, r, pal, parts, cov, "vest", "vest", offset=0.036, neck_depth=0.075, neck_width=0.085,
+                             seed_off=24, tile="leather", skirt=False, grime=0.2)
+        for sd, sgn in (("l", 1), ("r", -1)):
+            c = h.J["upperarm_" + sd] + np.array([0.03 * sgn, 0.0, 0.034])
+            pad = ellipsoid(h, "pad_" + sd, c, (0.06, 0.062, 0.036), pal["vest"], one_hot("upperarm_" + sd))
+            pad.tile = "leather"
+            parts.append(pad)
+        g_undersleeve(h, r, pal, parts, cov, "bracer", cut_from=sleeve_x(h, 0.52), cut_to=sleeve_x(h, 1.0), tile="leather",
+                      seed_off=44, d=0.024, name="bracers")
+        g_belt(h, r, pal, parts, top_pts, bz, pouch=False)
+        g_satchel(h, r, pal, parts, bz)
+        g_trousers(h, r, pal, parts, cov, bz + 0.01, boot_top)
+    elif "tunic" in o or "gambeson" in o:
         kind = "gambeson" if "gambeson" in o else "tunic"
         top_pts, bz = g_tunic(h, r, pal, parts, cov, kind)
         if "undersleeve" in o:
@@ -1893,7 +2538,7 @@ def build_parts(h, r):
         if "vest" in o:
             top_pts, bz = g_vest(h, r, pal, parts, cov, r.get("vest_name", "vest"), r.get("vest_key", "vest"),
                                  hem_frac=r.get("vest_len", 0.16), offset=r.get("vest_offset", 0.026),
-                                 min_flare=r.get("vest_min_flare", 0.09),
+                                 min_flare=r.get("vest_min_flare", 0.05),
                                  skirt_ease=r.get("vest_skirt_ease", 0.05), trim_key=r.get("vest_trim"))
         if not r.get("no_belt"):
             g_belt(h, r, pal, parts, top_pts, bz, pouch=r.get("pouch", True), pouch_count=r.get("pouch_count", 1))
@@ -1902,6 +2547,7 @@ def build_parts(h, r):
         g_trousers(h, r, pal, parts, cov, bz + 0.01, boot_top)
     if "boots" in o:
         g_boots(h, r, pal, parts, cov, boot_top)
+        g_boot_cuffs(h, r, pal, parts, boot_top)
     if "coat" in o:
         g_cloak(h, r, pal, parts, hood="down", pal_key="coat", collar_roll=False, waist_hug=True)
     if "cloak" in o:
@@ -1918,7 +2564,7 @@ def build_parts(h, r):
         g_hood_up(h, r, pal, parts, cov)
     elif r.get("hair"):
         g_hair(h, r, pal, parts, cov, r["hair"])
-    g_eyes(h, parts)
+    g_eyes(h, parts, r.get("eye", "eye"))
     # body: everything not covered, minus mouth interior
     keep_faces, keep_uv = [], []
     for f, t in zip(h.faces, h.fuv):
@@ -1935,7 +2581,7 @@ def build_parts(h, r):
     sc = skin_color(r)
     c = srgb2lin(sc) / srgb2lin(0.93)
     col = np.tile(c / max(1.0, c.max()), (len(src), 1))
-    body = Part("body", h.P[src], F, keep_uv, h.W[src], col, "skin", r.get("body_budget", 2100))
+    body = Part("body", h.P[src], F, keep_uv, h.W[src], col, "skin", r.get("body_budget", 2900))
     body.src = src
     parts.insert(0, body)
     return parts
@@ -1983,21 +2629,27 @@ def apply_mods(ob):
         bpy.ops.object.modifier_apply(modifier=m.name)
 
 
-def decimate(ob, target, symmetric=True, protect=None):
+def decimate(ob, target, symmetric=False, protect=None):
     t = tri_count(ob)
     if target is None or t <= target:
         return
-    m = ob.modifiers.new("dec", "DECIMATE")
-    m.decimate_type = "COLLAPSE"
-    m.ratio = target / t
-    m.use_symmetry = symmetric
-    m.symmetry_axis = "X"
-    m.use_collapse_triangulate = True
-    if protect:
-        m.vertex_group = protect
-        m.vertex_group_factor = 1.0
-        m.invert_vertex_group = True
-    apply_mods(ob)
+    for attempt in range(4):
+        t = tri_count(ob)
+        if t <= target * 1.03:
+            break
+        m = ob.modifiers.new("dec", "DECIMATE")
+        m.decimate_type = "COLLAPSE"
+        m.ratio = min(0.98, target / t) if attempt == 0 else min(0.98, target / t * 0.97)
+        m.use_symmetry = symmetric
+        m.symmetry_axis = "X"
+        m.use_collapse_triangulate = True
+        if protect:
+            m.vertex_group = protect
+            m.vertex_group_factor = 1.0
+            m.invert_vertex_group = True
+        apply_mods(ob)
+        if not protect:
+            break
 
 
 def triangulate(ob):
@@ -2017,7 +2669,7 @@ def join(objs, name):
     return ob
 
 
-def add_face_protect(ob, h, body):
+def add_face_protect(ob, h, body, wface=0.5):
     """Vertex group 'protect' = face region (decimated less)."""
     vg = ob.vertex_groups.new(name="protect")
     P = body.v
@@ -2025,21 +2677,96 @@ def add_face_protect(ob, h, body):
     for i, p in enumerate(P):
         w = 0.0
         if p[2] > h.chin_z - 0.01 and p[1] < h.head_c[1] + 0.01:
-            w = 1.0
+            w = wface
         if abs(p[0]) > abs(h.J["hand_l"][0]) - 0.02:
-            w = 0.45
+            w = 0.3
         if w:
             vg.add([i], w, "REPLACE")
+
+
+def _hemisphere_dirs(n):
+    """Cosine-weighted hemisphere sample directions (local z = normal)."""
+    d = []
+    for i in range(n):
+        u = (i + 0.5) / n
+        phi = i * 2.399963
+        rr = math.sqrt(u)
+        d.append((rr * math.cos(phi), rr * math.sin(phi), math.sqrt(max(0.0, 1 - u))))
+    return d
+
+
+def bake_ao(h, parts, samples=22, dist=0.11, strength=0.68):
+    """Baked ambient occlusion into vertex colours (skin, cloth, hair): darkens
+    folds, armpits, under the belt, collars, hairline and hems. Rays are cast
+    against every part of the character."""
+    skip = ("eyes",)
+    Vs, Fs, off = [], [], 0
+    for p in parts:
+        if p.name in skip:
+            continue
+        Vs.append(p.v)
+        Fs += [tuple(i + off for i in f) for f in p.f]
+        off += len(p.v)
+    V = np.concatenate(Vs)
+    bvh = bvhtree.BVHTree.FromPolygons([tuple(v) for v in V], Fs)
+    dirs = _hemisphere_dirs(samples)
+    for p in parts:
+        if p.name in skip or len(p.v) == 0 or (p.name == "body" and os.environ.get("NOAO_BODY")):
+            continue
+        N = vertex_normals(p.v, p.f)
+        ao = np.ones(len(p.v))
+        for i in range(len(p.v)):
+            n = N[i]
+            ref = np.array([0.0, 0.0, 1.0]) if abs(n[2]) < 0.9 else np.array([1.0, 0, 0])
+            t = np.cross(n, ref); t /= max(np.linalg.norm(t), 1e-9)
+            b = np.cross(n, t)
+            o = Vector(p.v[i] + n * 0.004)
+            hit = 0.0
+            for dx, dy, dz in dirs:
+                dv = t * dx + b * dy + n * dz
+                loc, nrm, idx, dd = bvh.ray_cast(o, Vector(dv), dist)
+                if loc is not None:
+                    hit += 1.0 - dd / dist * 0.5
+            ao[i] = 1.0 - hit / samples
+        occ = np.clip(1 - ao, 0, 1)
+        shade = 1 - strength * occ ** 1.1
+        p.ao = ao
+        p.c = p.c * (shade[:, None] ** np.array([1.0, 1.08, 1.18])[None, :])
+
+
+def smooth_head(ob, h, iters=7):
+    """Volume-preserving (Taubin) smoothing of the decimated head: rounds the
+    facets and nostril / lip-corner slivers the collapse leaves, keeps the eyes,
+    and pins the mesh boundary (neck cut) and everything below the chin."""
+    me = ob.data
+    n = len(me.vertices)
+    P = np.zeros(n * 3); me.vertices.foreach_get("co", P); P = P.reshape(-1, 3)
+    F = [tuple(p.vertices) for p in me.polygons]
+    E = edges_of(F)
+    fixed = P[:, 2] < h.chin_z - 0.015
+    for a, b in boundary_loops(F):
+        fixed[a] = fixed[b] = True
+    for eye in (h.eye_l, h.eye_r):
+        fixed |= np.linalg.norm(P - eye, axis=1) < 0.036
+    fixed |= h.ear_near(P)
+    for _ in range(iters):
+        P = laplacian(P, E, 1, 0.5, fixed=fixed)
+        P = laplacian(P, E, 1, -0.53, fixed=fixed)
+    me.vertices.foreach_set("co", P.ravel())
+    me.update()
 
 
 def build_character(base, r, mat):
     t0 = time.time()
     h = Human(base, r)
     parts = build_parts(h, r)
+    bake_ao(h, parts)
     objs = []
     for p in parts:
         ob = part_object(p)
         decimate(ob, p.budget)
+        if p.name == "body":
+            smooth_head(ob, h)
         print(f"    {p.name}: {tri_count(ob)} tris")
         objs.append(ob)
     ob = join(objs, r["name"])
@@ -2164,44 +2891,47 @@ RECIPES = [
       outfit=["tunic", "belt", "trousers", "boots"], hair="short", sleeve=0.6, tunic_tile="wool",
       extras={"nose/nose-flaring-incr": 0.3, "mouth/mouth-scale-horiz-incr": 0.2},
       palette=dict(tunic=(0.68, 0.33, 0.2), trousers=(0.42, 0.38, 0.32), belt=(0.24, 0.15, 0.09), boots=(0.3, 0.2, 0.13), hair=(0.07, 0.06, 0.05))),
-    P(name="villager_woman_a", gender=0.0, age=30, race={"caucasian": 0.85, "asian": 0.15},
+    P(name="villager_woman_a", gender=0.0, age=30, race={"caucasian": 0.85, "asian": 0.15}, eye="eye_blue",
       muscle=0.45, weight=0.52, height=0.5, proportions=0.75, seed=303,
-      outfit=["dress", "apron", "boots"], hair="long", sleeve=0.9,
+      outfit=["dress", "laces", "apron", "boots"], hair="long", sleeve=0.9,
       extras={"nose/nose-scale-horiz-decr": 0.3, "eyebrows/eyebrows-angle-up": 0.2},
       palette=dict(dress=(0.3, 0.43, 0.64), apron=(0.9, 0.85, 0.72), boots=(0.32, 0.22, 0.14), hair=(0.5, 0.3, 0.14))),
-    P(name="villager_woman_b", gender=0.0, age=24, race={"asian": 0.6, "caucasian": 0.4},
+    P(name="villager_woman_b", gender=0.0, age=24, race={"asian": 0.6, "caucasian": 0.4}, body_budget=2600,
       muscle=0.45, weight=0.45, height=0.45, proportions=0.75, seed=404,
-      outfit=["dress", "boots", "cloak"], hair="long", sleeve=0.95, dress_tile="linen",
+      outfit=["dress", "laces", "boots", "cloak"], hair="long", sleeve=0.95, dress_tile="linen",
       palette=dict(dress=(0.7, 0.26, 0.2), cloak=(0.46, 0.33, 0.2), boots=(0.28, 0.2, 0.14), hair=(0.09, 0.07, 0.05))),
-    P(name="elder_man", gender=1.0, age=68, race={"caucasian": 0.8, "african": 0.1, "asian": 0.1},
+    P(name="elder_man", gender=1.0, age=68, race={"caucasian": 0.8, "african": 0.1, "asian": 0.1}, eye="eye_grey", body_budget=2500, hair_locks=0.5,
       muscle=0.4, weight=0.5, height=0.45, proportions=0.5, seed=505,
       outfit=["tunic", "belt", "trousers", "boots", "cloak"], hair="fringe", sleeve=0.95, tunic_len=0.08,
       extras={"nose/nose-scale-vert-incr": 0.3, "head/head-age-incr": 0.5},
       palette=dict(tunic=(0.68, 0.54, 0.31), trousers=(0.38, 0.32, 0.26), belt=(0.26, 0.17, 0.1), boots=(0.32, 0.22, 0.15), hair=(0.78, 0.76, 0.72), cloak=(0.25, 0.38, 0.26))),
-    P(name="elder_woman", gender=0.0, age=70, race={"caucasian": 0.7, "asian": 0.3},
+    P(name="elder_woman", gender=0.0, age=70, race={"caucasian": 0.7, "asian": 0.3}, eye="eye_grey",
       muscle=0.35, weight=0.6, height=0.35, proportions=0.5, seed=606,
       outfit=["dress", "apron", "boots", "cloak"], hood_up=True, sleeve=1.0,
       palette=dict(dress=(0.45, 0.28, 0.4), apron=(0.86, 0.82, 0.7), boots=(0.27, 0.2, 0.15), cloak=(0.28, 0.31, 0.36), hair=(0.82, 0.8, 0.76))),
-    P(name="child_boy", gender=1.0, age=8, race={"caucasian": 0.6, "african": 0.4},
-      muscle=0.5, weight=0.5, height=0.7, proportions=0.6, seed=707, body_budget=1900,
+    P(name="child_boy", gender=1.0, age=8, race={"caucasian": 0.6, "african": 0.4}, eye="eye_green",
+      muscle=0.5, weight=0.5, height=0.7, proportions=0.6, seed=707, body_budget=2300,
       outfit=["tunic", "belt", "trousers", "boots"], hair="child", sleeve=0.7, pouch=False, tunic_len=0.25,
       palette=dict(tunic=(0.32, 0.46, 0.66), trousers=(0.48, 0.36, 0.24), belt=(0.32, 0.2, 0.12), boots=(0.36, 0.25, 0.16), hair=(0.3, 0.18, 0.1))),
-    P(name="child_girl", gender=0.0, age=8, race={"caucasian": 0.9, "asian": 0.1},
-      muscle=0.5, weight=0.5, height=0.7, proportions=0.6, seed=808, body_budget=1900,
+    P(name="child_girl", gender=0.0, age=8, race={"caucasian": 0.9, "asian": 0.1}, eye="eye_blue",
+      muscle=0.5, weight=0.5, height=0.7, proportions=0.6, seed=808, body_budget=2300,
       outfit=["dress", "apron", "boots"], hair="bob", sleeve=0.8,
       palette=dict(dress=(0.42, 0.58, 0.3), apron=(0.9, 0.86, 0.74), boots=(0.32, 0.22, 0.15), hair=(0.7, 0.48, 0.24))),
-    P(name="guard", gender=1.0, age=30, race={"caucasian": 0.75, "asian": 0.25},
+    P(name="guard", gender=1.0, age=30, race={"caucasian": 0.75, "asian": 0.25}, eye="eye_blue", body_budget=2500, hair_locks=0.5,
       muscle=0.8, weight=0.55, height=0.62, proportions=0.75, seed=909,
       outfit=["gambeson", "belt", "trousers", "boots"], hair="short",
       extras={"chin/chin-jaw-drop-incr": 0.2, "nose/nose-hump-incr": 0.5},
       palette=dict(gambeson=(0.32, 0.41, 0.6), trousers=(0.33, 0.29, 0.25), belt=(0.26, 0.16, 0.09), boots=(0.26, 0.18, 0.11), hair=(0.2, 0.13, 0.08), pouch=(0.4, 0.27, 0.15))),
     P(name="player_young", gender=1.0, age=18, race={"caucasian": 0.7, "asian": 0.15, "african": 0.15},
-      muscle=0.6, weight=0.45, height=0.6, proportions=0.8, seed=1010,
-      outfit=["tunic", "belt", "trousers", "boots"], hair="short", sleeve=0.9,
-      palette=dict(tunic=(0.66, 0.53, 0.35), trousers=(0.4, 0.3, 0.22), belt=(0.32, 0.2, 0.12), boots=(0.35, 0.24, 0.16), hair=(0.32, 0.2, 0.11))),
-    P(name="mother", gender=0.0, age=26, race={"caucasian": 0.8, "african": 0.2},
+      muscle=0.6, weight=0.45, height=0.6, proportions=0.8, seed=1010, body_budget=4300,
+      outfit=["shirt", "belt", "trousers", "boots"], hair="short", hair_tail=True, flat_chest=True, chest_straighten=0.5,
+      chest_broaden=0.02, eye="eye",
+      palette=dict(shirt=(0.9, 0.85, 0.72), tunic=(0.34, 0.5, 0.3), vest=(0.34, 0.2, 0.11), bracer=(0.3, 0.19, 0.11),
+                   trousers=(0.38, 0.29, 0.22), belt=(0.36, 0.21, 0.11), satchel=(0.52, 0.31, 0.16),
+                   satchel_strap=(0.42, 0.25, 0.13), boots=(0.33, 0.21, 0.13), hair=(0.32, 0.2, 0.11))),
+    P(name="mother", gender=0.0, age=26, race={"caucasian": 0.8, "african": 0.2}, eye="eye_green",
       muscle=0.45, weight=0.5, height=0.5, proportions=0.8, seed=1111,
-      outfit=["dress", "apron", "boots"], hair="long", sleeve=0.9, dress_tile="linen",
+      outfit=["dress", "laces", "apron", "boots"], hair="long", sleeve=0.9, dress_tile="linen",
       palette=dict(dress=(0.27, 0.5, 0.46), apron=(0.92, 0.87, 0.76), boots=(0.32, 0.22, 0.15), hair=(0.4, 0.22, 0.11))),
     P(name="father", gender=1.0, age=29, race={"caucasian": 0.8, "african": 0.2},
       muscle=0.65, weight=0.5, height=0.45, proportions=0.7, seed=1212,
@@ -2209,7 +2939,7 @@ RECIPES = [
       palette=dict(tunic=(0.6, 0.3, 0.2), trousers=(0.55, 0.45, 0.3), belt=(0.3, 0.19, 0.11), boots=(0.35, 0.24, 0.16), hair=(0.22, 0.14, 0.08))),
 
     # ---- new villager archetypes (reference sheets, 2026-09-28) ------------
-    P(name="villager_farmer", gender=1.0, age=35, race={"caucasian": 0.85, "african": 0.1, "asian": 0.05},
+    P(name="villager_farmer", gender=1.0, age=35, race={"caucasian": 0.85, "african": 0.1, "asian": 0.05}, body_budget=2400, hair_locks=0.5,
       muscle=0.62, weight=0.58, height=0.52, proportions=0.65, seed=2001,
       outfit=["tunic", "vest", "belt", "trousers", "boots", "beard"], hair="short", sleeve=0.6,
       tunic_len=0.16, tunic_tile="linen", vest_len=0.16, vest_key="vest", vest_offset=0.024,
@@ -2218,17 +2948,17 @@ RECIPES = [
       palette=dict(tunic=(0.85, 0.8, 0.68), vest=(0.4, 0.45, 0.24), trousers=(0.34, 0.28, 0.22),
                    belt=(0.28, 0.18, 0.1), boots=(0.3, 0.21, 0.14), hair=(0.18, 0.11, 0.07),
                    pouch=(0.34, 0.22, 0.13))),
-    P(name="villager_merchant", gender=1.0, age=55, race={"caucasian": 0.9, "asian": 0.1},
+    P(name="villager_merchant", gender=1.0, age=55, race={"caucasian": 0.9, "asian": 0.1}, body_budget=2000, hair_locks=0.5,
       muscle=0.42, weight=0.72, height=0.5, proportions=0.55, seed=2002,
       outfit=["tunic", "vest", "belt", "trousers", "boots", "coat", "beard"], hair="fringe", sleeve=0.9,
-      tunic_tile="linen", vest_len=0.5, vest_key="vest", vest_offset=0.022, skin_mul=0.94,
+      tunic_tile="linen", vest_len=0.5, vest_key="vest", vest_offset=0.03, skin_mul=0.94,
       tunic_hem_segs=36, tunic_hem_folds=0.0, tunic_flare=0.025, vest_min_flare=0.018,
       vest_skirt_ease=0.014,
       extras={"nose/nose-scale-vert-incr": 0.2, "head/head-age-incr": 0.3},
       palette=dict(tunic=(0.9, 0.86, 0.74), vest=(0.72, 0.58, 0.22), coat=(0.55, 0.22, 0.14),
                    trousers=(0.22, 0.21, 0.22), belt=(0.3, 0.19, 0.1), boots=(0.32, 0.22, 0.15),
                    hair=(0.55, 0.53, 0.5), pouch=(0.4, 0.27, 0.15))),
-    P(name="villager_guard", gender=1.0, age=28, race={"caucasian": 0.8, "asian": 0.2},
+    P(name="villager_guard", gender=1.0, age=28, race={"caucasian": 0.8, "asian": 0.2}, eye="eye_grey", body_budget=1800, hair_locks=0.3, skirt_budget=380,
       muscle=0.75, weight=0.52, height=0.6, proportions=0.72, seed=2003,
       outfit=["gambeson", "belt", "trousers", "boots", "breastplate", "vest", "pauldrons", "bracers", "gorget"],
       hair="short", pouch=False, vest_len=0.16, vest_key="vest", vest_offset=0.03, vest_trim="trim",
@@ -2252,9 +2982,9 @@ RECIPES = [
       palette=dict(dress=(0.48, 0.55, 0.4), undersleeve=(0.92, 0.88, 0.78), mantle=(0.35, 0.24, 0.15),
                    belt=(0.28, 0.18, 0.1), boots=(0.3, 0.2, 0.13), hair=(0.75, 0.75, 0.74),
                    pouch=(0.32, 0.2, 0.11))),
-    P(name="villager_baker", gender=0.0, age=30, race={"caucasian": 0.9, "asian": 0.1},
+    P(name="villager_baker", gender=0.0, age=30, race={"caucasian": 0.9, "asian": 0.1}, eye="eye_green",
       muscle=0.42, weight=0.5, height=0.5, proportions=0.75, seed=2006,
-      outfit=["dress", "undersleeve", "apron", "belt", "boots"], hair="long", sleeve=0.5,
+      outfit=["dress", "laces", "undersleeve", "apron", "belt", "boots"], hair="long", sleeve=0.5,
       undersleeve_key="undersleeve", pouch_count=1,
       extras={"eyebrows/eyebrows-angle-up": 0.15},
       palette=dict(dress=(0.35, 0.47, 0.72), undersleeve=(0.93, 0.9, 0.82), apron=(0.88, 0.84, 0.72),
@@ -2382,6 +3112,11 @@ def main():
             f.write(rows[name])
     if "--no-preview" in args:
         return
+    if "--v2sheet" in args:
+        tag = args[args.index("--v2sheet") + 1]
+        v2_sheet(built, os.path.join(PREVIEW_DIR, f"characters_v2_{tag}.png"),
+                 tmp_dir=os.path.join("/tmp/claude-0/scratch", "_v2_tmp"))
+        return
     if "--sixsheet" in args:
         six_sheet(built, os.path.join(PREVIEW_DIR, "characters_reference_six.png"))
         return
@@ -2430,6 +3165,54 @@ def six_sheet(built, out_png, cell=(480, 860)):
             c.hide_render = False
     save_png(sheet, out_png)
     print("wrote", out_png)
+
+
+QUICK = os.environ.get('V2_QUICK') == '1'
+FACEONLY = os.environ.get('V2_FACEONLY') == '1'
+
+
+def v2_sheet(built, out_png, cell=(460, 800), face=(460, 460), tmp_dir=None, samples=36):
+    """Front / back / face close-up per character (characters_v2_*.png)."""
+    tmp_dir = tmp_dir or os.path.join(os.path.dirname(out_png), "_v2_tmp")
+    os.makedirs(tmp_dir, exist_ok=True)
+    cw, ch = cell
+    fw, fh = face
+    n = len(built)
+    sheet = np.zeros((ch * 2 + fh, cw * n, 4), np.float32)
+    sheet[..., 3] = 1
+    for i, (name, ob, h) in enumerate(built):
+        for _, o2, _ in built:
+            hide = o2 is not ob
+            o2.hide_render = hide
+            for c in o2.children:
+                c.hide_render = hide
+        world_h = h.head_top + 0.10
+        d = fit_camera(1.2, world_h * 1.12, cell, 50)
+        base_rot = ob.rotation_euler.copy()
+        for row, rz in enumerate((0, 180)):
+            if (QUICK and row == 1) or FACEONLY:
+                continue
+            ob.rotation_euler = (base_rot[0], base_rot[1], base_rot[2] + math.radians(rz))
+            tmp = os.path.join(tmp_dir, f"{name}_{row}.png")
+            setup_scene_preview([], tmp, cam_loc=(0.0, -d, world_h * 0.5), cam_target=(0, 0, world_h * 0.5),
+                                lens=50, res=cell, samples=samples)
+            sheet[row * ch:(row + 1) * ch, i * cw:(i + 1) * cw] = load_img_native(tmp)
+        ob.rotation_euler = base_rot
+        ez = (h.eye_l[2] + h.eye_r[2]) / 2
+        tmp = os.path.join(tmp_dir, f"{name}_face.png")
+        setup_scene_preview([], tmp, cam_loc=(0.16, -0.62, ez + 0.02), cam_target=(0, h.head_c[1], ez - 0.03),
+                            lens=85, res=(fw, fh), samples=samples + 8)
+        img = load_img_native(tmp)
+        y0 = ch * 2
+        sheet[y0:y0 + fh, i * cw:i * cw + fw] = img
+    for _, o2, _ in built:
+        o2.hide_render = False
+        for c in o2.children:
+            c.hide_render = False
+    save_png(sheet, out_png)
+    print("wrote", out_png)
+    import shutil
+    shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
 def fit_camera(W, H, res, lens, elev=0.0):
