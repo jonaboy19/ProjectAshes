@@ -9,6 +9,7 @@ extends Node3D
 
 const CraftingScreen := preload("res://scripts/ui/crafting_screen.gd")
 const InventoryScreen := preload("res://scripts/ui/inventory_screen.gd")
+const SaveScreen := preload("res://scripts/ui/save_screen.gd")
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const MEGAKIT := "res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/"
 const BOARD := "res://assets/generated/notice_board.glb"
@@ -391,6 +392,10 @@ func pack_menu() -> Dictionary:
 	opts.append(["Photo mode", func() -> String:
 		hud.close_menu()
 		hud.open_photo_mode()
+		return ""])
+	opts.append(["Save / Load", func() -> String:
+		hud.close_menu()
+		SaveScreen.open_for(hud)
 		return ""])
 	var seen := {}
 	for it in Life.inventory.get_items():
