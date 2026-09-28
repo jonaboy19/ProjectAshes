@@ -4,6 +4,17 @@ extends Node3D
 ##   within FULL_RANGE (nearest MAX_FULL)  -> animated character with a name tag
 ##   within SPRITE_RANGE                   -> directional sprite in a MultiMesh
 ##   beyond                                -> data only (WorldSim)
+##
+## Embodied villagers own their movement; each refresh writes their resolved
+## positions back into WorldSim (the one hand-off point), and a time skip
+## hands movement back the other way. Villagers inside CONTACT_KEEP are never
+## demoted, and ones already embodied rank slightly closer so residents near
+## the budget edge don't swap every refresh. Distant residents whose own clock
+## (DailyRhythm) hasn't reached WorldSim's latest phase are held where they
+## are, so the crowd sets off gradually.
+
+const StreetGraph := preload("res://scripts/population/street_graph.gd")
+const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 
 const FULL_RANGE := 45.0
 const SPRITE_RANGE := 220.0
@@ -12,6 +23,13 @@ const NEAR_HARD_CAP := 12    # but never more than this many full models in tota
 const MAX_FULL := 24
 const MAX_SPRITES := 300
 const MAX_SPAWNS_PER_TICK := 3
+## Embodied villagers rank at this fraction of their squared distance (about
+## 13% closer), so promotion and demotion don't chatter at the budget edge.
+const KEEP_BIAS := 0.75
+## Never demote a villager this close to the player (it may be touching them).
+const CONTACT_KEEP := 3.0
+## A world clock jump beyond this (hours) is a skip: sleep, wait, load.
+const SKIP_HOURS := 0.5
 ## Job index -> look id (see Main._bake_looks).
 const JOB_LOOK := ["peasant", "worker", "merchant", "guard", "worker", "peasant"]
 const LOOK_MODEL := {
@@ -28,6 +46,9 @@ var sprite_count := 0
 var _full: Dictionary = {}        # person id -> Villager
 var _multimeshes: Dictionary = {} # look -> MultiMesh
 var _timer := 0.0
+var _villagers: Array = []        # the Villager nodes in _full, shared with each of them
+var _held: Dictionary = {}        # person id -> true while its departure is held back
+var _last_time := -1.0
 
 
 func setup(baker: ImpostorBaker) -> void:
@@ -54,35 +75,59 @@ func _process(delta: float) -> void:
 
 
 func refresh() -> void:
+	var skipped := _clock_skipped()
+	if skipped:
+		# WorldSim just placed everyone (advance_hours / load): it is the truth now.
+		for id in _full:
+			(_full[id] as Villager).resync()
+	else:
+		_write_back()
 	var p2 := Vector2(focus.x, focus.z)
 	var ids := WorldSim.people_near(p2, SPRITE_RANGE)
+	_update_holds(ids)
+	var morning := WorldSim.time_of_day >= 6.0 and WorldSim.time_of_day < 6.0 + DailyRhythm.MAX_DELAY
 	var dists := []
 	for i in ids:
-		if WorldSim.is_indoors(i):
+		if WorldSim.is_indoors(i) or (morning and DailyRhythm.still_home(i)):
 			continue
-		dists.append([WorldSim.pos[i].distance_squared_to(p2), i])
-	dists.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+		var d2: float = WorldSim.pos[i].distance_squared_to(p2)
+		dists.append([d2, i, d2 * KEEP_BIAS if _full.has(i) else d2])
+	dists.sort_custom(func(a: Array, b: Array) -> bool: return a[2] < b[2])
 
 	var want_full := {}
 	# Anyone this close must be a real model: a flat sprite at arm's length looks broken,
 	# so the tier budget may be exceeded up to NEAR_HARD_CAP inside NEAR_ALWAYS.
 	for entry in dists:
+		if entry[2] > FULL_RANGE * FULL_RANGE and entry[0] > NEAR_ALWAYS * NEAR_ALWAYS:
+			break
 		var within_budget: bool = want_full.size() < mini(MAX_FULL, Quality.npc_full) and entry[0] <= FULL_RANGE * FULL_RANGE
 		var too_close_for_sprite: bool = entry[0] <= NEAR_ALWAYS * NEAR_ALWAYS and want_full.size() < NEAR_HARD_CAP
 		if not (within_budget or too_close_for_sprite):
-			break
+			continue
 		want_full[entry[1]] = true
 	for id in _full.keys():
-		if not want_full.has(id):
-			_full[id].queue_free()
-			_full.erase(id)
+		if want_full.has(id):
+			continue
+		var v: Villager = _full[id]
+		# Someone standing against the player keeps their body until they step away.
+		if not WorldSim.is_indoors(id) and v.global_position.distance_squared_to(focus) < CONTACT_KEEP * CONTACT_KEEP:
+			want_full[id] = true
+			continue
+		_villagers.erase(v)
+		v.queue_free()
+		_full.erase(id)
 	var spawned := 0
 	for id in want_full:
 		if not _full.has(id) and spawned < MAX_SPAWNS_PER_TICK:
 			_full[id] = _spawn(id)
 			spawned += 1
 	full_count = _full.size()
-	var nearest_id: int = dists[0][1] if not dists.is_empty() and dists[0][0] < 36.0 else -1
+	var nearest_id: int = -1
+	var nearest_d := 36.0
+	for entry in dists:
+		if _full.has(entry[1]) and entry[0] < nearest_d:
+			nearest_d = entry[0]
+			nearest_id = entry[1]
 	for id in _full:
 		(_full[id] as Villager).show_tag = id == nearest_id
 
@@ -100,6 +145,11 @@ func refresh() -> void:
 		var pp: Vector2 = WorldSim.pos[id]
 		var heading: Vector2 = WorldSim.target[id] - pp
 		var yaw := atan2(heading.x, heading.y) if heading.length() > 0.1 else float(id % 628) / 100.0
+		# WorldSim moves distant residents in straight lines; never draw one
+		# standing inside a house it is cutting through.
+		var graph := StreetGraph.for_person(id) as StreetGraph
+		if graph and entry[0] < 90.0 * 90.0:
+			pp = graph.push_out(pp, 0.3)
 		var t := Transform3D(Basis(Vector3.UP, yaw), Vector3(pp.x, WorldGen.height(pp.x, pp.y), pp.y))
 		(_multimeshes[look] as MultiMesh).set_instance_transform(n, t)
 		used[look] = n + 1
@@ -109,11 +159,51 @@ func refresh() -> void:
 		sprite_count += used[look]
 
 
+## Embodied villagers' resolved positions -> WorldSim, so ranking, sprites,
+## indoors checks and the villager's own demotion all start from where the
+## body actually is.
+func _write_back() -> void:
+	for id in _full:
+		WorldSim.pos[id] = (_full[id] as Villager).sim_position()
+
+
+func _clock_skipped() -> bool:
+	var now := WorldSim.day * 24.0 + WorldSim.time_of_day
+	var skipped := _last_time >= 0.0 and absf(now - _last_time) > SKIP_HOURS
+	_last_time = now
+	return skipped
+
+
+## Staggered departures for residents without a body: while their own clock
+## lags WorldSim's phase, their WorldSim target is pinned to where they stand;
+## when it catches up, the target WorldSim chose is restored and they set off.
+func _update_holds(ids: PackedInt32Array) -> void:
+	if not _held.is_empty():
+		for id: int in _held.keys():
+			if _full.has(id) or not DailyRhythm.lagging(id) or WorldSim.pos[id].distance_to(Vector2(focus.x, focus.z)) > SPRITE_RANGE + 40.0:
+				_release_hold(id)
+	if not DailyRhythm.in_lag_window():
+		return
+	for i in ids:
+		if not _held.has(i) and not _full.has(i) and DailyRhythm.lagging(i):
+			_held[i] = true
+			WorldSim.target[i] = WorldSim.pos[i]
+
+
+func _release_hold(id: int) -> void:
+	_held.erase(id)
+	var phase: int = WorldSim.phase[id]
+	if phase != 255:
+		WorldSim.target[id] = WorldSim._spot(WorldGen.settlements[WorldSim.home[id]], phase, id)
+
+
 func _spawn(id: int) -> Villager:
 	var look: String = JOB_LOOK[WorldSim.job[id]]
 	var model: Array = LOOK_MODEL[look]
 	var keep: Array[String] = []
 	keep.assign(model[1])
 	var v := Villager.create(id, model[0], keep)
+	v.neighbours = _villagers
+	_villagers.append(v)
 	add_child(v)
 	return v
