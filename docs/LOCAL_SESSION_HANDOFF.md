@@ -341,3 +341,29 @@ as far as this session's new open-ground spawn logic succeeding (`open ground fo
 frame strips were captured. Please re-run `kingdom/tools_qa/movement_qa/run_movement_qa.sh
 --out=docs/qa/movement/v2/after` (and ideally a `before` from the previous commit) when the
 machine has a few GB more headroom, and look at the strips with Read.
+
+## DONE: NPC density (local, 2026-09-28)
+
+**Root cause:** `population_lod.gd` capped sprite NPCs per job look (peasant/worker/merchant/
+guard) instead of as one shared budget, so the real ceiling was 4x the intended one — the
+capital was hitting `npc_sprites: 1200` at hour 9/13/18, with frame time spiking to ~117 ms
+average (8.6 fps) at the worst point, far past the reported "~10 ms/frame". Fixed the loop to
+share one running total across looks (nearest-first, so the closest people still win the
+budget), lowered `MAX_SPRITES` 300 -> 140, and cut `Quality` tier budgets: HIGH `npc_full`
+24 -> 16, `npc_sprites` 300 -> 55 (LOW/MEDIUM/ULTRA similarly cut; sprites down ~75-85% across
+tiers). Also widened `DailyRhythm.MAX_DELAY` 0.9 h -> 2.0 h so schedule-boundary crowds (e.g.
+17:00 market call) stagger onto the street over ~2 minutes instead of a few seconds. The
+"anyone within 9 m is a full model" rule, WorldSim's population counts/economy, and all
+animation code are untouched.
+
+Capital (city, hour 18) best-of-two: cpu_process_ms 150.8 -> 50.4, average frame 116.8 ms ->
+16.0 ms, fps 8.6 -> 62.6. Sprite counts: village/capital both 287-1200 -> 55 during the day
+(cut well over 50%), full models 24 -> 16. Full counts, per-hour tables and 4 before/after
+screenshots (village plaza + capital street, midday and night): `docs/qa/npc_density.md`.
+Files: `kingdom/scripts/population/population_lod.gd`, `kingdom/scripts/core/quality.gd`,
+`kingdom/scripts/population/daily_rhythm.gd`.
+
+**Follow-up, not done:** `npc_full`/`npc_sprites` budgets are tier-only, not scene-aware, so
+the village plaza and a capital street land on the same combined count today (both have enough
+population in `SPRITE_RANGE` to fill the shared budget). A future pass wanting the village
+specifically emptier than the capital needs a per-settlement-size budget.
