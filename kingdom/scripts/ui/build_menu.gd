@@ -9,6 +9,7 @@ signal closed
 
 const SELF_PATH := "res://scripts/ui/build_menu.gd"
 const Homestead := preload("res://scripts/sim/homestead.gd")
+const FarmLedger := preload("res://scripts/ui/farm_ledger.gd")
 const REACH := 3.0     # metres in front of the player the ghost sits
 
 var hud: HUD
@@ -54,14 +55,15 @@ func _ready() -> void:
 func open() -> void:
 	var p := _player()
 	plot = -1 if p == null else Life.homestead.plot_at(Vector2(p.global_position.x, p.global_position.z))
-	if plot < 0 or not Life.homestead.is_owned(plot):
+	if plot < 0:
 		close()
 		return
 	_kind = ""
 	_rot = 0
 	visible = true
 	Audio.play_ui("open")
-	_ensure_ghost()
+	if Life.homestead.owns_or_leases(plot):
+		_ensure_ghost()
 	_refresh_list()
 	_status.text = ""
 
@@ -86,7 +88,7 @@ func _unhandled_input(e: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
-	if not visible:
+	if not visible or plot < 0 or not Life.homestead.owns_or_leases(plot):
 		return
 	_update_ghost()
 
@@ -133,6 +135,7 @@ func _build() -> void:
 	head.add_child(_round("↻", 52, _on_rotate))
 	head.add_child(_gold("Place", _on_place))
 	head.add_child(_round("✕", 52, _on_remove))
+	head.add_child(_round("📒", 52, _on_ledger))
 	head.add_child(_round("×", 52, close))
 
 	var body := HBoxContainer.new()
@@ -201,6 +204,31 @@ func _refresh_list() -> void:
 	for c in _list.get_children():
 		c.queue_free()
 	_buttons.clear()
+	var hs := Life.homestead
+	if plot >= 0 and not hs.owns_or_leases(plot):
+		_subtitle.text = "%s — unclaimed" % hs.plot_name(plot)
+		var plot_info: Dictionary = hs.plots()[plot]
+		var buy_row := Button.new()
+		buy_row.custom_minimum_size = Vector2(0, 46)
+		buy_row.focus_mode = Control.FOCUS_NONE
+		buy_row.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		buy_row.text = "Buy this plot  —  %dg" % int(plot_info["price"])
+		buy_row.pressed.connect(func() -> void:
+			_status.text = hs.buy(plot)
+			_refresh_list())
+		_list.add_child(buy_row)
+		var lease_row := Button.new()
+		lease_row.custom_minimum_size = Vector2(0, 46)
+		lease_row.focus_mode = Control.FOCUS_NONE
+		lease_row.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		lease_row.text = "Lease from the Lord  —  %dg / season, %d%% of the harvest" % [Homestead.LEASE_RENT, int(Homestead.LEASE_SHARE * 100.0)]
+		lease_row.pressed.connect(func() -> void:
+			_status.text = hs.lease(plot)
+			_refresh_list())
+		_list.add_child(lease_row)
+		_refresh_crop_box()
+		return
+	_subtitle.text = "%s%s" % [hs.plot_name(plot), "  (leased)" if hs.is_leased(plot) else ""]
 	for kind: String in Homestead.CATALOG:
 		var c: Dictionary = Homestead.CATALOG[kind]
 		var row := Button.new()
@@ -213,7 +241,22 @@ func _refresh_list() -> void:
 		row.pressed.connect(_select_kind.bind(kind))
 		_list.add_child(row)
 		_buttons[kind] = row
+	var hire_row := Button.new()
+	hire_row.custom_minimum_size = Vector2(0, 46)
+	hire_row.focus_mode = Control.FOCUS_NONE
+	hire_row.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	var names := ["Osric", "Mabel", "Tomas", "Wren", "Hodge", "Ada"]
+	hire_row.text = "Hire a farm hand  (%d / %d)" % [hs.workers_on(plot).size(), hs.max_workers()]
+	hire_row.pressed.connect(func() -> void:
+		_status.text = hs.hire(plot, names[randi() % names.size()])
+		_refresh_list())
+	_list.add_child(hire_row)
 	_refresh_crop_box()
+
+
+func _on_ledger() -> void:
+	if hud:
+		FarmLedger.open_for(hud)
 
 
 func _mats_text(c: Dictionary) -> String:
@@ -279,7 +322,12 @@ func _refresh_crop_box() -> void:
 			_crop_box.add_child(b)
 	else:
 		var pct := int(round(Life.homestead.growth_stage(cr) * 100.0))
-		label.text = "%s growing: %d%%%s" % [Life.item_name(crop), pct, "  (watered)" if bool(cr.get("watered", false)) else ""]
+		var tags := PackedStringArray()
+		if bool(cr.get("watered", false)):
+			tags.append("watered")
+		if bool(cr.get("weeded", false)):
+			tags.append("weeded")
+		label.text = "%s growing: %d%%%s" % [Life.item_name(crop), pct, "  (%s)" % ", ".join(tags) if not tags.is_empty() else ""]
 		_crop_box.add_child(label)
 		if not bool(cr.get("watered", false)) and pct < 100:
 			var wb := Button.new()
@@ -289,6 +337,14 @@ func _refresh_crop_box() -> void:
 				_status.text = Life.homestead.water(plot, _cell)
 				_refresh_crop_box())
 			_crop_box.add_child(wb)
+		if not bool(cr.get("weeded", false)) and pct < 100:
+			var wdb := Button.new()
+			wdb.text = "Weed"
+			wdb.focus_mode = Control.FOCUS_NONE
+			wdb.pressed.connect(func() -> void:
+				_status.text = Life.homestead.weed(plot, _cell)
+				_refresh_crop_box())
+			_crop_box.add_child(wdb)
 		if Life.homestead.is_ready(cr):
 			var hb := Button.new()
 			hb.text = "Harvest"

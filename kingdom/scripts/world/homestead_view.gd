@@ -14,6 +14,8 @@ const GEN := "res://assets/generated/"
 const BUILD := 150.0
 const FREE := 220.0
 const REFRESH_PERIOD := 0.5
+const FarmWorkSpot := preload("res://scripts/world/farm_work_spot.gd")
+const HAND_CLIP := "Farm_Harvest"
 
 var focus := Vector3.ZERO
 var _timer := 0.0
@@ -21,6 +23,8 @@ var _built_plots: Dictionary = {}       # plot index -> true
 var _piece_nodes: Dictionary = {}       # "piece:<uid>" -> Node3D
 var _crop_nodes: Dictionary = {}        # "crop:<uid>" -> {node, holder, loaded_crop}
 var _beds: Dictionary = {}              # plot index -> HomesteadBed
+var _work_spots: Dictionary = {}        # WorldGen.sites index -> FarmWorkSpot
+var _hand_nodes: Dictionary = {}        # "hand:<worker uid>" -> Node3D (hired hand visuals)
 
 
 ## A bed beside the cottage: sets the player's spawn point and sleeps, like
@@ -73,7 +77,7 @@ func _refresh() -> void:
 	var hs := Life.homestead
 	var p := Vector2(focus.x, focus.z)
 	for i in hs.plots().size():
-		if not hs.is_owned(i):
+		if not hs.owns_or_leases(i):
 			continue
 		var d := p.distance_to((hs.plots()[i]["pos"] as Vector2))
 		if d < BUILD:
@@ -119,6 +123,77 @@ func _refresh() -> void:
 		if not _beds.has(i):
 			_beds[i] = _build_bed(int(i), want_beds[i])
 
+	_refresh_work_spots(p)
+	_refresh_hands()
+
+
+## One work spot per village farmstead (WorldGen.sites kind "farm"), built and
+## freed with the same BUILD/FREE hysteresis as the player's own plots.
+func _refresh_work_spots(p: Vector2) -> void:
+	for i in WorldGen.sites.size():
+		var s: Dictionary = WorldGen.sites[i]
+		if String(s.get("kind", "")) != "farm":
+			continue
+		var d := p.distance_to((s["pos"] as Vector2))
+		if d < BUILD and not _work_spots.has(i):
+			_work_spots[i] = _build_work_spot(s)
+		elif d > FREE and _work_spots.has(i):
+			_free_node(_work_spots[i])
+			_work_spots.erase(i)
+
+
+func _build_work_spot(s: Dictionary) -> FarmWorkSpot:
+	var pos: Vector2 = s["pos"]
+	var yaw: float = float(s.get("yaw", 0.0))
+	var at := pos + Vector2(sin(yaw), cos(yaw)) * 6.0    # in front of the farmstead, clear of its parts
+	var spot := FarmWorkSpot.new()
+	spot.site = s
+	add_child(spot)
+	spot.global_position = Vector3(at.x, WorldGen.height(at.x, at.y), at.y)
+	return spot
+
+
+## Hired hands, shown as 1-2 villager-like workers per worked plot while the
+## player is close enough to see them (the same BUILD/FREE ring as pieces).
+func _refresh_hands() -> void:
+	var hs := Life.homestead
+	var want := {}
+	for i in hs.plots().size():
+		if not _built_plots.has(i):
+			continue
+		var shown := 0
+		for w: Dictionary in hs.workers_on(i):
+			if shown >= 2:
+				break
+			shown += 1
+			want["hand:%d" % int(w["uid"])] = {"plot": i, "index": shown}
+	for key in _hand_nodes.keys().duplicate():
+		if not want.has(key):
+			_free_node(_hand_nodes[key])
+			_hand_nodes.erase(key)
+	for key: String in want:
+		if not _hand_nodes.has(key):
+			_hand_nodes[key] = _build_hand(want[key])
+
+
+func _build_hand(info: Dictionary) -> Node3D:
+	var hs := Life.homestead
+	var plot := int(info["plot"])
+	var idx := int(info["index"])
+	var plot_pos: Vector2 = hs.plots()[plot]["pos"]
+	var yaw: float = float(hs.plots()[plot]["yaw"]) + (idx - 1) * 0.6
+	var at := plot_pos + Vector2(sin(yaw), cos(yaw)) * (5.0 + idx)
+	var root := Node3D.new()
+	add_child(root)
+	root.global_position = Vector3(at.x, WorldGen.height(at.x, at.y), at.y)
+	var body := Assets.character("Rogue_Hooded", 1.72)
+	root.add_child(body)
+	var anim := Assets.animation_player(body)
+	if anim and anim.has_animation(HAND_CLIP):
+		anim.get_animation(HAND_CLIP).loop_mode = Animation.LOOP_LINEAR
+		anim.play(HAND_CLIP)
+	return root
+
 
 func _free_node(n: Node) -> void:
 	if is_instance_valid(n):
@@ -129,7 +204,7 @@ func _free_node(n: Node) -> void:
 func build_all_now() -> void:
 	var hs := Life.homestead
 	for i in hs.plots().size():
-		if hs.is_owned(i):
+		if hs.owns_or_leases(i):
 			_built_plots[i] = true
 	_refresh()
 
