@@ -63,8 +63,8 @@ func _process(delta: float) -> void:
 	if _acc < RATE:
 		return
 	_acc = 0.0
-	if player == null or not is_instance_valid(player) or not is_visible_in_tree():
-		return
+	if player == null or not is_instance_valid(player) or not is_visible_in_tree() or not player.is_inside_tree():
+		return   # (a player outside the tree, e.g. mid scene swap, flooded get_global_transform errors)
 	var cam: Variant = player.get("camera")
 	var h := heading_of(cam if cam is Node3D and cam.is_inside_tree() else player)
 	var p := Vector2(player.global_position.x, player.global_position.z)
