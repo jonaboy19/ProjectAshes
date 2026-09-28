@@ -295,3 +295,13 @@ So the trigger is not runtime logic in `GUIDE._ready()` at all — it reproduces
 **Not yet found:** the exact statement/mechanism inside `Quality`+`GUIDE`'s combined script-load that trips this. Next steps for whoever picks this up: (1) bisect `Quality._ready()` itself line-by-line the same way (no-op pieces of it with `GUIDE` fully enabled, rather than the reverse) — not yet tried, since every no-op attempt so far was on the `GUIDE` side; (2) get a real Windows crash dump (`%LOCALAPPDATA%\CrashDumps`, not checked this pass — worth enabling `WerFault` dump collection for this exe) and open it in a debugger to get the actual faulting call stack instead of continuing to bisect blind; (3) try Godot's ASan/debug build if available, since `ntdll.dll+0xfa7d` heap-corruption crashes are exactly the class of bug ASan is built to catch immediately, versus days of manual bisection.
 
 No code changes were committed for the crash itself this pass (no fix was found safe/confident enough to ship) — reverted all temporary diagnostic edits (`project.godot` autoload comment-outs, `guide.gd`/`guide_input_tracker.gd` no-ops) back to the committed originals; only this documentation section is new. `tools/qa/grounding/grounding_check.gd` has an unrelated, uncommitted change from a concurrent session (a scan-scope fix for character subtrees) that was left untouched.
+
+### 2026-09-28 (local, follow-up): the quit crash is engine-side, not game logic
+- The minimal repro (a SceneTree script, `--headless`, no scene, `quit()` on frame 3) gives **0xC0000005 3/3**. It still does with `Quality._ready()` emptied,
+  so neither `Quality` nor `GUIDE` runtime code triggers it. `--verbose` shows ~40 leaked `GDScriptNativeClass` objects and 80 resources in use at exit
+  (world/vfx/sim scripts, shaders, the vfx atlas, gloot/guide/quest_weaver scripts), loaded through autoload class references and kept alive by
+  cyclic script references (a known Godot 4 GDScript leak). The crash happens while the engine tears these down.
+- **GDExtensions are NOT loaded in any of our QA or dev runs**: `kingdom/.godot/extension_list.cfg` doesn't exist (the editor normally writes it).
+  So Terrain3D, LimboAI and godot-sqlite are absent at runtime here (hence "sqlite doesn't register"), while an export generates the list and **does** load them.
+  Open the project once in the editor to regenerate it, and re-test with them loaded.
+- The installed engine is 4.6.0 (2026-01-26); 4.6.1, 4.6.2 and 4.6.3 (2026-05-20) have shipped since. Next: try 4.6.3 with the same repro before any further bisecting.
