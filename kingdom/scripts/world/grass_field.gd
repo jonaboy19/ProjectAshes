@@ -103,7 +103,7 @@ static func _flowerable(x: float, z: float) -> bool:
 		var dc := Vector2(x, z).distance_to(near["pos"])
 		if dc < near["plan"]["plaza_r"] + 3.0 or WorldGen.street_distance(x, z) < 1.5:
 			return false
-		if near["kind"] != "village" and dc < near["radius"]:
+		if near["kind"] != "village" and dc < near["radius"] and not _town_yard(near, x, z, dc):
 			return false
 	var h := WorldGen.height(x, z)
 	var slope := absf(WorldGen.height(x + 1.0, z) - h) + absf(WorldGen.height(x, z + 1.0) - h)
@@ -146,11 +146,25 @@ static func _grassy(x: float, z: float) -> bool:
 		if dc < near["plan"]["plaza_r"] + 3.0 or WorldGen.street_distance(x, z) < 1.5 \
 				or (dc < near["radius"] * 1.1 and CityPlanner.path_distance(near["plan"], Vector2(x, z)) < 0.5):
 			return false
-		if near["kind"] != "village" and dc < near["radius"]:
+		if near["kind"] != "village" and dc < near["radius"] and not _town_yard(near, x, z, dc):
 			return false
 	var h := WorldGen.height(x, z)
 	var slope := absf(WorldGen.height(x + 1.0, z) - h) + absf(WorldGen.height(x, z + 1.0) - h)
 	return slope < 0.9 and h < 90.0
+
+
+## Green yards between a town's lots: clear of streets, paths, the plaza margin and
+## the market ring, and only where the terrain is painted grass (not cobble/dirt).
+static func _town_yard(near: Dictionary, x: float, z: float, dc: float) -> bool:
+	if dc < near["plan"]["plaza_r"] + 10.0 or WorldGen.street_distance(x, z) < 3.5:
+		return false
+	if CityPlanner.path_distance(near["plan"], Vector2(x, z)) < 1.5:
+		return false
+	for lot: Dictionary in near["plan"]["lots"]:
+		if Vector2(x, z).distance_to(lot["pos"]) < 5.0:
+			return false
+	var w := WorldGen.color_at(x, z, WorldGen.height(x, z), 0.0)
+	return w.r < 0.3 and w.b < 0.1 and w.g < 0.2 and w.a < 0.3
 
 
 static var _meshes := {}

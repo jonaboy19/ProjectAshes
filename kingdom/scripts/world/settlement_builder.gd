@@ -346,7 +346,7 @@ func _plinths(root: Node3D, lots: Array) -> void:
 		_plinth_mesh = BoxMesh.new()
 		_plinth_mesh.size = Vector3.ONE
 		var mat := StandardMaterial3D.new()
-		mat.albedo_color = Color(0.42, 0.39, 0.36)
+		mat.albedo_color = Color(0.66, 0.60, 0.50)   # warm tan stone, not dark brown under the sun
 		mat.roughness = 0.95
 		_plinth_mesh.material = mat
 	var transforms: Array[Transform3D] = []

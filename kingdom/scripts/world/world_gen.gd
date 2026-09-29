@@ -641,7 +641,7 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 		var cd: float = Vector2(x, z).distance_to(c["pos"])
 		var cr: float = c["radius"]
 		if cd < cr + 6.0:
-			var k := (1.0 - smoothstep(cr - 1.0, cr + 6.0, cd)) * 0.55
+			var k := (1.0 - smoothstep(cr - 1.0, cr + 6.0, cd)) * 0.4
 			w.r = maxf(w.r, k)
 			w.a *= 1.0 - clampf(k * 1.4, 0.0, 1.0)
 	# Shores: sandy dirt at the waterline, pebbles (rock) on the bed, more with depth.
@@ -687,6 +687,9 @@ static func forest_density(x: float, z: float, with_clearings := true) -> float:
 		f *= smoothstep(near["radius"] * 1.8, near["radius"] * 2.8, Vector2(x, z).distance_to(near["pos"]))
 	if road_distance(x, z) < 8.0:
 		f = 0.0
+	for g in camp_grounds:   # no trees standing inside a goblin warren / orc village
+		if f > 0.0:
+			f *= smoothstep(float(g["radius"]) * 0.6, float(g["radius"]) * 1.0, Vector2(x, z).distance_to(g["pos"]))
 	for c in clearings:
 		if f > 0.0 and with_clearings:
 			f *= smoothstep(float(c["radius"]), float(c["radius"]) + 10.0, Vector2(x, z).distance_to(c["pos"]))
