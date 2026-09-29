@@ -90,8 +90,9 @@ def make_cam(name, loc, target, scale):
     co.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
     return co
 CAMS = {
-    "side": make_cam("side", (-8, -0.15, 1.05), (0, -0.15, 1.05), 2.5),    # faces +X: character looks to the right
-    "front": make_cam("front", (0, -8, 1.05), (0, 0, 1.05), 2.5),
+    "side": make_cam("side", (-8, -0.15, 1.12), (0, -0.15, 1.12), 2.75),    # faces +X: character looks to the right
+    "front": make_cam("front", (0, -8, 1.12), (0, 0, 1.12), 2.75),
+    "q34": make_cam("q34", (-5.0, -5.0, 1.22), (0, 0, 1.12), 2.85),     # 3/4 view from the character's right-front
 }
 
 def assign(obj, act):
@@ -127,6 +128,10 @@ for name, act in actions.items():
     clip = name[:-5] if name.endswith("_Loop") else name
     if ONLY and clip not in ONLY and name not in ONLY:
         continue
+    for pb in ual_arm.pose.bones:      # channels a (reduced) clip does not key stay at rest in Godot; make Blender do the same
+        pb.rotation_quaternion = (1, 0, 0, 0)
+        pb.location = (0, 0, 0)
+        pb.scale = (1, 1, 1)
     assign(ual_arm, act)
     f0, f1 = act.frame_range
     scene.frame_start, scene.frame_end = int(f0), int(f1)
@@ -158,10 +163,19 @@ for name, act in actions.items():
     comb = os.path.join(base, "frames")
     os.makedirs(comb, exist_ok=True)
     fr = sorted(os.listdir(os.path.join(base, "_side")))
-    first = int(fr[0][1:5])
+    first = 0
+    if STEP > 1:      # frame_step names the files f0000, f0002 ...: renumber them so ffmpeg reads a gapless sequence
+        for v in ("_side", "_q34", "_front"):
+            names = sorted(os.listdir(os.path.join(base, v)))
+            for i, nm in enumerate(names):
+                os.rename(os.path.join(base, v, nm), os.path.join(base, v, "t%04d.png" % i))
+            for i in range(len(names)):
+                os.rename(os.path.join(base, v, "t%04d.png" % i), os.path.join(base, v, "f%04d.png" % i))
     subprocess.run([ffmpeg, "-v", "error", "-y", "-start_number", str(first), "-i", os.path.join(base, "_side", "f%04d.png"),
+                    "-start_number", str(first), "-i", os.path.join(base, "_q34", "f%04d.png"),
                     "-start_number", str(first), "-i", os.path.join(base, "_front", "f%04d.png"),
-                    "-filter_complex", "hstack", "-start_number", "0", os.path.join(comb, "frame%08d.png")], check=False)
+                    "-filter_complex", "hstack=inputs=3", "-start_number", "0", os.path.join(comb, "frame%08d.png")], check=False)
     shutil.rmtree(os.path.join(base, "_side"), ignore_errors=True)
     shutil.rmtree(os.path.join(base, "_front"), ignore_errors=True)
+    shutil.rmtree(os.path.join(base, "_q34"), ignore_errors=True)
     print("RENDERED", clip, len(fr))

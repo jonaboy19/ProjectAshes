@@ -4,7 +4,7 @@
 # Preview: ./run_preview.sh <glb> <out_dir>  (needs ffmpeg on PATH), then tools/qa/video_to_sheets.sh on <out_dir>/<clip>/frames.
 set -e
 HERE="$(cd "$(dirname "$0")" && pwd)"
-K="$(cd "$HERE/../../.." && pwd -W 2>/dev/null || cd "$HERE/../../.." && pwd)"
+K="$(cd "$HERE/../../.." && (pwd -W 2>/dev/null || pwd))"
 B="${BLENDER:-C:/Program Files/Blender Foundation/Blender 5.2/blender.exe}"
 PY="${BLENDER_PY:-C:/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe}"
 OUT="$K/assets/incoming/animations_free/casting/UAL_Free_CastingElements.glb"
