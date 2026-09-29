@@ -8,6 +8,7 @@ _Last update: 2026-09-29 (Region 1 L10 Ember Legacy + L11 Ashsight; L14 main que
 ## Done (recent)
 | Date | What | Where | Commit |
 |---|---|---|---|
+| 09-29 | **Animation polish pass** (see table below): Stagborn re-render + foot lock, farm cow/chicken fixes, 16 casting clips, library re-review, vault/traversal rebuilt, clip-name/import hygiene | `assets/incoming/ai3d/meshy/creatures/`, `meshy_free/farm/rigged/`, `animations_free*/`, `docs/anim/free_library/polish_*.md`, `docs/anim/farm/`, `docs/art/region1/stagborn/` | see git log "Stagborn:", "Farm animals:", "anim:" |
 | 09-28 | Boot crash fixed (threaded mesh loads → main-thread `Assets.scene`) | `scripts/world/region_dressing.gd`, `assets.gd` | 0137fa0d, 64b3698e |
 | 09-28 | Godot 4.6.3 (quit crash fixed) | launchers, `tools/qa` | a5a596b7 |
 | 09-29 | **L14 main quest + L16 tutorial director**: "The Stones Are Dimming" Acts I-V (30 steps, 5 dialogue files, 12-person cast), story lint with full autoplay (2592/2592 combinations), 12 contextual tutorial prompts with en/nl strings, sandbox sheet | `data/region1/quests/`, `data/region1/dialogue/`, `scripts/region1/`, `tools_qa/region1/`, `docs/regions/STORY_R1.md`, `CAST_R1.md` | e3071665 + follow-up |
@@ -20,6 +21,19 @@ _Last update: 2026-09-29 (Region 1 L10 Ember Legacy + L11 Ashsight; L14 main que
 | 09-29 | Rigged farm animals (hen, rooster, 3 cows) with idle/walk/eat/flap clips, rig tools, frame sheets | `assets/incoming/meshy_free/farm/rigged/`, `tools/meshy/animal_rig/`, `docs/art/meshy_free/rigged/` | 72e1465a |
 | 09-29 | Meshy fixes: bouquet_bright re-baked, ruined-hut floating debris removed (island removal); raspberry kept | `assets/incoming/meshy_free/`, `docs/art/meshy_free/fixes/` | a8558e41 |
 | 09-29 | Elemental VFX set: soft fire shader, bolder lightning and dash, stop-motion sheets, perf and Compatibility checked | `scenes/vfx/elements/`, `scripts/vfx/element_fx.gd`, `docs/art/vfx_elements/` | 58abc054 + follow-up |
+
+
+## Animation polish pass, 2026-09-29 (per-item result)
+| # | Item | Result | Notes |
+|---|---|---|---|
+| 1 | Warden: re-render every clip on the new mesh, walk slide, antlers in run_charge | PASS | all 12 clips re-exported and read as sheets; walk hooves pinned (IK lock, 1.19-1.30 m/s spread from 0.9-1.6); antlers min height 0.96 m in run_charge (never dipped in the current mesh); roar head throw-back halved so antlers clear the back |
+| 2 | Elk: walk slide, run_charge antlers | PASS | walk 1.19-1.23 m/s on all four hooves; run_charge antlers >= 0.82 m |
+| 3 | Farm cow graze + chicken wings | PASS (caveats) | muzzle 0.23-0.28 m -> ~0.0 m; wings 4 bones each, folded rest, fanned flap. Cow front legs slightly wedge-shaped in deep graze; wing is still a textured patch, not individual feathers |
+| 4a | Kicks / defense / acrobatics / reactions / KayKit review | PARTIAL | 218 clips total; 4 acrobatics + 2 undead clips rejected. Partial: MA_Acro_HandstandKicks, Fall_Slip_Back, MA_Guard_Boxing_Loop (low bounce), Kay_Undead Collapse/Resurrect foot skid. KayKit knees: fixed per clip where possible, rest documented in polish_review.md |
+| 4b | Vault + traversal placeholders | PARTIAL | all 13 rebuilt, Vault_Low real (run-up, palms on box, arc, landing) + Vault_Low_B. Open: landing arms stiff, one calf snaps 0.36 m in one frame; Ride_Trot_Loop partial |
+| 4c | Casting: 8 elements, charge -> release | PASS (caveats) | 16 clips authored on UAL (CMU has no spellcasting takes), release frames 9-17 timed to ElementFX. Wind left arm stiff in hold, dark claw gesture small; hands not checked on the game's character meshes |
+| 5 | Duplicate clip names / import errors | PASS | no duplicates in 218 clips (`tools/anim/check_unique_clips.py`); Weapons and CastingKaykit GLBs were stuck at valid=false (never loaded) and are repaired; full headless import shows no "already exists" |
+Not run: the game itself with these clips (Godot imports and loads all 16 libraries headless; no in-game visual pass).
 
 ## Region 1 scaffold (L0), 2026-09-29: DONE
 - `Region1Sim` (seeded, `tick(dt_days)`, events, `serialize`/`deserialize`/`migrate`, `digest`, `debug_image`), `Region1State` (static save registry, versioning + migration, unknown-module data kept), `Region1Root` (1 s timer, day slicing, presenter group), `Region1DemoSim`, `data/region1/{README.md,modules.json}`, headless sandbox `tools_qa/region1/region1_sandbox.tscn`, 19 gdUnit tests (`tests/test_region1_scaffold.gd`).
@@ -73,7 +87,8 @@ _Last update: 2026-09-29 (Region 1 L10 Ember Legacy + L11 Ashsight; L14 main que
 ## Backlog (from the aaa-review loop)
 - Warm up the blue lower canopy on the fluffy-tree shader.
 - Fix the 4 HUD icons that still have faint smudges.
-- (aaa-review, assets session) Rig the horse, wolves, fox and dragons with `animal_rig`; the cow grazing pose needs a longer neck or a kneel (muzzle stops about 20 cm above the ground); chicken wings are flat plates that swing out, an extra wing-tip bone or a re-modelled wing would sell the flap.
+- (aaa-review, animation polish) Next: foot-IK on the game rig for KayKit short legs; in-game visual pass of all new clips on the real character meshes; finger poses for casting (open palm / claw); feather-level chicken wings; Ride_Trot_Loop and vault landing arms; run the ashes-anim_qa catalog for the Stagborn entries.
+- (aaa-review, assets session; cow and chicken fixed 09-29) Rig the horse, wolves, fox and dragons with `animal_rig`; the cow grazing pose needs a longer neck or a kneel (muzzle stops about 20 cm above the ground); chicken wings are flat plates that swing out, an extra wing-tip bone or a re-modelled wing would sell the flap.
 - (aaa-review) Impostors: wrap the real game materials in the crossfade shader (`mesh_fade.gdshader` only carries albedo/colour/roughness), tune impostor tint/up_lighting to the lit mesh (impostors are lighter than shadowed meshes), test alpha-to-coverage on a phone and provide a no-MSAA path, bake impostors for the KayKit and Meshy buildings, measure the LOW tier switch distance.
 - (aaa-review) bush_raspberry still shard-like: Meshy remesh (5 cr) or hand-made bush in Blender.
 - (aaa-review) Godot `--import` of the whole project takes 30 min on a cold cache and about 7 GB of disk; agents should share one `.godot` cache instead of one per worktree.
@@ -181,7 +196,8 @@ _Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
 ## Meshy free fixes (partial, stopped at usage limit)
 - Done: optimize_free.py gained island_pct arg (arg 11) + env EMIT_ADD=1 / BAKE_EXT. Re-baked lamp_post_purple_bracket (solid, across 300, 1024px, EMIT_ADD), torch_dungeon_cage (island 14), house_two_story_shingle (solid, across 200), bouquet_wild (solid, across 260, smooth, 3500 tris, island 3), hay_bale_yellow_large (vox across 120, smooth, 3000 tris). Before/after in docs/art/meshy_free/fixes/.
 - Remaining: bouquet_bright, bush_raspberry (blobby vox across 90-130 candidates rendered, unreviewed), ruined-hut floating debris (use island_pct), farm animal rigs (task 2) not started.
-- (aaa-review, assets session) Rig the horse, wolves, fox and dragons with `animal_rig`; the cow grazing pose needs a longer neck or a kneel (muzzle stops about 20 cm above the ground); chicken wings are flat plates that swing out, an extra wing-tip bone or a re-modelled wing would sell the flap.
+- (aaa-review, animation polish) Next: foot-IK on the game rig for KayKit short legs; in-game visual pass of all new clips on the real character meshes; finger poses for casting (open palm / claw); feather-level chicken wings; Ride_Trot_Loop and vault landing arms; run the ashes-anim_qa catalog for the Stagborn entries.
+- (aaa-review, assets session; cow and chicken fixed 09-29) Rig the horse, wolves, fox and dragons with `animal_rig`; the cow grazing pose needs a longer neck or a kneel (muzzle stops about 20 cm above the ground); chicken wings are flat plates that swing out, an extra wing-tip bone or a re-modelled wing would sell the flap.
 - (aaa-review) Impostors: wrap the real game materials in the crossfade shader (`mesh_fade.gdshader` only carries albedo/colour/roughness), tune impostor tint/up_lighting to the lit mesh (impostors are lighter than shadowed meshes), test alpha-to-coverage on a phone and provide a no-MSAA path, bake impostors for the KayKit and Meshy buildings, measure the LOW tier switch distance.
 - (aaa-review) bush_raspberry still shard-like: Meshy remesh (5 cr) or hand-made bush in Blender.
 - (aaa-review) Godot `--import` of the whole project takes 30 min on a cold cache and about 7 GB of disk; agents should share one `.godot` cache instead of one per worktree.
