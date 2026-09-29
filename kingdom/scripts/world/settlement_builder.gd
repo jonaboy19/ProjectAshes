@@ -2,9 +2,11 @@ class_name SettlementBuilder
 extends Node3D
 
 ## Distance where Meshy hero buildings swap to their light LOD.
+const DistanceCull := preload("res://scripts/core/distance_cull.gd")
 const HERO_LOD := 70.0
 ## Buildings and greenery are batched per model per LOD_CELL x LOD_CELL metres.
 const LOD_CELL := 40.0
+const WIDE_CELL := 100.0
 ## Builds settlements from their CityPlanner layout when the focus comes within
 ## BUILD_RANGE and frees them past FREE_RANGE. Buildings of the same model are
 ## drawn as one MultiMesh (a capital has ~300 buildings but only ~15 draw
@@ -92,7 +94,13 @@ func _build(s: Dictionary) -> Node3D:
 		# (Meshy only: the Blender houses have 4-6 materials each, so per-cell batches
 		# of them cost more draw calls than their triangles save.)
 		var celled := Assets.building_lod_level_distance(asset, 3) > 0.0
-		var bkey := "%s@%d,%d" % [asset, floori(p.x / LOD_CELL), floori(p.y / LOD_CELL)] if celled else asset + "@"
+		# Perf pass 2026-09-29: multi-material Blender houses with a single LOD used to be one
+		# town-wide MultiMesh; a MultiMesh is only frustum-culled as a whole, so every house
+		# (4.5k tris x 4 surfaces) was submitted even behind the camera. 100 m cells keep the
+		# draw-call count low but let the far side of a capital be culled.
+		var wide := not celled and Assets.building_lod_mesh(asset) != null
+		var cs := LOD_CELL if celled else WIDE_CELL
+		var bkey := "%s@%d,%d" % [asset, floori(p.x / cs), floori(p.y / cs)] if (celled or wide) else asset + "@"
 		if not batches.has(bkey):
 			batches[bkey] = []
 		var size := _footprint(asset)
@@ -1168,6 +1176,7 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 				var ganim := Assets.animation_player(guard)
 				if ganim:
 					ganim.play("Idle" if ganim.has_animation("Idle") else ganim.get_animation_list()[0])
+				DistanceCull.attach(guard, 110.0, ganim)
 	# Red-and-gold banners hung along the inner face of the walls either side of each gate.
 	var wall_mesh := Assets.building_mesh("wall")
 	if plan["walls"] and wall_mesh != null:

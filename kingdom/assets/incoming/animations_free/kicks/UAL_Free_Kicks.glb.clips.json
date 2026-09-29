@@ -154,13 +154,13 @@
  {
   "name": "MA_Kick_JumpHigh_A",
   "loop": false,
-  "seconds": 2.7,
-  "frames": 82,
+  "seconds": 2.25,
+  "frames": 68,
   "keys": 1458,
   "source": "090/90_05.bvh",
   "range_s": [
    0.9,
-   3.6
+   3.15
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -168,17 +168,21 @@
   "contact_lift_m": 0.01,
   "min_foot_m": -0.02,
   "travel_m": 2.28,
-  "hip_scale": 0.0502
+  "hip_scale": 0.0502,
+  "trimmed_from_s": [
+   0.0,
+   2.25
+  ]
  },
  {
   "name": "MA_Kick_JumpHigh_B",
   "loop": false,
-  "seconds": 2.6,
-  "frames": 79,
+  "seconds": 1.85,
+  "frames": 56,
   "keys": 1320,
   "source": "090/90_06.bvh",
   "range_s": [
-   1.6,
+   2.35,
    4.2
   ],
   "autotrim": null,
@@ -187,18 +191,22 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.016,
   "travel_m": 2.14,
-  "hip_scale": 0.0502
+  "hip_scale": 0.0502,
+  "trimmed_from_s": [
+   0.75,
+   2.6
+  ]
  },
  {
   "name": "MA_Kick_Swing_R",
   "loop": false,
-  "seconds": 2.17,
-  "frames": 66,
+  "seconds": 1.15,
+  "frames": 34,
   "keys": 908,
   "source": "074/74_05.bvh",
   "range_s": [
-   0.5,
-   2.7
+   0.85,
+   2.0
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -206,6 +214,10 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.59,
-  "hip_scale": 0.0555
+  "hip_scale": 0.0555,
+  "trimmed_from_s": [
+   0.35,
+   1.5
+  ]
  }
 ]

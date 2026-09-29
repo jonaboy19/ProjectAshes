@@ -147,7 +147,7 @@ CC0 (no attribution required; credited with thanks): 53 market props (39 + 14 pi
 
 Credit required (CC BY 4.0, https://creativecommons.org/licenses/by/4.0/):
 
-- "Folk Round", "Minstrel Guild", "Achaidh Cheide", "Lost Time", "Suonatore di Liuto" and "Crusade" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License. Region 1 village/farm, guild town, Stagborn glade, rift-touched wilds, night and Antlered Warden boss themes.
+- "Folk Round", "Minstrel Guild", "Achaidh Cheide", "Lost Time", "Suonatore di Liuto", "Crusade", "Bittersweet", "Skye Cuillin" and "Long Road Ahead" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License. Region 1 village/farm, guild town, Stagborn glade, rift-touched wilds, night and Antlered Warden boss themes, plus the Region 1 story cues (lament, Kindling Night, finale).
 - "Medieval Chateau" by Alexander Nakarada (CreatorChords) | https://creatorchords.com , Royalty Free Music by https://www.free-stock-music.com , Creative Commons / Attribution 4.0 International (CC BY 4.0) https://creativecommons.org/licenses/by/4.0/ . Highwatch Keep theme.
 
 CC0 (credited with thanks):
@@ -164,3 +164,9 @@ CC0 (credited with thanks):
 ## Stagborn elk and Antlered Warden (added 2026-09-29, L5; see `assets/incoming/ai3d/meshy/creatures/stagborn_README.md`)
 - **Quaternius**, *Ultimate Animated Animals* **Stag** (mesh, rig and stock clips: idle, walk, gallop, headbutt, kick, hit, death, eating), **CC0 1.0** (https://quaternius.com, https://creativecommons.org/publicdomain/zero/1.0/; licence file `assets/incoming/quaternius/ultimate-animated-animals/License.txt`). No attribution required; credited with thanks.
 - Customisation (Warden antlers, mane, body proportions, painted and rune-emissive textures, authored `attack`, `run_charge` and `roar` clips, retiming, LOD1): own work for Rising Ashes. No Meshy credits and no other third-party material were used.
+
+## Region 1 art: Silverford guild hall, Dawn Throne chapel, rift kit (added 2026-09-29, work packages L3 and L4)
+
+* `assets/incoming/region1/silverford/`: re-graded from **Meshy community models, CC0 1.0** (`meshy_free/buildings/house_two_story_shingle`, `meshy_free/churches/church_white_red_spire`; each verified `license: cc0`, see `assets/incoming/meshy_free/CREDITS.md`). Modifications: HSV recolour of the baked texture (royal-blue roof; white stone with gold roofs), added hand-built banners, sign and Dawn Throne sun emblem, uniform re-scale, LOD1 from the shipped Meshy LOD1. Scripts: `tools/blender/make_r1_exteriors.py`.
+* `scenes/interiors/guildhall_interior.tscn`, `chapel_interior.tscn` and their GLBs: Blender-built with the project interior kit; furniture pieces from **Quaternius Fantasy Props MegaKit, CC0 1.0** (already credited above). Everything else is our own work.
+* `assets/incoming/region1/rift/`: textures are recolours of the project's own region nature atlases and of the Meshy-generated wolf and boar textures (our own work / the paid Meshy plan, no attribution needed); `crystals/` are re-cut and re-tinted from **Meshy community models, CC0 1.0** (`meshy_free/magic/crystal_purple_pedestal`, `crystal_cyan_pedestal`, `crystal_ice_shard`, pedestals removed); decals are procedural (own work). Scripts: `tools/blender/make_rift_*.py`, `make_scar_crystals.py`.

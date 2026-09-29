@@ -1,5 +1,17 @@
 [
  {
+  "name": "Vault_Low",
+  "loop": false,
+  "frames": 61,
+  "seconds": 2.0
+ },
+ {
+  "name": "Vault_Low_B",
+  "loop": false,
+  "frames": 61,
+  "seconds": 2.0
+ },
+ {
   "name": "Ladder_Climb_Up",
   "loop": true,
   "frames": 37,
@@ -70,11 +82,5 @@
   "loop": true,
   "frames": 31,
   "seconds": 1.0
- },
- {
-  "name": "Vault_Low",
-  "loop": false,
-  "frames": 43,
-  "seconds": 1.4
  }
 ]

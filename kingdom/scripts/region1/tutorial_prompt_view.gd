@@ -138,8 +138,12 @@ func _layout() -> void:
 	_skip.add_theme_font_size_override("font_size", int(round(34.0 * k)))
 	_skip.custom_minimum_size = Vector2(SKIP_SIZE, SKIP_SIZE) * maxf(k, 1.0)
 	_pill.reset_size()
-	var a := anchor_pos(String(prompt.get("anchor", "center")))
 	var sz := _pill.get_combined_minimum_size()
+	if bool(prompt.get("plain", false)):
+		# A text-only hint (realm_encounters.gd): no ring, no gesture, high and centred.
+		_pill.position = Vector2(clampf((size.x - sz.x) * 0.5, 16.0, maxf(16.0, size.x - sz.x - 16.0)), size.y * 0.16)
+		return
+	var a := anchor_pos(String(prompt.get("anchor", "center")))
 	# Above the anchor; below it near the top edge, and below the big glyph for "trace".
 	var below := a.y <= size.y * 0.3 or String(prompt.get("touch", "")) == "trace"
 	var gap := (140.0 if String(prompt.get("touch", "")) == "trace" else 110.0) * k
@@ -160,7 +164,7 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	if prompt.is_empty() or (_alpha <= 0.01 and _done_flash <= 0.0):
+	if prompt.is_empty() or bool(prompt.get("plain", false)) or (_alpha <= 0.01 and _done_flash <= 0.0):
 		return
 	var k := _ui_scale()
 	var a := anchor_pos(String(prompt.get("anchor", "center")))

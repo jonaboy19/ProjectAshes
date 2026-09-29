@@ -17,7 +17,9 @@ const SEED := 1066
 const JOBS := ["Farmer", "Blacksmith", "Merchant", "Guard", "Laborer", "Woodcutter"]
 const WAGES := [6, 12, 15, 9, 5, 7]
 const WALK_SPEED := 1.3
-const UPDATES_PER_FRAME := 1500
+## CPU budget for the whole-world sim per frame, and the radius around the player that is kept fresh.
+const BUDGET_US := 500
+const NEAR_RADIUS := 320.0
 ## Real seconds per in-game day.
 const DAY_LENGTH := 720.0
 const FIRST := ["Marcus", "Aldric", "Edda", "Hild", "Osric", "Wynn", "Bertram", "Maud", "Cedric", "Agnes",
@@ -49,6 +51,11 @@ var treasury := PackedInt32Array()
 var _cursor := 0
 var _clock := 0.0
 var _last_hour := -1
+var dbg_slice_usec := 0   # QA: total _simulate_slice time, read by tools/qa/water_shots/water_prof.gd
+var dbg_frames := 0
+var _near_ids := PackedInt32Array()
+var _near_cursor := 0
+var _near_next := 0.0
 
 
 func _ready() -> void:
@@ -136,7 +143,10 @@ func _process(delta: float) -> void:
 	if hour != _last_hour:
 		_last_hour = hour
 		hour_changed.emit(hour)
+	var _t0 := Time.get_ticks_usec()
 	_simulate_slice()
+	dbg_slice_usec += Time.get_ticks_usec() - _t0
+	dbg_frames += 1
 
 
 ## Skip time (sleeping, waiting): steps hour by hour so every hourly listener
@@ -198,22 +208,73 @@ func _current_phase(person_job: int) -> int:
 	return 2 if h < 19.5 else 0
 
 
+## Time-sliced: the whole database used to be walked at 1500 people per frame
+## (about 4 ms per frame in GDScript, the biggest single CPU cost measured at the
+## lake on LOW, 2026-09-29). Now a fixed time budget per frame is spent, and the
+## people near the player (the ones with sprites or bodies) are updated first and
+## often; distant settlements get the leftover budget. Movement uses each
+## person's own elapsed time (dt), so a slower cycle gives the same result.
 func _simulate_slice() -> void:
 	var n := pos.size()
 	if n == 0:
 		return
-	for k in mini(UPDATES_PER_FRAME, n):
-		var i := _cursor
-		_cursor = (_cursor + 1) % n
-		var dt := _clock - last_update[i]
-		last_update[i] = _clock
-		var want := _current_phase(job[i])
-		if want != phase[i]:
-			_on_phase_change(i, phase[i], want)
-		var to := target[i] - pos[i]
-		var dist := to.length()
-		if dist > 0.05:
-			pos[i] += to / dist * minf(dist, WALK_SPEED * dt)
+	_refresh_near()
+	var t0 := Time.get_ticks_usec()
+	var near_end := t0 + BUDGET_US * 7 / 10
+	var end := t0 + BUDGET_US
+	var m := _near_ids.size()
+	if m > 0:
+		# Every near person about every 4 frames (15 Hz at 60 fps).
+		var todo := maxi((m + 3) / 4, 32)
+		var k := 0
+		while k < todo:
+			_step(_near_ids[_near_cursor])
+			_near_cursor += 1
+			if _near_cursor >= m:
+				_near_cursor = 0
+			k += 1
+			if (k & 31) == 0 and Time.get_ticks_usec() > near_end:
+				break
+	var c := 0
+	while true:
+		_step(_cursor)
+		_cursor += 1
+		if _cursor >= n:
+			_cursor = 0
+		c += 1
+		if (c & 31) == 0 and Time.get_ticks_usec() > end:
+			break
+
+
+func _step(i: int) -> void:
+	var dt := _clock - last_update[i]
+	last_update[i] = _clock
+	var want := _current_phase(job[i])
+	if want != phase[i]:
+		_on_phase_change(i, phase[i], want)
+	var to := target[i] - pos[i]
+	var dist := to.length()
+	if dist > 0.05:
+		pos[i] += to / dist * minf(dist, WALK_SPEED * dt)
+
+
+## People of the settlements within NEAR_RADIUS of the player, rebuilt every 1.5 s.
+func _refresh_near() -> void:
+	if _clock < _near_next:
+		return
+	_near_next = _clock + 1.5
+	_near_ids.clear()
+	_near_cursor = 0
+	var player := get_tree().get_first_node_in_group("player") as Node3D
+	if player == null:
+		return
+	var p := Vector2(player.global_position.x, player.global_position.z)
+	for s in WorldGen.settlements:
+		if p.distance_to(s["pos"]) > NEAR_RADIUS + float(s["radius"]) * 2.0:
+			continue
+		var r: Vector2i = ranges[s["id"]]
+		for i in range(r.x, r.y):
+			_near_ids.append(i)
 
 
 func _on_phase_change(i: int, old: int, new_phase: int) -> void:

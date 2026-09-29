@@ -11,8 +11,8 @@ extends "res://scripts/realm/realm_module.gd"
 
 const CHOKE_KINDS := ["bridge", "fort", "watchfort", "rift_outpost", "rift", "waystation"]
 const RAIDER_KINDS := ["bandits", "monsters", "rival_lord", "mercenaries", "militants", "soulbeasts"]
-const MAX_STRONGHOLDS := 30
-const RAID_SPEED := 420.0          # metres per hour (world is 4 km wide)
+const MAX_STRONGHOLDS := 44          # (30 on the 4 km map; the 8 km world has ~40 chokepoint candidates)
+const RAID_SPEED := 840.0          # metres per hour (world is 8 km wide; was 420 on the 4 km map)
 const MAX_RAIDS := 6
 const RESULTS_MAX := 20
 const PASS_MIN_LEN := 700.0

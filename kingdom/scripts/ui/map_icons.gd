@@ -109,7 +109,7 @@ static func glyph(ci: CanvasItem, kind: String, c: Vector2, g: float, col: Color
 		"mine":
 			ci.draw_line(c + Vector2(-g * 0.8, g * 0.9), c + Vector2(g * 0.5, -g * 0.4), col, w, true)
 			ci.draw_arc(c + Vector2(g * 0.2, -g * 0.15), g * 0.8, -PI * 0.95, -PI * 0.05, 10, col, w, true)
-		"tower_ruin", "watchfort", "fort", "rift_outpost":
+		"tower_ruin", "watchfort", "fort", "rift_outpost", "academy":
 			ci.draw_rect(Rect2(c + Vector2(-g * 0.45, -g * 0.55), Vector2(g * 0.9, g * 1.45)), col)
 			for i in 3:
 				ci.draw_rect(Rect2(c + Vector2(-g * 0.6 + i * g * 0.45, -g), Vector2(g * 0.3, g * 0.4)), col)
@@ -146,8 +146,8 @@ static func draw_marker(ci: CanvasItem, kind: String, c: Vector2, s: float, host
 			_palisade(ci, c, g, w)
 		"fort":
 			_fort(ci, c, g, w)
-		"watchfort":
-			_tower(ci, c, g, STONE, BLUE, w, false)
+		"watchfort", "academy":
+			_tower(ci, c, g, STONE, BLUE if kind == "watchfort" else GOLD, w, false)
 		"tower_ruin":
 			_tower(ci, c, g, STONE_DARK, Color(0, 0, 0, 0), w, true)
 		"rift_outpost":

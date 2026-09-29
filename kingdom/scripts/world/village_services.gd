@@ -7,6 +7,7 @@ extends Node3D
 ## the same menus are offered inside: wire_settlement() hooks every InteriorDoor
 ## so the innkeeper, smith, receptionist and healer in a room get a Station.
 
+const DistanceCull := preload("res://scripts/core/distance_cull.gd")
 const FarmLedger := preload("res://scripts/ui/farm_ledger.gd")
 const TradeScreen := preload("res://scripts/ui/trade_screen.gd")
 const CraftingScreen := preload("res://scripts/ui/crafting_screen.gd")
@@ -244,6 +245,7 @@ func _person(title: String, verb: String, menu: Callable, at: Vector2, face: Vec
 	var anim := Assets.animation_player(body)
 	if anim:
 		anim.play("Idle" if anim.has_animation("Idle") else anim.get_animation_list()[0])
+	DistanceCull.attach(body, 110.0, anim)
 	var to := face - at
 	st.rotation.y = atan2(to.x, to.y)
 	return st

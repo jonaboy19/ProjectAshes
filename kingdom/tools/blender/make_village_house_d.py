@@ -29,6 +29,7 @@ PAL = {
                box="natural"),
 }[V]
 k = VK("VillageHouseD" + ("" if V == 1 else f"_{V}"), seed=404 + V * 7, pal=PAL)
+k.pbr = dict(size=1024, lod1_size=512, orm_div=2, seed=V * 11 + 3, ao_dist=0.7)   # high-to-low PBR bake (pbr_kit.py)
 
 HX = 2.5
 Y0, Y1 = -2.7, 3.3

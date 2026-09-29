@@ -881,10 +881,16 @@ func _realm_ctx() -> Dictionary:
 func _on_hour(hour: int) -> void:
 	realm.on_hour(hour, WorldSim.day, _realm_ctx())
 	# City life and society keep a signed ledger instead of touching the purse.
-	for k: String in ["city_life", "society"]:
-		var net := int(realm.mod(k).take_pending_gold())
-		if net != 0:
-			Game.add_gold(net)
+	for k: String in ["city_life", "society", "education", "household", "callups"]:
+		var m: RefCounted = realm.mod(k)
+		if m != null and m.has_method("take_pending_gold"):
+			var net := int(m.take_pending_gold())
+			if net != 0:
+				Game.add_gold(net)
+	# Combat training is open to every career (education.training_options).
+	var gains: Dictionary = realm.mod("education").take_pending_gains()
+	if float(gains.get("combat", 0.0)) > 0.0:
+		mastery.gain("swordsmanship", float(gains["combat"]), WorldSim.day)
 	if hour == 6:
 		# War first: economy, lordship levies and promotion speed read the at_war flag this hour.
 		for msg: String in war.tick_day(WorldSim.day, {"feud_count": nobility.feuds().size(),

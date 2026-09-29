@@ -61,7 +61,7 @@ func test_lake_is_deep_water_away_from_roads() -> void:
 
 
 func test_rivers_are_continuous() -> void:
-	assert_int(WorldGen.rivers.size()).is_equal(2)
+	assert_int(WorldGen.rivers.size()).is_equal(3)     # the Ashrun's two arms, then the Silverrun through the new land
 	for river in WorldGen.rivers:
 		var pts: PackedVector2Array = river["points"]
 		var lv: PackedFloat32Array = river["level"]
@@ -83,6 +83,10 @@ func test_rivers_are_continuous() -> void:
 	assert_float(down[0].distance_to(WorldGen.lake_center)).is_less(1.0)
 	var end := down[down.size() - 1]
 	assert_float(maxf(absf(end.x), absf(end.y))).is_greater(WorldGen.WORLD_HALF)
+	# The Silverrun is independent of the lake and runs out through the eastern side of the 8 km map.
+	var silver: PackedVector2Array = WorldGen.rivers[2]["points"]
+	assert_float(maxf(absf(silver[silver.size() - 1].x), absf(silver[silver.size() - 1].y))).is_greater(WorldGen.WORLD_HALF)
+	assert_float(silver[0].distance_to(WorldGen.lake_center)).is_greater(2000.0)
 
 
 func test_no_forest_or_dens_in_water() -> void:

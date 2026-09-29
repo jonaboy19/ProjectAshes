@@ -29,7 +29,7 @@ const KIND_LABELS := {
 	"hidden_place": "Hidden Place", "bandit_camp": "Bandit Camp", "tower_ruin": "Ancient Ruin",
 	"mine": "Mine", "watchfort": "Watchfort", "rift": "The Rift", "lake": "Lake", "river": "River",
 	"forest": "Forest", "road": "Road", "goblin_warren": "Goblin Warren",
-	"orc_village": "Orc Stronghold",
+	"orc_village": "Orc Stronghold", "academy": "Academy",
 }
 
 var places: Array[Dictionary] = []
@@ -136,9 +136,8 @@ func discover(id: String, day := 0) -> bool:
 func update(p: Vector2, day := 0) -> Array[Dictionary]:
 	var hits: Array[Dictionary] = []
 	for pl in places:
-		if found.has(pl["id"]):
-			continue
-		if p.distance_squared_to(pl["pos"]) <= float(pl["radius"]) * float(pl["radius"]):
+		# Distance first: the 8 x 8 km world has a few hundred places and only the near ones need a lookup.
+		if p.distance_squared_to(pl["pos"]) <= float(pl["radius"]) * float(pl["radius"]) and not found.has(pl["id"]):
 			hits.append(pl)
 	hits.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return p.distance_squared_to(a["pos"]) < p.distance_squared_to(b["pos"]))

@@ -10,9 +10,13 @@ const PACK := "res://assets/incoming/3dassets-dev-ai/medieval-mmo-starter-realm/
 const GEN := "res://assets/generated/"
 const SPAWN_RANGE := 260.0
 const DESPAWN_RANGE := 420.0
+## Props (huts, palisade, totem, chief, fire light) exist only while the player is within reach:
+## the 8 x 8 km world has a dozen camps and none of them should cost anything from afar.
+const BUILD_RANGE := 520.0
+const FREE_RANGE := 760.0
 
 var focus := Vector3.ZERO
-var _camps: Array[Dictionary] = []   # {place, species, roster: [[species, n]], root, residents: Array}
+var _camps: Array[Dictionary] = []   # {place, species, roster: [[species, n]], root (null until built), residents: Array}
 var _timer := 0.0
 
 
@@ -20,10 +24,10 @@ func _ready() -> void:
 	for pl: Dictionary in Life.lore.places_in_region():
 		match String(pl.get("kind", "")):
 			"goblin_warren":
-				_add_camp(pl, "goblin", [["goblin", 7]])
+				_register(pl, "goblin", _goblin_roster(int(pl.get("danger_tier", 1))))
 			"orc_village":
-				# Five orcs and the warchief's troll (Meshy troll, 3 m) guarding the hold.
-				_add_camp(pl, "orc", [["orc", 5], ["troll", 1]])
+				# Five orcs and the warchief's troll (Meshy troll, 3 m) guarding the hold; the far holds are bigger.
+				_register(pl, "orc", [["orc", 8], ["troll", 2]] if int(pl.get("danger_tier", 0)) >= 3 else [["orc", 5], ["troll", 1]])
 
 
 func _ground(p: Vector2) -> Vector3:
@@ -50,12 +54,28 @@ func _place(root: Node3D, paths: Array, at: Vector2, yaw: float, height := 0.0) 
 	n.rotation.y = yaw
 
 
-func _add_camp(pl: Dictionary, species: String, roster: Array) -> void:
+## Danger climbs with distance from Kingsreach (danger_tier in first_region.json): the valley's
+## warrens are goblins only, the outer ones keep orc mercenaries, the deadliest a troll.
+static func _goblin_roster(tier: int) -> Array:
+	match tier:
+		2: return [["goblin", 8], ["orc", 2]]
+		3: return [["goblin", 8], ["orc", 3], ["troll", 1]]
+	return [["goblin", 7]]
+
+
+func _register(pl: Dictionary, species: String, roster: Array) -> void:
+	_camps.append({"place": pl, "species": species, "roster": roster, "root": null, "residents": []})
+
+
+func _build(camp: Dictionary) -> void:
+	var pl: Dictionary = camp["place"]
+	var species: String = camp["species"]
 	var c: Vector2 = pl["pos"]
 	var r := float(pl.get("radius", 30.0))
 	var root := Node3D.new()
 	root.name = String(pl.get("id", species))
 	add_child(root)
+	camp["root"] = root
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(pl.get("id", species))
 	if species == "goblin":
@@ -102,7 +122,6 @@ func _add_camp(pl: Dictionary, species: String, roster: Array) -> void:
 	fire.omni_range = 12.0
 	root.add_child(fire)
 	fire.global_position = _ground(c) + Vector3(0, 1.5, 0)
-	_camps.append({"place": pl, "species": species, "roster": roster, "root": root, "residents": []})
 
 
 func _process(delta: float) -> void:
@@ -115,13 +134,21 @@ func _process(delta: float) -> void:
 		var c: Vector2 = camp["place"]["pos"]
 		var d := p.distance_to(c)
 		var res: Array = camp["residents"]
+		if d < BUILD_RANGE and camp["root"] == null:
+			_build(camp)
 		if d < SPAWN_RANGE and res.is_empty():
+			if camp["root"] == null:
+				_build(camp)
 			_spawn(camp)
 		elif d > DESPAWN_RANGE and not res.is_empty():
 			for m in res:
 				if is_instance_valid(m) and (m as CampMonster).named == "":
 					m.queue_free()
 			res.clear()
+		if d > FREE_RANGE and res.is_empty() and camp["root"] != null:
+			if is_instance_valid(camp["root"]):
+				(camp["root"] as Node).queue_free()
+			camp["root"] = null
 
 
 ## Spawns residents now (used by screenshots).

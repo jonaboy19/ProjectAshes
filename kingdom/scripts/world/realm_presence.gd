@@ -9,6 +9,7 @@ extends Node3D
 ## guards / table / battle on a 2 s Timer. Nothing here runs per frame.
 
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
+const RealmEncounters := preload("res://scripts/world/realm_encounters.gd")
 const REGION := "res://assets/generated/region/"
 const CELL := 40.0
 const KEEP_CULL := 600.0
@@ -40,10 +41,19 @@ var _map_tex: ImageTexture
 var _focus := Vector2.INF   # where the stronghold in _build_one actually stands
 var _battle := {}          # {id, att, def, att0, def0}
 var _timer: Timer
+var encounters: Node       # realm_encounters.gd: NPCs walk up with the realm's news
 
 
 func setup(p_hud: Node) -> void:
 	hud = p_hud
+	# In-world realm events (call-ups, scouts, offers) and the village drill yard.
+	encounters = RealmEncounters.new()
+	encounters.setup(p_hud)
+	add_child(encounters)
+	# Job work spots (scripts/realm/work.gd): idle cost is one 2 s Timer.
+	var spots: Node3D = preload("res://scripts/world/work_spots.gd").new()
+	spots.setup(p_hud)
+	add_child(spots)
 
 
 func _ready() -> void:
@@ -635,7 +645,14 @@ func _dot(img: Image, p: Vector2, r: int, col: Color) -> void:
 
 # --- live battles -----------------------------------------------------------------------
 
+## Live 3D battles are paused by design (user direction): war is played on the
+## map only for now, and campaign.gd auto-resolves clashes. Flip to re-enable.
+const LIVE_BATTLES_ENABLED := false
+
+
 func _check_battle() -> void:
+	if not LIVE_BATTLES_ENABLED:
+		return
 	var cam: Variant = _mod("campaign")
 	var pl := _player()
 	if cam == null or pl == null:

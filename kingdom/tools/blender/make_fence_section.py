@@ -71,4 +71,5 @@ tuft(0.0, 0.02, 10, 0.32)
 for x in (-0.8, 0.7, 1.2):
     tuft(x + random.uniform(-0.1, 0.1), random.uniform(-0.05, 0.1), 6, 0.25)
 
+k.pbr = dict(size=512, seed=28 + V, ao_dist=0.3, cage=0.03, ray=0.08)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((3.3, 0.5), 3000, cam_dir=(0.7, -1.6, 0.55), fit=0.85)

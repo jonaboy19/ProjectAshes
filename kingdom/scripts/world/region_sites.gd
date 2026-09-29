@@ -29,6 +29,8 @@ static func plan(seed_value: int) -> Array[Dictionary]:
 		# outside a village, town or frontier town, a ring of 2-3 around the
 		# capital's suburbs.
 		var count := 3 if s["kind"] == "castle" else (1 if s["kind"] in ["village", "town", "frontier_town"] else 0)
+		if WorldGen.core_settlement_count > 0 and int(s["id"]) >= WorldGen.core_settlement_count:
+			count = 0     # the new land's farms are planned last, in _outer_sites()
 		for i in count:
 			var farm := _farmstead(s, rng, out)
 			if not farm.is_empty():
@@ -56,6 +58,16 @@ static func plan(seed_value: int) -> Array[Dictionary]:
 	var outpost := _rift_outpost(rift, out, rng)
 	if not outpost.is_empty():
 		out.append(outpost)
+	# The new land (8 x 8 km) is planned after the valley, on its own RNG stream, so every
+	# site of the original valley keeps its position and id.
+	if WorldGen.core_settlement_count > 0:
+		var rng_o := RandomNumberGenerator.new()
+		rng_o.seed = seed_value * 53 + 19
+		_outer_sites(out, rng_o, WorldGen.core_settlement_count)
+	# Last, so every id above stays where it was: the academy takes what ground is left.
+	var academy := _academy(out)
+	if not academy.is_empty():
+		out.append(academy)
 	for i in out.size():
 		out[i]["id"] = i
 	return out
@@ -176,9 +188,11 @@ static func _farmstead(s: Dictionary, rng: RandomNumberGenerator, taken: Array[D
 
 ## Wherever a road crosses a river or the lake's edge, a bridge spanning the wet
 ## stretch: stone over wide water, timber over narrow.
-static func _bridges() -> Array[Dictionary]:
+static func _bridges(outer := false) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for road in WorldGen.roads:
+		if _is_outer_road(road) != outer:
+			continue
 		var a: Vector2 = WorldGen.settlements[road.x]["pos"]
 		var b: Vector2 = WorldGen.settlements[road.y]["pos"]
 		var length := a.distance_to(b)
@@ -236,9 +250,11 @@ static func _waystation(pl: Dictionary) -> Dictionary:
 
 ## A waystone every ~140 m along each road, alternating sides, with a small
 ## wayshrine at road midpoints.
-static func _waystones(rng: RandomNumberGenerator) -> Array[Dictionary]:
+static func _waystones(rng: RandomNumberGenerator, outer := false) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for road in WorldGen.roads:
+		if _is_outer_road(road) != outer:
+			continue
 		var a: Vector2 = WorldGen.settlements[road.x]["pos"]
 		var b: Vector2 = WorldGen.settlements[road.y]["pos"]
 		var length := a.distance_to(b)
@@ -318,7 +334,7 @@ static func _hollow(pl: Dictionary) -> Dictionary:
 
 ## Outlaws squatting deep in Duskbriar, well away from the warren and the road:
 ## tents and a lean-to around a campfire behind a broken palisade.
-static func _bandit_camp(pl: Dictionary, rng: RandomNumberGenerator, taken: Array[Dictionary]) -> Dictionary:
+static func _bandit_camp(pl: Dictionary, rng: RandomNumberGenerator, taken: Array[Dictionary], camp_name := "Bandit Camp") -> Dictionary:
 	var c: Vector2 = pl["pos"]
 	var r: float = float(pl.get("radius", 300.0))
 	var pos := c
@@ -328,7 +344,7 @@ static func _bandit_camp(pl: Dictionary, rng: RandomNumberGenerator, taken: Arra
 		if _free(q, 18.0, taken, 50.0) and _slope(q) < 0.25:
 			pos = q
 			break
-	var site := _site("Bandit Camp", "bandit_camp", pos, rng.randf() * TAU, 16.0, true)
+	var site := _site(camp_name, "bandit_camp", pos, rng.randf() * TAU, 16.0, true)
 	_part(site, "ruins/campfire", Vector2.ZERO, 0.0)
 	_part(site, "ruins/bandit_tent", Vector2(-6, -4), 0.5, true)
 	_part(site, "ruins/bandit_tent", Vector2(5, -5), -0.6, true)
@@ -457,7 +473,8 @@ static func _forts(rng: RandomNumberGenerator, taken: Array[Dictionary]) -> Arra
 	var frontier_radius := WorldGen.FRONTIER_TOWN_RADIUS
 	var frontier_best := -INF
 	for s in WorldGen.settlements:
-		if s["kind"] == "frontier_town" and s["pos"].distance_to(home) > frontier_best:
+		if s["kind"] == "frontier_town" and s["pos"].distance_to(home) > frontier_best \
+				and (WorldGen.core_settlement_count == 0 or int(s["id"]) < WorldGen.core_settlement_count):
 			frontier_best = s["pos"].distance_to(home)
 			frontier_town = s["pos"]
 			frontier_radius = float(s["radius"])
@@ -512,7 +529,7 @@ static func _fort(name: String, center: Vector2, toward: Vector2, taken: Array[D
 ## A small forward camp right at the Rift's edge: the last waypoint before the
 ## wound in the world. Palisade, tents, a watchfort keep and an expedition
 ## noticeboard for the quests that send adventurers out here.
-static func _rift_outpost(rift: Dictionary, taken: Array[Dictionary], rng: RandomNumberGenerator) -> Dictionary:
+static func _rift_outpost(rift: Dictionary, taken: Array[Dictionary], rng: RandomNumberGenerator, outpost_name := "Rift's Edge Camp") -> Dictionary:
 	if rift.is_empty():
 		return {}
 	var rp: Vector2 = rift["pos"]
@@ -526,7 +543,7 @@ static func _rift_outpost(rift: Dictionary, taken: Array[Dictionary], rng: Rando
 	if best == Vector2.INF:
 		return {}
 	var face := (rp - best).normalized()
-	var site := _site("Rift's Edge Camp", "rift_outpost", best, _yaw_to(face), 20.0, true)
+	var site := _site(outpost_name, "rift_outpost", best, _yaw_to(face), 20.0, true)
 	_part(site, "meshy:landmark_watchfort@13", Vector2.ZERO, 0.0, true)
 	_part(site, "ruins/bandit_tent", Vector2(-8, 6), 0.4, true)
 	_part(site, "ruins/bandit_tent", Vector2(7, 7), -0.5, true)
@@ -541,18 +558,285 @@ static func _rift_outpost(rift: Dictionary, taken: Array[Dictionary], rng: Rando
 
 
 ## The Rift: a wound in the world far past the orc hold, glowing violet.
-static func _rift(taken: Array[Dictionary]) -> Dictionary:
-	var pos := Vector2(1150, 980)
+static func _rift(taken: Array[Dictionary], center := Vector2(1150, 980), rift_name := "The Rift", rng: RandomNumberGenerator = _rng) -> Dictionary:
+	var pos := center
 	for i in 30:
-		var q := Vector2(1150, 980) + Vector2(_rng.randf_range(-250, 250), _rng.randf_range(-250, 250))
+		var q := center + Vector2(rng.randf_range(-250, 250), rng.randf_range(-250, 250))
 		if _free(q, 20.0, taken, 30.0):
 			pos = q
 			break
-	var site := _site("The Rift", "rift", pos, _yaw_to(-pos.normalized()), 24.0, true)
+	var site := _site(rift_name, "rift", pos, _yaw_to(-pos.normalized()), 24.0, true)
 	_part(site, "meshy:landmark_rift@10", Vector2.ZERO, 0.0, true)
 	_part(site, "nature:dead_snag", Vector2(12, -6), 0.4)
 	_part(site, "nature:dead_snag", Vector2(-13, 4), 2.1)
 	_part(site, "nature:rock_cluster", Vector2(7, 9), 0.2)
 	_part(site, "nature:boulder_large", Vector2(-8, -9), 1.0, true)
 	site["lights"].append([Vector3(0, 4.0, 0), Color(0.7, 0.35, 1.0), 22.0, true])
+	return site
+
+
+# --- Academy campus (ACADEMY_PLAN P4) -----------------------------------------------
+
+const ACADEMY_NAME := "Kingsreach Academy of Arms and Arts"
+## Campus layout, data only: [asset, local offset (x right, y front), yaw, collide].
+## Assets: "gen:<name>@<scale>" is a big building from assets/generated (castle keep, temple,
+## chapel, bell tower), "meshy:<name>@<height>" a Meshy hero building, the rest the usual keys.
+## A part's yaw turns its front (+y) toward: 0 = the campus front, PI/2 = the right.
+const ACADEMY_PARTS := [
+	["gen:castle_keep@0.62", Vector2(0, -20), 0.0, true],          # the main hall
+	["meshy:guild@9.1", Vector2(-27, -11), PI * 0.5, true],        # the arms hall (west wing)
+	["gen:temple@0.5", Vector2(27, -13), -PI * 0.5, true],         # the arts hall (east wing)
+	["meshy:house_manor@8.6", Vector2(-15, -42), 0.0, true],       # dormitories
+	["meshy:house_manor@8.6", Vector2(15, -42), 0.0, true],
+	["gen:bell_tower@1.0", Vector2(-13, 4), 0.0, true],
+	["props/lamp_post", Vector2(-5, 6), 0.0, false], ["props/lamp_post", Vector2(5, 6), 0.0, false],
+	["props/lamp_post", Vector2(-5, -8), 0.0, false], ["props/lamp_post", Vector2(5, -8), 0.0, false],
+	["props/notice_board", Vector2(9, 8), 0.4, true], ["props/bench", Vector2(-9, 8), 0.0, false],
+]
+## The training field in front of the hall: dummies (scarecrows), racks, hay targets.
+const ACADEMY_FIELD_HALF := Vector2(15.0, 8.5)
+const ACADEMY_FIELD_AT := Vector2(0, 26)
+
+
+## Free ground 150-400 m from Kingsreach, off the road, facing the town. Pure data; no random
+## draws, so it cannot shift any other site.
+static func _academy(taken: Array[Dictionary]) -> Dictionary:
+	var capital := {}
+	for s in WorldGen.settlements:
+		if s["kind"] == "castle":
+			capital = s
+			break
+	if capital.is_empty():
+		return {}
+	var c: Vector2 = capital["pos"]
+	var edge := float(capital["radius"]) * 1.8 + 30.0   # past the town's own blend into natural ground
+	var best := Vector2.INF
+	var best_score := -INF
+	for ring in range(0, 12):
+		var d := maxf(150.0, edge) + ring * 22.0
+		if d > 400.0:
+			break
+		for i in 48:
+			var a := TAU * i / 48.0
+			var q := c + Vector2(cos(a), sin(a)) * d
+			if not _free(q, 44.0, taken, 30.0) or _slope(q) > 0.14:
+				continue
+			if WorldGen.forest_density(q.x, q.y) > 0.25:
+				continue
+			# Flat, near the town, visible from the road (not lost deep in a corner).
+			var score := -_slope(q) * 6.0 - (d - 150.0) / 120.0 - WorldGen.road_distance(q.x, q.y) / 200.0
+			if score > best_score:
+				best_score = score
+				best = q
+	if best == Vector2.INF:
+		return {}
+	var site := _site(ACADEMY_NAME, "academy", best, _yaw_to((c - best).normalized()), 46.0, true)
+	for p: Array in ACADEMY_PARTS:
+		_part(site, String(p[0]), p[1], float(p[2]), bool(p[3]))
+	# Field: a fence on three sides (the hall side stays open), dummies in a row, racks and hay.
+	var f := ACADEMY_FIELD_AT
+	var h := ACADEMY_FIELD_HALF
+	var n_front := int(ceil(h.x * 2.0 / 3.1))
+	for i in n_front:
+		_part(site, "farm/fence_rail", f + Vector2(-h.x + (i + 0.5) * h.x * 2.0 / n_front, h.y), 0.0)
+	var n_side := int(ceil(h.y * 2.0 / 3.1))
+	for i in n_side:
+		var z := f.y + h.y - (i + 0.5) * h.y * 2.0 / n_side
+		_part(site, "farm/fence_rail", Vector2(f.x - h.x, z), PI * 0.5)
+		_part(site, "farm/fence_rail", Vector2(f.x + h.x, z), PI * 0.5)
+	for i in 5:
+		_part(site, "farm/scarecrow", f + Vector2(-9.0 + i * 4.5, 3.0), PI, true)
+	_part(site, "props/weapon_rack", f + Vector2(-11.0, -5.5), 0.0)
+	_part(site, "props/weapon_rack", f + Vector2(-7.5, -5.5), 0.0)
+	_part(site, "props/hay_bales", f + Vector2(9.0, -5.0), 0.5)
+	_part(site, "props/hay_bales", f + Vector2(11.5, -4.0), -0.4)
+	_part(site, "props/water_trough", f + Vector2(0, -6.0), 0.0)
+	site["lights"].append([Vector3(-5, 3.6, 6), Color(1.0, 0.75, 0.4), 9.0, true])
+	site["lights"].append([Vector3(5, 3.6, 6), Color(1.0, 0.75, 0.4), 9.0, true])
+	return site
+
+
+# --- The new land (8 x 8 km) ------------------------------------------------------------
+# Content for everything beyond the original valley, scaled by distance from the capital:
+# farms and bridges and waystones for the new roads, a roadhouse halfway along each long new
+# road, bastions at the new town and the far frontier hold, hilltop lookouts, ruins, a second
+# mine, bandit camps that thicken outward, and a second Rift with its outpost far in the
+# south-east. Monster camps and dens come from data/world/first_region.json and
+# Frontier._seed_frontier.
+
+static func _is_outer_road(road: Vector2i) -> bool:
+	return WorldGen.core_settlement_count > 0 and maxi(road.x, road.y) >= WorldGen.core_settlement_count
+
+
+static func _capital_pos() -> Vector2:
+	for s in WorldGen.settlements:
+		if s["kind"] == "castle":
+			return s["pos"]
+	return Vector2.ZERO
+
+
+static func _outer_sites(out: Array[Dictionary], rng: RandomNumberGenerator, core: int) -> void:
+	var capital := _capital_pos()
+	for s in WorldGen.settlements:
+		if int(s["id"]) < core:
+			continue
+		var farm := _farmstead(s, rng, out)
+		if not farm.is_empty():
+			out.append(farm)
+	out.append_array(_bridges(true))
+	out.append_array(_waystones(rng, true))
+	# A roadhouse (stable, trough, notice board, fast-travel point) halfway along each long new road.
+	for road in WorldGen.roads:
+		if not _is_outer_road(road):
+			continue
+		var a: Vector2 = WorldGen.settlements[road.x]["pos"]
+		var b: Vector2 = WorldGen.settlements[road.y]["pos"]
+		if a.distance_to(b) < 1500.0:
+			continue
+		var far_end := road.x if a.distance_to(capital) > b.distance_to(capital) else road.y
+		for t: float in [0.5, 0.42, 0.58, 0.35, 0.65]:
+			var mid := a.lerp(b, t)
+			var dir := _nearest_road_dir(mid)
+			var ground := mid + Vector2(dir.y, -dir.x) * 18.0
+			if _free(ground, 24.0, out, -30.0) and not WorldGen.is_water(mid.x, mid.y) and _slope(ground) < 0.25:
+				var st := _waystation({"pos": mid})
+				st["name"] = "%s Roadhouse" % WorldGen.settlements[far_end]["name"]
+				out.append(st)
+				break
+	# Bastions: one at the new town, one on the far frontier hold.
+	for s in WorldGen.settlements:
+		if int(s["id"]) < core or not (s["kind"] in ["town", "frontier_town"]):
+			continue
+		var away: Vector2 = s["pos"] - capital
+		var fort := _fort("%s Bastion" % s["name"], s["pos"], s["pos"] + away, out, rng, float(s["radius"]))
+		if not fort.is_empty():
+			out.append(fort)
+	# Hilltop lookouts beside the new villages.
+	for s in WorldGen.settlements:
+		if int(s["id"]) < core or s["kind"] != "village" or bool(s.get("hamlet", false)):
+			continue
+		var look := _lookout("%s Lookout" % s["name"], s["pos"], float(s["radius"]), out, rng)
+		if not look.is_empty():
+			out.append(look)
+	# Old ruins and a second mine, far from home.
+	var ruin_names := ["Sundered Tower", "The Old Beacon", "Broken Watch"]
+	for i in ruin_names.size():
+		var ruin := _far_ruin(ruin_names[i], 1800.0 + i * 700.0, out, rng)
+		if not ruin.is_empty():
+			out.append(ruin)
+	var mine := _far_mine("Deepvein Mine", out, rng)
+	if not mine.is_empty():
+		out.append(mine)
+	# Bandit camps in the deep woods: more of them, and further out, the harder the land.
+	var camp_names := ["Red Hand Camp", "Blackthorn Camp", "Gallows Camp"]
+	for i in camp_names.size():
+		var spot := _wild_spot(rng, out, capital, 1700.0 + i * 800.0, 2600.0 + i * 900.0)
+		if spot != Vector2.INF:
+			out.append(_bandit_camp({"pos": spot, "radius": 40.0}, rng, out, camp_names[i]))
+	# A second Rift, with its own outpost, in the far south-east.
+	var rift := _rift(out, Vector2(2700, 2500), "The Ashen Scar", rng)
+	out.append(rift)
+	var outpost := _rift_outpost(rift, out, rng, "Scar Watch")
+	if not outpost.is_empty():
+		out.append(outpost)
+
+
+## A wild, wooded, dry, level spot between dmin and dmax metres from the capital.
+static func _wild_spot(rng: RandomNumberGenerator, taken: Array[Dictionary], capital: Vector2, dmin: float, dmax: float) -> Vector2:
+	var lim := WorldGen.WORLD_HALF - 420.0
+	for i in 400:
+		var q := Vector2(rng.randf_range(-lim, lim), rng.randf_range(-lim, lim))
+		var d := q.distance_to(capital)
+		if d < dmin or d > dmax or WorldGen.forest_density(q.x, q.y) < 0.4:
+			continue
+		if _free(q, 20.0, taken, 60.0) and _slope(q) < 0.22:
+			var far_enough := true
+			for s in WorldGen.settlements:
+				if q.distance_to(s["pos"]) < float(s["radius"]) * 1.8 + 220.0:
+					far_enough = false
+					break
+			if far_enough:
+				return q
+	return Vector2.INF
+
+
+## A lookout tower (watchfort landmark) on the highest free ground near a settlement.
+static func _lookout(lookout_name: String, center: Vector2, guard_radius: float, taken: Array[Dictionary], rng: RandomNumberGenerator) -> Dictionary:
+	var best := Vector2.INF
+	var best_h := -INF
+	for i in 40:
+		var q := center + Vector2.from_angle(rng.randf() * TAU) * rng.randf_range(guard_radius * 1.8 + 60.0, guard_radius * 1.8 + 280.0)
+		if not _free(q, 16.0, taken, 18.0):
+			continue
+		var h := WorldGen.height(q.x, q.y)
+		if h > best_h:
+			best_h = h
+			best = q
+	if best == Vector2.INF:
+		return {}
+	var toward := (center - best).normalized()
+	var site := _site(lookout_name, "watchfort", best, _yaw_to(toward), 20.0, true)
+	_part(site, "meshy:landmark_watchfort@15", Vector2.ZERO, 0.0, true)
+	_part(site, "props/weapon_rack", Vector2(9, 8), 0.0)
+	_part(site, "props/crate_stack", Vector2(-9, 8), 0.4)
+	site["lights"].append([Vector3(0, 12.0, 0), Color(1.0, 0.6, 0.3), 14.0, true])
+	return site
+
+
+## The shell of an old tower on a knoll roughly `dist` metres from Ashford.
+static func _far_ruin(ruin_name: String, dist: float, taken: Array[Dictionary], rng: RandomNumberGenerator) -> Dictionary:
+	var best := Vector2.INF
+	var best_h := -INF
+	var lim := WorldGen.WORLD_HALF - 420.0
+	for i in 120:
+		var q := Vector2.from_angle(rng.randf() * TAU) * rng.randf_range(dist, dist + 700.0)
+		if absf(q.x) > lim or absf(q.y) > lim or not _free(q, 14.0, taken, 20.0):
+			continue
+		var h := WorldGen.height(q.x, q.y)
+		if h > best_h and h < 75.0:
+			best_h = h
+			best = q
+	if best == Vector2.INF:
+		return {}
+	var site := _site(ruin_name, "tower_ruin", best, rng.randf() * TAU, 14.0, true)
+	_part(site, "ruins/collapsed_tower", Vector2.ZERO, 0.0, true)
+	_part(site, "nature:rock_cluster", Vector2(8, 3), 0.5)
+	_part(site, "nature:boulder_large", Vector2(-7, 6), 1.3, true)
+	_part(site, "nature:bush_dark", Vector2(-6, -6), 0.0)
+	_part(site, "nature:bush_berry", Vector2(7, -5), 0.0)
+	return site
+
+
+## A second mine, cut into a slope of the far hills.
+static func _far_mine(mine_name: String, taken: Array[Dictionary], rng: RandomNumberGenerator) -> Dictionary:
+	var best := Vector2.INF
+	var best_score := -INF
+	var lim := WorldGen.WORLD_HALF - 420.0
+	for i in 500:
+		var q := Vector2(rng.randf_range(-lim, lim), rng.randf_range(-lim, lim))
+		if q.length() < 2200.0:
+			continue
+		var sl := _slope(q)
+		if sl < 0.2 or sl > 0.6 or not _free(q, 16.0, taken, 25.0):
+			continue
+		var score := minf(sl, 0.45) * 4.0 - WorldGen.forest_density(q.x, q.y) * 3.0 + rng.randf()
+		if score > best_score:
+			best_score = score
+			best = q
+	if best == Vector2.INF:
+		return {}
+	var down := _downhill(best)
+	var site := _site(mine_name, "mine", best, _yaw_to(down), 28.0, false)
+	_part(site, "mine/mine_entrance", Vector2.ZERO, 0.0, true)
+	_part(site, "mine/mine_winch", Vector2(-7, 5), 0.4, true)
+	_part(site, "mine/miners_hut", Vector2(9, 8), -0.5, true)
+	_part(site, "mine/ore_pile_iron", Vector2(4, 6), 0.3)
+	_part(site, "mine/ore_pile_coal", Vector2(-3, 9), 1.2)
+	_part(site, "mine/mine_props", Vector2(-5, 2), 0.0)
+	_part(site, "mine/mine_cart", Vector2(0, 7), 0.0)
+	for i in 3:
+		_part(site, "mine/rail_straight", Vector2(0, 5.0 + i * 4.0), PI)
+	_part(site, "mine/rail_end", Vector2(0, 17.0), PI)
+	_part(site, "props/lamp_post", Vector2(3, 3), 0.0)
+	site["lights"].append([Vector3(0, 2.2, 1.5), Color(1.0, 0.65, 0.35), 7.0, true])
 	return site

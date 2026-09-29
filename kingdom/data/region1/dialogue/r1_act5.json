@@ -1,6 +1,6 @@
 {
 	"id": "r1_act5",
-	"_comment": "The Stones Are Dimming, Act V: The Ashen Scar (finale) and the homecoming. All four mechanics at once. Format: see r1_act1.json.",
+	"_comment": "The Stones Are Dimming, Act V: The Ashen Scar (finale) and the homecoming. All four mechanics at once. Story v2: allies arrive by your earlier choices (Tuskridge, goblins, the herd or Thistle, Corin, Bram, Wren). At the mouth, 'All of them' pours in every ember you helped lay; who else pays is decided by line priority in seal_count (hidden Kindled Dawn > Bram, if spared > Tamsin, if pardoned > Idra) and recorded as r1.ending.*. Format: see r1_act1.json.",
 	"start": "tamsin_meet",
 	"nodes": {
 
@@ -20,6 +20,14 @@
 		"tamsin_meet_3": {
 			"speaker": "tamsin_reeve",
 			"lines": [{"text": "Hollin's Reach. My village. The Crown pulled the ward-lines back and left us outside."}],
+			"choices": [{"text": "Your brother pulled them.", "goto": "tamsin_brother"}]
+		},
+		"tamsin_brother": {
+			"speaker": "tamsin_reeve",
+			"lines": [
+				{"text": "Bram's in a Crown cell? Good. ...No. Nothing's good. He did the sum. I did the burying.", "if": {"flag": "r1.bram.chained"}, "p": 1},
+				{"text": "You let Bram walk? Then he's out there hauling stone like it helps. He did the sum. I did the burying.", "if": {"flag": "r1.bram.spared"}, "p": 1}
+			],
 			"choices": [{"text": "What happened?", "goto": "tamsin_meet_4"}]
 		},
 		"tamsin_meet_4": {
@@ -53,12 +61,47 @@
 				{"text": "Tuskridge war-horns on the ridge. Harrok's clan comes down the scree, roaring your name.", "if": {"flag": "r1.harrok.ally"}, "p": 1},
 				{"text": "Goblins in the rocks. Snikkit points and shrieks: purple there! And there! And THERE!", "if": {"flag": "r1.snikkit.friend", "no_flag": "r1.harrok.ally"}, "p": 1}
 			],
+			"choices": [{"text": "(Keep walking.)", "goto": "allies_herd"}]
+		},
+		"allies_herd": {
+			"speaker": "narrator",
+			"lines": [
+				{"text": "The Stagborn come down the old ward-line, Thistle at their head, antlers blazing. The violet backs away.", "if": {"flag": "r1.thistle.freed"}, "p": 1},
+				{"text": "Thistle plants all four hooves beside you and refuses, absolutely, to be anywhere else.", "if": {"flag": "r1.thistle.kept"}, "p": 1}
+			],
+			"choices": [{"text": "(Keep walking.)", "goto": "allies_corin"}]
+		},
+		"allies_corin": {
+			"speaker": "narrator",
+			"lines": [
+				{"text": "A Crown cart: Corin Vesk, released for the day. Same chisel, he says. Other way round."},
+				{"text": "Corin Vesk is with the Runeward crews. He carves like he's apologising to every stone.", "if": {"flag": "r1.corin.freed"}, "p": 1},
+				{"text": "Corin brings six Ashen Hand cutters. We know which ones are failing, he says. So we fix those first.", "if": {"flag": "r1.corin.informant"}, "p": 1}
+			],
+			"choices": [{"text": "(Nod.)", "goto": "allies_bram"}]
+		},
+		"allies_bram": {
+			"speaker": "narrator",
+			"lines": [
+				{"text": "No sign of Bram Hollis. In Kingsreach, a cell door stays shut."},
+				{"text": "At the back, hauling stone, a grey man who won't meet your eyes. Bram Hollis.", "if": {"flag": "r1.bram.spared"}, "p": 1}
+			],
+			"choices": [{"text": "(Keep walking.)", "goto": "allies_wren"}]
+		},
+		"allies_wren": {
+			"speaker": "wren_coldbrook",
+			"lines": [{"text": "Miss me? Don't answer that. Left flank's mine."}],
 			"choices": [{"text": "Forward.", "goto": "@end", "do": [["flag", "r1.a5.allies"]]}]
 		},
 
 		"troll_rises": {
 			"speaker": "narrator",
 			"lines": [{"text": "Something vast stands up out of the violet. Stone skin. Crystal spine. It was a troll, once."}],
+			"choices": [{"text": "(Look up. Further up.)", "goto": "wren_troll"}]
+		},
+		"wren_troll": {
+			"speaker": "wren_coldbrook",
+			"lines": [{"text": "It's a troll now, too. A worse one. I'll take the left."}],
 			"choices": [{"text": "(Draw steel.)", "goto": "@end", "do": [["flag", "r1.a5.troll_seen"]]}]
 		},
 
@@ -69,16 +112,21 @@
 		},
 		"idra_seal_2": {
 			"speaker": "idra_vell",
-			"lines": [{"text": "Mine. I'm old, I'm ready, and frankly I'd like the view."}],
+			"lines": [{"text": "Mine. I'm old, I'm ready, and frankly I'd like the view. I've been practising for thirty years."}],
 			"choices": [
-				{"text": "Then rest, Idra. Keep watch.", "goto": "seal_idra", "do": [["flag", "r1.seal.idra"]]},
+				{"text": "Then rest, Idra. Keep watch.", "goto": "seal_idra", "do": [["flag", "r1.seal.idra"], ["flag", "r1.ending.idra"]]},
 				{"text": "No. All of them.", "goto": "seal_all", "if": {"flag": "r1.a4.done"}, "do": [["flag", "r1.seal.all"]]}
 			]
 		},
 		"seal_idra": {
 			"speaker": "idra_vell",
 			"lines": [{"text": "Good. Keep the chisel sharp. And for pity's sake, throw out that tea."}],
-			"choices": [{"text": "(Hold her hand.)", "goto": "@end", "do": [["flag", "r1.a5.sealed"]]}]
+			"choices": [{"text": "(Hold her hand.)", "goto": "seal_idra_2"}]
+		},
+		"seal_idra_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Maren's saving me a seat. She'll cheat at staves. Go home, love."}],
+			"choices": [{"text": "(Let her go.)", "goto": "@end", "do": [["flag", "r1.a5.sealed"]]}]
 		},
 		"seal_all": {
 			"speaker": "idra_vell",
@@ -87,8 +135,53 @@
 		},
 		"seal_all_2": {
 			"speaker": "ancestor_stone",
-			"lines": [{"text": "We are here. Miller, knight, grandmother. Stand aside, Warden. We've got this one."}],
-			"choices": [{"text": "(Let go.)", "goto": "@end", "do": [["flag", "r1.a5.sealed"]]}]
+			"lines": [{"text": "We are here. Miller, knight, grandmother, one-armed teacher. Stand aside, Warden."}],
+			"choices": [{"text": "(Hold the line.)", "goto": "seal_count"}]
+		},
+		"seal_count": {
+			"speaker": "narrator",
+			"lines": [
+				{"text": "The embers pour in. The mouth shrinks, then sticks, a hand's width open. It wants one living ember.",
+					"do": [["flag", "r1.ending.idra"]]},
+				{"text": "The mouth shrinks, then sticks, a hand's width open. It wants one living ember. Tamsin drops her pack.",
+					"if": {"flag": "r1.tamsin.pardoned"}, "p": 1, "do": [["flag", "r1.ending.tamsin"]]},
+				{"text": "The mouth shrinks, then sticks, a hand's width open. It wants one living ember. Bram is already walking.",
+					"if": {"flag": "r1.bram.spared"}, "p": 2, "do": [["flag", "r1.ending.bram"]]},
+				{"text": "A Stagborn bellow. The herd walks the lines in, an orc-mother roars, a lantern for nobody flares. It shuts.",
+					"if": {"flag": ["ember.rowan.stone", "r1.harrok.ally", "r1.thistle.freed", "r1.a1.lantern_nobody"]}, "p": 3,
+					"do": [["flag", "r1.ending.kindled"]]}
+			],
+			"choices": [
+				{"text": "Idra, no.", "goto": "idra_last", "if": {"flag": "r1.ending.idra"}},
+				{"text": "Tamsin, wait.", "goto": "tamsin_last", "if": {"flag": "r1.ending.tamsin"}},
+				{"text": "Bram. Wait.", "goto": "bram_last", "if": {"flag": "r1.ending.bram"}},
+				{"text": "Is that... it?", "goto": "kindled_last", "if": {"flag": "r1.ending.kindled"}}
+			]
+		},
+		"idra_last": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Hush. I was going anyway, love. Now I get to go somewhere useful."}],
+			"choices": [{"text": "(Let her go.)", "goto": "@end", "do": [["flag", "r1.a5.sealed"]]}]
+		},
+		"tamsin_last": {
+			"speaker": "tamsin_reeve",
+			"lines": [{"text": "Edge rules: pay your debts. Tell my brother the sum came out even."}],
+			"choices": [{"text": "(Let her go.)", "goto": "@end", "do": [["flag", "r1.a5.sealed"]]}]
+		},
+		"bram_last": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "Nine guards. Forty-one stones. Sixty miles. One of me. That sum, I can do."}],
+			"choices": [{"text": "(Let him go.)", "goto": "bram_last_2"}]
+		},
+		"bram_last_2": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "Tell your father I was a good captain, once. He'll know when."}],
+			"choices": [{"text": "(Let him go.)", "goto": "@end", "do": [["flag", "r1.a5.sealed"]]}]
+		},
+		"kindled_last": {
+			"speaker": "ancestor_stone",
+			"lines": [{"text": "Staff up, lantern-holder. Nobody else pays tonight. Not one."}],
+			"choices": [{"text": "(Breathe.)", "goto": "@end", "do": [["flag", "r1.a5.sealed"]]}]
 		},
 		"glimpse": {
 			"speaker": "narrator",
@@ -98,30 +191,58 @@
 
 		"mother_home": {
 			"speaker": "mother",
-			"lines": [{"text": "You're home. You're home and you're whole. Sit. Eat. Then tell me absolutely everything."}],
+			"lines": [
+				{"text": "You're home. You're home and you're whole. Sit. Eat. Then tell me absolutely everything."},
+				{"text": "You're home and you're whole. Sit. Eat. And get that stag off my roof.", "if": {"flag": "r1.thistle.kept"}, "p": 1}
+			],
 			"choices": [{"text": "The stones are lit.", "goto": "father_home"}]
 		},
 		"father_home": {
 			"speaker": "father",
 			"lines": [{"text": "Heard. The Miller's Stone was singing when I passed it. Never once did that for me."}],
+			"choices": [{"text": "That's Hesk. He's proud.", "goto": "lanterns"}]
+		},
+		"lanterns": {
+			"speaker": "narrator",
+			"lines": [
+				{"text": "Kindling Night, a year on. New lanterns at the ring: Maren. Rowan. Idra Vell, who'd hate the fuss.", "if": {"flag": "r1.ending.idra"}, "p": 1},
+				{"text": "Kindling Night, a year on. New lanterns: Maren. Rowan. And one nobody signs. Everybody knows whose.", "if": {"flag": "r1.ending.bram"}, "p": 1},
+				{"text": "Kindling Night, a year on. New lanterns: Maren. Rowan. Tamsin Reeve, of Hollin's Reach.", "if": {"flag": "r1.ending.tamsin"}, "p": 1},
+				{"text": "Kindling Night, a year on. Two new lanterns: Maren, Rowan. Idra hangs a third, for the ones with nobody.", "if": {"flag": "r1.ending.kindled"}, "p": 1}
+			],
 			"choices": [
-				{"text": "That's Hesk. He's proud.", "goto": "home_epilogue", "if": {"flag": "r1.seal.all"}},
-				{"text": "That's Hesk. He's proud.", "goto": "miller_stone", "if": {"no_flag": "r1.seal.all"}}
+				{"text": "(Hang yours.)", "goto": "wren_home", "if": {"flag": "r1.ending.idra"}},
+				{"text": "(Hang yours.)", "goto": "idra_retire", "if": {"no_flag": "r1.ending.idra"}}
 			]
 		},
-		"home_epilogue": {
+		"idra_retire": {
 			"speaker": "idra_vell",
-			"lines": [
-				{"text": "I'm retiring. The chisel is yours. The tea, regrettably, is also yours."}
-			],
-			"choices": [{"text": "(Laugh.)", "goto": "miller_stone"}]
+			"lines": [{"text": "I'm retiring. The chisel is yours. The tea, regrettably, is also yours."}],
+			"choices": [{"text": "(Laugh.)", "goto": "wren_home"}]
+		},
+		"wren_home": {
+			"speaker": "wren_coldbrook",
+			"lines": [{"text": "The Staff Yard has twelve new strays. I knock them all over. It's tradition now."}],
+			"choices": [{"text": "Aunt Maren would approve.", "goto": "miller_stone"}]
 		},
 		"miller_stone": {
 			"speaker": "ancestor_stone",
+			"lines": [{"text": "The little lantern-holder. Look how tall. Go on, then. Live. We've got the road."}],
+			"choices": [{"text": "(Listen to the wind.)", "goto": "scar_voice"}]
+		},
+		"scar_voice": {
+			"speaker": "ancestor_stone",
 			"lines": [
-				{"text": "The little lantern-holder. Look how tall. Go on, then. Live. We've got the road."},
-				{"text": "A new voice on the wind, from the Scar: 'Warden Vell, on watch. The tea is terrible here too.'", "if": {"flag": "r1.seal.idra"}, "p": 1}
+				{"text": "A new voice on the wind, from the Scar: Warden Vell, on watch. The tea is terrible here too.", "if": {"flag": "r1.ending.idra"}, "p": 1},
+				{"text": "From the Scar, a tired voice, counting: nine, forty-one, sixty, one. Even, at last.", "if": {"flag": "r1.ending.bram"}, "p": 1},
+				{"text": "From the Scar: Edge rules. Debt paid. Tell Hollin's Reach I'm home.", "if": {"flag": "r1.ending.tamsin"}, "p": 1},
+				{"text": "From the Scar, no single voice. The whole Vale humming, like a hive in summer.", "if": {"flag": "r1.ending.kindled"}, "p": 1}
 			],
+			"choices": [{"text": "(Walk to the heart-stone.)", "goto": "ring_maren"}]
+		},
+		"ring_maren": {
+			"speaker": "ancestor_stone",
+			"lines": [{"text": "Staff up, lantern-holder. ...Hm. Not bad. Not good. Not bad."}],
 			"choices": [{"text": "(Walk home.)", "goto": "@end", "do": [["flag", "r1.a5.home"]]}]
 		}
 	}

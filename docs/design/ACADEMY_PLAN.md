@@ -71,3 +71,32 @@ Spec: `CHILDHOOD_ACADEMIES.md` (C§n). Timing rules: `SIM_HIERARCHY.md`. The wor
 - **P2:** `power_paths.gd` + tests, plus a hook so the player's skill use drains the right resource.
 - **P3:** War map zoom levels and troop dots in `tab_realm.gd`, with screenshots.
 - **P4:** In-world presentation of academy scouting and campus (first region: one academy campus site near Kingsreach, built from existing assets), and tutorial prompts in place of cutscenes.
+
+## Everyone learns to fight (user direction)
+
+- Whatever the role (blacksmith, farmer, merchant, scholar), the player can always train combat: at the village drill yard, with guards, with hunters, or self-taught. Combat skill is never locked behind a career.
+- Careers generate **call-ups**. When something goes wrong, your employer, guild or neighbours come to you. Examples:
+  - The smithy's ore shipment is stolen.
+  - Wolves are at the farm.
+  - The caravan you supply goes missing.
+  - The militia levy is called in wartime.
+- These become quests offered in the world by the NPC walking up to you, never by a marker. Quality of work, reputation and known fighting ability decide who gets asked.
+- Implemented in `education.gd` (training access) and `city_life.gd`/careers (call-up generator), hooked through `hub.mod`.
+
+## War map (after everything else)
+
+The full spec is in `WAR_COMMAND_RULEBOOK.md`, with the UI reference `war_ui_reference.webp`. Live 3D battles are **paused** (`realm_presence.gd` `LIVE_BATTLES_ENABLED := false`), so war is played on the map only, like chess:
+
+- pieces per formation, split and merge
+- drag to move
+- courier delay and fog of war
+- command authority by rank
+
+## Power systems: deferred until the world is built (user direction)
+
+- **Martial arts, two traditions:**
+  - Sects follow **donghua-style martial arts**: internal energy, cultivation, techniques and manuals.
+  - Knights have their **own knight martial arts**, in the anime and fantasy-knight style: aura, reinforced sword forms, charge techniques and armour arts. It is a separate tree, not a copy of the sect one.
+- **Chantless magic** is advanced only. It needs a high magic level, spell-theory mastery and several path milestones. Beginners must chant.
+- Every path gets full **levels, sub-paths and technique trees**, built on `realm/power_paths.gd`.
+- **Order of work:** the world and the living mechanics per job come first. Power comes after the world is built properly.

@@ -57,7 +57,7 @@ Poster map names map onto the existing world as follows. WorldGen's `NAMES` stay
 ## 1. Region 1 definition
 
 ### 1.1 Identity
-*"A realm rooted. A people enduring."* Fertile fields, steadfast towns and rune-guarded roads. Safety exists only because people maintain it: step past the last glowing stone and the land changes. The region is **4 × 4 km** (seed 1066, streamed in 64 m chunks). That is smaller than the 8 × 8 km in the design doc, and is kept on purpose for mobile density. The map shows the other 12 realms as unexplored edges (`regions.json`).
+*"A realm rooted. A people enduring."* Fertile fields, steadfast towns and rune-guarded roads. Safety exists only because people maintain it: step past the last glowing stone and the land changes. The region is **8 × 8 km** (seed 1066, streamed in 64 m chunks; it was 4 × 4 km until the outer land was added: the original valley is the ±2 km core, unchanged, with about 20 settlements, four forts, a second river and two Rifts in total). Danger climbs with distance from Kingsreach. Density stays mobile-safe because nothing per frame scales with world size (see `docs/design/SIM_HIERARCHY.md`). The map shows the other 12 realms as unexplored edges (`regions.json`).
 
 ### 1.2 Geography and sub-areas
 Coordinates are metres from Ashford (0, 0); north is -z. ✅ = exists in code or data now, 🆕 = new in this plan.

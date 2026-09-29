@@ -6,6 +6,7 @@
 #   ("<scenario> <first_frame> <last_frame>" per line, written by tools_qa/feel_capture).
 # Per scenario: <out_dir>/<scenario>/sheet_NNN.png + motion.png + info.txt, plus
 # <out_dir>/<scenario>/clip.mp4 (the scenario cut, for sending to the owner).
+# CROP=w:h:x:y crops before tiling (e.g. 480:420:400:220 frames the third-person body).
 # FRAME_OFFSET (default 0) shifts every range if the overlay frame and the movie frame disagree.
 set -euo pipefail
 CAP=${1:?capture dir}; OUT=${2:?out dir}
@@ -21,7 +22,8 @@ while read -r name a b; do
   s=$(awk "BEGIN{printf \"%.4f\", ($a+$OFF)/30}")
   d=$(awk "BEGIN{printf \"%.4f\", ($b-$a)/30}")
   mkdir -p "$OUT/$name"
-  ffmpeg -v error -y -ss "$s" -i "$VID" -t "$d" -c:v libx264 -crf 20 -pix_fmt yuv420p -an "$OUT/$name/clip.mp4"
+  VF=${CROP:+-vf crop=$CROP}
+  ffmpeg -v error -y -ss "$s" -i "$VID" -t "$d" $VF -c:v libx264 -crf 20 -pix_fmt yuv420p -an "$OUT/$name/clip.mp4"
   bash "$HERE/video_to_sheets.sh" "$OUT/$name/clip.mp4" "$OUT/$name" "$FPS" "$COLS" "$ROWS" "$W" > /dev/null
   echo "$name: frames $a-$b ($d s) -> $(ls "$OUT/$name"/sheet_*.png | wc -l) sheets"
 done < "$CAP/scenarios.txt"
