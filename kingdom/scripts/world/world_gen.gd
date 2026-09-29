@@ -641,7 +641,7 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 		var cd: float = Vector2(x, z).distance_to(c["pos"])
 		var cr: float = c["radius"]
 		if cd < cr + 6.0:
-			var k := (1.0 - smoothstep(cr - 1.0, cr + 6.0, cd)) * 0.55
+			var k := (1.0 - smoothstep(cr - 1.0, cr + 6.0, cd)) * 0.4
 			w.r = maxf(w.r, k)
 			w.a *= 1.0 - clampf(k * 1.4, 0.0, 1.0)
 	# Shores: sandy dirt at the waterline, pebbles (rock) on the bed, more with depth.
@@ -664,7 +664,13 @@ static func footstep_surface(x: float, z: float) -> String:
 	return "stone" if weights.b > 0.3 or weights.g > 0.5 else "grass"
 
 
-static func forest_density(x: float, z: float) -> float:
+## Woodland share of a spot ignoring site clearings: the glades inside a wood still count as
+## forest floor (ferns, moss and leaf litter dress them; trees and undergrowth stay out).
+static func woodland(x: float, z: float) -> float:
+	return forest_density(x, z, false)
+
+
+static func forest_density(x: float, z: float, with_clearings := true) -> float:
 	var f := clampf(_forest.get_noise_2d(x, z) * 1.8 + 0.25, 0.0, 1.0)
 	var near := nearest_settlement(Vector2(x, z))
 	if not near.is_empty():
@@ -681,8 +687,11 @@ static func forest_density(x: float, z: float) -> float:
 		f *= smoothstep(near["radius"] * 1.8, near["radius"] * 2.8, Vector2(x, z).distance_to(near["pos"]))
 	if road_distance(x, z) < 8.0:
 		f = 0.0
-	for c in clearings:
+	for g in camp_grounds:   # no trees standing inside a goblin warren / orc village
 		if f > 0.0:
+			f *= smoothstep(float(g["radius"]) * 0.6, float(g["radius"]) * 1.0, Vector2(x, z).distance_to(g["pos"]))
+	for c in clearings:
+		if f > 0.0 and with_clearings:
 			f *= smoothstep(float(c["radius"]), float(c["radius"]) + 10.0, Vector2(x, z).distance_to(c["pos"]))
 	if f > 0.0:
 		f *= smoothstep(6.0, 20.0, shore_distance(x, z))   # no trees (or wolf dens) in water or on beaches

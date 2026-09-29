@@ -160,8 +160,8 @@ BEECH = pal("24421e", "37622a", "4f8634", "6ea43e", "98c250", "c3dc72")
 DARK = pal("101d1a", "172b25", "21392f", "2e4a39", "416046", "5b7a52")
 BUSH = pal("1f361a", "2e4d22", "42692c", "5b8835", "7ea747", "a6c562")
 BERRY = pal("1c3219", "294a22", "3a622b", "527f34", "6f9b40", "92b556")
-PINE = pal("12241d", "1a3226", "234330", "30573a", "45704a", "6a9058")
-PINE_B = pal("162a1c", "213d26", "2e5230", "3f693b", "58854a", "7ea35f")
+PINE = pal("22421f", "33612a", "4a8032", "68a03a", "8cc04a", "b5d668")   # warm saturated green, yellow-green tips (art reference)
+PINE_B = pal("264a20", "3a6c2b", "55903a", "74ac40", "9acb50", "c2df6e")
 GRASS = pal("2c4a1b", "3f6424", "577f2e", "729b38", "90b546", "b3cc62")
 
 

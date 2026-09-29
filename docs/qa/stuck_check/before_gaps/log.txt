@@ -1,0 +1,17 @@
+=== Ashford (village) at (0.0, 0.0), 33 lots, 33 paths ===
+GAP Ashford: 1.24 m between inn at (-19.67168, -1.657585) and blacksmith at (-21.73259, 11.53756)
+gap audit Ashford: 1 narrow gaps (<1.4 m) between lot colliders
+=== Kingsreach (castle) at (560.0, -420.0), 268 lots, 268 paths ===
+GAP Kingsreach: 0.80 m between house_town_c at (512.46, -401.72) and inn at (509.217, -413.7139)
+OVERLAP Kingsreach: blacksmith at (495.66, -389.12) and blacksmith at (495.9691, -399.0977)
+OVERLAP Kingsreach: house_town_b at (478.74, -341.68) and house_town_c at (488.8414, -341.0422)
+GAP Kingsreach: 0.68 m between house_town_b at (462.06, -363.92) and house_town_a at (464.056, -374.8108)
+GAP Kingsreach: 0.96 m between inn at (631.3488, -418.3971) and house_town_d at (641.5991, -416.1213)
+GAP Kingsreach: 0.66 m between house_town_c at (682.6006, -407.0178) and house_town_c at (687.8536, -415.2539)
+GAP Kingsreach: 0.99 m between blacksmith at (592.5599, -360.6109) and house_town_d at (603.187, -357.8786)
+GAP Kingsreach: 0.86 m between house_14 at (494.4303, -435.4101) and blacksmith at (485.149, -431.0229)
+OVERLAP Kingsreach: blacksmith at (506.475, -461.5005) and inn at (496.2503, -460.7451)
+OVERLAP Kingsreach: house_town_a at (519.6565, -474.4024) and inn at (520.7476, -484.6795)
+GAP Kingsreach: 0.54 m between blacksmith at (543.516, -485.308) and house_town_b at (534.942, -491.3883)
+gap audit Kingsreach: 7 narrow gaps (<1.4 m) between lot colliders
+SUMMARY routes=0 clean=0 stuck_events=0 (of which villager-blocked 0, real 0) wall_time=43s

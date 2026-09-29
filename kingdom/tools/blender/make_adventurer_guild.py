@@ -415,7 +415,7 @@ with k.side("front", HX, 0.0, cy=TY):
         k.box((0.75, 0.05, 0.05), (sx * 2.2 - sx * 0.3, 0.2, 3.5), METAL, IRON, var=0)
         k.banner(sx * 2.2 - sx * 0.35, 3.45, w=0.55, h=1.35, color=ROYAL, trim=GOLD, emblem="star", y=0.2,
                  rod=False, tail="swallow")
-k.box((W - 0.6, 1.3, 0.12), (0, -HY - 0.62, 0.06), MATTE, vary(hexc("8d877c"), 0.03), var=0)   # terrace paving
+k.box((W - 0.6, 1.3, 0.12), (0, -HY - 0.62, 0.06), k.M("Paving"), vary(hexc("8d877c"), 0.03), var=0)   # terrace paving
 # big banners flanking the arched door
 k.push((0, -HY, F0))
 for sx in (-1, 1):

@@ -1,0 +1,50 @@
+{
+  "clean": 630,
+  "events": [
+    {
+      "ahead_m": 0.35,
+      "colliders": [
+        "@StaticBody3D@7537 (parent Waystone3, layer 1)  CylinderShape3D at (432.0, 16.86341, -324.0)",
+        "Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)"
+      ],
+      "dir": [
+        -0.8,
+        0.6
+      ],
+      "lateral": [
+        "h0.4: 3.00+3.00=6.00 m",
+        "h1.2: 3.00+3.00=6.00 m"
+      ],
+      "pos": [
+        432.85,
+        -324.63
+      ],
+      "route": "street1 lane +0.0 out",
+      "street": "nearest street axis 0.01 m away (street width 11.0, half 5.50)",
+      "town": "Kingsreach"
+    },
+    {
+      "ahead_m": 0.35,
+      "colliders": [
+        "Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)",
+        "@StaticBody3D@7537 (parent Waystone3, layer 1)  CylinderShape3D at (432.0, 16.86341, -324.0)"
+      ],
+      "dir": [
+        0.8,
+        -0.6
+      ],
+      "lateral": [
+        "h0.4: 3.00+3.00=6.00 m",
+        "h1.2: 3.00+3.00=6.00 m"
+      ],
+      "pos": [
+        431.19,
+        -323.33
+      ],
+      "route": "street1 lane +0.0 back",
+      "street": "nearest street axis 0.05 m away (street width 11.0, half 5.50)",
+      "town": "Kingsreach"
+    }
+  ],
+  "routes": 632
+}

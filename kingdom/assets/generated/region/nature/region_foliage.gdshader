@@ -67,14 +67,18 @@ void fragment() {
 		float top = clamp(NORMAL.y, 0.0, 1.0);
 		col = mix(col, vec3(0.96, 0.97, 1.0), snow_amount * top * top * 0.85);
 	}
-	// Spring blossom: sparse speckles on broadleaf clumps only (never the spruce and
-	// pine atlas cells), so trees read as flowering, not frosted.
+	// Spring blossom: soft pale-pink clumps (blobs ~15 cm on the card, a handful per
+	// crown) on broadleaf clusters only, never the spruce and pine atlas cells. Pixel-scale
+	// noise here read as white speckle dirt on every canopy, so blossoms are smooth blobs.
 	if (bloom_amount > 0.0) {
 		vec2 cell = floor(UV * 4.0);
 		bool conifer = cell.y == 1.0 && cell.x < 2.0;
-		float speck = fract(sin(dot(floor(UV * 384.0), vec2(12.9898, 78.233))) * 43758.5453);
-		if (!conifer && COLOR.g > 0.55 && speck > 0.86) {
-			col = mix(col, vec3(0.98, 0.86, 0.91), bloom_amount * 0.55);
+		vec2 bp = UV * 46.0;
+		vec2 bc = floor(bp);
+		float bh = fract(sin(dot(bc, vec2(12.9898, 78.233))) * 43758.5453);
+		float blob = 1.0 - smoothstep(0.18, 0.42, length(fract(bp) - 0.5));
+		if (!conifer && COLOR.g > 0.55 && bh > 0.93) {
+			col = mix(col, vec3(0.98, 0.84, 0.88), bloom_amount * 0.5 * blob);
 		}
 	}
 	ALBEDO = col;

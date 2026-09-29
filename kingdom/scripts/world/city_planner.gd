@@ -110,6 +110,11 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 					var face := -normal * side
 					var dist_frac := p.distance_to(c) / r
 					var asset: String = HOMES[rng.randi() % HOMES.size()]
+					if walled:
+						# Towns speak one architectural language (the art reference): tall jettied
+						# townhouses and the painted Blender houses, no mixed-style Meshy shells.
+						asset = TOWNHOUSES[rng.randi() % TOWNHOUSES.size()] if rng.randf() < 0.55 \
+							else "house_%d" % (1 + rng.randi() % 16)
 					if dist_frac < 0.5 and rng.randf() < 0.3:
 						asset = TRADES[rng.randi() % TRADES.size()]
 					elif gate_road:

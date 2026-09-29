@@ -24,6 +24,25 @@ SHARED = {"RA_Wood": ("wood", 0.0), "RA_Plank": ("wood", 0.0), "RA_Board": ("woo
           "RA_Plaster": ("plaster", 0.0), "RA_Matte": ("stone", 0.0), "RA_Stone": ("stone", 0.0),
           "RA_Roof": ("roof", 0.0), "RA_Shingle": ("roof", 0.0), "RA_Thatch": ("thatch", 0.0),
           "RA_Cloth": ("cloth", 0.0), "RA_Rope": ("cloth", 0.0), "RA_Metal": ("iron", 1.0)}
+# hand-painted art families (ra_polish.ART_FAMS): GLB material names carry an _hp suffix. One shared
+# material each: painted albedo (kingdom/assets/art/textures) x vertex colour, constant roughness.
+ART_SHARED = {"RA_Wood_hp": "wood", "RA_Plank_hp": "wood", "RA_Board_hp": "wood", "RA_Deck_hp": "wood",
+              "RA_Hull_hp": "wood", "RA_Matte_hp": "stone", "RA_Stone_hp": "stone", "RA_Roof_hp": "slate",
+              "RA_Shingle_hp": "slate", "RA_Paving_hp": "cobble"}
+ART_MAT = {"wood": ("wood_planks.png", 0.74), "stone": ("stone_wall_blocks.png", 0.92),
+           "slate": ("roof_slate_blue.png", 0.7), "cobble": ("cobblestone.png", 0.9)}
+ART_TEX = "res://assets/art/textures/"
+ART_TRES = """[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="{t}{png}" id="1"]
+
+[resource]
+resource_name = "RA_{F}_hp"
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("1")
+metallic = 0.0
+roughness = {rough}
+"""
 FAMILIES = sorted({f for f, _ in SHARED.values()})
 
 TEX_IMPORT = '''[remap]
@@ -128,15 +147,21 @@ def glb_materials(path):
     b = open(path, "rb").read()
     n = struct.unpack("<I", b[12:16])[0]
     j = json.loads(b[20:20 + n])
-    uses_tex = any("village_tex/" in im.get("uri", "") for im in j.get("images", []))
+    uses_tex = any("village_tex/" in im.get("uri", "") or "art/textures/" in im.get("uri", "")
+                   for im in j.get("images", []))
     return [m.get("name", "") for m in j.get("materials", [])], uses_tex
 
 
 def subresources(mats):
     ent = []
     for m in mats:
-        if m in SHARED:
+        if m in ART_SHARED:
+            p = f"{RES_TEX}ra_hp_{ART_SHARED[m]}.tres"
+        elif m in SHARED:
             p = f"{RES_TEX}ra_{SHARED[m][0]}.tres"
+        else:
+            continue
+        if True:
             ent.append(f'"{m}": {{\n"use_external/enabled": true,\n"use_external/fallback_path": "{p}",\n'
                        f'"use_external/path": "{p}"\n}}')
     if not ent:
@@ -155,6 +180,10 @@ def main():
         metal = next(m for fam, m in SHARED.values() if fam == f)
         out = os.path.join(TEX, f"ra_{f}.tres")
         open(out, "w").write(MAT.format(t=RES_TEX, f=f, F=f.capitalize(), metal=metal))
+        print("wrote", os.path.relpath(out, ROOT))
+    for f, (png, rough) in ART_MAT.items():
+        out = os.path.join(TEX, f"ra_hp_{f}.tres")
+        open(out, "w").write(ART_TRES.format(t=ART_TEX, png=png, F=f.capitalize(), rough=rough))
         print("wrote", os.path.relpath(out, ROOT))
     for glb in sorted(glob.glob(os.path.join(GEN, "*.glb"))):
         mats, uses_tex = glb_materials(glb)

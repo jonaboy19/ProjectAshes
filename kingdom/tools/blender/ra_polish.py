@@ -36,11 +36,31 @@ MEAN = 0.86          # mean of every detail albedo (make_village_textures.MEAN)
 # material key -> detail texture family (None = plain vertex colour)
 TYPE_OF = {
     "Plaster": "plaster", "Wood": "wood", "Plank": "wood", "Board": "wood", "Deck": "wood", "Hull": "wood",
-    "Matte": "stone", "Stone": "stone", "Roof": "roof", "Shingle": "roof", "Thatch": "thatch",
+    "Matte": "stone", "Stone": "stone", "Paving": "cobble", "Roof": "roof", "Shingle": "roof", "Thatch": "thatch",
     "Cloth": "cloth", "Rope": "cloth", "Hide": "cloth", "Canvas": "cloth", "Metal": "iron",
 }
 # texture repeat, metres per tile
 TILE = {"plaster": 2.4, "wood": 1.2, "stone": 1.1, "roof": 1.0, "thatch": 0.9, "cloth": 0.7, "iron": 0.6}
+# Hand-painted art textures (kingdom/assets/art/textures/, sRGB albedo only, shared by relative URI).
+# These families REPLACE the generated detail sets of the same name (stone, wood) or add to them
+# (slate = the blue slate roofs, cobble = paving); terracotta / shingle / thatch roofs keep the old sets.
+#   tile  metres of asset space per texture repeat
+#   mean  mean albedo (sRGB) of the PNG, so COLOR_0 tint = palette colour relative to the texture
+#   k     how much of the palette tint is kept (1 = the old palette colours, 0 = pure painted texture)
+#   rough constant roughness (no metallicRoughness / normal map for these)
+ART_TEX_DIR = os.path.join(ROOT, "kingdom", "assets", "art", "textures")
+ART_FAMS = {
+    "stone": dict(file="stone_wall_blocks.png", tile=5.0, mean=(0.806, 0.709, 0.584), k=0.5, gain=1.15),
+    "slate": dict(file="roof_slate_blue.png", tile=2.6, mean=(0.333, 0.462, 0.699), k=0.5),
+    "wood": dict(file="wood_planks.png", tile=1.6, mean=(0.629, 0.450, 0.243), k=0.7),
+    "cobble": dict(file="cobblestone.png", tile=2.4, mean=(0.590, 0.505, 0.398), k=0.5),
+}
+# plank interiors in the wood texture (U 0..1), clear of the dark joints, for narrow beams / boards
+WOOD_PLANKS = [(0.006, 0.145), (0.157, 0.293), (0.305, 0.432), (0.445, 0.574), (0.586, 0.720), (0.733, 0.858),
+               (0.871, 0.992)]
+for _f, _d in ART_FAMS.items():
+    TILE[_f] = _d["tile"]
+ROOFY = ("roof", "thatch", "slate")   # families that get sun-bleach / moss
 EMISSIVE = {"Glass", "WindowLit", "Lamp", "Coals", "Water", "Crystal", "Ember", "Flame", "FlameCore", "CandleFlame", "Rune"}
 MOSS = (0.36, 0.42, 0.22)
 
@@ -75,12 +95,13 @@ def textured_nodes(m, fam):
     metallicRoughnessTexture plus COLOR_0)."""
     nt = m.node_tree
     bsdf = nt.nodes["Principled BSDF"]
+    art = ART_FAMS.get(fam)
     vc = next((n for n in nt.nodes if n.type == "VERTEX_COLOR"), None)
     if vc is None:
         vc = nt.nodes.new("ShaderNodeVertexColor")
         vc.layer_name = "Col"
     alb = nt.nodes.new("ShaderNodeTexImage")
-    alb.image = _img(os.path.join(TEX_DIR, f"ra_{fam}_alb.png"))
+    alb.image = _img(os.path.join(ART_TEX_DIR, art["file"]) if art else os.path.join(TEX_DIR, f"ra_{fam}_alb.png"))
     mx = nt.nodes.new("ShaderNodeMix")
     mx.data_type = "RGBA"
     mx.blend_type = "MULTIPLY"
@@ -88,6 +109,8 @@ def textured_nodes(m, fam):
     nt.links.new(alb.outputs["Color"], next(s for s in mx.inputs if s.identifier == "A_Color"))
     nt.links.new(vc.outputs["Color"], next(s for s in mx.inputs if s.identifier == "B_Color"))
     nt.links.new(next(s for s in mx.outputs if s.identifier == "Result_Color"), bsdf.inputs["Base Color"])
+    if art:
+        return          # painted albedo x vertex colour only; roughness stays the material's constant
     mr = nt.nodes.new("ShaderNodeTexImage")
     mr.image = _img(os.path.join(TEX_DIR, f"ra_{fam}_mr.png"), noncolor=True)
     sep = nt.nodes.new("ShaderNodeSeparateColor")
@@ -104,10 +127,88 @@ def textured_nodes(m, fam):
 
 
 # ================================================================== UVs
-def project_uvs(t, fam, rng, grain=None):
+def project_uvs_art(t, fam, rng, grain, xform):
+    """UVs for the hand-painted art families. Stone / cobble / slate use ASSET-space
+    metres (`xform` = primitive -> asset), so neighbouring blocks, slabs and roof
+    pieces sample one continuous texture (mortar courses run level, slate rows run
+    along the eave and up the slope). Wood planks run the grain along texture V; narrow
+    beams and boards are mapped into the interior of one random plank so no dark joint
+    splits a 15 cm timber."""
+    tile = TILE[fam]
+    t.normal_update()
+    if not t.verts:
+        return {}
+    M3 = xform.to_3x3()
+    out = {}
+    if fam == "wood":
+        lo = [min(v.co[i] for v in t.verts) for i in range(3)]
+        hi = [max(v.co[i] for v in t.verts) for i in range(3)]
+        ext = [hi[i] - lo[i] for i in range(3)]
+        la = None
+        if grain:
+            la = "xyz".index(grain)
+        else:
+            order = sorted(range(3), key=lambda i: -ext[i])
+            if ext[order[0]] > 1.6 * max(ext[order[1]], 1e-4):
+                la = order[0]
+        offu, offv = rng.random(), rng.random()
+        pl = WOOD_PLANKS[int(rng.random() * len(WOOD_PLANKS)) % len(WOOD_PLANKS)]
+        for f in t.faces:
+            n = f.normal
+            an = (abs(n.x), abs(n.y), abs(n.z))
+            d = an.index(max(an))
+            a, b = ((0, 1), (1, 2), (0, 2))[(2, 0, 1).index(d)]
+            if la is not None and la in (a, b):
+                ua, va = la, (b if la == a else a)
+            elif d != 2:
+                ua, va = 2, a
+            else:
+                ua, va = a, b
+            narrow = ext[va] <= (pl[1] - pl[0]) * tile * 1.02
+            uvs = []
+            for l in f.loops:
+                if narrow:
+                    u = pl[0] + (l.vert.co[va] - lo[va]) / tile
+                else:
+                    u = l.vert.co[va] / tile + offu
+                uvs.append((u, l.vert.co[ua] / tile + offv))
+            out[f.index] = uvs
+        return out
+    for f in t.faces:
+        nw = (M3 @ f.normal)
+        if nw.length < 1e-9:
+            nw = f.normal
+        nw = nw.normalized()
+        uvs = []
+        if fam == "slate":
+            if abs(nw.z) > 0.985:
+                ud, vd = Vector((1, 0, 0)), Vector((0, 1, 0))
+            else:
+                ud = Vector((0, 0, 1)).cross(nw).normalized()
+                vd = nw.cross(ud)
+            for l in f.loops:
+                pw = xform @ l.vert.co
+                uvs.append((pw.dot(ud) / tile, pw.dot(vd) / tile))
+        else:
+            up = abs(nw.z) > 0.7
+            for l in f.loops:
+                pw = xform @ l.vert.co
+                if up:
+                    uvs.append((pw.x / tile, pw.y / tile))
+                elif abs(nw.x) > abs(nw.y):
+                    uvs.append((pw.y / tile, pw.z / tile))
+                else:
+                    uvs.append((pw.x / tile, pw.z / tile))
+        out[f.index] = uvs
+    return out
+
+
+def project_uvs(t, fam, rng, grain=None, xform=None):
     """Per-loop UVs for temp bmesh `t` in its own local metres: box projection by
     face normal. Wood grain (texture U) follows the primitive's long axis, or the
     vertical for upright pieces; `grain` ('x'|'y'|'z') forces it."""
+    if fam in ART_FAMS and xform is not None:
+        return project_uvs_art(t, fam, rng, grain, xform)
     tile = TILE[fam]
     t.normal_update()
     if not t.verts:
@@ -314,7 +415,7 @@ def weather(bm, col, fam_of_index, emissive_index, sills, seed=1, building=True,
     ao_dist = ao_dist or min(2.2, max(0.25, size * 0.28))
     bvh, gi = _bvh(bm)
     base_dirs = _hemi_dirs(18, cosine=True)
-    rz = [f.calc_center_median().z for f in bm.faces if fam_of_index.get(f.material_index) in ("roof", "thatch")]
+    rz = [f.calc_center_median().z for f in bm.faces if fam_of_index.get(f.material_index) in ROOFY]
     rz0, rz1 = (min(rz), max(rz)) if rz else (0.0, 1.0)
     rz1 = max(rz1, rz0 + 0.5)
     off = Vector((seed * 3.7, seed * 1.9, seed * 5.3))
@@ -349,6 +450,7 @@ def weather(bm, col, fam_of_index, emissive_index, sills, seed=1, building=True,
             p = l.vert.co
             nn = l.vert.normal if f.smooth else fn
             c = to_srgb(l[col][:3])
+            c_base = c
             k = max(0.38, 1.0 - ao_strength * (1.0 - ao_at(p, nn)))
             # contact darkening right at the ground line
             band = 0.28 if building else 0.12
@@ -358,7 +460,7 @@ def weather(bm, col, fam_of_index, emissive_index, sills, seed=1, building=True,
             k *= 1.0 + 0.08 * noise.noise(p * 0.45 + off) + 0.04 * noise.noise(p * 2.1 + off)
             c = [x * k for x in c]
             vertical = abs(nn.z) < 0.6
-            if fam in ("plaster", "stone", "wood") and vertical:
+            if fam in ("plaster", "stone", "wood", "cobble") and vertical:
                 # damp tide line at the base: darker, a touch greener, ragged top edge
                 th = tide_h * (1.0 + 0.45 * noise.noise(Vector((p.x * 1.3, p.y * 1.3, 4.0)) + off))
                 if p.z < th:
@@ -382,7 +484,7 @@ def weather(bm, col, fam_of_index, emissive_index, sills, seed=1, building=True,
                     st_n = 0.65 + 0.35 * noise.noise(Vector((u * 5.0, 0.0, sc.x + sc.y)))
                     kk = 1.0 - 0.34 * edge * fall * st_n
                     c = [c[0] * kk, c[1] * kk, c[2] * kk * 0.98]
-            if fam in ("roof", "thatch") and nn.z > 0.15:
+            if fam in ROOFY and nn.z > 0.15:
                 t = min(1.0, max(0.0, (p.z - rz0) / (rz1 - rz0)))
                 lum = 0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2]
                 bl = 0.26 * t * min(1.0, nn.z * 1.5)
@@ -393,7 +495,7 @@ def weather(bm, col, fam_of_index, emissive_index, sills, seed=1, building=True,
                     m = smoothstep(0.05, 0.6, noise.noise(p * 0.9 + off + Vector((5, 5, 5)))) * (1 - t / 0.45)
                     m *= min(1.0, nn.y * 2.5) * 0.55
                     c = [c[i] * (1 - m) + MOSS[i] * 0.8 * m for i in range(3)]
-            if fam == "stone":
+            if fam in ("stone", "cobble"):
                 facing = max(nn.y, 0.0) * 0.9 + max(nn.z, 0.0) * 0.5
                 low = max(0.0, 1.0 - p.z / (1.8 if building else 0.6))
                 if facing > 0 and low > 0:
@@ -402,7 +504,19 @@ def weather(bm, col, fam_of_index, emissive_index, sills, seed=1, building=True,
             if fam == "wood" and nn.z > 0.6:     # sun-greyed tops of exposed timber
                 lum = 0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2]
                 c = [c[i] * 0.85 + lum * 0.15 * 1.1 for i in range(3)]
-            if compensate and fam is not None:
+            if compensate and fam in ART_FAMS:
+                # painted texture x tint: tint = (palette colour / texture mean) blended toward 1 by `k`,
+                # then the weathering ratio (AO, damp, moss...) on top
+                a = ART_FAMS[fam]
+                kt = a["k"]
+                lb = 0.3 * c_base[0] + 0.59 * c_base[1] + 0.11 * c_base[2]
+                lc = 0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2]
+                sh = min(2.0, max(0.2, lc / max(lb, 1e-3)))          # brightness change from AO / damp / bleach
+                tint = [(1 - kt) + kt * c_base[i] / a["mean"][i] for i in range(3)]
+                # colour change from moss / greying (not multiplicative), scaled to the texture's own range
+                c = [tint[i] * sh + (c[i] - c_base[i] * sh) * kt / a["mean"][i] * 0.5 for i in range(3)]
+                c = [x * a.get("gain", 1.0) for x in c]
+            elif compensate and fam is not None:
                 c = [x / MEAN for x in c]
             c = [min(1.0, max(0.0, x)) for x in c]
             l[col] = (*to_lin(c), 1.0)

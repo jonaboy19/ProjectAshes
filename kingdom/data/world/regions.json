@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "_doc": "World map regions. Bounds are x/z metres (north = -z) in the same space as WorldGen. status: current (fully charted, drawn from the baked terrain), unexplored (placeholder shown as 'Unexplored lands' beyond the border). To add a region later: append an entry here, give it status 'current' or 'known' once its terrain exists, and the map will show it.",
+  "current": "ashford_vale",
+  "regions": [
+    {
+      "id": "ashford_vale",
+      "name": "The Ashford Vale",
+      "realm": "Valencious",
+      "status": "current",
+      "bounds": {"min": [-2048, -2048], "max": [2048, 2048]},
+      "places": "res://data/world/first_region.json"
+    },
+    {
+      "id": "north_reaches",
+      "name": "Unexplored lands",
+      "hint": "The northern reaches",
+      "status": "unexplored",
+      "bounds": {"min": [-4096, -4096], "max": [4096, -2048]}
+    },
+    {
+      "id": "south_reaches",
+      "name": "Unexplored lands",
+      "hint": "The southern reaches",
+      "status": "unexplored",
+      "bounds": {"min": [-4096, 2048], "max": [4096, 4096]}
+    },
+    {
+      "id": "west_reaches",
+      "name": "Unexplored lands",
+      "hint": "The western reaches",
+      "status": "unexplored",
+      "bounds": {"min": [-4096, -2048], "max": [-2048, 2048]}
+    },
+    {
+      "id": "east_reaches",
+      "name": "Unexplored lands",
+      "hint": "The eastern reaches",
+      "status": "unexplored",
+      "bounds": {"min": [2048, -2048], "max": [4096, 2048]}
+    }
+  ]
+}

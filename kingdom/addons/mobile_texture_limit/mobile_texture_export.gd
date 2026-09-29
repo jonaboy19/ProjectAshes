@@ -11,6 +11,11 @@ extends EditorExportPlugin
 
 const MAX_PX := 1024
 const SMALL_PX := 512
+const HERO_PX := 2048
+## Hero content keeps up to 2K on phones (the art reference is judged up close):
+## characters, the hand-painted material set, shared building/foliage atlases.
+const HERO := ["res://assets/generated/characters/", "res://assets/art/textures/",
+	"res://assets/generated/region/textures/", "res://assets/generated/village_tex/"]
 ## Small props and critters: never seen larger than a few hundred pixels on a phone.
 const SMALL := ["res://assets/generated/scan/", "res://assets/incoming/animals/"]
 const SKIP := ["res://assets/ui/", "res://assets/generated/app_icon/"]
@@ -34,7 +39,7 @@ func _begin_customize_resources(platform: EditorExportPlatform, features: Packed
 
 
 func _get_customization_configuration_hash() -> int:
-	return hash("mobile_texture_limit v1 %d %d %s" % [MAX_PX, SMALL_PX, str(SMALL)])
+	return hash("mobile_texture_limit v2 %d %d %d %s %s" % [MAX_PX, SMALL_PX, HERO_PX, str(SMALL), str(HERO)])
 
 
 func _customize_resource(resource: Resource, path: String) -> Resource:
@@ -44,6 +49,9 @@ func _customize_resource(resource: Resource, path: String) -> Resource:
 		if path.begins_with(s):
 			return null
 	var cap := MAX_PX
+	for s in HERO:
+		if path.begins_with(s):
+			cap = HERO_PX
 	for s in SMALL:
 		if path.begins_with(s):
 			cap = SMALL_PX

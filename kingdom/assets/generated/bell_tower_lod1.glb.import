@@ -44,10 +44,10 @@ _subresources={
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_cloth.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_cloth.tres"
 },
-"RA_Matte": {
+"RA_Matte_hp": {
 "use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_stone.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_stone.tres"
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_hp_stone.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_hp_stone.tres"
 },
 "RA_Metal": {
 "use_external/enabled": true,
@@ -59,10 +59,10 @@ _subresources={
 "use_external/fallback_path": "res://assets/generated/village_tex/ra_roof.tres",
 "use_external/path": "res://assets/generated/village_tex/ra_roof.tres"
 },
-"RA_Wood": {
+"RA_Wood_hp": {
 "use_external/enabled": true,
-"use_external/fallback_path": "res://assets/generated/village_tex/ra_wood.tres",
-"use_external/path": "res://assets/generated/village_tex/ra_wood.tres"
+"use_external/fallback_path": "res://assets/generated/village_tex/ra_hp_wood.tres",
+"use_external/path": "res://assets/generated/village_tex/ra_hp_wood.tres"
 }
 }
 }

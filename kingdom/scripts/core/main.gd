@@ -491,9 +491,10 @@ func _on_raiders_defeated(camp: Node3D) -> void:
 
 func _build_environment() -> void:
 	# Real captured sky (Poly Haven HDRI, CC0) lights the scene and fills reflections.
-	var sky_mat := PanoramaSkyMaterial.new()
-	sky_mat.panorama = load("res://assets/generated/sky/kloofendal_43d_clear_puresky_2k.hdr")
-	sky_mat.energy_multiplier = 1.0
+	# Graded toward the art reference's saturated storybook blue (shaders/storybook_sky.gdshader).
+	var sky_mat := ShaderMaterial.new()
+	sky_mat.shader = load("res://shaders/storybook_sky.gdshader")
+	sky_mat.set_shader_parameter("panorama", load("res://assets/generated/sky/kloofendal_43d_clear_puresky_2k.hdr"))
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
 	sky.radiance_size = Sky.RADIANCE_SIZE_256
@@ -502,6 +503,9 @@ func _build_environment() -> void:
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_energy = 0.7
+	# Warm bounce mixed into the sky ambient: blue-violet shadows, but sunlit stone stays honey-warm.
+	env.ambient_light_color = Color("ffe2bd")
+	env.ambient_light_sky_contribution = 0.72
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	# AgX: filmic highlight roll-off and natural colour (less "cartoon" than ACES + saturation).
 	env.tonemap_mode = Environment.TONE_MAPPER_AGX
@@ -528,7 +532,7 @@ func _build_environment() -> void:
 	env.fog_density = 0.0006
 
 	env.fog_aerial_perspective = 0.3
-	env.fog_sky_affect = 0.4
+	env.fog_sky_affect = 0.15
 	env.volumetric_fog_enabled = forward_plus
 	env.volumetric_fog_density = 0.0025
 	env.volumetric_fog_albedo = Color("e8dccb")
@@ -557,7 +561,7 @@ func _update_daylight() -> void:
 	# At night the key light becomes a cool moon so the world stays readable.
 	var night := 1.0 - smoothstep(0.0, 0.25, day_amount)
 	sun.light_energy = lerpf(lerpf(0.05, 1.7, day_amount), 0.42, night)
-	sun.light_color = Color("ff9a5a").lerp(Color("ffe2b0"), day_amount).lerp(Color("8fa8ff"), night)
+	sun.light_color = Color("ff9a5a").lerp(Color("ffd9a2"), day_amount).lerp(Color("8fa8ff"), night)
 	env.ambient_light_energy = lerpf(lerpf(0.25, 0.7, day_amount), 0.4, night)
 	env.fog_light_color = Color("1b2238").lerp(Color("c9d4e6"), day_amount)
 	env.background_energy_multiplier = lerpf(0.08, 1.0, day_amount) + night * 0.12

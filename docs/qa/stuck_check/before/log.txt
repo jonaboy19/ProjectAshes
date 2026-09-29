@@ -1,0 +1,439 @@
+=== Ashford (village) at (0.0, 0.0), 33 lots, 33 paths ===
+STUCK Ashford / street1 lane -2.8 out at (16.90, 0.47) heading (0.62, -0.79)
+    Body (parent Chunk_0_0, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@586 (parent Ashford, layer 1)  box 8.16x4.81x7.67 at (19.56, 23.86, -2.67) yaw -143
+    @StaticBody3D@586 (parent Ashford, layer 1)  box 7.31x10.02x6.87 at (19.56, 23.76, -2.67) yaw -143
+    Body (parent Chunk_0_-1, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 1.36+3.00=4.36 m, h1.2: 1.36+3.00=4.36 m; obstacle ahead at 0.36 m
+=== Ashford done: 78 routes, 77 clean, 1 stuck events so far ===
+=== Kingsreach (castle) at (560.0, -420.0), 268 lots, 268 paths ===
+STUCK Kingsreach / street1 lane +0.0 out at (432.86, -324.61) heading (-0.80, 0.60)
+    Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@8477 (parent Waystone3, layer 1)  CylinderShape3D at (432.0, 16.86341, -324.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / street1 lane +0.0 back at (431.19, -323.33) heading (0.80, -0.60)
+    @StaticBody3D@8477 (parent Waystone3, layer 1)  CylinderShape3D at (432.0, 16.86341, -324.0)
+    Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / street1 lane +4.3 out at (530.80, -403.47) heading (-0.80, 0.60)
+    Body (parent Chunk_8_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@4220 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (528.93, 18.61, -404.40) yaw -153
+    lateral clearance h0.4: 1.98+3.00=4.98 m, h1.2: 1.98+3.00=4.98 m; obstacle ahead at 0.36 m
+STUCK Kingsreach / street1 lane +4.3 back at (528.77, -401.94) heading (0.80, -0.60)
+    Body (parent Chunk_8_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@4220 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (528.93, 18.61, -404.40) yaw -153
+    @CharacterBody3D@10583 (parent @Node3D@230, layer 2)  CapsuleShape3D at (529.5298, 15.58841, -400.5392)
+    @CharacterBody3D@10559 (parent @Node3D@230, layer 2)  CapsuleShape3D at (528.8384, 15.58841, -400.5041)
+    lateral clearance h0.4: 1.43+3.00=4.43 m, h1.2: 1.97+3.00=4.97 m; obstacle ahead at 0.36 m
+STUCK Kingsreach / street2 lane +0.0 out at (592.93, -413.06) heading (0.98, 0.22)
+    Body (parent Chunk_9_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@4202 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (592.67, 18.48, -408.11) yaw -20
+    @StaticBody3D@4200 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (594.53, 18.45, -415.96) yaw -7
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / street2 lane +0.0 back at (595.35, -412.18) heading (-0.98, -0.22)
+    Body (parent Chunk_9_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@4202 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (592.67, 18.48, -408.11) yaw -20
+    @StaticBody3D@4200 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (594.53, 18.45, -415.96) yaw -7
+    @CharacterBody3D@12743 (parent @Node3D@230, layer 2)  CapsuleShape3D at (595.4128, 15.58841, -413.1086)
+    lateral clearance h0.4: 0.68+3.00=3.68 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / street2 lane +4.3 out at (591.36, -408.18) heading (0.98, 0.21)
+    Body (parent Chunk_9_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@4202 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (592.67, 18.48, -408.11) yaw -20
+    lateral clearance h0.4: 2.64+3.00=5.64 m, h1.2: 2.64+3.00=5.64 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / street2 lane +4.3 back at (593.97, -408.04) heading (-0.98, -0.22)
+    Body (parent Chunk_9_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@4202 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (592.67, 18.48, -408.11) yaw -20
+    lateral clearance h0.4: 2.71+3.00=5.71 m, h1.2: 2.71+3.00=5.71 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / street2 lane -4.3 out at (593.38, -416.95) heading (0.98, 0.22)
+    Body (parent Chunk_9_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@4200 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (594.53, 18.45, -415.96) yaw -7
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / street2 lane -4.3 back at (595.84, -416.44) heading (-0.98, -0.22)
+    Body (parent Chunk_9_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@4200 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (594.53, 18.45, -415.96) yaw -7
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / street3 lane +0.0 out at (568.16, -452.54) heading (0.25, -0.97)
+    @StaticBody3D@4240 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (569.97, 18.45, -453.30) yaw 73
+    @StaticBody3D@4238 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (562.02, 18.67, -454.70) yaw 87
+    Body (parent Chunk_8_-8, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / street3 lane +0.0 back at (569.04, -454.89) heading (-0.25, 0.97)
+    @StaticBody3D@4240 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (569.97, 18.45, -453.30) yaw 73
+    Body (parent Chunk_8_-8, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / street3 lane +4.3 out at (572.54, -451.23) heading (0.25, -0.97)
+    @StaticBody3D@4242 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (577.38, 18.84, -450.11) yaw 60
+    @StaticBody3D@4240 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (569.97, 18.45, -453.30) yaw 73
+    Body (parent Chunk_8_-8, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 2.06+3.00=5.06 m, h1.2: 2.06+3.00=5.06 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / street3 lane +4.3 back at (572.90, -453.73) heading (-0.23, 0.97)
+    @StaticBody3D@4242 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (577.38, 18.84, -450.11) yaw 60
+    @StaticBody3D@4240 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (569.97, 18.45, -453.30) yaw 73
+    Body (parent Chunk_8_-8, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@16315 (parent @Node3D@230, layer 2)  CapsuleShape3D at (575.2092, 15.77197, -453.4262)
+    lateral clearance h0.4: 3.00+2.17=5.17 m, h1.2: 3.00+2.19=5.19 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / street3 lane -4.3 out at (564.21, -453.32) heading (0.25, -0.97)
+    @StaticBody3D@4240 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (569.97, 18.45, -453.30) yaw 73
+    @StaticBody3D@4238 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (562.02, 18.67, -454.70) yaw 87
+    Body (parent Chunk_8_-8, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+1.81=4.81 m, h1.2: 3.00+1.81=4.81 m; obstacle ahead at 0.36 m
+STUCK Kingsreach / street3 lane -4.3 back at (564.92, -455.79) heading (-0.26, 0.97)
+    @StaticBody3D@4240 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (569.97, 18.45, -453.30) yaw 73
+    @StaticBody3D@4238 (parent Kingsreach, layer 1)  box 1.80x7.07x8.14 at (562.02, 18.67, -454.70) yaw 87
+    Body (parent Chunk_8_-8, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.36 m
+STUCK Kingsreach / door path 7 (house_town_b) in at (473.83, -348.23) heading (0.60, 0.80)
+    @StaticBody3D@4567 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (475.32, 16.47, -347.49) yaw -143
+    @StaticBody3D@4815 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (473.50, 15.63, -345.75) yaw -129
+    Body (parent Chunk_7_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 7 (house_town_b) out at (475.61, -345.85) heading (-0.60, -0.80)
+    @StaticBody3D@4567 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (475.32, 16.47, -347.49) yaw -143
+    @StaticBody3D@2534 (parent Kingsreach, layer 1)  box 7.43x8.12x10.09 at (478.74, 22.05, -341.68) yaw -143
+    @StaticBody3D@2534 (parent Kingsreach, layer 1)  box 6.66x14.43x9.04 at (478.74, 22.50, -341.68) yaw -143
+    @StaticBody3D@4923 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (473.28, 15.72, -343.96) yaw -162
+    @StaticBody3D@4815 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (473.50, 15.63, -345.75) yaw -129
+    Body (parent Chunk_7_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+2.08=5.08 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 8 (house_town_b) in at (466.97, -357.37) heading (-0.60, -0.80)
+    @StaticBody3D@4817 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (464.50, 15.63, -357.75) yaw 30
+    @StaticBody3D@4569 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (466.68, 16.47, -359.01) yaw 37
+    Body (parent Chunk_7_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 8 (house_town_b) out at (465.01, -359.62) heading (0.65, 0.76)
+    @StaticBody3D@4817 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (464.50, 15.63, -357.75) yaw 30
+    @StaticBody3D@4569 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (466.68, 16.47, -359.01) yaw 37
+    @StaticBody3D@2537 (parent Kingsreach, layer 1)  box 7.43x8.12x10.09 at (462.06, 22.05, -363.92) yaw 37
+    @StaticBody3D@2537 (parent Kingsreach, layer 1)  box 6.66x14.43x9.04 at (462.06, 22.50, -363.92) yaw 37
+    Body (parent Chunk_7_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@18644 (parent @Node3D@230, layer 2)  CapsuleShape3D at (465.7294, 15.96649, -360.1068)
+    lateral clearance h0.4: 3.00+0.60=3.60 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 9 (house_town_b) in at (465.43, -341.93) heading (0.60, 0.80)
+    @StaticBody3D@4573 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (466.52, 16.47, -340.89) yaw -143
+    Body (parent Chunk_7_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 9 (house_town_b) out at (467.21, -339.55) heading (-0.60, -0.80)
+    @StaticBody3D@4925 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (464.88, 15.72, -337.66) yaw -137
+    @StaticBody3D@2540 (parent Kingsreach, layer 1)  box 7.43x8.12x10.09 at (470.34, 22.05, -335.38) yaw -143
+    @StaticBody3D@2540 (parent Kingsreach, layer 1)  box 6.66x14.43x9.04 at (470.34, 22.50, -335.38) yaw -143
+    @StaticBody3D@4573 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (466.52, 16.47, -340.89) yaw -143
+    Body (parent Chunk_7_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+2.17=5.17 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 10 (house_town_d) in at (458.57, -351.06) heading (-0.60, -0.80)
+    @StaticBody3D@5323 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (457.88, 16.47, -352.41) yaw 37
+    @StaticBody3D@4823 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (455.70, 15.63, -351.15) yaw 36
+    Body (parent Chunk_7_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 10 (house_town_d) out at (456.79, -353.45) heading (0.60, 0.80)
+    @StaticBody3D@4821 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (460.10, 15.63, -354.45) yaw 44
+    @StaticBody3D@2543 (parent Kingsreach, layer 1)  box 7.43x7.98x10.09 at (453.66, 21.97, -357.62) yaw 37
+    @StaticBody3D@2543 (parent Kingsreach, layer 1)  box 6.66x14.23x9.04 at (453.66, 22.40, -357.62) yaw 37
+    @StaticBody3D@5323 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (457.88, 16.47, -352.41) yaw 37
+    @StaticBody3D@4823 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (455.70, 15.63, -351.15) yaw 36
+    Body (parent Chunk_7_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@18644 (parent @Node3D@230, layer 2)  CapsuleShape3D at (459.1385, 15.89283, -353.8445)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 11 (house_town_d) in at (455.07, -331.87) heading (-0.95, 0.32)
+    @StaticBody3D@4575 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (457.72, 16.47, -334.29) yaw -143
+    @StaticBody3D@4825 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (455.90, 15.63, -332.55) yaw -137
+    @StaticBody3D@4579 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (453.32, 16.47, -330.99) yaw -143
+    Body (parent Chunk_7_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.37 m
+STUCK Kingsreach / door path 11 (house_town_d) in at (449.02, -329.63) heading (0.44, 0.90)
+    @StaticBody3D@4827 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (451.50, 15.63, -329.25) yaw -143
+    @StaticBody3D@5325 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (448.92, 16.47, -327.69) yaw -143
+    Body (parent Chunk_7_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+2.73=5.73 m, h1.2: 3.00+2.73=5.73 m; obstacle ahead at 0.36 m
+STUCK Kingsreach / door path 11 (house_town_d) out at (450.41, -326.95) heading (-0.60, -0.80)
+    @StaticBody3D@2546 (parent Kingsreach, layer 1)  box 7.43x7.98x10.09 at (453.54, 21.97, -322.78) yaw -143
+    @StaticBody3D@2546 (parent Kingsreach, layer 1)  box 6.66x14.23x9.04 at (453.54, 22.40, -322.78) yaw -143
+    @StaticBody3D@4827 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (451.50, 15.63, -329.25) yaw -143
+    @StaticBody3D@4831 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (447.10, 15.63, -325.95) yaw -124
+    @StaticBody3D@4927 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (448.08, 15.72, -325.06) yaw -170
+    @StaticBody3D@5325 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (448.92, 16.47, -327.69) yaw -143
+    Body (parent Chunk_7_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+2.01=5.01 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 11 (house_town_d) out at (454.65, -332.90) heading (0.83, 0.55)
+    @StaticBody3D@4575 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (457.72, 16.47, -334.29) yaw -143
+    @StaticBody3D@4825 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (455.90, 15.63, -332.55) yaw -137
+    @StaticBody3D@4579 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (453.32, 16.47, -330.99) yaw -143
+    Body (parent Chunk_7_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 0.67+3.00=3.67 m, h1.2: 0.67+3.00=3.67 m; obstacle ahead at 0.36 m
+STUCK Kingsreach / door path 12 (house_town_a) in at (446.26, -343.61) heading (-0.62, 0.78)
+    @StaticBody3D@4577 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (449.08, 16.47, -345.81) yaw 37
+    @StaticBody3D@4581 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (444.68, 16.47, -342.51) yaw 37
+    Body (parent Chunk_7_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@18892 (parent @Node3D@230, layer 2)  CapsuleShape3D at (447.4554, 15.61716, -341.1967)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.36 m
+STUCK Kingsreach / door path 12 (house_town_a) in at (442.09, -338.71) heading (-0.71, -0.70)
+    @StaticBody3D@4829 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (442.50, 15.63, -341.25) yaw 30
+    @StaticBody3D@4583 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (440.28, 16.47, -339.21) yaw 37
+    Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@18841 (parent @Node3D@230, layer 2)  CapsuleShape3D at (441.6544, 15.8757, -340.4906)
+    lateral clearance h0.4: 2.81+3.00=5.81 m, h1.2: 2.81+3.00=5.81 m; obstacle ahead at 0.36 m
+STUCK Kingsreach / door path 12 (house_town_a) out at (439.95, -340.83) heading (0.61, 0.79)
+    @StaticBody3D@4829 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (442.50, 15.63, -341.25) yaw 30
+    @StaticBody3D@4583 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (440.28, 16.47, -339.21) yaw 37
+    @StaticBody3D@2549 (parent Kingsreach, layer 1)  box 7.44x7.96x10.07 at (436.86, 21.96, -345.02) yaw 37
+    @StaticBody3D@2549 (parent Kingsreach, layer 1)  box 6.67x14.22x9.02 at (436.86, 22.39, -345.02) yaw 37
+    Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@18841 (parent @Node3D@230, layer 2)  CapsuleShape3D at (441.6723, 15.87278, -340.4642)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 12 (house_town_a) out at (443.67, -340.64) heading (0.55, -0.84)
+    @StaticBody3D@4581 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (444.68, 16.47, -342.51) yaw 37
+    @StaticBody3D@4829 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (442.50, 15.63, -341.25) yaw 30
+    @StaticBody3D@4583 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (440.28, 16.47, -339.21) yaw 37
+    Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@18841 (parent @Node3D@230, layer 2)  CapsuleShape3D at (441.6595, 15.87486, -340.4829)
+    lateral clearance h0.4: 3.00+0.39=3.39 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.37 m
+STUCK Kingsreach / door path 13 (house_town_d) in at (440.23, -323.04) heading (0.60, 0.80)
+    @StaticBody3D@4833 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (442.70, 15.63, -322.65) yaw -125
+    @StaticBody3D@5329 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (440.12, 16.47, -321.09) yaw -143
+    Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@19001 (parent @Node3D@230, layer 2)  CapsuleShape3D at (441.8974, 15.89993, -321.8288)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 13 (house_town_d) out at (442.01, -320.65) heading (-0.60, -0.80)
+    @StaticBody3D@4833 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (442.70, 15.63, -322.65) yaw -125
+    @StaticBody3D@2552 (parent Kingsreach, layer 1)  box 7.43x7.98x10.09 at (445.14, 21.97, -316.48) yaw -143
+    @StaticBody3D@2552 (parent Kingsreach, layer 1)  box 6.66x14.23x9.04 at (445.14, 22.40, -316.48) yaw -143
+    @StaticBody3D@4929 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (439.68, 15.72, -318.76) yaw -136
+    @StaticBody3D@5329 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (440.12, 16.47, -321.09) yaw -143
+    Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    Body (parent Chunk_6_-5, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@19001 (parent @Node3D@230, layer 2)  CapsuleShape3D at (441.8486, 15.89373, -321.8829)
+    lateral clearance h0.4: 3.00+2.17=5.17 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 14 (house_town_b) in at (433.37, -332.17) heading (-0.60, -0.80)
+    @StaticBody3D@4835 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (433.70, 15.63, -334.65) yaw 25
+    @StaticBody3D@4587 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (431.48, 16.47, -332.61) yaw 37
+    Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 14 (house_town_b) out at (431.59, -334.55) heading (0.60, 0.80)
+    @StaticBody3D@4835 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (433.70, 15.63, -334.65) yaw 25
+    @StaticBody3D@2555 (parent Kingsreach, layer 1)  box 7.43x8.12x10.09 at (428.46, 22.05, -338.72) yaw 37
+    @StaticBody3D@2555 (parent Kingsreach, layer 1)  box 6.66x14.43x9.04 at (428.46, 22.50, -338.72) yaw 37
+    @StaticBody3D@4587 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (431.48, 16.47, -332.61) yaw 37
+    Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 25 (house_town_c) in at (680.83, -399.02) heading (0.22, -0.98)
+    @StaticBody3D@4607 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (680.90, 16.47, -400.53) yaw -13
+    @StaticBody3D@4861 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (683.41, 15.63, -400.28) yaw 10
+    Body (parent Chunk_10_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@20052 (parent @Node3D@230, layer 2)  CapsuleShape3D at (679.3167, 15.69229, -399.1444)
+    @CharacterBody3D@19965 (parent @Node3D@230, layer 2)  CapsuleShape3D at (679.1448, 15.88016, -401.1772)
+    lateral clearance h0.4: 3.00+1.31=4.31 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 25 (house_town_c) out at (681.47, -401.93) heading (-0.22, 0.98)
+    @StaticBody3D@4607 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (680.90, 16.47, -400.53) yaw -13
+    @StaticBody3D@4861 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (683.41, 15.63, -400.28) yaw 10
+    @StaticBody3D@2600 (parent Kingsreach, layer 1)  box 7.43x8.01x10.08 at (682.60, 21.99, -407.02) yaw -13
+    @StaticBody3D@2600 (parent Kingsreach, layer 1)  box 6.66x14.28x9.03 at (682.60, 22.43, -407.02) yaw -13
+    @StaticBody3D@4857 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (678.04, 15.63, -401.47) yaw -28
+    Body (parent Chunk_10_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@19965 (parent @Node3D@230, layer 2)  CapsuleShape3D at (679.125, 15.87552, -401.1291)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 26 (house_town_b) in at (678.35, -387.87) heading (-0.22, 0.98)
+    @StaticBody3D@4863 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (680.16, 15.63, -385.64) yaw 179
+    @StaticBody3D@5341 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (677.78, 16.47, -386.47) yaw 167
+    Body (parent Chunk_10_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 26 (house_town_b) out at (677.70, -384.97) heading (0.22, -0.98)
+    @StaticBody3D@4863 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (680.16, 15.63, -385.64) yaw 179
+    @StaticBody3D@2603 (parent Kingsreach, layer 1)  box 7.43x8.12x10.09 at (676.58, 22.05, -379.88) yaw 167
+    @StaticBody3D@2603 (parent Kingsreach, layer 1)  box 6.66x14.43x9.04 at (676.58, 22.50, -379.88) yaw 167
+    @StaticBody3D@5341 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (677.78, 16.47, -386.47) yaw 167
+    @StaticBody3D@4859 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (674.79, 15.63, -386.83) yaw 171
+    Body (parent Chunk_10_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    Body (parent Chunk_10_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@20087 (parent @Node3D@230, layer 2)  CapsuleShape3D at (675.7298, 15.94694, -385.8006)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 27 (house_town_d) in at (695.26, -397.95) heading (0.84, 0.54)
+    @StaticBody3D@4615 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (697.01, 16.47, -396.95) yaw -13
+    @StaticBody3D@4867 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (694.15, 15.63, -397.90) yaw -32
+    @StaticBody3D@4613 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (691.64, 16.47, -398.15) yaw -13
+    Body (parent Chunk_10_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.37 m
+STUCK Kingsreach / door path 27 (house_town_d) in at (701.01, -394.54) heading (0.33, -0.94)
+    @StaticBody3D@4617 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (702.38, 16.47, -395.76) yaw -13
+    @StaticBody3D@4869 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (699.52, 15.63, -396.71) yaw -29
+    Body (parent Chunk_10_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+2.90=5.90 m, h1.2: 3.00+2.90=5.90 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 27 (house_town_d) out at (701.97, -397.38) heading (-0.22, 0.98)
+    Body (parent Chunk_11_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@4937 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (704.92, 15.72, -396.84) yaw -14
+    @StaticBody3D@4617 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (702.38, 16.47, -395.76) yaw -13
+    @StaticBody3D@4869 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (699.52, 15.63, -396.71) yaw -29
+    @StaticBody3D@2606 (parent Kingsreach, layer 1)  box 7.43x7.98x10.09 at (703.10, 21.97, -402.47) yaw -13
+    @StaticBody3D@2606 (parent Kingsreach, layer 1)  box 6.66x14.23x9.04 at (703.10, 22.40, -402.47) yaw -13
+    Body (parent Chunk_10_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+2.16=5.16 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 27 (house_town_d) out at (698.75, -395.87) heading (-0.86, -0.52)
+    @StaticBody3D@4617 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (702.38, 16.47, -395.76) yaw -13
+    @StaticBody3D@4869 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (699.52, 15.63, -396.71) yaw -29
+    @StaticBody3D@4615 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (697.01, 16.47, -396.95) yaw -13
+    Body (parent Chunk_10_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 0.35+3.00=3.35 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.37 m
+STUCK Kingsreach / door path 28 (house_town_a) in at (692.02, -383.36) heading (1.00, -0.04)
+    @StaticBody3D@5345 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (693.89, 16.47, -382.90) yaw 167
+    @StaticBody3D@5343 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (688.52, 16.47, -384.09) yaw 167
+    Body (parent Chunk_10_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    Body (parent Chunk_10_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.36 m
+STUCK Kingsreach / door path 28 (house_town_a) out at (695.96, -383.32) heading (-1.00, 0.09)
+    @StaticBody3D@5345 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (693.89, 16.47, -382.90) yaw 167
+    @StaticBody3D@4871 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (696.27, 15.63, -382.06) yaw 163
+    Body (parent Chunk_10_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    Body (parent Chunk_10_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+0.38=3.38 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.37 m
+STUCK Kingsreach / door path 29 (house_town_b) in at (711.57, -392.20) heading (0.22, -0.98)
+    Body (parent Chunk_11_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@5349 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (713.12, 16.47, -393.38) yaw -13
+    @StaticBody3D@4875 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (710.26, 15.63, -394.32) yaw -30
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 29 (house_town_b) out at (712.22, -395.10) heading (-0.22, 0.98)
+    Body (parent Chunk_11_-7, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@5349 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (713.12, 16.47, -393.38) yaw -13
+    @StaticBody3D@2612 (parent Kingsreach, layer 1)  box 7.43x8.12x10.09 at (713.35, 22.05, -400.19) yaw -13
+    @StaticBody3D@2612 (parent Kingsreach, layer 1)  box 6.66x14.43x9.04 at (713.35, 22.50, -400.19) yaw -13
+    @StaticBody3D@4875 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (710.26, 15.63, -394.32) yaw -30
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 30 (house_town_d) in at (709.10, -381.05) heading (-0.22, 0.98)
+    Body (parent Chunk_11_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@5351 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (710.00, 16.47, -379.32) yaw 167
+    @StaticBody3D@4877 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (707.01, 15.63, -379.68) yaw -170
+    @CharacterBody3D@20161 (parent @Node3D@230, layer 2)  CapsuleShape3D at (708.1547, 15.86905, -379.5998)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 30 (house_town_d) out at (708.46, -378.14) heading (0.22, -0.98)
+    Body (parent Chunk_11_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@5351 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (710.00, 16.47, -379.32) yaw 167
+    @StaticBody3D@4877 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (707.01, 15.63, -379.68) yaw -170
+    @StaticBody3D@2615 (parent Kingsreach, layer 1)  box 7.43x7.98x10.09 at (707.33, 21.97, -373.05) yaw 167
+    @StaticBody3D@2615 (parent Kingsreach, layer 1)  box 6.66x14.23x9.04 at (707.33, 22.40, -373.05) yaw 167
+    @CharacterBody3D@20414 (parent @Node3D@230, layer 2)  CapsuleShape3D at (709.168, 15.96652, -378.0218)
+    lateral clearance h0.4: 0.44+3.00=3.44 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 32 (house_town_c) in at (718.91, -377.62) heading (-0.10, 1.00)
+    Body (parent Chunk_11_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@2621 (parent Kingsreach, layer 1)  box 6.66x14.28x9.03 at (717.58, 22.43, -370.78) yaw 167
+    @StaticBody3D@5355 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (720.74, 16.47, -376.94) yaw 167
+    @StaticBody3D@4883 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (717.74, 15.63, -377.29) yaw -178
+    @StaticBody3D@5353 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (715.37, 16.47, -378.13) yaw 167
+    lateral clearance h0.4: 0.35+0.35=0.71 m, h1.2: 2.01+0.35=2.36 m; obstacle ahead at 2.48 m
+STUCK Kingsreach / door path 32 (house_town_c) out at (718.60, -376.22) heading (0.28, -0.96)
+    Body (parent Chunk_11_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@2621 (parent Kingsreach, layer 1)  box 7.43x8.01x10.08 at (717.58, 21.99, -370.78) yaw 167
+    @StaticBody3D@2621 (parent Kingsreach, layer 1)  box 6.66x14.28x9.03 at (717.58, 22.43, -370.78) yaw 167
+    @StaticBody3D@5355 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (720.74, 16.47, -376.94) yaw 167
+    @StaticBody3D@4883 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (717.74, 15.63, -377.29) yaw -178
+    @StaticBody3D@5353 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (715.37, 16.47, -378.13) yaw 167
+    lateral clearance h0.4: 3.00+1.12=4.12 m, h1.2: 3.00+1.99=4.99 m; obstacle ahead at 3.00 m
+STUCK Kingsreach / door path 38 (house_town_c) in at (586.34, -496.15) heading (0.99, 0.16)
+    @StaticBody3D@4893 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (587.52, 15.63, -496.28) yaw -106
+    @StaticBody3D@4625 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (586.60, 16.47, -493.94) yaw -105
+    @StaticBody3D@4627 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (587.98, 16.47, -499.26) yaw -105
+    Body (parent Chunk_9_-8, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@21500 (parent @Node3D@230, layer 2)  CapsuleShape3D at (588.7368, 15.95741, -497.0851)
+    lateral clearance h0.4: 0.49+1.86=2.36 m, h1.2: 0.49+1.86=2.36 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 38 (house_town_c) out at (588.51, -495.73) heading (-0.96, -0.26)
+    @StaticBody3D@2642 (parent Kingsreach, layer 1)  box 7.43x8.01x10.08 at (593.65, 21.99, -494.44) yaw -105
+    @StaticBody3D@2642 (parent Kingsreach, layer 1)  box 6.66x14.28x9.03 at (593.65, 22.42, -494.44) yaw -105
+    @StaticBody3D@4893 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (587.52, 15.63, -496.28) yaw -106
+    @StaticBody3D@4625 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (586.60, 16.47, -493.94) yaw -105
+    @StaticBody3D@4627 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (587.98, 16.47, -499.26) yaw -105
+    Body (parent Chunk_9_-8, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 39 (house_town_d) in at (582.57, -529.85) heading (-0.97, -0.25)
+    @StaticBody3D@5367 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (580.94, 16.47, -529.50) yaw 75
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 39 (house_town_d) out at (579.63, -530.34) heading (0.98, 0.17)
+    @StaticBody3D@5367 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (580.94, 16.47, -529.50) yaw 75
+    @StaticBody3D@2645 (parent Kingsreach, layer 1)  box 7.43x7.98x10.09 at (574.65, 21.97, -531.90) yaw 75
+    @StaticBody3D@2645 (parent Kingsreach, layer 1)  box 6.66x14.23x9.04 at (574.65, 22.40, -531.90) yaw 75
+    @StaticBody3D@4943 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (580.34, 15.72, -533.53) yaw 99
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@21895 (parent @Node3D@230, layer 2)  CapsuleShape3D at (579.4503, 15.96669, -529.5189)
+    lateral clearance h0.4: 0.56+2.33=2.89 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 41 (house_town_d) in at (585.20, -539.99) heading (-0.97, -0.26)
+    @StaticBody3D@5371 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (583.70, 16.47, -540.15) yaw 75
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@22032 (parent @Node3D@230, layer 2)  CapsuleShape3D at (587.4006, 15.58841, -539.6716)
+    @CharacterBody3D@22051 (parent @Node3D@230, layer 2)  CapsuleShape3D at (587.4233, 15.58841, -539.3748)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 41 (house_town_d) out at (582.24, -540.43) heading (0.99, 0.15)
+    @StaticBody3D@2651 (parent Kingsreach, layer 1)  box 7.43x7.98x10.09 at (577.28, 21.97, -542.07) yaw 75
+    @StaticBody3D@2651 (parent Kingsreach, layer 1)  box 6.66x14.23x9.04 at (577.28, 22.40, -542.07) yaw 75
+    @StaticBody3D@5371 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (583.70, 16.47, -540.15) yaw 75
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@22056 (parent @Node3D@230, layer 2)  CapsuleShape3D at (583.3371, 15.84569, -538.2495)
+    @CharacterBody3D@22017 (parent @Node3D@230, layer 2)  CapsuleShape3D at (582.4913, 15.96652, -541.2368)
+    lateral clearance h0.4: 3.00+0.58=3.58 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 42 (house_town_c) in at (596.27, -537.14) heading (0.97, 0.25)
+    @StaticBody3D@4909 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (598.56, 15.63, -538.88) yaw -120
+    @StaticBody3D@4637 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (597.64, 16.47, -536.53) yaw -105
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 42 (house_town_c) out at (599.08, -536.13) heading (-0.94, -0.33)
+    @StaticBody3D@2654 (parent Kingsreach, layer 1)  box 7.43x8.01x10.08 at (604.19, 21.99, -535.09) yaw -105
+    @StaticBody3D@2654 (parent Kingsreach, layer 1)  box 6.66x14.28x9.03 at (604.19, 22.42, -535.09) yaw -105
+    @StaticBody3D@4907 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (597.18, 15.63, -533.55) yaw -113
+    @StaticBody3D@4909 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (598.56, 15.63, -538.88) yaw -120
+    @StaticBody3D@4637 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (597.64, 16.47, -536.53) yaw -105
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@22124 (parent @Node3D@230, layer 2)  CapsuleShape3D at (598.7681, 15.96649, -535.0995)
+    lateral clearance h0.4: 3.00+0.80=3.80 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 43 (house_town_c) in at (586.97, -554.35) heading (0.54, -0.84)
+    @StaticBody3D@4911 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (586.80, 15.63, -553.29) yaw 77
+    @StaticBody3D@4641 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (586.46, 16.47, -550.79) yaw 75
+    @StaticBody3D@5375 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (587.84, 16.47, -556.12) yaw 75
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.37 m
+STUCK Kingsreach / door path 43 (house_town_c) out at (588.70, -557.89) heading (-0.49, 0.87)
+    @StaticBody3D@5375 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (587.84, 16.47, -556.12) yaw 75
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 2.65+3.00=5.65 m, h1.2: 2.65+3.00=5.65 m; obstacle ahead at 0.36 m
+STUCK Kingsreach / door path 44 (house_town_d) in at (601.23, -550.65) heading (-0.00, -1.00)
+    @StaticBody3D@5373 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (600.40, 16.47, -547.18) yaw -105
+    @StaticBody3D@5377 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (601.78, 16.47, -552.50) yaw -105
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.36 m
+STUCK Kingsreach / door path 44 (house_town_d) in at (601.43, -557.09) heading (0.99, 0.10)
+    @StaticBody3D@4913 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (602.70, 15.63, -554.85) yaw -100
+    @StaticBody3D@5379 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (603.16, 16.47, -557.83) yaw -105
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 2.80+3.00=5.80 m, h1.2: 2.80+3.00=5.80 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 44 (house_town_d) out at (604.39, -556.61) heading (-0.96, -0.29)
+    @StaticBody3D@2660 (parent Kingsreach, layer 1)  box 7.43x7.98x10.09 at (609.46, 21.97, -555.42) yaw -105
+    @StaticBody3D@2660 (parent Kingsreach, layer 1)  box 6.66x14.23x9.04 at (609.46, 22.40, -555.42) yaw -105
+    @StaticBody3D@4913 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (602.70, 15.63, -554.85) yaw -100
+    @StaticBody3D@4947 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (603.77, 15.72, -553.80) yaw -113
+    @StaticBody3D@5379 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (603.16, 16.47, -557.83) yaw -105
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+2.00=5.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 44 (house_town_d) out at (601.52, -554.57) heading (0.04, 1.00)
+    @StaticBody3D@5377 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (601.78, 16.47, -552.50) yaw -105
+    @StaticBody3D@4913 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (602.70, 15.63, -554.85) yaw -100
+    @StaticBody3D@4947 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (603.77, 15.72, -553.80) yaw -113
+    @StaticBody3D@5379 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (603.16, 16.47, -557.83) yaw -105
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 2.78+0.37=3.14 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.37 m
+STUCK Kingsreach / door path 45 (house_town_b) in at (593.11, -570.50) heading (-0.97, -0.25)
+    @StaticBody3D@4917 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (590.94, 15.63, -569.26) yaw 53
+    @StaticBody3D@4645 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (591.98, 16.47, -572.09) yaw 75
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@22428 (parent @Node3D@230, layer 2)  CapsuleShape3D at (593.9449, 15.67335, -572.0098)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 45 (house_town_b) out at (590.16, -571.00) heading (0.98, 0.17)
+    @StaticBody3D@4643 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (590.60, 16.47, -566.77) yaw 75
+    @StaticBody3D@2663 (parent Kingsreach, layer 1)  box 7.43x8.12x10.09 at (585.19, 22.04, -572.56) yaw 75
+    @StaticBody3D@2663 (parent Kingsreach, layer 1)  box 6.66x14.43x9.04 at (585.19, 22.50, -572.56) yaw 75
+    @StaticBody3D@4917 (parent Kingsreach, layer 1)  box 1.66x0.80x1.51 at (590.94, 15.63, -569.26) yaw 53
+    @StaticBody3D@4645 (parent Kingsreach, layer 1)  box 3.15x2.54x2.28 at (591.98, 16.47, -572.09) yaw 75
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+STUCK Kingsreach / door path 46 (house_town_d) in at (604.17, -567.64) heading (0.97, 0.25)
+    @StaticBody3D@5383 (parent Kingsreach, layer 1)  box 3.16x2.54x2.28 at (605.92, 16.47, -568.48) yaw -105
+    Body (parent Chunk_9_-9, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @CharacterBody3D@22462 (parent @Node3D@230, layer 2)  CapsuleShape3D at (603.9995, 15.66234, -569.2303)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+=== Kingsreach done: 632 routes, 570 clean, 70 stuck events so far ===
+SUMMARY routes=632 clean=570 stuck_events=70 (of which villager-blocked 9, real 61) wall_time=738s

@@ -62,7 +62,7 @@ func _add_camp(pl: Dictionary, species: String, roster: Array) -> void:
 		_place(root, [PACK + "cave-mouth.glb"], c + Vector2(0, -r * 0.7), 0.0, 6.0)
 		for i in 5:
 			var a := TAU * i / 5.0 + rng.randf_range(-0.2, 0.2)
-			_place(root, [PACK + "goblin-tent.glb"], c + Vector2(cos(a), sin(a)) * r * 0.55, -a + PI * 0.5, 3.0)
+			_place(root, ["res://assets/generated/region/ruins/bandit_tent.glb", PACK + "goblin-tent.glb"], c + Vector2(cos(a), sin(a)) * r * 0.55, -a + PI * 0.5, 2.6)
 		_place(root, [PACK + "goblin-totem.glb"], c + Vector2(3, 3), 0.3, 3.2)
 		_place(root, [PACK + "campfire-with-spit.glb"], c, 0.0, 1.2)
 	else:

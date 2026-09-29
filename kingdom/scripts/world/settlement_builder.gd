@@ -24,6 +24,8 @@ const FREE_RANGE := 850.0
 ## them. Never added to the player's own collision_mask, so movement is
 ## unaffected.
 const CAMERA_BLOCKER_LAYER := 1 << 9
+## Wall colliders beside a gate end this far short of the wall section (see _wall_ring).
+const GATE_JAMB := 0.9
 
 signal settlement_built(settlement: Dictionary, root: Node3D)
 
@@ -99,8 +101,9 @@ func _build(s: Dictionary) -> Node3D:
 		body.position = Vector3(p.x, gh, p.y)
 		body.rotation.y = lot["yaw"]
 		root.add_child(body)
-		plinths.append([p, lot["yaw"], size, gh])
+		plinths.append([p, lot["yaw"], size, gh, asset])
 	_plinths(root, plinths)
+	_seal_gaps(root, plinths)
 	for bkey: String in batches:
 		var asset := bkey.get_slice("@", 0)
 		var list: Array[Transform3D] = []
@@ -139,12 +142,12 @@ func _build(s: Dictionary) -> Node3D:
 
 	_interior_doors(root, plan["lots"])
 
-	# Lived-in door_clutter by the doors: photo-scanned crates, barrels, baskets, buckets.
+	# Lived-in door_clutter by the doors: painted crates, barrels and sacks.
 	# Small props (< 4 sqm), so _ground_snap point-samples under each one instead of
 	# assuming the lot's flat base_h -- avoids a crate floating/sinking by the same
 	# amount the building next to it now corrects for.
 	var door_clutter := {}
-	var kinds := ["scan/wooden_crate_01", "scan/wicker_basket_01", "scan/wooden_bucket_01"]
+	var kinds := ["crate", "sack_pile", "barrel"]
 	for lot in plan["lots"]:
 		var p: Vector2 = lot["pos"]
 		var yaw: float = lot["yaw"]
@@ -159,7 +162,7 @@ func _build(s: Dictionary) -> Node3D:
 	for kind: String in door_clutter:
 		var list2: Array[Transform3D] = []
 		list2.assign(door_clutter[kind])
-		_multimesh(root, Assets.nature_mesh(kind), list2)
+		_multimesh(root, Assets.building_mesh(kind), list2)
 
 	for lm in plan["landmarks"]:
 		var lm_size := _footprint(lm["asset"])
@@ -215,7 +218,7 @@ func _build(s: Dictionary) -> Node3D:
 	if plan["walls"]:
 		_wall_ring(root, c, plan["wall_radius"], plan["gates"], 40, 5)
 	if plan["inner_wall"] > 0.0:
-		_wall_ring(root, c, plan["inner_wall"], [plan["gates"][0]], 16, 4)
+		_wall_ring(root, c, plan["inner_wall"], plan["gates"], 16, 4)
 
 	# Countryside: windmills, lumber mill and fields outside the walls.
 	var r: float = s["radius"]
@@ -233,6 +236,8 @@ func _build(s: Dictionary) -> Node3D:
 	_square_lamps(root, s, plan)
 	if s["kind"] != "village":
 		_gate_market(root, s, plan, rng)
+	else:
+		_village_square(root, s, plan, rng)
 	_greenery(root, s, plan, rng)
 	# Street clutter.
 	var street_clutter: Array[Transform3D] = []
@@ -242,8 +247,8 @@ func _build(s: Dictionary) -> Node3D:
 		street_clutter.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.03, p.y)))
 	# Barrels, crates and baskets break when struck (see breakable.gd); carts stay solid.
 	_multimesh(root, Assets.building_mesh("barrel"), street_clutter.slice(0, 10), true, true, "barrel")
-	_multimesh(root, Assets.nature_mesh("scan/wooden_crate_01"), street_clutter.slice(10, 18), true, true, "scan/wooden_crate_01")
-	_multimesh(root, Assets.nature_mesh("scan/wicker_basket_01"), street_clutter.slice(18, 24), true, true, "scan/wicker_basket_01")
+	_multimesh(root, Assets.building_mesh("crate"), street_clutter.slice(10, 18), true, true, "crate")
+	_multimesh(root, Assets.building_mesh("sack_pile"), street_clutter.slice(18, 24), true, true, "sack_pile")
 	_multimesh(root, Assets.building_mesh("cart"), street_clutter.slice(24), true, true)
 	_flush_contact_shadows(root)
 	return root
@@ -341,7 +346,7 @@ func _plinths(root: Node3D, lots: Array) -> void:
 		_plinth_mesh = BoxMesh.new()
 		_plinth_mesh.size = Vector3.ONE
 		var mat := StandardMaterial3D.new()
-		mat.albedo_color = Color(0.42, 0.39, 0.36)
+		mat.albedo_color = Color(0.66, 0.60, 0.50)   # warm tan stone, not dark brown under the sun
 		mat.roughness = 0.95
 		_plinth_mesh.material = mat
 	var transforms: Array[Transform3D] = []
@@ -410,41 +415,71 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, gates: Array, segments:
 	tower_every = maxi(3, int(round(48.0 / native_len)))
 	var seg_len := TAU * radius / segments
 	var s := seg_len / maxf(native_len, 0.01)          # uniform: keeps the wall's proportions
-	var tower_s := s * 1.05
+	# Lay the ring out from the gates: each gate opening is centred exactly on its street's
+	# axis (a uniform ring left the opening up to half a section off the road, so the road's
+	# own centre line ran into the wall), and the sections between two gates are divided
+	# evenly (scale within a few % of s).
+	var pieces: Array = []      # [a0, a1, is_gate, first_after_gate, last_before_gate]
+	var gate_angles: Array[float] = []
+	for g in gates:
+		gate_angles.append(fposmod(float(g), TAU))
+	gate_angles.sort()
+	if gate_angles.is_empty():
+		for i in segments:
+			pieces.append([TAU * i / segments, TAU * (i + 1) / segments, false, false, false])
+	else:
+		var half := seg_len * 0.5 / radius
+		for k in gate_angles.size():
+			var g0: float = gate_angles[k]
+			var g1: float = gate_angles[(k + 1) % gate_angles.size()]
+			pieces.append([g0 - half, g0 + half, true, false, false])
+			var arc_a := g0 + half
+			var arc_b := g1 - half + (TAU if g1 <= g0 else 0.0)
+			var n := maxi(1, int(round((arc_b - arc_a) * radius / seg_len)))
+			if arc_b - arc_a < 0.5 * seg_len / radius:
+				continue
+			for i in n:
+				pieces.append([arc_a + (arc_b - arc_a) * i / n, arc_a + (arc_b - arc_a) * (i + 1) / n, false, i == 0, i == n - 1])
 	var walls: Array[Transform3D] = []
 	var gate_walls: Array[Transform3D] = []
 	var towers: Array[Transform3D] = []
-	for i in segments:
-		var a0 := TAU * i / segments
-		var a1 := TAU * (i + 1) / segments
-		var mid := (a0 + a1) * 0.5
+	var wall_i := 0
+	for piece: Array in pieces:
+		var a0: float = piece[0]
+		var a1: float = piece[1]
 		var p0 := c + Vector2(cos(a0), sin(a0)) * radius
 		var p1 := c + Vector2(cos(a1), sin(a1)) * radius
 		var dir := p1 - p0
+		var chord := dir.length()
 		var yaw := atan2(dir.x, dir.y) + (PI * 0.5 if along_x else 0.0)
 		var mp := (p0 + p1) * 0.5
+		var is_gate: bool = piece[2]
+		var ps := s if is_gate else chord / maxf(native_len, 0.01)
 		# Per-segment ground sample (not the settlement's flat base_h): the wall
 		# ring sits right at the edge of WorldGen's flatten radius, where a segment
 		# can already be in the blended slope beyond it.
 		var h := WorldGen.height(mp.x, mp.y) - 0.05
-		var t := Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * s), Vector3(mp.x, h, mp.y))
-		var is_gate := false
-		for g in gates:
-			if absf(wrapf(mid - g, -PI, PI)) < PI / segments:
-				is_gate = true
+		var t := Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * ps), Vector3(mp.x, h, mp.y))
 		(gate_walls if is_gate else walls).append(t)
 		if not is_gate:
+			# Sections beside a gate stop GATE_JAMB short of their visual end, so the opening is
+			# 8 m + 2 x 0.9 m: the gate road's kerb lanes (+-4.3 m) still fit through.
+			var t0: float = GATE_JAMB if bool(piece[3]) else 0.0
+			var t1: float = GATE_JAMB if bool(piece[4]) else 0.0
 			var body := StaticBody3D.new()
 			var shape := CollisionShape3D.new()
 			var box := BoxShape3D.new()
-			box.size = Vector3(1.8, native.size.y * s, seg_len)
+			box.size = Vector3(1.8, native.size.y * ps, maxf(0.5, chord - t0 - t1))
 			shape.shape = box
-			body.position = Vector3(mp.x, h + native.size.y * s * 0.5, mp.y)
+			var dn := dir / maxf(chord, 0.001)
+			var mc := mp + dn * ((t0 - t1) * 0.5)
+			body.position = Vector3(mc.x, h + native.size.y * ps * 0.5, mc.y)
 			body.rotation.y = atan2(dir.x, dir.y)
 			body.add_child(shape)
 			root.add_child(body)
-		if i % tower_every == 0 and not is_gate:
-			towers.append(Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * tower_s), Vector3(p0.x, h, p0.y)))
+			if wall_i % tower_every == 0:
+				towers.append(Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * ps * 1.05), Vector3(p0.x, h, p0.y)))
+			wall_i += 1
 	# Per 150 m stretch of wall, so the automatic mesh LODs pick the far side's
 	# distance instead of the whole ring's (a capital ring is ~160 pieces, 0.4 M tris).
 	_multimesh_cells(root, wall_mesh, walls, 150.0, 0.0, false)
@@ -497,6 +532,110 @@ func _multimesh_cells(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]
 		if mmi and cull > 0.0:
 			mmi.visibility_range_end = cull
 			mmi.visibility_range_end_margin = cull * 0.1
+
+
+## Distance from a point to a yawed rectangle (half extents hx, hz) centred on c, in XZ.
+## The rectangle's axes are the ones Basis(UP, yaw) gives a placed prop.
+static func _rect_pt_dist(p: Vector2, c: Vector2, yaw: float, hx: float, hz: float) -> float:
+	var v := p - c
+	var lx := v.x * cos(yaw) - v.y * sin(yaw)
+	var lz := v.x * sin(yaw) + v.y * cos(yaw)
+	return Vector2(maxf(absf(lx) - hx, 0.0), maxf(absf(lz) - hz, 0.0)).length()
+
+
+static func _rect_segment_dist(c: Vector2, yaw: float, hx: float, hz: float, a: Vector2, b: Vector2) -> float:
+	var best := INF
+	var n := maxi(1, int(a.distance_to(b) / 0.4))
+	for i in n + 1:
+		best = minf(best, _rect_pt_dist(a.lerp(b, float(i) / n), c, yaw, hx, hz))
+	return best
+
+
+static func _rect_poly(c: Vector2, yaw: float, hx: float, hz: float) -> PackedVector2Array:
+	var ex := Vector2(cos(yaw), -sin(yaw))
+	var ez := Vector2(sin(yaw), cos(yaw))
+	return PackedVector2Array([c - ex * hx - ez * hz, c + ex * hx - ez * hz, c + ex * hx + ez * hz, c - ex * hx + ez * hz])
+
+
+## Closest pair of boundary points of two convex polygons: [distance, on a, on b];
+## distance 0 when they overlap.
+static func _poly_closest(a: PackedVector2Array, b: PackedVector2Array) -> Array:
+	if not Geometry2D.intersect_polygons(a, b).is_empty():
+		return [0.0, Vector2.ZERO, Vector2.ZERO]
+	var best := [INF, Vector2.ZERO, Vector2.ZERO]
+	for i in a.size():
+		for j in b.size():
+			var b0 := b[j]
+			var b1 := b[(j + 1) % b.size()]
+			var a0 := a[i]
+			var a1 := a[(i + 1) % a.size()]
+			var qb := Geometry2D.get_closest_point_to_segment(a0, b0, b1)
+			if a0.distance_to(qb) < best[0]:
+				best = [a0.distance_to(qb), a0, qb]
+			var qa := Geometry2D.get_closest_point_to_segment(b0, a0, a1)
+			if b0.distance_to(qa) < best[0]:
+				best = [b0.distance_to(qa), qa, b0]
+	return best
+
+
+static func _rect_gap(c1: Vector2, y1: float, hx1: float, hz1: float, c2: Vector2, y2: float, hx2: float, hz2: float) -> float:
+	return _poly_closest(_rect_poly(c1, y1, hx1, hz1), _rect_poly(c2, y2, hx2, hz2))[0]
+
+
+## Slots between two buildings that a player can walk into but not out of comfortably
+## (the capsule is 0.7 m wide) are wedge traps. A gap narrower than MIN_LOT_GAP between two
+## lots' wall colliders is closed with a solid filler across the facing walls, so every
+## passage between buildings is either >= 1.4 m or shut. Overlapping lots have no slot.
+const MIN_LOT_GAP := 1.4
+
+
+func _seal_gaps(root: Node3D, plinths: Array) -> void:
+	var polys: Array = []
+	for e: Array in plinths:
+		var asset_size: Vector3 = e[2]
+		var yaw: float = e[1]
+		var wall := BuildingProfiles.HOUSE_WALL if BuildingProfiles.is_house(String(e[4])) else BuildingProfiles.HERO_WALL
+		var ww := asset_size.x * wall
+		var wd := asset_size.z * wall
+		polys.append(_rect_poly(e[0], yaw, ww, wd))
+	for i in polys.size():
+		for j in range(i + 1, polys.size()):
+			if (plinths[i][0] as Vector2).distance_to(plinths[j][0]) > 26.0:
+				continue
+			var cl := _poly_closest(polys[i], polys[j])
+			var g: float = cl[0]
+			if g < 0.05 or g >= MIN_LOT_GAP:
+				continue
+			var pa: Vector2 = cl[1]
+			var pb: Vector2 = cl[2]
+			var u := (pb - pa).normalized()
+			var t := Vector2(-u.y, u.x)
+			var lo := -INF
+			var hi := INF
+			for poly: PackedVector2Array in [polys[i], polys[j]]:
+				var mn := INF
+				var mx := -INF
+				for v in poly:
+					var d := (v as Vector2).dot(t)
+					mn = minf(mn, d)
+					mx = maxf(mx, d)
+				lo = maxf(lo, mn)
+				hi = minf(hi, mx)
+			var mid := (pa + pb) * 0.5
+			if hi - lo < 0.6:      # corner to corner: a plug across the slit
+				lo = mid.dot(t) - 0.3
+				hi = mid.dot(t) + 0.3
+			mid += t * ((lo + hi) * 0.5 - mid.dot(t))
+			var body := StaticBody3D.new()
+			body.name = "GapSeal"
+			var shape := CollisionShape3D.new()
+			var box := BoxShape3D.new()
+			box.size = Vector3(g + 0.3, 6.0, hi - lo)
+			shape.shape = box
+			body.position = Vector3(mid.x, WorldGen.height(mid.x, mid.y) + 2.5, mid.y)
+			body.rotation.y = atan2(t.x, t.y)
+			body.add_child(shape)
+			root.add_child(body, true)
 
 
 ## MultiMesh instances are render-only. Add cheap box proxies for the small set
@@ -790,6 +929,49 @@ func _square_lamps(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 ## on both sides near the gate, tall lanterns, red-and-gold banner poles, bunting
 ## strung across the street and flowers along the edges, thinning toward the plaza.
 ## Every piece is one MultiMesh batch per settlement.
+## Village squares in the same storybook dressing as the towns (smaller scale):
+## bunting strung from the square's lamps to the well, crown banners at the
+## entrances, flowers and a barrel or two at every house front.
+func _village_square(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator) -> void:
+	if not ResourceLoader.exists(Assets.GEN + "bunting.glb"):
+		return
+	var c: Vector2 = s["pos"]
+	var pr: float = plan["plaza_r"]
+	var batches := {}
+	var add := func(key: String, p: Vector2, yaw: float, lift := 0.0, stretch := 1.0) -> void:
+		if not batches.has(key):
+			batches[key] = [] as Array[Transform3D]
+		(batches[key] as Array[Transform3D]).append(Transform3D(Basis(Vector3.UP, yaw) * Basis.from_scale(Vector3(stretch, 1.0, 1.0)),
+			Vector3(p.x, WorldGen.height(p.x, p.y) - 0.03 + lift, p.y)))
+	# Bunting: spokes from the ring of square lamps toward the well, meeting overhead.
+	var n := 6
+	for i in n:
+		var a := TAU * (i + 0.5) / n
+		var mid := c + Vector2(cos(a), sin(a)) * (pr + 1.2) * 0.5
+		add.call("bunting", mid, atan2(-sin(a), cos(a)), 3.6, (pr + 1.2) / 8.0)
+	for g: float in plan["gates"]:
+		var gd := Vector2(cos(g), sin(g))
+		var gs := Vector2(-gd.y, gd.x)
+		for sd: float in [-1.0, 1.0]:
+			add.call("banner_pole", c + gd * (pr + 3.0) + gs * sd * 4.5, atan2(-gd.x, -gd.y))
+	for lot: Dictionary in plan["lots"]:
+		var asset := String(lot["asset"])
+		if not BuildingProfiles.is_house(asset):
+			continue
+		var yaw: float = lot["yaw"]
+		var fwd := Vector2(sin(yaw), cos(yaw))
+		var right := Vector2(fwd.y, -fwd.x)
+		var front: Vector2 = lot["pos"] + fwd * (BuildingProfiles.size_of(asset).z * 0.5 + 0.2)
+		for sd: float in [-1.0, 1.0]:
+			add.call("flower_strip", front + right * sd * 2.2, yaw + PI * 0.5)
+		if rng.randf() < 0.35:
+			add.call("barrel_cluster", front + right * 2.8 + fwd * 0.6, yaw + rng.randf_range(-0.5, 0.5))
+	for key: String in batches:
+		var mesh := Assets.building_mesh(key)
+		if mesh != null:
+			_multimesh_cells(root, mesh, batches[key], 40.0, 0.0, key != "bunting")
+
+
 func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator) -> void:
 	if not ResourceLoader.exists(Assets.GEN + "market_stall_red.glb"):
 		return
@@ -803,6 +985,52 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 			batches[key] = [] as Array[Transform3D]
 		(batches[key] as Array[Transform3D]).append(Transform3D(Basis(Vector3.UP, yaw) * Basis.from_scale(Vector3(stretch, 1.0, 1.0)),
 			Vector3(p.x, WorldGen.height(p.x, p.y) - 0.03 + lift, p.y)))
+	# Solid props (stalls, barrel clusters) must leave every front door reachable: a 2 m wide
+	# corridor from each door to the street and straight out from it, and >= 1.4 m between
+	# one solid prop and the next. A prop is slid along the street to the nearest spot that
+	# keeps both; if none exists it stays as scenery but stops colliding (no_collide).
+	var corridors: Array = []     # [Vector2 from, Vector2 to]
+	for pth: Dictionary in plan["paths"]:
+		corridors.append([pth["a"], pth["b"]])
+	for lot: Dictionary in plan["lots"]:
+		var ly: float = lot["yaw"]
+		var dp := BuildingProfiles.door_point(lot)
+		corridors.append([dp, dp + Vector2(sin(ly), cos(ly)) * 10.0])
+	var solid: Array = []         # [centre, yaw, half x, half z] of every solid prop placed so far
+	var no_collide := {}          # key -> Array[Transform3D] scenery that must not collide
+	var placed_solid := func(key: String, p: Vector2, yaw: float, dir: Vector2) -> Vector2:
+		var mesh := Assets.building_mesh(key)
+		if mesh == null:
+			return p
+		var bx := mesh.get_aabb()
+		var hx := bx.size.x * 0.45
+		var hz := bx.size.z * 0.45
+		var cen := Vector2(bx.get_center().x, bx.get_center().z)
+		var near_cor: Array = corridors.filter(func(cor: Array) -> bool:
+			return Geometry2D.get_closest_point_to_segment(p, cor[0], cor[1]).distance_to(p) < 12.0)
+		var near_solid: Array = solid.filter(func(o: Array) -> bool: return (o[0] as Vector2).distance_to(p) < 14.0)
+		for off: float in [0.0, 0.75, -0.75, 1.5, -1.5, 2.25, -2.25, 3.0, -3.0, 3.75, -3.75, 4.5, -4.5]:
+			var q: Vector2 = p + dir * off
+			var centre: Vector2 = q + cen.rotated(-yaw)
+			var ok := true
+			for cor: Array in near_cor:
+				if _rect_segment_dist(centre, yaw, hx, hz, cor[0], cor[1]) < 1.0:
+					ok = false
+					break
+			if ok:
+				for o: Array in near_solid:
+					if _rect_gap(centre, yaw, hx, hz, o[0], o[1], o[2], o[3]) < 1.4:
+						ok = false
+						break
+			if ok:
+				solid.append([centre, yaw, hx, hz])
+				return q
+		if not no_collide.has(key):
+			no_collide[key] = [] as Array[Transform3D]
+		return Vector2(INF, INF)   # caller adds it as scenery
+	var add_scenery := func(key: String, p: Vector2, yaw: float) -> void:
+		add.call(key, p, yaw)
+		(no_collide[key] as Array).append((batches[key] as Array[Transform3D]).back())
 	for st: Dictionary in plan["streets"]:
 		if float(st["w"]) < 7.5:
 			continue   # main streets only (plaza to gate)
@@ -828,9 +1056,21 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 					add.call("banner_pole", edge, face)
 				if near_gate and (k % 3 != 0 or rng.randf() < 0.5):
 					var sp := p + nrm * side * (half + 1.7)
-					add.call("market_stall_red" if rng.randf() < 0.55 else "market_stall_green", sp, face)
+					var stall_key := "market_stall_red" if rng.randf() < 0.55 else "market_stall_green"
+					var spx: Vector2 = placed_solid.call(stall_key, sp, face, dir)
+					if is_inf(spx.x):
+						add_scenery.call(stall_key, sp, face)
+					else:
+						sp = spx
+						add.call(stall_key, sp, face)
 					if rng.randf() < 0.6:
-						add.call("barrel_cluster", sp + dir * 2.5 + nrm * side * 0.3, face + rng.randf_range(-0.4, 0.4))
+						var bp: Vector2 = sp + dir * 2.5 + nrm * side * 0.3
+						var by := face + rng.randf_range(-0.4, 0.4)
+						var bpx: Vector2 = placed_solid.call("barrel_cluster", bp, by, dir)
+						if is_inf(bpx.x):
+							add_scenery.call("barrel_cluster", bp, by)
+						else:
+							add.call("barrel_cluster", bpx, by)
 				elif k % 2 == 0:
 					add.call("flower_strip", p + nrm * side * (half + 1.4), face + PI * 0.5)
 			if k % 4 == 1:
@@ -848,7 +1088,29 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 		for sd: float in [-1.0, 1.0]:
 			add.call("flower_strip", front + right * sd * 2.4, yaw + PI * 0.5)
 		if rng.randf() < 0.5:
-			add.call("barrel_cluster", front + right * 3.0 + fwd * 0.8, yaw + rng.randf_range(-0.5, 0.5))
+			var tb: Vector2 = front + right * 3.0 + fwd * 0.8
+			var ty := yaw + rng.randf_range(-0.5, 0.5)
+			var tbx: Vector2 = placed_solid.call("barrel_cluster", tb, ty, right)
+			if is_inf(tbx.x):
+				add_scenery.call("barrel_cluster", tb, ty)
+			else:
+				add.call("barrel_cluster", tbx, ty)
+	# A pair of town guards standing watch just inside every gate, as in the reference.
+	if plan["walls"]:
+		for g: float in plan["gates"]:
+			var gd := Vector2(cos(g), sin(g))
+			var gside := Vector2(-gd.y, gd.x)
+			for sd: float in [-1.0, 1.0]:
+				var gp: Vector2 = c + gd * (r - 7.0) + gside * sd * 4.2
+				var guard := Assets.character("Guard", 1.8, [])
+				if guard == null:
+					continue
+				root.add_child(guard)
+				guard.global_position = Vector3(gp.x, WorldGen.height(gp.x, gp.y), gp.y)
+				guard.rotation.y = atan2(-gd.x, -gd.y)   # facing into town, watching the street
+				var ganim := Assets.animation_player(guard)
+				if ganim:
+					ganim.play("Idle" if ganim.has_animation("Idle") else ganim.get_animation_list()[0])
 	# Red-and-gold banners hung along the inner face of the walls either side of each gate.
 	var wall_mesh := Assets.building_mesh("wall")
 	if plan["walls"] and wall_mesh != null:
@@ -869,7 +1131,11 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 			# so its visibility range would hide stalls standing right beside the player.
 			_multimesh_cells(root, mesh, batches[key], 40.0, 0.0, key != "bunting")
 			if key.begins_with("market_stall") or key == "barrel_cluster":
-				_add_instance_colliders(root, mesh, batches[key])
+				var walk: Array[Transform3D] = []
+				for tr: Transform3D in batches[key]:
+					if not (no_collide.has(key) and (no_collide[key] as Array).has(tr)):
+						walk.append(tr)
+				_add_instance_colliders(root, mesh, walk)
 				_add_camera_blockers(root, mesh, batches[key])
 	for lp: Vector3 in lights.slice(0, 24):
 		var light := OmniLight3D.new()
@@ -886,7 +1152,7 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 ## 3D relief so the wall doesn't meet flat grass in a hard line). Cheap: 2 pieces
 ## per lot, one shared MultiMesh batch per kind per settlement.
 func _footprint_clutter(root: Node3D, plan: Dictionary, rng: RandomNumberGenerator) -> void:
-	var kinds := {"scan/rock_moss_set_01_2": [], "scan/dandelion_01": [], "scan/fern_02": []}
+	var kinds := {"region/nature/rock_medium": [], "region/nature/flowers_warm": [], "region/nature/fern_b": []}
 	for lot: Dictionary in plan["lots"]:
 		var yaw: float = lot["yaw"]
 		var fwd := Vector2(sin(yaw), cos(yaw))
@@ -900,7 +1166,7 @@ func _footprint_clutter(root: Node3D, plan: Dictionary, rng: RandomNumberGenerat
 			var at := p + corner_side * hug + fwd * along
 			if CityPlanner.path_distance(plan, at) < 0.6 or CityPlanner.street_distance(plan, at) < 0.8:
 				continue
-			var kind: String = ["scan/rock_moss_set_01_2", "scan/dandelion_01", "scan/fern_02"][rng.randi() % 3]
+			var kind: String = ["region/nature/rock_medium", "region/nature/flowers_warm", "region/nature/fern_b"][rng.randi() % 3]
 			(kinds[kind] as Array).append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * rng.randf_range(0.7, 1.3)),
 				Vector3(at.x, WorldGen.height(at.x, at.y) - 0.03, at.y)))
 	for kind: String in kinds:

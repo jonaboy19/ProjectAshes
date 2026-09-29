@@ -5,12 +5,12 @@
   "prop_tris": 4172,
   "total": 37702,
   "materials": [
-   "RA_Wood",
+   "RA_Wood_hp",
    "RA_Plaster",
    "RA_Ember",
    "RA_Props"
   ],
-  "size_mb": 4.009776
+  "size_mb": 4.0063
  },
  "markers": [
   [

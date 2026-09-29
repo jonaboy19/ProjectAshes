@@ -154,6 +154,7 @@ func _build(site: Dictionary) -> Node3D:
 	if site["kind"] == "bridge":
 		_build_bridge(root, site)
 		return root
+	_scatter_ground(root, site)
 	# Parts and lights are queued and built a few per frame (see _drain_queue).
 	for i in site["parts"].size():
 		_queue.append([root, site, "part", i])
@@ -218,8 +219,8 @@ func _base_clutter(root: Node3D, world: Vector3, basis: Basis, box: AABB) -> voi
 	for k in 2:
 		var ang := rng.randf() * TAU
 		var at := world + basis * (Vector3(cos(ang), 0, sin(ang)) * hug)
-		var picks: Array[String] = ["rock_moss_set_01_%d" % (1 + rng.randi() % 6), "dandelion_01", "fern_02"]
-		var kind: String = "scan/" + picks[rng.randi() % picks.size()]
+		var picks: Array[String] = ["rock_medium", "flowers_warm", "fern_b", "bush_round"]
+		var kind: String = "region/nature/" + picks[rng.randi() % picks.size()]
 		var mesh := Assets.nature_mesh(kind)
 		if mesh == null:
 			continue
@@ -359,3 +360,65 @@ func _build_bridge(root: Node3D, site: Dictionary) -> void:
 	shape.position = Vector3(0, deck - 0.15, 0)
 	body.add_child(shape)
 	root.add_child(body)
+
+
+## Kinds of ground dressing per site: flowers, tufts, ferns, stones and bushes strewn
+## through the worn-dirt ring so a fort, camp or farm never sits on a bare brown disc
+## (art style: nothing on bare flat ground). One MultiMesh per kind per site.
+const SCATTER_KINDS := ["nature/flowers_a", "nature/grass_clump_tall", "region/nature/flowers_warm",
+	"region/nature/flowers_cool", "region/nature/fern_b", "region/nature/rock_medium", "region/nature/bush_round"]
+const SCATTER_SKIP := ["bridge", "waystone", "wayshrine", "rift"]
+
+
+func _scatter_ground(root: Node3D, site: Dictionary) -> void:
+	var clear: float = site["clear"]
+	if clear < 12.0 or String(site["kind"]) in SCATTER_SKIP:
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(str(site["id"]) + "scatter")
+	var c: Vector2 = site["pos"]
+	var basis := Basis(Vector3.UP, float(site["yaw"]))
+	var lists: Array = []
+	for k in SCATTER_KINDS.size():
+		lists.append([] as Array[Transform3D])
+	var count := int(clear * 2.4)
+	for i in count:
+		var a := rng.randf() * TAU
+		var r := clear * sqrt(rng.randf_range(0.08, 1.15))
+		var q := c + Vector2(cos(a), sin(a)) * r
+		if WorldGen.is_water(q.x, q.y) or WorldGen.road_distance(q.x, q.y) < 3.0:
+			continue
+		var blocked := false
+		for part: Array in site["parts"]:
+			var off: Vector2 = part[1]
+			var w := c + Vector2((basis * Vector3(off.x, 0, off.y)).x, (basis * Vector3(off.x, 0, off.y)).z)
+			if q.distance_to(w) < 2.6:
+				blocked = true
+				break
+		if blocked:
+			continue
+		var k := rng.randi() % SCATTER_KINDS.size()
+		var sc := rng.randf_range(0.8, 1.4) * (0.75 if k == 6 else 1.0)
+		(lists[k] as Array[Transform3D]).append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * sc),
+			Vector3(q.x, WorldGen.height(q.x, q.y) - 0.04, q.y)))
+	for k in SCATTER_KINDS.size():
+		var list: Array[Transform3D] = lists[k]
+		if list.is_empty():
+			continue
+		var mesh := Assets.nature_mesh(SCATTER_KINDS[k])
+		if mesh == null:
+			continue
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.mesh = mesh
+		mm.instance_count = list.size()
+		for i in list.size():
+			mm.set_instance_transform(i, list[i])
+		var mmi := MultiMeshInstance3D.new()
+		mmi.multimesh = mm
+		mmi.top_level = true
+		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mmi.visibility_range_end = 110.0
+		mmi.visibility_range_end_margin = 10.0
+		mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+		root.add_child(mmi)
