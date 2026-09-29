@@ -37,9 +37,23 @@ func freeze_local(mixers: Array, seconds: float, speed := 0.0) -> void:
 		if _locals.has(mixer):
 			_locals[mixer][0] = maxi(_locals[mixer][0], end)
 		else:
-			_locals[mixer] = [end, mixer.speed_scale]
-			mixer.speed_scale = speed
+			_locals[mixer] = [end, _get_rate(mixer)]
+			_set_rate(mixer, speed)
 	set_process(true)
+
+
+## AnimationPlayer has speed_scale; AnimationTree does not, so a tree is frozen by switching it inactive (it keeps its pose).
+func _get_rate(m: AnimationMixer) -> float:
+	if m is AnimationTree:
+		return 1.0 if m.active else 0.0
+	return (m as AnimationPlayer).speed_scale
+
+
+func _set_rate(m: AnimationMixer, rate: float) -> void:
+	if m is AnimationTree:
+		m.active = rate > 0.001
+	else:
+		(m as AnimationPlayer).speed_scale = rate
 
 
 func freeze_global(seconds: float, scale := 0.02) -> void:
@@ -62,7 +76,7 @@ func _process(_delta: float) -> void:
 		if not is_instance_valid(m):
 			_locals.erase(m)
 		elif now >= _locals[m][0]:
-			m.speed_scale = _locals[m][1]
+			_set_rate(m, _locals[m][1])
 			_locals.erase(m)
 	if _global_on and now >= _global_end:
 		Engine.time_scale = _prev_scale
@@ -75,4 +89,4 @@ func _exit_tree() -> void:
 		Engine.time_scale = _prev_scale
 	for m: AnimationMixer in _locals.keys():
 		if is_instance_valid(m):
-			m.speed_scale = _locals[m][1]
+			_set_rate(m, _locals[m][1])

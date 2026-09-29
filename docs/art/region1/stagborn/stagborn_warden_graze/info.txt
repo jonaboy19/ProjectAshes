@@ -1,0 +1,5 @@
+source: /c/Users/Jonna/Documents/ProjectAshes_art_staging/stag/fr/warden/graze
+duration_s: 1.520000
+sample_fps: 2.5
+frames_per_sheet: 12  (= 4.8 s per sheet)
+sheets: 4

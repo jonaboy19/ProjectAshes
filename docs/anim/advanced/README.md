@@ -5,7 +5,7 @@ Three parts, three owners of files (Codex still owns animation *behaviour*):
 | part | where | status |
 |---|---|---|
 | A. more clips (UAL skeleton, commercial-safe) | `kingdom/assets/incoming/animations_free2/`, this file | 100 clips, see below (round-3 review: `Kay_Death_Fall_A` rejected, ladder/wall rebuilt) |
-| B. runtime techniques demo (IK, look-at, springs, ragdoll, blend trees, hitstop, warping) + perf | `kingdom/tools_qa/anim_tech/`, `docs/anim/advanced/tech/README.md` | see that README |
+| B. runtime techniques demo (IK, look-at, springs, ragdoll, blend trees, hitstop, warping) + perf | `kingdom/tools_qa/anim_tech/`, `docs/anim/advanced/tech/README.md` | done: 10 techniques + perf tiers, see that README |
 | C. own mocap from a phone video | `kingdom/tools/anim/video_mocap/`, `docs/anim/advanced/video_mocap/README.md` | one command `video_to_clip.ps1` (video -> UAL GLB + sheets) with IK foot pinning; tested on synthetic video only |
 
 Preview strips (contact sheets, one row per clip, time in seconds under each frame) are in `docs/anim/advanced/preview/` (`kaykit_combat_reactions/` added in round 3). Review verdicts: `docs/anim/free_library/review_results.md`; handoff data for all clips: `docs/anim/free_library/HANDOFF_CODEX.md`.

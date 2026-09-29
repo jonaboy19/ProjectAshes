@@ -317,3 +317,31 @@ No code changes were committed for the crash itself this pass (no fix was found 
 - Verification: before the fix, 3/25, 1/15 and 1/7 boots crashed. After it, **16/16 clean boots** (each confirmed the world loaded;
   the loop was cut short by a session restart, not a crash). Run more boots with a zz_boot-style loop when convenient.
 - Ruled out along the way: terrain plan threads, runtime LOD generation (90 stress rounds clean), physics interpolation, and GDExtensions.
+
+## 2026-09-29: "the game keeps crashing" re-investigation (local)
+**Evidence.** Windows Event 1000 for Godot (since 27 Sep): 58 x `ntdll.dll+0xfa7d` (Godot 4.6.0, the quit crash, gone since 4.6.3) and
+9 x `Godot_v4.6.3-stable_win64.exe+0x539f5a9` (all 28 Sep 17:49-19:16, all `-s zz_boot.gd` runs). **No Godot crash event after 28 Sep 19:16**;
+the threaded-load fix `0137fa0d` landed 28 Sep 23:28. cdb on dump `Godot_v4.6.3-stable_win64.exe.139296.dmp` (process uptime 46 s): access violation
+(read of `uint32[idx]` from an index array) on `WorkerThread 8`; strings referenced by the fault function and its callers are `vertex_data`, `index_count`,
+`Surface version provided...`, `ArrayMesh::_set_surfaces` (mesh.cpp), `material_set_shader`, hash_set.h; the frames below are
+`ResourceLoaderBinary::load` recursion (`Loading resource: %s`, `local://`, `metadata/`) under `WorkerThreadPool`. Main thread was in GDScript
+(`Node3D.set_global_position` propagation). So the same signature as the fixed one: a mesh loaded on a worker thread racing main-thread material/shader creation.
+These 9 dumps predate the fix. The user's own `user://logs` were rotated away by other agents' runs (Godot keeps 5), so the owner's latest crashes could not be read.
+
+**Reproduction on latest origin (merge of 213551e6 + later, worktree `PA_wt_crash`, Godot 4.6.3, windowed, RTX 4070 laptop, machine busy with other agents).**
+Boot loop `kingdom/tools_qa/boot_loop/boot_loop.gd` (new; counts a boot only if a world exists and ran 20 s, checks the real exit code):
+- direct main.tscn 12/12 clean (11/11 more on the pre-merge tree), front-end loading screen (threaded load of main.tscn) 8/8 (11/11 pre-merge),
+  real path boot.tscn -> splash key -> menu -> Continue -> loading -> world 10/10, `--rendering-method mobile` 6/6. **0 crashes in 36 post-merge boots (58 total).**
+- Play soak (perf_visual, real input) only 2 routes completed (about 4 minutes of play, 29-39 fps under load): **the 20-minute soak was NOT done** (usage limit); no crash in those.
+- Not run: GDExtensions loaded (create `.godot/extension_list.cfg`, terrain_3d/limboai/sqlite have compat minimum <= 4.5 so no mismatch is expected), long autoplay.
+
+**Findings / fixes (small).**
+1. `RegionDressing._drain_queue` assigned a freed root to a typed var: `SCRIPT ERROR: Trying to assign invalid previously freed instance` (region_dressing.gd:79). Fixed (Variant first).
+2. `audio_director.gd` 30 s debug voice-count loop touched freed players: guarded (`is_instance_valid`). The main.gd `_process` null guard was already present after the merge.
+3. QA harnesses broke with the new world-loading veil (it frees itself): `main.hud._loading.visible` on a freed object gave a 16 MB SCRIPT ERROR flood and an endless run in
+   perf_visual, bench, grounding_check, debug_floaters, shots, movement_qa, autoplay, store_shots. They now use `hud._veil()` / `is_instance_valid`.
+4. `tools_qa/boot_flow/boot_flow.gd` fails ("world veil never appeared") because New Game now goes to character creation and "Start Game" no longer starts the world. Test is stale, not a crash.
+5. Open, not crashes: under `--rendering-method mobile` + HIGH quality (glow on) 72 rendering errors per boot start with `get_texture_slice_view: Index p_mipmap = 4 out of bounds
+   (mipmaps = 4)` (render_scene_buffers_rd.cpp), i.e. the glow chain, then "framebuffer is null" / "Mismatch fragment shader output mask". Forward+ has none. LOW/MEDIUM tiers have glow off; test on device.
+   The leaked-at-exit RIDs (76 Jolt shapes, meshes, materials) appear on every quit and did not crash in 58 boots.
+Next: 20+ min soak (`tools/qa/perf_visual/run.sh`, several routes), GDExtension-loaded boots, a mobile-tier glow check, then delete the stale rotated logs assumption by copying `user://logs` before other agents overwrite them.
