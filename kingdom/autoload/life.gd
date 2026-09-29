@@ -37,6 +37,14 @@ var discovery := preload("res://scripts/sim/discovery.gd").new()
 var relationships := preload("res://scripts/sim/relationships.gd").new()
 var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
 var crafting := preload("res://scripts/sim/crafting.gd").new()
+const WorldEventLog := preload("res://scripts/systems/world_event_log.gd")
+const ActionRuntime := preload("res://scripts/systems/action_runtime.gd")
+## Bounded facts from player actions, available to future dialogue/simulation consumers.
+var world_events = WorldEventLog.new()
+## Short-lived actor/action leases; deliberately excluded from saves.
+var action_runtime = ActionRuntime.new()
+## Active craft token -> generation-qualified station resource key.
+var _craft_station_actions: Dictionary = {}
 var equipment := preload("res://scripts/sim/equipment.gd").new()
 var skills := preload("res://scripts/sim/skills.gd").new()
 ## Careers as biography (docs/RISING_ASHES_LIFE_SIM_DESIGN.md): mastery only grows by doing,
@@ -61,6 +69,8 @@ const RECORD_TO_SOUL := {
 var appearance: Dictionary = {}
 var life_courses := preload("res://scripts/sim/life_courses.gd").new()
 var war := preload("res://scripts/sim/war_sim.gd").new()
+## Realm / war / settlement / city-life simulation (scripts/realm/, docs/design/SIM_HIERARCHY.md).
+var realm := preload("res://scripts/realm/realm_hub.gd").new()
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
 var career_id := ""            # career_ladders.gd key, "" = none yet
 var career_rank := ""          # rank id within that career
@@ -97,6 +107,8 @@ var _last_abs := -1.0     # absolute in-game hours at the last tick
 
 func _ready() -> void:
 	equipment.clock = _abs_hours
+	if not crafting.station_invalidated.is_connected(_on_craft_station_invalidated):
+		crafting.station_invalidated.connect(_on_craft_station_invalidated)
 	skills.breakthrough.connect(func(r: Dictionary) -> void:
 		Game.say(String(r["text"]))
 		if r["success"]:
@@ -117,6 +129,11 @@ func _ready() -> void:
 		employment_changed.emit())
 	crafting.crafted.connect(func(res: Dictionary) -> void:
 		var sk := String(res.get("skill", ""))
+		var item_id := String(res.get("item", ""))
+		world_events.publish("item_crafted", "player", "item:" + item_id if not item_id.is_empty() else "", _abs_hours(), {
+			"skill": sk, "count": int(res.get("count", 0)), "quality": int(res.get("quality", 0)),
+			"xp": int(res.get("xp", 0)), "tag": String(res.get("tag", "crafted")),
+		})
 		if mastery.DISCIPLINES.has(sk):
 			mastery.gain(sk, float(res.get("xp", 0)) * 0.1, WorldSim.day)
 		if sk in ["smithing", "forging", "blacksmithing"]:
@@ -185,6 +202,7 @@ func _ready() -> void:
 
 ## A child of two real villagers, living in one of the village's houses.
 func _begin_life() -> void:
+	realm.warm_up()
 	var home: Dictionary = WorldGen.settlements[0]
 	var r: Vector2i = WorldSim.ranges[0]
 	var mother := r.x + 3
@@ -252,6 +270,9 @@ func record(tag: String, weight := 1.0) -> void:
 			skill_evolution.record_use(_soul_element(), "farm", WorldSim.day)
 		elif tag == "meditated":
 			skill_evolution.record_use(_soul_element(), "meditate", WorldSim.day)
+	world_events.publish("life_action_recorded", "player", "", _abs_hours(), {
+		"tag": tag, "weight": weight, "day": WorldSim.day,
+	})
 
 
 ## Applies the New Game character-creation choices (name, family, look, leanings, parents' trades).
@@ -281,6 +302,123 @@ func apply_creation(c: Dictionary) -> void:
 ## The element the player's Blessing gave ("qi" when none): what their power grows from.
 func _soul_element() -> String:
 	return awakening.element if awakening.element != "" else "qi"
+
+
+## Query recent persistent facts without exposing the mutable journal itself.
+func recent_world_events(after_id: int = 0, limit: int = 32, type_filter: String = "") -> Array[Dictionary]:
+	return world_events.since(after_id, limit, type_filter)
+
+
+func world_event_window(after_id: int = -1) -> Dictionary:
+	return world_events.window_info(after_id)
+
+
+func begin_craft_action(recipe_id: String, lease_s: float, requested_kinds: Array = []) -> Dictionary:
+	var now_s := Time.get_ticks_msec() / 1000.0
+	action_runtime.expire(now_s, 8)
+	_prune_craft_station_actions(now_s)
+	var recipe: Dictionary = crafting.recipe(recipe_id)
+	if recipe.is_empty():
+		return {"ok": false, "token": "", "error": "unknown_recipe"}
+	var required: Array = recipe.get("stations", [])
+	var station: Dictionary = {}
+	var resources: Array = ["actor:player"]
+	var station_ref := ""
+	var station_generation := 0
+	var station_kind := ""
+	if not required.is_empty():
+		if player == null or not is_instance_valid(player):
+			return {"ok": false, "token": "", "error": "station_required"}
+		station = crafting.nearest_station_for_recipe(player.global_position, recipe_id, requested_kinds)
+		if station.is_empty():
+			return {"ok": false, "token": "", "error": "station_required"}
+		station_ref = String(station.get("ref", ""))
+		station_generation = int(station.get("generation", 0))
+		station_kind = String(station.get("kind", ""))
+		resources.append(crafting.station_resource_key(station_ref, station_generation))
+	var payload := {"recipe_id": recipe_id, "station_ref": station_ref,
+		"station_generation": station_generation, "station_kind": station_kind}
+	var started: Dictionary = action_runtime.begin_resources("player", "craft", resources,
+		now_s, lease_s, payload)
+	if not bool(started.get("ok", false)):
+		return started
+	if not action_runtime.transition(String(started["token"]), "begun", "working", now_s):
+		action_runtime.cancel(String(started["token"]), "transition_failed")
+		return {"ok": false, "token": "", "error": "transition_failed"}
+	if not station_ref.is_empty():
+		_craft_station_actions[String(started["token"])] = crafting.station_resource_key(station_ref, station_generation)
+	return started
+
+
+func commit_craft_action(token: String, recipe_id: String, requested_kinds: Array, ctx: Dictionary) -> Dictionary:
+	var inspection: Dictionary = action_runtime.inspect(token)
+	var action_info: Dictionary = inspection.get("action", inspection)
+	var action_payload: Dictionary = action_info.get("payload", {})
+	if (String(action_info.get("actor_ref", "")) != "player"
+			or String(action_info.get("action_type", "")) != "craft"
+			or String(action_payload.get("recipe_id", "")) != recipe_id):
+		return {"ok": false, "newly_committed": false, "result": {}, "error": "action_mismatch"}
+	if inspection.has("newly_committed"):
+		var prior := inspection.duplicate(true)
+		prior["newly_committed"] = false
+		return prior
+	var now_s := Time.get_ticks_msec() / 1000.0
+	var station_ref := String(action_payload.get("station_ref", ""))
+	var station_generation := int(action_payload.get("station_generation", 0))
+	var station_kind := String(action_payload.get("station_kind", ""))
+	var recipe: Dictionary = crafting.recipe(recipe_id)
+	var required: Array = recipe.get("stations", [])
+	var allowed_kinds: Variant = [station_kind] if not station_ref.is_empty() else null
+	var check := func() -> String:
+		if not station_ref.is_empty():
+			if player == null or not is_instance_valid(player):
+				return "station_changed"
+			var current: Dictionary = crafting.station_at(station_ref, station_generation, player.global_position)
+			if current.is_empty() or String(current.get("kind", "")) != station_kind:
+				return "station_changed"
+			if not required.has(station_kind) or (not requested_kinds.is_empty() and not requested_kinds.has(station_kind)):
+				return "station_changed"
+		elif not required.is_empty():
+			return "station_changed"
+		return String(crafting.call("can_craft", recipe_id, self, allowed_kinds, ctx))
+	var apply := func() -> Dictionary:
+		return crafting.call("craft", recipe_id, self, allowed_kinds, ctx)
+	var result: Dictionary = action_runtime.commit(token, now_s, check, apply)
+	_craft_station_actions.erase(token)
+	return result
+
+
+func cancel_action(token: String) -> Dictionary:
+	var result: Dictionary = action_runtime.cancel(token)
+	_craft_station_actions.erase(token)
+	return result
+
+
+func _on_craft_station_invalidated(ref: String, generation: int) -> void:
+	var resource_key: String = crafting.station_resource_key(ref, generation)
+	for token: String in _craft_station_actions.keys():
+		if String(_craft_station_actions[token]) == resource_key:
+			action_runtime.cancel(token, "station_unloaded")
+			_craft_station_actions.erase(token)
+
+
+func _prune_craft_station_actions(now_s: float) -> void:
+	for token: String in _craft_station_actions.keys():
+		var state: Dictionary = action_runtime.inspect(token)
+		if not state.has("phase") or (String(state.get("phase", "")) != "committing"
+				and now_s >= float(state.get("expires_at", 0.0))):
+			_craft_station_actions.erase(token)
+
+
+func _craft_station_kinds_near_player() -> Array:
+	if player == null or not is_instance_valid(player):
+		return []
+	var result: Array = []
+	for station: Dictionary in crafting.call("stations_near", player.global_position):
+		var kind := String(station.get("kind", ""))
+		if not kind.is_empty() and not result.has(kind):
+			result.append(kind)
+	return result
 
 
 ## TechniqueCaster reports every successful cast: Soul Power, and the element
@@ -695,6 +833,8 @@ func _process(_delta: float) -> void:
 	_last_abs = now
 	if dh <= 0.0 or dh > 2.0:
 		return
+	for msg: String in realm.pump():
+		Game.say(msg)
 	needs.tick(dh)
 	magicules.regenerate(dh)
 	if player and is_instance_valid(player):
@@ -730,7 +870,21 @@ func _contracts_daily() -> void:
 			Game.say("Crown requisition officers took %d sacks from your farm stores for the war." % taken)
 
 
+func _realm_ctx() -> Dictionary:
+	var pp := Vector2.ZERO
+	if player and is_instance_valid(player):
+		pp = Vector2(player.global_position.x, player.global_position.z)
+	return {"player_pos": pp, "season": WorldSim.season, "at_war": war.is_at_war(),
+		"abs_hours": _abs_hours(), "gold": Game.gold, "life": self}
+
+
 func _on_hour(hour: int) -> void:
+	realm.on_hour(hour, WorldSim.day, _realm_ctx())
+	# City life and society keep a signed ledger instead of touching the purse.
+	for k: String in ["city_life", "society"]:
+		var net := int(realm.mod(k).take_pending_gold())
+		if net != 0:
+			Game.add_gold(net)
 	if hour == 6:
 		# War first: economy, lordship levies and promotion speed read the at_war flag this hour.
 		for msg: String in war.tick_day(WorldSim.day, {"feud_count": nobility.feuds().size(),
@@ -960,6 +1114,7 @@ func snapshot() -> Dictionary:
 		"family": family.serialize(),
 		"life_courses": life_courses.serialize(),
 		"war": war.serialize(),
+		"realm": realm.serialize(),
 		"soul": soul.serialize(),
 		"skill_evolution": skill_evolution.serialize(),
 		"echoes": echoes.serialize(),
@@ -967,6 +1122,7 @@ func snapshot() -> Dictionary:
 		"career": {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier},
 		"radiant": radiant.serialize(),
 		"crafting": crafting.serialize(),
+		"world_events": world_events.serialize(),
 		"equipment": equipment.serialize(),
 		"skills": skills.serialize(),
 		"homestead": homestead.serialize(),
@@ -981,6 +1137,16 @@ func snapshot() -> Dictionary:
 
 
 func restore(d: Dictionary) -> void:
+	action_runtime.reset()
+	_craft_station_actions.clear()
+	# Older saves simply start a fresh journal. Invalid new journal data is isolated
+	# from the rest of the save so existing player state still restores normally.
+	world_events = WorldEventLog.new()
+	if d.has("world_events"):
+		var event_data: Variant = d["world_events"]
+		if not event_data is Dictionary or not world_events.deserialize(event_data):
+			world_events = WorldEventLog.new()
+			push_warning("Ignoring invalid saved world event journal.")
 	var cd: Dictionary = d.get("career", {})
 	career_id = String(cd.get("id", ""))
 	career_rank = String(cd.get("rank", ""))
@@ -1003,10 +1169,11 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes", "realm"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	appearance = d.get("appearance", {})
+	realm.warm_up()
 	_last_abs = _abs_hours()
 	if d.has("player") and player and is_instance_valid(player):
 		var p: Dictionary = d["player"]

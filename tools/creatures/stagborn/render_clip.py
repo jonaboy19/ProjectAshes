@@ -31,10 +31,17 @@ for spec in specs:
     ctr = mathutils.Vector((0, (mn.y + mx.y) / 2, h * 0.42))
     size = max(mx.y - mn.y, h)
     yaw = {"side": 90, "front": 28, "three": 55, "back": 200}[view]
-    aim(cam, ctr, yaw, size * (2.2 if view == "side" else 2.4), 8)
+    dm = float(os.environ.get('RC_DIST', '2.2')); aim(cam, ctr, yaw, size * (dm if view == "side" else dm * 1.1), 8)
     outd = f"{root}/{clip}"; os.makedirs(outd, exist_ok=True)
     n = 0
+    tm = float(os.environ.get('RC_TREADMILL', '0'))          # ground scrolls backwards at tm m/s: planted feet stay on their grid cell
+    grid = [o for o in sc.objects if o.type == 'MESH' and o.name.startswith('Cube')]
+    gy0 = [o.location.y for o in grid]
     for f in range(f0, f1 + 1, step):
         sc.frame_set(f); n += 1
+        if tm:
+            sh = (tm * (f - f0) / 30.0) % 1.0
+            for o, y0 in zip(grid, gy0):
+                if o.scale.y < 1 and o.scale.x > 1: o.location.y = y0 + sh
         sc.render.filepath = f"{outd}/frame{n:08d}.png"; bpy.ops.render.render(write_still=True)
     print("FRAMES", clip, n, "range", f0, f1)

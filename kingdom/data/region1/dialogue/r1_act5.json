@@ -1,0 +1,128 @@
+{
+	"id": "r1_act5",
+	"_comment": "The Stones Are Dimming, Act V: The Ashen Scar (finale) and the homecoming. All four mechanics at once. Format: see r1_act1.json.",
+	"start": "tamsin_meet",
+	"nodes": {
+
+		"tamsin_meet": {
+			"speaker": "tamsin_reeve",
+			"lines": [{"text": "Edge rules: pay, eat, don't die. You don't look like you came to pay."}],
+			"choices": [{"text": "Your cart. Crownstead.", "goto": "tamsin_meet_2", "if": {"flag": "r1.a4.evidence"}}]
+		},
+		"tamsin_meet_2": {
+			"speaker": "tamsin_reeve",
+			"lines": [
+				{"text": "An ash-reader. Fine. I bought crystal. I paid boys to cut stones. I'd do it again."},
+				{"text": "Corin told you, did he? Good lad. Bad spy. Yes. I paid. I'd do it again.", "if": {"flag": "r1.corin.informant"}, "p": 1}
+			],
+			"choices": [{"text": "Why?", "goto": "tamsin_meet_3"}]
+		},
+		"tamsin_meet_3": {
+			"speaker": "tamsin_reeve",
+			"lines": [{"text": "Hollin's Reach. My village. The Crown pulled the ward-lines back and left us outside."}],
+			"choices": [{"text": "What happened?", "goto": "tamsin_meet_4"}]
+		},
+		"tamsin_meet_4": {
+			"speaker": "tamsin_reeve",
+			"lines": [{"text": "Forty graves, one winter. So I let the dark pay, for once. Pay the people it ate."}],
+			"choices": [
+				{"text": "You'll answer to the Crown.", "goto": "tamsin_arrest", "do": [["flag", "r1.tamsin.arrested"], ["rep", "crown", 10]]},
+				{"text": "Help us end it. Then we talk.", "goto": "tamsin_pardon", "do": [["flag", "r1.tamsin.pardoned"], ["rep", "vale", 5]]}
+			]
+		},
+		"tamsin_arrest": {
+			"speaker": "tamsin_reeve",
+			"lines": [{"text": "Fair. Take the anchor stone anyway. Edge rules: pay your debts, even to Kings."}],
+			"choices": [{"text": "(Take the anchor stone.)", "goto": "@end", "do": [["give", "anchor_stone", 1]]}]
+		},
+		"tamsin_pardon": {
+			"speaker": "tamsin_reeve",
+			"lines": [{"text": "Talk. Ha. Here's the anchor stone. Lay it right, and I'll fight at your side."}],
+			"choices": [{"text": "(Take the anchor stone.)", "goto": "@end", "do": [["give", "anchor_stone", 1]]}]
+		},
+
+		"idra_tide": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "The tide runs back to the mouth. Burn and ward, cell by cell. Don't chase it. Walk it home."}],
+			"choices": [{"text": "Walk it home.", "goto": "allies"}]
+		},
+		"allies": {
+			"speaker": "narrator",
+			"lines": [
+				{"text": "Runeward crews crest the ridge behind you, hauling fresh stone and singing badly."},
+				{"text": "Tuskridge war-horns on the ridge. Harrok's clan comes down the scree, roaring your name.", "if": {"flag": "r1.harrok.ally"}, "p": 1},
+				{"text": "Goblins in the rocks. Snikkit points and shrieks: purple there! And there! And THERE!", "if": {"flag": "r1.snikkit.friend", "no_flag": "r1.harrok.ally"}, "p": 1}
+			],
+			"choices": [{"text": "Forward.", "goto": "@end", "do": [["flag", "r1.a5.allies"]]}]
+		},
+
+		"troll_rises": {
+			"speaker": "narrator",
+			"lines": [{"text": "Something vast stands up out of the violet. Stone skin. Crystal spine. It was a troll, once."}],
+			"choices": [{"text": "(Draw steel.)", "goto": "@end", "do": [["flag", "r1.a5.troll_seen"]]}]
+		},
+
+		"idra_seal": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "It's down. The mouth is still open. It wants an ember to close it."}],
+			"choices": [{"text": "Whose?", "goto": "idra_seal_2"}]
+		},
+		"idra_seal_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Mine. I'm old, I'm ready, and frankly I'd like the view."}],
+			"choices": [
+				{"text": "Then rest, Idra. Keep watch.", "goto": "seal_idra", "do": [["flag", "r1.seal.idra"]]},
+				{"text": "No. All of them.", "goto": "seal_all", "if": {"flag": "r1.a4.done"}, "do": [["flag", "r1.seal.all"]]}
+			]
+		},
+		"seal_idra": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Good. Keep the chisel sharp. And for pity's sake, throw out that tea."}],
+			"choices": [{"text": "(Hold her hand.)", "goto": "@end", "do": [["flag", "r1.a5.sealed"]]}]
+		},
+		"seal_all": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "All of... the lines. You routed them here. Every heart in the Vale is..."}],
+			"choices": [{"text": "Every one of them.", "goto": "seal_all_2"}]
+		},
+		"seal_all_2": {
+			"speaker": "ancestor_stone",
+			"lines": [{"text": "We are here. Miller, knight, grandmother. Stand aside, Warden. We've got this one."}],
+			"choices": [{"text": "(Let go.)", "goto": "@end", "do": [["flag", "r1.a5.sealed"]]}]
+		},
+		"glimpse": {
+			"speaker": "narrator",
+			"lines": [{"text": "As the mouth closes, you see past it: a red sky raining fire, and a violet forest breathing light."}],
+			"choices": [{"text": "(Remember it.)", "goto": "@end", "do": [["flag", "r1.a5.glimpse"]]}]
+		},
+
+		"mother_home": {
+			"speaker": "mother",
+			"lines": [{"text": "You're home. You're home and you're whole. Sit. Eat. Then tell me absolutely everything."}],
+			"choices": [{"text": "The stones are lit.", "goto": "father_home"}]
+		},
+		"father_home": {
+			"speaker": "father",
+			"lines": [{"text": "Heard. The Miller's Stone was singing when I passed it. Never once did that for me."}],
+			"choices": [
+				{"text": "That's Hesk. He's proud.", "goto": "home_epilogue", "if": {"flag": "r1.seal.all"}},
+				{"text": "That's Hesk. He's proud.", "goto": "miller_stone", "if": {"no_flag": "r1.seal.all"}}
+			]
+		},
+		"home_epilogue": {
+			"speaker": "idra_vell",
+			"lines": [
+				{"text": "I'm retiring. The chisel is yours. The tea, regrettably, is also yours."}
+			],
+			"choices": [{"text": "(Laugh.)", "goto": "miller_stone"}]
+		},
+		"miller_stone": {
+			"speaker": "ancestor_stone",
+			"lines": [
+				{"text": "The little lantern-holder. Look how tall. Go on, then. Live. We've got the road."},
+				{"text": "A new voice on the wind, from the Scar: 'Warden Vell, on watch. The tea is terrible here too.'", "if": {"flag": "r1.seal.idra"}, "p": 1}
+			],
+			"choices": [{"text": "(Walk home.)", "goto": "@end", "do": [["flag", "r1.a5.home"]]}]
+		}
+	}
+}

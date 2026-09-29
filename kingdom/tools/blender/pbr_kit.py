@@ -1686,6 +1686,31 @@ def paint_and_pack(passes, chart_map, charts, cls_of_chart, dummies, size, seed=
         c *= (1 + 0.14 * np.clip(s2, -2.2, 2.2) * wood)[..., None]
         gl = _blur(grain_lines, 0.4)
         c *= (1 - 0.32 * np.clip(gl * 2.6, 0, 1) * wood)[..., None]
+    # thatch: straw strands running down the slope (fibre noise in surface coordinates: lateral x downhill)
+    thm = isc("thatch")
+    thatch_h = None
+    if thm.any():
+        tu = np.gradient(_blur(P[..., 0], 0.8), axis=1), np.gradient(_blur(P[..., 1], 0.8), axis=1), np.gradient(_blur(P[..., 2], 0.8), axis=1)
+        tv = np.gradient(_blur(P[..., 0], 0.8), axis=0), np.gradient(_blur(P[..., 1], 0.8), axis=0), np.gradient(_blur(P[..., 2], 0.8), axis=0)
+        tu = np.stack(tu, -1)
+        tv = np.stack(tv, -1)
+        Nt = np.cross(tu, tv)
+        Nt /= np.maximum(np.linalg.norm(Nt, axis=-1, keepdims=True), 1e-9)
+        Nt *= np.sign(Nt @ np.array([0.0, 0.06, 1.0]) + 1e-9)[..., None]
+        lat = np.cross(np.broadcast_to(np.array([0.0, 0.0, 1.0]), Nt.shape), Nt)
+        lnn = np.linalg.norm(lat, axis=-1, keepdims=True)
+        lat = np.where(lnn < 0.2, np.array([1.0, 0.0, 0.0]), lat / np.maximum(lnn, 1e-6))
+        dwn = np.cross(Nt, lat)
+        lc = np.einsum("ijk,ijk->ij", P, lat).ravel()
+        sc_ = np.einsum("ijk,ijk->ij", P, dwn).ravel()
+        z0 = np.zeros_like(lc)
+        f1 = fbm(np.stack([lc / 0.034, sc_ / 0.55, z0], 1), 1.0, 2, 0.5, seed + 61).reshape(size, size)
+        f2 = fbm(np.stack([lc / 0.016, sc_ / 0.22, z0 + 3.1], 1), 1.0, 2, 0.5, seed + 67).reshape(size, size)
+        f3 = fbm(np.stack([lc / 0.35, sc_ / 0.12, z0 + 7.7], 1), 1.0, 2, 0.5, seed + 71).reshape(size, size)
+        thatch_h = (0.6 * f1 + 0.4 * f2) * 2.0
+        gap = smoothstep(0.15, 0.6, -thatch_h)
+        c *= (1 + (0.20 * thatch_h + 0.10 * f3 * 2.0 - 0.28 * gap) * thm)[..., None]
+        c[..., 2] *= 1 - 0.10 * gap * thm            # gaps between strands go warm brown
     # cavities darken (warm, not black), worn convex edges catch light
     cav_col = np.array([0.30, 0.20, 0.13])
     k = (0.55 * cav * (cav_col[None, None, :].sum() > 0))[..., None]
@@ -1760,6 +1785,15 @@ def paint_and_pack(passes, chart_map, charts, cls_of_chart, dummies, size, seed=
     orm[~full2] = (0.7, 0.85, 0.0)
     # a touch more relief than the raw bake: stylised, and it survives the mip chain better
     nn = nrm_o * 2 - 1
+    if thatch_h is not None:
+        th_ = _blur(thatch_h, 0.35)
+        gxh = np.gradient(th_, axis=1)
+        gyh = np.gradient(th_, axis=0)
+        tm_ = isc("thatch") & full
+        nn[..., 0] -= 0.55 * gxh * tm_
+        nn[..., 1] += 0.55 * gyh * tm_
+        orm[..., 1] = np.where(tm_, np.clip(orm[..., 1] + 0.05 * thatch_h, 0.6, 1.0), orm[..., 1])
+        orm[..., 0] = np.where(tm_, np.clip(orm[..., 0] * (1 - 0.35 * smoothstep(0.15, 0.6, -thatch_h)), 0, 1), orm[..., 0])
     nn[..., :2] *= cfg.get("normal_gain", 1.5)
     nn[..., 2] = np.sqrt(np.clip(1 - nn[..., 0] ** 2 - nn[..., 1] ** 2, 0.02, 1))
     nrm_o = np.clip(nn * 0.5 + 0.5, 0, 1)

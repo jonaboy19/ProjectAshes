@@ -35,6 +35,7 @@ var weather: Node3D
 var ambient_fx: Node3D
 var noble_courts: Node3D
 var lord_hall: Node3D
+var realm_presence: Node3D
 var _order_from: Variant = null   # command view: where the current drag order started
 var player: Player
 var hud: HUD
@@ -184,6 +185,9 @@ func _ready() -> void:
 	var ore := preload("res://scripts/world/ore_vein.gd").new()
 	ore.name = "OreVeins"
 	world.add_child(ore)
+	realm_presence = preload("res://scripts/world/realm_presence.gd").new()
+	realm_presence.setup(hud)
+	world.add_child(realm_presence)
 
 	hud.set_loading_text("Waking the world...", 0.95)
 	await get_tree().process_frame
@@ -746,6 +750,49 @@ func _screenshot(shot: String, path: String) -> void:
 		warmup = 60
 		shot = ""
 	match shot:
+		"stronghold":
+			# Nearest stronghold to the player (--n=k for the kth nearest), framed from --dist metres (default 40).
+			var sh_list: Array = Life.realm.mod("strongholds").strongholds()
+			var here := Vector2(player.global_position.x, player.global_position.z)
+			sh_list.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return here.distance_to(a["pos"]) < here.distance_to(b["pos"]))
+			for si in mini(sh_list.size(), 30):
+				print("[stronghold-list] ", si, " ", sh_list[si]["name"], " ", sh_list[si]["kind"], " ", snapped(here.distance_to(sh_list[si]["pos"]), 1.0))
+			var sh: Dictionary = sh_list[clampi(int(_user_args().get("n", "0")), 0, sh_list.size() - 1)]
+			var shp: Vector2 = sh["pos"]
+			var ent: Dictionary = realm_presence.nearest_stronghold(shp)
+			var focus2: Vector2 = ent["pos"] if not ent.is_empty() else shp
+			var back := Vector2(sin(deg_to_rad(float(_user_args().get("yaw", "20")))), cos(deg_to_rad(float(_user_args().get("yaw", "20")))))
+			var sd := float(_user_args().get("dist", "40"))
+			var ssp: Vector2 = focus2 + back * sd
+			_teleport(ssp, 0.0)
+			var sl := focus2 - ssp
+			player.set_camera(atan2(-sl.x, -sl.y), float(_user_args().get("pitch", "-0.16")))
+			region.focus = player.global_position
+			region.build_all_now()
+			realm_presence.refresh_now()
+			print("[stronghold] ", sh["name"], " kind=", sh["kind"], " owner=", sh["owner"], " at ", shp, " frame at ", focus2)
+			warmup = 120
+		"wartable":
+			# Walk into the first guild hall, then look at the War Room table.
+			var wdoor: InteriorDoor = null
+			for n in world.find_children("*", "InteriorDoor", true, false):
+				var wid := n as InteriorDoor
+				if wid.interior_scene.contains("guild_interior"):
+					wdoor = wid
+					break
+			if wdoor:
+				_teleport(Vector2(wdoor.global_position.x, wdoor.global_position.z), 0.0)
+				await get_tree().process_frame
+				wdoor.enter(player)
+				await get_tree().process_frame
+				realm_presence._check_war_table()
+				var tbl: Node3D = wdoor.interior.get_node_or_null("WarTable")
+				if tbl:
+					var tp: Vector3 = tbl.global_position
+					player.global_position = tp + Vector3(float(_user_args().get("dx", "-2.6")), 0.1, float(_user_args().get("dz", "2.6")))
+					var wl := tp - player.global_position
+					player.set_camera(atan2(-wl.x, -wl.z), float(_user_args().get("pitch", "-0.35")))
+			warmup = 60
 		"aerial":
 			# High 3/4 view over Ashford and its fields.
 			hud.visible = false
@@ -1086,6 +1133,10 @@ func _screenshot(shot: String, path: String) -> void:
 		if i == warmup - 4 and late_fx.is_valid():
 			late_fx.call()
 		await get_tree().process_frame
+	print("[perf] fps=%d draw_calls=%d objects=%d primitives=%d" % [Engine.get_frames_per_second(),
+		viewport.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
+		viewport.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_OBJECTS_IN_FRAME),
+		viewport.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME)])
 	var img := get_viewport().get_texture().get_image()
 	img.save_png(path)
 	print("Saved screenshot: ", path)

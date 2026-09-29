@@ -40,7 +40,7 @@ Clip names are lower case. Loops are exact: the last frame is the frame before t
 Ownership: Codex owns the behaviour and the state machines. This is the clip contract.
 
 **Root motion: none.** Every clip is in place. The controller moves the body. Speeds that match the feet (measured, see `docs/art/region1/stagborn/*_metrics.json`):
-elk `walk` 1.15 m/s, `run` 5.2 m/s, `run_charge` 5.0 m/s; Warden `walk` 1.5 m/s, `run` 6.9 m/s, `run_charge` 5.9 m/s. Feet slide by at most about 20 % of the speed in `walk`; run is tighter.
+elk `walk` 1.21 m/s, `run` 5.2 m/s, `run_charge` 5.0 m/s; Warden `walk` 1.24 m/s, `run` 6.9 m/s, `run_charge` 5.9 m/s. `walk` hooves are now pinned (IK foot lock, baked): every planted hoof moves at the same speed (elk 1.21 m/s, Warden 1.24 m/s, within 0.1 m/s), so the feet do not slide when the capsule moves at that speed. Use `speed_scale` = actual speed / 1.21 (elk) or / 1.24 (Warden).
 The `attack` clip has a small in-place lean (torso moves forward 0.10 m for the elk, 0.15 m for the Warden). Move the capsule forward yourself during the strike frames if you want a real lunge.
 
 **State to clip mapping (suggested)**
@@ -89,9 +89,9 @@ Authored by us: `attack`, `run_charge`, `roar`.
 ## Known limitations
 - Rendered and checked in Blender only (workbench and EEVEE); **not yet imported or run in Godot** (no Godot import in the worktree, disk). Run `bash tools/qa/anim_qa/run.sh --only=<id>` once the entries are added to `tools/qa/anim_qa/catalog.gd`.
 - Flat-shaded low-poly donor shapes with smooth shading: silhouettes are faceted around the head and antlers, softened by the painted texture.
+- Flat-shaded low-poly donor shapes with smooth shading: silhouettes are faceted around the head and antlers, softened by the painted texture.
 - In `run_charge` and at the head-down moment of `attack`, the antler tips dip up to about 9 cm (elk) or 14 cm (Warden) below the ground plane. Grass hides it.
-- `walk` has some foot slide (stance speed varies by about 20 % between feet) because the stock clip was ground-fixed by lifting the body, not by IK. Use foot IK if it shows.
-- The Warden antlers are 3.3 m wide and can pass through the body in the `roar` rear-up hold (they rest across the back). Collision is not affected.
+- Antler tips stay above the ground in every clip except `graze` and `death` (measured lowest head/antler vertex: `run_charge` 0.82 m elk / 0.96 m Warden, `attack` 0.90 / 0.72, `attack_butt` 0.89 / 0.68). The Warden `roar` head throw-back was halved so the 3.3 m antlers clear the back.
 - `death` recentres the body, so the carcass rolls in place and the hooves slide a little.
 - The mane and throat ruff are small cone tufts: they read as fur clumps, not flowing hair.
 
@@ -102,3 +102,7 @@ Textures, antlers, mane, rune glyphs, retiming and the authored clips: own work 
 ## Warden art pass 2 (2026-09-29, final commit of this session)
 Rebuilt the Warden: flowing spiral, knot and braid rune channels along the shoulder, flank, haunch and neck (no letter-like glyphs); layered thicker antlers with hanging ivy and a thin glowing channel up every beam and tine; darker saddle, lighter mane, pale fetlock tufts and dark hooves; 0.8 scale baked in; body lifted so nothing dips under the ground in any clip; walk and run foot speeds evened out per leg. Elk clips got the same ground fix.
 NOT re-verified after this pass: frame sheets of the Warden clips under `docs/art/region1/stagborn/stagborn_warden_*` are from the first version (same clips, older mesh and proportions). Only the new turntable was read.
+
+
+## Animation polish pass (2026-09-29)
+All 22 clips were re-exported from the reworked meshes and re-reviewed as frame sheets (`docs/art/region1/stagborn/stagborn_<name>_<clip>/sheet_00N.jpg`, ground grid scrolls at the gait speed so a planted hoof stays on its grid cell). `walk`: IK foot lock (`clips.lock_feet`); `roar`: reduced throw-back; `run_charge` / `attack`: `raise_antlers` pass (it found nothing to fix, the earlier ground fix already keeps them clear). Tools: `tools/creatures/stagborn/review_all.sh`, `qa_ground.py`.
