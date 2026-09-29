@@ -926,6 +926,12 @@ func _update_facing(dir: Vector3, delta: float) -> void:
 		rate = FACE_TURN_IDLE
 	elif view == View.FIRST or blocking:
 		want = _yaw + PI
+		if blocking and view != View.FIRST:
+			# Face the nearest nearby threat while guarding; keep camera-facing as fallback.
+			var threat := _nearest_enemy(6.0, -1.0)
+			if threat:
+				var threat_dir := threat.global_position - global_position
+				want = atan2(threat_dir.x, threat_dir.z)
 		rate = FACE_TURN_IDLE
 	elif dir.length() > 0.05 and _swing <= 0.0 and _dodge <= 0.0 and _stunned <= 0.0:
 		want = atan2(dir.x, dir.z)
