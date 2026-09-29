@@ -3,7 +3,7 @@
 The local session updates this file whenever a task starts or finishes. **Cloud session: read it after each pull.**
 Who owns which area: `docs/LOCAL_SESSION_HANDOFF.md`.
 
-_Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
+_Last update: 2026-09-29 (Region 1 L10 Ember Legacy + L11 Ashsight; L14 main quest + L16 tutorial director)_
 
 ## Done (recent)
 | Date | What | Where | Commit |
@@ -26,6 +26,14 @@ _Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
 - Cloud: paste H1 + H2 from `docs/regions/HOOKS_FOR_CLOUD.md` (not applied; hot files untouched).
 - Verified headless in a sparse worktree (no game assets): sandbox OK, 19/19 tests pass. NOT run inside the full game (hooks not wired yet).
 - Backlog: windowed sandbox variant for GPU frame sheets (L8/L11); a Region1 debug overlay (module ms) once hooks land; presenter pooling helper.
+
+
+## Region 1 L10 Ember Legacy + L11 Ashsight, 2026-09-29: DONE (sims, ghost scene and shader, tests, sandbox); NOT wired into the game yet
+- **L10** `EmberLegacy` (`scripts/region1/ember_legacy.gd`, data `data/region1/ember_legacy.json`): `on_life_ended(summary)`, `choices_for`, `choose_runestone` / `choose_heirloom` / `choose_heir`, `apply_blessing` (Echo + skill trace into echoes.gd / mastery), `apply_to_network` (ancestor stone: bigger radius, power and condition through fields the network already reads), `bark()` / `card()` with a personality derived from the biography (6 archetypes), heirlooms that level per generation (`on_succession`). Hook H7 is `EmberLegacy.emit_life_ended(...)`.
+- **L11** `AshMemory` (`ash_memory.gd`): flagged sites, incident ring buffer (24), 1 Hz samples within 60 m, cooling (raid 3 d, sabotage 5 d, fire 2 d, death 4 d), `replay()` cursor and stateless `positions_at()` (Catmull-Rom, fades, gap handling), `trail()`, JSON-safe saves. `AshReplayView` + `AshGhostPool` + `scenes/region1/ash_ghost.tscn` (pooled, 8 ghosts) with `shaders/region1/ash_ghost.gdshader` (grey-ember, crumbling feet, dissolve, ember specks), `ash_halo.gdshader`, `ash_particle.gdshader`. Emitter API for C6: `AshMemory.open / sample_now / close / report / flag_site_static`.
+- **Verified:** 66/66 gdUnit tests pass (24 new: stone power bonus, echo inheritance, heirloom save round trip, ring buffer, cooling, replay within 1 m: max error 0.22 m over 2840 comparisons, pool, per-frame budget). Windowed Movie Maker capture of a fake raid (4 bandits, 2 villagers) replayed by ghosts, read as frame sheets: figures readable (amber halo bandits, blue-white villagers), world drains to warm ash-grey and back. Cost: replay view 0.09 ms/frame headless, 0.20 ms/frame in the real window (6 ghosts, mobile renderer, budget 0.3), 60 fps, 63 draw calls; first ghost show has a one-off 2.4 ms spike (shader and particle start).
+- Hooks, manifest rows, C5/C6 snippets: `docs/regions/HOOKS_FOR_CLOUD.md` (last section). Sandbox: `tools_qa/region1/ashsight_demo.tscn` (`-- --check`, `-- --bench`, `-- --closeup`).
+- Backlog (from the AAA review): (1) wire H7/C5/C6 and add the two manifest rows (cloud); (2) `heirloom_*` item ids need rows in `data/items.json`; (3) swap the placeholder body for a UAL character or impostor with `AshGhost.set_model()` and re-measure; (4) real screen-space "drain to grey" that skips ghosts (L13; the demo lerps its own materials); (5) pre-warm the pool to remove the 2.4 ms first-show spike; (6) Compatibility-renderer and LOW-tier check of the ghost shaders on a phone; (7) ember-rise cinematic and ancestor-gold glow (L12); (8) more bark lines per archetype and localisation; (9) replay camera framing helper (follow the action, pin trail on the compass); (10) sound: ash whisper loop and footstep ticks for ghosts.
 
 ## Region 1 N1 Wardwright: L7 Wardlines + L8 rune recognizer (2026-09-29): DONE
 - **L7** `scripts/region1/wardlines.gd` (`Wardlines extends Region1Sim`), tuning `data/region1/wardlines.json`, 27 gdUnit tests (`tests/test_region1_wardlines.gd`). Rules: 5 Elder Stones hold a daily power budget; every stone needs power; power travels along links losing 4 percent a hop; nearest-first (pinned first); a stone follows its feed over days; wear + crews; carve ward/lure/alarm/bless; drag/cut/mend links (max 700 m, 4 per stone). API: `coverage_at`/`coverage_callable()` (hook H3), `carve`, `add_link`, `cut_link`, `mend_link`, `set_pinned`, `repair`, `pressure`, `notify_threat`, `bless_at`, `lure_points`, `road_coverage`, `rumours`, `flow_edges`, `elder_status`, `budget_report`, `bind_network(RARunestoneNetwork)`, snapshot/restore. Events (`road_rumour`, `road_clear`, `stone_dark`, `stone_lit`, `link_cut`, `glyph_carved`, `alarm`, `elder_strained` ...) carry a ready `rumour` string. Tick p95 1.4 ms (84 stones), coverage_at under 50 us (tested).
@@ -144,6 +152,7 @@ _Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
 - Cloud: paste H1 + H2 from `docs/regions/HOOKS_FOR_CLOUD.md` (not applied; hot files untouched).
 - Verified headless in a sparse worktree (no game assets): sandbox OK, 19/19 tests pass. NOT run inside the full game (hooks not wired yet).
 - Backlog: windowed sandbox variant for GPU frame sheets (L8/L11); a Region1 debug overlay (module ms) once hooks land; presenter pooling helper.
+- WIP pushed to `origin/tmp-r1ember` (not verified yet: tests and the windowed capture are still running). Code: `scripts/region1/{ember_legacy,ash_memory,ash_fake_raid,ash_ghost,ash_ghost_pool,ash_replay_view}.gd`, `scenes/region1/ash_ghost.tscn`, `shaders/region1/ash_{ghost,particle}.gdshader`, `data/region1/ember_legacy.json`, tests `tests/test_region1_{ember_legacy,ash_memory}.gd`, demo `tools_qa/region1/ashsight_demo.tscn`. Hook code (H7, C5, C6, manifest rows): `docs/regions/HOOKS_FOR_CLOUD.md`.
 
 ## In progress
 - **Meshy free pack round 2** (161 models) → `assets/incoming/meshy_free/`
