@@ -30,7 +30,7 @@ static func font(path := BODY_FONT, weight := 0) -> Font:
 	if weight > 0 and f is FontFile:
 		var v := FontVariation.new()
 		v.base_font = f
-		v.variation_opentype = {"wght": weight}
+		v.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): weight}
 		return v
 	return f
 
@@ -249,3 +249,16 @@ static func theme() -> Theme:
 	t.set_stylebox("scroll", "VScrollBar", StyleBoxEmpty.new())
 	_theme = t
 	return t
+
+
+## Cinzel at a real variable-font weight (400..900). `title_font()` passes the axis by
+## string name, which Godot ignores, so its headings always render at the regular weight;
+## this variant sets the axis through the OpenType tag and actually gets bold caps.
+static func wfont(weight := 600) -> Font:
+	var f := font(TITLE_FONT)
+	if not (f is FontFile):
+		return f
+	var v := FontVariation.new()
+	v.base_font = f
+	v.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): weight}
+	return v

@@ -312,3 +312,17 @@ before any deletion.
   and MIT notices for Godot, the TPS-demo port and the 10 shipped addons.
 - **README fixes:** `incoming/characters/README.md` (the `.gdignore` statement was stale: g6-ual and cdmir-ual are now
   used); `incoming/README.md` (the "addons not vendored" heading was stale).
+
+## 7. Free addons added 2026-09-29 (local PC session)
+
+Details, perf numbers, screenshots and integration plans: `docs/addons/README.md`. All MIT, licence files copied into each folder, run on Godot 4.6.3.
+
+| Addon | Source | Licence | Status |
+|---|---|---|---|
+| addons/phantom_camera 0.11.0.3 | github.com/ramokz/phantom-camera | MIT (verified via GitHub API) | enabled, idle autoload, not used by code |
+| addons/debug_menu | github.com/godot-extended-libraries/godot-debug-menu | MIT | vendored, not enabled |
+| addons/godot_material_footsteps 1.0.0 | github.com/COOKIE-POLICE/godot-material-footsteps | MIT | vendored, not enabled |
+| addons/simplegrasstextured 2.1.0 | github.com/IcterusGames/SimpleGrassTextured | MIT; **bundled texture grassbushcc008.png has no recorded source: do not ship** | vendored, not enabled |
+| addons/voronoishatter 0.3 | github.com/robertvaradan/voronoishatter | MIT | vendored, not enabled (C# adapter folder removed) |
+| Sentry SDK 2.2.0 | github.com/getsentry/sentry-godot | MIT | not committed; `tools/install_sentry.sh` |
+| tools/impostors + impostor_octa.gdshader | own code, technique by Shaderbits | own | 6 impostor atlases baked (own renders of our own GLBs) |

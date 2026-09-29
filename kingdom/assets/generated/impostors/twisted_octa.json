@@ -1,0 +1,14 @@
+{
+	"atlas_px": 1024,
+	"center": [
+		4.58363628387451,
+		8.16127300262451,
+		-0.952097415924072
+	],
+	"grid": 8,
+	"impostor_tris": 2,
+	"radius": 12.2045650482178,
+	"source": "res://assets/incoming/quaternius/stylized-nature-megakit/glTF/TwistedTree_1.gltf",
+	"source_tris": 9564,
+	"tile": 128
+}

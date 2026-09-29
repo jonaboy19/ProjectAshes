@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://assets/generated/impostors/village_house_octa_mat.tres" id="1"]
+
+[sub_resource type="QuadMesh" id="q"]
+size = Vector2(11.571583, 11.571583)
+center_offset = Vector3(-0.045992, 3.699929, -0.117938)
+
+[node name="VillageHouse_Octa" type="MeshInstance3D"]
+extra_cull_margin = 5.785791
+cast_shadow = 0
+mesh = SubResource("q")
+material_override = ExtResource("1")

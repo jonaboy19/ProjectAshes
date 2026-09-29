@@ -1,0 +1,6 @@
+30000 grass blades (1 MultiMesh, distance opt on) high cam | 3.47 ms (288 fps) | GPU 2.70 ms | render-CPU 0.33 ms | draws 16 | tris 360246
+30000 grass blades low cam | 3.47 ms (289 fps) | GPU 2.56 ms | render-CPU 0.37 ms | draws 16 | tris 360246
+30000 blades, shadow casting OFF | 3.13 ms (319 fps) | GPU 1.23 ms | render-CPU 0.39 ms | draws 15 | tris 120246
+10000 blades, shadow casting OFF | 3.04 ms (329 fps) | GPU 0.84 ms | render-CPU 0.37 ms | draws 15 | tris 40246
+grass hidden (baseline) | 3.63 ms (275 fps) | GPU 0.32 ms | render-CPU 0.43 ms | draws 14 | tris 246
+renderer=mobile adapter=NVIDIA GeForce RTX 4070 Laptop GPU

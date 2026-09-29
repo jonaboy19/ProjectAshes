@@ -409,3 +409,8 @@ specifically emptier than the capital needs a per-settlement-size budget.
   it measured p99 29.3 → 24.9 ms and hitches 43 → 21. Details in `docs/qa/stability.md`.
 - Heads-up: `kingdom/.godot/extension_list.cfg` was missing, so Terrain3D, LimboAI and godot-sqlite were **not loaded** in dev and QA runs
   (exports do load them). Opening the editor once regenerates it.
+
+## 2026-09-29: free addons + impostors (local, done)
+- Installed/tested Phantom Camera (enabled, idle autoload `PhantomCameraManager`), Debug Menu, Material Footsteps, SimpleGrassTextured, VoronoiShatter; Sentry via `tools/install_sentry.sh` (not committed). Nothing is wired into gameplay. Demos: `kingdom/tools_qa/addons_demo/`. Table, perf, plans: `docs/addons/README.md`.
+- **Octahedral impostors** (own baker `kingdom/tools/impostors/`, 6 baked in `assets/generated/impostors/`): in a 3000-tree + 80-house scene hybrid (full < 45 m) gave 142 vs 75 fps, GPU 2.9 vs 12.4 ms, 0.42M vs 2.0M tris. Cloud session: please use `*_octa.tscn` beyond ~45 m in tree/building scatter.
+- Godot rewrites `project.godot` (drops renderer lines, adds `[debug]`/`[sentry]`) whenever the editor/import runs with Sentry installed: check `git diff kingdom/project.godot` before committing.
