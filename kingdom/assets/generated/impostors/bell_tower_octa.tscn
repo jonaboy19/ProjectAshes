@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://assets/generated/impostors/bell_tower_octa_mat.tres" id="1"]
+
+[sub_resource type="QuadMesh" id="q"]
+size = Vector2(20.662098, 20.662098)
+center_offset = Vector3(0.012563, 8.920935, 0.032708)
+
+[node name="BellTower_Octa" type="MeshInstance3D"]
+extra_cull_margin = 10.331049
+cast_shadow = 0
+mesh = SubResource("q")
+material_override = ExtResource("1")
