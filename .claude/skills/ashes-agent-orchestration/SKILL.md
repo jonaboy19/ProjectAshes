@@ -28,3 +28,11 @@ description: How the local Rising Ashes session splits work across subagents che
   2. Run `ashes-aaa-review`.
   3. Update `docs/STATUS_LOCAL.md`.
   4. Send the best PNGs to the owner.
+
+## Disk safety (lessons from 2026-09-29)
+- A full worktree checkout is about 5 GB, and a Godot import adds about 7 GB. Eight parallel worktrees filled C: and corrupted files, including the import cache and a build script.
+- Before launching several agents, check free space. Before every import, check that at least 12 GB is free.
+- Prefer **sparse** worktrees for Blender, docs or data work. Allow at most about 3 agents with full Godot imports at a time.
+- Agents delete frame PNGs right after making sheets, and delete `kingdom/.godot` plus the worktree when done.
+- Never permanently delete user files. Send them to the Recycle Bin in batches smaller than the bin capacity (about 49 GB on C:), and the owner empties it.
+- If the disk gets low, message every agent: push work in progress, pause imports.
