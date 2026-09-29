@@ -43,3 +43,8 @@ NOT wired (unverified): everything in `docs/platform/boot_wiring_wip.patch` (app
 
 ## 2026-09-29 impostor edge fix: NOT landed (usage limit)
 Tried 2048 atlas (256 px tiles, 2x supersample, premultiplied), alpha-to-coverage shader, mipmapped VRAM import and visibility-range dither fade. Baking worked; the fade vs hard-swap walk test and compare-row re-render were not completed, so the change was discarded. Committed impostors remain the 128 px version. Next: redo with fade metric + compare row.
+
+## Remaining work: free animation library
+- Full stop-motion read of KayKit weapons, combos, remaining unarmed clips; verify punch types (front view) and rename Heavy punches.
+- Godot `--import` sanity for the new GLBs and add to `Assets.UAL_FILES` (Codex).
+- More casting (lightning-from-sky, beam loops, teleport dash) is thin; only CMU/KayKit clips exist.

@@ -1,0 +1,136 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations_free/reactions/UAL_Free_Reactions.glb",
+ "smooth": 0.012,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "check_directions": true,
+ "heading": "strike",
+ "clips": [
+  {
+   "name": "Fall_Forward_Knockdown",
+   "file": "090/90_16.bvh",
+   "start": 2.2,
+   "end": 4.2,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "Fall_Slip_Back",
+   "file": "090/90_17.bvh",
+   "start": 1.0,
+   "end": 5.0,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "Fall_RugPull_Back",
+   "file": "090/90_18.bvh",
+   "start": 0.6,
+   "end": 2.6,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "Fall_BackflipTwist",
+   "file": "090/90_13.bvh",
+   "start": 2.0,
+   "end": 5.5,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "GetUp_FaceDown_A",
+   "file": "140/140_01.bvh",
+   "start": 1.6,
+   "end": 6.6,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "GetUp_FaceDown_B",
+   "file": "139/139_16.bvh",
+   "start": 1.2,
+   "end": 5.2,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "GetUp_Side",
+   "file": "140/140_03.bvh",
+   "start": 1.5,
+   "end": 8.0,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "GetUp_Back_A",
+   "file": "140/140_08.bvh",
+   "start": 1.2,
+   "end": 7.5,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "GetUp_Back_B",
+   "file": "140/140_09.bvh",
+   "start": 1.2,
+   "end": 7.0,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  }
+ ]
+}

@@ -1,0 +1,127 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations_free/defense/UAL_Free_Defense.glb",
+ "smooth": 0.012,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "check_directions": true,
+ "heading": "strike",
+ "clips": [
+  {
+   "name": "MA_Block_L_A",
+   "file": "144/144_07.bvh",
+   "start": 0.24,
+   "end": 1.42,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "mean"
+  },
+  {
+   "name": "MA_Block_L_B",
+   "file": "144/144_07.bvh",
+   "start": 3.07,
+   "end": 3.88,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "mean"
+  },
+  {
+   "name": "MA_Block_L_C",
+   "file": "144/144_07.bvh",
+   "start": 16.37,
+   "end": 17.42,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "mean"
+  },
+  {
+   "name": "MA_Block_R_A",
+   "file": "144/144_26.bvh",
+   "start": 0.31,
+   "end": 1.44,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "mean"
+  },
+  {
+   "name": "MA_Block_R_B",
+   "file": "144/144_26.bvh",
+   "start": 2.87,
+   "end": 4.42,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "mean"
+  },
+  {
+   "name": "MA_Guard_Boxing",
+   "file": "013/13_18.bvh",
+   "start": 4.7,
+   "end": 7.2,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "loop": true,
+   "heading": "mean"
+  },
+  {
+   "name": "MA_Dodge_Duck",
+   "file": "077/77_09.bvh",
+   "start": 1.0,
+   "end": 4.4,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "mean"
+  },
+  {
+   "name": "MA_Evade_AttackerCover",
+   "file": "076/76_03.bvh",
+   "start": 0.3,
+   "end": 2.6,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "mean"
+  }
+ ]
+}

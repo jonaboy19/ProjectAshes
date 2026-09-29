@@ -1,0 +1,164 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations_free/combos/UAL_Free_Combos.glb",
+ "smooth": 0.012,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "check_directions": true,
+ "heading": "strike",
+ "clips": [
+  {
+   "name": "MA_Combo_JabCross",
+   "file": "014/14_01.bvh",
+   "start": 14.97,
+   "end": 16.75,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_JabCross_Southpaw",
+   "file": "014/14_01.bvh",
+   "start": 14.97,
+   "end": 16.75,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "mirror": true
+  },
+  {
+   "name": "MA_Combo_CrossCross",
+   "file": "013/13_18.bvh",
+   "start": 7.33,
+   "end": 9.69,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_StraightStraight",
+   "file": "014/14_01.bvh",
+   "start": 4.14,
+   "end": 6.74,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_BodyHeadHead",
+   "file": "143/143_23.bvh",
+   "start": 0.6,
+   "end": 3.9,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_HeavyJab",
+   "file": "014/14_01.bvh",
+   "start": 18.83,
+   "end": 20.82,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_HeavyHeavy",
+   "file": "014/14_01.bvh",
+   "start": 22.91,
+   "end": 25.65,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_StraightHeavy",
+   "file": "014/14_03.bvh",
+   "start": 28.18,
+   "end": 31.14,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_HeavyStraight",
+   "file": "015/15_13.bvh",
+   "start": 24.27,
+   "end": 26.16,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_HeavyStraightHeavy",
+   "file": "017/17_10.bvh",
+   "start": 17.2,
+   "end": 20.5,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_Flurry_5Hit",
+   "file": "079/79_08.bvh",
+   "start": 0.5,
+   "end": 3.7,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_Flurry_Long",
+   "file": "080/80_10.bvh",
+   "start": 0.6,
+   "end": 5.6,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_PunchKick",
+   "file": "141/141_14.bvh",
+   "start": 0.79,
+   "end": 4.81,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  }
+ ]
+}

@@ -1,0 +1,148 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations_free/kicks/UAL_Free_Kicks.glb",
+ "smooth": 0.012,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "check_directions": true,
+ "heading": "strike",
+ "clips": [
+  {
+   "name": "MA_Kick_Front_R_Low",
+   "file": "144/144_05.bvh",
+   "start": 0.31,
+   "end": 2.16,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Kick_Front_R_Mid",
+   "file": "144/144_05.bvh",
+   "start": 3.94,
+   "end": 5.83,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Kick_Front_R_High",
+   "file": "144/144_05.bvh",
+   "start": 19.92,
+   "end": 22.09,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Kick_Front_L_Low",
+   "file": "144/144_09.bvh",
+   "start": 0.31,
+   "end": 2.4,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Kick_Front_L_Mid",
+   "file": "144/144_09.bvh",
+   "start": 4.4,
+   "end": 6.55,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Kick_Front_L_High",
+   "file": "144/144_09.bvh",
+   "start": 15.36,
+   "end": 17.58,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Kick_Jump_R",
+   "file": "075/75_16.bvh",
+   "start": 1.6,
+   "end": 2.86,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Kick_Jump_L",
+   "file": "075/75_16.bvh",
+   "start": 1.6,
+   "end": 2.86,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "mirror": true
+  },
+  {
+   "name": "MA_Kick_JumpHigh_A",
+   "file": "090/90_05.bvh",
+   "start": 0.9,
+   "end": 3.6,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Kick_JumpHigh_B",
+   "file": "090/90_06.bvh",
+   "start": 1.6,
+   "end": 4.2,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Kick_Swing_R",
+   "file": "074/74_05.bvh",
+   "start": 0.5,
+   "end": 2.7,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  }
+ ]
+}

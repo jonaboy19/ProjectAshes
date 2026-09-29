@@ -1,0 +1,170 @@
+{
+ "source_type": "gltf",
+ "source_fps": 30,
+ "scale_mode": "height",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations_free/weapons/UAL_Free_Weapons.glb",
+ "smooth": 0,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "hips",
+  "spine_01": "spine",
+  "spine_03": "chest",
+  "Head": "head",
+  "upperarm_l": "upperarm.l",
+  "lowerarm_l": "lowerarm.l",
+  "hand_l": "hand.l",
+  "upperarm_r": "upperarm.r",
+  "lowerarm_r": "lowerarm.r",
+  "hand_r": "hand.r",
+  "thigh_l": "upperleg.l",
+  "calf_l": "lowerleg.l",
+  "foot_l": "foot.l",
+  "ball_l": "toes.l",
+  "thigh_r": "upperleg.r",
+  "calf_r": "lowerleg.r",
+  "foot_r": "foot.r",
+  "ball_r": "toes.r"
+ },
+ "check_directions": false,
+ "heading": "none",
+ "clips": [
+  {
+   "name": "Weapon_1H_Chop",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_1H_Attack_Chop",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_1H_Chop_Jump",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_1H_Attack_Jump_Chop",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_1H_Slice_Diagonal",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_1H_Attack_Slice_Diagonal",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_1H_Slice_Horizontal",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_1H_Attack_Slice_Horizontal",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_1H_Stab",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_1H_Attack_Stab",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_2H_Chop",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_2H_Attack_Chop",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_2H_Slice",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_2H_Attack_Slice",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_2H_Spin",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_2H_Attack_Spin",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_2H_Spinning",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_2H_Attack_Spinning",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_2H_Stab",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_2H_Attack_Stab",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_Block",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_Block",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_Block_Attack",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_Block_Attack",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_Block_Hit",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_Block_Hit",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_DW_Chop",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_Dualwield_Attack_Chop",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_DW_Slice",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_Dualwield_Attack_Slice",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Weapon_DW_Stab",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_Dualwield_Attack_Stab",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "MA_KK_Kick",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_Unarmed_Attack_Kick",
+   "fingers": "fist"
+  },
+  {
+   "name": "MA_KK_Punch",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_Unarmed_Attack_Punch_A",
+   "fingers": "fist"
+  },
+  {
+   "name": "MA_KK_Idle_Loop",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatMelee.glb",
+   "action": "Melee_Unarmed_Idle",
+   "fingers": "fist",
+   "loop": true
+  },
+  {
+   "name": "Hit_KK_A",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_General.glb",
+   "action": "Hit_A",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Hit_KK_B",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_General.glb",
+   "action": "Hit_B",
+   "fingers": "relaxed"
+  }
+ ]
+}

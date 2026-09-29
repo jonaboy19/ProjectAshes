@@ -1,0 +1,103 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations_free/casting/UAL_Free_Casting.glb",
+ "smooth": 0.012,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "check_directions": true,
+ "heading": "strike",
+ "clips": [
+  {
+   "name": "Cast_Slam_Overhead",
+   "file": "079/79_01.bvh",
+   "start": 0.6,
+   "end": 3.3,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "strike"
+  },
+  {
+   "name": "Cast_Push_Palm_A",
+   "file": "002/02_05.bvh",
+   "start": 0.8,
+   "end": 2.6,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "Cast_Push_Palm_B",
+   "file": "002/02_05.bvh",
+   "start": 8.0,
+   "end": 10.0,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "Cast_Throw_1H",
+   "file": "141/141_11.bvh",
+   "start": 2.4,
+   "end": 5.4,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "Cast_Aura_Raise_Arms",
+   "file": "144/144_30.bvh",
+   "start": 0.4,
+   "end": 4.6,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "mean"
+  },
+  {
+   "name": "Cast_Aura_Raise_Arms_B",
+   "file": "144/144_30.bvh",
+   "start": 21.0,
+   "end": 27.2,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "mean"
+  }
+ ]
+}

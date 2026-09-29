@@ -1,0 +1,173 @@
+[
+ {
+  "name": "Fall_Forward_Knockdown",
+  "loop": false,
+  "seconds": 2.0,
+  "frames": 61,
+  "keys": 1162,
+  "source": "090/90_16.bvh",
+  "range_s": [
+   2.2,
+   4.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.13,
+  "contact_lift_m": 0.051,
+  "min_foot_m": -0.006,
+  "travel_m": 0.15,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Fall_Slip_Back",
+  "loop": false,
+  "seconds": 4.0,
+  "frames": 121,
+  "keys": 1719,
+  "source": "090/90_17.bvh",
+  "range_s": [
+   1.0,
+   5.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.117,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.013,
+  "travel_m": 1.72,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Fall_RugPull_Back",
+  "loop": false,
+  "seconds": 2.0,
+  "frames": 61,
+  "keys": 844,
+  "source": "090/90_18.bvh",
+  "range_s": [
+   0.6,
+   2.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.175,
+  "contact_lift_m": 0.042,
+  "min_foot_m": -0.067,
+  "travel_m": 0.03,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "Fall_BackflipTwist",
+  "loop": false,
+  "seconds": 3.5,
+  "frames": 106,
+  "keys": 1623,
+  "source": "090/90_13.bvh",
+  "range_s": [
+   2.0,
+   5.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.136,
+  "contact_lift_m": 0.026,
+  "min_foot_m": -0.044,
+  "travel_m": 0.61,
+  "hip_scale": 0.0502
+ },
+ {
+  "name": "GetUp_FaceDown_A",
+  "loop": false,
+  "seconds": 5.0,
+  "frames": 151,
+  "keys": 1750,
+  "source": "140/140_01.bvh",
+  "range_s": [
+   1.6,
+   6.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.035,
+  "contact_lift_m": 0.097,
+  "min_foot_m": -0.001,
+  "travel_m": 0.8,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "GetUp_FaceDown_B",
+  "loop": false,
+  "seconds": 4.0,
+  "frames": 121,
+  "keys": 1711,
+  "source": "139/139_16.bvh",
+  "range_s": [
+   1.2,
+   5.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.014,
+  "contact_lift_m": 0.197,
+  "min_foot_m": -0.0,
+  "travel_m": 0.55,
+  "hip_scale": 0.0555
+ },
+ {
+  "name": "GetUp_Side",
+  "loop": false,
+  "seconds": 6.5,
+  "frames": 196,
+  "keys": 2527,
+  "source": "140/140_03.bvh",
+  "range_s": [
+   1.5,
+   8.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.027,
+  "contact_lift_m": 0.031,
+  "min_foot_m": -0.069,
+  "travel_m": 0.51,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "GetUp_Back_A",
+  "loop": false,
+  "seconds": 6.27,
+  "frames": 189,
+  "keys": 2237,
+  "source": "140/140_08.bvh",
+  "range_s": [
+   1.2,
+   7.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.031,
+  "contact_lift_m": 0.038,
+  "min_foot_m": -0.069,
+  "travel_m": 0.68,
+  "hip_scale": 0.057
+ },
+ {
+  "name": "GetUp_Back_B",
+  "loop": false,
+  "seconds": 5.57,
+  "frames": 168,
+  "keys": 1909,
+  "source": "140/140_09.bvh",
+  "range_s": [
+   1.2,
+   7.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.027,
+  "contact_lift_m": 0.022,
+  "min_foot_m": -0.069,
+  "travel_m": 0.65,
+  "hip_scale": 0.057
+ }
+]
