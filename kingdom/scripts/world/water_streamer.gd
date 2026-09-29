@@ -15,21 +15,26 @@ var focus := Vector3.ZERO
 
 var _chunks: Dictionary = {}         # Vector2i -> MeshInstance3D (or null when dry)
 var _material: ShaderMaterial
+var _sun: Object
 
 
 func _ready() -> void:
 	_material = ShaderMaterial.new()
-	_material.shader = preload("res://shaders/water.gdshader")
+	_material.shader = preload("res://shaders/water/clear_water.gdshader")
 	_material.set_shader_parameter("normal_a", _noise(0.012, 4, true, 3.0, 11))
 	_material.set_shader_parameter("normal_b", _noise(0.03, 3, true, 2.0, 29))
 	_material.set_shader_parameter("foam_noise", _noise(0.02, 3, false, 0.0, 47))
+	_material.set_shader_parameter("caustics_tex", _caustics())
 	# The Compatibility renderer has no screen texture copy worth paying for.
-	_material.set_shader_parameter("use_refraction", RenderingServer.get_current_rendering_method() != "gl_compatibility")
+	apply_quality()
+	if get_tree().root.get_node_or_null("Quality"):
+		get_tree().root.get_node("Quality").changed.connect(apply_quality)
 
 
 ## Weather and light on the water: rain rings (0..1) and the ember sunset glow (0..1).
 func set_weather(rain: float, sunset: float) -> void:
 	if _material:
+		_feed_sun()
 		_material.set_shader_parameter("rain_ripples", clampf(rain, 0.0, 1.0))
 		_material.set_shader_parameter("sunset", clampf(sunset, 0.0, 1.0))
 
@@ -171,3 +176,54 @@ static func build_mesh(origin: Vector2) -> ArrayMesh:
 	if quads == 0:
 		return null
 	return st.commit()
+
+
+## Seamless cellular-noise tile the shader turns into caustic light nets.
+static func _caustics() -> NoiseTexture2D:
+	var n := FastNoiseLite.new()
+	n.seed = 5
+	n.frequency = 0.03
+	n.noise_type = FastNoiseLite.TYPE_CELLULAR
+	n.cellular_distance_function = FastNoiseLite.DISTANCE_EUCLIDEAN
+	n.cellular_return_type = FastNoiseLite.RETURN_DISTANCE2_SUB
+	n.cellular_jitter = 1.0
+	var t := NoiseTexture2D.new()
+	t.width = 256
+	t.height = 256
+	t.seamless = true
+	t.noise = n
+	t.invert = true
+	t.generate_mipmaps = true
+	return t
+
+
+## Map the Quality autoload tier onto the water shader tiers.
+## LOW/Compatibility: no screen texture (fake transparency from depth + alpha).
+## MEDIUM: refraction, no caustics. HIGH/ULTRA: everything.
+func apply_quality() -> void:
+	if _material == null:
+		return
+	var tier: int = 2
+	var q := get_tree().root.get_node_or_null("Quality")
+	if q:
+		tier = int(q.get("tier"))
+	var level := 2
+	if tier <= 0 or RenderingServer.get_current_rendering_method() == "gl_compatibility":
+		level = 0
+	elif tier == 1:
+		level = 1
+	_material.set_shader_parameter("quality", level)
+	_material.set_shader_parameter("use_refraction", level >= 1)
+
+
+## Sun direction and strength for glints and caustics (sun is found once).
+func _feed_sun() -> void:
+	if not is_instance_valid(_sun):
+		_sun = null  # (untyped: assigning over a freed typed ref errors)
+		for l in get_tree().root.find_children("*", "DirectionalLight3D", true, false):
+			_sun = l
+			break
+	if _sun == null:
+		return
+	_material.set_shader_parameter("sun_dir", (_sun as DirectionalLight3D).global_transform.basis.z.normalized())
+	_material.set_shader_parameter("sun_energy", clampf((_sun as DirectionalLight3D).light_energy / 1.7, 0.0, 1.5) * (1.0 if (_sun as DirectionalLight3D).visible else 0.0))

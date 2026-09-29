@@ -32,3 +32,7 @@ _Last update: 2026-09-29_
 ## Backlog (from the aaa-review loop)
 - Warm up the blue lower canopy on the fluffy-tree shader.
 - Fix the 4 HUD icons that still have faint smudges.
+
+## Clear water (kingdom/shaders/water/clear_water.gdshader) - live in game via WaterStreamer
+Done: caustics, sun glints, clearer turquoise shallows, quality tiers (Quality LOW=fake transparency, MEDIUM=refraction, HIGH/ULTRA=+caustics). Before/after: docs/art/water/{before,after}. Shots: tools/qa/water_shots/run.sh.
+Remaining: HIGH/LOW fps before/after not measured (ULTRA new: lake 40, river 33, pier 27 fps on desktop; old HIGH pier 28.5); no frame-sheet animation check; no Android test; waterfall/pond presets; ULTRA river caustics slightly bright (tune caustic_strength); old shaders/water.gdshader can be deleted.
