@@ -102,6 +102,6 @@ Village scene, Mobile renderer, `bench.gd --uncapped`. It ran on a shared, loade
 
 ## QA boot test
 
-`tools_qa/boot_flow/boot_flow.gd` with `BOOT_FLOW_SKIP=1` fails at "world veil never appeared" (after `09_loading_screen`). It fails the same way on the unmodified branch code, so the failure pre-dates this pass and is in the backlog.
+`tools_qa/boot_flow/boot_flow.gd` with `BOOT_FLOW_SKIP=1`: **BOOTFLOW OK** on the merged branch, with these changes applied. The branch before the merge failed at "world veil never appeared", with or without this pass; the upstream character-creation fix resolved it.
 
 The feel captures boot the real game through `main.tscn` with zero script errors after the `procedural_rig` guard.
