@@ -51,3 +51,7 @@ Godot 4.6.3 isolated script parser verification is recorded separately from game
 
 JSON numbers do not preserve Godot integer types; see the [official JSON reference](https://docs.godotengine.org/en/4.6/classes/class_json.html). Integer IDs are therefore accepted only as finite whole numbers in the exact interoperable range; actor identity remains domain-specific.
 
+
+## Current delivery status (working tree, review pending)
+
+Continue from [SYSTEMS_CONTINUATION.md](SYSTEMS_CONTINUATION.md), including exact ownership, QA gate and remaining systems. Event journal integration exists. Craft action start/commit/cancel and UI lifecycle glue are present; reservations cover the actor work channel only, not physical station objects. NPC sight and crafting slices are committed; live integration is still unverified. Shared visibility is capped at 4 rays per 500 ms with 3-second anonymous danger memory. No FOV/hearing/permanent NPC memory is implemented. Isolated new-module parser checks do not establish full-game integration; behavioral/device validation is still required. Do not mark latest review fixes accepted without inspecting the final patch and evidence. Next: verify live integration, then stable shared station IDs/reservations, then significant evidence-based memory.

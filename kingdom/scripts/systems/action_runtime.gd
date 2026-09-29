@@ -4,6 +4,7 @@ extends RefCounted
 
 const MAX_ACTIVE := 32
 const TERMINAL_CACHE_SIZE := 64
+const MAX_RESOURCES_PER_ACTION := 8
 const MAX_PAYLOAD_BYTES := 4096
 const MAX_PAYLOAD_NODES := 256
 const MAX_PAYLOAD_DEPTH := 6
@@ -23,19 +24,41 @@ func _init() -> void:
 
 func begin(actor_ref: String, action_type: String, resource_key: String, now_s: float,
 		lease_s: float, payload: Dictionary = {}) -> Dictionary:
+	return begin_resources(actor_ref, action_type, [resource_key], now_s, lease_s, payload)
+
+
+## Atomically reserves every supplied key. Duplicate keys collapse to one lease.
+func begin_resources(actor_ref: String, action_type: String, resource_keys: Array, now_s: float,
+		lease_s: float, payload: Dictionary = {}) -> Dictionary:
 	if not is_finite(now_s) or not is_finite(lease_s) or lease_s <= 0.0:
 		return {"ok": false, "token": "", "error": "invalid_lease"}
 	if actor_ref.is_empty() or actor_ref.length() > 128 or action_type.is_empty() or action_type.length() > 64:
 		return {"ok": false, "token": "", "error": "invalid_metadata"}
-	if resource_key.is_empty() or resource_key.length() > 128:
+	if resource_keys.is_empty() or resource_keys.size() > MAX_RESOURCES_PER_ACTION:
 		return {"ok": false, "token": "", "error": "resource_reserved"}
-	if _reservations.has(resource_key):
-		var reserved_token := String(_reservations[resource_key])
-		if _active.has(reserved_token):
-			var reserved_action: Dictionary = _active[reserved_token]
-			if now_s >= float(reserved_action["expires_at"]) and String(reserved_action["phase"]) != "committing":
-				cancel(reserved_token, "expired")
-		if _reservations.has(resource_key):
+	var unique_keys: Array[String] = []
+	var seen_keys: Dictionary = {}
+	for raw_key: Variant in resource_keys:
+		if not raw_key is String or String(raw_key).strip_edges().is_empty() or String(raw_key).length() > 128:
+			return {"ok": false, "token": "", "error": "invalid_resource_key"}
+		var key := String(raw_key)
+		if not seen_keys.has(key):
+			seen_keys[key] = true
+			unique_keys.append(key)
+	if unique_keys.size() > MAX_RESOURCES_PER_ACTION:
+		return {"ok": false, "token": "", "error": "resource_capacity"}
+	# Reclaim stale holders first. Their complete key sets are released by _finish.
+	for key: String in unique_keys:
+		if not _reservations.has(key):
+			continue
+		var holder_token := String(_reservations[key])
+		if _active.has(holder_token):
+			var holder: Dictionary = _active[holder_token]
+			if now_s >= float(holder["expires_at"]) and String(holder["phase"]) != "committing":
+				cancel(holder_token, "expired")
+	# No reservation is written until all capacity and conflicts have passed.
+	for key: String in unique_keys:
+		if _reservations.has(key):
 			return {"ok": false, "token": "", "error": "resource_reserved"}
 	if _active.size() >= MAX_ACTIVE:
 		return {"ok": false, "token": "", "error": "capacity"}
@@ -44,9 +67,11 @@ func begin(actor_ref: String, action_type: String, resource_key: String, now_s: 
 	_serial += 1
 	var token := "%d:%d" % [_generation, _serial]
 	_active[token] = {"actor_ref": actor_ref, "action_type": action_type,
-		"resource_key": resource_key, "phase": "begun", "started_at": now_s,
+		"resource_key": unique_keys[0], "resource_keys": unique_keys.duplicate(),
+		"phase": "begun", "started_at": now_s,
 		"expires_at": now_s + minf(lease_s, 300.0), "payload": payload.duplicate(true)}
-	_reservations[resource_key] = token
+	for key: String in unique_keys:
+		_reservations[key] = token
 	return {"ok": true, "token": token, "error": ""}
 
 
@@ -158,14 +183,16 @@ func _finish(token: String, result: Dictionary) -> void:
 	if not _active.has(token):
 		return
 	var action: Dictionary = _active[token]
-	var resource_key := String(action["resource_key"])
-	if String(_reservations.get(resource_key, "")) == token:
-		_reservations.erase(resource_key)
+	var resource_keys: Array = action.get("resource_keys", [action.get("resource_key", "")])
+	for key: String in resource_keys:
+		if String(_reservations.get(key, "")) == token:
+			_reservations.erase(key)
 	_active.erase(token)
 	var completed := result.duplicate(true)
 	completed["action"] = {"actor_ref": String(action.get("actor_ref", "")),
 		"action_type": String(action.get("action_type", "")),
-		"resource_key": resource_key, "payload": action.get("payload", {}).duplicate(true)}
+		"resource_key": String(action.get("resource_key", "")),
+		"resource_keys": resource_keys.duplicate(), "payload": action.get("payload", {}).duplicate(true)}
 	_terminal[token] = completed
 	_terminal_order.append(token)
 	while _terminal_order.size() > TERMINAL_CACHE_SIZE:

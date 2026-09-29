@@ -101,3 +101,7 @@ Key routes: two NPCs compete for one slot; threat interrupts work; save during a
 
 Evaluate external code for current engine support, licence, maintenance, integration cost and tests. Wrap useful components behind project interfaces. A discontinued repository is not permission to reuse its proprietary game assets. Altering models does not remove copyright restrictions. This slice uses project-owned source and adds original systems; no third-party asset import is proposed.
 
+
+## Current delivery status (working tree, review pending)
+
+Continue from [SYSTEMS_CONTINUATION.md](SYSTEMS_CONTINUATION.md), including exact ownership, QA gate and remaining systems. Event journal integration exists. Craft action start/commit/cancel and UI lifecycle glue are present; reservations cover the actor work channel only, not physical station objects. NPC sight and crafting slices are committed; live integration is still unverified. Shared visibility is capped at 4 rays per 500 ms with 3-second anonymous danger memory. No FOV/hearing/permanent NPC memory is implemented. Isolated new-module parser checks do not establish full-game integration; behavioral/device validation is still required. Do not mark latest review fixes accepted without inspecting the final patch and evidence. Next: verify live integration, then stable shared station IDs/reservations, then significant evidence-based memory.
