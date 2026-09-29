@@ -48,6 +48,8 @@ shader_parameter/tail_len = 1.0
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_1m3y3"]
 _surfaces = [{
@@ -103,6 +105,8 @@ shader_parameter/tail_len = 1.0
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_3c3is"]
 _surfaces = [{
@@ -158,6 +162,8 @@ shader_parameter/tail_len = 1.0
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_qmysr"]
 _surfaces = [{
@@ -213,6 +219,8 @@ shader_parameter/tail_len = 1.0
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_mkimf"]
 _surfaces = [{
@@ -268,6 +276,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_gtiu3"]
 size = Vector2(2, 2)
@@ -297,42 +307,42 @@ color_ramp = SubResource("GradientTexture1D_bbk33")
 material = ExtResource("4_3qlvx")
 size = Vector2(0.5, 0.8258065)
 
-[node name="Lightning_Aura" type="Node3D" unique_id=1268483604]
+[node name="Lightning_Aura" type="Node3D" unique_id=177852308]
 script = ExtResource("1_xxv1w")
 duration = 0.0
 fade_out = 0.3
 kind = &"aura"
 element = &"lightning"
 
-[node name="Arc0" type="MeshInstance3D" parent="." unique_id=361248990]
+[node name="Arc0" type="MeshInstance3D" parent="." unique_id=960788990]
 material_override = SubResource("ShaderMaterial_fm5rk")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_1m3y3")
 
-[node name="Arc1" type="MeshInstance3D" parent="." unique_id=1393735349]
+[node name="Arc1" type="MeshInstance3D" parent="." unique_id=568594520]
 material_override = SubResource("ShaderMaterial_6fjbo")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_3c3is")
 
-[node name="Arc2" type="MeshInstance3D" parent="." unique_id=1802118266]
+[node name="Arc2" type="MeshInstance3D" parent="." unique_id=1933205851]
 material_override = SubResource("ShaderMaterial_mttw2")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_qmysr")
 
-[node name="Arc3" type="MeshInstance3D" parent="." unique_id=1373292410]
+[node name="Arc3" type="MeshInstance3D" parent="." unique_id=591878021]
 material_override = SubResource("ShaderMaterial_egici")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_mkimf")
 
-[node name="Ring" type="MeshInstance3D" parent="." unique_id=348534895]
+[node name="Ring" type="MeshInstance3D" parent="." unique_id=223033832]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
 material_override = SubResource("ShaderMaterial_34p51")
 cast_shadow = 0
@@ -340,7 +350,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_gtiu3")
 
-[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1306692254]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=606336998]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 cast_shadow = 0
 gi_mode = 0

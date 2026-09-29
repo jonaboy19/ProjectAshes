@@ -7,6 +7,9 @@ extends Node3D
 ##   Godot --path kingdom --rendering-method mobile --resolution 1280x720 res://tools_qa/vfx_gallery/elements_gallery.tscn -- --capture=<abs dir>
 ##   ... -- --perf=<abs dir>     (per effect GPU ms + particle counts -> perf.tsv)
 ##   optional: --only=fire,ice   --tier=0..3
+## Stop-motion review (Movie Maker, deterministic, one element: charge -> projectile -> impact -> aoe):
+##   Godot --path kingdom --write-movie <dir>/frame.png --fixed-fps 30 --quit-after 165 res://tools_qa/vfx_gallery/elements_gallery.tscn -- --seq=fire [--tier=2]
+##   (--seq=generic plays slash / sparks / dash / level up instead.)
 
 const CAM := {
 	"charge": [Vector3(1.9, 1.5, 2.6), Vector3(0.1, 1.15, -0.1)],
@@ -46,6 +49,10 @@ var _only := ""
 var _tier := -1
 var _auto_els: PackedStringArray = []
 var _cam_target := Vector3.ZERO
+var _seq := ""
+var _seq_t := 0.0
+var _seq_i := 0
+var _seq_fx: Array = []
 
 
 func _ready() -> void:
@@ -61,6 +68,8 @@ func _ready() -> void:
 			_auto = true
 		elif a.begins_with("--tier="):
 			_tier = int(a.substr(7))
+		elif a.begins_with("--seq="):
+			_seq = a.substr(6)
 	types.assign(ElementFX.TYPES)
 	types.append_array(ElementFX.GENERIC)
 	if not _auto_els.is_empty():
@@ -72,6 +81,15 @@ func _ready() -> void:
 		if q:
 			q.set("tier", _tier)
 	_focus()
+	if _seq != "":
+		ui.visible = false
+		if _seq == "generic":
+			cam.position = Vector3(2.6, 1.9, 2.8)
+			cam.look_at(Vector3(0.0, 1.1, -0.6))
+		else:
+			cam.position = Vector3(6.2, 3.3, -0.6)
+			cam.look_at(Vector3(0.0, 1.0, -3.4))
+		return
 	if _capture_dir != "" or _perf_dir != "":
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		Engine.max_fps = 0
@@ -114,7 +132,43 @@ func _unhandled_input(e: InputEvent) -> void:
 				_replay()
 
 
+## Scripted timeline (seconds): charge 0-1.1, projectile released 1.1 (impact on arrival), aoe 3.0.
+const SEQ := [[0.0, "charge"], [1.1, "release"], [3.0, "aoe"]]
+const SEQ_GENERIC := [[0.0, "slash_sword"], [0.9, "slash_fist"], [1.8, "hit_sparks"], [2.6, "dash"], [3.6, "level_up"]]
+
+
+func _seq_step(delta: float) -> void:
+	_seq_t += delta
+	var el: StringName = &"light" if _seq == "generic" else StringName(_seq)
+	var list: Array = SEQ_GENERIC if _seq == "generic" else SEQ
+	while _seq_i < list.size() and _seq_t >= float(list[_seq_i][0]):
+		var what: String = list[_seq_i][1]
+		_seq_i += 1
+		match what:
+			"charge":
+				_seq_fx.append(ElementFX.attach(el, &"charge", hand, 1.0))
+			"release":
+				for f in _seq_fx:
+					ElementFX.stop(f, 0.15)
+				ElementFX.projectile(el, hand.global_position, TARGET, 9.0, 1.0)
+			"aoe":
+				ElementFX.aoe(el, Vector3(0, 0, -6), 3.0)
+			"slash_sword":
+				ElementFX.slash(el, Vector3(0, 1.2, -0.4), 0.0, 0.5, 1.6, false)
+			"slash_fist":
+				ElementFX.slash(el, Vector3(0, 1.2, -0.4), 0.0, -0.3, 1.6, true)
+			"hit_sparks":
+				ElementFX.hit_sparks(el, Vector3(0, 1.2, -1.0), Vector3(0, 0, 1))
+			"dash":
+				ElementFX.dash(el, character, Vector3(0, 0, -1), 3)
+			"level_up":
+				ElementFX.level_up(character.global_position, el)
+
+
 func _process(delta: float) -> void:
+	if _seq != "":
+		_seq_step(delta)
+		return
 	if _auto:
 		_auto_t += delta
 		if _auto_t > 2.2:

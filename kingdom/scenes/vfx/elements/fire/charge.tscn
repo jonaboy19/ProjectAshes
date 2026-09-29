@@ -50,6 +50,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.42
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="SphereMesh" id="SphereMesh_7oo24"]
 radius = 0.15
@@ -131,27 +133,27 @@ color_ramp = SubResource("GradientTexture1D_c6cwm")
 material = ExtResource("6_qckoo")
 size = Vector2(0.15835051, 0.15835051)
 
-[node name="Fire_Charge" type="Node3D" unique_id=476227152]
+[node name="Fire_Charge" type="Node3D" unique_id=1745160159]
 script = ExtResource("1_3s3je")
 duration = 0.0
 kind = &"charge"
 element = &"fire"
 
-[node name="Orb" type="MeshInstance3D" parent="." unique_id=293937854]
+[node name="Orb" type="MeshInstance3D" parent="." unique_id=1966513387]
 material_override = SubResource("ShaderMaterial_i5hy3")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_7oo24")
 
-[node name="Glow" type="MeshInstance3D" parent="." unique_id=1311734648]
+[node name="Glow" type="MeshInstance3D" parent="." unique_id=2023362991]
 material_override = SubResource("ShaderMaterial_enbms")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_kvhpj")
 
-[node name="Flames" type="GPUParticles3D" parent="." unique_id=771831576]
+[node name="Flames" type="GPUParticles3D" parent="." unique_id=138290562]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -163,7 +165,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_5kokd")
 draw_pass_1 = SubResource("QuadMesh_wisnq")
 
-[node name="Embers" type="GPUParticles3D" parent="." unique_id=987000110]
+[node name="Embers" type="GPUParticles3D" parent="." unique_id=96223428]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -175,7 +177,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_0ub3x")
 draw_pass_1 = SubResource("QuadMesh_7s5vv")
 
-[node name="Flash" type="OmniLight3D" parent="." unique_id=584511793]
+[node name="Flash" type="OmniLight3D" parent="." unique_id=582483600]
 light_color = Color(1, 0.5, 0.12, 1)
 light_energy = 1.2
 omni_range = 4.0

@@ -100,14 +100,14 @@ color_ramp = SubResource("GradientTexture1D_1x015")
 material = ExtResource("4_gy324")
 size = Vector2(0.84210527, 0.78527606)
 
-[node name="Fire_Status" type="Node3D" unique_id=1832413155]
+[node name="Fire_Status" type="Node3D" unique_id=613978530]
 script = ExtResource("1_mepwi")
 duration = 0.0
 fade_out = 0.4
 kind = &"status"
 element = &"fire"
 
-[node name="Flames" type="GPUParticles3D" parent="." unique_id=648773240]
+[node name="Flames" type="GPUParticles3D" parent="." unique_id=366494740]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 cast_shadow = 0
 gi_mode = 0
@@ -121,7 +121,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_0csji")
 draw_pass_1 = SubResource("QuadMesh_d4dp0")
 
-[node name="Embers" type="GPUParticles3D" parent="." unique_id=892291210]
+[node name="Embers" type="GPUParticles3D" parent="." unique_id=2001567951]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 cast_shadow = 0
 gi_mode = 0
@@ -134,7 +134,7 @@ process_material = SubResource("ParticleProcessMaterial_46ak2")
 draw_pass_1 = SubResource("QuadMesh_tndfl")
 metadata/tier_min = 1
 
-[node name="Smoke" type="GPUParticles3D" parent="." unique_id=789563663]
+[node name="Smoke" type="GPUParticles3D" parent="." unique_id=2009215034]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 cast_shadow = 0
 gi_mode = 0

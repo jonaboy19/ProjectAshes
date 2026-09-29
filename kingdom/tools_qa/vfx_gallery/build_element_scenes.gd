@@ -18,6 +18,8 @@ const SHADERS := {
 	"add": "res://shaders/vfx_elements/el_add.gdshader",
 	"mix": "res://shaders/vfx_elements/el_mix.gdshader",
 	"solid": "res://shaders/vfx_elements/el_solid.gdshader",
+	"fire": "res://shaders/vfx_elements/el_fire.gdshader",
+	"shimmer": "res://shaders/vfx_elements/el_shimmer.gdshader",
 }
 const SPRITE := "res://shaders/vfx_elements/el_sprite.gdshader"
 
@@ -136,6 +138,42 @@ func grd(r: float) -> QuadMesh:
 	q.size = Vector2(r * 2.0, r * 2.0)
 	q.orientation = PlaneMesh.FACE_Y
 	return q
+
+
+## Flame tongue placement: n tongues scattered between radii r0..r1 (golden-angle spread + jitter), each w x h metres
+## (+-`var_` random size), growth delay d0..d1 (fraction of the `grow` animation). Feed to flame_mesh().
+func fire_ring(n: int, r0: float, r1: float, w: float, h: float, seed_: int, d0 := 0.0, d1 := 0.3, var_ := 0.35) -> Array:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1000 + seed_
+	var out: Array = []
+	for i in n:
+		var a := i * 2.39996 + rng.randf_range(-0.3, 0.3)
+		var rr := lerpf(r0, r1, sqrt((i + rng.randf_range(0.0, 0.8)) / float(n)))
+		var k := 1.0 + rng.randf_range(-var_, var_)
+		out.append({"x": cos(a) * rr, "z": sin(a) * rr, "w": w * (0.85 + 0.3 * rng.randf()), "h": h * k, "ph": rng.randf(), "d": rng.randf_range(d0, d1)})
+	return out
+
+
+## One mesh holding every flame tongue (el_fire.gdshader mode 0 billboards them around Y in the vertex shader).
+## Vertex xy = offset inside the tongue, UV = tongue space (y 0 base .. 1 tip), UV2 = base xz, COLOR = phase, -, delay.
+## The AABB is set by hand because the vertex shader moves the tongues far from their vertices.
+func flame_mesh(tongues: Array, aabb_r := 3.5, aabb_h := 3.5) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for t: Dictionary in tongues:
+		var w: float = t["w"]
+		var h: float = t["h"]
+		var col := Color(t["ph"], 1.0, t["d"], 1.0)
+		var b2 := Vector2(t["x"], t["z"])
+		var q := [[-w * 0.5, 0.0, 0.0, 0.0], [w * 0.5, 0.0, 1.0, 0.0], [w * 0.5, h, 1.0, 1.0], [-w * 0.5, 0.0, 0.0, 0.0], [w * 0.5, h, 1.0, 1.0], [-w * 0.5, h, 0.0, 1.0]]
+		for v: Array in q:
+			st.set_color(col)
+			st.set_uv(Vector2(v[2], v[3]))
+			st.set_uv2(b2)
+			st.add_vertex(Vector3(v[0], v[1], 0.0))
+	var am := st.commit()
+	am.custom_aabb = AABB(Vector3(-aabb_r, -0.2, -aabb_r), Vector3(aabb_r * 2.0, aabb_h + 0.4, aabb_r * 2.0))
+	return am
 
 
 func light(par: Node, col: Color, energy: float, rng: float, decay: float, pos := Vector3.ZERO, delay := 0.0) -> OmniLight3D:
@@ -382,14 +420,14 @@ func P_orb(extra := {}) -> Dictionary:
 
 func P_col(extra := {}) -> Dictionary:
 	var d := {"shape_mode": 0, "noise_amt": 0.85, "noise_scale": Vector3(3.0, 2.2, 3.0), "scroll": Vector3(0, -2.2, 0),
-		"fade_y": Vector2(0.12, 0.55), "bands": 3.0, "cel": 0.7, "intensity": 0.95, "alpha_mul": 0.85, "heat_scale": 0.7}
+		"fade_y": Vector2(0.12, 0.55), "bands": 3.0, "cel": 0.7, "intensity": 0.95, "alpha_mul": 0.85, "heat_scale": 0.7, "soft_edge": 0.85}
 	d.merge(extra, true)
 	return d
 
 
 func P_ring(extra := {}) -> Dictionary:
 	var d := {"shape_mode": 1, "noise_amt": 0.5, "noise_scale": Vector3(4, 4, 4), "scroll": Vector3(0.6, 0, 0.6),
-		"ring_r": 0.8, "ring_w": 0.2, "ring_fill": 0.0, "bands": 3.0, "cel": 0.7, "intensity": 1.0, "heat_scale": 0.75}
+		"ring_r": 0.8, "ring_w": 0.2, "ring_fill": 0.0, "bands": 3.0, "cel": 0.7, "intensity": 1.0, "heat_scale": 0.75, "ring_soft": 0.7}
 	d.merge(extra, true)
 	return d
 
@@ -511,9 +549,11 @@ func build_fire() -> void:
 	save(r, el, "beam")
 	# impact
 	r = begin(el, "impact", 1.0)
-	mesh(r, "Shell", sph(0.9, 14, 8), fxmat("add", el, P_orb({"mesh_r": 0.9, "core_facing": 0.2, "rim_alpha": 0.5, "wobble": 0.1, "intensity": 1.0, "noise_amt": 0.9, "heat_scale": 0.5})), Vector3(0, 0.2, 0), Vector3.ZERO, Vector3.ONE * 0.3,
-		[A("scale", 0.3, 1.1, 0.0, 0.35, "out"), A("progress", 0.0, 1.0, 0.1, 0.5, "in")])
-	spr(r, "Flash", "spotlight_5", 2.6, Color(core, 0.9), 1.0, Vector3(0, 0.2, 0), [A("scale", 0.4, 1.5, 0.0, 0.25, "out"), A("master", 1.0, 0.0, 0.05, 0.3)])
+	# soft flame burst: tongues shoot out of the hit point, hot core, dissolve into smoke (no solid shell)
+	mesh(r, "Burst", flame_mesh(fire_ring(14, 0.05, 0.55, 0.75, 1.5, 1, 0.0, 0.25, 0.4), 2.0), fxmat("fire", el, {"mode": 0, "glow": 0.9, "lean": 0.3}), Vector3(0, 0.05, 0), Vector3.ZERO, Vector3.ONE,
+		[A("grow", 0.0, 1.0, 0.0, 0.3, "out"), A("spread", 0.3, 1.0, 0.0, 0.3, "out"), A("progress", 0.0, 1.0, 0.25, 0.85, "in")])
+	mesh(r, "Crown", flame_mesh(fire_ring(7, 0.0, 0.2, 0.9, 1.9, 2, 0.0, 0.1, 0.4), 2.4), fxmat("fire", el, {"mode": 0, "glow": 1.1}), Vector3(0, 0.05, 0), Vector3.ZERO, Vector3.ONE,
+		[A("grow", 0.0, 1.0, 0.0, 0.25, "out"), A("progress", 0.0, 1.0, 0.2, 0.7, "in")])
 	spr(r, "Ring", "light_01", 3.4, Color(mid, 0.9), 0.9, Vector3(0, 0.2, 0), [A("scale", 0.2, 1.0, 0.0, 0.4, "out"), A("master", 1.0, 0.0, 0.12, 0.45)])
 	ps(r, "Puffs", {"tex": "fire_02", "n": 8, "life": 0.6, "shape": "sphere", "radius": 0.25, "v": [1.5, 3.5], "spread": 180, "grav": Vector3(0, 2.0, 0),
 		"damp": [2, 3], "size": 0.9, "spin": true, "cols": life_cols(el, 0.9), "curve": "grow"})
@@ -525,23 +565,34 @@ func build_fire() -> void:
 		"size": 1.1, "spin": true, "curve": "grow", "cols": [[0.0, Color(0.3, 0.22, 0.18, 0.0)], [0.2, Color(0.32, 0.24, 0.2, 0.45)], [1.0, Color(0.4, 0.33, 0.3, 0.0)]], "tier": 2, "delay": 0.1})
 	light(r, mid, 4.0, 6.0, 0.25, Vector3(0, 0.5, 0))
 	save(r, el, "impact")
-	# aoe: fire nova (3 m radius)
-	r = begin(el, "aoe", 1.7)
-	mesh(r, "Circle", grd(3.2), fxmat("add", el, P_ring({"mesh_r": 3.2, "ring_r": 0.94, "ring_w": 0.08, "ticks": 24.0, "tick_amt": 0.6, "noise_amt": 0.3, "intensity": 0.9})), Vector3(0, 0.04, 0), Vector3.ZERO, Vector3.ONE,
-		[A("master", 0.0, 1.0, 0.0, 0.15), A("progress", 0.0, 1.0, 1.2, 1.7)])
-	mesh(r, "Wave", grd(3.2), fxmat("add", el, P_ring({"mesh_r": 3.2, "ring_w": 0.34, "ring_fill": 0.35, "intensity": 1.0})), Vector3(0, 0.06, 0), Vector3.ZERO, Vector3.ONE,
-		[A("ring_r", 0.1, 0.9, 0.05, 0.6, "out"), A("progress", 0.0, 1.0, 0.35, 0.9)])
-	mesh(r, "Wall", cyl(1.0, 1.0, 1.4, 20), fxmat("add", el, P_col({"mesh_h": 1.4, "fade_y": Vector2(0.08, 0.6), "noise_scale": Vector3(1.6, 2.2, 1.6), "scroll": Vector3(0, -3.5, 0), "intensity": 1.0})), Vector3(0, 0.7, 0), Vector3.ZERO, Vector3(0.2, 1, 0.2),
-		[A("scale", Vector3(0.2, 1, 0.2), Vector3(3.0, 1.0, 3.0), 0.05, 0.65, "out"), A("progress", 0.0, 1.0, 0.4, 1.1)])
-	mesh(r, "Pillar", cyl(0.5, 0.9, 3.0, 14), fxmat("add", el, P_col({"mesh_h": 3.0, "noise_scale": Vector3(2.4, 1.4, 2.4), "scroll": Vector3(0, -3.0, 0)})), Vector3(0, 1.5, 0), Vector3.ZERO, Vector3.ONE,
-		[A("scale", Vector3(0.3, 0.3, 0.3), Vector3(1, 1, 1), 0.0, 0.3, "out"), A("progress", 0.0, 1.0, 0.5, 1.2)])
-	spr(r, "Flash", "spotlight_5", 5.0, Color(core, 0.8), 1.0, Vector3(0, 0.5, 0), [A("scale", 0.3, 1.4, 0.0, 0.3, "out"), A("master", 1.0, 0.0, 0.05, 0.4)])
-	ps(r, "Flames", {"tex": "flame_05", "n": 30, "life": 0.9, "shape": "ring", "radius": 0.5, "inner": 0.1, "radial": [7.0, 10.0], "damp": [2, 3], "dir": Vector3.UP, "v": [1.0, 2.5], "spread": 20,
-		"size": Vector2(0.6, 0.9), "spin": true, "cols": life_cols(el), "curve": "mid", "delay": 0.05, "aabb": 5.0, "grav": Vector3(0, 1.5, 0)})
-	ps(r, "Embers", {"tex": "circle_05", "n": 30, "life": 1.3, "shape": "ring", "radius": 1.2, "inner": 0.2, "radial": [2, 5], "v": [2.0, 5.0], "spread": 35, "grav": Vector3(0, 0.5, 0),
-		"size": 0.08, "cols": life_cols(el), "tier": 1, "aabb": 5.0, "delay": 0.1})
-	ps(r, "Smoke", {"tex": "smoke_04", "blend": "mix", "n": 8, "life": 1.4, "shape": "ring", "radius": 2.0, "inner": 0.5, "v": [0.5, 1.2], "spread": 30, "grav": Vector3(0, 0.6, 0),
-		"size": 1.6, "spin": true, "curve": "grow", "cols": [[0.0, Color(0.3, 0.22, 0.18, 0.0)], [0.2, Color(0.32, 0.24, 0.2, 0.4)], [1.0, Color(0.42, 0.36, 0.34, 0.0)]], "tier": 2, "delay": 0.3, "aabb": 5.0})
+	# aoe: fire nova (3 m radius). Soft, noise-eroded flame tongues + ground glow + soot; no solid ring / cylinder.
+	r = begin(el, "aoe", 1.9)
+	mesh(r, "Soot", grd(3.4), fxmat("fire", el, {"mode": 2, "mesh_r": 3.4, "col_edge": Color(0.16, 0.09, 0.06), "body_alpha": 0.5}), Vector3(0, 0.03, 0), Vector3.ZERO, Vector3.ONE,
+		[A("radius_frac", 0.1, 1.0, 0.0, 0.5, "out"), A("master", 0.0, 1.0, 0.0, 0.2), A("progress", 0.0, 1.0, 1.15, 1.9)])
+	mesh(r, "Glow", grd(3.4), fxmat("fire", el, {"mode": 1, "mesh_r": 3.4, "glow": 1.0, "intensity": 1.1}), Vector3(0, 0.05, 0), Vector3.ZERO, Vector3.ONE,
+		[A("radius_frac", 0.05, 1.0, 0.0, 0.55, "out"), A("master", 0.0, 1.0, 0.0, 0.1), A("progress", 0.0, 1.0, 0.85, 1.85, "in")])
+	var wave := fire_ring(26, 0.5, 3.0, 0.85, 1.35, 3, 0.0, 0.3, 0.4)
+	mesh(r, "Nova", flame_mesh(wave, 3.5, 1.6), fxmat("fire", el, {"mode": 0, "glow": 0.8, "lean": 0.2}), Vector3(0, 0.04, 0), Vector3.ZERO, Vector3.ONE,
+		[A("spread", 0.1, 1.0, 0.0, 0.55, "out"), A("grow", 0.0, 1.0, 0.0, 0.6), A("progress", 0.0, 1.0, 0.85, 1.65, "in")])
+	var mid_ring := fire_ring(12, 0.6, 1.7, 1.0, 2.0, 4, 0.05, 0.4, 0.4)
+	mesh(r, "Mid", flame_mesh(mid_ring, 2.0, 2.5), fxmat("fire", el, {"mode": 0, "glow": 0.9, "lean": 0.1}), Vector3(0, 0.04, 0), Vector3.ZERO, Vector3.ONE,
+		[A("grow", 0.0, 1.0, 0.05, 0.6), A("progress", 0.0, 1.0, 0.8, 1.55, "in")])
+	var pillar := fire_ring(9, 0.0, 0.45, 1.3, 3.0, 5, 0.0, 0.3, 0.35)
+	mesh(r, "Pillar", flame_mesh(pillar, 0.8, 4.0), fxmat("fire", el, {"mode": 0, "glow": 1.1, "lean": 0.0, "speed": 1.3}), Vector3(0, 0.04, 0), Vector3.ZERO, Vector3.ONE,
+		[A("grow", 0.0, 1.0, 0.02, 0.45, "out"), A("progress", 0.0, 1.0, 0.65, 1.4, "in")])
+	# heat shimmer over the fire (screen-space wobble, HIGH+ only)
+	var sq := QuadMesh.new()
+	sq.size = Vector2(6.2, 4.4)
+	mesh(r, "Shimmer", sq, fxmat("shimmer", el, {"strength": 0.011}), Vector3(0, 1.9, 0), Vector3.ZERO, Vector3.ONE,
+		[A("strength", 0.0, 0.011, 0.1, 0.5), A("master", 1.0, 0.0, 1.3, 1.85)], 2)
+	spr(r, "Flash", "spotlight_5", 5.0, Color(core, 0.7), 1.0, Vector3(0, 0.5, 0), [A("scale", 0.3, 1.4, 0.0, 0.3, "out"), A("master", 1.0, 0.0, 0.05, 0.4)])
+	ps(r, "Flames", {"tex": "flame_05", "n": 14, "life": 0.9, "shape": "ring", "radius": 1.6, "inner": 0.1, "radial": [3.0, 6.0], "damp": [2, 3], "dir": Vector3.UP, "v": [0.8, 2.0], "spread": 20,
+		"size": Vector2(0.55, 0.8), "spin": true, "cols": life_cols(el, 0.7), "curve": "mid", "delay": 0.1, "aabb": 5.0, "grav": Vector3(0, 1.5, 0)})
+	ps(r, "Embers", {"tex": "circle_05", "blend": "add", "n": 44, "life": 1.7, "shape": "ring", "radius": 1.6, "inner": 0.1, "radial": [1.0, 4.0], "v": [1.5, 4.5], "spread": 40, "grav": Vector3(0, 1.4, 0),
+		"damp": [0.3, 0.8], "size": 0.075, "cols": [[0.0, Color(1.0, 0.85, 0.4, 0.0)], [0.1, Color(1.0, 0.8, 0.35, 1.0)], [0.6, Color(1.0, 0.45, 0.1, 0.9)], [1.0, Color(0.7, 0.15, 0.05, 0.0)]],
+		"tier": 1, "aabb": 6.0, "delay": 0.1})
+	ps(r, "Smoke", {"tex": "smoke_04", "blend": "mix", "n": 12, "life": 1.7, "shape": "ring", "radius": 2.0, "inner": 0.3, "v": [0.6, 1.5], "spread": 25, "grav": Vector3(0, 0.9, 0),
+		"size": 1.5, "spin": true, "curve": "grow", "cols": [[0.0, Color(0.22, 0.16, 0.13, 0.0)], [0.25, Color(0.25, 0.19, 0.16, 0.42)], [1.0, Color(0.42, 0.37, 0.36, 0.0)]], "tier": 1, "delay": 0.35, "aabb": 6.0})
 	light(r, mid, 4.5, 9.0, 0.5, Vector3(0, 0.6, 0))
 	save(r, el, "aoe")
 	# status: burning
@@ -800,20 +851,25 @@ func build_lightning() -> void:
 	light(r, mid, 1.6, 5.0, 9999.0)
 	save(r, el, "projectile")
 	r = begin(el, "beam", 0.0, 0.15)
-	bolt(r, "Outer", Vector3.ZERO, Vector3(0, 0, -1), 0.12, 0.2, fxmat("mix", el, P_bolt({"flicker": 0.35, "intensity": 1.0, "alpha_mul": 0.6, "col_core": mid, "col_mid": mid, "col_edge": edge})), 16, 51)
-	bolt(r, "Main", Vector3.ZERO, Vector3(0, 0, -1), 0.08, 0.1, fxmat("glow", el, P_bolt({"flicker": 0.4, "intensity": 1.1})), 16, 52)
-	bolt(r, "Fork", Vector3.ZERO, Vector3(0, 0, -1), 0.2, 0.06, fxmat("glow", el, P_bolt({"flicker": 0.6, "intensity": 0.9})), 12, 53)
+	# bold beam: a wide violet halo/outline (alpha-blended, so it reads on the bright ground), a saturated body and a white-hot core
+	var VI := {"col_core": Color(0.56, 0.5, 1.0), "col_mid": Color(0.34, 0.24, 0.92), "col_edge": Color(0.16, 0.08, 0.55)}
+	bolt(r, "Halo", Vector3.ZERO, Vector3(0, 0, -1), 0.16, 0.5, fxmat("mix", el, P_bolt({"flicker": 0.3, "intensity": 1.0, "alpha_mul": 0.75, "cel": 0.3, "heat_scale": 0.55}.merged(VI, true))), 16, 54)
+	bolt(r, "Outer", Vector3.ZERO, Vector3(0, 0, -1), 0.14, 0.3, fxmat("mix", el, P_bolt({"flicker": 0.35, "intensity": 1.1, "alpha_mul": 0.95, "heat_scale": 0.75}.merged(VI, true))), 16, 51)
+	bolt(r, "Main", Vector3.ZERO, Vector3(0, 0, -1), 0.1, 0.17, fxmat("glow", el, P_bolt({"flicker": 0.4, "intensity": 1.5, "heat_scale": 1.3})), 16, 52)
+	bolt(r, "Fork", Vector3.ZERO, Vector3(0, 0, -1), 0.26, 0.09, fxmat("glow", el, P_bolt({"flicker": 0.6, "intensity": 1.3, "heat_scale": 1.3})), 12, 53)
 	spr(r, "Muzzle", "spotlight_5", 0.9, Color(mid, 0.5), 0.8)
 	spr(r, "Tip", "spotlight_5", 1.4, Color(mid, 0.45), 0.8, Vector3(0, 0, -1.0))
 	ps(r, "Sparks", {"tex": "trace_02", "n": 10, "life": 0.25, "once": false, "local": true, "shape": "sphere", "radius": 0.06, "v": [2.0, 5.0], "spread": 180, "size": Vector2(0.03, 0.3), "stretch": true, "cols": spark, "aabb": 4.0, "curve": "flat", "pos": Vector3(0, 0, -1.0)})
 	save(r, el, "beam")
 	r = begin(el, "impact", 0.7)
-	spr(r, "Star", "star_06", 2.8, Color(core, 1.0), 1.0, Vector3.ZERO, [A("scale", 0.3, 1.3, 0.0, 0.18, "out"), A("master", 1.0, 0.0, 0.05, 0.3)])
-	spr(r, "Flash", "spotlight_5", 2.4, Color(mid, 0.6), 0.9, Vector3.ZERO, [A("scale", 0.4, 1.3, 0.0, 0.2, "out"), A("master", 1.0, 0.0, 0.05, 0.3)])
-	spr(r, "Ring", "light_01", 2.6, Color(mid, 0.9), 0.8, Vector3.ZERO, [A("scale", 0.2, 1.0, 0.0, 0.3, "out"), A("master", 1.0, 0.0, 0.08, 0.35)])
-	for i in 6:
-		var d := Vector3(0, 0, -1.0 - 0.2 * (i % 3)).rotated(Vector3.UP, i * 1.05).rotated(Vector3.RIGHT, 0.6 * (i % 2) - 0.3)
-		bolt(r, "Arc%d" % i, Vector3.ZERO, d, 0.16, 0.05, fxmat("glow", el, P_bolt({"flicker": 0.3})), 7, 61 + i, [A("progress", 0.0, 1.0, 0.1, 0.4)])
+	spr(r, "Star", "star_06", 4.2, Color(core, 1.0), 1.3, Vector3.ZERO, [A("scale", 0.3, 1.3, 0.0, 0.18, "out"), A("master", 1.0, 0.0, 0.08, 0.34)])
+	spr(r, "Flash", "spotlight_5", 3.0, Color(mid, 0.7), 1.0, Vector3.ZERO, [A("scale", 0.4, 1.3, 0.0, 0.2, "out"), A("master", 1.0, 0.0, 0.08, 0.34)])
+	spr(r, "Ring", "light_01", 3.6, Color(mid, 1.0), 0.9, Vector3.ZERO, [A("scale", 0.2, 1.0, 0.0, 0.3, "out"), A("master", 1.0, 0.0, 0.1, 0.4)])
+	var VI2 := {"col_core": Color(0.56, 0.5, 1.0), "col_mid": Color(0.34, 0.24, 0.92), "col_edge": Color(0.16, 0.08, 0.55)}
+	for i in 9:
+		var d := Vector3(0, 0, -1.3 - 0.25 * (i % 3)).rotated(Vector3.UP, i * 0.7).rotated(Vector3.RIGHT, 0.6 * (i % 2) - 0.3)
+		bolt(r, "Halo%d" % i, Vector3.ZERO, d, 0.18, 0.17, fxmat("mix", el, P_bolt({"flicker": 0.25, "alpha_mul": 0.85, "heat_scale": 0.7}.merged(VI2, true))), 7, 61 + i, [A("progress", 0.0, 1.0, 0.16, 0.48)])
+		bolt(r, "Arc%d" % i, Vector3.ZERO, d, 0.18, 0.09, fxmat("glow", el, P_bolt({"flicker": 0.3, "intensity": 1.4, "heat_scale": 1.3})), 7, 61 + i, [A("progress", 0.0, 1.0, 0.16, 0.48)])
 	ps(r, "Sparks", {"tex": "trace_02", "n": 18, "life": 0.4, "shape": "sphere", "radius": 0.1, "v": [4.0, 9.0], "spread": 180, "damp": [1, 2], "size": Vector2(0.04, 0.45), "stretch": true, "cols": spark, "curve": "flat"})
 	light(r, mid, 5.0, 6.0, 0.18)
 	save(r, el, "impact")
@@ -824,8 +880,10 @@ func build_lightning() -> void:
 		[A("vis", 0, 0, 0.28, 1.6), A("progress", 0.0, 1.0, 0.9, 1.6)])
 	mesh(r, "Wave", grd(3.2), fxmat("glow", el, P_ring({"mesh_r": 3.2, "ring_w": 0.3, "ring_fill": 0.3, "intensity": 0.9, "flicker": 0.2})), Vector3(0, 0.06, 0), Vector3.ZERO, Vector3.ONE,
 		[A("vis", 0, 0, 0.28, 1.6), A("ring_r", 0.1, 0.9, 0.28, 0.75, "out"), A("progress", 0.0, 1.0, 0.5, 0.95)])
-	bolt(r, "Sky", Vector3(0, 12, 0), Vector3.ZERO, 0.8, 0.35, fxmat("glow", el, P_bolt({"flicker": 0.25, "intensity": 1.0})), 16, 71, [A("vis", 0, 0, 0.28, 0.62)])
-	bolt(r, "Sky2", Vector3(0.2, 12, 0), Vector3(0, 0, 0.1), 1.0, 0.16, fxmat("glow", el, P_bolt({"flicker": 0.35, "intensity": 1.0})), 16, 72, [A("vis", 0, 0, 0.3, 0.6)])
+	var VI3 := {"col_core": Color(0.56, 0.5, 1.0), "col_mid": Color(0.34, 0.24, 0.92), "col_edge": Color(0.16, 0.08, 0.55)}
+	bolt(r, "SkyHalo", Vector3(0, 12, 0), Vector3.ZERO, 0.8, 0.95, fxmat("mix", el, P_bolt({"flicker": 0.2, "alpha_mul": 0.8, "heat_scale": 0.7}.merged(VI3, true))), 16, 71, [A("vis", 0, 0, 0.28, 0.62)])
+	bolt(r, "Sky", Vector3(0, 12, 0), Vector3.ZERO, 0.8, 0.55, fxmat("glow", el, P_bolt({"flicker": 0.25, "intensity": 1.5, "heat_scale": 1.3})), 16, 71, [A("vis", 0, 0, 0.28, 0.62)])
+	bolt(r, "Sky2", Vector3(0.2, 12, 0), Vector3(0, 0, 0.1), 1.0, 0.26, fxmat("glow", el, P_bolt({"flicker": 0.35, "intensity": 1.5, "heat_scale": 1.3})), 16, 72, [A("vis", 0, 0, 0.3, 0.6)])
 	spr(r, "Star", "star_06", 6.0, Color(core, 1.0), 1.0, Vector3(0, 0.8, 0), [A("vis", 0, 0, 0.28, 1.0), A("scale", 0.4, 1.3, 0.28, 0.5, "out"), A("master", 1.0, 0.0, 0.32, 0.7)])
 	spr(r, "Flash", "spotlight_5", 6.0, Color(mid, 0.6), 0.9, Vector3(0, 0.8, 0), [A("vis", 0, 0, 0.28, 1.0), A("scale", 0.4, 1.2, 0.28, 0.5, "out"), A("master", 1.0, 0.0, 0.32, 0.8)])
 	ps(r, "Sparks", {"tex": "trace_02", "n": 26, "life": 0.6, "shape": "ring", "radius": 1.0, "v": [3.0, 8.0], "spread": 40, "grav": Vector3(0, -6, 0), "size": Vector2(0.04, 0.5), "stretch": true, "cols": spark, "curve": "flat", "delay": 0.28, "aabb": 6.0})
@@ -1103,18 +1161,22 @@ func build_generic() -> void:
 	save(r, "generic", "hit_sparks")
 	# dash: horizontal speed ribbons behind (+Z) + streak sparks + dust
 	r = begin(el, "dash", 0.7)
-	for i in 3:
+	# bold dash: a tapered speed cone behind the body (the readable silhouette), fat ribbons, streaks and dust
+	mesh(r, "Cone", cyl(0.0, 0.5, 2.8, 14), fxmat("mix", el, P_col({"mesh_h": 2.8, "fade_y": Vector2(0.1, 0.55), "scroll": Vector3(0, 6.0, 0), "noise_scale": Vector3(3.0, 1.4, 3.0), "alpha_mul": 0.85, "intensity": 1.05, "soft_edge": 0.7, "noise_amt": 0.55})),
+		Vector3(0, 0.9, 1.6), Vector3(90, 0, 0), Vector3(1.0, 0.35, 1.7),
+		[A("scale", Vector3(1.0, 0.35, 1.7), Vector3(1.0, 1.0, 1.7), 0.0, 0.14, "out"), A("progress", 0.0, 1.0, 0.1, 0.55, "in")])
+	for i in 5:
 		var pts := PackedVector3Array()
-		var y: float = [0.35, 0.95, 1.45][i]
-		var zl: float = [2.2, 2.8, 2.0][i]
-		var xo: float = [0.25, -0.15, 0.1][i]
+		var y: float = [0.3, 0.7, 1.05, 1.4, 1.7][i]
+		var zl: float = [2.2, 3.0, 3.4, 2.7, 2.0][i]
+		var xo: float = [0.25, -0.2, 0.15, -0.1, 0.1][i]
 		for k in 9:
 			var t := float(k) / 8.0
 			pts.append(Vector3(xo, y, lerpf(zl, 0.2, t)))
-		mesh(r, "Ribbon%d" % i, K.path_mesh(pts, 0.16, Vector3.UP, true), fxmat("add", el, {"shape_mode": 3, "noise_amt": 0.3, "noise_scale": Vector3(4, 4, 4), "scroll": Vector3(-6, 0, 0),
-			"tail_len": 0.9, "cel": 0.6, "intensity": 1.0}), Vector3.ZERO, Vector3.ZERO, Vector3.ONE, [A("progress", 0.0, 1.0, 0.05 + i * 0.03, 0.5, "in")])
+		mesh(r, "Ribbon%d" % i, K.path_mesh(pts, 0.3, Vector3.UP, true), fxmat("add", el, {"shape_mode": 3, "noise_amt": 0.3, "noise_scale": Vector3(4, 4, 4), "scroll": Vector3(-6, 0, 0),
+			"tail_len": 0.9, "cel": 0.6, "intensity": 1.15, "alpha_mul": 0.95}), Vector3.ZERO, Vector3.ZERO, Vector3.ONE, [A("progress", 0.0, 1.0, 0.06 + i * 0.03, 0.5, "in")])
 	ps(r, "Streaks", {"tex": "trace_02", "n": 14, "life": 0.4, "shape": "box", "ext": Vector3(0.35, 0.7, 0.1), "pos": Vector3(0, 0.95, 0.1), "dir": Vector3(0, 0, 1), "v": [5.0, 9.0], "spread": 6,
-		"size": Vector2(0.06, 0.9), "stretch": true, "cols": [[0.0, Color(1, 1, 1, 0)], [0.1, Color(1, 1, 1, 0.9)], [1.0, Color(1, 1, 1, 0)]], "tint": true, "tint_white": 0.3, "aabb": 4.0})
+		"size": Vector2(0.11, 1.1), "stretch": true, "cols": [[0.0, Color(1, 1, 1, 0)], [0.1, Color(1, 1, 1, 0.95)], [1.0, Color(1, 1, 1, 0)]], "tint": true, "tint_white": 0.3, "aabb": 4.0})
 	ps(r, "Dust", {"tex": "smoke_04", "blend": "mix", "n": 6, "life": 0.7, "shape": "box", "ext": Vector3(0.2, 0.02, 0.4), "pos": Vector3(0, 0.1, 0.3), "dir": Vector3(0, 0.4, 1), "v": [0.6, 1.5], "spread": 35,
 		"size": 0.6, "spin": true, "curve": "grow", "cols": [[0.0, Color(0.85, 0.78, 0.65, 0.0)], [0.2, Color(0.85, 0.78, 0.65, 0.35)], [1.0, Color(0.85, 0.78, 0.65, 0.0)]], "tier": 1, "aabb": 3.0})
 	save(r, "generic", "dash")

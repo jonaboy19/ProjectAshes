@@ -49,6 +49,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.9
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="SphereMesh" id="SphereMesh_1kmu6"]
 radius = 0.13
@@ -111,6 +113,8 @@ shader_parameter/tail_len = 1.0
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_iuqem"]
 _surfaces = [{
@@ -166,6 +170,8 @@ shader_parameter/tail_len = 1.0
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_m1ctu"]
 _surfaces = [{
@@ -221,6 +227,8 @@ shader_parameter/tail_len = 1.0
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_lw73r"]
 _surfaces = [{
@@ -276,6 +284,8 @@ shader_parameter/tail_len = 1.0
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_y1n10"]
 _surfaces = [{
@@ -312,55 +322,55 @@ color_ramp = SubResource("GradientTexture1D_q2s8l")
 material = ExtResource("5_sg0kn")
 size = Vector2(0.5, 0.68817204)
 
-[node name="Lightning_Charge" type="Node3D" unique_id=161897351]
+[node name="Lightning_Charge" type="Node3D" unique_id=885889263]
 script = ExtResource("1_k2m1c")
 duration = 0.0
 kind = &"charge"
 element = &"lightning"
 
-[node name="Orb" type="MeshInstance3D" parent="." unique_id=1481690297]
+[node name="Orb" type="MeshInstance3D" parent="." unique_id=1173939333]
 material_override = SubResource("ShaderMaterial_4mq3i")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_1kmu6")
 
-[node name="Glow" type="MeshInstance3D" parent="." unique_id=1080058938]
+[node name="Glow" type="MeshInstance3D" parent="." unique_id=2109450788]
 material_override = SubResource("ShaderMaterial_2c1wi")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_o318r")
 
-[node name="Arc0" type="MeshInstance3D" parent="." unique_id=1070705949]
+[node name="Arc0" type="MeshInstance3D" parent="." unique_id=1836894447]
 material_override = SubResource("ShaderMaterial_pwjlr")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_iuqem")
 
-[node name="Arc1" type="MeshInstance3D" parent="." unique_id=1323871936]
+[node name="Arc1" type="MeshInstance3D" parent="." unique_id=751161414]
 material_override = SubResource("ShaderMaterial_ek01v")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_m1ctu")
 
-[node name="Arc2" type="MeshInstance3D" parent="." unique_id=1172816214]
+[node name="Arc2" type="MeshInstance3D" parent="." unique_id=56378762]
 material_override = SubResource("ShaderMaterial_qufpu")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_lw73r")
 
-[node name="Arc3" type="MeshInstance3D" parent="." unique_id=505579292]
+[node name="Arc3" type="MeshInstance3D" parent="." unique_id=2132941936]
 material_override = SubResource("ShaderMaterial_tjsxq")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_y1n10")
 
-[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1484096]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=998237781]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -372,7 +382,7 @@ transform_align = 3
 process_material = SubResource("ParticleProcessMaterial_0wdg2")
 draw_pass_1 = SubResource("QuadMesh_tly6a")
 
-[node name="Flash" type="OmniLight3D" parent="." unique_id=553940055]
+[node name="Flash" type="OmniLight3D" parent="." unique_id=50401569]
 light_color = Color(0.62, 0.72, 1, 1)
 omni_range = 4.0
 metadata/flash = {
