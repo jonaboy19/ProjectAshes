@@ -164,4 +164,5 @@ for i in range(20):
               rot=(random.uniform(-0.4, 0.4), random.uniform(-0.4, 0.4), random.uniform(0, 3)), grime=False,
               smooth=None, caps=False)
 
+k.pbr = dict(size=1024, lod1_size=512, orm_div=2, seed=18, ao_dist=1.0)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((9.0, 14.0), 15000, cam_dir=(1.1, -1.35, 0.6), fit=0.9)
