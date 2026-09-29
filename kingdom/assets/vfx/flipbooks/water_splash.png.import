@@ -3,15 +3,17 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bpc3po7225jb"
-path="res://.godot/imported/water_splash.png-2810ba3a099c0575de8d87b6e3e291fc.ctex"
+path.s3tc="res://.godot/imported/water_splash.png-2810ba3a099c0575de8d87b6e3e291fc.s3tc.ctex"
+path.etc2="res://.godot/imported/water_splash.png-2810ba3a099c0575de8d87b6e3e291fc.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/vfx/flipbooks/water_splash.png"
-dest_files=["res://.godot/imported/water_splash.png-2810ba3a099c0575de8d87b6e3e291fc.ctex"]
+dest_files=["res://.godot/imported/water_splash.png-2810ba3a099c0575de8d87b6e3e291fc.s3tc.ctex", "res://.godot/imported/water_splash.png-2810ba3a099c0575de8d87b6e3e291fc.etc2.ctex"]
 
 [params]
 

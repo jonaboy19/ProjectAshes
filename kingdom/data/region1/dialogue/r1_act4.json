@@ -1,0 +1,207 @@
+{
+	"id": "r1_act4",
+	"_comment": "The Stones Are Dimming, Act IV: The Five Hearts. The Glade first, then Greyseam, Highwatch, Crownstead and the Elden Road in any order, then the convergence. Uses all four mechanics; teaches Ember Legacy's choice (N3) through Sir Rowan and wardline routing (N1) at Crownstead. Format: see r1_act1.json.",
+	"start": "idra_trial",
+	"nodes": {
+
+		"idra_trial": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "The Antlered Warden guards the stone. Don't kill it. Tire it. Then carve Bless while it watches."}],
+			"choices": [{"text": "While it watches?", "goto": "idra_trial_2"}]
+		},
+		"idra_trial_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "It has guarded that stone longer than Valencious has had kings. Let it see who's asking."}],
+			"choices": [{"text": "Understood.", "goto": "@end", "do": [["flag", "r1.a4.trial_told"]]}]
+		},
+		"warden_bows": {
+			"speaker": "narrator",
+			"lines": [{"text": "The Warden lowers its antlers to the stone. Old light runs down them, blue as a river."}],
+			"choices": [{"text": "(Keep still.)", "goto": "idra_glade_done"}]
+		},
+		"idra_glade_done": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "One heart. Four more: Greyseam, Highwatch, Crownstead, the Elden Road. Pick your road."}],
+			"choices": [{"text": "Which first?", "goto": "idra_glade_done_2"}]
+		},
+		"idra_glade_done_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "The one that scares you least. Save your courage. You'll want it for the last one."}],
+			"choices": [{"text": "(Open the map.)", "goto": "@end", "do": [["flag", "r1.a4.hubs_open"], ["rep", "runeward", 10]]}]
+		},
+
+		"harrok_mine": {
+			"speaker": "harrok_ashmaw",
+			"lines": [{"text": "Human in the deep seam. Brave, or lost?"}],
+			"choices": [
+				{"text": "Both.", "goto": "harrok_mine_2"},
+				{"text": "Why are orcs mining here?", "goto": "harrok_why"}
+			]
+		},
+		"harrok_why": {
+			"speaker": "harrok_ashmaw",
+			"lines": [{"text": "Crown says: no orc picks in Crown rock. Rock does not read. Harrok's children eat."}],
+			"choices": [{"text": "Fair.", "goto": "harrok_mine_2"}]
+		},
+		"harrok_mine_2": {
+			"speaker": "harrok_ashmaw",
+			"lines": [{"text": "The purple came up out of the seam. It eats lamp-light. My miners won't go down."}],
+			"choices": [{"text": "I'll burn it back.", "goto": "harrok_mine_3"}]
+		},
+		"harrok_mine_3": {
+			"speaker": "harrok_ashmaw",
+			"lines": [{"text": "Then Harrok holds your torch. Strong blood."}],
+			"choices": [
+				{"text": "Stronger clan.", "goto": "harrok_ally", "do": [["flag", "r1.harrok.ally"], ["rep", "tuskridge", 20]]},
+				{"text": "I work alone.", "goto": "harrok_alone", "do": [["flag", "r1.harrok.alone"]]}
+			]
+		},
+		"harrok_ally": {
+			"speaker": "harrok_ashmaw",
+			"lines": [{"text": "Ha! A human who knows the words. Go. Tuskridge guards your back."}],
+			"choices": [{"text": "Go.", "goto": "@end"}]
+		},
+		"harrok_alone": {
+			"speaker": "harrok_ashmaw",
+			"lines": [{"text": "Alone is a short word. Short words break. Go, then."}],
+			"choices": [{"text": "Go.", "goto": "@end"}]
+		},
+		"harrok_after": {
+			"speaker": "harrok_ashmaw",
+			"lines": [
+				{"text": "Stone is lit. Miners sing again. Bad singing. Good sign."},
+				{"text": "Stone is lit. Harrok will tell the King an orc held the torch. He will hate it. Good.", "if": {"flag": "r1.harrok.ally"}, "p": 1}
+			],
+			"choices": [{"text": "...", "goto": "@end", "do": [["flag", "r1.a4.greyseam_told"]]}]
+		},
+
+		"rowan_meet": {
+			"speaker": "rowan_ashby",
+			"lines": [
+				{"text": "Ah, the carver! Come up, come up. The wind's in a mood today."},
+				{"text": "My squire returns! Taller, and not one bit wiser. Excellent.", "if": {"flag": "r1.path.knight"}, "p": 1}
+			],
+			"choices": [{"text": "The Elder Stone...", "goto": "rowan_meet_2"}]
+		},
+		"rowan_meet_2": {
+			"speaker": "rowan_ashby",
+			"lines": [{"text": "Cold since the first frost. Something comes down Grimfen Pass at night. Big. Violet-eyed."}],
+			"choices": [{"text": "We hold the gate?", "goto": "rowan_meet_3"}]
+		},
+		"rowan_meet_3": {
+			"speaker": "rowan_ashby",
+			"lines": [{"text": "We hold the gate. Then you carve. Then I buy you a truly terrible drink."}],
+			"choices": [{"text": "Deal.", "goto": "@end", "do": [["flag", "r1.a4.gate"]]}]
+		},
+		"rowan_wounded": {
+			"speaker": "rowan_ashby",
+			"lines": [{"text": "Ah. That one got under the shield. Sit with me a moment, young blade."}],
+			"choices": [{"text": "I'll find a healer.", "goto": "rowan_wounded_2"}]
+		},
+		"rowan_wounded_2": {
+			"speaker": "rowan_ashby",
+			"lines": [{"text": "Seventy winters. The healer would laugh. Listen. I'd like to keep watch. Without the knees."}],
+			"choices": [{"text": "Your ember.", "goto": "rowan_wounded_3"}]
+		},
+		"rowan_wounded_3": {
+			"speaker": "rowan_ashby",
+			"lines": [{"text": "You carry it. Put it where it does the most good. The stone, young Tobin, or my old lance."}],
+			"choices": [{"text": "(Take his hand.)", "goto": "@end", "do": [["flag", "r1.a4.rowan_ember_asked"]]}]
+		},
+		"rowan_resting": {
+			"speaker": "ancestor_stone",
+			"lines": [
+				{"text": "Highwatch holds. The wind's in a good mood now, young blade. Mind the step. It's icy.", "if": {"flag": "ember.rowan.stone"}, "p": 2},
+				{"text": "The stone is quiet. On the wall, Tobin grips a lance twice his age and does not let go.", "if": {"flag": "ember.rowan.heir"}, "p": 2},
+				{"text": "The old lance is warm in your hands, as if someone had only just let go of it.", "if": {"flag": "ember.rowan.heirloom"}, "p": 2}
+			],
+			"choices": [{"text": "Goodbye, Sir Rowan.", "goto": "@end", "do": [["flag", "r1.a4.rowan_farewell"], ["rep", "highwatch", 20]]}]
+		},
+
+		"lucan_crownstead": {
+			"speaker": "lucan",
+			"lines": [
+				{"text": "The relic is dimming. My Patriarch withdrew its blessing. The tithe was... late.", "if": {"flag": "r1.relic.accepted"}, "p": 1},
+				{"text": "Greenhollow's relic still shines. Here, nothing. I have been asking my Church why.", "if": {"flag": "r1.relic.bargained"}, "p": 1},
+				{"text": "You refused us, and still I came. The Crown's fields feed my pilgrims too.", "if": {"flag": "r1.relic.refused"}, "p": 1}
+			],
+			"choices": [{"text": "Why would it dim?", "goto": "lucan_crownstead_2"}]
+		},
+		"lucan_crownstead_2": {
+			"speaker": "lucan",
+			"lines": [{"text": "Because a relic is a leash, friend. I did not know that. Or I did not wish to."}],
+			"choices": [{"text": "Then help me.", "goto": "lucan_crownstead_3"}]
+		},
+		"lucan_crownstead_3": {
+			"speaker": "lucan",
+			"lines": [{"text": "This stone was broken by a hand, not by time. Kneel, carver. The ash is still warm."}],
+			"choices": [{"text": "(Kneel.)", "goto": "@end", "do": [["flag", "r1.a4.lucan_turned"], ["rep", "church", 5]]}]
+		},
+		"crownstead_vision": {
+			"speaker": "narrator",
+			"lines": [{"text": "A cart in the ash. A woman's voice: 'The Edge pays on delivery.' A sack of violet glass changes hands."}],
+			"choices": [{"text": "The Edge.", "goto": "idra_routing"}]
+		},
+		"idra_routing": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "The heart here is fine. Its line to Kingsreach is cut. Draw a new one. Stone to stone."}],
+			"choices": [{"text": "(Open the ward map.)", "goto": "@end", "do": [["flag", "r1.a4.route_told"]]}]
+		},
+
+		"snikkit_elden": {
+			"speaker": "snikkit",
+			"lines": [{"text": "Tall one! Snikkit guards the old stone. Very well. Very secretly. Go away."}],
+			"choices": [{"text": "You took its keystone.", "goto": "snikkit_elden_2"}]
+		},
+		"snikkit_elden_2": {
+			"speaker": "snikkit",
+			"lines": [{"text": "Snikkit *borrowed* the shiny! Shiny was lonely! Shiny wanted a friend!"}],
+			"choices": [
+				{"text": "Trade? My lantern for it.", "goto": "snikkit_trade", "do": [["flag", "r1.snikkit.friend"], ["rep", "mossfang", 20], ["give", "elder_keystone_shard", 1]]},
+				{"text": "Give it back. Now.", "goto": "snikkit_cowed", "do": [["flag", "r1.snikkit.cowed"], ["rep", "mossfang", -10], ["give", "elder_keystone_shard", 1]]}
+			]
+		},
+		"snikkit_trade": {
+			"speaker": "snikkit",
+			"lines": [{"text": "Lantern! Warm lantern! Snikkit sees purple coming, tall one. Snikkit's eyes are yours now."}],
+			"choices": [{"text": "Thank you, Snikkit.", "goto": "@end"}]
+		},
+		"snikkit_cowed": {
+			"speaker": "snikkit",
+			"lines": [{"text": "Fine! Fine. Snikkit remembers the mean tall one. Snikkit remembers *everything*."}],
+			"choices": [{"text": "...", "goto": "@end"}]
+		},
+		"ancestor_elden": {
+			"speaker": "ancestor_stone",
+			"lines": [
+				{"text": "Child of the ford. We walked out of the ashes, once. Now walk in. Sit. You're home."},
+				{"text": "{player}. It's me. {ancestor}. You have my stubborn chin. I'd know it anywhere.", "if": {"flag": "ember.has_ancestor"}, "p": 1}
+			],
+			"choices": [{"text": "Who are you?", "goto": "ancestor_elden_2"}]
+		},
+		"ancestor_elden_2": {
+			"speaker": "ancestor_stone",
+			"lines": [
+				{"text": "Your grandmother's grandmother's grandmother. Or near enough. Stones lose count."},
+				{"text": "The one who came before you. Still here. Still stubborn. Still proud of you.", "if": {"flag": "ember.has_ancestor"}, "p": 1}
+			],
+			"choices": [{"text": "Will you hold?", "goto": "ancestor_elden_3"}]
+		},
+		"ancestor_elden_3": {
+			"speaker": "ancestor_stone",
+			"lines": [{"text": "Hold? Child, I've been holding. Now it's your turn to be held. Carve."}],
+			"choices": [{"text": "(Carve.)", "goto": "@end", "do": [["flag", "r1.a4.ancestor_spoke"]]}]
+		},
+
+		"idra_five": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Five hearts beating. Feel that? The whole Vale hums like a hive in summer."}],
+			"choices": [{"text": "And the Scar?", "goto": "idra_five_2"}]
+		},
+		"idra_five_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Still growing. Route the lines toward the Edge. We'll want every spark at the mouth."}],
+			"choices": [{"text": "Every spark.", "goto": "@end", "do": [["flag", "r1.a4.done"]]}]
+		}
+	}
+}

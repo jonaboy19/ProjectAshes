@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://wdokn726mmnt"
+
+[deps]
+
+files=["res://assets/audio/region1/loudness_r1.sec.translation", "res://assets/audio/region1/loudness_r1.kb.translation", "res://assets/audio/region1/loudness_r1.lufs.translation", "res://assets/audio/region1/loudness_r1.true.translation", "res://assets/audio/region1/loudness_r1.sample.translation"]
+
+source_file="res://assets/audio/region1/loudness_r1.csv"
+dest_files=["res://assets/audio/region1/loudness_r1.sec.translation", "res://assets/audio/region1/loudness_r1.kb.translation", "res://assets/audio/region1/loudness_r1.lufs.translation", "res://assets/audio/region1/loudness_r1.true.translation", "res://assets/audio/region1/loudness_r1.sample.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

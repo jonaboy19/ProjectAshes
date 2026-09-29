@@ -1,0 +1,468 @@
+{
+	"id": "r1_main",
+	"schema": 1,
+	"title": "The Stones Are Dimming",
+	"_comment": "Region 1 main quest, Acts I-V. Schema: data/region1/quests/README.md. Runtime: scripts/region1/story_quest.gd. Lint: tools_qa/region1/lint_quests.gd. Ids are save data: never rename a step, objective or flag once shipped.",
+	"registry": "res://data/region1/quests/r1_registry.json",
+	"cast": "res://data/region1/quests/cast.json",
+	"dialogue_dir": "res://data/region1/dialogue",
+	"complete_flag": "r1.complete",
+
+	"acts": [
+		{"act": 1, "title": "Hearth and Stone", "dialogue": "r1_act1", "ages": "8-12",
+			"teaches": ["wardwright", "ember_legacy"]},
+		{"act": 2, "title": "Ash on the Wind", "dialogue": "r1_act2", "ages": "12-15",
+			"teaches": ["ashsight"]},
+		{"act": 3, "title": "Relics and Rot", "dialogue": "r1_act3", "ages": "15+",
+			"teaches": ["scar_tide"]},
+		{"act": 4, "title": "The Five Hearts", "dialogue": "r1_act4", "ages": "16+",
+			"teaches": []},
+		{"act": 5, "title": "The Ashen Scar", "dialogue": "r1_act5", "ages": "16+",
+			"teaches": []}
+	],
+
+	"steps": [
+		{
+			"id": "a1_dark_stone", "act": 1, "title": "A Stone Goes Dark",
+			"objective": "Hear what happened to the Miller's Stone",
+			"journal": "At supper the Miller's Stone went out. Mother wants me indoors. Warden Idra is up there with a lantern.",
+			"giver": "mother", "place": "ashford",
+			"requires": {"if": {"min_age": 8}},
+			"dialogue": [{"node": "mother_dusk"}],
+			"objectives": [
+				{"id": "heard", "type": "flag", "flag": "r1.a1.heard"}
+			],
+			"tutorial": ["move", "look", "talk"],
+			"on_complete": [["marker", "miller_stone"]]
+		},
+		{
+			"id": "a1_first_glyph", "act": 1, "title": "Hold the Lantern",
+			"objective": "Help Warden Idra relight the stone",
+			"journal": "Idra says my hands are quicker than hers. Down, across, up. Don't lift.",
+			"giver": "idra_vell", "place": "miller_stone",
+			"requires": {"steps": ["a1_dark_stone"]},
+			"dialogue": [{"node": "idra_dark_stone", "after": "reach"}],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "miller_stone"},
+				{"id": "taught", "type": "flag", "flag": "r1.a1.taught"},
+				{"id": "carve", "type": "carve", "glyph": "ward", "stone": "miller_stone"}
+			],
+			"mechanics": {"wardwright": "teach"},
+			"tutorial": ["interact", "carve"],
+			"on_complete": [["flag", "r1.a1.first_glyph"], ["rep", "runeward", 5]]
+		},
+		{
+			"id": "a1_hesks_ember", "act": 1, "title": "Whose Light",
+			"objective": "Ask Idra who lit the stone",
+			"journal": "Old Hesk the miller rests in the stone. The stubborn part of him. Stubborn lasts.",
+			"giver": "idra_vell", "place": "miller_stone",
+			"requires": {"steps": ["a1_first_glyph"]},
+			"dialogue": [{"node": "idra_after_carve"}],
+			"objectives": [
+				{"id": "embers", "type": "flag", "flag": "r1.a1.knows_embers"},
+				{"id": "warned", "type": "flag", "flag": "r1.a1.wolf_warned"}
+			],
+			"mechanics": {"ember_legacy": "teach"},
+			"on_complete": [["spawn", "wolf", "ashford_ring", 1]]
+		},
+		{
+			"id": "a1_wolf_at_dusk", "act": 1, "title": "Something at the Ring Edge",
+			"objective": "Drive off the wolf at the ring edge",
+			"journal": "A lone wolf, testing the edge of the ward. A one-armed woman shouted at my feet.",
+			"giver": "idra_vell", "place": "ashford_ring",
+			"requires": {"steps": ["a1_hesks_ember"]},
+			"dialogue": [{"node": "maren_wolf", "after": "wolf"}],
+			"objectives": [
+				{"id": "wolf", "type": "kill", "target": "wolf", "place": "ashford_ring", "count": 1},
+				{"id": "student", "type": "flag", "flag": "r1.maren_student"}
+			],
+			"tutorial": ["fight", "block", "dodge"]
+		},
+		{
+			"id": "a1_staff_yard", "act": 1, "title": "Both Arms While You Have Them",
+			"objective": "Train with Maren at the Staff Yard",
+			"journal": "Maren Coldbrook held a stone lit with her own warmth once. It cost her an arm. She calls it a fair trade.",
+			"giver": "maren_coldbrook", "place": "old_mill_staff_yard",
+			"requires": {"steps": ["a1_wolf_at_dusk"]},
+			"dialogue": [{"node": "maren_yard", "after": "reach"}],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "old_mill_staff_yard"},
+				{"id": "drilled", "type": "flag", "flag": "r1.a1.drilled"}
+			],
+			"tutorial": ["eat", "sleep", "map"],
+			"on_complete": [["give", "bread", 2]]
+		},
+		{
+			"id": "a1_blessing_eve", "act": 1, "title": "The Eve of Twelve",
+			"objective": "Grow up (Blessing at age 12)",
+			"journal": "Years pass. Tomorrow the ring asks what I am. Idra says: let it answer me.",
+			"giver": "idra_vell", "place": "ashford_ring",
+			"requires": {"steps": ["a1_staff_yard"]},
+			"dialogue": [{"node": "idra_blessing_eve", "after": "twelve"}],
+			"objectives": [
+				{"id": "twelve", "type": "age", "min": 12},
+				{"id": "eve", "type": "flag", "flag": "r1.a1.eve"}
+			]
+		},
+		{
+			"id": "a1_blessing", "act": 1, "title": "The Blessing",
+			"objective": "Stand in the ring for your Blessing",
+			"journal": "The ring answered. Every stone lit at once.",
+			"giver": "idra_vell", "place": "ashford_ring",
+			"requires": {"steps": ["a1_blessing_eve"]},
+			"on_start": [["cutscene", "blessing"]],
+			"dialogue": [{"node": "mother_blessing", "after": "ceremony"}],
+			"objectives": [
+				{"id": "ceremony", "type": "cutscene_done", "cutscene": "blessing"},
+				{"id": "family", "type": "talk", "node": "father_blessing"}
+			]
+		},
+		{
+			"id": "a1_after_blessing", "act": 1, "title": "A Throat Cleared",
+			"objective": "Speak with Idra after the ceremony",
+			"journal": "Every stone in the Vale flared tonight. Idra called me apprentice.",
+			"giver": "idra_vell", "place": "ashford_ring",
+			"requires": {"steps": ["a1_blessing"]},
+			"dialogue": [{"node": "idra_after_blessing"}],
+			"objectives": [
+				{"id": "done", "type": "flag", "flag": "r1.a1.done"}
+			]
+		},
+
+		{
+			"id": "a2_three_letters", "act": 2, "title": "Three Letters",
+			"objective": "Choose an apprenticeship",
+			"journal": "The Guild, Highwatch or the Runeward. Whatever I choose, Idra still wants me on the roads.",
+			"giver": "idra_vell", "place": "ashford",
+			"requires": {"steps": ["a1_after_blessing"]},
+			"dialogue": [{"node": "idra_letters"}],
+			"objectives": [
+				{"id": "path", "type": "choice", "group": "apprenticeship"},
+				{"id": "chisel", "type": "flag", "flag": "r1.a2.apprenticed"}
+			]
+		},
+		{
+			"id": "a2_dark_road", "act": 2, "title": "Forty-One Stones",
+			"objective": "Relight 2 stones on the Greenhollow road",
+			"journal": "Nine guards, forty-one stones, sixty miles of road. Captain Hollis did the sum for me.",
+			"giver": "bram_hollis", "place": "greenhollow_road",
+			"requires": {"steps": ["a2_three_letters"]},
+			"dialogue": [{"node": "captain_stones"}],
+			"objectives": [
+				{"id": "job", "type": "flag", "flag": "r1.a2.stones_job"},
+				{"id": "carve", "type": "carve", "glyph": "ward", "stone": "greenhollow_road", "count": 2}
+			],
+			"mechanics": {"wardwright": "use"},
+			"tutorial": ["map"]
+		},
+		{
+			"id": "a2_greenhollow", "act": 2, "title": "Ten Years of Barn",
+			"objective": "Go to the burned farm at Greenhollow",
+			"journal": "Boars with purple eyes came through a gap in the ward. The stone was lit last week.",
+			"giver": "gilda_pennick", "place": "greenhollow_farm",
+			"requires": {"steps": ["a2_dark_road"]},
+			"on_start": [["marker", "greenhollow_farm"]],
+			"dialogue": [{"node": "gilda_farm", "after": "reach"}],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "greenhollow_farm"},
+				{"id": "told", "type": "flag", "flag": "r1.a2.gilda_told"}
+			]
+		},
+		{
+			"id": "a2_first_ashsight", "act": 2, "title": "What the Ash Saw",
+			"objective": "Read the ash by the broken stone",
+			"journal": "Fire remembers. A hooded figure cut the glyph out clean, then ran north-east.",
+			"giver": "idra_vell", "place": "greenhollow_farm",
+			"requires": {"steps": ["a2_greenhollow"]},
+			"dialogue": [{"node": "idra_ash_teach"}, {"node": "ash_vision", "after": "ash"}],
+			"objectives": [
+				{"id": "taught", "type": "flag", "flag": "r1.a2.ash_taught"},
+				{"id": "ash", "type": "ashsight", "site": "greenhollow_farm"},
+				{"id": "trail", "type": "flag", "flag": "r1.a2.trail"}
+			],
+			"mechanics": {"ashsight": "teach"},
+			"tutorial": ["ashsight"]
+		},
+		{
+			"id": "a2_duskbriar", "act": 2, "title": "The Ashen Hand",
+			"objective": "Follow the ember trail into Duskbriar",
+			"journal": "The saboteur was a boy called Corin. They pay him in purple glass from the Edge.",
+			"giver": "idra_vell", "place": "duskbriar_bandit_camp",
+			"requires": {"steps": ["a2_first_ashsight"]},
+			"dialogue": [{"node": "corin_caught", "after": "fight"}],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "duskbriar_bandit_camp"},
+				{"id": "fight", "type": "kill", "target": "ashen_hand_saboteur", "place": "duskbriar_bandit_camp", "count": 3},
+				{"id": "fate", "type": "choice", "group": "corin_fate"}
+			],
+			"mechanics": {"ashsight": "use"},
+			"tutorial": ["fight", "block", "dodge"]
+		},
+		{
+			"id": "a2_thief_truth", "act": 2, "title": "A Thief Who Tells the Truth",
+			"objective": "Tell Idra what Corin said",
+			"journal": "The stones are dying on their own. That frightens Idra more than any liar.",
+			"giver": "idra_vell", "place": "ashford",
+			"requires": {"steps": ["a2_duskbriar"]},
+			"dialogue": [{"node": "idra_thief_truth"}],
+			"objectives": [
+				{"id": "done", "type": "flag", "flag": "r1.a2.done"}
+			]
+		},
+
+		{
+			"id": "a3_silverford", "act": 3, "title": "Section Four",
+			"objective": "Earn a carving licence in Silverford",
+			"journal": "Guildmaster Thale's ledgers: repairs triple every year, and none of them hold. The stones are empty.",
+			"giver": "odrin_thale", "place": "silverford_guild_hall",
+			"requires": {"steps": ["a2_thief_truth"]},
+			"dialogue": [{"node": "odrin_meet", "after": "reach"}, {"node": "odrin_after", "after": "carve"}],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "silverford"},
+				{"id": "test", "type": "flag", "flag": "r1.a3.test"},
+				{"id": "carve", "type": "carve", "glyph": "alarm", "stone": "silverford_test_stone"},
+				{"id": "ledger", "type": "flag", "flag": "r1.a3.ledger"}
+			],
+			"mechanics": {"wardwright": "use"}
+		},
+		{
+			"id": "a3_sunstone_oil", "act": 3, "title": "Pay the Lamp-Lighter",
+			"objective": "Visit the Solkar caravan at Silverford market",
+			"journal": "Imra Solvane of Solkar says fire takes the purple back. Slowly. Patiently.",
+			"giver": "imra_solvane", "place": "silverford_market",
+			"requires": {"steps": ["a2_thief_truth"]},
+			"dialogue": [{"node": "imra_market", "after": "reach"}],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "silverford_market"},
+				{"id": "oil", "type": "flag", "flag": "r1.a3.oil"}
+			]
+		},
+		{
+			"id": "a3_council", "act": 3, "title": "The Council of Wardens",
+			"objective": "Stand with Idra before the King",
+			"journal": "The Dawn Throne offers relics that shine without anyone's dead inside. The King asked me what to do.",
+			"giver": "idra_vell", "place": "kingsreach_council_hall",
+			"requires": {"steps": ["a3_silverford"]},
+			"dialogue": [{"node": "council_open", "after": "reach"}],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "kingsreach_council_hall"},
+				{"id": "policy", "type": "choice", "group": "relic_policy"},
+				{"id": "done", "type": "flag", "flag": "r1.a3.council"}
+			]
+		},
+		{
+			"id": "a3_scar_front", "act": 3, "title": "The Violet Line",
+			"objective": "Stop the Scar at Greenhollow's fields",
+			"journal": "The ground is moving. Burn it back, or fill a pack with crystal: the valley is watching which.",
+			"giver": "bram_hollis", "place": "greenhollow_south_fields",
+			"requires": {"steps": ["a3_council", "a3_sunstone_oil"]},
+			"dialogue": [
+				{"node": "captain_scar"},
+				{"node": "gilda_scar", "after": "reach"},
+				{"node": "gilda_scar_after", "after": "answer"}
+			],
+			"objectives": [
+				{"id": "news", "type": "flag", "flag": "r1.a3.scar_news"},
+				{"id": "reach", "type": "enter_area", "place": "greenhollow_south_fields"},
+				{"id": "seen", "type": "flag", "flag": "r1.a3.scar_seen"},
+				{"id": "answer", "type": "any", "of": [
+					{"id": "burn", "type": "scar_contain", "place": "greenhollow_south_fields", "cells": 4, "sets": "r1.scar.contained"},
+					{"id": "reap", "type": "scar_harvest", "place": "greenhollow_south_fields", "crystals": 5, "sets": "r1.scar.harvested"}
+				]},
+				{"id": "answered", "type": "flag", "flag": "r1.a3.scar_answered"}
+			],
+			"mechanics": {"scar_tide": "teach"},
+			"on_complete": [["rep", "vale", 5]]
+		},
+		{
+			"id": "a3_fallen_heart", "act": 3, "title": "The Fallen Heart",
+			"objective": "Follow the fleeing Stagborn to their Glade",
+			"journal": "The Elder Stones are the Vale's five hearts, and their embers are two hundred years old. Nobody gives any more.",
+			"giver": "idra_vell", "place": "stagborn_glade",
+			"requires": {"steps": ["a3_scar_front"]},
+			"dialogue": [{"node": "idra_glade"}, {"node": "idra_elder", "after": "reach"}],
+			"objectives": [
+				{"id": "herd", "type": "flag", "flag": "r1.a3.herd_fled"},
+				{"id": "reach", "type": "enter_area", "place": "stagborn_glade"},
+				{"id": "truth", "type": "flag", "flag": "r1.a3.done"}
+			],
+			"mechanics": {"ember_legacy": "use"}
+		},
+
+		{
+			"id": "a4_glade_trial", "act": 4, "title": "The Antlered Warden",
+			"objective": "Pass the Warden's trial and relight the Glade",
+			"journal": "Tire it, don't kill it. Then carve Bless while it watches. It bowed its antlers to the stone.",
+			"giver": "idra_vell", "place": "stagborn_glade",
+			"requires": {"steps": ["a3_fallen_heart"]},
+			"dialogue": [{"node": "idra_trial"}, {"node": "warden_bows", "after": "relight"}],
+			"objectives": [
+				{"id": "told", "type": "flag", "flag": "r1.a4.trial_told"},
+				{"id": "trial", "type": "defeat", "target": "antlered_warden", "subdue": true},
+				{"id": "carve", "type": "carve", "glyph": "bless", "stone": "elder_glade"},
+				{"id": "relight", "type": "relight_elder", "stone": "elder_glade", "do": [["cutscene", "elder_relight"]]},
+				{"id": "hubs", "type": "flag", "flag": "r1.a4.hubs_open"}
+			],
+			"mechanics": {"wardwright": "use", "ember_legacy": "use"},
+			"on_complete": [["marker", "greyseam_mine"], ["marker", "highwatch_keep"], ["marker", "crownstead"], ["marker", "elden_road"]]
+		},
+		{
+			"id": "a4_greyseam", "act": 4, "title": "Rock Does Not Read",
+			"objective": "Burn the rift seam and relight Greyseam",
+			"journal": "Tuskridge orcs dig the deep seam to feed their children. The purple came up out of the rock.",
+			"giver": "harrok_ashmaw", "place": "greyseam_mine",
+			"requires": {"steps": ["a4_glade_trial"]},
+			"dialogue": [{"node": "harrok_mine", "after": "reach"}, {"node": "harrok_after", "after": "relight"}],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "greyseam_mine"},
+				{"id": "pact", "type": "choice", "group": "harrok_pact"},
+				{"id": "burn", "type": "scar_contain", "place": "greyseam_seam", "cells": 3},
+				{"id": "relight", "type": "relight_elder", "stone": "elder_greyseam", "do": [["cutscene", "elder_relight"]]},
+				{"id": "after", "type": "flag", "flag": "r1.a4.greyseam_told"}
+			],
+			"mechanics": {"scar_tide": "use", "wardwright": "use"}
+		},
+		{
+			"id": "a4_highwatch", "act": 4, "title": "Without the Knees",
+			"objective": "Hold Highwatch's gate with Sir Rowan",
+			"journal": "Seventy winters. Rowan asked me to carry his ember and put it where it does the most good.",
+			"giver": "rowan_ashby", "place": "highwatch_keep",
+			"requires": {"steps": ["a4_glade_trial"]},
+			"dialogue": [
+				{"node": "rowan_meet", "after": "reach"},
+				{"node": "rowan_wounded", "after": "hold"},
+				{"node": "rowan_resting", "after": "ember"}
+			],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "highwatch_keep"},
+				{"id": "gate", "type": "flag", "flag": "r1.a4.gate"},
+				{"id": "hold", "type": "kill", "target": "rift_wolf", "place": "highwatch_gate", "count": 6},
+				{"id": "asked", "type": "flag", "flag": "r1.a4.rowan_ember_asked"},
+				{"id": "ember", "type": "ember_choice", "who": "rowan", "group": "rowan_ember", "do": [["cutscene", "rowan_ember"]]},
+				{"id": "farewell", "type": "flag", "flag": "r1.a4.rowan_farewell"},
+				{"id": "relight", "type": "relight_elder", "stone": "elder_highwatch", "do": [["cutscene", "elder_relight"]]}
+			],
+			"mechanics": {"ember_legacy": "teach"},
+			"tutorial": ["block", "dodge"]
+		},
+		{
+			"id": "a4_crownstead", "act": 4, "title": "A Leash of Light",
+			"objective": "Read the ash at Crownstead and reroute its line",
+			"journal": "The Crownstead stone was broken by a hand. The ash showed a cart and a voice: the Edge pays on delivery.",
+			"giver": "lucan", "place": "crownstead",
+			"requires": {"steps": ["a4_glade_trial"]},
+			"dialogue": [{"node": "lucan_crownstead", "after": "reach"}, {"node": "crownstead_vision", "after": "ash"}],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "crownstead"},
+				{"id": "lucan", "type": "flag", "flag": "r1.a4.lucan_turned"},
+				{"id": "ash", "type": "ashsight", "site": "crownstead", "do": [["flag", "r1.a4.evidence"]]},
+				{"id": "route", "type": "flag", "flag": "r1.a4.route_told"},
+				{"id": "link", "type": "wardline_link", "from": "elder_crownstead", "to": "kingsreach"},
+				{"id": "relight", "type": "relight_elder", "stone": "elder_crownstead", "do": [["cutscene", "elder_relight"]]}
+			],
+			"mechanics": {"ashsight": "use", "wardwright": "teach"},
+			"tutorial": ["map"]
+		},
+		{
+			"id": "a4_elden", "act": 4, "title": "Child of the Ford",
+			"objective": "Recover the keystone and wake the Elden stone",
+			"journal": "Snikkit borrowed the keystone because it was lonely. The stone on the Elden Road knew my name.",
+			"giver": "snikkit", "place": "elden_road",
+			"requires": {"steps": ["a4_glade_trial"]},
+			"dialogue": [{"node": "snikkit_elden", "after": "reach"}, {"node": "ancestor_elden", "after": "shard"}],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "elden_road"},
+				{"id": "deal", "type": "choice", "group": "snikkit_deal"},
+				{"id": "shard", "type": "item", "item": "elder_keystone_shard", "count": 1},
+				{"id": "ancestor", "type": "flag", "flag": "r1.a4.ancestor_spoke"},
+				{"id": "carve", "type": "carve", "glyph": "bless", "stone": "elder_elden"},
+				{"id": "relight", "type": "relight_elder", "stone": "elder_elden", "do": [["cutscene", "elder_relight"]]}
+			],
+			"mechanics": {"ember_legacy": "use", "wardwright": "use"}
+		},
+		{
+			"id": "a4_five_hearts", "act": 4, "title": "Five Hearts Beating",
+			"objective": "Route 3 ward-lines toward the Edge",
+			"journal": "The whole Vale hums like a hive. We'll want every spark at the Rift mouth.",
+			"giver": "idra_vell", "place": "ashford_ring",
+			"requires": {"steps": ["a4_greyseam", "a4_highwatch", "a4_crownstead", "a4_elden"]},
+			"dialogue": [{"node": "idra_five"}],
+			"objectives": [
+				{"id": "done", "type": "flag", "flag": "r1.a4.done"},
+				{"id": "lines", "type": "wardline_link", "to": "rifts_edge_camp", "count": 3}
+			],
+			"mechanics": {"wardwright": "use"},
+			"tutorial": ["map"]
+		},
+
+		{
+			"id": "a5_rifts_edge", "act": 5, "title": "Edge Rules",
+			"objective": "Confront the quartermaster at Rift's Edge",
+			"journal": "Tamsin Reeve paid for the cut stones. The Crown left her village outside the ward. Forty graves, one winter.",
+			"giver": "tamsin_reeve", "place": "rifts_edge_camp",
+			"requires": {"steps": ["a4_five_hearts"]},
+			"dialogue": [{"node": "tamsin_meet", "after": "reach"}],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "rifts_edge_camp"},
+				{"id": "fate", "type": "choice", "group": "tamsin_fate"},
+				{"id": "anchor", "type": "item", "item": "anchor_stone", "count": 1}
+			]
+		},
+		{
+			"id": "a5_turn_the_tide", "act": 5, "title": "Walk It Home",
+			"objective": "Push the Scar back to the Rift mouth",
+			"journal": "Burn and ward, cell by cell. Don't chase it. Walk it home.",
+			"giver": "idra_vell", "place": "ashen_scar",
+			"requires": {"steps": ["a5_rifts_edge"]},
+			"dialogue": [{"node": "idra_tide", "after": "anchor"}],
+			"objectives": [
+				{"id": "anchor", "type": "carve", "glyph": "ward", "stone": "scar_anchor"},
+				{"id": "allies", "type": "flag", "flag": "r1.a5.allies"},
+				{"id": "tide", "type": "scar_contain", "place": "ashen_scar", "cells": 8}
+			],
+			"mechanics": {"scar_tide": "use", "wardwright": "use"}
+		},
+		{
+			"id": "a5_scarbound", "act": 5, "title": "It Was a Troll, Once",
+			"objective": "Defeat the Scarbound Troll",
+			"journal": "Stone skin. Crystal spine. Whatever it was, the Scar finished it.",
+			"giver": "idra_vell", "place": "rift_mouth",
+			"requires": {"steps": ["a5_turn_the_tide"]},
+			"dialogue": [{"node": "troll_rises", "after": "reach"}],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "rift_mouth"},
+				{"id": "seen", "type": "flag", "flag": "r1.a5.troll_seen"},
+				{"id": "boss", "type": "defeat", "target": "scarbound_troll"}
+			],
+			"tutorial": ["block", "dodge"]
+		},
+		{
+			"id": "a5_seal", "act": 5, "title": "All of Them",
+			"objective": "Close the Rift mouth",
+			"journal": "The mouth wanted an ember. Idra offered hers.",
+			"giver": "idra_vell", "place": "rift_mouth",
+			"requires": {"steps": ["a5_scarbound"]},
+			"dialogue": [{"node": "idra_seal"}, {"node": "glimpse", "after": "closed"}],
+			"objectives": [
+				{"id": "choice", "type": "choice", "group": "the_seal"},
+				{"id": "sealed", "type": "flag", "flag": "r1.a5.sealed", "do": [["cutscene", "finale_seal"]]},
+				{"id": "closed", "type": "cutscene_done", "cutscene": "finale_seal"},
+				{"id": "glimpse", "type": "flag", "flag": "r1.a5.glimpse"}
+			],
+			"mechanics": {"ember_legacy": "use"}
+		},
+		{
+			"id": "a5_homecoming", "act": 5, "title": "Homecoming",
+			"objective": "Go home to Ashford",
+			"journal": "The Miller's Stone was singing when I passed it.",
+			"giver": "mother", "place": "ashford",
+			"requires": {"steps": ["a5_seal"]},
+			"dialogue": [{"node": "mother_home", "after": "reach"}],
+			"objectives": [
+				{"id": "reach", "type": "enter_area", "place": "ashford"},
+				{"id": "home", "type": "flag", "flag": "r1.a5.home"}
+			],
+			"on_complete": [["flag", "r1.complete"], ["cutscene", "region_complete"], ["rep", "vale", 25], ["gold", 250]]
+		}
+	]
+}
