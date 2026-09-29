@@ -975,6 +975,77 @@ func _screenshot(shot: String, path: String) -> void:
 			_teleport(spg, 0.0)
 			player.set_camera(atan2(-dirg.x, -dirg.y), -0.05)
 			warmup = 120
+		"stall":
+			# QA close-up of the Nth market stall on Kingsreach's gate road (--n=2), from 6 m in front of it.
+			var capst: Dictionary = WorldGen.settlements[1]
+			var gas: float = capst["plan"]["gates"][0]
+			settlements.focus = Vector3(capst["pos"].x + cos(gas) * (float(capst["radius"]) - 40.0), 0, capst["pos"].y + sin(gas) * (float(capst["radius"]) - 40.0))
+			for _i in 4:
+				settlements.update_now()
+			var spots: Array = settlements.stalls_by_town.get(capst["id"], [])
+			var pick: Array = spots[clampi(int(_user_args().get("n", "3")), 0, maxi(spots.size() - 1, 0))] if not spots.is_empty() else []
+			if not pick.is_empty():
+				var sp2: Vector2 = pick[1]
+				var syaw: float = pick[2]
+				var ez := Vector2(sin(syaw), cos(syaw))
+				var stand := sp2 + ez * float(_user_args().get("dist", "6.5")) + Vector2(cos(syaw), -sin(syaw)) * float(_user_args().get("side", "1.5"))
+				_teleport(stand, 0.0)
+				var lk: Vector2 = sp2 - stand
+				player.set_camera(atan2(-lk.x, -lk.y), float(_user_args().get("pitch", "-0.16")))
+			warmup = 120
+		"settle":
+			# QA view of any settlement (--shot=settle --town=2), from the first gate's side toward the centre (--dist=14 m
+			# beyond the plaza edge, --yaw=deg to swing around the centre).
+			var tn: Dictionary = WorldGen.settlements[clampi(int(_user_args().get("town", "2")), 0, WorldGen.settlements.size() - 1)]
+			var tc: Vector2 = tn["pos"]
+			var ta := deg_to_rad(float(_user_args().get("yaw", "0"))) + (float(tn["plan"]["gates"][0]) if not tn["plan"]["gates"].is_empty() else 0.0)
+			var tsp: Vector2 = tc + Vector2(cos(ta), sin(ta)) * (float(tn["plan"]["plaza_r"]) + float(_user_args().get("dist", "14")))
+			_teleport(tsp, 0.0)
+			var tl: Vector2 = tc - tsp
+			player.set_camera(atan2(-tl.x, -tl.y), float(_user_args().get("pitch", "-0.12")))
+			settlements.focus = player.global_position
+			settlements.update_now()
+			if _user_args().has("air"):      # --air=55: a camera 55 m above the square looking down at it
+				hud.visible = false
+				player.visible = false
+				var acam := Camera3D.new()
+				viewport.get_child(0).add_child(acam)
+				var back := Vector2(cos(ta), sin(ta)) * float(_user_args().get("airback", "26"))
+				acam.global_position = Vector3(tc.x + back.x, WorldGen.height(tc.x, tc.y) + float(_user_args().get("air", "55")), tc.y + back.y)
+				acam.look_at(Vector3(tc.x, WorldGen.height(tc.x, tc.y), tc.y))
+				acam.fov = 60.0
+				acam.current = true
+				terrain.focus = Vector3(tc.x, 0, tc.y)
+				terrain.build_all_now()
+			warmup = 120
+		"decal":
+			# QA close-up of the Nth decal of a settlement (--town=2 --n=0 --kind=wall|ground|soot), 6 m off its wall / 5 m above the ground.
+			var dtn: Dictionary = WorldGen.settlements[clampi(int(_user_args().get("town", "2")), 0, WorldGen.settlements.size() - 1)]
+			var dc0: Vector2 = dtn["pos"]
+			_teleport(dc0 + Vector2(1.0, 1.0) * 25.0, 0.0)
+			settlements.focus = player.global_position
+			for _i in 4:
+				settlements.update_now()
+			var droot: Node3D = settlements._built.get(dtn["id"])
+			var picks: Array[Decal] = []
+			var want := String(_user_args().get("kind", "wall"))
+			if droot:
+				for dd in droot.find_children("*", "Decal", true, false):
+					var dcl := dd as Decal
+					var is_wall := dcl.cull_mask == TownDecals.WALL_LAYER
+					var soot := dcl.texture_albedo != null and String(dcl.texture_albedo.resource_path).ends_with("soot.png")
+					if (want == "wall" and is_wall and not soot) or (want == "ground" and not is_wall) or (want == "soot" and soot):
+						picks.append(dcl)
+			if not picks.is_empty():
+				var dsel: Decal = picks[clampi(int(_user_args().get("n", "0")), 0, picks.size() - 1)]
+				var dpos := dsel.global_position
+				var away := dsel.global_transform.basis.y
+				var stand3 := dpos + (away * 6.0 if want != "ground" else Vector3(4.0, 0.0, 4.0))
+				_teleport(Vector2(stand3.x, stand3.z), 0.0)
+				var dl := dpos - player.global_position
+				player.set_camera(atan2(-dl.x, -dl.z), float(_user_args().get("pitch", "-0.12")) if want != "ground" else -0.35)
+			print("[decal] ", want, " candidates ", picks.size())
+			warmup = 120
 		"city", "street":
 			var cap: Dictionary = WorldGen.settlements[1]
 			var cp: Vector2 = cap["pos"]

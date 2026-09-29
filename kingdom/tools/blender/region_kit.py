@@ -68,6 +68,7 @@ MATS = {
     "RG_Planks": dict(tex="planks.png", scale=1.0, rough=0.8),
     "RG_Timber": dict(tex="timber.png", scale=2.0, rough=0.8),
     "RG_Stone": dict(tex="stone_wall.png", scale=2.0, rough=0.9),
+    "RG_Ruin": dict(tex="ruin_stone.png", scale=3.2, rough=0.92),   # grey weathered masonry (make_ruin_stone_texture.py)
     "RG_Plaster": dict(tex="plaster.png", scale=2.0, rough=0.95),
     "RG_Thatch": dict(tex="thatch.png", scale=1.6, rough=1.0),
     "RG_Shingle": dict(tex="shingle.png", scale=1.6, rough=0.85),

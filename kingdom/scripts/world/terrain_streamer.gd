@@ -329,6 +329,7 @@ func _build_chunk(key: Vector2i, plan: Dictionary) -> Node3D:
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, plan["ground"])
 	ground.mesh = mesh
 	ground.material_override = _ground_material
+	ground.layers |= TownDecals.GROUND_LAYER      # ground decals (ruts, puddles) project only onto the terrain
 	chunk.add_child(ground)
 	chunk.set_meta("faces", plan["faces"])
 	var grass_plan: Dictionary = plan["grass"]

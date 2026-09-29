@@ -33,6 +33,8 @@ var focus := Vector3.ZERO
 var _built: Dictionary = {}      # id -> Node3D
 var _timer := 0.0
 var _footprints: Dictionary = {} # asset -> Vector3 size at BUILDING_SCALE
+## settlement id -> [[stall key, position, yaw, solid index], ...] of the gate-market stalls (QA shots, tests).
+var stalls_by_town: Dictionary = {}
 
 
 func _process(delta: float) -> void:
@@ -131,13 +133,16 @@ func _build(s: Dictionary) -> Node3D:
 			chain = chain.filter(func(c: Array) -> bool: return c[0] != null)
 			for i in chain.size():
 				var mm := _multimesh(root, chain[i][0], list, i == 0)
+				mm.layers |= TownDecals.WALL_LAYER      # receives wall decals (see _decals)
 				mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
 				mm.visibility_range_begin = chain[i][1]
 				mm.visibility_range_begin_margin = 10.0 if i > 0 else 0.0
 				mm.visibility_range_end = chain[i + 1][1] if i + 1 < chain.size() else 0.0
 				mm.visibility_range_end_margin = 10.0 if i + 1 < chain.size() else 0.0
 		else:
-			_multimesh(root, Assets.building_mesh(asset), list)
+			var hm := _multimesh(root, Assets.building_mesh(asset), list)
+			if hm:
+				hm.layers |= TownDecals.WALL_LAYER
 		_chimney_smoke(root, asset, list, rng)
 
 	_interior_doors(root, plan["lots"])
@@ -250,6 +255,7 @@ func _build(s: Dictionary) -> Node3D:
 	_multimesh(root, Assets.building_mesh("crate"), street_clutter.slice(10, 18), true, true, "crate")
 	_multimesh(root, Assets.building_mesh("sack_pile"), street_clutter.slice(18, 24), true, true, "sack_pile")
 	_multimesh(root, Assets.building_mesh("cart"), street_clutter.slice(24), true, true)
+	_decals(root, s, plan)
 	_flush_contact_shadows(root)
 	return root
 
@@ -490,7 +496,7 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, gates: Array, segments:
 ## Instanced placement. Culls by object size (small clutter vanishes first) and,
 ## unless blob is false, grounds each instance with a soft contact shadow.
 ## A `breakable` kind (Breakable.KINDS) makes each instance collider breakable.
-func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob := true, collide := false, breakable := "") -> MultiMeshInstance3D:
+func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob := true, collide := false, breakable := "", shadow := true) -> MultiMeshInstance3D:
 	if mesh == null or transforms.is_empty():
 		return null
 	var mm := MultiMesh.new()
@@ -501,6 +507,8 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 		mm.set_instance_transform(i, transforms[i])
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
+	if not shadow:
+		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF   # small goods: no shadow-map cost
 	var box := mesh.get_aabb()
 	var extent := maxf(box.size.x, box.size.z)
 	var cull := 70.0 if extent < 1.6 else (150.0 if extent < 4.5 else (380.0 if extent < 12.0 else 0.0))
@@ -518,7 +526,7 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 
 ## _multimesh() split into cell x cell metre batches, so visibility ranges (and
 ## LOD) work per neighbourhood instead of per town; `cull` > 0 overrides the range.
-func _multimesh_cells(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], cell: float, cull := 0.0, blob := true) -> void:
+func _multimesh_cells(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], cell: float, cull := 0.0, blob := true, shadow := true) -> void:
 	var groups := {}
 	for t: Transform3D in transforms:
 		var k := Vector2i(floori(t.origin.x / cell), floori(t.origin.z / cell))
@@ -528,7 +536,7 @@ func _multimesh_cells(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]
 	for k: Vector2i in groups:
 		var list: Array[Transform3D] = []
 		list.assign(groups[k])
-		var mmi := _multimesh(parent, mesh, list, blob)
+		var mmi := _multimesh(parent, mesh, list, blob, false, "", shadow)
 		if mmi and cull > 0.0:
 			mmi.visibility_range_end = cull
 			mmi.visibility_range_end_margin = cull * 0.1
@@ -970,6 +978,49 @@ func _village_square(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomN
 		var mesh := Assets.building_mesh(key)
 		if mesh != null:
 			_multimesh_cells(root, mesh, batches[key], 40.0, 0.0, key != "bunting")
+	_square_edge(root, s, plan, rng)
+
+
+## Flowers, daisies and grass tufts along the ragged rim of a village's cobbled square (the paving
+## itself is WorldGen.color_at(): channel B out to plaza_r + ~3.4 m), thickest where the cobbles
+## give way to grass and thinning into the yard, never on the street spokes or footpaths.
+func _square_edge(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator) -> void:
+	var c: Vector2 = s["pos"]
+	var pr: float = plan["plaza_r"]
+	var sets := {"nature/flowers_a": [], "nature/grass_clump_tall": [], "region/nature/flowers_warm": [], "flower_strip": []}
+	var want := 46 if _low() else 90
+	var count := 0
+	for i in want * 4:
+		if count >= want:
+			break
+		var a := rng.randf() * TAU
+		var d := pr + rng.randf_range(1.6, 7.0)
+		var p := c + Vector2(cos(a), sin(a)) * d
+		if CityPlanner.street_distance(plan, p) < 2.6 or CityPlanner.path_distance(plan, p) < 1.4:
+			continue
+		var blocked := false
+		for lot: Dictionary in plan["lots"]:
+			if p.distance_to(lot["pos"]) < 5.5:
+				blocked = true
+				break
+		if blocked or WorldGen.near_water(p.x, p.y, 1.5):
+			continue
+		var here := WorldGen.color_at(p.x, p.y, 0.0, 0.0)
+		var inner := p + (c - p).normalized() * 2.4
+		if here.b > 0.85 or WorldGen.color_at(inner.x, inner.y, 0.0, 0.0).b < 0.4:
+			continue       # only along the rim: cobbles inside, grass outside
+		var roll := rng.randf()
+		var kind := "nature/flowers_a" if roll < 0.4 else ("nature/grass_clump_tall" if roll < 0.7 else ("region/nature/flowers_warm" if roll < 0.9 else "flower_strip"))
+		var sc := rng.randf_range(0.9, 1.5) if kind != "flower_strip" else 1.0
+		var yaw := rng.randf() * TAU if kind != "flower_strip" else atan2(-(c - p).y, (c - p).x) + PI * 0.5
+		(sets[kind] as Array).append(Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * sc), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.02, p.y)))
+		count += 1
+	for kind: String in sets:
+		var list: Array[Transform3D] = []
+		list.assign(sets[kind])
+		var mesh: Mesh = Assets.building_mesh(kind) if kind == "flower_strip" else Assets.nature_mesh(kind)
+		if mesh != null:
+			_multimesh_cells(root, mesh, list, LOD_CELL, 90.0, false)
 
 
 func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator) -> void:
@@ -997,6 +1048,7 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 		var dp := BuildingProfiles.door_point(lot)
 		corridors.append([dp, dp + Vector2(sin(ly), cos(ly)) * 10.0])
 	var solid: Array = []         # [centre, yaw, half x, half z] of every solid prop placed so far
+	var stall_spots: Array = []   # [key, position, yaw, index into solid or -1] of every market stall, for MarketGoods
 	var no_collide := {}          # key -> Array[Transform3D] scenery that must not collide
 	var placed_solid := func(key: String, p: Vector2, yaw: float, dir: Vector2) -> Vector2:
 		var mesh := Assets.building_mesh(key)
@@ -1060,9 +1112,11 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 					var spx: Vector2 = placed_solid.call(stall_key, sp, face, dir)
 					if is_inf(spx.x):
 						add_scenery.call(stall_key, sp, face)
+						stall_spots.append([stall_key, sp, face, -1])
 					else:
 						sp = spx
 						add.call(stall_key, sp, face)
+						stall_spots.append([stall_key, sp, face, solid.size() - 1])
 					if rng.randf() < 0.6:
 						var bp: Vector2 = sp + dir * 2.5 + nrm * side * 0.3
 						var by := face + rng.randf_range(-0.4, 0.4)
@@ -1095,6 +1149,9 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 				add_scenery.call("barrel_cluster", tb, ty)
 			else:
 				add.call("barrel_cluster", tbx, ty)
+	# Goods on and around every stall and at the townhouse shop fronts (MarketGoods): render-only.
+	stalls_by_town[s["id"]] = stall_spots
+	_market_dressing(root, s, plan, stall_spots, solid, corridors)
 	# A pair of town guards standing watch just inside every gate, as in the reference.
 	if plan["walls"]:
 		for g: float in plan["gates"]:
@@ -1145,6 +1202,287 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 		light.add_to_group("street_lamp")
 		root.add_child(light)
 		light.global_position = lp
+
+
+## Sparse painted decals (TownDecals): moss and dirt at wall feet, worn plaster patches, soot above the
+## forge door and around chimneys on the house batches; cart ruts and puddles on the streets and square.
+## Budget: one wall decal per 32 m block and at most TownDecals.CHUNK_CAP ground decals per 64 m terrain
+## chunk keep every mesh under the Mobile renderer's 8 decals; each fades out at 30-40 m from the camera;
+## none on LOW (and they hide if the tier drops to LOW, see Quality.changed).
+func _decals(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
+	if _low() or not TownDecals.available():
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 4111 + int(s["id"])      # own stream: the town's other random layout is untouched
+	var holder := Node3D.new()
+	holder.name = "Decals"
+	root.add_child(holder)
+	var q: Node = (Engine.get_main_loop() as SceneTree).root.get_node_or_null("/root/Quality")
+	if q != null and q.has_signal("changed"):
+		q.changed.connect(func() -> void:
+			if is_instance_valid(holder):
+				holder.visible = q.tier != q.LOW)
+	var blocks := {}        # Vector2i (32 m block) -> true: one wall decal per block
+	var chunks := {}        # Vector2i (64 m terrain chunk) -> ground decals placed
+	var lots: Array = plan["lots"]
+	var order := range(lots.size())
+	for i in range(order.size() - 1, 0, -1):     # shuffle: which lot of a block gets the decal varies
+		var j := rng.randi() % (i + 1)
+		var tmp = order[i]
+		order[i] = order[j]
+		order[j] = tmp
+	for li: int in order:
+		var lot: Dictionary = lots[li]
+		var asset := String(lot["asset"])
+		var p: Vector2 = lot["pos"]
+		var yaw: float = lot["yaw"]
+		var size := _footprint(asset)
+		var fwd := Vector2(sin(yaw), cos(yaw))
+		var side := Vector2(fwd.y, -fwd.x)
+		var gh := _ground_snap(p, yaw, size)
+		var smith := asset == "blacksmith"
+		var block := Vector2i(floori(p.x / 32.0), floori(p.y / 32.0))
+		if blocks.has(block) and not smith:
+			continue
+		var roll := rng.randf()
+		if not smith and roll > 0.78:
+			continue                     # not every block: keep it sparse
+		blocks[block] = true
+		var wall := BuildingProfiles.HERO_WALL if BuildingProfiles.HERO.has(asset) else BuildingProfiles.HOUSE_WALL
+		var door_x := BuildingProfiles.door_local(asset, size).x
+		var kind := "moss"
+		if smith:
+			kind = "soot"
+		elif roll < 0.22:
+			kind = "moss"
+		elif roll < 0.42:
+			kind = "dirt"
+		elif roll < 0.60:
+			kind = "plaster"
+		else:
+			kind = "chimney" if not Assets.chimney_points(asset).is_empty() else "dirt"
+		if kind == "chimney":
+			var pts := Assets.chimney_points(asset)
+			var pt: Vector3 = pts[rng.randi() % pts.size()]
+			var w := Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, gh, p.y)) * pt
+			var d := TownDecals.make("soot", Vector3(3.0, 2.6, 3.0), TownDecals.WALL_LAYER, Color(1, 1, 1, 0.85))
+			holder.add_child(d)
+			d.global_transform = Transform3D(Basis(Vector3.UP, rng.randf() * TAU), w + Vector3(0, -0.5, 0))
+			continue
+		# Choose a wall: 0 front, 1 back, 2 left, 3 right (moss and dirt like the back and sides).
+		var wall_i := 0 if (smith or kind == "plaster" and rng.randf() < 0.5) else (rng.randi() % 4)
+		var n2 := fwd
+		var half_len := size.x * wall
+		var depth := size.z * wall
+		match wall_i:
+			1:
+				n2 = -fwd
+			2:
+				n2 = -side
+				half_len = size.z * wall
+				depth = size.x * wall
+			3:
+				n2 = side
+				half_len = size.z * wall
+				depth = size.x * wall
+		var lat_axis := Vector2(-n2.y, n2.x)     # along the wall
+		var lat := 0.0
+		var anchor := 0.0
+		if smith:
+			var porch: float = BuildingProfiles.HERO["blacksmith"]["porch"]
+			depth = size.z * wall - porch          # the entrance wall sits `porch` behind the front
+			lat = door_x
+		elif wall_i == 0:
+			var away := 2.4 if rng.randf() < 0.5 else -2.4
+			lat = door_x + away
+			if absf(lat) > half_len - 1.2:
+				lat = door_x - away
+				if absf(lat) > half_len - 1.2:
+					continue
+		else:
+			lat = rng.randf_range(-1.0, 1.0) * maxf(half_len - 1.7, 0.0)
+		anchor = depth
+		var origin2 := p + n2 * anchor + lat_axis * lat
+		var n3 := Vector3(n2.x, 0.0, n2.y)
+		var dsize := Vector3(3.0, 1.4, 1.2)
+		var cy := gh
+		match kind:
+			"moss":
+				dsize = Vector3(rng.randf_range(2.6, 3.6), 1.4, 1.25)
+				cy = gh + dsize.z * 0.5 - 0.15
+			"dirt":
+				dsize = Vector3(rng.randf_range(2.8, 3.6), 1.4, 1.0)
+				cy = gh + dsize.z * 0.5 - 0.12
+			"plaster":
+				dsize = Vector3(rng.randf_range(1.8, 2.4), 1.4, rng.randf_range(1.5, 1.9))
+				cy = gh + rng.randf_range(1.3, 2.2)
+			"soot":
+				dsize = Vector3(2.8, 1.4, 2.6)
+				cy = gh + 2.2 + dsize.z * 0.5      # bottom edge at the door / forge opening's top
+		var d := TownDecals.make(kind, dsize, TownDecals.WALL_LAYER)
+		holder.add_child(d)
+		d.global_transform = Transform3D(TownDecals.wall_basis(n3), Vector3(origin2.x, cy, origin2.y) + n3 * 0.35)
+	# Ground decals: cart ruts along the streets, puddles on streets and the square.
+	var c: Vector2 = s["pos"]
+	var pr: float = plan["plaza_r"]
+	var put_ground := func(kind: String, at: Vector2, yaw: float, dsize: Vector3, tint := Color.WHITE) -> void:
+		var ck := Vector2i(floori(at.x / 64.0), floori(at.y / 64.0))
+		if int(chunks.get(ck, 0)) >= TownDecals.CHUNK_CAP:
+			return
+		chunks[ck] = int(chunks.get(ck, 0)) + 1
+		var d := TownDecals.make(kind, dsize, TownDecals.GROUND_LAYER, tint)
+		holder.add_child(d)
+		d.global_transform = Transform3D(Basis(Vector3.UP, yaw), Vector3(at.x, WorldGen.height(at.x, at.y) + 0.3, at.y))
+	var spans: Array = []       # [street a, dir, length, width]
+	for st: Dictionary in plan["streets"]:
+		var a: Vector2 = st["a"]
+		var b: Vector2 = st["b"]
+		var len := a.distance_to(b)
+		if len < 20.0:
+			continue
+		spans.append([a, (b - a) / len, len, float(st["w"])])
+		var dir := (b - a) / len
+		var nrm := Vector2(-dir.y, dir.x)
+		var t := pr + 5.0 + rng.randf_range(0.0, 6.0)
+		while t < len - 8.0:
+			if rng.randf() < 0.7:
+				var at := a + dir * t + nrm * rng.randf_range(-0.9, 0.9)
+				put_ground.call("ruts", at, atan2(dir.x, dir.y), Vector3(2.8, 2.0, rng.randf_range(9.0, 13.0)))
+			t += rng.randf_range(12.0, 22.0)
+	var n_pud := 6 if s["kind"] == "village" else 9
+	for i in n_pud:
+		var at: Vector2
+		var ang := rng.randf() * TAU
+		if spans.is_empty() or rng.randf() < 0.4:
+			at = c + Vector2(cos(ang), sin(ang)) * rng.randf_range(pr * 0.35, pr * 0.95)      # on the square
+		else:
+			var sp: Array = spans[rng.randi() % spans.size()]
+			var dir: Vector2 = sp[1]
+			at = (sp[0] as Vector2) + dir * rng.randf_range(pr + 2.0, sp[2] - 8.0) + Vector2(-dir.y, dir.x) * rng.randf_range(-1.0, 1.0) * (float(sp[3]) * 0.5 - 1.2)
+		put_ground.call("puddle", at, rng.randf() * TAU, Vector3(rng.randf_range(2.6, 4.2), 2.0, rng.randf_range(2.0, 3.0)), Color(1, 1, 1, 0.92))
+
+
+## Extra market goods from the MarketGoods kit (CC0 Quaternius props + food, one shared atlas):
+## every stall gets its themed counter goods and hanging goods, and -- when the space is free --
+## crates, barrels and baskets in front of the counter and a crate/sack stack beside its posts;
+## townhouse shop fronts get a small themed set beside the door. All render-only (no colliders),
+## one MultiMesh per composed layout per 40 m cell, no shadow casting, culled at 70 m.
+## Clearances mirror _gate_market(): >= 1 m from every door corridor centre line (2 m wide lanes)
+## and >= 1.4 m from every solid prop / neighbouring house wall. LOW keeps the same stall dressing but
+## drops the stacks behind the stalls and half the shop fronts (its visibility ranges are shorter too).
+func _market_dressing(root: Node3D, s: Dictionary, plan: Dictionary, stall_spots: Array, solid: Array, corridors: Array) -> void:
+	if not MarketGoods.available():
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7331 + int(s["id"])      # own stream: the rest of the town's random layout is untouched
+	var low := _low()
+	var batches := {}                   # layout id -> Array[Transform3D]
+	var placed: Array = []              # rects of the extras placed here: [centre, yaw, hx, hz]
+	var stats := {"stalls": 0, "front": 0, "side": 0, "rear": 0, "shops": 0}
+	var put := func(id: String, origin: Vector2, yaw: float) -> void:
+		if not batches.has(id):
+			batches[id] = [] as Array[Transform3D]
+		(batches[id] as Array[Transform3D]).append(Transform3D(Basis(Vector3.UP, yaw), Vector3(origin.x, WorldGen.height(origin.x, origin.y) - 0.03, origin.y)))
+	var clear_of := func(centre: Vector2, yaw: float, hx: float, hz: float, own: int) -> bool:
+		for cor: Array in corridors:
+			if Geometry2D.get_closest_point_to_segment(centre, cor[0], cor[1]).distance_to(centre) > 12.0:
+				continue
+			if _rect_segment_dist(centre, yaw, hx, hz, cor[0], cor[1]) < 1.0:
+				return false
+		for i in solid.size():
+			if i == own:
+				continue
+			var o: Array = solid[i]
+			if (o[0] as Vector2).distance_to(centre) > 14.0:
+				continue
+			if _rect_gap(centre, yaw, hx, hz, o[0], o[1], o[2], o[3]) < MIN_LOT_GAP:
+				return false
+		for o: Array in placed:
+			if (o[0] as Vector2).distance_to(centre) < 8.0 and _rect_gap(centre, yaw, hx, hz, o[0], o[1], o[2], o[3]) < 1.0:
+				return false
+		return true
+	var themes := MarketGoods.THEMES
+	var offset := rng.randi() % themes.size()
+	for n in stall_spots.size():
+		var spot: Array = stall_spots[n]
+		var sp: Vector2 = spot[1]
+		var yaw: float = spot[2]
+		var own: int = spot[3]
+		var ex := Vector2(cos(yaw), -sin(yaw))
+		var ez := Vector2(sin(yaw), cos(yaw))
+		var theme: String = themes[(n * 5 + offset) % themes.size()]
+		# Ground goods in front of the awning: only where nothing blocks a lane or a door.
+		var front_c: Vector2 = sp + ez * (MarketGoods.FRONT_RECT.position.y + MarketGoods.FRONT_RECT.size.y * 0.5) \
+			+ ex * (MarketGoods.FRONT_RECT.position.x + MarketGoods.FRONT_RECT.size.x * 0.5)
+		var front_ok: bool = clear_of.call(front_c, yaw, MarketGoods.FRONT_RECT.size.x * 0.5, MarketGoods.FRONT_RECT.size.y * 0.5, own)
+		put.call("stall_%s%s" % [theme, "" if front_ok else "_lite"], sp, yaw)
+		stats["stalls"] += 1
+		if front_ok:
+			placed.append([front_c, yaw, MarketGoods.FRONT_RECT.size.x * 0.5, MarketGoods.FRONT_RECT.size.y * 0.5])
+			stats["front"] += 1
+		for side: float in [1.0, -1.0]:
+			var sc: Vector2 = sp + ex * side * MarketGoods.SIDE_X + ez * 0.15
+			if not clear_of.call(sc, yaw, MarketGoods.SIDE_HALF.x, MarketGoods.SIDE_HALF.y, own):
+				continue
+			if rng.randf() < 0.3:
+				continue        # not every stall has a stack beside it
+			placed.append([sc, yaw, MarketGoods.SIDE_HALF.x, MarketGoods.SIDE_HALF.y])
+			put.call("side_a" if rng.randf() < 0.5 else "side_b", sc, yaw + (0.0 if side > 0.0 else PI))
+			stats["side"] += 1
+		# ... and one stack behind the stall (stacks are 2 m long, so turned a quarter to run along the back).
+		var rc: Vector2 = sp - ez * 1.85 + ex * rng.randf_range(-0.9, 0.9)
+		if not low and rng.randf() < 0.7 and clear_of.call(rc, yaw + PI * 0.5, MarketGoods.SIDE_HALF.x, 1.05, own):
+			placed.append([rc, yaw + PI * 0.5, MarketGoods.SIDE_HALF.x, 1.05])
+			put.call("side_a" if rng.randf() < 0.5 else "side_b", rc, yaw + PI * 0.5)
+			stats["rear"] += 1
+	# Townhouse shop fronts: a small themed set beside the door (never on the door line).
+	var polys: Array = []
+	for lot: Dictionary in plan["lots"]:
+		var lsz := _footprint(lot["asset"])
+		var wall := BuildingProfiles.HOUSE_WALL if BuildingProfiles.is_house(lot["asset"]) else BuildingProfiles.HERO_WALL
+		polys.append([lot["pos"], _rect_poly(lot["pos"], lot["yaw"], lsz.x * wall, lsz.z * wall)])
+	for li in plan["lots"].size():
+		var lot: Dictionary = plan["lots"][li]
+		if not String(lot["asset"]).begins_with("house_town"):
+			continue
+		if rng.randf() < (0.6 if low else 0.25):
+			continue        # LOW: about half as many shop fronts
+		var lyaw: float = lot["yaw"]
+		var lfwd := Vector2(sin(lyaw), cos(lyaw))
+		var lside := Vector2(lfwd.y, -lfwd.x)
+		var lsize := _footprint(lot["asset"])
+		var wall_z := lsize.z * BuildingProfiles.HOUSE_WALL
+		var first := 1.0 if rng.randf() < 0.5 else -1.0
+		for tries in 2:
+			var sgn := first if tries == 0 else -first
+			var c: Vector2 = lot["pos"] + lfwd * (wall_z + MarketGoods.SHOP_Z) + lside * sgn * MarketGoods.SHOP_X
+			if CityPlanner.street_distance(plan, c) < 0.3:
+				continue
+			var ok: bool = clear_of.call(c, lyaw, MarketGoods.SHOP_HALF.x, MarketGoods.SHOP_HALF.y, -1)
+			if ok:
+				var poly := _rect_poly(c, lyaw, MarketGoods.SHOP_HALF.x, MarketGoods.SHOP_HALF.y)
+				for k in polys.size():
+					if k == li or (polys[k][0] as Vector2).distance_to(c) > 20.0:
+						continue
+					if float(_poly_closest(poly, polys[k][1])[0]) < MIN_LOT_GAP:
+						ok = false
+						break
+			if not ok:
+				continue
+			placed.append([c, lyaw, MarketGoods.SHOP_HALF.x, MarketGoods.SHOP_HALF.y])
+			put.call(MarketGoods.SHOPS[rng.randi() % MarketGoods.SHOPS.size()], c, lyaw)
+			stats["shops"] += 1
+			break
+	for id: String in batches:
+		var mesh := MarketGoods.layout(id)
+		if mesh == null:
+			continue
+		var list: Array[Transform3D] = []
+		list.assign(batches[id])
+		# Per-neighbourhood batches (as for the stalls), no blob shadow, no shadow casting.
+		_multimesh_cells(root, mesh, list, LOD_CELL, 70.0, false, false)
+	if OS.get_cmdline_user_args().has("--goods-stats"):
+		print("[goods] %s: %s" % [s["name"], stats])
 
 
 ## A couple of small stones or weeds tucked against each building's base (the

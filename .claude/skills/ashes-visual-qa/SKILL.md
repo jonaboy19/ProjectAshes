@@ -22,6 +22,10 @@ On the Windows PC use the 4.6.3 console exe and the bench/playtest scripts inste
 ## Built-in shots (`scripts/core/main.gd` `_screenshot`)
 `gate` (Kingsreach gate market, the reference view), `street`, `city` (aerial capital), `explore` (Ashford plaza),
 `homestead`, `lake`, `frontier`, `camp`, `aerial`, `vfx`, `site_<kind>`, `interior_<building>`, `birth`.
+Also: `stall` (close-up of a Kingsreach gate-road market stall: `--n=8 --dist=5.5 --side=1 --pitch=-0.1`),
+`settle` (any settlement from its first gate: `--town=2 --dist=20`, add `--air=55 --airback=30` for a look down at the square)
+and `decal` (`--town=2 --kind=wall|ground|soot --n=0`). A/B switches: `--no-goods`, `--no-decals`, `--legacy-plaza`;
+`--quality=medium|high` matters: xvfb/llvmpipe auto-detects LOW, which has no decals.
 Add a new shot there when a new place needs regular checking.
 
 ## Custom captures (UI screens, menus, maps)
