@@ -8,7 +8,7 @@
 		"min_size": 16.0,
 		"min_sim": 0.86,
 		"min_margin": 0.012,
-		"confidence_floor": 0.7,
+		"confidence_floor": 0.6,
 		"fast_accept": 0.94,
 		"max_strokes": 3,
 		"max_rotation_deg": 180.0,

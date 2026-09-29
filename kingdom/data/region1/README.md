@@ -10,8 +10,12 @@ Plan: `docs/regions/REGION_1_PLAN.md`. Hooks for the cloud session: `docs/region
 | `scripts/region1/region1_root.gd` | `Region1Root` (`Node3D`): low-frequency ticker and presenter refresh (hook H1) |
 | `scripts/region1/demo_sim.gd` | `Region1DemoSim`: reference module. Copy it to start a new one |
 | `data/region1/modules.json` | manifest: one row per module the root creates in the game |
+| `scripts/region1/wardlines.gd` | `Wardlines` (L7): Elder budgets, routing graph, glyphs, coverage for hook H3. Tuning: `data/region1/wardlines.json` |
+| `scripts/region1/rune_gesture.gd` | `RuneGesture` (L8): finger-stroke recognizer for ward / lure / alarm / bless. Shapes: `data/region1/glyphs.json` |
 | `data/region1/*.json` | module data (glyphs, mutation tables, stone budgets, ...) |
 | `tools_qa/region1/region1_sandbox.tscn` | headless runner (below) |
+| `tools_qa/region1/wardlines_demo.gd` | headless story board: coverage PNGs of cut / carve / decay (`samples/`) |
+| `tools_qa/region1/rune_canvas.tscn` | windowed rune canvas: glowing trail, confidence, practice mode, `--demo` scripted strokes |
 | `tests/test_region1_*.gd` | gdUnit4 tests |
 
 ## Writing a module (packages L7 to L16)
@@ -44,3 +48,11 @@ Writes `<module>.log`, `<module>_dayNNN.png` (from `debug_image()`), `summary.js
 ```
 Godot --headless --path kingdom -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests/test_region1_scaffold.gd -c --ignoreHeadlessMode
 ```
+
+## Wardlines and rune canvas (L7, L8)
+```
+Godot --headless --path kingdom res://tools_qa/region1/region1_sandbox.tscn -- --module=wardlines --days=150 --png-every=50
+Godot --headless --path kingdom -s res://tools_qa/region1/wardlines_demo.gd -- --out=<dir>
+Godot --path kingdom --write-movie <dir>/frame.png --fixed-fps 30 --quit-after 1400 --resolution 1280x720 res://tools_qa/region1/rune_canvas.tscn -- --demo   # windowed, never --headless
+```
+Wardlines is not in `modules.json` yet: it goes live with C3 (see hook H3 in `docs/regions/HOOKS_FOR_CLOUD.md`). Test classes by `preload` if the editor class cache is stale.
