@@ -91,3 +91,12 @@ The full spec is in `WAR_COMMAND_RULEBOOK.md`, with the UI reference `war_ui_ref
 - drag to move
 - courier delay and fog of war
 - command authority by rank
+
+## Power systems: deferred until the world is built (user direction)
+
+- **Martial arts, two traditions:**
+  - Sects follow **donghua-style martial arts**: internal energy, cultivation, techniques and manuals.
+  - Knights have their **own knight martial arts**, in the anime and fantasy-knight style: aura, reinforced sword forms, charge techniques and armour arts. It is a separate tree, not a copy of the sect one.
+- **Chantless magic** is advanced only. It needs a high magic level, spell-theory mastery and several path milestones. Beginners must chant.
+- Every path gets full **levels, sub-paths and technique trees**, built on `realm/power_paths.gd`.
+- **Order of work:** the world and the living mechanics per job come first. Power comes after the world is built properly.
