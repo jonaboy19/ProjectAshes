@@ -321,6 +321,11 @@ OPT_KEYS = ("elb_l", "elb_r", "shrug_l", "shrug_r")
 def _lerp(a, b, t):
     return a + (b - a) * t
 
+def _auto_elb(st, side):
+    sx = 1 if side == "l" else -1
+    sh = SHOULDER0[side] + Vector(st["pel"])
+    return (sh + Vector(st["hand_" + side])) * 0.5 + V(sx * 0.35, 0.25, -0.30)
+
 def interp_state(a, b, t):
     s = {}
     for k in VEC_KEYS:
@@ -332,12 +337,15 @@ def interp_state(a, b, t):
     for k in OPT_KEYS:
         if a[k] is None and b[k] is None:
             s[k] = None
+        elif k.startswith("elb"):      # explicit elbow hint <-> automatic elbow: blend against the automatic one (no pop)
+            side = k[-1]
+            ea = Vector(a[k]) if a[k] is not None else _auto_elb(a, side)
+            eb = Vector(b[k]) if b[k] is not None else _auto_elb(b, side)
+            s[k] = ea.lerp(eb, t)
         elif a[k] is None:
             s[k] = b[k]
         elif b[k] is None:
             s[k] = a[k]
-        elif k.startswith("elb"):
-            s[k] = Vector(a[k]).lerp(Vector(b[k]), t)
         else:
             s[k] = _lerp(a[k], b[k], t)
     for side in ("l", "r"):
@@ -346,31 +354,44 @@ def interp_state(a, b, t):
         s["hq_" + side] = qa.slerp(qb, t)
     return s
 
-def build(keys, n, post=None):
+def build(keys, n, post=None, step=None):
     """keys: list of (frame, dict of changes[, ease]); values persist until changed. Returns n+1 Poses (frame 0..n).
-    `ease` describes the segment ARRIVING at this key. post(fr, n, state) may add procedural layers."""
+    `ease` describes the segment ARRIVING at this key. post(fr, n, state) may add procedural layers.
+    A key dict may carry "_bow": {key: offset}: an arc bulge added on the segment arriving at that key (offset * sin(pi*t)),
+    so a hand travels on a curve instead of a straight line.
+    step=(a, b, k): frames a..b are evaluated only every k frames (held poses: 'on 2s', crystalline / stop-motion feel)."""
     st = default_state()
     ks = []
     for item in keys:
-        f, d = item[0], item[1]
+        f, d = item[0], dict(item[1])
         ease = item[2] if len(item) > 2 else "smooth"
+        bow = d.pop("_bow", {})
         st = dict(st)
         for k, v in d.items():
             st[k] = Vector(v) if k in VEC_KEYS else v
-        ks.append((f, st, ease))
+        ks.append((f, st, ease, bow))
     poses = []
     for fr in range(n + 1):
-        if fr <= ks[0][0]:
+        fe = fr
+        if step and step[0] <= fr <= step[1]:
+            fe = step[0] + ((fr - step[0]) // step[2]) * step[2]
+        if fe <= ks[0][0]:
             s = interp_state(ks[0][1], ks[0][1], 0)
-        elif fr >= ks[-1][0]:
+        elif fe >= ks[-1][0]:
             s = interp_state(ks[-1][1], ks[-1][1], 0)
         else:
             for i in range(len(ks) - 1):
-                if ks[i][0] <= fr <= ks[i + 1][0]:
-                    f0, s0, _ = ks[i]
-                    f1, s1, e1 = ks[i + 1]
-                    t = _ease(e1, (fr - f0) / float(f1 - f0))
+                if ks[i][0] <= fe <= ks[i + 1][0]:
+                    f0, s0, _, _ = ks[i]
+                    f1, s1, e1, bow = ks[i + 1]
+                    t = _ease(e1, (fe - f0) / float(f1 - f0))
                     s = interp_state(s0, s1, t)
+                    for bk, bv in bow.items():
+                        w = math.sin(math.pi * t)
+                        if bk in VEC_KEYS:
+                            s[bk] = s[bk] + Vector(bv) * w
+                        else:
+                            s[bk] = tuple(a + b * w for a, b in zip(s[bk], bv))
                     break
         s["_fr"] = fr
         if post:
@@ -415,8 +436,11 @@ if __name__ == "__main__":
         act = bake(name, poses)
         made.append((name, spec["loop"], act))
         report.append({"name": name, "loop": spec["loop"], "frames": len(poses), "seconds": round((len(poses) - 1) / FPS, 3),
-                       "release_frame": spec.get("release"), "note": spec.get("note", "")})
+                       "release_frame": spec.get("release"), "events": spec.get("events", {}), "note": spec.get("note", "")})
         print("CLIP", name, len(poses))
+    if os.environ.get("REACHDBG"):
+        for r in REACH_LOG:
+            print("REACHDBG", *r)
     grp = {}
     for (cn, fi, lim, e) in REACH_LOG:
         g = grp.setdefault((cn, lim), [fi, fi, e])

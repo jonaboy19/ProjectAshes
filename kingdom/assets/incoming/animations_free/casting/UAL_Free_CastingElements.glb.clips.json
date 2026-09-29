@@ -5,15 +5,21 @@
   "frames": 37,
   "seconds": 1.2,
   "release_frame": null,
-  "note": "two-hand cupped gather, tightening pulse; hands at chest"
+  "events": {},
+  "note": "two-hand cupped gather: hands squeeze and swell (one pulse per loop), body breathes, weight rocks back"
  },
  {
   "name": "Cast_Fire_Release",
   "loop": false,
-  "frames": 41,
-  "seconds": 1.333,
-  "release_frame": 11,
-  "note": "two-hand forward thrust"
+  "frames": 49,
+  "seconds": 1.6,
+  "release_frame": 17,
+  "events": {
+   "anticipation_peak": 11,
+   "step_land": 17,
+   "overshoot": 20
+  },
+  "note": "sink + coil right (hands drawn to the right hip, f0-11), tremor hold (f11-13), hips lead, left foot steps, two-hand blast at eye height f17, overshoot f20, held arm-up to f30, recovery step"
  },
  {
   "name": "Cast_Water_Charge",
@@ -21,15 +27,22 @@
   "frames": 43,
   "seconds": 1.4,
   "release_frame": null,
-  "note": "orbiting hands, swaying body (figure-8), soft fingers"
+  "events": {},
+  "note": "orbiting hands, whole body sways in a figure-8 (weight rocks foot to foot), soft fingers"
  },
  {
   "name": "Cast_Water_Release",
   "loop": false,
-  "frames": 43,
-  "seconds": 1.4,
-  "release_frame": 12,
-  "note": "wave sweep of the right arm, low-left -> front -> high-right"
+  "frames": 57,
+  "seconds": 1.867,
+  "release_frame": 18,
+  "events": {
+   "anticipation_peak": 11,
+   "crest": 24,
+   "ripple_1": 34,
+   "ripple_2": 42
+  },
+  "note": "sink low-right and draw both hands back on a dipping arc (f0-11), breath (f11-13), rising S-wave of both arms through the front (release f18, left hand lags 2 frames), crest high-left f24, two decaying ripples, recovery step"
  },
  {
   "name": "Cast_Earth_Charge",
@@ -37,15 +50,22 @@
   "frames": 43,
   "seconds": 1.4,
   "release_frame": null,
-  "note": "horse stance, hands lift a boulder, right foot stomps at 60% of the loop"
+  "events": {},
+  "note": "horse stance, hands heave a boulder up, weight shifts left and the right foot stomps at 66% of the loop (foot plants about f28)"
  },
  {
   "name": "Cast_Earth_Release",
   "loop": false,
-  "frames": 55,
-  "seconds": 1.8,
-  "release_frame": 15,
-  "note": "lift both fists overhead, stomp + slam to the ground"
+  "frames": 69,
+  "seconds": 2.267,
+  "release_frame": 18,
+  "events": {
+   "anticipation_peak": 12,
+   "stomp_impact": 18,
+   "lift_peak": 36,
+   "lift_release": 40
+  },
+  "note": "weight onto the left leg, right knee hauled up, fists to the shoulders (f0-12, slow in), hang f12-14, STOMP f14-18 with a pelvis squash (release = ground impact f18), heavy scoop-lift of both hands from the ground to overhead (peak f36), tremor hang, slow lower"
  },
  {
   "name": "Cast_Wind_Charge",
@@ -53,15 +73,21 @@
   "frames": 43,
   "seconds": 1.4,
   "release_frame": null,
-  "note": "both arms orbit at chest height (opposite phases), torso follows"
+  "events": {},
+  "note": "both arms orbit at chest height (opposite phases), torso and hips twist with them"
  },
  {
   "name": "Cast_Wind_Release",
   "loop": false,
-  "frames": 43,
-  "seconds": 1.4,
-  "release_frame": 12,
-  "note": "torso whip, right arm sweeps a wide arc from behind-right to far left"
+  "frames": 53,
+  "seconds": 1.733,
+  "release_frame": 15,
+  "events": {
+   "anticipation_peak": 10,
+   "release": 15,
+   "overshoot": 21
+  },
+  "note": "crouch + coil to -80 with both arms swung wide behind (f0-10), hips lead the unwind, spinning whip: right arm sweeps through the front at f15 (arms in a wide line), body spins on to +80 (f21) with the feet pivoting, left arm counter-flares, unwind and recovery step"
  },
  {
   "name": "Cast_Lightning_Charge",
@@ -69,15 +95,21 @@
   "frames": 37,
   "seconds": 1.2,
   "release_frame": null,
-  "note": "right arm raised to the sky, snapped jitter, left fist at the hip, head up"
+  "events": {},
+  "note": "right arm straight up to the sky, snapped jitter, left fist at the hip, head up, body shudders"
  },
  {
   "name": "Cast_Lightning_Release",
   "loop": false,
-  "frames": 41,
-  "seconds": 1.333,
-  "release_frame": 9,
-  "note": "arm snaps from the sky down to a pointed strike, recoil jitter"
+  "frames": 49,
+  "seconds": 1.6,
+  "release_frame": 19,
+  "events": {
+   "compress": 5,
+   "sky_call": 9,
+   "release": 19
+  },
+  "note": "compress (crouch, arm cocked, f0-5), spring up on the toes with both arms flung skyward (f9), tremor hold f9-14 (sky call), arm snaps down to a lunging point in 4 frames (release f19), decaying recoil jitter, hold, recovery step"
  },
  {
   "name": "Cast_Ice_Charge",
@@ -85,15 +117,21 @@
   "frames": 37,
   "seconds": 1.2,
   "release_frame": null,
-  "note": "rigid crossed forearms at the chest, tiny frost tremor, shoulders raised"
+  "events": {},
+  "note": "rigid crossed forearms at the chest, tiny frost tremor, shoulders raised, slow chest breath"
  },
  {
   "name": "Cast_Ice_Release",
   "loop": false,
-  "frames": 41,
-  "seconds": 1.333,
-  "release_frame": 9,
-  "note": "crossed arms burst out into a stiff two-hand palm push, then hold frozen"
+  "frames": 51,
+  "seconds": 1.667,
+  "release_frame": 17,
+  "events": {
+   "anticipation_peak": 10,
+   "release": 17,
+   "frozen_until": 34
+  },
+  "note": "crossed forearms lift to an X guard at the face and the body rises on straight lines (f0-10), rigid hold with frost tremor (f10-13), 4-frame linear snap into a wide two-palm stop-push (release f17, left foot steps), frozen hold on 3s to f34, thaw"
  },
  {
   "name": "Cast_Light_Charge",
@@ -101,15 +139,22 @@
   "frames": 49,
   "seconds": 1.6,
   "release_frame": null,
-  "note": "open palms raised in a V, slow rising swell"
+  "events": {},
+  "note": "open palms raised in a V, chest lifted, slow rising swell"
  },
  {
   "name": "Cast_Light_Release",
   "loop": false,
-  "frames": 49,
-  "seconds": 1.6,
-  "release_frame": 17,
-  "note": "hands meet overhead, sweep down and forward: blessing / beam"
+  "frames": 65,
+  "seconds": 2.133,
+  "release_frame": 23,
+  "events": {
+   "anticipation_peak": 11,
+   "release": 23,
+   "overshoot": 27,
+   "hang_until": 36
+  },
+  "note": "arms sweep down and cross low, head bowed, knees bend (humble gather, f0-11), hold, both arms open in a rising arc out to the sides and up into a wide V on tiptoe (release f23), overshoot f27, floating hang to f36 (slow sway), arms lower with palms up"
  },
  {
   "name": "Cast_Dark_Charge",
@@ -117,14 +162,45 @@
   "frames": 43,
   "seconds": 1.4,
   "release_frame": null,
-  "note": "hunched, low right claw creeping, left arm wrapped across the chest"
+  "events": {},
+  "note": "hunched, low right claw creeping, left arm wrapped across the chest, slow predatory sway"
  },
  {
   "name": "Cast_Dark_Release",
   "loop": false,
-  "frames": 47,
-  "seconds": 1.533,
-  "release_frame": 12,
-  "note": "claw thrust forward then drag-pull, left arm cloak flare"
+  "frames": 59,
+  "seconds": 1.933,
+  "release_frame": 27,
+  "events": {
+   "reach": 9,
+   "pull_end": 21,
+   "release": 27,
+   "overshoot": 30
+  },
+  "note": "right claw reaches out with spread fingers (f0-9), hold, slow-in PULL to the chest as the body folds back and resists (f11-21), clench + shake (f21-24), burst: both arms flung wide, chest snaps open (release f27), overshoot f30, droop, recovery step"
+ },
+ {
+  "name": "Cast_AoE_Slam",
+  "loop": false,
+  "frames": 67,
+  "seconds": 2.2,
+  "release_frame": 27,
+  "events": {
+   "crouch": 8,
+   "takeoff": 11,
+   "apex": 18,
+   "land": 27,
+   "rise_start": 40
+  },
+  "note": "deep crouch, fists swung back (f0-8), leap with both fists swept up overhead (feet clear f11-24, apex hang f17-21), slam: fists hammer the ground on landing (release f27 = ground contact, pelvis squash, deep knees), shockwave shake, slow rise"
+ },
+ {
+  "name": "Cast_Channel_Beam",
+  "loop": true,
+  "frames": 37,
+  "seconds": 1.2,
+  "release_frame": null,
+  "events": {},
+  "note": "braced lunge, right arm thrust to the target at eye level with strain vibration, left arm hauled back at the hip, chest breathing (loop)"
  }
 ]
