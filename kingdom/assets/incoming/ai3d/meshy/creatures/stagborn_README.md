@@ -34,7 +34,7 @@ Clip names are lower case. Loops are exact: the last frame is the frame before t
 | `hit` | 15 / 0.47 | 16 / 0.53 | no | flinch |
 | `death` | 34 / 1.10 | 42 / 1.37 | no | topples onto its side, ends lying on the ground |
 | `kick` | - | 31 / 1.00 | no | Warden only: hind-leg kick |
-| `roar` | - | 72 / 2.37 | no | Warden only: crouch, rear up, head thrown back and shaken, slam down |
+| `roar` | - | 114 / 3.80 | no | Warden only: crouch, slow heavy rear-up, hang, slam down, head shake (v2, see below) |
 
 ## HANDOFF for Codex (X3, Stagborn behaviour)
 Ownership: Codex owns the behaviour and the state machines. This is the clip contract.
@@ -64,12 +64,14 @@ The `attack` clip has a small in-place lean (torso moves forward 0.10 m for the 
 | elk `attack_butt` | 0-6 | **10** | 8-13 | | 25 |
 | Warden `attack_butt` | 0-8 | **12** | 10-16 | | 31 |
 | Warden `kick` | 0-13 | **20** | 17-23 | | 31 |
-| Warden `roar` | crouch 0-12 | | | rear-up hold 29-51 (use for the phase-change aura and the AoE fear telegraph); **front hooves land at frame 60** (stomp shockwave VFX, camera shake) | 72 |
+| Warden `roar` (v2, 114 frames) | anticipation dip 0-24, **rise starts 24** (hind legs and torso first, forelegs curl from ~40) | | | **top / hang 58-68** (tremor; roar SFX and phase-change aura here, AoE fear telegraph); **impact (front hooves slam) frame 74** (shockwave VFX, camera shake), squash and bounce 74-84; **head-shake 78-108** (decaying left-right), settled by ~110 | 114 |
 | `hit` | | | | flinch peak at frame 8 (elk), 9 (Warden) | end |
 
-Audio hooks already in `assets/audio/region1/` (L17): Stagborn bellow and snort, Warden roar. Play the roar at `roar` frame 14 (head starting to throw back), the bellow at `attack` commit.
+Audio hooks already in `assets/audio/region1/` (L17): Stagborn bellow and snort, Warden roar. Play the roar at `roar` frame 58 (top of the rear-up), the bellow at `attack` commit.
 
 **Warden 3-phase suggestion** (behaviour is yours): phase 1 `attack_butt` combos and `walk` circling; phase 2 adds `run_charge` -> `attack` and `kick` when the player is behind it; phase 3 opens with `roar` (rune glow up to 3x), then alternates `attack` (long telegraph, punishable) with `run_charge`.
+
+**Roar v2 note.** The rear-up used to swing the huge antlers back through the body. Now the neck and head counter-rotate (they stay pitched slightly forward of the raised torso), so the antlers point up and stay clear of the back and neck in every frame (checked visually side + front, frame sheets in `docs/art/region1/stagborn/stagborn_warden_roar_v2/`, and numerically with `tools/creatures/stagborn/roar_dev.py`: nearest antler vertex or edge midpoint to the body surface never below about 0.08 m). Timing: weight shift and crouch 0-24, slow eased rise 24-58 (hind legs first), hang 58-68 with a small tremor, fast drop 68-74, slam + bounce 74-84, head shake 78-108. Other clips are byte-identical to before. Re-run `roar_dev.py` (author only the roar, print clearance) and `roar_review.sh` (side + front sheets) after any change to the roar keys in `clips.py` (`ROAR`, `roar_offsets`).
 
 ## How they were made (reproducible)
 Scripts are in `tools/creatures/stagborn/` (Blender 5.2 headless, `-b --python`):
