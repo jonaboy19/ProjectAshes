@@ -1,3 +1,6 @@
 
 __pycache__/
 *.pyc
+
+# Sentry SDK binaries: installed by tools/install_sentry.sh (43 MB), not committed
+kingdom/addons/sentry/

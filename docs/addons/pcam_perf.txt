@@ -1,0 +1,4 @@
+follow pcam active | 3.64 ms (275 fps) | GPU 0.35 ms | render-CPU 0.41 ms | draws 20 | tris 350
+cinematic pcam active | 4.48 ms (223 fps) | GPU 0.32 ms | render-CPU 0.51 ms | draws 14 | tris 254
+baseline (no pcam nodes, plain Camera3D) | 3.43 ms (291 fps) | GPU 0.34 ms | render-CPU 0.42 ms | draws 20 | tris 350
+renderer=mobile adapter=NVIDIA GeForce RTX 4070 Laptop GPU

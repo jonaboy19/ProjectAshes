@@ -30,6 +30,7 @@ DialogueManager="*res://addons/dialogue_manager/dialogue_manager.gd"
 QuestWeaverGlobal="*res://addons/quest_weaver/core/quest_weaver_global.gd"
 QuestWeaverServices="*res://addons/quest_weaver/core/quest_weaver_services.gd"
 QuestWeaverGameState="*res://addons/quest_weaver/core/quest_weaver_game_state.gd"
+PhantomCameraManager="*res://addons/phantom_camera/scripts/managers/phantom_camera_manager.gd"
 
 [display]
 
@@ -41,7 +42,7 @@ window/handheld/orientation=4
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/guide/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/quest_weaver/plugin.cfg", "res://addons/GodotGAS/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/gloot/plugin.cfg", "res://addons/road-generator/plugin.cfg", "res://addons/proton_scatter/plugin.cfg", "res://addons/gdUnit4/plugin.cfg", "res://addons/mobile_texture_limit/plugin.cfg")
+enabled=PackedStringArray("res://addons/guide/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/quest_weaver/plugin.cfg", "res://addons/GodotGAS/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/gloot/plugin.cfg", "res://addons/road-generator/plugin.cfg", "res://addons/proton_scatter/plugin.cfg", "res://addons/gdUnit4/plugin.cfg", "res://addons/mobile_texture_limit/plugin.cfg", "res://addons/phantom_camera/plugin.cfg")
 
 [filesystem]
 

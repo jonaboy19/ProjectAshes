@@ -1,0 +1,4 @@
+surfaces detected in order while walking grass>stone>wood: grass@-7.0, stone@-2.4, wood@3.8, grass@-7.3
+footstep player active (1 raycast + detector chain) | 3.96 ms (253 fps) | GPU 0.37 ms | render-CPU 0.52 ms | draws 14 | tris 10674
+footstep player disabled | 3.80 ms (263 fps) | GPU 0.38 ms | render-CPU 0.48 ms | draws 14 | tris 10674
+renderer=mobile adapter=NVIDIA GeForce RTX 4070 Laptop GPU

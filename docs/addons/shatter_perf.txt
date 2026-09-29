@@ -1,0 +1,4 @@
+fracture generation (editor-time step, 22 samples, box): 2388 ms incl. 1 s wait, 30 pieces
+rigid bodies: 30
+30 rigid shards (Jolt) | 4.54 ms (220 fps) | GPU 0.36 ms | render-CPU 0.47 ms | draws 6 | tris 128
+renderer=mobile adapter=NVIDIA GeForce RTX 4070 Laptop GPU
