@@ -15,12 +15,17 @@ var focus := Vector3.ZERO
 
 var _chunks: Dictionary = {}         # Vector2i -> MeshInstance3D (or null when dry)
 var _material: ShaderMaterial
+var _shader_full: Shader
+var _shader_lite: Shader          # same source with WATER_LITE: no screen or depth texture
 var _sun: Object
 
 
 func _ready() -> void:
 	_material = ShaderMaterial.new()
-	_material.shader = preload("res://shaders/water/clear_water.gdshader")
+	_shader_full = preload("res://shaders/water/clear_water.gdshader")
+	_shader_lite = Shader.new()
+	_shader_lite.code = "#define WATER_LITE\n" + _shader_full.code
+	_material.shader = _shader_full
 	_material.set_shader_parameter("normal_a", _noise(0.012, 4, true, 3.0, 11))
 	_material.set_shader_parameter("normal_b", _noise(0.03, 3, true, 2.0, 29))
 	_material.set_shader_parameter("foam_noise", _noise(0.02, 3, false, 0.0, 47))
@@ -212,6 +217,12 @@ func apply_quality() -> void:
 		level = 0
 	elif tier == 1:
 		level = 1
+	# LOW / Compatibility use the lite variant: it does not declare the screen and depth
+	# textures at all, so the engine skips the per-frame copy and (on tile-based GPUs)
+	# the render-pass split. The full variant is used for every other tier.
+	var want := _shader_lite if level == 0 else _shader_full
+	if _material.shader != want:
+		_material.shader = want
 	_material.set_shader_parameter("quality", level)
 	_material.set_shader_parameter("use_refraction", level >= 1)
 

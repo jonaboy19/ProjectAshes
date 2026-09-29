@@ -425,3 +425,9 @@ specifically emptier than the capital needs a per-settlement-size budget.
 
 ## 2026-09-29: free animation library (from local)
 114 martial-arts / acrobatics / reaction / casting / weapon clips on the UAL skeleton in `kingdom/assets/incoming/animations_free/` (CMU + KayKit CC0). Ready for wiring by Codex; see `docs/anim/free_library/README.md`. Not yet in `Assets.UAL_FILES`.
+
+## 2026-09-29 (local): water views are CPU-bound, RegionDressing subtree is the biggest measured cost (cloud-owned code)
+Measured with `tools/qa/water_shots/prof.sh` at the lake, HIGH: switching off `RegionDressing` (process mode DISABLED on
+`scripts/world/region_dressing.gd` and children) drops the frame from 28.0 to 20.7 ms (p99 50 -> 28). Not a rewrite request yet:
+please check what in that subtree runs every frame (flicker lights, `Breakable` bodies, VFX, per-site nodes) and whether sites can be
+built with fewer nodes, and drop `_process` work when no site is within BUILD. I will run `--census` to name the node classes.
