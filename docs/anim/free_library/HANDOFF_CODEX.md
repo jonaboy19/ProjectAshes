@@ -412,3 +412,29 @@ Full per-clip tables: [polish_review.md](polish_review.md) (kicks, defense, acro
 - **Rebuilt:** all 13 traversal clips (Vault_Low now has run-up, palm plants on the box, arc, landing; ladder hand rungs now at 1.5 / 1.8 m, ledge-hang pelvis at 1.125 m). Kicks / defense / acrobatics / reactions / KayKit libraries got floor, foot-pin and knee fixes (per-clip notes in polish_review.md).
 - **Import hygiene:** `UAL_Free_Weapons.glb` and `UAL_Free_CastingKaykit.glb` had stale `valid=false` imports (they never loaded); fixed. `python kingdom/tools/anim/check_unique_clips.py` guards duplicate / `_loop`-suffix clip names.
 - **Creatures:** Stagborn elk/Warden clips re-exported (walk hooves pinned: elk 1.21 m/s, Warden 1.24 m/s; see stagborn_README.md). Farm cows/chickens: graze reaches the ground, chicken wings have 4 bones each (11 -> 17 bones per chicken); clip names unchanged.
+
+
+## Locomotion transitions + jump set 2026-09-29 (NEW LIBRARY, wire it: P5 + P7)
+Library `kingdom/assets/incoming/animations_free2/loco_transitions/UAL_Loco_Transitions.glb` (20 clips, 30 fps) + `.contacts.json` sidecar (foot contact frames, root speeds, yaw curves, loop hand-off phases, events).
+Contract with exact names, durations, blend times, rates: `docs/anim/patches/P5_locomotion_transitions.md`. Jump design (input, gravity, coyote, landing states, dust hooks, camera): `docs/anim/patches/P7_jump.md`.
+Sheets: `docs/anim/free_library/frames/locomotion_v1/<clip>/`. Rebuild and method: `kingdom/tools/anim/loco/README.md`. Godot check: `tools/anim/loco/verify_loco.gd`.
+**Register this library BEFORE UAL1 in `Assets.UAL_FILES`** (UAL1 has its own `Jump_Start`; `_ual_for` keeps the first clip of a name). Godot strips `_Loop`: in-game `Jump_Rise`, `Jump_Fall`.
+
+| Clip | Len s | Root motion | Use | Blend in / out |
+|---|---|---|---|---|
+| `Loco_WalkStart_F` | 1.27 | 1.56 m fwd, 0.7 -> 1.5 m/s | idle -> walk | 0.06 / 0.15 |
+| `Loco_RunStart_F` | 0.63 | 1.87 m, 2.1 -> 3.8 m/s | idle -> run | 0.05 / 0.12 |
+| `Loco_RunStop_L` / `_R` | 0.87 / 0.80 | 1.45 / 1.74 m, 3.1 / 3.6 -> 0.5 / 0.9 | stop from run, pick by Jog phase (< 0.5 = L); rate = speed / entry speed -> 0.41 / 0.44 s at 6.5 m/s | 0.06 / 0.20 |
+| `Loco_WalkStop` | 1.37 | 0.88 m, 1.1 -> 0.1 | stop from walk; plant frame 27 | 0.05 / 0.20 |
+| `Loco_Sprint_Stop_Skid` | 0.90 | 2.65 m, 4.6 -> 1.2 | sprint / dash stop, dust frames 11-20 | 0.05 / 0.20 |
+| `Loco_TurnInPlace_90_L/R`, `_180`, `_180_R` | 0.73 / 0.70 / 1.10 / 0.87 | heading on `root` rotation: +80 / -84 / +173 / -160 deg | idle turns (drive yaw from `yaw_curve_deg`) | 0.05 / 0.12-0.15 |
+| `Loco_Pivot180_Run_L` / `_R` | 1.23 / 1.37 | backwards 1.13 / 0.64 m, yaw +189 / -182 | reversing out of a run above 3 m/s | 0.05 / 0.12 |
+| `Jump_Start` | 0.33 | take-off frame 9 | standing jump anticipation (play at rate 2) | 0.05 / 0.0 |
+| `Jump_Rise_Loop` / `Jump_Fall_Loop` | 0.80 (loops) | none | air states | 0.08 / 0.12 |
+| `Jump_Land_Soft` / `_Hard` | 0.87 / 1.37 | touch-down frame 4 / 6 | knee absorb landings | 0.05 / 0.15 |
+| `Jump_Land_Roll` | 1.67 | touch-down 4, roll from 12 | high fall with stick forward | 0.05 / 0.15 |
+| `Jump_Running_Start` / `Jump_Land_Running` | 0.40 / 0.77 | take-off frame 12 / touch-down frame 2 | running jump | 0.04 / 0.10 |
+
+Root motion: `root` position = horizontal travel, `root` rotation = heading (turn clips, pivot); this library is NOT in `animations/`, so `_ual_for` does not disable the root track. Decide per clip:
+use it (drive the capsule from it) or disable the track and take the numbers from the sidecar. Never both. Foot planted windows per clip (frame ranges) are in `contacts` (`left` / `right`, `flat_*`, `airborne`);
+`end_foot` tells which foot is planted last. Slide of planted feet <= 4.5 cm (Land_Hard 6.7). CMU mocap (credit already in CREDITS.md), UAL `Roll` (CC0) inside `Jump_Land_Roll`.

@@ -1,0 +1,3241 @@
+[
+ {
+  "name": "Loco_WalkStart_F",
+  "loop": false,
+  "seconds": 1.267,
+  "frames": 39,
+  "fps": 30,
+  "keys": 597,
+  "source": "16_31.bvh",
+  "source_window_s": [
+   0.55,
+   2.217
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.3,
+  "hip_scale": 0.0518,
+  "floor_fix_m": -0.016,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_fit": 1.049,
+  "travel_m": 1.56,
+  "root": {
+   "distance_m": 1.565,
+   "forward_m": 1.564,
+   "left_m": -0.046,
+   "yaw_deg": -3.7,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 0.71,
+   "speed_out_mps": 1.54,
+   "speed_max_mps": 1.54,
+   "speed_curve_mps": [
+    0.68,
+    0.74,
+    0.85,
+    0.98,
+    1.11,
+    1.22,
+    1.31,
+    1.4,
+    1.47,
+    1.51,
+    1.53,
+    1.54,
+    1.54
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     3,
+     23
+    ],
+    [
+     35,
+     38
+    ]
+   ],
+   "right": [
+    [
+     0,
+     13
+    ],
+    [
+     21,
+     38
+    ]
+   ],
+   "flat_left": [],
+   "flat_right": [
+    [
+     0,
+     10
+    ],
+    [
+     28,
+     37
+    ]
+   ],
+   "airborne": []
+  },
+  "slide_cm": {
+   "left": 4.5,
+   "right": 1.1
+  },
+  "slide_max_cm": 4.5,
+  "slide_windows": [
+   [
+    "left",
+    "heel",
+    8,
+    23,
+    4.5
+   ],
+   [
+    "right",
+    "ball",
+    0,
+    13,
+    1.1
+   ],
+   [
+    "right",
+    "ball",
+    28,
+    38,
+    0.4
+   ],
+   [
+    "right",
+    "heel",
+    26,
+    27,
+    0.0
+   ]
+  ],
+  "end_foot": "both",
+  "matched_trim": {
+   "exit": {
+    "loop": "Walk_Loop",
+    "phase": 0.969,
+    "err_deg": 15.4,
+    "source_s": 2.217
+   }
+  },
+  "handoff": {
+   "entry": {
+    "loop": "Idle_Loop",
+    "phase": 0.767,
+    "side": "R",
+    "err_deg": 26.7,
+    "loop_seconds": 2.5
+   },
+   "exit": {
+    "loop": "Walk_Loop",
+    "phase": 0.969,
+    "side": "R",
+    "err_deg": 15.7,
+    "loop_seconds": 1.3333
+   }
+  },
+  "events": {
+   "footstep_frames": [
+    {
+     "frame": 3,
+     "foot": "left"
+    },
+    {
+     "frame": 21,
+     "foot": "right"
+    },
+    {
+     "frame": 35,
+     "foot": "left"
+    }
+   ],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": 3,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Loco_RunStart_F",
+  "loop": false,
+  "seconds": 0.633,
+  "frames": 20,
+  "fps": 30,
+  "keys": 444,
+  "source": "16_55.bvh",
+  "source_window_s": [
+   0.083,
+   0.9
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.25,
+  "hip_scale": 0.0518,
+  "floor_fix_m": -0.019,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_fit": 1.108,
+  "travel_m": 1.87,
+  "root": {
+   "distance_m": 1.872,
+   "forward_m": 1.872,
+   "left_m": 0.027,
+   "yaw_deg": 2.6,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 2.1,
+   "speed_out_mps": 3.8,
+   "speed_max_mps": 3.86,
+   "speed_curve_mps": [
+    2.03,
+    2.19,
+    2.53,
+    2.97,
+    3.39,
+    3.71,
+    3.86
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     5,
+     11
+    ]
+   ],
+   "right": [
+    [
+     0,
+     5
+    ],
+    [
+     13,
+     17
+    ]
+   ],
+   "flat_left": [],
+   "flat_right": [
+    [
+     0,
+     3
+    ],
+    [
+     13,
+     16
+    ]
+   ],
+   "airborne": [
+    [
+     12,
+     12
+    ],
+    [
+     18,
+     19
+    ]
+   ]
+  },
+  "slide_cm": {
+   "left": 1.5,
+   "right": 1.4
+  },
+  "slide_max_cm": 1.5,
+  "slide_windows": [
+   [
+    "left",
+    "ball",
+    5,
+    10,
+    1.5
+   ],
+   [
+    "right",
+    "ball",
+    0,
+    5,
+    1.4
+   ],
+   [
+    "right",
+    "ball",
+    14,
+    17,
+    1.1
+   ]
+  ],
+  "end_foot": "air",
+  "matched_trim": {
+   "exit": {
+    "loop": "Jog_Fwd_Loop",
+    "phase": 0.045,
+    "err_deg": 24.0,
+    "source_s": 0.9
+   }
+  },
+  "handoff": {
+   "entry": {
+    "loop": "Idle_Loop",
+    "phase": 0.783,
+    "side": "R",
+    "err_deg": 29.1,
+    "loop_seconds": 2.5
+   },
+   "exit": {
+    "loop": "Jog_Fwd_Loop",
+    "phase": 0.909,
+    "side": "R",
+    "err_deg": 23.9,
+    "loop_seconds": 0.9167
+   }
+  },
+  "events": {
+   "footstep_frames": [
+    {
+     "frame": 5,
+     "foot": "left"
+    },
+    {
+     "frame": 13,
+     "foot": "right"
+    }
+   ],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": null,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Loco_RunStop_L",
+  "loop": false,
+  "seconds": 0.867,
+  "frames": 27,
+  "fps": 30,
+  "keys": 470,
+  "source": "127_17.bvh",
+  "source_window_s": [
+   0.217,
+   1.5
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.45,
+  "hip_scale": 0.0502,
+  "floor_fix_m": -0.016,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_fit": 0.987,
+  "travel_m": 1.45,
+  "root": {
+   "distance_m": 1.446,
+   "forward_m": 1.446,
+   "left_m": -0.024,
+   "yaw_deg": -2.7,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 3.11,
+   "speed_out_mps": 0.46,
+   "speed_max_mps": 3.19,
+   "speed_curve_mps": [
+    3.19,
+    3.01,
+    2.64,
+    2.14,
+    1.62,
+    1.15,
+    0.79,
+    0.56,
+    0.44
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     2,
+     6
+    ],
+    [
+     14,
+     26
+    ]
+   ],
+   "right": [
+    [
+     0,
+     1
+    ],
+    [
+     6,
+     26
+    ]
+   ],
+   "flat_left": [],
+   "flat_right": [
+    [
+     9,
+     26
+    ]
+   ],
+   "airborne": []
+  },
+  "slide_cm": {
+   "left": 0.9,
+   "right": 1.1
+  },
+  "slide_max_cm": 1.1,
+  "slide_windows": [
+   [
+    "left",
+    "heel",
+    4,
+    6,
+    0.3
+   ],
+   [
+    "left",
+    "heel",
+    15,
+    26,
+    0.9
+   ],
+   [
+    "right",
+    "ball",
+    9,
+    26,
+    1.1
+   ]
+  ],
+  "end_foot": "both",
+  "matched_trim": {
+   "entry": {
+    "loop": "Jog_Fwd_Loop",
+    "phase": 0.091,
+    "err_deg": 30.2,
+    "source_s": 0.217
+   }
+  },
+  "handoff": {
+   "entry": {
+    "loop": "Jog_Fwd_Loop",
+    "phase": 0.091,
+    "side": "L",
+    "err_deg": 30.2,
+    "loop_seconds": 0.9167
+   },
+   "exit": {
+    "loop": "Idle_Loop",
+    "phase": 0.267,
+    "side": "L",
+    "err_deg": 28.3,
+    "loop_seconds": 2.5
+   }
+  },
+  "events": {
+   "footstep_frames": [
+    {
+     "frame": 2,
+     "foot": "left"
+    },
+    {
+     "frame": 6,
+     "foot": "right"
+    },
+    {
+     "frame": 14,
+     "foot": "left"
+    }
+   ],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": 18,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Loco_RunStop_R",
+  "loop": false,
+  "seconds": 0.8,
+  "frames": 25,
+  "fps": 30,
+  "keys": 482,
+  "source": "127_18.bvh",
+  "source_window_s": [
+   0.333,
+   1.5
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.45,
+  "hip_scale": 0.0502,
+  "floor_fix_m": -0.008,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_fit": 1.049,
+  "travel_m": 1.74,
+  "root": {
+   "distance_m": 1.738,
+   "forward_m": 1.731,
+   "left_m": -0.155,
+   "yaw_deg": 1.9,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 3.56,
+   "speed_out_mps": 0.91,
+   "speed_max_mps": 3.63,
+   "speed_curve_mps": [
+    3.63,
+    3.46,
+    3.08,
+    2.56,
+    2.01,
+    1.51,
+    1.14,
+    0.92
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     6,
+     12
+    ],
+    [
+     20,
+     24
+    ]
+   ],
+   "right": [
+    [
+     0,
+     5
+    ],
+    [
+     12,
+     24
+    ]
+   ],
+   "flat_left": [],
+   "flat_right": [
+    [
+     0,
+     3
+    ],
+    [
+     13,
+     24
+    ]
+   ],
+   "airborne": []
+  },
+  "slide_cm": {
+   "left": 3.1,
+   "right": 2.1
+  },
+  "slide_max_cm": 3.1,
+  "slide_windows": [
+   [
+    "left",
+    "heel",
+    7,
+    12,
+    3.1
+   ],
+   [
+    "left",
+    "heel",
+    21,
+    24,
+    0.3
+   ],
+   [
+    "right",
+    "ball",
+    0,
+    4,
+    2.1
+   ],
+   [
+    "right",
+    "ball",
+    14,
+    24,
+    0.4
+   ]
+  ],
+  "end_foot": "both",
+  "matched_trim": {
+   "entry": {
+    "loop": "Jog_Fwd_Loop",
+    "phase": 0.545,
+    "err_deg": 26.7,
+    "source_s": 0.333
+   }
+  },
+  "handoff": {
+   "entry": {
+    "loop": "Jog_Fwd_Loop",
+    "phase": 0.545,
+    "side": "R",
+    "err_deg": 26.8,
+    "loop_seconds": 0.9167
+   },
+   "exit": {
+    "loop": "Idle_Loop",
+    "phase": 0.25,
+    "side": "L",
+    "err_deg": 27.8,
+    "loop_seconds": 2.5
+   }
+  },
+  "events": {
+   "footstep_frames": [
+    {
+     "frame": 6,
+     "foot": "left"
+    },
+    {
+     "frame": 12,
+     "foot": "right"
+    },
+    {
+     "frame": 20,
+     "foot": "left"
+    }
+   ],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": null,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Loco_WalkStop",
+  "loop": false,
+  "seconds": 1.367,
+  "frames": 42,
+  "fps": 30,
+  "keys": 603,
+  "source": "16_33.bvh",
+  "source_window_s": [
+   0.7,
+   2.375
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.2,
+  "hip_scale": 0.0518,
+  "floor_fix_m": -0.017,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_fit": 1.093,
+  "travel_m": 0.88,
+  "root": {
+   "distance_m": 0.876,
+   "forward_m": 0.876,
+   "left_m": -0.008,
+   "yaw_deg": 0.4,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 1.15,
+   "speed_out_mps": 0.11,
+   "speed_max_mps": 1.15,
+   "speed_curve_mps": [
+    1.15,
+    1.14,
+    1.11,
+    1.06,
+    0.98,
+    0.88,
+    0.75,
+    0.6,
+    0.47,
+    0.35,
+    0.26,
+    0.18,
+    0.13,
+    0.1
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     0,
+     13
+    ],
+    [
+     27,
+     41
+    ]
+   ],
+   "right": [
+    [
+     0,
+     1
+    ],
+    [
+     10,
+     41
+    ]
+   ],
+   "flat_left": [],
+   "flat_right": [
+    [
+     14,
+     41
+    ]
+   ],
+   "airborne": []
+  },
+  "slide_cm": {
+   "left": 3.6,
+   "right": 2.1
+  },
+  "slide_max_cm": 3.6,
+  "slide_windows": [
+   [
+    "left",
+    "heel",
+    0,
+    13,
+    3.6
+   ],
+   [
+    "left",
+    "heel",
+    27,
+    41,
+    0.9
+   ],
+   [
+    "right",
+    "ball",
+    14,
+    41,
+    2.1
+   ]
+  ],
+  "end_foot": "both",
+  "matched_trim": {
+   "entry": {
+    "loop": "Walk_Loop",
+    "phase": 0.969,
+    "err_deg": 16.2,
+    "source_s": 0.7
+   }
+  },
+  "handoff": {
+   "entry": {
+    "loop": "Walk_Loop",
+    "phase": 0.969,
+    "side": "R",
+    "err_deg": 16.1,
+    "loop_seconds": 1.3333
+   },
+   "exit": {
+    "loop": "Idle_Loop",
+    "phase": 0.267,
+    "side": "L",
+    "err_deg": 26.4,
+    "loop_seconds": 2.5
+   }
+  },
+  "events": {
+   "footstep_frames": [
+    {
+     "frame": 10,
+     "foot": "right"
+    },
+    {
+     "frame": 27,
+     "foot": "left"
+    }
+   ],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": 27,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Loco_Sprint_Stop_Skid",
+  "loop": false,
+  "seconds": 0.9,
+  "frames": 28,
+  "fps": 30,
+  "keys": 573,
+  "source": "127_19.bvh",
+  "source_window_s": [
+   0.283,
+   1.5
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.35,
+  "hip_scale": 0.0502,
+  "floor_fix_m": -0.005,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.005,
+  "travel_fit": 1.118,
+  "travel_m": 2.65,
+  "root": {
+   "distance_m": 2.654,
+   "forward_m": 2.65,
+   "left_m": 0.149,
+   "yaw_deg": 44.7,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 4.61,
+   "speed_out_mps": 1.21,
+   "speed_max_mps": 4.67,
+   "speed_curve_mps": [
+    4.67,
+    4.55,
+    4.25,
+    3.78,
+    3.19,
+    2.56,
+    1.98,
+    1.52,
+    1.23
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     6,
+     7
+    ],
+    [
+     15,
+     20
+    ]
+   ],
+   "right": [
+    [
+     0,
+     4
+    ],
+    [
+     11,
+     14
+    ],
+    [
+     19,
+     27
+    ]
+   ],
+   "flat_left": [],
+   "flat_right": [
+    [
+     1,
+     3
+    ],
+    [
+     25,
+     27
+    ]
+   ],
+   "airborne": [
+    [
+     5,
+     5
+    ],
+    [
+     8,
+     10
+    ]
+   ]
+  },
+  "slide_cm": {
+   "left": 0.9,
+   "right": 2.1
+  },
+  "slide_max_cm": 2.1,
+  "slide_windows": [
+   [
+    "left",
+    "heel",
+    18,
+    20,
+    0.9
+   ],
+   [
+    "right",
+    "ball",
+    25,
+    27,
+    0.1
+   ],
+   [
+    "right",
+    "heel",
+    20,
+    24,
+    2.1
+   ]
+  ],
+  "end_foot": "right",
+  "matched_trim": {
+   "entry": {
+    "loop": "Sprint_Loop",
+    "phase": 0.375,
+    "err_deg": 26.5,
+    "source_s": 0.283
+   }
+  },
+  "handoff": {
+   "entry": {
+    "loop": "Sprint_Loop",
+    "phase": 0.375,
+    "side": "L",
+    "err_deg": 26.6,
+    "loop_seconds": 0.6667
+   },
+   "exit": {
+    "loop": "Idle_Loop",
+    "phase": 0.783,
+    "side": "R",
+    "err_deg": 33.9,
+    "loop_seconds": 2.5
+   }
+  },
+  "events": {
+   "skid_frames": [
+    11,
+    20
+   ],
+   "skid_note": "feet braking on the ground: spawn dust on these frames",
+   "footstep_frames": [
+    {
+     "frame": 6,
+     "foot": "left"
+    },
+    {
+     "frame": 11,
+     "foot": "right"
+    },
+    {
+     "frame": 15,
+     "foot": "left"
+    },
+    {
+     "frame": 19,
+     "foot": "right"
+    }
+   ],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": null
+  }
+ },
+ {
+  "name": "Loco_TurnInPlace_90_L",
+  "loop": false,
+  "seconds": 0.733,
+  "frames": 23,
+  "fps": 30,
+  "keys": 425,
+  "source": "36_03.bvh",
+  "source_window_s": [
+   10.0,
+   11.2
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.6,
+  "hip_scale": 0.0516,
+  "floor_fix_m": 0.022,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_fit": 1.25,
+  "travel_m": 0.15,
+  "root": {
+   "distance_m": 0.149,
+   "forward_m": 0.114,
+   "left_m": -0.096,
+   "yaw_deg": 79.9,
+   "yaw_on_root_bone": true,
+   "speed_in_mps": 0.12,
+   "speed_out_mps": 0.2,
+   "speed_max_mps": 0.27,
+   "speed_curve_mps": [
+    0.1,
+    0.13,
+    0.19,
+    0.25,
+    0.27,
+    0.25,
+    0.21,
+    0.19
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    6.4,
+    18.4,
+    34.0,
+    50.1,
+    64.1,
+    74.1,
+    79.1
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     0,
+     16
+    ],
+    [
+     20,
+     22
+    ]
+   ],
+   "right": [
+    [
+     11,
+     22
+    ]
+   ],
+   "flat_left": [
+    [
+     8,
+     15
+    ]
+   ],
+   "flat_right": [],
+   "airborne": []
+  },
+  "slide_cm": {
+   "left": 2.5,
+   "right": 2.4
+  },
+  "slide_max_cm": 2.5,
+  "slide_windows": [
+   [
+    "left",
+    "ball",
+    8,
+    15,
+    2.5
+   ],
+   [
+    "left",
+    "heel",
+    0,
+    7,
+    1.5
+   ],
+   [
+    "left",
+    "heel",
+    20,
+    22,
+    0.2
+   ],
+   [
+    "right",
+    "heel",
+    11,
+    22,
+    2.4
+   ]
+  ],
+  "end_foot": "both",
+  "matched_trim": {},
+  "handoff": {
+   "entry": {
+    "loop": "Idle_Loop",
+    "phase": 0.283,
+    "side": "L",
+    "err_deg": 25.2,
+    "loop_seconds": 2.5
+   },
+   "exit": {
+    "loop": "Idle_Loop",
+    "phase": 0.267,
+    "side": "L",
+    "err_deg": 25.5,
+    "loop_seconds": 2.5
+   }
+  },
+  "events": {
+   "footstep_frames": [
+    {
+     "frame": 11,
+     "foot": "right"
+    },
+    {
+     "frame": 20,
+     "foot": "left"
+    }
+   ],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": 11,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Loco_TurnInPlace_90_R",
+  "loop": false,
+  "seconds": 0.7,
+  "frames": 22,
+  "fps": 30,
+  "keys": 406,
+  "source": "36_03.bvh",
+  "source_window_s": [
+   3.45,
+   4.6
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.6,
+  "hip_scale": 0.0516,
+  "floor_fix_m": -0.006,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_fit": 1.0,
+  "travel_m": 0.05,
+  "root": {
+   "distance_m": 0.053,
+   "forward_m": 0.027,
+   "left_m": -0.045,
+   "yaw_deg": -83.8,
+   "yaw_on_root_bone": true,
+   "speed_in_mps": 0.06,
+   "speed_out_mps": 0.2,
+   "speed_max_mps": 0.21,
+   "speed_curve_mps": [
+    0.07,
+    0.05,
+    0.03,
+    0.07,
+    0.12,
+    0.17,
+    0.2
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    -8.3,
+    -21.1,
+    -34.6,
+    -48.0,
+    -62.7,
+    -76.2,
+    -83.8
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     0,
+     12
+    ],
+    [
+     17,
+     21
+    ]
+   ],
+   "right": [
+    [
+     0,
+     21
+    ]
+   ],
+   "flat_left": [],
+   "flat_right": [],
+   "airborne": []
+  },
+  "slide_cm": {
+   "left": 1.4,
+   "right": 1.0
+  },
+  "slide_max_cm": 1.4,
+  "slide_windows": [
+   [
+    "left",
+    "heel",
+    0,
+    11,
+    1.4
+   ],
+   [
+    "left",
+    "heel",
+    18,
+    21,
+    0.3
+   ],
+   [
+    "right",
+    "heel",
+    0,
+    3,
+    0.3
+   ],
+   [
+    "right",
+    "heel",
+    6,
+    21,
+    1.0
+   ]
+  ],
+  "end_foot": "both",
+  "matched_trim": {},
+  "handoff": {
+   "entry": {
+    "loop": "Idle_Loop",
+    "phase": 0.267,
+    "side": "L",
+    "err_deg": 25.0,
+    "loop_seconds": 2.5
+   },
+   "exit": {
+    "loop": "Idle_Loop",
+    "phase": 0.283,
+    "side": "L",
+    "err_deg": 23.7,
+    "loop_seconds": 2.5
+   }
+  },
+  "events": {
+   "footstep_frames": [
+    {
+     "frame": 17,
+     "foot": "left"
+    }
+   ],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": 0,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Loco_TurnInPlace_180",
+  "loop": false,
+  "seconds": 1.1,
+  "frames": 34,
+  "fps": 30,
+  "keys": 653,
+  "source": "36_02.bvh",
+  "source_window_s": [
+   9.65,
+   11.9
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 2.0,
+  "hip_scale": 0.0516,
+  "floor_fix_m": 0.022,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.016,
+  "travel_fit": 1.25,
+  "travel_m": 0.79,
+  "root": {
+   "distance_m": 0.787,
+   "forward_m": 0.777,
+   "left_m": -0.127,
+   "yaw_deg": 173.2,
+   "yaw_on_root_bone": true,
+   "speed_in_mps": 1.1,
+   "speed_out_mps": 0.21,
+   "speed_max_mps": 1.1,
+   "speed_curve_mps": [
+    1.1,
+    1.09,
+    1.07,
+    1.02,
+    0.94,
+    0.85,
+    0.75,
+    0.62,
+    0.47,
+    0.32,
+    0.22
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    -1.0,
+    -0.7,
+    4.0,
+    15.7,
+    35.8,
+    63.0,
+    92.3,
+    120.1,
+    144.1,
+    162.5,
+    173.2
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     3,
+     21
+    ],
+    [
+     27,
+     33
+    ]
+   ],
+   "right": [
+    [
+     17,
+     24
+    ]
+   ],
+   "flat_left": [
+    [
+     16,
+     20
+    ]
+   ],
+   "flat_right": [],
+   "airborne": [
+    [
+     0,
+     2
+    ],
+    [
+     25,
+     26
+    ]
+   ]
+  },
+  "slide_cm": {
+   "left": 3.7,
+   "right": 2.7
+  },
+  "slide_max_cm": 3.7,
+  "slide_windows": [
+   [
+    "left",
+    "ball",
+    16,
+    20,
+    1.7
+   ],
+   [
+    "left",
+    "heel",
+    5,
+    15,
+    3.7
+   ],
+   [
+    "left",
+    "heel",
+    27,
+    33,
+    0.8
+   ],
+   [
+    "right",
+    "heel",
+    17,
+    24,
+    2.7
+   ]
+  ],
+  "end_foot": "left",
+  "matched_trim": {},
+  "handoff": {
+   "entry": {
+    "loop": "Idle_Loop",
+    "phase": 0.267,
+    "side": "L",
+    "err_deg": 27.1,
+    "loop_seconds": 2.5
+   },
+   "exit": {
+    "loop": "Idle_Loop",
+    "phase": 0.267,
+    "side": "L",
+    "err_deg": 24.8,
+    "loop_seconds": 2.5
+   }
+  },
+  "events": {
+   "footstep_frames": [
+    {
+     "frame": 3,
+     "foot": "left"
+    },
+    {
+     "frame": 17,
+     "foot": "right"
+    },
+    {
+     "frame": 27,
+     "foot": "left"
+    }
+   ],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": 17,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Loco_TurnInPlace_180_R",
+  "loop": false,
+  "seconds": 0.867,
+  "frames": 27,
+  "fps": 30,
+  "keys": 551,
+  "source": "36_09.bvh",
+  "source_window_s": [
+   7.55,
+   9.35
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 2.0,
+  "hip_scale": 0.0516,
+  "floor_fix_m": -0.026,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_fit": 1.138,
+  "travel_m": 0.25,
+  "root": {
+   "distance_m": 0.25,
+   "forward_m": 0.25,
+   "left_m": -0.008,
+   "yaw_deg": -160.2,
+   "yaw_on_root_bone": true,
+   "speed_in_mps": 0.35,
+   "speed_out_mps": 0.29,
+   "speed_max_mps": 0.35,
+   "speed_curve_mps": [
+    0.34,
+    0.35,
+    0.34,
+    0.32,
+    0.28,
+    0.26,
+    0.26,
+    0.28,
+    0.29
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    -13.8,
+    -38.0,
+    -60.7,
+    -76.1,
+    -88.6,
+    -106.4,
+    -130.6,
+    -151.7
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     0,
+     2
+    ],
+    [
+     5,
+     26
+    ]
+   ],
+   "right": [
+    [
+     0,
+     10
+    ],
+    [
+     12,
+     24
+    ]
+   ],
+   "flat_left": [
+    [
+     6,
+     10
+    ]
+   ],
+   "flat_right": [],
+   "airborne": []
+  },
+  "slide_cm": {
+   "left": 1.4,
+   "right": 2.0
+  },
+  "slide_max_cm": 2.0,
+  "slide_windows": [
+   [
+    "left",
+    "ball",
+    7,
+    10,
+    0.6
+   ],
+   [
+    "left",
+    "heel",
+    0,
+    1,
+    0.0
+   ],
+   [
+    "left",
+    "heel",
+    11,
+    16,
+    0.6
+   ],
+   [
+    "left",
+    "heel",
+    21,
+    26,
+    1.4
+   ],
+   [
+    "right",
+    "heel",
+    0,
+    6,
+    2.0
+   ],
+   [
+    "right",
+    "heel",
+    12,
+    21,
+    1.7
+   ]
+  ],
+  "end_foot": "left",
+  "matched_trim": {},
+  "handoff": {
+   "entry": {
+    "loop": "Idle_Loop",
+    "phase": 0.267,
+    "side": "L",
+    "err_deg": 24.8,
+    "loop_seconds": 2.5
+   },
+   "exit": {
+    "loop": "Idle_Loop",
+    "phase": 0.267,
+    "side": "L",
+    "err_deg": 26.3,
+    "loop_seconds": 2.5
+   }
+  },
+  "events": {
+   "footstep_frames": [
+    {
+     "frame": 5,
+     "foot": "left"
+    },
+    {
+     "frame": 12,
+     "foot": "right"
+    }
+   ],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": 0,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Loco_Pivot180_Run_L",
+  "loop": false,
+  "seconds": 1.233,
+  "frames": 38,
+  "fps": 30,
+  "keys": 821,
+  "source": "127_17.bvh+36_02.bvh+16_55.bvh",
+  "source_window_s": [
+   [
+    0.45,
+    0.85
+   ],
+   [
+    10.35,
+    11.75
+   ],
+   [
+    0.083,
+    0.95
+   ]
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.0,
+  "hip_scale": 0.0518,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": null,
+  "min_foot_m": -0.015,
+  "travel_fit": 1.0,
+  "travel_m": 1.17,
+  "root": {
+   "distance_m": 1.171,
+   "forward_m": -1.134,
+   "left_m": -0.293,
+   "yaw_deg": 188.6,
+   "yaw_on_root_bone": true,
+   "speed_in_mps": 1.9,
+   "speed_out_mps": 3.92,
+   "speed_max_mps": 4.0,
+   "speed_curve_mps": [
+    1.97,
+    1.81,
+    1.47,
+    1.06,
+    0.64,
+    0.44,
+    0.8,
+    1.46,
+    2.19,
+    2.87,
+    3.43,
+    3.82,
+    4.0
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    3.5,
+    13.4,
+    37.2,
+    72.4,
+    109.2,
+    144.3,
+    173.3,
+    186.6,
+    186.9,
+    183.2,
+    182.8,
+    187.1
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     0,
+     1
+    ],
+    [
+     6,
+     13
+    ],
+    [
+     18,
+     20
+    ],
+    [
+     24,
+     29
+    ]
+   ],
+   "right": [
+    [
+     1,
+     5
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     20,
+     24
+    ],
+    [
+     31,
+     35
+    ]
+   ],
+   "flat_left": [
+    [
+     9,
+     12
+    ]
+   ],
+   "flat_right": [
+    [
+     4,
+     5
+    ],
+    [
+     20,
+     22
+    ],
+    [
+     31,
+     34
+    ]
+   ],
+   "airborne": [
+    [
+     14,
+     17
+    ],
+    [
+     30,
+     30
+    ],
+    [
+     36,
+     36
+    ]
+   ]
+  },
+  "slide_cm": {
+   "left": 1.2,
+   "right": 2.2
+  },
+  "slide_max_cm": 2.2,
+  "slide_windows": [
+   [
+    "left",
+    "ball",
+    24,
+    27,
+    1.2
+   ],
+   [
+    "left",
+    "heel",
+    0,
+    1,
+    0.0
+   ],
+   [
+    "right",
+    "ball",
+    31,
+    34,
+    2.2
+   ],
+   [
+    "right",
+    "heel",
+    11,
+    13,
+    0.6
+   ]
+  ],
+  "end_foot": "air",
+  "matched_trim": {
+   "segments": [
+    {
+     "file": "127_17.bvh",
+     "window_s": [
+      0.45,
+      0.85
+     ],
+     "entry": {
+      "loop": "Jog_Fwd_Loop",
+      "phase": 0.136,
+      "err_deg": 29.9,
+      "source_s": 0.45
+     }
+    },
+    {
+     "file": "36_02.bvh",
+     "window_s": [
+      10.35,
+      11.75
+     ]
+    },
+    {
+     "file": "16_55.bvh",
+     "window_s": [
+      0.083,
+      0.95
+     ]
+    }
+   ]
+  },
+  "handoff": {
+   "entry": {
+    "loop": "Jog_Fwd_Loop",
+    "phase": 0.136,
+    "side": "L",
+    "err_deg": 29.9,
+    "loop_seconds": 0.9167
+   },
+   "exit": {
+    "loop": "Jog_Fwd_Loop",
+    "phase": 0.045,
+    "side": "L",
+    "err_deg": 24.9,
+    "loop_seconds": 0.9167
+   }
+  },
+  "events": {
+   "footstep_frames": [
+    {
+     "frame": 1,
+     "foot": "right"
+    },
+    {
+     "frame": 6,
+     "foot": "left"
+    },
+    {
+     "frame": 11,
+     "foot": "right"
+    },
+    {
+     "frame": 18,
+     "foot": "left"
+    },
+    {
+     "frame": 20,
+     "foot": "right"
+    },
+    {
+     "frame": 24,
+     "foot": "left"
+    },
+    {
+     "frame": 31,
+     "foot": "right"
+    }
+   ],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": 11,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Loco_Pivot180_Run_R",
+  "loop": false,
+  "seconds": 1.367,
+  "frames": 42,
+  "fps": 30,
+  "keys": 898,
+  "source": "127_17.bvh+36_02.bvh+16_55.bvh",
+  "source_window_s": [
+   [
+    0.267,
+    0.85
+   ],
+   [
+    10.35,
+    11.75
+   ],
+   [
+    0.083,
+    0.95
+   ]
+  ],
+  "mirrored": true,
+  "note": "",
+  "speed_up": 1.0,
+  "hip_scale": 0.0518,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": null,
+  "min_foot_m": -0.015,
+  "travel_fit": 1.0,
+  "travel_m": 0.71,
+  "root": {
+   "distance_m": 0.705,
+   "forward_m": -0.635,
+   "left_m": 0.308,
+   "yaw_deg": -181.6,
+   "yaw_on_root_bone": true,
+   "speed_in_mps": 2.92,
+   "speed_out_mps": 3.92,
+   "speed_max_mps": 4.0,
+   "speed_curve_mps": [
+    3.01,
+    2.8,
+    2.37,
+    1.83,
+    1.28,
+    0.79,
+    0.45,
+    0.62,
+    1.23,
+    1.95,
+    2.65,
+    3.26,
+    3.72,
+    3.96
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    4.0,
+    4.2,
+    -2.3,
+    -20.7,
+    -53.1,
+    -90.2,
+    -125.9,
+    -158.1,
+    -177.1,
+    -180.7,
+    -177.4,
+    -175.3,
+    -178.6
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     4,
+     9
+    ],
+    [
+     15,
+     17
+    ],
+    [
+     24,
+     28
+    ],
+    [
+     35,
+     39
+    ]
+   ],
+   "right": [
+    [
+     1,
+     4
+    ],
+    [
+     10,
+     17
+    ],
+    [
+     22,
+     24
+    ],
+    [
+     28,
+     33
+    ]
+   ],
+   "flat_left": [
+    [
+     8,
+     9
+    ],
+    [
+     24,
+     26
+    ],
+    [
+     35,
+     38
+    ]
+   ],
+   "flat_right": [
+    [
+     13,
+     16
+    ]
+   ],
+   "airborne": [
+    [
+     18,
+     21
+    ],
+    [
+     34,
+     34
+    ],
+    [
+     40,
+     40
+    ]
+   ]
+  },
+  "slide_cm": {
+   "left": 2.2,
+   "right": 1.2
+  },
+  "slide_max_cm": 2.2,
+  "slide_windows": [
+   [
+    "left",
+    "ball",
+    35,
+    38,
+    2.2
+   ],
+   [
+    "left",
+    "heel",
+    15,
+    17,
+    0.6
+   ],
+   [
+    "right",
+    "ball",
+    28,
+    31,
+    1.2
+   ],
+   [
+    "right",
+    "heel",
+    3,
+    4,
+    0.0
+   ]
+  ],
+  "end_foot": "air",
+  "matched_trim": {
+   "segments": [
+    {
+     "file": "127_17.bvh",
+     "window_s": [
+      0.267,
+      0.85
+     ],
+     "entry": {
+      "loop": "Jog_Fwd_Loop",
+      "phase": 0.545,
+      "err_deg": 29.3,
+      "source_s": 0.267
+     }
+    },
+    {
+     "file": "36_02.bvh",
+     "window_s": [
+      10.35,
+      11.75
+     ]
+    },
+    {
+     "file": "16_55.bvh",
+     "window_s": [
+      0.083,
+      0.95
+     ]
+    }
+   ]
+  },
+  "handoff": {
+   "entry": {
+    "loop": "Jog_Fwd_Loop",
+    "phase": 0.545,
+    "side": "R",
+    "err_deg": 29.5,
+    "loop_seconds": 0.9167
+   },
+   "exit": {
+    "loop": "Jog_Fwd_Loop",
+    "phase": 0.545,
+    "side": "R",
+    "err_deg": 23.3,
+    "loop_seconds": 0.9167
+   }
+  },
+  "events": {
+   "footstep_frames": [
+    {
+     "frame": 1,
+     "foot": "right"
+    },
+    {
+     "frame": 4,
+     "foot": "left"
+    },
+    {
+     "frame": 10,
+     "foot": "right"
+    },
+    {
+     "frame": 15,
+     "foot": "left"
+    },
+    {
+     "frame": 22,
+     "foot": "right"
+    },
+    {
+     "frame": 24,
+     "foot": "left"
+    },
+    {
+     "frame": 28,
+     "foot": "right"
+    },
+    {
+     "frame": 35,
+     "foot": "left"
+    }
+   ],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": 15,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Jump_Start",
+  "loop": false,
+  "seconds": 0.333,
+  "frames": 11,
+  "fps": 30,
+  "keys": 276,
+  "source": "13_42.bvh",
+  "source_window_s": [
+   0.6,
+   1.583
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.0,
+  "hip_scale": 0.0486,
+  "floor_fix_m": -0.026,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_fit": 1.25,
+  "travel_m": 0.17,
+  "root": {
+   "distance_m": 0.168,
+   "forward_m": 0.166,
+   "left_m": 0.019,
+   "yaw_deg": -0.6,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 0.31,
+   "speed_out_mps": 0.69,
+   "speed_max_mps": 0.75,
+   "speed_curve_mps": [
+    0.25,
+    0.39,
+    0.61,
+    0.75
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     0,
+     3
+    ],
+    [
+     5,
+     8
+    ]
+   ],
+   "right": [
+    [
+     0,
+     8
+    ]
+   ],
+   "flat_left": [
+    [
+     5,
+     8
+    ]
+   ],
+   "flat_right": [
+    [
+     0,
+     8
+    ]
+   ],
+   "airborne": [
+    [
+     9,
+     9
+    ]
+   ]
+  },
+  "slide_cm": {
+   "left": 1.2,
+   "right": 3.8
+  },
+  "slide_max_cm": 3.8,
+  "slide_windows": [
+   [
+    "left",
+    "ball",
+    5,
+    7,
+    0.7
+   ],
+   [
+    "left",
+    "heel",
+    0,
+    2,
+    1.2
+   ],
+   [
+    "right",
+    "ball",
+    0,
+    8,
+    3.8
+   ]
+  ],
+  "end_foot": "air",
+  "matched_trim": {},
+  "handoff": {
+   "entry": {
+    "loop": "Idle_Loop",
+    "phase": 0.767,
+    "side": "R",
+    "err_deg": 29.7,
+    "loop_seconds": 2.5
+   }
+  },
+  "events": {
+   "footstep_frames": [
+    {
+     "frame": 5,
+     "foot": "left"
+    }
+   ],
+   "takeoff_frame": 9,
+   "touchdown_frame": null,
+   "plant_frame": 0,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Jump_Rise_Loop",
+  "loop": true,
+  "seconds": 0.8,
+  "frames": 25,
+  "fps": 30,
+  "keys": 403,
+  "source": "13_41.bvh",
+  "source_window_s": [
+   1.55,
+   1.75
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.0,
+  "hip_scale": 0.0486,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.014,
+  "min_foot_m": -0.02,
+  "travel_fit": 1.0,
+  "travel_m": 0.0,
+  "root": {
+   "distance_m": 0.0,
+   "forward_m": 0.0,
+   "left_m": 0.0,
+   "yaw_deg": 0.0,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 0.0,
+   "speed_out_mps": 0.0,
+   "speed_max_mps": 0.0,
+   "speed_curve_mps": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [],
+   "right": [],
+   "flat_left": [],
+   "flat_right": [],
+   "airborne": [
+    [
+     0,
+     24
+    ]
+   ]
+  },
+  "slide_cm": {
+   "left": 0.0,
+   "right": 0.0
+  },
+  "slide_max_cm": 0.0,
+  "slide_windows": [],
+  "end_foot": "air",
+  "matched_trim": {},
+  "handoff": {},
+  "events": {
+   "footstep_frames": [],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": null,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Jump_Fall_Loop",
+  "loop": true,
+  "seconds": 0.8,
+  "frames": 25,
+  "fps": 30,
+  "keys": 417,
+  "source": "82_04.bvh",
+  "source_window_s": [
+   2.2,
+   2.45
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.0,
+  "hip_scale": 0.0546,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.021,
+  "travel_fit": 1.0,
+  "travel_m": 0.0,
+  "root": {
+   "distance_m": 0.0,
+   "forward_m": 0.0,
+   "left_m": 0.0,
+   "yaw_deg": 0.0,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 0.0,
+   "speed_out_mps": 0.0,
+   "speed_max_mps": 0.0,
+   "speed_curve_mps": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [],
+   "right": [],
+   "flat_left": [],
+   "flat_right": [],
+   "airborne": [
+    [
+     0,
+     24
+    ]
+   ]
+  },
+  "slide_cm": {
+   "left": 0.0,
+   "right": 0.0
+  },
+  "slide_max_cm": 0.0,
+  "slide_windows": [],
+  "end_foot": "air",
+  "matched_trim": {},
+  "handoff": {},
+  "events": {
+   "footstep_frames": [],
+   "takeoff_frame": null,
+   "touchdown_frame": null,
+   "plant_frame": null,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Jump_Land_Soft",
+  "loop": false,
+  "seconds": 0.867,
+  "frames": 27,
+  "fps": 30,
+  "keys": 404,
+  "source": "16_05.bvh",
+  "source_window_s": [
+   1.45,
+   2.458
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.15,
+  "hip_scale": 0.0518,
+  "floor_fix_m": -0.02,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_fit": 0.8,
+  "travel_m": 0.27,
+  "root": {
+   "distance_m": 0.274,
+   "forward_m": 0.273,
+   "left_m": -0.026,
+   "yaw_deg": -3.4,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 0.63,
+   "speed_out_mps": 0.09,
+   "speed_max_mps": 0.65,
+   "speed_curve_mps": [
+    0.65,
+    0.6,
+    0.51,
+    0.39,
+    0.28,
+    0.2,
+    0.14,
+    0.1,
+    0.09
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     0,
+     1
+    ],
+    [
+     4,
+     26
+    ]
+   ],
+   "right": [
+    [
+     0,
+     2
+    ],
+    [
+     4,
+     26
+    ]
+   ],
+   "flat_left": [
+    [
+     0,
+     1
+    ],
+    [
+     16,
+     26
+    ]
+   ],
+   "flat_right": [
+    [
+     4,
+     26
+    ]
+   ],
+   "airborne": [
+    [
+     3,
+     3
+    ]
+   ]
+  },
+  "slide_cm": {
+   "left": 4.1,
+   "right": 4.3
+  },
+  "slide_max_cm": 4.3,
+  "slide_windows": [
+   [
+    "left",
+    "ball",
+    16,
+    26,
+    0.7
+   ],
+   [
+    "left",
+    "heel",
+    4,
+    15,
+    4.1
+   ],
+   [
+    "right",
+    "ball",
+    4,
+    26,
+    4.3
+   ]
+  ],
+  "end_foot": "both",
+  "matched_trim": {},
+  "handoff": {
+   "exit": {
+    "loop": "Idle_Loop",
+    "phase": 0.383,
+    "side": "L",
+    "err_deg": 25.0,
+    "loop_seconds": 2.5
+   }
+  },
+  "events": {
+   "touchdown_frame": 4,
+   "footstep_frames": [
+    {
+     "frame": 4,
+     "foot": "left"
+    },
+    {
+     "frame": 4,
+     "foot": "right"
+    }
+   ],
+   "takeoff_frame": 3,
+   "plant_frame": 0,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Jump_Land_Hard",
+  "loop": false,
+  "seconds": 1.367,
+  "frames": 42,
+  "fps": 30,
+  "keys": 788,
+  "source": "82_04.bvh",
+  "source_window_s": [
+   2.3,
+   3.9
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.15,
+  "hip_scale": 0.0546,
+  "floor_fix_m": -0.011,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_fit": 0.8,
+  "travel_m": 0.53,
+  "root": {
+   "distance_m": 0.532,
+   "forward_m": 0.522,
+   "left_m": -0.102,
+   "yaw_deg": 43.0,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 0.58,
+   "speed_out_mps": 0.13,
+   "speed_max_mps": 0.6,
+   "speed_curve_mps": [
+    0.6,
+    0.56,
+    0.5,
+    0.45,
+    0.44,
+    0.46,
+    0.48,
+    0.47,
+    0.44,
+    0.39,
+    0.31,
+    0.23,
+    0.16,
+    0.12
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     0,
+     4
+    ],
+    [
+     6,
+     7
+    ]
+   ],
+   "right": [
+    [
+     6,
+     32
+    ],
+    [
+     34,
+     41
+    ]
+   ],
+   "flat_left": [
+    [
+     0,
+     4
+    ]
+   ],
+   "flat_right": [
+    [
+     25,
+     27
+    ],
+    [
+     31,
+     32
+    ],
+    [
+     34,
+     41
+    ]
+   ],
+   "airborne": [
+    [
+     5,
+     5
+    ],
+    [
+     33,
+     33
+    ]
+   ]
+  },
+  "slide_cm": {
+   "left": 0.0,
+   "right": 6.7
+  },
+  "slide_max_cm": 6.7,
+  "slide_windows": [
+   [
+    "right",
+    "ball",
+    25,
+    31,
+    4.9
+   ],
+   [
+    "right",
+    "ball",
+    34,
+    41,
+    1.3
+   ],
+   [
+    "right",
+    "heel",
+    6,
+    24,
+    6.7
+   ]
+  ],
+  "end_foot": "right",
+  "matched_trim": {},
+  "handoff": {
+   "exit": {
+    "loop": "Idle_Loop",
+    "phase": 0.267,
+    "side": "L",
+    "err_deg": 43.4,
+    "loop_seconds": 2.5
+   }
+  },
+  "events": {
+   "touchdown_frame": 6,
+   "footstep_frames": [
+    {
+     "frame": 6,
+     "foot": "left"
+    },
+    {
+     "frame": 6,
+     "foot": "right"
+    },
+    {
+     "frame": 34,
+     "foot": "right"
+    }
+   ],
+   "takeoff_frame": 5,
+   "plant_frame": 6,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Jump_Land_Roll",
+  "loop": false,
+  "seconds": 1.667,
+  "frames": 51,
+  "fps": 30,
+  "keys": 1497,
+  "source": "82_04.bvh+UAL:Roll",
+  "source_window_s": [
+   [
+    2.383,
+    2.85
+   ],
+   [
+    0.0,
+    null
+   ]
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.0,
+  "hip_scale": 0.0546,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": null,
+  "min_foot_m": -0.108,
+  "travel_fit": 1.0,
+  "travel_m": 0.21,
+  "root": {
+   "distance_m": 0.212,
+   "forward_m": 0.211,
+   "left_m": -0.023,
+   "yaw_deg": -18.6,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 0.52,
+   "speed_out_mps": 0.05,
+   "speed_max_mps": 0.53,
+   "speed_curve_mps": [
+    0.53,
+    0.51,
+    0.46,
+    0.41,
+    0.38,
+    0.36,
+    0.33,
+    0.24,
+    0.1,
+    0.15,
+    0.25,
+    0.24,
+    0.15,
+    0.07,
+    0.04,
+    0.04,
+    0.05
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     0,
+     2
+    ],
+    [
+     9,
+     11
+    ],
+    [
+     32,
+     50
+    ]
+   ],
+   "right": [
+    [
+     4,
+     11
+    ],
+    [
+     33,
+     50
+    ]
+   ],
+   "flat_left": [
+    [
+     0,
+     2
+    ],
+    [
+     9,
+     11
+    ],
+    [
+     33,
+     50
+    ]
+   ],
+   "flat_right": [
+    [
+     9,
+     10
+    ],
+    [
+     34,
+     50
+    ]
+   ],
+   "airborne": [
+    [
+     3,
+     3
+    ],
+    [
+     12,
+     31
+    ]
+   ]
+  },
+  "slide_cm": {
+   "left": 3.3,
+   "right": 0.6
+  },
+  "slide_max_cm": 3.3,
+  "slide_windows": [
+   [
+    "left",
+    "ball",
+    36,
+    50,
+    3.3
+   ],
+   [
+    "right",
+    "ball",
+    36,
+    50,
+    0.1
+   ],
+   [
+    "right",
+    "heel",
+    4,
+    6,
+    0.6
+   ]
+  ],
+  "end_foot": "both",
+  "matched_trim": {
+   "segments": [
+    {
+     "file": "82_04.bvh",
+     "window_s": [
+      2.383,
+      2.85
+     ]
+    },
+    {
+     "file": "UAL:Roll",
+     "window_s": [
+      0.0,
+      null
+     ]
+    }
+   ]
+  },
+  "handoff": {
+   "exit": {
+    "loop": "Idle_Loop",
+    "phase": 0.067,
+    "side": "L",
+    "err_deg": 1.8,
+    "loop_seconds": 2.5
+   }
+  },
+  "events": {
+   "touchdown_frame": 4,
+   "roll_start_frame": 12,
+   "footstep_frames": [
+    {
+     "frame": 4,
+     "foot": "right"
+    },
+    {
+     "frame": 9,
+     "foot": "left"
+    },
+    {
+     "frame": 32,
+     "foot": "left"
+    },
+    {
+     "frame": 33,
+     "foot": "right"
+    }
+   ],
+   "takeoff_frame": 3,
+   "plant_frame": 9,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Jump_Running_Start",
+  "loop": false,
+  "seconds": 0.4,
+  "frames": 13,
+  "fps": 30,
+  "keys": 304,
+  "source": "127_27.bvh",
+  "source_window_s": [
+   0.117,
+   0.617
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.2,
+  "hip_scale": 0.0502,
+  "floor_fix_m": 0.016,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.013,
+  "travel_fit": 1.075,
+  "travel_m": 1.23,
+  "root": {
+   "distance_m": 1.232,
+   "forward_m": 1.232,
+   "left_m": 0.009,
+   "yaw_deg": -10.5,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 3.1,
+   "speed_out_mps": 3.06,
+   "speed_max_mps": 3.1,
+   "speed_curve_mps": [
+    3.1,
+    3.09,
+    3.08,
+    3.07
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [
+    [
+     0,
+     4
+    ]
+   ],
+   "right": [
+    [
+     3,
+     12
+    ]
+   ],
+   "flat_left": [
+    [
+     0,
+     3
+    ]
+   ],
+   "flat_right": [
+    [
+     6,
+     10
+    ]
+   ],
+   "airborne": []
+  },
+  "slide_cm": {
+   "left": 1.2,
+   "right": 1.1
+  },
+  "slide_max_cm": 1.2,
+  "slide_windows": [
+   [
+    "left",
+    "ball",
+    0,
+    4,
+    1.2
+   ],
+   [
+    "right",
+    "ball",
+    7,
+    12,
+    1.1
+   ]
+  ],
+  "end_foot": "right",
+  "matched_trim": {},
+  "handoff": {
+   "entry": {
+    "loop": "Jog_Fwd_Loop",
+    "phase": 0.136,
+    "side": "L",
+    "err_deg": 31.7,
+    "loop_seconds": 0.9167
+   }
+  },
+  "events": {
+   "takeoff_frame": 12,
+   "footstep_frames": [
+    {
+     "frame": 3,
+     "foot": "right"
+    }
+   ],
+   "touchdown_frame": null,
+   "plant_frame": null,
+   "skid_frames": []
+  }
+ },
+ {
+  "name": "Jump_Land_Running",
+  "loop": false,
+  "seconds": 0.767,
+  "frames": 24,
+  "fps": 30,
+  "keys": 490,
+  "source": "127_27.bvh",
+  "source_window_s": [
+   0.95,
+   1.9
+  ],
+  "mirrored": false,
+  "note": "",
+  "speed_up": 1.2,
+  "hip_scale": 0.0502,
+  "floor_fix_m": 0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_fit": 1.164,
+  "travel_m": 2.39,
+  "root": {
+   "distance_m": 2.389,
+   "forward_m": 2.389,
+   "left_m": -0.01,
+   "yaw_deg": 9.4,
+   "yaw_on_root_bone": false,
+   "speed_in_mps": 2.77,
+   "speed_out_mps": 3.7,
+   "speed_max_mps": 3.75,
+   "speed_curve_mps": [
+    2.78,
+    2.76,
+    2.76,
+    2.85,
+    3.05,
+    3.32,
+    3.57,
+    3.73
+   ],
+   "yaw_curve_deg": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "contacts": {
+   "left": [],
+   "right": [
+    [
+     2,
+     5
+    ],
+    [
+     15,
+     21
+    ]
+   ],
+   "flat_left": [],
+   "flat_right": [
+    [
+     2,
+     4
+    ],
+    [
+     15,
+     20
+    ]
+   ],
+   "airborne": [
+    [
+     0,
+     1
+    ],
+    [
+     6,
+     14
+    ],
+    [
+     22,
+     23
+    ]
+   ]
+  },
+  "slide_cm": {
+   "left": 0.0,
+   "right": 0.5
+  },
+  "slide_max_cm": 0.5,
+  "slide_windows": [
+   [
+    "right",
+    "ball",
+    15,
+    19,
+    0.5
+   ]
+  ],
+  "end_foot": "air",
+  "matched_trim": {},
+  "handoff": {
+   "exit": {
+    "loop": "Jog_Fwd_Loop",
+    "phase": 0.864,
+    "side": "R",
+    "err_deg": 28.3,
+    "loop_seconds": 0.9167
+   }
+  },
+  "events": {
+   "touchdown_frame": 2,
+   "footstep_frames": [
+    {
+     "frame": 2,
+     "foot": "right"
+    },
+    {
+     "frame": 15,
+     "foot": "right"
+    }
+   ],
+   "takeoff_frame": null,
+   "plant_frame": null,
+   "skid_frames": []
+  }
+ }
+]

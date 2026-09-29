@@ -1,0 +1,742 @@
+{
+ "Jump_Fall_Loop": {
+  "frames": 25,
+  "seconds": 0.8,
+  "min_foot_z": -0.006,
+  "min_foot_frame": 4,
+  "pelvis_z_min": 0.92,
+  "pelvis_z_max": 0.92,
+  "pelvis_z0": 0.92,
+  "pelvis_z_end": 0.92,
+  "hip_yaw_start": 1,
+  "hip_yaw_end": 1,
+  "pelvis_travel": [
+   0.0,
+   0.0
+  ],
+  "root_travel": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 16,
+   "r": 0
+  },
+  "slide_max_mps": 0.62,
+  "planted_frac": 1.0,
+  "max_jump_m": 0.149,
+  "max_jump": "hand_l@7",
+  "loop_gap_m": 0.0,
+  "leg_straight_min": null,
+  "leg_straight_mean": null,
+  "extent_z": [
+   -0.01,
+   1.8
+  ],
+  "sheet_fps": 12.0
+ },
+ "Jump_Land_Hard": {
+  "frames": 42,
+  "seconds": 1.37,
+  "min_foot_z": 0.008,
+  "min_foot_frame": 31,
+  "pelvis_z_min": 0.52,
+  "pelvis_z_max": 0.94,
+  "pelvis_z0": 0.94,
+  "pelvis_z_end": 0.83,
+  "hip_yaw_start": 7,
+  "hip_yaw_end": 14,
+  "pelvis_travel": [
+   -0.1,
+   -0.52
+  ],
+  "root_travel": [
+   -0.1,
+   -0.52,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 10,
+   "r": 28
+  },
+  "slide_max_mps": 1.86,
+  "planted_frac": 1.0,
+  "max_jump_m": 0.287,
+  "max_jump": "hand_l@7",
+  "loop_gap_m": 1.36,
+  "leg_straight_min": 0.44,
+  "leg_straight_mean": 0.58,
+  "extent_z": [
+   0.01,
+   1.82
+  ],
+  "sheet_fps": 12.0
+ },
+ "Jump_Land_Roll": {
+  "frames": 51,
+  "seconds": 1.67,
+  "min_foot_z": -0.093,
+  "min_foot_frame": 10,
+  "pelvis_z_min": 0.05,
+  "pelvis_z_max": 1.14,
+  "pelvis_z0": 0.91,
+  "pelvis_z_end": 0.87,
+  "hip_yaw_start": 9,
+  "hip_yaw_end": -13,
+  "pelvis_travel": [
+   -0.02,
+   -0.21
+  ],
+  "root_travel": [
+   -0.02,
+   -0.21,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 13,
+   "r": 6
+  },
+  "slide_max_mps": 9.65,
+  "planted_frac": 0.57,
+  "max_jump_m": 0.431,
+  "max_jump": "hand_r@11",
+  "loop_gap_m": 0.953,
+  "leg_straight_min": 0.3,
+  "leg_straight_mean": 0.73,
+  "extent_z": [
+   -0.09,
+   1.79
+  ],
+  "sheet_fps": 12.0
+ },
+ "Jump_Land_Running": {
+  "frames": 24,
+  "seconds": 0.77,
+  "min_foot_z": 0.015,
+  "min_foot_frame": 20,
+  "pelvis_z_min": 0.79,
+  "pelvis_z_max": 0.88,
+  "pelvis_z0": 0.88,
+  "pelvis_z_end": 0.88,
+  "hip_yaw_start": 6,
+  "hip_yaw_end": 10,
+  "pelvis_travel": [
+   -0.01,
+   -2.39
+  ],
+  "root_travel": [
+   -0.01,
+   -2.39,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 0,
+   "r": 11
+  },
+  "slide_max_mps": 1.44,
+  "planted_frac": 0.62,
+  "max_jump_m": 0.35,
+  "max_jump": "ball_l@21",
+  "loop_gap_m": 1.065,
+  "leg_straight_min": null,
+  "leg_straight_mean": null,
+  "extent_z": [
+   0.01,
+   1.53
+  ],
+  "sheet_fps": 12.0
+ },
+ "Jump_Land_Soft": {
+  "frames": 27,
+  "seconds": 0.87,
+  "min_foot_z": 0.023,
+  "min_foot_frame": 0,
+  "pelvis_z_min": 0.79,
+  "pelvis_z_max": 0.93,
+  "pelvis_z0": 0.93,
+  "pelvis_z_end": 0.9,
+  "hip_yaw_start": 4,
+  "hip_yaw_end": 2,
+  "pelvis_travel": [
+   -0.03,
+   -0.27
+  ],
+  "root_travel": [
+   -0.03,
+   -0.27,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 7,
+   "r": 9
+  },
+  "slide_max_mps": 2.3,
+  "planted_frac": 1.0,
+  "max_jump_m": 0.091,
+  "max_jump": "hand_l@4",
+  "loop_gap_m": 0.215,
+  "leg_straight_min": 0.85,
+  "leg_straight_mean": 0.95,
+  "extent_z": [
+   0.02,
+   1.59
+  ],
+  "sheet_fps": 12.0
+ },
+ "Jump_Rise_Loop": {
+  "frames": 25,
+  "seconds": 0.8,
+  "min_foot_z": -0.005,
+  "min_foot_frame": 5,
+  "pelvis_z_min": 0.92,
+  "pelvis_z_max": 0.93,
+  "pelvis_z0": 0.93,
+  "pelvis_z_end": 0.93,
+  "hip_yaw_start": 2,
+  "hip_yaw_end": 2,
+  "pelvis_travel": [
+   0.0,
+   0.0
+  ],
+  "root_travel": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 14,
+   "r": 20
+  },
+  "slide_max_mps": 0.95,
+  "planted_frac": 1.0,
+  "max_jump_m": 0.083,
+  "max_jump": "hand_r@6",
+  "loop_gap_m": 0.0,
+  "leg_straight_min": 0.97,
+  "leg_straight_mean": 0.98,
+  "extent_z": [
+   -0.01,
+   1.58
+  ],
+  "sheet_fps": 12.0
+ },
+ "Jump_Running_Start": {
+  "frames": 13,
+  "seconds": 0.4,
+  "min_foot_z": 0.002,
+  "min_foot_frame": 12,
+  "pelvis_z_min": 0.77,
+  "pelvis_z_max": 0.91,
+  "pelvis_z0": 0.78,
+  "pelvis_z_end": 0.91,
+  "hip_yaw_start": 16,
+  "hip_yaw_end": 6,
+  "pelvis_travel": [
+   0.01,
+   -1.23
+  ],
+  "root_travel": [
+   0.01,
+   -1.23,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 2,
+   "r": 6
+  },
+  "slide_max_mps": 9.15,
+  "planted_frac": 1.0,
+  "max_jump_m": 0.305,
+  "max_jump": "ball_r@2",
+  "loop_gap_m": 0.614,
+  "leg_straight_min": 0.69,
+  "leg_straight_mean": 0.79,
+  "extent_z": [
+   0.0,
+   1.54
+  ],
+  "sheet_fps": 12.0
+ },
+ "Jump_Start": {
+  "frames": 11,
+  "seconds": 0.33,
+  "min_foot_z": 0.029,
+  "min_foot_frame": 8,
+  "pelvis_z_min": 0.55,
+  "pelvis_z_max": 0.98,
+  "pelvis_z0": 0.81,
+  "pelvis_z_end": 0.98,
+  "hip_yaw_start": 2,
+  "hip_yaw_end": 3,
+  "pelvis_travel": [
+   0.02,
+   -0.17
+  ],
+  "root_travel": [
+   0.02,
+   -0.17,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 8,
+   "r": 10
+  },
+  "slide_max_mps": 0.72,
+  "planted_frac": 1.0,
+  "max_jump_m": 0.571,
+  "max_jump": "hand_l@8",
+  "loop_gap_m": 0.758,
+  "leg_straight_min": 0.49,
+  "leg_straight_mean": 0.69,
+  "extent_z": [
+   0.03,
+   1.63
+  ],
+  "sheet_fps": 12.0
+ },
+ "Loco_Pivot180_Run_L": {
+  "frames": 38,
+  "seconds": 1.23,
+  "min_foot_z": -0.0,
+  "min_foot_frame": 11,
+  "pelvis_z_min": 0.73,
+  "pelvis_z_max": 0.92,
+  "pelvis_z0": 0.73,
+  "pelvis_z_end": 0.84,
+  "hip_yaw_start": 1,
+  "hip_yaw_end": -171,
+  "pelvis_travel": [
+   -0.29,
+   1.13
+  ],
+  "root_travel": [
+   -0.29,
+   1.13,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 19,
+   "r": 14
+  },
+  "slide_max_mps": 4.43,
+  "planted_frac": 0.82,
+  "max_jump_m": 0.393,
+  "max_jump": "ball_l@34",
+  "loop_gap_m": 0.746,
+  "leg_straight_min": 0.72,
+  "leg_straight_mean": 0.83,
+  "extent_z": [
+   -0.0,
+   1.56
+  ],
+  "sheet_fps": 12.0
+ },
+ "Loco_Pivot180_Run_R": {
+  "frames": 42,
+  "seconds": 1.37,
+  "min_foot_z": -0.0,
+  "min_foot_frame": 15,
+  "pelvis_z_min": 0.73,
+  "pelvis_z_max": 0.92,
+  "pelvis_z0": 0.79,
+  "pelvis_z_end": 0.84,
+  "hip_yaw_start": -9,
+  "hip_yaw_end": 171,
+  "pelvis_travel": [
+   0.31,
+   0.63
+  ],
+  "root_travel": [
+   0.31,
+   0.63,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 15,
+   "r": 21
+  },
+  "slide_max_mps": 11.03,
+  "planted_frac": 0.79,
+  "max_jump_m": 0.393,
+  "max_jump": "ball_r@38",
+  "loop_gap_m": 0.863,
+  "leg_straight_min": 0.7,
+  "leg_straight_mean": 0.82,
+  "extent_z": [
+   -0.0,
+   1.56
+  ],
+  "sheet_fps": 12.0
+ },
+ "Loco_RunStart_F": {
+  "frames": 20,
+  "seconds": 0.63,
+  "min_foot_z": 0.017,
+  "min_foot_frame": 11,
+  "pelvis_z_min": 0.79,
+  "pelvis_z_max": 0.84,
+  "pelvis_z0": 0.84,
+  "pelvis_z_end": 0.84,
+  "hip_yaw_start": 7,
+  "hip_yaw_end": 6,
+  "pelvis_travel": [
+   0.03,
+   -1.87
+  ],
+  "root_travel": [
+   0.03,
+   -1.87,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 4,
+   "r": 8
+  },
+  "slide_max_mps": 4.91,
+  "planted_frac": 0.95,
+  "max_jump_m": 0.363,
+  "max_jump": "ball_l@17",
+  "loop_gap_m": 0.413,
+  "leg_straight_min": 0.75,
+  "leg_straight_mean": 0.79,
+  "extent_z": [
+   0.02,
+   1.43
+  ],
+  "sheet_fps": 12.0
+ },
+ "Loco_RunStop_L": {
+  "frames": 27,
+  "seconds": 0.87,
+  "min_foot_z": 0.018,
+  "min_foot_frame": 0,
+  "pelvis_z_min": 0.73,
+  "pelvis_z_max": 0.88,
+  "pelvis_z0": 0.78,
+  "pelvis_z_end": 0.88,
+  "hip_yaw_start": 15,
+  "hip_yaw_end": 11,
+  "pelvis_travel": [
+   -0.02,
+   -1.45
+  ],
+  "root_travel": [
+   -0.02,
+   -1.45,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 7,
+   "r": 2
+  },
+  "slide_max_mps": 1.87,
+  "planted_frac": 0.93,
+  "max_jump_m": 0.353,
+  "max_jump": "ball_r@5",
+  "loop_gap_m": 0.247,
+  "leg_straight_min": 0.72,
+  "leg_straight_mean": 0.9,
+  "extent_z": [
+   0.02,
+   1.53
+  ],
+  "sheet_fps": 12.0
+ },
+ "Loco_RunStop_R": {
+  "frames": 25,
+  "seconds": 0.8,
+  "min_foot_z": 0.027,
+  "min_foot_frame": 1,
+  "pelvis_z_min": 0.75,
+  "pelvis_z_max": 0.9,
+  "pelvis_z0": 0.75,
+  "pelvis_z_end": 0.89,
+  "hip_yaw_start": 13,
+  "hip_yaw_end": 11,
+  "pelvis_travel": [
+   -0.15,
+   -1.73
+  ],
+  "root_travel": [
+   -0.15,
+   -1.73,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 4,
+   "r": 9
+  },
+  "slide_max_mps": 5.58,
+  "planted_frac": 1.0,
+  "max_jump_m": 0.465,
+  "max_jump": "ball_l@3",
+  "loop_gap_m": 0.524,
+  "leg_straight_min": 0.86,
+  "leg_straight_mean": 0.9,
+  "extent_z": [
+   0.03,
+   1.54
+  ],
+  "sheet_fps": 12.0
+ },
+ "Loco_Sprint_Stop_Skid": {
+  "frames": 28,
+  "seconds": 0.9,
+  "min_foot_z": 0.022,
+  "min_foot_frame": 3,
+  "pelvis_z_min": 0.7,
+  "pelvis_z_max": 0.86,
+  "pelvis_z0": 0.8,
+  "pelvis_z_end": 0.86,
+  "hip_yaw_start": 12,
+  "hip_yaw_end": 54,
+  "pelvis_travel": [
+   0.15,
+   -2.65
+  ],
+  "root_travel": [
+   0.15,
+   -2.65,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 6,
+   "r": 14
+  },
+  "slide_max_mps": 7.77,
+  "planted_frac": 0.89,
+  "max_jump_m": 0.455,
+  "max_jump": "ball_l@4",
+  "loop_gap_m": 0.731,
+  "leg_straight_min": 0.66,
+  "leg_straight_mean": 0.67,
+  "extent_z": [
+   0.02,
+   1.69
+  ],
+  "sheet_fps": 12.0
+ },
+ "Loco_TurnInPlace_180": {
+  "frames": 34,
+  "seconds": 1.1,
+  "min_foot_z": -0.001,
+  "min_foot_frame": 18,
+  "pelvis_z_min": 0.9,
+  "pelvis_z_max": 0.93,
+  "pelvis_z0": 0.91,
+  "pelvis_z_end": 0.9,
+  "hip_yaw_start": 2,
+  "hip_yaw_end": 179,
+  "pelvis_travel": [
+   -0.13,
+   -0.78
+  ],
+  "root_travel": [
+   -0.13,
+   -0.78,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 3,
+   "r": 2
+  },
+  "slide_max_mps": 0.51,
+  "planted_frac": 0.35,
+  "max_jump_m": 0.15,
+  "max_jump": "ball_r@12",
+  "loop_gap_m": 0.637,
+  "leg_straight_min": 0.96,
+  "leg_straight_mean": 0.96,
+  "extent_z": [
+   -0.0,
+   1.58
+  ],
+  "sheet_fps": 12.0
+ },
+ "Loco_TurnInPlace_180_R": {
+  "frames": 27,
+  "seconds": 0.87,
+  "min_foot_z": 0.034,
+  "min_foot_frame": 6,
+  "pelvis_z_min": 0.89,
+  "pelvis_z_max": 0.9,
+  "pelvis_z0": 0.9,
+  "pelvis_z_end": 0.9,
+  "hip_yaw_start": 4,
+  "hip_yaw_end": -165,
+  "pelvis_travel": [
+   -0.01,
+   -0.25
+  ],
+  "root_travel": [
+   -0.01,
+   -0.25,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 10,
+   "r": 8
+  },
+  "slide_max_mps": 1.69,
+  "planted_frac": 1.0,
+  "max_jump_m": 0.093,
+  "max_jump": "foot_l@5",
+  "loop_gap_m": 0.707,
+  "leg_straight_min": 0.9,
+  "leg_straight_mean": 0.95,
+  "extent_z": [
+   0.03,
+   1.55
+  ],
+  "sheet_fps": 12.0
+ },
+ "Loco_TurnInPlace_90_L": {
+  "frames": 23,
+  "seconds": 0.73,
+  "min_foot_z": 0.009,
+  "min_foot_frame": 14,
+  "pelvis_z_min": 0.9,
+  "pelvis_z_max": 0.91,
+  "pelvis_z0": 0.91,
+  "pelvis_z_end": 0.9,
+  "hip_yaw_start": 3,
+  "hip_yaw_end": 83,
+  "pelvis_travel": [
+   -0.1,
+   -0.11
+  ],
+  "root_travel": [
+   -0.1,
+   -0.11,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 4,
+   "r": 0
+  },
+  "slide_max_mps": 0.31,
+  "planted_frac": 0.91,
+  "max_jump_m": 0.059,
+  "max_jump": "ball_l@16",
+  "loop_gap_m": 0.449,
+  "leg_straight_min": 0.96,
+  "leg_straight_mean": 0.97,
+  "extent_z": [
+   0.01,
+   1.56
+  ],
+  "sheet_fps": 12.0
+ },
+ "Loco_TurnInPlace_90_R": {
+  "frames": 22,
+  "seconds": 0.7,
+  "min_foot_z": 0.056,
+  "min_foot_frame": 21,
+  "pelvis_z_min": 0.9,
+  "pelvis_z_max": 0.9,
+  "pelvis_z0": 0.9,
+  "pelvis_z_end": 0.9,
+  "hip_yaw_start": 4,
+  "hip_yaw_end": -82,
+  "pelvis_travel": [
+   -0.05,
+   -0.03
+  ],
+  "root_travel": [
+   -0.05,
+   -0.03,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 1,
+   "r": 2
+  },
+  "slide_max_mps": 0.22,
+  "planted_frac": 1.0,
+  "max_jump_m": 0.065,
+  "max_jump": "ball_l@16",
+  "loop_gap_m": 0.448,
+  "leg_straight_min": 0.96,
+  "leg_straight_mean": 0.96,
+  "extent_z": [
+   0.06,
+   1.55
+  ],
+  "sheet_fps": 12.0
+ },
+ "Loco_WalkStart_F": {
+  "frames": 39,
+  "seconds": 1.27,
+  "min_foot_z": 0.034,
+  "min_foot_frame": 9,
+  "pelvis_z_min": 0.87,
+  "pelvis_z_max": 0.9,
+  "pelvis_z0": 0.89,
+  "pelvis_z_end": 0.87,
+  "hip_yaw_start": 5,
+  "hip_yaw_end": -2,
+  "pelvis_travel": [
+   -0.05,
+   -1.56
+  ],
+  "root_travel": [
+   -0.05,
+   -1.56,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 3,
+   "r": 7
+  },
+  "slide_max_mps": 5.16,
+  "planted_frac": 1.0,
+  "max_jump_m": 0.172,
+  "max_jump": "ball_r@20",
+  "loop_gap_m": 0.302,
+  "leg_straight_min": 0.84,
+  "leg_straight_mean": 0.92,
+  "extent_z": [
+   0.03,
+   1.55
+  ],
+  "sheet_fps": 12.0
+ },
+ "Loco_WalkStop": {
+  "frames": 42,
+  "seconds": 1.37,
+  "min_foot_z": 0.038,
+  "min_foot_frame": 18,
+  "pelvis_z_min": 0.88,
+  "pelvis_z_max": 0.91,
+  "pelvis_z0": 0.88,
+  "pelvis_z_end": 0.89,
+  "hip_yaw_start": 1,
+  "hip_yaw_end": 7,
+  "pelvis_travel": [
+   -0.01,
+   -0.88
+  ],
+  "root_travel": [
+   -0.01,
+   -0.88,
+   0.0
+  ],
+  "slide_frames": {
+   "l": 5,
+   "r": 9
+  },
+  "slide_max_mps": 4.38,
+  "planted_frac": 1.0,
+  "max_jump_m": 0.146,
+  "max_jump": "ball_r@10",
+  "loop_gap_m": 0.313,
+  "leg_straight_min": 0.84,
+  "leg_straight_mean": 0.95,
+  "extent_z": [
+   0.04,
+   1.56
+  ],
+  "sheet_fps": 12.0
+ }
+}
