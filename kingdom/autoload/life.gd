@@ -43,6 +43,8 @@ const ActionRuntime := preload("res://scripts/systems/action_runtime.gd")
 var world_events = WorldEventLog.new()
 ## Short-lived actor/action leases; deliberately excluded from saves.
 var action_runtime = ActionRuntime.new()
+## Active craft token -> generation-qualified station resource key.
+var _craft_station_actions: Dictionary = {}
 var equipment := preload("res://scripts/sim/equipment.gd").new()
 var skills := preload("res://scripts/sim/skills.gd").new()
 ## Careers as biography (docs/RISING_ASHES_LIFE_SIM_DESIGN.md): mastery only grows by doing,
@@ -103,6 +105,8 @@ var _last_abs := -1.0     # absolute in-game hours at the last tick
 
 func _ready() -> void:
 	equipment.clock = _abs_hours
+	if not crafting.station_invalidated.is_connected(_on_craft_station_invalidated):
+		crafting.station_invalidated.connect(_on_craft_station_invalidated)
 	skills.breakthrough.connect(func(r: Dictionary) -> void:
 		Game.say(String(r["text"]))
 		if r["success"]:
@@ -306,16 +310,40 @@ func world_event_window(after_id: int = -1) -> Dictionary:
 	return world_events.window_info(after_id)
 
 
-func begin_craft_action(recipe_id: String, lease_s: float) -> Dictionary:
+func begin_craft_action(recipe_id: String, lease_s: float, requested_kinds: Array = []) -> Dictionary:
 	var now_s := Time.get_ticks_msec() / 1000.0
 	action_runtime.expire(now_s, 8)
-	var started: Dictionary = action_runtime.begin("player", "craft", "actor:player", now_s,
-		lease_s, {"recipe_id": recipe_id})
+	_prune_craft_station_actions(now_s)
+	var recipe: Dictionary = crafting.recipe(recipe_id)
+	if recipe.is_empty():
+		return {"ok": false, "token": "", "error": "unknown_recipe"}
+	var required: Array = recipe.get("stations", [])
+	var station: Dictionary = {}
+	var resources: Array = ["actor:player"]
+	var station_ref := ""
+	var station_generation := 0
+	var station_kind := ""
+	if not required.is_empty():
+		if player == null or not is_instance_valid(player):
+			return {"ok": false, "token": "", "error": "station_required"}
+		station = crafting.nearest_station_for_recipe(player.global_position, recipe_id, requested_kinds)
+		if station.is_empty():
+			return {"ok": false, "token": "", "error": "station_required"}
+		station_ref = String(station.get("ref", ""))
+		station_generation = int(station.get("generation", 0))
+		station_kind = String(station.get("kind", ""))
+		resources.append(crafting.station_resource_key(station_ref, station_generation))
+	var payload := {"recipe_id": recipe_id, "station_ref": station_ref,
+		"station_generation": station_generation, "station_kind": station_kind}
+	var started: Dictionary = action_runtime.begin_resources("player", "craft", resources,
+		now_s, lease_s, payload)
 	if not bool(started.get("ok", false)):
 		return started
 	if not action_runtime.transition(String(started["token"]), "begun", "working", now_s):
 		action_runtime.cancel(String(started["token"]), "transition_failed")
 		return {"ok": false, "token": "", "error": "transition_failed"}
+	if not station_ref.is_empty():
+		_craft_station_actions[String(started["token"])] = crafting.station_resource_key(station_ref, station_generation)
 	return started
 
 
@@ -327,21 +355,56 @@ func commit_craft_action(token: String, recipe_id: String, requested_kinds: Arra
 			or String(action_info.get("action_type", "")) != "craft"
 			or String(action_payload.get("recipe_id", "")) != recipe_id):
 		return {"ok": false, "newly_committed": false, "result": {}, "error": "action_mismatch"}
+	if inspection.has("newly_committed"):
+		var prior := inspection.duplicate(true)
+		prior["newly_committed"] = false
+		return prior
 	var now_s := Time.get_ticks_msec() / 1000.0
-	var current_kinds := _craft_station_kinds_near_player()
-	var allowed_kinds: Array = []
-	for kind: String in current_kinds:
-		if requested_kinds.is_empty() or requested_kinds.has(kind):
-			allowed_kinds.append(kind)
+	var station_ref := String(action_payload.get("station_ref", ""))
+	var station_generation := int(action_payload.get("station_generation", 0))
+	var station_kind := String(action_payload.get("station_kind", ""))
+	var recipe: Dictionary = crafting.recipe(recipe_id)
+	var required: Array = recipe.get("stations", [])
+	var allowed_kinds: Variant = [station_kind] if not station_ref.is_empty() else null
 	var check := func() -> String:
+		if not station_ref.is_empty():
+			if player == null or not is_instance_valid(player):
+				return "station_changed"
+			var current: Dictionary = crafting.station_at(station_ref, station_generation, player.global_position)
+			if current.is_empty() or String(current.get("kind", "")) != station_kind:
+				return "station_changed"
+			if not required.has(station_kind) or (not requested_kinds.is_empty() and not requested_kinds.has(station_kind)):
+				return "station_changed"
+		elif not required.is_empty():
+			return "station_changed"
 		return String(crafting.call("can_craft", recipe_id, self, allowed_kinds, ctx))
 	var apply := func() -> Dictionary:
 		return crafting.call("craft", recipe_id, self, allowed_kinds, ctx)
-	return action_runtime.commit(token, now_s, check, apply)
+	var result: Dictionary = action_runtime.commit(token, now_s, check, apply)
+	_craft_station_actions.erase(token)
+	return result
 
 
 func cancel_action(token: String) -> Dictionary:
-	return action_runtime.cancel(token)
+	var result: Dictionary = action_runtime.cancel(token)
+	_craft_station_actions.erase(token)
+	return result
+
+
+func _on_craft_station_invalidated(ref: String, generation: int) -> void:
+	var resource_key: String = crafting.station_resource_key(ref, generation)
+	for token: String in _craft_station_actions.keys():
+		if String(_craft_station_actions[token]) == resource_key:
+			action_runtime.cancel(token, "station_unloaded")
+			_craft_station_actions.erase(token)
+
+
+func _prune_craft_station_actions(now_s: float) -> void:
+	for token: String in _craft_station_actions.keys():
+		var state: Dictionary = action_runtime.inspect(token)
+		if not state.has("phase") or (String(state.get("phase", "")) != "committing"
+				and now_s >= float(state.get("expires_at", 0.0))):
+			_craft_station_actions.erase(token)
 
 
 func _craft_station_kinds_near_player() -> Array:
@@ -1055,6 +1118,7 @@ func snapshot() -> Dictionary:
 
 func restore(d: Dictionary) -> void:
 	action_runtime.reset()
+	_craft_station_actions.clear()
 	# Older saves simply start a fresh journal. Invalid new journal data is isolated
 	# from the rest of the save so existing player state still restores normally.
 	world_events = WorldEventLog.new()
