@@ -6,23 +6,27 @@ extends RefCounted
 ## replayed path can be compared with what really happened.
 ##
 ## Story (26 s): bandits run in from the north-east, two chisel the stone, two go for the
-## villagers, who run away south-west; the bandits flee the way they came.
+## villagers (a blow lands on each, the villager staggers), who then run away west; the
+## bandits flee the way they came. `ACTS` are the per-actor beats the ghosts animate.
 
 const DURATION := 26.0
 const SITE_NAME := "Western Road Stone"
 const STONE_POS := Vector2(0.0, 0.0)
 const BANDITS := ["b1", "b2", "b3", "b4"]
 const VILLAGERS := ["v1", "v2"]
-const MARKS := [[0.0, "riders arrive"], [11.0, "chisel"], [12.5, "villagers flee"], [17.0, "bandits flee"]]
+const MARKS := [[0.0, "riders arrive"], [11.0, "the stone is chiselled"], [12.0, "a blow lands"], [13.0, "villagers flee"], [17.0, "bandits flee"]]
+# [time the beat lands, actor, kind]
+const ACTS := [[11.0, "b1", "chisel"], [11.5, "b2", "chisel"], [12.0, "b3", "attack"], [12.1, "v1", "hit"],
+	[12.7, "b4", "attack"], [12.8, "v2", "hit"]]
 
 # id -> [[t, x, z], ...]
 const KNOTS := {
 	"b1": [[0, 40, -38], [3, 30, -28], [6, 18, -16], [9, 6, -5], [11, 2, -2], [16, 2.5, -1.5], [18, 6, -6], [21, 20, -22], [24, 38, -40], [26, 46, -47]],
 	"b2": [[0, 42, -33], [3, 31, -24], [6, 19, -12], [9, 7, -1], [11, 3, 2], [16, 3.5, 2.5], [18, 8, -2], [21, 22, -18], [24, 40, -36], [26, 48, -43]],
-	"b3": [[0, 42, -30], [3, 32, -22], [6, 20, -10], [9, 6, 0], [12, -6, 5], [14, -9, 6], [17, -6, 2], [20, 8, -12], [23, 28, -30], [26, 46, -44]],
-	"b4": [[0, 38, -36], [3, 30, -24], [6, 20, -8], [9, 8, 2], [12, -4, 8], [14, -11, 4], [17, -8, -1], [20, 6, -14], [23, 26, -32], [26, 44, -44]],
-	"v1": [[0, -8, 6], [4, -9, 7.5], [8, -7.5, 5.5], [10, -8, 6], [12, -14, 6], [15, -24, 4], [18, -36, 0], [21, -50, -6], [24, -64, -10], [26, -72, -12]],
-	"v2": [[0, -12, 2], [5, -11, 3.5], [9, -12, 2], [11, -16, -2], [14, -26, -8], [17, -38, -16], [20, -50, -22], [23, -62, -28], [26, -70, -32]],
+	"b3": [[0, 42, -30], [3, 32, -22], [6, 20, -10], [9, 6, 0], [11, -4.5, 4.6], [12, -6.7, 5.5], [13.5, -6.9, 5.6], [15, -4, 3], [17, -2, -2], [20, 8, -12], [23, 28, -30], [26, 46, -44]],
+	"b4": [[0, 38, -36], [3, 30, -24], [6, 20, -8], [9, 8, 2], [11, -3, 4], [12.3, -10.4, 3.3], [13.8, -10.6, 3.3], [15.5, -8, 1], [18, -4, -4], [21, 8, -14], [24, 26, -32], [26, 44, -44]],
+	"v1": [[0, -8, 6], [4, -9, 7.5], [8, -7.5, 5.5], [11, -8, 6], [12, -8.2, 6.1], [13.2, -11, 6.4], [16, -24, 5], [19, -36, 1], [22, -50, -5], [25, -64, -9], [26, -72, -12]],
+	"v2": [[0, -12, 2], [5, -11, 3.5], [9, -12, 2], [12, -12.2, 2.1], [12.9, -12.5, 2.2], [14.2, -17, -2], [17, -28, -8], [20, -40, -16], [23, -54, -24], [26, -68, -30]],
 }
 
 
@@ -86,6 +90,8 @@ static func record_into(mem: AshMemory, t_offset: float = 100.0) -> int:
 			mem.mark(id, t_offset + float(MARKS[next_mark][0]), String(MARKS[next_mark][1]))
 			next_mark += 1
 		t += 1.0
+	for a: Array in ACTS:
+		mem.act(id, t_offset + float(a[0]), String(a[1]), StringName(a[2]))
 	mem.end_incident(id, t_offset + DURATION)
 	return id
 

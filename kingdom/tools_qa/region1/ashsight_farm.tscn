@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tools_qa/region1/ashsight_farm.gd" id="1"]
+
+[node name="AshsightFarm" type="Node3D"]
+script = ExtResource("1")

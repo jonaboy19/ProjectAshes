@@ -125,6 +125,29 @@ if ids.is_empty(): Game.say("The ashes here are cold.")
 else: replay_view.show_incident(mem, ids[0])                       # AshReplayView added under the world
 ```
    Read `replay_view.grade` (0..1) each frame to drain the screen to grey (environment saturation), `replay_view.cursor.seek(t)` for the scrub bar, `mem.trail(id, actor_id)` for the ember-trail footsteps and compass pin, `replay_view.pick(ray_origin, ray_dir)` to tap a ghost. `replay_view.ground = func(p: Vector2) -> float: return WorldGen.height(p.x, p.y)` puts ghosts on the terrain. `AshGhost.set_model(node)` swaps the placeholder body for a UAL character or impostor.
+## C6b: Ashsight look upgrade (real humanoid ghosts, world grade, camera pull-in, scrub bar)
+One node does the whole moment. Replace the bare `replay_view.show_incident(...)` call above with:
+```gdscript
+# once, when the world is built (any node under the 3D world; needs the game's Camera3D)
+var ash := AshsightController.new()
+world.add_child(ash)
+ash.setup(main_camera, world_env.environment, func(p: Vector2) -> float: return WorldGen.height(p.x, p.y))   # env + ground are optional
+ash.warm()        # optional, awaitable: builds the 8 ghost bodies one per frame (call at Region 1 load, not at first kneel)
+# kneel at a site (replaces replay_view.show_incident):
+var ids := mem.incidents_near(Vector2(player.x, player.z), 40.0)
+if ids.is_empty(): Game.say("The ashes here are cold.")
+else: ash.show_incident(mem, ids[0])
+```
+- **Camera:** while `ash.active` (and until `ash.cam_rig.active` is false again, about 1 s after it ends) do NOT write the camera's transform: a PhantomCameraHost on the camera blends to an Ashsight pcam (soft pull-in that frames the ghosts) and back to a copy of the player's view. Without the addon it falls back to a damped move.
+- **Grade:** `AshsightGrade` is one full-screen pass (drawn before the ghosts, so they keep their colours): desaturate + warm + vignette + drifting ash flakes, only while replaying. LOW tier has no pass (only the bound Environment's saturation) and fewer motes. Tier comes from `Quality.tier` (LOW / MEDIUM / HIGH+); force it with `ash.detail = 0..2`.
+- **HUD:** `AshsightHud` (in a CanvasLayer 20): title, caption of the current beat, scrub bar (drag, beat ticks), play/pause, slow motion 1x/0.5x/0.25x (`ash.cycle_slow_motion()`), close. `show_hud = false` if the game draws its own.
+- **Ghost animation beats** (new, optional): besides paths, emitters can record per-actor beats that the ghosts play as real clips at the recorded instant:
+```gdscript
+mem.act(incident_id, AshMemory.clock(), actor_id, &"attack")   # the instant the blow lands; also &"hit", &"death", &"chisel"
+```
+  (`road_events.gd` when a bandit attacks / a soldier is hit; `death` where a villager or soldier dies; `chisel` for the saboteur.) Ghost bodies: bandits use `ARMORED/bandit`, villagers MakeHuman villagers, all with `Assets`' UAL clip library; clip choices are data in `ash_ghost_clips.gd`.
+- **Sandbox:** `tools_qa/region1/ashsight_farm.tscn` (burned farm, 4 bandits + 2 villagers): `-- --check`, `-- --bench`, `-- --tier=low|med|high`, `-- --gallery`. Frame sheets: `docs/regions/ashsight/`.
+
 ## H3: coverage override for Wardlines (package L7)
 `Wardlines.coverage_at(p)` is a drop-in for `RARunestoneNetwork.coverage(p)` (same 0..1 falloff). Every consumer (`RAThreatMap.evaluate`, `ecology.tick_day(runestones.coverage, ...)`, the Frontier spawn loops) already goes through `runestones.coverage`, so the smallest hook is inside that one function, `kingdom/scripts/sim/runestone_network.gd` (4 lines):
 
