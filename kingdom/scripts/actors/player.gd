@@ -47,9 +47,13 @@ const RUN := 6.5
 ## braking and turning are separate rules instead of one smoothing constant.
 ## Acceleration is strongest from a standstill (the first step answers the
 ## stick at once) and eases off toward top speed, so a run still builds.
-const ACCEL_START := 34.0        # m/s² at rest
+const ACCEL_START := 17.0        # m/s² at rest (FEEL_AUDIT F2: 34 reached walk speed in 2 frames, before the first step)
 const ACCEL_TOP := 11.0          # m/s² near RUN
-const MOVE_BRAKE := 30.0         # m/s² when the stick is released or the target speed drops
+const MOVE_BRAKE := 30.0         # m/s² when the target speed drops while still moving (sprint -> walk)
+## Releasing the stick: braking eases with speed so a run takes 2-3 decelerating
+## steps instead of stopping dead in 0.2 s (FEEL_AUDIT F1). Walk stops stay short.
+const STOP_BRAKE_WALK := 16.0     # m/s² from walking pace (2.4 m/s -> 0.15 s)
+const STOP_BRAKE_RUN := 15.0      # m/s² from a run (6.5 m/s -> 0.43 s, ~1.4 m)
 const PIVOT_BRAKE := 42.0        # m/s² when reversing out of a run: plant, then go
 const PIVOT_ANGLE := 2.3         # rad (~130°) between travel and stick that triggers a pivot
 const PIVOT_EXIT_SPEED := 1.2    # a pivot sets off in the new direction below this speed
@@ -57,7 +61,7 @@ const PIVOT_EXIT_SPEED := 1.2    # a pivot sets off in the new direction below t
 ## faster than travel, so the body leads a turn instead of sliding sideways.
 const TRAVEL_TURN_WALK := 16.0   # rad/s
 const TRAVEL_TURN_RUN := 9.0
-const FACE_TURN_IDLE := 20.0     # rad/s: 180° turn on the spot in ~0.17 s
+const FACE_TURN_IDLE := 14.0     # rad/s: 180° on the spot in ~0.25 s (was 20: a 0.13 s 90° spin, FEEL_AUDIT F7)
 const FACE_TURN_RUN := 11.0
 const FACE_SHARPNESS := 16.0
 ## Air control after the coyote window, as a fraction of ground response.
@@ -141,11 +145,19 @@ const PARRY_BONUS_TIME := 1.0
 const PARRY_DAMAGE := 1.5
 const PARRY_HIT_STOP := 0.12
 const COMBO := [
-	{"anim": "1H_Melee_Attack_Chop", "damage": 14, "lock": 0.42, "hit": 0.2, "speed": 1.7, "cost": 10.0},
-	{"anim": "1H_Melee_Attack_Slice_Diagonal", "damage": 14, "lock": 0.42, "hit": 0.18, "speed": 1.7, "cost": 10.0},
-	{"anim": "1H_Melee_Attack_Slice_Horizontal", "damage": 18, "lock": 0.45, "hit": 0.2, "speed": 1.6, "cost": 12.0},
-	{"anim": "1H_Melee_Attack_Stab", "damage": 30, "lock": 0.6, "hit": 0.26, "speed": 1.4, "cost": 16.0, "knockback": 7.0},
+	# "hit" = when the blade actually passes (hand-speed peak measured on the player rig by
+	# tools_qa/feel_capture/measure_hits.gd, divided by "speed"); damage, hitstop and sparks land
+	# there and the slash arc starts SLASH_LEAD earlier (FEEL_AUDIT F3: the old values fired the
+	# horizontal slice 0.2 s before its blade moved).
+	{"anim": "1H_Melee_Attack_Chop", "damage": 14, "lock": 0.42, "hit": 0.15, "speed": 1.7, "cost": 10.0},
+	{"anim": "1H_Melee_Attack_Slice_Diagonal", "damage": 14, "lock": 0.42, "hit": 0.16, "speed": 1.7, "cost": 10.0},
+	{"anim": "1H_Melee_Attack_Slice_Horizontal", "damage": 18, "lock": 0.5, "hit": 0.29, "speed": 2.2, "cost": 12.0},
+	{"anim": "1H_Melee_Attack_Stab", "damage": 30, "lock": 0.6, "hit": 0.29, "speed": 1.4, "cost": 16.0, "knockback": 7.0},
 ]
+## The slash arc needs ~0.07 s to read, so it spawns this long before the hit.
+const SLASH_LEAD := 0.07
+## Attack lunge stops short of the target: never push the body into the enemy (FEEL_AUDIT F4).
+const LUNGE_STANDOFF := 1.3
 const COMBO_WINDOW := 0.45
 
 var max_health := 120
@@ -855,7 +867,8 @@ func _steer(target: Vector3, delta: float, control: float) -> void:
 	var want_speed := target.length()
 	if want_speed < 0.05:
 		_pivoting = false
-		_move_speed = move_toward(_move_speed, 0.0, MOVE_BRAKE * control * delta)
+		var stop_brake := lerpf(STOP_BRAKE_WALK, STOP_BRAKE_RUN, clampf((_move_speed - WALK) / (RUN - WALK), 0.0, 1.0))
+		_move_speed = move_toward(_move_speed, 0.0, stop_brake * control * delta)
 		return
 	var want_dir := target / want_speed
 	var run_t := clampf(_move_speed / RUN, 0.0, 1.0)
@@ -1094,17 +1107,24 @@ func _start_swing() -> void:
 	_combo = (_combo + 1) % COMBO.size() if _combo_window > 0.0 else 0
 	var step: Dictionary = COMBO[_combo]
 	var weak: bool = stamina < step["cost"]
+	# A tired swing plays at 0.7x, so its blade (and hit) arrives later too.
+	var hit_t: float = float(step["hit"]) / (0.7 if weak else 1.0)
 	_spend(step["cost"])
 	# Target assist: face the locked target, else snap toward an enemy roughly in front.
 	var target: Node3D = _lock if is_instance_valid(_lock) else _nearest_enemy(3.8, 0.1)
 	if target:
 		var to := target.global_position - global_position
 		_model.rotation.y = atan2(to.x, to.z)
-	_kick(facing() * ATTACK_LUNGE)
+	var lunge := ATTACK_LUNGE
+	if target:
+		# Travel under IMPULSE_DECEL is v²/(2a): pick v so the step ends at the standoff.
+		var gap := Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length() - LUNGE_STANDOFF
+		lunge = clampf(sqrt(maxf(gap, 0.0) * 2.0 * IMPULSE_DECEL), 0.0, ATTACK_LUNGE)
+	_kick(facing() * lunge)
 	_swing_id += 1
 	_swing = step["lock"]
 	_swing_elapsed = 0.0
-	_swing_hit = step["hit"]
+	_swing_hit = hit_t
 	_swing_cancel = step["lock"] * SWING_CANCEL
 	_combo_window = step["lock"] + COMBO_WINDOW
 	if _combo == COMBO.size() - 1:
@@ -1128,11 +1148,11 @@ func _start_swing() -> void:
 		arc_col = Color(1.0, 0.97, 0.55)
 	var id := _swing_id
 	var combo := _combo
-	get_tree().create_timer(step["hit"] * 0.55).timeout.connect(func() -> void:
+	get_tree().create_timer(maxf(hit_t - SLASH_LEAD, 0.02)).timeout.connect(func() -> void:
 		if is_inside_tree() and id == _swing_id:
 			VFX.slash(get_parent(), global_position + Vector3(0, 1.15 * Life.body_scale(), 0), yaw,
 				tilts[combo % tilts.size()], arc_col, 1.6))
-	get_tree().create_timer(step["hit"]).timeout.connect(_resolve_hit.bind(damage, knock, _combo == COMBO.size() - 1, id))
+	get_tree().create_timer(hit_t).timeout.connect(_resolve_hit.bind(damage, knock, _combo == COMBO.size() - 1, id))
 
 
 func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> void:

@@ -3,11 +3,12 @@
 The local session updates this file whenever a task starts or finishes. **Cloud session: read it after each pull.**
 Who owns which area: `docs/LOCAL_SESSION_HANDOFF.md`.
 
-_Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
+_Last update: 2026-09-29 (feel pass: animation and movement audit + fixes)_
 
 ## Done (recent)
 | Date | What | Where | Commit |
 |---|---|---|---|
+| 09-29 | **Feel pass (animation director)**: in-game Movie Maker audit of 18 situations (`tools_qa/feel_capture`), ranked issues in `docs/anim/FEEL_AUDIT.md`. Fixed: run stop (0.23 s dead stop -> 0.40 s with decelerating steps), walk-start foot slide, idle turn spin, combo hit and slash timing measured from the blade, lunge into enemies, enemy knockback teleport -> slide, villager idle desync. Codex patches P1-P6 in `docs/anim/patches/`. NPC foot IK was tried and reverted (-14 to -22 fps on HIGH). Before/after in `docs/anim/feel/` | `player.gd`, `wolf.gd`, `monster.gd`, `villager.gd`, `procedural_rig.gd` (surgical), `tools_qa/feel_capture/`, `tools/qa/feel_sheets.sh` | (this commit) |
 | 09-28 | Boot crash fixed (threaded mesh loads → main-thread `Assets.scene`) | `scripts/world/region_dressing.gd`, `assets.gd` | 0137fa0d, 64b3698e |
 | 09-28 | Godot 4.6.3 (quit crash fixed) | launchers, `tools/qa` | a5a596b7 |
 | 09-29 | **L14 main quest + L16 tutorial director**: "The Stones Are Dimming" Acts I-V (30 steps, 5 dialogue files, 12-person cast), story lint with full autoplay (2592/2592 combinations), 12 contextual tutorial prompts with en/nl strings, sandbox sheet | `data/region1/quests/`, `data/region1/dialogue/`, `scripts/region1/`, `tools_qa/region1/`, `docs/regions/STORY_R1.md`, `CAST_R1.md` | e3071665 + follow-up |
@@ -87,6 +88,12 @@ NOT wired (unverified): everything in `docs/platform/boot_wiring_wip.patch` (app
 - Handoff for Codex: `docs/anim/free_library/HANDOFF_CODEX.md` (clip -> state, blend, root motion, event frames, `UAL_FILES` lines) and the HANDOFF table in the tech README.
 
 ## Backlog (animation, from the aaa-review loop)
+- (feel pass) Source and retarget run-stop, walk-start and 180° pivot clips (100STYLE/CMU) for P5; none exist in any loaded library.
+- (feel pass) NearRigPool: pooled foot IK for the N nearest NPCs, accepted only if the village HIGH bench is within 1 ms (P6).
+- (feel pass) Wolf `wolf2` model reads as a small dog and hides in the grass; scale it about 1.3x and re-check (F14).
+- (feel pass) Camera blockers for wells, canopies and overhangs; eased pull-in; a talk-shot camera (P4, F13).
+- (feel pass) The QA boot flow fails with "world veil never appeared" on this branch, with and without the feel changes. Investigate the loading or veil hand-off.
+- (feel pass) Re-capture wolves and swimming with dedicated framing (the chase is too far, and the wading test did not reach swim depth).
 - Film a real phone clip and run `video_to_clip.ps1` (only synthetic tested); then replace the authored ladder/wall/vault with mocap.
 - Codex: fold the flinch OneShot->Add2 and the foot-IK toe probe / instant-rise into `CharacterAnimator` / `procedural_rig.gd`; add `animations_free*` to `Assets.UAL_FILES` (see HANDOFF_CODEX.md; the new folders need root motion disabled in `_ual_for`).
 - Attack clips have no weapon models in the reviews; check sword/staff clips with a prop attached.
@@ -115,9 +122,9 @@ Remaining: not wired into ElementFX; fire sheet is v1 (flat disc start); no grou
 The local session updates this file whenever a task starts or finishes. **Cloud session: read it after each pull.**
 Who owns which area: `docs/LOCAL_SESSION_HANDOFF.md`.
 
-_Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
-_Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
-_Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
+_Last update: 2026-09-29 (feel pass: animation and movement audit + fixes)_
+_Last update: 2026-09-29 (feel pass: animation and movement audit + fixes)_
+_Last update: 2026-09-29 (feel pass: animation and movement audit + fixes)_
 
 ## Done (recent)
 | Date | What | Where | Commit |

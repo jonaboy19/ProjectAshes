@@ -26,6 +26,10 @@ const Models := preload("res://scripts/actors/creature_models.gd")
 const Tokens := preload("res://scripts/actors/creature_attack_tokens.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const PLAYER_SOLID_RANGE := 16.0
+## Hit knockback plays out as a short slide (time constant KNOCK_TAU, same 0.12 m per
+## unit of knockback as before) instead of an instant teleport (FEEL_AUDIT F5).
+const KNOCK_TAU := 0.1
+const KNOCK_SHARE := 0.12
 const WORLD_LAYER := 1
 const ENEMY_LAYER := 4
 ## Player walks at 2.4 m/s and runs at 6.5 m/s (player.gd), so "run" stays below it.
@@ -79,6 +83,7 @@ var _think := 0.0
 var _attack_cd := 0.0
 var _busy := 0.0
 var _speed := 0.0
+var _knock := Vector3.ZERO        # sliding knockback velocity (m/s)
 var _foe: Node3D
 var _actor_shape: CollisionShape3D
 var _walk_clip_speed := 0.65
@@ -206,6 +211,10 @@ func prompt() -> String:
 func _physics_process(delta: float) -> void:
 	if dead:
 		return
+	if _knock.length_squared() > 0.0004:
+		move_and_collide(_knock * delta)
+		global_position.y = WorldGen.height(global_position.x, global_position.z)
+		_knock *= exp(-delta / KNOCK_TAU)
 	_think -= delta
 	_attack_cd -= delta
 	_busy -= delta
@@ -491,7 +500,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		_die()
 		return
 	health -= amount
-	global_position += knockback * 0.12
+	_knock += Vector3(knockback.x, 0.0, knockback.z) * (KNOCK_SHARE / KNOCK_TAU)
 	if health <= 0:
 		if named == "" and hostile and randf() < 0.75:
 			_yield()
