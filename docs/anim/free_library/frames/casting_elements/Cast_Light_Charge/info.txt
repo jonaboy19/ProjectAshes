@@ -1,0 +1,5 @@
+source: /tmp/ce/r/Cast_Light_Charge/frames
+duration_s: 1.960000
+sample_fps: 8
+frames_per_sheet: 12  (= 1.5 s per sheet)
+sheets: 2

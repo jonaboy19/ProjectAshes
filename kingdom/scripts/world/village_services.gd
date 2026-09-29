@@ -164,7 +164,7 @@ func _role_service(role: String) -> Array:
 ## that loaded this room) is used to spot the player's own home: a house lot
 ## they own or rent gets a storage chest and, on a bed marker, a place to sleep.
 func _on_interior_entered(room: Node3D, door: InteriorDoor = null) -> void:
-	Life.crafting.scan_interior(room)
+	Life.crafting.scan_interior(room, _building_ref_for_door(door))
 	for m in room.find_children("NPC_*", "Marker3D", true, false):
 		var svc := _role_service(String(m.get_meta("role", "")))
 		if svc.is_empty():
@@ -177,6 +177,25 @@ func _on_interior_entered(room: Node3D, door: InteriorDoor = null) -> void:
 		var lot_id: String = Life.property.find_by_pos(door.get_meta("lot_pos"))
 		if lot_id != "" and Life.property.is_held(lot_id):
 			_furnish_home(room, lot_id)
+
+
+## Stable settlement/lot reference for station identity. The property registry
+## intentionally excludes civic lots such as the smithy, so resolve against
+## the canonical generated lot plan directly.
+func _building_ref_for_door(door: InteriorDoor) -> String:
+	if door == null or not door.has_meta("lot_pos"):
+		return ""
+	var lot_pos: Variant = door.get_meta("lot_pos")
+	if not lot_pos is Vector2:
+		return ""
+	for settlement_index in WorldGen.settlements.size():
+		var settlement: Dictionary = WorldGen.settlements[settlement_index]
+		var lots: Array = settlement.get("plan", {}).get("lots", [])
+		for lot_index in lots.size():
+			var pos: Vector2 = lots[lot_index].get("pos", Vector2.INF)
+			if pos.distance_squared_to(lot_pos) < 0.0001:
+				return "s%d:l%d" % [settlement_index, lot_index]
+	return ""
 
 
 const HomeChest := preload("res://scripts/world/home_chest.gd")
@@ -1011,6 +1030,9 @@ static func _culture_greeting(c: Dictionary) -> Array:
 func _recent_events(id: String, now: float) -> Array:
 	var rel := relationships()
 	var ev: Array = []
+	# Conversation knowledge is local to the participant, not a world broadcast.
+	for memory: Dictionary in rel.topic_context(id, now):
+		ev.append("discussed:" + String(memory["topic"]))
 	if rel.has_modifier(id, "insult", now) and now - rel.modifier_day(id, "insult") < 20.0:
 		ev.append("insulted")
 	if now - rel.modifier_day(id, "chores") < 2.0:
@@ -1207,6 +1229,9 @@ func _enter(node: String) -> void:
 	var d := DialogueRunner.load_file(_talk["file"])
 	var line := DialogueRunner.pick_line(d, node, _talk_ctx(info), _rng)
 	_talk["line"] = String(line.get("text", "…"))
+	if not line.is_empty() and DialogueRunner.node_exists(d, node):
+		relationships().remember_topic(String(info["id"]), "%s:%s" % [_talk["file"], node],
+			_now(), String(_talk["file"]))
 	var msg := _do_actions(line.get("do", []))
 	if msg != "":
 		_talk["line"] += "\n\n" + msg

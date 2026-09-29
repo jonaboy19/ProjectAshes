@@ -1,0 +1,360 @@
+{
+	"id": "r1_act3",
+	"_comment": "The Stones Are Dimming, Act III: Relics and Rot (Silverford, Kingsreach, Greenhollow, the Stagborn Glade). Teaches the Scar Tide (N2); reveals why the stones dim (Ember Legacy, N3). Story v2 adds the twist (Idra has fed the Miller's Stone with her own ember for 30 years), the last good Kindling Night, Maren's death holding the ring, and Bram's betrayal (the ledger, bram_fate). Format: see r1_act1.json.",
+	"start": "odrin_meet",
+	"nodes": {
+
+		"odrin_meet": {
+			"speaker": "odrin_thale",
+			"lines": [
+				{"text": "You. The unlicensed child carving Crown stones with a borrowed chisel."},
+				{"text": "Apprentice. You're late, and your strokes are loud. I can hear them from here.", "if": {"flag": "r1.path.guild"}, "p": 1}
+			],
+			"choices": [{"text": "The stones were dark.", "goto": "odrin_meet_2"}]
+		},
+		"odrin_meet_2": {
+			"speaker": "odrin_thale",
+			"lines": [{"text": "Charter, section four: only Guild hands carve. A careless glyph can split a stone in two."}],
+			"choices": [{"text": "Then test me.", "goto": "odrin_test"}]
+		},
+		"odrin_test": {
+			"speaker": "odrin_thale",
+			"lines": [{"text": "Alarm glyph, on the test stone. If it hums, you get a licence. If it cracks, you get a bill."}],
+			"choices": [{"text": "Fair.", "goto": "@end", "do": [["flag", "r1.a3.test"]]}]
+		},
+		"odrin_after": {
+			"speaker": "odrin_thale",
+			"lines": [{"text": "...Clean. Irritatingly clean. Section nine: I may license prodigies. Don't let it go to your head."}],
+			"choices": [{"text": "Now, the ledgers.", "goto": "odrin_ledger", "do": [["give", "runecarver_licence", 1], ["rep", "guilds", 10]]}]
+		},
+		"odrin_ledger": {
+			"speaker": "odrin_thale",
+			"lines": [{"text": "Repairs this year: three times last year's. Four times the year before. None of them hold."}],
+			"choices": [{"text": "Why not?", "goto": "odrin_ledger_2"}]
+		},
+		"odrin_ledger_2": {
+			"speaker": "odrin_thale",
+			"lines": [{"text": "Because the glyphs aren't failing. The stones are empty. And nobody listens to a mason."}],
+			"choices": [{"text": "I'm listening.", "goto": "odrin_ledger_3"}]
+		},
+		"odrin_ledger_3": {
+			"speaker": "odrin_thale",
+			"lines": [{"text": "Then take this to the Council. The Warden has an audience. Stand behind her and look competent."}],
+			"choices": [{"text": "I'll try.", "goto": "@end", "do": [["flag", "r1.a3.ledger"]]}]
+		},
+
+		"imra_market": {
+			"speaker": "imra_solvane",
+			"lines": [{"text": "A sunstone, friend? Too dear? Then sunstone oil. It burns the things that should not grow."}],
+			"choices": [{"text": "What shouldn't grow?", "goto": "imra_market_2"}]
+		},
+		"imra_market_2": {
+			"speaker": "imra_solvane",
+			"lines": [{"text": "The purple. It creeps from our own Rift, in the south. Fire takes it back. Slowly. Patiently."}],
+			"choices": [{"text": "How much?", "goto": "imra_market_3"}]
+		},
+		"imra_market_3": {
+			"speaker": "imra_solvane",
+			"lines": [{"text": "For the one who lit the Greenhollow road? A gift. In Solkar we say: pay the lamp-lighter first."}],
+			"choices": [{"text": "Thank you.", "goto": "@end", "do": [["flag", "r1.a3.oil"], ["give", "sunstone_oil", 3]]}]
+		},
+
+		"council_open": {
+			"speaker": "king_aldric",
+			"lines": [{"text": "Warden Vell. You bring a child to my council."}],
+			"choices": [{"text": "(Stand tall.)", "goto": "council_idra"}]
+		},
+		"council_idra": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "I bring the only carver in the Vale under sixty, Majesty. And a ledger."}],
+			"choices": [{"text": "(Hand over the ledger.)", "goto": "council_lucan"}]
+		},
+		"council_lucan": {
+			"speaker": "lucan",
+			"lines": [{"text": "Majesty, the Dawn Throne offers relics. They shine without anyone's dead inside them."}],
+			"choices": [{"text": "What do they cost?", "goto": "council_lucan_2"}]
+		},
+		"council_lucan_2": {
+			"speaker": "lucan",
+			"lines": [{"text": "A chapel beside each. A tithe, gently gathered. Is that so much, friend, for a lit road?"}],
+			"choices": [{"text": "...", "goto": "council_king"}]
+		},
+		"council_king": {
+			"speaker": "king_aldric",
+			"lines": [{"text": "The young carver has walked the roads. Tell me, then. What would you have me do?"}],
+			"choices": [
+				{"text": "Take the relics. People die now.", "goto": "council_accept", "do": [["flag", "r1.relic.accepted"], ["rep", "church", 15], ["rep", "runeward", -5]]},
+				{"text": "Refuse. The stones are ours.", "goto": "council_refuse", "do": [["flag", "r1.relic.refused"], ["rep", "crown", 5], ["rep", "church", -10]]},
+				{"text": "Borrow one. For Greenhollow.", "goto": "council_bargain", "do": [["flag", "r1.relic.bargained"], ["rep", "church", 5]]}
+			]
+		},
+		"council_accept": {
+			"speaker": "king_aldric",
+			"lines": [{"text": "Then Crownstead takes the first. Envoy, you'll have your chapels. Gods help us both."}],
+			"choices": [{"text": "(Bow.)", "goto": "council_close"}]
+		},
+		"council_refuse": {
+			"speaker": "king_aldric",
+			"lines": [{"text": "So be it. Envoy, thank your Patriarch for us. Warmly. From a distance."}],
+			"choices": [{"text": "(Bow.)", "goto": "council_close"}]
+		},
+		"council_bargain": {
+			"speaker": "lucan",
+			"lines": [{"text": "One relic, on loan, no tithe? You bargain like a Solkar. ...Very well. For Greenhollow."}],
+			"choices": [{"text": "(Bow.)", "goto": "council_close"}]
+		},
+		"council_close": {
+			"speaker": "lucan",
+			"lines": [{"text": "Whatever you believe, friend, I think the light matters more than whose it is. We'll see."}],
+			"choices": [{"text": "We'll see.", "goto": "@end", "do": [["flag", "r1.a3.council"]]}]
+		},
+
+		"captain_scar": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "Greenhollow again. The south fields have gone purple. And it's moving. I watched it move."}],
+			"choices": [{"text": "I'm going.", "goto": "captain_scar_2"}]
+		},
+		"captain_scar_2": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "Write down every stone you pass on the way. Lit, dim, dark. The ledger's all I've got."}],
+			"choices": [{"text": "Every stone.", "goto": "@end", "do": [["flag", "r1.a3.scar_news"]]}]
+		},
+		"gilda_scar": {
+			"speaker": "gilda_pennick",
+			"lines": [{"text": "It crawled another field since breakfast. Burn it or sell it, I don't care. Just stop it."}],
+			"choices": [{"text": "Sell it?", "goto": "gilda_scar_2"}]
+		},
+		"gilda_scar_2": {
+			"speaker": "gilda_pennick",
+			"lines": [{"text": "Crystal grows in it. The Edge pays silver a shard. Half the valley's thinking about it."}],
+			"choices": [{"text": "(Look at the violet line.)", "goto": "@end", "do": [["flag", "r1.a3.scar_seen"]]}]
+		},
+		"gilda_scar_after": {
+			"speaker": "gilda_pennick",
+			"lines": [
+				{"text": "It stopped. It actually stopped. Smells like burnt sugar out there. I'll take it.", "if": {"flag": "r1.scar.contained"}, "p": 1},
+				{"text": "You filled your pack and left the edge crawling. Well. Silver's silver, I suppose.", "if": {"flag": "r1.scar.harvested"}, "p": 1}
+			],
+			"choices": [{"text": "...", "goto": "@end", "do": [["flag", "r1.a3.scar_answered"]]}]
+		},
+
+		"idra_glade": {
+			"speaker": "idra_vell",
+			"lines": [
+				{"text": "The herd ran past my window at dawn. Your Thistle was with them, limping. The herd never leaves the Glade.", "if": {"flag": "r1.thistle.freed"}, "p": 1},
+				{"text": "Thistle's been screaming at my window since dawn. The herd ran past. The herd never leaves the Glade.", "if": {"flag": "r1.thistle.kept"}, "p": 1}
+			],
+			"choices": [{"text": "Then we go to the Glade.", "goto": "@end", "do": [["flag", "r1.a3.herd_fled"]]}]
+		},
+		"idra_elder": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "There. The Glade's Elder Stone. It didn't fall. It went cold, and the ground let go of it."}],
+			"choices": [{"text": "Elder Stone?", "goto": "idra_elder_2"}]
+		},
+		"idra_elder_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Five hearts. Every road stone drinks from one. The embers in them are two hundred years old."}],
+			"choices": [{"text": "Old embers go out.", "goto": "idra_elder_3"}]
+		},
+		"idra_elder_3": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Everything goes out. We used to lay new ones. Then the Crown made it a noble's right."}],
+			"choices": [{"text": "And then?", "goto": "idra_elder_4"}]
+		},
+		"idra_elder_4": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Then the Church called it heathen. Then nobody gave. We carved harder and called it repair."}],
+			"choices": [{"text": "So it's no one's fault.", "goto": "idra_elder_5"}]
+		},
+		"idra_elder_5": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "It's everyone's. That's the good news. Everyone can mend it. We relight the hearts. All five."}],
+			"choices": [{"text": "All five.", "goto": "@end", "do": [["flag", "r1.a3.done"]]}]
+		},
+
+		"idra_collapse": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Hm. Give me your arm. No, the other one. My legs have opinions today."}],
+			"choices": [{"text": "Idra, sit down.", "goto": "idra_collapse_2"}]
+		},
+		"idra_collapse_2": {
+			"speaker": "narrator",
+			"lines": [{"text": "Halfway down the Glade path, Idra's lantern goes out. So does Idra."}],
+			"choices": [{"text": "(Carry her home.)", "goto": "idra_collapse_3"}]
+		},
+		"idra_collapse_3": {
+			"speaker": "narrator",
+			"lines": [
+				{"text": "She weighs nothing. She mutters the whole way: stone dust, tea, knees. At the Miller's Stone she goes quiet."},
+				{"text": "Thistle walks beside you, nose against her hand, the whole way home. At the Miller's Stone she goes quiet.", "if": {"flag": "r1.thistle.kept"}, "p": 1}
+			],
+			"choices": [{"text": "(Look at the ash by the stone.)", "goto": "@end", "do": [["flag", "r1.a3.idra_fell"]]}]
+		},
+		"idra_secret_vision": {
+			"speaker": "narrator",
+			"lines": [{"text": "The ash here is years deep. In it: Idra, every night, alone, palm on the stone. Giving."}],
+			"choices": [{"text": "(Look closer.)", "goto": "idra_secret_2"}]
+		},
+		"idra_secret_2": {
+			"speaker": "narrator",
+			"lines": [{"text": "The night of your first glyph. She had given so much already that her hands shook."}],
+			"choices": [{"text": "(Keep looking.)", "goto": "idra_secret_3"}]
+		},
+		"idra_secret_3": {
+			"speaker": "narrator",
+			"lines": [{"text": "Your Blessing. The whole ring drinks from her at once. She smiles, and sits down hard."}],
+			"choices": [{"text": "(Let go of the ash.)", "goto": "idra_confess"}]
+		},
+		"idra_confess": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "You weren't meant to see that. Hm. Ash never could keep its mouth shut."}],
+			"choices": [{"text": "How long?", "goto": "idra_confess_2"}]
+		},
+		"idra_confess_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Thirty years. Ashford's heart went cold before you were born. I didn't ask anyone."}],
+			"choices": [{"text": "Why not?", "goto": "idra_confess_3"}]
+		},
+		"idra_confess_3": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Because nobody gives any more. So I did. Everyone can mend it. I just started early."}],
+			"choices": [
+				{"text": "You're dying.", "goto": "idra_confess_4"},
+				{"text": "(Take her hand.)", "goto": "idra_confess_4"}
+			]
+		},
+		"idra_confess_4": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Everybody is, love. I'm just doing it on purpose. Now. Kindling Night. Your mother's waiting."}],
+			"choices": [{"text": "(Help her up.)", "goto": "@end", "do": [["flag", "r1.a3.idra_truth"]]}]
+		},
+
+		"mother_kindling": {
+			"speaker": "mother",
+			"lines": [{"text": "We lit Kindling early this year. For Idra. Look at you, taller than the lanterns. Sit. Eat. No stones tonight."}],
+			"choices": [
+				{"text": "Where's the Guard?", "goto": "bram_feast"},
+				{"text": "(Sit. Eat.)", "goto": "father_feast"}
+			]
+		},
+		"bram_feast": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "Sent to Greenhollow. Scar again. Just me and the honey cakes tonight. I'll manage."}],
+			"choices": [{"text": "(Take a cake.)", "goto": "father_feast"}]
+		},
+		"father_feast": {
+			"speaker": "father",
+			"lines": [{"text": "Maren says she can still beat me with one arm. I say she's right. We're settling it anyway."}],
+			"choices": [{"text": "(Cheer.)", "goto": "maren_feast"}]
+		},
+		"maren_feast": {
+			"speaker": "maren_coldbrook",
+			"lines": [{"text": "Feet, old man! Block with the wood! ...He blocks with his face. Every time. Like father, like child."}],
+			"choices": [{"text": "(Laugh.)", "goto": "wren_feast"}]
+		},
+		"wren_feast": {
+			"speaker": "wren_coldbrook",
+			"lines": [
+				{"text": "Thistle's eaten three lanterns and Aunt Maren's hat. Best Kindling ever. Don't tell her about the hat."},
+				{"text": "Aunt Maren's winning. Your father's losing. I wish Thistle could see this. Best Kindling ever.", "if": {"flag": "r1.thistle.freed"}, "p": 1}
+			],
+			"choices": [{"text": "Best Kindling ever.", "goto": "@end", "do": [["flag", "r1.a3.feast"]]}]
+		},
+
+		"ring_dark": {
+			"speaker": "narrator",
+			"lines": [
+				{"text": "Mid-song, every stone in the ring goes out at once. In the dark, something laughs like a wolf."},
+				{"text": "Corin's warning came an hour late: they're cutting Ashford tonight. Then every stone goes out.", "if": {"flag": "r1.corin.informant"}, "p": 1}
+			],
+			"choices": [{"text": "(Run for the ring.)", "goto": "maren_hold"}]
+		},
+		"maren_hold": {
+			"speaker": "maren_coldbrook",
+			"lines": [{"text": "Line's cut! I'll hold the heart-stone. You hold them off me. Staff up!"}],
+			"choices": [{"text": "Maren, your arm!", "goto": "maren_hold_2"}]
+		},
+		"maren_hold_2": {
+			"speaker": "maren_coldbrook",
+			"lines": [{"text": "Got one left. It's the good one. GO."}],
+			"choices": [{"text": "(Staff up.)", "goto": "@end", "do": [["flag", "r1.a3.ring_dark"]]}]
+		},
+		"maren_last": {
+			"speaker": "maren_coldbrook",
+			"lines": [{"text": "Hm. Not bad. Not good. Not bad."}],
+			"choices": [{"text": "Hold on. Idra's coming.", "goto": "maren_last_2"}]
+		},
+		"maren_last_2": {
+			"speaker": "maren_coldbrook",
+			"lines": [{"text": "Forty slept, last time. Whole village tonight. Fair trade. Better than fair."}],
+			"choices": [
+				{"text": "Don't. Please.", "goto": "maren_last_3"},
+				{"text": "(Hold her hand.)", "goto": "maren_last_3"}
+			]
+		},
+		"maren_last_3": {
+			"speaker": "maren_coldbrook",
+			"lines": [{"text": "Look after Wren. She cries when she's angry. Tell her... staff up."}],
+			"choices": [{"text": "(...)", "goto": "maren_last_4"}]
+		},
+		"maren_last_4": {
+			"speaker": "narrator",
+			"lines": [{"text": "Her ember rises, and does not leave. It sinks into the heart-stone. The ring burns gold."}],
+			"choices": [{"text": "(Stay with her.)", "goto": "maren_last_5"}]
+		},
+		"maren_last_5": {
+			"speaker": "narrator",
+			"lines": [{"text": "The first new ember laid in the Vale in two hundred years."}],
+			"choices": [{"text": "(...)", "goto": "@end", "do": [["flag", "r1.a3.maren_gone"]]}]
+		},
+
+		"ledger_vision": {
+			"speaker": "narrator",
+			"lines": [{"text": "In the ash, a Guard's warden-key opens the line housing. A hand pulls the pin. A voice, counting."}],
+			"choices": [{"text": "(Listen.)", "goto": "ledger_vision_2"}]
+		},
+		"ledger_vision_2": {
+			"speaker": "narrator",
+			"lines": [{"text": "Nine. Forty-one. Sixty. The watcher from the Pennick farm lifts his lantern. Captain Hollis."}],
+			"choices": [{"text": "(Find him.)", "goto": "bram_confess"}]
+		},
+		"bram_confess": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "I'm not running. Sit, if you like. I did the sum, and the sum was wrong."}],
+			"choices": [{"text": "Why?", "goto": "bram_why", "do": [["flag", "r1.a3.confronted"]]}]
+		},
+		"bram_why": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "The Crown only redraws lines for places that scream. So I made the Vale scream."}],
+			"choices": [{"text": "With what?", "goto": "bram_why_2"}]
+		},
+		"bram_why_2": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "Your reports. Every stone you lit, every one failing. I sold the list. Failing ones first."}],
+			"choices": [{"text": "You used me.", "goto": "bram_why_3"}]
+		},
+		"bram_why_3": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "I did. Best ledger I ever had. One dark night, I told them. Just one. Then the wolves came."}],
+			"choices": [{"text": "Maren is dead.", "goto": "bram_why_4"}]
+		},
+		"bram_why_4": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "I know. I've been counting what she was worth all night. It won't come out."}],
+			"choices": [
+				{"text": "In chains. The King decides.", "goto": "bram_chained", "do": [["flag", "r1.bram.chained"], ["rep", "crown", 5]]},
+				{"text": "Go. Live with that sum.", "goto": "bram_spared", "do": [["flag", "r1.bram.spared"]]}
+			]
+		},
+		"bram_chained": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "Fair. Don't tell your father it was me. He'd want to hit me, and he'd be right."}],
+			"choices": [{"text": "(Call the Guard.)", "goto": "@end"}]
+		},
+		"bram_spared": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "That's crueller than chains. You know that. ...Thank you."}],
+			"choices": [{"text": "(Walk away.)", "goto": "@end"}]
+		}
+	}
+}

@@ -1,5 +1,0 @@
-source: /c/Users/Jonna/Documents/ProjectAshes_art_staging/stag/fr/warden/death
-duration_s: 1.680000
-sample_fps: 12
-frames_per_sheet: 12  (= 1 s per sheet)
-sheets: 2

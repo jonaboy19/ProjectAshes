@@ -168,4 +168,5 @@ for j in range(2):
     k.box((0.18 - j * 0.06, 0.005, 0.015), (HX - 0.18, FY - 0.115, 1.25 - j * 0.07), W, hexc("e8e4da"), var=0)
 k.stage("goods")
 
+k.pbr = dict(size=512, seed=8 + V, ao_dist=0.35, cage=0.03, ray=0.08)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((3.5, 2.5), 2964, cam_dir=(0.9, -1.6, 0.8), fit=0.9)

@@ -52,4 +52,5 @@ k.tube(sc, [0.012] * len(sc), MT, IRON, segs=4, point_end=False)
 k.sphere(0.03, (0, -0.78, AZ), MT, IRON, subdiv=1)
 k.lantern((0, -0.62, AZ - 0.02), s=1.35)
 
+k.pbr = dict(size=512, seed=25, ao_dist=0.3, cage=0.02, ray=0.06)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((1.0, 1.4), 3000, cam_dir=(1.1, -1.5, 0.45), fit=1.1)

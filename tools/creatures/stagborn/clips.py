@@ -2,7 +2,7 @@
 (attack = telegraphed antler gore, run_charge = head-down gallop, roar = rear-up telegraph for the Warden).
 Authoring works in armature space: offsets are rotations about the armature X/Y/Z axes converted into each bone's local frame,
 layered on a sampled base clip (idle / stock headbutt / gallop), then baked to keys. Hooves are ground-fixed per frame."""
-import bpy, math
+import bpy, math, mathutils, os
 from mathutils import Vector, Quaternion, Euler, Matrix
 
 RENAME = {"Idle": "idle", "Idle_2": "idle_alt", "Eating": "graze", "Walk": "walk", "Gallop": "run",
@@ -115,83 +115,124 @@ def build(variant, arm):
                 k = round(L0 * k) / L0
             retime(a, k); stock[new] = a
     rig = Rig(arm)
-    for nm in ("walk", "run"):
-        equalize_stance(rig, nm)
-    stock["walk"] = D.actions["walk"]; stock["run"] = D.actions["run"]
+    ONLY = os.environ.get("CLIPS_ONLY")            # dev: author just this clip (roar_dev.py)
+    if not ONLY:
+        for nm in ("walk", "run"):
+            equalize_stance(rig, nm)
+        lock_feet(rig, "walk")                       # planted hooves pinned (IK, baked): no slide
+        stock["walk"] = D.actions["walk"]; stock["run"] = D.actions["run"]
     idle = stock["idle"]; idle_len = idle.frame_range[1] - idle.frame_range[0]
     def idle_at(f): return rig.sample(idle, (f % idle_len))
 
-    # ---------------------------------------------------- attack: telegraph -> stock antler strike -> gore toss -> recover
-    T0, T1 = 22, 24                # telegraph frames (elk-time); stock strike length
-    butt = stock["attack_butt"]; b_len = 24 * ts * 1.25 / 1.25
-    tele_rot = {
-        "Neck1": {"x": [(0, 0), (6, 5), (14, 11), (22, 12)]}, "Neck2": {"x": [(0, 0), (6, 6), (14, 14), (22, 16)]},
-        "Neck3": {"x": [(0, 0), (6, 8), (14, 18), (22, 20)]}, "Head": {"x": [(0, 0), (6, 12), (14, 30), (22, 42)],
-                                                                    "z": [(0, 0), (12, 0), (14, -7), (17, 7), (20, -5), (22, 0)]},
-        "Torso": {"x": [(0, 0), (10, -3), (22, -3)]},
-        "FrontUpperLeg.L": {"x": [(0, 0), (4, 0), (7, -44), (11, 14), (14, -44), (18, 14), (22, 0)]},
-        "FrontLowerLeg.L": {"x": [(0, 0), (4, 0), (7, 60), (11, 6), (14, 60), (18, 6), (22, 0)]},
-        "Tail1": {"x": [(0, 0), (8, -12), (16, -6), (22, -14)]},
-    }
-    lean = 0.10 * K
-    ang = math.degrees(math.asin(min(0.99, lean / (0.86 * K))))
-    strike_rot = {
-        "Neck1": {"x": [(8, 0), (11, -6), (14, -10), (20, -4), (24, 0)]}, "Neck2": {"x": [(8, 0), (11, -8), (14, -14), (20, -5), (24, 0)]},
-        "Neck3": {"x": [(8, 0), (11, -10), (14, -17), (20, -6), (24, 0)]}, "Head": {"x": [(8, 0), (11, -14), (14, -26), (20, -8), (24, 0)]},
-        "FrontUpperLeg.L": {"x": [(0, 0), (3, ang), (10, ang), (20, 0)]}, "FrontUpperLeg.R": {"x": [(0, 0), (3, ang), (10, ang), (20, 0)]},
-    }
-    strike_loc = {"Torso": {"y": [(0, 0), (3, -lean), (10, -lean), (20, 0)]}}
-    n_att = int(round((T0 + T1 + 10) * ts))
-    poses_att = []
-    hold = None
-    for f in range(n_att):
-        e = f / ts
-        if e < T0:
-            p = apply_offsets(rig, idle_at(f), tele_rot, {}, e)
-            hold = p
-        elif e < T0 + T1:
-            st = e - T0
-            sp = rig.sample(butt, st * ts)
-            p = blend_pose(hold, sp, ss(st / 6.0))
-            p = apply_offsets(rig, p, strike_rot, strike_loc, st)
-        else:
-            k = (e - T0 - T1) / 10.0
-            end_pose = apply_offsets(rig, rig.sample(butt, (T1) * ts), strike_rot, strike_loc, T1 - 0.01)
-            p = blend_pose(end_pose, idle_at(f), ss(k))
-        poses_att.append(p)
-    bake(rig, "attack", poses_att)
-
-    # ---------------------------------------------------- run_charge: gallop with the head down, antlers levelled at the target
-    run = stock["run"]; rl = int(round(run.frame_range[1] - run.frame_range[0]))
-    ch_rot = {"Neck1": {"x": [(0, 6)]}, "Neck2": {"x": [(0, 8)]}, "Neck3": {"x": [(0, 10)]}, "Head": {"x": [(0, 56)]}}
-    poses = [apply_offsets(rig, rig.sample(run, f), ch_rot, {}, 0) for f in range(rl + 1)]
-    bake(rig, "run_charge", poses)
-
-    # ---------------------------------------------------- roar (Warden): crouch, rear up, head thrown back and shaken, slam down
-    if W:
-        R = {
-            "Neck1": {"x": [(0, 0), (8, 6), (14, -8), (26, -20), (40, -18), (50, 6), (56, 0)]},
-            "Neck2": {"x": [(0, 0), (8, 8), (14, -10), (26, -24), (40, -22), (50, 8), (56, 0)]},
-            "Neck3": {"x": [(0, 0), (8, 8), (14, -12), (26, -26), (40, -24), (50, 8), (56, 0)]},
-            "Head": {"x": [(0, 0), (8, 10), (14, -10), (26, -30), (40, -26), (50, 10), (56, 0)],
-                     "z": [(24, 0), (27, 12), (30, -12), (33, 12), (36, -12), (39, 10), (42, -6), (45, 0)]},
-            "Torso": {"x": [(0, 0), (8, 4), (26, -34), (40, -34), (48, 6), (52, -2), (56, 0)]},
-            "Torso2": {"x": [(0, 0), (8, 3), (26, -8), (40, -8), (48, 3), (56, 0)]},
-            "FrontUpperLeg.L": {"x": [(0, 0), (8, 6), (22, -38), (40, -38), (48, 10), (52, 0)]},
-            "FrontUpperLeg.R": {"x": [(0, 0), (8, 6), (22, -30), (40, -34), (48, 10), (52, 0)]},
-            "FrontLowerLeg.L": {"x": [(0, 0), (22, 62), (40, 66), (48, 0)]}, "FrontLowerLeg.R": {"x": [(0, 0), (22, 55), (40, 60), (48, 0)]},
-            "BackUpperLeg.L": {"x": [(0, 0), (8, -4), (26, -10), (40, -10), (50, 0)]}, "BackUpperLeg.R": {"x": [(0, 0), (8, -4), (26, -10), (40, -10), (50, 0)]},
-            "Tail1": {"x": [(0, 0), (26, 30), (40, 30), (52, 0)]},
+    if not ONLY:
+        # ---------------------------------------------------- attack: telegraph -> stock antler strike -> gore toss -> recover
+        T0, T1 = 22, 24                # telegraph frames (elk-time); stock strike length
+        butt = stock["attack_butt"]; b_len = 24 * ts * 1.25 / 1.25
+        tele_rot = {
+            "Neck1": {"x": [(0, 0), (6, 5), (14, 11), (22, 12)]}, "Neck2": {"x": [(0, 0), (6, 6), (14, 14), (22, 16)]},
+            "Neck3": {"x": [(0, 0), (6, 8), (14, 18), (22, 20)]}, "Head": {"x": [(0, 0), (6, 12), (14, 30), (22, 42)],
+                                                                        "z": [(0, 0), (12, 0), (14, -7), (17, 7), (20, -5), (22, 0)]},
+            "Torso": {"x": [(0, 0), (10, -3), (22, -3)]},
+            "FrontUpperLeg.L": {"x": [(0, 0), (4, 0), (7, -44), (11, 14), (14, -44), (18, 14), (22, 0)]},
+            "FrontLowerLeg.L": {"x": [(0, 0), (4, 0), (7, 60), (11, 6), (14, 60), (18, 6), (22, 0)]},
+            "Tail1": {"x": [(0, 0), (8, -12), (16, -6), (22, -14)]},
         }
-        n_r = int(round(58 * ts)); poses = []
-        for f in range(n_r):
-            poses.append(apply_offsets(rig, idle_at(f), R, {}, f / ts))
-        bake(rig, "roar", poses)
+        lean = 0.10 * K
+        ang = math.degrees(math.asin(min(0.99, lean / (0.86 * K))))
+        strike_rot = {
+            "Neck1": {"x": [(8, 0), (11, -6), (14, -10), (20, -4), (24, 0)]}, "Neck2": {"x": [(8, 0), (11, -8), (14, -14), (20, -5), (24, 0)]},
+            "Neck3": {"x": [(8, 0), (11, -10), (14, -17), (20, -6), (24, 0)]}, "Head": {"x": [(8, 0), (11, -14), (14, -26), (20, -8), (24, 0)]},
+            "FrontUpperLeg.L": {"x": [(0, 0), (3, ang), (10, ang), (20, 0)]}, "FrontUpperLeg.R": {"x": [(0, 0), (3, ang), (10, ang), (20, 0)]},
+        }
+        strike_loc = {"Torso": {"y": [(0, 0), (3, -lean), (10, -lean), (20, 0)]}}
+        n_att = int(round((T0 + T1 + 10) * ts))
+        poses_att = []
+        hold = None
+        for f in range(n_att):
+            e = f / ts
+            if e < T0:
+                p = apply_offsets(rig, idle_at(f), tele_rot, {}, e)
+                hold = p
+            elif e < T0 + T1:
+                st = e - T0
+                sp = rig.sample(butt, st * ts)
+                p = blend_pose(hold, sp, ss(st / 6.0))
+                p = apply_offsets(rig, p, strike_rot, strike_loc, st)
+            else:
+                k = (e - T0 - T1) / 10.0
+                end_pose = apply_offsets(rig, rig.sample(butt, (T1) * ts), strike_rot, strike_loc, T1 - 0.01)
+                p = blend_pose(end_pose, idle_at(f), ss(k))
+            poses_att.append(p)
+        bake(rig, "attack", poses_att)
+
+        # ---------------------------------------------------- run_charge: gallop with the head down, antlers levelled at the target
+        run = stock["run"]; rl = int(round(run.frame_range[1] - run.frame_range[0]))
+        ch_rot = {"Neck1": {"x": [(0, 6)]}, "Neck2": {"x": [(0, 8)]}, "Neck3": {"x": [(0, 10)]}, "Head": {"x": [(0, 56)]}}
+        poses = [apply_offsets(rig, rig.sample(run, f), ch_rot, {}, 0) for f in range(rl + 1)]
+        bake(rig, "run_charge", poses)
+
+    # ---------------------------------------------------- roar (Warden): see author_roar
+    if W:
+        bake(rig, "roar", author_roar(rig, idle_at))
     mesh = [o for o in D.objects if o.type == 'MESH' and len(o.vertex_groups) > 5][0]
+    for nm, lim in ((() if ONLY else (("run_charge", 30.0), ("attack", 30.0)))):     # antler tips must not dip below the ground
+        if nm in D.actions: raise_antlers(rig, mesh, nm, lim)
     for nm in ("death", "walk", "run", "run_charge", "attack", "attack_butt", "kick", "roar"):
-        if nm in D.actions: fix_floor(rig, mesh, nm, recenter=(nm == "death"))
+        if nm in D.actions and (not ONLY or nm == ONLY): fix_floor(rig, mesh, nm, recenter=(nm == "death"))
     arm.animation_data.action = None
     return rig
+
+ROAR = dict(rise0=24, top=58, hang_end=68, impact=74, shake0=78, len=114)     # beat frames (30 fps), see stagborn_README.md
+
+def _tremble(f, f0, f1, amp, freq=0.9):
+    """deterministic hang tremor, faded in/out at the ends of [f0, f1]"""
+    if f < f0 or f > f1: return 0.0
+    w = min(1.0, (f - f0) / 3.0, (f1 - f) / 3.0)
+    return amp * w * math.sin(f * freq * 2 * math.pi / 3.0) * (0.6 + 0.4 * math.sin(f * 1.7))
+
+def _pin_hind(rig, poses):
+    """slide the Body per frame so both hind hooves keep frame 0's ground position along the armature Y axis (no skating while rearing)"""
+    HB = ("BackLowerLeg.L", "BackLowerLeg.R"); y0 = None; out = []
+    for pose in poses:
+        _set_pose(rig, pose)
+        y = sum(rig.arm.pose.bones[h].tail.y for h in HB) / 2
+        if y0 is None: y0 = y
+        l, q, s = pose["Body"]; pose = dict(pose); pose["Body"] = (l + rig.loc_local("Body", (0, y0 - y, 0)), q, s)
+        out.append(pose)
+    return out
+
+TREMOR = (('Torso', 1.2), ('Head', 2.0), ('FrontUpperLeg.L', 3.0), ('FrontUpperLeg.R', 3.0), ('Neck2', 1.0))   # hang tremor amplitude, degrees
+
+def roar_offsets():
+    """(rot_offs, loc_offs) curves for the Warden roar; frames are output frames at 30 fps"""
+    B = ROAR; r0, top, he, imp, sh0, N = B["rise0"], B["top"], B["hang_end"], B["impact"], B["shake0"], B["len"]
+    # X rotation (negative = pitch nose-up). Anticipation 0-24 (weight back, crouch), slow eased rise 24-58, hang 58-68, drop 68-74, slam + bounce 74-90, settle to N.
+    R = {
+        "Torso": {"x": [(0, 0), (10, 3), (24, 7), (36, -6), (46, -22), (58, -46), (68, -46), (72, -14), (imp, 10), (imp + 5, -3), (imp + 10, 2), (90, 0)]},
+        "Torso2": {"x": [(0, 0), (24, 3), (46, -5), (58, -12), (68, -12), (imp, 5), (imp + 8, 0)]},
+        "Neck1": {"x": [(0, 0), (24, 6), (46, 2), (58, 10), (68, 10), (imp, 8), (imp + 6, 0)]},
+        "Neck2": {"x": [(0, 0), (24, 8), (48, 2), (58, 10), (68, 10), (imp, 10), (imp + 6, 0)]},
+        "Neck3": {"x": [(0, 0), (24, 8), (50, 2), (58, 10), (68, 10), (imp, 10), (imp + 6, 0)]},
+        "Head": {"x": [(0, 0), (24, 12), (50, 2), (58, 6), (62, -2), (68, 4), (imp, 12), (imp + 6, -2), (imp + 12, 0)],
+                 "z": [(sh0 - 4, 0), (sh0, 18), (sh0 + 5, -16), (sh0 + 10, 11), (sh0 + 15, -8), (sh0 + 20, 5), (sh0 + 25, -2), (sh0 + 30, 0)]},
+        "FrontUpperLeg.L": {"x": [(0, 0), (24, 8), (38, 0), (52, -38), (68, -38), (72, -10), (imp, 14), (imp + 6, 0)]},
+        "FrontUpperLeg.R": {"x": [(0, 0), (24, 8), (40, 0), (54, -34), (68, -34), (72, -8), (imp, 14), (imp + 6, 0)]},
+        "FrontLowerLeg.L": {"x": [(0, 0), (40, 0), (54, 62), (68, 62), (72, 20), (imp, 0)]},
+        "FrontLowerLeg.R": {"x": [(0, 0), (42, 0), (56, 55), (68, 55), (72, 18), (imp, 0)]},
+        "BackUpperLeg.L": {"x": [(0, 0), (24, -10), (46, -4), (58, -10), (68, -10), (imp, -14), (imp + 8, 0)]},
+        "BackUpperLeg.R": {"x": [(0, 0), (24, -10), (46, -4), (58, -10), (68, -10), (imp, -14), (imp + 8, 0)]},
+        "Tail1": {"x": [(0, 0), (58, 30), (68, 30), (imp + 6, 0)]},
+    }
+    return R, {}
+
+def author_roar(rig, idle_at):
+    R, L = roar_offsets(); B = ROAR; poses = []
+    for f in range(B["len"]):
+        p = apply_offsets(rig, idle_at(f), R, L, f)
+        tr = {b: {"x": [(0, _tremble(f, B["top"], B["hang_end"], a))]} for b, a in TREMOR}
+        p = apply_offsets(rig, p, tr, {}, 0)
+        poses.append(p)
+    return _pin_hind(rig, poses)
 
 def fix_floor(rig, mesh, nm, recenter=False):
     """lift the Body per frame so no part of the skinned mesh dips below the ground plane"""
@@ -306,3 +347,99 @@ def raise_antlers(rig, mesh, nm, limit=45.0):
     print("RAISE", nm, "frames adjusted", fixed, "of", n)
     D.actions.remove(a)
     bake(rig, nm, out, ground=False)
+
+
+# ------------------------------------------------------------------------------------------------------------------
+# Foot lock (walk): pin each planted hoof to the ground with a temporary IK constraint, baked back to FK keys.
+IK_CHAIN = {"FL": 2, "FR": 2, "BL": 3, "BR": 3}      # bones counted from the hoof bone upwards
+
+def _hoof_world(rig, pose):
+    _set_pose(rig, pose)
+    return {k: rig.arm.matrix_world @ rig.arm.pose.bones[h].tail for k, h in HOOF_OF.items()}
+
+def _runs(flags):
+    """contiguous True runs on a cyclic list -> list of index lists (each in cyclic order, starting inside the run)"""
+    n = len(flags)
+    if all(flags): return [list(range(n))]
+    if not any(flags): return []
+    s = next(i for i in range(n) if not flags[i])          # start scanning at a swing frame so no run wraps
+    out, cur = [], []
+    for j in range(1, n + 1):
+        i = (s + j) % n
+        if flags[i]: cur.append(i)
+        elif cur: out.append(cur); cur = []
+    if cur: out.append(cur)
+    return out
+
+def lock_feet(rig, nm, ramp=3, tol=0.045):
+    """Planted hooves get a constant world position (in-place clip: they slide back at the clip's ground speed, exactly),
+    blended in/out over `ramp` frames. Solved with IK constraints, then baked to FK keys (last frame duplicates the first for loops)."""
+    D = bpy.data; arm = rig.arm
+    a = D.actions[nm]; f0 = a.frame_range[0]; n = int(round(a.frame_range[1] - f0)) + 1
+    poses = [rig.sample(a, f0 + i) for i in range(n)]
+    arm.animation_data.action = None
+    m = n - 1                                             # cycle length (last key == first key)
+    hw = [_hoof_world(rig, p) for p in poses]
+    speeds = stance_speeds(rig, poses)
+    vals = [v for v in speeds.values() if v is not None]
+    v_tgt = sum(vals) / len(vals)                        # signed mean stance speed = the gait's ground speed
+    inv = arm.matrix_world.inverted()
+    tgt = {k: [None] * m for k in LEGS}
+    for k in LEGS:
+        zs = [hw[i][k].z for i in range(m)]; z0 = min(zs)
+        ysl = [hw[i][k].y for i in range(m)]
+        vel = [(ysl[(i + 1) % m] - ysl[(i - 1) % m]) * 15.0 / v_tgt for i in range(m)]   # ~1 while the hoof moves like the ground
+        flags = [z < z0 + tol and 0.4 < v < 2.2 for z, v in zip(zs, vel)]
+        for i in range(m):                       # bridge short gaps (the stock clip skates the hoof forward 0.4 m in 2 frames mid-stance)
+            if not flags[i] and zs[i] < z0 + 0.07:
+                back = any(flags[(i - j) % m] for j in range(1, 4)); fwd = any(flags[(i + j) % m] for j in range(1, 4))
+                if back and fwd: flags[i] = True
+        for run in _runs(flags):
+            # unwrap the run so the frame index grows monotonically
+            idx = []; base = run[0]
+            for r in run: idx.append(r if r >= base else r + m)
+            mid = idx[len(idx) // 2]
+            ys = [hw[i % m][k].y for i in idx]; xs = [hw[i % m][k].x for i in idx]
+            ymean = sum(ys) / len(ys); xmean = sum(xs) / len(xs); imean = sum(idx) / len(idx)
+            def lockpos(i, ymean=ymean, xmean=xmean, imean=imean, z0=z0):
+                return mathutils.Vector((xmean, ymean + v_tgt * (i - imean) / 30.0, z0))
+            for i in range(idx[0] - ramp, idx[-1] + ramp + 1):
+                d = 0 if idx[0] <= i <= idx[-1] else min(abs(i - idx[0]), abs(i - idx[-1]))
+                w = 1.0 if d == 0 else ss(1.0 - d / (ramp + 1.0))
+                cur = tgt[k][i % m]
+                base_p = hw[i % m][k]
+                p = base_p.lerp(lockpos(i), w)
+                if cur is None or w > cur[1]: tgt[k][i % m] = (p, w)
+    empties = {}
+    for k, h in HOOF_OF.items():
+        e = bpy.data.objects.new("iktgt_" + k, None); bpy.context.scene.collection.objects.link(e); empties[k] = e
+        c = arm.pose.bones[h].constraints.new('IK'); c.target = e; c.chain_count = IK_CHAIN[k]; c.iterations = 300; c.use_stretch = False
+        c.name = "lockik"
+    out = []
+    for i in range(m):
+        pose = poses[i]
+        for pb in arm.pose.bones:
+            l, q, s = pose[pb.name]; pb.location = l; pb.rotation_quaternion = q; pb.scale = s
+        for k, e in empties.items():
+            t = tgt[k][i]
+            e.location = t[0] if t else hw[i][k]
+        bpy.context.view_layer.update()
+        newp = {}
+        for pb in arm.pose.bones:
+            if pb.name in HOOF_OF.values() or any(pb.name in LEGS[k] for k in LEGS):
+                mb = arm.convert_space(pose_bone=pb, matrix=pb.matrix, from_space='POSE', to_space='LOCAL')
+                loc, rot, sc_ = mb.decompose()
+                q0 = pose[pb.name][1]
+                if rot.dot(q0) < 0: rot = -rot
+                newp[pb.name] = (loc, rot, sc_)
+            else:
+                newp[pb.name] = pose[pb.name]
+        out.append(newp)
+    for k, h in HOOF_OF.items():
+        for c in list(arm.pose.bones[h].constraints):
+            if c.name == "lockik": arm.pose.bones[h].constraints.remove(c)
+        bpy.data.objects.remove(empties[k])
+    out.append({kk: (v[0].copy(), v[1].copy(), v[2].copy()) for kk, v in out[0].items()})
+    D.actions.remove(a)
+    bake(rig, nm, out, ground=False)
+    print("LOCKFEET", nm, "v_tgt", round(v_tgt, 3))

@@ -4,7 +4,7 @@
   "loop": false,
   "seconds": 0.67,
   "frames": 21,
-  "keys": 216,
+  "keys": 299,
   "source": "Hit_A",
   "range_s": [
    null,
@@ -16,14 +16,17 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.05,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "floor -0.010 m"
+  ]
  },
  {
   "name": "Kay_Hit_React_B",
   "loop": false,
   "seconds": 0.87,
   "frames": 27,
-  "keys": 318,
+  "keys": 381,
   "source": "Hit_B",
   "range_s": [
    null,
@@ -35,14 +38,17 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.015,
   "travel_m": 0.11,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "floor +0.018 m"
+  ]
  },
  {
   "name": "Kay_Death_Fall_B",
   "loop": false,
   "seconds": 2.1,
-  "frames": 63,
-  "keys": 544,
+  "frames": 64,
+  "keys": 772,
   "source": "Death_B",
   "range_s": [
    null,
@@ -58,6 +64,10 @@
   "trimmed_from_s": [
    0,
    2.1
+  ],
+  "polish": [
+   "drop[34, 58, -0.15]",
+   "floor +0.021 m"
   ]
  },
  {
@@ -122,7 +132,7 @@
   "loop": false,
   "seconds": 1.07,
   "frames": 33,
-  "keys": 390,
+  "keys": 459,
   "source": "Melee_Block_Attack",
   "range_s": [
    null,
@@ -134,14 +144,17 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.007,
   "travel_m": 0.04,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "floor -0.056 m"
+  ]
  },
  {
   "name": "Kay_Stance_2H_Idle",
   "loop": true,
   "seconds": 1.07,
   "frames": 33,
-  "keys": 182,
+  "keys": 343,
   "source": "Melee_2H_Idle",
   "range_s": [
    null,
@@ -153,14 +166,17 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.0,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "floor -0.012 m"
+  ]
  },
  {
   "name": "Kay_Stance_Fists_Idle",
   "loop": true,
   "seconds": 1.07,
   "frames": 33,
-  "keys": 153,
+  "keys": 328,
   "source": "Melee_Unarmed_Idle",
   "range_s": [
    null,
@@ -172,14 +188,18 @@
   "contact_lift_m": 0.16,
   "min_foot_m": -0.02,
   "travel_m": 0.0,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "straighten +0.093 m",
+   "floor +0.016 m"
+  ]
  },
  {
   "name": "Kay_Dodge_Fwd",
   "loop": false,
   "seconds": 0.4,
   "frames": 13,
-  "keys": 194,
+  "keys": 225,
   "source": "Dodge_Forward",
   "range_s": [
    null,
@@ -191,7 +211,10 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.016,
   "travel_m": 0.49,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "floor +0.016 m"
+  ]
  },
  {
   "name": "Kay_Dodge_Back",

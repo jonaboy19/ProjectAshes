@@ -4,11 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://bth7o01r43llv"
-valid=false
+path="res://.godot/imported/UAL_Free_CastingKaykit.glb-3ff3a368c85ce86e30fab03e288995c0.scn"
 
 [deps]
 
 source_file="res://assets/incoming/animations_free/casting/UAL_Free_CastingKaykit.glb"
+dest_files=["res://.godot/imported/UAL_Free_CastingKaykit.glb-3ff3a368c85ce86e30fab03e288995c0.scn"]
 
 [params]
 

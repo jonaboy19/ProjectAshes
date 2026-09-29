@@ -56,9 +56,9 @@ def workbench_style(sc):
             o.data.materials.clear()
             m = bpy.data.materials.new("gw"); m.diffuse_color = (0.40, 0.58, 0.22, 1); o.data.materials.append(m)
     # 1 m grid lines so foot sliding is visible
-    lm = bpy.data.materials.new("gl"); lm.diffuse_color = (0.30, 0.46, 0.16, 1)
+    lm = bpy.data.materials.new("gl"); lm.diffuse_color = (0.95, 0.92, 0.55, 1)
     for i in range(-10, 11):
-        for (sx, sy, lx, ly) in ((0.02, 20, i, 0), (20, 0.02, 0, i)):
+        for (sx, sy, lx, ly) in ((0.05, 20, i, 0), (20, 0.05, 0, i)):
             bpy.ops.mesh.primitive_cube_add(size=1, location=(lx, ly, 0.001)); c = bpy.context.object
             c.scale = (sx, sy, 0.002); c.data.materials.append(lm)
 

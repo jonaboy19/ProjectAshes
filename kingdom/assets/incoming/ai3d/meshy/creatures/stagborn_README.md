@@ -34,13 +34,13 @@ Clip names are lower case. Loops are exact: the last frame is the frame before t
 | `hit` | 15 / 0.47 | 16 / 0.53 | no | flinch |
 | `death` | 34 / 1.10 | 42 / 1.37 | no | topples onto its side, ends lying on the ground |
 | `kick` | - | 31 / 1.00 | no | Warden only: hind-leg kick |
-| `roar` | - | 72 / 2.37 | no | Warden only: crouch, rear up, head thrown back and shaken, slam down |
+| `roar` | - | 114 / 3.80 | no | Warden only: crouch, slow heavy rear-up, hang, slam down, head shake (v2, see below) |
 
 ## HANDOFF for Codex (X3, Stagborn behaviour)
 Ownership: Codex owns the behaviour and the state machines. This is the clip contract.
 
 **Root motion: none.** Every clip is in place. The controller moves the body. Speeds that match the feet (measured, see `docs/art/region1/stagborn/*_metrics.json`):
-elk `walk` 1.15 m/s, `run` 5.2 m/s, `run_charge` 5.0 m/s; Warden `walk` 1.5 m/s, `run` 6.9 m/s, `run_charge` 5.9 m/s. Feet slide by at most about 20 % of the speed in `walk`; run is tighter.
+elk `walk` 1.21 m/s, `run` 5.2 m/s, `run_charge` 5.0 m/s; Warden `walk` 1.24 m/s, `run` 6.9 m/s, `run_charge` 5.9 m/s. `walk` hooves are now pinned (IK foot lock, baked): every planted hoof moves at the same speed (elk 1.21 m/s, Warden 1.24 m/s, within 0.1 m/s), so the feet do not slide when the capsule moves at that speed. Use `speed_scale` = actual speed / 1.21 (elk) or / 1.24 (Warden).
 The `attack` clip has a small in-place lean (torso moves forward 0.10 m for the elk, 0.15 m for the Warden). Move the capsule forward yourself during the strike frames if you want a real lunge.
 
 **State to clip mapping (suggested)**
@@ -64,12 +64,14 @@ The `attack` clip has a small in-place lean (torso moves forward 0.10 m for the 
 | elk `attack_butt` | 0-6 | **10** | 8-13 | | 25 |
 | Warden `attack_butt` | 0-8 | **12** | 10-16 | | 31 |
 | Warden `kick` | 0-13 | **20** | 17-23 | | 31 |
-| Warden `roar` | crouch 0-12 | | | rear-up hold 29-51 (use for the phase-change aura and the AoE fear telegraph); **front hooves land at frame 60** (stomp shockwave VFX, camera shake) | 72 |
+| Warden `roar` (v2, 114 frames) | anticipation dip 0-24, **rise starts 24** (hind legs and torso first, forelegs curl from ~40) | | | **top / hang 58-68** (tremor; roar SFX and phase-change aura here, AoE fear telegraph); **impact (front hooves slam) frame 74** (shockwave VFX, camera shake), squash and bounce 74-84; **head-shake 78-108** (decaying left-right), settled by ~110 | 114 |
 | `hit` | | | | flinch peak at frame 8 (elk), 9 (Warden) | end |
 
-Audio hooks already in `assets/audio/region1/` (L17): Stagborn bellow and snort, Warden roar. Play the roar at `roar` frame 14 (head starting to throw back), the bellow at `attack` commit.
+Audio hooks already in `assets/audio/region1/` (L17): Stagborn bellow and snort, Warden roar. Play the roar at `roar` frame 58 (top of the rear-up), the bellow at `attack` commit.
 
 **Warden 3-phase suggestion** (behaviour is yours): phase 1 `attack_butt` combos and `walk` circling; phase 2 adds `run_charge` -> `attack` and `kick` when the player is behind it; phase 3 opens with `roar` (rune glow up to 3x), then alternates `attack` (long telegraph, punishable) with `run_charge`.
+
+**Roar v2 note.** The rear-up used to swing the huge antlers back through the body. Now the neck and head counter-rotate (they stay pitched slightly forward of the raised torso), so the antlers point up and stay clear of the back and neck in every frame (checked visually side + front, frame sheets in `docs/art/region1/stagborn/stagborn_warden_roar_v2/`, and numerically with `tools/creatures/stagborn/roar_dev.py`: nearest antler vertex or edge midpoint to the body surface never below about 0.08 m). Timing: weight shift and crouch 0-24, slow eased rise 24-58 (hind legs first), hang 58-68 with a small tremor, fast drop 68-74, slam + bounce 74-84, head shake 78-108. Other clips are byte-identical to before. Re-run `roar_dev.py` (author only the roar, print clearance) and `roar_review.sh` (side + front sheets) after any change to the roar keys in `clips.py` (`ROAR`, `roar_offsets`).
 
 ## How they were made (reproducible)
 Scripts are in `tools/creatures/stagborn/` (Blender 5.2 headless, `-b --python`):
@@ -89,9 +91,9 @@ Authored by us: `attack`, `run_charge`, `roar`.
 ## Known limitations
 - Rendered and checked in Blender only (workbench and EEVEE); **not yet imported or run in Godot** (no Godot import in the worktree, disk). Run `bash tools/qa/anim_qa/run.sh --only=<id>` once the entries are added to `tools/qa/anim_qa/catalog.gd`.
 - Flat-shaded low-poly donor shapes with smooth shading: silhouettes are faceted around the head and antlers, softened by the painted texture.
+- Flat-shaded low-poly donor shapes with smooth shading: silhouettes are faceted around the head and antlers, softened by the painted texture.
 - In `run_charge` and at the head-down moment of `attack`, the antler tips dip up to about 9 cm (elk) or 14 cm (Warden) below the ground plane. Grass hides it.
-- `walk` has some foot slide (stance speed varies by about 20 % between feet) because the stock clip was ground-fixed by lifting the body, not by IK. Use foot IK if it shows.
-- The Warden antlers are 3.3 m wide and can pass through the body in the `roar` rear-up hold (they rest across the back). Collision is not affected.
+- Antler tips stay above the ground in every clip except `graze` and `death` (measured lowest head/antler vertex: `run_charge` 0.82 m elk / 0.96 m Warden, `attack` 0.90 / 0.72, `attack_butt` 0.89 / 0.68). The Warden `roar` head throw-back was halved so the 3.3 m antlers clear the back.
 - `death` recentres the body, so the carcass rolls in place and the hooves slide a little.
 - The mane and throat ruff are small cone tufts: they read as fur clumps, not flowing hair.
 
@@ -102,3 +104,7 @@ Textures, antlers, mane, rune glyphs, retiming and the authored clips: own work 
 ## Warden art pass 2 (2026-09-29, final commit of this session)
 Rebuilt the Warden: flowing spiral, knot and braid rune channels along the shoulder, flank, haunch and neck (no letter-like glyphs); layered thicker antlers with hanging ivy and a thin glowing channel up every beam and tine; darker saddle, lighter mane, pale fetlock tufts and dark hooves; 0.8 scale baked in; body lifted so nothing dips under the ground in any clip; walk and run foot speeds evened out per leg. Elk clips got the same ground fix.
 NOT re-verified after this pass: frame sheets of the Warden clips under `docs/art/region1/stagborn/stagborn_warden_*` are from the first version (same clips, older mesh and proportions). Only the new turntable was read.
+
+
+## Animation polish pass (2026-09-29)
+All 22 clips were re-exported from the reworked meshes and re-reviewed as frame sheets (`docs/art/region1/stagborn/stagborn_<name>_<clip>/sheet_00N.jpg`, ground grid scrolls at the gait speed so a planted hoof stays on its grid cell). `walk`: IK foot lock (`clips.lock_feet`); `roar`: reduced throw-back; `run_charge` / `attack`: `raise_antlers` pass (it found nothing to fix, the earlier ground fix already keeps them clear). Tools: `tools/creatures/stagborn/review_all.sh`, `qa_ground.py`.
