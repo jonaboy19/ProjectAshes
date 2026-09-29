@@ -9,3 +9,7 @@ No attribution is legally required. Original authors are anonymous Meshy communi
 Modifications: every model was re-scaled, re-centred, remeshed and decimated for mobile, and its textures were re-baked into one texture map (see `docs/art/meshy_free/README.md`). Derived works are also released under CC0 terms.
 
 Rejected models (recognizable characters, Christmas themes, logos) were not used; see `docs/art/meshy_free_triage.md`.
+
+## Round 2 (added 2026-09-29)
+
+161 further CC0 models from the same Meshy community library (street dressing and props: lamps, torches, signs, fences, farm animals and props, flora, bridges, docks, boats, thrones, tables, bookshelves, weapon racks, huts and houses). Same licence check (`license: cc0` on each model page), same terms and modifications as above. Files sit in the new categories `lighting`, `signs`, `fences`, `farm`, `flora`, `water`, `interior`, `loot` and in the existing ones. Rejected: 4 duplicate or broken models; see `docs/art/meshy_free_triage.md`, section "Round 2".
