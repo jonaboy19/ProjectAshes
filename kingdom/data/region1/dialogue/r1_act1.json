@@ -1,6 +1,6 @@
 {
 	"id": "r1_act1",
-	"_comment": "The Stones Are Dimming, Act I: Hearth and Stone (Ashford, age 8 to 12). dialogue_runner.gd format, loaded with DialogueRunner.load_file(\"r1_act1\", \"res://data/region1/dialogue\"). Extra node key 'speaker' (cast.json id) is ignored by the runner and read by the story UI. Entry nodes are named by quest steps in data/region1/quests/r1_main.json.",
+	"_comment": "The Stones Are Dimming, Act I: Hearth and Stone (Ashford, age 8 to 12). Story v2: the warmth that makes the losses hurt (family supper, Thistle, Wren, Kindling Night). Seeds planted here pay off later: Idra's grey fingers (Act III twist), Bram's sums and his lantern 'for friends up north' (Act III betrayal, Act IV Hollin's Reach), the lantern for nobody (hidden ending). dialogue_runner.gd format; 'speaker' is a cast.json id.",
 	"start": "mother_dusk",
 	"nodes": {
 
@@ -12,6 +12,7 @@
 			],
 			"choices": [
 				{"text": "Went out? Stones don't go out.", "goto": "mother_dusk_2"},
+				{"text": "What did the Captain say?", "goto": "bram_supper"},
 				{"text": "I'll just go and look.", "goto": "mother_dusk_go"}
 			]
 		},
@@ -19,6 +20,16 @@
 			"speaker": "mother",
 			"lines": [{"text": "That's what I said. Warden Idra's up there now, glaring at it like it owes her money."}],
 			"choices": [{"text": "I'll look. From far away.", "goto": "mother_dusk_go"}]
+		},
+		"bram_supper": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "Nine guards. Forty-one stones. I count them at night, like sheep. Never once helped me sleep."}],
+			"choices": [{"text": "Have another honey cake.", "goto": "father_supper"}]
+		},
+		"father_supper": {
+			"speaker": "father",
+			"lines": [{"text": "He's had five, sprout. Arithmetic's hungry work. Go on. Take a lantern."}],
+			"choices": [{"text": "(Look at Mother.)", "goto": "mother_dusk_go"}]
 		},
 		"mother_dusk_go": {
 			"speaker": "mother",
@@ -42,7 +53,15 @@
 		"idra_fix": {
 			"speaker": "idra_vell",
 			"lines": [{"text": "I can. My hands are slow tonight. Yours aren't."}],
-			"choices": [{"text": "Mine?", "goto": "idra_teach"}]
+			"choices": [
+				{"text": "Mine?", "goto": "idra_teach"},
+				{"text": "Your fingers are grey.", "goto": "idra_grey"}
+			]
+		},
+		"idra_grey": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Stone dust. Forty years of it. Don't stare, it's rude."}],
+			"choices": [{"text": "(Palm on the stone.)", "goto": "idra_teach"}]
 		},
 		"idra_teach": {
 			"speaker": "idra_vell",
@@ -100,6 +119,40 @@
 			"choices": [{"text": "Dawn.", "goto": "@end", "do": [["flag", "r1.maren_student"]]}]
 		},
 
+		"fawn_brambles": {
+			"speaker": "narrator",
+			"lines": [{"text": "In the brambles, a stagborn fawn. Its antler-buds glow faint blue, like a stone at dusk. It's shaking."}],
+			"choices": [{"text": "(Untangle it, slowly.)", "goto": "fawn_free"}]
+		},
+		"fawn_free": {
+			"speaker": "thistle",
+			"lines": [{"text": "A very small, very offended bleat. Then it follows you. It keeps following you."}],
+			"choices": [
+				{"text": "Go home!", "goto": "fawn_follow"},
+				{"text": "...Fine. Come on.", "goto": "@end", "do": [["flag", "r1.a1.fawn_freed"]]}
+			]
+		},
+		"fawn_follow": {
+			"speaker": "thistle",
+			"lines": [{"text": "It sits down in the road. It is home. You are home, apparently."}],
+			"choices": [{"text": "...Fine. Come on.", "goto": "@end", "do": [["flag", "r1.a1.fawn_freed"]]}]
+		},
+		"mother_fawn": {
+			"speaker": "mother",
+			"lines": [{"text": "No. Absolutely not. It is NOT sleeping in the house."}],
+			"choices": [{"text": "Father?", "goto": "father_fawn"}]
+		},
+		"father_fawn": {
+			"speaker": "father",
+			"lines": [{"text": "It's sleeping in the house."}],
+			"choices": [{"text": "(Grin.)", "goto": "mother_fawn_2"}]
+		},
+		"mother_fawn_2": {
+			"speaker": "mother",
+			"lines": [{"text": "...Then it needs a name. Something prickly. Like its manners. And yours."}],
+			"choices": [{"text": "Thistle.", "goto": "@end", "do": [["flag", "r1.a1.thistle_named"], ["bond", 2]]}]
+		},
+
 		"maren_yard": {
 			"speaker": "maren_coldbrook",
 			"lines": [
@@ -125,6 +178,69 @@
 			"speaker": "maren_coldbrook",
 			"lines": [{"text": "Block when they commit. Roll when they're bigger than you. Everything is bigger than you."}],
 			"choices": [{"text": "Again.", "goto": "@end", "do": [["flag", "r1.a1.drilled"], ["record", "staff_training", 1]]}]
+		},
+		"wren_yard": {
+			"speaker": "wren_coldbrook",
+			"lines": [{"text": "So you're Aunt Maren's new stray. I'm Wren. I'm going to knock you over now."}],
+			"choices": [
+				{"text": "You can try.", "goto": "wren_yard_2"},
+				{"text": "Please don't.", "goto": "wren_yard_2"}
+			]
+		},
+		"wren_yard_2": {
+			"speaker": "narrator",
+			"lines": [{"text": "She does. Twice. The second time, you take her down with you."}],
+			"choices": [{"text": "(Laugh from the dirt.)", "goto": "wren_yard_3"}]
+		},
+		"wren_yard_3": {
+			"speaker": "wren_coldbrook",
+			"lines": [{"text": "Everything's bigger than you, she says. Except me. I'm exactly your size. Friends?"}],
+			"choices": [{"text": "Friends.", "goto": "@end", "do": [["flag", "r1.a1.wren_met"]]}]
+		},
+
+		"father_kindling": {
+			"speaker": "father",
+			"lines": [{"text": "Kindling Night. One lantern for each of ours who rests in a stone. This one's your grandfather."}],
+			"choices": [
+				{"text": "What was he like?", "goto": "father_kindling_2"},
+				{"text": "(Hang it with him.)", "goto": "bram_kindling"}
+			]
+		},
+		"father_kindling_2": {
+			"speaker": "father",
+			"lines": [{"text": "Loud. Snored like a millstone. Held a wall the winter I was born. Hang it high, sprout."}],
+			"choices": [{"text": "(Hang it high.)", "goto": "bram_kindling"}]
+		},
+		"bram_kindling": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "Captain hangs his last. Same as every year. For friends up north."}],
+			"choices": [
+				{"text": "Which friends?", "goto": "bram_kindling_2"},
+				{"text": "(Nod.)", "goto": "idra_kindling"}
+			]
+		},
+		"bram_kindling_2": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "Ones I couldn't count to in time. Here. Have a honey cake. It's a party."}],
+			"choices": [{"text": "(Take a cake.)", "goto": "idra_kindling"}]
+		},
+		"idra_kindling": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Hm. Every stone with a family gets a lantern. The ones with nobody just get the dark."}],
+			"choices": [
+				{"text": "Then I'll hang one for nobody.", "goto": "idra_kindling_yes", "do": [["flag", "r1.a1.lantern_nobody"]]},
+				{"text": "(Hang your own lantern.)", "goto": "thistle_kindling"}
+			]
+		},
+		"idra_kindling_yes": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "...Hm. Your mother raised you wrong. Good. Hang it by the Miller's Stone."}],
+			"choices": [{"text": "(Hang it.)", "goto": "thistle_kindling"}]
+		},
+		"thistle_kindling": {
+			"speaker": "thistle",
+			"lines": [{"text": "Thistle eats a lantern. Most of a lantern. The paper part, and a little of the candle."}],
+			"choices": [{"text": "Thistle!", "goto": "@end", "do": [["flag", "r1.a1.lantern"]]}]
 		},
 
 		"idra_blessing_eve": {
@@ -168,6 +284,14 @@
 			"speaker": "idra_vell",
 			"lines": [{"text": "It's a stone clearing its throat before bad news. Grow up quickly, apprentice. Not too quickly."}],
 			"choices": [{"text": "Apprentice?", "goto": "@end", "do": [["flag", "r1.a1.done"], ["rep", "runeward", 5]]}]
+		},
+		"wren_blessing": {
+			"speaker": "wren_coldbrook",
+			"lines": [
+				{"text": "So. You glow now. Insufferable. I'm coming on every road you walk, to keep you humble."},
+				{"text": "Nothing came, and you stood there like a stone. Best thing I ever saw. I'm coming on every road.", "if": {"flag": "blessing:none"}, "p": 1}
+			],
+			"choices": [{"text": "Every road.", "goto": "@end", "do": [["flag", "r1.a1.wren_joined"]]}]
 		}
 	}
 }

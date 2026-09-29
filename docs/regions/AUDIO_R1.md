@@ -1,6 +1,6 @@
 # Region 1 audio (L17): area map, SFX events, loudness
 
-Files live in `kingdom/assets/audio/region1/` (OGG Vorbis, **8.3 MB total**, 38 files). Sources and licences: `kingdom/assets/audio/region1/LICENSES.md`; credits: `kingdom/CREDITS.md`. Build scripts: `kingdom/tools/audio/r1_music.sh`, `r1_sfx.sh`, `r1_loopnorm.sh`, `r1_measure.sh`. Nothing here is wired yet: that is cloud work package **C12**.
+Files live in `kingdom/assets/audio/region1/` (OGG Vorbis, **11.8 MB total**, 41 files). Sources and licences: `kingdom/assets/audio/region1/LICENSES.md`; credits: `kingdom/CREDITS.md`. Build scripts: `kingdom/tools/audio/r1_music.sh`, `r1_sfx.sh`, `r1_loopnorm.sh`, `r1_measure.sh`. Nothing here is wired yet: that is cloud work package **C12**.
 
 Tone: warm, hopeful storybook medieval (lutes, fiddles, flutes, gentle strings). The rift-wilds theme is eerie but soft, never grimdark.
 
@@ -17,6 +17,9 @@ All music tracks are seamless loops (4 s equal-power crossfade baked in; the sea
 | `r1_rift_wilds` | `mus_r1_rift_wilds.ogg` | Lost Time (MacLeod) | Rift-touched wilds, the Ashen Scar, Rift's Edge Camp, high frontier threat in the west | Eerie, sparse. Pair with `amb_r1_scar_rift_loop`. |
 | `r1_night` | `mus_r1_night.ogg` | Suonatore di Liuto (MacLeod) | Any outdoor Region 1 area after dusk (Sky3D time): quiet lute solo | Overrides the day theme; the existing `mus_night.ogg` can stay as a second night clip. |
 | `r1_boss_warden` | `mus_r1_boss_warden.ogg` | Crusade (MacLeod) | Antlered Warden miniboss fight (Stagborn Glade). Also a fallback for the Scarbound Troll until a finale theme exists | Distinct from the existing `mus_boss` (Five Armies). |
+| `r1_lament` | `mus_r1_lament.ogg` | Bittersweet (MacLeod), 90 s loop | Grief beats: Maren's last stand aftermath, losses in Acts II-III, quiet after-battle scenes | Cello, piano and choir at 73 bpm, tagged Calming/Somber; slow, sad but gentle, so it stays storybook. Replaces the `r1_night` fallback. |
+| `r1_kindling` | `mus_r1_kindling.ogg` | Skye Cuillin (MacLeod), 100 s loop | Kindling Night lantern festival, tender family/hearth moments, Homecoming | Fiddle, whistle, harp and strings at 68 bpm, Celtic and Uplifting; warm and a little wistful. No hand-drum (none found under CC-BY). Replaces the `r1_village_day` fallback. |
+| `r1_finale` | `mus_r1_finale.ogg` | Long Road Ahead (MacLeod), 146 s, play once (not a loop) | Finale after the Scarbound Troll and Rift seal; Homecoming card | Simple folk melody, "aftermath of a battle between good and evil", triumphant final third: triumphant but bittersweet. 4 s fade-out baked in. Set `loop = false`. Not the village_day melody rebuilt, but the folk tune fits the intent. Replaces the `r1_boss_warden` fallback. |
 
 Suggested hook: a region + area -> clip table in `MusicBank.MOODS` (for example `&"r1_village_day": [&"r1_village_day"]`) and a crossfade of 2.5 s (`BED_FADE`) on area-border crossings, with about 8 s of hysteresis so walking along a border does not flip-flop. Combat still overrides area music (existing `combat` / `boss` moods); the Warden fight forces `r1_boss_warden`.
 
@@ -60,7 +63,7 @@ Non-verbal except where noted.
 
 Measured with ffmpeg `ebur128` on the shipped OGG files (`kingdom/tools/audio/r1_measure.sh`, raw CSV `kingdom/assets/audio/region1/loudness_r1.csv`).
 
-- Music target **-16 LUFS integrated, +-1**: all seven measure **-16.1 to -16.2**.
+- Music target **-16 LUFS integrated, +-1**: all ten measure **-16.1 to -16.3** (the three story cues: lament -16.2, kindling -16.2, finale -16.3; peaks -3.7, -4.5, -1.7 dBFS).
 - Loops match the existing ambience beds: rift bed -24.0, rune hum -26.0 LUFS-I.
 - One-shots are peak-normalised to **-3 dBFS**; after Vorbis they measure -2.0 to -3.8 dBFS.
 - Music was normalised with a pure gain (a lookahead limiter would put a fade-in at the loop seam) plus a mild sine soft-clip. `mus_r1_night` peaks at -0.8 dBFS because the lute source is very dynamic; lower its clip volume by 1 dB in `MusicBank` if a device clips.

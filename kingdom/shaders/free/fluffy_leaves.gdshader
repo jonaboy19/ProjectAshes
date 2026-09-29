@@ -1,14 +1,14 @@
 // Original work written for Rising Ashes (no third-party code). Same licence as the project.
 // Replaces the godotshaders.com "fluffy tree leaves" candidate (site blocked automated licence verification).
 // Fluffy storybook foliage for blob/card canopies: alpha-scissor (no sorting), warm yellow-green rim on the
-// lit side, cool blue-violet underside, wind sway. A noise texture gives the leafy cut-out edge.
+// lit side, warm olive-green underside (no blue: the sky ambient already cools it), wind sway. A noise texture gives the leafy cut-out edge.
 // Mobile: 1 texture tap, cutout, no blending. Cheap.
 shader_type spatial;
 render_mode cull_back, depth_prepass_alpha, diffuse_lambert;
 uniform sampler2D leaf_mask : filter_linear_mipmap, repeat_enable;
-uniform vec4 base_color : source_color = vec4(0.30, 0.62, 0.16, 1.0);
+uniform vec4 base_color : source_color = vec4(0.36, 0.64, 0.14, 1.0);
 uniform vec4 rim_color : source_color = vec4(0.85, 0.90, 0.30, 1.0);
-uniform vec4 shade_color : source_color = vec4(0.16, 0.30, 0.38, 1.0);
+uniform vec4 shade_color : source_color = vec4(0.22, 0.36, 0.10, 1.0);
 uniform float cutoff : hint_range(0.0, 1.0) = 0.3;
 uniform float wind_strength = 0.06;
 uniform float wind_speed = 1.4;

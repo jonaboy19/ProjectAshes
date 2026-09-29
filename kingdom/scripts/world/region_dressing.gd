@@ -93,7 +93,18 @@ func _drain_queue() -> void:
 		_queue.pop_front()
 
 
+var dbg_usec := 0      # QA: total _process time (usec) and frames, read by tools/qa/water_shots/water_prof.gd
+var dbg_frames := 0
+
+
 func _process(delta: float) -> void:
+	var _t0 := Time.get_ticks_usec()
+	_process_inner(delta)
+	dbg_usec += Time.get_ticks_usec() - _t0
+	dbg_frames += 1
+
+
+func _process_inner(delta: float) -> void:
 	Breakable.tick(delta)   # breakable props: melee sweep + regrowth (once per frame)
 	_drain_queue()
 	_t += delta

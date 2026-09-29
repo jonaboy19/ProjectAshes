@@ -159,3 +159,68 @@ func test_ember_choice_sets_the_ember_flag() -> void:
 	assert_bool(q.has_flag("ember.rowan.stone")).is_true()
 	assert_bool(ev.any(func(e: Dictionary) -> bool:
 		return e["type"] == "action" and e["action"] == ["cutscene", "rowan_ember"])).is_true()
+
+
+# --- story v2: endings, curve, staging -------------------------------------------------
+
+func _play(overrides: Dictionary, run := 0) -> Dictionary:
+	var q: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(MAIN))
+	var reg: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(String(q["registry"])))
+	var dialogues := {}
+	for f: String in DirAccess.get_files_at("res://data/region1/dialogue"):
+		if f.ends_with(".json"):
+			dialogues[f.get_basename()] = Runner.load_file(f.get_basename(), "res://data/region1/dialogue")
+	var pick := {}
+	for g: String in reg["choice_groups"]:
+		if not g.begins_with("_"):
+			pick[g] = String(reg["choice_groups"][g]["flags"][0])   # the 'giving' option
+	for g: String in overrides:
+		pick[g] = overrides[g]
+	var visited := {}
+	var err: String = Lint._play_once(q, reg, dialogues, pick, "blessing:none", visited, {}, run)
+	return {"err": err, "visited": visited}
+
+
+func test_hidden_kindled_ending_when_you_gave_everything() -> void:
+	var r := _play({})
+	assert_str(r["err"]).is_empty()
+	assert_bool(r["visited"].has("r1_act5:kindled_last")).is_true()
+	assert_bool(r["visited"].has("r1_act5:bram_last")).is_false()
+
+
+func test_who_pays_at_the_mouth_follows_earlier_choices() -> void:
+	var heir := {"rowan_ember": "ember.rowan.heir"}   # breaks the Kindled Dawn
+	var bram := _play(heir.merged({"bram_fate": "r1.bram.spared"}))
+	assert_bool(bram["visited"].has("r1_act5:bram_last")).is_true()
+	var tamsin := _play(heir.merged({"bram_fate": "r1.bram.chained", "tamsin_fate": "r1.tamsin.pardoned"}))
+	assert_bool(tamsin["visited"].has("r1_act5:tamsin_last")).is_true()
+	var idra := _play(heir.merged({"bram_fate": "r1.bram.chained", "tamsin_fate": "r1.tamsin.arrested"}))
+	assert_bool(idra["visited"].has("r1_act5:idra_last")).is_true()
+	var rest := _play({"the_seal": "r1.seal.idra"})
+	assert_bool(rest["visited"].has("r1_act5:seal_idra_2")).is_true()
+	assert_bool(rest["visited"].has("r1_act5:idra_retire")).is_false()
+	for r: Dictionary in [bram, tamsin, idra, rest]:
+		assert_str(r["err"]).is_empty()
+
+
+func test_emotional_curve_swings_full_range() -> void:
+	var r := Lint.lint(MAIN, false, false)
+	assert_int(int(r["stats"]["curve_min"])).is_equal(-5)
+	assert_int(int(r["stats"]["curve_max"])).is_equal(5)
+	assert_int(int(r["stats"]["curve_swings"])).is_greater_equal(8)
+	assert_str("\n".join(r["warnings"])).not_contains("flat")
+
+
+func test_lint_checks_staging() -> void:
+	var q: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(MAIN))
+	q["steps"][0]["staging"] = {"intensity": 9, "music": "kazoo_solo", "needs": ["magic"], "mood": "?"}
+	var path := "user://lint_bad_staging.json"
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	f.store_string(JSON.stringify(q))
+	f.close()
+	var errs := "\n".join(Lint.lint(path, false, false)["errors"])
+	assert_str(errs).contains("intensity must be an integer from -5 to 5")
+	assert_str(errs).contains("'kazoo_solo' is not a registry music cue")
+	assert_str(errs).contains("staging.needs 'magic'")
+	assert_str(errs).contains("unknown staging key 'mood'")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))

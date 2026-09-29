@@ -4,7 +4,7 @@ All licence pages were fetched on **2026-09-29** (or, where noted, recorded in t
 
 Build scripts (reproducible, run from the repo root): `kingdom/tools/audio/r1_music.sh`, `kingdom/tools/audio/r1_sfx.sh`, `kingdom/tools/audio/r1_loopnorm.sh`; numbers: `kingdom/tools/audio/r1_measure.sh` -> `loudness_r1.csv`.
 
-## Music (7 tracks, `music/`)
+## Music (10 tracks, `music/`)
 
 | File | Track | Author | Licence | Source / licence page |
 |---|---|---|---|---|
@@ -15,6 +15,9 @@ Build scripts (reproducible, run from the repo root): `kingdom/tools/audio/r1_mu
 | `mus_r1_rift_wilds.ogg` | "Lost Time" | Kevin MacLeod | **CC BY 4.0** | incompetech.com |
 | `mus_r1_night.ogg` | "Suonatore di Liuto" | Kevin MacLeod | **CC BY 4.0** | incompetech.com |
 | `mus_r1_boss_warden.ogg` | "Crusade" | Kevin MacLeod | **CC BY 4.0** | incompetech.com |
+| `mus_r1_lament.ogg` | "Bittersweet" | Kevin MacLeod | **CC BY 4.0** | https://incompetech.com/music/royalty-free/faq.html (CC BY 4.0, commercial use allowed; verified 2026-09-29) |
+| `mus_r1_kindling.ogg` | "Skye Cuillin" | Kevin MacLeod | **CC BY 4.0** | incompetech.com (same terms) |
+| `mus_r1_finale.ogg` | "Long Road Ahead" | Kevin MacLeod | **CC BY 4.0** | incompetech.com (same terms) |
 
 Originals are kept in `assets/incoming/incompetech/` (with `LICENSE.txt`) and `assets/incoming/music-cc-by/`. Credit lines are in `kingdom/CREDITS.md` (Region 1 audio section). Processing: 4 s equal-power crossfade loop of the first 100 s (110 s for the boss), gain-normalised to -16 LUFS, Vorbis q2 stereo.
 

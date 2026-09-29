@@ -49,7 +49,13 @@ const OBJECTIVES := {
 	"any": {"req": ["of"], "opt": []},
 }
 const STEP_REQ := ["id", "act", "title", "objective", "journal", "giver", "place", "objectives"]
-const STEP_OPT := ["requires", "dialogue", "mechanics", "tutorial", "on_start", "on_complete"]
+const STEP_OPT := ["requires", "dialogue", "mechanics", "tutorial", "on_start", "on_complete", "staging"]
+## Emotional staging per step (docs/regions/EMOTION_MAP_R1.md). "intensity" is -5..+5; "music" must be a
+## registry music cue; "needs" lists who builds the beat (C9 cutscene, Codex animation, VFX).
+const STAGING_KEYS := ["intensity", "emotion", "music", "sfx", "camera", "anim", "vfx", "silence", "weather", "time", "needs"]
+const STAGING_NEEDS := ["c9", "codex", "vfx"]
+## A run of this many steps (file order) whose intensity stays within 1 of each other is a flat stretch.
+const FLAT_RUN := 4
 ## Quest actions (on_start / on_complete / objective "do") and their argument checks.
 const QUEST_ACTIONS := ["flag", "give", "rep", "gold", "cutscene", "marker", "spawn", "tutorial"]
 ## Dialogue "do" verbs understood by dialogue_runner.gd.
@@ -153,6 +159,7 @@ static func lint(quest_path: String = MAIN_QUEST, exhaustive := false, autoplay 
 		_lint_step(L, s, ids, acts, dialogues, speakers, reg, item_ids, entries)
 	_lint_graph(L, steps, ids)
 	_lint_mechanics(L, steps)
+	_lint_curve(L, steps)
 	_lint_flags(L, reg, q)
 	_lint_reachability(L, dialogues, entries)
 	for sp: String in speakers:
@@ -371,6 +378,7 @@ static func _lint_step(L: Dictionary, s: Dictionary, ids: Dictionary, acts: Dict
 			L["errors"].append("%s: unknown tutorial prompt '%s'" % [where, t])
 	_check_quest_actions(L, where + " on_start", s.get("on_start", []), reg, item_ids)
 	_check_quest_actions(L, where + " on_complete", s.get("on_complete", []), reg, item_ids)
+	_lint_staging(L, where, s, reg)
 
 	var objs: Array = s.get("objectives", [])
 	if objs.is_empty():
@@ -396,6 +404,67 @@ static func _lint_step(L: Dictionary, s: Dictionary, ids: Dictionary, acts: Dict
 			var node := String(o.get("node", ""))
 			if not dialogues.has(file) or not (dialogues[file].get("nodes", {}) as Dictionary).has(node):
 				L["errors"].append("%s: talk objective node '%s' not in %s" % [where, node, file])
+
+
+static func _lint_staging(L: Dictionary, where: String, s: Dictionary, reg: Dictionary) -> void:
+	if not s.has("staging"):
+		L["warnings"].append("%s: no staging (intensity, music) for the emotion map" % where)
+		return
+	if not (s["staging"] is Dictionary):
+		L["errors"].append("%s: staging must be an object" % where)
+		return
+	var st: Dictionary = s["staging"]
+	for k: String in st:
+		if not STAGING_KEYS.has(k):
+			L["errors"].append("%s: unknown staging key '%s'" % [where, k])
+	var iv: Variant = st.get("intensity", null)
+	if not (iv is float or iv is int) or float(iv) != float(int(iv)) or absi(int(iv)) > 5:
+		L["errors"].append("%s: staging.intensity must be an integer from -5 to 5" % where)
+	var music: Dictionary = reg.get("music", {})
+	if st.has("music") and not music.has(String(st["music"])):
+		L["errors"].append("%s: staging.music '%s' is not a registry music cue" % [where, st["music"]])
+	for n: Variant in st.get("needs", []):
+		if not STAGING_NEEDS.has(String(n)):
+			L["errors"].append("%s: staging.needs '%s' must be one of %s" % [where, n, STAGING_NEEDS])
+
+
+## The emotional curve: intensity per step in file order. Warns on flat stretches (FLAT_RUN steps in a
+## row within 1 of each other) and reports range and swings in the stats.
+static func _lint_curve(L: Dictionary, steps: Array) -> void:
+	var curve: Array = []
+	for s: Dictionary in steps:
+		var st: Variant = s.get("staging", {})
+		if st is Dictionary and (st as Dictionary).has("intensity"):
+			curve.append([String(s.get("id", "")), int(st["intensity"])])
+	if curve.is_empty():
+		return
+	var lo := 99
+	var hi := -99
+	var swings := 0
+	for i in curve.size():
+		var v: int = curve[i][1]
+		lo = mini(lo, v)
+		hi = maxi(hi, v)
+		if i > 0 and signi(v) != 0 and signi(v) != signi(int(curve[i - 1][1])):
+			swings += 1
+	var i := 0
+	while i + FLAT_RUN <= curve.size():
+		var a: int = curve[i][1]
+		var b: int = curve[i][1]
+		var j := i
+		while j < curve.size() and maxi(b, int(curve[j][1])) - mini(a, int(curve[j][1])) <= 1:
+			a = mini(a, int(curve[j][1]))
+			b = maxi(b, int(curve[j][1]))
+			j += 1
+		if j - i >= FLAT_RUN:
+			L["warnings"].append("emotional curve is flat from %s to %s (%d steps within 1 point)" % [
+				curve[i][0], curve[j - 1][0], j - i])
+			i = j
+		else:
+			i += 1
+	L["stats"]["curve_min"] = lo
+	L["stats"]["curve_max"] = hi
+	L["stats"]["curve_swings"] = swings
 
 
 static func _lint_objective(L: Dictionary, where: String, o: Dictionary, oids: Dictionary, reg: Dictionary,

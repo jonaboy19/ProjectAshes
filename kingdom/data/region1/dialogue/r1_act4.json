@@ -1,6 +1,6 @@
 {
 	"id": "r1_act4",
-	"_comment": "The Stones Are Dimming, Act IV: The Five Hearts. The Glade first, then Greyseam, Highwatch, Crownstead and the Elden Road in any order, then the convergence. Uses all four mechanics; teaches Ember Legacy's choice (N3) through Sir Rowan and wardline routing (N1) at Crownstead. Format: see r1_act1.json.",
+	"_comment": "The Stones Are Dimming, Act IV: The Five Hearts. The Glade first, then Greyseam, Highwatch, Crownstead and the Elden Road in any order, then the convergence. Uses all four mechanics; teaches Ember Legacy's choice (N3) through Sir Rowan and wardline routing (N1) at Crownstead. Story v2 opens with the dark night (Wren leaves; Maren speaks from the ring) and the comeback (Wren returns at the Glade), adds Harrok's mother's ember and the old Hollin's Reach ash under Crownstead. Format: see r1_act1.json.",
 	"start": "idra_trial",
 	"nodes": {
 
@@ -16,7 +16,10 @@
 		},
 		"warden_bows": {
 			"speaker": "narrator",
-			"lines": [{"text": "The Warden lowers its antlers to the stone. Old light runs down them, blue as a river."}],
+			"lines": [
+				{"text": "A young stag steps out of the herd: Thistle, grown, antlers blue. It stands by you, and the Warden bows.", "if": {"flag": "r1.thistle.freed"}, "p": 1},
+				{"text": "Thistle bleats at the Warden, very small, very firm. The Warden lowers its antlers to the stone.", "if": {"flag": "r1.thistle.kept"}, "p": 1}
+			],
 			"choices": [{"text": "(Keep still.)", "goto": "idra_glade_done"}]
 		},
 		"idra_glade_done": {
@@ -72,7 +75,20 @@
 				{"text": "Stone is lit. Miners sing again. Bad singing. Good sign."},
 				{"text": "Stone is lit. Harrok will tell the King an orc held the torch. He will hate it. Good.", "if": {"flag": "r1.harrok.ally"}, "p": 1}
 			],
-			"choices": [{"text": "...", "goto": "@end", "do": [["flag", "r1.a4.greyseam_told"]]}]
+			"choices": [
+				{"text": "...", "goto": "@end", "if": {"no_flag": "r1.harrok.ally"}, "do": [["flag", "r1.a4.greyseam_told"]]},
+				{"text": "You look troubled.", "goto": "harrok_mother", "if": {"flag": "r1.harrok.ally"}}
+			]
+		},
+		"harrok_mother": {
+			"speaker": "harrok_ashmaw",
+			"lines": [{"text": "Harrok's mother died in spring. Orcs burn their dead. She said: not me. Put me in the stone."}],
+			"choices": [{"text": "She'd be welcome.", "goto": "harrok_mother_2"}]
+		},
+		"harrok_mother_2": {
+			"speaker": "harrok_ashmaw",
+			"lines": [{"text": "Harrok knows. Now she holds the seam. She was always stronger clan."}],
+			"choices": [{"text": "(Clasp his forearm.)", "goto": "@end", "do": [["flag", "r1.a4.greyseam_told"]]}]
 		},
 
 		"rowan_meet": {
@@ -81,7 +97,17 @@
 				{"text": "Ah, the carver! Come up, come up. The wind's in a mood today."},
 				{"text": "My squire returns! Taller, and not one bit wiser. Excellent.", "if": {"flag": "r1.path.knight"}, "p": 1}
 			],
-			"choices": [{"text": "The Elder Stone...", "goto": "rowan_meet_2"}]
+			"choices": [{"text": "The Elder Stone...", "goto": "rowan_maren"}]
+		},
+		"rowan_maren": {
+			"speaker": "rowan_ashby",
+			"lines": [{"text": "In a moment. Is that Coldbrook's staff? She beat me at staves in '31. Tell her I want a rematch."}],
+			"choices": [{"text": "She died. Kindling Night.", "goto": "rowan_maren_2"}]
+		},
+		"rowan_maren_2": {
+			"speaker": "rowan_ashby",
+			"lines": [{"text": "...Ah. Then I'll ask her myself. Sooner than I'd like, maybe. Now. The stone."}],
+			"choices": [{"text": "(Listen.)", "goto": "rowan_meet_2"}]
 		},
 		"rowan_meet_2": {
 			"speaker": "rowan_ashby",
@@ -140,11 +166,21 @@
 		"crownstead_vision": {
 			"speaker": "narrator",
 			"lines": [{"text": "A cart in the ash. A woman's voice: 'The Edge pays on delivery.' A sack of violet glass changes hands."}],
-			"choices": [{"text": "The Edge.", "goto": "idra_routing"}]
+			"choices": [{"text": "(Look deeper.)", "goto": "crownstead_old"}]
+		},
+		"crownstead_old": {
+			"speaker": "narrator",
+			"lines": [{"text": "Beneath it, older ash. Twenty winters old. A young Guard lieutenant pulls the pin on a northern line."}],
+			"choices": [{"text": "(Keep looking.)", "goto": "crownstead_old_2"}]
+		},
+		"crownstead_old_2": {
+			"speaker": "narrator",
+			"lines": [{"text": "A woman grabs his arm: Bram, they're our neighbours! He won't look up. Nine guards. I did the sum."}],
+			"choices": [{"text": "(Let go of the ash.)", "goto": "idra_routing"}]
 		},
 		"idra_routing": {
 			"speaker": "idra_vell",
-			"lines": [{"text": "The heart here is fine. Its line to Kingsreach is cut. Draw a new one. Stone to stone."}],
+			"lines": [{"text": "Hollin's Reach. He pulled it himself, and the Edge woman is his sister. Hm. Now draw a new line."}],
 			"choices": [{"text": "(Open the ward map.)", "goto": "@end", "do": [["flag", "r1.a4.route_told"]]}]
 		},
 
@@ -201,7 +237,75 @@
 		"idra_five_2": {
 			"speaker": "idra_vell",
 			"lines": [{"text": "Still growing. Route the lines toward the Edge. We'll want every spark at the mouth."}],
-			"choices": [{"text": "Every spark.", "goto": "@end", "do": [["flag", "r1.a4.done"]]}]
+			"choices": [{"text": "Every spark.", "goto": "wren_five"}]
+		},
+		"wren_five": {
+			"speaker": "wren_coldbrook",
+			"lines": [{"text": "Every spark. Even the grumpy ones. Especially the grumpy ones. Hi, Idra."}],
+			"choices": [{"text": "(Laugh.)", "goto": "@end", "do": [["flag", "r1.a4.done"]]}]
+		},
+
+		"wren_blame": {
+			"speaker": "wren_coldbrook",
+			"lines": [{"text": "You told him. Every stone. You told Hollis exactly where we were weak."}],
+			"choices": [
+				{"text": "I didn't know.", "goto": "wren_blame_2"},
+				{"text": "I know.", "goto": "wren_blame_2"}
+			]
+		},
+		"wren_blame_2": {
+			"speaker": "wren_coldbrook",
+			"lines": [{"text": "I know you didn't. I don't care right now. I need to not look at you for a while."}],
+			"choices": [{"text": "Wren...", "goto": "wren_leaves"}]
+		},
+		"wren_leaves": {
+			"speaker": "narrator",
+			"lines": [
+				{"text": "She takes the Staff Yard key off its hook and walks out into the rain."},
+				{"text": "She walks out into the rain. Thistle follows her to the gate, then comes back to you.", "if": {"flag": "r1.thistle.kept"}, "p": 1}
+			],
+			"choices": [{"text": "(Let her go.)", "goto": "@end", "do": [["flag", "r1.a4.wren_left"]]}]
+		},
+		"vigil": {
+			"speaker": "narrator",
+			"lines": [{"text": "Night. Rain. The ring burns gold, and nobody else is here."}],
+			"choices": [{"text": "(Kneel at the heart-stone.)", "goto": "vigil_2"}]
+		},
+		"vigil_2": {
+			"speaker": "ancestor_stone",
+			"lines": [{"text": "Staff up. You block with the wood, not your face."}],
+			"choices": [{"text": "Maren?", "goto": "vigil_3"}]
+		},
+		"vigil_3": {
+			"speaker": "ancestor_stone",
+			"lines": [{"text": "Some of me. The stubborn part. Stubborn lasts. ...Idra said that first, didn't she? Thief."}],
+			"choices": [{"text": "I told him everything.", "goto": "vigil_4"}]
+		},
+		"vigil_4": {
+			"speaker": "ancestor_stone",
+			"lines": [{"text": "And he chose. Not you. Everything is bigger than you. Get up anyway."}],
+			"choices": [{"text": "(Stand up.)", "goto": "vigil_idra", "do": [["flag", "r1.a4.vigil"]]}]
+		},
+		"vigil_idra": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "She gave. First one in two hundred years. That's the answer, apprentice. It always was."}],
+			"choices": [{"text": "Then we relight them all.", "goto": "vigil_idra_2"}]
+		},
+		"vigil_idra_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "All five. And she left you this. Said you block with your face."}],
+			"choices": [{"text": "(Take the staff.)", "goto": "@end", "do": [["give", "maren_staff", 1], ["flag", "r1.a4.stood_up"]]}]
+		},
+
+		"wren_returns": {
+			"speaker": "wren_coldbrook",
+			"lines": [{"text": "Still angry. Still coming. Move over, you're on the good side of the path."}],
+			"choices": [{"text": "Good to see you.", "goto": "wren_returns_2"}]
+		},
+		"wren_returns_2": {
+			"speaker": "wren_coldbrook",
+			"lines": [{"text": "Don't. I'll cry, and then I'll hit you, in that order. Staff up."}],
+			"choices": [{"text": "Staff up.", "goto": "@end", "do": [["flag", "r1.a4.wren_back"]]}]
 		}
 	}
 }

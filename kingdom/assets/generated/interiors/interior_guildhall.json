@@ -1,0 +1,89 @@
+{
+ "name": "guildhall",
+ "stats": {
+  "room_tris": 39968,
+  "prop_tris": 8474,
+  "total": 48442,
+  "materials": [
+   "RA_Wood_hp",
+   "RA_Plaster",
+   "RA_Ember",
+   "RA_Rune",
+   "RA_Props"
+  ],
+  "size_mb": 5.148816
+ },
+ "markers": [
+  [
+   "NPC_Guildmaster",
+   [
+    -2.6,
+    0,
+    -3.65
+   ],
+   3.141592653589793,
+   {
+    "look": "Elder_Man",
+    "height": 1.7,
+    "anim": "Idle",
+    "role": "guildmaster"
+   }
+  ],
+  [
+   "NPC_Runecarver",
+   [
+    2.9,
+    0,
+    -2.3000000000000003
+   ],
+   -1.1071487177940904,
+   {
+    "look": "Blacksmith",
+    "height": 1.8,
+    "anim": "Idle",
+    "role": "runecarver"
+   }
+  ],
+  [
+   "NPC_Clerk",
+   [
+    -4.9,
+    0,
+    -0.9
+   ],
+   1.373400766945016,
+   {
+    "look": "Trader",
+    "height": 1.7,
+    "anim": "Idle",
+    "role": "clerk"
+   }
+  ]
+ ],
+ "spawn": [
+  [
+   0.0,
+   0.05,
+   3.5
+  ],
+  0.0
+ ],
+ "lights": [
+  [
+   "FireLight",
+   [
+    5.749999523162842,
+    0.550000011920929,
+    1.5999999046325684
+   ]
+  ],
+  [
+   "RuneGlow",
+   [
+    4.3,
+    1.7,
+    -2.2
+   ]
+  ]
+ ]
+}
