@@ -50,6 +50,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.9
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="SphereMesh" id="SphereMesh_rmnbn"]
 radius = 0.23
@@ -100,6 +102,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.8
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_q6x6g"]
 top_radius = 0.0
@@ -188,21 +192,21 @@ color_ramp = SubResource("GradientTexture1D_80x1f")
 material = ExtResource("6_8qbhs")
 size = Vector2(0.4995122, 0.4995122)
 
-[node name="Dark_Projectile" type="Node3D" unique_id=1272584577]
+[node name="Dark_Projectile" type="Node3D" unique_id=1359692569]
 script = ExtResource("1_tqlcv")
 duration = 0.0
 fade_out = 0.15
 kind = &"projectile"
 element = &"dark"
 
-[node name="Orb" type="MeshInstance3D" parent="." unique_id=1192278413]
+[node name="Orb" type="MeshInstance3D" parent="." unique_id=236753781]
 material_override = SubResource("ShaderMaterial_fwja2")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_rmnbn")
 
-[node name="Swirl" type="MeshInstance3D" parent="." unique_id=561519516]
+[node name="Swirl" type="MeshInstance3D" parent="." unique_id=1409642162]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0.75)
 material_override = SubResource("ShaderMaterial_rikw6")
 cast_shadow = 0
@@ -210,14 +214,14 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_q6x6g")
 
-[node name="Glow" type="MeshInstance3D" parent="." unique_id=99705512]
+[node name="Glow" type="MeshInstance3D" parent="." unique_id=1779822026]
 material_override = SubResource("ShaderMaterial_hvfhv")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_42bos")
 
-[node name="Wisps" type="GPUParticles3D" parent="." unique_id=98550334]
+[node name="Wisps" type="GPUParticles3D" parent="." unique_id=872883413]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -229,7 +233,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_myvpf")
 draw_pass_1 = SubResource("QuadMesh_smiae")
 
-[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1731648858]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=469629251]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

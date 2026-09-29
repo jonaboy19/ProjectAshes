@@ -49,6 +49,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.6
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="SphereMesh" id="SphereMesh_gov67"]
 radius = 0.15
@@ -99,6 +101,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.7
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_mj6kq"]
 top_radius = 0.26
@@ -151,20 +155,20 @@ color_ramp = SubResource("GradientTexture1D_hwmyp")
 material = ExtResource("5_gx66c")
 size = Vector2(0.18474227, 0.18474227)
 
-[node name="Water_Charge" type="Node3D" unique_id=1029725745]
+[node name="Water_Charge" type="Node3D" unique_id=1339159760]
 script = ExtResource("1_xdvyj")
 duration = 0.0
 kind = &"charge"
 element = &"water"
 
-[node name="Orb" type="MeshInstance3D" parent="." unique_id=1168923104]
+[node name="Orb" type="MeshInstance3D" parent="." unique_id=106295075]
 material_override = SubResource("ShaderMaterial_7tbbp")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_gov67")
 
-[node name="Swirl" type="MeshInstance3D" parent="." unique_id=1553782522]
+[node name="Swirl" type="MeshInstance3D" parent="." unique_id=142418169]
 transform = Transform3D(0.9396926, -0.34202012, 0, 0.28016648, 0.76975113, -0.57357645, 0.1961747, 0.53898555, 0.81915206, 0, 0, 0)
 material_override = SubResource("ShaderMaterial_2pf0r")
 cast_shadow = 0
@@ -172,14 +176,14 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_mj6kq")
 
-[node name="Glow" type="MeshInstance3D" parent="." unique_id=16850090]
+[node name="Glow" type="MeshInstance3D" parent="." unique_id=1520442223]
 material_override = SubResource("ShaderMaterial_vk2tl")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_h6m5t")
 
-[node name="Drops" type="GPUParticles3D" parent="." unique_id=1486134388]
+[node name="Drops" type="GPUParticles3D" parent="." unique_id=1917769324]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

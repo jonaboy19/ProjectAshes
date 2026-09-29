@@ -118,6 +118,9 @@ CC0 / public domain (no attribution required; credited with thanks):
 CC0 (no attribution required; credited with thanks): 53 market props (39 + 14 pieces) from **Quaternius'** *Fantasy Props MegaKit* and *Ultimate Food Pack*
 (https://quaternius.com), re-authored into one warm-painted atlas (`assets/market_goods/`).
 
+## In-game tabbed menu icons (added 2026-09-29)
+- **Game icons** for the inventory, character, skills, quest, map and journal menu (assets/ui/icons/gm and assets/ui/icons/items) from game-icons.net, CC BY 3.0, recoloured to white. Authors: **Lorc**, **Delapouite**, **Skoll**, **Willdabeast**, **Caro Asercion**, **Irongamer**, **SBed**, **Seregacthtuf**, **Zeromancer**.
+
 ### Free addons added 2026-09-29 (local PC session; see `docs/addons/README.md`)
 - **Phantom Camera** (c) 2023-2026 Marcus Skov (ramokz), MIT (https://github.com/ramokz/phantom-camera), v0.11.0.3, `kingdom/addons/phantom_camera/`.
 - **Godot Debug Menu** (c) 2022-2025 Hugo Locurcio and contributors (Calinou), MIT (https://github.com/godot-extended-libraries/godot-debug-menu), `kingdom/addons/debug_menu/`.
@@ -128,3 +131,17 @@ CC0 (no attribution required; credited with thanks): 53 market props (39 + 14 pi
 - Octahedral impostors (`kingdom/tools/impostors/impostor_baker.gd`, `kingdom/assets/generated/impostors/impostor_octa.gdshader`) are our own implementation of the public octahedral-impostor technique (Ryan Brucks / Shaderbits, https://www.shaderbits.com/blog/octahedral-impostors); the MIT **Godot-Octahedral-Impostors** by wojtekpil (https://github.com/wojtekpil/Godot-Octahedral-Impostors) and its Godot 4.0 port (belzecue) were evaluated as references but not used (they don't run on 4.6). No code copied.
 - **KayKit Character Animations 1.1** (Kay Lousberg, https://kaylousberg.com), CC0 1.0. Clips retargeted to the UAL skeleton in `kingdom/assets/incoming/animations_free2/kaykit_*` (prefix `Kay_`); licence copy `animations_free2/LICENSE_KayKit.txt`. Credit optional: "Kay Lousberg, www.kaylousberg.com".
 - Traversal clips (ladder, wall, ledge, vault, horse riding) in `animations_free2/traversal_authored/` are our own Blender-IK authored work on the CC0 Quaternius UAL rig.
+
+## Region 1 audio (added 2026-09-29, L17; full table in `assets/audio/region1/LICENSES.md`)
+
+Credit required (CC BY 4.0, https://creativecommons.org/licenses/by/4.0/):
+
+- "Folk Round", "Minstrel Guild", "Achaidh Cheide", "Lost Time", "Suonatore di Liuto" and "Crusade" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License. Region 1 village/farm, guild town, Stagborn glade, rift-touched wilds, night and Antlered Warden boss themes.
+- "Medieval Chateau" by Alexander Nakarada (CreatorChords) | https://creatorchords.com , Royalty Free Music by https://www.free-stock-music.com , Creative Commons / Attribution 4.0 International (CC BY 4.0) https://creativecommons.org/licenses/by/4.0/ . Highwatch Keep theme.
+
+CC0 (credited with thanks):
+
+- Region 1 male barks: "Voice Clip Pack - Male Adventurer RPG" by wolfwoot (Brandon Song), https://opengameart.org/content/voice-clip-pack-male-adventurer-rpg
+- Region 1 female barks: "Female RPG Voice Starter Pack" by cicifyre, https://opengameart.org/content/female-rpg-voice-starter-pack
+- Stagborn calls layered from Joseph Sardin (BigSoundBank) recordings and the ward-break glass from rubberduck's "100 CC0 SFX".
+- Rune hum, ward activate, glyph carve and the Ashen Scar ambience are synthesised for the game (no third-party audio).

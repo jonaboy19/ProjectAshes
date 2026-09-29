@@ -52,3 +52,19 @@ func _physics_process(delta: float) -> void:
 		var hit := space.intersect_ray(_query)
 		if not hit.is_empty():
 			_hit_y[i] = maxf(_hit_y[i], (hit["position"] as Vector3).y)
+
+
+## Rising ground is followed instantly, falling ground is smoothed by the parent (GROUND_RATE).
+## The parent smooths both ways, so the foot lags a fresh stair riser for ~50 ms and the toes end
+## up inside the step. Pre-loading `_ground` with the new height makes its lerp land on the target
+## for a rise and leaves it untouched for a drop.
+func _pre_modify(delta: float) -> void:
+	if _use_ik and _has_anim:
+		var base_y := _model.global_position.y
+		var max_drop := _leg_len * 0.38
+		for i in 2:
+			if _hit[i]:
+				var d := clampf(_hit_y[i] - base_y, -max_drop, _leg_len * 0.5)
+				if d > _ground[i]:
+					_ground[i] = d
+	super(delta)

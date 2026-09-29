@@ -50,6 +50,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.85
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="SphereMesh" id="SphereMesh_51wgi"]
 radius = 0.2
@@ -123,6 +125,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.9
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_kgyq4"]
 top_radius = 0.0
@@ -166,35 +170,35 @@ color_ramp = SubResource("GradientTexture1D_w3071")
 material = ExtResource("6_6vtyb")
 size = Vector2(0.5827642, 0.5827642)
 
-[node name="Light_Projectile" type="Node3D" unique_id=1320143854]
+[node name="Light_Projectile" type="Node3D" unique_id=1893656148]
 script = ExtResource("1_6u5xt")
 duration = 0.0
 fade_out = 0.15
 kind = &"projectile"
 element = &"light"
 
-[node name="Orb" type="MeshInstance3D" parent="." unique_id=1415589744]
+[node name="Orb" type="MeshInstance3D" parent="." unique_id=434511172]
 material_override = SubResource("ShaderMaterial_agtqx")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_51wgi")
 
-[node name="Rays" type="MeshInstance3D" parent="." unique_id=525692658]
+[node name="Rays" type="MeshInstance3D" parent="." unique_id=1198978152]
 material_override = SubResource("ShaderMaterial_g4xwg")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_lpox8")
 
-[node name="Star" type="MeshInstance3D" parent="." unique_id=1114877545]
+[node name="Star" type="MeshInstance3D" parent="." unique_id=812638586]
 material_override = SubResource("ShaderMaterial_sexm5")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_xeinj")
 
-[node name="Trail" type="MeshInstance3D" parent="." unique_id=1354295443]
+[node name="Trail" type="MeshInstance3D" parent="." unique_id=513172112]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0.75)
 material_override = SubResource("ShaderMaterial_ihnln")
 cast_shadow = 0
@@ -202,7 +206,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_kgyq4")
 
-[node name="Motes" type="GPUParticles3D" parent="." unique_id=1154288502]
+[node name="Motes" type="GPUParticles3D" parent="." unique_id=1382658301]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -214,7 +218,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_f6o8e")
 draw_pass_1 = SubResource("QuadMesh_h7ikt")
 
-[node name="Flash" type="OmniLight3D" parent="." unique_id=866795639]
+[node name="Flash" type="OmniLight3D" parent="." unique_id=300842097]
 light_color = Color(1, 0.86, 0.46, 1)
 light_energy = 1.8
 metadata/flash = {

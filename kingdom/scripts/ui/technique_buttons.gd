@@ -13,6 +13,7 @@ extends Control
 
 signal open_skills_requested
 
+const HudArt := preload("res://scripts/ui/hud_art.gd")
 const Skills := preload("res://scripts/sim/skills.gd")
 const Caster := preload("res://scripts/actors/technique_caster.gd")
 const SLOT_SIZE := 72
@@ -108,7 +109,7 @@ func _build_slot(i: int) -> void:
 	glyph.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	glyph.add_theme_font_override("font", UITheme.title_font_weight(700))
 	glyph.add_theme_font_size_override("font_size", 22)
-	glyph.add_theme_color_override("font_color", UITheme.TEXT)
+	glyph.add_theme_color_override("font_color", HudArt.IVORY)
 	glyph.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.6))
 	glyph.add_theme_constant_override("shadow_outline_size", 4)
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -152,8 +153,8 @@ func _refresh() -> void:
 		var id := String(_shown[i]) if i < _shown.size() else ""
 		var b := _slots[i]
 		if id == "":
-			b.texture_normal = _face(UITheme.ACTION_UTIL.darkened(0.3), "")
-			b.texture_pressed = _face(UITheme.ACTION_UTIL, "", true)
+			b.texture_normal = _face(Color(0.5, 0.5, 0.55), "")
+			b.texture_pressed = _face(Color(0.5, 0.5, 0.55), "", true)
 			_glyphs[i].text = "+"
 			_captions[i].text = ""
 			continue
@@ -169,7 +170,11 @@ func _refresh() -> void:
 func _face(col: Color, icon_name: String, pressed := false) -> Texture2D:
 	var key := "%s|%s|%s" % [col.to_html(), icon_name, pressed]
 	if not _tex_cache.has(key):
-		_tex_cache[key] = UITheme.round_button(SLOT_SIZE, col.darkened(0.15), UITheme.icon(icon_name) if icon_name != "" else null, pressed)
+		var res := HudArt.resolve_icon(icon_name)
+		var fill := Color(0.07, 0.06, 0.055).lerp(col.darkened(0.35), 0.5)
+		if pressed:
+			fill = fill.lightened(0.25)
+		_tex_cache[key] = HudArt.round_face(SLOT_SIZE, fill, res[0], res[1], 0.6)
 	return _tex_cache[key]
 
 
@@ -259,8 +264,8 @@ func _build_seal_pad() -> void:
 	head.add_child(_seal_chips)
 	for seal: String in Skills.SEALS:
 		var b := TouchScreenButton.new()
-		b.texture_normal = UITheme.round_button(SEAL_SIZE, SEAL_COLOR)
-		b.texture_pressed = UITheme.round_button(SEAL_SIZE, SEAL_COLOR, null, true)
+		b.texture_normal = HudArt.round_face(SEAL_SIZE, Color(0.07, 0.06, 0.055).lerp(SEAL_COLOR.darkened(0.4), 0.5))
+		b.texture_pressed = HudArt.round_face(SEAL_SIZE, Color(0.07, 0.06, 0.055).lerp(SEAL_COLOR, 0.5))
 		var circle := CircleShape2D.new()
 		circle.radius = SEAL_SIZE * 0.5
 		b.shape = circle

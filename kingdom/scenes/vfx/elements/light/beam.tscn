@@ -51,6 +51,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.6
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_dbiyw"]
 top_radius = 0.24
@@ -104,6 +106,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.7
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_eup0h"]
 top_radius = 0.09
@@ -170,13 +174,13 @@ color_ramp = SubResource("GradientTexture1D_o20uv")
 material = ExtResource("7_t4muq")
 size = Vector2(0.5827642, 0.5827642)
 
-[node name="Light_Beam" type="Node3D" unique_id=1969872177]
+[node name="Light_Beam" type="Node3D" unique_id=36772984]
 script = ExtResource("1_xq74b")
 duration = 0.0
 kind = &"beam"
 element = &"light"
 
-[node name="Ray" type="MeshInstance3D" parent="." unique_id=2121408028]
+[node name="Ray" type="MeshInstance3D" parent="." unique_id=2048556898]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, -0.5)
 material_override = SubResource("ShaderMaterial_xvgss")
 cast_shadow = 0
@@ -184,7 +188,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_dbiyw")
 
-[node name="Core" type="MeshInstance3D" parent="." unique_id=1174725463]
+[node name="Core" type="MeshInstance3D" parent="." unique_id=675035124]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, -0.5)
 material_override = SubResource("ShaderMaterial_y6aa3")
 cast_shadow = 0
@@ -192,14 +196,14 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_eup0h")
 
-[node name="Muzzle" type="MeshInstance3D" parent="." unique_id=797278898]
+[node name="Muzzle" type="MeshInstance3D" parent="." unique_id=751307533]
 material_override = SubResource("ShaderMaterial_lbag0")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_xpdk5")
 
-[node name="Tip" type="MeshInstance3D" parent="." unique_id=710244663]
+[node name="Tip" type="MeshInstance3D" parent="." unique_id=740537515]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 material_override = SubResource("ShaderMaterial_yxr75")
 cast_shadow = 0
@@ -207,7 +211,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_c4jac")
 
-[node name="Motes" type="GPUParticles3D" parent="." unique_id=609253724]
+[node name="Motes" type="GPUParticles3D" parent="." unique_id=663898171]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

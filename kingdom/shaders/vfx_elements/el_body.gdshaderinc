@@ -47,6 +47,8 @@ uniform float tail_len = 0.6;           // ribbon: length of the fading tail
 uniform float pulse = 0.0;              // brightness pulse amount
 uniform float pulse_speed = 6.0;
 uniform float heat_scale = 0.8;         // scales heat before the colour ramp (lower = more body colour, less white core)
+uniform float soft_edge : hint_range(0.0, 1.0) = 0.0;   // shells/columns: fade alpha where the surface turns edge-on (no hard plastic silhouette) and soften the dissolve edge
+uniform float ring_soft : hint_range(0.0, 1.0) = 0.0;   // ground ring: 0 = crisp band, 1 = wide feathered band
 
 varying vec3 lp;
 
@@ -99,7 +101,7 @@ void fragment() {
 		shape = smoothstep(0.0, max(fade_y.x, 0.001), y01) * (1.0 - smoothstep(1.0 - fade_y.y, 1.0, y01));
 	} else if (shape_mode == 1) {
 		float d = abs(rr - ring_r);
-		float ring = 1.0 - smoothstep(ring_w * 0.35, ring_w * 0.5, d);
+		float ring = 1.0 - smoothstep(ring_w * mix(0.35, 0.0, ring_soft), ring_w * mix(0.5, 0.8, ring_soft), d);
 		float fill = ring_fill * (1.0 - smoothstep(ring_r - 0.05, ring_r + ring_w * 0.4, rr));
 		shape = max(ring, fill);
 		float tk = step(0.45, fract(ang / 6.2831853 * max(ticks, 1.0)));
@@ -131,7 +133,12 @@ void fragment() {
 	density += (1.0 - facing) * rim_alpha * shape;
 	float heat = (density + core_facing * facing * shape) * heat_scale;
 	float thr = progress * dissolve_amt;
-	float a = smoothstep(thr, thr + 0.1, density);
+	float a = smoothstep(thr, thr + 0.1 + soft_edge * 0.22, density);
+#ifndef SOLID_MODE
+	if (shape_mode == 0 || shape_mode == 2) {
+		a *= mix(1.0, smoothstep(0.0, 0.6, ndv), soft_edge);
+	}
+#endif
 	heat = clamp(heat - thr * 0.6, 0.0, 1.4);
 	float hq = floor(clamp(heat, 0.0, 0.999) * bands) / max(bands - 1.0, 1.0);
 	heat = mix(heat, min(hq, 1.2), cel);

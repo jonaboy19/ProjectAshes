@@ -425,3 +425,9 @@ specifically emptier than the capital needs a per-settlement-size budget.
 
 ## 2026-09-29: free animation library (from local)
 114 martial-arts / acrobatics / reaction / casting / weapon clips on the UAL skeleton in `kingdom/assets/incoming/animations_free/` (CMU + KayKit CC0). Ready for wiring by Codex; see `docs/anim/free_library/README.md`. Not yet in `Assets.UAL_FILES`.
+
+## 2026-09-29: boot flow QA and main scene changes (from local)
+- Boot chain (real path): engine splash -> studio intro (`scripts/boot/studio_intro.gd`, tap to skip) -> title splash -> first run (language, privacy, how to play) -> main menu -> New Game -> loading -> WorldLoading veil -> birth cutscene -> gameplay. Main menu and pause menu labels now use `tr()` keys; Quit is hidden only on iOS.
+- `main.gd` `_process` returns early while the world is still being built (terrain/army/hud nil during `_ready` awaits); `load_watcher.gd` tolerates a freed veil.
+- QA driver: `kingdom/tools_qa/boot_flow/boot_flow.gd` drives the flow with synthetic taps and saves stills (contact sheets: `docs/qa/boot_flow/`). Run: `godot --path kingdom --resolution 1280x720 --rendering-method mobile -s res://tools_qa/boot_flow/boot_flow.gd`, env `BOOT_FLOW_OUT=<dir>`, `BOOT_FLOW_SKIP=1` skips the studio intro by tap (no user args: those make boot skip straight into the game, the QA `--skip-intro` path). It restores `user://settings.cfg` at the end. Result: BOOTFLOW OK.
+- Import gotcha: after a disk-full import, `.godot/imported` can hold truncated scenes and empty font `.import` files; delete the bad ones (and their .md5) and re-import.

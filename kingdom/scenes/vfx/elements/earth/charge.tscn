@@ -50,6 +50,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="SphereMesh" id="SphereMesh_d4m0u"]
 radius = 0.07
@@ -100,6 +102,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="SphereMesh" id="SphereMesh_mhcir"]
 radius = 0.07
@@ -150,6 +154,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="SphereMesh" id="SphereMesh_w0des"]
 radius = 0.07
@@ -226,13 +232,13 @@ color_ramp = SubResource("GradientTexture1D_2hd02")
 material = ExtResource("6_5qrf8")
 size = Vector2(0.13195877, 0.13195877)
 
-[node name="Earth_Charge" type="Node3D" unique_id=379511024]
+[node name="Earth_Charge" type="Node3D" unique_id=663745905]
 script = ExtResource("1_ay0x7")
 duration = 0.0
 kind = &"charge"
 element = &"earth"
 
-[node name="Orbit" type="Node3D" parent="." unique_id=747567608]
+[node name="Orbit" type="Node3D" parent="." unique_id=1583507428]
 metadata/anims = [{
 "a": 0.0,
 "b": 188.0,
@@ -242,7 +248,7 @@ metadata/anims = [{
 "t1": 30.0
 }]
 
-[node name="Rock0" type="MeshInstance3D" parent="Orbit" unique_id=1500807453]
+[node name="Rock0" type="MeshInstance3D" parent="Orbit" unique_id=1543019450]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.26, -0.05, 0)
 material_override = SubResource("ShaderMaterial_numvf")
 cast_shadow = 0
@@ -250,7 +256,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_d4m0u")
 
-[node name="Rock1" type="MeshInstance3D" parent="Orbit" unique_id=1403648805]
+[node name="Rock1" type="MeshInstance3D" parent="Orbit" unique_id=914794518]
 transform = Transform3D(0.34202015, 0.60402274, 0.7198463, 0, 0.76604444, -0.6427876, -0.9396926, 0.21984631, 0.26200265, -0.13, 0, 0.2251666)
 material_override = SubResource("ShaderMaterial_8ohd4")
 cast_shadow = 0
@@ -258,7 +264,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_mhcir")
 
-[node name="Rock2" type="MeshInstance3D" parent="Orbit" unique_id=1304882886]
+[node name="Rock2" type="MeshInstance3D" parent="Orbit" unique_id=1121340594]
 transform = Transform3D(-0.76604444, 0.63302225, 0.11161893, 0, 0.17364822, -0.9848077, -0.64278764, -0.7544065, -0.13302225, -0.13, 0.05, -0.2251666)
 material_override = SubResource("ShaderMaterial_e7otg")
 cast_shadow = 0
@@ -266,14 +272,14 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_w0des")
 
-[node name="Glow" type="MeshInstance3D" parent="." unique_id=1849140239]
+[node name="Glow" type="MeshInstance3D" parent="." unique_id=770999498]
 material_override = SubResource("ShaderMaterial_eybgr")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_r3hxs")
 
-[node name="Dust" type="GPUParticles3D" parent="." unique_id=1173909758]
+[node name="Dust" type="GPUParticles3D" parent="." unique_id=1684715107]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -285,7 +291,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_qveoi")
 draw_pass_1 = SubResource("QuadMesh_cegnf")
 
-[node name="Motes" type="GPUParticles3D" parent="." unique_id=85946335]
+[node name="Motes" type="GPUParticles3D" parent="." unique_id=563980341]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
