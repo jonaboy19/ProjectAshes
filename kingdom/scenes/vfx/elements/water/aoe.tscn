@@ -50,6 +50,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_rtsdv"]
 size = Vector2(6.4, 6.4)
@@ -98,6 +100,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_s2n0p"]
 size = Vector2(6.4, 6.4)
@@ -146,6 +150,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.9
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_dag7y"]
 top_radius = 0.55
@@ -232,13 +238,13 @@ shader_parameter/spin = 0.0
 [sub_resource type="QuadMesh" id="QuadMesh_05gmc"]
 size = Vector2(4, 4)
 
-[node name="Water_Aoe" type="Node3D" unique_id=51896221]
+[node name="Water_Aoe" type="Node3D" unique_id=1773973921]
 script = ExtResource("1_8aw1l")
 duration = 1.9
 kind = &"aoe"
 element = &"water"
 
-[node name="Wave" type="MeshInstance3D" parent="." unique_id=2006901133]
+[node name="Wave" type="MeshInstance3D" parent="." unique_id=652775893]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 material_override = SubResource("ShaderMaterial_ffhj8")
 cast_shadow = 0
@@ -261,7 +267,7 @@ metadata/anims = [{
 "t1": 1.0
 }]
 
-[node name="Puddle" type="MeshInstance3D" parent="." unique_id=1439964856]
+[node name="Puddle" type="MeshInstance3D" parent="." unique_id=998895179]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
 material_override = SubResource("ShaderMaterial_tjgbd")
 cast_shadow = 0
@@ -284,7 +290,7 @@ metadata/anims = [{
 "t1": 1.9
 }]
 
-[node name="Geyser" type="MeshInstance3D" parent="." unique_id=1417723166]
+[node name="Geyser" type="MeshInstance3D" parent="." unique_id=269658322]
 transform = Transform3D(1, 0, 0, 0, 0.05, 0, 0, 0, 1, 0, 0.2, 0)
 material_override = SubResource("ShaderMaterial_u1615")
 cast_shadow = 0
@@ -314,7 +320,7 @@ metadata/anims = [{
 "t1": 1.6
 }]
 
-[node name="Splash" type="GPUParticles3D" parent="." unique_id=1385446228]
+[node name="Splash" type="GPUParticles3D" parent="." unique_id=1692334251]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -329,7 +335,7 @@ process_material = SubResource("ParticleProcessMaterial_xn4dn")
 draw_pass_1 = SubResource("QuadMesh_l8767")
 metadata/emit_delay = 0.15
 
-[node name="Mist" type="GPUParticles3D" parent="." unique_id=1609430252]
+[node name="Mist" type="GPUParticles3D" parent="." unique_id=1073249295]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -343,7 +349,7 @@ draw_pass_1 = SubResource("QuadMesh_2rsu5")
 metadata/emit_delay = 0.2
 metadata/tier_min = 1
 
-[node name="Flash" type="MeshInstance3D" parent="." unique_id=1400801096]
+[node name="Flash" type="MeshInstance3D" parent="." unique_id=1793499010]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 material_override = SubResource("ShaderMaterial_c6ut6")
 cast_shadow = 0

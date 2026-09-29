@@ -124,13 +124,13 @@ height = 0.153
 radial_segments = 6
 rings = 3
 
-[node name="Earth_Impact" type="Node3D" unique_id=317182339]
+[node name="Earth_Impact" type="Node3D" unique_id=892832540]
 script = ExtResource("1_57ek1")
 duration = 1.1
 kind = &"impact"
 element = &"earth"
 
-[node name="Flash" type="MeshInstance3D" parent="." unique_id=1281212076]
+[node name="Flash" type="MeshInstance3D" parent="." unique_id=1516621472]
 material_override = SubResource("ShaderMaterial_ieq3e")
 cast_shadow = 0
 extra_cull_margin = 2.0
@@ -152,7 +152,7 @@ metadata/anims = [{
 "t1": 0.25
 }]
 
-[node name="Ring" type="MeshInstance3D" parent="." unique_id=1782897377]
+[node name="Ring" type="MeshInstance3D" parent="." unique_id=284457373]
 material_override = SubResource("ShaderMaterial_hxlpa")
 cast_shadow = 0
 extra_cull_margin = 2.0
@@ -174,7 +174,7 @@ metadata/anims = [{
 "t1": 0.45
 }]
 
-[node name="Dust" type="GPUParticles3D" parent="." unique_id=1951227715]
+[node name="Dust" type="GPUParticles3D" parent="." unique_id=1531978527]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -187,7 +187,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_7av3h")
 draw_pass_1 = SubResource("QuadMesh_kc334")
 
-[node name="Chips" type="GPUParticles3D" parent="." unique_id=2113940316]
+[node name="Chips" type="GPUParticles3D" parent="." unique_id=1664067810]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -201,7 +201,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_2554e")
 draw_pass_1 = SubResource("QuadMesh_yljfy")
 
-[node name="Rocks" type="GPUParticles3D" parent="." unique_id=803828073]
+[node name="Rocks" type="GPUParticles3D" parent="." unique_id=261122984]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

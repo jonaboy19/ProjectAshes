@@ -65,7 +65,7 @@
    "name": "Cast_Push_Palm_B",
    "file": "002/02_05.bvh",
    "start": 8.0,
-   "end": 10.0,
+   "end": 9.6,
    "fingers": "fist",
    "inplace_sigma": 0.5,
    "smooth": 0.012

@@ -224,21 +224,39 @@ def limb_track(u, ph, base, rise, y_contact, y_swing_out):
         y = y_contact - y_swing_out * math.sin(math.pi * w)
     return z, y
 
-def climb(n, rise, hx=0.21, fx=0.11, yh=-0.30, yf=-0.22, sway=0.0, hand_base=1.45, foot_base=0.30):
-    """ladder / wall climbing cycle. Stationary hands and feet in world space; root Z carries the climb."""
+def climb(n, rise, hx=0.21, fx=0.11, yh=-0.30, yf=-0.18, sway=0.0, P0=0.90, d_foot=0.60, d_hand=0.90):
+    """Ladder / wall climbing cycle (cross pattern: left hand moves together with the right foot).
+    Every limb holds still in world space for half of the cycle and then steps up by `rise` (two rungs) to the
+    next hold; the four limbs are staggered by half a step, so the hands sit on alternate rungs. The pelvis rises
+    steadily (root Z carries it). Geometry: pelvis-to-foot distance is `d_foot` when a foot lands (knee bent) and
+    grows to d_foot + rise/2 when it lifts (leg almost straight), pelvis-to-hand `d_hand` when a hand grabs.
+    With the defaults (rise 0.6, P0 0.9) feet land on rungs 0.3 / 0.6 and hands on 1.8 / 2.1 (rungs every 0.3)."""
+    def limb(u, phase, z_c, y_hold, y_lift):
+        """z, y of a limb whose hold begins at u == phase (mod 1); z_c = height of the hold at that moment"""
+        s = cyc(u - phase)
+        k = math.floor(u - phase)
+        z = z_c + rise * k
+        y = y_hold
+        if s >= 0.5:
+            w = (s - 0.5) / 0.5
+            z += rise * smooth(w)
+            y = y_hold + y_lift * math.sin(math.pi * w)
+        return z, y
     poses = []
     for i in range(n + 1):
         u = i / n
         P = Pose()
         P.root = V(0, 0, rise * u)
-        P.pelvis = V(sway * math.sin(2 * math.pi * u), 0.03, 0.80 + 0.015 * math.sin(4 * math.pi * u)) + P.root
-        for side, sx, ph in (("l", 1, 0.0), ("r", -1, 0.5)):
-            hz, hy = limb_track(u, ph, hand_base, rise, yh, 0.05)
+        P.pelvis = V(sway * math.sin(2 * math.pi * u), 0.03, P0 + 0.012 * math.sin(4 * math.pi * u)) + P.root
+        pz = P0 + rise * u
+        for side, sx, ph_hand, ph_foot in (("l", 1, 0.0, 0.5), ("r", -1, 0.5, 0.0)):
+            hz, hy = limb(u, ph_hand, P0 + rise * ph_hand + d_hand, yh, 0.06)
+            fz, fy = limb(u, ph_foot, P0 + rise * ph_foot - d_foot, yf, 0.14)
             P.t["hand_" + side] = V(sx * hx, hy, hz)
-            P.t["elbow_" + side] = V(sx * (hx + 0.30), 0.10, hz - 0.30)
-            fz, fy = limb_track(u, ph + 0.5, foot_base, rise, yf, 0.12)
-            P.t["foot_" + side] = V(sx * fx, fy + 0.08, fz)
-            P.t["knee_" + side] = V(sx * (fx + 0.05), -0.75, fz + 0.30)
+            # elbows out and down, knees out (climbers keep the knees wide of the rails)
+            P.t["elbow_" + side] = V(sx * (hx + 0.42), 0.12, min(hz, pz + 0.5) - 0.35)
+            P.t["foot_" + side] = V(sx * fx, fy, fz)
+            P.t["knee_" + side] = V(sx * (fx + 0.50), -0.10, (fz + pz) * 0.5 + 0.05)
             P.rot["hand_" + side] = wq((1, 0, 0), -35)
             P.rot["foot_" + side] = wq((1, 0, 0), -35)
         P.rot["spine_02"] = wq((1, 0, 0), -5)
@@ -268,7 +286,7 @@ def Ladder_Climb_Down():
 
 @clip
 def Wall_Climb_Up():
-    return climb(42, 0.5, hx=0.30, fx=0.22, yh=-0.28, yf=-0.18, sway=0.05, hand_base=1.75, foot_base=0.55), True
+    return climb(42, 0.5, hx=0.30, fx=0.22, yh=-0.26, yf=-0.16, sway=0.05, P0=0.92, d_foot=0.62, d_hand=0.85), True
 
 def hang_pose(t, sway_amp=0.03):
     P = Pose()
@@ -365,11 +383,11 @@ def Ride_Gallop():
 
 @clip
 def Ride_Lean_L():
-    return [ride_pose(0, 0.0, 0.0, lean=14) for i in range(2)], True
+    return [ride_pose(0, 0.0, 0.0, lean=14) for i in range(31)], True
 
 @clip
 def Ride_Lean_R():
-    return [ride_pose(0, 0.0, 0.0, lean=-14) for i in range(2)], True
+    return [ride_pose(0, 0.0, 0.0, lean=-14) for i in range(31)], True
 
 @clip
 def Vault_Low():

@@ -123,7 +123,7 @@ func _props(o: Vector3) -> void:
 			for rz in [-0.22, 0.22]:
 				_box(Vector3(0.05, 6.0, 0.05), o + Vector3(0.30, 3.0, rz), wood)
 			for i in range(1, 20):
-				_box(Vector3(0.05, 0.04, 0.5), o + Vector3(0.30, 0.3 * i, 0), wood.darkened(0.15))
+				_box(Vector3(0.09, 0.07, 0.5), o + Vector3(0.30, 0.3 * i, 0), Color(0.35, 0.22, 0.1))
 		"ledge":
 			_box(Vector3(1.0, 2.1, 1.2), o + Vector3(0.25 + 0.5, 1.05, 0), Color(0.6, 0.58, 0.55))
 		"wall":

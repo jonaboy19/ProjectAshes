@@ -38,29 +38,10 @@
   "hip_scale": 3.1218
  },
  {
-  "name": "Kay_Death_Fall_A",
-  "loop": false,
-  "seconds": 0.8,
-  "frames": 25,
-  "keys": 287,
-  "source": "Death_A",
-  "range_s": [
-   null,
-   null
-  ],
-  "autotrim": null,
-  "loop_pts": null,
-  "floor_fix_m": 0.0,
-  "contact_lift_m": 0.264,
-  "min_foot_m": -0.069,
-  "travel_m": 1.0,
-  "hip_scale": 3.1218
- },
- {
   "name": "Kay_Death_Fall_B",
   "loop": false,
-  "seconds": 2.63,
-  "frames": 80,
+  "seconds": 2.1,
+  "frames": 63,
   "keys": 544,
   "source": "Death_B",
   "range_s": [
@@ -73,7 +54,11 @@
   "contact_lift_m": 0.185,
   "min_foot_m": -0.065,
   "travel_m": 0.79,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "trimmed_from_s": [
+   0,
+   2.1
+  ]
  },
  {
   "name": "Kay_Block_Raise",
@@ -268,8 +253,8 @@
  {
   "name": "Kay_Attack_2H_Spin_Long",
   "loop": false,
-  "seconds": 2.4,
-  "frames": 73,
+  "seconds": 1.6,
+  "frames": 48,
   "keys": 581,
   "source": "Melee_2H_Attack_Spin",
   "range_s": [
@@ -282,6 +267,10 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.001,
   "travel_m": 0.09,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "trimmed_from_s": [
+   0.3,
+   1.9
+  ]
  }
 ]
