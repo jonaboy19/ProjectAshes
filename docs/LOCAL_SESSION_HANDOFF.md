@@ -431,3 +431,8 @@ specifically emptier than the capital needs a per-settlement-size budget.
 - `main.gd` `_process` returns early while the world is still being built (terrain/army/hud nil during `_ready` awaits); `load_watcher.gd` tolerates a freed veil.
 - QA driver: `kingdom/tools_qa/boot_flow/boot_flow.gd` drives the flow with synthetic taps and saves stills (contact sheets: `docs/qa/boot_flow/`). Run: `godot --path kingdom --resolution 1280x720 --rendering-method mobile -s res://tools_qa/boot_flow/boot_flow.gd`, env `BOOT_FLOW_OUT=<dir>`, `BOOT_FLOW_SKIP=1` skips the studio intro by tap (no user args: those make boot skip straight into the game, the QA `--skip-intro` path). It restores `user://settings.cfg` at the end. Result: BOOTFLOW OK.
 - Import gotcha: after a disk-full import, `.godot/imported` can hold truncated scenes and empty font `.import` files; delete the bad ones (and their .md5) and re-import.
+## 2026-09-29 (local): water views are CPU-bound, RegionDressing subtree is the biggest measured cost (cloud-owned code)
+Measured with `tools/qa/water_shots/prof.sh` at the lake, HIGH: switching off `RegionDressing` (process mode DISABLED on
+`scripts/world/region_dressing.gd` and children) drops the frame from 28.0 to 20.7 ms (p99 50 -> 28). Not a rewrite request yet:
+please check what in that subtree runs every frame (flicker lights, `Breakable` bodies, VFX, per-site nodes) and whether sites can be
+built with fewer nodes, and drop `_process` work when no site is within BUILD. I will run `--census` to name the node classes.

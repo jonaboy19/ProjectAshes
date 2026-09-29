@@ -340,3 +340,30 @@ counted from the built scene (`kingdom/tests/test_market_dressing.gd` prints the
   instances per village (one batch per 40 m cell): zero extra draws on the terrain.
 * **Collapsed tower**: same 618-tri mesh, new texture only.
 * QA switches for A/B renders and benches: `-- --no-goods`, `-- --no-decals`, `-- --legacy-plaza`.
+
+## 2026-09-29: why the water views were slow (PARTIAL: interrupted by a full disk)
+
+Tool: `bash tools/qa/water_shots/prof.sh <out.jsonl> lake,river,pier` (`water_prof.gd`). Configs are measured round-robin in
+25-frame bursts, 8 rounds, and each reports its **best round's median** (the machine was busy with other agents' imports and
+renders, so plain averages were useless: 24-140 ms frames). Raw data: `docs/qa/water_prof/water_prof_2026-09-29.jsonl`
+(`ms_best`, `gpu_best`, `proc_best`, draws, prims per view x tier x config). 3D viewport 1280x720, RTX 4070 Laptop, Forward+.
+
+**Root cause (so far): the water shader is not the problem, the frame is CPU-bound.**
+* GPU time per frame (best): LOW 0.5-0.8 ms, MEDIUM 1.7, HIGH 4-5, ULTRA 6-10 ms. Water is 0.3-1.2 ms of that
+  (baseline minus `water_off`). New clear-water vs old shader: within +-0.3 ms GPU in every view and tier (noise level).
+* Frame time (best round) is 24-34 ms for EVERY config: LOW, HIGH, water off, half-res 3D, no shadows, no post effects. Changing
+  GPU work by 3-5 ms moves nothing, so the frame is limited by CPU (plus other processes competing for it).
+* CPU ablation at the lake, HIGH (`--sysprof`, process+physics switched off per node): only **RegionDressing**
+  (`scripts/world/region_dressing.gd` and its subtree) matters: 28.0 -> 20.7 ms best, p99 50 -> 28 ms. Every other autoload and world
+  child is within +-3 ms of noise (WorldSim, Life, Frontier, Audio, population, soldiers, ...).
+* Draw calls 180-690 and primitives 0.17-1.4 M are inside the budget except river/ULTRA (1.5 M).
+* Shader features (caustics, glints, screen/depth read) each cost < 0.3 ms GPU on the desktop; on tile-based phone GPUs the
+  screen/depth texture read is the expensive part (render-pass split), see the fix below.
+
+Not yet done: what inside the RegionDressing subtree costs ~7 ms (my `--census` flag prints the per-frame processing nodes, lights
+and colliders; not run), a village control run under the same load, before/after screenshots, frame sheets, the mobile renderer.
+
+**Shader change (committed, needs a visual check + LOW screenshot):** `clear_water.gdshader` now compiles a `WATER_LITE` variant
+(no `hint_screen_texture`, no `hint_depth_texture`) for LOW/Compatibility (`WaterStreamer.apply_quality` swaps it in). Before,
+LOW still declared both textures, so the engine copied the frame every frame even though no branch read it. The screen copy also
+lost its mipmaps (only LOD 0 was read). Desktop GPU cost is unchanged (0.5 ms level); the gain is expected on Mali/Adreno.
