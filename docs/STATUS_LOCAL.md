@@ -10,6 +10,7 @@ _Last update: 2026-09-29 (assets session: farm animals, Meshy fixes, impostors)_
 |---|---|---|---|
 | 09-28 | Boot crash fixed (threaded mesh loads → main-thread `Assets.scene`) | `scripts/world/region_dressing.gd`, `assets.gd` | 0137fa0d, 64b3698e |
 | 09-28 | Godot 4.6.3 (quit crash fixed) | launchers, `tools/qa` | a5a596b7 |
+| 09-29 | **Design: Retinue, Settlement and Ascension** (recruitment and the stone-borne Call with ETA, taming, Palworld-style building for thumbs, grudges and raids, conquest, the path to king via the Elder Stone Moot; 5 twists; balance targets and sims S1–S10; packages L21–L50, C14–C21, X8–X11 after the in-progress Region 1 packages) | `docs/design/RETINUE_SETTLEMENT_ASCENSION.md` | (this commit) |
 | 09-29 | **L17 Region 1 audio**: 7 looping themes (village/farm, guild town, Highwatch Keep, Stagborn glade, rift wilds, night, Warden boss), rune hum, ward activate/break, glyph carve x3, Stagborn bellow/snort/Warden roar, Scar ambience, 20 barks (10 m / 10 f). Music -16.1..-16.2 LUFS-I, one-shots peak -3 dBFS, 8.3 MB, licences in LICENSES.md + CREDITS.md | `assets/audio/region1/`, `docs/regions/AUDIO_R1.md`, `tools/audio/r1_*.sh` | (this commit) |
 | 09-29 | Meshy free pack round 1: 181 optimized models (CC0), not placed yet | `assets/incoming/meshy_free/` | a6c67244 |
 | 09-29 | Free VFX and shader gallery (Kenney, RPicster, god rays) | `assets/incoming/vfx_free/`, `shaders/free/`, `tools_qa/vfx_gallery/` | 58f8e8c4 |
