@@ -83,6 +83,11 @@ const PROMPTS := {
 
 enum State { PENDING, DONE, SKIPPED }
 
+## The game's director (set by hook C8 with make_main()); null in tests and sandboxes.
+## Other Region 1 UIs report real actions without holding a reference:
+##     Region1TutorialDirector.tell(&"carve")      # runecarve canvas accepted a glyph
+static var main: Region1TutorialDirector
+
 var enabled := true
 var current: StringName = &""
 var _state: Dictionary = {}       # id -> State
@@ -97,6 +102,16 @@ func _init() -> void:
 	for id: String in PROMPTS:
 		_state[StringName(id)] = State.PENDING
 		_progress[StringName(id)] = 0.0
+
+
+func make_main() -> Region1TutorialDirector:
+	main = self
+	return self
+
+
+static func tell(action: StringName, amount: float = 1.0) -> void:
+	if main != null:
+		main.notify(action, amount)
 
 
 static func ids() -> PackedStringArray:
