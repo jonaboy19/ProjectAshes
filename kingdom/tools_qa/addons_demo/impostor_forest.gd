@@ -9,6 +9,7 @@ const G := "res://assets/generated/"
 const IMP := "res://assets/generated/impostors/"
 const CELL := 32.0
 const NEAR := 45.0
+const FADE := 5.0   # dithered crossfade length (m) between full mesh and impostor, centred on NEAR
 
 # kind -> [source scene, impostor scene, count share]
 const KINDS := {
@@ -19,6 +20,8 @@ const KINDS := {
 }
 
 var cap_dir := ""
+var fly_mode := ""   # --fly=fade|hard : camera flies through the 45 m switch (use with --write-movie)
+var fly_speed := 7.0
 var tree_count := 3000
 var house_count := 80
 var cam: Camera3D
@@ -30,6 +33,7 @@ var mesh_cache: Dictionary = {}   # kind -> [Mesh, Transform3D local]
 func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--capture="): cap_dir = a.substr(10)
+		if a.begins_with("--fly="): fly_mode = a.substr(6)
 		if a.begins_with("--trees="): tree_count = int(a.substr(8))
 		if a.begins_with("--houses="): house_count = int(a.substr(9))
 	Engine.max_fps = 0
@@ -51,11 +55,34 @@ func _ready() -> void:
 	_scatter()
 	for k in KINDS:
 		_load_source(k)
+	if fly_mode != "":
+		_cluster()   # sparse, readable test set: a row of trees and two houses 70 m ahead; the camera flies through the 45 m switch
+		fly_speed = 13.0
+		cam.position = Vector3(0, 2.4, 10)
+		cam.look_at(Vector3(0, 5.0, -70))
+		_build("fade" if fly_mode == "fade" else "hard")
+		return
 	if cap_dir == "":
 		H.label(self, "1 full meshes | 2 impostors | 3 hybrid (<45 m full) | 4 compare row")
 		_build("hybrid")
 		return
 	_run_capture()
+
+func _cluster() -> void:
+	for k in KINDS:
+		placements[k] = []
+	var i := 0
+	for x in range(-16, 17, 4):
+		var kind: String = ["oak1", "oak4", "twisted"][i % 3]
+		var b := Basis(Vector3.UP, i * 1.3).scaled(Vector3.ONE * (0.55 if kind == "twisted" else 1.0))
+		placements[kind].append(Transform3D(b, Vector3(x, 0, -70 + (i % 2) * 6.0)))
+		i += 1
+	placements["village_house"].append(Transform3D(Basis(Vector3.UP, 0.4), Vector3(-9, 0, -64)))
+	placements["village_house"].append(Transform3D(Basis(Vector3.UP, -0.3), Vector3(10, 0, -66)))
+
+func _process(delta: float) -> void:
+	if fly_mode != "":
+		cam.position.z -= fly_speed * delta
 
 func _unhandled_key_input(e: InputEvent) -> void:
 	if e is InputEventKey and e.pressed:
@@ -98,7 +125,13 @@ func _clear() -> void:
 	for c in root_group.get_children():
 		c.queue_free()
 
-func _mm(mesh: Mesh, xforms: Array, mat: Material, cast_shadows: bool, margin := 0.0) -> MultiMeshInstance3D:
+func _mm(mesh: Mesh, xforms: Array, mat: Material, cast_shadows: bool, margin := 0.0, cell_center := Vector3.INF) -> MultiMeshInstance3D:
+	# with a cell_center the MultiMeshInstance3D sits at the cell centre (visibility ranges measure from the node), instances are local
+	if cell_center != Vector3.INF:
+		var moved: Array = []
+		for t: Transform3D in xforms:
+			moved.append(Transform3D(t.basis, t.origin - cell_center))
+		xforms = moved
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.mesh = mesh
@@ -111,6 +144,8 @@ func _mm(mesh: Mesh, xforms: Array, mat: Material, cast_shadows: bool, margin :=
 		mi.material_override = mat
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if cast_shadows else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mi.extra_cull_margin = margin
+	if cell_center != Vector3.INF:
+		mi.position = cell_center
 	return mi
 
 ## mode: "mesh" (all full), "impostor" (all impostors), "hybrid" (< NEAR from camera full, rest impostor)
@@ -130,6 +165,12 @@ func _build(mode: String) -> Dictionary:
 		for t: Transform3D in placements[kind]:
 			var use_full := mode == "mesh" or (mode == "hybrid" and t.origin.distance_to(cpos) < NEAR)
 			var key := Vector2i(int(floor(t.origin.x / CELL)), int(floor(t.origin.z / CELL)))
+			if mode == "fade" or mode == "hard":   # every cell exists twice, the engine's visibility ranges do the dithered crossfade
+				for cells in [full_cells, imp_cells]:
+					if not cells.has(key):
+						cells[key] = []
+					cells[key].append(t)
+				continue
 			var cells := full_cells if use_full else imp_cells
 			if not cells.has(key):
 				cells[key] = []
@@ -139,16 +180,39 @@ func _build(mode: String) -> Dictionary:
 				var xs: Array = []
 				for t: Transform3D in full_cells[key]:
 					xs.append(t * (m[1] as Transform3D))
-				root_group.add_child(_mm(m[0], xs, null, true))
+				var mmi := _mm(m[0], xs, null, true, 0.0, _cell_center(key) if mode in ["fade", "hard"] else Vector3.INF)
+				if mode in ["fade", "hard"]:
+					_fade_out(mmi, mode == "fade")
+				root_group.add_child(mmi)
 				stats["multimeshes"] += 1
 			stats["instances_full"] += full_cells[key].size()
 		for key in imp_cells:
-			root_group.add_child(_mm(imp_mesh, imp_cells[key], imp_mat, false, margin))
+			var imi := _mm(imp_mesh, imp_cells[key], imp_mat, false, margin, _cell_center(key) if mode in ["fade", "hard"] else Vector3.INF)
+			if mode in ["fade", "hard"]:
+				_fade_in(imi, mode == "fade")
+			root_group.add_child(imi)
 			stats["multimeshes"] += 1
 			stats["instances_imp"] += imp_cells[key].size()
 		imp_scene.free()
 	await get_tree().process_frame
 	return stats
+
+func _cell_center(key: Vector2i) -> Vector3:
+	return Vector3((key.x + 0.5) * CELL, 0.0, (key.y + 0.5) * CELL)
+
+## Godot fades a visibility-range edge OUTSIDE the range: the mesh (end NEAR-FADE/2, margin FADE) dithers out between NEAR-FADE/2 and NEAR+FADE/2
+## while the impostor (begin NEAR+FADE/2, margin FADE) dithers in over the same band, so the 5 m crossfade is centred on NEAR and never pops.
+func _fade_out(mi: GeometryInstance3D, fade: bool) -> void:
+	mi.visibility_range_end = NEAR - (FADE * 0.5 if fade else 0.0)
+	if fade:
+		mi.visibility_range_end_margin = FADE
+		mi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+
+func _fade_in(mi: GeometryInstance3D, fade: bool) -> void:
+	mi.visibility_range_begin = NEAR + (FADE * 0.5 if fade else 0.0)
+	if fade:
+		mi.visibility_range_begin_margin = FADE
+		mi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 
 func _compare_row() -> void:
 	_clear()

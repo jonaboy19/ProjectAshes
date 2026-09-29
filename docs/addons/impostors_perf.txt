@@ -1,4 +1,4 @@
 renderer=mobile adapter=NVIDIA GeForce RTX 4070 Laptop GPU | 3000 trees + 80 houses, 32 m cells, hybrid switch at 45 m
-mesh     full=3071 imp=0 multimeshes=284 | 13.38 ms (75 fps) | GPU 12.44 ms | render-CPU 2.92 ms | draws 441 | tris 2006738
-impostor full=0 imp=3071 multimeshes=284 | 4.67 ms (214 fps) | GPU 0.47 ms | render-CPU 1.04 ms | draws 242 | tris 5538
-hybrid   full=155 imp=2916 multimeshes=303 | 7.04 ms (142 fps) | GPU 2.86 ms | render-CPU 1.86 ms | draws 280 | tris 423688
+mesh     full=3071 imp=0 multimeshes=284 | 22.33 ms (45 fps) | GPU 16.72 ms | render-CPU 2.87 ms | draws 441 | tris 2006738
+impostor full=0 imp=3071 multimeshes=284 | 22.41 ms (45 fps) | GPU 1.41 ms | render-CPU 1.10 ms | draws 242 | tris 5538
+hybrid   full=155 imp=2916 multimeshes=303 | 22.49 ms (45 fps) | GPU 4.28 ms | render-CPU 1.46 ms | draws 280 | tris 423688

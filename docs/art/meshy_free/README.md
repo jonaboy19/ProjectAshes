@@ -247,8 +247,34 @@ Contact sheets: raw `contact_sheets/raw2_1.jpg` .. `raw2_9.jpg`, optimized `cont
 
 - Buildings (round 2) and `castle/watchtower_stone_small` also have `_lod1.glb`.
 - `dec` variant (no voxel remesh) was needed for open, thin-shelled sources: both bouquets, `house_stone_fantasy`, `house_two_story_tall_timber` (roof stays ragged), `hut_wood_vine`, `chicken_coop_fenced`, `stump_dead_tall`, `throne_leather_cushion`, `skeleton_hooded`, `skeleton_warrior_a`. `solid` fixed `lamp_post_timber_cross`, `lumber_mill`, `tavern_set_barrels_a` and the cloth/thin items. Per-model variants are listed in `tools/meshy/free_batch/spec_r2.py`.
-- Rough at close range: `flora/bouquet_*`, `flora/bush_raspberry`, `farm/hay_bale_yellow_large` (faceted), `torch_dungeon_cage` (a few stray flame fragments), `hut_mossy_ruined_*` (floating debris).
+- Rough at close range: `flora/bouquet_*`, `flora/bush_raspberry`, `farm/hay_bale_yellow_large` (faceted), `torch_dungeon_cage` (a few stray flame fragments), `hut_mossy_ruined_*` (ground fringe shreds remain; the floating debris above the roofs was removed, see Fixes).
 - Lighting pieces carry no light: glass and flame are baked colour only, add OmniLight and emissive in Godot.
 - Coins are scaled to 0.25 m as pickups, not real size.
 - Several thrones, lamps and sconces are darker and more metallic than the reference; they want the warm grade.
 - Driver: `ROUND=2 python tools/meshy/free_batch/run_opt.py [idx[:variant] ...]` (staging paths are hard-coded, see `tools/meshy/free_batch/README.md`).
+
+## Rigged farm animals (`farm/rigged/`)
+
+Static farm meshes were rigged and animated in Blender (`tools/meshy/animal_rig/`). All GLBs keep the single baked texture, face -Z in Godot (glTF +Z), stand on y = 0 and use real-world size.
+
+| file | bones | tris | clips (30 fps) | walk speed |
+|---|---:|---:|---|---:|
+| `chicken_hen_rigged.glb` | 11 | 2,492 | `idle` 96 f, `walk` 20 f, `eat` (2 pecks) 60 f, `flap` (3 flaps, hops) 30 f | 0.28 m/s |
+| `chicken_rooster_rigged.glb` (hen x 1.2) | 11 | 2,383 | same four | 0.33 m/s |
+| `cow_spotted_rigged.glb` | 21 | 5,994 | `idle` 120 f, `walk` 42 f, `eat` (graze, 150 f) | 0.63 m/s |
+| `cow_brown_a_rigged.glb`, `cow_brown_b_rigged.glb` (split from `cows_pair`) | 21 | about 3,500 each | same three | 0.71 m/s |
+
+- Each `.json` next to a GLB holds bone count, clip lengths and the walk speed. Move the animal at that speed while `walk` plays: stance feet then stay planted (feet are solved with analytic two-bone IK per frame, hooves counter-rotated, so ground contact is exact by construction).
+- Clips are baked keyframes on an NLA track per name (`idle`, `walk`, `eat`, `flap`), first frame == last frame. In Godot set `loop_mode = LOOP_LINEAR` on all four (chicken `eat` and cow `eat` are complete sequences that start and end upright).
+- Weights: Blender automatic weights (bone heat) computed on a voxel-remeshed watertight proxy (the raw meshes are hundreds of loose feather and hair shells, bone heat fails on them directly), transferred to the real mesh, then fixed by rule: legs only inside their leg column, wings only on the flank patch, rear feathers and the low dangling feather off the wings, tail only at the tail, ears only near the ear bones, verts behind the neck pivot never follow the neck, head/muzzle/horns/hair tuft belong to the head.
+- Cows are aligned on import (body axis to Y from the feet), so the split cows and the spotted cow all face -Y. The pair mesh was split by connectivity (two cows, x < 0 and x >= 0).
+- Not rigged (no time): horse, wolves, fox, dragons. `rig_cow.py` is written for cow proportions; the same `rig_lib.py` (skeleton, proxy skinning, IK, clip export) applies.
+- Review sheets (Blender EEVEE on a checker floor that the animal walks over): `docs/art/meshy_free/rigged/<animal>_<clip>[_side|_front]/sheet_*.png` + `motion.png`. Re-render with `tools/meshy/animal_rig/review.sh <glb> <name> <clip> <speed> <3q|side|front> <step> <px>`.
+- Known limits: the cow grazing pose bends the whole front (about 20 degrees) because the head is short, the muzzle stops about 20 cm above the ground; wing flapping on the chickens is stiff (the wings are texture patches on the body, so they swing out as flat plates); the rooster's small orange tail spike follows the tail bone.
+
+## Fixes after round 2 (`fixes/`)
+
+- Re-baked earlier (see `docs/STATUS_LOCAL.md`): `lamp_post_purple_bracket`, `torch_dungeon_cage`, `house_two_story_shingle`, `bouquet_wild`, `hay_bale_yellow_large`.
+- `flora/bouquet_bright`: `solid` variant, across 260, smooth, 3,500 tris, island removal 3 percent. Clearly better (solid vase and flowers, no black shards): `fixes/bouquet_bright_{before,after}.png`.
+- `maybe/buildings/hut_mossy_ruined_a|b` (LOD0 and LOD1): island removal 4 percent (`optimize_free.py` arg 11) removed the floating leaf and shingle debris above the roofs; the flat ground fringe shreds remain (they are part of the connected ground skirt): `fixes/hut_mossy_ruined_{a,b}_{before,after}.png`.
+- `flora/bush_raspberry`: tried vox across 90 / 110 and `solid` across 130 with island removal: all still shard-like leaf cards, none clearly better, so the existing file was kept (`fixes/bush_raspberry_kept_current.png`, `fixes/bush_raspberry_candidate_solid_not_used.png`). It needs a Meshy remesh or a different source.
