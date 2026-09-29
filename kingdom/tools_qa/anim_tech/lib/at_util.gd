@@ -203,3 +203,32 @@ static func peak_speed(path: PackedVector3Array, step := 1.0 / 30.0, t0 := 0.0, 
 			best = s
 			best_t = t
 	return {"time": best_t, "speed": best}
+
+
+## Own copy of a clip of the player's default library under "at/<name>" (so its root track can be enabled
+## without touching the shared cache). Returns the play name.
+static func own_copy(ap: AnimationPlayer, clip: String, root_motion := false) -> String:
+	var lib: AnimationLibrary
+	if ap.has_animation_library(LIB):
+		lib = ap.get_animation_library(LIB)
+	else:
+		lib = AnimationLibrary.new()
+		ap.add_animation_library(LIB, lib)
+	if not lib.has_animation(clip):
+		var a: Animation = ap.get_animation(clip).duplicate(true)
+		var i := root_track(a)
+		if i >= 0:
+			a.track_set_enabled(i, root_motion)
+		lib.add_animation(clip, a)
+	return LIB + "/" + clip
+
+
+## Applies the root motion `ap` produced this frame to `actor` (skeleton-space delta -> world). Call once per frame
+## after the player advanced (i.e. from _process after a frame). `scale_xz` warps the horizontal travel.
+static func apply_root_motion(ap: AnimationPlayer, sk: Skeleton3D, actor: Node3D, scale_xz := 1.0) -> Vector3:
+	var rm := ap.get_root_motion_position()
+	rm.x *= scale_xz
+	rm.z *= scale_xz
+	var world := sk.global_basis * rm
+	actor.global_position += world
+	return world

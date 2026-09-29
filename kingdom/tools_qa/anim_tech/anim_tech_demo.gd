@@ -31,7 +31,6 @@ const TECHS := [
 	["rootmotion", "8 Root-motion attack lunge"],
 	["impact", "9 Hitstop + camera shake"],
 	["warp", "10 Motion warping to a target"],
-	["ik_survey", "11 IK solver survey (Two-bone / CCD / FABRIK / Jacobian / Spline)"],
 ]
 
 var cam: Camera3D
