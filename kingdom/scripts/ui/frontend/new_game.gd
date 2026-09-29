@@ -181,4 +181,8 @@ func _start() -> void:
 
 func _on_created(choices: Dictionary) -> void:
 	Flow.creation = choices
+	# Life began its default life at boot; overlay the player's choices on it now.
+	var life := get_tree().root.get_node_or_null("Life")
+	if life and life.has_method("apply_creation"):
+		life.call("apply_creation", choices)
 	LoadingScreen.open(self)
