@@ -67,6 +67,21 @@ const TEMPLATES := {
 		"soft": "%s: \"Something has been taking dogs from the village edge. Keep your eyes open for us?\""},
 	"lost_child": {"groups": ["any"], "from": "neighbour", "kind": "search", "danger": 0.15, "min_ability": 0.0, "reward": {"gold": 5, "rep": 4.0, "item": ""},
 		"deadline": 2, "weight": 0.6, "war": false, "text": "%s: \"My little one has not come home. Please help us look before dark.\"", "soft": ""},
+	"stall_thief": {"groups": ["caravan", "guard"], "from": "employer", "kind": "recover", "danger": 0.25, "min_ability": 10.0, "reward": {"gold": 20, "rep": 2.0, "item": ""},
+		"deadline": 3, "weight": 0.0, "war": false, "job": true, "text": "%s: \"A thief cleaned out the till and ran for the alleys. You saw his face; will you find him?\"",
+		"soft": "%s: \"A thief took from the stall. Ask around the market and tell me what you hear.\""},
+	"tavern_brawl": {"groups": ["guard", "any"], "from": "employer", "kind": "rescue", "danger": 0.3, "min_ability": 15.0, "reward": {"gold": 18, "rep": 2.5, "item": ""},
+		"deadline": 2, "weight": 0.0, "war": false, "job": true, "text": "%s: \"The brawl spilled out; the ringleaders are still in the street. Help me lock them up.\"",
+		"soft": "%s: \"The brawl left a mess and a hurt man. Help me get him to the healer and take names.\""},
+	"sick_herd": {"groups": ["farm", "any"], "from": "neighbour", "kind": "work", "danger": 0.0, "min_ability": 0.0, "reward": {"gold": 22, "rep": 2.5, "item": ""},
+		"deadline": 4, "weight": 0.0, "war": false, "job": true, "text": "%s: \"The sickness is spreading to my animals. Will you help me cull, isolate and burn the bedding?\"", "soft": ""},
+	"plague_ward": {"groups": ["temple", "any"], "from": "authority", "kind": "work", "danger": 0.1, "min_ability": 0.0, "reward": {"gold": 30, "rep": 4.0, "item": ""},
+		"deadline": 5, "weight": 0.0, "war": false, "job": true, "text": "%s: \"There is fever in the row. I need steady hands to carry water and keep the doors shut.\"", "soft": ""},
+	"timber_theft": {"groups": ["labour", "any"], "from": "employer", "kind": "recover", "danger": 0.4, "min_ability": 18.0, "reward": {"gold": 35, "rep": 2.5, "item": ""},
+		"deadline": 4, "weight": 0.0, "war": false, "job": true, "text": "%s: \"Strangers took a wagon of cut oak. Their tracks head for the ford; can you stop them?\"",
+		"soft": "%s: \"Timber went missing. Ask at the mills who bought oak this week.\""},
+	"cave_in": {"groups": ["labour", "any"], "from": "employer", "kind": "rescue", "danger": 0.3, "min_ability": 10.0, "reward": {"gold": 40, "rep": 4.5, "item": ""},
+		"deadline": 1, "weight": 0.0, "war": false, "job": true, "text": "%s: \"The face came down with men behind it! Bring lamps and ropes!\"", "soft": ""},
 	"militia_levy": {"groups": ["any"], "from": "authority", "kind": "levy", "danger": 0.6, "min_ability": 10.0, "reward": {"gold": 30, "rep": 4.0, "item": ""},
 		"deadline": 3, "weight": 0.0, "war": true, "levy": true,
 		"text": "%s: \"The crown has called the militia levy. Every able hand reports to the muster tomorrow at dawn.\"",
@@ -356,6 +371,24 @@ func roll_day(day: int, ctx := {}) -> Array:
 	made.append(o)
 	_last_offer_day = day
 	return made
+
+
+## A job-generated trigger (work.gd problems): raise a specific offer now instead of the daily
+## roll. `employer` names the asker for employer templates. Returns the offer or {} when it is
+## already open, the board is full, or the template does not exist.
+func raise_offer(tid: String, day: int, sid: int, employer := "") -> Dictionary:
+	if not TEMPLATES.has(tid) or _has_template(tid) or _open_count() >= MAX_OPEN + 1:
+		return {}
+	var pr := profile()
+	pr["employer"] = employer if employer != "" else String(pr["employer"])
+	var r := _rng("jobcallup", day, "%s%d" % [tid, sid])
+	var o := _make_offer(tid, day, sid, pr, r)
+	if o.is_empty():
+		return {}
+	o["job_trigger"] = true
+	offers_list.append(o)
+	_last_offer_day = day
+	return o
 
 
 # ---------------------------------------------------------------- API
