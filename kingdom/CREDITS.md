@@ -132,6 +132,17 @@ CC0 (no attribution required; credited with thanks): 53 market props (39 + 14 pi
 - **KayKit Character Animations 1.1** (Kay Lousberg, https://kaylousberg.com), CC0 1.0. Clips retargeted to the UAL skeleton in `kingdom/assets/incoming/animations_free2/kaykit_*` (prefix `Kay_`); licence copy `animations_free2/LICENSE_KayKit.txt`. Credit optional: "Kay Lousberg, www.kaylousberg.com".
 - Traversal clips (ladder, wall, ledge, vault, horse riding) in `animations_free2/traversal_authored/` are our own Blender-IK authored work on the CC0 Quaternius UAL rig.
 
+## Region 1 art: stones and Highwatch Keep kit (added 2026-09-29, work packages L1 and L2)
+
+* `assets/incoming/region1/stones/` (Elder Stone, 4 road stones, ancestor-gold variants): built entirely in Blender by the local session
+  (`tools/blender/region1/*.py`); no third-party meshes or textures. Textures are procedurally painted by our scripts. Our own work, released CC0-style with the project.
+* `assets/incoming/region1/highwatch/` (Highwatch Keep kit): re-baked/re-graded from **Meshy community models, CC0 1.0** (see
+  `assets/incoming/meshy_free/CREDITS.md`; each verified `license: cc0` on its Meshy page): `gate_twin_towers_blue`, `tower_round`,
+  `watchtower_stone_small`, `keep_small_on_plinth` (castle), `weapon_rack_swords`, `weapon_racks_spears`, `armour_stand_knight` (interior),
+  `shield_dragon_heraldic`, `barrels_crates_stack`, `well_stone_roofed` (props), `torch_stake` (lighting), `hay_bale_lowpoly` (farm).
+  Modifications: uniform re-scale, one shared 2048 atlas, colour grading to the Highwatch palette (blue/gold recolour), LOD1 (shipped Meshy LOD1 or decimated).
+  Blender-built connectors (curtain wall, banners, conical roofs, training dummies, archery targets, yard, fence) are our own work with procedurally painted textures.
+  No attribution is required; credited with thanks to the anonymous Meshy community authors.
 ## Region 1 audio (added 2026-09-29, L17; full table in `assets/audio/region1/LICENSES.md`)
 
 Credit required (CC BY 4.0, https://creativecommons.org/licenses/by/4.0/):
@@ -145,3 +156,7 @@ CC0 (credited with thanks):
 - Region 1 female barks: "Female RPG Voice Starter Pack" by cicifyre, https://opengameart.org/content/female-rpg-voice-starter-pack
 - Stagborn calls layered from Joseph Sardin (BigSoundBank) recordings and the ward-break glass from rubberduck's "100 CC0 SFX".
 - Rune hum, ward activate, glyph carve and the Ashen Scar ambience are synthesised for the game (no third-party audio).
+
+## Stagborn elk and Antlered Warden (added 2026-09-29, L5; see `assets/incoming/ai3d/meshy/creatures/stagborn_README.md`)
+- **Quaternius**, *Ultimate Animated Animals* **Stag** (mesh, rig and stock clips: idle, walk, gallop, headbutt, kick, hit, death, eating), **CC0 1.0** (https://quaternius.com, https://creativecommons.org/publicdomain/zero/1.0/; licence file `assets/incoming/quaternius/ultimate-animated-animals/License.txt`). No attribution required; credited with thanks.
+- Customisation (Warden antlers, mane, body proportions, painted and rune-emissive textures, authored `attack`, `run_charge` and `roar` clips, retiming, LOD1): own work for Rising Ashes. No Meshy credits and no other third-party material were used.

@@ -88,7 +88,7 @@ void fragment() {
 	ALPHA = clamp((alpha - 0.5) * (3.0 + 0.6 * lod) + 0.5, 0.0, 1.0);
 	if (fade_in_end > 0.0) {
 		float vis = clamp((v_dist - (fade_in_end - fade_in_len)) / fade_in_len, 0.0, 1.0);
-		if (vis < ign(FRAGCOORD.xy + vec2(17.0, 43.0)) ) {
+		if (vis < 1.0 - ign(FRAGCOORD.xy)) {   // complementary to mesh_fade.gdshader (same noise): keeps the pixels the mesh drops
 			discard;
 		}
 	}

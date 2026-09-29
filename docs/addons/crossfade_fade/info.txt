@@ -1,5 +1,5 @@
-source: C:/tmp_pa/crop_fade
-duration_s: 1.800000
-sample_fps: 15
-frames_per_sheet: 15  (= 1 s per sheet)
+source: /c/tmp_pa/cr_fade
+duration_s: 2.400000
+sample_fps: 10
+frames_per_sheet: 15  (= 1.5 s per sheet)
 sheets: 2

@@ -1,0 +1,5 @@
+source: /c/Users/Jonna/Documents/ProjectAshes_art_staging/stag/fr/elk/graze
+duration_s: 1.480000
+sample_fps: 3
+frames_per_sheet: 12  (= 4 s per sheet)
+sheets: 4
