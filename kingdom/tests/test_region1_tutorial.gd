@@ -229,3 +229,50 @@ func test_view_shows_the_prompt_and_its_skip_button_skips() -> void:
 	assert_int(d.status(&"move")).is_equal(Director.State.SKIPPED)
 	v.set_hud_anchor(&"btn_attack", Vector2(10, 20))
 	assert_vector(v.anchor_pos("btn_attack")).is_equal(Vector2(10, 20))
+
+
+func test_tell_reaches_the_main_director_only_when_set() -> void:
+	Director.main = null
+	Director.tell(&"carve")   # no director: harmless
+	var d := Director.new().make_main()
+	Director.tell(&"carve")
+	assert_bool(d.is_done(&"carve")).is_true()
+	Director.main = null
+
+
+class FakePlayer extends Node3D:
+	var velocity := Vector3.ZERO
+	var dead := false
+	var camera: Node3D
+	var near: Node = null
+	func nearest_interactable() -> Node:
+		return near
+
+
+func test_bridge_builds_context_and_detects_walking() -> void:
+	var p := FakePlayer.new()
+	var hud := CanvasLayer.new()
+	add_child(p)
+	add_child(hud)
+	var b := Region1TutorialBridge.new()
+	add_child(b)
+	b.setup(p, hud)
+	assert_object(Region1TutorialDirector.main).is_same(b.director)
+	var ctx := b.context()
+	assert_bool(ctx["can_control"]).is_true()
+	assert_bool(ctx["near_npc"]).is_false()
+	var npc := Node3D.new()
+	npc.add_to_group("villager")
+	add_child(npc)
+	p.near = npc
+	assert_bool(b.context()["near_npc"]).is_true()
+	p.velocity = Vector3(3, 0, 0)
+	for i in 12:
+		b._process(0.1)
+	assert_bool(b.director.is_done(&"move")).is_true()
+	b.queue_free()
+	p.queue_free()
+	hud.queue_free()
+	npc.queue_free()
+	await get_tree().process_frame
+	assert_object(Region1TutorialDirector.main).is_null()
