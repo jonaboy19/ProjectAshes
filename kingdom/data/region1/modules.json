@@ -1,0 +1,4 @@
+{
+	"_comment": "Region1Root instantiates each enabled row whose script exists. Add one row per package. Scripts must extend Region1Sim.",
+	"modules": []
+}
