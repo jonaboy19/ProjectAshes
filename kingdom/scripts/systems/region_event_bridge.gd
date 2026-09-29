@@ -9,6 +9,7 @@ const MAX_MODULE_LENGTH := 24
 const MAX_KIND_LENGTH := 30
 
 var _journal: Object
+var _journal_provider: Callable
 var _clock: Callable
 var _bindings: Dictionary = {} # module -> {WeakRef, connection Callable, generation}
 var _generation := 0
@@ -18,7 +19,16 @@ var _rejected := 0
 
 func configure(journal: Object, absolute_hours: Callable) -> void:
 	unbind_all()
+	_journal_provider = Callable()
 	_journal = journal if journal != null and journal.has_method("publish") else null
+	_clock = absolute_hours if absolute_hours.is_valid() else Callable()
+
+
+## Use this when save/load replaces the journal instance (as Life.restore does).
+func configure_provider(journal_provider: Callable, absolute_hours: Callable) -> void:
+	unbind_all()
+	_journal = null
+	_journal_provider = journal_provider if journal_provider.is_valid() else Callable()
 	_clock = absolute_hours if absolute_hours.is_valid() else Callable()
 
 
@@ -95,6 +105,7 @@ func reset() -> void:
 func dispose() -> void:
 	reset()
 	_journal = null
+	_journal_provider = Callable()
 	_clock = Callable()
 
 
@@ -109,8 +120,12 @@ func _on_sim_event(kind_value: Variant, data_value: Variant, module: String, gen
 	if not (kind_value is String or kind_value is StringName) or not _valid_name(String(kind_value).to_lower(), MAX_KIND_LENGTH):
 		_rejected += 1
 		return
-	if (not data_value is Dictionary or _journal == null or not is_instance_valid(_journal)
-			or not _journal.has_method("publish") or not _clock.is_valid()):
+	var journal: Object = _journal
+	if _journal_provider.is_valid():
+		var supplied: Variant = _journal_provider.call()
+		journal = supplied as Object if supplied is Object else null
+	if (not data_value is Dictionary or journal == null or not is_instance_valid(journal)
+			or not journal.has_method("publish") or not _clock.is_valid()):
 		_rejected += 1
 		return
 	var module_sim: Object = (_bindings[module]["sim_ref"] as WeakRef).get_ref()
@@ -156,7 +171,7 @@ func _on_sim_event(kind_value: Variant, data_value: Variant, module: String, gen
 	if event_type.length() > 64:
 		_rejected += 1
 		return
-	var result: Variant = _journal.call("publish", event_type, actor_ref, target_ref,
+	var result: Variant = journal.call("publish", event_type, actor_ref, target_ref,
 		float(hour_value), payload)
 	if result is Dictionary and bool(result.get("ok", false)):
 		_accepted += 1
