@@ -45,6 +45,7 @@ var _craft_btn: Button
 var _bar: ProgressBar
 var _status: Label
 var _tween: Tween
+var _action_token := ""
 
 
 ## Opens (creating on first use) as a child of `host` (the HUD layer). With no
@@ -103,6 +104,8 @@ func _ready() -> void:
 
 
 func open(station_kinds: Array = [], label := "") -> void:
+	if _busy or not _action_token.is_empty():
+		_cancel()
 	kinds = station_kinds.duplicate()
 	station_label = label
 	var crafting := Inv.shared_crafting()
@@ -126,6 +129,10 @@ func close() -> void:
 	get_tree().paused = _was_paused
 	Audio.play_ui("close")
 	closed.emit()
+
+
+func _exit_tree() -> void:
+	_cancel()
 
 
 func _unhandled_input(e: InputEvent) -> void:
@@ -503,32 +510,65 @@ func _on_craft() -> void:
 	var r: Dictionary = crafting.call("recipe", _recipe)
 	if String(crafting.call("can_craft", _recipe, Life, kinds, _ctx())) != "":
 		return
+	var duration_s := maxf(0.3, float(r.get("time", 1.5)) * SECONDS_PER_TIME)
+	var action: Dictionary = Life.begin_craft_action(_recipe, duration_s + 10.0, kinds)
+	if not bool(action.get("ok", false)):
+		_status.text = _action_error_text(String(action.get("error", "")))
+		_status.add_theme_color_override("font_color", UITheme.DANGER)
+		return
+	_action_token = String(action["token"])
 	_busy = true
 	_status.text = ""
 	_show_detail()
 	_bar.value = 0.0
 	_tween = create_tween()
-	_tween.tween_property(_bar, "value", 1.0, maxf(0.3, float(r.get("time", 1.5)) * SECONDS_PER_TIME))
-	_tween.finished.connect(_finish_craft.bind(_recipe))
+	_tween.tween_property(_bar, "value", 1.0, duration_s)
+	_tween.finished.connect(_finish_craft.bind(_recipe, _action_token))
 
 
 func _cancel() -> void:
 	if _tween and _tween.is_valid():
 		_tween.kill()
+	if not _action_token.is_empty():
+		Life.cancel_action(_action_token)
+		_action_token = ""
 	_busy = false
-	_bar.value = 0.0
+	if is_instance_valid(_bar):
+		_bar.value = 0.0
 
 
-func _finish_craft(id: String) -> void:
+func _finish_craft(id: String, token: String) -> void:
+	if token.is_empty() or token != _action_token:
+		return
+	_action_token = ""
+	var committed: Dictionary = Life.commit_craft_action(token, id, kinds, _ctx())
 	_busy = false
-	var crafting := Inv.shared_crafting()
-	var res: Dictionary = crafting.call("craft", id, Life, kinds, _ctx())
+	var res: Dictionary = committed.get("result", {})
+	if not bool(committed.get("ok", false)):
+		res = {"ok": false, "text": _action_error_text(String(committed.get("error", "")))}
 	_status.text = String(res.get("text", ""))
 	_status.add_theme_color_override("font_color", UITheme.OK if res.get("ok", false) else UITheme.DANGER)
-	if res.get("ok", false):
+	if res.get("ok", false) and bool(committed.get("newly_committed", false)):
 		Life.record(String(res.get("tag", "crafted")), 0.5)
 		WorldSim.advance_hours(float(res.get("hours", 0.25)))
 		Audio.play_ui("level_up" if res.get("level_up", false) else "pickup")
 		if res.get("level_up", false):
 			Game.say(String(res["text"]))
 	refresh()
+
+
+## Preserve recipe-specific explanations while keeping lease internals out of UI.
+func _action_error_text(reason: String) -> String:
+	match reason:
+		"resource_reserved", "commit_in_progress":
+			return tr("You are already working, or this station is in use.")
+		"station_required":
+			return tr("Move closer to a suitable crafting station.")
+		"station_changed", "station_unloaded":
+			return tr("That crafting station is no longer available.")
+		"expired", "unknown_token", "cancelled":
+			return tr("The crafting action ended. Start again when you are ready.")
+		"action_mismatch", "invalidated", "invalidated_after_apply", "invalid_phase", "unknown_recipe", "capacity", "invalid_callbacks", "invalid_apply_result", "invalid_validation_result", "validation_failed", "invalid_lease", "invalid_metadata", "invalid_resource_key", "resource_capacity", "invalid_payload", "transition_failed", "":
+			return tr("Crafting is unavailable right now. Please try again.")
+		_:
+			return reason
