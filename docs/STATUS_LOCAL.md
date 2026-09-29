@@ -46,3 +46,8 @@ Remaining: HIGH/LOW fps before/after not measured (ULTRA new: lake 40, river 33,
 ## Boot flow / studio intro (2026-09-29, stopped at usage limit)
 Done and committed: `assets/video/studio_intro.ogv` (from download.mp4, 1280x720 q7 5.4 MB; it fades out, the other clip holds), engine boot splash (`boot_splash.png`, project.godot), `scripts/boot/studio_intro.gd` (contain-fit, skip after 1 s, still fallback), `scripts/boot/first_run.gd`, `scripts/core/app_services.gd`, `scripts/ui/world_loading.gd`, `scripts/core/platform_services.gd` + `docs/platform/ACCOUNTS_AND_SERVICES.md`, `locale/strings.csv` (en/nl).
 NOT wired (unverified): everything in `docs/platform/boot_wiring_wip.patch` (apply with `git apply`): studio intro + first run in frontend/boot.gd, WorldLoading veil + pause button/Esc/back + camera sens/stick size/vibration in hud.gd, load progress in main.gd, render scale in quality.gd, settings rows, pause glyph. Also register autoloads `App` (after Quality) and `PlatformServices`. A headless run showed "Parameter t is null / convert on null" errors (source not yet traced). Still to do: run windowed, capture boot_flow screenshots + frame sheets (docs/ui/boot_flow/), 2400x1080 and 4:3 checks, handoff note.
+
+## Remaining work: free animation library
+- Full stop-motion read of KayKit weapons, combos, remaining unarmed clips; verify punch types (front view).
+- Godot `--import` sanity for the new GLBs; add to `Assets.UAL_FILES` (Codex).
+- Casting is thin (lightning-from-sky, beam loops, teleport dash missing).

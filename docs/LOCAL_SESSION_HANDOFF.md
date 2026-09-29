@@ -422,3 +422,6 @@ specifically emptier than the capital needs a per-settlement-size budget.
 
 ## 2026-09-29: free animation library (from local)
 114 martial-arts / acrobatics / reaction / casting / weapon clips on the UAL skeleton in `kingdom/assets/incoming/animations_free/` (CMU + KayKit CC0). Ready for wiring by Codex; see `docs/anim/free_library/README.md`. Not yet in `Assets.UAL_FILES`.
+
+## 2026-09-29: free animation library (from local)
+114 martial-arts / acrobatics / reaction / casting / weapon clips on the UAL skeleton in `kingdom/assets/incoming/animations_free/` (CMU + KayKit CC0). Ready for wiring by Codex; see `docs/anim/free_library/README.md`. Not yet in `Assets.UAL_FILES`.
