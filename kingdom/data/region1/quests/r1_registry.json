@@ -1,0 +1,116 @@
+{
+	"_comment": "Region 1 story registry: every id a quest step may reference. lint_quests.gd checks each step and dialogue against this file, cast.json, data/items.json and data/world/first_region.json. Places marked status 'c0' or 'c1' are new names from REGION_1_PLAN.md that the cloud session (C0 canon data, C1 layout) will place; 'pos' is the proposed [x, z] in metres from Ashford (north is -z) and C1 may move them. Keep ids stable: saves store them.",
+	"schema": 1,
+
+	"places": {
+		"ashford":                 {"name": "Ashford", "status": "existing", "pos": [0, 0]},
+		"ashford_ring":            {"name": "Ashford runestone circle", "status": "c1", "pos": [0, 12]},
+		"old_mill_staff_yard":     {"name": "Old Mill Staff Yard", "status": "c1", "pos": [-45, 35]},
+		"miller_stone":            {"name": "The Miller's Stone", "status": "c1", "pos": [-90, -60]},
+		"kings_ember_road":        {"name": "The King's Ember Road", "status": "existing", "pos": [288, -199]},
+		"kingsreach":              {"name": "Kingsreach", "status": "existing", "pos": [560, -420]},
+		"kingsreach_council_hall": {"name": "Hall of the Council of Wardens", "status": "c1", "pos": [575, -445]},
+		"greenhollow":             {"name": "Greenhollow", "status": "c0", "pos": [-480, 400]},
+		"greenhollow_road":        {"name": "The Greenhollow road", "status": "c0", "pos": [-260, 220]},
+		"greenhollow_farm":        {"name": "Pennick farm, Greenhollow", "status": "c1", "pos": [-440, 360]},
+		"greenhollow_south_fields":{"name": "Greenhollow's south fields", "status": "c1", "pos": [-500, 470]},
+		"duskbriar_wood":          {"name": "Duskbriar Wood", "status": "existing", "pos": [380, 480]},
+		"duskbriar_bandit_camp":   {"name": "Ashen Hand camp, Duskbriar", "status": "existing", "pos": [430, 540]},
+		"silverford":              {"name": "Silverford", "status": "c0", "pos": [-240, -520]},
+		"silverford_guild_hall":   {"name": "Masons' and Runecarvers' Guild hall", "status": "c1", "pos": [-230, -530]},
+		"silverford_market":       {"name": "Silverford market", "status": "c1", "pos": [-250, -505]},
+		"stagborn_glade":          {"name": "Stagborn Glade", "status": "c0", "pos": [-620, -560]},
+		"greyseam_mine":           {"name": "Greyseam Mine", "status": "c0", "pos": [120, -980]},
+		"greyseam_seam":           {"name": "The rift seam, lower Greyseam", "status": "c1", "pos": [120, -990]},
+		"highwatch_keep":          {"name": "Highwatch Keep", "status": "c0", "pos": [380, -1300]},
+		"highwatch_gate":          {"name": "Highwatch north gate", "status": "c1", "pos": [380, -1340]},
+		"grimfen_pass":            {"name": "Grimfen Pass", "status": "c0", "pos": [420, -1600]},
+		"crownstead":              {"name": "Crownstead", "status": "c0", "pos": [300, -150]},
+		"elden_road":              {"name": "The Elden Road", "status": "c0", "pos": [-640, -170]},
+		"shrine_of_the_sleeping_flame": {"name": "Shrine of the Sleeping Flame", "status": "existing", "pos": [-700, -160]},
+		"rifts_edge_camp":         {"name": "Rift's Edge Camp", "status": "existing", "pos": [1300, 900]},
+		"ashen_scar":              {"name": "The Ashen Scar", "status": "c0", "pos": [1380, 980]},
+		"rift_mouth":              {"name": "The Rift mouth", "status": "existing", "pos": [1450, 1050]},
+		"tuskridge_hold":          {"name": "Tuskridge Hold", "status": "existing", "pos": [300, 930]},
+		"mossfang_warren":         {"name": "Mossfang Warren", "status": "existing", "pos": [560, 250]}
+	},
+
+	"stones": {
+		"_comment": "Runestones a step can name. kind road = a RARunestoneNetwork road stone (C3 maps the id to the nearest stone to 'place'); kind elder = one of the five Elder Stone hubs (L7 wardlines budgets). greenhollow_road is a group: any stone on that road counts.",
+		"miller_stone":           {"kind": "road", "place": "miller_stone"},
+		"greenhollow_road":       {"kind": "road", "place": "greenhollow_road", "group": true},
+		"greenhollow_farm_stone": {"kind": "road", "place": "greenhollow_farm"},
+		"silverford_test_stone":  {"kind": "road", "place": "silverford_guild_hall"},
+		"crownstead_stone":       {"kind": "road", "place": "crownstead"},
+		"elder_glade":            {"kind": "elder", "place": "stagborn_glade"},
+		"elder_greyseam":         {"kind": "elder", "place": "greyseam_mine"},
+		"elder_highwatch":        {"kind": "elder", "place": "highwatch_keep"},
+		"elder_crownstead":       {"kind": "elder", "place": "crownstead"},
+		"elder_elden":            {"kind": "elder", "place": "elden_road"},
+		"scar_anchor":            {"kind": "anchor", "place": "rifts_edge_camp"}
+	},
+
+	"glyphs": ["ward", "lure", "alarm", "bless"],
+
+	"targets": {
+		"wolf":                 {"what": "Grey wolf (existing wolf.gd); the safe first fight is one lone wolf", "status": "existing"},
+		"ashen_hand_saboteur":  {"what": "Ashen Hand bandit (X4 duel controller)", "status": "x4"},
+		"rift_boar":            {"what": "Rift-touched boar variant (C11)", "status": "c11"},
+		"rift_wolf":            {"what": "Rift wolf material variant (L4/C11)", "status": "c11"},
+		"antlered_warden":      {"what": "Stagborn guardian miniboss; subdue, never kill (X3)", "status": "x3"},
+		"scarbound_troll":      {"what": "Finale boss at the Rift mouth (X6)", "status": "x6"}
+	},
+
+	"cutscenes": {
+		"blessing":       "Age-12 Blessing at the Ashford ring (C9)",
+		"elder_relight":  "An Elder Stone relights; ward-lines race out across the map (C9, played for each hub)",
+		"rowan_ember":    "Sir Rowan's ember rises at Highwatch (C9, short)",
+		"finale_seal":    "The Rift mouth closes; glimpse of the Ember and Bloom Rifts (C9)",
+		"region_complete":"Homecoming at Ashford and the 'Region 1 complete' card (C9)"
+	},
+
+	"festivals": ["planting", "midsummer_fair", "harvest", "winter_solstice", "kindling_night"],
+
+	"factions": ["crown", "runeward", "highwatch", "guilds", "church", "ashen_hand", "tuskridge", "mossfang", "vale"],
+
+	"new_items": {
+		"_comment": "Items the story gives that are not in data/items.json yet (C7 adds them).",
+		"wardwright_chisel":   {"name": "Wardwright's Chisel", "category": "tool"},
+		"runecarver_licence":  {"name": "Runecarver's Licence", "category": "document"},
+		"sunstone_oil":        {"name": "Sunstone Oil", "category": "consumable", "note": "Burns back one Scar cell (N2)"},
+		"scar_crystal":        {"name": "Scar Crystal", "category": "material"},
+		"elder_keystone_shard":{"name": "Keystone Shard", "category": "quest"},
+		"rowan_lance":         {"name": "Rowan's Lance", "category": "weapon", "note": "Heirloom when Rowan's ember goes to the lance (N3)"},
+		"anchor_stone":        {"name": "Edge Anchor Stone", "category": "quest"}
+	},
+
+	"choice_groups": {
+		"_comment": "Mutually exclusive player choices. 'source' says who sets the flag: dialogue (a dialogue choice 'do' sets it; lint checks) or a system (ember_choice UI from L13/C5). The lint autoplay walks every combination.",
+		"apprenticeship": {"source": "dialogue", "flags": ["r1.path.guild", "r1.path.knight", "r1.path.runeward"]},
+		"corin_fate":     {"source": "dialogue", "flags": ["r1.corin.jailed", "r1.corin.freed", "r1.corin.informant"]},
+		"relic_policy":   {"source": "dialogue", "flags": ["r1.relic.accepted", "r1.relic.refused", "r1.relic.bargained"]},
+		"scar_answer":    {"source": "objective", "flags": ["r1.scar.contained", "r1.scar.harvested"]},
+		"harrok_pact":    {"source": "dialogue", "flags": ["r1.harrok.ally", "r1.harrok.alone"]},
+		"rowan_ember":    {"source": "ember_choice", "flags": ["ember.rowan.stone", "ember.rowan.heir", "ember.rowan.heirloom"]},
+		"snikkit_deal":   {"source": "dialogue", "flags": ["r1.snikkit.friend", "r1.snikkit.cowed"]},
+		"tamsin_fate":    {"source": "dialogue", "flags": ["r1.tamsin.arrested", "r1.tamsin.pardoned"]},
+		"the_seal":       {"source": "dialogue", "flags": ["r1.seal.idra", "r1.seal.all"]}
+	},
+
+	"external_flags": {
+		"_comment": "Flags set outside Region 1 story data that the story reads. Prefix match when the key ends with ':'.",
+		"blessing:": "life.gd awakening (blessing:fire, blessing:none, ...)",
+		"blessing_dual": "life.gd awakening",
+		"came_of_age": "life.gd at 16",
+		"spirit_seen": "hidden_triggers.gd, shrine at age 8",
+		"ember.has_ancestor": "ember_legacy.gd (L10): a previous character of this family rests in a stone"
+	},
+
+	"exported_flags": {
+		"_comment": "Story flags other systems read (so the lint does not call them unused).",
+		"r1.a1.first_glyph": "C8 onboarding metric: a new player reaches the first glyph in 20 minutes or less",
+		"r1.complete": "Region 1 complete: post-game unlock, achievements, C9 card"
+	},
+
+	"tokens": ["player", "mother", "father", "first", "name", "town", "time", "family", "ancestor", "stone_name"]
+}
