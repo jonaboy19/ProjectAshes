@@ -3,10 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://cebvhoxlobv17"
+path="res://.godot/imported/interior_chapel.glb-0c962301c3ab4832a587ef95fac45544.scn"
 
 [deps]
 
 source_file="res://assets/generated/interiors/interior_chapel.glb"
+dest_files=["res://.godot/imported/interior_chapel.glb-0c962301c3ab4832a587ef95fac45544.scn"]
 
 [params]
 

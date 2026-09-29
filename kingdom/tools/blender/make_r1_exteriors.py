@@ -88,8 +88,8 @@ def run(kind, lod):
     if kind == "chapel":
         o.name = "ChapelDawnThrone"
         hue_rules(img, [
-            dict(h0=0.0, h1=0.045, smin=0.3, vmax=0.75, nh=0.105, sm=0.9, vm=1.25, vadd=0.02),     # red roofs -> amber gold
-            dict(h0=0.95, h1=1.0, smin=0.3, vmax=0.75, nh=0.105, sm=0.9, vm=1.25, vadd=0.02),
+            dict(h0=0.0, h1=0.045, smin=0.3, vmax=0.75, nh=0.105, sm=1.15, vm=1.32, vadd=0.05),     # red roofs -> amber gold
+            dict(h0=0.95, h1=1.0, smin=0.3, vmax=0.75, nh=0.105, sm=1.15, vm=1.32, vadd=0.05),
             dict(h0=0.42, h1=0.62, smin=0.15, nh=0.11, sm=2.0, vm=1.35, vadd=0.02),                # teal spire -> gold
             dict(h0=0.045, h1=0.13, smin=0.35, nh=0.115, sm=0.75, vm=1.0),                         # orange trim -> soft gold
         ])

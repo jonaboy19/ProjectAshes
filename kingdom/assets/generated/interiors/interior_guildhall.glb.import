@@ -3,10 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://bkaj140yqk2pb"
+path="res://.godot/imported/interior_guildhall.glb-6ce99e9c73840b91f53a94d4516c6e60.scn"
 
 [deps]
 
 source_file="res://assets/generated/interiors/interior_guildhall.glb"
+dest_files=["res://.godot/imported/interior_guildhall.glb-6ce99e9c73840b91f53a94d4516c6e60.scn"]
 
 [params]
 

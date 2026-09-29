@@ -72,7 +72,7 @@ def foliage():
     # dark/mid leaf -> lavender-violet, sunlit leaf -> cool periwinkle / cyan (hue by value)
     t = np.clip((V - 0.25) / 0.6, 0, 1)
     nh = 0.80 - 0.33 * t ** 1.2                    # 0.80 magenta-violet ... 0.47 cyan
-    ns = np.clip(0.26 + 0.34 * (1 - t) + 0.08 * S, 0, 0.72)
+    ns = np.clip(0.38 + 0.30 * (1 - t) + 0.08 * S, 0, 0.75)
     nv = np.clip(V * 1.12 + 0.10, 0, 1)             # keep it bright and sunny
     H2 = np.where(green > 0.5, nh, H)
     S2 = np.where(green > 0.5, ns, S)
@@ -109,6 +109,23 @@ def bark():
     save(vm, "rift_bark_vein.png")
 
 
+def impostors():
+    """LOD2 tree impostor cards (tree_impostors.png): same recolour as the leaf atlas, bark browns to warm violet."""
+    a = load(os.path.join(NAT_TEX, "tree_impostors.png"))
+    H, S, V = C.rgb2hsv(a[..., :3])
+    green = smooth(1 - np.abs(H - 0.27) / 0.16, 0.0, 0.5) * (S > 0.15)
+    t = np.clip((V - 0.2) / 0.65, 0, 1)
+    nh = 0.80 - 0.33 * t ** 1.2
+    ns = np.clip(0.38 + 0.30 * (1 - t) + 0.08 * S, 0, 0.75)
+    nv = np.clip(V * 1.04 + 0.06, 0, 1)
+    brown = ((H < 0.14) | (H > 0.95)) & (S > 0.18)
+    H2 = np.where(green > 0.5, nh, np.where(brown, 0.76, H))
+    S2 = np.where(green > 0.5, ns, np.where(brown, np.clip(S * 0.5 + 0.1, 0, 0.5), S))
+    V2 = np.where(green > 0.5, nv, np.where(brown, np.clip(V * 0.95 + 0.12, 0, 1), V))
+    out = a.copy(); out[..., :3] = C.hsv2rgb(H2 % 1.0, S2, V2)
+    save(out, "rift_tree_impostors.png")
+
+
 def moss():
     a = load(os.path.join(NAT_TEX, "moss.png"))
     H, S, V = C.rgb2hsv(a[..., :3])
@@ -129,16 +146,16 @@ def fur(src, name, hue, sat_add, val_mul):
     out = a.copy(); out[..., :3] = rgb
     save(out, name + ".jpg", "JPEG", 90)
     # glow: crevices between fur clumps (very dark + small) -> cyan veins, kept sparse and thin
-    dark = smooth(0.16 - V, 0.0, 0.10)
+    dark = smooth(0.06 - V, 0.0, 0.05)
     dark = box_blur(dark, 1) * (dark > 0.2)
     vm = np.zeros_like(a); vm[..., 0] = vm[..., 1] = vm[..., 2] = np.clip(dark * 1.2, 0, 1); vm[..., 3] = 1
     save(vm, name + "_vein.png")
 
 
 if __name__ == "__main__":
-    foliage(); bark(); moss()
-    for src, nm, hue, sadd, vm_ in (("wolf_lod1_Image_0.jpg", "rift_wolf_lod1", 0.74, 0.26, 1.05),
-                                    ("wolf_Image_0.jpg", "rift_wolf", 0.74, 0.26, 1.05),
+    foliage(); bark(); moss(); impostors()
+    for src, nm, hue, sadd, vm_ in (("wolf_lod1_Image_0.jpg", "rift_wolf_lod1", 0.75, 0.38, 0.85),
+                                    ("wolf_Image_0.jpg", "rift_wolf", 0.75, 0.38, 0.85),
                                     ("boar_lod1_Image_0.jpg", "rift_boar_lod1", 0.80, 0.30, 1.35),
                                     ("boar_Image_0.jpg", "rift_boar", 0.80, 0.30, 1.35)):
         fur(src, nm, hue, sadd, vm_)
