@@ -88,17 +88,20 @@ func _ready() -> void:
 	hud.add_action_button("lock_on", "Lock", "lock_on", "eye-target")
 	hud.add_action_button("crouch", "Sneak", "crouch", "walk")
 
-	hud.set_loading_text("Painting sprites...")
+	hud.set_loading_text("Painting sprites...", 0.04)
 	await get_tree().process_frame
 	await baker.bake("soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
 	await baker.bake("raider", "Barbarian", ["1H_Axe", "Barbarian_Round_Shield", "Barbarian_Hat"])
+	var looks_done := 0
 	for look: String in PopulationLOD.LOOK_MODEL:
+		hud.set_loading_text("Painting sprites...", 0.08 + 0.32 * looks_done / maxf(1.0, PopulationLOD.LOOK_MODEL.size()))
+		looks_done += 1
 		var model: Array = PopulationLOD.LOOK_MODEL[look]
 		var keep: Array[String] = []
 		keep.assign(model[1])
 		await baker.bake(look, model[0], keep, "Walking_A")
 
-	hud.set_loading_text("Raising the land...")
+	hud.set_loading_text("Raising the land...", 0.45)
 	await get_tree().process_frame
 	terrain = TerrainStreamer.new()
 	world.add_child(terrain)
@@ -116,8 +119,12 @@ func _ready() -> void:
 	terrain.focus = spawn
 	settlements.focus = spawn
 	terrain.view_radius = 2
+	hud.set_loading_text("Raising the land...", 0.5)
+	await get_tree().process_frame
 	terrain.build_all_now()
 	terrain.view_radius = 4
+	hud.set_loading_text("Building the villages...", 0.7)
+	await get_tree().process_frame
 	settlements.update_now()
 
 	world.add_child(player)
@@ -146,6 +153,8 @@ func _ready() -> void:
 	# Keepers inside the rooms get their menus (doors of towns built so far, then new ones).
 	services.wire_settlement(settlements)
 	settlements.settlement_built.connect(func(_s: Dictionary, root: Node3D) -> void: services.wire_settlement(root))
+	hud.set_loading_text("Filling the wilds...", 0.85)
+	await get_tree().process_frame
 	camps = MonsterCamps.new()
 	world.add_child(camps)
 	world.add_child(Lakeside.new())
@@ -176,6 +185,8 @@ func _ready() -> void:
 	ore.name = "OreVeins"
 	world.add_child(ore)
 
+	hud.set_loading_text("Waking the world...", 0.95)
+	await get_tree().process_frame
 	army = Squad.new().setup(0, "soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
 	army.routed.connect(func(_s: Squad) -> void: Game.say("Our men are breaking!"))
 	army.leader = player
@@ -184,6 +195,7 @@ func _ready() -> void:
 	_spawn_raiders(FIRST_CAMP, 12)
 	WorldSim.hour_changed.connect(func(_h: int) -> void: _maybe_spawn_war_battle())
 
+	hud.set_loading_text("Ready", 1.0)
 	hud.hide_loading()
 	Quality.start_adaptive()
 	VFX.warmup(world)   # pre-draw every effect shader so the first cast doesn't hitch
@@ -288,7 +300,7 @@ func _after_birth() -> void:
 
 
 func _process(delta: float) -> void:
-	if player == null or not player.is_inside_tree():
+	if player == null or not player.is_inside_tree() or terrain == null or army == null:   # still loading (awaits in _ready)
 		return
 	var focus := player.global_position
 	terrain.focus = focus

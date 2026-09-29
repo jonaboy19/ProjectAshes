@@ -201,6 +201,10 @@ static func glyph(glyph_name: String, size := 96) -> ImageTexture:
 				segs.append([body[i] * s, body[(i + 1) % body.size()] * s])
 			rings.append([Vector2(0.5, 0.55) * s, s * 0.15])
 			discs.append([Vector2(0.78, 0.43) * s, s * 0.035])
+		"pause":
+			for dx in [-0.03, 0.0, 0.03]:
+				segs.append([Vector2(0.36 + dx, 0.27) * s, Vector2(0.36 + dx, 0.73) * s])
+				segs.append([Vector2(0.64 + dx, 0.27) * s, Vector2(0.64 + dx, 0.73) * s])
 		"compass":
 			rings.append([Vector2(0.5, 0.5) * s, s * 0.38])
 			segs.append([Vector2(0.5, 0.22) * s, Vector2(0.58, 0.5) * s])

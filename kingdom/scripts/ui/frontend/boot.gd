@@ -6,6 +6,7 @@ const Flow := preload("res://scripts/ui/frontend/flow.gd")
 const SS := preload("res://scripts/ui/frontend/settings_store.gd")
 const Splash := preload("res://scripts/ui/frontend/splash.gd")
 const MainMenu := preload("res://scripts/ui/frontend/main_menu.gd")
+const FirstRun := preload("res://scripts/boot/first_run.gd")
 
 var _curtain: ColorRect
 var _busy := false
@@ -32,15 +33,42 @@ func _ready() -> void:
 	if Flow.skip_splash:
 		_show_menu()
 	else:
-		_show_splash()
+		_show_intro()
 	_fade(0.0, 0.6)
 
 
-func _show_splash() -> void:
-	var s := Splash.new()
-	s.finished.connect(func() -> void: transition(_show_menu))
+## The studio logo film (assets/video/studio_intro.ogv), skippable by tap or key after 1 s.
+func _show_intro() -> void:
+	var s := StudioIntro.new()
+	s.finished.connect(func() -> void: transition(_show_splash))
 	add_child(s)
 	move_child(_curtain, -1)
+
+
+func _clear_screens() -> void:
+	for c in get_children():
+		if c != _curtain and c is Control and c.get_index() > 0:
+			c.queue_free()
+
+
+func _show_splash() -> void:
+	_clear_screens()
+	var s := Splash.new()
+	s.finished.connect(func() -> void: transition(_after_splash))
+	add_child(s)
+	move_child(_curtain, -1)
+
+
+## Once, on the very first launch: language, privacy notice, how-to-play hint.
+func _after_splash() -> void:
+	if FirstRun.needed():
+		_clear_screens()
+		var f := FirstRun.new()
+		f.finished.connect(func() -> void: transition(_show_menu))
+		add_child(f)
+		move_child(_curtain, -1)
+	else:
+		_show_menu()
 
 
 func _show_menu() -> void:

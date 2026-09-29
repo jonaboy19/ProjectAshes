@@ -35,6 +35,7 @@ const Discovery := preload("res://scripts/sim/discovery.gd")
 const CompassBar := preload("res://scripts/ui/compass.gd")
 const WorldMap := preload("res://scripts/ui/world_map.gd")
 const PhotoMode := preload("res://scripts/ui/photo_mode.gd")
+const PauseMenu := preload("res://scripts/ui/frontend/pause_menu.gd")
 const DiscoveryBanner := preload("res://scripts/ui/discovery_banner.gd")
 const MapIcons := preload("res://scripts/ui/map_icons.gd")
 const AF := preload("res://scripts/ui/ashes_frame.gd")
@@ -45,7 +46,6 @@ const Minimap := preload("res://scripts/ui/minimap.gd")
 const NotifyStack := preload("res://scripts/ui/notify_stack.gd")
 const DialogueUI := preload("res://scripts/ui/dialogue_ui.gd")
 const Portrait := preload("res://scripts/ui/portrait.gd")
-const PauseMenu := preload("res://scripts/ui/frontend/pause_menu.gd")
 const SkillsSim := preload("res://scripts/sim/skills.gd")
 
 const DISCOVERY_RATE := 0.25       # s between discovery checks
@@ -70,12 +70,12 @@ var _interact_label: Label
 var _dash_cooldown_label: Label
 var _order_buttons: Array[TouchScreenButton] = []
 var _buttons: Dictionary = {}
-var _loading: ColorRect
-var _loading_label: Label
+var _loading: Control      # WorldLoading while the world is generated
 var _toast_box: PanelContainer
 var _menu: PanelContainer
 var _menu_source: Callable
 var _pack_button: TouchScreenButton
+var _pause_button: TouchScreenButton
 var _root: Control
 var _chrome: Control                # the HUD furniture (card, compass, minimap...): hidden during a conversation
 var card: Control                   # HudCard.Card
@@ -145,12 +145,13 @@ func _ready() -> void:
 	look.anchor_bottom = 1.0
 	look.gui_input.connect(func(e: InputEvent) -> void:
 		if e is InputEventScreenDrag:
-			player.add_look(e.relative))
+			player.add_look(e.relative * App.look_scale))
 	controls.add_child(look)
 	var stick := VirtualJoystick.new()
 	stick.anchor_right = 0.4
 	stick.anchor_top = 0.3
 	stick.anchor_bottom = 1.0
+	stick.size_scale = App.joystick_scale
 	stick.moved.connect(func(v: Vector2) -> void: player.touch_move = v)
 	controls.add_child(stick)
 
@@ -176,6 +177,8 @@ func _ready() -> void:
 	_buttons["zoom_in"] = _button("zoom_in", "+", 44, UITheme.ACTION_UTIL, "")
 	_interact = _button("interact", "Talk", 96, UITheme.ACTION_TALK, "hand")
 	_pack_button = _button("journal", "Pack", DOCK_SIZE, UITheme.ACTION_UTIL, "knapsack")
+	_pause_button = _make_button("", "", 52, UITheme.ACTION_UTIL, UITheme.glyph("pause"))
+	_pause_button.pressed.connect(open_pause)
 	_interact_label = _interact.get_child(0)
 	_interact.visible = false
 	for extra: Array in [["order_retreat", KEY_G], ["order_formation", KEY_B], ["ability_dash", KEY_R]]:
@@ -280,23 +283,14 @@ func _ready() -> void:
 	_menu.visible = false
 	root.add_child(_menu)
 
-	_loading = ColorRect.new()
-	_loading.color = UITheme.BG_SOLID
-	_loading.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# World-generation veil (backdrop, tips, progress bar; see world_loading.gd).
+	_loading = WorldLoading.new()
 	root.add_child(_loading)
-	_loading_label = Label.new()
-	_loading_label.add_theme_font_override("font", AF.wfont(700))
-	_loading_label.add_theme_font_size_override("font_size", 30)
-	_loading_label.add_theme_color_override("font_color", AF.GOLD_BRIGHT)
-	_loading_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_loading.add_child(_loading_label)
-	_loading_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_loading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_loading_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_loading_label.text = "Forging the realm..."
 
 	player.stamina_changed.connect(func(c: float, _m: float) -> void: (card.stamina as Meter).value = c)
 	player.health_changed.connect(func(c: int, m: int) -> void:
+		if c < int((card.health as Meter).value):
+			App.vibrate(35)
 		(card.health as Meter).max_value = m
 		(card.health as Meter).value = c)
 	Game.toast.connect(_say)
@@ -307,15 +301,21 @@ func _ready() -> void:
 	_layout()
 
 
+## True while the world-generation veil is up (it frees itself after fading out).
+func _veil() -> bool:
+	return is_instance_valid(_loading) and _loading.visible
+
+
 func hide_loading() -> void:
-	_loading.visible = false
+	WorldLoading.finish()
 	world_map.start_bake()      # paint the map terrain in the background now the world exists
 	_snapshot_events()
 	refresh_portrait()
 
 
-func set_loading_text(text: String) -> void:
-	_loading_label.text = text
+func set_loading_text(text: String, progress := -1.0) -> void:
+	if _loading is WorldLoading:
+		(_loading as WorldLoading).set_progress(progress, text)
 
 
 ## (Re)renders the round portrait on the card: the character-creator look in
@@ -383,6 +383,7 @@ func _layout() -> void:
 	# second column to its left when the first is full, kept clear of the attack cluster.
 	var col := s.x - LEFT - DOCK_SIZE
 	var top := MINIMAP_SIZE + 16.0    # below the minimap
+	_pause_button.position = Vector2(s.x * 0.5 + 250.0, 12.0)   # right of the compass
 	var bottom := s.y - 300.0 - 8.0
 	var rows := maxi(1, int((bottom - top - DOCK_SIZE) / DOCK_STEP) + 1)
 	var stack: Array[TouchScreenButton] = _dock.duplicate()
@@ -925,7 +926,7 @@ func set_quest_target(pos: Variant) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _loading.visible or not visible:
+	if _veil() or not visible:
 		return
 	if event is InputEventKey and event.pressed and not event.echo and (event as InputEventKey).keycode == KEY_F3:
 		debug_stats = not debug_stats
@@ -933,7 +934,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("ui_cancel") and not is_menu_open() and not world_map.visible and not photo_mode.is_active() \
 			and not _fade.visible and get_node_or_null("PauseMenu") == null:
-		PauseMenu.open(self, open_photo_mode)
+		open_pause()
 		get_viewport().set_input_as_handled()
 		return
 	if not is_menu_open() and hotbar.handle_key(event):
@@ -949,13 +950,30 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("photo_mode"):
 		open_photo_mode()
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_cancel"):
+		# Esc, gamepad B and the Android back button: close the open list, else pause.
+		get_viewport().set_input_as_handled()
+		if _menu.visible:
+			close_menu()
+		else:
+			open_pause()
+
+
+## The pause menu (resume, save, load, settings, photo mode, exit to main menu). Esc, the pause button,
+## the Android back button and returning to the app all come here.
+func open_pause() -> void:
+	if _veil() or not visible or _fade.visible or photo_mode.is_active() or world_map.visible \
+			or get_tree().paused or has_node("PauseMenu"):
+		return
+	close_menu()
+	PauseMenu.open(self, open_photo_mode)
 
 
 func toggle_map() -> void:
 	if world_map.visible:
 		world_map.close()
 		return
-	if photo_mode.is_active() or _loading.visible or _fade.visible:
+	if photo_mode.is_active() or _veil() or _fade.visible:
 		return
 	close_menu()
 	world_map.discovery = get_discovery()
@@ -964,7 +982,7 @@ func toggle_map() -> void:
 
 
 func open_photo_mode() -> void:
-	if photo_mode.is_active() or world_map.visible or _loading.visible or _fade.visible:
+	if photo_mode.is_active() or world_map.visible or _veil() or _fade.visible:
 		return
 	close_menu()
 	_root.visible = false
@@ -972,7 +990,7 @@ func open_photo_mode() -> void:
 
 
 func _process(delta: float) -> void:
-	if not visible or _loading.visible or player == null or not player.is_inside_tree():
+	if not visible or _veil() or player == null or not player.is_inside_tree():
 		return
 	_nav_timer -= delta
 	if _nav_timer <= 0.0:
