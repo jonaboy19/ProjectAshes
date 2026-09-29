@@ -51,7 +51,7 @@ const TIERS := [
 		"msaa": 0, "fxaa": false, "npc_full": 8, "rig_budget": 3, "npc_sprites": 22, "view_radius": 3, "light_fade": 50.0, "town_far": 600.0,
 	},
 	{   # HIGH: recent phones (Adreno 7xx, Mali-G710+, Apple A13+), integrated PC GPUs
-		"max_3d_height": 900, "scaling": "fsr", "fps": 60,
+		"max_3d_height": 1080, "scaling": "fsr", "fps": 60,
 		"shadow": 2, "shadow_size": 4096, "shadow_dist": 100.0, "soft_shadow": 2, "omni_shadows": true,
 		"ssao": true, "ssil": false, "sdfgi": false, "glow": true, "vol_fog": false, "ssr": false,
 		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 2,
