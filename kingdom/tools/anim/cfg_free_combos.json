@@ -46,7 +46,7 @@
    "name": "MA_Combo_JabCross",
    "file": "014/14_01.bvh",
    "start": 14.97,
-   "end": 16.75,
+   "end": 16.42,
    "fingers": "fist",
    "inplace_sigma": 0.5,
    "smooth": 0.012
@@ -55,7 +55,7 @@
    "name": "MA_Combo_JabCross_Southpaw",
    "file": "014/14_01.bvh",
    "start": 14.97,
-   "end": 16.75,
+   "end": 16.42,
    "fingers": "fist",
    "inplace_sigma": 0.5,
    "smooth": 0.012,
@@ -73,89 +73,35 @@
   {
    "name": "MA_Combo_StraightStraight",
    "file": "014/14_01.bvh",
-   "start": 4.14,
-   "end": 6.74,
+   "start": 4.69,
+   "end": 6.09,
    "fingers": "fist",
    "inplace_sigma": 0.5,
    "smooth": 0.012
   },
   {
-   "name": "MA_Combo_BodyHeadHead",
-   "file": "143/143_23.bvh",
-   "start": 0.6,
-   "end": 3.9,
-   "fingers": "fist",
-   "inplace_sigma": 0.5,
-   "smooth": 0.012
-  },
-  {
-   "name": "MA_Combo_HeavyJab",
+   "name": "MA_Combo_HookJab",
    "file": "014/14_01.bvh",
    "start": 18.83,
-   "end": 20.82,
+   "end": 20.16,
    "fingers": "fist",
    "inplace_sigma": 0.5,
    "smooth": 0.012
   },
   {
-   "name": "MA_Combo_HeavyHeavy",
+   "name": "MA_Combo_HookHook",
    "file": "014/14_01.bvh",
    "start": 22.91,
-   "end": 25.65,
+   "end": 24.66,
    "fingers": "fist",
    "inplace_sigma": 0.5,
    "smooth": 0.012
   },
   {
-   "name": "MA_Combo_StraightHeavy",
-   "file": "014/14_03.bvh",
-   "start": 28.18,
-   "end": 31.14,
-   "fingers": "fist",
-   "inplace_sigma": 0.5,
-   "smooth": 0.012
-  },
-  {
-   "name": "MA_Combo_HeavyStraight",
+   "name": "MA_Combo_HookStraight",
    "file": "015/15_13.bvh",
    "start": 24.27,
-   "end": 26.16,
-   "fingers": "fist",
-   "inplace_sigma": 0.5,
-   "smooth": 0.012
-  },
-  {
-   "name": "MA_Combo_HeavyStraightHeavy",
-   "file": "017/17_10.bvh",
-   "start": 17.2,
-   "end": 20.5,
-   "fingers": "fist",
-   "inplace_sigma": 0.5,
-   "smooth": 0.012
-  },
-  {
-   "name": "MA_Combo_Flurry_5Hit",
-   "file": "079/79_08.bvh",
-   "start": 0.5,
-   "end": 3.7,
-   "fingers": "fist",
-   "inplace_sigma": 0.5,
-   "smooth": 0.012
-  },
-  {
-   "name": "MA_Combo_Flurry_Long",
-   "file": "080/80_10.bvh",
-   "start": 0.6,
-   "end": 5.6,
-   "fingers": "fist",
-   "inplace_sigma": 0.5,
-   "smooth": 0.012
-  },
-  {
-   "name": "MA_Combo_PunchKick",
-   "file": "141/141_14.bvh",
-   "start": 0.79,
-   "end": 4.81,
+   "end": 25.87,
    "fingers": "fist",
    "inplace_sigma": 0.5,
    "smooth": 0.012

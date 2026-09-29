@@ -2,44 +2,37 @@
 
 | clip | s | loop | root travel | source | use |
 |---|---:|---|---:|---|---|
-| `MA_Punch_Cross_R_Head_A` | 2.03 |  | 0.13 m | CMU 13_18, 0.3-2.3 s (CMU terms) | straight rear-hand punch to the head, boxing step-in |
-| `MA_Punch_Cross_R_Head_B` | 2.60 |  | 0.29 m | CMU 14_03, 0.3-2.9 s (CMU terms) | straight rear-hand punch to the head, slower wind-up |
+| `MA_Punch_Cross_R_Head_A` | 1.60 |  | 0.13 m | CMU 13_18, 0.3-1.9 s (CMU terms) | straight rear-hand punch to the head, boxing step-in |
+| `MA_Punch_Cross_R_Head_B` | 1.00 |  | 0.29 m | CMU 14_03, 1.2-2.2 s (CMU terms) | straight rear-hand punch to the head, slower wind-up |
 | `MA_Punch_Cross_R_Head_C` | 1.87 |  | - | CMU 15_13, 14.2-16.1 s (CMU terms) | quick straight rear-hand punch |
-| `MA_Punch_Cross_L_Head` | 2.03 |  | 0.13 m | CMU 13_18, 0.3-2.3 s, mirrored (CMU terms) | southpaw mirror of Cross_R_Head_A |
+| `MA_Punch_Cross_L_Head` | 1.60 |  | 0.13 m | CMU 13_18, 0.3-1.9 s, mirrored (CMU terms) | southpaw mirror of Cross_R_Head_A |
 | `MA_Punch_Jab_L_Head_A` | 1.57 |  | 0.08 m | CMU 15_13, 63.9-65.5 s (CMU terms) | quick lead-hand jab to the head |
 | `MA_Punch_Jab_L_Head_B` | 1.90 |  | - | CMU 15_13, 67.4-69.3 s (CMU terms) | lead-hand jab, longer recovery |
 | `MA_Punch_Jab_R_Head` | 1.57 |  | 0.08 m | CMU 15_13, 63.9-65.5 s, mirrored (CMU terms) | southpaw mirror of Jab_L_Head_A |
-| `MA_Punch_Cross_R_Body` | 1.73 |  | - | CMU 15_13, 5.5-7.3 s (CMU terms) | straight rear-hand punch to the body |
 | `MA_Punch_Jab_L_Body` | 1.67 |  | - | CMU 15_13, 54.0-55.7 s (CMU terms) | lead-hand jab to the body |
-| `MA_Punch_Heavy_R_A` | 1.60 |  | 0.10 m | CMU 15_13, 12.6-14.2 s (CMU terms) | right hook to the head |
-| `MA_Punch_Heavy_R_B` | 2.20 |  | 0.07 m | CMU 15_13, 32.7-34.9 s (CMU terms) | right hook, heavier |
-| `MA_Punch_Heavy_R_C` | 1.63 |  | - | CMU 15_13, 42.7-44.4 s (CMU terms) | right hook, tight |
-| `MA_Punch_Heavy_L_A` | 1.60 |  | 0.10 m | CMU 15_13, 12.6-14.2 s, mirrored (CMU terms) | left hook (mirror of Hook_R_A) |
-| `MA_Punch_Heavy_L_B` | 2.20 |  | 0.07 m | CMU 15_13, 32.7-34.9 s, mirrored (CMU terms) | left hook (mirror of Hook_R_B) |
-| `MA_Punch_Heavy_R_D` | 1.97 |  | - | CMU 15_13, 16.1-18.1 s (CMU terms) | right uppercut |
-| `MA_Punch_Heavy_R_E` | 1.67 |  | - | CMU 14_01, 6.0-7.7 s (CMU terms) | right uppercut, short |
-| `MA_Punch_Heavy_L_C` | 1.97 |  | - | CMU 15_13, 16.1-18.1 s, mirrored (CMU terms) | left uppercut (mirror) |
-| `MA_Punch_Heavy_L_D` | 1.67 |  | - | CMU 14_01, 6.0-7.7 s, mirrored (CMU terms) | left uppercut, short (mirror) |
-| `MA_Punch_Heavy_R_Body` | 2.17 |  | 0.19 m | CMU 14_01, 36.4-38.6 s (CMU terms) | right hook to the body |
+| `MA_Punch_Hook_R_A` | 1.60 |  | 0.10 m | CMU 15_13, 12.6-14.2 s (CMU terms) | right hook to the head |
+| `MA_Punch_Hook_R_B` | 2.20 |  | 0.07 m | CMU 15_13, 32.7-34.9 s (CMU terms) | right hook, heavier, wide swing |
+| `MA_Punch_Hook_R_C` | 1.63 |  | - | CMU 15_13, 42.7-44.4 s (CMU terms) | right hook, tight |
+| `MA_Punch_Hook_L_A` | 1.60 |  | 0.10 m | CMU 15_13, 12.6-14.2 s, mirrored (CMU terms) | left hook (mirror of Hook_R_A) |
+| `MA_Punch_Hook_L_B` | 2.20 |  | 0.07 m | CMU 15_13, 32.7-34.9 s, mirrored (CMU terms) | left hook (mirror of Hook_R_B) |
+| `MA_Punch_Hook_R_D` | 1.97 |  | - | CMU 15_13, 16.1-18.1 s (CMU terms) | right hook, rising overhand swing |
+| `MA_Punch_Hook_R_E` | 1.67 |  | - | CMU 14_01, 6.0-7.7 s (CMU terms) | right hook, short and tight |
+| `MA_Punch_Hook_L_C` | 1.97 |  | - | CMU 15_13, 16.1-18.1 s, mirrored (CMU terms) | left hook, rising overhand swing (mirror of Hook_R_D) |
+| `MA_Punch_Hook_L_D` | 1.67 |  | - | CMU 14_01, 6.0-7.7 s, mirrored (CMU terms) | left hook, short and tight (mirror of Hook_R_E) |
+| `MA_Punch_Hook_R_Body` | 2.17 |  | 0.19 m | CMU 14_01, 36.4-38.6 s (CMU terms) | right hook to the body |
 | `MA_Kick_Front_R_Quick` | 1.60 |  | 0.12 m | CMU 143_24, 1.9-3.5 s (CMU terms) | knee strike then step |
 
 ### combos  (`animations_free/combos/UAL_Free_Combos.glb`)
 
 | clip | s | loop | root travel | source | use |
 |---|---:|---|---:|---|---|
-| `MA_Combo_JabCross` | 1.77 |  | 0.14 m | CMU 14_01, 15.0-16.8 s (CMU terms) | 2-hit: lead jab then rear cross |
-| `MA_Combo_JabCross_Southpaw` | 1.77 |  | 0.14 m | CMU 14_01, 15.0-16.8 s, mirrored (CMU terms) | 2-hit mirror |
+| `MA_Combo_JabCross` | 1.45 |  | 0.14 m | CMU 14_01, 15.0-16.4 s (CMU terms) | 2-hit: lead jab then rear cross |
+| `MA_Combo_JabCross_Southpaw` | 1.45 |  | 0.14 m | CMU 14_01, 15.0-16.4 s, mirrored (CMU terms) | 2-hit mirror |
 | `MA_Combo_CrossCross` | 2.33 |  | 0.14 m | CMU 13_18, 7.3-9.7 s (CMU terms) | 2-hit straight punches |
-| `MA_Combo_StraightStraight` | 2.60 |  | 0.24 m | CMU 14_01, 4.1-6.7 s (CMU terms) | 2-hit straight punches, advancing |
-| `MA_Combo_BodyHeadHead` | 3.30 |  | - | CMU 143_23, 0.6-3.9 s (CMU terms) | 3-hit: body jab, cross, jab |
-| `MA_Combo_HeavyJab` | 1.97 |  | 0.26 m | CMU 14_01, 18.8-20.8 s (CMU terms) | 2-hit: uppercut then jab |
-| `MA_Combo_HeavyHeavy` | 2.73 |  | 0.19 m | CMU 14_01, 22.9-25.6 s (CMU terms) | 2-hit: uppercut then hook |
-| `MA_Combo_StraightHeavy` | 2.93 |  | 0.21 m | CMU 14_03, 28.2-31.1 s (CMU terms) | 2-hit: straight then uppercut |
-| `MA_Combo_HeavyStraight` | 1.87 |  | 0.08 m | CMU 15_13, 24.3-26.2 s (CMU terms) | 2-hit: hook then straight |
-| `MA_Combo_HeavyStraightHeavy` | 3.30 |  | 0.20 m | CMU 17_10, 17.2-20.5 s (CMU terms) | 3-hit: uppercut, straight, hook |
-| `MA_Combo_Flurry_5Hit` | 3.17 |  | - | CMU 79_08, 0.5-3.7 s (CMU terms) | 5-hit boxing flurry |
-| `MA_Combo_Flurry_Long` | 5.00 |  | - | CMU 80_10, 0.6-5.6 s (CMU terms) | 12-hit alternating flurry, finisher / super move |
-| `MA_Combo_PunchKick` | 4.00 |  | 0.49 m | CMU 141_14, 0.8-4.8 s (CMU terms) | punches into a kick |
+| `MA_Combo_StraightStraight` | 1.40 |  | 0.24 m | CMU 14_01, 4.7-6.1 s (CMU terms) | 2-hit straight punches, advancing |
+| `MA_Combo_HookJab` | 1.33 |  | 0.26 m | CMU 14_01, 18.8-20.2 s (CMU terms) | 2-hit: hook then jab |
+| `MA_Combo_HookHook` | 1.75 |  | 0.19 m | CMU 14_01, 22.9-24.7 s (CMU terms) | 2-hit: hook then hook |
+| `MA_Combo_HookStraight` | 1.60 |  | 0.08 m | CMU 15_13, 24.3-25.9 s (CMU terms) | 2-hit: hook then straight |
 
 ### kicks  (`animations_free/kicks/UAL_Free_Kicks.glb`)
 
@@ -157,4 +150,4 @@
 | `Hit_KK_A` | 0.67 |  | - | KayKit General / Hit_A (CC0) | flinch |
 | `Hit_KK_B` | 0.87 |  | - | KayKit General / Hit_B (CC0) | heavier flinch |
 
-Total: 114 clips.
+Total: 107 clips.

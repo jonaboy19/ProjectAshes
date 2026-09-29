@@ -50,12 +50,6 @@
    "floor_limit": 0.3
   },
   {
-   "name": "Kay_Death_Fall_A",
-   "action": "Death_A",
-   "floor_limit": 0.3,
-   "floor": "none"
-  },
-  {
    "name": "Kay_Death_Fall_B",
    "action": "Death_B",
    "floor_limit": 0.3,

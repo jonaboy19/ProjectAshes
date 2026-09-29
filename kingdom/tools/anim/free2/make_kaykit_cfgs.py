@@ -33,7 +33,9 @@ CATS = {
  ],
  "combat_reactions": [
   ("Hit_A","Hit_React_A",0,{}),("Hit_B","Hit_React_B",0,{}),
-  ("Death_A","Death_Fall_A",0,{"floor":"none"}),("Death_B","Death_Fall_B",0,{"floor":"none"}),
+  # Death_A (Kay_Death_Fall_A) rejected in review: rigid plank, hips hover 0.36 m above the floor. Kay_Death_Fall_B is trimmed to 2.1 s,
+  # the Dodge_* clips get pelvis_untravel (travel was carried twice), Attack_2H_Spin_Long trimmed to 0.3-1.9 s: see glb_edit_clips.py.
+  ("Death_B","Death_Fall_B",0,{"floor":"none"}),
   ("Melee_Block","Block_Raise",0,{}),("Melee_Blocking","Block_Hold",L,{}),
   ("Melee_Block_Hit","Block_Impact",0,{}),("Melee_Block_Attack","Block_Counter",0,{}),
   ("Melee_2H_Idle","Stance_2H_Idle",L,{}),("Melee_Unarmed_Idle","Stance_Fists_Idle",L,{"fingers":"fist"}),

@@ -27,6 +27,9 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 CROWN = os.path.join(ROOT, "kingdom", "assets", "art", "emblems", "tower_crown.png")
 
 k = TK("TownGate", seed=515, pal=palette(stone="warm", roof="slate_blue", accent="oxblood"))
+k.pbr = dict(size=1024, lod1_size=512, orm_div=2, seed=5, ao_dist=1.2,
+         tint_override={"paving": (0.70, 0.60, 0.47), "stone": (0.70, 0.60, 0.47)})   # high-to-low PBR bake (pbr_kit.py)
+k.weather_ao = 0.34
 # warm beige/tan dressed stone (the reference's sunlit gatehouse), not the cool
 # grey-green WALLSTONE the fortification kit uses by default
 WARM_DRESSED = hexc("dcc79c")
