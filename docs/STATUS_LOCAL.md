@@ -26,6 +26,11 @@ _Last update: 2026-09-29 (assets session: farm animals, Meshy fixes, impostors)_
 - Verified headless in a sparse worktree (no game assets): sandbox OK, 19/19 tests pass. NOT run inside the full game (hooks not wired yet).
 - Backlog: windowed sandbox variant for GPU frame sheets (L8/L11); a Region1 debug overlay (module ms) once hooks land; presenter pooling helper.
 
+## Region 1 N1 Wardwright: L7 Wardlines + L8 rune recognizer (2026-09-29): sim + recognizer DONE, canvas WIP
+- **L7** `scripts/region1/wardlines.gd` (`Wardlines extends Region1Sim`), tuning `data/region1/wardlines.json`, 27 gdUnit tests (`tests/test_region1_wardlines.gd`): Elder Stone budgets, routing graph with hop loss, player links/cuts/pins, glyph carving (ward/lure/alarm/bless), decay + crews, rumour events, snapshot/restore, `coverage_callable()` for hook H3, `bind_network(RARunestoneNetwork)`. Not in `modules.json` yet (needs C3 + H3, see HOOKS_FOR_CLOUD.md).
+- **L8** `scripts/region1/rune_gesture.gd` (`RuneGesture`, multi-stroke Protractor) + `data/region1/glyphs.json` + 13 tests: 99% on 40 noisy strokes per glyph (6 seeds 98-100%), mean 0.25 ms per match.
+- WIP: windowed canvas `tools_qa/region1/rune_canvas.tscn` + frame sheet.
+
 ## In progress
 - **Meshy free pack round 2** (161 models) → `assets/incoming/meshy_free/`
 - **Clear water shader** (lakes and rivers, quality tiers) → `shaders/water/`
