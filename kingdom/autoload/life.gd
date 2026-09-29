@@ -69,6 +69,8 @@ const RECORD_TO_SOUL := {
 var appearance: Dictionary = {}
 var life_courses := preload("res://scripts/sim/life_courses.gd").new()
 var war := preload("res://scripts/sim/war_sim.gd").new()
+## Realm / war / settlement / city-life simulation (scripts/realm/, docs/design/SIM_HIERARCHY.md).
+var realm := preload("res://scripts/realm/realm_hub.gd").new()
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
 var career_id := ""            # career_ladders.gd key, "" = none yet
 var career_rank := ""          # rank id within that career
@@ -200,6 +202,7 @@ func _ready() -> void:
 
 ## A child of two real villagers, living in one of the village's houses.
 func _begin_life() -> void:
+	realm.warm_up()
 	var home: Dictionary = WorldGen.settlements[0]
 	var r: Vector2i = WorldSim.ranges[0]
 	var mother := r.x + 3
@@ -830,6 +833,8 @@ func _process(_delta: float) -> void:
 	_last_abs = now
 	if dh <= 0.0 or dh > 2.0:
 		return
+	for msg: String in realm.pump():
+		Game.say(msg)
 	needs.tick(dh)
 	magicules.regenerate(dh)
 	if player and is_instance_valid(player):
@@ -865,7 +870,21 @@ func _contracts_daily() -> void:
 			Game.say("Crown requisition officers took %d sacks from your farm stores for the war." % taken)
 
 
+func _realm_ctx() -> Dictionary:
+	var pp := Vector2.ZERO
+	if player and is_instance_valid(player):
+		pp = Vector2(player.global_position.x, player.global_position.z)
+	return {"player_pos": pp, "season": WorldSim.season, "at_war": war.is_at_war(),
+		"abs_hours": _abs_hours(), "gold": Game.gold, "life": self}
+
+
 func _on_hour(hour: int) -> void:
+	realm.on_hour(hour, WorldSim.day, _realm_ctx())
+	# City life and society keep a signed ledger instead of touching the purse.
+	for k: String in ["city_life", "society"]:
+		var net := int(realm.mod(k).take_pending_gold())
+		if net != 0:
+			Game.add_gold(net)
 	if hour == 6:
 		# War first: economy, lordship levies and promotion speed read the at_war flag this hour.
 		for msg: String in war.tick_day(WorldSim.day, {"feud_count": nobility.feuds().size(),
@@ -1095,6 +1114,7 @@ func snapshot() -> Dictionary:
 		"family": family.serialize(),
 		"life_courses": life_courses.serialize(),
 		"war": war.serialize(),
+		"realm": realm.serialize(),
 		"soul": soul.serialize(),
 		"skill_evolution": skill_evolution.serialize(),
 		"echoes": echoes.serialize(),
@@ -1149,10 +1169,11 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes", "realm"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	appearance = d.get("appearance", {})
+	realm.warm_up()
 	_last_abs = _abs_hours()
 	if d.has("player") and player and is_instance_valid(player):
 		var p: Dictionary = d["player"]

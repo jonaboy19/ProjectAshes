@@ -3,13 +3,14 @@
 The local session updates this file whenever a task starts or finishes. **Cloud session: read it after each pull.**
 Who owns which area: `docs/LOCAL_SESSION_HANDOFF.md`.
 
-_Last update: 2026-09-29 (assets session: farm animals, Meshy fixes, impostors)_
+_Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
 
 ## Done (recent)
 | Date | What | Where | Commit |
 |---|---|---|---|
 | 09-28 | Boot crash fixed (threaded mesh loads → main-thread `Assets.scene`) | `scripts/world/region_dressing.gd`, `assets.gd` | 0137fa0d, 64b3698e |
 | 09-28 | Godot 4.6.3 (quit crash fixed) | launchers, `tools/qa` | a5a596b7 |
+| 09-29 | **L14 main quest + L16 tutorial director**: "The Stones Are Dimming" Acts I-V (30 steps, 5 dialogue files, 12-person cast), story lint with full autoplay (2592/2592 combinations), 12 contextual tutorial prompts with en/nl strings, sandbox sheet | `data/region1/quests/`, `data/region1/dialogue/`, `scripts/region1/`, `tools_qa/region1/`, `docs/regions/STORY_R1.md`, `CAST_R1.md` | e3071665 + follow-up |
 | 09-29 | **Design: Retinue, Settlement and Ascension** (recruitment and the stone-borne Call with ETA, taming, Palworld-style building for thumbs, grudges and raids, conquest, the path to king via the Elder Stone Moot; 5 twists; balance targets and sims S1–S10; packages L21–L50, C14–C21, X8–X11 after the in-progress Region 1 packages) | `docs/design/RETINUE_SETTLEMENT_ASCENSION.md` | (this commit) |
 | 09-29 | **L17 Region 1 audio**: 7 looping themes (village/farm, guild town, Highwatch Keep, Stagborn glade, rift wilds, night, Warden boss), rune hum, ward activate/break, glyph carve x3, Stagborn bellow/snort/Warden roar, Scar ambience, 20 barks (10 m / 10 f). Music -16.1..-16.2 LUFS-I, one-shots peak -3 dBFS, 8.3 MB, licences in LICENSES.md + CREDITS.md | `assets/audio/region1/`, `docs/regions/AUDIO_R1.md`, `tools/audio/r1_*.sh` | (this commit) |
 | 09-29 | Meshy free pack round 1: 181 optimized models (CC0), not placed yet | `assets/incoming/meshy_free/` | a6c67244 |
@@ -32,6 +33,19 @@ _Last update: 2026-09-29 (assets session: farm animals, Meshy fixes, impostors)_
 - Canvas `tools_qa/region1/rune_canvas.tscn` (glowing trail, carved rune flare, confidence card, practice mode with guide, `--demo`), story board `tools_qa/region1/wardlines_demo.gd`, sheets and PNGs in `tools_qa/region1/samples/`.
 - Hooks for the cloud: H3 + C3 wiring in `docs/regions/HOOKS_FOR_CLOUD.md`. Wardlines is NOT in `modules.json` yet.
 - Backlog (aaa-review): (1) haptic tick + rune-hum/carve SFX on each stroke and on commit (audio exists in `assets/audio/region1/`); (2) real-phone test of the canvas (touch smoothing, palm rejection, stroke width by screen dpi); (3) a stone-face 3D version: project the strokes onto the Elder Stone emissive mask (L1/L12); (4) ward-map layer using `flow_edges()` (thick = busy link) for L13; (5) more glyphs (harvest-blessing variants, ancestor-gold) need shapes that are not rotations of each other; a lone diamond drawn in two strokes is not yet a template; (6) tick cost: crews scan all stones daily, fine at 84 but bucket by road for 400+ stones; (7) IM Fell body font renders as blocks in this sparse sandbox, the canvas uses Cinzel light.
+
+## Region 1 story + onboarding: L14 main quest + L16 tutorial director (2026-09-29): DONE
+- **L14 "The Stones Are Dimming"** (Acts I-V): `data/region1/quests/r1_main.json` (30 steps; schema in `data/region1/quests/README.md`), `r1_registry.json`, `cast.json`, dialogue `data/region1/dialogue/r1_act1..5.json` (134 nodes, 158 lines, `dialogue_runner` format plus `speaker`). Runtime `scripts/region1/story_quest.gd` (`Region1StoryQuest`, saves via Region1State). Docs: `docs/regions/STORY_R1.md` (synopsis per act, branches, C9 cutscene beats), `docs/regions/CAST_R1.md` (12 bios).
+- **Lint** `tools_qa/region1/lint_quests.gd`: schema, lengths (lines 120, choices 40, HUD pin 48), speakers, places, stones, glyphs, targets, items, cutscenes, tutorial ids, actions, conditions, tokens, flags (read vs set), step DAG, mechanic coverage and dialogue reachability. It then autoplays the whole quest with the real runtime and dialogue runner: 56 sampled combinations in about 10 s (0 errors, 0 warnings, 158/158 lines shown); `--exhaustive` covers all 2592 combinations, 0 failures, 8.7 min.
+- **L16** `scripts/region1/tutorial_director.gd` (12 contextual prompts: move, look, talk, interact, eat, sleep, fight, block, dodge, carve, map, ashsight). Each is dismissed only by the real action, with priority and pre-emption, skip, hide all and replay, and saves as `tutorial`. Also `tutorial_prompt_view.gd` (touch-first gesture art, dark-gold pill, 48 px skip) and `tutorial_game_bridge.gd` (C8 hook: 3 lines in main.gd, see HOOKS_FOR_CLOUD.md). Locale: 29 `TUT_*` rows en/nl, translations regenerated. Sandbox `tools_qa/region1/tutorial_sandbox.tscn` autoplay: 12/12 prompts shown in context and dismissed by their action (en + nl), sheet `docs/regions/tutorial_demo_sheet.jpg`.
+- Tests: `tests/test_region1_story.gd` (8) and `tests/test_region1_tutorial.gd` (17), all green together with the scaffold suite (44/44). Verified in the sparse project (no game assets); **not run inside the full game**: the hooks C7/C8 are not wired yet.
+- Cloud: C7 event mapping, and C8 hook plus providers, in `docs/regions/HOOKS_FOR_CLOUD.md`; C9 beats in STORY_R1.md; C0/C1 places listed in `r1_registry.json` (status c0/c1, proposed positions).
+- Backlog (aaa-review): voice-over script pass; a portrait per speaker; final gesture art for the trace/hold prompts (placeholder vector art now); the `sleep` prompt needs a bed Station in reach; wind-up detection for humanoids needs `is_winding_up()` (X4).
+
+## Region 1 N1 Wardwright: L7 Wardlines + L8 rune recognizer (2026-09-29): sim + recognizer DONE, canvas WIP
+- **L7** `scripts/region1/wardlines.gd` (`Wardlines extends Region1Sim`), tuning `data/region1/wardlines.json`, 27 gdUnit tests (`tests/test_region1_wardlines.gd`): Elder Stone budgets, routing graph with hop loss, player links/cuts/pins, glyph carving (ward/lure/alarm/bless), decay + crews, rumour events, snapshot/restore, `coverage_callable()` for hook H3, `bind_network(RARunestoneNetwork)`. Not in `modules.json` yet (needs C3 + H3, see HOOKS_FOR_CLOUD.md).
+- **L8** `scripts/region1/rune_gesture.gd` (`RuneGesture`, multi-stroke Protractor) + `data/region1/glyphs.json` + 13 tests: 99% on 40 noisy strokes per glyph (6 seeds 98-100%), mean 0.25 ms per match.
+- WIP: windowed canvas `tools_qa/region1/rune_canvas.tscn` + frame sheet.
 
 ## In progress
 - **Meshy free pack round 2** (161 models) → `assets/incoming/meshy_free/`
@@ -106,9 +120,9 @@ Remaining: not wired into ElementFX; fire sheet is v1 (flat disc start); no grou
 The local session updates this file whenever a task starts or finishes. **Cloud session: read it after each pull.**
 Who owns which area: `docs/LOCAL_SESSION_HANDOFF.md`.
 
-_Last update: 2026-09-29 (L5 Stagborn)_
-_Last update: 2026-09-29_
-_Last update: 2026-09-29 (assets session: farm animals, Meshy fixes, impostors)_
+_Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
+_Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
+_Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
 
 ## Done (recent)
 | Date | What | Where | Commit |
