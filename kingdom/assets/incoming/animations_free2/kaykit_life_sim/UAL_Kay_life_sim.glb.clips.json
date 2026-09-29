@@ -19,7 +19,7 @@
   "hip_scale": 3.1218
  },
  {
-  "name": "Kay_Work_Chop_Tree",
+  "name": "Kay_Work_Chop_Tree_Cycle",
   "loop": true,
   "seconds": 1.33,
   "frames": 41,
@@ -57,7 +57,7 @@
   "hip_scale": 3.1218
  },
  {
-  "name": "Kay_Work_Dig",
+  "name": "Kay_Work_Dig_Cycle",
   "loop": true,
   "seconds": 1.4,
   "frames": 43,
@@ -95,7 +95,7 @@
   "hip_scale": 3.1218
  },
  {
-  "name": "Kay_Work_Mine",
+  "name": "Kay_Work_Mine_Cycle",
   "loop": true,
   "seconds": 3.73,
   "frames": 113,
@@ -133,7 +133,7 @@
   "hip_scale": 3.1218
  },
  {
-  "name": "Kay_Work_Hammer",
+  "name": "Kay_Work_Hammer_Cycle",
   "loop": true,
   "seconds": 2.67,
   "frames": 81,
@@ -171,7 +171,7 @@
   "hip_scale": 3.1218
  },
  {
-  "name": "Kay_Work_Saw",
+  "name": "Kay_Work_Saw_Cycle",
   "loop": true,
   "seconds": 0.67,
   "frames": 21,
@@ -209,7 +209,7 @@
   "hip_scale": 3.1218
  },
  {
-  "name": "Kay_Lockpick",
+  "name": "Kay_Lockpick_Cycle",
   "loop": true,
   "seconds": 2.33,
   "frames": 71,
@@ -285,7 +285,7 @@
   "hip_scale": 3.1218
  },
  {
-  "name": "Kay_Work_Bench_A",
+  "name": "Kay_Work_Bench_A_Cycle",
   "loop": true,
   "seconds": 1.5,
   "frames": 46,
@@ -304,7 +304,7 @@
   "hip_scale": 3.1218
  },
  {
-  "name": "Kay_Work_Bench_B",
+  "name": "Kay_Work_Bench_B_Cycle",
   "loop": true,
   "seconds": 2.53,
   "frames": 77,
@@ -323,7 +323,7 @@
   "hip_scale": 3.1218
  },
  {
-  "name": "Kay_Work_Bench_C",
+  "name": "Kay_Work_Bench_C_Cycle",
   "loop": true,
   "seconds": 2.0,
   "frames": 61,
@@ -626,4 +626,4 @@
   "travel_m": 0.0,
   "hip_scale": 3.1218
  }
-]
+]

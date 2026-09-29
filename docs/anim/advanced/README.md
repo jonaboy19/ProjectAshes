@@ -4,11 +4,11 @@ Three parts, three owners of files (Codex still owns animation *behaviour*):
 
 | part | where | status |
 |---|---|---|
-| A. more clips (UAL skeleton, commercial-safe) | `kingdom/assets/incoming/animations_free2/`, this file | 102 clips, see below |
+| A. more clips (UAL skeleton, commercial-safe) | `kingdom/assets/incoming/animations_free2/`, this file | 101 clips, see below (round-3 review: `Kay_Death_Fall_A` rejected, ladder/wall rebuilt) |
 | B. runtime techniques demo (IK, look-at, springs, ragdoll, blend trees, hitstop, warping) + perf | `kingdom/tools_qa/anim_tech/`, `docs/anim/advanced/tech/README.md` | see that README |
 | C. own mocap from a phone video | `kingdom/tools/anim/video_mocap/`, `docs/anim/advanced/video_mocap/README.md` | one command `video_to_clip.ps1` (video -> UAL GLB + sheets) with IK foot pinning; tested on synthetic video only |
 
-Preview strips (contact sheets, one row per clip, time in seconds under each frame) are in `docs/anim/advanced/preview/`.
+Preview strips (contact sheets, one row per clip, time in seconds under each frame) are in `docs/anim/advanced/preview/` (`kaykit_combat_reactions/` added in round 3). Review verdicts: `docs/anim/free_library/review_results.md`; handoff data for all clips: `docs/anim/free_library/HANDOFF_CODEX.md`.
 
 ## A. Clip catalogue (all on the Quaternius UAL 65-bone skeleton, prefix `Kay_` or plain names)
 
@@ -18,12 +18,12 @@ Per-clip length/loop/travel is in `*.glb.clips.json` next to each GLB.
 
 | library | clips | content |
 |---|---:|---|
-| `kaykit_life_sim/UAL_Kay_life_sim.glb` | 33 | `Kay_Work_Chop_Tree`, `_Dig`, `_Mine`, `_Hammer`, `_Saw`, `Kay_Lockpick`, `Kay_Work_Bench_A/B/C` (each as one-shot + `_Loop`), `Kay_Hold_Item_A/B/C_Loop`, fishing set (`Cast`, `Idle_Loop`, `Bite`, `Tug`, `Reel_Loop`, `Struggle`, `Catch`), `Kay_Emote_Wave_Loop`, `Kay_Emote_Cheer_Loop`, `Kay_Interact_Reach`, `Kay_Pick_Up_Ground`, `Kay_Use_Item_Kay` |
-| `kaykit_combat_reactions/UAL_Kay_combat_reactions.glb` | 15 | `Kay_Hit_React_A/B`, `Kay_Death_Fall_A/B`, block set (`Block_Raise`, `Block_Hold_Loop`, `Block_Impact`, `Block_Counter`), `Kay_Stance_2H_Idle_Loop`, `Kay_Stance_Fists_Idle_Loop`, `Kay_Dodge_Fwd/Back/L/R` (0.4 s, root travel 0.3-0.8 m), `Kay_Attack_2H_Spin_Long` |
+| `kaykit_life_sim/UAL_Kay_life_sim.glb` | 33 | `Kay_Work_Chop_Tree`, `_Dig`, `_Mine`, `_Hammer`, `_Saw`, `Kay_Lockpick`, `Kay_Work_Bench_A/B/C` (each as one-shot + a loop named `<name>_Cycle_Loop`, imported as `<name>_Cycle`: Godot strips `_Loop`, so the old `<name>_Loop` names collided with the one-shots and the loops were dropped on import; fixed in round 3), `Kay_Hold_Item_A/B/C_Loop`, fishing set (`Cast`, `Idle_Loop`, `Bite`, `Tug`, `Reel_Loop`, `Struggle`, `Catch`), `Kay_Emote_Wave_Loop`, `Kay_Emote_Cheer_Loop`, `Kay_Interact_Reach`, `Kay_Pick_Up_Ground`, `Kay_Use_Item_Kay` |
+| `kaykit_combat_reactions/UAL_Kay_combat_reactions.glb` | 14 | `Kay_Hit_React_A/B`, `Kay_Death_Fall_B` (trimmed to 2.1 s; `_A` rejected: rigid plank, hips 0.36 m above the floor), block set (`Block_Raise`, `Block_Hold_Loop`, `Block_Impact`, `Block_Counter`), `Kay_Stance_2H_Idle_Loop`, `Kay_Stance_Fists_Idle_Loop`, `Kay_Dodge_Fwd/Back/L/R` (0.4 s bursts, root travel 0.5-1.2 m, pelvis double travel fixed in round 3), `Kay_Attack_2H_Spin_Long` |
 | `kaykit_movement_ext/UAL_Kay_movement_ext.glb` | 17 | crouch idle, sneak walk, walk backwards, run strafe L/R, 3 walks, 2 runs, jump start/air/land/short/long, 2 idles |
 | `kaykit_ranged/UAL_Kay_ranged.glb` | 14 | bow idle/aim/draw/release (+ "up" variants), pistol aim/shoot/reload, rifle aim/shoot/reload, run holding bow / rifle |
 | `kaykit_undead/UAL_Kay_undead.glb` | 9 | skeleton enemy: idle, walk, taunt, long taunt, awaken (standing/floor), collapse (death), resurrect, rise from ground |
-| `traversal_authored/UAL_Authored_Traversal.glb` | 13 | `Ladder_Climb_Up/Down_Loop` (0.6 m rise per 1.2 s, root Z = climb), `Wall_Climb_Up_Loop`, `Ledge_Hang_Idle_Loop`, `Ledge_Shimmy_L/R_Loop`, `Vault_Low` (0.9 m obstacle, root Y 2.7 m), horse riding `Ride_Idle/Walk/Trot/Gallop_Loop`, `Ride_Lean_L/R_Loop` |
+| `traversal_authored/UAL_Authored_Traversal.glb` | 13 | `Ladder_Climb_Up/Down_Loop` (0.6 m rise per 1.2 s, root Z = climb; feet on rungs, alternating limbs, knees out), `Wall_Climb_Up_Loop`, `Ledge_Hang_Idle_Loop`, `Ledge_Shimmy_L/R_Loop`, `Vault_Low` (0.9 m obstacle, root Y 2.7 m), horse riding `Ride_Idle/Walk/Trot/Gallop_Loop`, `Ride_Lean_L/R_Loop` |
 
 ### Categories covered by the whole project (this wave + `animations/` + `animations_free/`)
 
@@ -59,15 +59,15 @@ Swimming, sitting and lying already exist (UAL `Swim_*`, `Sitting_*`; CMU `Swim_
 - Steps: `kaykit_make_blend.py` merges the 8 KayKit GLBs into one .blend at 30 fps, `make_kaykit_cfgs.py` writes the configs, `build_kaykit.sh` runs Blender and `glb_reduce_anim.py`.
 - Loops: KayKit's own loops are used as is (`loop_native`), travel of loops is kept on `root` (mostly 0).
 - Known limits: KayKit legs are short and knees are bent in most idles (style, not a bug); arms are long, so hands reach further than a UAL body would. Ground-contact poses (sit on floor/chair, lie, push-ups, sit-ups, crawl) do not fit UAL proportions (feet float) and were dropped; use UAL `Sitting_*`.
-  Undead `Awaken_*`, `Resurrect` and `Rise_Ground` are big leaps that leave the frame in the strips: use them only with a ground clamp.
+  Undead `Awaken_*`, `Resurrect`, `Rise_Ground` and `Collapse` (4.65 m of root travel) are big leaps that leave the frame in the strips: use them only with a ground clamp.
 - Authored clips: `tools/anim/free2/author_traversal.py` (Blender IK: world-space hand/foot targets keyed on rungs, ledge, box, stirrups; pelvis and `root` keyed directly, baked to FK, GLB reduced). Rebuild: `blender -b -P author_traversal.py -- <out.glb>`; preview: `tools/anim/free2/render_trav.sh`.
-  Quality: readable and loop-clean, but hand-authored: the ladder/wall legs are tucked, the vault is a stylised side vault. Treat as good placeholders for gameplay wiring; replace with mocap from the video pipeline (part C) when the owner films them.
+  Quality: readable and loop-clean, but hand-authored: the ladder/wall cycle was rebuilt in round 3 (cross pattern, feet land on rungs 0.3/0.6 m and lift when the leg is almost straight, hands on rungs 1.8/2.1 m, elbows and knees out; see `preview/trav/`), the vault is still a stylised side vault. Treat as good placeholders for gameplay wiring; replace with mocap from the video pipeline (part C) when the owner films them.
 - Preview tools: `tools/anim/free2/preview.sh` (filmstrips through `tools/anim/preview_free_library.gd`), `preview_rm.gd` (filmstrips with root motion and props: ladder, ledge, wall, vault, horse), `preview_src.gd` (source mannequin).
 
 ## HANDOFF for Codex (clips)
 
 - Load: `Assets.UAL_FILES` gets the six new GLBs (or add them in `Assets._ual_for`); they follow the same convention as `animations/`: the `root` position track is disabled for in-place play.
-- Clip name to gameplay: work/chop/mine/dig/hammer/saw = life-sim jobs (`_Loop` while the job runs, the one-shot for the full cycle), fishing = `Cast` -> `Idle_Loop` -> `Bite` -> `Tug`/`Reel_Loop` -> `Catch`, `Hit_React_A/B` = flinch (stagger), `Death_Fall_A/B` = death (B is the long face-plant), block set = `Block_Raise` -> `Block_Hold_Loop` -> `Block_Impact`, dodge = 4 directional 0.4 s clips.
+- Clip name to gameplay: work/chop/mine/dig/hammer/saw = life-sim jobs (`Kay_Work_*_Cycle` loops while the job runs, the one-shot for the full cycle), fishing = `Cast` -> `Idle_Loop` -> `Bite` -> `Tug`/`Reel_Loop` -> `Catch`, `Hit_React_A/B` = flinch (stagger), `Death_Fall_A/B` = death (B is the long face-plant), block set = `Block_Raise` -> `Block_Hold_Loop` -> `Block_Impact`, dodge = 4 directional 0.4 s clips.
 - Root motion clips: enable the `root` track on a duplicate of the Animation (README of `animations/`, "Root motion"); `Ladder_Climb_*` (vertical, 0.6 m per cycle), `Vault_Low` (2.7 m forward), `Ledge_Shimmy_L/R` (0.5 m per cycle), dodges.
 - Ladder/ledge/vault need the character placed at the right spot: ladder rail plane 0.30 m in front of the root, first hand rung at 1.45 m, rungs every 0.3 m; ledge top at 2.12 m above the root, 0.24 m in front; vault obstacle 0.92 m tall starting 0.9 m ahead; horse saddle top about 1.12 m, seat = pelvis 1.20 m above the ground.
 
