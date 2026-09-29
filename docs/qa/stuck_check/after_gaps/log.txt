@@ -1,0 +1,5 @@
+=== Ashford (village) at (0.0, 0.0), 33 lots, 33 paths ===
+gap audit Ashford: 0 open narrow gaps (<1.4 m) between lot colliders, 1 closed by GapSeal fillers
+=== Kingsreach (castle) at (560.0, -420.0), 268 lots, 268 paths ===
+gap audit Kingsreach: 0 open narrow gaps (<1.4 m) between lot colliders, 12 closed by GapSeal fillers
+SUMMARY routes=0 clean=0 stuck_events=0 (of which villager-blocked 0, real 0) wall_time=39s

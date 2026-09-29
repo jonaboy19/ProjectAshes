@@ -1,0 +1,17 @@
+=== Ashford (village) at (0.0, 0.0), 33 lots, 33 paths ===
+gap audit Ashford: 0 open narrow gaps (<1.4 m) between lot colliders, 1 closed by GapSeal fillers
+=== Ashford done: 78 routes, 78 clean, 0 stuck events so far ===
+=== Kingsreach (castle) at (560.0, -420.0), 268 lots, 268 paths ===
+gap audit Kingsreach: 0 open narrow gaps (<1.4 m) between lot colliders, 12 closed by GapSeal fillers
+STUCK Kingsreach / street1 lane +0.0 out at (432.85, -324.63) heading (-0.80, 0.60)
+    @StaticBody3D@7537 (parent Waystone3, layer 1)  CylinderShape3D at (432.0, 16.86341, -324.0)
+    Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+    nearest street axis 0.01 m away (street width 11.0, half 5.50)
+STUCK Kingsreach / street1 lane +0.0 back at (431.19, -323.33) heading (0.80, -0.60)
+    Body (parent Chunk_6_-6, layer 1)  ConcavePolygonShape3D at (0.0, 0.0, 0.0)
+    @StaticBody3D@7537 (parent Waystone3, layer 1)  CylinderShape3D at (432.0, 16.86341, -324.0)
+    lateral clearance h0.4: 3.00+3.00=6.00 m, h1.2: 3.00+3.00=6.00 m; obstacle ahead at 0.35 m
+    nearest street axis 0.05 m away (street width 11.0, half 5.50)
+=== Kingsreach done: 632 routes, 630 clean, 2 stuck events so far ===
+SUMMARY routes=632 clean=630 stuck_events=2 (of which villager-blocked 0, real 2) wall_time=485s

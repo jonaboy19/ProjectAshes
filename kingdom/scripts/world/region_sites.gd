@@ -249,7 +249,7 @@ static func _waystones(rng: RandomNumberGenerator) -> Array[Dictionary]:
 		var t := ra + 40.0
 		var flip := 1.0
 		while t < length - rb - 20.0:
-			var p := a + dir * t + side * 4.2 * flip
+			var p := a + dir * t + side * 7.0 * flip   # clear of even the broad gate roads
 			if not WorldGen.near_water(p.x, p.y, 3.0):
 				var st := _site("Waystone", "waystone", p, _yaw_to(-side * flip))
 				_part(st, "road/milestone", Vector2.ZERO, 0.0, true)
