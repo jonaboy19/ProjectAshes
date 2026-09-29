@@ -22,6 +22,9 @@ from town_kit import TK, palette, IRON, MORTAR, WALLSTONE, rect_hole
 from ra_kit import hexc, vary, mix
 
 k = TK("TownWall", seed=77, pal=palette(stone="grey"))
+k.pbr = dict(size=1024, lod1_size=512, orm_div=2, seed=7, ao_dist=0.9,
+         tint_override={"paving": (0.70, 0.60, 0.47), "stone": (0.70, 0.60, 0.47)})   # high-to-low PBR bake (pbr_kit.py)
+k.weather_ao = 0.34
 k.deform_amp = k.deform_sag = 0      # tiles end to end: no bow / sag (seams must match)
 k.p["stone"] = WALLSTONE
 MA, PL = k.M("Matte"), k.M("Plant")

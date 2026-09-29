@@ -1,0 +1,241 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scripts/vfx/element_effect.gd" id="1_yjv5m"]
+[ext_resource type="Shader" path="res://shaders/vfx_elements/el_add.gdshader" id="2_ueefe"]
+[ext_resource type="Material" path="res://scenes/vfx/elements/_shared/p_trace_02_mix.tres" id="3_5uoax"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_i82p5"]
+render_priority = 0
+shader = ExtResource("2_ueefe")
+shader_parameter/shape_mode = 3
+shader_parameter/col_core = Color(1, 0.98, 0.82, 1)
+shader_parameter/col_mid = Color(0.62, 0.72, 1, 1)
+shader_parameter/col_edge = Color(0.36, 0.26, 0.9, 1)
+shader_parameter/intensity = 1.1
+shader_parameter/master = null
+shader_parameter/progress = null
+shader_parameter/dissolve_amt = null
+shader_parameter/alpha_mul = null
+shader_parameter/noise_amt = 0.15
+shader_parameter/noise_scale = Vector3(8, 8, 8)
+shader_parameter/scroll = Vector3(0, 0, 0)
+shader_parameter/cel = 0.5
+shader_parameter/bands = 3.0
+shader_parameter/fresnel_pow = null
+shader_parameter/rim_alpha = null
+shader_parameter/core_facing = null
+shader_parameter/mesh_h = null
+shader_parameter/mesh_r = null
+shader_parameter/fade_y = null
+shader_parameter/ring_r = null
+shader_parameter/ring_w = null
+shader_parameter/ring_fill = null
+shader_parameter/ticks = null
+shader_parameter/tick_amt = null
+shader_parameter/spiral = null
+shader_parameter/spiral_amt = null
+shader_parameter/wobble = null
+shader_parameter/wobble_scale = null
+shader_parameter/twist = null
+shader_parameter/spin = null
+shader_parameter/flicker = 0.75
+shader_parameter/fake_light = null
+shader_parameter/flat_shade = null
+shader_parameter/light_dir = null
+shader_parameter/reveal = null
+shader_parameter/tail_len = 1.0
+shader_parameter/pulse = null
+shader_parameter/pulse_speed = null
+shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_j2hps"]
+_surfaces = [{
+"aabb": AABB(0.14977375, 0.39319587, 0.06630675, 0.1875166, 0.51020616, 0.16193005),
+"attribute_data": PackedByteArray("AAAAAAAAAAAAAAAAAACAP6uqKj4AAIA/AAAAAAAAAACrqio+AACAP6uqKj4AAAAAq6oqPgAAAACrqio+AACAP6uqqj4AAIA/q6oqPgAAAACrqqo+AACAP6uqqj4AAAAAq6qqPgAAAACrqqo+AACAPwAAAD8AAIA/q6qqPgAAAAAAAAA/AACAPwAAAD8AAAAAAAAAPwAAAAAAAAA/AACAP6uqKj8AAIA/AAAAPwAAAACrqio/AACAP6uqKj8AAAAAq6oqPwAAAACrqio/AACAP1VVVT8AAIA/q6oqPwAAAABVVVU/AACAP1VVVT8AAAAAVVVVPwAAAABVVVU/AACAPwAAgD8AAIA/VVVVPwAAAAAAAIA/AACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAACAP6uqKj4AAIA/AAAAAAAAAACrqio+AACAP6uqKj4AAAAAq6oqPgAAAACrqio+AACAP6uqqj4AAIA/q6oqPgAAAACrqqo+AACAP6uqqj4AAAAAq6qqPgAAAACrqqo+AACAPwAAAD8AAIA/q6qqPgAAAAAAAAA/AACAPwAAAD8AAAAAAAAAPwAAAAAAAAA/AACAP6uqKj8AAIA/AAAAPwAAAACrqio/AACAP6uqKj8AAAAAq6oqPwAAAACrqio/AACAP1VVVT8AAIA/q6oqPwAAAABVVVU/AACAP1VVVT8AAAAAVVVVPwAAAABVVVU/AACAPwAAgD8AAIA/VVVVPwAAAAAAAIA/AACAPwAAgD8AAAAA"),
+"format": 34359738385,
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 72,
+"vertex_data": PackedByteArray("pqaiPs3MzD7+APE9joyQPs3MzD6cmKg9ZhmcPsAY+z6adtI9pqaiPs3MzD7+APE9ZhmcPsAY+z6adtI9UrGsPsAY+z4lawo+UrGsPsAY+z4lawo+ZhmcPsAY+z6adtI9r31aPjc3DT8z+h4+UrGsPsAY+z4lawo+r31aPjc3DT8z+h4+Lal4Pjc3DT+xJT0+Lal4Pjc3DT+xJT0+r31aPjc3DT8z+h4+8bNoPkqWIj/Ej04+Lal4Pjc3DT+xJT0+8bNoPkqWIj/Ej04+i+2BPkqWIj/otmk+i+2BPkqWIj/otmk+8bNoPkqWIj/Ej04+9oaAPh/HQT/Vy4c9i+2BPkqWIj/otmk+9oaAPh/HQT/Vy4c9XJiMPh/HQT9rEbg9XJiMPh/HQT9rEbg99oaAPh/HQT/Vy4c9Sl4ZPnqATj/jhyo+XJiMPh/HQT9rEbg9Sl4ZPnqATj/jhyo+vHwuPnqATj9Vpj8+vHwuPnqATj9Vpj8+Sl4ZPnqATj/jhyo+wb9DPmZmZj/Bv0M+vHwuPnqATj9Vpj8+wb9DPmZmZj/Bv0M+2dlVPmZmZj/Z2VU+Lk+iPqJI0D579qk9BuSQPvhQyT4fo+89lGmcPj3n9z7Jygk+Lk+iPqJI0D579qk9lGmcPj3n9z7Jygk+JGGsPkNK/j5St9M9JGGsPkNK/j5St9M9lGmcPj3n9z7Jygk+dg9bPp7DCz/pkzw+JGGsPkNK/j5St9M9dg9bPp7DCz/pkzw+Zhd4PtCqDj/7ix8+Zhd4PtCqDj/7ix8+dg9bPp7DCz/pkzw+JDdpPtpHIT+1M2k+Zhd4PtCqDj/7ix8+JDdpPtpHIT+1M2k+8auBPrrkIz/3Ek8+8auBPrrkIz/3Ek8+JDdpPtpHIT+1M2k+RsGAPtidQD8sKLc98auBPrrkIz/3Ek8+RsGAPtidQD8sKLc9DF6MPmbwQj8UtYg9DF6MPmbwQj8UtYg9RsGAPtidQD8sKLc9VsQZPlx8TT9JQD8+DF6MPmbwQj8UtYg9VsQZPlx8TT9JQD8+sBYuPpiETz/v7So+sBYuPpiETz/v7So+VsQZPlx8TT9JQD8+OBdEPnGHZT9hglU+sBYuPpiETz/v7So+OBdEPnGHZT9hglU+YoJVPltFZz85F0Q+")
+}]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_l1ix5"]
+render_priority = 0
+shader = ExtResource("2_ueefe")
+shader_parameter/shape_mode = 3
+shader_parameter/col_core = Color(1, 0.98, 0.82, 1)
+shader_parameter/col_mid = Color(0.62, 0.72, 1, 1)
+shader_parameter/col_edge = Color(0.36, 0.26, 0.9, 1)
+shader_parameter/intensity = 1.1
+shader_parameter/master = null
+shader_parameter/progress = null
+shader_parameter/dissolve_amt = null
+shader_parameter/alpha_mul = null
+shader_parameter/noise_amt = 0.15
+shader_parameter/noise_scale = Vector3(8, 8, 8)
+shader_parameter/scroll = Vector3(0, 0, 0)
+shader_parameter/cel = 0.5
+shader_parameter/bands = 3.0
+shader_parameter/fresnel_pow = null
+shader_parameter/rim_alpha = null
+shader_parameter/core_facing = null
+shader_parameter/mesh_h = null
+shader_parameter/mesh_r = null
+shader_parameter/fade_y = null
+shader_parameter/ring_r = null
+shader_parameter/ring_w = null
+shader_parameter/ring_fill = null
+shader_parameter/ticks = null
+shader_parameter/tick_amt = null
+shader_parameter/spiral = null
+shader_parameter/spiral_amt = null
+shader_parameter/wobble = null
+shader_parameter/wobble_scale = null
+shader_parameter/twist = null
+shader_parameter/spin = null
+shader_parameter/flicker = 0.75
+shader_parameter/fake_light = null
+shader_parameter/flat_shade = null
+shader_parameter/light_dir = null
+shader_parameter/reveal = null
+shader_parameter/tail_len = 1.0
+shader_parameter/pulse = null
+shader_parameter/pulse_speed = null
+shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_ath4j"]
+_surfaces = [{
+"aabb": AABB(-0.31767768, 0.98769087, -0.062354855, 0.22651652, 0.5184637, 0.27736062),
+"attribute_data": PackedByteArray("AAAAAAAAAAAAAAAAAACAP6uqKj4AAIA/AAAAAAAAAACrqio+AACAP6uqKj4AAAAAq6oqPgAAAACrqio+AACAP6uqqj4AAIA/q6oqPgAAAACrqqo+AACAP6uqqj4AAAAAq6qqPgAAAACrqqo+AACAPwAAAD8AAIA/q6qqPgAAAAAAAAA/AACAPwAAAD8AAAAAAAAAPwAAAAAAAAA/AACAP6uqKj8AAIA/AAAAPwAAAACrqio/AACAP6uqKj8AAAAAq6oqPwAAAACrqio/AACAP1VVVT8AAIA/q6oqPwAAAABVVVU/AACAP1VVVT8AAAAAVVVVPwAAAABVVVU/AACAPwAAgD8AAIA/VVVVPwAAAAAAAIA/AACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAACAP6uqKj4AAIA/AAAAAAAAAACrqio+AACAP6uqKj4AAAAAq6oqPgAAAACrqio+AACAP6uqqj4AAIA/q6oqPgAAAACrqqo+AACAP6uqqj4AAAAAq6qqPgAAAACrqqo+AACAPwAAAD8AAIA/q6qqPgAAAAAAAAA/AACAPwAAAD8AAAAAAAAAPwAAAAAAAAA/AACAP6uqKj8AAIA/AAAAPwAAAACrqio/AACAP6uqKj8AAAAAq6oqPwAAAACrqio/AACAP1VVVT8AAIA/q6oqPwAAAABVVVU/AACAP1VVVT8AAAAAVVVVPwAAAABVVVU/AACAPwAAgD8AAIA/VVVVPwAAAAAAAIA/AACAPwAAgD8AAAAA"),
+"format": 34359738385,
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 72,
+"vertex_data": PackedByteArray("joyQvgAAgD/D0JC8pqaivgAAgD/D0JA84eeSvp3xjj/gUPW8joyQvgAAgD/D0JC84eeSvp3xjj/gUPW89U+Cvp3xjj/OZ3+99U+Cvp3xjj/OZ3+94eeSvp3xjj/gUPW8UkB8vlM2lD+cA9A99U+Cvp3xjj/OZ3+9UkB8vlM2lD+cA9A91BRevlM2lD+grJM91BRevlM2lD+grJM9UkB8vlM2lD+cA9A9ONlEvhVSoD9tErA91BRevlM2lD+grJM9ONlEvhVSoD9tErA9FLIpvhVSoD9HiHM9FLIpvhVSoD9HiHM9ONlEvhVSoD9tErA9tDgovia2qD/4MC0+FLIpvhVSoD9HiHM9tDgovia2qD/4MC0+6BUQvia2qD8sDhU+6BUQvia2qD8sDhU+tDgovia2qD/4MC0+GlcIvkXZsj94Klw+6BUQvia2qD8sDhU+GlcIvkXZsj94Klw+UXHmvUXZsj8GDEc+UXHmvUXZsj8GDEc+GlcIvkXZsj94Klw+5ObevQAAwD/Z2VU+UXHmvUXZsj8GDEc+5ObevQAAwD/Z2VU+tLK6vQAAwD/Bv0M+VXqhvlmTgT9jF3y837iRvk/ZfD9jF3w8P2ODvuF/jT/DQgO9VXqhvlmTgT9jF3y8P2ODvuF/jT/DQgO9l9SRvlljkD97zXa9l9SRvlljkD97zXa9P2ODvuF/jT/DQgO9WwlgvjTmkj+OGsw9l9SRvlljkD97zXa9WwlgvjTmkj+OGsw9y0t6vnKGlT+ulZc9y0t6vnKGlT+ulZc9WwlgvjTmkj+OGsw9jXQrvpMjnz95jaw9y0t6vnKGlT+ulZc9jXQrvpMjnz95jaw9vxZDvpeAoT8tkno9vxZDvpeAoT8tkno9jXQrvpMjnz95jaw9VKYRvkCppz+MoCs+vxZDvpeAoT8tkno9VKYRvkCppz+MoCs+SKgmvgzDqT+YnhY+SKgmvgzDqT+YnhY+VKYRvkCppz+MoCs+Di7pvfztsT8ZzFo+SKgmvgzDqT+YnhY+Di7pvfztsT8ZzFo+vPgGvo7Esz9lakg+vPgGvo7Esz9lakg+Di7pvfztsT8ZzFo+Vgu9vVQ2vz+IrVQ+vPgGvo7Esz9lakg+Vgu9vVQ2vz+IrVQ+Qo7cvazJwD8S7EQ+")
+}]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kaiv0"]
+render_priority = 0
+shader = ExtResource("2_ueefe")
+shader_parameter/shape_mode = 3
+shader_parameter/col_core = Color(1, 0.98, 0.82, 1)
+shader_parameter/col_mid = Color(0.62, 0.72, 1, 1)
+shader_parameter/col_edge = Color(0.36, 0.26, 0.9, 1)
+shader_parameter/intensity = 1.1
+shader_parameter/master = null
+shader_parameter/progress = null
+shader_parameter/dissolve_amt = null
+shader_parameter/alpha_mul = null
+shader_parameter/noise_amt = 0.15
+shader_parameter/noise_scale = Vector3(8, 8, 8)
+shader_parameter/scroll = Vector3(0, 0, 0)
+shader_parameter/cel = 0.5
+shader_parameter/bands = 3.0
+shader_parameter/fresnel_pow = null
+shader_parameter/rim_alpha = null
+shader_parameter/core_facing = null
+shader_parameter/mesh_h = null
+shader_parameter/mesh_r = null
+shader_parameter/fade_y = null
+shader_parameter/ring_r = null
+shader_parameter/ring_w = null
+shader_parameter/ring_fill = null
+shader_parameter/ticks = null
+shader_parameter/tick_amt = null
+shader_parameter/spiral = null
+shader_parameter/spiral_amt = null
+shader_parameter/wobble = null
+shader_parameter/wobble_scale = null
+shader_parameter/twist = null
+shader_parameter/spin = null
+shader_parameter/flicker = 0.75
+shader_parameter/fake_light = null
+shader_parameter/flat_shade = null
+shader_parameter/light_dir = null
+shader_parameter/reveal = null
+shader_parameter/tail_len = 1.0
+shader_parameter/pulse = null
+shader_parameter/pulse_speed = null
+shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_ro7x5"]
+_surfaces = [{
+"aabb": AABB(0.08438262, 1.2843779, -0.21952172, 0.31575692, 0.42343318, 0.22928257),
+"attribute_data": PackedByteArray("AAAAAAAAAAAAAAAAAACAP6uqKj4AAIA/AAAAAAAAAACrqio+AACAP6uqKj4AAAAAq6oqPgAAAACrqio+AACAP6uqqj4AAIA/q6oqPgAAAACrqqo+AACAP6uqqj4AAAAAq6qqPgAAAACrqqo+AACAPwAAAD8AAIA/q6qqPgAAAAAAAAA/AACAPwAAAD8AAAAAAAAAPwAAAAAAAAA/AACAP6uqKj8AAIA/AAAAPwAAAACrqio/AACAP6uqKj8AAAAAq6oqPwAAAACrqio/AACAP1VVVT8AAIA/q6oqPwAAAABVVVU/AACAP1VVVT8AAAAAVVVVPwAAAABVVVU/AACAPwAAgD8AAIA/VVVVPwAAAAAAAIA/AACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAACAP6uqKj4AAIA/AAAAAAAAAACrqio+AACAP6uqKj4AAAAAq6oqPgAAAACrqio+AACAP6uqqj4AAIA/q6oqPgAAAACrqqo+AACAP6uqqj4AAAAAq6qqPgAAAACrqqo+AACAPwAAAD8AAIA/q6qqPgAAAAAAAAA/AACAPwAAAD8AAAAAAAAAPwAAAAAAAAA/AACAP6uqKj8AAIA/AAAAPwAAAACrqio/AACAP6uqKj8AAAAAq6oqPwAAAACrqio/AACAP1VVVT8AAIA/q6oqPwAAAABVVVU/AACAP1VVVT8AAAAAVVVVPwAAAABVVVU/AACAPwAAgD8AAIA/VVVVPwAAAAAAAIA/AACAPwAAgD8AAAAA"),
+"format": 34359738385,
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 72,
+"vertex_data": PackedByteArray("zsjsPWZmpj9NymC+zNCsPWZmpj9Nzzi+Y5sXPiTcrT/pqiG+zsjsPWZmpj9NymC+Y5sXPiTcrT/pqiG+D+00PiTcrT//UEa+D+00PiTcrT//UEa+Y5sXPiTcrT/pqiG+tM29PV3luj+cuZa9D+00PiTcrT//UEa+tM29PV3luj+cuZa9YBzzPV3luj/yW9m9YBzzPV3luj/yW9m9tM29PV3luj+cuZa9iAqGPmc3vT9U7tG9YBzzPV3luj/yW9m9iAqGPmc3vT9U7tG9CAmSPmc3vT9r8wa+CAmSPmc3vT9r8wa+iAqGPmc3vT9U7tG9Nh6iPghjxT/QxKO9CAmSPmc3vT9r8wa+Nh6iPghjxT/QxKO9jMesPghjxT98E9m9jMesPghjxT98E9m9Nh6iPghjxT/QxKO97YrDPuwWzT/lYIG9jMesPghjxT98E9m97YrDPuwWzT/lYIG9F9/MPuwWzT+7BbC9F9/MPuwWzT+7BbC97YrDPuwWzT/lYIG9szOvPpqZ2T8D7B88F9/MPuwWzT+7BbC9szOvPpqZ2T8D7B88szK3PpqZ2T8D7B+8IZatPU1mqD8SSVm+eQPsPX9mpD+IUEC+nZI0PuYGrD8KjCi+IZatPU1mqD8SSVm+nZI0PuYGrD8KjCi+1fUXPmKxrz/ebz++1fUXPmKxrz/ebz++nZI0PuYGrD8KjCi+73fyPcc6uT+qO6O91fUXPmKxrz/ebz++73fyPcc6uT+qO6O9JXK+PfOPvD/k2cy9JXK+PfOPvD/k2cy973fyPcc6uT+qO6O9COSRPnq3uz8uMN29JXK+PfOPvD/k2cy9COSRPnq3uz8uMN29iC+GPlS3vj9+UgG+iC+GPlS3vj9+UgG+COSRPnq3uz8uMN29qKasPsMNxD91xq29iC+GPlS3vj9+UgG+qKasPsMNxD91xq29Gj+iPk24xj/XEc+9Gj+iPk24xj/XEc+9qKasPsMNxD91xq29UMLMPlDsyz9VIoq9Gj+iPk24xj/XEc+9UMLMPlDsyz9VIoq9tKfDPohBzj9LRKe9tKfDPohBzj9LRKe9UMLMPlDsyz9VIoq9CRq3PqaZ2D9PxMc7tKfDPohBzj9LRKe9CRq3PqaZ2D9PxMc7XUyvPo6Z2j9PxMe7")
+}]
+
+[sub_resource type="Gradient" id="Gradient_bdl0o"]
+offsets = PackedFloat32Array(0, 0.08, 0.6, 1)
+colors = PackedColorArray(1, 0.98, 0.82, 0, 1, 0.98, 0.82, 1, 0.62, 0.72, 1, 0.9, 0.36, 0.26, 0.9, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_eg0ny"]
+gradient = SubResource("Gradient_bdl0o")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_pdfrh"]
+particle_flag_align_y = true
+emission_shape = 3
+emission_box_extents = Vector3(0.3, 0.8, 0.25)
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = 0.5
+initial_velocity_max = 2.0
+gravity = Vector3(0, 0, 0)
+damping_max = 0.5
+scale_min = 0.7
+color_ramp = SubResource("GradientTexture1D_eg0ny")
+
+[sub_resource type="QuadMesh" id="QuadMesh_gljku"]
+material = ExtResource("3_5uoax")
+size = Vector2(0.5, 0.6055914)
+
+[node name="Lightning_Status" type="Node3D" unique_id=1147772364]
+script = ExtResource("1_yjv5m")
+duration = 0.0
+fade_out = 0.3
+kind = &"status"
+element = &"lightning"
+
+[node name="Arc0" type="MeshInstance3D" parent="." unique_id=2011334846]
+material_override = SubResource("ShaderMaterial_i82p5")
+cast_shadow = 0
+extra_cull_margin = 2.0
+gi_mode = 0
+mesh = SubResource("ArrayMesh_j2hps")
+
+[node name="Arc1" type="MeshInstance3D" parent="." unique_id=515620845]
+material_override = SubResource("ShaderMaterial_l1ix5")
+cast_shadow = 0
+extra_cull_margin = 2.0
+gi_mode = 0
+mesh = SubResource("ArrayMesh_ath4j")
+
+[node name="Arc2" type="MeshInstance3D" parent="." unique_id=1913311973]
+material_override = SubResource("ShaderMaterial_kaiv0")
+cast_shadow = 0
+extra_cull_margin = 2.0
+gi_mode = 0
+mesh = SubResource("ArrayMesh_ro7x5")
+
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1693221663]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+cast_shadow = 0
+gi_mode = 0
+emitting = false
+lifetime = 0.3
+randomness = 0.4
+visibility_aabb = AABB(-3, -1.5, -3, 6, 4.8, 6)
+local_coords = true
+transform_align = 3
+process_material = SubResource("ParticleProcessMaterial_pdfrh")
+draw_pass_1 = SubResource("QuadMesh_gljku")

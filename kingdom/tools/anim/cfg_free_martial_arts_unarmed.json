@@ -1,0 +1,223 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations_free/martial_arts_unarmed/UAL_Free_MartialArtsUnarmed.glb",
+ "smooth": 0.012,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "check_directions": true,
+ "heading": "strike",
+ "clips": [
+  {
+   "name": "MA_Punch_Cross_R_Head_A",
+   "file": "013/13_18.bvh",
+   "start": 0.26,
+   "end": 1.86,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Punch_Cross_R_Head_B",
+   "file": "014/14_03.bvh",
+   "start": 1.18,
+   "end": 2.18,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Punch_Cross_R_Head_C",
+   "file": "015/15_13.bvh",
+   "start": 14.22,
+   "end": 16.09,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Punch_Cross_L_Head",
+   "file": "013/13_18.bvh",
+   "start": 0.26,
+   "end": 1.86,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "mirror": true
+  },
+  {
+   "name": "MA_Punch_Jab_L_Head_A",
+   "file": "015/15_13.bvh",
+   "start": 63.9,
+   "end": 65.49,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Punch_Jab_L_Head_B",
+   "file": "015/15_13.bvh",
+   "start": 67.39,
+   "end": 69.32,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Punch_Jab_R_Head",
+   "file": "015/15_13.bvh",
+   "start": 63.9,
+   "end": 65.49,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "mirror": true
+  },
+  {
+   "name": "MA_Punch_Jab_L_Body",
+   "file": "015/15_13.bvh",
+   "start": 54.0,
+   "end": 55.67,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Punch_Hook_R_A",
+   "file": "015/15_13.bvh",
+   "start": 12.59,
+   "end": 14.22,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Punch_Hook_R_B",
+   "file": "015/15_13.bvh",
+   "start": 32.67,
+   "end": 34.87,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Punch_Hook_R_C",
+   "file": "015/15_13.bvh",
+   "start": 42.73,
+   "end": 44.37,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Punch_Hook_L_A",
+   "file": "015/15_13.bvh",
+   "start": 12.59,
+   "end": 14.22,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "mirror": true
+  },
+  {
+   "name": "MA_Punch_Hook_L_B",
+   "file": "015/15_13.bvh",
+   "start": 32.67,
+   "end": 34.87,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "mirror": true
+  },
+  {
+   "name": "MA_Punch_Hook_R_D",
+   "file": "015/15_13.bvh",
+   "start": 16.09,
+   "end": 18.06,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Punch_Hook_R_E",
+   "file": "014/14_01.bvh",
+   "start": 6.03,
+   "end": 7.7,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Punch_Hook_L_C",
+   "file": "015/15_13.bvh",
+   "start": 16.09,
+   "end": 18.06,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "mirror": true
+  },
+  {
+   "name": "MA_Punch_Hook_L_D",
+   "file": "014/14_01.bvh",
+   "start": 6.03,
+   "end": 7.7,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "mirror": true
+  },
+  {
+   "name": "MA_Punch_Hook_R_Body",
+   "file": "014/14_01.bvh",
+   "start": 36.4,
+   "end": 38.57,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Kick_Front_R_Quick",
+   "file": "143/143_24.bvh",
+   "start": 1.92,
+   "end": 3.52,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  }
+ ]
+}

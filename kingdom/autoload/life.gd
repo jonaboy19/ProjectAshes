@@ -63,6 +63,8 @@ const RECORD_TO_SOUL := {
 	"trained_sword": "combat", "trained_bow": "combat", "adventured": "combat", "studied": "technique",
 	"meditated": "meditate",
 }
+## Look chosen at character creation (scripts/ui/character_creation.gd); empty = default hero.
+var appearance: Dictionary = {}
 var life_courses := preload("res://scripts/sim/life_courses.gd").new()
 var war := preload("res://scripts/sim/war_sim.gd").new()
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
@@ -217,6 +219,7 @@ func _begin_life() -> void:
 	life_path.set_age(START_AGE, WorldSim.day, WorldSim.time_of_day)
 	triggers.seed_first_region(home["pos"], home["radius"])
 	childhood_events.seed_from(WorldSim.SEED, life_path.full_name())
+	apply_creation(preload("res://scripts/ui/frontend/flow.gd").creation)
 	life_courses.seed_from(WorldSim.SEED)
 	life_courses.populate_region(150, WorldSim.day)
 
@@ -263,6 +266,30 @@ func record(tag: String, weight := 1.0) -> void:
 	world_events.publish("life_action_recorded", "player", "", _abs_hours(), {
 		"tag": tag, "weight": weight, "day": WorldSim.day,
 	})
+
+
+## Applies the New Game character-creation choices (name, family, look, leanings, parents' trades).
+func apply_creation(c: Dictionary) -> void:
+	if c == null or c.is_empty():
+		return
+	var lp := life_path
+	lp.given_name = String(c.get("given_name", lp.given_name))
+	var fam := String(c.get("family_name", ""))
+	if fam != "":
+		lp.family_name = fam
+		for p in lp.parents:
+			p["name"] = "%s %s" % [String(p["name"]).get_slice(" ", 0), fam]
+	appearance = c.get("appearance", {})
+	tendencies.nudge_many(c.get("tendencies", {}))
+	if String(c.get("birthplace", "")) != "":
+		lp.set_flag("birthplace:" + String(c["birthplace"]))
+	if String(c.get("culture", "")) != "":
+		lp.set_flag("culture:" + String(c["culture"]))
+	var trades := {"father": String(c.get("father_trade", "")), "mother": String(c.get("mother_trade", ""))}
+	for p in lp.parents:
+		var idx: int = WorldSim.JOBS.find(trades.get(String(p["role"]), ""))
+		if idx >= 0 and int(p["id"]) >= 0:
+			WorldSim.job[int(p["id"])] = idx
 
 
 ## The element the player's Blessing gave ("qi" when none): what their power grows from.
@@ -1008,6 +1035,7 @@ func snapshot() -> Dictionary:
 		"soul": soul.serialize(),
 		"skill_evolution": skill_evolution.serialize(),
 		"echoes": echoes.serialize(),
+		"appearance": appearance,
 		"career": {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier},
 		"radiant": radiant.serialize(),
 		"crafting": crafting.serialize(),
@@ -1060,6 +1088,7 @@ func restore(d: Dictionary) -> void:
 	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
+	appearance = d.get("appearance", {})
 	_last_abs = _abs_hours()
 	if d.has("player") and player and is_instance_valid(player):
 		var p: Dictionary = d["player"]

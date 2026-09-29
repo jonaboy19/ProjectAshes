@@ -1,0 +1,4 @@
+debug menu detailed | 5.47 ms (183 fps) | GPU 0.38 ms | render-CPU 0.67 ms | draws 162 | tris 3982
+debug menu hidden | 4.82 ms (208 fps) | GPU 0.36 ms | render-CPU 0.70 ms | draws 84 | tris 1306
+debug menu not in tree | 5.87 ms (170 fps) | GPU 0.38 ms | render-CPU 0.70 ms | draws 84 | tris 1306
+renderer=mobile adapter=NVIDIA GeForce RTX 4070 Laptop GPU

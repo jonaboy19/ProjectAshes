@@ -1,0 +1,325 @@
+[
+ {
+  "name": "Kay_Crouch_Idle",
+  "loop": true,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 406,
+  "source": "Crouching",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.07,
+  "contact_lift_m": 0.119,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Sneak_Walk",
+  "loop": true,
+  "seconds": 2.13,
+  "frames": 65,
+  "keys": 672,
+  "source": "Sneaking",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.143,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.002,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Walk_Back",
+  "loop": true,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 356,
+  "source": "Walking_Backwards",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.084,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Run_Strafe_L",
+  "loop": true,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 370,
+  "source": "Running_Strafe_Left",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.068,
+  "contact_lift_m": 0.07,
+  "min_foot_m": 0.058,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Run_Strafe_R",
+  "loop": true,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 370,
+  "source": "Running_Strafe_Right",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.067,
+  "contact_lift_m": 0.063,
+  "min_foot_m": 0.051,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Walk_Kay_A",
+  "loop": true,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 386,
+  "source": "Walking_A",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.074,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.001,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Walk_Kay_B",
+  "loop": true,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 405,
+  "source": "Walking_B",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.095,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.009,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Walk_Kay_C_Casual",
+  "loop": true,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 431,
+  "source": "Walking_C",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Run_Kay_A",
+  "loop": true,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 377,
+  "source": "Running_A",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.08,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.009,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Run_Kay_B",
+  "loop": true,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 388,
+  "source": "Running_B",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.047,
+  "contact_lift_m": 0.055,
+  "min_foot_m": -0.003,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Jump_Start_Kay",
+  "loop": false,
+  "seconds": 0.6,
+  "frames": 19,
+  "keys": 235,
+  "source": "Jump_Start",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.064,
+  "contact_lift_m": 0.019,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Jump_Air_Kay",
+  "loop": true,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 232,
+  "source": "Jump_Idle",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.031,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Jump_Land_Kay",
+  "loop": false,
+  "seconds": 0.67,
+  "frames": 21,
+  "keys": 263,
+  "source": "Jump_Land",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.058,
+  "contact_lift_m": 0.038,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Jump_Short_Kay",
+  "loop": false,
+  "seconds": 1.17,
+  "frames": 36,
+  "keys": 403,
+  "source": "Jump_Full_Short",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.068,
+  "contact_lift_m": 0.027,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Jump_Long_Kay",
+  "loop": false,
+  "seconds": 2.33,
+  "frames": 71,
+  "keys": 580,
+  "source": "Jump_Full_Long",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.052,
+  "contact_lift_m": 0.044,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Idle_Kay_A",
+  "loop": true,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 142,
+  "source": "Idle_A",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.044,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Idle_Kay_B",
+  "loop": true,
+  "seconds": 2.13,
+  "frames": 65,
+  "keys": 411,
+  "source": "Idle_B",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.063,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ }
+]

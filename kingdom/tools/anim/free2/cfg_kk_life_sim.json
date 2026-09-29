@@ -1,0 +1,256 @@
+{
+ "source_type": "blend",
+ "blend": "C:/Users/Jonna/Documents/ProjectAshes_art_staging/anim_raw2/kaykit_medium.blend",
+ "source_armature": "Armature",
+ "source_fps": 30,
+ "ual": "../../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "smooth": 0.0,
+ "fingers": "relaxed",
+ "check_directions": true,
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "hips",
+  "spine_01": "spine",
+  "spine_02": "chest",
+  "Head": "head",
+  "upperarm_l": "upperarm.l",
+  "lowerarm_l": "lowerarm.l",
+  "hand_l": "wrist.l",
+  "upperarm_r": "upperarm.r",
+  "lowerarm_r": "lowerarm.r",
+  "hand_r": "wrist.r",
+  "thigh_l": "upperleg.l",
+  "calf_l": "lowerleg.l",
+  "foot_l": "foot.l",
+  "ball_l": "toes.l",
+  "thigh_r": "upperleg.r",
+  "calf_r": "lowerleg.r",
+  "foot_r": "foot.r",
+  "ball_r": "toes.r"
+ },
+ "out": "../../../assets/incoming/animations_free2/kaykit_life_sim/UAL_Kay_life_sim.glb",
+ "clips": [
+  {
+   "name": "Kay_Work_Chop_Tree",
+   "action": "Chop",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Work_Chop_Tree_Repeat",
+   "action": "Chopping",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Work_Dig",
+   "action": "Dig",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Work_Dig_Repeat",
+   "action": "Digging",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Work_Mine",
+   "action": "Pickaxe",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Work_Mine_Repeat",
+   "action": "Pickaxing",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Work_Hammer",
+   "action": "Hammer",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Work_Hammer_Repeat",
+   "action": "Hammering",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Work_Saw",
+   "action": "Saw",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Work_Saw_Repeat",
+   "action": "Sawing",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Lockpick",
+   "action": "Lockpick",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Lockpick_Repeat",
+   "action": "Lockpicking",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Work_Bench_A",
+   "action": "Work_A",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Work_Bench_B",
+   "action": "Work_B",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Work_Bench_C",
+   "action": "Work_C",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Work_Bench_A_Repeat",
+   "action": "Working_A",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Work_Bench_B_Repeat",
+   "action": "Working_B",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Work_Bench_C_Repeat",
+   "action": "Working_C",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Hold_Item_A",
+   "action": "Holding_A",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Hold_Item_B",
+   "action": "Holding_B",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Hold_Item_C",
+   "action": "Holding_C",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Fishing_Cast",
+   "action": "Fishing_Cast",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Fishing_Idle",
+   "action": "Fishing_Idle",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Fishing_Bite",
+   "action": "Fishing_Bite",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Fishing_Tug",
+   "action": "Fishing_Tug",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Fishing_Reel",
+   "action": "Fishing_Reeling",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Fishing_Struggle",
+   "action": "Fishing_Struggling",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Fishing_Catch",
+   "action": "Fishing_Catch",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Emote_Cheer",
+   "action": "Cheering",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Emote_Wave",
+   "action": "Waving",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Interact_Reach",
+   "action": "Interact",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Pick_Up_Ground",
+   "action": "PickUp",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Use_Item_Kay",
+   "action": "Use_Item",
+   "floor_limit": 0.3
+  }
+ ]
+}

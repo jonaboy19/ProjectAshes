@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://assets/generated/impostors/twisted_octa_mat.tres" id="1"]
+
+[sub_resource type="QuadMesh" id="q"]
+size = Vector2(24.409130, 24.409130)
+center_offset = Vector3(4.583636, 8.161273, -0.952097)
+
+[node name="Twisted_Octa" type="MeshInstance3D"]
+extra_cull_margin = 12.204565
+cast_shadow = 0
+mesh = SubResource("q")
+material_override = ExtResource("1")

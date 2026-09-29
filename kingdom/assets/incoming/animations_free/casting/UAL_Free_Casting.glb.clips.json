@@ -1,0 +1,120 @@
+[
+ {
+  "name": "Cast_Slam_Overhead",
+  "loop": false,
+  "seconds": 2.7,
+  "frames": 82,
+  "keys": 1191,
+  "source": "079/79_01.bvh",
+  "range_s": [
+   0.6,
+   3.3
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 0.05,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Cast_Push_Palm_A",
+  "loop": false,
+  "seconds": 1.8,
+  "frames": 55,
+  "keys": 770,
+  "source": "002/02_05.bvh",
+  "range_s": [
+   0.8,
+   2.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.02,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.03,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Cast_Push_Palm_B",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 48,
+  "keys": 867,
+  "source": "002/02_05.bvh",
+  "range_s": [
+   8.0,
+   9.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.019,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.03,
+  "hip_scale": 0.0515,
+  "trimmed_from_s": [
+   0,
+   1.6
+  ]
+ },
+ {
+  "name": "Cast_Throw_1H",
+  "loop": false,
+  "seconds": 3.0,
+  "frames": 91,
+  "keys": 1505,
+  "source": "141/141_11.bvh",
+  "range_s": [
+   2.4,
+   5.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.006,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 0.21,
+  "hip_scale": 0.058
+ },
+ {
+  "name": "Cast_Aura_Raise_Arms",
+  "loop": false,
+  "seconds": 4.2,
+  "frames": 127,
+  "keys": 882,
+  "source": "144/144_30.bvh",
+  "range_s": [
+   0.4,
+   4.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.014,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.02,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Cast_Aura_Raise_Arms_B",
+  "loop": false,
+  "seconds": 6.2,
+  "frames": 187,
+  "keys": 1349,
+  "source": "144/144_30.bvh",
+  "range_s": [
+   21.0,
+   27.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.002,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.02,
+  "travel_m": 0.05,
+  "hip_scale": 0.0583
+ }
+]

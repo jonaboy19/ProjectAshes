@@ -1,0 +1,79 @@
+{
+ "source_type": "gltf",
+ "source_fps": 30,
+ "scale_mode": "height",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations_free/casting/UAL_Free_CastingKaykit.glb",
+ "smooth": 0,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "hips",
+  "spine_01": "spine",
+  "spine_03": "chest",
+  "Head": "head",
+  "upperarm_l": "upperarm.l",
+  "lowerarm_l": "lowerarm.l",
+  "hand_l": "hand.l",
+  "upperarm_r": "upperarm.r",
+  "lowerarm_r": "lowerarm.r",
+  "hand_r": "hand.r",
+  "thigh_l": "upperleg.l",
+  "calf_l": "lowerleg.l",
+  "foot_l": "foot.l",
+  "ball_l": "toes.l",
+  "thigh_r": "upperleg.r",
+  "calf_r": "lowerleg.r",
+  "foot_r": "foot.r",
+  "ball_r": "toes.r"
+ },
+ "check_directions": false,
+ "heading": "none",
+ "clips": [
+  {
+   "name": "Cast_Raise_Charge",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatRanged.glb",
+   "action": "Ranged_Magic_Raise",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Cast_Shoot_1H",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatRanged.glb",
+   "action": "Ranged_Magic_Shoot",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Cast_Spell_Short",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatRanged.glb",
+   "action": "Ranged_Magic_Spellcasting",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Cast_Spell_Long",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatRanged.glb",
+   "action": "Ranged_Magic_Spellcasting_Long",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Cast_Summon",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_CombatRanged.glb",
+   "action": "Ranged_Magic_Summon",
+   "fingers": "relaxed"
+  },
+  {
+   "name": "Cast_Throw_Orb",
+   "glb": "../../assets/incoming/kaykit/character-animations/Animations/gltf/Rig_Medium/Rig_Medium_General.glb",
+   "action": "Throw",
+   "fingers": "relaxed"
+  }
+ ]
+}

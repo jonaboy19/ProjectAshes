@@ -1,0 +1,162 @@
+[
+ {
+  "name": "MA_Combo_JabCross",
+  "loop": false,
+  "seconds": 1.45,
+  "frames": 44,
+  "keys": 948,
+  "source": "014/14_01.bvh",
+  "range_s": [
+   14.97,
+   16.42
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.004,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.14,
+  "hip_scale": 0.0515,
+  "trimmed_from_s": [
+   0,
+   1.45
+  ]
+ },
+ {
+  "name": "MA_Combo_JabCross_Southpaw",
+  "loop": false,
+  "seconds": 1.45,
+  "frames": 44,
+  "keys": 948,
+  "source": "014/14_01.bvh",
+  "range_s": [
+   14.97,
+   16.42
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.004,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.14,
+  "hip_scale": 0.0515,
+  "trimmed_from_s": [
+   0,
+   1.45
+  ]
+ },
+ {
+  "name": "MA_Combo_CrossCross",
+  "loop": false,
+  "seconds": 2.33,
+  "frames": 71,
+  "keys": 1260,
+  "source": "013/13_18.bvh",
+  "range_s": [
+   7.33,
+   9.69
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.012,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.14,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "MA_Combo_StraightStraight",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 42,
+  "keys": 1325,
+  "source": "014/14_01.bvh",
+  "range_s": [
+   4.69,
+   6.09
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.016,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.24,
+  "hip_scale": 0.0515,
+  "trimmed_from_s": [
+   0.55,
+   1.95
+  ]
+ },
+ {
+  "name": "MA_Combo_HookJab",
+  "loop": false,
+  "seconds": 1.33,
+  "frames": 40,
+  "keys": 1028,
+  "source": "014/14_01.bvh",
+  "range_s": [
+   18.83,
+   20.16
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.26,
+  "hip_scale": 0.0515,
+  "trimmed_from_s": [
+   0,
+   1.333
+  ],
+  "renamed_from": "MA_Combo_HeavyJab"
+ },
+ {
+  "name": "MA_Combo_HookHook",
+  "loop": false,
+  "seconds": 1.75,
+  "frames": 52,
+  "keys": 1423,
+  "source": "014/14_01.bvh",
+  "range_s": [
+   22.91,
+   24.66
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.19,
+  "hip_scale": 0.0515,
+  "trimmed_from_s": [
+   0,
+   1.75
+  ],
+  "renamed_from": "MA_Combo_HeavyHeavy"
+ },
+ {
+  "name": "MA_Combo_HookStraight",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 48,
+  "keys": 943,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   24.27,
+   25.87
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.022,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.08,
+  "hip_scale": 0.0505,
+  "trimmed_from_s": [
+   0,
+   1.6
+  ],
+  "renamed_from": "MA_Combo_HeavyStraight"
+ }
+]

@@ -1,0 +1,158 @@
+[
+ {
+  "name": "MA_Block_L_A",
+  "loop": false,
+  "seconds": 1.17,
+  "frames": 36,
+  "keys": 495,
+  "source": "144/144_07.bvh",
+  "range_s": [
+   0.24,
+   1.42
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.19,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "MA_Block_L_B",
+  "loop": false,
+  "seconds": 0.8,
+  "frames": 25,
+  "keys": 375,
+  "source": "144/144_07.bvh",
+  "range_s": [
+   3.07,
+   3.88
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.16,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "MA_Block_L_C",
+  "loop": false,
+  "seconds": 1.03,
+  "frames": 32,
+  "keys": 479,
+  "source": "144/144_07.bvh",
+  "range_s": [
+   16.37,
+   17.42
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.016,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.24,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "MA_Block_R_A",
+  "loop": false,
+  "seconds": 1.13,
+  "frames": 35,
+  "keys": 451,
+  "source": "144/144_26.bvh",
+  "range_s": [
+   0.31,
+   1.44
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.013,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.16,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "MA_Block_R_B",
+  "loop": false,
+  "seconds": 1.53,
+  "frames": 47,
+  "keys": 684,
+  "source": "144/144_26.bvh",
+  "range_s": [
+   2.87,
+   4.42
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.014,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.03,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "MA_Guard_Boxing",
+  "loop": true,
+  "seconds": 1.87,
+  "frames": 57,
+  "keys": 1012,
+  "source": "013/13_18.bvh",
+  "range_s": [
+   4.7,
+   7.2
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   2.1,
+   4.16
+  ],
+  "floor_fix_m": -0.022,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.05,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "MA_Dodge_Duck",
+  "loop": false,
+  "seconds": 3.4,
+  "frames": 103,
+  "keys": 1395,
+  "source": "077/77_09.bvh",
+  "range_s": [
+   1.0,
+   4.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.032,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.11,
+  "hip_scale": 0.0555
+ },
+ {
+  "name": "MA_Evade_AttackerCover",
+  "loop": false,
+  "seconds": 2.3,
+  "frames": 70,
+  "keys": 1008,
+  "source": "076/76_03.bvh",
+  "range_s": [
+   0.3,
+   2.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.006,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.47,
+  "hip_scale": 0.0558
+ }
+]

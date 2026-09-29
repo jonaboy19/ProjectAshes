@@ -1,0 +1,145 @@
+{
+ "source_type": "blend",
+ "blend": "C:/Users/Jonna/Documents/ProjectAshes_art_staging/anim_raw2/kaykit_medium.blend",
+ "source_armature": "Armature",
+ "source_fps": 30,
+ "ual": "../../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "smooth": 0.0,
+ "fingers": "relaxed",
+ "check_directions": true,
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "hips",
+  "spine_01": "spine",
+  "spine_02": "chest",
+  "Head": "head",
+  "upperarm_l": "upperarm.l",
+  "lowerarm_l": "lowerarm.l",
+  "hand_l": "wrist.l",
+  "upperarm_r": "upperarm.r",
+  "lowerarm_r": "lowerarm.r",
+  "hand_r": "wrist.r",
+  "thigh_l": "upperleg.l",
+  "calf_l": "lowerleg.l",
+  "foot_l": "foot.l",
+  "ball_l": "toes.l",
+  "thigh_r": "upperleg.r",
+  "calf_r": "lowerleg.r",
+  "foot_r": "foot.r",
+  "ball_r": "toes.r"
+ },
+ "out": "../../../assets/incoming/animations_free2/kaykit_ranged/UAL_Kay_ranged.glb",
+ "clips": [
+  {
+   "name": "Kay_Bow_Idle",
+   "action": "Ranged_Bow_Idle",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Bow_Aim_Idle",
+   "action": "Ranged_Bow_Aiming_Idle",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Bow_Draw",
+   "action": "Ranged_Bow_Draw",
+   "floor_limit": 0.3,
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Bow_Release",
+   "action": "Ranged_Bow_Release",
+   "floor_limit": 0.3,
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Bow_Draw_Up",
+   "action": "Ranged_Bow_Draw_Up",
+   "floor_limit": 0.3,
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Bow_Release_Up",
+   "action": "Ranged_Bow_Release_Up",
+   "floor_limit": 0.3,
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Run_Holding_Bow",
+   "action": "Running_HoldingBow",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Pistol_Aim",
+   "action": "Ranged_1H_Aiming",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Pistol_Shoot",
+   "action": "Ranged_1H_Shoot",
+   "floor_limit": 0.3,
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Pistol_Reload",
+   "action": "Ranged_1H_Reload",
+   "floor_limit": 0.3,
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Rifle_Aim",
+   "action": "Ranged_2H_Aiming",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Rifle_Shoot",
+   "action": "Ranged_2H_Shoot",
+   "floor_limit": 0.3,
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Rifle_Reload",
+   "action": "Ranged_2H_Reload",
+   "floor_limit": 0.3,
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Run_Holding_Rifle",
+   "action": "Running_HoldingRifle",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "fingers": "fist"
+  }
+ ]
+}

@@ -1,0 +1,276 @@
+[
+ {
+  "name": "Kay_Hit_React_A",
+  "loop": false,
+  "seconds": 0.67,
+  "frames": 21,
+  "keys": 216,
+  "source": "Hit_A",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.054,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.05,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Hit_React_B",
+  "loop": false,
+  "seconds": 0.87,
+  "frames": 27,
+  "keys": 318,
+  "source": "Hit_B",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.15,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.015,
+  "travel_m": 0.11,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Death_Fall_B",
+  "loop": false,
+  "seconds": 2.1,
+  "frames": 63,
+  "keys": 544,
+  "source": "Death_B",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.185,
+  "min_foot_m": -0.065,
+  "travel_m": 0.79,
+  "hip_scale": 3.1218,
+  "trimmed_from_s": [
+   0,
+   2.1
+  ]
+ },
+ {
+  "name": "Kay_Block_Raise",
+  "loop": false,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 251,
+  "source": "Melee_Block",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.064,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.21,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Block_Hold",
+  "loop": true,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 177,
+  "source": "Melee_Blocking",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.064,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Block_Impact",
+  "loop": false,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 224,
+  "source": "Melee_Block_Hit",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.081,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.1,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Block_Counter",
+  "loop": false,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 390,
+  "source": "Melee_Block_Attack",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.115,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.007,
+  "travel_m": 0.04,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Stance_2H_Idle",
+  "loop": true,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 182,
+  "source": "Melee_2H_Idle",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Stance_Fists_Idle",
+  "loop": true,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 153,
+  "source": "Melee_Unarmed_Idle",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.16,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Dodge_Fwd",
+  "loop": false,
+  "seconds": 0.4,
+  "frames": 13,
+  "keys": 194,
+  "source": "Dodge_Forward",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.021,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.016,
+  "travel_m": 0.49,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Dodge_Back",
+  "loop": false,
+  "seconds": 0.4,
+  "frames": 13,
+  "keys": 189,
+  "source": "Dodge_Backward",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.118,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 1.22,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Dodge_L",
+  "loop": false,
+  "seconds": 0.4,
+  "frames": 13,
+  "keys": 205,
+  "source": "Dodge_Left",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.046,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 1.03,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Dodge_R",
+  "loop": false,
+  "seconds": 0.4,
+  "frames": 13,
+  "keys": 204,
+  "source": "Dodge_Right",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.046,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 1.03,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Attack_2H_Spin_Long",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 48,
+  "keys": 581,
+  "source": "Melee_2H_Attack_Spin",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.115,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.09,
+  "hip_scale": 3.1218,
+  "trimmed_from_s": [
+   0.3,
+   1.9
+  ]
+ }
+]

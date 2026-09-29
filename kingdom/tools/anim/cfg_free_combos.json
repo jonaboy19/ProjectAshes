@@ -1,0 +1,110 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations_free/combos/UAL_Free_Combos.glb",
+ "smooth": 0.012,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "check_directions": true,
+ "heading": "strike",
+ "clips": [
+  {
+   "name": "MA_Combo_JabCross",
+   "file": "014/14_01.bvh",
+   "start": 14.97,
+   "end": 16.42,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_JabCross_Southpaw",
+   "file": "014/14_01.bvh",
+   "start": 14.97,
+   "end": 16.42,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "mirror": true
+  },
+  {
+   "name": "MA_Combo_CrossCross",
+   "file": "013/13_18.bvh",
+   "start": 7.33,
+   "end": 9.69,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_StraightStraight",
+   "file": "014/14_01.bvh",
+   "start": 4.69,
+   "end": 6.09,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_HookJab",
+   "file": "014/14_01.bvh",
+   "start": 18.83,
+   "end": 20.16,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_HookHook",
+   "file": "014/14_01.bvh",
+   "start": 22.91,
+   "end": 24.66,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  },
+  {
+   "name": "MA_Combo_HookStraight",
+   "file": "015/15_13.bvh",
+   "start": 24.27,
+   "end": 25.87,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012
+  }
+ ]
+}
