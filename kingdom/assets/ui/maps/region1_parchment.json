@@ -1,0 +1,994 @@
+{
+	"aliases": {
+		"Highcliff": "Highwatch Keep",
+		"Oakvale": "Greenhollow"
+	},
+	"discovery_hint": "Use data/world/discovery ids; features[].name is the poster display name, id_name the data name.",
+	"elder_stones": [
+		{
+			"name": "Stagborn Glade",
+			"pos": [
+				-1180,
+				-980
+			]
+		},
+		{
+			"name": "Greyseam Seam",
+			"pos": [
+				75,
+				-520
+			]
+		},
+		{
+			"name": "Highwatch",
+			"pos": [
+				110,
+				-1290
+			]
+		},
+		{
+			"name": "Crownstead",
+			"pos": [
+				430,
+				-190
+			]
+		},
+		{
+			"name": "Elden Road",
+			"pos": [
+				-700,
+				-215
+			]
+		}
+	],
+	"features": [
+		{
+			"cat": "settlement",
+			"id_name": "Kingsreach",
+			"kind": "castle",
+			"name": "Kingsreach",
+			"pos_m": [
+				560.0,
+				-420.0
+			],
+			"pos_px": [
+				1152.0,
+				928.0
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Redwater",
+			"kind": "town",
+			"name": "Redwater",
+			"pos_m": [
+				810.849853515625,
+				-1387.75732421875
+			],
+			"pos_px": [
+				1209.3,
+				706.9
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Thornfield",
+			"kind": "town",
+			"name": "Thornfield",
+			"pos_m": [
+				1499.36938476563,
+				-211.4345703125
+			],
+			"pos_px": [
+				1366.6,
+				975.7
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Highcliff",
+			"kind": "town",
+			"name": "Highwatch Keep",
+			"pos_m": [
+				-20.664306640625,
+				-1457.15832519531
+			],
+			"pos_px": [
+				1019.3,
+				691.0
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Ironmarch",
+			"kind": "town",
+			"name": "Ironmarch",
+			"pos_m": [
+				2092.44140625,
+				-2007.30212402344
+			],
+			"pos_px": [
+				1502.2,
+				565.3
+			]
+		},
+		{
+			"cat": "proposed",
+			"id_name": "Silverford",
+			"kind": "town",
+			"name": "Silverford",
+			"pos_m": [
+				-640.0,
+				480.0
+			],
+			"pos_px": [
+				877.8,
+				1133.7
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Ravenscar",
+			"kind": "village",
+			"name": "Ravenscar",
+			"pos_m": [
+				913.21875,
+				-3304.0810546875
+			],
+			"pos_px": [
+				1232.7,
+				269.0
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Emberfall",
+			"kind": "village",
+			"name": "Emberfall",
+			"pos_m": [
+				-1791.90344238281,
+				2464.0654296875
+			],
+			"pos_px": [
+				614.5,
+				1587.1
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Harrowgate",
+			"kind": "village",
+			"name": "Harrowgate",
+			"pos_m": [
+				-85.528076171875,
+				2935.0947265625
+			],
+			"pos_px": [
+				1004.5,
+				1694.7
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Wolfsend",
+			"kind": "village",
+			"name": "Wolfsend",
+			"pos_m": [
+				3288.11865234375,
+				370.11767578125
+			],
+			"pos_px": [
+				1775.4,
+				1108.6
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Dunhallow",
+			"kind": "village",
+			"name": "Dunhallow",
+			"pos_m": [
+				-1834.39709472656,
+				-2200.21826171875
+			],
+			"pos_px": [
+				604.8,
+				521.2
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Cindermoor",
+			"kind": "village",
+			"name": "Cindermoor",
+			"pos_m": [
+				-2786.87231445313,
+				857.06787109375
+			],
+			"pos_px": [
+				387.2,
+				1219.9
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Oakvale",
+			"kind": "village",
+			"name": "Greenhollow",
+			"pos_m": [
+				-942.108215332031,
+				-633.390258789063
+			],
+			"pos_px": [
+				808.7,
+				879.3
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Greywatch",
+			"kind": "village",
+			"name": "Greywatch",
+			"pos_m": [
+				1449.50073242188,
+				1561.87670898438
+			],
+			"pos_px": [
+				1355.2,
+				1380.9
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Eastmere",
+			"kind": "village",
+			"name": "Eastmere",
+			"pos_m": [
+				921.05224609375,
+				1361.93481445313
+			],
+			"pos_px": [
+				1234.5,
+				1335.2
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Stonehollow",
+			"kind": "village",
+			"name": "Stonehollow",
+			"pos_m": [
+				-453.718994140625,
+				1156.3916015625
+			],
+			"pos_px": [
+				920.3,
+				1288.3
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Millbrook",
+			"kind": "village",
+			"name": "Millbrook",
+			"pos_m": [
+				1050.849609375,
+				816.36669921875
+			],
+			"pos_px": [
+				1264.1,
+				1210.6
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Ashford",
+			"kind": "village",
+			"name": "Ashford",
+			"pos_m": [
+				0.0,
+				0.0
+			],
+			"pos_px": [
+				1024.0,
+				1024.0
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Westfen",
+			"kind": "frontier_town",
+			"name": "Westfen",
+			"pos_m": [
+				34.4964599609375,
+				1135.97436523438
+			],
+			"pos_px": [
+				1031.9,
+				1283.6
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Saltwick",
+			"kind": "frontier_town",
+			"name": "Saltwick",
+			"pos_m": [
+				-3516.64306640625,
+				3351.58544921875
+			],
+			"pos_px": [
+				220.4,
+				1789.9
+			]
+		},
+		{
+			"cat": "settlement",
+			"id_name": "Brackenmoor",
+			"kind": "frontier_town",
+			"name": "Brackenmoor",
+			"pos_m": [
+				377.695709228516,
+				1144.55102539063
+			],
+			"pos_px": [
+				1110.3,
+				1285.5
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "The Rift",
+			"kind": "rift",
+			"name": "The Rift",
+			"pos_m": [
+				1130.15869140625,
+				1004.38293457031
+			],
+			"pos_px": [
+				1282.3,
+				1253.5
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "The Ashen Scar",
+			"kind": "rift",
+			"name": "The Ashen Scar",
+			"pos_m": [
+				2587.73217773438,
+				2288.82275390625
+			],
+			"pos_px": [
+				1615.3,
+				1547.0
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Shrine of the Sleeping Flame",
+			"kind": "shrine",
+			"name": "Shrine of the Sleeping Flame",
+			"pos_m": [
+				-700.0,
+				-160.0
+			],
+			"pos_px": [
+				864.0,
+				987.4
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Ironmarch Bastion",
+			"kind": "fort",
+			"name": "Ironmarch Bastion",
+			"pos_m": [
+				2463.07397460938,
+				-2324.0625
+			],
+			"pos_px": [
+				1586.9,
+				492.9
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Farwatch Bastion",
+			"kind": "fort",
+			"name": "Farwatch Bastion",
+			"pos_m": [
+				256.033447265625,
+				803.205810546875
+			],
+			"pos_px": [
+				1082.5,
+				1207.5
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Kingsroad Bastion",
+			"kind": "fort",
+			"name": "Kingsroad Bastion",
+			"pos_m": [
+				1017.73901367188,
+				-757.041137695313
+			],
+			"pos_px": [
+				1256.6,
+				851.0
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Saltwick Bastion",
+			"kind": "fort",
+			"name": "Saltwick Bastion",
+			"pos_m": [
+				-3793.2197265625,
+				3546.61791992188
+			],
+			"pos_px": [
+				157.2,
+				1834.5
+			]
+		},
+		{
+			"cat": "elder",
+			"id_name": "",
+			"kind": "elder",
+			"name": "",
+			"pos_m": [
+				-1180.0,
+				-980.0
+			],
+			"pos_px": [
+				754.4,
+				800.1
+			]
+		},
+		{
+			"cat": "elder",
+			"id_name": "",
+			"kind": "elder",
+			"name": "",
+			"pos_m": [
+				75.0,
+				-520.0
+			],
+			"pos_px": [
+				1041.1,
+				905.2
+			]
+		},
+		{
+			"cat": "elder",
+			"id_name": "",
+			"kind": "elder",
+			"name": "",
+			"pos_m": [
+				110.0,
+				-1290.0
+			],
+			"pos_px": [
+				1049.1,
+				729.2
+			]
+		},
+		{
+			"cat": "elder",
+			"id_name": "",
+			"kind": "elder",
+			"name": "",
+			"pos_m": [
+				430.0,
+				-190.0
+			],
+			"pos_px": [
+				1122.3,
+				980.6
+			]
+		},
+		{
+			"cat": "elder",
+			"id_name": "",
+			"kind": "elder",
+			"name": "",
+			"pos_m": [
+				-700.0,
+				-215.0
+			],
+			"pos_px": [
+				864.0,
+				974.9
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Whisper Hollow",
+			"kind": "hollow",
+			"name": "Whisper Hollow",
+			"pos_m": [
+				-560.0,
+				520.0
+			],
+			"pos_px": [
+				896.0,
+				1142.8
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Greyseam Mine",
+			"kind": "mine",
+			"name": "Greyseam Mine",
+			"pos_m": [
+				75.0,
+				-470.0
+			],
+			"pos_px": [
+				1041.1,
+				916.6
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Deepvein Mine",
+			"kind": "mine",
+			"name": "Deepvein Mine",
+			"pos_m": [
+				-3196.35498046875,
+				3361.916015625
+			],
+			"pos_px": [
+				293.6,
+				1792.3
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Scar Watch",
+			"kind": "rift_outpost",
+			"name": "Scar Watch",
+			"pos_m": [
+				2563.76733398438,
+				2373.33935546875
+			],
+			"pos_px": [
+				1609.9,
+				1566.3
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Rift's Edge Camp",
+			"kind": "rift_outpost",
+			"name": "Rift's Edge Camp",
+			"pos_m": [
+				1069.15502929688,
+				991.080444335938
+			],
+			"pos_px": [
+				1268.3,
+				1250.5
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Harrowgate Lookout",
+			"kind": "watchfort",
+			"name": "Harrowgate Lookout",
+			"pos_m": [
+				292.479339599609,
+				2884.96997070313
+			],
+			"pos_px": [
+				1090.8,
+				1683.3
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Wolfsend Lookout",
+			"kind": "watchfort",
+			"name": "Wolfsend Lookout",
+			"pos_m": [
+				3493.03100585938,
+				470.956604003906
+			],
+			"pos_px": [
+				1822.2,
+				1131.6
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Dunhallow Lookout",
+			"kind": "watchfort",
+			"name": "Dunhallow Lookout",
+			"pos_m": [
+				-2174.61743164063,
+				-2213.71704101563
+			],
+			"pos_px": [
+				527.1,
+				518.1
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Cindermoor Lookout",
+			"kind": "watchfort",
+			"name": "Cindermoor Lookout",
+			"pos_m": [
+				-2627.99877929688,
+				961.716491699219
+			],
+			"pos_px": [
+				423.5,
+				1243.8
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Ember Watch",
+			"kind": "watchfort",
+			"name": "Ember Watch",
+			"pos_m": [
+				39.1991081237793,
+				271.922454833984
+			],
+			"pos_px": [
+				1033.0,
+				1086.1
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Sundered Tower",
+			"kind": "tower_ruin",
+			"name": "Sundered Tower",
+			"pos_m": [
+				1534.49401855469,
+				1429.05297851563
+			],
+			"pos_px": [
+				1374.7,
+				1350.6
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "The Old Beacon",
+			"kind": "tower_ruin",
+			"name": "The Old Beacon",
+			"pos_m": [
+				-2866.25610351563,
+				-873.076232910156
+			],
+			"pos_px": [
+				369.0,
+				824.5
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Broken Watch",
+			"kind": "tower_ruin",
+			"name": "Broken Watch",
+			"pos_m": [
+				-1775.90551757813,
+				3358.18872070313
+			],
+			"pos_px": [
+				618.2,
+				1791.4
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Old Watchtower",
+			"kind": "tower_ruin",
+			"name": "Old Watchtower",
+			"pos_m": [
+				-254.951614379883,
+				-40.2010383605957
+			],
+			"pos_px": [
+				965.7,
+				1014.8
+			]
+		},
+		{
+			"cat": "camp",
+			"id_name": "Grimtusk Hold",
+			"kind": "orc_village",
+			"name": "Grimtusk Hold",
+			"pos_m": [
+				-1294.0,
+				2292.0
+			],
+			"pos_px": [
+				728.3,
+				1547.8
+			]
+		},
+		{
+			"cat": "camp",
+			"id_name": "Deepdark Warren",
+			"kind": "goblin_warren",
+			"name": "Deepdark Warren",
+			"pos_m": [
+				-3191.0,
+				-1605.0
+			],
+			"pos_px": [
+				294.8,
+				657.2
+			]
+		},
+		{
+			"cat": "camp",
+			"id_name": "Skullpick Warren",
+			"kind": "goblin_warren",
+			"name": "Skullpick Warren",
+			"pos_m": [
+				2098.0,
+				-2663.0
+			],
+			"pos_px": [
+				1503.4,
+				415.5
+			]
+		},
+		{
+			"cat": "camp",
+			"id_name": "Ratfang Warren",
+			"kind": "goblin_warren",
+			"name": "Ratfang Warren",
+			"pos_m": [
+				-1370.0,
+				35.0
+			],
+			"pos_px": [
+				710.9,
+				1032.0
+			]
+		},
+		{
+			"cat": "camp",
+			"id_name": "Mossfang Warren",
+			"kind": "goblin_warren",
+			"name": "Mossfang Warren",
+			"pos_m": [
+				560.0,
+				250.0
+			],
+			"pos_px": [
+				1152.0,
+				1081.1
+			]
+		},
+		{
+			"cat": "camp",
+			"id_name": "Tuskridge Hold",
+			"kind": "orc_village",
+			"name": "Tuskridge Hold",
+			"pos_m": [
+				300.0,
+				930.0
+			],
+			"pos_px": [
+				1092.6,
+				1236.5
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Bandit Camp",
+			"kind": "bandit_camp",
+			"name": "Bandit Camp",
+			"pos_m": [
+				489.612426757813,
+				611.95703125
+			],
+			"pos_px": [
+				1135.9,
+				1163.8
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Gallows Camp",
+			"kind": "bandit_camp",
+			"name": "Gallows Camp",
+			"pos_m": [
+				2773.62329101563,
+				-3534.25659179688
+			],
+			"pos_px": [
+				1657.8,
+				216.4
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Blackthorn Camp",
+			"kind": "bandit_camp",
+			"name": "Blackthorn Camp",
+			"pos_m": [
+				2251.97802734375,
+				1529.0322265625
+			],
+			"pos_px": [
+				1538.6,
+				1373.4
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Red Hand Camp",
+			"kind": "bandit_camp",
+			"name": "Red Hand Camp",
+			"pos_m": [
+				-1255.19348144531,
+				1303.06091308594
+			],
+			"pos_px": [
+				737.2,
+				1321.8
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Saltwick Roadhouse",
+			"kind": "waystation",
+			"name": "Saltwick Roadhouse",
+			"pos_m": [
+				-2784.01635742188,
+				2994.83251953125
+			],
+			"pos_px": [
+				387.8,
+				1708.4
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Emberfall Roadhouse",
+			"kind": "waystation",
+			"name": "Emberfall Roadhouse",
+			"pos_m": [
+				-806.995300292969,
+				2754.61352539063
+			],
+			"pos_px": [
+				839.6,
+				1653.5
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Harrowgate Roadhouse",
+			"kind": "waystation",
+			"name": "Harrowgate Roadhouse",
+			"pos_m": [
+				-17.1576900482178,
+				2180.66235351563
+			],
+			"pos_px": [
+				1020.1,
+				1522.3
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Cinderpost Waystation",
+			"kind": "waystation",
+			"name": "Cinderpost Waystation",
+			"pos_m": [
+				277.200012207031,
+				-213.399993896484
+			],
+			"pos_px": [
+				1087.3,
+				975.2
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Kingsreach Academy of Arms and Arts",
+			"kind": "academy",
+			"name": "Royal Ember Academy",
+			"pos_m": [
+				241.261566162109,
+				-287.974212646484
+			],
+			"pos_px": [
+				1079.1,
+				958.2
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "",
+			"kind": "bridge",
+			"name": "",
+			"pos_m": [
+				-313.280426025391,
+				-210.622039794922
+			],
+			"pos_px": [
+				952.4,
+				975.9
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "",
+			"kind": "bridge",
+			"name": "",
+			"pos_m": [
+				-2214.08911132813,
+				1782.18334960938
+			],
+			"pos_px": [
+				518.0,
+				1431.3
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "",
+			"kind": "bridge",
+			"name": "",
+			"pos_m": [
+				2696.68017578125,
+				177.831146240234
+			],
+			"pos_px": [
+				1640.2,
+				1064.6
+			]
+		}
+	],
+	"image": "res://assets/ui/maps/region1_parchment.png",
+	"image_size": [
+		2048,
+		2048
+	],
+	"m_per_px": 4.37606837606838,
+	"margin_px": 88.0,
+	"proposed_places": [
+		{
+			"id": "silverford",
+			"kind": "town",
+			"name": "Silverford",
+			"note": "guild town at the Ashrun ford (wardlines hub)",
+			"pos": [
+				-640,
+				480
+			]
+		}
+	],
+	"px_per_m": 0.228515625,
+	"seed": 1066.0,
+	"terrain_rect_px": [
+		88.0,
+		88.0,
+		1872.0,
+		1872.0
+	],
+	"transform": "px = origin_px + (world - world_min) * px_per_m, origin_px = [margin, margin]; world = [x, z], north = -z = up in the image",
+	"uv_of_world": "uv = (px) / image_size",
+	"version": 1,
+	"world_max": [
+		4096.0,
+		4096.0
+	],
+	"world_min": [
+		-4096.0,
+		-4096.0
+	]
+}
