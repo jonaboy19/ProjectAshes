@@ -3,7 +3,7 @@
 The local session updates this file whenever a task starts or finishes. **Cloud session: read it after each pull.**
 Who owns which area: `docs/LOCAL_SESSION_HANDOFF.md`.
 
-_Last update: 2026-09-29_
+_Last update: 2026-09-29 (L5 Stagborn)_
 
 ## Done (recent)
 | Date | What | Where | Commit |
@@ -79,3 +79,8 @@ NOT wired (unverified): everything in `docs/platform/boot_wiring_wip.patch` (app
 ## Open issues from the boot-flow run (2026-09-29)
 - Unexplained rendering errors during world load under `--rendering-method mobile` at 1280x720 ("Parameter framebuffer is null", "Index p_mipmap out of bounds", "Uniforms were never supplied for set (0)"), hundreds per run. They do not fail the flow; cause not investigated.
 - 76 leaked `JoltShape3D` RID allocations reported at exit.
+
+## L5 Stagborn models (2026-09-29, local): DONE (Blender-verified, not yet in Godot)
+- `stagborn_elk` (3,668 / 2,000 tris) and `stagborn_warden` (5,728 / 4,600 tris) in `assets/incoming/ai3d/meshy/creatures/`, rigged (26 bones), clips idle, idle_alt, graze, walk, run, run_charge, attack (antler gore with a 0.9 s telegraph), attack_butt, hit, death; Warden also kick and roar (rear-up). LOD1 for both. Emissive rune mask (Warden: flank glyphs, leg bands, antler rings; elk: faint antler rings). Source: CC0 Quaternius UAA Stag, customised in Blender, no Meshy credits.
+- README with the **Codex handoff for X3** (clip names, event frames, speeds, no root motion): `assets/incoming/ai3d/meshy/creatures/stagborn_README.md`. Turntables + one frame-sheet folder per clip: `docs/art/region1/stagborn/`. Scripts: `tools/creatures/stagborn/`. Licence in `kingdom/CREDITS.md`.
+- Backlog (aaa-review): (1) import into Godot, add to `tools/qa/anim_qa/catalog.gd`, run anim QA and a windowed shot in the glade; (2) Warden antlers are 5 m tall in total and thin at the tips: consider a 0.8 scale and a fatter beam; (3) foot IK for walk (stance slide up to 20 %); (4) SpringBone on the mane cones and tail; (5) hide the antler tips dipping under the ground in `run_charge` with grass or a shorter head-down pitch; (6) rune pulse shader (emission_energy animate, phase 3 brighter) and a hit-flash; (7) a proper 3D-sculpted head and antler pass or a Meshy remesh once credits are available; (8) `kick` hit frame, `roar` and `attack` audio and VFX hooks.

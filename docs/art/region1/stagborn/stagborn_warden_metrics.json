@@ -1,0 +1,230 @@
+{
+ "attack": {
+  "frames": 70,
+  "seconds": 2.3,
+  "mesh_min_z": -0.057,
+  "mesh_min_z_start": 0.007,
+  "stance_speed_mps": [
+   -0.13,
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "ground_speed": -0.03,
+  "hoof_seam_gap_m": 0.005,
+  "body_y_shift": 0.005,
+  "center_shift_xy": [
+   0.09,
+   0.1
+  ]
+ },
+ "attack_butt": {
+  "frames": 31,
+  "seconds": 1.0,
+  "mesh_min_z": -0.031,
+  "mesh_min_z_start": 0.007,
+  "stance_speed_mps": [
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "ground_speed": 0.0,
+  "hoof_seam_gap_m": 0.0,
+  "body_y_shift": 0.0,
+  "center_shift_xy": [
+   0.0,
+   0.0
+  ]
+ },
+ "death": {
+  "frames": 42,
+  "seconds": 1.367,
+  "mesh_min_z": -0.0,
+  "mesh_min_z_start": 0.007,
+  "stance_speed_mps": [
+   0.34,
+   0.25,
+   0.0,
+   null
+  ],
+  "ground_speed": 0.2,
+  "hoof_seam_gap_m": 1.83,
+  "body_y_shift": 0.166,
+  "center_shift_xy": [
+   -0.09,
+   0.19
+  ]
+ },
+ "graze": {
+  "frames": 455,
+  "seconds": 15.133,
+  "mesh_min_z": -0.001,
+  "mesh_min_z_start": 0.007,
+  "stance_speed_mps": [
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "ground_speed": 0.0,
+  "hoof_seam_gap_m": 0.0,
+  "body_y_shift": 0.0,
+  "center_shift_xy": [
+   0.0,
+   0.0
+  ]
+ },
+ "hit": {
+  "frames": 16,
+  "seconds": 0.5,
+  "mesh_min_z": -0.009,
+  "mesh_min_z_start": 0.007,
+  "stance_speed_mps": [
+   0.0,
+   0.0,
+   -0.0,
+   -0.0
+  ],
+  "ground_speed": 0.0,
+  "hoof_seam_gap_m": 0.0,
+  "body_y_shift": 0.0,
+  "center_shift_xy": [
+   0.01,
+   0.01
+  ]
+ },
+ "idle": {
+  "frames": 126,
+  "seconds": 4.167,
+  "mesh_min_z": -0.002,
+  "mesh_min_z_start": 0.007,
+  "stance_speed_mps": [
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "ground_speed": 0.0,
+  "hoof_seam_gap_m": 0.0,
+  "body_y_shift": 0.0,
+  "center_shift_xy": [
+   0.0,
+   0.0
+  ]
+ },
+ "idle_alt": {
+  "frames": 126,
+  "seconds": 4.167,
+  "mesh_min_z": -0.009,
+  "mesh_min_z_start": 0.007,
+  "stance_speed_mps": [
+   0.0,
+   0.0,
+   0.07,
+   0.0
+  ],
+  "ground_speed": 0.02,
+  "hoof_seam_gap_m": 0.0,
+  "body_y_shift": 0.0,
+  "center_shift_xy": [
+   0.0,
+   0.0
+  ]
+ },
+ "kick": {
+  "frames": 31,
+  "seconds": 1.0,
+  "mesh_min_z": -0.04,
+  "mesh_min_z_start": 0.007,
+  "stance_speed_mps": [
+   0.03,
+   0.01,
+   -0.09,
+   -0.21
+  ],
+  "ground_speed": -0.07,
+  "hoof_seam_gap_m": 0.009,
+  "body_y_shift": -0.009,
+  "center_shift_xy": [
+   -0.0,
+   0.1
+  ]
+ },
+ "roar": {
+  "frames": 72,
+  "seconds": 2.367,
+  "mesh_min_z": -0.101,
+  "mesh_min_z_start": 0.007,
+  "stance_speed_mps": [
+   0.32,
+   0.26,
+   -0.0,
+   -0.0
+  ],
+  "ground_speed": 0.15,
+  "hoof_seam_gap_m": 0.005,
+  "body_y_shift": 0.005,
+  "center_shift_xy": [
+   0.09,
+   0.1
+  ]
+ },
+ "run": {
+  "frames": 21,
+  "seconds": 0.667,
+  "mesh_min_z": 0.0,
+  "mesh_min_z_start": 0.039,
+  "stance_speed_mps": [
+   6.51,
+   6.22,
+   8.13,
+   6.74
+  ],
+  "ground_speed": 6.9,
+  "hoof_seam_gap_m": 0.0,
+  "body_y_shift": 0.0,
+  "center_shift_xy": [
+   0.0,
+   0.0
+  ]
+ },
+ "run_charge": {
+  "frames": 21,
+  "seconds": 0.667,
+  "mesh_min_z": -0.141,
+  "mesh_min_z_start": 0.005,
+  "stance_speed_mps": [
+   5.21,
+   6.21,
+   8.13,
+   3.98
+  ],
+  "ground_speed": 5.88,
+  "hoof_seam_gap_m": 0.0,
+  "body_y_shift": 0.0,
+  "center_shift_xy": [
+   0.0,
+   0.0
+  ]
+ },
+ "walk": {
+  "frames": 45,
+  "seconds": 1.467,
+  "mesh_min_z": -0.0,
+  "mesh_min_z_start": 0.003,
+  "stance_speed_mps": [
+   1.55,
+   0.99,
+   1.51,
+   2.11
+  ],
+  "ground_speed": 1.54,
+  "hoof_seam_gap_m": 0.0,
+  "body_y_shift": 0.0,
+  "center_shift_xy": [
+   0.0,
+   0.0
+  ]
+ }
+}
