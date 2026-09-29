@@ -97,6 +97,8 @@ var elder_of := PackedInt32Array()       # stone id -> elder index or -1
 var _adj: Array = []                     # per stone: PackedInt32Array of link indices
 var _dist: Array = []                    # per elder: PackedFloat64Array of path length
 var _eff: Array = []                     # per elder: PackedFloat64Array of path efficiency
+var _par: Array = []                     # per elder: PackedInt32Array of the link each stone is reached by
+var _draw_of := PackedFloat64Array()     # power drawn from the Elder for each stone in the last allocation
 var _cands: Array = []                   # per stone: PackedInt32Array of elder indices, nearest first
 var _order := PackedInt32Array()         # stones in service order
 var _rad := PackedFloat64Array()         # effective bubble radius
@@ -641,12 +643,16 @@ func _rebuild_routes() -> void:
 	var ploss := loss * _cf("links", "player_loss_mult")
 	_dist = []
 	_eff = []
+	_par = []
 	for e in elder_ids.size():
 		var dist := PackedFloat64Array()
 		dist.resize(n)
 		dist.fill(INF)
 		var eff := PackedFloat64Array()
 		eff.resize(n)
+		var par := PackedInt32Array()
+		par.resize(n)
+		par.fill(-1)
 		var start := elder_ids[e]
 		dist[start] = 0.0
 		eff[start] = 1.0
@@ -665,9 +671,11 @@ func _rebuild_routes() -> void:
 				if nd < dist[v] - EPS:
 					dist[v] = nd
 					eff[v] = eff[u] * (1.0 - (ploss if l["kind"] == "player" else loss))
+					par[v] = li
 					_heap_push(nd, v)
 		_dist.append(dist)
 		_eff.append(eff)
+		_par.append(par)
 	_cands = []
 	_cands.resize(n)
 	var min_d := PackedFloat64Array()
@@ -728,6 +736,8 @@ func _allocate() -> void:
 	starved.resize(ne)
 	fed.fill(0.0)
 	supplier.fill(-1)
+	_draw_of = PackedFloat64Array()
+	_draw_of.resize(n)
 	for i in ne:
 		fed[elder_ids[i]] = 1.0
 	for v in _order:
@@ -747,6 +757,7 @@ func _allocate() -> void:
 				starved[e] = 1
 			remaining[e] -= draw
 			elder_drawn[e] += draw
+			_draw_of[v] = draw
 			var got := draw * eff
 			delivered_total += got
 			fed[v] = clampf(got / d, 0.0, 1.0)
@@ -767,6 +778,35 @@ func _allocate() -> void:
 
 
 var _starved := PackedByteArray()
+
+
+## Power flowing through each live link, for the ward map layer: [{a, b, flow, kind, len}],
+## biggest first. flow = power that enters the link (after the losses so far) summed over every
+## stone fed through it, so the links next to an Elder are thick and the tips are thin.
+func flow_edges() -> Array[Dictionary]:
+	if _alloc_dirty:
+		_allocate()
+	var flow: Dictionary = {}
+	for v in n:
+		var e := supplier[v]
+		if e < 0 or _draw_of[v] <= 0.0:
+			continue
+		var x := v
+		var guard := 0
+		while x != elder_ids[e] and guard < n:
+			guard += 1
+			var li: int = _par[e][x]
+			if li < 0:
+				break
+			flow[li] = float(flow.get(li, 0.0)) + _draw_of[v] * float(_eff[e][x])
+			var l: Dictionary = links[li]
+			x = l["b"] if l["a"] == x else l["a"]
+	var out: Array[Dictionary] = []
+	for li: int in flow:
+		var l: Dictionary = links[li]
+		out.append({"a": l["a"], "b": l["b"], "flow": flow[li], "kind": l["kind"], "len": l["len"]})
+	out.sort_custom(func(p: Dictionary, q: Dictionary) -> bool: return p["flow"] > q["flow"])
+	return out
 
 
 ## Budget books. drawn = delivered + loss; drawn <= supply (Elder budget x power).
