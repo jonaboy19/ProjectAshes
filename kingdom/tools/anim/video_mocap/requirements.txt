@@ -1,0 +1,5 @@
+# Python 3.10-3.14 (tested on 3.14.2, Windows). Everything is CPU-only.
+mediapipe>=0.10.21     # Apache-2.0. Pose Landmarker (BlazePose GHUM 3D)
+numpy
+opencv-python-headless # Apache-2.0
+matplotlib             # preview strips only
