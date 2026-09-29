@@ -38,8 +38,11 @@ var relationships := preload("res://scripts/sim/relationships.gd").new()
 var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
 var crafting := preload("res://scripts/sim/crafting.gd").new()
 const WorldEventLog := preload("res://scripts/systems/world_event_log.gd")
+const ActionRuntime := preload("res://scripts/systems/action_runtime.gd")
 ## Bounded facts from player actions, available to future dialogue/simulation consumers.
 var world_events = WorldEventLog.new()
+## Short-lived actor/action leases; deliberately excluded from saves.
+var action_runtime = ActionRuntime.new()
 var equipment := preload("res://scripts/sim/equipment.gd").new()
 var skills := preload("res://scripts/sim/skills.gd").new()
 ## Careers as biography (docs/RISING_ASHES_LIFE_SIM_DESIGN.md): mastery only grows by doing,
@@ -274,6 +277,55 @@ func recent_world_events(after_id: int = 0, limit: int = 32, type_filter: String
 
 func world_event_window(after_id: int = -1) -> Dictionary:
 	return world_events.window_info(after_id)
+
+
+func begin_craft_action(recipe_id: String, lease_s: float) -> Dictionary:
+	var now_s := Time.get_ticks_msec() / 1000.0
+	action_runtime.expire(now_s, 8)
+	var started: Dictionary = action_runtime.begin("player", "craft", "actor:player", now_s,
+		lease_s, {"recipe_id": recipe_id})
+	if not bool(started.get("ok", false)):
+		return started
+	if not action_runtime.transition(String(started["token"]), "begun", "working", now_s):
+		action_runtime.cancel(String(started["token"]), "transition_failed")
+		return {"ok": false, "token": "", "error": "transition_failed"}
+	return started
+
+
+func commit_craft_action(token: String, recipe_id: String, requested_kinds: Array, ctx: Dictionary) -> Dictionary:
+	var inspection: Dictionary = action_runtime.inspect(token)
+	var action_info: Dictionary = inspection.get("action", inspection)
+	var action_payload: Dictionary = action_info.get("payload", {})
+	if (String(action_info.get("actor_ref", "")) != "player"
+			or String(action_info.get("action_type", "")) != "craft"
+			or String(action_payload.get("recipe_id", "")) != recipe_id):
+		return {"ok": false, "newly_committed": false, "result": {}, "error": "action_mismatch"}
+	var now_s := Time.get_ticks_msec() / 1000.0
+	var current_kinds := _craft_station_kinds_near_player()
+	var allowed_kinds: Array = []
+	for kind: String in current_kinds:
+		if requested_kinds.is_empty() or requested_kinds.has(kind):
+			allowed_kinds.append(kind)
+	var check := func() -> String:
+		return String(crafting.call("can_craft", recipe_id, self, allowed_kinds, ctx))
+	var apply := func() -> Dictionary:
+		return crafting.call("craft", recipe_id, self, allowed_kinds, ctx)
+	return action_runtime.commit(token, now_s, check, apply)
+
+
+func cancel_action(token: String) -> Dictionary:
+	return action_runtime.cancel(token)
+
+
+func _craft_station_kinds_near_player() -> Array:
+	if player == null or not is_instance_valid(player):
+		return []
+	var result: Array = []
+	for station: Dictionary in crafting.call("stations_near", player.global_position):
+		var kind := String(station.get("kind", ""))
+		if not kind.is_empty() and not result.has(kind):
+			result.append(kind)
+	return result
 
 
 ## TechniqueCaster reports every successful cast: Soul Power, and the element
@@ -974,6 +1026,7 @@ func snapshot() -> Dictionary:
 
 
 func restore(d: Dictionary) -> void:
+	action_runtime.reset()
 	# Older saves simply start a fresh journal. Invalid new journal data is isolated
 	# from the rest of the save so existing player state still restores normally.
 	world_events = WorldEventLog.new()
