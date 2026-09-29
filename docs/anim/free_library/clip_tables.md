@@ -72,21 +72,17 @@
 | `MA_Acro_Cartwheel_B` | 2.63 |  | 2.37 m | CMU 144_01, 8.4-11.1 s (CMU terms) | cartwheel |
 | `MA_Acro_Cartwheel_C` | 2.90 |  | 2.46 m | CMU 144_01, 14.0-16.9 s (CMU terms) | cartwheel |
 | `MA_Acro_Cartwheel_D` | 3.60 |  | 2.61 m | CMU 49_06, 0.3-3.9 s (CMU terms) | cartwheel from a walk-up |
-| `MA_Acro_Cartwheel_E` | 2.63 |  | 1.83 m | CMU 88_09, 0.5-3.4 s (CMU terms) | stretch and cartwheel |
 | `MA_Acro_Backflip_A` | 1.47 |  | 0.47 m | CMU 88_01, 0.2-1.7 s (CMU terms) | standing backflip |
 | `MA_Acro_Backflip_B` | 1.53 |  | 1.59 m | CMU 87_03, 0.5-2.0 s (CMU terms) | standing backflip, softer |
 | `MA_Acro_Backflip_C` | 1.40 |  | 1.34 m | CMU 87_04, 0.4-1.9 s (CMU terms) | standing backflip |
 | `MA_Acro_Somersault_Back` | 3.50 |  | 1.92 m | CMU 90_01, 2.0-5.5 s (CMU terms) | backward somersault |
 | `MA_Acro_Handspring` | 1.40 |  | 2.81 m | CMU 90_11, 0.0-1.4 s (CMU terms) | handspring |
-| `MA_Acro_FrontHandFlip_A` | 2.50 |  | 0.89 m | CMU 90_14, 2.0-4.5 s (CMU terms) | front hand flip |
 | `MA_Acro_FrontHandFlip_B` | 3.00 |  | 1.72 m | CMU 90_15, 2.0-5.0 s (CMU terms) | front hand flip |
 | `MA_Acro_SideFlip` | 2.30 |  | 1.30 m | CMU 90_08, 0.5-2.8 s (CMU terms) | side flip |
 | `MA_Acro_FlipForward_Hands` | 1.70 |  | 0.18 m | CMU 90_09, 0.8-2.5 s (CMU terms) | flip forward onto hands |
 | `MA_Acro_BackflipBackOnHands` | 2.10 |  | 1.37 m | CMU 88_08, 0.3-2.4 s (CMU terms) | crouch and flip backward on hands |
-| `MA_Acro_Flip_A` | 5.50 |  | 1.34 m | CMU 85_01, 1.0-6.5 s (CMU terms) | jump twist into a flip |
 | `MA_Acro_HandstandKicks` | 9.50 |  | 0.85 m | CMU 85_05, 1.5-11.0 s (CMU terms) | handstand with leg kicks |
 | `MA_Acro_KickFlip` | 2.60 |  | 0.83 m | CMU 85_06, 4.9-7.5 s (CMU terms) | kick flip |
-| `MA_Acro_MonkeyBackflip` | 4.50 |  | 1.28 m | CMU 90_19, 1.5-6.0 s (CMU terms) | monkey backflip |
 
 ### reactions  (`animations_free/reactions/UAL_Free_Reactions.glb`)
 

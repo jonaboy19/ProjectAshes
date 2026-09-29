@@ -23,7 +23,7 @@
   "loop": true,
   "seconds": 1.83,
   "frames": 56,
-  "keys": 175,
+  "keys": 509,
   "source": "Ranged_Bow_Aiming_Idle",
   "range_s": [
    null,
@@ -35,13 +35,16 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.0,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "floor +0.026 m"
+  ]
  },
  {
   "name": "Kay_Bow_Draw",
   "loop": false,
-  "seconds": 1.33,
-  "frames": 41,
+  "seconds": 1.2,
+  "frames": 37,
   "keys": 335,
   "source": "Ranged_Bow_Draw",
   "range_s": [
@@ -54,7 +57,10 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.18,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "trim[0.0, 1.2]"
+  ]
  },
  {
   "name": "Kay_Bow_Release",
@@ -78,8 +84,8 @@
  {
   "name": "Kay_Bow_Draw_Up",
   "loop": false,
-  "seconds": 1.33,
-  "frames": 41,
+  "seconds": 1.03,
+  "frames": 32,
   "keys": 324,
   "source": "Ranged_Bow_Draw_Up",
   "range_s": [
@@ -92,14 +98,17 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.15,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "trim[0.0, 1.03]"
+  ]
  },
  {
   "name": "Kay_Bow_Release_Up",
   "loop": false,
   "seconds": 1.37,
   "frames": 42,
-  "keys": 385,
+  "keys": 544,
   "source": "Ranged_Bow_Release_Up",
   "range_s": [
    null,
@@ -111,14 +120,17 @@
   "contact_lift_m": 0.008,
   "min_foot_m": -0.02,
   "travel_m": 0.07,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "floor +0.021 m"
+  ]
  },
  {
   "name": "Kay_Run_Holding_Bow",
   "loop": true,
   "seconds": 0.8,
   "frames": 25,
-  "keys": 335,
+  "keys": 342,
   "source": "Running_HoldingBow",
   "range_s": [
    null,
@@ -130,14 +142,17 @@
   "contact_lift_m": 0.055,
   "min_foot_m": -0.003,
   "travel_m": 0.0,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "floor +0.020 m"
+  ]
  },
  {
   "name": "Kay_Pistol_Aim",
   "loop": true,
-  "seconds": 1.07,
-  "frames": 33,
-  "keys": 202,
+  "seconds": 0.7,
+  "frames": 22,
+  "keys": 1100,
   "source": "Ranged_1H_Aiming",
   "range_s": [
    null,
@@ -149,7 +164,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": 0.0,
   "travel_m": 0.2,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "trim[0.37, 1.07]",
+   "loop[4]"
+  ]
  },
  {
   "name": "Kay_Pistol_Shoot",
@@ -192,9 +211,9 @@
  {
   "name": "Kay_Rifle_Aim",
   "loop": true,
-  "seconds": 1.6,
-  "frames": 49,
-  "keys": 278,
+  "seconds": 1.33,
+  "frames": 41,
+  "keys": 2009,
   "source": "Ranged_2H_Aiming",
   "range_s": [
    null,
@@ -206,7 +225,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.001,
   "travel_m": 0.0,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "trim[0.26666666666666666, 1.6]",
+   "loop[4]"
+  ]
  },
  {
   "name": "Kay_Rifle_Shoot",
@@ -251,7 +274,7 @@
   "loop": true,
   "seconds": 0.8,
   "frames": 25,
-  "keys": 367,
+  "keys": 383,
   "source": "Running_HoldingRifle",
   "range_s": [
    null,
@@ -263,6 +286,9 @@
   "contact_lift_m": 0.055,
   "min_foot_m": -0.003,
   "travel_m": 0.0,
-  "hip_scale": 3.1218
+  "hip_scale": 3.1218,
+  "polish": [
+   "floor +0.020 m"
+  ]
  }
 ]
