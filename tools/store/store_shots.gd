@@ -78,8 +78,8 @@ func _run(shots: PackedStringArray) -> void:
 	player = main.player
 	hud = main.hud
 	while true:
-		var ld: Control = hud.get("_loading")
-		if ld == null or not ld.visible:
+		var ld: Variant = hud.get("_loading")
+		if not is_instance_valid(ld) or not ld.visible:
 			break
 		await frames(1)
 	await wait(2.0)

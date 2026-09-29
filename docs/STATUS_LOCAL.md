@@ -79,3 +79,8 @@ NOT wired (unverified): everything in `docs/platform/boot_wiring_wip.patch` (app
 ## Open issues from the boot-flow run (2026-09-29)
 - Unexplained rendering errors during world load under `--rendering-method mobile` at 1280x720 ("Parameter framebuffer is null", "Index p_mipmap out of bounds", "Uniforms were never supplied for set (0)"), hundreds per run. They do not fail the flow; cause not investigated.
 - 76 leaked `JoltShape3D` RID allocations reported at exit.
+
+## Crash investigation (2026-09-29, local) - see docs/qa/stability.md
+- All 9 recent Godot exe crashes (`+0x539f5a9`, 28 Sep 17:49-19:16) are the threaded mesh-load race that `0137fa0d` fixed; no Godot crash event since. 58 boots on latest origin (direct, loading screen, real menu path, mobile renderer) crashed 0 times.
+- Fixed: freed-instance errors in RegionDressing queue and audio_director debug loop; QA harnesses now survive the self-freeing world veil (`hud._veil()`).
+- Not done: 20 min play soak, GDExtension-loaded boots. Open: mobile renderer + glow errors (`p_mipmap`), boot_flow.gd stale after character creation.

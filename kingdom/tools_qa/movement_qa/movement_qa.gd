@@ -426,7 +426,7 @@ func _run() -> void:
 
 
 func wait_until_ready() -> void:
-	while not (main and main.get("player") != null and main.player.is_inside_tree() and main.get("hud") != null and not main.hud._loading.visible):
+	while not (main and main.get("player") != null and main.player.is_inside_tree() and main.get("hud") != null and not main.hud._veil()):
 		await get_tree().process_frame
 	player = main.player
 	hud = main.hud
