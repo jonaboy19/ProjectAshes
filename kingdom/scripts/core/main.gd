@@ -24,6 +24,7 @@ var population: PopulationLOD
 var frontier: FrontierPresence
 var region: RegionDressing
 const Flow := preload("res://scripts/ui/frontend/flow.gd")
+const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
 const RoadTraffic := preload("res://scripts/world/road_traffic.gd")
 const RoadEvents := preload("res://scripts/world/road_events.gd")
 var road_traffic: Node3D
@@ -365,7 +366,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if hud.is_menu_open():
 			hud.close_menu()
 		else:
-			hud.show_menu(services.pack_menu)
+			GameMenu.toggle(hud, "inventory")   # the tabbed menu; the Pack button keeps the full pack list
 	elif event.is_action_pressed("eat"):
 		var food := Life.best_food()
 		Game.say(Life.use_item(food) if food != "" else "You have nothing to eat.")

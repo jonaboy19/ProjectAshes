@@ -1234,8 +1234,53 @@ func _talk_page() -> Dictionary:
 	if not why.is_empty():
 		status += "\n" + ", ".join(why)
 	var role := String(info.get("bond", "")) if info.get("bond", "") != "" else String(info.get("role", ""))
+	var opinion := int(rel.opinion(info["id"], now))
+	# "speaker" makes HUD.show_menu open the conversation screen (scripts/ui/dialogue_ui.gd);
+	# title / body / options stay as before for anything that reads the plain menu.
 	return {"title": "%s  ·  %s" % [info["name"], role.capitalize()],
-		"body": "%s\n\n%s" % [_talk["line"], status], "options": opts}
+		"body": "%s\n\n%s" % [_talk["line"], status], "options": opts,
+		"speaker": String(info["name"]), "role": role.capitalize(), "line": String(_talk["line"]),
+		"relationship": "%s (%s)" % [rel.tier_label(info["id"], now), ("%+d" % opinion) if opinion != 0 else "0"],
+		"rel_value": float(opinion), "portrait_key": String(info["id"]),
+		"model": _npc_model(info), "look": _npc_look(info)}
+
+
+## The live 3D model of who you are talking to (the dialogue bust duplicates it), or null.
+func _npc_model(info: Dictionary) -> Node3D:
+	var person := int(info.get("person", -1))
+	if person >= 0:
+		for n in get_tree().get_nodes_in_group("villager"):
+			if n.get("person") != null and int(n.get("person")) == person:
+				return _model_of(n)
+	var id := String(info.get("id", ""))
+	var titles := {"receptionist": "Adventurer Guild", "herbalist": "Herbalist", "trader": "Market Trader"}
+	for c in get_children():
+		if c is Station:
+			var t := String((c as Station).title)
+			if (titles.has(id) and t == titles[id]) or (id == "innkeeper" and t.ends_with(" Inn")):
+				return _model_of(c)
+	return null
+
+
+static func _model_of(n: Node) -> Node3D:
+	for c in n.get_children():
+		if c is Node3D and not (c is CollisionShape3D) and not c.find_children("*", "Skeleton3D", true, false).is_empty():
+			return c as Node3D
+	return null
+
+
+## Assets look used for the dialogue bust when no live model is around.
+func _npc_look(info: Dictionary) -> String:
+	match String(info.get("bond", "")):
+		"mother": return "Mother"
+		"father": return "Father"
+	match String(info.get("id", "")):
+		"smith": return "Blacksmith"
+		"innkeeper": return "Innkeeper"
+		"herbalist": return "Herbalist"
+		"trader": return "Trader"
+		"receptionist": return "Rogue_Hooded"
+	return "Rogue_Hooded"
 
 
 ## Family/courtship actions layered on top of the dialogue file's own choices
