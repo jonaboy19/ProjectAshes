@@ -1,0 +1,111 @@
+{
+ "clip": {
+  "name": "Test_Walk",
+  "loop": true,
+  "seconds": 3.93,
+  "frames": 119,
+  "keys": 1389,
+  "source": "clip.bvh",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   4.17,
+   3.55
+  ],
+  "floor_fix_m": 0.04,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 3.6,
+  "hip_scale": 0.9936,
+  "video": "walk_rm.mp4",
+  "video_mocap": true,
+  "foot_ik": true,
+  "foot_slide_cm_s": [
+   37.2,
+   0.4
+  ]
+ },
+ "video": "walk_rm.mp4",
+ "video_fps": 30.0,
+ "video_s": 5.33,
+ "trim_frames": [
+  11,
+  151
+ ],
+ "pose": {
+  "no_person_frames": 1
+ },
+ "solve": {
+  "frames": 140,
+  "no_person_frames": 0,
+  "outliers_fixed": 0,
+  "scale_applied": 1.0487,
+  "est_height_m": 1.669,
+  "lengths_m": {
+   "hw": 0.17,
+   "sw": 0.393,
+   "uarm": 0.277,
+   "farm": 0.249,
+   "thigh": 0.395,
+   "shin": 0.424,
+   "spine": 0.475,
+   "foot": 0.108,
+   "ankle_h": 0.089,
+   "toe": 0.063,
+   "hand": 0.094,
+   "neck": 0.158,
+   "head": 0.21,
+   "leg": 0.907
+  },
+  "camera_dist_m": [
+   7.58,
+   8.59
+  ],
+  "contact_frac": [
+   0.3,
+   0.36
+  ],
+  "facing_yaw_removed_deg": -78.3
+ },
+ "foot_ik": {
+  "frames": 140,
+  "fps": 30.000003000000298,
+  "floor_offset_m": -0.052,
+  "contact_frac": [
+   0.54,
+   0.55
+  ],
+  "contact_runs": [
+   4,
+   4
+  ],
+  "slide_before": {
+   "ankle_mean_cm_s": 37.2,
+   "ankle_p90_cm_s": 83.0,
+   "toe_mean_cm_s": 40.9,
+   "toe_p90_cm_s": 85.3
+  },
+  "min_foot_before_m": -0.063,
+  "penetration_frames_before": 153,
+  "hip_roll_std_deg": [
+   1.66,
+   2.49
+  ],
+  "pelvis_drop_max_cm": 8.4,
+  "unreachable_frames": 24,
+  "slide_after": {
+   "ankle_mean_cm_s": 0.4,
+   "ankle_p90_cm_s": 0.0,
+   "toe_mean_cm_s": 0.4,
+   "toe_p90_cm_s": 0.0
+  },
+  "min_foot_after_m": -0.0,
+  "penetration_frames_after": 0,
+  "max_ankle_shift_cm": 12.8,
+  "max_knee_shift_cm": 17.4
+ }
+}
