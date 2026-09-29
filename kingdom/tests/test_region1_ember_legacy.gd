@@ -60,7 +60,7 @@ func test_ancestor_stone_makes_the_network_stronger_and_wider() -> void:
 	var st := net.add_stone(Vector2(0, 0), 100.0, -1, "Ember Road Stone")
 	st["power"] = 0.6
 	st["condition"] = 0.5
-	var far := Vector2(118, 0)   # outside the plain radius
+	var far := Vector2(108, 0)   # outside the plain radius
 	var before_strength := net.strength(st)
 	assert_float(net.coverage(far)).is_equal(0.0)
 	var r := s.choose_runestone(id, st["id"], "Ember Road Stone")

@@ -478,8 +478,19 @@ class Replay extends RefCounted:
 # --- persistence ---------------------------------------------------------------------
 
 func _save_state() -> Dictionary:
+	var inc_out: Array = []
+	for inc in incidents:
+		var c: Dictionary = inc.duplicate(false)
+		var actors := {}
+		for aid: String in inc["actors"]:
+			var tr: Dictionary = inc["actors"][aid]
+			# plain Arrays of floats: JSON-safe and identical after a round trip
+			actors[aid] = {"role": tr["role"], "t": Array(tr["t"]), "x": Array(tr["x"]), "z": Array(tr["z"])}
+		c["actors"] = actors
+		c["marks"] = (inc["marks"] as Array).duplicate(true)
+		inc_out.append(c)
 	return {"sites": sites.duplicate(true), "events": events.duplicate(true),
-		"incidents": incidents.duplicate(true), "next_id": _next_id, "next_site": _next_site}
+		"incidents": inc_out, "next_id": _next_id, "next_site": _next_site}
 
 
 func _load_state(d: Dictionary) -> void:
@@ -496,9 +507,9 @@ func _load_state(d: Dictionary) -> void:
 		var actors := {}
 		for aid: String in i.get("actors", {}):
 			var tr: Dictionary = i["actors"][aid]
-			var ts: Array = []
-			var xs: Array = []
-			var zs: Array = []
+			var ts := []
+			var xs := []
+			var zs := []
 			for v: Variant in tr["t"]: ts.append(float(v))
 			for v: Variant in tr["x"]: xs.append(float(v))
 			for v: Variant in tr["z"]: zs.append(float(v))

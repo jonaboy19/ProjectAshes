@@ -1,8 +1,9 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://scripts/region1/ash_ghost.gd" id="1_script"]
 [ext_resource type="Shader" path="res://shaders/region1/ash_ghost.gdshader" id="2_ghost"]
 [ext_resource type="Shader" path="res://shaders/region1/ash_particle.gdshader" id="3_dot"]
+[ext_resource type="Shader" path="res://shaders/region1/ash_halo.gdshader" id="4_halo"]
 
 [sub_resource type="ShaderMaterial" id="ghost_mat"]
 shader = ExtResource("2_ghost")
@@ -39,6 +40,13 @@ height = 0.36
 radial_segments = 12
 rings = 1
 
+[sub_resource type="ShaderMaterial" id="halo_mat"]
+shader = ExtResource("4_halo")
+
+[sub_resource type="QuadMesh" id="halo_quad"]
+size = Vector2(1.9, 1.9)
+orientation = 1
+
 [sub_resource type="ShaderMaterial" id="dot_mat"]
 shader = ExtResource("3_dot")
 
@@ -63,8 +71,8 @@ initial_velocity_max = 0.38
 gravity = Vector3(0.05, 0.1, 0)
 damping_min = 0.1
 damping_max = 0.3
-scale_min = 0.05
-scale_max = 0.11
+scale_min = 0.09
+scale_max = 0.2
 color_ramp = SubResource("ash_ramp")
 
 [sub_resource type="Gradient" id="step_grad"]
@@ -81,8 +89,8 @@ spread = 20.0
 initial_velocity_min = 0.0
 initial_velocity_max = 0.05
 gravity = Vector3(0, 0.03, 0)
-scale_min = 0.07
-scale_max = 0.1
+scale_min = 0.12
+scale_max = 0.18
 color_ramp = SubResource("step_ramp")
 
 [node name="AshGhost" type="Node3D"]
@@ -127,10 +135,16 @@ material_override = SubResource("ghost_mat")
 cast_shadow = 0
 mesh = SubResource("hood")
 
+[node name="Halo" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
+material_override = SubResource("halo_mat")
+cast_shadow = 0
+mesh = SubResource("halo_quad")
+
 [node name="Ash" type="GPUParticles3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 emitting = false
-amount = 18
+amount = 28
 lifetime = 2.2
 local_coords = false
 visibility_aabb = AABB(-40, -3, -40, 80, 10, 80)

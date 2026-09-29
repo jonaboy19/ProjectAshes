@@ -5,16 +5,16 @@ shader_type spatial;
 // One alpha-blended pass, unshaded, no lights: cheap on mobile.
 render_mode unshaded, blend_mix, depth_draw_never, cull_back;
 
-uniform vec4 ash_color : source_color = vec4(0.82, 0.79, 0.75, 1.0);
-uniform vec4 core_color : source_color = vec4(0.60, 0.58, 0.58, 1.0);
+uniform vec4 ash_color : source_color = vec4(0.96, 0.92, 0.86, 1.0);
+uniform vec4 core_color : source_color = vec4(0.80, 0.77, 0.75, 1.0);
 uniform vec4 ember_color : source_color = vec4(1.0, 0.64, 0.30, 1.0);
 uniform float alpha : hint_range(0.0, 1.0) = 1.0;
 uniform float dissolve : hint_range(0.0, 1.0) = 0.0;
 uniform float model_height = 1.8;
 uniform float rim_power = 2.0;
-uniform float rim_strength = 1.0;
-uniform float base_opacity = 0.50;
-uniform float feather : hint_range(0.05, 0.9) = 0.42;
+uniform float rim_strength = 1.4;
+uniform float base_opacity = 0.74;
+uniform float feather : hint_range(0.05, 0.9) = 0.40;
 uniform float drift_speed = 0.55;
 uniform float noise_scale = 3.4;
 uniform float seed = 0.0;
@@ -67,7 +67,7 @@ void fragment() {
 	float edge = (1.0 - smoothstep(0.0, 0.11, field - cut)) * step(0.001, dissolve);
 
 	vec3 col = mix(core_color.rgb, ash_color.rgb, clamp(fres * 0.7 + h * 0.35 + 0.2, 0.0, 1.0));
-	col += ember_color.rgb * (fres * rim_strength * 0.6 + (1.0 - h) * 0.12);
+	col += ember_color.rgb * (fres * rim_strength * 0.65 + (1.0 - h) * 0.16);
 	col = mix(col, ember_color.rgb * 1.2, edge * keep);
 
 	// drifting ember specks

@@ -66,8 +66,8 @@ func test_sampling_is_1hz_within_60m_and_capped() -> void:
 	var actors: Dictionary = m.incident(id)["actors"]
 	assert_bool(actors.has("a")).is_true()
 	assert_bool(actors.has("b")).is_false()   # 70 m away: not sampled
-	assert_int((actors["a"]["t"] as Array).size()).is_equal(2)
-	assert_float(float((actors["a"]["t"] as Array)[1])).is_equal_approx(1.0, 0.0001)
+	assert_int(actors["a"]["t"].size()).is_equal(2)
+	assert_float(float(actors["a"]["t"][1])).is_equal_approx(1.0, 0.0001)
 	# no more than MAX_ACTORS tracked, no more than MAX_SAMPLES samples each
 	var crowd: Array = []
 	for i in 30:
@@ -76,7 +76,7 @@ func test_sampling_is_1hz_within_60m_and_capped() -> void:
 	assert_int((m.incident(id)["actors"] as Dictionary).size()).is_equal(AshMemory.MAX_ACTORS)
 	for i in AshMemory.MAX_SAMPLES + 20:
 		m.sample(30.0 + i, [near])
-	assert_int((m.incident(id)["actors"]["a"]["t"] as Array).size()).is_less_equal(AshMemory.MAX_SAMPLES)
+	assert_int(m.incident(id)["actors"]["a"]["t"].size()).is_less_equal(AshMemory.MAX_SAMPLES)
 
 
 func test_open_incident_stops_recording_after_the_window() -> void:
@@ -86,7 +86,7 @@ func test_open_incident_stops_recording_after_the_window() -> void:
 	m.sample(1.0, [{"id": "x", "role": "bandit", "pos": Vector2(3, 3)}])
 	m.sample(AshMemory.RECORD_WINDOW_S + 5.0, [{"id": "x", "role": "bandit", "pos": Vector2(3, 3)}])
 	assert_bool(bool(m.incident(id)["open"])).is_false()
-	assert_int((m.incident(id)["actors"]["x"]["t"] as Array).size()).is_equal(1)
+	assert_int(m.incident(id)["actors"]["x"]["t"].size()).is_equal(1)
 
 
 func test_one_shot_events_for_fire_and_death() -> void:

@@ -9,8 +9,8 @@ extends Node3D
 ## Cost: `place()` is a transform set and, only when the fade changed, two shader parameters.
 
 const ROLE_STYLE := {
-	"bandit": {"ash": Color(0.80, 0.73, 0.68), "core": Color(0.58, 0.54, 0.54), "ember": Color(1.0, 0.56, 0.24), "hood": true},
-	"villager": {"ash": Color(0.80, 0.85, 0.90), "core": Color(0.58, 0.62, 0.68), "ember": Color(0.66, 0.82, 1.0), "hood": false},
+	"bandit": {"ash": Color(0.96, 0.90, 0.84), "core": Color(0.80, 0.74, 0.70), "ember": Color(1.0, 0.56, 0.24), "hood": true},
+	"villager": {"ash": Color(0.90, 0.95, 1.0), "core": Color(0.74, 0.80, 0.88), "ember": Color(0.66, 0.82, 1.0), "hood": false},
 }
 const DEFAULT_STYLE := {"ash": Color(0.82, 0.79, 0.75), "core": Color(0.60, 0.58, 0.58), "ember": Color(1.0, 0.64, 0.30), "hood": false}
 
@@ -25,6 +25,7 @@ var _ash: GPUParticles3D
 var _steps: GPUParticles3D
 var _hood: Node3D
 var _model: Node3D
+var _halo_mat: ShaderMaterial
 
 
 func _ready() -> void:
@@ -32,12 +33,16 @@ func _ready() -> void:
 	_steps = get_node_or_null("Steps")
 	_hood = get_node_or_null("Model/Hood")
 	_model = get_node_or_null("Model")
+	var halo := get_node_or_null("Halo") as MeshInstance3D
+	if halo != null and halo.material_override is ShaderMaterial:
+		_halo_mat = (halo.material_override as ShaderMaterial).duplicate()
+		halo.material_override = _halo_mat
 	# every ghost gets its own material so roles and fades do not leak between pooled ghosts
 	var first := _first_mesh(self)
 	if first != null and first.material_override is ShaderMaterial:
 		_mat = (first.material_override as ShaderMaterial).duplicate()
 		_apply_material(_model)
-		_mat.set_shader_parameter("seed", float(get_instance_id() % 97) / 97.0)
+		_mat.set_shader_parameter(&"seed", float(get_instance_id() % 97) / 97.0)
 	if _ash != null and _ash.process_material != null:
 		_ash.process_material = _ash.process_material.duplicate()
 	if _steps != null and _steps.process_material != null:
@@ -68,16 +73,18 @@ func set_model(model: Node3D, height: float = 1.8) -> void:
 		_model.add_child(model)
 		_apply_material(model)
 	if _mat:
-		_mat.set_shader_parameter("model_height", height)
+		_mat.set_shader_parameter(&"model_height", height)
 
 
 func set_role(r: String) -> void:
 	role = r
 	var st: Dictionary = ROLE_STYLE.get(r, DEFAULT_STYLE)
 	if _mat:
-		_mat.set_shader_parameter("ash_color", st["ash"])
-		_mat.set_shader_parameter("core_color", st["core"])
-		_mat.set_shader_parameter("ember_color", st["ember"])
+		_mat.set_shader_parameter(&"ash_color", st["ash"])
+		_mat.set_shader_parameter(&"core_color", st["core"])
+		_mat.set_shader_parameter(&"ember_color", st["ember"])
+	if _halo_mat:
+		_halo_mat.set_shader_parameter(&"ember_color", st["ember"])
 	if _hood != null:
 		_hood.visible = bool(st["hood"])
 	if _ash != null and _ash.process_material is ParticleProcessMaterial:
@@ -114,9 +121,11 @@ func place(pos: Vector3, heading: float, fade: float) -> void:
 	rotation.y = heading
 	if _mat and absf(fade - _alpha) > 0.015:
 		_alpha = fade
-		_mat.set_shader_parameter("alpha", fade)
+		_mat.set_shader_parameter(&"alpha", fade)
+		if _halo_mat:
+			_halo_mat.set_shader_parameter(&"alpha", fade)
 		# smoothstep: the figure crumbles away as it fades, and re-forms as it arrives
-		_mat.set_shader_parameter("dissolve", 1.0 - fade * fade * (3.0 - 2.0 * fade))
+		_mat.set_shader_parameter(&"dissolve", 1.0 - fade * fade * (3.0 - 2.0 * fade))
 
 
 func material() -> ShaderMaterial:

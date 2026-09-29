@@ -25,6 +25,7 @@ var hold := 1.2
 var out_dir := ""
 var check_only := false
 var bench := false
+var closeup := false
 
 var mem: AshMemory
 var incident_id := -1
@@ -41,7 +42,7 @@ var _phase := 0            # 0 live, 1 drain, 2 replay, 3 outro, 4 done
 var _sim_t := 0.0
 var _phase_t := 0.0
 var _cam_focus := Vector3(10, 0, -14)
-var _cam_dist := 34.0
+var _cam_dist := 26.0
 var _last_pos: Dictionary = {}
 var _next_mark := 0
 var _frames := 0
@@ -52,12 +53,17 @@ var _bench_delta := 0.0
 var _bench_frames := 0
 var _bench_process_ms := 0.0
 var _errors: Dictionary = {}
+var _grade_mats: Array = []   # [{m: StandardMaterial3D, c: base colour}] drained to grey by view.grade
+var _sky: ProceduralSkyMaterial
+var _sun: DirectionalLight3D
+var _all_focus := false
 
 
 func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a == "--check": check_only = true
 		elif a == "--bench": bench = true
+		elif a == "--closeup": closeup = true
 		elif a.begins_with("--out="): out_dir = a.substr(6)
 		elif a.begins_with("--live-speed="): live_speed = float(a.substr(13))
 		elif a.begins_with("--hold="): hold = float(a.substr(7))
@@ -68,11 +74,15 @@ func _ready() -> void:
 		get_tree().quit(_run_checks())
 		return
 	_build_world()
+	if closeup:
+		_setup_closeup()
+		return
 	_build_ui()
 	view = AshReplayView.new()
 	view.name = "AshReplayView"
-	view.set_process(false)   # this demo steps the view itself so runs are deterministic
+
 	add_child(view)
+	view.set_process(false)   # (after add_child: _ready re-enables it) this demo steps the view itself
 	# The raid starts: the emitter calls begin_incident once.
 	mem.flag_site(AshFakeRaid.SITE_NAME, AshFakeRaid.STONE_POS)
 	incident_id = mem.begin_incident(&"raid", AshFakeRaid.STONE_POS, T_OFFSET)
@@ -104,6 +114,9 @@ func _run_checks() -> int:
 # --- frame loop ----------------------------------------------------------------------------
 
 func _process(delta: float) -> void:
+	if closeup:
+		_closeup_frame(delta)
+		return
 	_frames += 1
 	_phase_t += delta
 	match _phase:
@@ -111,9 +124,7 @@ func _process(delta: float) -> void:
 		1: _drain(delta)
 		2: _replay(delta)
 		3: _outro(delta)
-	env.adjustment_saturation = lerpf(1.08, 0.22, view.grade)
-	env.adjustment_brightness = lerpf(1.0, 0.94, view.grade)
-	env.adjustment_contrast = lerpf(1.02, 1.1, view.grade)
+	_apply_grade(view.grade)
 	_move_camera(delta)
 
 
@@ -141,9 +152,12 @@ func _live(delta: float) -> void:
 				c.rotation.y = lerp_angle(c.rotation.y, atan2(-v.x, -v.y), 0.3)
 			_last_pos[id] = p
 	_focus_on(truth.map(func(e: Dictionary) -> Vector2: return e["pos"]))
-	if t >= AshFakeRaid.DURATION:
+	if t >= 21.0:   # everyone has left or is about to leave the 60 m circle
 		mem.end_incident(incident_id, T_OFFSET + AshFakeRaid.DURATION)
+		_cam_focus = Vector3(14, 1, -10)
+		_cam_dist = 26.0
 		_phase = 1
+		_all_focus = true
 		_phase_t = 0.0
 		title.text = "Ashsight"
 		caption.text = "the ashes are still warm..."
@@ -153,10 +167,10 @@ func _live(delta: float) -> void:
 
 
 func _drain(_delta: float) -> void:
-	view.grade = minf(1.0, _phase_t / 1.4)
+	view.grade = minf(1.0, _phase_t / 1.0)
 	for id: String in chars:
 		(chars[id] as Node3D).visible = false
-	if _phase_t >= 1.5:
+	if _phase_t >= 1.2:
 		_phase = 2
 		_phase_t = 0.0
 		view.cursor.playing = true
@@ -237,15 +251,19 @@ func _finish() -> void:
 func _focus_on(points: Array) -> void:
 	if points.is_empty():
 		return
+	# follow the action near the stone; actors that are still far away do not pull the camera
+	var near: Array = points if _all_focus else points.filter(func(p: Vector2) -> bool: return p.length() < 34.0)
+	if near.is_empty():
+		near = [Vector2(6, -6)]
 	var c := Vector2.ZERO
-	for p: Vector2 in points:
+	for p: Vector2 in near:
 		c += p
-	c /= float(points.size())
+	c /= float(near.size())
 	var spread := 0.0
-	for p: Vector2 in points:
+	for p: Vector2 in near:
 		spread = maxf(spread, p.distance_to(c))
-	_cam_focus = _cam_focus.lerp(Vector3(c.x, 1.0, c.y), 0.06)
-	_cam_dist = lerpf(_cam_dist, clampf(20.0 + spread * 0.9, 24.0, 52.0), 0.03)
+	_cam_focus = _cam_focus.lerp(Vector3(c.x, 1.0, c.y), 0.08)
+	_cam_dist = lerpf(_cam_dist, clampf(10.0 + spread * (0.8 if _all_focus else 0.6), 13.0, 34.0), 0.03)
 
 
 func _move_camera(_delta: float) -> void:
@@ -266,6 +284,8 @@ func _mat(c: Color, rough := 0.9, emit := 0.0) -> StandardMaterial3D:
 		m.emission_enabled = true
 		m.emission = c
 		m.emission_energy_multiplier = emit
+	if emit <= 0.0:
+		_grade_mats.append({"m": m, "c": c})
 	return m
 
 
@@ -316,6 +336,7 @@ func _build_world() -> void:
 	env.background_mode = Environment.BG_SKY
 	var sky := Sky.new()
 	var sm := ProceduralSkyMaterial.new()
+	_sky = sm
 	sm.sky_top_color = Color(0.30, 0.55, 0.92)
 	sm.sky_horizon_color = Color(0.72, 0.85, 0.96)
 	sm.ground_horizon_color = Color(0.72, 0.85, 0.96)
@@ -326,20 +347,22 @@ func _build_world() -> void:
 	env.ambient_light_energy = 1.1
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.glow_enabled = true
-	env.glow_intensity = 0.5
+	env.glow_intensity = 0.7
+	env.glow_hdr_threshold = 0.85
 	env.glow_bloom = 0.08
-	env.adjustment_enabled = true
+	env.adjustment_enabled = false
 	env.adjustment_saturation = 1.08
 	we.environment = env
 	add_child(we)
 	var sun := DirectionalLight3D.new()
+	_sun = sun
 	sun.light_color = Color(1.0, 0.92, 0.76)
 	sun.light_energy = 1.25
 	sun.rotation_degrees = Vector3(-48, 130, 0)
 	sun.shadow_enabled = true
 	add_child(sun)
 	cam = Camera3D.new()
-	cam.fov = 48.0
+	cam.fov = 44.0
 	cam.current = true
 	add_child(cam)
 	# meadow, road, farm patch
@@ -432,3 +455,51 @@ func _build_ui() -> void:
 	bar_fill.position = Vector2.ZERO
 	bar_fill.size = Vector2(0, 10)
 	bar.add_child(bar_fill)
+
+
+## The demo drains the world to grey by lerping its own materials (grade 0..1), so the ghosts
+## keep their warm colours. In the game this is L13's screen pass, which must skip ghosts too.
+func _apply_grade(g: float) -> void:
+	var k := clampf(g, 0.0, 1.0)
+	for e: Dictionary in _grade_mats:
+		var c: Color = e["c"]
+		var l := c.r * 0.3 + c.g * 0.59 + c.b * 0.11
+		var grey := Color(l * 0.76 + 0.05, l * 0.72 + 0.05, l * 0.67 + 0.06)
+		(e["m"] as StandardMaterial3D).albedo_color = c.lerp(grey, k)
+	_sky.sky_top_color = Color(0.30, 0.55, 0.92).lerp(Color(0.40, 0.39, 0.40), k)
+	_sky.sky_horizon_color = Color(0.72, 0.85, 0.96).lerp(Color(0.62, 0.60, 0.57), k)
+	_sky.ground_horizon_color = _sky.sky_horizon_color
+	_sky.ground_bottom_color = Color(0.45, 0.62, 0.40).lerp(Color(0.40, 0.38, 0.34), k)
+	_sun.light_energy = lerpf(1.25, 0.95, k)
+	_sun.light_color = Color(1.0, 0.92, 0.76).lerp(Color(0.95, 0.92, 0.88), k)
+	env.ambient_light_energy = lerpf(1.1, 0.9, k)
+
+
+# --- close-up of the ghost look (--closeup): four ghosts from solid to nearly gone -----------------
+
+var _closeup_t := 0.0
+var _closeup_ghosts: Array = []
+
+
+func _setup_closeup() -> void:
+	_build_ui()
+	title.text = "Ash ghost look"
+	caption.text = "left to right: fresh, fading, crumbling, almost gone"
+	var pool := AshGhostPool.new()
+	pool.capacity = 6
+	add_child(pool)
+	_apply_grade(1.0)
+	var fades := [1.0, 0.8, 0.55, 0.3]
+	for i in 4:
+		var g := pool.acquire("bandit" if i % 2 == 0 else "villager")
+		g.place(Vector3(-4.5 + float(i) * 3.2, 0.0, -3.0), deg_to_rad(-25.0), float(fades[i]))
+		_closeup_ghosts.append(g)
+	_cam_focus = Vector3(0, 1.0, 0)
+	_cam_dist = 11.0
+
+
+func _closeup_frame(delta: float) -> void:
+	_closeup_t += delta
+	_move_camera(delta)
+	if _closeup_t > 1.6:
+		get_tree().quit(0)
