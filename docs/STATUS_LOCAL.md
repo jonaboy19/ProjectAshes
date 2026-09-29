@@ -79,3 +79,7 @@ NOT wired (unverified): everything in `docs/platform/boot_wiring_wip.patch` (app
 ## Open issues from the boot-flow run (2026-09-29)
 - Unexplained rendering errors during world load under `--rendering-method mobile` at 1280x720 ("Parameter framebuffer is null", "Index p_mipmap out of bounds", "Uniforms were never supplied for set (0)"), hundreds per run. They do not fail the flow; cause not investigated.
 - 76 leaked `JoltShape3D` RID allocations reported at exit.
+
+## 2026-09-29 perf follow-up (stopped early, usage limit)
+- Water/RegionDressing CPU hunt not finished: only analysis done (see docs/qa/PERFORMANCE.md, last section). Branch origin/tmp-perf holds the merge of tmp-water2 plus notes; origin/tmp-water2 kept.
+- Backlog: split the RegionDressing ablation (process vs colliders vs lights vs render), fix the cause with per-frame budgets, before/after table LOW+HIGH, render WATER_LITE and canopy, frame sheet, missing .import/.uid, Kay_* duplicate clips, spinning-wheel/spindle, boot_flow QA, delete tmp-water2.
