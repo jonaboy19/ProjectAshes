@@ -1,0 +1,167 @@
+{
+ "source_type": "blend",
+ "blend": "C:/Users/Jonna/Documents/ProjectAshes_art_staging/anim_raw2/kaykit_medium.blend",
+ "source_armature": "Armature",
+ "source_fps": 30,
+ "ual": "../../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "smooth": 0.0,
+ "fingers": "relaxed",
+ "check_directions": true,
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "hips",
+  "spine_01": "spine",
+  "spine_02": "chest",
+  "Head": "head",
+  "upperarm_l": "upperarm.l",
+  "lowerarm_l": "lowerarm.l",
+  "hand_l": "wrist.l",
+  "upperarm_r": "upperarm.r",
+  "lowerarm_r": "lowerarm.r",
+  "hand_r": "wrist.r",
+  "thigh_l": "upperleg.l",
+  "calf_l": "lowerleg.l",
+  "foot_l": "foot.l",
+  "ball_l": "toes.l",
+  "thigh_r": "upperleg.r",
+  "calf_r": "lowerleg.r",
+  "foot_r": "foot.r",
+  "ball_r": "toes.r"
+ },
+ "out": "../../../assets/incoming/animations_free2/kaykit_movement_ext/UAL_Kay_movement_ext.glb",
+ "clips": [
+  {
+   "name": "Kay_Crouch_Idle",
+   "action": "Crouching",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Sneak_Walk",
+   "action": "Sneaking",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Walk_Back",
+   "action": "Walking_Backwards",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Run_Strafe_L",
+   "action": "Running_Strafe_Left",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Run_Strafe_R",
+   "action": "Running_Strafe_Right",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Walk_Kay_A",
+   "action": "Walking_A",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Walk_Kay_B",
+   "action": "Walking_B",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Walk_Kay_C_Casual",
+   "action": "Walking_C",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Run_Kay_A",
+   "action": "Running_A",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Run_Kay_B",
+   "action": "Running_B",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Jump_Start_Kay",
+   "action": "Jump_Start",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Jump_Air_Kay",
+   "action": "Jump_Idle",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Jump_Land_Kay",
+   "action": "Jump_Land",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Jump_Short_Kay",
+   "action": "Jump_Full_Short",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Jump_Long_Kay",
+   "action": "Jump_Full_Long",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Idle_Kay_A",
+   "action": "Idle_A",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Idle_Kay_B",
+   "action": "Idle_B",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  }
+ ]
+}

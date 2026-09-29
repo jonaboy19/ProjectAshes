@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://assets/generated/impostors/oak1_octa_mat.tres" id="1"]
+
+[sub_resource type="QuadMesh" id="q"]
+size = Vector2(9.608379, 9.608379)
+center_offset = Vector3(-0.038747, 3.389621, 0.064338)
+
+[node name="Oak1_Octa" type="MeshInstance3D"]
+extra_cull_margin = 4.804190
+cast_shadow = 0
+mesh = SubResource("q")
+material_override = ExtResource("1")

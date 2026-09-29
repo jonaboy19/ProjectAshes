@@ -1,0 +1,367 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/vfx/element_effect.gd" id="1_8aw1l"]
+[ext_resource type="Shader" path="res://shaders/vfx_elements/el_mix.gdshader" id="2_oob2j"]
+[ext_resource type="Material" path="res://scenes/vfx/elements/_shared/p_circle_05_mix.tres" id="3_ud62p"]
+[ext_resource type="Material" path="res://scenes/vfx/elements/_shared/p_smoke_04_mix.tres" id="4_se2l4"]
+[ext_resource type="Shader" path="res://shaders/vfx_elements/el_sprite.gdshader" id="5_ggull"]
+[ext_resource type="Texture2D" path="res://assets/incoming/vfx_free/rpicster_vfx_textures/spotlight_5.png" id="6_l3o8u"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ffhj8"]
+render_priority = 0
+shader = ExtResource("2_oob2j")
+shader_parameter/shape_mode = 1
+shader_parameter/col_core = Color(0.86, 0.97, 1, 1)
+shader_parameter/col_mid = Color(0.28, 0.66, 0.95, 1)
+shader_parameter/col_edge = Color(0.08, 0.28, 0.62, 1)
+shader_parameter/intensity = 1.0
+shader_parameter/master = null
+shader_parameter/progress = null
+shader_parameter/dissolve_amt = null
+shader_parameter/alpha_mul = 0.9
+shader_parameter/noise_amt = 0.5
+shader_parameter/noise_scale = Vector3(4, 4, 4)
+shader_parameter/scroll = Vector3(0.6, 0, 0.6)
+shader_parameter/cel = 0.7
+shader_parameter/bands = 3.0
+shader_parameter/fresnel_pow = null
+shader_parameter/rim_alpha = null
+shader_parameter/core_facing = null
+shader_parameter/mesh_h = null
+shader_parameter/mesh_r = 3.2
+shader_parameter/fade_y = null
+shader_parameter/ring_r = 0.8
+shader_parameter/ring_w = 0.32
+shader_parameter/ring_fill = 0.35
+shader_parameter/ticks = 40.0
+shader_parameter/tick_amt = 0.0
+shader_parameter/spiral = null
+shader_parameter/spiral_amt = null
+shader_parameter/wobble = null
+shader_parameter/wobble_scale = null
+shader_parameter/twist = null
+shader_parameter/spin = null
+shader_parameter/flicker = null
+shader_parameter/fake_light = null
+shader_parameter/flat_shade = null
+shader_parameter/light_dir = null
+shader_parameter/reveal = null
+shader_parameter/tail_len = null
+shader_parameter/pulse = null
+shader_parameter/pulse_speed = null
+shader_parameter/heat_scale = 0.75
+
+[sub_resource type="QuadMesh" id="QuadMesh_rtsdv"]
+size = Vector2(6.4, 6.4)
+orientation = 1
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tjgbd"]
+render_priority = 0
+shader = ExtResource("2_oob2j")
+shader_parameter/shape_mode = 1
+shader_parameter/col_core = Color(0.86, 0.97, 1, 1)
+shader_parameter/col_mid = Color(0.28, 0.66, 0.95, 1)
+shader_parameter/col_edge = Color(0.08, 0.28, 0.62, 1)
+shader_parameter/intensity = 1.0
+shader_parameter/master = null
+shader_parameter/progress = null
+shader_parameter/dissolve_amt = null
+shader_parameter/alpha_mul = 0.5
+shader_parameter/noise_amt = 0.6
+shader_parameter/noise_scale = Vector3(4, 4, 4)
+shader_parameter/scroll = Vector3(0.3, 0, 0.3)
+shader_parameter/cel = 0.7
+shader_parameter/bands = 3.0
+shader_parameter/fresnel_pow = null
+shader_parameter/rim_alpha = null
+shader_parameter/core_facing = null
+shader_parameter/mesh_h = null
+shader_parameter/mesh_r = 3.2
+shader_parameter/fade_y = null
+shader_parameter/ring_r = 0.9
+shader_parameter/ring_w = 0.2
+shader_parameter/ring_fill = 1.0
+shader_parameter/ticks = null
+shader_parameter/tick_amt = null
+shader_parameter/spiral = null
+shader_parameter/spiral_amt = null
+shader_parameter/wobble = null
+shader_parameter/wobble_scale = null
+shader_parameter/twist = null
+shader_parameter/spin = null
+shader_parameter/flicker = null
+shader_parameter/fake_light = null
+shader_parameter/flat_shade = null
+shader_parameter/light_dir = null
+shader_parameter/reveal = null
+shader_parameter/tail_len = null
+shader_parameter/pulse = null
+shader_parameter/pulse_speed = null
+shader_parameter/heat_scale = 1.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_s2n0p"]
+size = Vector2(6.4, 6.4)
+orientation = 1
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_u1615"]
+render_priority = 0
+shader = ExtResource("2_oob2j")
+shader_parameter/shape_mode = 0
+shader_parameter/col_core = Color(0.86, 0.97, 1, 1)
+shader_parameter/col_mid = Color(0.28, 0.66, 0.95, 1)
+shader_parameter/col_edge = Color(0.08, 0.28, 0.62, 1)
+shader_parameter/intensity = 0.95
+shader_parameter/master = null
+shader_parameter/progress = null
+shader_parameter/dissolve_amt = null
+shader_parameter/alpha_mul = 0.85
+shader_parameter/noise_amt = 0.4
+shader_parameter/noise_scale = Vector3(3, 2.2, 3)
+shader_parameter/scroll = Vector3(0, -3, 0)
+shader_parameter/cel = 0.7
+shader_parameter/bands = 3.0
+shader_parameter/fresnel_pow = null
+shader_parameter/rim_alpha = null
+shader_parameter/core_facing = null
+shader_parameter/mesh_h = 4.0
+shader_parameter/mesh_r = null
+shader_parameter/fade_y = Vector2(0.05, 0.4)
+shader_parameter/ring_r = null
+shader_parameter/ring_w = null
+shader_parameter/ring_fill = null
+shader_parameter/ticks = null
+shader_parameter/tick_amt = null
+shader_parameter/spiral = Vector3(3, 6, 6)
+shader_parameter/spiral_amt = 0.9
+shader_parameter/wobble = null
+shader_parameter/wobble_scale = null
+shader_parameter/twist = null
+shader_parameter/spin = null
+shader_parameter/flicker = null
+shader_parameter/fake_light = null
+shader_parameter/flat_shade = null
+shader_parameter/light_dir = null
+shader_parameter/reveal = null
+shader_parameter/tail_len = null
+shader_parameter/pulse = null
+shader_parameter/pulse_speed = null
+shader_parameter/heat_scale = 0.9
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_dag7y"]
+top_radius = 0.55
+bottom_radius = 0.85
+height = 4.0
+radial_segments = 16
+rings = 1
+cap_top = false
+cap_bottom = false
+
+[sub_resource type="Gradient" id="Gradient_jqw6f"]
+offsets = PackedFloat32Array(0, 0.15, 0.7, 1)
+colors = PackedColorArray(0.28, 0.66, 0.95, 0, 0.28, 0.66, 0.95, 0.95, 0.08, 0.28, 0.62, 0.665, 0.08, 0.28, 0.62, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_88str"]
+gradient = SubResource("Gradient_jqw6f")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_xn4dn"]
+emission_shape = 6
+emission_ring_axis = Vector3(0, 1, 0)
+emission_ring_height = 0.05
+emission_ring_radius = 1.2
+emission_ring_inner_radius = 0.0
+emission_ring_cone_angle = 90.0
+direction = Vector3(0, 1, 0)
+spread = 25.0
+initial_velocity_min = 3.0
+initial_velocity_max = 7.0
+gravity = Vector3(0, -9, 0)
+damping_max = 0.5
+scale_min = 0.7
+color_ramp = SubResource("GradientTexture1D_88str")
+
+[sub_resource type="QuadMesh" id="QuadMesh_l8767"]
+material = ExtResource("3_ud62p")
+size = Vector2(0.31670102, 0.31670102)
+
+[sub_resource type="Gradient" id="Gradient_rv8wa"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(0.9, 0.97, 1, 0, 0.9, 0.97, 1, 0.4, 0.9, 0.97, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_4fues"]
+gradient = SubResource("Gradient_rv8wa")
+
+[sub_resource type="Curve" id="Curve_pmtac"]
+_data = [Vector2(0, 0.35), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_7diag"]
+curve = SubResource("Curve_pmtac")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_qcaan"]
+emission_shape = 6
+emission_ring_axis = Vector3(0, 1, 0)
+emission_ring_height = 0.05
+emission_ring_radius = 1.5
+emission_ring_inner_radius = 0.3
+emission_ring_cone_angle = 90.0
+angle_min = -180.0
+angle_max = 180.0
+direction = Vector3(0, 1, 0)
+spread = 40.0
+initial_velocity_min = 0.5
+initial_velocity_max = 1.5
+gravity = Vector3(0, 0, 0)
+damping_max = 0.5
+scale_min = 0.7
+scale_curve = SubResource("CurveTexture_7diag")
+color_ramp = SubResource("GradientTexture1D_4fues")
+
+[sub_resource type="QuadMesh" id="QuadMesh_2rsu5"]
+material = ExtResource("4_se2l4")
+size = Vector2(2.1894736, 2.0417178)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_c6ut6"]
+render_priority = 0
+shader = ExtResource("5_ggull")
+shader_parameter/tex = ExtResource("6_l3o8u")
+shader_parameter/tint = Color(0.86, 0.97, 1, 0.4)
+shader_parameter/intensity = 0.7
+shader_parameter/master = null
+shader_parameter/spin = 0.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_05gmc"]
+size = Vector2(4, 4)
+
+[node name="Water_Aoe" type="Node3D" unique_id=51896221]
+script = ExtResource("1_8aw1l")
+duration = 1.9
+kind = &"aoe"
+element = &"water"
+
+[node name="Wave" type="MeshInstance3D" parent="." unique_id=2006901133]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+material_override = SubResource("ShaderMaterial_ffhj8")
+cast_shadow = 0
+extra_cull_margin = 2.0
+gi_mode = 0
+mesh = SubResource("QuadMesh_rtsdv")
+metadata/anims = [{
+"a": 0.1,
+"b": 0.9,
+"e": "out",
+"p": "ring_r",
+"t0": 0.0,
+"t1": 0.7
+}, {
+"a": 0.0,
+"b": 1.0,
+"e": "lin",
+"p": "progress",
+"t0": 0.45,
+"t1": 1.0
+}]
+
+[node name="Puddle" type="MeshInstance3D" parent="." unique_id=1439964856]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
+material_override = SubResource("ShaderMaterial_tjgbd")
+cast_shadow = 0
+extra_cull_margin = 2.0
+gi_mode = 0
+mesh = SubResource("QuadMesh_s2n0p")
+metadata/anims = [{
+"a": 0.2,
+"b": 1.0,
+"e": "out",
+"p": "scale",
+"t0": 0.0,
+"t1": 0.6
+}, {
+"a": 0.0,
+"b": 1.0,
+"e": "lin",
+"p": "progress",
+"t0": 1.1,
+"t1": 1.9
+}]
+
+[node name="Geyser" type="MeshInstance3D" parent="." unique_id=1417723166]
+transform = Transform3D(1, 0, 0, 0, 0.05, 0, 0, 0, 1, 0, 0.2, 0)
+material_override = SubResource("ShaderMaterial_u1615")
+cast_shadow = 0
+extra_cull_margin = 2.0
+gi_mode = 0
+mesh = SubResource("CylinderMesh_dag7y")
+metadata/anims = [{
+"a": Vector3(1, 0.05, 1),
+"b": Vector3(1, 1, 1),
+"e": "out",
+"p": "scale",
+"t0": 0.1,
+"t1": 0.4
+}, {
+"a": 0.2,
+"b": 2.0,
+"e": "out",
+"p": "y",
+"t0": 0.1,
+"t1": 0.4
+}, {
+"a": 0.0,
+"b": 1.0,
+"e": "in",
+"p": "progress",
+"t0": 0.9,
+"t1": 1.6
+}]
+
+[node name="Splash" type="GPUParticles3D" parent="." unique_id=1385446228]
+cast_shadow = 0
+gi_mode = 0
+emitting = false
+amount = 36
+lifetime = 1.1
+one_shot = true
+explosiveness = 0.9
+randomness = 0.4
+visibility_aabb = AABB(-6, -3, -6, 12, 9.6, 12)
+transform_align = 1
+process_material = SubResource("ParticleProcessMaterial_xn4dn")
+draw_pass_1 = SubResource("QuadMesh_l8767")
+metadata/emit_delay = 0.15
+
+[node name="Mist" type="GPUParticles3D" parent="." unique_id=1609430252]
+cast_shadow = 0
+gi_mode = 0
+emitting = false
+one_shot = true
+explosiveness = 0.9
+randomness = 0.4
+visibility_aabb = AABB(-6, -3, -6, 12, 9.6, 12)
+transform_align = 1
+process_material = SubResource("ParticleProcessMaterial_qcaan")
+draw_pass_1 = SubResource("QuadMesh_2rsu5")
+metadata/emit_delay = 0.2
+metadata/tier_min = 1
+
+[node name="Flash" type="MeshInstance3D" parent="." unique_id=1400801096]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+material_override = SubResource("ShaderMaterial_c6ut6")
+cast_shadow = 0
+extra_cull_margin = 2.0
+gi_mode = 0
+mesh = SubResource("QuadMesh_05gmc")
+metadata/anims = [{
+"a": 0.3,
+"b": 1.2,
+"e": "out",
+"p": "scale",
+"t0": 0.0,
+"t1": 0.3
+}, {
+"a": 1.0,
+"b": 0.0,
+"e": "lin",
+"p": "master",
+"t0": 0.05,
+"t1": 0.4
+}]

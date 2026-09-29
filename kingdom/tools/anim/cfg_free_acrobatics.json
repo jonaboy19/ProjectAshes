@@ -1,0 +1,246 @@
+{
+ "source_type": "bvh",
+ "bvh_dir": "${ANIM_SRC}/cmu-mocap/data",
+ "ual": "../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "out": "../../assets/incoming/animations_free/acrobatics/UAL_Free_Acrobatics.glb",
+ "smooth": 0.012,
+ "fingers": "relaxed",
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "Hips",
+  "spine_01": "LowerBack",
+  "spine_02": "Spine",
+  "spine_03": "Spine1",
+  "neck_01": "Neck",
+  "Head": "Head",
+  "clavicle_l": "LeftShoulder",
+  "upperarm_l": "LeftArm",
+  "lowerarm_l": "LeftForeArm",
+  "hand_l": "LeftHand",
+  "clavicle_r": "RightShoulder",
+  "upperarm_r": "RightArm",
+  "lowerarm_r": "RightForeArm",
+  "hand_r": "RightHand",
+  "thigh_l": "LeftUpLeg",
+  "calf_l": "LeftLeg",
+  "foot_l": "LeftFoot",
+  "ball_l": "LeftToeBase",
+  "thigh_r": "RightUpLeg",
+  "calf_r": "RightLeg",
+  "foot_r": "RightFoot",
+  "ball_r": "RightToeBase"
+ },
+ "check_directions": true,
+ "heading": "strike",
+ "clips": [
+  {
+   "name": "MA_Acro_HandSpinKick",
+   "file": "087/87_01.bvh",
+   "start": 0.4,
+   "end": 4.2,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_Cartwheel_A",
+   "file": "144/144_01.bvh",
+   "start": 1.44,
+   "end": 4.21,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_Cartwheel_B",
+   "file": "144/144_01.bvh",
+   "start": 8.42,
+   "end": 11.07,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_Cartwheel_C",
+   "file": "144/144_01.bvh",
+   "start": 14.02,
+   "end": 16.92,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_Cartwheel_D",
+   "file": "049/49_06.bvh",
+   "start": 0.3,
+   "end": 3.9,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_Cartwheel_E",
+   "file": "088/88_09.bvh",
+   "start": 0.5,
+   "end": 3.4,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_Backflip_A",
+   "file": "088/88_01.bvh",
+   "start": 0.2,
+   "end": 1.67,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_Backflip_B",
+   "file": "087/87_03.bvh",
+   "start": 0.5,
+   "end": 2.03,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_Backflip_C",
+   "file": "087/87_04.bvh",
+   "start": 0.4,
+   "end": 1.9,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_Somersault_Back",
+   "file": "090/90_01.bvh",
+   "start": 2.0,
+   "end": 5.5,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_Handspring",
+   "file": "090/90_11.bvh",
+   "start": 0.0,
+   "end": 1.4,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_FrontHandFlip_A",
+   "file": "090/90_14.bvh",
+   "start": 2.0,
+   "end": 4.5,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_FrontHandFlip_B",
+   "file": "090/90_15.bvh",
+   "start": 2.0,
+   "end": 5.0,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_SideFlip",
+   "file": "090/90_08.bvh",
+   "start": 0.5,
+   "end": 2.8,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_FlipForward_Hands",
+   "file": "090/90_09.bvh",
+   "start": 0.8,
+   "end": 2.5,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_BackflipBackOnHands",
+   "file": "088/88_08.bvh",
+   "start": 0.3,
+   "end": 2.4,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_Flip_A",
+   "file": "085/85_01.bvh",
+   "start": 1.0,
+   "end": 6.5,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_HandstandKicks",
+   "file": "085/85_05.bvh",
+   "start": 1.5,
+   "end": 11.0,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_KickFlip",
+   "file": "085/85_06.bvh",
+   "start": 4.9,
+   "end": 7.5,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  },
+  {
+   "name": "MA_Acro_MonkeyBackflip",
+   "file": "090/90_19.bvh",
+   "start": 1.5,
+   "end": 6.0,
+   "fingers": "fist",
+   "inplace_sigma": 0.5,
+   "smooth": 0.012,
+   "heading": "start"
+  }
+ ]
+}

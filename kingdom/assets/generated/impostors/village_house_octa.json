@@ -1,0 +1,14 @@
+{
+	"atlas_px": 1024,
+	"center": [
+		-0.045992374420166,
+		3.69992899894714,
+		-0.117937564849854
+	],
+	"grid": 8,
+	"impostor_tris": 2,
+	"radius": 5.78579139709473,
+	"source": "res://assets/generated/village_house_a.glb",
+	"source_tris": 8684,
+	"tile": 128
+}

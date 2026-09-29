@@ -1,0 +1,464 @@
+diff --git a/kingdom/scripts/core/main.gd b/kingdom/scripts/core/main.gd
+index 3d6e41aa..9ebcf943 100644
+--- a/kingdom/scripts/core/main.gd
++++ b/kingdom/scripts/core/main.gd
+@@ -87,17 +87,20 @@ func _ready() -> void:
+ 	hud.add_action_button("lock_on", "Lock", "lock_on", "eye-target")
+ 	hud.add_action_button("crouch", "Sneak", "crouch", "walk")
+ 
+-	hud.set_loading_text("Painting sprites...")
++	hud.set_loading_text("Painting sprites...", 0.04)
+ 	await get_tree().process_frame
+ 	await baker.bake("soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
+ 	await baker.bake("raider", "Barbarian", ["1H_Axe", "Barbarian_Round_Shield", "Barbarian_Hat"])
++	var looks_done := 0
+ 	for look: String in PopulationLOD.LOOK_MODEL:
++		hud.set_loading_text("Painting sprites...", 0.08 + 0.32 * looks_done / maxf(1.0, PopulationLOD.LOOK_MODEL.size()))
++		looks_done += 1
+ 		var model: Array = PopulationLOD.LOOK_MODEL[look]
+ 		var keep: Array[String] = []
+ 		keep.assign(model[1])
+ 		await baker.bake(look, model[0], keep, "Walking_A")
+ 
+-	hud.set_loading_text("Raising the land...")
++	hud.set_loading_text("Raising the land...", 0.45)
+ 	await get_tree().process_frame
+ 	terrain = TerrainStreamer.new()
+ 	world.add_child(terrain)
+@@ -115,8 +118,12 @@ func _ready() -> void:
+ 	terrain.focus = spawn
+ 	settlements.focus = spawn
+ 	terrain.view_radius = 2
++	hud.set_loading_text("Raising the land...", 0.5)
++	await get_tree().process_frame
+ 	terrain.build_all_now()
+ 	terrain.view_radius = 4
++	hud.set_loading_text("Building the villages...", 0.7)
++	await get_tree().process_frame
+ 	settlements.update_now()
+ 
+ 	world.add_child(player)
+@@ -145,6 +152,8 @@ func _ready() -> void:
+ 	# Keepers inside the rooms get their menus (doors of towns built so far, then new ones).
+ 	services.wire_settlement(settlements)
+ 	settlements.settlement_built.connect(func(_s: Dictionary, root: Node3D) -> void: services.wire_settlement(root))
++	hud.set_loading_text("Filling the wilds...", 0.85)
++	await get_tree().process_frame
+ 	camps = MonsterCamps.new()
+ 	world.add_child(camps)
+ 	world.add_child(Lakeside.new())
+@@ -175,6 +184,8 @@ func _ready() -> void:
+ 	ore.name = "OreVeins"
+ 	world.add_child(ore)
+ 
++	hud.set_loading_text("Waking the world...", 0.95)
++	await get_tree().process_frame
+ 	army = Squad.new().setup(0, "soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
+ 	army.routed.connect(func(_s: Squad) -> void: Game.say("Our men are breaking!"))
+ 	army.leader = player
+@@ -183,6 +194,7 @@ func _ready() -> void:
+ 	_spawn_raiders(FIRST_CAMP, 12)
+ 	WorldSim.hour_changed.connect(func(_h: int) -> void: _maybe_spawn_war_battle())
+ 
++	hud.set_loading_text("Ready", 1.0)
+ 	hud.hide_loading()
+ 	Quality.start_adaptive()
+ 	VFX.warmup(world)   # pre-draw every effect shader so the first cast doesn't hitch
+diff --git a/kingdom/scripts/core/quality.gd b/kingdom/scripts/core/quality.gd
+index 279a1e07..ba715e97 100644
+--- a/kingdom/scripts/core/quality.gd
++++ b/kingdom/scripts/core/quality.gd
+@@ -71,6 +71,8 @@ var choice := AUTO
+ ## Tier in effect.
+ var tier := HIGH
+ var battery_saver := false
++## Player resolution scale for the 3D view (0.5-1.0), from the settings screen (App.refresh).
++var render_scale := 1.0
+ ## The tier AUTO settled on (saved so the next launch starts there).
+ var auto_tier := -1
+ var detected_reason := ""
+@@ -143,6 +145,14 @@ func set_choice(c: int) -> void:
+ 	_save()
+ 
+ 
++func set_render_scale(s: float) -> void:
++	s = clampf(s, 0.5, 1.0)
++	if is_equal_approx(s, render_scale):
++		return
++	render_scale = s
++	_apply_viewports()
++
++
+ func set_battery_saver(on: bool) -> void:
+ 	battery_saver = on
+ 	_apply_globals()
+@@ -404,6 +414,7 @@ func _apply_viewport(v: Viewport) -> void:
+ 	var scale := 1.0
+ 	if max_h > 0 and h > 0.0:
+ 		scale = clampf(max_h / h, 0.4, 1.0)
++	scale = clampf(scale * render_scale, 0.4, 1.0)
+ 	v.scaling_3d_scale = scale
+ 	if value("scaling") == "fsr" and not compat and scale < 0.99:
+ 		v.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR
+diff --git a/kingdom/scripts/ui/frontend/boot.gd b/kingdom/scripts/ui/frontend/boot.gd
+index 52eafebb..c9b5c6df 100644
+--- a/kingdom/scripts/ui/frontend/boot.gd
++++ b/kingdom/scripts/ui/frontend/boot.gd
+@@ -6,6 +6,7 @@ const Flow := preload("res://scripts/ui/frontend/flow.gd")
+ const SS := preload("res://scripts/ui/frontend/settings_store.gd")
+ const Splash := preload("res://scripts/ui/frontend/splash.gd")
+ const MainMenu := preload("res://scripts/ui/frontend/main_menu.gd")
++const FirstRun := preload("res://scripts/boot/first_run.gd")
+ 
+ var _curtain: ColorRect
+ var _busy := false
+@@ -32,17 +33,44 @@ func _ready() -> void:
+ 	if Flow.skip_splash:
+ 		_show_menu()
+ 	else:
+-		_show_splash()
++		_show_intro()
+ 	_fade(0.0, 0.6)
+ 
+ 
++## The studio logo film (assets/video/studio_intro.ogv), skippable by tap or key after 1 s.
++func _show_intro() -> void:
++	var s := StudioIntro.new()
++	s.finished.connect(func() -> void: transition(_show_splash))
++	add_child(s)
++	move_child(_curtain, -1)
++
++
++func _clear_screens() -> void:
++	for c in get_children():
++		if c != _curtain and c is Control and c.get_index() > 0:
++			c.queue_free()
++
++
+ func _show_splash() -> void:
++	_clear_screens()
+ 	var s := Splash.new()
+-	s.finished.connect(func() -> void: transition(_show_menu))
++	s.finished.connect(func() -> void: transition(_after_splash))
+ 	add_child(s)
+ 	move_child(_curtain, -1)
+ 
+ 
++## Once, on the very first launch: language, privacy notice, how-to-play hint.
++func _after_splash() -> void:
++	if FirstRun.needed():
++		_clear_screens()
++		var f := FirstRun.new()
++		f.finished.connect(func() -> void: transition(_show_menu))
++		add_child(f)
++		move_child(_curtain, -1)
++	else:
++		_show_menu()
++
++
+ func _show_menu() -> void:
+ 	for c in get_children():
+ 		if c != _curtain and c is Control and c.get_index() > 0:
+diff --git a/kingdom/scripts/ui/frontend/settings_screen.gd b/kingdom/scripts/ui/frontend/settings_screen.gd
+index 2ce917b4..26d45dca 100644
+--- a/kingdom/scripts/ui/frontend/settings_screen.gd
++++ b/kingdom/scripts/ui/frontend/settings_screen.gd
+@@ -165,6 +165,7 @@ func _tab_graphics() -> void:
+ 	_row("textures", "Textures", "opt", SS.LEVELS)
+ 	_row("effects", "Effects", "opt", SS.LEVELS)
+ 	_row("fps_limit", "Frame Rate Limit", "opt", ["30", "60", "Unlimited"])
++	_row("render_scale", "Resolution Scale", "slider", [], "50-100 % of the screen resolution for the 3D view. Lower is faster and cooler.")
+ 
+ 
+ func _tab_audio() -> void:
+@@ -179,6 +180,8 @@ func _tab_gameplay() -> void:
+ 	_row("difficulty", "Difficulty", "opt", DIFFICULTY)
+ 	_row("cam_sens", "Camera Sensitivity", "slider", [])
+ 	_row("invert_y", "Invert Y Axis", "toggle", [])
++	_row("joystick_size", "Joystick Size", "slider", [], "Size of the on-screen movement stick (touch).")
++	_row("vibration", "Vibration", "toggle", [], "Feel hits and damage on phones.")
+ 	_row("subtitles", "Subtitles", "toggle", [])
+ 	_row("hud_minimap", "HUD: Minimap", "toggle", [])
+ 	_row("hud_compass", "HUD: Compass", "toggle", [])
+@@ -200,7 +203,7 @@ func _tab_controls() -> void:
+ 
+ 
+ func _tab_language() -> void:
+-	_row("language", "Language", "opt", ["English"])
++	_row("language", "Language", "opt", ["English", "Nederlands"])
+ 	for l: String in ["Français", "Deutsch", "Español", "Português", "日本語"]:
+ 		var r := SelRow.new()
+ 		r.setup("", l, "info", [], "Coming soon")
+@@ -213,7 +216,7 @@ func _tab_access() -> void:
+ 	_row("text_size", "Text Size", "opt", ["Small", "Normal", "Large", "Extra Large"])
+ 	_row("colorblind", "Colour-Blind Mode", "opt", ["Off", "Protanopia", "Deuteranopia", "Tritanopia"])
+ 	_row("screen_shake", "Screen Shake", "opt", ["Off", "Reduced", "Full"])
+-	_content.add_child(AF.label("Colour-blind filters are a placeholder and will be applied in a later update.", 15, AF.TEXT_DIM, true))
++	_content.add_child(AF.label("Colour-blind mode shifts the colours so red, green and blue stay easy to tell apart.", 15, AF.TEXT_DIM, true))
+ 
+ 
+ func _on_changed(key: String, value: Variant) -> void:
+diff --git a/kingdom/scripts/ui/frontend/settings_store.gd b/kingdom/scripts/ui/frontend/settings_store.gd
+index 3da02e9a..dcc49fd8 100644
+--- a/kingdom/scripts/ui/frontend/settings_store.gd
++++ b/kingdom/scripts/ui/frontend/settings_store.gd
+@@ -17,11 +17,12 @@ const DEFAULTS := {
+ 	"difficulty": 1, "cam_sens": 50, "invert_y": false, "subtitles": true,
+ 	"hud_minimap": true, "hud_quests": true, "hud_compass": true, "hud_damage": true,
+ 	"language": 0, "text_size": 1, "colorblind": 0, "screen_shake": 2,
++	"render_scale": 100, "joystick_size": 50, "vibration": true,
+ }
+ const SECTION := {
+ 	"resolution": "display", "display_mode": "display", "vsync": "display", "aa": "display",
+ 	"view_distance": "display", "shadows": "display", "textures": "display", "effects": "display",
+-	"fps_limit": "display", "language": "gameplay", "text_size": "access", "colorblind": "access",
++	"fps_limit": "display", "render_scale": "display", "language": "gameplay", "text_size": "access", "colorblind": "access",
+ 	"screen_shake": "access",
+ }
+ const BUSES := {"vol_master": "Master", "vol_music": "Music", "vol_sfx": "SFX", "vol_ambience": "Ambience",
+@@ -115,6 +116,9 @@ static func apply_all(tree: SceneTree, vals := {}, with_preset := false) -> void
+ 		sv.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if aa == 1 else Viewport.SCREEN_SPACE_AA_DISABLED
+ 		sv.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][clampi(aa, 0, 3)]
+ 	apply_controls()
++	var app := tree.root.get_node_or_null("App")
++	if app:
++		app.call("refresh", vals)
+ 
+ 
+ static func is_mobile() -> bool:
+diff --git a/kingdom/scripts/ui/hud.gd b/kingdom/scripts/ui/hud.gd
+index 89ac2b3d..1f7e706f 100644
+--- a/kingdom/scripts/ui/hud.gd
++++ b/kingdom/scripts/ui/hud.gd
+@@ -25,6 +25,7 @@ const Discovery := preload("res://scripts/sim/discovery.gd")
+ const CompassBar := preload("res://scripts/ui/compass.gd")
+ const WorldMap := preload("res://scripts/ui/world_map.gd")
+ const PhotoMode := preload("res://scripts/ui/photo_mode.gd")
++const PauseMenu := preload("res://scripts/ui/frontend/pause_menu.gd")
+ const DiscoveryBanner := preload("res://scripts/ui/discovery_banner.gd")
+ const MapIcons := preload("res://scripts/ui/map_icons.gd")
+ 
+@@ -52,14 +53,14 @@ var _interact_label: Label
+ var _dash_cooldown_label: Label
+ var _order_buttons: Array[TouchScreenButton] = []
+ var _buttons: Dictionary = {}
+-var _loading: ColorRect
+-var _loading_label: Label
++var _loading: Control      # WorldLoading while the world is generated
+ var _needs: Label
+ var _rank: Label
+ var _toast_box: PanelContainer
+ var _menu: PanelContainer
+ var _menu_source: Callable
+ var _pack_button: TouchScreenButton
++var _pause_button: TouchScreenButton
+ var _root: Control
+ var compass: Control               # scripts/ui/compass.gd
+ var banner: Control                # scripts/ui/discovery_banner.gd
+@@ -100,12 +101,13 @@ func _ready() -> void:
+ 	look.anchor_bottom = 1.0
+ 	look.gui_input.connect(func(e: InputEvent) -> void:
+ 		if e is InputEventScreenDrag:
+-			player.add_look(e.relative))
++			player.add_look(e.relative * App.look_scale))
+ 	controls.add_child(look)
+ 	var stick := VirtualJoystick.new()
+ 	stick.anchor_right = 0.4
+ 	stick.anchor_top = 0.3
+ 	stick.anchor_bottom = 1.0
++	stick.size_scale = App.joystick_scale
+ 	stick.moved.connect(func(v: Vector2) -> void: player.touch_move = v)
+ 	controls.add_child(stick)
+ 
+@@ -131,6 +133,8 @@ func _ready() -> void:
+ 	_buttons["zoom_in"] = _button("zoom_in", "+", 58, UITheme.ACTION_UTIL, "")
+ 	_interact = _button("interact", "Talk", 96, UITheme.ACTION_TALK, "hand")
+ 	_pack_button = _button("journal", "", 58, UITheme.ACTION_UTIL, "knapsack")
++	_pause_button = _make_button("", "", 52, UITheme.ACTION_UTIL, UITheme.glyph("pause"))
++	_pause_button.pressed.connect(open_pause)
+ 	_interact_label = _interact.get_child(0)
+ 	_interact.visible = false
+ 	for extra: Array in [["order_retreat", KEY_G], ["order_formation", KEY_B], ["ability_dash", KEY_R]]:
+@@ -219,19 +223,14 @@ func _ready() -> void:
+ 	_menu.visible = false
+ 	root.add_child(_menu)
+ 
+-	_loading = ColorRect.new()
+-	_loading.color = UITheme.BG_SOLID
+-	_loading.set_anchors_preset(Control.PRESET_FULL_RECT)
++	# World-generation veil (backdrop, tips, progress bar; see world_loading.gd).
++	_loading = WorldLoading.new()
+ 	root.add_child(_loading)
+-	_loading_label = _label(_loading, 30, UITheme.ACCENT)
+-	_loading_label.add_theme_font_override("font", UITheme.title_font())
+-	_loading_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+-	_loading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+-	_loading_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+-	_loading_label.text = "Forging the realm..."
+ 
+ 	player.stamina_changed.connect(func(c: float, _m: float) -> void: _stamina.value = c)
+ 	player.health_changed.connect(func(c: int, m: int) -> void:
++		if c < int(_health.value):
++			App.vibrate(35)
+ 		_health.max_value = m
+ 		_health.value = c)
+ 	Game.toast.connect(show_toast)
+@@ -240,13 +239,19 @@ func _ready() -> void:
+ 	_layout()
+ 
+ 
++## True while the world-generation veil is up (it frees itself after fading out).
++func _veil() -> bool:
++	return is_instance_valid(_loading) and _loading.visible
++
++
+ func hide_loading() -> void:
+-	_loading.visible = false
++	WorldLoading.finish()
+ 	world_map.start_bake()      # paint the map terrain in the background now the world exists
+ 
+ 
+-func set_loading_text(text: String) -> void:
+-	_loading_label.text = text
++func set_loading_text(text: String, progress := -1.0) -> void:
++	if _loading is WorldLoading:
++		(_loading as WorldLoading).set_progress(progress, text)
+ 
+ 
+ func _bar(parent: Control, pos: Vector2, color: Color, height: int) -> Meter:
+@@ -308,6 +313,7 @@ func _layout() -> void:
+ 	_buttons["zoom_out"].position = Vector2(col, 152)
+ 	_buttons["view"].position = Vector2(col, 220)
+ 	_pack_button.position = Vector2(col, 288)
++	_pause_button.position = Vector2(col + 3.0, 16.0)
+ 	for i in _order_buttons.size():
+ 		_order_buttons[i].position = Vector2(s.x * 0.5 - 130 + i * 92, s.y - 110)
+ 	# Dock: a column left of the utility column, then further columns, kept clear
+@@ -607,7 +613,7 @@ func set_quest_target(pos: Variant) -> void:
+ 
+ 
+ func _unhandled_input(event: InputEvent) -> void:
+-	if _loading.visible or not visible:
++	if _veil() or not visible:
+ 		return
+ 	if event.is_action_pressed("world_map"):
+ 		toggle_map()
+@@ -615,13 +621,30 @@ func _unhandled_input(event: InputEvent) -> void:
+ 	elif event.is_action_pressed("photo_mode"):
+ 		open_photo_mode()
+ 		get_viewport().set_input_as_handled()
++	elif event.is_action_pressed("ui_cancel"):
++		# Esc, gamepad B and the Android back button: close the open list, else pause.
++		get_viewport().set_input_as_handled()
++		if _menu.visible:
++			close_menu()
++		else:
++			open_pause()
++
++
++## The pause menu (resume, save, load, settings, photo mode, exit to main menu). Esc, the pause button,
++## the Android back button and returning to the app all come here.
++func open_pause() -> void:
++	if _veil() or not visible or _fade.visible or photo_mode.is_active() or world_map.visible \
++			or get_tree().paused or has_node("PauseMenu"):
++		return
++	close_menu()
++	PauseMenu.open(self, open_photo_mode)
+ 
+ 
+ func toggle_map() -> void:
+ 	if world_map.visible:
+ 		world_map.close()
+ 		return
+-	if photo_mode.is_active() or _loading.visible or _fade.visible:
++	if photo_mode.is_active() or _veil() or _fade.visible:
+ 		return
+ 	close_menu()
+ 	world_map.discovery = get_discovery()
+@@ -630,7 +653,7 @@ func toggle_map() -> void:
+ 
+ 
+ func open_photo_mode() -> void:
+-	if photo_mode.is_active() or world_map.visible or _loading.visible or _fade.visible:
++	if photo_mode.is_active() or world_map.visible or _veil() or _fade.visible:
+ 		return
+ 	close_menu()
+ 	_root.visible = false
+@@ -638,7 +661,7 @@ func open_photo_mode() -> void:
+ 
+ 
+ func _process(delta: float) -> void:
+-	if not visible or _loading.visible or player == null or not player.is_inside_tree():
++	if not visible or _veil() or player == null or not player.is_inside_tree():
+ 		return
+ 	_nav_timer -= delta
+ 	if _nav_timer <= 0.0:
+diff --git a/kingdom/scripts/ui/ui_theme.gd b/kingdom/scripts/ui/ui_theme.gd
+index 74f19a6f..e9532ee3 100644
+--- a/kingdom/scripts/ui/ui_theme.gd
++++ b/kingdom/scripts/ui/ui_theme.gd
+@@ -201,6 +201,10 @@ static func glyph(glyph_name: String, size := 96) -> ImageTexture:
+ 				segs.append([body[i] * s, body[(i + 1) % body.size()] * s])
+ 			rings.append([Vector2(0.5, 0.55) * s, s * 0.15])
+ 			discs.append([Vector2(0.78, 0.43) * s, s * 0.035])
++		"pause":
++			for dx in [-0.03, 0.0, 0.03]:
++				segs.append([Vector2(0.36 + dx, 0.27) * s, Vector2(0.36 + dx, 0.73) * s])
++				segs.append([Vector2(0.64 + dx, 0.27) * s, Vector2(0.64 + dx, 0.73) * s])
+ 		"compass":
+ 			rings.append([Vector2(0.5, 0.5) * s, s * 0.38])
+ 			segs.append([Vector2(0.5, 0.22) * s, Vector2(0.58, 0.5) * s])
+diff --git a/kingdom/scripts/ui/virtual_joystick.gd b/kingdom/scripts/ui/virtual_joystick.gd
+index 0b72ca5a..faa2460f 100644
+--- a/kingdom/scripts/ui/virtual_joystick.gd
++++ b/kingdom/scripts/ui/virtual_joystick.gd
+@@ -6,6 +6,8 @@ extends Control
+ signal moved(vector: Vector2)
+ 
+ const RADIUS := 90.0
++## Settings screen "Joystick Size" (0.6-1.4), set by the HUD.
++var size_scale := 1.0
+ const KNOB := 42.0
+ 
+ var output := Vector2.ZERO
+@@ -21,8 +23,12 @@ func _ready() -> void:
+ 	_reset()
+ 
+ 
++func _r() -> float:
++	return RADIUS * size_scale
++
++
+ func _reset() -> void:
+-	_rest_center = Vector2(RADIUS + 70.0, size.y - RADIUS - 70.0)
++	_rest_center = Vector2(_r() + 70.0, size.y - _r() - 70.0)
+ 	if _touch_index == -1:
+ 		_center = _rest_center
+ 		_knob = _center
+@@ -46,21 +52,21 @@ func _gui_input(event: InputEvent) -> void:
+ 
+ 
+ func _update(pos: Vector2) -> void:
+-	var offset := (pos - _center).limit_length(RADIUS)
++	var offset := (pos - _center).limit_length(_r())
+ 	_knob = _center + offset
+-	output = offset / RADIUS
++	output = offset / _r()
+ 	moved.emit(output)
+ 	queue_redraw()
+ 
+ 
+ func _draw() -> void:
+ 	var active := _touch_index != -1
+-	draw_circle(_center, RADIUS, Color(0.05, 0.06, 0.1, 0.38 if active else 0.24))
+-	draw_arc(_center, RADIUS, 0, TAU, 64, Color(1, 1, 1, 0.22), 2.0, true)
++	draw_circle(_center, _r(), Color(0.05, 0.06, 0.1, 0.38 if active else 0.24))
++	draw_arc(_center, _r(), 0, TAU, 64, Color(1, 1, 1, 0.22), 2.0, true)
+ 	if output.length() > 0.05:
+ 		# Direction arc toward the push.
+ 		var a := output.angle()
+-		draw_arc(_center, RADIUS - 3.0, a - 0.5, a + 0.5, 24, UITheme.ACCENT, 4.0, true)
++		draw_arc(_center, _r() - 3.0, a - 0.5, a + 0.5, 24, UITheme.ACCENT, 4.0, true)
+ 	draw_circle(_knob, KNOB + 3.0, Color(0, 0, 0, 0.25))
+ 	draw_circle(_knob, KNOB, Color(1, 1, 1, 0.82 if active else 0.62))
+ 	draw_arc(_knob, KNOB - 1.0, 0, TAU, 48, Color(1, 1, 1, 0.9), 1.5, true)

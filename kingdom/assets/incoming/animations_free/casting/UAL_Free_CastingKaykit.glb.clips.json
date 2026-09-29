@@ -1,0 +1,116 @@
+[
+ {
+  "name": "Cast_Raise_Charge",
+  "loop": false,
+  "seconds": 2.1,
+  "frames": 64,
+  "keys": 464,
+  "source": "Ranged_Magic_Raise",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.371,
+  "min_foot_m": -0.02,
+  "travel_m": 0.01,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Cast_Shoot_1H",
+  "loop": false,
+  "seconds": 0.93,
+  "frames": 29,
+  "keys": 352,
+  "source": "Ranged_Magic_Shoot",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.376,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Cast_Spell_Short",
+  "loop": false,
+  "seconds": 0.67,
+  "frames": 21,
+  "keys": 188,
+  "source": "Ranged_Magic_Spellcasting",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.38,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Cast_Spell_Long",
+  "loop": false,
+  "seconds": 2.53,
+  "frames": 77,
+  "keys": 654,
+  "source": "Ranged_Magic_Spellcasting_Long",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.38,
+  "min_foot_m": -0.02,
+  "travel_m": 0.02,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Cast_Summon",
+  "loop": false,
+  "seconds": 4.3,
+  "frames": 130,
+  "keys": 1156,
+  "source": "Ranged_Magic_Summon",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.398,
+  "min_foot_m": -0.02,
+  "travel_m": 0.02,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Cast_Throw_Orb",
+  "loop": false,
+  "seconds": 1.37,
+  "frames": 42,
+  "keys": 535,
+  "source": "Throw",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.373,
+  "min_foot_m": -0.02,
+  "travel_m": 0.05,
+  "hip_scale": 1.3364
+ }
+]

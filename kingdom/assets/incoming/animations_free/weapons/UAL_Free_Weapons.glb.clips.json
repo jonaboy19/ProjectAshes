@@ -1,0 +1,401 @@
+[
+ {
+  "name": "Weapon_1H_Chop",
+  "loop": false,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 447,
+  "source": "Melee_1H_Attack_Chop",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.377,
+  "min_foot_m": -0.02,
+  "travel_m": 0.01,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_1H_Chop_Jump",
+  "loop": false,
+  "seconds": 1.33,
+  "frames": 41,
+  "keys": 616,
+  "source": "Melee_1H_Attack_Jump_Chop",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.133,
+  "contact_lift_m": 0.222,
+  "min_foot_m": -0.02,
+  "travel_m": 0.11,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_1H_Slice_Diagonal",
+  "loop": false,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 456,
+  "source": "Melee_1H_Attack_Slice_Diagonal",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.374,
+  "min_foot_m": -0.02,
+  "travel_m": 0.09,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_1H_Slice_Horizontal",
+  "loop": false,
+  "seconds": 1.37,
+  "frames": 42,
+  "keys": 492,
+  "source": "Melee_1H_Attack_Slice_Horizontal",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.379,
+  "min_foot_m": -0.02,
+  "travel_m": 0.01,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_1H_Stab",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 475,
+  "source": "Melee_1H_Attack_Stab",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.379,
+  "min_foot_m": -0.02,
+  "travel_m": 0.05,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_2H_Chop",
+  "loop": false,
+  "seconds": 1.63,
+  "frames": 50,
+  "keys": 537,
+  "source": "Melee_2H_Attack_Chop",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.372,
+  "min_foot_m": -0.02,
+  "travel_m": 0.09,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_2H_Slice",
+  "loop": false,
+  "seconds": 1.1,
+  "frames": 34,
+  "keys": 484,
+  "source": "Melee_2H_Attack_Slice",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.365,
+  "min_foot_m": -0.02,
+  "travel_m": 0.04,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_2H_Spin",
+  "loop": false,
+  "seconds": 2.4,
+  "frames": 73,
+  "keys": 686,
+  "source": "Melee_2H_Attack_Spin",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.371,
+  "min_foot_m": -0.02,
+  "travel_m": 0.04,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_2H_Spinning",
+  "loop": false,
+  "seconds": 0.67,
+  "frames": 21,
+  "keys": 267,
+  "source": "Melee_2H_Attack_Spinning",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.362,
+  "min_foot_m": -0.02,
+  "travel_m": 0.06,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_2H_Stab",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 445,
+  "source": "Melee_2H_Attack_Stab",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.39,
+  "min_foot_m": -0.02,
+  "travel_m": 0.07,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_Block",
+  "loop": false,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 277,
+  "source": "Melee_Block",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.37,
+  "min_foot_m": -0.02,
+  "travel_m": 0.09,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_Block_Attack",
+  "loop": false,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 447,
+  "source": "Melee_Block_Attack",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.357,
+  "min_foot_m": -0.02,
+  "travel_m": 0.02,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_Block_Hit",
+  "loop": false,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 247,
+  "source": "Melee_Block_Hit",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.372,
+  "min_foot_m": -0.02,
+  "travel_m": 0.04,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_DW_Chop",
+  "loop": false,
+  "seconds": 1.27,
+  "frames": 39,
+  "keys": 562,
+  "source": "Melee_Dualwield_Attack_Chop",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.379,
+  "min_foot_m": -0.02,
+  "travel_m": 0.05,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_DW_Slice",
+  "loop": false,
+  "seconds": 1.17,
+  "frames": 36,
+  "keys": 484,
+  "source": "Melee_Dualwield_Attack_Slice",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.375,
+  "min_foot_m": -0.02,
+  "travel_m": 0.09,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Weapon_DW_Stab",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 481,
+  "source": "Melee_Dualwield_Attack_Stab",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.366,
+  "min_foot_m": -0.02,
+  "travel_m": 0.07,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "MA_KK_Kick",
+  "loop": false,
+  "seconds": 0.93,
+  "frames": 29,
+  "keys": 468,
+  "source": "Melee_Unarmed_Attack_Kick",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.342,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "MA_KK_Punch",
+  "loop": false,
+  "seconds": 1.17,
+  "frames": 36,
+  "keys": 496,
+  "source": "Melee_Unarmed_Attack_Punch_A",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.371,
+  "min_foot_m": -0.02,
+  "travel_m": 0.09,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "MA_KK_Idle_Loop",
+  "loop": true,
+  "seconds": 1.07,
+  "frames": 33,
+  "keys": 159,
+  "source": "Melee_Unarmed_Idle",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.342,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Hit_KK_A",
+  "loop": false,
+  "seconds": 0.67,
+  "frames": 21,
+  "keys": 239,
+  "source": "Hit_A",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.378,
+  "min_foot_m": -0.02,
+  "travel_m": 0.02,
+  "hip_scale": 1.3364
+ },
+ {
+  "name": "Hit_KK_B",
+  "loop": false,
+  "seconds": 0.87,
+  "frames": 27,
+  "keys": 359,
+  "source": "Hit_B",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.368,
+  "min_foot_m": -0.02,
+  "travel_m": 0.05,
+  "hip_scale": 1.3364
+ }
+]

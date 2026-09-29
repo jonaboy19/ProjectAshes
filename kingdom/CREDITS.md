@@ -120,3 +120,14 @@ CC0 (no attribution required; credited with thanks): 53 market props (39 + 14 pi
 
 ## In-game tabbed menu icons (added 2026-09-29)
 - **Game icons** for the inventory, character, skills, quest, map and journal menu (assets/ui/icons/gm and assets/ui/icons/items) from game-icons.net, CC BY 3.0, recoloured to white. Authors: **Lorc**, **Delapouite**, **Skoll**, **Willdabeast**, **Caro Asercion**, **Irongamer**, **SBed**, **Seregacthtuf**, **Zeromancer**.
+
+### Free addons added 2026-09-29 (local PC session; see `docs/addons/README.md`)
+- **Phantom Camera** (c) 2023-2026 Marcus Skov (ramokz), MIT (https://github.com/ramokz/phantom-camera), v0.11.0.3, `kingdom/addons/phantom_camera/`.
+- **Godot Debug Menu** (c) 2022-2025 Hugo Locurcio and contributors (Calinou), MIT (https://github.com/godot-extended-libraries/godot-debug-menu), `kingdom/addons/debug_menu/`.
+- **Godot Material Footsteps** (c) 2025 COOKIE-POLICE, MIT (https://github.com/COOKIE-POLICE/godot-material-footsteps), v1.0.0, `kingdom/addons/godot_material_footsteps/`.
+- **SimpleGrassTextured** (c) 2023-2026 IcterusGames, MIT (https://github.com/IcterusGames/SimpleGrassTextured), v2.1.0, `kingdom/addons/simplegrasstextured/`. Its bundled demo texture `textures/grassbushcc008.png` has no recorded source, so it must not ship: use our own grass texture.
+- **VoronoiShatter** (c) Robert Varadan, MIT (https://github.com/robertvaradan/voronoishatter), v0.3, `kingdom/addons/voronoishatter/`.
+- **Sentry SDK for Godot** (c) Functional Software, Inc. dba Sentry, MIT (https://github.com/getsentry/sentry-godot), v2.2.0. Installed on demand by `tools/install_sentry.sh` (binaries are not committed); no data is sent without a DSN.
+- Octahedral impostors (`kingdom/tools/impostors/impostor_baker.gd`, `kingdom/assets/generated/impostors/impostor_octa.gdshader`) are our own implementation of the public octahedral-impostor technique (Ryan Brucks / Shaderbits, https://www.shaderbits.com/blog/octahedral-impostors); the MIT **Godot-Octahedral-Impostors** by wojtekpil (https://github.com/wojtekpil/Godot-Octahedral-Impostors) and its Godot 4.0 port (belzecue) were evaluated as references but not used (they don't run on 4.6). No code copied.
+- **KayKit Character Animations 1.1** (Kay Lousberg, https://kaylousberg.com), CC0 1.0. Clips retargeted to the UAL skeleton in `kingdom/assets/incoming/animations_free2/kaykit_*` (prefix `Kay_`); licence copy `animations_free2/LICENSE_KayKit.txt`. Credit optional: "Kay Lousberg, www.kaylousberg.com".
+- Traversal clips (ladder, wall, ledge, vault, horse riding) in `animations_free2/traversal_authored/` are our own Blender-IK authored work on the CC0 Quaternius UAL rig.

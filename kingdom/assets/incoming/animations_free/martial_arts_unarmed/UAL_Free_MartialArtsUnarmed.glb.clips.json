@@ -1,0 +1,382 @@
+[
+ {
+  "name": "MA_Punch_Cross_R_Head_A",
+  "loop": false,
+  "seconds": 2.03,
+  "frames": 62,
+  "keys": 1103,
+  "source": "013/13_18.bvh",
+  "range_s": [
+   0.26,
+   2.32
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.014,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.13,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "MA_Punch_Cross_R_Head_B",
+  "loop": false,
+  "seconds": 2.6,
+  "frames": 79,
+  "keys": 1362,
+  "source": "014/14_03.bvh",
+  "range_s": [
+   0.33,
+   2.93
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.02,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.29,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "MA_Punch_Cross_R_Head_C",
+  "loop": false,
+  "seconds": 1.87,
+  "frames": 57,
+  "keys": 946,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   14.22,
+   16.09
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.022,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.04,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "MA_Punch_Cross_L_Head",
+  "loop": false,
+  "seconds": 2.03,
+  "frames": 62,
+  "keys": 1103,
+  "source": "013/13_18.bvh",
+  "range_s": [
+   0.26,
+   2.32
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.014,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.13,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "MA_Punch_Jab_L_Head_A",
+  "loop": false,
+  "seconds": 1.57,
+  "frames": 48,
+  "keys": 788,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   63.9,
+   65.49
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.01,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.08,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "MA_Punch_Jab_L_Head_B",
+  "loop": false,
+  "seconds": 1.9,
+  "frames": 58,
+  "keys": 933,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   67.39,
+   69.32
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.012,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.03,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "MA_Punch_Jab_R_Head",
+  "loop": false,
+  "seconds": 1.57,
+  "frames": 48,
+  "keys": 788,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   63.9,
+   65.49
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.01,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.08,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "MA_Punch_Cross_R_Body",
+  "loop": false,
+  "seconds": 1.73,
+  "frames": 53,
+  "keys": 899,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   5.54,
+   7.29
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.022,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.05,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "MA_Punch_Jab_L_Body",
+  "loop": false,
+  "seconds": 1.67,
+  "frames": 51,
+  "keys": 812,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   54.0,
+   55.67
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.019,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.03,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "MA_Punch_Heavy_R_A",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 807,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   12.59,
+   14.22
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.022,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.1,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "MA_Punch_Heavy_R_B",
+  "loop": false,
+  "seconds": 2.2,
+  "frames": 67,
+  "keys": 1062,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   32.67,
+   34.87
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.023,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.07,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "MA_Punch_Heavy_R_C",
+  "loop": false,
+  "seconds": 1.63,
+  "frames": 50,
+  "keys": 831,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   42.73,
+   44.37
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.022,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.02,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "MA_Punch_Heavy_L_A",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 807,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   12.59,
+   14.22
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.022,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.1,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "MA_Punch_Heavy_L_B",
+  "loop": false,
+  "seconds": 2.2,
+  "frames": 67,
+  "keys": 1062,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   32.67,
+   34.87
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.023,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.07,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "MA_Punch_Heavy_R_D",
+  "loop": false,
+  "seconds": 1.97,
+  "frames": 60,
+  "keys": 977,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   16.09,
+   18.06
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.023,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.05,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "MA_Punch_Heavy_R_E",
+  "loop": false,
+  "seconds": 1.67,
+  "frames": 51,
+  "keys": 826,
+  "source": "014/14_01.bvh",
+  "range_s": [
+   6.03,
+   7.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.03,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "MA_Punch_Heavy_L_C",
+  "loop": false,
+  "seconds": 1.97,
+  "frames": 60,
+  "keys": 977,
+  "source": "015/15_13.bvh",
+  "range_s": [
+   16.09,
+   18.06
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.023,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.05,
+  "hip_scale": 0.0505
+ },
+ {
+  "name": "MA_Punch_Heavy_L_D",
+  "loop": false,
+  "seconds": 1.67,
+  "frames": 51,
+  "keys": 826,
+  "source": "014/14_01.bvh",
+  "range_s": [
+   6.03,
+   7.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.03,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "MA_Punch_Heavy_R_Body",
+  "loop": false,
+  "seconds": 2.17,
+  "frames": 66,
+  "keys": 1179,
+  "source": "014/14_01.bvh",
+  "range_s": [
+   36.4,
+   38.57
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.017,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.19,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "MA_Kick_Front_R_Quick",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 846,
+  "source": "143/143_24.bvh",
+  "range_s": [
+   1.92,
+   3.52
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.019,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.12,
+  "hip_scale": 0.0592
+ }
+]

@@ -1,0 +1,629 @@
+[
+ {
+  "name": "Kay_Work_Chop_Tree",
+  "loop": false,
+  "seconds": 4.33,
+  "frames": 131,
+  "keys": 1008,
+  "source": "Chop",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.14,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Chop_Tree",
+  "loop": true,
+  "seconds": 1.33,
+  "frames": 41,
+  "keys": 364,
+  "source": "Chopping",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.14,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Dig",
+  "loop": false,
+  "seconds": 4.67,
+  "frames": 141,
+  "keys": 1235,
+  "source": "Dig",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.127,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.019,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Dig",
+  "loop": true,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 435,
+  "source": "Digging",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.127,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.019,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Mine",
+  "loop": false,
+  "seconds": 6.03,
+  "frames": 182,
+  "keys": 1056,
+  "source": "Pickaxe",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.074,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Mine",
+  "loop": true,
+  "seconds": 3.73,
+  "frames": 113,
+  "keys": 618,
+  "source": "Pickaxing",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.074,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Hammer",
+  "loop": false,
+  "seconds": 4.33,
+  "frames": 131,
+  "keys": 585,
+  "source": "Hammer",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.07,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Hammer",
+  "loop": true,
+  "seconds": 2.67,
+  "frames": 81,
+  "keys": 336,
+  "source": "Hammering",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.068,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Saw",
+  "loop": false,
+  "seconds": 2.4,
+  "frames": 73,
+  "keys": 749,
+  "source": "Saw",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.087,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Saw",
+  "loop": true,
+  "seconds": 0.67,
+  "frames": 21,
+  "keys": 277,
+  "source": "Sawing",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.087,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Lockpick",
+  "loop": false,
+  "seconds": 3.0,
+  "frames": 91,
+  "keys": 501,
+  "source": "Lockpick",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.066,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Lockpick",
+  "loop": true,
+  "seconds": 2.33,
+  "frames": 71,
+  "keys": 274,
+  "source": "Lockpicking",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.062,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Bench_A",
+  "loop": false,
+  "seconds": 2.53,
+  "frames": 77,
+  "keys": 533,
+  "source": "Work_A",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.088,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Bench_B",
+  "loop": false,
+  "seconds": 3.1,
+  "frames": 94,
+  "keys": 484,
+  "source": "Work_B",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Bench_C",
+  "loop": false,
+  "seconds": 3.67,
+  "frames": 111,
+  "keys": 509,
+  "source": "Work_C",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.085,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Bench_A",
+  "loop": true,
+  "seconds": 1.5,
+  "frames": 46,
+  "keys": 321,
+  "source": "Working_A",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.088,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Bench_B",
+  "loop": true,
+  "seconds": 2.53,
+  "frames": 77,
+  "keys": 429,
+  "source": "Working_B",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Work_Bench_C",
+  "loop": true,
+  "seconds": 2.0,
+  "frames": 61,
+  "keys": 249,
+  "source": "Working_C",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.085,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Hold_Item_A",
+  "loop": true,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 142,
+  "source": "Holding_A",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.044,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Hold_Item_B",
+  "loop": true,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 130,
+  "source": "Holding_B",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.046,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Hold_Item_C",
+  "loop": true,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 132,
+  "source": "Holding_C",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.077,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Fishing_Cast",
+  "loop": false,
+  "seconds": 1.93,
+  "frames": 59,
+  "keys": 531,
+  "source": "Fishing_Cast",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.086,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.03,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Fishing_Idle",
+  "loop": true,
+  "seconds": 2.33,
+  "frames": 71,
+  "keys": 131,
+  "source": "Fishing_Idle",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.039,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Fishing_Bite",
+  "loop": false,
+  "seconds": 2.23,
+  "frames": 68,
+  "keys": 357,
+  "source": "Fishing_Bite",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.12,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Fishing_Tug",
+  "loop": false,
+  "seconds": 1.9,
+  "frames": 58,
+  "keys": 169,
+  "source": "Fishing_Tug",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.038,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Fishing_Reel",
+  "loop": true,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 278,
+  "source": "Fishing_Reeling",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.078,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Fishing_Struggle",
+  "loop": false,
+  "seconds": 3.43,
+  "frames": 104,
+  "keys": 659,
+  "source": "Fishing_Struggling",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.132,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.018,
+  "travel_m": 0.09,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Fishing_Catch",
+  "loop": false,
+  "seconds": 3.23,
+  "frames": 98,
+  "keys": 450,
+  "source": "Fishing_Catch",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.079,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.02,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Emote_Cheer",
+  "loop": true,
+  "seconds": 1.67,
+  "frames": 51,
+  "keys": 548,
+  "source": "Cheering",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.072,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.001,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Emote_Wave",
+  "loop": true,
+  "seconds": 2.13,
+  "frames": 65,
+  "keys": 364,
+  "source": "Waving",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.044,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Interact_Reach",
+  "loop": false,
+  "seconds": 1.3,
+  "frames": 40,
+  "keys": 288,
+  "source": "Interact",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.067,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Pick_Up_Ground",
+  "loop": false,
+  "seconds": 1.3,
+  "frames": 40,
+  "keys": 334,
+  "source": "PickUp",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.097,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.022,
+  "travel_m": 0.01,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Use_Item_Kay",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 265,
+  "source": "Use_Item",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.037,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ }
+]

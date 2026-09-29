@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/incoming/vfx_free/kenney_particle_pack/circle_05.png" id="1_6x8as"]
+
+[resource]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+disable_fog = true
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("1_6x8as")
+disable_receive_shadows = true

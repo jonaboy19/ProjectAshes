@@ -1,0 +1,14 @@
+{
+	"atlas_px": 1024,
+	"center": [
+		0.0125625133514404,
+		8.92093467712402,
+		0.0327081680297852
+	],
+	"grid": 8,
+	"impostor_tris": 2,
+	"radius": 10.3310489654541,
+	"source": "res://assets/generated/bell_tower.glb",
+	"source_tris": 10459,
+	"tile": 128
+}

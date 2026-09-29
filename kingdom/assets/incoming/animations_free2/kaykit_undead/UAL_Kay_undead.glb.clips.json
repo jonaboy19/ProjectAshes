@@ -1,0 +1,173 @@
+[
+ {
+  "name": "Kay_Undead_Idle",
+  "loop": true,
+  "seconds": 4.27,
+  "frames": 129,
+  "keys": 484,
+  "source": "Skeletons_Idle",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.123,
+  "min_foot_m": -0.02,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Undead_Walk",
+  "loop": true,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 488,
+  "source": "Skeletons_Walking",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.075,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.012,
+  "travel_m": 0.0,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Undead_Taunt",
+  "loop": false,
+  "seconds": 1.03,
+  "frames": 32,
+  "keys": 451,
+  "source": "Skeletons_Taunt",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.053,
+  "contact_lift_m": 0.115,
+  "min_foot_m": -0.014,
+  "travel_m": 0.05,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Undead_Taunt_Long",
+  "loop": false,
+  "seconds": 3.0,
+  "frames": 91,
+  "keys": 853,
+  "source": "Skeletons_Taunt_Longer",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.114,
+  "contact_lift_m": 0.053,
+  "min_foot_m": -0.02,
+  "travel_m": 0.05,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Undead_Awaken_Stand",
+  "loop": false,
+  "seconds": 1.0,
+  "frames": 31,
+  "keys": 437,
+  "source": "Skeletons_Awaken_Standing",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.031,
+  "contact_lift_m": 0.198,
+  "min_foot_m": -0.02,
+  "travel_m": 1.35,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Undead_Awaken_Floor",
+  "loop": false,
+  "seconds": 2.3,
+  "frames": 70,
+  "keys": 683,
+  "source": "Skeletons_Awaken_Floor",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 1.029,
+  "min_foot_m": -0.02,
+  "travel_m": 0.5,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Undead_Collapse",
+  "loop": false,
+  "seconds": 2.0,
+  "frames": 61,
+  "keys": 496,
+  "source": "Skeletons_Death",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.93,
+  "min_foot_m": -0.069,
+  "travel_m": 4.65,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Undead_Resurrect",
+  "loop": false,
+  "seconds": 2.7,
+  "frames": 82,
+  "keys": 681,
+  "source": "Skeletons_Death_Resurrect",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.954,
+  "min_foot_m": -0.051,
+  "travel_m": 5.65,
+  "hip_scale": 3.1218
+ },
+ {
+  "name": "Kay_Undead_Rise_Ground",
+  "loop": false,
+  "seconds": 3.57,
+  "frames": 108,
+  "keys": 991,
+  "source": "Skeletons_Spawn_Ground",
+  "range_s": [
+   null,
+   null
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 9.935,
+  "min_foot_m": -0.02,
+  "travel_m": 0.43,
+  "hip_scale": 3.1218
+ }
+]
