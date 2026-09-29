@@ -40,6 +40,9 @@ PREVIEW_DIR = os.path.join(REPO, "docs", "kingdom", "blender_previews")
 AMBIENTCG = os.path.join(KINGDOM, "assets", "incoming", "ambientcg")
 
 ATLAS = 1024
+HEAD_TRIS = 1350
+EYE_SCALE = 1.2
+HAND_TRIS = 170
 # Atlas regions (u0, v0, u1, v1), v up (Blender convention).
 REG = {
     "skin": (0.0, 0.5, 0.5, 1.0),
@@ -417,7 +420,7 @@ def build_atlas(base):
         hi += rng.uniform(0.3, 0.9) * np.exp(-(d / wd) ** 2)
     hi = np.clip(hi, 0, 1)
     sheen = np.exp(-((ys - 0.36) / 0.09) ** 2) * (0.55 + 0.45 * vnoise((h, w), 2, 9, 64, 2))
-    alb = 0.66 * (0.82 + 0.18 * clump) * (1 - 0.45 * line) + 0.34 * hi * (0.35 + 0.65 * sheen) + 0.16 * sheen * (1 - line)
+    alb = 0.58 * (0.80 + 0.20 * clump) * (1 - 0.50 * line) + 0.52 * hi * (0.45 + 0.75 * sheen) + 0.24 * sheen * (1 - line)
     alb *= 0.86 + 0.14 * smoothstep(0.0, 0.22, ys)                      # dark parting at the crown
     alb = np.clip(alb, 0, 1)
     put("hair", np.repeat(alb[..., None], 3, 2), height_to_normal(-line * 0.5 + hi * 0.3 + clump * 0.2, 3.5))
@@ -534,27 +537,27 @@ def skin_paint(base, put, O):
     lower = np.exp(-((ell - 1.05) / 0.10) ** 2) * (pz <= eye_z - 0.002) * 0.22
     crease = np.exp(-(((np.sqrt((ex / 0.019) ** 2 + ((pz - (eye_z + 0.0075)) / 0.0115) ** 2)) - 1.0) / 0.2) ** 2) * (pz > eye_z + 0.004) * 0.28
     lash = np.clip(upper + lower, 0, 1) * fh
-    skin *= (1 - lash[..., None] * 0.8)
+    skin *= (1 - lash[..., None] * 0.55)
     skin *= (1 - (crease * fh)[..., None] * np.array([0.35, 0.45, 0.5], np.float32))
     # eyebrows: bold tapered arcs
     s = (ax - (eye_x - 0.020)) / 0.052
     zc = eye_z + 0.0225 + 0.007 * np.sin(np.clip(s, 0, 1) * math.pi * 0.85) - 0.0045 * s
-    half = 0.0034 * (1 - np.clip(s, 0, 1) ** 1.3) + 0.0012
+    half = 0.0030 * (1 - np.clip(s, 0, 1) ** 1.3) + 0.0011
     d = np.abs(pz - zc)
     brow = (1 - smoothstep(half * 0.55, half * 1.2, d)) * smoothstep(-0.08, 0.06, s) * (1 - smoothstep(0.85, 1.05, s))
     hairy = vnoise((S, S), 60, 180, 83, 2)
     brow *= (0.75 + 0.25 * hairy) * fh
-    skin *= (1 - brow[..., None] * np.array([0.62, 0.68, 0.76], np.float32))
+    skin *= (1 - brow[..., None] * np.array([0.5, 0.56, 0.64], np.float32))
     # nostrils / nose wings shading
     nos = np.exp(-((((ax - 0.0085) / 0.005) ** 2) + ((pz - (eye_z - 0.0525)) / 0.0036) ** 2)) * fh
-    skin *= (1 - 0.40 * nos[..., None])
+    skin *= (1 - 0.0 * nos[..., None])
     wing = np.exp(-((((ax - 0.0175) / 0.006) ** 2) + ((pz - (eye_z - 0.047)) / 0.008) ** 2)) * fh
     skin *= (1 - 0.08 * wing[..., None])
     # lips: rose colour, darker mouth line, brighter lower lip
     lipc = np.array([0.82, 0.52, 0.56], np.float32)
     skin = skin * (1 - lips[..., None]) + skin * lipc * lips[..., None]
-    mline = np.exp(-(((pz - mo[2]) / 0.0016) ** 2)) * (ax < 0.02) * fh * (1 - smoothstep(0.012, 0.02, ax) * 0.6)
-    skin *= (1 - 0.42 * mline[..., None])
+    mline = np.exp(-(((pz - (mo[2] + 0.0035 * np.clip(ax / 0.02, 0, 1.3) ** 2)) / 0.0016) ** 2)) * (ax < 0.022) * fh * (1 - smoothstep(0.012, 0.02, ax) * 0.6)
+    skin *= (1 - 0.34 * mline[..., None])
     lowlip = np.exp(-((ax / 0.012) ** 2 + ((pz - (mo[2] - 0.0075)) / 0.0035) ** 2)) * fh
     skin *= (1 + 0.06 * lowlip)[..., None]
     skin = skin * (1 - nails[..., None] * 0.5) + np.array([1.0, 0.93, 0.9], np.float32) * nails[..., None] * 0.5
@@ -610,7 +613,9 @@ class Human:
                                weight=r.get("weight", 0.5), height=r.get("height", 0.5),
                                proportions=r.get("proportions", 0.6), race=r["race"],
                                cupsize=r.get("cup", 0.5), firmness=r.get("firm", 0.5))
-        extras = {"eyes/l-eye-scale-incr": 0.18, "eyes/r-eye-scale-incr": 0.18,
+        extras = {"eyes/l-eye-scale-incr": 0.55, "eyes/r-eye-scale-incr": 0.55,
+                  "eyes/l-eye-height2-incr": 0.25, "eyes/r-eye-height2-incr": 0.25,
+                  "mouth/mouth-angles-up": 0.6,
                   "mouth/mouth-upperlip-volume-incr": 0.2, "mouth/mouth-lowerlip-volume-incr": 0.2}
         extras.update(r.get("extras", {}))
         v = mh.morph(base, stack, extras)
@@ -665,7 +670,7 @@ class Human:
         sw = WU.sum(axis=1, keepdims=True)
         self.W = np.where(sw > 0, WU / np.maximum(sw, 1e-9), 0)
         self.dom = np.array([BONES[i] for i in self.W.argmax(axis=1)])
-        self._stylise(r.get("stylise", {"Head": 1.06, "hand": 1.12, "foot": 1.08}))
+        self._stylise(r.get("stylise", {"Head": 1.13, "hand": 1.2, "foot": 1.08}))
         # body topology
         self.fidx = base.faces_of_group("body")
         self.faces = [base.faces[i] for i in self.fidx]
@@ -2095,7 +2100,7 @@ def g_cloak(h, r, pal, parts, hood="down", pal_key="cloak", collar_roll=True, wa
     t_waist = np.clip((top - belt_z(h)) / max(top - hem, 1e-6), 0, 1) if waist_hug else 0.0
     rings = []
     prev = None
-    zs_ = []
+    zs_, phis_, row_r, row_min = [], [], [], []
     for i, z in enumerate(zs):
         t = i / (rows - 1)
         phmax = math.radians(160 - 55 * min(1, t * 2.2))
@@ -2115,7 +2120,7 @@ def g_cloak(h, r, pal, parts, hood="down", pal_key="cloak", collar_roll=True, wa
             below = max(0.0, (t - t_waist) / max(1 - t_waist, 1e-6))
             r_ = env + 0.022 + 0.012 * below
         else:
-            r_ = env + 0.03 + 0.05 * t
+            r_ = env + 0.03 + r.get("cloak_flare", 0.05) * t
         if prev is not None and not waist_hug:
             # A draped cloak only ever gets wider going down; a fitted coat
             # must be free to narrow again below a waistcoat/hem bulge it had
@@ -2124,7 +2129,20 @@ def g_cloak(h, r, pal, parts, hood="down", pal_key="cloak", collar_roll=True, wa
             r_ = np.maximum(r_, prev * 0.985)
         r_ += 0.01 * t * np.sin(phis * 7 + 1.3)
         prev = r_
-        rings.append(np.stack([np.sin(phis) * r_, cy + np.cos(phis) * r_, np.full(segs, z)], axis=1))
+        row_r.append(r_.copy())
+        row_min.append((env + (0.008 if waist_hug else 0.0)).copy())
+        zs_.append(z)
+        phis_.append(phis)
+    if waist_hug:
+        # straight knee-length coat: below the hips the radius is held at the hip radius (no bell)
+        z_hip = h.z("pelvis") - 0.02
+        i_hip = int(np.argmin([abs(z - z_hip) for z in zs_]))
+        i_w = int(np.argmin([abs(z - belt_z(h)) for z in zs_]))
+        Rc = np.max(np.array(row_r[i_w:i_hip + 1]), axis=0)        # widest radius per direction, waist..hip
+        for i in range(i_w + 1, rows):
+            row_r[i] = np.maximum(row_min[i], Rc * (1.0 - 0.010 * (i - i_w) / max(1, rows - 1 - i_w)))
+    for i in range(rows):
+        rings.append(np.stack([np.sin(phis_[i]) * row_r[i], cy + np.cos(phis_[i]) * row_r[i], np.full(segs, zs_[i])], axis=1))
     rings = np.array(rings)
     V, F, UV = loft(rings, closed=False)
     n = len(V)
@@ -2154,6 +2172,15 @@ def g_cloak(h, r, pal, parts, hood="down", pal_key="cloak", collar_roll=True, wa
     g = dirt(h, V2, 0.3, hem, r["seed"] + 11, knees=False)
     col = paint(pal[pal_key], len(V2), g, 0.03, r["seed"])
     col[n:] *= 0.62
+    if pal.get("cloak_trim") is not None and not waist_hug:
+        # contrasting painted edge band along the hem and both front edges (matches the guard tabard trim)
+        tc = paint(pal["cloak_trim"], 1, None, 0.0, 0)[0]
+        idx = np.arange(n)
+        ri, ji = idx // segs, idx % segs
+        band_ = (ri >= rows - 1) | (ji <= 0) | (ji >= segs - 1)
+        col[:n][band_] = tc
+        # inside face of the edge band too
+        col[n:][band_] = tc * 0.62
     parts.append(Part(pal_key, V2, F2, uvs, W, col, "felt", r.get("cloak_budget", 900) if waist_hug else None))
     if hood == "down" and collar_roll:
         # bunched hood lying on the shoulders/back (a thick collar roll)
@@ -2214,12 +2241,14 @@ def hair_lock_geom(h, spec, capd, seed):
     """One tapered hair clump (flat lens cross-section) lying on the scalp:
     path = strand direction radiating from the crown (fixed azimuth phi, polar
     angle th0 -> th1), snapped to the skin by ray casting and lifted by the cap
-    thickness. Returns (V, F, UV) with hair-tile UVs (strand grooves run along the lock)."""
+    thickness. The tip narrows to a point and flicks off the scalp (`lift`).
+    Returns (V, F, UV, t) with hair-tile UVs (strand grooves run along the lock)
+    and t = 0 (root) .. 1 (tip) per vertex, used for the painted root-to-tip gradient."""
     phi, th0, th1, width, thick, lift = spec[:6]
     twist = spec[6] if len(spec) > 6 else 0.0
     ez = (h.eye_l[2] + h.eye_r[2]) / 2
     c = Vector((0.0, h.head_c[1], ez + 0.03))
-    steps = 5
+    steps = 4
     pts, nrm = [], []
     for k in range(steps + 1):
         t = k / steps
@@ -2227,22 +2256,22 @@ def hair_lock_geom(h, spec, capd, seed):
         ph = math.radians(phi + twist * t)
         d = Vector((math.sin(th) * math.sin(ph), -math.sin(th) * math.cos(ph), math.cos(th)))
         loc, n, _, _ = h.bvh.ray_cast(c + d * 0.5, -d)
-        if loc is None:
+        if loc is None or (loc - c).length > 0.17:       # missed the skull (hit a shoulder / arm)
             loc, n = c + d * 0.09, d
         off = capd(loc[2]) + 0.004 + lift * t ** 2
         pts.append(np.array(loc) + np.array(n) * off)
         nrm.append(np.array(n))
     pts = np.array(pts); nrm = np.array(nrm)
     rings = []
-    A = 5
+    A = 4
     for k in range(steps + 1):
         t = k / steps
         tg = pts[min(k + 1, steps)] - pts[max(k - 1, 0)]
         tg /= max(np.linalg.norm(tg), 1e-9)
         n = nrm[k] - tg * np.dot(nrm[k], tg); n /= max(np.linalg.norm(n), 1e-9)
         b = np.cross(n, tg); b /= max(np.linalg.norm(b), 1e-9)
-        wk = width * (0.6 + 0.4 * math.sin(min(1, t * 2.2) * math.pi / 2)) * (1 - 0.62 * t ** 2.0)
-        tk = thick * (1 - 0.5 * t ** 2)
+        wk = width * (0.62 + 0.38 * math.sin(min(1, t * 2.0) * math.pi / 2)) * (1 - 0.9 * t ** 2.3)
+        tk = thick * (1 - 0.55 * t ** 2)
         ring = [pts[k] + b * wk * math.cos(2 * math.pi * a / A) + n * tk * (0.6 + 0.4 * math.sin(2 * math.pi * a / A)) * (1 if math.sin(2 * math.pi * a / A) > 0 else 0.5)
                 for a in range(A)]
         rings.append(ring)
@@ -2251,21 +2280,125 @@ def hair_lock_geom(h, spec, capd, seed):
     u0 = rng.uniform(0.05, 0.8)
     UV = fullmap_uv(UV)
     UV = [[(u0 + 0.12 * u, 0.1 + 0.6 * (1 - v)) for (u, v) in f] for f in UV]
-    return V, F, UV
+    tv = np.repeat(np.linspace(0, 1, steps + 1), A)
+    return V, F, UV, tv
 
 
 def hair_locks(h, specs, capd, color, seed, name="hair_locks"):
     if not specs:
         return None
-    Vs, Fs, UVs, off = [], [], [], 0
+    Vs, Fs, UVs, Ts, off = [], [], [], [], 0
     for i, s in enumerate(specs):
-        V, F, UV = hair_lock_geom(h, s, capd, seed + i * 7)
+        V, F, UV, tv = hair_lock_geom(h, s, capd, seed + i * 7)
         Vs.append(V); Fs += [tuple(x + off for x in f) for f in F]; UVs += UV
+        Ts.append(tv)
         off += len(V)
     V = np.concatenate(Vs)
+    tv = np.concatenate(Ts)
     W = np.tile(one_hot("Head"), (len(V), 1))
-    col = paint(color, len(V), None, 0.10, seed)
+    col = paint(color, len(V), None, 0.16, seed)
+    # painted root-to-tip gradient: darker roots, bright glossy tips (reads as strand highlights)
+    gain = 0.72 + 1.0 * tv ** 1.4
+    col = np.clip(col * gain[:, None] * np.array([1.0, 1.02, 1.05])[None, :], 0, 1.0)
     return Part(name, V, Fs, UVs, W, col, "hair", None)
+
+
+def braid_part(h, name, path, r0, r1, color, seed, segs=6, spacing=0.026, bands=True, wt=None):
+    """Plaited braid along `path`: rings every `spacing` m, cross-section lumps that rotate
+    from ring to ring (diagonal plait ridges) and alternating light/dark bands."""
+    path = np.array(path, float)
+    seglen = np.linalg.norm(np.diff(path, axis=0), axis=1)
+    cum = np.concatenate([[0], np.cumsum(seglen)])
+    n = max(4, int(cum[-1] / spacing) + 1)
+    ss = np.linspace(0, cum[-1], n)
+    pp = np.stack([np.interp(ss, cum, path[:, i]) for i in range(3)], axis=1)
+    rings, tvals = [], []
+    for k in range(n):
+        t = k / (n - 1)
+        tg = pp[min(k + 1, n - 1)] - pp[max(k - 1, 0)]
+        tg /= max(np.linalg.norm(tg), 1e-9)
+        a = np.cross(tg, [1, 0, 0])
+        if np.linalg.norm(a) < 1e-3:
+            a = np.cross(tg, [0, 1, 0])
+        a /= np.linalg.norm(a)
+        b = np.cross(tg, a)
+        rad = r0 + (r1 - r0) * t
+        ring = []
+        for j in range(segs):
+            ph = 2 * math.pi * j / segs
+            lump = 1 + 0.30 * math.cos(ph * 2 - k * 1.25)
+            ring.append(pp[k] + (a * math.cos(ph) + b * math.sin(ph)) * rad * lump)
+        rings.append(ring)
+        tvals.append(t)
+    V, F, UV = loft(np.array(rings), closed=True)
+    tip = len(V)
+    V = np.concatenate([V, pp[-1:] + (pp[-1] - pp[-2]) * 0.5])
+    S = segs
+    tipF = [((n - 1) * S + j, tip, (n - 1) * S + (j + 1) % S) for j in range(S)]
+    a_, b_, c_ = V[tipF[0][0]], V[tipF[0][1]], V[tipF[0][2]]
+    if np.dot(np.cross(b_ - a_, c_ - a_), V[tip] - pp[-1]) < 0:
+        tipF = [tuple(reversed(f)) for f in tipF]
+    for f in tipF:
+        F.append(f)
+        UV.append([UV[-1][0]] * 3)
+    uvs = pack_islands([UV])[0]
+    if wt is None:
+        W = nearest_weights(h, V, restrict=h.mask("neck", "head", "torso"))
+    else:
+        W = np.tile(wt, (len(V), 1))
+    col = paint(color, len(V), None, 0.06, seed)
+    if bands:
+        kk = np.concatenate([np.repeat(np.arange(n), S), [n - 1]])
+        gain = 0.82 + 0.30 * (0.5 + 0.5 * np.sin(kk * 2.5)) + 0.10 * np.concatenate([np.repeat(np.linspace(0, 1, n), S), [1]])
+        col = np.clip(col * gain[:, None], 0, 1.0)
+    return Part(name, V, F, uvs, W, col, "hair", None)
+
+
+def skull_path(h, phis, th, off=0.014, ez_off=0.03):
+    """Points on the scalp (ray cast) at polar angle th (deg from crown) for each azimuth phi (deg)."""
+    ez = (h.eye_l[2] + h.eye_r[2]) / 2
+    c = Vector((0.0, h.head_c[1], ez + ez_off))
+    out = []
+    for ph_, th_ in zip(phis, th if hasattr(th, "__len__") else [th] * len(phis)):
+        p, t_ = math.radians(ph_), math.radians(th_)
+        d = Vector((math.sin(t_) * math.sin(p), -math.sin(t_) * math.cos(p), math.cos(t_)))
+        loc, n, _, _ = h.bvh.ray_cast(c + d * 0.5, -d)
+        if loc is None or (loc - c).length > 0.17:
+            loc, n = c + d * 0.09, d
+        out.append(np.array(loc) + np.array(n) * off)
+    return out
+
+
+def g_helmet(h, r, pal, parts, pal_key="armor"):
+    """Steel kettle hat: a dome over the crown with a short flared brim, above the brows."""
+    P = h.P[:h.nb]
+    hv = P[h.mask("head")]
+    ez = (h.eye_l[2] + h.eye_r[2]) / 2
+    cz = ez + 0.03
+    yc = (h.head_back + h.head_front) / 2
+    up = hv[hv[:, 2] > cz]
+    rx = np.abs(up[:, 0]).max() + 0.016
+    ry = (h.head_back - h.head_front) / 2 + 0.016
+    rz = h.head_top - cz + 0.016
+    segs = 20
+    phis = np.linspace(0, 2 * math.pi, segs, endpoint=False)
+    rings = []
+    for th in (0.0, 14, 28, 42, 56, 68, 78):
+        t = math.radians(th)
+        rk = math.sin(t)
+        rings.append(np.stack([np.sin(phis) * rx * rk, yc - np.cos(phis) * ry * rk, np.full(segs, cz + rz * math.cos(t))], axis=1))
+    z_r = cz + rz * math.cos(math.radians(78))
+    front_up = 0.006 * np.cos(phis)                                  # brim a touch higher over the forehead
+    for dz, k in ((-0.004, 1.06), (-0.012, 1.2), (-0.020, 1.24), (-0.024, 1.17), (-0.014, 1.04)):
+        rk = math.sin(math.radians(78)) * k
+        rings.append(np.stack([np.sin(phis) * rx * rk, yc - np.cos(phis) * ry * rk, z_r + dz + front_up * 0], axis=1))
+    rings[0] = rings[0] + 0.0
+    V, F, UV = loft(np.array(rings), closed=True)
+    uvs = pack_islands([UV])[0]
+    W = np.tile(one_hot("Head"), (len(V), 1))
+    col = paint(pal[pal_key], len(V), None, 0.03, r["seed"] + 3)
+    parts.append(Part("helmet", V, F, uvs, W, col, "metal", 260))
+    # small red-painted crest band across the brow rim is left to the tabard colours; nothing else needed
 
 
 def g_hair(h, r, pal, parts, cov, style):
@@ -2274,6 +2407,19 @@ def g_hair(h, r, pal, parts, cov, style):
     col = pal["hair"]
     nz = h.z("neck_01")
     seed = r["seed"]
+    if style == "helm":
+        g_helmet(h, r, pal, parts, pal_key=r.get("armor_key", "armor"))
+        capd = lambda z: 0.011 + 0.014 * float(smoothstep(ez, top, z))
+        rng = np.random.default_rng(seed + 5)
+        sp = []
+        for p in (-92, -80, 80, 92):
+            sp.append((p + rng.uniform(-3, 3), 66, 104, 0.024, 0.008, 0.007, rng.uniform(-4, 4)))
+        for p in (140, 160, 180, 200, 220):
+            sp.append((p + rng.uniform(-4, 4), 80, 120, 0.028, 0.009, 0.010, rng.uniform(-5, 5)))
+        lk = hair_locks(h, sp, capd, col, seed + 11)
+        if lk is not None:
+            parts.append(lk)
+        return
     if style == "short":
         m, phi = head_region(h, ez + 0.062, ez + 0.02, nz + 0.035, sideburn=0.035)
         P = h.P[:h.nb]
@@ -2281,14 +2427,14 @@ def g_hair(h, r, pal, parts, cov, style):
         back = np.clip(-np.cos(phi), 0, 1)
         d = 0.009 + 0.026 * crown ** 1.3 + 0.008 * back * crown
         sh = shell(h, m, d, smooth=4, noise_amp=0.011, seed=seed)
-        budget = 420
+        budget = 300
     elif style == "fringe":            # elderly horseshoe
         m, phi = head_region(h, ez + 0.075, ez + 0.02, nz + 0.03, sideburn=0.03)
         P = h.P[:h.nb]
         bald = (P[:, 2] > top - 0.055) & (np.cos(phi) > -0.55)
         m &= ~bald
         sh = shell(h, m, 0.005, smooth=4, noise_amp=0.003, seed=seed)
-        budget = 300
+        budget = 220
     elif style == "child":
         m, phi = head_region(h, ez + 0.045, ez + 0.012, nz + 0.02, sideburn=0.02)
         P = h.P[:h.nb]
@@ -2296,7 +2442,7 @@ def g_hair(h, r, pal, parts, cov, style):
         front = np.clip(np.cos(phi), 0, 1)
         d = 0.011 + 0.016 * crown + 0.008 * front * smoothstep(ez + 0.03, ez + 0.06, P[:, 2])
         sh = shell(h, m, d, smooth=4, noise_amp=0.008, seed=seed)
-        budget = 420
+        budget = 300
     elif style in ("long", "bob"):
         m, phi = head_region(h, ez + 0.06, ez + 0.0, nz - 0.01 if style == "long" else nz + 0.0, sideburn=0.0,
                              exclude_ears=False)
@@ -2305,65 +2451,92 @@ def g_hair(h, r, pal, parts, cov, style):
         below = smoothstep(ez + 0.01, ez - 0.07, P[:, 2])
         d = 0.011 + (0.026 if style == "bob" else 0.005) * below + 0.014 * smoothstep(ez, top, P[:, 2])
         sh = shell(h, m, d, smooth=5, noise_amp=0.003, seed=seed)
-        budget = 460
+        budget = 320
     elif style == "bun":               # curly hair pulled back into a bun, no braid
         m, phi = head_region(h, ez + 0.06, ez + 0.01, nz + 0.02, sideburn=0.02)
         P = h.P[:h.nb]
         crown = smoothstep(ez, top, P[:, 2])
         d = 0.011 + 0.022 * crown
         sh = shell(h, m, d, smooth=4, noise_amp=0.014, seed=seed)
-        budget = 440
-    parts.append(shell_part(h, "hair", sh, "hair", col, budget, hair_uv_groups(h), grime=0.0, seed=seed,
+        budget = 300
+    parts.append(shell_part(h, "hair", sh, "hair", tuple(np.array(col) * 0.78), budget, hair_uv_groups(h), grime=0.0, seed=seed,
                             rim_dark=0.7, weights=np.tile(one_hot("Head"), (len(sh["v"]), 1))))
     cov |= covered(h, m, rings=1)
     capd = lambda z: 0.011 + 0.014 * float(smoothstep(ez, top, z))
     rng = np.random.default_rng(seed + 5)
     nl = r.get("hair_locks", 1.0)
     sp = []
-    def add(phis, th0, th1, w, t, lift, tw=8):
+
+    def add(phis, th0, th1, w, t, lift, tw=8, jit=4):
         for p in phis:
-            sp.append((p + rng.uniform(-4, 4), th0 + rng.uniform(-3, 3), th1 + rng.uniform(-3, 4), w * rng.uniform(0.85, 1.2), t, lift * rng.uniform(0.7, 1.3), rng.uniform(-tw, tw)))
+            sp.append((p + rng.uniform(-jit, jit), th0 + rng.uniform(-3, 3), th1 + rng.uniform(-3, 4), w * rng.uniform(0.85, 1.2),
+                       t, lift * rng.uniform(0.7, 1.3), rng.uniform(-tw, tw)))
+
+    def thin(lst):
+        return lst if nl >= 1 else lst[::2]
+    do = r.get("hair_do")
     if style in ("short", "child", "bun"):
-        add([-40, -22, -4, 14, 32][::(1 if nl >= 1 else 2)], 14, 62, 0.034, 0.012, 0.004, 5)
+        # bangs over the forehead: broad clumps with tapered tips
+        add(thin(list(range(-52, 58, 13))), 8, 70, 0.036, 0.012, 0.007, 6)
+        # crown clumps, temples over the ear tops, nape
         if style != "bun":
-            add(list(range(30, 340, 62 if nl >= 1 else 100)), 8, 36, 0.028, 0.010, 0.004, 14)
-        add([-80, 80], 60, 94, 0.016, 0.007, 0.004, 3)
-        add([158, 180, 202], 78, 116, 0.024, 0.008, 0.008)
+            add(thin(list(range(20, 340, 45))), 4, 40, 0.032, 0.011, 0.006, 16)
+        add(thin([-90, -74, 74, 90]), 40, 84, 0.026, 0.008, 0.004, 4)
+        add(thin([140, 160, 180, 200, 220]), 62, 120, 0.030, 0.010, 0.010, 6)
     elif style == "fringe":
-        add([-78, 78], 66, 100, 0.017, 0.006, 0.004, 3)
-        add([150, 180, 210], 80, 112, 0.022, 0.007, 0.006)
+        add([-84, -70, 70, 84], 60, 104, 0.024, 0.007, 0.006, 3)
+        add(thin([132, 152, 172, 192, 212, 232]), 74, 118, 0.026, 0.008, 0.008, 5)
     elif style in ("long", "bob"):
-        add([-30, -10, 10, 30], 14, 54, 0.03, 0.009, 0.003, 5)
-        add([-58, -68, 58, 68], 42, 100, 0.018, 0.007, 0.005, 4)
-        add([-100, 100], 75, 108, 0.02, 0.008, 0.01, 3)
+        add(thin(list(range(-48, 52, 14))), 12, 66, 0.036, 0.011, 0.006, 5)
+        add(thin([-64, -80, -98, 64, 80, 98]), 40, 104, 0.028, 0.009, 0.007, 4)
+        if style == "bob":
+            add([-112, -132, 112, 132, 152, 172, 192, 208], 70, 118, 0.03, 0.010, 0.014, 5)
     if r.get("hair_tail"):
         hb = h.head_back
         c = np.array([0.0, hb + 0.012, ez - 0.005])
         b_ = ellipsoid(h, "tail_knot", c, (0.036, 0.034, 0.036), col, one_hot("Head"))
         parts.append(b_)
         path = [c + np.array([0, 0.005, -0.02]), c + np.array([0, 0.03, -0.06]), c + np.array([0, 0.04, -0.11]), c + np.array([0, 0.04, -0.16])]
-        parts.append(tube(h, "braid", np.array(path), np.array([0.02, 0.019, 0.015, 0.008]), col, seed))
+        parts.append(braid_part(h, "braid", path, 0.021, 0.008, col, seed, segs=6, spacing=0.03))
     lk = hair_locks(h, sp, capd, col, seed + 11)
     if lk is not None:
         parts.append(lk)
     if style == "bun":
         hb = h.head_back
-        c = np.array([0.0, hb + 0.018, ez + 0.015])
-        parts.append(ellipsoid(h, "bun", c, (0.046, 0.04, 0.043), col, one_hot("Head")))
+        c = np.array([0.0, hb + 0.022, ez + 0.02])
+        parts.append(ellipsoid(h, "bun", c, (0.054, 0.046, 0.05), col, one_hot("Head")))
     if style == "long":
-        # low bun + a braid hanging between the shoulder blades
         hb = h.head_back
-        c = np.array([0.0, hb + 0.02, ez - 0.035])
-        parts.append(ellipsoid(h, "bun", c, (0.05, 0.042, 0.047), col, one_hot("Head")))
-        path = [c + np.array([0, 0.005, -0.03])]
         back_y = h.P[:h.nb][np.abs(h.P[:h.nb, 0]) < 0.03]
-        for k in range(1, 8):
-            z = c[2] - 0.035 - k * 0.035
-            sel = back_y[np.abs(back_y[:, 2] - z) < 0.02]
-            y = sel[:, 1].max() + 0.028 if len(sel) else path[-1][1]
-            path.append(np.array([0.0, y, z]))
-        radii = np.linspace(0.024, 0.012, len(path))
-        parts.append(tube(h, "braid", np.array(path), radii, col, seed))
+
+        def down_path(c, n, step=0.04, out=0.03):
+            path = [c + np.array([0, 0.006, -0.03])]
+            for k in range(1, n):
+                z = c[2] - 0.035 - k * step
+                sel = back_y[np.abs(back_y[:, 2] - z) < 0.02]
+                y = sel[:, 1].max() + out if len(sel) else path[-1][1]
+                path.append(np.array([0.0, y, z]))
+            return path
+        if do == "crown":
+            # braid crown: a thick plait laid across the top of the forehead from ear to ear,
+            # around the back of the head, with a pinned bun at the nape
+            phis = list(np.linspace(-118, 118, 15))
+            front = skull_path(h, phis, [60 + 8 * math.sin(abs(p) / 118 * math.pi / 2) for p in phis], off=0.016)
+            back = skull_path(h, [118, 140, 160, 180, 200, 220, 242], [84] * 7, off=0.016)
+            path = front + back
+            parts.append(braid_part(h, "braid", path, 0.0165, 0.0165, col, seed, segs=6, spacing=0.02,
+                                    wt=one_hot("Head")))
+            c = np.array([0.0, hb + 0.022, ez - 0.012])
+            parts.append(ellipsoid(h, "bun", c, (0.048, 0.04, 0.044), col, one_hot("Head")))
+        elif do == "silver_braid":
+            # long braid over the shoulder blades, tied with a ribbon
+            c = np.array([0.0, hb + 0.02, ez - 0.05])
+            parts.append(ellipsoid(h, "bun", c, (0.04, 0.034, 0.038), col, one_hot("Head")))
+            parts.append(braid_part(h, "braid", down_path(c, 11, 0.042, 0.032), 0.032, 0.014, col, seed, segs=6, spacing=0.03))
+        else:
+            c = np.array([0.0, hb + 0.024, ez - 0.03])
+            parts.append(ellipsoid(h, "bun", c, (0.058, 0.048, 0.052), col, one_hot("Head")))
+            parts.append(braid_part(h, "braid", down_path(c, 8, 0.036, 0.032), 0.03, 0.013, col, seed, segs=6, spacing=0.03))
 
 
 def one_hot(name):
@@ -2472,7 +2645,14 @@ def g_eyes(h, parts, tile="eye"):
                     q = tok.split("/")
                     a.append(int(q[0]) - 1); b.append(int(q[1]) - 1)
                 fs.append(a); fts.append(b)
-    V = h.P[np.array(refs[:len(vs)])]
+    V = h.P[np.array(refs[:len(vs)])].copy()
+    # larger, friendlier eyes: grow each eyeball about its own centre (the painted lid ring is wider than the ball)
+    for sgn in (1, -1):
+        m = (V[:, 0] * sgn) > 0
+        if m.sum():
+            c = V[m].mean(axis=0)
+            V[m] = c + (V[m] - c) * np.array([EYE_SCALE, 1.0, EYE_SCALE])
+            V[m, 1] += 0.0015
     # tuck the eyeballs a hair behind the lids
     uvs = [[tuple(vts[t]) for t in ft] for ft in fts]
     W = np.tile(one_hot("Head"), (len(V), 1))
@@ -2652,6 +2832,62 @@ def decimate(ob, target, symmetric=False, protect=None):
             break
 
 
+def _zone_decimate(ob, weights, target_zone, zone_now, symmetric=False):
+    """Collapse only the vertices with weight>0 (everything else is pinned) until
+    the zone holds about target_zone triangles."""
+    for attempt in range(4):
+        t = tri_count(ob)
+        zt = zone_now(ob)
+        if zt <= target_zone * 1.04:
+            return
+        vg = ob.vertex_groups.get("zone") or ob.vertex_groups.new(name="zone")
+        vg.add(list(range(len(ob.data.vertices))), 0.0, "REPLACE")
+        for i in np.nonzero(weights(ob))[0]:
+            vg.add([int(i)], 1.0, "REPLACE")
+        m = ob.modifiers.new("dec", "DECIMATE")
+        m.decimate_type = "COLLAPSE"
+        m.ratio = max(0.02, min(0.98, (t - zt + target_zone * (0.97 ** attempt)) / t))
+        m.use_symmetry = symmetric
+        m.symmetry_axis = "X"
+        m.use_collapse_triangulate = True
+        m.vertex_group = "zone"
+        m.invert_vertex_group = False
+        m.vertex_group_factor = 1.0
+        apply_mods(ob)
+
+
+def decimate_body(ob, h, budget, head_tris=HEAD_TRIS, hand_tris=HAND_TRIS):
+    """Body decimation that keeps the face: the head (symmetric collapse) and the hands
+    are reduced on their own to a fixed count with all other vertices pinned, then the
+    rest of the body takes the remainder of the budget with head and hands pinned."""
+    def co(ob):
+        n = len(ob.data.vertices)
+        a = np.zeros(n * 3); ob.data.vertices.foreach_get("co", a)
+        return a.reshape(-1, 3)
+
+    def zone_tris(ob, sel):
+        me = ob.data
+        c = co(ob)
+        n = 0
+        for p in me.polygons:
+            if all(sel(c[i]) for i in p.vertices):
+                n += len(p.vertices) - 2
+        return n
+
+    hx = abs(h.J["hand_l"][0]) - 0.02
+    head_sel = lambda p: p[2] > h.chin_z - 0.012
+    hand_sel = lambda p: abs(p[0]) > hx
+
+    def wfun(sel):
+        return lambda ob: np.array([sel(p) for p in co(ob)])
+    _zone_decimate(ob, wfun(head_sel), head_tris, lambda o: zone_tris(o, head_sel), symmetric=True)
+    _zone_decimate(ob, wfun(hand_sel), hand_tris * 2, lambda o: zone_tris(o, hand_sel), symmetric=True)
+    rest_sel = lambda p: not (head_sel(p) or hand_sel(p))
+    keep = zone_tris(ob, head_sel) + zone_tris(ob, hand_sel)
+    _zone_decimate(ob, wfun(rest_sel), max(300, budget - keep), lambda o: tri_count(o) - zone_tris(o, head_sel) - zone_tris(o, hand_sel))
+    ob.vertex_groups.clear()
+
+
 def triangulate(ob):
     ob.modifiers.new("tri", "TRIANGULATE")
     apply_mods(ob)
@@ -2729,7 +2965,10 @@ def bake_ao(h, parts, samples=22, dist=0.11, strength=0.68):
                     hit += 1.0 - dd / dist * 0.5
             ao[i] = 1.0 - hit / samples
         occ = np.clip(1 - ao, 0, 1)
-        shade = 1 - strength * occ ** 1.1
+        st = np.full(len(p.v), strength)
+        if p.name == "body":                      # keep the face clean: little baked AO on the head
+            st[p.v[:, 2] > h.chin_z - 0.01] *= 0.4
+        shade = 1 - st * occ ** 1.1
         p.ao = ao
         p.c = p.c * (shade[:, None] ** np.array([1.0, 1.08, 1.18])[None, :])
 
@@ -2754,6 +2993,20 @@ def smooth_head(ob, h, iters=7):
         P = laplacian(P, E, 1, -0.53, fixed=fixed)
     me.vertices.foreach_set("co", P.ravel())
     me.update()
+    # soft, stylised shading: blend the head's vertex normals toward the radial direction
+    # so the nose underside / lip corners do not read as dark slivers under the sun.
+    me.calc_loop_triangles()
+    nl = len(me.loops)
+    lv = np.zeros(nl, np.int32); me.loops.foreach_get("vertex_index", lv)
+    ln = np.zeros(nl * 3, np.float32); me.corner_normals.foreach_get("vector", ln); ln = ln.reshape(-1, 3)
+    rad = P - h.head_c[None, :] * np.array([1, 1, 1])[None, :]
+    rad = rad / np.maximum(np.linalg.norm(rad, axis=1, keepdims=True), 1e-9)
+    wgt = np.clip((P[:, 2] - (h.chin_z - 0.01)) / 0.03, 0, 1)
+    wgt = wgt * 0.25
+    wl = wgt[lv][:, None]
+    nn = ln * (1 - wl) + rad[lv] * wl
+    nn = nn / np.maximum(np.linalg.norm(nn, axis=1, keepdims=True), 1e-9)
+    me.normals_split_custom_set(nn.astype(np.float32).tolist())
 
 
 def build_character(base, r, mat):
@@ -2764,7 +3017,10 @@ def build_character(base, r, mat):
     objs = []
     for p in parts:
         ob = part_object(p)
-        decimate(ob, p.budget)
+        if p.name == "body":
+            decimate_body(ob, h, p.budget)
+        else:
+            decimate(ob, p.budget)
         if p.name == "body":
             smooth_head(ob, h)
         print(f"    {p.name}: {tri_count(ob)} tris")
@@ -2898,17 +3154,17 @@ RECIPES = [
       palette=dict(dress=(0.3, 0.43, 0.64), apron=(0.9, 0.85, 0.72), boots=(0.32, 0.22, 0.14), hair=(0.5, 0.3, 0.14))),
     P(name="villager_woman_b", gender=0.0, age=24, race={"asian": 0.6, "caucasian": 0.4}, body_budget=2600,
       muscle=0.45, weight=0.45, height=0.45, proportions=0.75, seed=404,
-      outfit=["dress", "laces", "boots", "cloak"], hair="long", sleeve=0.95, dress_tile="linen",
-      palette=dict(dress=(0.7, 0.26, 0.2), cloak=(0.46, 0.33, 0.2), boots=(0.28, 0.2, 0.14), hair=(0.09, 0.07, 0.05))),
+      outfit=["dress", "laces", "boots", "cloak"], hair="long", sleeve=0.95, dress_tile="linen", cloak_flare=0.03,
+      palette=dict(dress=(0.7, 0.26, 0.2), cloak=(0.46, 0.33, 0.2), cloak_trim=(0.86, 0.78, 0.55), boots=(0.28, 0.2, 0.14), hair=(0.09, 0.07, 0.05))),
     P(name="elder_man", gender=1.0, age=68, race={"caucasian": 0.8, "african": 0.1, "asian": 0.1}, eye="eye_grey", body_budget=2500, hair_locks=0.5,
       muscle=0.4, weight=0.5, height=0.45, proportions=0.5, seed=505,
-      outfit=["tunic", "belt", "trousers", "boots", "cloak"], hair="fringe", sleeve=0.95, tunic_len=0.08,
+      outfit=["tunic", "belt", "trousers", "boots", "cloak"], hair="fringe", sleeve=0.95, tunic_len=0.08, cloak_flare=0.02,
       extras={"nose/nose-scale-vert-incr": 0.3, "head/head-age-incr": 0.5},
-      palette=dict(tunic=(0.68, 0.54, 0.31), trousers=(0.38, 0.32, 0.26), belt=(0.26, 0.17, 0.1), boots=(0.32, 0.22, 0.15), hair=(0.78, 0.76, 0.72), cloak=(0.25, 0.38, 0.26))),
+      palette=dict(tunic=(0.68, 0.54, 0.31), trousers=(0.38, 0.32, 0.26), belt=(0.26, 0.17, 0.1), boots=(0.32, 0.22, 0.15), hair=(0.78, 0.76, 0.72), cloak=(0.25, 0.38, 0.26), cloak_trim=(0.7, 0.55, 0.2))),
     P(name="elder_woman", gender=0.0, age=70, race={"caucasian": 0.7, "asian": 0.3}, eye="eye_grey",
       muscle=0.35, weight=0.6, height=0.35, proportions=0.5, seed=606,
-      outfit=["dress", "apron", "boots", "cloak"], hood_up=True, sleeve=1.0,
-      palette=dict(dress=(0.45, 0.28, 0.4), apron=(0.86, 0.82, 0.7), boots=(0.27, 0.2, 0.15), cloak=(0.28, 0.31, 0.36), hair=(0.82, 0.8, 0.76))),
+      outfit=["dress", "apron", "boots", "cloak"], hood_up=True, sleeve=1.0, cloak_flare=0.02,
+      palette=dict(dress=(0.45, 0.28, 0.4), apron=(0.86, 0.82, 0.7), boots=(0.27, 0.2, 0.15), cloak=(0.28, 0.31, 0.36), cloak_trim=(0.6, 0.4, 0.55), hair=(0.82, 0.8, 0.76))),
     P(name="child_boy", gender=1.0, age=8, race={"caucasian": 0.6, "african": 0.4}, eye="eye_green",
       muscle=0.5, weight=0.5, height=0.7, proportions=0.6, seed=707, body_budget=2300,
       outfit=["tunic", "belt", "trousers", "boots"], hair="child", sleeve=0.7, pouch=False, tunic_len=0.25,
@@ -2917,11 +3173,15 @@ RECIPES = [
       muscle=0.5, weight=0.5, height=0.7, proportions=0.6, seed=808, body_budget=2300,
       outfit=["dress", "apron", "boots"], hair="bob", sleeve=0.8,
       palette=dict(dress=(0.42, 0.58, 0.3), apron=(0.9, 0.86, 0.74), boots=(0.32, 0.22, 0.15), hair=(0.7, 0.48, 0.24))),
-    P(name="guard", gender=1.0, age=30, race={"caucasian": 0.75, "asian": 0.25}, eye="eye_blue", body_budget=2500, hair_locks=0.5,
+    P(name="guard", gender=1.0, age=30, race={"caucasian": 0.75, "asian": 0.25}, eye="eye_blue", body_budget=1800, hair_locks=0.3, skirt_budget=380,
       muscle=0.8, weight=0.55, height=0.62, proportions=0.75, seed=909,
-      outfit=["gambeson", "belt", "trousers", "boots"], hair="short",
+      outfit=["gambeson", "belt", "trousers", "boots", "breastplate", "vest", "pauldrons", "bracers", "gorget"],
+      hair="helm", pouch=False, vest_len=0.16, vest_key="vest", vest_offset=0.03, vest_trim="trim",
+      armor_key="armor", emblem="tower_crown",
       extras={"chin/chin-jaw-drop-incr": 0.2, "nose/nose-hump-incr": 0.5},
-      palette=dict(gambeson=(0.32, 0.41, 0.6), trousers=(0.33, 0.29, 0.25), belt=(0.26, 0.16, 0.09), boots=(0.26, 0.18, 0.11), hair=(0.2, 0.13, 0.08), pouch=(0.4, 0.27, 0.15))),
+      palette=dict(gambeson=(0.16, 0.17, 0.2), vest=(0.5, 0.07, 0.08), trim=(0.78, 0.63, 0.22),
+                   trousers=(0.2, 0.19, 0.2), belt=(0.26, 0.16, 0.09), boots=(0.26, 0.18, 0.11),
+                   hair=(0.2, 0.13, 0.08), armor=(0.62, 0.64, 0.67))),
     P(name="player_young", gender=1.0, age=18, race={"caucasian": 0.7, "asian": 0.15, "african": 0.15},
       muscle=0.6, weight=0.45, height=0.6, proportions=0.8, seed=1010, body_budget=4300,
       outfit=["shirt", "belt", "trousers", "boots"], hair="short", hair_tail=True, flat_chest=True, chest_straighten=0.5,
@@ -2976,7 +3236,7 @@ RECIPES = [
                    boots=(0.3, 0.2, 0.13), hair=(0.05, 0.045, 0.04), apron=(0.32, 0.16, 0.09))),
     P(name="villager_healer", gender=0.0, age=60, race={"caucasian": 0.6, "asian": 0.4},
       muscle=0.35, weight=0.5, height=0.42, proportions=0.5, seed=2005,
-      outfit=["dress", "undersleeve", "belt", "mantle", "boots"], hair="long", sleeve=0.35,
+      outfit=["dress", "undersleeve", "belt", "mantle", "boots"], hair="long", hair_do="silver_braid", sleeve=0.35,
       undersleeve_key="undersleeve", mantle_key="mantle", pouch_count=2,
       extras={"head/head-age-incr": 0.4},
       palette=dict(dress=(0.48, 0.55, 0.4), undersleeve=(0.92, 0.88, 0.78), mantle=(0.35, 0.24, 0.15),
@@ -2984,7 +3244,7 @@ RECIPES = [
                    pouch=(0.32, 0.2, 0.11))),
     P(name="villager_baker", gender=0.0, age=30, race={"caucasian": 0.9, "asian": 0.1}, eye="eye_green",
       muscle=0.42, weight=0.5, height=0.5, proportions=0.75, seed=2006,
-      outfit=["dress", "laces", "undersleeve", "apron", "belt", "boots"], hair="long", sleeve=0.5,
+      outfit=["dress", "laces", "undersleeve", "apron", "belt", "boots"], hair="long", hair_do="crown", sleeve=0.5,
       undersleeve_key="undersleeve", pouch_count=1,
       extras={"eyebrows/eyebrows-angle-up": 0.15},
       palette=dict(dress=(0.35, 0.47, 0.72), undersleeve=(0.93, 0.9, 0.82), apron=(0.88, 0.84, 0.72),
@@ -3111,6 +3371,9 @@ def main():
         for name in order:
             f.write(rows[name])
     if "--no-preview" in args:
+        return
+    if "--sheetout" in args:
+        v2_sheet(built, args[args.index("--sheetout") + 1], tmp_dir="/tmp/claude-0/scr/_sheet_tmp")
         return
     if "--v2sheet" in args:
         tag = args[args.index("--v2sheet") + 1]
