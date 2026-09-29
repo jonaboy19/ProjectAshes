@@ -258,4 +258,5 @@ k.sphere(0.2, (0, (TY0 + TY1) / 2, apex + 0.1), MT, hexc("b08a3a"), subdiv=1, gr
 k.cross((0, (TY0 + TY1) / 2, apex + 0.2), h=1.2, w=0.1, color=hexc("b08a3a"))
 
 k.stage("towertop")
+k.pbr = dict(size=1024, lod1_size=512, orm_div=2, seed=19, ao_dist=1.2)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((16.0, 28.5), 15000, cam_dir=(1.15, -1.25, 0.55), fit=0.9)

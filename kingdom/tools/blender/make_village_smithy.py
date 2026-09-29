@@ -252,4 +252,5 @@ k.bucket(1.3, 1.8)
 k.planter(-2.9, -HY - 0.45, L=0.8, D=0.36, H=0.36)
 k.stage("yard")
 
+k.pbr = dict(size=1024, lod1_size=512, orm_div=2, seed=V * 11 + 6, ao_dist=0.7)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((10.0, 8.0), 12000, cam_dir=(0.75, -1.5, 0.45), fit=0.9)

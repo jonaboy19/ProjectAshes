@@ -182,4 +182,5 @@ k.pop()
 k.pop()
 k.stage("sign")
 
+k.pbr = dict(size=1024, lod1_size=512, orm_div=2, seed=V * 11 + 5, ao_dist=0.8)   # high-to-low PBR bake (pbr_kit.py)
 k.finish_checked((13.0, 10.0), 23000, cam_dir=(1.0, -1.45, 0.62), fit=0.95)

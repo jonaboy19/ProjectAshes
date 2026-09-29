@@ -32,20 +32,64 @@ SPECS = {
 }
 
 
+def _bbox():
+    """world bbox (Blender coords) of every mesh in the scene, before the preview ground is added."""
+    lo = [1e9] * 3
+    hi = [-1e9] * 3
+    for o in bpy.data.objects:
+        if o.type != "MESH":
+            continue
+        for c in o.bound_box:
+            w = o.matrix_world @ P.Vector(c)
+            for i in range(3):
+                lo[i] = min(lo[i], w[i])
+                hi[i] = max(hi[i], w[i])
+    return lo, hi
+
+
+def auto_specs(lo, hi, overall=False):
+    """generic camera set for assets without hand-made SPECS: overall 3/4 view, lower front, upper/roof."""
+    w, d, h = hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]
+    cx, cy = (lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2
+    if overall:
+        r = max(w, d, h * 0.9)
+        return [((cx, cy, h * 0.42), (1.0, -1.45, 0.62), r * 1.9, 40)]
+    out = [((cx - w * 0.12, lo[1], min(1.6, 0.3 * h)), (0.35, -1, 0.12), max(2.2, min(9.0, 0.75 * min(w, 9))), 40)]
+    if h > 3.0:
+        out.append(((cx, cy - d * 0.2, h * 0.72), (0.2, -1, -0.28), max(3.5, min(13.0, 0.9 * min(w, 12))), 40))
+    if h > 12:
+        out.append(((cx, lo[1], h * 0.45), (0.5, -1, 0.15), min(30.0, 0.9 * h), 40))
+    return out
+
+
+OPTS = []
+
+
 def render(name, before_dir=None):
-    """before_dir: a folder with the OLD glb of the asset (textures resolvable relative to it) -> *_before_close*."""
+    """before_dir: a folder with the OLD glb of the asset (textures resolvable relative to it) -> *_before_close*.
+    Options: --overall also writes pbr_<name>.png (3/4 view); --only-overall skips the close-ups."""
     glb = os.path.join(before_dir or GEN, name + ".glb")
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=glb)
     # the glTF importer converts to Y-up -> Blender Z-up again; front (Godot +Z) ends up at Blender -Y
-    for i, (t, d, dist, lens) in enumerate(SPECS[name], 1):
-        png = os.path.join(OUT, f"pbr_{name}_{'before_' if before_dir else ''}close{i}.png")
-        P.render_closeup(png, t, d, dist, lens=lens, samples=96)
+    lo, hi = _bbox()
+    specs = [] if "--only-overall" in OPTS else (SPECS.get(name) or auto_specs(lo, hi))
+    tag = "before_" if before_dir else ""
+    for i, (t, d, dist, lens) in enumerate(specs, 1):
+        png = os.path.join(OUT, f"pbr_{name}_{tag}close{i}.png")
+        P.render_closeup(png, t, d, dist, lens=lens, samples=int(os.environ.get("RA_PBR_SAMPLES", "96")))
+        print("wrote", png)
+    if "--overall" in OPTS or "--only-overall" in OPTS:
+        (t, d, dist, lens), = auto_specs(lo, hi, overall=True)
+        png = os.path.join(OUT, f"pbr_{name}{'_before' if before_dir else ''}.png")
+        P.render_closeup(png, t, d, dist, lens=lens, samples=int(os.environ.get("RA_PBR_SAMPLES", "96")), res=(800, 600))
         print("wrote", png)
 
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+    OPTS = [a for a in args if a.startswith("--") and a != "--before"]
+    args = [a for a in args if a not in OPTS]
     before = None
     if "--before" in args:
         i = args.index("--before")
