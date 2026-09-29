@@ -47,7 +47,16 @@ Remaining: HIGH/LOW fps before/after not measured (ULTRA new: lake 40, river 33,
 Done and committed: `assets/video/studio_intro.ogv` (from download.mp4, 1280x720 q7 5.4 MB; it fades out, the other clip holds), engine boot splash (`boot_splash.png`, project.godot), `scripts/boot/studio_intro.gd` (contain-fit, skip after 1 s, still fallback), `scripts/boot/first_run.gd`, `scripts/core/app_services.gd`, `scripts/ui/world_loading.gd`, `scripts/core/platform_services.gd` + `docs/platform/ACCOUNTS_AND_SERVICES.md`, `locale/strings.csv` (en/nl).
 NOT wired (unverified): everything in `docs/platform/boot_wiring_wip.patch` (apply with `git apply`): studio intro + first run in frontend/boot.gd, WorldLoading veil + pause button/Esc/back + camera sens/stick size/vibration in hud.gd, load progress in main.gd, render scale in quality.gd, settings rows, pause glyph. Also register autoloads `App` (after Quality) and `PlatformServices`. A headless run showed "Parameter t is null / convert on null" errors (source not yet traced). Still to do: run windowed, capture boot_flow screenshots + frame sheets (docs/ui/boot_flow/), 2400x1080 and 4:3 checks, handoff note.
 
-## Remaining work: free animation library
-- Full stop-motion read of KayKit weapons, combos, remaining unarmed clips; verify punch types (front view).
-- Godot `--import` sanity for the new GLBs; add to `Assets.UAL_FILES` (Codex).
-- Casting is thin (lightning-from-sky, beam loops, teleport dash missing).
+## Animation round 3 (2026-09-29, local): DONE
+- Tech demo (`tools_qa/anim_tech`, `docs/anim/advanced/tech/README.md`): partial ragdoll fixed, full-ragdoll jitter re-measured (1 mm/frame), foot IK 0 % toe penetration on stairs+ramp (was mis-measured before: IK output is only visible in `skeleton_updated`), new: additive flinch, lean + aim twist, synced loco tree, root-motion attacks, motion warp (0-6 cm landing error), hitstop + shake, perf bench. Tier table: LOW 41 / MEDIUM 5 / HIGH 4 characters per frame budget.
+- Clip review (`docs/anim/free_library/review_results.md`): punch heavies are hooks (renamed `MA_Punch_Hook_*`), 8 clips rejected, trims/loop fixes, ladder/wall rebuilt, `Kay_Work_*_Loop` renamed `*_Repeat_Loop`.
+- Video mocap: `video_to_clip.ps1` one command, IK foot pinning (slide 32 -> 0.5 cm/s); tested on synthetic video only.
+- Handoff for Codex: `docs/anim/free_library/HANDOFF_CODEX.md` (clip -> state, blend, root motion, event frames, `UAL_FILES` lines) and the HANDOFF table in the tech README.
+
+## Backlog (animation, from the aaa-review loop)
+- Film a real phone clip and run `video_to_clip.ps1` (only synthetic tested); then replace the authored ladder/wall/vault with mocap.
+- Codex: fold the flinch OneShot->Add2 and the foot-IK toe probe / instant-rise into `CharacterAnimator` / `procedural_rig.gd`; add `animations_free*` to `Assets.UAL_FILES` (see HANDOFF_CODEX.md; the new folders need root motion disabled in `_ual_for`).
+- Attack clips have no weapon models in the reviews; check sword/staff clips with a prop attached.
+- Casting is thin (lightning-from-sky, beam loops, teleport dash missing); Kay dodges are 0.4 s bursts without recovery; no true uppercut exists.
+- Performance: at most ~4 HIGH-tier characters per frame budget (AnimationTree costs 2x a clip); rank trees/modifiers by camera distance like `rig_budget`.
+- Full-project headless `--import` of the new GLBs still not run (disk); a mini-project import of all 15 GLBs was clean.
