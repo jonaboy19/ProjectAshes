@@ -10,6 +10,8 @@ _Last update: 2026-09-29_
 |---|---|---|---|
 | 09-28 | Boot crash fixed (threaded mesh loads → main-thread `Assets.scene`) | `scripts/world/region_dressing.gd`, `assets.gd` | 0137fa0d, 64b3698e |
 | 09-28 | Godot 4.6.3 (quit crash fixed) | launchers, `tools/qa` | a5a596b7 |
+| 09-29 | **Region 1 L1**: Elder Stone (4.2k tris, emissive glyph mask, ancestor-gold variant) + 4 road stones, glow test at 60 m | `assets/incoming/region1/stones/`, `docs/art/region1/stones_*` | see git log |
+| 09-29 | **Region 1 L2**: Highwatch Keep kit (32 instances = 32 draw calls, 1 atlas, site JSON, 3/4 + top previews) | `assets/incoming/region1/highwatch/`, `docs/art/region1/highwatch_*` | see git log |
 | 09-29 | Meshy free pack round 1: 181 optimized models (CC0), not placed yet | `assets/incoming/meshy_free/` | a6c67244 |
 | 09-29 | Free VFX and shader gallery (Kenney, RPicster, god rays) | `assets/incoming/vfx_free/`, `shaders/free/`, `tools_qa/vfx_gallery/` | 58f8e8c4 |
 | 09-29 | Elemental VFX set: soft fire shader, bolder lightning and dash, stop-motion sheets, perf and Compatibility checked | `scenes/vfx/elements/`, `scripts/vfx/element_fx.gd`, `docs/art/vfx_elements/` | 58abc054 + follow-up |
@@ -60,3 +62,12 @@ NOT wired (unverified): everything in `docs/platform/boot_wiring_wip.patch` (app
 - Casting is thin (lightning-from-sky, beam loops, teleport dash missing); Kay dodges are 0.4 s bursts without recovery; no true uppercut exists.
 - Performance: at most ~4 HIGH-tier characters per frame budget (AnimationTree costs 2x a clip); rank trees/modifiers by camera distance like `rig_budget`.
 - Full-project headless `--import` of the new GLBs still not run (disk); a mini-project import of all 15 GLBs was clean.
+## Region 1 art L1 + L2 (2026-09-29, local): DONE, not yet imported in Godot
+Files and specs: `assets/incoming/region1/stones/README.md` (emissive spec: drive `emission_energy_multiplier` 0.3 dim to 4 bright, `COLOR_0.R` sweep) and `assets/incoming/region1/highwatch/README.md` (+ `highwatch_site.json`, assign `highwatch_kit.tres`).
+Cloud (C1): place the site from the JSON, 5 Elder Stones (rotate the one hero, use the gold variant for ancestor stones), road stones beside roads. Needs one Godot open to generate `.import` files (no import was run: disk was tight).
+AAA-review backlog from this task:
+- Import + in-game check of both sets (fps, LOD fade, glow with the real bloom, Compatibility renderer).
+- Elder Stone: 2-3 more silhouettes so the five hubs are not clones; moss/grass tuft cards at the dais rim; a rune-hum audio hook and the L12 flare VFX; wave shader using `COLOR_0.R`.
+- Keep: 10 px/m texel density and no interior; add colliders, wall-walk nav, a hall interior scene, blue roofs on keep turrets.
+- Kit: 120k tris at LOD0 is heavy for LOW tier, start LOD1 at 30 m; consider a proper retopo of gate/towers to ~4k (Blender collapse decimation shreds these Meshy shells; use Meshy remesh 5 cr if wanted).
+- Guards/knights: markers reference the rigged `armored/*.glb`; sparring and wall-sentry behaviours still to do (Codex X4).
