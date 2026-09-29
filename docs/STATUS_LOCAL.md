@@ -33,6 +33,12 @@ _Last update: 2026-09-29_
 - Warm up the blue lower canopy on the fluffy-tree shader.
 - Fix the 4 HUD icons that still have faint smudges.
 
+## Meshy free fixes (partial, stopped at usage limit)
+- Done: optimize_free.py gained island_pct arg (arg 11) + env EMIT_ADD=1 / BAKE_EXT. Re-baked lamp_post_purple_bracket (solid, across 300, 1024px, EMIT_ADD), torch_dungeon_cage (island 14), house_two_story_shingle (solid, across 200), bouquet_wild (solid, across 260, smooth, 3500 tris, island 3), hay_bale_yellow_large (vox across 120, smooth, 3000 tris). Before/after in docs/art/meshy_free/fixes/.
+- Remaining: bouquet_bright, bush_raspberry (blobby vox across 90-130 candidates rendered, unreviewed), ruined-hut floating debris (use island_pct), farm animal rigs (task 2) not started.
+## Advanced animation (local, stopped at usage limit)
+Done: KayKit + authored traversal clips (`animations_free2/`), README `docs/anim/advanced/README.md`.
+Remaining: anim_tech demo (blend trees, root-motion attacks, motion warping, perf table) and video-to-BVH pipeline are with sub-agents and may be partial; finish from `docs/anim/advanced/tech/` and `docs/anim/advanced/video_mocap/`. Add `animations_free2` GLBs to `Assets.UAL_FILES` (Codex).
 ## Clear water (kingdom/shaders/water/clear_water.gdshader) - live in game via WaterStreamer
 Done: caustics, sun glints, clearer turquoise shallows, quality tiers (Quality LOW=fake transparency, MEDIUM=refraction, HIGH/ULTRA=+caustics). Before/after: docs/art/water/{before,after}. Shots: tools/qa/water_shots/run.sh.
 Remaining: HIGH/LOW fps before/after not measured (ULTRA new: lake 40, river 33, pier 27 fps on desktop; old HIGH pier 28.5); no frame-sheet animation check; no Android test; waterfall/pond presets; ULTRA river caustics slightly bright (tune caustic_strength); old shaders/water.gdshader can be deleted.
@@ -40,14 +46,3 @@ Remaining: HIGH/LOW fps before/after not measured (ULTRA new: lake 40, river 33,
 ## Boot flow / studio intro (2026-09-29, stopped at usage limit)
 Done and committed: `assets/video/studio_intro.ogv` (from download.mp4, 1280x720 q7 5.4 MB; it fades out, the other clip holds), engine boot splash (`boot_splash.png`, project.godot), `scripts/boot/studio_intro.gd` (contain-fit, skip after 1 s, still fallback), `scripts/boot/first_run.gd`, `scripts/core/app_services.gd`, `scripts/ui/world_loading.gd`, `scripts/core/platform_services.gd` + `docs/platform/ACCOUNTS_AND_SERVICES.md`, `locale/strings.csv` (en/nl).
 NOT wired (unverified): everything in `docs/platform/boot_wiring_wip.patch` (apply with `git apply`): studio intro + first run in frontend/boot.gd, WorldLoading veil + pause button/Esc/back + camera sens/stick size/vibration in hud.gd, load progress in main.gd, render scale in quality.gd, settings rows, pause glyph. Also register autoloads `App` (after Quality) and `PlatformServices`. A headless run showed "Parameter t is null / convert on null" errors (source not yet traced). Still to do: run windowed, capture boot_flow screenshots + frame sheets (docs/ui/boot_flow/), 2400x1080 and 4:3 checks, handoff note.
-
-## 2026-09-29 impostor edge fix: NOT landed (usage limit)
-Tried 2048 atlas (256 px tiles, 2x supersample, premultiplied), alpha-to-coverage shader, mipmapped VRAM import and visibility-range dither fade. Baking worked; the fade vs hard-swap walk test and compare-row re-render were not completed, so the change was discarded. Committed impostors remain the 128 px version. Next: redo with fade metric + compare row.
-
-## Remaining work: free animation library
-- Full stop-motion read of KayKit weapons, combos, remaining unarmed clips; verify punch types (front view) and rename Heavy punches.
-- Godot `--import` sanity for the new GLBs and add to `Assets.UAL_FILES` (Codex).
-- More casting (lightning-from-sky, beam loops, teleport dash) is thin; only CMU/KayKit clips exist.
-
-## Elemental VFX (stopped at usage limit)
-Done: 61 scenes, ElementFX API, shaders, gallery, README, perf table, sheets. Remaining: `elements_gallery` capture fails under gl_compatibility (image readback null at line ~370, CPUParticles fallback untested visually); lightning beam/impact could be bolder; dash ghost silhouette is plain white; motion sheets in docs/art/vfx_elements/frames cover only fire+lightning (review timing of others); not wired into gameplay.
