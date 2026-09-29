@@ -1,5 +1,7 @@
 # Systems masterplan: a coherent mobile living world
 
+Current implementation status is recorded in [SYSTEMS_CONTINUATION.md](SYSTEMS_CONTINUATION.md), **Current checkpoint after usage reset**. The original audit below remains the roadmap; the new deliveries do not imply that the rest of this plan is complete.
+
 Audit baseline: `origin/main` 4e03e000d2e68e32fea7bb0625d373e72bbbfe0d, 29 September 2026. This document is a proposed sequence, not proof of implemented features. The source is authoritative when older design progress lists disagree. Scope: systems and world building; Claude owns current models, environment and presentation work.
 
 ## Direction from the supplied material
