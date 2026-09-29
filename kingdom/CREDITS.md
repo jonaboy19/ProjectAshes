@@ -157,6 +157,10 @@ CC0 (credited with thanks):
 - Stagborn calls layered from Joseph Sardin (BigSoundBank) recordings and the ward-break glass from rubberduck's "100 CC0 SFX".
 - Rune hum, ward activate, glyph carve and the Ashen Scar ambience are synthesised for the game (no third-party audio).
 
+### VFX tools added 2026-09-29 (local PC session; see `docs/art/vfx_tools/README.md`)
+- **Effekseer for Godot 4** (c) 2020 Effekseer Project, MIT (https://github.com/effekseer/EffekseerForGodot4), v1.80.5.1, `kingdom/addons/effekseer/` (Windows x64 and Android arm32/arm64 binaries only; iOS/macOS/Linux/Web libraries left out, see `tools/vfx/README.md`). Not enabled as an editor plugin, not used by gameplay code.
+- **Effekseer sample effect "Aura01"** (Effekseer editor 1.80.7, `Sample/00_Version16`), CC0, credit to Effekseer, `kingdom/assets/vfx/effekseer/`.
+- Six baked VFX flipbooks in `kingdom/assets/vfx/flipbooks/` are original project work (Blender + numpy scripts in `tools/vfx/`), no third-party content.
 ## Stagborn elk and Antlered Warden (added 2026-09-29, L5; see `assets/incoming/ai3d/meshy/creatures/stagborn_README.md`)
 - **Quaternius**, *Ultimate Animated Animals* **Stag** (mesh, rig and stock clips: idle, walk, gallop, headbutt, kick, hit, death, eating), **CC0 1.0** (https://quaternius.com, https://creativecommons.org/publicdomain/zero/1.0/; licence file `assets/incoming/quaternius/ultimate-animated-animals/License.txt`). No attribution required; credited with thanks.
 - Customisation (Warden antlers, mane, body proportions, painted and rune-emissive textures, authored `attack`, `run_charge` and `roar` clips, retiming, LOD1): own work for Rising Ashes. No Meshy credits and no other third-party material were used.
