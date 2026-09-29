@@ -219,3 +219,175 @@ KEEP = optimized to `kingdom/assets/incoming/meshy_free/<category>/`. MAYBE stat
 | 210 | `Meshy_AI_t_pose_stylized_medie_0929055341_texture.glb` | character | 10,000 | MAYBE | T-pose templar knight, humanoid, needs rigging/pose and a paint pass; not optimized |
 | 211 | `Meshy_AI_ultra_realistic_anci_0929052558_texture.glb` | cart | 528,092 | KEEP | clean, fits style; carts/wagon_covered |
 | 212 | `Meshy_AI_wooden_barrel_pirate_0929052701_texture.glb` | barrel | 286,666 | REJECT | pirate skull-and-crossbones logo on barrel |
+
+## Round 2: street dressing and props (161 CC0 GLBs)
+
+161 CC0 GLBs from the Meshy community library (licence verified per model). KEEP 126 / MAYBE 31 / REJECT 4.
+Raw contact sheets (index + name + source triangles): `docs/art/meshy_free/contact_sheets/raw2_1.jpg` .. `raw2_9.jpg`; the `#` below matches them.
+Same rules as round 1: KEEP goes to `kingdom/assets/incoming/meshy_free/<category>/`, MAYBE statics to `.../meshy_free/maybe/<category>/`, MAYBE humanoids are not optimized.
+No file in this batch carries an armature or animation (checked in the GLB JSON), so nothing needed a skinned-mesh exception.
+Rejected: exact duplicates and broken or off-tone pieces. No logos, brands or recognizable IP found; the tavern wench and the play-character warrior are realistic humans and stay MAYBE for the paint pass.
+
+| # | file | category | tris | verdict | reason |
+|---|------|----------|-----:|---------|--------|
+| 1 | `A_beautiful_medieval__0929071545_texture.glb` | buildings | 175,776 | MAYBE | grimy, floating debris; maybe/buildings/hut_mossy_ruined_a |
+| 2 | `A_beautiful_medieval__0929071604_texture.glb` | buildings | 198,398 | MAYBE | grimy; maybe/buildings/hut_mossy_ruined_b |
+| 3 | `A_cartoon_style_warri_0929071536_texture.glb` | character | 21,663 | MAYBE | cartoon armoured warrior with sword, chibi-ish; no rig in file, needs rigging/pose and a paint pass; not optimized |
+| 4 | `A_group_of_flowers__0929065718_texture.glb` | flora | 603,558 | KEEP | fits style; flora/bouquet_wild |
+| 5 | `A_low_poly_hunter_s_h_0929070422_texture.glb` | buildings | 24,248 | MAYBE | ground base disc; maybe/buildings/hut_hunter_base |
+| 6 | `A_magnificent_throne__0929070016_texture.glb` | furniture | 266,530 | KEEP | fits style; furniture/throne_gold_red |
+| 7 | `A_medieval_fantasy_st_0929065412_texture.glb` | lighting | 405,348 | KEEP | fits style; lighting/lantern_post_purple |
+| 8 | `A_medieval_fantasy_st_0929065420_texture.glb` | lighting | 628,766 | KEEP | fits style; lighting/lamp_post_purple_bracket |
+| 9 | `A_medieval_suit_of_ar_0929071426_texture.glb` | interior | 187,294 | KEEP | fits style; interior/armour_stand_knight |
+| 10 | `A_medieval_tapestry_f_0929071152_texture.glb` | interior | 104,283 | KEEP | fits style; interior/tapestry_hunt |
+| 11 | `A_regal_and_royal_med_0929065952_texture.glb` | furniture | 952,498 | KEEP | fits style; furniture/throne_gothic_gold |
+| 12 | `A_stylized_low_poly_m_0929071620_texture.glb` | character | 575,515 | MAYBE | archer villager, humanoid; no rig in file, needs rigging/pose and a paint pass; not optimized |
+| 13 | `A_stylized_low_poly_m_0929071628_texture.glb` | - | 575,515 | REJECT | exact duplicate of #12 (same mesh) |
+| 14 | `A_stylized_medieval_w_0929071202_texture.glb` | banners | 125,626 | KEEP | fits style; banners/banner_stand_chains |
+| 15 | `A_stylized_medieval_w_0929071216_texture.glb` | banners | 590,591 | KEEP | fits style; banners/banner_stand_spear_flag |
+| 16 | `A_stylized_medieval_w_0929071233_texture.glb` | banners | 225,268 | KEEP | fits style; banners/banner_stand_spiked_base |
+| 17 | `A_stylized_medieval_w_0929071251_texture.glb` | banners | 596,887 | KEEP | fits style; banners/banner_stand_iron_frame |
+| 18 | `A_stylized_medieval_w_0929071305_texture.glb` | banners | 397,127 | KEEP | fits style; banners/banner_stand_tall_narrow |
+| 19 | `A_stylized_medieval_w_0929071317_texture.glb` | banners | 154,668 | KEEP | fits style; banners/banner_stand_hanging_chains |
+| 20 | `A_stylized_wooden_tav_0929071953_texture.glb` | furniture | 198,740 | KEEP | fits style; furniture/table_tavern_trestle |
+| 21 | `A_stylized_wooden_tav_0929072007_texture.glb` | furniture | 1,795 | KEEP | fits style; furniture/table_tavern_thick |
+| 22 | `A_tall_rustic_mediev_0929072107_texture.glb` | interior | 501,222 | KEEP | fits style; interior/bookshelf_tall_rustic |
+| 23 | `A_throne_Medieval__0929070024_texture.glb` | furniture | 171,213 | KEEP | fits style; furniture/throne_carved_wood |
+| 24 | `An_aged_weathered_me_0929065259_texture.glb` | props | 1,500 | KEEP | fits style; props/crate_planks |
+| 25 | `An_anime_medieval_wal_0929071833_texture.glb` | castle | 2,994 | KEEP | fits style; castle/wall_battlement_block |
+| 26 | `An_incredible_Highly__0929071402_texture.glb` | - | 246,904 | REJECT | black slab with axe-and-sword emblem, no clear use, off-tone |
+| 27 | `An_old_wooden_barrel__0929072057_texture.glb` | furniture | 10,000 | KEEP | fits style; furniture/table_barrel_top |
+| 28 | `Arched_Stone_Bridge_0929070939_texture.glb` | water | 149,482 | KEEP | fits style; water/bridge_stone_arched_rail |
+| 29 | `Asian_Golden_Needle_M_0929070527_texture.glb` | flora | 321,378 | KEEP | fits style; flora/mushroom_bowl_orange |
+| 30 | `Bookshelf_Harmony_0929072148_texture.glb` | interior | 629,064 | KEEP | fits style; interior/bookshelf_wide_low |
+| 31 | `Bookshelf_Nook_0929072125_texture.glb` | interior | 527,892 | MAYBE | corner unit; maybe/interior/bookshelf_nook_corner |
+| 32 | `Bookshelf_Oasis_0928174039_texture.glb` | interior | 10,000 | KEEP | fits style; interior/bookshelf_glass_cabinet |
+| 33 | `Broken_Wooden_Fence_0929070252_texture.glb` | fences | 29,962 | KEEP | fits style; fences/fence_broken_rail |
+| 34 | `Circular_Wooden_Dock__0929070636_texture.glb` | water | 10,229 | KEEP | fits style; water/dock_circular_wood |
+| 35 | `Create_a_realistic_fu_0929070654_texture.glb` | character | 585,340 | MAYBE | realistic cloaked man; no rig in file, needs rigging/pose and a paint pass; not optimized |
+| 36 | `Curved_Walnut_Dining__0929072034_texture.glb` | furniture | 158,128 | MAYBE | thin legs, plain; maybe/furniture/table_dining_walnut |
+| 37 | `Dark_fantasy_dungeon__0929071912_texture.glb` | lighting | 331,903 | KEEP | fits style; lighting/torch_dungeon_cage |
+| 38 | `Desert_Tavern_Table__0929072045_texture.glb` | furniture | 197,611 | KEEP | fits style; furniture/table_tavern_feast |
+| 39 | `Enchanted_Mushrooms_i_0929070452_texture.glb` | flora | 19,032 | KEEP | fits style; flora/mushrooms_blue_glow |
+| 40 | `Fantasy_weapon_rack_f_0929071328_texture.glb` | interior | 340,160 | KEEP | fits style; interior/weapon_rack_swords |
+| 41 | `Garden_Wheelbarrow_Pl_0929070431_texture.glb` | farm | 180,553 | KEEP | fits style; farm/wheelbarrow_planter |
+| 42 | `Gothic_Street_Lantern_0929065445_texture.glb` | lighting | 202,675 | KEEP | fits style; lighting/street_lantern_gothic |
+| 43 | `Hay_Bale_0929070340_texture.glb` | farm | 9,809 | KEEP | fits style; farm/hay_bale_round |
+| 44 | `Hay_Bale_0929070348_texture.glb` | farm | 7,979 | KEEP | fits style; farm/hay_bale_rect_a |
+| 45 | `Large_rectangular_hay_0929070404_texture.glb` | farm | 113,979 | KEEP | fits style; farm/hay_bale_yellow_large |
+| 46 | `Low_Poly_Hay_Bale_0929070357_texture.glb` | farm | 903,006 | KEEP | fits style; farm/hay_bale_lowpoly |
+| 47 | `Low_poly_red_cap_mush_0929070518_texture.glb` | flora | 10,000 | KEEP | fits style; flora/mushroom_redcap |
+| 48 | `Macbeth_Prompt_A_rug_0929071612_texture.glb` | character | 303,164 | MAYBE | realistic bearded warrior (prompt names a play character); no rig in file, needs rigging/pose and a paint pass; not optimized |
+| 49 | `Medieval_Coin_0929065916_texture.glb` | loot | 618,029 | KEEP | fits style; loot/coin_gold_big |
+| 50 | `Medieval_Coin_0929065926_texture.glb` | loot | 10,000 | KEEP | fits style; loot/coin_silver_big |
+| 51 | `Medieval_Duo_0929065734_texture.glb` | character | 556,667 | MAYBE | realistic villager pair; no rig in file, needs rigging/pose and a paint pass; not optimized |
+| 52 | `Medieval_Game_of_Thr_0929070042_texture.glb` | creatures | 150,254 | MAYBE | prompt named a TV franchise, geometry is a generic small dragon; maybe/creatures/dragon_grey_small |
+| 53 | `Medieval_Hut_0929065822_texture.glb` | buildings | 9,978 | KEEP | fits style; buildings/hut_long_thatch |
+| 54 | `Medieval_Iron_Lantern_0929065509_texture.glb` | lighting | 325,233 | KEEP | fits style; lighting/lantern_wall_iron |
+| 55 | `Medieval_Keg_0929065837_texture.glb` | props | 299,993 | KEEP | fits style; props/keg_iron_banded_upright |
+| 56 | `Medieval_Keg_0929065859_texture.glb` | props | 300,000 | KEEP | fits style; props/keg_iron_banded_side |
+| 57 | `Medieval_Lantern_Post_0928122141_texture.glb` | lighting | 287,345 | KEEP | fits style; lighting/lantern_post_wood |
+| 58 | `Medieval_Mace_0929065741_texture.glb` | props | 351,650 | MAYBE | dark realistic metal; maybe/props/mace_iron |
+| 59 | `Medieval_Throne_Chair_0929065934_texture.glb` | furniture | 195,314 | KEEP | fits style; furniture/throne_leather_cushion |
+| 60 | `Medieval_Torch_0929071709_texture.glb` | lighting | 130,306 | KEEP | fits style; lighting/torch_stake |
+| 61 | `Medieval_Torch_Sconce_0929071758_texture.glb` | lighting | 10,000 | KEEP | fits style; lighting/sconce_torch_bracket |
+| 62 | `Medieval_Wall_Sconce_0929071725_texture.glb` | lighting | 129,883 | KEEP | fits style; lighting/sconce_wall_bowl_a |
+| 63 | `Medieval_Wall_Sconce_0929071743_texture.glb` | lighting | 135,505 | KEEP | fits style; lighting/sconce_wall_bowl_b |
+| 64 | `Medieval_axe_0929065814_texture.glb` | props | 10,000 | KEEP | fits style; props/axe_battle_upright |
+| 65 | `Medieval_bed__0929065750_texture.glb` | interior | 7,157 | KEEP | fits style; interior/bed_canopy_red |
+| 66 | `Medieval_desk_0929065907_texture.glb` | furniture | 11,468 | KEEP | fits style; furniture/lectern_desk |
+| 67 | `Medieval_hanging_shop_0929065551_texture.glb` | signs | 30,000 | KEEP | fits style; signs/sign_shop_lion |
+| 68 | `Medieval_knight_full_0929071453_texture.glb` | interior | 299,301 | MAYBE | realistic human-shaped armour, static; maybe/interior/armour_knight_sword_static |
+| 69 | `Medieval_wall_shield__0929071813_texture.glb` | interior | 84,326 | KEEP | fits style; interior/wall_shield_heater |
+| 70 | `Medieval_wall_shield__0929071841_texture.glb` | interior | 109,132 | KEEP | fits style; interior/wall_shield_iron_studded |
+| 71 | `Medieval_wall_shield__0929071851_texture.glb` | interior | 82,770 | MAYBE | dark door-like slab; maybe/interior/wall_shield_tall_dark |
+| 72 | `Mossy_Stone_Bridge_0929070836_texture.glb` | water | 18,266 | KEEP | fits style; water/bridge_mossy_small |
+| 73 | `Old_Wooden_Wheelbarro_0929070438_texture.glb` | farm | 787,320 | KEEP | fits style; farm/wheelbarrow_wooden_old |
+| 74 | `Raspberry_bush_Styli_0929065725_texture.glb` | flora | 19,397 | KEEP | fits style; flora/bush_raspberry |
+| 75 | `Rustic_Stone_Bridge_0929070843_texture.glb` | water | 4,199 | KEEP | fits style; water/bridge_stone_rustic_a |
+| 76 | `Rustic_Stone_Bridge_0929070916_texture.glb` | water | 616,915 | KEEP | fits style; water/bridge_stone_wood_deck |
+| 77 | `Rustic_Stone_Bridge_0929070923_texture.glb` | water | 206,823 | KEEP | fits style; water/bridge_stone_rustic_b |
+| 78 | `Rustic_Stone_Bridge_0929070930_texture.glb` | water | 124,519 | KEEP | fits style; water/bridge_stone_rustic_c |
+| 79 | `Rustic_Tavern_Table_0928123703_texture.glb` | furniture | 10,012 | KEEP | fits style; furniture/tavern_set_barrels_a |
+| 80 | `Rustic_Tavern_Table_0929071945_texture.glb` | furniture | 5,920 | KEEP | fits style; furniture/tavern_set_barrels_b |
+| 81 | `Rustic_Wooden_Fence_0929070303_texture.glb` | fences | 9,932 | KEEP | fits style; fences/fence_rail_rustic |
+| 82 | `Rustic_hanging_sign_w_0929065634_texture.glb` | signs | 489,192 | KEEP | fits style; signs/sign_blank_rope |
+| 83 | `Rustic_wooden_fence_0929070332_texture.glb` | fences | 144,597 | KEEP | fits style; fences/fence_picket_low |
+| 84 | `Skeleton_Rogue_creatu_0929071702_texture.glb` | creatures | 9,986 | MAYBE | dark undead; maybe/creatures/skeleton_hooded |
+| 85 | `Skeleton_Warrior_crea_0929071635_texture.glb` | creatures | 9,995 | MAYBE | dark undead; maybe/creatures/skeleton_warrior_a |
+| 86 | `Skeleton_Warrior_crea_0929071655_texture.glb` | creatures | 10,000 | MAYBE | dark undead; maybe/creatures/skeleton_warrior_b |
+| 87 | `Stone_Arch_Bridge_0928130805_texture.glb` | water | 433,021 | MAYBE | very long thin bridge on a rock base; maybe/water/bridge_arch_long_rocks |
+| 88 | `Stone_Arch_Bridge_0929070803_texture.glb` | water | 10,000 | KEEP | fits style; water/bridge_stone_dark_long |
+| 89 | `Stone_Arch_Bridge_0929070829_texture.glb` | water | 57,484 | KEEP | fits style; water/bridge_arch_pale |
+| 90 | `Stone_Bridge_Passage_0929070851_texture.glb` | water | 954,151 | KEEP | fits style; water/bridge_stone_passage |
+| 91 | `Stone_Bridge_Railing_0929070947_texture.glb` | fences | 374,575 | KEEP | fits style; fences/wall_stone_railing |
+| 92 | `Stone_Garden_Bridge_0929070858_texture.glb` | water | 9,996 | KEEP | fits style; water/bridge_garden_vines |
+| 93 | `Stone_Serenity_Bridge_0928193935_texture.glb` | water | 910,856 | KEEP | fits style; water/bridge_serenity_steps |
+| 94 | `Stylized_Bellflower_0929065651_texture.glb` | flora | 699,536 | KEEP | fits style; flora/bellflower_purple |
+| 95 | `Stylized_Chicken_Coop_0929071022_texture.glb` | farm | 29,990 | KEEP | fits style; farm/chicken_coop_fenced |
+| 96 | `Stylized_Chicken_Wor_0929071014_texture.glb` | farm | 10,000 | KEEP | fits style; farm/chicken_rooster |
+| 97 | `Stylized_Flowers_Robl_0929065659_texture.glb` | flora | 922,282 | KEEP | fits style; flora/bouquet_bright |
+| 98 | `Stylized_chicken_dee_0929071030_texture.glb` | farm | 379,747 | KEEP | fits style; farm/chicken_hen |
+| 99 | `Stylized_glowing_mus_0929070445_texture.glb` | flora | 330,629 | KEEP | fits style; flora/mushroom_glow_brown |
+| 100 | `Stylized_medieval_wal_0929071751_texture.glb` | castle | 6,064 | KEEP | fits style; castle/watchtower_stone_small |
+| 101 | `Tavern_Wench_with_Bee_0929072027_texture.glb` | character | 857,285 | MAYBE | realistic tavern wench miniature on a base; no rig in file, needs rigging/pose and a paint pass; not optimized |
+| 102 | `Tree_Stump_0929070545_texture.glb` | flora | 979,428 | KEEP | fits style; flora/stump_cut |
+| 103 | `Tree_Stump_0929070606_texture.glb` | flora | 9,769 | KEEP | fits style; flora/stump_grass_rocks |
+| 104 | `Tree_Stump_Sprite_0929070613_texture.glb` | flora | 2,999 | KEEP | fits style; flora/stump_dead_tall |
+| 105 | `Twin_Lantern_Street_L_0929065453_texture.glb` | lighting | 6,957 | KEEP | fits style; lighting/street_lamp_twin_gold |
+| 106 | `Two_Maidens_in_a_Medi_0929065544_texture.glb` | character | 702,295 | MAYBE | realistic maiden pair; no rig in file, needs rigging/pose and a paint pass; not optimized |
+| 107 | `Two_cows_standing_sid_0929071144_texture.glb` | farm | 350,576 | KEEP | fits style; farm/cows_pair |
+| 108 | `Two_sets_of_weapons_r_0929071353_texture.glb` | interior | 222,356 | KEEP | fits style; interior/weapon_racks_spears |
+| 109 | `Two_story_medieval_bu_0929065600_texture.glb` | buildings | 112,373 | KEEP | fits style; buildings/house_two_story_shingle |
+| 110 | `Two_story_medieval_bu_0929065608_texture.glb` | buildings | 93,097 | KEEP | fits style; buildings/house_two_story_tall_timber |
+| 111 | `Victorian_Street_Lant_0929065500_texture.glb` | lighting | 103,323 | MAYBE | Victorian gas lamp, slightly modern; maybe/lighting/street_lamp_victorian |
+| 112 | `Weathered_Wooden_Dock_0929061637_texture.glb` | water | 522,248 | KEEP | fits style; water/dock_weathered_pier |
+| 113 | `Whimsical_Felt_Street_0929065535_texture.glb` | lighting | 267,779 | KEEP | fits style; lighting/street_lantern_whimsical |
+| 114 | `Wooden_Fence_0928125055_texture.glb` | fences | 10,060 | KEEP | fits style; fences/fence_rail_grass_a |
+| 115 | `Wooden_Fence_0928125404_texture.glb` | fences | 302,108 | KEEP | fits style; fences/fence_rail_grass_b |
+| 116 | `Wooden_Fence_0929070058_texture.glb` | fences | 5,855 | KEEP | fits style; fences/fence_palisade |
+| 117 | `Wooden_Fence_0929070105_texture.glb` | fences | 57,071 | MAYBE | very thin pickets, shreds at budget; maybe/fences/fence_picket_thin_long |
+| 118 | `Wooden_Fence_Art_0929070156_texture.glb` | fences | 10,000 | KEEP | fits style; fences/fence_board_panel |
+| 119 | `Wooden_Fence_Art_0929070204_texture.glb` | fences | 104,134 | KEEP | fits style; fences/fence_board_gate |
+| 120 | `Wooden_Fence_Gate_0929070230_texture.glb` | fences | 2,815 | KEEP | fits style; fences/fence_gate_rail |
+| 121 | `Wooden_Fence_Icon_0929070212_texture.glb` | fences | 125,148 | KEEP | fits style; fences/fence_rail_orange |
+| 122 | `Wooden_Fence_Panel_0929070239_texture.glb` | fences | 9,804 | KEEP | fits style; fences/fence_plank_panel |
+| 123 | `Wooden_Hanging_Sign_0929065625_texture.glb` | signs | 269,322 | KEEP | fits style; signs/sign_blank_bracket |
+| 124 | `Wooden_Picket_Fence_0928182912_texture.glb` | fences | 323,742 | KEEP | fits style; fences/fence_picket_tall |
+| 125 | `Woven_Wooden_Fence_0928223403_texture.glb` | fences | 307,734 | KEEP | fits style; fences/fence_woven_wattle |
+| 126 | `a_medieval_glowing_e_0929070715_texture.glb` | lighting | 60,100 | KEEP | fits style; lighting/lantern_hanging_blue |
+| 127 | `a_medieval_glowing_e_0929070723_texture.glb` | lighting | 19,871 | KEEP | fits style; lighting/lantern_hanging_green |
+| 128 | `a_stylized_low_poly__0929071435_texture.glb` | character | 281,988 | MAYBE | stylized soldier; no rig in file, needs rigging/pose and a paint pass; not optimized |
+| 129 | `create_a_medieval_kni_0929065248_texture.glb` | character | 300,411 | MAYBE | knight with red tabard cross; no rig in file, needs rigging/pose and a paint pass; not optimized |
+| 130 | `fantasy_ultra_realis_0929065308_texture.glb` | creatures | 109,743 | MAYBE | dark gritty brute, off-tone but usable as enemy; maybe/creatures/brute_horned_a |
+| 131 | `fantasy_ultra_realis_0929065318_texture.glb` | creatures | 106,293 | MAYBE | dark gritty brute; maybe/creatures/brute_horned_b |
+| 132 | `fantasy_ultra_realis_0929065329_texture.glb` | creatures | 102,464 | MAYBE | dark gritty brute; maybe/creatures/brute_skull_shoulders |
+| 133 | `fantasy_ultra_realis_0929065354_texture.glb` | character | 99,537 | MAYBE | realistic barbarian on a base disc; no rig in file, needs rigging/pose and a paint pass; not optimized |
+| 134 | `fantasy_ultra_realis_0929065402_texture.glb` | character | 83,310 | MAYBE | realistic horned barbarian on a base disc; no rig in file, needs rigging/pose and a paint pass; not optimized |
+| 135 | `farm_wooden_fence_0929070150_texture.glb` | fences | 17,630 | KEEP | fits style; fences/fence_farm_white |
+| 136 | `low_poly_medieval_can_0929071806_texture.glb` | lighting | 5,309 | KEEP | fits style; lighting/candle_stand |
+| 137 | `medieval_and_vintage__0928121625_texture.glb` | farm | 10,464 | KEEP | fits style; farm/shed_thatch_small |
+| 138 | `medieval_and_vintage__0929071038_texture.glb` | farm | 598,229 | KEEP | fits style; farm/shed_wood_shingle |
+| 139 | `medieval_and_vintage__0929071055_texture.glb` | farm | 8,720 | KEEP | fits style; farm/chicken_coop_small |
+| 140 | `medieval_and_vintage__0929071109_texture.glb` | farm | 7,915 | KEEP | fits style; farm/shed_plank_low |
+| 141 | `medieval_and_vintage__0929071117_texture.glb` | buildings | 11,462 | KEEP | fits style; buildings/hut_wood_vine |
+| 142 | `medieval_axe_0929065830_texture.glb` | props | 198,010 | KEEP | fits style; props/axe_long_handle |
+| 143 | `medieval_glowing_emis_0929070741_texture.glb` | lighting | 6,918 | KEEP | fits style; lighting/lantern_wall_scroll |
+| 144 | `medieval_glowing_emis_0929070747_texture.glb` | - | 22,165 | REJECT | duplicate design of #143 |
+| 145 | `medieval_soldier_stan_0929071522_texture.glb` | character | 283,957 | MAYBE | soldier with shield; no rig in file, needs rigging/pose and a paint pass; not optimized |
+| 146 | `medieval_throne_ultr_0929070000_texture.glb` | furniture | 112,175 | KEEP | fits style; furniture/throne_dark_red_studded |
+| 147 | `medieval_throne_ultr_0929070007_texture.glb` | furniture | 251,225 | KEEP | fits style; furniture/throne_red_gothic |
+| 148 | `medieval_torch_0929071716_texture.glb` | lighting | 198,646 | KEEP | fits style; lighting/torch_hand_silver |
+| 149 | `medieval_wall_torch_o_0929071901_texture.glb` | lighting | 336,704 | KEEP | fits style; lighting/sconce_torch_ornate |
+| 150 | `medieval_wooden_stree_0929065427_texture.glb` | lighting | 172,605 | KEEP | fits style; lighting/lamp_post_timber_cross |
+| 151 | `old_medieval_fantasy__0929065642_texture.glb` | buildings | 9,989 | KEEP | fits style; buildings/house_stone_fantasy |
+| 152 | `old_stone_bridge_0929070755_texture.glb` | water | 10,000 | KEEP | fits style; water/bridge_old_stone_blue |
+| 153 | `rustic_tavern_bench_a_0929071930_texture.glb` | furniture | 20,078 | KEEP | fits style; furniture/table_bench_tavern |
+| 154 | `small_medieval_rowing_0929030212_texture.glb` | water | 19,414 | KEEP | fits style; water/boat_rowing |
+| 155 | `small_medieval_rowing_0929070701_texture.glb` | water | 21,255 | KEEP | fits style; water/boat_longship_sail |
+| 156 | `stone_age_lumber_mill_0929070535_texture.glb` | buildings | 700,707 | KEEP | fits style; buildings/lumber_mill |
+| 157 | `stylized_3D_game_asse_0929071126_texture.glb` | farm | 105,114 | KEEP | fits style; farm/cow_spotted |
+| 158 | `tasty_edible_mushroom_0929070510_texture.glb` | flora | 16,706 | KEEP | fits style; flora/mushroom_brown |
+| 159 | `weapon_rack_with_swor_0928185432_texture.glb` | interior | 10,000 | MAYBE | shield emblem may read as a skull, check before use; maybe/interior/weapon_rack_round_shield |
+| 160 | `wooden_dock_2_0929070621_texture.glb` | - | 740,070 | REJECT | unreadable tangle of black timbers, broken geometry |
+| 161 | `“Fantasy_medieval_w_0929071412_texture.glb` | interior | 683,876 | KEEP | fits style; interior/shelf_weapons_display |
