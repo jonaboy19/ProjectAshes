@@ -202,6 +202,7 @@ func _ready() -> void:
 
 ## A child of two real villagers, living in one of the village's houses.
 func _begin_life() -> void:
+	realm.warm_up()
 	var home: Dictionary = WorldGen.settlements[0]
 	var r: Vector2i = WorldSim.ranges[0]
 	var mother := r.x + 3
@@ -879,6 +880,11 @@ func _realm_ctx() -> Dictionary:
 
 func _on_hour(hour: int) -> void:
 	realm.on_hour(hour, WorldSim.day, _realm_ctx())
+	# City life and society keep a signed ledger instead of touching the purse.
+	for k: String in ["city_life", "society"]:
+		var net := int(realm.mod(k).take_pending_gold())
+		if net != 0:
+			Game.add_gold(net)
 	if hour == 6:
 		# War first: economy, lordship levies and promotion speed read the at_war flag this hour.
 		for msg: String in war.tick_day(WorldSim.day, {"feud_count": nobility.feuds().size(),
@@ -1167,6 +1173,7 @@ func restore(d: Dictionary) -> void:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	appearance = d.get("appearance", {})
+	realm.warm_up()
 	_last_abs = _abs_hours()
 	if d.has("player") and player and is_instance_valid(player):
 		var p: Dictionary = d["player"]

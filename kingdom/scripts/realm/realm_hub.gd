@@ -36,6 +36,20 @@ func _init() -> void:
 		mods[k] = m
 
 
+## Builds every module's lazy data (rosters, schedules, guilds) up front so the
+## first in-game hour/day never pays for it. Call behind a loading screen.
+func warm_up() -> void:
+	for k: String in ORDER:
+		var m: RefCounted = mods[k]
+		for f: String in ["_ensure", "_ensure_npcs", "_ensure_guilds"]:
+			if m.has_method(f) and m.get_method_argument_count(f) == 0:
+				m.call(f)
+	var cl: RefCounted = mods["city_life"]
+	if cl.has_method("_ensure"):
+		for st in WorldGen.settlements:
+			cl.call("_ensure", int(st["id"]))
+
+
 func mod(name: String) -> RefCounted:
 	return mods.get(name)
 
