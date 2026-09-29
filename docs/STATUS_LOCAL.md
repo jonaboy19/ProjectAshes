@@ -66,3 +66,7 @@ NOT wired (unverified): everything in `docs/platform/boot_wiring_wip.patch` (app
 - Casting is thin (lightning-from-sky, beam loops, teleport dash missing); Kay dodges are 0.4 s bursts without recovery; no true uppercut exists.
 - Performance: at most ~4 HIGH-tier characters per frame budget (AnimationTree costs 2x a clip); rank trees/modifiers by camera distance like `rig_budget`.
 - Full-project headless `--import` of the new GLBs still not run (disk); a mini-project import of all 15 GLBs was clean.
+
+## Open issues from the boot-flow run (2026-09-29)
+- Unexplained rendering errors during world load under `--rendering-method mobile` at 1280x720 ("Parameter framebuffer is null", "Index p_mipmap out of bounds", "Uniforms were never supplied for set (0)"), hundreds per run. They do not fail the flow; cause not investigated.
+- 76 leaked `JoltShape3D` RID allocations reported at exit.
