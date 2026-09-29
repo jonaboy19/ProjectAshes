@@ -634,8 +634,8 @@ func _step_boot() -> void:
 	if not ok:
 		finding("critical", "Player never entered the tree within 180 s")
 	var load_done := await wait_until(func() -> bool:
-		var ld: Control = hud.get("_loading")
-		return ld == null or not ld.visible, 180.0)
+		var ld: Variant = hud.get("_loading")
+		return not is_instance_valid(ld) or not ld.visible, 180.0)
 	log_line("Loading screen gone at %.2fs (%s)" % [now(), "ok" if load_done else "TIMEOUT"])
 	RenderingServer.viewport_set_measure_render_time(main.viewport.get_viewport_rid(), true)
 	if _uncapped:

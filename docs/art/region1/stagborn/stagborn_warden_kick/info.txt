@@ -1,0 +1,5 @@
+source: /c/Users/Jonna/Documents/ProjectAshes_art_staging/stag/fr/warden/kick
+duration_s: 1.240000
+sample_fps: 15
+frames_per_sheet: 12  (= 0.8 s per sheet)
+sheets: 2

@@ -9,7 +9,7 @@ const G := "res://assets/generated/"
 const IMP := "res://assets/generated/impostors/"
 const CELL := 32.0
 const NEAR := 45.0
-const FADE := 5.0   # dithered crossfade length (m) between full mesh and impostor, centred on NEAR
+var FADE := 5.0   # dithered crossfade length (m) between full mesh and impostor, centred on NEAR
 
 # kind -> [source scene, impostor scene, count share]
 const KINDS := {
@@ -34,6 +34,7 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--capture="): cap_dir = a.substr(10)
 		if a.begins_with("--fly="): fly_mode = a.substr(6)
+		if a.begins_with("--fade="): FADE = float(a.substr(7))
 		if a.begins_with("--trees="): tree_count = int(a.substr(8))
 		if a.begins_with("--houses="): house_count = int(a.substr(9))
 	Engine.max_fps = 0
@@ -159,6 +160,12 @@ func _build(mode: String) -> Dictionary:
 		var imp_mesh := imp_scene.mesh
 		var imp_mat := imp_scene.material_override
 		var margin := imp_scene.extra_cull_margin
+		var imp_center: Vector3 = (imp_mat as ShaderMaterial).get_shader_parameter("center")
+		var imp_mat_i: Material = imp_mat
+		if mode == "fade":
+			imp_mat_i = (imp_mat as ShaderMaterial).duplicate()
+			(imp_mat_i as ShaderMaterial).set_shader_parameter("fade_in_end", NEAR + FADE * 0.5)
+			(imp_mat_i as ShaderMaterial).set_shader_parameter("fade_in_len", FADE)
 		# bucket by cell so every MultiMesh is frustum-culled as a unit (same as the game's cell batching)
 		var full_cells := {}
 		var imp_cells := {}
@@ -180,16 +187,23 @@ func _build(mode: String) -> Dictionary:
 				var xs: Array = []
 				for t: Transform3D in full_cells[key]:
 					xs.append(t * (m[1] as Transform3D))
-				var mmi := _mm(m[0], xs, null, true, 0.0, _cell_center(key) if mode in ["fade", "hard"] else Vector3.INF)
-				if mode in ["fade", "hard"]:
-					_fade_out(mmi, mode == "fade")
+				var mesh_i: Mesh = m[0]
+				if mode == "fade":
+					mesh_i = _fade_mesh(m[0], imp_center)
+				var mmi := _mm(mesh_i, xs, null, true, 0.0, _cell_center(key) if mode in ["fade", "hard"] else Vector3.INF)
+				if mode == "fade":
+					mmi.visibility_range_end = NEAR + FADE * 0.5 + CELL * 0.75
+				elif mode == "hard":
+					mmi.visibility_range_end = NEAR
 				root_group.add_child(mmi)
 				stats["multimeshes"] += 1
 			stats["instances_full"] += full_cells[key].size()
 		for key in imp_cells:
-			var imi := _mm(imp_mesh, imp_cells[key], imp_mat, false, margin, _cell_center(key) if mode in ["fade", "hard"] else Vector3.INF)
-			if mode in ["fade", "hard"]:
-				_fade_in(imi, mode == "fade")
+			var imi := _mm(imp_mesh, imp_cells[key], imp_mat_i, false, margin, _cell_center(key) if mode in ["fade", "hard"] else Vector3.INF)
+			if mode == "fade":
+				imi.visibility_range_begin = maxf(0.0, NEAR - FADE * 0.5 - CELL * 0.75)
+			elif mode == "hard":
+				imi.visibility_range_begin = NEAR
 			root_group.add_child(imi)
 			stats["multimeshes"] += 1
 			stats["instances_imp"] += imp_cells[key].size()
@@ -200,19 +214,27 @@ func _build(mode: String) -> Dictionary:
 func _cell_center(key: Vector2i) -> Vector3:
 	return Vector3((key.x + 0.5) * CELL, 0.0, (key.y + 0.5) * CELL)
 
-## Godot fades a visibility-range edge OUTSIDE the range: the mesh (end NEAR-FADE/2, margin FADE) dithers out between NEAR-FADE/2 and NEAR+FADE/2
-## while the impostor (begin NEAR+FADE/2, margin FADE) dithers in over the same band, so the 5 m crossfade is centred on NEAR and never pops.
-func _fade_out(mi: GeometryInstance3D, fade: bool) -> void:
-	mi.visibility_range_end = NEAR - (FADE * 0.5 if fade else 0.0)
-	if fade:
-		mi.visibility_range_end_margin = FADE
-		mi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
-
-func _fade_in(mi: GeometryInstance3D, fade: bool) -> void:
-	mi.visibility_range_begin = NEAR + (FADE * 0.5 if fade else 0.0)
-	if fade:
-		mi.visibility_range_begin_margin = FADE
-		mi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+## Crossfade: the mesh dithers out over [NEAR-FADE/2, NEAR+FADE/2] (mesh_fade.gdshader, per instance) while the impostor dithers in over the same band with
+## complementary noise (fade_in_end / fade_in_len uniforms of impostor_octa.gdshader). Cells only get hard visibility ranges for culling.
+func _fade_mesh(mesh: Mesh, center: Vector3) -> Mesh:
+	var m2: Mesh = mesh.duplicate()
+	var sh := load("res://tools_qa/addons_demo/mesh_fade.gdshader") as Shader
+	for i in m2.get_surface_count():
+		var src := m2.surface_get_material(i)
+		var sm := ShaderMaterial.new()
+		sm.shader = sh
+		if src is BaseMaterial3D:
+			var b := src as BaseMaterial3D
+			if b.albedo_texture:
+				sm.set_shader_parameter("albedo_tex", b.albedo_texture)
+			sm.set_shader_parameter("albedo", b.albedo_color)
+			sm.set_shader_parameter("use_vertex_color", b.vertex_color_use_as_albedo)
+			sm.set_shader_parameter("roughness", b.roughness)
+		sm.set_shader_parameter("center", center)
+		sm.set_shader_parameter("fade_out_start", NEAR - FADE * 0.5)
+		sm.set_shader_parameter("fade_len", FADE)
+		m2.surface_set_material(i, sm)
+	return m2
 
 func _compare_row() -> void:
 	_clear()
