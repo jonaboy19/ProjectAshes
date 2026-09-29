@@ -7,12 +7,16 @@ extends Node3D
 ## Needs a real GPU (not --headless):
 ##   Godot --path kingdom --rendering-method mobile res://tools/impostors/impostor_baker.tscn -- \
 ##       --jobs=oak:res://assets/incoming/quaternius/stylized-nature-megakit/glTF/CommonTree_1.gltf,hut:res://... \
-##       [--grid=8] [--tile=128] [--out=res://assets/generated/impostors]
+##       [--grid=7] [--tile=176] [--ss=2] [--out=res://assets/generated/impostors]
+## A job may override the atlas layout: name:res://path.glb@grid@tile  (buildings use 6 x 208, trees 7 x 176: both about 2 MB in ETC2/ASTC with mips).
+## Edge quality: every view is rendered at `ss` x the tile size and resolved on the GPU (impostor_resolve.gdshader) with a coverage-weighted
+## box filter (anti-aliased alpha) and colour dilated into the transparent texels (no dark halos when filtered or compressed).
 
 const SHADER := "res://assets/generated/impostors/impostor_octa.gdshader"
 
-var grid := 8
-var tile := 128
+var grid := 7
+var tile := 176
+var ss := 3
 var out_dir := "res://assets/generated/impostors"
 var jobs: Array = []
 
@@ -20,14 +24,23 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--grid="): grid = int(a.substr(7))
 		elif a.begins_with("--tile="): tile = int(a.substr(7))
+		elif a.begins_with("--ss="): ss = int(a.substr(5))
 		elif a.begins_with("--out="): out_dir = a.substr(6)
 		elif a.begins_with("--jobs="):
 			for j in a.substr(7).split(","):
 				var kv := j.split(":", true, 1)
 				jobs.append([kv[0], kv[1]])
 	DisplayServer.window_set_size(Vector2i(320, 240))
+	var g0 := grid
+	var t0 := tile
 	for j in jobs:
-		await _bake(j[0], j[1])
+		grid = g0
+		tile = t0
+		var parts := (j[1] as String).split("@")
+		if parts.size() >= 3:
+			grid = int(parts[1])
+			tile = int(parts[2])
+		await _bake(j[0], parts[0])
 	get_tree().quit()
 
 static func hemi_oct_decode(uv: Vector2) -> Vector3:
@@ -54,7 +67,7 @@ func _tris(meshes: Array) -> int:
 func _bake(name_: String, path: String) -> void:
 	var ps := load(path) as PackedScene
 	var vp := SubViewport.new()
-	vp.size = Vector2i(tile, tile)
+	vp.size = Vector2i(tile * ss, tile * ss)
 	vp.transparent_bg = true
 	vp.own_world_3d = true
 	vp.msaa_3d = Viewport.MSAA_DISABLED
@@ -79,7 +92,8 @@ func _bake(name_: String, path: String) -> void:
 	cam.near = 0.05
 	cam.far = radius * 4.0 + 2.0
 	vp.add_child(cam)
-	var atlas := Image.create_empty(tile * grid, tile * grid, false, Image.FORMAT_RGBA8)
+	var src_px := tile * ss * grid
+	var big := Image.create_empty(src_px, src_px, false, Image.FORMAT_RGBA8)
 	for iy in grid:
 		for ix in grid:
 			var d := hemi_oct_decode(Vector2(ix, iy) / float(grid - 1))
@@ -89,8 +103,8 @@ func _bake(name_: String, path: String) -> void:
 			await RenderingServer.frame_post_draw
 			var img := vp.get_texture().get_image()
 			img.convert(Image.FORMAT_RGBA8)
-			_fill_transparent(img)
-			atlas.blit_rect(img, Rect2i(0, 0, tile, tile), Vector2i(ix * tile, iy * tile))
+			big.blit_rect(img, Rect2i(0, 0, tile * ss, tile * ss), Vector2i(ix * tile * ss, iy * tile * ss))
+	var atlas := await _resolve(big)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	var base := "%s/%s_octa" % [out_dir, name_]
 	atlas.save_png(ProjectSettings.globalize_path(base + ".png"))
@@ -125,6 +139,32 @@ material_override = ExtResource("1")
 	print("BAKED %s: source %d tris -> 2 tris, radius %.2f m, atlas %dx%d" % [name_, tris, radius, tile * grid, tile * grid])
 	vp.queue_free()
 	await get_tree().process_frame
+
+## GPU resolve: box-downsample the supersampled atlas with coverage-weighted colour, dilate colour into transparent texels.
+func _resolve(big: Image) -> Image:
+	var n := tile * grid
+	var vp := SubViewport.new()
+	vp.size = Vector2i(n, n)
+	vp.transparent_bg = true
+	vp.disable_3d = true
+	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(vp)
+	var r := ColorRect.new()
+	r.size = Vector2(n, n)
+	var m := ShaderMaterial.new()
+	m.shader = load("res://tools/impostors/impostor_resolve.gdshader")
+	m.set_shader_parameter("src", ImageTexture.create_from_image(big))
+	m.set_shader_parameter("grid", grid)
+	m.set_shader_parameter("ss", ss)
+	m.set_shader_parameter("src_size", Vector2(big.get_size()))
+	r.material = m
+	vp.add_child(r)
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	var out := vp.get_texture().get_image()
+	out.convert(Image.FORMAT_RGBA8)
+	vp.queue_free()
+	return out
 
 func _write(p: String, s: String) -> void:
 	var f := FileAccess.open(ProjectSettings.globalize_path(p), FileAccess.WRITE)

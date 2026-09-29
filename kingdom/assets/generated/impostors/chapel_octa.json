@@ -1,14 +1,14 @@
 {
-	"atlas_px": 1024,
+	"atlas_px": 1248,
 	"center": [
 		0.022367000579834,
 		5.9710636138916,
 		0.333950042724609
 	],
-	"grid": 8,
+	"grid": 6,
 	"impostor_tris": 2,
 	"radius": 10.0107707977295,
 	"source": "res://assets/generated/chapel.glb",
 	"source_tris": 11371,
-	"tile": 128
+	"tile": 208
 }

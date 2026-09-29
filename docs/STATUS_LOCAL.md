@@ -4,6 +4,7 @@ The local session updates this file whenever a task starts or finishes. **Cloud 
 Who owns which area: `docs/LOCAL_SESSION_HANDOFF.md`.
 
 _Last update: 2026-09-29_
+_Last update: 2026-09-29 (assets session: farm animals, Meshy fixes, impostors)_
 
 ## Done (recent)
 | Date | What | Where | Commit |
@@ -15,6 +16,21 @@ _Last update: 2026-09-29_
 | 09-29 | Meshy free pack round 1: 181 optimized models (CC0), not placed yet | `assets/incoming/meshy_free/` | a6c67244 |
 | 09-29 | Free VFX and shader gallery (Kenney, RPicster, god rays) | `assets/incoming/vfx_free/`, `shaders/free/`, `tools_qa/vfx_gallery/` | 58f8e8c4 |
 | 09-29 | Elemental VFX set: soft fire shader, bolder lightning and dash, stop-motion sheets, perf and Compatibility checked | `scenes/vfx/elements/`, `scripts/vfx/element_fx.gd`, `docs/art/vfx_elements/` | 58abc054 + follow-up |
+
+| 09-29 | **L17 Region 1 audio**: 7 looping themes (village/farm, guild town, Highwatch Keep, Stagborn glade, rift wilds, night, Warden boss), rune hum, ward activate/break, glyph carve x3, Stagborn bellow/snort/Warden roar, Scar ambience, 20 barks (10 m / 10 f). Music -16.1..-16.2 LUFS-I, one-shots peak -3 dBFS, 8.3 MB, licences in LICENSES.md + CREDITS.md | `assets/audio/region1/`, `docs/regions/AUDIO_R1.md`, `tools/audio/r1_*.sh` | (this commit) |
+| 09-29 | Meshy free pack round 1: 181 optimized models (CC0), not placed yet | `assets/incoming/meshy_free/` | a6c67244 |
+| 09-29 | Free VFX and shader gallery (Kenney, RPicster, god rays) | `assets/incoming/vfx_free/`, `shaders/free/`, `tools_qa/vfx_gallery/` | 58f8e8c4 |
+| 09-29 | Add-ons: Phantom Camera, impostors, footsteps, VoronoiShatter, SimpleGrass, DebugMenu, Sentry installer — see docs/addons/README.md | `addons/`, `tools/impostors/`, `tools_qa/addons_demo/`, `docs/addons/` | 9d2c8770 |
+| 09-29 | Impostor edge pass: 3x supersampled + dilated atlases (2 MB ETC2 per species), alpha-to-coverage edge, shader crossfade demo (mesh_fade + impostor_octa), fps 117 / 235 / 211 (mesh / impostor / hybrid) | `tools/impostors/`, `assets/generated/impostors/`, `docs/addons/README.md` | 98d6b875 |
+| 09-29 | Rigged farm animals (hen, rooster, 3 cows) with idle/walk/eat/flap clips, rig tools, frame sheets | `assets/incoming/meshy_free/farm/rigged/`, `tools/meshy/animal_rig/`, `docs/art/meshy_free/rigged/` | 72e1465a |
+| 09-29 | Meshy fixes: bouquet_bright re-baked, ruined-hut floating debris removed (island removal); raspberry kept | `assets/incoming/meshy_free/`, `docs/art/meshy_free/fixes/` | a8558e41 |
+| 09-29 | Elemental VFX set: soft fire shader, bolder lightning and dash, stop-motion sheets, perf and Compatibility checked | `scenes/vfx/elements/`, `scripts/vfx/element_fx.gd`, `docs/art/vfx_elements/` | 58abc054 + follow-up |
+
+## Region 1 scaffold (L0), 2026-09-29: DONE
+- `Region1Sim` (seeded, `tick(dt_days)`, events, `serialize`/`deserialize`/`migrate`, `digest`, `debug_image`), `Region1State` (static save registry, versioning + migration, unknown-module data kept), `Region1Root` (1 s timer, day slicing, presenter group), `Region1DemoSim`, `data/region1/{README.md,modules.json}`, headless sandbox `tools_qa/region1/region1_sandbox.tscn`, 19 gdUnit tests (`tests/test_region1_scaffold.gd`).
+- Cloud: paste H1 + H2 from `docs/regions/HOOKS_FOR_CLOUD.md` (not applied; hot files untouched).
+- Verified headless in a sparse worktree (no game assets): sandbox OK, 19/19 tests pass. NOT run inside the full game (hooks not wired yet).
+- Backlog: windowed sandbox variant for GPU frame sheets (L8/L11); a Region1 debug overlay (module ms) once hooks land; presenter pooling helper.
 
 ## In progress
 - **Meshy free pack round 2** (161 models) → `assets/incoming/meshy_free/`
@@ -38,6 +54,15 @@ _Last update: 2026-09-29_
 ## Meshy free fixes (partial, stopped at usage limit)
 - Done: optimize_free.py gained island_pct arg (arg 11) + env EMIT_ADD=1 / BAKE_EXT. Re-baked lamp_post_purple_bracket (solid, across 300, 1024px, EMIT_ADD), torch_dungeon_cage (island 14), house_two_story_shingle (solid, across 200), bouquet_wild (solid, across 260, smooth, 3500 tris, island 3), hay_bale_yellow_large (vox across 120, smooth, 3000 tris). Before/after in docs/art/meshy_free/fixes/.
 - Remaining: bouquet_bright, bush_raspberry (blobby vox across 90-130 candidates rendered, unreviewed), ruined-hut floating debris (use island_pct), farm animal rigs (task 2) not started.
+- (aaa-review, assets session) Rig the horse, wolves, fox and dragons with `animal_rig`; the cow grazing pose needs a longer neck or a kneel (muzzle stops about 20 cm above the ground); chicken wings are flat plates that swing out, an extra wing-tip bone or a re-modelled wing would sell the flap.
+- (aaa-review) Impostors: wrap the real game materials in the crossfade shader (`mesh_fade.gdshader` only carries albedo/colour/roughness), tune impostor tint/up_lighting to the lit mesh (impostors are lighter than shadowed meshes), test alpha-to-coverage on a phone and provide a no-MSAA path, bake impostors for the KayKit and Meshy buildings, measure the LOW tier switch distance.
+- (aaa-review) bush_raspberry still shard-like: Meshy remesh (5 cr) or hand-made bush in Blender.
+- (aaa-review) Godot `--import` of the whole project takes 30 min on a cold cache and about 7 GB of disk; agents should share one `.godot` cache instead of one per worktree.
+
+## Meshy free fixes (done 2026-09-29)
+Earlier: `optimize_free.py` island arg (11) + `EMIT_ADD` / `BAKE_EXT`; re-baked lamp_post_purple_bracket, torch_dungeon_cage, house_two_story_shingle, bouquet_wild, hay_bale_yellow_large.
+Now: bouquet_bright (solid, clearly better), hut_mossy_ruined_a/b LOD0+LOD1 (island removal 4 percent, floating debris gone, ground fringe remains). bush_raspberry: 4 variants tried, none clearly better, existing file kept; it still reads as shard cards and needs a Meshy remesh. Before/after in `docs/art/meshy_free/fixes/`.
+Farm animal rigs: `farm/rigged/` (hen, rooster, cow_spotted, cow_brown_a/b), details and limits in `docs/art/meshy_free/README.md`. Not rigged: horse, wolves, fox, dragons (same `tools/meshy/animal_rig/rig_lib.py`, needs a quadruped template like `rig_cow.py`). Codex: play `idle`/`walk`/`eat`/`flap` (loop linear), move at the speed in the `.json` next to each GLB.
 ## Advanced animation (local, stopped at usage limit)
 Done: KayKit + authored traversal clips (`animations_free2/`), README `docs/anim/advanced/README.md`.
 Remaining: anim_tech demo (blend trees, root-motion attacks, motion warping, perf table) and video-to-BVH pipeline are with sub-agents and may be partial; finish from `docs/anim/advanced/tech/` and `docs/anim/advanced/video_mocap/`. Add `animations_free2` GLBs to `Assets.UAL_FILES` (Codex).
@@ -71,3 +96,15 @@ AAA-review backlog from this task:
 - Keep: 10 px/m texel density and no interior; add colliders, wall-walk nav, a hall interior scene, blue roofs on keep turrets.
 - Kit: 120k tris at LOD0 is heavy for LOW tier, start LOD1 at 30 m; consider a proper retopo of gate/towers to ~4k (Blender collapse decimation shreds these Meshy shells; use Meshy remesh 5 cr if wanted).
 - Guards/knights: markers reference the rigged `armored/*.glb`; sparring and wall-sentry behaviours still to do (Codex X4).
+
+## Backlog (Region 1 audio, from the aaa-review loop)
+- Cloud C12: wire `docs/regions/AUDIO_R1.md` (area map, hum, ward/glyph/Stagborn events, barks); audition every theme in its area, since mood was picked without listening in-engine.
+- One theme per area is repetitive: add a second village/day track (Suonatore or Nakarada Medieval Loop One) and a keep interior variant; a dedicated Scarbound Troll finale theme.
+- No female greeting/yes/no/victory barks in any CC0 pack found; source or record them. Male barks are partly spoken (greet, yes, no, victory).
+- Ward, glyph and rune hum are synthesised; if they sound thin next to the recorded SFX, layer in a CC0 chime or stone-scrape recording.
+- Rift bed and hum were checked by numbers only (loudness, seam), not by ear; `mus_r1_night` peaks at -0.8 dBFS (trim 1 dB if it clips on device).
+- Godot import of `assets/audio/region1/` not run (disk); run once and commit the `.import` files if the project tracks them.
+
+## Open issues from the boot-flow run (2026-09-29)
+- Unexplained rendering errors during world load under `--rendering-method mobile` at 1280x720 ("Parameter framebuffer is null", "Index p_mipmap out of bounds", "Uniforms were never supplied for set (0)"), hundreds per run. They do not fail the flow; cause not investigated.
+- 76 leaked `JoltShape3D` RID allocations reported at exit.

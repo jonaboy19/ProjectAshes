@@ -9,6 +9,7 @@ const G := "res://assets/generated/"
 const IMP := "res://assets/generated/impostors/"
 const CELL := 32.0
 const NEAR := 45.0
+var FADE := 5.0   # dithered crossfade length (m) between full mesh and impostor, centred on NEAR
 
 # kind -> [source scene, impostor scene, count share]
 const KINDS := {
@@ -19,6 +20,8 @@ const KINDS := {
 }
 
 var cap_dir := ""
+var fly_mode := ""   # --fly=fade|hard : camera flies through the 45 m switch (use with --write-movie)
+var fly_speed := 7.0
 var tree_count := 3000
 var house_count := 80
 var cam: Camera3D
@@ -30,6 +33,8 @@ var mesh_cache: Dictionary = {}   # kind -> [Mesh, Transform3D local]
 func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--capture="): cap_dir = a.substr(10)
+		if a.begins_with("--fly="): fly_mode = a.substr(6)
+		if a.begins_with("--fade="): FADE = float(a.substr(7))
 		if a.begins_with("--trees="): tree_count = int(a.substr(8))
 		if a.begins_with("--houses="): house_count = int(a.substr(9))
 	Engine.max_fps = 0
@@ -51,11 +56,34 @@ func _ready() -> void:
 	_scatter()
 	for k in KINDS:
 		_load_source(k)
+	if fly_mode != "":
+		_cluster()   # sparse, readable test set: a row of trees and two houses 70 m ahead; the camera flies through the 45 m switch
+		fly_speed = 13.0
+		cam.position = Vector3(0, 2.4, 10)
+		cam.look_at(Vector3(0, 5.0, -70))
+		_build("fade" if fly_mode == "fade" else "hard")
+		return
 	if cap_dir == "":
 		H.label(self, "1 full meshes | 2 impostors | 3 hybrid (<45 m full) | 4 compare row")
 		_build("hybrid")
 		return
 	_run_capture()
+
+func _cluster() -> void:
+	for k in KINDS:
+		placements[k] = []
+	var i := 0
+	for x in range(-16, 17, 4):
+		var kind: String = ["oak1", "oak4", "twisted"][i % 3]
+		var b := Basis(Vector3.UP, i * 1.3).scaled(Vector3.ONE * (0.55 if kind == "twisted" else 1.0))
+		placements[kind].append(Transform3D(b, Vector3(x, 0, -70 + (i % 2) * 6.0)))
+		i += 1
+	placements["village_house"].append(Transform3D(Basis(Vector3.UP, 0.4), Vector3(-9, 0, -64)))
+	placements["village_house"].append(Transform3D(Basis(Vector3.UP, -0.3), Vector3(10, 0, -66)))
+
+func _process(delta: float) -> void:
+	if fly_mode != "":
+		cam.position.z -= fly_speed * delta
 
 func _unhandled_key_input(e: InputEvent) -> void:
 	if e is InputEventKey and e.pressed:
@@ -98,7 +126,13 @@ func _clear() -> void:
 	for c in root_group.get_children():
 		c.queue_free()
 
-func _mm(mesh: Mesh, xforms: Array, mat: Material, cast_shadows: bool, margin := 0.0) -> MultiMeshInstance3D:
+func _mm(mesh: Mesh, xforms: Array, mat: Material, cast_shadows: bool, margin := 0.0, cell_center := Vector3.INF) -> MultiMeshInstance3D:
+	# with a cell_center the MultiMeshInstance3D sits at the cell centre (visibility ranges measure from the node), instances are local
+	if cell_center != Vector3.INF:
+		var moved: Array = []
+		for t: Transform3D in xforms:
+			moved.append(Transform3D(t.basis, t.origin - cell_center))
+		xforms = moved
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.mesh = mesh
@@ -111,6 +145,8 @@ func _mm(mesh: Mesh, xforms: Array, mat: Material, cast_shadows: bool, margin :=
 		mi.material_override = mat
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if cast_shadows else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mi.extra_cull_margin = margin
+	if cell_center != Vector3.INF:
+		mi.position = cell_center
 	return mi
 
 ## mode: "mesh" (all full), "impostor" (all impostors), "hybrid" (< NEAR from camera full, rest impostor)
@@ -124,12 +160,24 @@ func _build(mode: String) -> Dictionary:
 		var imp_mesh := imp_scene.mesh
 		var imp_mat := imp_scene.material_override
 		var margin := imp_scene.extra_cull_margin
+		var imp_center: Vector3 = (imp_mat as ShaderMaterial).get_shader_parameter("center")
+		var imp_mat_i: Material = imp_mat
+		if mode == "fade":
+			imp_mat_i = (imp_mat as ShaderMaterial).duplicate()
+			(imp_mat_i as ShaderMaterial).set_shader_parameter("fade_in_end", NEAR + FADE * 0.5)
+			(imp_mat_i as ShaderMaterial).set_shader_parameter("fade_in_len", FADE)
 		# bucket by cell so every MultiMesh is frustum-culled as a unit (same as the game's cell batching)
 		var full_cells := {}
 		var imp_cells := {}
 		for t: Transform3D in placements[kind]:
 			var use_full := mode == "mesh" or (mode == "hybrid" and t.origin.distance_to(cpos) < NEAR)
 			var key := Vector2i(int(floor(t.origin.x / CELL)), int(floor(t.origin.z / CELL)))
+			if mode == "fade" or mode == "hard":   # every cell exists twice, the engine's visibility ranges do the dithered crossfade
+				for cells in [full_cells, imp_cells]:
+					if not cells.has(key):
+						cells[key] = []
+					cells[key].append(t)
+				continue
 			var cells := full_cells if use_full else imp_cells
 			if not cells.has(key):
 				cells[key] = []
@@ -139,16 +187,54 @@ func _build(mode: String) -> Dictionary:
 				var xs: Array = []
 				for t: Transform3D in full_cells[key]:
 					xs.append(t * (m[1] as Transform3D))
-				root_group.add_child(_mm(m[0], xs, null, true))
+				var mesh_i: Mesh = m[0]
+				if mode == "fade":
+					mesh_i = _fade_mesh(m[0], imp_center)
+				var mmi := _mm(mesh_i, xs, null, true, 0.0, _cell_center(key) if mode in ["fade", "hard"] else Vector3.INF)
+				if mode == "fade":
+					mmi.visibility_range_end = NEAR + FADE * 0.5 + CELL * 0.75
+				elif mode == "hard":
+					mmi.visibility_range_end = NEAR
+				root_group.add_child(mmi)
 				stats["multimeshes"] += 1
 			stats["instances_full"] += full_cells[key].size()
 		for key in imp_cells:
-			root_group.add_child(_mm(imp_mesh, imp_cells[key], imp_mat, false, margin))
+			var imi := _mm(imp_mesh, imp_cells[key], imp_mat_i, false, margin, _cell_center(key) if mode in ["fade", "hard"] else Vector3.INF)
+			if mode == "fade":
+				imi.visibility_range_begin = maxf(0.0, NEAR - FADE * 0.5 - CELL * 0.75)
+			elif mode == "hard":
+				imi.visibility_range_begin = NEAR
+			root_group.add_child(imi)
 			stats["multimeshes"] += 1
 			stats["instances_imp"] += imp_cells[key].size()
 		imp_scene.free()
 	await get_tree().process_frame
 	return stats
+
+func _cell_center(key: Vector2i) -> Vector3:
+	return Vector3((key.x + 0.5) * CELL, 0.0, (key.y + 0.5) * CELL)
+
+## Crossfade: the mesh dithers out over [NEAR-FADE/2, NEAR+FADE/2] (mesh_fade.gdshader, per instance) while the impostor dithers in over the same band with
+## complementary noise (fade_in_end / fade_in_len uniforms of impostor_octa.gdshader). Cells only get hard visibility ranges for culling.
+func _fade_mesh(mesh: Mesh, center: Vector3) -> Mesh:
+	var m2: Mesh = mesh.duplicate()
+	var sh := load("res://tools_qa/addons_demo/mesh_fade.gdshader") as Shader
+	for i in m2.get_surface_count():
+		var src := m2.surface_get_material(i)
+		var sm := ShaderMaterial.new()
+		sm.shader = sh
+		if src is BaseMaterial3D:
+			var b := src as BaseMaterial3D
+			if b.albedo_texture:
+				sm.set_shader_parameter("albedo_tex", b.albedo_texture)
+			sm.set_shader_parameter("albedo", b.albedo_color)
+			sm.set_shader_parameter("use_vertex_color", b.vertex_color_use_as_albedo)
+			sm.set_shader_parameter("roughness", b.roughness)
+		sm.set_shader_parameter("center", center)
+		sm.set_shader_parameter("fade_out_start", NEAR - FADE * 0.5)
+		sm.set_shader_parameter("fade_len", FADE)
+		m2.surface_set_material(i, sm)
+	return m2
 
 func _compare_row() -> void:
 	_clear()

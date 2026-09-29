@@ -1,0 +1,5 @@
+source: /c/tmp_pa/fr/chicken_rooster_eat_side
+duration_s: 1.200000
+sample_fps: 15
+frames_per_sheet: 12  (= 0.8 s per sheet)
+sheets: 3
