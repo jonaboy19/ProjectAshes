@@ -374,3 +374,41 @@ Nothing new was measured. Findings from reading `region_dressing.gd` and `water_
 * The earlier "RegionDressing = 7 ms" ablation used `process_mode = DISABLED` on the subtree. In Godot 4 that also removes every CollisionObject3D in the subtree from the physics space and stops all child processing, so the 7 ms may be physics colliders (per-part StaticBody3D + Breakable bodies), OmniLights (up to one per site light, unshadowed) or the render cost of the site nodes, not script time. Next step: split the ablation into (a) `set_process(false)` only, (b) `visible = false`, (c) colliders disabled, (d) lights hidden, and run `--census` (already in `water_prof.gd`).
 * The machine was very busy (about 9 Godot processes from other agents: anim_tech, PA_wt_crash boots, imports), so frame times are unreliable; use best-of-N rounds only.
 * Still to do: before/after table, WATER_LITE and canopy renders, frame sheet, missing .import/.uid files, Kay_* duplicate clip names, spinning-wheel/spindle error, boot_flow test, remove origin/tmp-water2 (kept for now).
+
+### 2026-09-29 (local, round 2): RegionDressing is NOT the cost; measured properly
+Tool: `tools/qa/water_shots/prof.sh` (`water_prof.gd`), Mobile renderer, 1600x900 window (3D 1280x720), RTX 4070 Laptop, best-of-N round-robin
+bursts. **Caveat: the PC was shared with 9-12 other Godot processes (one anim_tech instance at 100 % CPU for 5 h) and had 1.4 GB free RAM,
+so absolute numbers move by 2-4 ms between runs; only same-run comparisons are meaningful.** Raw data: `docs/qa/water_prof/water_prof_2026-09-29.jsonl` (round 1) and the numbers quoted here (round 2 logs were console-only).
+
+**RegionDressing split ablation (lake, LOW, mobile; `--rdprof`):** at the lake no site is built (`built=0`, 0 nodes, 0 lights, 0 colliders) and
+its `_process` costs 0.085 ms/frame (Time.get_ticks_usec counters `dbg_usec/dbg_frames`). Script off / colliders off / lights off / meshes hidden /
+shadows off / whole node hidden / process DISABLED are all within noise of baseline (12.1-14.1 ms vs 14.1 baseline in one run, spread of
++-2 ms between identical configs). The earlier "28 -> 20.7 ms" was measurement noise from a busy machine. Nothing to fix there; only the
+0.75 s site scan and the 2 ms build budget exist, and both are already sliced. (Census at the lake: 3896 nodes, 2400 MultiMeshInstance3D, 193 shapes.)
+
+**CPU ablation per system (lake, LOW, best of 5):** baseline 11.4 ms; hide all world 9.9; hide multimesh 10.4; hide terrain 10.1; hide NPCs 10.6;
+every script system within +-1 ms (noise) except **WorldSim off = 7.6 ms (-3.9 ms)**. Note that switching WorldSim off also freezes the clock
+(no `hour_changed` listeners), so this over-states its own script. Direct timing of `WorldSim._simulate_slice`: **1.2 ms/frame** (1500 of ~20 000 people
+per frame in GDScript).
+
+**Fix (`autoload/world_sim.gd`, shared code, see LOCAL_SESSION_HANDOFF):** `_simulate_slice` now has a time budget (`BUDGET_US = 500`),
+updates the people of settlements within 320 m of the player first (whole near set every ~4 frames, rebuilt every 1.5 s), and gives the rest of the
+budget to the global cursor. Movement was already dt-based, so the slower far cycle is equivalent. Measured slice time 1.18-1.21 ms -> 1.04 ms at a 1 ms
+budget; the shipped 0.5 ms budget should be about 0.5 ms (not re-benchmarked under the shared load).
+
+**Before/after frame time (ms, best round of 4-6, LOW/HIGH, Mobile), same session, old vs new sim (budget 1 ms):**
+| view | old LOW | new LOW | old HIGH | new HIGH |
+|---|---|---|---|---|
+| lake | 9.7 | 9.6 | 11.1 | n/a |
+| village | 16.0 | 13.0 | 13.8 | n/a |
+Earlier full grid (`ab_*` first pass, load differed between runs, so NOT comparable): old 9.1/6.4/8.1/12.6 (LOW lake/pier/river/village), HIGH 11.1/7.6/7.9/13.8.
+Snapshot run with the shipped code (single 20-frame burst, indicative): lake LOW 11.3 / HIGH 12.4, river 13.8 / 13.9, pier 9.0 / 10.0 ms
+(`docs/qa/water_after/*.png` renders). **All views are at or under 16.6 ms on this PC (60 fps), LOW is <= 14 ms.** GPU time is 0.24-2.2 ms.
+Village is the most CPU-heavy view (13-16 ms); its per-system ablation is still to do (`--sysprof` currently runs at the lake only).
+Other CPU consumers seen at the lake: MultiMeshInstance3D count (2400 nodes), critters (19), soldiers (12), fishing spots (6): each < 1 ms in the ablation.
+
+**Visual check (read):** `docs/qa/water_after/lake_low.png` (WATER_LITE: clear blue shallows, soft reflection, no shore foam/caustics, reads fine),
+`lake_high.png` (full: caustics, foam, glints), `river_*.png`, `pier_*.png`; frame sheet of the animated river `docs/qa/water_after/frames/sheet_001.png`
+(ripple ring and glints move; no flicker). Tree canopy is warmer and fluffier than before but still slightly cooler/less golden than the reference gate market.
+Mobile renderer note: forward_plus-only runs at HIGH/ULTRA print "Index p_mipmap out of bounds / All attachments unused" errors when the water shader's
+screen texture is used on Mobile at the ULTRA setting; not investigated.

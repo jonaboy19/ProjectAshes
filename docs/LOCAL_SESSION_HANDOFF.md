@@ -436,3 +436,9 @@ Measured with `tools/qa/water_shots/prof.sh` at the lake, HIGH: switching off `R
 `scripts/world/region_dressing.gd` and children) drops the frame from 28.0 to 20.7 ms (p99 50 -> 28). Not a rewrite request yet:
 please check what in that subtree runs every frame (flicker lights, `Breakable` bodies, VFX, per-site nodes) and whether sites can be
 built with fewer nodes, and drop `_process` work when no site is within BUILD. I will run `--census` to name the node classes.
+
+## 2026-09-29 (local): perf round 2 (for the cloud session)
+- **RegionDressing is not a cost** (0.085 ms/frame, nothing built at the lake; the earlier 7 ms claim was noise). Only change there: two QA counters (`dbg_usec`, `dbg_frames`) around `_process`; behaviour unchanged. Do not spend time optimising it.
+- **`autoload/world_sim.gd` `_simulate_slice` is now time-budgeted** (`BUDGET_US`, near-player people first, `NEAR_RADIUS` 320 m; `UPDATES_PER_FRAME` removed). Same results (dt-based movement), about 0.7 ms/frame less CPU. Two QA counters `dbg_slice_usec/dbg_frames`.
+- `boot_flow.gd` now drives character creation (Next x3, Begin Life). `spinning-wheel.glb` imports without its broken animation (fixes "Node not found spinning-wheel/spindle").
+- Measurement rule: the PC is shared; only compare configs from the same run (`water_prof.gd`, `--only=`, `--rdprof`, `--sysprof --systier=N`).

@@ -8,7 +8,7 @@ extends "water_shots.gd"
 ## rounds): other processes on the PC (imports, other agents' renders) add time to
 ## random rounds, so the minimum is the intrinsic cost.
 ## Run: bash tools/qa/water_shots/prof.sh <out.jsonl> [views=lake,river,pier] [w=1600] [h=900] [--k=v ...]
-## Args: --tiers=0,1,2,3  --rounds=8  --burst=25  --sysprof (CPU ablation per game system, lake only)
+## Args: --only=baseline,water_off (only these configs)  --tiers=0,1,2,3  --rounds=8  --burst=25  --sysprof (CPU ablation per game system, lake only)
 ##       --optshader=<abs path to a working-copy clear_water.gdshader>  --bootwait=<s>  --watchdog=<s>
 
 var _out: FileAccess
@@ -31,6 +31,7 @@ func _shot_prof() -> bool:
 			_census()
 		for t in String(a.get("tiers", "0,1,2,3")).split(","):
 			await _tier(int(t))
+			_print_simtime()
 	return false
 
 
@@ -62,6 +63,24 @@ func _tier(t: int) -> void:
 	await frames(8)
 	Engine.max_fps = 0
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+	if _args().has("snap"):
+		await frames(20)
+		await RenderingServer.frame_post_draw
+		DirAccess.make_dir_recursive_absolute(out_dir)
+		main.viewport.get_texture().get_image().save_png("%s/%s_%s.png" % [out_dir, _view, Quality.tier_name().to_lower()])
+		print("PROF snap ", _view, " ", Quality.tier_name())
+		var nseq := int(_args().get("seq", "0"))
+		if nseq > 0 and t == 2:
+			var sd := "%s/seq_%s" % [out_dir, _view]
+			DirAccess.make_dir_recursive_absolute(sd)
+			for k in nseq:
+				await frames(4)
+				main.viewport.get_texture().get_image().save_png("%s/f%03d.png" % [sd, k])
+	if _args().has("rdprof"):
+		await _rdprof(t)
+		if _args().has("sysprof") and t == int(_args().get("systier", "2")):
+			await _sysprof(t)
+		return
 	var cfgs: Array[Dictionary] = []
 	cfgs.append(_cfg("baseline"))
 	if _args().has("optshader"):
@@ -88,12 +107,17 @@ func _tier(t: int) -> void:
 			cfgs.append(_cfg("no_aa", func() -> void: _aa_off(), func() -> void: _aa_restore(m0, s0)))
 		cfgs.append(_cfg("half_res_3d", func() -> void: _scale(0.5), func() -> void: _scale(1.0)))
 	await _bursts(t, cfgs)
-	if _args().has("sysprof") and t == 2 and _view == "lake":
+	if _args().has("sysprof") and t == int(_args().get("systier", "2")) and _view == "lake":
 		await _sysprof(t)
 
 
 ## Round-robin bursts; reports min over rounds of each config's median.
-func _bursts(_t: int, cfgs: Array[Dictionary]) -> void:
+func _bursts(_t: int, all_cfgs: Array[Dictionary]) -> void:
+	var cfgs: Array[Dictionary] = []
+	var only := String(_args().get("only", ""))
+	for c in all_cfgs:
+		if only == "" or String(c["label"]) in only.split(","):
+			cfgs.append(c)
 	var rounds := int(_args().get("rounds", "8"))
 	var burst := int(_args().get("burst", "25"))
 	var vp: SubViewport = main.viewport
@@ -158,6 +182,10 @@ func _sysprof(t: int) -> void:
 		if c.is_processing() or c.is_physics_processing() or c.get_child_count() > 0:
 			targets.append(c)
 	var cfgs: Array[Dictionary] = [_cfg("baseline")]
+	cfgs.append(_cfg("hide_multimesh", func() -> void: _hide_class("MultiMeshInstance3D"), func() -> void: _unhide()))
+	cfgs.append(_cfg("hide_terrain", func() -> void: main.terrain.visible = false, func() -> void: main.terrain.visible = true))
+	cfgs.append(_cfg("hide_npcs", func() -> void: _hide_npcs(), func() -> void: _unhide()))
+	cfgs.append(_cfg("hide_world_all", func() -> void: main.world.visible = false, func() -> void: main.world.visible = true))
 	for n in targets:
 		var nm := "sys_%s_%s" % [n.name, (n.get_script() as Script).resource_path.get_file() if n.get_script() else n.get_class()]
 		cfgs.append(_cfg(nm, func() -> void: n.process_mode = Node.PROCESS_MODE_DISABLED, func() -> void: n.process_mode = Node.PROCESS_MODE_INHERIT))
@@ -314,3 +342,60 @@ func _census() -> void:
 				var sp2: String = (n.get_script() as Script).resource_path.get_file() if n.get_script() else n.get_class()
 				proc[sp2] = int(proc.get(sp2, 0)) + 1
 		print("CENSUS region_dressing subtree nodes=%d lights=%d processing=%s built=%d flicker=%d" % [cnt, ls, str(proc), rd.call("built_count"), (rd.get("_flicker") as Array).size()])
+
+
+## RegionDressing cost split (--rdprof): script vs colliders vs lights vs meshes vs shadows, plus its own _process time.
+func _rd() -> Node:
+	for c in main.world.get_children():
+		if c.get_script() and (c.get_script() as Script).resource_path.ends_with("region_dressing.gd"):
+			return c
+	return null
+
+
+func _rdprof(t: int) -> void:
+	var rd := _rd()
+	if rd == null:
+		return
+	var shapes: Array[Node] = rd.find_children("*", "CollisionShape3D", true, false)
+	var lights: Array[Node] = rd.find_children("*", "Light3D", true, false)
+	var geos: Array[Node] = rd.find_children("*", "GeometryInstance3D", true, false)
+	print("RDPROF %s %s nodes=%d shapes=%d lights=%d geoms=%d built=%d" % [_view, Quality.tier_name(),
+		rd.find_children("*", "", true, false).size(), shapes.size(), lights.size(), geos.size(), rd.call("built_count")])
+	var cfgs: Array[Dictionary] = [_cfg("baseline")]
+	cfgs.append(_cfg("rd_script_off", func() -> void: rd.set_process(false), func() -> void: rd.set_process(true)))
+	cfgs.append(_cfg("rd_colliders_off", func() -> void: _shapes(shapes, true), func() -> void: _shapes(shapes, false)))
+	cfgs.append(_cfg("rd_lights_off", func() -> void: _vis(lights, false), func() -> void: _vis(lights, true)))
+	cfgs.append(_cfg("rd_meshes_hidden", func() -> void: _vis(geos, false), func() -> void: _vis(geos, true)))
+	cfgs.append(_cfg("rd_noshadow", func() -> void: _shad(geos, false), func() -> void: _shad(geos, true)))
+	cfgs.append(_cfg("rd_hidden_all", func() -> void: (rd as Node3D).visible = false, func() -> void: (rd as Node3D).visible = true))
+	cfgs.append(_cfg("rd_disabled", func() -> void: rd.process_mode = Node.PROCESS_MODE_DISABLED, func() -> void: rd.process_mode = Node.PROCESS_MODE_INHERIT))
+	await _bursts(t, cfgs)
+	print("RDPROF %s script _process avg %.3f ms over %d frames" % [_view, float(rd.get("dbg_usec")) / maxf(float(rd.get("dbg_frames")), 1.0) / 1000.0, int(rd.get("dbg_frames"))])
+	print("RDPROF physics active=%d islands=%d pairs=%d objects=%d" % [Performance.get_monitor(Performance.PHYSICS_3D_ACTIVE_OBJECTS),
+		Performance.get_monitor(Performance.PHYSICS_3D_ISLAND_COUNT), Performance.get_monitor(Performance.PHYSICS_3D_COLLISION_PAIRS),
+		Performance.get_monitor(Performance.OBJECT_COUNT)])
+
+
+func _shapes(a: Array[Node], off: bool) -> void:
+	for n in a:
+		if is_instance_valid(n):
+			(n as CollisionShape3D).disabled = off
+
+
+func _vis(a: Array[Node], on: bool) -> void:
+	for n in a:
+		if is_instance_valid(n):
+			(n as Node3D).visible = on
+
+
+func _shad(a: Array[Node], on: bool) -> void:
+	for n in a:
+		if is_instance_valid(n):
+			(n as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if on else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+
+## Mean WorldSim._simulate_slice time (needs the dbg counters in world_sim.gd).
+func _print_simtime() -> void:
+	var ws := get_tree().root.get_node_or_null("WorldSim")
+	if ws and ws.get("dbg_frames") != null and int(ws.get("dbg_frames")) > 0:
+		print("PROF simslice_ms_per_frame %.3f over %d frames" % [float(ws.get("dbg_slice_usec")) / float(ws.get("dbg_frames")) / 1000.0, int(ws.get("dbg_frames"))])

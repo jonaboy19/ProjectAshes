@@ -219,3 +219,8 @@ AAA-review backlog from this task:
 - Art: antler rune channels are too wide and bright on the front beam (narrow the `Chn` line smoothstep); ivy leaves are sparse; neck braid and knot lines could be finer; check the saddle and belly gradient against the storybook reference; elk untouched apart from clips.
 - Walk foot slide was tuned only by the stance-speed metric (per-leg amplitude scale); confirm visually or use foot IK. Update the README speeds (Warden walk about 1.2 m/s, run about 5.6 m/s) from `stagborn_warden_metrics.json`.
 - Godot import and anim QA still not run.
+
+## 2026-09-29 perf round 2 (done)
+- RegionDressing cost hunt: NOT a cost (0.085 ms, nothing built at the lake); earlier 7 ms claim was noise on a busy PC. WorldSim slice time-budgeted (~0.7 ms saved). Tables in docs/qa/PERFORMANCE.md; renders in docs/qa/water_after/; boot flow QA passes with the character-creation step (docs/qa/boot_flow_after/).
+- Missing .gd.uid files added; boot_splash / ui backgrounds / IMFell fonts / UAL_Authored_Traversal .import files are already committed upstream. Kay_* duplicate-clip error did not reproduce on a fresh import (fixed upstream by the `_Repeat` rename); spinning-wheel no longer imports its broken animation.
+- Backlog: village view is the heaviest CPU view (13-16 ms): run --sysprof there; 2400 MultiMeshInstance3D nodes at the lake (merge per cell); a CPU-hog anim_tech Godot process (PID 87784, 5 h at 100 %) from another session skews all benchmarks; Mobile renderer prints mipmap errors with the ULTRA water shader; tree canopy still a bit cooler than the reference.

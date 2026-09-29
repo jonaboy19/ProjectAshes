@@ -83,6 +83,18 @@ func _run() -> void:
 	await _secs(0.9)
 	await _shot("08_new_game")
 	await _click_text("Start Game")
+	# --- 4b. character creation (Appearance / Background / Starting Path / Review) ---
+	if await _wait(func() -> bool: return _find_script("character_creation.gd") != null, 8.0):
+		await _secs(1.5)
+		await _shot("08b_character_creation")
+		for tab in 3:
+			await _click_text("Next")
+			await _secs(0.7)
+			await _shot("08c_creation_tab_%d" % (tab + 2))
+		await _click_text("Begin Life")
+		await _secs(0.5)
+	else:
+		print("[flow] no character creation screen (older build): continuing")
 	# --- 5. loading + world veil ---
 	await _secs(0.6)
 	await _shot("09_loading_screen")
