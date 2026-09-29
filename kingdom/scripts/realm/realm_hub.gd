@@ -19,9 +19,10 @@ const MODULES := {
 	"campaign": preload("res://scripts/realm/campaign.gd"),
 	"city_life": preload("res://scripts/realm/city_life.gd"),
 	"society": preload("res://scripts/realm/society.gd"),
+	"power_paths": preload("res://scripts/realm/power_paths.gd"),
 }
 ## Order matters within a tier: land before factions before campaign.
-const ORDER := ["settlements", "land", "camps", "followers", "factions", "strongholds", "campaign", "city_life", "society"]
+const ORDER := ["settlements", "land", "camps", "followers", "factions", "strongholds", "campaign", "city_life", "society", "power_paths"]
 ## Max microseconds of realm work per frame (mobile: ~0.6 ms of a 16.6 ms frame).
 const PUMP_BUDGET_USEC := 600
 
