@@ -16,8 +16,8 @@ args = sys.argv[sys.argv.index('--') + 1:]
 src, out, lod = args[0], os.path.abspath(args[1]), int(args[2])
 SCALE = float(args[3]) if len(args) > 3 else 1.3
 TARGET_TRIS = 15000 if lod == 0 else 5000
-N_TUFTS = 90 if lod == 0 else 22
-RUFF_THICK = 0.13
+N_TUFTS = 0
+RUFF_THICK = 0.055
 HEAD_SCALE = 1.12
 PAW_SCALE = 1.14
 arm, mesh = load_glb(src)
@@ -93,7 +93,7 @@ for i in np.where(ruff > 0.02)[0]:
 up = np.clip(rad[:, 2] * 0.5 + 0.5, 0, 1)
 disp = ruff * (RUFF_THICK * (0.7 + 0.3 * up))
 new_co = co + rad * disp[:, None]
-new_co[:, 2] += ruff * 0.05 * sstep(0.1, 0.8, rad[:, 2])                        # raise the hackles
+new_co[:, 2] += ruff * 0.015 * sstep(0.1, 0.8, rad[:, 2])                        # raise the hackles
 # bigger head (wolves carry a heavy head) and bigger paws
 hp = R.head["Head"]
 hw = np.clip(w_head * 1.1, 0, 1)
@@ -198,8 +198,8 @@ ruff_v = sstep(0.05, 0.85, np.clip(w_neck + 0.9 * w_t3 + 0.45 * w_t2 - 1.2 * w_h
 nz = nrm[:, 2]; z = co[:, 2]; y = co[:, 1]
 dorsal = sstep(0.0, 0.5, nz * 0.45 + (z - 1.5) * 1.3)
 saddle = dorsal * sstep(-0.85, -0.35, y) * (1 - sstep(1.15, 1.5, y)) * (1 - ruff_v) * (1 - np.clip(w_head * 2, 0, 1)) * (1 - np.clip(w_legs * 1.5, 0, 1))
-silver = np.clip(ruff_v * 1.15 + sstep(-0.05, -0.55, nz) * 0.85 * (1 - np.clip(w_head * 2, 0, 1)), 0, 1)     # mane + belly/underside
-legs = np.clip(w_legs * 1.4, 0, 1) * sstep(1.25, 0.85, z) * (1 - saddle)
+silver = np.clip(ruff_v * (1 - sstep(0.15, 0.55, nz)) * 1.2 + sstep(-0.1, -0.6, nz) * 0.6 * (1 - np.clip(w_head * 2, 0, 1)), 0, 1)     # mane + belly/underside
+legs = np.clip(w_legs * 1.4, 0, 1) * sstep(1.25, 0.85, z) * (1 - saddle) * sstep(0.0, 0.7, -np.sign(co[:, 0]) * nrm[:, 0])
 tail = np.clip(w_tail * 1.5, 0, 1)
 head = np.clip(w_head * 1.6, 0, 1) * (1 - ruff_v)
 chan = np.stack([saddle, silver, legs, tail, head, np.clip(z / 2.3, 0, 1)], 1).astype(np.float32)   # (nv, C)
@@ -247,19 +247,16 @@ d_dark = d ** 1.6; d_lite = d ** 0.7
 def tone(dark, light, dd=None):
     dd = d if dd is None else dd
     return np.array(dark, np.float32) * (1 - dd[..., None]) + np.array(light, np.float32) * dd[..., None]
-flank = tone((0.20, 0.20, 0.22), (0.70, 0.66, 0.58))
-sad_c = tone((0.05, 0.06, 0.09), (0.26, 0.28, 0.34), d_dark)
-sil_c = tone((0.82, 0.74, 0.60), (1.0, 0.97, 0.87), d_lite)
-leg_c = tone((0.45, 0.32, 0.20), (0.88, 0.72, 0.50))
-tail_c = tone((0.10, 0.10, 0.11), (0.36, 0.34, 0.32))
-wS, wI, wL = m_sad[..., None], m_sil[..., None], m_leg[..., None]
-tot = wS + wI + wL
-col = flank * np.clip(1 - tot, 0, 1) + (sad_c * wS + sil_c * wI + leg_c * wL)
-col = np.where(tot > 1, col / np.maximum(tot, 1), col)
-col = col * (1 - m_tail[..., None]) + tail_c * m_tail[..., None] * 0.9 + col * m_tail[..., None] * 0.1
-# keep the face texels (eyes, nose): mostly original, slightly lifted for readability
+# revised grade: keep the ORIGINAL grey fur and its detail; darker saddle (value contrast), soft grey-cream throat/chest, faint warm inner legs
+sad_f = (1 - 0.58 * m_sad)[..., None] * np.array([0.93, 0.97, 1.06], np.float32)          # darker, slightly cool saddle
+col = rgb * sad_f
+throat = np.clip(m_sil, 0, 1)[..., None] * 0.55
+cream = np.clip(lum[..., None] * 0.55 + 0.52, 0, 1) * np.array([1.0, 0.97, 0.90], np.float32)   # light grey-cream that keeps the fur detail
+col = col * (1 - throat) + cream * throat
+warm = np.clip(m_leg, 0, 1)[..., None] * 0.35
+col = col * (1 - warm) + col * np.array([1.07, 1.0, 0.90], np.float32) * warm
 face = np.clip(m_head * 1.2, 0, 1)[..., None]
-col = col * (1 - face) + np.clip(rgb * 1.08 + 0.02, 0, 1) * face
+col = col * (1 - face) + rgb * face
 px2 = px.copy(); px2[..., :3] = np.clip(col, 0, 1)
 img.pixels.foreach_set(px2.ravel()); img.update()
 tag = "lod1" if lod else "lod0"
