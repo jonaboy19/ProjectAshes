@@ -208,57 +208,218 @@ def clip(fn):
 def cyc(u):
     return u - math.floor(u)
 
-def ladder(direction):
-    """Ladder cycle. 1.2 s per full cycle, rungs every 0.3 m, two rungs (0.6 m) of travel per cycle.
-    Hands and feet are stationary on the rungs (world space) during contact; the root bone carries the climb."""
-    n = 36
-    rise = 0.6 * direction
+def clamp01(x):
+    return max(0.0, min(1.0, x))
+
+def limb_track(u, ph, base, rise, y_contact, y_swing_out):
+    """world z,y of a hand/foot on a ladder-like structure: stationary in the world while in contact
+    (first half of its cycle), then swung up by `rise` to the next hold."""
+    k = math.floor(u + ph)
+    s = cyc(u + ph)
+    z = base + rise * k
+    y = y_contact
+    if s >= 0.5:
+        w = (s - 0.5) / 0.5
+        z += rise * smooth(w)
+        y = y_contact - y_swing_out * math.sin(math.pi * w)
+    return z, y
+
+def climb(n, rise, hx=0.21, fx=0.11, yh=-0.30, yf=-0.22, sway=0.0, hand_base=1.45, foot_base=0.30):
+    """ladder / wall climbing cycle. Stationary hands and feet in world space; root Z carries the climb."""
     poses = []
     for i in range(n + 1):
         u = i / n
-        if direction < 0:
-            u = 1 - u          # descend = reversed ascent, root offset handled below
         P = Pose()
-        base_root = 0.6 * u
-        P.root = V(0, 0, base_root if direction > 0 else 0.6 * (1 - i / n) * -1 + 0.6)
-        P.root = V(0, 0, 0.6 * (i / n) * (1 if direction > 0 else -1))
-        P.pelvis = V(0, -0.04, 0.88 + 0.015 * math.sin(4 * math.pi * u)) + P.root
+        P.root = V(0, 0, rise * u)
+        P.pelvis = V(sway * math.sin(2 * math.pi * u), 0.03, 0.80 + 0.015 * math.sin(4 * math.pi * u)) + P.root
         for side, sx, ph in (("l", 1, 0.0), ("r", -1, 0.5)):
-            s_h = (u + ph) % 1.0
-            k = math.floor(u + ph)
-            hz = 1.80 + 0.6 * k
-            hy = -0.27
-            if s_h >= 0.5:
-                w = (s_h - 0.5) / 0.5
-                hz += 0.6 * smooth(w)
-                hy -= 0.0
-            P.t["hand_" + side] = V(sx * 0.21, hy, hz)
-            P.t["elbow_" + side] = V(sx * 0.62, 0.30, hz - 0.5)
-            s_f = (u + ph + 0.5) % 1.0
-            kf = math.floor(u + ph + 0.5)
-            fz = 0.40 + 0.6 * kf - 0.6
-            fy = -0.15
-            if s_f >= 0.5:
-                w = (s_f - 0.5) / 0.5
-                fz += 0.6 * smooth(w)
-                fy += 0.12 * math.sin(math.pi * w)      # swing the foot back off the rungs
-            P.t["foot_" + side] = V(sx * 0.11, fy, fz + 0.60 + 0.0 - 0.60 + 0.0)
-            P.t["knee_" + side] = V(sx * 0.20, -0.95, fz + 0.55)
-            P.rot["hand_" + side] = wq((1, 0, 0), -40)
+            hz, hy = limb_track(u, ph, hand_base, rise, yh, 0.05)
+            P.t["hand_" + side] = V(sx * hx, hy, hz)
+            P.t["elbow_" + side] = V(sx * (hx + 0.30), 0.10, hz - 0.30)
+            fz, fy = limb_track(u, ph + 0.5, foot_base, rise, yf, 0.12)
+            P.t["foot_" + side] = V(sx * fx, fy + 0.08, fz)
+            P.t["knee_" + side] = V(sx * (fx + 0.05), -0.75, fz + 0.30)
+            P.rot["hand_" + side] = wq((1, 0, 0), -35)
             P.rot["foot_" + side] = wq((1, 0, 0), -35)
         P.rot["spine_02"] = wq((1, 0, 0), -5)
         P.rot["spine_03"] = wq((1, 0, 0), -5)
-        P.rot["Head"] = wq((1, 0, 0), 18)
+        P.rot["Head"] = wq((1, 0, 0), 20)
+        poses.append(P)
+    return poses
+
+def reverse_shift(poses, dz):
+    """play a climb backwards (descending); world positions shifted so the clip starts at root 0"""
+    out = poses[::-1]
+    off = V(0, 0, dz)
+    for P in out:
+        P.root = P.root + off
+        P.pelvis = P.pelvis + off
+        for k in P.t:
+            P.t[k] = P.t[k] + off
+    return out
+
+@clip
+def Ladder_Climb_Up():
+    return climb(36, 0.6), True
+
+@clip
+def Ladder_Climb_Down():
+    return reverse_shift(climb(36, 0.6), -0.6), True
+
+@clip
+def Wall_Climb_Up():
+    return climb(42, 0.5, hx=0.30, fx=0.22, yh=-0.28, yf=-0.18, sway=0.05, hand_base=1.75, foot_base=0.55), True
+
+def hang_pose(t, sway_amp=0.03):
+    P = Pose()
+    sw = math.sin(2 * math.pi * t)
+    P.pelvis = V(0, sway_amp * sw, 0.90)
+    for side, sx in (("l", 1), ("r", -1)):
+        P.t["hand_" + side] = V(sx * 0.22, -0.24, 2.12)
+        P.t["elbow_" + side] = V(sx * 0.42, 0.20, 1.75)
+        P.t["foot_" + side] = V(sx * 0.10, 0.06 + 0.10 * sw * (1 if side == "l" else -1), 0.16 + 0.03 * abs(sw))
+        P.t["knee_" + side] = V(sx * 0.12, -0.8, 0.5)
+        P.rot["hand_" + side] = wq((1, 0, 0), -80)
+        P.rot["foot_" + side] = wq((1, 0, 0), 25)
+    P.rot["spine_02"] = wq((1, 0, 0), 4)
+    P.rot["Head"] = wq((1, 0, 0), 15)
+    return P
+
+@clip
+def Ledge_Hang_Idle():
+    n = 60
+    return [hang_pose(i / n) for i in range(n + 1)], True
+
+def shimmy(direction):
+    n = 30
+    dist = 0.5 * direction
+    poses = []
+    for i in range(n + 1):
+        u = i / n
+        P = hang_pose(u * 2, 0.02)
+        P.root = V(dist * u, 0, 0)
+        P.pelvis = P.pelvis + P.root
+        for side, sx, ph in (("l", 1, 0.0), ("r", -1, 0.5)):
+            k = math.floor(u + ph)
+            s = cyc(u + ph)
+            x = sx * 0.22 + dist * k
+            z = 2.12
+            if s >= 0.5:
+                w = (s - 0.5) / 0.5
+                x += dist * smooth(w)
+                z += 0.03 * math.sin(math.pi * w)
+            P.t["hand_" + side] = V(x, -0.24, z)
+            P.t["elbow_" + side] = V(x + 0.2 * sx, 0.20, 1.75)
+            P.t["foot_" + side] = P.t["foot_" + side] + P.root
+            P.t["knee_" + side] = P.t["knee_" + side] + P.root
         poses.append(P)
     return poses
 
 @clip
-def Ladder_Climb_Up():
-    return ladder(1), True
+def Ledge_Shimmy_L():
+    return shimmy(1), True
 
 @clip
-def Ladder_Climb_Down():
-    return ladder(-1), True
+def Ledge_Shimmy_R():
+    return shimmy(-1), True
+
+def ride_pose(t, bob, pitch_amp, lean=0.0, fwd=0.0, stand=0.0):
+    """t in cycles. Seated on a saddle at z=1.0 (horse faces -Y like the rider); stirrups at z=0.55."""
+    P = Pose()
+    b = bob * math.sin(2 * math.pi * t * 2)
+    pitch = pitch_amp * math.sin(2 * math.pi * t)
+    P.pelvis = V(0, 0.02 - 0.03 * fwd, 1.20 + b + 0.10 * stand)
+    for side, sx in (("l", 1), ("r", -1)):
+        P.t["foot_" + side] = V(sx * 0.40, -0.16, 0.70 + 0.05 * stand)
+        P.t["knee_" + side] = V(sx * 0.55, -0.60, 0.95)
+        P.t["hand_" + side] = V(sx * 0.16, -0.62 - 0.10 * fwd, 1.28 + 0.03 * b + 0.05 * fwd)
+        P.t["elbow_" + side] = V(sx * 0.40, -0.10, 1.05)
+        P.rot["hand_" + side] = wq((1, 0, 0), -20)
+        P.rot["foot_" + side] = wq((1, 0, 0), 20)
+    lean_a = 25 * fwd + pitch
+    P.rot["spine_01"] = wq((1, 0, 0), -lean_a * 0.3) @ wq((0, 1, 0), lean * 0.3)
+    P.rot["spine_02"] = wq((1, 0, 0), -lean_a * 0.3) @ wq((0, 1, 0), lean * 0.4)
+    P.rot["spine_03"] = wq((1, 0, 0), -lean_a * 0.4) @ wq((0, 1, 0), lean * 0.3)
+    P.rot["Head"] = wq((1, 0, 0), 12 * fwd)
+    return P
+
+@clip
+def Ride_Idle():
+    n = 60
+    return [ride_pose(i / n, 0.004, 1.0) for i in range(n + 1)], True
+
+@clip
+def Ride_Walk():
+    n = 36
+    return [ride_pose(i / n, 0.012, 2.5) for i in range(n + 1)], True
+
+@clip
+def Ride_Trot():
+    n = 20
+    return [ride_pose(i / n, 0.035, 3.0, fwd=0.2) for i in range(n + 1)], True
+
+@clip
+def Ride_Gallop():
+    n = 16
+    return [ride_pose(i / n, 0.03, 4.0, fwd=1.0, stand=1.0) for i in range(n + 1)], True
+
+@clip
+def Ride_Lean_L():
+    return [ride_pose(0, 0.0, 0.0, lean=14) for i in range(2)], True
+
+@clip
+def Ride_Lean_R():
+    return [ride_pose(0, 0.0, 0.0, lean=-14) for i in range(2)], True
+
+@clip
+def Vault_Low():
+    """Side vault over a 0.9 m obstacle (box top at z=0.92, y from -0.9 to -1.4): run-up, hands on the top,
+    legs swing over to the character's left, land 2.7 m further on. Root Y carries the travel."""
+    n = 42
+    poses = []
+    box_top = 0.92
+    for i in range(n + 1):
+        u = i / n
+        P = Pose()
+        ry = -2.7 * (u * u * (3 - 2 * u) * 0.35 + u * 0.65)
+        P.root = V(0, ry, 0)
+        arc = math.sin(math.pi * clamp01((u - 0.2) / 0.55))
+        P.pelvis = V(0.10 * arc, ry, 0.90 + 0.42 * arc)
+        for side, sx in (("l", 1), ("r", -1)):
+            if u < 0.25:
+                w = smooth(u / 0.25)
+                hp = V(sx * 0.30, lerp(ry - 0.1, -1.05, w), lerp(1.1, box_top + 0.02, w))
+            elif u < 0.6:
+                hp = V(sx * 0.22, -1.05, box_top + 0.02)
+            else:
+                w = smooth((u - 0.6) / 0.25)
+                hp = V(sx * 0.22, lerp(-1.05, ry - 0.25, w), lerp(box_top + 0.02, 0.95, w))
+            P.t["hand_" + side] = hp
+            P.t["elbow_" + side] = V(sx * 0.55, hp.y + 0.35, hp.z + 0.2)
+            P.rot["hand_" + side] = wq((1, 0, 0), -60)
+        for side, sx, lag in (("l", 1, 0.0), ("r", -1, 0.10)):
+            ground_a = V(sx * 0.11, -0.25, 0.10)
+            over = V(0.45, -1.10, 1.22)
+            land = V(sx * 0.11 + 0.05, -2.05, 0.10)
+            if u < 0.2 + lag:
+                fp = ground_a
+            elif u < 0.5 + lag * 0.5:
+                w = smooth((u - 0.2 - lag) / (0.3 - lag * 0.5))
+                a = ground_a.lerp(over, w)
+                fp = V(a.x, a.y, a.z + 0.12 * math.sin(math.pi * w))
+            elif u < 0.78:
+                w = smooth((u - 0.5 - lag * 0.5) / (0.28 - lag * 0.5))
+                fp = over.lerp(land, w) + V(0, 0, 0.10 * math.sin(math.pi * w))
+            else:
+                fp = land
+            P.t["foot_" + side] = fp
+            P.t["knee_" + side] = V(fp.x + 0.1, fp.y - 0.5, fp.z + 0.6)
+            P.rot["foot_" + side] = wq((1, 0, 0), 15)
+        P.rot["spine_02"] = wq((1, 0, 0), 15 * arc)
+        P.rot["spine_03"] = wq((1, 0, 0), 15 * arc)
+        P.rot["Head"] = wq((1, 0, 0), -10 * arc)
+        poses.append(P)
+    return poses, False
 
 if __name__ == "__main__":
     pole_calibrate()
