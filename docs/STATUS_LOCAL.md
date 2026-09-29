@@ -48,3 +48,6 @@ Tried 2048 atlas (256 px tiles, 2x supersample, premultiplied), alpha-to-coverag
 - Full stop-motion read of KayKit weapons, combos, remaining unarmed clips; verify punch types (front view) and rename Heavy punches.
 - Godot `--import` sanity for the new GLBs and add to `Assets.UAL_FILES` (Codex).
 - More casting (lightning-from-sky, beam loops, teleport dash) is thin; only CMU/KayKit clips exist.
+
+## Elemental VFX (stopped at usage limit)
+Done: 61 scenes, ElementFX API, shaders, gallery, README, perf table, sheets. Remaining: `elements_gallery` capture fails under gl_compatibility (image readback null at line ~370, CPUParticles fallback untested visually); lightning beam/impact could be bolder; dash ghost silhouette is plain white; motion sheets in docs/art/vfx_elements/frames cover only fire+lightning (review timing of others); not wired into gameplay.

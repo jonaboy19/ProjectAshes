@@ -1,0 +1,152 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/vfx/element_effect.gd" id="1_tcoke"]
+[ext_resource type="Material" path="res://scenes/vfx/elements/_shared/p_circle_05_mix.tres" id="2_tmg5b"]
+[ext_resource type="Material" path="res://scenes/vfx/elements/_shared/p_star_04_mix.tres" id="3_t1qcf"]
+[ext_resource type="Shader" path="res://shaders/vfx_elements/el_mix.gdshader" id="4_40k3v"]
+
+[sub_resource type="Gradient" id="Gradient_52qjc"]
+offsets = PackedFloat32Array(0, 0.15, 0.7, 1)
+colors = PackedColorArray(0.28, 0.66, 0.95, 0, 0.28, 0.66, 0.95, 0.95, 0.08, 0.28, 0.62, 0.665, 0.08, 0.28, 0.62, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_gigx4"]
+gradient = SubResource("Gradient_52qjc")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_3nqoq"]
+emission_shape = 3
+emission_box_extents = Vector3(0.26, 0.4, 0.2)
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_max = 0.2
+gravity = Vector3(0, -3.5, 0)
+damping_max = 0.5
+scale_min = 0.7
+color_ramp = SubResource("GradientTexture1D_gigx4")
+
+[sub_resource type="QuadMesh" id="QuadMesh_vw6fd"]
+material = ExtResource("2_tmg5b")
+size = Vector2(0.18474227, 0.18474227)
+
+[sub_resource type="Gradient" id="Gradient_024cl"]
+offsets = PackedFloat32Array(0, 0.1, 0.4, 0.78, 1)
+colors = PackedColorArray(0.86, 0.97, 1, 0, 0.86, 0.97, 1, 1, 0.28, 0.66, 0.95, 0.9, 0.08, 0.28, 0.62, 0.5, 0.08, 0.28, 0.62, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_jfkxo"]
+gradient = SubResource("Gradient_024cl")
+
+[sub_resource type="Curve" id="Curve_aa2ik"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_gd11d"]
+curve = SubResource("Curve_aa2ik")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_viopg"]
+emission_shape = 3
+emission_box_extents = Vector3(0.3, 0.6, 0.25)
+angle_min = -180.0
+angle_max = 180.0
+direction = Vector3(0, 1, 0)
+spread = 30.0
+initial_velocity_max = 0.2
+gravity = Vector3(0, 0, 0)
+damping_max = 0.5
+scale_min = 0.7
+scale_curve = SubResource("CurveTexture_gd11d")
+color_ramp = SubResource("GradientTexture1D_jfkxo")
+
+[sub_resource type="QuadMesh" id="QuadMesh_ffnbw"]
+material = ExtResource("3_t1qcf")
+size = Vector2(0.6660162, 0.6660162)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_v3e0r"]
+render_priority = 0
+shader = ExtResource("4_40k3v")
+shader_parameter/shape_mode = 1
+shader_parameter/col_core = Color(0.86, 0.97, 1, 1)
+shader_parameter/col_mid = Color(0.28, 0.66, 0.95, 1)
+shader_parameter/col_edge = Color(0.08, 0.28, 0.62, 1)
+shader_parameter/intensity = 1.0
+shader_parameter/master = null
+shader_parameter/progress = null
+shader_parameter/dissolve_amt = null
+shader_parameter/alpha_mul = 0.5
+shader_parameter/noise_amt = 0.5
+shader_parameter/noise_scale = Vector3(4, 4, 4)
+shader_parameter/scroll = Vector3(0.6, 0, 0.6)
+shader_parameter/cel = 0.7
+shader_parameter/bands = 3.0
+shader_parameter/fresnel_pow = null
+shader_parameter/rim_alpha = null
+shader_parameter/core_facing = null
+shader_parameter/mesh_h = null
+shader_parameter/mesh_r = 0.8
+shader_parameter/fade_y = null
+shader_parameter/ring_r = 0.8
+shader_parameter/ring_w = 0.2
+shader_parameter/ring_fill = 0.5
+shader_parameter/ticks = null
+shader_parameter/tick_amt = null
+shader_parameter/spiral = null
+shader_parameter/spiral_amt = null
+shader_parameter/wobble = null
+shader_parameter/wobble_scale = null
+shader_parameter/twist = null
+shader_parameter/spin = null
+shader_parameter/flicker = null
+shader_parameter/fake_light = null
+shader_parameter/flat_shade = null
+shader_parameter/light_dir = null
+shader_parameter/reveal = null
+shader_parameter/tail_len = null
+shader_parameter/pulse = null
+shader_parameter/pulse_speed = null
+shader_parameter/heat_scale = 0.75
+
+[sub_resource type="QuadMesh" id="QuadMesh_0f3x0"]
+size = Vector2(1.6, 1.6)
+orientation = 1
+
+[node name="Water_Status" type="Node3D" unique_id=1134260910]
+script = ExtResource("1_tcoke")
+duration = 0.0
+fade_out = 0.4
+kind = &"status"
+element = &"water"
+
+[node name="Drips" type="GPUParticles3D" parent="." unique_id=484418425]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+cast_shadow = 0
+gi_mode = 0
+emitting = false
+amount = 10
+randomness = 0.4
+visibility_aabb = AABB(-3, -1.5, -3, 6, 4.8, 6)
+local_coords = true
+transform_align = 1
+process_material = SubResource("ParticleProcessMaterial_3nqoq")
+draw_pass_1 = SubResource("QuadMesh_vw6fd")
+
+[node name="Glints" type="GPUParticles3D" parent="." unique_id=1186221912]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+cast_shadow = 0
+gi_mode = 0
+emitting = false
+amount = 4
+lifetime = 0.9
+randomness = 0.4
+visibility_aabb = AABB(-3, -1.5, -3, 6, 4.8, 6)
+local_coords = true
+transform_align = 1
+process_material = SubResource("ParticleProcessMaterial_viopg")
+draw_pass_1 = SubResource("QuadMesh_ffnbw")
+metadata/tier_min = 1
+
+[node name="Puddle" type="MeshInstance3D" parent="." unique_id=1085664396]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
+material_override = SubResource("ShaderMaterial_v3e0r")
+cast_shadow = 0
+extra_cull_margin = 2.0
+gi_mode = 0
+mesh = SubResource("QuadMesh_0f3x0")
+metadata/tier_min = 1
