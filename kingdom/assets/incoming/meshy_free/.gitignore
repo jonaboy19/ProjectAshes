@@ -1,0 +1,3 @@
+# Godot extracts embedded textures next to each GLB on import; they duplicate the GLB and are regenerated, do not track them.
+*_lod_bake.jpg
+*_lod_bake.jpg.import
