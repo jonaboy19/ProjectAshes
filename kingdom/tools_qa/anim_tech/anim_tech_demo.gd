@@ -47,6 +47,7 @@ var bench_path := ""
 var only: PackedStringArray = []
 var gen := 0                 # incremented to cancel a running technique
 var capturing := false
+var nosnap := false           # --nosnap: run the metrics at full speed, skip the frame grabs
 var frames: Array[Image] = []
 var _current := ""
 var _sun: DirectionalLight3D
@@ -61,6 +62,8 @@ func _ready() -> void:
 			out_dir = a.substr(10)
 		elif a.begins_with("--bench="):
 			bench_path = a.substr(8)
+		elif a == "--nosnap":
+			nosnap = true
 		elif a.begins_with("--tech="):
 			only = a.substr(7).split(",", false)
 	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
@@ -260,7 +263,7 @@ func say(text: String) -> void:
 
 ## Grabs the current frame into the strip (capture mode only).
 func snap() -> void:
-	if not capturing:
+	if not capturing or nosnap:
 		return
 	await RenderingServer.frame_post_draw
 	var img := get_viewport().get_texture().get_image()
