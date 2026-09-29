@@ -406,7 +406,7 @@ func _process(delta: float) -> void:
 			_log_timer = 30.0
 			var busy := 0
 			for p in _pool3d:
-				busy += 1 if p.playing else 0
+				busy += 1 if is_instance_valid(p) and p.playing else 0
 			print("[audio] voices %d/%d, long streams %d, music %s/%s threat %.0f, surface %s, played %s" % [
 				busy, _pool3d.size(), long_streams(), _music_mood, _music.current_clip(), _threat, _surface, _counts])
 			_counts.clear()
