@@ -47,6 +47,19 @@ const RANGE := 45.0               # metres from the player; terrain collision st
 const HEAVY_KNOCK := 6.0          # knockback at or above this knocks a living actor down
 const MIN_BODIES := 5
 const FLOOR_PROBE := 4.0          # metres below the hips a world collider must exist
+
+## Holds the last physical pose after the mixer resumes, then yields back to
+## animation as Skeleton3D applies this modifier's influence.
+class PoseHold extends SkeletonModifier3D:
+	var snapshot: Array[Transform3D] = []
+
+	func _process_modification_with_delta(_delta: float) -> void:
+		var sk := get_skeleton()
+		if sk == null:
+			return
+		for i in min(snapshot.size(), sk.get_bone_count()):
+			sk.set_bone_pose(i, snapshot[i])
+
 ## [role, bone candidates, tip candidates, radius (x torso length), mass (kg),
 ##  joint ("" = root, "cone", "hinge"), swing or hinge-bend (deg), twist (deg)]
 const ROLES := [
@@ -88,6 +101,8 @@ var _hips: PhysicalBone3D
 var _gen := 0                     # invalidates timers of an older run
 var _on_get_up := Callable()
 var _blend: Tween
+var _pose_hold: PoseHold
+var _pose_blend: Tween
 var why := ""                     # last reason a ragdoll was refused (debug/tests)
 
 
@@ -168,6 +183,7 @@ func is_down() -> bool:
 func die(knockback := Vector3.ZERO, hit_from := Vector3.INF) -> bool:
 	if mode == Mode.DOWN:
 		_gen += 1                 # already physical: just stay down for good
+		_clear_pose_hold()
 		mode = Mode.DYING
 		for m: AnimationMixer in mixers:
 			m.active = false      # in case the get-up had started
@@ -461,7 +477,14 @@ func _bake() -> void:
 func _recover() -> void:
 	if _sim == null:
 		return
+	var world := {}
+	for pb in _bodies:
+		world[skeleton.find_bone(pb.bone_name)] = pb.global_transform * pb.body_offset.affine_inverse()
 	_move_root_under_hips()
+	_pose_hold = PoseHold.new()
+	_pose_hold.name = "RagdollPoseHold"
+	_pose_hold.snapshot = _pose_snapshot(world)
+	skeleton.add_child(_pose_hold) # appended after the mixer and existing modifiers
 	for i in mixers.size():
 		var m: AnimationMixer = mixers[i]
 		if is_instance_valid(m):
@@ -470,12 +493,46 @@ func _recover() -> void:
 		_on_get_up.call()
 	var gen := _gen
 	var t := _blend_to(0.0, BLEND_OUT)
+	_pose_blend = t
+	t.parallel().tween_property(_pose_hold, "influence", 0.0, BLEND_OUT) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	t.tween_callback(func() -> void:
 		if gen != _gen:
 			return
+		_clear_pose_hold(false)
 		_free_bodies()
 		mode = Mode.IDLE
 		release(self))
+
+
+## Convert the simulated world poses to local poses after the actor root has
+## been moved under the landed hips. Unsimulated descendants retain their pose
+## relative to the nearest simulated parent, matching the death bake path.
+func _pose_snapshot(world: Dictionary) -> Array[Transform3D]:
+	var poses: Array[Transform3D] = []
+	poses.resize(skeleton.get_bone_count())
+	var inv := skeleton.global_transform.affine_inverse()
+	var globals := {}
+	var stack: Array = Array(skeleton.get_parentless_bones())
+	while not stack.is_empty():
+		var b: int = stack.pop_back()
+		var parent := skeleton.get_bone_parent(b)
+		var parent_g: Transform3D = globals.get(parent, Transform3D.IDENTITY)
+		var g: Transform3D = inv * (world[b] as Transform3D) if world.has(b) else parent_g * skeleton.get_bone_pose(b)
+		globals[b] = g
+		poses[b] = parent_g.affine_inverse() * g if parent >= 0 else g
+		stack.append_array(Array(skeleton.get_bone_children(b)))
+	return poses
+
+
+func _clear_pose_hold(kill_tween := true) -> void:
+	if kill_tween and _pose_blend and _pose_blend.is_valid():
+		_pose_blend.kill()
+	_pose_blend = null
+	if _pose_hold and is_instance_valid(_pose_hold):
+		_pose_hold.active = false
+		_pose_hold.queue_free()
+	_pose_hold = null
 
 
 func _move_root_under_hips() -> void:
@@ -497,6 +554,7 @@ func _centre(b: PhysicalBone3D) -> Vector3:
 
 
 func _free_bodies() -> void:
+	_clear_pose_hold()
 	if _blend and _blend.is_valid():
 		_blend.kill()
 	if _sim and is_instance_valid(_sim):
