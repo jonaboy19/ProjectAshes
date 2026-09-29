@@ -41,7 +41,7 @@ export(f"{outd}/{name}.glb", [mesh, arm])
 lod = mesh.copy(); lod.data = mesh.data.copy(); lod.name = name + "_lod1"
 sc.collection.objects.link(lod)
 mesh.hide_set(True); mesh.hide_viewport = True
-target = 2000 if not W else 4600
+target = 2000 if not W else 5000
 mod = lod.modifiers.new("dec", 'DECIMATE'); mod.ratio = min(1.0, target / tris0); mod.use_collapse_triangulate = True
 bpy.context.view_layer.objects.active = lod
 for o in D.objects: o.select_set(o == lod)

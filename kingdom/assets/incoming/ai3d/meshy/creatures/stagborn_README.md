@@ -8,8 +8,8 @@ Both are customised from one CC0 donor, the Quaternius *Ultimate Animated Animal
 |---|---|---|
 | Files | `stagborn_elk.glb`, `stagborn_elk_lod1.glb` | `stagborn_warden.glb`, `stagborn_warden_lod1.glb` |
 | Look | warm russet coat, cream chest, bone antlers; the antlers carry faint glowing rune rings and a glowing tip | chestnut-umber coat with a silver mane and chest, mossy dark-bark antlers, glowing cyan rune glyphs on the flanks, haunch, brow, leg bands and antler rings |
-| Size (model space, metres) | ~1.25 m at the withers, 2.1 m long, 2.6 m to the antler tips (head up) | ~2.0 m at the withers, 3.8 m long, 5.0 m to the antler tips, 3.3 m antler span. Scale the visual node by 0.8 if the antlers are too tall for a scene; collision is yours. |
-| Tris LOD0 / LOD1 | **3,668 / 2,000** (budget 8k) | **5,728 / 4,600** (budget 15k) |
+| Size (model space, metres) | ~1.25 m at the withers, 2.1 m long, 2.6 m to the antler tips (head up) | ~1.6 m at the withers, ~4 m to the antler tips (the 0.8 scale is baked into the asset). |
+| Tris LOD0 / LOD1 | **3,668 / 2,000** (budget 8k) | **8,288 / 5,000** (budget 15k) |
 | Bones | 26 (no IK helpers), 4 weights per vertex | same rig, 26 bones |
 | Texture | one 1024 px albedo + one 1024 px emissive (LOD1: 512 px), embedded JPEG | same |
 | Facing / origin | origin between the hooves on the ground, faces -Y in Blender = glTF +Z (the same convention as the other Quaternius animals in `animals/quaternius/`). Real-world scale. | same |
@@ -98,3 +98,7 @@ Authored by us: `attack`, `run_charge`, `roar`.
 ## Licence
 Donor mesh, rig and stock clips: **Quaternius, CC0 1.0** (public domain, no attribution needed, credited in `kingdom/CREDITS.md`).
 Textures, antlers, mane, rune glyphs, retiming and the authored clips: own work for this project (also usable as CC0). No Meshy output involved.
+
+## Warden art pass 2 (2026-09-29, final commit of this session)
+Rebuilt the Warden: flowing spiral, knot and braid rune channels along the shoulder, flank, haunch and neck (no letter-like glyphs); layered thicker antlers with hanging ivy and a thin glowing channel up every beam and tine; darker saddle, lighter mane, pale fetlock tufts and dark hooves; 0.8 scale baked in; body lifted so nothing dips under the ground in any clip; walk and run foot speeds evened out per leg. Elk clips got the same ground fix.
+NOT re-verified after this pass: frame sheets of the Warden clips under `docs/art/region1/stagborn/stagborn_warden_*` are from the first version (same clips, older mesh and proportions). Only the new turntable was read.

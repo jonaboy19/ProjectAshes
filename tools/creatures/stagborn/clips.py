@@ -115,6 +115,9 @@ def build(variant, arm):
                 k = round(L0 * k) / L0
             retime(a, k); stock[new] = a
     rig = Rig(arm)
+    for nm in ("walk", "run"):
+        equalize_stance(rig, nm)
+    stock["walk"] = D.actions["walk"]; stock["run"] = D.actions["run"]
     idle = stock["idle"]; idle_len = idle.frame_range[1] - idle.frame_range[0]
     def idle_at(f): return rig.sample(idle, (f % idle_len))
 
@@ -185,8 +188,8 @@ def build(variant, arm):
             poses.append(apply_offsets(rig, idle_at(f), R, {}, f / ts))
         bake(rig, "roar", poses)
     mesh = [o for o in D.objects if o.type == 'MESH' and len(o.vertex_groups) > 5][0]
-    for nm in ("death", "walk", "run"):
-        fix_floor(rig, mesh, nm, recenter=(nm == "death"))
+    for nm in ("death", "walk", "run", "run_charge", "attack", "attack_butt", "kick", "roar"):
+        if nm in D.actions: fix_floor(rig, mesh, nm, recenter=(nm == "death"))
     arm.animation_data.action = None
     return rig
 
@@ -207,5 +210,99 @@ def fix_floor(rig, mesh, nm, recenter=False):
         dz = max(0.0, -mz); dx = (cx0 - cx) if recenter else 0.0
         l, q, s = pose["Body"]; pose = dict(pose); pose["Body"] = (l + rig.loc_local("Body", (dx, 0, dz)), q, s)
         out.append(pose)
+    D.actions.remove(a)
+    bake(rig, nm, out, ground=False)
+
+
+LEGS = {"FL": ["FrontShoulder.L", "FrontUpperLeg.L", "FrontLowerLeg.L"], "FR": ["FrontShoulder.R", "FrontUpperLeg.R", "FrontLowerLeg.R"],
+        "BL": ["BackShoulder.L", "BackLeg.L", "BackUpperLeg.L", "BackLowerLeg.L"], "BR": ["BackShoulder.R", "BackLeg.R", "BackUpperLeg.R", "BackLowerLeg.R"]}
+HOOF_OF = {"FL": "FrontLowerLeg.L", "FR": "FrontLowerLeg.R", "BL": "BackLowerLeg.L", "BR": "BackLowerLeg.R"}
+
+def _set_pose(rig, pose):
+    for pb in rig.arm.pose.bones:
+        l, q, s = pose[pb.name]; pb.location = l; pb.rotation_quaternion = q; pb.scale = s
+    bpy.context.view_layer.update()
+
+def stance_speeds(rig, poses):
+    """implied ground speed of each hoof while it is planted (positive = backwards relative to the body)"""
+    rows = []
+    for pose in poses:
+        _set_pose(rig, pose)
+        rows.append({k: (rig.arm.pose.bones[h].tail.y, rig.arm.pose.bones[h].tail.z) for k, h in HOOF_OF.items()})
+    out = {}
+    for k in HOOF_OF:
+        z0 = min(r[k][1] for r in rows); v = []
+        for i in range(1, len(rows)):
+            if rows[i][k][1] < z0 + 0.025 and rows[i - 1][k][1] < z0 + 0.025:
+                v.append((rows[i][k][0] - rows[i - 1][k][0]) * 30.0)
+        out[k] = sum(v) / len(v) if v else None
+    return out
+
+def scale_rot(q, f):
+    ax, ang = q.to_axis_angle()
+    if ang > math.pi: ang -= 2 * math.pi
+    return Quaternion(ax, ang * f)
+
+def foot_speed(rig, poses, k, f):
+    """stance speed of hoof k when that leg's swing amplitude is scaled by f"""
+    rows = []
+    for pose in poses:
+        pz = dict(pose)
+        for bn in LEGS[k][1:]:
+            l, q, sc_ = pz[bn]; pz[bn] = (l, scale_rot(q, f), sc_)
+        _set_pose(rig, pz)
+        pb = rig.arm.pose.bones[HOOF_OF[k]]; rows.append((pb.tail.y, pb.tail.z))
+    z0 = min(r[1] for r in rows); v = []
+    for i in range(1, len(rows)):
+        if rows[i][1] < z0 + 0.025 and rows[i - 1][1] < z0 + 0.025:
+            v.append((rows[i][0] - rows[i - 1][0]) * 30.0)
+    return (sum(v) / len(v)) if v else None
+
+def equalize_stance(rig, nm, grid=(0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.2, 1.3)):
+    """pick, per leg, the swing-amplitude scale that brings its planted-hoof speed closest to the mean of the original four (less foot slide)"""
+    D = bpy.data; arm = rig.arm
+    a = D.actions[nm]; f0 = a.frame_range[0]; n = int(round(a.frame_range[1] - f0)) + 1
+    poses = [rig.sample(a, f0 + i) for i in range(n)]
+    arm.animation_data.action = None
+    v0 = {k: foot_speed(rig, poses, k, 1.0) for k in LEGS}
+    vals = [x for x in v0.values() if x]
+    if not vals: return
+    vt = sum(vals) / len(vals); best = {}
+    for k in LEGS:
+        if v0[k] is None: best[k] = 1.0; continue
+        sc_ = []
+        for f in grid:
+            v = foot_speed(rig, poses, k, f)
+            if v is not None: sc_.append((abs(v - vt), f, v))
+        best[k] = min(sc_)[1]
+    print("STANCE", nm, {k: round(x, 2) if x else None for k, x in v0.items()}, "target", round(vt, 2), "scales", best)
+    for k, bones in LEGS.items():
+        for pose in poses:
+            for bn in bones[1:]:
+                l, q, s = pose[bn]; pose[bn] = (l, scale_rot(q, best[k]), s)
+    D.actions.remove(a)
+    bake(rig, nm, poses, ground=False)
+
+def raise_antlers(rig, mesh, nm, limit=45.0):
+    """per frame, pitch the head up just enough that the antlers never dip below the ground"""
+    D = bpy.data; arm = rig.arm; me = mesh.data
+    hg = mesh.vertex_groups["Head"].index
+    hv = [v.index for v in me.vertices if any(g.group == hg and g.weight > 0.9 for g in v.groups)]
+    a = D.actions[nm]; f0 = a.frame_range[0]; n = int(round(a.frame_range[1] - f0)) + 1
+    poses = [rig.sample(a, f0 + i) for i in range(n)]
+    arm.animation_data.action = None
+    out = []; fixed = 0
+    for pose in poses:
+        pose = dict(pose); tot = 0.0
+        for it in range(20):
+            _set_pose(rig, pose)
+            ev = mesh.evaluated_get(bpy.context.evaluated_depsgraph_get()); m = ev.to_mesh()
+            mz = min(m.vertices[i].co.z for i in hv); ev.to_mesh_clear()
+            if mz > -0.004 or tot >= limit: break
+            step = min(3.0, max(1.0, -mz * 100 * 0.9)); tot += step
+            l, q, s = pose["Head"]; pose["Head"] = (l, q @ rig.rot_local("Head", -step, 0, 0), s)
+        if tot: fixed += 1
+        out.append(pose)
+    print("RAISE", nm, "frames adjusted", fixed, "of", n)
     D.actions.remove(a)
     bake(rig, nm, out, ground=False)
