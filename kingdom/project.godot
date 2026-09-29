@@ -24,6 +24,8 @@ boot_splash/use_filter=true
 [autoload]
 
 Quality="*res://scripts/core/quality.gd"
+App="*res://scripts/core/app_services.gd"
+PlatformServices="*res://scripts/core/platform_services.gd"
 Game="*res://autoload/game.gd"
 WorldSim="*res://autoload/world_sim.gd"
 Audio="*res://scripts/audio/audio_director.gd"

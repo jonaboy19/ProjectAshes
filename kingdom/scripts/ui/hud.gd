@@ -25,6 +25,7 @@ const Discovery := preload("res://scripts/sim/discovery.gd")
 const CompassBar := preload("res://scripts/ui/compass.gd")
 const WorldMap := preload("res://scripts/ui/world_map.gd")
 const PhotoMode := preload("res://scripts/ui/photo_mode.gd")
+const PauseMenu := preload("res://scripts/ui/frontend/pause_menu.gd")
 const DiscoveryBanner := preload("res://scripts/ui/discovery_banner.gd")
 const MapIcons := preload("res://scripts/ui/map_icons.gd")
 
@@ -52,14 +53,14 @@ var _interact_label: Label
 var _dash_cooldown_label: Label
 var _order_buttons: Array[TouchScreenButton] = []
 var _buttons: Dictionary = {}
-var _loading: ColorRect
-var _loading_label: Label
+var _loading: Control      # WorldLoading while the world is generated
 var _needs: Label
 var _rank: Label
 var _toast_box: PanelContainer
 var _menu: PanelContainer
 var _menu_source: Callable
 var _pack_button: TouchScreenButton
+var _pause_button: TouchScreenButton
 var _root: Control
 var compass: Control               # scripts/ui/compass.gd
 var banner: Control                # scripts/ui/discovery_banner.gd
@@ -100,12 +101,13 @@ func _ready() -> void:
 	look.anchor_bottom = 1.0
 	look.gui_input.connect(func(e: InputEvent) -> void:
 		if e is InputEventScreenDrag:
-			player.add_look(e.relative))
+			player.add_look(e.relative * App.look_scale))
 	controls.add_child(look)
 	var stick := VirtualJoystick.new()
 	stick.anchor_right = 0.4
 	stick.anchor_top = 0.3
 	stick.anchor_bottom = 1.0
+	stick.size_scale = App.joystick_scale
 	stick.moved.connect(func(v: Vector2) -> void: player.touch_move = v)
 	controls.add_child(stick)
 
@@ -131,6 +133,8 @@ func _ready() -> void:
 	_buttons["zoom_in"] = _button("zoom_in", "+", 58, UITheme.ACTION_UTIL, "")
 	_interact = _button("interact", "Talk", 96, UITheme.ACTION_TALK, "hand")
 	_pack_button = _button("journal", "", 58, UITheme.ACTION_UTIL, "knapsack")
+	_pause_button = _make_button("", "", 52, UITheme.ACTION_UTIL, UITheme.glyph("pause"))
+	_pause_button.pressed.connect(open_pause)
 	_interact_label = _interact.get_child(0)
 	_interact.visible = false
 	for extra: Array in [["order_retreat", KEY_G], ["order_formation", KEY_B], ["ability_dash", KEY_R]]:
@@ -219,19 +223,14 @@ func _ready() -> void:
 	_menu.visible = false
 	root.add_child(_menu)
 
-	_loading = ColorRect.new()
-	_loading.color = UITheme.BG_SOLID
-	_loading.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# World-generation veil (backdrop, tips, progress bar; see world_loading.gd).
+	_loading = WorldLoading.new()
 	root.add_child(_loading)
-	_loading_label = _label(_loading, 30, UITheme.ACCENT)
-	_loading_label.add_theme_font_override("font", UITheme.title_font())
-	_loading_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_loading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_loading_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_loading_label.text = "Forging the realm..."
 
 	player.stamina_changed.connect(func(c: float, _m: float) -> void: _stamina.value = c)
 	player.health_changed.connect(func(c: int, m: int) -> void:
+		if c < int(_health.value):
+			App.vibrate(35)
 		_health.max_value = m
 		_health.value = c)
 	Game.toast.connect(show_toast)
@@ -240,13 +239,19 @@ func _ready() -> void:
 	_layout()
 
 
+## True while the world-generation veil is up (it frees itself after fading out).
+func _veil() -> bool:
+	return is_instance_valid(_loading) and _loading.visible
+
+
 func hide_loading() -> void:
-	_loading.visible = false
+	WorldLoading.finish()
 	world_map.start_bake()      # paint the map terrain in the background now the world exists
 
 
-func set_loading_text(text: String) -> void:
-	_loading_label.text = text
+func set_loading_text(text: String, progress := -1.0) -> void:
+	if _loading is WorldLoading:
+		(_loading as WorldLoading).set_progress(progress, text)
 
 
 func _bar(parent: Control, pos: Vector2, color: Color, height: int) -> Meter:
@@ -308,6 +313,7 @@ func _layout() -> void:
 	_buttons["zoom_out"].position = Vector2(col, 152)
 	_buttons["view"].position = Vector2(col, 220)
 	_pack_button.position = Vector2(col, 288)
+	_pause_button.position = Vector2(col + 3.0, 16.0)
 	for i in _order_buttons.size():
 		_order_buttons[i].position = Vector2(s.x * 0.5 - 130 + i * 92, s.y - 110)
 	# Dock: a column left of the utility column, then further columns, kept clear
@@ -607,7 +613,7 @@ func set_quest_target(pos: Variant) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _loading.visible or not visible:
+	if _veil() or not visible:
 		return
 	if event.is_action_pressed("world_map"):
 		toggle_map()
@@ -615,13 +621,30 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("photo_mode"):
 		open_photo_mode()
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_cancel"):
+		# Esc, gamepad B and the Android back button: close the open list, else pause.
+		get_viewport().set_input_as_handled()
+		if _menu.visible:
+			close_menu()
+		else:
+			open_pause()
+
+
+## The pause menu (resume, save, load, settings, photo mode, exit to main menu). Esc, the pause button,
+## the Android back button and returning to the app all come here.
+func open_pause() -> void:
+	if _veil() or not visible or _fade.visible or photo_mode.is_active() or world_map.visible \
+			or get_tree().paused or has_node("PauseMenu"):
+		return
+	close_menu()
+	PauseMenu.open(self, open_photo_mode)
 
 
 func toggle_map() -> void:
 	if world_map.visible:
 		world_map.close()
 		return
-	if photo_mode.is_active() or _loading.visible or _fade.visible:
+	if photo_mode.is_active() or _veil() or _fade.visible:
 		return
 	close_menu()
 	world_map.discovery = get_discovery()
@@ -630,7 +653,7 @@ func toggle_map() -> void:
 
 
 func open_photo_mode() -> void:
-	if photo_mode.is_active() or world_map.visible or _loading.visible or _fade.visible:
+	if photo_mode.is_active() or world_map.visible or _veil() or _fade.visible:
 		return
 	close_menu()
 	_root.visible = false
@@ -638,7 +661,7 @@ func open_photo_mode() -> void:
 
 
 func _process(delta: float) -> void:
-	if not visible or _loading.visible or player == null or not player.is_inside_tree():
+	if not visible or _veil() or player == null or not player.is_inside_tree():
 		return
 	_nav_timer -= delta
 	if _nav_timer <= 0.0:
