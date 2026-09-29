@@ -4,7 +4,7 @@ Authored quests for Region 1: the main quest `r1_main.json` ("The Stones Are Dim
 
 | File | What |
 |---|---|
-| `r1_main.json` | Main quest: 5 acts, 30 steps |
+| `r1_main.json` | Main quest: 5 acts, 38 steps (story v2; curve in `docs/regions/EMOTION_MAP_R1.md`) |
 | `r1_registry.json` | Every id a step may name: places, stones, glyphs, targets, cutscenes, festivals, factions, new items, choice groups, external and exported flags, text tokens |
 | `cast.json` | Speakers: 12 principal plus supporting ones, each with display name, role and a one-line voice note |
 | `../dialogue/r1_act1..5.json` | Conversations in the `dialogue_runner.gd` format, plus a `speaker` key on each node |
@@ -35,6 +35,7 @@ Runtime: `scripts/region1/story_quest.gd` (`Region1StoryQuest`, a `Region1Sim` t
 | `mechanics` | no | `{"wardwright" \| "scar_tide" \| "ember_legacy" \| "ashsight": "teach" \| "use"}` |
 | `tutorial` | no | Tutorial prompt ids (`tutorial_director.gd`) this step is likely to need; C8 may `replay()` them |
 | `on_start`, `on_complete` | no | Actions (below) |
+| `staging` | no | Emotional staging for C7/C9/C12/Codex: `intensity` (-5..+5, required when staging is present), `emotion`, `music` (a registry `music` cue), `sfx`, `camera`, `anim`, `vfx`, `silence`, `weather`, `time`, `needs` (subset of `c9`, `codex`, `vfx`). The lint warns when a step has none, and when 4 steps in a row stay within 1 point (a flat stretch) |
 
 ## Objective (trigger) types
 Every objective has `id` and `type`. Optional on all: `do` (actions when it completes) and `sets` (a flag set when it completes; used on `any` branches).
@@ -82,7 +83,7 @@ Story flags use `r1.` (and `ember.<who>.<choice>` for Ember Legacy choices). The
 ## Lint
 ```
 Godot --headless --path kingdom -s res://tools_qa/region1/lint_quests.gd              # sampled autoplay, ~10 s
-Godot --headless --path kingdom -s res://tools_qa/region1/lint_quests.gd -- --exhaustive   # all 2592 choice combinations, ~9 min
+Godot --headless --path kingdom -s res://tools_qa/region1/lint_quests.gd -- --exhaustive   # all 10368 choice combinations, ~25 min
 ```
 It checks schema, lengths, speakers, places, stones, glyphs, targets, items, cutscenes, tutorial ids, actions, conditions, tokens, flags, step order, mechanic coverage (each taught before use, in 2+ acts) and dialogue reachability. It then **plays the quest to the end** with the real runtime and dialogue runner, across choice combinations, Blessing results, times of day and weather. It reports:
 - any step that gets stuck;

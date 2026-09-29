@@ -3,11 +3,12 @@
 The local session updates this file whenever a task starts or finishes. **Cloud session: read it after each pull.**
 Who owns which area: `docs/LOCAL_SESSION_HANDOFF.md`.
 
-_Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
+_Last update: 2026-09-29 (L14 story v2: the emotional rollercoaster)_
 
 ## Done (recent)
 | Date | What | Where | Commit |
 |---|---|---|---|
+| 09-29 | **L14 story v2, the emotional rollercoaster**: emotion map of v1 (flat Act II-III, no loss of anyone loved, no betrayal, no dark night, costless finale) and a rewrite to 38 steps with a -5..+5 curve and 16 swings. Adds Thistle (a stagborn fawn), Wren (best friend, companion #1), two Kindling Nights, the twist (Idra has fed the Miller's Stone for 30 years), Maren's death holding the ring, the betrayal (Captain Bram sold your reports), a dark night then comeback, and a finale where Ember Legacy choices decide who pays (Idra, Bram, Tamsin, or nobody in the hidden Kindled Dawn). New groups thistle_bond and bram_fate. `staging` (music, camera, anim, VFX, silence, weather, C9/Codex/VFX marks) on every step, checked by the lint, which also flags flat stretches. Lint 0 errors, 0 warnings, 281/281 lines shown; exhaustive 10368/10368; 61/61 region1 tests. **Cloud:** C7 hooks in HOOKS_FOR_CLOUD.md (story v2 table); C9 has 2 new cutscenes + 4 finale variants; C12 needs 3 missing music cues (registry `music`); C20: Wren/Thistle flags, and the Tamsin name clash (EMOTION_MAP_R1 section 5) | `docs/regions/EMOTION_MAP_R1.md`, `STORY_R1.md`, `CAST_R1.md`, `data/region1/`, `tools_qa/region1/lint_quests.gd`, `tests/test_region1_story.gd` | (this commit) |
 | 09-28 | Boot crash fixed (threaded mesh loads → main-thread `Assets.scene`) | `scripts/world/region_dressing.gd`, `assets.gd` | 0137fa0d, 64b3698e |
 | 09-28 | Godot 4.6.3 (quit crash fixed) | launchers, `tools/qa` | a5a596b7 |
 | 09-29 | **L14 main quest + L16 tutorial director**: "The Stones Are Dimming" Acts I-V (30 steps, 5 dialogue files, 12-person cast), story lint with full autoplay (2592/2592 combinations), 12 contextual tutorial prompts with en/nl strings, sandbox sheet | `data/region1/quests/`, `data/region1/dialogue/`, `scripts/region1/`, `tools_qa/region1/`, `docs/regions/STORY_R1.md`, `CAST_R1.md` | e3071665 + follow-up |

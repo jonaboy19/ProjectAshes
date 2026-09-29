@@ -14,6 +14,8 @@
 		"imra_solvane":    {"principal": true,  "display": "Imra Solvane", "role": "Solkar caravan mistress (tease: Solkar Dominion)", "voice": "Merchant charm, sun proverbs, always one bargain ahead."},
 		"tamsin_reeve":    {"principal": true,  "display": "Tamsin Reeve", "role": "Quartermaster of Rift's Edge Camp", "voice": "Gravel and grievance; 'Edge rules'; never apologises, never lies."},
 
+		"wren_coldbrook":  {"principal": false, "display": "Wren Coldbrook", "role": "Maren's niece; your best friend and first companion (RETINUE 2.8)", "voice": "Quick, cheeky, competitive; jokes first, feels second, apologises never (but comes back)."},
+		"thistle":         {"principal": false, "display": "Thistle", "role": "Stagborn fawn you save in Act I; your first bonded beast", "voice": "No words. Stage directions of small, offended, loyal animal noises."},
 		"corin_vesk":      {"principal": false, "display": "Corin Vesk", "role": "Ashen Hand stone-cutter, sixteen", "voice": "Scared, defiant, too honest for the job."},
 		"gilda_pennick":   {"principal": false, "display": "Gilda Pennick", "role": "Greenhollow farmer", "voice": "Shaken, plain-spoken, angry at the right things."},
 		"king_aldric":     {"principal": false, "display": "King Aldric III", "role": "King of Valencious, House Caldrenn", "voice": "Measured, tired, listens longer than he speaks."},
