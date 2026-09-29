@@ -129,14 +129,14 @@ color_ramp = SubResource("GradientTexture1D_4lqav")
 material = ExtResource("4_4at1b")
 size = Vector2(0.15835051, 0.15835051)
 
-[node name="Fire_Aura" type="Node3D" unique_id=1602254875]
+[node name="Fire_Aura" type="Node3D" unique_id=807544703]
 script = ExtResource("1_pre5m")
 duration = 0.0
 fade_out = 0.4
 kind = &"aura"
 element = &"fire"
 
-[node name="Shell" type="MeshInstance3D" parent="." unique_id=1654359258]
+[node name="Shell" type="MeshInstance3D" parent="." unique_id=572330585]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
 material_override = SubResource("ShaderMaterial_v0qa3")
 cast_shadow = 0
@@ -144,7 +144,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_42g75")
 
-[node name="Flames" type="GPUParticles3D" parent="." unique_id=698769083]
+[node name="Flames" type="GPUParticles3D" parent="." unique_id=1646866449]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -157,7 +157,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_hl4g7")
 draw_pass_1 = SubResource("QuadMesh_5jrxu")
 
-[node name="Embers" type="GPUParticles3D" parent="." unique_id=291067560]
+[node name="Embers" type="GPUParticles3D" parent="." unique_id=1845143070]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

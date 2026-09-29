@@ -133,27 +133,27 @@ color_ramp = SubResource("GradientTexture1D_c6cwm")
 material = ExtResource("6_qckoo")
 size = Vector2(0.15835051, 0.15835051)
 
-[node name="Fire_Charge" type="Node3D" unique_id=1745160159]
+[node name="Fire_Charge" type="Node3D" unique_id=1021958658]
 script = ExtResource("1_3s3je")
 duration = 0.0
 kind = &"charge"
 element = &"fire"
 
-[node name="Orb" type="MeshInstance3D" parent="." unique_id=1966513387]
+[node name="Orb" type="MeshInstance3D" parent="." unique_id=1850451796]
 material_override = SubResource("ShaderMaterial_i5hy3")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_7oo24")
 
-[node name="Glow" type="MeshInstance3D" parent="." unique_id=2023362991]
+[node name="Glow" type="MeshInstance3D" parent="." unique_id=1998821560]
 material_override = SubResource("ShaderMaterial_enbms")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_kvhpj")
 
-[node name="Flames" type="GPUParticles3D" parent="." unique_id=138290562]
+[node name="Flames" type="GPUParticles3D" parent="." unique_id=978579186]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -165,7 +165,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_5kokd")
 draw_pass_1 = SubResource("QuadMesh_wisnq")
 
-[node name="Embers" type="GPUParticles3D" parent="." unique_id=96223428]
+[node name="Embers" type="GPUParticles3D" parent="." unique_id=561631421]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -177,7 +177,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_0ub3x")
 draw_pass_1 = SubResource("QuadMesh_7s5vv")
 
-[node name="Flash" type="OmniLight3D" parent="." unique_id=582483600]
+[node name="Flash" type="OmniLight3D" parent="." unique_id=1477381076]
 light_color = Color(1, 0.5, 0.12, 1)
 light_energy = 1.2
 omni_range = 4.0

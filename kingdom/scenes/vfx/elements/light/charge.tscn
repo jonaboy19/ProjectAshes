@@ -50,6 +50,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.8
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="SphereMesh" id="SphereMesh_ttc5l"]
 radius = 0.14
@@ -115,34 +117,34 @@ color_ramp = SubResource("GradientTexture1D_rd7uy")
 material = ExtResource("6_w8mdm")
 size = Vector2(0.5827642, 0.5827642)
 
-[node name="Light_Charge" type="Node3D" unique_id=671498935]
+[node name="Light_Charge" type="Node3D" unique_id=1384040039]
 script = ExtResource("1_6xwda")
 duration = 0.0
 kind = &"charge"
 element = &"light"
 
-[node name="Orb" type="MeshInstance3D" parent="." unique_id=732093571]
+[node name="Orb" type="MeshInstance3D" parent="." unique_id=1577927529]
 material_override = SubResource("ShaderMaterial_fb1co")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_ttc5l")
 
-[node name="Rays" type="MeshInstance3D" parent="." unique_id=431412671]
+[node name="Rays" type="MeshInstance3D" parent="." unique_id=30203144]
 material_override = SubResource("ShaderMaterial_j3kny")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_sqjxa")
 
-[node name="Star" type="MeshInstance3D" parent="." unique_id=118186199]
+[node name="Star" type="MeshInstance3D" parent="." unique_id=1289965531]
 material_override = SubResource("ShaderMaterial_fafy6")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_y28cf")
 
-[node name="Motes" type="GPUParticles3D" parent="." unique_id=1295512545]
+[node name="Motes" type="GPUParticles3D" parent="." unique_id=2009846031]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -155,7 +157,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_vosk1")
 draw_pass_1 = SubResource("QuadMesh_trwms")
 
-[node name="Flash" type="OmniLight3D" parent="." unique_id=354507689]
+[node name="Flash" type="OmniLight3D" parent="." unique_id=2038841398]
 light_color = Color(1, 0.86, 0.46, 1)
 light_energy = 1.2
 omni_range = 4.0

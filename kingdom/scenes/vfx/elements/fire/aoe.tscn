@@ -285,13 +285,13 @@ color_ramp = SubResource("GradientTexture1D_qekn5")
 material = ExtResource("8_p10od")
 size = Vector2(2.5263157, 2.3558283)
 
-[node name="Fire_Aoe" type="Node3D" unique_id=777212328]
+[node name="Fire_Aoe" type="Node3D" unique_id=1766502482]
 script = ExtResource("1_x1hqg")
 duration = 1.9
 kind = &"aoe"
 element = &"fire"
 
-[node name="Soot" type="MeshInstance3D" parent="." unique_id=1338396298]
+[node name="Soot" type="MeshInstance3D" parent="." unique_id=2069649021]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
 material_override = SubResource("ShaderMaterial_axf3j")
 cast_shadow = 0
@@ -321,7 +321,7 @@ metadata/anims = [{
 "t1": 1.9
 }]
 
-[node name="Glow" type="MeshInstance3D" parent="." unique_id=877650276]
+[node name="Glow" type="MeshInstance3D" parent="." unique_id=1545447373]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 material_override = SubResource("ShaderMaterial_gpofw")
 cast_shadow = 0
@@ -351,7 +351,7 @@ metadata/anims = [{
 "t1": 1.85
 }]
 
-[node name="Nova" type="MeshInstance3D" parent="." unique_id=559870166]
+[node name="Nova" type="MeshInstance3D" parent="." unique_id=907955072]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
 material_override = SubResource("ShaderMaterial_a6g2v")
 cast_shadow = 0
@@ -381,7 +381,7 @@ metadata/anims = [{
 "t1": 1.65
 }]
 
-[node name="Mid" type="MeshInstance3D" parent="." unique_id=1210100054]
+[node name="Mid" type="MeshInstance3D" parent="." unique_id=1908203923]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
 material_override = SubResource("ShaderMaterial_rovde")
 cast_shadow = 0
@@ -404,7 +404,7 @@ metadata/anims = [{
 "t1": 1.55
 }]
 
-[node name="Pillar" type="MeshInstance3D" parent="." unique_id=1420625087]
+[node name="Pillar" type="MeshInstance3D" parent="." unique_id=2077045603]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
 material_override = SubResource("ShaderMaterial_duuip")
 cast_shadow = 0
@@ -427,7 +427,7 @@ metadata/anims = [{
 "t1": 1.4
 }]
 
-[node name="Shimmer" type="MeshInstance3D" parent="." unique_id=1437655721]
+[node name="Shimmer" type="MeshInstance3D" parent="." unique_id=860223020]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, 0)
 material_override = SubResource("ShaderMaterial_imngi")
 cast_shadow = 0
@@ -451,7 +451,7 @@ metadata/anims = [{
 }]
 metadata/tier_min = 2
 
-[node name="Flash" type="MeshInstance3D" parent="." unique_id=596100983]
+[node name="Flash" type="MeshInstance3D" parent="." unique_id=208371462]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 material_override = SubResource("ShaderMaterial_mpp0s")
 cast_shadow = 0
@@ -474,7 +474,7 @@ metadata/anims = [{
 "t1": 0.4
 }]
 
-[node name="Flames" type="GPUParticles3D" parent="." unique_id=998257768]
+[node name="Flames" type="GPUParticles3D" parent="." unique_id=1014151205]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -489,7 +489,7 @@ process_material = SubResource("ParticleProcessMaterial_0knin")
 draw_pass_1 = SubResource("QuadMesh_lbsy5")
 metadata/emit_delay = 0.1
 
-[node name="Embers" type="GPUParticles3D" parent="." unique_id=1906661077]
+[node name="Embers" type="GPUParticles3D" parent="." unique_id=696609286]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -505,7 +505,7 @@ draw_pass_1 = SubResource("QuadMesh_3t7vx")
 metadata/emit_delay = 0.1
 metadata/tier_min = 1
 
-[node name="Smoke" type="GPUParticles3D" parent="." unique_id=440428623]
+[node name="Smoke" type="GPUParticles3D" parent="." unique_id=1685299962]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -521,7 +521,7 @@ draw_pass_1 = SubResource("QuadMesh_xgl1o")
 metadata/emit_delay = 0.35
 metadata/tier_min = 1
 
-[node name="@OmniLight3D@3" type="OmniLight3D" parent="." unique_id=1649697881]
+[node name="@OmniLight3D@3" type="OmniLight3D" parent="." unique_id=535762331]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 light_color = Color(1, 0.5, 0.12, 1)
 light_energy = 4.5

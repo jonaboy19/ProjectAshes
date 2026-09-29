@@ -78,7 +78,7 @@ void fragment() {
 		float thr = progress * 1.15;
 		float dens = (1.0 - d) * 1.05 - y * 0.32 + (n2 - 0.5) * 0.45 - thr;
 		a = smoothstep(0.0, 0.42, dens);
-		a *= smoothstep(0.0, 0.07, y);
+		a *= smoothstep(0.0, 0.3, y);
 		float heat = dens * (1.2 - 0.55 * y);
 		col = mix(col_edge.rgb, col_mid.rgb, smoothstep(0.08, 0.42, heat));
 		col = mix(col, col_core.rgb, smoothstep(0.5, 0.95, heat));

@@ -283,49 +283,49 @@ color_ramp = SubResource("GradientTexture1D_ras5a")
 material = ExtResource("6_gjtiu")
 size = Vector2(0.5, 0.8258065)
 
-[node name="Lightning_Beam" type="Node3D" unique_id=1533974665]
+[node name="Lightning_Beam" type="Node3D" unique_id=97747855]
 script = ExtResource("1_axlcp")
 duration = 0.0
 fade_out = 0.15
 kind = &"beam"
 element = &"lightning"
 
-[node name="Halo" type="MeshInstance3D" parent="." unique_id=950569515]
+[node name="Halo" type="MeshInstance3D" parent="." unique_id=251525684]
 material_override = SubResource("ShaderMaterial_wi3lx")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_13146")
 
-[node name="Outer" type="MeshInstance3D" parent="." unique_id=415604452]
+[node name="Outer" type="MeshInstance3D" parent="." unique_id=98557163]
 material_override = SubResource("ShaderMaterial_jtnlt")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_8xglb")
 
-[node name="Main" type="MeshInstance3D" parent="." unique_id=274831547]
+[node name="Main" type="MeshInstance3D" parent="." unique_id=1107381117]
 material_override = SubResource("ShaderMaterial_4eyru")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_f1028")
 
-[node name="Fork" type="MeshInstance3D" parent="." unique_id=1255474555]
+[node name="Fork" type="MeshInstance3D" parent="." unique_id=1417463171]
 material_override = SubResource("ShaderMaterial_qdjjk")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_2n8xb")
 
-[node name="Muzzle" type="MeshInstance3D" parent="." unique_id=640927037]
+[node name="Muzzle" type="MeshInstance3D" parent="." unique_id=1639408785]
 material_override = SubResource("ShaderMaterial_11q1e")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_j41bw")
 
-[node name="Tip" type="MeshInstance3D" parent="." unique_id=1241625970]
+[node name="Tip" type="MeshInstance3D" parent="." unique_id=1253920632]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 material_override = SubResource("ShaderMaterial_3dy32")
 cast_shadow = 0
@@ -333,7 +333,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_6nvnq")
 
-[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1932382813]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1959923401]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 cast_shadow = 0
 gi_mode = 0

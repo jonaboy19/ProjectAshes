@@ -436,70 +436,70 @@ color_ramp = SubResource("GradientTexture1D_wioy2")
 material = ExtResource("5_fnl22")
 size = Vector2(0.5, 0.68817204)
 
-[node name="Lightning_Projectile" type="Node3D" unique_id=1272032586]
+[node name="Lightning_Projectile" type="Node3D" unique_id=754749201]
 script = ExtResource("1_d1h8r")
 duration = 0.0
 fade_out = 0.12
 kind = &"projectile"
 element = &"lightning"
 
-[node name="Orb" type="MeshInstance3D" parent="." unique_id=2014197800]
+[node name="Orb" type="MeshInstance3D" parent="." unique_id=1453492263]
 material_override = SubResource("ShaderMaterial_p7ik0")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_x4lep")
 
-[node name="Glow" type="MeshInstance3D" parent="." unique_id=1446771086]
+[node name="Glow" type="MeshInstance3D" parent="." unique_id=564471576]
 material_override = SubResource("ShaderMaterial_v36ov")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_7e6ur")
 
-[node name="Arc0" type="MeshInstance3D" parent="." unique_id=1526568108]
+[node name="Arc0" type="MeshInstance3D" parent="." unique_id=914294941]
 material_override = SubResource("ShaderMaterial_fvdft")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_1ak4e")
 
-[node name="Arc1" type="MeshInstance3D" parent="." unique_id=758295130]
+[node name="Arc1" type="MeshInstance3D" parent="." unique_id=789600558]
 material_override = SubResource("ShaderMaterial_cyg4e")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_ca5lo")
 
-[node name="Arc2" type="MeshInstance3D" parent="." unique_id=396476350]
+[node name="Arc2" type="MeshInstance3D" parent="." unique_id=1804114970]
 material_override = SubResource("ShaderMaterial_j1hbp")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_71wob")
 
-[node name="Arc3" type="MeshInstance3D" parent="." unique_id=421080682]
+[node name="Arc3" type="MeshInstance3D" parent="." unique_id=1364941504]
 material_override = SubResource("ShaderMaterial_s44sb")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_u1l5p")
 
-[node name="Arc4" type="MeshInstance3D" parent="." unique_id=1013263279]
+[node name="Arc4" type="MeshInstance3D" parent="." unique_id=1265355344]
 material_override = SubResource("ShaderMaterial_60k07")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_qrpbu")
 
-[node name="Tail" type="MeshInstance3D" parent="." unique_id=882687852]
+[node name="Tail" type="MeshInstance3D" parent="." unique_id=978529932]
 material_override = SubResource("ShaderMaterial_djww2")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("ArrayMesh_6o607")
 
-[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1802346760]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=689528570]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -511,7 +511,7 @@ transform_align = 3
 process_material = SubResource("ParticleProcessMaterial_286mm")
 draw_pass_1 = SubResource("QuadMesh_h8gnr")
 
-[node name="Flash" type="OmniLight3D" parent="." unique_id=1634789021]
+[node name="Flash" type="OmniLight3D" parent="." unique_id=1910474582]
 light_color = Color(0.62, 0.72, 1, 1)
 light_energy = 1.6
 metadata/flash = {

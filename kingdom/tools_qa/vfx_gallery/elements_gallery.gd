@@ -420,6 +420,7 @@ func _run_capture() -> void:
 				while (Time.get_ticks_msec() - t0) < int(float(times[i]) * 1000.0):
 					await get_tree().process_frame
 				var img := await _shot()
+				img.convert(sheet.get_format())
 				img.resize(cw, ch, Image.INTERPOLATE_BILINEAR)
 				sheet.blit_rect(img, Rect2i(0, 0, cw, ch), Vector2i(i * cw, row * ch))
 				if _only != "" or i == 2:

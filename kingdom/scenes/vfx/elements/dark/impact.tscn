@@ -52,6 +52,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.9
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="SphereMesh" id="SphereMesh_mscf5"]
 radius = 0.9
@@ -154,12 +156,12 @@ color_ramp = SubResource("GradientTexture1D_ttrfg")
 material = ExtResource("8_j702p")
 size = Vector2(0.6666667, 1.1010753)
 
-[node name="Dark_Impact" type="Node3D" unique_id=1046960347]
+[node name="Dark_Impact" type="Node3D" unique_id=1831611189]
 script = ExtResource("1_0vbug")
 kind = &"impact"
 element = &"dark"
 
-[node name="Implode" type="MeshInstance3D" parent="." unique_id=816096652]
+[node name="Implode" type="MeshInstance3D" parent="." unique_id=1315875418]
 material_override = SubResource("ShaderMaterial_xhttl")
 cast_shadow = 0
 extra_cull_margin = 2.0
@@ -181,7 +183,7 @@ metadata/anims = [{
 "t1": 0.24
 }]
 
-[node name="Flash" type="MeshInstance3D" parent="." unique_id=1997434259]
+[node name="Flash" type="MeshInstance3D" parent="." unique_id=130596027]
 material_override = SubResource("ShaderMaterial_7yy3o")
 cast_shadow = 0
 extra_cull_margin = 2.0
@@ -210,7 +212,7 @@ metadata/anims = [{
 "t1": 0.55
 }]
 
-[node name="Star" type="MeshInstance3D" parent="." unique_id=98715261]
+[node name="Star" type="MeshInstance3D" parent="." unique_id=763679717]
 material_override = SubResource("ShaderMaterial_yu6lq")
 cast_shadow = 0
 extra_cull_margin = 2.0
@@ -239,7 +241,7 @@ metadata/anims = [{
 "t1": 0.5
 }]
 
-[node name="Ring" type="MeshInstance3D" parent="." unique_id=1524135694]
+[node name="Ring" type="MeshInstance3D" parent="." unique_id=1758936956]
 material_override = SubResource("ShaderMaterial_4p0qn")
 cast_shadow = 0
 extra_cull_margin = 2.0
@@ -268,7 +270,7 @@ metadata/anims = [{
 "t1": 0.65
 }]
 
-[node name="Wisps" type="GPUParticles3D" parent="." unique_id=115901101]
+[node name="Wisps" type="GPUParticles3D" parent="." unique_id=145850594]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -282,7 +284,7 @@ process_material = SubResource("ParticleProcessMaterial_v1jcf")
 draw_pass_1 = SubResource("QuadMesh_15bic")
 metadata/emit_delay = 0.2
 
-[node name="Sparks" type="GPUParticles3D" parent="." unique_id=745769537]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1080196433]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

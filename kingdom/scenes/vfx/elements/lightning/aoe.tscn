@@ -422,13 +422,13 @@ color_ramp = SubResource("GradientTexture1D_jvyko")
 material = ExtResource("8_okiao")
 size = Vector2(2.1894736, 2.0417178)
 
-[node name="Lightning_Aoe" type="Node3D" unique_id=81557649]
+[node name="Lightning_Aoe" type="Node3D" unique_id=788009643]
 script = ExtResource("1_5tpxg")
 duration = 1.6
 kind = &"aoe"
 element = &"lightning"
 
-[node name="Warn" type="MeshInstance3D" parent="." unique_id=2104459502]
+[node name="Warn" type="MeshInstance3D" parent="." unique_id=197030431]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
 material_override = SubResource("ShaderMaterial_dor1r")
 cast_shadow = 0
@@ -451,7 +451,7 @@ metadata/anims = [{
 "t1": 1.6
 }]
 
-[node name="Disc" type="MeshInstance3D" parent="." unique_id=1744017823]
+[node name="Disc" type="MeshInstance3D" parent="." unique_id=2082037962]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
 material_override = SubResource("ShaderMaterial_t7x8y")
 cast_shadow = 0
@@ -474,7 +474,7 @@ metadata/anims = [{
 "t1": 1.6
 }]
 
-[node name="Wave" type="MeshInstance3D" parent="." unique_id=2051406821]
+[node name="Wave" type="MeshInstance3D" parent="." unique_id=1167992513]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
 material_override = SubResource("ShaderMaterial_njfmq")
 cast_shadow = 0
@@ -504,7 +504,7 @@ metadata/anims = [{
 "t1": 0.95
 }]
 
-[node name="SkyHalo" type="MeshInstance3D" parent="." unique_id=883505129]
+[node name="SkyHalo" type="MeshInstance3D" parent="." unique_id=627184677]
 material_override = SubResource("ShaderMaterial_3i7in")
 cast_shadow = 0
 extra_cull_margin = 2.0
@@ -519,7 +519,7 @@ metadata/anims = [{
 "t1": 0.62
 }]
 
-[node name="Sky" type="MeshInstance3D" parent="." unique_id=257128538]
+[node name="Sky" type="MeshInstance3D" parent="." unique_id=1818512521]
 material_override = SubResource("ShaderMaterial_khaqu")
 cast_shadow = 0
 extra_cull_margin = 2.0
@@ -534,7 +534,7 @@ metadata/anims = [{
 "t1": 0.62
 }]
 
-[node name="Sky2" type="MeshInstance3D" parent="." unique_id=314221392]
+[node name="Sky2" type="MeshInstance3D" parent="." unique_id=280072888]
 material_override = SubResource("ShaderMaterial_jss81")
 cast_shadow = 0
 extra_cull_margin = 2.0
@@ -549,7 +549,7 @@ metadata/anims = [{
 "t1": 0.6
 }]
 
-[node name="Star" type="MeshInstance3D" parent="." unique_id=998716051]
+[node name="Star" type="MeshInstance3D" parent="." unique_id=1758232984]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 material_override = SubResource("ShaderMaterial_js1v5")
 cast_shadow = 0
@@ -579,7 +579,7 @@ metadata/anims = [{
 "t1": 0.7
 }]
 
-[node name="Flash" type="MeshInstance3D" parent="." unique_id=856301375]
+[node name="Flash" type="MeshInstance3D" parent="." unique_id=1614242744]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 material_override = SubResource("ShaderMaterial_8p5eu")
 cast_shadow = 0
@@ -609,7 +609,7 @@ metadata/anims = [{
 "t1": 0.8
 }]
 
-[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1275258350]
+[node name="Sparks" type="GPUParticles3D" parent="." unique_id=1058118290]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -624,7 +624,7 @@ process_material = SubResource("ParticleProcessMaterial_4emnw")
 draw_pass_1 = SubResource("QuadMesh_hj5gq")
 metadata/emit_delay = 0.28
 
-[node name="Dust" type="GPUParticles3D" parent="." unique_id=1364811614]
+[node name="Dust" type="GPUParticles3D" parent="." unique_id=43250749]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -638,7 +638,7 @@ draw_pass_1 = SubResource("QuadMesh_o2lvs")
 metadata/emit_delay = 0.28
 metadata/tier_min = 1
 
-[node name="@OmniLight3D@5" type="OmniLight3D" parent="." unique_id=1910121399]
+[node name="@OmniLight3D@5" type="OmniLight3D" parent="." unique_id=2145359048]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 light_color = Color(0.62, 0.72, 1, 1)
 light_energy = 6.0

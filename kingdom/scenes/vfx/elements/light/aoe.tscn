@@ -50,6 +50,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_px48h"]
 size = Vector2(6.4, 6.4)
@@ -98,6 +100,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_23f0d"]
 size = Vector2(6.4, 6.4)
@@ -146,6 +150,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_b523j"]
 size = Vector2(6.4, 6.4)
@@ -194,6 +200,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.6
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_co6yk"]
 top_radius = 1.25
@@ -247,6 +255,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.7
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_2w8ww"]
 top_radius = 0.55
@@ -306,13 +316,13 @@ color_ramp = SubResource("GradientTexture1D_sp5tr")
 material = ExtResource("6_rirad")
 size = Vector2(0.83252037, 0.83252037)
 
-[node name="Light_Aoe" type="Node3D" unique_id=313520199]
+[node name="Light_Aoe" type="Node3D" unique_id=809853099]
 script = ExtResource("1_yilm7")
 duration = 2.0
 kind = &"aoe"
 element = &"light"
 
-[node name="Sigil" type="MeshInstance3D" parent="." unique_id=1912498554]
+[node name="Sigil" type="MeshInstance3D" parent="." unique_id=307867979]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
 material_override = SubResource("ShaderMaterial_lpr44")
 cast_shadow = 0
@@ -335,7 +345,7 @@ metadata/anims = [{
 "t1": 2.0
 }]
 
-[node name="Inner" type="MeshInstance3D" parent="." unique_id=1327656223]
+[node name="Inner" type="MeshInstance3D" parent="." unique_id=1815748579]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
 material_override = SubResource("ShaderMaterial_2jctc")
 cast_shadow = 0
@@ -358,7 +368,7 @@ metadata/anims = [{
 "t1": 2.0
 }]
 
-[node name="Wave" type="MeshInstance3D" parent="." unique_id=1267024294]
+[node name="Wave" type="MeshInstance3D" parent="." unique_id=456692095]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
 material_override = SubResource("ShaderMaterial_qxupi")
 cast_shadow = 0
@@ -381,7 +391,7 @@ metadata/anims = [{
 "t1": 0.9
 }]
 
-[node name="Pillar" type="MeshInstance3D" parent="." unique_id=2095913335]
+[node name="Pillar" type="MeshInstance3D" parent="." unique_id=1770106165]
 transform = Transform3D(0.2, 0, 0, 0, 1, 0, 0, 0, 0.2, 0, 4, 0)
 material_override = SubResource("ShaderMaterial_la4hu")
 cast_shadow = 0
@@ -404,7 +414,7 @@ metadata/anims = [{
 "t1": 1.9
 }]
 
-[node name="PillarCore" type="MeshInstance3D" parent="." unique_id=1643161223]
+[node name="PillarCore" type="MeshInstance3D" parent="." unique_id=673335870]
 transform = Transform3D(0.2, 0, 0, 0, 1, 0, 0, 0, 0.2, 0, 4, 0)
 material_override = SubResource("ShaderMaterial_58npl")
 cast_shadow = 0
@@ -427,7 +437,7 @@ metadata/anims = [{
 "t1": 1.8
 }]
 
-[node name="Rays" type="MeshInstance3D" parent="." unique_id=1849591319]
+[node name="Rays" type="MeshInstance3D" parent="." unique_id=1263747713]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 material_override = SubResource("ShaderMaterial_kvyr5")
 cast_shadow = 0
@@ -450,7 +460,7 @@ metadata/anims = [{
 "t1": 1.7
 }]
 
-[node name="Motes" type="GPUParticles3D" parent="." unique_id=1117526539]
+[node name="Motes" type="GPUParticles3D" parent="." unique_id=23791509]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -465,7 +475,7 @@ process_material = SubResource("ParticleProcessMaterial_oqt6e")
 draw_pass_1 = SubResource("QuadMesh_boj4x")
 metadata/emit_delay = 0.1
 
-[node name="Flash" type="OmniLight3D" parent="." unique_id=938362321]
+[node name="Flash" type="OmniLight3D" parent="." unique_id=1135819705]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 light_color = Color(1, 0.86, 0.46, 1)
 light_energy = 4.0
