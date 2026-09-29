@@ -664,7 +664,13 @@ static func footstep_surface(x: float, z: float) -> String:
 	return "stone" if weights.b > 0.3 or weights.g > 0.5 else "grass"
 
 
-static func forest_density(x: float, z: float) -> float:
+## Woodland share of a spot ignoring site clearings: the glades inside a wood still count as
+## forest floor (ferns, moss and leaf litter dress them; trees and undergrowth stay out).
+static func woodland(x: float, z: float) -> float:
+	return forest_density(x, z, false)
+
+
+static func forest_density(x: float, z: float, with_clearings := true) -> float:
 	var f := clampf(_forest.get_noise_2d(x, z) * 1.8 + 0.25, 0.0, 1.0)
 	var near := nearest_settlement(Vector2(x, z))
 	if not near.is_empty():
@@ -682,7 +688,7 @@ static func forest_density(x: float, z: float) -> float:
 	if road_distance(x, z) < 8.0:
 		f = 0.0
 	for c in clearings:
-		if f > 0.0:
+		if f > 0.0 and with_clearings:
 			f *= smoothstep(float(c["radius"]), float(c["radius"]) + 10.0, Vector2(x, z).distance_to(c["pos"]))
 	if f > 0.0:
 		f *= smoothstep(6.0, 20.0, shore_distance(x, z))   # no trees (or wolf dens) in water or on beaches

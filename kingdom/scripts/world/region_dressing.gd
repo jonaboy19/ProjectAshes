@@ -218,8 +218,8 @@ func _base_clutter(root: Node3D, world: Vector3, basis: Basis, box: AABB) -> voi
 	for k in 2:
 		var ang := rng.randf() * TAU
 		var at := world + basis * (Vector3(cos(ang), 0, sin(ang)) * hug)
-		var picks: Array[String] = ["rock_moss_set_01_%d" % (1 + rng.randi() % 6), "dandelion_01", "fern_02"]
-		var kind: String = "scan/" + picks[rng.randi() % picks.size()]
+		var picks: Array[String] = ["rock_medium", "flowers_warm", "fern_b", "bush_round"]
+		var kind: String = "region/nature/" + picks[rng.randi() % picks.size()]
 		var mesh := Assets.nature_mesh(kind)
 		if mesh == null:
 			continue

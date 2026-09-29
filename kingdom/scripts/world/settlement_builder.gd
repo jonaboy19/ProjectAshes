@@ -142,12 +142,12 @@ func _build(s: Dictionary) -> Node3D:
 
 	_interior_doors(root, plan["lots"])
 
-	# Lived-in door_clutter by the doors: photo-scanned crates, barrels, baskets, buckets.
+	# Lived-in door_clutter by the doors: painted crates, barrels and sacks.
 	# Small props (< 4 sqm), so _ground_snap point-samples under each one instead of
 	# assuming the lot's flat base_h -- avoids a crate floating/sinking by the same
 	# amount the building next to it now corrects for.
 	var door_clutter := {}
-	var kinds := ["scan/wooden_crate_01", "scan/wicker_basket_01", "scan/wooden_bucket_01"]
+	var kinds := ["crate", "sack_pile", "barrel"]
 	for lot in plan["lots"]:
 		var p: Vector2 = lot["pos"]
 		var yaw: float = lot["yaw"]
@@ -162,7 +162,7 @@ func _build(s: Dictionary) -> Node3D:
 	for kind: String in door_clutter:
 		var list2: Array[Transform3D] = []
 		list2.assign(door_clutter[kind])
-		_multimesh(root, Assets.nature_mesh(kind), list2)
+		_multimesh(root, Assets.building_mesh(kind), list2)
 
 	for lm in plan["landmarks"]:
 		var lm_size := _footprint(lm["asset"])
@@ -247,8 +247,8 @@ func _build(s: Dictionary) -> Node3D:
 		street_clutter.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.03, p.y)))
 	# Barrels, crates and baskets break when struck (see breakable.gd); carts stay solid.
 	_multimesh(root, Assets.building_mesh("barrel"), street_clutter.slice(0, 10), true, true, "barrel")
-	_multimesh(root, Assets.nature_mesh("scan/wooden_crate_01"), street_clutter.slice(10, 18), true, true, "scan/wooden_crate_01")
-	_multimesh(root, Assets.nature_mesh("scan/wicker_basket_01"), street_clutter.slice(18, 24), true, true, "scan/wicker_basket_01")
+	_multimesh(root, Assets.building_mesh("crate"), street_clutter.slice(10, 18), true, true, "crate")
+	_multimesh(root, Assets.building_mesh("sack_pile"), street_clutter.slice(18, 24), true, true, "sack_pile")
 	_multimesh(root, Assets.building_mesh("cart"), street_clutter.slice(24), true, true)
 	_flush_contact_shadows(root)
 	return root
@@ -1152,7 +1152,7 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 ## 3D relief so the wall doesn't meet flat grass in a hard line). Cheap: 2 pieces
 ## per lot, one shared MultiMesh batch per kind per settlement.
 func _footprint_clutter(root: Node3D, plan: Dictionary, rng: RandomNumberGenerator) -> void:
-	var kinds := {"scan/rock_moss_set_01_2": [], "scan/dandelion_01": [], "scan/fern_02": []}
+	var kinds := {"region/nature/rock_medium": [], "region/nature/flowers_warm": [], "region/nature/fern_b": []}
 	for lot: Dictionary in plan["lots"]:
 		var yaw: float = lot["yaw"]
 		var fwd := Vector2(sin(yaw), cos(yaw))
@@ -1166,7 +1166,7 @@ func _footprint_clutter(root: Node3D, plan: Dictionary, rng: RandomNumberGenerat
 			var at := p + corner_side * hug + fwd * along
 			if CityPlanner.path_distance(plan, at) < 0.6 or CityPlanner.street_distance(plan, at) < 0.8:
 				continue
-			var kind: String = ["scan/rock_moss_set_01_2", "scan/dandelion_01", "scan/fern_02"][rng.randi() % 3]
+			var kind: String = ["region/nature/rock_medium", "region/nature/flowers_warm", "region/nature/fern_b"][rng.randi() % 3]
 			(kinds[kind] as Array).append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * rng.randf_range(0.7, 1.3)),
 				Vector3(at.x, WorldGen.height(at.x, at.y) - 0.03, at.y)))
 	for kind: String in kinds:

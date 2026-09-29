@@ -159,7 +159,7 @@ const NATURE := {
 	"TwistedTree_1": 8.0, "TwistedTree_3": 9.0, "DeadTree_2": 7.0,
 	"Bush_Common": 1.4, "Bush_Common_Flowers": 1.3, "Fern_1": 0.8, "Plant_1_Big": 1.2,
 	"Rock_Medium_1": 1.6, "Rock_Medium_2": 1.3, "Rock_Medium_3": 2.0,
-	"Flower_3_Group": 0.4, "Flower_4_Group": 0.4, "Mushroom_Common": 0.25,
+	"Flower_3_Group": 0.4, "Flower_4_Group": 0.4, "Mushroom_Common": 0.25, "Mushroom_Laetiporus": 0.3,
 }
 
 static var _mesh_cache: Dictionary = {}
@@ -824,10 +824,51 @@ static func _impostor_top_card(mesh: ArrayMesh) -> ArrayMesh:
 	return out
 
 
+## Flat painted ground cards for the forest floor: fallen leaves and moss. A horizontal
+## quad pair (two yaws, 4 tris) that shows one cell of foliage_atlas.png with the region
+## foliage shader tinted. cell = atlas (column, row), COLOR = no sway, no AO darkening.
+const FLOOR_CARDS := {
+	"floor/leaf_litter": [Vector2i(0, 0), Color(1.9, 0.95, 0.3), 1.4],   # oak leaf spray, tinted russet-gold
+	"floor/leaf_litter_green": [Vector2i(1, 0), Color(1.15, 1.05, 0.55), 1.2],
+	"floor/moss_patch": [Vector2i(2, 0), Color(0.55, 0.78, 0.3), 1.5],   # bright bush cell, tinted moss green
+}
+
+
+static func _floor_card(key: String) -> ArrayMesh:
+	var cfg: Array = FLOOR_CARDS[key]
+	var cell: Vector2i = cfg[0]
+	var half: float = float(cfg[2]) * 0.5
+	var uv0 := Vector2(cell.x, cell.y) * 0.25
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for k in 3:
+		var yaw := k * 0.7
+		var rot := Basis(Vector3.UP, yaw)
+		var y := 0.04 + 0.02 * k
+		var corners := [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]
+		for c in [0, 1, 2, 0, 2, 3]:
+			var cc: Vector2 = corners[c]
+			st.set_normal(Vector3.UP)
+			st.set_color(Color(0.0, 0.0, 1.0, 1.0))
+			st.set_uv(uv0 + Vector2((cc.x + 1.0) * 0.125, (1.0 - cc.y) * 0.125))
+			st.add_vertex(rot * Vector3(cc.x * half, y, cc.y * half))
+	var mesh := st.commit()
+	var base := load(REGION_NATURE + "rg_foliage_ground.tres") as ShaderMaterial
+	var mat := base.duplicate() as ShaderMaterial
+	mat.set_shader_parameter("tint", cfg[1])
+	mat.set_shader_parameter("backlight_amount", 0.0)
+	mesh.surface_set_material(0, mat)
+	return mesh
+
+
 static func nature_mesh(key: String) -> ArrayMesh:
 	var cache_key := "nature:" + key
 	if _building_cache.has(cache_key):
 		return _building_cache[cache_key]
+	if FLOOR_CARDS.has(key):
+		var card := _floor_card(key)
+		_building_cache[cache_key] = card
+		return card
 	# "scan/<name>" = decimated Poly Haven photo-scan (tools/blender/decimate_scans.py);
 	# "nature/<name>" = Blender-generated trees and plants (tools/blender/make_nature.py). Real scale.
 	# "region/nature/<name>[_lod1|_lod2]" = painterly region set (generated/region/README.md):

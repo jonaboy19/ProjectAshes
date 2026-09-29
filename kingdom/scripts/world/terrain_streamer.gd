@@ -35,6 +35,34 @@ var _cards: Dictionary = {}
 const REGION_TREES := ["dead_snag", "young_oak", "spruce_a", "pine_scots", "oak_a", "oak_b", "beech_a",
 	"bush_round", "bush_berry", "bush_hazel", "flowers_warm"]
 
+## Inside the core of a region-site clearing (farm, mine, camp...): its buildings own that ground.
+static func _in_clearing(x: float, z: float) -> bool:
+	for c in WorldGen.clearings:
+		if Vector2(x, z).distance_to(c["pos"]) < float(c["radius"]) * 0.25:
+			return true
+	return false
+
+
+## Painted small plants and rocks scattered by _plan_forest (kind keys for Assets.nature_mesh).
+const UNDERGROWTH := [REGION + "fern_a", REGION + "fern_b", REGION + "fern_a", REGION + "bush_round", REGION + "bush_hazel",
+	REGION + "stump_mossy", REGION + "stump_broken", REGION + "log_mossy", REGION + "fern_b", "Mushroom_Common", REGION + "bush_hazel"]
+const MEADOW_PLANTS := [REGION + "flowers_warm", REGION + "flowers_cool", REGION + "bush_berry", REGION + "bush_hazel",
+	REGION + "bush_round", REGION + "grass_tall", REGION + "fern_b"]
+const ROCKS := ["rock_medium", "rock_cluster", "rock_slab", "rock_medium", "boulder_large"]
+## Forest-floor scatter: [kind, min scale, max scale]; repeats weight the mix.
+const FLOOR_ATTEMPTS := 2600
+const FLOOR_KINDS := [
+	[REGION + "fern_a", 0.7, 1.2], [REGION + "fern_b", 0.8, 1.4], [REGION + "fern_a", 0.6, 1.0], [REGION + "fern_b", 0.7, 1.2],
+	[REGION + "fern_a", 0.8, 1.3], [REGION + "fern_b", 0.9, 1.5], [REGION + "grass_tall", 0.9, 1.5],
+	["Mushroom_Common", 0.9, 1.6], ["Mushroom_Laetiporus", 0.4, 0.7],
+	["floor/leaf_litter", 0.8, 1.6], ["floor/leaf_litter", 0.8, 1.6], ["floor/leaf_litter_green", 0.8, 1.5], ["floor/leaf_litter", 1.0, 1.8],
+	["floor/moss_patch", 0.8, 1.6], ["floor/moss_patch", 0.7, 1.3],
+	[REGION + "bush_round", 0.45, 0.8], [REGION + "bush_hazel", 0.5, 0.9], [REGION + "bush_hazel", 0.4, 0.7],
+	[REGION + "grass_tall", 0.9, 1.4], [REGION + "flowers_cool", 0.8, 1.2],
+]
+## Kinds that only matter close to the camera: culled early.
+const FLOOR_NEAR := ["floor/", "Mushroom", REGION + "fern", REGION + "grass_tall", REGION + "flowers"]
+
 ## Poly Haven (CC0) PBR sets used for each terrain layer.
 const TEX := "res://assets/incoming/polyhaven/textures/%s/%s_%s_2k.jpg"
 const LAYERS := {"grass": "leafy_grass", "forest": "forest_ground_04", "path": "grass_path_2",
@@ -356,21 +384,19 @@ func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 				# (7 tree kinds per chunk like the old set: every kind is a draw call per LOD.)
 				kind = REGION + ["oak_a", "oak_b", "beech_a"][rng.randi() % 3]
 		elif roll < density + 0.12 and WorldGen.road_distance(x, z) > 4.0 and WorldGen.street_distance(x, z) > 3.0:
-			# Photo-scanned undergrowth under trees, wildflowers in the open.
+			# Painted undergrowth under trees, wildflowers in the open (no photo scans:
+			# everything here comes from the painted region set / Quaternius kit).
 			if density > 0.35:
-				kind = ["scan/fern_02", "scan/fern_02", "scan/shrub_03", "scan/nettle_plant", REGION + "bush_round", "scan/tree_stump_01",
-					"scan/tree_stump_02", REGION + "log_mossy", "scan/fern_02"][rng.randi() % 9]
+				kind = UNDERGROWTH[rng.randi() % UNDERGROWTH.size()]
 			else:
-				kind = ["scan/dandelion_01", REGION + "bush_berry", REGION + "bush_hazel", REGION + "flowers_warm", "scan/shrub_03", "scan/fern_02"][rng.randi() % 6]
+				kind = MEADOW_PLANTS[rng.randi() % MEADOW_PLANTS.size()]
 		elif not on_settlement_slope and rng.randf() < 0.05:
-			kind = "scan/rock_moss_set_0%d_%d" % [1 + rng.randi() % 2, 1 + rng.randi() % 6]
+			kind = REGION + ROCKS[rng.randi() % ROCKS.size()]
 		if kind == "":
 			continue
 		var s := rng.randf_range(0.8, 1.25)
-		if kind.contains("dandelion") or kind.contains("nettle"):
-			s *= 2.6            # tiny real-scale plants read as a patch
-		elif kind.begins_with("scan/rock"):
-			s = rng.randf_range(0.5, 1.7)
+		if kind.begins_with(REGION + "rock") or kind.begins_with(REGION + "boulder"):
+			s = rng.randf_range(0.6, 1.4)
 		# A flat -0.15 sink hides the base on flat ground, but on a slope the
 		# uphill edge of a wide canopy/root footprint still pokes up out of the
 		# ground (found by tools/qa/grounding: forest scatter was the single
@@ -387,7 +413,39 @@ func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 		if not buckets.has(kind):
 			buckets[kind] = []
 		buckets[kind].append(t)
+	_plan_floor(key, origin, buckets)
 	return buckets
+
+
+## Forest-floor dressing for Duskbriar and every other wood: ferns, mushrooms, fallen leaves,
+## moss and small bushes scattered densely under the canopy (thinly at forest edges), so the
+## ground between the trunks never reads as bare. Worker-thread maths only. The per-kind
+## lists are in random order, so Quality's scatter share (a prefix of each small MultiMesh
+## under the terrain, see quality.gd _thin_scatter) thins them evenly per tier.
+func _plan_floor(key: Vector2i, origin: Vector2, buckets: Dictionary) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(key) ^ 0xf1002
+	for i in FLOOR_ATTEMPTS:
+		var x := origin.x + rng.randf() * CHUNK
+		var z := origin.y + rng.randf() * CHUNK
+		# Glades count as woodland at a lower weight; site clearings keep their own dressing.
+		var density := maxf(WorldGen.forest_density(x, z), WorldGen.woodland(x, z) * 0.6)
+		if density < 0.12 or rng.randf() > 0.25 + density * 0.75:
+			continue
+		if WorldGen.forest_density(x, z) < 0.05 and not WorldGen.clearings.is_empty() and _in_clearing(x, z):
+			continue
+		if WorldGen.near_water(x, z, 1.5) or WorldGen.road_distance(x, z) < 4.0 or WorldGen.street_distance(x, z) < 3.0:
+			continue
+		var h := WorldGen.height(x, z)
+		if h > 115.0:
+			continue
+		var pick: Array = FLOOR_KINDS[rng.randi() % FLOOR_KINDS.size()]
+		var kind: String = pick[0]
+		var s := rng.randf_range(float(pick[1]), float(pick[2]))
+		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(x, h - 0.05, z))
+		if not buckets.has(kind):
+			buckets[kind] = []
+		buckets[kind].append(t)
 
 
 ## Far impostor cards of every region tree in the chunk share one atlas material:
@@ -452,7 +510,12 @@ func _add_forest(chunk: Node3D, buckets: Dictionary, impostor: Array) -> void:
 				far_mm.visibility_range_begin_margin = 15.0
 				far_mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 		else:
-			_multimesh(chunk, Assets.nature_mesh(kind), list)
+			var mmi := _multimesh(chunk, Assets.nature_mesh(kind), list)
+			if mmi:
+				for near: String in FLOOR_NEAR:
+					if kind.begins_with(near):
+						mmi.visibility_range_end = 55.0
+						break
 	if not impostor.is_empty():
 		var mi := MeshInstance3D.new()
 		mi.name = "TreeImpostors"
