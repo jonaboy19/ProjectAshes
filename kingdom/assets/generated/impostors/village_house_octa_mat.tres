@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://assets/generated/impostors/impostor_octa.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://assets/generated/impostors/village_house_octa.png" id="2"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/atlas = ExtResource("2")
+shader_parameter/grid = 8
+shader_parameter/center = Vector3(-0.045992, 3.699929, -0.117938)
+shader_parameter/radius = 5.785791

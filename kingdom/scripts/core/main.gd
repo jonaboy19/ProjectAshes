@@ -23,6 +23,7 @@ var settlements: SettlementBuilder
 var population: PopulationLOD
 var frontier: FrontierPresence
 var region: RegionDressing
+const Flow := preload("res://scripts/ui/frontend/flow.gd")
 const RoadTraffic := preload("res://scripts/world/road_traffic.gd")
 const RoadEvents := preload("res://scripts/world/road_events.gd")
 var road_traffic: Node3D
@@ -193,7 +194,7 @@ func _ready() -> void:
 		_screenshot(args["shot"], args.get("out", "user://shot.png"))
 	elif args.has("demo"):
 		_run_demo()
-	elif args.has("skipintro"):
+	elif args.has("skipintro") or Flow.wants_skip_intro():   # loading a save from the menu
 		_after_birth()
 	else:
 		_play_birth()
