@@ -383,11 +383,11 @@ def Ride_Gallop():
 
 @clip
 def Ride_Lean_L():
-    return [ride_pose(0, 0.0, 0.0, lean=14) for i in range(2)], True
+    return [ride_pose(0, 0.0, 0.0, lean=14) for i in range(31)], True
 
 @clip
 def Ride_Lean_R():
-    return [ride_pose(0, 0.0, 0.0, lean=-14) for i in range(2)], True
+    return [ride_pose(0, 0.0, 0.0, lean=-14) for i in range(31)], True
 
 @clip
 def Vault_Low():
