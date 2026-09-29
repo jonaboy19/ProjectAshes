@@ -1,0 +1,148 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://scripts/region1/ash_ghost.gd" id="1_script"]
+[ext_resource type="Shader" path="res://shaders/region1/ash_ghost.gdshader" id="2_ghost"]
+[ext_resource type="Shader" path="res://shaders/region1/ash_particle.gdshader" id="3_dot"]
+
+[sub_resource type="ShaderMaterial" id="ghost_mat"]
+shader = ExtResource("2_ghost")
+
+[sub_resource type="CylinderMesh" id="robe"]
+top_radius = 0.22
+bottom_radius = 0.34
+height = 1.0
+radial_segments = 14
+rings = 1
+
+[sub_resource type="CapsuleMesh" id="chest"]
+radius = 0.25
+height = 0.72
+radial_segments = 14
+rings = 3
+
+[sub_resource type="SphereMesh" id="head"]
+radius = 0.2
+height = 0.4
+radial_segments = 14
+rings = 7
+
+[sub_resource type="CapsuleMesh" id="arm"]
+radius = 0.07
+height = 0.62
+radial_segments = 8
+rings = 2
+
+[sub_resource type="CylinderMesh" id="hood"]
+top_radius = 0.0
+bottom_radius = 0.25
+height = 0.36
+radial_segments = 12
+rings = 1
+
+[sub_resource type="ShaderMaterial" id="dot_mat"]
+shader = ExtResource("3_dot")
+
+[sub_resource type="QuadMesh" id="dot_quad"]
+material = SubResource("dot_mat")
+size = Vector2(1, 1)
+
+[sub_resource type="Gradient" id="ash_grad"]
+offsets = PackedFloat32Array(0, 0.18, 1)
+colors = PackedColorArray(1, 0.72, 0.42, 0, 0.86, 0.82, 0.77, 0.75, 0.8, 0.77, 0.74, 0)
+
+[sub_resource type="GradientTexture1D" id="ash_ramp"]
+gradient = SubResource("ash_grad")
+
+[sub_resource type="ParticleProcessMaterial" id="ash_proc"]
+emission_shape = 1
+emission_sphere_radius = 0.34
+direction = Vector3(0, 1, 0)
+spread = 55.0
+initial_velocity_min = 0.1
+initial_velocity_max = 0.38
+gravity = Vector3(0.05, 0.1, 0)
+damping_min = 0.1
+damping_max = 0.3
+scale_min = 0.05
+scale_max = 0.11
+color_ramp = SubResource("ash_ramp")
+
+[sub_resource type="Gradient" id="step_grad"]
+offsets = PackedFloat32Array(0, 0.12, 1)
+colors = PackedColorArray(1, 0.75, 0.4, 0, 1, 0.72, 0.36, 0.95, 1, 0.5, 0.2, 0)
+
+[sub_resource type="GradientTexture1D" id="step_ramp"]
+gradient = SubResource("step_grad")
+
+[sub_resource type="ParticleProcessMaterial" id="step_proc"]
+emission_shape = 0
+direction = Vector3(0, 1, 0)
+spread = 20.0
+initial_velocity_min = 0.0
+initial_velocity_max = 0.05
+gravity = Vector3(0, 0.03, 0)
+scale_min = 0.07
+scale_max = 0.1
+color_ramp = SubResource("step_ramp")
+
+[node name="AshGhost" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Model" type="Node3D" parent="."]
+
+[node name="Robe" type="MeshInstance3D" parent="Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+material_override = SubResource("ghost_mat")
+cast_shadow = 0
+mesh = SubResource("robe")
+
+[node name="Chest" type="MeshInstance3D" parent="Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15, 0)
+material_override = SubResource("ghost_mat")
+cast_shadow = 0
+mesh = SubResource("chest")
+
+[node name="Head" type="MeshInstance3D" parent="Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+material_override = SubResource("ghost_mat")
+cast_shadow = 0
+mesh = SubResource("head")
+
+[node name="ArmL" type="MeshInstance3D" parent="Model"]
+transform = Transform3D(0.94, 0.34, 0, -0.34, 0.94, 0, 0, 0, 1, 0.33, 1.08, 0)
+material_override = SubResource("ghost_mat")
+cast_shadow = 0
+mesh = SubResource("arm")
+
+[node name="ArmR" type="MeshInstance3D" parent="Model"]
+transform = Transform3D(0.94, -0.34, 0, 0.34, 0.94, 0, 0, 0, 1, -0.33, 1.08, 0)
+material_override = SubResource("ghost_mat")
+cast_shadow = 0
+mesh = SubResource("arm")
+
+[node name="Hood" type="MeshInstance3D" parent="Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.82, 0)
+visible = false
+material_override = SubResource("ghost_mat")
+cast_shadow = 0
+mesh = SubResource("hood")
+
+[node name="Ash" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+emitting = false
+amount = 18
+lifetime = 2.2
+local_coords = false
+visibility_aabb = AABB(-40, -3, -40, 80, 10, 80)
+process_material = SubResource("ash_proc")
+draw_pass_1 = SubResource("dot_quad")
+
+[node name="Steps" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+emitting = false
+amount = 12
+lifetime = 2.8
+local_coords = false
+visibility_aabb = AABB(-40, -3, -40, 80, 10, 80)
+process_material = SubResource("step_proc")
+draw_pass_1 = SubResource("dot_quad")

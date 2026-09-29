@@ -25,6 +25,10 @@ _Last update: 2026-09-29 (assets session: farm animals, Meshy fixes, impostors)_
 - Verified headless in a sparse worktree (no game assets): sandbox OK, 19/19 tests pass. NOT run inside the full game (hooks not wired yet).
 - Backlog: windowed sandbox variant for GPU frame sheets (L8/L11); a Region1 debug overlay (module ms) once hooks land; presenter pooling helper.
 
+
+## Region 1 L10 Ember Legacy + L11 Ashsight: WIP (2026-09-29)
+- WIP pushed to `origin/tmp-r1ember` (not verified yet: tests and the windowed capture are still running). Code: `scripts/region1/{ember_legacy,ash_memory,ash_fake_raid,ash_ghost,ash_ghost_pool,ash_replay_view}.gd`, `scenes/region1/ash_ghost.tscn`, `shaders/region1/ash_{ghost,particle}.gdshader`, `data/region1/ember_legacy.json`, tests `tests/test_region1_{ember_legacy,ash_memory}.gd`, demo `tools_qa/region1/ashsight_demo.tscn`. Hook code (H7, C5, C6, manifest rows): `docs/regions/HOOKS_FOR_CLOUD.md`.
+
 ## In progress
 - **Meshy free pack round 2** (161 models) → `assets/incoming/meshy_free/`
 - **Clear water shader** (lakes and rivers, quality tiers) → `shaders/water/`
@@ -127,6 +131,7 @@ _Last update: 2026-09-29 (assets session: farm animals, Meshy fixes, impostors)_
 - Cloud: paste H1 + H2 from `docs/regions/HOOKS_FOR_CLOUD.md` (not applied; hot files untouched).
 - Verified headless in a sparse worktree (no game assets): sandbox OK, 19/19 tests pass. NOT run inside the full game (hooks not wired yet).
 - Backlog: windowed sandbox variant for GPU frame sheets (L8/L11); a Region1 debug overlay (module ms) once hooks land; presenter pooling helper.
+- WIP pushed to `origin/tmp-r1ember` (not verified yet: tests and the windowed capture are still running). Code: `scripts/region1/{ember_legacy,ash_memory,ash_fake_raid,ash_ghost,ash_ghost_pool,ash_replay_view}.gd`, `scenes/region1/ash_ghost.tscn`, `shaders/region1/ash_{ghost,particle}.gdshader`, `data/region1/ember_legacy.json`, tests `tests/test_region1_{ember_legacy,ash_memory}.gd`, demo `tools_qa/region1/ashsight_demo.tscn`. Hook code (H7, C5, C6, manifest rows): `docs/regions/HOOKS_FOR_CLOUD.md`.
 
 ## In progress
 - **Meshy free pack round 2** (161 models) → `assets/incoming/meshy_free/`
