@@ -1,14 +1,14 @@
 {
-	"atlas_px": 1024,
+	"atlas_px": 1232,
 	"center": [
 		-0.0387473106384277,
 		3.38962078094482,
 		0.0643379688262939
 	],
-	"grid": 8,
+	"grid": 7,
 	"impostor_tris": 2,
 	"radius": 4.80418968200684,
 	"source": "res://assets/incoming/quaternius/stylized-nature-megakit/glTF/CommonTree_1.gltf",
 	"source_tris": 6265,
-	"tile": 128
+	"tile": 176
 }

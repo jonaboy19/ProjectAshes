@@ -1,0 +1,5 @@
+source: C:/tmp_pa/crop_hard
+duration_s: 1.800000
+sample_fps: 15
+frames_per_sheet: 15  (= 1 s per sheet)
+sheets: 2
