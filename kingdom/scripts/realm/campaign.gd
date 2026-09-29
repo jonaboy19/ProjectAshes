@@ -13,8 +13,8 @@ extends "res://scripts/realm/realm_module.gd"
 ## change_relation) and "strongholds" (nearest, begin_siege).
 
 const PLAYER := "player"
-const ARMY_SPEED := 60.0           # metres per hour on a road (world is 4 km wide)
-const COURIER_SPEED := 180.0
+const ARMY_SPEED := 120.0          # metres per hour on a road (world is 8 km wide; was 60 on the 4 km map)
+const COURIER_SPEED := 360.0        # (was 180 on the 4 km map)
 const INTEL_HALF_LIFE := 5.0       # days
 const INTEL_DROP := 0.04
 const MAX_SUPPLY := 6.0

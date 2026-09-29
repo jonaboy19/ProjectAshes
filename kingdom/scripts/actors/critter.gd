@@ -85,6 +85,15 @@ const KINDS := {
 var kind := "chicken"
 var home := Vector2.ZERO
 var _anim: AnimationPlayer
+var _model: Node3D
+## Visual cull (perf pass 2026-09-29): a city has 100+ hens; beyond CULL_SMALL /
+## CULL_BIG (scaled by the tier's visibility-range multiplier) the model is hidden
+## and its AnimationPlayer paused, so nobody pays skinning or clip sampling for
+## animals too small to see. Behaviour keeps running at the far LOD rate.
+const SMALL := ["chicken", "rooster", "duck", "goose", "pigeon", "crow", "rabbit", "cat", "cat_ginger"]
+const CULL_SMALL := 60.0
+const CULL_BIG := 130.0
+var _culled := false
 var _target := Vector2.ZERO
 var _pause := 0.0
 var _fleeing := 0.0
@@ -115,6 +124,7 @@ func _ready() -> void:
 		return
 	var model: Node3D = Assets.scene(path).instantiate()
 	add_child(model)
+	_model = model
 	_anim = Assets.animation_player(model)
 	if _anim:
 		for a in ["Idle", "Walk", "Run", "Eat", "Walk_Slow"]:
@@ -170,6 +180,8 @@ func _physics_process(delta: float) -> void:
 			return
 		delta = _lod_acc
 	_lod_acc = 0.0
+	if pl and not rider_owned:
+		_update_visual_lod(pl.global_position.distance_to(global_position))
 	if rider_owned:
 		var rider := _the_player(get_tree())
 		if rider and rider.global_position.distance_squared_to(global_position) > RIDER_DESPAWN * RIDER_DESPAWN:
@@ -231,8 +243,21 @@ func _physics_process(delta: float) -> void:
 		_play(_idle_clip)
 
 
+func _update_visual_lod(dist: float) -> void:
+	if _model == null:
+		return
+	var limit := (CULL_SMALL if kind in SMALL else CULL_BIG) * clampf(Quality.value("range"), 0.5, 1.0)
+	var want_cull := dist > limit * 0.9 if _culled else dist > limit * 1.1
+	if want_cull == _culled:
+		return
+	_culled = want_cull
+	_model.visible = not _culled
+	if _anim:
+		_anim.active = not _culled
+
+
 func _play(n: String, rate := 1.0) -> void:
-	if _anim == null:
+	if _anim == null or _culled:
 		return
 	_anim.speed_scale = rate
 	if _anim.has_animation(n) and _anim.current_animation != n:

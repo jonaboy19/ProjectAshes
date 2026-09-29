@@ -1133,10 +1133,29 @@ func _screenshot(shot: String, path: String) -> void:
 		if i == warmup - 4 and late_fx.is_valid():
 			late_fx.call()
 		await get_tree().process_frame
-	print("[perf] fps=%d draw_calls=%d objects=%d primitives=%d" % [Engine.get_frames_per_second(),
-		viewport.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
-		viewport.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_OBJECTS_IN_FRAME),
-		viewport.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME)])
+	var rv := viewport.get_render_info
+	print("[perf] fps=%d draw_calls=%d objects=%d primitives=%d process_ms=%.2f physics_ms=%.2f nodes=%d skinned=%d" % [Engine.get_frames_per_second(),
+		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
+		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_OBJECTS_IN_FRAME),
+		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME),
+		Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
+		Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0,
+		int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)),
+		PerfOverlay.count_skinned(get_tree())])
+	if _user_args().has("census"):
+		PerfOverlay.print_skeleton_census(get_tree())
+	if _user_args().has("ablate"):
+		var ab_root: Node = world
+		# --ablate=settlement_builder.gd/Kingsreach : descend by script file or name prefix.
+		for part in String(_user_args().get("ablate", "")).split("/", false):
+			for c in ab_root.get_children():
+				var sc: String = c.get_script().resource_path.get_file() if c.get_script() else ""
+				if sc == part or String(c.name).begins_with(part):
+					ab_root = c
+					break
+		await PerfOverlay.ablate(get_tree(), viewport, ab_root)
+	if _user_args().has("drawcensus"):
+		PerfOverlay.print_draw_census(get_tree(), viewport)
 	var img := get_viewport().get_texture().get_image()
 	img.save_png(path)
 	print("Saved screenshot: ", path)

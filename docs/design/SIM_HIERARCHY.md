@@ -2,6 +2,8 @@
 
 What is simulated when, so thousands of people, armies, settlements and wars run on an Android phone without a frame spike. The rule is that **nothing scales with world size per frame**. Per-frame cost scales only with what is near the player.
 
+The world is 8 × 8 km (`WorldGen.WORLD_HALF = 4096`), about 20 settlements and roughly 8,000 people (budget: ≤ 25,000). Streaming radius, LOD and memory are fixed by the 64 m chunk ring around the player, not by the map size. `WorldGen.height/color_at/forest_density/road_info/nearest_settlement` use a 128 m spatial index over roads, settlements, camps and site clearings, so a terrain vertex costs the same however many places exist. Site dressing, settlements, monster camps, runestones and dens are built or spawned by distance on 0.5–1 s timers. Realm travel speeds (`camps.TRAVEL_M_PER_HOUR`, `strongholds.RAID_SPEED`, `campaign.ARMY_SPEED/COURIER_SPEED`) are doubled with the map so a cross-map trip takes the same in-game time.
+
 ## Frame budget (60 fps target, 30 fps minimum on LOW)
 
 | Work | Budget per frame |

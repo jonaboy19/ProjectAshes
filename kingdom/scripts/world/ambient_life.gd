@@ -17,6 +17,7 @@ extends Node3D
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
 const ForageNodes := preload("res://scripts/world/forage_nodes.gd")
 const SPAWN := 110.0
+const SMALL_FLOCK := ["chicken", "pigeon", "duck", "goose"]
 const DESPAWN := 170.0
 const WILD_RINGS := 3          # wildlife groups kept around the player in forests
 const Models := preload("res://scripts/actors/creature_models.gd")
@@ -99,7 +100,11 @@ func _update_group(g: Dictionary, p: Vector2) -> void:
 	var nodes: Array = g["nodes"]
 	if d < SPAWN and nodes.is_empty():
 		for pair: Array in g["kinds"]:
-			for k in int(pair[1]):
+			var want := int(pair[1])
+			if SMALL_FLOCK.has(pair[0]):
+				# Perf: fewer hens/doves on weaker tiers (each is a skinned, animated model).
+				want = maxi(1, roundi(want * clampf(float(Quality.value("scatter")) + 0.15, 0.3, 1.0)))
+			for k in want:
 				if BEASTS.has(pair[0]):
 					_spawn_beast(g, String(pair[0]), nodes)
 					continue

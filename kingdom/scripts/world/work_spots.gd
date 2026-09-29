@@ -216,6 +216,20 @@ func _refresh_off_shift(w: RefCounted) -> void:
 	var why: String = w.call("start_refusal", job, WorldSim.time_of_day, day)
 	var pw: Dictionary = w.call("player_work")
 	var mine := bool(pw["employed"]) and String(pw["job"]) == job
+	# Walking past a workplace shouldn't open a menu: strangers only get the
+	# offer when they step right up to one of its work spots (<= 4 m).
+	if not mine:
+		var pl := _player()
+		var near := false
+		if pl != null:
+			var pp := _p2(pl)
+			for s: Dictionary in _place.get("spots", []):
+				if (s["pos"] as Vector2).distance_squared_to(pp) < 16.0:
+					near = true
+					break
+		if not near:
+			_hide_panel()
+			return
 	var who := String(w.call("employer_name", int(_place["sid"]), job, day)) if not mine else String(pw["employer"])
 	var body := ""
 	var board: Array = w.call("board", int(_place["sid"]), job, day)

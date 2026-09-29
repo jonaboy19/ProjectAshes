@@ -12,18 +12,18 @@ config_version=5
 
 config/name="Kingdom"
 config/description="Pixel-rendered 3D medieval sandbox: from peasant to king."
+config/version="1.0.0"
 run/main_scene="res://scenes/boot.tscn"
-config/features=PackedStringArray("4.6", "Forward Plus")
-config/icon="res://icon.svg"
 config/quit_on_go_back=false
+config/features=PackedStringArray("4.6", "Forward Plus")
 boot_splash/bg_color=Color(0.02, 0.027, 0.043, 1)
 boot_splash/image="res://assets/art/ui/boot_splash.png"
-boot_splash/fullsize=true
-boot_splash/use_filter=true
+config/icon="res://icon.svg"
 
 [autoload]
 
 Quality="*res://scripts/core/quality.gd"
+PerfOverlay="*res://scripts/core/perf_overlay.gd"
 Game="*res://autoload/game.gd"
 WorldSim="*res://autoload/world_sim.gd"
 Audio="*res://scripts/audio/audio_director.gd"
@@ -37,6 +37,7 @@ QuestWeaverGlobal="*res://addons/quest_weaver/core/quest_weaver_global.gd"
 QuestWeaverServices="*res://addons/quest_weaver/core/quest_weaver_services.gd"
 QuestWeaverGameState="*res://addons/quest_weaver/core/quest_weaver_game_state.gd"
 PhantomCameraManager="*res://addons/phantom_camera/scripts/managers/phantom_camera_manager.gd"
+DebugMenu="*uid://cggqb75a8w8r"
 
 [display]
 
@@ -48,7 +49,7 @@ window/handheld/orientation=4
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/guide/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/quest_weaver/plugin.cfg", "res://addons/GodotGAS/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/gloot/plugin.cfg", "res://addons/road-generator/plugin.cfg", "res://addons/proton_scatter/plugin.cfg", "res://addons/gdUnit4/plugin.cfg", "res://addons/mobile_texture_limit/plugin.cfg", "res://addons/phantom_camera/plugin.cfg")
+enabled=PackedStringArray("res://addons/guide/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/quest_weaver/plugin.cfg", "res://addons/GodotGAS/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/gloot/plugin.cfg", "res://addons/road-generator/plugin.cfg", "res://addons/proton_scatter/plugin.cfg", "res://addons/gdUnit4/plugin.cfg", "res://addons/mobile_texture_limit/plugin.cfg", "res://addons/phantom_camera/plugin.cfg", "res://addons/debug_menu/plugin.cfg")
 
 [filesystem]
 
@@ -62,20 +63,9 @@ pointing/emulate_touch_from_mouse=true
 [physics]
 
 3d/physics_engine="Jolt Physics"
-; Interpolates every node's rendered transform between physics ticks instead of
-; holding it at the last tick's value. Camera and player were both driven from
-; _physics_process only; without this, frame time varying even slightly from
-; the physics step (routine on mobile) reads as jitter/stutter in the character
-; and the chase camera, independent of any movement tuning (movement QA v2,
-; 2026-09-28).
 common/physics_interpolation=true
 
 [rendering]
-
-renderer/rendering_method="forward_plus"
-renderer/rendering_method.mobile="mobile"
-rendering_device/fallback_to_opengl3=true
-gl_compatibility/fallback_to_angle=true
 
 textures/vram_compression/import_etc2_astc=true
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3

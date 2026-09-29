@@ -61,7 +61,7 @@ const ROAD_CASE := Color(0.23, 0.16, 0.07, 0.85)
 
 const KIND_LABELS := {
 	"castle": "Royal Capital", "frontier_town": "Frontier Hold", "fort": "Fort", "rift_outpost": "Rift Outpost",
-	"runestone": "Runestone", "rift": "The Rift", "tower_ruin": "Ancient Ruin", "hollow": "Hidden Hollow",
+	"runestone": "Runestone", "rift": "The Rift", "tower_ruin": "Ancient Ruin", "hollow": "Hidden Hollow", "academy": "Academy",
 }
 const BLURBS := {
 	"castle": "Seat of the crown. The King's Ember Road runs from here to Ashford.",
@@ -79,12 +79,13 @@ const BLURBS := {
 	"mine": "An old mine in the northern hills.",
 	"bridge": "A stone crossing over the Ashrun.",
 	"watchfort": "A lookout tower over the valley.",
+	"academy": "Where the kingdom trains its knights, scholars and mages. Scouts ride out from here.",
 	"shrine": "A shrine to the Sleeping Flame.",
 	"ruined_shrine": "A shrine to the Sleeping Flame.",
 }
 const PRIORITY := {
 	"castle": 100, "capital": 100, "town": 80, "village": 70, "frontier_town": 65, "fort": 60, "rift": 58,
-	"rift_outpost": 55, "watchfort": 50, "lake": 30, "forest": 30, "river": 28, "farm": 10, "wayshrine": 15,
+	"rift_outpost": 55, "academy": 52, "watchfort": 50, "lake": 30, "forest": 30, "river": 28, "farm": 10, "wayshrine": 15,
 }
 const BIG_LABEL_KINDS := ["castle", "capital", "town", "village", "frontier_town", "fort", "rift", "rift_outpost"]
 
@@ -1238,7 +1239,7 @@ func _icon_size(kind: String) -> float:
 		"castle", "capital": return 50.0
 		"town": return 38.0
 		"village", "frontier_town": return 32.0
-		"fort", "rift", "rift_outpost", "watchfort": return 34.0
+		"fort", "rift", "rift_outpost", "watchfort", "academy": return 34.0
 		"farm": return 18.0
 		"wayshrine": return 22.0
 	return 28.0

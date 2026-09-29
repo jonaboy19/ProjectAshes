@@ -159,9 +159,21 @@ func test_live_battle_when_player_present() -> void:
 	assert_bool(c.pending_live_battle().is_empty()).is_true()
 
 
+## Farthest node a depot at the HQ can still supply (the supply line reaches 7 road nodes).
+func _far_supplied_node(c: Campaign) -> int:
+	var best := 1
+	var bl := -1.0
+	for i in range(1, WorldGen.settlements.size()):
+		var p := c.path(0, i)
+		if not p.is_empty() and p.size() <= 7 and c.path_length(p) > bl:
+			bl = c.path_length(p)
+			best = i
+	return best
+
+
 func test_cut_supply_line_causes_attrition() -> void:
 	var c := _mk()
-	var far := _far_node(c)
+	var far := _far_supplied_node(c)
 	var id := c.spawn_army("player", far, 300, "loyal")
 	assert_bool(c.supply_status(id)["connected"]).is_true()
 	c.cut_supply_line(_neighbour(c, far), 100)

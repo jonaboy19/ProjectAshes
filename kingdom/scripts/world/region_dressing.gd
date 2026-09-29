@@ -44,9 +44,13 @@ func _ready() -> void:
 	var t0 := Time.get_ticks_msec()
 	var n := 0
 	var paths: Array = [REGION + "farm/windmill_sails.glb", REGION + "road/bridge_stone.glb", REGION + "road/bridge_wood.glb"]
+	var seen_assets := {}     # a few hundred sites share a few dozen assets: resolve each asset once
 	for site in WorldGen.sites:
 		for part: Array in site.get("parts", []):
-			paths.append_array(_paths(String(part[0])))
+			var asset := String(part[0])
+			if not seen_assets.has(asset):
+				seen_assets[asset] = true
+				paths.append_array(_paths(asset))
 	for path: String in paths:
 		if path != "" and ResourceLoader.exists(path) and Assets.scene(path) != null:
 			n += 1
@@ -66,6 +70,9 @@ func _paths(asset: String) -> Array:
 	if asset.begins_with("nature:"):
 		var nm := asset.substr(7)
 		return [REGION + "nature/" + nm + ".glb", REGION + "nature/" + nm + "_lod1.glb"]
+	if asset.begins_with("gen:"):
+		var gn := asset.substr(4).split("@")[0]
+		return [GEN + gn + ".glb", GEN + gn + "_lod1.glb"]
 	if asset.begins_with("props/"):
 		return [GEN + asset + ".glb"]
 	return [REGION + asset + ".glb", REGION + asset + "_lod1.glb"]
@@ -272,6 +279,16 @@ func _spawn(asset: String) -> Node3D:
 		n.scale = Vector3.ONE * k
 		n.position.y = -box.position.y * k
 		return holder
+	if asset.begins_with("gen:"):
+		# A big building from assets/generated at a uniform scale (castle keep, temple, chapel...).
+		var gspec := asset.substr(4).split("@")
+		var gn := _lod_pair(GEN + gspec[0] + ".glb", GEN + gspec[0] + "_lod1.glb", 110.0)
+		if gn == null:
+			return null
+		var gholder := Node3D.new()
+		gholder.add_child(gn)
+		gn.scale = Vector3.ONE * (float(gspec[1]) if gspec.size() > 1 else 1.0)
+		return gholder
 	if asset.begins_with("nature:"):
 		var name := asset.substr(7)
 		var nat := _lod_pair(REGION + "nature/" + name + ".glb", REGION + "nature/" + name + "_lod1.glb", LOD_DIST)

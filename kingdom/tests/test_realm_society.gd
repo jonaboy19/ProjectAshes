@@ -412,12 +412,15 @@ func test_rumour_reaches_neighbours_before_distant_towns_and_is_deterministic() 
 	for k: String in arrivals:
 		if int(k) != 0:
 			assert_bool(float(arrivals[k]["h"]) > t0).is_true()
-	# Neighbours (one road hop) come before towns two hops away.
+	# Neighbours (one road hop) come before towns two hops away. Checked over the original
+	# valley: on the 8 km map the far roads are 2 km long, so a long single hop can rightly
+	# arrive after a couple of short ones (the delay is road length / RUMOUR_SPEED).
 	var hops: Dictionary = {}
 	for k: String in arrivals:
-		hops[k] = int(arrivals[k]["hops"])
-	for k1: String in arrivals:
-		for k2: String in arrivals:
+		if int(k) < WorldGen.core_settlement_count:
+			hops[k] = int(arrivals[k]["hops"])
+	for k1: String in hops:
+		for k2: String in hops:
 			if hops[k1] < hops[k2]:
 				assert_bool(float(arrivals[k1]["h"]) <= float(arrivals[k2]["h"])).is_true()
 
