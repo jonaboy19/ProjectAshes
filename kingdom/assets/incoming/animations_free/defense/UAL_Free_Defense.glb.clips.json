@@ -59,12 +59,12 @@
  {
   "name": "MA_Block_R_A",
   "loop": false,
-  "seconds": 1.13,
-  "frames": 35,
+  "seconds": 0.88,
+  "frames": 26,
   "keys": 451,
   "source": "144/144_26.bvh",
   "range_s": [
-   0.31,
+   0.56,
    1.44
   ],
   "autotrim": null,
@@ -73,7 +73,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.16,
-  "hip_scale": 0.0583
+  "hip_scale": 0.0583,
+  "trimmed_from_s": [
+   0.25,
+   1.13
+  ]
  },
  {
   "name": "MA_Block_R_B",
@@ -120,12 +124,12 @@
  {
   "name": "MA_Dodge_Duck",
   "loop": false,
-  "seconds": 3.4,
-  "frames": 103,
+  "seconds": 2.85,
+  "frames": 85,
   "keys": 1395,
   "source": "077/77_09.bvh",
   "range_s": [
-   1.0,
+   1.55,
    4.4
   ],
   "autotrim": null,
@@ -134,17 +138,21 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.001,
   "travel_m": 0.11,
-  "hip_scale": 0.0555
+  "hip_scale": 0.0555,
+  "trimmed_from_s": [
+   0.55,
+   3.4
+  ]
  },
  {
   "name": "MA_Evade_AttackerCover",
   "loop": false,
-  "seconds": 2.3,
-  "frames": 70,
+  "seconds": 1.85,
+  "frames": 55,
   "keys": 1008,
   "source": "076/76_03.bvh",
   "range_s": [
-   0.3,
+   0.75,
    2.6
   ],
   "autotrim": null,
@@ -153,6 +161,10 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.0,
   "travel_m": 0.47,
-  "hip_scale": 0.0558
+  "hip_scale": 0.0558,
+  "trimmed_from_s": [
+   0.45,
+   2.3
+  ]
  }
 ]

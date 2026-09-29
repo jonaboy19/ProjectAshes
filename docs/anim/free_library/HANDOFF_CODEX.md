@@ -169,16 +169,12 @@ Better: add a method-call track to the duplicated Animation at the frame time so
 | `MA_Acro_Cartwheel_B` | 2.63 | sidestep evade (cartwheel), flourish emote (root motion) | 0.10 / 0.15 | **yes**, 2.4 m | - | `dash(elem, character, dir)` @f0 |
 | `MA_Acro_Cartwheel_C` | 2.90 | sidestep evade (cartwheel), flourish emote (root motion) | 0.10 / 0.15 | **yes**, 2.5 m | - | `dash(elem, character, dir)` @f0 |
 | `MA_Acro_Cartwheel_D` | 3.60 | sidestep evade (cartwheel), flourish emote (root motion) | 0.10 / 0.15 | **yes**, 2.6 m | - | `dash(elem, character, dir)` @f0 |
-| `MA_Acro_Cartwheel_E` | 2.63 | sidestep evade (cartwheel), flourish emote (root motion) | 0.10 / 0.15 | **yes**, 1.8 m | - | `dash(elem, character, dir)` @f0 |
 | `MA_Acro_FlipForward_Hands` | 1.70 | acrobatic flourish / traversal show-off (root motion) | 0.10 / 0.15 | no (0.19 m drift) | - | `dash(elem, character, dir)` @f0 |
-| `MA_Acro_Flip_A` | 5.50 | acrobatic flourish / traversal show-off (root motion) | 0.10 / 0.15 | **yes**, 1.3 m | - | `dash(elem, character, dir)` @f0 |
-| `MA_Acro_FrontHandFlip_A` | 2.50 | acrobatic flourish / traversal show-off (root motion) | 0.10 / 0.15 | **yes**, 0.9 m | - | `dash(elem, character, dir)` @f0 |
 | `MA_Acro_FrontHandFlip_B` | 3.00 | acrobatic flourish / traversal show-off (root motion) | 0.10 / 0.15 | **yes**, 1.7 m | - | `dash(elem, character, dir)` @f0 |
 | `MA_Acro_HandSpinKick` | 3.80 | acrobatic flourish / traversal show-off (root motion) | 0.10 / 0.15 | **yes**, 2.3 m | - | `dash(elem, character, dir)` @f0 |
 | `MA_Acro_Handspring` | 1.40 | acrobatic flourish / traversal show-off (root motion) | 0.10 / 0.15 | **yes**, 2.8 m | - | `dash(elem, character, dir)` @f0 |
 | `MA_Acro_HandstandKicks` | 9.50 | acrobatic flourish / traversal show-off (root motion) | 0.10 / 0.15 | **yes**, 0.8 m | - | `dash(elem, character, dir)` @f0 |
 | `MA_Acro_KickFlip` | 2.60 | acrobatic flourish / traversal show-off (root motion) | 0.10 / 0.15 | **yes**, 0.8 m | - | `dash(elem, character, dir)` @f0 |
-| `MA_Acro_MonkeyBackflip` | 4.50 | back evade / acrobatic flourish (root motion) | 0.10 / 0.15 | **yes**, 1.3 m | - | `dash(elem, character, dir)` @f0 |
 | `MA_Acro_SideFlip` | 2.30 | acrobatic flourish / traversal show-off (root motion) | 0.10 / 0.15 | **yes**, 1.3 m | - | `dash(elem, character, dir)` @f0 |
 | `MA_Acro_Somersault_Back` | 3.50 | back evade / acrobatic flourish (root motion) | 0.10 / 0.15 | **yes**, 1.9 m | - | `dash(elem, character, dir)` @f0 |
 
@@ -346,12 +342,10 @@ Better: add a method-call track to the duplicated Animation at the frame time so
 
 | clip (in-game name) | s | gameplay state | blend in / out (s) | root motion | events (30 fps frame) | ElementFX (elem = element name, e.g. `&"fire"`) |
 |---|---:|---|---|---|---|---|
-| `Kay_Undead_Awaken_Floor` | 2.30 | undead: awaken / resurrect (needs a ground clamp, big root travel) | 0.05 / 0.20 | **yes**, 0.5 m | - | `play(&"dark", &"aura", pos)` @f0 |
 | `Kay_Undead_Awaken_Stand` | 1.00 | undead: awaken / resurrect (needs a ground clamp, big root travel) | 0.05 / 0.20 | **yes**, 1.4 m | - | `play(&"dark", &"aura", pos)` @f0 |
 | `Kay_Undead_Collapse` | 2.00 | undead: collapse (death) | 0.08 / 0.00 | **yes**, 4.7 m | hit f0; on ground from f38 (1.27 s) | `play(&"dark", &"impact", pos)` @f0 |
 | `Kay_Undead_Idle` (loop) | 4.27 | undead: idle | 0.25 / 0.25 | no | - | - |
 | `Kay_Undead_Resurrect` | 2.70 | undead: awaken / resurrect (needs a ground clamp, big root travel) | 0.05 / 0.20 | **yes**, 5.7 m | - | `play(&"dark", &"aura", pos)` @f0 |
-| `Kay_Undead_Rise_Ground` | 3.57 | undead: awaken / resurrect (needs a ground clamp, big root travel) | 0.05 / 0.20 | **yes**, 0.4 m | - | `play(&"dark", &"aura", pos)` @f0 |
 | `Kay_Undead_Taunt` | 1.03 | undead: taunt / aggro | 0.10 / 0.20 | no | - | - |
 | `Kay_Undead_Taunt_Long` | 3.00 | undead: taunt / aggro | 0.10 / 0.20 | no | - | - |
 | `Kay_Undead_Walk` (loop) | 1.60 | undead: walk | 0.20 / 0.20 | no | - | - |
@@ -407,3 +401,12 @@ python kingdom/tools/anim/build_handoff.py <dir with the json files> tables.md  
 python kingdom/tools/anim/glb_edit_clips.py edit <glb> <edits.json>                       # trim / rename / delete clips (+ sidecar), pelvis_untravel
 python kingdom/tools/anim/glb_edit_clips.py audit <glb...>                                # pelvis offsets and root travel per clip
 ```
+
+## Polish pass 2026-09-29 (READ THIS: renames, deletions, new clips)
+Full per-clip tables: [polish_review.md](polish_review.md) (kicks, defense, acrobatics, reactions, KayKit libraries, traversal) and [polish_casting.md](polish_casting.md) (16 new casting clips, ElementFX timings, UAL_FILES line).
+- **Renamed:** `Kay_Crouch_Idle_Loop` -> `Kay_Crouch_Walk_Loop` (animations_free2/kaykit_movement_ext).
+- **Deleted (rows above removed):** `MA_Acro_Cartwheel_E`, `MA_Acro_Flip_A`, `MA_Acro_FrontHandFlip_A`, `MA_Acro_MonkeyBackflip`, `Kay_Undead_Awaken_Floor`, `Kay_Undead_Rise_Ground`.
+- **New:** `Cast_<Fire|Water|Earth|Wind|Lightning|Ice|Light|Dark>_Charge` / `_Release` in `animations_free/casting/UAL_Free_CastingElements.glb`; `Vault_Low_B` (mirrored vault) in the traversal library.
+- **Rebuilt:** all 13 traversal clips (Vault_Low now has run-up, palm plants on the box, arc, landing; ladder hand rungs now at 1.5 / 1.8 m, ledge-hang pelvis at 1.125 m). Kicks / defense / acrobatics / reactions / KayKit libraries got floor, foot-pin and knee fixes (per-clip notes in polish_review.md).
+- **Import hygiene:** `UAL_Free_Weapons.glb` and `UAL_Free_CastingKaykit.glb` had stale `valid=false` imports (they never loaded); fixed. `python kingdom/tools/anim/check_unique_clips.py` guards duplicate / `_loop`-suffix clip names.
+- **Creatures:** Stagborn elk/Warden clips re-exported (walk hooves pinned: elk 1.21 m/s, Warden 1.24 m/s; see stagborn_README.md). Farm cows/chickens: graze reaches the ground, chicken wings have 4 bones each (11 -> 17 bones per chicken); clip names unchanged.

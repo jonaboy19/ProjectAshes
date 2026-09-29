@@ -1,0 +1,130 @@
+[
+ {
+  "name": "Cast_Fire_Charge",
+  "loop": true,
+  "frames": 37,
+  "seconds": 1.2,
+  "release_frame": null,
+  "note": "two-hand cupped gather, tightening pulse; hands at chest"
+ },
+ {
+  "name": "Cast_Fire_Release",
+  "loop": false,
+  "frames": 41,
+  "seconds": 1.333,
+  "release_frame": 11,
+  "note": "two-hand forward thrust"
+ },
+ {
+  "name": "Cast_Water_Charge",
+  "loop": true,
+  "frames": 43,
+  "seconds": 1.4,
+  "release_frame": null,
+  "note": "orbiting hands, swaying body (figure-8), soft fingers"
+ },
+ {
+  "name": "Cast_Water_Release",
+  "loop": false,
+  "frames": 43,
+  "seconds": 1.4,
+  "release_frame": 12,
+  "note": "wave sweep of the right arm, low-left -> front -> high-right"
+ },
+ {
+  "name": "Cast_Earth_Charge",
+  "loop": true,
+  "frames": 43,
+  "seconds": 1.4,
+  "release_frame": null,
+  "note": "horse stance, hands lift a boulder, right foot stomps at 60% of the loop"
+ },
+ {
+  "name": "Cast_Earth_Release",
+  "loop": false,
+  "frames": 55,
+  "seconds": 1.8,
+  "release_frame": 15,
+  "note": "lift both fists overhead, stomp + slam to the ground"
+ },
+ {
+  "name": "Cast_Wind_Charge",
+  "loop": true,
+  "frames": 43,
+  "seconds": 1.4,
+  "release_frame": null,
+  "note": "both arms orbit at chest height (opposite phases), torso follows"
+ },
+ {
+  "name": "Cast_Wind_Release",
+  "loop": false,
+  "frames": 43,
+  "seconds": 1.4,
+  "release_frame": 12,
+  "note": "torso whip, right arm sweeps a wide arc from behind-right to far left"
+ },
+ {
+  "name": "Cast_Lightning_Charge",
+  "loop": true,
+  "frames": 37,
+  "seconds": 1.2,
+  "release_frame": null,
+  "note": "right arm raised to the sky, snapped jitter, left fist at the hip, head up"
+ },
+ {
+  "name": "Cast_Lightning_Release",
+  "loop": false,
+  "frames": 41,
+  "seconds": 1.333,
+  "release_frame": 9,
+  "note": "arm snaps from the sky down to a pointed strike, recoil jitter"
+ },
+ {
+  "name": "Cast_Ice_Charge",
+  "loop": true,
+  "frames": 37,
+  "seconds": 1.2,
+  "release_frame": null,
+  "note": "rigid crossed forearms at the chest, tiny frost tremor, shoulders raised"
+ },
+ {
+  "name": "Cast_Ice_Release",
+  "loop": false,
+  "frames": 41,
+  "seconds": 1.333,
+  "release_frame": 9,
+  "note": "crossed arms burst out into a stiff two-hand palm push, then hold frozen"
+ },
+ {
+  "name": "Cast_Light_Charge",
+  "loop": true,
+  "frames": 49,
+  "seconds": 1.6,
+  "release_frame": null,
+  "note": "open palms raised in a V, slow rising swell"
+ },
+ {
+  "name": "Cast_Light_Release",
+  "loop": false,
+  "frames": 49,
+  "seconds": 1.6,
+  "release_frame": 17,
+  "note": "hands meet overhead, sweep down and forward: blessing / beam"
+ },
+ {
+  "name": "Cast_Dark_Charge",
+  "loop": true,
+  "frames": 43,
+  "seconds": 1.4,
+  "release_frame": null,
+  "note": "hunched, low right claw creeping, left arm wrapped across the chest"
+ },
+ {
+  "name": "Cast_Dark_Release",
+  "loop": false,
+  "frames": 47,
+  "seconds": 1.533,
+  "release_frame": 12,
+  "note": "claw thrust forward then drag-pull, left arm cloak flare"
+ }
+]

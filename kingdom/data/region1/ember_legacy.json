@@ -1,0 +1,119 @@
+{
+	"_comment": "Ember Legacy (N3, package L10). Data only: power formula, personalities derived from the biography, heirloom kinds and bark templates. Placeholders in barks: {heir} {ancestor} {first} {family} {place} {role} {years} {deed} {sphere}.",
+	"power": {
+		"base": 0.10,
+		"per_rep_point": 0.0020,
+		"per_year_lived": 0.0015,
+		"per_highlight": 0.006,
+		"max": 0.45,
+		"radius_per_power": 0.60,
+		"heal_condition_per_power": 0.5
+	},
+	"heirloom": {
+		"max_level": 10,
+		"stat_per_level": 0.06,
+		"xp_per_generation": 1
+	},
+	"blessing": {
+		"skill_trace_xp": 60.0,
+		"fallback_echo": "family_echo"
+	},
+	"role_sphere": {
+		"military": ["soldier", "guard", "militia", "recruit", "captain", "sergeant", "commander", "general", "knight", "officer", "squad", "lancer"],
+		"trade": ["merchant", "trader", "peddler", "shopkeeper", "caravan", "supplier", "innkeeper", "server", "guild_master"],
+		"craft": ["smith", "apprentice", "journeyman", "carpenter", "mason", "crafter", "weaver"],
+		"farming": ["farmer", "field_hand", "smallholder", "landholder", "estate", "herder", "hunter"],
+		"faith": ["healer", "herbalist", "priest", "physician", "cleric", "runeward"],
+		"underworld": ["thief", "smuggler", "bandit", "fence"]
+	},
+	"archetypes": {
+		"military": {
+			"title": "the Vigilant",
+			"traits": {"warmth": 0.35, "stern": 0.85, "humor": 0.20},
+			"heirloom": {"name": "{family} Watchblade", "kind": "weapon", "item": "heirloom_blade", "stat": "damage"}
+		},
+		"trade": {
+			"title": "the Shrewd",
+			"traits": {"warmth": 0.60, "stern": 0.30, "humor": 0.75},
+			"heirloom": {"name": "{family} Tally-Purse", "kind": "tool", "item": "heirloom_purse", "stat": "sell_price"}
+		},
+		"craft": {
+			"title": "the Patient",
+			"traits": {"warmth": 0.55, "stern": 0.45, "humor": 0.40},
+			"heirloom": {"name": "{family} Working Hammer", "kind": "tool", "item": "heirloom_hammer", "stat": "craft_quality"}
+		},
+		"farming": {
+			"title": "the Steady",
+			"traits": {"warmth": 0.80, "stern": 0.25, "humor": 0.55},
+			"heirloom": {"name": "{family} Harvest Sickle", "kind": "tool", "item": "heirloom_sickle", "stat": "gather_yield"}
+		},
+		"faith": {
+			"title": "the Gentle",
+			"traits": {"warmth": 0.90, "stern": 0.20, "humor": 0.35},
+			"heirloom": {"name": "{family} Ember Lantern", "kind": "tool", "item": "heirloom_lantern", "stat": "ward_reach"}
+		},
+		"underworld": {
+			"title": "the Wry",
+			"traits": {"warmth": 0.45, "stern": 0.30, "humor": 0.90},
+			"heirloom": {"name": "{family} Lucky Knife", "kind": "weapon", "item": "heirloom_knife", "stat": "crit"}
+		}
+	},
+	"barks": {
+		"military": {
+			"greet": ["{heir}. Stand tall; the road is watching you.", "Ah, {heir}. I held this line once. Hold it better.", "{first} {family}, I know that step. Keep to the road."],
+			"warn_pack": ["Wolves at dusk, {heir}. I have counted their tracks. Take the lantern.", "A pack is gathering beyond the ridge. Do not walk it alone."],
+			"warn_raid": ["Riders on the rural road. I felt the ground shake. Sound the alarm.", "Bandits. Fewer than last time, worse manners. Be careful."],
+			"rumour": ["They say something stirs near {place}. I would look myself, if I still could.", "Guard talk, {heir}: trouble near {place}."],
+			"proud": ["You carry my name well, {heir}.", "{deed}. I remember it fondly. Do better."],
+			"dim": ["My light is thin. Come and tend the stone, {heir}."]
+		},
+		"trade": {
+			"greet": ["{heir}! Good to see a {family} on the road. Business is brisk.", "Ha, {heir}. Fair weather and fairer prices to you.", "Ah, my favourite customer. Family, even."],
+			"warn_pack": ["Wolves tonight, {heir}. Bad for trade and worse for boots. Hurry home.", "A pack out near the fields. I would not carry goods past dusk."],
+			"warn_raid": ["Bandits are tolling the road again. Take the long way; it is cheaper than a cut throat.", "Word is a raid is coming. Hide the coin, {heir}."],
+			"rumour": ["Prices whisper near {place}. Something is afoot.", "I heard a good rumour about {place}. Worth a look."],
+			"proud": ["Look at you, {heir}, turning coin into legend.", "{deed}. That was a fine bargain."],
+			"dim": ["I am fading, {heir}. A little maintenance goes a long way. Cheap, really."]
+		},
+		"craft": {
+			"greet": ["Mind your step, {heir}. Good work takes time; so does a good road.", "{heir}. I can feel your hands are your own. Good.", "Hello, {first}. Mend what you can."],
+			"warn_pack": ["I hear wolves gathering. Bar the door and sharpen the tools.", "A pack at dusk, {heir}. Do not go without a good blade."],
+			"warn_raid": ["Someone is hammering at the stones, and not kindly. Check the glyphs.", "Raiders about. Guard your workshop."],
+			"rumour": ["A stone has gone quiet near {place}. Somebody should mend it.", "Something is off around {place}. A craftsman notices such things."],
+			"proud": ["Fine work, {heir}. It shows in your hands.", "{deed}. I still remember how that felt."],
+			"dim": ["My glyphs are worn, {heir}. Come and re-cut them."]
+		},
+		"farming": {
+			"greet": ["Well now, {heir}, look at you all grown. Have you eaten?", "Welcome home, {first}. The fields remember you.", "Good morning, {heir}. The stone is warm today."],
+			"warn_pack": ["Wolves near the pasture tonight, dear. Bring the animals in.", "A pack is out past the last field. Keep to the lantern light."],
+			"warn_raid": ["There are strangers on the road, and they do not carry seed. Be careful.", "Raiders, {heir}. Lock the barn."],
+			"rumour": ["The crows are restless near {place}. Something happened there.", "I heard the ash smells strange near {place}."],
+			"proud": ["Such a good {family}. I am proud of you, {heir}.", "{deed}. I told the crows all about it."],
+			"dim": ["I am tired, dear. Would you sit with me a while and mend the stone?"]
+		},
+		"faith": {
+			"greet": ["Peace, {heir}. The embers keep you.", "I have been waiting, {first}. Walk gently.", "Bless you, {heir}. Your light is bright today."],
+			"warn_pack": ["Shadows gather with the wolves at dusk. Carry light, child.", "A pack hunts tonight. Do not walk in the dark alone."],
+            "warn_raid": ["Hard men are on the road. Pray, and be ready.", "I feel violence near the ford, {heir}. Turn back or be strong."],
+			"rumour": ["A sorrow lingers at {place}. Someone should go and listen.", "The ash at {place} is not yet cold. Go and see."],
+			"proud": ["You honour us, {heir}.", "{deed}. That was kindness well done."],
+			"dim": ["My light is small, {heir}. Sit by me and rekindle it."]
+		},
+		"underworld": {
+			"greet": ["Well, well. If it is not {heir}. Keep your hand on your purse; I taught the thieves.", "Psst, {first}. I have seen everything on this road.", "Shh. I know a secret about {place}, {heir}."],
+			"warn_pack": ["Wolves tonight, kid. Even I would not sneak past that.", "A pack at dusk. Lucky you have an ancestor who watches."],
+			"warn_raid": ["The Ashen Hand is on the road again. I know their tricks, mostly because they are mine.", "Raiders. Duck and run, {heir}. That is my best advice."],
+			"rumour": ["Whispers say something went wrong near {place}. Whispers are always right.", "If I were you I would look at {place}. Quietly."],
+			"proud": ["Not bad, {heir}. Not bad at all.", "{deed}. Ha! I could not have done it cleaner."],
+			"dim": ["I am fading, {heir}. Do not let me go dark; who else will gossip?"]
+		}
+	},
+	"generic_barks": {
+		"greet": ["{heir}. Walk well.", "I know you, {heir}. Welcome."],
+		"warn_pack": ["A pack gathers at dusk. Take care."],
+		"warn_raid": ["Raiders on the road. Take care."],
+		"rumour": ["Something happened near {place}."],
+		"proud": ["You carry the family name well."],
+		"dim": ["I am fading. Please tend the stone."]
+	}
+}

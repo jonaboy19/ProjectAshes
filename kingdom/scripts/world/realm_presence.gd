@@ -635,7 +635,14 @@ func _dot(img: Image, p: Vector2, r: int, col: Color) -> void:
 
 # --- live battles -----------------------------------------------------------------------
 
+## Live 3D battles are paused by design (user direction): war is played on the
+## map only for now, and campaign.gd auto-resolves clashes. Flip to re-enable.
+const LIVE_BATTLES_ENABLED := false
+
+
 func _check_battle() -> void:
+	if not LIVE_BATTLES_ENABLED:
+		return
 	var cam: Variant = _mod("campaign")
 	var pl := _player()
 	if cam == null or pl == null:
