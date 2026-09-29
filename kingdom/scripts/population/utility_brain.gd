@@ -104,6 +104,7 @@ const SENSE_INTERVAL_MS := 500
 const THREAT_RAY_BUDGET := 4
 const THREAT_RAY_WINDOW_MS := 500
 const LAST_SEEN_SECONDS := 3.0
+const SIGHT_QUEUE_MAX := 64
 const CHAT_GAP := 1.3           # metres between two people chatting
 
 # ---------------------------------------------------------------- shared state
@@ -113,6 +114,14 @@ static var _threat_samples: Array = []
 static var _sense_ms := -100000
 static var _ray_window_ms := -100000
 static var _rays_used := 0
+## FIFO requests and short lived per-viewer result mailboxes. Queue entries hold
+## WeakRefs only; instance IDs are used solely to match/prune entries.
+static var _sight_queue: Array[Dictionary] = []
+static var _sight_mail: Dictionary = {}
+static var _sight_stats := {"queued": 0, "dropped": 0, "unknown": 0,
+	"max_wait_ms": 0, "expired": 0}
+static var _sight_stats_by_observer: Dictionary = {}
+static var _last_sight_target: Dictionary = {}
 static var _ray_window_stats := {"requested": 0, "admitted": 0, "exhausted": 0,
 	"occluded": 0, "visible": 0, "stale": 0, "unavailable": 0}
 static var _ray_total_stats := {"requested": 0, "admitted": 0, "exhausted": 0,
@@ -142,6 +151,7 @@ var _last_hours := -1.0
 var _last_seen := Vector2.INF
 var _last_seen_ms := -100000
 var _last_seen_strength := 0.0
+var _sight_observer_ref: WeakRef
 
 
 func _init(p: int = -1, p_job := 4, org_shift := Vector2(-1, -1), p_org := "") -> void:
@@ -362,30 +372,34 @@ static func hazards(tree: SceneTree) -> PackedVector2Array:
 ## copying or sorting the shared cache. Ray results can be unknown when budget
 ## is exhausted; unknown candidates never count as visible.
 func sense_threats(viewer: Node3D, tree: SceneTree, world_layer: int) -> Dictionary:
-	var out := {"visible": PackedVector2Array()}
+	var out := {"visible": PackedVector2Array(), "observed_ms": -1}
 	if viewer == null or tree == null:
 		return out
+	_sight_observer_ref = weakref(viewer)
 	hazards(tree)
-	var viewer_body := viewer as CollisionObject3D
-	var eye := viewer.global_position + Vector3.UP * 1.4
-	var viewer_rid := viewer_body.get_rid() if viewer_body != null else RID()
-	var world := viewer.get_world_3d()
-	var space: PhysicsDirectSpaceState3D = world.direct_space_state if world != null else null
 	var now := Time.get_ticks_msec()
 	if now - _ray_window_ms >= THREAT_RAY_WINDOW_MS:
 		_ray_window_ms = now
 		_rays_used = 0
 		_reset_ray_window_stats()
-	var nearest: Array = [] # [distance_squared, position, instance_id]
+	_prune_sight_queue(now)
+	var eye := viewer.global_position + Vector3.UP * 1.4
+	var nearest: Array = [] # [distance_squared, target instance id]
 	var range_squared := WATCH_RANGE * WATCH_RANGE
 	for sample: Array in _threat_samples:
-		var target: Vector3 = sample[0]
+		var target_id := int(sample[1])
+		if not is_instance_id_valid(target_id):
+			continue
+		var target_node := instance_from_id(target_id) as Node3D
+		if target_node == null:
+			continue
+		var target: Vector3 = target_node.global_position
 		var dx := target.x - eye.x
 		var dz := target.z - eye.z
 		var distance_squared := dx * dx + dz * dz
 		if distance_squared > range_squared:
 			continue
-		var entry := [distance_squared, target, int(sample[1])]
+		var entry := [distance_squared, int(sample[1])]
 		if nearest.is_empty() or distance_squared < float(nearest[0][0]):
 			nearest.push_front(entry)
 		elif nearest.size() < 2:
@@ -394,35 +408,146 @@ func sense_threats(viewer: Node3D, tree: SceneTree, world_layer: int) -> Diction
 			nearest[1] = entry
 		if nearest.size() > 2:
 			nearest.resize(2)
-	for entry: Array in nearest:
-		var instance_id: int = entry[2]
-		if not is_instance_id_valid(instance_id):
-			_record_ray_stat("stale")
-			continue
-		var body := instance_from_id(instance_id) as Node3D
-		if body == null or not body.is_in_group("combatant") or body.get("dead") == true:
-			_record_ray_stat("stale")
-			continue
-		if space == null or not viewer_rid.is_valid():
-			_record_ray_stat("unavailable")
-			continue
-		var target: Vector3 = entry[1]
-		var torso := target + Vector3.UP * 0.9
-		var query := PhysicsRayQueryParameters3D.create(eye, torso, world_layer)
-		query.exclude = [viewer_rid]
-		_record_ray_stat("requested")
-		if _rays_used >= THREAT_RAY_BUDGET:
-			_record_ray_stat("exhausted")
-			continue
-		_rays_used += 1
-		_record_ray_stat("admitted")
-		var hit := space.intersect_ray(query)
-		if hit.is_empty():
-			out["visible"].append(Vector2(target.x, target.z))
-			_record_ray_stat("visible")
-		else:
-			_record_ray_stat("occluded")
+	# New requests join the tail. Refreshing an existing pair does not change age.
+	# Keep one pending request per observer. Alternate between the two nearest
+	# candidates after each completed request so a nearer repeat cannot monopolize.
+	if not nearest.is_empty():
+		var last_target: int = int(_last_sight_target.get(viewer.get_instance_id(), -1))
+		var selected: int = int(nearest[0][1])
+		if nearest.size() > 1 and selected == last_target:
+			selected = int(nearest[1][1])
+		_enqueue_sight(viewer, selected, world_layer, now)
+	# Any observer decision may service the oldest eligible work using that
+	# request's own world and current positions. Each admitted request costs 1 ray.
+	while _rays_used < THREAT_RAY_BUDGET and not _sight_queue.is_empty():
+		_process_oldest_sight(now)
+	for request: Dictionary in _sight_queue:
+		var ref: WeakRef = request["viewer"]
+		if ref.get_ref() == viewer:
+			_sight_stats["unknown"] = int(_sight_stats["unknown"]) + 1
+			var observer_stats: Dictionary = _observer_sight_stats(viewer.get_instance_id())
+			observer_stats["unknown"] = int(observer_stats["unknown"]) + 1
+			break
+	# Consume only this observer's mailbox. Delayed packets retain ray-time.
+	var viewer_id := viewer.get_instance_id()
+	if _sight_mail.has(viewer_id):
+		var mail: Dictionary = _sight_mail[viewer_id]
+		var mail_viewer: WeakRef = mail["viewer"]
+		if mail_viewer.get_ref() == viewer:
+			var observed_ms: int = int(mail["observed_ms"])
+			if now - observed_ms <= int(LAST_SEEN_SECONDS * 1000.0):
+				out["remembered"] = mail["visible"]
+				out["observed_ms"] = observed_ms
+				if now - observed_ms <= THREAT_RAY_WINDOW_MS:
+					out["visible"] = mail["visible"]
+		_sight_mail.erase(viewer_id)
 	return out
+
+
+static func _enqueue_sight(viewer: Node3D, target_id: int, world_layer: int, now: int) -> void:
+	for request: Dictionary in _sight_queue:
+		var observer_ref: WeakRef = request["viewer"]
+		if observer_ref.get_ref() == viewer:
+			request["world_layer"] = world_layer
+			if is_instance_id_valid(target_id):
+				var refreshed_target := instance_from_id(target_id) as Node3D
+				if refreshed_target != null:
+					request["target"] = weakref(refreshed_target)
+					request["target_id"] = target_id
+					request["last_refresh_ms"] = now
+			return # age is intentionally preserved
+	if _sight_queue.size() >= SIGHT_QUEUE_MAX:
+		_sight_stats["dropped"] = int(_sight_stats["dropped"]) + 1
+		var observer_stats: Dictionary = _observer_sight_stats(viewer.get_instance_id())
+		observer_stats["dropped"] = int(observer_stats["dropped"]) + 1
+		_record_ray_stat("exhausted")
+		return
+	if not is_instance_id_valid(target_id):
+		return
+	var target := instance_from_id(target_id) as Node3D
+	if target == null:
+		return
+	_sight_queue.append({"viewer": weakref(viewer), "viewer_id": viewer.get_instance_id(),
+		"target": weakref(target), "target_id": target_id, "world_layer": world_layer,
+		"enqueued_ms": now, "last_refresh_ms": now})
+	_sight_stats["queued"] = int(_sight_stats["queued"]) + 1
+	var observer_stats: Dictionary = _observer_sight_stats(viewer.get_instance_id())
+	observer_stats["queued"] = int(observer_stats["queued"]) + 1
+	_record_ray_stat("requested")
+
+
+static func _prune_sight_queue(now: int) -> void:
+	for i in range(_sight_queue.size() - 1, -1, -1):
+		var request: Dictionary = _sight_queue[i]
+		var viewer_ref: WeakRef = request["viewer"]
+		var target_ref: WeakRef = request["target"]
+		if viewer_ref.get_ref() == null or target_ref.get_ref() == null or now - int(request["last_refresh_ms"]) > 3000:
+			if now - int(request["last_refresh_ms"]) > 3000:
+				_sight_stats["expired"] = int(_sight_stats["expired"]) + 1
+			_sight_queue.remove_at(i)
+	for viewer_id in _sight_mail.keys():
+		var mail: Dictionary = _sight_mail[viewer_id]
+		var ref: WeakRef = mail["viewer"]
+		if ref.get_ref() == null or now - int(mail["observed_ms"]) > 3000:
+			_sight_mail.erase(viewer_id)
+	for viewer_id in _sight_stats_by_observer.keys():
+		if not is_instance_id_valid(int(viewer_id)):
+			_sight_stats_by_observer.erase(viewer_id)
+			_last_sight_target.erase(viewer_id)
+
+
+static func _process_oldest_sight(now: int) -> void:
+	if _sight_queue.is_empty():
+		return
+	var request: Dictionary = _sight_queue.pop_front()
+	var wait_ms := now - int(request["enqueued_ms"])
+	_sight_stats["max_wait_ms"] = maxi(int(_sight_stats["max_wait_ms"]), wait_ms)
+	var observer_stats: Dictionary = _observer_sight_stats(int(request["viewer_id"]))
+	_last_sight_target[int(request["viewer_id"])] = int(request["target_id"])
+	observer_stats["max_wait_ms"] = maxi(int(observer_stats["max_wait_ms"]), wait_ms)
+	var viewer_ref: WeakRef = request["viewer"]
+	var target_ref: WeakRef = request["target"]
+	var viewer := viewer_ref.get_ref() as Node3D
+	var body := target_ref.get_ref() as Node3D
+	if viewer == null or body == null or not body.is_in_group("combatant") or body.get("dead") == true:
+		_record_ray_stat("stale")
+		return
+	if not viewer.is_inside_tree() or not body.is_inside_tree() or viewer.get_world_3d() == null or viewer.get_world_3d() != body.get_world_3d() or viewer.get("_indoors") == true:
+		_record_ray_stat("unavailable")
+		return
+	var eye := viewer.global_position + Vector3.UP * 1.4
+	var target := body.global_position
+	var dx := target.x - eye.x
+	var dz := target.z - eye.z
+	if dx * dx + dz * dz > WATCH_RANGE * WATCH_RANGE:
+		_record_ray_stat("stale")
+		return
+	var viewer_body := viewer as CollisionObject3D
+	var viewer_rid := viewer_body.get_rid() if viewer_body != null else RID()
+	var space := viewer.get_world_3d().direct_space_state
+	if space == null or not viewer_rid.is_valid():
+		_record_ray_stat("unavailable")
+		return
+	var query := PhysicsRayQueryParameters3D.create(eye, target + Vector3.UP * 0.9, int(request["world_layer"]))
+	query.exclude = [viewer_rid]
+	_rays_used += 1
+	_record_ray_stat("admitted")
+	var hit := space.intersect_ray(query)
+	var observer_id: int = int(request["viewer_id"])
+	if hit.is_empty():
+		var mail: Dictionary = _sight_mail.get(observer_id, {"viewer": viewer_ref, "visible": PackedVector2Array(), "observed_ms": now})
+		var mail_ref: WeakRef = mail["viewer"]
+		if mail_ref.get_ref() != viewer or int(mail["observed_ms"]) != now:
+			mail = {"viewer": viewer_ref, "visible": PackedVector2Array(), "observed_ms": now}
+		(mail["visible"] as PackedVector2Array).append(Vector2(target.x, target.z))
+		mail["observed_ms"] = now
+		_sight_mail[observer_id] = mail
+		while _sight_mail.size() > SIGHT_QUEUE_MAX:
+			_sight_mail.erase(_sight_mail.keys()[0])
+		observer_stats["visible"] = int(observer_stats.get("visible", 0)) + 1
+		_record_ray_stat("visible")
+	else:
+		_record_ray_stat("occluded")
 
 
 static func _reset_ray_window_stats() -> void:
@@ -437,27 +562,43 @@ static func _record_ray_stat(key: String) -> void:
 
 static func ray_budget_stats() -> Dictionary:
 	return {"window": _ray_window_stats.duplicate(), "total": _ray_total_stats.duplicate(),
-		"window_ms": THREAT_RAY_WINDOW_MS, "budget": THREAT_RAY_BUDGET}
+		"window_ms": THREAT_RAY_WINDOW_MS, "budget": THREAT_RAY_BUDGET,
+		"sight": _sight_stats.duplicate(), "sight_by_observer": _sight_stats_by_observer.duplicate(true),
+		"queue_depth": _sight_queue.size()}
+
+
+static func _observer_sight_stats(viewer_id: int) -> Dictionary:
+	if not _sight_stats_by_observer.has(viewer_id):
+		while _sight_stats_by_observer.size() >= SIGHT_QUEUE_MAX:
+			var retired_id: int = int(_sight_stats_by_observer.keys()[0])
+			_sight_stats_by_observer.erase(retired_id)
+			_last_sight_target.erase(retired_id)
+		_sight_stats_by_observer[viewer_id] = {"queued": 0, "dropped": 0, "unknown": 0,
+			"visible": 0, "max_wait_ms": 0}
+	return _sight_stats_by_observer[viewer_id]
 
 
 ## Resolve immediate visible danger plus the decaying last-seen point. A hidden
 ## hostile always uses its remembered position, never its current live position.
-func remembered_danger(here: Vector2, visible: PackedVector2Array) -> Array:
+func remembered_danger(here: Vector2, visible: PackedVector2Array, observed_ms := -1) -> Array:
 	var now := Time.get_ticks_msec()
-	if not visible.is_empty():
+	var observation_ms := now if observed_ms < 0 else observed_ms
+	var immediate := visible if now - observation_ms <= THREAT_RAY_WINDOW_MS else PackedVector2Array()
+	if not visible.is_empty() and now - observation_ms < int(LAST_SEEN_SECONDS * 1000.0):
 		var seen: Array = danger_at(here, visible)
-		_last_seen = seen[1]
-		_last_seen_ms = now
-		_last_seen_strength = float(seen[0])
+		if observation_ms > _last_seen_ms:
+			_last_seen = seen[1]
+			_last_seen_ms = observation_ms
+			_last_seen_strength = float(seen[0])
 	var age := float(now - _last_seen_ms) / 1000.0
 	if _last_seen != Vector2.INF and age < LAST_SEEN_SECONDS:
 		var remembered := danger_at(here, PackedVector2Array([_last_seen]))
 		var memory_strength := minf(float(remembered[0]), _last_seen_strength) * (1.0 - age / LAST_SEEN_SECONDS)
-		if memory_strength > float(visible_danger(here, visible)[0]):
+		if memory_strength > float(visible_danger(here, immediate)[0]):
 			return [memory_strength, _last_seen]
-	if age >= LAST_SEEN_SECONDS:
+	if _last_seen != Vector2.INF and age >= LAST_SEEN_SECONDS:
 		clear_threat_memory()
-	return visible_danger(here, visible)
+	return visible_danger(here, immediate)
 
 
 static func visible_danger(here: Vector2, visible: PackedVector2Array) -> Array:
@@ -468,6 +609,25 @@ func clear_threat_memory() -> void:
 	_last_seen = Vector2.INF
 	_last_seen_ms = -100000
 	_last_seen_strength = 0.0
+	if _sight_observer_ref != null:
+		var observer := _sight_observer_ref.get_ref() as Node3D
+		if observer != null:
+			clear_sight_for(observer)
+		_sight_observer_ref = null
+
+
+## Remove queued work and mailbox data when this observer is reset or indoors.
+static func clear_sight_for(viewer: Node3D) -> void:
+	if viewer == null:
+		return
+	var viewer_id := viewer.get_instance_id()
+	_sight_mail.erase(viewer_id)
+	_sight_stats_by_observer.erase(viewer_id)
+	_last_sight_target.erase(viewer_id)
+	for i in range(_sight_queue.size() - 1, -1, -1):
+		var ref: WeakRef = _sight_queue[i]["viewer"]
+		if ref.get_ref() == viewer:
+			_sight_queue.remove_at(i)
 
 
 ## 0..1 danger at `here` and the nearest hazard (Vector2.INF when none).

@@ -247,6 +247,7 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	UtilityBrain.clear_sight_for(self)
 	UtilityBrain.unregister_body(person)
 
 
@@ -305,6 +306,7 @@ func resync() -> void:
 	_brain.act = -1
 	_brain.seed_needs(DailyRhythm.local_time(person), WorldSim.day)
 	_brain.clear_threat_memory()
+	UtilityBrain.clear_sight_for(self)
 	_decide = 0.0
 
 
@@ -402,7 +404,8 @@ func _decide_act(here: Vector2) -> void:
 	if not _indoors:
 		sensed = _brain.sense_threats(self, tree, WORLD_LAYER)
 	var visible_threats: PackedVector2Array = sensed["visible"]
-	var danger := _brain.remembered_danger(here, visible_threats)
+	var remembered_threats: PackedVector2Array = sensed.get("remembered", visible_threats)
+	var danger := _brain.remembered_danger(here, remembered_threats, int(sensed.get("observed_ms", -1)))
 	var player_p := Vector2.INF
 	if _player:
 		player_p = Vector2(_player.global_position.x, _player.global_position.z)
@@ -462,6 +465,8 @@ func _apply_plan(here: Vector2, hazard: Vector2, look: Vector2) -> void:
 func _set_indoors(on: bool) -> void:
 	if on == _indoors:
 		return
+	if on:
+		UtilityBrain.clear_sight_for(self)
 	_indoors = on
 	if on and _brain != null:
 		_brain.clear_threat_memory()
