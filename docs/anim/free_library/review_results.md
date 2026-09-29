@@ -57,6 +57,13 @@ Verdict codes: OK = kept unchanged, TRIM = kept and trimmed (window relative to 
 | `MA_Combo_Flurry_Long` | REJECT | same posture problem for 5 s, ends mid-strike |
 | `MA_Combo_PunchKick` | REJECT | dancer stance on tiptoes, 5 kicks instead of 1, ends off-facing (`frames/REJECTED_MA_Combo_PunchKick.png`) |
 
+### animations_free/casting (events only)
+
+| clip | verdict | fix / note |
+|---|---|---|
+| `Cast_Push_Palm_B` | TRIM 0-1.6 s | the palm strike lands at 0.60 s, the old tail (1.6-2.0 s) was the start of a second push |
+| other casts | OK | release / hit frames measured, see HANDOFF_CODEX.md |
+
 ### animations_free/weapons  (21, KayKit CC0, no weapon prop in the preview)
 
 | clip | verdict | note |
@@ -98,5 +105,5 @@ Verdict codes: OK = kept unchanged, TRIM = kept and trimmed (window relative to 
 
 ### Not re-reviewed in this round (reviewed earlier, see the notes in README.md)
 
-kicks 11, defense 9, acrobatics 19, reactions 9, casting 6 + 6, KayKit life_sim 33, movement_ext 17, ranged 14, undead 9. `measure_events.gd` numbers for them are in HANDOFF_CODEX.md.
+kicks 11, defense 8, acrobatics 20, reactions 9, casting 6 + 6, KayKit life_sim 33, movement_ext 17, ranged 14, undead 9. `measure_events.gd` numbers for them are in HANDOFF_CODEX.md.
 Flags from the measurements: `Kay_Undead_Collapse` has 4.65 m of root travel (use it with a ground clamp, no root motion); `MA_Kick_Jump_R/L` and `MA_Acro_Handspring` start with the pelvis 0.55 m / 1.15 m off the root (run-up, by design); `MA_Kick_JumpHigh_A` has 2.2 m of travel on x.

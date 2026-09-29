@@ -70,7 +70,7 @@ RULES = [
     (r"^Cast_Spell_Long", "cast: long incantation (beam / big spell)", 0.10, 0.25, "`attach(elem, &\"charge\", hand_node)` @f0; `beam(elem, hand_pos, target, 1.0, 1.5)` @f{h}"),
     (r"^Cast_Summon", "cast: summon / raise earth", 0.12, 0.25, "`aoe(&\"earth\", ground_pos, 3.0)` @f{h}"),
     # --- KayKit weapons / general
-    (r"^Weapon_1H_Chop_Jump", "plunge / jump attack 1H (root motion 0.1 m)", 0.08, 0.15, FX_SWORD),
+    (r"^Weapon_1H_Chop_Jump", "plunge / jump attack 1H", 0.08, 0.15, FX_SWORD),
     (r"^Weapon_1H_", "light attack 1H sword", 0.06, 0.15, FX_SWORD),
     (r"^Weapon_2H_Spin", "spin attack 2H (area)", 0.10, 0.20, FX_SWORD),
     (r"^Weapon_2H_", "heavy attack 2H / staff / spear", 0.08, 0.18, FX_SWORD),
@@ -142,7 +142,7 @@ RULES = [
 ]
 DEFAULT = ("(unmapped)", 0.15, 0.15, FX_NONE)
 # clips whose main event is a strike / release: the table lists hit frames for these
-EVENT_STATES = re.compile(r"attack|combo|kick|cast|punch|shoot|throw|release|draw|slam|push|job|cast|counter|hit|block impact|fishing: cast|flying")
+EVENT_STATES = re.compile(r"attack|combo|kick|cast|punch|shoot|throw|release|draw|slam|push|job: (chop|dig|mine|hammer)|counter|fishing: cast|flying|knee|stylised|bash")
 
 
 def rule_for(name):
@@ -171,15 +171,22 @@ def row(name, e):
     # events
     hits = [h for h in e["hits"]]
     top = max([h["speed"] for h in hits], default=0)
-    multi = st.startswith("combo") or st.startswith("job") or "spin" in st or "dual wield" in st
+    multi = st.startswith("combo") or bool(re.match(r"job: (chop|dig|mine|hammer)", st)) or "spin" in st or "dual wield" in st
     if multi:                       # every strong hit of the clip
         hits = [h for h in hits if h["speed"] >= 0.7 * top and h["speed"] >= 3.0]
     else:                           # a single strike: the fastest one (other peaks are wind-up / recovery)
         hits = [h for h in hits if h["speed"] == top and h["speed"] >= 2.0]
-    hf = [h["hit"] for h in hits][:6]
+    hits = [h for h in hits if h["hit"] <= e["frames"] - 8]     # a peak in the last 8 frames is the start of the next move, not a hit
+    hf = []
+    for h in hits:                  # peaks of two limbs a few frames apart are one strike
+        if not hf or h["hit"] - hf[-1] > 3:
+            hf.append(h["hit"])
+    hf = hf[:6]
     ev = "-"
     is_event = bool(re.search(EVENT_STATES, st)) or "{h}" in fx or "{s}" in fx
-    if hf and is_event:
+    if "reaction" in st or "stagger" in st or "flinch" in st:
+        ev = "recoil peak f%d (%.2f s)" % (e["recoil_frame"], e["recoil_frame"] / FPS)
+    elif hf and is_event:
         ev = "hit " + fmt_frames(hf)
     elif "{rc}" in fx:
         ev = "recoil peak f%d (%.2f s)" % (e["recoil_frame"], e["recoil_frame"] / FPS)
@@ -188,6 +195,11 @@ def row(name, e):
     elif "reaction" in st or "stagger" in st or "flinch" in st:
         ev = "recoil peak f%d (%.2f s)" % (e["recoil_frame"], e["recoil_frame"] / FPS)
     h0 = hf[0] if hf else e["peak_frame"]
+    if "aura" in st and e.get("handup_frame") is not None:       # aura / buff: start when the arms are overhead
+        h0 = e["handup_frame"]
+        ev = "arms overhead f%d (%.2f s)" % (h0, h0 / FPS)
+    elif ev == "-" and ("{h}" in fx or "{s}" in fx):
+        ev = "peak hand motion f%d (%.2f s)" % (h0, h0 / FPS)
     fxs = fx.replace("{h}", str(h0)).replace("{s}", str(max(h0 - 3, 0))).replace("{rc}", str(e.get("recoil_frame", 0)))
     if "{h}" in fx and len(hf) > 1 and fx.startswith("`slash"):
         fxs = fx.split(";")[0].replace("@f{s}", "@f" + "/".join(str(max(x - 3, 0)) for x in hf)) + "; `hit_sparks(elem, target_pos, dir)` @f" + "/".join(str(x) for x in hf)

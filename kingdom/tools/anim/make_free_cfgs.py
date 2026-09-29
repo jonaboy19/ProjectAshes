@@ -114,7 +114,7 @@ TABLE = {
  "casting": [
   ("Cast_Slam_Overhead", "79_01", 0.6, 3.3, dict(heading="strike"), "two-handed overhead chop: ground slam / earth AOE"),
   ("Cast_Push_Palm_A", "02_05", 0.8, 2.6, {}, "palm strike forward: wind push / force blast"),
-  ("Cast_Push_Palm_B", "02_05", 8.0, 10.0, {}, "palm strike forward, second take"),
+  ("Cast_Push_Palm_B", "02_05", 8.0, 9.6, {}, "palm strike forward, second take"),
   ("Cast_Throw_1H", "141_11", 2.4, 5.4, {}, "overhand throw: projectile / fireball toss"),
   ("Cast_Aura_Raise_Arms", "144_30", 0.4, 4.6, dict(heading="mean"), "arms sweep overhead: buff / aura / channel"),
   ("Cast_Aura_Raise_Arms_B", "144_30", 21.0, 27.2, dict(heading="mean"), "arms sweep overhead, second take"),

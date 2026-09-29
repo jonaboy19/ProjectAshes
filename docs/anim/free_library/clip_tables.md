@@ -108,7 +108,7 @@
 |---|---:|---|---:|---|---|
 | `Cast_Slam_Overhead` | 2.70 |  | - | CMU 79_01, 0.6-3.3 s (CMU terms) | two-handed overhead chop: ground slam / earth AOE |
 | `Cast_Push_Palm_A` | 1.80 |  | - | CMU 02_05, 0.8-2.6 s (CMU terms) | palm strike forward: wind push / force blast |
-| `Cast_Push_Palm_B` | 2.00 |  | - | CMU 02_05, 8.0-10.0 s (CMU terms) | palm strike forward, second take |
+| `Cast_Push_Palm_B` | 1.60 |  | - | CMU 02_05, 8.0-9.6 s (CMU terms) | palm strike forward, second take |
 | `Cast_Throw_1H` | 3.00 |  | 0.21 m | CMU 141_11, 2.4-5.4 s (CMU terms) | overhand throw: projectile / fireball toss |
 | `Cast_Aura_Raise_Arms` | 4.20 |  | - | CMU 144_30, 0.4-4.6 s (CMU terms) | arms sweep overhead: buff / aura / channel |
 | `Cast_Aura_Raise_Arms_B` | 6.20 |  | - | CMU 144_30, 21.0-27.2 s (CMU terms) | arms sweep overhead, second take |

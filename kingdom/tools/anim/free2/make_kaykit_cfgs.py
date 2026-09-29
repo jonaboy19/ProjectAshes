@@ -13,18 +13,18 @@ BASE = {"source_type":"blend","blend":STAGE+"/kaykit_medium.blend","source_armat
  "smooth":0.0,"fingers":"relaxed","check_directions":True,
  "finger_poses":{"relaxed":["Idle_Loop",0.0],"fist":["Punch_Jab",0.4]},"map":MAP}
 # (source action, new name, loop?, extra)
-# Loop variants of one-shot clips are named <name>_Cycle: Godot strips the _Loop suffix on import, so <name>_Loop would collide with <name>.
+# Loop variants of one-shot clips are named <name>_Repeat: Godot strips the _Loop suffix on import, so <name>_Loop would collide with <name>. (Do not use the word "cycle" either: the importer treats it as a second loop hint and fails to rename.)
 L = True
 CATS = {
  "life_sim": [
-  ("Chop","Work_Chop_Tree",0,{}),("Chopping","Work_Chop_Tree_Cycle",L,{}),
-  ("Dig","Work_Dig",0,{}),("Digging","Work_Dig_Cycle",L,{}),
-  ("Pickaxe","Work_Mine",0,{}),("Pickaxing","Work_Mine_Cycle",L,{}),
-  ("Hammer","Work_Hammer",0,{}),("Hammering","Work_Hammer_Cycle",L,{}),
-  ("Saw","Work_Saw",0,{}),("Sawing","Work_Saw_Cycle",L,{}),
-  ("Lockpick","Lockpick",0,{}),("Lockpicking","Lockpick_Cycle",L,{}),
+  ("Chop","Work_Chop_Tree",0,{}),("Chopping","Work_Chop_Tree_Repeat",L,{}),
+  ("Dig","Work_Dig",0,{}),("Digging","Work_Dig_Repeat",L,{}),
+  ("Pickaxe","Work_Mine",0,{}),("Pickaxing","Work_Mine_Repeat",L,{}),
+  ("Hammer","Work_Hammer",0,{}),("Hammering","Work_Hammer_Repeat",L,{}),
+  ("Saw","Work_Saw",0,{}),("Sawing","Work_Saw_Repeat",L,{}),
+  ("Lockpick","Lockpick",0,{}),("Lockpicking","Lockpick_Repeat",L,{}),
   ("Work_A","Work_Bench_A",0,{}),("Work_B","Work_Bench_B",0,{}),("Work_C","Work_Bench_C",0,{}),
-  ("Working_A","Work_Bench_A_Cycle",L,{}),("Working_B","Work_Bench_B_Cycle",L,{}),("Working_C","Work_Bench_C_Cycle",L,{}),
+  ("Working_A","Work_Bench_A_Repeat",L,{}),("Working_B","Work_Bench_B_Repeat",L,{}),("Working_C","Work_Bench_C_Repeat",L,{}),
   ("Holding_A","Hold_Item_A",L,{}),("Holding_B","Hold_Item_B",L,{}),("Holding_C","Hold_Item_C",L,{}),
   ("Fishing_Cast","Fishing_Cast",0,{}),("Fishing_Idle","Fishing_Idle",L,{}),("Fishing_Bite","Fishing_Bite",0,{}),
   ("Fishing_Tug","Fishing_Tug",0,{}),("Fishing_Reeling","Fishing_Reel",L,{}),

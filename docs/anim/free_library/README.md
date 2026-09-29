@@ -4,7 +4,7 @@
 GLB AnimationLibraries in `kingdom/assets/incoming/animations_free/<category>/UAL_Free_*.glb` (load like `Assets._ual_for`
 does for `animations/`: instantiate the GLB, take its AnimationPlayer clips, rewrite track paths to the character's skeleton).
 Full clip list (length, loop, root travel, source, use): [clip_tables.md](clip_tables.md). Licences: `assets/incoming/animations_free/LICENSES.md`
-(CMU mocap: free for commercial use; KayKit: CC0). Categories: martial_arts_unarmed 19, combos 7, kicks 11, defense 9, acrobatics 19, reactions 9, casting 6 + 6 (KayKit), weapons 21.
+(CMU mocap: free for commercial use; KayKit: CC0). Categories: martial_arts_unarmed 19, combos 7, kicks 11, defense 8, acrobatics 20, reactions 9, casting 6 + 6 (KayKit), weapons 21.
 
 Pipeline: `tools/anim/make_free_cfgs.py` (clip table) -> `retarget_bvh.py` (mirror, heading normalisation, KayKit glTF source) -> `glb_reduce_anim.py`;
 `fetch_free_sources.sh` downloads the BVH takes; `preview_free_library.gd` renders stop-motion frames (`--stopmotion`) for `tools/qa/video_to_sheets.sh`.

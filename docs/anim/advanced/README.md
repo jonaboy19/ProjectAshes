@@ -4,7 +4,7 @@ Three parts, three owners of files (Codex still owns animation *behaviour*):
 
 | part | where | status |
 |---|---|---|
-| A. more clips (UAL skeleton, commercial-safe) | `kingdom/assets/incoming/animations_free2/`, this file | 101 clips, see below (round-3 review: `Kay_Death_Fall_A` rejected, ladder/wall rebuilt) |
+| A. more clips (UAL skeleton, commercial-safe) | `kingdom/assets/incoming/animations_free2/`, this file | 100 clips, see below (round-3 review: `Kay_Death_Fall_A` rejected, ladder/wall rebuilt) |
 | B. runtime techniques demo (IK, look-at, springs, ragdoll, blend trees, hitstop, warping) + perf | `kingdom/tools_qa/anim_tech/`, `docs/anim/advanced/tech/README.md` | see that README |
 | C. own mocap from a phone video | `kingdom/tools/anim/video_mocap/`, `docs/anim/advanced/video_mocap/README.md` | one command `video_to_clip.ps1` (video -> UAL GLB + sheets) with IK foot pinning; tested on synthetic video only |
 
@@ -18,7 +18,7 @@ Per-clip length/loop/travel is in `*.glb.clips.json` next to each GLB.
 
 | library | clips | content |
 |---|---:|---|
-| `kaykit_life_sim/UAL_Kay_life_sim.glb` | 33 | `Kay_Work_Chop_Tree`, `_Dig`, `_Mine`, `_Hammer`, `_Saw`, `Kay_Lockpick`, `Kay_Work_Bench_A/B/C` (each as one-shot + a loop named `<name>_Cycle_Loop`, imported as `<name>_Cycle`: Godot strips `_Loop`, so the old `<name>_Loop` names collided with the one-shots and the loops were dropped on import; fixed in round 3), `Kay_Hold_Item_A/B/C_Loop`, fishing set (`Cast`, `Idle_Loop`, `Bite`, `Tug`, `Reel_Loop`, `Struggle`, `Catch`), `Kay_Emote_Wave_Loop`, `Kay_Emote_Cheer_Loop`, `Kay_Interact_Reach`, `Kay_Pick_Up_Ground`, `Kay_Use_Item_Kay` |
+| `kaykit_life_sim/UAL_Kay_life_sim.glb` | 33 | `Kay_Work_Chop_Tree`, `_Dig`, `_Mine`, `_Hammer`, `_Saw`, `Kay_Lockpick`, `Kay_Work_Bench_A/B/C` (each as one-shot + a loop named `<name>_Repeat_Loop`, imported as `<name>_Repeat`: Godot strips `_Loop`, so the old `<name>_Loop` names collided with the one-shots and the loops were dropped on import; fixed in round 3), `Kay_Hold_Item_A/B/C_Loop`, fishing set (`Cast`, `Idle_Loop`, `Bite`, `Tug`, `Reel_Loop`, `Struggle`, `Catch`), `Kay_Emote_Wave_Loop`, `Kay_Emote_Cheer_Loop`, `Kay_Interact_Reach`, `Kay_Pick_Up_Ground`, `Kay_Use_Item_Kay` |
 | `kaykit_combat_reactions/UAL_Kay_combat_reactions.glb` | 14 | `Kay_Hit_React_A/B`, `Kay_Death_Fall_B` (trimmed to 2.1 s; `_A` rejected: rigid plank, hips 0.36 m above the floor), block set (`Block_Raise`, `Block_Hold_Loop`, `Block_Impact`, `Block_Counter`), `Kay_Stance_2H_Idle_Loop`, `Kay_Stance_Fists_Idle_Loop`, `Kay_Dodge_Fwd/Back/L/R` (0.4 s bursts, root travel 0.5-1.2 m, pelvis double travel fixed in round 3), `Kay_Attack_2H_Spin_Long` |
 | `kaykit_movement_ext/UAL_Kay_movement_ext.glb` | 17 | crouch idle, sneak walk, walk backwards, run strafe L/R, 3 walks, 2 runs, jump start/air/land/short/long, 2 idles |
 | `kaykit_ranged/UAL_Kay_ranged.glb` | 14 | bow idle/aim/draw/release (+ "up" variants), pistol aim/shoot/reload, rifle aim/shoot/reload, run holding bow / rifle |
@@ -67,7 +67,7 @@ Swimming, sitting and lying already exist (UAL `Swim_*`, `Sitting_*`; CMU `Swim_
 ## HANDOFF for Codex (clips)
 
 - Load: `Assets.UAL_FILES` gets the six new GLBs (or add them in `Assets._ual_for`); they follow the same convention as `animations/`: the `root` position track is disabled for in-place play.
-- Clip name to gameplay: work/chop/mine/dig/hammer/saw = life-sim jobs (`Kay_Work_*_Cycle` loops while the job runs, the one-shot for the full cycle), fishing = `Cast` -> `Idle_Loop` -> `Bite` -> `Tug`/`Reel_Loop` -> `Catch`, `Hit_React_A/B` = flinch (stagger), `Death_Fall_A/B` = death (B is the long face-plant), block set = `Block_Raise` -> `Block_Hold_Loop` -> `Block_Impact`, dodge = 4 directional 0.4 s clips.
+- Clip name to gameplay: work/chop/mine/dig/hammer/saw = life-sim jobs (`Kay_Work_*_Repeat` loops while the job runs, the one-shot for the full cycle), fishing = `Cast` -> `Idle_Loop` -> `Bite` -> `Tug`/`Reel_Loop` -> `Catch`, `Hit_React_A/B` = flinch (stagger), `Death_Fall_A/B` = death (B is the long face-plant), block set = `Block_Raise` -> `Block_Hold_Loop` -> `Block_Impact`, dodge = 4 directional 0.4 s clips.
 - Root motion clips: enable the `root` track on a duplicate of the Animation (README of `animations/`, "Root motion"); `Ladder_Climb_*` (vertical, 0.6 m per cycle), `Vault_Low` (2.7 m forward), `Ledge_Shimmy_L/R` (0.5 m per cycle), dodges.
 - Ladder/ledge/vault need the character placed at the right spot: ladder rail plane 0.30 m in front of the root, first hand rung at 1.45 m, rungs every 0.3 m; ledge top at 2.12 m above the root, 0.24 m in front; vault obstacle 0.92 m tall starting 0.9 m ahead; horse saddle top about 1.12 m, seat = pelvis 1.20 m above the ground.
 

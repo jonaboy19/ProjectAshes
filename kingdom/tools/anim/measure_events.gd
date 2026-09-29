@@ -253,6 +253,15 @@ func _finish_clip(c: Array, n: int) -> void:
 				down_f = i
 			else:
 				break
+		var up_f := 0
+		var up_y := -9.0
+		for i in n:
+			var hy: float = ((_pos["hand_l"][i] as Vector3).y + (_pos["hand_r"][i] as Vector3).y) * 0.5
+			if hy > up_y:
+				up_y = hy
+				up_f = i
+		_out[String(c[0])]["handup_frame"] = up_f          # both hands highest (arms raised overhead: aura / buff clips)
+		_out[String(c[0])]["handup_y"] = snappedf(up_y, 0.01)
 		_out[String(c[0])]["recoil_frame"] = recoil_f
 		_out[String(c[0])]["recoil_m"] = snappedf(recoil_d, 0.01)
 		_out[String(c[0])]["down_frame"] = down_f if down_f < n - 1 else -1
