@@ -1,0 +1,173 @@
+{
+	"id": "r1_act1",
+	"_comment": "The Stones Are Dimming, Act I: Hearth and Stone (Ashford, age 8 to 12). dialogue_runner.gd format, loaded with DialogueRunner.load_file(\"r1_act1\", \"res://data/region1/dialogue\"). Extra node key 'speaker' (cast.json id) is ignored by the runner and read by the story UI. Entry nodes are named by quest steps in data/region1/quests/r1_main.json.",
+	"start": "mother_dusk",
+	"nodes": {
+
+		"mother_dusk": {
+			"speaker": "mother",
+			"lines": [
+				{"text": "Stay in tonight, love. The Miller's Stone went out at supper."},
+				{"text": "Boots off, you're staying in. The Miller's Stone went out at supper.", "if": {"weather": ["rain", "storm"]}, "p": 1}
+			],
+			"choices": [
+				{"text": "Went out? Stones don't go out.", "goto": "mother_dusk_2"},
+				{"text": "I'll just go and look.", "goto": "mother_dusk_go"}
+			]
+		},
+		"mother_dusk_2": {
+			"speaker": "mother",
+			"lines": [{"text": "That's what I said. Warden Idra's up there now, glaring at it like it owes her money."}],
+			"choices": [{"text": "I'll look. From far away.", "goto": "mother_dusk_go"}]
+		},
+		"mother_dusk_go": {
+			"speaker": "mother",
+			"lines": [{"text": "From far away. Coat on. Back the moment she says so. And don't touch anything."}],
+			"choices": [{"text": "Promise.", "goto": "@end", "do": [["flag", "r1.a1.heard"]]}]
+		},
+
+		"idra_dark_stone": {
+			"speaker": "idra_vell",
+			"lines": [
+				{"text": "You're the child who keeps climbing my stones. Good. Come and hold the lantern."},
+				{"text": "The shrine child. You've the look. Good. Come and hold the lantern.", "if": {"flag": "spirit_seen"}, "p": 1}
+			],
+			"choices": [{"text": "What happened to it?", "goto": "idra_what"}]
+		},
+		"idra_what": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Nothing happened to it. That's the trouble. It simply stopped."}],
+			"choices": [{"text": "Can you fix it?", "goto": "idra_fix"}]
+		},
+		"idra_fix": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "I can. My hands are slow tonight. Yours aren't."}],
+			"choices": [{"text": "Mine?", "goto": "idra_teach"}]
+		},
+		"idra_teach": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Palm flat on the cold side. Find the old cut with one finger. Down, across, up. Don't lift."}],
+			"choices": [{"text": "Like this?", "goto": "@end", "do": [["flag", "r1.a1.taught"]]}]
+		},
+
+		"idra_after_carve": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "There. Hear that hum? That's the stone saying thank you. Rudely, but it counts."}],
+			"choices": [{"text": "Who carved it first?", "goto": "idra_ember"}]
+		},
+		"idra_ember": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Nobody carves the light, child. Old Hesk the miller rests in there. Forty years now."}],
+			"choices": [{"text": "Rests? Inside a stone?", "goto": "idra_ember_2"}]
+		},
+		"idra_ember_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "When our people die, their ember can stay behind. In a stone, it keeps watch. That's the glow."}],
+			"choices": [{"text": "So the stone is... him?", "goto": "idra_ember_3"}]
+		},
+		"idra_ember_3": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Some of him. The stubborn part. Stubborn lasts."}],
+			"choices": [{"text": "Will you teach me more?", "goto": "idra_more", "do": [["flag", "r1.a1.knows_embers"]]}]
+		},
+		"idra_more": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Ask me in daylight. Now run home. Something is pacing the ring edge, and it isn't a miller."}],
+			"choices": [{"text": "Run.", "goto": "@end", "do": [["flag", "r1.a1.wolf_warned"]]}]
+		},
+
+		"maren_wolf": {
+			"speaker": "maren_coldbrook",
+			"lines": [{"text": "Feet! Plant your feet! ...Hm. Not bad. Not good. Not bad."}],
+			"choices": [
+				{"text": "Who are you?", "goto": "maren_who"},
+				{"text": "I did fine.", "goto": "maren_fine"}
+			]
+		},
+		"maren_who": {
+			"speaker": "maren_coldbrook",
+			"lines": [{"text": "Maren Coldbrook. Old Mill Staff Yard. I teach children how not to die."}],
+			"choices": [{"text": "Teach me.", "goto": "maren_teach"}]
+		},
+		"maren_fine": {
+			"speaker": "maren_coldbrook",
+			"lines": [{"text": "You swung with your eyes shut. Wolves notice things like that. Yard, at dawn."}],
+			"choices": [{"text": "...Dawn.", "goto": "@end", "do": [["flag", "r1.maren_student"]]}]
+		},
+		"maren_teach": {
+			"speaker": "maren_coldbrook",
+			"lines": [{"text": "Dawn. Bring water. Bring both arms, while you've still got them."}],
+			"choices": [{"text": "Dawn.", "goto": "@end", "do": [["flag", "r1.maren_student"]]}]
+		},
+
+		"maren_yard": {
+			"speaker": "maren_coldbrook",
+			"lines": [
+				{"text": "Staff up. You block with the wood, not your face."},
+				{"text": "Late. Wolves are never late. Staff up.", "if": {"time": ["afternoon", "evening"]}, "p": 1}
+			],
+			"choices": [
+				{"text": "What happened to your arm?", "goto": "maren_arm", "if": {"no_flag": "r1.a1.maren_arm"}},
+				{"text": "Ready.", "goto": "maren_drill"}
+			]
+		},
+		"maren_arm": {
+			"speaker": "maren_coldbrook",
+			"lines": [{"text": "The Long Dark. Three stones failed on the Greenhollow road. I held one lit by hand till dawn."}],
+			"choices": [{"text": "Held it... how?", "goto": "maren_arm_2"}]
+		},
+		"maren_arm_2": {
+			"speaker": "maren_coldbrook",
+			"lines": [{"text": "Gave it what warmth I had. It took the arm as payment. Forty people slept that night. Fair trade."}],
+			"choices": [{"text": "Ready.", "goto": "maren_drill", "do": [["flag", "r1.a1.maren_arm"]]}]
+		},
+		"maren_drill": {
+			"speaker": "maren_coldbrook",
+			"lines": [{"text": "Block when they commit. Roll when they're bigger than you. Everything is bigger than you."}],
+			"choices": [{"text": "Again.", "goto": "@end", "do": [["flag", "r1.a1.drilled"], ["record", "staff_training", 1]]}]
+		},
+
+		"idra_blessing_eve": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Twelve. Tomorrow the ring asks what you are. Don't answer it. Let it answer you."}],
+			"choices": [{"text": "What if nothing answers?", "goto": "idra_nothing"}]
+		},
+		"idra_nothing": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Then you'll be like me. The ring said nothing to me at twelve. I carve anyway."}],
+			"choices": [{"text": "...Truly?", "goto": "@end", "do": [["flag", "r1.a1.eve"]]}]
+		},
+
+		"mother_blessing": {
+			"speaker": "mother",
+			"lines": [
+				{"text": "Look at you. Twelve, and every stone in the ring lit up at once."},
+				{"text": "Your hair is still smoking. Was that you? That was you. Oh, love.", "if": {"flag": "blessing:fire"}, "p": 2},
+				{"text": "The rain stopped mid-fall. Right over you. I saw it. Everyone saw it.", "if": {"flag": "blessing:water"}, "p": 2},
+				{"text": "Every banner in the square turned to face you. Every single one.", "if": {"flag": "blessing:wind"}, "p": 2},
+				{"text": "The ground hummed under my feet. Like the stones do. Like you do, now.", "if": {"flag": "blessing:earth"}, "p": 2},
+				{"text": "Nothing came, and you stood there anyway, chin up. I have never been prouder.", "if": {"flag": "blessing:none"}, "p": 3}
+			],
+			"choices": [{"text": "Did Father see?", "goto": "father_blessing"}]
+		},
+		"father_blessing": {
+			"speaker": "father",
+			"lines": [
+				{"text": "Saw it. Nearly dropped my spear. Don't tell the Captain."},
+				{"text": "Saw you stand there with nothing and not flinch. That's the harder trick, sprout.", "if": {"flag": "blessing:none"}, "p": 1}
+			],
+			"choices": [{"text": "I won't.", "goto": "@end", "do": [["bond", 2]]}]
+		},
+
+		"idra_after_blessing": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Every stone in the Vale flared tonight. Not just ours. Every one."}],
+			"choices": [{"text": "Is that good?", "goto": "idra_after_blessing_2"}]
+		},
+		"idra_after_blessing_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "It's a stone clearing its throat before bad news. Grow up quickly, apprentice. Not too quickly."}],
+			"choices": [{"text": "Apprentice?", "goto": "@end", "do": [["flag", "r1.a1.done"], ["rep", "runeward", 5]]}]
+		}
+	}
+}

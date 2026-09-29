@@ -1,7 +1,7 @@
 extends Control
 ## The in-game tabbed menu (the user's UI templates): one big near-black translucent
 ## window with a thin gold frame, a top tab bar (Inventory, Character, Skills, Quests,
-## Map, Journal; Q / E cycle, Esc / X close), the tab page in the middle and a key-hint
+## Map, Journal, Realm; Q / E cycle, Esc / X close), the tab page in the middle and a key-hint
 ## bar at the bottom. It pauses the game while open, like the other full screens.
 ##
 ## Hotkeys while open: I C K J M L jump to a tab (the same key again closes),
@@ -10,7 +10,7 @@ extends Control
 ##
 ## Open it from the HUD (no class_name, so it also works before a class-cache rescan):
 ##   const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
-##   GameMenu.open(self, "inventory")      # "character" "skills" "quests" "map" "journal"
+##   GameMenu.open(self, "inventory")      # "character" "skills" "quests" "map" "journal" "realm"
 ##   GameMenu.toggle(self, "map")
 
 signal closed
@@ -27,6 +27,7 @@ const TABS := [
 	["quests", "Quests", KEY_J, "tab_quests.gd"],
 	["map", "Map", KEY_M, "tab_map.gd"],
 	["journal", "Journal", KEY_L, "tab_journal.gd"],
+	["realm", "Realm", KEY_R, "tab_realm.gd"],
 ]
 
 ## The HUD CanvasLayer this menu lives on (its world_map is hosted by the Map tab).

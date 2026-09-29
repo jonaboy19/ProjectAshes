@@ -1,0 +1,162 @@
+{
+	"id": "r1_act2",
+	"_comment": "The Stones Are Dimming, Act II: Ash on the Wind (the Vale, age 12 to 15). Teaches Ashsight (N4); Wardwright repairs at scale (N1). Format: see r1_act1.json.",
+	"start": "idra_letters",
+	"nodes": {
+
+		"idra_letters": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Three letters came for you. I read them. Stone-keepers are nosy."}],
+			"choices": [{"text": "From who?", "goto": "idra_letters_2"}]
+		},
+		"idra_letters_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Silverford's Runecarvers. Sir Rowan at Highwatch. And me, if you'll have an old woman."}],
+			"choices": [
+				{"text": "The Guild. I want clean hands.", "goto": "idra_path_guild", "do": [["flag", "r1.path.guild"], ["rep", "guilds", 5]]},
+				{"text": "Highwatch. I want to hold a line.", "goto": "idra_path_knight", "do": [["flag", "r1.path.knight"], ["rep", "highwatch", 5]]},
+				{"text": "You. The Runeward.", "goto": "idra_path_runeward", "do": [["flag", "r1.path.runeward"], ["rep", "runeward", 5]]}
+			]
+		},
+		"idra_path_guild": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Odrin Thale will teach you precision and bill you for it. Learn the first. Ignore the second."}],
+			"choices": [{"text": "And you?", "goto": "idra_path_common"}]
+		},
+		"idra_path_knight": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Rowan is a good man with bad knees. He'll teach you to stand. Stones need standing people."}],
+			"choices": [{"text": "And you?", "goto": "idra_path_common"}]
+		},
+		"idra_path_runeward": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Hm. Then you carry my chisel and drink my tea. No complaints about either."}],
+			"choices": [{"text": "Is the tea that bad?", "goto": "idra_path_common"}]
+		},
+		"idra_path_common": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "I'll still need you on the roads. Everyone who can carve is on the roads now. Take this."}],
+			"choices": [{"text": "A chisel?", "goto": "@end", "do": [["flag", "r1.a2.apprenticed"], ["give", "wardwright_chisel", 1]]}]
+		},
+
+		"captain_stones": {
+			"speaker": "bram_hollis",
+			"lines": [
+				{"text": "Two stones dark on the Greenhollow road. Since Tuesday."},
+				{"text": "Squire. Good. Two stones dark on the Greenhollow road. Since Tuesday.", "if": {"flag": "r1.path.knight"}, "p": 1}
+			],
+			"choices": [{"text": "Can't the Guard go?", "goto": "captain_stones_2"}]
+		},
+		"captain_stones_2": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "Nine guards. Forty-one stones. Sixty miles of road. You do the sum."}],
+			"choices": [{"text": "I'll relight them.", "goto": "captain_stones_3"}]
+		},
+		"captain_stones_3": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "Good. If you smell smoke, run to the guardhouse. Not toward the smoke. Toward me."}],
+			"choices": [{"text": "Toward you.", "goto": "@end", "do": [["flag", "r1.a2.stones_job"]]}]
+		},
+
+		"gilda_farm": {
+			"speaker": "gilda_pennick",
+			"lines": [{"text": "They came through the gap at moonrise. Boars. But wrong. Purple, in the eyes."}],
+			"choices": [{"text": "Is anyone hurt?", "goto": "gilda_farm_2"}]
+		},
+		"gilda_farm_2": {
+			"speaker": "gilda_pennick",
+			"lines": [{"text": "My boy's arm. He'll mend. The barn won't. Ten years of barn, gone in one night."}],
+			"choices": [{"text": "The stone at your gate...", "goto": "gilda_farm_3"}]
+		},
+		"gilda_farm_3": {
+			"speaker": "gilda_pennick",
+			"lines": [{"text": "Lit last week. I checked it myself. Stones don't just die in a week. Do they?"}],
+			"choices": [{"text": "I'll find out.", "goto": "@end", "do": [["flag", "r1.a2.gilda_told"], ["opinion", "r1_gilda", "Came when the farm burned", 10, 60]]}]
+		},
+
+		"idra_ash_teach": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Kneel. Hand in the ash, by the stone. Don't think. Look."}],
+			"choices": [{"text": "Look at what?", "goto": "idra_ash_teach_2"}]
+		},
+		"idra_ash_teach_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Fire remembers. For a few days, ash keeps what the fire saw. Some of us can ask it. Ask."}],
+			"choices": [{"text": "Kneel.", "goto": "@end", "do": [["flag", "r1.a2.ash_taught"]]}]
+		},
+		"ash_vision": {
+			"speaker": "narrator",
+			"lines": [{"text": "Grey figures rise from the ash. A hooded shape cuts the glyph from the stone, then runs north-east."}],
+			"choices": [{"text": "Stand up.", "goto": "idra_after_ash"}]
+		},
+		"idra_after_ash": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "A chisel. Someone cut the glyph out clean, and then the boars walked in."}],
+			"choices": [{"text": "They ran north-east.", "goto": "idra_after_ash_2"}]
+		},
+		"idra_after_ash_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Duskbriar. Follow the embers while they're warm. Ash cools fast. So does a trail."}],
+			"choices": [{"text": "Going.", "goto": "@end", "do": [["flag", "r1.a2.trail"]]}]
+		},
+
+		"corin_caught": {
+			"speaker": "corin_vesk",
+			"lines": [{"text": "Don't! I'm not... I only cut the ones that were already going!"}],
+			"choices": [
+				{"text": "Already going?", "goto": "corin_going"},
+				{"text": "Who pays you?", "goto": "corin_pay"}
+			]
+		},
+		"corin_going": {
+			"speaker": "corin_vesk",
+			"lines": [{"text": "They're dying on their own! Ask anyone who carves. We just help the tired ones along."}],
+			"choices": [{"text": "Who pays you?", "goto": "corin_pay"}]
+		},
+		"corin_pay": {
+			"speaker": "corin_vesk",
+			"lines": [{"text": "Purple glass. Scar-crystal. A buyer at the Edge sends it by cart. My mother eats because of it."}],
+			"choices": [{"text": "...", "goto": "corin_choice"}]
+		},
+		"corin_choice": {
+			"speaker": "corin_vesk",
+			"lines": [{"text": "So? What happens to me?"}],
+			"choices": [
+				{"text": "Captain Hollis decides.", "goto": "corin_jailed", "do": [["flag", "r1.corin.jailed"], ["rep", "crown", 5], ["rep", "ashen_hand", -10]]},
+				{"text": "Go home. Don't come back.", "goto": "corin_freed", "do": [["flag", "r1.corin.freed"], ["rep", "vale", 3]]},
+				{"text": "Work for me. Tell me things.", "goto": "corin_informant", "do": [["flag", "r1.corin.informant"]]}
+			]
+		},
+		"corin_jailed": {
+			"speaker": "corin_vesk",
+			"lines": [{"text": "...Fair. Tell my mother it was the Captain. Not you."}],
+			"choices": [{"text": "I'll tell her.", "goto": "@end"}]
+		},
+		"corin_freed": {
+			"speaker": "corin_vesk",
+			"lines": [{"text": "You mean it? I... I won't forget this. I won't."}],
+			"choices": [{"text": "Go.", "goto": "@end"}]
+		},
+		"corin_informant": {
+			"speaker": "corin_vesk",
+			"lines": [{"text": "Spy on the Hand? They'll skin me. ...Fine. For the crystal they still owe me."}],
+			"choices": [{"text": "Deal.", "goto": "@end"}]
+		},
+
+		"idra_thief_truth": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "He said the stones were dying on their own?"}],
+			"choices": [{"text": "He did.", "goto": "idra_thief_truth_2"}]
+		},
+		"idra_thief_truth_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Then he's a thief who tells the truth. Hm. That frightens me more than a liar would."}],
+			"choices": [{"text": "What do we do?", "goto": "idra_thief_truth_3"}]
+		},
+		"idra_thief_truth_3": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Silverford. The Guild keeps ledgers of every repair. Ledgers don't lie. Masons sometimes do."}],
+			"choices": [{"text": "Silverford, then.", "goto": "@end", "do": [["flag", "r1.a2.done"]]}]
+		}
+	}
+}
