@@ -83,7 +83,7 @@ Story flags use `r1.` (and `ember.<who>.<choice>` for Ember Legacy choices). The
 ## Lint
 ```
 Godot --headless --path kingdom -s res://tools_qa/region1/lint_quests.gd              # sampled autoplay, ~10 s
-Godot --headless --path kingdom -s res://tools_qa/region1/lint_quests.gd -- --exhaustive   # all 10368 choice combinations, ~25 min
+Godot --headless --path kingdom -s res://tools_qa/region1/lint_quests.gd -- --exhaustive   # all 10368 choice combinations, ~25 min (measured 25.2 min)
 ```
 It checks schema, lengths, speakers, places, stones, glyphs, targets, items, cutscenes, tutorial ids, actions, conditions, tokens, flags, step order, mechanic coverage (each taught before use, in 2+ acts) and dialogue reachability. It then **plays the quest to the end** with the real runtime and dialogue runner, across choice combinations, Blessing results, times of day and weather. It reports:
 - any step that gets stuck;
