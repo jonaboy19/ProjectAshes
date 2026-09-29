@@ -7,6 +7,7 @@ const HERO_LOD := 70.0
 ## Buildings and greenery are batched per model per LOD_CELL x LOD_CELL metres.
 const LOD_CELL := 40.0
 const WIDE_CELL := 100.0
+const MID_CELL := 60.0
 ## Builds settlements from their CityPlanner layout when the focus comes within
 ## BUILD_RANGE and frees them past FREE_RANGE. Buildings of the same model are
 ## drawn as one MultiMesh (a capital has ~300 buildings but only ~15 draw
@@ -99,7 +100,9 @@ func _build(s: Dictionary) -> Node3D:
 		# (4.5k tris x 4 surfaces) was submitted even behind the camera. 100 m cells keep the
 		# draw-call count low but let the far side of a capital be culled.
 		var wide := not celled and Assets.building_lod_mesh(asset) != null
-		var cs := LOD_CELL if celled else WIDE_CELL
+		# Round 2: houses with a baked LOD2 (1.2-1.4k tris, one material) switch per 60 m cell so
+		# the far side of a street drops to LOD2 while the near side keeps LOD1.
+		var cs := LOD_CELL if celled else (MID_CELL if Assets.building_lod2_distance(asset) > 0.0 else WIDE_CELL)
 		var bkey := "%s@%d,%d" % [asset, floori(p.x / cs), floori(p.y / cs)] if (celled or wide) else asset + "@"
 		if not batches.has(bkey):
 			batches[bkey] = []
@@ -175,7 +178,8 @@ func _build(s: Dictionary) -> Node3D:
 	for kind: String in door_clutter:
 		var list2: Array[Transform3D] = []
 		list2.assign(door_clutter[kind])
-		_multimesh(root, Assets.building_mesh(kind), list2)
+		# Round 2: per 40 m cell (was one town-wide MultiMesh: ~190 crates/barrels/sacks drawn from anywhere).
+		_multimesh_cells(root, Assets.building_mesh(kind), list2, LOD_CELL)
 
 	for lm in plan["landmarks"]:
 		var lm_size := _footprint(lm["asset"])
@@ -496,9 +500,39 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, gates: Array, segments:
 			wall_i += 1
 	# Per 150 m stretch of wall, so the automatic mesh LODs pick the far side's
 	# distance instead of the whole ring's (a capital ring is ~160 pieces, 0.4 M tris).
-	_multimesh_cells(root, wall_mesh, walls, 150.0, 0.0, false)
-	_multimesh(root, gate_mesh if gate_mesh else wall_mesh, gate_walls, false)
-	_multimesh_cells(root, tower_mesh, towers, 150.0, 0.0, false)
+	# Round 2: 70 m cells (was 150) for walls/gates/towers: a MultiMesh draws every instance once any
+	# part of its AABB is on screen, so a 150 m cell of 1.7-13k tri pieces was mostly wasted.
+	_lod_cells(root, "wall", walls, 70.0)
+	_lod_cells(root, "wall_gate" if gate_mesh else "wall", gate_walls, 70.0)
+	_lod_cells(root, "wall_tower", towers, 70.0)
+
+
+## Per-cell MultiMeshes of an Assets.BUILDINGS entry with its LOD1/LOD2 stages as hard visibility-range
+## switches (same scheme as the house lots).
+func _lod_cells(parent: Node3D, key: String, transforms: Array[Transform3D], cell: float) -> void:
+	var stages: Array = [[Assets.building_mesh(key), 0.0]]
+	for lv in [1, 2]:
+		var m := Assets.building_lod_level_mesh(key, lv)
+		if m != null:
+			stages.append([m, Assets.building_lod_level_distance(key, lv)])
+	var groups := {}
+	for t: Transform3D in transforms:
+		var k := Vector2i(floori(t.origin.x / cell), floori(t.origin.z / cell))
+		if not groups.has(k):
+			groups[k] = []
+		(groups[k] as Array).append(t)
+	for k: Vector2i in groups:
+		var list: Array[Transform3D] = []
+		list.assign(groups[k])
+		for i in stages.size():
+			var mmi := _multimesh(parent, stages[i][0], list, false)
+			if mmi == null:
+				continue
+			mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+			mmi.visibility_range_begin = stages[i][1]
+			mmi.visibility_range_begin_margin = 10.0 if i > 0 else 0.0
+			mmi.visibility_range_end = stages[i + 1][1] if i + 1 < stages.size() else 0.0
+			mmi.visibility_range_end_margin = 10.0 if i + 1 < stages.size() else 0.0
 
 
 ## Instanced placement. Culls by object size (small clutter vanishes first) and,
@@ -515,10 +549,11 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 		mm.set_instance_transform(i, transforms[i])
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
-	if not shadow:
-		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF   # small goods: no shadow-map cost
 	var box := mesh.get_aabb()
 	var extent := maxf(box.size.x, box.size.z)
+	# Round 2: on LOW, props under 1.6 m (crates, barrels, sacks, decals' planes) never cast shadows.
+	if not shadow or (extent < 1.6 and _low()):
+		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF   # small goods: no shadow-map cost
 	var cull := 70.0 if extent < 1.6 else (150.0 if extent < 4.5 else (380.0 if extent < 12.0 else 0.0))
 	if cull > 0.0:
 		mmi.visibility_range_end = cull
@@ -876,9 +911,9 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		body.add_child(shape)
 		root.add_child(body)
 	# One batch instead of a node per haystack (5 surfaces each: 25 draws in view).
-	_multimesh(root, Assets.building_mesh("haystack"), stacks, false)
-	_multimesh(root, Assets.building_mesh("field_crops"), tiles, false)
-	_multimesh(root, Assets.building_mesh("fence"), fences, false)
+	_multimesh_cells(root, Assets.building_mesh("haystack"), stacks, 60.0, 0.0, false)
+	_multimesh_cells(root, Assets.building_mesh("field_crops"), tiles, 60.0, 0.0, false)
+	_multimesh_cells(root, Assets.building_mesh("fence"), fences, 60.0, 0.0, false)
 
 
 ## Behind and beside homes: vegetable gardens, woodpiles, washing lines.
@@ -933,7 +968,7 @@ func _square_lamps(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 		light.add_to_group("street_lamp")
 		root.add_child(light)
 		light.global_position = Vector3(p.x, gy + 2.35, p.y) + Vector3(sin(yaw), 0, cos(yaw)) * 0.62
-	_multimesh(root, Assets.building_mesh("lamp_post"), posts)
+	_multimesh_cells(root, Assets.building_mesh("lamp_post"), posts, LOD_CELL)
 	var gates: Array = plan["gates"]
 	if not gates.is_empty():
 		var ga: float = gates[0]
@@ -1176,7 +1211,7 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 				var ganim := Assets.animation_player(guard)
 				if ganim:
 					ganim.play("Idle" if ganim.has_animation("Idle") else ganim.get_animation_list()[0])
-				DistanceCull.attach(guard, 110.0, ganim)
+				DistanceCull.attach(guard, 80.0, ganim)
 	# Red-and-gold banners hung along the inner face of the walls either side of each gate.
 	var wall_mesh := Assets.building_mesh("wall")
 	if plan["walls"] and wall_mesh != null:
@@ -1554,7 +1589,7 @@ func _front_gardens(root: Node3D, plan: Dictionary, rng: RandomNumberGenerator) 
 		var list: Array[Transform3D] = []
 		list.assign(sets[kind])
 		_multimesh(root, Assets.nature_mesh(kind), list, false)
-	_multimesh(root, Assets.building_mesh("planter_box"), planters)
+	_multimesh_cells(root, Assets.building_mesh("planter_box"), planters, LOD_CELL)
 
 
 ## Thin wood smoke from some chimneys (read from the models' chimney_top markers).

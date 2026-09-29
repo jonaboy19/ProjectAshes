@@ -183,7 +183,15 @@ static func print_draw_census(tree: SceneTree, vp: Viewport) -> void:
 		var oname := String(owner_n.name) if owner_n else ""
 		if not oname.begins_with("Skeleton"):
 			oname = oname.rstrip("0123456789")
-		var key := "%s | %s | %s%s%s" % [oname, g.get_class(), mesh.resource_path.get_file().get_slice("::", 0) if mesh.resource_path != "" else mesh.get_class(),
+		if owner_n and owner_n.get_parent() and String(oname).begins_with("@"):
+			oname = "%s/%s" % [String(owner_n.get_parent().name).rstrip("0123456789"), oname]
+		var mname := ""
+		if mesh.get_surface_count() > 0 and mesh.surface_get_material(0):
+			var m0 := mesh.surface_get_material(0)
+			mname = String(m0.resource_name)
+			if m0 is BaseMaterial3D and (m0 as BaseMaterial3D).albedo_texture:
+				mname += ":" + String((m0 as BaseMaterial3D).albedo_texture.resource_path).get_file()
+		var key := "%s | %s | %s{%s}%s%s" % [oname, g.get_class(), mesh.resource_path.get_file().get_slice("::", 0) if mesh.resource_path != "" else mesh.get_class(), mname,
 			" shadow" if g.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_OFF else "",
 			" vis[%d-%d] %dtri/inst" % [int(g.visibility_range_begin), int(g.visibility_range_end), int(tri_cache[mesh])] if g is MultiMeshInstance3D else ""]
 		var r: Array = rows.get(key, [0, 0, 0])
@@ -226,6 +234,12 @@ static func ablate(tree: SceneTree, vp: Viewport, root: Node) -> void:
 	for c in root.get_children():
 		if c is Node3D and (c as Node3D).visible:
 			var key := "%s(%s)" % [String(c.name).rstrip("0123456789@"), c.get_script().resource_path.get_file() if c.get_script() else c.get_class()]
+			if c is MultiMeshInstance3D and (c as MultiMeshInstance3D).multimesh and (c as MultiMeshInstance3D).multimesh.mesh:
+				# MultiMesh cells: group per mesh (first surface material) + LOD range, so a town's
+				# 1400 cells read as "town_wall vis[0-209]" instead of one lump.
+				var mm_mesh := (c as MultiMeshInstance3D).multimesh.mesh
+				var mm_mat: Material = mm_mesh.surface_get_material(0) if mm_mesh.get_surface_count() > 0 else null
+				key = "MM %s vis[%d-%d]" % [String(mm_mat.resource_name) if mm_mat else mm_mesh.get_class(), int((c as MultiMeshInstance3D).visibility_range_begin), int((c as MultiMeshInstance3D).visibility_range_end)]
 			if not groups.has(key):
 				groups[key] = []
 			groups[key].append(c)
