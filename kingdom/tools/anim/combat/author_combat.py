@@ -135,6 +135,7 @@ class Pose:
         self.fpit = {"l": 0.0, "r": 0.0}   # toe-up positive
         self.knee = {}
         self.shrug = {"l": None, "r": None}
+        self.root = Vector((0, 0, 0))   # root-bone travel (world, z ignored): root motion, pelvis/feet stay relative
 
 def _rxyz(pitch, yaw, roll, w=1.0):
     return wq((0, 0, 1), yaw * w) @ wq((0, 1, 0), roll * w) @ wq((1, 0, 0), pitch * w)
@@ -170,9 +171,10 @@ def apply_pose(P):
         T["foot_" + side].location = P.foot[side]
         T["knee_" + side].location = P.knee.get(side) if P.knee.get(side) is not None else auto_knee(P, side)
     rp = tgt.pose.bones["root"]
-    rp.location = (0, 0, 0)
+    R = Vector((P.root.x, P.root.y, 0.0))
+    rp.location = Linv["root"].to_3x3() @ R
     pp = tgt.pose.bones["pelvis"]
-    pp.location = Linv["pelvis"].to_3x3() @ (P.pelvis - L["pelvis"].translation)
+    pp.location = Linv["pelvis"].to_3x3() @ (P.pelvis - R - L["pelvis"].translation)
     for n, q in torso_rots(P).items():
         pb = tgt.pose.bones[n]
         pb.rotation_quaternion = REST_Q[n].inverted() @ q @ REST_Q[n]
@@ -313,10 +315,10 @@ def default_state():
         "curl_l": 0.15, "curl_r": 0.15,
         "foot_l": V(0.089, 0.036, 0.104), "foot_r": V(-0.089, 0.036, 0.104),
         "fyaw_l": 0.0, "fyaw_r": 0.0, "fpit_l": 0.0, "fpit_r": 0.0,
-        "shrug_l": None, "shrug_r": None,
+        "shrug_l": None, "shrug_r": None, "root": V(0, 0, 0),
     }
 
-VEC_KEYS = ("pel", "hand_l", "hand_r", "foot_l", "foot_r")
+VEC_KEYS = ("pel", "hand_l", "hand_r", "foot_l", "foot_r", "root")
 TUP_KEYS = ("hip", "tor", "head")
 SCAL_KEYS = ("curl_l", "curl_r", "fyaw_l", "fyaw_r", "fpit_l", "fpit_r")
 OPT_KEYS = ("elb_l", "elb_r", "shrug_l", "shrug_r")
@@ -405,6 +407,7 @@ def build(keys, n, post=None, step=None):
 def state_to_pose(s):
     P = Pose()
     P.pelvis = PELVIS0 + s["pel"]
+    P.root = Vector(s["root"])
     P.hip, P.tor, P.head = s["hip"], s["tor"], s["head"]
     for side in ("l", "r"):
         P.hand[side] = Vector(s["hand_" + side])

@@ -114,7 +114,26 @@ _cache = {}
 _cur_act = [None]
 
 
+class VSrc:
+    """several source actions played back to back (e.g. Sword_Regular_A + Sword_Regular_A_Rec): segments
+    [[action, start, end], ...] in source frames; the virtual timeline is their concatenation"""
+    def __init__(self, segs):
+        self.segs = segs
+        self.name = "+".join(a.name for a, _, _ in segs)
+        self.length = sum(e - s for _, s, e in segs)
+
+
 def sample(act, t):
+    if isinstance(act, VSrc):
+        for a, s0, e0 in act.segs:
+            L = e0 - s0
+            if t <= L + 1e-6 or a is act.segs[-1][0]:
+                return sample(a, s0 + min(max(t, 0.0), L))
+            t -= L
+    return _sample(act, t)
+
+
+def _sample(act, t):
     """local basis (rotation quats, locations) of every bone at source frame t (float, relative to the action start)"""
     key = (act.name, round(t, 3))
     if key in _cache:
@@ -134,6 +153,8 @@ def sample(act, t):
 
 
 def act_len(act):
+    if isinstance(act, VSrc):
+        return act.length
     return act.frame_range[1] - act.frame_range[0]
 
 # ------------------------------------------------------------------ math helpers
@@ -254,7 +275,14 @@ def solve_leg(side, A, P, hip_pos, ankle_target, knee_hint, foot_rot):
 
 
 def process(c):
-    src = find_action(c["src_glb"], c["src"])
+    if "sources" in c:
+        segs = []
+        for nm, s0, e0 in c["sources"]:
+            a = find_action(c["src_glb"], nm)
+            segs.append((a, s0, e0 if e0 is not None else act_len(a)))
+        src = VSrc(segs)
+    else:
+        src = find_action(c["src_glb"], c["src"])
     L0 = act_len(src)
     pts = c.get("retime") or [[0, 0, "lin"], [round(L0), L0, "lin"]]
     n_out = int(round(pts[-1][0]))
@@ -349,7 +377,53 @@ def process(c):
                     want = Quaternion(axis_w, math.radians(deg)) @ A2["hand_r"]
                     basis["hand_r"] = (to_basis("hand_r", A2, want), basis["hand_r"][1])
         frames.append(basis)
+    if c.get("auto_edge"):
+        auto_edge(frames, c["auto_edge"])
     return frames
+
+
+BLADE_AXIS_W = Vector((0, 0, 1))     # rest pose (T-pose) blade axis, world (combat_studio --probe)
+BLADE_FLAT_W = Vector((0, -1, 0))    # rest pose blade flat normal, world
+
+
+def auto_edge(frames, cfg):
+    """roll hand_r about the blade axis so the blade's flat normal is perpendicular to the tip velocity (the edge leads)
+    inside cfg["window"] (dst frames, ramp cfg.get("ramp", 2)), clamped to +-cfg.get("max_deg", 40), smoothed over 3 frames"""
+    ax_l = (LQ["hand_r"].inverted() @ BLADE_AXIS_W).normalized()
+    fl_l = (LQ["hand_r"].inverted() @ BLADE_FLAT_W).normalized()
+    blen = cfg.get("blade_len", 0.85)
+    tips, fk_cache = [], []
+    for b in frames:
+        A, P = fk(b)
+        fk_cache.append((A, P))
+        tips.append(P["hand_r"] + (A["hand_r"] @ ax_l) * blen)
+    th = [0.0] * len(frames)
+    for i in range(1, len(frames) - 1):
+        w = window_w(i, cfg["window"], cfg.get("ramp", 2))
+        if w <= 0:
+            continue
+        A, P = fk_cache[i]
+        a = (A["hand_r"] @ ax_l).normalized()
+        n = (A["hand_r"] @ fl_l).normalized()
+        v = tips[i + 1] - tips[i - 1]
+        vp = v - a * a.dot(v)
+        if vp.length < 1e-4:
+            continue
+        nt = a.cross(vp).normalized()
+        if nt.dot(n) < 0:
+            nt = -nt
+        ang = math.atan2(a.dot(n.cross(nt)), n.dot(nt))
+        lim = math.radians(cfg.get("max_deg", 40))
+        th[i] = max(-lim, min(lim, ang)) * w
+    sm = [(th[max(i - 1, 0)] + 2 * th[i] + th[min(i + 1, len(th) - 1)]) / 4 for i in range(len(th))]
+    for i, b in enumerate(frames):
+        if abs(sm[i]) < 1e-5:
+            continue
+        A, P = fk(b)
+        a = (A["hand_r"] @ ax_l).normalized()
+        want = Quaternion(a, sm[i]) @ A["hand_r"]
+        b["hand_r"] = (to_basis("hand_r", A, want), b["hand_r"][1])
+    print("AUTO_EDGE max roll %.1f deg" % math.degrees(max((abs(x) for x in sm), default=0)))
 
 
 def bake(name, frames):
@@ -379,7 +453,7 @@ if __name__ == "__main__":
         fr = process(c)
         act = bake(c["name"], fr)
         made.append((c["name"], c.get("loop", False), act))
-        report.append({"name": c["name"], "src": c["src"], "frames": len(fr), "seconds": round((len(fr) - 1) / FPS, 3),
+        report.append({"name": c["name"], "src": c.get("src") or "+".join(x[0] for x in c["sources"]), "frames": len(fr), "seconds": round((len(fr) - 1) / FPS, 3),
                        "note": c.get("note", "")})
         print("CLIP", c["name"], len(fr))
     assign(tgt, None)

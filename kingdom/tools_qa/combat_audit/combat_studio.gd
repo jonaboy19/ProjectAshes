@@ -275,6 +275,11 @@ func _apply(anim: Animation, t: float, lower_from: Animation = null, t_lower := 
 	_apply_tracks(anim, t, 0 if lower_from == null else 1)
 	if lower_from:
 		_apply_tracks(lower_from, t_lower, 2)
+		if args.has("rootmotion"):
+			# the capsule lunge (matched to the attack's root curve) also carries the locomotion legs
+			for tr in anim.get_track_count():
+				if String(anim.track_get_path(tr)).ends_with(":root") and anim.track_get_type(tr) == Animation.TYPE_POSITION_3D:
+					sk.set_bone_pose_position(sk.find_bone("root"), anim.position_track_interpolate(tr, t))
 	sk.force_update_all_bone_transforms()
 
 
@@ -293,8 +298,8 @@ func _apply_tracks(anim: Animation, t: float, part: int) -> void:
 			continue
 		match anim.track_get_type(tr):
 			Animation.TYPE_POSITION_3D:
-				if bname == "root":
-					continue
+				if bname == "root" and not args.has("rootmotion"):
+					continue   # in place, as in-game; --rootmotion simulates a capsule lunge matched to the root track
 				sk.set_bone_pose_position(b, anim.position_track_interpolate(tr, t))
 			Animation.TYPE_ROTATION_3D:
 				sk.set_bone_pose_rotation(b, anim.rotation_track_interpolate(tr, t))
@@ -481,6 +486,12 @@ func _derive(name: String, rate: float, layer: String, anim: Animation, rows: Ar
 		var chord := ((rows[b][key] as Vector3) - (rows[a][key] as Vector3)).length()
 		st["arc_ratio"] = snappedf(path / maxf(chord, 0.001), 0.01)
 		st["tip_path_m"] = snappedf(path, 0.01)
+		# Strike direction over the fast frames in the character frame (+x = its left, +y up, +z forward),
+		# and where the tip is at the hit (height, reach): left/right alternation and target height read from these.
+		var sd := ((rows[b][key] as Vector3) - (rows[a][key] as Vector3)).normalized()
+		st["tip_dir"] = [snappedf(sd.x, 0.01), snappedf(sd.y, 0.01), snappedf(sd.z, 0.01)]
+		var tp := rows[p][key] as Vector3
+		st["tip_at_hit"] = [snappedf(tp.x, 0.01), snappedf(tp.y, 0.01), snappedf(tp.z, 0.01)]
 		# Overshoot: tip keeps travelling past hit_end (follow-through distance).
 		var fol := 0.0
 		for j in range(b + 1, ft + 1):
@@ -509,6 +520,7 @@ func _derive(name: String, rate: float, layer: String, anim: Animation, rows: Ar
 		var ph := rows[strikes[0]["peak"]]["pelvis"] as Vector3
 		clip["step_in_m"] = snappedf(Vector2(ph.x - p0.x, ph.z - p0.z).length(), 0.01)
 		clip["step_in_fwd_m"] = snappedf(ph.z - p0.z, 0.01)
+	clip["target_contact"] = _target_contact(rows) if has_blade else []
 	clip["foot_slide_cm"] = _foot_slide(rows)
 	clip["body_clip_frames"] = _clip_frames(rows) if has_blade else []
 	clip["min_bone_h_cm"] = _min_height(rows)
@@ -569,6 +581,24 @@ func _foot_slide(rows: Array) -> Dictionary:
 			if a.y < floor_h + 0.03 and b.y < floor_h + 0.03:
 				slide += Vector2(b.x - a.x, b.z - a.z).length()
 		out[side] = snappedf(slide * 100.0, 0.1)
+	return out
+
+
+## Frames where the blade (base..tip) passes through a target standing at the player's lunge standoff:
+## a vertical capsule 1.3 m in front (+Z), 0.3..1.7 m high, radius 0.35 m (an enemy torso + head).
+## This is the gameplay contact window (damage / hit-stop / sparks), not the speed peak.
+func _target_contact(rows: Array) -> Array:
+	var out: Array = []
+	var s := _scale() / 1.0
+	var a := Vector3(0, 0.3, 1.3)
+	var b := Vector3(0, 1.7, 1.3)
+	for r in rows:
+		var best := INF
+		for k in 9:
+			var p := (r["base"] as Vector3).lerp(r["tip"] as Vector3, k / 8.0)
+			best = minf(best, Geometry3D.get_closest_point_to_segment(p, a, b).distance_to(p))
+		if best <= 0.35:
+			out.append(r["f"])
 	return out
 
 

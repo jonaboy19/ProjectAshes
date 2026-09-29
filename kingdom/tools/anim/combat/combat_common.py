@@ -105,3 +105,16 @@ def blade_o(blade_dir, flat_normal):
     f = R @ Vector((-1, 0, 0))
     n = R @ Vector((0, 0, -1))
     return (tuple(f), tuple(n))
+
+
+def ready_pose():
+    """Shared neutral combat pose (1H sword + shield): every combat clip starts and ends here unless it is a loop or a
+    terminal pose, so all clips blend from/to idle and into each other. Sword low-ready: blade forward and up across the
+    body, edge down; shield hand loose at the left hip."""
+    N = {"pel": V(0, 0, 0), "hip": (0.0, 0.0, 0.0), "tor": (4.0, 0.0, 0.0), "head": (0.0, 0.0, 0.0),
+         "hand_l": V(0.27, -0.06, 0.88), "hand_r": V(-0.27, -0.08, 0.90), "elb_l": None, "elb_r": None,
+         "curl_l": 0.5, "curl_r": 0.9}
+    N.update(stance(0.13, 0.02, -0.13, 0.06, 6.0, -10.0))
+    N["ho_r"] = blade_o((0.25, -0.85, 0.45), (1.0, 0.0, 0.0))
+    N["ho_l"] = ((0.0, -0.3, -1.0), (-1.0, 0.0, 0.0))
+    return N
