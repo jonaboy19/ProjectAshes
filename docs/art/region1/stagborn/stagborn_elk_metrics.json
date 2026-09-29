@@ -2,16 +2,16 @@
  "attack": {
   "frames": 56,
   "seconds": 1.833,
-  "mesh_min_z": -0.038,
+  "mesh_min_z": -0.0,
   "mesh_min_z_start": 0.005,
   "stance_speed_mps": [
-   -0.13,
+   -0.02,
+   -0.02,
    0.0,
-   -0.0,
    -0.0
   ],
-  "ground_speed": -0.03,
-  "hoof_seam_gap_m": 0.003,
+  "ground_speed": -0.01,
+  "hoof_seam_gap_m": 0.004,
   "body_y_shift": 0.003,
   "center_shift_xy": [
    0.04,
@@ -21,7 +21,7 @@
  "attack_butt": {
   "frames": 25,
   "seconds": 0.8,
-  "mesh_min_z": -0.021,
+  "mesh_min_z": -0.0,
   "mesh_min_z_start": 0.005,
   "stance_speed_mps": [
    0.0,
@@ -135,15 +135,15 @@
  "run": {
   "frames": 17,
   "seconds": 0.533,
-  "mesh_min_z": -0.0,
+  "mesh_min_z": 0.0,
   "mesh_min_z_start": 0.026,
   "stance_speed_mps": [
-   4.21,
+   4.84,
    5.11,
-   5.71,
-   5.71
+   5.7,
+   4.71
   ],
-  "ground_speed": 5.18,
+  "ground_speed": 5.09,
   "hoof_seam_gap_m": 0.0,
   "body_y_shift": 0.0,
   "center_shift_xy": [
@@ -154,15 +154,15 @@
  "run_charge": {
   "frames": 17,
   "seconds": 0.533,
-  "mesh_min_z": -0.093,
-  "mesh_min_z_start": 0.003,
+  "mesh_min_z": -0.0,
+  "mesh_min_z_start": 0.0,
   "stance_speed_mps": [
-   4.34,
+   4.84,
    5.43,
-   6.62,
-   3.2
+   4.85,
+   1.16
   ],
-  "ground_speed": 4.9,
+  "ground_speed": 4.07,
   "hoof_seam_gap_m": 0.0,
   "body_y_shift": 0.0,
   "center_shift_xy": [
@@ -174,14 +174,14 @@
   "frames": 36,
   "seconds": 1.167,
   "mesh_min_z": -0.0,
-  "mesh_min_z_start": 0.003,
+  "mesh_min_z_start": -0.0,
   "stance_speed_mps": [
-   1.29,
-   0.92,
-   0.98,
-   1.36
+   1.22,
+   1.19,
+   1.2,
+   2.1
   ],
-  "ground_speed": 1.14,
+  "ground_speed": 1.43,
   "hoof_seam_gap_m": 0.0,
   "body_y_shift": 0.0,
   "center_shift_xy": [

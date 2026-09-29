@@ -1,0 +1,5 @@
+source: /c/tmp_pa/w/fr/cow_spotted_walk_side
+duration_s: 0.840000
+sample_fps: 15
+frames_per_sheet: 15  (= 1 s per sheet)
+sheets: 2

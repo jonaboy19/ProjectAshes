@@ -1,0 +1,5 @@
+source: /c/tmp_pa/w/fr/chicken_rooster_flap_front
+duration_s: 1.200000
+sample_fps: 30
+frames_per_sheet: 15  (= 0.5 s per sheet)
+sheets: 2

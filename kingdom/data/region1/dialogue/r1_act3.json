@@ -1,0 +1,167 @@
+{
+	"id": "r1_act3",
+	"_comment": "The Stones Are Dimming, Act III: Relics and Rot (Silverford, Kingsreach, Greenhollow, the Stagborn Glade). Teaches the Scar Tide (N2); reveals why the stones dim (Ember Legacy, N3). Format: see r1_act1.json.",
+	"start": "odrin_meet",
+	"nodes": {
+
+		"odrin_meet": {
+			"speaker": "odrin_thale",
+			"lines": [
+				{"text": "You. The unlicensed child carving Crown stones with a borrowed chisel."},
+				{"text": "Apprentice. You're late, and your strokes are loud. I can hear them from here.", "if": {"flag": "r1.path.guild"}, "p": 1}
+			],
+			"choices": [{"text": "The stones were dark.", "goto": "odrin_meet_2"}]
+		},
+		"odrin_meet_2": {
+			"speaker": "odrin_thale",
+			"lines": [{"text": "Charter, section four: only Guild hands carve. A careless glyph can split a stone in two."}],
+			"choices": [{"text": "Then test me.", "goto": "odrin_test"}]
+		},
+		"odrin_test": {
+			"speaker": "odrin_thale",
+			"lines": [{"text": "Alarm glyph, on the test stone. If it hums, you get a licence. If it cracks, you get a bill."}],
+			"choices": [{"text": "Fair.", "goto": "@end", "do": [["flag", "r1.a3.test"]]}]
+		},
+		"odrin_after": {
+			"speaker": "odrin_thale",
+			"lines": [{"text": "...Clean. Irritatingly clean. Section nine: I may license prodigies. Don't let it go to your head."}],
+			"choices": [{"text": "Now, the ledgers.", "goto": "odrin_ledger", "do": [["give", "runecarver_licence", 1], ["rep", "guilds", 10]]}]
+		},
+		"odrin_ledger": {
+			"speaker": "odrin_thale",
+			"lines": [{"text": "Repairs this year: three times last year's. Four times the year before. None of them hold."}],
+			"choices": [{"text": "Why not?", "goto": "odrin_ledger_2"}]
+		},
+		"odrin_ledger_2": {
+			"speaker": "odrin_thale",
+			"lines": [{"text": "Because the glyphs aren't failing. The stones are empty. And nobody listens to a mason."}],
+			"choices": [{"text": "I'm listening.", "goto": "odrin_ledger_3"}]
+		},
+		"odrin_ledger_3": {
+			"speaker": "odrin_thale",
+			"lines": [{"text": "Then take this to the Council. The Warden has an audience. Stand behind her and look competent."}],
+			"choices": [{"text": "I'll try.", "goto": "@end", "do": [["flag", "r1.a3.ledger"]]}]
+		},
+
+		"imra_market": {
+			"speaker": "imra_solvane",
+			"lines": [{"text": "A sunstone, friend? Too dear? Then sunstone oil. It burns the things that should not grow."}],
+			"choices": [{"text": "What shouldn't grow?", "goto": "imra_market_2"}]
+		},
+		"imra_market_2": {
+			"speaker": "imra_solvane",
+			"lines": [{"text": "The purple. It creeps from our own Rift, in the south. Fire takes it back. Slowly. Patiently."}],
+			"choices": [{"text": "How much?", "goto": "imra_market_3"}]
+		},
+		"imra_market_3": {
+			"speaker": "imra_solvane",
+			"lines": [{"text": "For the one who lit the Greenhollow road? A gift. In Solkar we say: pay the lamp-lighter first."}],
+			"choices": [{"text": "Thank you.", "goto": "@end", "do": [["flag", "r1.a3.oil"], ["give", "sunstone_oil", 3]]}]
+		},
+
+		"council_open": {
+			"speaker": "king_aldric",
+			"lines": [{"text": "Warden Vell. You bring a child to my council."}],
+			"choices": [{"text": "(Stand tall.)", "goto": "council_idra"}]
+		},
+		"council_idra": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "I bring the only carver in the Vale under sixty, Majesty. And a ledger."}],
+			"choices": [{"text": "(Hand over the ledger.)", "goto": "council_lucan"}]
+		},
+		"council_lucan": {
+			"speaker": "lucan",
+			"lines": [{"text": "Majesty, the Dawn Throne offers relics. They shine without anyone's dead inside them."}],
+			"choices": [{"text": "What do they cost?", "goto": "council_lucan_2"}]
+		},
+		"council_lucan_2": {
+			"speaker": "lucan",
+			"lines": [{"text": "A chapel beside each. A tithe, gently gathered. Is that so much, friend, for a lit road?"}],
+			"choices": [{"text": "...", "goto": "council_king"}]
+		},
+		"council_king": {
+			"speaker": "king_aldric",
+			"lines": [{"text": "The young carver has walked the roads. Tell me, then. What would you have me do?"}],
+			"choices": [
+				{"text": "Take the relics. People die now.", "goto": "council_accept", "do": [["flag", "r1.relic.accepted"], ["rep", "church", 15], ["rep", "runeward", -5]]},
+				{"text": "Refuse. The stones are ours.", "goto": "council_refuse", "do": [["flag", "r1.relic.refused"], ["rep", "crown", 5], ["rep", "church", -10]]},
+				{"text": "Borrow one. For Greenhollow.", "goto": "council_bargain", "do": [["flag", "r1.relic.bargained"], ["rep", "church", 5]]}
+			]
+		},
+		"council_accept": {
+			"speaker": "king_aldric",
+			"lines": [{"text": "Then Crownstead takes the first. Envoy, you'll have your chapels. Gods help us both."}],
+			"choices": [{"text": "(Bow.)", "goto": "council_close"}]
+		},
+		"council_refuse": {
+			"speaker": "king_aldric",
+			"lines": [{"text": "So be it. Envoy, thank your Patriarch for us. Warmly. From a distance."}],
+			"choices": [{"text": "(Bow.)", "goto": "council_close"}]
+		},
+		"council_bargain": {
+			"speaker": "lucan",
+			"lines": [{"text": "One relic, on loan, no tithe? You bargain like a Solkar. ...Very well. For Greenhollow."}],
+			"choices": [{"text": "(Bow.)", "goto": "council_close"}]
+		},
+		"council_close": {
+			"speaker": "lucan",
+			"lines": [{"text": "Whatever you believe, friend, I think the light matters more than whose it is. We'll see."}],
+			"choices": [{"text": "We'll see.", "goto": "@end", "do": [["flag", "r1.a3.council"]]}]
+		},
+
+		"captain_scar": {
+			"speaker": "bram_hollis",
+			"lines": [{"text": "Greenhollow again. The south fields have gone purple. And it's moving. I watched it move."}],
+			"choices": [{"text": "I'm going.", "goto": "@end", "do": [["flag", "r1.a3.scar_news"]]}]
+		},
+		"gilda_scar": {
+			"speaker": "gilda_pennick",
+			"lines": [{"text": "It crawled another field since breakfast. Burn it or sell it, I don't care. Just stop it."}],
+			"choices": [{"text": "Sell it?", "goto": "gilda_scar_2"}]
+		},
+		"gilda_scar_2": {
+			"speaker": "gilda_pennick",
+			"lines": [{"text": "Crystal grows in it. The Edge pays silver a shard. Half the valley's thinking about it."}],
+			"choices": [{"text": "(Look at the violet line.)", "goto": "@end", "do": [["flag", "r1.a3.scar_seen"]]}]
+		},
+		"gilda_scar_after": {
+			"speaker": "gilda_pennick",
+			"lines": [
+				{"text": "It stopped. It actually stopped. Smells like burnt sugar out there. I'll take it.", "if": {"flag": "r1.scar.contained"}, "p": 1},
+				{"text": "You filled your pack and left the edge crawling. Well. Silver's silver, I suppose.", "if": {"flag": "r1.scar.harvested"}, "p": 1}
+			],
+			"choices": [{"text": "...", "goto": "@end", "do": [["flag", "r1.a3.scar_answered"]]}]
+		},
+
+		"idra_glade": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "The Stagborn ran past my window at dawn. The herd never leaves the Glade. Never."}],
+			"choices": [{"text": "Then we go to the Glade.", "goto": "@end", "do": [["flag", "r1.a3.herd_fled"]]}]
+		},
+		"idra_elder": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "There. The Glade's Elder Stone. It didn't fall. It went cold, and the ground let go of it."}],
+			"choices": [{"text": "Elder Stone?", "goto": "idra_elder_2"}]
+		},
+		"idra_elder_2": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Five hearts. Every road stone drinks from one. The embers in them are two hundred years old."}],
+			"choices": [{"text": "Old embers go out.", "goto": "idra_elder_3"}]
+		},
+		"idra_elder_3": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Everything goes out. We used to lay new ones. Then the Crown made it a noble's right."}],
+			"choices": [{"text": "And then?", "goto": "idra_elder_4"}]
+		},
+		"idra_elder_4": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "Then the Church called it heathen. Then nobody gave. We carved harder and called it repair."}],
+			"choices": [{"text": "So it's no one's fault.", "goto": "idra_elder_5"}]
+		},
+		"idra_elder_5": {
+			"speaker": "idra_vell",
+			"lines": [{"text": "It's everyone's. That's the good news. Everyone can mend it. We relight the hearts. All five."}],
+			"choices": [{"text": "All five.", "goto": "@end", "do": [["flag", "r1.a3.done"]]}]
+		}
+	}
+}

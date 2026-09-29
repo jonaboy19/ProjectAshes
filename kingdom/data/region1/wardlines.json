@@ -1,0 +1,107 @@
+{
+	"_about": "Wardlines tuning (scripts/region1/wardlines.gd). Every number the player can feel lives here. Missing keys fall back to the built-in defaults. Distances are metres, times are game days.",
+	"version": 1,
+
+	"elder": {
+		"_note": "An Elder Stone is a hub with a power budget. capacity = slack x what its nearest stones need (transit loss included), so slack 1.25 means 25 percent spare for glyph upgrades and player links.",
+		"slack": 1.25,
+		"capacity": [],
+		"radius": 240.0,
+		"recovery_per_day": 0.08,
+		"carve_cost": 0.02
+	},
+
+	"demand": {
+		"_note": "Power a stone needs per day to stay fully lit. Glyphs multiply it.",
+		"ring": 1.5,
+		"road": 1.0
+	},
+
+	"links": {
+		"_note": "Every wardline hop wastes hop_loss of the flow. Player links waste more. A stone can hold max_degree live links.",
+		"hop_loss": 0.04,
+		"player_loss_mult": 1.5,
+		"max_len": 700.0,
+		"max_degree": 4,
+		"auto_range": 320.0,
+		"merge_range": 900.0
+	},
+
+	"charge": {
+		"_note": "A stone follows its feed slowly: a cut road fades over a few days, not instantly.",
+		"rise_per_day": 0.35,
+		"fall_per_day": 0.2,
+		"carve_min": 0.25
+	},
+
+	"wear": {
+		"decay_per_day": 0.003,
+		"neglect_after_days": 30.0,
+		"neglect_mult": 1.5,
+		"repair_amount": 0.25,
+		"carve_repair": 0.15,
+		"failure_chance_per_day": 0.004,
+		"failure_min": 0.25,
+		"failure_max": 0.55
+	},
+
+	"crew": {
+		"_note": "Runeward crews repair the weakest fed stone. Never enough hands.",
+		"repairs_per_stone_day": 0.012,
+		"min_fed": 0.5,
+		"repair_below": 0.9
+	},
+
+	"bands": {
+		"glowing": 0.75,
+		"dim": 0.45,
+		"cracked": 0.15
+	},
+
+	"glyphs": {
+		"_note": "demand: x power use. radius: x ward bubble. strength: x protection. ward = big and hungry. lure = no protection at all, cheap, calls monsters. alarm = raises the alarm. bless = weak ward, boosts crops.",
+		"none": {"demand": 1.0, "radius": 1.0, "strength": 1.0},
+		"ward": {"demand": 1.4, "radius": 1.3, "strength": 1.0},
+		"lure": {"demand": 0.3, "radius": 1.0, "strength": 0.0, "lure_radius": 160.0},
+		"alarm": {"demand": 1.1, "radius": 1.0, "strength": 0.85, "cooldown_days": 0.25, "listen_radius": 420.0},
+		"bless": {"demand": 1.2, "radius": 1.1, "strength": 0.6, "yield_bonus": 0.25}
+	},
+
+	"rumour": {
+		"road_min_stones": 1
+	},
+
+	"layout": {
+		"_note": "Synthetic Valencious layout used by the sandbox and tests. In the game C3 calls bind_network(Frontier.runestones) instead.",
+		"road_stone_radius": 110.0,
+		"ring_stone_radius_mult": 1.45,
+		"spacing": {"kingdom": 180.0, "rural": 195.0, "frontier": 420.0},
+		"hubs": [
+			{"name": "Ashford", "x": 0, "y": 0, "r": 62, "ring": 6, "elder": true},
+			{"name": "Kingsreach", "x": 560, "y": -420, "r": 90, "ring": 6, "elder": true},
+			{"name": "Silverford", "x": -640, "y": 480, "r": 75, "ring": 6, "elder": true},
+			{"name": "Highwatch", "x": 80, "y": -1300, "r": 60, "ring": 6, "elder": true},
+			{"name": "Stagborn Glade", "x": -980, "y": -760, "r": 50, "ring": 6, "elder": true},
+			{"name": "Millbrook", "x": -330, "y": -280, "r": 45, "ring": 4},
+			{"name": "Stonehollow", "x": -260, "y": -820, "r": 45, "ring": 4},
+			{"name": "Eastmere", "x": 960, "y": 180, "r": 48, "ring": 4},
+			{"name": "Redwater", "x": 380, "y": 620, "r": 50, "ring": 4},
+			{"name": "Thornfield", "x": -1250, "y": 120, "r": 45, "ring": 4},
+			{"name": "Greenhollow", "x": 700, "y": -1000, "r": 48, "ring": 4}
+		],
+		"roads": [
+			{"a": "Ashford", "b": "Kingsreach", "tier": "kingdom"},
+			{"a": "Ashford", "b": "Millbrook", "tier": "rural"},
+			{"a": "Ashford", "b": "Redwater", "tier": "rural"},
+			{"a": "Ashford", "b": "Silverford", "tier": "rural"},
+			{"a": "Kingsreach", "b": "Eastmere", "tier": "rural"},
+			{"a": "Kingsreach", "b": "Greenhollow", "tier": "rural"},
+			{"a": "Kingsreach", "b": "Highwatch", "tier": "kingdom"},
+			{"a": "Greenhollow", "b": "Highwatch", "tier": "rural"},
+			{"a": "Millbrook", "b": "Stonehollow", "tier": "rural"},
+			{"a": "Stonehollow", "b": "Highwatch", "tier": "rural"},
+			{"a": "Stonehollow", "b": "Stagborn Glade", "tier": "frontier"},
+			{"a": "Silverford", "b": "Thornfield", "tier": "frontier"}
+		]
+	}
+}

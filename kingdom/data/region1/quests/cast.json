@@ -1,0 +1,23 @@
+{
+	"_comment": "Speaker registry for Region 1 story dialogue. Every dialogue node's 'speaker' must be an id here (lint_quests.gd). 'principal' = the 12 named cast in docs/regions/CAST_R1.md. 'display' may be a {token} filled from the dialogue ctx (procedural parents). 'voice' is a one-line direction for writers and VO.",
+	"speakers": {
+		"mother":          {"principal": true,  "display": "{mother}", "role": "Your mother (procedural, parents.json)", "voice": "Warm, practical, worries in lists; pride leaks out sideways."},
+		"father":          {"principal": true,  "display": "{father}", "role": "Your father (procedural, parents.json)", "voice": "Dry, understated; old Guard spear-carrier; jokes when moved."},
+		"maren_coldbrook": {"principal": true,  "display": "Maren Coldbrook", "role": "Staff teacher, Old Mill Staff Yard; ex-Runeward officer", "voice": "Clipped drill-yard commands; gallows humour about her missing arm."},
+		"bram_hollis":     {"principal": true,  "display": "Captain Bram Hollis", "role": "Ashford Guard Captain", "voice": "Tired arithmetic. Counts guards, stones, miles. Decent to the bone."},
+		"idra_vell":       {"principal": true,  "display": "Warden Idra Vell", "role": "Runeward stone-keeper; main quest giver", "voice": "Quiet imperatives, dry wit, never wastes a word. 'Hm.'"},
+		"odrin_thale":     {"principal": true,  "display": "Guildmaster Odrin Thale", "role": "Masons' and Runecarvers' Guild, Silverford", "voice": "Formal, cites the Charter by section; fussy, honest, secretly frightened."},
+		"rowan_ashby":     {"principal": true,  "display": "Sir Rowan Ashby", "role": "Knight-captain of the Order of the Highwatch", "voice": "Seventy winters of cheer; talks to the wind; calls you 'young blade'."},
+		"lucan":           {"principal": true,  "display": "Envoy Lucan", "role": "Envoy of the Dawn Throne (Aurelis Patriarchate)", "voice": "Gentle, sincere, sunrise imagery; says 'friend' and means it."},
+		"harrok_ashmaw":   {"principal": true,  "display": "Harrok Ashmaw", "role": "Chief of the Tuskridge exiles (orc)", "voice": "Short, blunt sentences; speaks of himself by name; dark, dry humour."},
+		"snikkit":         {"principal": true,  "display": "Snikkit the Twice-Bitten", "role": "Leader of the Mossfang Warren (goblin)", "voice": "Fast, third person, italic emphasis; sees 'the purple' before anyone."},
+		"imra_solvane":    {"principal": true,  "display": "Imra Solvane", "role": "Solkar caravan mistress (tease: Solkar Dominion)", "voice": "Merchant charm, sun proverbs, always one bargain ahead."},
+		"tamsin_reeve":    {"principal": true,  "display": "Tamsin Reeve", "role": "Quartermaster of Rift's Edge Camp", "voice": "Gravel and grievance; 'Edge rules'; never apologises, never lies."},
+
+		"corin_vesk":      {"principal": false, "display": "Corin Vesk", "role": "Ashen Hand stone-cutter, sixteen", "voice": "Scared, defiant, too honest for the job."},
+		"gilda_pennick":   {"principal": false, "display": "Gilda Pennick", "role": "Greenhollow farmer", "voice": "Shaken, plain-spoken, angry at the right things."},
+		"king_aldric":     {"principal": false, "display": "King Aldric III", "role": "King of Valencious, House Caldrenn", "voice": "Measured, tired, listens longer than he speaks."},
+		"ancestor_stone":  {"principal": false, "display": "{stone_name}", "role": "An ember speaking from a runestone (Ember Legacy)", "voice": "Warm, fragmentary, echoing; remembers feelings better than facts."},
+		"narrator":        {"principal": false, "display": "", "role": "Stage directions shown as italic text", "voice": "Present tense, concrete, one image per line."}
+	}
+}

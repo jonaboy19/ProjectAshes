@@ -2,7 +2,7 @@
 (attack = telegraphed antler gore, run_charge = head-down gallop, roar = rear-up telegraph for the Warden).
 Authoring works in armature space: offsets are rotations about the armature X/Y/Z axes converted into each bone's local frame,
 layered on a sampled base clip (idle / stock headbutt / gallop), then baked to keys. Hooves are ground-fixed per frame."""
-import bpy, math
+import bpy, math, mathutils
 from mathutils import Vector, Quaternion, Euler, Matrix
 
 RENAME = {"Idle": "idle", "Idle_2": "idle_alt", "Eating": "graze", "Walk": "walk", "Gallop": "run",
@@ -117,6 +117,7 @@ def build(variant, arm):
     rig = Rig(arm)
     for nm in ("walk", "run"):
         equalize_stance(rig, nm)
+    lock_feet(rig, "walk")                       # planted hooves pinned (IK, baked): no slide
     stock["walk"] = D.actions["walk"]; stock["run"] = D.actions["run"]
     idle = stock["idle"]; idle_len = idle.frame_range[1] - idle.frame_range[0]
     def idle_at(f): return rig.sample(idle, (f % idle_len))
@@ -183,11 +184,15 @@ def build(variant, arm):
             "BackUpperLeg.L": {"x": [(0, 0), (8, -4), (26, -10), (40, -10), (50, 0)]}, "BackUpperLeg.R": {"x": [(0, 0), (8, -4), (26, -10), (40, -10), (50, 0)]},
             "Tail1": {"x": [(0, 0), (26, 30), (40, 30), (52, 0)]},
         }
+        for b in ("Neck1", "Neck2", "Neck3", "Head"):      # head throw-back reduced: the 3.3 m antlers no longer lie through the back
+            R[b]["x"] = [(f, v * 0.5 if v < 0 else v) for f, v in R[b]["x"]]
         n_r = int(round(58 * ts)); poses = []
         for f in range(n_r):
             poses.append(apply_offsets(rig, idle_at(f), R, {}, f / ts))
         bake(rig, "roar", poses)
     mesh = [o for o in D.objects if o.type == 'MESH' and len(o.vertex_groups) > 5][0]
+    for nm, lim in (("run_charge", 30.0), ("attack", 30.0)):     # antler tips must not dip below the ground
+        if nm in D.actions: raise_antlers(rig, mesh, nm, lim)
     for nm in ("death", "walk", "run", "run_charge", "attack", "attack_butt", "kick", "roar"):
         if nm in D.actions: fix_floor(rig, mesh, nm, recenter=(nm == "death"))
     arm.animation_data.action = None
@@ -306,3 +311,99 @@ def raise_antlers(rig, mesh, nm, limit=45.0):
     print("RAISE", nm, "frames adjusted", fixed, "of", n)
     D.actions.remove(a)
     bake(rig, nm, out, ground=False)
+
+
+# ------------------------------------------------------------------------------------------------------------------
+# Foot lock (walk): pin each planted hoof to the ground with a temporary IK constraint, baked back to FK keys.
+IK_CHAIN = {"FL": 2, "FR": 2, "BL": 3, "BR": 3}      # bones counted from the hoof bone upwards
+
+def _hoof_world(rig, pose):
+    _set_pose(rig, pose)
+    return {k: rig.arm.matrix_world @ rig.arm.pose.bones[h].tail for k, h in HOOF_OF.items()}
+
+def _runs(flags):
+    """contiguous True runs on a cyclic list -> list of index lists (each in cyclic order, starting inside the run)"""
+    n = len(flags)
+    if all(flags): return [list(range(n))]
+    if not any(flags): return []
+    s = next(i for i in range(n) if not flags[i])          # start scanning at a swing frame so no run wraps
+    out, cur = [], []
+    for j in range(1, n + 1):
+        i = (s + j) % n
+        if flags[i]: cur.append(i)
+        elif cur: out.append(cur); cur = []
+    if cur: out.append(cur)
+    return out
+
+def lock_feet(rig, nm, ramp=3, tol=0.045):
+    """Planted hooves get a constant world position (in-place clip: they slide back at the clip's ground speed, exactly),
+    blended in/out over `ramp` frames. Solved with IK constraints, then baked to FK keys (last frame duplicates the first for loops)."""
+    D = bpy.data; arm = rig.arm
+    a = D.actions[nm]; f0 = a.frame_range[0]; n = int(round(a.frame_range[1] - f0)) + 1
+    poses = [rig.sample(a, f0 + i) for i in range(n)]
+    arm.animation_data.action = None
+    m = n - 1                                             # cycle length (last key == first key)
+    hw = [_hoof_world(rig, p) for p in poses]
+    speeds = stance_speeds(rig, poses)
+    vals = [v for v in speeds.values() if v is not None]
+    v_tgt = sum(vals) / len(vals)                        # signed mean stance speed = the gait's ground speed
+    inv = arm.matrix_world.inverted()
+    tgt = {k: [None] * m for k in LEGS}
+    for k in LEGS:
+        zs = [hw[i][k].z for i in range(m)]; z0 = min(zs)
+        ysl = [hw[i][k].y for i in range(m)]
+        vel = [(ysl[(i + 1) % m] - ysl[(i - 1) % m]) * 15.0 / v_tgt for i in range(m)]   # ~1 while the hoof moves like the ground
+        flags = [z < z0 + tol and 0.4 < v < 2.2 for z, v in zip(zs, vel)]
+        for i in range(m):                       # bridge short gaps (the stock clip skates the hoof forward 0.4 m in 2 frames mid-stance)
+            if not flags[i] and zs[i] < z0 + 0.07:
+                back = any(flags[(i - j) % m] for j in range(1, 4)); fwd = any(flags[(i + j) % m] for j in range(1, 4))
+                if back and fwd: flags[i] = True
+        for run in _runs(flags):
+            # unwrap the run so the frame index grows monotonically
+            idx = []; base = run[0]
+            for r in run: idx.append(r if r >= base else r + m)
+            mid = idx[len(idx) // 2]
+            ys = [hw[i % m][k].y for i in idx]; xs = [hw[i % m][k].x for i in idx]
+            ymean = sum(ys) / len(ys); xmean = sum(xs) / len(xs); imean = sum(idx) / len(idx)
+            def lockpos(i, ymean=ymean, xmean=xmean, imean=imean, z0=z0):
+                return mathutils.Vector((xmean, ymean + v_tgt * (i - imean) / 30.0, z0))
+            for i in range(idx[0] - ramp, idx[-1] + ramp + 1):
+                d = 0 if idx[0] <= i <= idx[-1] else min(abs(i - idx[0]), abs(i - idx[-1]))
+                w = 1.0 if d == 0 else ss(1.0 - d / (ramp + 1.0))
+                cur = tgt[k][i % m]
+                base_p = hw[i % m][k]
+                p = base_p.lerp(lockpos(i), w)
+                if cur is None or w > cur[1]: tgt[k][i % m] = (p, w)
+    empties = {}
+    for k, h in HOOF_OF.items():
+        e = bpy.data.objects.new("iktgt_" + k, None); bpy.context.scene.collection.objects.link(e); empties[k] = e
+        c = arm.pose.bones[h].constraints.new('IK'); c.target = e; c.chain_count = IK_CHAIN[k]; c.iterations = 300; c.use_stretch = False
+        c.name = "lockik"
+    out = []
+    for i in range(m):
+        pose = poses[i]
+        for pb in arm.pose.bones:
+            l, q, s = pose[pb.name]; pb.location = l; pb.rotation_quaternion = q; pb.scale = s
+        for k, e in empties.items():
+            t = tgt[k][i]
+            e.location = t[0] if t else hw[i][k]
+        bpy.context.view_layer.update()
+        newp = {}
+        for pb in arm.pose.bones:
+            if pb.name in HOOF_OF.values() or any(pb.name in LEGS[k] for k in LEGS):
+                mb = arm.convert_space(pose_bone=pb, matrix=pb.matrix, from_space='POSE', to_space='LOCAL')
+                loc, rot, sc_ = mb.decompose()
+                q0 = pose[pb.name][1]
+                if rot.dot(q0) < 0: rot = -rot
+                newp[pb.name] = (loc, rot, sc_)
+            else:
+                newp[pb.name] = pose[pb.name]
+        out.append(newp)
+    for k, h in HOOF_OF.items():
+        for c in list(arm.pose.bones[h].constraints):
+            if c.name == "lockik": arm.pose.bones[h].constraints.remove(c)
+        bpy.data.objects.remove(empties[k])
+    out.append({kk: (v[0].copy(), v[1].copy(), v[2].copy()) for kk, v in out[0].items()})
+    D.actions.remove(a)
+    bake(rig, nm, out, ground=False)
+    print("LOCKFEET", nm, "v_tgt", round(v_tgt, 3))
