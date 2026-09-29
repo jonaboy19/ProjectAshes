@@ -8,6 +8,7 @@ _Last update: 2026-09-29 (L14 story v2 emotional rollercoaster; Region 1 L10 Emb
 ## Done (recent)
 | Date | What | Where | Commit |
 |---|---|---|---|
+| 09-29 | **Feel pass (animation director)**: in-game Movie Maker audit of 18 situations (`tools_qa/feel_capture`), ranked issues in `docs/anim/FEEL_AUDIT.md`. Fixed: run stop (0.23 s dead stop -> 0.40 s with decelerating steps), walk-start foot slide, idle turn spin, combo hit and slash timing measured from the blade, lunge into enemies, enemy knockback teleport -> slide, villager idle desync. Codex patches P1-P6 in `docs/anim/patches/`. NPC foot IK was tried and reverted (-14 to -22 fps on HIGH). Before/after in `docs/anim/feel/` | `player.gd`, `wolf.gd`, `monster.gd`, `villager.gd`, `procedural_rig.gd` (surgical), `tools_qa/feel_capture/`, `tools/qa/feel_sheets.sh` | a2c85432 |
 | 09-29 | **L14 story v2, the emotional rollercoaster**: emotion map of v1 (flat Act II-III, no loss of anyone loved, no betrayal, no dark night, costless finale) and a rewrite to 38 steps with a -5..+5 curve and 16 swings. Adds Thistle (a stagborn fawn), Wren (best friend, companion #1), two Kindling Nights, the twist (Idra has fed the Miller's Stone for 30 years), Maren's death holding the ring, the betrayal (Captain Bram sold your reports), a dark night then comeback, and a finale where Ember Legacy choices decide who pays (Idra, Bram, Tamsin, or nobody in the hidden Kindled Dawn). New groups thistle_bond and bram_fate. `staging` (music, camera, anim, VFX, silence, weather, C9/Codex/VFX marks) on every step, checked by the lint, which also flags flat stretches. Lint 0 errors, 0 warnings, 281/281 lines shown; exhaustive 10368/10368; 61/61 region1 tests. **Cloud:** C7 hooks in HOOKS_FOR_CLOUD.md (story v2 table); C9 has 2 new cutscenes + 4 finale variants; C12 needs 3 missing music cues (registry `music`); C20: Wren/Thistle flags, and the Tamsin name clash (EMOTION_MAP_R1 section 5) | `docs/regions/EMOTION_MAP_R1.md`, `STORY_R1.md`, `CAST_R1.md`, `data/region1/`, `tools_qa/region1/lint_quests.gd`, `tests/test_region1_story.gd` | 5f2a2a53 |
 | 09-29 | **Animation polish pass** (see table below): Stagborn re-render + foot lock, farm cow/chicken fixes, 16 casting clips, library re-review, vault/traversal rebuilt, clip-name/import hygiene | `assets/incoming/ai3d/meshy/creatures/`, `meshy_free/farm/rigged/`, `animations_free*/`, `docs/anim/free_library/polish_*.md`, `docs/anim/farm/`, `docs/art/region1/stagborn/` | see git log "Stagborn:", "Farm animals:", "anim:" |
 | 09-28 | Boot crash fixed (threaded mesh loads → main-thread `Assets.scene`) | `scripts/world/region_dressing.gd`, `assets.gd` | 0137fa0d, 64b3698e |
@@ -120,6 +121,11 @@ NOT wired (unverified): everything in `docs/platform/boot_wiring_wip.patch` (app
 - Handoff for Codex: `docs/anim/free_library/HANDOFF_CODEX.md` (clip -> state, blend, root motion, event frames, `UAL_FILES` lines) and the HANDOFF table in the tech README.
 
 ## Backlog (animation, from the aaa-review loop)
+- (feel pass) Source and retarget run-stop, walk-start and 180° pivot clips (100STYLE/CMU) for P5; none exist in any loaded library.
+- (feel pass) NearRigPool: pooled foot IK for the N nearest NPCs, accepted only if the village HIGH bench is within 1 ms (P6).
+- (feel pass) Wolf `wolf2` model reads as a small dog and hides in the grass; scale it about 1.3x and re-check (F14).
+- (feel pass) Camera blockers for wells, canopies and overhangs; eased pull-in; a talk-shot camera (P4, F13).
+- (feel pass) Re-capture wolves and swimming with dedicated framing (the chase is too far, and the wading test did not reach swim depth).
 - Film a real phone clip and run `video_to_clip.ps1` (only synthetic tested); then replace the authored ladder/wall/vault with mocap.
 - Codex: fold the flinch OneShot->Add2 and the foot-IK toe probe / instant-rise into `CharacterAnimator` / `procedural_rig.gd`; add `animations_free*` to `Assets.UAL_FILES` (see HANDOFF_CODEX.md; the new folders need root motion disabled in `_ual_for`).
 - Attack clips have no weapon models in the reviews; check sword/staff clips with a prop attached.
@@ -271,3 +277,8 @@ AAA-review backlog from this task:
 - Art: antler rune channels are too wide and bright on the front beam (narrow the `Chn` line smoothstep); ivy leaves are sparse; neck braid and knot lines could be finer; check the saddle and belly gradient against the storybook reference; elk untouched apart from clips.
 - Walk foot slide was tuned only by the stance-speed metric (per-leg amplitude scale); confirm visually or use foot IK. Update the README speeds (Warden walk about 1.2 m/s, run about 5.6 m/s) from `stagborn_warden_metrics.json`.
 - Godot import and anim QA still not run.
+
+## 2026-09-29 perf round 2 (done)
+- RegionDressing cost hunt: NOT a cost (0.085 ms, nothing built at the lake); earlier 7 ms claim was noise on a busy PC. WorldSim slice time-budgeted (~0.7 ms saved). Tables in docs/qa/PERFORMANCE.md; renders in docs/qa/water_after/; boot flow QA passes with the character-creation step (docs/qa/boot_flow_after/).
+- Missing .gd.uid files added; boot_splash / ui backgrounds / IMFell fonts / UAL_Authored_Traversal .import files are already committed upstream. Kay_* duplicate-clip error did not reproduce on a fresh import (fixed upstream by the `_Repeat` rename); spinning-wheel no longer imports its broken animation.
+- Backlog: village view is the heaviest CPU view (13-16 ms): run --sysprof there; 2400 MultiMeshInstance3D nodes at the lake (merge per cell); a CPU-hog anim_tech Godot process (PID 87784, 5 h at 100 %) from another session skews all benchmarks; Mobile renderer prints mipmap errors with the ULTRA water shader; tree canopy still a bit cooler than the reference.

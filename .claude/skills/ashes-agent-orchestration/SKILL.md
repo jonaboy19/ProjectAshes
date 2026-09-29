@@ -36,3 +36,6 @@ description: How the local Rising Ashes session splits work across subagents che
 - Agents delete frame PNGs right after making sheets, and delete `kingdom/.godot` plus the worktree when done.
 - Never permanently delete user files. Send them to the Recycle Bin in batches smaller than the bin capacity (about 49 GB on C:), and the owner empties it.
 - If the disk gets low, message every agent: push work in progress, pause imports.
+- **Orphan processes.** Every Godot or Blender run needs a timeout (`--quit-after`, or a watchdog). Before finishing, an agent kills the PIDs it started (check `Get-Process` against the start time and command line).
+  - On 2026-09-29 a forgotten anim_tech bench burned 100% of a core for 6.6 hours and invalidated every perf measurement that day.
+  - Perf agents first list running Godot and Blender processes, then report the machine load next to their numbers.

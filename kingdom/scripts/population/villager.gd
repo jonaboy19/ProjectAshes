@@ -255,6 +255,9 @@ func _exit_tree() -> void:
 ## (e.g. a procedural rig: `model.add_child(ProceduralRig.new())`). Called once,
 ## right after the model, AnimationPlayer and head look exist.
 func _attach_components(_model: Node3D) -> void:
+	# NPC foot IK via ProceduralRig was tried here and measured at -14..-22 fps on HIGH in
+	# the village bench (rig modifiers keep every resident's skeleton updating each frame);
+	# see docs/anim/patches/P6_npc_foot_ik_cost.md before re-enabling.
 	pass
 
 
@@ -802,7 +805,7 @@ func _update_activity(delta: float) -> void:
 	_step_distance = 0.0
 	if _anim == null:
 		return
-	_anim.speed_scale = 1.0
+	_anim.speed_scale = _idle_rate() if _anim.current_animation == "Idle" else 1.0
 	# Work only once actually at the spot; waiting, yielding or stopped mid-route idles.
 	var activity := _activity_want if _arrived and _yield_time <= 0.0 else ""
 	if activity != _activity_name:
@@ -825,7 +828,8 @@ func _update_activity(delta: float) -> void:
 		_activity_pause = randf_range(0.8, 1.8)
 		_activity_needs_start = true
 		_play("Idle")
-	_anim.speed_scale = 1.0
+	# Idle breathes at a per-person rate so a crowd never sways in unison (FEEL_AUDIT F9).
+	_anim.speed_scale = _idle_rate() if _anim.current_animation == "Idle" else 1.0
 	_work_cue(activity)
 
 
@@ -888,3 +892,13 @@ func _first_clip(names: Array) -> String:
 func _play(anim_name: String) -> void:
 	if _anim and _anim.current_animation != anim_name:
 		_anim.play(anim_name, 0.2)
+		if anim_name == "Idle":
+			# Enter the idle at this person's own point in the loop, not frame 0 (FEEL_AUDIT F9).
+			var length := _anim.current_animation_length
+			if length > 0.0:
+				_anim.seek(fmod(float(person) * 0.381966 + randf() * 0.2, 1.0) * length)
+
+
+## Per-person idle playback rate, 0.9-1.1 (stable for a person).
+func _idle_rate() -> float:
+	return 0.9 + 0.2 * fmod(float(person) * 0.618034, 1.0)

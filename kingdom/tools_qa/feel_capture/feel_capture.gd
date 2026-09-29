@@ -42,7 +42,7 @@ func _ready() -> void:
 		only = String(args["only"]).split(",", false)
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	_csv = FileAccess.open(out_dir.path_join("telemetry.csv"), FileAccess.WRITE)
-	_csv.store_line("frame,scenario,x,y,z,real_speed,move_speed,anim_speed,model_yaw_deg,yaw_rate,loco_blend,gait_rate,cam_x,cam_y,cam_z,on_floor,process_ms")
+	_csv.store_line("frame,scenario,x,y,z,real_speed,move_speed,anim_speed,model_yaw_deg,yaw_rate,loco_blend,gait_rate,cam_x,cam_y,cam_z,on_floor,process_ms,render_cam_dist,render_body_x,render_body_z")
 	_index = FileAccess.open(out_dir.path_join("scenarios.txt"), FileAccess.WRITE)
 	get_window().size = Vector2i(W, H)
 	var layer := CanvasLayer.new()
@@ -91,10 +91,13 @@ func _telemetry() -> void:
 		rate = float(anim.tree.get("parameters/gait_rate/scale"))
 	var cp := player.camera.global_position if player.camera else Vector3.ZERO
 	var pms := Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0
-	_csv.store_line("%d,%s,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.2f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.2f" % [
+	# What is actually drawn this frame (physics interpolation applied).
+	var rb := player._model.get_global_transform_interpolated().origin
+	var rc := player.camera.get_global_transform_interpolated().origin if player.camera else rb
+	_csv.store_line("%d,%s,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.2f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.2f,%.3f,%.3f,%.3f" % [
 		frame, scn, player.global_position.x, player.global_position.y, player.global_position.z,
 		rs, player._move_speed, anim.shown_speed() if anim else 0.0, yaw, player._yaw_rate, loco, rate,
-		cp.x, cp.y, cp.z, 1 if player.is_on_floor() else 0, pms])
+		cp.x, cp.y, cp.z, 1 if player.is_on_floor() else 0, pms, rb.distance_to(rc), rb.x, rb.z])
 	_label.text = "FEEL %s  f%d  t%.2fs | body %.2f m/s  anim %.2f  loco %.2f  rate %.2f | face %.0f°" % [
 		scn, frame - _scn_start, (frame - _scn_start) / FPS, rs, anim.shown_speed() if anim else 0.0, loco, rate, yaw]
 
@@ -446,18 +449,14 @@ func _s10_13_combat() -> void:
 	await teleport(wild, 0.0, 30)
 	var fwd := Vector2(-sin(player._yaw), -cos(player._yaw))
 	var orc := _spawn_orc(wild + fwd * 5.0)
-	player.set_camera(yaw_to(orc.global_position), -0.24)
+	player.set_camera(yaw_to(orc.global_position) + 1.0, -0.22)   # side-on: both bodies readable
 	player.stamina = Player.MAX_STAMINA
 	player.health = player.max_health
-	await frames(20)
+	await frames(40)
+	log_line("orc at %.1f m, state %d" % [orc.global_position.distance_to(player.global_position), orc.state])
 	if want("10"):
 		begin("10_combo_on_orc")
 		for i in 4:
-			var to := orc.global_position - player.global_position
-			if Vector2(to.x, to.z).length() > 2.0:
-				key(KEY_W, true)
-				await frames(8)
-				key(KEY_W, false)
 			await tap(KEY_J)
 			await frames(12)
 		await frames(45)
@@ -492,7 +491,7 @@ func _s10_13_combat() -> void:
 		player.stamina = Player.MAX_STAMINA
 		player.health = player.max_health
 		if is_instance_valid(orc) and not orc.dead:
-			player.set_camera(yaw_to(orc.global_position), -0.24)
+			player.set_camera(yaw_to(orc.global_position) + 1.0, -0.22)
 		begin("13_get_hit_idle")
 		await frames(150)
 		player.health = player.max_health
@@ -539,9 +538,26 @@ func _s14_talk() -> void:
 func _s15_crowd() -> void:
 	var s: Dictionary = WorldGen.settlements[0]
 	var c: Vector2 = s["pos"]
-	await teleport(c - _gate_dir() * 4.0, 0.0, 60)
+	await teleport(c - _gate_dir() * 4.0, 0.0, 90)
 	player.set_view(Player.View.THIRD)
-	player.set_camera(yaw_to(ground(c + _gate_dir() * 12.0)), -0.35)
+	# Look at the densest knot of embodied residents within 30 m.
+	var best := c + _gate_dir() * 12.0
+	var best_n := -1
+	for v in get_tree().get_nodes_in_group("villager"):
+		var vp := (v as Node3D).global_position
+		if vp.distance_to(player.global_position) > 30.0:
+			continue
+		var n := 0
+		for w in get_tree().get_nodes_in_group("villager"):
+			if (w as Node3D).global_position.distance_to(vp) < 6.0:
+				n += 1
+		if n > best_n:
+			best_n = n
+			best = Vector2(vp.x, vp.z)
+	var to2 := best - Vector2(player.global_position.x, player.global_position.z)
+	await teleport(best - to2.normalized() * 7.0, 0.0, 30)
+	player.set_camera(yaw_to(ground(best)), -0.3)
+	log_line("crowd knot of %d at %s" % [best_n, best])
 	begin("15_crowd_plaza")
 	await frames(60)
 	_look_px = 6.0
@@ -570,6 +586,10 @@ func _s16_wolves() -> void:
 	player.set_camera(yaw_to(ground(wild + fwd * 20.0)), -0.2)
 	begin("16_wolves_chase_attack")
 	await frames(60)
+	for w in pack:
+		log_line("wolf valid=%s pos=%s d=%.1f state=%s" % [is_instance_valid(w), (w as Node3D).global_position if is_instance_valid(w) else Vector3.ZERO, (w as Node3D).global_position.distance_to(player.global_position) if is_instance_valid(w) else -1.0, str(w.state) if is_instance_valid(w) else "-"])
+		if is_instance_valid(w):
+			log_line("  wolf model=%s vis=%s kind=%s aabb_nodes=%d" % [str(w._model), str(w.is_visible_in_tree()), w._kind, (w as Node).find_children("*", "MeshInstance3D", true, false).size()])
 	# Back-pedal a little so they chase, then stand and take them.
 	key(KEY_S, true)
 	await frames(30)

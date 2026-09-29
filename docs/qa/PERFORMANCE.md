@@ -340,3 +340,75 @@ counted from the built scene (`kingdom/tests/test_market_dressing.gd` prints the
   instances per village (one batch per 40 m cell): zero extra draws on the terrain.
 * **Collapsed tower**: same 618-tri mesh, new texture only.
 * QA switches for A/B renders and benches: `-- --no-goods`, `-- --no-decals`, `-- --legacy-plaza`.
+
+## 2026-09-29: why the water views were slow (PARTIAL: interrupted by a full disk)
+
+Tool: `bash tools/qa/water_shots/prof.sh <out.jsonl> lake,river,pier` (`water_prof.gd`). Configs are measured round-robin in
+25-frame bursts, 8 rounds, and each reports its **best round's median** (the machine was busy with other agents' imports and
+renders, so plain averages were useless: 24-140 ms frames). Raw data: `docs/qa/water_prof/water_prof_2026-09-29.jsonl`
+(`ms_best`, `gpu_best`, `proc_best`, draws, prims per view x tier x config). 3D viewport 1280x720, RTX 4070 Laptop, Forward+.
+
+**Root cause (so far): the water shader is not the problem, the frame is CPU-bound.**
+* GPU time per frame (best): LOW 0.5-0.8 ms, MEDIUM 1.7, HIGH 4-5, ULTRA 6-10 ms. Water is 0.3-1.2 ms of that
+  (baseline minus `water_off`). New clear-water vs old shader: within +-0.3 ms GPU in every view and tier (noise level).
+* Frame time (best round) is 24-34 ms for EVERY config: LOW, HIGH, water off, half-res 3D, no shadows, no post effects. Changing
+  GPU work by 3-5 ms moves nothing, so the frame is limited by CPU (plus other processes competing for it).
+* CPU ablation at the lake, HIGH (`--sysprof`, process+physics switched off per node): only **RegionDressing**
+  (`scripts/world/region_dressing.gd` and its subtree) matters: 28.0 -> 20.7 ms best, p99 50 -> 28 ms. Every other autoload and world
+  child is within +-3 ms of noise (WorldSim, Life, Frontier, Audio, population, soldiers, ...).
+* Draw calls 180-690 and primitives 0.17-1.4 M are inside the budget except river/ULTRA (1.5 M).
+* Shader features (caustics, glints, screen/depth read) each cost < 0.3 ms GPU on the desktop; on tile-based phone GPUs the
+  screen/depth texture read is the expensive part (render-pass split), see the fix below.
+
+Not yet done: what inside the RegionDressing subtree costs ~7 ms (my `--census` flag prints the per-frame processing nodes, lights
+and colliders; not run), a village control run under the same load, before/after screenshots, frame sheets, the mobile renderer.
+
+**Shader change (committed, needs a visual check + LOW screenshot):** `clear_water.gdshader` now compiles a `WATER_LITE` variant
+(no `hint_screen_texture`, no `hint_depth_texture`) for LOW/Compatibility (`WaterStreamer.apply_quality` swaps it in). Before,
+LOW still declared both textures, so the engine copied the frame every frame even though no branch read it. The screen copy also
+lost its mipmaps (only LOD 0 was read). Desktop GPU cost is unchanged (0.5 ms level); the gain is expected on Mali/Adreno.
+
+### 2026-09-29 (local, follow-up, INCOMPLETE: stopped by usage limit, no code changed)
+Nothing new was measured. Findings from reading `region_dressing.gd` and `water_prof.gd`:
+* `RegionDressing._process` itself is cheap (2 ms build queue, a 0.75 s site scan, a few sails and flicker lights); `Breakable.tick` is O(1) per frame unless a swing happens. The scan cost is not per frame.
+* The earlier "RegionDressing = 7 ms" ablation used `process_mode = DISABLED` on the subtree. In Godot 4 that also removes every CollisionObject3D in the subtree from the physics space and stops all child processing, so the 7 ms may be physics colliders (per-part StaticBody3D + Breakable bodies), OmniLights (up to one per site light, unshadowed) or the render cost of the site nodes, not script time. Next step: split the ablation into (a) `set_process(false)` only, (b) `visible = false`, (c) colliders disabled, (d) lights hidden, and run `--census` (already in `water_prof.gd`).
+* The machine was very busy (about 9 Godot processes from other agents: anim_tech, PA_wt_crash boots, imports), so frame times are unreliable; use best-of-N rounds only.
+* Still to do: before/after table, WATER_LITE and canopy renders, frame sheet, missing .import/.uid files, Kay_* duplicate clip names, spinning-wheel/spindle error, boot_flow test, remove origin/tmp-water2 (kept for now).
+
+### 2026-09-29 (local, round 2): RegionDressing is NOT the cost; measured properly
+Tool: `tools/qa/water_shots/prof.sh` (`water_prof.gd`), Mobile renderer, 1600x900 window (3D 1280x720), RTX 4070 Laptop, best-of-N round-robin
+bursts. **Caveat: the PC was shared with 9-12 other Godot processes (one anim_tech instance at 100 % CPU for 5 h) and had 1.4 GB free RAM,
+so absolute numbers move by 2-4 ms between runs; only same-run comparisons are meaningful.** Raw data: `docs/qa/water_prof/water_prof_2026-09-29.jsonl` (round 1) and the numbers quoted here (round 2 logs were console-only).
+
+**RegionDressing split ablation (lake, LOW, mobile; `--rdprof`):** at the lake no site is built (`built=0`, 0 nodes, 0 lights, 0 colliders) and
+its `_process` costs 0.085 ms/frame (Time.get_ticks_usec counters `dbg_usec/dbg_frames`). Script off / colliders off / lights off / meshes hidden /
+shadows off / whole node hidden / process DISABLED are all within noise of baseline (12.1-14.1 ms vs 14.1 baseline in one run, spread of
++-2 ms between identical configs). The earlier "28 -> 20.7 ms" was measurement noise from a busy machine. Nothing to fix there; only the
+0.75 s site scan and the 2 ms build budget exist, and both are already sliced. (Census at the lake: 3896 nodes, 2400 MultiMeshInstance3D, 193 shapes.)
+
+**CPU ablation per system (lake, LOW, best of 5):** baseline 11.4 ms; hide all world 9.9; hide multimesh 10.4; hide terrain 10.1; hide NPCs 10.6;
+every script system within +-1 ms (noise) except **WorldSim off = 7.6 ms (-3.9 ms)**. Note that switching WorldSim off also freezes the clock
+(no `hour_changed` listeners), so this over-states its own script. Direct timing of `WorldSim._simulate_slice`: **1.2 ms/frame** (1500 of ~20 000 people
+per frame in GDScript).
+
+**Fix (`autoload/world_sim.gd`, shared code, see LOCAL_SESSION_HANDOFF):** `_simulate_slice` now has a time budget (`BUDGET_US = 500`),
+updates the people of settlements within 320 m of the player first (whole near set every ~4 frames, rebuilt every 1.5 s), and gives the rest of the
+budget to the global cursor. Movement was already dt-based, so the slower far cycle is equivalent. Measured slice time 1.18-1.21 ms -> 1.04 ms at a 1 ms
+budget; the shipped 0.5 ms budget should be about 0.5 ms (not re-benchmarked under the shared load).
+
+**Before/after frame time (ms, best round of 4-6, LOW/HIGH, Mobile), same session, old vs new sim (budget 1 ms):**
+| view | old LOW | new LOW | old HIGH | new HIGH |
+|---|---|---|---|---|
+| lake | 9.7 | 9.6 | 11.1 | n/a |
+| village | 16.0 | 13.0 | 13.8 | n/a |
+Earlier full grid (`ab_*` first pass, load differed between runs, so NOT comparable): old 9.1/6.4/8.1/12.6 (LOW lake/pier/river/village), HIGH 11.1/7.6/7.9/13.8.
+Snapshot run with the shipped code (single 20-frame burst, indicative): lake LOW 11.3 / HIGH 12.4, river 13.8 / 13.9, pier 9.0 / 10.0 ms
+(`docs/qa/water_after/*.png` renders). **All views are at or under 16.6 ms on this PC (60 fps), LOW is <= 14 ms.** GPU time is 0.24-2.2 ms.
+Village is the most CPU-heavy view (13-16 ms); its per-system ablation is still to do (`--sysprof` currently runs at the lake only).
+Other CPU consumers seen at the lake: MultiMeshInstance3D count (2400 nodes), critters (19), soldiers (12), fishing spots (6): each < 1 ms in the ablation.
+
+**Visual check (read):** `docs/qa/water_after/lake_low.png` (WATER_LITE: clear blue shallows, soft reflection, no shore foam/caustics, reads fine),
+`lake_high.png` (full: caustics, foam, glints), `river_*.png`, `pier_*.png`; frame sheet of the animated river `docs/qa/water_after/frames/sheet_001.png`
+(ripple ring and glints move; no flicker). Tree canopy is warmer and fluffier than before but still slightly cooler/less golden than the reference gate market.
+Mobile renderer note: forward_plus-only runs at HIGH/ULTRA print "Index p_mipmap out of bounds / All attachments unused" errors when the water shader's
+screen texture is used on Mobile at the ULTRA setting; not investigated.

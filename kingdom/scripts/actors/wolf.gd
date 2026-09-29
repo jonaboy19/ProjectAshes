@@ -28,6 +28,10 @@ const LEGACY_MODEL := "res://assets/incoming/quaternius/ultimate-animated-animal
 const LEGACY_CLIPS := {"idle": "Idle", "walk": "Walk", "run": "Gallop", "attack": "Attack",
 	"hit": "Idle_HitReact1", "death": "Death"}
 const PLAYER_SOLID_RANGE := 16.0
+## Hit knockback plays out as a short slide (time constant KNOCK_TAU, same 0.12 m per
+## unit of knockback as before) instead of an instant teleport (FEEL_AUDIT F5).
+const KNOCK_TAU := 0.1
+const KNOCK_SHARE := 0.12
 const WORLD_LAYER := 1
 const ENEMY_LAYER := 4
 const ESCAPE_DISTANCE := 30.0     # a fleeing beast this far from the player has got away
@@ -96,6 +100,7 @@ var _think := 0.0
 var _attack_cd := 0.0
 var _busy := 0.0
 var _speed := 0.0
+var _knock := Vector3.ZERO        # sliding knockback velocity (m/s)
 var _actor_shape: CollisionShape3D
 var _winding := 0.0              # > 0 while an attack winds up
 var _strike_target: Node3D
@@ -169,6 +174,10 @@ func _exit_tree() -> void:
 func _physics_process(delta: float) -> void:
 	if dead:
 		return
+	if _knock.length_squared() > 0.0004:
+		move_and_collide(_knock * delta)
+		global_position.y = WorldGen.height(global_position.x, global_position.z)
+		_knock *= exp(-delta / KNOCK_TAU)
 	_think -= delta
 	_attack_cd -= delta
 	_busy -= delta
@@ -441,7 +450,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 	if dead:
 		return
 	health -= amount
-	global_position += knockback * 0.12
+	_knock += Vector3(knockback.x, 0.0, knockback.z) * (KNOCK_SHARE / KNOCK_TAU)
 	var hit_from := (from as Node3D).global_position if from is Node3D else Vector3.INF
 	if health <= 0:
 		dead = true
