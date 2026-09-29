@@ -26,6 +26,9 @@ _Last update: 2026-09-29_
 - Place the Meshy free-pack models in levels (see `docs/art/meshy_free/README.md`).
 - Wire the elemental VFX and clips into combat (Codex).
 
+## Tools
+- `tools/qa/video_to_sheets.sh` + skill `ashes-video-review`: stop-motion contact sheets for judging any motion (example in `docs/qa/video_review_example/`).
+
 ## Backlog (from the aaa-review loop)
 - Warm up the blue lower canopy on the fluffy-tree shader.
 - Fix the 4 HUD icons that still have faint smudges.
