@@ -236,6 +236,8 @@ func _build(s: Dictionary) -> Node3D:
 	_square_lamps(root, s, plan)
 	if s["kind"] != "village":
 		_gate_market(root, s, plan, rng)
+	else:
+		_village_square(root, s, plan, rng)
 	_greenery(root, s, plan, rng)
 	# Street clutter.
 	var street_clutter: Array[Transform3D] = []
@@ -927,6 +929,49 @@ func _square_lamps(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 ## on both sides near the gate, tall lanterns, red-and-gold banner poles, bunting
 ## strung across the street and flowers along the edges, thinning toward the plaza.
 ## Every piece is one MultiMesh batch per settlement.
+## Village squares in the same storybook dressing as the towns (smaller scale):
+## bunting strung from the square's lamps to the well, crown banners at the
+## entrances, flowers and a barrel or two at every house front.
+func _village_square(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator) -> void:
+	if not ResourceLoader.exists(Assets.GEN + "bunting.glb"):
+		return
+	var c: Vector2 = s["pos"]
+	var pr: float = plan["plaza_r"]
+	var batches := {}
+	var add := func(key: String, p: Vector2, yaw: float, lift := 0.0, stretch := 1.0) -> void:
+		if not batches.has(key):
+			batches[key] = [] as Array[Transform3D]
+		(batches[key] as Array[Transform3D]).append(Transform3D(Basis(Vector3.UP, yaw) * Basis.from_scale(Vector3(stretch, 1.0, 1.0)),
+			Vector3(p.x, WorldGen.height(p.x, p.y) - 0.03 + lift, p.y)))
+	# Bunting: spokes from the ring of square lamps toward the well, meeting overhead.
+	var n := 6
+	for i in n:
+		var a := TAU * (i + 0.5) / n
+		var mid := c + Vector2(cos(a), sin(a)) * (pr + 1.2) * 0.5
+		add.call("bunting", mid, atan2(-sin(a), cos(a)), 3.6, (pr + 1.2) / 8.0)
+	for g: float in plan["gates"]:
+		var gd := Vector2(cos(g), sin(g))
+		var gs := Vector2(-gd.y, gd.x)
+		for sd: float in [-1.0, 1.0]:
+			add.call("banner_pole", c + gd * (pr + 3.0) + gs * sd * 4.5, atan2(-gd.x, -gd.y))
+	for lot: Dictionary in plan["lots"]:
+		var asset := String(lot["asset"])
+		if not BuildingProfiles.is_house(asset):
+			continue
+		var yaw: float = lot["yaw"]
+		var fwd := Vector2(sin(yaw), cos(yaw))
+		var right := Vector2(fwd.y, -fwd.x)
+		var front: Vector2 = lot["pos"] + fwd * (BuildingProfiles.size_of(asset).z * 0.5 + 0.2)
+		for sd: float in [-1.0, 1.0]:
+			add.call("flower_strip", front + right * sd * 2.2, yaw + PI * 0.5)
+		if rng.randf() < 0.35:
+			add.call("barrel_cluster", front + right * 2.8 + fwd * 0.6, yaw + rng.randf_range(-0.5, 0.5))
+	for key: String in batches:
+		var mesh := Assets.building_mesh(key)
+		if mesh != null:
+			_multimesh_cells(root, mesh, batches[key], 40.0, 0.0, key != "bunting")
+
+
 func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator) -> void:
 	if not ResourceLoader.exists(Assets.GEN + "market_stall_red.glb"):
 		return
