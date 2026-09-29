@@ -359,7 +359,7 @@ func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 			# Photo-scanned undergrowth under trees, wildflowers in the open.
 			if density > 0.35:
 				kind = ["scan/fern_02", "scan/fern_02", "scan/shrub_03", "scan/nettle_plant", REGION + "bush_round", "scan/tree_stump_01",
-					"scan/tree_stump_02", "scan/root_cluster_01", "scan/fern_02"][rng.randi() % 9]
+					"scan/tree_stump_02", REGION + "log_mossy", "scan/fern_02"][rng.randi() % 9]
 			else:
 				kind = ["scan/dandelion_01", REGION + "bush_berry", REGION + "bush_hazel", REGION + "flowers_warm", "scan/shrub_03", "scan/fern_02"][rng.randi() % 6]
 		elif not on_settlement_slope and rng.randf() < 0.05:
