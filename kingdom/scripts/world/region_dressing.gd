@@ -76,10 +76,12 @@ func _drain_queue() -> void:
 	var t0 := Time.get_ticks_usec()
 	while not _queue.is_empty() and Time.get_ticks_usec() - t0 < BUILD_BUDGET_MS * 1000.0:
 		var item: Array = _queue[0]
-		var root: Node3D = item[0]
-		if not is_instance_valid(root):
+		# Variant first: assigning a freed Node to a typed var is a SCRIPT ERROR every frame.
+		var root_v: Variant = item[0]
+		if not is_instance_valid(root_v):
 			_queue.pop_front()
 			continue
+		var root: Node3D = root_v
 		var site: Dictionary = item[1]
 		if item[2] == "part":
 			var part: Array = site["parts"][item[3]]
