@@ -71,6 +71,8 @@ var choice := AUTO
 ## Tier in effect.
 var tier := HIGH
 var battery_saver := false
+## Player resolution scale for the 3D view (0.5-1.0), from the settings screen (App.refresh).
+var render_scale := 1.0
 ## The tier AUTO settled on (saved so the next launch starts there).
 var auto_tier := -1
 var detected_reason := ""
@@ -141,6 +143,14 @@ func set_choice(c: int) -> void:
 		_measuring = false
 		_set_tier(c)
 	_save()
+
+
+func set_render_scale(s: float) -> void:
+	s = clampf(s, 0.5, 1.0)
+	if is_equal_approx(s, render_scale):
+		return
+	render_scale = s
+	_apply_viewports()
 
 
 func set_battery_saver(on: bool) -> void:
@@ -404,6 +414,7 @@ func _apply_viewport(v: Viewport) -> void:
 	var scale := 1.0
 	if max_h > 0 and h > 0.0:
 		scale = clampf(max_h / h, 0.4, 1.0)
+	scale = clampf(scale * render_scale, 0.4, 1.0)
 	v.scaling_3d_scale = scale
 	if value("scaling") == "fsr" and not compat and scale < 0.99:
 		v.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR

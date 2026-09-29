@@ -1,0 +1,517 @@
+{
+  "baseline_ms_per_char": 0.0533023001949318,
+  "counts": [
+    1,
+    10,
+    25,
+    50
+  ],
+  "per_char": [
+    {
+      "id": "loco_tree",
+      "label": "synced locomotion blend space (AnimationTree)",
+      "method": "manual advance timer",
+      "ms_per_char": 0.095385730994152,
+      "phone_ms_per_char": 0.47692865497076
+    },
+    {
+      "id": "flinch_idle",
+      "label": "additive flinch tree, idle",
+      "method": "manual advance timer",
+      "ms_per_char": 0.0952980116959064,
+      "phone_ms_per_char": 0.476490058479532
+    },
+    {
+      "id": "flinch_hit",
+      "label": "additive flinch tree, hit every 0.6 s",
+      "method": "manual advance timer",
+      "ms_per_char": 0.12319044834308,
+      "phone_ms_per_char": 0.6159522417154
+    },
+    {
+      "id": "lean_aim",
+      "label": "lean + aim twist (SkeletonModifier3D)",
+      "method": "manual advance timer",
+      "ms_per_char": 0.00575961013645224,
+      "phone_ms_per_char": 0.0287980506822612
+    },
+    {
+      "id": "look_at",
+      "label": "head look-at (2x LookAtModifier3D)",
+      "method": "manual advance timer",
+      "ms_per_char": 0.00534101364522416,
+      "phone_ms_per_char": 0.0267050682261208
+    },
+    {
+      "id": "foot_ik",
+      "label": "foot IK + toe probe (2x TwoBoneIK3D, 6 rays/tick)",
+      "method": "manual advance timer",
+      "ms_per_char": 0.0562682651072125,
+      "phone_ms_per_char": 0.281341325536062
+    },
+    {
+      "id": "cape",
+      "label": "cape springs (12 spring bones + skinned quad)",
+      "method": "manual advance timer",
+      "ms_per_char": 0.00550857699805067,
+      "phone_ms_per_char": 0.0275428849902534
+    },
+    {
+      "id": "root_motion",
+      "label": "root motion + motion warp step",
+      "method": "manual advance timer",
+      "ms_per_char": 0.0740473684210526,
+      "phone_ms_per_char": 0.370236842105263
+    },
+    {
+      "id": "partial_ragdoll",
+      "label": "partial ragdoll hit reaction (cap 3 live)",
+      "method": "wall slope",
+      "ms_per_char": 0.370959064327486,
+      "phone_ms_per_char": 1.85479532163743
+    },
+    {
+      "id": "full_ragdoll",
+      "label": "full ragdoll, simulating (cap 3 live)",
+      "method": "wall slope",
+      "ms_per_char": 0.0174678362573113,
+      "phone_ms_per_char": 0.0873391812865565
+    }
+  ],
+  "phone_factor": 5.0,
+  "results": {
+    "cape": {
+      "label": "cape springs (12 spring bones + skinned quad)",
+      "runs": [
+        {
+          "anim_ms": 0.103122807017544,
+          "n": 1,
+          "wall_max": 8.283,
+          "wall_ms": 4.79020467836257,
+          "wall_p95": 6.453
+        },
+        {
+          "anim_ms": 0.613877192982456,
+          "n": 10,
+          "wall_max": 8.885,
+          "wall_ms": 6.11383625730994,
+          "wall_p95": 8.277
+        },
+        {
+          "anim_ms": 1.40761403508772,
+          "n": 25,
+          "wall_max": 17.608,
+          "wall_ms": 9.16330409356726,
+          "wall_p95": 11.226
+        },
+        {
+          "anim_ms": 2.93701754385965,
+          "n": 50,
+          "wall_max": 18.819,
+          "wall_ms": 13.3925438596491,
+          "wall_p95": 17.046
+        }
+      ]
+    },
+    "clip": {
+      "label": "plain clip (baseline)",
+      "runs": [
+        {
+          "anim_ms": 0.108385964912281,
+          "n": 1,
+          "wall_max": 7.948,
+          "wall_ms": 4.48202923976608,
+          "wall_p95": 6.634
+        },
+        {
+          "anim_ms": 0.623614035087719,
+          "n": 10,
+          "wall_max": 8.306,
+          "wall_ms": 5.48112280701754,
+          "wall_p95": 7.574
+        },
+        {
+          "anim_ms": 1.01265497076023,
+          "n": 25,
+          "wall_max": 143.153666666667,
+          "wall_ms": 4.31748538011696,
+          "wall_p95": 5.957
+        },
+        {
+          "anim_ms": 2.8519649122807,
+          "n": 50,
+          "wall_max": 14.903,
+          "wall_ms": 9.76622222222223,
+          "wall_p95": 12.907
+        }
+      ]
+    },
+    "flinch_hit": {
+      "label": "additive flinch tree, hit every 0.6 s",
+      "runs": [
+        {
+          "anim_ms": 0.213953216374269,
+          "n": 1,
+          "wall_max": 16.243,
+          "wall_ms": 3.60721052631579,
+          "wall_p95": 5.853
+        },
+        {
+          "anim_ms": 1.92464912280702,
+          "n": 10,
+          "wall_max": 9.917,
+          "wall_ms": 6.8476432748538,
+          "wall_p95": 8.743
+        },
+        {
+          "anim_ms": 4.30712865497076,
+          "n": 25,
+          "wall_max": 37.45,
+          "wall_ms": 10.1872631578947,
+          "wall_p95": 13.909
+        },
+        {
+          "anim_ms": 8.23640935672515,
+          "n": 50,
+          "wall_max": 21.221,
+          "wall_ms": 15.4566783625731,
+          "wall_p95": 19.799
+        }
+      ]
+    },
+    "flinch_idle": {
+      "label": "additive flinch tree, idle",
+      "runs": [
+        {
+          "anim_ms": 0.220216374269006,
+          "n": 1,
+          "wall_max": 7.639,
+          "wall_ms": 4.62725146198831,
+          "wall_p95": 6.197
+        },
+        {
+          "anim_ms": 1.5583216374269,
+          "n": 10,
+          "wall_max": 24.899,
+          "wall_ms": 6.66719298245614,
+          "wall_p95": 8.561
+        },
+        {
+          "anim_ms": 3.49162573099415,
+          "n": 25,
+          "wall_max": 21.138,
+          "wall_ms": 9.01943274853801,
+          "wall_p95": 11.962
+        },
+        {
+          "anim_ms": 7.51518713450292,
+          "n": 50,
+          "wall_max": 19.542,
+          "wall_ms": 14.8269941520468,
+          "wall_p95": 18.536
+        }
+      ]
+    },
+    "foot_ik": {
+      "label": "foot IK + toe probe (2x TwoBoneIK3D, 6 rays/tick)",
+      "runs": [
+        {
+          "anim_ms": 0.174766081871345,
+          "n": 1,
+          "wall_max": 6.966,
+          "wall_ms": 3.72890643274854,
+          "wall_p95": 4.932
+        },
+        {
+          "anim_ms": 1.20004678362573,
+          "n": 10,
+          "wall_max": 10.937,
+          "wall_ms": 7.80216959064327,
+          "wall_p95": 9.917
+        },
+        {
+          "anim_ms": 2.6884269005848,
+          "n": 25,
+          "wall_max": 17.947,
+          "wall_ms": 11.8263274853801,
+          "wall_p95": 15.583
+        },
+        {
+          "anim_ms": 5.05849707602339,
+          "n": 50,
+          "wall_max": 35.193,
+          "wall_ms": 19.5067777777778,
+          "wall_p95": 26.143
+        }
+      ]
+    },
+    "full_ragdoll": {
+      "label": "full ragdoll, simulating (cap 3 live)",
+      "runs": [
+        {
+          "anim_ms": 0.000853801169590644,
+          "n": 1,
+          "wall_max": 7.384,
+          "wall_ms": 4.49949707602339,
+          "wall_p95": 5.941
+        }
+      ]
+    },
+    "lean_aim": {
+      "label": "lean + aim twist (SkeletonModifier3D)",
+      "runs": [
+        {
+          "anim_ms": 0.100836257309942,
+          "n": 1,
+          "wall_max": 7.828,
+          "wall_ms": 4.63916374269006,
+          "wall_p95": 6.451
+        },
+        {
+          "anim_ms": 0.675678362573099,
+          "n": 10,
+          "wall_max": 9.287,
+          "wall_ms": 6.19891812865497,
+          "wall_p95": 8.049
+        },
+        {
+          "anim_ms": 1.38046198830409,
+          "n": 25,
+          "wall_max": 12.902,
+          "wall_ms": 7.70933333333334,
+          "wall_p95": 9.979
+        },
+        {
+          "anim_ms": 2.71997076023392,
+          "n": 50,
+          "wall_max": 19.345,
+          "wall_ms": 11.5476315789474,
+          "wall_p95": 15.658
+        }
+      ]
+    },
+    "loco_tree": {
+      "label": "synced locomotion blend space (AnimationTree)",
+      "runs": [
+        {
+          "anim_ms": 0.198666666666667,
+          "n": 1,
+          "wall_max": 7.706,
+          "wall_ms": 4.38922222222222,
+          "wall_p95": 6.564
+        },
+        {
+          "anim_ms": 1.44338011695906,
+          "n": 10,
+          "wall_max": 10.205,
+          "wall_ms": 5.86614619883041,
+          "wall_p95": 8.141
+        },
+        {
+          "anim_ms": 3.97470760233918,
+          "n": 25,
+          "wall_max": 13.952,
+          "wall_ms": 9.52736842105263,
+          "wall_p95": 12.862
+        },
+        {
+          "anim_ms": 7.13688888888889,
+          "n": 50,
+          "wall_max": 34.713,
+          "wall_ms": 14.5743450292398,
+          "wall_p95": 18.664
+        }
+      ]
+    },
+    "look_at": {
+      "label": "head look-at (2x LookAtModifier3D)",
+      "runs": [
+        {
+          "anim_ms": 0.112099415204678,
+          "n": 1,
+          "wall_max": 8.171,
+          "wall_ms": 4.82945614035088,
+          "wall_p95": 7.162
+        },
+        {
+          "anim_ms": 0.521608187134503,
+          "n": 10,
+          "wall_max": 7.368,
+          "wall_ms": 4.63526315789474,
+          "wall_p95": 6.174
+        },
+        {
+          "anim_ms": 1.61039766081871,
+          "n": 25,
+          "wall_max": 13.034,
+          "wall_ms": 8.82206432748538,
+          "wall_p95": 10.543
+        },
+        {
+          "anim_ms": 2.96766081871345,
+          "n": 50,
+          "wall_max": 17.079,
+          "wall_ms": 12.4167076023392,
+          "wall_p95": 15.902
+        }
+      ]
+    },
+    "partial_ragdoll": {
+      "label": "partial ragdoll hit reaction (cap 3 live)",
+      "runs": [
+        {
+          "anim_ms": 0.000947368421052632,
+          "n": 1,
+          "wall_max": 12.414,
+          "wall_ms": 4.85298830409357,
+          "wall_p95": 7.244
+        }
+      ]
+    },
+    "root_motion": {
+      "label": "root motion + motion warp step",
+      "runs": [
+        {
+          "anim_ms": 0.199017543859649,
+          "n": 1,
+          "wall_max": 16.134,
+          "wall_ms": 3.69769590643275,
+          "wall_p95": 5.415
+        },
+        {
+          "anim_ms": 1.36894152046784,
+          "n": 10,
+          "wall_max": 77.754,
+          "wall_ms": 6.61604093567251,
+          "wall_p95": 8.583
+        },
+        {
+          "anim_ms": 3.0883918128655,
+          "n": 25,
+          "wall_max": 128.689,
+          "wall_ms": 8.28579532163742,
+          "wall_p95": 11.043
+        },
+        {
+          "anim_ms": 6.08095906432748,
+          "n": 50,
+          "wall_max": 144.439666666667,
+          "wall_ms": 13.211730994152,
+          "wall_p95": 16.868
+        }
+      ]
+    }
+  },
+  "tier_table": {
+    "HIGH": {
+      "afford": 4,
+      "budget_ms": 1.2,
+      "ms_per_char": 0.290427602339181,
+      "phone_ms_per_char": 1.45213801169591
+    },
+    "LOW": {
+      "afford": 41,
+      "budget_ms": 2.4,
+      "ms_per_char": 0.0577913450292398,
+      "phone_ms_per_char": 0.288956725146199
+    },
+    "MEDIUM": {
+      "afford": 5,
+      "budget_ms": 1.2,
+      "ms_per_char": 0.217986276803119,
+      "phone_ms_per_char": 1.08993138401559
+    }
+  },
+  "tiers": {
+    "HIGH": [
+      {
+        "anim_ms": 0.376760233918129,
+        "n": 1,
+        "wall_max": 7.934,
+        "wall_ms": 4.33469590643275,
+        "wall_p95": 5.702
+      },
+      {
+        "anim_ms": 3.02991812865497,
+        "n": 10,
+        "wall_max": 22.803,
+        "wall_ms": 10.1575614035088,
+        "wall_p95": 14.036
+      },
+      {
+        "anim_ms": 7.11704093567251,
+        "n": 25,
+        "wall_max": 29.211,
+        "wall_ms": 20.3084795321637,
+        "wall_p95": 24.723
+      },
+      {
+        "anim_ms": 14.1804678362573,
+        "n": 50,
+        "wall_max": 76.526,
+        "wall_ms": 39.2823567251462,
+        "wall_p95": 47.81
+      }
+    ],
+    "LOW": [
+      {
+        "anim_ms": 0.101584795321637,
+        "n": 1,
+        "wall_max": 7.904,
+        "wall_ms": 4.53108187134503,
+        "wall_p95": 6.726
+      },
+      {
+        "anim_ms": 0.632608187134503,
+        "n": 10,
+        "wall_max": 10.954,
+        "wall_ms": 5.48083040935672,
+        "wall_p95": 7.671
+      },
+      {
+        "anim_ms": 1.35312865497076,
+        "n": 25,
+        "wall_max": 10.313,
+        "wall_ms": 6.57549122807018,
+        "wall_p95": 8.91
+      },
+      {
+        "anim_ms": 2.79940350877193,
+        "n": 50,
+        "wall_max": 15.102,
+        "wall_ms": 9.53121637426901,
+        "wall_p95": 11.655
+      }
+    ],
+    "MEDIUM": [
+      {
+        "anim_ms": 0.341181286549708,
+        "n": 1,
+        "wall_max": 8.773,
+        "wall_ms": 4.79412280701755,
+        "wall_p95": 6.465
+      },
+      {
+        "anim_ms": 2.2887485380117,
+        "n": 10,
+        "wall_max": 10.667,
+        "wall_ms": 6.70933333333334,
+        "wall_p95": 8.708
+      },
+      {
+        "anim_ms": 5.13219883040936,
+        "n": 25,
+        "wall_max": 17.563,
+        "wall_ms": 10.7808070175439,
+        "wall_p95": 13.896
+      },
+      {
+        "anim_ms": 10.9898011695906,
+        "n": 50,
+        "wall_max": 26.186,
+        "wall_ms": 20.1187953216374,
+        "wall_p95": 23.88
+      }
+    ]
+  }
+}

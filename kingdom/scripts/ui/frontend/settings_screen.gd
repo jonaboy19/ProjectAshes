@@ -165,6 +165,7 @@ func _tab_graphics() -> void:
 	_row("textures", "Textures", "opt", SS.LEVELS)
 	_row("effects", "Effects", "opt", SS.LEVELS)
 	_row("fps_limit", "Frame Rate Limit", "opt", ["30", "60", "Unlimited"])
+	_row("render_scale", "Resolution Scale", "slider", [], "50-100 % of the screen resolution for the 3D view. Lower is faster and cooler.")
 
 
 func _tab_audio() -> void:
@@ -179,6 +180,8 @@ func _tab_gameplay() -> void:
 	_row("difficulty", "Difficulty", "opt", DIFFICULTY)
 	_row("cam_sens", "Camera Sensitivity", "slider", [])
 	_row("invert_y", "Invert Y Axis", "toggle", [])
+	_row("joystick_size", "Joystick Size", "slider", [], "Size of the on-screen movement stick (touch).")
+	_row("vibration", "Vibration", "toggle", [], "Feel hits and damage on phones.")
 	_row("subtitles", "Subtitles", "toggle", [])
 	_row("hud_minimap", "HUD: Minimap", "toggle", [])
 	_row("hud_compass", "HUD: Compass", "toggle", [])
@@ -200,7 +203,7 @@ func _tab_controls() -> void:
 
 
 func _tab_language() -> void:
-	_row("language", "Language", "opt", ["English"])
+	_row("language", "Language", "opt", ["English", "Nederlands"])
 	for l: String in ["Français", "Deutsch", "Español", "Português", "日本語"]:
 		var r := SelRow.new()
 		r.setup("", l, "info", [], "Coming soon")
@@ -213,7 +216,7 @@ func _tab_access() -> void:
 	_row("text_size", "Text Size", "opt", ["Small", "Normal", "Large", "Extra Large"])
 	_row("colorblind", "Colour-Blind Mode", "opt", ["Off", "Protanopia", "Deuteranopia", "Tritanopia"])
 	_row("screen_shake", "Screen Shake", "opt", ["Off", "Reduced", "Full"])
-	_content.add_child(AF.label("Colour-blind filters are a placeholder and will be applied in a later update.", 15, AF.TEXT_DIM, true))
+	_content.add_child(AF.label("Colour-blind mode shifts the colours so red, green and blue stay easy to tell apart.", 15, AF.TEXT_DIM, true))
 
 
 func _on_changed(key: String, value: Variant) -> void:
