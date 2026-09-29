@@ -37,6 +37,9 @@ var discovery := preload("res://scripts/sim/discovery.gd").new()
 var relationships := preload("res://scripts/sim/relationships.gd").new()
 var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
 var crafting := preload("res://scripts/sim/crafting.gd").new()
+const WorldEventLog := preload("res://scripts/systems/world_event_log.gd")
+## Bounded facts from player actions, available to future dialogue/simulation consumers.
+var world_events = WorldEventLog.new()
 var equipment := preload("res://scripts/sim/equipment.gd").new()
 var skills := preload("res://scripts/sim/skills.gd").new()
 ## Careers as biography (docs/RISING_ASHES_LIFE_SIM_DESIGN.md): mastery only grows by doing,
@@ -115,6 +118,11 @@ func _ready() -> void:
 		employment_changed.emit())
 	crafting.crafted.connect(func(res: Dictionary) -> void:
 		var sk := String(res.get("skill", ""))
+		var item_id := String(res.get("item", ""))
+		world_events.publish("item_crafted", "player", "item:" + item_id if not item_id.is_empty() else "", _abs_hours(), {
+			"skill": sk, "count": int(res.get("count", 0)), "quality": int(res.get("quality", 0)),
+			"xp": int(res.get("xp", 0)), "tag": String(res.get("tag", "crafted")),
+		})
 		if mastery.DISCIPLINES.has(sk):
 			mastery.gain(sk, float(res.get("xp", 0)) * 0.1, WorldSim.day)
 		if sk in ["smithing", "forging", "blacksmithing"]:
@@ -249,11 +257,23 @@ func record(tag: String, weight := 1.0) -> void:
 			skill_evolution.record_use(_soul_element(), "farm", WorldSim.day)
 		elif tag == "meditated":
 			skill_evolution.record_use(_soul_element(), "meditate", WorldSim.day)
+	world_events.publish("life_action_recorded", "player", "", _abs_hours(), {
+		"tag": tag, "weight": weight, "day": WorldSim.day,
+	})
 
 
 ## The element the player's Blessing gave ("qi" when none): what their power grows from.
 func _soul_element() -> String:
 	return awakening.element if awakening.element != "" else "qi"
+
+
+## Query recent persistent facts without exposing the mutable journal itself.
+func recent_world_events(after_id: int = 0, limit: int = 32, type_filter: String = "") -> Array[Dictionary]:
+	return world_events.since(after_id, limit, type_filter)
+
+
+func world_event_window(after_id: int = -1) -> Dictionary:
+	return world_events.window_info(after_id)
 
 
 ## TechniqueCaster reports every successful cast: Soul Power, and the element
@@ -939,6 +959,7 @@ func snapshot() -> Dictionary:
 		"career": {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier},
 		"radiant": radiant.serialize(),
 		"crafting": crafting.serialize(),
+		"world_events": world_events.serialize(),
 		"equipment": equipment.serialize(),
 		"skills": skills.serialize(),
 		"homestead": homestead.serialize(),
@@ -953,6 +974,14 @@ func snapshot() -> Dictionary:
 
 
 func restore(d: Dictionary) -> void:
+	# Older saves simply start a fresh journal. Invalid new journal data is isolated
+	# from the rest of the save so existing player state still restores normally.
+	world_events = WorldEventLog.new()
+	if d.has("world_events"):
+		var event_data: Variant = d["world_events"]
+		if not event_data is Dictionary or not world_events.deserialize(event_data):
+			world_events = WorldEventLog.new()
+			push_warning("Ignoring invalid saved world event journal.")
 	var cd: Dictionary = d.get("career", {})
 	career_id = String(cd.get("id", ""))
 	career_rank = String(cd.get("rank", ""))
