@@ -1,0 +1,131 @@
+Traversal v2.1 - measured motion and contact numbers (30 fps, exported GLB, scan_motion.py + pivot180_rebuild.py)
+======================================================================================================================
+
+A. Per-frame motion limits: 0.12 m and 35 degrees per 30 fps frame
+   'charspace' = bone head delta with the root motion removed (the animation itself); 'world' includes the root travel.
+   Joints = trunk, hips, shoulders, elbows, knees. Hands / feet are end effectors (whips allowed: arm throw of a jump, leg swing over an obstacle, leg extension before a landing).
+   BEFORE = the committed UAL_Authored_Traversal.glb (14 clips), AFTER = this commit.
+
+clip                     | BEFORE worst joint charspace / rot           | AFTER worst joint charspace / rot           
+----------------------------------------------------------------------------------------------------------------------
+Ladder_Climb_Down_Loop   |  0.045m calf_l@1 |  16.5deg calf_r@17        |  0.045m calf_l@1 |  16.5deg calf_r@17       
+Ladder_Climb_Up_Loop     |  0.045m calf_l@36 |  16.5deg calf_r@20       |  0.045m calf_l@36 |  16.5deg calf_r@19      
+Ledge_Climb_Up           | (new clip)                                   |  0.191m calf_l@41 |  52.1deg calf_l@41      
+Ledge_Drop_Down          | (new clip)                                   |  0.285m lowerarm_l@13 |  60.0deg upperarm_r@13
+Ledge_Grab               | (new clip)                                   |  0.278m lowerarm_r@12 |  71.8deg upperarm_r@10
+Ledge_Hang_Idle_Loop     |  0.030m calf_l@18 |   7.9deg calf_l@18       |  0.029m lowerarm_l@29 |  12.4deg lowerarm_l@29
+Ledge_Shimmy_L_Loop      |  0.054m lowerarm_r@29 |  21.2deg lowerarm_r@29 |  0.056m lowerarm_r@16 |  19.5deg lowerarm_r@1
+Ledge_Shimmy_R_Loop      |  0.050m lowerarm_l@20 |  21.4deg lowerarm_l@20 |  0.053m calf_r@11 |  15.6deg calf_r@26      
+Mantle_High              | (new clip)                                   |  0.291m calf_r@3 |  96.9deg thigh_r@3       
+Mantle_Low               | (new clip)                                   |  0.311m calf_l@21 |  72.3deg thigh_r@35     
+Ride_Gallop_Loop         |  0.029m lowerarm_l@10 |  12.2deg lowerarm_l@10 |  0.029m lowerarm_l@10 |  12.2deg lowerarm_l@10
+Ride_Idle_Loop           |  0.015m lowerarm_r@55 |   6.7deg lowerarm_r@55 |  0.015m lowerarm_r@55 |   6.7deg lowerarm_r@55
+Ride_Lean_L_Loop         |  0.008m Head@13 |   4.1deg lowerarm_l@21     |  0.008m Head@13 |   4.1deg lowerarm_l@21    
+Ride_Lean_R_Loop         |  0.008m Head@29 |   3.8deg lowerarm_r@29     |  0.008m Head@29 |   3.8deg lowerarm_r@29    
+Ride_Trot_Loop           |  0.038m lowerarm_l@4 |  15.5deg lowerarm_l@4 |  0.055m lowerarm_l@8 |  18.6deg lowerarm_r@8
+Ride_Walk_Loop           |  0.030m lowerarm_r@24 |  12.9deg lowerarm_r@24 |  0.030m lowerarm_r@24 |  12.9deg lowerarm_r@24
+Vault_Low                |  0.321m calf_r@16 |  65.0deg upperarm_r@8    |  0.272m calf_r@32 |  57.4deg lowerarm_l@17  
+Vault_Low_B              |  0.321m calf_l@16 |  65.0deg upperarm_l@8    |  0.272m calf_l@32 |  57.4deg lowerarm_r@17  
+Wall_Climb_Up_Loop       |  0.081m calf_l@1 |  22.2deg calf_l@1         |  0.081m calf_l@1 |  22.2deg calf_l@1        
+
+Frames over the limit (character space, all body bones incl. hands / feet; the raw lists are in the JSON of the scan):
+clip                     | BEFORE >0.12 m / >35 deg | AFTER >0.12 m / >35 deg
+Ladder_Climb_Down_Loop   | 0 / 0 frames           | 0 / 0 frames          
+Ladder_Climb_Up_Loop     | 0 / 0 frames           | 0 / 0 frames          
+Ledge_Climb_Up           | (new)                  | 13 / 3 frames         
+Ledge_Drop_Down          | (new)                  | 6 / 10 frames         
+Ledge_Grab               | (new)                  | 7 / 6 frames          
+Ledge_Hang_Idle_Loop     | 0 / 0 frames           | 0 / 0 frames          
+Ledge_Shimmy_L_Loop      | 0 / 0 frames           | 0 / 0 frames          
+Ledge_Shimmy_R_Loop      | 0 / 0 frames           | 0 / 0 frames          
+Mantle_High              | (new)                  | 13 / 7 frames         
+Mantle_Low               | (new)                  | 20 / 9 frames         
+Ride_Gallop_Loop         | 0 / 0 frames           | 0 / 0 frames          
+Ride_Idle_Loop           | 0 / 0 frames           | 0 / 0 frames          
+Ride_Lean_L_Loop         | 0 / 0 frames           | 0 / 0 frames          
+Ride_Lean_R_Loop         | 0 / 0 frames           | 0 / 0 frames          
+Ride_Trot_Loop           | 0 / 0 frames           | 0 / 0 frames          
+Ride_Walk_Loop           | 0 / 0 frames           | 0 / 0 frames          
+Vault_Low                | 24 / 19 frames         | 21 / 12 frames        
+Vault_Low_B              | 24 / 19 frames         | 21 / 12 frames        
+Wall_Climb_Up_Loop       | 0 / 0 frames           | 0 / 0 frames          
+
+A2. The vault calf snap (Vault_Low, Vault_Low_B)
+  Vault_Low    calf (knee) max move per frame   BEFORE world  0.357m calf_l@30   charspace  0.321m calf_r@16
+                                                AFTER  world  0.338m calf_r@32   charspace  0.272m calf_r@32
+               calf rotation                    BEFORE  57.6deg calf_r@4   AFTER  55.1deg calf_l@33
+               any joint, charspace             BEFORE  0.321m calf_r@16   AFTER  0.272m calf_r@32
+               hand / foot (whips), charspace   BEFORE  0.281m hand_r@9 /  0.301m foot_l@31   AFTER  0.238m hand_l@16 /  0.293m foot_l@33
+  Vault_Low_B  calf (knee) max move per frame   BEFORE world  0.357m calf_r@30   charspace  0.321m calf_l@16
+                                                AFTER  world  0.338m calf_l@32   charspace  0.272m calf_l@32
+               calf rotation                    BEFORE  57.6deg calf_l@4   AFTER  55.1deg calf_r@33
+               any joint, charspace             BEFORE  0.321m calf_l@16   AFTER  0.272m calf_l@32
+               hand / foot (whips), charspace   BEFORE  0.281m hand_l@9 /  0.301m foot_r@31   AFTER  0.238m hand_r@16 /  0.293m foot_r@33
+  Cause (see traversal_v2_HANDOFF.md): pelvis anchor released 0.5 m in 3 frames + knee pole direction changed 0.6 in one frame + landing leg extension in 5 frames.
+  Fix: continuous pelvis path, smoothed pole keys, 8-frame leg extension, pole continuity in the bake (trav_lib.solve_continuous).
+
+Worst end-effector whips per clip (AFTER, charspace; hand / foot):
+  Ladder_Climb_Down_Loop   hand  0.034m hand_l@11   foot  0.045m foot_l@19
+  Ladder_Climb_Up_Loop     hand  0.034m hand_l@26   foot  0.045m foot_l@18
+  Ledge_Climb_Up           hand  0.094m hand_l@28   foot  0.270m foot_l@41
+  Ledge_Drop_Down          hand  0.209m hand_r@13   foot  0.141m foot_r@11
+  Ledge_Grab               hand  0.329m hand_r@11   foot  0.200m foot_r@13
+  Ledge_Hang_Idle_Loop     hand  0.004m hand_l@28   foot  0.006m foot_l@14
+  Ledge_Shimmy_L_Loop      hand  0.038m hand_l@19   foot  0.032m foot_l@23
+  Ledge_Shimmy_R_Loop      hand  0.039m hand_r@19   foot  0.032m foot_l@23
+  Mantle_High              hand  0.398m hand_l@11   foot  0.286m foot_r@10
+  Mantle_Low               hand  0.159m hand_l@10   foot  0.176m foot_l@14
+  Ride_Gallop_Loop         hand  0.014m hand_r@3   foot  0.001m foot_l@8
+  Ride_Idle_Loop           hand  0.002m hand_r@8   foot  0.001m foot_r@49
+  Ride_Lean_L_Loop         hand  0.006m hand_l@5   foot  0.001m foot_r@15
+  Ride_Lean_R_Loop         hand  0.006m hand_l@5   foot  0.001m foot_r@22
+  Ride_Trot_Loop           hand  0.020m hand_r@2   foot  0.001m foot_r@14
+  Ride_Walk_Loop           hand  0.006m hand_l@6   foot  0.001m foot_l@2
+  Vault_Low                hand  0.238m hand_l@16   foot  0.293m foot_l@33
+  Vault_Low_B              hand  0.238m hand_r@16   foot  0.293m foot_r@33
+  Wall_Climb_Up_Loop       hand  0.025m hand_r@10   foot  0.043m foot_l@21
+
+B. World-locked contacts on the exported GLB (largest drift of the wrist / ball of the foot from its mean over the window, cm)
+  Ledge_Climb_Up   max 2.78 cm   hand_l f0-28 2.77, hand_r f0-28 2.78, ball_r f28-52 0.56, ball_l f41-52 0.13
+  Ledge_Drop_Down  max 0.35 cm   hand_l f0-6 0.18, hand_r f0-6 0.19, ball_l f11-32 0.35, ball_r f11-32 0.35
+  Ledge_Grab       max 0.24 cm   hand_l f15-40 0.24, hand_r f15-40 0.24
+  Mantle_High      max 0.56 cm   hand_l f12-35 0.19, hand_r f12-35 0.19, ball_l f2-8 0.06, ball_r f5-8 0.00, ball_r f35-59 0.56, ball_l f48-59 0.13
+  Mantle_Low       max 3.16 cm   hand_l f12-19 1.83, hand_r f12-19 1.44, ball_l f4-9 0.04, ball_l f23-36 3.16, ball_l f41-44 0.02, ball_r f10-13 1.55, ball_r f36-44 0.48
+  Vault_Low        max 1.42 cm   hand_l f17-18 1.16, hand_r f17-26 0.00, ball_l f6-14 0.87, ball_l f33-40 0.03, ball_l f47-60 0.05, ball_r f0-3 0.03, ball_r f34-36 0.00, ball_r f42-60 1.42
+  Vault_Low_B      max 1.42 cm   hand_r f17-18 1.16, hand_l f17-26 0.00, ball_r f6-14 0.87, ball_r f33-40 0.03, ball_r f47-60 0.05, ball_l f0-3 0.03, ball_l f34-36 0.00, ball_l f42-60 1.42
+
+C. Loop points (last frame vs first frame, root travel removed): max bone position gap (cm) / max bone rotation gap (deg)
+  Ladder_Climb_Down_Loop     0.00 cm /  0.10 deg
+  Ladder_Climb_Up_Loop       0.00 cm /  0.10 deg
+  Ledge_Hang_Idle_Loop       0.08 cm /  1.48 deg
+  Ledge_Shimmy_L_Loop        0.08 cm /  1.56 deg
+  Ledge_Shimmy_R_Loop        0.07 cm /  3.43 deg
+  Ride_Gallop_Loop           0.00 cm /  0.19 deg
+  Ride_Idle_Loop             0.00 cm /  0.09 deg
+  Ride_Lean_L_Loop           0.00 cm /  0.32 deg
+  Ride_Lean_R_Loop           0.00 cm /  0.25 deg
+  Ride_Trot_Loop             0.03 cm /  0.20 deg
+  Ride_Walk_Loop             0.01 cm /  0.16 deg
+  Wall_Climb_Up_Loop         0.01 cm /  0.16 deg
+
+D. Ride_Trot_Loop (rising trot): pelvis height range above the ground (m) per clip AFTER
+  Ride_Idle_Loop     pelvis z 1.203..1.207 (range 0.004 m)   BEFORE 1.203..1.207 (range 0.004 m)
+  Ride_Walk_Loop     pelvis z 1.198..1.212 (range 0.014 m)   BEFORE 1.198..1.212 (range 0.014 m)
+  Ride_Trot_Loop     pelvis z 1.198..1.328 (range 0.130 m)   BEFORE 1.204..1.311 (range 0.107 m)
+  Ride_Gallop_Loop   pelvis z 1.293..1.352 (range 0.059 m)   BEFORE 1.293..1.352 (range 0.059 m)
+
+E. Loco_Pivot180_Run_L / _R (tools/anim/loco/pivot180_rebuild.py)
+  Loco_Pivot180_Run_L (38 frames): pivot foot r locked f7-19, slip BEFORE 6.7 cm -> AFTER 0.0 cm; push-off foot l locked f21-26, slide BEFORE 14.0 cm -> AFTER 0.0 cm; IK reach error {'pivot': 0.0, 'push': 0.0} cm
+     max bone rotation per frame BEFORE [35.3, 'foot_l', 29] AFTER [33.4, 'foot_l', 29]; max pelvis-to-chest twist/lean BEFORE 16.4 deg AFTER 30.2 deg
+  Loco_Pivot180_Run_R (42 frames): pivot foot l locked f13-23, slip BEFORE 2.3 cm -> AFTER 0.0 cm; push-off foot r locked f23-29, slide BEFORE 14.2 cm -> AFTER 0.0 cm; IK reach error {'pivot': 0.0, 'push': 0.0} cm
+     max bone rotation per frame BEFORE [35.3, 'foot_r', 33] AFTER [35.4, 'foot_r', 33]; max pelvis-to-chest twist/lean BEFORE 16.4 deg AFTER 29.7 deg
+
+F. Open issues (honest list)
+  * Limit 0.12 m / 35 deg is NOT met everywhere. The vault calf snap at f30 (0.357 m world) is gone, the worst vault knee move is now the landing leg extension at f32-33
+    (0.27 m charspace / 0.34 m world incl. root travel; before: 0.32 m charspace at the takeoff tuck f16 and 0.357 m at f30). Vault frames over the limit 24 -> 21 (pos), 19 -> 12 (rot).
+  * New clips still have whips over the limit: arm throw of Ledge_Grab / Mantle_High (hand 0.33 m per frame), leg swing / tuck over the ledge and wall (knee up to 0.29 m),
+    Mantle_Low f21 left knee 0.31 m, thigh twist 72-97 deg at the first foot lift of Mantle_High f3 / Mantle_Low f35 (straight-leg bend plane), Ledge_Drop_Down landing (elbow 0.29 m f13).
+    All are inside flight / swing phases without a contact; contacts themselves drift <= ~4 cm (section B).
+  * Legs tuck into the wall / ledge block by up to 10-24 cm on Mantle_Low f11-21 and Ledge_Climb_Up / Mantle_High f19-30 (BOX check in the build log); visible as knees inside the wall in the sheets.
+  * Ledge_Climb_Up root Z is 2.12 m (ledge contract), not the 1.05 m of the brief.
+  * No mirrored ledge / mantle variants, no finger IK, hands grip as flat palm + curled fingers.
