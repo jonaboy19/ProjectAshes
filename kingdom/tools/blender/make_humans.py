@@ -2976,7 +2976,11 @@ def decimate_body(ob, h, budget, head_tris=HEAD_TRIS, hand_tris=HAND_TRIS):
     rest_sel = lambda p: not (head_sel(p) or hand_sel(p))
     keep = zone_tris(ob, head_sel) + zone_tris(ob, hand_sel)
     _zone_decimate(ob, wfun(rest_sel), max(300, budget - keep), lambda o: tri_count(o) - zone_tris(o, head_sel) - zone_tris(o, hand_sel))
-    ob.vertex_groups.clear()
+    # Drop only the temporary decimation mask: clearing every group here also wiped the bone
+    # weights (whole body -> pelvis, T-pose hands left floating beside the character).
+    zg = ob.vertex_groups.get("zone")
+    if zg is not None:
+        ob.vertex_groups.remove(zg)
 
 
 def triangulate(ob):
