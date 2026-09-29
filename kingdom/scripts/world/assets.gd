@@ -33,7 +33,11 @@ const UAL_FILES := [Q + "universal-animation-library/Unreal-Godot/UAL1_Standard.
 	# Souls-like combat, magic casting, parry, roll, interactions (Cat Prisbrey, Unlicense)
 	# and CMU mocap karate / tai chi / swim / chores / lie down (assets/incoming/animations/README.md).
 	UAL_ANIM_DIR + "souls_cat/UAL_Souls_Cat.glb",
-	UAL_ANIM_DIR + "cmu_mocap/UAL_CMU_Mocap.glb"]
+	UAL_ANIM_DIR + "cmu_mocap/UAL_CMU_Mocap.glb",
+	# Authored combat set (docs/anim/COMBAT_AUDIT.md): target-aimed light combo (+ _Upper layer variants),
+	# directional hit reactions, staggers, parry/riposte, finishers, heavy/run/2H/spear/bow, deaths.
+	# Timing markers: animations/combat/combat_markers.json (CombatMarkers). Root track disabled like the rest.
+	UAL_ANIM_DIR + "combat/UAL_Combat.glb"]
 const WEAPONS := Q + "fantasy-props-megakit/Exports/glTF/"
 const HELMET := Q + "lowpoly-animated-knight/FBX/Helmet1.fbx"
 ## Old KayKit clip names -> UAL clips, so gameplay code keeps using one vocabulary.

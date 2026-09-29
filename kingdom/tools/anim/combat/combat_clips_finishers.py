@@ -175,7 +175,7 @@ def bash():
     return F.build(k, 27, post=root_post)
 
 
-clip("Shield_Bash", events={"windup_end": 5, "hit_start": 8, "hit": 10, "hit_end": 12, "combo_window": [13, 20],
+clip("Shield_Bash_Step", events={"windup_end": 5, "hit_start": 8, "hit": 10, "hit_end": 12, "combo_window": [13, 20],
                             "cancel_window": [15, 27], "step_land": 10},
      note="shield arm drives forward at head/chest height with a 0.30 m step-in, shoulder leads, hips turn first, sword arm "
           "pulls back as counterweight; contact f10; root travel 0.30 m; ready_pose (relative to root) at 0.9 s",
@@ -200,10 +200,10 @@ def kneel(**over):
 
 def prone(**over):
     """face-down on the ground, head toward -Y (toward the attacker)"""
-    d = {"pel": V(0, 0.30, -0.77), "hip": (86, 0, 0), "tor": (2, 0, 0), "head": (-30, 0, 0),
+    d = {"pel": V(0, 0.30, -0.75), "hip": (86, 0, 0), "tor": (2, 0, 0), "head": (-14, 0, 0),
          "foot_l": V(0.12, 1.15, 0.10), "foot_r": V(-0.12, 1.15, 0.10), "fyaw_l": 0.0, "fyaw_r": 0.0,
          "fpit_l": -70.0, "fpit_r": -70.0,
-         "hand_l": V(0.42, -0.25, 0.10), "hand_r": V(-0.42, -0.25, 0.10), "elb_l": None, "elb_r": None,
+         "hand_l": V(0.42, -0.25, 0.12), "hand_r": V(-0.42, -0.25, 0.12), "elb_l": None, "elb_r": None,
          "curl_l": 0.3, "curl_r": 0.3}
     d.update(over)
     return d
@@ -241,28 +241,28 @@ def stab_attacker():
     k.append((27, {"hand_r": V(-0.10, -0.89, 1.24), "tor": (16, 19, 0), "hip": (0, 18, 0),
                    "ho_r": blade_o((0.03, -0.995, 0.05), (0.0, 0, 1.0))}, "smooth"))
     # pull out (blade goes back along its own line), front foot steps back
-    k.append((31, {"hand_r": V(-0.13, -0.55, 1.22), "ho_r": blade_o((0.05, -0.99, 0.10), (0.0, 0, 1.0)),
+    k.append((33, {"hand_r": V(-0.13, -0.55, 1.22), "ho_r": blade_o((0.05, -0.99, 0.10), (0.0, 0, 1.0)),
                    "tor": (14, 8, 0), "hip": (0, 8, 0), "pel": V(0.03, -0.30, -0.10),
                    "foot_l": N["foot_l"] + V(0, -0.36, 0.10)}, "in2"))
-    k.append((34, {"hand_r": V(-0.26, -0.36, 1.06), "ho_r": blade_o((0.25, -0.65, -0.70), S),
+    k.append((38, {"hand_r": V(-0.26, -0.36, 1.06), "ho_r": blade_o((0.25, -0.65, -0.70), S),
                    "foot_l": N["foot_l"] + V(0, -0.24, 0.0), "pel": V(0.02, -0.26, -0.07), "tor": (12, 0, 0), "hip": (0, 2, 0),
                    "head": (0, 0, 0), "_bow": {"hand_r": V(-0.05, 0.0, 0.10)}}, "smooth"))
-    k.append((38, {"foot_l": N["foot_l"] + V(0, -0.22, 0.0), "pel": V(0.0, -0.22, -0.04), "tor": (7, 0, 0), "hip": (0, 0, 0),
+    k.append((42, {"foot_l": N["foot_l"] + V(0, -0.22, 0.0), "pel": V(0.0, -0.22, -0.04), "tor": (7, 0, 0), "hip": (0, 0, 0),
                    "hand_r": V(-0.29, -0.28, 0.98), "ho_r": blade_o((0.25, -0.85, 0.2), S),
                    "foot_r": N["foot_r"] + V(0, -0.11, 0.13), "hand_l": N["hand_l"] + V(0, -0.22, 0)}, "smooth"))
-    k.append((44, {"foot_r": N["foot_r"] + V(0, -0.22, 0.0), "pel": V(0, -0.22, -0.01)}, "smooth"))
-    k.append((50, home(-0.22), "smooth"))
+    k.append((47, {"foot_r": N["foot_r"] + V(0, -0.22, 0.0), "pel": V(0, -0.22, -0.01)}, "smooth"))
+    k.append((52, home(-0.22), "smooth"))
     return F.build(k, STAB_N, post=root_post)
 
 
 def _stab_wrap():
     P = stab_attacker()
-    dbg_tips("Stab", P, [12, 14, 20, 27, 31])
+    dbg_tips("Stab", P, [12, 14, 20, 27, 33])
     return P
 
 
 clip("Finisher_Stab_Through", events={"windup_end": 10, "hit_start": 12, "hit": 14, "hit_end": 27, "victim_react": 14,
-                                      "victim_down": 56, "cancel_window": [46, 60]},
+                                      "victim_down": 56, "cancel_window": [52, 60]},
      note="PAIR with Finisher_Stab_Through_Victim (same 61 frames). Victim root at attacker +1.2 m forward, rotated 180 deg. "
           "Thrust through the chest at f14 (tip ~0.3 m past the victim's back), 13 f hold with a twist, pull out + step back. "
           "Root travel 0.22 m net (lunge 0.36, steps back to 0.22).", root_motion_m=0.22)(_stab_wrap)
@@ -299,9 +299,9 @@ def stab_victim():
     k.append((53, kneel(**{"pel": V(0, 0.05, -0.70), "hip": (68, 0, 0), "tor": (10, 0, 0), "head": (-15, 0, 0),
                            "foot_l": V(0.11, 0.80, 0.14), "foot_r": V(-0.11, 0.80, 0.14), "fpit_l": -60.0, "fpit_r": -60.0,
                            "hand_l": V(0.40, -0.45, 0.20), "hand_r": V(-0.40, -0.45, 0.20)}), "in2"))
-    k.append((56, prone(**{"pel": V(0, 0.28, -0.77)}), "out2"))
-    k.append((58, prone(**{"pel": V(0, 0.29, -0.775), "hip": (85, 0, 0), "tor": (1, 0, 0)}), "smooth"))
-    k.append((60, prone(**{"pel": V(0, 0.29, -0.775), "hip": (85, 0, 0), "tor": (1, 0, 0)}), "smooth"))
+    k.append((56, prone(**{"pel": V(0, 0.28, -0.75)}), "out2"))
+    k.append((58, prone(**{"pel": V(0, 0.29, -0.755), "hip": (85, 0, 0), "tor": (1, 0, 0)}), "smooth"))
+    k.append((60, prone(**{"pel": V(0, 0.29, -0.755), "hip": (85, 0, 0), "tor": (1, 0, 0)}), "smooth"))
 
     def post(fr, n, s):
         if 16 <= fr <= 28:

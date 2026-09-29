@@ -438,3 +438,16 @@ Sheets: `docs/anim/free_library/frames/locomotion_v1/<clip>/`. Rebuild and metho
 Root motion: `root` position = horizontal travel, `root` rotation = heading (turn clips, pivot); this library is NOT in `animations/`, so `_ual_for` does not disable the root track. Decide per clip:
 use it (drive the capsule from it) or disable the track and take the numbers from the sidecar. Never both. Foot planted windows per clip (frame ranges) are in `contacts` (`left` / `right`, `flat_*`, `airborne`);
 `end_foot` tells which foot is planted last. Slide of planted feet <= 4.5 cm (Land_Hard 6.7). CMU mocap (credit already in CREDITS.md), UAL `Roll` (CC0) inside `Jump_Land_Roll`.
+
+
+## Combat set 2026-09-30 (NEW LIBRARY `animations/combat/UAL_Combat.glb`, already in `Assets.UAL_FILES`)
+Audit, evidence and the full clip table: [../COMBAT_AUDIT.md](../COMBAT_AUDIT.md). Patches: `docs/anim/patches/P9_attack_layering.md` (full-body standing attacks,
+A/B attack slots against the OneShot re-fire pop, lunge = authored step), `P10_directional_hit_reactions.md`, `P11_enemy_attack_windup.md`, `P12_hitstop_camera_fov.md`.
+- **Timing comes from the markers sidecar**, not from guessed numbers: `CombatMarkers.get_clip(name)` / `time_s(name, "hit", rate)` / `window_s(name, "combo_window", rate)`
+  read `res://assets/incoming/animations/combat/combat_markers.json` (110 clips: every authored clip + 66 library attacks, measured by `tools_qa/combat_audit/combat_studio`).
+  Keys: `windup_end, hit_start, hits, hit_end, trail_start, trail_end, combo_window, cancel_window, step_in_m, step_frames, contact_on_target` (30 fps frames at rate 1.0).
+- **Already applied (local):** player COMBO uses `Sword_Light_1..4_Upper` at 1.2x; `WeaponTrail.attach(body)` + `_trail.swing(clip, rate)` per swing (third person).
+- **Every attack also has `<clip>_Upper`** (hip yaw folded into the spine, same blade targets): use `<clip>` full-body when standing, `_Upper` on the upper layer while moving (P9).
+- Root motion is in the `root` track (disabled on import like all of `animations/`): move the capsule by `step_in_m` over `step_frames`.
+- Paired finishers: victim root 1.2 m in front of the attacker, facing it; both clips start on the same frame.
+- Bow: `Bow_Draw` -> `Bow_Hold` (loop) -> `Bow_Loose` (arrow spawn f1); aim = Blend3(Hold, Bow_Aim_Down, Bow_Aim_Up) by camera pitch, upper-body filter.

@@ -127,7 +127,7 @@ def bow_hold():
     return F.build(keys, n, post=post)
 
 
-@clip("Bow_Release", events={"contact": 0, "release": 1, "extreme": 3, "recovered": 18},
+@clip("Bow_Loose", events={"contact": 0, "release": 1, "extreme": 3, "recovered": 18},
       note="string released on f1: draw hand flies back past the ear, bow arm kicks forward/down 2-3 deg, follow-through, then back to bow_ready (0.6 s)")
 def bow_release():
     F = FR.F

@@ -1,0 +1,90 @@
+{
+  "HIGH_N1_notrails": {
+    "frame_ms_avg": 6.38356666666667,
+    "frame_ms_p99": 9.939
+  },
+  "HIGH_N1_trails": {
+    "active_trail_frames_of_possible": "124/300",
+    "frame_ms_avg": 6.40124666666667,
+    "frame_ms_p99": 9.884,
+    "ms_per_active_trail_frame": 0.0430564516129032,
+    "ms_per_active_trail_frame_ex_pose": 0.0346290322580645,
+    "ms_per_trail_per_frame_all_cycle": 0.0177966666666667,
+    "trail_ms_per_frame_total_avg": 0.0177966666666667,
+    "trail_ms_per_frame_total_p99": 0.062
+  },
+  "HIGH_N4_notrails": {
+    "frame_ms_avg": 6.35178333333333,
+    "frame_ms_p99": 9.791
+  },
+  "HIGH_N4_trails": {
+    "active_trail_frames_of_possible": "464/1200",
+    "frame_ms_avg": 6.29124666666667,
+    "frame_ms_p99": 9.71,
+    "ms_per_active_trail_frame": 0.0245560344827586,
+    "ms_per_active_trail_frame_ex_pose": 0.0210043103448276,
+    "ms_per_trail_per_frame_all_cycle": 0.009495,
+    "trail_ms_per_frame_total_avg": 0.03798,
+    "trail_ms_per_frame_total_p99": 0.165
+  },
+  "HIGH_N8_notrails": {
+    "frame_ms_avg": 6.43329333333333,
+    "frame_ms_p99": 16.941
+  },
+  "HIGH_N8_trails": {
+    "active_trail_frames_of_possible": "912/2400",
+    "frame_ms_avg": 6.24224,
+    "frame_ms_p99": 15.14,
+    "ms_per_active_trail_frame": 0.0203410087719298,
+    "ms_per_active_trail_frame_ex_pose": 0.0174835526315789,
+    "ms_per_trail_per_frame_all_cycle": 0.00772958333333333,
+    "trail_ms_per_frame_total_avg": 0.0618366666666667,
+    "trail_ms_per_frame_total_p99": 0.284
+  },
+  "LOW_N1_notrails": {
+    "frame_ms_avg": 6.18252,
+    "frame_ms_p99": 12.089
+  },
+  "LOW_N1_trails": {
+    "active_trail_frames_of_possible": "111/300",
+    "frame_ms_avg": 6.07100666666667,
+    "frame_ms_p99": 8.063,
+    "ms_per_active_trail_frame": 0.031972972972973,
+    "ms_per_active_trail_frame_ex_pose": 0.0237927927927928,
+    "ms_per_trail_per_frame_all_cycle": 0.01183,
+    "trail_ms_per_frame_total_avg": 0.01183,
+    "trail_ms_per_frame_total_p99": 0.055
+  },
+  "LOW_N4_notrails": {
+    "frame_ms_avg": 6.43523666666667,
+    "frame_ms_p99": 10.141
+  },
+  "LOW_N4_trails": {
+    "active_trail_frames_of_possible": "384/1200",
+    "frame_ms_avg": 6.43190666666667,
+    "frame_ms_p99": 9.974,
+    "ms_per_active_trail_frame": 0.0152005208333333,
+    "ms_per_active_trail_frame_ex_pose": 0.0112317708333333,
+    "ms_per_trail_per_frame_all_cycle": 0.00486416666666667,
+    "trail_ms_per_frame_total_avg": 0.0194566666666667,
+    "trail_ms_per_frame_total_p99": 0.102
+  },
+  "LOW_N8_notrails": {
+    "frame_ms_avg": 6.47384,
+    "frame_ms_p99": 20.052
+  },
+  "LOW_N8_trails": {
+    "active_trail_frames_of_possible": "696/2400",
+    "frame_ms_avg": 6.49855,
+    "frame_ms_p99": 18.601,
+    "ms_per_active_trail_frame": 0.0103591954022989,
+    "ms_per_active_trail_frame_ex_pose": 0.00712787356321839,
+    "ms_per_trail_per_frame_all_cycle": 0.00300416666666667,
+    "trail_ms_per_frame_total_avg": 0.0240333333333333,
+    "trail_ms_per_frame_total_p99": 0.126
+  },
+  "mesh_update_compare": {
+    "immediate_mesh_us_per_update": 10.373,
+    "region_update_us_per_update": 7.511
+  }
+}
