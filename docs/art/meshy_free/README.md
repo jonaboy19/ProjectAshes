@@ -1,6 +1,6 @@
 # Meshy free community pack (CC0), optimized
 
-Mobile-ready GLBs made from 212 CC0 models of the Meshy community library. Triage: `docs/art/meshy_free_triage.md`. Licence: `kingdom/assets/incoming/meshy_free/CREDITS.md`.
+Mobile-ready GLBs made from 373 CC0 models of the Meshy community library (round 1: 212, round 2: 161, see the last section). Triage: `docs/art/meshy_free_triage.md`. Licence: `kingdom/assets/incoming/meshy_free/CREDITS.md`.
 These are **not placed in any level yet**. They sit in `kingdom/assets/incoming/meshy_free/` waiting to be wired in.
 
 ## What is in the folder
@@ -131,3 +131,124 @@ Pipeline: `tools/meshy/optimize_free.py` (voxel remesh, decimate, Cycles diffuse
 - Several buildings and castles carry a small ground plinth/base from the source model.
 - `ruins/arch_baroque_old` and a few thin cloth/roof details are slightly ragged; they read fine at game distance.
 - Textures are painted for a neutral light; some pieces (grey towers, dark ruins) are duller than the reference and want a warm tint or colour grade.
+
+## Round 2: street dressing and props (126 KEEP + 19 MAYBE statics)
+
+161 more CC0 models, triage in `docs/art/meshy_free_triage.md` (section "Round 2"). Same pipeline and conventions as above. New categories: `lighting`, `signs`, `fences`, `farm`, `flora`, `water`, `interior`, `loot`. No rigs in this batch, so the 12 humanoid MAYBEs (villagers, knights, archers) are still not optimized.
+
+Contact sheets: raw `contact_sheets/raw2_1.jpg` .. `raw2_9.jpg`, optimized `contact_sheets/optimized_r2_1.jpg` .. `optimized_r2_8.jpg`. Before/after (raw left, LOD0 right): `before_after/ba_r2_1.jpg` .. `ba_r2_4.jpg` (26 samples).
+
+![round 2 optimized](contact_sheets/optimized_r2_1.jpg)
+
+| category | LOD0 count | tris range | description |
+|---|---:|---|---|
+| banners (round 2) | 6 | 2,295 - 2,500 | Banner stands (3.5 m) |
+| buildings (round 2) | 6 | 6,000 - 9,999 | Huts, houses, lumber mill (3.5-9 m) |
+| castle (round 2) | 2 | 3,982 - 8,000 | Watchtower, battlement block |
+| farm (round 2) | 15 | 1,372 - 6,999 | Wheelbarrows, hay bales, cows, chickens, coops, sheds |
+| fences (round 2) | 15 | 1,500 - 3,000 | Rail, picket, palisade, wattle fences and gates (2 m sections) |
+| flora (round 2) | 12 | 1,307 - 3,938 | Bouquets, mushrooms, bellflower, bush, tree stumps |
+| furniture (round 2) | 14 | 1,800 - 4,000 | Thrones, tavern tables and benches, lectern |
+| interior (round 2) | 11 | 2,000 - 4,997 | Bookshelves, weapon racks, bed, armour stand, tapestry, wall shields |
+| lighting (round 2) | 19 | 1,200 - 3,365 | Street lamps, lanterns, torches, wall sconces, candle |
+| loot (round 2) | 2 | 999 - 1,000 | Big coins |
+| props (round 2) | 5 | 1,200 - 1,998 | Crate, kegs, axes |
+| signs (round 2) | 3 | 1,434 - 2,500 | Hanging shop signs |
+| water (round 2) | 16 | 2,497 - 5,000 | Bridges, docks, boats |
+| maybe/* (round 2) | 19 | 1,500 - 8,977 | off-tone statics: ruined huts, brutes, skeletons, grey dragon, dark shields, Victorian lamp |
+
+### Round 2 models
+
+#### banners
+
+`banner_stand_chains` (2,431), `banner_stand_hanging_chains` (2,425), `banner_stand_iron_frame` (2,496), `banner_stand_spear_flag` (2,495), `banner_stand_spiked_base` (2,295), `banner_stand_tall_narrow` (2,500)
+
+#### buildings
+
+`house_stone_fantasy` (9,000), `house_two_story_shingle` (9,965), `house_two_story_tall_timber` (9,999), `hut_long_thatch` (6,998), `hut_wood_vine` (6,000), `lumber_mill` (9,997)
+
+#### castle
+
+`wall_battlement_block` (3,982), `watchtower_stone_small` (8,000)
+
+#### farm
+
+`chicken_coop_fenced` (5,000), `chicken_coop_small` (3,992), `chicken_hen` (2,492), `chicken_rooster` (2,383), `cow_spotted` (5,994), `cows_pair` (6,999), `hay_bale_lowpoly` (1,494), `hay_bale_rect_a` (1,372), `hay_bale_round` (1,789), `hay_bale_yellow_large` (4,574), `shed_plank_low` (3,976), `shed_thatch_small` (3,984), `shed_wood_shingle` (3,997), `wheelbarrow_planter` (3,898), `wheelbarrow_wooden_old` (4,499)
+
+#### fences
+
+`fence_board_gate` (2,500), `fence_board_panel` (2,000), `fence_broken_rail` (2,500), `fence_farm_white` (2,979), `fence_gate_rail` (1,798), `fence_palisade` (2,993), `fence_picket_low` (2,500), `fence_picket_tall` (3,000), `fence_plank_panel` (2,500), `fence_rail_grass_a` (1,886), `fence_rail_grass_b` (1,833), `fence_rail_orange` (1,500), `fence_rail_rustic` (2,000), `fence_woven_wattle` (2,985), `wall_stone_railing` (3,000)
+
+#### flora
+
+`bellflower_purple` (2,320), `bouquet_bright` (2,000), `bouquet_wild` (2,000), `bush_raspberry` (3,938), `mushroom_bowl_orange` (2,500), `mushroom_brown` (1,500), `mushroom_glow_brown` (1,992), `mushroom_redcap` (1,307), `mushrooms_blue_glow` (2,500), `stump_cut` (2,500), `stump_dead_tall` (2,999), `stump_grass_rocks` (2,675)
+
+#### furniture
+
+`lectern_desk` (2,500), `table_barrel_top` (1,800), `table_bench_tavern` (3,000), `table_tavern_feast` (2,997), `table_tavern_thick` (2,000), `table_tavern_trestle` (2,052), `tavern_set_barrels_a` (3,987), `tavern_set_barrels_b` (4,000), `throne_carved_wood` (3,000), `throne_dark_red_studded` (3,000), `throne_gold_red` (3,497), `throne_gothic_gold` (3,491), `throne_leather_cushion` (2,500), `throne_red_gothic` (2,999)
+
+#### interior
+
+`armour_stand_knight` (4,997), `bed_canopy_red` (4,493), `bookshelf_glass_cabinet` (2,999), `bookshelf_tall_rustic` (3,490), `bookshelf_wide_low` (3,229), `shelf_weapons_display` (3,485), `tapestry_hunt` (2,000), `wall_shield_heater` (2,500), `wall_shield_iron_studded` (2,500), `weapon_rack_swords` (3,471), `weapon_racks_spears` (4,000)
+
+#### lighting
+
+`candle_stand` (1,200), `lamp_post_purple_bracket` (2,845), `lamp_post_timber_cross` (2,997), `lantern_hanging_blue` (3,365), `lantern_hanging_green` (1,500), `lantern_post_purple` (2,481), `lantern_post_wood` (2,998), `lantern_wall_iron` (1,998), `lantern_wall_scroll` (2,413), `sconce_torch_bracket` (1,496), `sconce_torch_ornate` (1,998), `sconce_wall_bowl_a` (1,800), `sconce_wall_bowl_b` (1,778), `street_lamp_twin_gold` (3,000), `street_lantern_gothic` (2,995), `street_lantern_whimsical` (2,500), `torch_dungeon_cage` (2,279), `torch_hand_silver` (1,496), `torch_stake` (1,499)
+
+#### loot
+
+`coin_gold_big` (1,000), `coin_silver_big` (999)
+
+#### props
+
+`axe_battle_upright` (1,500), `axe_long_handle` (1,500), `crate_planks` (1,200), `keg_iron_banded_side` (1,998), `keg_iron_banded_upright` (1,997)
+
+#### signs
+
+`sign_blank_bracket` (2,500), `sign_blank_rope` (1,434), `sign_shop_lion` (2,496)
+
+#### water
+
+`boat_longship_sail` (4,500), `boat_rowing` (3,000), `bridge_arch_pale` (3,500), `bridge_garden_vines` (3,500), `bridge_mossy_small` (3,000), `bridge_old_stone_blue` (3,500), `bridge_serenity_steps` (4,992), `bridge_stone_arched_rail` (5,000), `bridge_stone_dark_long` (4,000), `bridge_stone_passage` (3,937), `bridge_stone_rustic_a` (3,500), `bridge_stone_rustic_b` (4,000), `bridge_stone_rustic_c` (4,000), `bridge_stone_wood_deck` (4,000), `dock_circular_wood` (2,497), `dock_weathered_pier` (3,996)
+
+#### maybe/buildings
+
+`hut_hunter_base` (6,415), `hut_mossy_ruined_a` (7,963), `hut_mossy_ruined_b` (8,977)
+
+#### maybe/creatures
+
+`brute_horned_a` (6,975), `brute_horned_b` (6,945), `brute_skull_shoulders` (6,984), `dragon_grey_small` (5,976), `skeleton_hooded` (6,500), `skeleton_warrior_a` (6,500), `skeleton_warrior_b` (6,488)
+
+#### maybe/fences
+
+`fence_picket_thin_long` (2,995)
+
+#### maybe/furniture
+
+`table_dining_walnut` (2,000)
+
+#### maybe/interior
+
+`armour_knight_sword_static` (5,993), `bookshelf_nook_corner` (3,489), `wall_shield_tall_dark` (2,500), `weapon_rack_round_shield` (3,500)
+
+#### maybe/lighting
+
+`street_lamp_victorian` (2,998)
+
+#### maybe/props
+
+`mace_iron` (1,500)
+
+#### maybe/water
+
+`bridge_arch_long_rocks` (4,990)
+
+### Round 2 notes and limits
+
+- Buildings (round 2) and `castle/watchtower_stone_small` also have `_lod1.glb`.
+- `dec` variant (no voxel remesh) was needed for open, thin-shelled sources: both bouquets, `house_stone_fantasy`, `house_two_story_tall_timber` (roof stays ragged), `hut_wood_vine`, `chicken_coop_fenced`, `stump_dead_tall`, `throne_leather_cushion`, `skeleton_hooded`, `skeleton_warrior_a`. `solid` fixed `lamp_post_timber_cross`, `lumber_mill`, `tavern_set_barrels_a` and the cloth/thin items. Per-model variants are listed in `tools/meshy/free_batch/spec_r2.py`.
+- Rough at close range: `flora/bouquet_*`, `flora/bush_raspberry`, `farm/hay_bale_yellow_large` (faceted), `torch_dungeon_cage` (a few stray flame fragments), `hut_mossy_ruined_*` (floating debris).
+- Lighting pieces carry no light: glass and flame are baked colour only, add OmniLight and emissive in Godot.
+- Coins are scaled to 0.25 m as pickups, not real size.
+- Several thrones, lamps and sconces are darker and more metallic than the reference; they want the warm grade.
+- Driver: `ROUND=2 python tools/meshy/free_batch/run_opt.py [idx[:variant] ...]` (staging paths are hard-coded, see `tools/meshy/free_batch/README.md`).
