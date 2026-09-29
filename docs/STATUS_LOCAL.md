@@ -25,6 +25,10 @@ _Last update: 2026-09-29 (assets session: farm animals, Meshy fixes, impostors)_
 - Verified headless in a sparse worktree (no game assets): sandbox OK, 19/19 tests pass. NOT run inside the full game (hooks not wired yet).
 - Backlog: windowed sandbox variant for GPU frame sheets (L8/L11); a Region1 debug overlay (module ms) once hooks land; presenter pooling helper.
 
+## Region 1 L3 + L4 (r1kit), 2026-09-29: WIP (pushed to origin/tmp-r1kit, not yet verified in Godot)
+- L3: `assets/incoming/region1/silverford/` (guild hall + Dawn Throne chapel exteriors, LOD0/LOD1), interiors `scenes/interiors/guildhall_interior.tscn` + `chapel_interior.tscn` (built by `tools/blender/make_interior_{guildhall,chapel}.py`). Blender previews in `docs/kingdom/blender_previews/interior_{guildhall,chapel}_{a,b}.png`.
+- L4: `assets/incoming/region1/rift/` (recoloured textures, rift shaders and materials, scar crystals, decals). Godot render checks still to do.
+
 ## In progress
 - **Meshy free pack round 2** (161 models) → `assets/incoming/meshy_free/`
 - **Clear water shader** (lakes and rivers, quality tiers) → `shaders/water/`

@@ -1,0 +1,73 @@
+{
+ "name": "chapel",
+ "stats": {
+  "room_tris": 29960,
+  "prop_tris": 0,
+  "total": 29960,
+  "materials": [
+   "RA_Wood_hp",
+   "RA_Plaster",
+   "RA_Ember",
+   "RA_Sun"
+  ],
+  "size_mb": 3.261248
+ },
+ "markers": [
+  [
+   "NPC_Priest",
+   [
+    0.0,
+    0.36,
+    -3.4
+   ],
+   3.141592653589793,
+   {
+    "look": "Monk",
+    "height": 1.75,
+    "anim": "Idle",
+    "role": "priest"
+   }
+  ],
+  [
+   "NPC_Pilgrim",
+   [
+    -2.45,
+    0.0,
+    1.2
+   ],
+   0.0,
+   {
+    "look": "Elder_Woman",
+    "height": 1.6,
+    "anim": "Idle",
+    "role": "pilgrim"
+   }
+  ]
+ ],
+ "spawn": [
+  [
+   0.0,
+   0.05,
+   5.5
+  ],
+  0.0
+ ],
+ "lights": [
+  [
+   "AltarLight",
+   [
+    0.0,
+    3.2,
+    -5.4
+   ]
+  ],
+  [
+   "NaveLight",
+   [
+    0.0,
+    3.4,
+    2.2
+   ]
+  ]
+ ]
+}
