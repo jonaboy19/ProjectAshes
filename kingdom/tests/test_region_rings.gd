@@ -45,16 +45,21 @@ func test_at_least_one_frontier_town_exists() -> void:
 	assert_int(count).is_greater_equal(1)
 
 
-func test_exactly_two_forts_and_a_rift_outpost() -> void:
+func test_valley_forts_and_new_land_bastions_and_rift_outposts() -> void:
+	# The original valley keeps its two forts (Kingsroad and Farwatch, planned first, so ids 0..core stay put);
+	# the 8 km world adds a bastion at the new town and at the far frontier hold, and a second Rift with its outpost.
 	var forts := 0
-	var rift_outpost := false
+	var rift_outposts := 0
+	var names: Array[String] = []
 	for s in WorldGen.sites:
 		if s["kind"] == "fort":
 			forts += 1
+			names.append(String(s["name"]))
 		elif s["kind"] == "rift_outpost":
-			rift_outpost = true
-	assert_int(forts).is_equal(2)
-	assert_bool(rift_outpost).is_true()
+			rift_outposts += 1
+	assert_int(forts).is_equal(4)
+	assert_array(names).contains(["Kingsroad Bastion", "Farwatch Bastion"])
+	assert_int(rift_outposts).is_equal(2)
 
 
 func test_farms_ring_the_capital_and_every_village_town_and_frontier_town() -> void:

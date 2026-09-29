@@ -3,8 +3,8 @@
 	"id": "first_region",
 	"name": "The Ashford Vale",
 	"nation": "caldrenn",
-	"coords": "Metres on the X/Z ground plane relative to Ashford at (0, 0); pos = [x, z]. The streamed world is 4 x 4 km (+-2000). Matches WorldGen seed 1066: Kingsreach sits at (560, -420).",
-	"bounds": {"min": [-2000, -2000], "max": [2000, 2000]},
+	"coords": "Metres on the X/Z ground plane relative to Ashford at (0, 0); pos = [x, z]. The streamed world is 8 x 8 km (+-4096); the original valley is the +-2000 core, the rest is the new land. Matches WorldGen seed 1066: Kingsreach sits at (560, -420). Danger climbs with distance from Kingsreach: danger_tier 1 near the valley, 3 in the far corners.",
+	"bounds": {"min": [-4000, -4000], "max": [4000, 4000]},
 	"home": "ashford",
 	"places": [
 		{
@@ -120,6 +120,85 @@
 			"radius": 12,
 			"hidden": true,
 			"description": "A mossy dell on the Ashrun just below the Mere where the wind sounds like voices. Something lives under the old willow."
+		},
+		{
+			"id": "silverrun_river",
+			"name": "The Silverrun",
+			"kind": "river",
+			"pos": [2640, 336],
+			"width_m": 10,
+			"path": [[2448, -2736], [2640, -2544], [2736, -2256], [2640, -1968], [2448, -1680], [2352, -1392], [2640, -1104], [2736, -816], [2928, -528], [2928, -240], [2736, 48], [2640, 336], [2448, 624], [2448, 912], [2544, 1200], [2352, 1488], [2544, 1776], [2736, 2064], [2832, 2352], [2928, 2640], [3216, 2928], [3312, 3216], [3504, 3504], [3504, 3792]],
+			"flows": "from the north-eastern foothills south through the eastern lowlands and out to the south-eastern edge of the map",
+			"description": "A broad silver-grey river of the eastern lowlands, fed by the same snowmelt as the Ashrun. Timber bridges carry the far roads across it; the ferrymen say it never quite freezes."
+		},
+		{
+			"id": "mistwood",
+			"name": "Mistwood",
+			"kind": "forest",
+			"pos": [-3221, -614],
+			"radius": 420,
+			"danger": "high",
+			"description": "A pale, fog-hung wood on the far western edge of the map. Charcoal burners work its fringe and do not go in after dusk."
+		},
+		{
+			"id": "greywood",
+			"name": "Greywood",
+			"kind": "forest",
+			"pos": [-1494, 1789],
+			"radius": 480,
+			"danger": "high",
+			"description": "Ash-grey trunks south-west of the Mere, older than Ashford. Grimtusk orcs hunt here, and the wolves have learned to fear them."
+		},
+		{
+			"id": "thornwold",
+			"name": "Thornwold",
+			"kind": "forest",
+			"pos": [2908, -1820],
+			"radius": 480,
+			"danger": "high",
+			"description": "A thicket of black thorn beyond Ironmarch, east of the Silverrun. Poachers, outlaws and worse."
+		},
+		{
+			"id": "ratfang_warren",
+			"name": "Ratfang Warren",
+			"kind": "goblin_warren",
+			"pos": [-1370, 35],
+			"radius": 30,
+			"danger": "moderate",
+			"danger_tier": 1,
+			"description": "A second goblin burrow far west of Ashford, in the hills beyond the Ashrun. Smaller than Mossfang, but bolder."
+		},
+		{
+			"id": "skullpick_warren",
+			"name": "Skullpick Warren",
+			"kind": "goblin_warren",
+			"pos": [2098, -2663],
+			"radius": 34,
+			"danger": "high",
+			"danger_tier": 2,
+			"description": "A goblin mining-warren in the north-eastern woods, grown fat on caravans that strayed from the Ironmarch road. Orc mercenaries sleep in its lower tunnels."
+		},
+		{
+			"id": "grimtusk_hold",
+			"name": "Grimtusk Hold",
+			"kind": "orc_village",
+			"pos": [-1294, 2292],
+			"radius": 45,
+			"danger": "high",
+			"danger_tier": 3,
+			"chief": {"name": "Ukhra Bonecrown", "race": "orc", "age": 52, "title": "Warchief of the Grimtusk", "bloodline": "iron_tusk", "temperament": "cruel, patient, remembers every slight"},
+			"population": 180,
+			"description": "A palisaded war-camp in the deep Greywood, far south-west. Unlike the Tuskridge, the Grimtusk want nothing from Caldrenn but its ashes."
+		},
+		{
+			"id": "deepdark_warren",
+			"name": "Deepdark Warren",
+			"kind": "goblin_warren",
+			"pos": [-3191, -1605],
+			"radius": 36,
+			"danger": "deadly",
+			"danger_tier": 3,
+			"description": "The oldest goblin warren on the map, at the far north-western edge, where the rim mountains begin. A troll is said to rule the lowest chamber."
 		}
 	]
 }

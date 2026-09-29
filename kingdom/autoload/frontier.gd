@@ -55,6 +55,43 @@ func _seed_frontier() -> void:
 			continue
 		ecology.add_den("wolf", p, rng.randi_range(4, 9))
 		placed += 1
+	_seed_far_dens()
+
+
+## The rest of the 8 x 8 km map: dens in the far woods, more of them and deadlier the further
+## they sit from Kingsreach (bands of [min, max] metres, den count, species, pack size).
+## Their own RNG stream, so the valley's eight dens above are exactly where they always were.
+const FAR_DEN_BANDS := [
+	[1400.0, 2500.0, 6, "wolf", Vector2i(5, 10)],
+	[2500.0, 3400.0, 6, "wolf", Vector2i(8, 13)],
+	[3400.0, 6000.0, 5, "corrupted_wolf", Vector2i(4, 8)],
+]
+
+
+func _seed_far_dens() -> void:
+	var capital := Vector2.ZERO
+	for s: Dictionary in WorldGen.settlements:
+		if s["kind"] == "castle":
+			capital = s["pos"]
+			break
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 78
+	var lim := WorldGen.WORLD_HALF - 300.0
+	for band: Array in FAR_DEN_BANDS:
+		var placed := 0
+		var tries := 0
+		while placed < int(band[2]) and tries < 3000:
+			tries += 1
+			var p := Vector2(rng.randf_range(-lim, lim), rng.randf_range(-lim, lim))
+			var d := p.distance_to(capital)
+			if d < float(band[0]) or d >= float(band[1]) or WorldGen.forest_density(p.x, p.y) < 0.45 or runestones.coverage(p) > 0.05:
+				continue
+			var near := WorldGen.nearest_settlement(p)
+			if not near.is_empty() and p.distance_to(near["pos"]) < float(near["radius"]) * 1.8 + 150.0:
+				continue
+			var pack: Vector2i = band[4]
+			ecology.add_den(String(band[3]), p, rng.randi_range(pack.x, pack.y))
+			placed += 1
 
 
 func _on_hour(_hour: int) -> void:
@@ -89,7 +126,7 @@ func _maybe_apex_moves_in(day: int) -> void:
 	var c: Vector2 = WorldGen.settlements[0]["pos"]
 	for _t in 60:
 		var ang := rng.randf() * TAU
-		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(900.0, 1700.0)
+		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(900.0, 2600.0)
 		if WorldGen.forest_density(p.x, p.y) < 0.4 or runestones.coverage(p) > 0.02:
 			continue
 		ecology.spawn_apex("troll" if rng.randf() < 0.4 else "bear", p, ecology.current_day())
