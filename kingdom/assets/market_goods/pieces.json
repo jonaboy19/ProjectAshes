@@ -1,0 +1,562 @@
+{
+ "apple_green": {
+  "origin": "base",
+  "size": [
+   0.129,
+   0.131,
+   0.139
+  ],
+  "src": "food:Apple_Green",
+  "tris": 100
+ },
+ "apple_red": {
+  "origin": "base",
+  "size": [
+   0.131,
+   0.131,
+   0.138
+  ],
+  "src": "food:Apple",
+  "tris": 99
+ },
+ "axe": {
+  "origin": "base",
+  "size": [
+   0.264,
+   0.042,
+   0.744
+  ],
+  "src": "fp:Axe_Bronze",
+  "tris": 260
+ },
+ "barrel_apples": {
+  "origin": "base",
+  "size": [
+   0.722,
+   0.716,
+   0.91
+  ],
+  "src": "fp:Barrel_Apples",
+  "tris": 260
+ },
+ "bench": {
+  "origin": "base",
+  "size": [
+   2.083,
+   0.401,
+   0.4
+  ],
+  "src": "fp:Bench",
+  "tris": 260
+ },
+ "book_stack_a": {
+  "origin": "base",
+  "size": [
+   0.399,
+   0.317,
+   0.299
+  ],
+  "src": "fp:Book_Stack_1",
+  "tris": 208
+ },
+ "book_stack_b": {
+  "origin": "base",
+  "size": [
+   0.384,
+   0.319,
+   0.303
+  ],
+  "src": "fp:Book_Stack_2",
+  "tris": 200
+ },
+ "books_small_a": {
+  "origin": "base",
+  "size": [
+   0.362,
+   0.282,
+   0.373
+  ],
+  "src": "fp:BookGroup_Small_1",
+  "tris": 104
+ },
+ "books_small_b": {
+  "origin": "base",
+  "size": [
+   0.284,
+   0.297,
+   0.354
+  ],
+  "src": "fp:BookGroup_Small_2",
+  "tris": 104
+ },
+ "bottle": {
+  "origin": "base",
+  "size": [
+   0.141,
+   0.141,
+   0.456
+  ],
+  "src": "fp:Bottle_1",
+  "tris": 260
+ },
+ "bottles_row": {
+  "origin": "base",
+  "size": [
+   0.366,
+   0.095,
+   0.248
+  ],
+  "src": "fp:SmallBottles_1",
+  "tris": 260
+ },
+ "bread": {
+  "origin": "base",
+  "size": [
+   0.208,
+   0.36,
+   0.254
+  ],
+  "src": "food:Bread",
+  "tris": 260
+ },
+ "bread_round": {
+  "origin": "base",
+  "size": [
+   0.28,
+   0.28,
+   0.168
+  ],
+  "src": "gen:bread_round",
+  "tris": 100
+ },
+ "bucket_metal": {
+  "origin": "base",
+  "size": [
+   0.508,
+   0.485,
+   0.397
+  ],
+  "src": "fp:Bucket_Metal",
+  "tris": 260
+ },
+ "bucket_wood": {
+  "origin": "base",
+  "size": [
+   0.478,
+   0.423,
+   0.324
+  ],
+  "src": "fp:Bucket_Wooden_1",
+  "tris": 260
+ },
+ "cabbage": {
+  "origin": "base",
+  "size": [
+   0.299,
+   0.299,
+   0.248
+  ],
+  "src": "food:Lettuce_Whole",
+  "tris": 260
+ },
+ "cage_small": {
+  "origin": "base",
+  "size": [
+   0.847,
+   0.872,
+   0.786
+  ],
+  "src": "fp:Cage_Small",
+  "tris": 260
+ },
+ "candle_a": {
+  "origin": "base",
+  "size": [
+   0.189,
+   0.215,
+   0.264
+  ],
+  "src": "fp:Candle_1",
+  "tris": 100
+ },
+ "candle_b": {
+  "origin": "base",
+  "size": [
+   0.17,
+   0.176,
+   0.452
+  ],
+  "src": "fp:Candle_2",
+  "tris": 210
+ },
+ "candlestick": {
+  "origin": "base",
+  "size": [
+   0.393,
+   0.27,
+   0.233
+  ],
+  "src": "fp:CandleStick",
+  "tris": 260
+ },
+ "cauldron": {
+  "origin": "base",
+  "size": [
+   0.644,
+   0.617,
+   0.545
+  ],
+  "src": "fp:Cauldron",
+  "tris": 259
+ },
+ "chalice": {
+  "origin": "base",
+  "size": [
+   0.178,
+   0.187,
+   0.386
+  ],
+  "src": "fp:Chalice",
+  "tris": 260
+ },
+ "cheese_round": {
+  "origin": "base",
+  "size": [
+   0.312,
+   0.32,
+   0.09
+  ],
+  "src": "gen:cheese_round",
+  "tris": 52
+ },
+ "cheese_slices": {
+  "origin": "base",
+  "size": [
+   0.28,
+   0.265,
+   0.008
+  ],
+  "src": "food:Cheese_Singles",
+  "tris": 96
+ },
+ "cheese_wedge": {
+  "origin": "base",
+  "size": [
+   0.17,
+   0.12,
+   0.08
+  ],
+  "src": "gen:cheese_wedge",
+  "tris": 8
+ },
+ "chicken_leg": {
+  "origin": "base",
+  "size": [
+   0.3,
+   0.131,
+   0.125
+  ],
+  "src": "food:ChickenLeg",
+  "tris": 260
+ },
+ "crate_apples": {
+  "origin": "base",
+  "size": [
+   0.674,
+   0.397,
+   0.244
+  ],
+  "src": "fp:FarmCrate_Apple",
+  "tris": 260
+ },
+ "crate_carrots": {
+  "origin": "base",
+  "size": [
+   0.682,
+   0.558,
+   0.41
+  ],
+  "src": "fp:FarmCrate_Carrot",
+  "tris": 262
+ },
+ "crate_empty": {
+  "origin": "base",
+  "size": [
+   0.711,
+   0.424,
+   0.244
+  ],
+  "src": "fp:FarmCrate_Empty",
+  "tris": 260
+ },
+ "crate_wood": {
+  "origin": "base",
+  "size": [
+   0.842,
+   0.885,
+   0.909
+  ],
+  "src": "fp:Crate_Wooden",
+  "tris": 260
+ },
+ "fish": {
+  "origin": "base",
+  "size": [
+   0.462,
+   0.152,
+   0.039
+  ],
+  "src": "food:Fish",
+  "tris": 90
+ },
+ "fish_hang": {
+  "origin": "top",
+  "size": [
+   0.442,
+   0.038,
+   0.145
+  ],
+  "src": "food:Fish",
+  "tris": 90
+ },
+ "jar": {
+  "origin": "base",
+  "size": [
+   0.235,
+   0.224,
+   0.237
+  ],
+  "src": "food:Jar_Large",
+  "tris": 100
+ },
+ "lantern_hang": {
+  "origin": "top",
+  "size": [
+   0.147,
+   0.537,
+   0.552
+  ],
+  "src": "fp:Lantern_Wall",
+  "tris": 299
+ },
+ "mug": {
+  "origin": "base",
+  "size": [
+   0.307,
+   0.235,
+   0.294
+  ],
+  "src": "fp:Mug",
+  "tris": 260
+ },
+ "orange": {
+  "origin": "base",
+  "size": [
+   0.13,
+   0.13,
+   0.13
+  ],
+  "src": "food:Orange",
+  "tris": 100
+ },
+ "peg_rack": {
+  "origin": "base",
+  "size": [
+   1.184,
+   0.096,
+   0.343
+  ],
+  "src": "fp:Peg_Rack",
+  "tris": 260
+ },
+ "pickaxe": {
+  "origin": "base",
+  "size": [
+   0.65,
+   0.109,
+   0.961
+  ],
+  "src": "fp:Pickaxe_Bronze",
+  "tris": 260
+ },
+ "plate": {
+  "origin": "base",
+  "size": [
+   0.433,
+   0.438,
+   0.026
+  ],
+  "src": "fp:Table_Plate",
+  "tris": 172
+ },
+ "pot_iron": {
+  "origin": "base",
+  "size": [
+   0.412,
+   0.384,
+   0.181
+  ],
+  "src": "fp:Pot_1",
+  "tris": 260
+ },
+ "potion_a": {
+  "origin": "base",
+  "size": [
+   0.208,
+   0.209,
+   0.246
+  ],
+  "src": "fp:Potion_1",
+  "tris": 100
+ },
+ "potion_b": {
+  "origin": "base",
+  "size": [
+   0.185,
+   0.185,
+   0.382
+  ],
+  "src": "fp:Potion_2",
+  "tris": 260
+ },
+ "potion_c": {
+  "origin": "base",
+  "size": [
+   0.219,
+   0.219,
+   0.302
+  ],
+  "src": "fp:Potion_4",
+  "tris": 260
+ },
+ "pouch": {
+  "origin": "base",
+  "size": [
+   0.403,
+   0.213,
+   0.294
+  ],
+  "src": "fp:Pouch_Large",
+  "tris": 140
+ },
+ "pumpkin": {
+  "origin": "base",
+  "size": [
+   0.356,
+   0.36,
+   0.222
+  ],
+  "src": "food:Pumpkin",
+  "tris": 260
+ },
+ "rope_coil": {
+  "origin": "base",
+  "size": [
+   0.568,
+   0.61,
+   0.11
+  ],
+  "src": "fp:Rope_1",
+  "tris": 260
+ },
+ "sack_grain": {
+  "origin": "base",
+  "size": [
+   0.59,
+   0.484,
+   0.718
+  ],
+  "src": "fp:Bag",
+  "tris": 259
+ },
+ "sausage_hang": {
+  "origin": "top",
+  "size": [
+   0.072,
+   0.073,
+   0.5
+  ],
+  "src": "food:Sausage_Cooked",
+  "tris": 140
+ },
+ "scroll": {
+  "origin": "base",
+  "size": [
+   0.369,
+   0.095,
+   0.091
+  ],
+  "src": "fp:Scroll_1",
+  "tris": 160
+ },
+ "shield": {
+  "origin": "base",
+  "size": [
+   0.571,
+   0.162,
+   0.568
+  ],
+  "src": "fp:Shield_Wooden",
+  "tris": 260
+ },
+ "stool": {
+  "origin": "base",
+  "size": [
+   0.475,
+   0.475,
+   0.589
+  ],
+  "src": "fp:Stool",
+  "tris": 152
+ },
+ "tomato": {
+  "origin": "base",
+  "size": [
+   0.13,
+   0.13,
+   0.109
+  ],
+  "src": "food:Tomato",
+  "tris": 100
+ },
+ "torch": {
+  "origin": "top",
+  "size": [
+   0.173,
+   0.3,
+   0.505
+  ],
+  "src": "fp:Torch_Metal",
+  "tris": 259
+ },
+ "vase_big": {
+  "origin": "base",
+  "size": [
+   0.579,
+   0.58,
+   0.438
+  ],
+  "src": "fp:Vase_2",
+  "tris": 260
+ },
+ "vase_tall": {
+  "origin": "base",
+  "size": [
+   0.394,
+   0.394,
+   0.534
+  ],
+  "src": "fp:Vase_4",
+  "tris": 260
+ },
+ "wine_bottle": {
+  "origin": "base",
+  "size": [
+   0.116,
+   0.116,
+   0.4
+  ],
+  "src": "food:Bottle1",
+  "tris": 220
+ }
+}

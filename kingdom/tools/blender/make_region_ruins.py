@@ -59,7 +59,7 @@ def collapsed_tower(k, lod):
         if 0.72 < a < 0.9:
             h = rng.uniform(0.6, 1.6)
         hs.append(max(0.5, h))
-    stone = (0.93, 0.91, 0.88)
+    stone = (0.98, 0.98, 0.99)         # cool grey: the texture (RG_Ruin) carries the weathering
     for i in range(segs):
         a0 = (i / segs - 0.25) * math.tau
         a1 = ((i + 1) / segs - 0.25) * math.tau
@@ -79,8 +79,8 @@ def collapsed_tower(k, lod):
         if z0 > 0:
             faces.append([P(a0, R - t, z0), P(a1, R - t, z0), P(a1, R, z0), P(a0, R, z0)])
         c = P((a0 + a1) / 2, R - t / 2, (z0 + z1) / 2)
-        k.add(S.oriented(faces, c), "RG_Stone", jit(k, stone, 0.05), scale=2.0,
-              uvs=[[(math.atan2(p.y, p.x) * R / 2.0, p.z / 2.0) for p in f] for f in S.oriented(faces, c)])
+        k.add(S.oriented(faces, c), "RG_Ruin", jit(k, stone, 0.05), scale=3.4,
+              uvs=[[(math.atan2(p.y, p.x) * R / 3.4, p.z / 3.4) for p in f] for f in S.oriented(faces, c)])
         # arrow slits
         if lod == 0 and i % 5 == 2 and z1 > 5:
             am = (a0 + a1) / 2
@@ -89,13 +89,13 @@ def collapsed_tower(k, lod):
     a0 = (-0.25) * math.tau
     k.beam(tuple(Vector((math.cos(a0), math.sin(a0), 0)) * (R + 0.05) + Vector((0, 0, 2.45))),
            tuple(Vector((math.cos(a0 + math.tau / segs), math.sin(a0 + math.tau / segs), 0)) * (R + 0.05) + Vector((0, 0, 2.45))),
-           0.35, 0.3, "RG_Stone", (0.8, 0.78, 0.74))
+           0.35, 0.3, "RG_Ruin", (0.86, 0.86, 0.88))
     # rubble + fallen blocks where the wall collapsed
     for i in range(14 if lod == 0 else 5):
         a = k.rng.uniform(0.7, 0.95) * math.tau - 0.25 * math.tau
         d = k.rng.uniform(R - 0.5, R + 3.0)
         s = k.rng.uniform(0.35, 0.8)
-        S.crag(k, (math.cos(a) * d, math.sin(a) * d, 0), (s, s * 0.8, s * 0.6), 100 + i, mat="RG_Stone",
+        S.crag(k, (math.cos(a) * d, math.sin(a) * d, 0), (s, s * 0.8, s * 0.6), 100 + i, mat="RG_Ruin",
                tint=jit(k, stone, 0.08), lod=1, cuts=6, rot=a, subdiv=2, top_tint=MOSS)
     if lod == 0:
         for i in range(6):

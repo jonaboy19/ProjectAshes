@@ -112,3 +112,8 @@ CC0 / public domain (no attribution required; credited with thanks):
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
   ```
+
+## Market goods (added 2026-09-29, see `assets/market_goods/README.md`)
+
+CC0 (no attribution required; credited with thanks): 53 market props (39 + 14 pieces) from **Quaternius'** *Fantasy Props MegaKit* and *Ultimate Food Pack*
+(https://quaternius.com), re-authored into one warm-painted atlas (`assets/market_goods/`).

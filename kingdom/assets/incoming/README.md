@@ -17,6 +17,13 @@ converted headless with Blender 5.2 (see "Round 2" below).
 **Visual previews:** `_previews/*.jpg` holds one contact sheet per new pack (every
 model rendered from a 3/4 view, with its file name). Browse these before picking assets.
 
+## Used by the game (2026-09-29)
+
+| Pack | Where it went | Notes |
+|---|---|---|
+| `quaternius/fantasy-props-megakit` (39 pieces) and `quaternius/ultimate-food` (14 pieces), CC0 | `kingdom/assets/market_goods/` (selected files copied to `source/` with licences, gdignored; atlas + one glb built by `tools/blender/make_market_goods.py`) | market stall goods, shop fronts, crate stacks; see `kingdom/assets/market_goods/README.md` |
+| `polyhaven/`, `ambientcg/` textures | not used for decals: the decal library (`assets/art/decals/`) is painted procedurally by `tools/make_town_decals.py` | |
+
 ## Round 2 additions (2026-09-26, later): all `.gdignore`d until integrated
 
 | Folder | What | Licence |

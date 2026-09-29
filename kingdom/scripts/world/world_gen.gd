@@ -576,6 +576,10 @@ static func street_distance(x: float, z: float) -> float:
 	return CityPlanner.street_distance(near["plan"], p)
 
 
+## QA switch for before/after shots: `-- --legacy-plaza` restores the small cobbled village square.
+static var _legacy_plaza := OS.get_cmdline_user_args().has("--legacy-plaza")
+
+
 ## Terrain material weights packed in a Color (see shaders/terrain.gdshader):
 ## r = dirt path, g = rock, b = cobblestone street, a = forest floor; grass = rest.
 static func color_at(x: float, z: float, h: float, slope: float) -> Color:
@@ -587,7 +591,23 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 		var dc := Vector2(x, z).distance_to(near["pos"])
 		var paved: bool = near["kind"] != "village"
 		var sd := street_distance(x, z)
-		if near.has("plan") and dc < near["plan"]["plaza_r"] + 2.0:
+		if not paved and not _legacy_plaza and near.has("plan") and dc < near["plan"]["plaza_r"] + 18.0:
+			# Village squares: the same honey cobble (channel B) as the towns' plazas, out to ~3.5 m past
+			# the nominal radius with a ragged, feathered rim (grass and flowers take over beyond it),
+			# and the four street spokes stay paved for the first ~15 m before they turn to packed dirt.
+			var vpr: float = near["plan"]["plaza_r"]
+			var rim := vpr + 3.4 + _detail.get_noise_2d(x * 0.45, z * 0.45) * 1.6
+			var pave := 1.0 - smoothstep(rim - 0.6, rim + 0.9, dc)
+			if sd < 1.0:
+				var vk := 1.0 - smoothstep(-0.5, 1.0, sd)
+				var vnear := 1.0 - smoothstep(vpr + 5.0, vpr + 16.0, dc)
+				pave = maxf(pave, vk * vnear)
+				w.r = maxf(w.r, vk * (1.0 - vnear))
+				w.a = 0.0
+			if pave > 0.0:
+				w.b = pave
+				w.a = 0.0
+		elif near.has("plan") and dc < near["plan"]["plaza_r"] + 2.0:
 			var pr: float = near["plan"]["plaza_r"]
 			if paved or dc < pr - 1.5: w.b = 1.0
 			else: w.r = 1.0
@@ -612,10 +632,15 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 					var lp: Vector2 = lot["pos"]
 					var ld := Vector2(x, z).distance_to(lp)
 					if ld < 7.0:
-						var k := (1.0 - smoothstep(2.8, 7.0, ld)) * 0.65
+						# Villages: a tighter, lighter wear ring (the rest of the yard stays grass), so the
+						# ground between the houses doesn't read as one wide bare-dirt field.
+						var vill := not paved and not _legacy_plaza
+						var k := (1.0 - smoothstep(2.8, 5.4 if vill else 7.0, ld)) * (0.5 if vill else 0.65)
 						w.r = maxf(w.r, k)
 						w.a *= 1.0 - clampf(k * 1.5, 0.0, 1.0)
 						break   # one nearby lot is enough; footprints rarely overlap
+	if w.b > 0.0 and not near.is_empty() and near["kind"] == "village" and not _legacy_plaza:
+		w.r *= 1.0 - w.b * 0.9      # footpaths / lot wear don't muddy a paved square
 	var rinfo := road_info(x, z)
 	var rd: float = rinfo["dist"]
 	var half_w: float = float(rinfo["width"]) * 0.5

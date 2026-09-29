@@ -319,3 +319,24 @@ with the blocky close sprite before the fix — gone after).
 Ashford market on HIGH: 71 → 44 people nearby. On Godot 4.6.3 with the GDExtensions loaded: fps 60, p99 16.7 ms, 5 hitches >33 ms, clean exit.
 Consecutive 0.5 s frames show no popping; the market still reads as lively (`docs/qa/npc_density_shots/after_caps_market.jpg`).
 Note for Codex: perf_visual `anim_bad` rose (52 → 117-128) once LimboAI and the other GDExtensions loaded and the crowd shrank. Worth a look at the anim-timing report.
+
+## 2026-09-29: denser towns (market goods, decals, village plazas, ruin stone)
+What was added, and what it costs. No fps numbers: they need the PC (the cloud renders are llvmpipe); everything below is
+counted from the built scene (`kingdom/tests/test_market_dressing.gd` prints the Kingsreach line) or bounded by construction.
+
+* **Market goods** (`scripts/world/market_goods.gd`, `SettlementBuilder._market_dressing`): 56 CC0 pieces, one 1024 px atlas, one
+  glb. Pieces are composed at load into ONE-surface layouts (6 stall themes x full/lite, 2 stacks, 4 shop-fronts), so a layout is one
+  draw. Kingsreach total: 107 MultiMesh batches, 129 layout instances, 447k tris for the whole capital, but every batch is a 40 m
+  cell culled at 70 m (LOW x0.55 = 38 m) so what is ever drawn is the ~10-25 stalls near the camera: about 5k tris per stall
+  (HIGH: <= ~100k in the gate view; LOW: ~40k) and roughly 20-30 extra draws. No shadow casting, no contact-shadow blobs, no
+  colliders (walk boxes stay the stalls' own). Textures: +1 x 1024 px (1.4 MB VRAM compressed). Build time is unchanged in practice
+  (one extra clearance pass per stall against the door corridors and solid props).
+  LOW keeps the same stall dressing but drops the stacks behind the stalls and half the shop fronts.
+* **Decals** (`town_decals.gd`, `SettlementBuilder._decals`): the Mobile renderer allows 8 decals per mesh, so wall decals only
+  project onto the house batches (visual layer 11) and ground decals only onto the terrain chunk meshes (layer 12), at most one
+  wall decal per 32 m block and 5 ground decals per 64 m chunk; every decal fades out at 30-40 m (`distance_fade`); NONE on LOW
+  (not built, hidden if the tier drops). Millbrook: 4 wall + 7 ground decals; Kingsreach soot decals (forge doors and chimneys): 22.
+* **Village squares**: only `WorldGen.color_at()` (channel B out to plaza_r + ~3.4 m, spokes paved 16 m) and ~90 flower/grass
+  instances per village (one batch per 40 m cell): zero extra draws on the terrain.
+* **Collapsed tower**: same 618-tri mesh, new texture only.
+* QA switches for A/B renders and benches: `-- --no-goods`, `-- --no-decals`, `-- --legacy-plaza`.
