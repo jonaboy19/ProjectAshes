@@ -90,13 +90,13 @@
  {
   "name": "MA_Combo_HookJab",
   "loop": false,
-  "seconds": 1.45,
-  "frames": 44,
+  "seconds": 1.33,
+  "frames": 40,
   "keys": 1028,
   "source": "014/14_01.bvh",
   "range_s": [
    18.83,
-   20.28
+   20.16
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -107,20 +107,20 @@
   "hip_scale": 0.0515,
   "trimmed_from_s": [
    0,
-   1.45
+   1.333
   ],
   "renamed_from": "MA_Combo_HeavyJab"
  },
  {
   "name": "MA_Combo_HookHook",
   "loop": false,
-  "seconds": 1.9,
-  "frames": 57,
+  "seconds": 1.75,
+  "frames": 52,
   "keys": 1423,
   "source": "014/14_01.bvh",
   "range_s": [
    22.91,
-   24.81
+   24.66
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -131,33 +131,9 @@
   "hip_scale": 0.0515,
   "trimmed_from_s": [
    0,
-   1.9
-  ],
-  "renamed_from": "MA_Combo_HeavyHeavy"
- },
- {
-  "name": "MA_Combo_StraightHook",
-  "loop": false,
-  "seconds": 1.75,
-  "frames": 52,
-  "keys": 1605,
-  "source": "014/14_03.bvh",
-  "range_s": [
-   28.18,
-   29.93
-  ],
-  "autotrim": null,
-  "loop_pts": null,
-  "floor_fix_m": -0.014,
-  "contact_lift_m": 0.0,
-  "min_foot_m": -0.002,
-  "travel_m": 0.21,
-  "hip_scale": 0.0515,
-  "trimmed_from_s": [
-   0,
    1.75
   ],
-  "renamed_from": "MA_Combo_StraightHeavy"
+  "renamed_from": "MA_Combo_HeavyHeavy"
  },
  {
   "name": "MA_Combo_HookStraight",

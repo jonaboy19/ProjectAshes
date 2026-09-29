@@ -30,9 +30,8 @@
 | `MA_Combo_JabCross_Southpaw` | 1.45 |  | 0.14 m | CMU 14_01, 15.0-16.4 s, mirrored (CMU terms) | 2-hit mirror |
 | `MA_Combo_CrossCross` | 2.33 |  | 0.14 m | CMU 13_18, 7.3-9.7 s (CMU terms) | 2-hit straight punches |
 | `MA_Combo_StraightStraight` | 1.40 |  | 0.24 m | CMU 14_01, 4.7-6.1 s (CMU terms) | 2-hit straight punches, advancing |
-| `MA_Combo_HookJab` | 1.45 |  | 0.26 m | CMU 14_01, 18.8-20.3 s (CMU terms) | 2-hit: hook then jab |
-| `MA_Combo_HookHook` | 1.90 |  | 0.19 m | CMU 14_01, 22.9-24.8 s (CMU terms) | 2-hit: hook then hook |
-| `MA_Combo_StraightHook` | 1.75 |  | 0.21 m | CMU 14_03, 28.2-29.9 s (CMU terms) | 2-hit: straight then hook |
+| `MA_Combo_HookJab` | 1.33 |  | 0.26 m | CMU 14_01, 18.8-20.2 s (CMU terms) | 2-hit: hook then jab |
+| `MA_Combo_HookHook` | 1.75 |  | 0.19 m | CMU 14_01, 22.9-24.7 s (CMU terms) | 2-hit: hook then hook |
 | `MA_Combo_HookStraight` | 1.60 |  | 0.08 m | CMU 15_13, 24.3-25.9 s (CMU terms) | 2-hit: hook then straight |
 
 ### kicks  (`animations_free/kicks/UAL_Free_Kicks.glb`)
@@ -151,4 +150,4 @@
 | `Hit_KK_A` | 0.67 |  | - | KayKit General / Hit_A (CC0) | flinch |
 | `Hit_KK_B` | 0.87 |  | - | KayKit General / Hit_B (CC0) | heavier flinch |
 
-Total: 108 clips.
+Total: 107 clips.

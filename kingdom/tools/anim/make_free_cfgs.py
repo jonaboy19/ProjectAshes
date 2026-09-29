@@ -51,9 +51,8 @@ TABLE = {
   ("MA_Combo_JabCross_Southpaw", "14_01", 14.97, 16.42, M, "2-hit mirror"),
   ("MA_Combo_CrossCross", "13_18", 7.33, 9.69, {}, "2-hit straight punches"),
   ("MA_Combo_StraightStraight", "14_01", 4.69, 6.09, {}, "2-hit straight punches, advancing"),
-  ("MA_Combo_HookJab", "14_01", 18.83, 20.28, {}, "2-hit: hook then jab"),
-  ("MA_Combo_HookHook", "14_01", 22.91, 24.81, {}, "2-hit: hook then hook"),
-  ("MA_Combo_StraightHook", "14_03", 28.18, 29.93, {}, "2-hit: straight then hook"),
+  ("MA_Combo_HookJab", "14_01", 18.83, 20.16, {}, "2-hit: hook then jab"),
+  ("MA_Combo_HookHook", "14_01", 22.91, 24.66, {}, "2-hit: hook then hook"),
   ("MA_Combo_HookStraight", "15_13", 24.27, 25.87, {}, "2-hit: hook then straight"),
  ],
  "kicks": [

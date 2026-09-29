@@ -88,8 +88,11 @@ var _wait := 0
 var _pos := {}
 var _pabs: Array = []              # pelvis position in model space per frame (with --paths)
 var _minb: Array = []              # lowest bone height per frame (metres above the floor, all bones but root)
+var _head: Array = []              # head position per frame (model space)
+var _pelv: Array = []              # pelvis height per frame
 var _cpos := {}                    # limb -> path in the chest yaw frame (x = character left, y up, z = forward), origin = shoulder midpoint
 var _ul := 0
+var _hd := 0
 var _ur := 0
 var _foot_min := 9.0
 var _hand_min := 9.0
@@ -107,6 +110,7 @@ func _setup(model: Node3D, ap: AnimationPlayer) -> void:
 	_toes = {"ball_l": _sk.find_bone("ball_l"), "ball_r": _sk.find_bone("ball_r")}
 	_pel = _sk.find_bone("pelvis")
 	_ul = _sk.find_bone("upperarm_l")
+	_hd = _sk.find_bone("Head")
 	_ur = _sk.find_bone("upperarm_r")
 	for k: String in _toes:
 		_rest_toe_y[k] = (_sk.global_transform * _sk.get_bone_global_rest(_toes[k])).origin.y
@@ -129,6 +133,8 @@ func _process(_d: float) -> bool:
 		_pos = {}
 		_cpos = {}
 		_pabs = []
+		_head = []
+		_pelv = []
 		_minb = []
 		for l: String in _limbs:
 			_pos[l] = []
@@ -150,6 +156,8 @@ func _process(_d: float) -> bool:
 	var fwd := lat.cross(Vector3.UP)
 	var smid := (pu + pr) * 0.5
 	_pabs.append(gp)
+	_pelv.append(gp.y)
+	_head.append((_sk.global_transform * _sk.get_bone_global_pose(_hd)).origin)
 	var lowest := 9.0
 	for b in _sk.get_bone_count():
 		if _sk.get_bone_name(b) != "root":
@@ -230,6 +238,24 @@ func _finish_clip(c: Array, n: int) -> void:
 			"peak_frame": peak_frame, "peak_limb": peak_limb, "peak_speed": snappedf(peak_v, 0.1),
 			"hits": merged, "travel_m": [snappedf((c[2] as Vector3).x, 0.01), snappedf((c[2] as Vector3).y, 0.01), snappedf((c[2] as Vector3).z, 0.01)],
 			"foot_min": snappedf(foot_min, 0.001), "hand_min": snappedf(hand_min, 0.001)}
+		# reaction metrics: frame of the largest head displacement from frame 0 (first 60% of the clip = recoil peak),
+		# and the first frame from which the pelvis stays below 0.5 m (body on the ground)
+		var recoil_f := 0
+		var recoil_d := 0.0
+		for i in range(1, maxi(int(n * 0.6), 2)):
+			var dd: float = ((_head[i] as Vector3) - (_head[0] as Vector3)).length()
+			if dd > recoil_d:
+				recoil_d = dd
+				recoil_f = i
+		var down_f := -1
+		for i in range(n - 1, -1, -1):
+			if float(_pelv[i]) < 0.5:
+				down_f = i
+			else:
+				break
+		_out[String(c[0])]["recoil_frame"] = recoil_f
+		_out[String(c[0])]["recoil_m"] = snappedf(recoil_d, 0.01)
+		_out[String(c[0])]["down_frame"] = down_f if down_f < n - 1 else -1
 		if _paths:
 			var pp := {}
 			for l: String in _limbs:

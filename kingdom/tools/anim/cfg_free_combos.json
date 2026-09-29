@@ -83,7 +83,7 @@
    "name": "MA_Combo_HookJab",
    "file": "014/14_01.bvh",
    "start": 18.83,
-   "end": 20.28,
+   "end": 20.16,
    "fingers": "fist",
    "inplace_sigma": 0.5,
    "smooth": 0.012
@@ -92,16 +92,7 @@
    "name": "MA_Combo_HookHook",
    "file": "014/14_01.bvh",
    "start": 22.91,
-   "end": 24.81,
-   "fingers": "fist",
-   "inplace_sigma": 0.5,
-   "smooth": 0.012
-  },
-  {
-   "name": "MA_Combo_StraightHook",
-   "file": "014/14_03.bvh",
-   "start": 28.18,
-   "end": 29.93,
+   "end": 24.66,
    "fingers": "fist",
    "inplace_sigma": 0.5,
    "smooth": 0.012
