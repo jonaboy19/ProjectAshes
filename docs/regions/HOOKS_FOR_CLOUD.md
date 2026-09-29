@@ -237,4 +237,15 @@ Runtime: `scripts/region1/story_quest.gd` (`Region1StoryQuest extends Region1Sim
 
 Tracker text is `story.step(id)["objective"]`; the Journal uses `title` and `journal`.
 
+**Story v2 additions** (`docs/regions/EMOTION_MAP_R1.md`):
+
+| What | Where | Wire it to |
+|---|---|---|
+| `staging` on every step | `r1_main.json` | On `step_started`, C12 switches the bed to `staging.music` (use the registry `music` fallback for missing cues; `silence` means fade the bed out). C9 and Codex read `camera`, `anim`, `vfx` and `needs` as the brief. |
+| Kindling Night festival objective | `a1_kindling` (childhood, while the years pass to 12) | `story.notify(&"festival", {"festival": "kindling_night"}, ctx)` from `seasons.gd` festival start. The Act III Kindling (`a3_kindling_return`) is story-lit "early, for Idra" and only needs `enter_area ashford_ring`; stage it at night with lanterns whatever the calendar says. |
+| `spawn` of `stagborn_fawn` at the ring (with the wolf) | `a1_hesks_ember` | Frontier; the wolf targets the fawn. The fawn is not a kill target. |
+| `give` of `maren_staff` | `a4_dark_night` | inventory (new item in the registry `new_items`) |
+| Ashsight sites `miller_stone` and `ashford_ring` | Act III | the same C6 call as the Pennick farm |
+| Flags for other systems | throughout | `r1.a1.wren_joined` (retinue: Wren follows), `r1.a4.wren_left` / `r1.a4.wren_back` (Wren leaves and rejoins), `r1.thistle.freed` / `r1.thistle.kept` (Thistle with the herd, or with you), `r1.a3.maren_gone`, `r1.ending.*` (achievements) |
+
 **Test:** `Godot --headless --path kingdom -s res://tools_qa/region1/lint_quests.gd` must stay at 0 errors. `tests/test_region1_story.gd` shows the calls step by step.

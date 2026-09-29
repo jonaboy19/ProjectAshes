@@ -3,16 +3,19 @@
 The local session updates this file whenever a task starts or finishes. **Cloud session: read it after each pull.**
 Who owns which area: `docs/LOCAL_SESSION_HANDOFF.md`.
 
-_Last update: 2026-09-29 (Region 1 L10 Ember Legacy + L11 Ashsight; L14 main quest + L16 tutorial director)_
+_Last update: 2026-09-29 (L14 story v2 emotional rollercoaster; Region 1 L10 Ember Legacy + L11 Ashsight; L14 main quest + L16 tutorial director)_
 
 ## Done (recent)
 | Date | What | Where | Commit |
 |---|---|---|---|
+| 09-29 | **L14 story v2, the emotional rollercoaster**: emotion map of v1 (flat Act II-III, no loss of anyone loved, no betrayal, no dark night, costless finale) and a rewrite to 38 steps with a -5..+5 curve and 16 swings. Adds Thistle (a stagborn fawn), Wren (best friend, companion #1), two Kindling Nights, the twist (Idra has fed the Miller's Stone for 30 years), Maren's death holding the ring, the betrayal (Captain Bram sold your reports), a dark night then comeback, and a finale where Ember Legacy choices decide who pays (Idra, Bram, Tamsin, or nobody in the hidden Kindled Dawn). New groups thistle_bond and bram_fate. `staging` (music, camera, anim, VFX, silence, weather, C9/Codex/VFX marks) on every step, checked by the lint, which also flags flat stretches. Lint 0 errors, 0 warnings, 281/281 lines shown; exhaustive 10368/10368; 61/61 region1 tests. **Cloud:** C7 hooks in HOOKS_FOR_CLOUD.md (story v2 table); C9 has 2 new cutscenes + 4 finale variants; C12 needs 3 missing music cues (registry `music`); C20: Wren/Thistle flags, and the Tamsin name clash (EMOTION_MAP_R1 section 5) | `docs/regions/EMOTION_MAP_R1.md`, `STORY_R1.md`, `CAST_R1.md`, `data/region1/`, `tools_qa/region1/lint_quests.gd`, `tests/test_region1_story.gd` | 5f2a2a53 |
+| 09-29 | **Animation polish pass** (see table below): Stagborn re-render + foot lock, farm cow/chicken fixes, 16 casting clips, library re-review, vault/traversal rebuilt, clip-name/import hygiene | `assets/incoming/ai3d/meshy/creatures/`, `meshy_free/farm/rigged/`, `animations_free*/`, `docs/anim/free_library/polish_*.md`, `docs/anim/farm/`, `docs/art/region1/stagborn/` | see git log "Stagborn:", "Farm animals:", "anim:" |
 | 09-28 | Boot crash fixed (threaded mesh loads → main-thread `Assets.scene`) | `scripts/world/region_dressing.gd`, `assets.gd` | 0137fa0d, 64b3698e |
 | 09-28 | Godot 4.6.3 (quit crash fixed) | launchers, `tools/qa` | a5a596b7 |
 | 09-29 | **L14 main quest + L16 tutorial director**: "The Stones Are Dimming" Acts I-V (30 steps, 5 dialogue files, 12-person cast), story lint with full autoplay (2592/2592 combinations), 12 contextual tutorial prompts with en/nl strings, sandbox sheet | `data/region1/quests/`, `data/region1/dialogue/`, `scripts/region1/`, `tools_qa/region1/`, `docs/regions/STORY_R1.md`, `CAST_R1.md` | e3071665 + follow-up |
 | 09-29 | **Design: Retinue, Settlement and Ascension** (recruitment and the stone-borne Call with ETA, taming, Palworld-style building for thumbs, grudges and raids, conquest, the path to king via the Elder Stone Moot; 5 twists; balance targets and sims S1–S10; packages L21–L50, C14–C21, X8–X11 after the in-progress Region 1 packages) | `docs/design/RETINUE_SETTLEMENT_ASCENSION.md` | (this commit) |
 | 09-29 | **L17 Region 1 audio**: 7 looping themes (village/farm, guild town, Highwatch Keep, Stagborn glade, rift wilds, night, Warden boss), rune hum, ward activate/break, glyph carve x3, Stagborn bellow/snort/Warden roar, Scar ambience, 20 barks (10 m / 10 f). Music -16.1..-16.2 LUFS-I, one-shots peak -3 dBFS, 8.3 MB, licences in LICENSES.md + CREDITS.md | `assets/audio/region1/`, `docs/regions/AUDIO_R1.md`, `tools/audio/r1_*.sh` | (this commit) |
+| 09-29 | **L17 story cues**: sourced the 3 missing R1 music cues (all Kevin MacLeod, CC BY 4.0): `r1_lament` = Bittersweet (90 s loop), `r1_kindling` = Skye Cuillin (100 s loop), `r1_finale` = Long Road Ahead (146 s, play once). -16.2/-16.2/-16.3 LUFS-I; mapped in AUDIO_R1.md, LICENSES.md, CREDITS.md. C12: drop the registry fallbacks and audition in-engine | `assets/audio/region1/music/`, `docs/regions/AUDIO_R1.md` | (this commit) |
 | 09-29 | Meshy free pack round 1: 181 optimized models (CC0), not placed yet | `assets/incoming/meshy_free/` | a6c67244 |
 | 09-29 | Free VFX and shader gallery (Kenney, RPicster, god rays) | `assets/incoming/vfx_free/`, `shaders/free/`, `tools_qa/vfx_gallery/` | 58f8e8c4 |
 | 09-29 | Add-ons: Phantom Camera, impostors, footsteps, VoronoiShatter, SimpleGrass, DebugMenu, Sentry installer — see docs/addons/README.md | `addons/`, `tools/impostors/`, `tools_qa/addons_demo/`, `docs/addons/` | 9d2c8770 |
@@ -20,6 +23,19 @@ _Last update: 2026-09-29 (Region 1 L10 Ember Legacy + L11 Ashsight; L14 main que
 | 09-29 | Rigged farm animals (hen, rooster, 3 cows) with idle/walk/eat/flap clips, rig tools, frame sheets | `assets/incoming/meshy_free/farm/rigged/`, `tools/meshy/animal_rig/`, `docs/art/meshy_free/rigged/` | 72e1465a |
 | 09-29 | Meshy fixes: bouquet_bright re-baked, ruined-hut floating debris removed (island removal); raspberry kept | `assets/incoming/meshy_free/`, `docs/art/meshy_free/fixes/` | a8558e41 |
 | 09-29 | Elemental VFX set: soft fire shader, bolder lightning and dash, stop-motion sheets, perf and Compatibility checked | `scenes/vfx/elements/`, `scripts/vfx/element_fx.gd`, `docs/art/vfx_elements/` | 58abc054 + follow-up |
+
+
+## Animation polish pass, 2026-09-29 (per-item result)
+| # | Item | Result | Notes |
+|---|---|---|---|
+| 1 | Warden: re-render every clip on the new mesh, walk slide, antlers in run_charge | PASS | all 12 clips re-exported and read as sheets; walk hooves pinned (IK lock, 1.19-1.30 m/s spread from 0.9-1.6); antlers min height 0.96 m in run_charge (never dipped in the current mesh); roar head throw-back halved so antlers clear the back |
+| 2 | Elk: walk slide, run_charge antlers | PASS | walk 1.19-1.23 m/s on all four hooves; run_charge antlers >= 0.82 m |
+| 3 | Farm cow graze + chicken wings | PASS (caveats) | muzzle 0.23-0.28 m -> ~0.0 m; wings 4 bones each, folded rest, fanned flap. Cow front legs slightly wedge-shaped in deep graze; wing is still a textured patch, not individual feathers |
+| 4a | Kicks / defense / acrobatics / reactions / KayKit review | PARTIAL | 218 clips total; 4 acrobatics + 2 undead clips rejected. Partial: MA_Acro_HandstandKicks, Fall_Slip_Back, MA_Guard_Boxing_Loop (low bounce), Kay_Undead Collapse/Resurrect foot skid. KayKit knees: fixed per clip where possible, rest documented in polish_review.md |
+| 4b | Vault + traversal placeholders | PARTIAL | all 13 rebuilt, Vault_Low real (run-up, palms on box, arc, landing) + Vault_Low_B. Open: landing arms stiff, one calf snaps 0.36 m in one frame; Ride_Trot_Loop partial |
+| 4c | Casting: 8 elements, charge -> release | PASS (caveats) | 16 clips authored on UAL (CMU has no spellcasting takes), release frames 9-17 timed to ElementFX. Wind left arm stiff in hold, dark claw gesture small; hands not checked on the game's character meshes |
+| 5 | Duplicate clip names / import errors | PASS | no duplicates in 218 clips (`tools/anim/check_unique_clips.py`); Weapons and CastingKaykit GLBs were stuck at valid=false (never loaded) and are repaired; full headless import shows no "already exists" |
+Not run: the game itself with these clips (Godot imports and loads all 16 libraries headless; no in-game visual pass).
 
 ## Region 1 scaffold (L0), 2026-09-29: DONE
 - `Region1Sim` (seeded, `tick(dt_days)`, events, `serialize`/`deserialize`/`migrate`, `digest`, `debug_image`), `Region1State` (static save registry, versioning + migration, unknown-module data kept), `Region1Root` (1 s timer, day slicing, presenter group), `Region1DemoSim`, `data/region1/{README.md,modules.json}`, headless sandbox `tools_qa/region1/region1_sandbox.tscn`, 19 gdUnit tests (`tests/test_region1_scaffold.gd`).
@@ -73,7 +89,8 @@ _Last update: 2026-09-29 (Region 1 L10 Ember Legacy + L11 Ashsight; L14 main que
 ## Backlog (from the aaa-review loop)
 - Warm up the blue lower canopy on the fluffy-tree shader.
 - Fix the 4 HUD icons that still have faint smudges.
-- (aaa-review, assets session) Rig the horse, wolves, fox and dragons with `animal_rig`; the cow grazing pose needs a longer neck or a kneel (muzzle stops about 20 cm above the ground); chicken wings are flat plates that swing out, an extra wing-tip bone or a re-modelled wing would sell the flap.
+- (aaa-review, animation polish) Next: foot-IK on the game rig for KayKit short legs; in-game visual pass of all new clips on the real character meshes; finger poses for casting (open palm / claw); feather-level chicken wings; Ride_Trot_Loop and vault landing arms; run the ashes-anim_qa catalog for the Stagborn entries.
+- (aaa-review, assets session; cow and chicken fixed 09-29) Rig the horse, wolves, fox and dragons with `animal_rig`; the cow grazing pose needs a longer neck or a kneel (muzzle stops about 20 cm above the ground); chicken wings are flat plates that swing out, an extra wing-tip bone or a re-modelled wing would sell the flap.
 - (aaa-review) Impostors: wrap the real game materials in the crossfade shader (`mesh_fade.gdshader` only carries albedo/colour/roughness), tune impostor tint/up_lighting to the lit mesh (impostors are lighter than shadowed meshes), test alpha-to-coverage on a phone and provide a no-MSAA path, bake impostors for the KayKit and Meshy buildings, measure the LOW tier switch distance.
 - (aaa-review) bush_raspberry still shard-like: Meshy remesh (5 cr) or hand-made bush in Blender.
 - (aaa-review) Godot `--import` of the whole project takes 30 min on a cold cache and about 7 GB of disk; agents should share one `.godot` cache instead of one per worktree.
@@ -181,7 +198,8 @@ _Last update: 2026-09-29 (L14 main quest + L16 tutorial director)_
 ## Meshy free fixes (partial, stopped at usage limit)
 - Done: optimize_free.py gained island_pct arg (arg 11) + env EMIT_ADD=1 / BAKE_EXT. Re-baked lamp_post_purple_bracket (solid, across 300, 1024px, EMIT_ADD), torch_dungeon_cage (island 14), house_two_story_shingle (solid, across 200), bouquet_wild (solid, across 260, smooth, 3500 tris, island 3), hay_bale_yellow_large (vox across 120, smooth, 3000 tris). Before/after in docs/art/meshy_free/fixes/.
 - Remaining: bouquet_bright, bush_raspberry (blobby vox across 90-130 candidates rendered, unreviewed), ruined-hut floating debris (use island_pct), farm animal rigs (task 2) not started.
-- (aaa-review, assets session) Rig the horse, wolves, fox and dragons with `animal_rig`; the cow grazing pose needs a longer neck or a kneel (muzzle stops about 20 cm above the ground); chicken wings are flat plates that swing out, an extra wing-tip bone or a re-modelled wing would sell the flap.
+- (aaa-review, animation polish) Next: foot-IK on the game rig for KayKit short legs; in-game visual pass of all new clips on the real character meshes; finger poses for casting (open palm / claw); feather-level chicken wings; Ride_Trot_Loop and vault landing arms; run the ashes-anim_qa catalog for the Stagborn entries.
+- (aaa-review, assets session; cow and chicken fixed 09-29) Rig the horse, wolves, fox and dragons with `animal_rig`; the cow grazing pose needs a longer neck or a kneel (muzzle stops about 20 cm above the ground); chicken wings are flat plates that swing out, an extra wing-tip bone or a re-modelled wing would sell the flap.
 - (aaa-review) Impostors: wrap the real game materials in the crossfade shader (`mesh_fade.gdshader` only carries albedo/colour/roughness), tune impostor tint/up_lighting to the lit mesh (impostors are lighter than shadowed meshes), test alpha-to-coverage on a phone and provide a no-MSAA path, bake impostors for the KayKit and Meshy buildings, measure the LOW tier switch distance.
 - (aaa-review) bush_raspberry still shard-like: Meshy remesh (5 cr) or hand-made bush in Blender.
 - (aaa-review) Godot `--import` of the whole project takes 30 min on a cold cache and about 7 GB of disk; agents should share one `.godot` cache instead of one per worktree.

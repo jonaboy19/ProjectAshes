@@ -58,6 +58,7 @@
 		"rift_boar":            {"what": "Rift-touched boar variant (C11)", "status": "c11"},
 		"rift_wolf":            {"what": "Rift wolf material variant (L4/C11)", "status": "c11"},
 		"antlered_warden":      {"what": "Stagborn guardian miniboss; subdue, never kill (X3)", "status": "x3"},
+		"stagborn_fawn":        {"what": "Thistle, the stagborn fawn the wolf hunts in Act I (L5 stagborn model scaled down; follow/nuzzle behaviour X3). Never a kill target", "status": "x3"},
 		"scarbound_troll":      {"what": "Finale boss at the Rift mouth (X6)", "status": "x6"}
 	},
 
@@ -66,7 +67,9 @@
 		"elder_relight":  "An Elder Stone relights; ward-lines race out across the map (C9, played for each hub)",
 		"rowan_ember":    "Sir Rowan's ember rises at Highwatch (C9, short)",
 		"finale_seal":    "The Rift mouth closes; glimpse of the Ember and Bloom Rifts (C9)",
-		"region_complete":"Homecoming at Ashford and the 'Region 1 complete' card (C9)"
+		"region_complete":"Homecoming at Ashford, the Kindling lanterns a year on, and the 'Region 1 complete' card (C9)",
+		"herd_crossing":  "Act II dawn: the Stagborn herd walks the old ward-line across the Greenhollow road; Thistle hears them (C9, 15 s)",
+		"maren_last_stand":"Act III Kindling Night: Maren holds the Ashford heart-stone lit by hand; her ember sinks in and the ring turns gold (C9, 30 s)"
 	},
 
 	"festivals": ["planting", "midsummer_fair", "harvest", "winter_solstice", "kindling_night"],
@@ -81,11 +84,13 @@
 		"scar_crystal":        {"name": "Scar Crystal", "category": "material"},
 		"elder_keystone_shard":{"name": "Keystone Shard", "category": "quest"},
 		"rowan_lance":         {"name": "Rowan's Lance", "category": "weapon", "note": "Heirloom when Rowan's ember goes to the lance (N3)"},
-		"anchor_stone":        {"name": "Edge Anchor Stone", "category": "quest"}
+		"anchor_stone":        {"name": "Edge Anchor Stone", "category": "quest"},
+		"maren_staff":         {"name": "Maren's Staff", "category": "weapon", "note": "Heirloom from Maren Coldbrook (Act IV vigil). Her ember rests in the Ashford heart-stone"}
 	},
 
 	"choice_groups": {
-		"_comment": "Mutually exclusive player choices. 'source' says who sets the flag: dialogue (a dialogue choice 'do' sets it; lint checks) or a system (ember_choice UI from L13/C5). The lint autoplay walks every combination.",
+		"_comment": "Mutually exclusive player choices. 'source' says who sets the flag: dialogue (a dialogue choice 'do' sets it; lint checks) or a system (ember_choice UI from L13/C5). The lint autoplay walks every combination. Where it matters the first flag is the 'giving' option, so the lint's first diagonal run (every group's first flag) plays the hidden Kindled Dawn ending.",
+		"thistle_bond":   {"source": "dialogue", "flags": ["r1.thistle.freed", "r1.thistle.kept"]},
 		"apprenticeship": {"source": "dialogue", "flags": ["r1.path.guild", "r1.path.knight", "r1.path.runeward"]},
 		"corin_fate":     {"source": "dialogue", "flags": ["r1.corin.jailed", "r1.corin.freed", "r1.corin.informant"]},
 		"relic_policy":   {"source": "dialogue", "flags": ["r1.relic.accepted", "r1.relic.refused", "r1.relic.bargained"]},
@@ -93,8 +98,9 @@
 		"harrok_pact":    {"source": "dialogue", "flags": ["r1.harrok.ally", "r1.harrok.alone"]},
 		"rowan_ember":    {"source": "ember_choice", "flags": ["ember.rowan.stone", "ember.rowan.heir", "ember.rowan.heirloom"]},
 		"snikkit_deal":   {"source": "dialogue", "flags": ["r1.snikkit.friend", "r1.snikkit.cowed"]},
+		"bram_fate":      {"source": "dialogue", "flags": ["r1.bram.chained", "r1.bram.spared"]},
 		"tamsin_fate":    {"source": "dialogue", "flags": ["r1.tamsin.arrested", "r1.tamsin.pardoned"]},
-		"the_seal":       {"source": "dialogue", "flags": ["r1.seal.idra", "r1.seal.all"]}
+		"the_seal":       {"source": "dialogue", "flags": ["r1.seal.all", "r1.seal.idra"]}
 	},
 
 	"external_flags": {
@@ -109,7 +115,26 @@
 	"exported_flags": {
 		"_comment": "Story flags other systems read (so the lint does not call them unused).",
 		"r1.a1.first_glyph": "C8 onboarding metric: a new player reaches the first glyph in 20 minutes or less",
-		"r1.complete": "Region 1 complete: post-game unlock, achievements, C9 card"
+		"r1.complete": "Region 1 complete: post-game unlock, achievements, C9 card",
+		"r1.a1.wren_joined": "Retinue (C20, RETINUE_SETTLEMENT_ASCENSION.md 2.8): Wren Coldbrook joins as the first companion (Follow/Standby)",
+		"r1.a1.thistle_named": "Taming (C20): Thistle the stagborn fawn is the player's first bonded beast",
+		"r1.a3.maren_gone": "Maren Coldbrook is dead (her ember rests in the Ashford heart-stone); the Staff Yard passes to Wren",
+		"r1.ending.kindled": "Hidden best ending (achievement): nobody else pays at the Rift mouth"
+	},
+
+	"music": {
+		"_comment": "Music cues a step's 'staging' may name (lint checks). Existing files: docs/regions/AUDIO_R1.md. 'missing' cues need sourcing (L17 follow-up); until then C12 plays the fallback.",
+		"r1_village_day":    {"status": "existing"},
+		"r1_guild_town":     {"status": "existing"},
+		"r1_highwatch_keep": {"status": "existing"},
+		"r1_forest_glade":   {"status": "existing"},
+		"r1_rift_wilds":     {"status": "existing"},
+		"r1_night":          {"status": "existing"},
+		"r1_boss_warden":    {"status": "existing"},
+		"silence":           {"status": "existing", "note": "fade the bed out over 1.5 s; ambience and SFX only"},
+		"r1_kindling":       {"status": "missing", "fallback": "r1_village_day", "want": "festival lantern theme: fiddle and hand-drum, warm, a little wistful"},
+		"r1_lament":         {"status": "missing", "fallback": "r1_night", "want": "grief theme: solo fiddle or low whistle over a drone, 90 s loop"},
+		"r1_finale":         {"status": "missing", "fallback": "r1_boss_warden", "want": "finale theme: the village_day melody rebuilt big for strings and drums"}
 	},
 
 	"tokens": ["player", "mother", "father", "first", "name", "town", "time", "family", "ancestor", "stone_name"]

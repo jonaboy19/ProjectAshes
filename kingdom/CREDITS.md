@@ -147,7 +147,7 @@ CC0 (no attribution required; credited with thanks): 53 market props (39 + 14 pi
 
 Credit required (CC BY 4.0, https://creativecommons.org/licenses/by/4.0/):
 
-- "Folk Round", "Minstrel Guild", "Achaidh Cheide", "Lost Time", "Suonatore di Liuto" and "Crusade" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License. Region 1 village/farm, guild town, Stagborn glade, rift-touched wilds, night and Antlered Warden boss themes.
+- "Folk Round", "Minstrel Guild", "Achaidh Cheide", "Lost Time", "Suonatore di Liuto", "Crusade", "Bittersweet", "Skye Cuillin" and "Long Road Ahead" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License. Region 1 village/farm, guild town, Stagborn glade, rift-touched wilds, night and Antlered Warden boss themes, plus the Region 1 story cues (lament, Kindling Night, finale).
 - "Medieval Chateau" by Alexander Nakarada (CreatorChords) | https://creatorchords.com , Royalty Free Music by https://www.free-stock-music.com , Creative Commons / Attribution 4.0 International (CC BY 4.0) https://creativecommons.org/licenses/by/4.0/ . Highwatch Keep theme.
 
 CC0 (credited with thanks):
