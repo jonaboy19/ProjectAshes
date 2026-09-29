@@ -1,0 +1,5 @@
+source: /c/Users/Jonna/Documents/ProjectAshes_art_staging/stag/fr/warden/idle_alt
+duration_s: 1.280000
+sample_fps: 5
+frames_per_sheet: 12  (= 2.4 s per sheet)
+sheets: 2
