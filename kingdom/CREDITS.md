@@ -145,3 +145,8 @@ CC0 (credited with thanks):
 - Region 1 female barks: "Female RPG Voice Starter Pack" by cicifyre, https://opengameart.org/content/female-rpg-voice-starter-pack
 - Stagborn calls layered from Joseph Sardin (BigSoundBank) recordings and the ward-break glass from rubberduck's "100 CC0 SFX".
 - Rune hum, ward activate, glyph carve and the Ashen Scar ambience are synthesised for the game (no third-party audio).
+
+### VFX tools added 2026-09-29 (local PC session; see `docs/art/vfx_tools/README.md`)
+- **Effekseer for Godot 4** (c) 2020 Effekseer Project, MIT (https://github.com/effekseer/EffekseerForGodot4), v1.80.5.1, `kingdom/addons/effekseer/` (Windows x64 and Android arm32/arm64 binaries only; iOS/macOS/Linux/Web libraries left out, see `tools/vfx/README.md`). Not enabled as an editor plugin, not used by gameplay code.
+- **Effekseer sample effect "Aura01"** (Effekseer editor 1.80.7, `Sample/00_Version16`), CC0, credit to Effekseer, `kingdom/assets/vfx/effekseer/`.
+- Six baked VFX flipbooks in `kingdom/assets/vfx/flipbooks/` are original project work (Blender + numpy scripts in `tools/vfx/`), no third-party content.

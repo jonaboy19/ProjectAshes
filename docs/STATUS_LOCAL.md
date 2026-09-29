@@ -88,3 +88,8 @@ NOT wired (unverified): everything in `docs/platform/boot_wiring_wip.patch` (app
 ## Open issues from the boot-flow run (2026-09-29)
 - Unexplained rendering errors during world load under `--rendering-method mobile` at 1280x720 ("Parameter framebuffer is null", "Index p_mipmap out of bounds", "Uniforms were never supplied for set (0)"), hundreds per run. They do not fail the flow; cause not investigated.
 - 76 leaked `JoltShape3D` RID allocations reported at exit.
+
+## VFX tools and flipbooks (2026-09-29)
+Done: Material Maker 1.7, Effekseer editor 1.80.7 and EffekseerForGodot4 1.80.5.1 installed in C:\Users\Jonna\Tools; 6 baked flipbooks (fire, smoke, dust, water splash, lightning, magic swirl) in `kingdom/assets/vfx/flipbooks/` with `FlipbookFX` + shader `shaders/vfx_flipbook/`; gallery `tools_qa/vfx_flipbooks/`; findings, Effekseer verdict, perf and per-element upgrade plan in `docs/art/vfx_tools/README.md`; scripts and install notes in `tools/vfx/`.
+Effekseer: works on 4.6.3 desktop (Mobile renderer), draws nothing on gl_compatibility, about 0.3 ms CPU per aura on desktop (3-4 ms on a phone), addon vendored (Windows + Android only), plugin NOT enabled, not wired.
+Remaining: not wired into ElementFX; fire sheet is v1 (flat disc start); no ground-plane shader mode; no phone test; Material Maker headless export does not work in 1.7; `.import` check was run on the shared kingdom/.godot only (imports fine, unrelated UID errors are pre-existing).
