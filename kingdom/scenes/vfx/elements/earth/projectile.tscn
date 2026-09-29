@@ -49,6 +49,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="SphereMesh" id="SphereMesh_rf7jh"]
 radius = 0.26
@@ -99,6 +101,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.8
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_eltfj"]
 top_radius = 0.0
@@ -165,14 +169,14 @@ color_ramp = SubResource("GradientTexture1D_6ddwo")
 material = ExtResource("5_4budi")
 size = Vector2(1.0105263, 0.9423313)
 
-[node name="Earth_Projectile" type="Node3D" unique_id=432719988]
+[node name="Earth_Projectile" type="Node3D" unique_id=2053090869]
 script = ExtResource("1_5yt2x")
 duration = 0.0
 fade_out = 0.15
 kind = &"projectile"
 element = &"earth"
 
-[node name="Spin" type="Node3D" parent="." unique_id=1209958365]
+[node name="Spin" type="Node3D" parent="." unique_id=541263070]
 metadata/anims = [{
 "a": 0.0,
 "b": 900.0,
@@ -182,14 +186,14 @@ metadata/anims = [{
 "t1": 30.0
 }]
 
-[node name="Rock" type="MeshInstance3D" parent="Spin" unique_id=1604366487]
+[node name="Rock" type="MeshInstance3D" parent="Spin" unique_id=822244860]
 material_override = SubResource("ShaderMaterial_bqyfr")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("SphereMesh_rf7jh")
 
-[node name="Dust" type="MeshInstance3D" parent="." unique_id=846399062]
+[node name="Dust" type="MeshInstance3D" parent="." unique_id=1755362061]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0.7)
 material_override = SubResource("ShaderMaterial_m8sgr")
 cast_shadow = 0
@@ -197,7 +201,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_eltfj")
 
-[node name="Chips" type="GPUParticles3D" parent="." unique_id=2104246176]
+[node name="Chips" type="GPUParticles3D" parent="." unique_id=704157799]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -208,7 +212,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_11jsm")
 draw_pass_1 = SubResource("QuadMesh_ipq0h")
 
-[node name="Puff" type="GPUParticles3D" parent="." unique_id=1578522122]
+[node name="Puff" type="GPUParticles3D" parent="." unique_id=185951738]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

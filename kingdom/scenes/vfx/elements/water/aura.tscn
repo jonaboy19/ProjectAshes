@@ -48,6 +48,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.9
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_yon70"]
 top_radius = 0.4
@@ -101,6 +103,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_ykiep"]
 size = Vector2(2, 2)
@@ -170,14 +174,14 @@ color_ramp = SubResource("GradientTexture1D_pr72l")
 material = ExtResource("4_562pl")
 size = Vector2(0.6660162, 0.6660162)
 
-[node name="Water_Aura" type="Node3D" unique_id=99270794]
+[node name="Water_Aura" type="Node3D" unique_id=907989933]
 script = ExtResource("1_ciq30")
 duration = 0.0
 fade_out = 0.4
 kind = &"aura"
 element = &"water"
 
-[node name="Swirl" type="MeshInstance3D" parent="." unique_id=246468498]
+[node name="Swirl" type="MeshInstance3D" parent="." unique_id=234980118]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
 material_override = SubResource("ShaderMaterial_k32fs")
 cast_shadow = 0
@@ -185,7 +189,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_yon70")
 
-[node name="Pool" type="MeshInstance3D" parent="." unique_id=1431249866]
+[node name="Pool" type="MeshInstance3D" parent="." unique_id=1779862111]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
 material_override = SubResource("ShaderMaterial_eiqi8")
 cast_shadow = 0
@@ -193,7 +197,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_ykiep")
 
-[node name="Bubbles" type="GPUParticles3D" parent="." unique_id=1356637453]
+[node name="Bubbles" type="GPUParticles3D" parent="." unique_id=705895042]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -206,7 +210,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_nvlgr")
 draw_pass_1 = SubResource("QuadMesh_juc56")
 
-[node name="Glints" type="GPUParticles3D" parent="." unique_id=47513920]
+[node name="Glints" type="GPUParticles3D" parent="." unique_id=107291045]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
