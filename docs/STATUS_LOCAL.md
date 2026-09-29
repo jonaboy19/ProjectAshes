@@ -32,3 +32,7 @@ _Last update: 2026-09-29_
 ## Backlog (from the aaa-review loop)
 - Warm up the blue lower canopy on the fluffy-tree shader.
 - Fix the 4 HUD icons that still have faint smudges.
+
+## Advanced animation (local, stopped at usage limit)
+Done: KayKit + authored traversal clips (`animations_free2/`), README `docs/anim/advanced/README.md`.
+Remaining: anim_tech demo (blend trees, root-motion attacks, motion warping, perf table) and video-to-BVH pipeline are with sub-agents and may be partial; finish from `docs/anim/advanced/tech/` and `docs/anim/advanced/video_mocap/`. Add `animations_free2` GLBs to `Assets.UAL_FILES` (Codex).
