@@ -1944,34 +1944,93 @@ def g_mantle(h, r, pal, parts, pal_key="mantle", drop=0.10, tile="felt", seed_of
     parts.append(Part("mantle", V, F, uvs, W, col, tile, 260))
 
 
-def g_beard(h, r, pal, parts, pal_key="hair", width_jaw=0.062, width_chin=0.026,
-           mouth_gap=0.010, mustache_h=0.011, mustache_w=0.026, bot_pad=0.006):
-    """Short beard: jaw + chin (below the mouth, tapering from wide at the jaw
-    hinge to narrow at the chin point) plus a thin separate moustache patch
-    just above the lip -- a real gap sits at the lip line itself so neither
-    piece ever covers the mouth or reaches the nose. A thin shell hugging the
-    skin, coloured like the hair by default."""
+def g_beard(h, r, pal, parts, pal_key="hair", width_jaw=0.070, width_chin=0.028,
+           mouth_gap=0.010, mustache_h=0.011, mustache_w=0.0, bot_pad=0.010):
+    """Short beard hugging the jaw: cheek/jaw/chin cover (rising toward the ear along the jaw line,
+    wrapping a little under the chin) plus a thin moustache patch above the lip; a real gap sits at
+    the lip line so neither piece covers the mouth. A thin shell whose vertex colour is feathered
+    toward the skin tone at its edge (soft painted edge), speckled for salt-and-pepper beards."""
     color = pal.get("beard", pal[pal_key])
     P = h.P[:h.nb]
     c = h.head_c
     mouth_z = h.mouth[2]
     top = mouth_z - mouth_gap
     bot = h.chin_z - bot_pad
-    front = P[:, 1] < c[1] - 0.01               # front of the face only
+    front = P[:, 1] < c[1] + 0.015              # front of the face, wrapping slightly under the jaw
     base = h.mask("head") & front & ~h.ear
+    ax = np.abs(P[:, 0] - c[0])
     t = np.clip((P[:, 2] - bot) / max(top - bot, 1e-6), 0, 1)
-    width = width_chin + (width_jaw - width_chin) * t
-    jaw = base & (P[:, 2] < top) & (P[:, 2] > bot) & (np.abs(P[:, 0] - c[0]) < width)
+    width = width_chin + (width_jaw - width_chin) * t ** 0.8
+    top_x = top + 0.030 * smoothstep(0.038, 0.078, ax)            # the cover climbs the jaw toward the ear
+    jaw = base & (P[:, 2] < top_x) & (P[:, 2] > bot) & (ax < width)
     must_top = mouth_z + 0.010 + mustache_h
     must_bot = mouth_z + 0.010
-    mustache = base & (P[:, 2] < must_top) & (P[:, 2] > must_bot) & (np.abs(P[:, 0] - c[0]) < mustache_w)
-    m = jaw | mustache
-    if not m.any():
+    mustache = base & (P[:, 2] < must_top) & (P[:, 2] > must_bot) & (ax < mustache_w)
+    m0 = jaw | mustache
+    if not m0.any():
         return
-    sh = shell(h, m, 0.005, smooth=8, taubin=10, dmin=0.003, seed=r["seed"] + 80)
-    parts.append(shell_part(h, "beard", sh, "hair", color, 220, hair_uv_groups(h), grime=0.0,
-                            seed=r["seed"] + 80, rim_dark=0.75,
-                            weights=np.tile(one_hot("Head"), (len(sh["v"]), 1))))
+    # signed distance (m) to the analytic beard outline, positive inside: drives the painted soft edge
+    mj = np.minimum(np.minimum(width - ax, top_x - P[:, 2]), P[:, 2] - bot)
+    mm = np.minimum(np.minimum(mustache_w - ax, must_top - P[:, 2]), P[:, 2] - must_bot)
+    margin = np.where(base, np.maximum(mj, mm), -1.0)
+    # shell = outline + one ring of vertices beyond it (painted as plain skin), so the visible beard
+    # edge is a colour fade instead of the coarse head-mesh boundary
+    Ed = edges_of(h.faces)
+    ring = np.zeros(h.nb, bool)
+    ring[Ed[:, 0]] |= m0[Ed[:, 1]]
+    ring[Ed[:, 1]] |= m0[Ed[:, 0]]
+    lipband = (np.abs(P[:, 2] - mouth_z) < 0.016) & (ax < 0.048)          # never over the lips
+    m = m0 | (ring & base & ~lipband & (P[:, 2] > bot - 0.03) & (P[:, 2] < np.minimum(top_x + 0.035, must_top + 0.01 + 0.1 * (ax > 0.04))))
+    sh = shell(h, m, 0.0038, smooth=8, taubin=10, dmin=0.0025, seed=r["seed"] + 80)
+    # one level of subdivision: the head mesh is coarse (~1.5 cm), the beard paint needs finer vertices
+    bm = bmesh.new()
+    bv = [bm.verts.new(tuple(v)) for v in sh["v"]]
+    for f in sh["f"]:
+        try:
+            bm.faces.new([bv[i] for i in f])
+        except ValueError:
+            pass
+    bmesh.ops.subdivide_edges(bm, edges=bm.edges[:], cuts=1, use_grid_fill=True)
+    bm.verts.ensure_lookup_table()
+    V = np.array([tuple(v.co) for v in bm.verts])
+    Fb = [tuple(v.index for v in f.verts) for f in bm.faces]
+    bm.free()
+    V = push_out(h, V, 0.0022)
+    # skin texels: UV from the nearest head vertices (inverse-distance blend)
+    hid = np.nonzero(h.mask("head"))[0]
+    kdh = kdtree.KDTree(len(hid))
+    for k, i in enumerate(hid):
+        kdh.insert(Vector(h.P[i]), k)
+    kdh.balance()
+    vuv_v = np.zeros((len(V), 2))
+    for i, v in enumerate(V):
+        nn = kdh.find_n(Vector(v), 3)
+        wgt = np.array([1.0 / (d + 1e-4) for (_, _, d) in nn])
+        vuv_v[i] = sum(w_ * h.vuv[hid[k]] for w_, (_, k, _) in zip(wgt, nn)) / wgt.sum()
+    ax_v = np.abs(V[:, 0] - c[0])
+    t_v = np.clip((V[:, 2] - bot) / max(top - bot, 1e-6), 0, 1)
+    wd_v = width_chin + (width_jaw - width_chin) * t_v ** 0.8
+    tx_v = top + 0.030 * smoothstep(0.038, 0.078, ax_v)
+    mj_v = np.minimum(np.minimum(wd_v - ax_v, tx_v - V[:, 2]), V[:, 2] - bot)
+    mm_v = np.minimum(np.minimum(mustache_w - ax_v, must_top - V[:, 2]), V[:, 2] - must_bot)
+    margin_v = np.maximum(mj_v, mm_v)
+    p = Part("beard", V, Fb, [[tuple(vuv_v[i]) for i in f] for f in Fb], np.tile(one_hot("Head"), (len(V), 1)),
+             np.ones((len(V), 3)), "skin", r.get("beard_budget", 640))
+    f = smoothstep(0.0, r.get("beard_feather", 0.0025), margin_v)
+    sc = srgb2lin(skin_color(r)) / srgb2lin(0.93)
+    skin_c = np.tile(sc / max(1.0, sc.max()), (len(V), 1))            # identical to the body's vertex colour
+    base_c = paint(color, len(V), None, 0.10, r["seed"] + 81)
+    sp = r.get("beard_speckle", 0.0)
+    nzv = np.array([0.5 + 0.5 * noise.noise(Vector(v * 95.0 + 3.1)) for v in V])
+    if sp:                                  # salt and pepper: dark and light flecks
+        nz2 = np.array([0.5 + 0.5 * noise.noise(Vector(v * 210.0 + 7.7)) for v in V])
+        mixv = smoothstep(0.38, 0.62, 0.6 * nz2 + 0.4 * nzv)
+        base_c = base_c * (0.55 + 1.35 * sp / 0.42 * mixv * 0.55)[:, None]
+    else:                                                               # faint stubble mottling
+        base_c = base_c * (0.8 + 0.4 * nzv)[:, None]
+    w = (f * r.get("beard_density", 0.95))[:, None]
+    p.c = np.clip(skin_c * (1 - w) + base_c * w, 0, 1.0)
+    parts.append(p)
 
 
 def g_breastplate(h, r, pal, parts, pal_key="armor"):
@@ -2096,7 +2155,15 @@ def g_cloak(h, r, pal, parts, hood="down", pal_key="cloak", collar_roll=True, wa
            else h.z("calf_l") - 0.16 * (h.z("calf_l") - h.z("foot_l")) - 0.12)
     rows, segs = (16, 22) if waist_hug else (11, 22)
     cy = center_y(h, h.z("spine_03"))
-    zs = np.linspace(top, hem, rows)
+    trim_band = pal.get("cloak_trim") is not None and not waist_hug
+    if trim_band:
+        # dedicated hem row: the trim is its own thin strip (two rings a few mm apart flip the
+        # vertex colour), so the band edge is crisp instead of fading across the last long row
+        bh = 0.075
+        zs = np.concatenate([np.linspace(top, hem + bh, rows - 1), [hem + bh - 0.004, hem]])
+        rows = len(zs)
+    else:
+        zs = np.linspace(top, hem, rows)
     t_waist = np.clip((top - belt_z(h)) / max(top - hem, 1e-6), 0, 1) if waist_hug else 0.0
     rings = []
     prev = None
@@ -2134,13 +2201,27 @@ def g_cloak(h, r, pal, parts, hood="down", pal_key="cloak", collar_roll=True, wa
         zs_.append(z)
         phis_.append(phis)
     if waist_hug:
-        # straight knee-length coat: below the hips the radius is held at the hip radius (no bell)
-        z_hip = h.z("pelvis") - 0.02
-        i_hip = int(np.argmin([abs(z - z_hip) for z in zs_]))
-        i_w = int(np.argmin([abs(z - belt_z(h)) for z in zs_]))
-        Rc = np.max(np.array(row_r[i_w:i_hip + 1]), axis=0)        # widest radius per direction, waist..hip
-        for i in range(i_w + 1, rows):
-            row_r[i] = np.maximum(row_min[i], Rc * (1.0 - 0.010 * (i - i_w) / max(1, rows - 1 - i_w)))
+        # A clean straight panel from the shoulder blades to the knee (reference: market_merchant back
+        # view): between the blade row and the hem every direction runs on ONE straight line
+        # r(z) = r_top + (r_bot - r_top) * s.  r_bot is the smallest value that still clears the
+        # waist / belt / hips at every row, so there is no waist step and no hip balloon; the
+        # line's slope is the (slight) A-line flare.
+        i_s = int(round(0.2 * (rows - 1)))          # shoulder-blade row
+        raw = np.array(row_r)
+        rt = raw[i_s].copy()
+        rb = rt * 1.03
+        for i in range(i_s + 1, rows):
+            s_ = (i - i_s) / (rows - 1 - i_s)
+            if s_ >= 0.33:      # rows just under the blade line only need local clearance (below)
+                rb = np.maximum(rb, (row_min[i] + 0.012 - rt * (1 - s_)) / s_)
+        rb0 = rb.copy()
+        for _ in range(3):                                      # smooth around the body, never below the need
+            rb = np.maximum(rb0, np.convolve(np.pad(rb, 3, mode="edge"), np.ones(7) / 7, mode="valid"))
+        rt_s = np.convolve(np.pad(rt, 2, mode="edge"), np.ones(5) / 5, mode="valid")
+        rt = np.maximum(rt_s, rt * 0.97)
+        for i in range(i_s + 1, rows):
+            s_ = (i - i_s) / (rows - 1 - i_s)
+            row_r[i] = np.maximum(row_min[i] + 0.004, rt * (1 - s_) + rb * s_)
     for i in range(rows):
         rings.append(np.stack([np.sin(phis_[i]) * row_r[i], cy + np.cos(phis_[i]) * row_r[i], np.full(segs, zs_[i])], axis=1))
     rings = np.array(rings)
@@ -2177,7 +2258,7 @@ def g_cloak(h, r, pal, parts, hood="down", pal_key="cloak", collar_roll=True, wa
         tc = paint(pal["cloak_trim"], 1, None, 0.0, 0)[0]
         idx = np.arange(n)
         ri, ji = idx // segs, idx % segs
-        band_ = (ri >= rows - 1) | (ji <= 0) | (ji >= segs - 1)
+        band_ = (ri >= rows - 2) | (ji <= 0) | (ji >= segs - 1)
         col[:n][band_] = tc
         # inside face of the edge band too
         col[n:][band_] = tc * 0.62
@@ -2218,8 +2299,22 @@ def head_region(h, hairline_front, hairline_side, hairline_back, sideburn=0.0, e
     a0 = ((F + B) / 2 + S) / 2
     a2 = ((F + B) / 2 - S) / 2
     zl = a0 + a1 * np.cos(phi) + a2 * np.cos(2 * phi)
+    ez0 = (h.eye_l[2] + h.eye_r[2]) / 2
+    hv = P[h.mask("head")]
+    band = hv[(hv[:, 2] > ez0 - 0.06) & (hv[:, 2] < ez0 + 0.04)]
+    xm = np.abs(band[:, 0]).max()
+    eq = band[np.abs(band[:, 0]) > xm - 0.012]                         # outermost head verts = the ear
+    pm = float(np.median(np.abs(np.arctan2(eq[:, 0] - c[0], -(eq[:, 1] - c[1])))))       # ear azimuth (~2.25 rad)
+    h.ear_phi = pm
     if sideburn:
-        zl -= sideburn * np.exp(-((np.abs(phi) - 1.25) / 0.18) ** 2)
+        # thin sideburn strip just in front of the ear
+        zl -= sideburn * np.exp(-((np.abs(phi) - (pm - 0.42)) / 0.15) ** 2)
+    if exclude_ears:
+        # hair follows the head: the edge runs over the top of the ear and then sweeps down behind it
+        # to the nape, so the ear itself stays clear (no cup around it)
+        ap = np.abs(phi)
+        win = smoothstep(pm - 0.24, pm - 0.10, ap) * (1 - smoothstep(pm + 0.22, pm + 0.48, ap))
+        zl = np.maximum(zl, zl + win * np.maximum(ez0 + 0.014 - zl, 0.0))
     m &= P[:, 2] > zl
     # never on the face / jaw / throat (under-chin verts sit near the axis where phi is unstable)
     ez = (h.eye_l[2] + h.eye_r[2]) / 2
@@ -2258,7 +2353,7 @@ def hair_lock_geom(h, spec, capd, seed):
         loc, n, _, _ = h.bvh.ray_cast(c + d * 0.5, -d)
         if loc is None or (loc - c).length > 0.17:       # missed the skull (hit a shoulder / arm)
             loc, n = c + d * 0.09, d
-        off = capd(loc[2]) + 0.004 + lift * t ** 2
+        off = (spec[7] if len(spec) > 7 else capd(loc[2]) + 0.004) + lift * t ** 2
         pts.append(np.array(loc) + np.array(n) * off)
         nrm.append(np.array(n))
     pts = np.array(pts); nrm = np.array(nrm)
@@ -2412,16 +2507,14 @@ def g_hair(h, r, pal, parts, cov, style):
         capd = lambda z: 0.011 + 0.014 * float(smoothstep(ez, top, z))
         rng = np.random.default_rng(seed + 5)
         sp = []
-        for p in (-92, -80, 80, 92):
-            sp.append((p + rng.uniform(-3, 3), 66, 104, 0.024, 0.008, 0.007, rng.uniform(-4, 4)))
-        for p in (140, 160, 180, 200, 220):
-            sp.append((p + rng.uniform(-4, 4), 80, 120, 0.028, 0.009, 0.010, rng.uniform(-5, 5)))
+        for p in (162, 174, 186, 198):
+            sp.append((p + rng.uniform(-3, 3), 80, 110, 0.024, 0.007, 0.002, rng.uniform(-4, 4)))
         lk = hair_locks(h, sp, capd, col, seed + 11)
         if lk is not None:
             parts.append(lk)
         return
     if style == "short":
-        m, phi = head_region(h, ez + 0.062, ez + 0.02, nz + 0.035, sideburn=0.035)
+        m, phi = head_region(h, ez + 0.062, ez + 0.02, nz + 0.035, sideburn=0.03)
         P = h.P[:h.nb]
         crown = smoothstep(ez, top, P[:, 2])
         back = np.clip(-np.cos(phi), 0, 1)
@@ -2429,14 +2522,14 @@ def g_hair(h, r, pal, parts, cov, style):
         sh = shell(h, m, d, smooth=4, noise_amp=0.011, seed=seed)
         budget = 300
     elif style == "fringe":            # elderly horseshoe
-        m, phi = head_region(h, ez + 0.075, ez + 0.02, nz + 0.03, sideburn=0.03)
+        m, phi = head_region(h, ez + 0.075, ez + 0.02, nz + 0.03, sideburn=0.022)
         P = h.P[:h.nb]
         bald = (P[:, 2] > top - 0.055) & (np.cos(phi) > -0.55)
         m &= ~bald
         sh = shell(h, m, 0.005, smooth=4, noise_amp=0.003, seed=seed)
         budget = 220
     elif style == "child":
-        m, phi = head_region(h, ez + 0.045, ez + 0.012, nz + 0.02, sideburn=0.02)
+        m, phi = head_region(h, ez + 0.045, ez + 0.012, nz + 0.02, sideburn=0.025)
         P = h.P[:h.nb]
         crown = smoothstep(ez, top, P[:, 2])
         front = np.clip(np.cos(phi), 0, 1)
@@ -2453,7 +2546,7 @@ def g_hair(h, r, pal, parts, cov, style):
         sh = shell(h, m, d, smooth=5, noise_amp=0.003, seed=seed)
         budget = 320
     elif style == "bun":               # curly hair pulled back into a bun, no braid
-        m, phi = head_region(h, ez + 0.06, ez + 0.01, nz + 0.02, sideburn=0.02)
+        m, phi = head_region(h, ez + 0.06, ez + 0.01, nz + 0.02, sideburn=0.025)
         P = h.P[:h.nb]
         crown = smoothstep(ez, top, P[:, 2])
         d = 0.011 + 0.022 * crown
@@ -2467,10 +2560,10 @@ def g_hair(h, r, pal, parts, cov, style):
     nl = r.get("hair_locks", 1.0)
     sp = []
 
-    def add(phis, th0, th1, w, t, lift, tw=8, jit=4):
+    def add(phis, th0, th1, w, t, lift, tw=8, jit=4, base=None):
         for p in phis:
             sp.append((p + rng.uniform(-jit, jit), th0 + rng.uniform(-3, 3), th1 + rng.uniform(-3, 4), w * rng.uniform(0.85, 1.2),
-                       t, lift * rng.uniform(0.7, 1.3), rng.uniform(-tw, tw)))
+                       t, lift * rng.uniform(0.7, 1.3), rng.uniform(-tw, tw)) + ((base,) if base is not None else ()))
 
     def thin(lst):
         return lst if nl >= 1 else lst[::2]
@@ -2481,11 +2574,9 @@ def g_hair(h, r, pal, parts, cov, style):
         # crown clumps, temples over the ear tops, nape
         if style != "bun":
             add(thin(list(range(20, 340, 45))), 4, 40, 0.032, 0.011, 0.006, 16)
-        add(thin([-90, -74, 74, 90]), 40, 84, 0.026, 0.008, 0.004, 4)
-        add(thin([140, 160, 180, 200, 220]), 62, 120, 0.030, 0.010, 0.010, 6)
+        add(thin([162, 174, 186, 198]), 66, 110, 0.026, 0.008, 0.002, 4, 3)      # nape strands only: nothing over the ears
     elif style == "fringe":
-        add([-84, -70, 70, 84], 60, 104, 0.024, 0.007, 0.006, 3)
-        add(thin([132, 152, 172, 192, 212, 232]), 74, 118, 0.026, 0.008, 0.008, 5)
+        add(thin([168, 180, 192]), 74, 110, 0.024, 0.007, 0.002, 4, 3)
     elif style in ("long", "bob"):
         add(thin(list(range(-48, 52, 14))), 12, 66, 0.036, 0.011, 0.006, 5)
         add(thin([-64, -80, -98, 64, 80, 98]), 40, 104, 0.028, 0.009, 0.007, 4)
@@ -3205,19 +3296,20 @@ RECIPES = [
       tunic_len=0.16, tunic_tile="linen", vest_len=0.16, vest_key="vest", vest_offset=0.024,
       flat_chest=True, chest_straighten=0.6, chest_broaden=0.032,
       extras={"nose/nose-hump-incr": 0.2, "chin/chin-prominent-incr": 0.2},
+      beard_density=0.85,
       palette=dict(tunic=(0.85, 0.8, 0.68), vest=(0.4, 0.45, 0.24), trousers=(0.34, 0.28, 0.22),
-                   belt=(0.28, 0.18, 0.1), boots=(0.3, 0.21, 0.14), hair=(0.18, 0.11, 0.07),
+                   belt=(0.28, 0.18, 0.1), boots=(0.3, 0.21, 0.14), hair=(0.18, 0.11, 0.07), beard=(0.26, 0.17, 0.1),
                    pouch=(0.34, 0.22, 0.13))),
     P(name="villager_merchant", gender=1.0, age=55, race={"caucasian": 0.9, "asian": 0.1}, body_budget=2000, hair_locks=0.5,
       muscle=0.42, weight=0.72, height=0.5, proportions=0.55, seed=2002,
       outfit=["tunic", "vest", "belt", "trousers", "boots", "coat", "beard"], hair="fringe", sleeve=0.9,
-      tunic_tile="linen", vest_len=0.5, vest_key="vest", vest_offset=0.03, skin_mul=0.94,
-      tunic_hem_segs=36, tunic_hem_folds=0.0, tunic_flare=0.025, vest_min_flare=0.018,
-      vest_skirt_ease=0.014,
+      tunic_tile="linen", vest_len=0.5, vest_key="vest", vest_offset=0.024, skin_mul=0.94,
+      tunic_hem_segs=36, tunic_hem_folds=0.0, tunic_flare=0.012, vest_min_flare=0.004,
+      vest_skirt_ease=0.006, beard_speckle=0.42, beard_density=0.85,
       extras={"nose/nose-scale-vert-incr": 0.2, "head/head-age-incr": 0.3},
       palette=dict(tunic=(0.9, 0.86, 0.74), vest=(0.72, 0.58, 0.22), coat=(0.55, 0.22, 0.14),
                    trousers=(0.22, 0.21, 0.22), belt=(0.3, 0.19, 0.1), boots=(0.32, 0.22, 0.15),
-                   hair=(0.55, 0.53, 0.5), pouch=(0.4, 0.27, 0.15))),
+                   hair=(0.55, 0.53, 0.5), beard=(0.56, 0.54, 0.51), pouch=(0.4, 0.27, 0.15))),
     P(name="villager_guard", gender=1.0, age=28, race={"caucasian": 0.8, "asian": 0.2}, eye="eye_grey", body_budget=1800, hair_locks=0.3, skirt_budget=380,
       muscle=0.75, weight=0.52, height=0.6, proportions=0.72, seed=2003,
       outfit=["gambeson", "belt", "trousers", "boots", "breastplate", "vest", "pauldrons", "bracers", "gorget"],
@@ -3375,6 +3467,9 @@ def main():
     if "--sheetout" in args:
         v2_sheet(built, args[args.index("--sheetout") + 1], tmp_dir="/tmp/claude-0/scr/_sheet_tmp")
         return
+    if "--headsheet" in args:
+        head_sheet(built, args[args.index("--headsheet") + 1], tmp_dir="/tmp/claude-0/scr/_head_tmp")
+        return
     if "--v2sheet" in args:
         tag = args[args.index("--v2sheet") + 1]
         v2_sheet(built, os.path.join(PREVIEW_DIR, f"characters_v2_{tag}.png"),
@@ -3476,6 +3571,33 @@ def v2_sheet(built, out_png, cell=(460, 800), face=(460, 460), tmp_dir=None, sam
     print("wrote", out_png)
     import shutil
     shutil.rmtree(tmp_dir, ignore_errors=True)
+
+
+def head_sheet(built, out_png, tmp_dir, res=(360, 360), angles=(0, 60, 90, 135, 180)):
+    """Head close-ups from several angles (rows = characters) to judge hair against the ears."""
+    import shutil
+    os.makedirs(tmp_dir, exist_ok=True)
+    rows = []
+    for name, ob, h in built:
+        for _, o2, _ in built:
+            hide = o2 is not ob
+            o2.hide_render = hide
+            for c in o2.children:
+                c.hide_render = hide
+        ez = (h.eye_l[2] + h.eye_r[2]) / 2
+        base_rot = ob.rotation_euler.copy()
+        cells = []
+        for a in angles:
+            ob.rotation_euler = (base_rot[0], base_rot[1], base_rot[2] + math.radians(a))
+            tmp = os.path.join(tmp_dir, f"{name}_{a}.png")
+            setup_scene_preview([], tmp, cam_loc=(0.0, -0.75, ez - 0.02), cam_target=(0, h.head_c[1], ez - 0.04),
+                                lens=75, res=res, samples=24)
+            cells.append(load_img_native(tmp))
+        ob.rotation_euler = base_rot
+        rows.append(np.concatenate(cells, axis=1))
+    save_png(np.concatenate(rows, axis=0), out_png)
+    shutil.rmtree(tmp_dir, ignore_errors=True)
+    print("wrote", out_png)
 
 
 def fit_camera(W, H, res, lens, elev=0.0):
