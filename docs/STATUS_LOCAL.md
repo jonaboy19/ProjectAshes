@@ -14,6 +14,12 @@ _Last update: 2026-09-29_
 | 09-29 | Free VFX and shader gallery (Kenney, RPicster, god rays) | `assets/incoming/vfx_free/`, `shaders/free/`, `tools_qa/vfx_gallery/` | 58f8e8c4 |
 | 09-29 | Elemental VFX set: soft fire shader, bolder lightning and dash, stop-motion sheets, perf and Compatibility checked | `scenes/vfx/elements/`, `scripts/vfx/element_fx.gd`, `docs/art/vfx_elements/` | 58abc054 + follow-up |
 
+## Region 1 scaffold (L0), 2026-09-29: DONE
+- `Region1Sim` (seeded, `tick(dt_days)`, events, `serialize`/`deserialize`/`migrate`, `digest`, `debug_image`), `Region1State` (static save registry, versioning + migration, unknown-module data kept), `Region1Root` (1 s timer, day slicing, presenter group), `Region1DemoSim`, `data/region1/{README.md,modules.json}`, headless sandbox `tools_qa/region1/region1_sandbox.tscn`, 19 gdUnit tests (`tests/test_region1_scaffold.gd`).
+- Cloud: paste H1 + H2 from `docs/regions/HOOKS_FOR_CLOUD.md` (not applied; hot files untouched).
+- Verified headless in a sparse worktree (no game assets): sandbox OK, 19/19 tests pass. NOT run inside the full game (hooks not wired yet).
+- Backlog: windowed sandbox variant for GPU frame sheets (L8/L11); a Region1 debug overlay (module ms) once hooks land; presenter pooling helper.
+
 ## In progress
 - **Meshy free pack round 2** (161 models) → `assets/incoming/meshy_free/`
 - **Clear water shader** (lakes and rivers, quality tiers) → `shaders/water/`
