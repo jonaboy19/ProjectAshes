@@ -70,6 +70,8 @@ class Kit:
         self.deform_amp = None    # None = automatic from asset size, 0 = off
         self.deform_sag = None
         self.polish = True
+        self.weather_ao = None    # baked vertex-colour AO strength (None = 0.62); lower when the PBR bake adds real AO
+        self.pbr = None           # dict -> bake high-to-low PBR maps (pbr_kit.bake_asset); None = old shared textures
         self.mat_fam = {}         # material index -> texture family
         self.emissive = set()
         self.mats = {}
@@ -1180,8 +1182,9 @@ class Kit:
         removed = RP.remove_hidden(bm) if not os.environ.get("RA_NO_HIDDEN") else 0
         if os.environ.get("RA_NO_WEATHER"):
             return removed
+        ao_kw = {"ao_strength": self.weather_ao} if getattr(self, "weather_ao", None) is not None else {}
         RP.weather(bm, bm.loops.layers.float_color.get("Col"), self.mat_fam, self.emissive, self.sills,
-                   seed=self.seed, building=zmax > 2.6)
+                   seed=self.seed, building=zmax > 2.6, **ao_kw)
         return removed
 
     def finish(self, preview_kind="ground", cam_dir=(1.1, -1.6, 0.75), fit=1.0,
@@ -1203,6 +1206,16 @@ class Kit:
         vs = [v.co for v in bm0.verts]
         stats["bounds"] = (tuple(min(v[i] for v in vs) for i in range(3)), tuple(max(v[i] for v in vs) for i in range(3)))
         ob = self.build_object(bm0)
+        pbr_cfg = self.pbr if (self.pbr is not None and os.environ.get("RA_PBR") != "0") else None
+        if pbr_cfg is not None:
+            try:
+                import pbr_kit
+            except ImportError as ex:      # needs numpy + scipy + Pillow next to bpy
+                print("WARNING: PBR bake skipped (%s); exporting with the shared textures instead" % ex)
+                pbr_cfg = None
+        if pbr_cfg is not None:
+            src0 = ob.data.copy()          # un-baked LOD0 (materials, Col, UVMap): the LOD1 bake's detail source
+            pbr_kit.bake_asset(ob, os.path.basename(base), **{k: v for k, v in pbr_cfg.items() if k != "lod1_size"})
         mk = RP.add_markers(ob, self.markers)
         RP.export_glb(ob, out, mk)
         for e in mk:                   # free the names for the LOD1 file's markers
@@ -1218,7 +1231,8 @@ class Kit:
             if stats["tris1"] > goal * 1.04:
                 # last resort: quadric collapse of what the stand-ins left (keeps UVs/colours)
                 stats["tris1"] = RP.collapse(ob1, goal)
-            RP.export_glb(ob1, base + "_lod1.glb", RP.add_markers(ob1, self.markers))
+            if pbr_cfg is None:
+                RP.export_glb(ob1, base + "_lod1.glb", RP.add_markers(ob1, self.markers))
             print(f"wrote {base}_lod1.glb  triangles={stats['tris1']}  "
                   f"({100.0 * stats['tris1'] / max(1, stats['tris0']):.0f}% of LOD0)")
         if want2 and ob1 is not None:
@@ -1232,6 +1246,16 @@ class Kit:
             RP.export_glb(ob2, base + "_lod2.glb")
             print(f"wrote {base}_lod2.glb  triangles={stats['tris2']}")
             ob2.hide_render = True
+        if pbr_cfg is not None and ob1 is not None:
+            # the LOD2 proxy above was made from the un-baked LOD1 (old shared materials); now bake LOD1 at
+            # half size and export it (the proxy keeps the old materials: it is only seen from very far)
+            import pbr_kit
+            cfg1 = {k: v for k, v in pbr_cfg.items() if k != "lod1_size"}
+            cfg1["size"] = pbr_cfg.get("lod1_size", max(256, pbr_cfg.get("size", 1024) // 2))
+            cfg1["high_mesh"] = src0
+            cfg1["planar"] = True
+            pbr_kit.bake_asset(ob1, os.path.basename(base) + "_lod1", **cfg1)
+            RP.export_glb(ob1, base + "_lod1.glb", RP.add_markers(ob1, self.markers))
         if ob1 is not None:
             ob1.hide_render = True
         self.stats = stats

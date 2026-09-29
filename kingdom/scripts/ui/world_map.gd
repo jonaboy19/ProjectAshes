@@ -100,6 +100,14 @@ var player: Node3D
 var quest_target: Variant = null       # Vector2 or null
 ## Returns "" when fast travel is allowed, else the reason it is not.
 var travel_check: Callable = func() -> String: return ""
+## Set by the in-game tabbed menu (gamemenu/tab_map.gd) while it hosts this map inside
+## a tab: hides the map's own close button and leaves Esc / M to the menu.
+var embedded := false : set = set_embedded
+## Optional filter, Callable(place: Dictionary) -> bool: places it rejects are hidden and not tappable.
+var place_filter: Callable = Callable()
+## A player-placed marker (world Vector2, x/z) or null.
+var marker: Variant = null
+var _close_btn: Button
 
 var _zoom := 0.17                      # screen pixels per metre
 var _center := Vector2.ZERO
@@ -754,7 +762,7 @@ func close() -> void:
 
 
 func _unhandled_input(e: InputEvent) -> void:
-	if not visible:
+	if not visible or embedded:
 		return
 	if e.is_action_pressed("ui_cancel") or e.is_action_pressed("world_map"):
 		close()
@@ -795,6 +803,51 @@ func focus_on(pos: Vector2, zoom: float) -> void:
 	_center = pos
 	_clamp_center()
 	queue_redraw()
+
+
+func set_embedded(on: bool) -> void:
+	embedded = on
+	if _close_btn:
+		_close_btn.visible = not on
+
+
+## Zooms about the centre of the view (factor > 1 zooms in).
+func zoom_by(factor: float) -> void:
+	_zoom_at(size * 0.5, factor)
+
+
+## Centres on the player.
+func focus_player() -> void:
+	focus_on(_player_pos(), maxf(_zoom, 0.55))
+
+
+func toggle_legend() -> void:
+	_legend_open = 0 if _legend_open == 1 else 1
+	queue_redraw()
+
+
+func is_legend_open() -> bool:
+	return _legend_open == 1
+
+
+## Puts the player marker at `pos` (world x/z), or removes it when `pos` is null.
+func place_marker(pos: Variant) -> void:
+	marker = pos
+	queue_redraw()
+
+
+## The place selected by the last tap ({} when none).
+func selected_place() -> Dictionary:
+	return _selected
+
+
+## The view centre in world metres.
+func view_center() -> Vector2:
+	return _center
+
+
+func _passes(pl: Dictionary) -> bool:
+	return not place_filter.is_valid() or bool(place_filter.call(pl))
 
 
 func to_screen(p: Vector2) -> Vector2:
@@ -910,6 +963,8 @@ func _tap(pos: Vector2) -> void:
 	var best := {}
 	var best_d := 34.0
 	for pl: Dictionary in _shown:
+		if not _passes(pl):
+			continue
 		var d := to_screen(pl["pos"]).distance_to(pos)
 		if d < best_d:
 			best_d = d
@@ -995,6 +1050,13 @@ func _draw() -> void:
 		var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.004)
 		draw_arc(q, 18.0 + pulse * 6.0, 0, TAU, 32, Color(MapIcons.RED, 0.6 * (1.0 - pulse)), 3.0, true)
 		MapIcons.draw_marker(self, "quest", q, 32.0)
+	if marker is Vector2:
+		var mk := to_screen(marker)
+		var pts := PackedVector2Array([mk + Vector2(0, -16), mk + Vector2(11, 0), mk + Vector2(0, 16), mk + Vector2(-11, 0)])
+		draw_colored_polygon(pts, Color("d8a84e"))
+		pts.append(pts[0])
+		draw_polyline(pts, INK, 2.0, true)
+		draw_circle(mk, 3.0, INK)
 	MapIcons.draw_player(self, to_screen(_player_pos()), 12.0 * clampf(0.8 + _zoom, 0.9, 1.4), _heading())
 	_draw_vignette(full)
 	_draw_plaque()
@@ -1128,7 +1190,7 @@ func _draw_places() -> void:
 	var used: Array[Rect2] = []
 	# Settlement footprints first, so icons sit on top of them.
 	for pl: Dictionary in _shown:
-		if pl["category"] == "settlement":
+		if pl["category"] == "settlement" and _passes(pl):
 			var c := to_screen(pl["pos"])
 			var rr := float(pl["radius"]) * _zoom
 			if rr > 10.0:
@@ -1138,7 +1200,7 @@ func _draw_places() -> void:
 	var sizes := {}
 	for pl: Dictionary in _shown:
 		var kind := String(pl["kind"])
-		if is_area(kind):
+		if is_area(kind) or not _passes(pl):
 			continue
 		var c := to_screen(pl["pos"])
 		if not view.has_point(c):
@@ -1154,7 +1216,7 @@ func _draw_places() -> void:
 		var pl: Dictionary = _shown[i]
 		var kind := String(pl["kind"])
 		var c := to_screen(pl["pos"])
-		if not view.has_point(c):
+		if not view.has_point(c) or not _passes(pl):
 			continue
 		var sel: bool = not _selected.is_empty() and _selected["id"] == pl["id"]
 		if is_area(kind):
@@ -1331,6 +1393,7 @@ func _build_chrome() -> void:
 	close_btn.offset_bottom = 94
 	close_btn.pressed.connect(close)
 	add_child(close_btn)
+	_close_btn = close_btn
 
 	var tools := VBoxContainer.new()
 	tools.add_theme_constant_override("separation", 10)
