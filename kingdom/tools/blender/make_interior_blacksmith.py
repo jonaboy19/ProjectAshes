@@ -34,7 +34,7 @@ def soot(p):
 
 
 I.soot = soot
-I.env["ambient_energy"] = 0.7
+I.env["ambient_energy"] = 0.9
 
 I.mark("shell")
 I.room(W, D, H, doors={"front": [(DOOR_X, 1.4, 0, 2.4)]},

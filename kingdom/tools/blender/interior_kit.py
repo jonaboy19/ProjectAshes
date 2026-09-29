@@ -139,8 +139,8 @@ class Interior:
         self.cams = []             # (suffix, loc, target, lens)
         self.exit_door = None      # (pos, size, yaw)
         self.spawn = None          # (pos, yaw)
-        self.env = dict(ambient=(1.0, 0.84, 0.66), ambient_energy=0.75, bg=(0.035, 0.028, 0.022),
-                        exposure=1.0)
+        self.env = dict(ambient=(1.0, 0.90, 0.78), ambient_energy=0.9, bg=(0.035, 0.028, 0.022),
+                        exposure=1.15)
         self.preview_ambient = 0.5
         self.levels = [0.0]
         self.cx = self.cy = self.z0 = 0.0
@@ -1390,7 +1390,7 @@ class Interior:
             verts += [M @ v.co for v in o.data.vertices]
             polys += [[base + i for i in p.vertices] for p in o.data.polygons]
         bvh = BVHTree.FromPolygons(verts, polys, epsilon=0.0)
-        amb = Vector(self.bake_ambient if hasattr(self, "bake_ambient") else (0.44, 0.37, 0.3))
+        amb = Vector(self.bake_ambient if hasattr(self, "bake_ambient") else (0.60, 0.53, 0.50))
         lights = [(Vector(p), Vector(srgb(c)) if max(c) <= 1.0 else Vector(c), e, r) for (p, c, e, r) in self.bake]
         glow_idx = None
         for o in objs:

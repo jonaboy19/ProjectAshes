@@ -2,15 +2,15 @@
  "name": "guild",
  "stats": {
   "room_tris": 41620,
-  "prop_tris": 6038,
-  "total": 47658,
+  "prop_tris": 7172,
+  "total": 48792,
   "materials": [
-   "RA_Wood",
+   "RA_Wood_hp",
    "RA_Plaster",
    "RA_Ember",
    "RA_Props"
   ],
-  "size_mb": 5.082072
+  "size_mb": 5.198964
  },
  "markers": [
   [

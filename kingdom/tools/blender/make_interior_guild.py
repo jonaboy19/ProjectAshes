@@ -19,7 +19,7 @@ I = Interior("guild", seed=7404, title="Adventurers' Guild")
 k = I.k
 W, D, H = 12.0, 10.0, 4.4
 hw, hd = W / 2, D / 2
-BLUE = hexc("2f4a86")
+BLUE = hexc("a3322a")     # heraldic crimson (kept name), trimmed in gold
 GOLD = hexc("d9aa45")
 PARCH = [hexc("efe2bf"), hexc("e6d3a6"), hexc("f3e9cc"), hexc("dcc493"), hexc("e9dab4")]
 
@@ -32,7 +32,7 @@ def soot(p):
 
 
 I.soot = soot
-I.env["ambient_energy"] = 0.8
+I.env["ambient_energy"] = 0.95
 
 I.mark("shell")
 I.room(W, D, H, doors={"front": [(0.0, 1.9, 0, 2.8)]},
@@ -48,7 +48,7 @@ for (w_, c_) in (("front", -3.8), ("front", 3.8)):
 I.window("left", 1.6, 1.1, 1.5, 2.8, day=0.7)
 I.window("left", -3.2, 1.1, 1.5, 2.8, day=0.7)
 I.window("right", 2.4, 1.1, 1.5, 2.8, day=0.7)
-I.rug(0, -1.1, 0.75, 3.6, [hexc("2f4a86"), GOLD, hexc("2f4a86"), hexc("3a5a9a")], rect=True)
+I.rug(0, -1.1, 0.75, 3.6, [hexc("9a2a24"), GOLD, hexc("9a2a24"), hexc("b8402f")], rect=True)
 
 I.mark("reception desk")
 DY = 2.3                      # desk front line (y)
@@ -154,6 +154,7 @@ I.mega("Chair_1", (hw - 1.4, -2.8, 0), rz=-0.9)
 I.prop("barrel", (-hw + 0.5, -hd + 0.5, 0), rz=0.3, collide=True)
 I.prop("barrel", (-hw + 1.2, -hd + 0.45, 0), rz=1.0, s=0.95, collide=True)
 I.prop("crate", (-hw + 0.5, -hd + 1.2, 0), rz=0.2, s=0.85, collide=True)
+I.prop("weapon_rack", (-hw + 0.6, 3.6, 0), rz=-math.pi / 2, s=0.9, collide=True)
 
 I.mark("chandeliers")
 I.chandelier(-2.2, -0.8, H, r=0.6, n=6, drop=1.3)

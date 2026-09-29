@@ -41,7 +41,7 @@ def soot(p):
 
 
 I.soot = soot
-I.env["ambient_energy"] = 0.8
+I.env["ambient_energy"] = 0.95
 
 # ============================================================================ hall
 I.mark("hall shell")
