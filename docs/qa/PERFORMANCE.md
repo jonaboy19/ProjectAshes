@@ -367,3 +367,10 @@ and colliders; not run), a village control run under the same load, before/after
 (no `hint_screen_texture`, no `hint_depth_texture`) for LOW/Compatibility (`WaterStreamer.apply_quality` swaps it in). Before,
 LOW still declared both textures, so the engine copied the frame every frame even though no branch read it. The screen copy also
 lost its mipmaps (only LOD 0 was read). Desktop GPU cost is unchanged (0.5 ms level); the gain is expected on Mali/Adreno.
+
+### 2026-09-29 (local, follow-up, INCOMPLETE: stopped by usage limit, no code changed)
+Nothing new was measured. Findings from reading `region_dressing.gd` and `water_prof.gd`:
+* `RegionDressing._process` itself is cheap (2 ms build queue, a 0.75 s site scan, a few sails and flicker lights); `Breakable.tick` is O(1) per frame unless a swing happens. The scan cost is not per frame.
+* The earlier "RegionDressing = 7 ms" ablation used `process_mode = DISABLED` on the subtree. In Godot 4 that also removes every CollisionObject3D in the subtree from the physics space and stops all child processing, so the 7 ms may be physics colliders (per-part StaticBody3D + Breakable bodies), OmniLights (up to one per site light, unshadowed) or the render cost of the site nodes, not script time. Next step: split the ablation into (a) `set_process(false)` only, (b) `visible = false`, (c) colliders disabled, (d) lights hidden, and run `--census` (already in `water_prof.gd`).
+* The machine was very busy (about 9 Godot processes from other agents: anim_tech, PA_wt_crash boots, imports), so frame times are unreliable; use best-of-N rounds only.
+* Still to do: before/after table, WATER_LITE and canopy renders, frame sheet, missing .import/.uid files, Kay_* duplicate clip names, spinning-wheel/spindle error, boot_flow test, remove origin/tmp-water2 (kept for now).
