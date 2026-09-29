@@ -44,17 +44,18 @@ func _ready() -> void:
 	_menu.add_theme_constant_override("separation", 2)
 	col.add_child(_menu)
 	var have: String = Life.saves.latest_id() if _has_life() else ""
-	_continue = FE.menu_row("Continue", _continue_game)
+	_continue = FE.menu_row(tr("MENU_CONTINUE"), _continue_game)
 	_continue.disabled = have == ""
 	_menu.add_child(_continue)
-	_menu.add_child(FE.menu_row("New Game", _new_game))
-	var load_b := FE.menu_row("Load Game", _load_game)
+	_menu.add_child(FE.menu_row(tr("MENU_NEW"), _new_game))
+	var load_b := FE.menu_row(tr("MENU_LOAD"), _load_game)
 	_menu.add_child(load_b)
-	_menu.add_child(FE.menu_row("Settings", func() -> void: SettingsScreen.open(self)))
+	_menu.add_child(FE.menu_row(tr("MENU_SETTINGS"), func() -> void: SettingsScreen.open(self)))
 	_menu.add_child(FE.menu_row("Extras", func() -> void: Extras.open(self)))
-	_menu.add_child(FE.menu_row("Credits", func() -> void: Credits.open(self)))
-	if not Flow.is_mobile():
-		_menu.add_child(FE.menu_row("Exit", func() -> void: get_tree().quit()))
+	_menu.add_child(FE.menu_row(tr("MENU_CREDITS"), func() -> void: Credits.open(self)))
+	# iOS apps must not offer a Quit button (App Store guideline); Android and desktop do.
+	if not OS.has_feature("ios"):
+		_menu.add_child(FE.menu_row(tr("MENU_QUIT"), func() -> void: get_tree().quit()))
 	# Version (top right), tagline (bottom right), key hints (bottom left).
 	var ver := VBoxContainer.new()
 	ver.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)

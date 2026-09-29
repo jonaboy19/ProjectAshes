@@ -19,6 +19,8 @@ static var creation := {}
 static var pending_load := ""
 ## Boot goes straight to the main menu (after Exit to Main Menu).
 static var skip_splash := false
+## Tip index the front-end loading screen was showing, so the in-game world veil continues with the same tip.
+static var handoff_tip := -1
 ## A world has been played in this run; Life/WorldSim hold its state.
 static var world_dirty := false
 static var _pristine := {}
@@ -31,7 +33,7 @@ static func is_qa_launch() -> bool:
 	if not OS.get_cmdline_user_args().is_empty():
 		return true
 	for a in OS.get_cmdline_args():
-		if a == "--headless" or a == "--skipintro" or a == "--demo" or a == "--adult":
+		if a == "--headless" or a == "--skipintro" or a == "--skip-intro" or a == "--demo" or a == "--adult":
 			return true
 	return false
 
