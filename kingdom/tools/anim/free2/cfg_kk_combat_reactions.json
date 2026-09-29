@@ -1,0 +1,131 @@
+{
+ "source_type": "blend",
+ "blend": "C:/Users/Jonna/Documents/ProjectAshes_art_staging/anim_raw2/kaykit_medium.blend",
+ "source_armature": "Armature",
+ "source_fps": 30,
+ "ual": "../../../assets/incoming/quaternius/universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+ "smooth": 0.0,
+ "fingers": "relaxed",
+ "check_directions": true,
+ "finger_poses": {
+  "relaxed": [
+   "Idle_Loop",
+   0.0
+  ],
+  "fist": [
+   "Punch_Jab",
+   0.4
+  ]
+ },
+ "map": {
+  "pelvis": "hips",
+  "spine_01": "spine",
+  "spine_02": "chest",
+  "Head": "head",
+  "upperarm_l": "upperarm.l",
+  "lowerarm_l": "lowerarm.l",
+  "hand_l": "wrist.l",
+  "upperarm_r": "upperarm.r",
+  "lowerarm_r": "lowerarm.r",
+  "hand_r": "wrist.r",
+  "thigh_l": "upperleg.l",
+  "calf_l": "lowerleg.l",
+  "foot_l": "foot.l",
+  "ball_l": "toes.l",
+  "thigh_r": "upperleg.r",
+  "calf_r": "lowerleg.r",
+  "foot_r": "foot.r",
+  "ball_r": "toes.r"
+ },
+ "out": "../../../assets/incoming/animations_free2/kaykit_combat_reactions/UAL_Kay_combat_reactions.glb",
+ "clips": [
+  {
+   "name": "Kay_Hit_React_A",
+   "action": "Hit_A",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Hit_React_B",
+   "action": "Hit_B",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Death_Fall_A",
+   "action": "Death_A",
+   "floor_limit": 0.3,
+   "floor": "none"
+  },
+  {
+   "name": "Kay_Death_Fall_B",
+   "action": "Death_B",
+   "floor_limit": 0.3,
+   "floor": "none"
+  },
+  {
+   "name": "Kay_Block_Raise",
+   "action": "Melee_Block",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Block_Hold",
+   "action": "Melee_Blocking",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Block_Impact",
+   "action": "Melee_Block_Hit",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Block_Counter",
+   "action": "Melee_Block_Attack",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Stance_2H_Idle",
+   "action": "Melee_2H_Idle",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear"
+  },
+  {
+   "name": "Kay_Stance_Fists_Idle",
+   "action": "Melee_Unarmed_Idle",
+   "floor_limit": 0.3,
+   "loop": true,
+   "loop_native": true,
+   "inplace": "linear",
+   "fingers": "fist"
+  },
+  {
+   "name": "Kay_Dodge_Fwd",
+   "action": "Dodge_Forward",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Dodge_Back",
+   "action": "Dodge_Backward",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Dodge_L",
+   "action": "Dodge_Left",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Dodge_R",
+   "action": "Dodge_Right",
+   "floor_limit": 0.3
+  },
+  {
+   "name": "Kay_Attack_2H_Spin_Long",
+   "action": "Melee_2H_Attack_Spin",
+   "floor_limit": 0.3,
+   "fingers": "fist"
+  }
+ ]
+}

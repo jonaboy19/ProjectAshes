@@ -36,3 +36,9 @@ _Last update: 2026-09-29_
 ## Meshy free fixes (partial, stopped at usage limit)
 - Done: optimize_free.py gained island_pct arg (arg 11) + env EMIT_ADD=1 / BAKE_EXT. Re-baked lamp_post_purple_bracket (solid, across 300, 1024px, EMIT_ADD), torch_dungeon_cage (island 14), house_two_story_shingle (solid, across 200), bouquet_wild (solid, across 260, smooth, 3500 tris, island 3), hay_bale_yellow_large (vox across 120, smooth, 3000 tris). Before/after in docs/art/meshy_free/fixes/.
 - Remaining: bouquet_bright, bush_raspberry (blobby vox across 90-130 candidates rendered, unreviewed), ruined-hut floating debris (use island_pct), farm animal rigs (task 2) not started.
+## Advanced animation (local, stopped at usage limit)
+Done: KayKit + authored traversal clips (`animations_free2/`), README `docs/anim/advanced/README.md`.
+Remaining: anim_tech demo (blend trees, root-motion attacks, motion warping, perf table) and video-to-BVH pipeline are with sub-agents and may be partial; finish from `docs/anim/advanced/tech/` and `docs/anim/advanced/video_mocap/`. Add `animations_free2` GLBs to `Assets.UAL_FILES` (Codex).
+## Clear water (kingdom/shaders/water/clear_water.gdshader) - live in game via WaterStreamer
+Done: caustics, sun glints, clearer turquoise shallows, quality tiers (Quality LOW=fake transparency, MEDIUM=refraction, HIGH/ULTRA=+caustics). Before/after: docs/art/water/{before,after}. Shots: tools/qa/water_shots/run.sh.
+Remaining: HIGH/LOW fps before/after not measured (ULTRA new: lake 40, river 33, pier 27 fps on desktop; old HIGH pier 28.5); no frame-sheet animation check; no Android test; waterfall/pond presets; ULTRA river caustics slightly bright (tune caustic_strength); old shaders/water.gdshader can be deleted.

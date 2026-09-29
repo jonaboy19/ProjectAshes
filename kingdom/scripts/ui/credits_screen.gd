@@ -6,6 +6,8 @@ extends Control
 ## Open with CreditsScreen.open(hud); CREDITS.md and addons/*/LICENSE* are
 ## added to exports by the include filter in export_presets.cfg.
 
+const AF := preload("res://scripts/ui/ashes_frame.gd")
+const FE := preload("res://scripts/ui/frontend/fe.gd")
 const CREDITS_PATH := "res://CREDITS.md"
 ## Addons shipped in the build (LimboAI and Terrain3D are disabled; see project.godot).
 const ADDON_LICENCES := ["gloot", "dialogue_manager", "guide", "quest_weaver", "GodotGAS", "sky_3d",
@@ -15,7 +17,7 @@ var _text: RichTextLabel
 var _full_button: Button
 
 
-static func open(hud: CanvasLayer) -> CreditsScreen:
+static func open(hud: Node) -> CreditsScreen:
 	var s := CreditsScreen.new()
 	hud.add_child(s)
 	return s
@@ -24,31 +26,22 @@ static func open(hud: CanvasLayer) -> CreditsScreen:
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	theme = UITheme.theme()
-	var dim := ColorRect.new()
-	dim.color = Color(0, 0, 0, 0.55)
-	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(dim)
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	theme = AF.theme()
+	add_child(FE.backdrop_stack("main_menu", 0.72))
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.add_theme_stylebox_override("panel", AF.panel(Color(0.03, 0.028, 0.025, 0.9), AF.GOLD, 4, 22))
 	add_child(panel)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 10)
 	panel.add_child(box)
-	var head := Label.new()
-	head.text = "Credits & Licences"
-	head.add_theme_font_override("font", UITheme.title_font())
-	head.add_theme_font_size_override("font_size", 26)
-	head.add_theme_color_override("font_color", UITheme.ACCENT)
-	box.add_child(head)
-	var rule := ColorRect.new()
-	rule.color = UITheme.ACCENT
-	rule.custom_minimum_size = Vector2(56, 2)
-	rule.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	box.add_child(rule)
+	box.add_child(FE.header("Credits & Licences", queue_free, 24))
+	box.add_child(AF.separator())
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.scroll_deadzone = 12
 	box.add_child(scroll)
 	_text = RichTextLabel.new()
 	_text.bbcode_enabled = true
@@ -59,25 +52,20 @@ func _ready() -> void:
 	_text.selection_enabled = false
 	_text.mouse_filter = Control.MOUSE_FILTER_PASS
 	_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_text.add_theme_font_size_override("normal_font_size", 16)
-	_text.add_theme_font_size_override("bold_font_size", 16)
-	_text.add_theme_color_override("default_color", UITheme.TEXT)
+	_text.add_theme_font_override("normal_font", AF.font(AF.BODY_FONT))
+	_text.add_theme_font_override("bold_font", AF.wfont(600))
+	_text.add_theme_font_size_override("normal_font_size", 18)
+	_text.add_theme_font_size_override("bold_font_size", 17)
+	_text.add_theme_color_override("default_color", AF.TEXT)
 	_text.meta_clicked.connect(func(meta: Variant) -> void: OS.shell_open(str(meta)))
 	scroll.add_child(_text)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
+	row.alignment = BoxContainer.ALIGNMENT_END
 	box.add_child(row)
-	_full_button = Button.new()
-	_full_button.text = "Engine licence texts"
-	_full_button.custom_minimum_size = Vector2(0, 50)
-	_full_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_full_button.pressed.connect(_show_full_licences)
+	_full_button = FE.ghost_button("Engine licence texts", _show_full_licences, 240)
 	row.add_child(_full_button)
-	var close := Button.new()
-	close.text = "Close"
-	close.custom_minimum_size = Vector2(0, 50)
-	close.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	close.pressed.connect(queue_free)
+	var close := FE.gold_btn("Close", queue_free, 160)
 	row.add_child(close)
 	_text.text = build_text()
 	get_viewport().size_changed.connect(_layout)
@@ -90,7 +78,7 @@ func _layout() -> void:
 	position = Vector2.ZERO
 	size = vw
 	var panel: Control = get_child(1)
-	var w := clampf(vw.x * 0.94, 320.0, 960.0)
+	var w := clampf(vw.x * 0.94, 320.0, 980.0)
 	var h := vw.y * 0.92
 	panel.anchor_left = 0.5
 	panel.anchor_right = 0.5
@@ -122,7 +110,7 @@ static func build_text() -> String:
 		for f in ["LICENSE", "LICENSE.md", "LICENSE.txt", "LICENCE", "LICENCE.md"]:
 			var p := "res://addons/%s/%s" % [addon, f]
 			if FileAccess.file_exists(p):
-				out.append("[b]%s[/b]\n[color=#%s]%s[/color]" % [addon, UITheme.TEXT_DIM.to_html(false),
+				out.append("[b]%s[/b]\n[color=#%s]%s[/color]" % [addon, AF.TEXT_DIM.to_html(false),
 					_escape(FileAccess.get_file_as_string(p).strip_edges())])
 				break
 	out.append(_heading("Godot Engine"))
@@ -153,7 +141,7 @@ func _show_full_licences() -> void:
 
 
 static func _heading(t: String) -> String:
-	return "[font_size=22][color=#%s]%s[/color][/font_size]" % [UITheme.ACCENT.to_html(false), t]
+	return "[font_size=22][color=#%s]%s[/color][/font_size]" % [AF.GOLD_BRIGHT.to_html(false), t]
 
 
 static func _escape(s: String) -> String:
