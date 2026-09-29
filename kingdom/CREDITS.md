@@ -117,3 +117,6 @@ CC0 / public domain (no attribution required; credited with thanks):
 
 CC0 (no attribution required; credited with thanks): 53 market props (39 + 14 pieces) from **Quaternius'** *Fantasy Props MegaKit* and *Ultimate Food Pack*
 (https://quaternius.com), re-authored into one warm-painted atlas (`assets/market_goods/`).
+
+## In-game tabbed menu icons (added 2026-09-29)
+- **Game icons** for the inventory, character, skills, quest, map and journal menu (assets/ui/icons/gm and assets/ui/icons/items) from game-icons.net, CC BY 3.0, recoloured to white. Authors: **Lorc**, **Delapouite**, **Skoll**, **Willdabeast**, **Caro Asercion**, **Irongamer**, **SBed**, **Seregacthtuf**, **Zeromancer**.
