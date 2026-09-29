@@ -18,8 +18,10 @@ extends RefCounted
 
 signal crafted(result: Dictionary)
 signal skill_up(skill: String, level: int)
+signal station_invalidated(ref: String, generation: int)
 
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
+const StationIdentity := preload("res://scripts/systems/station_identity.gd")
 const RECIPES_PATH := "res://data/recipes.json"
 const ITEMS_PATH := "res://data/items.json"
 
@@ -58,6 +60,8 @@ var rng := RandomNumberGenerator.new()
 var recipes: Array[Dictionary] = []
 var skills: Dictionary = {}
 var station_kinds: Dictionary = {}
+var station_identity := StationIdentity.new()
+var _adhoc_station_slot := 0
 var _by_id: Dictionary = {}
 ## [{kind, name, pos: Vector3 (y = NAN: any height), radius, owner: instance id or 0}]
 var _stations: Array[Dictionary] = []
@@ -75,6 +79,7 @@ func _init(seed_value := 4242) -> void:
 	for r: Dictionary in data.get("recipes", []):
 		recipes.append(r)
 		_by_id[String(r["id"])] = r
+	station_identity.descriptor_invalidated.connect(_on_station_invalidated)
 
 
 # --- data ------------------------------------------------------------------------
@@ -423,14 +428,43 @@ static func give_item(inv: Object, item: String, n: int, quality := -1) -> void:
 
 # --- stations ------------------------------------------------------------------------
 
-func add_station(kind: String, pos: Vector3, label := "", radius := -1.0, owner: Object = null) -> Dictionary:
+func _on_station_invalidated(ref: String, generation: int) -> void:
+	for i in range(_stations.size() - 1, -1, -1):
+		if String(_stations[i].get("ref", "")) == ref \
+				and int(_stations[i].get("generation", -1)) == generation:
+			_stations.remove_at(i)
+	station_invalidated.emit(ref, generation)
+
+
+func add_station(kind: String, pos: Vector3, label := "", radius := -1.0, owner: Object = null,
+		owner_ref := "", slot := -1) -> Dictionary:
+	var actual_slot := slot
+	var actual_owner_ref := owner_ref
+	if owner == null and actual_owner_ref.is_empty():
+		_adhoc_station_slot += 1
+		actual_owner_ref = "adhoc:%d" % _adhoc_station_slot
+	if actual_slot < 0:
+		if owner != null:
+			_adhoc_station_slot += 1
+			actual_slot = _adhoc_station_slot
+		elif actual_owner_ref.begins_with("adhoc:"):
+			actual_slot = 0
+	var identity: Dictionary = station_identity.register_station(owner, actual_owner_ref, kind, actual_slot)
+	if not bool(identity.get("ok", false)):
+		return {}
 	var st := {"kind": kind, "name": label if label != "" else station_name(kind), "pos": pos,
-		"radius": radius if radius > 0.0 else STATION_RADIUS, "owner": owner.get_instance_id() if owner else 0}
+		"radius": radius if radius > 0.0 else STATION_RADIUS, "owner": owner.get_instance_id() if owner else 0,
+		"ref": String(identity["ref"]), "generation": int(identity["generation"])}
+	for i in _stations.size():
+		if String(_stations[i].get("ref", "")) == st["ref"]:
+			_stations[i] = st
+			return st.duplicate(true)
 	_stations.append(st)
-	return st
+	return st.duplicate(true)
 
 
 func clear_stations() -> void:
+	station_identity.invalidate_all()
 	_stations.clear()
 	_sites_added = false
 
@@ -443,29 +477,35 @@ func add_world_sites(sites: Array) -> int:
 		var c: Vector2 = site.get("pos", Vector2.ZERO)
 		var basis := Basis(Vector3.UP, float(site.get("yaw", 0.0)))
 		var found := false
-		for part: Array in site.get("parts", []):
+		var parts: Array = site.get("parts", [])
+		for part_index in parts.size():
+			var part: Array = parts[part_index]
 			if String(part[0]).find("campfire") < 0:
 				continue
 			var off: Vector2 = part[1]
 			var w := Vector3(c.x, 0.0, c.y) + basis * Vector3(off.x, 0.0, off.y)
-			add_station("campfire", Vector3(w.x, NAN, w.z), "%s Campfire" % site.get("name", ""), CAMPFIRE_RADIUS)
+			add_station("campfire", Vector3(w.x, NAN, w.z), "%s Campfire" % site.get("name", ""),
+				CAMPFIRE_RADIUS, null, "site:%s" % str(site.get("id", "unknown")), part_index)
 			found = true
 			n += 1
 		if not found and String(site.get("kind", "")) == "bandit_camp":
-			add_station("campfire", Vector3(c.x, NAN, c.y), "Bandit Campfire", CAMPFIRE_RADIUS)
+			add_station("campfire", Vector3(c.x, NAN, c.y), "Bandit Campfire", CAMPFIRE_RADIUS,
+				null, "site:%s" % str(site.get("id", "unknown")), -1)
 			n += 1
 	return n
 
 
 ## Registers the craft stations of a loaded interior room (see INTERIOR_STATIONS)
-## and returns them. They drop out on their own once the room is freed.
-func scan_interior(room: Node) -> Array[Dictionary]:
+## and returns them. They drop out on room exit; without a stable building_ref,
+## identity is explicitly scoped to this room instance.
+func scan_interior(room: Node, building_ref := "") -> Array[Dictionary]:
 	_prune()
 	var out: Array[Dictionary] = []
 	if room == null:
 		return out
 	var defs: Array = INTERIOR_STATIONS.get(String(room.name), [])
-	for d: Array in defs:
+	for slot in defs.size():
+		var d: Array = defs[slot]
 		var at: Node3D = room as Node3D
 		if String(d[1]) != "":
 			at = room.get_node_or_null(NodePath(String(d[1]))) as Node3D
@@ -473,15 +513,24 @@ func scan_interior(room: Node) -> Array[Dictionary]:
 			continue
 		var p := at.global_position
 		var floor_y := (room as Node3D).global_position.y if room is Node3D else p.y
-		out.append(add_station(String(d[0]), Vector3(p.x, floor_y, p.z), String(d[2]), float(d[3]), room))
+		var registered := add_station(String(d[0]), Vector3(p.x, floor_y, p.z),
+			String(d[2]), float(d[3]), room, building_ref, slot)
+		if not registered.is_empty():
+			out.append(registered)
 	return out
 
 
 func _prune() -> void:
-	for i in range(_stations.size() - 1, -1, -1):
-		var o := int(_stations[i]["owner"])
-		if o != 0 and not is_instance_id_valid(o):
-			_stations.remove_at(i)
+	var snapshot: Array = _stations.duplicate(true)
+	for station: Dictionary in snapshot:
+		var ref := String(station.get("ref", ""))
+		var generation := int(station.get("generation", -1))
+		if station_identity.is_live(ref, generation):
+			continue
+		for i in range(_stations.size() - 1, -1, -1):
+			if String(_stations[i].get("ref", "")) == ref \
+					and int(_stations[i].get("generation", -1)) == generation:
+				_stations.remove_at(i)
 
 
 ## Stations within reach of `pos`, nearest first: [{kind, name, pos, radius, distance}].
@@ -497,10 +546,15 @@ func stations_near(pos: Vector3) -> Array[Dictionary]:
 			continue
 		if not is_nan(sp.y) and absf(sp.y - pos.y) > STATION_HEIGHT:
 			continue
-		var e := st.duplicate()
+		var e := st.duplicate(true)
 		e["distance"] = d
 		out.append(e)
-	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["distance"]) < float(b["distance"]))
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var a_distance := float(a["distance"])
+		var b_distance := float(b["distance"])
+		if a_distance == b_distance:
+			return String(a["ref"]) < String(b["ref"])
+		return a_distance < b_distance)
 	return out
 
 
@@ -516,7 +570,39 @@ func kinds_near(pos: Vector3) -> Array:
 ## Every registered station (for maps / debugging).
 func all_stations() -> Array[Dictionary]:
 	_prune()
-	return _stations.duplicate()
+	var out: Array[Dictionary] = []
+	for station: Dictionary in _stations:
+		out.append(station.duplicate(true))
+	return out
+
+
+## Nearest live station that satisfies a recipe, including its exact generation.
+func nearest_station_for_recipe(pos: Vector3, recipe_id: String, requested_kinds: Array = []) -> Dictionary:
+	var r := recipe(recipe_id)
+	if r.is_empty():
+		return {}
+	var required: Array = r.get("stations", [])
+	if required.is_empty():
+		return {}
+	for station: Dictionary in stations_near(pos):
+		if required.has(String(station.get("kind", ""))) \
+				and (requested_kinds.is_empty() or requested_kinds.has(String(station.get("kind", "")))):
+			return station.duplicate(true)
+	return {}
+
+
+## Same descriptor and same generation must still be live and in reach.
+func station_at(ref: String, generation: int, pos: Vector3) -> Dictionary:
+	if not station_identity.is_live(ref, generation):
+		return {}
+	for station: Dictionary in stations_near(pos):
+		if String(station.get("ref", "")) == ref and int(station.get("generation", -1)) == generation:
+			return station.duplicate(true)
+	return {}
+
+
+static func station_resource_key(ref: String, generation: int) -> String:
+	return "station:%s:g%d" % [ref, generation]
 
 
 # --- save ---------------------------------------------------------------------------

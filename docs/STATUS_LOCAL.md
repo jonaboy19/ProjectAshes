@@ -10,6 +10,7 @@ _Last update: 2026-09-29 (assets session: farm animals, Meshy fixes, impostors)_
 |---|---|---|---|
 | 09-28 | Boot crash fixed (threaded mesh loads → main-thread `Assets.scene`) | `scripts/world/region_dressing.gd`, `assets.gd` | 0137fa0d, 64b3698e |
 | 09-28 | Godot 4.6.3 (quit crash fixed) | launchers, `tools/qa` | a5a596b7 |
+| 09-29 | **Design: Retinue, Settlement and Ascension** (recruitment and the stone-borne Call with ETA, taming, Palworld-style building for thumbs, grudges and raids, conquest, the path to king via the Elder Stone Moot; 5 twists; balance targets and sims S1–S10; packages L21–L50, C14–C21, X8–X11 after the in-progress Region 1 packages) | `docs/design/RETINUE_SETTLEMENT_ASCENSION.md` | (this commit) |
 | 09-29 | **L17 Region 1 audio**: 7 looping themes (village/farm, guild town, Highwatch Keep, Stagborn glade, rift wilds, night, Warden boss), rune hum, ward activate/break, glyph carve x3, Stagborn bellow/snort/Warden roar, Scar ambience, 20 barks (10 m / 10 f). Music -16.1..-16.2 LUFS-I, one-shots peak -3 dBFS, 8.3 MB, licences in LICENSES.md + CREDITS.md | `assets/audio/region1/`, `docs/regions/AUDIO_R1.md`, `tools/audio/r1_*.sh` | (this commit) |
 | 09-29 | Meshy free pack round 1: 181 optimized models (CC0), not placed yet | `assets/incoming/meshy_free/` | a6c67244 |
 | 09-29 | Free VFX and shader gallery (Kenney, RPicster, god rays) | `assets/incoming/vfx_free/`, `shaders/free/`, `tools_qa/vfx_gallery/` | 58f8e8c4 |
@@ -24,6 +25,11 @@ _Last update: 2026-09-29 (assets session: farm animals, Meshy fixes, impostors)_
 - Cloud: paste H1 + H2 from `docs/regions/HOOKS_FOR_CLOUD.md` (not applied; hot files untouched).
 - Verified headless in a sparse worktree (no game assets): sandbox OK, 19/19 tests pass. NOT run inside the full game (hooks not wired yet).
 - Backlog: windowed sandbox variant for GPU frame sheets (L8/L11); a Region1 debug overlay (module ms) once hooks land; presenter pooling helper.
+
+## Region 1 N1 Wardwright: L7 Wardlines + L8 rune recognizer (2026-09-29): sim + recognizer DONE, canvas WIP
+- **L7** `scripts/region1/wardlines.gd` (`Wardlines extends Region1Sim`), tuning `data/region1/wardlines.json`, 27 gdUnit tests (`tests/test_region1_wardlines.gd`): Elder Stone budgets, routing graph with hop loss, player links/cuts/pins, glyph carving (ward/lure/alarm/bless), decay + crews, rumour events, snapshot/restore, `coverage_callable()` for hook H3, `bind_network(RARunestoneNetwork)`. Not in `modules.json` yet (needs C3 + H3, see HOOKS_FOR_CLOUD.md).
+- **L8** `scripts/region1/rune_gesture.gd` (`RuneGesture`, multi-stroke Protractor) + `data/region1/glyphs.json` + 13 tests: 99% on 40 noisy strokes per glyph (6 seeds 98-100%), mean 0.25 ms per match.
+- WIP: windowed canvas `tools_qa/region1/rune_canvas.tscn` + frame sheet.
 
 ## In progress
 - **Meshy free pack round 2** (161 models) → `assets/incoming/meshy_free/`
