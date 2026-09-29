@@ -1,0 +1,21 @@
+renderer=mobile adapter=NVIDIA GeForce RTX 4070 Laptop GPU window=(1280, 720)
+Per-effect cost. 240 frames each, vsync off, 1280x720, project autoloads running (frame time includes them; GPU column is the effect cost).
+view1 baseline (sky + ground only) | frame 4.55 ms (220 fps) | GPU 0.59 ms | render-CPU 0.85 ms
+campfire alone | frame 5.21 ms (192 fps) | GPU 0.96 ms | render-CPU 0.83 ms | GPU delta +0.38 ms
+magic sparks purple alone | frame 4.51 ms (222 fps) | GPU 0.50 ms | render-CPU 0.87 ms | GPU delta -0.08 ms
+magic sparks cyan alone | frame 4.29 ms (233 fps) | GPU 0.54 ms | render-CPU 0.77 ms | GPU delta -0.05 ms
+magic sparks gold alone | frame 3.68 ms (271 fps) | GPU 0.56 ms | render-CPU 0.69 ms | GPU delta -0.03 ms
+portal swirl alone | frame 3.54 ms (283 fps) | GPU 0.56 ms | render-CPU 0.66 ms | GPU delta -0.02 ms
+hit sparks alone | frame 3.44 ms (291 fps) | GPU 0.51 ms | render-CPU 0.64 ms | GPU delta -0.07 ms
+dust puff alone | frame 4.02 ms (249 fps) | GPU 0.51 ms | render-CPU 0.74 ms | GPU delta -0.08 ms
+falling leaves alone | frame 3.29 ms (304 fps) | GPU 0.49 ms | render-CPU 0.61 ms | GPU delta -0.09 ms
+fireflies alone | frame 3.64 ms (275 fps) | GPU 0.47 ms | render-CPU 0.69 ms | GPU delta -0.12 ms
+view1 ALL 9 effects | frame 4.13 ms (242 fps) | GPU 0.61 ms | render-CPU 0.81 ms | GPU delta +0.02 ms
+view1 ALL 9 effects + painterly Kuwahara r=2 | frame 4.19 ms (238 fps) | GPU 0.72 ms | render-CPU 0.91 ms | GPU delta +0.14 ms
+view2 baseline (sky + ground only) | frame 4.29 ms (233 fps) | GPU 0.39 ms | render-CPU 0.84 ms
+stylized grass alone | frame 4.41 ms (227 fps) | GPU 0.53 ms | render-CPU 0.82 ms | GPU delta +0.13 ms
+fluffy tree alone | frame 4.03 ms (248 fps) | GPU 0.47 ms | render-CPU 0.81 ms | GPU delta +0.07 ms
+stylized water alone | frame 4.32 ms (232 fps) | GPU 0.56 ms | render-CPU 0.81 ms | GPU delta +0.16 ms
+god rays alone | frame 3.30 ms (303 fps) | GPU 0.57 ms | render-CPU 0.65 ms | GPU delta +0.18 ms
+view2 ALL scenery | frame 4.43 ms (226 fps) | GPU 0.61 ms | render-CPU 0.92 ms | GPU delta +0.22 ms
+view2 ALL scenery + painterly Kuwahara r=2 | frame 4.78 ms (209 fps) | GPU 0.92 ms | render-CPU 0.98 ms | GPU delta +0.53 ms
