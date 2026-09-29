@@ -51,6 +51,10 @@ def build(variant):
     pal = PAL[V]
     k = VK("Townhouse" + "abcd"[V - 1].upper(), seed=730 + V * 19, pal=pal)
     k.lit_ratio = 0.5
+    # high-to-low PBR bake (pbr_kit.py): unique 1024 atlas (albedo / normal / ORM) + instanced block and slate
+    # tiles; LOD1 gets its own 512 atlas
+    k.pbr = dict(size=1024, lod1_size=512, orm_div=2, seed=V * 11 + 3, ao_dist=0.7)
+    k.weather_ao = 0.34
 
     HX, HY = 3.5, 4.0                 # ground footprint 7.0 x 8.0
     G1 = 2.8                          # top of the stone ground floor

@@ -1,15 +1,25 @@
 class_name HUD
 extends CanvasLayer
-## Full-resolution UI drawn over the low-resolution pixel render: stats, orders,
-## touch controls and messages. Crisp text on top of chunky pixels.
+const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
+## Full-resolution UI drawn over the low-resolution pixel render, in the user's
+## dark-gold style: character card with portrait and crest, quest tracker, compass,
+## minimap, place / day / time, hotbar, round action buttons, notification popups,
+## event banners and the dialogue screen.
 ##
-## Navigation: a compass strip (top centre), place discovery with a cinematic
-## banner, a full-screen world map with fast travel, and photo mode. The map and
-## photo mode are children of this layer but not of the HUD root, so hiding the
-## root (photo mode) keeps them on screen.
+## Navigation: a compass strip (top centre), a circular minimap (top right), place
+## discovery with a cinematic banner, a full-screen world map with fast travel, and
+## photo mode. The map and photo mode are children of this layer but not of the HUD
+## root, so hiding the root (photo mode) keeps them on screen.
 ##
 ## Wiring for main.gd: `hud.fast_travel_requested.connect(func(p: Vector2) -> void: _teleport(p, 0.0))`.
 ## More touch buttons: `hud.add_action_button("ride", "Ride", "ride", "walk")`.
+##
+## Popups and banners (all safe to call any time):
+##   hud.notify("item", "Item Acquired", "Fresh Bread x3", "bread")   # quest|item|location|reputation|level|gold|info
+##   hud.show_event("quest", "Quest Completed", "A Farmer's Problem")    # location|quest|level
+## Game.say() text is classified into these automatically (see _say).
+## Menus: hud.show_menu(source) - a dict with "speaker" (see dialogue_ui.gd) opens the
+## conversation screen, anything else the gold panel.
 
 ## Fast travel confirmed on the map. The screen is already black and the clock
 ## advanced; teleport the player to `pos` (x/z) synchronously in the handler.
@@ -25,26 +35,34 @@ const Discovery := preload("res://scripts/sim/discovery.gd")
 const CompassBar := preload("res://scripts/ui/compass.gd")
 const WorldMap := preload("res://scripts/ui/world_map.gd")
 const PhotoMode := preload("res://scripts/ui/photo_mode.gd")
+const PauseMenu := preload("res://scripts/ui/frontend/pause_menu.gd")
 const DiscoveryBanner := preload("res://scripts/ui/discovery_banner.gd")
 const MapIcons := preload("res://scripts/ui/map_icons.gd")
+const AF := preload("res://scripts/ui/ashes_frame.gd")
+const HudArt := preload("res://scripts/ui/hud_art.gd")
+const HudCard := preload("res://scripts/ui/hud_card.gd")
+const Hotbar := preload("res://scripts/ui/hotbar.gd")
+const Minimap := preload("res://scripts/ui/minimap.gd")
+const NotifyStack := preload("res://scripts/ui/notify_stack.gd")
+const DialogueUI := preload("res://scripts/ui/dialogue_ui.gd")
+const Portrait := preload("res://scripts/ui/portrait.gd")
+const SkillsSim := preload("res://scripts/sim/skills.gd")
 
 const DISCOVERY_RATE := 0.25       # s between discovery checks
 const MARKER_RATE := 1.0           # s between compass marker rebuilds
+const EVENT_RATE := 0.5            # s between gold / level / inventory checks for popups
 const COMPASS_RANGE := 400.0       # discovered places shown on the compass
 const HOSTILE_RANGE := 250.0       # camps shown (red) even before they are found
 const COMBAT_RANGE := 45.0         # enemies this close block fast travel (same as the battle music)
-const DOCK_SIZE := 58
-const DOCK_STEP := 78              # button + caption
+const DOCK_SIZE := 52
+const DOCK_STEP := 72              # button + caption
 const ABILITY_DASH_COLOR := Color("6d5cff")   # violet: distinct from the teal plain dodge
+const LEFT := 12.0                 # left / right screen margin of the HUD cards
+const MINIMAP_SIZE := 124.0
 
 var player: Player
 var controls: Control
-var _stats: Label
-var _where: Label
 var _perf: Label
-var _danger: Label
-var _health: Meter
-var _stamina: Meter
 var _toast: Label
 var _toast_tween: Tween
 var _interact: TouchScreenButton
@@ -52,26 +70,51 @@ var _interact_label: Label
 var _dash_cooldown_label: Label
 var _order_buttons: Array[TouchScreenButton] = []
 var _buttons: Dictionary = {}
-var _loading: ColorRect
-var _loading_label: Label
-var _needs: Label
-var _rank: Label
+var _loading: Control      # WorldLoading while the world is generated
 var _toast_box: PanelContainer
 var _menu: PanelContainer
 var _menu_source: Callable
 var _pack_button: TouchScreenButton
+var _pause_button: TouchScreenButton
 var _root: Control
+var _chrome: Control                # the HUD furniture (card, compass, minimap...): hidden during a conversation
+var card: Control                   # HudCard.Card
+var tracker: Control                # HudCard.QuestTracker
+var info: Control                   # HudCard.InfoBlock
+var danger_badge: Control           # HudCard.DangerBadge
+var hotbar: Control                 # hotbar.gd
+var minimap: Control                # minimap.gd
+var notifications: Control          # notify_stack.gd
+var dialogue: Control               # dialogue_ui.gd
+var portrait: Control               # the card's round portrait (portrait.gd)
 var compass: Control               # scripts/ui/compass.gd
 var banner: Control                # scripts/ui/discovery_banner.gd
 var world_map: Control             # scripts/ui/world_map.gd
 var photo_mode: Control            # scripts/ui/photo_mode.gd
 var discovery: RefCounted          # scripts/sim/discovery.gd (Life.discovery when Life owns one)
+## The fps / chunk line: hidden unless this is on (F3, `--debug-hud`, or project setting ashes/debug/show_stats).
+var debug_stats := false:
+	set(v):
+		debug_stats = v
+		if _perf:
+			_perf.visible = v
 var _fade: ColorRect
 var _dock: Array[TouchScreenButton] = []     # auto-placed action buttons, in order
 var _anchored: Dictionary = {}               # TouchScreenButton -> offset from the bottom-right corner
 var _nav_timer := 0.0
 var _marker_timer := 0.0
+var _event_timer := 0.0
 var _quest_override: Variant = null
+var _dlg_options: Array = []
+var _last_gold := -1
+var _last_level := -1
+var _inv_snapshot: Dictionary = {}
+var _inv_dirty := false
+var _quest_titles: Dictionary = {}           # title -> true, for classifying "Title: stage text" messages
+var _soldiers := 0
+var _stack_sig := ""
+var _portrait_ready := false
+var _touch := false
 ## Anything with active_objective_position() -> Vector2|null (e.g. the radiant
 ## quest tracker: `hud.quest_source = services.radiant()`). Life.radiant is used
 ## automatically when Life owns one.
@@ -84,6 +127,8 @@ func _init(p: Player) -> void:
 
 
 func _ready() -> void:
+	_touch = HudArt.touch_mode()
+	debug_stats = "--debug-hud" in OS.get_cmdline_user_args() or bool(ProjectSettings.get_setting("ashes/debug/show_stats", false))
 	var root := Control.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -100,12 +145,13 @@ func _ready() -> void:
 	look.anchor_bottom = 1.0
 	look.gui_input.connect(func(e: InputEvent) -> void:
 		if e is InputEventScreenDrag:
-			player.add_look(e.relative))
+			player.add_look(e.relative * App.look_scale))
 	controls.add_child(look)
 	var stick := VirtualJoystick.new()
 	stick.anchor_right = 0.4
 	stick.anchor_top = 0.3
 	stick.anchor_bottom = 1.0
+	stick.size_scale = App.joystick_scale
 	stick.moved.connect(func(v: Vector2) -> void: player.touch_move = v)
 	controls.add_child(stick)
 
@@ -126,11 +172,13 @@ func _ready() -> void:
 	_dash_cooldown_label.add_theme_constant_override("shadow_outline_size", 4)
 	_dash_cooldown_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_buttons["ability_dash"].add_child(_dash_cooldown_label)
-	_buttons["view"] = _button("view_cycle", "", 58, UITheme.ACTION_UTIL, "eye-target")
-	_buttons["zoom_out"] = _button("zoom_out", "−", 58, UITheme.ACTION_UTIL, "")
-	_buttons["zoom_in"] = _button("zoom_in", "+", 58, UITheme.ACTION_UTIL, "")
+	_buttons["view"] = _button("view_cycle", "Look", DOCK_SIZE, UITheme.ACTION_UTIL, "eye-target")
+	_buttons["zoom_out"] = _button("zoom_out", "−", 44, UITheme.ACTION_UTIL, "")
+	_buttons["zoom_in"] = _button("zoom_in", "+", 44, UITheme.ACTION_UTIL, "")
 	_interact = _button("interact", "Talk", 96, UITheme.ACTION_TALK, "hand")
-	_pack_button = _button("journal", "", 58, UITheme.ACTION_UTIL, "knapsack")
+	_pack_button = _button("journal", "Pack", DOCK_SIZE, UITheme.ACTION_UTIL, "knapsack")
+	_pause_button = _make_button("", "", 52, UITheme.ACTION_UTIL, UITheme.glyph("pause"))
+	_pause_button.pressed.connect(open_pause)
 	_interact_label = _interact.get_child(0)
 	_interact.visible = false
 	for extra: Array in [["order_retreat", KEY_G], ["order_formation", KEY_B], ["ability_dash", KEY_R]]:
@@ -141,58 +189,62 @@ func _ready() -> void:
 			InputMap.action_add_event(extra[0], ev)
 	for pair in [["order_follow", "Follow", "walk"], ["order_hold", "Hold", "flag-objective"], ["order_charge", "Charge", "charging-bull"],
 			["order_retreat", "Retreat", "dodge"], ["order_formation", "Form", "checked-shield"]]:
-		var b := _button(pair[0], pair[1], 72, Color("5fae6b"), pair[2])
+		var b := _button(pair[0], pair[1], 56, Color("5fae6b"), pair[2])
 		b.visible = false
 		_order_buttons.append(b)
 	var techniques := TechniqueButtons.new()
+	techniques.visible = _touch or "--technique-ring" in OS.get_cmdline_user_args()
 	controls.add_child(techniques)
-	techniques.open_skills_requested.connect(func() -> void: skills_screen.open())
+	techniques.open_skills_requested.connect(func() -> void: GameMenu.open(self, "skills"))
 
-	# Status card, top left.
-	var card := Panel.new()
-	card.add_theme_stylebox_override("panel", UITheme.panel_box(16))
-	card.position = Vector2(12, 12)
-	card.size = Vector2(300, 196)
-	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(card)
-	_rank = _label(root, 20, UITheme.ACCENT)
-	_rank.add_theme_font_override("font", UITheme.title_font())
-	_rank.position = Vector2(28, 20)
-	_stats = _label(root, 15, UITheme.TEXT)
-	_stats.position = Vector2(28, 50)
-	_health = _bar(root, Vector2(28, 132), UITheme.HEALTH, 10)
-	_health.max_value = player.max_health
-	_health.value = player.health
-	_stamina = _bar(root, Vector2(28, 148), UITheme.STAMINA, 6)
-	_stamina.max_value = Player.MAX_STAMINA
-	_stamina.value = Player.MAX_STAMINA
-	_needs = _label(root, 13, UITheme.TEXT_DIM)
-	_needs.position = Vector2(28, 162)
-	_where = _label(root, 17, UITheme.TEXT)
-	_where.anchor_left = 1.0
-	_where.anchor_right = 1.0
-	_where.offset_left = -520
-	_where.offset_right = -96
-	_where.offset_top = 16
-	_where.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_perf = _label(root, 12, Color(1, 1, 1, 0.55))
+	_chrome = Control.new()
+	_chrome.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_chrome.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(_chrome)
+
+	# Character card top left (portrait, crest, title, job, gold / merit, bars), quest tracker,
+	# danger badge and the popup stack hang below it.
+	card = HudCard.Card.new()
+	_chrome.add_child(card)
+	tracker = HudCard.QuestTracker.new()
+	_chrome.add_child(tracker)
+	danger_badge = HudCard.DangerBadge.new()
+	_chrome.add_child(danger_badge)
+	info = HudCard.InfoBlock.new()
+	_chrome.add_child(info)
+	minimap = Minimap.new()
+	minimap.size = Vector2(MINIMAP_SIZE, MINIMAP_SIZE)
+	minimap.player = player
+	minimap.tapped.connect(toggle_map)
+	_chrome.add_child(minimap)
+	hotbar = Hotbar.new()
+	hotbar.player = player
+	hotbar.open_skills_requested.connect(func() -> void: GameMenu.open(self, "skills"))
+	_chrome.add_child(hotbar)
+	(card.health as Meter).max_value = player.max_health
+	(card.health as Meter).value = player.health
+	(card.stamina as Meter).max_value = Player.MAX_STAMINA
+	(card.stamina as Meter).value = Player.MAX_STAMINA
+	_perf = Label.new()
+	HudArt.outline_label(_perf, 12, Color(1, 1, 1, 0.7), null, 3)
 	_perf.anchor_left = 0.5
 	_perf.anchor_right = 0.5
-	_perf.anchor_top = 1.0
-	_perf.anchor_bottom = 1.0
 	_perf.offset_left = -300
 	_perf.offset_right = 300
-	_perf.offset_top = -22
-	_perf.offset_bottom = -4
+	_perf.offset_top = 72
 	_perf.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_danger = _label(root, 14, UITheme.TEXT)
-	# Under the status card, clear of the right-hand dock and the combat buttons.
-	_danger.offset_left = 20
-	_danger.offset_right = 420
-	_danger.offset_top = 216
-	_danger.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_perf.visible = debug_stats
+	_chrome.add_child(_perf)
+	notifications = NotifyStack.new()
+	notifications.custom_minimum_size = Vector2(NotifyStack.CARD_W, 0)
+	notifications.size = Vector2(NotifyStack.CARD_W, (NotifyStack.CARD_H + 6.0) * NotifyStack.MAX_VISIBLE)
+	root.add_child(notifications)
+
 	_toast_box = PanelContainer.new()
-	_toast_box.add_theme_stylebox_override("panel", UITheme.pill(UITheme.BG, UITheme.ACCENT.darkened(0.3), 22))
+	var tb := HudArt.card_box(0.9, 10)
+	tb.content_margin_left = 22
+	tb.content_margin_right = 22
+	_toast_box.add_theme_stylebox_override("panel", tb)
 	_toast_box.anchor_left = 0.5
 	_toast_box.anchor_right = 0.5
 	_toast_box.offset_top = 80
@@ -200,15 +252,27 @@ func _ready() -> void:
 	_toast_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_toast_box.modulate.a = 0.0
 	root.add_child(_toast_box)
-	_toast = _label(_toast_box, 18, UITheme.TEXT)
+	_toast = Label.new()
+	_toast.add_theme_font_override("font", AF.font())
+	_toast.add_theme_font_size_override("font_size", 19)
+	_toast.add_theme_color_override("font_color", HudArt.IVORY)
+	_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_toast_box.add_child(_toast)
 	_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_toast.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_toast.custom_minimum_size.x = 420
 
 	_build_navigation(root)
 
+	dialogue = DialogueUI.new()
+	dialogue.option_picked.connect(_on_dialogue_pick)
+	dialogue.leave_requested.connect(close_menu)
+	root.add_child(dialogue)
+	root.move_child(dialogue, _toast_box.get_index())      # under the toast, over the HUD furniture
+
 	_menu = PanelContainer.new()
-	_menu.theme = UITheme.theme()
+	_menu.theme = AF.theme()
+	_menu.add_theme_stylebox_override("panel", _menu_style())
 	_menu.anchor_left = 0.5
 	_menu.anchor_right = 0.5
 	_menu.anchor_top = 0.5
@@ -219,65 +283,79 @@ func _ready() -> void:
 	_menu.visible = false
 	root.add_child(_menu)
 
-	_loading = ColorRect.new()
-	_loading.color = UITheme.BG_SOLID
-	_loading.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# World-generation veil (backdrop, tips, progress bar; see world_loading.gd).
+	_loading = WorldLoading.new()
 	root.add_child(_loading)
-	_loading_label = _label(_loading, 30, UITheme.ACCENT)
-	_loading_label.add_theme_font_override("font", UITheme.title_font())
-	_loading_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_loading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_loading_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_loading_label.text = "Forging the realm..."
 
-	player.stamina_changed.connect(func(c: float, _m: float) -> void: _stamina.value = c)
+	player.stamina_changed.connect(func(c: float, _m: float) -> void: (card.stamina as Meter).value = c)
 	player.health_changed.connect(func(c: int, m: int) -> void:
-		_health.max_value = m
-		_health.value = c)
-	Game.toast.connect(show_toast)
+		if c < int((card.health as Meter).value):
+			App.vibrate(35)
+		(card.health as Meter).max_value = m
+		(card.health as Meter).value = c)
+	Game.toast.connect(_say)
+	if Life.has_signal("inventory_changed"):
+		Life.inventory_changed.connect(func() -> void: _inv_dirty = true)
 	_build_overlays()
 	get_viewport().size_changed.connect(_layout)
 	_layout()
 
 
+## True while the world-generation veil is up (it frees itself after fading out).
+func _veil() -> bool:
+	return is_instance_valid(_loading) and _loading.visible
+
+
 func hide_loading() -> void:
-	_loading.visible = false
+	WorldLoading.finish()
 	world_map.start_bake()      # paint the map terrain in the background now the world exists
+	_snapshot_events()
+	refresh_portrait()
 
 
-func set_loading_text(text: String) -> void:
-	_loading_label.text = text
+func set_loading_text(text: String, progress := -1.0) -> void:
+	if _loading is WorldLoading:
+		(_loading as WorldLoading).set_progress(progress, text)
 
 
-func _bar(parent: Control, pos: Vector2, color: Color, height: int) -> Meter:
-	var bar := Meter.new(color, Vector2(268, height))
-	bar.position = pos
-	parent.add_child(bar)
-	return bar
+## (Re)renders the round portrait on the card: the character-creator look in
+## `Life.appearance` when there is one, else the default young player model.
+func refresh_portrait() -> void:
+	if portrait == null:
+		portrait = Portrait.new()
+		portrait.setup(Vector2i(200, 200), "face", false)
+		portrait.set_circle(true, HudCard.circle_mask())
+		card.set_portrait(portrait)
+	var model: Node3D = null
+	var look: Variant = Life.get("appearance")
+	if look is Dictionary and not (look as Dictionary).is_empty() and ResourceLoader.exists("res://scripts/ui/character_creation.gd"):
+		model = (load("res://scripts/ui/character_creation.gd") as GDScript).call("build_model", look, 1.75)
+	if model == null:
+		model = Assets.mh_character("player_young", 1.75)
+	portrait.set_model(model)
+	_portrait_ready = true
 
 
-func _label(parent: Control, size: int, color: Color) -> Label:
-	var l := Label.new()
-	l.add_theme_font_size_override("font_size", size)
-	l.add_theme_color_override("font_color", color)
-	l.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.55))
-	l.add_theme_constant_override("shadow_offset_x", 0)
-	l.add_theme_constant_override("shadow_offset_y", 2)
-	l.add_theme_constant_override("shadow_outline_size", 4)
-	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(l)
-	return l
+# --- buttons ------------------------------------------------------------------------
+
+## Dark face colour for a button, hinted by its accent colour (red attack, teal dodge, violet block...).
+func _fill_for(color: Color) -> Color:
+	return Color(0.07, 0.06, 0.055).lerp(color.darkened(0.35), 0.5)
 
 
 func _button(action: String, text: String, size: int, color: Color, icon_name := "") -> TouchScreenButton:
-	return _make_button(action, text, size, color, UITheme.icon(icon_name) if icon_name != "" else null)
+	var res := HudArt.resolve_icon(icon_name)
+	return _make_button(action, text, size, color, res[0], res[1])
 
 
-func _make_button(action: String, text: String, size: int, color: Color, ic: Texture2D) -> TouchScreenButton:
+func _make_button(action: String, text: String, size: int, color: Color, ic: Texture2D, tint := false) -> TouchScreenButton:
 	var b := TouchScreenButton.new()
 	b.action = action
-	b.texture_normal = UITheme.round_button(size, color, ic)
-	b.texture_pressed = UITheme.round_button(size, color, ic, true)
+	var face := HudArt.round_face(size, _fill_for(color), ic, tint, 0.66 if size >= 96 else 0.62)
+	b.texture_normal = face
+	b.texture_pressed = face
+	b.pressed.connect(func() -> void: b.modulate = Color(1.35, 1.25, 1.05))
+	b.released.connect(func() -> void: b.modulate = Color.WHITE)
 	var circle := CircleShape2D.new()
 	circle.radius = size * 0.5
 	b.shape = circle
@@ -285,12 +363,10 @@ func _make_button(action: String, text: String, size: int, color: Color, ic: Tex
 	var l := Label.new()
 	l.text = text
 	l.size = Vector2(size, size) if ic == null else Vector2(size, 22)
-	l.position = Vector2.ZERO if ic == null else Vector2(0, size + 2)
+	l.position = Vector2.ZERO if ic == null else Vector2(0, size + 1)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	l.add_theme_font_size_override("font_size", 28 if ic == null else 13)
-	l.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.6))
-	l.add_theme_constant_override("shadow_outline_size", 4)
+	HudArt.outline_label(l, 26 if ic == null else 14, HudArt.IVORY, AF.font(), 4)
 	b.add_child(l)
 	controls.add_child(b)
 	return b
@@ -303,31 +379,51 @@ func _layout() -> void:
 	_buttons["block"].position = s - Vector2(240, 226)
 	_buttons["ability_dash"].position = s - Vector2(357, 96)   # left of Dodge, below the technique arc
 	_interact.position = s - Vector2(150, 300)
-	var col := s.x - 80
-	_buttons["zoom_in"].position = Vector2(col, 84)
-	_buttons["zoom_out"].position = Vector2(col, 152)
-	_buttons["view"].position = Vector2(col, 220)
-	_pack_button.position = Vector2(col, 288)
-	for i in _order_buttons.size():
-		_order_buttons[i].position = Vector2(s.x * 0.5 - 130 + i * 92, s.y - 110)
-	# Dock: a column left of the utility column, then further columns, kept clear
-	# of the interact / attack cluster at the bottom right.
-	var top := 118.0   # clear of the place / day / realm lines
+	# The right-hand column: Map, Look, Lock, Sneak, ...  then Pack and the camera zoom; a
+	# second column to its left when the first is full, kept clear of the attack cluster.
+	var col := s.x - LEFT - DOCK_SIZE
+	var top := MINIMAP_SIZE + 16.0    # below the minimap
+	_pause_button.position = Vector2(s.x * 0.5 + 250.0, 12.0)   # right of the compass
 	var bottom := s.y - 300.0 - 8.0
 	var rows := maxi(1, int((bottom - top - DOCK_SIZE) / DOCK_STEP) + 1)
-	for i in _dock.size():
+	var stack: Array[TouchScreenButton] = _dock.duplicate()
+	stack.insert(mini(1, stack.size()), _buttons["view"])
+	stack.append(_pack_button)
+	for i in stack.size():
 		@warning_ignore("integer_division")
 		var c := i / rows
-		_dock[i].position = Vector2(col - (c + 1) * (DOCK_SIZE + 12), top + (i % rows) * DOCK_STEP)
+		stack[i].position = Vector2(col - c * (DOCK_SIZE + 14), top + (i % rows) * DOCK_STEP)
+	# Camera zoom: two small buttons beside the minimap's foot, left of the column.
+	var zx := col - 2 * (DOCK_SIZE + 14) - 4.0
+	_buttons["zoom_in"].position = Vector2(zx, top)
+	_buttons["zoom_out"].position = Vector2(zx, top + 52.0)
+	for i in _order_buttons.size():
+		_order_buttons[i].position = Vector2(s.x * 0.5 - 150 + i * 62, s.y - 176)
 	for b: TouchScreenButton in _anchored:
 		b.position = s - (_anchored[b] as Vector2)
+	# Top: minimap and info at the right, compass in the middle.
+	minimap.position = Vector2(s.x - LEFT - MINIMAP_SIZE, 8.0)
+	info.size = Vector2(290, 84)
+	info.position = Vector2(minimap.position.x - 8.0 - info.size.x, 10.0)
 	if compass:
-		var w := clampf(s.x - 2.0 * 430.0, 260.0, 480.0)
+		var w := clampf(s.x - 2.0 * 450.0, 240.0, 460.0)
 		compass.size = Vector2(w, compass.custom_minimum_size.y)
 		compass.position = Vector2((s.x - w) * 0.5, 10.0)
-		# The place line lives right of the compass and wraps rather than running under it.
-		_where.offset_left = -(s.x - (compass.position.x + w + 14.0))
-		_where.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hotbar.position = Vector2((s.x - hotbar.size.x) * 0.5, s.y - hotbar.size.y - 6.0)
+	_layout_left()
+
+
+## The left stack: card, quest tracker, danger badge, then the notification popups.
+func _layout_left() -> void:
+	var y := 10.0
+	card.position = Vector2(LEFT, y)
+	y += card.size.y + 8.0
+	if tracker.visible:
+		tracker.position = Vector2(LEFT, y)
+		y += tracker.get_combined_minimum_size().y + 8.0
+	danger_badge.position = Vector2(LEFT, y)
+	y += danger_badge.size.y + 10.0
+	notifications.position = Vector2(LEFT, y)
 
 
 func show_toast(text: String) -> void:
@@ -342,7 +438,129 @@ func show_toast(text: String) -> void:
 	_toast_tween.tween_property(_toast_box, "modulate:a", 0.0, 0.45)
 
 
+# --- popups, banners and message classification ---------------------------------------
+
+## A stacked popup on the left edge. kind: quest | item | location | reputation | level | gold | info.
+## `icon` is an item id for "item" (its painted icon is used).
+func notify(kind: String, title: String, subtitle := "", icon := "") -> void:
+	notifications.push(kind, title, subtitle, icon)
+
+
+## A centre-screen banner. kind: "location" | "quest" | "level".
+func show_event(kind: String, title: String, subtitle := "", kicker := "") -> void:
+	banner.show_event(kind, title, subtitle, kicker)
+
+
+## Every Game.say() lands here: typed messages become popups / banners (the raw text is
+## then not shown twice), everything else is the plain message pill.
+func _say(text: String) -> void:
+	var t := text.strip_edges()
+	# "Quest complete: <title>  (rewards)" -> banner + popup
+	if t.begins_with("Quest complete: "):
+		var title := t.trim_prefix("Quest complete: ").split("  ")[0].strip_edges()
+		var rest := t.trim_prefix("Quest complete: ").trim_prefix(title).strip_edges()
+		show_event("quest", "Quest Completed", title)
+		notify("quest", "Quest Completed", title)
+		if rest != "":
+			show_toast(rest.trim_prefix("(").trim_suffix(")"))
+		return
+	if t.begins_with("Quest failed: "):
+		notify("quest", "Quest Failed", t.trim_prefix("Quest failed: ").trim_suffix(" (out of time)."))
+		return
+	if t.begins_with("Accepted: "):
+		var body := t.trim_prefix("Accepted: ")
+		var q_title := body.split(". ")[0]
+		notify("quest", "Quest Accepted", q_title)
+		return
+	if t.begins_with("Commission ready to turn in: "):
+		notify("quest", "Commission Ready", t.trim_prefix("Commission ready to turn in: "))
+		return
+	if t.begins_with("Tracking: "):
+		notify("quest", "Quest Tracked", t.trim_prefix("Tracking: "))
+		return
+	for qt: String in _known_quest_titles():
+		if t.begins_with(qt + ": "):
+			notify("quest", "Quest Updated", qt)
+			return
+	# "+5 merit: wolf slain"
+	var merit_re := RegEx.create_from_string("^\\+(\\d+) merit: (.*)$")
+	var m := merit_re.search(t)
+	if m:
+		notify("reputation", "Reputation Increased", "+%s merit · %s" % [m.get_string(1), m.get_string(2)])
+		return
+	if t.begins_with("Title earned: "):
+		notify("reputation", "Title Earned", t.trim_prefix("Title earned: "))
+		return
+	if t.begins_with("Promoted to "):
+		notify("level", "Promoted", t.trim_prefix("Promoted to ").split(".")[0])
+		return
+	if t.begins_with("Guild rank up: "):
+		notify("level", "Guild Rank Up", t.trim_prefix("Guild rank up: ").trim_suffix("!"))
+		return
+	# The item popup (inventory diff) and the gold popup (gold diff) already say these.
+	if t.begins_with("Picked ") or t.begins_with("Sold ") or t.begins_with("Bought "):
+		return
+	show_toast(t)
+
+
+func _known_quest_titles() -> Array:
+	var out: Array = []
+	var rq: Variant = Life.get("radiant")
+	if rq is Object and rq.get("active") is Array:
+		for q: Dictionary in rq.active:
+			out.append(String(q.get("title", "")))
+	return out.filter(func(s: String) -> bool: return s != "")
+
+
+func _snapshot_events() -> void:
+	_last_gold = Game.gold
+	_last_level = Life.player_level()
+	_inv_snapshot = _inventory_counts()
+	_inv_dirty = false
+
+
+func _inventory_counts() -> Dictionary:
+	var out := {}
+	for it in Life.inventory.get_items():
+		var id: String = it.get_prototype().get_prototype_id()
+		if not out.has(id):
+			out[id] = Life.count(id)
+	return out
+
+
+## Popups that come from state changes rather than messages: gold earned, items picked up,
+## level gained. Polled at EVENT_RATE, and quiet until the world has loaded.
+func _poll_events() -> void:
+	if _last_gold < 0:
+		return
+	var g := Game.gold
+	if g > _last_gold:
+		notifications.push_gold(g - _last_gold)
+	_last_gold = g
+	if _inv_dirty:
+		_inv_dirty = false
+		var now := _inventory_counts()
+		for id: String in now:
+			var gained := int(now[id]) - int(_inv_snapshot.get(id, 0))
+			if gained > 0:
+				notify("item", "Item Acquired", "%s%s" % [Life.item_name(id), " ×%d" % gained if gained > 1 else ""], id)
+		_inv_snapshot = now
+	var lv := Life.player_level()
+	if lv > _last_level and _last_level >= 1:
+		var pts := SkillsSim.points_for_level(lv) - SkillsSim.points_for_level(_last_level)
+		var detail := "Level %d" % lv
+		if pts > 0:
+			detail += "  ·  +%d Skill Point%s" % [pts, "" if pts == 1 else "s"]
+		show_event("level", "Level Up", detail)
+		notify("level", "Level Up", "Level %d" % lv)
+	_last_level = lv
+
+
+# --- status -------------------------------------------------------------------------
+
 func update_status(soldiers: int, order_name: String, target: Node3D, perf: String) -> void:
+	_soldiers = soldiers
+	hotbar.soldiers = soldiers
 	var c := Life.careers
 	var job_line := "Unemployed"
 	if c.is_employed():
@@ -351,12 +569,17 @@ func update_status(soldiers: int, order_name: String, target: Node3D, perf: Stri
 			var p2 := Vector2(player.global_position.x, player.global_position.z)
 			duty = "  · ON DUTY" if c.at_post(p2) else "  · AWAY FROM POST"
 		job_line = "%s, %s%s" % [c.player["seat"], c.player_org()["name"], duty]
-	_rank.text = Game.rank_name().to_upper()
-	_stats.text = "%s\n◆ %d gold    ✦ %d merit\nSoldiers %d / %d%s" % [job_line, Game.gold,
-		Game.merit, soldiers, Game.max_soldiers(), ("  ·  " + order_name) if soldiers > 0 else ""]
 	var n := Life.needs
-	_needs.text = "%s  ·  %s" % [n.hunger_label(), n.rest_label()]
-	_needs.add_theme_color_override("font_color", UITheme.TEXT_DIM if n.food >= 25.0 and n.rest >= 30.0 else UITheme.DANGER)
+	var soldiers_text := ""
+	if Game.max_soldiers() > 0 or soldiers > 0:
+		soldiers_text = "Soldiers %d / %d%s" % [soldiers, Game.max_soldiers(), ("  ·  " + order_name) if soldiers > 0 else ""]
+	var mag: Variant = Life.get("magicules")
+	var soul_frac := -1.0
+	var aw: Variant = Life.get("awakening")
+	if mag is Object and aw is Object and bool(aw.get("done")):
+		soul_frac = clampf(float(mag.current) / maxf(float(mag.effective_max()), 1.0), 0.0, 1.0)
+	(card as HudCard.Card).set_state(Game.rank_name(), Game.rank, job_line, Game.gold, Game.merit,
+		"%s  ·  %s" % [n.hunger_label(), n.rest_label()], n.food >= 25.0 and n.rest >= 30.0, soldiers_text, soul_frac)
 	var p := Vector2(player.global_position.x, player.global_position.z)
 	var near := WorldGen.nearest_settlement(p)
 	var place := "Wilderness"
@@ -367,67 +590,148 @@ func update_status(soldiers: int, order_name: String, target: Node3D, perf: Stri
 		if d >= near["radius"] * 1.6 and not named.is_empty():
 			place = "%s  ·  %s %dm" % [named["name"], near["name"], int(d)]
 	var t := WorldSim.time_of_day
-	_where.text = "%s\nDay %d  %02d:%02d\nRealm  %s souls" % [place, WorldSim.day, int(t), int(fmod(t, 1.0) * 60.0),
-		_thousands(WorldSim.population())]
+	(info as HudCard.InfoBlock).set_info(place, "Day %d · %s" % [WorldSim.day, String(WorldSim.season).capitalize()],
+		"%02d:%02d" % [int(t), int(fmod(t, 1.0) * 60.0)], t < 6.0 or t >= 20.0,
+		"Realm  %s souls" % _thousands(WorldSim.population()))
 	_perf.text = perf
 	_interact.visible = target != null
 	if target and target.has_method("prompt"):
 		_interact_label.text = target.prompt()
 	for b in _order_buttons:
 		b.visible = soldiers > 0
+	_update_tracker()
+
+
+## The quest under the card: the tracked radiant quest (its stages as objectives), else the
+## first accepted guild commission.
+func _update_tracker() -> void:
+	var quest := {}
+	var rq: Variant = Life.get("radiant")
+	if quest_source != null and is_instance_valid(quest_source) and quest_source.has_method("tracked_quest"):
+		rq = quest_source
+	if rq is Object and (rq as Object).has_method("tracked_quest"):
+		var q: Dictionary = (rq as Object).call("tracked_quest")
+		if not q.is_empty():
+			quest = _radiant_objectives(q)
+	if quest.is_empty():
+		for c: Dictionary in Life.guild.active_for(RAAdventurerGuild.PLAYER):
+			var req := int(c.get("required", 1))
+			var prog := int(c.get("progress", 0))
+			quest = {"title": String(c["title"]), "objectives": [{
+				"text": "Progress %d / %d" % [prog, req] if req > 1 else "Complete the commission",
+				"state": "current"}]}
+			break
+	var was := tracker.visible
+	(tracker as HudCard.QuestTracker).set_quest(quest)
+	var sig := "%s|%d" % [tracker.visible, int(tracker.get_combined_minimum_size().y)]
+	if sig != _stack_sig or was != tracker.visible:
+		_stack_sig = sig
+		_layout_left()
+
+
+static func _radiant_objectives(q: Dictionary) -> Dictionary:
+	var stages: Array = q.get("stages", [])
+	var cur := int(q.get("stage", 0))
+	var rows: Array = []
+	for i in stages.size():
+		var s: Dictionary = stages[i]
+		var txt := String(s.get("text", ""))
+		if i == cur:
+			match String(s.get("type", "")):
+				"gather":
+					txt += " (%d/%d)" % [int(q.get("progress", 0)), int(s.get("amount", 1))]
+				"kill_den":
+					txt += " (%d/%d)" % [int(q.get("progress", 0)), int(s.get("kills", 1))]
+		rows.append({"text": txt, "state": "done" if i < cur else ("current" if i == cur else "todo")})
+	# Show at most three: the step before, the current one, what follows.
+	var start := clampi(cur - 1, 0, maxi(0, rows.size() - 3))
+	return {"title": String(q.get("title", "")), "objectives": rows.slice(start, start + 3)}
+
+
+# --- menus ---------------------------------------------------------------------------
+
+func _menu_style() -> StyleBoxFlat:
+	var s := AF.panel(Color(0.043, 0.039, 0.035, 0.95), AF.GOLD, 5, 22)
+	s.shadow_size = 24
+	return s
 
 
 ## Opens a menu. `source` returns {title, body, options: [[label, Callable() -> String, enabled?]]};
-## it is called again after every choice so prices and stock stay current.
+## it is called again after every choice so prices and stock stay current. A dict that also
+## has "speaker" is shown as a conversation (dialogue_ui.gd).
 func show_menu(source: Callable) -> void:
-	if not _menu.visible:
+	if not is_menu_open():
 		Audio.play_ui("open")
 	_menu_source = source
 	_rebuild_menu()
-	_menu.visible = true
 
 
 func close_menu() -> void:
-	if _menu.visible:
+	if is_menu_open():
 		Audio.play_ui("close")
 	_menu.visible = false
+	dialogue.visible = false
+	_set_chrome_visible(true)
 
 
 func is_menu_open() -> bool:
-	return _menu.visible
+	return _menu.visible or dialogue.visible
+
+
+func _set_chrome_visible(v: bool) -> void:
+	_chrome.visible = v
+	controls.visible = v
+	notifications.visible = v
+
+
+func _on_dialogue_pick(i: int) -> void:
+	if i < 0 or i >= _dlg_options.size():
+		return
+	var opt: Array = _dlg_options[i]
+	var action: Callable = opt[1]
+	var msg: Variant = action.call()
+	if msg is String and msg != "":
+		_say(msg)
+	if is_menu_open():
+		_rebuild_menu()
 
 
 func _rebuild_menu() -> void:
+	var data: Dictionary = _menu_source.call()
+	if data.has("speaker"):
+		for child in _menu.get_children():
+			child.visible = false
+			child.queue_free()
+		_menu.visible = false
+		_dlg_options = data.get("options", [])
+		dialogue.set_page(data)
+		dialogue.visible = true
+		_set_chrome_visible(false)
+		return
+	dialogue.visible = false
+	_set_chrome_visible(true)
 	for child in _menu.get_children():
 		child.visible = false     # stop the outgoing page from sizing the panel
 		child.queue_free()
 	# Controls grow but never shrink: without this the panel keeps the height of the
 	# tallest page shown before and ends up mostly off screen (playtest 03_interact).
 	_fit_menu.call_deferred()
-	var data: Dictionary = _menu_source.call()
 	var vw := get_viewport().get_visible_rect().size
 	var width := clampf(vw.x * 0.9, 340.0, 560.0)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 10)
 	_menu.add_child(box)
-	var head := _label(box, 26, UITheme.ACCENT)
-	head.add_theme_font_override("font", UITheme.title_font())
-	head.text = data.get("title", "")
-	var rule := ColorRect.new()
-	rule.color = UITheme.ACCENT
-	rule.custom_minimum_size = Vector2(56, 2)
-	rule.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	box.add_child(rule)
-	var body := _label(box, 15, UITheme.TEXT_DIM)
-	body.text = data.get("body", "")
+	box.add_child(AF.heading(String(data.get("title", "")), 24))
+	var body := AF.label(String(data.get("body", "")), 17, AF.TEXT_DIM)
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.custom_minimum_size.x = width
+	box.add_child(body)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.custom_minimum_size = Vector2(width, 0)
 	box.add_child(scroll)
 	var list := VBoxContainer.new()
-	list.add_theme_constant_override("separation", 8)
+	list.add_theme_constant_override("separation", 6)
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(list)
 	var options: Array = data.get("options", [])
@@ -435,25 +739,43 @@ func _rebuild_menu() -> void:
 		var btn := Button.new()
 		btn.text = opt[0]
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		btn.custom_minimum_size = Vector2(width, 50)
+		btn.custom_minimum_size = Vector2(width, 46)
 		btn.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		btn.add_theme_stylebox_override("normal", _menu_row(false))
+		btn.add_theme_stylebox_override("hover", _menu_row(true))
+		btn.add_theme_stylebox_override("focus", _menu_row(true))
 		btn.disabled = opt.size() > 2 and not opt[2]
 		var action: Callable = opt[1]
 		btn.pressed.connect(func() -> void:
 			var msg: Variant = action.call()
 			if msg is String and msg != "":
-				show_toast(msg)
-			if _menu.visible:
+				_say(msg)
+			if is_menu_open():
 				_rebuild_menu())
 		list.add_child(btn)
-	scroll.custom_minimum_size.y = minf(options.size() * 58.0, vw.y * 0.45)
-	var close := Button.new()
-	close.text = "Close"
-	close.custom_minimum_size = Vector2(width, 46)
-	close.add_theme_stylebox_override("normal", UITheme.pill(Color(0, 0, 0, 0), UITheme.STROKE))
-	close.add_theme_color_override("font_color", UITheme.TEXT_DIM)
+	scroll.custom_minimum_size.y = minf(options.size() * 52.0, vw.y * 0.45)
+	var close := AF.gold_button("Close")
+	close.custom_minimum_size = Vector2(width, 44)
 	close.pressed.connect(close_menu)
 	box.add_child(close)
+	_menu.visible = true
+
+
+func _menu_row(gold: bool) -> StyleBoxFlat:
+	var s := StyleBoxFlat.new()
+	if gold:
+		s.bg_color = Color(AF.GOLD.r, AF.GOLD.g, AF.GOLD.b, 0.22)
+		s.border_color = AF.GOLD
+	else:
+		s.bg_color = Color(1, 1, 1, 0.035)
+		s.border_color = Color(AF.GOLD, 0.25)
+	s.set_border_width_all(1)
+	s.set_corner_radius_all(3)
+	s.content_margin_left = 14
+	s.content_margin_right = 14
+	s.content_margin_top = 8
+	s.content_margin_bottom = 8
+	return s
 
 
 ## Shrink the (centre-anchored) menu panel to its content and keep it centred.
@@ -472,17 +794,18 @@ func _fit_menu() -> void:
 	_menu.offset_bottom = s.y * 0.5
 
 
-## Danger readout with its biggest reasons, e.g. "Dangerous 41 · Wolf den +22 · Runestone -18".
+## Compact danger badge: "Safe · Runestone protection", or "Dangerous 41 · Wolf den" when it matters.
 func update_danger(t: Dictionary) -> void:
 	var total: float = t["total"]
 	var lines: Array = t["lines"].duplicate()
 	lines.sort_custom(func(a: Array, b: Array) -> bool: return absf(a[1]) > absf(b[1]))
-	var parts := PackedStringArray()
-	for l in lines.slice(0, 3):
-		parts.append("%s %+d" % [l[0], int(l[1])])
-	_danger.text = "Danger  %s %d\n%s" % [RAThreatMap.describe(total), int(total), "\n".join(parts)]
-	var c := Color("9fe39f").lerp(Color("ff7b5c"), clampf(total / 70.0, 0.0, 1.0))
-	_danger.add_theme_color_override("font_color", c)
+	var label := RAThreatMap.describe(total)
+	if total >= 20.0:
+		label += " %d" % int(total)
+	if not lines.is_empty():
+		label += "  ·  " + String(lines[0][0])
+	var c := Color("7be0a0").lerp(Color("ff7b5c"), clampf(total / 70.0, 0.0, 1.0))
+	(danger_badge as HudCard.DangerBadge).set_danger(label, c)
 
 
 static func _thousands(n: int) -> String:
@@ -500,26 +823,22 @@ static func _thousands(n: int) -> String:
 ## Adds a round touch button and returns it (also kept in the button table under
 ## `button_name`). `action` is an InputMap action name (the button presses it, like
 ## the attack button) or a Callable run on press. `icon_name` is an SVG in
-## assets/ui/icons/ or "glyph:<name>" for a UITheme.glyph ("map", "camera",
-## "compass"). By default the button joins the dock next to the utility column;
+## assets/ui/icons/, a PNG in assets/art/icons/ or "glyph:<name>" for a UITheme.glyph
+## ("map", "camera", "compass"). By default the button joins the dock next to the utility column;
 ## pass `anchor` (offset from the bottom-right corner, like the attack cluster)
 ## to place it yourself. Call after the HUD is in the tree.
 ##   hud.add_action_button("ride", "Ride", "ride", "walk")
 ##   hud.add_action_button("lock_on", "Lock", "lock_on", "eye-target", UITheme.ACTION_BLOCK, 72, Vector2(330, 200))
 func add_action_button(button_name: String, label: String, action: Variant, icon_name := "",
 		color := UITheme.ACTION_UTIL, size := DOCK_SIZE, anchor := Vector2.INF) -> TouchScreenButton:
-	var ic: Texture2D = null
-	if icon_name.begins_with("glyph:"):
-		ic = UITheme.glyph(icon_name.trim_prefix("glyph:"))
-	elif icon_name != "":
-		ic = UITheme.icon(icon_name)
-	var b := _make_button(action if action is String else "", label, size, color, ic)
+	var res := HudArt.resolve_icon(icon_name)
+	var ic: Texture2D = res[0]
+	var b := _make_button(action if action is String else "", label, size, color, ic, res[1])
 	if action is Callable:
 		b.pressed.connect(action)
 	if ic != null:
 		var cap: Label = b.get_child(0)
-		cap.add_theme_font_size_override("font_size", 12)
-		cap.add_theme_color_override("font_color", UITheme.TEXT_DIM)
+		cap.add_theme_font_size_override("font_size", 14)
 	var old: Variant = _buttons.get(button_name)
 	if old is TouchScreenButton and (_dock.has(old) or _anchored.has(old)):
 		remove_action_button(button_name)   # re-adding replaces; built-in buttons are never replaced
@@ -559,7 +878,7 @@ func _build_navigation(root: Control) -> void:
 	compass = CompassBar.new()
 	compass.player = player
 	compass.tapped.connect(toggle_map)
-	root.add_child(compass)
+	_chrome.add_child(compass)
 	banner = DiscoveryBanner.new()
 	root.add_child(banner)
 	add_action_button("map", "Map", "world_map", "glyph:map", UITheme.ACTION_TALK.darkened(0.15))
@@ -607,7 +926,23 @@ func set_quest_target(pos: Variant) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _loading.visible or not visible:
+	if _veil() or not visible:
+		return
+	if event is InputEventKey and event.pressed and not event.echo and (event as InputEventKey).keycode == KEY_F3:
+		debug_stats = not debug_stats
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed("ui_cancel") and not is_menu_open() and not world_map.visible and not photo_mode.is_active() \
+			and not _fade.visible and get_node_or_null("PauseMenu") == null:
+		open_pause()
+		get_viewport().set_input_as_handled()
+		return
+	if not is_menu_open() and hotbar.handle_key(event):
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.pressed and not event.echo and (event as InputEventKey).keycode == KEY_I:
+		GameMenu.toggle(self, "inventory")
+		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("world_map"):
 		toggle_map()
@@ -615,13 +950,30 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("photo_mode"):
 		open_photo_mode()
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_cancel"):
+		# Esc, gamepad B and the Android back button: close the open list, else pause.
+		get_viewport().set_input_as_handled()
+		if _menu.visible:
+			close_menu()
+		else:
+			open_pause()
+
+
+## The pause menu (resume, save, load, settings, photo mode, exit to main menu). Esc, the pause button,
+## the Android back button and returning to the app all come here.
+func open_pause() -> void:
+	if _veil() or not visible or _fade.visible or photo_mode.is_active() or world_map.visible \
+			or get_tree().paused or has_node("PauseMenu"):
+		return
+	close_menu()
+	PauseMenu.open(self, open_photo_mode)
 
 
 func toggle_map() -> void:
 	if world_map.visible:
 		world_map.close()
 		return
-	if photo_mode.is_active() or _loading.visible or _fade.visible:
+	if photo_mode.is_active() or _veil() or _fade.visible:
 		return
 	close_menu()
 	world_map.discovery = get_discovery()
@@ -630,7 +982,7 @@ func toggle_map() -> void:
 
 
 func open_photo_mode() -> void:
-	if photo_mode.is_active() or world_map.visible or _loading.visible or _fade.visible:
+	if photo_mode.is_active() or world_map.visible or _veil() or _fade.visible:
 		return
 	close_menu()
 	_root.visible = false
@@ -638,7 +990,7 @@ func open_photo_mode() -> void:
 
 
 func _process(delta: float) -> void:
-	if not visible or _loading.visible or player == null or not player.is_inside_tree():
+	if not visible or _veil() or player == null or not player.is_inside_tree():
 		return
 	_nav_timer -= delta
 	if _nav_timer <= 0.0:
@@ -648,6 +1000,10 @@ func _process(delta: float) -> void:
 	if _marker_timer <= 0.0:
 		_marker_timer = MARKER_RATE
 		_refresh_markers()
+	_event_timer -= delta
+	if _event_timer <= 0.0:
+		_event_timer = EVENT_RATE
+		_poll_events()
 	_update_dash_button()
 
 
@@ -676,6 +1032,8 @@ func _check_discovery() -> void:
 	var d := get_discovery()
 	for pl: Dictionary in d.update(_player_xz(), WorldSim.day):
 		banner.show_place(pl["name"], Discovery.kind_label(String(pl["kind"])))
+		if pl["category"] != "settlement":
+			notify("location", "Location Discovered", String(pl["name"]))
 		place_discovered.emit(pl)
 		_reward_discovery(pl)
 		_marker_timer = 0.0
@@ -706,7 +1064,10 @@ func _refresh_markers() -> void:
 		if pl["hostile"] and not seen.has(pl["id"]):
 			list.append({"pos": pl["pos"], "kind": pl["kind"], "color": MapIcons.HOSTILE, "hostile": true})
 	compass.markers = list
-	compass.quest_target = _quest_target()
+	minimap.markers = list
+	var qt: Variant = _quest_target()
+	compass.quest_target = qt
+	minimap.quest_target = qt
 
 
 ## Where the active objective is: an override, the tracked radiant quest's stage,

@@ -49,6 +49,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_sra4u"]
 top_radius = 0.4
@@ -102,6 +104,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_6j5rl"]
 top_radius = 0.0
@@ -153,6 +157,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_tenki"]
 top_radius = 0.0
@@ -204,6 +210,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_547p1"]
 top_radius = 0.0
@@ -255,6 +263,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_nmygg"]
 top_radius = 0.0
@@ -306,6 +316,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_bvsxe"]
 top_radius = 0.0
@@ -357,6 +369,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_bui2h"]
 top_radius = 0.0
@@ -408,6 +422,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_3l0kh"]
 size = Vector2(1.6, 1.6)
@@ -482,14 +498,14 @@ color_ramp = SubResource("GradientTexture1D_8ugi7")
 material = ExtResource("5_qr2am")
 size = Vector2(0.5411382, 0.5411382)
 
-[node name="Ice_Status" type="Node3D" unique_id=1267596922]
+[node name="Ice_Status" type="Node3D" unique_id=1718027978]
 script = ExtResource("1_kxhel")
 duration = 0.0
 fade_out = 0.4
 kind = &"status"
 element = &"ice"
 
-[node name="Coat" type="MeshInstance3D" parent="." unique_id=1883825796]
+[node name="Coat" type="MeshInstance3D" parent="." unique_id=1680061751]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 material_override = SubResource("ShaderMaterial_34wbi")
 cast_shadow = 0
@@ -497,7 +513,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_sra4u")
 
-[node name="Crystal0" type="MeshInstance3D" parent="." unique_id=1913623068]
+[node name="Crystal0" type="MeshInstance3D" parent="." unique_id=156709178]
 transform = Transform3D(0.90630776, -0.42261827, 0, 0.38302222, 0.8213937, -0.42261827, 0.1786062, 0.38302222, 0.90630776, 0.3, 1.4, 0.05)
 material_override = SubResource("ShaderMaterial_dqkfe")
 cast_shadow = 0
@@ -505,7 +521,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_6j5rl")
 
-[node name="Crystal1" type="MeshInstance3D" parent="." unique_id=1201145300]
+[node name="Crystal1" type="MeshInstance3D" parent="." unique_id=1056480813]
 transform = Transform3D(0.29920435, 0.48176277, 0.82363915, -0.47552827, 0.8236391, -0.309017, -0.82725424, -0.29920447, 0.47552824, -0.32, 1.1, 0)
 material_override = SubResource("ShaderMaterial_kjbli")
 cast_shadow = 0
@@ -513,7 +529,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_tenki")
 
-[node name="Crystal2" type="MeshInstance3D" parent="." unique_id=175518685]
+[node name="Crystal2" type="MeshInstance3D" parent="." unique_id=1474635628]
 transform = Transform3D(0.3995191, 0.8080127, 0.43301266, 0.4330127, 0.24999997, -0.86602545, -0.8080127, 0.53349364, -0.25, 0.05, 1.7, 0.28)
 material_override = SubResource("ShaderMaterial_cob6d")
 cast_shadow = 0
@@ -521,7 +537,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_547p1")
 
-[node name="Crystal3" type="MeshInstance3D" parent="." unique_id=677382992]
+[node name="Crystal3" type="MeshInstance3D" parent="." unique_id=1267333682]
 transform = Transform3D(-0.76604444, 0.6427876, -7.986468e-08, 0.58721566, 0.6998164, 0.40673664, 0.2614453, 0.31157827, -0.9135454, 0.28, 0.5, 0.1)
 material_override = SubResource("ShaderMaterial_gm818")
 cast_shadow = 0
@@ -529,7 +545,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_nmygg")
 
-[node name="Crystal4" type="MeshInstance3D" parent="." unique_id=2264938]
+[node name="Crystal4" type="MeshInstance3D" parent="." unique_id=84411282]
 transform = Transform3D(-0.786566, 0.0794594, -0.61237246, -0.49999997, 0.49999997, 0.70710677, 0.36237252, 0.8623724, -0.35355332, -0.25, 0.4, 0.2)
 material_override = SubResource("ShaderMaterial_85eu4")
 cast_shadow = 0
@@ -537,7 +553,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_bvsxe")
 
-[node name="Crystal5" type="MeshInstance3D" parent="." unique_id=1363725344]
+[node name="Crystal5" type="MeshInstance3D" parent="." unique_id=1893595282]
 transform = Transform3D(0.7155471, -0.27165097, -0.64358234, 0.6983277, 0.2541705, 0.6691306, -0.018190324, -0.92822576, 0.37157235, 0, 1, -0.3)
 material_override = SubResource("ShaderMaterial_tysfm")
 cast_shadow = 0
@@ -545,7 +561,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_bui2h")
 
-[node name="Ring" type="MeshInstance3D" parent="." unique_id=1406759086]
+[node name="Ring" type="MeshInstance3D" parent="." unique_id=443518256]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
 material_override = SubResource("ShaderMaterial_w47nm")
 cast_shadow = 0
@@ -553,7 +569,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_3l0kh")
 
-[node name="Mist" type="GPUParticles3D" parent="." unique_id=1050111990]
+[node name="Mist" type="GPUParticles3D" parent="." unique_id=289794427]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
 cast_shadow = 0
 gi_mode = 0
@@ -568,7 +584,7 @@ process_material = SubResource("ParticleProcessMaterial_fo4d7")
 draw_pass_1 = SubResource("QuadMesh_tnlgo")
 metadata/tier_min = 1
 
-[node name="Glints" type="GPUParticles3D" parent="." unique_id=1568825861]
+[node name="Glints" type="GPUParticles3D" parent="." unique_id=156742041]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 cast_shadow = 0
 gi_mode = 0

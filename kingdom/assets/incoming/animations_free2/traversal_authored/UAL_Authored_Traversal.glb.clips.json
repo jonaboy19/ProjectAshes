@@ -62,14 +62,14 @@
  {
   "name": "Ride_Lean_L",
   "loop": true,
-  "frames": 2,
-  "seconds": 0.03
+  "frames": 31,
+  "seconds": 1.0
  },
  {
   "name": "Ride_Lean_R",
   "loop": true,
-  "frames": 2,
-  "seconds": 0.03
+  "frames": 31,
+  "seconds": 1.0
  },
  {
   "name": "Vault_Low",

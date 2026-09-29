@@ -49,6 +49,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.75
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = 0.7
 
 [sub_resource type="QuadMesh" id="QuadMesh_3wra4"]
 size = Vector2(2.2, 2.2)
@@ -97,6 +99,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_piwnf"]
 top_radius = 0.0
@@ -148,6 +152,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_ysjpn"]
 top_radius = 0.0
@@ -199,6 +205,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_niwbh"]
 top_radius = 0.0
@@ -250,6 +258,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_pd8vg"]
 top_radius = 0.0
@@ -301,6 +311,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_6jfxw"]
 top_radius = 0.0
@@ -352,6 +364,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.55
+shader_parameter/soft_edge = null
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_u8iqp"]
 top_radius = 0.0
@@ -434,14 +448,14 @@ color_ramp = SubResource("GradientTexture1D_0m3cq")
 material = ExtResource("5_28qp7")
 size = Vector2(0.5827642, 0.5827642)
 
-[node name="Ice_Aura" type="Node3D" unique_id=1596214967]
+[node name="Ice_Aura" type="Node3D" unique_id=501361844]
 script = ExtResource("1_1i520")
 duration = 0.0
 fade_out = 0.4
 kind = &"aura"
 element = &"ice"
 
-[node name="Ring" type="MeshInstance3D" parent="." unique_id=851741737]
+[node name="Ring" type="MeshInstance3D" parent="." unique_id=562462112]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
 material_override = SubResource("ShaderMaterial_3hc6a")
 cast_shadow = 0
@@ -449,10 +463,10 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_3wra4")
 
-[node name="Crystal0_p" type="Node3D" parent="." unique_id=148373841]
+[node name="Crystal0_p" type="Node3D" parent="." unique_id=1367103698]
 transform = Transform3D(-4.371139e-08, 0.27563736, 0.9612617, 0, 0.9612617, -0.27563736, -1, -1.2048492e-08, -4.2018083e-08, 0.75, 0, 0)
 
-[node name="Crystal0" type="MeshInstance3D" parent="Crystal0_p" unique_id=407625729]
+[node name="Crystal0" type="MeshInstance3D" parent="Crystal0_p" unique_id=1930946937]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
 material_override = SubResource("ShaderMaterial_bnhhr")
 cast_shadow = 0
@@ -468,10 +482,10 @@ metadata/anims = [{
 "t1": 0.25
 }]
 
-[node name="Crystal1_p" type="Node3D" parent="." unique_id=1644987849]
+[node name="Crystal1_p" type="Node3D" parent="." unique_id=1134656748]
 transform = Transform3D(0.8660254, 0.13781868, 0.48063084, 0, 0.9612617, -0.27563736, -0.5, 0.23870894, 0.83247703, 0.375, 0, 0.649519)
 
-[node name="Crystal1" type="MeshInstance3D" parent="Crystal1_p" unique_id=1690096323]
+[node name="Crystal1" type="MeshInstance3D" parent="Crystal1_p" unique_id=1457051770]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.275, 0)
 material_override = SubResource("ShaderMaterial_c5dxn")
 cast_shadow = 0
@@ -487,10 +501,10 @@ metadata/anims = [{
 "t1": 0.29
 }]
 
-[node name="Crystal2_p" type="Node3D" parent="." unique_id=593144654]
+[node name="Crystal2_p" type="Node3D" parent="." unique_id=1825722022]
 transform = Transform3D(0.8660254, -0.13781868, -0.48063084, 0, 0.9612617, -0.27563736, 0.5, 0.23870894, 0.83247703, -0.375, 0, 0.649519)
 
-[node name="Crystal2" type="MeshInstance3D" parent="Crystal2_p" unique_id=2078293564]
+[node name="Crystal2" type="MeshInstance3D" parent="Crystal2_p" unique_id=1962206781]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
 material_override = SubResource("ShaderMaterial_2jcew")
 cast_shadow = 0
@@ -506,10 +520,10 @@ metadata/anims = [{
 "t1": 0.33
 }]
 
-[node name="Crystal3_p" type="Node3D" parent="." unique_id=427633951]
+[node name="Crystal3_p" type="Node3D" parent="." unique_id=707931895]
 transform = Transform3D(-4.371139e-08, -0.27563736, -0.9612617, 0, 0.9612617, -0.27563736, 1, -1.2048492e-08, -4.2018083e-08, -0.75, 0, 9.1845477e-17)
 
-[node name="Crystal3" type="MeshInstance3D" parent="Crystal3_p" unique_id=1746835985]
+[node name="Crystal3" type="MeshInstance3D" parent="Crystal3_p" unique_id=48137543]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.275, 0)
 material_override = SubResource("ShaderMaterial_vofmu")
 cast_shadow = 0
@@ -525,10 +539,10 @@ metadata/anims = [{
 "t1": 0.37
 }]
 
-[node name="Crystal4_p" type="Node3D" parent="." unique_id=2116534655]
+[node name="Crystal4_p" type="Node3D" parent="." unique_id=1205324107]
 transform = Transform3D(-0.8660254, -0.1378187, -0.4806309, 0, 0.9612617, -0.27563736, 0.50000006, -0.23870894, -0.83247703, -0.375, 0, -0.649519)
 
-[node name="Crystal4" type="MeshInstance3D" parent="Crystal4_p" unique_id=1918995238]
+[node name="Crystal4" type="MeshInstance3D" parent="Crystal4_p" unique_id=438141992]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
 material_override = SubResource("ShaderMaterial_tav4w")
 cast_shadow = 0
@@ -544,10 +558,10 @@ metadata/anims = [{
 "t1": 0.41000000000000003
 }]
 
-[node name="Crystal5_p" type="Node3D" parent="." unique_id=1977549247]
+[node name="Crystal5_p" type="Node3D" parent="." unique_id=2036212042]
 transform = Transform3D(-0.8660254, 0.13781866, 0.48063082, 0, 0.9612617, -0.27563736, -0.49999997, -0.23870894, -0.83247703, 0.375, 0, -0.649519)
 
-[node name="Crystal5" type="MeshInstance3D" parent="Crystal5_p" unique_id=706261285]
+[node name="Crystal5" type="MeshInstance3D" parent="Crystal5_p" unique_id=818233628]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.275, 0)
 material_override = SubResource("ShaderMaterial_of7eh")
 cast_shadow = 0
@@ -563,7 +577,7 @@ metadata/anims = [{
 "t1": 0.45
 }]
 
-[node name="Mist" type="GPUParticles3D" parent="." unique_id=398281574]
+[node name="Mist" type="GPUParticles3D" parent="." unique_id=598106733]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
 cast_shadow = 0
 gi_mode = 0
@@ -576,7 +590,7 @@ transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_mre0g")
 draw_pass_1 = SubResource("QuadMesh_2x3mj")
 
-[node name="Glints" type="GPUParticles3D" parent="." unique_id=1197073036]
+[node name="Glints" type="GPUParticles3D" parent="." unique_id=724899963]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

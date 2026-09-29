@@ -50,6 +50,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.95
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_ns87y"]
 top_radius = 0.42
@@ -103,6 +105,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 0.7
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_i4w7r"]
 top_radius = 0.14
@@ -170,13 +174,13 @@ color_ramp = SubResource("GradientTexture1D_n5214")
 material = ExtResource("6_nwv2c")
 size = Vector2(0.5827642, 0.5827642)
 
-[node name="Ice_Beam" type="Node3D" unique_id=1973112551]
+[node name="Ice_Beam" type="Node3D" unique_id=2121076966]
 script = ExtResource("1_h16mq")
 duration = 0.0
 kind = &"beam"
 element = &"ice"
 
-[node name="Ray" type="MeshInstance3D" parent="." unique_id=1228342366]
+[node name="Ray" type="MeshInstance3D" parent="." unique_id=46385846]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, -0.5)
 material_override = SubResource("ShaderMaterial_7p8xr")
 cast_shadow = 0
@@ -184,7 +188,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_ns87y")
 
-[node name="Core" type="MeshInstance3D" parent="." unique_id=214850798]
+[node name="Core" type="MeshInstance3D" parent="." unique_id=2014616633]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, -0.5)
 material_override = SubResource("ShaderMaterial_jgp5k")
 cast_shadow = 0
@@ -192,14 +196,14 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_i4w7r")
 
-[node name="Muzzle" type="MeshInstance3D" parent="." unique_id=1469082479]
+[node name="Muzzle" type="MeshInstance3D" parent="." unique_id=1565150754]
 material_override = SubResource("ShaderMaterial_6usur")
 cast_shadow = 0
 extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_2qv5s")
 
-[node name="Tip" type="MeshInstance3D" parent="." unique_id=2130590376]
+[node name="Tip" type="MeshInstance3D" parent="." unique_id=1044011301]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 material_override = SubResource("ShaderMaterial_pw8eg")
 cast_shadow = 0
@@ -207,7 +211,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_1y3vp")
 
-[node name="Snow" type="GPUParticles3D" parent="." unique_id=40541055]
+[node name="Snow" type="GPUParticles3D" parent="." unique_id=552971011]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

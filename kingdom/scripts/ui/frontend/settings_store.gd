@@ -17,11 +17,12 @@ const DEFAULTS := {
 	"difficulty": 1, "cam_sens": 50, "invert_y": false, "subtitles": true,
 	"hud_minimap": true, "hud_quests": true, "hud_compass": true, "hud_damage": true,
 	"language": 0, "text_size": 1, "colorblind": 0, "screen_shake": 2,
+	"render_scale": 100, "joystick_size": 50, "vibration": true,
 }
 const SECTION := {
 	"resolution": "display", "display_mode": "display", "vsync": "display", "aa": "display",
 	"view_distance": "display", "shadows": "display", "textures": "display", "effects": "display",
-	"fps_limit": "display", "language": "gameplay", "text_size": "access", "colorblind": "access",
+	"fps_limit": "display", "render_scale": "display", "language": "gameplay", "text_size": "access", "colorblind": "access",
 	"screen_shake": "access",
 }
 const BUSES := {"vol_master": "Master", "vol_music": "Music", "vol_sfx": "SFX", "vol_ambience": "Ambience",
@@ -115,6 +116,9 @@ static func apply_all(tree: SceneTree, vals := {}, with_preset := false) -> void
 		sv.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if aa == 1 else Viewport.SCREEN_SPACE_AA_DISABLED
 		sv.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][clampi(aa, 0, 3)]
 	apply_controls()
+	var app := tree.root.get_node_or_null("App")
+	if app:
+		app.call("refresh", vals)
 
 
 static func is_mobile() -> bool:

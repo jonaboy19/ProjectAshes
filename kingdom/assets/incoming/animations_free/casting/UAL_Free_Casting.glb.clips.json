@@ -40,13 +40,13 @@
  {
   "name": "Cast_Push_Palm_B",
   "loop": false,
-  "seconds": 2.0,
-  "frames": 61,
+  "seconds": 1.6,
+  "frames": 48,
   "keys": 867,
   "source": "002/02_05.bvh",
   "range_s": [
    8.0,
-   10.0
+   9.6
   ],
   "autotrim": null,
   "loop_pts": null,
@@ -54,7 +54,11 @@
   "contact_lift_m": 0.0,
   "min_foot_m": -0.001,
   "travel_m": 0.03,
-  "hip_scale": 0.0515
+  "hip_scale": 0.0515,
+  "trimmed_from_s": [
+   0,
+   1.6
+  ]
  },
  {
   "name": "Cast_Throw_1H",

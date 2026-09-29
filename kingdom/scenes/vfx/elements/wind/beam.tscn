@@ -48,6 +48,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_cpl8p"]
 top_radius = 0.75
@@ -101,6 +103,8 @@ shader_parameter/tail_len = null
 shader_parameter/pulse = null
 shader_parameter/pulse_speed = null
 shader_parameter/heat_scale = 1.0
+shader_parameter/soft_edge = 0.85
+shader_parameter/ring_soft = null
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_jp8ex"]
 top_radius = 0.4
@@ -158,13 +162,13 @@ color_ramp = SubResource("GradientTexture1D_5jol7")
 material = ExtResource("4_20ffx")
 size = Vector2(0.23752578, 0.23752578)
 
-[node name="Wind_Beam" type="Node3D" unique_id=210871542]
+[node name="Wind_Beam" type="Node3D" unique_id=1417392466]
 script = ExtResource("1_waq1o")
 duration = 0.0
 kind = &"beam"
 element = &"wind"
 
-[node name="Gust" type="MeshInstance3D" parent="." unique_id=598622957]
+[node name="Gust" type="MeshInstance3D" parent="." unique_id=1011740838]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, -0.5)
 material_override = SubResource("ShaderMaterial_o2h5c")
 cast_shadow = 0
@@ -172,7 +176,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_cpl8p")
 
-[node name="Inner" type="MeshInstance3D" parent="." unique_id=1028634474]
+[node name="Inner" type="MeshInstance3D" parent="." unique_id=657680346]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, -0.5)
 material_override = SubResource("ShaderMaterial_souj6")
 cast_shadow = 0
@@ -180,7 +184,7 @@ extra_cull_margin = 2.0
 gi_mode = 0
 mesh = SubResource("CylinderMesh_jp8ex")
 
-[node name="Streaks" type="GPUParticles3D" parent="." unique_id=1070237964]
+[node name="Streaks" type="GPUParticles3D" parent="." unique_id=283738736]
 cast_shadow = 0
 gi_mode = 0
 emitting = false
@@ -193,7 +197,7 @@ transform_align = 3
 process_material = SubResource("ParticleProcessMaterial_ldeko")
 draw_pass_1 = SubResource("QuadMesh_txwur")
 
-[node name="Leaves" type="GPUParticles3D" parent="." unique_id=447142156]
+[node name="Leaves" type="GPUParticles3D" parent="." unique_id=2036896753]
 cast_shadow = 0
 gi_mode = 0
 emitting = false

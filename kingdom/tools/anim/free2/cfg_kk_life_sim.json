@@ -45,7 +45,7 @@
    "floor_limit": 0.3
   },
   {
-   "name": "Kay_Work_Chop_Tree",
+   "name": "Kay_Work_Chop_Tree_Repeat",
    "action": "Chopping",
    "floor_limit": 0.3,
    "loop": true,
@@ -58,7 +58,7 @@
    "floor_limit": 0.3
   },
   {
-   "name": "Kay_Work_Dig",
+   "name": "Kay_Work_Dig_Repeat",
    "action": "Digging",
    "floor_limit": 0.3,
    "loop": true,
@@ -71,7 +71,7 @@
    "floor_limit": 0.3
   },
   {
-   "name": "Kay_Work_Mine",
+   "name": "Kay_Work_Mine_Repeat",
    "action": "Pickaxing",
    "floor_limit": 0.3,
    "loop": true,
@@ -84,7 +84,7 @@
    "floor_limit": 0.3
   },
   {
-   "name": "Kay_Work_Hammer",
+   "name": "Kay_Work_Hammer_Repeat",
    "action": "Hammering",
    "floor_limit": 0.3,
    "loop": true,
@@ -97,7 +97,7 @@
    "floor_limit": 0.3
   },
   {
-   "name": "Kay_Work_Saw",
+   "name": "Kay_Work_Saw_Repeat",
    "action": "Sawing",
    "floor_limit": 0.3,
    "loop": true,
@@ -110,7 +110,7 @@
    "floor_limit": 0.3
   },
   {
-   "name": "Kay_Lockpick",
+   "name": "Kay_Lockpick_Repeat",
    "action": "Lockpicking",
    "floor_limit": 0.3,
    "loop": true,
@@ -133,7 +133,7 @@
    "floor_limit": 0.3
   },
   {
-   "name": "Kay_Work_Bench_A",
+   "name": "Kay_Work_Bench_A_Repeat",
    "action": "Working_A",
    "floor_limit": 0.3,
    "loop": true,
@@ -141,7 +141,7 @@
    "inplace": "linear"
   },
   {
-   "name": "Kay_Work_Bench_B",
+   "name": "Kay_Work_Bench_B_Repeat",
    "action": "Working_B",
    "floor_limit": 0.3,
    "loop": true,
@@ -149,7 +149,7 @@
    "inplace": "linear"
   },
   {
-   "name": "Kay_Work_Bench_C",
+   "name": "Kay_Work_Bench_C_Repeat",
    "action": "Working_C",
    "floor_limit": 0.3,
    "loop": true,

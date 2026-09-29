@@ -118,6 +118,9 @@ CC0 / public domain (no attribution required; credited with thanks):
 CC0 (no attribution required; credited with thanks): 53 market props (39 + 14 pieces) from **Quaternius'** *Fantasy Props MegaKit* and *Ultimate Food Pack*
 (https://quaternius.com), re-authored into one warm-painted atlas (`assets/market_goods/`).
 
+## In-game tabbed menu icons (added 2026-09-29)
+- **Game icons** for the inventory, character, skills, quest, map and journal menu (assets/ui/icons/gm and assets/ui/icons/items) from game-icons.net, CC BY 3.0, recoloured to white. Authors: **Lorc**, **Delapouite**, **Skoll**, **Willdabeast**, **Caro Asercion**, **Irongamer**, **SBed**, **Seregacthtuf**, **Zeromancer**.
+
 ### Free addons added 2026-09-29 (local PC session; see `docs/addons/README.md`)
 - **Phantom Camera** (c) 2023-2026 Marcus Skov (ramokz), MIT (https://github.com/ramokz/phantom-camera), v0.11.0.3, `kingdom/addons/phantom_camera/`.
 - **Godot Debug Menu** (c) 2022-2025 Hugo Locurcio and contributors (Calinou), MIT (https://github.com/godot-extended-libraries/godot-debug-menu), `kingdom/addons/debug_menu/`.
