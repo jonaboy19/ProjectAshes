@@ -101,11 +101,22 @@ const DANGER_FAR := 22.0
 const FIGHT_NOTICE := 10.0      # a hostile this close to the player is a fight worth watching
 const WATCH_RANGE := 32.0
 const SENSE_INTERVAL_MS := 500
+const THREAT_RAY_BUDGET := 4
+const THREAT_RAY_WINDOW_MS := 500
+const LAST_SEEN_SECONDS := 3.0
 const CHAT_GAP := 1.3           # metres between two people chatting
 
 # ---------------------------------------------------------------- shared state
 static var _hazards := PackedVector2Array()
+## The cached team1 scan keeps only [world position, instance id] samples.
+static var _threat_samples: Array = []
 static var _sense_ms := -100000
+static var _ray_window_ms := -100000
+static var _rays_used := 0
+static var _ray_window_stats := {"requested": 0, "admitted": 0, "exhausted": 0,
+	"occluded": 0, "visible": 0, "stale": 0, "unavailable": 0}
+static var _ray_total_stats := {"requested": 0, "admitted": 0, "exhausted": 0,
+	"occluded": 0, "visible": 0, "stale": 0, "unavailable": 0}
 static var _notices: Array = []              # [pos: Vector2, strength, expires_ms]
 static var _weather: Node
 static var _poi := {}                        # settlement id -> Dictionary
@@ -127,6 +138,10 @@ var job := 4
 var shift := Vector2(-1, -1)
 var org_id := ""
 var _last_hours := -1.0
+## One short-lived, anonymous last-seen point. This is not persistent identity.
+var _last_seen := Vector2.INF
+var _last_seen_ms := -100000
+var _last_seen_strength := 0.0
 
 
 func _init(p: int = -1, p_job := 4, org_shift := Vector2(-1, -1), p_org := "") -> void:
@@ -331,12 +346,128 @@ static func hazards(tree: SceneTree) -> PackedVector2Array:
 		return _hazards
 	_sense_ms = now
 	_hazards = PackedVector2Array()
+	_threat_samples.clear()
 	for n in tree.get_nodes_in_group("team1"):
 		var body := n as Node3D
 		if body == null or not body.is_in_group("combatant") or body.get("dead") == true:
 			continue
-		_hazards.append(Vector2(body.global_position.x, body.global_position.z))
+		var pos := body.global_position
+		_hazards.append(Vector2(pos.x, pos.z))
+		_threat_samples.append([pos, body.get_instance_id()])
 	return _hazards
+
+
+## Ambient 360-degree line-of-sight sensing; no facing cone is modeled.
+## Selects up to two candidates within WATCH_RANGE in one O(n) pass, without
+## copying or sorting the shared cache. Ray results can be unknown when budget
+## is exhausted; unknown candidates never count as visible.
+func sense_threats(viewer: Node3D, tree: SceneTree, world_layer: int) -> Dictionary:
+	var out := {"visible": PackedVector2Array()}
+	if viewer == null or tree == null:
+		return out
+	hazards(tree)
+	var viewer_body := viewer as CollisionObject3D
+	var eye := viewer.global_position + Vector3.UP * 1.4
+	var viewer_rid := viewer_body.get_rid() if viewer_body != null else RID()
+	var world := viewer.get_world_3d()
+	var space: PhysicsDirectSpaceState3D = world.direct_space_state if world != null else null
+	var now := Time.get_ticks_msec()
+	if now - _ray_window_ms >= THREAT_RAY_WINDOW_MS:
+		_ray_window_ms = now
+		_rays_used = 0
+		_reset_ray_window_stats()
+	var nearest: Array = [] # [distance_squared, position, instance_id]
+	var range_squared := WATCH_RANGE * WATCH_RANGE
+	for sample: Array in _threat_samples:
+		var target: Vector3 = sample[0]
+		var dx := target.x - eye.x
+		var dz := target.z - eye.z
+		var distance_squared := dx * dx + dz * dz
+		if distance_squared > range_squared:
+			continue
+		var entry := [distance_squared, target, int(sample[1])]
+		if nearest.is_empty() or distance_squared < float(nearest[0][0]):
+			nearest.push_front(entry)
+		elif nearest.size() < 2:
+			nearest.append(entry)
+		elif distance_squared < float(nearest[1][0]):
+			nearest[1] = entry
+		if nearest.size() > 2:
+			nearest.resize(2)
+	for entry: Array in nearest:
+		var instance_id: int = entry[2]
+		if not is_instance_id_valid(instance_id):
+			_record_ray_stat("stale")
+			continue
+		var body := instance_from_id(instance_id) as Node3D
+		if body == null or not body.is_in_group("combatant") or body.get("dead") == true:
+			_record_ray_stat("stale")
+			continue
+		if space == null or not viewer_rid.is_valid():
+			_record_ray_stat("unavailable")
+			continue
+		var target: Vector3 = entry[1]
+		var torso := target + Vector3.UP * 0.9
+		var query := PhysicsRayQueryParameters3D.create(eye, torso, world_layer)
+		query.exclude = [viewer_rid]
+		_record_ray_stat("requested")
+		if _rays_used >= THREAT_RAY_BUDGET:
+			_record_ray_stat("exhausted")
+			continue
+		_rays_used += 1
+		_record_ray_stat("admitted")
+		var hit := space.intersect_ray(query)
+		if hit.is_empty():
+			out["visible"].append(Vector2(target.x, target.z))
+			_record_ray_stat("visible")
+		else:
+			_record_ray_stat("occluded")
+	return out
+
+
+static func _reset_ray_window_stats() -> void:
+	_ray_window_stats = {"requested": 0, "admitted": 0, "exhausted": 0,
+		"occluded": 0, "visible": 0, "stale": 0, "unavailable": 0}
+
+
+static func _record_ray_stat(key: String) -> void:
+	_ray_window_stats[key] = int(_ray_window_stats.get(key, 0)) + 1
+	_ray_total_stats[key] = int(_ray_total_stats.get(key, 0)) + 1
+
+
+static func ray_budget_stats() -> Dictionary:
+	return {"window": _ray_window_stats.duplicate(), "total": _ray_total_stats.duplicate(),
+		"window_ms": THREAT_RAY_WINDOW_MS, "budget": THREAT_RAY_BUDGET}
+
+
+## Resolve immediate visible danger plus the decaying last-seen point. A hidden
+## hostile always uses its remembered position, never its current live position.
+func remembered_danger(here: Vector2, visible: PackedVector2Array) -> Array:
+	var now := Time.get_ticks_msec()
+	if not visible.is_empty():
+		var seen: Array = danger_at(here, visible)
+		_last_seen = seen[1]
+		_last_seen_ms = now
+		_last_seen_strength = float(seen[0])
+	var age := float(now - _last_seen_ms) / 1000.0
+	if _last_seen != Vector2.INF and age < LAST_SEEN_SECONDS:
+		var remembered := danger_at(here, PackedVector2Array([_last_seen]))
+		var memory_strength := minf(float(remembered[0]), _last_seen_strength) * (1.0 - age / LAST_SEEN_SECONDS)
+		if memory_strength > float(visible_danger(here, visible)[0]):
+			return [memory_strength, _last_seen]
+	if age >= LAST_SEEN_SECONDS:
+		clear_threat_memory()
+	return visible_danger(here, visible)
+
+
+static func visible_danger(here: Vector2, visible: PackedVector2Array) -> Array:
+	return danger_at(here, visible)
+
+
+func clear_threat_memory() -> void:
+	_last_seen = Vector2.INF
+	_last_seen_ms = -100000
+	_last_seen_strength = 0.0
 
 
 ## 0..1 danger at `here` and the nearest hazard (Vector2.INF when none).

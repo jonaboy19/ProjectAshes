@@ -304,6 +304,7 @@ func resync() -> void:
 	_act = -1
 	_brain.act = -1
 	_brain.seed_needs(DailyRhythm.local_time(person), WorldSim.day)
+	_brain.clear_threat_memory()
 	_decide = 0.0
 
 
@@ -397,12 +398,17 @@ func _think_tick() -> void:
 ## and turn a new act into a goal. Same act: only dynamic goals are refreshed.
 func _decide_act(here: Vector2) -> void:
 	var tree := get_tree()
-	var hazards := UtilityBrain.hazards(tree)
-	var danger := UtilityBrain.danger_at(here, hazards)
+	var sensed := {"visible": PackedVector2Array()}
+	if not _indoors:
+		sensed = _brain.sense_threats(self, tree, WORLD_LAYER)
+	var visible_threats: PackedVector2Array = sensed["visible"]
+	var danger := _brain.remembered_danger(here, visible_threats)
 	var player_p := Vector2.INF
 	if _player:
 		player_p = Vector2(_player.global_position.x, _player.global_position.z)
-	var sight := UtilityBrain.spectacle_at(here, player_p, hazards)
+	# The fight-watch signal only uses hostile samples this villager actually
+	# saw. Explicit notices remain their existing authored/audible-style signal.
+	var sight := UtilityBrain.spectacle_at(here, player_p, visible_threats)
 	var performing := _indoors or (_arrived and _yield_time <= 0.0)
 	_brain.tick(WorldSim.day * 24.0 + WorldSim.time_of_day, _act if performing else -1)
 	_state = DailyRhythm.state(person)
@@ -457,6 +463,8 @@ func _set_indoors(on: bool) -> void:
 	if on == _indoors:
 		return
 	_indoors = on
+	if on and _brain != null:
+		_brain.clear_threat_memory()
 	visible = not on
 	if on:
 		remove_from_group("villager")
