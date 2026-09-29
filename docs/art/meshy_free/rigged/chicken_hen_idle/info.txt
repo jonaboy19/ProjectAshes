@@ -1,0 +1,5 @@
+source: /c/tmp_pa/fr/chicken_hen_idle_3q
+duration_s: 1.280000
+sample_fps: 10
+frames_per_sheet: 12  (= 1.2 s per sheet)
+sheets: 3
