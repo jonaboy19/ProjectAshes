@@ -20,6 +20,9 @@ const FREE_PACK := "res://assets/incoming/meshy_free/"
 const R1 := "res://assets/incoming/region1/"
 const R1_KIT := "res://assets/incoming/region1/highwatch/highwatch_kit.tres"
 const R1_KIT_LOW := "res://assets/incoming/region1/highwatch/highwatch_kit_low.tres"
+## Site kinds (and minimum part count) whose parts are merged into per-material meshes (see _bake_site).
+const BAKE_KINDS := ["farm", "roadside", "waystation"]
+const BAKE_MIN_PARTS := 12
 const BRIDGE_DECK := {"road/bridge_stone": [2.6, 12.0], "road/bridge_wood": [1.6, 14.0]}
 
 var focus := Vector3.ZERO
@@ -202,6 +205,10 @@ func _build(site: Dictionary) -> Node3D:
 		return root
 	_scatter_ground(root, site)
 	# Parts and lights are queued and built a few per frame (see _drain_queue).
+	# Big multi-part sites (farms, the waystation) are baked into a few merged meshes once their last part is in.
+	if String(site["kind"]) in BAKE_KINDS and site["parts"].size() >= BAKE_MIN_PARTS:
+		root.set_meta("pending", site["parts"].size())
+		root.set_meta("site_id", site["id"])
 	for i in site["parts"].size():
 		_queue.append([root, site, "part", i])
 	for i in site["lights"].size():
@@ -212,6 +219,16 @@ func _build(site: Dictionary) -> Node3D:
 
 
 func _build_part(root: Node3D, site: Dictionary, part: Array) -> void:
+	_build_part_node(root, site, part)
+	if root.has_meta("pending"):
+		var left := int(root.get_meta("pending")) - 1
+		root.set_meta("pending", left)
+		if left <= 0:
+			root.remove_meta("pending")
+			_bake_site(root)
+
+
+func _build_part_node(root: Node3D, site: Dictionary, part: Array) -> void:
 	var basis := Basis(Vector3.UP, float(site["yaw"]))
 	var off: Vector2 = part[1]
 	var world := root.global_position + basis * Vector3(off.x, 0.0, off.y)
@@ -220,6 +237,7 @@ func _build_part(root: Node3D, site: Dictionary, part: Array) -> void:
 		return
 	root.add_child(n)
 	n.rotation.y = float(part[2])
+	n.set_meta("bakeable", not String(part[0]).begins_with("nature:") and not (String(part[0]).begins_with("props/") and Breakable.is_breakable(String(part[0]).trim_prefix("props/"))))
 	# Settle on the lowest ground under the footprint so nothing floats on a slope.
 	var box := Assets.visual_aabb(n)
 	var ground := _footprint_ground(world, basis * Basis(Vector3.UP, float(part[2])), box)
@@ -235,6 +253,83 @@ func _build_part(root: Node3D, site: Dictionary, part: Array) -> void:
 		_add_sails(n)
 	if not String(part[0]).begins_with("props/"):
 		_base_clutter(root, world, basis * Basis(Vector3.UP, float(part[2])), box)
+
+
+var _bake_cache: Dictionary = {}     # site id -> {range key: ArrayMesh}, so a rebuilt site costs no merge
+
+
+## Draw-call pass: a farm is ~150 parts, each its own MeshInstance3D with 1-6 surfaces (180 draws, 58 distinct
+## mesh+material pairs). Every static part's meshes are merged, per visibility range, into ONE ArrayMesh whose
+## surfaces are grouped by material look (RG_Timber of the barn and of the fence rail are the same material), so a
+## farm draws ~20 surfaces. Colliders, sails, breakables and wind-shaded nature stay their own nodes; the look is the
+## same geometry with the same materials, ranges and shadow flags.
+func _bake_site(root: Node3D) -> void:
+	var inv := root.global_transform.affine_inverse()
+	var groups := {}        # range key -> [MeshInstance3D]
+	for n in root.get_children():
+		if not (n is Node3D) or not n.has_meta("bakeable") or not bool(n.get_meta("bakeable")):
+			continue
+		for mi in n.find_children("*", "MeshInstance3D", true, false):
+			var g := mi as MeshInstance3D
+			if g.mesh == null:
+				continue
+			var key := "%.1f|%.1f|%d" % [g.visibility_range_begin, g.visibility_range_end, g.cast_shadow]
+			if not groups.has(key):
+				groups[key] = []
+			(groups[key] as Array).append(g)
+	var sid: Variant = root.get_meta("site_id", -1)
+	var cached: Dictionary = _bake_cache.get(sid, {})
+	var first_bake := cached.is_empty()
+	for key: String in groups:
+		var list: Array = groups[key]
+		var mesh: ArrayMesh = cached.get(key)
+		if mesh == null:
+			var by_look := {}     # material look -> SurfaceTool
+			var mats := {}
+			for g: MeshInstance3D in list:
+				var xf: Transform3D = inv * g.global_transform
+				for i in g.mesh.get_surface_count():
+					var mat: Material = g.get_active_material(i)
+					var look := _material_look(mat)
+					if not by_look.has(look):
+						var st := SurfaceTool.new()
+						st.begin(Mesh.PRIMITIVE_TRIANGLES)
+						by_look[look] = st
+						mats[look] = mat
+					(by_look[look] as SurfaceTool).append_from(g.mesh, i, xf)
+			mesh = ArrayMesh.new()
+			for look: String in by_look:
+				var st: SurfaceTool = by_look[look]
+				st.commit(mesh)
+				mesh.surface_set_material(mesh.get_surface_count() - 1, mats[look])
+			cached[key] = mesh
+		var ref: MeshInstance3D = list[0]
+		var baked := MeshInstance3D.new()
+		baked.name = "Baked"
+		baked.mesh = mesh
+		baked.cast_shadow = ref.cast_shadow
+		baked.visibility_range_begin = ref.visibility_range_begin
+		baked.visibility_range_begin_margin = ref.visibility_range_begin_margin
+		baked.visibility_range_end = ref.visibility_range_end
+		baked.visibility_range_end_margin = ref.visibility_range_end_margin
+		baked.visibility_range_fade_mode = ref.visibility_range_fade_mode
+		root.add_child(baked)
+		for g: MeshInstance3D in list:
+			g.get_parent().remove_child(g)
+			g.free()
+	if first_bake:
+		_bake_cache[sid] = cached
+
+
+## Two materials with the same name, texture, colour and class render the same: one surface serves both.
+static func _material_look(mat: Material) -> String:
+	if mat == null:
+		return "null"
+	if mat is BaseMaterial3D:
+		var b := mat as BaseMaterial3D
+		return "%s|%s|%s|%d|%d|%.2f|%.2f|%s" % [b.resource_name, b.albedo_texture.resource_path if b.albedo_texture else "-",
+			b.albedo_color.to_html(), b.transparency, b.cull_mode, b.roughness, b.metallic, b.vertex_color_use_as_albedo]
+	return str(mat.get_instance_id())
 
 
 func _build_light(root: Node3D, l: Array) -> void:

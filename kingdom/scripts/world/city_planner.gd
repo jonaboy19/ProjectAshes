@@ -27,10 +27,13 @@ const TRADES := ["inn", "blacksmith", "stable", "blacksmith"]
 const LANDMARK_HALF := {
 	"temple": Vector2(7.75, 14.25), "castle": Vector2(14.4, 14.9), "bell_tower": Vector2(3.7, 3.75),
 	"well": Vector2(1.2, 1.2), "stable": Vector2(6.05, 4.2)}
-## A lot's centre stays this far from every landmark rectangle (covers the widest lot, the 16 m guild hall).
-const LANDMARK_LOT_GAP := 9.5
-## A lot centre stays this far inside a town wall / outside the keep wall (house half-diagonal + wall depth).
-const WALL_LOT_GAP := 8.5
+## Clear space kept between a lot's footprint rectangle and a landmark's.
+const LANDMARK_GAP := 1.5
+## A lot's footprint keeps this far inside the town wall (wall half depth + a tower's 3.7 m half width + margin)
+## and outside the keep wall.
+const WALL_GAP := 4.2
+## Fallback when the drawn building does not fit its spot but a small house does.
+const SMALL_HOUSE := "house_1"
 
 
 ## Returns {streets: [{a, b, w}], lots: [{asset, pos, yaw}], walls: bool,
@@ -126,12 +129,68 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 						asset = TRADES[rng.randi() % TRADES.size()]
 					elif gate_road:
 						asset = TOWNHOUSES[rng.randi() % TOWNHOUSES.size()]
-					lots.append({"asset": asset, "pos": p, "yaw": atan2(face.x, face.y)})
+					var lyaw := atan2(face.x, face.y)
+					if not fits(asset, p, lyaw, c, r, walled, result["inner_wall"], landmarks):
+						asset = SMALL_HOUSE
+						if not fits(asset, p, lyaw, c, r, walled, result["inner_wall"], landmarks):
+							continue
+					lots.append({"asset": asset, "pos": p, "yaw": lyaw})
 					blocked.append(p)
 			t += LOT_SPACING
-	_civic_lots(lots, c)
+	if kind == "frontier_town":
+		_infill(lots, blocked, streets, landmarks, c, r, plaza_r, result["inner_wall"], rng)
+	_civic_lots(lots, c, r, walled, result["inner_wall"], landmarks)
 	result["paths"] = _door_paths(lots, streets)
 	return result
+
+
+## Small walled hold: the keep-off-the-wall rule takes its outer row of lots, so further houses go on free plots
+## inside the walls (nearest a street first, facing it, close enough for a door path) up to FRONTIER_LOTS lots.
+const FRONTIER_LOTS := 54
+const INFILL_STREET_MAX := 14.0
+
+
+static func _infill(lots: Array, blocked: Array[Vector2], streets: Array, landmarks: Array, c: Vector2, r: float,
+		plaza_r: float, inner_wall: float, rng: RandomNumberGenerator) -> void:
+	var cands := []     # [street edge distance, pos, yaw]
+	var step := 3.0
+	var gx := -r
+	while gx <= r:
+		var gz := -r
+		while gz <= r:
+			var p := c + Vector2(gx, gz)
+			gz += step
+			if p.distance_to(c) > r:
+				continue
+			var best := INF
+			var bq := Vector2.ZERO
+			var bw := 0.0
+			for st in streets:
+				var q := Geometry2D.get_closest_point_to_segment(p, st["a"], st["b"])
+				var e: float = p.distance_to(q) - float(st["w"]) * 0.5
+				if e < best:
+					best = e
+					bq = q
+					bw = st["w"]
+			if best > INFILL_STREET_MAX or best < 4.6:
+				continue
+			var face := (bq - p).normalized()
+			cands.append([best, p, atan2(face.x, face.y)])
+		gx += step
+	cands.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0] or (a[0] == b[0] and (a[1] as Vector2).x < (b[1] as Vector2).x))
+	for cd: Array in cands:
+		if lots.size() >= FRONTIER_LOTS:
+			break
+		var p: Vector2 = cd[1]
+		if not _lot_ok(p, c, r, plaza_r, true, inner_wall, streets, blocked, landmarks):
+			continue
+		var asset: String = TOWNHOUSES[rng.randi() % TOWNHOUSES.size()] if rng.randf() < 0.55 else "house_%d" % (1 + rng.randi() % 16)
+		if not fits(asset, p, cd[2], c, r, true, inner_wall, landmarks):
+			asset = SMALL_HOUSE
+			if not fits(asset, p, cd[2], c, r, true, inner_wall, landmarks):
+				continue
+		lots.append({"asset": asset, "pos": p, "yaw": cd[2]})
+		blocked.append(p)
 
 
 ## Trodden footpaths from each front door to the nearest street. The door is
@@ -148,7 +207,7 @@ static func _door_paths(lots: Array, streets: Array) -> Array:
 			if door.distance_to(q) < bd:
 				bd = door.distance_to(q)
 				best = q
-		if bd < 14.0:
+		if bd < 18.0:
 			out.append({"a": door, "b": best, "w": 1.3})
 	return out
 
@@ -169,7 +228,7 @@ static func path_distance(plan_data: Dictionary, p: Vector2) -> float:
 ## Every settlement gets an Adventurer Guild hall and a healer's house on the
 ## lots nearest its plaza (both Blender-built, see tools/blender). The guild is
 ## wide, so lots crowding it are dropped.
-static func _civic_lots(lots: Array, c: Vector2) -> void:
+static func _civic_lots(lots: Array, c: Vector2, r: float, walled: bool, inner_wall: float, landmarks: Array) -> void:
 	if lots.size() < 6:
 		return
 	var has_smithy := false
@@ -184,8 +243,11 @@ static func _civic_lots(lots: Array, c: Vector2) -> void:
 				homes.append(i)
 		homes.sort_custom(func(a: int, b: int) -> bool:
 			return (lots[a]["pos"] as Vector2).distance_to(c) < (lots[b]["pos"] as Vector2).distance_to(c))
-		if homes.size() > 4:
-			lots[homes[3]]["asset"] = "blacksmith"
+		for hi in range(3, homes.size()):
+			var hl: Dictionary = lots[homes[hi]]
+			if homes.size() > 4 and fits("blacksmith", hl["pos"], hl["yaw"], c, r, walled, inner_wall, landmarks):
+				hl["asset"] = "blacksmith"
+				break
 	var order := range(lots.size())
 	order.sort_custom(func(a: int, b: int) -> bool:
 		return (lots[a]["pos"] as Vector2).distance_to(c) < (lots[b]["pos"] as Vector2).distance_to(c))
@@ -197,7 +259,8 @@ static func _civic_lots(lots: Array, c: Vector2) -> void:
 	var guild: Dictionary = {}
 	for i in order:
 		var cand: Dictionary = lots[i]
-		if cand["asset"] != "inn" and (cand["pos"] as Vector2).distance_to(inn_pos) > 14.0:
+		if cand["asset"] != "inn" and (cand["pos"] as Vector2).distance_to(inn_pos) > 14.0 \
+				and fits("adventurer_guild", cand["pos"], cand["yaw"], c, r, walled, inner_wall, landmarks):
 			guild = cand
 			break
 	if guild.is_empty():
@@ -206,7 +269,8 @@ static func _civic_lots(lots: Array, c: Vector2) -> void:
 	var gp: Vector2 = guild["pos"]
 	for i in range(1, order.size()):
 		var lot: Dictionary = lots[order[i]]
-		if (lot["pos"] as Vector2).distance_to(gp) > 13.0 and lot["asset"] != "inn":
+		if (lot["pos"] as Vector2).distance_to(gp) > 13.0 and lot["asset"] != "inn" \
+				and fits("healer_house", lot["pos"], lot["yaw"], c, r, walled, inner_wall, landmarks):
 			lot["asset"] = "healer_house"
 			break
 	for i in range(lots.size() - 1, -1, -1):
@@ -218,12 +282,12 @@ static func _civic_lots(lots: Array, c: Vector2) -> void:
 static func _lot_ok(p: Vector2, c: Vector2, r: float, plaza_r: float, walled: bool, inner_wall: float,
 		streets: Array, blocked: Array[Vector2], landmarks: Array = []) -> bool:
 	var d := p.distance_to(c)
-	if d < plaza_r + 5.0 or d > (r - WALL_LOT_GAP if walled else r):
+	if d < plaza_r + 5.0 or d > (r - WALL_GAP if walled else r):
 		return false
-	if inner_wall > 0.0 and d < inner_wall + WALL_LOT_GAP:
+	if inner_wall > 0.0 and d < inner_wall + WALL_GAP:
 		return false
 	for lm: Dictionary in landmarks:
-		if landmark_distance(lm, p) < LANDMARK_LOT_GAP:
+		if landmark_distance(lm, p) < 2.0:
 			return false
 	for st in streets:
 		var q := Geometry2D.get_closest_point_to_segment(p, st["a"], st["b"])
@@ -233,6 +297,48 @@ static func _lot_ok(p: Vector2, c: Vector2, r: float, plaza_r: float, walled: bo
 		if p.distance_to(other) < LOT_CLEARANCE:
 			return false
 	return true
+
+
+## True when the building `asset` (oriented rectangle of BuildingProfiles.size_of at p, yaw) clears every
+## landmark footprint by LANDMARK_GAP and the town wall / keep wall by WALL_GAP.
+static func fits(asset: String, p: Vector2, yaw: float, c: Vector2, r: float, walled: bool, inner_wall: float, landmarks: Array) -> bool:
+	var size := BuildingProfiles.size_of(asset)
+	var hx := size.x * 0.5
+	var hz := size.z * 0.5
+	var ex := Vector2(cos(yaw), -sin(yaw))
+	var ez := Vector2(sin(yaw), cos(yaw))
+	var d := p.distance_to(c)
+	if d > 0.001:
+		var u := (p - c) / d
+		var ext := hx * absf(u.dot(ex)) + hz * absf(u.dot(ez))
+		if walled and d + ext > r - WALL_GAP:
+			return false
+		if inner_wall > 0.0 and d - ext < inner_wall + WALL_GAP:
+			return false
+	var poly := PackedVector2Array([p - ex * hx - ez * hz, p + ex * hx - ez * hz, p + ex * hx + ez * hz, p - ex * hx + ez * hz])
+	for lm: Dictionary in landmarks:
+		var half: Vector2 = LANDMARK_HALF.get(String(lm["asset"]), Vector2(3.0, 3.0))
+		var ly: float = lm["yaw"]
+		var lc: Vector2 = lm["pos"]
+		var lx := Vector2(cos(ly), -sin(ly))
+		var lz := Vector2(sin(ly), cos(ly))
+		var lpoly := PackedVector2Array([lc - lx * half.x - lz * half.y, lc + lx * half.x - lz * half.y,
+			lc + lx * half.x + lz * half.y, lc - lx * half.x + lz * half.y])
+		if _poly_gap(poly, lpoly) < LANDMARK_GAP:
+			return false
+	return true
+
+
+## Gap between two convex polygons (0 when they overlap).
+static func _poly_gap(a: PackedVector2Array, b: PackedVector2Array) -> float:
+	if not Geometry2D.intersect_polygons(a, b).is_empty():
+		return 0.0
+	var best := INF
+	for i in a.size():
+		for j in b.size():
+			best = minf(best, a[i].distance_to(Geometry2D.get_closest_point_to_segment(a[i], b[j], b[(j + 1) % b.size()])))
+			best = minf(best, b[j].distance_to(Geometry2D.get_closest_point_to_segment(b[j], a[i], a[(i + 1) % a.size()])))
+	return best
 
 
 ## Distance from world XZ point p to a landmark's footprint rectangle (0 inside). The rectangle's axes

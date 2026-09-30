@@ -31,7 +31,7 @@ const BURIED_OK := ["rock", "boulder", "cliff", "stone", "stump", "log", "root",
 const SINK_OK := ["plinth", "waterfall", "fallsfoam", "falls"]
 ## Never an overlap finding (natural clusters, bases under buildings, trees and plants).
 const OVERLAP_SKIP := ["snow", "drift", "mound", "fx", "vines", "waterfall", "fallsfoam", "rock", "boulder", "cliff", "plinth", "tree", "pine", "oak", "birch", "willow", "bush", "fern", "flower", "grass",
-	"hedge", "stump", "log", "nature"]
+	"hedge", "stump", "log", "nature", "baked"]   # "baked": RegionDressing._bake_site merges a whole site into one mesh (not a prop)
 ## Boulders: judged by mesh vertices against the terrain (embedded, never plinthed), not by their box.
 const ROCKY := ["rock", "boulder", "cliff", "crag", "scree", "menhir", "megalith", "cairn"]
 ## May hover on purpose.

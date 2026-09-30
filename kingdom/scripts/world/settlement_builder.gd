@@ -257,6 +257,8 @@ func _build(s: Dictionary) -> Node3D:
 		for mq: Vector2 in mill_spots:
 			if mq.distance_to(p) < 24.0:
 				mill_clear = false
+		if _ground_spread(p, mill_yaw, _footprint("mill")) > 3.0:
+			mill_clear = false   # a windmill on a cliff face is buried by the lowest-corner snap
 		if not mill_clear:
 			continue   # two mills never share a hill (lint: mill inside mill)
 		mill_spots.append(p)
