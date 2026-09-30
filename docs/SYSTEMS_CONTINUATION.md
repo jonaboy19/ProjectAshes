@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: LifeCourses checks close kin before new marriages
+
+`LifeCourses.try_marry()` now rejects an initiating person who is missing, dead, already married, or under 16. Candidate selection keeps its existing eligibility and RNG choice, while excluding parent-child pairs in either direction and full siblings sharing any recognized nonnegative parent ID. Missing/malformed parent arrays cannot crash the filter, but unknown kinship cannot be excluded when lineage data is absent; cousin filters and retroactive migration are out of scope. No save fields changed. Static source review and `git diff --check` only; no parser/runtime marriage test or save/load behavior check was run. See [NPC_LIFE_COURSES_KINSHIP_HANDOFF.md](concepts/NPC_LIFE_COURSES_KINSHIP_HANDOFF.md).
+
 ### Latest slice: dormant familiarity cools during plaza pairing
 
 `NpcSocialGraph.affinity(a, b, now_day)` now returns a non-mutating effective score using the existing 0.25% per-game-day fade, capped at 50%; omitting time preserves the raw saved score. `UtilityBrain._chat_affinity()` supplies the current fractional day, so dormant familiarity loses pairing weight before the NPCs next chat. Record-time attenuation, O(1) pair lookup, queue limits and save schema are unchanged. Static source review and `git diff --check` only; no parser, runtime, save/load, behavior or mobile check was run. See [NPC_SOCIAL_GRAPH_HANDOFF.md](concepts/NPC_SOCIAL_GRAPH_HANDOFF.md).
