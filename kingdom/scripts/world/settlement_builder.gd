@@ -1290,6 +1290,20 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 		activity_spots.append({"type": "market_stall",
 			"position": Vector3(p.x, WorldGen.height(p.x, p.y), p.y),
 			"yaw": float(stall[2]), "identity": "market/street/%d" % i})
+	# Publish work targets beside the exact gate watch posts. The residents' target
+	# is offset inward from the decorative guard actors so they don't overlap.
+	if plan["walls"]:
+		for gate_i in plan["gates"].size():
+			var gate_angle: float = plan["gates"][gate_i]
+			var gate_dir := Vector2(cos(gate_angle), sin(gate_angle))
+			var gate_side := Vector2(-gate_dir.y, gate_dir.x)
+			for side_i in 2:
+				var side_sign := -1.0 if side_i == 0 else 1.0
+				var post := c + gate_dir * (r - 7.0) + gate_side * side_sign * 4.2 - gate_dir * 2.5
+				activity_spots.append({"type": "guard_post",
+					"position": Vector3(post.x, WorldGen.height(post.x, post.y), post.y),
+					"yaw": atan2(-gate_dir.x, -gate_dir.y),
+					"identity": "guard/gate/%d/side/%d" % [gate_i, side_i]})
 	plan["activity_spots"] = activity_spots
 	_market_dressing(root, s, plan, stall_spots, solid, corridors)
 	# A pair of town guards standing watch just inside every gate, as in the reference.

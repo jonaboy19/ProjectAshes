@@ -202,6 +202,8 @@ func _matches(type: String, t: Dictionary, f: Dictionary) -> bool:
 		var jn: String = JOBS[j] if typeof(j) == TYPE_INT and j >= 0 and j < JOBS.size() else String(j)
 		if not (t["jobs"] as Array).has(jn):
 			return false
+	if bool(f.get("job_required", false)) and not t.has("jobs"):
+		return false
 	if f.has("hour") and t.has("hours"):
 		var h := float(f["hour"])
 		var hr: Array = t["hours"]
@@ -332,6 +334,9 @@ func target_for(person: int, center: Vector3, act: String, job: int, hour: float
 	# customer position as their work station during the work phase.
 	if act == "work" and job != JOBS.find("Merchant"):
 		filter["exclude_types"] = ["market_stall"]
+		filter["job_required"] = true
+	if act == "work" and job == JOBS.find("Guard"):
+		filter["tags"] = ["guard"]
 	# Most schedule-goal refreshes ask for the same reservation again. Reuse it
 	# directly rather than scanning this settlement's complete activity list.
 	var current := held_by(person)
