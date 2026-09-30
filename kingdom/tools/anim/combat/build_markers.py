@@ -32,9 +32,12 @@ for a in args[1:]:
         mode.append(a)
 
 clips = {}
+contacts = {}   # clip -> frames the blade crosses the 1.3 m target (all strikes)
 # measured first
 for p in metrics:
     for c in json.load(open(p)):
+        if abs(c.get("rate", 1.0) - 1.0) < 1e-3:
+            contacts[c["clip"]] = c.get("target_contact", [])
         if not c.get("strikes") or "markers" not in c:
             continue
         m = c["markers"]
@@ -74,6 +77,8 @@ for p in authored:
         })
         if "step" in e:
             d["step_frames"] = e["step"]
+        tc = contacts.get(c["name"], [])
+        d["contact_on_target"] = any(abs(f - h) <= 1 for f in tc for h in d["hits"])
 
 doc = {"version": 1, "fps": 30,
        "doc": "docs/anim/COMBAT_AUDIT.md; built by kingdom/tools/anim/combat/build_markers.py. Frames at 30 fps, rate 1.0.",

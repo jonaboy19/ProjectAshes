@@ -1,0 +1,807 @@
+[
+ {
+  "name": "Sword_Light_1",
+  "loop": false,
+  "frames": 31,
+  "seconds": 1.0,
+  "events": {
+   "windup_end": 6,
+   "hit_start": 8,
+   "hit": 9,
+   "hit_end": 10,
+   "follow_end": 15,
+   "combo_window": [
+    11,
+    20
+   ],
+   "cancel_window": [
+    15,
+    30
+   ],
+   "step": [
+    7,
+    14
+   ]
+  },
+  "note": "light 1: forehand diagonal R->L; frame 15 == Sword_Light_2 frame 0",
+  "root_motion_m": 0.22
+ },
+ {
+  "name": "Sword_Light_2",
+  "loop": false,
+  "frames": 31,
+  "seconds": 1.0,
+  "events": {
+   "windup_end": 5,
+   "hit_start": 7,
+   "hit": 8,
+   "hit_end": 9,
+   "follow_end": 14,
+   "combo_window": [
+    10,
+    19
+   ],
+   "cancel_window": [
+    14,
+    30
+   ],
+   "step": [
+    6,
+    13
+   ]
+  },
+  "note": "light 2: backhand rising L->R; frame 0 == Sword_Light_1 frame 15, frame 14 == Sword_Light_3 frame 0",
+  "root_motion_m": 0.24
+ },
+ {
+  "name": "Sword_Light_3",
+  "loop": false,
+  "frames": 33,
+  "seconds": 1.067,
+  "events": {
+   "windup_end": 6,
+   "hit_start": 8,
+   "hit": 9,
+   "hit_end": 10,
+   "follow_end": 15,
+   "combo_window": [
+    11,
+    21
+   ],
+   "cancel_window": [
+    15,
+    32
+   ],
+   "step": [
+    7,
+    14
+   ]
+  },
+  "note": "light 3: horizontal R->L at chest height; frame 0 == Sword_Light_2 frame 14, frame 15 == Sword_Light_4 frame 0",
+  "root_motion_m": 0.26
+ },
+ {
+  "name": "Sword_Light_4",
+  "loop": false,
+  "frames": 42,
+  "seconds": 1.367,
+  "events": {
+   "windup_end": 13,
+   "hit_start": 15,
+   "hit": 16,
+   "hit_end": 18,
+   "follow_end": 23,
+   "combo_window": [],
+   "cancel_window": [
+    29,
+    41
+   ],
+   "step": [
+    14,
+    29
+   ]
+  },
+  "note": "light 4 (finisher): lunging thrust; frame 0 == Sword_Light_3 frame 15; commit, no chain",
+  "root_motion_m": 0.4
+ },
+ {
+  "name": "Sword_Light_1_Upper",
+  "loop": false,
+  "frames": 31,
+  "seconds": 1.0,
+  "events": {
+   "windup_end": 6,
+   "hit_start": 8,
+   "hit": 9,
+   "hit_end": 10,
+   "follow_end": 15,
+   "combo_window": [
+    11,
+    20
+   ],
+   "cancel_window": [
+    15,
+    30
+   ],
+   "step": [
+    7,
+    14
+   ]
+  },
+  "note": "light 1: forehand diagonal R->L; frame 15 == Sword_Light_2 frame 0 | upper-body layer variant (hip yaw folded into the spine)",
+  "root_motion_m": 0.22
+ },
+ {
+  "name": "Sword_Light_2_Upper",
+  "loop": false,
+  "frames": 31,
+  "seconds": 1.0,
+  "events": {
+   "windup_end": 5,
+   "hit_start": 7,
+   "hit": 8,
+   "hit_end": 9,
+   "follow_end": 14,
+   "combo_window": [
+    10,
+    19
+   ],
+   "cancel_window": [
+    14,
+    30
+   ],
+   "step": [
+    6,
+    13
+   ]
+  },
+  "note": "light 2: backhand rising L->R; frame 0 == Sword_Light_1 frame 15, frame 14 == Sword_Light_3 frame 0 | upper-body layer variant (hip yaw folded into the spine)",
+  "root_motion_m": 0.24
+ },
+ {
+  "name": "Sword_Light_3_Upper",
+  "loop": false,
+  "frames": 33,
+  "seconds": 1.067,
+  "events": {
+   "windup_end": 6,
+   "hit_start": 8,
+   "hit": 9,
+   "hit_end": 10,
+   "follow_end": 15,
+   "combo_window": [
+    11,
+    21
+   ],
+   "cancel_window": [
+    15,
+    32
+   ],
+   "step": [
+    7,
+    14
+   ]
+  },
+  "note": "light 3: horizontal R->L at chest height; frame 0 == Sword_Light_2 frame 14, frame 15 == Sword_Light_4 frame 0 | upper-body layer variant (hip yaw folded into the spine)",
+  "root_motion_m": 0.26
+ },
+ {
+  "name": "Sword_Light_4_Upper",
+  "loop": false,
+  "frames": 42,
+  "seconds": 1.367,
+  "events": {
+   "windup_end": 13,
+   "hit_start": 15,
+   "hit": 16,
+   "hit_end": 18,
+   "follow_end": 23,
+   "combo_window": [],
+   "cancel_window": [
+    29,
+    41
+   ],
+   "step": [
+    14,
+    29
+   ]
+  },
+  "note": "light 4 (finisher): lunging thrust; frame 0 == Sword_Light_3 frame 15; commit, no chain | upper-body layer variant (hip yaw folded into the spine)",
+  "root_motion_m": 0.4
+ },
+ {
+  "name": "Hit_Light_Front",
+  "loop": false,
+  "frames": 16,
+  "seconds": 0.5,
+  "events": {
+   "contact": 0,
+   "extreme": 2,
+   "recovered": 10
+  },
+  "note": "victim reaction to a hit from the front (push (0.0, 1.0))",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Hit_Heavy_Front",
+  "loop": false,
+  "frames": 27,
+  "seconds": 0.867,
+  "events": {
+   "contact": 0,
+   "extreme": 3,
+   "recovered": 20
+  },
+  "note": "victim reaction to a hit from the front (push (0.0, 1.0))",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Hit_Light_Back",
+  "loop": false,
+  "frames": 16,
+  "seconds": 0.5,
+  "events": {
+   "contact": 0,
+   "extreme": 2,
+   "recovered": 10
+  },
+  "note": "victim reaction to a hit from the back (push (0.0, -1.0))",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Hit_Heavy_Back",
+  "loop": false,
+  "frames": 27,
+  "seconds": 0.867,
+  "events": {
+   "contact": 0,
+   "extreme": 3,
+   "recovered": 20
+  },
+  "note": "victim reaction to a hit from the back (push (0.0, -1.0))",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Hit_Light_Left",
+  "loop": false,
+  "frames": 16,
+  "seconds": 0.5,
+  "events": {
+   "contact": 0,
+   "extreme": 2,
+   "recovered": 10
+  },
+  "note": "victim reaction to a hit from the left (push (-1.0, 0.0))",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Hit_Heavy_Left",
+  "loop": false,
+  "frames": 27,
+  "seconds": 0.867,
+  "events": {
+   "contact": 0,
+   "extreme": 3,
+   "recovered": 20
+  },
+  "note": "victim reaction to a hit from the left (push (-1.0, 0.0))",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Hit_Light_Right",
+  "loop": false,
+  "frames": 16,
+  "seconds": 0.5,
+  "events": {
+   "contact": 0,
+   "extreme": 2,
+   "recovered": 10
+  },
+  "note": "victim reaction to a hit from the right (push (1.0, 0.0))",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Hit_Heavy_Right",
+  "loop": false,
+  "frames": 27,
+  "seconds": 0.867,
+  "events": {
+   "contact": 0,
+   "extreme": 3,
+   "recovered": 20
+  },
+  "note": "victim reaction to a hit from the right (push (1.0, 0.0))",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Stagger_Back",
+  "loop": false,
+  "frames": 41,
+  "seconds": 1.333,
+  "events": {
+   "contact": 0,
+   "steps": [
+    9,
+    16,
+    23
+   ],
+   "recovered": 32
+  },
+  "note": "heavy stagger backwards, 0.63 m of pelvis travel (feet travel with it): drive the capsule 0.63 m back over 0.8 s or use root motion",
+  "root_motion_m": 0.63
+ },
+ {
+  "name": "Stagger_Forward",
+  "loop": false,
+  "frames": 41,
+  "seconds": 1.333,
+  "events": {
+   "contact": 0,
+   "steps": [
+    9,
+    16,
+    23
+   ],
+   "recovered": 32
+  },
+  "note": "heavy stagger forwards (hit from behind), 0.63 m of pelvis travel",
+  "root_motion_m": 0.63
+ },
+ {
+  "name": "Sword_Parry",
+  "loop": false,
+  "frames": 19,
+  "seconds": 0.6,
+  "events": {
+   "parry_active": [
+    2,
+    6
+   ],
+   "contact": 4,
+   "hit": 4,
+   "recoil_end": 8,
+   "cancel_window": [
+    9,
+    18
+   ]
+  },
+  "note": "fast 3-frame snap of the blade up-and-across meeting a blow at f4, small recoil, ready_pose at 0.6 s; rear foot steps back 5 cm at contact; no root motion",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Sword_Riposte",
+  "loop": false,
+  "frames": 34,
+  "seconds": 1.1,
+  "events": {
+   "windup_end": 6,
+   "hit_start": 8,
+   "hit": 9,
+   "hit_end": 11,
+   "combo_window": [
+    12,
+    20
+   ],
+   "cancel_window": [
+    14,
+    33
+   ],
+   "step_land": 9
+  },
+  "note": "counter after a parry: first frames continue the parry, blade cocks (f2-6), hips lead, front foot steps 0.35 m in (lands f9 with the thrust), rear foot follows f20-25. Root travel 0.35 m forward, ready_pose (relative to root) at 1.1 s",
+  "root_motion_m": 0.35
+ },
+ {
+  "name": "Shield_Bash_Step",
+  "loop": false,
+  "frames": 28,
+  "seconds": 0.9,
+  "events": {
+   "windup_end": 5,
+   "hit_start": 8,
+   "hit": 10,
+   "hit_end": 12,
+   "combo_window": [
+    13,
+    20
+   ],
+   "cancel_window": [
+    15,
+    27
+   ],
+   "step_land": 10
+  },
+  "note": "shield arm drives forward at head/chest height with a 0.30 m step-in, shoulder leads, hips turn first, sword arm pulls back as counterweight; contact f10; root travel 0.30 m; ready_pose (relative to root) at 0.9 s",
+  "root_motion_m": 0.3
+ },
+ {
+  "name": "Finisher_Stab_Through",
+  "loop": false,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {
+   "windup_end": 10,
+   "hit_start": 12,
+   "hit": 14,
+   "hit_end": 27,
+   "victim_react": 14,
+   "victim_down": 56,
+   "cancel_window": [
+    52,
+    60
+   ]
+  },
+  "note": "PAIR with Finisher_Stab_Through_Victim (same 61 frames). Victim root at attacker +1.2 m forward, rotated 180 deg. Thrust through the chest at f14 (tip ~0.3 m past the victim's back), 13 f hold with a twist, pull out + step back. Root travel 0.22 m net (lunge 0.36, steps back to 0.22).",
+  "root_motion_m": 0.22
+ },
+ {
+  "name": "Finisher_Stab_Through_Victim",
+  "loop": false,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {
+   "hit": 14,
+   "victim_react": 14,
+   "victim_down": 56,
+   "cancel_window": [
+    56,
+    60
+   ]
+  },
+  "note": "PAIR victim of Finisher_Stab_Through (61 frames). Authored in its own frame (faces -Y). The attacker stands 1.2 m in front of it, at local y = -1.2; the blade enters the chest at f14 and its tip ends ~0.5 m behind the victim's pelvis (local +Y). Ends face-down on the ground with the head toward the attacker (local -Y), terminal.",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Finisher_Overhead_Cleave",
+  "loop": false,
+  "frames": 55,
+  "seconds": 1.8,
+  "events": {
+   "windup_end": 17,
+   "hit_start": 18,
+   "hit": 20,
+   "hit_end": 23,
+   "victim_react": 20,
+   "victim_down": 42,
+   "cancel_window": [
+    40,
+    54
+   ]
+  },
+  "note": "PAIR with Finisher_Overhead_Cleave_Victim (same 55 frames). Victim (kneeling) root at attacker +1.2 m forward rotated 180 deg. Long overhead windup on the toes (f0-16), 3-frame cleave, blade meets the victim's shoulder/neck line at f20 (tip ~1.15 m ahead of the attacker origin at z ~1.0), overshoot to the ground side. Root travel 0.35 m.",
+  "root_motion_m": 0.35
+ },
+ {
+  "name": "Finisher_Overhead_Cleave_Victim",
+  "loop": false,
+  "frames": 55,
+  "seconds": 1.8,
+  "events": {
+   "hit": 20,
+   "victim_react": 20,
+   "victim_down": 42,
+   "cancel_window": [
+    42,
+    54
+   ]
+  },
+  "note": "PAIR victim of Finisher_Overhead_Cleave (55 frames). Own frame (faces -Y); starts kneeling and swaying; the attacker stands 1.2 m in front (local y = -1.2). Shoulder/neck line at local (x~0, y~-0.1, z~1.0). Collapses sideways onto its left side (+X), terminal.",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Finisher_Spin_Slash",
+  "loop": false,
+  "frames": 51,
+  "seconds": 1.667,
+  "events": {
+   "windup_end": 5,
+   "hit_start": 14,
+   "hit": 16,
+   "hit_end": 19,
+   "victim_react": 16,
+   "victim_down": 34,
+   "cancel_window": [
+    44,
+    50
+   ]
+  },
+  "note": "PAIR with Finisher_Spin_Slash_Victim (same 51 frames). Victim root at attacker +1.2 m forward rotated 180 deg. 0.25 m step-in with the front foot, then a 360 deg spin on that planted foot (hips lead, chest lags 1 f, arm whips), horizontal slash through neck/chest height at f16, flourish (blade flick) f26-37. Root travel 0.25 m.",
+  "root_motion_m": 0.25
+ },
+ {
+  "name": "Finisher_Spin_Slash_Victim",
+  "loop": false,
+  "frames": 51,
+  "seconds": 1.667,
+  "events": {
+   "hit": 16,
+   "victim_react": 16,
+   "victim_down": 34,
+   "cancel_window": [
+    34,
+    50
+   ]
+  },
+  "note": "PAIR victim of Finisher_Spin_Slash (51 frames). Own frame (faces -Y); the attacker stands 1.2 m in front at local y = -1.2. Neck/chest line at local z ~1.3-1.5. Twists right on the slash, then falls backwards (+Y local) onto its back, terminal (head at local y ~ +1.3).",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Sword_Heavy_Charge_Start",
+  "loop": false,
+  "frames": 11,
+  "seconds": 0.333,
+  "events": {
+   "windup_end": 10,
+   "charge_ready": 10
+  },
+  "note": "ready -> deep coiled charge pose (0.33 s); start of the hold loop",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Sword_Heavy_Charge_Hold",
+  "loop": true,
+  "frames": 31,
+  "seconds": 1.0,
+  "events": {
+   "loop": [
+    0,
+    30
+   ]
+  },
+  "note": "charge hold: breathing + arm tremor; first frame == last frame == Charge_Start end pose",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Sword_Heavy_Release",
+  "loop": false,
+  "frames": 37,
+  "seconds": 1.2,
+  "events": {
+   "windup_end": 1,
+   "hit_start": 3,
+   "hit": 5,
+   "hit_end": 7,
+   "combo_window": [
+    16,
+    26
+   ],
+   "cancel_window": [
+    12,
+    36
+   ]
+  },
+  "note": "release from the charge pose: hips-led unwind, overhead diagonal cut, lunge 0.45 m",
+  "root_motion_m": 0.45
+ },
+ {
+  "name": "Sword_Run_Attack",
+  "loop": false,
+  "frames": 31,
+  "seconds": 1.0,
+  "events": {
+   "windup_end": 5,
+   "hit_start": 6,
+   "hit": 8,
+   "hit_end": 10,
+   "combo_window": [
+    17,
+    26
+   ],
+   "cancel_window": [
+    14,
+    30
+   ],
+   "skid_end": 16
+  },
+  "note": "played at ~6 m/s: starts mid-stride (right foot forward), jump-step, skid 1.6 m decelerating, rising diagonal cut; first frame is a running pose (blend from the run cycle), last frame == ready_pose",
+  "root_motion_m": 1.6
+ },
+ {
+  "name": "TwoHand_Overhead",
+  "loop": false,
+  "frames": 46,
+  "seconds": 1.5,
+  "events": {
+   "windup_end": 14,
+   "hit_start": 15,
+   "hit": 17,
+   "hit_end": 19,
+   "bounce_end": 24,
+   "combo_window": [
+    30,
+    40
+   ],
+   "cancel_window": [
+    26,
+    45
+   ]
+  },
+  "note": "two-hander overhead chop: 12 f rising anticipation, moving hold, 3 f chop with 0.35 m step-in, ground bounce; left hand grabs the hilt 0.11 m below the right during the wind-up and lets go in the recovery",
+  "root_motion_m": 0.35
+ },
+ {
+  "name": "Spear_Thrust_1",
+  "loop": false,
+  "frames": 25,
+  "seconds": 0.8,
+  "events": {
+   "windup_end": 3,
+   "hit_start": 5,
+   "hit": 7,
+   "hit_end": 9,
+   "combo_window": [
+    11,
+    20
+   ],
+   "cancel_window": [
+    10,
+    24
+   ]
+  },
+  "note": "quick jab from the spear guard, 0.25 m step-in",
+  "root_motion_m": 0.25
+ },
+ {
+  "name": "Spear_Thrust_2",
+  "loop": false,
+  "frames": 29,
+  "seconds": 0.933,
+  "events": {
+   "windup_end": 5,
+   "hit_start": 6,
+   "hit": 8,
+   "hit_end": 10,
+   "combo_window": [
+    13,
+    24
+   ],
+   "cancel_window": [
+    12,
+    28
+   ]
+  },
+  "note": "retract to the hip, hip-driven twisting thrust, 0.35 m step-in",
+  "root_motion_m": 0.35
+ },
+ {
+  "name": "Spear_Thrust_3",
+  "loop": false,
+  "frames": 41,
+  "seconds": 1.333,
+  "events": {
+   "windup_end": 5,
+   "sweep_start": 5,
+   "hit_start": 10,
+   "hit": 12,
+   "hit_end": 14,
+   "combo_window": [
+    20,
+    34
+   ],
+   "cancel_window": [
+    16,
+    40
+   ]
+  },
+  "note": "finisher: low-to-high sweeping arc into a lunging long thrust, 0.5 m step",
+  "root_motion_m": 0.5
+ },
+ {
+  "name": "Bow_Draw",
+  "loop": false,
+  "frames": 17,
+  "seconds": 0.533,
+  "events": {
+   "contact": 0,
+   "nock": 7,
+   "anchor_frame": 16
+  },
+  "note": "ready -> nock -> full draw side-on (0.53 s); ends at the Hold pose",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Bow_Hold",
+  "loop": true,
+  "frames": 37,
+  "seconds": 1.2,
+  "events": {
+   "anchor_frame": 0
+  },
+  "note": "full draw held, breathing + 1-2 mm tremor; first == last == Bow_Draw end",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Bow_Loose",
+  "loop": false,
+  "frames": 19,
+  "seconds": 0.6,
+  "events": {
+   "contact": 0,
+   "release": 1,
+   "extreme": 3,
+   "recovered": 18
+  },
+  "note": "string released on f1: draw hand flies back past the ear, bow arm kicks forward/down 2-3 deg, follow-through, then back to bow_ready (0.6 s)",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Bow_Aim_Up",
+  "loop": false,
+  "frames": 4,
+  "seconds": 0.1,
+  "events": {
+   "pitch_deg": 35
+  },
+  "note": "full draw aimed +35 deg up (spine bends), 0.1 s pose",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Bow_Aim_Down",
+  "loop": false,
+  "frames": 4,
+  "seconds": 0.1,
+  "events": {
+   "pitch_deg": -30
+  },
+  "note": "full draw aimed -30 deg down, 0.1 s pose",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Death_1H_Front",
+  "loop": false,
+  "frames": 49,
+  "seconds": 1.6,
+  "events": {
+   "contact": 0,
+   "knees": 14,
+   "down": 25,
+   "bounce": 28
+  },
+  "note": "sword+shield: hit from the front. Recoil, knees buckle, twist, sword hand opens, falls on the back (1.6 s); 0.56 m of pelvis travel backwards; terminal: lying on the back, head +Y",
+  "root_motion_m": 0.56
+ },
+ {
+  "name": "Death_1H_Back",
+  "loop": false,
+  "frames": 55,
+  "seconds": 1.8,
+  "events": {
+   "contact": 0,
+   "step": 9,
+   "knees": 15,
+   "down": 25,
+   "bounce": 28
+  },
+  "note": "sword+shield: hit from behind. Arches, arms fly back, one stumbling step forward, knees, falls face-down (1.8 s); 0.5 m of pelvis travel forward; terminal: lying face-down, head -Y",
+  "root_motion_m": 0.5
+ },
+ {
+  "name": "Death_2H_Knees",
+  "loop": false,
+  "frames": 67,
+  "seconds": 2.2,
+  "events": {
+   "contact": 0,
+   "knees": 14,
+   "plant": 22,
+   "down": 50,
+   "bounce": 54
+  },
+  "note": "two-hand sword: gut hit, drops to both knees, leans on the sword planted point-down for a beat, slides off to the left and lies on its side (2.2 s); 0.4 m travel; terminal: lying on the left side, head +X",
+  "root_motion_m": 0.4
+ },
+ {
+  "name": "Death_Bow_Side",
+  "loop": false,
+  "frames": 46,
+  "seconds": 1.5,
+  "events": {
+   "contact": 0,
+   "knees": 15,
+   "down": 24,
+   "bounce": 27
+  },
+  "note": "bow: arrow/hit from the left. Body spins 90 deg away (chest first), bow flies out, legs fold, collapses on the right side (1.5 s); 0.43 m travel; terminal: lying on the right side, head +Y",
+  "root_motion_m": 0.43
+ }
+]

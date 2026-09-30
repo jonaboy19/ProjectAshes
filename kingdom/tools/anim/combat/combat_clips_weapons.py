@@ -348,7 +348,7 @@ def charge_hold():
     return gen(30, ch, tip_len=0.75, edge="anch", nanch=[(0, tuple(charge_n()))], post=post)
 
 
-clip("Sword_Heavy_Charge_Hold_Loop", loop=True, events={"loop": [0, 30]},
+clip("Sword_Heavy_Charge_Hold", loop=True, events={"loop": [0, 30]},
      note="charge hold: breathing + arm tremor; first frame == last frame == Charge_Start end pose")(charge_hold)
 
 

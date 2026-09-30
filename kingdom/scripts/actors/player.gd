@@ -149,10 +149,13 @@ const COMBO := [
 	# tools_qa/feel_capture/measure_hits.gd, divided by "speed"); damage, hitstop and sparks land
 	# there and the slash arc starts SLASH_LEAD earlier (FEEL_AUDIT F3: the old values fired the
 	# horizontal slice 0.2 s before its blade moved).
-	{"anim": "1H_Melee_Attack_Chop", "damage": 14, "lock": 0.42, "hit": 0.15, "speed": 1.7, "cost": 10.0},
-	{"anim": "1H_Melee_Attack_Slice_Diagonal", "damage": 14, "lock": 0.42, "hit": 0.16, "speed": 1.7, "cost": 10.0},
-	{"anim": "1H_Melee_Attack_Slice_Horizontal", "damage": 18, "lock": 0.5, "hit": 0.29, "speed": 2.2, "cost": 12.0},
-	{"anim": "1H_Melee_Attack_Stab", "damage": 30, "lock": 0.6, "hit": 0.29, "speed": 1.4, "cost": 16.0, "knockback": 7.0},
+	# COMBAT_AUDIT C1-C3 (2026-09-30): the UAL strike-only clips never put the blade through a target in front on the
+	# upper-body layer; the authored Sword_Light_N_Upper set (animations/combat/UAL_Combat.glb) does, on its contact
+	# frame: hit = contact frame / 30 / speed (L1 f9, L2 f7, L3 f9, L4 f16), lock = follow-through end (f15/14/15/23).
+	{"anim": "Sword_Light_1_Upper", "damage": 14, "lock": 0.42, "hit": 0.25, "speed": 1.2, "cost": 10.0},
+	{"anim": "Sword_Light_2_Upper", "damage": 14, "lock": 0.39, "hit": 0.19, "speed": 1.2, "cost": 10.0},
+	{"anim": "Sword_Light_3_Upper", "damage": 18, "lock": 0.42, "hit": 0.25, "speed": 1.2, "cost": 12.0},
+	{"anim": "Sword_Light_4_Upper", "damage": 30, "lock": 0.64, "hit": 0.44, "speed": 1.2, "cost": 16.0, "knockback": 7.0},
 ]
 ## The slash arc needs ~0.07 s to read, so it spawns this long before the hit.
 const SLASH_LEAD := 0.07
@@ -181,6 +184,7 @@ var _camera_arm: SpringArm3D
 var _model: Node3D
 var _animator: CharacterAnimator
 var _rig: Node
+var _trail: WeaponTrail          # blade ribbon on the fast frames (COMBAT_AUDIT C4)
 var _ragdoll: Node
 var _viewmodel: Node3D
 var _shake := CameraShake.new()
@@ -261,6 +265,7 @@ func _ready() -> void:
 	# animation -> look-at -> foot IK -> secondary motion.
 	_rig = ProceduralRig.attach(body, self, true)
 	_animator.rig = _rig
+	_trail = WeaponTrail.attach(body)
 	_pivot = Node3D.new()
 	_pivot.position.y = 1.55
 	add_child(_pivot)
@@ -1148,10 +1153,15 @@ func _start_swing() -> void:
 		arc_col = Color(1.0, 0.97, 0.55)
 	var id := _swing_id
 	var combo := _combo
-	get_tree().create_timer(maxf(hit_t - SLASH_LEAD, 0.02)).timeout.connect(func() -> void:
-		if is_inside_tree() and id == _swing_id:
-			VFX.slash(get_parent(), global_position + Vector3(0, 1.15 * Life.body_scale(), 0), yaw,
-				tilts[combo % tilts.size()], arc_col, 1.6))
+	if _trail and not _viewmodel.visible:
+		# Blade-synced ribbon from the clip's marker window replaces the fixed crescent (it sat above the
+		# enemy's head while the blade was low: COMBAT_AUDIT C4).
+		_trail.swing(step["anim"], step["speed"] * (0.7 if weak else 1.0))
+	else:
+		get_tree().create_timer(maxf(hit_t - SLASH_LEAD, 0.02)).timeout.connect(func() -> void:
+			if is_inside_tree() and id == _swing_id:
+				VFX.slash(get_parent(), global_position + Vector3(0, 1.15 * Life.body_scale(), 0), yaw,
+					tilts[combo % tilts.size()], arc_col, 1.6))
 	get_tree().create_timer(hit_t).timeout.connect(_resolve_hit.bind(damage, knock, _combo == COMBO.size() - 1, id))
 
 
@@ -1201,6 +1211,8 @@ func _start_dodge(is_ability: bool) -> void:
 	if _swing > 0.0:
 		_swing_id += 1          # a pending hit frame no longer lands
 		_animator.stop_upper()
+		if _trail:
+			_trail.stop()
 	_swing = 0.0
 	_attack_buffer = 0.0
 	_impulse = Vector3.ZERO
