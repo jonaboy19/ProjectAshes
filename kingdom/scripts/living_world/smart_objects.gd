@@ -114,6 +114,20 @@ func populate_settlement(s: Dictionary, height_fn: Callable = Callable()) -> int
 			var identity := "settlement/%d/%s/%s/%d/%s" % [settlement_id, item_identity, key, spot_i, String(e["type"])]
 			add(e["type"], Transform3D(b * Basis(Vector3.UP, deg_to_rad(float(e.get("yaw", 0.0)))), o), settlement_id, identity)
 			n += 1
+	# Some activity spots are laid out only when their streamed presentation is
+	# built (market stalls receive exact collision-clearance adjustments there).
+	# Consume the resulting plain data without owning or instancing those visuals.
+	for external_i in (plan.get("activity_spots", []) as Array).size():
+		var e: Dictionary = plan["activity_spots"][external_i]
+		var type := String(e.get("type", ""))
+		var identity := String(e.get("identity", ""))
+		if type.is_empty() or identity.is_empty() or typeof(e.get("position")) != TYPE_VECTOR3:
+			continue
+		var p: Vector3 = e["position"]
+		var yaw := float(e.get("yaw", 0.0))
+		add(type, Transform3D(Basis(Vector3.UP, yaw), p), settlement_id,
+			"settlement/%d/%s" % [settlement_id, identity])
+		n += 1
 	return n
 
 
@@ -142,8 +156,15 @@ func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1) -> Arr
 					if sp["holders"][k] != -1 and sp["holders"][k] != person:
 						continue
 					var role := String(slots[k].get("role", ""))
-					if filter.has("role") and role != "" and role != filter["role"]:
+					if filter.has("role") and role != filter["role"]:
 						continue
+					# Slot-specific eligibility supports shared affordances such as a
+					# merchant-only vendor position beside public customer positions.
+					if filter.has("job") and slots[k].has("jobs"):
+						var j = filter["job"]
+						var jn: String = JOBS[j] if typeof(j) == TYPE_INT and j >= 0 and j < JOBS.size() else String(j)
+						if not (slots[k]["jobs"] as Array).has(jn):
+							continue
 					var score := d + float(absi(hash(person * 7 + id * 131 + k)) % 100) * 0.03
 					if sp["holders"][k] == person:
 						score -= 1.0  # small hysteresis keeps a valid activity stable
@@ -154,6 +175,8 @@ func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1) -> Arr
 
 
 func _matches(type: String, t: Dictionary, f: Dictionary) -> bool:
+	if (f.get("exclude_types", []) as Array).has(type):
+		return false
 	if f.has("type") and f["type"] != type:
 		return false
 	if f.has("act") and not (t.get("acts", []) as Array).has(f["act"]):
@@ -283,8 +306,15 @@ func activity(spot: int, slot := 0) -> Dictionary:
 
 ## WorldSim hook for data-tier people: 2D approach target for (person, act, job) near a settlement centre,
 ## soft-claimed (occupancy counted) so a crowd spreads over the spots. Vector2.INF when none.
-func target_for(person: int, center: Vector3, act: String, job: int, hour: float, radius := 120.0) -> Vector2:
-	var pick := find(center, {"act": act, "job": job, "hour": hour}, radius, person)
+func target_for(person: int, center: Vector3, act: String, job: int, hour: float, radius := 120.0, role := "") -> Vector2:
+	var filter := {"act": act, "job": job, "hour": hour}
+	if not role.is_empty():
+		filter["role"] = role
+	# Public workers can visit stalls as customers, but should not treat a
+	# customer position as their work station during the work phase.
+	if act == "work" and job != JOBS.find("Merchant"):
+		filter["exclude_types"] = ["market_stall"]
+	var pick := find(center, filter, radius, person)
 	if pick.is_empty():
 		return Vector2.INF
 	claim(pick[0], pick[1], person)

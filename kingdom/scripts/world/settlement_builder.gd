@@ -218,6 +218,14 @@ func _build(s: Dictionary) -> Node3D:
 	var stand_3_a := st_a.slice((st_a.size() + 1) / 2)
 	var stand_2_b := st_b.slice(0, (st_b.size() + 1) / 2)
 	var stand_4_b := st_b.slice((st_b.size() + 1) / 2)
+	var activity_spots: Array[Dictionary] = []
+	for group_name in ["a", "b"]:
+		var placements: Array = st_a if group_name == "a" else st_b
+		for i in placements.size():
+			var placement: Transform3D = placements[i]
+			activity_spots.append({"type": "market_stall", "position": placement.origin,
+				"yaw": placement.basis.get_euler().y, "identity": "market/plaza/%s/%d" % [group_name, i]})
+	plan["activity_spots"] = activity_spots
 	_multimesh(root, Assets.building_mesh("market_stand_1"), stand_1_a, true, true)
 	_multimesh(root, Assets.building_mesh("market_stand_3"), stand_3_a, true, true)
 	_multimesh(root, Assets.building_mesh("market_stand_2"), stand_2_b, true, true)
@@ -1266,6 +1274,16 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 				add.call("barrel_cluster", tbx, ty)
 	# Goods on and around every stall and at the townhouse shop fronts (MarketGoods): render-only.
 	stalls_by_town[s["id"]] = stall_spots
+	# Publish the final, clearance-adjusted placements as data so WorldSim's
+	# SmartObjects index can send shoppers to the actual stalls, not guessed points.
+	var activity_spots: Array = plan.get("activity_spots", []).duplicate()
+	for i in stall_spots.size():
+		var stall: Array = stall_spots[i]
+		var p: Vector2 = stall[1]
+		activity_spots.append({"type": "market_stall",
+			"position": Vector3(p.x, WorldGen.height(p.x, p.y), p.y),
+			"yaw": float(stall[2]), "identity": "market/street/%d" % i})
+	plan["activity_spots"] = activity_spots
 	_market_dressing(root, s, plan, stall_spots, solid, corridors)
 	# A pair of town guards standing watch just inside every gate, as in the reference.
 	if plan["walls"]:

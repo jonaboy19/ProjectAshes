@@ -69,7 +69,7 @@ var _near_next := 0.0
 ## Semantic work targets are resolved only for settlements in the existing near-simulation ring.
 ## Distant rows keep their deterministic cheap schedule targets.
 var smart: SmartObjects
-var _smart_done: Dictionary = {}             # settlement id -> spots populated
+var _smart_done: Dictionary = {}             # settlement id -> external activity spot count indexed
 var _near_settlement_ids: Dictionary = {}    # settlement id -> true, rebuilt with _near_ids
 
 
@@ -450,15 +450,18 @@ func _spot(s: Dictionary, which: int, i: int) -> Vector2:
 	if which != 0 and smart != null:
 		var sid := int(s["id"])
 		if _near_settlement_ids.has(sid):
-			if not _smart_done.has(sid):
-				_smart_done[sid] = true
-				smart.populate_settlement(s, WorldGen.height)
 			var act := "work" if which == 1 else "shop"
+			var role := "vendor" if which == 1 and job[i] == 2 else ("customer" if which == 2 else "")
 			var center: Vector2 = s["pos"]
 			var center_3d := Vector3(center.x, WorldGen.height(center.x, center.y), center.y)
+			var near_plan: Dictionary = s.get("plan", {})
+			var activity_spots: Array = near_plan.get("activity_spots", [])
+			if int(_smart_done.get(sid, -1)) != activity_spots.size():
+				smart.populate_settlement(s, WorldGen.height)
+				_smart_done[sid] = activity_spots.size()
 			var semantic_target := smart.target_for(i, center_3d, act,
 				job[i] if i < job.size() else 4, time_of_day,
-				minf(float(s["radius"]) * 2.5, SMART_TARGET_MAX_RADIUS))
+				minf(float(s["radius"]) * 2.5, SMART_TARGET_MAX_RADIUS), role)
 			if semantic_target != Vector2.INF:
 				return semantic_target
 	var r: float = s["radius"]

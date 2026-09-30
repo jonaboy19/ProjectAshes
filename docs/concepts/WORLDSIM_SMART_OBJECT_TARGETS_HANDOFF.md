@@ -21,7 +21,7 @@ Settlement spots are populated lazily once per near settlement using `WorldGen.h
 
 Please preserve the `WorldSim.smart`, `_smart_done`, and `_near_settlement_ids` adapter when working on `world_sim.gd`. If P13a later connects embodied actors, use the same WorldSim-owned spot/slot claim or define an explicit atomic handoff; do not create a second competing claim owner. On demotion/despawn, release only the actor's matching claim. Schedule changes/load/reset already invalidate transient claims, so the actor session must treat revocation as cancellation and must not snap to stale targets.
 
-The existing P13 proposal in `docs/anim/patches/P13_world_sim_smart_objects.md` remains useful context, but this adapter is narrower than the proposal's unbounded all-settlement wording: it is near-ring only and preserves fallback targets. Before expanding it, profile phase changes, first-time spot population, and time skips on target mobile hardware.
+The existing P13 proposal in `docs/anim/patches/P13_world_sim_smart_objects.md` remains useful context, but this adapter is narrower than the proposal's unbounded all-settlement wording: it is near-ring only and preserves fallback targets. Market spots arrive when `SettlementBuilder` streams the town in; WorldSim detects the new activity-spot count and idempotently indexes the added stable IDs on its next work/market goal request. Before expanding it, profile phase changes, first-time spot population, and time skips on target mobile hardware.
 
 ## Next useful system step
 
