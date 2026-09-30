@@ -20,9 +20,9 @@ const WALK_SPEED := 1.3
 ## CPU budget for the whole-world sim per frame, and the radius around the player that is kept fresh.
 const BUDGET_US := 500
 const NEAR_RADIUS := 320.0
-## SmartObjects.find() walks the covered 16 m grid square; cap its radius so a
-## large settlement can't turn one phase transition into an unbounded scan.
-const SMART_TARGET_MAX_RADIUS := 128.0
+## Keep schedule destinations local to the settlement; SmartObjects uses a
+## per-settlement candidate list, so this range can include the outer farm rows.
+const SMART_TARGET_MAX_RADIUS := 256.0
 ## Real seconds per in-game day.
 const DAY_LENGTH := 720.0
 const FIRST := ["Marcus", "Aldric", "Edda", "Hild", "Osric", "Wynn", "Bertram", "Maud", "Cedric", "Agnes",
@@ -447,6 +447,10 @@ func _on_phase_change(i: int, old: int, new_phase: int) -> void:
 
 ## Deterministic point of interest for a person and phase.
 func _spot(s: Dictionary, which: int, i: int) -> Vector2:
+	if which == 0 and smart != null:
+		# DailyRhythm can return home before the coarse WorldSim phase changes.
+		# Release the old work slot when that resident's own schedule goal does.
+		smart.release(i)
 	if which != 0 and smart != null:
 		var sid := int(s["id"])
 		if _near_settlement_ids.has(sid):
@@ -461,7 +465,7 @@ func _spot(s: Dictionary, which: int, i: int) -> Vector2:
 				_smart_done[sid] = activity_spots.size()
 			var semantic_target := smart.target_for(i, center_3d, act,
 				job[i] if i < job.size() else 4, time_of_day,
-				minf(float(s["radius"]) * 2.5, SMART_TARGET_MAX_RADIUS), role)
+				minf(float(s["radius"]) * 2.5, SMART_TARGET_MAX_RADIUS), role, sid)
 			if semantic_target != Vector2.INF:
 				return semantic_target
 	var r: float = s["radius"]

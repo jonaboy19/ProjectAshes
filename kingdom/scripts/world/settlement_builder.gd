@@ -862,6 +862,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 	var c: Vector2 = s["pos"]
 	var r: float = s["radius"]
 	var tiles: Array[Transform3D] = []
+	var activity_spots: Array = plan.get("activity_spots", []).duplicate()
 	var fences: Array[Transform3D] = []
 	var stacks: Array[Transform3D] = []
 	var placed: Array[Vector2] = []
@@ -881,6 +882,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		var yaw := ang + PI * 0.5
 		var bx := Vector2(cos(yaw), -sin(yaw))
 		var bz := Vector2(sin(yaw), cos(yaw))
+		var field_index := placed.size() - 1
 		for ix in nx:
 			for iz in nz:
 				var p := fc + bx * (ix - (nx - 1) * 0.5) * 10.0 + bz * (iz - (nz - 1) * 0.5) * 10.0
@@ -889,7 +891,11 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 				# tile sampled only at its centre (the old code) could float or bury by
 				# most of the local slope across its width. Corner-snap it like a
 				# building lot instead.
-				tiles.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, _ground_snap(p, yaw, Vector3(10.0, 1.0, 10.0), 0.05), p.y)))
+				var tile_xform := Transform3D(Basis(Vector3.UP, yaw),
+					Vector3(p.x, _ground_snap(p, yaw, Vector3(10.0, 1.0, 10.0), 0.05), p.y))
+				tiles.append(tile_xform)
+				activity_spots.append({"type": "field_row", "position": tile_xform.origin, "yaw": yaw,
+					"identity": "farm/field/%d/tile/%d" % [field_index, ix * nz + iz]})
 		# Fence around the field (3 m sections), leaving a gap on one side.
 		var hx := nx * 5.0 + 1.0
 		var hz := nz * 5.0 + 1.0
@@ -919,6 +925,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		body.rotation.y = hy
 		body.add_child(shape)
 		root.add_child(body)
+	plan["activity_spots"] = activity_spots
 	# One batch instead of a node per haystack (5 surfaces each: 25 draws in view).
 	_multimesh_cells(root, Assets.building_mesh("haystack"), stacks, 60.0, 0.0, false)
 	_multimesh_cells(root, Assets.building_mesh("field_crops"), tiles, 60.0, 0.0, false)

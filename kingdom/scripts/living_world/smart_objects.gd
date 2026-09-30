@@ -26,6 +26,7 @@ var types: Dictionary = {}
 var building_spots: Dictionary = {}
 var spots: Array = []               # Array[Dictionary]: {id, identity, has_stable_identity, type, xform, settlement, holders, drift}
 var _grid: Dictionary = {}          # Vector2i -> Array[int]
+var _settlement_spots: Dictionary = {} # settlement id -> Array[int], for bounded local schedule queries
 var _held: Dictionary = {}          # person -> [spot, slot, claim_token]
 var _spot_by_identity: Dictionary = {} # stable identity -> transient spot index
 var _claim_serial := 0
@@ -60,6 +61,10 @@ func add(type: String, xform: Transform3D, settlement := -1, stable_identity := 
 		"settlement": settlement, "holders": holders, "drift": 0.0})
 	if not stable_identity.is_empty():
 		_spot_by_identity[stable_identity] = id
+	if settlement >= 0:
+		if not _settlement_spots.has(settlement):
+			_settlement_spots[settlement] = []
+		(_settlement_spots[settlement] as Array).append(id)
 	var c := _cell(xform.origin)
 	if not _grid.has(c):
 		_grid[c] = []
@@ -132,46 +137,57 @@ func populate_settlement(s: Dictionary, height_fn: Callable = Callable()) -> int
 
 
 ## Best free [spot, slot] near pos for a filter {act, job (name or index), hour, kid, tags: [...], type, role},
-## or [] when nothing fits. Score = distance, a little noise per person so neighbours spread out.
+## optionally limited to one `settlement` candidate list; [] when nothing fits. Score = distance plus person noise.
 func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1) -> Array:
 	var best := []
 	var best_s := INF
-	var r := int(ceil(radius / CELL))
-	var c0 := _cell(pos)
-	for dx in range(-r, r + 1):
-		for dz in range(-r, r + 1):
-			for id: int in _grid.get(c0 + Vector2i(dx, dz), []):
-				var sp: Dictionary = spots[id]
-				var t: Dictionary = types[sp["type"]]
-				if not _matches(sp["type"], t, filter):
-					continue
-				var d := (sp["xform"] as Transform3D).origin.distance_to(pos)
-				if d > radius:
-					continue
-				var slots: Array = t["slots"]
-				for k in slots.size():
-					# A data-tier resident often asks for its schedule target again on
-					# every coarse simulation step. Keep its existing slot eligible so
-					# refreshing the same goal does not make it churn through the queue.
-					if sp["holders"][k] != -1 and sp["holders"][k] != person:
-						continue
-					var role := String(slots[k].get("role", ""))
-					if filter.has("role") and role != filter["role"]:
-						continue
-					# Slot-specific eligibility supports shared affordances such as a
-					# merchant-only vendor position beside public customer positions.
-					if filter.has("job") and slots[k].has("jobs"):
-						var j = filter["job"]
-						var jn: String = JOBS[j] if typeof(j) == TYPE_INT and j >= 0 and j < JOBS.size() else String(j)
-						if not (slots[k]["jobs"] as Array).has(jn):
-							continue
-					var score := d + float(absi(hash(person * 7 + id * 131 + k)) % 100) * 0.03
-					if sp["holders"][k] == person:
-						score -= 1.0  # small hysteresis keeps a valid activity stable
-					if score < best_s:
-						best_s = score
-						best = [id, k]
+	var candidate_ids: Array = []
+	if filter.has("settlement"):
+		candidate_ids = _settlement_spots.get(int(filter["settlement"]), [])
+	else:
+		var r := int(ceil(radius / CELL))
+		var c0 := _cell(pos)
+		for dx in range(-r, r + 1):
+			for dz in range(-r, r + 1):
+				candidate_ids.append_array(_grid.get(c0 + Vector2i(dx, dz), []))
+	for id: int in candidate_ids:
+		var sp: Dictionary = spots[id]
+		var t: Dictionary = types[sp["type"]]
+		if not _matches(sp["type"], t, filter):
+			continue
+		var d := (sp["xform"] as Transform3D).origin.distance_to(pos)
+		if d > radius:
+			continue
+		var slots: Array = t["slots"]
+		for k in slots.size():
+			# A data-tier resident often asks for its schedule target again on
+			# every coarse simulation step. Keep its existing slot eligible so
+			# refreshing the same goal does not make it churn through the queue.
+			if sp["holders"][k] != -1 and sp["holders"][k] != person:
+				continue
+			if not _slot_matches(slots[k], filter):
+				continue
+			var score := d + float(absi(hash(person * 7 + id * 131 + k)) % 100) * 0.03
+			if sp["holders"][k] == person:
+				score -= 1.0  # small hysteresis keeps a valid activity stable
+			if score < best_s:
+				best_s = score
+				best = [id, k]
 	return best
+
+
+func _slot_matches(slot: Dictionary, filter: Dictionary) -> bool:
+	var role := String(slot.get("role", ""))
+	if filter.has("role") and role != filter["role"]:
+		return false
+	# Slot-specific eligibility supports shared affordances such as a
+	# merchant-only vendor position beside public customer positions.
+	if filter.has("job") and slot.has("jobs"):
+		var j = filter["job"]
+		var jn: String = JOBS[j] if typeof(j) == TYPE_INT and j >= 0 and j < JOBS.size() else String(j)
+		if not (slot["jobs"] as Array).has(jn):
+			return false
+	return true
 
 
 func _matches(type: String, t: Dictionary, f: Dictionary) -> bool:
@@ -306,14 +322,34 @@ func activity(spot: int, slot := 0) -> Dictionary:
 
 ## WorldSim hook for data-tier people: 2D approach target for (person, act, job) near a settlement centre,
 ## soft-claimed (occupancy counted) so a crowd spreads over the spots. Vector2.INF when none.
-func target_for(person: int, center: Vector3, act: String, job: int, hour: float, radius := 120.0, role := "") -> Vector2:
+func target_for(person: int, center: Vector3, act: String, job: int, hour: float, radius := 120.0, role := "", settlement_id := -1) -> Vector2:
 	var filter := {"act": act, "job": job, "hour": hour}
+	if settlement_id >= 0:
+		filter["settlement"] = settlement_id
 	if not role.is_empty():
 		filter["role"] = role
 	# Public workers can visit stalls as customers, but should not treat a
 	# customer position as their work station during the work phase.
 	if act == "work" and job != JOBS.find("Merchant"):
 		filter["exclude_types"] = ["market_stall"]
+	# Most schedule-goal refreshes ask for the same reservation again. Reuse it
+	# directly rather than scanning this settlement's complete activity list.
+	var current := held_by(person)
+	if current.size() >= 2:
+		var spot_id := int(current[0])
+		var slot_id := int(current[1])
+		if spot_id >= 0 and spot_id < spots.size():
+			var sp: Dictionary = spots[spot_id]
+			var t: Dictionary = types[sp["type"]]
+			var slots: Array = t["slots"]
+			var within_range := (sp["xform"] as Transform3D).origin.distance_to(center) <= radius
+			var same_settlement := (not filter.has("settlement")
+				or int(sp.get("settlement", -1)) == int(filter["settlement"]))
+			if (within_range and same_settlement and _matches(String(sp["type"]), t, filter)
+					and slot_id >= 0 and slot_id < slots.size()
+					and _slot_matches(slots[slot_id], filter)):
+				var held_target := approach_point(spot_id, slot_id)
+				return Vector2(held_target.x, held_target.z)
 	var pick := find(center, filter, radius, person)
 	if pick.is_empty():
 		return Vector2.INF
