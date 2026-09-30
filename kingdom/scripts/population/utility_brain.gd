@@ -86,6 +86,11 @@ const FATIGUE_PER_HOUR := RANeedsScript.FATIGUE_PER_HOUR / 100.0
 const SLEEP_PER_HOUR := RANeedsScript.SLEEP_PER_HOUR / 100.0
 const HUNGER_PER_HOUR := 0.11
 const WATER_PER_HOUR := 0.09
+## Coarse food restoration for each scheduled meal during constant-time LOD catch-up.
+const OFFSCREEN_MEAL_RESTORE := 0.75
+## Abstract drinking paired with meals keeps distant residents hydrated without
+## pretending every one of them is a physical well user.
+const OFFSCREEN_WATER_PER_MEAL := WATER_PER_HOUR * 24.0 / 3.0
 ## Restored per game hour while performing an act at its spot: [need, amount].
 const RESTORE := {
 	Act.SLEEP: [["rest", SLEEP_PER_HOUR]], Act.HOME: [["rest", 0.03]],
@@ -353,12 +358,54 @@ func tick(now_hours: float, performing := -1, elapsed_cap := 2.0) -> void:
 	water = clampf(water, 0.0, 1.0)
 
 
-## Bring data-tier needs current in one constant-cost step after an NPC spent time
-## unembodied. The need model is linear between decisions, so no per-hour loop is
-## needed; it intentionally assumes no unobserved activity restored a need.
+## Bring data-tier needs current in constant time after an NPC spent time
+## unembodied. Approximate scheduled sleep and meal recovery, while the remaining
+## needs continue their existing linear decay; never loop once per skipped hour.
 func catch_up(now_hours: float) -> void:
-	var elapsed := maxf(0.0, now_hours - _last_hours) if _last_hours >= 0.0 else 0.0
-	tick(now_hours, -1, elapsed)
+	if _last_hours < 0.0 or now_hours <= _last_hours:
+		_last_hours = now_hours
+		return
+	var start_hours := _last_hours
+	var elapsed := now_hours - start_hours
+	var delay := DailyRhythm.delay(person) if person >= 0 else 0.0
+	var sleeping := _scheduled_sleep_total(now_hours, delay) - _scheduled_sleep_total(start_hours, delay)
+	sleeping = clampf(sleeping, 0.0, elapsed)
+	var awake := elapsed - sleeping
+	rest += SLEEP_PER_HOUR * sleeping - FATIGUE_PER_HOUR * awake
+	food -= HUNGER_PER_HOUR * (awake + sleeping * 0.5)
+	var meals := _scheduled_meals(start_hours, now_hours, delay)
+	food += OFFSCREEN_MEAL_RESTORE * meals
+	social -= (0.05 + 0.08 * float(traits["sociable"])) * elapsed
+	faith -= (0.02 + 0.05 * float(traits["pious"])) * elapsed
+	water += OFFSCREEN_WATER_PER_MEAL * meals - WATER_PER_HOUR * elapsed
+	food = clampf(food, 0.0, 1.0)
+	rest = clampf(rest, 0.0, 1.0)
+	social = clampf(social, 0.0, 1.0)
+	faith = clampf(faith, 0.0, 1.0)
+	water = clampf(water, 0.0, 1.0)
+	_last_hours = now_hours
+
+
+## Cumulative sleep time for repeating personal sleep windows. `delay` matches
+## DailyRhythm's current per-person clock offset; past daily jitter is averaged.
+func _scheduled_sleep_total(hours: float, delay: float) -> float:
+	var start := 20.5 + 2.0 * float(traits["lazy"])
+	var wake := 5.5 + 1.2 * float(traits["lazy"])
+	var duration := 24.0 - start + wake
+	var local := hours - delay
+	var day_index := floor(local / 24.0)
+	var hour := local - day_index * 24.0
+	return day_index * duration + minf(hour, wake) + maxf(hour - start, 0.0)
+
+
+## Number of scheduled meal windows completed in (start, end], independent of
+## elapsed duration, so large time skips remain a fixed three-step calculation.
+func _scheduled_meals(start_hours: float, end_hours: float, delay: float) -> int:
+	var count := 0
+	for meal: float in MEALS:
+		var anchor := meal + 0.5 + delay
+		count += floori((end_hours - anchor) / 24.0) - floori((start_hours - anchor) / 24.0)
+	return maxi(count, 0)
 
 
 ## Inputs for this person now. `hour` is their own clock, `sched` DailyRhythm's
