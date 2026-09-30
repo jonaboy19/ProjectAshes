@@ -52,7 +52,7 @@ No runtime or device validation is claimed in this handoff.
 
 ## Recommended first production slice
 
-Use one **well-water chore** or one **blacksmith work order** as a deliberately narrow vertical slice. Before choosing, inspect current `WorkSpots`, `Station`, utility needs and crafting effects on Claude's current branch. Prefer the well if it can reuse the existing villager water need without changing player crafting or item semantics; prefer the smith only if its real material/output contract is already explicit.
+Use the **well-water chore** as a deliberately narrow vertical slice. The current published source already has a `WATER` need/action, a generated well landmark, a route loop around the well and water-gathering clip candidates, while no item/economy output is needed. [NPC_WELL_ACTIVITY_HANDOFF.md](NPC_WELL_ACTIVITY_HANDOFF.md) records the concrete flow, slot lease boundary, interruption rules and acceptance conditions. Recheck the actual Claude source and let Claude confirm the scene/collider/clip markers before implementation.
 
 1. Map the existing destination and activity data; write down the current owner and persistence boundary for every field touched.
 2. Use `slot_resource_key()` as a reference-layer starting point, then bind a migration-safe station key and slot to the action lease with a domain-prefixed actor reference. Keep the current station system authoritative.
@@ -66,6 +66,7 @@ Use one **well-water chore** or one **blacksmith work order** as a deliberately 
 ## What Claude should review on pickup
 
 - Read this file alongside `docs/SYSTEMS_MASTERPLAN.md` and `docs/SYSTEMS_CONTINUATION.md`.
+- Read [NPC_WELL_ACTIVITY_HANDOFF.md](NPC_WELL_ACTIVITY_HANDOFF.md) before wiring the first NPC activity; it describes the verified published-source seam and does not claim implementation is already present.
 - Confirm current branch head and active/dirty files before cherry-picking or merging. This work is based on published `d163255f`; local Claude changes may be newer and must remain untouched until committed or deliberately shared.
 - Decide the first production slice and identify its authoritative station/slot owner.
 - Supply clip names/markers and collision/approach constraints for that slice; Codex systems work should consume those contracts rather than modify the animation pipeline.
