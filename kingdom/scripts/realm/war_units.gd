@@ -61,6 +61,7 @@ const TERRAIN := {
 	"mountain": {"name": "Mountain", "speed": 0.5, "cav": 0.6, "ranged": 1.0, "def": 1.25, "vision": 1.3, "fatigue": 1.6, "cap": 400, "ambush": 0.2},
 	"ford": {"name": "River ford", "speed": 0.3, "cav": 0.6, "ranged": 0.9, "def": 0.85, "vision": 0.9, "fatigue": 1.4, "cap": 500, "ambush": 0.05},
 	"town": {"name": "Town", "speed": 0.9, "cav": 0.8, "ranged": 1.0, "def": 1.2, "vision": 0.7, "fatigue": 0.7, "cap": 800, "ambush": 0.1},
+	"marsh": {"name": "Marsh", "speed": 0.45, "cav": 0.5, "ranged": 0.9, "def": 0.9, "vision": 0.9, "fatigue": 1.5, "cap": 500, "ambush": 0.15},
 }
 
 const ATTRS := ["tactics", "leadership", "discipline", "adaptability", "logistics", "scouting", "experience"]
@@ -70,7 +71,15 @@ const PERSONALITIES := ["cautious", "aggressive", "loyal", "ambitious", "stubbor
 const BREAK_MORALE := {"cautious": 0.32, "aggressive": 0.15, "loyal": 0.22, "ambitious": 0.2, "stubborn": 0.1, "inventive": 0.24, "independent": 0.2}
 const PERS_ATTR := {"cautious": "logistics", "aggressive": "tactics", "loyal": "discipline", "ambitious": "adaptability",
 	"stubborn": "discipline", "inventive": "adaptability", "independent": "scouting"}
-const WEATHER := {"clear": {"all": 1.0, "ranged": 1.0}, "rain": {"all": 0.96, "ranged": 0.8}, "snow": {"all": 0.9, "ranged": 0.85}, "storm": {"all": 0.85, "ranged": 0.65}}
+## all / ranged: fighting; vision / move / fatigue: tactical battle (rulebook §37).
+const WEATHER := {
+	"clear": {"all": 1.0, "ranged": 1.0, "vision": 1.0, "move": 1.0, "fatigue": 1.0, "signal": 1.0},
+	"rain": {"all": 0.96, "ranged": 0.8, "vision": 0.8, "move": 0.92, "fatigue": 1.05, "signal": 0.8},
+	"snow": {"all": 0.9, "ranged": 0.85, "vision": 0.75, "move": 0.85, "fatigue": 1.3, "signal": 0.8},
+	"storm": {"all": 0.85, "ranged": 0.65, "vision": 0.6, "move": 0.85, "fatigue": 1.15, "signal": 0.5},
+	"fog": {"all": 0.98, "ranged": 0.9, "vision": 0.4, "move": 0.95, "fatigue": 1.0, "signal": 0.6},
+	"heat": {"all": 0.96, "ranged": 1.0, "vision": 1.0, "move": 0.95, "fatigue": 1.4, "signal": 1.0},
+}
 
 
 static func kind(k: String) -> Dictionary:
@@ -197,6 +206,17 @@ static func personality_reaction(pers: String, behavior: String, sit: Dictionary
 	return out
 
 
+## Commander factor on a side's power (tactics, leadership, overload confusion).
+static func command_factor(leader: Dictionary, confusion := 0.0) -> float:
+	var f := 1.0 + (float(leader.get("tactics", 50)) - 50.0) / 200.0 + (float(leader.get("leadership", 50)) - 50.0) / 400.0
+	return f * (1.0 - minf(0.3, 0.2 * confusion))
+
+
+## Supply factor: 1.0 with three days of food or more, 0.6 with none.
+static func supply_factor(days: float) -> float:
+	return 0.6 + 0.4 * minf(days, 3.0) / 3.0
+
+
 ## Fighting power of one side (rulebook §8). `units` are unit dictionaries; env holds the situation:
 ##   terrain: TERRAIN entry, role: "attack"|"defend", weather, supply (days), surprise (multiplier),
 ##   formation {atk, def}, leader {attrs}, confusion 0..1, foe_mounted (0..1 share of the enemy), high_ground -1|0|1
@@ -215,10 +235,8 @@ static func side_power(units: Array, env: Dictionary) -> Dictionary:
 	var role := String(env.get("role", "attack"))
 	var form: Dictionary = env.get("formation", {"atk": 1.0, "def": 1.0})
 	var leader: Dictionary = env.get("leader", {})
-	var cmd_f := 1.0 + (float(leader.get("tactics", 50)) - 50.0) / 200.0 + (float(leader.get("leadership", 50)) - 50.0) / 400.0
-	cmd_f *= 1.0 - minf(0.3, 0.2 * float(env.get("confusion", 0.0)))
-	var supply := float(env.get("supply", 3.0))
-	var sup_f := 0.6 + 0.4 * minf(supply, 3.0) / 3.0
+	var cmd_f := command_factor(leader, float(env.get("confusion", 0.0)))
+	var sup_f := supply_factor(float(env.get("supply", 3.0)))
 	var wx: Dictionary = WEATHER.get(String(env.get("weather", "clear")), WEATHER["clear"])
 	var season_f := 0.94 if String(env.get("season", "")) == "winter" else 1.0
 	var surprise := float(env.get("surprise", 1.0))

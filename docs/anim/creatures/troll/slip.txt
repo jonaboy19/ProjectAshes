@@ -1,0 +1,17 @@
+BEFORE (original GLB), stated game speeds walk 2.4 run 6.9 vs best-fit:
+== run: 20 frames (0.63s) mesh minz -0.071 hipsZ 1.47..1.57
+   stated v=6.90: contacts 2 max slip 10.0 cm, mean-of-max 8.7, mean-dev 5.1; stance frames [4, 5]; implied v [8.26, 8.23]
+   best v=8.22: contacts 2 max slip 1.8 cm, mean-of-max 1.5, mean-dev 1.1; stance frames [4, 5]; implied v [8.26, 8.23]
+--
+== walk: 32 frames (1.03s) mesh minz -0.047 hipsZ 1.50..1.61
+   stated v=2.40: contacts 2 max slip 4.9 cm, mean-of-max 4.7, mean-dev 1.6; stance frames [17, 17]; implied v [2.48, 2.5]
+   best v=2.50: contacts 2 max slip 3.6 cm, mean-of-max 2.8, mean-dev 1.5; stance frames [17, 17]; implied v [2.48, 2.5]
+
+AFTER (new GLB), new numbers walk 2.50 run 8.22:
+== run: 20 frames (0.63s) mesh minz -0.005 hipsZ 1.47..1.58
+   stated v=8.22: contacts 2 max slip 1.8 cm, mean-of-max 1.5, mean-dev 1.1; stance frames [4, 5]; implied v [8.26, 8.23]
+   best v=8.22: contacts 2 max slip 1.8 cm, mean-of-max 1.5, mean-dev 1.1; stance frames [4, 5]; implied v [8.26, 8.23]
+--
+== walk: 32 frames (1.03s) mesh minz -0.005 hipsZ 1.52..1.61
+   stated v=2.50: contacts 2 max slip 3.6 cm, mean-of-max 2.9, mean-dev 1.5; stance frames [17, 16]; implied v [2.48, 2.47]
+   best v=2.48: contacts 2 max slip 3.5 cm, mean-of-max 2.6, mean-dev 1.4; stance frames [17, 16]; implied v [2.48, 2.47]

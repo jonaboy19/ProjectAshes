@@ -1,0 +1,15 @@
+{
+	"_comment": "Region 1 landmark views for look_capture.gd (docs/regions/look/).",
+	"views": [
+		{"name": "v1_reveal_stone_gap", "at": [-118, -668], "look": [-205, -860], "up": 1.8, "look_up": 18, "hour": 15.2, "fov": 64},
+		{"name": "v2_falls_from_floor", "at": [-196, -700], "look": [-146, -915], "up": 2.0, "look_up": 30, "hour": 15.2},
+		{"name": "v3_valley_aerial", "at": [-340, -250], "look": [-190, -760], "up": 140, "look_up": 0, "hour": 15.6},
+		{"name": "v4_mouth_up_valley", "at": [-306, -300], "look": [-205, -700], "up": 3.0, "look_up": 25, "hour": 16.0},
+		{"name": "v5_ruins_terraces", "at": [-205, -470], "look": [-120, -480], "up": 3.0, "look_up": 4, "hour": 15.0},
+		{"name": "v6_approach_ridge", "at": [-20, -585], "look": [-90, -660], "up": 1.8, "look_up": 3, "hour": 15.2},
+		{"name": "l1_drowned_bell_ferry", "at": [-548, 318], "look": [-446, 316], "up": 3.0, "look_up": 4, "hour": 17.0},
+		{"name": "l2_crownstead_hill", "at": [300, -215], "look": [430, -192], "up": 2.2, "look_up": 18, "hour": 15.0},
+		{"name": "l3_stagborn_glade", "at": [-1322, -1030], "look": [-1350, -1080], "up": 2.0, "look_up": 6, "hour": 15.5},
+		{"name": "l4_wyrms_ribs", "at": [-20, -1650], "look": [-50, -1702], "up": 2.2, "look_up": 6, "hour": 15.0}
+	]
+}

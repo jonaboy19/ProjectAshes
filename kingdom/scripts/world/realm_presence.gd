@@ -554,6 +554,8 @@ func _refresh_camps() -> void:
 	if cm == null:
 		return
 	for c: Dictionary in cm.camps():
+		if String(c.get("src", "")) == "construction":
+			continue   # the player's own holdings are drawn by construction_view.gd
 		var id := int(c["id"])
 		var sts: Array = c.get("structures", [])
 		var done := 0
@@ -587,7 +589,7 @@ func _build_camp(root: Node3D, c: Dictionary) -> void:
 	for st: Dictionary in c.get("structures", []):
 		idx += 1
 		var kind := String(st["kind"])
-		if int(st["hours_left"]) > 0 or not CAMP_PROPS.has(kind) or kind in ["tent", "campfire"]:
+		if int(st["hours_left"]) > 0 or not CAMP_PROPS.has(kind) or kind in ["tent", "campfire"] or String(st.get("src", "")) == "construction":
 			continue
 		var sp := Vector2(float(st["pos"][0]), float(st["pos"][1]))
 		if sp == Vector2.ZERO or sp.distance_to(cp) > 60.0:

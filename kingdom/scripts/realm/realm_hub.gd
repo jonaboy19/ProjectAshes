@@ -25,9 +25,10 @@ const MODULES := {
 	"callups": preload("res://scripts/realm/callups.gd"),
 	"work": preload("res://scripts/realm/work.gd"),
 	"enterprise": preload("res://scripts/realm/enterprise.gd"),
+	"construction": preload("res://scripts/realm/construction.gd"),
 }
 ## Order matters within a tier: land before factions before campaign.
-const ORDER := ["settlements", "land", "camps", "followers", "factions", "strongholds", "campaign", "city_life", "society", "power_paths", "education", "household", "callups", "work", "enterprise"]
+const ORDER := ["settlements", "land", "camps", "followers", "factions", "strongholds", "campaign", "city_life", "society", "power_paths", "education", "household", "callups", "work", "enterprise", "construction"]
 ## Max microseconds of realm work per frame (mobile: ~0.6 ms of a 16.6 ms frame).
 const PUMP_BUDGET_USEC := 600
 

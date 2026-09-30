@@ -966,7 +966,7 @@ func _on_hour(hour: int) -> void:
 	if cam.has_method("set_player_rank"):
 		cam.set_player_rank(CareerLadders.military_rank_for(career_rank) if career_id == "soldier" else "")
 	# City life and society keep a signed ledger instead of touching the purse.
-	for k: String in ["city_life", "society", "education", "household", "callups", "enterprise"]:
+	for k: String in ["city_life", "society", "education", "household", "callups", "enterprise", "construction"]:
 		var m: RefCounted = realm.mod(k)
 		if m != null and m.has_method("take_pending_gold"):
 			var net := int(m.take_pending_gold())

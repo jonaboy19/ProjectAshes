@@ -8,7 +8,7 @@ const Kit := preload("res://scripts/ui/gamemenu/gm_kit.gd")
 const Tokens := preload("res://scripts/ui/war/war_tokens.gd")
 const WarUnits := preload("res://scripts/realm/war_units.gd")
 
-const TABS := [["units", "Units"], ["orders", "Orders"], ["intel", "Intel"], ["battles", "Battles"]]
+const TABS := [["units", "Units"], ["orders", "Orders"], ["intel", "Intel"], ["battles", "Battles"], ["part", "Your part"]]
 const STANCE := {"line": "Balanced", "wedge": "Aggressive", "square": "Defensive", "skirmish": "Loose", "column": "Marching"}
 
 var map: Control
@@ -216,6 +216,9 @@ func rebuild() -> void:
 		"battles":
 			_title.text = "ENGAGEMENTS"
 			_tab_battles()
+		"part":
+			_title.text = "YOUR PART IN THE WAR"
+			_tab_part()
 		_:
 			_title.text = "SELECTED ARMY"
 			_tab_units()
@@ -561,12 +564,107 @@ func _tab_intel() -> void:
 		ac.add_child(_btn("Follow", map.follow_advice.bind(int(ad["index"])), false, map.armies.is_empty(), 50.0))
 
 
+# ------------------------------------------------------------------ your part ----
+
+const NATION_COL := {"war": Color("e0433a"), "truce": Color("7fd18b"), "peace": Color("e0b45a")}
+
+
+## "Your part in the war": diplomacy at the borders, plain-text leads, and every action the character can take
+## (gated by role, rank, relations and gold; a gated one says why). Nothing here is a map marker.
+func _tab_part() -> void:
+	var wi: RefCounted = map.call("influence")
+	var war: Variant = wi.call("war")
+	if war == null:
+		_empty("No war or diplomacy data is available.")
+		return
+	if String(map.status_text) != "":
+		_box.add_child(Kit.lbl(String(map.status_text), 16, AF.GOLD_BRIGHT, true, "italic"))
+	_box.add_child(Kit.section("Borders and courts", 17))
+	for n: Dictionary in war.all_diplomacy():
+		var v := _card(AF.GOLD if bool(n["at_war"]) else AF.GOLD_DIM)
+		var head := HBoxContainer.new()
+		head.add_child(Kit.lbl(String(n["name"]), 19, AF.GOLD_BRIGHT, false, "title_bold"))
+		head.add_child(Kit.hspacer())
+		var st := String(n["state"])
+		head.add_child(Kit.lbl(st.capitalize() if st != "truce" else "Truce, %d days" % int(n["truce_days"]), 16, NATION_COL.get(st, AF.TEXT), false, "title"))
+		v.add_child(head)
+		v.add_child(_bar("Tension", float(n["tension"]) / 100.0, Color("c2412f") if float(n["tension"]) > 60.0 else Color("e0b45a"), str(int(n["tension"]))))
+		for reason: String in (n["reasons"] as Array):
+			_line(v, "Reason to fight: " + reason, 15, AF.TEXT_DIM)
+		if (n["reasons"] as Array).is_empty() and st != "war":
+			_line(v, "No quarrel with a cause, only old grudges.", 15, AF.TEXT_DIM)
+		for h: String in (n["hostages"] as Array):
+			_line(v, "Hostage held: %s." % h, 15, AF.TEXT_DIM)
+	if war.is_at_war():
+		var wc := _card(AF.GOLD)
+		wc.add_child(Kit.lbl("The war: day %d, for %s" % [war.war_day(), String(war.war.get("goal", "tribute"))], 17, AF.TEXT, true))
+		wc.add_child(_bar("Crown weary", clampf(war.exhaustion(), 0.0, 1.0), Color("5fae4c"), "%d%%" % int(war.exhaustion() * 100.0)))
+		wc.add_child(_bar("Enemy weary", clampf(war.enemy_exhaustion(), 0.0, 1.0), Color("c2412f"), "%d%%" % int(war.enemy_exhaustion() * 100.0)))
+	var leads: Array = wi.call("leads")
+	if not leads.is_empty():
+		_box.add_child(Kit.section("Word on the road", 17))
+		for l: String in leads:
+			_box.add_child(Kit.lbl(l, 15, AF.TEXT, true, "italic"))
+	_box.add_child(Kit.section("What you can do", 17))
+	for a: Dictionary in wi.call("actions"):
+		var c := _card(AF.GOLD if bool(a["ok"]) else AF.GOLD_DIM)
+		var h2 := HBoxContainer.new()
+		h2.add_child(Kit.lbl(String(a["label"]), 17, AF.GOLD_BRIGHT if bool(a["ok"]) else AF.TEXT_DIM, false, "title_bold"))
+		h2.add_child(Kit.hspacer())
+		if int(a["cost"]) > 0:
+			h2.add_child(Kit.lbl("%d gold" % int(a["cost"]), 15, AF.TEXT_DIM))
+		c.add_child(h2)
+		c.add_child(Kit.lbl(String(a["blurb"]), 14, AF.TEXT_DIM, true))
+		if not bool(a["ok"]):
+			c.add_child(Kit.lbl(String(a["reason"]), 15, Color("e0b45a"), true, "italic"))
+			continue
+		_action_buttons(c, String(a["id"]), wi)
+	var log: Array = war.act_log
+	if not log.is_empty():
+		_box.add_child(Kit.section("What you have done", 17))
+		for i in range(log.size() - 1, maxi(-1, log.size() - 5), -1):
+			_box.add_child(Kit.lbl("Day %d: %s" % [int(log[i]["day"]), String(log[i]["text"])], 14, AF.TEXT_DIM, true))
+
+
+func _action_buttons(c: Control, id: String, wi: RefCounted) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	match id:
+		"supply_army":
+			var goods: Dictionary = wi.call("supply_goods")
+			for g: String in goods:
+				row.add_child(_btn("Sell %d %s" % [mini(int(goods[g]), 5), g.replace("_", " ")], map.do_war_action.bind(id, {"good": g, "qty": 5}), false, false, 50.0))
+		"run_caravan":
+			var goods2: Dictionary = wi.call("supply_goods")
+			for g2: String in goods2:
+				row.add_child(_btn("Haul %s" % g2.replace("_", " "), map.do_war_action.bind(id, {"good": g2, "qty": 5}), false, false, 50.0))
+			if goods2.is_empty():
+				row.add_child(_btn("Send a company caravan", map.do_war_action.bind(id, {"caravan_id": 1}), false, false, 50.0))
+		"broker_peace":
+			for t: String in ["lenient", "fair", "harsh"]:
+				row.add_child(_btn(t.capitalize(), map.do_war_action.bind(id, {"terms": t}), t == "fair", false, 50.0))
+		"push_goal":
+			for g3: String in ["land", "tribute", "hostages", "marriage"]:
+				row.add_child(_btn(g3.capitalize(), map.do_war_action.bind(id, {"goal": g3}), false, false, 50.0))
+		"raise_militia":
+			row.add_child(_btn("40 men", map.do_war_action.bind(id, {"men": 40}), true, false, 50.0))
+			row.add_child(_btn("80 men", map.do_war_action.bind(id, {"men": 80}), false, false, 50.0))
+		_:
+			row.add_child(_btn("Do it", map.do_war_action.bind(id, {}), true, false, 50.0))
+	c.add_child(row)
+
+
 # ----------------------------------------------------------------- battles ----
 
 func _tab_battles() -> void:
 	if map.cm == null:
 		_empty("No campaign.")
 		return
+	for sv: Dictionary in map.cm.call("sieges"):
+		var sc := _card(AF.GOLD)
+		sc.add_child(Kit.lbl("Siege of %s" % String(sv["name"]), 19, AF.GOLD_BRIGHT, true))
+		sc.add_child(Kit.lbl("Day %d. Walls: %s. Garrison ~%d. Supplies %d days. Morale %s." % [int(sv["day"]), String(sv["walls"]), int(round(float(sv["garrison"]) / 10.0)) * 10, int(round(float(sv["food_days"]))), String(sv["morale_label"])], 15, AF.TEXT, true))
+		sc.add_child(_btn("Open siege map", map.open_siege.bind(String(sv["key"])), true, false, 54.0))
 	if map.engs.is_empty():
 		_empty("No engagements. When your pieces meet the enemy the fight appears here and on the map.")
 	var list: Array = map.engs.duplicate()
@@ -611,6 +709,8 @@ func _tab_battles() -> void:
 		v.add_child(srow)
 		v.add_child(_bar("Advantage", float(g["ratio_player"]), Color("5fae4c") if float(g["ratio_player"]) >= 0.5 else Color("c2412f"), "%d%%" % int(float(g["ratio_player"]) * 100.0)))
 		v.add_child(Kit.lbl("After %d h. You lost %d, they lost %d." % [int(g["hours"]), int(g["casualties_player"]), int(g["casualties_enemy"])], 15, AF.TEXT_DIM, true))
+		if bool(g["player_involved"]) and String(g["status"]) != "ended":
+			v.add_child(_btn("Command battle", map.open_tactical.bind(int(g["id"])), true, false, 56.0))
 		if sel:
 			var fp: Dictionary = (g["factors"] as Dictionary).get(String(g["player_side"]), {})
 			var fe: Dictionary = (g["factors"] as Dictionary).get("b" if String(g["player_side"]) == "a" else "a", {})

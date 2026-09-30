@@ -1034,6 +1034,16 @@ func evidence(sid: int = -1) -> Array:
 	return out
 
 
+## A trace left by something other than a street crime (a war covert op: forged seal, cut rope, a dropped
+## badge). Same shape as commit_crime's items, so destroy_evidence() and the investigators treat it alike.
+func add_evidence(crime: String, type: String, strength: float, sid: int) -> String:
+	var eid := _new_id("e")
+	evidence_items.append({"id": eid, "crime": crime, "type": type, "strength": snappedf(clampf(strength, 0.05, 1.0), 0.01), "sid": sid, "day": _day})
+	if evidence_items.size() > 120:
+		evidence_items.pop_front()
+	return eid
+
+
 func destroy_evidence(eid: String) -> bool:
 	for i in evidence_items.size():
 		if evidence_items[i]["id"] == eid:

@@ -128,6 +128,10 @@ def add_props(clip):
                 k += 1
     elif clip.startswith("Ledge"):
         o.append(box("ledge", -3.0, 3.0, -0.9, -0.20, -1.0, 2.12, STONE))
+    elif clip == "Mantle_Low":
+        o.append(box("wall_low", -1.0, 1.0, -1.6, -0.85, 0.0, 1.0, STONE))
+    elif clip == "Mantle_High":
+        o.append(box("wall_high", -1.2, 1.2, -1.5, -0.60, 0.0, 1.8, STONE))
     elif clip.startswith("Ride"):
         o.append(box("horse_body", -0.26, 0.26, -0.95, 0.85, 0.62, 1.02, (0.45, 0.28, 0.16, 1)))     # barrel 0.52 wide, back at 1.02, saddle to 1.12
         o.append(box("horse_neck", -0.12, 0.12, -1.25, -0.85, 1.0, 1.55, (0.45, 0.28, 0.16, 1)))
@@ -213,6 +217,8 @@ def render_clip(name, nf, rows, fps_r, base_dir, props=()):
     zs = [r[n].z for r in rows for n in TRACK]
     zmin, zmax = min(min(zs), 0.0), max(zs)
     span = max(2.3, (zmax - zmin) + 0.55)
+    if 'follow' in opt:                                  # --follow[=span]: fixed zoom, the camera follows the pelvis height (tall climbs)
+        span = float(opt['follow']) if opt['follow'] not in ('1', '') else 2.6
     cz = (zmin + zmax) / 2 + 0.05
     cz = max(cz, span / 2 - 0.15)
     px = [r["pelvis"].x for r in rows]; py = [r["pelvis"].y for r in rows]
@@ -238,6 +244,8 @@ def render_clip(name, nf, rows, fps_r, base_dir, props=()):
     for i, fr in todo:
         sc.frame_set(int(round(fr)))
         k = min(len(rows) - 1, int(round(fr)))
+        if 'follow' in opt:
+            cz = max(rows[k]['pelvis'].z + 0.15, min(zmin, 0.0) + span / 2 - 0.2)
         camS.location = Vector((0, sy[k], cz)) - camS.matrix_basis.to_3x3() @ Vector((0, 0, -20)); camF.location = Vector((sx[k], 0, cz)) - camF.matrix_basis.to_3x3() @ Vector((0, 0, -20))
         for tag, cam in (("s", camS), ("f", camF)):
             sc.camera = cam

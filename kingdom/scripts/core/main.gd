@@ -36,6 +36,8 @@ var ambient_fx: Node3D
 var noble_courts: Node3D
 var lord_hall: Node3D
 var realm_presence: Node3D
+var build_resources: Node3D
+var construction_view: Node3D
 var _order_from: Variant = null   # command view: where the current drag order started
 var player: Player
 var hud: HUD
@@ -189,6 +191,13 @@ func _ready() -> void:
 	realm_presence = preload("res://scripts/world/realm_presence.gd").new()
 	realm_presence.setup(hud)
 	world.add_child(realm_presence)
+	build_resources = preload("res://scripts/world/build_resources.gd").new()
+	build_resources.name = "BuildResources"
+	world.add_child(build_resources)
+	construction_view = preload("res://scripts/world/construction_view.gd").new()
+	construction_view.name = "ConstructionView"
+	construction_view.hud = hud
+	world.add_child(construction_view)
 
 	hud.set_loading_text("Waking the world...", 0.95)
 	await get_tree().process_frame
@@ -210,6 +219,11 @@ func _ready() -> void:
 		player.apply_age()
 	if args.has("shot"):
 		_screenshot(args["shot"], args.get("out", "user://shot.png"))
+	elif args.has("qa"):
+		# QA driver: --qa=res://tools_qa/construction/build_qa.gd (its run(main) takes over from here)
+		var qa: Node = (load(String(args["qa"])) as GDScript).new()
+		add_child(qa)
+		qa.call("run", self)
 	elif args.has("demo"):
 		_run_demo()
 	elif args.has("skipintro") or Flow.wants_skip_intro():   # loading a save from the menu
@@ -317,6 +331,8 @@ func _process(delta: float) -> void:
 	road_traffic.focus = focus
 	road_events.focus = focus
 	homestead_view.focus = focus
+	build_resources.focus = focus
+	construction_view.focus = focus
 	ambient_fx.focus = focus
 	noble_courts.focus = focus
 	camps.focus = focus
@@ -375,6 +391,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		var target := player.nearest_interactable()
 		if target is Captain:
 			hud.show_menu(services.captain_menu)
+		elif target is Station and (target as Station).name == "WarTable":
+			# the War Room table opens the war map directly, in war-table style (docs/design/WAR_COMMAND_RULEBOOK.md §2)
+			var wm: Control = load("res://scripts/ui/war/war_map.gd").open_modal(hud, Life.realm)
+			wm.call("set_style", 2)
 		elif target is Station:
 			hud.show_menu((target as Station).open)
 		elif target is CampMonster:
@@ -595,11 +615,14 @@ func _update_daylight() -> void:
 	sun.rotation = Vector3(-lerpf(0.15, 1.1, day_amount), PI * 0.25 + (t - 12.0) / 12.0 * PI * 0.5, 0)
 	# At night the key light becomes a cool moon so the world stays readable.
 	var night := 1.0 - smoothstep(0.0, 0.25, day_amount)
+	# Region1 look (docs/regions/LOOK_R1.md): the sky and bounce light stay bright through the golden hour
+	# (~16-18 h) instead of turning navy at 17 h; the sun itself still lowers and warms with day_amount.
+	var sky_amount := clampf(day_amount * 1.8, 0.0, 1.0)
 	sun.light_energy = lerpf(lerpf(0.05, 1.7, day_amount), 0.42, night)
 	sun.light_color = Color("ff9a5a").lerp(Color("ffd9a2"), day_amount).lerp(Color("8fa8ff"), night)
-	env.ambient_light_energy = lerpf(lerpf(0.25, 0.7, day_amount), 0.4, night)
-	env.fog_light_color = Color("1b2238").lerp(Color("c9d4e6"), day_amount)
-	env.background_energy_multiplier = lerpf(0.08, 1.0, day_amount) + night * 0.12
+	env.ambient_light_energy = lerpf(lerpf(0.25, 0.7, sky_amount), 0.4, night)
+	env.fog_light_color = Color("1b2238").lerp(Color("c9d4e6"), sky_amount)
+	env.background_energy_multiplier = lerpf(0.08, 1.0, sky_amount) + night * 0.12
 	baker.set_light(lerpf(0.35, 1.0, day_amount))
 	# Emberglass Mere turns ember-coloured around sunset (lore); rain rings follow the weather.
 	var rain: float = weather.rain_amount() if weather else 0.0

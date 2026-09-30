@@ -1644,7 +1644,7 @@
    ]
   ],
   "mirrored": false,
-  "note": "",
+  "note": "middle rebuilt by tools/anim/loco/pivot180_rebuild.py (pivot foot locked, hips lead, torso counter-rotates + leans, push-off pitch); root track and start / end poses unchanged",
   "speed_up": 1.0,
   "hip_scale": 0.0518,
   "floor_fix_m": 0.0,
@@ -1882,6 +1882,54 @@
    "touchdown_frame": null,
    "plant_frame": 11,
    "skid_frames": []
+  },
+  "pivot_rebuild": {
+   "clip": "Loco_Pivot180_Run_L",
+   "frames": 38,
+   "pivot_slip_cm_before": 6.7,
+   "pivot_slip_cm_after": 0.0,
+   "pivot_foot": "r",
+   "pivot_lock_frames": [
+    7,
+    19
+   ],
+   "push_foot": "l",
+   "push_lock_frames": [
+    21,
+    26
+   ],
+   "push_slip_cm_before": 14.0,
+   "push_slip_cm_after": 0.0,
+   "ik_reach_err_cm": {
+    "pivot": 0.0,
+    "push": 0.0
+   },
+   "max_bone_rot_deg_per_frame_after": [
+    33.4,
+    "foot_l",
+    29
+   ],
+   "max_bone_rot_deg_per_frame_before": [
+    35.3,
+    "foot_l",
+    29
+   ],
+   "max_pelvis_to_chest_angle_deg_after": 30.2,
+   "max_pelvis_to_chest_angle_deg_before": 16.4,
+   "rewritten_bones": [
+    "Head",
+    "calf_l",
+    "calf_r",
+    "foot_l",
+    "foot_r",
+    "neck_01",
+    "pelvis",
+    "spine_01",
+    "spine_02",
+    "spine_03",
+    "thigh_l",
+    "thigh_r"
+   ]
   }
  },
  {
@@ -1907,7 +1955,7 @@
    ]
   ],
   "mirrored": true,
-  "note": "",
+  "note": "middle rebuilt by tools/anim/loco/pivot180_rebuild.py (pivot foot locked, hips lead, torso counter-rotates + leans, push-off pitch); root track and start / end poses unchanged",
   "speed_up": 1.0,
   "hip_scale": 0.0518,
   "floor_fix_m": 0.0,
@@ -2151,6 +2199,54 @@
    "touchdown_frame": null,
    "plant_frame": 15,
    "skid_frames": []
+  },
+  "pivot_rebuild": {
+   "clip": "Loco_Pivot180_Run_R",
+   "frames": 42,
+   "pivot_slip_cm_before": 2.3,
+   "pivot_slip_cm_after": 0.0,
+   "pivot_foot": "l",
+   "pivot_lock_frames": [
+    13,
+    23
+   ],
+   "push_foot": "r",
+   "push_lock_frames": [
+    23,
+    29
+   ],
+   "push_slip_cm_before": 14.2,
+   "push_slip_cm_after": 0.0,
+   "ik_reach_err_cm": {
+    "pivot": 0.0,
+    "push": 0.0
+   },
+   "max_bone_rot_deg_per_frame_after": [
+    35.4,
+    "foot_r",
+    33
+   ],
+   "max_bone_rot_deg_per_frame_before": [
+    35.3,
+    "foot_r",
+    33
+   ],
+   "max_pelvis_to_chest_angle_deg_after": 29.7,
+   "max_pelvis_to_chest_angle_deg_before": 16.4,
+   "rewritten_bones": [
+    "Head",
+    "calf_l",
+    "calf_r",
+    "foot_l",
+    "foot_r",
+    "neck_01",
+    "pelvis",
+    "spine_01",
+    "spine_02",
+    "spine_03",
+    "thigh_l",
+    "thigh_r"
+   ]
   }
  },
  {
