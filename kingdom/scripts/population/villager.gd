@@ -462,7 +462,10 @@ func _decide_act(here: Vector2) -> void:
 	# actually saw. Movement noise adds a separate, anonymous look cue outdoors.
 	var sight := UtilityBrain.spectacle_at(here, player_p, visible_threats)
 	var heard := UtilityBrain.heard_player_at(here, _player, tree) if not _indoors else [0.0, Vector2.INF]
-	var interest: Array = sight if float(sight[0]) >= float(heard[0]) else heard
+	if float(heard[0]) > 0.0:
+		_brain.remember_heard_sound(heard[1], float(heard[0]))
+	var heard_memory := _brain.heard_memory()
+	var interest: Array = sight if float(sight[0]) >= float(heard_memory[0]) else heard_memory
 	var performing := _indoors or (_arrived and _yield_time <= 0.0
 		and (_act != Act.WATER or _water_is_performing(here)))
 	_brain.tick(WorldSim.day * 24.0 + WorldSim.time_of_day, _act if performing else -1)

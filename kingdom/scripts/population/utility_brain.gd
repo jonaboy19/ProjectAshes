@@ -104,6 +104,7 @@ const SENSE_INTERVAL_MS := 500
 const THREAT_RAY_BUDGET := 4
 const THREAT_RAY_WINDOW_MS := 500
 const LAST_SEEN_SECONDS := 3.0
+const LAST_HEARD_SECONDS := 3.0
 const SIGHT_QUEUE_MAX := 64
 const NOTICE_MAX := 64
 const NOTICE_MERGE_RADIUS := 1.0
@@ -154,6 +155,11 @@ var _last_hours := -1.0
 var _last_seen := Vector2.INF
 var _last_seen_ms := -100000
 var _last_seen_strength := 0.0
+## Short anonymous sound-origin memory; unlike event/relationship data it lives
+## only as long as this embodied brain and is cleared at indoor/time-skip edges.
+var _last_heard := Vector2.INF
+var _last_heard_ms := -100000
+var _last_heard_strength := 0.0
 var _sight_observer_ref: WeakRef
 
 
@@ -640,11 +646,38 @@ func clear_threat_memory() -> void:
 	_last_seen = Vector2.INF
 	_last_seen_ms = -100000
 	_last_seen_strength = 0.0
+	clear_hearing_memory()
 	if _sight_observer_ref != null:
 		var observer := _sight_observer_ref.get_ref() as Node3D
 		if observer != null:
 			clear_sight_for(observer)
 		_sight_observer_ref = null
+
+
+func remember_heard_sound(at: Vector2, strength: float, now_ms: int = -1) -> void:
+	if at == Vector2.INF or not is_finite(at.x) or not is_finite(at.y) \
+	or not is_finite(strength) or strength <= 0.0:
+		return
+	_last_heard = at
+	_last_heard_ms = Time.get_ticks_msec() if now_ms < 0 else now_ms
+	_last_heard_strength = clampf(strength, 0.0, 1.0)
+
+
+func heard_memory(now_ms: int = -1) -> Array:
+	if _last_heard == Vector2.INF:
+		return [0.0, Vector2.INF]
+	var current_ms := Time.get_ticks_msec() if now_ms < 0 else now_ms
+	var age := float(current_ms - _last_heard_ms) / 1000.0
+	if age < 0.0 or age >= LAST_HEARD_SECONDS:
+		clear_hearing_memory()
+		return [0.0, Vector2.INF]
+	return [_last_heard_strength * (1.0 - age / LAST_HEARD_SECONDS), _last_heard]
+
+
+func clear_hearing_memory() -> void:
+	_last_heard = Vector2.INF
+	_last_heard_ms = -100000
+	_last_heard_strength = 0.0
 
 
 ## Remove queued work and mailbox data when this observer is reset or indoors.
