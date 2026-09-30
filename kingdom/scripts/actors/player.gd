@@ -953,7 +953,7 @@ func _parry(from: Node) -> void:
 	Audio.sfx("clash")
 	VFX.sparks(get_parent(), at, Color(1.0, 0.97, 0.75), 42)
 	VFX.flash(get_parent(), at, Color(1.0, 0.9, 0.6), 3.0, 0.15, 5.0)
-	_shake.add(0.3)
+	_add_camera_shake(0.3)
 	_fov_punch(4.0)
 	_hit_stop(PARRY_HIT_STOP)
 
@@ -1162,8 +1162,16 @@ func _update_camera_fade(target: GeometryInstance3D) -> void:
 func _fov_punch(degrees: float) -> void:
 	# Keep the small contact cue inside the existing accessibility setting. This
 	# is an outward lens pulse, independent of positional camera shake.
-	var strength := float(clampi(int(SettingsStore.get_value("screen_shake")), 0, 2)) * 0.5
-	_impact_fov = maxf(_impact_fov, minf(degrees, 6.0) * strength)
+	_impact_fov = maxf(_impact_fov, minf(degrees, 6.0) * _screen_feedback_strength())
+
+
+func _add_camera_shake(amount: float) -> void:
+	_shake.add(amount * _screen_feedback_strength())
+
+
+func _screen_feedback_strength() -> float:
+	# Settings: Off = none, Reduced = half, Full = full. Read on impacts only.
+	return float(clampi(int(SettingsStore.get_value("screen_shake")), 0, 2)) * 0.5
 
 
 func _update_look_target() -> void:
@@ -1503,7 +1511,7 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 	if hits > 0:
 		Audio.sfx("hit")
 		_hit_stop(0.09 if finisher else 0.05, impacted_mixers)
-		_shake.add(0.45 if finisher else 0.22)
+		_add_camera_shake(0.45 if finisher else 0.22)
 		if finisher:
 			_fov_punch(3.0)
 
@@ -1566,7 +1574,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 	if not force and blocking and from_front:
 		_spend(amount * 1.6)
 		_kick(-facing() * BLOCK_PUSH)
-		_shake.add(0.15)
+		_add_camera_shake(0.15)
 		if stamina <= 0.0:
 			_stunned = 0.9          # guard broken
 			_swing = 0.0
@@ -1585,7 +1593,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 	health_changed.emit(health, max_health)
 	if knockback.length_squared() > 0.0001:
 		_kick(knockback)
-	_shake.add(0.3)
+	_add_camera_shake(0.3)
 	if health == 0:
 		_die()
 	elif not blocking:
