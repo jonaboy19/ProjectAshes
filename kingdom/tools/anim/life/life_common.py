@@ -102,7 +102,7 @@ def grip_frame(side, ho):
     f = Vector(ho[0]).normalized()
     n = Vector(ho[1])
     n = (n - f * n.dot(f)).normalized()
-    t = n.cross(f) if side == "r" else f.cross(n)
+    t = f.cross(n) if side == "r" else n.cross(f)    # thumb side (right: n = t x f  =>  t = f x n)
     return f, t, n
 
 

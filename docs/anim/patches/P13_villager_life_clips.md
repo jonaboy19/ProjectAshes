@@ -169,6 +169,22 @@ var _amb: LifeAmbience                     # _ready(): _amb = LifeAmbience.new(p
 
 ## 7. Animation LOD: hand it to CrowdAnimLOD
 
+**Measured finding: remove the villager's own 12 Hz stepping even without CrowdAnimLOD.**
+`AnimationPlayer.advance()` in MANUAL mode costs about 320 µs per call on the MakeHuman villager rig, against
+about 24 µs for the engine's own IDLE processing of the same player. That is 13x more
+(`tools_qa/living_world/anim_cost_probe.tscn`, Godot 4.6.3, PC).
+
+Villager.gd today switches every villager beyond 12 m to MANUAL and calls `advance()` at 12 Hz, i.e. every 5th
+frame at 60 fps. That costs about 64 µs per villager per frame instead of 24, so the "LOD" makes distant villagers
+about 2.5x MORE expensive.
+
+Other approaches:
+- Toggling `active` or `callback_mode_process` per frame never processes at all: the change lands after the frame's
+  process list is built.
+- What works is switching the player's `process_mode` (INHERIT on the step frame, DISABLED otherwise) with
+  `speed_scale x step`. CrowdAnimLOD does exactly that and restores the controller's own speed_scale.
+
+
 When the PopulationLOD hook (P13b) registers villagers:
 - delete the animation half of `_apply_distance_lod` (the `_anim_lod`/`callback_mode_process` block) and the
   `_anim.advance(step)` branch in `_physics_process`: CrowdAnimLOD owns the process mode, the stepping and the
