@@ -4,7 +4,7 @@
 
 ### Latest slice: evening inn routine requires a generated inn
 
-`DailyRhythm.state()` now assigns `State.INN` only after the existing evening/30%-selection checks and confirmation that the resident's settlement plan contains an inn lot. The deterministic schedule hash is unchanged, and lot scanning is confined to that selected evening path. A missing `graph.inn_door` now falls back to the home spot instead of market. No scoring, route geometry, UI or save changes. Static source review and `git diff --check` only; no parser, runtime settlement/route or mobile check was run. See [NPC_OPTIONAL_INN_ROUTINE_HANDOFF.md](concepts/NPC_OPTIONAL_INN_ROUTINE_HANDOFF.md).
+`DailyRhythm.state()` now assigns `State.INN` only after the existing evening/30%-selection checks and confirmation that the resident's settlement plan contains an inn lot. The deterministic schedule hash is unchanged; inn presence is cached once per immutable settlement plan. A missing `graph.inn_door` now falls back to the home spot instead of market. No scoring, route geometry, UI or save changes. Static source review and `git diff --check` only; no parser, runtime settlement/route or mobile check was run. See [NPC_OPTIONAL_INN_ROUTINE_HANDOFF.md](concepts/NPC_OPTIONAL_INN_ROUTINE_HANDOFF.md).
 
 ### Latest slice: unpaid land tax blocks property sale
 

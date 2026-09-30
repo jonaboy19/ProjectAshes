@@ -27,6 +27,8 @@ const INN_CLOSE := 22.5
 const INN_SHARE := 30
 ## WorldSim's schedule boundaries (see WorldSim._current_phase).
 const BOUNDARIES := [6.0, 12.0, 13.0, 17.0, 19.5, 21.0]
+## Settlement plans are immutable for the fixed world seed; cache inn presence once.
+static var _inn_lot_by_settlement := {}
 
 
 ## Stable delay behind the shared clock for person i today, in game hours.
@@ -57,11 +59,20 @@ static func goes_to_inn(i: int) -> bool:
 
 
 static func _has_inn_lot(i: int) -> bool:
-	var settlement: Dictionary = WorldGen.settlements[WorldSim.home[i]]
+	if i < 0 or i >= WorldSim.home.size():
+		return false
+	var settlement_id := int(WorldSim.home[i])
+	if settlement_id < 0 or settlement_id >= WorldGen.settlements.size():
+		return false
+	if _inn_lot_by_settlement.has(settlement_id):
+		return bool(_inn_lot_by_settlement[settlement_id])
+	var settlement: Dictionary = WorldGen.settlements[settlement_id]
 	var plan: Dictionary = settlement.get("plan", {})
 	for lot: Dictionary in plan.get("lots", []):
 		if String(lot.get("asset", "")) == "inn":
+			_inn_lot_by_settlement[settlement_id] = true
 			return true
+	_inn_lot_by_settlement[settlement_id] = false
 	return false
 
 
