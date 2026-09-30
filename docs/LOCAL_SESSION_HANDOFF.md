@@ -453,4 +453,5 @@ built with fewer nodes, and drop `_process` work when no site is within BUILD. I
 ## 2026-09-30 (Codex): NPC need continuity handoff
 - Source-checked the current merged game code: `UtilityBrain` owns five needs only while a villager body exists; `Villager._make_brain()` and `resync()` seed them again, and `WorldSim.serialize()` has no need state.
 - Added `docs/concepts/NPC_NEEDS_CONTINUITY_HANDOFF.md` and linked it from `docs/concepts/CODEX_SYSTEMS_HANDOFF.md`. It proposes compact, versioned save state and explicit LOD ownership/catch-up, with no additional distant NPC brains.
+- Updated `docs/concepts/NPC_LIFE_LOOP_DESIGN.md` with a current-source snapshot that supersedes its `e3563fc4` observations where they conflict; it records the live schedule, route, body/contact, LOD, behavior, and continuity boundaries so Claude does not redo completed integration work.
 - Documentation only; no gameplay code or tests changed. `git diff --check` passed.
