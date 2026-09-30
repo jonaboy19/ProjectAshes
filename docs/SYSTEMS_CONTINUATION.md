@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: evening inn routine requires a generated inn
+
+`DailyRhythm.state()` now assigns `State.INN` only after the existing evening/30%-selection checks and confirmation that the resident's settlement plan contains an inn lot. The deterministic schedule hash is unchanged, and lot scanning is confined to that selected evening path. A missing `graph.inn_door` now falls back to the home spot instead of market. No scoring, route geometry, UI or save changes. Static source review and `git diff --check` only; no parser, runtime settlement/route or mobile check was run. See [NPC_OPTIONAL_INN_ROUTINE_HANDOFF.md](concepts/NPC_OPTIONAL_INN_ROUTINE_HANDOFF.md).
+
 ### Latest slice: unpaid land tax blocks property sale
 
 `RAProperty.sell()` now returns “Pay your land dues first.” when the owned lot has positive `tax_debt`, before storage/refund/deletion logic. Debt-free sale behavior and rent-debt rules remain unchanged. Static source review and `git diff --check` only; no parser, runtime, save/load or gameplay behavior check was run. See [PROPERTY_TAX_DEBT_SALE_HANDOFF.md](concepts/PROPERTY_TAX_DEBT_SALE_HANDOFF.md).

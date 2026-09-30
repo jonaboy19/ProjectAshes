@@ -56,11 +56,20 @@ static func goes_to_inn(i: int) -> bool:
 	return WorldSim.job[i] != 3 and hash(i * 31 + WorldSim.day * 977) % 100 < INN_SHARE
 
 
+static func _has_inn_lot(i: int) -> bool:
+	var settlement: Dictionary = WorldGen.settlements[WorldSim.home[i]]
+	var plan: Dictionary = settlement.get("plan", {})
+	for lot: Dictionary in plan.get("lots", []):
+		if String(lot.get("asset", "")) == "inn":
+			return true
+	return false
+
+
 ## Where person i wants to be right now.
 static func state(i: int) -> int:
 	var t := local_time(i)
 	var p := phase_at(WorldSim.job[i], t)
-	if p == 0 and t >= INN_OPEN and t < INN_CLOSE and goes_to_inn(i):
+	if p == 0 and t >= INN_OPEN and t < INN_CLOSE and goes_to_inn(i) and _has_inn_lot(i):
 		return State.INN
 	return p
 
@@ -94,7 +103,7 @@ static func goal(i: int, st: int, graph: StreetGraph) -> Vector2:
 			var ang := (float(h % 1000) / 1000.0 - 0.5) * 2.2
 			var dist := 1.8 + float((h / 1000) % 100) / 100.0 * 3.2
 			return graph.inn_door + graph.inn_facing.rotated(ang) * dist
-		return WorldSim._spot(s, State.MARKET, i)
+		return WorldSim._spot(s, State.HOME, i)
 	return WorldSim._spot(s, st, i)
 
 
