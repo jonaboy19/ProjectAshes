@@ -964,7 +964,7 @@ static func label(action: int, travelling: bool) -> String:
 		Act.SOCIAL: return "looking for company" if travelling else "chatting"
 		Act.INN: return "off to the inn" if travelling else "at the inn"
 		Act.PRAY: return "off to pray" if travelling else "praying"
-		Act.WATER: return "fetching water" if travelling else "at the well"
+		Act.WATER: return "fetching water" if travelling else "at the water point"
 		Act.SHELTER: return "running from the rain" if travelling else "sheltering"
 		Act.FLEE: return "fleeing!" if travelling else "hiding"
 		Act.WATCH: return "watching"
