@@ -10,6 +10,7 @@ extends Node3D
 
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
 const RealmEncounters := preload("res://scripts/world/realm_encounters.gd")
+const DistanceCull := preload("res://scripts/core/distance_cull.gd")
 const REGION := "res://assets/generated/region/"
 const CELL := 40.0
 const KEEP_CULL := 600.0
@@ -465,6 +466,7 @@ func _refresh_guards() -> void:
 				var ap := Assets.animation_player(guard)
 				if ap:
 					ap.play("Idle" if ap.has_animation("Idle") else ap.get_animation_list()[0])
+				DistanceCull.attach(guard, 80.0, ap)     # perf round 2: full 7-12k tri guard only up close
 				live.append(guard)
 		elif d > GUARD_OUT and not live.is_empty():
 			for g: Node3D in live:

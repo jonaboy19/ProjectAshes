@@ -135,14 +135,14 @@ const BUILDINGS := {
 	"castle": [GEN + "castle_keep.glb", 0.0],
 	"temple": [GEN + "temple.glb", 0.0],
 	"watchtower": [RTS + "WatchTower_SecondAge_Level3.gltf", 7.0],
-	"wall": [GEN + "town_wall.glb", 0.0],
-	"wall_tower": [GEN + "town_wall_tower.glb", 0.0],
-	"wall_gate": [GEN + "town_gate.glb", 0.0],
+	"wall": [GEN + "town_wall.glb", 0.0, GEN + "town_wall_lod1.glb", 60.0],
+	"wall_tower": [GEN + "town_wall_tower.glb", 0.0, GEN + "town_wall_tower_lod1.glb", 60.0],
+	"wall_gate": [GEN + "town_gate.glb", 0.0, GEN + "town_gate_lod1.glb", 60.0, GEN + "town_gate_lod2.glb", 140.0],
 	# Tall jettied townhouses lining walled towns' gate roads (Kingsreach reference).
-	"house_town_a": [GEN + "townhouse_a.glb", 0.0, GEN + "townhouse_a_lod1.glb", 60.0],
-	"house_town_b": [GEN + "townhouse_b.glb", 0.0, GEN + "townhouse_b_lod1.glb", 60.0],
-	"house_town_c": [GEN + "townhouse_c.glb", 0.0, GEN + "townhouse_c_lod1.glb", 60.0],
-	"house_town_d": [GEN + "townhouse_d.glb", 0.0, GEN + "townhouse_d_lod1.glb", 60.0],
+	"house_town_a": [GEN + "townhouse_a.glb", 0.0, GEN + "townhouse_a_lod1.glb", 60.0, GEN + "townhouse_a_lod2.glb", 130.0],
+	"house_town_b": [GEN + "townhouse_b.glb", 0.0, GEN + "townhouse_b_lod1.glb", 60.0, GEN + "townhouse_b_lod2.glb", 130.0],
+	"house_town_c": [GEN + "townhouse_c.glb", 0.0, GEN + "townhouse_c_lod1.glb", 60.0, GEN + "townhouse_c_lod2.glb", 130.0],
+	"house_town_d": [GEN + "townhouse_d.glb", 0.0, GEN + "townhouse_d_lod1.glb", 60.0, GEN + "townhouse_d_lod2.glb", 130.0],
 	# Kingsreach gate-market dressing (main art reference): stalls, lamps, banners, bunting.
 	"market_stall_red": [GEN + "market_stall_red.glb", 0.0],
 	"market_stall_green": [GEN + "market_stall_green.glb", 0.0],
@@ -312,6 +312,9 @@ static func animation_player(model: Node) -> AnimationPlayer:
 static func visual_aabb(root: Node3D) -> AABB:
 	var result := AABB()
 	var first := true
+	if root is MeshInstance3D and (root as MeshInstance3D).mesh != null and (root as MeshInstance3D).visible:
+		result = (root as MeshInstance3D).mesh.get_aabb()
+		first = false
 	for node in root.find_children("*", "MeshInstance3D", true, false):
 		var mi := node as MeshInstance3D
 		if not mi.visible or mi.mesh == null:
@@ -661,6 +664,49 @@ static func building_mesh(key: String) -> ArrayMesh:
 	mesh = _transformed(mesh, fit, not path.begins_with(MESHY))
 	_building_cache[key] = mesh
 	return mesh
+
+
+static var _static_cache: Dictionary = {}
+
+
+## Perf round 2: a static GLB prop (notice board, crates, barrels...) usually imports as a
+## dozen MeshInstance3D nodes = a dozen draw calls per copy. This returns ONE MeshInstance3D
+## with the parts merged per material (see merged_mesh), cached per path. Scenes with
+## skeletons, animation, lights or particles fall back to the plain instantiated scene.
+static func static_model(path: String) -> Node3D:
+	if not _static_cache.has(path):
+		var sc := scene(path)
+		var mesh: ArrayMesh = null
+		if sc != null:
+			var probe: Node = sc.instantiate()
+			var plain := probe.find_children("*", "Skeleton3D", true, false).is_empty() \
+				and probe.find_children("*", "AnimationPlayer", true, false).is_empty() \
+				and probe.find_children("*", "Light3D", true, false).is_empty() \
+				and probe.find_children("*", "GPUParticles3D", true, false).is_empty() \
+				and probe.find_children("*", "CPUParticles3D", true, false).is_empty() \
+				and probe.find_children("*", "Sprite3D", true, false).is_empty() \
+				and probe.find_children("*", "Label3D", true, false).is_empty() \
+				and probe.find_children("*", "Marker3D", true, false).is_empty() \
+				and probe.find_children("*", "StaticBody3D", true, false).is_empty()
+			if plain:
+				# Named empties (sail_hub, chimney_top...) are hooks the callers look up: keep the scene.
+				for e in probe.find_children("*", "Node3D", true, false):
+					if e.get_class() == "Node3D" and e.find_children("*", "MeshInstance3D", true, false).is_empty():
+						plain = false
+						break
+			probe.free()
+			if plain:
+				var merged := merged_mesh(path)
+				if merged != null:
+					mesh = _transformed(merged, Transform3D.IDENTITY, true)   # keeps the automatic mesh LODs
+		_static_cache[path] = mesh
+	var m: ArrayMesh = _static_cache[path]
+	if m == null:
+		var s2 := scene(path)
+		return s2.instantiate() if s2 != null else null
+	var mi := MeshInstance3D.new()
+	mi.mesh = m
+	return mi
 
 
 static func merged_mesh(path: String) -> ArrayMesh:

@@ -269,11 +269,25 @@ func _spawn(asset: String) -> Node3D:
 	if asset.begins_with("meshy:"):
 		var spec := asset.substr(6).split("@")
 		var target := float(spec[1]) if spec.size() > 1 else 4.0
-		var n := _lod_pair(MESHY + spec[0] + "_lod0.glb", MESHY + spec[0] + "_lod1.glb", 90.0)
+		var n := _lod_pair(MESHY + spec[0] + "_lod0.glb", MESHY + spec[0] + "_lod1.glb", 90.0, target)
 		if n == null:
 			return null
 		var box := Assets.visual_aabb(n)
 		var k := target / maxf(box.size.y, 0.01)
+		# Round 2: far stages for hero pieces that ship lod2/lod3 (3.5-7k / ~1k tris) so a
+		# landmark seen from a kilometre away no longer draws its 20k+ tri lod1.
+		var l2 := MESHY + spec[0] + "_lod2.glb"
+		var l3 := MESHY + spec[0] + "_lod3.glb"
+		if ResourceLoader.exists(l2) and n.get_child_count() > 1:
+			var stage_end := 400.0 if ResourceLoader.exists(l3) else 0.0
+			_ranges(n.get_child(1), 90.0, 200.0)
+			var m2 := Assets.static_model(l2)
+			n.add_child(m2)
+			_ranges(m2, 200.0, stage_end if stage_end > 0.0 else 600.0)
+			if stage_end > 0.0:
+				var m3 := Assets.static_model(l3)
+				n.add_child(m3)
+				_ranges(m3, stage_end, 600.0)
 		var holder := Node3D.new()
 		holder.add_child(n)
 		n.scale = Vector3.ONE * k
@@ -305,16 +319,24 @@ func _spawn(asset: String) -> Node3D:
 	return _lod_pair(REGION + asset + ".glb", REGION + asset + "_lod1.glb", LOD_DIST)
 
 
-func _lod_pair(lod0: String, lod1: String, dist: float) -> Node3D:
+## `fit_height` > 0: the piece is later scaled to that height (Meshy landmarks import at
+## ~2 m and are scaled x4-9), so its cull ranges and shadow rule must use the SCALED size.
+## Before this a 9 m guild hall counted as a 2.4 m prop: cut off at 120 m, no shadows.
+func _lod_pair(lod0: String, lod1: String, dist: float, fit_height := 0.0) -> Node3D:
 	if not ResourceLoader.exists(lod0):
 		return null
 	var holder := Node3D.new()
-	var near: Node3D = Assets.scene(lod0).instantiate()
+	# One merged MeshInstance3D per part (draw calls = materials) except wind-shaded nature.
+	var merge := not lod0.contains("/nature/")
+	var near: Node3D = Assets.static_model(lod0) if merge else Assets.scene(lod0).instantiate()
 	holder.add_child(near)
-	var extent := Assets.visual_aabb(near).size.length()
+	var raw := Assets.visual_aabb(near)
+	var extent := raw.size.length()
+	if fit_height > 0.0:
+		extent *= fit_height / maxf(raw.size.y, 0.01)
 	var far_end := 120.0 if extent < 3.0 else (260.0 if extent < 10.0 else 600.0)
 	if dist > 0.0 and lod1 != "" and ResourceLoader.exists(lod1):
-		var far: Node3D = Assets.scene(lod1).instantiate()
+		var far: Node3D = Assets.static_model(lod1) if merge else Assets.scene(lod1).instantiate()
 		holder.add_child(far)
 		_ranges(near, 0.0, dist)
 		_ranges(far, dist, far_end)

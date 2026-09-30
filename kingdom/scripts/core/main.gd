@@ -1036,6 +1036,21 @@ func _screenshot(shot: String, path: String) -> void:
 			_teleport(spg, 0.0)
 			player.set_camera(atan2(-dirg.x, -dirg.y), -0.05)
 			warmup = 120
+		"academy":
+			# QA view of the Kingsreach Academy campus (--dist=60 --rot=0.5 rad off the front axis, --pitch=-0.12).
+			for asite: Dictionary in WorldGen.sites:
+				if asite["kind"] != "academy":
+					continue
+				var ac: Vector2 = asite["pos"]
+				var afront := Vector2(sin(float(asite["yaw"])), cos(float(asite["yaw"])))
+				var asp: Vector2 = ac + afront.rotated(float(_user_args().get("rot", "0.5"))) * float(_user_args().get("dist", "60"))
+				_teleport(asp, 0.0)
+				var alk: Vector2 = ac - asp
+				player.set_camera(atan2(-alk.x, -alk.y), float(_user_args().get("pitch", "-0.12")))
+				region.focus = player.global_position
+				region.build_all_now()
+				break
+			warmup = 90
 		"stall":
 			# QA close-up of the Nth market stall on Kingsreach's gate road (--n=2), from 6 m in front of it.
 			var capst: Dictionary = WorldGen.settlements[1]

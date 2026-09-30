@@ -6,6 +6,12 @@ extends Node3D
 
 const CHUNK := 64.0
 const CELL := 2.0
+## Perf round 2: chunks whose centre is past GROUND_LOD_DIST swap to a quarter-triangle
+## ground mesh (LOD_STEP x CELL grid, 512 tris instead of 2048) with a skirt so the
+## step against the full-res neighbour shows no crack.
+const GROUND_LOD_DIST := 110.0
+const LOD_STEP := 2
+const SKIRT_DROP := 4.0
 ## Distance where Blender trees hand over to the cheap stylised stand-ins.
 const TREE_LOD := 200.0
 ## Painterly region trees (generated/region/nature): LOD0 -> LOD1 -> 4-tri impostor
@@ -314,10 +320,72 @@ func _plan_chunk(key: Vector2i) -> Dictionary:
 	arrays[Mesh.ARRAY_INDEX] = indices
 	var forest := _plan_forest(key, origin)
 	return {
-		"ground": arrays, "faces": faces, "forest": forest,
+		"ground": arrays, "ground_lod": _lod_arrays(verts, normals, colors, n), "faces": faces, "forest": forest,
 		"impostors": _plan_impostors(forest),
 		"grass": GrassField.plan(origin, CHUNK, hash(key) ^ 0x6a55),
 	}
+
+
+## Every LOD_STEP-th vertex of the (n+1)^2 grid, plus a skirt hanging SKIRT_DROP m below the
+## four edges (same normals/colours as the edge vertices) to hide T-junction cracks.
+static func _lod_arrays(verts: PackedVector3Array, normals: PackedVector3Array, colors: PackedColorArray, n: int) -> Array:
+	var m := n / LOD_STEP
+	var lv := PackedVector3Array()
+	var ln := PackedVector3Array()
+	var lc := PackedColorArray()
+	for j in m + 1:
+		for i in m + 1:
+			var src := j * LOD_STEP * (n + 1) + i * LOD_STEP
+			lv.append(verts[src])
+			ln.append(normals[src])
+			lc.append(colors[src])
+	var idx := PackedInt32Array()
+	for j in m:
+		for i in m:
+			var a := j * (m + 1) + i
+			var b := a + 1
+			var c := a + m + 1
+			var d := c + 1
+			idx.append_array([a, b, c, b, d, c])
+	# Skirt: duplicate each border vertex lowered, then quads between border neighbours.
+	var border: Array = []      # ordered loops as lists of vertex indices, one list per side
+	var top: Array[int] = []
+	var bottom: Array[int] = []
+	var left: Array[int] = []
+	var right: Array[int] = []
+	for i in m + 1:
+		top.append(i)
+		bottom.append(m * (m + 1) + i)
+		left.append(i * (m + 1))
+		right.append(i * (m + 1) + m)
+	border = [[top, false], [bottom, true], [left, true], [right, false]]
+	for side: Array in border:
+		var list: Array = side[0]
+		var flip: bool = side[1]
+		var low_ids := {}
+		for vi: int in list:
+			low_ids[vi] = lv.size()
+			lv.append(lv[vi] - Vector3(0, SKIRT_DROP, 0))
+			ln.append(ln[vi])
+			lc.append(lc[vi])
+		for k in list.size() - 1:
+			var t0: int = list[k]
+			var t1: int = list[k + 1]
+			var b0: int = low_ids[t0]
+			var b1: int = low_ids[t1]
+			# Clockwise seen from outside (Godot front face); `flip` marks the sides whose
+			# border list runs the other way round.
+			if flip:
+				idx.append_array([t0, t1, b0, t1, b1, b0])
+			else:
+				idx.append_array([t0, b0, t1, t1, b0, b1])
+	var arr := []
+	arr.resize(Mesh.ARRAY_MAX)
+	arr[Mesh.ARRAY_VERTEX] = lv
+	arr[Mesh.ARRAY_NORMAL] = ln
+	arr[Mesh.ARRAY_COLOR] = lc
+	arr[Mesh.ARRAY_INDEX] = idx
+	return arr
 
 
 func _build_chunk(key: Vector2i, plan: Dictionary) -> Node3D:
@@ -330,7 +398,22 @@ func _build_chunk(key: Vector2i, plan: Dictionary) -> Node3D:
 	ground.mesh = mesh
 	ground.material_override = _ground_material
 	ground.layers |= TownDecals.GROUND_LAYER      # ground decals (ruts, puddles) project only onto the terrain
+	ground.visibility_range_end = GROUND_LOD_DIST
+	ground.visibility_range_end_margin = 6.0
+	ground.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
 	chunk.add_child(ground)
+	if plan.has("ground_lod"):
+		var far := MeshInstance3D.new()
+		far.name = "GroundFar"
+		var far_mesh := ArrayMesh.new()
+		far_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, plan["ground_lod"])
+		far.mesh = far_mesh
+		far.material_override = _ground_material
+		far.layers |= TownDecals.GROUND_LAYER
+		far.visibility_range_begin = GROUND_LOD_DIST
+		far.visibility_range_begin_margin = 6.0
+		far.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+		chunk.add_child(far)
 	chunk.set_meta("faces", plan["faces"])
 	var grass_plan: Dictionary = plan["grass"]
 	var any_grass := false
