@@ -1,0 +1,5 @@
+{
+	"_comment": "Crownstead Mill Hill: a round crown-farm hill with a levelled top for the three windmills and the Elder Stone (tools_qa/region1/bake_valley.gd, type hill). See docs/regions/LOOK_R1.md.",
+	"id": "crownstead_hill", "type": "hill", "center": [430, -192], "radius": [92, 78], "yaw": 25,
+	"top_height": 60.0, "top": 0.32, "wobble": 0.1, "clear_top": 0.95, "cell": 3.0
+}
