@@ -25,7 +25,7 @@ The latest published Claude snapshot inspected for this handoff is `d163255f`.
 
 Generated settlement placements now receive a semantic identity derived from settlement, placement kind/index/position, asset and authored activity ordinal. Their in-memory integer handles remain transient; `slot_resource_key()` exposes a stable key only for generated placements. Hand-placed QA demo spots intentionally return no persistent resource key. This is a starting identity contract for a fixed deterministic world plan, not yet a migration-safe ID across changes to `CityPlanner` ordering.
 
-Alignment now has a bounded failure path: if the body does not reach the authored stand point within 1.5 seconds, the session releases its own claim and ends. It does not enter the contact animation and snap from a visibly incorrect location. These are reference-layer safety fixes; they do not wire smart objects into gameplay or bind slot keys to `ActionRuntime`.
+Alignment now has a bounded failure path: if the body does not reach the authored stand point within 1.5 seconds, the session releases its own claim and ends. It does not enter the contact animation and snap from a visibly incorrect location. `LifeActor` now queues one replacement order through the old session's exit clip; actor removal releases the lease immediately because no animation can finish after despawn. These are reference-layer safety fixes; they do not wire smart objects into gameplay or bind slot keys to `ActionRuntime`.
 
 No runtime or device validation is claimed in this handoff.
 
@@ -42,7 +42,7 @@ No runtime or device validation is claimed in this handoff.
 
 - `SmartObjects.populate_settlement()` still returns transient sequential spot indices for array lookup. Do not serialize those indices. Generated placements now expose a semantic key, but it depends on current settlement IDs and deterministic lot/landmark ordering; planner changes need explicit ID migration or a stronger authored placement identity before old saves depend on it.
 - The chance filter in `populate_settlement()` is derived from a hash of position and type. Keep generated placements deterministic, but do not mistake determinism for a collision-free unique identity.
-- `LifeActor._end_session()` calls `interrupt()`, then releases the person and clears the session immediately. That bypasses its modeled exit phase. Correct this when the reference actor gets a proper deferred-command/interruption API; do not copy this helper into `Villager` integration.
+- The `LifeActor` deferred-command behavior is QA/reference-only. If this state machine is later wired into `Villager`, cancellation and leases must instead follow the authoritative gameplay action/station owner; do not copy the demo actor lifecycle wholesale.
 - The demo `LifeActor` is a `Node3D` that translates its transform directly. Gameplay actors require `CharacterBody3D`/`move_and_slide()` and the game's collision masks, or the known wall/building pass-through returns.
 - `SmartObjects.target_for()` currently makes a transient soft claim while returning only a 2D point. Its caller must release or replace the claim when the schedule target changes, and the return value must still pass through the same routed movement/collision authority as other goals.
 - `ActionRuntime` reserves actor/resource keys but currently has no proven binding to `Station`/work spots or a resident's near-body activity. The binding, stable key scheme, persistence/restore semantics and actor mapping remain unimplemented.

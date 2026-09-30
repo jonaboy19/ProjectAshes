@@ -345,6 +345,12 @@ class Session:
 		elif phase in [APPROACH, ALIGN]:
 			_go(DONE)
 
+
+	## Immediate teardown path for a body that is being removed and cannot play
+	## its exit animation. Normal gameplay interruptions should use interrupt().
+	func cancel_now() -> void:
+		_go(DONE)
+
 	func stand() -> Transform3D:
 		return so.stand_xform(spot, slot)
 
