@@ -2,6 +2,8 @@
 
 > Current delivery: read **Current checkpoint after usage reset** in [SYSTEMS_CONTINUATION.md](SYSTEMS_CONTINUATION.md) first. Latest main is merged. Exact station-generation crafting, FIFO sight scheduling, bounded local conversation topics and a regional event adapter are implemented. Older delivery notes below describe prior checkpoints; gameplay/device validation is still outstanding.
 
+For the fetched Claude living-world prototype (`d163255f`), read [Codex ↔ Claude living-world integration handoff](concepts/CODEX_CLAUDE_LIVING_WORLD_INTEGRATION.md) before wiring `SmartObjects` or `LifeActor` into live villagers. It documents how to unify slot leases and station generations, preserve movement and persistence owners, and avoid copying the demo's direct movement into gameplay.
+
 Baseline: main 4e03e000, 29 September 2026. Read [SYSTEMS_MASTERPLAN.md](SYSTEMS_MASTERPLAN.md) for the staged plan and evidence. This handoff separates intended work from delivered verification; update the delivery section only after inspecting the actual patch.
 
 ## Ownership

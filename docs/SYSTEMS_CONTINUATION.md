@@ -2,6 +2,12 @@
 
 ## Current checkpoint after usage reset
 
+### Claude living-world package observed on 2026-09-30
+
+Latest fetched Claude ref is `d163255f`, including `09febe67`: a `living_world` prototype with typed smart-object spots/sessions, props, clip library, crowd animation LOD, ambience, and a demo actor. Its integration seams with Codex's already-present station leases, NPC position ownership, persistent fact journal, and need rows are mapped in [Codex ↔ Claude living-world integration handoff](CODEX_CLAUDE_LIVING_WORLD_INTEGRATION.md).
+
+This package is not merged into the Codex worktree and is not wired into the playable main scene in the inspected source. The branch diff is large and touches `life.gd`, so preserve both refs and use the handoff's smith/anvil vertical slice after coordinated integration. In particular, do not treat demo actor transform snaps or integer spot IDs as gameplay-ready movement/identity contracts.
+
 Committed resume points: `86a9e339` (station reservations and local conversation topics), `72e09b25` (FIFO sight and observation age), `0a0ae349` / `9d2cc2b6` (regional event adapter and current-journal provider). Review these commits after the main merge `bacf11e7`; do not apply the entire old branch diff blindly to newer Claude work.
 
 This section supersedes the older progress ledger below. Latest main `6dd277e9` was merged cleanly into the isolated systems branch in `bacf11e7`; Claude's appearance, character creation and dialogue UI additions remain present. The PC checkout was not edited. Re-fetch heads before taking ownership of overlapping files.
