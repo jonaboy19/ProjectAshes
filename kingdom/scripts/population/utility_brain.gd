@@ -390,7 +390,7 @@ func catch_up(now_hours: float) -> void:
 	var public_hours := _periodic_window_total(now_hours, 24.0, 17.0, 19.5) - _periodic_window_total(start_hours, 24.0, 17.0, 19.5)
 	var inn_hours := _periodic_window_total(now_hours, 24.0, 19.5, 22.5) - _periodic_window_total(start_hours, 24.0, 19.5, 22.5)
 	var daytime_hours := _periodic_window_total(now_hours, 24.0, 6.0, 17.0) - _periodic_window_total(start_hours, 24.0, 6.0, 17.0)
-	var holy_hours := _periodic_window_total(now_hours, OFFSCREEN_HOLY_PERIOD, 144.0, 168.0) - _periodic_window_total(start_hours, OFFSCREEN_HOLY_PERIOD, 144.0, 168.0)
+	var holy_hours := _periodic_window_total(now_hours, OFFSCREEN_HOLY_PERIOD, 0.0, 24.0) - _periodic_window_total(start_hours, OFFSCREEN_HOLY_PERIOD, 0.0, 24.0)
 	# Public schedule exposure grants only fractional, anonymous need recovery.
 	# It creates no companion, conversation, relationship or witnessed event.
 	var guard := job == 3
@@ -404,7 +404,7 @@ func catch_up(now_hours: float) -> void:
 	social += social_recovery
 	# Expected prayer time follows daytime availability and piety. Holy-day
 	# weight uses the existing weekly day%7 schedule, without recording prayer.
-	var prayer_hours_per_day := 0.15 + 0.9 * pious
+	var prayer_hours_per_day := 1.2 * pious
 	var prayer_recovery := daytime_hours * prayer_hours_per_day / 11.0 * float(RESTORE[Act.PRAY][0][1])
 	prayer_recovery += holy_hours * pious * 0.25 / 24.0 * float(RESTORE[Act.PRAY][0][1])
 	faith -= (0.02 + 0.05 * pious) * elapsed
