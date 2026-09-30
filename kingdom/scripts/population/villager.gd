@@ -307,7 +307,9 @@ func restore_needs_from_world() -> void:
 ## WorldSim moved everyone (time skip / load): take its position as the new
 ## truth, settle outside footprints and plan again.
 func resync() -> void:
-	var p: Vector2 = WorldSim.pos[person]
+	# A time skip changes this resident's schedule target, not its live resolved
+	# transform. WorldSim.pos is only the last 4 Hz LOD write-back while owned.
+	var p: Vector2 = sim_position() if WorldSim.owns_external_position(person, get_instance_id()) else WorldSim.pos[person]
 	if _graph:
 		p = _graph.push_out(p, BODY_RADIUS + 0.12)
 	global_position = Vector3(p.x, WorldGen.height(p.x, p.y), p.y)
