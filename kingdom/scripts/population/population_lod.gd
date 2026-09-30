@@ -42,6 +42,9 @@ const MAX_SPAWNS_PER_TICK := 3
 ## fall back to plain kinematic movement (see Villager.physics_active) -- same
 ## steering, speed and animation, just no per-pair collision resolution.
 const MAX_PHYSICS_CONTACT := 8
+## Retain an active contact slot slightly across ranking refreshes to avoid
+## repeatedly enabling/disabling collision for bodies at the budget edge.
+const PHYSICS_KEEP_BIAS := 0.78
 ## Embodied villagers rank at this fraction of their squared distance (about
 ## 13% closer), so promotion and demotion don't chatter at the budget edge.
 const KEEP_BIAS := 0.75
@@ -154,13 +157,23 @@ func refresh() -> void:
 			nearest_id = entry[1]
 	for id in _full:
 		(_full[id] as Villager).show_tag = id == nearest_id
-	var physics_slots := 0
+	var physics_candidates: Array = []
 	for entry in dists:
-		if not _full.has(entry[1]):
+		var candidate_id: int = entry[1]
+		if not _full.has(candidate_id):
 			continue
-		var v: Villager = _full[entry[1]]
-		v.physics_active = physics_slots < MAX_PHYSICS_CONTACT
-		physics_slots += 1
+		var v := _full[candidate_id] as Villager
+		var keep_factor := PHYSICS_KEEP_BIAS if v.physics_active else 1.0
+		physics_candidates.append([float(entry[0]) * keep_factor, candidate_id])
+	physics_candidates.sort_custom(func(a: Array, b: Array) -> bool:
+		if float(a[0]) == float(b[0]):
+			return int(a[1]) < int(b[1])
+		return float(a[0]) < float(b[0]))
+	for resident_id in _full:
+		(_full[resident_id] as Villager).physics_active = false
+	for i in mini(MAX_PHYSICS_CONTACT, physics_candidates.size()):
+		var selected_id: int = physics_candidates[i][1]
+		(_full[selected_id] as Villager).physics_active = true
 
 	var used := {}
 	for look in _multimeshes:
