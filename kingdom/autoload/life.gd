@@ -1199,6 +1199,11 @@ func buy(item: String) -> String:
 func sell(item: String) -> String:
 	if count(item) <= 0:
 		return "You have no %s." % item_name(item)
+	var gov: Variant = realm.mod("governance")   # CIV-B law hook: banned monster-part trade
+	if gov != null:
+		var refusal: String = gov.refuses_item(int(realm.mod("city_life").near_settlement()), item)
+		if refusal != "":
+			return refusal
 	var got := market.sell(item)
 	if got < 0:
 		return "The merchant can't afford it today."

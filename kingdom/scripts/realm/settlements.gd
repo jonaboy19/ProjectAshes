@@ -210,6 +210,84 @@ func sname(sid: int) -> String:
 	return "settlement %d" % sid
 
 
+# --------------------------------------------------------------- lifecycle hooks (realm/civilization.gd, migration.gd)
+
+## Carrying capacity the logistic regrowth aims at (civilization raises it with housing and boom, lowers it in decline).
+func capacity(sid: int) -> int:
+	_ensure()
+	return _pop_cap(sid, _s[sid]) if _s.has(sid) else 0
+
+
+func set_capacity(sid: int, cap: int) -> void:
+	_ensure()
+	if _s.has(sid):
+		_s[sid]["cap"] = maxi(0, cap)
+
+
+func residents(sid: int) -> Dictionary:
+	_ensure()
+	return _s.get(sid, {}).get("residents", {})
+
+
+func structures(sid: int) -> Dictionary:
+	_ensure()
+	return _s.get(sid, {}).get("structures", {})
+
+
+func chains(sid: int) -> Dictionary:
+	_ensure()
+	return _s.get(sid, {}).get("chains", {})
+
+
+func trade_level(sid: int) -> float:
+	_ensure()
+	return float(_s.get(sid, {}).get("trade", 0.0))
+
+
+func set_chain(sid: int, chain: String, n: int) -> void:
+	_ensure()
+	if _s.has(sid):
+		_s[sid]["chains"][chain] = maxi(0, n)
+
+
+## Moves the population by `delta` (negative = emigration/decline), spread over the occupations in proportion
+## (stochastic rounding from `r`). `bias` optionally steers arrivals to one occupation. Unlike _loss there is no floor of 20.
+func adjust_population(sid: int, delta: int, r: RandomNumberGenerator, bias := "") -> int:
+	_ensure()
+	if not _s.has(sid) or delta == 0:
+		return 0
+	var d: Dictionary = _s[sid]
+	var res: Dictionary = d["residents"]
+	if delta > 0:
+		if bias != "" and OCC_WEIGHT.has(bias):
+			res[bias] = int(res.get(bias, 0)) + delta
+		else:
+			var total := 0.0
+			for o in res:
+				total += float(res[o])
+			var given := 0
+			for o in res:
+				var share := float(res[o]) / maxf(total, 1.0)
+				var n := int(delta * share)
+				res[o] = int(res[o]) + n
+				given += n
+			res["farmer"] = int(res.get("farmer", 0)) + (delta - given)
+		d["pop"] = int(d["pop"]) + delta
+		return delta
+	var take := mini(-delta, int(d["pop"]))
+	var total2 := 0.0
+	for o in res:
+		total2 += float(res[o])
+	var removed := 0
+	for o in res:
+		var exp_n := float(take) * float(res[o]) / maxf(total2, 1.0)
+		var n := mini(int(res[o]), int(exp_n) + (1 if r.randf() < exp_n - floorf(exp_n) else 0))
+		res[o] = int(res[o]) - n
+		removed += n
+	d["pop"] = maxi(0, int(d["pop"]) - removed)
+	return -removed
+
+
 # --------------------------------------------------------------- hooks other modules/player use
 
 func add_structure(sid: int, kind: String, n := 1) -> void:

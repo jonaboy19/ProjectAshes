@@ -23,6 +23,7 @@ var revealed: Dictionary = {}        # hidden dungeon id -> day found
 var leads: Dictionary = {}           # dungeon id -> day the lead was learned
 var entered: Dictionary = {}         # dungeon id -> day first entered
 var _last_kill_day: Dictionary = {}
+var relics: Dictionary = {}          # dungeon id -> {text, day}: gear of a lost expedition (notables.gd)
 
 
 func state(id: String) -> Dictionary:
@@ -64,6 +65,18 @@ func learn_lead(id: String, day := 0) -> bool:
 		var why := String(RUMOUR_TEXT.get(String(site.get("cave", {}).get("reveal", "")), "a hidden place"))
 		soc.learn("lead:%s" % id, "Rumour of %s: %s." % [String(site.get("name", "a hidden place")), why])
 	return true
+
+
+## A lost expedition's gear turns up deep in `id` (CIV-B notables.gd): stores the relic and gives a lead.
+func plant_relic(id: String, text: String, day := 0) -> void:
+	if relics.has(id):
+		return
+	relics[id] = {"text": text, "day": day}
+	if not leads.has(id):
+		leads[id] = day
+		var soc: Variant = hub.mod("society") if hub != null else null
+		if soc != null:
+			soc.learn("lead:%s" % id, "Rumour of %s: %s" % [String(_site(id).get("name", "a hidden place")), text])
 
 
 ## A rumour to drop into a dialogue for someone in `region_pos`: nearest hidden place not yet found.
@@ -145,7 +158,7 @@ func catch_up(days: int, ctx: Dictionary) -> Array:
 
 func serialize() -> Dictionary:
 	return {"v": SAVE_VERSION, "states": _states.duplicate(true), "revealed": revealed.duplicate(), "leads": leads.duplicate(),
-		"entered": entered.duplicate(), "last_kill": _last_kill_day.duplicate()}
+		"entered": entered.duplicate(), "last_kill": _last_kill_day.duplicate(), "relics": relics.duplicate(true)}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -154,6 +167,7 @@ func deserialize(d: Dictionary) -> void:
 	leads.clear()
 	entered.clear()
 	_last_kill_day.clear()
+	relics = (d.get("relics", {}) as Dictionary).duplicate(true)
 	var s: Variant = d.get("states", {})
 	if s is Dictionary:
 		for id: Variant in s:

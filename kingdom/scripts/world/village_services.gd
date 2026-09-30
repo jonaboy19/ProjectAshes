@@ -1118,6 +1118,9 @@ func _nearest_settlement_name(p: Variant) -> String:
 
 ## One rumour from the state of the world (dens, threats, places, the guild).
 func _pick_rumour() -> String:
+	var news_line: String = Life.realm.mod("news").tavern_line_at(_player_pos(), randi()) if Life.realm.mod("news") != null else ""   # CIV-B: regional news first
+	if news_line != "" and randf() < 0.5:
+		return news_line
 	# Region1 world hook (docs/regions/REGION_1_PLAN.md C2): the town you are standing in has its own rumours.
 	if randf() < 0.55:
 		var local := Region1Identity.rumour_near(_player_pos())
