@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: farmer grain offers keep the season deadline
+
+`VillageServices.world_from_game()` now supplies inclusive days remaining in the current season. Generated `farmer_deliver_grain` offers carry an absolute deadline anchored to their offer day; they expire from the board after that deadline as well as under the existing four-day offer lifetime. Acceptance refuses and removes stale farmer offers and preserves the season deadline instead of restarting it; legacy offers without one derive it from `offered_day + days - 1`. Other quest kinds retain acceptance-based deadlines. Static source review and `git diff --check` only; no parser, runtime calendar/quest-flow, save/load or gameplay validation was run. See [RADIANT_FARMER_SEASON_DEADLINE_HANDOFF.md](concepts/RADIANT_FARMER_SEASON_DEADLINE_HANDOFF.md).
+
 ### Latest slice: apex hunt quests use live ecology targets
 
 `RadiantQuests._make("apex_hunt", ...)` now reads live `apex_pos` and `apex_den_id` payload fields, while retaining `pos` and `id` fallbacks for older fixtures. The investigation stage targets `displaced_pos`; the confrontation stage carries the apex den ID. Other quest generation is unchanged. Static source review and `git diff --check` only; no parser, runtime quest-flow or gameplay validation was run. See [RADIANT_APEX_HUNT_HANDOFF.md](concepts/RADIANT_APEX_HUNT_HANDOFF.md).

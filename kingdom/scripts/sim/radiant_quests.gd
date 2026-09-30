@@ -131,6 +131,8 @@ static func generate(world: Dictionary, seed_value: int, day: int, count := BOAR
 			continue
 		q["id"] = "rq_%d_%d_%d" % [absi(seed_value) % 100000, day, i]
 		q["offered_day"] = day
+		if String(q.get("kind", "")) == "farmer_deliver_grain":
+			q["deadline"] = day + int(q.get("days", 20)) - 1
 		out.append(q)
 	return out
 
@@ -411,7 +413,14 @@ static func _make(kind: String, world: Dictionary, rng: RandomNumberGenerator) -
 ## Returns failure events.
 func tick_day(day: int, world: Dictionary, seed_value: int) -> Array:
 	var events: Array = []
-	offers.assign(offers.filter(func(q: Dictionary) -> bool: return day - int(q["offered_day"]) < OFFER_DAYS))
+	var fresh_offers: Array[Dictionary] = []
+	for q: Dictionary in offers:
+		var fresh := day - int(q["offered_day"]) < OFFER_DAYS
+		if String(q.get("kind", "")) == "farmer_deliver_grain":
+			fresh = fresh and day <= _farmer_offer_deadline(q)
+		if fresh:
+			fresh_offers.append(q)
+	offers.assign(fresh_offers)
 	for q: Dictionary in active.duplicate():
 		if int(q["deadline"]) >= 0 and day > int(q["deadline"]):
 			active.erase(q)
@@ -432,6 +441,12 @@ func tick_day(day: int, world: Dictionary, seed_value: int) -> Array:
 				if find(String(q["id"])).is_empty():
 					offers.append(q)
 	return events
+
+
+func _farmer_offer_deadline(q: Dictionary) -> int:
+	if int(q.get("deadline", -1)) >= 0:
+		return int(q["deadline"])
+	return int(q.get("offered_day", 0)) + int(q.get("days", 20)) - 1
 
 
 func find(id: String) -> Dictionary:
@@ -472,10 +487,18 @@ func can_accept(id: String) -> String:
 ## `bonus_opinion` lets friends reward friends. `ctx` as for update() (the den's
 ## population at acceptance is the baseline for kills).
 func accept(id: String, day: int, giver := "", giver_name := "", giver_pos: Variant = null, ctx := {}, bonus_opinion := 0) -> String:
+	var q := find(id)
+	if not q.is_empty() and String(q.get("state", "")) == "offered" and String(q.get("kind", "")) == "farmer_deliver_grain":
+		var season_deadline := _farmer_offer_deadline(q)
+		if day > season_deadline:
+			offers.erase(q)
+			return "That grain offer expired with the season."
+		if int(q.get("deadline", -1)) < 0:
+			q["deadline"] = season_deadline
 	var why := can_accept(id)
 	if why != "":
 		return why
-	var q := find(id)
+	q = find(id)
 	offers.erase(q)
 	q["state"] = "active"
 	q["giver"] = giver
@@ -485,7 +508,8 @@ func accept(id: String, day: int, giver := "", giver_name := "", giver_pos: Vari
 		for s: Dictionary in q["stages"]:
 			if s["type"] == "return":
 				s["pos"] = giver_pos
-	q["deadline"] = day + int(q.get("days", 5))
+	if String(q.get("kind", "")) != "farmer_deliver_grain":
+		q["deadline"] = day + int(q.get("days", 5))
 	q["reward"]["opinion"] = int(q["reward"]["opinion"]) + bonus_opinion
 	var st := current_stage(q)
 	if st.get("type", "") == "kill_den" and ctx.has("den_population"):
