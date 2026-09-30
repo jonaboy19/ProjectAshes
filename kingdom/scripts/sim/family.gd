@@ -604,6 +604,7 @@ func succeed_to(heir_id: Variant) -> Dictionary:
 		heir_age = maxi(HEIR_MIN_AGE, spouse_age())
 		heir_sex = String(spouse.get("sex", "female"))
 		heir_given = String(spouse.get("name", "Heir")).get_slice(" ", 0)
+		spouse = {}
 	# New parents, for the child heir: the outgoing player and (if any) their
 	# spouse. The spouse-fallback heir's own parents are unknown and untracked.
 	var new_parents: Array = []

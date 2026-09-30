@@ -4,7 +4,7 @@
 
 ### Latest slice: child succession archives the outgoing spouse as parentage only
 
-`Family.succeed_to()` now keeps the outgoing spouse available while calculating a child heir's parent records, then clears the active spouse before the heir begins their own life. The existing spouse-successor path still clears the spouse as before; archived chronicles and parent data remain unchanged. Static source review and `git diff --check` only; no parser, runtime succession or save/load validation was run. See [NPC_CHILD_SUCCESSION_HANDOFF.md](concepts/NPC_CHILD_SUCCESSION_HANDOFF.md).
+`Family.succeed_to()` keeps the outgoing spouse available while calculating a child heir's parent records, then clears the active spouse before the heir begins their own life. The spouse-successor path copies the spouse's own traits, then clears the inherited spouse record as well. Both successor paths therefore begin unmarried; the spouse-successor keeps existing children. Parent records and archived chronicles remain unchanged. Static source review and `git diff --check` only; no parser, runtime succession or save/load validation was run. See [NPC_CHILD_SUCCESSION_HANDOFF.md](concepts/NPC_CHILD_SUCCESSION_HANDOFF.md).
 
 ### Latest slice: farmer grain offers keep the season deadline
 
