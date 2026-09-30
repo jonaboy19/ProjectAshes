@@ -226,7 +226,8 @@ func refresh() -> void:
 ## body actually is.
 func _write_back() -> void:
 	for id in _full:
-		WorldSim.pos[id] = (_full[id] as Villager).sim_position()
+		var v := _full[id] as Villager
+		WorldSim.set_external_position_owner(id, v.get_instance_id(), true, v.sim_position())
 
 
 func _clock_skipped() -> bool:

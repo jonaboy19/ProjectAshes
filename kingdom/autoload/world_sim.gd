@@ -44,6 +44,13 @@ var money := PackedInt32Array()
 var health := PackedByteArray()
 var phase := PackedByteArray()      # schedule phase the current target belongs to
 var last_update := PackedFloat32Array()
+## Non-zero instance ID while a higher-detail representation owns resolved movement.
+## WorldSim still updates schedule/targets but does not move that person's data row.
+var external_position_owner := PackedInt64Array()
+## Five normalized UtilityBrain needs per person, stored flat to avoid per-person objects.
+var npc_need_values := PackedFloat32Array()
+var npc_need_hours := PackedFloat32Array()
+var npc_need_valid := PackedByteArray()
 ## Per settlement: [first_person, end_person), treasury.
 var ranges: Array[Vector2i] = []
 var treasury := PackedInt32Array()
@@ -79,6 +86,10 @@ func reset() -> void:
 	health = PackedByteArray()
 	phase = PackedByteArray()
 	last_update = PackedFloat32Array()
+	external_position_owner = PackedInt64Array()
+	npc_need_values = PackedFloat32Array()
+	npc_need_hours = PackedFloat32Array()
+	npc_need_valid = PackedByteArray()
 	ranges.clear()
 	treasury = PackedInt32Array()
 	_cursor = 0
@@ -118,6 +129,55 @@ func describe(i: int) -> String:
 	return "%s · %s · %dg" % [person_name(i), JOBS[job[i]], money[i]]
 
 
+## Transfer position ownership at an LOD boundary. A matching owner may publish
+## its final resolved position while releasing; stale bodies cannot release a
+## newer owner's claim or write into a reset population row.
+func set_external_position_owner(i: int, owner_id: int, owned: bool, resolved_position := Vector2.INF) -> void:
+	if i < 0 or i >= pos.size() or owner_id <= 0:
+		return
+	if owned:
+		if external_position_owner[i] != 0 and external_position_owner[i] != owner_id:
+			return
+		external_position_owner[i] = owner_id
+		if resolved_position != Vector2.INF:
+			pos[i] = resolved_position
+		return
+	if external_position_owner[i] != owner_id:
+		return
+	if resolved_position != Vector2.INF:
+		pos[i] = resolved_position
+	external_position_owner[i] = 0
+
+
+func owns_external_position(i: int, owner_id: int) -> bool:
+	return i >= 0 and i < external_position_owner.size() and owner_id > 0 and external_position_owner[i] == owner_id
+
+
+## Durable need row for an embodied resident. Empty means use the deterministic
+## first-promotion seed, which keeps older saves compatible.
+func person_needs(i: int) -> Dictionary:
+	if i < 0 or i >= npc_need_valid.size() or npc_need_valid[i] == 0:
+		return {}
+	var offset := i * 5
+	return {"values": PackedFloat32Array([npc_need_values[offset], npc_need_values[offset + 1],
+		npc_need_values[offset + 2], npc_need_values[offset + 3], npc_need_values[offset + 4]]),
+		"hours": npc_need_hours[i]}
+
+
+func set_person_needs(i: int, owner_id: int, values: PackedFloat32Array, hours: float) -> void:
+	if (not owns_external_position(i, owner_id) or i >= npc_need_valid.size()
+			or values.size() != 5 or not is_finite(hours)):
+		return
+	for value: float in values:
+		if not is_finite(value):
+			return
+	var offset := i * 5
+	for n in 5:
+		npc_need_values[offset + n] = clampf(values[n], 0.0, 1.0)
+	npc_need_hours[i] = hours
+	npc_need_valid[i] = 1
+
+
 ## Indices of people within `radius` of p. Only settlements in range are scanned.
 func people_near(p: Vector2, radius: float) -> PackedInt32Array:
 	var out := PackedInt32Array()
@@ -148,6 +208,11 @@ func _populate() -> void:
 			health.append(100)
 			phase.append(255)
 			last_update.append(0.0)
+			external_position_owner.append(0)
+			for _need in 5:
+				npc_need_values.append(0.0)
+			npc_need_hours.append(0.0)
+			npc_need_valid.append(0)
 		ranges.append(Vector2i(start, pos.size()))
 		treasury.append(500)
 
@@ -194,16 +259,31 @@ func advance_hours(hours: float) -> void:
 		var want := _current_phase(job[i])
 		if want != phase[i]:
 			_on_phase_change(i, phase[i], want)
-		pos[i] = target[i]
+		# Time skips settle data-only residents immediately. An embodied body
+		# keeps its resolved position and follows the newly selected target.
+		if external_position_owner[i] == 0:
+			pos[i] = target[i]
 		last_update[i] = _clock
 
 
 func serialize() -> Dictionary:
 	return {"day": day, "time": time_of_day, "treasury": Array(treasury), "money": Marshalls.raw_to_base64(money.to_byte_array()),
+		"npc_needs_v": 1, "npc_needs": Marshalls.raw_to_base64(npc_need_values.to_byte_array()),
+		"npc_needs_hours": Marshalls.raw_to_base64(npc_need_hours.to_byte_array()),
+		"npc_needs_valid": Marshalls.raw_to_base64(npc_need_valid),
 		"season": seasons.serialize() if seasons else {}}
 
 
 func deserialize(d: Dictionary) -> void:
+	# Active needs belong to the loaded world row, never the session being replaced.
+	npc_need_values = PackedFloat32Array()
+	npc_need_hours = PackedFloat32Array()
+	npc_need_valid = PackedByteArray()
+	for _person in pos.size():
+		for _need in 5:
+			npc_need_values.append(0.0)
+		npc_need_hours.append(0.0)
+		npc_need_valid.append(0)
 	if d.is_empty():
 		return
 	day = int(d.get("day", day))
@@ -215,6 +295,31 @@ func deserialize(d: Dictionary) -> void:
 		var m := Marshalls.base64_to_raw(d["money"]).to_int32_array()
 		if m.size() == money.size():
 			money = m
+	if int(d.get("npc_needs_v", 0)) == 1 and d.has("npc_needs") and d.has("npc_needs_hours") and d.has("npc_needs_valid"):
+		var stored_values := Marshalls.base64_to_raw(String(d["npc_needs"])).to_float32_array()
+		var stored_hours := Marshalls.base64_to_raw(String(d["npc_needs_hours"])).to_float32_array()
+		var stored_valid := Marshalls.base64_to_raw(String(d["npc_needs_valid"]))
+		var sizes_match := stored_values.size() == pos.size() * 5 and stored_hours.size() == pos.size() and stored_valid.size() == pos.size()
+		if sizes_match:
+			var valid_data := true
+			for value: float in stored_values:
+				if not is_finite(value) or value < 0.0 or value > 1.0:
+					valid_data = false
+					break
+			if valid_data:
+				for hour: float in stored_hours:
+					if not is_finite(hour):
+						valid_data = false
+						break
+			if valid_data:
+				for flag: int in stored_valid:
+					if flag > 1:
+						valid_data = false
+						break
+			if valid_data:
+				npc_need_values = stored_values
+				npc_need_hours = stored_hours
+				npc_need_valid = stored_valid
 	if seasons and d.has("season"):
 		seasons.deserialize(d["season"])
 	_last_hour = -1
@@ -278,6 +383,8 @@ func _step(i: int) -> void:
 	var want := _current_phase(job[i])
 	if want != phase[i]:
 		_on_phase_change(i, phase[i], want)
+	if external_position_owner[i] != 0:
+		return
 	var to := target[i] - pos[i]
 	var dist := to.length()
 	if dist > 0.05:

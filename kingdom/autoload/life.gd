@@ -39,6 +39,7 @@ var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
 var crafting := preload("res://scripts/sim/crafting.gd").new()
 const WorldEventLog := preload("res://scripts/systems/world_event_log.gd")
 const ActionRuntime := preload("res://scripts/systems/action_runtime.gd")
+const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
 ## Bounded facts from player actions, available to future dialogue/simulation consumers.
 var world_events = WorldEventLog.new()
 ## Short-lived actor/action leases; deliberately excluded from saves.
@@ -1245,6 +1246,7 @@ func restore(d: Dictionary) -> void:
 	career_since_day = int(cd.get("since_day", 0))
 	career_sponsor_tier = int(cd.get("sponsor_tier", 0))
 	WorldSim.deserialize(d.get("world", {}))
+	UtilityBrain.restore_active_needs()
 	Game.deserialize(d.get("game", {}))
 	careers.deserialize(d.get("careers", {}))
 	for o in careers.orgs:

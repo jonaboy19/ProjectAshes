@@ -8,8 +8,8 @@ The latest published Claude snapshot inspected for this handoff is `d163255f`.
 
 | Responsibility | Current owner/source | Integration rule |
 |---|---|---|
-| Population rows, schedule clock, distant movement | `kingdom/autoload/world_sim.gd` | Remains authoritative for unembodied residents; never create one Node per distant person. |
-| Near bodies, movement and resolved collision | `kingdom/scripts/population/villager.gd` | `Villager` remains the only movement/physics owner while embodied. It is a `CharacterBody3D`, routes via `StreetGraph`, and writes the physical result back through the current population flow. |
+| Population rows, schedule clock, distant movement | `kingdom/autoload/world_sim.gd` | Remains authoritative for unembodied residents; never create one Node per distant person. An instance-tokened owner guard now pauses row movement while a body owns it. |
+| Near bodies, movement and resolved collision | `kingdom/scripts/population/villager.gd` | `Villager` remains the only movement/physics owner while embodied. It is a `CharacterBody3D`, routes via `StreetGraph`, and publishes resolved position through the instance-tokened `WorldSim` handoff. |
 | Near behavior and needs | `kingdom/scripts/population/utility_brain.gd` | Keep cognition on staggered decision ticks and reuse existing need state; don't create a second always-on brain. |
 | Embodiment and animation/physics budgets | `kingdom/scripts/population/population_lod.gd` | Preserve the existing caps and handoff rules. A new action must survive promotion/demotion without duplicate movers or leases. |
 | Player actions, crafting and transient action tokens | `kingdom/scripts/systems/action_runtime.gd`, `kingdom/scripts/sim/crafting.gd` | Reuse the existing validation/commit path for real effects. A visual activity animation must never award a second effect. |
@@ -22,6 +22,8 @@ The latest published Claude snapshot inspected for this handoff is `d163255f`.
 ## Changes in this handoff branch
 
 `SmartObjects` now keeps a person's currently held matching slot eligible and gives it a small selection hysteresis. Reclaiming the same slot is idempotent, so repeated data-tier target refreshes neither walk the resident around a queue nor invalidate its active session token. Each new claim receives a monotonically increasing runtime token. A stale `Session` detects replacement and stops emitting activity clips/events; completion releases only the claim token it owns, so an old session cannot release a newer claim for the same person index.
+
+The live population position handoff now uses the owning body instance ID. `WorldSim` continues schedule changes and target selection but skips data-row movement while a `Villager` body owns that resident. Promotion, periodic resolved-position write-back and demotion pass through the same token check; reset/replacement bodies cannot be released or overwritten by stale queued cleanup. Time skips settle data-only residents immediately while embodied residents retain their resolved position and follow the updated target. Five utility needs plus their last simulated hour persist in packed world rows and save data; promotion catches them up in constant time. Offline activity restoration is not inferred, and activity leases still are not LOD-persistent.
 
 Generated settlement placements now receive a semantic identity derived from settlement, placement kind/index/position, asset and authored activity ordinal. Their in-memory integer handles remain transient; `slot_resource_key()` exposes a stable key only for generated placements. Hand-placed QA demo spots intentionally return no persistent resource key. This is a starting identity contract for a fixed deterministic world plan, not yet a migration-safe ID across changes to `CityPlanner` ordering.
 
@@ -46,6 +48,7 @@ No runtime or device validation is claimed in this handoff.
 - The demo `LifeActor` is a `Node3D` that translates its transform directly. Gameplay actors require `CharacterBody3D`/`move_and_slide()` and the game's collision masks, or the known wall/building pass-through returns.
 - `SmartObjects.target_for()` currently makes a transient soft claim while returning only a 2D point. Its caller must release or replace the claim when the schedule target changes, and the return value must still pass through the same routed movement/collision authority as other goals.
 - `ActionRuntime` reserves actor/resource keys but currently has no proven binding to `Station`/work spots or a resident's near-body activity. The binding, stable key scheme, persistence/restore semantics and actor mapping remain unimplemented.
+- The `WorldSim` position owner prevents concurrent data/body movement, and utility needs now persist across LOD promotion/demotion and save/load. Activity leases remain transient and do not yet survive LOD changes.
 
 ## Recommended first production slice
 

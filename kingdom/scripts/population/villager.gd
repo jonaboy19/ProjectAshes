@@ -222,6 +222,7 @@ func _ready() -> void:
 	if _graph:
 		p = _graph.push_out(p, BODY_RADIUS + 0.12)
 	position = Vector3(p.x, WorldGen.height(p.x, p.y), p.y)
+	WorldSim.set_external_position_owner(person, get_instance_id(), true, sim_position())
 	var heading: Vector2 = WorldSim.target[person] - p
 	_heading = atan2(heading.x, heading.y) if heading.length() > 0.1 else float(person % 628) / 100.0
 	rotation.y = _heading
@@ -245,8 +246,10 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	_save_needs()
+	WorldSim.set_external_position_owner(person, get_instance_id(), false, sim_position())
 	UtilityBrain.clear_sight_for(self)
-	UtilityBrain.unregister_body(person)
+	UtilityBrain.unregister_body(person, get_instance_id())
 
 
 ## Components other systems attach to an embodied villager's model go here
@@ -272,13 +275,33 @@ func _make_brain() -> UtilityBrain:
 			shift = org.get("shift", shift)
 			org_id = String(org.get("id", ""))
 	var b := UtilityBrain.new(person, WorldSim.job[person], shift, org_id)
-	b.seed_needs(DailyRhythm.local_time(person), WorldSim.day)
+	var stored := WorldSim.person_needs(person)
+	if stored.is_empty() or not b.import_needs(stored.get("values", PackedFloat32Array()), float(stored.get("hours", -1.0))):
+		b.seed_needs(DailyRhythm.local_time(person), WorldSim.day)
+	else:
+		b.catch_up(WorldSim.day * 24.0 + WorldSim.time_of_day)
 	return b
 
 
 ## Resolved position for WorldSim (PopulationLOD writes it back).
 func sim_position() -> Vector2:
 	return Vector2(global_position.x, global_position.z)
+
+
+## Save restoration may happen with a body still active; import the newly loaded
+## world row before its next LOD write-back can persist stale needs.
+func restore_needs_from_world() -> void:
+	if _brain == null:
+		return
+	var stored := WorldSim.person_needs(person)
+	if stored.is_empty() or not _brain.import_needs(stored.get("values", PackedFloat32Array()), float(stored.get("hours", -1.0))):
+		_brain.seed_needs(DailyRhythm.local_time(person), WorldSim.day)
+	else:
+		_brain.catch_up(WorldSim.day * 24.0 + WorldSim.time_of_day)
+	_act = -1
+	_brain.act = -1
+	_decide = 0.0
+	_save_needs()
 
 
 ## WorldSim moved everyone (time skip / load): take its position as the new
@@ -300,12 +323,13 @@ func resync() -> void:
 	_stuck_from = p
 	_stuck_count = 0
 	_step_distance = 0.0
-	# Hours may have passed: fresh needs, fresh choice.
+	# Time skips invalidate transient choices, not durable needs.
 	UtilityBrain.chat_leave(person)
 	_set_indoors(false)
 	_act = -1
 	_brain.act = -1
-	_brain.seed_needs(DailyRhythm.local_time(person), WorldSim.day)
+	_brain.catch_up(WorldSim.day * 24.0 + WorldSim.time_of_day)
+	_save_needs()
 	_brain.clear_threat_memory()
 	UtilityBrain.clear_sight_for(self)
 	_decide = 0.0
@@ -397,6 +421,12 @@ func _think_tick() -> void:
 
 
 # ---------------------------------------------------------------- choosing
+func _save_needs() -> void:
+	if _brain == null or person < 0 or not WorldSim.owns_external_position(person, get_instance_id()):
+		return
+	WorldSim.set_person_needs(person, get_instance_id(), _brain.export_needs(), WorldSim.day * 24.0 + WorldSim.time_of_day)
+
+
 ## One utility decision (every DECIDE_INTERVAL): sense, update needs, score,
 ## and turn a new act into a goal. Same act: only dynamic goals are refreshed.
 func _decide_act(here: Vector2) -> void:
@@ -415,6 +445,7 @@ func _decide_act(here: Vector2) -> void:
 	var sight := UtilityBrain.spectacle_at(here, player_p, visible_threats)
 	var performing := _indoors or (_arrived and _yield_time <= 0.0)
 	_brain.tick(WorldSim.day * 24.0 + WorldSim.time_of_day, _act if performing else -1)
+	_save_needs()
 	_state = DailyRhythm.state(person)
 	var sid: int = WorldSim.home[person]
 	var company := UtilityBrain.chat_waiting(sid, person) or UtilityBrain.chat_partner(person) >= 0

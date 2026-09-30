@@ -288,13 +288,33 @@ func seed_needs(h: float, day := 1) -> void:
 	_last_hours = -1.0
 
 
+## Compact LOD/save boundary in stable order: food, rest, social, faith, water.
+func export_needs() -> PackedFloat32Array:
+	return PackedFloat32Array([food, rest, social, faith, water])
+
+
+func import_needs(values: PackedFloat32Array, last_hours: float) -> bool:
+	if values.size() != 5 or not is_finite(last_hours):
+		return false
+	for value: float in values:
+		if not is_finite(value) or value < 0.0 or value > 1.0:
+			return false
+	food = values[0]
+	rest = values[1]
+	social = values[2]
+	faith = values[3]
+	water = values[4]
+	_last_hours = last_hours
+	return true
+
+
 ## Advance needs to absolute game time `now_hours` (day * 24 + time). While
 ## `performing` an act at its spot, that act restores its need.
-func tick(now_hours: float, performing := -1) -> void:
+func tick(now_hours: float, performing := -1, elapsed_cap := 2.0) -> void:
 	if _last_hours < 0.0:
 		_last_hours = now_hours
 		return
-	var dt := clampf(now_hours - _last_hours, 0.0, 2.0)
+	var dt := clampf(now_hours - _last_hours, 0.0, maxf(0.0, elapsed_cap))
 	_last_hours = now_hours
 	if dt <= 0.0:
 		return
@@ -313,6 +333,14 @@ func tick(now_hours: float, performing := -1) -> void:
 	social = clampf(social, 0.0, 1.0)
 	faith = clampf(faith, 0.0, 1.0)
 	water = clampf(water, 0.0, 1.0)
+
+
+## Bring data-tier needs current in one constant-cost step after an NPC spent time
+## unembodied. The need model is linear between decisions, so no per-hour loop is
+## needed; it intentionally assumes no unobserved activity restored a need.
+func catch_up(now_hours: float) -> void:
+	var elapsed := maxf(0.0, now_hours - _last_hours) if _last_hours >= 0.0 else 0.0
+	tick(now_hours, -1, elapsed)
 
 
 ## Inputs for this person now. `hour` is their own clock, `sched` DailyRhythm's
@@ -689,9 +717,21 @@ static func register_body(p: int, node: Node) -> void:
 	_bodies[p] = node.get_instance_id()
 
 
-static func unregister_body(p: int) -> void:
+static func unregister_body(p: int, owner_id := 0) -> void:
+	# A queued old body can exit after a replacement has registered this person.
+	if owner_id != 0 and int(_bodies.get(p, 0)) != owner_id:
+		return
 	_bodies.erase(p)
 	chat_leave(p)
+
+
+## Save restoration can happen while population bodies remain alive. Restore each
+## active brain from the newly loaded WorldSim rows before it can write them back.
+static func restore_active_needs() -> void:
+	for p in _bodies.keys():
+		var body := body_of(int(p))
+		if body and body.has_method("restore_needs_from_world"):
+			body.call("restore_needs_from_world")
 
 
 static func body_of(p: int) -> Node3D:
