@@ -2,6 +2,13 @@
 
 ## Current checkpoint after usage reset
 
+### Active checkout and refs (refreshed 2026-09-30)
+
+- This continuation is now being maintained on **`gpt/locomotion-jump-integration`**, currently `3a71c310`. Its Codex changes are pushed to that branch and update the attached Codex review; do not push them to Claude's branch.
+- This checkout includes the earlier Claude source through **`ec7c4960`** and Codex's later movement/needs work. It does **not** include the latest fetched Claude ref.
+- Latest fetched `origin/claude/focused-curie-m09hbd` is **`d163255f`** (includes `09febe67`); latest fetched `origin/main` is **`140c4eb5`**. These are source refs, not merge approvals. Claude's newer ref changes more than 7,500 lines and overlaps `life.gd`; preserve it separately until a deliberate coordinated merge.
+- The historical `gpt/living-systems` / `main 6dd277e9` statements below describe the previous checkpoint. Use the active refs above for new work and treat old test/import notes as historical evidence only.
+
 ### Claude living-world package observed on 2026-09-30
 
 Latest fetched Claude ref is `d163255f`, including `09febe67`: a `living_world` prototype with typed smart-object spots/sessions, props, clip library, crowd animation LOD, ambience, and a demo actor. Its integration seams with Codex's already-present station leases, NPC position ownership, persistent fact journal, and need rows are mapped in [Codex ↔ Claude living-world integration handoff](CODEX_CLAUDE_LIVING_WORLD_INTEGRATION.md).
