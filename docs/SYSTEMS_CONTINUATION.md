@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Handoff: verify partial-route arrival against the requested activity
+
+Source review suggests `StreetGraph.route()` can return a closest-reachable partial path and set `last_route_partial`, while `Villager._plan_route()` may ignore that flag and `_steer()` may mark arrival at the path endpoint. If so, an NPC could treat an unreachable work or social slot as reached. This is a route/LOD risk, not a confirmed runtime bug; frequency and impact need an in-game capture. Ask Claude to reproduce an unreachable goal and log requested goal, returned endpoint and partial flag, then determine whether existing route-budget/LOD ownership should treat it as failed approach, release, or replan. No code change is prescribed: `street_graph` has unpublished Claude work and Villager/population LOD files overlap active work. No runtime validation is claimed. See [NPC_PARTIAL_ROUTE_ARRIVAL_HANDOFF.md](concepts/NPC_PARTIAL_ROUTE_ARRIVAL_HANDOFF.md).
+
 ### Handoff: use the character's culture for Awakening bias
 
 Character creation persists `culture:<id>` in `life_path.flags`, but `Life._run_awakening()` currently sets its culture argument to literal `caldric` before calling `awakening.roll()`. `Awakening.CULTURE_ELEMENT` therefore applies Caldric's earth weighting to characters of every culture. The correction belongs in Life: read a validated culture ID from the persisted flag or identity source and pass it to Awakening, preserving the deterministic roll inputs except for the correct culture and leaving Awakening's weights unchanged. No code was changed because Life overlaps the Codex PR and the visible Claude checkout has unpublished Life changes; Claude should fetch and review it before integration. Manually check each culture, missing/legacy culture fallback, and deterministic save/load. No tests, parser or runtime validation was run. See [AWAKENING_CULTURE_IDENTITY_HANDOFF.md](concepts/AWAKENING_CULTURE_IDENTITY_HANDOFF.md).
