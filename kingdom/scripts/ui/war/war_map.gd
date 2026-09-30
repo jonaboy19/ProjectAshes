@@ -1066,6 +1066,28 @@ func follow_advice(index: int) -> void:
 	refresh()
 
 
+## "Command battle": the engagement's battlefield on the real ground (scripts/ui/war/tactical_view.gd).
+func open_tactical(eng_id: int) -> Control:
+	if cm == null:
+		return null
+	var tt: RefCounted = cm.call("tactical_open", eng_id)
+	if tt == null:
+		say("There is no battle to command there.")
+		return null
+	var v: Control = load("res://scripts/ui/war/tactical_view.gd").open_modal(self, tt, cm, eng_id, Callable(self, "refresh"))
+	return v
+
+
+## A siege of a stronghold (scripts/ui/war/siege_view.gd).
+func open_siege(key: String) -> Control:
+	if cm == null:
+		return null
+	var sg: RefCounted = cm.call("siege", key)
+	if sg == null:
+		return null
+	return load("res://scripts/ui/war/siege_view.gd").open_modal(self, sg, cm, key)
+
+
 func begin_target_mode() -> void:
 	target_mode = true
 	say("Tap the map where the selection should go.")
