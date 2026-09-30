@@ -215,6 +215,7 @@ func _train(option_id: String, hours: int) -> String:
 	if not bool(res.get("ok", false)):
 		return String(res.get("reason", "You cannot train now."))
 	WorldSim.advance_hours(float(hours))    # the hours pass; Life folds the gain into swordsmanship
+	Life.award_progress("train", {"subject": option_id})   # progression hook
 	var gain := float(res["gain"]["combat"])
 	var msg := "You drill for %d hours. Combat +%.2f (skill %d)." % [hours, gain, int(round(float(edu.fighting_ability())))]
 	if hud != null and hud.has_method("notify"):

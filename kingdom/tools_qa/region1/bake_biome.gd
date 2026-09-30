@@ -58,6 +58,11 @@ func _initialize() -> void:
 			var frontier := 1.0 - smoothstep(300.0, 1500.0, p.distance_to(Vector2(1130, 1004)))
 			var dry := smoothstep(0.52, 0.78, 1.0 - nz) * (1.0 - smoothstep(0.1, 0.4, forest)) * (1.0 - lush)
 			dry = clampf(maxf(dry, frontier * 0.55 * (1.0 - smoothstep(0.2, 0.5, forest))), 0.0, 1.0)
+			var hv := preload("res://scripts/world/hidden_valley.gd")
+			if hv.enabled() and hv.rn_at(p) < 1.55:
+				# The Hidden Vale reads lush and untouched: river greens, no fields, no dry gold, no heather.
+				var k := 1.0 - smoothstep(1.3, 1.55, hv.rn_at(p))
+				farm *= 1.0 - k; heather *= 1.0 - k; dry *= 1.0 - k; lush = maxf(lush, 0.75 * k)
 			if wet:
 				farm = 0.0; heather = 0.0; dry = 0.0; lush = 1.0
 			heather *= 1.0 - farm

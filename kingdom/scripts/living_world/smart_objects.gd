@@ -86,7 +86,9 @@ func populate_settlement(s: Dictionary, height_fn: Callable = Callable()) -> int
 
 ## Best free [spot, slot] near pos for a filter {act, job (name or index), hour, kid, tags: [...], type, role},
 ## or [] when nothing fits. Score = distance, a little noise per person so neighbours spread out.
-func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1) -> Array:
+## `avoid` (optional): points (x, z) whose surroundings within `avoid_r` metres are skipped, the asking NPC's
+## short-term memory of where danger was seen (scripts/population/utility_brain.gd).
+func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1, avoid := PackedVector2Array(), avoid_r := 0.0) -> Array:
 	var best := []
 	var best_s := INF
 	var r := int(ceil(radius / CELL))
@@ -101,6 +103,8 @@ func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1) -> Arr
 				var d := (sp["xform"] as Transform3D).origin.distance_to(pos)
 				if d > radius:
 					continue
+				if avoid_r > 0.0 and _near_any((sp["xform"] as Transform3D).origin, avoid, avoid_r):
+					continue
 				var slots: Array = t["slots"]
 				for k in slots.size():
 					if sp["holders"][k] != -1:
@@ -113,6 +117,13 @@ func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1) -> Arr
 						best_s = score
 						best = [id, k]
 	return best
+
+
+static func _near_any(o: Vector3, pts: PackedVector2Array, r: float) -> bool:
+	for p in pts:
+		if p != Vector2.INF and (p.x - o.x) * (p.x - o.x) + (p.y - o.z) * (p.y - o.z) < r * r:
+			return true
+	return false
 
 
 func _matches(type: String, t: Dictionary, f: Dictionary) -> bool:
@@ -134,6 +145,9 @@ func _matches(type: String, t: Dictionary, f: Dictionary) -> bool:
 		return false
 	for tag: String in f.get("tags", []):
 		if not (t.get("tags", []) as Array).has(tag):
+			return false
+	for tag: String in f.get("not_tags", []):
+		if (t.get("tags", []) as Array).has(tag):
 			return false
 	return true
 

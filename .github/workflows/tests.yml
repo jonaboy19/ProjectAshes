@@ -1,0 +1,120 @@
+# Free CI for Rising Ashes (public repo = unlimited Actions minutes).
+# Runs the gdUnit4 suite headless, scans new commits for secrets and blocks oversized files,
+# so no Claude session has to spend tokens or container memory on a full test run.
+# Read results from a session: GitHub MCP actions_list / get_job_logs, or the job summary.
+name: tests
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: "4.6.2"
+
+jobs:
+  guard:
+    name: secrets + file size
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 30
+          lfs: false
+      - name: Secret scan (new commits only)
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz | tar xz gitleaks
+          RANGE="HEAD~1..HEAD"
+          BEFORE="${{ github.event.before }}"
+          if [ -n "$BEFORE" ] && git cat-file -e "$BEFORE" 2>/dev/null; then RANGE="$BEFORE..HEAD"; fi
+          ./gitleaks git --no-banner --redact --log-opts="$RANGE" .
+      - name: No file over 90 MB
+        run: |
+          big=$(git ls-files -z | xargs -0 -r stat -c '%s %n' 2>/dev/null | awk '$1 > 94371840 {print}')
+          if [ -n "$big" ]; then echo "::error::Files over 90 MB:"; echo "$big"; exit 1; fi
+
+  lint:
+    name: gdlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          lfs: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /kingdom/scripts/
+            /kingdom/tests/
+            /kingdom/.gdlintrc
+            /tools/qa/
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install gdtoolkit (MIT, from PyPI)
+        run: pip install "gdtoolkit==4.5.0"
+      - name: gdlint + duplicate-name check (tools/qa/lint.sh, config kingdom/.gdlintrc)
+        run: bash tools/qa/lint.sh
+
+  gdunit:
+    name: gdUnit4 suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - name: Free disk space (assets + import cache need ~12 GB)
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          df -h /
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          lfs: false
+      - name: Restore Godot import cache
+        uses: actions/cache@v4
+        with:
+          path: kingdom/.godot
+          key: godot-import-${{ env.GODOT_VERSION }}-${{ github.sha }}
+          restore-keys: godot-import-${{ env.GODOT_VERSION }}-
+      - name: Get Godot
+        run: |
+          curl -sSL -o g.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q g.zip && mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot && chmod +x godot
+      - name: Import assets
+        working-directory: kingdom
+        run: timeout 5400 ../godot --headless --path . --import 2>&1 | grep -vE "^\s*$|Loading resource|reimport" | tail -40 || true
+      - name: Run tests
+        id: run
+        working-directory: kingdom
+        run: |
+          set +e
+          timeout 3600 ../godot --headless --path . -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd \
+            --add res://tests --ignoreHeadlessMode -rd res://reports/ci -rc 1 > ../test.log 2>&1
+          code=$?
+          set -e
+          sed 's/\x1b\[[0-9;]*m//g' ../test.log > ../test_plain.log
+          {
+            echo "## gdUnit4 (exit $code)"
+            grep -E "Overall Summary" ../test_plain.log | tail -1
+            echo '```'
+            grep -E "FAILED|SCRIPT ERROR|Parse Error|failed to load" ../test_plain.log | sort -u | head -60
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          grep -E "Overall Summary" ../test_plain.log | tail -1
+          grep -E "FAILED|SCRIPT ERROR|Parse Error" ../test_plain.log | sort -u | head -60
+          # 0 = pass, 101 = only orphan warnings (known headless noise).
+          if [ "$code" != "0" ] && [ "$code" != "101" ]; then exit 1; fi
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gdunit-report
+          path: |
+            test_plain.log
+            kingdom/reports/ci
+          retention-days: 7

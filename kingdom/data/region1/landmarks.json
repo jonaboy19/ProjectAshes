@@ -6,193 +6,1300 @@
 			"id": "hollins_reach",
 			"name": "Hollin's Reach",
 			"kind": "valley",
-			"pos": [-205, -660],
+			"pos": [
+				-205,
+				-660
+			],
 			"near": 620,
 			"story": "The upper Ashrun valley, left outside the ward-line thirty years ago when a young Lieutenant Bram Hollis pulled its pin (STORY_R1 Act IV, Crownstead; Act V, Tamsin Reeve of Hollin's Reach). Forty graves, one winter.",
-			"hooks": ["Act IV/V: Tamsin's village; Ashsight at the cut ward stone shows Bram pulling the pin", "Wardwright: relight the Hollin ward stone and route a new line through the Stone Gap (N1)", "Ember Legacy: forty graves take lanterns on Kindling Night (N3)", "Fishing and foraging on the valley floor; the falls pool is a rare-fish spot"],
+			"hooks": [
+				"Act IV/V: Tamsin's village; Ashsight at the cut ward stone shows Bram pulling the pin",
+				"Wardwright: relight the Hollin ward stone and route a new line through the Stone Gap (N1)",
+				"Ember Legacy: forty graves take lanterns on Kindling Night (N3)",
+				"Fishing and foraging on the valley floor; the falls pool is a rare-fish spot"
+			],
 			"sites": [
-				{"id": "hollin_falls", "name": "Hollin Falls", "kind": "waterfall", "pos": [-146, -915]},
-				{"id": "stone_gap", "name": "The Stone Gap", "kind": "standing_stones", "pos": [-87, -656], "clear": 8},
-				{"id": "hollins_ruins", "name": "Hollin's Reach Ruins", "kind": "ruins", "pos": [-138, -478], "clear": 30},
-				{"id": "hollin_watch", "name": "Hollin Watch", "kind": "lookout", "pos": [-275, -784], "clear": 12},
-				{"id": "old_span", "name": "The Old Span", "kind": "old_bridge", "pos": [-259, -463]}
+				{
+					"id": "hollin_falls",
+					"name": "Hollin Falls",
+					"kind": "waterfall",
+					"pos": [
+						-146,
+						-915
+					]
+				},
+				{
+					"id": "stone_gap",
+					"name": "The Stone Gap",
+					"kind": "standing_stones",
+					"pos": [
+						-87,
+						-656
+					],
+					"clear": 8
+				},
+				{
+					"id": "hollins_ruins",
+					"name": "Hollin's Reach Ruins",
+					"kind": "ruins",
+					"pos": [
+						-138,
+						-478
+					],
+					"clear": 30
+				},
+				{
+					"id": "hollin_watch",
+					"name": "Hollin Watch",
+					"kind": "lookout",
+					"pos": [
+						-275,
+						-784
+					],
+					"clear": 12
+				},
+				{
+					"id": "old_span",
+					"name": "The Old Span",
+					"kind": "old_bridge",
+					"pos": [
+						-259,
+						-463
+					]
+				}
 			],
 			"waterfalls": [
-				{"at": [-146.2, -915.5], "dir": [0.235, -0.972], "width": 8.5, "pool_r": 12.5, "pool_off": 0, "reach": 70, "over": 8}
+				{
+					"at": [
+						-146.2,
+						-915.5
+					],
+					"dir": [
+						0.235,
+						-0.972
+					],
+					"width": 8.5,
+					"pool_r": 12.5,
+					"pool_off": 0,
+					"reach": 70,
+					"over": 8
+				}
 			],
 			"parts": [
-				{"a": "r1:stones/road_stone_b_menhir", "w": [-84, -661], "h": 4.4, "yaw": 30, "sink": 0.3, "tilt": [0, 4]},
-				{"a": "r1:stones/road_stone_b_menhir", "w": [-91, -651], "h": 4.0, "yaw": 200, "sink": 0.3, "tilt": [3, 0]},
-				{"a": "res://assets/generated/props/signpost.glb", "w": [-72, -647], "h": 2.6, "yaw": 60},
-				{"a": "free:nature/rock_grey_plain", "w": [-80, -667], "h": 1.3, "yaw": 20},
-				{"a": "free:nature/rocks_mossy_mushroom", "w": [-95, -646], "h": 1.2, "yaw": 140},
-
-				{"a": "free:castle/watchtower_stone_small", "w": [-275, -784], "h": 13, "yaw": 70, "collide": true},
-				{"a": "r1:highwatch/banner_pole", "w": [-268, -779], "h": 7.5, "yaw": 70, "far": true},
-				{"a": "free:ruins/ruin_wall_broken_b", "w": [-283, -776], "h": 2.6, "yaw": 160},
-
-				{"a": "free:buildings/house_ivy_damaged", "w": [-150, -493], "h": 7.8, "yaw": 100, "collide": true},
-				{"a": "free:buildings/house_ivy_damaged", "w": [-126, -470], "h": 7.2, "yaw": 75, "collide": true},
-				{"a": "free:buildings/house_ivy_damaged", "w": [-162, -457], "h": 7.6, "yaw": 120, "collide": true},
-				{"a": "free:churches/chapel_stone_small", "w": [-108, -455], "h": 10.5, "yaw": 95, "collide": true},
-				{"a": "free:ruins/ruin_wall_broken_a", "w": [-141, -503], "h": 3.4, "yaw": 10},
-				{"a": "free:ruins/ruin_wall_corner", "w": [-118, -487], "h": 4.2, "yaw": 80},
-				{"a": "free:ruins/ruin_wall_broken_b", "w": [-168, -477], "h": 2.8, "yaw": 95},
-				{"a": "res://assets/generated/props/well.glb", "w": [-141, -479], "h": 2.9, "yaw": 30},
-				{"a": "r1:stones/road_stone_a_slab", "w": [-122, -440], "h": 1.05, "yaw": 95, "row": {"n": 10, "step": [2.3, 0.4], "jitter": 9}},
-				{"a": "r1:stones/road_stone_a_slab", "w": [-122.6, -437.2], "h": 1.0, "yaw": 95, "row": {"n": 10, "step": [2.3, 0.4], "jitter": 9}},
-				{"a": "r1:stones/road_stone_a_slab", "w": [-123.2, -434.4], "h": 1.1, "yaw": 95, "row": {"n": 10, "step": [2.3, 0.4], "jitter": 9}},
-				{"a": "r1:stones/road_stone_a_slab", "w": [-123.8, -431.6], "h": 1.0, "yaw": 95, "row": {"n": 10, "step": [2.3, 0.4], "jitter": 9}},
-				{"a": "r1:stones/road_stone_d_pillar", "w": [-178, -471], "h": 3.6, "yaw": 20, "tilt": [9, 4], "sink": 0.4},
-				{"a": "r1:stones/road_stone_c_squat", "w": [-181, -466], "h": 1.2, "yaw": 70, "tilt": [70, 0], "sink": 0.5},
-				{"a": "gen:farm/scarecrow", "w": [-112, -512], "h": 2.6, "yaw": 200, "tilt": [0, 8]},
-				{"a": "free:fences/fence_broken_rail", "w": [-100, -520], "h": 1.2, "yaw": 100, "row": {"n": 6, "step": [-1.2, 4.2], "jitter": 12}},
-				{"a": "free:fences/fence_broken_rail", "w": [-150, -530], "h": 1.2, "yaw": 5, "row": {"n": 5, "step": [4.4, 0.6], "jitter": 12}},
-				{"a": "free:farm/hay_bale_round", "w": [-104, -498], "h": 1.5, "yaw": 20},
-				{"a": "free:farm/hay_bale_round", "w": [-96, -506], "h": 1.4, "yaw": 80},
-				{"a": "free:farm/hay_bale_rect_a", "w": [-130, -524], "h": 1.1, "yaw": 40},
-				{"a": "free:farm/wheelbarrow_wooden_old", "w": [-133, -486], "h": 1.1, "yaw": 150, "tilt": [0, 12]},
-
-				{"a": "free:water/bridge_serenity_steps", "w": [-259, -463], "s": 1.45, "yaw": -12}
+				{
+					"a": "r1:stones/road_stone_b_menhir",
+					"w": [
+						-84,
+						-661
+					],
+					"h": 4.4,
+					"yaw": 30,
+					"sink": 0.3,
+					"tilt": [
+						0,
+						4
+					]
+				},
+				{
+					"a": "r1:stones/road_stone_b_menhir",
+					"w": [
+						-91,
+						-651
+					],
+					"h": 4,
+					"yaw": 200,
+					"sink": 0.3,
+					"tilt": [
+						3,
+						0
+					]
+				},
+				{
+					"a": "res://assets/generated/props/signpost.glb",
+					"w": [
+						-72,
+						-647
+					],
+					"h": 2.6,
+					"yaw": 60
+				},
+				{
+					"a": "free:nature/rock_grey_plain",
+					"w": [
+						-80,
+						-667
+					],
+					"h": 1.3,
+					"yaw": 20
+				},
+				{
+					"a": "free:nature/rocks_mossy_mushroom",
+					"w": [
+						-95,
+						-646
+					],
+					"h": 1.2,
+					"yaw": 140
+				},
+				{
+					"a": "free:castle/watchtower_stone_small",
+					"w": [
+						-275,
+						-784
+					],
+					"h": 13,
+					"yaw": 70,
+					"collide": true
+				},
+				{
+					"a": "r1:highwatch/banner_pole",
+					"w": [
+						-268,
+						-779
+					],
+					"h": 7.5,
+					"yaw": 70,
+					"far": true
+				},
+				{
+					"a": "free:ruins/ruin_wall_broken_b",
+					"w": [
+						-283,
+						-776
+					],
+					"h": 2.6,
+					"yaw": 160
+				},
+				{
+					"a": "free:buildings/house_ivy_damaged",
+					"w": [
+						-150,
+						-493
+					],
+					"h": 7.8,
+					"yaw": 100,
+					"collide": true
+				},
+				{
+					"a": "free:buildings/house_ivy_damaged",
+					"w": [
+						-126,
+						-470
+					],
+					"h": 7.2,
+					"yaw": 75,
+					"collide": true
+				},
+				{
+					"a": "free:buildings/house_ivy_damaged",
+					"w": [
+						-162,
+						-457
+					],
+					"h": 7.6,
+					"yaw": 120,
+					"collide": true
+				},
+				{
+					"a": "free:churches/chapel_stone_small",
+					"w": [
+						-108,
+						-455
+					],
+					"h": 10.5,
+					"yaw": 95,
+					"collide": true
+				},
+				{
+					"a": "free:ruins/ruin_wall_broken_a",
+					"w": [
+						-141,
+						-503
+					],
+					"h": 3.4,
+					"yaw": 10
+				},
+				{
+					"a": "free:ruins/ruin_wall_corner",
+					"w": [
+						-118,
+						-487
+					],
+					"h": 4.2,
+					"yaw": 80
+				},
+				{
+					"a": "free:ruins/ruin_wall_broken_b",
+					"w": [
+						-168,
+						-477
+					],
+					"h": 2.8,
+					"yaw": 95
+				},
+				{
+					"a": "res://assets/generated/props/well.glb",
+					"w": [
+						-141,
+						-479
+					],
+					"h": 2.9,
+					"yaw": 30
+				},
+				{
+					"a": "r1:stones/road_stone_a_slab",
+					"w": [
+						-122,
+						-440
+					],
+					"h": 1.05,
+					"yaw": 95,
+					"row": {
+						"n": 10,
+						"step": [
+							2.3,
+							0.4
+						],
+						"jitter": 9
+					}
+				},
+				{
+					"a": "r1:stones/road_stone_a_slab",
+					"w": [
+						-122.6,
+						-437.2
+					],
+					"h": 1,
+					"yaw": 95,
+					"row": {
+						"n": 10,
+						"step": [
+							2.3,
+							0.4
+						],
+						"jitter": 9
+					}
+				},
+				{
+					"a": "r1:stones/road_stone_a_slab",
+					"w": [
+						-123.2,
+						-434.4
+					],
+					"h": 1.1,
+					"yaw": 95,
+					"row": {
+						"n": 10,
+						"step": [
+							2.3,
+							0.4
+						],
+						"jitter": 9
+					}
+				},
+				{
+					"a": "r1:stones/road_stone_a_slab",
+					"w": [
+						-123.8,
+						-431.6
+					],
+					"h": 1,
+					"yaw": 95,
+					"row": {
+						"n": 10,
+						"step": [
+							2.3,
+							0.4
+						],
+						"jitter": 9
+					}
+				},
+				{
+					"a": "r1:stones/road_stone_d_pillar",
+					"w": [
+						-178,
+						-471
+					],
+					"h": 3.6,
+					"yaw": 20,
+					"tilt": [
+						9,
+						4
+					],
+					"sink": 0.4
+				},
+				{
+					"a": "r1:stones/road_stone_c_squat",
+					"w": [
+						-181,
+						-466
+					],
+					"h": 1.2,
+					"yaw": 70,
+					"tilt": [
+						70,
+						0
+					],
+					"sink": 0.5
+				},
+				{
+					"a": "gen:farm/scarecrow",
+					"w": [
+						-112,
+						-512
+					],
+					"h": 2.6,
+					"yaw": 200,
+					"tilt": [
+						0,
+						8
+					]
+				},
+				{
+					"a": "free:fences/fence_broken_rail",
+					"w": [
+						-100,
+						-520
+					],
+					"h": 1.2,
+					"yaw": 100,
+					"row": {
+						"n": 6,
+						"step": [
+							-1.2,
+							4.2
+						],
+						"jitter": 12
+					}
+				},
+				{
+					"a": "free:fences/fence_broken_rail",
+					"w": [
+						-150,
+						-530
+					],
+					"h": 1.2,
+					"yaw": 5,
+					"row": {
+						"n": 5,
+						"step": [
+							4.4,
+							0.6
+						],
+						"jitter": 12
+					}
+				},
+				{
+					"a": "free:farm/hay_bale_round",
+					"w": [
+						-104,
+						-498
+					],
+					"h": 1.5,
+					"yaw": 20
+				},
+				{
+					"a": "free:farm/hay_bale_round",
+					"w": [
+						-96,
+						-506
+					],
+					"h": 1.4,
+					"yaw": 80
+				},
+				{
+					"a": "free:farm/hay_bale_rect_a",
+					"w": [
+						-130,
+						-524
+					],
+					"h": 1.1,
+					"yaw": 40
+				},
+				{
+					"a": "free:farm/wheelbarrow_wooden_old",
+					"w": [
+						-133,
+						-486
+					],
+					"h": 1.1,
+					"yaw": 150,
+					"tilt": [
+						0,
+						12
+					]
+				},
+				{
+					"a": "free:water/bridge_serenity_steps",
+					"w": [
+						-259,
+						-463
+					],
+					"s": 1.45,
+					"yaw": -12
+				}
 			],
 			"scatter": [
-				{"kind": "region/nature/flowers_warm", "w": [-195, -600], "r": 95, "n": 320},
-				{"kind": "region/nature/flowers_cool", "w": [-235, -500], "r": 85, "n": 260},
-				{"kind": "region/nature/flowers_cool", "w": [-160, -860], "r": 40, "n": 120},
-				{"kind": "region/nature/fern_b", "w": [-152, -890], "r": 30, "n": 70},
-				{"kind": "region/nature/flowers_warm", "w": [-120, -445], "r": 16, "n": 90},
-				{"kind": "region/nature/grass_tall", "w": [-135, -490], "r": 45, "n": 200},
-				{"kind": "region/nature/bush_berry", "w": [-140, -480], "r": 38, "n": 26},
-				{"kind": "region/nature/rock_medium", "w": [-150, -880], "r": 30, "r0": 10, "n": 24, "s": [1.2, 2.2]}
+				{
+					"kind": "region/nature/flowers_warm",
+					"w": [
+						-195,
+						-600
+					],
+					"r": 95,
+					"n": 320
+				},
+				{
+					"kind": "region/nature/flowers_cool",
+					"w": [
+						-235,
+						-500
+					],
+					"r": 85,
+					"n": 260
+				},
+				{
+					"kind": "region/nature/flowers_cool",
+					"w": [
+						-160,
+						-860
+					],
+					"r": 40,
+					"n": 120
+				},
+				{
+					"kind": "region/nature/fern_b",
+					"w": [
+						-152,
+						-890
+					],
+					"r": 30,
+					"n": 70
+				},
+				{
+					"kind": "region/nature/flowers_warm",
+					"w": [
+						-120,
+						-445
+					],
+					"r": 16,
+					"n": 90
+				},
+				{
+					"kind": "region/nature/grass_tall",
+					"w": [
+						-135,
+						-490
+					],
+					"r": 45,
+					"n": 200
+				},
+				{
+					"kind": "region/nature/bush_berry",
+					"w": [
+						-140,
+						-480
+					],
+					"r": 38,
+					"n": 26
+				},
+				{
+					"kind": "region/nature/rock_medium",
+					"w": [
+						-150,
+						-880
+					],
+					"r": 30,
+					"r0": 10,
+					"n": 24,
+					"s": [
+						1.2,
+						2.2
+					]
+				}
 			]
 		},
 		{
 			"id": "emberglass_ferry",
 			"name": "Emberglass Ferry",
 			"kind": "ferry",
-			"pos": [-530, 300],
+			"pos": [
+				-552,
+				300
+			],
 			"near": 460,
 			"story": "A lantern-lit landing on the west shore of Emberglass Mere. The ferry rows across past the Drowned Bell, the belfry of the old town Ashford rose out of the ashes of (first_region.json: 'founded by folk who came out of the ashes of an older town').",
-			"hooks": ["Ferry: paid fast crossing east jetty <-> west landing (a travel node, like a waystation)", "Kindling Night: lanterns float out to the Drowned Bell; it rings once for each new ember", "Diving/fishing spot at the Drowned Bell (the drop-off children are warned about)"],
+			"hooks": [
+				"Ferry: paid fast crossing east jetty <-> west landing (a travel node, like a waystation)",
+				"Kindling Night: lanterns float out to the Drowned Bell; it rings once for each new ember",
+				"Diving/fishing spot at the Drowned Bell (the drop-off children are warned about)"
+			],
 			"sites": [
-				{"id": "drowned_bell", "name": "The Drowned Bell", "kind": "sunken_chapel", "pos": [-446, 318]}
+				{
+					"id": "drowned_bell",
+					"name": "The Drowned Bell",
+					"kind": "sunken_chapel",
+					"pos": [
+						-446,
+						318
+					]
+				}
 			],
 			"parts": [
-				{"a": "free:churches/church_spire_tan", "w": [-446, 318], "h": 25, "yaw": 35, "water": true, "sink": 8.5, "tilt": [4, -6], "far": true},
-				{"a": "free:ruins/ruin_wall_broken_b", "w": [-470, 262], "h": 3.6, "yaw": 60, "water": true, "sink": 1.6},
-				{"a": "free:ruins/pillar_mossy_a", "w": [-432, 338], "h": 4.5, "yaw": 10, "water": true, "sink": 2.6, "tilt": [10, 0]},
-				{"a": "free:water/dock_weathered_pier", "w": [-512, 300], "h": 1.6, "yaw": 90, "water": true, "y": -0.5},
-				{"a": "free:water/boat_rowing", "w": [-503, 306], "h": 1.1, "yaw": 20, "water": true, "y": -0.35},
-				{"a": "free:buildings/hut_wood_vine", "w": [-543, 289], "h": 5.2, "yaw": 90, "collide": true},
-				{"a": "free:lighting/lantern_post_wood", "w": [-530, 307], "h": 3.2, "yaw": 90},
-				{"a": "free:lighting/lantern_post_wood", "w": [-530, 293], "h": 3.2, "yaw": 90},
-				{"a": "free:lighting/lantern_post_wood", "w": [-552, 301], "h": 3.2, "yaw": 90},
-				{"a": "free:lighting/lantern_hanging_green", "w": [-512, 302], "h": 1.2, "y": 2.4, "water": true},
-				{"a": "res://assets/generated/props/crate_stack.glb", "w": [-535, 296], "h": 1.6, "yaw": 15},
-				{"a": "res://assets/generated/props/sack_pile.glb", "w": [-536, 305], "h": 1.0, "yaw": 70},
-				{"a": "res://assets/generated/props/signpost.glb", "w": [-548, 310], "h": 2.6, "yaw": 100}
+				{
+					"a": "free:churches/church_spire_tan",
+					"w": [
+						-446,
+						318
+					],
+					"h": 25,
+					"yaw": 35,
+					"water": true,
+					"sink": 8.5,
+					"tilt": [
+						4,
+						-6
+					],
+					"far": true
+				},
+				{
+					"a": "free:ruins/ruin_wall_broken_b",
+					"w": [
+						-470,
+						262
+					],
+					"h": 3.6,
+					"yaw": 60,
+					"water": true,
+					"sink": 1.6
+				},
+				{
+					"a": "free:ruins/pillar_mossy_a",
+					"w": [
+						-432,
+						338
+					],
+					"h": 4.5,
+					"yaw": 10,
+					"water": true,
+					"sink": 2.6,
+					"tilt": [
+						10,
+						0
+					]
+				},
+				{
+					"a": "free:water/dock_weathered_pier",
+					"w": [
+						-532,
+						300
+					],
+					"h": 1.6,
+					"yaw": 90,
+					"water": true,
+					"y": -0.5
+				},
+				{
+					"a": "free:water/boat_rowing",
+					"w": [
+						-524,
+						306
+					],
+					"h": 1.1,
+					"yaw": 20,
+					"water": true,
+					"y": -0.35
+				},
+				{
+					"a": "free:buildings/hut_wood_vine",
+					"w": [
+						-560,
+						289
+					],
+					"h": 5.2,
+					"yaw": 90,
+					"collide": true
+				},
+				{
+					"a": "free:lighting/lantern_post_wood",
+					"w": [
+						-547,
+						308
+					],
+					"h": 3.2,
+					"yaw": 90
+				},
+				{
+					"a": "free:lighting/lantern_post_wood",
+					"w": [
+						-547,
+						292
+					],
+					"h": 3.2,
+					"yaw": 90
+				},
+				{
+					"a": "free:lighting/lantern_post_wood",
+					"w": [
+						-568,
+						301
+					],
+					"h": 3.2,
+					"yaw": 90
+				},
+				{
+					"a": "res://assets/generated/props/crate_stack.glb",
+					"w": [
+						-552,
+						295
+					],
+					"h": 1.6,
+					"yaw": 15
+				},
+				{
+					"a": "res://assets/generated/props/sack_pile.glb",
+					"w": [
+						-553,
+						306
+					],
+					"h": 1,
+					"yaw": 70
+				},
+				{
+					"a": "res://assets/generated/props/signpost.glb",
+					"w": [
+						-566,
+						311
+					],
+					"h": 2.6,
+					"yaw": 100
+				}
 			],
 			"lights": [
-				{"w": [-530, 307], "y": 3.0, "color": "ffb35c", "range": 10},
-				{"w": [-552, 301], "y": 3.0, "color": "ffb35c", "range": 10}
+				{
+					"w": [
+						-547,
+						308
+					],
+					"y": 3,
+					"color": "ffb35c",
+					"range": 10
+				},
+				{
+					"w": [
+						-568,
+						301
+					],
+					"y": 3,
+					"color": "ffb35c",
+					"range": 10
+				}
 			],
 			"scatter": [
-				{"kind": "region/nature/flowers_warm", "w": [-530, 300], "r": 22, "r0": 6, "n": 90},
-				{"kind": "region/nature/grass_tall", "w": [-525, 300], "r": 26, "r0": 5, "n": 90}
+				{
+					"kind": "region/nature/flowers_warm",
+					"w": [
+						-560,
+						300
+					],
+					"r": 22,
+					"r0": 6,
+					"n": 90
+				},
+				{
+					"kind": "region/nature/grass_tall",
+					"w": [
+						-560,
+						300
+					],
+					"r": 26,
+					"r0": 5,
+					"n": 90
+				}
 			]
 		},
 		{
 			"id": "crownstead_mill_hill",
 			"name": "Crownstead Mill Hill",
 			"kind": "windmill_hill",
-			"pos": [430, -190],
+			"pos": [
+				430,
+				-190
+			],
 			"near": 460,
 			"clear": 34,
 			"story": "The Crown's own farms: three great windmills on a round hill above the King's Ember Road, crown banners on the sails' mast. The Crownstead Elder Stone stands on the crown of the hill (STORY_R1 Act IV: 'the relic is a leash', the two ash layers).",
-			"hooks": ["Act IV Crownstead: Ashsight two layers at the Elder Stone; route a line to Kingsreach (Wardwright)", "Harvest Festival hub: the hill fields turn gold, carts queue at the mills (farming career)", "Landmark visible from the Ember Road and Cinderpost: a navigation beacon for new players"],
+			"hooks": [
+				"Act IV Crownstead: Ashsight two layers at the Elder Stone; route a line to Kingsreach (Wardwright)",
+				"Harvest Festival hub: the hill fields turn gold, carts queue at the mills (farming career)",
+				"Landmark visible from the Ember Road and Cinderpost: a navigation beacon for new players"
+			],
 			"parts": [
-				{"a": "gen:farm/windmill", "w": [418, -201], "s": 1.35, "yaw": 200, "collide": true, "far": true},
-				{"a": "gen:farm/windmill", "w": [447, -180], "s": 1.25, "yaw": 150, "collide": true, "far": true},
-				{"a": "gen:farm/windmill", "w": [441, -214], "s": 1.15, "yaw": 250, "collide": true, "far": true},
-				{"a": "r1:stones/elder_stone", "w": [430, -192], "h": 5.2, "yaw": 20},
-				{"a": "r1:highwatch/banner_pole", "w": [426, -186], "h": 8, "yaw": 20, "far": true},
-				{"a": "r1:highwatch/banner_pole", "w": [436, -198], "h": 8, "yaw": 200, "far": true},
-				{"a": "gen:farm/granary", "w": [404, -176], "h": 6, "yaw": 120, "collide": true},
-				{"a": "gen:farm/hay_wagon", "w": [412, -170], "h": 2.6, "yaw": 40},
-				{"a": "free:farm/hay_bale_yellow_large", "w": [455, -200], "h": 1.8, "yaw": 10},
-				{"a": "free:farm/hay_bale_round", "w": [459, -194], "h": 1.5, "yaw": 60},
-				{"a": "free:farm/hay_bale_round", "w": [424, -222], "h": 1.5, "yaw": 20},
-				{"a": "free:fences/fence_farm_white", "w": [395, -205], "h": 1.3, "yaw": 80, "row": {"n": 7, "step": [0.8, 4.2], "jitter": 6}},
-				{"a": "free:fences/fence_farm_white", "w": [460, -165], "h": 1.3, "yaw": 20, "row": {"n": 6, "step": [4.2, -1.4], "jitter": 6}}
+				{
+					"a": "gen:farm/windmill",
+					"w": [
+						418,
+						-201
+					],
+					"s": 1.35,
+					"yaw": 200,
+					"collide": true,
+					"far": true
+				},
+				{
+					"a": "gen:farm/windmill",
+					"w": [
+						447,
+						-180
+					],
+					"s": 1.25,
+					"yaw": 150,
+					"collide": true,
+					"far": true
+				},
+				{
+					"a": "gen:farm/windmill",
+					"w": [
+						441,
+						-214
+					],
+					"s": 1.15,
+					"yaw": 250,
+					"collide": true,
+					"far": true
+				},
+				{
+					"a": "r1:stones/elder_stone",
+					"w": [
+						430,
+						-192
+					],
+					"h": 5.2,
+					"yaw": 20
+				},
+				{
+					"a": "r1:highwatch/banner_pole",
+					"w": [
+						426,
+						-186
+					],
+					"h": 8,
+					"yaw": 20,
+					"far": true
+				},
+				{
+					"a": "r1:highwatch/banner_pole",
+					"w": [
+						436,
+						-198
+					],
+					"h": 8,
+					"yaw": 200,
+					"far": true
+				},
+				{
+					"a": "gen:farm/granary",
+					"w": [
+						404,
+						-176
+					],
+					"h": 6,
+					"yaw": 120,
+					"collide": true
+				},
+				{
+					"a": "gen:farm/hay_wagon",
+					"w": [
+						412,
+						-170
+					],
+					"h": 2.6,
+					"yaw": 40
+				},
+				{
+					"a": "free:farm/hay_bale_yellow_large",
+					"w": [
+						455,
+						-200
+					],
+					"h": 1.8,
+					"yaw": 10
+				},
+				{
+					"a": "free:farm/hay_bale_round",
+					"w": [
+						459,
+						-194
+					],
+					"h": 1.5,
+					"yaw": 60
+				},
+				{
+					"a": "free:farm/hay_bale_round",
+					"w": [
+						424,
+						-222
+					],
+					"h": 1.5,
+					"yaw": 20
+				},
+				{
+					"a": "free:fences/fence_farm_white",
+					"w": [
+						395,
+						-205
+					],
+					"h": 1.3,
+					"yaw": 80,
+					"row": {
+						"n": 7,
+						"step": [
+							0.8,
+							4.2
+						],
+						"jitter": 6
+					}
+				},
+				{
+					"a": "free:fences/fence_farm_white",
+					"w": [
+						460,
+						-165
+					],
+					"h": 1.3,
+					"yaw": 20,
+					"row": {
+						"n": 6,
+						"step": [
+							4.2,
+							-1.4
+						],
+						"jitter": 6
+					}
+				}
 			],
 			"scatter": [
-				{"kind": "region/nature/flowers_warm", "w": [430, -192], "r": 30, "r0": 4, "n": 140},
-				{"kind": "region/nature/grass_tall", "w": [430, -190], "r": 60, "r0": 20, "n": 160}
+				{
+					"kind": "region/nature/flowers_warm",
+					"w": [
+						430,
+						-192
+					],
+					"r": 30,
+					"r0": 4,
+					"n": 140
+				},
+				{
+					"kind": "region/nature/grass_tall",
+					"w": [
+						430,
+						-190
+					],
+					"r": 60,
+					"r0": 20,
+					"n": 160
+				}
 			]
 		},
 		{
 			"id": "stagborn_glade",
 			"name": "Stagborn Glade",
 			"kind": "glade",
-			"pos": [-1345, -1062],
+			"pos": [
+				-1345,
+				-1062
+			],
 			"near": 420,
 			"clear": 36,
 			"story": "An ancient clearing in the north-west woods where the Stagborn herd gathers around the fallen Glade Elder Stone, under the Hollow Oak (STORY_R1 Act III 'The Glade', Act IV 'The comeback': the Antlered Warden bows).",
-			"hooks": ["Act III/IV: Glade Elder Stone (cold, then relit); Antlered Warden arena = the stone ring", "Thistle's herd: stagborn idle here at dawn and dusk (ambient_life spawn point)", "Hollow Oak shrine: offer an ember-lantern for a Blessing of the Herd (Hearth Oath hook, N7)"],
+			"hooks": [
+				"Act III/IV: Glade Elder Stone (cold, then relit); Antlered Warden arena = the stone ring",
+				"Thistle's herd: stagborn idle here at dawn and dusk (ambient_life spawn point)",
+				"Hollow Oak shrine: offer an ember-lantern for a Blessing of the Herd (Hearth Oath hook, N7)"
+			],
 			"parts": [
-				{"a": "free:nature/tree_old_a", "w": [-1345, -1093], "h": 26, "yaw": 160, "collide": true, "far": true},
-				{"a": "gen:ruins/overgrown_shrine", "w": [-1338, -1084], "h": 3.2, "yaw": 180},
-				{"a": "r1:stones/elder_stone", "w": [-1345, -1060], "h": 6.0, "yaw": 30, "tilt": [76, 0], "sink": 1.4},
-				{"a": "free:magic/runestone_face_moss", "w": [-1345, -1062], "h": 3.4, "ring": {"n": 3, "r": 21, "start": 0}},
-				{"a": "free:magic/runestone_verdant", "w": [-1345, -1062], "h": 3.0, "ring": {"n": 3, "r": 22, "start": 40}},
-				{"a": "r1:stones/road_stone_b_menhir", "w": [-1345, -1062], "h": 3.8, "ring": {"n": 3, "r": 21, "start": 80}},
-				{"a": "free:nature/rocks_mossy_mushroom", "w": [-1325, -1045], "h": 1.3, "yaw": 50},
-				{"a": "free:flora/stump_grass_rocks", "w": [-1368, -1050], "h": 1.2, "yaw": 20}
+				{
+					"a": "free:nature/tree_old_a",
+					"w": [
+						-1345,
+						-1093
+					],
+					"h": 26,
+					"yaw": 160,
+					"collide": true,
+					"far": true
+				},
+				{
+					"a": "gen:ruins/overgrown_shrine",
+					"w": [
+						-1338,
+						-1084
+					],
+					"h": 3.2,
+					"yaw": 180
+				},
+				{
+					"a": "r1:stones/elder_stone",
+					"w": [
+						-1345,
+						-1060
+					],
+					"h": 6,
+					"yaw": 30,
+					"tilt": [
+						76,
+						0
+					],
+					"sink": 1.4
+				},
+				{
+					"a": "free:magic/runestone_face_moss",
+					"w": [
+						-1345,
+						-1062
+					],
+					"h": 3.4,
+					"ring": {
+						"n": 3,
+						"r": 21,
+						"start": 0
+					}
+				},
+				{
+					"a": "free:magic/runestone_verdant",
+					"w": [
+						-1345,
+						-1062
+					],
+					"h": 3,
+					"ring": {
+						"n": 3,
+						"r": 22,
+						"start": 40
+					}
+				},
+				{
+					"a": "r1:stones/road_stone_b_menhir",
+					"w": [
+						-1345,
+						-1062
+					],
+					"h": 3.8,
+					"ring": {
+						"n": 3,
+						"r": 21,
+						"start": 80
+					}
+				},
+				{
+					"a": "free:nature/rocks_mossy_mushroom",
+					"w": [
+						-1325,
+						-1045
+					],
+					"h": 1.3,
+					"yaw": 50
+				},
+				{
+					"a": "free:flora/stump_grass_rocks",
+					"w": [
+						-1368,
+						-1050
+					],
+					"h": 1.2,
+					"yaw": 20
+				}
 			],
 			"scatter": [
-				{"kind": "region/nature/flowers_cool", "w": [-1345, -1062], "r": 34, "n": 420},
-				{"kind": "region/nature/flowers_warm", "w": [-1345, -1062], "r": 30, "n": 160},
-				{"kind": "region/nature/fern_a", "w": [-1345, -1062], "r": 44, "r0": 30, "n": 140},
-				{"kind": "region/nature/grass_tall", "w": [-1345, -1062], "r": 38, "r0": 8, "n": 180}
+				{
+					"kind": "region/nature/flowers_cool",
+					"w": [
+						-1345,
+						-1062
+					],
+					"r": 34,
+					"n": 420
+				},
+				{
+					"kind": "region/nature/flowers_warm",
+					"w": [
+						-1345,
+						-1062
+					],
+					"r": 30,
+					"n": 160
+				},
+				{
+					"kind": "region/nature/fern_a",
+					"w": [
+						-1345,
+						-1062
+					],
+					"r": 44,
+					"r0": 30,
+					"n": 140
+				},
+				{
+					"kind": "region/nature/grass_tall",
+					"w": [
+						-1345,
+						-1062
+					],
+					"r": 38,
+					"r0": 8,
+					"n": 180
+				}
 			]
 		},
 		{
 			"id": "wyrms_ribs",
 			"name": "The Wyrm's Ribs",
 			"kind": "bones",
-			"pos": [-60, -1700],
+			"pos": [
+				-60,
+				-1700
+			],
 			"near": 420,
 			"clear": 40,
 			"story": "The bones of a frost-horned giant beast on a ridge north of Highwatch Keep: the first hint of the Frostcrown Holds beyond Grimfen Pass (REGION_1_PLAN 1.7). The Order of the Highwatch rides out to it for oaths.",
-			"hooks": ["Highwatch knight oath site (soldier career rank-up cutscene backdrop)", "Frostcrown tease: frost-horn relic for a quest; aurora on clear winter nights", "Troll/wyvern apex lair nearby (monster_ecology) - danger rises past the bones"],
+			"hooks": [
+				"Highwatch knight oath site (soldier career rank-up cutscene backdrop)",
+				"Frostcrown tease: frost-horn relic for a quest; aurora on clear winter nights",
+				"Troll/wyvern apex lair nearby (monster_ecology) - danger rises past the bones"
+			],
 			"parts": [
-				{"a": "r1:landmarks/giant_skull", "at": [25, 0], "s": 1.0, "yaw": 0, "far": true, "collide": true},
-				{"a": "r1:landmarks/giant_tusk", "at": [22, 9.5], "s": 1.0, "yaw": -25},
-				{"a": "r1:landmarks/giant_tusk", "at": [29, -10.5], "s": 0.9, "yaw": 170},
-				{"a": "r1:landmarks/giant_rib_a", "at": [-6, 8.55], "s": 0.95, "yaw": 90, "far": true},
-				{"a": "r1:landmarks/giant_rib_a", "at": [-4.6, -8.55], "s": 0.92, "yaw": -90, "far": true},
-				{"a": "r1:landmarks/giant_rib_a", "at": [-1, 9.9], "s": 1.1, "yaw": 90, "far": true},
-				{"a": "r1:landmarks/giant_rib_a", "at": [0.4, -9.9], "s": 1.07, "yaw": -90, "far": true},
-				{"a": "r1:landmarks/giant_rib_a", "at": [4.5, 9.45], "s": 1.05, "yaw": 90, "far": true},
-				{"a": "r1:landmarks/giant_rib_a", "at": [5.9, -9.45], "s": 1.02, "yaw": -90, "far": true},
-				{"a": "r1:landmarks/giant_rib_b", "at": [10, 8.1], "s": 0.9, "yaw": 90, "far": true},
-				{"a": "r1:landmarks/giant_rib_a", "at": [11.4, -8.1], "s": 0.87, "yaw": -90, "far": true},
-				{"a": "r1:landmarks/giant_spine_segment", "at": [-27, 0], "s": 0.55},
-				{"a": "r1:landmarks/giant_spine_segment", "at": [-20, 0], "s": 0.64, "yaw": -4},
-				{"a": "r1:landmarks/giant_spine_segment", "at": [-13, 0.2], "s": 0.73, "yaw": 1},
-				{"a": "r1:landmarks/giant_spine_segment", "at": [-6, -0.2], "s": 0.83, "yaw": 4},
-				{"a": "r1:landmarks/giant_spine_segment", "at": [1, 0.3], "s": 0.92, "yaw": -2},
-				{"a": "r1:landmarks/giant_spine_segment", "at": [8, -0.3], "s": 1.01, "yaw": -3},
-				{"a": "r1:landmarks/giant_spine_segment", "at": [15, 0.3], "s": 1.1, "yaw": 2}
+				{
+					"a": "r1:landmarks/giant_skull",
+					"at": [
+						25,
+						0
+					],
+					"s": 1,
+					"yaw": 0,
+					"far": true,
+					"collide": true
+				},
+				{
+					"a": "r1:landmarks/giant_tusk",
+					"at": [
+						22,
+						9.5
+					],
+					"s": 1,
+					"yaw": -25
+				},
+				{
+					"a": "r1:landmarks/giant_tusk",
+					"at": [
+						29,
+						-10.5
+					],
+					"s": 0.9,
+					"yaw": 170
+				},
+				{
+					"a": "r1:landmarks/giant_rib_a",
+					"at": [
+						-6,
+						8.55
+					],
+					"s": 0.95,
+					"yaw": 90,
+					"far": true
+				},
+				{
+					"a": "r1:landmarks/giant_rib_a",
+					"at": [
+						-4.6,
+						-8.55
+					],
+					"s": 0.92,
+					"yaw": -90,
+					"far": true
+				},
+				{
+					"a": "r1:landmarks/giant_rib_a",
+					"at": [
+						-1,
+						9.9
+					],
+					"s": 1.1,
+					"yaw": 90,
+					"far": true
+				},
+				{
+					"a": "r1:landmarks/giant_rib_a",
+					"at": [
+						0.4,
+						-9.9
+					],
+					"s": 1.07,
+					"yaw": -90,
+					"far": true
+				},
+				{
+					"a": "r1:landmarks/giant_rib_a",
+					"at": [
+						4.5,
+						9.45
+					],
+					"s": 1.05,
+					"yaw": 90,
+					"far": true
+				},
+				{
+					"a": "r1:landmarks/giant_rib_a",
+					"at": [
+						5.9,
+						-9.45
+					],
+					"s": 1.02,
+					"yaw": -90,
+					"far": true
+				},
+				{
+					"a": "r1:landmarks/giant_rib_b",
+					"at": [
+						10,
+						8.1
+					],
+					"s": 0.9,
+					"yaw": 90,
+					"far": true
+				},
+				{
+					"a": "r1:landmarks/giant_rib_a",
+					"at": [
+						11.4,
+						-8.1
+					],
+					"s": 0.87,
+					"yaw": -90,
+					"far": true
+				},
+				{
+					"a": "r1:landmarks/giant_spine_segment",
+					"at": [
+						-27,
+						0
+					],
+					"s": 0.55
+				},
+				{
+					"a": "r1:landmarks/giant_spine_segment",
+					"at": [
+						-20,
+						0
+					],
+					"s": 0.64,
+					"yaw": -4
+				},
+				{
+					"a": "r1:landmarks/giant_spine_segment",
+					"at": [
+						-13,
+						0.2
+					],
+					"s": 0.73,
+					"yaw": 1
+				},
+				{
+					"a": "r1:landmarks/giant_spine_segment",
+					"at": [
+						-6,
+						-0.2
+					],
+					"s": 0.83,
+					"yaw": 4
+				},
+				{
+					"a": "r1:landmarks/giant_spine_segment",
+					"at": [
+						1,
+						0.3
+					],
+					"s": 0.92,
+					"yaw": -2
+				},
+				{
+					"a": "r1:landmarks/giant_spine_segment",
+					"at": [
+						8,
+						-0.3
+					],
+					"s": 1.01,
+					"yaw": -3
+				},
+				{
+					"a": "r1:landmarks/giant_spine_segment",
+					"at": [
+						15,
+						0.3
+					],
+					"s": 1.1,
+					"yaw": 2
+				}
 			],
 			"scatter": [
-				{"kind": "region/nature/flowers_cool", "w": [-60, -1700], "r": 36, "n": 160},
-				{"kind": "region/nature/grass_tall", "w": [-60, -1700], "r": 40, "n": 160},
-				{"kind": "region/nature/rock_medium", "w": [-60, -1700], "r": 44, "r0": 20, "n": 30, "s": [1.0, 2.0]}
+				{
+					"kind": "region/nature/flowers_cool",
+					"w": [
+						-60,
+						-1700
+					],
+					"r": 36,
+					"n": 160
+				},
+				{
+					"kind": "region/nature/grass_tall",
+					"w": [
+						-60,
+						-1700
+					],
+					"r": 40,
+					"n": 160
+				},
+				{
+					"kind": "region/nature/rock_medium",
+					"w": [
+						-60,
+						-1700
+					],
+					"r": 44,
+					"r0": 20,
+					"n": 30,
+					"s": [
+						1,
+						2
+					]
+				}
 			]
 		}
 	],
 	"cliff_kits": [
-		{"id": "vale_limestone", "rocks": [["free:nature/rock_limestone_tall", 0.75], ["free:nature/rock_blue_brown", 0.15], ["free:nature/rock_grey_plain", 0.1]], "step": 5.5, "min_h": 10.0, "max_h": 22.0, "embed": 0.42, "seed": 11, "end": 1800}
+		{
+			"id": "vale_limestone",
+			"rocks": [
+				[
+					"free:nature/rock_limestone_tall",
+					0.75
+				],
+				[
+					"free:nature/rock_blue_brown",
+					0.15
+				],
+				[
+					"free:nature/rock_grey_plain",
+					0.1
+				]
+			],
+			"step": 6,
+			"min_h": 8,
+			"max_h": 16,
+			"embed": 0.75,
+			"density": 0.6,
+			"seed": 11,
+			"end": 1800
+		}
 	]
 }

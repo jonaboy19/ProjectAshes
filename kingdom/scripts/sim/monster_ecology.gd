@@ -29,6 +29,14 @@ const SPECIES := {
 	"troll": {"threat": 4.0, "growth": 0.0, "max_pop": 1, "territory": 700.0, "pack": 1, "apex": true},
 	"wyvern": {"threat": 5.0, "growth": 0.0, "max_pop": 1, "territory": 900.0, "pack": 1, "apex": true},
 	"bear": {"threat": 2.5, "growth": 0.0, "max_pop": 1, "territory": 500.0, "pack": 1, "apex": true},
+	# Region 1 (package C11, scripts/world/region1_creatures.gd). max_pop stays under 2 x pack so these dens never split.
+	"stagborn_elk": {"threat": 0.0, "growth": 0.02, "max_pop": 11, "territory": 170.0, "pack": 6},
+	"stagborn_warden": {"threat": 3.0, "growth": 0.0, "max_pop": 1, "territory": 70.0, "pack": 1},
+	"ghoul": {"threat": 1.4, "growth": 0.02, "max_pop": 5, "territory": 110.0, "pack": 3},
+	"giant_wasp": {"threat": 1.1, "growth": 0.04, "max_pop": 5, "territory": 90.0, "pack": 3},
+	"bog_toad": {"threat": 0.9, "growth": 0.03, "max_pop": 5, "territory": 80.0, "pack": 3},
+	"rift_slime": {"threat": 0.8, "growth": 0.05, "max_pop": 7, "territory": 100.0, "pack": 4},
+	"rift_wraith": {"threat": 2.2, "growth": 0.0, "max_pop": 2, "territory": 140.0, "pack": 2},
 }
 ## Migration is easier to trigger when it's fleeing an apex or winter cold.
 const MIGRATE_PRESSURE := 0.75
@@ -43,7 +51,7 @@ const RIFT_DEN_MIN_INSTABILITY := 0.45
 const MAX_EVENTS := 200
 ## Hard ceiling on living dens. Migration only ever added dens (25 -> 118 alive in two simulated years, and
 ## pop doubling), so past this a crowded den simply stays put and stops growing at its species' max_pop.
-const MAX_ALIVE_DENS := 48
+const MAX_ALIVE_DENS := 72      # was 48: Region 1 adds about 25 fixed dens (herds, ghouls, wasps, toads, rift) that never migrate
 
 ## Den: {id, species, pos, territory, population, food 0..1, aggression 0..1,
 ## pressure 0..1, alive, apex: bool}
@@ -59,6 +67,14 @@ var _day := 0
 
 func _init(seed_value := 4242) -> void:
 	_rng.seed = seed_value
+
+
+## Region1 hook H4 (docs/regions/REGION_1_PLAN.md): Scar Tide cells turn a species into its rift variant (Callable(species, pos) -> species).
+var variant_override: Callable = Callable()
+
+
+func variant_for(species: String, pos: Vector2) -> String:
+	return String(variant_override.call(species, pos)) if variant_override.is_valid() else species
 
 
 func add_den(species: String, pos: Vector2, population: int) -> Dictionary:
@@ -256,6 +272,8 @@ func cull(den_id: int, count: int) -> void:
 # --- events & apex hunts -------------------------------------------------------------
 
 func _log_event(event: Dictionary) -> void:
+	if event.get("pos") is Vector2 and String(event.get("type", "")) in ["livestock_taken", "apex_arrival"]:
+		AshMemory.report(&"raid", event["pos"], AshMemory.clock())   # Region1 hook C6: the ashes remember it (no-op when the module is off)
 	_events.append(event)
 	if _events.size() > MAX_EVENTS:
 		_events = _events.slice(_events.size() - MAX_EVENTS)

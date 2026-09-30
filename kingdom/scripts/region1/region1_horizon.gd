@@ -11,7 +11,7 @@ extends Node3D
 
 const HALF := 4096.0
 const CELL := 48.0
-const BLOB_STEP := 26.0
+const BLOB_STEP := 34.0
 const BLOB_CELL := 512.0
 const GRASS := Color(0.42, 0.6, 0.22)
 const FOREST := Color(0.2, 0.34, 0.14)
@@ -26,8 +26,13 @@ var _ground_mat: ShaderMaterial
 var _blob_mat: ShaderMaterial
 var _terrain: Node
 var _built := false
+const MASK_R := 8
+const MASK_N := 17
+var _mask_img := Image.create(MASK_N, MASK_N, false, Image.FORMAT_R8)
+var _mask_tex: ImageTexture
+var _mask_sig := 0
 ## LOW keeps the ground and trims the canopy range.
-var blob_range := 2200.0
+var blob_range := 1700.0
 ## Biome map (set by Region1Look) for the far ground tint and fields.
 var biome: Texture2D:
 	set(v):
@@ -44,7 +49,11 @@ func _ready() -> void:
 	_blob_mat.shader = preload("res://shaders/region1/horizon_canopy.gdshader")
 	var q := get_node_or_null("/root/Quality")
 	if q and int(q.get("view_radius")) <= 2:
-		blob_range = 1100.0
+		blob_range = 0.0          # LOW: ground only (canopy domes cost ~3 ms on the LOW A/B, docs/regions/look/PERF.md)
+	_mask_tex = ImageTexture.create_from_image(_mask_img)
+	for mat: ShaderMaterial in [_ground_mat, _blob_mat]:
+		mat.set_shader_parameter("built_mask", _mask_tex)
+		mat.set_shader_parameter("mask_cells", float(MASK_N))
 	_task = WorkerThreadPool.add_task(_work, false, "region1 horizon")
 
 
@@ -77,15 +86,26 @@ func _process(_d: float) -> void:
 		_terrain = _find_terrain()
 		if _terrain == null:
 			return
+	# The far mesh gives way only where a streamed chunk is really built (a mask of the chunks around the focus),
+	# not over the whole nominal ring: while a fast camera (cutscene, teleport) outruns the streamer, the ring used to
+	# show a void with canopy domes hovering over it.
+	var chunks: Dictionary = _terrain.get("_chunks")
 	var f: Vector3 = _terrain.get("focus")
-	var r := int(_terrain.get("view_radius"))
 	var c := Vector2i(floori(f.x / 64.0), floori(f.z / 64.0))
-	var rmin := Vector2((c.x - r) * 64.0, (c.y - r) * 64.0)
-	var rmax := Vector2((c.x + r + 1) * 64.0, (c.y + r + 1) * 64.0)
-	_ground_mat.set_shader_parameter("ring_min", rmin)
-	_ground_mat.set_shader_parameter("ring_max", rmax)
-	_blob_mat.set_shader_parameter("ring_min", rmin - Vector2(6, 6))
-	_blob_mat.set_shader_parameter("ring_max", rmax + Vector2(6, 6))
+	var sig := hash([c, chunks.size()])
+	if sig == _mask_sig:
+		return
+	_mask_sig = sig
+	var o := c - Vector2i(MASK_R, MASK_R)
+	_mask_img.fill(Color(0, 0, 0))
+	for key: Vector2i in chunks:
+		var m := key - o
+		if m.x >= 0 and m.y >= 0 and m.x < MASK_N and m.y < MASK_N and is_instance_valid(chunks[key]):
+			_mask_img.set_pixel(m.x, m.y, Color(1, 0, 0))
+	_mask_tex.update(_mask_img)
+	var origin := Vector2(o.x * 64.0, o.y * 64.0)
+	for mat: ShaderMaterial in [_ground_mat, _blob_mat]:
+		mat.set_shader_parameter("mask_origin", origin)
 
 
 func _find_terrain() -> Node:
@@ -162,11 +182,25 @@ func _work() -> void:
 					blobs[key] = PackedFloat32Array()
 				var arr: PackedFloat32Array = blobs[key]
 				var s := rng.randf_range(8.5, 13.0)
-				arr.append_array(PackedFloat32Array([px, WorldGen.height(px, pz) + s * 0.55, pz, s, s * rng.randf_range(0.7, 1.05), rng.randf()]))
+				# Seat on the horizon mesh itself (48 m grid), not the exact ground: over bowls and rims the two differ by
+				# tens of metres and the domes hovered ("void" frames in the Hidden Vale cutscene).
+				var gy := _grid_h(hs, n, px, pz)
+				arr.append_array(PackedFloat32Array([px, minf(gy, WorldGen.height(px, pz)) + s * 0.3, pz, s, s * rng.randf_range(0.7, 1.05), rng.randf()]))
 				blobs[key] = arr
 			bx += BLOB_STEP
 		bz += BLOB_STEP
 	_result = {"n": n, "verts": verts, "cols": cols, "idx": idx, "blobs": blobs}
+
+
+## Bilinear height of the horizon grid at (x, z).
+static func _grid_h(hs: PackedFloat32Array, n: int, x: float, z: float) -> float:
+	var fx := clampf((x + HALF) / CELL, 0.0, n - 1.001)
+	var fz := clampf((z + HALF) / CELL, 0.0, n - 1.001)
+	var ix := int(fx)
+	var iz := int(fz)
+	var tx := fx - ix
+	var tz := fz - iz
+	return lerpf(lerpf(hs[iz * n + ix], hs[iz * n + ix + 1], tx), lerpf(hs[(iz + 1) * n + ix], hs[(iz + 1) * n + ix + 1], tx), tz)
 
 
 # --- Main thread ----------------------------------------------------------------------
@@ -192,6 +226,8 @@ func _finish() -> void:
 	mi.custom_aabb = AABB(Vector3(-HALF, -50, -HALF), Vector3(HALF * 2, 500, HALF * 2))
 	add_child(mi)
 	var blob := _blob_mesh()
+	if blob_range <= 0.0:
+		(_result["blobs"] as Dictionary).clear()
 	var count := 0
 	var blobs: Dictionary = _result["blobs"]
 	for key: Vector2i in blobs:
@@ -227,7 +263,7 @@ static func _blob_mesh() -> ArrayMesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var sides := 6
-	var rings := [[-0.5, 0.8], [0.15, 1.0], [0.7, 0.55]]
+	var rings := [[-1.0, 0.75], [0.15, 1.0], [0.7, 0.55]]
 	var pts: Array = []
 	for r: Array in rings:
 		var ring := []

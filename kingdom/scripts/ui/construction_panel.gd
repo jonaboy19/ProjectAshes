@@ -7,7 +7,26 @@ extends RefCounted
 
 const D := preload("res://scripts/realm/construction_data.gd")
 const Nav := preload("res://scripts/realm/construction_nav.gd")
+const W := preload("res://scripts/ui/build_widgets.gd")
 const REACH := 7.0
+const TIER_SHORT := ["Survival", "Camp", "Village", "Town", "Seat"]
+const GRID_SHADER := """
+shader_type spatial;
+render_mode unshaded, blend_mix, depth_draw_never, cull_disabled;
+uniform vec4 col : source_color = vec4(1.0, 1.0, 1.0, 0.6);
+uniform float cell = 2.0;
+uniform float radius = 7.0;
+varying vec3 wp;
+varying vec2 lp;
+void vertex() { wp = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; lp = VERTEX.xz; }
+void fragment() {
+	vec2 g = abs(fract(wp.xz / cell + 0.5) - 0.5) * cell;
+	float line = 1.0 - smoothstep(0.0, 0.06, min(g.x, g.y));
+	float fade = 1.0 - smoothstep(radius * 0.35, radius, length(lp));
+	ALBEDO = col.rgb;
+	ALPHA = line * fade * col.a;
+}
+"""
 
 var menu: Control
 var tier := 0
@@ -20,6 +39,15 @@ var dragged := false
 var ghost: Node3D
 var ghost_mesh: MeshInstance3D
 var ghost_box: MeshInstance3D
+var ghost_frame: Node3D
+var ghost_arrow: MeshInstance3D
+var ghost_label: Label3D
+var grid: MeshInstance3D
+var _grid_mat: ShaderMaterial
+var _frame_ok: StandardMaterial3D
+var _frame_bad: StandardMaterial3D
+var _ok := false
+var _pulse := 0.0
 var _pos := Vector2.ZERO
 var _green: StandardMaterial3D
 var _red: StandardMaterial3D
@@ -29,6 +57,10 @@ var _last_reason := ""
 
 func _init(p_menu: Control) -> void:
 	menu = p_menu
+
+
+func get_process_delta() -> float:
+	return menu.get_process_delta_time()
 
 
 func cons() -> RefCounted:
@@ -48,8 +80,8 @@ func _view() -> Node:
 	return menu.get_tree().get_first_node_in_group("construction_view")
 
 
-func _say(t: String) -> void:
-	menu.call("set_status", t)
+func _say(t: String, ok := true) -> void:
+	menu.call("set_status", t, ok)
 
 
 # --- catalogue ---------------------------------------------------------------------------
@@ -101,43 +133,66 @@ func cost_bb(k: String, upgrade := false) -> String:
 	return "  ".join(parts)
 
 
+## Cost chips [text, state] for kind `k` against what you hold here (inventory + stockpile).
+func cost_parts(k: String, upgrade := false) -> Array:
+	var c := cons()
+	var cost: Dictionary = c.costs_for(k, upgrade)
+	var out: Array = []
+	var pos := _pp()
+	for item: String in D.MATERIAL_ORDER:
+		if not cost.has(item):
+			continue
+		var have: int = c.available(item, pos)
+		var need := int(cost[item])
+		var state := "ok" if have >= need else ("some" if have >= int(ceil(need * D.START_SHARE)) else "short")
+		out.append(["%d/%d %s" % [have, need, String(D.MATERIALS.get(item, item)).to_lower()], state])
+	return out
+
+
 func fill_catalog(list: VBoxContainer) -> void:
 	var c := cons()
 	var tabs := HBoxContainer.new()
 	tabs.add_theme_constant_override("separation", 4)
 	for t in 5:
-		var b := _btn("T%d" % t, func() -> void:
+		var open: bool = t == 0 or c.tier_built(t - 1) + int(c.external.get("_any", 0)) >= 1
+		var b := _btn(("" if open else "🔒 ") + String(TIER_SHORT[t]), func() -> void:
 			tier = t
-			menu.call("_refresh_list"), 54)
+			menu.call("_refresh_list"), 0)
 		b.toggle_mode = true
 		b.button_pressed = t == tier
+		b.add_theme_font_size_override("font_size", 13)
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.tooltip_text = String(D.TIER_NAMES[t])
 		tabs.add_child(b)
-	var tn := _label(String(D.TIER_NAMES[tier]), true)
-	tn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tabs.add_child(tn)
 	list.add_child(tabs)
 	var pos := _pp()
 	for k: String in D.kinds_of_tier(tier):
 		var d: Dictionary = D.CATALOG[k]
 		var needs: Array = c.missing_needs(k)
+		var locked := not needs.is_empty()
 		var row := HBoxContainer.new()
-		row.custom_minimum_size = Vector2(0, 46)
+		row.custom_minimum_size = Vector2(0, 58)
+		row.add_theme_constant_override("separation", 8)
+		var ic := W.icon(k, String(d["role"]), 44)
+		ic.set("locked", locked)
+		row.add_child(ic)
 		var col := VBoxContainer.new()
 		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		col.add_theme_constant_override("separation", 0)
-		var head := _label("%s%s   %dh labour%s" % ["[locked] " if not needs.is_empty() else "", String(d["name"]), int(d["hours"]),
-			"   needs skill %d" % int(round(float(d.get("min_skill", 0.0)) * 100.0)) if float(d.get("min_skill", 0.0)) > 0.0 else ""], false, 15)
-		head.add_theme_color_override("font_color", UITheme.ACCENT if needs.is_empty() else UITheme.TEXT_DIM)
+		col.add_theme_constant_override("separation", 2)
+		var skill := float(d.get("min_skill", 0.0))
+		var head := _label("%s   %dh labour%s" % [String(d["name"]), int(d["hours"]),
+			"   skill %d" % int(round(skill * 100.0)) if skill > 0.0 else ""], false, 15)
+		head.add_theme_color_override("font_color", UITheme.ACCENT if not locked else UITheme.TEXT_DIM)
 		col.add_child(head)
-		col.add_child(_rich(cost_bb(k)))
-		if not needs.is_empty():
-			col.add_child(_rich("[color=#e07070]Needs: %s[/color]" % "; ".join(needs)))
+		col.add_child(W.chips(cost_parts(k)))
+		if locked:
+			col.add_child(W.locked_banner(needs))
 		else:
 			col.add_child(_label(String(d["desc"]), true, 12))
 		row.add_child(col)
-		var place := _btn("Place" if needs.is_empty() else "Locked", func() -> void: begin_place(k), 88)
-		place.disabled = not needs.is_empty()
+		var place := _btn("Place" if not locked else "🔒", func() -> void: begin_place(k), 80)
+		place.disabled = locked
+		place.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		row.add_child(place)
 		list.add_child(row)
 		list.add_child(HSeparator.new())
@@ -183,16 +238,21 @@ func cancel_place() -> void:
 	if ghost != null:
 		ghost.queue_free()
 		ghost = null
+	if grid != null:
+		grid.queue_free()
+		grid = null
 	menu.call("_refresh_list")
 
 
 func rotate_ghost() -> void:
 	rot = fposmod(rot + PI * 0.25, TAU)
+	menu.call("refresh_place_row")
 
 
 func toggle_snap() -> void:
 	snap_on = not snap_on
-	_say("Grid snap %s." % ("on" if snap_on else "off"))
+	_say("Grid snap %s." % ("on: the blueprint jumps to a 2 m grid" if snap_on else "off: free placement"))
+	menu.call("refresh_place_row")
 
 
 func _ensure_ghost() -> void:
@@ -201,6 +261,9 @@ func _ensure_ghost() -> void:
 		return
 	if ghost != null:
 		ghost.queue_free()
+	if grid != null:
+		grid.queue_free()
+		grid = null
 	ghost = Node3D.new()
 	p.get_parent().add_child(ghost)
 	_green = StandardMaterial3D.new()
@@ -215,6 +278,7 @@ func _ensure_ghost() -> void:
 	ghost.add_child(ghost_box)
 	ghost_mesh = MeshInstance3D.new()
 	ghost.add_child(ghost_mesh)
+	_build_ghost_extras(p)
 	var v := _view()
 	if v != null and kind != "":
 		var b: Dictionary = v.call("_building_mesh", kind)
@@ -226,6 +290,62 @@ func _ensure_ghost() -> void:
 	var pp := _pp()
 	var fwd: Vector3 = p.forward() if p.has_method("forward") else -p.global_transform.basis.z
 	_pos = pp + Vector2(fwd.x, fwd.z).normalized() * (REACH + D.half_size(kind).length())
+
+
+## Footprint frame, door arrow, snap grid and the floating verdict label around the ghost.
+func _build_ghost_extras(p: Node3D) -> void:
+	_frame_ok = StandardMaterial3D.new()
+	_frame_ok.albedo_color = Color(0.55, 1.0, 0.65, 0.95)
+	_frame_ok.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_frame_ok.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_frame_bad = _frame_ok.duplicate()
+	_frame_bad.albedo_color = Color(1.0, 0.4, 0.38, 0.95)
+	var sz: Vector2 = D.CATALOG[kind]["size"]
+	ghost_frame = Node3D.new()
+	ghost.add_child(ghost_frame)
+	var t := 0.14
+	for e: Array in [[Vector3(sz.x + t, 0.1, t), Vector3(0, 0.08, sz.y * 0.5)], [Vector3(sz.x + t, 0.1, t), Vector3(0, 0.08, -sz.y * 0.5)],
+			[Vector3(t, 0.1, sz.y + t), Vector3(sz.x * 0.5, 0.08, 0)], [Vector3(t, 0.1, sz.y + t), Vector3(-sz.x * 0.5, 0.08, 0)]]:
+		var mi := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = e[0]
+		mi.mesh = bm
+		mi.position = e[1]
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		ghost_frame.add_child(mi)
+	# an arrow on the front (door) side, so rotating reads at a glance
+	ghost_arrow = MeshInstance3D.new()
+	var pm := PrismMesh.new()
+	pm.size = Vector3(1.1, 1.1, 0.06)
+	ghost_arrow.mesh = pm
+	ghost_arrow.rotation.x = PI * 0.5
+	ghost_arrow.position = Vector3(0, 0.1, sz.y * 0.5 + 0.9)
+	ghost_arrow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	ghost.add_child(ghost_arrow)
+	ghost_label = Label3D.new()
+	ghost_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	ghost_label.fixed_size = true
+	ghost_label.pixel_size = 0.0009
+	ghost_label.font_size = 34
+	ghost_label.outline_size = 14
+	ghost_label.no_depth_test = true
+	ghost_label.render_priority = 6
+	ghost_label.position = Vector3(0, 3.0, 0)
+	ghost.add_child(ghost_label)
+	# world-aligned 2 m grid under the snapped spot
+	var sh := Shader.new()
+	sh.code = GRID_SHADER
+	_grid_mat = ShaderMaterial.new()
+	_grid_mat.shader = sh
+	grid = MeshInstance3D.new()
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(16, 16)
+	plane.subdivide_width = 1
+	plane.subdivide_depth = 1
+	grid.mesh = plane
+	grid.material_override = _grid_mat
+	grid.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	p.get_parent().add_child(grid)
 
 
 ## Pointer drag (mouse or touch) moves the ghost over the ground.
@@ -284,12 +404,32 @@ func update_ghost() -> void:
 	var why := _reason(pos)
 	var ok := why == ""
 	var mat := _green if ok else _red
+	# pulse so the verdict is unmissable on a small screen
+	_pulse += get_process_delta()
+	var a := 0.42 + 0.14 * sin(_pulse * 5.0)
+	_green.albedo_color.a = a
+	_red.albedo_color.a = a
 	ghost_box.material_override = mat
 	if ghost_mesh.mesh != null:
 		ghost_mesh.material_override = mat
-	if why != _last_reason:
+	if ghost_frame != null:
+		var fm := _frame_ok if ok else _frame_bad
+		for f in ghost_frame.get_children():
+			(f as MeshInstance3D).material_override = fm
+		ghost_arrow.material_override = fm
+		ghost_label.text = "✓ Build here" if ok else "✗ " + why
+		ghost_label.modulate = W.OK if ok else W.BAD
+		ghost_label.outline_modulate = Color(0.05, 0.05, 0.05, 0.95)
+		ghost_label.position.y = maxf(2.5, float(D.CATALOG[kind]["size"].x) * 0.5 + 1.5)
+	if grid != null:
+		grid.visible = snap_on
+		grid.global_position = Vector3(pos.x, ghost.global_position.y + 0.06, pos.y)
+		_grid_mat.set_shader_parameter("col", Color(0.55, 1.0, 0.65, 0.55) if ok else Color(1.0, 0.45, 0.4, 0.55))
+	if why != _last_reason or ok != _ok:
 		_last_reason = why
-		_say("Ready to build here." if ok else why)
+		_ok = ok
+		_say("Ready to build here. Tap Place to lay the blueprint." if ok else why, ok)
+	menu.call("set_place_info", "%s  ·  %d°  ·  grid %s" % [String(D.CATALOG[kind]["name"]), int(round(rad_to_deg(rot))), "on" if snap_on else "off"])
 
 
 func _reason(pos: Vector2) -> String:
@@ -387,8 +527,19 @@ func fill_site(list: VBoxContainer) -> void:
 	bar.min_value = 0
 	bar.max_value = 100
 	bar.value = float(info["pct"]) * 100.0
-	bar.custom_minimum_size = Vector2(0, 18)
+	bar.custom_minimum_size = Vector2(0, 22)
 	bar.show_percentage = false
+	var stalled := String(info["stall"]) != ""
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.05, 0.045, 0.04, 0.9)
+	bg.border_color = Color(0.78, 0.66, 0.42, 0.9)
+	bg.set_border_width_all(1)
+	bg.set_corner_radius_all(8)
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = Color(0.95, 0.74, 0.3) if not stalled else Color(0.85, 0.35, 0.28)
+	fill.set_corner_radius_all(8)
+	bar.add_theme_stylebox_override("background", bg)
+	bar.add_theme_stylebox_override("fill", fill)
 	list.add_child(bar)
 	var stages := PackedStringArray()
 	for i in D.STAGES.size() - 1:
@@ -492,9 +643,9 @@ func _fill_done(list: VBoxContainer, s: Dictionary) -> void:
 		var col := VBoxContainer.new()
 		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		col.add_child(_label("Upgrade to %s%s" % [String(D.CATALOG[k]["name"]), "" if needs.is_empty() else "  [locked]"], false, 15))
-		col.add_child(_rich(cost_bb(k, true)))
+		col.add_child(W.chips(cost_parts(k, true)))
 		if not needs.is_empty():
-			col.add_child(_rich("[color=#e07070]Needs: %s[/color]" % "; ".join(needs)))
+			col.add_child(W.locked_banner(needs))
 		row.add_child(col)
 		var b := _btn("Upgrade", func() -> void: begin_place(k, site_id), 88)
 		b.disabled = not needs.is_empty()

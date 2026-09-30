@@ -141,14 +141,12 @@ func use() -> void:
 
 
 func enter(player: Node3D) -> void:
-	if player == null or active != null or interior_scene == "":
-		return
-	var packed := Assets.scene(interior_scene)
-	if packed == null:
-		push_warning("InteriorDoor: cannot load %s" % interior_scene)
+	if player == null or active != null or not _can_enter():
 		return
 	_player = player
-	interior = packed.instantiate() as Node3D
+	interior = _make_interior()
+	if interior == null:
+		return
 	# Standalone-only nodes: the preview camera and the scene's own WorldEnvironment
 	# (its Environment goes on the player's camera instead, so the world's stays untouched).
 	var env: Environment = null
@@ -197,6 +195,20 @@ func enter(player: Node3D) -> void:
 		if d is InteriorDoor and (d as InteriorDoor).is_exit:
 			(d as InteriorDoor).exit_requested.connect(leave)
 	interior_entered.emit(interior)
+
+
+## Hook for doors whose room is built in code (scripts/interiors/dungeon_door.gd): can this door open now?
+func _can_enter() -> bool:
+	return interior_scene != ""
+
+
+## Hook: the interior root to place. Default: instance `interior_scene`.
+func _make_interior() -> Node3D:
+	var packed := Assets.scene(interior_scene)
+	if packed == null:
+		push_warning("InteriorDoor: cannot load %s" % interior_scene)
+		return null
+	return packed.instantiate() as Node3D
 
 
 func leave() -> void:

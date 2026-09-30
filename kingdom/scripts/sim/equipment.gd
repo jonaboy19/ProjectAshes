@@ -16,11 +16,16 @@ signal changed(slot: String, item_id: String)
 signal buffs_changed
 
 const Crafting := preload("res://scripts/sim/crafting.gd")
+const ItemsDB := preload("res://scripts/sim/items_db.gd")
 
-const SLOTS := ["head", "body", "hands", "feet", "main_hand", "off_hand", "trinket"]
+## The first seven are the original slots (old saves keep loading); legs, cloak, ring and amulet came with the Region 1 item set.
+const SLOTS := ["head", "body", "hands", "feet", "main_hand", "off_hand", "trinket", "legs", "cloak", "ring", "amulet"]
 const SLOT_NAMES := {"head": "Head", "body": "Body", "hands": "Hands", "feet": "Feet",
-	"main_hand": "Main hand", "off_hand": "Off hand", "trinket": "Trinket"}
-const STATS := ["armour", "damage", "speed", "stamina_regen", "max_health"]
+	"main_hand": "Main hand", "off_hand": "Off hand", "trinket": "Trinket", "legs": "Legs", "cloak": "Cloak",
+	"ring": "Ring", "amulet": "Amulet"}
+const STATS := ["armour", "damage", "speed", "stamina_regen", "max_health", "magic", "block", "resist", "crit", "qi_regen", "max_stamina"]
+## Other numeric item fields that count toward stats() when an item has them (equipment and set bonuses).
+const EXTRA_STATS := ["stealth", "luck", "heal_power", "potion_power", "forge_quality", "charm", "regen", "armour_pierce"]
 const WORN_MULT := 0.5
 
 ## slot -> {id, quality, durability}; empty slots are absent.
@@ -53,8 +58,21 @@ static func item_stats(id: String, quality := 1, durability := -1) -> Dictionary
 	var m := float(Crafting.QUALITY_MULT[clampi(quality, 0, 2)])
 	if durability == 0:
 		m *= WORN_MULT
-	return {"armour": float(info.get("armour", 0)) * m, "damage": float(info.get("damage", 0)) * m,
+	var out := {"armour": float(info.get("armour", 0)) * m, "damage": float(info.get("damage", 0)) * m,
 		"speed": float(info.get("speed", 0.0)) * (m if float(info.get("speed", 0.0)) > 0.0 else 1.0)}
+	# Region 1 items: magic, block, resist, crit, qi_regen, max_health ... (same quality scaling, nothing for old items).
+	for k: String in STATS:
+		if k != "armour" and k != "damage" and k != "speed" and info.has(k):
+			out[k] = float(info[k]) * (m if float(info[k]) > 0.0 else 1.0)
+	for k: String in EXTRA_STATS:
+		if info.has(k):
+			out[k] = float(info[k]) * (m if float(info[k]) > 0.0 else 1.0)
+	return out
+
+
+## Whether a character of `level` may use the item (see items' req_level). Not enforced by equip(); UIs and quests can ask.
+static func meets_requirements(id: String, level: int) -> bool:
+	return ItemsDB.meets_requirements(id, level)
 
 
 func equipped(slot: String) -> Dictionary:
@@ -91,11 +109,17 @@ func stats(now := NAN) -> Dictionary:
 	var out := {}
 	for s: String in STATS:
 		out[s] = 0.0
+	var worn: Array = []
 	for slot: String in slots:
 		var e: Dictionary = slots[slot]
+		worn.append(String(e["id"]))
 		var st := item_stats(String(e["id"]), int(e["quality"]), int(e["durability"]))
 		for k: String in st:
-			out[k] = float(out[k]) + float(st[k])
+			out[k] = float(out.get(k, 0.0)) + float(st[k])
+	if worn.size() >= 2:
+		var bonus := ItemsDB.set_bonus_stats(worn)
+		for k: String in bonus:
+			out[k] = float(out.get(k, 0.0)) + float(bonus[k])
 	var t := _now(now)
 	for b in buffs:
 		if is_nan(t) or float(b["until"]) > t:
@@ -124,7 +148,7 @@ func wear(slot: String, amount := 1) -> bool:
 ## A hit taken wears one random worn armour piece (call from player.take_damage).
 func wear_armour(amount := 1, roll := -1.0) -> String:
 	var worn := []
-	for slot: String in ["head", "body", "hands", "feet", "off_hand"]:
+	for slot: String in ["head", "body", "hands", "legs", "feet", "cloak", "off_hand"]:
 		if slots.has(slot):
 			worn.append(slot)
 	if worn.is_empty():
@@ -133,6 +157,18 @@ func wear_armour(amount := 1, roll := -1.0) -> String:
 	var slot: String = worn[mini(int(r * worn.size()), worn.size() - 1)]
 	wear(slot, amount)
 	return slot
+
+
+## Adds `fraction` of each worn piece's maximum durability back (repair kits). Returns how many pieces improved.
+func repair_partial(fraction: float) -> int:
+	var n := 0
+	for slot: String in slots:
+		var e: Dictionary = slots[slot]
+		var maxd := max_durability(String(e["id"]), int(e["quality"]))
+		if int(e["durability"]) < maxd:
+			e["durability"] = mini(maxd, int(e["durability"]) + int(round(float(maxd) * clampf(fraction, 0.0, 1.0))))
+			n += 1
+	return n
 
 
 func needs_repair() -> bool:
@@ -216,9 +252,36 @@ func consume(life: Object, id: String, now := NAN) -> String:
 			float(info.get("buff_value", 0.0)), float(info.get("buff_hours", 1.0)), now)
 		extra.append("%s (%dh)." % [info.get("buff_name", "Buff"), int(info.get("buff_hours", 1))])
 		did = true
+	if info.has("qi_restore"):
+		var mag2: Variant = life.get("magicules")
+		if mag2 is Object:
+			var o := mag2 as Object
+			var cap := float(o.call("effective_max")) if o.has_method("effective_max") else float(o.get("max_pool"))
+			o.set("current", minf(cap, float(o.get("current")) + float(info["qi_restore"])))
+			extra.append("Qi +%d." % int(info["qi_restore"]))
+			did = true
+	if info.has("repair_fraction"):
+		var fixed := repair_partial(float(info["repair_fraction"]))
+		extra.append("%d piece%s mended." % [fixed, "" if fixed == 1 else "s"])
+		did = true
+	# Effects only the cultivation / combat / world systems can apply (pills, scrolls, coatings, recall ...): they hook in
+	# by giving Life an apply_item_effect(id, info) -> String. Without one the item is not spent.
+	for k: String in ["cultivation_xp", "breakthrough_bonus", "permanent_stat", "casts", "effect", "coating"]:
+		if info.has(k) and life.has_method("apply_item_effect"):
+			var res: Variant = life.call("apply_item_effect", id, info)
+			if res is String and String(res) != "":
+				extra.append(String(res))
+			did = true
+			break
 	var msg := ""
-	if float(info.get("nutrition", 0.0)) > 0.0 or int(info.get("heal", 0)) > 0:
+	if float(info.get("nutrition", 0.0)) > 0.0 or (int(info.get("heal", 0)) > 0 and String(info.get("category", "")) != "healing"):
 		msg = String(life.call("use_item", id))
+	elif int(info.get("heal", 0)) > 0:
+		life.call("take", id, 1)
+		var pl: Variant = life.get("player")
+		if pl is Object and (pl as Object).has_method("heal"):
+			(pl as Object).call("heal", int(info["heal"]))
+		msg = "%s. +%d health." % [Crafting.item_name(id), int(info["heal"])]
 	elif did:
 		life.call("take", id, 1)
 		msg = "%s." % Crafting.item_name(id)

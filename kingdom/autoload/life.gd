@@ -7,6 +7,8 @@ extends Node
 ## with real WorldSim people, leaving genuine vacancies.
 
 signal inventory_changed
+## Region1 hook (docs/regions/REGION_1_PLAN.md) C7: a creature the player killed (story kill objectives). species is a registry target id.
+signal region1_kill(species: String, where: Vector3)
 signal employment_changed
 signal grown(age: int)
 
@@ -180,6 +182,7 @@ func _new_life() -> void:
 	crafting.crafted.connect(func(res: Dictionary) -> void:
 		var sk := String(res.get("skill", ""))
 		var item_id := String(res.get("item", ""))
+		award_progress("craft", {"subject": item_id})
 		world_events.publish("item_crafted", "player", "item:" + item_id if not item_id.is_empty() else "", _abs_hours(), {
 			"skill": sk, "count": int(res.get("count", 0)), "quality": int(res.get("quality", 0)),
 			"xp": int(res.get("xp", 0)), "tag": String(res.get("tag", "crafted")),
@@ -772,7 +775,28 @@ func answer_offer(event_id: int, yes: bool) -> String:
 
 ## Effective level for naming: grows with merit, reduced while levels are lost to naming.
 func player_level() -> int:
+	var prog: Variant = _progression()
+	if prog != null:
+		return int(prog.level)   # docs/balance/PROGRESSION_R1.md hook: the cultivation module owns the level curve
 	return maxi(1, 1 + int(sqrt(float(Game.merit))) + age() / 4 - naming.level_penalty(WorldSim.day))
+
+
+## The character-level module (cultivation.prog), or null before the realm exists.
+func _progression() -> Variant:
+	if realm == null:
+		return null
+	var cult: Variant = realm.mod("cultivation")
+	return cult.prog if cult != null and cult.get("prog") != null else null
+
+
+## Progression hook (docs/balance/PROGRESSION_R1.md section 5): award XP for an activity. Null-safe.
+func award_progress(activity: String, ctx: Dictionary = {}) -> void:
+	var prog: Variant = _progression()
+	if prog != null:
+		var c := ctx.duplicate()
+		c["day"] = WorldSim.day
+		c["region"] = "region1"
+		prog.award(activity, c)
 
 
 ## Name a yielded monster: pays magicules, may cost levels or cause injuries.
@@ -864,6 +888,8 @@ func _setup_market() -> void:
 	market.add_good("wolf_pelt", 8, 6, 0)
 	market.add_good("wolf_meat", 2, 10, 0)
 	market.add_good("firewood", 1, 30, 6)
+	market.add_good("scar_crystal", 40, 4, 0)   # Region1 hook C4: the Scar's harvest sells here too
+	market.add_good("scarbloom", 18, 6, 0)
 	preload("res://scripts/sim/gathering_items.gd").register(self)
 	economy.setup(0)
 	economy.bind_home_market(0, market)
@@ -1059,12 +1085,19 @@ func add_merit(amount: int, reason: String) -> void:
 
 
 func on_monster_killed(species: String) -> void:
+	award_progress("kill", {"subject": species, "magnitude": 1})
+	region1_kill.emit(species, player.global_position if player and is_instance_valid(player) else Vector3.ZERO)
 	guild.on_kill(RAAdventurerGuild.PLAYER, species, -1)
 	add_merit(12 if species == "orc" else 6, "%s slain" % species)
 	record("hunted")
 
 
-func on_wolf_killed(_where: Vector3, den_id := -1) -> void:
+func on_wolf_killed(_where: Vector3, den_id := -1, variant := "") -> void:
+	award_progress("kill", {"subject": "rift_wolf" if variant != "" else "wolf", "magnitude": 1})
+	var r1_species := variant if variant != "" else "wolf"
+	if den_id >= 0 and den_id < Frontier.ecology.dens.size() and String(Frontier.ecology.dens[den_id].get("species", "wolf")) == "corrupted_wolf":
+		r1_species = "rift_wolf"
+	region1_kill.emit(r1_species, _where)
 	for c: Dictionary in guild.on_kill(RAAdventurerGuild.PLAYER, "wolf", den_id):
 		if guild.is_ready(int(c["id"])):
 			Game.say("Commission ready to turn in: %s" % c.get("title", ""))
@@ -1166,6 +1199,11 @@ func buy(item: String) -> String:
 func sell(item: String) -> String:
 	if count(item) <= 0:
 		return "You have no %s." % item_name(item)
+	var gov: Variant = realm.mod("governance")   # CIV-B law hook: banned monster-part trade
+	if gov != null:
+		var refusal: String = gov.refuses_item(int(realm.mod("city_life").near_settlement()), item)
+		if refusal != "":
+			return refusal
 	var got := market.sell(item)
 	if got < 0:
 		return "The merchant can't afford it today."
@@ -1222,6 +1260,8 @@ func snapshot() -> Dictionary:
 		"childhood_events": childhood_events.serialize(),
 		"awakening": awakening.serialize(),
 	}
+	# Region1 hook (docs/regions/REGION_1_PLAN.md)
+	d["region1"] = Region1State.snapshot()
 	if player and is_instance_valid(player):
 		d["player"] = {"x": player.global_position.x, "y": player.global_position.y,
 			"z": player.global_position.z, "health": player.get("health")}
@@ -1276,6 +1316,8 @@ func restore(d: Dictionary) -> void:
 			player.revive(false)     # a save loaded from the death screen
 		if player.has_method("set_health"):
 			player.set_health(int(p.get("health", 100)))
+	# Region1 hook (docs/regions/REGION_1_PLAN.md)
+	Region1State.restore(d.get("region1", {}))
 	inventory_changed.emit()
 	employment_changed.emit()
 	Game.stats_changed.emit()
@@ -1375,6 +1417,9 @@ func _on_old_age_death() -> void:
 	var story := "\n".join(biography.summary(WorldSim.day))
 	if heirs.is_empty():
 		Game.say("%s dies in old age, with no heir to carry the name.\n%s" % [life_path.full_name(), story])
+		# Region1 hook (docs/regions/REGION_1_PLAN.md) H7: the story ends, the ember remains
+		preload("res://scripts/region1/ember_legacy.gd").emit_life_ended(biography, echoes, life_path.full_name(), age(),
+			life_path.family_name, WorldSim.day, {"place": String(WorldGen.settlements[life_path.home_settlement]["name"]) if life_path.home_settlement >= 0 and life_path.home_settlement < WorldGen.settlements.size() else "", "mastery": mastery.xp, "tendencies": tendencies.values})
 		return
 	var heir: Dictionary = heirs[0]
 	Game.say("%s dies in old age. %s carries on the family.\n%s" % [life_path.full_name(), String(heir.get("name", "Your heir")), story])

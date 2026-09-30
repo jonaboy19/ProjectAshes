@@ -79,8 +79,15 @@ func test_new_land_sites_are_filled_and_inside_the_world() -> void:
 	assert_int(int(kinds.get("bandit_camp", 0))).is_greater_equal(3)
 	assert_int(int(kinds.get("tower_ruin", 0))).is_greater_equal(3)
 	assert_int(int(kinds.get("waystation", 0))).is_greater_equal(2)
-	# The academy stays the very last site (nothing else's id moved).
-	assert_str(String(WorldGen.sites[WorldGen.sites.size() - 1]["kind"])).is_equal("academy")
+	# The academy ends the original plan (nothing older moved): later packages (look landmarks, towers, hidden valley, Region 1
+	# world, caves) only append after it, and none of them adds farms, waystones or roadside sites.
+	var academy_at := -1
+	for s in WorldGen.sites:
+		if String(s["kind"]) == "academy":
+			academy_at = int(s["id"])
+	assert_int(academy_at).is_greater(0)
+	for i in range(academy_at + 1, WorldGen.sites.size()):
+		assert_bool(String(WorldGen.sites[i]["kind"]) in ["farm", "roadside", "bridge"]).is_false()
 
 
 func test_bandit_camps_and_rifts_thicken_with_distance() -> void:

@@ -135,7 +135,7 @@ func count_built(kind: String) -> int:
 	var n := int(external.get(kind, 0))
 	for id: int in sites:
 		var s: Dictionary = sites[id]
-		if String(s["kind"]) == kind and String(s["state"]) == "done":
+		if String(s["kind"]) == kind and String(s["state"]) == "done" and not bool(s.get("npc", false)):
 			n += 1
 	return n
 
@@ -144,7 +144,7 @@ func tier_built(t: int) -> int:
 	var n := 0
 	for id: int in sites:
 		var s: Dictionary = sites[id]
-		if String(s["state"]) == "done" and int(D.CATALOG[String(s["kind"])]["tier"]) == t:
+		if String(s["state"]) == "done" and int(D.CATALOG[String(s["kind"])]["tier"]) == t and not bool(s.get("npc", false)):
 			n += 1
 	return n
 
@@ -482,6 +482,75 @@ func place(kind: String, pos: Vector2, yaw: float, upgrade_of := 0, from := Vect
 		if from_store + from_pack > 0:
 			(s["have"] as Dictionary)[item] = from_store + from_pack
 	return {"ok": true, "reason": "", "id": id}
+
+
+# ------------------------------------------------------------------ NPC development sites (realm/civilization.gd)
+## A settlement's own project (houses, walls, a market...) shown as a normal staged site (foundation -> frame -> walls ->
+## roof -> done) with no holding, no crew and no materials to haul: civilization.gd sets its progress from the calendar, so the
+## stage the player sees is a pure function of the day. NPC sites never count for the player's unlocks, upkeep or levels.
+
+func npc_place(kind: String, pos: Vector2, yaw: float, total_hours: float, label: String, node: String) -> int:
+	if not D.CATALOG.has(kind):
+		return 0
+	var id := _next_site
+	_next_site += 1
+	sites[id] = {"id": id, "kind": kind, "pos": [pos.x, pos.y], "yaw": yaw, "holding": 0, "state": "site",
+		"progress": 0.0, "total": maxf(total_hours, 1.0), "need": {}, "have": {}, "workers": [],
+		"upgrade_of": 0, "started_day": _day, "done_day": -1, "carry": 0.0, "npc": true, "label": label, "node": node}
+	_trail_dirty = true
+	return id
+
+
+## Progress 0..1 (never moves backwards). Returns the stage name the site is now at.
+func npc_set_progress(id: int, frac: float) -> String:
+	var s: Dictionary = sites.get(id, {})
+	if s.is_empty() or not bool(s.get("npc", false)) or String(s["state"]) == "done":
+		return ""
+	s["progress"] = maxf(float(s["progress"]), clampf(frac, 0.0, 0.999) * float(s["total"]))
+	return D.stage_name(float(s["progress"]) / float(s["total"]))
+
+
+func npc_finish(id: int) -> void:
+	var s: Dictionary = sites.get(id, {})
+	if s.is_empty() or not bool(s.get("npc", false)):
+		return
+	s["state"] = "done"
+	s["progress"] = float(s["total"])
+	s["done_day"] = _day
+
+
+func npc_remove(id: int) -> void:
+	if bool(sites.get(id, {}).get("npc", false)):
+		sites.erase(id)
+		_trail_dirty = true
+
+
+## Keeps the save small: only the newest `keep` finished NPC buildings stay as sites (the rest are simply part of the town).
+func npc_prune(keep: int) -> int:
+	var done: Array = []
+	for id: int in sites:
+		var s: Dictionary = sites[id]
+		if bool(s.get("npc", false)) and String(s["state"]) == "done":
+			done.append(id)
+	done.sort()
+	var n := 0
+	while done.size() > keep:
+		sites.erase(done.pop_front())
+		n += 1
+	if n > 0:
+		_trail_dirty = true
+	return n
+
+
+func npc_sites(node := "") -> Array:
+	var out: Array = []
+	var ids := sites.keys()
+	ids.sort()
+	for id: int in ids:
+		var s: Dictionary = sites[id]
+		if bool(s.get("npc", false)) and (node == "" or String(s.get("node", "")) == node):
+			out.append(s)
+	return out
 
 
 func upgrade_options(site_id: int) -> Array:
@@ -979,8 +1048,8 @@ func advance(hours: int, ctx: Dictionary) -> Array:
 	ids.sort()
 	for id: int in ids:
 		var s: Dictionary = sites[id]
-		if String(s["state"]) != "site":
-			continue
+		if String(s["state"]) != "site" or bool(s.get("npc", false)):
+			continue   # NPC development sites are staged by realm/civilization.gd (npc_set_progress)
 		var info := _site_info(s, ctx)
 		for _h in hours:
 			if not _site_hour(s, ctx, info):
@@ -1492,7 +1561,7 @@ func _day_upkeep(_ctx: Dictionary) -> Array:
 	var up := 0.0
 	for id: int in sites:
 		var s: Dictionary = sites[id]
-		if String(s["state"]) == "done":
+		if String(s["state"]) == "done" and not bool(s.get("npc", false)):
 			up += float(D.CATALOG[String(s["kind"])].get("upkeep", 0.0))
 	_upkeep_acc += up
 	if _upkeep_acc >= 1.0:

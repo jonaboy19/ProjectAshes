@@ -1237,6 +1237,13 @@ func guild(gid: String) -> Dictionary:
 	return (_guilds.get(gid, {}) as Dictionary).duplicate(true)
 
 
+## CIV-B hook (governance.gd): a new guildmaster was chosen.
+func set_guild_leader(gid: String, leader_name: String, age: int) -> void:
+	if _guilds.has(gid):
+		_guilds[gid]["leader"]["name"] = leader_name
+		_guilds[gid]["leader"]["age"] = age
+
+
 func guild_requirements(gid: String) -> Dictionary:
 	_ensure_guilds()
 	if not _guilds.has(gid):
@@ -1531,6 +1538,11 @@ func tick_hour(hour: int, ctx: Dictionary) -> Array:
 	var msgs: Array = []
 	_sync(ctx)
 	_hour = hour
+	# CIV-B law hook: carrying a weapon where the region restricts arms is a crime (witnessed only by the watch: 1).
+	var gov: Variant = hub.mod("governance") if hub != null else null
+	var life: Variant = ctx.get("life")
+	if gov != null and (hour == 10 or hour == 18) and _near_sid >= 0 and life != null and life.get("equipment") != null and gov.weapons_violation(_near_sid, life.equipment.item_in("main_hand") != ""):
+		_soc_call("commit_crime", ["illegal_arms", _near_sid, 1])
 	# Inn stay expiry and cheap-inn theft at 03:00.
 	if not _stay.is_empty():
 		if hour == 3 and float(_stay["security"]) < 0.4:

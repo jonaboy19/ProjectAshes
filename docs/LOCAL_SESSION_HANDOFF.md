@@ -2,6 +2,17 @@
 
 The user runs **two Claude sessions on this branch at the same time**: the cloud session and a local PC session (with GPU, Blender GUI access and the Meshy MCP). This file keeps them from stepping on each other. **Read it after every pull.**
 
+## Tools you can use (read this first)
+Free, licence-checked tools are installed on the local PC in `C:\Users\Jonna\Tools\` and documented with exact headless commands in `tools/README_EXTERNAL_TOOLS.md` and the skill `.claude/skills/ashes-external-tools/SKILL.md`: scrcpy and Perfetto (S22 recording and traces), RenderDoc and AGI (GPU), gltfpack (auto-LOD; use `-noq` for Godot), Instant Meshes (retopo), Real-ESRGAN and Krita (textures), RTMPose (better video mocap), Piper (NPC voices, licence-cleared voices only), rFXGen and jsfxr (SFX), plus Rigify/Wiggle/erosion/Azgaar from round 1. Phone/GPU/Windows-binary tools work only on the local PC; cloud sessions should ask the local session to run them. No Ollama or local LLM.
+
+## Region 1 look pass (local, 2026-09-30): valley, landmarks, horizon, biome patchwork
+- Built: the Hollin's Reach valley (upper Ashrun: cliffs, falls, terraces, ruins, Stone Gap reveal, gorge gate), the Drowned Bell + Emberglass Ferry, Crownstead Mill Hill, Stagborn Glade, the Wyrm's Ribs; far horizon (whole-world low mesh + canopy domes), biome map + field patchwork, warm rock, golden-hour sky, river-carve fix, updated parchment map.
+- Code: `scripts/region1/region1_{terrain,landmarks,look,horizon}.gd`, `shaders/region1/{biome.gdshaderinc,horizon_*,waterfall}`, data in `data/region1/{landmarks,terrain_stamps}.json` + `data/region1/terrain/`.
+- Hot-file one-liners (world_gen, region_sites, region_dressing, main.gd daylight, terrain shader): see `docs/regions/HOOKS_FOR_CLOUD.md` "Region 1 look pass". Please keep them when merging; `--r1off` is the A/B switch.
+- Two valleys kept (Hollin's Reach = public story valley, Hidden Vale = secret bowl): decision in `docs/regions/LOOK_R1.md` 3b. Hidden Vale fixes (item 2 of the cloud handoff) in 3c; small edits in `vale_look.gd`, `hidden_valley.gd` (`_put`, paint litter 0.3->0.1), `exploration_director.gd` (stream focus during the flyover), `main.gd` (`terrain.focus = Engine.get_meta("stream_focus", focus)`), `terrain_streamer.gd` (`slope_basis` for floor cards).
+- `godot -s` tools that touch WorldGen may fail to compile when a dependency uses an autoload; run them through `tools_qa/region1/run_tool.tscn -- --tool=res://...gd`.
+- Tools: `tools_qa/region1/look_capture.gd` (multi-view shots + perf), `bake_valley.gd` (+ `erode_valley.py`, dandrino erosion detail), `bake_biome.gd`, `walkin.gd` (Movie Maker walk), `asset_sheet.gd`.
+
 ## Split of work (from 2026-09-27)
 | Area | Owner | Notes |
 |---|---|---|
@@ -442,3 +453,18 @@ built with fewer nodes, and drop `_process` work when no site is within BUILD. I
 - **`autoload/world_sim.gd` `_simulate_slice` is now time-budgeted** (`BUDGET_US`, near-player people first, `NEAR_RADIUS` 320 m; `UPDATES_PER_FRAME` removed). Same results (dt-based movement), about 0.7 ms/frame less CPU. Two QA counters `dbg_slice_usec/dbg_frames`.
 - `boot_flow.gd` now drives character creation (Next x3, Begin Life). `spinning-wheel.glb` imports without its broken animation (fixes "Node not found spinning-wheel/spindle").
 - Measurement rule: the PC is shared; only compare configs from the same run (`water_prof.gd`, `--only=`, `--rdprof`, `--sysprof --systier=N`).
+
+## 2026-09-30 (cloud -> local): visual QA + perf on a real GPU (cloud container keeps OOM-killing renders)
+The cloud container has ~15 GB shared by all agents; full-game captures die. These need your GPU/RAM. Commits: `c30ad754` (dungeons), `eadbfd71` (Region 1 world, story, Hidden Vale, POIs). Skills to read first: `ashes-cloud-testing`, `ashes-region-content`, `ashes-visual-qa`, `ashes-handoff`.
+
+1. **Region 1 world sweep (nobody has seen it rendered).** 30 views in `kingdom/tools_qa/region1/world_views.json`, capture script `kingdom/tools_qa/region1/look_capture.gd` (the cloud wrapper was `run_cap.sh <tag> ALL`). Check every settlement landmark, Highwatch Keep, the 3 Elder Stones + waymark road, Crownstead Steward's Hall, Scar Mouth Arena, Dawn Throne chapel + guild hall, Eastern Gate queue, Grimfen Pass snow + aurora, Solkar camp (summer). Look for floating/clipping/overlapping props, and whether each town is recognisable. Done = contact sheet + list of bugs (fix placement offsets in `region1_world.gd` / `region_dressing.gd` part y-offsets yourself if trivial, else list them here).
+2. **DONE (local, 2026-09-30, see docs/regions/LOOK_R1.md 3c):** **Hidden Vale bugs** (see cloud sheet frames 2, 6, 17): boulders float mid-air inside the gorge (`scripts/world/hidden_valley.gd` / `vale_look.gd`), floating strips in the herb-patch view, the last cutscene frame shows void past the terrain ring (check the real horizon mesh in-game), gorge walls plain, ground a bit olive. Art fixes are yours; placement code fixes are fine too (tell us the lines).
+3. **Caves on real terrain:** hidden entrances (waterfall behind Hollin Falls, vines, rockfall, night) were only shot on a flat stand-in hill. Walk into one of each theme and fight one boss (`scripts/interiors/dungeon_*.gd`, harness `tools_qa/caves/caves_standalone.gd`). Cave mouths were too white (switched to textured rock, not re-rendered).
+4. **Map carve rim:** carve a ward stone and confirm the teal rim (`scripts/region1/r1_map_layer.gd`) reads on the map.
+5. **Perf round 3 on the real GPU + phone:** city views ~300 draw calls vs 150 budget; Hidden Vale wide views 165-180 draws (eye level 121-149); dungeons ≤ 74. Stalls/plants LOD and guard impostors were the next ideas.
+6. **Play the first 20 minutes + Act I on the phone** ("The Stones Are Dimming"): the headless autoplay passes; the in-game run was OOM-killed at the Blessing Eve step.
+7. **Asset audit (user request):** list imported models/animations that nothing references (meshy_free packs, animation libraries, region kits) and propose where each goes; place the art-side ones.
+   **Audit DONE (cloud-side, from git, no Blender needed):** `docs/qa/ASSET_AUDIT.md` + `docs/qa/asset_audit_unreferenced.csv` (413 MB UNREF, 555 MB unused by the game incl. tools-only; 68 MB safe to exclude from the APK now). Still open for local: the placement and art-side items in sections A and E (scale and y-offset checks on the GPU build), decimating `generated/scan`, and a measured before/after test export.
+8. **TikTok teaser** fallback if the cloud video agent fails again: 15-30 s vertical 1080x1920 gameplay (gate market, aerial, combat, building, war map, keep).
+
+Free CI now runs the whole gdUnit suite + secret scan + 90 MB guard on every push (`.github/workflows/tests.yml`, see skill `ashes-ci`), so you don't need to run the full suite locally before pushing; check the Actions tab after.

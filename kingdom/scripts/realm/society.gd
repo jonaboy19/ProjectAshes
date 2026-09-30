@@ -37,6 +37,7 @@ const DEED_TEXT := {
 	"donation": ["%s gave %s gold to the poor", "%s handed out about %s gold in alms", "%s gave away a fortune, %s gold or more"],
 	"duel_won": ["%s won a duel over %s gold", "%s beat a famed swordsman for about %s gold", "%s cut down a champion, %s gold on the wager"],
 	"crime": ["%s was seen doing something ugly (%s witnesses)", "%s is said to have broken the law, with about %s witnesses", "%s is a terror; %s people swear it"],
+	"tower_clear": ["%s cleared %s floors of a tower", "%s climbed about %s floors of a haunted tower", "%s conquered a tower, %s floors or more"],
 	"generic": ["%s did a great thing (%s)", "%s did something remarkable (about %s)", "%s did a legend's work (%s)"],
 }
 const CRIMES := {
@@ -48,6 +49,7 @@ const CRIMES := {
 	"murder": {"sev": 6, "report": 0.95, "fine": 400, "evidence": ["blood", "weapon", "witness_statement", "footprints"], "under": 4.0},
 	"black_market": {"sev": 2, "report": 0.2, "fine": 40, "evidence": ["contraband"], "under": 2.5},
 	"assault": {"sev": 2, "report": 0.6, "fine": 30, "evidence": ["blood", "witness_statement"], "under": 0.5},
+	"illegal_arms": {"sev": 1, "report": 0.5, "fine": 25, "evidence": ["witness_statement"], "under": 0.3},
 }
 const EVIDENCE_DECAY := {"blood": 0.03, "footprints": 0.2, "stolen_goods": 0.006, "witness_statement": 0.03, "weapon": 0.01,
 	"forged_document": 0.01, "contraband": 0.01}

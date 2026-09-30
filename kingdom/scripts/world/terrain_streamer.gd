@@ -503,6 +503,7 @@ func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 		buckets[kind].append(t)
 	_plan_roadside(key, origin, buckets)
 	_plan_floor(key, origin, buckets)
+	preload("res://scripts/world/hidden_valley.gd").plan_extra(key, origin, buckets)   # Hidden valley hook: lusher vale (worker-safe)
 	return buckets
 
 
@@ -605,6 +606,12 @@ static func _slope_at(x: float, z: float) -> float:
 ## ground between the trunks never reads as bare. Worker-thread maths only. The per-kind
 ## lists are in random order, so Quality's scatter share (a prefix of each small MultiMesh
 ## under the terrain, see quality.gd _thin_scatter) thins them evenly per tier.
+## `b` tilted so its up axis follows the ground normal at (x, z) (flat ground cards on slopes).
+static func slope_basis(x: float, z: float, b: Basis) -> Basis:
+	var n := Vector3(WorldGen.height(x - 1.0, z) - WorldGen.height(x + 1.0, z), 2.0, WorldGen.height(x, z - 1.0) - WorldGen.height(x, z + 1.0)).normalized()
+	return Basis(Quaternion(Vector3.UP, n)) * b
+
+
 func _plan_floor(key: Vector2i, origin: Vector2, buckets: Dictionary) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(key) ^ 0xf1002
@@ -626,6 +633,8 @@ func _plan_floor(key: Vector2i, origin: Vector2, buckets: Dictionary) -> void:
 		var kind: String = pick[0]
 		var s := rng.randf_range(float(pick[1]), float(pick[2]))
 		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(x, h - 0.05, z))
+		if kind.begins_with("floor/"):   # Region1 look fix: flat litter/moss cards follow the slope (they floated as strips on hillsides)
+			t = Transform3D(slope_basis(x, z, t.basis), t.origin)
 		if not buckets.has(kind):
 			buckets[kind] = []
 		buckets[kind].append(t)

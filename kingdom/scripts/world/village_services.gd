@@ -11,6 +11,7 @@ const DistanceCull := preload("res://scripts/core/distance_cull.gd")
 const FarmLedger := preload("res://scripts/ui/farm_ledger.gd")
 const TradeScreen := preload("res://scripts/ui/trade_screen.gd")
 const CraftingScreen := preload("res://scripts/ui/crafting_screen.gd")
+const ShopScreen := preload("res://scripts/ui/shop_screen.gd")
 const InventoryScreen := preload("res://scripts/ui/inventory_screen.gd")
 const BuildMenu := preload("res://scripts/ui/build_menu.gd")
 const CareerScreen := preload("res://scripts/ui/career_screen.gd")
@@ -28,6 +29,7 @@ const Relationships := preload("res://scripts/sim/relationships.gd")
 const RadiantQuests := preload("res://scripts/sim/radiant_quests.gd")
 const DialogueRunner := preload("res://scripts/sim/dialogue_runner.gd")
 const TalkTarget := preload("res://scripts/world/talk_target.gd")
+const Region1Identity := preload("res://scripts/world/region1_identity.gd")
 const QUEST_SEED := 1066 * 31
 const SOCIAL_TICK := 0.5
 ## Service keepers you can talk to: id -> [role, dialogue file, radiant giver role].
@@ -313,6 +315,8 @@ func merchant_menu() -> Dictionary:
 			"Army order" if bool(c.get("war", false)) else "Contract", need, Life.item_name(String(c["item"])),
 			Life.economy._settlement_name(int(c["to"])), int(c["due_day"]), int(c["reward"]), have],
 			_deliver_contract.bind(int(c["id"])), have >= need])
+	opts.append(ShopScreen.menu_option(hud, "general_store", Life.market, 1, "Browse the general store", "General Store"))
+	opts.append(ShopScreen.menu_option(hud, "grocer", Life.market, 1, "Browse the grocer's stall", "Grocer"))
 	opts.append(["Trade routes & caravans", TradeScreen.open_for.bind(hud), true])
 	opts.append(_talk_option("trader"))
 	return {"title": "Market Trader",
@@ -332,6 +336,7 @@ func inn_menu() -> Dictionary:
 	var server := Life.careers.seat("inn", "Server")
 	if not Life.careers.is_employed() and Life.careers.open_count(server) > 0:
 		opts.append(["Ask for work as a Server (%dg/day)" % server["wage"], _apply.bind("inn", "Server")])
+	opts.append(ShopScreen.menu_option(hud, "tavern", Life.market, 1, "Order from the kitchen", "Tavern"))
 	opts.append(CraftingScreen.menu_option(hud, ["hearth"], "Cook at the hearth", "Inn Hearth"))
 	opts.append(_talk_option("innkeeper"))
 	return {"title": "%s Inn" % WorldGen.settlements[0]["name"],
@@ -358,6 +363,7 @@ func smith_menu() -> Dictionary:
 	var body := "The forge roars; the smith doesn't look up from the anvil.\n\"Wood for the fire, or a strong back. Nothing else I need today.\""
 	if opts.is_empty():
 		body += "\nYou have nothing the smith wants."
+	opts.append(ShopScreen.menu_option(hud, "blacksmith", Life.market, 1, "Browse the smith's wares", "Blacksmith"))
 	opts.append(CraftingScreen.menu_option(hud, ["anvil", "workbench"], "Work the anvil & bench", "Smithy"))
 	opts.append(_talk_option("smith"))
 	return {"title": "Blacksmith", "body": body, "options": opts}
@@ -701,6 +707,7 @@ func healer_menu() -> Dictionary:
 		opts.append(["Ask about work (%d)" % herb_jobs.size(), func() -> String:
 			hud.show_menu(_quest_menu.bind(hinfo))
 			return ""])
+	opts.append(ShopScreen.menu_option(hud, "herbalist", Life.market, 1, "Browse the herbalist's shelf", "Herbalist"))
 	opts.append(CraftingScreen.menu_option(hud, ["alchemy_table"], "Mix remedies at the table", "Healer's Table"))
 	opts.append(_talk_option("herbalist"))
 	return {"title": "Herbalist", "body": body, "options": opts}
@@ -1111,7 +1118,18 @@ func _nearest_settlement_name(p: Variant) -> String:
 
 ## One rumour from the state of the world (dens, threats, places, the guild).
 func _pick_rumour() -> String:
+	var news_line: String = Life.realm.mod("news").tavern_line_at(_player_pos(), randi()) if Life.realm.mod("news") != null else ""   # CIV-B: regional news first
+	if news_line != "" and randf() < 0.5:
+		return news_line
+	# Region1 world hook (docs/regions/REGION_1_PLAN.md C2): the town you are standing in has its own rumours.
+	if randf() < 0.55:
+		var local := Region1Identity.rumour_near(_player_pos())
+		if local != "":
+			return local
 	# Failing runestones are the talk of every road (docs/RISING_ASHES_LIFE_SIM_DESIGN.md).
+	var vale := preload("res://scripts/world/hidden_valley.gd").rumour()   # Hidden valley hook: text-only leads, never a marker
+	if vale != "" and randf() < 0.14:
+		return vale
 	var stones: Array = Frontier.runestones.rumours()
 	if not stones.is_empty() and randf() < 0.45:
 		return String(stones[randi() % stones.size()])

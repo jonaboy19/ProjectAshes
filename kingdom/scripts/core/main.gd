@@ -23,6 +23,7 @@ var settlements: SettlementBuilder
 var population: PopulationLOD
 var frontier: FrontierPresence
 var region: RegionDressing
+var region1: Node   # scripts/region1/region1_glue.gd (Region1 hooks)
 const Flow := preload("res://scripts/ui/frontend/flow.gd")
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
 const RoadTraffic := preload("res://scripts/world/road_traffic.gd")
@@ -118,6 +119,8 @@ func _ready() -> void:
 	frontier = FrontierPresence.new()
 	world.add_child(frontier)
 	Frontier.frontier_event.connect(func(text: String, _pos: Vector2) -> void: Game.say(text))
+	# Region1 hook (docs/regions/REGION_1_PLAN.md)
+	world.add_child(preload("res://scripts/region1/region1_root.gd").new())
 	var spawn := Vector3(HOME_SPAWN.x, WorldGen.height(HOME_SPAWN.x, HOME_SPAWN.y) + 0.5, HOME_SPAWN.y)
 	terrain.focus = spawn
 	settlements.focus = spawn
@@ -208,6 +211,13 @@ func _ready() -> void:
 	world.add_child(army)
 	_spawn_raiders(FIRST_CAMP, 12)
 	WorldSim.hour_changed.connect(func(_h: int) -> void: _maybe_spawn_war_battle())
+
+	# Region1 hook (docs/regions/REGION_1_PLAN.md) C3-C8, C12: wards, Scar, embers, Ashsight, story, tutorial, audio
+	region1 = preload("res://scripts/region1/region1_glue.gd").new()
+	region1.name = "Region1Glue"
+	world.add_child(region1)
+	region1.setup(self)
+	world.add_child(preload("res://scripts/world/towers/tower_site.gd").new())   # towers hook (docs/design tower plan)
 
 	hud.set_loading_text("Ready", 1.0)
 	hud.hide_loading()
@@ -322,8 +332,9 @@ func _process(delta: float) -> void:
 	if player == null or not player.is_inside_tree() or terrain == null or army == null:   # still loading (awaits in _ready)
 		return
 	var focus := player.global_position
-	terrain.focus = focus
-	water.focus = focus
+	# Region1 look hook: a cutscene may stream the ground around its camera path (Hidden Vale flyover, exploration_director.gd).
+	terrain.focus = Engine.get_meta("stream_focus", focus)
+	water.focus = terrain.focus
 	settlements.focus = focus
 	population.focus = focus
 	frontier.focus = focus

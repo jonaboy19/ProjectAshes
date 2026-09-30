@@ -466,6 +466,7 @@ func finish(ctx := {}) -> Dictionary:
 	var sid := int(shift["sid"])
 	var day := int(shift["day"])
 	var q := shift_quality()
+	Life.award_progress("job_shift", {"subject": job})   # progression hook (docs/balance/PROGRESSION_R1.md)
 	var done := _is_done()
 	var res := {"ok": true, "job": job, "quality": q, "hours": float(shift["hours"]), "gold": 0, "wage_via": "", "comment": "", "order": {},
 		"promoted": false, "tasks": (shift["results"] as Array).size(), "problems": int(shift["problems"]), "employer": String(shift["employer"])}

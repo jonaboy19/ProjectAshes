@@ -13,6 +13,15 @@ const BUILD := 160.0
 const FREE := 220.0
 const REFRESH_PERIOD := 0.5
 const LABEL_NEAR := 55.0
+## Decluttered site tags: the nearest FULL_MAX sites within FULL_DIST show the whole tag (name, drawn progress
+## bar, crew and ETA, what is missing); the others within ICON_DIST a small progress-ring icon. Tags that
+## would land on top of each other on screen are stacked upwards.
+const FULL_MAX := 3
+const FULL_DIST := 42.0
+const ICON_DIST := 75.0
+const TAG_W := 210.0
+const TAG_H := 92.0
+const TAG_P := 0.01              # local units per screen pixel inside a SiteTag
 const WORKER_NEAR := 90.0
 const MAX_VISUAL_WORKERS := 16
 const WALK_SPEED := 2.4
@@ -74,7 +83,9 @@ class SiteNode extends Node3D:
 	var poles: Array = []
 	var rails: Array = []
 	var piles: Node3D
-	var label: Label3D
+	var tag: SiteTag
+	var tag_info := {}                # what the tag shows when it is on (set by _update_site)
+	var tag_dist := 0.0
 	var body: StaticBody3D
 	var half := Vector2(2, 2)
 	var old_hidden := false
@@ -91,6 +102,167 @@ class SiteNode extends Node3D:
 
 	func use() -> void:
 		view.call("on_use", self)
+
+
+## A site's floating tag: drawn progress bar (Sprite3D, cached textures), name, crew / ETA and warning text,
+## or just a progress-ring icon. Sized in screen pixels (scale follows the camera distance) so tags never
+## grow or shrink with the view; children are laid out in pixels * TAG_P.
+class SiteTag extends Node3D:
+	const P := 0.01
+	const BAR_W := 168
+	const BAR_H := 14
+	const ICON := 30
+	static var _bar_tex := {}
+	static var _icon_tex := {}
+	var title: Label3D
+	var info: Label3D
+	var warn: Label3D
+	var bar: Sprite3D
+	var icon: Sprite3D
+	var mode := 0                    # 0 hidden, 1 icon, 2 full
+	var base_y := 4.0
+	var lift_px := 0.0
+
+	func _init() -> void:
+		title = _text(21, Color(1.0, 0.88, 0.62), 44.0, VERTICAL_ALIGNMENT_CENTER)
+		info = _text(16, Color(0.93, 0.9, 0.84), -4.0, VERTICAL_ALIGNMENT_TOP)
+		warn = _text(16, Color(1.0, 0.55, 0.45), -24.0, VERTICAL_ALIGNMENT_TOP)
+		bar = _sprite(22.0)
+		icon = _sprite(0.0)
+		set_mode(0)
+
+	func _text(size: int, col: Color, y: float, va: int) -> Label3D:
+		var l := Label3D.new()
+		l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		l.pixel_size = P
+		l.font_size = size
+		l.outline_size = 9
+		l.modulate = col
+		l.outline_modulate = Color(0.06, 0.05, 0.04, 0.95)
+		l.no_depth_test = true
+		l.render_priority = 5
+		l.vertical_alignment = va as VerticalAlignment
+		l.position = Vector3(0, y * P, 0)
+		add_child(l)
+		return l
+
+	func _sprite(y: float) -> Sprite3D:
+		var sp := Sprite3D.new()
+		sp.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		sp.pixel_size = P
+		sp.no_depth_test = true
+		sp.shaded = false
+		sp.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR
+		sp.render_priority = 4
+		sp.position = Vector3(0, y * P, 0)
+		add_child(sp)
+		return sp
+
+	func set_mode(m: int) -> void:
+		mode = m
+		visible = m != 0
+		title.visible = m == 2
+		info.visible = m == 2
+		bar.visible = m == 2
+		icon.visible = m == 1
+		if m != 2:
+			warn.visible = false
+
+	## Full tag: `d` = {name, stage, pct (0..1), crew, eta, stall, done}.
+	func show_full(d: Dictionary) -> void:
+		set_mode(2)
+		var stalled := String(d["stall"]) != ""
+		title.text = String(d["name"])
+		title.modulate = Color(1.0, 0.72, 0.6) if stalled else Color(1.0, 0.88, 0.62)
+		if bool(d["done"]):
+			bar.visible = false
+			info.visible = false
+			warn.visible = false
+			return
+		bar.texture = bar_texture(float(d["pct"]), stalled)
+		info.text = "%s  ·  %s  ·  %s" % [String(d["stage"]), String(d["crew"]), String(d["eta"])]
+		warn.visible = stalled
+		warn.text = String(d["stall"])
+
+	func show_icon(pct: float, stalled: bool) -> void:
+		set_mode(1)
+		icon.texture = icon_texture(pct, stalled)
+
+	## Sized for the camera distance: one local unit of P is one screen pixel.
+	func fit(unit: float) -> void:
+		scale = Vector3.ONE * (unit / P)
+		position.y = base_y + lift_px * unit
+
+	static func bar_texture(pct: float, stalled: bool) -> Texture2D:
+		var key := clampi(int(round(pct * 100.0)), 0, 100) * 2 + (1 if stalled else 0)
+		if _bar_tex.has(key):
+			return _bar_tex[key]
+		var w := BAR_W
+		var h := BAR_H
+		var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+		var fill_w := int(round(float(w - 4) * clampf(pct, 0.0, 1.0)))
+		var fill_a := Color(0.62, 0.42, 0.14) if not stalled else Color(0.55, 0.2, 0.16)
+		var fill_b := Color(1.0, 0.82, 0.38) if not stalled else Color(0.95, 0.4, 0.3)
+		for y in h:
+			for x in w:
+				# rounded rectangle mask
+				var cx := clampf(float(x), 6.0, float(w) - 7.0)
+				var cy := clampf(float(y), 6.0, float(h) - 7.0)
+				var dist := Vector2(float(x) - cx, float(y) - cy).length()
+				if dist > 6.5:
+					img.set_pixel(x, y, Color(0, 0, 0, 0))
+					continue
+				var edge := dist > 5.0 or x < 1 or x > w - 2 or y < 1 or y > h - 2
+				var c := Color(0.05, 0.045, 0.04, 0.88)
+				if edge:
+					c = Color(0.78, 0.66, 0.42, 0.95)
+				elif x >= 2 and x < 2 + fill_w:
+					var t := float(x - 2) / float(maxi(w - 4, 1))
+					c = fill_a.lerp(fill_b, t / maxf(pct, 0.05))
+					# soft top highlight
+					if y < 5:
+						c = c.lightened(0.18)
+				else:
+					# stage ticks (frame / walls / roof)
+					for st: float in [0.15, 0.4, 0.75]:
+						if absi(x - (2 + int(st * float(w - 4)))) == 0:
+							c = Color(0.55, 0.5, 0.4, 0.8)
+				img.set_pixel(x, y, c)
+		var tex := ImageTexture.create_from_image(img)
+		_bar_tex[key] = tex
+		return tex
+
+	static func icon_texture(pct: float, stalled: bool) -> Texture2D:
+		var key := clampi(int(round(pct * 20.0)), 0, 20) * 2 + (1 if stalled else 0)
+		if _icon_tex.has(key):
+			return _icon_tex[key]
+		var n := ICON
+		var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+		var c0 := (float(n) - 1.0) * 0.5
+		var ring := Color(1.0, 0.82, 0.38) if not stalled else Color(0.95, 0.4, 0.3)
+		for y in n:
+			for x in n:
+				var dx := float(x) - c0
+				var dy := float(y) - c0
+				var r := sqrt(dx * dx + dy * dy)
+				var c := Color(0, 0, 0, 0)
+				if r <= 14.6:
+					c = Color(0.06, 0.05, 0.04, 0.85)
+					if r >= 10.6:
+						var ang := fposmod(atan2(dx, -dy), TAU) / TAU      # 0 at the top, clockwise
+						c = ring if ang <= pct else Color(0.4, 0.36, 0.3, 0.9)
+					else:
+						# a little house in the middle
+						var hx := dx
+						var hy := dy + 1.0
+						var roof := hy < -0.5 and hy > -6.5 and absf(hx) < (hy + 6.5) * 1.05
+						var wall := hy >= -0.5 and hy < 5.5 and absf(hx) < 4.6
+						if roof or wall:
+							c = Color(0.96, 0.9, 0.78, 0.95)
+				img.set_pixel(x, y, c)
+		var tex := ImageTexture.create_from_image(img)
+		_icon_tex[key] = tex
+		return tex
 
 
 class Walker extends Node3D:
@@ -128,6 +300,7 @@ func _process(delta: float) -> void:
 		_timer = REFRESH_PERIOD
 		refresh()
 	_walk(delta)
+	_fit_tags()
 
 
 ## Builds everything in range at once (screenshots, teleports).
@@ -163,6 +336,7 @@ func refresh() -> void:
 	var ctx := {"player_pos": p}
 	for id: int in _nodes:
 		_update_site(_nodes[id], cons, p, ctx, upgrading)
+	_declutter()
 	_update_trails(cons, p)
 	_update_walkers(cons, p)
 
@@ -239,16 +413,8 @@ func _make_site(s: Dictionary) -> SiteNode:
 			n.rails.append([rail, r])
 	n.piles = Node3D.new()
 	n.add_child(n.piles)
-	n.label = Label3D.new()
-	n.label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	n.label.fixed_size = true
-	n.label.pixel_size = 0.0009
-	n.label.font_size = 36
-	n.label.outline_size = 14
-	n.label.no_depth_test = true
-	n.label.render_priority = 5
-	n.label.position = Vector3(0, 5.5, 0)
-	n.add_child(n.label)
+	n.tag = SiteTag.new()
+	n.add_child(n.tag)
 	# collider (a gate is a gap, not a wall)
 	if n.kind not in ["gate", "campfire", "field"]:
 		n.body = StaticBody3D.new()
@@ -400,32 +566,91 @@ func _update_site(n: SiteNode, cons: RefCounted, player: Vector2, ctx: Dictionar
 		if not done:
 			_build_piles(n, s)
 	n.piles.visible = not done
-	# label
-	var close := player.distance_to(cons.site_pos(s)) < LABEL_NEAR
-	n.label.visible = close and not hide_old and (not done or player.distance_to(cons.site_pos(s)) < 14.0)
-	if n.label.visible:
-		n.label.text = _label_text(info, n)
-		n.label.modulate = Color(1, 0.85, 0.6) if String(info["stall"]) == "" else Color(1, 0.6, 0.5)
-		n.label.position.y = maxf(3.5, n.mesh_top * n.mesh_scale + 1.6)
+	# tag: what it would show; _declutter() decides full / icon / hidden for all sites together
+	var dist := player.distance_to(cons.site_pos(s))
+	n.tag_dist = dist
+	var wants := dist < ICON_DIST and not hide_old and (not done or dist < 14.0)
+	n.tag_info = {}
+	if wants:
+		n.tag_info = _tag_info(info, n)
+		n.tag.base_y = maxf(3.5, n.mesh_top * n.mesh_scale + 1.6)
 
 
-func _label_text(info: Dictionary, n: SiteNode) -> String:
+## What a site's tag says: name, stage + percent, crew, ETA, and the reason it is stalled.
+func _tag_info(info: Dictionary, n: SiteNode) -> Dictionary:
 	if String(info["state"]) == "done":
-		return String(info["name"])
-	var pct := int(round(n.pct * 100.0)) if n.upgrade_of == 0 else int(round(float(info["pct"]) * 100.0))
-	var filled := clampi(int(round(float(pct) / 10.0)), 0, 10)
-	var bar := "[" + "#".repeat(filled) + "-".repeat(10 - filled) + "]"
-	var lines: PackedStringArray = []
-	lines.append("%s%s" % [String(info["name"]), " (upgrade)" if bool(info["upgrade"]) else ""])
-	lines.append("%s  %s %d%%" % [String(D.STAGES[D.stage_index(float(info["pct"]))]).capitalize(), bar, pct])
+		return {"name": String(info["name"]), "done": true, "stall": "", "pct": 1.0, "stage": "", "crew": "", "eta": ""}
+	var pct := n.pct if n.upgrade_of == 0 else float(info["pct"])
 	var who := "%d builder%s" % [int(info["builders"]), "" if int(info["builders"]) == 1 else "s"]
 	if int(info["haulers"]) > 0:
-		who += ", %d hauler%s" % [int(info["haulers"]), "" if int(info["haulers"]) == 1 else "s"]
+		who += " + %d hauler%s" % [int(info["haulers"]), "" if int(info["haulers"]) == 1 else "s"]
 	var eta := float(info["eta"])
-	lines.append("%s  %s" % [who, ("~%d h" % int(ceil(eta))) if eta >= 0.0 else "stalled"])
-	if String(info["stall"]) != "":
-		lines.append(String(info["stall"]))
-	return "\n".join(lines)
+	return {"name": "%s%s" % [String(info["name"]), " (upgrade)" if bool(info["upgrade"]) else ""], "done": false,
+		"stage": "%s %d%%" % [String(D.STAGES[D.stage_index(float(info["pct"]))]).capitalize(), int(round(pct * 100.0))],
+		"pct": pct, "crew": who, "eta": ("~%d h" % int(ceil(eta))) if eta >= 0.0 else "stalled", "stall": String(info["stall"])}
+
+
+## Choose full / icon / hidden for every site tag: the nearest few in full, the rest as icons, and stack
+## full tags that would overlap on screen.
+func _declutter() -> void:
+	var cam := get_viewport().get_camera_3d() if is_inside_tree() else null
+	var cands: Array = []
+	for id: int in _nodes:
+		var n: SiteNode = _nodes[id]
+		if n.tag == null:
+			continue
+		if n.tag_info.is_empty():
+			n.tag.set_mode(0)
+			continue
+		cands.append(n)
+	cands.sort_custom(func(a: SiteNode, b: SiteNode) -> bool: return a.tag_dist < b.tag_dist)
+	var placed: Array = []          # screen rects of full tags
+	var full := 0
+	for n: SiteNode in cands:
+		var d: Dictionary = n.tag_info
+		var is_done := bool(d["done"])
+		if full < FULL_MAX and n.tag_dist < FULL_DIST:
+			n.tag.lift_px = 0.0
+			if cam != null:
+				var world := n.global_position + Vector3(0, n.tag.base_y, 0)
+				if cam.is_position_behind(world):
+					n.tag.set_mode(0)
+					continue
+				var sp := cam.unproject_position(world)
+				var r := Rect2(sp.x - TAG_W * 0.5, sp.y - TAG_H, TAG_W, TAG_H)
+				var guard := 0
+				while guard < 4:
+					var hit := false
+					for q: Rect2 in placed:
+						if q.intersects(r):
+							hit = true
+							break
+					if not hit:
+						break
+					r.position.y -= TAG_H + 4.0
+					n.tag.lift_px += TAG_H + 4.0
+					guard += 1
+				placed.append(r)
+			n.tag.show_full(d)
+			full += 1
+		elif is_done:
+			n.tag.set_mode(0)
+		else:
+			n.tag.lift_px = 0.0
+			n.tag.show_icon(float(d["pct"]), String(d["stall"]) != "")
+
+
+## Keep every visible tag the same size on screen whatever the distance (cheap: a handful of nodes).
+func _fit_tags() -> void:
+	var cam := get_viewport().get_camera_3d()
+	if cam == null:
+		return
+	var vh := maxf(get_viewport().get_visible_rect().size.y, 1.0)
+	var k := 2.0 * tan(deg_to_rad(cam.fov) * 0.5) / vh
+	for id: int in _nodes:
+		var n: SiteNode = _nodes[id]
+		if n.tag != null and n.tag.mode != 0:
+			n.tag.fit(maxf(n.tag.global_position.distance_to(cam.global_position), 1.0) * k)
 
 
 func _pile_mesh(item: String) -> Mesh:

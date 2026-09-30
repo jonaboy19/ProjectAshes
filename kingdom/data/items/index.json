@@ -1,0 +1,20 @@
+{
+ "files": [
+  "materials",
+  "weapons",
+  "armour",
+  "food",
+  "alchemy",
+  "tools",
+  "misc",
+  "uniques"
+ ],
+ "extras": [
+  "shops",
+  "loot",
+  "sets",
+  "crops",
+  "visuals",
+  "legacy_patch"
+ ]
+}
