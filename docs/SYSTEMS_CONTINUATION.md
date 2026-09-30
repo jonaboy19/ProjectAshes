@@ -4,7 +4,7 @@
 
 ### Latest slice: persistent NPC social familiarity
 
-`Life.npc_social_graph` stores bounded, namespaced NPC-to-NPC conversation ties separately from player-facing `Relationships`. Villager writes only after at least its current eight-second activity commitment, while still in a paired SOCIAL act, arrived and within three metres; one side of the pair owns the write. Six-hour coalescing and a 2,048-link cap keep saves bounded. Current IDs use `worldsim:<seed>:<person-index>` under the fixed seed. Generator/person-index migration remains a hard identity limitation. Familiarity currently does not alter partner selection, dialogue or rumors. See [NPC_SOCIAL_GRAPH_HANDOFF.md](concepts/NPC_SOCIAL_GRAPH_HANDOFF.md). No parser, runtime, save/load, behavior or mobile check was run.
+`Life.npc_social_graph` stores bounded, namespaced NPC-to-NPC conversation ties separately from player-facing `Relationships`. Villager writes only after at least its current eight-second activity commitment, while still in a paired SOCIAL act, arrived and within three metres; one side of the pair owns the write. Six-hour coalescing and a 2,048-link cap keep saves bounded. UtilityBrain now lets up to eight embodied residents queue briefly at a settlement plaza and uses familiarity plus wait age to pick a pair; each person retries only on the staggered decision tick. Current IDs use `worldsim:<seed>:<person-index>` under the fixed seed. Generator/person-index migration remains a hard identity limitation. Familiarity does not alter dialogue, opinions or rumors. See [NPC_SOCIAL_GRAPH_HANDOFF.md](concepts/NPC_SOCIAL_GRAPH_HANDOFF.md). No parser, runtime, save/load, behavior or mobile check was run.
 
 ### Latest slice: local movement hearing
 

@@ -494,7 +494,15 @@ func _decide_act(here: Vector2) -> void:
 				_apply_plan(here, danger[1], interest[1])
 		Act.SOCIAL:
 			if _partner < 0:
-				_partner = UtilityBrain.chat_partner(person)
+				# Waiting residents retry at the existing staggered decision cadence,
+				# allowing a bounded candidate group to form before pairing by familiarity.
+				var social_plan := _brain.plan_goal(Act.SOCIAL, here, _graph, danger[1], interest[1])
+				_partner = int(social_plan["partner"])
+				var social_goal: Vector2 = social_plan["goal"]
+				if _partner >= 0 and social_goal.distance_to(_goal) > 0.1:
+					_goal = social_goal
+					_needs_route = true
+					_arrived = false
 		Act.WATER:
 			# Capacity conflicts leave the resident where they are. Retry only on
 			# this already staggered decision tick, never every physics frame.

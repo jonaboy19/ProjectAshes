@@ -110,6 +110,9 @@ const NOTICE_MAX := 64
 const NOTICE_MERGE_RADIUS := 1.0
 const NOTICE_MAX_SECONDS := 30.0
 const CHAT_GAP := 1.3           # metres between two people chatting
+const CHAT_WAIT_MAX := 8        # bounded candidates per settlement, not a global resident scan
+const CHAT_MIN_WAIT_MS := 1200  # let a small set assemble before choosing a companion
+const CHAT_WAIT_FAIRNESS_SECONDS := 20.0
 
 # ---------------------------------------------------------------- shared state
 static var _hazards := PackedVector2Array()
@@ -134,7 +137,7 @@ static var _notices: Array = []              # [pos: Vector2, strength, expires_
 static var _weather: Node
 static var _poi := {}                        # settlement id -> Dictionary
 static var _bodies := {}                     # person -> instance id of its Villager
-static var _chat_wait := {}                  # settlement id -> [person, spot]
+static var _chat_wait := {}                  # settlement id -> [{person, spot, since_ms}, ...]
 static var _chat_partner := {}               # person -> partner person
 
 # ---------------------------------------------------------------- per person
@@ -826,34 +829,86 @@ static func body_of(p: int) -> Node3D:
 
 ## Someone in settlement `sid` is standing in the plaza waiting for company.
 static func chat_waiting(sid: int, p: int) -> bool:
-	if not _chat_wait.has(sid):
-		return false
-	var w: Array = _chat_wait[sid]
-	if w[0] == p:
-		return false
-	if body_of(w[0]) == null:
-		_chat_wait.erase(sid)
-		return false
-	return true
+	for waiting: Dictionary in _chat_waiters(sid):
+		if int(waiting["person"]) != p:
+			return true
+	return false
 
 
 ## Join or start a chat. Returns [goal spot, partner person or -1].
 static func chat_join(sid: int, p: int, own_spot: Vector2) -> Array:
 	if _chat_partner.has(p):
 		return [own_spot, _chat_partner[p]]
-	if chat_waiting(sid, p):
-		var w: Array = _chat_wait[sid]
-		_chat_wait.erase(sid)
-		var other: int = w[0]
-		var spot: Vector2 = w[1]
+	var waiting := _chat_waiters(sid)
+	var best_i := -1
+	var best_score := -INF
+	var now_ms := Time.get_ticks_msec()
+	for i in range(waiting.size()):
+		var candidate: Dictionary = waiting[i]
+		var other := int(candidate["person"])
+		if other == p or _chat_partner.has(other) or now_ms - int(candidate["since_ms"]) < CHAT_MIN_WAIT_MS:
+			continue
+		var waited := clampf(float(now_ms - int(candidate["since_ms"])) / (CHAT_WAIT_FAIRNESS_SECONDS * 1000.0), 0.0, 1.0)
+		var familiar := clampf(_chat_affinity(p, other) / 60.0, 0.0, 1.0)
+		# Familiarity gives a modest nudge; time waiting can offset the full bonus.
+		var score := familiar * 0.45 + waited * 0.45
+		if score > best_score:
+			best_score = score
+			best_i = i
+	if best_i >= 0:
+		var w: Dictionary = waiting.pop_at(best_i)
+		waiting = waiting.filter(func(entry: Dictionary) -> bool: return int(entry.get("person", -1)) != p)
+		if waiting.is_empty():
+			_chat_wait.erase(sid)
+		else:
+			_chat_wait[sid] = waiting
+		var other := int(w["person"])
+		var spot: Vector2 = w["spot"]
 		_chat_partner[p] = other
 		_chat_partner[other] = p
 		var side := own_spot - spot
 		if side.length() < 0.1:
 			side = Vector2.RIGHT.rotated(float(p) * 2.399)
 		return [spot + side.normalized() * CHAT_GAP, other]
-	_chat_wait[sid] = [p, own_spot]
+	var existing_i := -1
+	for i in range(waiting.size()):
+		if int(waiting[i]["person"]) == p:
+			existing_i = i
+			break
+	if existing_i >= 0:
+		waiting[existing_i]["spot"] = own_spot
+	elif waiting.size() < CHAT_WAIT_MAX:
+		waiting.append({"person": p, "spot": own_spot, "since_ms": now_ms})
+	if not waiting.is_empty():
+		_chat_wait[sid] = waiting
 	return [own_spot, -1]
+
+
+static func _chat_waiters(sid: int) -> Array:
+	var waiting: Array = _chat_wait.get(sid, [])
+	var live: Array = []
+	for entry: Dictionary in waiting:
+		var p := int(entry.get("person", -1))
+		if p >= 0 and not _chat_partner.has(p) and body_of(p) != null:
+			live.append(entry)
+	if live.is_empty():
+		_chat_wait.erase(sid)
+	else:
+		_chat_wait[sid] = live
+	return live
+
+
+static func _chat_affinity(a: int, b: int) -> float:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null or tree.root == null:
+		return 0.0
+	var life := tree.root.get_node_or_null("Life")
+	var graph: Variant = life.get("npc_social_graph") if life else null
+	if graph == null or not graph.has_method("affinity"):
+		return 0.0
+	var a_id := "worldsim:%d:%d" % [WorldSim.SEED, a]
+	var b_id := "worldsim:%d:%d" % [WorldSim.SEED, b]
+	return float(graph.call("affinity", a_id, b_id))
 
 
 static func chat_partner(p: int) -> int:
@@ -866,8 +921,12 @@ static func chat_partner(p: int) -> int:
 
 static func chat_leave(p: int) -> void:
 	for sid in _chat_wait.keys():
-		if _chat_wait[sid][0] == p:
+		var waiting: Array = _chat_wait[sid]
+		waiting = waiting.filter(func(entry: Dictionary) -> bool: return int(entry.get("person", -1)) != p)
+		if waiting.is_empty():
 			_chat_wait.erase(sid)
+		else:
+			_chat_wait[sid] = waiting
 	if _chat_partner.has(p):
 		var other: int = _chat_partner[p]
 		_chat_partner.erase(p)
