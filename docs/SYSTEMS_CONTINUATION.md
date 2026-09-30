@@ -2,13 +2,17 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: repeat dialogue acknowledges saved gossip topics
+
+The villager and innkeeper `gossip` nodes now have repeat-aware lines gated by their existing participant-local `discussed:<file>:gossip` topic events. The current `{rumour}` token is still selected dynamically; the line acknowledges only that gossip came up before, not a remembered rumor. No dialogue script, save schema, UI or NPC identity changed. The shared design doc was left untouched because it also has Claude-side updates; details are in the new [NPC_DIALOGUE_TOPIC_MEMORY_HANDOFF.md](concepts/NPC_DIALOGUE_TOPIC_MEMORY_HANDOFF.md). Dialogue data source review and `git diff --check` only; no parser or in-game dialogue validation was run.
+
 ### Latest slice: dormant NPC familiarity fades modestly
 
 `NpcSocialGraph.record_conversation()` now attenuates an existing familiarity score when a valid conversation resumes after the six-hour coalescing window. The deterministic linear fade is 0.25% per elapsed game day, capped at 50%, then the existing +2 increment is applied. New ties, first-conversation day, lifetime count, IDs, capacity and save format are unchanged. This only updates familiarity after an actual completed chat; it does not expire a person or assert changed affection. Claude's published and visible local checkouts were checked read-only; neither has edits to this graph file. Static source review and `git diff --check` only; no parser, save/load, behavior or mobile check was run. See [NPC_SOCIAL_GRAPH_HANDOFF.md](concepts/NPC_SOCIAL_GRAPH_HANDOFF.md).
 
 ### Latest slice: persistent NPC social familiarity
 
-`Life.npc_social_graph` stores bounded, namespaced NPC-to-NPC conversation ties separately from player-facing `Relationships`. Villager writes only after at least its current eight-second activity commitment, while still in a paired SOCIAL act, arrived and within three metres; one side of the pair owns the write. Six-hour coalescing and a 2,048-link cap keep saves bounded. UtilityBrain now lets up to eight embodied residents queue briefly at a settlement plaza and uses familiarity plus wait age to pick a pair; each person retries only on the staggered decision tick. Current IDs use `worldsim:<seed>:<person-index>` under the fixed seed. Generator/person-index migration remains a hard identity limitation. Familiarity does not alter dialogue, opinions or rumors. See [NPC_SOCIAL_GRAPH_HANDOFF.md](concepts/NPC_SOCIAL_GRAPH_HANDOFF.md). No parser, runtime, save/load, behavior or mobile check was run.
+`Life.npc_social_graph` stores bounded, namespaced NPC-to-NPC conversation ties separately from player-facing `Relationships`. Villager writes only after at least its current eight-second activity commitment, while still in a paired SOCIAL act, arrived and within three metres; one side of the pair owns the write. Six-hour coalescing and a 2,048-link cap keep saves bounded. UtilityBrain now lets up to eight embodied residents queue briefly at a settlement plaza and uses familiarity plus wait age to pick a pair; each person retries only on the staggered decision tick. Current IDs use `worldsim:<seed>:<person-index>` under the fixed seed. Generator/person-index migration remains a hard identity limitation. These NPC-to-NPC ties still do not alter dialogue, opinions or rumors. Separate player-to-NPC topic memory now changes repeat-gossip lines; it does not remember rumor facts. See [NPC_SOCIAL_GRAPH_HANDOFF.md](concepts/NPC_SOCIAL_GRAPH_HANDOFF.md) and [NPC_DIALOGUE_TOPIC_MEMORY_HANDOFF.md](concepts/NPC_DIALOGUE_TOPIC_MEMORY_HANDOFF.md). No parser, runtime, save/load, behavior or mobile check was run.
 
 ### Latest slice: schedule-based offscreen need recovery
 

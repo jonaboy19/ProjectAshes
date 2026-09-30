@@ -24,6 +24,8 @@
     },
     "gossip": {
       "lines": [
+        {"text": "\"We spoke about village gossip before, didn't we? Here's what people are saying now: {rumour}\"", "if": {"event": "discussed:innkeeper:gossip", "has": "rumour"}},
+        {"text": "\"We've already had a turn at gossip, haven't we? Nothing else worth passing on just now.\"", "if": {"event": "discussed:innkeeper:gossip", "not_has": "rumour"}},
         {"text": "\"An inn hears everything, and repeats half of it. {rumour}\"", "if": {"has": "rumour"}},
         {"text": "\"Quiet night. The smith lost at dice again, if that counts.\""},
         {"text": "The innkeeper polishes a mug that is already clean. \"{hint}\"", "if": {"has": "hint", "min_tier": "acquaintance"}, "p": 2, "do": [["tell_hint"]]},
