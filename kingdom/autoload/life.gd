@@ -134,6 +134,7 @@ func reset() -> void:
 	Game.reset()
 	WorldSim.reset()
 	UtilityBrain.clear_sound_events()
+	UtilityBrain.clear_transient_social()
 	Frontier.reset()
 	Region1State.reset()
 	var qw := get_node_or_null("/root/QuestWeaverGameState")
@@ -1244,6 +1245,7 @@ func restore(d: Dictionary) -> void:
 	action_runtime.reset()
 	_craft_station_actions.clear()
 	UtilityBrain.clear_sound_events()
+	UtilityBrain.clear_transient_social()
 	# Optional social data must not leak across loading an older/empty save.
 	npc_social_graph = NpcSocialGraph.new()
 	# Older saves simply start a fresh journal. Invalid new journal data is isolated

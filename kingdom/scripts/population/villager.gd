@@ -316,6 +316,7 @@ func restore_needs_from_world() -> void:
 func resync() -> void:
 	# A time skip changes this resident's schedule target, not its live resolved
 	# transform. WorldSim.pos is only the last 4 Hz LOD write-back while owned.
+	UtilityBrain.clear_sound_events()
 	var p: Vector2 = sim_position() if WorldSim.owns_external_position(person, get_instance_id()) else WorldSim.pos[person]
 	_interrupt_activity()
 	if _graph:

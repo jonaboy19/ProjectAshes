@@ -8,7 +8,7 @@ Scope: inexpensive outdoor reaction to nearby player movement noise. This is a f
 
 - `UtilityBrain.heard_player_at()` checks only the player already referenced by the embodied Villager. It requires a live player with `noise_radius()` and planar movement above 0.35 m/s, then uses that existing crouch/walk/run/mount radius (capped at 18 m).
 - The active weather's existing `noise_mult()` attenuates the radius in rain and wind.
-- Successfully resolved combat techniques also publish an anonymous acoustic event into a shared queue capped at 32 entries and 10 seconds lifetime. Nearby outdoor villagers can hear these even if the player is stationary. New game and save restore clear the transient queue.
+- Successfully resolved combat techniques also publish an anonymous acoustic event into a shared queue capped at 32 entries and 10 seconds lifetime. Nearby outdoor villagers can hear these even if the player is stationary. New game, save restore and WorldSim resync/time-skip clear the transient queue.
 - The existing villager hammer/chopping animation impact cues publish quieter one-second events from their already-timed impact point. No additional animation polling or sound node was added.
 - The check runs on the Villager's existing staggered utility-decision cadence and only while that Villager is outdoors. It adds no node, timer, physics body, ray, or per-frame scan.
 - The brain retains only the last approximate sound point for three real-time seconds, decaying linearly. This memory belongs to the embodied brain, is not saved, and clears with the existing danger-memory reset when entering interiors or after a time skip.

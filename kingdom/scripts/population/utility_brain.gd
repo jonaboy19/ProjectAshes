@@ -1003,6 +1003,11 @@ static func chat_leave(p: int) -> void:
 			_chat_partner.erase(other)
 
 
+static func clear_transient_social() -> void:
+	_chat_wait.clear()
+	_chat_partner.clear()
+
+
 # ================================================================ places (cached per settlement)
 ## Points of interest of a settlement: well, shrine/temple front, plaza,
 ## eaves (the front wall of each building) with their outward facing.
