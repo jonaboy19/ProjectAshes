@@ -27,6 +27,7 @@ var building_spots: Dictionary = {}
 var spots: Array = []               # Array[Dictionary]: {id, type, xform, settlement, holders: Array, drift}
 var _grid: Dictionary = {}          # Vector2i -> Array[int]
 var _held: Dictionary = {}          # person -> [spot, slot]
+var _claim_serial := 0
 var _rng := RandomNumberGenerator.new()
 
 
@@ -103,12 +104,17 @@ func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1) -> Arr
 					continue
 				var slots: Array = t["slots"]
 				for k in slots.size():
-					if sp["holders"][k] != -1:
+					# A data-tier resident often asks for its schedule target again on
+					# every coarse simulation step. Keep its existing slot eligible so
+					# refreshing the same goal does not make it churn through the queue.
+					if sp["holders"][k] != -1 and sp["holders"][k] != person:
 						continue
 					var role := String(slots[k].get("role", ""))
 					if filter.has("role") and role != "" and role != filter["role"]:
 						continue
 					var score := d + float(absi(hash(person * 7 + id * 131 + k)) % 100) * 0.03
+					if sp["holders"][k] == person:
+						score -= 1.0  # small hysteresis keeps a valid activity stable
 					if score < best_s:
 						best_s = score
 						best = [id, k]
@@ -144,9 +150,13 @@ func claim(spot: int, slot: int, person: int) -> bool:
 	var h: Array = spots[spot]["holders"]
 	if slot < 0 or slot >= h.size() or (h[slot] != -1 and h[slot] != person):
 		return false
+	var current: Array = _held.get(person, [])
+	if current.size() >= 3 and int(current[0]) == spot and int(current[1]) == slot and h[slot] == person:
+		return true  # idempotent refresh: preserve the Session's lease token
 	release(person)
+	_claim_serial += 1
 	h[slot] = person
-	_held[person] = [spot, slot]
+	_held[person] = [spot, slot, _claim_serial]
 	return true
 
 
@@ -161,7 +171,26 @@ func release(person: int) -> void:
 
 
 func held_by(person: int) -> Array:
-	return _held.get(person, [])
+	var held: Array = _held.get(person, [])
+	return held.slice(0, 2) if held.size() >= 2 else held
+
+
+## Monotonic per-claim token. A Session keeps this token so an old activity
+## cannot release or continue using a newer claim made by the same person id.
+func claim_token(person: int) -> int:
+	var held: Array = _held.get(person, [])
+	return int(held[2]) if held.size() >= 3 else -1
+
+
+func owns_claim(person: int, spot: int, slot: int, token: int) -> bool:
+	var held: Array = _held.get(person, [])
+	return (token >= 0 and held.size() >= 3 and int(held[0]) == spot
+		and int(held[1]) == slot and int(held[2]) == token)
+
+
+func release_claim(person: int, spot: int, slot: int, token: int) -> void:
+	if owns_claim(person, spot, slot, token):
+		release(person)
 
 
 func occupancy(spot: int) -> int:
@@ -260,12 +289,14 @@ class Session:
 	var _rng := RandomNumberGenerator.new()
 	var _t := 0.0
 	var _event_sent := false
+	var _claim_token := -1
 
 	func _init(o: SmartObjects, p: int, sp: int, sl: int, sd: int) -> void:
 		so = o
 		person = p
 		spot = sp
 		slot = sl
+		_claim_token = o.claim_token(p)
 		_rng.seed = hash(sd * 7919 + sp)
 		act = o.activity(sp, sl)
 		var dur: Array = act.get("duration", [30, 60])
@@ -305,9 +336,16 @@ class Session:
 				if clip == "":
 					_go(DONE)
 			DONE:
-				so.release(person)
+				so.release_claim(person, spot, slot, _claim_token)
 
 	func update(delta: float, body: Vector3, clip_done: bool) -> Dictionary:
+		# A replacement schedule, despawn, or LOD handoff may revoke this claim.
+		# Stop producing clips/events immediately, without touching a newer lease.
+		if phase != DONE and not so.owns_claim(person, spot, slot, _claim_token):
+			phase = DONE
+			clip = ""
+			return {"phase": DONE, "move_to": null, "face": NAN, "clip": "",
+				"restart": false, "props": [], "event": null}
 		_t += delta
 		var out := {"phase": phase, "move_to": null, "face": NAN, "clip": clip, "restart": false, "props": [], "event": null}
 		var sx := stand()
@@ -323,8 +361,12 @@ class Session:
 				out["move_to"] = sx.origin
 				out["face"] = atan2(sx.basis.z.x, sx.basis.z.z)
 				out["clip"] = ""
-				if Vector2(body.x - sx.origin.x, body.z - sx.origin.z).length() < 0.06 or _t > 1.5:
+				var alignment_error := Vector2(body.x - sx.origin.x, body.z - sx.origin.z).length()
+				if alignment_error < 0.06:
 					_go(ENTER)
+				elif _t > 1.5:
+					# Never play a contact animation from a visibly wrong position.
+					_go(DONE)
 			ENTER:
 				out["face"] = atan2(sx.basis.z.x, sx.basis.z.z)
 				out["snap"] = sx

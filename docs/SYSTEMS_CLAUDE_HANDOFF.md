@@ -2,6 +2,8 @@
 
 > Current delivery: read **Current checkpoint after usage reset** in [SYSTEMS_CONTINUATION.md](SYSTEMS_CONTINUATION.md) first. Latest main is merged. Exact station-generation crafting, FIFO sight scheduling, bounded local conversation topics and a regional event adapter are implemented. Older delivery notes below describe prior checkpoints; gameplay/device validation is still outstanding.
 
+For the current systems-to-presentation ownership map and living-world integration contract, also read [CODEX_CLAUDE_LIVING_WORLD_INTEGRATION.md](concepts/CODEX_CLAUDE_LIVING_WORLD_INTEGRATION.md). It distinguishes Claude's demo/reference activity code from the live `WorldSim`/`Villager` path and records the narrow first integration slice.
+
 Baseline: main 4e03e000, 29 September 2026. Read [SYSTEMS_MASTERPLAN.md](SYSTEMS_MASTERPLAN.md) for the staged plan and evidence. This handoff separates intended work from delivered verification; update the delivery section only after inspecting the actual patch.
 
 ## Ownership
