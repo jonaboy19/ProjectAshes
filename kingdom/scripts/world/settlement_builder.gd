@@ -936,7 +936,10 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator) -> void:
 	var lots: Array = plan["lots"]
 	var sets := {"garden_plot": [], "woodpile": [], "washing_line": []}
-	for lot: Dictionary in lots:
+	var activity_spots: Array = plan.get("activity_spots", []).duplicate()
+	var published_woodpiles := 0
+	for lot_i in lots.size():
+		var lot: Dictionary = lots[lot_i]
 		if not (String(lot["asset"]).begins_with("house") or String(lot["asset"]).begins_with("mhouse")):
 			continue
 		var yaw: float = lot["yaw"]
@@ -955,13 +958,21 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 				break
 		if clear:
 			var ky := yaw + (0.0 if kind == "garden_plot" else PI * 0.5)
-			(sets[kind] as Array).append(Transform3D(Basis(Vector3.UP, ky), Vector3(at.x, WorldGen.height(at.x, at.y) - 0.03, at.y)))
+			var xform := Transform3D(Basis(Vector3.UP, ky), Vector3(at.x, WorldGen.height(at.x, at.y) - 0.03, at.y))
+			(sets[kind] as Array).append(xform)
+			# Existing woodpiles double as small lumber-work points. Cap the
+			# published set so large towns don't create one work slot per house.
+			if kind == "woodpile" and published_woodpiles < 8:
+				activity_spots.append({"type": "chopping_block", "position": xform.origin,
+					"yaw": ky, "identity": "homestead/woodpile/%d" % lot_i})
+				published_woodpiles += 1
 	for kind: String in sets:
 		var list: Array[Transform3D] = []
 		list.assign(sets[kind])
 		# Yard clutter per 80 m cell with a 120 m range (66 m on LOW): a capital has
 		# ~200 of these, and as one town-wide batch they were all drawn from anywhere.
 		_multimesh_cells(root, Assets.building_mesh(kind), list, 80.0, 120.0)
+	plan["activity_spots"] = activity_spots
 	_front_gardens(root, plan, rng)
 
 
