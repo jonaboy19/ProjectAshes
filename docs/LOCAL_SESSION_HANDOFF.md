@@ -2,6 +2,9 @@
 
 The user runs **two Claude sessions on this branch at the same time**: the cloud session and a local PC session (with GPU, Blender GUI access and the Meshy MCP). This file keeps them from stepping on each other. **Read it after every pull.**
 
+## Tools you can use (read this first)
+Free, licence-checked tools are installed on the local PC in `C:\Users\Jonna\Tools\` and documented with exact headless commands in `tools/README_EXTERNAL_TOOLS.md` and the skill `.claude/skills/ashes-external-tools/SKILL.md`: scrcpy and Perfetto (S22 recording and traces), RenderDoc and AGI (GPU), gltfpack (auto-LOD; use `-noq` for Godot), Instant Meshes (retopo), Real-ESRGAN and Krita (textures), RTMPose (better video mocap), Piper (NPC voices, licence-cleared voices only), rFXGen and jsfxr (SFX), plus Rigify/Wiggle/erosion/Azgaar from round 1. Phone/GPU/Windows-binary tools work only on the local PC; cloud sessions should ask the local session to run them. No Ollama or local LLM.
+
 ## Split of work (from 2026-09-27)
 | Area | Owner | Notes |
 |---|---|---|
