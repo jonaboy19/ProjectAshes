@@ -184,7 +184,7 @@ func _build(s: Dictionary) -> Node3D:
 	for lm in plan["landmarks"]:
 		var lm_size := _footprint(lm["asset"])
 		var lm_y := _ground_snap(lm["pos"], lm["yaw"], lm_size)
-		_piece(root, lm["asset"], lm["pos"], lm_y, lm["yaw"])
+		var landmark := _piece(root, lm["asset"], lm["pos"], lm_y, lm["yaw"])
 		if lm["asset"] == "well":
 			# The well roof overhangs its walk collider. Let the camera detect its
 			# full visual bounds without making the extra space solid to actors.
@@ -192,7 +192,9 @@ func _build(s: Dictionary) -> Node3D:
 			if well_mesh != null:
 				var well_proxy: Array[Transform3D] = [Transform3D(Basis(Vector3.UP, lm["yaw"]),
 					Vector3(lm["pos"].x, lm_y, lm["pos"].y))]
-				_add_camera_blockers(root, well_mesh, well_proxy)
+				var visuals := landmark.find_children("*", "GeometryInstance3D", true, false)
+				var fade_target: GeometryInstance3D = visuals[0] if not visuals.is_empty() else null
+				_add_camera_blockers(root, well_mesh, well_proxy, fade_target)
 	# Market stalls and carts ringing the plaza. Plaza-radius footprint estimate
 	# (real stall assets are ~3-4 m): close enough for a per-instance ground snap,
 	# and cheap since it only samples the 4 corners once per stall at build time.
@@ -730,7 +732,7 @@ func _add_instance_colliders(parent: Node3D, mesh: Mesh, transforms: Array[Trans
 ## camera out of stall awnings/canopies whose cloth extends past the footprint
 ## used for walking, without changing what the player can walk through. Layer
 ## CAMERA_BLOCKER_LAYER only; mask 0 (never collides with anything itself).
-func _add_camera_blockers(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> void:
+func _add_camera_blockers(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], fade_target: GeometryInstance3D = null) -> void:
 	var box := mesh.get_aabb()
 	if box.size == Vector3.ZERO:
 		return
@@ -739,6 +741,8 @@ func _add_camera_blockers(parent: Node3D, mesh: Mesh, transforms: Array[Transfor
 		var body := StaticBody3D.new()
 		body.collision_layer = CAMERA_BLOCKER_LAYER
 		body.collision_mask = 0
+		if fade_target:
+			body.set_meta("camera_fade_target", fade_target)
 		var shape := CollisionShape3D.new()
 		var collider := BoxShape3D.new()
 		collider.size = Vector3(box.size.x * scale.x, box.size.y * scale.y, box.size.z * scale.z)

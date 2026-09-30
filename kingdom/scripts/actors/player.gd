@@ -244,6 +244,8 @@ var _landing_dip := 0.0
 var _land_fov := 0.0
 var _loco_transition_time := 0.0
 var _impact_pause: Node
+var _camera_fade_visual: GeometryInstance3D
+var _camera_fade_original := 0.0
 var _flinch := 0.0
 var _yaw_rate := 0.0
 var _lean := Vector2.ZERO
@@ -1101,8 +1103,9 @@ func _update_camera(delta: float) -> void:
 	# This runs on top of the spring arm's own collision, which alone missed thin
 	# awnings/roofs; snapping straight to the corrected point every tick made the
 	# camera visibly jerk whenever the ray flickered in and out (corners, foliage) —
-	# so the pull-IN (new occlusion) is instant (never show through a wall for even
-	# one frame) but the release back OUT eases, which absorbs that flicker.
+	# so solid walls still pull in immediately, while camera-only canopy proxies ease
+	# in and may fade their linked mesh. Releasing any occluder eases back out.
+	var camera_fade_target: GeometryInstance3D = null
 	if view == View.THIRD and InteriorDoor.active == null:
 		var from := _pivot.global_position
 		var q := PhysicsRayQueryParameters3D.create(from, camera.global_position, CAMERA_MASK)
@@ -1114,6 +1117,8 @@ func _update_camera(delta: float) -> void:
 			camera_target = (hit["position"] as Vector3) + (from - camera.global_position).normalized() * 0.3
 			var collider := hit.get("collider") as CollisionObject3D
 			soft_occluder = collider != null and (int(collider.collision_layer) & CAMERA_BLOCKER_LAYER) != 0
+			if soft_occluder and collider.has_meta("camera_fade_target"):
+				camera_fade_target = collider.get_meta("camera_fade_target") as GeometryInstance3D
 		if camera_target.distance_to(from) < camera.global_position.distance_to(from):
 			if soft_occluder:
 				camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-30.0 * delta))
@@ -1121,9 +1126,21 @@ func _update_camera(delta: float) -> void:
 				camera.global_position = camera_target
 		else:
 			camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-14.0 * delta))
+	_update_camera_fade(camera_fade_target)
 	# Pinned against a wall so tight the lens would sit inside the head: hide the body.
 	if view != View.FIRST:
 		_model.visible = camera.global_position.distance_to(_pivot.global_position) > 0.45 * Life.body_scale()
+
+
+func _update_camera_fade(target: GeometryInstance3D) -> void:
+	if _camera_fade_visual != target:
+		if is_instance_valid(_camera_fade_visual):
+			_camera_fade_visual.transparency = _camera_fade_original
+		_camera_fade_visual = target if is_instance_valid(target) else null
+		if _camera_fade_visual:
+			_camera_fade_original = _camera_fade_visual.transparency
+	if is_instance_valid(_camera_fade_visual):
+		_camera_fade_visual.transparency = maxf(_camera_fade_original, 0.6)
 
 
 func _update_look_target() -> void:
@@ -1624,6 +1641,7 @@ func _hit_stop(duration: float, impacted_mixers: Array = []) -> void:
 
 
 func _exit_tree() -> void:
+	_update_camera_fade(null)
 	if _hit_stopping:
 		_hit_stopping = false
 		Engine.time_scale = 1.0   # never leave the world frozen if removed mid hit-stop

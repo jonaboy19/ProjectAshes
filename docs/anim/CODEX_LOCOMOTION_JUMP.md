@@ -17,13 +17,19 @@ The latest Claude base already contains the ragdoll pose-hold get-up blend from 
 - Wired `Loco_RunStop_L/R` on grounded input release above 4 m/s. Side is selected from shared gait phase; playback rate is entry speed divided by the authored 3.1/3.6 m/s entry speed. The existing 15 m/s² capsule brake remains in control. The clip duration is read from the loaded library, and combat, block, or jump cancels the stop overlay.
 - Applied two still-open feel-audit fixes from the earlier handoff: third-person block now faces the nearest enemy within 6 m (camera heading remains the fallback), and wolves turn with frame-rate-independent yaw plus forward-biased, turn-scaled travel to reduce sideways crab-walking.
 - Replaced the global time-scale freeze on ordinary 50 ms sword hits with a local pause on only the player's and struck actors' animation mixers. Parry and finisher slow-motion retain the existing global effect. The local pause restores prior mixer state and does not freeze physics, camera, particles, or unrelated NPCs.
-- Added the missing camera-only proxy over settlement wells, and eased camera pull-in only for camera-layer props such as awnings; solid world walls keep their immediate response.
+- Added the missing camera-only proxy over settlement wells, eased camera pull-in only for camera-layer props such as awnings, and fade the linked well mesh when it hides the lens; solid world walls keep their immediate response.
+
+## Cost notes
+
+- The camera change reuses the player's existing obstruction ray. A settlement creates only one extra static camera-only box per well; there is no new per-frame scene search.
+- Block-facing enemy lookup runs only while guarding. Hit-stop discovers mixers only for actors actually struck by a non-finisher hit.
+- Run-stop playback adds no NPC work; the optional state graph is created only for the player animator.
 
 ## Deliberately deferred
 
 - Walk/run starts are not wired. Their authored clips enter at nonzero foot speed while the current capsule accelerates from rest; with root translation disabled, this needs a measured acceleration/phase handoff to avoid visible foot skating.
 - Walk stop, sprint skid, pivots, and idle turns are not wired. They need capsule path/yaw and event timing hooked to the sidecar before enabling them.
-- Thin-occluder mesh fading is still deferred; the current patch eases the camera for camera-layer proxies and preserves immediate wall response.
+- Market-stall MultiMesh batches are eased but not faded; fading a shared batch would hide unrelated stalls. A future per-instance material or visibility solution should be benchmarked before adding more camera-driven effects.
 - Contextual vault/climb, water landing splash, surface-specific jump effects, and fall camera pitch remain future integration work.
 
 ## Validation needed
