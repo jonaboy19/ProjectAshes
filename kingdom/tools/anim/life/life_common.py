@@ -214,7 +214,8 @@ def to_from(a, b, n, ease="smooth", post=None):
 
 
 def speed_of(stride, n):
-    return round(2 * stride / (n / 30.0), 3)
+    """ground speed of walk_cycle(n, stride): a planted foot travels 2*stride during the 60 % stance phase"""
+    return round(2 * stride / (0.6 * n / 30.0), 3)
 
 
 _measure()

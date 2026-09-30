@@ -1,0 +1,1154 @@
+[
+ {
+  "name": "Life_Walk_Drunk",
+  "loop": true,
+  "seconds": 2.43,
+  "frames": 74,
+  "keys": 1043,
+  "source": "091/91_09.bvh",
+  "range_s": [
+   11.75,
+   16.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.93,
+   3.37,
+   4.27
+  ],
+  "floor_fix_m": 0.002,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 1.07,
+  "hip_scale": 0.0579
+ },
+ {
+  "name": "Life_Walk_Limp",
+  "loop": true,
+  "seconds": 3.7,
+  "frames": 112,
+  "keys": 1936,
+  "source": "091/91_16.bvh",
+  "range_s": [
+   10.25,
+   14.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.53,
+   4.23,
+   4.61
+  ],
+  "floor_fix_m": 0.009,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 3.44,
+  "hip_scale": 0.0579
+ },
+ {
+  "name": "Life_Walk_Elder",
+  "loop": true,
+  "seconds": 3.4,
+  "frames": 103,
+  "keys": 1100,
+  "source": "137/137_33.bvh",
+  "range_s": [
+   3.25,
+   8.25
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   1.07,
+   4.47,
+   1.84
+  ],
+  "floor_fix_m": 0.01,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.24,
+  "hip_scale": 0.0546
+ },
+ {
+  "name": "Life_Walk_Sad",
+  "loop": true,
+  "seconds": 3.73,
+  "frames": 113,
+  "keys": 1252,
+  "source": "091/91_13.bvh",
+  "range_s": [
+   16.0,
+   20.75
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.77,
+   4.5,
+   2.37
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.88,
+  "hip_scale": 0.0579
+ },
+ {
+  "name": "Life_Walk_Happy",
+  "loop": true,
+  "seconds": 3.13,
+  "frames": 95,
+  "keys": 1704,
+  "source": "104/104_11.bvh",
+  "range_s": [
+   0.3,
+   4.3
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.27,
+   3.4,
+   4.8
+  ],
+  "floor_fix_m": -0.001,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.011,
+  "travel_m": 3.38,
+  "hip_scale": 0.0535
+ },
+ {
+  "name": "Life_Walk_Tired",
+  "loop": true,
+  "seconds": 3.5,
+  "frames": 106,
+  "keys": 1038,
+  "source": "091/91_21.bvh",
+  "range_s": [
+   22.75,
+   27.25
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.47,
+   3.97,
+   1.51
+  ],
+  "floor_fix_m": 0.003,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 1.71,
+  "hip_scale": 0.0579
+ },
+ {
+  "name": "Life_Walk_Brisk",
+  "loop": true,
+  "seconds": 2.97,
+  "frames": 90,
+  "keys": 1484,
+  "source": "091/91_22.bvh",
+  "range_s": [
+   10.0,
+   14.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.67,
+   3.63,
+   3.93
+  ],
+  "floor_fix_m": 0.003,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 3.35,
+  "hip_scale": 0.0579
+ },
+ {
+  "name": "Life_Walk_Careful",
+  "loop": true,
+  "seconds": 3.87,
+  "frames": 117,
+  "keys": 1287,
+  "source": "091/91_18.bvh",
+  "range_s": [
+   18.75,
+   23.25
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.43,
+   4.3,
+   3.95
+  ],
+  "floor_fix_m": -0.002,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.01,
+  "travel_m": 1.88,
+  "hip_scale": 0.0579
+ },
+ {
+  "name": "Life_Walk_March",
+  "loop": true,
+  "seconds": 3.1,
+  "frames": 94,
+  "keys": 1370,
+  "source": "138/138_01.bvh",
+  "range_s": [
+   2.0,
+   6.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   1.0,
+   4.1,
+   5.12
+  ],
+  "floor_fix_m": -0.019,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.008,
+  "travel_m": 2.71,
+  "hip_scale": 0.0514
+ },
+ {
+  "name": "Life_Walk_Proud",
+  "loop": true,
+  "seconds": 3.57,
+  "frames": 108,
+  "keys": 1558,
+  "source": "091/91_33.bvh",
+  "range_s": [
+   6.0,
+   10.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   3.8,
+   6.7
+  ],
+  "floor_fix_m": 0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.017,
+  "travel_m": 2.09,
+  "hip_scale": 0.0579
+ },
+ {
+  "name": "Life_Mocap_Chop_Wood",
+  "loop": false,
+  "seconds": 4.23,
+  "frames": 128,
+  "keys": 1661,
+  "source": "079/79_01.bvh",
+  "range_s": [
+   0.4,
+   4.65
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 0.02,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Dig",
+  "loop": false,
+  "seconds": 4.3,
+  "frames": 130,
+  "keys": 1410,
+  "source": "079/79_04.bvh",
+  "range_s": [
+   0.4,
+   4.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.053,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.02,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Rake",
+  "loop": false,
+  "seconds": 5.9,
+  "frames": 178,
+  "keys": 2202,
+  "source": "079/79_87.bvh",
+  "range_s": [
+   0.4,
+   6.3
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.031,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Plant",
+  "loop": false,
+  "seconds": 8.0,
+  "frames": 241,
+  "keys": 2182,
+  "source": "079/79_26.bvh",
+  "range_s": [
+   0.4,
+   8.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Sweep",
+  "loop": false,
+  "seconds": 4.63,
+  "frames": 140,
+  "keys": 1858,
+  "source": "079/79_55.bvh",
+  "range_s": [
+   0.4,
+   5.05
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.035,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.02,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Saw",
+  "loop": true,
+  "seconds": 4.2,
+  "frames": 127,
+  "keys": 1774,
+  "source": "062/62_03.bvh",
+  "range_s": [
+   4.0,
+   9.6
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.53,
+   4.73,
+   1.36
+  ],
+  "floor_fix_m": 0.005,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.06,
+  "hip_scale": 0.052
+ },
+ {
+  "name": "Life_Mocap_Hammer_Nail",
+  "loop": true,
+  "seconds": 5.23,
+  "frames": 158,
+  "keys": 1645,
+  "source": "062/62_07.bvh",
+  "range_s": [
+   3.0,
+   8.8
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.53,
+   5.77,
+   5.74
+  ],
+  "floor_fix_m": 0.001,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.18,
+  "hip_scale": 0.052
+ },
+ {
+  "name": "Life_Mocap_Stir",
+  "loop": true,
+  "seconds": 3.83,
+  "frames": 116,
+  "keys": 1132,
+  "source": "079/79_13.bvh",
+  "range_s": [
+   0.5,
+   5.2
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.27,
+   4.1,
+   1.7
+  ],
+  "floor_fix_m": -0.057,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Slice",
+  "loop": false,
+  "seconds": 6.3,
+  "frames": 190,
+  "keys": 1292,
+  "source": "079/79_09.bvh",
+  "range_s": [
+   0.4,
+   6.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.058,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.02,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Carry_Heavy",
+  "loop": true,
+  "seconds": 5.53,
+  "frames": 167,
+  "keys": 1709,
+  "source": "070/70_05.bvh",
+  "range_s": [
+   0.6,
+   7.3
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.5,
+   6.03,
+   4.49
+  ],
+  "floor_fix_m": -0.006,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.002,
+  "travel_m": 2.52,
+  "hip_scale": 0.0525
+ },
+ {
+  "name": "Life_Mocap_Move_Box",
+  "loop": false,
+  "seconds": 4.33,
+  "frames": 131,
+  "keys": 1143,
+  "source": "079/79_25.bvh",
+  "range_s": [
+   0.4,
+   4.75
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.041,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.0,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Pick_Place",
+  "loop": false,
+  "seconds": 7.8,
+  "frames": 235,
+  "keys": 2921,
+  "source": "069/69_70.bvh",
+  "range_s": [
+   0.6,
+   8.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.005,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.78,
+  "hip_scale": 0.0508
+ },
+ {
+  "name": "Life_Mocap_Pay",
+  "loop": false,
+  "seconds": 7.4,
+  "frames": 223,
+  "keys": 2452,
+  "source": "080/80_06.bvh",
+  "range_s": [
+   0.3,
+   7.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.027,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.02,
+  "hip_scale": 0.0543
+ },
+ {
+  "name": "Life_Mocap_Buy",
+  "loop": false,
+  "seconds": 5.3,
+  "frames": 160,
+  "keys": 1198,
+  "source": "079/79_16.bvh",
+  "range_s": [
+   0.4,
+   5.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Eat_Table",
+  "loop": false,
+  "seconds": 7.83,
+  "frames": 236,
+  "keys": 1529,
+  "source": "079/79_12.bvh",
+  "range_s": [
+   0.4,
+   8.25
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.059,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Eat_Soup",
+  "loop": false,
+  "seconds": 5.93,
+  "frames": 179,
+  "keys": 889,
+  "source": "079/79_42.bvh",
+  "range_s": [
+   0.4,
+   6.35
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.057,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Chug",
+  "loop": false,
+  "seconds": 4.2,
+  "frames": 127,
+  "keys": 966,
+  "source": "079/79_33.bvh",
+  "range_s": [
+   0.4,
+   4.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.039,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.03,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Drink",
+  "loop": false,
+  "seconds": 3.83,
+  "frames": 116,
+  "keys": 799,
+  "source": "079/79_38.bvh",
+  "range_s": [
+   0.4,
+   4.25
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.056,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.05,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Fiddle",
+  "loop": true,
+  "seconds": 3.53,
+  "frames": 107,
+  "keys": 714,
+  "source": "079/79_17.bvh",
+  "range_s": [
+   1.0,
+   6.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   1.1,
+   4.63,
+   1.29
+  ],
+  "floor_fix_m": -0.058,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Fish",
+  "loop": false,
+  "seconds": 5.53,
+  "frames": 167,
+  "keys": 1292,
+  "source": "079/79_34.bvh",
+  "range_s": [
+   0.4,
+   5.95
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.047,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Sit_Stool_Enter",
+  "loop": false,
+  "seconds": 2.4,
+  "frames": 73,
+  "keys": 926,
+  "source": "014/14_31.bvh",
+  "range_s": [
+   1.0,
+   3.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.006,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.4,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Life_Mocap_Sit_Stool_Idle",
+  "loop": true,
+  "seconds": 1.73,
+  "frames": 53,
+  "keys": 278,
+  "source": "014/14_31.bvh",
+  "range_s": [
+   3.4,
+   7.1
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   1.1,
+   2.83,
+   0.71
+  ],
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.032,
+  "travel_m": 0.0,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Life_Mocap_Sit_Stool_Exit",
+  "loop": false,
+  "seconds": 1.3,
+  "frames": 40,
+  "keys": 574,
+  "source": "014/14_31.bvh",
+  "range_s": [
+   7.1,
+   8.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.009,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.55,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Life_Mocap_Handshake_A",
+  "loop": false,
+  "seconds": 2.3,
+  "frames": 70,
+  "keys": 1037,
+  "source": "018/18_01.bvh",
+  "range_s": [
+   0.1,
+   2.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.014,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.14,
+  "hip_scale": 0.0511
+ },
+ {
+  "name": "Life_Mocap_Handshake_B",
+  "loop": false,
+  "seconds": 2.3,
+  "frames": 70,
+  "keys": 1033,
+  "source": "019/19_01.bvh",
+  "range_s": [
+   0.1,
+   2.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.004,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.006,
+  "travel_m": 0.08,
+  "hip_scale": 0.0489
+ },
+ {
+  "name": "Life_Mocap_Converse_A",
+  "loop": true,
+  "seconds": 4.77,
+  "frames": 144,
+  "keys": 1388,
+  "source": "018/18_08.bvh",
+  "range_s": [
+   3.0,
+   8.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   5.0,
+   0.97
+  ],
+  "floor_fix_m": -0.021,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.03,
+  "hip_scale": 0.0511
+ },
+ {
+  "name": "Life_Mocap_Converse_B",
+  "loop": true,
+  "seconds": 4.77,
+  "frames": 144,
+  "keys": 1831,
+  "source": "019/19_08.bvh",
+  "range_s": [
+   3.0,
+   8.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   5.0,
+   8.6
+  ],
+  "floor_fix_m": 0.012,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.06,
+  "hip_scale": 0.0489
+ },
+ {
+  "name": "Life_Mocap_Quarrel_A",
+  "loop": true,
+  "seconds": 4.77,
+  "frames": 144,
+  "keys": 2314,
+  "source": "018/18_10.bvh",
+  "range_s": [
+   3.0,
+   8.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   5.0,
+   8.62
+  ],
+  "floor_fix_m": 0.005,
+  "contact_lift_m": 0.018,
+  "min_foot_m": -0.019,
+  "travel_m": 0.79,
+  "hip_scale": 0.0511
+ },
+ {
+  "name": "Life_Mocap_Quarrel_B",
+  "loop": true,
+  "seconds": 4.77,
+  "frames": 144,
+  "keys": 2220,
+  "source": "019/19_10.bvh",
+  "range_s": [
+   3.0,
+   8.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   5.0,
+   14.71
+  ],
+  "floor_fix_m": 0.005,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.01,
+  "travel_m": 0.63,
+  "hip_scale": 0.0489
+ },
+ {
+  "name": "Life_Mocap_Comfort_A",
+  "loop": false,
+  "seconds": 6.1,
+  "frames": 184,
+  "keys": 1945,
+  "source": "022/22_03.bvh",
+  "range_s": [
+   0.2,
+   6.3
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.03,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.0,
+  "hip_scale": 0.0507
+ },
+ {
+  "name": "Life_Mocap_Comfort_B",
+  "loop": false,
+  "seconds": 6.1,
+  "frames": 184,
+  "keys": 2369,
+  "source": "023/23_03.bvh",
+  "range_s": [
+   0.2,
+   6.3
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.004,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.39,
+  "hip_scale": 0.0491
+ },
+ {
+  "name": "Life_Mocap_Laugh",
+  "loop": false,
+  "seconds": 5.8,
+  "frames": 175,
+  "keys": 2481,
+  "source": "079/79_70.bvh",
+  "range_s": [
+   0.4,
+   6.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.039,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.008,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Direct_Wave",
+  "loop": false,
+  "seconds": 4.6,
+  "frames": 139,
+  "keys": 1439,
+  "source": "014/14_24.bvh",
+  "range_s": [
+   0.4,
+   5.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.02,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.21,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Life_Mocap_Directions",
+  "loop": false,
+  "seconds": 4.9,
+  "frames": 148,
+  "keys": 2052,
+  "source": "139/139_25.bvh",
+  "range_s": [
+   0.3,
+   5.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.012,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.74,
+  "hip_scale": 0.0555
+ },
+ {
+  "name": "Life_Mocap_Cry",
+  "loop": false,
+  "seconds": 7.2,
+  "frames": 217,
+  "keys": 2132,
+  "source": "079/79_72.bvh",
+  "range_s": [
+   0.4,
+   7.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.039,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Sad",
+  "loop": false,
+  "seconds": 8.3,
+  "frames": 250,
+  "keys": 1579,
+  "source": "079/79_71.bvh",
+  "range_s": [
+   0.4,
+   8.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.055,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Happy",
+  "loop": false,
+  "seconds": 6.1,
+  "frames": 184,
+  "keys": 2330,
+  "source": "079/79_69.bvh",
+  "range_s": [
+   0.4,
+   6.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.051,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.008,
+  "travel_m": 0.0,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Teach",
+  "loop": false,
+  "seconds": 7.0,
+  "frames": 211,
+  "keys": 2737,
+  "source": "080/80_14.bvh",
+  "range_s": [
+   1.0,
+   8.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.019,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.1,
+  "hip_scale": 0.0543
+ },
+ {
+  "name": "Life_Mocap_Wave_Hello",
+  "loop": false,
+  "seconds": 2.3,
+  "frames": 70,
+  "keys": 897,
+  "source": "141/141_16.bvh",
+  "range_s": [
+   0.1,
+   2.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.007,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.1,
+  "hip_scale": 0.058
+ },
+ {
+  "name": "Life_Mocap_Cold",
+  "loop": false,
+  "seconds": 9.0,
+  "frames": 271,
+  "keys": 3164,
+  "source": "079/79_68.bvh",
+  "range_s": [
+   0.4,
+   9.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.038,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.01,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Life_Mocap_Stretch_Yawn",
+  "loop": false,
+  "seconds": 2.7,
+  "frames": 82,
+  "keys": 1029,
+  "source": "141/141_13.bvh",
+  "range_s": [
+   0.2,
+   2.9
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.008,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.27,
+  "hip_scale": 0.058
+ },
+ {
+  "name": "Life_Mocap_Look_Around",
+  "loop": false,
+  "seconds": 6.7,
+  "frames": 202,
+  "keys": 2282,
+  "source": "139/139_01.bvh",
+  "range_s": [
+   0.3,
+   7.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.03,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.05,
+  "hip_scale": 0.0555
+ },
+ {
+  "name": "Life_Mocap_Shift_Weight",
+  "loop": true,
+  "seconds": 6.77,
+  "frames": 204,
+  "keys": 1728,
+  "source": "139/139_02.bvh",
+  "range_s": [
+   0.5,
+   7.5
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.23,
+   7.0,
+   2.04
+  ],
+  "floor_fix_m": -0.03,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.03,
+  "hip_scale": 0.0555
+ },
+ {
+  "name": "Life_Mocap_Hopscotch",
+  "loop": false,
+  "seconds": 2.9,
+  "frames": 88,
+  "keys": 1465,
+  "source": "075/75_13.bvh",
+  "range_s": [
+   0.1,
+   3.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.001,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 2.01,
+  "hip_scale": 0.0514
+ },
+ {
+  "name": "Life_Mocap_Tag_Bluff",
+  "loop": false,
+  "seconds": 5.0,
+  "frames": 151,
+  "keys": 2086,
+  "source": "020/20_13.bvh",
+  "range_s": [
+   1.5,
+   6.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.0,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 1.12,
+  "hip_scale": 0.0511
+ },
+ {
+  "name": "Life_Mocap_Skip",
+  "loop": true,
+  "seconds": 2.53,
+  "frames": 77,
+  "keys": 1271,
+  "source": "056/56_06.bvh",
+  "range_s": [
+   29.6,
+   33.0
+  ],
+  "autotrim": null,
+  "loop_pts": [
+   0.43,
+   2.97,
+   6.75
+  ],
+  "floor_fix_m": 0.033,
+  "contact_lift_m": 0.0,
+  "min_foot_m": 0.01,
+  "travel_m": 2.53,
+  "hip_scale": 0.0512
+ }
+]

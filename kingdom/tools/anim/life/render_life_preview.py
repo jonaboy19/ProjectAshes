@@ -260,6 +260,7 @@ for name, act in actions.items():
         for c in partner_arm.children:
             c.hide_render = False
         partner_arm.location = (0, -pr.get("distance", 1.0), 0)
+        partner_arm.rotation_mode = "XYZ"
         partner_arm.rotation_euler = (0, 0, math.pi)
         rest_pose(partner_arm)
         assign(partner_arm, pa)

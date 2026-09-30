@@ -276,7 +276,7 @@ func _actor(look: String, pos: Vector3, yaw_deg := 0.0, child := false, height :
 	a.rotation.y = deg_to_rad(yaw_deg)
 	a._yaw = a.rotation.y
 	actors.append(a)
-	var vat_look := look if VAT_LOOKS.has(look) else ("child_boy" if child else "villager_man_a")
+	var vat_look := VatResidents.look_of_model(a.model)
 	lod.register(a.person, a, a.model, a.anim, a.look_mod, vat_look)
 	return a
 
