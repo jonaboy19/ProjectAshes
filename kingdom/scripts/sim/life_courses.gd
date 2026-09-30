@@ -355,13 +355,14 @@ func on_vacancy(org: Dictionary, seat: Dictionary, careers: Object = null) -> vo
 func _find_or_create_worker(settlement: int, _title: String) -> int:
 	for id: int in people:
 		var p: Dictionary = people[id]
-		if bool(p["alive"]) and int(p["settlement"]) == settlement and String(p["career_org"]) == "":
+		if bool(p["alive"]) and int(p["settlement"]) == settlement \
+			and String(p["career_org"]) == "" and _age_years(p, WorldSim.day) >= 16:
 			return id
 	var culture := "caldric"
 	var sex := "male" if _rng.randf() < 0.5 else "female"
 	var name := _random_name(culture, sex)
 	var age := _rng.randi_range(18, 40)
-	var birth_day := -age * RALifePath.DAYS_PER_YEAR
+	var birth_day := WorldSim.day - age * RALifePath.DAYS_PER_YEAR
 	var id := _new_person(name, birth_day, sex, settlement, culture, "laborer", "career")
 	return id
 

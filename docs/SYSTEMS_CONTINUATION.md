@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: vacancy workers meet adult age minimum
+
+`LifeCourses._find_or_create_worker()` now skips existing residents under 16 using current `WorldSim.day`; its one-pass order and other eligibility checks are unchanged. The random 18–40 fallback worker's `birth_day` is now anchored to the current day, so its generated age is correct at creation. Age 16 can fill any seat because qualifications are not modeled. No API or save fields changed. Static review and `git diff --check` only; no parser, runtime vacancy, or save/load validation was run. See [NPC_LIFE_COURSES_VACANCY_AGE_HANDOFF.md](concepts/NPC_LIFE_COURSES_VACANCY_AGE_HANDOFF.md).
+
 ### Handoff: career and biography lifecycle ownership
 
 Source review found that resignation closes a Careers seat but Life's callback ignores unemployed state; three-strike dismissal clears the seat without emitting the same transition signal; and daily ladder promotion continues while `career_id` remains set. Biography has close/promotion methods, but the current integration does not consistently call them, and `start_chapter()` suppresses a same-role/org restart even after closure. No code was changed because rank persistence after leaving employment is a policy decision and the touched files share ownership. The handoff maps apply, resign, dismissal, promotion, rehire and save/load transitions, and recommends separating earned career history from active employment before implementation: [CAREER_BIOGRAPHY_LIFECYCLE_CONTRACT.md](concepts/CAREER_BIOGRAPHY_LIFECYCLE_CONTRACT.md). Re-read Claude's current versions and agree on rank behavior before editing.
