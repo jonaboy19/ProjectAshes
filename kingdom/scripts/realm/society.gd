@@ -49,6 +49,7 @@ const CRIMES := {
 	"murder": {"sev": 6, "report": 0.95, "fine": 400, "evidence": ["blood", "weapon", "witness_statement", "footprints"], "under": 4.0},
 	"black_market": {"sev": 2, "report": 0.2, "fine": 40, "evidence": ["contraband"], "under": 2.5},
 	"assault": {"sev": 2, "report": 0.6, "fine": 30, "evidence": ["blood", "witness_statement"], "under": 0.5},
+	"illegal_arms": {"sev": 1, "report": 0.5, "fine": 25, "evidence": ["witness_statement"], "under": 0.3},
 }
 const EVIDENCE_DECAY := {"blood": 0.03, "footprints": 0.2, "stolen_goods": 0.006, "witness_statement": 0.03, "weapon": 0.01,
 	"forged_document": 0.01, "contraband": 0.01}

@@ -1007,7 +1007,7 @@ func _gen_teachers(inst: Dictionary, cid: String) -> Array:
 		var tr: String = traits[r.randi() % traits.size()]
 		out.append({"id": "%s_t%d" % [cid, i], "name": _person_name(r), "subject": subjects[i], "trait": tr, "regard": 0.0,
 			"temper": snappedf(r.randf(), 0.01), "lenient": r.randf() < 0.3, "independence_fan": r.randf() < 0.25,
-			"quality": snappedf(float(TEACHER_TRAITS[tr]["quality"]) * (0.85 + 0.3 * r.randf()), 0.01)})
+			"quality": snappedf(float(TEACHER_TRAITS[tr]["quality"]) * (0.85 + 0.3 * r.randf()) * float(inst.get("staff", 1.0)), 0.01)})
 	return out
 
 
@@ -2183,6 +2183,16 @@ func _school_rep_add(inst_id: String, d: float) -> void:
 	var soc := _soc()
 	if soc != null:
 		soc.add_rep("school:%s" % inst_id, d, "school")
+
+
+## CIV-B hook (notables.gd): reputation and staff drift of a school. `staff` (0.5..1.0) scales newly generated teacher quality.
+func adjust_school(inst_id: String, rep_delta: float, staff_delta := 0.0) -> void:
+	_ensure()
+	if not _insts.has(inst_id):
+		return
+	_school_rep_add(inst_id, rep_delta)
+	var inst: Dictionary = _insts[inst_id]
+	inst["staff"] = snappedf(clampf(float(inst.get("staff", 1.0)) + staff_delta, 0.5, 1.0), 0.001)
 
 
 func school_reputation(inst_id := "") -> float:

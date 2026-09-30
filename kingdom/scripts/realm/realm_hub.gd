@@ -12,6 +12,8 @@ extends RefCounted
 const MODULES := {
 	"followers": preload("res://scripts/realm/followers.gd"),
 	"camps": preload("res://scripts/realm/camps.gd"),
+	"civilization": preload("res://scripts/realm/civilization.gd"),
+	"migration": preload("res://scripts/realm/migration.gd"),
 	"settlements": preload("res://scripts/realm/settlements.gd"),
 	"land": preload("res://scripts/realm/land.gd"),
 	"factions": preload("res://scripts/realm/factions.gd"),
@@ -19,6 +21,9 @@ const MODULES := {
 	"campaign": preload("res://scripts/realm/campaign.gd"),
 	"city_life": preload("res://scripts/realm/city_life.gd"),
 	"society": preload("res://scripts/realm/society.gd"),
+	"governance": preload("res://scripts/realm/governance.gd"),
+	"notables": preload("res://scripts/realm/notables.gd"),
+	"news": preload("res://scripts/realm/news.gd"),
 	"exploration": preload("res://scripts/realm/exploration.gd"),
 	"power_paths": preload("res://scripts/realm/power_paths.gd"),
 	"education": preload("res://scripts/realm/education.gd"),
@@ -30,11 +35,9 @@ const MODULES := {
 	"construction": preload("res://scripts/realm/construction.gd"),
 	"towers": preload("res://scripts/realm/towers.gd"),
 	"ecology": preload("res://scripts/realm/ecology.gd"),
-	"civilization": preload("res://scripts/realm/civilization.gd"),
-	"migration": preload("res://scripts/realm/migration.gd"),
 }
 ## Order matters within a tier: land before factions before campaign.
-const ORDER := ["settlements", "land", "camps", "civilization", "migration", "followers", "factions", "strongholds", "campaign", "city_life", "society", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "enterprise", "construction", "towers", "ecology"]
+const ORDER := ["settlements", "land", "camps", "civilization", "migration", "followers", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "enterprise", "construction", "towers", "ecology"]
 ## Max microseconds of realm work per frame (mobile: ~0.6 ms of a 16.6 ms frame).
 const PUMP_BUDGET_USEC := 600
 
