@@ -960,6 +960,10 @@ func _realm_ctx() -> Dictionary:
 
 func _on_hour(hour: int) -> void:
 	realm.on_hour(hour, WorldSim.day, _realm_ctx())
+	# War map authority follows the soldier career rank (none for civilians).
+	var cam: RefCounted = realm.mod("campaign")
+	if cam.has_method("set_player_rank"):
+		cam.set_player_rank(CareerLadders.military_rank_for(career_rank) if career_id == "soldier" else "")
 	# City life and society keep a signed ledger instead of touching the purse.
 	for k: String in ["city_life", "society", "education", "household", "callups"]:
 		var m: RefCounted = realm.mod(k)
