@@ -113,6 +113,7 @@ func _process(delta: float) -> void:
 		return
 	_timer = 1.0
 	var p := Vector2(focus.x, focus.z)
+	_bind_territories()
 	for s in Frontier.runestones.stones:
 		var d := p.distance_to(s["pos"])
 		if d < STONE_BUILD and not _stone_nodes.has(s["id"]):
@@ -134,6 +135,16 @@ func _process(delta: float) -> void:
 	if _apex_timer <= 0.0:
 		_apex_timer = APEX_CHECK_INTERVAL
 		_maybe_apex_encounter(p)
+
+
+## CIV-C hook (realm/ecology.gd): territories and pack sizes come from the realm ecology. Binds it to the live dens
+## once (re-binds after a new game); a no-op when the realm has no ecology module.
+func _bind_territories() -> void:
+	if Life.realm == null:
+		return
+	var m: Variant = Life.realm.mod("ecology")
+	if m != null and m.has_method("bind_frontier") and not m.is_bound_to(Frontier.ecology):
+		m.bind_frontier(Frontier.ecology, Frontier.threat)
 
 
 func _free_stone(id: int) -> void:

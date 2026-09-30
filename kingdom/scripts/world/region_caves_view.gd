@@ -115,6 +115,9 @@ func _build(s: Dictionary) -> Node3D:
 	add_child(root)
 	root.position = Vector3(pos.x, WorldGen.height(pos.x, pos.y), pos.y)
 	root.rotation.y = float(s["yaw"])
+	for jamb: Vector2 in [Vector2(-4.0, -1.2), Vector2(4.0, -1.2), Vector2(-4.0, 1.2), Vector2(4.0, 1.2)]:     # lowest corner of the mouth: the centre height left the downhill side hanging ~1.5 m (world lint)
+		var q := root.global_transform * Vector3(jamb.x, 0.0, jamb.y)
+		root.position.y = minf(root.position.y, WorldGen.height(q.x, q.z))
 	var theme: String = c["theme"]
 	var hidden: bool = bool(c["hidden"])
 	var revealed := not hidden or is_revealed(c["dungeon_id"])

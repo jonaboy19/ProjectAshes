@@ -1,0 +1,34 @@
+# gdlint config for Rising Ashes. Run from kingdom/ (gdlint reads .gdlintrc from the cwd):
+#   bash tools/qa/lint.sh        (see docs/qa/LINT.md)
+# Tuned on 2026-09-30 against the existing code so a clean run means "no new real problems".
+# The default ruleset gave 8,600 findings, 98% of them style. Kept on: checks that stay green today
+# and catch regressions (trailing-whitespace, tab-characters, unnecessary-pass, comparison-with-itself,
+# enum/signal/class naming, function-arguments-number) plus gdlint's own syntax errors.
+# Off, with the count seen on 2026-09-30:
+disable:
+  - max-line-length            # 7439: the project writes long one-line dict/array literals on purpose
+  - class-definitions-order    # 757: consts/vars are grouped by topic, not by kind
+  - max-returns                # 61
+  - max-public-methods         # 60
+  - max-file-lines             # 25: campaign.gd etc. are 1-4k lines by design
+  - function-argument-name     # 38: T / S / L shorthand for tables
+  - function-variable-name     # 28
+  - class-variable-name        # 16: SPEED_T / CROPS tables
+  - loop-variable-name         # 4
+  - function-name              # 3
+  - constant-name              # 3
+  - mixed-tabs-and-spaces      # 26: false positives, continuation lines inside dict literals (tutorial_director.gd)
+  - no-elif-return             # 5
+  - no-else-return             # 1
+  - expression-not-assigned    # 2: `a.reparent() if x else a.queue_free()` is valid GDScript
+  - duplicated-load            # 26: repeated preload/load of the same path is intentional (self-load for statics)
+  - unused-argument            # 91: signature-compatible callbacks (ctx, day, pal); see LINT.md, run lint.sh --strict
+excluded_directories: !!set
+  .git: null
+  addons: null
+  .godot: null
+function-arguments-number: 10
+max-line-length: 100
+max-file-lines: 1000
+max-public-methods: 20
+max-returns: 6
