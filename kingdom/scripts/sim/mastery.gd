@@ -28,7 +28,7 @@ const LEVEL_K := 0.05
 const DISCIPLINES: Array[String] = [
 	"farming", "soldiering", "trading", "smithing", "hunting", "fishing", "herbalism",
 	"alchemy", "carpentry", "leatherwork", "cooking", "scholarship", "faith", "leadership",
-	"swordsmanship", "archery", "beast_lore", "mining", "healing", "command",
+	"swordsmanship", "archery", "beast_lore", "mining", "healing", "command", "masonry",
 ]
 
 ## discipline -> {fed discipline -> fraction of the xp also credited there}.

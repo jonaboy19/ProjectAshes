@@ -124,6 +124,32 @@ func _setup(s: Dictionary) -> void:
 	_stamp.resize(_box_c.size())
 
 
+## A building the player raised near this settlement (scripts/realm/construction.gd): routes now avoid its
+## footprint and its door is joined to the nearest street. Returns the door's node index (-1 when the
+## settlement has no street graph to join).
+func register_building(c: Vector2, yaw: float, half: Vector2, door: Vector2) -> int:
+	_add_box(c, yaw, half)
+	_stamp.resize(_box_c.size())
+	_ensure_graph()
+	var n := _node_at(door)
+	var att := _attach(door)
+	if not att.is_empty():
+		var na: int = att[0]
+		var nb: int = att[1]
+		var pa := _nodes[na]
+		var pb := _nodes[nb]
+		# join the nearer end of the street segment it meets
+		_link(n, na if pa.distance_squared_to(door) <= pb.distance_squared_to(door) else nb)
+	_edge_grid.clear()
+	_index_edges()
+	return n
+
+
+func node_count() -> int:
+	_ensure_graph()
+	return _nodes.size()
+
+
 func _mesh_size(asset: String, low: bool) -> Vector3:
 	if not Assets.BUILDINGS.has(asset):
 		return Vector3(8, 8, 8)

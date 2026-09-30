@@ -744,8 +744,14 @@ func treasury_deposit(sid: int, amount: int) -> int:
 
 # ---------------------------------------------------------------- works: projects and roads
 
-func _labour_other(_sid: int) -> int:
-	return 0
+func _construction() -> RefCounted:
+	return hub.mod("construction") if hub != null else null
+
+
+## Builders hired for the player's own sites come out of the same labour pool as fief crews.
+func _labour_other(sid: int) -> int:
+	var c := _construction()
+	return int(c.call("labour_taken", sid)) if c != null else 0
 
 
 func labour_pool(sid: int) -> int:
@@ -848,7 +854,10 @@ func _works_day() -> void:
 				paid = false
 			else:
 				_pay(wage2)
-		w["left"] = float(w["left"]) - float(w["crew"]) * eff * (1.0 if paid else 0.4)
+		# One labour model for every crew (scripts/realm/construction.gd): skilled crews finish sooner.
+		var cons := _construction()
+		var man_days := float(w["crew"]) if cons == null else float(cons.call("crew_output", int(w["crew"])))
+		w["left"] = float(w["left"]) - man_days * eff * (1.0 if paid else 0.4)
 		if float(w["left"]) <= 0.0:
 			works.remove_at(i)
 			_complete_work(w, l)
@@ -872,6 +881,9 @@ func _complete_work(w: Dictionary, _l: RefCounted) -> void:
 	var fx := _fx(sid)
 	var v := _village(sid)
 	fx["built"][key] = int(fx["built"].get(key, 0)) + 1
+	var cons_done := _construction()
+	if cons_done != null:
+		cons_done.call("on_fief_complete", sid, key)
 	match key:
 		"market":
 			if st != null:

@@ -553,6 +553,10 @@ func pack_menu() -> Dictionary:
 			hud.close_menu()
 			BuildMenu.open_for(hud)
 			return ""])
+	opts.append(["Build and settle", func() -> String:
+		hud.close_menu()
+		BuildMenu.open_for(hud)
+		return ""])
 	if not Life.homestead.owned.is_empty() or not Life.homestead.leased.is_empty():
 		opts.append(["Farm ledger", func() -> String:
 			hud.close_menu()
