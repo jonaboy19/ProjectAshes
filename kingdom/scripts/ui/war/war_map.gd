@@ -74,6 +74,8 @@ var _play_btn: Button
 var _title_lbl: Label
 var _style_row: HBoxContainer
 var _style_cycle: Button
+var _layers_cycle: Button
+var _strategic: Control = null
 var _zoom_grid: GridContainer
 var _day_btn: Button
 var _terrain := Terrain.new()
@@ -245,15 +247,35 @@ func _build_toolbar() -> void:
 		var b2 := _styled(Tokens.STYLE_NAMES[i], i == style, set_style.bind(i), 120)
 		h2.add_child(b2)
 		_style_btns.append(b2)
+	h2.add_child(_styled("Layers", false, open_overlays, 100))
 	var key := _styled("Key", false, toggle_legend, 70)
 	h1.add_child(key)
 	_style_cycle = _styled("Style", false, func() -> void: set_style((style + 1) % 3), 80)
 	_style_cycle.visible = false
 	h1.add_child(_style_cycle)
+	_layers_cycle = _styled("Layers", false, open_overlays, 80)
+	_layers_cycle.visible = false
+	h1.add_child(_layers_cycle)
 	if not embedded:
 		var x := _styled("Close", false, close, 80)
 		h1.add_child(x)
 	_canvas.add_child(bar)
+
+
+## Opens the strategic overlay map (trade, resources, politics, danger...) over the war table.
+func open_overlays() -> Control:
+	if _strategic != null and is_instance_valid(_strategic):
+		return _strategic
+	var m: Control = load("res://scripts/ui/strategic/strategic_map.gd").new()
+	m.set("realm_override", realm_override)
+	m.set("embedded", true)
+	m.connect("closed", func() -> void:
+		if is_instance_valid(m):
+			m.queue_free()
+		_strategic = null)
+	add_child(m)
+	_strategic = m
+	return m
 
 
 func _restyle_toolbar() -> void:
@@ -472,6 +494,8 @@ func _relayout() -> void:
 	_title_lbl.visible = not portrait
 	_style_row.visible = not portrait
 	_style_cycle.visible = portrait
+	if _layers_cycle != null:
+		_layers_cycle.visible = portrait
 	_zoom_grid.columns = 2 if portrait else 1
 	_zoom_grid.offset_bottom = -76 if portrait else -12
 	_day_btn.visible = not portrait
