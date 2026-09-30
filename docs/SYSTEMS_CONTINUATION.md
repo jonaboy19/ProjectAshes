@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: frontier ecology receives the live winter flag
+
+`Frontier.advance_day()` now passes `WorldSim.season == "winter"` to the existing daily `MonsterEcology.tick_day()` call instead of hardcoded `false`. This enables the already-implemented winter food, wolf-pressure and migration inputs without changing other call arguments or timing. Static source review and `git diff --check` only; no parser, runtime season transition, save/load or gameplay behavior check was run. See [FRONTIER_WINTER_ECOLOGY_HANDOFF.md](concepts/FRONTIER_WINTER_ECOLOGY_HANDOFF.md).
+
 ### Latest slice: tracked quest advances when it expires
 
 `RadiantQuests.tick_day()` now switches the tracked ID to the first remaining active quest when the tracked quest fails its deadline, or clears tracking if none remain. It retains the existing `active.duplicate()` loop, failure event/counter, board refill and quest data. Static source review and `git diff --check` only; no parser, runtime quest-flow, save/load or UI validation was run. See [RADIANT_QUEST_TRACKING_HANDOFF.md](concepts/RADIANT_QUEST_TRACKING_HANDOFF.md).
