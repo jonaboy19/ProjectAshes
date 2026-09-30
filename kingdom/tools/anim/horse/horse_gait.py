@@ -191,6 +191,7 @@ class Script:
         self.breakover_start = 0.66           # fraction of the stance where the heel starts to lift
         self.leg_override = {}                # leg -> callable(t) -> None or dict(toe=Vector world, hoof_pitch, carpal/hock flex, fetlock flex)
         self.support_max = 0.06              # at most this much lowering (m)
+        self.support_fixed = None            # callable t -> (dz, dpitch): pre-smoothed support (set by author_horse)
         self.support = True                   # lower the body when a stance leg cannot reach its planted hoof
         self.sim_secondary = True
         self.wind = const(V(0, 0, 0))         # extra air stream (world) for the hair
@@ -532,7 +533,11 @@ class Engine:
         basis["root"] = R.L["root"].inverted() @ RF @ R.L["root"]
         body_extra = V(0, 0, 0)
         pitch_extra = 0.0
-        for it in range(3 if sc.support else 1):
+        fixed = sc.support_fixed(t) if sc.support_fixed else None
+        if fixed is not None:
+            body_extra = V(0, 0, fixed[0])
+            pitch_extra = fixed[1]
+        for it in range(3 if (sc.support and fixed is None) else 1):
             off = sc.body_off(t) + body_extra
             br = sc.body_rot(t) + V(pitch_extra, 0, 0)
             Mb = Matrix.Translation(sc.pivot + off) @ q_pry(br).to_matrix().to_4x4() @ Matrix.Translation(-sc.pivot)
@@ -545,7 +550,7 @@ class Engine:
                 bq = S.rot_basis(n_, q, W).to_matrix().to_4x4()
                 W[n_] = S.child_world(W, n_, bq)
                 basis[n_] = bq
-            if not sc.support:
+            if not sc.support or fixed is not None:
                 break
             # stance legs that cannot reach: lower that end of the body
             need = {}
@@ -633,6 +638,7 @@ class Engine:
             if n_ not in W:
                 W[n_] = S.child_world(W, n_, Matrix.Identity(4))
                 basis[n_] = Matrix.Identity(4)
+        info["_support"] = (body_extra.z, pitch_extra)
         return W, basis, info
 
 

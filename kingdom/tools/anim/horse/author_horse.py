@@ -43,6 +43,43 @@ def evaluate_clip(sc):
     times = [(f - warm) / G.FPS for f in range(0, warm)] + [f / G.FPS for f in fr]
     if not sc.loop:
         times = [0.0] * warm + [f / G.FPS for f in fr]      # hold the first pose while the hair settles
+    # pass 1: raw support corrections (body lowered / pitched where a planted leg cannot reach), then smooth them in
+    # time so the saddle never jumps (a correction that switches on in one frame gave 4 cm saddle pops), keeping at
+    # least the required lowering (running max over +-2 frames, then a Gaussian of sigma 1.5 frames; periodic for loops)
+    if sc.support:
+        fr_t = [f / G.FPS for f in fr]
+        raw = [ENG.evaluate(sc, t)[2]["_support"] for t in fr_t]
+        m = len(raw)
+
+        def at(i):
+            if sc.loop:
+                return raw[i % (m - 1)]
+            return raw[max(0, min(m - 1, i))]
+        mx = []
+        for i in range(m):
+            win = [at(i + k) for k in range(-2, 3)]
+            mx.append((min(w[0] for w in win), max(win, key=lambda w: abs(w[1]))[1]))
+        ker = [math.exp(-0.5 * (k / 1.5) ** 2) for k in range(-4, 5)]
+        ks = sum(ker)
+        sm = []
+        for i in range(m):
+            dz = dp = 0.0
+            for j, kw in zip(range(-4, 5), ker):
+                ii = (i + j) % (m - 1) if sc.loop else max(0, min(m - 1, i + j))
+                dz += mx[ii][0] * kw
+                dp += mx[ii][1] * kw
+            sm.append((dz / ks, dp / ks))
+        if sc.loop:
+            sm[-1] = sm[0]
+        dur = sc.duration
+
+        def fixed(t, sm=sm, n=n, loop=sc.loop):
+            x = (t % dur if loop else max(0.0, min(dur, t))) * G.FPS
+            i = min(int(x), n - 1)
+            u = x - i
+            a, b = sm[i], sm[min(i + 1, n)]
+            return (a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u)
+        sc.support_fixed = fixed
     Ws, Bs, infos = [], [], []
     for t in times:
         W, B, info = ENG.evaluate(sc, t)

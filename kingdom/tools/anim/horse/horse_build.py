@@ -303,8 +303,8 @@ def place_sockets(game, body):
     seat = V(0, seat_y, top + 0.075)          # saddle top (tree + pad) above the back at the lowest point of the seat
     S = {}
     S["saddle"] = (seat, seat + V(0, -0.25, 0))
-    # stirrup tread (ball of the rider's foot): heel under the hip, about 0.62 m below the seat, lower leg on the barrel
-    st = V(0.31, seat_y - 0.06, seat.z - 0.62)
+    # stirrup tread (ball of the rider's foot): heel under the hip, about 0.57 m below the seat (rider posting room), lower leg on the barrel
+    st = V(0.31, seat_y - 0.06, seat.z - 0.57)
     S["stirrup_L"] = (st, st + V(0, -0.15, 0))
     S["stirrup_R"] = (V(-st.x, st.y, st.z), V(-st.x, st.y - 0.15, st.z))
     # rein grip: the rider's hands, just in front of the pommel, about 0.36 m ahead of and 0.16 m above the seat

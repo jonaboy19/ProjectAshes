@@ -164,7 +164,7 @@ class M:
         vs = list(ring)[::-1] if flip else list(ring)
         return self.face(vs, key)
 
-    def finish(self, ob_name, wfun=None):
+    def finish(self, ob_name, wfun=None, parent=True):
         bm = self.bm
         self.wfun = wfun or self.wfun
         bm.verts.index_update()
@@ -179,11 +179,12 @@ class M:
         # weights
         ob = bpy.data.objects.new(ob_name, me)
         bpy.context.scene.collection.objects.link(ob)
-        ob.parent = ARM
-        ob.matrix_parent_inverse = Matrix.Identity(4)
-        ob.matrix_world = Matrix.Identity(4)
-        mod = ob.modifiers.new("Armature", "ARMATURE")
-        mod.object = ARM
+        if parent:
+            ob.parent = ARM
+            ob.matrix_parent_inverse = Matrix.Identity(4)
+            ob.matrix_world = Matrix.Identity(4)
+            mod = ob.modifiers.new("Armature", "ARMATURE")
+            mod.object = ARM
         if self.wfun is not None:
             names = set()
             wl = []
@@ -730,8 +731,8 @@ def build_cart_harness():
         if h is None:
             continue
         pts.append((h, d, ph))
-    ring = [h + d * 0.046 for h, d, ph in pts]
-    tube(m, ring, 0.038, "LEATHER", sides=6, closed=True, up=lambda i, p: X_)
+    ring = [h + d * 0.056 for h, d, ph in pts]
+    tube(m, ring, 0.050, "LEATHER", sides=6, closed=True, up=lambda i, p: X_)
     # hames: metal bars on both sides of the collar, brass knobs on top, draught rings at mid height
     for side in (1.0, -1.0):
         sel = [(h, d) for h, d, ph in pts if d.x * side > 0.35]
@@ -817,7 +818,7 @@ def build_cart_harness():
     for k in range(9):
         y = 0.10 + 0.56 * k / 8.0
         cp.append(V(0, y, (top_z(0.0, y) or 1.45)))
-    strap(m, cp, 0.030, 0.008, "LEATHER", off=0.014, solid=False)
+    strap(m, cp, 0.030, 0.010, "LEATHER", off=0.014, solid=True)
 
     def wf(co, tag):
         if tag == "collar":
@@ -903,19 +904,19 @@ def build_barding():
     n_head = len(m.tags)
     m.tag = "crinet"
     # ---- crinet: overlapping steel plates along the crest of the neck
-    for k in range(7):
-        y = -1.12 + 0.065 * k * 1.0
+    for k in range(10):
+        y = -1.12 + 0.046 * k * 1.0
         zt = top_z(0.0, y) or 1.7
         cc = V(0, y, zt - 0.20)
         rr = []
-        for dy, lift in ((-0.04, 0.0), (0.045, 0.014)):
+        for dy, lift in ((-0.03, 0.0), (0.034, 0.009)):
             r_ = []
-            for ang in range(-70, 71, 20):
+            for ang in range(-70, 71, 14):
                 d = V(math.sin(math.radians(ang)), 0, math.cos(math.radians(ang)))
                 h, n = ray(cc + V(0, dy, 0) + d * 0.7, -d)
                 if h is None:
                     continue
-                r_.append(h + d * (0.020 + lift))
+                r_.append(m.v(h + d * (0.016 + lift)))
             rr.append(r_)
         if len(rr[0]) == len(rr[1]) and len(rr[0]) > 2:
             for j in range(len(rr[0]) - 1):
