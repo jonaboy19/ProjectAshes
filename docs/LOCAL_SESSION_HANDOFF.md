@@ -442,3 +442,10 @@ built with fewer nodes, and drop `_process` work when no site is within BUILD. I
 - **`autoload/world_sim.gd` `_simulate_slice` is now time-budgeted** (`BUDGET_US`, near-player people first, `NEAR_RADIUS` 320 m; `UPDATES_PER_FRAME` removed). Same results (dt-based movement), about 0.7 ms/frame less CPU. Two QA counters `dbg_slice_usec/dbg_frames`.
 - `boot_flow.gd` now drives character creation (Next x3, Begin Life). `spinning-wheel.glb` imports without its broken animation (fixes "Node not found spinning-wheel/spindle").
 - Measurement rule: the PC is shared; only compare configs from the same run (`water_prof.gd`, `--only=`, `--rdprof`, `--sysprof --systier=N`).
+
+## 2026-09-30 (Codex PR #4): feel/system continuation
+- Branch `gpt/locomotion-jump-integration` is synced with the latest fetched Claude head `b6cc215c` by merge commit `89498a11`; review the branch before cherry-picking or merging because it touches player, HUD, input, life and combat-adjacent code.
+- Preserved Claude's player appearance/death flow while keeping the jump-enabled animator, local hit-pause helper, and dodge lane probe. Controls are now **Space = Jump, K = Dodge, F2 = Pack Skills**; the central input map, tab hotkey, and `docs/controls.md` agree.
+- Added 0.25 s dialogue shade/UI and portrait reveals (F13 presentation only; camera framing inside the speaker/cart remains open), plus event-only dodge sweeps to choose a clear side lane around a hostile capsule (F15). Claude should visually verify both in the real game, including mobile touch.
+- Added restored Journal responses for persistent scout offers and documented that the shown ongoing wage is not active payroll yet; see `docs/concepts/CODEX_SYSTEMS_HANDOFF.md`.
+- **Runtime validation remains pending.** No test suite was run in this continuation; `git diff --check` passed. Keep the captured-game validation list in `docs/anim/CODEX_LOCOMOTION_JUMP.md` current.
