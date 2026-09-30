@@ -29,6 +29,7 @@ const Nameplates := preload("res://scripts/core/nameplates.gd")
 const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
+const NpcSocialGraph := preload("res://scripts/sim/npc_social_graph.gd")
 const Act := UtilityBrain.Act
 
 const WORLD_LAYER := 1
@@ -477,6 +478,7 @@ func _decide_act(here: Vector2) -> void:
 		_act = act
 		_apply_plan(here, danger[1], sight[1])
 		return
+	_record_completed_social()
 	match act:
 		Act.FLEE:
 			# Still in danger at the end of the run: keep going from here.
@@ -493,6 +495,30 @@ func _decide_act(here: Vector2) -> void:
 			# this already staggered decision tick, never every physics frame.
 			if _water_token.is_empty():
 				_apply_plan(here, danger[1], sight[1])
+
+
+## Persist one NPC-to-NPC tie only after the current pair has spent time together
+## at its shared social activity. Lower person ID owns the single write.
+func _record_completed_social() -> void:
+	if _act != Act.SOCIAL or not _arrived or _yield_time > 0.0 or _perform_time < MIN_PERFORM:
+		return
+	if _partner < 0 or person > _partner or UtilityBrain.chat_partner(person) != _partner:
+		return
+	var partner_body := UtilityBrain.body_of(_partner)
+	if partner_body == null or not is_instance_valid(partner_body):
+		return
+	var here := Vector2(global_position.x, global_position.z)
+	var other := Vector2(partner_body.global_position.x, partner_body.global_position.z)
+	if here.distance_squared_to(other) > 9.0:
+		return
+	var life := get_node_or_null("/root/Life")
+	var graph: Variant = life.get("npc_social_graph") if life else null
+	if graph == null or not graph.has_method("record_conversation"):
+		return
+	var a := NpcSocialGraph.worldsim_person(WorldSim.SEED, person)
+	var b := NpcSocialGraph.worldsim_person(WorldSim.SEED, _partner)
+	var day := float(WorldSim.day) + WorldSim.time_of_day / 24.0
+	graph.call("record_conversation", a, b, day)
 
 
 func _apply_plan(here: Vector2, hazard: Vector2, look: Vector2) -> void:

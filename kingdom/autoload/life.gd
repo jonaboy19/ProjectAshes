@@ -35,12 +35,15 @@ var injuries := RAInjuries.new()
 var scouts := RAScouts.new()
 var discovery := preload("res://scripts/sim/discovery.gd").new()
 var relationships := preload("res://scripts/sim/relationships.gd").new()
+## Sparse NPC-to-NPC ties from completed embodied conversations; separate from player opinion.
+var npc_social_graph := preload("res://scripts/sim/npc_social_graph.gd").new()
 var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
 var crafting := preload("res://scripts/sim/crafting.gd").new()
 const WorldEventLog := preload("res://scripts/systems/world_event_log.gd")
 const ActionRuntime := preload("res://scripts/systems/action_runtime.gd")
 const NpcActivityRuntime := preload("res://scripts/systems/npc_activity_runtime.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
+const NpcSocialGraph := preload("res://scripts/sim/npc_social_graph.gd")
 ## Bounded facts from player actions, available to future dialogue/simulation consumers.
 var world_events = WorldEventLog.new()
 ## Short-lived actor/action leases; deliberately excluded from saves.
@@ -116,7 +119,7 @@ func _ready() -> void:
 
 ## Every state object of a run (recreated by reset()).
 const STATE := ["life_path", "titles", "triggers", "careers", "guild", "magicules", "naming", "injuries", "scouts",
-	"discovery", "relationships", "radiant", "crafting", "equipment", "skills", "mastery", "biography", "property",
+	"discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "mastery", "biography", "property",
 	"nobility", "lordship", "family", "soul", "skill_evolution", "echoes", "life_courses", "war", "realm",
 	"homestead", "tendencies", "childhood_events", "awakening", "needs", "market", "economy"]
 
@@ -1203,6 +1206,7 @@ func snapshot() -> Dictionary:
 		"scouts": scouts.serialize(),
 		"discovery": discovery.serialize(),
 		"relationships": relationships.serialize(),
+		"npc_social_graph": npc_social_graph.serialize(),
 		"mastery": mastery.serialize(),
 		"biography": biography.serialize(),
 		"property": property.serialize(),
@@ -1238,6 +1242,8 @@ func snapshot() -> Dictionary:
 func restore(d: Dictionary) -> void:
 	action_runtime.reset()
 	_craft_station_actions.clear()
+	# Optional social data must not leak across loading an older/empty save.
+	npc_social_graph = NpcSocialGraph.new()
 	# Older saves simply start a fresh journal. Invalid new journal data is isolated
 	# from the rest of the save so existing player state still restores normally.
 	world_events = WorldEventLog.new()
@@ -1269,7 +1275,7 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes", "realm"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes", "realm"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	appearance = d.get("appearance", {})
