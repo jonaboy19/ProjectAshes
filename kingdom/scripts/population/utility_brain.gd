@@ -1114,7 +1114,8 @@ static func _chat_affinity(a: int, b: int) -> float:
 		return 0.0
 	var a_id := "worldsim:%d:%d" % [WorldSim.SEED, a]
 	var b_id := "worldsim:%d:%d" % [WorldSim.SEED, b]
-	return float(graph.call("affinity", a_id, b_id))
+	var now_day := float(WorldSim.day) + float(WorldSim.time_of_day) / 24.0
+	return float(graph.call("affinity", a_id, b_id, now_day))
 
 
 static func chat_partner(p: int) -> int:

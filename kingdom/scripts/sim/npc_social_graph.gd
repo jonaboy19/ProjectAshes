@@ -67,8 +67,15 @@ func link(a: String, b: String) -> Dictionary:
 	return (edges.get(_pair_key(a, b), {}) as Dictionary).duplicate(true)
 
 
-func affinity(a: String, b: String) -> float:
-	return float(link(a, b).get("affinity", 0.0))
+func affinity(a: String, b: String, now_day := -1.0) -> float:
+	var edge := link(a, b)
+	var value := float(edge.get("affinity", 0.0))
+	# Existing callers without a clock keep receiving the saved raw score.
+	if edge.is_empty() or now_day < 0.0 or not is_finite(now_day):
+		return value
+	var age := maxf(0.0, now_day - float(edge["last_day"]))
+	var fade := minf(DORMANCY_FADE_CAP, age * DORMANCY_FADE_PER_DAY)
+	return value * (1.0 - fade)
 
 
 func _evict_oldest() -> void:

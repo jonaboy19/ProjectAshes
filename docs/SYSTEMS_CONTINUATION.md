@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: dormant familiarity cools during plaza pairing
+
+`NpcSocialGraph.affinity(a, b, now_day)` now returns a non-mutating effective score using the existing 0.25% per-game-day fade, capped at 50%; omitting time preserves the raw saved score. `UtilityBrain._chat_affinity()` supplies the current fractional day, so dormant familiarity loses pairing weight before the NPCs next chat. Record-time attenuation, O(1) pair lookup, queue limits and save schema are unchanged. Static source review and `git diff --check` only; no parser, runtime, save/load, behavior or mobile check was run. See [NPC_SOCIAL_GRAPH_HANDOFF.md](concepts/NPC_SOCIAL_GRAPH_HANDOFF.md).
+
 ### Latest slice: social need requires nearby reciprocal company
 
 `UtilityBrain.tick()` now grants `Act.SOCIAL` recovery only when the existing chat registry has a reciprocal pair, both registered bodies still resolve validly, and their XZ positions are within 3 m. A resident waiting alone in the plaza gets normal social decay. Checks stay inside the existing staggered need tick and use no scan, ray, extra node, field, movement or save data. Static source review and `git diff --check` only; no parser, runtime, behavior or mobile performance check was run. See [NPC_SOCIAL_GRAPH_HANDOFF.md](concepts/NPC_SOCIAL_GRAPH_HANDOFF.md).
