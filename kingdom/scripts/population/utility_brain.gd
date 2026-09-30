@@ -359,13 +359,30 @@ func tick(now_hours: float, performing := -1, elapsed_cap := 2.0) -> void:
 	faith -= (0.02 + 0.05 * float(traits["pious"])) * dt
 	water -= WATER_PER_HOUR * dt
 	if RESTORE.has(performing):
-		for r: Array in RESTORE[performing]:
-			set(r[0], float(get(r[0])) + float(r[1]) * dt)
+		if performing != Act.SOCIAL or _has_valid_nearby_chat_pair(person):
+			for r: Array in RESTORE[performing]:
+				set(r[0], float(get(r[0])) + float(r[1]) * dt)
 	food = clampf(food, 0.0, 1.0)
 	rest = clampf(rest, 0.0, 1.0)
 	social = clampf(social, 0.0, 1.0)
 	faith = clampf(faith, 0.0, 1.0)
 	water = clampf(water, 0.0, 1.0)
+
+
+## Social need restores only during a real reciprocal pair at conversational range.
+## Called from the existing staggered need tick, never per frame.
+func _has_valid_nearby_chat_pair(p: int) -> bool:
+	var partner := chat_partner(p)
+	if partner < 0 or chat_partner(partner) != p:
+		return false
+	var own_body := body_of(p)
+	var partner_body := body_of(partner)
+	if own_body == null or partner_body == null \
+		or not is_instance_valid(own_body) or not is_instance_valid(partner_body):
+		return false
+	var own_xz := Vector2(own_body.global_position.x, own_body.global_position.z)
+	var partner_xz := Vector2(partner_body.global_position.x, partner_body.global_position.z)
+	return own_xz.distance_to(partner_xz) <= 3.0
 
 
 ## Bring data-tier needs current in constant time after an NPC spent time

@@ -11,6 +11,7 @@ Scope: bounded NPC-to-NPC familiarity recorded from completed, embodied villager
 - `Life` owns, resets, saves and restores the graph. Older saves with no graph start empty; malformed graph data is rejected without affecting the other Life modules.
 - A Villager records a tie only when it is in the existing SOCIAL act, has arrived, spent at least `MIN_PERFORM` at the spot, remains paired, and is within three metres of its partner. The lower current person index is the single writer, and graph-level coalescing protects against repeat callbacks and same-day LOD promotion.
 - UtilityBrain's plaza waiting area is now a queue of at most eight embodied candidates per settlement. It allows a 1.2-second gathering window, then lightly favors known ties; time waiting can offset the full familiarity bonus. A resident with no partner retries only on its existing staggered decision tick. Unregister/LOD release removes that person's wait entry or pair; new game and save restore clear transient pair queues.
+- Active `Act.SOCIAL` need recovery is gated in the existing staggered `UtilityBrain.tick()`: both people must resolve through the registered-body map, name each other as reciprocal chat partners, and be within 3 m in XZ. A villager waiting alone in the plaza continues to lose social need. The check uses body positions only; it adds no scan, ray, node, movement, field or save state.
 - Current identities are explicitly namespaced as `worldsim:<seed>:<person-index>`; current world generation has fixed seed `1066`.
 
 ## Limits and follow-up
@@ -19,7 +20,7 @@ Scope: bounded NPC-to-NPC familiarity recorded from completed, embodied villager
 - The graph records modest familiarity and biases selection only among a small set of already-waiting social candidates. It does not change dialogue or opinions, propagate rumors, infer beliefs, or simulate distant conversations. NPC-to-NPC data is not merged into player-facing `Relationships`.
 - The first producer covers the embodied Villager chat pair only. It is not evidence of friendship or agreement: affinity is just a bounded familiarity signal. Do not use it as crime witness confidence or a factual rumor.
 - Existing body ownership, movement, pairing, animation and LOD remain authoritative. No pathing or new per-NPC node was added.
-- Static source review only. No Godot parser, live gameplay, save/load, behavior, or mobile performance check was run for this slice.
+- Static source review only. No Godot parser, live gameplay, save/load, behavior, or mobile performance check was run for this slice or the later social-recovery gate.
 
 ## Claude integration notes
 

@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: social need requires nearby reciprocal company
+
+`UtilityBrain.tick()` now grants `Act.SOCIAL` recovery only when the existing chat registry has a reciprocal pair, both registered bodies still resolve validly, and their XZ positions are within 3 m. A resident waiting alone in the plaza gets normal social decay. Checks stay inside the existing staggered need tick and use no scan, ray, extra node, field, movement or save data. Static source review and `git diff --check` only; no parser, runtime, behavior or mobile performance check was run. See [NPC_SOCIAL_GRAPH_HANDOFF.md](concepts/NPC_SOCIAL_GRAPH_HANDOFF.md).
+
 ### Latest slice: repeat dialogue acknowledges saved gossip topics
 
 The villager and innkeeper `gossip` nodes now have repeat-aware lines gated by their existing participant-local `discussed:<file>:gossip` topic events. The current `{rumour}` token is still selected dynamically; the line acknowledges only that gossip came up before, not a remembered rumor. Villager greetings also acknowledge `gifted_recently`, which is tied to a successful gift to that recipient but does not reveal whether they liked the item. A villager can acknowledge a prior Crown discussion, and an innkeeper can acknowledge going over the menu, using the existing per-NPC `discussed:villager:crown` and `discussed:innkeeper:food` topics. Those callbacks remember only that the subject came up. No dialogue script, save schema, UI or NPC identity changed. The shared design doc was left untouched because it also has Claude-side updates; details are in the new [NPC_DIALOGUE_TOPIC_MEMORY_HANDOFF.md](concepts/NPC_DIALOGUE_TOPIC_MEMORY_HANDOFF.md). Dialogue data source review and `git diff --check` only; no parser or in-game dialogue validation was run.
