@@ -458,6 +458,29 @@ func _resolve(id: String, def: Dictionary, dmg: int, target: Node3D) -> void:
 		# particular villager saw the caster or identified a target.
 		var here := player.global_position
 		UtilityBrain.notice(Vector2(here.x, here.z), 0.72, 6.0)
+		# This resolved combat action is also loud enough to be heard nearby;
+		# the acoustic event carries no caster/target identity.
+		var sound_level := 0.85
+		var sound_radius := 28.0
+		var sound_lifetime := 4.5
+		match shape:
+			"melee":
+				sound_level = 0.55
+				sound_radius = 12.0
+				sound_lifetime = 2.2
+			"dash":
+				sound_level = 0.75
+				sound_radius = 22.0
+				sound_lifetime = 3.5
+			"blink":
+				sound_level = 0.65
+				sound_radius = 18.0
+				sound_lifetime = 2.5
+			"aoe", "target_aoe", "cone":
+				sound_level = 0.95
+				sound_radius = 32.0
+				sound_lifetime = 5.0
+		UtilityBrain.sound_notice(Vector2(here.x, here.z), sound_level, sound_radius, sound_lifetime)
 	if shape in ["aoe", "target_aoe", "cone"] and def["effect"].has("buff"):
 		_support(id, def)
 

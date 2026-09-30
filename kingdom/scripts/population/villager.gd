@@ -462,6 +462,10 @@ func _decide_act(here: Vector2) -> void:
 	# actually saw. Movement noise adds a separate, anonymous look cue outdoors.
 	var sight := UtilityBrain.spectacle_at(here, player_p, visible_threats)
 	var heard := UtilityBrain.heard_player_at(here, _player, tree) if not _indoors else [0.0, Vector2.INF]
+	if not _indoors:
+		var sound_event := UtilityBrain.audible_event_at(here, tree)
+		if float(sound_event[0]) > float(heard[0]):
+			heard = sound_event
 	if float(heard[0]) > 0.0:
 		_brain.remember_heard_sound(heard[1], float(heard[0]))
 	var heard_memory := _brain.heard_memory()
@@ -1018,9 +1022,12 @@ func _work_cue(activity: String) -> void:
 	if _cue_done or f < float(cue[1]):
 		return
 	_cue_done = true
-	if _player == null or global_position.distance_squared_to(_player.global_position) > WORK_SOUND_RANGE * WORK_SOUND_RANGE:
-		return
 	if Audio.has_method("has_sound") and not Audio.has_sound(cue[0]):
+		return
+	var sound_level := 0.38 if activity == "TreeChopping" else 0.28
+	var sound_radius := 13.0 if activity == "TreeChopping" else 8.0
+	UtilityBrain.sound_notice(Vector2(global_position.x, global_position.z), sound_level, sound_radius, 1.0)
+	if _player == null or global_position.distance_squared_to(_player.global_position) > WORK_SOUND_RANGE * WORK_SOUND_RANGE:
 		return
 	Audio.play_sfx(cue[0], global_position + Vector3(0, 0.6, 0), -9.0, 0.1)
 

@@ -109,6 +109,9 @@ const SIGHT_QUEUE_MAX := 64
 const NOTICE_MAX := 64
 const NOTICE_MERGE_RADIUS := 1.0
 const NOTICE_MAX_SECONDS := 30.0
+const SOUND_EVENT_MAX := 32
+const SOUND_EVENT_MERGE_RADIUS := 1.5
+const SOUND_EVENT_MAX_SECONDS := 10.0
 const CHAT_GAP := 1.3           # metres between two people chatting
 const CHAT_WAIT_MAX := 8        # bounded candidates per settlement, not a global resident scan
 const CHAT_MIN_WAIT_MS := 1200  # let a small set assemble before choosing a companion
@@ -134,6 +137,7 @@ static var _ray_window_stats := {"requested": 0, "admitted": 0, "exhausted": 0,
 static var _ray_total_stats := {"requested": 0, "admitted": 0, "exhausted": 0,
 	"occluded": 0, "visible": 0, "stale": 0, "unavailable": 0}
 static var _notices: Array = []              # [pos: Vector2, strength, expires_ms]
+static var _sound_events: Array = []          # [pos: Vector2, strength, radius, expires_ms]
 static var _weather: Node
 static var _poi := {}                        # settlement id -> Dictionary
 static var _bodies := {}                     # person -> instance id of its Villager
@@ -776,19 +780,84 @@ static func heard_player_at(here: Vector2, player: Node3D, tree: SceneTree) -> A
 	var radius := clampf(float(player.call("noise_radius")), 0.0, 18.0)
 	if radius <= 0.0:
 		return [0.0, Vector2.INF]
-	if _weather == null or not is_instance_valid(_weather):
-		_weather = tree.get_first_node_in_group("weather") if tree else null
-	if _weather and is_instance_valid(_weather) and _weather.has_method("noise_mult"):
-		radius *= clampf(float(_weather.call("noise_mult")), 0.4, 1.0)
+	radius *= _weather_noise_mult(tree)
 	var source := Vector2(player.global_position.x, player.global_position.z)
 	var offset := source - here
 	var distance := offset.length()
 	if distance >= radius:
 		return [0.0, Vector2.INF]
 	var strength := 1.0 - distance / radius
-	var direction := offset / maxf(distance, 0.001)
-	var guessed_distance := maxf(distance - lerpf(0.75, 3.0, distance / radius), 0.0)
-	return [strength, here + direction * guessed_distance]
+	return [strength, _approximate_sound_point(here, source, distance / radius)]
+
+
+## Publish a short-lived acoustic event with no actor identity. Use this for
+## discrete sounds that have actually resolved, not for visual effects alone.
+static func sound_notice(pos: Vector2, strength := 1.0, radius := 24.0, seconds := 4.0) -> void:
+	if not is_finite(pos.x) or not is_finite(pos.y) or not is_finite(strength) \
+	or not is_finite(radius) or not is_finite(seconds):
+		return
+	var level := clampf(strength, 0.0, 1.0)
+	var reach := clampf(radius, 1.0, 48.0)
+	var duration := clampf(seconds, 0.0, SOUND_EVENT_MAX_SECONDS)
+	if level <= 0.0 or duration <= 0.0:
+		return
+	var now := Time.get_ticks_msec()
+	_prune_sound_events(now)
+	for i in range(_sound_events.size()):
+		var event: Array = _sound_events[i]
+		if (event[0] as Vector2).distance_squared_to(pos) <= SOUND_EVENT_MERGE_RADIUS * SOUND_EVENT_MERGE_RADIUS:
+			event[1] = maxf(float(event[1]), level)
+			event[2] = maxf(float(event[2]), reach)
+			event[3] = maxi(int(event[3]), now + int(duration * 1000.0))
+			return
+	if _sound_events.size() >= SOUND_EVENT_MAX:
+		_sound_events.pop_front()
+	_sound_events.append([pos, level, reach, now + int(duration * 1000.0)])
+
+
+## Best decaying discrete sound at this listener, after weather attenuation.
+static func audible_event_at(here: Vector2, tree: SceneTree) -> Array:
+	var now := Time.get_ticks_msec()
+	_prune_sound_events(now)
+	var top := 0.0
+	var at := Vector2.INF
+	var attenuation := _weather_noise_mult(tree)
+	for event: Array in _sound_events:
+		var source: Vector2 = event[0]
+		var radius := float(event[2]) * attenuation
+		var distance := here.distance_to(source)
+		if distance >= radius:
+			continue
+		var level := float(event[1]) * (1.0 - distance / radius)
+		if level > top:
+			top = level
+			at = _approximate_sound_point(here, source, distance / radius)
+	return [top, at]
+
+
+static func _prune_sound_events(now_ms: int) -> void:
+	for i in range(_sound_events.size() - 1, -1, -1):
+		if int(_sound_events[i][3]) <= now_ms:
+			_sound_events.remove_at(i)
+
+
+static func clear_sound_events() -> void:
+	_sound_events.clear()
+
+
+static func _weather_noise_mult(tree: SceneTree) -> float:
+	if _weather == null or not is_instance_valid(_weather):
+		_weather = tree.get_first_node_in_group("weather") if tree else null
+	if _weather and is_instance_valid(_weather) and _weather.has_method("noise_mult"):
+		return clampf(float(_weather.call("noise_mult")), 0.4, 1.0)
+	return 1.0
+
+
+static func _approximate_sound_point(listener: Vector2, source: Vector2, distance_ratio: float) -> Vector2:
+	var offset := source - listener
+	var direction := offset / maxf(offset.length(), 0.001)
+	var guessed_distance := maxf(offset.length() - lerpf(0.75, 3.0, clampf(distance_ratio, 0.0, 1.0)), 0.0)
+	return listener + direction * guessed_distance
 
 
 static func is_raining(tree: SceneTree) -> bool:
