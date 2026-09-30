@@ -46,7 +46,9 @@ Evidence: isolated Godot 4.6.3 parser checks pass station identity, event bridge
 
 Next: coordinate semantic target coverage with Claude, then connect embodied sessions only if they can share WorldSim's reservation safely and follow the existing route/movement owner. Establish full-project import/compile on the real game checkout and runtime-check overflow collision, spectacle response, slot release and near-ring target behavior on the current Claude checkout. Then review cancel/reopen/load/unload/duplicate craft paths, multiple station identity collisions and sparse topic JSON round trips. For sight, measure queue wait, dropped/expired requests, wall occlusion and delayed memory with active NPC counts on the target phone. Keep active movement/contact/LOD owners coordinated. Do not implement Claude-owned Wardlines, Scar Tide, Ashsight replay or rumour-market packages in parallel.
 
-## Checkout and coordination
+## Historical checkout and coordination — 29 September 2026
+
+The branch, PR and commit details in this section describe the original systems checkpoint and are retained for audit history. For current refs and worktree ownership, use the 30 September checkpoint at the top of this file.
 
 Implementation branch: `gpt/living-systems`, review in [PR #2](https://github.com/jonaboy19/ProjectAshes/pull/2). Systems baseline: `origin/main` 4e03e000d2e68e32fea7bb0625d373e72bbbfe0d. Claude's shared branch d27d798f contains newer asset work; do not assume it is included in this base. The original PC checkout `C:\Users\Jonna\Documents\ProjectAshes` was left untouched by this systems work. Re-read remote heads and this branch's status before resuming; do not discard uncommitted review fixes or overwrite newer workers' changes.
 

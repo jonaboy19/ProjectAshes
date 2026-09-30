@@ -1,14 +1,21 @@
 # Systems handoff to Claude
 
-> Current delivery: read **Current checkpoint after usage reset** in [SYSTEMS_CONTINUATION.md](SYSTEMS_CONTINUATION.md) first. Latest main is merged. Exact station-generation crafting, FIFO sight scheduling, bounded local conversation topics and a regional event adapter are implemented. Older delivery notes below describe prior checkpoints; gameplay/device validation is still outstanding.
+> Current delivery: start at **Latest continuation checkpoint** in [SYSTEMS_CONTINUATION.md](SYSTEMS_CONTINUATION.md). The current Codex branch is `gpt/living-world-integration`, tracked in [draft PR #5](https://github.com/jonaboy19/ProjectAshes/pull/5). Source-presence is not in-game acceptance; runtime and mobile checks remain outstanding.
 
 For the current systems-to-presentation ownership map and living-world integration contract, also read [CODEX_CLAUDE_LIVING_WORLD_INTEGRATION.md](concepts/CODEX_CLAUDE_LIVING_WORLD_INTEGRATION.md). It distinguishes Claude's demo/reference activity code from the live `WorldSim`/`Villager` path and records the narrow first integration slice.
 
-Baseline: main 4e03e000, 29 September 2026. Read [SYSTEMS_MASTERPLAN.md](SYSTEMS_MASTERPLAN.md) for the staged plan and evidence. This handoff separates intended work from delivered verification; update the delivery section only after inspecting the actual patch.
+This handoff contains historical delivery notes from earlier source baselines. Read [SYSTEMS_MASTERPLAN.md](SYSTEMS_MASTERPLAN.md) for the current staged plan and source-reviewed status, then verify the branch and active PC checkout before applying anything. This file separates intended work from delivered verification; update delivery evidence only after inspecting the actual patch.
+
+## Current Codex additions — 30 September 2026
+
+- NPC familiarity is saved separately from player relationships and grows only after a completed nearby villager conversation. Pairing uses a bounded queue and modest affinity/wait-time scoring; ties do not yet alter dialogue or offscreen behavior. See [NPC_SOCIAL_GRAPH_HANDOFF.md](concepts/NPC_SOCIAL_GRAPH_HANDOFF.md).
+- Near villagers can react to moving-player noise and selected resolved combat/work sounds. It remains anonymous and short-lived; existing town footprint/wall geometry now damps the strongest sound cues without per-NPC physics raycasts. This is approximate interest, not witness evidence. See [NPC_MOVEMENT_HEARING_HANDOFF.md](concepts/NPC_MOVEMENT_HEARING_HANDOFF.md).
+- Near-ring schedule targets now include semantic Guard posts and capped woodcutter spots. An embodied act change releases an obsolete work/shop slot before replanning. This remains destination/lease metadata; it does not add a new work animation or physical station interaction. See [WORLDSIM_SMART_OBJECT_TARGETS_HANDOFF.md](concepts/WORLDSIM_SMART_OBJECT_TARGETS_HANDOFF.md).
+- These recent additions received static source review and `git diff --check`; they have not received Godot parser, live behavior, save/load, occlusion-quality or phone-performance validation. Claude's branch and local unpublished work were not edited.
 
 ## Ownership
 
-Claude cloud and PC workers retain models, environment, player presentation, animation and existing active files. Codex systems changes belong on the isolated gpt/living-systems branch. Preserve current signals, inventories, progression, clock, saves and population ownership. Before merging, re-read current Life and other touched files because concurrent branches may have evolved.
+Claude cloud and PC workers retain models, environment, player presentation, animation and existing active files. Codex systems changes belong on the isolated `gpt/living-world-integration` branch. Preserve current signals, inventories, progression, clock, saves and population ownership. Before merging, re-read current Life and other touched files because concurrent branches may have evolved.
 
 ## First integrated slice
 
