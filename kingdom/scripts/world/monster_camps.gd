@@ -64,6 +64,17 @@ static func _goblin_roster(tier: int) -> Array:
 	return [["goblin", 7]]
 
 
+## CIV-C hook (realm/ecology.gd): a clan that marched away leaves its camp empty, and residents scale with the
+## clan's strength. Both default to "as authored" when the realm has no ecology module.
+func _eco_mod() -> Variant:
+	return Life.realm.mod("ecology") if Life.realm != null else null
+
+
+func _camp_open(camp: Dictionary) -> bool:
+	var m: Variant = _eco_mod()
+	return m == null or bool(m.camp_active(String(camp["place"].get("id", ""))))
+
+
 func _register(pl: Dictionary, species: String, roster: Array) -> void:
 	_camps.append({"place": pl, "species": species, "roster": roster, "root": null, "residents": []})
 
@@ -133,7 +144,7 @@ func _process(delta: float) -> void:
 		var res: Array = camp["residents"]
 		if d < BUILD_RANGE and camp["root"] == null:
 			_build(camp)
-		if d < SPAWN_RANGE and res.is_empty():
+		if d < SPAWN_RANGE and res.is_empty() and _camp_open(camp):
 			if camp["root"] == null:
 				_build(camp)
 			_spawn(camp)
@@ -158,8 +169,10 @@ func spawn_all_near(p: Vector3) -> void:
 func _spawn(camp: Dictionary) -> void:
 	var c: Vector2 = camp["place"]["pos"]
 	var r := float(camp["place"].get("radius", 30.0))
+	var m_eco: Variant = _eco_mod()
+	var k := float(m_eco.camp_strength(String(camp["place"].get("id", "")))) if m_eco != null else 1.0
 	for entry: Array in camp["roster"]:
-		for i in int(entry[1]):
+		for i in maxi(1 if int(entry[1]) > 0 else 0, roundi(int(entry[1]) * k)):
 			var m := CampMonster.new()
 			m.species = entry[0]
 			m.home = c
@@ -167,7 +180,11 @@ func _spawn(camp: Dictionary) -> void:
 			add_child(m)
 			if m.is_queued_for_deletion():
 				continue        # model not available
-			m.died.connect(func(dead_m: CampMonster) -> void: Life.on_monster_killed(dead_m.species))
+			m.died.connect(func(dead_m: CampMonster) -> void:
+				Life.on_monster_killed(dead_m.species)
+				var em: Variant = _eco_mod()
+				if em != null:
+					em.camp_loss(String(camp["place"].get("id", "")), 1))
 			var q := c + Vector2(randf_range(-r, r), randf_range(-r, r)) * 0.5
 			m.global_position = _ground(q)
 			(camp["residents"] as Array).append(m)
