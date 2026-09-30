@@ -449,3 +449,8 @@ built with fewer nodes, and drop `_process` work when no site is within BUILD. I
 - Added 0.25 s dialogue shade/UI and portrait reveals (F13 presentation only; camera framing inside the speaker/cart remains open), plus event-only dodge sweeps to choose a clear side lane around a hostile capsule (F15). Claude should visually verify both in the real game, including mobile touch.
 - Added restored Journal responses for persistent scout offers and documented that the shown ongoing wage is not active payroll yet; see `docs/concepts/CODEX_SYSTEMS_HANDOFF.md`.
 - **Runtime validation remains pending.** No test suite was run in this continuation; `git diff --check` passed. Keep the captured-game validation list in `docs/anim/CODEX_LOCOMOTION_JUMP.md` current.
+
+## 2026-09-30 (Codex): NPC need continuity handoff
+- Source-checked the current merged game code: `UtilityBrain` owns five needs only while a villager body exists; `Villager._make_brain()` and `resync()` seed them again, and `WorldSim.serialize()` has no need state.
+- Added `docs/concepts/NPC_NEEDS_CONTINUITY_HANDOFF.md` and linked it from `docs/concepts/CODEX_SYSTEMS_HANDOFF.md`. It proposes compact, versioned save state and explicit LOD ownership/catch-up, with no additional distant NPC brains.
+- Documentation only; no gameplay code or tests changed. `git diff --check` passed.

@@ -17,6 +17,10 @@ The Journal reads `Life.scouts.offers` so offers restored from saves remain visi
 
 See [CODEX_LOCOMOTION_JUMP.md](../anim/CODEX_LOCOMOTION_JUMP.md) for the player jump/run-stop integration, impact feedback, directional reactions, enemy wind-up timing and camera improvements, plus the required in-game validation checklist.
 
+## Next life-simulation continuity slice
+
+Source review found that a villager's five utility needs currently live only in its temporary `UtilityBrain`: promotion and `resync()` seed them again, and `WorldSim` does not serialize them. The focused Claude implementation brief is [NPC_NEEDS_CONTINUITY_HANDOFF.md](NPC_NEEDS_CONTINUITY_HANDOFF.md). It keeps the current simulation LOD and asks for compact needs handoff/save state with a single active owner, backwards-compatible fallback, and a measured mobile cost. No implementation is included in this handoff commit.
+
 ## Dialogue presentation: F13 partial fix
 
 Opening a conversation now eases the full dialogue layer (including the world shade) in over 0.25 seconds. Changing to a different speaker also fades the bust holder over 0.25 seconds so a duplicated NPC model or fallback portrait does not hard-cut into place. This is UI-only and adds no world scans or NPC work.
