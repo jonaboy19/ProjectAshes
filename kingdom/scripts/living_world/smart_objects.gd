@@ -24,9 +24,10 @@ const JOBS := ["Farmer", "Blacksmith", "Merchant", "Guard", "Laborer", "Woodcutt
 
 var types: Dictionary = {}
 var building_spots: Dictionary = {}
-var spots: Array = []               # Array[Dictionary]: {id, type, xform, settlement, holders: Array, drift}
+var spots: Array = []               # Array[Dictionary]: {id, identity, has_stable_identity, type, xform, settlement, holders, drift}
 var _grid: Dictionary = {}          # Vector2i -> Array[int]
-var _held: Dictionary = {}          # person -> [spot, slot]
+var _held: Dictionary = {}          # person -> [spot, slot, claim_token]
+var _spot_by_identity: Dictionary = {} # stable identity -> transient spot index
 var _claim_serial := 0
 var _rng := RandomNumberGenerator.new()
 
@@ -39,21 +40,45 @@ func _init() -> void:
 	_rng.seed = 1066
 
 
-func add(type: String, xform: Transform3D, settlement := -1) -> int:
+func add(type: String, xform: Transform3D, settlement := -1, stable_identity := "") -> int:
 	if not types.has(type):
 		push_warning("SmartObjects: unknown type " + type)
 		return -1
+	if not stable_identity.is_empty() and _spot_by_identity.has(stable_identity):
+		var existing := int(_spot_by_identity[stable_identity])
+		if String(spots[existing]["type"]) != type:
+			push_warning("SmartObjects: identity reused for a different type: " + stable_identity)
+			return -1
+		return existing
 	var id := spots.size()
 	var cap := (types[type]["slots"] as Array).size()
 	var holders := []
 	holders.resize(cap)
 	holders.fill(-1)
-	spots.append({"id": id, "type": type, "xform": xform, "settlement": settlement, "holders": holders, "drift": 0.0})
+	spots.append({"id": id, "identity": stable_identity if not stable_identity.is_empty() else "runtime/%d" % id,
+		"has_stable_identity": not stable_identity.is_empty(), "type": type, "xform": xform,
+		"settlement": settlement, "holders": holders, "drift": 0.0})
+	if not stable_identity.is_empty():
+		_spot_by_identity[stable_identity] = id
 	var c := _cell(xform.origin)
 	if not _grid.has(c):
 		_grid[c] = []
 	_grid[c].append(id)
 	return id
+
+
+## Stable slot key for an authoritative action lease. Runtime-only manually added
+## demo spots deliberately have no persistent resource key.
+func slot_resource_key(spot: int, slot: int) -> String:
+	if spot < 0 or spot >= spots.size():
+		return ""
+	var sp: Dictionary = spots[spot]
+	if not bool(sp.get("has_stable_identity", false)):
+		return ""
+	var holders: Array = sp["holders"]
+	if slot < 0 or slot >= holders.size():
+		return ""
+	return "%s/slot/%d" % [String(sp["identity"]), slot]
 
 
 ## Spots for one WorldGen settlement: every lot / landmark whose asset has a building_spots entry
@@ -64,7 +89,10 @@ func populate_settlement(s: Dictionary, height_fn: Callable = Callable()) -> int
 	var items: Array = []
 	items.append_array(plan.get("lots", []))
 	items.append_array(plan.get("landmarks", []))
-	for lot: Dictionary in items:
+	var settlement_id := int(s.get("id", -1))
+	var lot_count := (plan.get("lots", []) as Array).size()
+	for item_i in items.size():
+		var lot: Dictionary = items[item_i]
 		var key := String(lot.get("asset", ""))
 		var list: Array = building_spots.get(key, [])
 		if list.is_empty() and (key.begins_with("house") or key.begins_with("mhouse") or key.contains("townhouse")):
@@ -72,7 +100,10 @@ func populate_settlement(s: Dictionary, height_fn: Callable = Callable()) -> int
 		var p2: Vector2 = lot.get("pos", Vector2.ZERO)
 		var yaw := float(lot.get("yaw", 0.0))
 		var b := Basis(Vector3.UP, yaw)
-		for e: Dictionary in list:
+		var item_kind := "lot" if item_i < lot_count else "landmark"
+		var item_identity := "%s/%d/%d/%d" % [item_kind, roundi(p2.x * 10.0), roundi(p2.y * 10.0), item_i]
+		for spot_i in list.size():
+			var e: Dictionary = list[spot_i]
 			var h := hash(p2) ^ hash(e["type"])
 			if e.has("chance") and float(absi(h) % 1000) / 1000.0 > float(e["chance"]):
 				continue
@@ -80,7 +111,8 @@ func populate_settlement(s: Dictionary, height_fn: Callable = Callable()) -> int
 			var o := Vector3(p2.x, 0.0, p2.y) + b * Vector3(float(at[0]), float(at[1]), float(at[2]))
 			if height_fn.is_valid():
 				o.y = float(height_fn.call(o.x, o.z))
-			add(e["type"], Transform3D(b * Basis(Vector3.UP, deg_to_rad(float(e.get("yaw", 0.0)))), o), int(s.get("id", -1)))
+			var identity := "settlement/%d/%s/%s/%d/%s" % [settlement_id, item_identity, key, spot_i, String(e["type"])]
+			add(e["type"], Transform3D(b * Basis(Vector3.UP, deg_to_rad(float(e.get("yaw", 0.0)))), o), settlement_id, identity)
 			n += 1
 	return n
 

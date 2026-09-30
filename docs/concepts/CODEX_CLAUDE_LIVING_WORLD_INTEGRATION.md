@@ -23,7 +23,9 @@ The latest published Claude snapshot inspected for this handoff is `d163255f`.
 
 `SmartObjects` now keeps a person's currently held matching slot eligible and gives it a small selection hysteresis. Reclaiming the same slot is idempotent, so repeated data-tier target refreshes neither walk the resident around a queue nor invalidate its active session token. Each new claim receives a monotonically increasing runtime token. A stale `Session` detects replacement and stops emitting activity clips/events; completion releases only the claim token it owns, so an old session cannot release a newer claim for the same person index.
 
-Alignment now has a bounded failure path: if the body does not reach the authored stand point within 1.5 seconds, the session releases its own claim and ends. It does not enter the contact animation and snap from a visibly incorrect location. This is a reference-layer safety fix; it does not wire smart objects into gameplay.
+Generated settlement placements now receive a semantic identity derived from settlement, placement kind/index/position, asset and authored activity ordinal. Their in-memory integer handles remain transient; `slot_resource_key()` exposes a stable key only for generated placements. Hand-placed QA demo spots intentionally return no persistent resource key. This is a starting identity contract for a fixed deterministic world plan, not yet a migration-safe ID across changes to `CityPlanner` ordering.
+
+Alignment now has a bounded failure path: if the body does not reach the authored stand point within 1.5 seconds, the session releases its own claim and ends. It does not enter the contact animation and snap from a visibly incorrect location. These are reference-layer safety fixes; they do not wire smart objects into gameplay or bind slot keys to `ActionRuntime`.
 
 No runtime or device validation is claimed in this handoff.
 
@@ -38,7 +40,7 @@ No runtime or device validation is claimed in this handoff.
 
 ## Important integration hazards found
 
-- `SmartObjects.populate_settlement()` generates transient sequential spot IDs. Those IDs depend on population order and must not be serialized or used as long-lived resource keys. Introduce a stable key from settlement identity, lot/landmark identity, activity type and authored ordinal before persisting ownership or saved schedules.
+- `SmartObjects.populate_settlement()` still returns transient sequential spot indices for array lookup. Do not serialize those indices. Generated placements now expose a semantic key, but it depends on current settlement IDs and deterministic lot/landmark ordering; planner changes need explicit ID migration or a stronger authored placement identity before old saves depend on it.
 - The chance filter in `populate_settlement()` is derived from a hash of position and type. Keep generated placements deterministic, but do not mistake determinism for a collision-free unique identity.
 - `LifeActor._end_session()` calls `interrupt()`, then releases the person and clears the session immediately. That bypasses its modeled exit phase. Correct this when the reference actor gets a proper deferred-command/interruption API; do not copy this helper into `Villager` integration.
 - The demo `LifeActor` is a `Node3D` that translates its transform directly. Gameplay actors require `CharacterBody3D`/`move_and_slide()` and the game's collision masks, or the known wall/building pass-through returns.
@@ -50,7 +52,7 @@ No runtime or device validation is claimed in this handoff.
 Use one **well-water chore** or one **blacksmith work order** as a deliberately narrow vertical slice. Before choosing, inspect current `WorkSpots`, `Station`, utility needs and crafting effects on Claude's current branch. Prefer the well if it can reuse the existing villager water need without changing player crafting or item semantics; prefer the smith only if its real material/output contract is already explicit.
 
 1. Map the existing destination and activity data; write down the current owner and persistence boundary for every field touched.
-2. Give the station a stable semantic identity and a slot key. Bind the action lease to that key and a domain-prefixed actor reference. Keep the current station system authoritative.
+2. Use `slot_resource_key()` as a reference-layer starting point, then bind a migration-safe station key and slot to the action lease with a domain-prefixed actor reference. Keep the current station system authoritative.
 3. Let the existing utility choice request the action. The schedule/data tier gets a coarse semantic destination; an embodied villager gets the same destination through `StreetGraph` and its existing `CharacterBody3D` path.
 4. Approach outside the contact point, slow and align with a bounded timeout, and retain collision. No direct transform snap through a wall or Meshy collider.
 5. Claude supplies or confirms the enter/loop/exit clips, contact marker and hand/prop alignment. Systems advances phases but does not fabricate animation completion.
