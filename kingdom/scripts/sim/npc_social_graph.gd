@@ -9,6 +9,9 @@ const VERSION := 1
 const MAX_EDGES := 2048
 const MAX_ID_LENGTH := 96
 const MIN_REPEAT_DAYS := 0.25
+## Familiarity loses at most half its value after 200 days without a valid chat.
+const DORMANCY_FADE_PER_DAY := 0.0025
+const DORMANCY_FADE_CAP := 0.5
 
 ## Canonical pair key -> {a, b, first_day, last_day, conversations, affinity}.
 var edges: Dictionary = {}
@@ -40,6 +43,9 @@ func record_conversation(a: String, b: String, day: float) -> bool:
 			return false
 		if day - float(edge["last_day"]) < MIN_REPEAT_DAYS:
 			return true
+		var elapsed_days := day - float(edge["last_day"])
+		var fade := minf(DORMANCY_FADE_CAP, elapsed_days * DORMANCY_FADE_PER_DAY)
+		edge["affinity"] = float(edge["affinity"]) * (1.0 - fade)
 		edge["last_day"] = day
 		edge["conversations"] = mini(int(edge["conversations"]) + 1, 999)
 		edge["affinity"] = minf(60.0, float(edge["affinity"]) + 2.0)

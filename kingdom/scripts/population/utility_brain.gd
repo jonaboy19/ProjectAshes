@@ -91,6 +91,9 @@ const OFFSCREEN_MEAL_RESTORE := 0.75
 ## Abstract drinking paired with meals keeps distant residents hydrated without
 ## pretending every one of them is a physical well user.
 const OFFSCREEN_WATER_PER_MEAL := WATER_PER_HOUR * 24.0 / 3.0
+## Offscreen recovery is expected schedule exposure, not recorded individual acts.
+const OFFSCREEN_INN_SHARE := DailyRhythm.INN_SHARE / 100.0
+const OFFSCREEN_HOLY_PERIOD := 168.0
 ## Restored per game hour while performing an act at its spot: [need, amount].
 const RESTORE := {
 	Act.SLEEP: [["rest", SLEEP_PER_HOUR]], Act.HOME: [["rest", 0.03]],
@@ -382,8 +385,30 @@ func catch_up(now_hours: float) -> void:
 	food -= HUNGER_PER_HOUR * (awake + sleeping * 0.5)
 	var meals := _scheduled_meals(start_hours, now_hours, delay)
 	food += OFFSCREEN_MEAL_RESTORE * meals
-	social -= (0.05 + 0.08 * float(traits["sociable"])) * elapsed
-	faith -= (0.02 + 0.05 * float(traits["pious"])) * elapsed
+	var sociable := float(traits["sociable"])
+	var pious := float(traits["pious"])
+	var public_hours := _periodic_window_total(now_hours, 24.0, 17.0, 19.5) - _periodic_window_total(start_hours, 24.0, 17.0, 19.5)
+	var inn_hours := _periodic_window_total(now_hours, 24.0, 19.5, 22.5) - _periodic_window_total(start_hours, 24.0, 19.5, 22.5)
+	var daytime_hours := _periodic_window_total(now_hours, 24.0, 6.0, 17.0) - _periodic_window_total(start_hours, 24.0, 6.0, 17.0)
+	var holy_hours := _periodic_window_total(now_hours, OFFSCREEN_HOLY_PERIOD, 144.0, 168.0) - _periodic_window_total(start_hours, OFFSCREEN_HOLY_PERIOD, 144.0, 168.0)
+	# Public schedule exposure grants only fractional, anonymous need recovery.
+	# It creates no companion, conversation, relationship or witnessed event.
+	var guard := job == 3
+	var expected_social_hours_per_day := (0.45 + 0.75 * sociable) if guard else (0.4 + 0.9 * sociable)
+	var social_recovery := public_hours * expected_social_hours_per_day / 2.5 * float(RESTORE[Act.SOCIAL][0][1])
+	if not guard:
+		# DailyRhythm sends a seeded 30% of non-guards to the inn. Across an
+		# unobserved interval use that share as expectation; don't mint visits.
+		social_recovery += inn_hours * OFFSCREEN_INN_SHARE * float(RESTORE[Act.INN][0][1])
+	social -= (0.05 + 0.08 * sociable) * elapsed
+	social += social_recovery
+	# Expected prayer time follows daytime availability and piety. Holy-day
+	# weight uses the existing weekly day%7 schedule, without recording prayer.
+	var prayer_hours_per_day := 0.15 + 0.9 * pious
+	var prayer_recovery := daytime_hours * prayer_hours_per_day / 11.0 * float(RESTORE[Act.PRAY][0][1])
+	prayer_recovery += holy_hours * pious * 0.25 / 24.0 * float(RESTORE[Act.PRAY][0][1])
+	faith -= (0.02 + 0.05 * pious) * elapsed
+	faith += prayer_recovery
 	water += OFFSCREEN_WATER_PER_MEAL * meals - WATER_PER_HOUR * elapsed
 	food = clampf(food, 0.0, 1.0)
 	rest = clampf(rest, 0.0, 1.0)
@@ -413,6 +438,15 @@ func _scheduled_meals(start_hours: float, end_hours: float, delay: float) -> int
 		var anchor := meal + 0.5 + delay
 		count += floori((end_hours - anchor) / 24.0) - floori((start_hours - anchor) / 24.0)
 	return maxi(count, 0)
+
+
+## Cumulative hours inside a repeating, non-wrapping window. O(1) for any
+## interval length, including large offscreen skips.
+func _periodic_window_total(hours: float, period: float, window_start: float, window_end: float) -> float:
+	var duration := window_end - window_start
+	var cycles := floor(hours / period)
+	var local := hours - cycles * period
+	return cycles * duration + clampf(local - window_start, 0.0, duration)
 
 
 ## Inputs for this person now. `hour` is their own clock, `sched` DailyRhythm's
