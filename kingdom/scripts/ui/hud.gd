@@ -158,6 +158,8 @@ func _ready() -> void:
 	controls.add_child(stick)
 
 	_buttons["attack"] = _button("attack", "", 128, UITheme.ACTION_ATTACK, "broadsword")
+	_buttons["jump"] = _button("jump", "Jump", 72, UITheme.ACTION_UTIL, "")
+	(_buttons["jump"].shape as CircleShape2D).radius = 44.0 # 88 dp target, 72 dp face
 	_buttons["dodge"] = _button("dodge", "", 84, UITheme.ACTION_DODGE, "dodge")
 	_buttons["block"] = _button("block", "", 84, UITheme.ACTION_BLOCK, "checked-shield")
 	# Shadow Dash: a separate ability button (cooldown, own icon tint) so it
@@ -377,10 +379,11 @@ func _make_button(action: String, text: String, size: int, color: Color, ic: Tex
 func _layout() -> void:
 	var s := get_viewport().get_visible_rect().size
 	_buttons["attack"].position = s - Vector2(168, 168)
+	_buttons["jump"].position = s - Vector2(140, 264)
 	_buttons["dodge"].position = s - Vector2(270, 112)
 	_buttons["block"].position = s - Vector2(240, 226)
 	_buttons["ability_dash"].position = s - Vector2(357, 96)   # left of Dodge, below the technique arc
-	_interact.position = s - Vector2(150, 300)
+	_interact.position = s - Vector2(465, 300)
 	# The right-hand column: Map, Look, Lock, Sneak, ...  then Pack and the camera zoom; a
 	# second column to its left when the first is full, kept clear of the attack cluster.
 	var col := s.x - LEFT - DOCK_SIZE

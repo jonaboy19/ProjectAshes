@@ -68,7 +68,7 @@ func _setup_input() -> void:
 		"move_left": [KEY_A, KEY_LEFT], "move_right": [KEY_D, KEY_RIGHT],
 		"sprint": [KEY_SHIFT], "attack": [KEY_J], "block": [KEY_L], "interact": [KEY_E],
 		"view_cycle": [KEY_V], "zoom_in": [KEY_EQUAL], "zoom_out": [KEY_MINUS],
-		"dodge": [KEY_SPACE], "eat": [KEY_F], "quick_save": [KEY_F5], "quick_load": [KEY_F9], "journal": [KEY_TAB], "order_follow": [KEY_1], "order_hold": [KEY_2], "order_charge": [KEY_3],
+		"jump": [KEY_SPACE], "dodge": [KEY_K], "eat": [KEY_F], "quick_save": [KEY_F5], "quick_load": [KEY_F9], "journal": [KEY_TAB], "order_follow": [KEY_1], "order_hold": [KEY_2], "order_charge": [KEY_3],
 	}
 	for action: String in keys:
 		if not InputMap.has_action(action):

@@ -355,6 +355,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("attack"):
 		player.attack()
+	elif event.is_action_pressed("jump"):
+		player.jump()
 	elif event.is_action_pressed("dodge"):
 		player.dodge()
 	elif event.is_action_pressed("ability_dash"):

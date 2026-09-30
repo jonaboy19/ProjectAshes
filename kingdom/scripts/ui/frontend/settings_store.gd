@@ -32,7 +32,7 @@ const TEXT_SCALE := [0.9, 1.0, 1.15, 1.3]
 ## Rebindable actions: [action, label].
 const ACTIONS := [
 	["move_forward", "Move Forward"], ["move_back", "Move Back"], ["move_left", "Move Left"],
-	["move_right", "Move Right"], ["sprint", "Sprint"], ["dodge", "Dodge"], ["attack", "Attack"],
+	["move_right", "Move Right"], ["sprint", "Sprint"], ["jump", "Jump"], ["dodge", "Dodge"], ["attack", "Attack"],
 	["block", "Block"], ["interact", "Interact / Talk"], ["eat", "Eat"], ["view_cycle", "Change View"],
 	["journal", "Menu / Journal"], ["world_map", "World Map"], ["photo_mode", "Photo Mode"],
 	["quick_save", "Quick Save"], ["quick_load", "Quick Load"],
