@@ -416,6 +416,12 @@ func tick_day(day: int, world: Dictionary, seed_value: int) -> Array:
 			active.erase(q)
 			q["state"] = "failed"
 			failed += 1
+			if String(q["id"]) == tracked:
+				tracked = ""
+				for remaining: Dictionary in active:
+					if String(remaining.get("state", "")) == "active":
+						tracked = String(remaining.get("id", ""))
+						break
 			events.append({"type": "failed", "quest": q, "text": "Quest failed: %s (out of time)." % q["title"]})
 	if day != last_refill_day:
 		last_refill_day = day

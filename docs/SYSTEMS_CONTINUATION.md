@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: tracked quest advances when it expires
+
+`RadiantQuests.tick_day()` now switches the tracked ID to the first remaining active quest when the tracked quest fails its deadline, or clears tracking if none remain. It retains the existing `active.duplicate()` loop, failure event/counter, board refill and quest data. Static source review and `git diff --check` only; no parser, runtime quest-flow, save/load or UI validation was run. See [RADIANT_QUEST_TRACKING_HANDOFF.md](concepts/RADIANT_QUEST_TRACKING_HANDOFF.md).
+
 ### Latest slice: proposal now gates betrothal
 
 `Family` keeps the 20-point interested-to-courting milestone, but reaching 50 points no longer auto-betroths the player. `can_propose()` requires the courting stage, at least 50 points, and the existing home prerequisite. Only successful `propose()` sets betrothed and the engaged flag; `can_marry()` is unchanged. Static source review and `git diff --check` only; no parser, runtime courtship, save/load or behavior test was run. See [NPC_COURTSHIP_PROPOSAL_GATE_HANDOFF.md](concepts/NPC_COURTSHIP_PROPOSAL_GATE_HANDOFF.md).
