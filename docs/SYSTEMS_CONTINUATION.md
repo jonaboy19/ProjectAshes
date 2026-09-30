@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: proposal now gates betrothal
+
+`Family` keeps the 20-point interested-to-courting milestone, but reaching 50 points no longer auto-betroths the player. `can_propose()` requires the courting stage, at least 50 points, and the existing home prerequisite. Only successful `propose()` sets betrothed and the engaged flag; `can_marry()` is unchanged. Static source review and `git diff --check` only; no parser, runtime courtship, save/load or behavior test was run. See [NPC_COURTSHIP_PROPOSAL_GATE_HANDOFF.md](concepts/NPC_COURTSHIP_PROPOSAL_GATE_HANDOFF.md).
+
 ### Handoff: connect perceived events to bounded NPC memory
 
 The current journal stores global facts, while hearing/sight produce short-lived local cues with no durable observer receipt; neither proves that a particular NPC knows a fact. A concrete first slice is specified in [NPC_OBSERVED_MEMORY_HANDOFF.md](concepts/NPC_OBSERVED_MEMORY_HANDOFF.md): event-linked, anonymous hearing of a resolved technique through current acoustic attenuation, copied into a bounded observer memory without naming the caster. This crosses TechniqueCaster, perception, event history and save ownership, so it is a handoff rather than an uncoordinated code change. Claude's latest public head is `c30ad754`; fetch and inspect `Life`/`street_graph.gd` and coordinate TechniqueCaster ownership before implementing. No parser, runtime, save/load or mobile validation is claimed.

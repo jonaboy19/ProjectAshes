@@ -200,8 +200,6 @@ func _advance_stage(npc_id: String) -> void:
 	var pts := float(c["points"])
 	if String(c["stage"]) == "interested" and pts >= COURT_POINTS_COURTING:
 		c["stage"] = "courting"
-	elif String(c["stage"]) == "courting" and pts >= COURT_POINTS_BETROTHED:
-		c["stage"] = "betrothed"
 
 
 func add_courtship_points(npc_id: String, amount: float) -> void:
@@ -240,7 +238,9 @@ func date(npc_id: String, at := "the inn") -> String:
 
 func can_propose(npc_id: String) -> String:
 	var st := stage(npc_id)
-	if st != "courting" and st != "betrothed":
+	if st != "courting":
+		return "You need to court them a while longer first."
+	if float(courtships[npc_id].get("points", 0.0)) < COURT_POINTS_BETROTHED:
 		return "You need to court them a while longer first."
 	if not _has_marriage_home():
 		return "You'll need a home of your own first."
