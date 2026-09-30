@@ -14,6 +14,7 @@ const ORDER_KINDS := [["move", "Move"], ["attack", "Attack"], ["hold", "Hold"], 
 const RETREATS := ["orderly", "rout", "feigned", "scorched"]
 const FORMATIONS := ["line", "wedge", "square", "skirmish", "column"]
 const NEEDS_TARGET := ["move", "attack", "retreat"]
+const WarMap := preload("res://scripts/ui/war/war_map.gd")
 const TOUCH_H := 64.0
 const SIDE_W := 400.0
 const EMPTY := "Nothing known yet."
@@ -42,6 +43,7 @@ var _timer: Timer
 var _host: Control
 var _placeholder: Label
 var _map: Control
+var war_map: Control = null        # the full War Map (scripts/ui/war/war_map.gd) while it is open
 var _home: Node
 var _home_index := 0
 var _hooked := false
@@ -295,6 +297,7 @@ func on_show() -> void:
 func on_hide() -> void:
 	if _timer != null:
 		_timer.stop()
+	_close_war_map()
 	_detach_map()
 
 
@@ -305,7 +308,27 @@ func refresh() -> void:
 func hints() -> Array:
 	if view != "war":
 		return []
-	return [["Tap", "Choose target on map", func() -> void: pass, true]]
+	return [["M", "War Map", open_war_map, mod("campaign") == null], ["Tap", "Choose target on map", func() -> void: pass, true]]
+
+
+## Opens the War Map (formations as pieces, fog of war, engagements) over this page.
+func open_war_map() -> Control:
+	if war_map != null and is_instance_valid(war_map):
+		return war_map
+	var m: Control = WarMap.new()
+	m.set("realm_override", realm_override)
+	m.set("embedded", false)
+	m.closed.connect(_close_war_map)
+	add_child(m)
+	m.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	war_map = m
+	return m
+
+
+func _close_war_map() -> void:
+	if war_map != null and is_instance_valid(war_map):
+		war_map.queue_free()
+	war_map = null
 
 
 func set_view(id: String) -> void:
@@ -467,6 +490,7 @@ func _fill_war(box: VBoxContainer) -> void:
 		return
 	if status_line != "":
 		box.add_child(Kit.lbl(status_line, 16, AF.GOLD_BRIGHT, true, "italic"))
+	box.add_child(_btn("Open War Map", open_war_map, true))
 	# --- armies
 	box.add_child(Kit.section("Your Armies"))
 	var armies: Array = cm.call("player_armies")
