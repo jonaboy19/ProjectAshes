@@ -1,5 +1,15 @@
 # Systems continuation: resume here
 
+## Latest continuation checkpoint — 30 September 2026
+
+Current Codex branch: `gpt/living-world-integration`, based on the published Claude snapshot `d163255f`. Review in [draft PR #5](https://github.com/jonaboy19/ProjectAshes/pull/5). The shared Claude checkout was left untouched; it had newer local work not present in this published snapshot, so re-check its state before integrating.
+
+This branch hardens the QA/reference living-world activity layer: repeat target refreshes preserve the same slot claim, claim tokens prevent stale sessions from acting on a replacement lease, generated settlement spots expose semantic slot keys while integer indices remain transient, bad stand alignment fails without a snap, and the QA actor lets the exit clip finish before taking one queued replacement order. Teardown releases its own lease immediately.
+
+This does **not** connect activities to live population gameplay. `WorldSim` and `Villager` remain the production data/movement owners; `LifeActor`/`SmartObjects` are used by the QA demo only. The systems-to-presentation map, risks and first narrow production-slice plan are in [CODEX_CLAUDE_LIVING_WORLD_INTEGRATION.md](concepts/CODEX_CLAUDE_LIVING_WORLD_INTEGRATION.md). The generated semantic keys are deterministic for the current plan, but planner changes still need identity migration before saves can rely on them.
+
+`git diff --check` passed for the delivered edits. No Godot parser/runtime, gameplay, save/load, or mobile-device validation was run. Do not claim the session layer or a natural physical work interaction is verified in-game.
+
 ## Current checkpoint after usage reset
 
 Committed resume points: `86a9e339` (station reservations and local conversation topics), `72e09b25` (FIFO sight and observation age), `0a0ae349` / `9d2cc2b6` (regional event adapter and current-journal provider). Review these commits after the main merge `bacf11e7`; do not apply the entire old branch diff blindly to newer Claude work.
