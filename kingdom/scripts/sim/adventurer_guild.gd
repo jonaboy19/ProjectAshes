@@ -431,15 +431,16 @@ func is_ready(cid: int) -> bool:
 	return not c.is_empty() and int(c["progress"]) >= int(c["required"])
 
 
-## A kill by `who`. Counts towards their cull commissions for that den (or any den
-## of the species when den_id < 0). Returns the ids of commissions now ready.
+## A kill by `who`. Counts towards cull commissions only when a known nonnegative
+## den_id matches the target den and species. Ambient/camp kills without a den ID
+## cannot advance a den-specific contract. Returns the ids now ready.
 func on_kill(who: int, species: String, den_id := -1) -> Array:
 	var ready := []
 	for c: Dictionary in active_for(who):
 		if c["type"] != "cull":
 			continue
 		var t: Dictionary = c["target"]
-		if t["species"] == species and (den_id < 0 or int(t["den"]) == den_id):
+		if den_id >= 0 and t["species"] == species and int(t["den"]) == den_id:
 			if progress(who, int(c["id"])):
 				ready.append(int(c["id"]))
 	return ready

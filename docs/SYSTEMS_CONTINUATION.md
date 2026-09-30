@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: cull contracts require the targeted den
+
+`AdventurerGuild.on_kill()` now advances cull commissions only when the kill carries a known nonnegative den ID matching the contract target and species. Ambient or camp kills with unknown den attribution no longer progress den-specific contracts. Life and callers were left untouched. The file has no diff from the Claude branch since merge-base `1d5b8d2e`. Static source review and `git diff --check` only; no parser, runtime commission or gameplay validation was run. See [ADVENTURER_GUILD_CULL_TARGET_HANDOFF.md](concepts/ADVENTURER_GUILD_CULL_TARGET_HANDOFF.md).
+
 ### Latest slice: resolved wolf threats close stale lordship issues
 
 `Lordship.decide()` now validates the recorded den for an open wolves issue before presenting or applying choices. If no matching living den with positive population remains, it removes the issue, emits `village_changed`, and returns a resolved-threat message without applying treasury, loyalty, reward, follow-up or quest effects. Normal live-den choices are unchanged. Static source review and `git diff --check` only; no parser, runtime ecology/issue or gameplay validation was run. See [LORDSHIP_STALE_WOLF_ISSUE_HANDOFF.md](concepts/LORDSHIP_STALE_WOLF_ISSUE_HANDOFF.md).
