@@ -11,6 +11,7 @@ This patch integrates the authored jump set and the measured high-speed run-stop
 - Added a player-only whole-body air/transition state machine in `CharacterAnimator`; NPC/soldier animator instances keep their existing graph.
 - Added buffered Space/mobile jump input, a distinct K dodge binding, a rebindable Jump action, and a touch button above Attack.
 - Added coyote/buffer timing, standing and running take-off, variable jump height, rise/fall clips, soft/hard/running/roll landings, fall damage, small dust and haptic hooks, and landing camera dip/FOV response.
+- A coyote jump launches immediately so the take-off anticipation cannot use up the ledge grace window. A jump buffered within 0.12 s of touchdown exits landing recovery on the first grounded tick.
 - Wired `Loco_RunStop_L/R` on grounded input release above 4 m/s. Side is selected from shared gait phase; playback rate is entry speed divided by the authored 3.1/3.6 m/s entry speed. The existing 15 m/s² capsule brake remains in control. The clip duration is read from the loaded library, and combat, block, or jump cancels the stop overlay.
 
 ## Deliberately deferred

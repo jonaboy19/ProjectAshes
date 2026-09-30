@@ -528,7 +528,7 @@ func _physics_process(delta: float) -> void:
 		if crouching:
 			_set_crouch(false) # next physics frame can spend the buffered jump
 		else:
-			_begin_jump(running)
+			_begin_jump(running, floor_before)
 	if _jump_starting:
 		_jump_delay -= delta
 		if _jump_delay <= 0.0:
@@ -1134,7 +1134,7 @@ func attack() -> void:
 		_attack_buffer = ATTACK_BUFFER   # early press: fire at the next opening
 
 
-## Space / the mobile button buffers a jump through the end of an attack or
+## Space / the mobile button buffers a jump briefly through an attack lockout or
 ## the last few frames before landing. A second press in the air never relaunches.
 func jump() -> void:
 	if dead or swimming or _mount != null or _menu_open():
@@ -1142,7 +1142,7 @@ func jump() -> void:
 	_jump_buffer = JUMP_BUFFER
 
 
-func _begin_jump(running: bool) -> void:
+func _begin_jump(running: bool, grounded_at_press: bool) -> void:
 	_cancel_locomotion_transition()
 	_jump_running = running and _move_speed >= 4.5
 	var cost := 10.0 if _jump_running else 6.0
@@ -1152,7 +1152,9 @@ func _begin_jump(running: bool) -> void:
 	_spend(cost)
 	_jump_buffer = 0.0
 	_jump_starting = true
-	_jump_delay = JUMP_START_RUN if _jump_running else JUMP_START_STAND
+	# On a ledge, honor coyote input immediately instead of letting the start
+	# anticipation spend the grace window falling below the take-off point.
+	_jump_delay = (JUMP_START_RUN if _jump_running else JUMP_START_STAND) if grounded_at_press else 0.0
 	_jump_cut = false
 	_jump_falling = false
 	_fall_apex_y = global_position.y
@@ -1268,6 +1270,13 @@ func _land_jump(impact_speed: float, dir: Vector3) -> void:
 		_landing_dip = -0.10
 		_animator.play_air("Jump_Land_Soft", 2.5)
 		App.vibrate(10)
+	# A jump pressed just before landing should leave the recovery pose on the
+	# first grounded frame; retain the buffer until the next physics step.
+	if _jump_buffer > 0.0:
+		_land_time = 0.0
+		_land_lock = 0.0
+		_land_roll = false
+		_land_roll_speed = 0.0
 
 
 func _reset_jump() -> void:
