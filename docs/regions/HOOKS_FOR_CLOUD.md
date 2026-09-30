@@ -378,6 +378,26 @@ world_map.closed.connect(parchment.release)      # frees the texture (VRAM) whil
 1024 px detail tile for the home valley. Poster places without a WorldGen site yet (Silverford at (-640, 480), the five Elder Stones, Crownstead) are drawn at the `wardlines.json` / plan positions and
 listed under `proposed_places` / `elder_stones` in the json: C1 should move them when the sites exist.
 
+## Region 1 look pass (local, 2026-09-30): ALREADY WIRED, please keep; gameplay hooks wanted
+Design and evidence: `docs/regions/LOOK_R1.md`, `docs/regions/look/`. The look pass is live through five small, commented hot-file edits (grep `Region1 look`):
+- `world_gen.gd`: `Region1Terrain.setup()` in `setup`; `return Region1Terrain.stamp(x, z, h)` at the end of `height`; `return Region1Terrain.paint(x, z, w)` at the end of `color_at`;
+  `* Region1Terrain.tree_keep(x, z)` at the end of `forest_density`; river levee fill slope `0.14 -> 0.32` in `height` (fixes the rectangular plateaus beside the Ashrun).
+- `region_sites.gd`: `out.append_array(Region1Landmarks.sites())` after the academy (every earlier site id is unchanged; the new sites are appended last).
+- `region_dressing.gd`: `add_child(region1_look.gd.new())` at the end of `_ready`.
+- `main.gd` `_update_daylight`: `sky_amount` keeps sky energy, ambient and fog colour bright through the golden hour.
+- `shaders/terrain.gdshader`: biome include + 2 lines, warm rock tint + sandstone strata.
+**If you move things:** stamps are data (`data/region1/terrain_stamps.json`, re-bake with `tools_qa/region1/bake_valley.gd`); a stamp never changes the valley floor, so rivers, roads and settlements under it keep their layout. `--r1off` on the command line disables the whole pass (A/B).
+**New WorldGen.sites kinds** (discovery shows them with `kind.capitalize()` unless you add `Discovery.KIND_LABELS`): `valley`, `waterfall`, `standing_stones`, `ruins`, `lookout`, `old_bridge`, `ferry`, `sunken_chapel`, `windmill_hill`, `glade`, `bones`. Suggested labels: Valley, Waterfall, Standing Stones, Ruins, Lookout, Old Bridge, Ferry, Sunken Chapel, Windmill Hill, Sacred Glade, Giant's Bones.
+**Gameplay hooks (C packages; each landmark's `hooks` array in `data/region1/landmarks.json`):**
+| Landmark (site name) | Hook | Where it plugs in |
+|---|---|---|
+| Hollin's Reach (valley, ruins at (-138, -478), forty graves, cut ward-stone at (-178, -471)) | Act IV Crownstead Ashsight "young Bram pulls the pin" should play at the cut ward-stone; Act V Tamsin's home; Kindling Night: a lantern on each grave | `r1_main.json` staging positions; ash_memory events |
+| The Stone Gap (-87, -656) | the valley reveal: a Discovery ping + a 3 s camera hold; a Wardwright line through the gap relights Hollin's Reach | Discovery / Wardlines hub |
+| Hollin Falls (-146, -915) | rare-fish spot in the plunge pool; hidden cave behind the falls later | `fishing_spot.gd` data |
+| Emberglass Ferry (-552, 300) + The Drowned Bell (-446, 318) | paid ferry to the east jetty (travel node like a waystation); Kindling Night lanterns float to the bell | `Discovery.TRAVEL_KINDS` += "ferry" |
+| Crownstead Mill Hill (430, -190) | the Crownstead Elder Stone is on its crown: move `elder_stones` / the Act IV Crownstead step there; harvest-festival hub | `wardlines.json` hub pos |
+| Stagborn Glade (-1345, -1062) | the Glade Elder Stone and the Antlered Warden arena (the stone ring, r 21 m); stagborn spawn point | `wardlines.json` Glade hub (was (-1180, -980)) |
+| The Wyrm's Ribs (-60, -1700) | Highwatch oath site; Frostcrown tease relic | quest data |
 
 ---
 

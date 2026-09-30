@@ -332,8 +332,9 @@ func _process(delta: float) -> void:
 	if player == null or not player.is_inside_tree() or terrain == null or army == null:   # still loading (awaits in _ready)
 		return
 	var focus := player.global_position
-	terrain.focus = focus
-	water.focus = focus
+	# Region1 look hook: a cutscene may stream the ground around its camera path (Hidden Vale flyover, exploration_director.gd).
+	terrain.focus = Engine.get_meta("stream_focus", focus)
+	water.focus = terrain.focus
 	settlements.focus = focus
 	population.focus = focus
 	frontier.focus = focus

@@ -86,7 +86,8 @@ func build_vale_cliffs() -> int:
 			var basis := Basis(Vector3.UP, yaw) * Basis(Vector3.RIGHT, rng.randf_range(-0.2, 0.2))
 			basis = basis * Basis.from_scale(Vector3(k * rng.randf_range(1.0, 1.7), k, k * rng.randf_range(0.6, 0.9)))
 			var up := Vector2(gx, gz).normalized() * target * clampf(0.45 / g, 0.05, 0.4)      # near-vertical walls: barely sunk, so the rock shows
-			var pos := Vector3(px + up.x, WorldGen.height(px, pz) - target * 0.3, pz + up.y)
+			# Local look fix: seat on the lowest rendered-mesh vertex of the footprint (rocks floated inside the slot).
+			var pos := Vector3(px + up.x, mesh_floor(px + up.x, pz + up.y, target * 0.2, 2.0) - target * 0.08, pz + up.y)
 			var key := Vector2i(floori(px / CLIFF_CELL), floori(pz / CLIFF_CELL))
 			if not cells.has(key):
 				var arrs := []

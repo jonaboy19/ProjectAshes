@@ -33,6 +33,8 @@ The upper Ashrun (from its source at (-150, -900) down to the Ashrun Bridge) is 
 - **Hollin Watch**: a stone watchtower with a red banner on the west rim above the falls.
 - **The Old Span**: a stone arch bridge across the river below the ruins.
 - **Cliff kit**: 620 warm limestone rocks laid along the stamped faces (MultiMesh cells), and the faces themselves painted as stone.
+- **Hollin's Gate**: walls pinch into a gorge 150 m above the Ashrun Bridge, so walking in from the south the valley opens all at once with the falls at its end (walk-in frames: `look/walkin/`).
+- **Erosion**: the stamp gets a gully/scree detail pass from dandrino terrain-erosion-3-ways (MIT, `tools_qa/region1/erode_valley.py`, the tool the coordinator installed), applied on the walls only (+-7 m high-pass).
 - Story tie: this is Tamsin Reeve's village, left outside the ward-line when young Lieutenant Bram pulled its pin (STORY_R1 Act IV Crownstead, Act V). Hooks: `docs/regions/HOOKS_FOR_CLOUD.md`.
 
 ### Landmarks
@@ -62,7 +64,38 @@ The upper Ashrun (from its source at (-150, -900) down to the Ashrun Bridge) is 
 | `scripts/core/main.gd` | `sky_amount` in `_update_daylight` (golden hour). |
 | `shaders/terrain.gdshader` | include `region1/biome.gdshaderinc`, 2 lines to apply it, 1 line warm rock. |
 
-## 4. Look-dev plan (next)
+## 3b. Two valleys, one region (decision, 2026-09-30)
+The cloud built **the Hidden Vale** (`scripts/world/hidden_valley.gd`, commit eadbfd71) while this pass built **Hollin's Reach**. They do not overlap and are kept as two distinct places:
+| | Hollin's Reach | The Hidden Vale |
+|---|---|---|
+| Where | upper Ashrun, (-205, -660), 700 m from Ashford | far west, (-2040, 40), 2 km from Ashford |
+| Shape | open river valley, 780 m long, cliffs 60-100 m, falls at the head, terraces, gorge gate at the mouth | enclosed bowl behind a rim, one S-bend slot 6-7 m wide |
+| Role | public story place: Tamsin's abandoned village, forty graves, the cut ward-stone (Acts IV-V); on the map | secret: found by rumours and a burnt map fragment; the dream settlement site; off the map until found |
+| Tech | terrain stamp as data (`Region1Terrain`, applied after all shaping) | shape function inside `_raw_height` |
+Shared: both use the Region1Look presenter (ValeLook extends it), the cliff-rock kit and `mesh_floor()` seating, the terrain shader stone and strata, and the biome map (the vale is baked lush). The Hidden Vale cave "Hollin Falls Grotto" (`region_caves.gd`) sits behind Hollin Falls, tying the two together.
+
+## 3c. Hidden Vale fixes (handoff item 2, "2026-09-30 cloud -> local")
+| Bug | Cause | Fix |
+|---|---|---|
+| Boulders floating in the gorge | rocks sat on the exact WorldGen height; the rendered 2 m grid runs well below it on a sheer wall | `Region1Look.mesh_floor()` seats every cliff rock on the lowest mesh vertex of its footprint (`vale_look.gd` line ~90, and the Hollin's Reach kit) |
+| Floating strips in the herb-patch view | flat leaf-litter / moss cards laid horizontally on slopes | `TerrainStreamer.slope_basis()` tilts `floor/` cards to the ground normal (`_plan_floor`), same in `HiddenValley._put` |
+| Void past the terrain ring in the last cutscene frame | the flyover looks 300 m past the frozen player, whose ring was the only one streamed; the far canopy domes hovered over the gap | the vale sequence streams around the flyover (`Engine.set_meta("stream_focus")`, read by `main.gd` for terrain/water focus); the horizon only gives way where a chunk is really built (built-chunk mask); domes sit on the horizon grid |
+| Gorge walls plain | the grey-green scan read olive, and leaf litter/path blended into steep faces | terrain shader: sandstone hue for the rock layer, steep faces drop litter/path weights, strata bands; rocks seated on the walls |
+| Ground a bit olive | the biome map (baked before the vale) painted dry gold there; the vale compensated with 30 % leaf litter | biome map re-baked vale-aware (lush, no dry/heather/fields); vale litter blend 0.3 -> 0.1 |
+Proof: `look/vale/*_before.jpg` / `*_after.jpg`, `look/vale/sheet_before.jpg`, `sheet_after.jpg`. Still open: gorge walls read smooth up close (a proper rock-face kit with LOD1 is in the backlog); far horizon rims are soft at 48 m.
+
+## 4. Proof
+| | |
+|---|---|
+| Survey before / after (22 views) | `look/survey_before_sheet.jpg`, `look/survey_after_sheet.jpg`, pairs `look/<view>_before.jpg` / `_after.jpg` |
+| The valley | `look/v1_reveal_stone_gap.jpg` (reveal), `v2_falls_from_floor.jpg`, `v3_valley_aerial.jpg`, `v4_mouth_up_valley.jpg`, `v5_ruins_terraces.jpg`, `v6_approach_ridge.jpg`, `valley_hillshade.png` |
+| Walk-in (Movie Maker, 30 fps, 2 fps sheets) | `look/walkin/sheet_*.png` |
+| Landmarks | `look/l1_drowned_bell_ferry.jpg`, `l2_crownstead_hill.jpg`, `l3_stagborn_glade.jpg`, `l4_wyrms_ribs.jpg` |
+| Map | `look/map_parchment_after_1024.jpg`, `map_valley_zoom.jpg` (before: `map_valley_zoom_before.jpg`); the game sheet `kingdom/assets/ui/maps/region1_parchment.png` (2048 px) |
+| Performance | `look/PERF.md` (A/B with `--r1off`, HIGH and LOW) |
+| QA boot test | `tools_qa/boot_flow/boot_flow.gd` with `BOOT_FLOW_SKIP=1`: BOOTFLOW OK |
+
+## 5. Look-dev plan (next)
 See the backlog in `docs/STATUS_LOCAL.md`. In order of value:
 1. Far towns: roof clusters / impostors of Kingsreach and the towns on the horizon mesh (Kingsreach is still invisible past 440 m).
 2. Replace the X-card far trees of the streamed ring with the canopy domes (one visual language near and far).

@@ -22,7 +22,7 @@ const PROPOSED := [
 	{"id": "silverford", "name": "Silverford", "kind": "town", "pos": [-640, 480], "note": "guild town at the Ashrun ford (wardlines hub)"},
 ]
 const ELDER_STONES := [
-	{"name": "Stagborn Glade", "pos": [-1180, -980]},
+	{"name": "Stagborn Glade", "pos": [-1345, -1062]},
 	{"name": "Greyseam Seam", "pos": [75, -520]},
 	{"name": "Highwatch", "pos": [110, -1290]},
 	{"name": "Crownstead", "pos": [430, -190]},
@@ -245,6 +245,8 @@ func _icon_radius(kind: String) -> float:
 		"waystation": return 10.0
 		"bandit_camp", "goblin_warren", "orc_village": return 12.0
 		"elder": return 14.0
+		"waterfall", "windmill_hill", "sunken_chapel", "bones", "glade": return 14.0
+		"standing_stones", "ruins", "lookout", "ferry", "old_bridge": return 11.0
 	return 10.0
 
 
@@ -305,7 +307,7 @@ func _build() -> void:
 		items.append({"kind": kind, "name": String(s["name"]), "pos": Vector2(s["pos"][0], s["pos"][1]), "prio": {"castle": 100, "town": 80, "frontier_town": 65, "village": 70}.get(kind, 60), "cat": "settlement"})
 	for p: Dictionary in PROPOSED:
 		items.append({"kind": p["kind"], "name": p["name"], "pos": Vector2(p["pos"][0], p["pos"][1]), "prio": 78, "cat": "proposed"})
-	var skip_kinds := ["farm", "waystone", "wayshrine", "bridge_skip"]
+	var skip_kinds := ["farm", "waystone", "wayshrine", "bridge_skip", "roadside"]
 	for s: Dictionary in world["sites"]:
 		var kind2: String = String(s["kind"])
 		if kind2 in skip_kinds:
@@ -337,6 +339,8 @@ func _build() -> void:
 		var kind3 := String(it["kind"])
 		var nm2 := String(ALIASES.get(it["name"], it["name"]))
 		it["display"] = nm2
+		if kind3 == "old_bridge":
+			continue      # icon only: the valley labels already crowd this corner
 		if nm2 == "" or kind3 == "elder":
 			continue
 		var font: Font = f_reg
@@ -344,6 +348,12 @@ func _build() -> void:
 		var col := INK
 		var prefs := ["S", "E", "W", "N", "SE", "SW", "NE", "NW"]
 		var sp := 0.0
+		if kind3 == "valley":
+			nm2 = nm2.to_upper()
+			it["display"] = String(it["name"])
+			sp = 4.0
+			col = Color(0.28, 0.36, 0.16)
+			prefs = ["W", "NW", "SW", "E"]
 		match kind3:
 			"castle":
 				font = f_cin_b
@@ -354,7 +364,7 @@ func _build() -> void:
 				fs = 34
 			"village":
 				fs = 28
-			"fort", "watchfort", "mine", "rift", "rift_outpost", "tower_ruin", "shrine", "hollow", "academy", "waystation", "bridge", "bandit_camp", "goblin_warren", "orc_village":
+			"fort", "watchfort", "mine", "rift", "rift_outpost", "tower_ruin", "shrine", "hollow", "academy", "waystation", "bridge", "bandit_camp", "goblin_warren", "orc_village", "waterfall", "standing_stones", "ruins", "lookout", "old_bridge", "sunken_chapel", "ferry", "windmill_hill", "glade", "bones":
 				font = f_ita
 				fs = 22 if kind3 != "rift" else 26
 				if kind3 in ["rift", "rift_outpost"]:
@@ -473,6 +483,7 @@ func _draw() -> void:
 	if not _built:
 		_build()
 	_draw_peaks()
+	_draw_cliffs()
 	_draw_trees()
 	_draw_rivers()
 	_draw_roads()
@@ -491,6 +502,27 @@ func _draw() -> void:
 	_draw_compass()
 	_draw_cartouche()
 	_draw_scale_bar()
+
+
+## Cliff hachures (Region 1 look): short ink ticks down every very steep face, so the Hollin's Reach
+## walls and other stamped cliffs read as a valley silhouette on the sheet, poster style.
+func _draw_cliffs() -> void:
+	var step := 5.0
+	var col := Color(INK, 0.75)
+	var y := lay["margin"] as float
+	while y < float(lay["margin"]) + float(lay["terrain"]):
+		var x := lay["margin"] as float
+		while x < float(lay["margin"]) + float(lay["terrain"]):
+			var w := p2w(Vector2(x, y))
+			var s := slope(w)
+			if s > 1.05 and wet(w) <= 0.0:
+				var d := 16.0
+				var gdir := Vector2(hgt(w + Vector2(d, 0)) - hgt(w - Vector2(d, 0)), hgt(w + Vector2(0, d)) - hgt(w - Vector2(0, d))).normalized()
+				var p := Vector2(x, y) + Vector2(hs(x, y) - 0.5, hs(y, x) - 0.5) * 2.0
+				var ln := clampf(3.0 + (s - 1.05) * 4.0, 3.0, 8.0)
+				draw_line(p, p - gdir * ln, col, 1.3, true)
+			x += step
+		y += step
 
 
 func _draw_trees() -> void:
@@ -697,7 +729,7 @@ func _make_path_labels() -> void:
 	if rivers.size() > 0:
 		var pts := PackedVector2Array()
 		var r0: Array = rivers[0]
-		for i in range(int(r0.size() * 0.2), int(r0.size() * 0.7)):
+		for i in range(int(r0.size() * 0.42), int(r0.size() * 0.8)):
 			pts.append(w2p(Vector2(r0[i][0], r0[i][1])))
 		path_labels.append([_smooth(pts, 4), "The Ashrun", f_ita, int(24 * k), WATER_INK, 3.0, -16.0])
 	if rivers.size() > 2:
@@ -829,6 +861,56 @@ func _draw_icon(kind: String, c: Vector2, it: Dictionary) -> void:
 			_elder_stone(c)
 		"orc_camp":
 			pass
+		# Region 1 look landmarks (docs/regions/LOOK_R1.md).
+		"waterfall":
+			poly(PackedVector2Array([c + Vector2(-11, 10), c + Vector2(-9, -12), c + Vector2(-4, -12), c + Vector2(-5, 10)]), Color(0.80, 0.72, 0.58), INK, 1.2)
+			poly(PackedVector2Array([c + Vector2(4, 10), c + Vector2(5, -12), c + Vector2(10, -12), c + Vector2(11, 10)]), Color(0.72, 0.62, 0.48), INK, 1.2)
+			for i in 3:
+				draw_line(c + Vector2(-2.5 + i * 2.5, -12), c + Vector2(-2.5 + i * 2.5, 8), Color(0.35, 0.55, 0.8), 1.5, true)
+			draw_arc(c + Vector2(0, 10), 7.0, PI, TAU, 10, Color(0.35, 0.55, 0.8), 1.4, true)
+		"standing_stones", "glade":
+			if kind == "glade":
+				draw_circle(c, 13.0, Color(0.55, 0.68, 0.36, 0.45))
+			for i in 5:
+				var an := -PI * 0.5 + i * TAU / 5.0
+				var sp := c + Vector2.from_angle(an) * (9.0 if kind == "glade" else 6.0)
+				poly(PackedVector2Array([sp + Vector2(-2.2, 4), sp + Vector2(-1.6, -4), sp + Vector2(1.6, -4.5), sp + Vector2(2.2, 4)]), Color(0.78, 0.76, 0.70), INK, 1.0)
+			if kind == "glade":
+				_tree_round(c + Vector2(0, -4), 1.3)
+		"ruins":
+			poly(PackedVector2Array([c + Vector2(-11, 9), c + Vector2(-11, -2), c + Vector2(-6, -8), c + Vector2(-3, -3), c + Vector2(-3, 9)]), Color(0.84, 0.80, 0.70), INK, 1.2)
+			poly(PackedVector2Array([c + Vector2(1, 9), c + Vector2(1, -5), c + Vector2(4, -2), c + Vector2(6, -9), c + Vector2(10, -4), c + Vector2(10, 9)]), Color(0.78, 0.74, 0.64), INK, 1.2)
+		"lookout":
+			_tower(c + Vector2(0, 8), 8, 18, Color(0.62, 0.58, 0.52), false)
+			draw_line(c + Vector2(0, -10), c + Vector2(0, -20), INK, 1.2)
+			poly(PackedVector2Array([c + Vector2(0, -20), c + Vector2(8, -17), c + Vector2(0, -14)]), RED, INK, 0.9)
+		"old_bridge":
+			draw_arc(c + Vector2(0, 5), 7.0, PI, TAU, 10, INK, 2.0, true)
+			draw_line(c + Vector2(-9, -2), c + Vector2(9, -2), INK, 1.6, true)
+		"sunken_chapel":
+			poly(PackedVector2Array([c + Vector2(-5, 6), c + Vector2(-5, -6), c + Vector2(0, -16), c + Vector2(5, -6), c + Vector2(5, 6)]), Color(0.82, 0.76, 0.64), INK, 1.2)
+			for i in 3:
+				draw_arc(c + Vector2(0, 7 + i * 2.5), 9.0 - i * 1.5, PI * 1.05, PI * 1.95, 8, WATER_INK, 1.2, true)
+		"ferry":
+			draw_line(c + Vector2(-10, 4), c + Vector2(10, 4), INK, 1.6, true)
+			poly(PackedVector2Array([c + Vector2(-8, 4), c + Vector2(8, 4), c + Vector2(5, 9), c + Vector2(-5, 9)]), Color(0.6, 0.42, 0.26), INK, 1.1)
+			draw_line(c + Vector2(-9, 4), c + Vector2(-9, -9), INK, 1.2)
+			draw_circle(c + Vector2(-9, -10), 2.6, Color(1.0, 0.75, 0.3))
+		"windmill_hill":
+			_peak_small(c + Vector2(0, 11), 30)
+			for i in 2:
+				var mc := c + Vector2(-6 + i * 12, -4 - i * 2)
+				draw_rect(Rect2(mc.x - 2.5, mc.y - 2, 5, 9), WALL)
+				draw_rect(Rect2(mc.x - 2.5, mc.y - 2, 5, 9), INK, false, 1.0)
+				draw_line(mc + Vector2(-6, -6), mc + Vector2(6, 6), INK, 1.3, true)
+				draw_line(mc + Vector2(6, -6), mc + Vector2(-6, 6), INK, 1.3, true)
+		"bones":
+			for i in 4:
+				var bx := c.x - 11 + i * 6
+				draw_arc(Vector2(bx, c.y + 8), 7.0 - i * 0.6, PI * 1.1, PI * 1.9, 8, Color(0.93, 0.88, 0.76), 2.6, true)
+				draw_arc(Vector2(bx, c.y + 8), 7.0 - i * 0.6, PI * 1.1, PI * 1.9, 8, INK, 0.9, true)
+			draw_circle(c + Vector2(13, 5), 4.0, Color(0.93, 0.88, 0.76))
+			draw_arc(c + Vector2(13, 5), 4.0, 0, TAU, 10, INK, 1.0, true)
 
 
 func _peak_small(c: Vector2, w: float) -> void:
