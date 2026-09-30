@@ -1,0 +1,627 @@
+{
+ "_doc": "Hand props for life clips. grip_axis / front_axis: native Blender axes of the prop (+Z up, -Y front) that follow the hand's thumb axis t and finger axis f (tools/anim/life/life_common.py, scripts/living_world/life_props.gd). grip2_m: where the other hand holds the same handle (metres along grip_axis). hand: default hand. Convention: grip_axis is the native axis that points out of the THUMB side of the fist (the working end of most tools); front_axis points along the knuckles.",
+ "hand": {
+  "hoe": {
+   "file": "res://assets/generated/life_props/hoe.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": -0.4,
+   "hand": "r",
+   "note": "origin = the lower (right) hand 0.5 m above the butt; butt end at -0.50 (left hand ~-0.4), blade centre ~0.88 m along +Z, blade edge toward front (-Y)"
+  },
+  "shovel": {
+   "file": "res://assets/generated/life_props/shovel.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": 0.4,
+   "hand": "r",
+   "note": ""
+  },
+  "rake": {
+   "file": "res://assets/generated/life_props/rake.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": 0.45,
+   "hand": "r",
+   "note": ""
+  },
+  "pitchfork": {
+   "file": "res://assets/generated/life_props/pitchfork.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": 0.45,
+   "hand": "r",
+   "note": ""
+  },
+  "sickle": {
+   "file": "res://assets/generated/life_props/sickle.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "short handle +Z, crescent blade curving toward front"
+  },
+  "seed_bag": {
+   "file": "res://assets/generated/life_props/seed_bag.glb",
+   "grip_axis": [
+    0,
+    -1,
+    0
+   ],
+   "front_axis": [
+    0,
+    0,
+    -1
+   ],
+   "grip2_m": null,
+   "hand": "l",
+   "note": "origin at the gathered neck, pouch hangs -Z"
+  },
+  "sheaf": {
+   "file": "res://assets/generated/life_props/sheaf.glb",
+   "grip_axis": [
+    1,
+    0,
+    0
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "l",
+   "note": "wheat bundle, stalks along +Z, grabbed at the tie"
+  },
+  "milk_pail": {
+   "file": "res://assets/generated/life_props/milk_pail.glb",
+   "grip_axis": [
+    0,
+    -1,
+    0
+   ],
+   "front_axis": [
+    0,
+    0,
+    -1
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "origin at bail apex, rim 0.15 m below, pail hangs -Z"
+  },
+  "grain_bowl": {
+   "file": "res://assets/generated/life_props/grain_bowl.glb",
+   "grip_axis": [
+    0,
+    -1,
+    0
+   ],
+   "front_axis": [
+    0,
+    0,
+    1
+   ],
+   "grip2_m": null,
+   "hand": "l",
+   "note": "bowl centre 0.13 m behind the grip (+Y), rim at +0.05 z"
+  },
+  "smith_hammer": {
+   "file": "res://assets/generated/life_props/smith_hammer.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "handle +Z, head at top, striking face toward front"
+  },
+  "tongs": {
+   "file": "res://assets/generated/life_props/tongs.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "l",
+   "note": "handles +Z, jaws at top end"
+  },
+  "hammer": {
+   "file": "res://assets/generated/life_props/hammer.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "claw hammer, handle +Z, face toward front"
+  },
+  "saw": {
+   "file": "res://assets/generated/life_props/saw.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "hand saw, handle grip at origin, blade extends +Z, teeth toward front"
+  },
+  "plank": {
+   "file": "res://assets/generated/life_props/plank.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": 0.5,
+   "hand": "r",
+   "note": "2.4 m board, grip at its centre, length along +Z"
+  },
+  "axe": {
+   "file": "res://assets/generated/life_props/axe.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": -0.35,
+   "hand": "r",
+   "note": "woodcutter axe, handle +Z, head at top, edge toward front"
+  },
+  "fishing_rod": {
+   "file": "res://assets/generated/life_props/fishing_rod.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": -0.3,
+   "hand": "r",
+   "note": "rod along +Z, reel/grip at origin, line hangs from the tip"
+  },
+  "ladle": {
+   "file": "res://assets/generated/life_props/ladle.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "handle +Z, bowl at the top end opening toward front"
+  },
+  "knife": {
+   "file": "res://assets/generated/life_props/knife.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "kitchen knife, blade +Z, edge toward front"
+  },
+  "broom": {
+   "file": "res://assets/generated/life_props/broom.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": 0.4,
+   "hand": "r",
+   "note": "besom broom, handle +Z, bristles at the -Z end (held with bristles down)"
+  },
+  "bucket": {
+   "file": "res://assets/generated/life_props/bucket.glb",
+   "grip_axis": [
+    0,
+    -1,
+    0
+   ],
+   "front_axis": [
+    0,
+    0,
+    -1
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "origin at rope-bail apex, rim 0.15 m below, bucket hangs -Z"
+  },
+  "sack": {
+   "file": "res://assets/generated/life_props/sack.glb",
+   "grip_axis": [
+    1,
+    0,
+    0
+   ],
+   "front_axis": [
+    0,
+    0,
+    1
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "origin at the tied neck; sack body hangs below (-Z), 0.56 m tall"
+  },
+  "crate_small": {
+   "file": "res://assets/generated/life_props/crate_small.glb",
+   "grip_axis": [
+    0,
+    -1,
+    0
+   ],
+   "front_axis": [
+    0,
+    0,
+    1
+   ],
+   "grip2_m": 0,
+   "hand": "r",
+   "note": "origin at bottom centre of the crate (0.45 x 0.32 x 0.28), open top with apples"
+  },
+  "basket": {
+   "file": "res://assets/generated/life_props/basket.glb",
+   "grip_axis": [
+    0,
+    -1,
+    0
+   ],
+   "front_axis": [
+    0,
+    0,
+    -1
+   ],
+   "grip2_m": null,
+   "hand": "l",
+   "note": "origin at the handle apex, basket hangs below (-Z)"
+  },
+  "spear": {
+   "file": "res://assets/generated/life_props/spear.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": 0,
+   "hand": "r",
+   "note": "guard spear 2.1 m, grip at origin, point +Z"
+  },
+  "book": {
+   "file": "res://assets/generated/life_props/book.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "l",
+   "note": "closed/open book held at its spine"
+  },
+  "quill": {
+   "file": "res://assets/generated/life_props/quill.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "feather quill, nib at -Z"
+  },
+  "mug": {
+   "file": "res://assets/generated/life_props/mug.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    1,
+    0,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "origin in the handle opening, mug body 0.09 m toward -Y"
+  },
+  "lute": {
+   "file": "res://assets/generated/life_props/lute.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "l",
+   "note": "held at the neck by the left hand: neck along +Z, body at -Z"
+  },
+  "flute": {
+   "file": "res://assets/generated/life_props/flute.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "wooden flute, along +Z"
+  },
+  "cane": {
+   "file": "res://assets/generated/life_props/cane.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "walking stick: origin in the fist at the top, shaft along -Z to the ground (the thumb side, +Z, points up)"
+  },
+  "bread": {
+   "file": "res://assets/generated/life_props/bread.glb",
+   "grip_axis": [
+    1,
+    0,
+    0
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "small loaf"
+  },
+  "bowl": {
+   "file": "res://assets/generated/life_props/bowl.glb",
+   "grip_axis": [
+    0,
+    -1,
+    0
+   ],
+   "front_axis": [
+    0,
+    0,
+    1
+   ],
+   "grip2_m": null,
+   "hand": "l",
+   "note": "bowl centre 0.13 m behind the grip (+Y), rim at +0.05 z"
+  },
+  "spoon": {
+   "file": "res://assets/generated/life_props/spoon.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "wooden spoon, bowl at +Z"
+  },
+  "laundry": {
+   "file": "res://assets/generated/life_props/laundry.glb",
+   "grip_axis": [
+    1,
+    0,
+    0
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "wet cloth bundle"
+  },
+  "coin": {
+   "file": "res://assets/generated/life_props/coin.glb",
+   "grip_axis": [
+    1,
+    0,
+    0
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "small coin pouch"
+  },
+  "bellows_handle": {
+   "file": "res://assets/generated/life_props/bellows_handle.glb",
+   "grip_axis": [
+    0,
+    0,
+    1
+   ],
+   "front_axis": [
+    0,
+    -1,
+    0
+   ],
+   "grip2_m": null,
+   "hand": "r",
+   "note": "(scene) handle of the forge bellows"
+  }
+ },
+ "scene": {
+  "sawhorse": {
+   "file": "res://assets/generated/life_props/sawhorse.glb",
+   "note": "carpentry trestle, top at 0.6 m"
+  },
+  "wash_tub": {
+   "file": "res://assets/generated/life_props/wash_tub.glb",
+   "note": "laundry tub with washboard, rim 0.45 m"
+  },
+  "cook_pot": {
+   "file": "res://assets/generated/life_props/cook_pot.glb",
+   "note": "iron pot on a tripod over a fire pit"
+  },
+  "milking_stool": {
+   "file": "res://assets/generated/life_props/milking_stool.glb",
+   "note": "3-legged stool, seat 0.30 m"
+  },
+  "chopping_block": {
+   "file": "res://assets/generated/life_props/chopping_block.glb",
+   "note": "stump, top 0.45 m"
+  },
+  "bar_counter": {
+   "file": "res://assets/generated/life_props/bar_counter.glb",
+   "note": "2 m tavern counter, top 1.05 m"
+  },
+  "bellows": {
+   "file": "res://assets/generated/life_props/bellows.glb",
+   "note": "forge bellows on a frame"
+  },
+  "stool": {
+   "file": "res://assets/generated/life_props/stool.glb",
+   "note": "tavern stool, seat 0.62 m"
+  },
+  "hopscotch": {
+   "file": "res://assets/generated/life_props/hopscotch.glb",
+   "note": "chalk hopscotch decal on the ground"
+  },
+  "lectern": {
+   "file": "res://assets/generated/life_props/lectern.glb",
+   "note": "chapel lectern / writing desk, 0.95 m"
+  },
+  "table": {
+   "file": "res://assets/generated/life_props/table.glb",
+   "note": "tavern table 1.4 x 0.8, top 0.75 m"
+  }
+ }
+}

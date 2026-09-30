@@ -23,7 +23,6 @@ static var skip_splash := false
 static var handoff_tip := -1
 ## A world has been played in this run; Life/WorldSim hold its state.
 static var world_dirty := false
-static var _pristine := {}
 
 
 ## True when the game was launched by QA tooling / tests: boot must not show menus.
@@ -51,23 +50,21 @@ static func is_mobile() -> bool:
 	return OS.has_feature("mobile") or OS.has_feature("android") or OS.has_feature("ios")
 
 
-## Remember the untouched Life state so a second New Game after "Exit to Main Menu"
-## starts fresh. Call once at boot before any world exists.
-static func capture_pristine(tree: SceneTree) -> void:
-	if not _pristine.is_empty():
-		return
-	var life := tree.root.get_node_or_null("Life")
-	if life and life.has_method("snapshot"):
-		_pristine = life.call("snapshot")
+## Kept for the boot flow: a new run no longer needs a snapshot of the untouched state,
+## Life.reset() rebuilds it (see reset_world_state).
+static func capture_pristine(_tree: SceneTree) -> void:
+	pass
 
 
+## After a world has been played (world_dirty): everything the run owned goes back to a fresh
+## new game (Life.reset: Game, WorldSim, Frontier, Region 1, Life.realm and every Life system).
+## Call before New Game / Load Game so they start from a clean state.
 static func reset_world_state(tree: SceneTree) -> void:
-	if not world_dirty or _pristine.is_empty():
+	if not world_dirty:
 		return
 	var life := tree.root.get_node_or_null("Life")
-	if life and life.has_method("restore"):
-		life.set("player", null)
-		life.call("restore", _pristine)
+	if life and life.has_method("reset"):
+		life.call("reset")
 	world_dirty = false
 
 

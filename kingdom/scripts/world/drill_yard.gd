@@ -167,7 +167,7 @@ func _build() -> void:
 # --- the menu ---------------------------------------------------------------------------
 
 func _ctx() -> Dictionary:
-	var ctx := {"life": Life}
+	var ctx := {"life": Life, "age": Life.age()}
 	var pl := get_tree().get_first_node_in_group("player") as Node3D
 	if pl != null:
 		ctx["player_pos"] = pl.global_position

@@ -2342,7 +2342,7 @@ const TRAINING := {
 
 ## Combat is never locked behind a career: this list is never empty and self_taught is always available.
 func training_options(ctx := {}) -> Array:
-	var age := int(player["age"])
+	var age := int(ctx.get("age", player["age"]))   # live age from the caller: the daily sync can lag a birthday
 	var sid := int(player.get("sid", player.get("home_sid", 0)))
 	var pp: Variant = ctx.get("player_pos")
 	if pp is Vector2 or pp is Vector3:

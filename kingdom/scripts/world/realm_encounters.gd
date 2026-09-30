@@ -233,10 +233,18 @@ func _player() -> Node3D:
 	return get_tree().get_first_node_in_group("player") as Node3D if is_inside_tree() else null
 
 
+## True while an NPC is walking up / talking (work_spots hides its job prompt meanwhile).
+func in_session() -> bool:
+	return not _s.is_empty()
+
+
 func _player_free() -> bool:
 	var pl := _player()
 	if pl == null or bool(pl.get("dead")) or get_tree().paused:
 		return false
+	for n in get_tree().get_nodes_in_group("work_spots"):     # never talk over a job widget
+		if n.has_method("is_modal") and bool(n.is_modal()):
+			return false
 	if hud != null and hud.has_method("is_menu_open") and bool(hud.is_menu_open()):
 		return false
 	var door := InteriorDoor.active
@@ -287,6 +295,12 @@ static func _model_of(n: Node) -> Node3D:
 		if c is Node3D and not (c is CollisionShape3D) and not c.find_children("*", "Skeleton3D", true, false).is_empty():
 			return c as Node3D
 	return null
+
+
+## The session's NPC body, or null when it is gone (a freed object cannot be cast with `as`).
+func _body() -> Node3D:
+	var b: Variant = _s.get("body")
+	return b as Node3D if is_instance_valid(b) else null
 
 
 ## Starts one delivery. Returns false when no ground to arrive from was found (retry later).
@@ -364,7 +378,7 @@ func _play(body: Node3D, names: Array) -> void:
 
 ## Tween step: walk toward wherever the player is now (they may keep moving).
 func _step(t: float) -> void:
-	var body := _s.get("body") as Node3D
+	var body := _body()
 	var pl := _player()
 	if _s.is_empty() or _s["state"] != "walking" or body == null or not is_instance_valid(body) or pl == null:
 		return
@@ -385,7 +399,7 @@ func _step(t: float) -> void:
 
 
 func _abort() -> void:
-	var body := _s.get("body") as Node3D
+	var body := _body()
 	if body != null and is_instance_valid(body) and not bool(_s.get("borrowed", false)):
 		body.queue_free()
 	_s = {}
@@ -393,7 +407,7 @@ func _abort() -> void:
 
 
 func _arrive() -> void:
-	var body := _s.get("body") as Node3D
+	var body := _body()
 	var pl := _player()
 	if body != null and is_instance_valid(body) and pl != null and not bool(_s["borrowed"]):
 		var to := pl.global_position - body.global_position
@@ -427,7 +441,7 @@ func _finish(close_menu := true) -> void:
 	var nxt := String(_s.get("next", ""))
 	if nxt != "" and hud != null and hud.has_method("notify"):
 		hud.notify("quest", "What next", nxt)
-	var body := _s.get("body") as Node3D
+	var body := _body()
 	var borrowed := bool(_s.get("borrowed", false))
 	var hint_id := String(_s.get("hint", ""))
 	_s = {}
@@ -465,7 +479,7 @@ func _walk_off_step(k: float, body: Node3D, from: Vector2, away: Vector2) -> voi
 func _page() -> Dictionary:
 	if _s.is_empty():
 		return {"title": "", "body": "", "options": []}
-	var body := _s.get("body") as Node3D
+	var body := _body()
 	return {"title": String(_s["speaker"]), "body": String(_s["line"]), "options": _s["opts"],
 		"speaker": String(_s["speaker"]), "role": String(_s["role"]), "line": String(_s["line"]),
 		"relationship": "", "rel_value": 0.0, "portrait_key": "rx_%s" % String((_s["entry"] as Dictionary)["key"]),

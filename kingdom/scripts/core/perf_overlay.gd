@@ -2,7 +2,8 @@ extends CanvasLayer
 ## Performance overlay controller (autoload "PerfOverlay").
 ## Wraps Calinou's godot-debug-menu (addons/debug_menu, MIT) which is created lazily
 ## on first toggle so it costs nothing while hidden (release default = OFF).
-## Desktop: F3 (handled by the addon: hidden -> compact -> detailed -> hidden).
+## Desktop: F3, handled only here (hidden -> compact -> detailed -> hidden). The addon no longer binds F3
+## and the HUD's debug line no longer listens to it; the addon panel is this overlay's detailed mode.
 ## Mobile: hidden 3-finger tap cycles the same way.
 ## Adds a second label with draw calls / primitives / objects / process+physics ms / nodes.
 
@@ -47,7 +48,7 @@ func _ensure_label() -> void:
 	if _label:
 		return
 	_label = Label.new()
-	_label.position = Vector2(8, 200)
+	_label.position = Vector2(360, 66)   # under the compass: clear of the HUD's player card and joystick
 	_label.add_theme_font_size_override("font_size", 12)
 	_label.add_theme_color_override("font_color", Color(0.85, 1, 0.85))
 	_label.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -59,12 +60,8 @@ func _ensure_label() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F3:
-		# The addon also reacts to F3 via its own action once instantiated; only bootstrap here.
-		if _menu == null or not is_instance_valid(_menu):
-			_toggle()
-			get_viewport().set_input_as_handled()
-		else:
-			_sync_later()
+		_toggle()
+		get_viewport().set_input_as_handled()
 	elif event is InputEventScreenTouch:
 		if event.pressed:
 			if _touches.is_empty():
@@ -76,21 +73,14 @@ func _input(event: InputEvent) -> void:
 			_touches.erase(event.index)
 
 
-func _sync_later() -> void:
-	await get_tree().process_frame
-	await get_tree().process_frame
-	if _menu and is_instance_valid(_menu):
-		_ensure_label()
-		_label.visible = _menu.visible
-		set_process(_menu.visible)
-
-
 func _process(delta: float) -> void:
 	_acc += delta
 	if _acc < 0.25 or _label == null:
 		return
 	_acc = 0.0
-	var vp := get_viewport()
+	# The world renders in main.gd's SubViewport: the root viewport's render info is always 0.
+	var pl := get_tree().get_first_node_in_group("player")
+	var vp: Viewport = pl.get_viewport() if pl != null else get_viewport()
 	_label.text = "draws %d  prims %dk  objs %d\nscript proc %.2f ms  phys %.2f ms\nnodes %d  skinned %d\nmem %.0f MB  vram %.0f MB" % [
 		vp.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
 		vp.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME) / 1000,
@@ -183,7 +173,15 @@ static func print_draw_census(tree: SceneTree, vp: Viewport) -> void:
 		var oname := String(owner_n.name) if owner_n else ""
 		if not oname.begins_with("Skeleton"):
 			oname = oname.rstrip("0123456789")
-		var key := "%s | %s | %s%s%s" % [oname, g.get_class(), mesh.resource_path.get_file().get_slice("::", 0) if mesh.resource_path != "" else mesh.get_class(),
+		if owner_n and owner_n.get_parent() and String(oname).begins_with("@"):
+			oname = "%s/%s" % [String(owner_n.get_parent().name).rstrip("0123456789"), oname]
+		var mname := ""
+		if mesh.get_surface_count() > 0 and mesh.surface_get_material(0):
+			var m0 := mesh.surface_get_material(0)
+			mname = String(m0.resource_name)
+			if m0 is BaseMaterial3D and (m0 as BaseMaterial3D).albedo_texture:
+				mname += ":" + String((m0 as BaseMaterial3D).albedo_texture.resource_path).get_file()
+		var key := "%s | %s | %s{%s}%s%s" % [oname, g.get_class(), mesh.resource_path.get_file().get_slice("::", 0) if mesh.resource_path != "" else mesh.get_class(), mname,
 			" shadow" if g.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_OFF else "",
 			" vis[%d-%d] %dtri/inst" % [int(g.visibility_range_begin), int(g.visibility_range_end), int(tri_cache[mesh])] if g is MultiMeshInstance3D else ""]
 		var r: Array = rows.get(key, [0, 0, 0])
@@ -226,6 +224,12 @@ static func ablate(tree: SceneTree, vp: Viewport, root: Node) -> void:
 	for c in root.get_children():
 		if c is Node3D and (c as Node3D).visible:
 			var key := "%s(%s)" % [String(c.name).rstrip("0123456789@"), c.get_script().resource_path.get_file() if c.get_script() else c.get_class()]
+			if c is MultiMeshInstance3D and (c as MultiMeshInstance3D).multimesh and (c as MultiMeshInstance3D).multimesh.mesh:
+				# MultiMesh cells: group per mesh (first surface material) + LOD range, so a town's
+				# 1400 cells read as "town_wall vis[0-209]" instead of one lump.
+				var mm_mesh := (c as MultiMeshInstance3D).multimesh.mesh
+				var mm_mat: Material = mm_mesh.surface_get_material(0) if mm_mesh.get_surface_count() > 0 else null
+				key = "MM %s vis[%d-%d]" % [String(mm_mat.resource_name) if mm_mat else mm_mesh.get_class(), int((c as MultiMeshInstance3D).visibility_range_begin), int((c as MultiMeshInstance3D).visibility_range_end)]
 			if not groups.has(key):
 				groups[key] = []
 			groups[key].append(c)

@@ -272,3 +272,108 @@ Tracker text is `story.step(id)["objective"]`; the Journal uses `title` and `jou
 | Flags for other systems | throughout | `r1.a1.wren_joined` (retinue: Wren follows), `r1.a4.wren_left` / `r1.a4.wren_back` (Wren leaves and rejoins), `r1.thistle.freed` / `r1.thistle.kept` (Thistle with the herd, or with you), `r1.a3.maren_gone`, `r1.ending.*` (achievements) |
 
 **Test:** `Godot --headless --path kingdom -s res://tools_qa/region1/lint_quests.gd` must stay at 0 errors. `tests/test_region1_story.gd` shows the calls step by step.
+
+
+## H6: parchment map layer (`add_layer` for `ui/world_map.gd`)
+Painted Region 1 map (sepia ink on parchment, poster style) drawn under the map's own icons, plus a painterly, toggleable fog of war.
+
+**New files (all in this commit):**
+- `kingdom/scripts/ui/map_parchment_layer.gd`, the layer. No `class_name`; `preload` it.
+- `kingdom/assets/ui/maps/region1_parchment.png` (2048 px, opaque) and its `.import` (`compress/mode=2`, `high_quality=false`, mipmaps on = **ETC2 on mobile, 2.8 MB measured** on disk; budget was 4 MB).
+- `kingdom/assets/ui/maps/region1_parchment.json`: the world to map transform, the alias table (Oakvale = Greenhollow, Highcliff = Highwatch Keep), and every drawn feature (`name`, `id_name`, `pos_m`, `pos_px`).
+- Tools (re-run any time WorldGen changes): `tools_qa/map/dump_world.gd` (samples the real WorldGen, seed 1066), `paint_parchment.tscn/.gd`, `parchment_ink.gd`, `parchment_paper.gdshader`, `run_paint.sh`.
+
+**Transform:** `px = (margin, margin) + (world - world_min) * px_per_m`, margin 88 px, `px_per_m` 0.2285 (4.38 m per pixel), world = (x, z), north = -z = up. The terrain rect is 1872 px = the whole 8 x 8 km region; the parchment frame extends 385 m past it.
+
+**Hook in `scripts/ui/world_map.gd` (about 30 lines, all additive; tested in a scratch copy, not committed):**
+```diff
+@@ -151,6 +151,9 @@ var _card_info: Label
+ var _travel_btn: Button
+ var _loading: Label
+ var _legend_btn: Button
++var _layers: Array[Control] = []          # H6: painted layers (map_parchment_layer.gd)
++var _layered := false
++var _bake_labels := false
+ 
+ 
+ func _ready() -> void:
+@@ -1032,17 +1035,21 @@ func _draw() -> void:
+ 	_draw_neighbours()
+ 	var h := WorldGen.WORLD_HALF
+ 	var world_rect := Rect2(to_screen(Vector2(-h, -h)), Vector2(h, h) * 2.0 * _zoom)
+-	if _texture:
++	_layered = _paint_layers()
++	if _layered:
++		pass
++	elif _texture:
+ 		draw_texture_rect(_texture, world_rect, false)
+ 		if _paper:
+ 			draw_texture_rect(_paper, world_rect, false, Color(1, 1, 1, 0.1))
+ 	else:
+ 		draw_rect(world_rect, Color("b9c98a"))
+-	_draw_border()
+-	_draw_rivers()
+-	_draw_roads()
++	if not _layered:
++		_draw_border()
++		_draw_rivers()
++		_draw_roads()
+ 	_draw_runestones()
+-	if _fog_texture:
++	if _fog_texture and not _layered:
+ 		var rr := _region_rect()
+ 		draw_texture_rect(_fog_texture, Rect2(to_screen(rr.position), rr.size * _zoom), false)
+ 	_draw_places()
+@@ -1067,6 +1074,25 @@ func _draw() -> void:
+ 		_draw_legend()
+ 
+ 
++## H6: adds a painted layer (scripts/ui/map_parchment_layer.gd). It paints under the icons via paint_under(self).
++func add_layer(l: Control) -> void:
++	_layers.append(l)
++	add_child(l)
++	if l.has_method("bind_map"):
++		l.call("bind_map", self)
++	queue_redraw()
++
++
++func _paint_layers() -> bool:
++	var done := false
++	_bake_labels = false
++	for l in _layers:
++		if l.visible and l.has_method("paint_under") and bool(l.call("paint_under", self)):
++			done = true
++			_bake_labels = _bake_labels or bool(l.get("bakes_labels"))
++	return done
++
++
+ func _heading() -> float:
+ 	if player and is_instance_valid(player):
+ 		var cam: Variant = player.get("camera")
+@@ -1219,6 +1245,8 @@ func _draw_places() -> void:
+ 		var c := to_screen(pl["pos"])
+ 		if not view.has_point(c) or not _passes(pl):
+ 			continue
++		if _bake_labels and not (not _selected.is_empty() and _selected["id"] == pl["id"]):
++			continue      # the parchment carries the names
+ 		var sel: bool = not _selected.is_empty() and _selected["id"] == pl["id"]
+ 		if is_area(kind):
+ 			_draw_area_label(pl, c, used)
+```
+(The three `@@` hunks above are: member vars, `_draw()` plus `add_layer()` / `_paint_layers()`, and the name-label skip in `_draw_places()`.)
+
+**Wire it once** (C3, after the HUD builds the map: `hud.gd` right after `add_child(world_map)`):
+```gdscript
+var parchment := preload("res://scripts/ui/map_parchment_layer.gd").new()
+world_map.add_layer(parchment)
+world_map.closed.connect(parchment.release)      # frees the texture (VRAM) while the map is closed
+```
+**Toggles:** `parchment.fog_enabled = false` (show the whole painted map), `parchment.toggle_fog()`, `parchment.enabled = false` (the map draws its own terrain again),
+`parchment.fog_strength`. Suggested UI: a "Fog" chip in the Map tab filter list (`tab_map.gd`) calling `toggle_fog()`.
+**Discovered areas:** the layer reads the map's own `_fog_img` (the discovery field, 128 px over the region) and turns it into a 256 px painted mist (256 KB), rebuilt only when the map rebuilds its fog.
+**Labels:** the sheet carries the poster names, so while the layer is on the map skips its own name labels (`bakes_labels`, selected place excepted). Set `parchment.bakes_labels = false` to keep the map's labels.
+**H3 / Wardlines:** draw coverage as a second `add_layer(Control)` with its own `paint_under(canvas)` (same contract: return false to leave terrain to the map, true to replace it) or, simpler, from `_draw_runestones()`.
+**Memory:** one 2.8 MB VRAM texture + the 256 KB fog while open; `release()` drops both. Do not `load_threaded_request` it (project rule); a synchronous `load()` of the ctex takes a few ms.
+**Known limits:** at zoom above about 0.5 px/m the sheet is soft (4.4 m per source pixel); the map's coin icons cover the small baked pictograms; ideas: shrink map icons while the layer is on, or add a
+1024 px detail tile for the home valley. Poster places without a WorldGen site yet (Silverford at (-640, 480), the five Elder Stones, Crownstead) are drawn at the `wardlines.json` / plan positions and
+listed under `proposed_places` / `elder_stones` in the json: C1 should move them when the sites exist.

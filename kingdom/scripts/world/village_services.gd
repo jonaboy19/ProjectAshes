@@ -110,7 +110,7 @@ func _ready() -> void:
 	var board := Station.new("Notice Board", "Read", notice_menu)
 	add_child(board)
 	board.global_position = _ground(board_pos)
-	var model: Node3D = Assets.scene(BOARD).instantiate()
+	var model: Node3D = Assets.static_model(BOARD)
 	board.add_child(model)
 	board.look_at(_ground(board_pos + Vector2(-1.0, 3.0)), Vector3.UP, true)
 	board.rotate_y(PI)
@@ -245,7 +245,7 @@ func _person(title: String, verb: String, menu: Callable, at: Vector2, face: Vec
 	var anim := Assets.animation_player(body)
 	if anim:
 		anim.play("Idle" if anim.has_animation("Idle") else anim.get_animation_list()[0])
-	DistanceCull.attach(body, 110.0, anim)
+	DistanceCull.attach(body, 80.0, anim)
 	var to := face - at
 	st.rotation.y = atan2(to.x, to.y)
 	return st
@@ -255,7 +255,7 @@ func _prop_gen(asset: String, at: Vector2, yaw: float) -> void:
 	var path := "res://assets/generated/%s.glb" % asset
 	if not ResourceLoader.exists(path):
 		return
-	var n: Node3D = Assets.scene(path).instantiate()
+	var n: Node3D = Assets.static_model(path)
 	add_child(n)
 	n.global_position = _ground(at)
 	n.rotation.y = yaw
@@ -268,7 +268,7 @@ func _prop(item: String, at: Vector2, scale_by: float) -> void:
 	var scene := Assets.scene(path)
 	if scene == null:   # exists but failed to load (e.g. not imported): skip instead of erroring every boot
 		return
-	var n: Node3D = scene.instantiate()
+	var n: Node3D = Assets.static_model(path)
 	n.scale = Vector3.ONE * scale_by
 	add_child(n)
 	n.global_position = _ground(at)
@@ -553,6 +553,10 @@ func pack_menu() -> Dictionary:
 			hud.close_menu()
 			BuildMenu.open_for(hud)
 			return ""])
+	opts.append(["Build and settle", func() -> String:
+		hud.close_menu()
+		BuildMenu.open_for(hud)
+		return ""])
 	if not Life.homestead.owned.is_empty() or not Life.homestead.leased.is_empty():
 		opts.append(["Farm ledger", func() -> String:
 			hud.close_menu()

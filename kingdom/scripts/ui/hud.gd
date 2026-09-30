@@ -1,6 +1,7 @@
 class_name HUD
 extends CanvasLayer
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
+const Nameplates := preload("res://scripts/core/nameplates.gd")
 ## Full-resolution UI drawn over the low-resolution pixel render, in the user's
 ## dark-gold style: character card with portrait and crest, quest tracker, compass,
 ## minimap, place / day / time, hotbar, round action buttons, notification popups,
@@ -92,7 +93,8 @@ var banner: Control                # scripts/ui/discovery_banner.gd
 var world_map: Control             # scripts/ui/world_map.gd
 var photo_mode: Control            # scripts/ui/photo_mode.gd
 var discovery: RefCounted          # scripts/sim/discovery.gd (Life.discovery when Life owns one)
-## The fps / chunk line: hidden unless this is on (F3, `--debug-hud`, or project setting ashes/debug/show_stats).
+## The fps / chunk line: hidden unless this is on (`--debug-hud`, or project setting ashes/debug/show_stats).
+var _plate_timer := 0.0
 var debug_stats := false:
 	set(v):
 		debug_stats = v
@@ -828,7 +830,7 @@ static func _thousands(n: int) -> String:
 ## pass `anchor` (offset from the bottom-right corner, like the attack cluster)
 ## to place it yourself. Call after the HUD is in the tree.
 ##   hud.add_action_button("ride", "Ride", "ride", "walk")
-##   hud.add_action_button("lock_on", "Lock", "lock_on", "eye-target", UITheme.ACTION_BLOCK, 72, Vector2(330, 200))
+##   hud.add_action_button("lock_on", "Lock", "lock_on", "glyph:lock", UITheme.ACTION_BLOCK, 72, Vector2(330, 200))
 func add_action_button(button_name: String, label: String, action: Variant, icon_name := "",
 		color := UITheme.ACTION_UTIL, size := DOCK_SIZE, anchor := Vector2.INF) -> TouchScreenButton:
 	var res := HudArt.resolve_icon(icon_name)
@@ -928,10 +930,6 @@ func set_quest_target(pos: Variant) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _veil() or not visible:
 		return
-	if event is InputEventKey and event.pressed and not event.echo and (event as InputEventKey).keycode == KEY_F3:
-		debug_stats = not debug_stats
-		get_viewport().set_input_as_handled()
-		return
 	if event.is_action_pressed("ui_cancel") and not is_menu_open() and not world_map.visible and not photo_mode.is_active() \
 			and not _fade.visible and get_node_or_null("PauseMenu") == null:
 		open_pause()
@@ -940,8 +938,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not is_menu_open() and hotbar.handle_key(event):
 		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.pressed and not event.echo and (event as InputEventKey).keycode == KEY_I:
+	if event.is_action_pressed("menu_inventory") and not (event is InputEventKey and event.echo):
 		GameMenu.toggle(self, "inventory")
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed("menu_skills") and not (event is InputEventKey and event.echo):
+		GameMenu.toggle(self, "skills")
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("world_map"):
@@ -990,6 +992,11 @@ func open_photo_mode() -> void:
 
 
 func _process(delta: float) -> void:
+	_plate_timer -= delta
+	if _plate_timer <= 0.0:
+		_plate_timer = 0.1
+		# In-world nameplates hide while a dialogue / menu / GameMenu is up.
+		Nameplates.set_suppressed(get_tree(), is_menu_open() or GameMenu.is_open(self))
 	if not visible or _veil() or player == null or not player.is_inside_tree():
 		return
 	_nav_timer -= delta

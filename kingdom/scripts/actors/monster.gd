@@ -20,6 +20,7 @@ extends CharacterBody3D
 ## clip; a heavy hit (knockback >= 6 or a parried swing) knocks a living monster
 ## down for a second, then it gets up through the stand-up clip.
 
+const Nameplates := preload("res://scripts/core/nameplates.gd")
 signal died(monster: CampMonster)
 
 const Models := preload("res://scripts/actors/creature_models.gd")
@@ -150,10 +151,7 @@ func _ready() -> void:
 	max_health = int(sp["health"]) + level * 4
 	health = max_health
 	_label = Label3D.new()
-	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.pixel_size = 0.007
-	_label.font_size = 26
-	_label.outline_size = 8
+	Nameplates.style(_label, Color.WHITE, 26, 30.0)
 	_label.position.y = float(sp["height"]) + 0.35
 	add_child(_label)
 	_orbit_dir = 1.0 if randf() < 0.5 else -1.0

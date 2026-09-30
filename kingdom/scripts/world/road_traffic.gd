@@ -76,8 +76,8 @@ func _pick_road_near(p: Vector2) -> Dictionary:
 	var out: Array = []
 	for r in WorldGen.roads:
 		var tier := WorldGen.road_tier(r.x, r.y)
-		if tier == "frontier":
-			continue      # traffic keeps to roads civilization actually maintains
+		if tier == "frontier" and randf() < 0.4:
+			continue      # frontier roads carry traffic too (the new land is mostly frontier road), just less of it
 		var a: Vector2 = WorldGen.settlements[r.x]["pos"]
 		var b: Vector2 = WorldGen.settlements[r.y]["pos"]
 		if p.distance_to(Geometry2D.get_closest_point_to_segment(p, a, b)) < SPAWN:

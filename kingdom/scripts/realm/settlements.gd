@@ -23,6 +23,10 @@ const DRIFT_PER_DAY := 0.06
 const IDENTITY_K := 3.0
 const FOOD_PER_RESIDENT := 0.0016         # bread-equivalents per resident per day
 const STOCK_CAP := 4000.0
+## Natural recovery: logistic growth (per day) of pop toward its seeded carrying capacity while the place
+## is fed. Emergencies only ever subtracted people before (balance run: -29% in two years), so this closes
+## the ratchet; the equilibrium sits at roughly 1 - loss_rate / POP_REGROWTH of the seeded size.
+const POP_REGROWTH := 0.005
 
 ## chain id -> {inputs, outputs, per_day (at 100 workers-equivalents)}
 const CHAINS := {
@@ -119,7 +123,7 @@ func _seed_settlement(s: Dictionary) -> void:
 	stock["iron"] = 8.0 + 10.0 * r.randf()
 	stock["flour"] = 10.0
 	_s[sid] = {"identity": {}, "residents": occ, "structures": st, "chains": chains, "stock": stock,
-		"shortage": {}, "trade": 0.2 if kind == "village" else 0.6, "pop": pop, "kind": kind}
+		"shortage": {}, "trade": 0.2 if kind == "village" else 0.6, "pop": pop, "kind": kind, "cap": pop}
 	_s[sid]["identity"] = _target_identity(_s[sid])
 	# Rounded so identities start settled, then drift with change.
 
@@ -327,6 +331,42 @@ func _ignored(e: Dictionary) -> String:
 			return "%s was left to bury its dead after the raid." % name
 
 
+## Carrying capacity: the seeded population (saves from before `cap` existed fall back to the world seed).
+func _pop_cap(sid: Variant, d: Dictionary) -> int:
+	if d.has("cap"):
+		return int(d["cap"])
+	var c := int(d["pop"])
+	if int(sid) >= 0 and int(sid) < WorldGen.settlements.size():
+		c = maxi(c, int(WorldGen.settlements[int(sid)]["population"]))
+	d["cap"] = c
+	return c
+
+
+## Closed-form logistic regrowth over `days`; new people are spread over the occupations (stochastic
+## rounding, seeded) so residents keep summing to pop. No growth while the settlement is short of food.
+func _regrow(sid: Variant, d: Dictionary, days: float, r: RandomNumberGenerator) -> void:
+	if d["shortage"].has("food"):
+		return
+	var cap := float(_pop_cap(sid, d))
+	var p0 := float(d["pop"])
+	if p0 >= cap or p0 < 1.0:
+		return
+	var p1 := cap / (1.0 + (cap / p0 - 1.0) * exp(-POP_REGROWTH * days))
+	var add := p1 - p0
+	var total := 0.0
+	for o in d["residents"]:
+		total += float(d["residents"][o])
+	if total <= 0.0 or add <= 0.0:
+		return
+	var added := 0
+	for o in d["residents"]:
+		var exp_n := add * float(d["residents"][o]) / total
+		var n := int(exp_n) + (1 if r.randf() < exp_n - floorf(exp_n) else 0)
+		d["residents"][o] = int(d["residents"][o]) + n
+		added += n
+	d["pop"] = int(d["pop"]) + added
+
+
 func _loss(d: Dictionary, frac: float) -> void:
 	var lost := int(d["pop"] * frac)
 	d["pop"] = maxi(20, int(d["pop"]) - lost)
@@ -353,38 +393,50 @@ func tick_hour(_hour: int, _ctx: Dictionary) -> Array:
 
 
 func tick_day(day: int, ctx: Dictionary) -> Array:
+	return _run_chunks(day, ctx)
+
+
+## One chunk per settlement, in sid order (the same loop tick_day always ran).
+func tick_day_chunks(day: int, ctx: Dictionary) -> Array:
 	_ensure()
+	var ids := _s.keys()
+	ids.sort()
+	var chunks: Array = []
+	for sid in ids:
+		chunks.append(func() -> Array: return _tick_day_one(sid, day, ctx))
+	return chunks
+
+
+func _tick_day_one(sid: Variant, day: int, ctx: Dictionary) -> Array:
 	var out: Array = []
 	var season: String = str(ctx.get("season", "spring"))
 	var at_war: bool = bool(ctx.get("at_war", false))
-	var ids := _s.keys()
-	ids.sort()
-	for sid in ids:
-		var d: Dictionary = _s[sid]
-		_run_chains(d, SEASON_FARM.get(season, 1.0), 1.0)
-		_eat(d, 1.0)
-		var tgt := _target_identity(d)
-		for i in IDENTITIES:
-			d["identity"][i] += (tgt[i] - d["identity"][i]) * DRIFT_PER_DAY
-		var r := _rng("emerg", day, sid)
-		var roll := r.randf()
-		var kind := ""
-		var bread: float = d["stock"].get("bread", 0.0) + d["stock"].get("grain", 0.0) * 0.6
-		var starving: bool = int(d["shortage"].get("food", 0)) >= 3
-		if starving:
-			kind = "famine"
-		elif roll < 0.010 + (0.010 if season == "summer" else 0.0) + 0.000005 * d["pop"]:
-			kind = "fire"
-		elif roll < 0.016 + 0.000004 * d["pop"] and (bread < d["pop"] * FOOD_PER_RESIDENT * 6.0 or season == "winter"):
-			kind = "plague"
-		elif int(d["shortage"].get("tools", 0)) + int(d["shortage"].get("bread", 0)) >= 5 and r.randf() < 0.2:
-			kind = "strike"
-		elif at_war and d["kind"] in ["frontier_town", "village"] and r.randf() < 0.02:
-			kind = "raid_aftermath"
-		if kind != "":
-			var e := _start(int(sid), kind, 0.3 + 0.7 * r.randf())
-			if not e.is_empty():
-				out.append(EMERGENCY[kind]["text"] % sname(int(sid)))
+	var d: Dictionary = _s[sid]
+	_run_chains(d, SEASON_FARM.get(season, 1.0), 1.0)
+	_eat(d, 1.0)
+	var tgt := _target_identity(d)
+	for i in IDENTITIES:
+		d["identity"][i] += (tgt[i] - d["identity"][i]) * DRIFT_PER_DAY
+	var r := _rng("emerg", day, sid)
+	_regrow(sid, d, 1.0, _rng("grow", day, int(sid)))
+	var roll := r.randf()
+	var kind := ""
+	var bread: float = d["stock"].get("bread", 0.0) + d["stock"].get("grain", 0.0) * 0.6
+	var starving: bool = int(d["shortage"].get("food", 0)) >= 3
+	if starving:
+		kind = "famine"
+	elif roll < 0.010 + (0.010 if season == "summer" else 0.0) + 0.000005 * d["pop"]:
+		kind = "fire"
+	elif roll < 0.016 + 0.000004 * d["pop"] and (bread < d["pop"] * FOOD_PER_RESIDENT * 6.0 or season == "winter"):
+		kind = "plague"
+	elif int(d["shortage"].get("tools", 0)) + int(d["shortage"].get("bread", 0)) >= 5 and r.randf() < 0.2:
+		kind = "strike"
+	elif at_war and d["kind"] in ["frontier_town", "village"] and r.randf() < 0.02:
+		kind = "raid_aftermath"
+	if kind != "":
+		var e := _start(int(sid), kind, 0.3 + 0.7 * r.randf())
+		if not e.is_empty():
+			out.append(EMERGENCY[kind]["text"] % sname(int(sid)))
 	return out
 
 
@@ -457,6 +509,7 @@ func catch_up(days: int, ctx: Dictionary) -> Array:
 		var span := float(mini(days, 30))
 		_run_chains(d, fm, span)
 		_eat(d, span)
+		_regrow(sid, d, float(days), _rng("grow_away", day0, int(sid)))
 		var tgt := _target_identity(d)
 		for i in IDENTITIES:
 			d["identity"][i] += (tgt[i] - d["identity"][i]) * decay

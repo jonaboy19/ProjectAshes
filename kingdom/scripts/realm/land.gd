@@ -29,6 +29,17 @@ const CLAIM_DECAY := 0.9996
 const LOYALTY_DRIFT := 0.04
 const REBEL_LOYALTY := 22.0
 const REBEL_BREW_DAYS := 6
+## Regions nobody is playing for: the holder's levies crush an open revolt (per day, base + per-unrest) and,
+## once rebel rule has lasted REBEL_RULE_DAYS, the old holder retakes the region (per day). Without these
+## every revolt ended in "succeeded" and rebel-held regions never came back (balance run: 9 of 20 regions
+## lost after two years, none recovered). Player-held regions are never auto-resolved.
+const AUTO_CRUSH_CHANCE := 0.05
+const REBEL_RULE_DAYS := 60
+const REBEL_RETAKE_CHANCE := 0.03
+const REBELS_KEEP := 20
+## After a revolt is put down (or rebel rule ends) the region stays quiet this long (deed["calm_until"]);
+## otherwise chronically low-loyalty regions re-brewed a revolt straight away (50 in two years).
+const REBEL_CALM_DAYS := 60
 const FIRST := ["Bram", "Kerrin", "Orla", "Tavis", "Maren", "Edric", "Sela", "Rook", "Halla", "Joss"]
 const EPITHET := ["the Red", "Longstride", "of the Hollow", "Ash-hand", "the Elder", "Oathkeeper", "Grey", "the Lame"]
 
@@ -328,6 +339,8 @@ func crush(region: Variant, force: float) -> String:
 	var name: String = deed(region).get("name", _k(region))
 	if force >= float(rb["strength"]):
 		rb["status"] = "crushed"
+		if _deeds.has(_k(region)):
+			_deeds[_k(region)]["calm_until"] = _day + REBEL_CALM_DAYS
 		adjust_loyalty(region, -6.0)
 		remember(region, "massacre" if force > 1.5 * float(rb["strength"]) else "conquest", 0.4)
 		return "%s's rebellion under %s is crushed." % [name, rb["leader"]["name"]]
@@ -341,17 +354,48 @@ func appease(region: Variant) -> String:
 	if rb.is_empty():
 		return ""
 	rb["status"] = "resolved"
+	if _deeds.has(_k(region)):
+		_deeds[_k(region)]["calm_until"] = _day + REBEL_CALM_DAYS
 	adjust_loyalty(region, 18.0)
 	remember(region, "fair_rule", 0.5)
 	return "You met the demands of %s; the region calms." % rb["leader"]["name"]
 
 
+func _player_region(region: String) -> bool:
+	var d: Dictionary = _deeds[region]
+	return d["occupier"] == "player" or d["holder"] == "player"
+
+
+## The old holder's retinue takes back a region the rebels have ruled for a while.
+func _retake(region: String, day: int, out: Array, span := 1) -> void:
+	var d: Dictionary = _deeds[region]
+	if d["occupier"] != "rebels" or _player_region(region):
+		return
+	var ruled := clampi(day - int(d["since_day"]) - REBEL_RULE_DAYS, 0, span)   # days of eligibility in this window
+	if ruled <= 0:
+		return
+	if _rng("retake", day, region).randf() >= 1.0 - pow(1.0 - REBEL_RETAKE_CHANCE, float(ruled)):
+		return
+	var holder := String(d["holder"])
+	if holder == "rebels" or holder == "player":
+		return
+	_record(d, "reconquest", holder, day)
+	d["occupier"] = holder
+	d["acquired_by"] = "conquest"
+	d["since_day"] = day
+	remember(region, "conquest", 0.5, day)
+	_loyalty[region] = minf(float(_loyalty.get(region, 50.0)), 35.0)
+	d["calm_until"] = day + REBEL_CALM_DAYS
+	out.append("%s has retaken %s from the rebels." % [holder.capitalize(), d["name"]])
+
+
 func _rebel_day(region: String, day: int, out: Array) -> void:
 	var lo := float(_loyalty.get(region, 50.0))
 	var name: String = _deeds[region]["name"]
+	_retake(region, day, out)
 	var rb := rebellion_at(region)
 	if rb.is_empty():
-		if lo < REBEL_LOYALTY and _deeds[region]["occupier"] != "rebels":
+		if lo < REBEL_LOYALTY and _deeds[region]["occupier"] != "rebels" and day >= int(_deeds[region].get("calm_until", -1)):
 			var r := _rng("rebel", day, region)
 			if r.randf() < 0.25 + 0.5 * unrest(region):
 				var ldr := _new_leader(region, day)
@@ -362,6 +406,13 @@ func _rebel_day(region: String, day: int, out: Array) -> void:
 		return
 	if lo >= REBEL_LOYALTY + 15.0:
 		rb["status"] = "faded"
+		return
+	if rb["status"] == "open" and not _player_region(region) and _rng("crush", day, region).randf() < AUTO_CRUSH_CHANCE:
+		rb["status"] = "crushed"
+		_deeds[region]["calm_until"] = day + REBEL_CALM_DAYS
+		adjust_loyalty(region, 6.0)
+		remember(region, "conquest", 0.3, day)
+		out.append("The levies of %s have crushed the revolt under %s." % [name, rb["leader"]["name"]])
 		return
 	rb["strength"] = float(rb["strength"]) + 0.04 + 0.05 * unrest(region) * float(rb["leader"]["charisma"])
 	if rb["status"] == "brewing" and day - int(rb["start_day"]) >= REBEL_BREW_DAYS:
@@ -376,8 +427,6 @@ func _rebel_day(region: String, day: int, out: Array) -> void:
 		d["since_day"] = day
 		out.append("The rebels have taken %s. %s holds it now." % [name, rb["leader"]["name"]])
 		remember(region, "liberation", 0.6, day)
-	if _rebels.size() > 20:
-		_rebels = _rebels.filter(func(x: Dictionary) -> bool: return x["status"] in ["brewing", "open"]).slice(0, 20)
 
 
 # --------------------------------------------------------------- generations R§38
@@ -427,6 +476,7 @@ func tick_day(day: int, ctx: Dictionary) -> Array:
 	_day = day
 	var out: Array = []
 	var sm: RefCounted = hub.mod("settlements") if hub != null else null
+	_trim_rebels()
 	for region in _deeds:
 		_decay_memory(region, 1.0)
 		if day % 30 == 0:
@@ -451,6 +501,18 @@ func tick_day(day: int, ctx: Dictionary) -> Array:
 	return out
 
 
+## Keeps the rebellion ledger bounded: every live one, then the newest finished ones, REBELS_KEEP in all.
+func _trim_rebels() -> void:
+	if _rebels.size() <= REBELS_KEEP:
+		return
+	var live: Array = []
+	var done: Array = []
+	for x: Dictionary in _rebels:
+		(live if x["status"] in ["brewing", "open"] else done).append(x)
+	var room := maxi(0, REBELS_KEEP - live.size())
+	_rebels = live + done.slice(maxi(0, done.size() - room))
+
+
 func tick_week(_week: int, _ctx: Dictionary) -> Array:
 	return []
 
@@ -468,9 +530,14 @@ func catch_up(days: int, _ctx: Dictionary) -> Array:
 		var f := 1.0 - pow(1.0 - LOYALTY_DRIFT, float(days))
 		_day = day
 		_loyalty[region] = clampf(lo + (_target(region) - lo) * f, 0.0, 100.0)
+		_retake(region, day, out, days)
 		var rb := rebellion_at(region)
 		var name: String = _deeds[region]["name"]
-		if not rb.is_empty():
+		if not rb.is_empty() and not _player_region(region) and _rng("crush_away", day, region).randf() < 1.0 - pow(1.0 - AUTO_CRUSH_CHANCE, float(mini(days, 60))):
+			rb["status"] = "crushed"
+			_deeds[region]["calm_until"] = day + REBEL_CALM_DAYS
+			_loyalty[region] = minf(100.0, float(_loyalty[region]) + 6.0)
+		elif not rb.is_empty():
 			rb["strength"] = float(rb["strength"]) + 0.05 * days
 			if float(rb["strength"]) >= 1.0 and rb["status"] != "succeeded":
 				rb["status"] = "succeeded"
@@ -480,7 +547,7 @@ func catch_up(days: int, _ctx: Dictionary) -> Array:
 			elif rb["status"] == "brewing":
 				rb["status"] = "open"
 				out.append("%s rose in revolt while you were away." % name)
-		elif _loyalty[region] < REBEL_LOYALTY and _deeds[region]["occupier"] != "rebels":
+		elif _loyalty[region] < REBEL_LOYALTY and _deeds[region]["occupier"] != "rebels" and day >= int(_deeds[region].get("calm_until", -1)):
 			var r := _rng("rebel_away", day, region)
 			if r.randf() < 1.0 - pow(0.9, minf(float(days), 20.0)):
 				var ldr := _new_leader(region, day)

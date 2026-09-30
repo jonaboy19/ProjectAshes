@@ -73,6 +73,12 @@ static func clear() -> void:
 	_orphans.clear()
 
 
+## New game: every registered module goes back to its defaults (`restore({})`), saved data waiting for
+## unregistered modules is dropped, and the root re-anchors its clock. Registrations stay.
+static func reset() -> void:
+	restore({})
+
+
 static func snapshot() -> Dictionary:
 	var mods: Dictionary = _orphans.duplicate(true)
 	for mod: StringName in _providers:

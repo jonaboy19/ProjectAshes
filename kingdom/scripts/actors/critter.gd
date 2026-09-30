@@ -91,8 +91,8 @@ var _model: Node3D
 ## and its AnimationPlayer paused, so nobody pays skinning or clip sampling for
 ## animals too small to see. Behaviour keeps running at the far LOD rate.
 const SMALL := ["chicken", "rooster", "duck", "goose", "pigeon", "crow", "rabbit", "cat", "cat_ginger"]
-const CULL_SMALL := 60.0
-const CULL_BIG := 130.0
+const CULL_SMALL := 40.0   # round 2: was 60 (LOW 22 m)
+const CULL_BIG := 100.0
 var _culled := false
 var _target := Vector2.ZERO
 var _pause := 0.0

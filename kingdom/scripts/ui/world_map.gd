@@ -1093,6 +1093,8 @@ func _draw_border() -> void:
 
 
 func _draw_neighbours() -> void:
+	if embedded:
+		return     # War Room: the panel is wide and short, the whole 8 km region fills its height; no side strips
 	var view := Rect2(Vector2.ZERO, size)
 	for r: Dictionary in _neighbours:
 		var b: Rect2 = r["bounds"]

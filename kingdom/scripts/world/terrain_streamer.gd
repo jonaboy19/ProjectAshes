@@ -6,6 +6,12 @@ extends Node3D
 
 const CHUNK := 64.0
 const CELL := 2.0
+## Perf round 2: chunks whose centre is past GROUND_LOD_DIST swap to a quarter-triangle
+## ground mesh (LOD_STEP x CELL grid, 512 tris instead of 2048) with a skirt so the
+## step against the full-res neighbour shows no crack.
+const GROUND_LOD_DIST := 110.0
+const LOD_STEP := 2
+const SKIRT_DROP := 4.0
 ## Distance where Blender trees hand over to the cheap stylised stand-ins.
 const TREE_LOD := 200.0
 ## Painterly region trees (generated/region/nature): LOD0 -> LOD1 -> 4-tri impostor
@@ -13,7 +19,11 @@ const TREE_LOD := 200.0
 const REGION_LODS := [40.0, 120.0]
 const REGION := "region/nature/"
 
-@export var view_radius := 4         # chunks; 9x9 grid visible
+@export var view_radius := 4:        # chunks; 9x9 grid visible
+	set(v):
+		if v != view_radius:
+			view_radius = v
+			_idle_center = Vector2i(1 << 30, 0)   # a new ring size (settings screen) needs a scan even when standing still
 @export var collision_radius := 1    # chunks that also get physics
 @export var grass_radius := 1        # chunks that also get grass
 var focus := Vector3.ZERO
@@ -314,10 +324,72 @@ func _plan_chunk(key: Vector2i) -> Dictionary:
 	arrays[Mesh.ARRAY_INDEX] = indices
 	var forest := _plan_forest(key, origin)
 	return {
-		"ground": arrays, "faces": faces, "forest": forest,
+		"ground": arrays, "ground_lod": _lod_arrays(verts, normals, colors, n), "faces": faces, "forest": forest,
 		"impostors": _plan_impostors(forest),
 		"grass": GrassField.plan(origin, CHUNK, hash(key) ^ 0x6a55),
 	}
+
+
+## Every LOD_STEP-th vertex of the (n+1)^2 grid, plus a skirt hanging SKIRT_DROP m below the
+## four edges (same normals/colours as the edge vertices) to hide T-junction cracks.
+static func _lod_arrays(verts: PackedVector3Array, normals: PackedVector3Array, colors: PackedColorArray, n: int) -> Array:
+	var m := n / LOD_STEP
+	var lv := PackedVector3Array()
+	var ln := PackedVector3Array()
+	var lc := PackedColorArray()
+	for j in m + 1:
+		for i in m + 1:
+			var src := j * LOD_STEP * (n + 1) + i * LOD_STEP
+			lv.append(verts[src])
+			ln.append(normals[src])
+			lc.append(colors[src])
+	var idx := PackedInt32Array()
+	for j in m:
+		for i in m:
+			var a := j * (m + 1) + i
+			var b := a + 1
+			var c := a + m + 1
+			var d := c + 1
+			idx.append_array([a, b, c, b, d, c])
+	# Skirt: duplicate each border vertex lowered, then quads between border neighbours.
+	var border: Array = []      # ordered loops as lists of vertex indices, one list per side
+	var top: Array[int] = []
+	var bottom: Array[int] = []
+	var left: Array[int] = []
+	var right: Array[int] = []
+	for i in m + 1:
+		top.append(i)
+		bottom.append(m * (m + 1) + i)
+		left.append(i * (m + 1))
+		right.append(i * (m + 1) + m)
+	border = [[top, false], [bottom, true], [left, true], [right, false]]
+	for side: Array in border:
+		var list: Array = side[0]
+		var flip: bool = side[1]
+		var low_ids := {}
+		for vi: int in list:
+			low_ids[vi] = lv.size()
+			lv.append(lv[vi] - Vector3(0, SKIRT_DROP, 0))
+			ln.append(ln[vi])
+			lc.append(lc[vi])
+		for k in list.size() - 1:
+			var t0: int = list[k]
+			var t1: int = list[k + 1]
+			var b0: int = low_ids[t0]
+			var b1: int = low_ids[t1]
+			# Clockwise seen from outside (Godot front face); `flip` marks the sides whose
+			# border list runs the other way round.
+			if flip:
+				idx.append_array([t0, t1, b0, t1, b1, b0])
+			else:
+				idx.append_array([t0, b0, t1, t1, b0, b1])
+	var arr := []
+	arr.resize(Mesh.ARRAY_MAX)
+	arr[Mesh.ARRAY_VERTEX] = lv
+	arr[Mesh.ARRAY_NORMAL] = ln
+	arr[Mesh.ARRAY_COLOR] = lc
+	arr[Mesh.ARRAY_INDEX] = idx
+	return arr
 
 
 func _build_chunk(key: Vector2i, plan: Dictionary) -> Node3D:
@@ -330,7 +402,22 @@ func _build_chunk(key: Vector2i, plan: Dictionary) -> Node3D:
 	ground.mesh = mesh
 	ground.material_override = _ground_material
 	ground.layers |= TownDecals.GROUND_LAYER      # ground decals (ruts, puddles) project only onto the terrain
+	ground.visibility_range_end = GROUND_LOD_DIST
+	ground.visibility_range_end_margin = 6.0
+	ground.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
 	chunk.add_child(ground)
+	if plan.has("ground_lod"):
+		var far := MeshInstance3D.new()
+		far.name = "GroundFar"
+		var far_mesh := ArrayMesh.new()
+		far_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, plan["ground_lod"])
+		far.mesh = far_mesh
+		far.material_override = _ground_material
+		far.layers |= TownDecals.GROUND_LAYER
+		far.visibility_range_begin = GROUND_LOD_DIST
+		far.visibility_range_begin_margin = 6.0
+		far.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+		chunk.add_child(far)
 	chunk.set_meta("faces", plan["faces"])
 	var grass_plan: Dictionary = plan["grass"]
 	var any_grass := false
@@ -414,8 +501,103 @@ func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 		if not buckets.has(kind):
 			buckets[kind] = []
 		buckets[kind].append(t)
+	_plan_roadside(key, origin, buckets)
 	_plan_floor(key, origin, buckets)
 	return buckets
+
+
+## Roadside life for chunks the roads pass through (worker-thread maths, same MultiMesh chains and
+## LODs as the forest): small woods a stone's throw off the road, a tree, bush, rock or flower drift
+## now and then along the verge, so a long road is never a bare ribbon. Twice as generous in the new
+## land (beyond the +-2 km valley) where the roads used to run through open meadow.
+const ROADSIDE_REACH := 75.0
+static func _woodland_kind(rng: RandomNumberGenerator, h: float) -> String:
+	if rng.randf() < 0.08:
+		return REGION + "young_oak"
+	if rng.randf() < 0.2 + smoothstep(30.0, 70.0, h) * 0.6:
+		return REGION + ["spruce_a", "pine_scots"][rng.randi() % 2]
+	return REGION + ["oak_a", "oak_b", "beech_a"][rng.randi() % 3]
+
+
+static func _roadside_ok(x: float, z: float, road_min: float, road_max: float) -> bool:
+	var d := WorldGen.road_distance(x, z)
+	if d < road_min or d > road_max or WorldGen.near_water(x, z, 2.5) or WorldGen.street_distance(x, z) < 6.0:
+		return false
+	if WorldGen.height(x, z) > 100.0:
+		return false
+	var near := WorldGen.nearest_settlement(Vector2(x, z))
+	if not near.is_empty() and Vector2(x, z).distance_to(near["pos"]) < float(near["radius"]) * 1.8:
+		return false
+	for c in WorldGen.clearings:
+		if Vector2(x, z).distance_to(c["pos"]) < float(c["radius"]) + 4.0:
+			return false
+	return true
+
+
+func _roadside_put(buckets: Dictionary, kind: String, x: float, z: float, s: float, rng: RandomNumberGenerator) -> void:
+	var h := WorldGen.height(x, z)
+	var slope := absf(WorldGen.height(x + 0.6, z) - h) + absf(WorldGen.height(x, z + 0.6) - h)
+	var sink := 0.15 + minf(slope * 0.7, 0.55)
+	if not buckets.has(kind):
+		buckets[kind] = []
+	(buckets[kind] as Array).append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(x, h - sink, z)))
+
+
+func _plan_roadside(key: Vector2i, origin: Vector2, buckets: Dictionary) -> void:
+	var centre := origin + Vector2(CHUNK, CHUNK) * 0.5
+	if WorldGen.road_distance(centre.x, centre.y) > CHUNK * 0.75 + ROADSIDE_REACH:
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(key) ^ 0x70ad51de
+	var k := 1.0 if maxf(absf(centre.x), absf(centre.y)) > 2000.0 else 0.5
+	# Small woods: a knot of trees with bushes, a rock or a stump under them.
+	for w in 2:
+		if rng.randf() > 0.5 * k:
+			continue
+		for attempt in 8:
+			var a := origin + Vector2(rng.randf(), rng.randf()) * CHUNK
+			if not _roadside_ok(a.x, a.y, 16.0, 60.0) or _slope_at(a.x, a.y) > 0.4:
+				continue
+			var n := rng.randi_range(6, 12)
+			for i in n:
+				var q := a + Vector2.from_angle(rng.randf() * TAU) * (3.0 + 11.0 * sqrt(rng.randf()))
+				if not _roadside_ok(q.x, q.y, 8.0, 90.0):
+					continue
+				_roadside_put(buckets, _woodland_kind(rng, WorldGen.height(q.x, q.y)), q.x, q.y, rng.randf_range(0.85, 1.3), rng)
+			for i in rng.randi_range(4, 8):
+				var q2 := a + Vector2.from_angle(rng.randf() * TAU) * (2.0 + 14.0 * sqrt(rng.randf()))
+				if _roadside_ok(q2.x, q2.y, 6.0, 90.0):
+					var under := ["bush_hazel", "bush_round", "fern_b", "fern_a", "bush_berry", "flowers_cool", "stump_mossy", "log_mossy", "rock_medium"]
+					_roadside_put(buckets, REGION + under[rng.randi() % under.size()], q2.x, q2.y, rng.randf_range(0.7, 1.2), rng)
+			break
+	# The verge: single trees, bushes, rocks and flower drifts a few metres off the road.
+	for i in int(16.0 * k):
+		var x := origin.x + rng.randf() * CHUNK
+		var z := origin.y + rng.randf() * CHUNK
+		var half := float(WorldGen.road_info(x, z)["width"]) * 0.5
+		if not _roadside_ok(x, z, half + 2.5, half + 22.0):
+			continue
+		var roll := rng.randf()
+		if roll < 0.32:
+			var bushes := ["bush_hazel", "bush_round", "bush_berry"]
+			_roadside_put(buckets, REGION + bushes[rng.randi() % 3], x, z, rng.randf_range(0.8, 1.3), rng)
+		elif roll < 0.55:
+			var rocks := ["rock_medium", "rock_cluster", "rock_slab", "boulder_large"]
+			_roadside_put(buckets, REGION + rocks[rng.randi() % rocks.size()], x, z, rng.randf_range(0.6, 1.3), rng)
+		elif roll < 0.8:
+			for j in rng.randi_range(3, 6):
+				var q := Vector2(x, z) + Vector2.from_angle(rng.randf() * TAU) * (2.5 * sqrt(rng.randf()))
+				if _roadside_ok(q.x, q.y, half + 1.5, half + 25.0):
+					_roadside_put(buckets, REGION + ("flowers_warm" if rng.randf() < 0.55 else "flowers_cool"), q.x, q.y, rng.randf_range(0.8, 1.3), rng)
+		else:
+			_roadside_put(buckets, _woodland_kind(rng, WorldGen.height(x, z)), x, z, rng.randf_range(0.85, 1.25), rng)
+
+
+static func _slope_at(x: float, z: float) -> float:
+	var e := 3.0
+	var dx := WorldGen.height(x + e, z) - WorldGen.height(x - e, z)
+	var dz := WorldGen.height(x, z + e) - WorldGen.height(x, z - e)
+	return Vector2(dx, dz).length() / (2.0 * e)
 
 
 ## Forest-floor dressing for Duskbriar and every other wood: ferns, mushrooms, fallen leaves,

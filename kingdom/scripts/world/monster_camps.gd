@@ -6,6 +6,7 @@ extends Node3D
 ## Residents fight as a group but take turns: CampMonster shares attack tokens,
 ## so only two or three swing at the player at a time while the rest circle.
 
+const Nameplates := preload("res://scripts/core/nameplates.gd")
 const PACK := "res://assets/incoming/3dassets-dev-ai/medieval-mmo-starter-realm/"
 const GEN := "res://assets/generated/"
 const SPAWN_RANGE := 260.0
@@ -108,11 +109,7 @@ func _build(camp: Dictionary) -> void:
 		var tag := Label3D.new()
 		var chief_info: Dictionary = pl.get("chief", {})
 		tag.text = "%s · %s" % [chief_info.get("name", "Orc Warchief"), chief_info.get("title", "Warchief")]
-		tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		tag.pixel_size = 0.008
-		tag.font_size = 30
-		tag.outline_size = 8
-		tag.modulate = Color("ffb070")
+		Nameplates.style(tag, Color("ffb070"), 30, 40.0)
 		tag.position.y = 2.6
 		chief.add_child(tag)
 		_place(root, [PACK + "campfire-with-spit.glb"], c + Vector2(5, 4), 0.0, 1.4)

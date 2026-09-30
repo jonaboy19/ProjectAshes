@@ -9,11 +9,12 @@ extends "res://scripts/ui/gamemenu/gm_tab.gd"
 ## on a sub-view switch, after an action, and by one 1 s Timer only when its data changed.
 ## The War Room shows campaign.known_map() only, never the true enemy positions.
 
-const VIEWS := [["war", "War Room"], ["diplomacy", "Diplomacy"], ["land", "Land"], ["followers", "Followers"]]
+const VIEWS := [["war", "War Room"], ["diplomacy", "Diplomacy"], ["land", "Land"], ["followers", "Followers"], ["enterprise", "Enterprise"]]
 const ORDER_KINDS := [["move", "Move"], ["attack", "Attack"], ["hold", "Hold"], ["camp", "Camp"], ["retreat", "Retreat"]]
 const RETREATS := ["orderly", "rout", "feigned", "scorched"]
 const FORMATIONS := ["line", "wedge", "square", "skirmish", "column"]
 const NEEDS_TARGET := ["move", "attack", "retreat"]
+const WarMap := preload("res://scripts/ui/war/war_map.gd")
 const TOUCH_H := 64.0
 const SIDE_W := 400.0
 const EMPTY := "Nothing known yet."
@@ -42,6 +43,9 @@ var _timer: Timer
 var _host: Control
 var _placeholder: Label
 var _map: Control
+var war_map: Control = null        # the full War Map (scripts/ui/war/war_map.gd) while it is open
+var strategic: Control = null      # the strategic overlay map while it is open
+var enterprise_screen: Control = null
 var _home: Node
 var _home_index := 0
 var _hooked := false
@@ -248,7 +252,7 @@ func build() -> void:
 	_pages["war"] = war
 	_scrolls["war"] = side_scroll
 	_boxes["war"] = side_scroll.get_child(0)
-	for id: String in ["diplomacy", "land", "followers"]:
+	for id: String in ["diplomacy", "land", "followers", "enterprise"]:
 		var sc := _make_scroll()
 		sc.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		sc.visible = false
@@ -295,6 +299,12 @@ func on_show() -> void:
 func on_hide() -> void:
 	if _timer != null:
 		_timer.stop()
+	for n: Control in [strategic, enterprise_screen]:
+		if n != null and is_instance_valid(n):
+			n.queue_free()
+	strategic = null
+	enterprise_screen = null
+	_close_war_map()
 	_detach_map()
 
 
@@ -305,7 +315,66 @@ func refresh() -> void:
 func hints() -> Array:
 	if view != "war":
 		return []
-	return [["Tap", "Choose target on map", func() -> void: pass, true]]
+	return [["M", "War Map", open_war_map, mod("campaign") == null], ["Tap", "Choose target on map", func() -> void: pass, true]]
+
+
+## Opens the War Map (formations as pieces, fog of war, engagements) over this page.
+func open_war_map() -> Control:
+	if war_map != null and is_instance_valid(war_map):
+		return war_map
+	var m: Control = WarMap.new()
+	m.set("realm_override", realm_override)
+	m.set("embedded", false)
+	m.closed.connect(_close_war_map)
+	add_child(m)
+	m.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	war_map = m
+	return m
+
+
+## The strategic overlay map (political / trade / resources / military / diplomacy / danger layers).
+func open_strategic() -> Control:
+	if strategic != null and is_instance_valid(strategic):
+		return strategic
+	var m: Control = load("res://scripts/ui/strategic/strategic_map.gd").new()
+	m.set("realm_override", realm_override)
+	m.set("embedded", true)
+	m.connect("closed", func() -> void:
+		if is_instance_valid(m):
+			m.queue_free()
+		strategic = null)
+	add_child(m)
+	m.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	strategic = m
+	return m
+
+
+func open_enterprise(tab := "market") -> Control:
+	if enterprise_screen != null and is_instance_valid(enterprise_screen):
+		enterprise_screen.queue_free()
+	var m: Control = load("res://scripts/ui/strategic/enterprise_screen.gd").new()
+	m.set("realm_override", realm_override)
+	m.set("tab", tab)
+	m.connect("closed", func() -> void:
+		if is_instance_valid(m):
+			m.queue_free()
+		enterprise_screen = null
+		refresh())
+	m.connect("show_map", func() -> void:
+		if is_instance_valid(m):
+			m.queue_free()
+		enterprise_screen = null
+		open_strategic())
+	add_child(m)
+	m.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	enterprise_screen = m
+	return m
+
+
+func _close_war_map() -> void:
+	if war_map != null and is_instance_valid(war_map):
+		war_map.queue_free()
+	war_map = null
 
 
 func set_view(id: String) -> void:
@@ -351,6 +420,8 @@ func _rebuild(id: String, force: bool) -> void:
 			_fill_land(box)
 		"followers":
 			_fill_followers(box)
+		"enterprise":
+			_fill_enterprise(box)
 	if keep > 0:
 		sc.set_deferred("scroll_vertical", keep)
 
@@ -382,6 +453,10 @@ func _signature(id: String) -> Array:
 			var fo := mod("followers")
 			if fo != null:
 				s.append_array([fo.call("list"), fo.call("arrivals"), fo.call("disputes"), fo.call("tamed"), _msgs])
+		"enterprise":
+			var en := mod("enterprise")
+			if en != null:
+				s.append_array([(en.get("caravans") as Dictionary).size(), (en.get("workshops") as Array).size(), en.call("gold"), en.get("log_lines"), en.call("fief_ids")])
 	return s
 
 
@@ -467,6 +542,7 @@ func _fill_war(box: VBoxContainer) -> void:
 		return
 	if status_line != "":
 		box.add_child(Kit.lbl(status_line, 16, AF.GOLD_BRIGHT, true, "italic"))
+	box.add_child(_btn("Open War Map", open_war_map, true))
 	# --- armies
 	box.add_child(Kit.section("Your Armies"))
 	var armies: Array = cm.call("player_armies")
@@ -965,3 +1041,40 @@ func _assign(cid: String, role: String) -> void:
 		loc = String(ca.call("nearest_node", _player_pos()))
 	fo.call("assign_role", cid, role, loc)
 	_rebuild("followers", true)
+
+
+# ------------------------------------------------------------------ enterprise ----
+
+## Summary page for the Bannerlord-style sandbox: what you own, what it earns, and the doors into the
+## strategic map and the enterprise screen. Everything shown depends on your roles.
+func _fill_enterprise(box: VBoxContainer) -> void:
+	var en := mod("enterprise")
+	if en == null:
+		_empty(box)
+		return
+	var ci: Dictionary = en.call("clan_info")
+	var head := _card()
+	head.add_child(Kit.lbl("%s, a %s" % [ci["name"], ci["tier_name"]], 22, AF.GOLD_BRIGHT, false, "title"))
+	head.add_child(Kit.lbl("You are known as: %s. %s" % [", ".join(en.call("roles")), String(ci["text"])], 16, AF.TEXT, true))
+	head.add_child(_stat_bar("Renown", 1.0 if float(ci["next_renown"]) <= 0.0 else float(ci["renown"]) / float(ci["next_renown"]), AF.GOLD, "%d" % int(ci["renown"])))
+	head.add_child(_stat_bar("Party", float(ci["party_size"]) / maxf(float(ci["party_limit"]), 1.0), Color("6fa8ff"), "%d / %d" % [int(ci["party_size"]), int(ci["party_limit"])]))
+	box.add_child(_framed(head))
+	var doors := _grid()
+	var door_btns: Array = [_btn("Strategic map", open_strategic, true), _btn("Markets and trade routes", open_enterprise.bind("market")),
+		_btn("Caravans", open_enterprise.bind("caravans")), _btn("Workshops", open_enterprise.bind("workshops")),
+		_btn("Fief", open_enterprise.bind("fief")), _btn("Clan and troops", open_enterprise.bind("clan"))]
+	for b: Button in door_btns:
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		doors.add_child(b)
+	box.add_child(doors)
+	var own := _card()
+	var cars: Array = en.call("list_caravans")
+	own.add_child(Kit.lbl("Caravans: %d. Workshops: %d. Fiefs: %d. Troops: %d." % [cars.size(), (en.get("workshops") as Array).size(), (en.call("fief_ids") as Array).size(), int(en.call("troop_count"))], 17, AF.TEXT, true))
+	for c: Dictionary in cars:
+		own.add_child(Kit.lbl("%s: %s" % [c["name"], en.call("caravan_status", c)], 15, AF.TEXT_DIM, true))
+	for w: Dictionary in en.get("workshops"):
+		own.add_child(Kit.lbl("%s in %s: %+dg yesterday" % [String(w["kind"]).capitalize(), _node_name(int(w["sid"])), int(w["history"][-1]) if not (w["history"] as Array).is_empty() else 0], 15, AF.TEXT_DIM, true))
+	var log: Array = en.get("log_lines")
+	for line: String in log.slice(maxi(0, log.size() - 4)):
+		own.add_child(Kit.lbl(line, 14, AF.TEXT_DIM, true, "italic"))
+	box.add_child(_framed(own))

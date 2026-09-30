@@ -74,7 +74,7 @@ func build(settlements: Array, sites: Array, lore_places: Array, camps: Array) -
 			"hostile": true, "travel": false, "travel_pos": cp})
 	for s: Dictionary in sites:
 		var kind := String(s.get("kind", ""))
-		if kind == "waystone":
+		if kind == "waystone" or kind == "roadside":
 			continue
 		var p: Vector2 = s["pos"]
 		var travel := kind in TRAVEL_KINDS

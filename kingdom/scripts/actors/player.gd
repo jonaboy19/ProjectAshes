@@ -34,6 +34,9 @@ extends CharacterBody3D
 signal health_changed(current: int, maximum: int)
 signal stamina_changed(current: float, maximum: float)
 signal view_changed(view: int)
+## The fall animation has played; whoever owns the game decides what happens next
+## (main.gd shows the death screen). With no listener the player just gets up at spawn_point.
+signal died
 
 enum View { FIRST, THIRD, TOWN, COMMAND }
 const VIEW_NAMES := ["First person", "Third person", "Town view", "Command view"]
@@ -149,10 +152,13 @@ const COMBO := [
 	# tools_qa/feel_capture/measure_hits.gd, divided by "speed"); damage, hitstop and sparks land
 	# there and the slash arc starts SLASH_LEAD earlier (FEEL_AUDIT F3: the old values fired the
 	# horizontal slice 0.2 s before its blade moved).
-	{"anim": "1H_Melee_Attack_Chop", "damage": 14, "lock": 0.42, "hit": 0.15, "speed": 1.7, "cost": 10.0},
-	{"anim": "1H_Melee_Attack_Slice_Diagonal", "damage": 14, "lock": 0.42, "hit": 0.16, "speed": 1.7, "cost": 10.0},
-	{"anim": "1H_Melee_Attack_Slice_Horizontal", "damage": 18, "lock": 0.5, "hit": 0.29, "speed": 2.2, "cost": 12.0},
-	{"anim": "1H_Melee_Attack_Stab", "damage": 30, "lock": 0.6, "hit": 0.29, "speed": 1.4, "cost": 16.0, "knockback": 7.0},
+	# COMBAT_AUDIT C1-C3 (2026-09-30): the UAL strike-only clips never put the blade through a target in front on the
+	# upper-body layer; the authored Sword_Light_N_Upper set (animations/combat/UAL_Combat.glb) does, on its contact
+	# frame: hit = contact frame / 30 / speed (L1 f9, L2 f7, L3 f9, L4 f16), lock = follow-through end (f15/14/15/23).
+	{"anim": "Sword_Light_1_Upper", "damage": 14, "lock": 0.42, "hit": 0.25, "speed": 1.2, "cost": 10.0},
+	{"anim": "Sword_Light_2_Upper", "damage": 14, "lock": 0.39, "hit": 0.19, "speed": 1.2, "cost": 10.0},
+	{"anim": "Sword_Light_3_Upper", "damage": 18, "lock": 0.42, "hit": 0.25, "speed": 1.2, "cost": 12.0},
+	{"anim": "Sword_Light_4_Upper", "damage": 30, "lock": 0.64, "hit": 0.44, "speed": 1.2, "cost": 16.0, "knockback": 7.0},
 ]
 ## The slash arc needs ~0.07 s to read, so it spawns this long before the hit.
 const SLASH_LEAD := 0.07
@@ -164,6 +170,8 @@ var max_health := 120
 var health := 120
 var stamina := MAX_STAMINA
 var dead := false
+## Seconds of the fall before the death screen appears.
+const DEATH_SCREEN_DELAY := 2.4
 var team := 0
 var touch_move := Vector2.ZERO
 var view := View.THIRD
@@ -181,10 +189,13 @@ var _camera_arm: SpringArm3D
 var _model: Node3D
 var _animator: CharacterAnimator
 var _rig: Node
+var _trail: WeaponTrail          # blade ribbon on the fast frames (COMBAT_AUDIT C4)
 var _ragdoll: Node
 var _viewmodel: Node3D
 var _shake := CameraShake.new()
 var _look_target: Node3D
+var _body_node: Node3D
+var _appearance_key := ""
 var _combo := -1
 var _swing := 0.0
 var _swing_cancel := 0.0
@@ -252,15 +263,7 @@ func _ready() -> void:
 	floor_snap_length = 0.35
 	_model = Node3D.new()
 	add_child(_model)
-	var body := Assets.character("Player", 1.8, ["1H_Sword", "Round_Shield"])
-	_model.add_child(body)
-	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true)
-	_ragdoll = Ragdoll.attach(self, body, [_animator.tree, _animator.player])
-	_add_head_look(body)
-	# After the look-at: the rig orders the skeleton's modifiers as
-	# animation -> look-at -> foot IK -> secondary motion.
-	_rig = ProceduralRig.attach(body, self, true)
-	_animator.rig = _rig
+	_build_body()
 	_pivot = Node3D.new()
 	_pivot.position.y = 1.55
 	add_child(_pivot)
@@ -341,6 +344,56 @@ func _menu_open() -> bool:
 
 
 ## Procedural head tracking: the head turns toward the nearest enemy or person.
+## The character model with its animation, ragdoll, head look, foot IK and weapon trail.
+## `Life.appearance` (character creation) picks the modular G6 look; no appearance = the default hero.
+func _build_body() -> void:
+	var props: Array[String] = ["1H_Sword", "Round_Shield"]
+	var look: Variant = Life.get("appearance")
+	var body: Node3D = null
+	if look is Dictionary and not (look as Dictionary).is_empty():
+		body = (load("res://scripts/ui/character_creation.gd") as GDScript).call("build_model", look, 1.8, props)
+	_appearance_key = var_to_str(look) if body != null else ""
+	if body == null:
+		body = Assets.character("Player", 1.8, props)
+	_body_node = body
+	_model.add_child(body)
+	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true)
+	_ragdoll = Ragdoll.attach(self, body, [_animator.tree, _animator.player])
+	_add_head_look(body)
+	# After the look-at: the rig orders the skeleton's modifiers as
+	# animation -> look-at -> foot IK -> secondary motion.
+	_rig = ProceduralRig.attach(body, self, true)
+	_animator.rig = _rig
+	_trail = WeaponTrail.attach(body)
+
+
+## Applies `Life.appearance` (skin, hair, head, outfit, sex) to the world model: after New Game the
+## first build already uses it; a loaded save calls this once its appearance has been restored.
+## Beard, scars and voice have no mesh in the asset set and stay cosmetic.
+func apply_appearance() -> void:
+	var look: Variant = Life.get("appearance")
+	var key := var_to_str(look) if look is Dictionary and not (look as Dictionary).is_empty() else ""
+	if key == _appearance_key or _model == null:
+		return
+	if _ragdoll and is_instance_valid(_ragdoll):
+		remove_child(_ragdoll)
+		_ragdoll.queue_free()
+		_ragdoll = null
+	if _look_target and is_instance_valid(_look_target):
+		remove_child(_look_target)
+		_look_target.queue_free()
+		_look_target = null
+	if _body_node and is_instance_valid(_body_node):
+		_model.remove_child(_body_node)
+		_body_node.queue_free()    # also frees the rig, trail, look-at modifier and animator nodes
+	_rig = null
+	_trail = null
+	_build_body()
+	apply_age()
+	if dead:
+		_animator.set_active(true)
+
+
 func _add_head_look(body: Node3D) -> void:
 	var skeleton: Skeleton3D = body.find_children("*", "Skeleton3D", true, false)[0]
 	# The UAL rig names it "Head" (its +Z faces forward, like the KayKit "head").
@@ -1148,10 +1201,15 @@ func _start_swing() -> void:
 		arc_col = Color(1.0, 0.97, 0.55)
 	var id := _swing_id
 	var combo := _combo
-	get_tree().create_timer(maxf(hit_t - SLASH_LEAD, 0.02)).timeout.connect(func() -> void:
-		if is_inside_tree() and id == _swing_id:
-			VFX.slash(get_parent(), global_position + Vector3(0, 1.15 * Life.body_scale(), 0), yaw,
-				tilts[combo % tilts.size()], arc_col, 1.6))
+	if _trail and not _viewmodel.visible:
+		# Blade-synced ribbon from the clip's marker window replaces the fixed crescent (it sat above the
+		# enemy's head while the blade was low: COMBAT_AUDIT C4).
+		_trail.swing(step["anim"], step["speed"] * (0.7 if weak else 1.0))
+	else:
+		get_tree().create_timer(maxf(hit_t - SLASH_LEAD, 0.02)).timeout.connect(func() -> void:
+			if is_inside_tree() and id == _swing_id:
+				VFX.slash(get_parent(), global_position + Vector3(0, 1.15 * Life.body_scale(), 0), yaw,
+					tilts[combo % tilts.size()], arc_col, 1.6))
 	get_tree().create_timer(hit_t).timeout.connect(_resolve_hit.bind(damage, knock, _combo == COMBO.size() - 1, id))
 
 
@@ -1201,6 +1259,8 @@ func _start_dodge(is_ability: bool) -> void:
 	if _swing > 0.0:
 		_swing_id += 1          # a pending hit frame no longer lands
 		_animator.stop_upper()
+		if _trail:
+			_trail.stop()
 	_swing = 0.0
 	_attack_buffer = 0.0
 	_impulse = Vector3.ZERO
@@ -1276,9 +1336,21 @@ func _die() -> void:
 		_rig.call("set_paused", true)   # no foot IK or springs under the ragdoll or death clip
 	if not (_ragdoll and _ragdoll.call("die")):
 		_animator.play_terminal("Death01")
-	Game.say("You fall... and wake in the village, bruised.")
-	await get_tree().create_timer(3.0).timeout
-	global_position = spawn_point
+	if get_signal_connection_list("died").is_empty():
+		Game.say("You fall... and wake in the village, bruised.")
+		await get_tree().create_timer(3.0).timeout
+		revive()
+		return
+	await get_tree().create_timer(DEATH_SCREEN_DELAY).timeout
+	if dead:
+		died.emit()
+
+
+## Gets the fallen player back on their feet: at `spawn_point` (a bed, or the village), or
+## where they lie when `teleport` is false (a save was loaded over the death).
+func revive(teleport := true) -> void:
+	if teleport:
+		global_position = spawn_point
 	reset_physics_interpolation()
 	_move_speed = 0.0
 	_impulse = Vector3.ZERO

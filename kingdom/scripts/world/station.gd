@@ -4,6 +4,7 @@ extends Node3D
 ## a recruiter. Shows a floating name; `menu` builds the options when used.
 ## menu: Callable() -> {title, body, options: [[label, Callable() -> String]]}
 
+const Nameplates := preload("res://scripts/core/nameplates.gd")
 var title := ""
 var verb := "Use"
 var menu: Callable
@@ -22,13 +23,8 @@ func _ready() -> void:
 	add_to_group("station")
 	var tag := Label3D.new()
 	tag.text = title
-	tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	tag.pixel_size = 0.008
-	tag.font_size = 28
-	tag.outline_size = 8
-	tag.modulate = Color("f0e0b0")
+	Nameplates.style(tag, Color("f0e0b0"), 28)
 	tag.position.y = 2.4
-	tag.no_depth_test = false
 	add_child(tag)
 
 

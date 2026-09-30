@@ -48,10 +48,7 @@ func _ready() -> void:
 	theme = UITheme.theme()
 	visible = false
 	if not InputMap.has_action("skills_screen"):
-		InputMap.add_action("skills_screen")
-		var ev := InputEventKey.new()
-		ev.physical_keycode = KEY_K
-		InputMap.action_add_event("skills_screen", ev)
+		InputMap.add_action("skills_screen")    # no key: K opens the Pack menu's Skills tab (docs/controls.md)
 	_build()
 
 

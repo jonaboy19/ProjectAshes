@@ -242,10 +242,32 @@ func tick_hour(_hour: int, ctx: Dictionary) -> Array:
 
 
 func tick_day(day: int, ctx: Dictionary) -> Array:
+	return _run_chunks(day, ctx)
+
+
+## Relation drift / power + marriages + rivalries / church + sects + kingship + war: one job each
+## (they share one seeded RNG in that order, so results equal the old single tick).
+func tick_day_chunks(day: int, ctx: Dictionary) -> Array:
 	_bind_houses(ctx)
 	_day = day
-	var out: Array = []
 	var r := _rng("factions_day", day)
+	return [
+		func() -> Array:
+			_day_relations()
+			return [],
+		func() -> Array:
+			return _day_houses(r),
+		func() -> Array:
+			var out: Array = []
+			_tick_church(r)
+			_tick_sects(r, day, out)
+			_tick_kingship(ctx)
+			_day_war(ctx)
+			return out,
+	]
+
+
+func _day_relations() -> void:
 	# relation drift toward stance baseline, grievance decay, trade growth
 	for k: String in _rel:
 		var v: Dictionary = _rel[k]
@@ -253,9 +275,15 @@ func tick_day(day: int, ctx: Dictionary) -> Array:
 		v["fear"] = maxf(0.0, float(v["fear"]) - 0.1)
 		v["trade"] = clampf(float(v["trade"]) + (float(v["trust"]) - 45.0) * 0.004, 0.0, 100.0)
 		v["trust"] = clampf(float(v["trust"]) + (50.0 - float(v["grievance"]) - float(v["trust"])) * 0.01, 0.0, 100.0)
+
+
+func _day_houses(r: RandomNumberGenerator) -> Array:
+	var out: Array = []
 	# power drifts
 	for id: String in _order:
 		var f: Dictionary = _factions[id]
+		if f["kind"] == "player":
+			continue     # the player's standing moves by what they do, never by the background drift
 		f["power"] = clampf(float(f["power"]) + r.randf_range(-0.3, 0.32), 1.0, 100.0)
 	# ties decay (debts are settled, rivalries cool) and marriages may bear heirs
 	for t: Dictionary in _ties:
@@ -276,9 +304,10 @@ func tick_day(day: int, ctx: Dictionary) -> Array:
 				change_relation(a, b, "grievance", 18.0)
 				_add_tie(a, b, "rivalry", 0.4, r.randf() < 0.4)
 				_note("%s and %s quarrel." % [_factions[a]["name"], _factions[b]["name"]])
-	_tick_church(r)
-	_tick_sects(r, day, out)
-	_tick_kingship(ctx)
+	return out
+
+
+func _day_war(ctx: Dictionary) -> void:
 	# a war in progress hurts the enemy's trust in the crown
 	var life: Variant = ctx.get("life")
 	if life != null and "war" in life and life.war != null and life.war.is_at_war():
@@ -286,31 +315,53 @@ func tick_day(day: int, ctx: Dictionary) -> Array:
 		if _factions.has(e):
 			change_relation("caldrenn", e, "grievance", 2.0)
 			change_relation("caldrenn", e, "trust", -1.0)
-	return out
+
+
+## `weeks` of the weekly pull toward the mean power and toward the power-driven wealth goal, in closed form
+## (so tick_week passes 1.0 and catch_up passes whole spans). The player's own standing is never touched.
+func _week_reversion(weeks: float, ctx: Dictionary) -> void:
+	var total := 0.0
+	var n_rivals := 0
+	for id: String in _order:
+		if _factions[id]["kind"] == "player":
+			continue     # otherwise the rubber band hauled "You" from power 4 to 41 with no acts at all
+		total += float(_factions[id]["power"])
+		n_rivals += 1
+	var mean := total / maxf(1.0, float(n_rivals))
+	var war_enemy := ""
+	var life: Variant = ctx.get("life")
+	if life != null and "war" in life and life.war != null and life.war.is_at_war():
+		war_enemy = String(life.war.enemy_id())
+	var kp := 1.0 - pow(0.98, weeks)
+	var kw := 1.0 - pow(0.95, weeks)
+	for id: String in _order:
+		var f: Dictionary = _factions[id]
+		if f["kind"] == "player":
+			continue
+		f["power"] = clampf(float(f["power"]) + (mean - float(f["power"])) * kp, 1.0, 100.0)
+		# Wealth follows power (was frozen at its seed value forever): a pull toward 15 + 0.7 * power, less
+		# while at war. Mean-reverting, so nothing snowballs.
+		var goal := 15.0 + 0.7 * float(f["power"]) - (12.0 if war_enemy != "" and (id == "caldrenn" or id == war_enemy) else 0.0)
+		f["wealth"] = clampf(float(f["wealth"]) + (goal - float(f["wealth"])) * kw, 0.0, 100.0)
 
 
 func tick_week(week: int, _ctx: Dictionary) -> Array:
 	var out: Array = []
 	var r := _rng("factions_week", week)
 	# power rebalancing: strong grow slower (rubber band), new sect sometimes
-	var total := 0.0
-	for id: String in _order:
-		total += float(_factions[id]["power"])
-	var mean := total / maxf(1.0, float(_order.size()))
-	for id: String in _order:
-		var f: Dictionary = _factions[id]
-		f["power"] = clampf(float(f["power"]) + (mean - float(f["power"])) * 0.02, 1.0, 100.0)
+	_week_reversion(1.0, _ctx)
 	if _sects.size() < 12 and r.randf() < 0.25:
 		_spawn_sect(r, week * 7)
 		out.append("Rumour: a new order calls itself the %s." % _sects[-1]["name"])
 	return out
 
 
-func catch_up(days: int, _ctx: Dictionary) -> Array:
+func catch_up(days: int, ctx: Dictionary) -> Array:
 	# closed form: drift every relation toward baseline, decay grievances, grow sects
 	var out: Array = []
 	if days <= 0:
 		return out
+	_week_reversion(float(mini(days, 400)) / 7.0, ctx)
 	var d := float(mini(days, 400))
 	var fac := 1.0 - pow(0.99, d)
 	for k: String in _rel:
