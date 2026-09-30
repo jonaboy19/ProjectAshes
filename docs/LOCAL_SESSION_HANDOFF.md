@@ -453,6 +453,7 @@ The cloud container has ~15 GB shared by all agents; full-game captures die. The
 5. **Perf round 3 on the real GPU + phone:** city views ~300 draw calls vs 150 budget; Hidden Vale wide views 165-180 draws (eye level 121-149); dungeons ≤ 74. Stalls/plants LOD and guard impostors were the next ideas.
 6. **Play the first 20 minutes + Act I on the phone** ("The Stones Are Dimming"): the headless autoplay passes; the in-game run was OOM-killed at the Blessing Eve step.
 7. **Asset audit (user request):** list imported models/animations that nothing references (meshy_free packs, animation libraries, region kits) and propose where each goes; place the art-side ones.
+   **Audit DONE (cloud-side, from git, no Blender needed):** `docs/qa/ASSET_AUDIT.md` + `docs/qa/asset_audit_unreferenced.csv` (413 MB UNREF, 555 MB unused by the game incl. tools-only; 68 MB safe to exclude from the APK now). Still open for local: the placement and art-side items in sections A and E (scale and y-offset checks on the GPU build), decimating `generated/scan`, and a measured before/after test export.
 8. **TikTok teaser** fallback if the cloud video agent fails again: 15-30 s vertical 1080x1920 gameplay (gate market, aerial, combat, building, war map, keep).
 
 Free CI now runs the whole gdUnit suite + secret scan + 90 MB guard on every push (`.github/workflows/tests.yml`, see skill `ashes-ci`), so you don't need to run the full suite locally before pushing; check the Actions tab after.
