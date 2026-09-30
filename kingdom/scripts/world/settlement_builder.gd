@@ -247,7 +247,8 @@ func _build(s: Dictionary) -> Node3D:
 		if CityPlanner._near_angle(ang, gates, 0.3):
 			continue
 		var p := c + Vector2(cos(ang), sin(ang)) * r * rng.randf_range(1.2, 1.45)
-		_piece(root, "mill", p, WorldGen.height(p.x, p.y), rng.randf() * TAU)
+		var mill_yaw := rng.randf() * TAU
+		_piece(root, "mill", p, _ground_snap(p, mill_yaw, _footprint("mill")), mill_yaw)   # lint: corner snap, not centre height
 	_fields(root, s, plan, rng, gates)
 	_homesteads(root, s, plan, rng)
 	_gate_outskirts(root, s, plan, gates)
@@ -327,7 +328,7 @@ static func _ground_snap(p: Vector2, yaw: float, size: Vector3, sink: float = 0.
 	var hz := size.z * 0.4
 	for c in [Vector2(-hx, -hz), Vector2(hx, -hz), Vector2(-hx, hz), Vector2(hx, hz)]:
 		var off := basis * Vector3(c.x, 0.0, c.y)
-		lowest = minf(lowest, WorldGen.height(p.x + off.x, p.y + off.y))
+		lowest = minf(lowest, WorldGen.height(p.x + off.x, p.y + off.z))
 	return lowest - sink
 
 
@@ -343,7 +344,7 @@ static func _ground_spread(p: Vector2, yaw: float, size: Vector3) -> float:
 	var hi := -INF
 	for c in [Vector2(-hx, -hz), Vector2(hx, -hz), Vector2(-hx, hz), Vector2(hx, hz)]:
 		var off := basis * Vector3(c.x, 0.0, c.y)
-		var h := WorldGen.height(p.x + off.x, p.y + off.y)
+		var h := WorldGen.height(p.x + off.x, p.y + off.z)
 		lo = minf(lo, h)
 		hi = maxf(hi, h)
 	return hi - lo
@@ -903,7 +904,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		# A haystack at the field corner.
 		var hp := fc + bx * (hx + 3.0) + bz * (hz - 2.0)
 		var hy := rng.randf() * TAU
-		stacks.append(Transform3D(Basis(Vector3.UP, hy), Vector3(hp.x, WorldGen.height(hp.x, hp.y), hp.y)))
+		stacks.append(Transform3D(Basis(Vector3.UP, hy), Vector3(hp.x, _ground_snap(hp, hy, _footprint("haystack"), 0.0), hp.y)))
 		var hsize := _footprint("haystack")
 		var body := StaticBody3D.new()
 		var shape := CollisionShape3D.new()
@@ -1001,7 +1002,7 @@ func _gate_outskirts(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array
 					continue
 				if not lists.has(kind):
 					lists[kind] = []
-				(lists[kind] as Array).append(Transform3D(Basis(Vector3.UP, yaw), Vector3(at.x, WorldGen.height(at.x, at.y) - 0.03, at.y)))
+				(lists[kind] as Array).append(Transform3D(Basis(Vector3.UP, yaw), Vector3(at.x, _ground_snap(at, yaw, _footprint(kind), 0.03), at.y)))
 			u += 7.0 + rng2.randf() * 5.0
 		var lu := wr + 12.0
 		while lu < wr + 80.0:
