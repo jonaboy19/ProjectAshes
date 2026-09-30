@@ -1,16 +1,16 @@
 # NPC need continuity handoff
 
-**Status:** partial implementation shipped on `gpt/locomotion-jump-integration`; offline progression and runtime acceptance are still open.
+**Status:** implementation shipped on `gpt/locomotion-jump-integration`; live runtime/performance acceptance is still open.
 **Source checked:** `gpt/locomotion-jump-integration` after sync with Claude `ec7c4960` (2026-09-30).
 **Scope:** preserve a small amount of life state across NPC presentation LOD and save/load. Keep the existing schedule, utility AI, and population budgets.
 
 ## The gap in the current system
 
-`WorldSim` owns deterministic population rows. Its version-1 save payload now includes flat packed values for food, rest, social, faith, and water, a last-updated game-hour column, and a valid marker. `UtilityBrain` can export/import that stable five-value order. `Villager` restores valid state on promotion, syncs after its existing staggered brain tick, writes it on removal, and keeps it through `resync()`. If a save is loaded while the world scene is still alive, `Life.restore()` refreshes each registered brain from the newly deserialized rows before the next LOD resync. Old or malformed saves fall back to deterministic seeding; loading a save without valid need fields first clears in-memory state from the replaced run.
+`WorldSim` owns deterministic population rows. Its version-2 save payload includes flat packed values for food, rest, social, faith, and water, a double-precision last-updated game-hour column, and a valid marker. The reader remains compatible with the earlier version-1 float timestamp. `UtilityBrain` can export/import that stable five-value order. `Villager` restores valid state on promotion, syncs after its existing staggered brain tick, writes it on removal, and keeps it through `resync()`. If a save is loaded while the world scene is still alive, `Life.restore()` refreshes each registered brain from the newly deserialized rows before the next LOD resync. Old or malformed saves fall back to deterministic seeding; loading a save without valid need fields first clears in-memory state from the replaced run.
 
-Need values now survive ordinary body despawn/promotion and save/load. `UtilityBrain.tick()` caps a single catch-up interval at two game hours, so a longer absence/time skip only applies up to two hours of need change; the rest of the elapsed interval is intentionally not simulated yet. The durable timestamp makes a future schedule-aware offline progression slice possible without changing the current utility rates.
+Need values now survive ordinary body despawn/promotion and save/load. Distant residents with initialized state advance during their existing time-sliced `WorldSim._step()` visit; there is no extra resident scan. That path applies the shared food/rest/social/faith/water depletion rates, recovers rest at the coarse home/sleep schedule, and assumes three half-hour meals using the existing eat restoration rate. Unembodied catch-up is capped at 24 game hours, enough to cover one representative day without looping over arbitrarily old/corrupt times. Embodied `UtilityBrain.tick()` keeps its existing two-game-hour bound. During `advance_hours()`, the already existing all-resident settle pass advances unembodied rows once while body-owned rows wait for brain resync.
 
-This is a source-confirmed continuity gap, not a claim that the whole NPC schedule or population simulation is missing. The current design already has the important mobile boundary: data rows for the population, utility decisions only for embodied villagers, a time-budgeted `WorldSim`, and capped body/animation work.
+This closes the source-confirmed need reset across ordinary LOD and save/load boundaries; it does not claim the whole NPC schedule or population simulation is complete. The design keeps the existing mobile boundary: packed population rows, utility decisions only for embodied villagers, a time-budgeted `WorldSim`, and capped body/animation work.
 
 ## Preserve the current architecture
 
@@ -27,18 +27,18 @@ This is a source-confirmed continuity gap, not a claim that the whole NPC schedu
 2. ~~Add a UtilityBrain export/import boundary.~~ **Implemented:** stable order is food, rest, social, faith, water.
 3. ~~Transfer on promotion/removal, tick while embodied, and preserve through resync.~~ **First layer implemented:** restoration and bounded-cadence sync use the existing brain; catch-up remains capped at two hours.
 4. ~~Add versioned save fields and old-save fallback.~~ **Implemented:** fields live in `WorldSim.serialize()/deserialize()`; old/malformed dimensions use seeded fallback, and need rows clear before loading so older saves cannot inherit the prior session's values.
-5. **Open:** measured storage/load cost and complete the schedule-aware unembodied progression. Keep it lazy/time-sliced or promotion-triggered; do not add an all-resident per-frame pass.
+5. ~~Advance unembodied needs without an all-resident per-frame pass.~~ **Implemented:** the existing time-sliced visit handles only valid rows; `advance_hours()` reuses its population settle loop. Schedule and meal assumptions are deliberately approximate. **Open:** measure storage/load and CPU cost on the same mobile build.
 
 ### Offline need progression
 
-Keep this intentionally approximate. It should create continuity, not simulate every meal and gesture. Use `DailyRhythm` and the same meal/sleep assumptions as the current brain to bound catch-up. Do not restore social/faith/water needs merely because time passed. If exact act history is needed later, introduce it as a separate feature after this state handoff is stable.
+Keep this intentionally approximate. It should create continuity, not simulate every meal and gesture. Current implementation uses the shared work/home schedule phase (without per-person departure delay) to infer nighttime rest, the brain's three meal hours for assumed food recovery, and the same trait-scaled need depletion rates. It does not restore social/faith/water merely because time passed. If exact act history is needed later, introduce it as a separate feature after this state handoff is stable.
 
 Use elapsed **game hours**, not wall-clock time, so pause, time skips, and the game's 720-second day stay coherent. Clamp or segment unusually large elapsed intervals so corrupted timestamps cannot produce extreme arithmetic. A time skip that already invokes `WorldSim.advance_hours()` should not apply the same interval twice.
 
 ## Acceptance evidence
 
 - The same resident keeps approximately the same needs when promoted, demoted, then promoted again without a world-time jump.
-- A resident's needs survive save/load and LOD handoff. For unembodied time passage, first define and capture the intended approximate schedule-aware catch-up (currently limited to 2 h), then verify they do not snap to a newly seeded profile.
+- A resident's needs survive save/load and LOD handoff. Unembodied time passage uses coarse schedule/meal catch-up (24-hour cap); verify this does not double-advance on a time skip or snap to a new seed.
 - A save made with active and unembodied residents reloads with both groups at coherent need levels. An old save without the new field still loads.
 - A large time skip advances needs once, not twice. Loading an earlier save does not inherit the later session's in-memory state.
 - A deterministic multi-hour schedule capture shows needs affecting existing choices (sleep, eat, socialise, water, pray) without changing schedule ownership or causing every resident to travel at the same moment.

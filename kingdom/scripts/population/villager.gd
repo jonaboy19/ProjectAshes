@@ -222,7 +222,7 @@ func _ready() -> void:
 	if _graph:
 		p = _graph.push_out(p, BODY_RADIUS + 0.12)
 	position = Vector3(p.x, WorldGen.height(p.x, p.y), p.y)
-	WorldSim.set_external_position_owner(person, get_instance_id(), true, sim_position())
+	WorldSim.set_external_position_owner(person, get_instance_id(), true, sim_position(), true)
 	var heading: Vector2 = WorldSim.target[person] - p
 	_heading = atan2(heading.x, heading.y) if heading.length() > 0.1 else float(person % 628) / 100.0
 	rotation.y = _heading
@@ -295,6 +295,7 @@ func sim_position() -> Vector2:
 func restore_needs_from_world() -> void:
 	if _brain == null:
 		return
+	WorldSim.set_external_position_owner(person, get_instance_id(), true, Vector2.INF, true)
 	var stored := WorldSim.person_needs(person)
 	if stored.is_empty() or not _brain.import_needs(stored.get("values", PackedFloat32Array()), float(stored.get("hours", -1.0))):
 		_brain.seed_needs(DailyRhythm.local_time(person), WorldSim.day)

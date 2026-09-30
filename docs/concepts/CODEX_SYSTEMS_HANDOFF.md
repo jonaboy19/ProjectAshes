@@ -17,11 +17,11 @@ The Journal reads `Life.scouts.offers` so offers restored from saves remain visi
 
 See [CODEX_LOCOMOTION_JUMP.md](../anim/CODEX_LOCOMOTION_JUMP.md) for the player jump/run-stop integration, impact feedback, directional reactions, enemy wind-up timing and camera improvements, plus the required in-game validation checklist.
 
-## NPC need continuity: first layer implemented
+## NPC need continuity: coarse simulation implemented
 
-`WorldSim` now stores five normalized needs per resident in flat packed rows and includes versioned base64 fields in its save dictionary. Active `UtilityBrain` values sync at the existing staggered decision cadence and on body removal; promotion and time-skip resync restore the resident's saved needs, with the existing two-game-hour catch-up bound. Saves without valid fields keep the seeded fallback, and loading such a save clears any needs left in memory by the replaced session.
+`WorldSim` now stores five normalized needs per resident in flat packed rows and includes versioned base64 fields in its save dictionary. Active `UtilityBrain` values sync at the existing staggered decision cadence and on body removal; promotion and time-skip resync restore the resident's saved needs, with the existing two-game-hour catch-up bound. Unembodied initialized rows advance as part of the existing time-sliced `WorldSim._step()` visits, with coarse sleep/mealtime rules, and the existing all-resident time-skip settle pass advances them once. Saves without valid fields keep the seeded fallback, and loading such a save clears any needs left in memory by the replaced session.
 
-This does not yet advance unembodied needs continuously from schedules, and its serialized memory/cost has not been measured in a live mobile build. Remaining design, acceptance cases, and that limitation are tracked in [NPC_NEEDS_CONTINUITY_HANDOFF.md](NPC_NEEDS_CONTINUITY_HANDOFF.md).
+This remains intentionally coarse: unembodied catch-up is capped at 24 game hours, meal times are assumptions, and no social/faith/water restoration is invented. Serialized memory and runtime cost have not been measured in a live mobile build. Remaining acceptance cases and the approximation are tracked in [NPC_NEEDS_CONTINUITY_HANDOFF.md](NPC_NEEDS_CONTINUITY_HANDOFF.md).
 
 ## Dialogue presentation: F13 partial fix
 

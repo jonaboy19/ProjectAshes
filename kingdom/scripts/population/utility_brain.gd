@@ -28,7 +28,7 @@ extends RefCounted
 
 const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
-const RANeedsScript := preload("res://scripts/sim/needs.gd")
+const NeedRules := preload("res://scripts/sim/npc_need_rules.gd")
 
 enum Act { SLEEP, HOME, EAT, WORK, SHOP, SOCIAL, INN, PRAY, WATER, SHELTER, FLEE, WATCH, IDLE }
 const NAMES := ["sleep", "home", "eat", "work", "shop", "socialise", "inn", "pray", "water", "shelter", "flee", "watch", "idle"]
@@ -82,18 +82,18 @@ const COMMIT_BONUS := 1.45
 const KEEP_BONUS := 1.15
 
 ## Needs, per game hour. Rest uses the player's RANeeds rates (0..100 -> 0..1).
-const FATIGUE_PER_HOUR := RANeedsScript.FATIGUE_PER_HOUR / 100.0
-const SLEEP_PER_HOUR := RANeedsScript.SLEEP_PER_HOUR / 100.0
-const HUNGER_PER_HOUR := 0.11
-const WATER_PER_HOUR := 0.09
+const FATIGUE_PER_HOUR := NeedRules.FATIGUE_PER_HOUR
+const SLEEP_PER_HOUR := NeedRules.SLEEP_PER_HOUR
+const HUNGER_PER_HOUR := NeedRules.HUNGER_PER_HOUR
+const WATER_PER_HOUR := NeedRules.WATER_PER_HOUR
 ## Restored per game hour while performing an act at its spot: [need, amount].
 const RESTORE := {
 	Act.SLEEP: [["rest", SLEEP_PER_HOUR]], Act.HOME: [["rest", 0.03]],
-	Act.EAT: [["food", 2.5]], Act.SOCIAL: [["social", 1.5]],
+	Act.EAT: [["food", NeedRules.EAT_RESTORE_PER_HOUR]], Act.SOCIAL: [["social", 1.5]],
 	Act.INN: [["social", 1.0], ["food", 0.6]], Act.PRAY: [["faith", 1.6]],
 	Act.WATER: [["water", 2.2]],
 }
-const MEALS := [7.0, 12.5, 18.5]
+const MEALS := NeedRules.MEALS
 
 ## Sensing ranges, metres.
 const DANGER_NEAR := 5.0
@@ -218,13 +218,8 @@ static func best(ctx: Dictionary, current := -1, bonus := 1.0) -> int:
 ## Seeded personality, stable for life: four traits in 0..1.
 static func personality(p: int) -> Dictionary:
 	var out := {}
-	var k := 0
-	for t: String in ["sociable", "lazy", "pious", "greedy"]:
-		# Sum of two draws: traits cluster around the middle, extremes are rarer.
-		var h1 := hash(p * 2246822519 + k * 3266489917 + 1066)
-		var h2 := hash(p * 668265263 + k * 374761393 + 7)
-		out[t] = (float(h1 % 1000) + float(h2 % 1000)) / 1998.0
-		k += 1
+	for k in range(4):
+		out[["sociable", "lazy", "pious", "greedy"][k]] = NeedRules.trait_value(p, k)
 	return out
 
 
@@ -322,8 +317,8 @@ func tick(now_hours: float, performing := -1) -> void:
 	food -= HUNGER_PER_HOUR * dt * (0.5 if asleep else 1.0)
 	if not asleep:
 		rest -= FATIGUE_PER_HOUR * dt
-	social -= (0.05 + 0.08 * float(traits["sociable"])) * dt
-	faith -= (0.02 + 0.05 * float(traits["pious"])) * dt
+	social -= NeedRules.social_drain_per_hour(person) * dt
+	faith -= NeedRules.faith_drain_per_hour(person) * dt
 	water -= WATER_PER_HOUR * dt
 	if RESTORE.has(performing):
 		for r: Array in RESTORE[performing]:
