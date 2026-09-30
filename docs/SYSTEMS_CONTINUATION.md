@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Handoff: career and biography lifecycle ownership
+
+Source review found that resignation closes a Careers seat but Life's callback ignores unemployed state; three-strike dismissal clears the seat without emitting the same transition signal; and daily ladder promotion continues while `career_id` remains set. Biography has close/promotion methods, but the current integration does not consistently call them, and `start_chapter()` suppresses a same-role/org restart even after closure. No code was changed because rank persistence after leaving employment is a policy decision and the touched files share ownership. The handoff maps apply, resign, dismissal, promotion, rehire and save/load transitions, and recommends separating earned career history from active employment before implementation: [CAREER_BIOGRAPHY_LIFECYCLE_CONTRACT.md](concepts/CAREER_BIOGRAPHY_LIFECYCLE_CONTRACT.md). Re-read Claude's current versions and agree on rank behavior before editing.
+
 ### Latest slice: LifeCourses checks close kin before new marriages
 
 `LifeCourses.try_marry()` now rejects an initiating person who is missing, dead, already married, or under 16. Candidate selection keeps its existing eligibility and RNG choice, while excluding parent-child pairs in either direction and full siblings sharing any recognized nonnegative parent ID. Missing/malformed parent arrays cannot crash the filter, but unknown kinship cannot be excluded when lineage data is absent; cousin filters and retroactive migration are out of scope. No save fields changed. Static source review and `git diff --check` only; no parser/runtime marriage test or save/load behavior check was run. See [NPC_LIFE_COURSES_KINSHIP_HANDOFF.md](concepts/NPC_LIFE_COURSES_KINSHIP_HANDOFF.md).
