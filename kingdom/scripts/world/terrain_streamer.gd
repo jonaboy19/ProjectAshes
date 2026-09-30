@@ -19,7 +19,11 @@ const TREE_LOD := 200.0
 const REGION_LODS := [40.0, 120.0]
 const REGION := "region/nature/"
 
-@export var view_radius := 4         # chunks; 9x9 grid visible
+@export var view_radius := 4:        # chunks; 9x9 grid visible
+	set(v):
+		if v != view_radius:
+			view_radius = v
+			_idle_center = Vector2i(1 << 30, 0)   # a new ring size (settings screen) needs a scan even when standing still
 @export var collision_radius := 1    # chunks that also get physics
 @export var grass_radius := 1        # chunks that also get grass
 var focus := Vector3.ZERO

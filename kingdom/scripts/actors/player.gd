@@ -34,6 +34,9 @@ extends CharacterBody3D
 signal health_changed(current: int, maximum: int)
 signal stamina_changed(current: float, maximum: float)
 signal view_changed(view: int)
+## The fall animation has played; whoever owns the game decides what happens next
+## (main.gd shows the death screen). With no listener the player just gets up at spawn_point.
+signal died
 
 enum View { FIRST, THIRD, TOWN, COMMAND }
 const VIEW_NAMES := ["First person", "Third person", "Town view", "Command view"]
@@ -167,6 +170,8 @@ var max_health := 120
 var health := 120
 var stamina := MAX_STAMINA
 var dead := false
+## Seconds of the fall before the death screen appears.
+const DEATH_SCREEN_DELAY := 2.4
 var team := 0
 var touch_move := Vector2.ZERO
 var view := View.THIRD
@@ -189,6 +194,8 @@ var _ragdoll: Node
 var _viewmodel: Node3D
 var _shake := CameraShake.new()
 var _look_target: Node3D
+var _body_node: Node3D
+var _appearance_key := ""
 var _combo := -1
 var _swing := 0.0
 var _swing_cancel := 0.0
@@ -256,16 +263,7 @@ func _ready() -> void:
 	floor_snap_length = 0.35
 	_model = Node3D.new()
 	add_child(_model)
-	var body := Assets.character("Player", 1.8, ["1H_Sword", "Round_Shield"])
-	_model.add_child(body)
-	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true)
-	_ragdoll = Ragdoll.attach(self, body, [_animator.tree, _animator.player])
-	_add_head_look(body)
-	# After the look-at: the rig orders the skeleton's modifiers as
-	# animation -> look-at -> foot IK -> secondary motion.
-	_rig = ProceduralRig.attach(body, self, true)
-	_animator.rig = _rig
-	_trail = WeaponTrail.attach(body)
+	_build_body()
 	_pivot = Node3D.new()
 	_pivot.position.y = 1.55
 	add_child(_pivot)
@@ -346,6 +344,56 @@ func _menu_open() -> bool:
 
 
 ## Procedural head tracking: the head turns toward the nearest enemy or person.
+## The character model with its animation, ragdoll, head look, foot IK and weapon trail.
+## `Life.appearance` (character creation) picks the modular G6 look; no appearance = the default hero.
+func _build_body() -> void:
+	var props: Array[String] = ["1H_Sword", "Round_Shield"]
+	var look: Variant = Life.get("appearance")
+	var body: Node3D = null
+	if look is Dictionary and not (look as Dictionary).is_empty():
+		body = (load("res://scripts/ui/character_creation.gd") as GDScript).call("build_model", look, 1.8, props)
+	_appearance_key = var_to_str(look) if body != null else ""
+	if body == null:
+		body = Assets.character("Player", 1.8, props)
+	_body_node = body
+	_model.add_child(body)
+	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true)
+	_ragdoll = Ragdoll.attach(self, body, [_animator.tree, _animator.player])
+	_add_head_look(body)
+	# After the look-at: the rig orders the skeleton's modifiers as
+	# animation -> look-at -> foot IK -> secondary motion.
+	_rig = ProceduralRig.attach(body, self, true)
+	_animator.rig = _rig
+	_trail = WeaponTrail.attach(body)
+
+
+## Applies `Life.appearance` (skin, hair, head, outfit, sex) to the world model: after New Game the
+## first build already uses it; a loaded save calls this once its appearance has been restored.
+## Beard, scars and voice have no mesh in the asset set and stay cosmetic.
+func apply_appearance() -> void:
+	var look: Variant = Life.get("appearance")
+	var key := var_to_str(look) if look is Dictionary and not (look as Dictionary).is_empty() else ""
+	if key == _appearance_key or _model == null:
+		return
+	if _ragdoll and is_instance_valid(_ragdoll):
+		remove_child(_ragdoll)
+		_ragdoll.queue_free()
+		_ragdoll = null
+	if _look_target and is_instance_valid(_look_target):
+		remove_child(_look_target)
+		_look_target.queue_free()
+		_look_target = null
+	if _body_node and is_instance_valid(_body_node):
+		_model.remove_child(_body_node)
+		_body_node.queue_free()    # also frees the rig, trail, look-at modifier and animator nodes
+	_rig = null
+	_trail = null
+	_build_body()
+	apply_age()
+	if dead:
+		_animator.set_active(true)
+
+
 func _add_head_look(body: Node3D) -> void:
 	var skeleton: Skeleton3D = body.find_children("*", "Skeleton3D", true, false)[0]
 	# The UAL rig names it "Head" (its +Z faces forward, like the KayKit "head").
@@ -1288,9 +1336,21 @@ func _die() -> void:
 		_rig.call("set_paused", true)   # no foot IK or springs under the ragdoll or death clip
 	if not (_ragdoll and _ragdoll.call("die")):
 		_animator.play_terminal("Death01")
-	Game.say("You fall... and wake in the village, bruised.")
-	await get_tree().create_timer(3.0).timeout
-	global_position = spawn_point
+	if get_signal_connection_list("died").is_empty():
+		Game.say("You fall... and wake in the village, bruised.")
+		await get_tree().create_timer(3.0).timeout
+		revive()
+		return
+	await get_tree().create_timer(DEATH_SCREEN_DELAY).timeout
+	if dead:
+		died.emit()
+
+
+## Gets the fallen player back on their feet: at `spawn_point` (a bed, or the village), or
+## where they lie when `teleport` is false (a save was loaded over the death).
+func revive(teleport := true) -> void:
+	if teleport:
+		global_position = spawn_point
 	reset_physics_interpolation()
 	_move_speed = 0.0
 	_impulse = Vector3.ZERO

@@ -106,6 +106,56 @@ var _last_abs := -1.0     # absolute in-game hours at the last tick
 
 
 func _ready() -> void:
+	WorldSim.hour_changed.connect(_on_hour)
+	_new_life()
+
+
+## Every state object of a run (recreated by reset()).
+const STATE := ["life_path", "titles", "triggers", "careers", "guild", "magicules", "naming", "injuries", "scouts",
+	"discovery", "relationships", "radiant", "crafting", "equipment", "skills", "mastery", "biography", "property",
+	"nobility", "lordship", "family", "soul", "skill_evolution", "echoes", "life_courses", "war", "realm",
+	"homestead", "tendencies", "childhood_events", "awakening", "needs", "market", "economy"]
+
+
+## A brand-new run: Game, WorldSim, Frontier, Region 1 and every object Life owns go back to their
+## initial state and the first life begins again (New Game after "Exit to Main Menu"). The saved
+## Flow.creation is applied by _begin_life, so call this after it is set (or {}) and apply_creation
+## again afterwards if the choices arrive later. Settings and save slots are untouched.
+func reset() -> void:
+	player = null
+	_hud = null
+	Game.reset()
+	WorldSim.reset()
+	Frontier.reset()
+	Region1State.reset()
+	var qw := get_node_or_null("/root/QuestWeaverGameState")
+	if qw and qw.has_method("load_from_data"):
+		qw.call("load_from_data", {})
+	const MenuData := preload("res://scripts/ui/gamemenu/menu_data.gd")
+	MenuData.quest_log.clear()
+	if inventory and is_instance_valid(inventory):
+		inventory.name = "OldInventory"
+		remove_child(inventory)
+		inventory.queue_free()
+	for n: String in STATE:
+		set(n, get(n).get_script().new())
+	world_events = WorldEventLog.new()
+	action_runtime = ActionRuntime.new()
+	_craft_station_actions.clear()
+	pending_offers.clear()
+	appearance = {}
+	career_id = ""
+	career_rank = ""
+	career_since_day = 0
+	career_sponsor_tier = 0
+	saves.reset_autosave_clock()
+	_new_life()
+	inventory_changed.emit()
+	employment_changed.emit()
+
+
+## Wires the state objects together and begins the first life (boot, and again after reset()).
+func _new_life() -> void:
 	equipment.clock = _abs_hours
 	if not crafting.station_invalidated.is_connected(_on_craft_station_invalidated):
 		crafting.station_invalidated.connect(_on_craft_station_invalidated)
@@ -169,7 +219,6 @@ func _ready() -> void:
 			biography.start_chapter("lord", "", "lord", place, WorldSim.day)
 			biography.add_highlight("Granted the village of %s" % place, WorldSim.day)
 			Game.say("You are now lord of %s." % place))
-	WorldSim.hour_changed.connect(_on_hour)
 	_last_abs = _abs_hours()
 	give("bread", 2)
 	_begin_life()
@@ -196,6 +245,37 @@ func _ready() -> void:
 			var r := guild.on_hired(RAAdventurerGuild.PLAYER, o["id"], s["title"], WorldSim.day)
 			if r.get("ok", false):
 				Game.say(String(r.get("text", ""))))
+
+
+# --- death ------------------------------------------------------------------------
+
+## Share of the purse lost when the player is carried home after dying.
+const DEATH_GOLD_LOSS := 0.10
+const DEATH_INJURIES := ["bruised_ribs", "deep_cut"]
+
+
+## The cost of dying and waking up at home: a tenth of the gold (thieves, the healer, a
+## day's lost work) and a minor injury that heals by itself (Life.injuries, shown at the
+## healer and in the character sheet). Returns {gold_lost, injury, text}.
+func apply_death_penalty() -> Dictionary:
+	var lost := clampi(int(round(Game.gold * DEATH_GOLD_LOSS)), 0, Game.gold)
+	if lost > 0:
+		Game.add_gold(-lost)
+	var picked := ""
+	for t: String in DEATH_INJURIES:
+		if not injuries.has(t):
+			picked = t
+			break
+	if picked != "":
+		injuries.add(picked, WorldSim.day)
+		magicules.apply_effects(injuries.effects())
+	var inj_name := String(RAInjuries.info(picked).get("name", "")) if picked != "" else ""
+	var text := "You wake at home, bruised."
+	if lost > 0:
+		text += " %d gold is gone from your purse." % lost
+	if inj_name != "":
+		text += " Injury: %s." % inj_name
+	return {"gold_lost": lost, "injury": picked, "text": text}
 
 
 # --- life from birth ------------------------------------------------------------
@@ -1179,11 +1259,15 @@ func restore(d: Dictionary) -> void:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	appearance = d.get("appearance", {})
+	if player and is_instance_valid(player) and player.has_method("apply_appearance"):
+		player.apply_appearance()
 	realm.warm_up()
 	_last_abs = _abs_hours()
 	if d.has("player") and player and is_instance_valid(player):
 		var p: Dictionary = d["player"]
 		player.global_position = Vector3(p["x"], p["y"], p["z"])
+		if bool(player.get("dead")) and player.has_method("revive"):
+			player.revive(false)     # a save loaded from the death screen
 		if player.has_method("set_health"):
 			player.set_health(int(p.get("health", 100)))
 	inventory_changed.emit()

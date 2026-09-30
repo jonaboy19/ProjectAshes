@@ -113,11 +113,11 @@ static func _n_hairs(sex: String) -> int:
 
 
 ## The chosen character as a rigged, animated model (`height` metres). Cosmetic-only choices do not change it.
-static func build_model(look: Dictionary, height := 1.75) -> Node3D:
+static func build_model(look: Dictionary, height := 1.75, keep: Array[String] = []) -> Node3D:
 	var sex := String(look.get("sex", "male"))
 	var g := "male" if sex == "male" else "female"
 	var file := G6 + ("g6_m_modular_all" if sex == "male" else "g6_f_modular_all")
-	var model := Assets.mh_character(file, height)
+	var model := Assets.mh_character(file, height, keep)
 	var head_i := clampi(int(look.get("head", 0)), 0, _n_heads(sex) - 1)
 	var hair_i := clampi(int(look.get("hair", 1)), 0, _n_hairs(sex) - 1)
 	var outfit: Dictionary = OUTFITS[clampi(int(look.get("body", 0)), 0, OUTFITS.size() - 1)]
@@ -137,6 +137,8 @@ static func build_model(look: Dictionary, height := 1.75) -> Node3D:
 	var prefix := "human_%s_" % g
 	for mi in model.find_children("*", "MeshInstance3D", true, false):
 		var m := mi as MeshInstance3D
+		if not String(m.name).begins_with(prefix):
+			continue                          # a held prop (sword, shield), not a body part
 		var part := String(m.name).trim_prefix(prefix)
 		m.visible = want.has(part)
 		if not m.visible:

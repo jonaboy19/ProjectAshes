@@ -16,11 +16,24 @@ var _last_day := -1
 
 
 func _ready() -> void:
+	_new_state()
+	WorldSim.hour_changed.connect(_on_hour)
+
+
+func _new_state() -> void:
 	threat = RAThreatMap.new(runestones, ecology)
 	_seed_frontier()
-	WorldSim.hour_changed.connect(_on_hour)
 	ecology.migration.connect(func(den: Dictionary, from_pos: Vector2, to_pos: Vector2) -> void:
 		frontier_event.emit("Wolves are moving %s." % _compass(to_pos - from_pos), to_pos))
+
+
+## Back to the freshly seeded frontier of a new game (runestones, dens, threat map).
+func reset() -> void:
+	runestones = RARunestoneNetwork.new()
+	ecology = RAMonsterEcology.new()
+	rift_instability = 0.1
+	_last_day = -1
+	_new_state()
 
 
 func _seed_frontier() -> void:

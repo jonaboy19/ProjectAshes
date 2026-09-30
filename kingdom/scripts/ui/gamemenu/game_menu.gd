@@ -22,12 +22,12 @@ const DIR := "res://scripts/ui/gamemenu/"
 ## id, label, jump key, page script.
 const TABS := [
 	["inventory", "Inventory", KEY_I, "tab_inventory.gd"],
-	["character", "Character", KEY_C, "tab_character.gd"],
+	["character", "Character", KEY_NONE, "tab_character.gd"],
 	["skills", "Skills", KEY_K, "tab_skills.gd"],
-	["quests", "Quests", KEY_J, "tab_quests.gd"],
+	["quests", "Quests", KEY_NONE, "tab_quests.gd"],
 	["map", "Map", KEY_M, "tab_map.gd"],
-	["journal", "Journal", KEY_L, "tab_journal.gd"],
-	["realm", "Realm", KEY_R, "tab_realm.gd"],
+	["journal", "Journal", KEY_NONE, "tab_journal.gd"],
+	["realm", "Realm", KEY_NONE, "tab_realm.gd"],
 ]
 
 ## The HUD CanvasLayer this menu lives on (its world_map is hosted by the Map tab).
@@ -304,10 +304,18 @@ func _input(e: InputEvent) -> void:
 			return
 	if _pages.has(tab) and bool((_pages[tab] as Control).call("handle_key", k)):
 		return
+	# Tab jumps: I / K / M (the same keys that open the menu from the world) and 1-7 in tab order.
+	# C, J, L, R and the other combat keys are never menu keys (docs/controls.md).
+	var jump := ""
+	var by_letter := false
 	for t: Array in TABS:
-		if int(t[2]) == code:
-			if String(t[0]) == tab:
-				close()
-			else:
-				open_tab(String(t[0]))
-			return
+		if int(t[2]) != KEY_NONE and int(t[2]) == code:
+			jump = String(t[0])
+			by_letter = true
+	if jump == "" and code >= KEY_1 and code < KEY_1 + TABS.size():
+		jump = String(TABS[code - KEY_1][0])
+	if jump != "":
+		if jump == tab and by_letter:
+			close()          # the opening key again closes, like Tab
+		else:
+			open_tab(jump)

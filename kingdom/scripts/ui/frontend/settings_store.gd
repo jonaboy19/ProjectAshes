@@ -10,9 +10,13 @@ const PATH := "user://settings.cfg"
 
 const RES_OPTIONS := ["1280 x 720", "1600 x 900", "1920 x 1080", "2560 x 1440"]
 const LEVELS := ["Low", "Medium", "High", "Ultra"]
+## View Distance / Shadows / Textures / Effects: 0 = follow the graphics preset, 1..4 = Low..Ultra
+## (Quality.set_overrides). Saves from before the "Auto" entry stored 0..3 and are read as Auto.
+const LEVEL_KEYS := ["view_distance", "shadows", "textures", "effects"]
+const LEVEL_OPTIONS := ["Auto", "Low", "Medium", "High", "Ultra"]
 const DEFAULTS := {
-	"resolution": 0, "display_mode": 0, "vsync": 1, "aa": 1, "view_distance": 2, "shadows": 2,
-	"textures": 2, "effects": 2, "fps_limit": 1,
+	"resolution": 0, "display_mode": 0, "vsync": 1, "aa": 1, "view_distance": 0, "shadows": 0,
+	"textures": 0, "effects": 0, "fps_limit": 1,
 	"vol_master": 80, "vol_music": 70, "vol_sfx": 80, "vol_ambience": 75, "vol_voice": 85,
 	"difficulty": 1, "cam_sens": 50, "invert_y": false, "subtitles": true,
 	"hud_minimap": true, "hud_quests": true, "hud_compass": true, "hud_damage": true,
@@ -35,8 +39,19 @@ const ACTIONS := [
 	["move_right", "Move Right"], ["sprint", "Sprint"], ["dodge", "Dodge"], ["attack", "Attack"],
 	["block", "Block"], ["interact", "Interact / Talk"], ["eat", "Eat"], ["view_cycle", "Change View"],
 	["journal", "Menu / Journal"], ["world_map", "World Map"], ["photo_mode", "Photo Mode"],
-	["quick_save", "Quick Save"], ["quick_load", "Quick Load"],
+	["quick_save", "Quick Save"], ["quick_load", "Quick Load"], ["lock_on", "Lock On"], ["crouch", "Crouch / Sneak"],
+	["ability_dash", "Shadow Dash"], ["menu_inventory", "Inventory"], ["menu_skills", "Skills"],
 ]
+
+
+## The four level rows from a loaded config as Quality overrides (-1 = follow the preset).
+static func levels_from_config(cf: ConfigFile) -> Array[int]:
+	var out: Array[int] = []
+	var fresh := bool(cf.get_value("display", "levels_v2", false))
+	for k: String in LEVEL_KEYS:
+		var v := int(cf.get_value("display", k, 0)) if fresh else 0
+		out.append(clampi(v, 0, 4) - 1)
+	return out
 
 
 static func section_of(key: String) -> String:
@@ -59,6 +74,9 @@ static func read_all(tree: SceneTree) -> Dictionary:
 	var out := {}
 	for k: String in DEFAULTS:
 		out[k] = cf.get_value(section_of(k), k, DEFAULTS[k])
+	var lv := levels_from_config(cf)
+	for i in LEVEL_KEYS.size():
+		out[LEVEL_KEYS[i]] = lv[i] + 1
 	var q := tree.root.get_node_or_null("Quality")
 	if q:
 		out["preset"] = int(q.get("choice")) + 1     # 0 Auto, 1..4 Low..Ultra
@@ -73,6 +91,7 @@ static func write_all(vals: Dictionary) -> void:
 	for k: String in DEFAULTS:
 		if vals.has(k):
 			cf.set_value(section_of(k), k, vals[k])
+	cf.set_value("display", "levels_v2", true)
 	cf.save(PATH)
 
 
@@ -105,6 +124,7 @@ static func apply_all(tree: SceneTree, vals := {}, with_preset := false) -> void
 	if q:
 		var fps := int(vals["fps_limit"])
 		q.call("set_battery_saver", fps == 0)
+		apply_levels(tree, vals)
 		if fps == 1:
 			Engine.max_fps = 60
 		elif fps == 2 and not is_mobile():
@@ -119,6 +139,17 @@ static func apply_all(tree: SceneTree, vals := {}, with_preset := false) -> void
 	var app := tree.root.get_node_or_null("App")
 	if app:
 		app.call("refresh", vals)
+
+
+## View distance, shadows, textures and effects rows -> Quality (live, also at boot).
+static func apply_levels(tree: SceneTree, vals: Dictionary) -> void:
+	var q := tree.root.get_node_or_null("Quality")
+	if q == null:
+		return
+	var l: Array[int] = []
+	for k: String in LEVEL_KEYS:
+		l.append(clampi(int(vals.get(k, DEFAULTS[k])), 0, 4) - 1)
+	q.call("set_overrides", l[0], l[1], l[2], l[3])
 
 
 static func is_mobile() -> bool:
