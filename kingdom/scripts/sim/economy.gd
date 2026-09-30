@@ -57,6 +57,12 @@ const FESTIVAL_MULT := 1.3
 const MINE_OPENED_MULT := 0.6
 ## Up to +160% on an imported good at maximum recorded road danger (road_risk = 1.0).
 const IMPORT_RISK_MULT := 1.6
+## Share of the daily import wagons lost at maximum road danger.
+const IMPORT_RISK_CUT := 0.8
+## A market holding more than this multiple of its normal stock of something it makes can export the excess;
+## one under TRADE_SHORT_RATIO of normal gets shipments.
+const TRADE_SURPLUS_RATIO := 1.25
+const TRADE_SHORT_RATIO := 0.75
 ## Kingsreach (the capital) eats its food stock faster than it makes it.
 const CAPITAL_FOOD_EAT_MULT := 1.6
 
@@ -130,6 +136,8 @@ func _build_market(s: Dictionary) -> RAMarket:
 			continue
 		var src := _recipe_for(item)
 		m.add_good(item, int(src[0]), maxi(4, int(src[1]) / 4), 0)
+		# Enough arrives, on a safe road, to hold the stock near normal against what people use.
+		m.imports[item] = 0.15 * clampf(float(s.get("population", 100)) / 60.0, 0.3, 2.0) * float(m.target[item])
 	var id := int(s["id"])
 	if _is_mine_settlement(id) and not m.base_price.has(MINE_GOOD):
 		m.add_good(MINE_GOOD, int(MINE_PRODUCE[0]), int(MINE_PRODUCE[1]), int(MINE_PRODUCE[2]))
@@ -334,7 +342,58 @@ func tick_hour(dh: float, ctx: Dictionary) -> Array[Dictionary]:
 		if _is_capital(id):
 			_extra_capital_food_drain(m, dh)
 		_apply_modifiers(id, m, season, festival, at_war, mine_opened)
+	# Once a day (06:00) the merchants' wagons bring in what each place doesn't make; dangerous roads thin them out.
+	if ctx.has("abs_hours") and int(float(ctx["abs_hours"])) % 24 == 6:
+		for id in markets:
+			var m2: RAMarket = markets[id]
+			var risk := clampf(float(road_risk.get(id, 0.0)), 0.0, 1.0)
+			for item: String in m2.imports:
+				m2.add_stock(item, float(m2.imports[item]) * (1.0 - IMPORT_RISK_CUT * risk))
+		_trade_surplus()
 	return caravans.tick(_abs_hours_placeholder(ctx), self)
+
+
+## Daily surplus trade between markets: places that make a good and hold well over their normal stock ship
+## part of the excess to places that are running short, less what dangerous roads cost. Without it the
+## producers sat at the 0.5x price floor and the importing towns at the 3x cap indefinitely.
+func _trade_surplus() -> void:
+	var items := {}
+	for id in markets:
+		for item: String in (markets[id] as RAMarket).base_price:
+			items[item] = true
+	for item: String in items:
+		var donors: Array = []
+		var needy: Array = []
+		for id in markets:
+			var m: RAMarket = markets[id]
+			var t := float(m.target.get(item, 0))
+			if t <= 0.0:
+				continue
+			var ratio := float(m.stock.get(item, 0)) / t
+			if ratio > TRADE_SURPLUS_RATIO and int(m.produce.get(item, 0)) > 0:
+				donors.append([id, ratio])
+			elif ratio < TRADE_SHORT_RATIO:
+				needy.append([id, ratio])
+		if donors.is_empty() or needy.is_empty():
+			continue
+		donors.sort_custom(func(a: Array, b: Array) -> bool: return float(a[1]) > float(b[1]))
+		needy.sort_custom(func(a: Array, b: Array) -> bool: return float(a[1]) < float(b[1]))
+		var di := 0
+		for n: Array in needy:
+			var nm: RAMarket = markets[n[0]]
+			var want := (TRADE_SURPLUS_RATIO - 0.25 - float(n[1])) * float(nm.target[item]) * 0.5
+			var keep := 1.0 - IMPORT_RISK_CUT * clampf(float(road_risk.get(n[0], 0.0)), 0.0, 1.0)
+			while want >= 0.5 and di < donors.size():
+				var dm: RAMarket = markets[donors[di][0]]
+				var surplus := float(dm.stock[item]) - TRADE_SURPLUS_RATIO * float(dm.target[item]) * 0.9
+				var give := minf(want, surplus * 0.5)
+				if give < 0.5:
+					di += 1
+					continue
+				dm.add_stock(item, -give)
+				nm.add_stock(item, give * keep)
+				want -= give
+				donors[di][1] = float(dm.stock[item]) / float(dm.target[item])
 
 
 ## caravans.tick needs "now" in absolute in-game hours; callers pass it via
@@ -394,6 +453,9 @@ func _apply_modifiers(id: int, m: RAMarket, season: String, festival: bool, at_w
 func refresh_road_risk(network: RARunestoneNetwork) -> void:
 	if network == null:
 		return
+	# Rebuilt from scratch: the old version only ever raised a settlement's risk, so one dark night on a road
+	# left it "dangerous" forever even after the stones were repaired.
+	road_risk.clear()
 	for r in WorldGen.roads:
 		var a: Vector2 = WorldGen.settlements[r.x]["pos"]
 		var b: Vector2 = WorldGen.settlements[r.y]["pos"]

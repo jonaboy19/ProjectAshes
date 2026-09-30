@@ -869,6 +869,7 @@ func _setup_market() -> void:
 	economy.bind_home_market(0, market)
 	for id: String in ["iron_ingot", "leather", "plank", "arrowheads", "horseshoe", "healing_salve", "antidote", "stamina_draught", "grilled_fish", "berry_pie", "saddle"]:
 		market.add_good(id, int(item_prop(id, "price", 1)), 4, 0)
+		market.imports[id] = 0.15 * 1.67 * 4.0     # wagons bring a trickle (economy.gd, once a day) so crafting goods aren't sold out forever
 
 
 ## Local people of a settlement who aren't already in an organisation, laborers first.
@@ -965,7 +966,7 @@ func _on_hour(hour: int) -> void:
 	if cam.has_method("set_player_rank"):
 		cam.set_player_rank(CareerLadders.military_rank_for(career_rank) if career_id == "soldier" else "")
 	# City life and society keep a signed ledger instead of touching the purse.
-	for k: String in ["city_life", "society", "education", "household", "callups"]:
+	for k: String in ["city_life", "society", "education", "household", "callups", "enterprise"]:
 		var m: RefCounted = realm.mod(k)
 		if m != null and m.has_method("take_pending_gold"):
 			var net := int(m.take_pending_gold())
@@ -1028,7 +1029,8 @@ func _on_hour(hour: int) -> void:
 		scouts.tick_day(WorldSim.day)
 		_offer(scouts.daily_roll(scout_profile(), WorldSim.day))
 		careers.tick_day(_hire)
-		market.tick_day(WorldSim.ranges[0].y - WorldSim.ranges[0].x)
+		# Ashford's market (`market`) is bound into `economy` (see _setup_market) and ticks hourly there; ticking
+		# it here too double-counted demand.
 
 
 ## Sleep until rested (or at most until the next morning), then wake.
