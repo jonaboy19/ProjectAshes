@@ -162,7 +162,7 @@ var _contact := false
 ## collision against each other), so the rest fall back to the same direct
 ## kinematic move non-contact villagers already use. Steering, speed, animation
 ## and footsteps are unaffected -- only which capsules resolve collisions.
-var physics_active := true
+var physics_active := false
 var _yield_time := 0.0
 var _yield_cooldown := 0.0
 var _yield_to := Vector2.ZERO
