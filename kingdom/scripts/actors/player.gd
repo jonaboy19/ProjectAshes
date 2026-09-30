@@ -241,6 +241,7 @@ var _land_roll := false
 var _land_roll_speed := 0.0
 var _landing_dip := 0.0
 var _land_fov := 0.0
+var _loco_transition_time := 0.0
 var _flinch := 0.0
 var _yaw_rate := 0.0
 var _lean := Vector2.ZERO
@@ -461,6 +462,11 @@ func _physics_process(delta: float) -> void:
 	_dodge_buffer -= delta
 	_jump_buffer -= delta
 	_land_lock = maxf(_land_lock - delta, 0.0)
+	if _loco_transition_time > 0.0:
+		_loco_transition_time -= delta
+		if _loco_transition_time <= 0.0:
+			_loco_transition_time = 0.0
+			_animator.finish_air()
 	if _land_time > 0.0:
 		_land_time -= delta
 		if _land_time <= 0.0:
@@ -480,6 +486,8 @@ func _physics_process(delta: float) -> void:
 	blocking = Input.is_action_pressed("block") and stamina > 0.0 and _dodge <= 0.0 and not dead \
 			and _stunned <= 0.0 and not swimming and not _jump_starting and not _jump_active \
 			and _land_time <= 0.0
+	if blocking:
+		_cancel_locomotion_transition()
 	_track_block(delta)
 	_animator.set_blocking(blocking)
 	_consume_buffers()
@@ -527,6 +535,7 @@ func _physics_process(delta: float) -> void:
 			_launch_jump()
 	if _jump_active:
 		_jump_age += delta
+	var speed_before_steer := _move_speed
 	if _dodge > 0.0:
 		# The roll owns movement: its own speed curve, no input smoothing.
 		var speed_lo := DASH_SPEED_MIN if _dodging_ability else DODGE_SPEED_MIN
@@ -564,13 +573,15 @@ func _physics_process(delta: float) -> void:
 	_update_facing(dir, delta)
 	var real := get_real_velocity()
 	var travel := Vector3(real.x, 0.0, real.z)
+	_update_locomotion_transition(dir, floor_before, speed_before_steer)
 	_animator.update(delta, travel.length() if _dodge <= 0.0 else 0.0, travel)
 	if _rig:
 		# Feet off the ground: airborne, swimming, rolling, dead. Big hits ease the IK off.
 		_rig.call("set_state", travel.length(), is_on_floor(), swimming or dead or _dodge > 0.0,
 				_animator.is_full_busy())
 	_update_lean(delta)
-	_update_footsteps(delta, dir, grounded and not swimming)
+	_update_footsteps(delta, dir, grounded and not swimming and not _jump_starting and not _jump_active \
+			and _land_time <= 0.0)
 
 	if swimming:
 		_swim_stamina(delta, travel.length() > 0.3)
@@ -1132,6 +1143,7 @@ func jump() -> void:
 
 
 func _begin_jump(running: bool) -> void:
+	_cancel_locomotion_transition()
 	_jump_running = running and _move_speed >= 4.5
 	var cost := 10.0 if _jump_running else 6.0
 	if stamina < cost:
@@ -1180,6 +1192,33 @@ func _update_jump_after_move(floor_before: bool, impact_speed: float, dir: Vecto
 	if is_on_floor() and ((_jump_active and (_jump_left_floor or _jump_age > 0.18)) \
 			or (not floor_before and _air_visual)):
 		_land_jump(maxf(impact_speed, 0.0), dir)
+
+
+## A measured run-stop clip replaces the abrupt idle pose at high speed. Its
+## root translation is disabled, and the capsule keeps the audited 15 m/s² brake.
+func _update_locomotion_transition(dir: Vector3, grounded: bool, entry_speed: float) -> void:
+	if _loco_transition_time > 0.0:
+		return
+	if not grounded or dead or swimming or blocking or _jump_starting or _jump_active \
+			or _land_time > 0.0 or _dodge > 0.0 or _swing > 0.0 or _stunned > 0.0:
+		return
+	if dir.length() >= 0.05 or entry_speed < 4.0:
+		return
+	var clip := "Loco_RunStop_L" if _animator.gait_phase() < 0.5 else "Loco_RunStop_R"
+	var natural_entry := 3.1 if clip.ends_with("_L") else 3.6
+	var rate := clampf(entry_speed / natural_entry, 0.8, 2.5)
+	var length := _animator.clip_length(clip)
+	if length <= 0.0:
+		return
+	_animator.play_locomotion_transition(clip, rate)
+	_loco_transition_time = length / rate
+
+
+func _cancel_locomotion_transition() -> void:
+	if _loco_transition_time <= 0.0:
+		return
+	_loco_transition_time = 0.0
+	_animator.finish_air()
 
 
 func _land_jump(impact_speed: float, dir: Vector3) -> void:
@@ -1247,6 +1286,7 @@ func _reset_jump() -> void:
 	_land_roll_speed = 0.0
 	_landing_dip = 0.0
 	_land_fov = 0.0
+	_loco_transition_time = 0.0
 	if _animator:
 		_animator.finish_air()
 
@@ -1306,6 +1346,7 @@ func _consume_buffers() -> void:
 
 
 func _start_swing() -> void:
+	_cancel_locomotion_transition()
 	if _dodge > 0.0:
 		_dodge = 0.0                 # roll attack: the swing takes over the roll's tail
 		_animator.stop_full()
@@ -1394,6 +1435,7 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 
 
 func _start_dodge(is_ability: bool) -> void:
+	_cancel_locomotion_transition()
 	_dodging_ability = is_ability
 	if is_ability:
 		_spend(DASH_STAMINA)
@@ -1438,6 +1480,7 @@ func _kick(v: Vector3) -> void:
 func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, force := false) -> void:
 	if dead or (not force and (_invulnerable > 0.0 or _hurt_cooldown > 0.0)):
 		return
+	_cancel_locomotion_transition()
 	var from_front := true
 	if from is Node3D:
 		var to := (from as Node3D).global_position - global_position

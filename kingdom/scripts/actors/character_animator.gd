@@ -490,6 +490,10 @@ func play_locomotion_transition(anim_name: String, time_scale: float) -> void:
 	play_air(anim_name, time_scale)
 
 
+func clip_length(anim_name: String) -> float:
+	return _clip_length(anim_name)
+
+
 func gait_phase() -> float:
 	return _phase
 

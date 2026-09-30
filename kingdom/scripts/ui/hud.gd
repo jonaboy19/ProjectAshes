@@ -379,7 +379,7 @@ func _make_button(action: String, text: String, size: int, color: Color, ic: Tex
 func _layout() -> void:
 	var s := get_viewport().get_visible_rect().size
 	_buttons["attack"].position = s - Vector2(168, 168)
-	_buttons["jump"].position = s - Vector2(140, 264)
+	_buttons["jump"].position = s - Vector2(168, 300)
 	_buttons["dodge"].position = s - Vector2(270, 112)
 	_buttons["block"].position = s - Vector2(240, 226)
 	_buttons["ability_dash"].position = s - Vector2(357, 96)   # left of Dodge, below the technique arc
