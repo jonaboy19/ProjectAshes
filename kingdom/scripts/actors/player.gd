@@ -128,6 +128,7 @@ const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const ImpactPause := preload("res://scripts/actors/impact_pause.gd")
 const VFXSpells := preload("res://scripts/vfx/vfx_spells.gd")
 const FlipbookFX := preload("res://scripts/vfx/flipbook_fx.gd")
+const SettingsStore := preload("res://scripts/ui/frontend/settings_store.gd")
 const MOUNTED_RADIUS := 0.6      # wider body while mounted so the horse's chest meets walls
 const MOUNTED_CAMERA := 7.5      # third-person distance on horseback
 ## Swimming. Depths are for a full-size body and scale with Life.body_scale().
@@ -243,6 +244,7 @@ var _land_roll := false
 var _land_roll_speed := 0.0
 var _landing_dip := 0.0
 var _land_fov := 0.0
+var _impact_fov := 0.0
 var _loco_transition_time := 0.0
 var _impact_pause: Node
 var _camera_fade_visual: GeometryInstance3D
@@ -952,6 +954,7 @@ func _parry(from: Node) -> void:
 	VFX.sparks(get_parent(), at, Color(1.0, 0.97, 0.75), 42)
 	VFX.flash(get_parent(), at, Color(1.0, 0.9, 0.6), 3.0, 0.15, 5.0)
 	_shake.add(0.3)
+	_fov_punch(4.0)
 	_hit_stop(PARRY_HIT_STOP)
 
 
@@ -1083,7 +1086,8 @@ func _update_camera(delta: float) -> void:
 	pivot_goal.y += _landing_dip
 	_landing_dip = move_toward(_landing_dip, 0.0, 1.2 * delta)
 	_land_fov = move_toward(_land_fov, 0.0, 14.0 * delta)
-	camera.fov = lerpf(camera.fov, 65.0 + _land_fov, 1.0 - exp(-14.0 * delta))
+	_impact_fov = move_toward(_impact_fov, 0.0, maxf(_impact_fov, 1.0) * 7.0 * delta)
+	camera.fov = lerpf(camera.fov, 65.0 + _land_fov + _impact_fov, 1.0 - exp(-14.0 * delta))
 	if _mount:
 		pivot_goal.y += _mount.rider_offset(k).y
 		if view == View.THIRD:
@@ -1153,6 +1157,13 @@ func _update_camera_fade(target: GeometryInstance3D) -> void:
 			_camera_fade_original = _camera_fade_visual.transparency
 	if is_instance_valid(_camera_fade_visual):
 		_camera_fade_visual.transparency = maxf(_camera_fade_original, 0.6)
+
+
+func _fov_punch(degrees: float) -> void:
+	# Keep the small contact cue inside the existing accessibility setting. This
+	# is an outward lens pulse, independent of positional camera shake.
+	var strength := float(clampi(int(SettingsStore.get_value("screen_shake")), 0, 2)) * 0.5
+	_impact_fov = maxf(_impact_fov, minf(degrees, 6.0) * strength)
 
 
 func _update_look_target() -> void:
@@ -1493,6 +1504,8 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 		Audio.sfx("hit")
 		_hit_stop(0.09 if finisher else 0.05, impacted_mixers)
 		_shake.add(0.45 if finisher else 0.22)
+		if finisher:
+			_fov_punch(3.0)
 
 
 func _start_dodge(is_ability: bool) -> void:
