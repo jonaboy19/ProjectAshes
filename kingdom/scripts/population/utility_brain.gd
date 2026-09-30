@@ -727,6 +727,34 @@ static func spectacle_at(here: Vector2, player_pos: Vector2, list: PackedVector2
 	return [top, at]
 
 
+## Weakly localize the player's current movement noise for nearby outdoor
+## villagers. This is a cheap range cue, not identity, line of sight or combat
+## evidence; uncertainty deliberately biases the investigation point inward.
+static func heard_player_at(here: Vector2, player: Node3D, tree: SceneTree) -> Array:
+	if player == null or not is_instance_valid(player) or player.get("dead") == true \
+	or not player.has_method("noise_radius"):
+		return [0.0, Vector2.INF]
+	var velocity: Vector3 = player.get("velocity")
+	if velocity.length_squared() < 0.1225:
+		return [0.0, Vector2.INF]
+	var radius := clampf(float(player.call("noise_radius")), 0.0, 18.0)
+	if radius <= 0.0:
+		return [0.0, Vector2.INF]
+	if _weather == null or not is_instance_valid(_weather):
+		_weather = tree.get_first_node_in_group("weather") if tree else null
+	if _weather and is_instance_valid(_weather) and _weather.has_method("noise_mult"):
+		radius *= clampf(float(_weather.call("noise_mult")), 0.4, 1.0)
+	var source := Vector2(player.global_position.x, player.global_position.z)
+	var offset := source - here
+	var distance := offset.length()
+	if distance >= radius:
+		return [0.0, Vector2.INF]
+	var strength := 1.0 - distance / radius
+	var direction := offset / maxf(distance, 0.001)
+	var guessed_distance := maxf(distance - lerpf(0.75, 3.0, distance / radius), 0.0)
+	return [strength, here + direction * guessed_distance]
+
+
 static func is_raining(tree: SceneTree) -> bool:
 	if _weather == null or not is_instance_valid(_weather):
 		_weather = tree.get_first_node_in_group("weather") if tree else null

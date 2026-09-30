@@ -458,9 +458,11 @@ func _decide_act(here: Vector2) -> void:
 	var player_p := Vector2.INF
 	if _player:
 		player_p = Vector2(_player.global_position.x, _player.global_position.z)
-	# The fight-watch signal only uses hostile samples this villager actually
-	# saw. Explicit notices remain their existing authored/audible-style signal.
+	# Sight-based fight interest still uses only hostile samples this villager
+	# actually saw. Movement noise adds a separate, anonymous look cue outdoors.
 	var sight := UtilityBrain.spectacle_at(here, player_p, visible_threats)
+	var heard := UtilityBrain.heard_player_at(here, _player, tree) if not _indoors else [0.0, Vector2.INF]
+	var interest: Array = sight if float(sight[0]) >= float(heard[0]) else heard
 	var performing := _indoors or (_arrived and _yield_time <= 0.0
 		and (_act != Act.WATER or _water_is_performing(here)))
 	_brain.tick(WorldSim.day * 24.0 + WorldSim.time_of_day, _act if performing else -1)
@@ -469,14 +471,14 @@ func _decide_act(here: Vector2) -> void:
 	var sid: int = WorldSim.home[person]
 	var company := UtilityBrain.chat_waiting(sid, person) or UtilityBrain.chat_partner(person) >= 0
 	var ctx := _brain.context(DailyRhythm.local_time(person), _state, UtilityBrain.is_raining(tree),
-		danger[0], sight[0], company, float(WorldSim.money[person]) / 60.0, WorldSim.day)
+		danger[0], interest[0], company, float(WorldSim.money[person]) / 60.0, WorldSim.day)
 	var committed := not performing or _perform_time < MIN_PERFORM
 	var act := _brain.decide(ctx, committed)
 	if act != _act:
 		if _act == Act.SOCIAL:
 			UtilityBrain.chat_leave(person)
 		_act = act
-		_apply_plan(here, danger[1], sight[1])
+		_apply_plan(here, danger[1], interest[1])
 		return
 	_record_completed_social()
 	match act:
@@ -485,8 +487,8 @@ func _decide_act(here: Vector2) -> void:
 			if _arrived and not _plan_indoors:
 				_apply_plan(here, danger[1], sight[1])
 		Act.WATCH:
-			if sight[1] != Vector2.INF and (sight[1] as Vector2).distance_to(_look_point) > 3.0:
-				_apply_plan(here, danger[1], sight[1])
+			if interest[1] != Vector2.INF and (interest[1] as Vector2).distance_to(_look_point) > 3.0:
+				_apply_plan(here, danger[1], interest[1])
 		Act.SOCIAL:
 			if _partner < 0:
 				_partner = UtilityBrain.chat_partner(person)
