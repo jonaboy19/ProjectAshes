@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: child succession archives the outgoing spouse as parentage only
+
+`Family.succeed_to()` now keeps the outgoing spouse available while calculating a child heir's parent records, then clears the active spouse before the heir begins their own life. The existing spouse-successor path still clears the spouse as before; archived chronicles and parent data remain unchanged. Static source review and `git diff --check` only; no parser, runtime succession or save/load validation was run. See [NPC_CHILD_SUCCESSION_HANDOFF.md](concepts/NPC_CHILD_SUCCESSION_HANDOFF.md).
+
 ### Latest slice: farmer grain offers keep the season deadline
 
 `VillageServices.world_from_game()` now supplies inclusive days remaining in the current season. Generated `farmer_deliver_grain` offers carry an absolute deadline anchored to their offer day; they expire from the board after that deadline as well as under the existing four-day offer lifetime. Acceptance refuses and removes stale farmer offers and preserves the season deadline instead of restarting it; legacy offers without one derive it from `offered_day + days - 1`. Other quest kinds retain acceptance-based deadlines. Static source review and `git diff --check` only; no parser, runtime calendar/quest-flow, save/load or gameplay validation was run. See [RADIANT_FARMER_SEASON_DEADLINE_HANDOFF.md](concepts/RADIANT_FARMER_SEASON_DEADLINE_HANDOFF.md).

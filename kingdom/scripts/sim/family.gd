@@ -604,7 +604,6 @@ func succeed_to(heir_id: Variant) -> Dictionary:
 		heir_age = maxi(HEIR_MIN_AGE, spouse_age())
 		heir_sex = String(spouse.get("sex", "female"))
 		heir_given = String(spouse.get("name", "Heir")).get_slice(" ", 0)
-		spouse = {}
 	# New parents, for the child heir: the outgoing player and (if any) their
 	# spouse. The spouse-fallback heir's own parents are unknown and untracked.
 	var new_parents: Array = []
@@ -625,6 +624,8 @@ func succeed_to(heir_id: Variant) -> Dictionary:
 			new_parents.append({"id": -1, "name": father_name, "role": "father"})
 			parent_state["father"] = {"age_at_birth": maxi(16, father_age_at_birth), "alive": true, "death_day": -1}
 		parent_state["mother"] = {"age_at_birth": maxi(16, mother_age_at_birth), "alive": true, "death_day": -1}
+		# The former spouse is parentage input only; they are not the new heir's spouse.
+		spouse = {}
 	courtships.clear()
 	var new_day := WorldSim.day - heir_age * RALifePath.DAYS_PER_YEAR
 	Life.life_path.begin(new_day, WorldSim.time_of_day, heir_given, family_name, new_parents, home_settlement, home_pos)
