@@ -39,6 +39,29 @@ jobs:
           big=$(git ls-files -z | xargs -0 -r stat -c '%s %n' 2>/dev/null | awk '$1 > 94371840 {print}')
           if [ -n "$big" ]; then echo "::error::Files over 90 MB:"; echo "$big"; exit 1; fi
 
+  lint:
+    name: gdlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          lfs: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /kingdom/scripts/
+            /kingdom/tests/
+            /kingdom/.gdlintrc
+            /tools/qa/
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install gdtoolkit (MIT, from PyPI)
+        run: pip install "gdtoolkit==4.5.0"
+      - name: gdlint + duplicate-name check (tools/qa/lint.sh, config kingdom/.gdlintrc)
+        run: bash tools/qa/lint.sh
+
   gdunit:
     name: gdUnit4 suite
     runs-on: ubuntu-latest
