@@ -244,9 +244,14 @@ func _physics_process(delta: float) -> void:
 		_face(player.global_position, delta)
 	if to.length() > 0.3 and _speed > 0.05:
 		var dir := to.normalized()
+		var turn_pace := 1.0     # local: never feeds back into _speed
 		if not face_player and _winding <= 0.0:
-			rotation.y = lerp_angle(rotation.y, atan2(dir.x, dir.z), 6.0 * delta)
-		var step_velocity := dir * _speed
+			rotation.y = lerp_angle(rotation.y, atan2(dir.x, dir.z), 1.0 - exp(-6.0 * delta))
+			# Quadrupeds turn into a new heading instead of strafing sideways.
+			var fwd := Vector3(sin(rotation.y), 0.0, cos(rotation.y))
+			turn_pace = clampf(0.55 + 0.45 * fwd.dot(dir), 0.35, 1.0)
+			dir = (fwd * 0.65 + dir * 0.35).normalized()
+		var step_velocity := dir * _speed * turn_pace
 		if _near_player(player):
 			velocity = step_velocity
 			move_and_slide()
@@ -415,7 +420,7 @@ func _pick_roam_target() -> void:
 func _face(at: Vector3, delta: float) -> void:
 	var to := at - global_position
 	if Vector2(to.x, to.z).length() > 0.1:
-		rotation.y = lerp_angle(rotation.y, atan2(to.x, to.z), 8.0 * delta)
+		rotation.y = lerp_angle(rotation.y, atan2(to.x, to.z), 1.0 - exp(-8.0 * delta))
 
 
 ## Wind-up: stop, growl, play the attack clip slowed so contact lands at `windup`.

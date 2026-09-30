@@ -125,6 +125,7 @@ const MountController := preload("res://scripts/actors/mount_controller.gd")
 ## Foot IK on slopes and steps, torso and weapon/shield secondary motion.
 const ProceduralRig := preload("res://scripts/actors/procedural_rig.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
+const ImpactPause := preload("res://scripts/actors/impact_pause.gd")
 const VFXSpells := preload("res://scripts/vfx/vfx_spells.gd")
 const MOUNTED_RADIUS := 0.6      # wider body while mounted so the horse's chest meets walls
 const MOUNTED_CAMERA := 7.5      # third-person distance on horseback
@@ -242,6 +243,7 @@ var _land_roll_speed := 0.0
 var _landing_dip := 0.0
 var _land_fov := 0.0
 var _loco_transition_time := 0.0
+var _impact_pause: Node
 var _flinch := 0.0
 var _yaw_rate := 0.0
 var _lean := Vector2.ZERO
@@ -287,6 +289,8 @@ func _ready() -> void:
 	var body := Assets.character("Player", 1.8, ["1H_Sword", "Round_Shield"])
 	_model.add_child(body)
 	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true, true)
+	_impact_pause = ImpactPause.new()
+	add_child(_impact_pause)
 	_ragdoll = Ragdoll.attach(self, body, [_animator.tree, _animator.player])
 	_add_head_look(body)
 	# After the look-at: the rig orders the skeleton's modifiers as
@@ -1008,6 +1012,12 @@ func _update_facing(dir: Vector3, delta: float) -> void:
 		rate = FACE_TURN_IDLE
 	elif view == View.FIRST or blocking:
 		want = _yaw + PI
+		if blocking and view != View.FIRST:
+			# Guard toward the nearest nearby threat; camera heading is the fallback.
+			var threat := _nearest_enemy(6.0, -1.0)
+			if threat:
+				var threat_dir := threat.global_position - global_position
+				want = atan2(threat_dir.x, threat_dir.z)
 		rate = FACE_TURN_IDLE
 	elif dir.length() > 0.05 and _swing <= 0.0 and _dodge <= 0.0 and _stunned <= 0.0:
 		want = atan2(dir.x, dir.z)
@@ -1423,11 +1433,14 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 	var fwd := forward() if view == View.FIRST else facing()
 	var hits := 0
 	var first_hit := Vector3.INF
+	var impacted_mixers: Array = []
 	for enemy in get_tree().get_nodes_in_group("team1"):
 		var to: Vector3 = (enemy as Node3D).global_position - global_position
 		to.y = 0.0
 		if to.length() < 2.6 and fwd.dot(to.normalized()) > 0.2:
 			enemy.take_damage(damage, self, to.normalized() * knockback)
+			if not finisher:
+				impacted_mixers.append_array(enemy.find_children("*", "AnimationMixer", true, false))
 			var point: Vector3 = (enemy as Node3D).global_position + Vector3(0, 0.8, 0) - to.normalized() * 0.3
 			VFX.sparks(get_parent(), point, Color(1.0, 0.72, 0.35), 30 if finisher else 18)
 			if hits == 0:
@@ -1439,7 +1452,7 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 			VFX.impact_frame(get_parent(), first_hit, 0.7)
 	if hits > 0:
 		Audio.sfx("hit")
-		_hit_stop(0.09 if finisher else 0.05)
+		_hit_stop(0.09 if finisher else 0.05, impacted_mixers)
 		_shake.add(0.45 if finisher else 0.22)
 
 
@@ -1588,7 +1601,12 @@ func _spend(amount: float) -> void:
 
 
 ## Brief freeze on impact: sells the weight of a hit.
-func _hit_stop(duration: float) -> void:
+func _hit_stop(duration: float, impacted_mixers: Array = []) -> void:
+	if duration <= 0.06 and _impact_pause:
+		impacted_mixers.append(_animator.tree)
+		impacted_mixers.append(_animator.player)
+		_impact_pause.call("pause", impacted_mixers, duration)
+		return
 	_hit_stop_token += 1
 	var token := _hit_stop_token
 	_hit_stopping = true
