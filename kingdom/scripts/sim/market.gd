@@ -132,7 +132,8 @@ func add_stock(item: String, units: float) -> void:
 
 
 func serialize() -> Dictionary:
-	return {"stock": stock.duplicate(), "purse": purse, "modifiers": modifiers.duplicate()}
+	return {"stock": stock.duplicate(), "purse": purse, "modifiers": modifiers.duplicate(),
+		"carry": _carry.duplicate()}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -142,3 +143,14 @@ func deserialize(d: Dictionary) -> void:
 			stock[item] = int(s[item])
 	purse = int(d.get("purse", purse))
 	modifiers = (d.get("modifiers", {}) as Dictionary).duplicate()
+	_carry.clear()
+	var saved_carry: Variant = d.get("carry", {})
+	if not (saved_carry is Dictionary):
+		return
+	for item: Variant in saved_carry:
+		var good := String(item)
+		var value: Variant = saved_carry[item]
+		if stock.has(good) and typeof(value) in [TYPE_INT, TYPE_FLOAT]:
+			var amount := float(value)
+			if is_finite(amount) and amount >= 0.0 and amount < 1.0:
+				_carry[good] = amount

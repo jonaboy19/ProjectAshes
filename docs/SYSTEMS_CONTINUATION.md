@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: market fractional carry survives saves
+
+`RAMarket.serialize()` now includes fractional `_carry`; `deserialize()` clears prior carry and restores only numeric finite values in `[0, 1)` for registered goods. Legacy saves without carry continue with empty carry. Stock, purse, modifiers, callers and market rebinding behavior are unchanged. Static source review and `git diff --check` only; no parser, runtime economy, save/load or gameplay validation was run. See [MARKET_FRACTIONAL_CARRY_HANDOFF.md](concepts/MARKET_FRACTIONAL_CARRY_HANDOFF.md).
+
 ### Latest slice: cull contracts require the targeted den
 
 `AdventurerGuild.on_kill()` now advances cull commissions only when the kill carries a known nonnegative den ID matching the contract target and species. Ambient or camp kills with unknown den attribution no longer progress den-specific contracts. Life and callers were left untouched. The file has no diff from the Claude branch since merge-base `1d5b8d2e`. Static source review and `git diff --check` only; no parser, runtime commission or gameplay validation was run. See [ADVENTURER_GUILD_CULL_TARGET_HANDOFF.md](concepts/ADVENTURER_GUILD_CULL_TARGET_HANDOFF.md).
