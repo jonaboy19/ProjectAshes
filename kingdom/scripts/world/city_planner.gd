@@ -22,6 +22,15 @@ const HOMES := ["house_1", "house_2", "house_3", "house_4", "house_5", "house_6"
 	"mhouse_peasant_a", "mhouse_peasant_b", "mhouse_family", "mhouse_peasant_b",
 	"mhouse_peasant_a", "mhouse_family", "mhouse_trader"]
 const TRADES := ["inn", "blacksmith", "stable", "blacksmith"]
+## Landmark footprint half extents (local x, z in metres, measured from the GLB bounds; the builder places
+## these pieces at native size, ignoring the plan's "scale"). Used to keep lots and props off them.
+const LANDMARK_HALF := {
+	"temple": Vector2(7.75, 14.25), "castle": Vector2(14.4, 14.9), "bell_tower": Vector2(3.7, 3.75),
+	"well": Vector2(1.2, 1.2), "stable": Vector2(6.05, 4.2)}
+## A lot's centre stays this far from every landmark rectangle (covers the widest lot, the 16 m guild hall).
+const LANDMARK_LOT_GAP := 9.5
+## A lot centre stays this far inside a town wall / outside the keep wall (house half-diagonal + wall depth).
+const WALL_LOT_GAP := 8.5
 
 
 ## Returns {streets: [{a, b, w}], lots: [{asset, pos, yaw}], walls: bool,
@@ -92,8 +101,6 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 	# Lots along every street.
 	var lots: Array = result["lots"]
 	var blocked: Array[Vector2] = []
-	for lm in landmarks:
-		blocked.append(lm["pos"])
 	for st in streets:
 		var a: Vector2 = st["a"]
 		var b: Vector2 = st["b"]
@@ -106,7 +113,7 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 			for side: float in [-1.0, 1.0]:
 				var gate_road := w >= 11.0   # broad market road: tall townhouses set back behind the stalls
 				var p := a + dir * t + normal * side * (w * 0.5 + (8.4 if gate_road else 5.6))
-				if _lot_ok(p, c, r, plaza_r, walled, result["inner_wall"], streets, blocked):
+				if _lot_ok(p, c, r, plaza_r, walled, result["inner_wall"], streets, blocked, landmarks):
 					var face := -normal * side
 					var dist_frac := p.distance_to(c) / r
 					var asset: String = HOMES[rng.randi() % HOMES.size()]
@@ -209,12 +216,15 @@ static func _civic_lots(lots: Array, c: Vector2) -> void:
 
 
 static func _lot_ok(p: Vector2, c: Vector2, r: float, plaza_r: float, walled: bool, inner_wall: float,
-		streets: Array, blocked: Array[Vector2]) -> bool:
+		streets: Array, blocked: Array[Vector2], landmarks: Array = []) -> bool:
 	var d := p.distance_to(c)
-	if d < plaza_r + 5.0 or d > r * (0.95 if walled else 1.0):
+	if d < plaza_r + 5.0 or d > (r - WALL_LOT_GAP if walled else r):
 		return false
-	if inner_wall > 0.0 and d < inner_wall + 6.0:
+	if inner_wall > 0.0 and d < inner_wall + WALL_LOT_GAP:
 		return false
+	for lm: Dictionary in landmarks:
+		if landmark_distance(lm, p) < LANDMARK_LOT_GAP:
+			return false
 	for st in streets:
 		var q := Geometry2D.get_closest_point_to_segment(p, st["a"], st["b"])
 		if p.distance_to(q) < st["w"] * 0.5 + 4.6:
@@ -223,6 +233,25 @@ static func _lot_ok(p: Vector2, c: Vector2, r: float, plaza_r: float, walled: bo
 		if p.distance_to(other) < LOT_CLEARANCE:
 			return false
 	return true
+
+
+## Distance from world XZ point p to a landmark's footprint rectangle (0 inside). The rectangle's axes
+## are the ones Basis(UP, yaw) gives the placed piece (local +Z = (sin yaw, cos yaw)).
+static func landmark_distance(lm: Dictionary, p: Vector2) -> float:
+	var half: Vector2 = LANDMARK_HALF.get(String(lm["asset"]), Vector2(3.0, 3.0))
+	var yaw: float = lm["yaw"]
+	var v: Vector2 = p - (lm["pos"] as Vector2)
+	var lx := v.x * cos(yaw) - v.y * sin(yaw)
+	var lz := v.x * sin(yaw) + v.y * cos(yaw)
+	return Vector2(maxf(absf(lx) - half.x, 0.0), maxf(absf(lz) - half.y, 0.0)).length()
+
+
+## Distance from p to the nearest landmark footprint of a plan (INF without landmarks).
+static func landmark_clearance(plan_data: Dictionary, p: Vector2) -> float:
+	var best := INF
+	for lm: Dictionary in plan_data.get("landmarks", []):
+		best = minf(best, landmark_distance(lm, p))
+	return best
 
 
 static func _near_angle(ang: float, list: Array[float], width: float) -> bool:

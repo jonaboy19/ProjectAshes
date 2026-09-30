@@ -81,8 +81,8 @@ const SOURCE_TWEAKS := {
 ##  "node path | asset | builder" (for overlaps: of both props), reason: text, todo: true when it is a real bug left for later}
 ## Allowlisted issues are listed separately in the report and never fail the run.
 const ALLOW := [
-	# TODO(city_planner): a plan.landmarks piece (SettlementBuilder._piece, mesh resource "temp") is dropped on top of a plan.lots
-	# house/stable/inn in 5 towns at seed 1066 (Ironmarch, Thornfield, Redwater, Kingsreach, Saltwick): the lot list needs to skip
-	# lots that touch a landmark footprint, in scripts/world/city_planner.gd. Not a one-line ground snap.
-	{"type": "overlap", "site": "settlement", "match": "temp", "reason": "CityPlanner landmark piece overlaps a house lot", "todo": true},
+	# Designed: MarketGoods "stall_fish" (hanging fish, 3.9 x 1.7 x 2.1 m) is drawn ON its own stall. Only the fish layout is tall
+	# enough to count as a large prop; the other themes' goods are below the overlap volume threshold. (Matches the goods'
+	# size text, so stall-on-stall overlaps of the real market_stall meshes are still reported.)
+	{"type": "overlap", "site": "settlement", "match": "[3.9x1.7x2.1 m]", "reason": "stall_fish goods drawn on their own stall by design"},
 ]

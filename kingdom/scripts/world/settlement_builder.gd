@@ -30,6 +30,8 @@ const FREE_RANGE := 850.0
 const CAMERA_BLOCKER_LAYER := 1 << 9
 ## Wall colliders beside a gate end this far short of the wall section (see _wall_ring).
 const GATE_JAMB := 0.9
+## Steepest ground (m of height difference across a 10 m field tile) a crop tile is laid on.
+const FIELD_MAX_SPREAD := 1.0
 
 signal settlement_built(settlement: Dictionary, root: Node3D)
 
@@ -197,6 +199,8 @@ func _build(s: Dictionary) -> Node3D:
 		var ang := TAU * i / n_stalls + 0.2
 		var sp: Vector2 = s["pos"] + Vector2(cos(ang), sin(ang)) * (pr - 3.0)
 		var syaw := atan2(-cos(ang), -sin(ang))
+		if CityPlanner.landmark_clearance(plan, sp) < 3.0:
+			continue   # the keep / temple footprint covers this spot of the ring (stalls clipped into it)
 		var st := Transform3D(Basis(Vector3.UP, syaw), Vector3(sp.x, _ground_snap(sp, syaw, stall_size), sp.y))
 		(stalls if i % 2 == 0 else stalls2).append(st)
 	# Keep the current four-model layout; each visible stall gets a box proxy.
@@ -242,14 +246,22 @@ func _build(s: Dictionary) -> Node3D:
 	var r: float = s["radius"]
 	var gates: Array[float] = []
 	gates.assign(plan["gates"])
+	var mill_spots: Array[Vector2] = []
 	for i in (2 if s["kind"] == "village" else 3):
 		var ang := rng.randf() * TAU
 		if CityPlanner._near_angle(ang, gates, 0.3):
 			continue
 		var p := c + Vector2(cos(ang), sin(ang)) * r * rng.randf_range(1.2, 1.45)
 		var mill_yaw := rng.randf() * TAU
+		var mill_clear := true
+		for mq: Vector2 in mill_spots:
+			if mq.distance_to(p) < 24.0:
+				mill_clear = false
+		if not mill_clear:
+			continue   # two mills never share a hill (lint: mill inside mill)
+		mill_spots.append(p)
 		_piece(root, "mill", p, _ground_snap(p, mill_yaw, _footprint("mill")), mill_yaw)   # lint: corner snap, not centre height
-	_fields(root, s, plan, rng, gates)
+	_fields(root, s, plan, rng, gates, mill_spots)
 	_homesteads(root, s, plan, rng)
 	_gate_outskirts(root, s, plan, gates)
 	_footprint_clutter(root, plan, rng)
@@ -260,16 +272,55 @@ func _build(s: Dictionary) -> Node3D:
 		_village_square(root, s, plan, rng)
 	_greenery(root, s, plan, rng)
 	# Street clutter.
-	var street_clutter: Array[Transform3D] = []
+	# Slots 0-9 barrels, 10-17 crates, 18-23 sacks, 24-29 carts. A spot is dropped (not moved, so the
+	# rng stream is unchanged) when it lands on a landmark, a lot, a plaza stall or another cart.
+	var street_clutter: Array[Array] = [[], [], [], []]
+	var cart_spots: Array[Vector2] = []
+	var stall_xz: Array[Vector2] = []
+	for st_t: Transform3D in stalls + stalls2:
+		stall_xz.append(Vector2(st_t.origin.x, st_t.origin.z))
 	for i in 30:
 		var ang := rng.randf() * TAU
 		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(plan["plaza_r"] * 0.6, plan["plaza_r"] + 3.0)
-		street_clutter.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.03, p.y)))
+		var cyaw := rng.randf() * TAU
+		var is_cart := i >= 24
+		var keep := 3.0 if is_cart else 1.2
+		if CityPlanner.landmark_clearance(plan, p) < keep + (0.0 if is_cart else 0.3):
+			continue
+		var clear := true
+		for sx: Vector2 in stall_xz:
+			if sx.distance_to(p) < (5.0 if is_cart else 2.6):
+				clear = false
+				break
+		if clear:
+			for lot: Dictionary in plan["lots"]:
+				if (lot["pos"] as Vector2).distance_to(p) < (11.0 if is_cart else 7.0):
+					clear = false
+					break
+		if clear and is_cart:
+			for q: Vector2 in cart_spots:
+				if q.distance_to(p) < 5.0:
+					clear = false
+					break
+		if not clear:
+			continue
+		if is_cart:
+			cart_spots.append(p)
+		street_clutter[0 if i < 10 else (1 if i < 18 else (2 if i < 24 else 3))].append(
+			Transform3D(Basis(Vector3.UP, cyaw), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.03, p.y)))
 	# Barrels, crates and baskets break when struck (see breakable.gd); carts stay solid.
-	_multimesh(root, Assets.building_mesh("barrel"), street_clutter.slice(0, 10), true, true, "barrel")
-	_multimesh(root, Assets.building_mesh("crate"), street_clutter.slice(10, 18), true, true, "crate")
-	_multimesh(root, Assets.building_mesh("sack_pile"), street_clutter.slice(18, 24), true, true, "sack_pile")
-	_multimesh(root, Assets.building_mesh("cart"), street_clutter.slice(24), true, true)
+	var sc_barrels: Array[Transform3D] = []
+	var sc_crates: Array[Transform3D] = []
+	var sc_sacks: Array[Transform3D] = []
+	var sc_carts: Array[Transform3D] = []
+	sc_barrels.assign(street_clutter[0])
+	sc_crates.assign(street_clutter[1])
+	sc_sacks.assign(street_clutter[2])
+	sc_carts.assign(street_clutter[3])
+	_multimesh(root, Assets.building_mesh("barrel"), sc_barrels, true, true, "barrel")
+	_multimesh(root, Assets.building_mesh("crate"), sc_crates, true, true, "crate")
+	_multimesh(root, Assets.building_mesh("sack_pile"), sc_sacks, true, true, "sack_pile")
+	_multimesh(root, Assets.building_mesh("cart"), sc_carts, true, true)
 	_decals(root, s, plan)
 	_flush_contact_shadows(root)
 	return root
@@ -330,6 +381,12 @@ static func _ground_snap(p: Vector2, yaw: float, size: Vector3, sink: float = 0.
 		var off := basis * Vector3(c.x, 0.0, c.y)
 		lowest = minf(lowest, WorldGen.height(p.x + off.x, p.y + off.z))
 	return lowest - sink
+
+
+## False on ground too steep for a prop of this size: the lowest-corner snap would bury its uphill side
+## by more than ~45 % of its height (lint: sunken / buried haystacks, hay, stalls and wagons on road banks).
+static func _spot_ok(p: Vector2, yaw: float, size: Vector3) -> bool:
+	return _ground_spread(p, yaw, size) <= maxf(0.25, size.y * 0.45)
 
 
 ## How much the footprint's ground varies corner to corner (0 on flat ground),
@@ -808,7 +865,7 @@ func _greenery(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberG
 		var p := c + Vector2(cos(ang), sin(ang)) * d
 		if d < plan["plaza_r"] + 6.0 or CityPlanner.street_distance(plan, p) < 3.0 \
 				or CityPlanner.path_distance(plan, p) < 1.5 or WorldGen.road_distance(p.x, p.y) < 5.0 \
-				or WorldGen.near_water(p.x, p.y, 2.0):
+				or WorldGen.near_water(p.x, p.y, 2.0) or CityPlanner.landmark_clearance(plan, p) < 4.0:
 			continue
 		var blocked := false
 		for lot: Dictionary in lots:
@@ -835,7 +892,11 @@ func _greenery(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberG
 		else:
 			kind = ["region/nature/oak_a", "region/nature/oak_b", "region/nature/beech_a", "region/nature/young_oak", "region/nature/bush_round"][mini(int(roll * 5.0), 4)]
 		var sc := rng.randf_range(0.8, 1.15)
-		var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * sc), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.1, p.y))
+		var yaw_t := rng.randf() * TAU
+		# A full-size tree's canopy is ~8 m wide: keep its box off the road, not just its trunk (lint: road).
+		if not kind.contains("bush") and WorldGen.road_distance(p.x, p.y) < 9.5:
+			continue
+		var t := Transform3D(Basis(Vector3.UP, yaw_t).scaled(Vector3.ONE * sc), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.1, p.y))
 		var gkey := "%s@%d,%d" % [kind, floori(p.x / LOD_CELL), floori(p.y / LOD_CELL)]   # per cell: see LOD_CELL
 		if not picks.has(gkey):
 			picks[gkey] = []
@@ -852,7 +913,7 @@ func _greenery(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberG
 
 ## Fenced crop fields outside the village: 10 m wheat tiles on the terrain,
 ## a rustic fence around each field with a gap for the farmer.
-func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator, gates: Array[float]) -> void:
+func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator, gates: Array[float], mills: Array[Vector2] = []) -> void:
 	var c: Vector2 = s["pos"]
 	var r: float = s["radius"]
 	var tiles: Array[Transform3D] = []
@@ -875,6 +936,21 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		var yaw := ang + PI * 0.5
 		var bx := Vector2(cos(yaw), -sin(yaw))
 		var bz := Vector2(sin(yaw), cos(yaw))
+		# Lint: a 10 m tile on a steep slope is buried up to 19 m (corner snap only reaches the lowest corner),
+		# and fields must not run into a windmill. Skip the whole field (rng stream stays unchanged).
+		var field_ok := true
+		for mp: Vector2 in mills:
+			if mp.distance_to(fc) < 24.0:
+				field_ok = false
+		for ix in nx:
+			for iz in nz:
+				if not field_ok:
+					break
+				var tp := fc + bx * (ix - (nx - 1) * 0.5) * 10.0 + bz * (iz - (nz - 1) * 0.5) * 10.0
+				if _ground_spread(tp, yaw, Vector3(10.0, 1.0, 10.0) * 1.25) > FIELD_MAX_SPREAD or WorldGen.is_water(tp.x, tp.y):
+					field_ok = false
+		if not field_ok:
+			continue
 		for ix in nx:
 			for iz in nz:
 				var p := fc + bx * (ix - (nx - 1) * 0.5) * 10.0 + bz * (iz - (nz - 1) * 0.5) * 10.0
@@ -904,6 +980,12 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		# A haystack at the field corner.
 		var hp := fc + bx * (hx + 3.0) + bz * (hz - 2.0)
 		var hy := rng.randf() * TAU
+		var hay_ok := _spot_ok(hp, hy, _footprint("haystack"))
+		for mp2: Vector2 in mills:
+			if mp2.distance_to(hp) < 12.0:
+				hay_ok = false
+		if not hay_ok:
+			continue   # steep or beside a windmill: no haystack (the fields are already laid)
 		stacks.append(Transform3D(Basis(Vector3.UP, hy), Vector3(hp.x, _ground_snap(hp, hy, _footprint("haystack"), 0.0), hp.y)))
 		var hsize := _footprint("haystack")
 		var body := StaticBody3D.new()
@@ -925,6 +1007,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator) -> void:
 	var lots: Array = plan["lots"]
 	var sets := {"garden_plot": [], "woodpile": [], "washing_line": []}
+	var yard_spots: Array[Vector2] = []
 	for lot: Dictionary in lots:
 		if not (String(lot["asset"]).begins_with("house") or String(lot["asset"]).begins_with("mhouse")):
 			continue
@@ -934,17 +1017,36 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 		var p: Vector2 = lot["pos"]
 		var roll := rng.randf()
 		var kind := "garden_plot" if roll < 0.45 else ("woodpile" if roll < 0.75 else "washing_line")
-		var at := p - fwd * 7.0 if kind == "garden_plot" else p + side * (5.2 if rng.randf() < 0.5 else -5.2) - fwd * 1.0
+		# Beside the house means beside ITS wall: the side offset follows the footprint (a 10 m manor
+		# used to get a washing line through its wall).
+		var half_w := BuildingProfiles.size_of(String(lot["asset"])).x * 0.5
+		var at := p - fwd * 7.0 if kind == "garden_plot" else p + side * (half_w + 3.4 if rng.randf() < 0.5 else -(half_w + 3.4)) - fwd * 1.0
 		if CityPlanner.street_distance(plan, at) < 3.0 or CityPlanner.path_distance(plan, at) < 1.5:
 			continue
 		var clear := true
+		# Yard items are up to ~5 m wide: clear of every house rectangle, the landmarks, the wall ring and each other.
+		var item_r := 2.9 if kind == "washing_line" else 2.0
 		for other: Dictionary in lots:
-			if other != lot and at.distance_to(other["pos"]) < 6.5:
+			var osz := BuildingProfiles.size_of(String(other["asset"]))
+			if (other["pos"] as Vector2).distance_to(at) < 20.0 \
+					and _rect_pt_dist(at, other["pos"], other["yaw"], osz.x * 0.5, osz.z * 0.5) < item_r:
 				clear = false
 				break
+		if clear and (CityPlanner.landmark_clearance(plan, at) < item_r + 0.8 \
+				or (plan["walls"] and at.distance_to(s["pos"]) > float(plan["wall_radius"]) - 6.5)):
+			clear = false
+		if clear:
+			for q: Vector2 in yard_spots:
+				if q.distance_to(at) < 6.0:
+					clear = false
+					break
 		if clear:
 			var ky := yaw + (0.0 if kind == "garden_plot" else PI * 0.5)
-			(sets[kind] as Array).append(Transform3D(Basis(Vector3.UP, ky), Vector3(at.x, WorldGen.height(at.x, at.y) - 0.03, at.y)))
+			var ysz := _footprint(kind)
+			if not _spot_ok(at, ky, ysz):
+				continue   # steep yard: no woodpile / line / plot hanging off the bank
+			yard_spots.append(at)
+			(sets[kind] as Array).append(Transform3D(Basis(Vector3.UP, ky), Vector3(at.x, _ground_snap(at, ky, ysz, 0.03), at.y)))
 	for kind: String in sets:
 		var list: Array[Transform3D] = []
 		list.assign(sets[kind])
@@ -999,6 +1101,10 @@ func _gate_outskirts(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array
 				elif roll < 0.95:
 					kind = "flower_planter"
 				if kind == "":
+					continue
+				if not _spot_ok(at, yaw, _footprint(kind)):
+					if kind.begins_with("market_stall"):
+						stalls -= 1
 					continue
 				if not lists.has(kind):
 					lists[kind] = []
@@ -1166,6 +1272,11 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 		var ly: float = lot["yaw"]
 		var dp := BuildingProfiles.door_point(lot)
 		corridors.append([dp, dp + Vector2(sin(ly), cos(ly)) * 10.0])
+	# Building lots as oriented rectangles: a solid prop keeps >= 0.6 m off every one (lint: stalls in houses).
+	var lot_rects: Array = []
+	for lot: Dictionary in plan["lots"]:
+		var lsz := BuildingProfiles.size_of(String(lot["asset"]))
+		lot_rects.append([lot["pos"], lot["yaw"], lsz.x * 0.5, lsz.z * 0.5])
 	var solid: Array = []         # [centre, yaw, half x, half z] of every solid prop placed so far
 	var stall_spots: Array = []   # [key, position, yaw, index into solid or -1] of every market stall, for MarketGoods
 	var no_collide := {}          # key -> Array[Transform3D] scenery that must not collide
@@ -1176,10 +1287,13 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 		var bx := mesh.get_aabb()
 		var hx := bx.size.x * 0.45
 		var hz := bx.size.z * 0.45
+		if key.begins_with("market_stall"):
+			hx = maxf(hx, 2.0)   # the goods laid on a stall (MarketGoods, 3.9 m wide) are wider than its awning
 		var cen := Vector2(bx.get_center().x, bx.get_center().z)
 		var near_cor: Array = corridors.filter(func(cor: Array) -> bool:
 			return Geometry2D.get_closest_point_to_segment(p, cor[0], cor[1]).distance_to(p) < 12.0)
 		var near_solid: Array = solid.filter(func(o: Array) -> bool: return (o[0] as Vector2).distance_to(p) < 14.0)
+		var near_lots: Array = lot_rects.filter(func(o: Array) -> bool: return (o[0] as Vector2).distance_to(p) < 16.0)
 		for off: float in [0.0, 0.75, -0.75, 1.5, -1.5, 2.25, -2.25, 3.0, -3.0, 3.75, -3.75, 4.5, -4.5]:
 			var q: Vector2 = p + dir * off
 			var centre: Vector2 = q + cen.rotated(-yaw)
@@ -1193,6 +1307,16 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 					if _rect_gap(centre, yaw, hx, hz, o[0], o[1], o[2], o[3]) < 1.4:
 						ok = false
 						break
+			if ok:
+				for o: Array in near_lots:
+					if _rect_gap(centre, yaw, hx, hz, o[0], o[1], o[2], o[3]) < 0.6:
+						ok = false
+						break
+			if ok:
+				if CityPlanner.landmark_clearance(plan, centre) < maxf(hx, hz) * 1.45 + 0.4:
+					ok = false
+				elif plan["walls"] and centre.distance_to(c) > r - 7.0:
+					ok = false   # stay clear of the wall ring and its towers
 			if ok:
 				solid.append([centre, yaw, hx, hz])
 				return q
@@ -1230,13 +1354,13 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 					var stall_key := "market_stall_red" if rng.randf() < 0.55 else "market_stall_green"
 					var spx: Vector2 = placed_solid.call(stall_key, sp, face, dir)
 					if is_inf(spx.x):
-						add_scenery.call(stall_key, sp, face)
-						stall_spots.append([stall_key, sp, face, -1])
+						# No free spot: no stall (a ghost stall used to overlap its neighbours; lint: 53 overlaps).
+						rng.randf()
 					else:
 						sp = spx
 						add.call(stall_key, sp, face)
 						stall_spots.append([stall_key, sp, face, solid.size() - 1])
-					if rng.randf() < 0.6:
+					if not is_inf(spx.x) and rng.randf() < 0.6:
 						var bp: Vector2 = sp + dir * 2.5 + nrm * side * 0.3
 						var by := face + rng.randf_range(-0.4, 0.4)
 						var bpx: Vector2 = placed_solid.call("barrel_cluster", bp, by, dir)
