@@ -2,7 +2,7 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
-Current Codex branch: `gpt/living-world-integration`, based on the published Claude snapshot `d163255f`. Review in [draft PR #5](https://github.com/jonaboy19/ProjectAshes/pull/5). The shared Claude checkout was left untouched; it had newer local work not present in this published snapshot, so re-check its state before integrating.
+Current Codex branch: `gpt/living-world-integration`, rebased onto fetched Claude branch head `3177be61` (30 September 2026). Review in [draft PR #5](https://github.com/jonaboy19/ProjectAshes/pull/5). The shared Claude checkout was not edited; re-check it before integrating because its local/unpublished state may differ from the remote branch.
 
 This branch hardens the QA/reference living-world activity layer: repeat target refreshes preserve the same slot claim, claim tokens prevent stale sessions from acting on a replacement lease, generated settlement spots expose semantic slot keys while integer indices remain transient, bad stand alignment fails without a snap, and the QA actor lets the exit clip finish before taking one queued replacement order. Teardown releases its own lease immediately. The live population path now has an instance-tokened `WorldSim`/`Villager` position-owner handoff, persisted utility needs across promotion/demotion/save-load, and time-skip behavior that preserves an embodied villager's resolved position while changing its schedule target.
 

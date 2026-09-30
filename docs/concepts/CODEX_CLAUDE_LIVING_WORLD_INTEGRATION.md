@@ -4,7 +4,7 @@
 
 ## Current source map
 
-The latest published Claude snapshot inspected for this handoff is `d163255f`.
+The fetched remote Claude branch head inspected for this handoff is `3177be61` (30 September 2026). Earlier notes below distinguish source observations made against `d163255f`; recheck the actual PC checkout before applying anything because local changes may be newer.
 
 | Responsibility | Current owner/source | Integration rule |
 |---|---|---|
