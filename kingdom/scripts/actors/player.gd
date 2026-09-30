@@ -1109,10 +1109,16 @@ func _update_camera(delta: float) -> void:
 		q.exclude = [get_rid()]
 		var hit := get_world_3d().direct_space_state.intersect_ray(q)
 		var camera_target := camera.global_position
+		var soft_occluder := false
 		if not hit.is_empty():
 			camera_target = (hit["position"] as Vector3) + (from - camera.global_position).normalized() * 0.3
+			var collider := hit.get("collider") as CollisionObject3D
+			soft_occluder = collider != null and (int(collider.collision_layer) & CAMERA_BLOCKER_LAYER) != 0
 		if camera_target.distance_to(from) < camera.global_position.distance_to(from):
-			camera.global_position = camera_target
+			if soft_occluder:
+				camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-30.0 * delta))
+			else:
+				camera.global_position = camera_target
 		else:
 			camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-14.0 * delta))
 	# Pinned against a wall so tight the lens would sit inside the head: hide the body.

@@ -183,7 +183,16 @@ func _build(s: Dictionary) -> Node3D:
 
 	for lm in plan["landmarks"]:
 		var lm_size := _footprint(lm["asset"])
-		_piece(root, lm["asset"], lm["pos"], _ground_snap(lm["pos"], lm["yaw"], lm_size), lm["yaw"])
+		var lm_y := _ground_snap(lm["pos"], lm["yaw"], lm_size)
+		_piece(root, lm["asset"], lm["pos"], lm_y, lm["yaw"])
+		if lm["asset"] == "well":
+			# The well roof overhangs its walk collider. Let the camera detect its
+			# full visual bounds without making the extra space solid to actors.
+			var well_mesh := Assets.building_mesh("well")
+			if well_mesh != null:
+				var well_proxy: Array[Transform3D] = [Transform3D(Basis(Vector3.UP, lm["yaw"]),
+					Vector3(lm["pos"].x, lm_y, lm["pos"].y))]
+				_add_camera_blockers(root, well_mesh, well_proxy)
 	# Market stalls and carts ringing the plaza. Plaza-radius footprint estimate
 	# (real stall assets are ~3-4 m): close enough for a per-instance ground snap,
 	# and cheap since it only samples the 4 corners once per stall at build time.
