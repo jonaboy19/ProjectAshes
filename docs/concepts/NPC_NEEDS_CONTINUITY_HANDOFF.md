@@ -1,14 +1,14 @@
 # NPC need continuity handoff
 
-**Status:** implementation brief for Claude; no gameplay code changed in this document.
-**Source checked:** `gpt/locomotion-jump-integration` at `22de9271`, against the merged game base `b6cc215c`.
+**Status:** partial implementation shipped on `gpt/locomotion-jump-integration`; offline progression and runtime acceptance are still open.
+**Source checked:** `gpt/locomotion-jump-integration` after sync with Claude `ec7c4960` (2026-09-30).
 **Scope:** preserve a small amount of life state across NPC presentation LOD and save/load. Keep the existing schedule, utility AI, and population budgets.
 
 ## The gap in the current system
 
-`WorldSim` owns the deterministic population rows and currently serializes day/time, treasury, resident money, and season. `PopulationLOD` promotes a capped nearby group into `Villager` bodies. Each body creates a `UtilityBrain` with food, rest, social, faith, and water needs. Those five values are not stored in `WorldSim` or serialized.
+`WorldSim` owns deterministic population rows. Its version-1 save payload now includes flat packed values for food, rest, social, faith, and water, a last-updated game-hour column, and a valid marker. `UtilityBrain` can export/import that stable five-value order. `Villager` restores valid state on promotion, syncs after its existing staggered brain tick, writes it on removal, and keeps it through `resync()`. If a save is loaded while the world scene is still alive, `Life.restore()` refreshes each registered brain from the newly deserialized rows before the next LOD resync. Old or malformed saves fall back to deterministic seeding; loading a save without valid need fields first clears in-memory state from the replaced run.
 
-`Villager._make_brain()` calls `seed_needs()` whenever a body is created. `resync()` also seeds those needs again after a time skip or load. That gives a plausible initial state for a newly encountered person, but it means a person's recent meals, sleep, water, prayer, and conversations do not survive a body despawn or a save/load. Re-entering view reconstructs a plausible day state instead of continuing that person's state.
+Need values now survive ordinary body despawn/promotion and save/load. `UtilityBrain.tick()` caps a single catch-up interval at two game hours, so a longer absence/time skip only applies up to two hours of need change; the rest of the elapsed interval is intentionally not simulated yet. The durable timestamp makes a future schedule-aware offline progression slice possible without changing the current utility rates.
 
 This is a source-confirmed continuity gap, not a claim that the whole NPC schedule or population simulation is missing. The current design already has the important mobile boundary: data rows for the population, utility decisions only for embodied villagers, a time-budgeted `WorldSim`, and capped body/animation work.
 
@@ -16,18 +16,18 @@ This is a source-confirmed continuity gap, not a claim that the whole NPC schedu
 
 - Keep `WorldSim` the durable owner for a person's low-cost needs while that person is not embodied.
 - Keep the active `UtilityBrain` as the decision/motive owner while its villager is embodied.
-- At promotion, transfer the stored needs into the brain exactly once. At demotion, write the brain's latest needs back before its node exits.
+- At promotion, transfer the stored needs into the brain exactly once. At demotion, write the brain's latest needs back before its node exits. **Implemented.**
 - Ensure only one owner advances an NPC's needs at a time. Do not let `WorldSim` decay an embodied person's needs while `UtilityBrain.tick()` is doing so.
 - Continue creating no brain, node, skeleton, or physics body for distant residents.
 - Preserve the seeded `UtilityBrain.seed_needs()` behavior as a backwards-compatible fallback for old or invalid save data.
 
 ## Recommended implementation slice
 
-1. Add compact per-person need storage to the existing `WorldSim` data rows. Keep the five values normalized to `0..1`; do not add per-resident Nodes or Resources. Include a last-simulated game-time value or another explicit catch-up marker so an NPC's needs can advance while its brain is asleep.
-2. Give `UtilityBrain` a small state export/import boundary for these five needs. Keep the utility scoring and need rates in one place so the embodied and unembodied paths cannot drift apart.
-3. On body promotion, restore the row and advance it from its stored game time to now using cheap schedule-aware arithmetic. While embodied, let the existing brain tick. Persist the current values at a bounded cadence and on body removal.
-4. On save, store the compact population state with a version marker. Prefer a packed representation (for example, base64 of packed floats) over thousands of verbose nested dictionaries. On old saves with no field, keep the existing seeded fallback. On a size/version mismatch, fall back safely and report a concise diagnostic rather than failing the whole save.
-5. Keep save schema additions inside `WorldSim.serialize()/deserialize()` unless the existing save format requires a migration hook. Do not change global population identity, schedules, money, or positions as part of this slice.
+1. ~~Add compact per-person need storage to WorldSim.~~ **Implemented:** five flat packed floats, last-game-hour, and valid byte per resident; no per-person Nodes/Resources.
+2. ~~Add a UtilityBrain export/import boundary.~~ **Implemented:** stable order is food, rest, social, faith, water.
+3. ~~Transfer on promotion/removal, tick while embodied, and preserve through resync.~~ **First layer implemented:** restoration and bounded-cadence sync use the existing brain; catch-up remains capped at two hours.
+4. ~~Add versioned save fields and old-save fallback.~~ **Implemented:** fields live in `WorldSim.serialize()/deserialize()`; old/malformed dimensions use seeded fallback, and need rows clear before loading so older saves cannot inherit the prior session's values.
+5. **Open:** measured storage/load cost and complete the schedule-aware unembodied progression. Keep it lazy/time-sliced or promotion-triggered; do not add an all-resident per-frame pass.
 
 ### Offline need progression
 
@@ -38,7 +38,7 @@ Use elapsed **game hours**, not wall-clock time, so pause, time skips, and the g
 ## Acceptance evidence
 
 - The same resident keeps approximately the same needs when promoted, demoted, then promoted again without a world-time jump.
-- A resident's needs change appropriately over a controlled in-game time advance while unembodied, then continue after promotion; they do not snap back to a newly seeded profile.
+- A resident's needs survive save/load and LOD handoff. For unembodied time passage, first define and capture the intended approximate schedule-aware catch-up (currently limited to 2 h), then verify they do not snap to a newly seeded profile.
 - A save made with active and unembodied residents reloads with both groups at coherent need levels. An old save without the new field still loads.
 - A large time skip advances needs once, not twice. Loading an earlier save does not inherit the later session's in-memory state.
 - A deterministic multi-hour schedule capture shows needs affecting existing choices (sleep, eat, socialise, water, pray) without changing schedule ownership or causing every resident to travel at the same moment.

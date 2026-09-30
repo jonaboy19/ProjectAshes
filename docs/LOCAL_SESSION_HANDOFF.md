@@ -451,10 +451,8 @@ built with fewer nodes, and drop `_process` work when no site is within BUILD. I
 - **Runtime validation remains pending.** No test suite was run in this continuation; `git diff --check` passed. Keep the captured-game validation list in `docs/anim/CODEX_LOCOMOTION_JUMP.md` current.
 
 ## 2026-09-30 (Codex): NPC need continuity handoff
-- Source-checked the current merged game code: `UtilityBrain` owns five needs only while a villager body exists; `Villager._make_brain()` and `resync()` seed them again, and `WorldSim.serialize()` has no need state.
-- Added `docs/concepts/NPC_NEEDS_CONTINUITY_HANDOFF.md` and linked it from `docs/concepts/CODEX_SYSTEMS_HANDOFF.md`. It proposes compact, versioned save state and explicit LOD ownership/catch-up, with no additional distant NPC brains.
-- Updated `docs/concepts/NPC_LIFE_LOOP_DESIGN.md` with a current-source snapshot that supersedes its `e3563fc4` observations where they conflict; it records the live schedule, route, body/contact, LOD, behavior, and continuity boundaries so Claude does not redo completed integration work.
-- Documentation only; no gameplay code or tests changed. `git diff --check` passed.
+- Initial source review found that `UtilityBrain` needs did not survive body LOD or save/load. This finding is superseded by the partial implementation below.
+- Added the handoff and current-source snapshot; these docs now distinguish implemented persistence from unfinished offline progression.
 
 ## 2026-09-30 (Codex): single-owner NPC position integration
 - `Villager` physics bodies already route and move near actors; `WorldSim._step()` also advanced their data positions until the next 4 Hz `PopulationLOD._write_back()`. Added a packed ownership flag so the world slice continues schedule/economy updates but skips position integration for embodied residents.
@@ -472,3 +470,10 @@ built with fewer nodes, and drop `_process` work when no site is within BUILD. I
 - Replaced the boolean `WorldSim.external_position_owner` marker with a packed instance-ID owner token. A release now succeeds only when its caller is still the recorded owner.
 - This closes a concrete LOD transition race: `PopulationLOD` can `queue_free()` a body and route the same resident as a sprite before the old body's deferred `_exit_tree()` runs. The old body's cleanup previously could release the sprite's claim and write its stale position over the routed position. Body and sprite movement owners now have distinct tokens, so delayed cleanup cannot displace a newer claim.
 - Updated `NPC_CONTACT_LOD_CONTRACT.md`. `git diff --check` passed; no Godot runtime check or test suite was run. Validate repeated body↔sprite transitions and world reset with deferred body exits during Claude's captured-game pass.
+
+## 2026-09-30 (Codex): NPC need continuity first layer
+- Added five flat per-person need values, game-hour timestamps, and validity bytes in `WorldSim`; the save payload uses versioned packed fields. Old/malformed fields use the seeded fallback, and loading clears prior in-memory need state first.
+- `UtilityBrain` exports/imports the existing five needs without changing scoring or rates. Villagers restore on promotion, sync after the existing staggered brain tick and on exit, and preserve state through resync. A body advances at most the existing two-game-hour catch-up bound; schedule-aware unembodied need progression remains open.
+- `Life.restore()` refreshes active brains from the selected save immediately, so loading while still in the world does not let a subsequent resync overwrite saved need values with the previous session. Deferred body cleanup now unregisters only its own instance, preserving a newly promoted body's registry entry.
+- Need writes require the current Villager instance to own that resident row, preventing a deferred old body from saving into a reset/new run.
+- Updated `NPC_NEEDS_CONTINUITY_HANDOFF.md`, `NPC_LIFE_LOOP_DESIGN.md`, and `CODEX_SYSTEMS_HANDOFF.md` with implemented behavior and remaining work. `git diff --check` passed; no runtime or test suite was run. Validate old/new save round trips, LOD churn, reset/deferred exits, time skips, serialized size, and mobile cost in Godot.

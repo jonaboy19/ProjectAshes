@@ -44,6 +44,10 @@ var money := PackedInt32Array()
 var health := PackedByteArray()
 var phase := PackedByteArray()      # schedule phase the current target belongs to
 var last_update := PackedFloat32Array()
+## Five normalized UtilityBrain needs per person, kept flat to avoid per-person objects.
+var npc_need_values := PackedFloat32Array()
+var npc_need_hours := PackedFloat32Array()
+var npc_need_valid := PackedByteArray()
 ## Owner instance ID while a higher-detail LOD representation owns position.
 ## Schedule, wages and other world-data updates continue, but _step does not
 ## integrate a competing movement path behind that representation. The token
@@ -84,6 +88,9 @@ func reset() -> void:
 	health = PackedByteArray()
 	phase = PackedByteArray()
 	last_update = PackedFloat32Array()
+	npc_need_values = PackedFloat32Array()
+	npc_need_hours = PackedFloat32Array()
+	npc_need_valid = PackedByteArray()
 	external_position_owner = PackedInt64Array()
 	ranges.clear()
 	treasury = PackedInt32Array()
@@ -139,6 +146,35 @@ func set_external_position_owner(i: int, owner_id: int, owned: bool, resolved_po
 	external_position_owner[i] = owner_id if owned else 0
 
 
+func owns_external_position(i: int, owner_id: int) -> bool:
+	return i >= 0 and i < external_position_owner.size() and external_position_owner[i] == owner_id
+
+
+## Read/write the durable five-value UtilityBrain state. Invalid or absent rows
+## return empty so old saves retain the existing deterministic seed fallback.
+func person_needs(i: int) -> Dictionary:
+	if i < 0 or i >= npc_need_valid.size() or npc_need_valid[i] == 0:
+		return {}
+	var offset := i * 5
+	return {"values": PackedFloat32Array([npc_need_values[offset], npc_need_values[offset + 1],
+		npc_need_values[offset + 2], npc_need_values[offset + 3], npc_need_values[offset + 4]]),
+		"hours": npc_need_hours[i]}
+
+
+func set_person_needs(i: int, owner_id: int, values: PackedFloat32Array, hours: float) -> void:
+	if not owns_external_position(i, owner_id) or i >= npc_need_valid.size() or values.size() != 5 or not is_finite(hours):
+		return
+	var offset := i * 5
+	for n in 5:
+		if not is_finite(values[n]):
+			return
+	for n in 5:
+		var value := values[n]
+		npc_need_values[offset + n] = clampf(value, 0.0, 1.0)
+	npc_need_hours[i] = hours
+	npc_need_valid[i] = 1
+
+
 ## Indices of people within `radius` of p. Only settlements in range are scanned.
 func people_near(p: Vector2, radius: float) -> PackedInt32Array:
 	var out := PackedInt32Array()
@@ -169,6 +205,10 @@ func _populate() -> void:
 			health.append(100)
 			phase.append(255)
 			last_update.append(0.0)
+			for _need in 5:
+				npc_need_values.append(0.0)
+			npc_need_hours.append(0.0)
+			npc_need_valid.append(0)
 			external_position_owner.append(0)
 		ranges.append(Vector2i(start, pos.size()))
 		treasury.append(500)
@@ -222,10 +262,23 @@ func advance_hours(hours: float) -> void:
 
 func serialize() -> Dictionary:
 	return {"day": day, "time": time_of_day, "treasury": Array(treasury), "money": Marshalls.raw_to_base64(money.to_byte_array()),
+		"npc_needs_v": 1, "npc_needs": Marshalls.raw_to_base64(npc_need_values.to_byte_array()),
+		"npc_needs_hours": Marshalls.raw_to_base64(npc_need_hours.to_byte_array()),
+		"npc_needs_valid": Marshalls.raw_to_base64(npc_need_valid),
 		"season": seasons.serialize() if seasons else {}}
 
 
 func deserialize(d: Dictionary) -> void:
+	# Loading an older save into a running session must not inherit needs from the
+	# session being replaced. Missing/invalid fields naturally use seeded fallback.
+	npc_need_values = PackedFloat32Array()
+	npc_need_hours = PackedFloat32Array()
+	npc_need_valid = PackedByteArray()
+	for _person in pos.size():
+		for _need in 5:
+			npc_need_values.append(0.0)
+		npc_need_hours.append(0.0)
+		npc_need_valid.append(0)
 	if d.is_empty():
 		return
 	day = int(d.get("day", day))
@@ -237,6 +290,14 @@ func deserialize(d: Dictionary) -> void:
 		var m := Marshalls.base64_to_raw(d["money"]).to_int32_array()
 		if m.size() == money.size():
 			money = m
+	if int(d.get("npc_needs_v", 0)) == 1 and d.has("npc_needs") and d.has("npc_needs_hours") and d.has("npc_needs_valid"):
+		var stored_values := Marshalls.base64_to_raw(String(d["npc_needs"])).to_float32_array()
+		var stored_hours := Marshalls.base64_to_raw(String(d["npc_needs_hours"])).to_float32_array()
+		var stored_valid := Marshalls.base64_to_raw(String(d["npc_needs_valid"]))
+		if stored_values.size() == pos.size() * 5 and stored_hours.size() == pos.size() and stored_valid.size() == pos.size():
+			npc_need_values = stored_values
+			npc_need_hours = stored_hours
+			npc_need_valid = stored_valid
 	if seasons and d.has("season"):
 		seasons.deserialize(d["season"])
 	_last_hour = -1

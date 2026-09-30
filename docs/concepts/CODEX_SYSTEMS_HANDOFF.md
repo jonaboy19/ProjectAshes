@@ -17,9 +17,11 @@ The Journal reads `Life.scouts.offers` so offers restored from saves remain visi
 
 See [CODEX_LOCOMOTION_JUMP.md](../anim/CODEX_LOCOMOTION_JUMP.md) for the player jump/run-stop integration, impact feedback, directional reactions, enemy wind-up timing and camera improvements, plus the required in-game validation checklist.
 
-## Next life-simulation continuity slice
+## NPC need continuity: first layer implemented
 
-Source review found that a villager's five utility needs currently live only in its temporary `UtilityBrain`: promotion and `resync()` seed them again, and `WorldSim` does not serialize them. The focused Claude implementation brief is [NPC_NEEDS_CONTINUITY_HANDOFF.md](NPC_NEEDS_CONTINUITY_HANDOFF.md). It keeps the current simulation LOD and asks for compact needs handoff/save state with a single active owner, backwards-compatible fallback, and a measured mobile cost. No implementation is included in this handoff commit.
+`WorldSim` now stores five normalized needs per resident in flat packed rows and includes versioned base64 fields in its save dictionary. Active `UtilityBrain` values sync at the existing staggered decision cadence and on body removal; promotion and time-skip resync restore the resident's saved needs, with the existing two-game-hour catch-up bound. Saves without valid fields keep the seeded fallback, and loading such a save clears any needs left in memory by the replaced session.
+
+This does not yet advance unembodied needs continuously from schedules, and its serialized memory/cost has not been measured in a live mobile build. Remaining design, acceptance cases, and that limitation are tracked in [NPC_NEEDS_CONTINUITY_HANDOFF.md](NPC_NEEDS_CONTINUITY_HANDOFF.md).
 
 ## Dialogue presentation: F13 partial fix
 

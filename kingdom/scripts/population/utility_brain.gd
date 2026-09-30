@@ -288,6 +288,26 @@ func seed_needs(h: float, day := 1) -> void:
 	_last_hours = -1.0
 
 
+## Compact save/LOD boundary in stable order: food, rest, social, faith, water.
+func export_needs() -> PackedFloat32Array:
+	return PackedFloat32Array([food, rest, social, faith, water])
+
+
+func import_needs(values: PackedFloat32Array, last_hours: float) -> bool:
+	if values.size() != 5 or not is_finite(last_hours):
+		return false
+	for value: float in values:
+		if not is_finite(value) or value < 0.0 or value > 1.0:
+			return false
+	food = values[0]
+	rest = values[1]
+	social = values[2]
+	faith = values[3]
+	water = values[4]
+	_last_hours = last_hours
+	return true
+
+
 ## Advance needs to absolute game time `now_hours` (day * 24 + time). While
 ## `performing` an act at its spot, that act restores its need.
 func tick(now_hours: float, performing := -1) -> void:
@@ -689,9 +709,22 @@ static func register_body(p: int, node: Node) -> void:
 	_bodies[p] = node.get_instance_id()
 
 
-static func unregister_body(p: int) -> void:
+static func unregister_body(p: int, owner_id := 0) -> void:
+	# queue_free() exits at frame end. A replacement body may already have
+	# registered for this person, so stale cleanup must not erase its registry.
+	if owner_id != 0 and int(_bodies.get(p, 0)) != owner_id:
+		return
 	_bodies.erase(p)
 	chat_leave(p)
+
+
+## A save may be loaded while the world scene remains alive. Replace each active
+## brain from the just-deserialized rows before the next LOD resync can write it.
+static func restore_active_needs() -> void:
+	for p in _bodies.keys():
+		var body := body_of(int(p))
+		if body and body.has_method("restore_needs_from_world"):
+			body.call("restore_needs_from_world")
 
 
 static func body_of(p: int) -> Node3D:
