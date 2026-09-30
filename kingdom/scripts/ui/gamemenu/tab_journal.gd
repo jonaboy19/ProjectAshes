@@ -23,6 +23,14 @@ func refresh() -> void:
 	_data = MD.journal()
 	var items: Array = [{"id": "chronicle", "name": "Chronicle", "icon": "jr_chronicle"},
 		{"id": "biography", "name": "Biography", "icon": "jr_bio"}, {"id": "family", "name": "Family", "icon": "jr_family"}]
+	var offers: Array = Life.scouts.offers
+	if not offers.is_empty():
+		items.append({"header": "Scouting offers"})
+		for offer: Dictionary in offers:
+			var expires := int(offer.get("offer", {}).get("expires_day", WorldSim.day))
+			items.append({"id": "scout:%d" % int(offer["id"]),
+				"name": String(offer.get("org", {}).get("name", "Recruitment offer")),
+				"icon": "jr_chronicle", "right": "Day %d" % expires})
 	var people: Array = _data["people"]
 	items.append({"header": "People met"})
 	if people.is_empty():
@@ -50,6 +58,51 @@ func _show_detail() -> void:
 		_:
 			if id.begins_with("p:"):
 				_person(d, int(id.substr(2)))
+			elif id.begins_with("scout:"):
+				_scout_offer(d, int(id.trim_prefix("scout:")))
+
+
+func _scout_offer(d: VBoxContainer, event_id: int) -> void:
+	var event: Dictionary = Life.scouts.offer(event_id)
+	if event.is_empty():
+		return
+	var scout: Dictionary = event.get("scout", {})
+	var org: Dictionary = event.get("org", {})
+	var terms: Dictionary = event.get("offer", {})
+	var scenario: Dictionary = event.get("scenario", {})
+	_title(d, String(org.get("name", "A new path")), String(scout.get("title", "Recruiter")) + " · " + String(scout.get("name", "Unknown")))
+	d.add_child(Kit.lbl(String(scenario.get("text", "A recruiter wants to speak with you.")), 17, AF.TEXT, true))
+	d.add_child(Kit.section("Terms", 18))
+	_line(d, String(terms.get("role", "Offer")))
+	if int(terms.get("wage", 0)) > 0:
+		_line(d, "Proposed pay: %d gold per day" % int(terms["wage"]))
+	if int(terms.get("signing_bonus", 0)) > 0:
+		_line(d, "%d gold signing bonus" % int(terms["signing_bonus"]))
+	if bool(terms.get("tuition_waived", false)):
+		_line(d, "Tuition is waived")
+	if bool(terms.get("lodging", false)):
+		_line(d, "Lodging included")
+	if bool(terms.get("soulbeast_path", false)):
+		_line(d, "Includes a travel permit to %s" % String(terms.get("travel_permit", "Xiava's Lake")))
+	d.add_child(Kit.lbl("Accepting records this recruitment path and pays any signing bonus. Organization duties and ongoing pay are not active yet.",
+		14, AF.TEXT_DIM, true, "italic"))
+	d.add_child(Kit.lbl("Answer by day %d." % int(terms.get("expires_day", WorldSim.day)), 15, AF.TEXT_DIM, true, "italic"))
+	var actions := HBoxContainer.new()
+	actions.add_theme_constant_override("separation", 10)
+	var accept := Kit.button("Accept offer", true, 48, 16)
+	accept.pressed.connect(_answer_scout.bind(event_id, true))
+	actions.add_child(accept)
+	var decline := Kit.button("Decline", false, 48, 16)
+	decline.pressed.connect(_answer_scout.bind(event_id, false))
+	actions.add_child(decline)
+	d.add_child(actions)
+
+
+func _answer_scout(event_id: int, accept: bool) -> void:
+	var result := Life.answer_offer(event_id, accept)
+	if result != "":
+		Game.say(result)
+	refresh()
 
 
 func _title(d: VBoxContainer, text: String, sub := "") -> void:
