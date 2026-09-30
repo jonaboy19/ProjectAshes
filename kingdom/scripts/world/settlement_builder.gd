@@ -278,10 +278,29 @@ func _build(s: Dictionary) -> Node3D:
 	_multimesh(root, Assets.building_mesh("barrel"), street_clutter.slice(0, 10), true, true, "barrel")
 	_multimesh(root, Assets.building_mesh("crate"), street_clutter.slice(10, 18), true, true, "crate")
 	_multimesh(root, Assets.building_mesh("sack_pile"), street_clutter.slice(18, 24), true, true, "sack_pile")
-	_multimesh(root, Assets.building_mesh("cart"), street_clutter.slice(24), true, true)
+	var carts: Array[Transform3D] = street_clutter.slice(24)
+	var cart_mesh := Assets.building_mesh("cart")
+	_multimesh(root, cart_mesh, carts, true, true)
+	# Keep the existing cart placement and collision proxies, and give the local
+	# NPC street graph their same fitted footprints so routed residents do not
+	# take a straight path through a solid cart.
+	plan["npc_nav_obstacles"] = _cart_nav_obstacles(cart_mesh, carts)
 	_decals(root, s, plan)
 	_flush_contact_shadows(root)
 	return root
+
+
+func _cart_nav_obstacles(mesh: Mesh, transforms: Array[Transform3D]) -> Array:
+	var obstacles: Array = []
+	if mesh == null:
+		return obstacles
+	var bounds := mesh.get_aabb()
+	for t: Transform3D in transforms:
+		var scale := t.basis.get_scale()
+		var centre := t * bounds.get_center()
+		obstacles.append([Vector2(centre.x, centre.z), t.basis.get_euler().y,
+			Vector2(bounds.size.x * scale.x, bounds.size.z * scale.z) * 0.45])
+	return obstacles
 
 
 ## One InteriorDoor per enterable lot (inn, smithy, guild, healer, every house),

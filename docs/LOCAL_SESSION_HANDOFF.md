@@ -484,3 +484,8 @@ built with fewer nodes, and drop `_process` work when no site is within BUILD. I
 - Coarse offline rules use the existing three meal hours, half-hour meal recovery at the current eat rate, and night rest when the resident's shared schedule is home. The 24-hour cap bounds stale/corrupt catch-up. No new all-population per-frame pass or resident Nodes were added. This is a continuity approximation, not exact daily act history.
 - On save load while the world is alive, active brains are refreshed from deserialized rows; Villager brain ownership is re-established before the next simulation step. Runtime/save-size/mobile-cost acceptance still needs a real Godot capture; no tests or runtime were run here.
 - Save format is now version 2 with double-precision need timestamps; the reader accepts version 1's float32 timestamp format so an already-created Codex-branch save remains readable.
+
+## 2026-09-30 (Codex): route around solid plaza carts
+- `SettlementBuilder` now writes the actual six solid cart placements into the shared settlement plan as fitted horizontal obstacle boxes. The existing `StreetGraph` syncs those boxes lazily, including when the graph was cached before settlement dressing finished, and rebuilds its route edges once to avoid those cart footprints.
+- Cart placement and collision proxies are unchanged; this only gives local NPC routes the same blocker information already used by the physical world. No broad prop rewrite or extra runtime navigation nodes were added.
+- Updated F17 in `docs/anim/FEEL_AUDIT.md` and the current `NPC_CONTACT_LOD_CONTRACT.md`. `git diff --check` passed; no runtime or tests were run. Validate route paths through the plaza and verify detours do not deadlock at stalls.

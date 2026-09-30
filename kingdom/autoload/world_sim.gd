@@ -304,11 +304,24 @@ func deserialize(d: Dictionary) -> void:
 			money = m
 	var need_version := int(d.get("npc_needs_v", 0))
 	if need_version in [1, 2] and d.has("npc_needs") and d.has("npc_needs_hours") and d.has("npc_needs_valid"):
-		var stored_values := Marshalls.base64_to_raw(String(d["npc_needs"])).to_float32_array()
+		var raw_values := Marshalls.base64_to_raw(String(d["npc_needs"]))
 		var raw_hours := Marshalls.base64_to_raw(String(d["npc_needs_hours"]))
-		var stored_hours := PackedFloat64Array(raw_hours.to_float64_array()) if need_version == 2 else PackedFloat64Array(raw_hours.to_float32_array())
 		var stored_valid := Marshalls.base64_to_raw(String(d["npc_needs_valid"]))
-		if stored_values.size() == pos.size() * 5 and stored_hours.size() == pos.size() and stored_valid.size() == pos.size():
+		var expected_hours_bytes := pos.size() * (8 if need_version == 2 else 4)
+		if raw_values.size() == pos.size() * 5 * 4 and raw_hours.size() == expected_hours_bytes and stored_valid.size() == pos.size():
+			var stored_values := raw_values.to_float32_array()
+			var stored_hours := PackedFloat64Array(raw_hours.to_float64_array()) if need_version == 2 else PackedFloat64Array(raw_hours.to_float32_array())
+			for i in pos.size():
+				if stored_valid[i] == 0:
+					continue
+				if not is_finite(stored_hours[i]):
+					stored_valid[i] = 0
+					continue
+				var offset := i * 5
+				for n in 5:
+					if not is_finite(stored_values[offset + n]) or stored_values[offset + n] < 0.0 or stored_values[offset + n] > 1.0:
+						stored_valid[i] = 0
+						break
 			npc_need_values = stored_values
 			npc_need_hours = stored_hours
 			npc_need_valid = stored_valid

@@ -46,6 +46,7 @@ var _box_h := PackedVector2Array()
 var _box_grid := {}                 # Vector2i -> PackedInt32Array
 var _stamp := PackedInt32Array()
 var _stamp_id := 0
+var _nav_obstacle_count := -1
 # Walls: [radius, gate angles].
 var _walls: Array = []
 
@@ -122,6 +123,7 @@ func _setup(s: Dictionary) -> void:
 	if float(plan.get("inner_wall", 0.0)) > 0.0:
 		_walls.append([float(plan["inner_wall"]), [plan["gates"][0]]])
 	_stamp.resize(_box_c.size())
+	_sync_nav_obstacles()
 
 
 func _mesh_size(asset: String, low: bool) -> Vector3:
@@ -188,6 +190,7 @@ func _world_dir(local_dir: Vector2, k: int) -> Vector2:
 
 ## True if p (with clearance r) is inside a building footprint.
 func inside(p: Vector2, r := AGENT_RADIUS) -> bool:
+	_sync_nav_obstacles()
 	for k in _boxes_near(p, p):
 		var l := _local(p, k)
 		var h := _box_h[k] + Vector2(r, r)
@@ -198,6 +201,7 @@ func inside(p: Vector2, r := AGENT_RADIUS) -> bool:
 
 ## Nearest point to p that is outside every footprint by at least r.
 func push_out(p: Vector2, r := AGENT_RADIUS) -> Vector2:
+	_sync_nav_obstacles()
 	var q := p
 	for _pass in 3:
 		var moved := false
@@ -227,6 +231,7 @@ func push_out(p: Vector2, r := AGENT_RADIUS) -> Vector2:
 
 ## Steering push away from footprints closer than `reach` (zero in the open).
 func repulse(p: Vector2, reach := 1.2) -> Vector2:
+	_sync_nav_obstacles()
 	var push := Vector2.ZERO
 	var e := Vector2(reach, reach)
 	for k in _boxes_near(p - e, p + e):
@@ -249,6 +254,7 @@ func repulse(p: Vector2, reach := 1.2) -> Vector2:
 ## True if an agent of radius r can walk the straight segment a -> b without
 ## entering a footprint or crossing a settlement wall outside its gates.
 func clear_line(a: Vector2, b: Vector2, r := AGENT_RADIUS) -> bool:
+	_sync_nav_obstacles()
 	var lo := Vector2(minf(a.x, b.x), minf(a.y, b.y)) - Vector2(r, r)
 	var hi := Vector2(maxf(a.x, b.x), maxf(a.y, b.y)) + Vector2(r, r)
 	for k in _boxes_near(lo, hi):
@@ -258,6 +264,30 @@ func clear_line(a: Vector2, b: Vector2, r := AGENT_RADIUS) -> bool:
 		if _segment_hits_wall(a, b, w[0], w[1], r):
 			return false
 	return true
+
+
+## SettlementBuilder adds actual solid cart placements to its shared plan after
+## creating the plaza clutter. Sync them lazily so this graph still works if it
+## was cached before that build completed.
+func _sync_nav_obstacles() -> void:
+	var obstacles: Array = plan.get("npc_nav_obstacles", [])
+	if obstacles.size() == _nav_obstacle_count:
+		return
+	_nav_obstacle_count = obstacles.size()
+	for record: Array in obstacles:
+		if record.size() < 3:
+			continue
+		var center_point: Vector2 = record[0]
+		var half_extent: Vector2 = record[2]
+		_add_box(center_point, float(record[1]), half_extent)
+	_stamp.resize(_box_c.size())
+	if _graph_built:
+		_graph_built = false
+		_nodes.clear()
+		_adj.clear()
+		_edges.clear()
+		_edge_grid.clear()
+		_node_lookup.clear()
 
 
 func _segment_hits_box(a: Vector2, b: Vector2, k: int, r: float) -> bool:

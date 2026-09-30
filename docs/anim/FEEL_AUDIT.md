@@ -70,7 +70,7 @@ Before and after scores are from the same scenario on the same HIGH tier.
 | 14 | F14 | Wolves read as small grey dogs and vanish in the tall grass at 10-15 m, so the chase has no threat | `feel/before/16_wolves_tiny_in_grass.jpg` | Med | Content (wolf model scale, grass height) | Local assets: scale the `wolf2` model about 1.3× and check it against the player |
 | 15 | F15 | Rolls pass through enemies' bodies | `feel/before/12_dodge_sheet1.jpg` #19-#23 | Low | Design (i-frames) | **Local:** when a swept roll path hits a hostile capsule, choose the nearest clear 10° lane up to 50° around it; world walls still block normally |
 | 16 | F16 | Hitstop sets the global `Engine.time_scale` to 0.05, which freezes camera shake, VFX and every NPC | `player._hit_stop` | Low | Design | **Implemented locally:** regular light hits pause only the player's and struck actors' animation mixers; parries/finishers keep global slow-motion |
-| 17 | F17 | A guard walks through the market cart | `feel/after/15_crowd_sheet1.jpg` #2-#8 | Low | Route or prop collision | Cloud (street graph vs cart footprint) |
+| 17 | F17 | A guard walks through the market cart | `feel/after/15_crowd_sheet1.jpg` #2-#8 | Low | Route or prop collision | **Implemented on Codex branch:** plaza-cart footprints sync into the existing `StreetGraph`; capture and tune in game |
 
 ## What changed (local, surgical)
 
