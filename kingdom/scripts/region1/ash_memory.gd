@@ -16,12 +16,15 @@ extends Region1Sim
 ##   var id := mem.begin_incident(&"raid", pos, now_s)         when a raid / sabotage starts
 ##   mem.sample(now_s, [{"id": "b1", "role": "bandit", "pos": Vector2}, ...])   every second
 ##   mem.mark(id, now_s, "chisel")                             optional labelled beat
+##   mem.act(id, now_s, "b1", &"attack")                       optional per-actor beat: &"attack" (the blow
+##                                                             lands at now_s), &"hit", &"death", &"chisel";
+##                                                             the ghost plays the matching clip in time
 ##   mem.end_incident(id, now_s)
 ##   mem.record_event(&"fire", pos, now_s, actors)             one-shot (fire, death)
 ## Replaying:
 ##   mem.incidents_near(pos, 40.0)  ->  [ids], strongest heat first
 ##   var rp := mem.replay(id)       ->  AshMemory.Replay (advance(dt), seek(t), frame())
-##   mem.positions_at(id, t)        ->  [{id, role, pos, heading, alpha}], stateless
+##   mem.positions_at(id, t)        ->  [{id, role, pos, heading, alpha, ash, speed, act, act_dt}], stateless
 
 const KINDS := [&"raid", &"sabotage", &"fire", &"death"]
 ## Days a kind stays readable (heat goes 1 -> 0 linearly).
@@ -35,7 +38,11 @@ const MAX_ACTORS := 12              ## per incident
 const MAX_SAMPLES := 180            ## per actor (three minutes of 1 Hz)
 const RECORD_WINDOW_S := 180.0      ## an open incident stops recording after this long
 const GAP_S := 2.6                  ## a hole in the samples longer than this = actor out of sight
-const FADE_S := 0.7                 ## ghost fade in/out around its first/last sample
+const FADE_S := 0.7                 ## a ghost forms out of ash this long before its first sample
+const ASH_END_S := 1.8              ## ... and crumbles back into ash this long after its last one
+const ACT_LEAD_S := 2.0             ## an act is reported this long before its instant (wind-up)
+const ACT_LAG_S := 6.0              ## ... and this long after (follow-through); deaths are held forever
+const ACT_KINDS := [&"attack", &"hit", &"death", &"chisel"]
 const SAVE_STATE_VERSION := 1
 
 signal incident_started(id: int, kind: StringName)
@@ -186,8 +193,10 @@ func sample(now_s: float, actors: Array) -> bool:
 			if not rec.has(aid):
 				if rec.size() >= MAX_ACTORS:
 					continue
-				rec[aid] = {"role": String(a.get("role", "")), "t": [], "x": [], "z": []}
+				rec[aid] = {"role": String(a.get("role", "")), "t": [], "x": [], "z": [], "acts": []}
 			var tr: Dictionary = rec[aid]
+			if String(tr["role"]) == "":
+				tr["role"] = String(a.get("role", ""))
 			if (tr["t"] as Array).size() >= MAX_SAMPLES:
 				continue
 			(tr["t"] as Array).append(_q3(t))
@@ -203,6 +212,24 @@ func mark(id: int, now_s: float, label: String) -> void:
 	if inc.is_empty():
 		return
 	(inc["marks"] as Array).append({"t": _q3(now_s - float(inc["t0"])), "label": label})
+
+
+## A per-actor beat at `now_s`: the instant an attack lands, a hit is taken, the actor falls,
+## or a chisel stroke starts. The ghost plays the matching animation clip aligned to that
+## instant (and it survives scrubbing, because positions_at is stateless).
+func act(id: int, now_s: float, actor_id: Variant, kind: StringName) -> void:
+	var inc := incident(id)
+	if inc.is_empty():
+		return
+	var aid := str(actor_id)
+	var rec: Dictionary = inc["actors"]
+	if not rec.has(aid):
+		if rec.size() >= MAX_ACTORS:
+			return
+		rec[aid] = {"role": "", "t": [], "x": [], "z": [], "acts": []}
+	var acts: Array = rec[aid]["acts"]
+	if acts.size() < 24:
+		acts.append({"t": _q3(now_s - float(inc["t0"])), "k": String(kind)})
 
 
 func end_incident(id: int, now_s: float) -> void:
@@ -315,9 +342,14 @@ func replay_info(id: int) -> Dictionary:
 		if ts.is_empty():
 			continue
 		actors.append({"id": aid, "role": String(tr["role"]), "first": float(ts[0]), "last": float(ts[ts.size() - 1])})
+	var acts: Array = []
+	for aid: String in inc["actors"]:
+		for a: Dictionary in inc["actors"][aid].get("acts", []):
+			acts.append({"t": float(a["t"]), "actor": aid, "kind": StringName(a["k"])})
+	acts.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["t"]) < float(b["t"]))
 	return {"kind": StringName(inc["kind"]), "site": String(inc["site"]),
 		"center": Vector2(float(inc["x"]), float(inc["z"])), "duration": float(inc["dur"]),
-		"heat": heat(id), "marks": (inc["marks"] as Array).duplicate(true), "actors": actors}
+		"heat": heat(id), "marks": (inc["marks"] as Array).duplicate(true), "actors": actors, "acts": acts}
 
 
 ## Raw samples of one actor as a path (for the ember trail and the compass pin).
@@ -337,7 +369,9 @@ func trail(id: int, actor_id: Variant) -> PackedVector2Array:
 
 
 ## Where everyone was at time `t` (seconds since the incident began). Stateless.
-## Entry: {id, role, pos: Vector2, heading: float (radians, yaw for -Z forward models), alpha: 0..1}.
+## Entry: {id, role, pos: Vector2, heading: float (radians, yaw for -Z forward models), alpha: 0..1,
+##         ash: 0..1 (progress of the final crumble into ash), speed: m/s,
+##         act: StringName ("" or the nearest attack/hit/death/chisel), act_dt: seconds since its instant}.
 ## Actors that are out of sight at `t` (before the first sample, after the last, or inside a
 ## gap longer than GAP_S) are left out. Uses a Catmull-Rom curve through the 1 Hz samples.
 func positions_at(id: int, t: float) -> Array[Dictionary]:
@@ -358,13 +392,44 @@ func positions_at(id: int, t: float) -> Array[Dictionary]:
 
 
 static func _eval_track(tr: Dictionary, t: float) -> Dictionary:
+	var e := _eval_path(tr, t)
+	if e.is_empty():
+		return e
+	# per-actor beat nearest to now (attack / hit / death / chisel)
+	var best_dt := 1.0e9
+	var best := ""
+	var acts = tr.get("acts")
+	if acts == null:
+		acts = []
+	for a: Dictionary in acts:
+		var dt := t - float(a["t"])
+		var kind := String(a["k"])
+		if dt < -ACT_LEAD_S or (dt > ACT_LAG_S and kind != "death"):
+			continue
+		if absf(dt) < absf(best_dt) or (kind == "death" and dt > 0.0):
+			best_dt = dt
+			best = kind
+			if kind == "death" and dt > 0.0:
+				break
+	e["act"] = StringName(best)
+	e["act_dt"] = best_dt if best != "" else 0.0
+	if best == "death" and best_dt > 0.0:
+		# the fallen stay where they fell (no path extrapolation, no sliding)
+		var at := _eval_path(tr, t - best_dt)
+		if not at.is_empty():
+			e["pos"] = at["pos"]
+		e["speed"] = 0.0
+	return e
+
+
+static func _eval_path(tr: Dictionary, t: float) -> Dictionary:
 	var ts: Array = tr["t"]
 	var n := ts.size()
 	if n == 0:
 		return {}
 	var t_first := float(ts[0])
 	var t_last := float(ts[n - 1])
-	if t < t_first - FADE_S or t > t_last + FADE_S:
+	if t < t_first - FADE_S or t > t_last + ASH_END_S:
 		return {}
 	var xs: Array = tr["x"]
 	var zs: Array = tr["z"]
@@ -379,15 +444,16 @@ static func _eval_track(tr: Dictionary, t: float) -> Dictionary:
 		else:
 			hi = mid
 	if n == 1:
-		return {"pos": Vector2(float(xs[0]), float(zs[0])), "heading": 0.0, "alpha": _fade(t, t_first, t_last)}
+		return {"pos": Vector2(float(xs[0]), float(zs[0])), "heading": 0.0, "alpha": _fade(t, t_first, t_last),
+			"ash": _ash(t, t_last), "speed": 0.0}
 	var t0 := float(ts[lo])
 	var t1 := float(ts[lo + 1])
 	if t1 - t0 > GAP_S and t > t0 and t < t1:
 		# a hole in the record: out of sight, except the fade tails of the two ends
 		if t - t0 <= FADE_S:
-			return {"pos": Vector2(float(xs[lo]), float(zs[lo])), "heading": _heading(xs, zs, lo, lo), "alpha": 1.0 - (t - t0) / FADE_S}
+			return {"pos": Vector2(float(xs[lo]), float(zs[lo])), "heading": _heading(xs, zs, lo, lo), "alpha": 1.0 - (t - t0) / FADE_S, "ash": (t - t0) / FADE_S, "speed": 0.0}
 		if t1 - t <= FADE_S:
-			return {"pos": Vector2(float(xs[lo + 1]), float(zs[lo + 1])), "heading": _heading(xs, zs, lo + 1, lo + 1), "alpha": 1.0 - (t1 - t) / FADE_S}
+			return {"pos": Vector2(float(xs[lo + 1]), float(zs[lo + 1])), "heading": _heading(xs, zs, lo + 1, lo + 1), "alpha": 1.0 - (t1 - t) / FADE_S, "ash": 0.0, "speed": 0.0}
 		return {}
 	var p0 := Vector2(float(xs[lo]), float(zs[lo]))
 	var p1 := Vector2(float(xs[lo + 1]), float(zs[lo + 1]))
@@ -412,8 +478,32 @@ static func _eval_track(tr: Dictionary, t: float) -> Dictionary:
 		+ (-2.0 * u3 + 3.0 * u2) * p1 + (u3 - u2) * m1
 	var vel := ((6.0 * u2 - 6.0 * u) * p0 + (3.0 * u2 - 4.0 * u + 1.0) * m0 \
 		+ (-6.0 * u2 + 6.0 * u) * p1 + (3.0 * u2 - 2.0 * u) * m1)
-	var heading := atan2(-vel.x, -vel.y) if vel.length_squared() > 0.0004 else _heading(xs, zs, lo, lo + 1)
-	return {"pos": pos, "heading": heading, "alpha": _fade(t, t_first, t_last)}
+	var speed := vel.length() / maxf(h, 0.0001)
+	# facing: the way it is moving; when it (nearly) stands still keep the way it arrived, so a
+	# figure that stops to strike or chisel keeps facing what it walked up to
+	var heading := atan2(-vel.x, -vel.y) if speed > 0.02 else 0.0
+	if speed < 0.75:
+		var settled := _heading_arrived(xs, zs, lo)
+		heading = settled if speed <= 0.02 else lerp_angle(settled, heading, smoothstep(0.35, 0.75, speed))
+	if t > t_last:
+		# past the last sample: keep going the way it was going, slowing to a stop as it turns to ash
+		var s := t - t_last
+		var v := vel / maxf(h, 0.0001)
+		pos = p1 + v * (s - s * s / (2.0 * ASH_END_S))
+		speed = v.length() * maxf(0.0, 1.0 - s / ASH_END_S)
+	return {"pos": pos, "heading": heading, "alpha": _fade(t, t_first, t_last), "ash": _ash(t, t_last), "speed": speed}
+
+
+## Direction of the last real movement into sample `i` (yaw, -Z forward).
+static func _heading_arrived(xs: Array, zs: Array, i: int) -> float:
+	var p := Vector2(float(xs[i]), float(zs[i]))
+	var j := i - 1
+	while j >= 0:
+		var d := p - Vector2(float(xs[j]), float(zs[j]))
+		if d.length_squared() > 0.6 * 0.6:
+			return atan2(-d.x, -d.y)
+		j -= 1
+	return _heading(xs, zs, i, mini(i + 1, xs.size() - 1))
 
 
 static func _heading(xs: Array, zs: Array, a: int, b: int) -> float:
@@ -424,7 +514,12 @@ static func _heading(xs: Array, zs: Array, a: int, b: int) -> float:
 
 
 static func _fade(t: float, t_first: float, t_last: float) -> float:
-	return clampf(minf((t - (t_first - FADE_S)) / FADE_S, ((t_last + FADE_S) - t) / FADE_S), 0.0, 1.0)
+	return clampf(minf((t - (t_first - FADE_S)) / FADE_S, ((t_last + ASH_END_S) - t) / ASH_END_S), 0.0, 1.0)
+
+
+## 0 while the actor walks its path, 0..1 while it crumbles into ash after its last sample.
+static func _ash(t: float, t_last: float) -> float:
+	return clampf((t - t_last) / ASH_END_S, 0.0, 1.0)
 
 
 ## A playback cursor (not saved): advance(dt) each frame, frame() -> positions_at(t).
@@ -448,7 +543,7 @@ class Replay extends RefCounted:
 	var playing := true
 	var looping := false
 	## Extra seconds shown after the last sample so the last ghost can fade out.
-	var tail := AshMemory.FADE_S
+	var tail := AshMemory.ASH_END_S
 
 	func advance(dt: float) -> void:
 		if not playing:
@@ -485,7 +580,8 @@ func _save_state() -> Dictionary:
 		for aid: String in inc["actors"]:
 			var tr: Dictionary = inc["actors"][aid]
 			# plain Arrays of floats: JSON-safe and identical after a round trip
-			actors[aid] = {"role": tr["role"], "t": Array(tr["t"]), "x": Array(tr["x"]), "z": Array(tr["z"])}
+			actors[aid] = {"role": tr["role"], "t": Array(tr["t"]), "x": Array(tr["x"]), "z": Array(tr["z"]),
+				"acts": (tr.get("acts", []) as Array).duplicate(true)}
 		c["actors"] = actors
 		c["marks"] = (inc["marks"] as Array).duplicate(true)
 		inc_out.append(c)
@@ -513,7 +609,10 @@ func _load_state(d: Dictionary) -> void:
 			for v: Variant in tr["t"]: ts.append(float(v))
 			for v: Variant in tr["x"]: xs.append(float(v))
 			for v: Variant in tr["z"]: zs.append(float(v))
-			actors[aid] = {"role": String(tr.get("role", "")), "t": ts, "x": xs, "z": zs}
+			var acts := []
+			for a: Dictionary in tr.get("acts", []):
+				acts.append({"t": float(a["t"]), "k": String(a["k"])})
+			actors[aid] = {"role": String(tr.get("role", "")), "t": ts, "x": xs, "z": zs, "acts": acts}
 		var marks: Array = []
 		for m: Dictionary in i.get("marks", []):
 			marks.append({"t": float(m["t"]), "label": String(m["label"])})

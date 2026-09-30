@@ -7,8 +7,11 @@ extends Node3D
 ## `grade` (0..1) is how far the world should be drained to grey: it eases in while a replay
 ## runs and out when it ends. The HUD or environment reads it (nothing here touches the
 ## environment). `ground` is an optional Callable(Vector2) -> float that gives terrain height.
-## Cost per frame: one positions_at() plus a transform per ghost, measured in
-## `last_frame_ms` / `worst_frame_ms` (budget 0.3 ms).
+## Ghosts are real humanoids playing real clips (see AshGhost / AshGhostClips). `set_speed()`
+## gives slow motion; `seek()` / `cursor.playing` drive the scrub bar.
+## Cost per frame: one positions_at() plus a transform, a few shader parameters and one
+## animation step per ghost, measured in `last_frame_ms` / `worst_frame_ms` (budget 0.3 ms
+## for 6 ghosts on HIGH).
 
 signal finished
 signal ghost_tapped(actor_id: String)
@@ -25,10 +28,16 @@ var ground_offset := 0.0
 var last_frame_ms := 0.0
 var worst_frame_ms := 0.0
 var max_active := 0
+## Facts about the incident being shown (replay_info), for the scrub bar and captions.
+var info: Dictionary = {}
 
 var _active: Dictionary = {}   # actor id -> AshGhost
 var _stamp := 0
 var _playing := false
+## Profiling (microseconds, summed): positions_at, and the terrain height callable.
+static var prof_frame_us := 0
+static var prof_ground_us := 0
+var cam: Camera3D
 
 
 func _ready() -> void:
@@ -38,6 +47,7 @@ func _ready() -> void:
 func _ensure_pool() -> void:
 	if pool == null:
 		pool = AshGhostPool.new()
+	if pool.get_parent() == null:
 		add_child(pool)
 
 
@@ -49,11 +59,47 @@ func show_incident(memory: AshMemory, incident_id: int, speed: float = 1.0) -> b
 	stop()
 	mem = memory
 	cursor = rp
+	info = memory.replay_info(incident_id)
 	_playing = true
 	max_active = 0
 	worst_frame_ms = 0.0
 	step(0.0)
 	return true
+
+
+## Wait for the pool to build the ghosts' bodies (optional; ghosts without one show the placeholder).
+func warm() -> void:
+	_ensure_pool()
+	await pool.warm()
+
+
+## Replay speed multiplier (0.25 slow motion .. 1). The clips follow it.
+func set_speed(s: float) -> void:
+	if cursor != null:
+		cursor.speed = clampf(s, 0.05, 4.0)
+
+
+func seek(t: float) -> void:
+	if cursor != null:
+		cursor.seek(t)
+		if not cursor.playing:
+			step(0.0)   # refresh the pose while paused
+
+
+## Where an actor's ghost stands now (Vector3.INF when it is not visible).
+func ghost_position(actor_id: String) -> Vector3:
+	var g: AshGhost = _active.get(actor_id)
+	return g.position if g != null else Vector3.INF
+
+
+## World positions of the ghosts that are visible now (for the camera framing).
+func ghost_points(role: String = "") -> Array[Vector3]:
+	var out: Array[Vector3] = []
+	for id in _active:
+		var g: AshGhost = _active[id]
+		if role == "" or g.role == role:
+			out.append(g.position)
+	return out
 
 
 func stop() -> void:
@@ -78,11 +124,17 @@ func _process(delta: float) -> void:
 
 ## Advance by `dt` seconds (public so tests and the demo can drive it deterministically).
 func step(dt: float) -> void:
+	if is_inside_tree():
+		cam = get_viewport().get_camera_3d()
 	if _playing and cursor != null:
 		cursor.advance(dt)
 		grade = minf(1.0, grade + GRADE_IN * dt)
 		_stamp += 1
-		for e: Dictionary in cursor.frame():
+		var tp := Time.get_ticks_usec() if AshGhost.profile else 0
+		var frame := cursor.frame()
+		if AshGhost.profile:
+			prof_frame_us += Time.get_ticks_usec() - tp
+		for e: Dictionary in frame:
 			var id := String(e["id"])
 			var g: AshGhost = _active.get(id)
 			if g == null:
@@ -94,8 +146,16 @@ func step(dt: float) -> void:
 			var p: Vector2 = e["pos"]
 			var y := ground_offset
 			if ground.is_valid():
+				var tg := Time.get_ticks_usec() if AshGhost.profile else 0
 				y += float(ground.call(p))
-			g.place(Vector3(p.x, y, p.y), float(e["heading"]), float(e["alpha"]))
+				if AshGhost.profile:
+					prof_ground_us += Time.get_ticks_usec() - tg
+			var w := Vector3(p.x, y, p.y)
+			if cam != null:
+				var d := cam.global_position.distance_to(w)
+				# animation LOD: 60 Hz close up, 30 Hz mid, 15 Hz far, 7 Hz very far (one tier less on LOW)
+				g.lod = clampi((0 if d < 3.0 else (1 if d < 12.0 else (2 if d < 30.0 else 3))) + (1 if pool.detail == 0 else 0), 0, 3)
+			g.apply(e, w, dt, cursor.speed if cursor.playing else 0.0)
 		var gone: Array = []
 		for id in _active:
 			if (_active[id] as AshGhost).stamp != _stamp:

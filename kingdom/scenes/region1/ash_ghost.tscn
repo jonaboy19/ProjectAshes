@@ -1,9 +1,10 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Script" path="res://scripts/region1/ash_ghost.gd" id="1_script"]
 [ext_resource type="Shader" path="res://shaders/region1/ash_ghost.gdshader" id="2_ghost"]
 [ext_resource type="Shader" path="res://shaders/region1/ash_particle.gdshader" id="3_dot"]
 [ext_resource type="Shader" path="res://shaders/region1/ash_halo.gdshader" id="4_halo"]
+[ext_resource type="Shader" path="res://shaders/region1/ash_beacon.gdshader" id="5_beacon"]
 
 [sub_resource type="ShaderMaterial" id="ghost_mat"]
 shader = ExtResource("2_ghost")
@@ -44,8 +45,15 @@ rings = 1
 shader = ExtResource("4_halo")
 
 [sub_resource type="QuadMesh" id="halo_quad"]
-size = Vector2(1.9, 1.9)
+size = Vector2(1.5, 1.5)
 orientation = 1
+
+[sub_resource type="ShaderMaterial" id="beacon_mat"]
+shader = ExtResource("5_beacon")
+
+[sub_resource type="QuadMesh" id="beacon_quad"]
+size = Vector2(0.9, 3.6)
+center_offset = Vector3(0, 1.8, 0)
 
 [sub_resource type="ShaderMaterial" id="dot_mat"]
 shader = ExtResource("3_dot")
@@ -62,8 +70,8 @@ colors = PackedColorArray(1, 0.72, 0.42, 0, 0.86, 0.82, 0.77, 0.75, 0.8, 0.77, 0
 gradient = SubResource("ash_grad")
 
 [sub_resource type="ParticleProcessMaterial" id="ash_proc"]
-emission_shape = 1
-emission_sphere_radius = 0.34
+emission_shape = 3
+emission_box_extents = Vector3(0.28, 0.85, 0.2)
 direction = Vector3(0, 1, 0)
 spread = 55.0
 initial_velocity_min = 0.1
@@ -92,6 +100,27 @@ gravity = Vector3(0, 0.03, 0)
 scale_min = 0.12
 scale_max = 0.18
 color_ramp = SubResource("step_ramp")
+
+[sub_resource type="Gradient" id="spark_grad"]
+offsets = PackedFloat32Array(0, 0.1, 1)
+colors = PackedColorArray(1, 0.85, 0.5, 0, 1, 0.75, 0.4, 1, 1, 0.4, 0.15, 0)
+
+[sub_resource type="GradientTexture1D" id="spark_ramp"]
+gradient = SubResource("spark_grad")
+
+[sub_resource type="ParticleProcessMaterial" id="spark_proc"]
+emission_shape = 1
+emission_sphere_radius = 0.1
+direction = Vector3(0, 1, 0)
+spread = 80.0
+initial_velocity_min = 0.8
+initial_velocity_max = 2.2
+gravity = Vector3(0, -1.6, 0)
+damping_min = 0.5
+damping_max = 1.0
+scale_min = 0.05
+scale_max = 0.1
+color_ramp = SubResource("spark_ramp")
 
 [node name="AshGhost" type="Node3D"]
 script = ExtResource("1_script")
@@ -144,8 +173,8 @@ mesh = SubResource("halo_quad")
 [node name="Ash" type="GPUParticles3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 emitting = false
-amount = 28
-lifetime = 2.2
+amount = 44
+lifetime = 2.4
 local_coords = false
 visibility_aabb = AABB(-40, -3, -40, 80, 10, 80)
 process_material = SubResource("ash_proc")
@@ -159,4 +188,21 @@ lifetime = 2.8
 local_coords = false
 visibility_aabb = AABB(-40, -3, -40, 80, 10, 80)
 process_material = SubResource("step_proc")
+draw_pass_1 = SubResource("dot_quad")
+
+[node name="Beacon" type="MeshInstance3D" parent="."]
+material_override = SubResource("beacon_mat")
+cast_shadow = 0
+mesh = SubResource("beacon_quad")
+
+[node name="Sparks" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+emitting = false
+amount = 16
+lifetime = 0.7
+one_shot = true
+explosiveness = 0.9
+local_coords = false
+visibility_aabb = AABB(-40, -3, -40, 80, 10, 80)
+process_material = SubResource("spark_proc")
 draw_pass_1 = SubResource("dot_quad")

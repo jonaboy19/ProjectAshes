@@ -8,9 +8,10 @@ uniform float alpha : hint_range(0.0, 1.0) = 1.0;
 
 void fragment() {
 	float d = length(UV - vec2(0.5)) * 2.0;
-	float ring = smoothstep(0.45, 0.78, d) * (1.0 - smoothstep(0.78, 1.0, d));
-	float core = (1.0 - smoothstep(0.0, 0.75, d)) * 0.35;
+	// a thin ember ring with a soft glow inside: a hint of ground contact, not a target marker
+	float ring = smoothstep(0.62, 0.8, d) * (1.0 - smoothstep(0.8, 0.92, d));
+	float core = (1.0 - smoothstep(0.0, 0.8, d)) * 0.22;
 	float pulse = 0.85 + 0.15 * sin(TIME * 3.0);
-	ALBEDO = ember_color.rgb * 1.15;
-	ALPHA = alpha * (ring * 0.85 + core) * pulse;
+	ALBEDO = ember_color.rgb * 1.2;
+	ALPHA = alpha * (ring * 0.6 + core) * pulse;
 }
