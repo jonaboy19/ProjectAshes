@@ -23,6 +23,7 @@ const OCCUPATIONS := {
 	"smith": {"skills": {"smithing": 0.8, "combat": 0.3, "repair": 0.7}, "salary": 4},
 	"priest": {"skills": {"faith": 0.8, "medicine": 0.3, "speech": 0.6}, "salary": 2},
 	"mercenary": {"skills": {"combat": 0.7, "tactics": 0.4, "intimidation": 0.6}, "salary": 5},
+	"builder": {"skills": {"building": 0.65, "repair": 0.5, "combat": 0.1}, "salary": 3},
 }
 const FIRST := ["Alda", "Bertram", "Cael", "Dagna", "Eirik", "Fenna", "Garrick", "Hilde", "Ivor", "Jessa", "Korrin", "Lyra",
 	"Merrick", "Nessa", "Osric", "Petra", "Quill", "Rhodri", "Sigrun", "Toben", "Ulla", "Voss", "Wren", "Yorick"]

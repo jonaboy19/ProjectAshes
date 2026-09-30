@@ -567,6 +567,11 @@ func _tab_battles() -> void:
 	if map.cm == null:
 		_empty("No campaign.")
 		return
+	for sv: Dictionary in map.cm.call("sieges"):
+		var sc := _card(AF.GOLD)
+		sc.add_child(Kit.lbl("Siege of %s" % String(sv["name"]), 19, AF.GOLD_BRIGHT, true))
+		sc.add_child(Kit.lbl("Day %d. Walls: %s. Garrison ~%d. Supplies %d days. Morale %s." % [int(sv["day"]), String(sv["walls"]), int(round(float(sv["garrison"]) / 10.0)) * 10, int(round(float(sv["food_days"]))), String(sv["morale_label"])], 15, AF.TEXT, true))
+		sc.add_child(_btn("Open siege map", map.open_siege.bind(String(sv["key"])), true, false, 54.0))
 	if map.engs.is_empty():
 		_empty("No engagements. When your pieces meet the enemy the fight appears here and on the map.")
 	var list: Array = map.engs.duplicate()
@@ -611,6 +616,8 @@ func _tab_battles() -> void:
 		v.add_child(srow)
 		v.add_child(_bar("Advantage", float(g["ratio_player"]), Color("5fae4c") if float(g["ratio_player"]) >= 0.5 else Color("c2412f"), "%d%%" % int(float(g["ratio_player"]) * 100.0)))
 		v.add_child(Kit.lbl("After %d h. You lost %d, they lost %d." % [int(g["hours"]), int(g["casualties_player"]), int(g["casualties_enemy"])], 15, AF.TEXT_DIM, true))
+		if bool(g["player_involved"]) and String(g["status"]) != "ended":
+			v.add_child(_btn("Command battle", map.open_tactical.bind(int(g["id"])), true, false, 56.0))
 		if sel:
 			var fp: Dictionary = (g["factors"] as Dictionary).get(String(g["player_side"]), {})
 			var fe: Dictionary = (g["factors"] as Dictionary).get("b" if String(g["player_side"]) == "a" else "a", {})

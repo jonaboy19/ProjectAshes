@@ -13,6 +13,9 @@ extends "res://scripts/realm/realm_module.gd"
 ## change_relation) and "strongholds" (nearest, begin_siege).
 
 const WarUnits := preload("res://scripts/realm/war_units.gd")
+const Tactical := preload("res://scripts/realm/tactical.gd")
+const Siege := preload("res://scripts/realm/siege.gd")
+const WarAdvisors := preload("res://scripts/realm/war_advisors.gd")
 const Military := preload("res://scripts/sim/military.gd")
 
 const PLAYER := "player"
@@ -682,6 +685,8 @@ func tick_day(day: int, ctx: Dictionary) -> Array:
 	_autonomy(out)
 	_intel_day(ctx)
 	_evidence_day(out)
+	_siege_day(out)
+	_goals_day(out)
 	for k: String in _cut.keys():
 		if int(_cut[k]) <= day:
 			_cut.erase(k)
@@ -1327,6 +1332,11 @@ const MAP_HALF := 4096.0
 const TERR_CELL := 128.0
 
 var _engs: Array = []               # engagement records
+var _tacs: Dictionary = {}          # engagement id -> Tactical battle (phase B)
+var _sieges: Dictionary = {}        # key -> Siege
+var _goals: Array = []              # war goals (R§55)
+var _next_goal := 1
+var _wstaff: Array = []             # battlefield assistants (R§18)
 var _sight: Dictionary = {}         # piece key -> last sighting of an enemy piece
 var _orders_log: Array = []         # the player's orders and what they know about them
 var _pcmd: Dictionary = {"rank": "recruit", "appointed": {}}
@@ -2672,6 +2682,9 @@ func _side_env(e: Dictionary, side: String, mine: Array, foes: Array, t: Diction
 
 
 func _eng_round(e: Dictionary, out: Array) -> void:
+	if _tacs.has(int(e["id"])):
+		_tac_hour(e, out)
+		return
 	var ua := _eng_units(e, "a")
 	var ub := _eng_units(e, "b")
 	if ua.is_empty() or ub.is_empty():
@@ -2997,6 +3010,7 @@ func engagement_view(id: int) -> Dictionary:
 	v["casualties_player"] = int((e["cas"] as Dictionary)[pside])
 	v["casualties_enemy"] = int((e["cas"] as Dictionary)[eside])
 	v["hours"] = (_hours if int(e["end_hour"]) < 0 else int(e["end_hour"])) - int(e["start_hour"])
+	v["has_tactical"] = _tacs.has(id)
 	return v
 
 
@@ -3033,6 +3047,502 @@ func intervene(eng_id: int, action: String) -> Dictionary:
 					denied += 1
 			return {"ok": sent > 0, "sent": sent, "denied": denied, "reason": "" if sent > 0 else "None of those troops are yours to order."}
 	return {"ok": false, "reason": "Unknown action."}
+
+
+# --- tactical battles (phase B: docs/design/WAR_COMMAND_RULEBOOK.md §1, §25-40, §48-50) -------------------
+# An engagement can be fought on a battlefield generated from the real ground where it stands. While a tactical
+# battle exists for an engagement the hourly factor rounds are replaced by 360 battle steps of the same forces; the
+# result (casualties, morale, fatigue, winner) is written back to the campaign pieces and the engagement ends the
+# same way a factor-resolved one does.
+
+const FORM_MAP := {"line": "line", "wedge": "wedge", "square": "square", "skirmish": "loose", "column": "column"}
+
+
+func tactical_battle(eng_id: int, create := true) -> RefCounted:
+	if _tacs.has(eng_id):
+		return _tacs[eng_id]
+	if not create:
+		return null
+	var e := engagement_raw(eng_id)
+	if e.is_empty() or String(e["status"]) == "ended":
+		return null
+	var tt: RefCounted = Tactical.create(_tactical_spec(e))
+	_tacs[eng_id] = tt
+	e["tac"] = true
+	return tt
+
+
+func has_tactical(eng_id: int) -> bool:
+	return _tacs.has(eng_id)
+
+
+func _unit_spec(u: Dictionary, a: Dictionary) -> Dictionary:
+	var p := _upos(a, u)
+	return {"cid": int(u["id"]), "name": String(u["name"]), "kind": String(u["kind"]), "men": int(u["men"]), "quality": float(u["quality"]), "morale": float(u["morale"]),
+		"fatigue": float(u["fatigue"]), "wx": p.x, "wy": p.y}
+
+
+func _side_spec(e: Dictionary, side: String, mine: Array, foes: Array, t: Dictionary) -> Dictionary:
+	var env := _side_env(e, side, mine, foes, t)
+	var leader: Dictionary = (env["leader"] as Dictionary).duplicate(true)
+	var units: Array = []
+	var fac := String(e["fa" if side == "a" else "fb"])
+	var form := "line"
+	var big := -1
+	for u: Dictionary in mine:
+		var a := _army_of(u)
+		units.append(_unit_spec(u, a))
+		if int(u["men"]) > big:
+			big = int(u["men"])
+			form = String(a["formation"])
+	var cmd := {"name": String(leader.get("name", "Captain")), "personality": String(leader.get("personality", "loyal")), "skill": int(leader.get("skill", 2))}
+	for k: String in WarUnits.ATTRS:
+		cmd[k] = int(leader.get(k, 50))
+	var elites: Array = []
+	if int(cmd.get("experience", 0)) >= 70 and _hash_f("champion", int(e["id"]) * 2 + (0 if side == "a" else 1)) < 0.5:
+		elites.append({"kind": "champion", "name": "%s's Champion" % String(cmd["name"]), "men": 1, "quality": 0.95, "morale": 0.95, "fatigue": 0.0})
+	return {"faction": fac, "player": fac == PLAYER, "name": ("Your army" if fac == PLAYER else fac.capitalize().replace("_", " ")), "cmd": cmd, "units": units, "elites": elites,
+		"supply": float(env["supply"]), "formation": String(FORM_MAP.get(form, "line"))}
+
+
+func _tactical_spec(e: Dictionary) -> Dictionary:
+	var ua := _eng_units(e, "a")
+	var ub := _eng_units(e, "b")
+	var t := terrain_at(Vector2(float(e["x"]), float(e["y"])))
+	var sa := _side_spec(e, "a", ua, ub, t)
+	var sb := _side_spec(e, "b", ub, ua, t)
+	var ea := _side_env(e, "a", ua, ub, t)
+	var eb := _side_env(e, "b", ub, ua, t)
+	ea["high_ground"] = 0
+	eb["high_ground"] = 0
+	var fa: Dictionary = WarUnits.side_power(ua, ea)["factors"]
+	var fb: Dictionary = WarUnits.side_power(ub, eb)["factors"]
+	var involved := _eng_has_player(e, "a") or _eng_has_player(e, "b")
+	return {"seed": int(hash([WorldSim.SEED, int(e["id"])])) & 0x7fffffff, "name": "Battle of %s" % _place_name(Vector2(float(e["x"]), float(e["y"]))), "center": [float(e["x"]), float(e["y"])],
+		"n": 40, "cell": 40.0, "weather": _weather, "season": _season, "hour": _hours % 24, "attacker": String(e["attacker"]), "surprise": String(e["surprise"]),
+		"deploy": involved, "sides": {"a": sa, "b": sb}, "factors": {"a": fa, "b": fb}}
+
+
+## The player takes the battle map (R§48): opens it for an engagement he is part of. Returns the Tactical battle or null.
+func tactical_open(eng_id: int) -> RefCounted:
+	var tt := tactical_battle(eng_id)
+	if tt == null:
+		return null
+	var e := engagement_raw(eng_id)
+	e["control"] = "player"
+	tt.set("ui_attached", true)
+	var pside := 0 if _eng_has_player(e, "a") else (1 if _eng_has_player(e, "b") else -1)
+	if pside >= 0:
+		tt.auto[pside] = false
+	return tt
+
+
+## Back to the campaign map (R§50): the commander takes over the side, the battle goes on by the hour.
+func tactical_leave(eng_id: int) -> void:
+	var tt := tactical_battle(eng_id, false)
+	var e := engagement_raw(eng_id)
+	if tt == null:
+		return
+	tt.set("ui_attached", false)
+	if not e.is_empty():
+		e["control"] = "commander"
+	tt.auto = [true, true]
+	if String(tt.phase) == "deploy":
+		tt.begin()
+
+
+func _tac_hour(e: Dictionary, out: Array) -> void:
+	var id := int(e["id"])
+	var tt: RefCounted = _tacs[id]
+	if bool(tt.get("ui_attached")):
+		return
+	if String(tt.phase) == "deploy":
+		tt.begin()
+	var keep: Array = tt.auto.duplicate()
+	tt.auto = [true, true]
+	var before := (tt.events as Array).size()
+	tt.advance(360)
+	tt.auto = keep
+	e["rounds"] = int(e["rounds"]) + 1
+	var fa: Dictionary = tt.forces(0)
+	var fb: Dictionary = tt.forces(1)
+	var pa := float(fa["men"]) * (0.5 + float(fa["morale"]))
+	var pb := float(fb["men"]) * (0.5 + float(fb["morale"]))
+	e["ratio"] = snappedf(pa / maxf(pa + pb, 1.0), 0.001)
+	e["status"] = "holding" if absf(float(e["ratio"]) - 0.5) < 0.1 else "fighting"
+	if (e["log"] as Array).size() < 40:
+		var evs: Array = tt.events
+		for ev: Dictionary in evs.slice(maxi(before, evs.size() - 2)):
+			if String(ev["kind"]) in ["rout", "destroyed", "retreat", "duel_end", "elite_dead", "commander_down"]:
+				(e["log"] as Array).append(String(ev["text"]))
+	if String(tt.phase) == "ended":
+		tactical_apply(id, out)
+
+
+## Writes a finished battle back into the campaign (casualties, morale, fatigue) and ends the engagement.
+func tactical_apply(eng_id: int, out: Array = []) -> Dictionary:
+	var e := engagement_raw(eng_id)
+	var tt := tactical_battle(eng_id, false)
+	if e.is_empty() or tt == null or String(tt.phase) != "ended":
+		return {}
+	var r: Dictionary = (tt.result as Dictionary).duplicate(true)
+	var lost := {"a": 0, "b": 0}
+	for ud: Dictionary in (r["units"] as Array):
+		var cid := int(ud["cid"])
+		if cid == 0:
+			continue
+		var u := _unit(cid)
+		if u.is_empty():
+			continue
+		var before := int(u["men"])
+		u["men"] = maxi(0, mini(before, int(ud["men"])))
+		u["morale"] = clampf(float(ud["morale"]), 0.0, 1.0)
+		u["fatigue"] = clampf(float(ud["fatigue"]), 0.0, 1.0)
+		lost["a" if int(ud["side"]) == 0 else "b"] = int(lost["a" if int(ud["side"]) == 0 else "b"]) + (before - int(u["men"]))
+		_recalc(_army_of(u))
+	e["cas"] = {"a": int(lost["a"]), "b": int(lost["b"])}
+	e["tac_result"] = {"winner": String(r["winner"]), "why": String(r["why"]), "t": float(r["t"]), "cas": e["cas"], "duels": int(r["duels"]), "terrain": String(r["terrain"]), "weather": String(r["weather"])}
+	e["rounds"] = maxi(int(e["rounds"]), int(ceil(float(r["t"]) / 3600.0)))
+	_tacs.erase(eng_id)
+	_end_engagement(e, String(r["winner"]), String(r["why"]), out)
+	return r
+
+
+## Sends the player's idle pieces near the battle as reinforcements (R§27, "send reinforcements"). Returns {ok, sent, eta_min}.
+func tactical_reinforce(eng_id: int) -> Dictionary:
+	var e := engagement_raw(eng_id)
+	var tt := tactical_battle(eng_id, false)
+	if e.is_empty() or tt == null or String(tt.phase) == "ended":
+		return {"ok": false, "sent": 0, "reason": "No battle to reinforce."}
+	var side := "a" if _eng_has_player(e, "a") else ("b" if _eng_has_player(e, "b") else "")
+	if side == "":
+		return {"ok": false, "sent": 0, "reason": "You have no forces in this battle."}
+	var pos := Vector2(float(e["x"]), float(e["y"]))
+	var specs: Array = []
+	var far := 0.0
+	var moved: Array = []
+	for a: Dictionary in _armies:
+		if String(a["faction"]) != PLAYER:
+			continue
+		for u: Dictionary in (a["units"] as Array):
+			if int(u["eng"]) != 0 or int(u["men"]) <= 0:
+				continue
+			var d := _upos(a, u).distance_to(pos)
+			if d > 2200.0:
+				continue
+			far = maxf(far, d)
+			var sp := _unit_spec(u, a)
+			sp["layer"] = "second"
+			specs.append(sp)
+			moved.append([u, a])
+	if specs.is_empty():
+		return {"ok": false, "sent": 0, "reason": "No free formations within reach."}
+	var eta := 120.0 + far / 1.5
+	var pside := 0 if side == "a" else 1
+	var ids: Array = tt.send_reinforcements(pside, specs, eta)
+	for i in ids.size():
+		(tt.u_meta[ids[i]] as Dictionary)["known"] = false
+	for pr: Array in moved:
+		var mu: Dictionary = pr[0]
+		mu["eng"] = int(e["id"])
+		mu["state"] = "engaged"
+		(e[side] as Array).append(int(mu["id"]))
+	return {"ok": true, "sent": specs.size(), "eta_min": int(ceil(eta / 60.0))}
+
+
+func tactical_view(eng_id: int) -> Dictionary:
+	var tt := tactical_battle(eng_id, false)
+	if tt == null:
+		return {}
+	return {"phase": String(tt.phase), "time": String(tt.time_text()), "terrain": String(tt.terrain_name), "weather": String(tt.weather)}
+
+
+# --- sieges (phase B: R§41-47) ------------------------------------------------------------------------------
+
+func _siege_key_for_stronghold(id: int) -> String:
+	return "sh:%d" % id
+
+
+## Opens a siege of stronghold `id` (strongholds.gd) by the armies `army_ids` (default: the player's armies near it).
+## Returns the Siege or null.
+func siege_begin(stronghold_id: int, attacker := PLAYER, army_ids: Array = []) -> RefCounted:
+	if hub == null:
+		return null
+	var sh: RefCounted = hub.mod("strongholds")
+	if sh == null:
+		return null
+	var st: Dictionary = sh.call("stronghold", stronghold_id)
+	if st.is_empty():
+		return null
+	var key := _siege_key_for_stronghold(stronghold_id)
+	if _sieges.has(key):
+		return _sieges[key]
+	var pos: Vector2 = st["pos"]
+	var units: Array = []
+	var eng := 0
+	var men := 0
+	var ids := army_ids
+	if ids.is_empty():
+		for a: Dictionary in _armies:
+			if String(a["faction"]) == attacker and army_pos(a).distance_to(pos) < 600.0:
+				ids.append(int(a["id"]))
+	for aid in ids:
+		var a2 := _army(int(aid))
+		if a2.is_empty():
+			continue
+		for u: Dictionary in (a2["units"] as Array):
+			men += int(u["men"])
+			if String(u["kind"]) == "engineer":
+				eng += int(u["men"])
+			elif String(u["kind"]) not in ["medical", "scout"]:
+				units.append(_unit_spec(u, a2))
+	if men <= 0:
+		men = 400
+	var r := _rng("siege", stronghold_id)
+	var kind := String(st["kind"])
+	var sk := "castle" if kind == "castle" else ("fort" if kind in ["fort", "watchfort", "junction", "pass", "rift_outpost"] else "town")
+	var g := maxi(40, int(st["garrison"]) * 5)
+	var spec := {"key": key, "name": String(st["name"]), "pos": [pos.x, pos.y], "kind": sk, "defender": String(st["owner"]), "attacker": attacker, "seed": int(hash([WorldSim.SEED, stronghold_id])) & 0x7fffffff,
+		"garrison": g, "garrison_max": maxi(g, int(st["garrison_max"]) * 5), "food_days": float(st["supply"]) * 0.5, "water_days": 14.0 + r.randf() * 12.0, "well": r.randf() < 0.5,
+		"civilians": g * 2, "wall_age": r.randf_range(0.1, 0.7), "wall_radius": 95.0 if sk == "fort" else 110.0, "gates": [0.0, PI], "day": _day,
+		"commander": {"name": "%s %s" % [FIRST[r.randi() % FIRST.size()], LAST[r.randi() % LAST.size()]], "personality": WarUnits.PERSONALITIES[r.randi() % WarUnits.PERSONALITIES.size()]},
+		"camp": {"men": men, "engineers": maxi(eng, 10), "guards": int(men * 0.15), "medical": int(men * 0.04), "mages": 0}, "tech": 1 if _day < 400 else 2,
+		"timber": clampf(WorldGen.forest_density(pos.x - 190.0, pos.y + 140.0) * 1.2 + 0.25, 0.15, 1.0), "att_units": units}
+	var sg: RefCounted = Siege.create(spec)
+	_sieges[key] = sg
+	sh.call("begin_siege", stronghold_id, attacker, men)
+	return sg
+
+
+func siege(key: String) -> RefCounted:
+	return _sieges.get(key)
+
+
+func sieges(active_only := true) -> Array:
+	var out: Array = []
+	for k: String in _sieges:
+		var sg: RefCounted = _sieges[k]
+		if not active_only or String(sg.s["status"]) == "active":
+			var v: Dictionary = sg.view()
+			v["key"] = k
+			out.append(v)
+	return out
+
+
+func _siege_day(out: Array) -> void:
+	for k: String in _sieges.keys():
+		var sg: RefCounted = _sieges[k]
+		if String(sg.s["status"]) != "active":
+			continue
+		var lines: Array = sg.tick_day()
+		if String(sg.s["attacker"]) == PLAYER:
+			for ln in lines.slice(0, 2):
+				if out.size() < 8:
+					out.append("%s: %s" % [String(sg.s["name"]), String(ln)])
+		if bool(sg.s["sortie_due"]):
+			var res: Dictionary = sg.auto_sortie()
+			if String(sg.s["attacker"]) == PLAYER and out.size() < 8:
+				out.append(String((res["lines"] as Array)[0]))
+		if String(sg.s["status"]) == "active" and String(sg.s["attacker"]) == PLAYER:
+			var present := false
+			var p := Vector2(float((sg.s["pos"] as Array)[0]), float((sg.s["pos"] as Array)[1]))
+			for a: Dictionary in _armies:
+				if String(a["faction"]) == PLAYER and army_pos(a).distance_to(p) < 700.0:
+					present = true
+			if not present:
+				sg.lift()
+		if String(sg.s["status"]) == "fallen":
+			_siege_fell(k, sg, out)
+
+
+func siege_assault(key: String, auto := true) -> Dictionary:
+	var sg: RefCounted = _sieges.get(key)
+	if sg == null or String(sg.s["status"]) != "active":
+		return {}
+	var res: Dictionary = sg.auto_assault() if auto else {}
+	if String(sg.s["status"]) == "fallen":
+		_siege_fell(key, sg, [])
+	return res
+
+
+func siege_negotiate(key: String, terms := {}) -> Dictionary:
+	var sg: RefCounted = _sieges.get(key)
+	if sg == null:
+		return {}
+	var rep := {}
+	if hub != null:
+		var f: RefCounted = hub.mod("factions")
+		if f != null and f.has_method("war_rep"):
+			rep = f.call("war_rep", String(sg.s["attacker"]))
+	var ev: Dictionary = sg.negotiate(rep, terms)
+	if bool(ev["surrendered"]):
+		_rep_act(String(sg.s["attacker"]), "honour_surrender")
+		_siege_fell(key, sg, [])
+	return ev
+
+
+func siege_conduct(key: String, kind: String) -> void:
+	var sg: RefCounted = _sieges.get(key)
+	if sg == null:
+		return
+	var act: String = sg.conduct(kind)
+	if act != "":
+		_rep_act(String(sg.s["attacker"]), act)
+
+
+func _rep_act(actor: String, act: String) -> void:
+	if hub == null:
+		return
+	var f: RefCounted = hub.mod("factions")
+	if f != null and f.has_method("record_war_act"):
+		f.call("record_war_act", actor, act)
+
+
+## The place changes hands: stronghold captured, land gets a claim for the old holder (R§59), victory recorded.
+func _siege_fell(key: String, sg: RefCounted, out: Array) -> void:
+	if bool(sg.s.get("_handled", false)):
+		return
+	sg.s["_handled"] = true
+	var att := String(sg.s["attacker"])
+	if key.begins_with("sh:") and hub != null:
+		var sid := int(key.substr(3))
+		var sh: RefCounted = hub.mod("strongholds")
+		if sh != null:
+			sh.call("capture", sid, att)
+		var land: RefCounted = hub.mod("land")
+		if land != null and att == PLAYER:
+			var nn := nearest_node(Vector2(float((sg.s["pos"] as Array)[0]), float((sg.s["pos"] as Array)[1])))
+			if land.has_method("conquer") and String(land.call("deed", str(nn)).get("holder", "")) != PLAYER:
+				land.call("conquer", str(nn), PLAYER, _day)
+	_captured[key] = att
+	if att == PLAYER:
+		_rep_act(PLAYER, "victory")
+		if out.size() < 8:
+			out.append("%s has fallen to you." % String(sg.s["name"]))
+
+
+# --- war goals and political costs (R§55), claims and independence (R§56-59) ---------------------------------
+
+const GOAL_KINDS := {
+	"capture_fortress": "Capture a border fortress", "recover_land": "Recover disputed land", "tribute": "Force tribute", "free_prisoners": "Free prisoners",
+	"protect_ally": "Protect an ally", "install_claimant": "Install a claimant", "destroy_sect": "Destroy a sect", "seize_rift": "Seize a Rift entrance", "secure_road": "Secure a trade road",
+}
+
+
+func add_war_goal(kind: String, target: int, enemy: String, opts := {}) -> int:
+	if not GOAL_KINDS.has(kind):
+		return -1
+	var g := {"id": _next_goal, "kind": kind, "target": target, "enemy": enemy, "day": _day, "done": false, "done_day": -1, "text": String(opts.get("text", GOAL_KINDS[kind])), "extra": opts.duplicate(true)}
+	_next_goal += 1
+	_goals.append(g)
+	return int(g["id"])
+
+
+func war_goals() -> Array:
+	return _goals.duplicate(true)
+
+
+func war_goal_achieve(goal_id: int) -> bool:
+	for g: Dictionary in _goals:
+		if int(g["id"]) == goal_id and not bool(g["done"]):
+			g["done"] = true
+			g["done_day"] = _day
+			return true
+	return false
+
+
+func _goals_day(out: Array) -> void:
+	if _goals.is_empty() or hub == null:
+		return
+	var sh: RefCounted = hub.mod("strongholds")
+	var land: RefCounted = hub.mod("land")
+	for g: Dictionary in _goals:
+		if bool(g["done"]):
+			continue
+		var ok := false
+		match String(g["kind"]):
+			"capture_fortress", "seize_rift":
+				if sh != null:
+					ok = String((sh.call("stronghold", int(g["target"])) as Dictionary).get("owner", "")) == PLAYER
+			"recover_land":
+				if land != null:
+					ok = String((land.call("deed", str(int(g["target"]))) as Dictionary).get("occupier", "")) == PLAYER
+			"secure_road":
+				ok = true
+				if sh != null:
+					var ex: Dictionary = g["extra"]
+					var c: Dictionary = sh.call("controls_route", int(ex.get("a", 0)), int(ex.get("b", 1)))
+					ok = c.is_empty() or String(c.get("owner", "")) == PLAYER
+		if ok:
+			g["done"] = true
+			g["done_day"] = _day
+			if out.size() < 8:
+				out.append("War goal achieved: %s." % String(g["text"]))
+
+
+## Once the aims are met, going on is politically expensive: loyalty and treasury drain per day (R§55).
+func war_cost() -> Dictionary:
+	var open := 0
+	var last := -1
+	for g: Dictionary in _goals:
+		if bool(g["done"]):
+			last = maxi(last, int(g["done_day"]))
+		else:
+			open += 1
+	var achieved := not _goals.is_empty() and open == 0
+	var over := (_day - last) if achieved else 0
+	return {"achieved": achieved, "open": open, "days_over": over, "cost_per_day": (4.0 + 1.5 * float(over)) if achieved else 1.0, "advice": "The objective is won; every further day costs loyalty and gold. Consider peace." if achieved else ""}
+
+
+## R§56-59: how ready is a settlement to stand alone? stats 0..1 each: population, food, money, army, defences, officers,
+## recognition, legitimacy, trade, administration. Returns {score, verdict, weakest, paths}.
+func independence_readiness(region: String, stats: Dictionary, overlord_power := 1.0) -> Dictionary:
+	var keys := ["population", "food", "money", "army", "defences", "officers", "recognition", "legitimacy", "trade", "administration"]
+	var sum := 0.0
+	var weakest := ""
+	var wv := 2.0
+	for k: String in keys:
+		var v := clampf(float(stats.get(k, 0.0)), 0.0, 1.0)
+		sum += v
+		if v < wv:
+			wv = v
+			weakest = k
+	var score := sum / float(keys.size())
+	var claims: Array = []
+	var holder := ""
+	if hub != null:
+		var land: RefCounted = hub.mod("land")
+		if land != null:
+			claims = land.call("claimants", region)
+			holder = String((land.call("deed", region) as Dictionary).get("holder", ""))
+	var strength := score / maxf(overlord_power, 0.05)
+	var verdict := "destroyed" if strength < 0.25 else ("fragile" if strength < 0.5 else ("contested" if strength < 0.8 else "viable"))
+	return {"score": snappedf(score, 0.001), "verdict": verdict, "weakest": weakest, "holder": holder, "claims": claims,
+		"paths": ["royal recognition", "collapse of the former kingdom", "marriage claim", "rebellion", "foreign support", "religious recognition", "purchase of sovereignty", "military victory", "political treaty"]}
+
+
+# --- battlefield assistants (R§18-19) ---------------------------------------------------------------------------
+
+func war_staff() -> Array:
+	if _wstaff.is_empty():
+		_wstaff = WarAdvisors.roster(int(WorldSim.SEED))
+	return _wstaff.duplicate(true)
+
+
+func battle_advice(eng_id: int) -> Array:
+	var tt := tactical_battle(eng_id, false)
+	if tt == null:
+		return []
+	var e := engagement_raw(eng_id)
+	var side := 0 if _eng_has_player(e, "a") else 1
+	return WarAdvisors.battle_advice(tt, side, war_staff(), int(float(tt.t) / 600.0))
+
+
+func siege_advice(key: String) -> Array:
+	var sg: RefCounted = _sieges.get(key)
+	if sg == null:
+		return []
+	return WarAdvisors.siege_advice(sg.view(), war_staff(), int(sg.s["seed"]), int(sg.s["day"]) / 3, sg.s["walls"])
 
 
 # --- fog of war (R§23-24) ----------------------------------------------------------------
@@ -3394,7 +3904,22 @@ func serialize() -> Dictionary:
 		"next_id": _next_id, "hours": _hours, "day": _day, "hq": _hq, "player_node": _player_node, "op_counter": _op_counter,
 		"enemy": _enemy, "seeded_player": _seeded_player,
 		"engs": _engs.duplicate(true), "sight": _sight.duplicate(true), "orders_log": _orders_log.duplicate(true),
-		"pcmd": _pcmd.duplicate(true), "captured": _captured.duplicate(true), "next_uid": _next_uid, "weather": _weather, "season": _season}
+		"pcmd": _pcmd.duplicate(true), "captured": _captured.duplicate(true), "next_uid": _next_uid, "weather": _weather, "season": _season,
+		"tacs": _ser_tacs(), "sieges": _ser_sieges(), "goals": _goals.duplicate(true), "next_goal": _next_goal, "wstaff": _wstaff.duplicate(true)}
+
+
+func _ser_sieges() -> Dictionary:
+	var out := {}
+	for k: String in _sieges:
+		out[k] = (_sieges[k] as RefCounted).call("serialize")
+	return out
+
+
+func _ser_tacs() -> Dictionary:
+	var out := {}
+	for id: int in _tacs:
+		out[str(id)] = (_tacs[id] as RefCounted).call("serialize")
+	return out
 
 
 static func _ii(d: Dictionary, keys: Array) -> void:
@@ -3490,6 +4015,17 @@ func deserialize(d: Dictionary) -> void:
 	_next_uid = int(d.get("next_uid", 1))
 	_weather = String(d.get("weather", "clear"))
 	_season = String(d.get("season", "spring"))
+	_sieges.clear()
+	for k8: String in (d.get("sieges", {}) as Dictionary):
+		_sieges[k8] = Siege.restore((d["sieges"] as Dictionary)[k8])
+	_goals = (d.get("goals", []) as Array).duplicate(true)
+	for g2: Dictionary in _goals:
+		_ii(g2, ["id", "target", "day", "done_day"])
+	_next_goal = int(d.get("next_goal", 1))
+	_wstaff = (d.get("wstaff", []) as Array).duplicate(true)
+	_tacs.clear()
+	for k7: String in (d.get("tacs", {}) as Dictionary):
+		_tacs[int(k7)] = Tactical.restore((d["tacs"] as Dictionary)[k7])
 	_uidx_dirty = true
 	for a2: Dictionary in _armies:
 		if not a2.has("units"):

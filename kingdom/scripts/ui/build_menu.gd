@@ -11,6 +11,8 @@ const SELF_PATH := "res://scripts/ui/build_menu.gd"
 const Homestead := preload("res://scripts/sim/homestead.gd")
 const FarmLedger := preload("res://scripts/ui/farm_ledger.gd")
 const REACH := 3.0     # metres in front of the player the ghost sits
+const ConstructionPanel := preload("res://scripts/ui/construction_panel.gd")
+const SHEET_H := 340
 
 var hud: HUD
 var plot := -1
@@ -28,6 +30,18 @@ var _subtitle: Label
 var _buttons: Dictionary = {}          # kind -> Button
 var _crop_box: VBoxContainer
 var _last_crop_cell := Vector2i(999999, 999999)
+var _mode := "home"                    # home (plot pieces) | settle (catalogue) | sites | site (one site)
+var _cp: RefCounted                    # ConstructionPanel
+var _scroll: ScrollContainer
+var _bg: ColorRect
+var _tab_buttons: Dictionary = {}
+var _btn_rotate: Button
+var _btn_place: Button
+var _btn_remove: Button
+var _btn_ledger: Button
+var _btn_snap: Button
+var _margin: MarginContainer
+var _tabs_row: HBoxContainer
 
 
 static func open_for(host: HUD) -> Control:
@@ -55,28 +69,36 @@ func _ready() -> void:
 func open() -> void:
 	var p := _player()
 	plot = -1 if p == null else Life.homestead.plot_at(Vector2(p.global_position.x, p.global_position.z))
-	if plot < 0:
-		close()
-		return
 	_kind = ""
 	_rot = 0
 	visible = true
+	if hud and hud.controls:
+		hud.controls.visible = false     # the thumb buttons would sit on top of the sheet
 	Audio.play_ui("open")
-	if Life.homestead.owns_or_leases(plot):
-		_ensure_ghost()
-	_refresh_list()
+	if _cp == null:
+		_cp = ConstructionPanel.new(self)
 	_status.text = ""
+	set_mode("home" if plot >= 0 and Life.homestead.owns_or_leases(plot) else "settle")
 
 
 func close() -> void:
 	if not visible and _ghost == null:
 		return
 	visible = false
+	if hud and hud.controls:
+		hud.controls.visible = true
 	if _ghost:
 		_ghost.queue_free()
 		_ghost = null
+	if _cp != null and _cp.kind != "":
+		_cp.cancel_place()
 	Audio.play_ui("close")
 	closed.emit()
+
+
+func _input(e: InputEvent) -> void:
+	if visible and _cp != null and _mode == "settle" and _cp.handle_input(e):
+		get_viewport().set_input_as_handled()
 
 
 func _unhandled_input(e: InputEvent) -> void:
@@ -87,10 +109,44 @@ func _unhandled_input(e: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _process(_delta: float) -> void:
-	if not visible or plot < 0 or not Life.homestead.owns_or_leases(plot):
+func _process(delta: float) -> void:
+	if not visible:
+		return
+	if _mode != "home":
+		_cp.tick(delta, _mode)
+		return
+	if plot < 0 or not Life.homestead.owns_or_leases(plot):
 		return
 	_update_ghost()
+
+
+# --- modes -------------------------------------------------------------------------------
+
+func set_mode(m: String) -> void:
+	_mode = m
+	if m != "home" and _ghost:
+		_ghost.queue_free()
+		_ghost = null
+	if m == "home" and plot >= 0 and Life.homestead.owns_or_leases(plot):
+		_ensure_ghost()
+	if m != "settle" and _cp != null and _cp.kind != "":
+		_cp.cancel_place()
+	_refresh_list()
+
+
+func set_status(t: String) -> void:
+	_status.text = t
+
+
+func sheet_top() -> float:
+	return _bg.global_position.y if _bg else 99999.0
+
+
+## Opens the site panel of construction site `id` (used by the world's site interactables).
+func show_site(id: int) -> void:
+	if _cp == null:
+		_cp = ConstructionPanel.new(self)
+	_cp.show_site(id)
 
 
 func _player() -> Node3D:
@@ -103,12 +159,16 @@ func _build() -> void:
 	var bg := ColorRect.new()
 	bg.color = Color(UITheme.BG_SOLID, 0.9)
 	bg.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	bg.custom_minimum_size = Vector2(0, 260)
+	bg.custom_minimum_size = Vector2(0, SHEET_H)
+	bg.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	bg.mouse_filter = Control.MOUSE_FILTER_STOP
+	_bg = bg
 	add_child(bg)
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	margin.custom_minimum_size = Vector2(0, 260)
+	margin.custom_minimum_size = Vector2(0, SHEET_H)
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_margin = margin
 	for side in ["left", "right", "top", "bottom"]:
 		margin.add_theme_constant_override("margin_" + side, 16)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -132,11 +192,35 @@ func _build() -> void:
 	_subtitle.add_theme_font_size_override("font_size", 13)
 	_subtitle.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	titles.add_child(_subtitle)
-	head.add_child(_round("↻", 52, _on_rotate))
-	head.add_child(_gold("Place", _on_place))
-	head.add_child(_round("✕", 52, _on_remove))
-	head.add_child(_round("📒", 52, _on_ledger))
+	_btn_rotate = _round("↻", 52, _on_rotate)
+	head.add_child(_btn_rotate)
+	_btn_snap = _round("#", 52, func() -> void: _cp.toggle_snap())
+	head.add_child(_btn_snap)
+	_btn_place = _gold("Place", _on_place)
+	head.add_child(_btn_place)
+	_btn_remove = _round("✕", 52, _on_remove)
+	head.add_child(_btn_remove)
+	_btn_ledger = _round("📒", 52, _on_ledger)
+	head.add_child(_btn_ledger)
 	head.add_child(_round("×", 52, close))
+
+	var tabs := HBoxContainer.new()
+	tabs.add_theme_constant_override("separation", 6)
+	_tabs_row = tabs
+	col.add_child(tabs)
+	for t: Array in [["home", "Homestead"], ["settle", "Build"], ["sites", "Sites"]]:
+		var tb := Button.new()
+		tb.text = t[1]
+		tb.toggle_mode = true
+		tb.focus_mode = Control.FOCUS_NONE
+		tb.custom_minimum_size = Vector2(110, 38)
+		tb.pressed.connect(func() -> void:
+			if t[0] == "home" and not (plot >= 0 and Life.homestead.owns_or_leases(plot)) and plot < 0:
+				_status.text = "Stand on a homestead plot to use this tab."
+				return
+			set_mode(String(t[0])))
+		tabs.add_child(tb)
+		_tab_buttons[t[0]] = tb
 
 	var body := HBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -145,7 +229,8 @@ func _build() -> void:
 
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll = scroll
 	body.add_child(scroll)
 	_list = VBoxContainer.new()
 	_list.add_theme_constant_override("separation", 4)
@@ -201,9 +286,38 @@ static func _gold_style(b: Button) -> void:
 
 
 func _refresh_list() -> void:
+	var keep_scroll := _scroll.scroll_vertical if _scroll else 0
 	for c in _list.get_children():
 		c.queue_free()
+		_list.remove_child(c)
 	_buttons.clear()
+	var home := _mode == "home"
+	_btn_ledger.visible = home
+	_btn_remove.visible = home or (_mode == "settle" and _cp != null and _cp.kind != "")
+	_btn_snap.visible = _mode == "settle" and _cp != null and _cp.kind != ""
+	_btn_rotate.visible = home or (_mode == "settle" and _cp != null and _cp.kind != "")
+	_btn_place.visible = home or (_mode == "settle" and _cp != null and _cp.kind != "")
+	_crop_box.visible = home
+	var placing: bool = _mode == "settle" and _cp != null and _cp.kind != ""
+	_scroll.get_parent().visible = not placing
+	_tabs_row.visible = not placing
+	_subtitle.visible = not placing
+	var h := 150 if placing else SHEET_H
+	_bg.custom_minimum_size.y = h
+	_bg.offset_top = -h
+	_bg.offset_bottom = 0
+	for k: String in _tab_buttons:
+		(_tab_buttons[k] as Button).button_pressed = (k == _mode) or (k == "sites" and _mode == "site")
+	if not home:
+		_subtitle.text = {"settle": "Build anywhere valid. Builders need a path to walk.", "sites": "Your holdings and building sites", "site": "Building site"}[_mode]
+		if _mode == "settle":
+			_cp.fill_catalog(_list)
+		elif _mode == "sites":
+			_cp.fill_sites(_list)
+		else:
+			_cp.fill_site(_list)
+		_restore_scroll.call_deferred(keep_scroll)
+		return
 	var hs := Life.homestead
 	if plot >= 0 and not hs.owns_or_leases(plot):
 		_subtitle.text = "%s — unclaimed" % hs.plot_name(plot)
@@ -254,6 +368,11 @@ func _refresh_list() -> void:
 	_refresh_crop_box()
 
 
+func _restore_scroll(v: int) -> void:
+	if _scroll:
+		_scroll.scroll_vertical = v
+
+
 func _on_ledger() -> void:
 	if hud:
 		FarmLedger.open_for(hud)
@@ -277,10 +396,16 @@ func _select_kind(kind: String) -> void:
 
 
 func _on_rotate() -> void:
+	if _mode == "settle":
+		_cp.rotate_ghost()
+		return
 	_rot = (_rot + 1) % 4
 
 
 func _on_place() -> void:
+	if _mode == "settle":
+		_cp.confirm_place()
+		return
 	if _kind == "":
 		_status.text = "Pick something to build first."
 		return
@@ -292,6 +417,9 @@ func _on_place() -> void:
 
 
 func _on_remove() -> void:
+	if _mode == "settle":
+		_cp.cancel_place()
+		return
 	var why := Life.homestead.remove_at(plot, _cell)
 	_status.text = "Removed." if why == "" else why
 	_refresh_crop_box()

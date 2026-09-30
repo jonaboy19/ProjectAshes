@@ -36,6 +36,8 @@ var ambient_fx: Node3D
 var noble_courts: Node3D
 var lord_hall: Node3D
 var realm_presence: Node3D
+var build_resources: Node3D
+var construction_view: Node3D
 var _order_from: Variant = null   # command view: where the current drag order started
 var player: Player
 var hud: HUD
@@ -189,6 +191,13 @@ func _ready() -> void:
 	realm_presence = preload("res://scripts/world/realm_presence.gd").new()
 	realm_presence.setup(hud)
 	world.add_child(realm_presence)
+	build_resources = preload("res://scripts/world/build_resources.gd").new()
+	build_resources.name = "BuildResources"
+	world.add_child(build_resources)
+	construction_view = preload("res://scripts/world/construction_view.gd").new()
+	construction_view.name = "ConstructionView"
+	construction_view.hud = hud
+	world.add_child(construction_view)
 
 	hud.set_loading_text("Waking the world...", 0.95)
 	await get_tree().process_frame
@@ -210,6 +219,11 @@ func _ready() -> void:
 		player.apply_age()
 	if args.has("shot"):
 		_screenshot(args["shot"], args.get("out", "user://shot.png"))
+	elif args.has("qa"):
+		# QA driver: --qa=res://tools_qa/construction/build_qa.gd (its run(main) takes over from here)
+		var qa: Node = (load(String(args["qa"])) as GDScript).new()
+		add_child(qa)
+		qa.call("run", self)
 	elif args.has("demo"):
 		_run_demo()
 	elif args.has("skipintro") or Flow.wants_skip_intro():   # loading a save from the menu
@@ -317,6 +331,8 @@ func _process(delta: float) -> void:
 	road_traffic.focus = focus
 	road_events.focus = focus
 	homestead_view.focus = focus
+	build_resources.focus = focus
+	construction_view.focus = focus
 	ambient_fx.focus = focus
 	noble_courts.focus = focus
 	camps.focus = focus
@@ -375,6 +391,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		var target := player.nearest_interactable()
 		if target is Captain:
 			hud.show_menu(services.captain_menu)
+		elif target is Station and (target as Station).name == "WarTable":
+			# the War Room table opens the war map directly, in war-table style (docs/design/WAR_COMMAND_RULEBOOK.md §2)
+			var wm: Control = load("res://scripts/ui/war/war_map.gd").open_modal(hud, Life.realm)
+			wm.call("set_style", 2)
 		elif target is Station:
 			hud.show_menu((target as Station).open)
 		elif target is CampMonster:

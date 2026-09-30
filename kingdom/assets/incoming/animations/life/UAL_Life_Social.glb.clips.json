@@ -1,0 +1,692 @@
+[
+ {
+  "name": "Life_Talk_Explain",
+  "loop": true,
+  "frames": 151,
+  "seconds": 5.0,
+  "events": {
+   "beat": [
+    20,
+    64,
+    96,
+    112
+   ]
+  },
+  "note": "speaker: both hands shape ideas (wide 'the whole thing', a box that grows and shrinks, counting beats)",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Talk_Emphatic",
+  "loop": true,
+  "frames": 121,
+  "seconds": 4.0,
+  "events": {
+   "chop": [
+    18,
+    48,
+    78
+   ]
+  },
+  "note": "speaker: hand on hip, right hand chops the air three times, leaning into every stroke",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Talk_Casual",
+  "loop": true,
+  "frames": 151,
+  "seconds": 5.0,
+  "events": {
+   "beat": [
+    20,
+    62,
+    76
+   ]
+  },
+  "note": "speaker: left hand on hip, weight on one leg, right hand gestures loosely (so-so wobble, across the body)",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Talk_Gossip",
+  "loop": true,
+  "frames": 151,
+  "seconds": 5.0,
+  "events": {
+   "glance": [
+    25,
+    60,
+    135
+   ]
+  },
+  "note": "speaker: leans in, right hand cupped beside the mouth, glances around to check nobody hears; a suppressed giggle",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Talk_Listen_Nod",
+  "loop": true,
+  "frames": 151,
+  "seconds": 5.0,
+  "events": {
+   "nod": [
+    28,
+    40,
+    100,
+    108
+   ]
+  },
+  "note": "listener: arms crossed, two clear nod pairs, weight shifts from foot to foot",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Talk_Listen_Hips",
+  "loop": true,
+  "frames": 151,
+  "seconds": 5.0,
+  "events": {
+   "tilt": [
+    30,
+    76
+   ],
+   "nod": [
+    104
+   ]
+  },
+  "note": "listener: hands on hips, head tilts side to side as if weighing it, one nod, weight shifts",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Laugh",
+  "loop": false,
+  "frames": 97,
+  "seconds": 3.2,
+  "events": {
+   "burst": [
+    12
+   ],
+   "peak": [
+    40
+   ]
+  },
+  "note": "one-shot belly laugh: inhale, head back, shoulders shake at 5 Hz, folds forward, wipes the eye, recovers",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Laugh_Slap",
+  "loop": false,
+  "frames": 97,
+  "seconds": 3.2,
+  "events": {
+   "slap": [
+    26,
+    40
+   ],
+   "burst": [
+    10
+   ]
+  },
+  "note": "one-shot: doubles over laughing and slaps the right knee twice",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Argue_A",
+  "loop": true,
+  "frames": 91,
+  "seconds": 3.0,
+  "events": {
+   "jab": [
+    16,
+    42,
+    66
+   ],
+   "stomp": [
+    42
+   ]
+  },
+  "note": "aggressor: leaning in, jabbing finger three times per cycle, one stamp of weight, fist clenched at the side",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Argue_B",
+  "loop": true,
+  "frames": 121,
+  "seconds": 4.0,
+  "events": {
+   "step_back": [
+    36
+   ],
+   "step_fwd": [
+    84
+   ]
+  },
+  "note": "defender: palms out, head shakes, steps back half a step and forward again",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Point_Directions",
+  "loop": false,
+  "frames": 139,
+  "seconds": 4.6,
+  "events": {
+   "raise": [
+    50
+   ],
+   "point": [
+    58
+   ],
+   "sweep": [
+    74
+   ],
+   "lower": [
+    98
+   ]
+  },
+  "note": "one-shot: listens with a thoughtful hand at the chin, then turns and points far off to the right, sweeps the arm along a road, turns back and nods",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Wave_Greet",
+  "loop": false,
+  "frames": 73,
+  "seconds": 2.4,
+  "events": {
+   "wave": [
+    14
+   ]
+  },
+  "note": "one-shot friendly wave: the hand comes up beside the head, waves three times with the fingers leading, lowers",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Wave_Far",
+  "loop": false,
+  "frames": 91,
+  "seconds": 3.0,
+  "events": {
+   "wave": [
+    16
+   ]
+  },
+  "note": "one-shot big overhead wave for calling across the square: whole arm sweeps, body sways under it",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Shrug",
+  "loop": false,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {
+   "peak": [
+    16
+   ]
+  },
+  "note": "one-shot 'who knows': shoulders up, palms out and up, head tilts, hold, drop with a small rebound",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Nod",
+  "loop": false,
+  "frames": 49,
+  "seconds": 1.6,
+  "events": {
+   "nod": [
+    10,
+    26
+   ]
+  },
+  "note": "one-shot: two clear nods, the second bigger, with a small chest dip",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Shake_Head",
+  "loop": false,
+  "frames": 55,
+  "seconds": 1.8,
+  "events": {
+   "shake": [
+    8,
+    18,
+    28
+   ]
+  },
+  "note": "one-shot: 'no' - three head swings with a counter-turn of the chest, small shoulder drop at the end",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Bow",
+  "loop": false,
+  "frames": 97,
+  "seconds": 3.2,
+  "events": {
+   "low": [
+    34
+   ]
+  },
+  "note": "one-shot polite bow: right hand to the chest, folds from the hips, holds a beat, rises",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Hug_A",
+  "loop": false,
+  "frames": 79,
+  "seconds": 2.6,
+  "events": {
+   "embrace": [
+    24
+   ],
+   "pat": [
+    34,
+    40
+   ],
+   "release": [
+    60
+   ]
+  },
+  "note": "paired hug A: half-step in, arms wrap (right over the partner's left shoulder, left under), head to the partner's right shoulder, two pats, release. Author distance 0.40 m.",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Hug_B",
+  "loop": false,
+  "frames": 79,
+  "seconds": 2.6,
+  "events": {
+   "embrace": [
+    24
+   ],
+   "pat": [
+    37,
+    43
+   ],
+   "release": [
+    60
+   ]
+  },
+  "note": "paired hug B: half-step in, arms wrap (right over the partner's left shoulder, left under), head to the partner's right shoulder, two pats, release. Author distance 0.40 m.",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Handshake_A",
+  "loop": false,
+  "frames": 73,
+  "seconds": 2.4,
+  "events": {
+   "clasp": [
+    20
+   ],
+   "pump": [
+    26,
+    31,
+    37,
+    42
+   ],
+   "release": [
+    54
+   ]
+  },
+  "note": "paired handshake A: right hands meet at ~1.0 m in the middle, two firm pumps, release. Author distance 0.80 m.",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Handshake_B",
+  "loop": false,
+  "frames": 73,
+  "seconds": 2.4,
+  "events": {
+   "clasp": [
+    20
+   ],
+   "pump": [
+    26,
+    31,
+    37,
+    42
+   ],
+   "release": [
+    54
+   ]
+  },
+  "note": "paired handshake B: right hands meet at ~1.0 m in the middle, two firm pumps, release. Author distance 0.80 m.",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Mourn_Kneel",
+  "loop": true,
+  "frames": 121,
+  "seconds": 4.0,
+  "events": {},
+  "note": "loop: kneeling on the right knee, face in both hands, shoulders shake with sobs, a slow deep breath every 2 s",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Mourn_Kneel_Enter",
+  "loop": false,
+  "frames": 41,
+  "seconds": 1.333,
+  "events": {},
+  "note": "drops to the right knee, folds forward and lifts the hands to the face; ends on the first frame of Mourn_Kneel",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Mourn_Kneel_Exit",
+  "loop": false,
+  "frames": 41,
+  "seconds": 1.333,
+  "events": {},
+  "note": "from Mourn_Kneel: hands drop, pushes up off the knee and stands; ends at neutral",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Social_Mourn_Stand",
+  "loop": true,
+  "frames": 181,
+  "seconds": 6.0,
+  "events": {
+   "wipe": [
+    96,
+    106,
+    116,
+    126
+   ]
+  },
+  "note": "loop: standing, head bowed, hands clasped low; small sobbing breaths, and now and then the right hand wipes the eyes",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Kid_Run_Play",
+  "loop": true,
+  "frames": 41,
+  "seconds": 1.333,
+  "events": {
+   "foot_l": [
+    0,
+    20
+   ],
+   "foot_r": [
+    10,
+    30
+   ]
+  },
+  "note": "excited in-place run: flight phase, high knees, arms flailing loosely, body rolling with every stride, head bobbing. speed_mps on the authored skeleton",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Kid_Chase_Chicken",
+  "loop": true,
+  "frames": 57,
+  "seconds": 1.867,
+  "events": {
+   "grab_l": [
+    11
+   ],
+   "grab_r": [
+    39
+   ]
+  },
+  "note": "crouched scurrying run, head up on the target, one low two-handed-style grab lunge per arm every second stride",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Kid_Skip",
+  "loop": true,
+  "frames": 37,
+  "seconds": 1.2,
+  "events": {
+   "foot_l": [
+    0
+   ],
+   "foot_r": [
+    18
+   ]
+  },
+  "note": "in-place skipping: long-short step-hop rhythm, the free knee lifts high, arms swing wide, head rolls with the beat",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Kid_Tag_Touch",
+  "loop": false,
+  "frames": 67,
+  "seconds": 2.2,
+  "events": {
+   "lunge": [
+    14
+   ],
+   "touch": [
+    17
+   ],
+   "flee": [
+    34
+   ]
+  },
+  "note": "one-shot: coiled crouch, lunge with an outstretched hand (touch at frame 17: partner is ~0.75 m ahead), gleeful recoil, twists away and bolts; back to neutral",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Kid_Hopscotch",
+  "loop": false,
+  "frames": 133,
+  "seconds": 4.4,
+  "events": {
+   "land": [
+    16,
+    36,
+    58,
+    90,
+    109,
+    124
+   ]
+  },
+  "note": "one-shot in place: hop, hop on the left foot, straddle-jump landing on both, hop, hop on the right foot, jump turn and land; neutral at both ends",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Kid_Clap_Jump",
+  "loop": false,
+  "frames": 55,
+  "seconds": 1.8,
+  "events": {
+   "takeoff": [
+    10
+   ],
+   "clap": [
+    16
+   ],
+   "land": [
+    22
+   ]
+  },
+  "note": "one-shot: crouch, jump with both arms swinging up to clap overhead at the apex, land bouncy, small second clap of joy",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Ambient_Look_Around",
+  "loop": false,
+  "frames": 97,
+  "seconds": 3.2,
+  "events": {
+   "look_l": [
+    14
+   ],
+   "look_r": [
+    46
+   ]
+  },
+  "note": "one-shot: the head leads a slow look over the left shoulder, then a longer look to the right, the chest follows a beat late, back to neutral",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Ambient_Scratch_Head",
+  "loop": false,
+  "frames": 91,
+  "seconds": 3.0,
+  "events": {
+   "scratch": [
+    18,
+    50
+   ]
+  },
+  "note": "one-shot: right hand up to the back of the head, scratches with a curling hand, head tilts into it, drops and shrugs it off",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Ambient_Shift_Weight",
+  "loop": false,
+  "frames": 85,
+  "seconds": 2.8,
+  "events": {
+   "shift": [
+    16
+   ],
+   "back": [
+    58
+   ]
+  },
+  "note": "one-shot: sighs, moves the weight onto the left leg while the right foot re-plants wider, holds the cocked hip, and settles back",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Ambient_Stretch_Morning",
+  "loop": false,
+  "frames": 133,
+  "seconds": 4.4,
+  "events": {
+   "peak": [
+    40
+   ],
+   "release": [
+    70
+   ]
+  },
+  "note": "one-shot: inhales, both arms up with the fingers laced and palms to the sky, back arches and head tips back, side lean, then the arms fall wide and the shoulders roll out",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Ambient_Yawn",
+  "loop": false,
+  "frames": 97,
+  "seconds": 3.2,
+  "events": {
+   "yawn": [
+    18
+   ],
+   "rub": [
+    58
+   ]
+  },
+  "note": "one-shot: a big yawn behind the right hand, head tipping back, chest opening, then a sagging exhale and a rub of the eye with the left hand",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Ambient_Check_Sky",
+  "loop": false,
+  "frames": 85,
+  "seconds": 2.8,
+  "events": {
+   "look": [
+    16
+   ]
+  },
+  "note": "one-shot: tips the head back to read the sky, the chest opens, a slow sweep from one side to the other, then back down",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Ambient_Shade_Eyes",
+  "loop": false,
+  "frames": 103,
+  "seconds": 3.4,
+  "events": {
+   "shade": [
+    16
+   ]
+  },
+  "note": "one-shot: flat right hand to the brow against the glare, squints along the horizon left to right, drops the hand",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Ambient_Wipe_Brow",
+  "loop": false,
+  "frames": 85,
+  "seconds": 2.8,
+  "events": {
+   "wipe": [
+    26
+   ],
+   "flick": [
+    44
+   ]
+  },
+  "note": "one-shot: heavy sigh, right forearm wipes across the forehead, flicks the sweat off the hand, sags and breathes out",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Ambient_Rub_Arms",
+  "loop": false,
+  "frames": 109,
+  "seconds": 3.6,
+  "events": {
+   "rub": [
+    22,
+    40,
+    58,
+    76
+   ]
+  },
+  "note": "one-shot: hunches, hugs itself and rubs both upper arms briskly while the body shudders, releases with a shiver",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Ambient_Glance_L",
+  "loop": false,
+  "frames": 37,
+  "seconds": 1.2,
+  "events": {
+   "peak": [
+    12
+   ]
+  },
+  "note": "one-shot 1.2 s glance to the left: the head snaps round first, the chest follows a few frames later, hold, and back",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Ambient_Glance_R",
+  "loop": false,
+  "frames": 37,
+  "seconds": 1.2,
+  "events": {
+   "peak": [
+    12
+   ]
+  },
+  "note": "one-shot 1.2 s glance to the right: the head snaps round first, the chest follows a few frames later, hold, and back",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Ambient_Rain_Hunch_Upper",
+  "loop": true,
+  "frames": 121,
+  "seconds": 4.0,
+  "events": {},
+  "note": "upper-body layer over locomotion or idle (spine_01 and up): shoulders up, head down, left forearm held flat above the head as a shield, right hand pulling the collar shut; small shudders",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Walk_Cane",
+  "loop": true,
+  "frames": 53,
+  "seconds": 1.733,
+  "events": {
+   "plant": [
+    0
+   ],
+   "lift": [
+    32
+   ],
+   "foot_l": [
+    0
+   ],
+   "foot_r": [
+    26
+   ]
+  },
+  "note": "elder walk, bent spine, short shuffling steps, cane in the right hand planted with every LEFT step (tip on the ground from frame 0 to 32, then swings forward). Cane length 0.90 m (measured from cane.glb)",
+  "root_motion_m": 0.0
+ }
+]
