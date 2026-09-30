@@ -44,10 +44,10 @@ var money := PackedInt32Array()
 var health := PackedByteArray()
 var phase := PackedByteArray()      # schedule phase the current target belongs to
 var last_update := PackedFloat32Array()
-## Non-zero while an embodied Villager owns this person's position. Schedule,
-## wages and other world-data updates continue, but _step must not integrate a
-## second movement path behind the physics body.
-var body_position_owner := PackedByteArray()
+## Non-zero while a higher-detail LOD controller owns this person's position.
+## Schedule, wages and other world-data updates continue, but _step does not
+## integrate a competing movement path behind that representation.
+var external_position_owner := PackedByteArray()
 ## Per settlement: [first_person, end_person), treasury.
 var ranges: Array[Vector2i] = []
 var treasury := PackedInt32Array()
@@ -83,7 +83,7 @@ func reset() -> void:
 	health = PackedByteArray()
 	phase = PackedByteArray()
 	last_update = PackedFloat32Array()
-	body_position_owner = PackedByteArray()
+	external_position_owner = PackedByteArray()
 	ranges.clear()
 	treasury = PackedInt32Array()
 	_cursor = 0
@@ -123,18 +123,18 @@ func describe(i: int) -> String:
 	return "%s · %s · %dg" % [person_name(i), JOBS[job[i]], money[i]]
 
 
-## Transfer position ownership at the embodied-NPC LOD boundary. The active
-## Villager owns movement; WorldSim remains authoritative for schedule and goal.
-func set_body_position_owner(i: int, owned: bool, resolved_position := Vector2.INF) -> void:
+## Transfer position ownership at an LOD boundary. WorldSim remains authoritative
+## for schedule and goal; a Villager or routed sprite may own resolved movement.
+func set_external_position_owner(i: int, owned: bool, resolved_position := Vector2.INF) -> void:
 	if i < 0 or i >= pos.size():
 		return
 	# A reset can rebuild WorldSim's deterministic rows before the old world
 	# scene exits. Its stale Villager must not write into the new run.
-	if not owned and body_position_owner[i] == 0:
+	if not owned and external_position_owner[i] == 0:
 		return
 	if resolved_position != Vector2.INF:
 		pos[i] = resolved_position
-	body_position_owner[i] = 1 if owned else 0
+	external_position_owner[i] = 1 if owned else 0
 
 
 ## Indices of people within `radius` of p. Only settlements in range are scanned.
@@ -167,7 +167,7 @@ func _populate() -> void:
 			health.append(100)
 			phase.append(255)
 			last_update.append(0.0)
-			body_position_owner.append(0)
+			external_position_owner.append(0)
 		ranges.append(Vector2i(start, pos.size()))
 		treasury.append(500)
 
@@ -301,7 +301,7 @@ func _step(i: int) -> void:
 	# A promoted Villager is the sole position integrator until it is demoted.
 	# WorldSim still updates this row's schedule/economy above, then waits for the
 	# body's resolved position to be written back at the LOD boundary.
-	if body_position_owner[i] != 0:
+	if external_position_owner[i] != 0:
 		return
 	var to := target[i] - pos[i]
 	var dist := to.length()

@@ -461,3 +461,9 @@ built with fewer nodes, and drop `_process` work when no site is within BUILD. I
 - Promotion writes the route-cleared spawn position into `WorldSim` and claims ownership. On body exit, the resolved final position is stored and ownership is released. Time skips remain explicit bulk settles followed by `Villager.resync()`.
 - Updated the current-state sections of `NPC_CONTACT_LOD_CONTRACT.md` and `NPC_LIFE_LOOP_DESIGN.md`; the old e3563fc4 findings remain clearly labeled as historical. The distant data/sprite mover still follows direct targets and is the next NPC/building pathing gap.
 - Source reviewed and `git diff --check` passed. No Godot runtime check or test suite was run; confirm body lifecycle/reset ordering and movement feel in the playable project before merge.
+
+## 2026-09-30 (Codex): local routes for visible sprite residents
+- Selected sprite residents near their home settlement now check direct-line clearance against the existing `StreetGraph`. Only obstructed routes claim temporary position ownership and move along validated waypoints; clear routes keep the existing `WorldSim` mover.
+- Route planning consumes the existing two-per-physics-frame budget shared with near villagers. When that budget is unavailable or a path is invalid, the sprite holds its last safe position and retries; no 3D navigation agent, NPC node, or physics body was added.
+- Route state is discarded when a sprite leaves the visible sprite set or a time skip settles the population. Data-only residents and field/forest travel outside the local graph remain coarse direct movement. This narrows the building-crossing gap but does not solve all distant-world navigation.
+- `NPC_CONTACT_LOD_CONTRACT.md` and `NPC_LIFE_LOOP_DESIGN.md` now distinguish these current limits. `git diff --check` passed; no runtime or test suite was run. Validate blocked routes, target changes, LOD promotion/demotion, time skips, and frame cost in Godot.

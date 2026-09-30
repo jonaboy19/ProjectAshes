@@ -222,7 +222,7 @@ func _ready() -> void:
 	if _graph:
 		p = _graph.push_out(p, BODY_RADIUS + 0.12)
 	position = Vector3(p.x, WorldGen.height(p.x, p.y), p.y)
-	WorldSim.set_body_position_owner(person, true, sim_position())
+	WorldSim.set_external_position_owner(person, true, sim_position())
 	var heading: Vector2 = WorldSim.target[person] - p
 	_heading = atan2(heading.x, heading.y) if heading.length() > 0.1 else float(person % 628) / 100.0
 	rotation.y = _heading
@@ -246,7 +246,7 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
-	WorldSim.set_body_position_owner(person, false, sim_position())
+	WorldSim.set_external_position_owner(person, false, sim_position())
 	UtilityBrain.clear_sight_for(self)
 	UtilityBrain.unregister_body(person)
 
