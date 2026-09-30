@@ -112,6 +112,7 @@ const NOTICE_MAX_SECONDS := 30.0
 const SOUND_EVENT_MAX := 32
 const SOUND_EVENT_MERGE_RADIUS := 1.5
 const SOUND_EVENT_MAX_SECONDS := 10.0
+const SOUND_OCCLUSION_CANDIDATES := 4
 const CHAT_GAP := 1.3           # metres between two people chatting
 const CHAT_WAIT_MAX := 8        # bounded candidates per settlement, not a global resident scan
 const CHAT_MIN_WAIT_MS := 1200  # let a small set assemble before choosing a companion
@@ -770,7 +771,8 @@ static func spectacle_at(here: Vector2, player_pos: Vector2, list: PackedVector2
 ## Weakly localize the player's current movement noise for nearby outdoor
 ## villagers. This is a cheap range cue, not identity, line of sight or combat
 ## evidence; uncertainty deliberately biases the investigation point inward.
-static func heard_player_at(here: Vector2, player: Node3D, tree: SceneTree) -> Array:
+static func heard_player_at(here: Vector2, player: Node3D, tree: SceneTree,
+		graph: StreetGraph = null) -> Array:
 	if player == null or not is_instance_valid(player) or player.get("dead") == true \
 	or not player.has_method("noise_radius"):
 		return [0.0, Vector2.INF]
@@ -786,7 +788,7 @@ static func heard_player_at(here: Vector2, player: Node3D, tree: SceneTree) -> A
 	var distance := offset.length()
 	if distance >= radius:
 		return [0.0, Vector2.INF]
-	var strength := 1.0 - distance / radius
+	var strength := (1.0 - distance / radius) * _sound_transmission(here, source, graph)
 	return [strength, _approximate_sound_point(here, source, distance / radius)]
 
 
@@ -816,11 +818,11 @@ static func sound_notice(pos: Vector2, strength := 1.0, radius := 24.0, seconds 
 
 
 ## Best decaying discrete sound at this listener, after weather attenuation.
-static func audible_event_at(here: Vector2, tree: SceneTree) -> Array:
+static func audible_event_at(here: Vector2, tree: SceneTree,
+		graph: StreetGraph = null) -> Array:
 	var now := Time.get_ticks_msec()
 	_prune_sound_events(now)
-	var top := 0.0
-	var at := Vector2.INF
+	var candidates: Array = [] # strongest [level, source, distance ratio] before geometry damping
 	var attenuation := _weather_noise_mult(tree)
 	for event: Array in _sound_events:
 		var source: Vector2 = event[0]
@@ -829,10 +831,36 @@ static func audible_event_at(here: Vector2, tree: SceneTree) -> Array:
 		if distance >= radius:
 			continue
 		var level := float(event[1]) * (1.0 - distance / radius)
+		var entry := [level, source, distance / radius]
+		var inserted := false
+		for i in range(candidates.size()):
+			if level > float(candidates[i][0]):
+				candidates.insert(i, entry)
+				inserted = true
+				break
+		if not inserted and candidates.size() < SOUND_OCCLUSION_CANDIDATES:
+			candidates.append(entry)
+		if candidates.size() > SOUND_OCCLUSION_CANDIDATES:
+			candidates.pop_back()
+	var top := 0.0
+	var at := Vector2.INF
+	for candidate: Array in candidates:
+		var source: Vector2 = candidate[1]
+		var level := float(candidate[0]) * _sound_transmission(here, source, graph)
 		if level > top:
 			top = level
-			at = _approximate_sound_point(here, source, distance / radius)
+			at = _approximate_sound_point(here, source, float(candidate[2]))
 	return [top, at]
+
+
+## Approximate sound damping behind settlement geometry without spending a
+## physics ray. The route graph mirrors building footprints and town walls;
+## obstruction muffles rather than erases sound. Terrain, doors and interiors
+## are not represented, so this is deliberately a broad acoustic cue.
+static func _sound_transmission(listener: Vector2, source: Vector2, graph: StreetGraph) -> float:
+	if graph == null:
+		return 1.0
+	return 1.0 if graph.clear_line(listener, source, 0.0) else 0.35
 
 
 static func _prune_sound_events(now_ms: int) -> void:

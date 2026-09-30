@@ -462,9 +462,9 @@ func _decide_act(here: Vector2) -> void:
 	# Sight-based fight interest still uses only hostile samples this villager
 	# actually saw. Movement noise adds a separate, anonymous look cue outdoors.
 	var sight := UtilityBrain.spectacle_at(here, player_p, visible_threats)
-	var heard := UtilityBrain.heard_player_at(here, _player, tree) if not _indoors else [0.0, Vector2.INF]
+	var heard := UtilityBrain.heard_player_at(here, _player, tree, _graph) if not _indoors else [0.0, Vector2.INF]
 	if not _indoors:
-		var sound_event := UtilityBrain.audible_event_at(here, tree)
+		var sound_event := UtilityBrain.audible_event_at(here, tree, _graph)
 		if float(sound_event[0]) > float(heard[0]):
 			heard = sound_event
 	if float(heard[0]) > 0.0:
