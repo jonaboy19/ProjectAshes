@@ -1,4 +1,4 @@
-# Library attack clips - combat_studio metrics (sword+shield rig, rate 1.0, full body)
+# Authored combat clips - combat_studio metrics (sword+shield rig, rate 1.0, full body, root motion)
 
 Columns and grading: `kingdom/tools_qa/combat_audit/metrics_table.py`. The "issues" column is written for strikes; ignore it for reactions/deaths.
 
@@ -25,7 +25,7 @@ Columns and grading: `kingdom/tools_qa/combat_audit/metrics_table.py`. The "issu
 | Sword_Parry | 0.60 | 1 | 1 | 3 | 13 | 1/1/3/2/2 | 0.55 | 1.20 | 0.29 | 0.03 | 3/3 | no anticipation; chain out of order |
 | Sword_Riposte | 1.10 | 2 | 1 | 2 | 15 | 4/4/2/2/2 | 0.38 | 1.00 | 1.95 | 0.0 | 6/9 | no anticipation; chain out of order; straight path; foot slide |
 | Shield_Bash_Step | 0.90 | 2 | 6 | 2 | 8 | 6/6/10/10/10 | 0.02 | 1.00 | 1.02 | 0.25 | 4/10 | straight path; foot slide |
-| Finisher_Stab_Through | 2.00 | 2 | 33 | 4 | 9 | 33/33/35/37/36 | 0.47 | 1.02 | 0.80 | 0.38 | 12/11 | chain out of order; straight path; foot slide |
+| Finisher_Stab_Through | 2.00 | 2 | 10 | 3 | 10 | 11/11/12/12/12 | 0.18 | 1.00 | 0.03 | 0.21 | 13/11 | straight path; no follow-through; foot slide |
 | Finisher_Stab_Through_Victim | 2.00 | 1 | 11 | 2 | 7 | 16/11/15/15/15 | 0.27 | 1.00 | 0.11 | 0.12 | 24/24 | chain out of order; straight path; no follow-through; foot slide |
 | Finisher_Overhead_Cleave | 1.80 | 1 | 14 | 2 | 39 | 17/18/21/21/20 | 0.01 | 1.00 | 0.51 | 0.32 | 11/8 | chain out of order; straight path; foot slide |
 | Finisher_Overhead_Cleave_Victim | 1.80 | 1 | 18 | 2 | 5 | 22/20/20/21/21 | 0.68 | 1.00 | 0.53 | 0.08 | 8/5 | chain out of order; flat slap; straight path; foot slide |

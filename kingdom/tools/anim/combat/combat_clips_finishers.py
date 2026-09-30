@@ -220,14 +220,14 @@ def stab_attacker():
     # anticipation f0-9: sword drawn back to the hip, body coils right, weight to the rear foot
     k.append((3, {"hip": (0, -5, 0), "tor": (5, -7, 0), "pel": V(0.0, 0.03, -0.02), "hand_l": V(0.30, -0.20, 1.05)}, "smooth"))
     k.append((6, {"hip": (0, -10, 0), "tor": (6, -14, 0), "pel": V(0.0, 0.05, -0.04),
-                  "hand_r": V(-0.28, -0.14, 1.06), "ho_r": blade_o((0.10, -0.93, 0.35), S), "hand_l": V(0.30, -0.24, 1.12),
+                  "hand_r": V(-0.30, 0.10, 1.05), "ho_r": blade_o((0.10, -0.95, 0.30), S), "hand_l": V(0.28, -0.30, 1.16),
                   "_bow": {"hand_r": V(-0.03, 0.05, 0.06)}}, "smooth"))
-    k.append((9, {"hip": (0, -12, 0), "tor": (7, -20, 0), "pel": V(0.0, 0.06, -0.05), "head": (0, -5, 0),
-                  "hand_r": V(-0.31, -0.02, 1.02), "ho_r": blade_o((0.12, -0.93, 0.34), S)}, "smooth"))
-    k.append((10, {"hand_r": V(-0.31, 0.0, 1.02)}, "smooth"))     # moving hold
+    k.append((9, {"hip": (0, -16, 0), "tor": (7, -28, 0), "pel": V(0.0, 0.08, -0.07), "head": (0, 10, 0),
+                  "hand_r": V(-0.32, 0.26, 1.02), "ho_r": blade_o((0.10, -0.99, 0.08), S), "elb_r": V(-0.55, 0.42, 1.00)}, "smooth"))
+    k.append((10, {"hand_r": V(-0.32, 0.28, 1.02), "tor": (7, -30, 0)}, "smooth"))     # moving hold, blade drawn right back
     # hips lead
     k.append((11, {"hip": (0, 2, 0), "pel": V(0.02, -0.08, -0.07), "foot_l": N["foot_l"] + V(0, -0.14, 0.14),
-                   "tor": (8, -18, 0)}, "in2"))
+                   "tor": (8, -22, 0), "elb_r": None}, "in2"))
     k.append((12, {"hip": (0, 10, 0), "pel": V(0.03, -0.20, -0.10), "foot_l": N["foot_l"] + V(0, -0.34, 0.16),
                    "tor": (12, -4, 0), "hand_r": V(-0.29, -0.28, 1.12), "ho_r": blade_o((0.06, -0.97, 0.22), S),
                    "hand_l": V(0.34, -0.10, 1.10)}, "in2"))
@@ -261,7 +261,7 @@ def _stab_wrap():
     return P
 
 
-clip("Finisher_Stab_Through", events={"windup_end": 10, "hit_start": 12, "hit": 14, "hit_end": 27, "victim_react": 14,
+clip("Finisher_Stab_Through", events={"victim_dist_m": 1.35, "windup_end": 10, "hit_start": 12, "hit": 14, "hit_end": 27, "victim_react": 14,
                                       "victim_down": 56, "cancel_window": [52, 60]},
      note="PAIR with Finisher_Stab_Through_Victim (same 61 frames). Victim root at attacker +1.2 m forward, rotated 180 deg. "
           "Thrust through the chest at f14 (tip ~0.3 m past the victim's back), 13 f hold with a twist, pull out + step back. "
@@ -312,7 +312,7 @@ def stab_victim():
     return F.build(k, STAB_N, post=post)
 
 
-clip("Finisher_Stab_Through_Victim", events={"hit": 14, "victim_react": 14, "victim_down": 56, "cancel_window": [56, 60]},
+clip("Finisher_Stab_Through_Victim", events={"victim_dist_m": 1.35, "hit": 14, "victim_react": 14, "victim_down": 56, "cancel_window": [56, 60]},
      note="PAIR victim of Finisher_Stab_Through (61 frames). Authored in its own frame (faces -Y). The attacker stands 1.2 m in front "
           "of it, at local y = -1.2; the blade enters the chest at f14 and its tip ends ~0.5 m behind the victim's pelvis "
           "(local +Y). Ends face-down on the ground with the head toward the attacker (local -Y), terminal.")(stab_victim)
@@ -369,7 +369,7 @@ def _cleave_wrap():
     return P
 
 
-clip("Finisher_Overhead_Cleave", events={"windup_end": 17, "hit_start": 18, "hit": 20, "hit_end": 23, "victim_react": 20,
+clip("Finisher_Overhead_Cleave", events={"victim_dist_m": 1.2, "windup_end": 17, "hit_start": 18, "hit": 20, "hit_end": 23, "victim_react": 20,
                                          "victim_down": 42, "cancel_window": [40, 54]},
      note="PAIR with Finisher_Overhead_Cleave_Victim (same 55 frames). Victim (kneeling) root at attacker +1.2 m forward rotated 180 deg. "
           "Long overhead windup on the toes (f0-16), 3-frame cleave, blade meets the victim's shoulder/neck line at f20 "
@@ -404,7 +404,7 @@ def cleave_victim():
     return F.build(k, CLV_N)
 
 
-clip("Finisher_Overhead_Cleave_Victim", events={"hit": 20, "victim_react": 20, "victim_down": 42, "cancel_window": [42, 54]},
+clip("Finisher_Overhead_Cleave_Victim", events={"victim_dist_m": 1.2, "hit": 20, "victim_react": 20, "victim_down": 42, "cancel_window": [42, 54]},
      note="PAIR victim of Finisher_Overhead_Cleave (55 frames). Own frame (faces -Y); starts kneeling and swaying; the attacker "
           "stands 1.2 m in front (local y = -1.2). Shoulder/neck line at local (x~0, y~-0.1, z~1.0). Collapses sideways onto its "
           "left side (+X), terminal.")(cleave_victim)
@@ -524,7 +524,7 @@ def _spin_wrap():
     return P
 
 
-clip("Finisher_Spin_Slash", events={"windup_end": 5, "hit_start": 14, "hit": 16, "hit_end": 19, "victim_react": 16,
+clip("Finisher_Spin_Slash", events={"victim_dist_m": 1.35, "windup_end": 5, "hit_start": 14, "hit": 16, "hit_end": 19, "victim_react": 16,
                                     "victim_down": 34, "cancel_window": [44, 50]},
      note="PAIR with Finisher_Spin_Slash_Victim (same 51 frames). Victim root at attacker +1.2 m forward rotated 180 deg. "
           "0.25 m step-in with the front foot, then a 360 deg spin on that planted foot (hips lead, chest lags 1 f, arm whips), "
@@ -561,7 +561,7 @@ def spin_victim():
     return F.build(k, SPN_N)
 
 
-clip("Finisher_Spin_Slash_Victim", events={"hit": 16, "victim_react": 16, "victim_down": 34, "cancel_window": [34, 50]},
+clip("Finisher_Spin_Slash_Victim", events={"victim_dist_m": 1.35, "hit": 16, "victim_react": 16, "victim_down": 34, "cancel_window": [34, 50]},
      note="PAIR victim of Finisher_Spin_Slash (51 frames). Own frame (faces -Y); the attacker stands 1.2 m in front at local y = -1.2. "
           "Neck/chest line at local z ~1.3-1.5. Twists right on the slash, then falls backwards (+Y local) onto its back, "
           "terminal (head at local y ~ +1.3).")(spin_victim)

@@ -40,6 +40,8 @@ var blade_local_base := Vector3.ZERO
 var blade_local_grip := Vector3.ZERO
 var blade_local_thin := Vector3.ZERO   # blade flat normal (thin axis), prop-parent space
 var bones := {}
+var pair_body: Node3D
+var pair_sk: Skeleton3D
 var views: Array[SubViewport] = []
 var cams: Array[Camera3D] = []
 var overlay: ImmediateMesh
@@ -59,6 +61,15 @@ func _ready() -> void:
 	out_dir = String(args.get("out", OS.get_user_data_dir().path_join("combat_studio")))
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	_build_body(String(args.get("weapon", "sword_shield")))
+	if args.has("pair"):
+		# Paired clips (finishers): a second rig 1.2 m in front of the attacker, facing it, plays the victim clip
+		# on the same frame clock. --pair=<VictimClip>; the views widen to frame both.
+		pair_body = Assets.character("Player", 1.8, [] as Array[String])
+		add_child(pair_body)
+		pair_body.position = Vector3(0, 0, float(args.get("pair_dist", "1.2")))
+		pair_body.rotation.y = PI
+		pair_sk = pair_body.find_children("*", "Skeleton3D", true, false)[0]
+		(Assets.animation_player(pair_body) as AnimationPlayer).active = false
 	for p: String in String(args.get("extra", "")).split(";", false):
 		_add_lib(p)
 	if args.has("probe"):
@@ -673,6 +684,10 @@ func _build_views() -> void:
 	var setups := [[Vector3(0, 1.05, 6.0), Vector3(0, 1.05, 0), "FRONT", false],
 		[Vector3(-6.0, 1.05, 0.3), Vector3(0, 1.05, 0.3), "SIDE (right)", false],
 		[Vector3(0, 7.0, 0.35), Vector3(0, 0, 0.35), "TOP (fwd = down)", true]]
+	if args.has("pair"):
+		setups = [[Vector3(4.5, 1.1, 4.8), Vector3(0, 0.9, 0.6), "3/4 FRONT", false],
+			[Vector3(-7.5, 1.0, 0.6), Vector3(0, 0.9, 0.6), "SIDE (right)", false],
+			[Vector3(0, 8.5, 0.6), Vector3(0, 0, 0.6), "TOP (fwd = down)", true]]
 	for s in setups:
 		var vp := SubViewport.new()
 		vp.size = Vector2i(W / 3, VIEW_H)
@@ -837,6 +852,11 @@ func _run() -> void:
 					_apply(anim, t, idle, fmod(i / FPS, idle.length))
 				else:
 					_apply(anim, t)
+				if pair_sk and anims.has(String(args["pair"])):
+					var own := sk
+					sk = pair_sk
+					_apply(anims[String(args["pair"])], minf(i / FPS * rate, (anims[String(args["pair"])] as Animation).length))
+					sk = own
 				_draw_overlay(i)
 				(graph as _Graph).frame = i
 				graph.queue_redraw()
