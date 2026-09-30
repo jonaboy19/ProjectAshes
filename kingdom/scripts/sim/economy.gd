@@ -88,6 +88,9 @@ var markets: Dictionary = {}
 ## bandit activity); refresh_road_risk() fills this from Frontier's network,
 ## or a test/caller can set it directly.
 var road_risk: Dictionary = {}
+## settlement id -> price multiplier from civilization (realm/civilization.gd): boomtown demand, a lost trade route.
+## Missing = 1.0. Only static WorldGen settlements have markets, so founded camps never appear here.
+var civ_price_mult: Dictionary = {}
 ## settlement id -> {item: {"price": int, "day": float}}: only what the player
 ## has actually learned, by visiting or by rumour (trade_screen's price list).
 var known_prices: Dictionary = {}
@@ -439,8 +442,9 @@ func _extra_capital_food_drain(m: RAMarket, dh: float) -> void:
 
 func _apply_modifiers(id: int, m: RAMarket, season: String, festival: bool, at_war: bool, mine_opened: bool) -> void:
 	var risk := clampf(float(road_risk.get(id, 0.0)), 0.0, 1.0)
+	var civ_mult := clampf(float(civ_price_mult.get(id, 1.0)), 0.5, 2.0)
 	for item: String in m.base_price:
-		var mult := 1.0
+		var mult := civ_mult
 		if int(m.produce.get(item, 0)) <= 0:
 			mult *= 1.0 + risk * IMPORT_RISK_MULT
 		if season == "winter" and item in FOOD_ITEMS:
