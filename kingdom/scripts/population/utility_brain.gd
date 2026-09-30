@@ -105,6 +105,9 @@ const THREAT_RAY_BUDGET := 4
 const THREAT_RAY_WINDOW_MS := 500
 const LAST_SEEN_SECONDS := 3.0
 const SIGHT_QUEUE_MAX := 64
+const NOTICE_MAX := 64
+const NOTICE_MERGE_RADIUS := 1.0
+const NOTICE_MAX_SECONDS := 30.0
 const CHAT_GAP := 1.3           # metres between two people chatting
 
 # ---------------------------------------------------------------- shared state
@@ -672,10 +675,30 @@ static func danger_at(here: Vector2, list: PackedVector2Array) -> Array:
 	return [1.0 - smoothstep(DANGER_NEAR, DANGER_FAR, sqrt(best_d)), at]
 
 
-## Tell nearby villagers something noteworthy happened at `pos` (a feat, a
-## spell, a performance...). Any system may call this; it costs one array entry.
-static func notice(pos: Vector2, strength := 1.0, seconds := 8.0) -> void:
-	_notices.append([pos, clampf(strength, 0.0, 1.0), Time.get_ticks_msec() + int(seconds * 1000.0)])
+## Add a short-lived, anonymous spectacle for nearby villagers. This is an
+## explicit stimulus, not sight/hearing evidence; callers should only publish
+## conspicuous events. Coalesce same-place bursts and hard-cap shared storage.
+static func notice(pos: Vector2, strength: float = 1.0, seconds: float = 8.0) -> void:
+	if not is_finite(pos.x) or not is_finite(pos.y) or not is_finite(strength) or not is_finite(seconds):
+		return
+	var now := Time.get_ticks_msec()
+	for i in range(_notices.size() - 1, -1, -1):
+		if int(_notices[i][2]) <= now:
+			_notices.remove_at(i)
+	var level := clampf(strength, 0.0, 1.0)
+	var duration := clampf(seconds, 0.0, NOTICE_MAX_SECONDS)
+	if level <= 0.0 or duration <= 0.0:
+		return
+	var expires := now + int(duration * 1000.0)
+	for n: Array in _notices:
+		var notice_pos: Vector2 = n[0]
+		if notice_pos.distance_squared_to(pos) <= NOTICE_MERGE_RADIUS * NOTICE_MERGE_RADIUS:
+			n[1] = maxf(float(n[1]), level)
+			n[2] = maxi(int(n[2]), expires)
+			return
+	if _notices.size() >= NOTICE_MAX:
+		_notices.pop_front()
+	_notices.append([pos, level, expires])
 
 
 ## 0..1 interest at `here`, and where to look (Vector2.INF when nothing).

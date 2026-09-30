@@ -31,7 +31,9 @@ signal seal_entered(index: int, seal: String, correct: bool)
 signal seals_ended(id: String, success: bool)
 
 const Skills := preload("res://scripts/sim/skills.gd")
+const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
 const VFX_PATH := "res://scripts/vfx/vfx.gd"
+const SPECTACLE_SHAPES := ["projectile", "chain", "dash", "blink", "melee", "cone", "aoe", "target_aoe"]
 const KEYS := {"technique_1": KEY_U, "technique_2": KEY_Y, "technique_3": KEY_O, "technique_4": KEY_H,
 	"seal_1": KEY_4, "seal_2": KEY_5, "seal_3": KEY_6, "seal_4": KEY_7, "seal_5": KEY_8, "seal_6": KEY_9}
 ## Seconds to finish a whole seal sequence.
@@ -451,6 +453,11 @@ func _resolve(id: String, def: Dictionary, dmg: int, target: Node3D) -> void:
 				else:
 					get_tree().create_timer(float(def["hit_interval"]) * h).timeout.connect(
 						_area.bind(def, dmg, target, h == hits - 1))
+	if SPECTACLE_SHAPES.has(shape):
+		# The flash/projectile is an explicit local spectacle, not proof that a
+		# particular villager saw the caster or identified a target.
+		var here := player.global_position
+		UtilityBrain.notice(Vector2(here.x, here.z), 0.72, 6.0)
 	if shape in ["aoe", "target_aoe", "cone"] and def["effect"].has("buff"):
 		_support(id, def)
 
