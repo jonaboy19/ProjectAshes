@@ -1,6 +1,7 @@
 class_name HUD
 extends CanvasLayer
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
+const Nameplates := preload("res://scripts/core/nameplates.gd")
 ## Full-resolution UI drawn over the low-resolution pixel render, in the user's
 ## dark-gold style: character card with portrait and crest, quest tracker, compass,
 ## minimap, place / day / time, hotbar, round action buttons, notification popups,
@@ -92,7 +93,8 @@ var banner: Control                # scripts/ui/discovery_banner.gd
 var world_map: Control             # scripts/ui/world_map.gd
 var photo_mode: Control            # scripts/ui/photo_mode.gd
 var discovery: RefCounted          # scripts/sim/discovery.gd (Life.discovery when Life owns one)
-## The fps / chunk line: hidden unless this is on (F3, `--debug-hud`, or project setting ashes/debug/show_stats).
+## The fps / chunk line: hidden unless this is on (`--debug-hud`, or project setting ashes/debug/show_stats).
+var _plate_timer := 0.0
 var debug_stats := false:
 	set(v):
 		debug_stats = v
@@ -928,10 +930,6 @@ func set_quest_target(pos: Variant) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _veil() or not visible:
 		return
-	if event is InputEventKey and event.pressed and not event.echo and (event as InputEventKey).keycode == KEY_F3:
-		debug_stats = not debug_stats
-		get_viewport().set_input_as_handled()
-		return
 	if event.is_action_pressed("ui_cancel") and not is_menu_open() and not world_map.visible and not photo_mode.is_active() \
 			and not _fade.visible and get_node_or_null("PauseMenu") == null:
 		open_pause()
@@ -990,6 +988,11 @@ func open_photo_mode() -> void:
 
 
 func _process(delta: float) -> void:
+	_plate_timer -= delta
+	if _plate_timer <= 0.0:
+		_plate_timer = 0.1
+		# In-world nameplates hide while a dialogue / menu / GameMenu is up.
+		Nameplates.set_suppressed(get_tree(), is_menu_open() or GameMenu.is_open(self))
 	if not visible or _veil() or player == null or not player.is_inside_tree():
 		return
 	_nav_timer -= delta

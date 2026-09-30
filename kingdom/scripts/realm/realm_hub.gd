@@ -31,7 +31,7 @@ const ORDER := ["settlements", "land", "camps", "followers", "factions", "strong
 const PUMP_BUDGET_USEC := 600
 
 var mods := {}
-var _queue: Array = []   # [module_name, method, arg, ctx]
+var _queue: Array = []   # [module_name, method, arg, ctx]  or  ["", Callable, null, null] (a day-tick chunk)
 
 
 func _init() -> void:
@@ -78,20 +78,32 @@ func pump() -> Array:
 		return out
 	var t0 := Time.get_ticks_usec()
 	while not _queue.is_empty():
-		var j: Array = _queue.pop_front()
-		var m: RefCounted = mods[j[0]]
-		out.append_array(m.call(j[1], j[2], j[3]))
+		out.append_array(_run_job(_queue.pop_front()))
 		if Time.get_ticks_usec() - t0 > PUMP_BUDGET_USEC:
 			break
 	return out
+
+
+## Runs one queued job. A module's tick_day that offers chunks is expanded in place into one job per
+## chunk (same order, same results) so the pump can spread it over frames.
+func _run_job(j: Array) -> Array:
+	if j[1] is Callable:
+		return (j[1] as Callable).call()
+	var m: RefCounted = mods[j[0]]
+	if j[1] == "tick_day":
+		var chunks: Array = m.tick_day_chunks(j[2], j[3])
+		if not chunks.is_empty():
+			for i in range(chunks.size() - 1, -1, -1):
+				_queue.push_front(["", chunks[i], null, null])
+			return []
+	return m.call(j[1], j[2], j[3])
 
 
 ## Flush everything now (tests, save, sleep).
 func drain() -> Array:
 	var out: Array = []
 	while not _queue.is_empty():
-		var j: Array = _queue.pop_front()
-		out.append_array(mods[j[0]].call(j[1], j[2], j[3]))
+		out.append_array(_run_job(_queue.pop_front()))
 	return out
 
 

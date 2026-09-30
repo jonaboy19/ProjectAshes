@@ -497,8 +497,103 @@ func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 		if not buckets.has(kind):
 			buckets[kind] = []
 		buckets[kind].append(t)
+	_plan_roadside(key, origin, buckets)
 	_plan_floor(key, origin, buckets)
 	return buckets
+
+
+## Roadside life for chunks the roads pass through (worker-thread maths, same MultiMesh chains and
+## LODs as the forest): small woods a stone's throw off the road, a tree, bush, rock or flower drift
+## now and then along the verge, so a long road is never a bare ribbon. Twice as generous in the new
+## land (beyond the +-2 km valley) where the roads used to run through open meadow.
+const ROADSIDE_REACH := 75.0
+static func _woodland_kind(rng: RandomNumberGenerator, h: float) -> String:
+	if rng.randf() < 0.08:
+		return REGION + "young_oak"
+	if rng.randf() < 0.2 + smoothstep(30.0, 70.0, h) * 0.6:
+		return REGION + ["spruce_a", "pine_scots"][rng.randi() % 2]
+	return REGION + ["oak_a", "oak_b", "beech_a"][rng.randi() % 3]
+
+
+static func _roadside_ok(x: float, z: float, road_min: float, road_max: float) -> bool:
+	var d := WorldGen.road_distance(x, z)
+	if d < road_min or d > road_max or WorldGen.near_water(x, z, 2.5) or WorldGen.street_distance(x, z) < 6.0:
+		return false
+	if WorldGen.height(x, z) > 100.0:
+		return false
+	var near := WorldGen.nearest_settlement(Vector2(x, z))
+	if not near.is_empty() and Vector2(x, z).distance_to(near["pos"]) < float(near["radius"]) * 1.8:
+		return false
+	for c in WorldGen.clearings:
+		if Vector2(x, z).distance_to(c["pos"]) < float(c["radius"]) + 4.0:
+			return false
+	return true
+
+
+func _roadside_put(buckets: Dictionary, kind: String, x: float, z: float, s: float, rng: RandomNumberGenerator) -> void:
+	var h := WorldGen.height(x, z)
+	var slope := absf(WorldGen.height(x + 0.6, z) - h) + absf(WorldGen.height(x, z + 0.6) - h)
+	var sink := 0.15 + minf(slope * 0.7, 0.55)
+	if not buckets.has(kind):
+		buckets[kind] = []
+	(buckets[kind] as Array).append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(x, h - sink, z)))
+
+
+func _plan_roadside(key: Vector2i, origin: Vector2, buckets: Dictionary) -> void:
+	var centre := origin + Vector2(CHUNK, CHUNK) * 0.5
+	if WorldGen.road_distance(centre.x, centre.y) > CHUNK * 0.75 + ROADSIDE_REACH:
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(key) ^ 0x70ad51de
+	var k := 1.0 if maxf(absf(centre.x), absf(centre.y)) > 2000.0 else 0.5
+	# Small woods: a knot of trees with bushes, a rock or a stump under them.
+	for w in 2:
+		if rng.randf() > 0.5 * k:
+			continue
+		for attempt in 8:
+			var a := origin + Vector2(rng.randf(), rng.randf()) * CHUNK
+			if not _roadside_ok(a.x, a.y, 16.0, 60.0) or _slope_at(a.x, a.y) > 0.4:
+				continue
+			var n := rng.randi_range(6, 12)
+			for i in n:
+				var q := a + Vector2.from_angle(rng.randf() * TAU) * (3.0 + 11.0 * sqrt(rng.randf()))
+				if not _roadside_ok(q.x, q.y, 8.0, 90.0):
+					continue
+				_roadside_put(buckets, _woodland_kind(rng, WorldGen.height(q.x, q.y)), q.x, q.y, rng.randf_range(0.85, 1.3), rng)
+			for i in rng.randi_range(4, 8):
+				var q2 := a + Vector2.from_angle(rng.randf() * TAU) * (2.0 + 14.0 * sqrt(rng.randf()))
+				if _roadside_ok(q2.x, q2.y, 6.0, 90.0):
+					var under := ["bush_hazel", "bush_round", "fern_b", "fern_a", "bush_berry", "flowers_cool", "stump_mossy", "log_mossy", "rock_medium"]
+					_roadside_put(buckets, REGION + under[rng.randi() % under.size()], q2.x, q2.y, rng.randf_range(0.7, 1.2), rng)
+			break
+	# The verge: single trees, bushes, rocks and flower drifts a few metres off the road.
+	for i in int(16.0 * k):
+		var x := origin.x + rng.randf() * CHUNK
+		var z := origin.y + rng.randf() * CHUNK
+		var half := float(WorldGen.road_info(x, z)["width"]) * 0.5
+		if not _roadside_ok(x, z, half + 2.5, half + 22.0):
+			continue
+		var roll := rng.randf()
+		if roll < 0.32:
+			var bushes := ["bush_hazel", "bush_round", "bush_berry"]
+			_roadside_put(buckets, REGION + bushes[rng.randi() % 3], x, z, rng.randf_range(0.8, 1.3), rng)
+		elif roll < 0.55:
+			var rocks := ["rock_medium", "rock_cluster", "rock_slab", "boulder_large"]
+			_roadside_put(buckets, REGION + rocks[rng.randi() % rocks.size()], x, z, rng.randf_range(0.6, 1.3), rng)
+		elif roll < 0.8:
+			for j in rng.randi_range(3, 6):
+				var q := Vector2(x, z) + Vector2.from_angle(rng.randf() * TAU) * (2.5 * sqrt(rng.randf()))
+				if _roadside_ok(q.x, q.y, half + 1.5, half + 25.0):
+					_roadside_put(buckets, REGION + ("flowers_warm" if rng.randf() < 0.55 else "flowers_cool"), q.x, q.y, rng.randf_range(0.8, 1.3), rng)
+		else:
+			_roadside_put(buckets, _woodland_kind(rng, WorldGen.height(x, z)), x, z, rng.randf_range(0.85, 1.25), rng)
+
+
+static func _slope_at(x: float, z: float) -> float:
+	var e := 3.0
+	var dx := WorldGen.height(x + e, z) - WorldGen.height(x - e, z)
+	var dz := WorldGen.height(x, z + e) - WorldGen.height(x, z - e)
+	return Vector2(dx, dz).length() / (2.0 * e)
 
 
 ## Forest-floor dressing for Duskbriar and every other wood: ferns, mushrooms, fallen leaves,

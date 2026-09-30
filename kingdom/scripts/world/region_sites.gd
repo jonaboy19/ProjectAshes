@@ -22,6 +22,7 @@ static func plan(seed_value: int) -> Array[Dictionary]:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value * 31 + 7
 	_rng.seed = seed_value * 17 + 3
+	_bridge_names_used.clear()
 	var places := _places()
 	var out: Array[Dictionary] = []
 	for s in WorldGen.settlements:
@@ -98,7 +99,7 @@ static func _part(site: Dictionary, asset: String, off: Vector2, yaw := 0.0, col
 
 
 ## Ground a site may use: dry, off the roads, clear of settlements, camps and other sites.
-static func _free(p: Vector2, r: float, taken: Array[Dictionary], road_gap := 10.0) -> bool:
+static func _free(p: Vector2, r: float, taken: Array[Dictionary], road_gap := 10.0, tight := false) -> bool:
 	if absf(p.x) > WorldGen.WORLD_HALF - 300.0 or absf(p.y) > WorldGen.WORLD_HALF - 300.0:
 		return false
 	if WorldGen.near_water(p.x, p.y, r + 4.0) or WorldGen.road_distance(p.x, p.y) < r + road_gap:
@@ -110,7 +111,9 @@ static func _free(p: Vector2, r: float, taken: Array[Dictionary], road_gap := 10
 		if p.distance_to(g["pos"]) < float(g["radius"]) * 1.6 + r:
 			return false
 	for t in taken:
-		if p.distance_to(t["pos"]) < r + maxf(float(t["clear"]), 12.0) + 6.0:
+		# `tight`: a site with no cleared ground (waystone, signpost) only needs its own footprint.
+		var reach := (2.5 if float(t["clear"]) < 1.0 else maxf(float(t["clear"]), 12.0) + 6.0) if tight else maxf(float(t["clear"]), 12.0) + 6.0
+		if p.distance_to(t["pos"]) < r + reach:
 			return false
 	return true
 
@@ -190,6 +193,10 @@ static func _farmstead(s: Dictionary, rng: RandomNumberGenerator, taken: Array[D
 ## stretch: stone over wide water, timber over narrow.
 static func _bridges(outer := false) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
+	var places := _places()
+	var names_taken := {}     # name -> true, across both calls (valley bridges are named first)
+	for nm: String in _bridge_names_used:
+		names_taken[nm] = true
 	for road in WorldGen.roads:
 		if _is_outer_road(road) != outer:
 			continue
@@ -210,14 +217,51 @@ static func _bridges(outer := false) -> Array[Dictionary]:
 					var mid := a + dir * (wet_from + span * 0.5)
 					var bank_a := a + dir * (wet_from - 3.0)
 					var bank_b := a + dir * (t + 3.0)
-					var site := _site("Bridge", "bridge", mid, _yaw_to(dir))
+					var site := _site(_bridge_name(mid, places, names_taken), "bridge", mid, _yaw_to(dir))
 					site["span"] = span + 6.0
 					site["deck"] = maxf(WorldGen.height(bank_a.x, bank_a.y), WorldGen.height(bank_b.x, bank_b.y))
 					site["asset"] = "road/bridge_stone" if span > 7.0 else "road/bridge_wood"
 					out.append(site)
 				wet_from = -1.0
 			t += 1.0
+	for site in out:
+		_bridge_names_used.append(String(site["name"]))
 	return out
+
+
+static var _bridge_names_used: Array[String] = []
+
+
+## A bridge is named for the lore bridge on that spot ("Ashrun Bridge"), else for the lore river beside
+## it ("Silverrun Bridge"), else for the nearest settlement ("Emberfall Bridge"); names never repeat
+## (the second bridge by one settlement takes the next-nearest settlement, then "Old"/"New").
+static func _bridge_name(pos: Vector2, places: Dictionary, taken: Dictionary) -> String:
+	var cands: Array[String] = []
+	for id: String in places:
+		var pl: Dictionary = places[id]
+		if String(pl.get("kind", "")) == "bridge" and pos.distance_to(pl["pos"]) < 60.0:
+			cands.append(String(pl["name"]))
+	for id: String in places:
+		var pl: Dictionary = places[id]
+		if String(pl.get("kind", "")) == "river" and pos.distance_to(pl["pos"]) < 450.0:
+			cands.append(String(pl["name"]).trim_prefix("The ").trim_suffix(" river") + " Bridge")
+	var order: Array = []
+	for st in WorldGen.settlements:
+		order.append([pos.distance_to(st["pos"]), String(st["name"])])
+	order.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
+	for o: Array in order.slice(0, 4):
+		cands.append(String(o[1]) + " Bridge")
+	for c in cands:
+		if not taken.has(c):
+			taken[c] = true
+			return c
+	var base := String(order[0][1]) + " Bridge" if not order.is_empty() else "Old Bridge"
+	for tag in ["Old", "New", "Low", "High"]:
+		var n := "%s %s" % [tag, base]
+		if not taken.has(n):
+			taken[n] = true
+			return n
+	return base
 
 
 ## Cinderpost Waystation: a walled halfway post on the King's Ember Road with a
@@ -739,6 +783,133 @@ static func _outer_sites(out: Array[Dictionary], rng: RandomNumberGenerator, cor
 	var outpost := _rift_outpost(rift, out, rng, "Scar Watch")
 	if not outpost.is_empty():
 		out.append(outpost)
+	# Last, on their own RNG stream, so every site above keeps its place.
+	var rng_road := RandomNumberGenerator.new()
+	rng_road.seed = rng.seed ^ 0x2d51de
+	_roadside_sites(out, rng_road)
+
+
+## Roadside life on the new roads: signposts outside every gate, then every 190-330 m a smallholding,
+## a wheat field, a parked wagon, a wayside shrine or a rest stop (well, bench, trough, shade tree), on
+## whichever side has dry level ground. All kind "roadside": dressed by RegionDressing like every site,
+## never listed as a discoverable place (Discovery skips them). Woods, verge trees, rocks and flowers
+## along the same roads come from TerrainStreamer._plan_roadside.
+static func _roadside_sites(out: Array[Dictionary], rng: RandomNumberGenerator) -> void:
+	for road in WorldGen.roads:
+		if not _is_outer_road(road):
+			continue
+		var a: Vector2 = WorldGen.settlements[road.x]["pos"]
+		var b: Vector2 = WorldGen.settlements[road.y]["pos"]
+		var length := a.distance_to(b)
+		var dir := (b - a) / maxf(length, 0.001)
+		var side := Vector2(dir.y, -dir.x)
+		var ra: float = float(WorldGen.settlements[road.x]["radius"]) * 1.3
+		var rb: float = float(WorldGen.settlements[road.y]["radius"]) * 1.3
+		for end_t: float in [ra + 40.0, length - rb - 40.0]:
+			var flip_e := 1.0 if end_t < length * 0.5 else -1.0
+			var sp := a + dir * end_t + side * 9.0 * flip_e
+			if _free(sp, 2.0, out, 3.0, true) and not WorldGen.near_water(sp.x, sp.y, 3.0):
+				var sg := _site("Signpost", "roadside", sp, _yaw_to(-side * flip_e))
+				_part(sg, "props/signpost", Vector2.ZERO, 0.0, true)
+				out.append(sg)
+		var t := ra + 110.0 + rng.randf() * 60.0
+		var last_kind := ""
+		while t < length - rb - 110.0:
+			var near_town := minf(t, length - t) < 1100.0
+			var roll := rng.randf()
+			var kind := "field"
+			if roll < 0.28 and near_town:
+				kind = "farm"
+			elif roll < 0.50:
+				kind = "field" if near_town else "wagon"
+			elif roll < 0.70:
+				kind = "wagon"
+			elif roll < 0.80:
+				kind = "shrine"
+			elif roll < 0.92:
+				kind = "rest"
+			else:
+				kind = "sign"
+			if kind == last_kind and kind != "field":
+				kind = "wagon" if kind != "wagon" else "rest"
+			last_kind = kind
+			var radius := {"farm": 24.0, "field": 17.0, "wagon": 8.0, "shrine": 4.0, "rest": 7.0, "sign": 2.0}[kind] as float
+			for tries in 8:
+				var tt := t + (tries / 2) * 22.0 * (1.0 if tries % 2 == 0 else -1.0)
+				var flip := 1.0 if (tries % 2 == 0) == (rng.randf() < 0.5) else -1.0
+				var rp := a + dir * tt
+				var half := float(WorldGen.ROAD_WIDTH[WorldGen.road_tier(road.x, road.y)]) * 0.5
+				var gap := half + 4.0 + radius
+				var pos := rp + side * flip * gap
+				if kind in ["farm", "field"]:
+					pos = rp + side * flip * (gap + 5.0)
+				if not _free(pos, radius, out, 3.0, true) or WorldGen.is_water(rp.x, rp.y) or _slope(pos) > (0.22 if radius > 12.0 else 0.4):
+					continue
+				var st := _roadside_site(kind, pos, _yaw_to(-side * flip), rng)
+				if not st.is_empty():
+					out.append(st)
+				break
+			t += rng.randf_range(150.0, 260.0)
+
+
+static func _roadside_site(kind: String, pos: Vector2, yaw: float, rng: RandomNumberGenerator) -> Dictionary:
+	var site: Dictionary
+	match kind:
+		"farm":
+			site = _site("Roadside Farm", "roadside", pos, yaw, 24.0, true)
+			_part(site, "farm/barn", Vector2(9, -8), PI * 0.5, true)
+			_part(site, "farm/chicken_coop", Vector2(-13, -6), -PI * 0.5, true)
+			_part(site, "farm/hay_wagon", Vector2(2, -3), 1.9, true)
+			_part(site, "props/hay_bales", Vector2(-4, -12), 0.4)
+			_part(site, "props/woodpile", Vector2(14, 2), 0.0)
+			_part(site, "props/water_trough", Vector2(-8, -1), PI * 0.5)
+			for row in 2:
+				for col in 3:
+					_part(site, "farm/crop_wheat" if (row + col) % 3 else "farm/crop_cabbage", Vector2(-9 + col * 4.1, 6 + row * 4.1), 0.0)
+			_part(site, "farm/scarecrow", Vector2(5.5, 8.5), 0.4)
+			for i in 8:
+				_part(site, "farm/fence_rail", Vector2(-13.0 + i * 3.2, 17.0), 0.0)
+			_part(site, "farm/fence_gate", Vector2(12.6, 17.0), 0.0)
+			site["lights"].append([Vector3(2, 2.6, 4), Color(1.0, 0.72, 0.42), 6.0, true])
+		"field":
+			site = _site("Wheat Field", "roadside", pos, yaw, 17.0, true)
+			for row in 4:
+				for col in 4:
+					_part(site, "farm/crop_wheat", Vector2(-6.2 + col * 4.1, -6.0 + row * 4.1), 0.0)
+			_part(site, "farm/scarecrow", Vector2(0.0, 11.0), 0.5)
+			for i in 5:
+				_part(site, "farm/fence_rail", Vector2(-8.0 + i * 3.2, 12.6), 0.0)
+			for i in 4:
+				_part(site, "farm/fence_rail", Vector2(-9.6, -7.0 + i * 3.2), PI * 0.5)
+		"wagon":
+			site = _site("Parked Wagon", "roadside", pos, yaw, 9.0, false)
+			var covered := rng.randf() < 0.5
+			_part(site, "props/covered_wagon" if covered else "road/caravan_wagon", Vector2.ZERO, 0.3 + rng.randf() * 0.5, true)
+			_part(site, "props/crate_stack", Vector2(4.2, -1.0), 0.3)
+			_part(site, "props/barrel", Vector2(-4.0, 1.6), 0.0)
+			_part(site, "props/sack_pile", Vector2(3.5, 3.4), 0.6)
+			_part(site, "ruins/campfire", Vector2(-3.6, -4.6), 0.0)
+			site["lights"].append([Vector3(-3.6, 1.0, -4.6), Color(1.0, 0.65, 0.35), 6.0, true])
+		"shrine":
+			site = _site("Roadside Shrine", "roadside", pos, yaw, 5.0, false)
+			_part(site, "road/wayshrine", Vector2.ZERO, 0.0, true)
+			_part(site, "nature:flowers_warm", Vector2(1.5, 0.7), 0.0)
+			_part(site, "nature:flowers_cool", Vector2(-1.4, 0.5), 0.0)
+			site["lights"].append([Vector3(0, 1.4, 0.3), Color(1.0, 0.75, 0.45), 4.0, true])
+		"rest":
+			site = _site("Rest Stop", "roadside", pos, yaw, 10.0, false)
+			_part(site, "props/well", Vector2(0, -2), 0.0, true)
+			_part(site, "props/bench", Vector2(3.6, 1.6), PI * 0.5)
+			_part(site, "props/water_trough", Vector2(-3.4, 0.6), PI * 0.5)
+			_part(site, "nature:oak_a", Vector2(-4.5, -4.5), 0.0, true)
+			_part(site, "nature:bush_berry", Vector2(4.5, -4.0), 0.0)
+		"sign":
+			site = _site("Signpost", "roadside", pos, yaw, 0.0)
+			_part(site, "props/signpost", Vector2.ZERO, 0.0, true)
+			_part(site, "road/milestone", Vector2(2.2, -0.5), 0.3, true)
+		_:
+			return {}
+	return site
 
 
 ## A wild, wooded, dry, level spot between dmin and dmax metres from the capital.

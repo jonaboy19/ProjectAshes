@@ -249,6 +249,7 @@ func _build(s: Dictionary) -> Node3D:
 		_piece(root, "mill", p, WorldGen.height(p.x, p.y), rng.randf() * TAU)
 	_fields(root, s, plan, rng, gates)
 	_homesteads(root, s, plan, rng)
+	_gate_outskirts(root, s, plan, gates)
 	_footprint_clutter(root, plan, rng)
 	_square_lamps(root, s, plan)
 	if s["kind"] != "village":
@@ -947,6 +948,77 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 		# ~200 of these, and as one town-wide batch they were all drawn from anywhere.
 		_multimesh_cells(root, Assets.building_mesh(kind), list, 80.0, 120.0)
 	_front_gardens(root, plan, rng)
+
+
+## Outside every gate: the road lined with the small trade a town collects on its approach (a stall or
+## two, crates, barrels, hay, a parked wagon), lamp posts and flower planters. Own RNG stream so the
+## rest of the town's layout is unchanged; MultiMesh cells like everything else here.
+func _gate_outskirts(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array[float]) -> void:
+	if gates.is_empty():
+		return
+	var rng2 := RandomNumberGenerator.new()
+	rng2.seed = 4242 + int(s["id"])
+	var c: Vector2 = s["pos"]
+	var wr: float = float(plan["wall_radius"]) if plan["walls"] else float(s["radius"]) * 1.1
+	var lists := {}
+	for ga: float in gates:
+		var dir := Vector2(cos(ga), sin(ga))
+		var side := Vector2(-dir.y, dir.x)
+		var u := wr + 16.0
+		var stalls := 0
+		while u < wr + 78.0:
+			var q := c + dir * u
+			var half := float(WorldGen.road_info(q.x, q.y)["width"]) * 0.5
+			for sg: float in [1.0, -1.0]:
+				var base := q + side * sg * (half + 4.5)
+				if WorldGen.is_water(base.x, base.y) or WorldGen.near_water(base.x, base.y, 2.0):
+					continue
+				var face := Vector2(-side.x * sg, -side.y * sg)
+				var yaw := atan2(face.x, face.y)
+				var roll := rng2.randf()
+				var kind := ""
+				var at := base
+				if roll < 0.28 and stalls < 4:
+					kind = "market_stall_red" if rng2.randf() < 0.5 else "market_stall_green"
+					at = q + side * sg * (half + 6.2)
+					stalls += 1
+				elif roll < 0.5:
+					kind = "crate_stack"
+				elif roll < 0.62:
+					kind = "barrel"
+				elif roll < 0.76:
+					kind = "hay"
+				elif roll < 0.84 and u > wr + 30.0:
+					kind = "covered_wagon"
+					at = q + side * sg * (half + 8.0)
+					yaw = atan2(dir.x, dir.y) + (0.0 if sg > 0.0 else PI) + rng2.randf_range(-0.3, 0.3)
+				elif roll < 0.95:
+					kind = "flower_planter"
+				if kind == "":
+					continue
+				if not lists.has(kind):
+					lists[kind] = []
+				(lists[kind] as Array).append(Transform3D(Basis(Vector3.UP, yaw), Vector3(at.x, WorldGen.height(at.x, at.y) - 0.03, at.y)))
+			u += 7.0 + rng2.randf() * 5.0
+		var lu := wr + 12.0
+		while lu < wr + 80.0:
+			var lq := c + dir * lu
+			var lhalf := float(WorldGen.road_info(lq.x, lq.y)["width"]) * 0.5
+			for sg2: float in [1.0, -1.0]:
+				var lp := lq + side * sg2 * (lhalf + 1.6)
+				if not lists.has("lamp_post"):
+					lists["lamp_post"] = []
+				(lists["lamp_post"] as Array).append(Transform3D(Basis(Vector3.UP, atan2(-side.x * sg2, -side.y * sg2)), Vector3(lp.x, WorldGen.height(lp.x, lp.y) - 0.03, lp.y)))
+			lu += 26.0
+	for kind: String in lists:
+		var list: Array[Transform3D] = []
+		list.assign(lists[kind])
+		var solid := kind in ["market_stall_red", "market_stall_green", "covered_wagon", "crate_stack", "hay"]
+		var mesh := Assets.building_mesh(kind)
+		if solid:
+			_multimesh(root, mesh, list, true, true)
+		else:
+			_multimesh_cells(root, mesh, list, LOD_CELL)
 
 
 ## Lamp posts around the square that glow at night, and a signpost where the road leaves.

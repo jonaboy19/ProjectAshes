@@ -8,6 +8,7 @@ extends Node3D
 ## test against <= 15 precomputed places); only while inside does a 0.5 s Timer refresh the prompt.
 ## Spot markers exist only for the workplace the player stands in and are freed on leaving.
 
+const Nameplates := preload("res://scripts/core/nameplates.gd")
 const AF := preload("res://scripts/ui/ashes_frame.gd")
 const Widget := preload("res://scripts/ui/work_widget.gd")
 const SLOW := 2.0
@@ -410,11 +411,7 @@ func _build_markers() -> void:
 		root.add_child(mi)
 		var lab := Label3D.new()
 		lab.text = String(s["label"])
-		lab.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		lab.pixel_size = 0.006
-		lab.font_size = 28
-		lab.outline_size = 8
-		lab.modulate = Color("f0e0b0")
+		Nameplates.style(lab, Color("f0e0b0"), 28)
 		lab.position.y = 1.6
 		root.add_child(lab)
 		_markers.add_child(root)

@@ -2,7 +2,8 @@ extends CanvasLayer
 ## Performance overlay controller (autoload "PerfOverlay").
 ## Wraps Calinou's godot-debug-menu (addons/debug_menu, MIT) which is created lazily
 ## on first toggle so it costs nothing while hidden (release default = OFF).
-## Desktop: F3 (handled by the addon: hidden -> compact -> detailed -> hidden).
+## Desktop: F3, handled only here (hidden -> compact -> detailed -> hidden). The addon no longer binds F3
+## and the HUD's debug line no longer listens to it; the addon panel is this overlay's detailed mode.
 ## Mobile: hidden 3-finger tap cycles the same way.
 ## Adds a second label with draw calls / primitives / objects / process+physics ms / nodes.
 
@@ -59,12 +60,8 @@ func _ensure_label() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F3:
-		# The addon also reacts to F3 via its own action once instantiated; only bootstrap here.
-		if _menu == null or not is_instance_valid(_menu):
-			_toggle()
-			get_viewport().set_input_as_handled()
-		else:
-			_sync_later()
+		_toggle()
+		get_viewport().set_input_as_handled()
 	elif event is InputEventScreenTouch:
 		if event.pressed:
 			if _touches.is_empty():
@@ -74,15 +71,6 @@ func _input(event: InputEvent) -> void:
 				_toggle()
 		else:
 			_touches.erase(event.index)
-
-
-func _sync_later() -> void:
-	await get_tree().process_frame
-	await get_tree().process_frame
-	if _menu and is_instance_valid(_menu):
-		_ensure_label()
-		_label.visible = _menu.visible
-		set_process(_menu.visible)
 
 
 func _process(delta: float) -> void:

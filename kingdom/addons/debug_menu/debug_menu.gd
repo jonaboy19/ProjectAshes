@@ -82,13 +82,9 @@ func _init() -> void:
 	# This must be done here instead of `_ready()` to avoid having `visibility_changed` be emitted immediately.
 	visible = false
 
+	# Ashes: no F3 binding here. scripts/core/perf_overlay.gd (autoload PerfOverlay) owns F3 and drives `style`.
 	if not InputMap.has_action("cycle_debug_menu"):
-		# Create default input action if no user-defined override exists.
-		# We can't do it in the editor plugin's activation code as it doesn't seem to work there.
 		InputMap.add_action("cycle_debug_menu")
-		var event := InputEventKey.new()
-		event.keycode = KEY_F3
-		InputMap.action_add_event("cycle_debug_menu", event)
 
 
 func _ready() -> void:

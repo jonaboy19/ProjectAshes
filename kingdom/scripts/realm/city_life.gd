@@ -1553,21 +1553,39 @@ func tick_hour(hour: int, ctx: Dictionary) -> Array:
 
 
 func tick_day(day: int, ctx: Dictionary) -> Array:
-	var msgs: Array = []
+	return _run_chunks(day, ctx)
+
+
+## The cheap prologue runs now; then one chunk per city refresh, then one per epilogue step.
+func tick_day_chunks(day: int, ctx: Dictionary) -> Array:
 	_sync(ctx)
 	_last_day = day
 	_ensure_guilds()
 	if _near_sid >= 0:
 		_ensure(_near_sid)
-	for k: String in _cities:
-		var c: Dictionary = _cities[k]
-		if int(c["last_refresh"]) != day:
-			_refresh_city(c, day)
-	_tick_leases(day, msgs)
-	_tick_job_day(day, msgs)
-	_tick_guild_day(day, msgs)
-	_gen_hidden_contracts(day)
-	return msgs
+	var chunks: Array = []
+	for k: String in _cities.keys():
+		chunks.append(func() -> Array:
+			var c: Dictionary = _cities.get(k, {})
+			if not c.is_empty() and int(c["last_refresh"]) != day:
+				_refresh_city(c, day)
+			return [])
+	chunks.append(func() -> Array:
+		var msgs: Array = []
+		_tick_leases(day, msgs)
+		return msgs)
+	chunks.append(func() -> Array:
+		var msgs: Array = []
+		_tick_job_day(day, msgs)
+		return msgs)
+	chunks.append(func() -> Array:
+		var msgs: Array = []
+		_tick_guild_day(day, msgs)
+		return msgs)
+	chunks.append(func() -> Array:
+		_gen_hidden_contracts(day)
+		return [])
+	return chunks
 
 
 func tick_week(week: int, ctx: Dictionary) -> Array:

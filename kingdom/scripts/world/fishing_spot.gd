@@ -319,9 +319,10 @@ func _build_marker() -> void:
 	add_child(post)
 	var tag := Label3D.new()
 	tag.text = "Fishing"
-	tag.font_size = 40
-	tag.pixel_size = 0.006
-	tag.outline_size = 10
+	tag.font_size = 30
+	tag.fixed_size = true
+	tag.pixel_size = 0.0016
+	tag.outline_size = 8
 	tag.modulate = Color(0.95, 0.9, 0.75)
 	tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	tag.position = Vector3(0, 1.15, 0)

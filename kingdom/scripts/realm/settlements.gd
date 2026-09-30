@@ -353,38 +353,49 @@ func tick_hour(_hour: int, _ctx: Dictionary) -> Array:
 
 
 func tick_day(day: int, ctx: Dictionary) -> Array:
+	return _run_chunks(day, ctx)
+
+
+## One chunk per settlement, in sid order (the same loop tick_day always ran).
+func tick_day_chunks(day: int, ctx: Dictionary) -> Array:
 	_ensure()
+	var ids := _s.keys()
+	ids.sort()
+	var chunks: Array = []
+	for sid in ids:
+		chunks.append(func() -> Array: return _tick_day_one(sid, day, ctx))
+	return chunks
+
+
+func _tick_day_one(sid: Variant, day: int, ctx: Dictionary) -> Array:
 	var out: Array = []
 	var season: String = str(ctx.get("season", "spring"))
 	var at_war: bool = bool(ctx.get("at_war", false))
-	var ids := _s.keys()
-	ids.sort()
-	for sid in ids:
-		var d: Dictionary = _s[sid]
-		_run_chains(d, SEASON_FARM.get(season, 1.0), 1.0)
-		_eat(d, 1.0)
-		var tgt := _target_identity(d)
-		for i in IDENTITIES:
-			d["identity"][i] += (tgt[i] - d["identity"][i]) * DRIFT_PER_DAY
-		var r := _rng("emerg", day, sid)
-		var roll := r.randf()
-		var kind := ""
-		var bread: float = d["stock"].get("bread", 0.0) + d["stock"].get("grain", 0.0) * 0.6
-		var starving: bool = int(d["shortage"].get("food", 0)) >= 3
-		if starving:
-			kind = "famine"
-		elif roll < 0.010 + (0.010 if season == "summer" else 0.0) + 0.000005 * d["pop"]:
-			kind = "fire"
-		elif roll < 0.016 + 0.000004 * d["pop"] and (bread < d["pop"] * FOOD_PER_RESIDENT * 6.0 or season == "winter"):
-			kind = "plague"
-		elif int(d["shortage"].get("tools", 0)) + int(d["shortage"].get("bread", 0)) >= 5 and r.randf() < 0.2:
-			kind = "strike"
-		elif at_war and d["kind"] in ["frontier_town", "village"] and r.randf() < 0.02:
-			kind = "raid_aftermath"
-		if kind != "":
-			var e := _start(int(sid), kind, 0.3 + 0.7 * r.randf())
-			if not e.is_empty():
-				out.append(EMERGENCY[kind]["text"] % sname(int(sid)))
+	var d: Dictionary = _s[sid]
+	_run_chains(d, SEASON_FARM.get(season, 1.0), 1.0)
+	_eat(d, 1.0)
+	var tgt := _target_identity(d)
+	for i in IDENTITIES:
+		d["identity"][i] += (tgt[i] - d["identity"][i]) * DRIFT_PER_DAY
+	var r := _rng("emerg", day, sid)
+	var roll := r.randf()
+	var kind := ""
+	var bread: float = d["stock"].get("bread", 0.0) + d["stock"].get("grain", 0.0) * 0.6
+	var starving: bool = int(d["shortage"].get("food", 0)) >= 3
+	if starving:
+		kind = "famine"
+	elif roll < 0.010 + (0.010 if season == "summer" else 0.0) + 0.000005 * d["pop"]:
+		kind = "fire"
+	elif roll < 0.016 + 0.000004 * d["pop"] and (bread < d["pop"] * FOOD_PER_RESIDENT * 6.0 or season == "winter"):
+		kind = "plague"
+	elif int(d["shortage"].get("tools", 0)) + int(d["shortage"].get("bread", 0)) >= 5 and r.randf() < 0.2:
+		kind = "strike"
+	elif at_war and d["kind"] in ["frontier_town", "village"] and r.randf() < 0.02:
+		kind = "raid_aftermath"
+	if kind != "":
+		var e := _start(int(sid), kind, 0.3 + 0.7 * r.randf())
+		if not e.is_empty():
+			out.append(EMERGENCY[kind]["text"] % sname(int(sid)))
 	return out
 
 

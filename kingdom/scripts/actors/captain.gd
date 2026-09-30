@@ -3,6 +3,7 @@ extends Node3D
 ## Recruitment officer. Talk to him to join the militia, then to hire more men
 ## up to the limit of your rank.
 
+const Nameplates := preload("res://scripts/core/nameplates.gd")
 signal recruit_requested(count: int)
 
 var title := "Captain of the Guard"
@@ -17,11 +18,7 @@ func _ready() -> void:
 		anim.play("2H_Melee_Idle" if anim.has_animation("2H_Melee_Idle") else "Idle")
 	var tag := Label3D.new()
 	tag.text = title
-	tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	tag.pixel_size = 0.009
-	tag.font_size = 30
-	tag.outline_size = 8
-	tag.modulate = Color("f0c060")
+	Nameplates.style(tag, Color("f0c060"))
 	tag.position.y = 2.3
 	add_child(tag)
 

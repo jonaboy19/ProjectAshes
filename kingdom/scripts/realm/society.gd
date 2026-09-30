@@ -1642,26 +1642,48 @@ var events_due: Array = []
 
 
 func tick_day(day: int, ctx: Dictionary) -> Array:
-	var msgs: Array = []
-	_sync(ctx)
-	_day = day
-	_ensure_npcs()
-	_mirror_life(ctx)
-	_decay_reputation()
-	_tick_crime_day(msgs)
-	_tick_marriage(msgs)
-	_tick_goals(msgs)
-	_tick_offers()
-	_tick_teaching(msgs)
-	_tick_memory()
-	_run_events(msgs)
-	# Expire rumours.
-	for i in range(rumour_list.size() - 1, -1, -1):
-		if float(rumour_list[i]["expires"]) <= _now:
-			rumour_list.remove_at(i)
-	_fame_cache.clear()
-	msgs.append_array(_filter_events(_flush()))
-	return msgs
+	return _run_chunks(day, ctx)
+
+
+## The same steps in the same order, one job each (mirror / crime / marriage / goals / ... / flush).
+func tick_day_chunks(day: int, ctx: Dictionary) -> Array:
+	return [
+		func() -> Array:
+			_sync(ctx)
+			_day = day
+			_ensure_npcs()
+			_mirror_life(ctx)
+			_decay_reputation()
+			return [],
+		func() -> Array:
+			var msgs: Array = []
+			_tick_crime_day(msgs)
+			return msgs,
+		func() -> Array:
+			var msgs: Array = []
+			_tick_marriage(msgs)
+			return msgs,
+		func() -> Array:
+			var msgs: Array = []
+			_tick_goals(msgs)
+			return msgs,
+		func() -> Array:
+			var msgs: Array = []
+			_tick_offers()
+			_tick_teaching(msgs)
+			_tick_memory()
+			return msgs,
+		func() -> Array:
+			var msgs: Array = []
+			_run_events(msgs)
+			# Expire rumours.
+			for i in range(rumour_list.size() - 1, -1, -1):
+				if float(rumour_list[i]["expires"]) <= _now:
+					rumour_list.remove_at(i)
+			_fame_cache.clear()
+			msgs.append_array(_filter_events(_flush()))
+			return msgs,
+	]
 
 
 func _run_events(msgs: Array) -> void:

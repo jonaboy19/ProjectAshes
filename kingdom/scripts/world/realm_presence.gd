@@ -223,21 +223,21 @@ func _road_at(p: Vector2) -> Dictionary:
 
 
 ## Dry, level ground clear of settlements, camps and other sites (and, if asked, of the road).
-func _spot_ok(c: Vector2, r: float, road_w: float, avoid_road: bool) -> bool:
+func _spot_ok(c: Vector2, r: float, road_w: float, avoid_road: bool, loose := false) -> bool:
 	if absf(c.x) > WorldGen.WORLD_HALF - 120.0 or absf(c.y) > WorldGen.WORLD_HALF - 120.0:
 		return false
 	if WorldGen.near_water(c.x, c.y, r + 3.0):
 		return false
 	for s in WorldGen.settlements:
-		if c.distance_to(s["pos"]) < float(s["radius"]) * 1.15 + r + 8.0:
+		if c.distance_to(s["pos"]) < float(s["radius"]) * 1.15 + r + (2.0 if loose else 8.0):
 			return false
 	for g in WorldGen.camp_grounds:
 		if c.distance_to(g["pos"]) < float(g["radius"]) * 1.6 + r:
 			return false
 	for site in WorldGen.sites:
-		if c.distance_to(site["pos"]) < maxf(float(site["clear"]), 10.0) + r + 4.0:
+		if c.distance_to(site["pos"]) < (r + 3.0 if loose else maxf(float(site["clear"]), 10.0) + r + 4.0):
 			return false
-	if _slope(c) > 0.35:
+	if _slope(c) > (0.7 if loose else 0.35):
 		return false
 	if avoid_road and WorldGen.road_distance(c.x, c.y) < r + road_w * 0.5 + 2.0:
 		return false
@@ -302,6 +302,40 @@ func _build_one(s: Dictionary) -> Dictionary:
 		root.add_child(body)
 	return {"id": int(s["id"]), "name": String(s["name"]), "pos": _focus, "root": root, "banners": banners,
 		"guards": guards, "live": [], "owner": String(s["owner"])}
+
+
+## Nearest spot on any road edge within 360 m of `start` where a gate (both sides clear) or a keep of
+## `radius` fits. {} if none.
+func _search_road_edges(start: Vector2, gate_design: bool, radius: float, loose: bool) -> Dictionary:
+	var best := {}
+	var best_d := INF
+	for e: Vector2i in WorldGen.roads:
+		var pa: Vector2 = WorldGen.settlements[e.x]["pos"]
+		var pb: Vector2 = WorldGen.settlements[e.y]["pos"]
+		var seg_len := pa.distance_to(pb)
+		var sdir := (pb - pa) / maxf(seg_len, 0.001)
+		var sperp := Vector2(-sdir.y, sdir.x)
+		var rwe := float(WorldGen.ROAD_WIDTH[WorldGen.road_tier(e.x, e.y)])
+		var t0 := 0.0
+		while t0 <= seg_len:
+			var q := pa + sdir * t0
+			t0 += 12.0
+			var dd := q.distance_to(start)
+			if dd > 360.0 or dd >= best_d:
+				continue
+			if gate_design:
+				var gr := 3.0 if loose else 6.0
+				if _spot_ok(q + sperp * (rwe * 0.5 + 5.0), gr, rwe, false, loose) and _spot_ok(q - sperp * (rwe * 0.5 + 5.0), gr, rwe, false, loose):
+					best_d = dd
+					best = {"centre": q, "dir": sdir, "perp": sperp, "gate_dir": sdir, "rw": rwe}
+			else:
+				for side in [1, -1]:
+					var c2: Vector2 = q + sperp * (rwe * 0.5 + radius + 4.0) * float(side)
+					if _spot_ok(c2, radius if not loose else radius * 0.7, rwe, true, loose):
+						best_d = dd
+						best = {"centre": c2, "dir": sdir, "perp": sperp, "gate_dir": -sperp * float(side), "rw": rwe}
+						break
+	return best
 
 
 ## Flag + garrison for a stronghold that shares a region site (bridge / fort / outpost).
@@ -370,6 +404,19 @@ func _place_keep(s: Dictionary, big: Dictionary, masts: Array[Transform3D], flag
 		if centre != Vector2.INF:
 			break
 	if centre == Vector2.INF:
+		# The candidate can sit beside a settlement, off every road (junctions are offset from the town):
+		# walk the road edges themselves for the nearest ground the keep or gate fits on, then, failing
+		# that, for ground that is merely dry and not too steep.
+		for loose in [false, true]:
+			var found := _search_road_edges(start, gate_design, radius, loose)
+			if not found.is_empty():
+				centre = found["centre"]
+				dir = found["dir"]
+				perp = found["perp"]
+				gate_dir = found["gate_dir"]
+				rw = float(found["rw"])
+				break
+	if centre == Vector2.INF:
 		return false
 	_focus = centre
 	var yaw := atan2(gate_dir.x, gate_dir.y)   # local +z = the way the gate faces (road side)
@@ -385,6 +432,14 @@ func _place_keep(s: Dictionary, big: Dictionary, masts: Array[Transform3D], flag
 				_add(big, wall, _xf(wc, 0.0, Vector2.ZERO, _along(perp), 0.85, 0.0, 0.2))
 			for fs: float in [1.0, -1.0]:
 				flags.append(_xf(centre + perp * sgn * off + dir * fs * 3.0, 0.0, Vector2.ZERO, atan2(dir.x * fs, dir.y * fs), 1.0, 4.5, 0.0))
+		if kind == "junction":
+			# A toll booth, crates and a weapon rack by the gate so a crossing reads as a garrisoned post.
+			var booth := _mesh(REGION + "road/toll_booth.glb")
+			var bp := centre + perp * (off - 0.2) + dir * 7.0
+			_add(big, booth, _xf(bp, 0.0, Vector2.ZERO, atan2(-perp.x, -perp.y), 1.0, 0.0, 0.1))
+			towers.append([bp, 3.2])
+			_add(big, _mesh("crate_stack"), _xf(centre - perp * (off - 0.6) - dir * 6.0, 0.0, Vector2.ZERO, 0.5, 1.0, 0.0, 0.05))
+			_add(big, _mesh("weapon_rack"), _xf(centre + perp * (off - 0.6) - dir * 6.0, 0.0, Vector2.ZERO, atan2(-perp.x, -perp.y), 1.0, 0.0, 0.05))
 		var mast_at := centre + perp * (off + 2.9 + 3.6 + 13.8)
 		masts.append(_xf(mast_at, 0.0, Vector2.ZERO, 0.0, 1.0, 0.0, 0.05))
 		flags.append(_xf(mast_at + perp * 0.66, 0.0, Vector2.ZERO, atan2(dir.x, dir.y), 1.0, 5.3, 0.0))

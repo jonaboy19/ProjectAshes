@@ -178,6 +178,11 @@ void vertex() {
 	float fill = smoothstep(25.0, 70.0, cam_dist) * distance_fill;
 	moved.xz += rel.xz * fill;
 
+	// --- Near-camera clearance: clumps within ~2-3 m of the camera sink away, so the blades never
+	// wall off dialogue / close-ups (the third-person camera sits low in the meadow).
+	float near_k = smoothstep(1.8, 3.6, distance(origin, CAMERA_POSITION_WORLD));
+	moved *= vec3(mix(0.3, 1.0, near_k), mix(0.02, 1.0, near_k), mix(0.3, 1.0, near_k));
+
 	VERTEX += to_local(MODEL_MATRIX, moved - rel);
 }
 

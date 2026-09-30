@@ -75,6 +75,13 @@ func _ensure() -> void:
 		seen_pos.append(c["pos"])
 		var id := _sh.size()
 		var r := _rng("stronghold", 0, id)
+		# Names are unique (the map, war room and raid reports print them): a repeat gets a suffix.
+		var nm := String(c["name"])
+		var n2 := 2
+		while _name_taken(nm):
+			nm = "%s %s" % [String(c["name"]), ["", "II", "III", "IV", "V", "VI"][mini(n2 - 1, 5)]]
+			n2 += 1
+		c["name"] = nm
 		var far: float = (c["pos"] as Vector2).distance_to(home)
 		var owner := "caldrenn"
 		if String(c["kind"]) in ["rift_outpost", "rift"]:
@@ -87,6 +94,13 @@ func _ensure() -> void:
 		_sh.append({"id": id, "name": c["name"], "kind": c["kind"], "pos": c["pos"], "owner": owner,
 			"garrison": int(gmax * r.randf_range(0.6, 1.0)), "garrison_max": gmax, "toll": 2 + r.randi() % 8,
 			"supply": 40 + r.randi() % 60, "wealth": 30 + r.randi() % 100, "siege": {}, "routes": _routes_for(c, edges, settle)})
+
+
+func _name_taken(nm: String) -> bool:
+	for s: Dictionary in _sh:
+		if String(s["name"]) == nm:
+			return true
+	return false
 
 
 func _routes_for(c: Dictionary, edges: Array, settle: Array) -> Array:
@@ -212,28 +226,39 @@ func tick_hour(_hour: int, ctx: Dictionary) -> Array:
 
 
 func tick_day(day: int, ctx: Dictionary) -> Array:
+	return _run_chunks(day, ctx)
+
+
+## Garrisons / sieges, then the raid roll (the two costly halves as separate pump jobs).
+func tick_day_chunks(day: int, ctx: Dictionary) -> Array:
 	_ensure()
 	_day = day
-	var out: Array = []
 	var r := _rng("stronghold_day", day)
-	for s: Dictionary in _sh:
-		# garrisons refill from supply, supply drains, tolls fill wealth
-		var need: int = int(s["garrison_max"]) - int(s["garrison"])
-		if need > 0 and int(s["supply"]) > 5 and s["siege"].is_empty():
-			s["garrison"] = int(s["garrison"]) + 1
-		s["supply"] = clampi(int(s["supply"]) + (2 if s["siege"].is_empty() else -3), 0, 200)
-		s["wealth"] = mini(400, int(s["wealth"]) + int(s["toll"]) / 2)
-		if not s["siege"].is_empty():
-			var sg: Dictionary = s["siege"]
-			sg["progress"] = float(sg["progress"]) + float(sg["strength"]) / maxf(1.0, float(s["garrison"]) * 4.0) * 0.1 + (0.05 if int(s["supply"]) <= 0 else 0.0)
-			if float(sg["progress"]) >= 1.0:
-				out.append("%s falls to %s." % [s["name"], String(sg["attacker"]).capitalize()])
-				capture(int(s["id"]), String(sg["attacker"]))
-	if _raids.size() < MAX_RAIDS and r.randf() < 0.55:
-		var msg := _spawn_raid(r, day, ctx)
-		if msg != "":
-			out.append(msg)
-	return out
+	return [
+		func() -> Array:
+			var out: Array = []
+			for s: Dictionary in _sh:
+				# garrisons refill from supply, supply drains, tolls fill wealth
+				var need: int = int(s["garrison_max"]) - int(s["garrison"])
+				if need > 0 and int(s["supply"]) > 5 and s["siege"].is_empty():
+					s["garrison"] = int(s["garrison"]) + 1
+				s["supply"] = clampi(int(s["supply"]) + (2 if s["siege"].is_empty() else -3), 0, 200)
+				s["wealth"] = mini(400, int(s["wealth"]) + int(s["toll"]) / 2)
+				if not s["siege"].is_empty():
+					var sg: Dictionary = s["siege"]
+					sg["progress"] = float(sg["progress"]) + float(sg["strength"]) / maxf(1.0, float(s["garrison"]) * 4.0) * 0.1 + (0.05 if int(s["supply"]) <= 0 else 0.0)
+					if float(sg["progress"]) >= 1.0:
+						out.append("%s falls to %s." % [s["name"], String(sg["attacker"]).capitalize()])
+						capture(int(s["id"]), String(sg["attacker"]))
+			return out,
+		func() -> Array:
+			var out: Array = []
+			if _raids.size() < MAX_RAIDS and r.randf() < 0.55:
+				var msg := _spawn_raid(r, day, ctx)
+				if msg != "":
+					out.append(msg)
+			return out,
+	]
 
 
 func tick_week(_week: int, _ctx: Dictionary) -> Array:

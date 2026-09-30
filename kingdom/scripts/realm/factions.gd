@@ -242,10 +242,32 @@ func tick_hour(_hour: int, ctx: Dictionary) -> Array:
 
 
 func tick_day(day: int, ctx: Dictionary) -> Array:
+	return _run_chunks(day, ctx)
+
+
+## Relation drift / power + marriages + rivalries / church + sects + kingship + war: one job each
+## (they share one seeded RNG in that order, so results equal the old single tick).
+func tick_day_chunks(day: int, ctx: Dictionary) -> Array:
 	_bind_houses(ctx)
 	_day = day
-	var out: Array = []
 	var r := _rng("factions_day", day)
+	return [
+		func() -> Array:
+			_day_relations()
+			return [],
+		func() -> Array:
+			return _day_houses(r),
+		func() -> Array:
+			var out: Array = []
+			_tick_church(r)
+			_tick_sects(r, day, out)
+			_tick_kingship(ctx)
+			_day_war(ctx)
+			return out,
+	]
+
+
+func _day_relations() -> void:
 	# relation drift toward stance baseline, grievance decay, trade growth
 	for k: String in _rel:
 		var v: Dictionary = _rel[k]
@@ -253,6 +275,10 @@ func tick_day(day: int, ctx: Dictionary) -> Array:
 		v["fear"] = maxf(0.0, float(v["fear"]) - 0.1)
 		v["trade"] = clampf(float(v["trade"]) + (float(v["trust"]) - 45.0) * 0.004, 0.0, 100.0)
 		v["trust"] = clampf(float(v["trust"]) + (50.0 - float(v["grievance"]) - float(v["trust"])) * 0.01, 0.0, 100.0)
+
+
+func _day_houses(r: RandomNumberGenerator) -> Array:
+	var out: Array = []
 	# power drifts
 	for id: String in _order:
 		var f: Dictionary = _factions[id]
@@ -276,9 +302,10 @@ func tick_day(day: int, ctx: Dictionary) -> Array:
 				change_relation(a, b, "grievance", 18.0)
 				_add_tie(a, b, "rivalry", 0.4, r.randf() < 0.4)
 				_note("%s and %s quarrel." % [_factions[a]["name"], _factions[b]["name"]])
-	_tick_church(r)
-	_tick_sects(r, day, out)
-	_tick_kingship(ctx)
+	return out
+
+
+func _day_war(ctx: Dictionary) -> void:
 	# a war in progress hurts the enemy's trust in the crown
 	var life: Variant = ctx.get("life")
 	if life != null and "war" in life and life.war != null and life.war.is_at_war():
@@ -286,7 +313,6 @@ func tick_day(day: int, ctx: Dictionary) -> Array:
 		if _factions.has(e):
 			change_relation("caldrenn", e, "grievance", 2.0)
 			change_relation("caldrenn", e, "trust", -1.0)
-	return out
 
 
 func tick_week(week: int, _ctx: Dictionary) -> Array:

@@ -24,6 +24,7 @@ extends CharacterBody3D
 ##  - Thinking (contact tier, spacing, stuck checks, facing) runs every
 ##    THINK_INTERVAL on a per-person phase, not every frame.
 
+const Nameplates := preload("res://scripts/core/nameplates.gd")
 const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
@@ -230,12 +231,9 @@ func _ready() -> void:
 	_think = float((h / 200) % 1000) / 1000.0 * THINK_INTERVAL
 	_stuck_from = p
 	_tag = Label3D.new()
-	_tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_tag.pixel_size = 0.004
-	_tag.font_size = 32
-	_tag.outline_size = 8
+	Nameplates.style(_tag, Color(1, 0.95, 0.85), 26, 14.0)
+	_tag.remove_from_group("nameplate")      # driven by show_tag / Nameplates.suppressed below
 	_tag.position.y = 1.95
-	_tag.modulate = Color(1, 0.95, 0.85)
 	add_child(_tag)
 	_tag.text = WorldSim.describe(person)
 	_brain = _make_brain()
@@ -355,7 +353,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		_update_animation(delta)
 	_update_head_look(delta)
-	_tag.visible = show_tag
+	_tag.visible = show_tag and not Nameplates.suppressed
 
 
 # ---------------------------------------------------------------- thinking
