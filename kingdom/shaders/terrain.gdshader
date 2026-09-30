@@ -35,6 +35,9 @@ global uniform float winter_amount;
 global uniform float snow_amount;
 global uniform float bloom_amount;
 
+// Region1 look (docs/regions/LOOK_R1.md): biome tints and the farmland patchwork (region_biome is set by Region1Look).
+#include "res://shaders/region1/biome.gdshaderinc"
+
 varying vec3 world_pos;
 varying vec3 world_normal;
 
@@ -69,10 +72,14 @@ void fragment() {
 	layer(forest_albedo, forest_normal, forest_arm, uv * 0.8, m2, fa, fn, fo);
 	fa *= vec3(0.86, 1.06, 0.62);   // leaf litter stays warm but greener under the canopy
 	layer(path_albedo, path_normal, path_arm, uv * 0.9, m2, pa, pn, po);
+	float r1_hedge;
+	ga = r1_biome(ga, pa, world_pos.xz, r1_biome_sample(world_pos.xz), r1_hedge);
 	layer(cobble_albedo, cobble_normal, cobble_arm, uv * 0.8, 0.0, ca, cn, co);
 	// Rock: side projection chosen by the dominant horizontal axis of the normal.
 	vec2 ruv = (abs(world_normal.x) > abs(world_normal.z) ? world_pos.zy : world_pos.xy) / (tile_size * 1.5);
 	vec3 ra = texture(rock_albedo, ruv).rgb;
+	// Region1 look (docs/regions/LOOK_R1.md): warm, lighter storybook stone instead of the grey-green scan.
+	ra = ra * vec3(1.2, 1.07, 0.86) + vec3(0.05, 0.035, 0.0);
 	vec3 rn = texture(rock_normal, ruv).rgb;
 	vec3 ro = texture(rock_arm, ruv).rgb;
 
