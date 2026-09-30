@@ -87,7 +87,10 @@ Legend for evidence:
 
 ### Patches for Codex (`docs/anim/patches/`)
 
-- **P9**: attack layering. Full body when standing, `_Upper` when moving. A/B slots remove the hand-over pop. The lunge equals the authored step. `soldier.gd` uses the markers.
+- **P9**: attack layering, **tested in game** (trial reverted; `compare/p9_trial_fullbody_vs_upper.jpg`).
+  - Full body when standing, `_Upper` when moving, chosen at fire time: blend trees forbid output fan-out.
+  - A/B slots remove the hand-over pop, and the lunge equals the authored step.
+  - `soldier.gd` uses the markers.
 - **P10**: directional light/heavy reactions + stagger on guard break, victim local hit-stop.
 - **P11**: enemy hold-then-snap wind-up + telegraph flash + creature local hit-stop.
 - **P12**: hit-stop tiers, FOV punch, sparks at the blade, contact-frame order.
