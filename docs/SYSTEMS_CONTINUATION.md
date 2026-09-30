@@ -4,7 +4,7 @@
 
 ### Latest slice: repeat dialogue acknowledges saved gossip topics
 
-The villager and innkeeper `gossip` nodes now have repeat-aware lines gated by their existing participant-local `discussed:<file>:gossip` topic events. The current `{rumour}` token is still selected dynamically; the line acknowledges only that gossip came up before, not a remembered rumor. No dialogue script, save schema, UI or NPC identity changed. The shared design doc was left untouched because it also has Claude-side updates; details are in the new [NPC_DIALOGUE_TOPIC_MEMORY_HANDOFF.md](concepts/NPC_DIALOGUE_TOPIC_MEMORY_HANDOFF.md). Dialogue data source review and `git diff --check` only; no parser or in-game dialogue validation was run.
+The villager and innkeeper `gossip` nodes now have repeat-aware lines gated by their existing participant-local `discussed:<file>:gossip` topic events. The current `{rumour}` token is still selected dynamically; the line acknowledges only that gossip came up before, not a remembered rumor. Villager greetings also acknowledge `gifted_recently`, which is tied to a successful gift to that recipient but does not reveal whether they liked the item. No dialogue script, save schema, UI or NPC identity changed. The shared design doc was left untouched because it also has Claude-side updates; details are in the new [NPC_DIALOGUE_TOPIC_MEMORY_HANDOFF.md](concepts/NPC_DIALOGUE_TOPIC_MEMORY_HANDOFF.md). Dialogue data source review and `git diff --check` only; no parser or in-game dialogue validation was run.
 
 ### Latest slice: dormant NPC familiarity fades modestly
 

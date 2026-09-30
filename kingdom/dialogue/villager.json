@@ -8,6 +8,7 @@
         {"text": "\"You again. Say what you want and be quick about it.\"", "if": {"tier": "rival"}, "p": 5},
         {"text": "\"You've a nerve, talking to me after what you said.\"", "if": {"event": "insulted", "tier_not": ["friend", "close_friend"]}, "p": 6},
 
+        {"text": "\"I remember the gift you brought me.\"", "if": {"event": "gifted_recently"}, "p": 4},
         {"text": "\"There's my helper! My back still thanks you for yesterday.\"", "if": {"event": "helped_recently", "min_tier": "acquaintance"}, "p": 4},
         {"text": "\"Word is you sorted out that business for us. Ashford owes you a drink.\"", "if": {"event": "quest_done"}, "p": 4},
         {"text": "\"Gods, you're bleeding. Get yourself to the herbalist before you fall over.\"", "if": {"event": "injured"}, "p": 4},
