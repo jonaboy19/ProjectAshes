@@ -103,6 +103,7 @@ const WATCH_RANGE := 32.0
 const SENSE_INTERVAL_MS := 500
 const THREAT_RAY_BUDGET := 4
 const THREAT_RAY_WINDOW_MS := 500
+const SIGHT_CANDIDATES_PER_OBSERVER := 4
 const LAST_SEEN_SECONDS := 3.0
 const LAST_HEARD_SECONDS := 3.0
 const SIGHT_QUEUE_MAX := 64
@@ -413,7 +414,7 @@ static func hazards(tree: SceneTree) -> PackedVector2Array:
 
 
 ## Ambient 360-degree line-of-sight sensing; no facing cone is modeled.
-## Selects up to two candidates within WATCH_RANGE in one O(n) pass, without
+## Selects up to four candidates within WATCH_RANGE in one O(n) pass, without
 ## copying or sorting the shared cache. Ray results can be unknown when budget
 ## is exhausted; unknown candidates never count as visible.
 func sense_threats(viewer: Node3D, tree: SceneTree, world_layer: int) -> Dictionary:
@@ -429,7 +430,7 @@ func sense_threats(viewer: Node3D, tree: SceneTree, world_layer: int) -> Diction
 		_reset_ray_window_stats()
 	_prune_sight_queue(now)
 	var eye := viewer.global_position + Vector3.UP * 1.4
-	var nearest: Array = [] # [distance_squared, target instance id]
+	var nearest: Array = [] # up to four [distance_squared, target instance id] candidates
 	var range_squared := WATCH_RANGE * WATCH_RANGE
 	for sample: Array in _threat_samples:
 		var target_id := int(sample[1])
@@ -445,22 +446,25 @@ func sense_threats(viewer: Node3D, tree: SceneTree, world_layer: int) -> Diction
 		if distance_squared > range_squared:
 			continue
 		var entry := [distance_squared, int(sample[1])]
-		if nearest.is_empty() or distance_squared < float(nearest[0][0]):
-			nearest.push_front(entry)
-		elif nearest.size() < 2:
-			nearest.append(entry)
-		elif distance_squared < float(nearest[1][0]):
-			nearest[1] = entry
-		if nearest.size() > 2:
-			nearest.resize(2)
+		var insert_i := nearest.size()
+		for i in range(nearest.size()):
+			if distance_squared < float(nearest[i][0]):
+				insert_i = i
+				break
+		nearest.insert(insert_i, entry)
+		if nearest.size() > SIGHT_CANDIDATES_PER_OBSERVER:
+			nearest.pop_back()
 	# New requests join the tail. Refreshing an existing pair does not change age.
-	# Keep one pending request per observer. Alternate between the two nearest
-	# candidates after each completed request so a nearer repeat cannot monopolize.
+	# Keep one pending request per observer. Rotate through up to four nearest
+	# threats after each completed request so one target cannot monopolize checks.
 	if not nearest.is_empty():
 		var last_target: int = int(_last_sight_target.get(viewer.get_instance_id(), -1))
-		var selected: int = int(nearest[0][1])
-		if nearest.size() > 1 and selected == last_target:
-			selected = int(nearest[1][1])
+		var selected_i := 0
+		for i in range(nearest.size()):
+			if int(nearest[i][1]) == last_target:
+				selected_i = (i + 1) % nearest.size()
+				break
+		var selected: int = int(nearest[selected_i][1])
 		_enqueue_sight(viewer, selected, world_layer, now)
 	# Any observer decision may service the oldest eligible work using that
 	# request's own world and current positions. Each admitted request costs 1 ray.
