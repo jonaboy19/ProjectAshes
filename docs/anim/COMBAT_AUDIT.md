@@ -12,7 +12,7 @@ It follows `FEEL_AUDIT.md` (movement) and uses the same capture discipline:
 | tool | what it proves |
 |---|---|
 | `kingdom/tools_qa/combat_audit/combat_studio.tscn` | Plays any clip on the **real player rig with the game's sword and shield**. It renders FRONT, SIDE and TOP views every frame, with the blade-tip trace, hip and shoulder lines, and a tip-speed graph. It measures per frame:<ul><li>fast frames</li><li>kinetic-chain order (hips → shoulders → arm → hand → tip)</li><li>edge alignment (`flat_ratio`)</li><li>arc ratio</li><li>follow-through</li><li>step-in</li><li>foot slide</li><li>blade-through-body</li><li>**`target_contact`**: the frames the blade crosses an enemy standing at the game's 1.3 m lunge standoff</li></ul>Useful flags:<ul><li>`--layer=upper` reproduces CharacterAnimator's upper-body layer.</li><li>`--rootmotion` simulates a capsule lunge matched to the root.</li><li>`--extra=<abs.glb>` loads work-in-progress clips without importing.</li></ul> |
-| `.../render_sheets.sh` | Studio → 30 fps contact sheets (every frame) + `metrics_*.json`. |
+| `.../render_sheets.sh` | Studio → 30 fps contact sheets (every frame) + `metrics_*.json`. `--pair=<VictimClip> [--pair_dist=m]` renders paired clips (finishers) with the victim facing the attacker on the same frame clock. |
 | `.../combat_capture.tscn` | 12 deterministic in-game combat scenarios through the real input path. `telemetry.csv` logs per frame: blade tip position and speed, current clip, swing timers, `Engine.time_scale` (hit-stop), camera FOV, and the nearest enemy's state, wind-up and clip. |
 | `.../analyse_capture.py` | Per swing: the tip-speed curve vs the hit-stop frame. Per enemy wind-up: the frames to player damage. |
 | `.../metrics_table.py` | Scores metrics against the principles and outputs a markdown table: `docs/anim/combat/library_metrics.md`, `authored_metrics.md`. |
@@ -87,7 +87,10 @@ Legend for evidence:
 
 ### Patches for Codex (`docs/anim/patches/`)
 
-- **P9**: attack layering. Full body when standing, `_Upper` when moving. A/B slots remove the hand-over pop. The lunge equals the authored step. `soldier.gd` uses the markers.
+- **P9**: attack layering, **tested in game** (trial reverted; `compare/p9_trial_fullbody_vs_upper.jpg`).
+  - Full body when standing, `_Upper` when moving, chosen at fire time: blend trees forbid output fan-out.
+  - A/B slots remove the hand-over pop, and the lunge equals the authored step.
+  - `soldier.gd` uses the markers.
 - **P10**: directional light/heavy reactions + stagger on guard break, victim local hit-stop.
 - **P11**: enemy hold-then-snap wind-up + telegraph flash + creature local hit-stop.
 - **P12**: hit-stop tiers, FOV punch, sparks at the blade, contact-frame order.
@@ -107,9 +110,9 @@ Frames are at rate 1.0. `hit` = the frame the blade crosses a target 1.3 m ahead
 | `Sword_Run_Attack` | 1.0 s | 8 | 1.6 m (skid) | sprint attack |
 | `Sword_Parry` → `Sword_Riposte` | 0.6 / 1.1 s | 4 / 9 | 0 / 0.35 m | parry (active 2–6) → riposte |
 | `Shield_Bash_Step` | 0.9 s | 10 | 0.30 m | shield bash |
-| `Finisher_Stab_Through` / `_Victim` | 2.0 s | 14 | 0.22 m | execution (victim 1.2 m ahead, facing) |
-| `Finisher_Overhead_Cleave` / `_Victim` | 1.8 s | 20 | 0.35 m | execution on a kneeling victim |
-| `Finisher_Spin_Slash` / `_Victim` | 1.67 s | 16 | 0.25 m | spinning execution |
+| `Finisher_Stab_Through` / `_Victim` | 2.0 s | 14 | 0.22 m | execution; victim 1.35 m ahead, facing (`victim_dist_m`) |
+| `Finisher_Overhead_Cleave` / `_Victim` | 1.8 s | 20 | 0.35 m | execution on a kneeling victim, 1.2 m |
+| `Finisher_Spin_Slash` / `_Victim` | 1.67 s | 16 | 0.25 m | spinning execution, 1.35 m |
 | `TwoHand_Overhead` | 1.5 s | 17 | 0.35 m | 2H overhead chop |
 | `Spear_Thrust_1/2/3` | 0.8 / 0.93 / 1.33 s | 7 / 8 / 12 | 0.25 / 0.35 / 0.5 m | spear combo |
 | `Bow_Draw` → `Bow_Hold` (loop) → `Bow_Loose`; `Bow_Aim_Up/Down` | 0.53 / 1.2 / 0.6 s | loose f1 | – | bow; Blend3 Hold/Up/Down by pitch, upper-body filter |
@@ -146,7 +149,9 @@ Raw data: `docs/anim/combat/trail/bench.json` and `bench_rerun.json`.
 ## Known weak spots (backlog)
 
 1. **Studio grading.** `metrics_table.py` grades reactions and deaths as if they were strikes; ignore its "issues" column for them.
-2. **L4 finisher.** The blade lift-over (f0–6) is slightly faster than the thrust itself. `Finisher_Stab_Through` anticipation is subtle side-on.
+2. **L4 finisher.** The blade lift-over (f0–6) is slightly faster than the thrust itself.
+   - Paired review (`after/pairs/`) found the stab's wind-up kept the blade on the victim. It now draws back to the hip.
+   - At 1.2 m the ready guard touched the victim, so the placement is per finisher: stab 1.35, cleave 1.2, spin 1.35 (`victim_dist_m` in the markers).
 3. **Feet** (authored clips). The spear rear foot slides 25–42 cm. `Finisher_Spin_Slash` pivots a full turn on one foot, so the studio reads 1.1 m of "slide".
 4. **Deaths drop nothing.** The sword stays attached; add a drop at the `down` event (detach the BoneAttachment → RigidBody, 2 s).
 5. **Bow.** It is a procedural test prop; check the grip on the real bow model when one exists.

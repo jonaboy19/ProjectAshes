@@ -449,5 +449,5 @@ A/B attack slots against the OneShot re-fire pop, lunge = authored step), `P10_d
 - **Already applied (local):** player COMBO uses `Sword_Light_1..4_Upper` at 1.2x; `WeaponTrail.attach(body)` + `_trail.swing(clip, rate)` per swing (third person).
 - **Every attack also has `<clip>_Upper`** (hip yaw folded into the spine, same blade targets): use `<clip>` full-body when standing, `_Upper` on the upper layer while moving (P9).
 - Root motion is in the `root` track (disabled on import like all of `animations/`): move the capsule by `step_in_m` over `step_frames`.
-- Paired finishers: victim root 1.2 m in front of the attacker, facing it; both clips start on the same frame.
+- Paired finishers: victim root `victim_dist_m` in front of the attacker (stab 1.35, cleave 1.2, spin 1.35), facing it; both clips start on the same frame. Paired sheets: `docs/anim/combat/after/pairs/`.
 - Bow: `Bow_Draw` -> `Bow_Hold` (loop) -> `Bow_Loose` (arrow spawn f1); aim = Blend3(Hold, Bow_Aim_Down, Bow_Aim_Up) by camera pitch, upper-body filter.

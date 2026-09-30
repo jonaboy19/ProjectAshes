@@ -295,6 +295,7 @@
    "peak_tip_speed": 38.69,
    "source": "authored",
    "events": {
+    "victim_dist_m": 1.2,
     "windup_end": 17,
     "hit_start": 18,
     "hit": 20,
@@ -328,6 +329,7 @@
    "peak_tip_speed": 5.11,
    "source": "authored",
    "events": {
+    "victim_dist_m": 1.2,
     "hit": 20,
     "victim_react": 20,
     "victim_down": 42,
@@ -358,6 +360,7 @@
    "peak_tip_speed": 50.63,
    "source": "authored",
    "events": {
+    "victim_dist_m": 1.35,
     "windup_end": 5,
     "hit_start": 14,
     "hit": 16,
@@ -391,6 +394,7 @@
    "peak_tip_speed": 7.4,
    "source": "authored",
    "events": {
+    "victim_dist_m": 1.35,
     "hit": 16,
     "victim_react": 16,
     "victim_down": 34,
@@ -418,9 +422,10 @@
    ],
    "step_in_m": 0.22,
    "contact_on_target": true,
-   "peak_tip_speed": 8.73,
+   "peak_tip_speed": 10.31,
    "source": "authored",
    "events": {
+    "victim_dist_m": 1.35,
     "windup_end": 10,
     "hit_start": 12,
     "hit": 14,
@@ -454,6 +459,7 @@
    "peak_tip_speed": 7.34,
    "source": "authored",
    "events": {
+    "victim_dist_m": 1.35,
     "hit": 14,
     "victim_react": 14,
     "victim_down": 56,

@@ -420,6 +420,7 @@
   "frames": 61,
   "seconds": 2.0,
   "events": {
+   "victim_dist_m": 1.35,
    "windup_end": 10,
    "hit_start": 12,
    "hit": 14,
@@ -440,6 +441,7 @@
   "frames": 61,
   "seconds": 2.0,
   "events": {
+   "victim_dist_m": 1.35,
    "hit": 14,
    "victim_react": 14,
    "victim_down": 56,
@@ -457,6 +459,7 @@
   "frames": 55,
   "seconds": 1.8,
   "events": {
+   "victim_dist_m": 1.2,
    "windup_end": 17,
    "hit_start": 18,
    "hit": 20,
@@ -477,6 +480,7 @@
   "frames": 55,
   "seconds": 1.8,
   "events": {
+   "victim_dist_m": 1.2,
    "hit": 20,
    "victim_react": 20,
    "victim_down": 42,
@@ -494,6 +498,7 @@
   "frames": 51,
   "seconds": 1.667,
   "events": {
+   "victim_dist_m": 1.35,
    "windup_end": 5,
    "hit_start": 14,
    "hit": 16,
@@ -514,6 +519,7 @@
   "frames": 51,
   "seconds": 1.667,
   "events": {
+   "victim_dist_m": 1.35,
    "hit": 16,
    "victim_react": 16,
    "victim_down": 34,
