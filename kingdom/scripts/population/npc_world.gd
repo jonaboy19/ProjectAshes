@@ -1,0 +1,686 @@
+extends RefCounted
+## Shared awareness for the near-NPC layer (docs/design/SIM_HIERARCHY.md: tier 0, at most 24 bodies).
+##
+## Everything the embodied villagers (villager.gd) and their utility brain (utility_brain.gd) need to
+## know about the world beyond their own eyes lives here, as static data with fixed-size storage, so
+## a decision costs a few array scans and no allocation:
+##  - incidents: fires, fights, crimes, festivals, screams. Any system reports one
+##    (NpcWorld.report(Kind.FIRE, pos, radius, seconds)); villagers within reach react by brain input.
+##  - the player's drawn weapon (blocking or mid swing, latched for a moment) and how close it is.
+##  - movers: carts/horses (group "vehicle") and the mounted player, with velocity, for stepping aside.
+##  - fields: fenced crop rectangles per settlement (SettlementBuilder registers them) that only farmers enter.
+##  - spots: one SmartObjects world (scripts/living_world/smart_objects.gd) filled per settlement on first
+##    use from the city plan (building_spots), the plaza stalls, benches, chapel/well/inn and the job
+##    workplaces of scripts/realm/work.gd, so work/shop/sit/pray/fetch-water have real places.
+##  - lines: short barks (greetings, gossip, alarms) picked deterministically per person.
+##  - crime: report_crime() finds the villagers who saw it, makes them shout and run for a guard, and feeds
+##    the witness count to society.commit_crime (existing API).
+## Distant tiers never touch this: WorldSim / sprites / VAT stay as they were.
+
+const StreetGraph := preload("res://scripts/population/street_graph.gd")
+const BRAIN := "res://scripts/population/utility_brain.gd"
+
+enum Kind { FIRE, FIGHT, CRIME, FESTIVAL, SCREAM }
+
+const SLOTS := 16
+const REFRESH_MS := 400
+const ARMED_LATCH_MS := 3500
+const ARMED_NEAR := 2.5
+const ARMED_FAR := 7.0
+const FIRE_DANGER_NEAR := 3.0
+const FIRE_DANGER_FAR := 9.0
+const FIRE_REACH := 45.0
+const CRIME_SIGHT := 26.0
+const CRIME_HEARING := 40.0
+const MOVER_LOOKAHEAD := 3.0
+const MOVER_CLEAR := 2.6
+const DECIDE_PER_FRAME := 3
+const MAX_BUBBLES := 4
+
+# ------------------------------------------------------------------ incidents
+static var _i_kind := PackedInt32Array()
+static var _i_pos := PackedVector2Array()
+static var _i_rad := PackedFloat32Array()
+static var _i_str := PackedFloat32Array()
+static var _i_until := PackedInt32Array()
+static var _i_sid := PackedInt32Array()
+static var _i_serial := PackedInt32Array()
+static var _serial := 0
+static var _ready_store := false
+
+# ------------------------------------------------------------------ shared scan (every REFRESH_MS)
+static var _scan_ms := -100000
+static var _armed_until := -100000
+static var _player_pos := Vector2.INF
+static var _player_vel := Vector2.ZERO
+static var _player_mounted := false
+static var _mover_pos := PackedVector2Array()
+static var _mover_vel := PackedVector2Array()
+static var _mover_n := 0
+static var _prev_nodes := {}             # instance id -> Vector2 (previous position) for velocity
+static var _decide_frame := -1
+static var _decide_used := 0
+static var bubbles_shown := 0
+
+# ------------------------------------------------------------------ fields / spots
+static var _fields := {}                 # sid -> Array of [centre, unit x axis, half extents]
+static var smart: SmartObjects
+static var _spots_done := {}             # sid -> true
+static var _places := {}                 # sid -> Dictionary (stalls, benches, posts, patrol route)
+static var _rumour_cache := {}           # sid -> [expires_ms, Array[String]]
+
+
+static func _ensure_store() -> void:
+	if _ready_store:
+		return
+	_ready_store = true
+	_i_kind.resize(SLOTS)
+	_i_pos.resize(SLOTS)
+	_i_rad.resize(SLOTS)
+	_i_str.resize(SLOTS)
+	_i_until.resize(SLOTS)
+	_i_sid.resize(SLOTS)
+	_i_serial.resize(SLOTS)
+	_i_until.fill(0)
+	_mover_pos.resize(8)
+	_mover_vel.resize(8)
+
+
+## Forget everything (tests, new game).
+static func reset() -> void:
+	_ready_store = false
+	_serial = 0
+	_decide_frame = -1
+	_scan_ms = -100000
+	_armed_until = -100000
+	_player_pos = Vector2.INF
+	_mover_n = 0
+	_prev_nodes.clear()
+	_fields.clear()
+	_spots_done.clear()
+	_places.clear()
+	_rumour_cache.clear()
+	smart = null
+	bubbles_shown = 0
+	_ensure_store()
+
+
+# ================================================================ incidents
+## Report something noteworthy at `pos`. A second report of the same kind within 6 m refreshes the first.
+## Returns the incident's slot. Fights and festivals also become UtilityBrain notices (watch / gather).
+static func report(kind: int, pos: Vector2, radius := 20.0, seconds := 20.0, strength := 1.0, sid := -1) -> int:
+	_ensure_store()
+	var now := Time.get_ticks_msec()
+	var slot := -1
+	var oldest := 0
+	var oldest_until := 1 << 60
+	for i in SLOTS:
+		if _i_until[i] > now and _i_kind[i] == kind and _i_pos[i].distance_squared_to(pos) < 36.0:
+			slot = i
+			break
+		var u := _i_until[i] if _i_until[i] > now else 0
+		if u < oldest_until:
+			oldest_until = u
+			oldest = i
+	if slot < 0:
+		slot = oldest
+	_serial += 1
+	_i_kind[slot] = kind
+	_i_pos[slot] = pos
+	_i_rad[slot] = radius
+	_i_str[slot] = clampf(strength, 0.0, 1.0)
+	_i_until[slot] = now + int(seconds * 1000.0)
+	_i_sid[slot] = sid
+	_i_serial[slot] = _serial
+	if kind == Kind.FIGHT or kind == Kind.FESTIVAL:
+		(load(BRAIN) as GDScript).call("notice", pos, strength, seconds)
+	return slot
+
+
+static func incident_alive(slot: int) -> bool:
+	return _ready_store and slot >= 0 and slot < SLOTS and _i_until[slot] > Time.get_ticks_msec()
+
+
+static func incident_pos(slot: int) -> Vector2:
+	return _i_pos[slot]
+
+
+static func incident_kind(slot: int) -> int:
+	return _i_kind[slot]
+
+
+static func incident_serial(slot: int) -> int:
+	return _i_serial[slot]
+
+
+## Slot of the nearest live incident of `kind` within `reach` of `here` (-1 when none).
+static func nearest(kind: int, here: Vector2, reach: float) -> int:
+	if not _ready_store:
+		return -1
+	var now := Time.get_ticks_msec()
+	var best := -1
+	var best_d := reach * reach
+	for i in SLOTS:
+		if _i_until[i] <= now or _i_kind[i] != kind:
+			continue
+		var d := _i_pos[i].distance_squared_to(here)
+		if d < best_d:
+			best_d = d
+			best = i
+	return best
+
+
+## 0..1 danger from fires (and screams) near `here`: a burning thing is worth running from close up.
+static func fire_danger(here: Vector2) -> float:
+	var slot := nearest(Kind.FIRE, here, FIRE_DANGER_FAR)
+	if slot < 0:
+		return 0.0
+	var d := here.distance_to(_i_pos[slot])
+	return (1.0 - smoothstep(FIRE_DANGER_NEAR, FIRE_DANGER_FAR, d)) * _i_str[slot]
+
+
+## 0..1 interest of a fire further off than the run-away distance: worth fetching water for.
+static func fire_interest(here: Vector2) -> float:
+	var slot := nearest(Kind.FIRE, here, FIRE_REACH)
+	if slot < 0:
+		return 0.0
+	var d := here.distance_to(_i_pos[slot])
+	if d < FIRE_DANGER_NEAR:
+		return 0.0
+	return (1.0 - clampf(d / FIRE_REACH, 0.0, 1.0)) * _i_str[slot]
+
+
+## Water thrown at fire `slot`: it shrinks and dies sooner the more people help.
+static func douse(slot: int, amount := 0.12) -> void:
+	if not incident_alive(slot) or _i_kind[slot] != Kind.FIRE:
+		return
+	_i_str[slot] = maxf(_i_str[slot] - amount, 0.0)
+	if _i_str[slot] <= 0.02:
+		_i_until[slot] = 0
+
+
+## 0..1 alarm from screams / a nearby crime that `here` heard (not saw): strength fades with distance.
+static func alarm_at(here: Vector2, kind := -1) -> float:
+	if not _ready_store:
+		return 0.0
+	var now := Time.get_ticks_msec()
+	var top := 0.0
+	for i in SLOTS:
+		if _i_until[i] <= now:
+			continue
+		var k := _i_kind[i]
+		if kind >= 0 and k != kind:
+			continue
+		if kind < 0 and k != Kind.SCREAM and k != Kind.CRIME:
+			continue
+		var d := here.distance_to(_i_pos[i])
+		if d > _i_rad[i]:
+			continue
+		top = maxf(top, (1.0 - d / maxf(_i_rad[i], 1.0)) * _i_str[i])
+	return top
+
+
+static func clear_incidents() -> void:
+	_ensure_store()
+	_i_until.fill(0)
+
+
+# ================================================================ shared scan
+## Refresh the cached player/vehicle view at most every REFRESH_MS for all villagers together.
+static func refresh(tree: SceneTree) -> void:
+	_ensure_store()
+	var now := Time.get_ticks_msec()
+	if tree == null or now - _scan_ms < REFRESH_MS:
+		return
+	var dt := clampf(float(now - _scan_ms) / 1000.0, 0.05, 2.0)
+	_scan_ms = now
+	var pl := tree.get_first_node_in_group("player") as Node3D
+	if pl != null:
+		var p := Vector2(pl.global_position.x, pl.global_position.z)
+		_player_vel = (p - _player_pos) / dt if _player_pos != Vector2.INF and _player_pos.distance_to(p) < 6.0 else Vector2.ZERO
+		_player_pos = p
+		_player_mounted = pl.has_method("is_mounted") and bool(pl.call("is_mounted"))
+		var armed := bool(pl.get("blocking")) or float(pl.get("_swing")) > 0.0 or bool(pl.get_meta("weapon_drawn", false))
+		if armed:
+			_armed_until = now + ARMED_LATCH_MS
+	else:
+		_player_pos = Vector2.INF
+	_mover_n = 0
+	if _player_mounted and _player_pos != Vector2.INF:
+		_push_mover(_player_pos, _player_vel)
+	for n in tree.get_nodes_in_group("vehicle"):
+		var node := n as Node3D
+		if node == null or _mover_n >= 8:
+			continue
+		var id := node.get_instance_id()
+		var q := Vector2(node.global_position.x, node.global_position.z)
+		var prev: Vector2 = _prev_nodes.get(id, q)
+		_prev_nodes[id] = q
+		_push_mover(q, (q - prev) / dt)
+	if _prev_nodes.size() > 64:
+		_prev_nodes.clear()
+	# Nodes that joined the "fire_hazard" group burn for as long as they exist.
+	for n in tree.get_nodes_in_group("fire_hazard"):
+		var node := n as Node3D
+		if node != null:
+			report(Kind.FIRE, Vector2(node.global_position.x, node.global_position.z), 25.0, 1.5, float(node.get_meta("fire_strength", 1.0)))
+
+
+static func _push_mover(p: Vector2, v: Vector2) -> void:
+	if _mover_n >= 8:
+		return
+	_mover_pos[_mover_n] = p
+	_mover_vel[_mover_n] = v
+	_mover_n += 1
+
+
+static func player_position() -> Vector2:
+	return _player_pos
+
+
+static func player_mounted() -> bool:
+	return _player_mounted
+
+
+## Set by tests / tools: pretend the player's weapon is (not) drawn for the next few seconds.
+static func set_weapon_drawn(on: bool) -> void:
+	_armed_until = Time.get_ticks_msec() + ARMED_LATCH_MS if on else -100000
+
+
+static func player_armed() -> bool:
+	return Time.get_ticks_msec() < _armed_until
+
+
+## 0..1 how hard a drawn weapon presses on someone standing `here` (0 when sheathed or far).
+static func armed_pressure(here: Vector2) -> float:
+	if not player_armed() or _player_pos == Vector2.INF:
+		return 0.0
+	return 1.0 - smoothstep(ARMED_NEAR, ARMED_FAR, here.distance_to(_player_pos))
+
+
+## Push (length 0..1) that sends `here` out of the way of an oncoming cart or rider; zero when clear.
+static func mover_push(here: Vector2) -> Vector2:
+	var push := Vector2.ZERO
+	for i in _mover_n:
+		var v := _mover_vel[i]
+		var speed2 := v.length_squared()
+		if speed2 < 0.36:
+			continue
+		var rel := here - _mover_pos[i]
+		if rel.length_squared() > 400.0:
+			continue
+		var t := clampf(rel.dot(v) / speed2, 0.0, MOVER_LOOKAHEAD)
+		var closest := rel - v * t
+		var d := closest.length()
+		if d >= MOVER_CLEAR:
+			continue
+		var side := closest / d if d > 0.05 else Vector2(-v.y, v.x).normalized()
+		push += side * (1.0 - d / MOVER_CLEAR) * (1.0 - 0.5 * t / MOVER_LOOKAHEAD)
+	return push.limit_length(1.5)
+
+
+## Shared per-physics-frame allowance for utility decisions (the slicing of the brain across frames).
+static func take_decide_budget() -> bool:
+	var frame := Engine.get_physics_frames()
+	if frame != _decide_frame:
+		_decide_frame = frame
+		_decide_used = 0
+	if _decide_used >= DECIDE_PER_FRAME:
+		return false
+	_decide_used += 1
+	return true
+
+
+# ================================================================ fields
+## Fenced crop field of settlement `sid` (centre, yaw, half extents in metres). Called while the town is built.
+static func register_field(sid: int, c: Vector2, yaw: float, half: Vector2) -> void:
+	if not _fields.has(sid):
+		_fields[sid] = []
+	(_fields[sid] as Array).append([c, Vector2(cos(yaw), -sin(yaw)), half])
+
+
+static func field_count(sid: int) -> int:
+	return (_fields.get(sid, []) as Array).size()
+
+
+static func in_field(sid: int, p: Vector2, margin := 0.0) -> bool:
+	for f: Array in _fields.get(sid, []):
+		var d: Vector2 = p - (f[0] as Vector2)
+		var ax: Vector2 = f[1]
+		var h: Vector2 = f[2]
+		if absf(d.dot(ax)) <= h.x + margin and absf(d.dot(Vector2(-ax.y, ax.x))) <= h.y + margin:
+			return true
+	return false
+
+
+## Steering push (length 0..1) out of the fields near `p` for someone who has no business there.
+static func field_push(sid: int, p: Vector2, reach := 2.5) -> Vector2:
+	var out := Vector2.ZERO
+	for f: Array in _fields.get(sid, []):
+		var c: Vector2 = f[0]
+		var h: Vector2 = f[2]
+		if c.distance_squared_to(p) > (h.length() + reach) * (h.length() + reach):
+			continue
+		var d: Vector2 = p - c
+		var ax: Vector2 = f[1]
+		var az := Vector2(-ax.y, ax.x)
+		var lx := d.dot(ax)
+		var lz := d.dot(az)
+		var ox := h.x + reach - absf(lx)
+		var oz := h.y + reach - absf(lz)
+		if ox <= 0.0 or oz <= 0.0:
+			continue
+		# leave across the nearer edge
+		if ox < oz:
+			out += ax * signf(lx if lx != 0.0 else 1.0) * clampf(ox / reach, 0.0, 1.0)
+		else:
+			out += az * signf(lz if lz != 0.0 else 1.0) * clampf(oz / reach, 0.0, 1.0)
+	return out.limit_length(1.0)
+
+
+## Nearest point outside every field (for goals that would put a non-farmer among the crops).
+static func out_of_fields(sid: int, p: Vector2) -> Vector2:
+	var q := p
+	for _i in 4:
+		if not in_field(sid, q, 0.4):
+			return q
+		var push := field_push(sid, q, 0.4)
+		if push.length_squared() < 0.0001:
+			return q
+		q += push.normalized() * 2.0
+	return q
+
+
+# ================================================================ spots (smart objects)
+const SPOT_TYPES := {
+	# work.gd workplace spot kind -> smart object type (scripts/living_world data) or a local type
+	"field": "field_row", "well": "well", "barn": "chicken_yard",
+	"forge": "anvil", "quench": "bellows", "grinder": "bellows", "ore_pile": "npc_haul",
+	"stall": "market_stall", "crate": "npc_haul", "counter": "shop_counter",
+	"gate": "guard_post", "market_watch": "guard_post", "wall": "guard_post", "barracks": "guard_post",
+	"cart": "npc_haul", "ditch": "field_row", "stack": "npc_haul",
+	"tree": "chopping_block", "log_pile": "npc_haul", "sled": "npc_haul",
+	"saw_pit": "sawhorse", "frame": "nail_plank", "bench": "sawhorse",
+}
+const WORK_IDS := ["farmer", "blacksmith", "merchant", "guard", "laborer", "woodcutter"]
+
+## Types this module adds to the data-driven SmartObjects catalogue (same schema as the JSON).
+const LOCAL_TYPES := {
+	"npc_haul": {
+		"slots": [{"stand": [0.0, 0.0, 0.7], "face": 180}], "approach": 0.8,
+		"activity": {"loop": ["Life_Mocap_Move_Box", "Life_Mocap_Pick_Place", "Life_Carry_Pick_Up"], "duration": [40, 120], "cycles": [2, 3]},
+		"jobs": ["Laborer", "Woodcutter", "Farmer", "Blacksmith"], "acts": ["work"], "hours": [6, 19], "tags": ["work", "haul"],
+	},
+	"wall_idle": {
+		"slots": [{"stand": [0.0, 0.0, 0.0], "face": 0}], "approach": 0.6,
+		"activity": {"loop": ["Life_Ambient_Shift_Weight", "Life_Ambient_Look_Around"], "between": ["Life_Ambient_Scratch_Head", "Life_Ambient_Check_Sky"],
+			"cycles": [1, 2], "duration": [25, 90]},
+		"acts": ["rest", "social"], "hours": [7, 21], "tags": ["lean", "rest"],
+	},
+}
+
+
+static func spots() -> SmartObjects:
+	if smart == null:
+		smart = SmartObjects.new()
+		for k: String in LOCAL_TYPES:
+			if not smart.types.has(k):
+				smart.types[k] = (LOCAL_TYPES[k] as Dictionary).duplicate(true)
+	return smart
+
+
+## Fill settlement `sid` with activity spots (idempotent, once per settlement; a town costs a few ms).
+## `host` (optional) is where visible props (benches) are parented.
+static func ensure_spots(sid: int, host: Node = null) -> void:
+	if _spots_done.has(sid) or sid < 0 or sid >= WorldGen.settlements.size():
+		return
+	_spots_done[sid] = true
+	var so := spots()
+	var s: Dictionary = WorldGen.settlements[sid]
+	so.populate_settlement(s, WorldGen.height)
+	var plan: Dictionary = s.get("plan", {})
+	var c: Vector2 = s["pos"]
+	var graph := StreetGraph.for_settlement(sid) as StreetGraph
+	var pr: float = plan.get("plaza_r", 12.0)
+	var places := {"stalls": PackedVector2Array(), "stall_yaw": PackedFloat32Array(), "benches": PackedVector2Array(),
+		"patrol": PackedVector2Array(), "plaza": c, "plaza_r": pr}
+	# Market stalls ring the plaza exactly as SettlementBuilder / StreetGraph lay them out.
+	var n_stalls := 6 if s["kind"] == "village" else 12
+	for i in n_stalls:
+		var ang := TAU * i / n_stalls + 0.2
+		var sp := c + Vector2(cos(ang), sin(ang)) * (pr - 3.0)
+		var yaw := atan2(-cos(ang), -sin(ang))
+		(places["stalls"] as PackedVector2Array).append(sp)
+		(places["stall_yaw"] as PackedFloat32Array).append(yaw)
+		# Keeper behind the counter, customers on the plaza side (market_stall slot frame: +Z is the front).
+		so.add("market_stall", Transform3D(Basis(Vector3.UP, yaw), Vector3(sp.x, WorldGen.height(sp.x, sp.y), sp.y)), sid)
+	# Benches between the stalls, facing the square.
+	var bench_n := mini(4, n_stalls / 2)
+	for i in bench_n:
+		var ang2 := TAU * (2.0 * i + 1.0) / n_stalls + 0.2
+		var bp := c + Vector2(cos(ang2), sin(ang2)) * (pr - 2.2)
+		var byaw := atan2(-cos(ang2), -sin(ang2))
+		(places["benches"] as PackedVector2Array).append(bp)
+		var h := WorldGen.height(bp.x, bp.y)
+		so.add("bench", Transform3D(Basis(Vector3.UP, byaw), Vector3(bp.x, h, bp.y)), sid)
+		_add_bench_prop(host, Vector3(bp.x, h, bp.y), byaw)
+	# Chatting corners, a hopscotch square and a play patch on the plaza.
+	for i in 2:
+		var a3 := TAU * (float(i) / 2.0) + 1.0
+		var cp := c + Vector2(cos(a3), sin(a3)) * pr * 0.45
+		so.add("conversation", Transform3D(Basis(Vector3.UP, a3), Vector3(cp.x, WorldGen.height(cp.x, cp.y), cp.y)), sid)
+	var hp := c + Vector2(cos(2.4), sin(2.4)) * pr * 0.35
+	so.add("hopscotch", Transform3D(Basis(Vector3.UP, 0.4), Vector3(hp.x, WorldGen.height(hp.x, hp.y), hp.y)), sid)
+	var pp := c + Vector2(cos(4.3), sin(4.3)) * pr * 0.3
+	so.add("play_area", Transform3D(Basis(Vector3.UP, 1.0), Vector3(pp.x, WorldGen.height(pp.x, pp.y), pp.y)), sid)
+	# People stand about by house fronts too.
+	var lots: Array = plan.get("lots", [])
+	var k := 0
+	for lot: Dictionary in lots:
+		k += 1
+		if k % 4 != 0:
+			continue
+		var yaw2: float = lot["yaw"]
+		var face := Vector2(sin(yaw2), cos(yaw2))
+		var wp: Vector2 = (lot["pos"] as Vector2) + face * 3.4 + Vector2(-face.y, face.x) * 2.2
+		if graph != null:
+			wp = graph.push_out(wp, 0.6)
+		so.add("wall_idle", Transform3D(Basis(Vector3.UP, yaw2 + PI), Vector3(wp.x, WorldGen.height(wp.x, wp.y), wp.y)), sid)
+	# Job workplaces from work.gd: each spot becomes the matching smart object, so a farmer hoes at the
+	# farm's field, the smith hammers at the smithy and guards hold the gate post the player's shifts use.
+	var work := _work_module()
+	if work != null:
+		for place: Dictionary in work.call("workplaces", sid):
+			var centre: Vector2 = place["center"]
+			for sp: Dictionary in place["spots"]:
+				var type: String = SPOT_TYPES.get(String(sp["kind"]), "")
+				if type == "" or not so.types.has(type):
+					continue
+				var p2: Vector2 = sp["pos"]
+				if graph != null:
+					p2 = graph.push_out(p2, 1.6)
+				var yaw3 := atan2(centre.x - p2.x, centre.y - p2.y) + PI
+				so.add(type, Transform3D(Basis(Vector3.UP, yaw3), Vector3(p2.x, WorldGen.height(p2.x, p2.y), p2.y)), sid)
+				if type == "field_row":
+					# a field is several rows: lay a second beside the first
+					var q := p2 + Vector2(cos(yaw3), -sin(yaw3)) * 2.4
+					so.add(type, Transform3D(Basis(Vector3.UP, yaw3), Vector3(q.x, WorldGen.height(q.x, q.y), q.y)), sid)
+	# Patrol loop for guards: plaza, inn front, each gate / a few wall points, back.
+	var route: PackedVector2Array = places["patrol"]
+	route.append(c + Vector2(pr * 0.6, 0.0))
+	if graph != null and graph.inn_door != Vector2.INF:
+		route.append(graph.inn_door)
+	route.append(c + Vector2(0.0, pr * 0.7))
+	var gates: Array = plan.get("gates", [])
+	var wall_r := float(plan.get("wall_radius", float(s["radius"]) * 0.95))
+	for g in gates:
+		var gp := c + Vector2(cos(float(g)), sin(float(g))) * (wall_r - 4.0)
+		route.append(graph.push_out(gp, 0.8) if graph != null else gp)
+	if gates.is_empty():
+		route.append(c + Vector2(-pr * 0.8, -pr * 0.4))
+	route.append(c + Vector2(-pr * 0.5, pr * 0.2))
+	places["patrol"] = route
+	_places[sid] = places
+
+
+static func _work_module() -> RefCounted:
+	var life := _life()
+	if life == null or life.get("realm") == null:
+		return null
+	return (life.get("realm") as RefCounted).call("mod", "work") as RefCounted
+
+
+static func _add_bench_prop(host: Node, at: Vector3, yaw: float) -> void:
+	if host == null or not is_instance_valid(host):
+		return
+	var node := Assets.building_node("bench", false)
+	if node == null:
+		return
+	node.position = at
+	node.rotation.y = yaw + PI
+	node.add_to_group("npc_prop")
+	host.add_child(node)
+
+
+static func places_of(sid: int) -> Dictionary:
+	return _places.get(sid, {})
+
+
+## Waypoint `i` of the guard patrol loop of settlement `sid` (Vector2.INF without a route).
+static func patrol_point(sid: int, i: int) -> Vector2:
+	var route: PackedVector2Array = (_places.get(sid, {}) as Dictionary).get("patrol", PackedVector2Array())
+	if route.is_empty():
+		return Vector2.INF
+	return route[posmod(i, route.size())]
+
+
+static func patrol_size(sid: int) -> int:
+	return ((_places.get(sid, {}) as Dictionary).get("patrol", PackedVector2Array()) as PackedVector2Array).size()
+
+
+## Nearest shelter from rain outside a house door: the canopy side of a market stall.
+static func nearest_stall_cover(sid: int, p: Vector2, reach := 25.0) -> Vector2:
+	var pl: Dictionary = _places.get(sid, {})
+	var stalls: PackedVector2Array = pl.get("stalls", PackedVector2Array())
+	var yaws: PackedFloat32Array = pl.get("stall_yaw", PackedFloat32Array())
+	var best := Vector2.INF
+	var best_d := reach * reach
+	for i in stalls.size():
+		var d := p.distance_squared_to(stalls[i])
+		if d < best_d:
+			best_d = d
+			best = stalls[i] + Vector2(sin(yaws[i]), cos(yaws[i])) * 1.3
+	return best
+
+
+## Best free smart object slot for `filter` near `here` (see SmartObjects.find). Returns [spot, slot] or [].
+## `avoid`/`avoid_until` is the asking brain's short-term memory of danger spots.
+static func find_spot(person: int, filter: Dictionary, here: Vector2, radius: float, avoid := PackedVector2Array(),
+		avoid_r := 0.0) -> Array:
+	if smart == null:
+		return []
+	return smart.find(Vector3(here.x, 0.0, here.y), filter, radius, person, avoid, avoid_r)
+
+
+# ================================================================ crime
+## A crime happened at `pos`. Villagers within sight (not behind a house) who are not looking away
+## become witnesses: they shout and run for a guard; guards within earshot come to look. The witness
+## count goes to society.commit_crime (existing API). Returns that call's result plus {"seen_by": n}.
+static func report_crime(tree: SceneTree, kind: String, pos: Vector2, sid := -1, culprit_is_player := true) -> Dictionary:
+	_ensure_store()
+	var witnesses: Array = []
+	if tree != null:
+		var graph := StreetGraph.for_settlement(sid) as StreetGraph if sid >= 0 else null
+		for n in tree.get_nodes_in_group("villager"):
+			var v := n as Node3D
+			if v == null or not v.has_method("witness"):
+				continue
+			var vp := Vector2(v.global_position.x, v.global_position.z)
+			var d := vp.distance_to(pos)
+			if d > CRIME_HEARING:
+				continue
+			var saw := d <= CRIME_SIGHT and (graph == null or graph.clear_line(vp, pos, 0.05))
+			if v.call("witness", pos, kind, saw, culprit_is_player):
+				if saw:
+					witnesses.append("")
+	report(Kind.CRIME, pos, CRIME_HEARING, 30.0, 1.0, sid)
+	var out := {"ok": false, "seen_by": witnesses.size()}
+	var soc := _society()
+	if soc != null and sid >= 0 and culprit_is_player:
+		var res: Dictionary = soc.call("commit_crime", kind, sid, witnesses)
+		res["seen_by"] = witnesses.size()
+		return res
+	return out
+
+
+static func _society() -> RefCounted:
+	var life := _life()
+	if life == null or life.get("realm") == null:
+		return null
+	return (life.get("realm") as RefCounted).call("mod", "society") as RefCounted
+
+
+static func _life() -> Node:
+	var loop := Engine.get_main_loop()
+	return (loop as SceneTree).root.get_node_or_null("Life") if loop is SceneTree else null
+
+
+## How the settlement regards the player: 1 adored .. -1 despised (society reputation, read only).
+static func regard_of_player(sid: int) -> float:
+	var soc := _society()
+	if soc == null or sid < 0:
+		return 0.0
+	var group := "city:%d" % sid
+	return clampf(float(soc.call("rep", group)) / 60.0 - float(soc.call("crim_rep", group)) / 80.0, -1.0, 1.0)
+
+
+## Up to a few current rumour lines of settlement `sid` (society, read only; cached 20 s).
+static func rumour_lines(sid: int) -> Array:
+	var now := Time.get_ticks_msec()
+	var e: Array = _rumour_cache.get(sid, [])
+	if not e.is_empty() and int(e[0]) > now:
+		return e[1]
+	var lines: Array = []
+	var soc := _society()
+	if soc != null and sid >= 0:
+		lines = soc.call("rumours", sid)
+	_rumour_cache[sid] = [now + 20000, lines]
+	return lines
+
+
+# ================================================================ lines (barks)
+const LINES := {
+	"greet_warm": ["Good day to you!", "Well met, friend!", "Blessings on you.", "Ah, it's you! Welcome."],
+	"greet_neutral": ["Morning.", "Good day.", "Mind the cart.", "Fine weather."],
+	"greet_cold": ["Hmph.", "Keep your distance.", "We don't want trouble.", "...Stranger."],
+	"greet_evening": ["Good evening.", "Late to be out.", "Mind the dark roads."],
+	"armed": ["Put that away!", "Sheathe your blade!", "Easy now, easy!", "Watch where you point that!", "Not in the market!"],
+	"armed_guard": ["Sheathe your weapon, citizen!", "Keep the peace here!"],
+	"crime": ["Thief! Stop them!", "Guards! Guards!", "Murder!", "Help! Somebody help!"],
+	"alarm_guard": ["There! Over there!", "He went that way!", "Fetch the watch!"],
+	"guard_respond": ["Where? Show me!", "Stand aside!", "Hold there!"],
+	"flee": ["Run!", "Get inside!", "Wolf!", "It's coming!", "Save yourselves!"],
+	"hide": ["Is it gone?", "Shh...", "Stay quiet."],
+	"fire": ["Fire!", "Water, bring water!", "The fire's spreading!", "Form a line!"],
+	"rain": ["Wet again...", "Get under cover!", "Just my luck.", "Rain at last."],
+	"gossip_generic": ["Did you hear about the new tax?", "The harvest looks fair this year.", "They say wolves took a sheep last night.",
+		"My knee says rain.", "Smith's lad has taken up with the miller's girl.", "Prices at the stalls are a scandal."],
+	"gossip_player": ["They say a stranger did that?", "Is that the one everybody talks about?"],
+	"festival": ["What's all the noise?", "Come see!", "A fine show!"],
+	"fight": ["Fight! Fight!", "Break it up!", "Someone fetch the guard!"],
+}
+
+
+## Deterministic line of category `cat` for `person` (salt varies it over time).
+static func line(cat: String, person: int, salt := 0) -> String:
+	var list: Array = LINES.get(cat, [])
+	if list.is_empty():
+		return ""
+	return list[absi(hash(person * 7919 + salt * 131 + cat.length())) % list.size()]
+
+
+# ================================================================ helpers
+## A child: a stable slice of the settlement's day labourers (shorter, plays about the plaza).
+static func is_child(person: int) -> bool:
+	return person >= 0 and person < WorldSim.job.size() and WorldSim.job[person] == 4 and absi(hash(person * 977 + 3)) % 10 == 0
+

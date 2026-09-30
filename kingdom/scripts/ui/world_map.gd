@@ -151,6 +151,9 @@ var _card_info: Label
 var _travel_btn: Button
 var _loading: Label
 var _legend_btn: Button
+var _layers: Array[Control] = []          # Region1 hook H6: painted layers (map_parchment_layer.gd)
+var _layered := false
+var _bake_labels := false
 
 
 func _ready() -> void:
@@ -686,6 +689,8 @@ func _fog_sources() -> Array:
 		var steps := maxi(1, int(a.distance_to(b) / 110.0))
 		for i in steps + 1:
 			src.append([a.lerp(b, float(i) / steps), 230.0])
+	if discovery != null:   # Hidden valley hook: areas revealed by exploration rewards
+		src.append_array(preload("res://scripts/world/region_pois.gd").reveal_sources(discovery))
 	if player and is_instance_valid(player):
 		src.append([_player_pos(), 340.0])
 	return src
@@ -1032,17 +1037,21 @@ func _draw() -> void:
 	_draw_neighbours()
 	var h := WorldGen.WORLD_HALF
 	var world_rect := Rect2(to_screen(Vector2(-h, -h)), Vector2(h, h) * 2.0 * _zoom)
-	if _texture:
+	_layered = _paint_layers()   # Region1 hook H6
+	if _layered:
+		pass
+	elif _texture:
 		draw_texture_rect(_texture, world_rect, false)
 		if _paper:
 			draw_texture_rect(_paper, world_rect, false, Color(1, 1, 1, 0.1))
 	else:
 		draw_rect(world_rect, Color("b9c98a"))
-	_draw_border()
-	_draw_rivers()
-	_draw_roads()
+	if not _layered:
+		_draw_border()
+		_draw_rivers()
+		_draw_roads()
 	_draw_runestones()
-	if _fog_texture:
+	if _fog_texture and not _layered:
 		var rr := _region_rect()
 		draw_texture_rect(_fog_texture, Rect2(to_screen(rr.position), rr.size * _zoom), false)
 	_draw_places()
@@ -1065,6 +1074,25 @@ func _draw() -> void:
 	MapIcons.draw_rose(self, Vector2(64, size.y - 72), 30.0, _title_font)
 	if _legend_open == 1:
 		_draw_legend()
+
+
+## Region1 hook H6: adds a painted layer (scripts/ui/map_parchment_layer.gd). It paints under the icons via paint_under(self).
+func add_layer(l: Control) -> void:
+	_layers.append(l)
+	add_child(l)
+	if l.has_method("bind_map"):
+		l.call("bind_map", self)
+	queue_redraw()
+
+
+func _paint_layers() -> bool:
+	var done := false
+	_bake_labels = false
+	for l in _layers:
+		if l.visible and l.has_method("paint_under") and bool(l.call("paint_under", self)):
+			done = true
+			_bake_labels = _bake_labels or bool(l.get("bakes_labels"))
+	return done
 
 
 func _heading() -> float:
@@ -1221,6 +1249,8 @@ func _draw_places() -> void:
 		var c := to_screen(pl["pos"])
 		if not view.has_point(c) or not _passes(pl):
 			continue
+		if _bake_labels and not (not _selected.is_empty() and _selected["id"] == pl["id"]):
+			continue      # Region1 hook H6: the parchment carries the names
 		var sel: bool = not _selected.is_empty() and _selected["id"] == pl["id"]
 		if is_area(kind):
 			_draw_area_label(pl, c, used)
@@ -1551,7 +1581,7 @@ func _select(pl: Dictionary) -> void:
 		blurb = "Condition: %s (%d%%). Protects about %d m around it." % [cn, pct, int(st["radius"])]
 	elif pl["category"] == "settlement":
 		for s: Dictionary in WorldGen.settlements:
-			if String(s["name"]) == String(pl["name"]):
+			if String(pl.get("id", "")) == "settlement:%s" % s["name"] or String(s["name"]) == String(pl["name"]):   # Region1 world: aliased names (Greenhollow) still find their town
 				blurb = "%s  Home to about %d people." % [blurb, int(s["population"])]
 				break
 	if blurb != "":

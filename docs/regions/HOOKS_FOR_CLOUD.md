@@ -377,3 +377,14 @@ world_map.closed.connect(parchment.release)      # frees the texture (VRAM) whil
 **Known limits:** at zoom above about 0.5 px/m the sheet is soft (4.4 m per source pixel); the map's coin icons cover the small baked pictograms; ideas: shrink map icons while the layer is on, or add a
 1024 px detail tile for the home valley. Poster places without a WorldGen site yet (Silverford at (-640, 480), the five Elder Stones, Crownstead) are drawn at the `wardlines.json` / plan positions and
 listed under `proposed_places` / `elder_stones` in the json: C1 should move them when the sites exist.
+
+
+---
+
+# Cloud status (2026-09-30)
+H1 to H7, C3 to C8 and C12 are applied; see the table "Cloud integration status" in REGION_1_PLAN.md. Deviations from the snippets above:
+- The Wardlines override also makes `RARunestoneNetwork.tick_day` a no-op; the glue pushes Wardlines wear back once a day.
+- The five Elder Stones are added to the network by the glue (names start `Elder Stone (`) until the world layout adds dedicated sites.
+- `scripts/region1/scar_tide.gd` (L9) did not exist and was written with C4 (tests in `test_region1_hooks.gd`).
+- H7 uses `WorldGen.settlements[home_settlement]["name"]` for `place`.
+- Story `cutscene` actions other than the Blessing are short staging, not sequences (owner direction).

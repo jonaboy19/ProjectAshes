@@ -154,7 +154,7 @@ func _update_wild(p: Vector2) -> void:
 ## Roughly one wild group in five is a beast, rarer and tougher in denser forest,
 ## never inside runestone protection. Empty when the roll gives ordinary wildlife.
 func _beast_kinds(q: Vector2) -> Array:
-	if Frontier.runestones.coverage(q) > 0.4:
+	if Frontier.runestones.coverage(q) > 0.4 or preload("res://scripts/world/hidden_valley.gd").protected_ground(q):   # Hidden valley hook: no beasts in the vale
 		return []
 	var dense := WorldGen.forest_density(q.x, q.y)
 	var roll := randf()

@@ -520,7 +520,8 @@ func test_json_round_trip() -> void:
 func test_realm_hub_registers_the_module() -> void:
 	assert_bool(Hub.MODULES.has("construction")).is_true()
 	assert_bool(Hub.ORDER.has("construction")).is_true()
-	assert_int(Hub.ORDER.find("construction")).is_equal(Hub.ORDER.size() - 1)
+	# Runs after the modules it reads (enterprise, work); later modules (towers) may follow it.
+	assert_int(Hub.ORDER.find("construction")).is_greater(Hub.ORDER.find("enterprise"))
 
 
 func test_catalogue_is_consistent() -> void:

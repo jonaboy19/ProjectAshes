@@ -130,3 +130,7 @@ ashes_interactor_count={
 "type": "int",
 "value": 0
 }
+scar_mask={
+"type": "sampler2D",
+"value": "res://assets/region1/scar_mask_default.png"
+}

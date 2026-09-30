@@ -64,7 +64,7 @@ const BOSS_HEALTH := 200
 const BEDS := {
 	"village_day": 0.0, "village_night": 0.0, "meadow_day": -2.0, "forest_day": 0.0, "forest_night": 0.0,
 	"creek": 0.0, "danger": 1.0, "camp": 1.0, "tavern": 0.0, "smithy": 3.0, "healer": -1.0,
-	"house": -4.0, "guild": -5.0, "wind": 0.0,
+	"house": -4.0, "guild": -5.0, "wind": 0.0, "scar_rift": 0.0,
 }
 ## Which file plays for a bed (several beds share recordings).
 const BED_FILE := {
@@ -72,6 +72,7 @@ const BED_FILE := {
 	"forest_day": "amb_forest_day", "forest_night": "amb_forest_night", "creek": "amb_creek",
 	"danger": "amb_danger", "camp": "amb_camp", "tavern": "amb_tavern", "smithy": "amb_smithy",
 	"healer": "amb_healer", "house": "amb_healer", "guild": "amb_tavern", "wind": "amb_wind",
+	"scar_rift": "region1/amb_r1_scar_rift_loop",   # Region 1 (C12): the corrupted ground hums
 }
 ## Spot sounds sprinkled around the listener per bed: [name, weight, volume_db].
 const SPOTS := {
@@ -111,6 +112,24 @@ const ANIMALS := {
 	"horse_draft": ["horse_snort", "horse_neigh"], "donkey": ["donkey", "horse_snort"],
 }
 const SURFACES := ["grass", "dirt", "cobble", "stone", "wood", "leaves"]
+
+## Region 1 (C12): area -> [day theme, night theme] (docs/regions/AUDIO_R1.md). The area comes from where the player
+## stands (settlement kind, the keep, the glade, the Scar); combat, danger and interiors still override it, and a
+## story cue (set_story_cue) overrides everything but combat for a while.
+const R1_AREA_THEMES := {
+	"village": [&"r1_village_day", &"r1_night"],
+	"town": [&"r1_guild_town", &"r1_night"],
+	"keep": [&"r1_highwatch_keep", &"r1_night"],
+	"glade": [&"r1_forest_glade", &"r1_night"],
+	"rift": [&"r1_rift_wilds", &"r1_rift_wilds"],
+}
+## Place-name words that decide the area when they are the nearest named place.
+const R1_NAME_AREAS := {"highwatch": "keep", "highcliff": "keep", "greywatch": "keep", "silverford": "town", "stagborn": "glade",
+	"ashen scar": "rift", "rift": "rift", "scar watch": "rift"}
+const R1_AREA_HYSTERESIS := 8.0
+## Story cue -> seconds it holds before the area theme returns (the finale is a one-shot of 146 s).
+const R1_CUE_SECONDS := {&"r1_finale": 150.0, &"silence": 25.0}
+const R1_CUE_DEFAULT_SECONDS := 140.0
 
 ## Set by Main to the active 3D camera (the SubViewport's camera = the 3D listener).
 var listener: Node3D
@@ -165,6 +184,11 @@ var _idle_timer := 4.0
 var _interior := ""                # "", "tavern", "smithy", "healer", "guild", "house"
 var _surface := "grass"
 var _player: Node3D
+var _r1_area := ""                 # Region 1 area under the player ("" = none), see R1_AREA_THEMES
+var _r1_area_since := 0.0
+var _r1_area_pending := ""
+var _story_cue: StringName = &""
+var _story_cue_until := 0.0
 var _last_pos := Vector3.INF
 var _stride := 0.0
 var _last_dodge := 0.0
@@ -183,6 +207,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	AudioBuses.ensure_layout()
 	_scan(ROOT)
+	_alias_region1()
 	_bed_a = _player2d("Ambience")
 	_bed_b = _player2d("Ambience")
 	_music = AdaptiveMusic.new()
@@ -305,6 +330,44 @@ func set_underwater(on: bool, auto := false) -> void:
 
 
 ## Name of the music mood right now (for debug overlays and tests).
+## Region 1 story cue (C12): switch the music bed to a clip (r1_lament, r1_kindling, r1_finale, r1_boss_warden or any
+## R1 area theme; "silence" fades the bed out). Holds for a while, then the area theme returns. Combat still wins.
+## Unknown or missing cues fall back to the area theme: nothing breaks if a file is absent.
+func set_story_cue(cue: String, seconds := -1.0) -> void:
+	var c := StringName(cue)
+	if cue == "" or not MusicBank.MOODS.has(c):
+		_story_cue = &""
+		return
+	_story_cue = c
+	var hold := seconds if seconds > 0.0 else float(R1_CUE_SECONDS.get(c, R1_CUE_DEFAULT_SECONDS))
+	_story_cue_until = _now() + hold
+	if _log:
+		print("[audio] story cue %s for %.0f s" % [cue, hold])
+
+
+func story_cue() -> StringName:
+	return _story_cue if _now() < _story_cue_until else &""
+
+
+## Region 1 area under the player ("village", "town", "keep", "glade", "rift" or "").
+func r1_area() -> String:
+	return _r1_area
+
+
+## Files named sfx_r1_ward_activate.ogg are also known as "r1_ward_activate" (the names in AUDIO_R1.md).
+func _alias_region1() -> void:
+	for key: String in _lib.keys():
+		if key.begins_with("sfx_r1_") or key.begins_with("amb_r1_"):
+			for path: String in _lib[key]:
+				_add(key.substr(4) if key.begins_with("sfx_") else key, path)
+		elif key.begins_with("vo_r1_"):
+			# vo_r1_m_hurt -> r1_bark_hurt (male and female variants pooled)
+			var parts := key.split("_")
+			if parts.size() >= 4:
+				for path2: String in _lib[key]:
+					_add("r1_bark_" + parts[3], path2)
+
+
 func music_mood() -> StringName:
 	return _music_mood
 
@@ -441,7 +504,10 @@ func _update_context() -> void:
 				break
 		_threat = float(Frontier.threat_at(p2).get("total", 0.0))
 		_forest = WorldGen.forest_density(p.x, p.z)
-		if _at_camp:
+		_update_r1_area(p2, near)
+		if _r1_area == "rift" and has_sound("amb_r1_scar_rift_loop"):
+			bed = "scar_rift"
+		elif _at_camp:
 			bed = "camp"
 		elif _in_town:
 			bed = "village_night" if night else "village_day"
@@ -454,6 +520,40 @@ func _update_context() -> void:
 		else:
 			bed = "village_night" if night else "meadow_day"
 	_set_bed(bed)
+
+
+## Which Region 1 area the player is in, with a few seconds of hysteresis so walking along a border does not
+## flip the score back and forth. Uses the nearest settlement's kind, the nearest named place's words and the
+## Scar Tide mask (corrupted ground is always the rift theme).
+func _update_r1_area(p2: Vector2, near: Dictionary) -> void:
+	var area := ""
+	var scar: Variant = Region1State.sim(&"scar_tide")
+	if scar != null and scar.intensity_at(p2) > 0.3:
+		area = "rift"
+	else:
+		var d := INF
+		for pl: Dictionary in Life.discovery.places:
+			var nm := String(pl["name"]).to_lower()
+			for key: String in R1_NAME_AREAS:
+				if nm.contains(key):
+					var dd := p2.distance_to(pl["pos"])
+					if dd < maxf(float(pl.get("radius", 60.0)), 90.0) * 1.6 and dd < d:
+						d = dd
+						area = String(R1_NAME_AREAS[key])
+		if area == "" and not near.is_empty() and p2.distance_to(near["pos"]) < float(near["radius"]) * 1.4:
+			area = "town" if String(near.get("kind", "village")) in ["town", "castle", "capital", "frontier_town"] else "village"
+		if area == "" and _forest > 0.72 and _threat < 40.0:
+			area = "glade"
+	if area == _r1_area:
+		_r1_area_pending = ""
+		return
+	var now := _now()
+	if area != _r1_area_pending:
+		_r1_area_pending = area
+		_r1_area_since = now
+	if now - _r1_area_since >= R1_AREA_HYSTERESIS or _r1_area == "":
+		_r1_area = area
+		_r1_area_pending = ""
 
 
 func _interior_kind() -> String:
@@ -486,7 +586,8 @@ func _set_bed(bed: String) -> void:
 		print("[audio] bed -> %s (interior=%s, t=%.1f h)" % [bed, _interior, WorldSim.time_of_day])
 	var stream: AudioStream = null
 	if bed != "":
-		stream = _load(ROOT + "ambience/" + String(BED_FILE[bed]) + ".ogg", true)
+		var file := String(BED_FILE[bed])
+		stream = _load(ROOT + ("ambience/" + file if not file.begins_with("region1/") else file.replace("region1/", "region1/ambience/")) + ".ogg", true)
 	_crossfade(_bed_a, _bed_b, stream, float(BEDS.get(bed, 0.0)), BED_FADE)
 	var t := _bed_a
 	_bed_a = _bed_b
@@ -594,7 +695,11 @@ func _music_mood_now() -> StringName:
 	if not music_enabled:
 		return &"silence"
 	if _in_combat:
+		if (_boss_forced or _now() < _boss_seen_until) and _r1_area == "glade":
+			return &"r1_boss_warden"   # the Antlered Warden (C12); other bosses keep the old boss theme
 		return &"boss" if _boss_forced or _now() < _boss_seen_until else &"combat"
+	if _now() < _story_cue_until and _story_cue != &"" and _interior == "":
+		return _story_cue
 	if _interior == "tavern":
 		return &"tavern"
 	var night := _is_night()
@@ -609,6 +714,8 @@ func _music_mood_now() -> StringName:
 	else:
 		mood = &"wild_night" if night else &"wilderness"
 	# what keeps playing (muffled) if the player steps into a house now
+	if _r1_area != "" and mood != &"danger":
+		mood = R1_AREA_THEMES[_r1_area][1 if night else 0]   # Region 1 themes replace the generic town / wild score
 	_outdoor_mood = mood if mood != &"danger" else (&"wild_night" if night else &"wilderness")
 	return mood
 

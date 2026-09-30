@@ -447,3 +447,21 @@ func test_flow_edges_are_thick_near_the_elder_and_follow_cuts() -> void:
 		if e["a"] == 3 and e["b"] == 4:
 			cut_flow = e["flow"]
 	assert_float(cut_flow).is_equal(0.0)
+
+
+# --- world-map layer shows a carve -----------------------------------------------------
+
+func test_map_layer_coverage_data_changes_after_a_carve() -> void:
+	State.clear()
+	var w := _mini()
+	State.register_sim(w)
+	var layer: Control = preload("res://scripts/region1/r1_map_layer.gd").new()
+	var before: PackedFloat64Array = layer.coverage_data()
+	assert_int(before.size()).is_equal(w.n * 3)
+	assert_bool(w.carve(3, "ward")["ok"]).is_true()
+	var after: PackedFloat64Array = layer.coverage_data()
+	assert_float(after[3 * 3]).is_equal_approx(before[3 * 3] * 1.3, 0.01)       # bubble radius the map draws
+	assert_float(after[3 * 3 + 2]).is_equal(float(Ward.G_WARD))                  # glyph (rim colour)
+	assert_bool(after == before).is_false()
+	layer.free()
+	State.clear()

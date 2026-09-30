@@ -225,13 +225,17 @@ func test_root_refreshes_presenters_in_group() -> void:
 	assert_int(pres.count).is_equal(1)
 
 
-func test_root_bootstrap_ignores_missing_manifest_modules() -> void:
+func test_root_bootstrap_is_idempotent_and_registers_what_it_creates() -> void:
+	# Manifest-free: whatever modules the shipped manifest lists, each created one must be a
+	# registered sim afterwards and a second call must create nothing new.
 	var root: Node3D = auto_free(Root.new())
 	root.auto_timer = false
 	root.auto_bootstrap = false
 	add_child(root)
-	assert_array(Array(root.bootstrap_modules())).is_empty()   # shipped manifest has no rows
-	assert_dict(State.sims()).is_empty()
+	var made: PackedStringArray = root.bootstrap_modules()
+	for mod_name in made:
+		assert_object(State.sim(StringName(mod_name))).is_not_null()
+	assert_int(root.bootstrap_modules().size()).is_equal(0)
 
 
 class PresenterProbe extends Node:

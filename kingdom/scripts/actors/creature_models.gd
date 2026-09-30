@@ -51,6 +51,19 @@ const MODELS := {
 		"clips": {"run": "walk"}},
 	"blackcap_brute": {"path": QUAT + "blackcap_brute", "scale": 1.0, "walk": 1.5, "run": 1.5, "impact": 0.35,
 		"clips": {"run": "walk"}},
+	# Region 1 creatures (package C11, docs/regions/REGION_1_PLAN.md). Speeds and impact beats are first estimates from the
+	# clip lengths (Quaternius clips: assets/incoming/monsters/README.md; Stagborn: stagborn_README.md): Codex tunes them (X3/X4).
+	"ghoul": {"path": QUAT + "ghoul", "scale": 1.0, "walk": 0.7, "run": 2.4, "impact": 1.3},
+	"giant_wasp": {"path": QUAT + "giant_wasp", "scale": 1.0, "walk": 1.4, "run": 3.6, "impact": 0.4,
+		"clips": {"walk": "idle", "run": "idle"}},
+	"bog_toad": {"path": QUAT + "bog_toad", "scale": 1.0, "walk": 0.5, "run": 1.6, "impact": 0.4,
+		"clips": {"run": "walk"}},
+	"rift_slime": {"path": QUAT + "rift_slime", "scale": 1.0, "walk": 0.4, "run": 0.4, "impact": 0.3,
+		"clips": {"run": "walk"}},
+	"rift_wraith": {"path": QUAT + "rift_wraith", "scale": 1.0, "walk": 1.0, "run": 2.6, "impact": 0.6,
+		"clips": {"walk": "idle"}},
+	"stagborn_elk": {"path": MESHY + "stagborn_elk", "scale": 1.0, "walk": 1.21, "run": 5.2, "impact": 0.97},
+	"stagborn_warden": {"path": MESHY + "stagborn_warden", "scale": 1.0, "walk": 1.24, "run": 6.9, "impact": 1.23},
 	# Fallback when the Meshy goblin is missing: the old Quaternius character.
 	"goblin_uac": {"path": UAC + "Goblin_Male", "ext": ".gltf", "fit_height": 1.1, "walk": 0.65, "run": 1.7,
 		"impact": 0.3, "no_lod": true,

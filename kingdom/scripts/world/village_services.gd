@@ -1124,6 +1124,9 @@ func _pick_rumour() -> String:
 		if local != "":
 			return local
 	# Failing runestones are the talk of every road (docs/RISING_ASHES_LIFE_SIM_DESIGN.md).
+	var vale := preload("res://scripts/world/hidden_valley.gd").rumour()   # Hidden valley hook: text-only leads, never a marker
+	if vale != "" and randf() < 0.14:
+		return vale
 	var stones: Array = Frontier.runestones.rumours()
 	if not stones.is_empty() and randf() < 0.45:
 		return String(stones[randi() % stones.size()])

@@ -80,9 +80,11 @@ static func setup(seed_value: int) -> void:
 	_forest.frequency = 0.006
 	_forest.fractal_octaves = 2
 	_initialized = true
+	preload("res://scripts/world/hidden_valley.gd").reset()   # Hidden valley hook 1/2 (scripts/world/hidden_valley.gd): off until the layout is known
 	_place_settlements(seed_value)
 	_connect_roads()
 	_build_indexes()
+	preload("res://scripts/world/hidden_valley.gd").setup(seed_value)   # Hidden valley hook 2/2: picks its spot once towns and roads exist
 	for st in settlements:
 		st["plan"] = CityPlanner.plan(st, gate_angles(st), seed_value)
 	_place_water(seed_value)
@@ -197,7 +199,7 @@ static func _raw_height(x: float, z: float) -> float:
 	var mountains := pow(ridge, 2.2) * 160.0 * valley
 	var edge := maxf(absf(x), absf(z))
 	var rim := pow(smoothstep(WORLD_HALF - 250.0, WORLD_HALF, edge), 1.5) * 200.0
-	return hills + mountains + rim + _detail.get_noise_2d(x, z) * 0.6
+	return preload("res://scripts/world/hidden_valley.gd").shape(x, z, hills + mountains + rim + _detail.get_noise_2d(x, z) * 0.6)   # Hidden valley hook
 
 
 static func height(x: float, z: float) -> float:
@@ -386,6 +388,7 @@ static func _place_water(seed_value: int) -> void:
 	var out_dir := (tail - ctrl[ctrl.size() - 2]).normalized()
 	ctrl.append(tail + out_dir * _edge_distance(tail, out_dir))
 	_add_river(_polyline(ctrl, 5.0, 40.0), false, true)
+	preload("res://scripts/world/hidden_valley.gd").add_water()   # Hidden valley hook: stream + pond (not in `rivers`, so not on the map)
 
 
 static func _place_home_water(seed_value: int) -> void:
@@ -794,6 +797,7 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 		w.r = maxf(w.r, sand * 0.85)
 		w.g = maxf(w.g, sand * (0.35 + clampf(-above * 0.2, 0.0, 0.45)))
 		w.a *= 1.0 - sand
+	w = preload("res://scripts/world/hidden_valley.gd").paint(x, z, w)   # Hidden valley hook: no paths in the vale
 	return Region1Terrain.paint(x, z, w)   # Region1 look hook: trails (docs/regions/LOOK_R1.md)
 
 
@@ -814,6 +818,7 @@ static func woodland(x: float, z: float) -> float:
 
 static func forest_density(x: float, z: float, with_clearings := true) -> float:
 	var f := clampf(_forest.get_noise_2d(x, z) * 1.8 + 0.25, 0.0, 1.0)
+	f = preload("res://scripts/world/hidden_valley.gd").forest(x, z, f, with_clearings)   # Hidden valley hook: groves, meadows, bare gorge
 	var near := nearest_settlement(Vector2(x, z))
 	if not near.is_empty():
 		# Fade starts at radius*1.8, not 1.2: height() blends a settlement's flat

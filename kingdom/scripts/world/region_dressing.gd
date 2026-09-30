@@ -13,6 +13,13 @@ const BUILD := 240.0
 const FREE := 330.0
 const LOD_DIST := 55.0
 const Breakable := preload("res://scripts/world/breakable.gd")
+## Region 1 world packages (C1 C2 C10): extra asset keys "free:<cat>/<name>@<h>" (incoming/meshy_free) and
+## "r1:<dir>/<name>@<h>" (incoming/region1), and bodies that are not meshes (signs, named NPCs, doors).
+const Extras := preload("res://scripts/world/region1_extras.gd")
+const FREE_PACK := "res://assets/incoming/meshy_free/"
+const R1 := "res://assets/incoming/region1/"
+const R1_KIT := "res://assets/incoming/region1/highwatch/highwatch_kit.tres"
+const R1_KIT_LOW := "res://assets/incoming/region1/highwatch/highwatch_kit_low.tres"
 const BRIDGE_DECK := {"road/bridge_stone": [2.6, 12.0], "road/bridge_wood": [1.6, 14.0]}
 
 var focus := Vector3.ZERO
@@ -57,6 +64,11 @@ func _ready() -> void:
 	print("RegionDressing: preloaded %d region scenes in %d ms (main thread)" % [n, Time.get_ticks_msec() - t0])
 	# Region1 look hook (docs/regions/LOOK_R1.md): landmark bodies, cliff rocks, waterfalls and the far horizon.
 	add_child(preload("res://scripts/region1/region1_look.gd").new())
+	add_child(preload("res://scripts/world/exploration_director.gd").new())   # Hidden valley hook: the vale, its cutscene and the exploration POIs
+	# Region1 world hook (docs/regions/REGION_1_PLAN.md C11): creature dens, Stagborn herds, bandit rosters (placement only).
+	add_child(preload("res://scripts/world/region1_creatures.gd").new())
+	# Caves hook (scripts/world/region_caves.gd): walk-in doors for the planned cave, mine, hideout and crypt sites.
+	add_child(preload("res://scripts/world/region_caves_view.gd").new())
 
 
 ## Every file is loaded at boot now, so any part can be built right away.
@@ -66,6 +78,8 @@ func _ready_to_spawn(_asset: String) -> bool:
 
 ## The GLB paths _spawn will load for an asset key (LOD0 and LOD1).
 func _paths(asset: String) -> Array:
+	if asset.begins_with("free:") or asset.begins_with("r1:"):
+		return []      # loaded when a site is built: hundreds of baked textures must not sit in VRAM from boot
 	if asset.begins_with("meshy:"):
 		var n := asset.substr(6).split("@")[0]
 		return [MESHY + n + "_lod0.glb", MESHY + n + "_lod1.glb"]
@@ -133,6 +147,8 @@ func _process_inner(delta: float) -> void:
 	for site in WorldGen.sites:
 		var id: int = site["id"]
 		var d := p.distance_to(site["pos"])
+		if not _in_season(site):
+			d = INF      # seasonal pieces (the Solkar caravans) exist only in their season
 		if d < BUILD and not _built.has(id):
 			_built[id] = _build(site)
 		elif d > FREE and _built.has(id):
@@ -147,7 +163,7 @@ func _process_inner(delta: float) -> void:
 ## Builds every site at once (screenshots, tests, teleports): blocks on purpose.
 func build_all_now() -> void:
 	for site in WorldGen.sites:
-		if not _built.has(site["id"]):
+		if not _built.has(site["id"]) and _in_season(site):
 			_built[site["id"]] = _build(site)
 	while not _queue.is_empty():
 		var item: Array = _queue.pop_front()
@@ -157,6 +173,14 @@ func build_all_now() -> void:
 			_build_part(item[0], item[1], item[1]["parts"][item[3]])
 		else:
 			_build_light(item[0], item[1]["lights"][item[3]])
+
+
+## Sites may name a season ("season": "summer"); everything else is always there.
+func _in_season(site: Dictionary) -> bool:
+	if not site.has("season"):
+		return true
+	var ws := get_node_or_null("/root/WorldSim")
+	return ws != null and String(ws.get("season")) == String(site["season"])
 
 
 func built_count() -> int:
@@ -182,6 +206,8 @@ func _build(site: Dictionary) -> Node3D:
 		_queue.append([root, site, "part", i])
 	for i in site["lights"].size():
 		_queue.append([root, site, "light", i])
+	if site.has("x"):
+		Extras.build(root, site)
 	return root
 
 
@@ -197,7 +223,7 @@ func _build_part(root: Node3D, site: Dictionary, part: Array) -> void:
 	# Settle on the lowest ground under the footprint so nothing floats on a slope.
 	var box := Assets.visual_aabb(n)
 	var ground := _footprint_ground(world, basis * Basis(Vector3.UP, float(part[2])), box)
-	n.global_position = Vector3(world.x, ground, world.z)
+	n.global_position = Vector3(world.x, ground + (float(part[4]) if part.size() > 4 else 0.0), world.z)
 	var prop := String(part[0]).trim_prefix("props/")
 	if String(part[0]).begins_with("props/") and Breakable.is_breakable(prop):
 		var b: StaticBody3D = Breakable.new()   # barrels, crates, sacks: smashable, always solid
@@ -268,6 +294,8 @@ func _footprint_ground(world: Vector3, basis: Basis, box: AABB) -> float:
 ## "farm/barn" -> region set, "props/x" -> generated props, "nature:x" -> region
 ## nature (with its wind materials), "meshy:x@H" -> a Meshy landmark scaled to H m.
 func _spawn(asset: String) -> Node3D:
+	if asset.begins_with("free:") or asset.begins_with("r1:"):
+		return _spawn_kit(asset)
 	if asset.begins_with("meshy:"):
 		var spec := asset.substr(6).split("@")
 		var target := float(spec[1]) if spec.size() > 1 else 4.0
@@ -319,6 +347,37 @@ func _spawn(asset: String) -> Node3D:
 	if asset.begins_with("props/"):
 		return _lod_pair(GEN + asset + ".glb", "", 0.0)
 	return _lod_pair(REGION + asset + ".glb", REGION + asset + "_lod1.glb", LOD_DIST)
+
+
+## "free:market/stall_apples@3.2" (Meshy free pack) or "r1:stones/elder_stone" (the local session's Region 1 kits):
+## LOD0 and LOD1 pair, fitted to @H metres tall when given (else natural size), standing on its own base.
+## The Highwatch kit ships without textures: its atlas material goes on every mesh.
+func _spawn_kit(asset: String) -> Node3D:
+	var is_free := asset.begins_with("free:")
+	var spec := asset.substr(5 if is_free else 3).split("@")
+	var base := (FREE_PACK if is_free else R1) + spec[0]
+	var lod0 := base + "_lod0.glb"
+	var lod1 := base + "_lod1.glb"
+	if not ResourceLoader.exists(lod0):
+		lod0 = base + ".glb"
+		lod1 = ""
+	var target := float(spec[1]) if spec.size() > 1 else 0.0
+	var n := _lod_pair(lod0, lod1, 55.0 if target < 6.0 else 85.0, target)
+	if n == null:
+		return null
+	var box := Assets.visual_aabb(n)
+	var k := target / maxf(box.size.y, 0.01) if target > 0.0 else 1.0
+	if spec[0].begins_with("highwatch/"):
+		var low := int(Quality.tier) <= 1
+		var mat := load(R1_KIT_LOW if low else R1_KIT) as Material
+		if mat != null:
+			for mi in n.find_children("*", "MeshInstance3D", true, false):
+				(mi as MeshInstance3D).material_override = mat
+	var holder := Node3D.new()
+	holder.add_child(n)
+	n.scale = Vector3.ONE * k
+	n.position.y = -box.position.y * k
+	return holder
 
 
 ## `fit_height` > 0: the piece is later scaled to that height (Meshy landmarks import at

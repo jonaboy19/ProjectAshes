@@ -17,6 +17,7 @@ const MID_CELL := 60.0
 
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const Breakable := preload("res://scripts/world/breakable.gd")
+const NpcWorldScript := preload("res://scripts/population/npc_world.gd")
 
 const BUILD_RANGE := 650.0
 const FREE_RANGE := 850.0
@@ -885,6 +886,8 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		# Fence around the field (3 m sections), leaving a gap on one side.
 		var hx := nx * 5.0 + 1.0
 		var hz := nz * 5.0 + 1.0
+		# Villagers keep off the crops (NpcWorld.field_push); only farmers work among them.
+		NpcWorldScript.register_field(int(s["id"]), fc, yaw, Vector2(hx, hz))
 		for side in 4:
 			var along := bx if side % 2 == 0 else bz
 			var across := bz if side % 2 == 0 else bx

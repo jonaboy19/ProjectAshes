@@ -37,6 +37,7 @@ const DEED_TEXT := {
 	"donation": ["%s gave %s gold to the poor", "%s handed out about %s gold in alms", "%s gave away a fortune, %s gold or more"],
 	"duel_won": ["%s won a duel over %s gold", "%s beat a famed swordsman for about %s gold", "%s cut down a champion, %s gold on the wager"],
 	"crime": ["%s was seen doing something ugly (%s witnesses)", "%s is said to have broken the law, with about %s witnesses", "%s is a terror; %s people swear it"],
+	"tower_clear": ["%s cleared %s floors of a tower", "%s climbed about %s floors of a haunted tower", "%s conquered a tower, %s floors or more"],
 	"generic": ["%s did a great thing (%s)", "%s did something remarkable (about %s)", "%s did a legend's work (%s)"],
 }
 const CRIMES := {

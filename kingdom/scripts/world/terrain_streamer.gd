@@ -503,6 +503,7 @@ func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 		buckets[kind].append(t)
 	_plan_roadside(key, origin, buckets)
 	_plan_floor(key, origin, buckets)
+	preload("res://scripts/world/hidden_valley.gd").plan_extra(key, origin, buckets)   # Hidden valley hook: lusher vale (worker-safe)
 	return buckets
 
 
