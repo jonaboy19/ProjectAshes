@@ -7,12 +7,12 @@
 
 ## Current implementation snapshot (2026-09-30)
 
-The older source notes below describe the pre-integration baseline at `e3563fc4`. They are useful as historical diagnosis and design rationale, but several findings have since been implemented. The current Codex branch is `gpt/locomotion-jump-integration` at `8cf20156`, based on the fetched Claude branch `b6cc215c`. Recheck current source before making changes; this status section supersedes conflicting older statements below.
+The older source notes below describe the pre-integration baseline at `e3563fc4`. They are useful as historical diagnosis and design rationale, but several findings have since been implemented. The current Codex branch is `gpt/locomotion-jump-integration`, based on the fetched Claude branch `b6cc215c`. Recheck current source before making changes; this status section supersedes conflicting older statements below.
 
 | Area | Current source state | Remaining boundary |
 |---|---|---|
 | Population and schedule | `WorldSim` keeps deterministic resident data in packed arrays, runs a time-budgeted slice, prioritizes people around the player, and changes home/work/market targets. It also pays job wages and market spending. | The far population still moves directly toward a target in a straight line; it has no route cursor or persistent daily activity history. |
-| Near-resident movement | `Villager` is a `CharacterBody3D` with acceleration, braking, a `StreetGraph` route through settlement streets/door paths, stuck detection, separation/yield steering, and resolved-position writeback to `WorldSim`. | This is not a general navmesh/NavigationAgent system. Field/forest goals, invalid destinations, proxy accuracy, and live LOD transitions still need evidence on a representative route. |
+| Near-resident movement | `Villager` is a `CharacterBody3D` with acceleration, braking, a `StreetGraph` route through settlement streets/door paths, stuck detection, separation/yield steering, and explicit position ownership: `WorldSim` stops integrating a promoted body's data row until its resolved position is transferred back. | This is not a general navmesh/NavigationAgent system. Field/forest goals, invalid destinations, proxy accuracy, and live LOD transitions still need evidence on a representative route. |
 | Physical contact | A full-model villager has a capsule that is enabled near the player, with enter/exit hysteresis. `PopulationLOD` caps the nearest actors allowed to use contact physics. | Skeleton/model, sprite, and contact budgets are separate; soft NPC separation is not proof that all actors visibly occupying a close crowd are physically blocked. Verify which visible overflow cases remain. |
 | Presentation and cost | Current `PopulationLOD` uses a 45 m full-model range, 220 m sprite range, up to 24 normal full-model slots subject to `Quality`, a 9 m near override capped at 12, and a combined sprite ceiling of 140 subject to `Quality`. It promotes at most three new models per refresh. Villager animation/shadows and contact physics are distance/budget limited. | Treat these as current source settings, not a guarantee of frame rate on a particular phone. Use same-device captures and the latest performance report before changing budgets. |
 | Near behavior | `UtilityBrain` scores 13 simple acts with five needs, seeded traits, schedule, weather, danger, and spectacle inputs. Decisions are staggered; threat samples and sight rays are shared/capped. Villagers can work, seek food/rest/water/faith/social activity, shelter, flee, or watch. | Need values live only in the embodied brain and are re-seeded on body creation/resync; there is no durable citizen relationship graph or episodic memory in `WorldSim`. See [NPC need continuity handoff](NPC_NEEDS_CONTINUITY_HANDOFF.md). |
@@ -20,7 +20,7 @@ The older source notes below describe the pre-integration baseline at `e3563fc4`
 
 Do not restart the NPC system or add a second crowd/AI framework. Continue by closing one observed seam at a time: reproduce it in the latest game, preserve one owner for each piece of state, change the smallest responsible layer, then capture both behavior and mobile cost.
 
-## What the current code does
+## Historical pre-integration source observations (e3563fc4; superseded in parts)
 
 The [interactive daily-rhythm viewer](WORLD_DAILY_RHYTHM_REVIEW.html) exposes an additional source-level behavior risk: residents with the same job change phase on exact shared clock boundaries, and the simulation applies their new targets in a short update burst. The schedule table, real-time conversion, and a deterministic staggering design are in [WORLD_DAILY_RHYTHM_DESIGN.md](WORLD_DAILY_RHYTHM_DESIGN.md).
 

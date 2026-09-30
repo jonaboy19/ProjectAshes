@@ -455,3 +455,9 @@ built with fewer nodes, and drop `_process` work when no site is within BUILD. I
 - Added `docs/concepts/NPC_NEEDS_CONTINUITY_HANDOFF.md` and linked it from `docs/concepts/CODEX_SYSTEMS_HANDOFF.md`. It proposes compact, versioned save state and explicit LOD ownership/catch-up, with no additional distant NPC brains.
 - Updated `docs/concepts/NPC_LIFE_LOOP_DESIGN.md` with a current-source snapshot that supersedes its `e3563fc4` observations where they conflict; it records the live schedule, route, body/contact, LOD, behavior, and continuity boundaries so Claude does not redo completed integration work.
 - Documentation only; no gameplay code or tests changed. `git diff --check` passed.
+
+## 2026-09-30 (Codex): single-owner NPC position integration
+- `Villager` physics bodies already route and move near actors; `WorldSim._step()` also advanced their data positions until the next 4 Hz `PopulationLOD._write_back()`. Added a packed ownership flag so the world slice continues schedule/economy updates but skips position integration for embodied residents.
+- Promotion writes the route-cleared spawn position into `WorldSim` and claims ownership. On body exit, the resolved final position is stored and ownership is released. Time skips remain explicit bulk settles followed by `Villager.resync()`.
+- Updated the current-state sections of `NPC_CONTACT_LOD_CONTRACT.md` and `NPC_LIFE_LOOP_DESIGN.md`; the old e3563fc4 findings remain clearly labeled as historical. The distant data/sprite mover still follows direct targets and is the next NPC/building pathing gap.
+- Source reviewed and `git diff --check` passed. No Godot runtime check or test suite was run; confirm body lifecycle/reset ordering and movement feel in the playable project before merge.
