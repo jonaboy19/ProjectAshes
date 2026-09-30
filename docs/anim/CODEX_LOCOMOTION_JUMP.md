@@ -18,6 +18,7 @@ The latest Claude base already contains the ragdoll pose-hold get-up blend from 
 - Applied two still-open feel-audit fixes from the earlier handoff: third-person block now faces the nearest enemy within 6 m (camera heading remains the fallback), and wolves turn with frame-rate-independent yaw plus forward-biased, turn-scaled travel to reduce sideways crab-walking.
 - Replaced the global time-scale freeze on ordinary 50 ms sword hits with a local pause on only the player's and struck actors' animation mixers. Parry and finisher slow-motion retain the existing global effect. The local pause restores prior mixer state and does not freeze physics, camera, particles, or unrelated NPCs.
 - Added restrained outward FOV pulses on successful parries and finisher hits, and routed combat positional shake through the same Screen Shake access setting (Off = none, Reduced = half, Full = full). FOV pulses cap at 6 degrees and decay independently from landing FOV and positional shake. The preference is read only when an impact occurs.
+- Contact sparks use the sampled sword tip when it is within 0.6 m of the confirmed target contact point; otherwise they keep the reliable target-side fallback position. This uses the existing WeaponTrail skeleton sample at hit time.
 - Added the missing camera-only proxy over settlement wells, eased camera pull-in only for camera-layer props such as awnings, and fade the linked well mesh when it hides the lens; solid world walls keep their immediate response.
 
 ## Cost notes
@@ -25,6 +26,7 @@ The latest Claude base already contains the ragdoll pose-hold get-up blend from 
 - The camera change reuses the player's existing obstruction ray. A settlement creates only one extra static camera-only box per well; there is no new per-frame scene search.
 - Block-facing enemy lookup runs at 12.5 Hz while guarding. Hit-stop discovers mixers only for actors actually struck by a non-finisher hit.
 - Impact camera feedback adds no scene queries or per-NPC work; the existing access preference controls both positional shake and the FOV pulse.
+- Blade spark placement adds one tip sample per confirmed swing resolution and no new physics query.
 - Run-stop playback adds no NPC work; the optional state graph is created only for the player animator.
 
 ## Deliberately deferred

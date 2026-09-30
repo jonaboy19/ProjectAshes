@@ -1492,6 +1492,7 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 	var hits := 0
 	var first_hit := Vector3.INF
 	var impacted_mixers: Array = []
+	var blade_tip := _trail.tip_position() if _trail else Vector3.ZERO
 	for enemy in get_tree().get_nodes_in_group("team1"):
 		var to: Vector3 = (enemy as Node3D).global_position - global_position
 		to.y = 0.0
@@ -1500,6 +1501,8 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 			if not finisher:
 				impacted_mixers.append_array(enemy.find_children("*", "AnimationMixer", true, false))
 			var point: Vector3 = (enemy as Node3D).global_position + Vector3(0, 0.8, 0) - to.normalized() * 0.3
+			if blade_tip != Vector3.ZERO and blade_tip.distance_to(point) <= 0.6:
+				point = blade_tip
 			VFX.sparks(get_parent(), point, Color(1.0, 0.72, 0.35), 30 if finisher else 18)
 			if hits == 0:
 				first_hit = point
