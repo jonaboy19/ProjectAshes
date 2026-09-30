@@ -11,9 +11,9 @@ extends CharacterBody3D
 ##
 ## A whole warren turns on an intruder together, but only a few hold an attack
 ## token at once (creature_attack_tokens.gd): the rest circle or hold at a ring
-## and take turns. Each swing has a wind-up (stop, a "!" over the head, the
-## attack clip slowed so contact lands at `windup`) and only hurts if the target
-## is still in reach, in front and not behind a wall at the contact frame.
+## and take turns. Each swing has a wind-up (stop, a "!" over the head,
+## anticipation followed by a short authored-speed strike) and only hurts if
+## the target is still in reach, in front and not behind a wall at contact.
 ## Models: Meshy goblin / orc / troll (creature_models.gd); the yield kneel and
 ## stand-up are cut from the orc's charged-chop clip.
 ## Deaths go physical (ragdoll.gd, capped world-wide) and fall back to the death
@@ -31,6 +31,7 @@ const PLAYER_SOLID_RANGE := 16.0
 ## unit of knockback as before) instead of an instant teleport (FEEL_AUDIT F5).
 const KNOCK_TAU := 0.1
 const KNOCK_SHARE := 0.12
+const STRIKE_TIME := 0.2
 const WORLD_LAYER := 1
 const ENEMY_LAYER := 4
 ## Player walks at 2.4 m/s and runs at 6.5 m/s (player.gd), so "run" stays below it.
@@ -91,6 +92,7 @@ var _walk_clip_speed := 0.65
 var _run_clip_speed := 1.7
 var _impact_time := 0.3
 var _winding := 0.0
+var _strike_snap_sent := false
 var _strike_target: Node3D
 var _turn_rest := 0.0
 var _turn_time := 0.0
@@ -223,6 +225,12 @@ func _physics_process(delta: float) -> void:
 		_winding -= delta
 		if is_instance_valid(_strike_target) and _winding > float(SPECIES[species]["windup"]) * 0.4:
 			_face(_strike_target.global_position, delta)   # tracks early, then commits
+		if _winding <= STRIKE_TIME and not _strike_snap_sent:
+			_strike_snap_sent = true
+			if _anim:
+				_anim.speed_scale = 1.0
+			VFX.flash(get_parent(), global_position + Vector3.UP * float(SPECIES[species]["height"]) * 0.8,
+				Color(1.0, 0.55, 0.2), 1.5, 0.08, 3.0)
 		if _winding <= 0.0:
 			_impact()
 	if _was_yielded and state != State.YIELD:
@@ -442,15 +450,19 @@ func _face(at: Vector3, delta: float) -> void:
 		rotation.y = lerp_angle(rotation.y, atan2(to.x, to.z), 8.0 * delta)
 
 
-## Wind-up: stop, flag "!" and play the swing slowed so contact lands at `windup`.
+## Wind-up: stretch the anticipation to its fairness timer, then play the last
+## STRIKE_TIME at the clip's authored rate. The timer and hit frame stay fixed.
 func _strike(foe: Node3D) -> void:
 	var sp: Dictionary = SPECIES[species]
 	var windup := float(sp["windup"])
 	_attack_cd = randf_range(float(sp["cooldown"][0]), float(sp["cooldown"][1]))
 	_winding = windup
+	_strike_snap_sent = false
 	_busy = windup + float(sp["recover"])
 	_strike_target = foe
-	_play("attack", true, clampf(_impact_time / windup, 0.3, 1.6))
+	var pre := maxf(_impact_time - STRIKE_TIME, 0.05)
+	var hold := maxf(windup - STRIKE_TIME, 0.05)
+	_play("attack", true, clampf(pre / hold, 0.25, 2.0))
 	_show_telegraph(true)
 	var voice := String(sp["voice"])
 	if voice != "" and Audio.has_sound(voice):

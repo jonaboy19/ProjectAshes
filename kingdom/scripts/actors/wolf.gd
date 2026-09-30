@@ -11,7 +11,7 @@ extends CharacterBody3D
 ## - attack tokens: only slot holders close in and strike; the rest circle at a
 ##   ring around the target and take turns (creature_attack_tokens.gd);
 ## - every attack has a wind-up: the beast stops, growls and plays its attack
-##   clip slowed so the contact frame lands at `windup`; damage only lands if the
+##   anticipation before a short authored-speed strike; damage only lands if the
 ##   target is still in reach, in front and not behind a wall at that moment;
 ## - a wounded beast flees below the player's run speed, then limps home and
 ##   recovers, so the chase always ends one way or the other.
@@ -32,6 +32,7 @@ const PLAYER_SOLID_RANGE := 16.0
 ## unit of knockback as before) instead of an instant teleport (FEEL_AUDIT F5).
 const KNOCK_TAU := 0.1
 const KNOCK_SHARE := 0.12
+const STRIKE_TIME := 0.2
 const WORLD_LAYER := 1
 const ENEMY_LAYER := 4
 const ESCAPE_DISTANCE := 30.0     # a fleeing beast this far from the player has got away
@@ -103,6 +104,7 @@ var _speed := 0.0
 var _knock := Vector3.ZERO        # sliding knockback velocity (m/s)
 var _actor_shape: CollisionShape3D
 var _winding := 0.0              # > 0 while an attack winds up
+var _strike_snap_sent := false
 var _strike_target: Node3D
 var _turn_rest := 0.0            # waits this long before asking for another slot
 var _turn_time := 0.0            # how long the current slot has been held
@@ -189,6 +191,12 @@ func _physics_process(delta: float) -> void:
 		_winding -= delta
 		if is_instance_valid(_strike_target) and _winding > float(_sp["windup"]) * 0.4:
 			_face(_strike_target.global_position, delta)   # tracks early, then commits
+		if _winding <= STRIKE_TIME and not _strike_snap_sent:
+			_strike_snap_sent = true
+			if _anim:
+				_anim.speed_scale = 1.0
+			VFX.flash(get_parent(), global_position + Vector3.UP * float(_sp["height"]) * 0.8,
+				Color(1.0, 0.55, 0.2), 1.5, 0.08, 3.0)
 		if _winding <= 0.0:
 			_impact()
 	var here := Vector2(global_position.x, global_position.z)
@@ -423,14 +431,18 @@ func _face(at: Vector3, delta: float) -> void:
 		rotation.y = lerp_angle(rotation.y, atan2(to.x, to.z), 1.0 - exp(-8.0 * delta))
 
 
-## Wind-up: stop, growl, play the attack clip slowed so contact lands at `windup`.
+## Wind-up: stretch anticipation to its fairness timer, then play the last
+## STRIKE_TIME at the clip's authored rate. The timer and hit frame stay fixed.
 func _begin_attack(target: Node3D) -> void:
 	var windup := float(_sp["windup"])
 	_attack_cd = randf_range(float(_sp["cooldown"][0]), float(_sp["cooldown"][1]))
 	_winding = windup
+	_strike_snap_sent = false
 	_busy = windup + float(_sp["recover"])
 	_strike_target = target
-	_play("attack", true, clampf(_impact_time / windup, 0.3, 1.5))
+	var pre := maxf(_impact_time - STRIKE_TIME, 0.05)
+	var hold := maxf(windup - STRIKE_TIME, 0.05)
+	_play("attack", true, clampf(pre / hold, 0.25, 2.0))
 	var voice := String(_sp["voice"])
 	if voice != "" and Audio.has_sound(voice):
 		Audio.play_sfx(voice, global_position + Vector3.UP * 0.6, -4.0, 0.1)
