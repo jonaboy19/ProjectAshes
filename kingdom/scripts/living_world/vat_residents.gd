@@ -30,6 +30,7 @@ const WORK_CLIPS := [
 	["Life_Wood_Chop", "TreeChopping"],
 ]
 const WALK_SPEED := 1.3
+const LOW_LOOKS := ["villager_man_a", "villager_woman_a", "villager_farmer", "villager_guard"]
 ## Max residents drawn as VAT (per quality tier LOW..ULTRA); the rest fall back to sprites.
 const CAP := [40, 80, 140, 220]
 
@@ -48,10 +49,13 @@ func _ready() -> void:
 	for l: Array in LOOKS_BY_JOB:
 		for k: String in l:
 			looks[k] = true
-	crowd.load_looks(looks.keys())
 	var q := get_node_or_null("/root/Quality")
+	var tier := 2
 	if q and q.get("tier") != null:
-		cap = CAP[clampi(int(q.tier), 0, CAP.size() - 1)]
+		tier = clampi(int(q.tier), 0, CAP.size() - 1)
+	cap = CAP[tier]
+	# LOW: four looks (~12 MB of VAT textures instead of ~27 MB); every job list still finds one of them.
+	crowd.load_looks(LOW_LOOKS if tier == 0 else looks.keys())
 
 
 func begin() -> void:

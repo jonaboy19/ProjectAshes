@@ -40,6 +40,10 @@ var _shots: Array = []
 var _baker: ImpostorBaker
 var _frame_ms: Array = []
 var _bench_done := false
+var _ready_done := false
+var _beh_ms := 0.0
+var _beh_acc := 0
+var _beh_n := 0
 
 
 func _ready() -> void:
@@ -79,6 +83,8 @@ func _ready() -> void:
 	_populate_far()
 	await _populate_sprites()
 	_setup_shots()
+	_t = 0.0
+	_ready_done = true
 
 
 # ================================================================= world
@@ -98,7 +104,7 @@ func _build_environment() -> void:
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.fog_enabled = true
 	env.fog_light_color = pm.sky_horizon_color
-	env.fog_density = 0.0025 if not rain else 0.008
+	env.fog_density = 0.0010 if not rain else 0.006
 	env.fog_sky_affect = 0.3
 	var we := WorldEnvironment.new()
 	we.environment = env
@@ -128,9 +134,12 @@ func _build_environment() -> void:
 	plaza.mesh = pc
 	var cob := StandardMaterial3D.new()
 	cob.albedo_texture = load("res://assets/art/textures/cobblestone.png")
-	cob.uv1_scale = Vector3(14, 14, 14)
+	cob.uv1_scale = Vector3(0.4, 0.4, 0.4)
 	cob.uv1_triplanar = true
-	cob.albedo_color = Color(1.0, 0.95, 0.88)
+	cob.normal_enabled = true
+	cob.normal_texture = load("res://assets/art/textures/cobblestone_normal.png")
+	cob.normal_scale = 1.2
+	cob.albedo_color = Color(0.92, 0.86, 0.78)
 	cob.roughness = 0.95
 	plaza.material_override = cob
 	plaza.position.y = 0.0
@@ -475,13 +484,13 @@ func _populate_sprites() -> void:
 
 # ================================================================= frame
 func _process(delta: float) -> void:
-	_t += delta
-	if mode == "bench":
+	if mode == "bench" or not _ready_done:
 		return
+	_t += delta
 	_tick_data_crowd(delta)
 	_update_camera()
 	_update_overlay(delta)
-	if _tint_tiers or (mode == "showcase" and _t > float(args.get("tint_at", "38.0"))):
+	if (_tint_tiers or (mode == "showcase" and _t > float(args.get("tint_at", "52.0")))) and Engine.get_process_frames() % 15 == 0:
 		_apply_tier_tint(true)
 	if args.has("shot") and not has_meta("shot_done") and _t > float(args.get("shot_at", "5")):
 		set_meta("shot_done", true)
@@ -531,21 +540,27 @@ func _setup_shots() -> void:
 	if mode == "stress":
 		_shots = [{"t": 0.0, "pos": Vector3(0, 30, 70), "look": Vector3(10, 0, 0)}, {"t": 60.0, "pos": Vector3(0, 30, 70), "look": Vector3(10, 0, 0)}]
 		return
-	# showcase: [start time, camera position, look target]
+	# showcase: [start time, camera position, look target]; the timeline starts once everything is spawned
 	_shots = [
-		{"t": 0.0, "pos": Vector3(7, 2.0, 17), "look": Vector3(-2, 1.0, 0)},
-		{"t": 7.0, "pos": Vector3(1, 1.8, 7), "look": Vector3(-8, 1.1, -3)},
-		{"t": 9.0, "pos": Vector3(-8.5, 1.7, -1.5), "look": Vector3(-14, 1.0, -5)},
-		{"t": 15.0, "pos": Vector3(-7.5, 1.7, 1.0), "look": Vector3(-12, 0.9, 3)},
-		{"t": 17.0, "pos": Vector3(-2, 1.7, 3.5), "look": Vector3(0, 1.1, 10.5)},
-		{"t": 23.0, "pos": Vector3(3, 1.7, 3.5), "look": Vector3(1, 1.1, 10.5)},
-		{"t": 25.0, "pos": Vector3(6, 1.8, 2), "look": Vector3(13, 1.1, -4)},
-		{"t": 30.0, "pos": Vector3(7, 1.8, -2), "look": Vector3(13, 1.1, -6)},
-		{"t": 32.0, "pos": Vector3(0, 1.3, 7), "look": Vector3(-5, 0.7, 4)},
-		{"t": 36.0, "pos": Vector3(-1, 1.5, 8), "look": Vector3(-7, 0.7, 8)},
-		{"t": 38.0, "pos": Vector3(0, 6, 22), "look": Vector3(0, 1, 0)},
-		{"t": 48.0, "pos": Vector3(-20, 38, 85), "look": Vector3(25, 0, -5)},
-		{"t": 60.0, "pos": Vector3(-20, 38, 85), "look": Vector3(25, 0, -5)},
+		{"t": 0.0, "pos": Vector3(18, 6, 26), "look": Vector3(-2, 1, -2)},
+		{"t": 6.5, "pos": Vector3(12, 4, 19), "look": Vector3(-4, 1, -4)},
+		{"t": 7.0, "pos": Vector3(-8.0, 1.6, -2.5), "look": Vector3(-14.5, 1.0, -4.8)},
+		{"t": 13.5, "pos": Vector3(-8.5, 1.5, -0.2), "look": Vector3(-12.0, 0.9, 2.8)},
+		{"t": 14.0, "pos": Vector3(-1.0, 1.3, 8.5), "look": Vector3(-5.5, 0.6, 4.5)},
+		{"t": 20.0, "pos": Vector3(0.5, 1.4, 5.5), "look": Vector3(-3.5, 0.7, -2.0)},
+		{"t": 20.5, "pos": Vector3(0.0, 1.7, 4.0), "look": Vector3(0.0, 1.2, 11.0)},
+		{"t": 27.0, "pos": Vector3(4.0, 1.7, 5.0), "look": Vector3(6.5, 1.2, 10.5)},
+		{"t": 27.5, "pos": Vector3(6.0, 1.7, -0.5), "look": Vector3(13.0, 1.1, -5.0)},
+		{"t": 34.0, "pos": Vector3(8.0, 1.7, -6.0), "look": Vector3(13.0, 1.1, -10.0)},
+		{"t": 34.5, "pos": Vector3(0.5, 1.7, -15.0), "look": Vector3(0.0, 1.0, -24.0)},
+		{"t": 40.0, "pos": Vector3(-1.0, 1.7, -8.0), "look": Vector3(-2.5, 1.2, -10.0)},
+		{"t": 40.5, "pos": Vector3(24.0, 2.5, 13.0), "look": Vector3(35.0, 0.8, 27.0)},
+		{"t": 46.0, "pos": Vector3(26.0, 3.0, 18.0), "look": Vector3(37.0, 0.8, 34.0)},
+		{"t": 46.5, "pos": Vector3(10.0, 8.0, 30.0), "look": Vector3(0.0, 0.0, 0.0)},
+		{"t": 56.0, "pos": Vector3(-14.0, 24.0, 56.0), "look": Vector3(14.0, 0.0, 4.0)},
+		{"t": 60.0, "pos": Vector3(-14.0, 24.0, 56.0), "look": Vector3(14.0, 0.0, 4.0)},
+		{"t": 60.5, "pos": Vector3(7.0, 3.2, 13.0), "look": Vector3(-8.0, 0.8, -8.0)},
+		{"t": 68.0, "pos": Vector3(9.0, 3.6, 15.0), "look": Vector3(-6.0, 0.8, -10.0)},
 	]
 
 
@@ -588,6 +603,13 @@ func _build_overlay() -> void:
 
 func _update_overlay(delta: float) -> void:
 	_frame_ms.append(delta * 1000.0)
+	_beh_acc += LifeActor.usec_total
+	LifeActor.usec_total = 0
+	_beh_n += 1
+	if _beh_n >= 30:
+		_beh_ms = _beh_acc / 1000.0 / _beh_n
+		_beh_acc = 0
+		_beh_n = 0
 	if _frame_ms.size() > 60:
 		_frame_ms.pop_front()
 	if overlay == null or Engine.get_process_frames() % 10 != 0:
@@ -598,10 +620,10 @@ func _update_overlay(delta: float) -> void:
 	avg /= maxf(_frame_ms.size(), 1)
 	var c: Array = lod.counts
 	var proc := Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0 + Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0
-	overlay.text = "LIVING WORLD  %s  tier %s   %.0f fps  cpu %.1f ms\nskeletal NEAR %d  MID %d   VAT %d (%d from actors)   sprites %d   = %d people\nanim-LOD %.2f ms  skel updates/frame %d  draw %d" % [
+	overlay.text = "LIVING WORLD  %s  tier %s   %.0f fps  cpu %.1f ms\nskeletal NEAR %d  MID %d   VAT %d (%d from actors)   sprites %d   = %d people\nanim-LOD %.2f ms (advance %.2f, tiering %.2f)  behaviour %.2f ms  skel updates/frame %d  draw %d" % [
 		mode, ["LOW", "MEDIUM", "HIGH", "ULTRA"][lod.tier_index], Engine.get_frames_per_second(), proc,
 		c[0], c[1], crowd.count(), c[2], _sprite_count, actors.size() + _data_crowd.size() + _sprite_count,
-		lod.cpu_usec / 1000.0, lod.skeleton_updates,
+		lod.cpu_usec / 1000.0, lod.advance_usec / 1000.0, lod.retier_usec / 1000.0, _beh_ms, lod.skeleton_updates,
 		int(RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME))]
 
 

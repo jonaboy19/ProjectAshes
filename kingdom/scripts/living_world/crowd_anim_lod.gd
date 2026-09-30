@@ -39,7 +39,9 @@ var enabled := true
 ## Stats (read by the demo overlay / bench).
 var counts := [0, 0, 0, 0]
 var skeleton_updates := 0           # AnimationPlayer advances this frame (NEAR + stepped MID)
-var cpu_usec := 0                   # this node's own GDScript time this frame
+var cpu_usec := 0                   # this node's total time this frame (incl. the stepped AnimationPlayer work)
+var advance_usec := 0               # of which: AnimationPlayer.advance() of MID / FAR bookkeeping
+var retier_usec := 0                # of which: distance / frustum / budget pass
 var cfg: Dictionary = BUDGETS[2]
 ## QA / bench: >= 0 puts every agent in that tier regardless of distance and budget.
 var force_tier := -1
@@ -63,6 +65,7 @@ class Agent:
 	var accum := 0.0
 	var step := 1
 	var bucket := 0
+	var slot60 := 0
 	var onscreen := true
 	var dist := 0.0
 	var vat_clip := ""
@@ -93,6 +96,7 @@ func register(id: int, node: Node3D, model: Node3D, anim: AnimationPlayer, look:
 	a.look = look
 	a.vat_look = vat_look
 	a.bucket = absi(hash(id)) % 12
+	a.slot60 = absi(hash(id * 31 + 7)) % 60
 	for m in model.find_children("*", "GeometryInstance3D", true, false):
 		a.meshes.append(m)
 	_agents.append(a)
@@ -130,9 +134,12 @@ func _process(delta: float) -> void:
 	var t0 := Time.get_ticks_usec()
 	_frame += 1
 	skeleton_updates = 0
+	advance_usec = 0
 	var n := _agents.size()
+	var tr := Time.get_ticks_usec()
 	if n > 0:
 		_retier_slice()
+	retier_usec = Time.get_ticks_usec() - tr
 	for a: Agent in _agents:
 		match a.tier:
 			Tier.NEAR:
@@ -140,15 +147,19 @@ func _process(delta: float) -> void:
 			Tier.MID:
 				a.accum += delta
 				if (_frame + a.bucket) % a.step == 0:
+					var tb := Time.get_ticks_usec()
 					a.anim.advance(a.accum)
+					advance_usec += Time.get_ticks_usec() - tb
 					a.accum = 0.0
 					skeleton_updates += 1
 			Tier.FAR:
 				# 1 Hz bookkeeping advance: the (hidden) player keeps its clock, so a controller that waits for a
 				# one-shot to finish still sees it end; the skin of a hidden mesh is never drawn.
 				a.accum += delta
-				if (_frame + a.bucket * 5) % 60 == 0:
+				if (_frame + a.slot60) % 60 == 0:
+					var ta := Time.get_ticks_usec()
 					a.anim.advance(a.accum)
+					advance_usec += Time.get_ticks_usec() - ta
 					a.accum = 0.0
 				_far_tick(a)
 	cpu_usec = Time.get_ticks_usec() - t0

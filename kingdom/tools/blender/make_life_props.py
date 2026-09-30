@@ -185,11 +185,13 @@ def retarget_uri(path):
 @hand
 def p_hoe():
     k = LK("hoe", 101)
-    handle(k, -0.15, 1.32, 0.025)
-    seg(k, (0, 0, 1.2), (0, 0, 1.36), 0.036, "Metal", IRON_LT, r2=0.028)          # socket
-    bar(k, (0, 0, 1.30), (0, -0.13, 1.26), 0.05, 0.035, IRON_LT, "Metal", up=(1, 0, 0))    # neck
-    bx(k, (0.22, 0.17, 0.02), (0, -0.21, 1.235), STEEL, "Metal", rot=(0.28, 0, 0), bevel=0.004)  # blade
-    bx(k, (0.22, 0.02, 0.03), (0, -0.125, 1.255), STEEL_DK, "Metal", rot=(0.28, 0, 0))     # blade rib
+    # grip origin = the LOWER (right) hand, 0.5 m up from the butt, so the other hand can hold the butt end
+    # 0.35-0.45 m behind it (a real hoeing grip); blade 0.85 m beyond the grip.
+    handle(k, -0.50, 0.97, 0.025)
+    seg(k, (0, 0, 0.85), (0, 0, 1.01), 0.036, "Metal", IRON_LT, r2=0.028)          # socket
+    bar(k, (0, 0, 0.95), (0, -0.13, 0.91), 0.05, 0.035, IRON_LT, "Metal", up=(1, 0, 0))    # neck
+    bx(k, (0.22, 0.17, 0.02), (0, -0.21, 0.885), STEEL, "Metal", rot=(0.28, 0, 0), bevel=0.004)  # blade
+    bx(k, (0.22, 0.02, 0.03), (0, -0.125, 0.905), STEEL_DK, "Metal", rot=(0.28, 0, 0))     # blade rib
     return fin(k, "hoe", HAND_BUDGET)
 
 

@@ -22,27 +22,27 @@ def cook_stir(fr, n):
     turns = 2.0
     ph = 2 * math.pi * turns * fr / n
     rr = 0.065 + 0.02 * (0.5 - 0.5 * math.cos(2 * math.pi * fr / n))      # the second turn is wider (per-cycle variation)
-    T = P(0.0, 0.50, 0.53)                                                 # bowl of the ladle inside the pot
+    T = P(0.0, 0.42, 0.58)                                                 # bowl of the ladle inside the pot
     tip = T + V(rr * math.cos(ph), -rr * 0.8 * math.sin(ph), 0.01 * math.sin(2 * ph))
     # the handle pivots on the rim: the hand circles the other way with a smaller radius
-    D = V(-0.22 * math.cos(ph), -0.60 - 0.12 * math.sin(ph), -0.80).normalized()
+    D = V(-0.10 * math.cos(ph), -0.50 - 0.06 * math.sin(ph), -0.86).normalized()
     G = tip - D * LEN["ladle"] * 1.05
     s = S()
     stance(s, 0.15, -0.10, -0.15, 0.02, 6.0, -10.0)
-    s["pel"] = V(0.01 * sw(fr, n, 2), -0.08, -0.13)                       # knees bent, hips forward over the feet
+    s["pel"] = V(0.01 * sw(fr, n, 2), -0.05, -0.07)                       # knees bent, hips forward over the feet
     s["hip"] = (8.0, 0.0, 0.0)
     s["tor"] = (8.0, 3.0 * sw(fr, n, 2, 0.1), 0.0)
     s["head"] = (14.0, 4.0 * sw(fr, n, 1, 0.3), 0.0)
     tang = V(-math.sin(ph), -0.8 * math.cos(ph), 0.0)
     K = (tang - D * tang.dot(D)).normalized()
     hand1(s, "l", P(0.24, 0.02, 1.0), ((0.0, -0.6, -0.8), (-1.0, 0.0, 0.0)), 0.7)
-    grips(s, [("r", G, D, K)], fitlean=True, headk=0.1, lmax=35, rmax=0.44, squat=0.0016)
+    grips(s, [("r", G, D, K)], fitlean=True, headk=0.1, lmax=35, rmax=0.48, squat=0.0012)
     breath(s, fr, n, 0.004)
     return s
 
 
 work_clip("Life_Cook_Stir", 60, cook_stir, loop=True, category="work/cook", props=[{"id": "ladle", "hand": "r"}],
-          anchor={"type": "cook_pot", "at": [0.0, 0.50, 0.60], "size": [0.6, 0.6, 0.60]}, events={"stir": [0, 30]},
+          anchor={"type": "cook_pot", "at": [0.0, 0.42, 0.60], "size": [0.6, 0.6, 0.60]}, events={"stir": [0, 30]},
           note="two stirs per loop (the second is wider), the ladle pivots on the pot rim, left hand on the hip")
 
 
@@ -91,12 +91,12 @@ def scrub(fr, n):
     a = 0.5 - 0.5 * math.cos(2 * math.pi * 3.0 * fr / n)          # 0 top .. 1 bottom
     amp = 0.085 + 0.02 * sw(fr, n, 1, 0.2)
     Sl = V(0, 0.55, -0.83)                                     # down the board (towards the worker)
-    C = P(0.0, 0.34, 0.60)
+    C = P(0.0, 0.30, 0.60)
     s = S()
     kneel2(s)
-    s["tor"] = (8.0 + 3.0 * a, 3.0 * sw(fr, n, 3, 0.25), 0.0)
+    s["tor"] = (12.0 + 3.0 * a, 3.0 * sw(fr, n, 3, 0.25), 0.0)
     s["hip"] = (4.0, 0.0, 0.0)
-    s["pel"] = Vector(s["pel"]) + V(0.006 * sw(fr, n, 3), -0.11 - 0.02 * (1 - a), 0.0)
+    s["pel"] = Vector(s["pel"]) + V(0.006 * sw(fr, n, 3), -0.03 - 0.02 * (1 - a), 0.0)
     s["head"] = (14.0, 0.0, 0.0)
     for side in ("l", "r"):
         sx = 1 if side == "l" else -1
@@ -109,7 +109,7 @@ def scrub(fr, n):
 
 
 work_clip("Life_Chore_Laundry_Scrub", 60, scrub, loop=True, enter_exit=True, n_enter=26, n_exit=24, category="work/laundry",
-          props=[{"id": "laundry", "hand": "r"}], anchor={"type": "wash_tub", "at": [0.0, 0.34, 0.45], "size": [0.7, 0.5, 0.45]},
+          props=[{"id": "laundry", "hand": "r"}], anchor={"type": "wash_tub", "at": [0.0, 0.30, 0.45], "size": [0.7, 0.5, 0.45]},
           events={"scrub_down": [15, 35, 55]}, note="kneeling at the tub, three scrub strokes down and up the washboard per loop",
           tr={"lift": 0.05, "dip": 0.0, "sway": 0.02, "t_body": (0.15, 0.95), "t_hands": (0.5, 1.0), "t_feet": (0.05, 0.6)})
 

@@ -1,0 +1,596 @@
+[
+ {
+  "name": "Life_Farm_Hoe",
+  "loop": true,
+  "frames": 85,
+  "seconds": 2.8,
+  "events": {
+   "contact": [
+    25,
+    67
+   ]
+  },
+  "note": "two calm strokes per 2.8 s: lift to shoulder height, blade forward and down, chop, drag back to the feet; the second lands 0.17 m to the left",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Farm_Hoe_Enter",
+  "loop": false,
+  "frames": 16,
+  "seconds": 0.5,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Farm_Hoe_Exit",
+  "loop": false,
+  "frames": 14,
+  "seconds": 0.433,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Farm_Sow",
+  "loop": true,
+  "frames": 85,
+  "seconds": 2.8,
+  "events": {
+   "contact": [
+    37
+   ],
+   "grab": [
+    8
+   ]
+  },
+  "note": "dip the right hand in the bag on the left hip, wind up, broadcast palm-up, follow through",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Farm_Harvest",
+  "loop": true,
+  "frames": 91,
+  "seconds": 3.0,
+  "events": {
+   "contact": [
+    15,
+    60
+   ]
+  },
+  "note": "two cuts per cycle, bent at hips and knees; left hand gathers the stalks, drops the bundle at its side",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Farm_Harvest_Enter",
+  "loop": false,
+  "frames": 16,
+  "seconds": 0.5,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Farm_Harvest_Exit",
+  "loop": false,
+  "frames": 14,
+  "seconds": 0.433,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Farm_Milk_Cow",
+  "loop": true,
+  "frames": 73,
+  "seconds": 2.4,
+  "events": {
+   "squeeze_l": [
+    0,
+    24,
+    48
+   ],
+   "squeeze_r": [
+    12,
+    36,
+    60
+   ]
+  },
+  "note": "seated on a 0.30 m stool, alternate squeezes every 12 frames, head against the flank",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Farm_Milk_Cow_Enter",
+  "loop": false,
+  "frames": 27,
+  "seconds": 0.867,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Farm_Milk_Cow_Exit",
+  "loop": false,
+  "frames": 25,
+  "seconds": 0.8,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Farm_Feed_Chickens",
+  "loop": true,
+  "frames": 91,
+  "seconds": 3.0,
+  "events": {
+   "release": [
+    26,
+    71
+   ]
+  },
+  "note": "stooped, bowl in the left hand; grab, low underhand scatter to the right; the second throw goes wider",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carry_Sheaf_Upper",
+  "loop": true,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {},
+  "note": "sheaf resting on the left shoulder, right arm swings free",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Smith_Hammer",
+  "loop": true,
+  "frames": 73,
+  "seconds": 2.4,
+  "events": {
+   "contact": [
+    20,
+    36,
+    46,
+    56
+   ]
+  },
+  "note": "heavy blow, medium blow, two light rebound taps; tongs hold the work and jolt on each hit",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Smith_Hammer_Enter",
+  "loop": false,
+  "frames": 16,
+  "seconds": 0.5,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Smith_Hammer_Exit",
+  "loop": false,
+  "frames": 14,
+  "seconds": 0.433,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Smith_Quench",
+  "loop": false,
+  "frames": 75,
+  "seconds": 2.467,
+  "events": {
+   "dip": [
+    30
+   ],
+   "steam": [
+    34
+   ],
+   "lift": [
+    50
+   ]
+  },
+  "note": "one shot: work on the tongs to the trough at the left, dip, lean back from the steam, lift out",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Smith_Bellows",
+  "loop": true,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {
+   "push": [
+    24
+   ],
+   "pull": [
+    53
+   ]
+  },
+  "note": "both hands on a bar, down stroke with the body weight, lighter return; the knees dip on the down stroke",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carp_Saw",
+  "loop": true,
+  "frames": 73,
+  "seconds": 2.4,
+  "events": {
+   "push": [
+    20,
+    56
+   ],
+   "pull": [
+    2,
+    38
+   ]
+  },
+  "note": "two strokes per cycle (the second is longer), push on the forward stroke with hip drive; left hand braces the plank",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carp_Saw_Enter",
+  "loop": false,
+  "frames": 16,
+  "seconds": 0.5,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carp_Saw_Exit",
+  "loop": false,
+  "frames": 14,
+  "seconds": 0.433,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carp_Nail",
+  "loop": true,
+  "frames": 73,
+  "seconds": 2.4,
+  "events": {
+   "contact": [
+    12,
+    27,
+    50
+   ]
+  },
+  "note": "kneeling on the right knee, three blows: seat, drive, heavy finish",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carp_Nail_Enter",
+  "loop": false,
+  "frames": 27,
+  "seconds": 0.867,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carp_Nail_Exit",
+  "loop": false,
+  "frames": 25,
+  "seconds": 0.8,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carry_Plank_Upper",
+  "loop": true,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {},
+  "note": "long plank on the right shoulder, right hand on top, left hand steadies it 0.3 m ahead",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Wood_Chop",
+  "loop": true,
+  "frames": 73,
+  "seconds": 2.4,
+  "events": {
+   "contact": [
+    27
+   ],
+   "free": [
+    44
+   ]
+  },
+  "note": "lean back with the axe overhead, drop the weight, bite, lever the axe free",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Wood_Chop_Enter",
+  "loop": false,
+  "frames": 16,
+  "seconds": 0.5,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Wood_Chop_Exit",
+  "loop": false,
+  "frames": 14,
+  "seconds": 0.433,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Wood_Place_Log",
+  "loop": false,
+  "frames": 73,
+  "seconds": 2.4,
+  "events": {
+   "pick": [
+    18
+   ],
+   "place": [
+    50
+   ],
+   "release": [
+    54
+   ]
+  },
+  "note": "one shot: squat to the log on the ground, lift it to the chest, set it upright on the block, release (the log is a scene prop)",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Fish_Idle_Rod",
+  "loop": true,
+  "frames": 91,
+  "seconds": 3.0,
+  "events": {},
+  "note": "rod held out over the water, tiny bobbing, a glance to the side, a nibble twitch",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Fish_Cast",
+  "loop": false,
+  "frames": 67,
+  "seconds": 2.2,
+  "events": {
+   "release": [
+    23
+   ]
+  },
+  "note": "one shot: starts and ends in Life_Fish_Idle_Rod frame 0; back-cast over the shoulder, snap forward, line flies at frame 23",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Fish_Reel",
+  "loop": true,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {},
+  "note": "rod in the right hand exactly as in Life_Fish_Idle_Rod (same grip point, similar tilt), left hand cranks the reel, 4 turns per loop",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Cook_Stir",
+  "loop": true,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {
+   "stir": [
+    0,
+    30
+   ]
+  },
+  "note": "two stirs per loop (the second is wider), the ladle pivots on the pot rim, left hand on the hip",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Cook_Chop",
+  "loop": true,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {
+   "contact": [
+    10,
+    22,
+    34,
+    46,
+    58
+   ]
+  },
+  "note": "five rocking chops, the claw-gripped left hand creeps back after every chop and resets at the end",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Chore_Laundry_Scrub",
+  "loop": true,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {
+   "scrub_down": [
+    15,
+    35,
+    55
+   ]
+  },
+  "note": "kneeling at the tub, three scrub strokes down and up the washboard per loop",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Chore_Laundry_Scrub_Enter",
+  "loop": false,
+  "frames": 27,
+  "seconds": 0.867,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Chore_Laundry_Scrub_Exit",
+  "loop": false,
+  "frames": 25,
+  "seconds": 0.8,
+  "events": {},
+  "note": "",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Chore_Laundry_Wring",
+  "loop": false,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {
+   "twist": [
+    26,
+    42
+   ]
+  },
+  "note": "one shot: lift the wet cloth to the chest, twist, squeeze, twist again, lower",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Chore_Hang_Washing",
+  "loop": true,
+  "frames": 91,
+  "seconds": 3.0,
+  "events": {
+   "pin": [
+    15,
+    60
+   ],
+   "step": [
+    40,
+    80
+   ]
+  },
+  "note": "hang a cloth on the line at 1.8 m and pin it, side-step left, bend to the basket, hang the next, side-step back",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Chore_Sweep",
+  "loop": true,
+  "frames": 89,
+  "seconds": 2.933,
+  "events": {
+   "stroke": [
+    18,
+    40,
+    62,
+    84
+   ]
+  },
+  "note": "four short strokes (left, right, left, right) with a small step of the left foot after strokes 1 and 3",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Chore_Well_Crank",
+  "loop": true,
+  "frames": 73,
+  "seconds": 2.4,
+  "events": {
+   "turn": [
+    0,
+    36
+   ]
+  },
+  "note": "right hand turns the crank in a 0.25 m radius circle at 1.02 m (two turns per loop), left hand rests on the rim",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Chore_Well_Lift_Bucket",
+  "loop": false,
+  "frames": 79,
+  "seconds": 2.6,
+  "events": {
+   "grab": [
+    14
+   ],
+   "release": [
+    58
+   ]
+  },
+  "note": "one shot: reach the bucket on the rim, pull it up and to the side, set it on the ground (bucket prop shows from the grab)",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carry_Bucket_Upper",
+  "loop": true,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {},
+  "note": "bucket by the bail in the right hand, arm straight, torso leans left, right shoulder drops",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carry_Two_Buckets_Upper",
+  "loop": true,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {},
+  "note": "a bucket in each hand, arms straight and slightly out, both shoulders drop, torso upright",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carry_Sack_Upper",
+  "loop": true,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {},
+  "note": "sack on the left shoulder held by the left hand, right hand steadies it, torso pitched forward",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carry_Crate_Upper",
+  "loop": true,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {},
+  "note": "crate at chest height, both palms under its lower edge, torso leans back a little",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carry_Basket_Upper",
+  "loop": true,
+  "frames": 61,
+  "seconds": 2.0,
+  "events": {},
+  "note": "basket on the left forearm, elbow bent and pressed to the side, right arm free",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carry_Pick_Up",
+  "loop": false,
+  "frames": 49,
+  "seconds": 1.6,
+  "events": {
+   "grab": [
+    17
+   ]
+  },
+  "note": "squat to a crate on the ground 0.4 m ahead, back straight, lift it to the Life_Carry_Crate_Upper carry pose (ends on its frame 0)",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Carry_Put_Down",
+  "loop": false,
+  "frames": 49,
+  "seconds": 1.6,
+  "events": {
+   "release": [
+    30
+   ]
+  },
+  "note": "reverse: from the Life_Carry_Crate_Upper carry pose squat and set the crate on the ground",
+  "root_motion_m": 0.0
+ },
+ {
+  "name": "Life_Cart_Push",
+  "loop": true,
+  "frames": 45,
+  "seconds": 1.467,
+  "events": {},
+  "note": "in-place walk leaning into cart handles held at hip height (hands fixed in the body frame); play at body_speed / speed_mps",
+  "root_motion_m": 0.0
+ }
+]

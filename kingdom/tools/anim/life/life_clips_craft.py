@@ -300,7 +300,7 @@ def fish_idle(fr, n):
     s["pel"] = V(0.008 * sw(fr, n, 1), 0.0, -0.01)
     s["tor"] = (3.0, 4.0 * sw(fr, n, 1, 0.1), 0.0)
     s["head"] = (5.0 + 2.0 * sw(fr, n, 2), 8.0 * sw(fr, n, 1, 0.6) * pulse(fr, 10, 25, 50, 70), 0.0)
-    Gr = P(-0.17, 0.32, 1.03) + V(0.004 * sw(fr, n, 2), 0, 0.006 * sw(fr, n, 3))
+    Gr = P(-0.17, 0.27, 1.06) + V(0.004 * sw(fr, n, 2), 0, 0.006 * sw(fr, n, 3))
     tool2(s, Gr, D, sag_K(D), -0.30, fitlean=False)
     fit(s, rmax=0.5, headk=0.0, lmax=15)
     breath(s, fr, n, 0.004)
@@ -312,7 +312,7 @@ work_clip("Life_Fish_Idle_Rod", 90, fish_idle, loop=True, category="work/fish", 
 
 
 def fish_cast(fr, n):
-    Gi = P(-0.17, 0.32, 1.03)
+    Gi = P(-0.17, 0.27, 1.06)
     KG = [(0, Gi), (4, Gi + V(0, 0.02, -0.03), "smooth"), (12, P(-0.20, -0.04, 1.62), "smooth"), (16, P(-0.20, -0.08, 1.66), "smooth"),
           (23, P(-0.16, 0.42, 1.28), "in2"), (26, P(-0.14, 0.48, 1.20), "out2"), (36, P(-0.15, 0.44, 1.10), "smooth"), (60, Gi, "smooth"), (66, Gi)]
     KT = [(0, 76.0), (4, 80.0), (12, 15.0), (16, 0.0), (23, 70.0, "in2"), (26, 96.0, "out2"), (36, 74.0), (60, 76.0), (66, 76.0)]
@@ -345,11 +345,11 @@ def fish_reel(fr, n):
     s["pel"] = V(0.0, 0.005 * sw(fr, n, 4), -0.012)
     s["tor"] = (4.0 + 1.0 * sw(fr, n, 4), 3.0, 0.0)
     s["head"] = (6.0, 0.0, 0.0)
-    Gr = P(-0.17, 0.32, 1.03) + V(0.003 * sw(fr, n, 4), 0.004 * sw(fr, n, 4), 0.005 * sw(fr, n, 4, 0.25))
+    Gr = P(-0.17, 0.27, 1.06) + V(0.003 * sw(fr, n, 4), 0.004 * sw(fr, n, 4), 0.005 * sw(fr, n, 4, 0.25))
     grips(s, [("r", Gr, D, sag_K(D))], fitlean=False)
     # the left hand cranks the reel just behind / below the right hand: a 0.05 m circle in the rod's plane
     ph = 2 * math.pi * 4.0 * fr / n
-    C = P(0.06, 0.20, 0.98)
+    C = P(0.03, 0.15, 1.06)
     hl = C + V(0.0, -0.055 * math.cos(ph), 0.055 * math.sin(ph))
     hand1(s, "l", hl, ((0.5, -0.4 * math.cos(ph) - 0.2, 0.4 * math.sin(ph) - 0.3), (-0.9, 0.2, 0.0)), 0.9)
     fit(s, rmax=0.46, headk=0.0, lmax=25)

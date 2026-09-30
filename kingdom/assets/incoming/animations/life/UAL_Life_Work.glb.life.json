@@ -1,0 +1,1803 @@
+{
+ "library": "res://assets/incoming/animations/life/UAL_Life_Work.glb",
+ "fps": 30,
+ "clips": {
+  "Life_Farm_Hoe": {
+   "category": "work/farm",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "hoe",
+     "hand": "r"
+    }
+   ],
+   "enter": "Life_Farm_Hoe_Enter",
+   "exit": "Life_Farm_Hoe_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "contact": [
+     25,
+     67
+    ]
+   },
+   "anchor": {
+    "type": "field_row",
+    "at": [
+     0.0,
+     0.6,
+     0.0
+    ],
+    "size": [
+     1.0,
+     0.5,
+     0.06
+    ]
+   },
+   "note": "two calm strokes per 2.8 s: lift to shoulder height, blade forward and down, chop, drag back to the feet; the second lands 0.17 m to the left",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": -0.4,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 85,
+   "seconds": 2.8
+  },
+  "Life_Farm_Hoe_Enter": {
+   "category": "work/farm",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "hoe",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.15,
+   "events": {},
+   "anchor": {
+    "type": "field_row",
+    "at": [
+     0.0,
+     0.6,
+     0.0
+    ],
+    "size": [
+     1.0,
+     0.5,
+     0.06
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": -0.4,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 16,
+   "seconds": 0.5
+  },
+  "Life_Farm_Hoe_Exit": {
+   "category": "work/farm",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "hoe",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.15,
+   "blend_out": 0.25,
+   "events": {},
+   "anchor": {
+    "type": "field_row",
+    "at": [
+     0.0,
+     0.6,
+     0.0
+    ],
+    "size": [
+     1.0,
+     0.5,
+     0.06
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": -0.4,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 14,
+   "seconds": 0.433
+  },
+  "Life_Farm_Sow": {
+   "category": "work/farm",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "seed_bag",
+     "hand": "l"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "contact": [
+     37
+    ],
+    "grab": [
+     8
+    ]
+   },
+   "anchor": null,
+   "note": "dip the right hand in the bag on the left hip, wind up, broadcast palm-up, follow through",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 85,
+   "seconds": 2.8
+  },
+  "Life_Farm_Harvest": {
+   "category": "work/farm",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "sickle",
+     "hand": "r"
+    }
+   ],
+   "enter": "Life_Farm_Harvest_Enter",
+   "exit": "Life_Farm_Harvest_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "contact": [
+     15,
+     60
+    ]
+   },
+   "anchor": {
+    "type": "field_row",
+    "at": [
+     0.0,
+     0.55,
+     0.45
+    ],
+    "size": [
+     1.0,
+     0.4,
+     0.05
+    ]
+   },
+   "note": "two cuts per cycle, bent at hips and knees; left hand gathers the stalks, drops the bundle at its side",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 91,
+   "seconds": 3.0
+  },
+  "Life_Farm_Harvest_Enter": {
+   "category": "work/farm",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "sickle",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.15,
+   "events": {},
+   "anchor": {
+    "type": "field_row",
+    "at": [
+     0.0,
+     0.55,
+     0.45
+    ],
+    "size": [
+     1.0,
+     0.4,
+     0.05
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 16,
+   "seconds": 0.5
+  },
+  "Life_Farm_Harvest_Exit": {
+   "category": "work/farm",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "sickle",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.15,
+   "blend_out": 0.25,
+   "events": {},
+   "anchor": {
+    "type": "field_row",
+    "at": [
+     0.0,
+     0.55,
+     0.45
+    ],
+    "size": [
+     1.0,
+     0.4,
+     0.05
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 14,
+   "seconds": 0.433
+  },
+  "Life_Farm_Milk_Cow": {
+   "category": "work/farm",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": "Life_Farm_Milk_Cow_Enter",
+   "exit": "Life_Farm_Milk_Cow_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "squeeze_l": [
+     0,
+     24,
+     48
+    ],
+    "squeeze_r": [
+     12,
+     36,
+     60
+    ]
+   },
+   "anchor": {
+    "type": "milking_stool",
+    "at": [
+     0.0,
+     -0.25,
+     0.3
+    ],
+    "size": [
+     0.34,
+     0.34,
+     0.3
+    ]
+   },
+   "note": "seated on a 0.30 m stool, alternate squeezes every 12 frames, head against the flank",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 73,
+   "seconds": 2.4
+  },
+  "Life_Farm_Milk_Cow_Enter": {
+   "category": "work/farm",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.15,
+   "events": {},
+   "anchor": {
+    "type": "milking_stool",
+    "at": [
+     0.0,
+     -0.25,
+     0.3
+    ],
+    "size": [
+     0.34,
+     0.34,
+     0.3
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 27,
+   "seconds": 0.867
+  },
+  "Life_Farm_Milk_Cow_Exit": {
+   "category": "work/farm",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.15,
+   "blend_out": 0.25,
+   "events": {},
+   "anchor": {
+    "type": "milking_stool",
+    "at": [
+     0.0,
+     -0.25,
+     0.3
+    ],
+    "size": [
+     0.34,
+     0.34,
+     0.3
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 25,
+   "seconds": 0.8
+  },
+  "Life_Farm_Feed_Chickens": {
+   "category": "work/farm",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "grain_bowl",
+     "hand": "l"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "release": [
+     26,
+     71
+    ]
+   },
+   "anchor": null,
+   "note": "stooped, bowl in the left hand; grab, low underhand scatter to the right; the second throw goes wider",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 91,
+   "seconds": 3.0
+  },
+  "Life_Carry_Sheaf_Upper": {
+   "category": "carry/upper",
+   "loop": true,
+   "layer": "upper",
+   "props": [
+    {
+     "id": "sheaf",
+     "hand": "l"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "sheaf resting on the left shoulder, right arm swings free",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": "spine_01",
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Smith_Hammer": {
+   "category": "work/smith",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "smith_hammer",
+     "hand": "r"
+    },
+    {
+     "id": "tongs",
+     "hand": "l"
+    }
+   ],
+   "enter": "Life_Smith_Hammer_Enter",
+   "exit": "Life_Smith_Hammer_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "contact": [
+     20,
+     36,
+     46,
+     56
+    ]
+   },
+   "anchor": {
+    "type": "anvil",
+    "at": [
+     0.0,
+     0.56,
+     0.78
+    ],
+    "size": [
+     0.3,
+     0.7,
+     0.78
+    ]
+   },
+   "note": "heavy blow, medium blow, two light rebound taps; tongs hold the work and jolt on each hit",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 73,
+   "seconds": 2.4
+  },
+  "Life_Smith_Hammer_Enter": {
+   "category": "work/smith",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "smith_hammer",
+     "hand": "r"
+    },
+    {
+     "id": "tongs",
+     "hand": "l"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.15,
+   "events": {},
+   "anchor": {
+    "type": "anvil",
+    "at": [
+     0.0,
+     0.56,
+     0.78
+    ],
+    "size": [
+     0.3,
+     0.7,
+     0.78
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 16,
+   "seconds": 0.5
+  },
+  "Life_Smith_Hammer_Exit": {
+   "category": "work/smith",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "smith_hammer",
+     "hand": "r"
+    },
+    {
+     "id": "tongs",
+     "hand": "l"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.15,
+   "blend_out": 0.25,
+   "events": {},
+   "anchor": {
+    "type": "anvil",
+    "at": [
+     0.0,
+     0.56,
+     0.78
+    ],
+    "size": [
+     0.3,
+     0.7,
+     0.78
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 14,
+   "seconds": 0.433
+  },
+  "Life_Smith_Quench": {
+   "category": "work/smith",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "tongs",
+     "hand": "l"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "dip": [
+     30
+    ],
+    "steam": [
+     34
+    ],
+    "lift": [
+     50
+    ]
+   },
+   "anchor": {
+    "type": "trough",
+    "at": [
+     0.44,
+     0.34,
+     0.62
+    ],
+    "size": [
+     0.6,
+     0.4,
+     0.62
+    ]
+   },
+   "note": "one shot: work on the tongs to the trough at the left, dip, lean back from the steam, lift out",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 75,
+   "seconds": 2.467
+  },
+  "Life_Smith_Bellows": {
+   "category": "work/smith",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "bellows_handle",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "push": [
+     24
+    ],
+    "pull": [
+     53
+    ]
+   },
+   "anchor": {
+    "type": "bellows",
+    "at": [
+     0.0,
+     0.5,
+     0.9
+    ],
+    "size": [
+     0.6,
+     0.5,
+     0.9
+    ]
+   },
+   "note": "both hands on a bar, down stroke with the body weight, lighter return; the knees dip on the down stroke",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Carp_Saw": {
+   "category": "work/carpentry",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "saw",
+     "hand": "r"
+    }
+   ],
+   "enter": "Life_Carp_Saw_Enter",
+   "exit": "Life_Carp_Saw_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "push": [
+     20,
+     56
+    ],
+    "pull": [
+     2,
+     38
+    ]
+   },
+   "anchor": {
+    "type": "sawhorse",
+    "at": [
+     0.0,
+     0.5,
+     0.6
+    ],
+    "size": [
+     0.3,
+     0.9,
+     0.6
+    ]
+   },
+   "note": "two strokes per cycle (the second is longer), push on the forward stroke with hip drive; left hand braces the plank",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 73,
+   "seconds": 2.4
+  },
+  "Life_Carp_Saw_Enter": {
+   "category": "work/carpentry",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "saw",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.15,
+   "events": {},
+   "anchor": {
+    "type": "sawhorse",
+    "at": [
+     0.0,
+     0.5,
+     0.6
+    ],
+    "size": [
+     0.3,
+     0.9,
+     0.6
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 16,
+   "seconds": 0.5
+  },
+  "Life_Carp_Saw_Exit": {
+   "category": "work/carpentry",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "saw",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.15,
+   "blend_out": 0.25,
+   "events": {},
+   "anchor": {
+    "type": "sawhorse",
+    "at": [
+     0.0,
+     0.5,
+     0.6
+    ],
+    "size": [
+     0.3,
+     0.9,
+     0.6
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 14,
+   "seconds": 0.433
+  },
+  "Life_Carp_Nail": {
+   "category": "work/carpentry",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "hammer",
+     "hand": "r"
+    }
+   ],
+   "enter": "Life_Carp_Nail_Enter",
+   "exit": "Life_Carp_Nail_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "contact": [
+     12,
+     27,
+     50
+    ]
+   },
+   "anchor": {
+    "type": "plank",
+    "at": [
+     0.06,
+     0.4,
+     0.05
+    ],
+    "size": [
+     0.3,
+     1.0,
+     0.05
+    ]
+   },
+   "note": "kneeling on the right knee, three blows: seat, drive, heavy finish",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 73,
+   "seconds": 2.4
+  },
+  "Life_Carp_Nail_Enter": {
+   "category": "work/carpentry",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "hammer",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.15,
+   "events": {},
+   "anchor": {
+    "type": "plank",
+    "at": [
+     0.06,
+     0.4,
+     0.05
+    ],
+    "size": [
+     0.3,
+     1.0,
+     0.05
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 27,
+   "seconds": 0.867
+  },
+  "Life_Carp_Nail_Exit": {
+   "category": "work/carpentry",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "hammer",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.15,
+   "blend_out": 0.25,
+   "events": {},
+   "anchor": {
+    "type": "plank",
+    "at": [
+     0.06,
+     0.4,
+     0.05
+    ],
+    "size": [
+     0.3,
+     1.0,
+     0.05
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 25,
+   "seconds": 0.8
+  },
+  "Life_Carry_Plank_Upper": {
+   "category": "carry/upper",
+   "loop": true,
+   "layer": "upper",
+   "props": [
+    {
+     "id": "plank",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "long plank on the right shoulder, right hand on top, left hand steadies it 0.3 m ahead",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": 0.3,
+   "mask_from": "spine_01",
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Wood_Chop": {
+   "category": "work/wood",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "axe",
+     "hand": "r"
+    }
+   ],
+   "enter": "Life_Wood_Chop_Enter",
+   "exit": "Life_Wood_Chop_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "contact": [
+     27
+    ],
+    "free": [
+     44
+    ]
+   },
+   "anchor": {
+    "type": "chopping_block",
+    "at": [
+     0.0,
+     0.52,
+     0.45
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.45
+    ]
+   },
+   "note": "lean back with the axe overhead, drop the weight, bite, lever the axe free",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": -0.22,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 73,
+   "seconds": 2.4
+  },
+  "Life_Wood_Chop_Enter": {
+   "category": "work/wood",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "axe",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.15,
+   "events": {},
+   "anchor": {
+    "type": "chopping_block",
+    "at": [
+     0.0,
+     0.52,
+     0.45
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.45
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": -0.22,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 16,
+   "seconds": 0.5
+  },
+  "Life_Wood_Chop_Exit": {
+   "category": "work/wood",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "axe",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.15,
+   "blend_out": 0.25,
+   "events": {},
+   "anchor": {
+    "type": "chopping_block",
+    "at": [
+     0.0,
+     0.52,
+     0.45
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.45
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": -0.22,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 14,
+   "seconds": 0.433
+  },
+  "Life_Wood_Place_Log": {
+   "category": "work/wood",
+   "loop": false,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "pick": [
+     18
+    ],
+    "place": [
+     50
+    ],
+    "release": [
+     54
+    ]
+   },
+   "anchor": {
+    "type": "chopping_block",
+    "at": [
+     0.0,
+     0.48,
+     0.45
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.45
+    ]
+   },
+   "note": "one shot: squat to the log on the ground, lift it to the chest, set it upright on the block, release (the log is a scene prop)",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 73,
+   "seconds": 2.4
+  },
+  "Life_Fish_Idle_Rod": {
+   "category": "work/fish",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "fishing_rod",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "rod held out over the water, tiny bobbing, a glance to the side, a nibble twitch",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": -0.3,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 91,
+   "seconds": 3.0
+  },
+  "Life_Fish_Cast": {
+   "category": "work/fish",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "fishing_rod",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "release": [
+     23
+    ]
+   },
+   "anchor": null,
+   "note": "one shot: starts and ends in Life_Fish_Idle_Rod frame 0; back-cast over the shoulder, snap forward, line flies at frame 23",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": -0.3,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 67,
+   "seconds": 2.2
+  },
+  "Life_Fish_Reel": {
+   "category": "work/fish",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "fishing_rod",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "rod in the right hand exactly as in Life_Fish_Idle_Rod (same grip point, similar tilt), left hand cranks the reel, 4 turns per loop",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Cook_Stir": {
+   "category": "work/cook",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "ladle",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "stir": [
+     0,
+     30
+    ]
+   },
+   "anchor": {
+    "type": "cook_pot",
+    "at": [
+     0.0,
+     0.42,
+     0.6
+    ],
+    "size": [
+     0.6,
+     0.6,
+     0.6
+    ]
+   },
+   "note": "two stirs per loop (the second is wider), the ladle pivots on the pot rim, left hand on the hip",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Cook_Chop": {
+   "category": "work/cook",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "knife",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "contact": [
+     10,
+     22,
+     34,
+     46,
+     58
+    ]
+   },
+   "anchor": {
+    "type": "table",
+    "at": [
+     0.0,
+     0.34,
+     0.8
+    ],
+    "size": [
+     1.0,
+     0.6,
+     0.8
+    ]
+   },
+   "note": "five rocking chops, the claw-gripped left hand creeps back after every chop and resets at the end",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Chore_Laundry_Scrub": {
+   "category": "work/laundry",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "laundry",
+     "hand": "r"
+    }
+   ],
+   "enter": "Life_Chore_Laundry_Scrub_Enter",
+   "exit": "Life_Chore_Laundry_Scrub_Exit",
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "scrub_down": [
+     15,
+     35,
+     55
+    ]
+   },
+   "anchor": {
+    "type": "wash_tub",
+    "at": [
+     0.0,
+     0.3,
+     0.45
+    ],
+    "size": [
+     0.7,
+     0.5,
+     0.45
+    ]
+   },
+   "note": "kneeling at the tub, three scrub strokes down and up the washboard per loop",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Chore_Laundry_Scrub_Enter": {
+   "category": "work/laundry",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "laundry",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.2,
+   "blend_out": 0.15,
+   "events": {},
+   "anchor": {
+    "type": "wash_tub",
+    "at": [
+     0.0,
+     0.3,
+     0.45
+    ],
+    "size": [
+     0.7,
+     0.5,
+     0.45
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 27,
+   "seconds": 0.867
+  },
+  "Life_Chore_Laundry_Scrub_Exit": {
+   "category": "work/laundry",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "laundry",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.15,
+   "blend_out": 0.25,
+   "events": {},
+   "anchor": {
+    "type": "wash_tub",
+    "at": [
+     0.0,
+     0.3,
+     0.45
+    ],
+    "size": [
+     0.7,
+     0.5,
+     0.45
+    ]
+   },
+   "note": "",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 25,
+   "seconds": 0.8
+  },
+  "Life_Chore_Laundry_Wring": {
+   "category": "work/laundry",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "laundry",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "twist": [
+     26,
+     42
+    ]
+   },
+   "anchor": null,
+   "note": "one shot: lift the wet cloth to the chest, twist, squeeze, twist again, lower",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Chore_Hang_Washing": {
+   "category": "work/laundry",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "laundry",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "pin": [
+     15,
+     60
+    ],
+    "step": [
+     40,
+     80
+    ]
+   },
+   "anchor": {
+    "type": "washing_line",
+    "at": [
+     0.0,
+     0.26,
+     1.8
+    ],
+    "size": [
+     1.2,
+     0.05,
+     0.05
+    ]
+   },
+   "note": "hang a cloth on the line at 1.8 m and pin it, side-step left, bend to the basket, hang the next, side-step back",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 91,
+   "seconds": 3.0
+  },
+  "Life_Chore_Sweep": {
+   "category": "work/chores",
+   "loop": true,
+   "layer": "full",
+   "props": [
+    {
+     "id": "broom",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "stroke": [
+     18,
+     40,
+     62,
+     84
+    ]
+   },
+   "anchor": null,
+   "note": "four short strokes (left, right, left, right) with a small step of the left foot after strokes 1 and 3",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": 0.38,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 89,
+   "seconds": 2.933
+  },
+  "Life_Chore_Well_Crank": {
+   "category": "work/chores",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "turn": [
+     0,
+     36
+    ]
+   },
+   "anchor": {
+    "type": "well",
+    "at": [
+     0.15,
+     0.5,
+     0.93
+    ],
+    "size": [
+     1.0,
+     0.8,
+     0.93
+    ]
+   },
+   "note": "right hand turns the crank in a 0.25 m radius circle at 1.02 m (two turns per loop), left hand rests on the rim",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 73,
+   "seconds": 2.4
+  },
+  "Life_Chore_Well_Lift_Bucket": {
+   "category": "work/chores",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "bucket",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "grab": [
+     14
+    ],
+    "release": [
+     58
+    ]
+   },
+   "anchor": {
+    "type": "well",
+    "at": [
+     0.15,
+     0.5,
+     0.93
+    ],
+    "size": [
+     1.0,
+     0.8,
+     0.93
+    ]
+   },
+   "note": "one shot: reach the bucket on the rim, pull it up and to the side, set it on the ground (bucket prop shows from the grab)",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 79,
+   "seconds": 2.6
+  },
+  "Life_Carry_Bucket_Upper": {
+   "category": "carry/upper",
+   "loop": true,
+   "layer": "upper",
+   "props": [
+    {
+     "id": "bucket",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "bucket by the bail in the right hand, arm straight, torso leans left, right shoulder drops",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": "spine_01",
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Carry_Two_Buckets_Upper": {
+   "category": "carry/upper",
+   "loop": true,
+   "layer": "upper",
+   "props": [
+    {
+     "id": "bucket",
+     "hand": "r"
+    },
+    {
+     "id": "bucket",
+     "hand": "l"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "a bucket in each hand, arms straight and slightly out, both shoulders drop, torso upright",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": "spine_01",
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Carry_Sack_Upper": {
+   "category": "carry/upper",
+   "loop": true,
+   "layer": "upper",
+   "props": [
+    {
+     "id": "sack",
+     "hand": "l"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "sack on the left shoulder held by the left hand, right hand steadies it, torso pitched forward",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": "spine_01",
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Carry_Crate_Upper": {
+   "category": "carry/upper",
+   "loop": true,
+   "layer": "upper",
+   "props": [
+    {
+     "id": "crate_small",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "crate at chest height, both palms under its lower edge, torso leans back a little",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": "spine_01",
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Carry_Basket_Upper": {
+   "category": "carry/upper",
+   "loop": true,
+   "layer": "upper",
+   "props": [
+    {
+     "id": "basket",
+     "hand": "l"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "basket on the left forearm, elbow bent and pressed to the side, right arm free",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": "spine_01",
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 61,
+   "seconds": 2.0
+  },
+  "Life_Carry_Pick_Up": {
+   "category": "carry/full",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "crate_small",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "grab": [
+     17
+    ]
+   },
+   "anchor": null,
+   "note": "squat to a crate on the ground 0.4 m ahead, back straight, lift it to the Life_Carry_Crate_Upper carry pose (ends on its frame 0)",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 49,
+   "seconds": 1.6
+  },
+  "Life_Carry_Put_Down": {
+   "category": "carry/full",
+   "loop": false,
+   "layer": "full",
+   "props": [
+    {
+     "id": "crate_small",
+     "hand": "r"
+    }
+   ],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {
+    "release": [
+     30
+    ]
+   },
+   "anchor": null,
+   "note": "reverse: from the Life_Carry_Crate_Upper carry pose squat and set the crate on the ground",
+   "speed_mps": 0.0,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 49,
+   "seconds": 1.6
+  },
+  "Life_Cart_Push": {
+   "category": "carry/full",
+   "loop": true,
+   "layer": "full",
+   "props": [],
+   "enter": null,
+   "exit": null,
+   "blend_in": 0.25,
+   "blend_out": 0.3,
+   "events": {},
+   "anchor": null,
+   "note": "in-place walk leaning into cart handles held at hip height (hands fixed in the body frame); play at body_speed / speed_mps",
+   "speed_mps": 0.5,
+   "pair": null,
+   "ik_l_on_prop": null,
+   "mask_from": null,
+   "tags": [],
+   "source": "authored (Blender key poses, tools/anim/life)",
+   "frames": 45,
+   "seconds": 1.467
+  }
+ }
+}

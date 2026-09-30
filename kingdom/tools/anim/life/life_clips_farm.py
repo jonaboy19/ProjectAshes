@@ -358,8 +358,8 @@ _build_lut()
 
 
 # ---------------------------------------------------------------------------------------------- hoe
-# hoe.glb: grip origin 0.15 m from the butt, handle end 1.22 m along +Z, blade extends 0.27 m along the front axis (-Y = K)
-HOE_LH, HOE_LB, HOE_DL = 1.22, 0.27, -0.14
+# hoe.glb (round 3): grip origin = right hand, 0.50 m above the butt; handle end 0.88 m along +Z, blade extends 0.27 m along the front axis (-Y = K)
+HOE_LH, HOE_LB, HOE_DL = 0.88, 0.27, -0.40
 # (the right fist sits at the prop origin next to the butt, so the left hand can only sit just above it: DL = -0.14.
 #  A wider two-hand grip needs the prop origin moved ~0.35 m along the handle and HOE_DL = -0.35.)
 
