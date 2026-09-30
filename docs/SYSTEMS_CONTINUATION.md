@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: one courtship date per NPC per day
+
+`Family.court()` initializes `last_date_day`; `Family.date()` refuses a second date with the same NPC on the same `WorldSim.day` before granting points or a relationship modifier, then saves the day after a successful date. The existing deep-copied courtships save section persists it; old saves default to `-1`, allowing one post-load date. The menu may remain visible until tapped. Venue and duration remain abstract; no UI or schedule changes. Static source review and `git diff --check` only; no parser, runtime or save/load test was run. See [NPC_COURTSHIP_DATE_CADENCE_HANDOFF.md](concepts/NPC_COURTSHIP_DATE_CADENCE_HANDOFF.md).
+
 ### Latest slice: vacancy workers meet adult age minimum
 
 `LifeCourses._find_or_create_worker()` now skips existing residents under 16 using current `WorldSim.day`; its one-pass order and other eligibility checks are unchanged. The random 18–40 fallback worker's `birth_day` is now anchored to the current day, so its generated age is correct at creation. Age 16 can fill any seat because qualifications are not modeled. No API or save fields changed. Static review and `git diff --check` only; no parser, runtime vacancy, or save/load validation was run. See [NPC_LIFE_COURSES_VACANCY_AGE_HANDOFF.md](concepts/NPC_LIFE_COURSES_VACANCY_AGE_HANDOFF.md).
