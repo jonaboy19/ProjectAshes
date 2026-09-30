@@ -39,6 +39,9 @@ var height_fn: Callable
 var cap := 140
 var _live: Dictionary = {}     # id -> {pos: Vector3, target: Vector3, walking: bool, clip, scale, look}
 var _seen: Dictionary = {}
+var _walkers := PackedInt32Array()
+var _frame := 0
+var usec := 0
 
 
 func _ready() -> void:
@@ -108,26 +111,41 @@ func end() -> void:
 		if not _seen.has(id):
 			crowd.remove(id)
 			_live.erase(id)
+	_walkers.clear()
+	for id: int in _live:
+		if _live[id]["walking"]:
+			_walkers.append(id)
 
 
 func count() -> int:
 	return _live.size()
 
 
+## Walkers move at 30 Hz each (half of them per frame, with twice the step): at VAT distances the difference is
+## invisible and the GDScript cost halves. usec: this node's time last frame (QA overlay / bench).
 func _process(delta: float) -> void:
-	for id: int in _live:
-		var e: Dictionary = _live[id]
-		if not e["walking"]:
+	var t0 := Time.get_ticks_usec()
+	_frame += 1
+	if crowd.camera == null or not is_instance_valid(crowd.camera):
+		crowd.camera = get_viewport().get_camera_3d()
+	var n := _walkers.size()
+	var i := _frame & 1
+	while i < n:
+		var id: int = _walkers[i]
+		i += 2
+		var e: Dictionary = _live.get(id, {})
+		if e.is_empty() or not e["walking"]:
 			continue
 		var p: Vector3 = e["pos"]
 		var to: Vector3 = (e["target"] as Vector3) - p
 		var d := Vector2(to.x, to.z).length()
 		if d < 0.05:
 			continue
-		var step := minf(d, WALK_SPEED * delta)
+		var step := minf(d, WALK_SPEED * delta * 2.0)
 		p += to * (step / maxf(to.length(), 0.001))
 		e["pos"] = p
 		crowd.move(id, _xf(e))
+	usec = Time.get_ticks_usec() - t0
 
 
 func _xf(e: Dictionary) -> Transform3D:
