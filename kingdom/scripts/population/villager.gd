@@ -483,6 +483,9 @@ func _decide_act(here: Vector2) -> void:
 	var committed := not performing or _perform_time < MIN_PERFORM
 	var act := _brain.decide(ctx, committed)
 	if act != _act:
+		# UtilityBrain can override the coarse work/market schedule. Release its
+		# reservation before planning the new act; WORK/SHOP will reacquire as needed.
+		WorldSim.release_activity_target(person)
 		if _act == Act.SOCIAL:
 			UtilityBrain.chat_leave(person)
 		_act = act

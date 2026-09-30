@@ -432,8 +432,7 @@ func _refresh_near() -> void:
 func _on_phase_change(i: int, old: int, new_phase: int) -> void:
 	# A phase switch can move to a different type of target or fall back when a
 	# slot is unavailable. Drop the old reservation before looking for the new one.
-	if smart != null:
-		smart.release(i)
+	release_activity_target(i)
 	var s: Dictionary = WorldGen.settlements[home[i]]
 	if old == 1:
 		money[i] += WAGES[job[i]]
@@ -443,6 +442,13 @@ func _on_phase_change(i: int, old: int, new_phase: int) -> void:
 		treasury[home[i]] += spend
 	phase[i] = new_phase
 	target[i] = _spot(s, new_phase, i)
+
+
+## Release a near-ring schedule reservation when an embodied UtilityBrain act
+## overrides that schedule goal. A new work/shop goal may claim another slot.
+func release_activity_target(i: int) -> void:
+	if smart != null:
+		smart.release(i)
 
 
 ## Deterministic point of interest for a person and phase.
