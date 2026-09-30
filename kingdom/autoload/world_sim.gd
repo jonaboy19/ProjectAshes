@@ -44,10 +44,11 @@ var money := PackedInt32Array()
 var health := PackedByteArray()
 var phase := PackedByteArray()      # schedule phase the current target belongs to
 var last_update := PackedFloat32Array()
-## Non-zero while a higher-detail LOD controller owns this person's position.
+## Owner instance ID while a higher-detail LOD representation owns position.
 ## Schedule, wages and other world-data updates continue, but _step does not
-## integrate a competing movement path behind that representation.
-var external_position_owner := PackedByteArray()
+## integrate a competing movement path behind that representation. The token
+## makes delayed exits from replaced bodies unable to release a newer owner's claim.
+var external_position_owner := PackedInt64Array()
 ## Per settlement: [first_person, end_person), treasury.
 var ranges: Array[Vector2i] = []
 var treasury := PackedInt32Array()
@@ -83,7 +84,7 @@ func reset() -> void:
 	health = PackedByteArray()
 	phase = PackedByteArray()
 	last_update = PackedFloat32Array()
-	external_position_owner = PackedByteArray()
+	external_position_owner = PackedInt64Array()
 	ranges.clear()
 	treasury = PackedInt32Array()
 	_cursor = 0
@@ -125,16 +126,17 @@ func describe(i: int) -> String:
 
 ## Transfer position ownership at an LOD boundary. WorldSim remains authoritative
 ## for schedule and goal; a Villager or routed sprite may own resolved movement.
-func set_external_position_owner(i: int, owned: bool, resolved_position := Vector2.INF) -> void:
+func set_external_position_owner(i: int, owner_id: int, owned: bool, resolved_position := Vector2.INF) -> void:
 	if i < 0 or i >= pos.size():
 		return
 	# A reset can rebuild WorldSim's deterministic rows before the old world
-	# scene exits. Its stale Villager must not write into the new run.
-	if not owned and external_position_owner[i] == 0:
+	# scene exits. Its stale Villager must not write into the new run. Likewise,
+	# a delayed exit from an old LOD owner cannot release a newer owner's claim.
+	if not owned and external_position_owner[i] != owner_id:
 		return
 	if resolved_position != Vector2.INF:
 		pos[i] = resolved_position
-	external_position_owner[i] = 1 if owned else 0
+	external_position_owner[i] = owner_id if owned else 0
 
 
 ## Indices of people within `radius` of p. Only settlements in range are scanned.

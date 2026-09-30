@@ -110,7 +110,7 @@ func refresh(step_delta := 0.25) -> void:
 		# Drop temporary sprite routes without writing their old positions over
 		# destinations chosen by this explicit time skip.
 		for id in _sprite_routes:
-			WorldSim.set_external_position_owner(int(id), false)
+			WorldSim.set_external_position_owner(int(id), get_instance_id(), false)
 		_sprite_routes.clear()
 		_sprite_cache.clear()
 		for id in _full:
@@ -282,7 +282,7 @@ func _advance_sprite_route(id: int, from: Vector2, graph: StreetGraph, delta: fl
 	var just_planned := false
 	var points: PackedVector2Array = state["points"]
 	if points.is_empty() and Time.get_ticks_msec() >= int(state["retry_ms"]):
-		WorldSim.set_external_position_owner(id, true, current)
+		WorldSim.set_external_position_owner(id, get_instance_id(), true, current)
 		if StreetGraph.take_route_budget():
 			var start := graph.push_out(current, 0.4)
 			var planned := graph.route(start, route_goal)
@@ -339,11 +339,11 @@ func _advance_sprite_route(id: int, from: Vector2, graph: StreetGraph, delta: fl
 			if target_clamped and current.distance_to(route_goal) < 0.5:
 				state["points"] = PackedVector2Array()
 				state["retry_ms"] = 2147483647
-				WorldSim.set_external_position_owner(id, true, current)
+				WorldSim.set_external_position_owner(id, get_instance_id(), true, current)
 				return current
 			state["points"] = PackedVector2Array()
 			state["retry_ms"] = Time.get_ticks_msec() + 1000
-	WorldSim.set_external_position_owner(id, true, current)
+	WorldSim.set_external_position_owner(id, get_instance_id(), true, current)
 	return current
 
 
@@ -360,9 +360,9 @@ func _release_sprite_route(id: int, final_position := Vector2.INF) -> void:
 	_sprite_routes.erase(id)
 	_sprite_cache.erase(id)
 	if final_position == Vector2.INF:
-		WorldSim.set_external_position_owner(id, false, WorldSim.pos[id])
+		WorldSim.set_external_position_owner(id, get_instance_id(), false, WorldSim.pos[id])
 	else:
-		WorldSim.set_external_position_owner(id, false, final_position)
+		WorldSim.set_external_position_owner(id, get_instance_id(), false, final_position)
 
 
 ## Embodied villagers' resolved positions -> WorldSim, so ranking, sprites,
