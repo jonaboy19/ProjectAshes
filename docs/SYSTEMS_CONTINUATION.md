@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: resolved wolf threats close stale lordship issues
+
+`Lordship.decide()` now validates the recorded den for an open wolves issue before presenting or applying choices. If no matching living den with positive population remains, it removes the issue, emits `village_changed`, and returns a resolved-threat message without applying treasury, loyalty, reward, follow-up or quest effects. Normal live-den choices are unchanged. Static source review and `git diff --check` only; no parser, runtime ecology/issue or gameplay validation was run. See [LORDSHIP_STALE_WOLF_ISSUE_HANDOFF.md](concepts/LORDSHIP_STALE_WOLF_ISSUE_HANDOFF.md).
+
 ### Latest slice: child succession archives the outgoing spouse as parentage only
 
 `Family.succeed_to()` keeps the outgoing spouse available while calculating a child heir's parent records, then clears the active spouse before the heir begins their own life. The spouse-successor path copies the spouse's own traits, then clears the inherited spouse record as well. Both successor paths therefore begin unmarried; the spouse-successor keeps existing children. Parent records and archived chronicles remain unchanged. Static source review and `git diff --check` only; no parser, runtime succession or save/load validation was run. See [NPC_CHILD_SUCCESSION_HANDOFF.md](concepts/NPC_CHILD_SUCCESSION_HANDOFF.md).
