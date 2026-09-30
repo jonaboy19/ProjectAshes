@@ -1,6 +1,6 @@
 # NPC well activity: production slice contract
 
-**Status:** implementation brief for the next coordinated systems change. The current branch does not implement this behavior.
+**Status:** implemented additively on the Codex PR branch as the first production activity slice; live-game/runtime validation is still pending. Base at implementation: Claude remote head `3177be61`.
 
 ## Why this is the first slice
 
@@ -10,21 +10,24 @@ It must reuse the live NPC stack. `UtilityBrain` chooses the need; `Villager` ow
 
 ## Current behavior and gaps
 
-- `UtilityBrain.plan_goal(Act.WATER, ...)` derives a well point from the settlement plan, then chooses an offset around it. The offset has no capacity claim or stable slot identity.
-- `Villager` follows the goal through `StreetGraph`; its movement and collision remain authoritative. When it arrives, the existing activity selector may play a water-related clip, but no station-use phase begins and no queue/occupancy is represented.
-- `UtilityBrain.tick()` restores water while `Act.WATER` is considered performed. This is a continuous need effect, not an idempotent work-cycle commit.
+- `UtilityBrain.plan_goal(Act.WATER, ...)` derives two deterministic approach candidates from the generated well and settles them through the existing street clearance helper. The generated water slots are cached per settlement. Plans without a well get an explicitly abstract plaza water-break fallback so thirst remains satisfiable; no visible vessel or item is created.
+- `Villager` now reserves one slot plus its own actor channel through `Life.npc_activity_runtime` (backed by the shared `ActionRuntime`) before routing. The token is scoped to world seed, settlement row, source kind and person row; it expires after 180 real seconds.
+- `Villager` keeps the existing `StreetGraph`, body collision, braking and facing owners. The reservation moves from `begun` to `working` only when the NPC has arrived, stopped close to its slot and faced the well. The existing water clip candidates play only in that working phase.
+- `UtilityBrain.tick()` restores water only when the well lease is working at the use point. The activity produces no item, gold, XP, crafting or journal reward.
+- Interruption, player-yield sidestep, act change, reset/time resync, save restore and body teardown release the exact token. Promotion recomputes from needs instead of restoring a transient lease.
+- If both slots are occupied, a resident holds its current position and retries on its existing staggered decision tick. There is no explicit FIFO queue or fairness guarantee yet.
 - `StreetGraph` already routes around the plaza well. Keep that obstacle and its collider/stand clearance; never solve an approach by snapping the NPC to the landmark center.
 - `WorldSim` person indices are deterministic row handles for this generated world, not a general persistent actor-ID contract. Settlement IDs and world seed/version assumptions must be stated at the lease boundary.
 - `ActionRuntime` supports atomic transient resource reservations and expiry, but has no lease renewal. A long-lived claim must either use bounded short work sessions or add a reviewed renewal contract; do not hold an unbounded claim.
 
-## Proposed flow
+## Implemented flow and remaining constraints
 
 1. The existing utility scorer chooses `WATER`. No new scorer or per-frame decision is added.
 2. Resolve a well site from the current settlement's generated `landmarks` entry with asset `well`. If no well exists, choose a valid plaza fallback and label the behavior as a brief thirst break; never return `Vector2.INF` or assume a missing landmark exists.
-3. Assign one of a small number of approach slots around the well. Derive slots from the generated site's stable identity and an explicit ordinal, then run each candidate through the existing settlement-route clearance helper. The slot center must be outside the well collider and face the use point.
-4. Let `Villager` route to the selected approach slot using its existing movement. Acquire capacity before committing to the approach or use a short queue intent that is not a physical lease; if the lease is acquired early, release it on route failure, timeout, act change, interruption, demotion, reset and teardown.
+3. The current implementation assigns up to two slots derived from the generated well position and explicit ordinals. Identity keys use the deterministic world seed and settlement row; these are stable for the current generated plan, not guaranteed migration-safe across generator changes.
+4. `Villager` atomically reserves its actor channel and selected well slot through the shared action runtime, then routes using its existing movement. A blocked route consumes a bounded lease and the lease expires if the actor cannot complete the approach.
 5. Start the station-use phase only after the body is within the small authored contact tolerance, nearly stopped, and its facing is aligned. The marker/stand point is the source of truth; do not teleport or disable collision.
-6. Use a named animation contract supplied by Claude (suggested semantic names: `water_fetch_enter`, `water_fetch_loop`, `water_fetch_exit`, or a documented existing clip mapping). Systems code requests phases; it does not edit rigs/scenes or treat an animation cycle as permission for an unrelated reward.
+6. The current implementation uses existing water-related clip candidates (`G6_gathering`, `Chore_Pick_Up_Box`, `Interact`, `PickUp_Table`) without editing rigs/scenes. A future authored enter/loop/exit contract may replace this fallback after Claude confirms the markers.
 7. Restore the existing water need only while the actor is genuinely at the use point and owns that slot. Keep the effect continuous and local to the need model; no item, gold, XP, crafting or journal reward is created by this slice.
 8. On completion or interruption, blend to the authored exit/idle state while releasing the capacity lease exactly once. Urgent `FLEE`/`SHELTER`, player interaction, actor deletion and LOD demotion interrupt the activity. If the resident is promoted again, recompute intent from current needs rather than restoring a transient token.
 
@@ -44,15 +47,15 @@ It must reuse the live NPC stack. `UtilityBrain` chooses the need; `Villager` ow
 - Bound the number of approach slots and simultaneous embodied leases. Distant residents remain data-only and should not create activity sessions.
 - Add small counters for lease conflicts, approach timeouts and active well users before changing body/physics budgets. Do not raise `MAX_FULL` or `MAX_PHYSICS_CONTACT` for this feature.
 
-## Acceptance and pickup
+## Acceptance still required
 
-- Two residents can use different slots and cannot occupy the same slot; a third resident waits, selects another valid stand point, or chooses a different act without jittering every decision tick.
-- Every approach follows the existing route and cannot pass through the well, buildings or other colliders. Arrival is slow and aligned; blocked access times out without snapping.
+- Two residents can hold different slots and cannot reserve the same slot; a third resident holds position and retries at the existing decision cadence. Validate that this does not cause starvation or crowding.
+- Every approach follows the existing route and cannot pass through the well, buildings or other colliders. Arrival is slow and aligned; blocked access expires without snapping.
 - Changing to an urgent act, despawning, saving/loading, resetting or crossing the LOD boundary releases exactly the lease held by that body. Repeated cleanup is harmless.
 - Water rises only during valid use; waiting, blocked movement, a dropped lease, an exit clip or an animation loop alone does not restore it.
 - Promotion/demotion does not duplicate the brain or movement owner. Needs retain their saved values and age; the activity token is reconstructed from current state.
 - Inspect the current Claude head and dirty files before implementation. Claude confirms the clip/marker/collider contract; Codex systems work owns the additive intent/lease adapter. Do not implement this brief against a stale source snapshot if the live files have changed.
-- Validate in the actual Godot project with at least two nearby residents, forced interruption, repeated promotion/demotion, save/load, and a low-tier mobile crowd before calling the slice accepted.
+- Validate in the actual Godot project with at least three nearby residents, forced interruption, repeated promotion/demotion, save/load, well/building collision, and a low-tier mobile crowd before calling the slice accepted.
 
 ## Explicit non-goals
 

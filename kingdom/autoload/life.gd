@@ -39,11 +39,14 @@ var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
 var crafting := preload("res://scripts/sim/crafting.gd").new()
 const WorldEventLog := preload("res://scripts/systems/world_event_log.gd")
 const ActionRuntime := preload("res://scripts/systems/action_runtime.gd")
+const NpcActivityRuntime := preload("res://scripts/systems/npc_activity_runtime.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
 ## Bounded facts from player actions, available to future dialogue/simulation consumers.
 var world_events = WorldEventLog.new()
 ## Short-lived actor/action leases; deliberately excluded from saves.
 var action_runtime = ActionRuntime.new()
+## NPC activity names/leases adapt onto the same transient ActionRuntime authority.
+var npc_activity_runtime = NpcActivityRuntime.new(action_runtime)
 ## Active craft token -> generation-qualified station resource key.
 var _craft_station_actions: Dictionary = {}
 var equipment := preload("res://scripts/sim/equipment.gd").new()
@@ -142,6 +145,7 @@ func reset() -> void:
 		set(n, get(n).get_script().new())
 	world_events = WorldEventLog.new()
 	action_runtime = ActionRuntime.new()
+	npc_activity_runtime = NpcActivityRuntime.new(action_runtime)
 	_craft_station_actions.clear()
 	pending_offers.clear()
 	appearance = {}

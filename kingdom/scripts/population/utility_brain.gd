@@ -801,7 +801,8 @@ static func places(sid: int, graph: StreetGraph) -> Dictionary:
 	var plan: Dictionary = s.get("plan", {})
 	var c: Vector2 = s["pos"]
 	var out := {"well": Vector2.INF, "shrine": Vector2.INF, "shrine_face": Vector2.ZERO,
-		"plaza": c, "plaza_r": float(plan.get("plaza_r", 12.0)),
+		"well_slots": PackedVector2Array(), "water_source": "", "plaza": c,
+		"plaza_r": float(plan.get("plaza_r", 12.0)),
 		"eaves": PackedVector2Array(), "eaves_face": PackedVector2Array()}
 	for lm: Dictionary in plan.get("landmarks", []):
 		var asset := String(lm["asset"])
@@ -809,7 +810,21 @@ static func places(sid: int, graph: StreetGraph) -> Dictionary:
 		var yaw: float = lm["yaw"]
 		var face := Vector2(sin(yaw), cos(yaw))
 		if asset == "well":
-			out["well"] = _clear(graph, p + Vector2(1.0, 0.6).normalized() * 1.6, 0.4)
+			out["water_source"] = "well"
+			var outward := Vector2(1.0, 0.6).normalized()
+			out["well"] = _clear(graph, p + outward * 1.6, 0.4)
+			var tangent := Vector2(-outward.y, outward.x)
+			var slots: PackedVector2Array = out["well_slots"]
+			for side in [-1.0, 1.0]:
+				var slot := _clear(graph, p + outward * 2.4 + tangent * 0.75 * side, 0.45)
+				var separated := true
+				for previous in slots:
+					if slot.distance_to(previous) < 1.2:
+						separated = false
+						break
+				if separated:
+					slots.append(slot)
+			out["well_slots"] = slots
 		elif (asset == "temple" or asset == "bell_tower" or asset == "chapel") and out["shrine"] == Vector2.INF:
 			var spot := p + face * 4.0
 			for d: float in [4.0, 6.0, 8.0, 10.0, 12.0, 14.0]:
@@ -818,6 +833,26 @@ static func places(sid: int, graph: StreetGraph) -> Dictionary:
 					break
 			out["shrine"] = _clear(graph, spot, 0.45)
 			out["shrine_face"] = -face
+	if String(out["water_source"]).is_empty():
+		# Some fortified plans have no well landmark. Keep thirst behavior by
+		# assigning two low-fidelity plaza water-break points instead of making
+		# the need impossible to satisfy. This fallback is abstract: it creates no
+		# visible vessel, item, gold, XP or other resource.
+		out["water_source"] = "plaza_break"
+		var fallback_outward := Vector2(1.0, 0.6).normalized()
+		var fallback_tangent := Vector2(-fallback_outward.y, fallback_outward.x)
+		var radius := maxf(2.5, float(out["plaza_r"]) * 0.45)
+		var fallback_slots: PackedVector2Array = out["well_slots"]
+		for side in [-1.0, 1.0]:
+			var fallback_slot := _clear(graph, c + fallback_outward * radius + fallback_tangent * 0.75 * side, 0.45)
+			var fallback_separated := true
+			for previous in fallback_slots:
+				if fallback_slot.distance_to(previous) < 1.2:
+					fallback_separated = false
+					break
+			if fallback_separated:
+				fallback_slots.append(fallback_slot)
+		out["well_slots"] = fallback_slots
 	for lot: Dictionary in plan.get("lots", []):
 		var yaw: float = lot["yaw"]
 		var face := Vector2(sin(yaw), cos(yaw))
@@ -851,7 +886,8 @@ func plan_goal(action: int, here: Vector2, graph: StreetGraph, hazard: Vector2, 
 	var sid: int = WorldSim.home[person]
 	var s: Dictionary = WorldGen.settlements[sid]
 	var pl := places(sid, graph)
-	var out := {"goal": here, "face": Vector2.INF, "indoors": false, "partner": -1, "look": Vector2.INF}
+	var out := {"goal": here, "face": Vector2.INF, "indoors": false, "partner": -1,
+		"look": Vector2.INF, "well_slots": PackedVector2Array(), "water_source": ""}
 	var home: Vector2 = WorldSim._spot(s, 0, person)
 	var has_home: bool = not (s.get("plan", {}) as Dictionary).get("lots", []).is_empty()
 	match action:
@@ -892,6 +928,8 @@ func plan_goal(action: int, here: Vector2, graph: StreetGraph, hazard: Vector2, 
 			var ang := float(hash(person * 71 + 9) % 628) / 100.0
 			out["goal"] = _clear(graph, well + Vector2(cos(ang), sin(ang)) * 0.6, 0.45)
 			out["face"] = (s["pos"] as Vector2) - (out["goal"] as Vector2)
+			out["well_slots"] = pl["well_slots"]
+			out["water_source"] = pl["water_source"]
 		Act.SHELTER:
 			var e := nearest_eaves(pl, here)
 			if has_home and (e < 0 or here.distance_to(home) < here.distance_to((pl["eaves"] as PackedVector2Array)[e]) + 8.0):

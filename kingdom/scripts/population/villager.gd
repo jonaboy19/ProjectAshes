@@ -180,6 +180,9 @@ var _surface_timer := 0.0
 var _activity_name := ""
 var _activity_needs_start := true
 var _activity_pause := 0.0
+var _water_token := ""
+var _water_slot := -1
+var _water_working := false
 var _cue_done := false
 var _cue_last := 0.0
 
@@ -247,6 +250,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	_save_needs()
+	_interrupt_activity()
 	WorldSim.set_external_position_owner(person, get_instance_id(), false, sim_position())
 	UtilityBrain.clear_sight_for(self)
 	UtilityBrain.unregister_body(person, get_instance_id())
@@ -293,6 +297,7 @@ func sim_position() -> Vector2:
 func restore_needs_from_world() -> void:
 	if _brain == null:
 		return
+	_interrupt_activity()
 	var stored := WorldSim.person_needs(person)
 	if stored.is_empty() or not _brain.import_needs(stored.get("values", PackedFloat32Array()), float(stored.get("hours", -1.0))):
 		_brain.seed_needs(DailyRhythm.local_time(person), WorldSim.day)
@@ -310,6 +315,7 @@ func resync() -> void:
 	# A time skip changes this resident's schedule target, not its live resolved
 	# transform. WorldSim.pos is only the last 4 Hz LOD write-back while owned.
 	var p: Vector2 = sim_position() if WorldSim.owns_external_position(person, get_instance_id()) else WorldSim.pos[person]
+	_interrupt_activity()
 	if _graph:
 		p = _graph.push_out(p, BODY_RADIUS + 0.12)
 	global_position = Vector3(p.x, WorldGen.height(p.x, p.y), p.y)
@@ -347,7 +353,8 @@ func _physics_process(delta: float) -> void:
 		_perform_time += delta
 		return
 	if _arrived and _yield_time <= 0.0:
-		_perform_time += delta
+		if _act != Act.WATER or _water_working:
+			_perform_time += delta
 		if _plan_indoors:
 			_set_indoors(true)
 			return
@@ -445,7 +452,8 @@ func _decide_act(here: Vector2) -> void:
 	# The fight-watch signal only uses hostile samples this villager actually
 	# saw. Explicit notices remain their existing authored/audible-style signal.
 	var sight := UtilityBrain.spectacle_at(here, player_p, visible_threats)
-	var performing := _indoors or (_arrived and _yield_time <= 0.0)
+	var performing := _indoors or (_arrived and _yield_time <= 0.0
+		and (_act != Act.WATER or _water_is_performing(here)))
 	_brain.tick(WorldSim.day * 24.0 + WorldSim.time_of_day, _act if performing else -1)
 	_save_needs()
 	_state = DailyRhythm.state(person)
@@ -472,6 +480,11 @@ func _decide_act(here: Vector2) -> void:
 		Act.SOCIAL:
 			if _partner < 0:
 				_partner = UtilityBrain.chat_partner(person)
+		Act.WATER:
+			# Capacity conflicts leave the resident where they are. Retry only on
+			# this already staggered decision tick, never every physics frame.
+			if _water_token.is_empty():
+				_apply_plan(here, danger[1], sight[1])
 
 
 func _apply_plan(here: Vector2, hazard: Vector2, look: Vector2) -> void:
@@ -484,12 +497,23 @@ func _apply_plan(here: Vector2, hazard: Vector2, look: Vector2) -> void:
 	_pace = FLEE_PACE if _act == Act.FLEE else (SHELTER_PACE if _act == Act.SHELTER else 1.0)
 	_perform_time = 0.0
 	_interrupt_activity()
+	if _act == Act.WATER:
+		var water_lease := _reserve_water_slot(plan)
+		if water_lease.is_empty():
+			goal = here
+			_plan_indoors = false
+			_face_pref = Vector2.INF
+		else:
+			goal = water_lease["goal"]
+			_face_pref = (WorldGen.settlements[WorldSim.home[person]]["pos"] as Vector2) - goal
 	var was_inside := _indoors
 	_set_indoors(false)
 	if was_inside and _plan_indoors and goal.distance_to(sim_position()) < 1.0:
 		_set_indoors(true)    # e.g. eat -> sleep: stay in
 		return
-	if _goal == Vector2.INF or goal.distance_to(_goal) > 1.0 or not _arrived:
+	var water_slot_needs_route := (_act == Act.WATER and not _water_token.is_empty()
+		and sim_position().distance_to(goal) > 0.55)
+	if _goal == Vector2.INF or goal.distance_to(_goal) > 1.0 or not _arrived or water_slot_needs_route:
 		_goal = goal
 		_needs_route = true
 		_arrived = false
@@ -678,9 +702,77 @@ func _begin_sidestep(here: Vector2, direction: Vector2, duration: float, face_pl
 
 
 func _interrupt_activity() -> void:
+	if not _water_token.is_empty():
+		var life := get_node_or_null("/root/Life")
+		var activities: Variant = life.get("npc_activity_runtime") if life else null
+		if activities != null and activities.has_method("release"):
+			activities.call("release", _water_token)
+	_water_token = ""
+	_water_slot = -1
+	_water_working = false
+	_interrupt_animation()
+
+
+## Clear only presentation state. Walking toward a reserved activity must not
+## release its capacity lease; real interruptions use _interrupt_activity().
+func _interrupt_animation() -> void:
 	_activity_name = ""
 	_activity_needs_start = true
 	_activity_pause = 0.0
+
+
+## Reserve one generated well approach plus this resident's actor channel.
+## The exact row/settlement identifiers are scoped to this deterministic world.
+func _reserve_water_slot(plan: Dictionary) -> Dictionary:
+	var slots: PackedVector2Array = plan.get("well_slots", PackedVector2Array())
+	if slots.is_empty():
+		return {}
+	var source_ref := String(plan.get("water_source", ""))
+	var life := get_node_or_null("/root/Life")
+	var activities: Variant = life.get("npc_activity_runtime") if life else null
+	if activities == null or not activities.has_method("reserve_water_source"):
+		return {}
+	var sid: int = WorldSim.home[person]
+	var now_s := Time.get_ticks_msec() / 1000.0
+	for offset in mini(slots.size(), 2):
+		var slot := (person + offset) % mini(slots.size(), 2)
+		var started: Dictionary = activities.call("reserve_water_source", person, sid, source_ref, slot, now_s)
+		if bool(started.get("ok", false)):
+			_water_token = String(started.get("token", ""))
+			_water_slot = slot
+			return {"goal": slots[slot]}
+	return {}
+
+
+## Water is restored only at a cleared approach while this token still owns a
+## working lease. The existing animation is a presentation cue, never authority.
+func _water_is_performing(here: Vector2) -> bool:
+	if _water_token.is_empty():
+		_water_working = false
+		return false
+	var life := get_node_or_null("/root/Life")
+	var activities: Variant = life.get("npc_activity_runtime") if life else null
+	if activities == null or not activities.has_method("phase"):
+		_water_working = false
+		return false
+	var now_s := Time.get_ticks_msec() / 1000.0
+	var phase := String(activities.call("phase", _water_token, now_s))
+	if phase.is_empty():
+		_water_token = ""
+		_water_slot = -1
+		_water_working = false
+		return false
+	var facing := Vector2(sin(_heading), cos(_heading))
+	var face_dir := _face_pref.normalized() if _face_pref != Vector2.INF else Vector2.ZERO
+	var aligned := face_dir == Vector2.ZERO or facing.dot(face_dir) >= 0.9
+	var at_slot := (_arrived and _yield_time <= 0.0 and here.distance_to(_goal) <= 0.65
+		and _resolved_speed <= 0.18 and aligned)
+	if phase == "begun" and at_slot:
+		_water_working = bool(activities.call("start_work", _water_token, now_s))
+		phase = "working" if _water_working else ""
+	else:
+		_water_working = phase == "working" and at_slot
+	return _water_working
 
 
 # ---------------------------------------------------------------- steering
@@ -755,7 +847,7 @@ func _update_animation(delta: float) -> void:
 	if not _walking:
 		_update_activity(delta)
 		return
-	_interrupt_activity()
+	_interrupt_animation()
 	var running := _resolved_speed > 2.2
 	var clip := "Running_A" if running else "Walking_A"
 	var clip_speed := RUN_CLIP_SPEED if running else WALK_CLIP_SPEED
@@ -901,6 +993,10 @@ func _activity_for_person() -> String:
 		Act.SHOP, Act.INN:
 			if job == 3:
 				return _first_clip(JOB_CLIPS[3])
+		Act.WATER:
+			if _water_is_performing(sim_position()):
+				return _first_clip(ACT_CLIPS.get(Act.WATER, []))
+			return ""
 	return _first_clip(ACT_CLIPS.get(_act, []))
 
 
