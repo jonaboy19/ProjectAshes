@@ -1,0 +1,89 @@
+{
+ "skills": {
+  "baking": {
+   "name": "Baking",
+   "verb": "Bake",
+   "tag": "crafted"
+  },
+  "brewing": {
+   "name": "Brewing",
+   "verb": "Brew",
+   "tag": "crafted"
+  },
+  "tailoring": {
+   "name": "Tailoring",
+   "verb": "Sew",
+   "tag": "crafted"
+  },
+  "jewelry": {
+   "name": "Jewelry",
+   "verb": "Set",
+   "tag": "crafted"
+  },
+  "fletching": {
+   "name": "Fletching",
+   "verb": "Fletch",
+   "tag": "crafted"
+  },
+  "masonry": {
+   "name": "Masonry",
+   "verb": "Dress",
+   "tag": "crafted"
+  }
+ },
+ "stations": {
+  "oven": {
+   "name": "Oven",
+   "skills": [
+    "baking",
+    "cooking"
+   ]
+  },
+  "brew_vat": {
+   "name": "Brew Vat",
+   "skills": [
+    "brewing"
+   ]
+  },
+  "loom": {
+   "name": "Loom",
+   "skills": [
+    "tailoring"
+   ]
+  },
+  "jeweler_bench": {
+   "name": "Jeweller's Bench",
+   "skills": [
+    "jewelry"
+   ]
+  }
+ },
+ "station_skill_adds": {
+  "hearth": [
+   "baking",
+   "brewing"
+  ],
+  "anvil": [
+   "jewelry",
+   "masonry"
+  ],
+  "workbench": [
+   "tailoring",
+   "fletching",
+   "masonry"
+  ]
+ },
+ "files": [
+  "smithing",
+  "carpentry",
+  "fletching",
+  "leatherwork",
+  "tailoring",
+  "masonry",
+  "cooking",
+  "alchemy",
+  "jewelry",
+  "baking",
+  "brewing"
+ ]
+}

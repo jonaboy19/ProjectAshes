@@ -1,0 +1,216 @@
+{
+ "wheat": {
+  "days": 4,
+  "seasons": [],
+  "winter_hardy": false,
+  "asset": "farm/crop_wheat"
+ },
+ "barley": {
+  "days": 4,
+  "seasons": [
+   "SPRING",
+   "SUMMER"
+  ],
+  "winter_hardy": false,
+  "asset": "farm/crop_wheat"
+ },
+ "cabbage": {
+  "days": 5,
+  "seasons": [],
+  "winter_hardy": false,
+  "asset": "farm/crop_cabbage"
+ },
+ "turnip": {
+  "days": 4,
+  "seasons": [
+   "SPRING",
+   "SUMMER",
+   "AUTUMN",
+   "WINTER"
+  ],
+  "winter_hardy": true,
+  "asset": "farm/crop_cabbage"
+ },
+ "flax": {
+  "days": 5,
+  "seasons": [
+   "SPRING",
+   "SUMMER"
+  ],
+  "winter_hardy": false,
+  "asset": ""
+ },
+ "hops": {
+  "days": 6,
+  "seasons": [
+   "SUMMER"
+  ],
+  "winter_hardy": false,
+  "asset": ""
+ },
+ "carrot": {
+  "days": 4,
+  "seasons": [
+   "SPRING",
+   "SUMMER",
+   "AUTUMN"
+  ],
+  "winter_hardy": false,
+  "asset": "farm/crop_cabbage"
+ },
+ "onion": {
+  "days": 5,
+  "seasons": [
+   "SPRING",
+   "SUMMER"
+  ],
+  "winter_hardy": false,
+  "asset": "farm/crop_cabbage"
+ },
+ "leek": {
+  "days": 5,
+  "seasons": [
+   "SPRING",
+   "AUTUMN",
+   "WINTER"
+  ],
+  "winter_hardy": true,
+  "asset": "farm/crop_cabbage"
+ },
+ "peas": {
+  "days": 3,
+  "seasons": [
+   "SPRING"
+  ],
+  "winter_hardy": false,
+  "asset": "farm/crop_cabbage"
+ },
+ "broad_beans": {
+  "days": 4,
+  "seasons": [
+   "SPRING",
+   "AUTUMN"
+  ],
+  "winter_hardy": false,
+  "asset": "farm/crop_cabbage"
+ },
+ "beetroot": {
+  "days": 4,
+  "seasons": [
+   "SPRING",
+   "SUMMER",
+   "AUTUMN"
+  ],
+  "winter_hardy": false,
+  "asset": "farm/crop_cabbage"
+ },
+ "radish": {
+  "days": 2,
+  "seasons": [
+   "SPRING",
+   "SUMMER",
+   "AUTUMN"
+  ],
+  "winter_hardy": false,
+  "asset": "farm/crop_cabbage"
+ },
+ "parsnip": {
+  "days": 6,
+  "seasons": [
+   "SPRING",
+   "AUTUMN"
+  ],
+  "winter_hardy": true,
+  "asset": "farm/crop_cabbage"
+ },
+ "pumpkin": {
+  "days": 7,
+  "seasons": [
+   "SUMMER"
+  ],
+  "winter_hardy": false,
+  "asset": "farm/crop_cabbage"
+ },
+ "oats": {
+  "days": 4,
+  "seasons": [
+   "SPRING",
+   "SUMMER"
+  ],
+  "winter_hardy": false,
+  "asset": "farm/crop_wheat"
+ },
+ "rye": {
+  "days": 5,
+  "seasons": [
+   "AUTUMN",
+   "WINTER"
+  ],
+  "winter_hardy": true,
+  "asset": "farm/crop_wheat"
+ },
+ "garlic_bulb": {
+  "days": 5,
+  "seasons": [
+   "AUTUMN"
+  ],
+  "winter_hardy": true,
+  "asset": "farm/crop_cabbage"
+ },
+ "healing_herb": {
+  "days": 3,
+  "seasons": [
+   "SPRING",
+   "SUMMER",
+   "AUTUMN"
+  ],
+  "winter_hardy": false,
+  "asset": ""
+ },
+ "sunroot": {
+  "days": 5,
+  "seasons": [
+   "SUMMER"
+  ],
+  "winter_hardy": false,
+  "asset": ""
+ },
+ "thyme": {
+  "days": 3,
+  "seasons": [
+   "SPRING",
+   "SUMMER"
+  ],
+  "winter_hardy": false,
+  "asset": ""
+ },
+ "sage": {
+  "days": 3,
+  "seasons": [
+   "SPRING",
+   "SUMMER"
+  ],
+  "winter_hardy": false,
+  "asset": ""
+ },
+ "parsley": {
+  "days": 3,
+  "seasons": [
+   "SPRING",
+   "SUMMER",
+   "AUTUMN"
+  ],
+  "winter_hardy": false,
+  "asset": ""
+ },
+ "nettle": {
+  "days": 2,
+  "seasons": [
+   "SPRING",
+   "SUMMER",
+   "AUTUMN"
+  ],
+  "winter_hardy": false,
+  "asset": ""
+ }
+}

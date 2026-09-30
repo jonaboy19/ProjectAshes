@@ -22,6 +22,7 @@ extends RefCounted
 
 const RAMarket := preload("res://scripts/sim/market.gd")
 const RACaravans := preload("res://scripts/sim/caravans.gd")
+const ItemsDB := preload("res://scripts/sim/items_db.gd")
 
 ## Settlement kind -> {item: [base_price, normal_stock, made_per_day]}.
 const GOODS_BY_KIND := {
@@ -38,6 +39,10 @@ const IMPORTS_BY_KIND := {
 	"town": ["wheat", "cabbage", "wool"],
 	"castle": ["wheat", "cabbage", "wool", "tools", "cloth"],
 }
+## Region1 hook C4 (docs/regions/REGION_1_PLAN.md): Scar goods. Towns and the capital buy them, and their price follows
+## `scar_price_mult` (set by Region 1 from the size of the Scar Tide: a big Scar floods the market, a burned-back one makes them dear).
+const SCAR_GOODS := {"scar_crystal": [40, 4, 0], "scarbloom": [18, 6, 0]}
+var scar_price_mult := 1.0
 const MINE_GOOD := "iron_ore"
 const MINE_PRODUCE := [3, 25, 9]           # [base_price, normal_stock, made_per_day]
 const LAKE_GOOD := "perch"
@@ -138,11 +143,16 @@ func _build_market(s: Dictionary) -> RAMarket:
 		m.add_good(item, int(src[0]), maxi(4, int(src[1]) / 4), 0)
 		# Enough arrives, on a safe road, to hold the stock near normal against what people use.
 		m.imports[item] = 0.15 * clampf(float(s.get("population", 100)) / 60.0, 0.3, 2.0) * float(m.target[item])
+	if kind in ["town", "castle", "frontier_town"]:
+		for item: String in SCAR_GOODS:
+			m.add_good(item, int(SCAR_GOODS[item][0]), int(SCAR_GOODS[item][1]), int(SCAR_GOODS[item][2]))
 	var id := int(s["id"])
 	if _is_mine_settlement(id) and not m.base_price.has(MINE_GOOD):
 		m.add_good(MINE_GOOD, int(MINE_PRODUCE[0]), int(MINE_PRODUCE[1]), int(MINE_PRODUCE[2]))
 	if _near_lake(s) and not m.base_price.has(LAKE_GOOD):
 		m.add_good(LAKE_GOOD, int(LAKE_PRODUCE[0]), int(LAKE_PRODUCE[1]), int(LAKE_PRODUCE[2]))
+	# Region 1 item set: the shops this kind and size of settlement has stock their goods (data/items/shops.json).
+	ItemsDB.stock_settlement(m, kind, int(s.get("population", 100)), s.get("idents", []), id)
 	return m
 
 
@@ -443,6 +453,8 @@ func _apply_modifiers(id: int, m: RAMarket, season: String, festival: bool, at_w
 			mult *= WAR_MULT
 		if mine_opened and item == MINE_GOOD:
 			mult *= MINE_OPENED_MULT
+		if SCAR_GOODS.has(item):
+			mult *= scar_price_mult   # Region1 hook C4
 		m.set_modifier(item, mult)
 
 
