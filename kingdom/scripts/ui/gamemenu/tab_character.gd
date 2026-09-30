@@ -2,6 +2,7 @@ extends "res://scripts/ui/gamemenu/gm_tab.gd"
 ## CHARACTER: level and XP, derived attributes, a rotatable 3D preview of the
 ## player with the Life.equipment slots around it, and the skills summary.
 
+const Cult := preload("res://scripts/realm/cultivation.gd")
 const MODEL_PROPS := {"main_hand": "1H_Sword", "off_hand": "Round_Shield"}
 
 var _level_num: Label
@@ -230,6 +231,16 @@ func on_hide() -> void:
 func refresh() -> void:
 	var lvl := Life.player_level()
 	var info := MD.level_info(Game.merit, lvl)
+	var cult: Variant = Life.realm.mod("cultivation") if Life.get("realm") != null else null
+	var cult_line := ""
+	if cult != null:
+		# The progression spine (data/progression/levels.json) owns level/XP once the module is present.
+		var pi: Dictionary = cult.prog.info()
+		lvl = int(pi["level"])
+		info = {"level": lvl, "into": int(pi["into"]), "needed": maxi(1, int(pi["needed"])), "ratio": float(pi["ratio"])}
+		cult_line = "%s.  Unspent attribute points: %d." % [String(pi["title"]), int(cult.prog.points_unspent())]
+		if String(cult.primary) != "":
+			cult_line += "  Cultivation: %s." % Cult.stage_label(String(cult.primary), cult.realm_of(cult.primary), cult.stage_of(cult.primary))
 	_level_num.text = str(lvl)
 	_xp_bar.set_ratio(float(info["ratio"]))
 	_xp_bar.text = "%s / %s" % [_th(int(info["into"])), _th(int(info["needed"]))]
@@ -240,7 +251,7 @@ func refresh() -> void:
 		r.pressed.connect(func() -> void: _attr_blurb.text = String(a["blurb"]))
 		_attr_box.add_child(r)
 	if _attr_blurb.text == "":
-		_attr_blurb.text = "Attributes are derived from what you practise (see the Skills tab)."
+		_attr_blurb.text = cult_line if cult_line != "" else "Attributes are derived from what you practise (see the Skills tab)."
 	# Equipment slots.
 	for sname: String in _slot_nodes:
 		var s: Kit.Slot = _slot_nodes[sname]
