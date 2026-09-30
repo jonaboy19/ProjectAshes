@@ -35,12 +35,11 @@ const MAX_FULL := 24
 ## per look. Quality.npc_sprites narrows this further per tier.
 const MAX_SPRITES := 140
 const MAX_SPAWNS_PER_TICK := 3
-## Contact-range villagers that actually run move_and_slide() each physics frame,
-## nearest-to-player first. A crowd event (flee hazard) can put many more than
-## this into contact range at once; move_and_slide()'s narrow-phase collision
-## cost against a dense cluster of capsules is the expensive part, so the rest
-## fall back to plain kinematic movement (see Villager.physics_active) -- same
-## steering, speed and animation, just no per-pair collision resolution.
+## Contact-range villagers that use the multi-slide controller each physics
+## frame, nearest-to-player first. A crowd event can put more into contact at
+## once; overflow uses one swept collision query (see Villager.physics_active)
+## with the same steering/speed/animation and no NPC-on-NPC collision. Profile
+## both paths before changing this cap.
 const MAX_PHYSICS_CONTACT := 8
 ## Retain an active contact slot slightly across ranking refreshes to avoid
 ## repeatedly enabling/disabling collision for bodies at the budget edge.

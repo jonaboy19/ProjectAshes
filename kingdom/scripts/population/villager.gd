@@ -9,9 +9,10 @@ extends CharacterBody3D
 ##  - Route: along the settlement's streets and door paths (StreetGraph), never
 ##    the straight line through a house; light steering keeps clear of walls,
 ##    other villagers and the player.
-##  - Contact tier: only villagers within CONTACT_ENTER of the player enable
-##    their capsule and move with move_and_slide(); farther ones move along
-##    their route without a physics body.
+##  - Contact tier: villagers within CONTACT_ENTER of the player enable their
+##    capsule. The closest physics budget uses move_and_slide(); overflow uses a
+##    single swept move_and_collide() query, so contact actors still respect the
+##    player and world without enabling NPC-on-NPC physics.
 ##  - Gait: accelerates, brakes into arrival, turns at a bounded rate and slows
 ##    for sharp corners; the walk clip plays at the body's resolved speed over
 ##    its measured ground speed, so feet don't slide.
@@ -365,6 +366,13 @@ func _physics_process(delta: float) -> void:
 	if _contact and physics_active:
 		velocity = Vector3(planar.x, 0.0, planar.y)
 		move_and_slide()
+	elif _contact:
+		# Keep the expensive multi-slide path capped by PopulationLOD, but never
+		# let an embodied overflow actor cross the player or a solid world shape.
+		# The mask is world/player only (NPCs are on layer 2), so this remains one
+		# bounded sweep without adding pairwise crowd collision.
+		if planar != Vector2.ZERO:
+			move_and_collide(Vector3(planar.x, 0.0, planar.y) * delta)
 	elif planar != Vector2.ZERO:
 		global_position += Vector3(planar.x, 0.0, planar.y) * delta
 	var moved := Vector2(global_position.x, global_position.z) - here
