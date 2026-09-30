@@ -1,6 +1,6 @@
 # Systems masterplan: a coherent mobile living world
 
-Current implementation status is recorded in [SYSTEMS_CONTINUATION.md](SYSTEMS_CONTINUATION.md), **Current checkpoint after usage reset**. The original audit below remains the roadmap; the new deliveries do not imply that the rest of this plan is complete.
+Current implementation status is recorded in [SYSTEMS_CONTINUATION.md](SYSTEMS_CONTINUATION.md), **Latest continuation checkpoint**. The matrix and delivery order below began as a source audit against `origin/main` at `4e03e000`; they are historical roadmap context, not current status. Use the overlay below and re-read the source before taking a task.
 
 Audit baseline: `origin/main` 4e03e000d2e68e32fea7bb0625d373e72bbbfe0d, 29 September 2026. This document is a proposed sequence, not proof of implemented features. The source is authoritative when older design progress lists disagree. Scope: systems and world building; Claude owns current models, environment and presentation work.
 
@@ -10,23 +10,37 @@ The four supplied notes describe lives formed through actions, careers without c
 
 A character starts as a person. Occupation does not gate capability. Apprenticeships are opportunities with people, travel and obligations. Shared activities connect professions. NPCs resolve matters without the player. Animations express simulation state. Scenario casting requires real entities and prerequisites; random timers alone do not establish believable causality.
 
+## Current source overlay — 30 September 2026
+
+This overlay reflects the Codex integration branch `gpt/living-world-integration` at `d07232e2`, merged with Claude's latest remote docs commit `0ea3d579`. Review is in [draft PR #5](https://github.com/jonaboy19/ProjectAshes/pull/5). Claude's local checkout may contain unpushed work. The earlier inventory and implementation order are historical context; they are not an instruction to rebuild delivered systems.
+
+- **Persistent facts and actions:** `world_event_log.gd` is bounded, queryable and included in Life save/restore; real Life-action and craft producers publish facts. `action_runtime.gd` provides bounded atomic multi-resource leases and idempotent commits. The journal is not a rumor bus, and publishing a fact does not give it to every NPC.
+- **Crafting station identity:** `station_identity.gd`, `crafting.gd` and `Life` use semantic station references plus live registration generations. Crafting reserves the player and exact station channel together and revalidates the same station at commit. This does not make NPCs walk to stations.
+- **Population continuity:** embodied position has an instance-tokened `WorldSim` owner handoff; five utility needs persist across LOD and save/load, with bounded catch-up. A time skip preserves an embodied actor's resolved position while updating its destination. Physics contact remains capped at eight actors.
+- **Near perception and social memory:** shared sight requests are FIFO and bounded, with four raycasts per 500 ms and short anonymous last-seen danger memory. Relationships have bounded conversation-topic memory attached to actual dialogue-node presentation. Neither feature supplies hearing, reliable culprit identification, durable witnessed-crime evidence, or NPC-to-NPC rumor propagation.
+- **Live activity:** villagers now use the shared action lease authority for a narrow water-fetch activity with two approach slots (or abstract plaza-break points when a generated settlement has no well). Existing movement/collision remains authoritative. Thirst recovery and the existing animation candidates require arrival, stop, facing and a working lease. This is pushed but not validated in Godot or on a phone; see [NPC_WELL_ACTIVITY_HANDOFF.md](concepts/NPC_WELL_ACTIVITY_HANDOFF.md).
+- **Still absent or unintegrated:** general NPC station approaches, shared work orders/opportunities, evidence-backed crime and law, hearing/search, significant event memories and uncertain rumor propagation, persistent NPC-to-NPC links, scenario casting, and fully conserved physical production/cargo. `region_event_bridge.gd` is optional and not wired into live gameplay.
+- **Claude-owned queued work:** survival construction and cause-driven/rarer wars with player influence are described in `docs/design/REALM_PLAN.md`. This branch does not implement or take ownership of those concurrent features.
+
+No full-game parser/runtime, visual acceptance, behavioral, save/load, or mobile-performance result is claimed by this overlay. Static checks recorded in the continuation document apply only to the specific files and commits named there.
+
 ## Evidence-based inventory
 
 | Area | Status | Existing source and evidence | Gap / next extension |
 |---|---|---|---|
-| Population | PARTIAL | `kingdom/autoload/world_sim.gd`: packed home/job/position/money/health columns, sliced update, deterministic schedule and settlement ranges | Distinct persistent identity domains need an explicit reference contract; population save currently includes money/clock/treasury, not complete life records |
-| Nearby AI | PARTIAL | `scripts/population/utility_brain.gd`: needs, personality, utility commitment, shared hazard cache, social pairs, contextual goals | Perception evidence, beliefs and significant memories need bounded storage; do not replace this brain |
+| Population | PARTIAL | `kingdom/autoload/world_sim.gd`: packed home/job/position/money/health columns, sliced update, deterministic schedule and settlement ranges; embodied position ownership and five saved utility needs are integrated | Distinct persistent identity domains still need a shared mapping; most residents are not complete persistent life records |
+| Nearby AI | PARTIAL | `scripts/population/utility_brain.gd`: needs, personality, utility commitment, FIFO bounded sight requests, anonymous last-seen danger, social pairs and contextual goals | Hearing, identification confidence, durable significant memories and wider intent remain; do not replace this brain |
 | Embodiment | IMPLEMENTED | `scripts/population/population_lod.gd`: full/sprite ranges, budgets, write-back ownership, contact hold, time-skip handling | Rendering, physics and cognition budgets need separate measurement; do not treat distance as the only promotion criterion |
 | Childhood | IMPLEMENTED | `scripts/sim/life_path.gd`, `childhood_events.gd`, `tendencies.gd`, `awakening.gd` | Activities/opportunities should feed existing lived experience rather than introduce class choices |
 | Careers | PARTIAL | `careers.gd`, `career_ladders.gd`, `mastery.gd`, `biography.gd`, `radiant_quests.gd` | Shared work/activity primitives and multiple occupations; preserve vacancies and actual-practice progression |
 | Notable lives | IMPLEMENTED | `life_courses.gd`: named people, families, yearly career/marriage/death progression, capped news | Not the same database as WorldSim; promote continuity through a mapping rather than conflating integer IDs |
-| Social | PARTIAL | `relationships.gd`: player-facing opinion modifiers, factions and gifts | Sparse NPC-to-NPC links, belief-aware rumours and consequences |
+| Social | PARTIAL | `relationships.gd`: player-facing opinions/factions/gifts plus bounded conversation-topic memory recorded from dialogue presentation | Sparse NPC-to-NPC links, evidence-aware and uncertain rumors, and their consequences |
 | Economy | PARTIAL | `economy.gd`, `market.gd`, `caravans.gd`: hourly production/consumption/modifiers, trade, contracts and abstract transport | Physical transport must share one cargo/entity record; deeper production must conserve goods and money |
 | Property/state | PARTIAL | `property.gd`, `nobility.gd`, `lordship.gd`, `homestead.gd` | Construction labour/material/time and settlement migration reasons should connect through existing owners |
 | World causes | PARTIAL | `runestone_network.gd`, `monster_ecology.gd`, `threat_map.gd`, `seasons.gd`, `war_sim.gd` | Causal event records and scenario consequences; road_events.gd still uses a slow proximity/random ambush check |
 | Skills/power | PARTIAL | `skills.gd`, `soul.gd`, `skill_evolution.gd`, `magicules.gd`, `echoes.gd` | Shared ability/effect interfaces around existing systems, not a second progression model |
 | Persistence | IMPLEMENTED | `save_manager.gd`: atomic writes, backups, checksums, migration and autosave; `Life.snapshot/restore` owns module state | Extend the existing snapshot with optional versioned fields; missing legacy fields must reset new state |
-| Integration | NEEDS INTEGRATION | `autoload/life.gd`: direct signal hookups and Life.record fan-out | No shared action/affordance/event module found in the scripts inventory; introduce one bounded slice before broad consequence routing |
+| Integration | PARTIAL | `autoload/life.gd` plus bounded event log, atomic action leases, semantic station identities, exact craft reservation/commit, and the narrow live water activity | Region event bridge is not wired to gameplay; no generic NPC activity/work-order adapter or broad consequence routing |
 
 
 Status means source coverage of the stated feature, not a runtime quality guarantee. IMPLEMENTED means a concrete execution path exists; PARTIAL means a useful base exists but the requested richer model does not; MISSING means no shared implementation was located in the audited scripts; NEEDS INTEGRATION means existing pieces need cross-system wiring.
@@ -38,7 +52,7 @@ Status means source coverage of the stated feature, not a runtime quality guaran
 | Traversal | PARTIAL | player `_update_swim_state`, swimming stamina, `toggle_mount`/mounted physics, crouch and ground handling | No mantle/vault implementation found in player traversal audit; add only after shared action contract |
 | Weather | IMPLEMENTED | `kingdom/scripts/world/weather.gd` scheduled states, transitions, rain/snow, quality-aware particles, noise/fire multipliers, lightning/audio; utility brain consumes raining state | Wider hearing/stealth/crop consequences NEED INTEGRATION; multipliers alone do not prove all consumers |
 | Dialogue | PARTIAL | `kingdom/scripts/sim/dialogue_runner.gd` data-driven runner; Life and TalkTarget expose dialogue/menu integration | Context barks, believable world-space interruption and belief-aware reports remain |
-| Interaction/SmartObjects | MISSING | Existing Station/TalkTarget and crafting station lookup operate, but no shared affordance/action/reservation module found | Shared lifecycle with physical adapters, eligibility and exactly-once commit |
+| Interaction/SmartObjects | PARTIAL | `ActionRuntime` supports atomic transient resource leases; crafting uses semantic station references/generations; QA `SmartObjects` has a reference session lifecycle; Villager has one leased water activity | General NPC affordance/approach/contact, shared eligibility/work orders and production activity effects are absent; QA SmartObjects is not wired into gameplay |
 | Work opportunities/knowledge | PARTIAL | Careers supplies real vacancies; mastery/biography/childhood/radiant exist | Shared Activity/WorkOrder, apprenticeship obligations and knowledge/qualification model |
 | Crime/law | MISSING | No unified witness/jurisdiction/offence/report model located | Ownership, identification confidence, guard knowledge and persistent punishment |
 | Stealth/perception/memory | PARTIAL | player `noise_radius`, crouch; weather noise hook; utility cached hazard and spectacle sensing | Sight/hearing evidence, suspicion/search, significant bounded memory |
@@ -51,7 +65,7 @@ Status means source coverage of the stated feature, not a runtime quality guaran
 | Player presentation | PARTIAL / CLAUDE OWNED | Existing animator/procedural rig and player animation calls | Supplied weapon/IK/camera proposals reserved for Claude; no presentation edits in this slice |
 Paths in the table omit the common `kingdom/` prefix where unambiguous. Presence of a file proves implementation exists, not gameplay completeness or device performance.
 
-## Delivery order and ownership
+## Historical delivery order and ownership
 
 ### 1. Persistent event spine, wired to real actions
 
@@ -104,6 +118,16 @@ Key routes: two NPCs compete for one slot; threat interrupts work; save during a
 Evaluate external code for current engine support, licence, maintenance, integration cost and tests. Wrap useful components behind project interfaces. A discontinued repository is not permission to reuse its proprietary game assets. Altering models does not remove copyright restrictions. This slice uses project-owned source and adds original systems; no third-party asset import is proposed.
 
 
-## Current delivery status (working tree, review pending)
+## Remaining work and sequence
 
-Continue from [SYSTEMS_CONTINUATION.md](SYSTEMS_CONTINUATION.md), including exact ownership, QA gate and remaining systems. Event journal integration exists. Craft action start/commit/cancel and UI lifecycle glue are present; reservations cover the actor work channel only, not physical station objects. NPC sight and crafting slices are committed; live integration is still unverified. Shared visibility is capped at 4 rays per 500 ms with 3-second anonymous danger memory. No FOV/hearing/permanent NPC memory is implemented. Isolated new-module parser checks do not establish full-game integration; behavioral/device validation is still required. Do not mark latest review fixes accepted without inspecting the final patch and evidence. Next: verify live integration, then stable shared station IDs/reservations, then significant evidence-based memory.
+Continue from [SYSTEMS_CONTINUATION.md](SYSTEMS_CONTINUATION.md) and [CODEX_CLAUDE_LIVING_WORLD_INTEGRATION.md](concepts/CODEX_CLAUDE_LIVING_WORLD_INTEGRATION.md). The systems PR is still draft; implementation presence is not acceptance evidence.
+
+1. **Verify the current integration in the real game.** Claude checks this branch against unpushed work; then verify the water approach/slot geometry, actor and slot release, interruption, save/load, time skip and LOD transitions. Capture two/three-user contention and measure LOW-tier CPU/frame-time before expanding the actor cap.
+2. **Add evidence-based NPC memory.** Define a verified event-to-witness producer first. Keep event facts separate from what a particular observer perceived, retain confidence/age/source, coalesce repeated observations and impose per-observer/global bounds. Do not invent offender identity or let journal queries imply omniscience.
+3. **Expand physical activities only after water acceptance.** Reuse one route/body owner and ActionRuntime. Workstations need exact semantic slots, reachability, queue or fallback, a task/effect owner and interruption/LOD rules; retain the established crafting station registry. Claude owns rigs, clips, props and contact markers.
+4. **Connect life and economy.** Add work orders/opportunities and NPC-to-NPC social ties through existing careers, relationships and economy owners. Track conserved inputs/outputs and compensation; distant simulation stays data-only and bounded.
+5. **Add law, rumors and personal matters as causal systems.** Require local jurisdiction and actual evidence for crime response; reports and rumor claims carry provenance and confidence. Scenario instances must reference real participants/causes and bound casting/resolution work.
+6. **Keep Claude-owned tracks separate.** Survival construction, campaign map/war causes/player influence, assets, animations and world presentation stay with Claude unless task ownership is explicitly coordinated.
+7. **Measure mobile limits.** Use representative low-tier hardware and warm sustained captures. Record frame-time percentiles, active physics/animation bodies, sight queue wait/expiry, path work and bounded data sizes. Current numeric caps are safeguards, not proof of mobile performance.
+
+No full-game parser/runtime, visual acceptance, save/load, behavioral, or phone-performance result is claimed by the current branch. Record evidence and limitations per slice; do not call a system accepted from static review alone.

@@ -4,7 +4,7 @@
 
 ## Current source map
 
-The fetched remote Claude branch head inspected for this handoff is `3177be61` (30 September 2026). Earlier notes below distinguish source observations made against `d163255f`; recheck the actual PC checkout before applying anything because local changes may be newer.
+The code integration baseline is the fetched remote Claude branch head `3177be61` (30 September 2026); this Codex branch also merges Claude's later docs-only commit `0ea3d579`. Earlier notes below distinguish source observations made against `d163255f`; recheck the actual PC checkout before applying anything because local changes may be newer.
 
 | Responsibility | Current owner/source | Integration rule |
 |---|---|---|
@@ -14,7 +14,7 @@ The fetched remote Claude branch head inspected for this handoff is `3177be61` (
 | Embodiment and animation/physics budgets | `kingdom/scripts/population/population_lod.gd` | Preserve the existing caps and handoff rules. A new action must survive promotion/demotion without duplicate movers or leases. |
 | Player actions, crafting and transient action tokens | `kingdom/scripts/systems/action_runtime.gd`, `kingdom/scripts/sim/crafting.gd` | Reuse the existing validation/commit path for real effects. A visual activity animation must never award a second effect. |
 | Brief embodied NPC activities | `kingdom/scripts/systems/npc_activity_runtime.gd`; `Life.action_runtime`; `Villager` | The well-water slice uses the shared action lease authority and existing near-body route/animation path. Keep tokens transient; do not add a parallel station or effect owner. |
-| Physical NPC stations and persistent station identity | `kingdom/scripts/world/work_spots.gd`, `kingdom/scripts/world/station.gd` | Audit and adapt these before introducing another station registry. |
+| Crafting station identity and player occupancy | `kingdom/scripts/systems/station_identity.gd`, `kingdom/scripts/sim/crafting.gd`, `Life` | Exact generated station references and registration generations are used by player crafting. This is not a generic NPC `WorkSpots` bridge; don't add a second station registry. |
 | Experimental activity definitions/sessions and demo actor | `kingdom/scripts/living_world/smart_objects.gd`, `life_actor.gd`, `kingdom/tools_qa/living_world/` | Reference implementation only. The gameplay population does not currently call this API. `LifeActor` moves directly and is not a replacement for `Villager` physics. |
 | Animation clips, props, contact points and scene wiring | Claude | Systems may request a named clip/marker/socket contract; do not edit or replace the active animation, model, scene or project wiring without coordination. |
 
