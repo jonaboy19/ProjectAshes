@@ -17,6 +17,16 @@ The Journal reads `Life.scouts.offers` so offers restored from saves remain visi
 
 See [CODEX_LOCOMOTION_JUMP.md](../anim/CODEX_LOCOMOTION_JUMP.md) for the player jump/run-stop integration, impact feedback, directional reactions, enemy wind-up timing and camera improvements, plus the required in-game validation checklist.
 
+## Dialogue presentation: F13 partial fix
+
+Opening a conversation now eases the full dialogue layer (including the world shade) in over 0.25 seconds. Changing to a different speaker also fades the bust holder over 0.25 seconds so a duplicated NPC model or fallback portrait does not hard-cut into place. This is UI-only and adds no world scans or NPC work.
+
+The feel-audit camera issue is still open: the camera can end inside the speaker or a cart. `dialogue_ui.gd` receives the model used by the portrait, not a reliable actor root and camera focus target, so this patch does not attempt a shot change. Claude should review the camera ownership/mask and interaction target path before adding a temporary talk-camera focus; validate on mobile and keep the current camera as a fallback when no safe actor target exists.
+
+## Dodge lanes: F15
+
+At dodge start, the player now sweeps the expected roll path once. If its first obstruction is a hostile actor, it probes nearby directions in 10-degree steps (up to 50 degrees), preferring the side away from the actor and using the nearest clear lane. This lets the roll skirt an enemy capsule while preserving ordinary wall blocking and invulnerability timing. No per-frame work or NPC scans were added; the extra physics probes happen only when a dodge would otherwise collide with a hostile.
+
 ## Review boundary
 
 - Claude should review this branch against its current work before merging; the player, combat, camera, and HUD paths overlap ongoing polish areas.

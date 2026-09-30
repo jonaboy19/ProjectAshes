@@ -709,8 +709,11 @@ func _rebuild_menu() -> void:
 			child.queue_free()
 		_menu.visible = false
 		_dlg_options = data.get("options", [])
+		var was_dialogue_visible := dialogue.visible
 		dialogue.set_page(data)
 		dialogue.visible = true
+		if not was_dialogue_visible:
+			dialogue.present()
 		_set_chrome_visible(false)
 		return
 	dialogue.visible = false

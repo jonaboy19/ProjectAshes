@@ -18,6 +18,8 @@ The latest Claude base already contains the ragdoll pose-hold get-up blend from 
 - Applied two still-open feel-audit fixes from the earlier handoff: third-person block now faces the nearest enemy within 6 m (camera heading remains the fallback), and wolves turn with frame-rate-independent yaw plus forward-biased, turn-scaled travel to reduce sideways crab-walking.
 - Replaced the global time-scale freeze on ordinary 50 ms sword hits with a local pause on only the player's and struck actors' animation mixers. Parry and finisher slow-motion retain the existing global effect. The local pause restores prior mixer state and does not freeze physics, camera, particles, or unrelated NPCs.
 - Added restrained outward FOV pulses on successful parries and finisher hits, and routed combat positional shake through the same Screen Shake access setting (Off = none, Reduced = half, Full = full). FOV pulses cap at 6 degrees and decay independently from landing FOV and positional shake. The preference is read only when an impact occurs.
+- When a dodge's one-time swept-path probe finds a hostile actor, it tries nearby clear lanes in 10-degree increments up to 50 degrees, preferring the side away from the obstruction. The roll still respects world walls, and invulnerability timing is unchanged.
+- Dialogue presentation eases its shade/UI and speaker bust in over 0.25 s. This softens the portrait hard cut, but does not yet move the gameplay camera into a speaker-focused shot; see [CODEX_SYSTEMS_HANDOFF.md](../concepts/CODEX_SYSTEMS_HANDOFF.md#dialogue-presentation-f13-partial-fix).
 - Contact sparks use the sampled sword tip when it is within 0.6 m of the confirmed target contact point; otherwise they keep the reliable target-side fallback position. This uses the existing WeaponTrail skeleton sample at hit time.
 - Wired the existing directional reaction clips for player and soldiers. Player hits select Light/Heavy and Front/Back/Left/Right (heavy at 12% max health or 4 m/s knockback); heavy reactions are full body on foot and upper body while swimming or mounted. Soldier hits use directional Light clips or directional Heavy clips above 4 m/s unless the existing ragdoll knockdown path takes over. Player guard break uses `Stagger_Back` and a small backward capsule impulse.
 - A nonlethal hit on the player locally pauses the player's and attacker's animation mixers for 45 ms after starting the reaction, then restores their prior active/speed state. It does not trigger for zero-damage blocks or death.
@@ -29,6 +31,7 @@ The latest Claude base already contains the ragdoll pose-hold get-up blend from 
 - The camera change reuses the player's existing obstruction ray. A settlement creates only one extra static camera-only box per well; there is no new per-frame scene search.
 - Block-facing enemy lookup runs at 12.5 Hz while guarding. Hit-stop discovers mixers only for actors actually struck by a non-finisher hit.
 - Impact camera feedback adds no scene queries or per-NPC work; the existing access preference controls both positional shake and the FOV pulse.
+- Dodge lane probes run only on dodge start and only try alternatives when the first sweep hits a hostile. Normal movement adds no query work.
 - Blade spark placement adds one tip sample per confirmed swing resolution and no new physics query.
 - Directional hit selection is a handful of vector dot products per received hit; clip choice adds no ongoing AI or per-frame work. Soldier ragdolls remain governed by their existing heavy-hit cap.
 - Player hit-pause only searches the attacking actor's animation mixers on an actual nonlethal damaging hit; it is local to those mixers.
@@ -51,6 +54,8 @@ The latest Claude base already contains the ragdoll pose-hold get-up blend from 
 5. Check 16:9, portrait/mobile, and one-handed HUD layouts for Jump/Attack overlap and touch reach.
 6. Tune anything that drifts on the actual player rig, then land this branch into Claude's active line.
 7. Check each wolf, goblin, orc, troll and other creature attack in a playable build: animation contact must still coincide with the unchanged gameplay hit frame after the snap-speed change.
+8. Dodge into a nearby hostile from front/left/right and confirm the roll takes the smallest clear side lane without steering into walls; also check mobile touch input.
+9. Open dialogue with a nearby NPC and confirm the UI/bust ease looks good while the gameplay camera fallback remains usable.
 
 ## Environment caveat
 

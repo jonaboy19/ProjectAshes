@@ -90,6 +90,8 @@ const DODGE_ANIM_RATE := 1.8
 ## step with i-frames, no VFX. Distinct from the Shadow Dash ability below.
 const DODGE_SPEED_MIN := 3.2
 const DODGE_SPEED_MAX := 7.0
+const DODGE_LANE_STEP_DEG := 10.0
+const DODGE_LANE_MAX_DEG := 50.0
 const DODGE_STAMINA := 15.0
 ## Jump is intentionally separate from the dodge action. Timing and clip names:
 ## docs/anim/patches/P7_jump.md (the clip library is loaded before UAL1).
@@ -1530,6 +1532,7 @@ func _start_dodge(is_ability: bool) -> void:
 	var dir := _input_dir()
 	var backward := dir.length() < 0.1
 	_dodge_dir = -facing() if backward else dir.normalized()
+	_dodge_dir = _clear_dodge_lane(_dodge_dir)
 	if not backward:
 		_model.rotation.y = atan2(_dodge_dir.x, _dodge_dir.z)
 	_set_crouch(false)
@@ -1548,6 +1551,35 @@ func _start_dodge(is_ability: bool) -> void:
 		# Shadow Dash only: the afterimage trail that used to play on every dodge.
 		VFX.afterimage(get_parent(), _model, Color(0.6, 0.85, 1.0), 3)
 	get_tree().create_timer(DODGE_TIME).timeout.connect(_end_dodge_anim)
+
+
+## If the swept roll path hits a hostile capsule, choose the nearest clear lane
+## around it. The probe runs only once per dodge input; regular movement and NPC
+## collision budgets are unchanged. Walls still block the roll normally.
+func _clear_dodge_lane(direction: Vector3) -> Vector3:
+	var speed_min := DASH_SPEED_MIN if _dodging_ability else DODGE_SPEED_MIN
+	var speed_max := DASH_SPEED_MAX if _dodging_ability else DODGE_SPEED_MAX
+	var distance := (speed_min + speed_max) * 0.5 * DODGE_TIME
+	var obstruction := _dodge_obstruction(direction, distance)
+	if obstruction == null or not obstruction.is_in_group("team1"):
+		return direction
+	var right := direction.rotated(Vector3.UP, PI * 0.5)
+	var to_obstruction := obstruction.global_position - global_position
+	var preferred_side := -1.0 if to_obstruction.dot(right) >= 0.0 else 1.0
+	for step in range(1, int(DODGE_LANE_MAX_DEG / DODGE_LANE_STEP_DEG) + 1):
+		var angle := deg_to_rad(float(step) * DODGE_LANE_STEP_DEG)
+		for side in [preferred_side, -preferred_side]:
+			var candidate := direction.rotated(Vector3.UP, angle * side).normalized()
+			if _dodge_obstruction(candidate, distance) == null:
+				return candidate
+	return direction
+
+
+func _dodge_obstruction(direction: Vector3, distance: float) -> Node3D:
+	var result := PhysicsTestMotionResult3D.new()
+	if test_move(global_transform, direction * distance, result):
+		return result.get_collider() as Node3D
+	return null
 
 
 ## When the roll's movement ends and the player is already steering, hand the
