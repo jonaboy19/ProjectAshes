@@ -20,7 +20,7 @@ extends RefCounted
 ##
 ## Inputs come from: the time of day on the person's own staggered clock
 ## (DailyRhythm, kept as the baseline schedule consideration), their career
-## shift, a seeded personality (sociable, lazy, pious, greedy), needs that
+## shift, a seeded personality (sociable, lazy, pious, greedy, courageous), needs that
 ## decay with game time (food, rest, company, faith, household water), rain,
 ## nearby hostiles and anything noteworthy the player is doing.
 ##
@@ -210,6 +210,13 @@ static func score(action: int, ctx: Dictionary) -> float:
 		if s <= 0.0:
 			return 0.0
 		total *= s + (1.0 - s) * mod * s
+	# Apply temperament after shared consideration compensation so courage=0.5
+	# leaves the previous FLEE/WATCH scores exactly intact.
+	var courage := clampf(float(ctx.get("courage", 0.5)), 0.0, 1.0)
+	if action == Act.FLEE:
+		total *= lerpf(1.15, 0.85, courage)
+	elif action == Act.WATCH:
+		total *= lerpf(0.9, 1.1, courage)
 	return total
 
 
@@ -238,11 +245,11 @@ static func best(ctx: Dictionary, current := -1, bonus := 1.0) -> int:
 	return pick
 
 
-## Seeded personality, stable for life: four traits in 0..1.
+## Seeded personality, stable for life: five traits in 0..1.
 static func personality(p: int) -> Dictionary:
 	var out := {}
 	var k := 0
-	for t: String in ["sociable", "lazy", "pious", "greedy"]:
+	for t: String in ["sociable", "lazy", "pious", "greedy", "courage"]:
 		# Sum of two draws: traits cluster around the middle, extremes are rarer.
 		var h1 := hash(p * 2246822519 + k * 3266489917 + 1066)
 		var h2 := hash(p * 668265263 + k * 374761393 + 7)
@@ -275,7 +282,7 @@ static func time_inputs(h: float, lazy := 0.5) -> Dictionary:
 ## A complete input set with neutral defaults, overridden by `over`. Tests and
 ## tools build contexts with this; villagers use context().
 static func make_context(hour: float, over: Dictionary = {}, p_traits: Dictionary = {}) -> Dictionary:
-	var tr := {"sociable": 0.5, "lazy": 0.5, "pious": 0.5, "greedy": 0.5}
+	var tr := {"sociable": 0.5, "lazy": 0.5, "pious": 0.5, "greedy": 0.5, "courage": 0.5}
 	tr.merge(p_traits, true)
 	var ctx := time_inputs(hour, tr["lazy"])
 	ctx.merge(tr, true)

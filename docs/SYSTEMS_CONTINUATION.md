@@ -10,6 +10,10 @@
 
 `UtilityBrain.catch_up()` now accounts for a trait-bounded sleep window and the existing three daily meal windows with a fixed amount of arithmetic. Sleep restores rest and halves hunger decay; meals restore a small food need plus abstract hydration. The same need columns/save data and current promotion/restore/resync hooks are retained; this creates no physical resident, inventory item, station reservation or activity event. Social and faith still decay without offscreen activity simulation. Daily rhythm jitter over long historical spans is averaged using the current offset. See [NPC_OFFSCREEN_NEEDS_HANDOFF.md](concepts/NPC_OFFSCREEN_NEEDS_HANDOFF.md). Static review only; no parser, behavior, time-skip or mobile check was run.
 
+### Latest slice: individual danger temperament
+
+The deterministic person-seeded utility personality now includes a fifth `courage` trait. It slightly lowers FLEE and favors WATCH for bolder villagers while preserving neutral tool contexts at the midpoint. This changes only existing utility scores; guards retain their role modifier and no new combat/evidence behavior is implied. The trait is not separately saved and shares the current person-index identity limitation. See [NPC_TEMPERAMENT_HANDOFF.md](concepts/NPC_TEMPERAMENT_HANDOFF.md). Static review only; no parser, behavior-tuning or mobile check was run.
+
 ### Latest slice: rotating hostile sight candidates
 
 Each villager's bounded line-of-sight request now rotates through up to its four nearest hostile candidates instead of only the nearest two. Candidate discovery remains one O(H) pass over the already shared hostile cache; the global cap stays four physics rays per 500 ms, with one queued request per observer. This improves the chance a third/fourth nearby hostile is observed over successive decisions without increasing the ray budget. It does not guarantee detection latency or fair service under queue pressure. Static review only; no parser, behavior, queue-stress or phone-cost measurement was run.
