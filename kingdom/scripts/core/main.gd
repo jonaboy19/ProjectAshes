@@ -86,7 +86,7 @@ func _ready() -> void:
 	add_child(hud)
 	hud.fast_travel_requested.connect(func(at: Vector2) -> void: _teleport(at, 0.0))
 	hud.place_discovered.connect(func(_place: Variant) -> void: Audio.play_discovery())
-	hud.add_action_button("lock_on", "Lock", "lock_on", "eye-target")
+	hud.add_action_button("lock_on", "Lock", "lock_on", "glyph:lock")
 	hud.add_action_button("crouch", "Sneak", "crouch", "walk")
 
 	hud.set_loading_text("Painting sprites...", 0.04)
@@ -137,6 +137,7 @@ func _ready() -> void:
 	InteriorDoor.tag_player(player)
 	InteriorDoor.external_dispatch = true
 	player.health_changed.connect(_on_player_health)
+	player.died.connect(_on_player_died)
 
 	captain = Captain.new()
 	world.add_child(captain)
@@ -320,7 +321,9 @@ func _process(delta: float) -> void:
 	noble_courts.focus = focus
 	camps.focus = focus
 	ambient.focus = focus
-	terrain.view_radius = mini(5 if player.view == Player.View.COMMAND else 4, Quality.view_radius)
+	# The settings screen's View Distance (Quality tier or override) sets the chunk ring; the command view sees one ring further.
+	terrain.view_radius = Quality.view_radius + (1 if player.view == Player.View.COMMAND and Quality.view_radius >= 4 else 0)
+	water.view_radius = terrain.view_radius
 	_update_daylight()
 	_status_timer -= delta
 	if _status_timer <= 0.0:
@@ -427,6 +430,20 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_player_health(current: int, _maximum: int) -> void:
 	if current <= 0 and InteriorDoor.active != null:
 		InteriorDoor.active.leave()
+
+
+## The fall has played: the death screen offers respawn at home / last save / load / main menu.
+func _on_player_died() -> void:
+	const DeathScreen := preload("res://scripts/ui/frontend/death_screen.gd")
+	DeathScreen.open(hud, _respawn_at_home)
+
+
+## "Respawn at Home": the life-sim cost of dying (gold, a minor injury; Life.apply_death_penalty),
+## then back on your feet at the last bed or the village.
+func _respawn_at_home() -> void:
+	var r: Dictionary = Life.apply_death_penalty()
+	player.revive()
+	Game.say(String(r["text"]))
 
 
 func _recruit(count: int) -> void:

@@ -20,6 +20,11 @@ extends Node
 ## Game code reads the budgets it owns: `npc_full`, `npc_sprites` (PopulationLOD)
 ## and `view_radius` (terrain chunks, main.gd).
 ##
+## The settings screen's View Distance / Shadows / Textures / Effects rows override
+## single groups of a tier's values (GROUPS below) on top of the preset: `set_overrides`
+## applies them live (terrain ring radius, visibility ranges, sun shadows, SSAO/glow/fog,
+## anisotropy and texture mip bias) and they are read again at start-up from settings.cfg.
+##
 ## Launch overrides (not saved, adaptation off): -- --quality=low|medium|high|ultra
 
 signal changed
@@ -30,6 +35,14 @@ const NAMES := ["Low", "Medium", "High", "Ultra"]
 const SETTINGS_PATH := "user://settings.cfg"
 ## Bump when detect_tier() changes so saved AUTO results are re-detected.
 const DETECT_VERSION := 3
+const SS := preload("res://scripts/ui/frontend/settings_store.gd")
+## Settings-screen row -> the tier keys it controls (value() reads them from the row's own level).
+const GROUPS := {
+	"view": ["view_radius", "range", "scatter", "town_far", "light_fade", "lod_threshold", "npc_full", "npc_sprites", "fog_mul"],
+	"shadows": ["shadow", "shadow_size", "shadow_dist", "soft_shadow", "omni_shadows"],
+	"textures": ["aniso", "tex_bias"],
+	"effects": ["ssao", "ssil", "sdfgi", "glow", "vol_fog", "ssr", "particles"],
+}
 
 ## Per-tier settings. `max_3d_height`: the 3D view is rendered at most this many
 ## pixels tall (0 = native) and upscaled, so a 1440p phone costs no more than a
@@ -40,28 +53,28 @@ const TIERS := [
 		"max_3d_height": 540, "scaling": "bilinear", "fps": 30,
 		"shadow": 0, "shadow_size": 1024, "shadow_dist": 0.0, "soft_shadow": 0, "omni_shadows": false,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
-		"lod_threshold": 8.0, "range": 0.55, "scatter": 0.3, "particles": 0.35, "aniso": 0,
+		"lod_threshold": 8.0, "range": 0.55, "scatter": 0.3, "particles": 0.35, "aniso": 0, "tex_bias": 1.0, "fog_mul": 1.5,
 		"msaa": 0, "fxaa": false, "npc_full": 5, "rig_budget": 0, "npc_sprites": 10, "view_radius": 2, "light_fade": 35.0, "town_far": 420.0,
 	},
 	{   # MEDIUM: mid-range phones (Adreno 618-650, Mali-G57..G77, Apple A11-A12)
 		"max_3d_height": 720, "scaling": "fsr", "fps": 60,
 		"shadow": 1, "shadow_size": 2048, "shadow_dist": 55.0, "soft_shadow": 1, "omni_shadows": false,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
-		"lod_threshold": 2.0, "range": 0.75, "scatter": 0.6, "particles": 0.6, "aniso": 1,
+		"lod_threshold": 2.0, "range": 0.75, "scatter": 0.6, "particles": 0.6, "aniso": 1, "tex_bias": 0.5, "fog_mul": 1.2,
 		"msaa": 0, "fxaa": false, "npc_full": 8, "rig_budget": 3, "npc_sprites": 22, "view_radius": 3, "light_fade": 50.0, "town_far": 600.0,
 	},
 	{   # HIGH: recent phones (Adreno 7xx, Mali-G710+, Apple A13+), integrated PC GPUs
 		"max_3d_height": 1080, "scaling": "fsr", "fps": 60,
 		"shadow": 2, "shadow_size": 4096, "shadow_dist": 100.0, "soft_shadow": 2, "omni_shadows": true,
 		"ssao": true, "ssil": false, "sdfgi": false, "glow": true, "vol_fog": false, "ssr": false,
-		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 2,
+		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 2, "tex_bias": 0.0, "fog_mul": 1.0,
 		"msaa": 0, "fxaa": true, "npc_full": 12, "rig_budget": 6, "npc_sprites": 32, "view_radius": 4, "light_fade": 80.0, "town_far": 0.0,
 	},
 	{   # ULTRA: desktop GPUs; the full Forward+ look the game was lit for
 		"max_3d_height": 0, "scaling": "bilinear", "fps": 0,
 		"shadow": 4, "shadow_size": 4096, "shadow_dist": 140.0, "soft_shadow": 3, "omni_shadows": true,
 		"ssao": true, "ssil": true, "sdfgi": true, "glow": true, "vol_fog": true, "ssr": false,
-		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 3,
+		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 3, "tex_bias": -0.3, "fog_mul": 1.0,
 		"msaa": 2, "fxaa": true, "npc_full": 16, "rig_budget": 10, "npc_sprites": 45, "view_radius": 5, "light_fade": 0.0, "town_far": 0.0,
 	},
 ]
@@ -71,6 +84,9 @@ var choice := AUTO
 ## Tier in effect.
 var tier := HIGH
 var battery_saver := false
+## Per-group tier overrides from the settings screen: -1 = follow the preset, else LOW..ULTRA.
+var overrides := {"view": -1, "shadows": -1, "textures": -1, "effects": -1}
+var _group_of := {}
 ## Player resolution scale for the 3D view (0.5-1.0), from the settings screen (App.refresh).
 var render_scale := 1.0
 ## The tier AUTO settled on (saved so the next launch starts there).
@@ -98,6 +114,9 @@ const WINDOW := 16.0
 
 
 func _ready() -> void:
+	for g: String in GROUPS:
+		for k: String in GROUPS[g]:
+			_group_of[k] = g
 	_load()
 	var forced := _cmdline_tier()
 	if forced >= 0:
@@ -119,7 +138,12 @@ func _ready() -> void:
 
 
 func value(key: String) -> Variant:
-	return TIERS[tier][key]
+	var t := tier
+	if _group_of.has(key):
+		var o: int = overrides[_group_of[key]]
+		if o >= 0:
+			t = o
+	return TIERS[t][key]
 
 
 func tier_name() -> String:
@@ -145,6 +169,31 @@ func set_choice(c: int) -> void:
 	_save()
 
 
+## The four settings-screen levels (each -1 = follow the preset, else LOW..ULTRA). Applied live.
+func set_overrides(view: int, shadows: int, textures: int, effects: int) -> void:
+	var n := {"view": clampi(view, -1, ULTRA), "shadows": clampi(shadows, -1, ULTRA),
+		"textures": clampi(textures, -1, ULTRA), "effects": clampi(effects, -1, ULTRA)}
+	if n == overrides:
+		return
+	overrides = n
+	_reapply()
+
+
+## Everything that depends on the tier or an override, on the whole running world.
+func _reapply() -> void:
+	_apply_globals()
+	_apply_viewports()
+	for e in _envs:
+		if is_instance_valid(e):
+			_apply_env(e)
+	for s in _suns:
+		if is_instance_valid(s):
+			_apply_sun(s)
+	# Re-apply ranges, scatter and particles to everything already in the world.
+	_queue_tree(get_tree().root)
+	changed.emit()
+
+
 func set_render_scale(s: float) -> void:
 	s = clampf(s, 0.5, 1.0)
 	if is_equal_approx(s, render_scale):
@@ -161,17 +210,7 @@ func set_battery_saver(on: bool) -> void:
 
 func _set_tier(t: int) -> void:
 	tier = clampi(t, LOW, ULTRA)
-	_apply_globals()
-	_apply_viewports()
-	for e in _envs:
-		if is_instance_valid(e):
-			_apply_env(e)
-	for s in _suns:
-		if is_instance_valid(s):
-			_apply_sun(s)
-	# Re-apply ranges, scatter and particles to everything already in the world.
-	_queue_tree(get_tree().root)
-	changed.emit()
+	_reapply()
 
 
 func _load() -> void:
@@ -183,6 +222,8 @@ func _load() -> void:
 	if int(cf.get_value("graphics", "detect_version", 0)) != DETECT_VERSION:
 		auto_tier = -1
 	battery_saver = bool(cf.get_value("graphics", "battery_saver", false))
+	var lv := SS.levels_from_config(cf)
+	overrides = {"view": lv[0], "shadows": lv[1], "textures": lv[2], "effects": lv[3]}
 
 
 func _save() -> void:
@@ -423,6 +464,8 @@ func _apply_viewport(v: Viewport) -> void:
 		v.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
 	v.mesh_lod_threshold = value("lod_threshold")
 	v.anisotropic_filtering_level = value("aniso")
+	if "texture_mipmap_bias" in v:
+		v.set("texture_mipmap_bias", float(value("tex_bias")))    # Low textures: one mip level blurrier
 	var msaa: int = value("msaa")
 	v.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_2X, Viewport.MSAA_4X][clampi(msaa, 0, 3)] if msaa > 0 else Viewport.MSAA_DISABLED
 	v.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if value("fxaa") and not compat else Viewport.SCREEN_SPACE_AA_DISABLED
@@ -445,7 +488,7 @@ func _apply_env(we: WorldEnvironment) -> void:
 		env.set_meta("q_fog", env.fog_density)
 	var fog: float = env.get_meta("q_fog")
 	# Without volumetric fog, plain depth fog carries the aerial perspective: a touch denser.
-	env.fog_density = fog if value("vol_fog") else maxf(fog, 0.0009)
+	env.fog_density = (fog if value("vol_fog") else maxf(fog, 0.0009)) * float(value("fog_mul"))
 
 
 func _apply_sun(sun: DirectionalLight3D) -> void:

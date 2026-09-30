@@ -176,7 +176,7 @@ static var _glyphs := {}
 
 
 ## White line-art glyphs drawn procedurally (no imported SVG needed) for HUD
-## buttons: "map", "camera", "compass". Works as `icon_tex` for round_button().
+## buttons: "map", "camera", "compass", "lock", "pause". Works as `icon_tex` for round_button().
 static func glyph(glyph_name: String, size := 96) -> ImageTexture:
 	var key := "%s:%d" % [glyph_name, size]
 	if _glyphs.has(key):
@@ -201,6 +201,12 @@ static func glyph(glyph_name: String, size := 96) -> ImageTexture:
 				segs.append([body[i] * s, body[(i + 1) % body.size()] * s])
 			rings.append([Vector2(0.5, 0.55) * s, s * 0.15])
 			discs.append([Vector2(0.78, 0.43) * s, s * 0.035])
+		"lock":
+			# Target reticle: ring, four ticks and a centre dot (lock-on; "Look" keeps the eye).
+			rings.append([Vector2(0.5, 0.5) * s, s * 0.27])
+			for d: Vector2 in [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]:
+				segs.append([(Vector2(0.5, 0.5) + d * 0.18) * s, (Vector2(0.5, 0.5) + d * 0.42) * s])
+			discs.append([Vector2(0.5, 0.5) * s, s * 0.05])
 		"pause":
 			for dx in [-0.03, 0.0, 0.03]:
 				segs.append([Vector2(0.36 + dx, 0.27) * s, Vector2(0.36 + dx, 0.73) * s])

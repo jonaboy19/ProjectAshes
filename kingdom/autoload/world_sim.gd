@@ -66,6 +66,32 @@ func _ready() -> void:
 	add_child(seasons)
 
 
+## Back to the first morning of a new game: the whole population re-rolled from SEED, the clock and
+## the calendar reset. (Life.reset calls this; the world scene is rebuilt afterwards.)
+func reset() -> void:
+	time_of_day = 8.0
+	day = 1
+	home = PackedInt32Array()
+	job = PackedByteArray()
+	pos = PackedVector2Array()
+	target = PackedVector2Array()
+	money = PackedInt32Array()
+	health = PackedByteArray()
+	phase = PackedByteArray()
+	last_update = PackedFloat32Array()
+	ranges.clear()
+	treasury = PackedInt32Array()
+	_cursor = 0
+	_clock = 0.0
+	_last_hour = -1
+	_near_ids = PackedInt32Array()
+	_near_cursor = 0
+	_near_next = 0.0
+	_populate()
+	if seasons:
+		seasons.deserialize({"offset": 0})
+
+
 func population() -> int:
 	return pos.size()
 

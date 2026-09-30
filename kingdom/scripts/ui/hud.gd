@@ -836,7 +836,7 @@ static func _thousands(n: int) -> String:
 ## pass `anchor` (offset from the bottom-right corner, like the attack cluster)
 ## to place it yourself. Call after the HUD is in the tree.
 ##   hud.add_action_button("ride", "Ride", "ride", "walk")
-##   hud.add_action_button("lock_on", "Lock", "lock_on", "eye-target", UITheme.ACTION_BLOCK, 72, Vector2(330, 200))
+##   hud.add_action_button("lock_on", "Lock", "lock_on", "glyph:lock", UITheme.ACTION_BLOCK, 72, Vector2(330, 200))
 func add_action_button(button_name: String, label: String, action: Variant, icon_name := "",
 		color := UITheme.ACTION_UTIL, size := DOCK_SIZE, anchor := Vector2.INF) -> TouchScreenButton:
 	var res := HudArt.resolve_icon(icon_name)
@@ -944,8 +944,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not is_menu_open() and hotbar.handle_key(event):
 		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.pressed and not event.echo and (event as InputEventKey).keycode == KEY_I:
+	if event.is_action_pressed("menu_inventory") and not (event is InputEventKey and event.echo):
 		GameMenu.toggle(self, "inventory")
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed("menu_skills") and not (event is InputEventKey and event.echo):
+		GameMenu.toggle(self, "skills")
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("world_map"):

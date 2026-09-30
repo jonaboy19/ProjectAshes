@@ -32,7 +32,7 @@ signal seals_ended(id: String, success: bool)
 
 const Skills := preload("res://scripts/sim/skills.gd")
 const VFX_PATH := "res://scripts/vfx/vfx.gd"
-const KEYS := {"technique_1": KEY_U, "technique_2": KEY_I, "technique_3": KEY_O, "technique_4": KEY_H,
+const KEYS := {"technique_1": KEY_U, "technique_2": KEY_Y, "technique_3": KEY_O, "technique_4": KEY_H,
 	"seal_1": KEY_4, "seal_2": KEY_5, "seal_3": KEY_6, "seal_4": KEY_7, "seal_5": KEY_8, "seal_6": KEY_9}
 ## Seconds to finish a whole seal sequence.
 const SEAL_TIME := 3.5

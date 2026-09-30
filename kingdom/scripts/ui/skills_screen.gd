@@ -4,7 +4,7 @@ extends Control
 ## from prerequisites, learned / learnable / locked / hidden states), a detail
 ## card with costs and requirements plus Learn / Equip buttons, and the loadout
 ## bar (4 active slots, passive slots). Pauses the game while open, like the
-## world map (process_mode ALWAYS). Toggle with the "skills_screen" action (K).
+## world map (process_mode ALWAYS). Toggle with the "skills_screen" action (legacy/unbound).
 ##
 ## Wiring (HUD): see the hook lines in the skills report.
 ##   var screen := preload("res://scripts/ui/skills_screen.gd").new()
@@ -48,10 +48,7 @@ func _ready() -> void:
 	theme = UITheme.theme()
 	visible = false
 	if not InputMap.has_action("skills_screen"):
-		InputMap.add_action("skills_screen")
-		var ev := InputEventKey.new()
-		ev.physical_keycode = KEY_K
-		InputMap.action_add_event("skills_screen", ev)
+		InputMap.add_action("skills_screen")    # no key: F2 opens the Pack menu's Skills tab (docs/controls.md)
 	_build()
 
 

@@ -160,10 +160,10 @@ func _tab_graphics() -> void:
 		_row("display_mode", "Display Mode", "opt", ["Windowed", "Fullscreen", "Borderless"])
 	_row("vsync", "VSync", "opt", ["Off", "On", "Adaptive"])
 	_row("aa", "Anti-Aliasing", "opt", ["Off", "FXAA", "MSAA 2x", "MSAA 4x"])
-	_row("view_distance", "View Distance", "opt", SS.LEVELS)
-	_row("shadows", "Shadows", "opt", SS.LEVELS)
-	_row("textures", "Textures", "opt", SS.LEVELS)
-	_row("effects", "Effects", "opt", SS.LEVELS)
+	_row("view_distance", "View Distance", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")
+	_row("shadows", "Shadows", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")
+	_row("textures", "Textures", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")
+	_row("effects", "Effects", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")
 	_row("fps_limit", "Frame Rate Limit", "opt", ["30", "60", "Unlimited"])
 	_row("render_scale", "Resolution Scale", "slider", [], "50-100 % of the screen resolution for the 3D view. Lower is faster and cooler.")
 
@@ -226,6 +226,8 @@ func _on_changed(key: String, value: Variant) -> void:
 	_vals[key] = value
 	if SS.BUSES.has(key):
 		SS.apply_volume(key, int(value))     # live preview of volume
+	elif SS.LEVEL_KEYS.has(key):
+		SS.apply_levels(get_tree(), _vals)   # view distance / shadows / textures / effects show at once
 	_update_caption()
 
 
@@ -264,14 +266,16 @@ func _reset() -> void:
 	else:
 		_vals = SS.DEFAULTS.duplicate()
 		_vals["preset"] = 0
+		SS.apply_levels(get_tree(), _vals)
 	_show_tab(_tab)
 	_update_caption()
 
 
 func back() -> void:
-	# Drop un-applied live previews (volumes).
+	# Drop un-applied live previews (volumes, graphics levels).
 	for k: String in SS.BUSES:
 		SS.apply_volume(k, int(_saved.get(k, SS.DEFAULTS[k])))
+	SS.apply_levels(get_tree(), _saved)
 	super()
 
 
