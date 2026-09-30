@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: apex hunt quests use live ecology targets
+
+`RadiantQuests._make("apex_hunt", ...)` now reads live `apex_pos` and `apex_den_id` payload fields, while retaining `pos` and `id` fallbacks for older fixtures. The investigation stage targets `displaced_pos`; the confrontation stage carries the apex den ID. Other quest generation is unchanged. Static source review and `git diff --check` only; no parser, runtime quest-flow or gameplay validation was run. See [RADIANT_APEX_HUNT_HANDOFF.md](concepts/RADIANT_APEX_HUNT_HANDOFF.md).
+
 ### Latest slice: evening inn routine requires a generated inn
 
 `DailyRhythm.state()` now assigns `State.INN` only after the existing evening/30%-selection checks and confirmation that the resident's settlement plan contains an inn lot. The deterministic schedule hash is unchanged; cached inn presence is exposed to `UtilityBrain` so residents without an inn neither score the active INN action nor accrue expected offscreen inn-hour social recovery. Generic public-hours recovery remains separate. Synthetic scoring contexts default `inn_available` to 1.0. A missing `graph.inn_door` falls back home. Static source review and `git diff --check` only; no parser, runtime settlement/route/AI-choice or mobile check was run. See [NPC_OPTIONAL_INN_ROUTINE_HANDOFF.md](concepts/NPC_OPTIONAL_INN_ROUTINE_HANDOFF.md).

@@ -381,13 +381,14 @@ static func _make(kind: String, world: Dictionary, rng: RandomNumberGenerator) -
 		"apex_hunt":
 			var hunts: Array = world.get("apex_hunts", [])
 			var hunt: Dictionary = hunts[rng.randi() % hunts.size()]
-			var apex_pos: Vector2 = hunt["pos"]
-			var displaced_pos: Vector2 = hunt.get("displaced_pos", apex_pos)
+			var apex_pos: Vector2 = hunt.get("apex_pos", hunt.get("pos", home))
+			var apex_den_id := int(hunt.get("apex_den_id", hunt.get("id", -1)))
+			var displaced_pos: Vector2 = hunt.get("displaced_pos", hunt.get("pos", apex_pos))
 			var species_name: String = String(hunt.get("species", "beast"))
 			q["title"] = "Something bigger moved in"
 			q["desc"] = "Wolves have been driven from their territory %s of the village. Track them back to whatever pushed them out." % _compass(displaced_pos - home)
 			q["stages"] = [_stage("reach", "Investigate the empty den", displaced_pos, 30.0),
-				_stage("kill_den", "Confront the %s" % species_name, apex_pos, 70.0, {"den_id": int(hunt["id"]), "kills": 1})]
+				_stage("kill_den", "Confront the %s" % species_name, apex_pos, 70.0, {"den_id": apex_den_id, "kills": 1})]
 			q["reward"] = {"gold": 60 + rng.randi_range(0, 30), "rep": {"ashford": 10, "adventurer_guild": 10}, "opinion": 20}
 			q["data"] = {"species": species_name}
 			q["days"] = 10
