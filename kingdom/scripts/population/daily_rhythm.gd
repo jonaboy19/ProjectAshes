@@ -58,6 +58,11 @@ static func goes_to_inn(i: int) -> bool:
 	return WorldSim.job[i] != 3 and hash(i * 31 + WorldSim.day * 977) % 100 < INN_SHARE
 
 
+## Whether resident i's settlement plan has an inn, using the cached lookup.
+static func has_inn_lot(i: int) -> bool:
+	return _has_inn_lot(i)
+
+
 static func _has_inn_lot(i: int) -> bool:
 	if i < 0 or i >= WorldSim.home.size():
 		return false

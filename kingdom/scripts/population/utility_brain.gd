@@ -59,7 +59,8 @@ const ACTIONS := {
 		["sched_work", Resp.RANGE, 1.0, 0.35]]],
 	Act.INN: [0.8, [["evening", Resp.RANGE, 0.0, 1.0], ["sociable", Resp.RANGE, 0.25, 1.0],
 		["sched_inn", Resp.RANGE, 0.55, 1.0], ["money", Resp.RANGE, 0.3, 1.0],
-		["lonely", Resp.RANGE, 0.6, 1.0], ["guard", Resp.RANGE, 1.0, 0.0]]],
+		["lonely", Resp.RANGE, 0.6, 1.0], ["guard", Resp.RANGE, 1.0, 0.0],
+		["inn_available", Resp.BINARY, 0.5, 0.0]]],
 	Act.PRAY: [0.6, [["pious", Resp.EXP, 1.5, 0.0], ["faithless", Resp.LOGISTIC, 8.0, 0.4],
 		["daytime", Resp.BINARY, 0.5, 0.0], ["holy_day", Resp.RANGE, 0.75, 1.0],
 		["sched_work", Resp.RANGE, 1.0, 0.5]]],
@@ -294,7 +295,7 @@ static func make_context(hour: float, over: Dictionary = {}, p_traits: Dictionar
 		"sched_market": 1.0 if st == 2 else 0.0, "sched_inn": 0.0,
 		"tired": 0.3, "rest": 0.7, "hungry": 0.3, "lonely": 0.4, "faithless": 0.3, "thirst": 0.2,
 		"money": 0.5, "rain": 0.0, "rain_exposed": 0.0, "danger": 0.0, "spectacle": 0.0,
-		"partner": 0.0, "guard": 0.0, "holy_day": 0.0}, true)
+		"partner": 0.0, "guard": 0.0, "holy_day": 0.0, "inn_available": 1.0}, true)
 	ctx.merge(over, true)
 	return ctx
 
@@ -413,9 +414,10 @@ func catch_up(now_hours: float) -> void:
 	var guard := job == 3
 	var expected_social_hours_per_day := (0.45 + 0.75 * sociable) if guard else (0.4 + 0.9 * sociable)
 	var social_recovery := public_hours * expected_social_hours_per_day / 2.5 * float(RESTORE[Act.SOCIAL][0][1])
-	if not guard:
+	if not guard and person >= 0 and DailyRhythm.has_inn_lot(person):
 		# DailyRhythm sends a seeded 30% of non-guards to the inn. Across an
-		# unobserved interval use that share as expectation; don't mint visits.
+		# unobserved interval use that share as expectation only where one exists;
+		# don't mint visits.
 		social_recovery += inn_hours * OFFSCREEN_INN_SHARE * float(RESTORE[Act.INN][0][1])
 	social -= (0.05 + 0.08 * sociable) * elapsed
 	social += social_recovery
@@ -488,6 +490,7 @@ func context(hour: float, sched: int, raining: bool, danger: float, spectacle: f
 		"rain": rain, "rain_exposed": rain * (1.0 if outdoor else 0.0) * (1.0 - guard),
 		"danger": danger, "spectacle": spectacle, "partner": 1.0 if partner else 0.0,
 		"guard": guard, "holy_day": 1.0 if day % 7 == 0 else 0.0,
+		"inn_available": 1.0 if DailyRhythm.has_inn_lot(person) else 0.0,
 	}, true)
 	return ctx
 
