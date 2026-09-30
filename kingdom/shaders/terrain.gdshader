@@ -80,6 +80,9 @@ void fragment() {
 	vec3 ra = texture(rock_albedo, ruv).rgb;
 	// Region1 look (docs/regions/LOOK_R1.md): warm, lighter storybook stone instead of the grey-green scan.
 	ra = ra * vec3(1.2, 1.07, 0.86) + vec3(0.05, 0.035, 0.0);
+	// Sandstone strata on steep faces: painted horizontal bands instead of the stretched side projection.
+	float r1_strata = sin(world_pos.y * 0.9 + texture(macro_noise, world_pos.xz * 0.013).r * 7.0);
+	ra *= mix(1.0, mix(0.8, 1.12, smoothstep(-0.35, 0.35, r1_strata)), smoothstep(0.45, 0.75, 1.0 - world_normal.y));
 	vec3 rn = texture(rock_normal, ruv).rgb;
 	vec3 ro = texture(rock_arm, ruv).rgb;
 

@@ -8,8 +8,8 @@
 		{
 			"name": "Stagborn Glade",
 			"pos": [
-				-1180,
-				-980
+				-1345,
+				-1062
 			]
 		},
 		{
@@ -338,6 +338,20 @@
 		},
 		{
 			"cat": "site",
+			"id_name": "The Ashen Scar",
+			"kind": "rift",
+			"name": "The Ashen Scar",
+			"pos_m": [
+				2718.4560546875,
+				2654.13916015625
+			],
+			"pos_px": [
+				1645.2,
+				1630.5
+			]
+		},
+		{
+			"cat": "site",
 			"id_name": "The Rift",
 			"kind": "rift",
 			"name": "The Rift",
@@ -348,20 +362,6 @@
 			"pos_px": [
 				1282.3,
 				1253.5
-			]
-		},
-		{
-			"cat": "site",
-			"id_name": "The Ashen Scar",
-			"kind": "rift",
-			"name": "The Ashen Scar",
-			"pos_m": [
-				2587.73217773438,
-				2288.82275390625
-			],
-			"pos_px": [
-				1615.3,
-				1547.0
 			]
 		},
 		{
@@ -380,16 +380,30 @@
 		},
 		{
 			"cat": "site",
+			"id_name": "Saltwick Bastion",
+			"kind": "fort",
+			"name": "Saltwick Bastion",
+			"pos_m": [
+				-3793.2197265625,
+				3546.61791992188
+			],
+			"pos_px": [
+				157.2,
+				1834.5
+			]
+		},
+		{
+			"cat": "site",
 			"id_name": "Ironmarch Bastion",
 			"kind": "fort",
 			"name": "Ironmarch Bastion",
 			"pos_m": [
-				2463.07397460938,
-				-2324.0625
+				2336.181640625,
+				-2166.97583007813
 			],
 			"pos_px": [
-				1586.9,
-				492.9
+				1557.9,
+				528.8
 			]
 		},
 		{
@@ -421,59 +435,17 @@
 			]
 		},
 		{
-			"cat": "site",
-			"id_name": "Saltwick Bastion",
-			"kind": "fort",
-			"name": "Saltwick Bastion",
-			"pos_m": [
-				-3793.2197265625,
-				3546.61791992188
-			],
-			"pos_px": [
-				157.2,
-				1834.5
-			]
-		},
-		{
 			"cat": "elder",
 			"id_name": "",
 			"kind": "elder",
 			"name": "",
 			"pos_m": [
-				-1180.0,
-				-980.0
+				-700.0,
+				-215.0
 			],
 			"pos_px": [
-				754.4,
-				800.1
-			]
-		},
-		{
-			"cat": "elder",
-			"id_name": "",
-			"kind": "elder",
-			"name": "",
-			"pos_m": [
-				75.0,
-				-520.0
-			],
-			"pos_px": [
-				1041.1,
-				905.2
-			]
-		},
-		{
-			"cat": "elder",
-			"id_name": "",
-			"kind": "elder",
-			"name": "",
-			"pos_m": [
-				110.0,
-				-1290.0
-			],
-			"pos_px": [
-				1049.1,
-				729.2
+				864.0,
+				974.9
 			]
 		},
 		{
@@ -496,12 +468,40 @@
 			"kind": "elder",
 			"name": "",
 			"pos_m": [
-				-700.0,
-				-215.0
+				110.0,
+				-1290.0
 			],
 			"pos_px": [
-				864.0,
-				974.9
+				1049.1,
+				729.2
+			]
+		},
+		{
+			"cat": "elder",
+			"id_name": "",
+			"kind": "elder",
+			"name": "",
+			"pos_m": [
+				75.0,
+				-520.0
+			],
+			"pos_px": [
+				1041.1,
+				905.2
+			]
+		},
+		{
+			"cat": "elder",
+			"id_name": "",
+			"kind": "elder",
+			"name": "",
+			"pos_m": [
+				-1345.0,
+				-1062.0
+			],
+			"pos_px": [
+				716.6,
+				781.3
 			]
 		},
 		{
@@ -524,12 +524,12 @@
 			"kind": "mine",
 			"name": "Greyseam Mine",
 			"pos_m": [
-				75.0,
-				-470.0
+				-375.0,
+				-380.0
 			],
 			"pos_px": [
-				1041.1,
-				916.6
+				938.3,
+				937.2
 			]
 		},
 		{
@@ -552,12 +552,12 @@
 			"kind": "rift_outpost",
 			"name": "Scar Watch",
 			"pos_m": [
-				2563.76733398438,
-				2373.33935546875
+				2626.72241210938,
+				2663.78344726563
 			],
 			"pos_px": [
-				1609.9,
-				1566.3
+				1624.2,
+				1632.7
 			]
 		},
 		{
@@ -646,6 +646,20 @@
 		},
 		{
 			"cat": "site",
+			"id_name": "Old Watchtower",
+			"kind": "tower_ruin",
+			"name": "Old Watchtower",
+			"pos_m": [
+				-254.951614379883,
+				-40.2010383605957
+			],
+			"pos_px": [
+				965.7,
+				1014.8
+			]
+		},
+		{
+			"cat": "site",
 			"id_name": "Sundered Tower",
 			"kind": "tower_ruin",
 			"name": "Sundered Tower",
@@ -687,17 +701,17 @@
 			]
 		},
 		{
-			"cat": "site",
-			"id_name": "Old Watchtower",
-			"kind": "tower_ruin",
-			"name": "Old Watchtower",
+			"cat": "camp",
+			"id_name": "Deepdark Warren",
+			"kind": "goblin_warren",
+			"name": "Deepdark Warren",
 			"pos_m": [
-				-254.951614379883,
-				-40.2010383605957
+				-3191.0,
+				-1605.0
 			],
 			"pos_px": [
-				965.7,
-				1014.8
+				294.8,
+				657.2
 			]
 		},
 		{
@@ -712,20 +726,6 @@
 			"pos_px": [
 				728.3,
 				1547.8
-			]
-		},
-		{
-			"cat": "camp",
-			"id_name": "Deepdark Warren",
-			"kind": "goblin_warren",
-			"name": "Deepdark Warren",
-			"pos_m": [
-				-3191.0,
-				-1605.0
-			],
-			"pos_px": [
-				294.8,
-				657.2
 			]
 		},
 		{
@@ -800,16 +800,16 @@
 		},
 		{
 			"cat": "site",
-			"id_name": "Gallows Camp",
+			"id_name": "Red Hand Camp",
 			"kind": "bandit_camp",
-			"name": "Gallows Camp",
+			"name": "Red Hand Camp",
 			"pos_m": [
-				2773.62329101563,
-				-3534.25659179688
+				2578.34423828125,
+				735.321899414063
 			],
 			"pos_px": [
-				1657.8,
-				216.4
+				1613.2,
+				1192.0
 			]
 		},
 		{
@@ -818,26 +818,26 @@
 			"kind": "bandit_camp",
 			"name": "Blackthorn Camp",
 			"pos_m": [
-				2251.97802734375,
-				1529.0322265625
+				3411.01635742188,
+				1577.14770507813
 			],
 			"pos_px": [
-				1538.6,
-				1373.4
+				1803.5,
+				1384.4
 			]
 		},
 		{
 			"cat": "site",
-			"id_name": "Red Hand Camp",
+			"id_name": "Gallows Camp",
 			"kind": "bandit_camp",
-			"name": "Red Hand Camp",
+			"name": "Gallows Camp",
 			"pos_m": [
-				-1255.19348144531,
-				1303.06091308594
+				-3331.21752929688,
+				-150.10676574707
 			],
 			"pos_px": [
-				737.2,
-				1321.8
+				262.8,
+				989.7
 			]
 		},
 		{
@@ -870,20 +870,6 @@
 		},
 		{
 			"cat": "site",
-			"id_name": "Harrowgate Roadhouse",
-			"kind": "waystation",
-			"name": "Harrowgate Roadhouse",
-			"pos_m": [
-				-17.1576900482178,
-				2180.66235351563
-			],
-			"pos_px": [
-				1020.1,
-				1522.3
-			]
-		},
-		{
-			"cat": "site",
 			"id_name": "Cinderpost Waystation",
 			"kind": "waystation",
 			"name": "Cinderpost Waystation",
@@ -894,6 +880,20 @@
 			"pos_px": [
 				1087.3,
 				975.2
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Harrowgate Roadhouse",
+			"kind": "waystation",
+			"name": "Harrowgate Roadhouse",
+			"pos_m": [
+				-17.1576900482178,
+				2180.66235351563
+			],
+			"pos_px": [
+				1020.1,
+				1522.3
 			]
 		},
 		{
@@ -912,23 +912,163 @@
 		},
 		{
 			"cat": "site",
-			"id_name": "",
-			"kind": "bridge",
-			"name": "",
+			"id_name": "Hollin's Reach",
+			"kind": "valley",
+			"name": "Hollin's Reach",
 			"pos_m": [
-				-313.280426025391,
-				-210.622039794922
+				-205.0,
+				-660.0
 			],
 			"pos_px": [
-				952.4,
-				975.9
+				977.2,
+				873.2
 			]
 		},
 		{
 			"cat": "site",
-			"id_name": "",
+			"id_name": "Hollin Falls",
+			"kind": "waterfall",
+			"name": "Hollin Falls",
+			"pos_m": [
+				-146.0,
+				-915.0
+			],
+			"pos_px": [
+				990.6,
+				814.9
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "The Stone Gap",
+			"kind": "standing_stones",
+			"name": "The Stone Gap",
+			"pos_m": [
+				-87.0,
+				-656.0
+			],
+			"pos_px": [
+				1004.1,
+				874.1
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "The Wyrm's Ribs",
+			"kind": "bones",
+			"name": "The Wyrm's Ribs",
+			"pos_m": [
+				-60.0,
+				-1700.0
+			],
+			"pos_px": [
+				1010.3,
+				635.5
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Stagborn Glade",
+			"kind": "glade",
+			"name": "Stagborn Glade",
+			"pos_m": [
+				-1345.0,
+				-1062.0
+			],
+			"pos_px": [
+				716.6,
+				781.3
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Crownstead Mill Hill",
+			"kind": "windmill_hill",
+			"name": "Crownstead Mill Hill",
+			"pos_m": [
+				430.0,
+				-190.0
+			],
+			"pos_px": [
+				1122.3,
+				980.6
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "The Drowned Bell",
+			"kind": "sunken_chapel",
+			"name": "The Drowned Bell",
+			"pos_m": [
+				-446.0,
+				318.0
+			],
+			"pos_px": [
+				922.1,
+				1096.7
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Emberglass Ferry",
+			"kind": "ferry",
+			"name": "Emberglass Ferry",
+			"pos_m": [
+				-552.0,
+				300.0
+			],
+			"pos_px": [
+				897.9,
+				1092.6
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "The Old Span",
+			"kind": "old_bridge",
+			"name": "The Old Span",
+			"pos_m": [
+				-259.0,
+				-463.0
+			],
+			"pos_px": [
+				964.8,
+				918.2
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Hollin Watch",
+			"kind": "lookout",
+			"name": "Hollin Watch",
+			"pos_m": [
+				-275.0,
+				-784.0
+			],
+			"pos_px": [
+				961.2,
+				844.8
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Hollin's Reach Ruins",
+			"kind": "ruins",
+			"name": "Hollin's Reach Ruins",
+			"pos_m": [
+				-138.0,
+				-478.0
+			],
+			"pos_px": [
+				992.5,
+				914.8
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Emberfall Bridge",
 			"kind": "bridge",
-			"name": "",
+			"name": "Emberfall Bridge",
 			"pos_m": [
 				-2214.08911132813,
 				1782.18334960938
@@ -940,9 +1080,23 @@
 		},
 		{
 			"cat": "site",
-			"id_name": "",
+			"id_name": "Ashrun Bridge",
 			"kind": "bridge",
-			"name": "",
+			"name": "Ashrun Bridge",
+			"pos_m": [
+				-313.280426025391,
+				-210.622039794922
+			],
+			"pos_px": [
+				952.4,
+				975.9
+			]
+		},
+		{
+			"cat": "site",
+			"id_name": "Silverrun Bridge",
+			"kind": "bridge",
+			"name": "Silverrun Bridge",
 			"pos_m": [
 				2696.68017578125,
 				177.831146240234

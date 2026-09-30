@@ -2,16 +2,167 @@
 	"_comment": "Region 1 terrain features as data, read by scripts/region1/region1_terrain.gd (WorldGen hooks). stamps: baked delta grids (tools_qa/region1/bake_valley.gd prints the index line). trails: packed-dirt paths painted into the ground, [x, z] metres, north = -z. See docs/regions/LOOK_R1.md.",
 	"version": 1,
 	"stamps": [
-		{"id": "hollins_reach", "file": "res://data/region1/terrain/hollins_reach.res", "origin": [-564.0, -1131.0], "cell": 3.0},
-		{"id": "crownstead_hill", "file": "res://data/region1/terrain/crownstead_hill.res", "origin": [294.0, -327.0], "cell": 3.0},
-		{"id": "wyrm_ridge", "file": "res://data/region1/terrain/wyrm_ridge.res", "origin": [-234.0, -1875.0], "cell": 3.0}
+		{
+			"id": "hollins_reach",
+			"file": "res://data/region1/terrain/hollins_reach.res",
+			"origin": [
+				-564,
+				-1131
+			],
+			"cell": 3
+		},
+		{
+			"id": "crownstead_hill",
+			"file": "res://data/region1/terrain/crownstead_hill.res",
+			"origin": [
+				294,
+				-327
+			],
+			"cell": 3
+		},
+		{
+			"id": "wyrm_ridge",
+			"file": "res://data/region1/terrain/wyrm_ridge.res",
+			"origin": [
+				-234,
+				-1875
+			],
+			"cell": 3
+		}
 	],
 	"trails": [
-		{"id": "reveal_path", "name": "The Stone Gap path (Greyseam to Hollin's Reach)", "width": 2.4,
-			"points": [[62, -488], [30, -530], [-8, -574], [-44, -618], [-76, -650], [-98, -662], [-122, -667], [-146, -664], [-166, -652], [-176, -628]]},
-		{"id": "reach_floor", "name": "Hollin's Reach valley track", "width": 2.2,
-			"points": [[-176, -628], [-182, -590], [-178, -548], [-170, -508], [-166, -482], [-190, -468], [-226, -462], [-259, -463], [-280, -440], [-290, -400], [-296, -350], [-304, -300], [-312, -256], [-318, -226]]},
-		{"id": "falls_path", "name": "Path to Hollin Falls", "width": 1.8,
-			"points": [[-176, -628], [-168, -700], [-160, -770], [-150, -840], [-146, -872]]}
+		{
+			"id": "reveal_path",
+			"name": "The Stone Gap path (Greyseam to Hollin's Reach)",
+			"width": 2.4,
+			"points": [
+				[
+					62,
+					-488
+				],
+				[
+					30,
+					-530
+				],
+				[
+					-8,
+					-574
+				],
+				[
+					-44,
+					-618
+				],
+				[
+					-76,
+					-650
+				],
+				[
+					-98,
+					-662
+				],
+				[
+					-122,
+					-667
+				],
+				[
+					-146,
+					-664
+				],
+				[
+					-166,
+					-652
+				],
+				[
+					-176,
+					-628
+				]
+			]
+		},
+		{
+			"id": "reach_floor",
+			"name": "Hollin's Reach valley track",
+			"width": 2.2,
+			"points": [
+				[
+					-176,
+					-628
+				],
+				[
+					-182,
+					-590
+				],
+				[
+					-178,
+					-548
+				],
+				[
+					-170,
+					-508
+				],
+				[
+					-166,
+					-482
+				],
+				[
+					-200,
+					-470
+				],
+				[
+					-239,
+					-468
+				],
+				[
+					-248,
+					-422
+				],
+				[
+					-258,
+					-376
+				],
+				[
+					-271,
+					-314
+				],
+				[
+					-281,
+					-268
+				],
+				[
+					-291,
+					-222
+				],
+				[
+					-300,
+					-205
+				]
+			]
+		},
+		{
+			"id": "falls_path",
+			"name": "Path to Hollin Falls",
+			"width": 1.8,
+			"points": [
+				[
+					-176,
+					-628
+				],
+				[
+					-168,
+					-700
+				],
+				[
+					-160,
+					-770
+				],
+				[
+					-150,
+					-840
+				],
+				[
+					-146,
+					-872
+				]
+			]
+		}
 	]
 }

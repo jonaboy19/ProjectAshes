@@ -33,6 +33,8 @@ The upper Ashrun (from its source at (-150, -900) down to the Ashrun Bridge) is 
 - **Hollin Watch**: a stone watchtower with a red banner on the west rim above the falls.
 - **The Old Span**: a stone arch bridge across the river below the ruins.
 - **Cliff kit**: 620 warm limestone rocks laid along the stamped faces (MultiMesh cells), and the faces themselves painted as stone.
+- **Hollin's Gate**: walls pinch into a gorge 150 m above the Ashrun Bridge, so walking in from the south the valley opens all at once with the falls at its end (walk-in frames: `look/walkin/`).
+- **Erosion**: the stamp gets a gully/scree detail pass from dandrino terrain-erosion-3-ways (MIT, `tools_qa/region1/erode_valley.py`, the tool the coordinator installed), applied on the walls only (+-7 m high-pass).
 - Story tie: this is Tamsin Reeve's village, left outside the ward-line when young Lieutenant Bram pulled its pin (STORY_R1 Act IV Crownstead, Act V). Hooks: `docs/regions/HOOKS_FOR_CLOUD.md`.
 
 ### Landmarks
@@ -62,7 +64,18 @@ The upper Ashrun (from its source at (-150, -900) down to the Ashrun Bridge) is 
 | `scripts/core/main.gd` | `sky_amount` in `_update_daylight` (golden hour). |
 | `shaders/terrain.gdshader` | include `region1/biome.gdshaderinc`, 2 lines to apply it, 1 line warm rock. |
 
-## 4. Look-dev plan (next)
+## 4. Proof
+| | |
+|---|---|
+| Survey before / after (22 views) | `look/survey_before_sheet.jpg`, `look/survey_after_sheet.jpg`, pairs `look/<view>_before.jpg` / `_after.jpg` |
+| The valley | `look/v1_reveal_stone_gap.jpg` (reveal), `v2_falls_from_floor.jpg`, `v3_valley_aerial.jpg`, `v4_mouth_up_valley.jpg`, `v5_ruins_terraces.jpg`, `v6_approach_ridge.jpg`, `valley_hillshade.png` |
+| Walk-in (Movie Maker, 30 fps, 2 fps sheets) | `look/walkin/sheet_*.png` |
+| Landmarks | `look/l1_drowned_bell_ferry.jpg`, `l2_crownstead_hill.jpg`, `l3_stagborn_glade.jpg`, `l4_wyrms_ribs.jpg` |
+| Map | `look/map_parchment_after_1024.jpg`, `map_valley_zoom.jpg` (before: `map_valley_zoom_before.jpg`); the game sheet `kingdom/assets/ui/maps/region1_parchment.png` (2048 px) |
+| Performance | `look/PERF.md` (A/B with `--r1off`, HIGH and LOW) |
+| QA boot test | `tools_qa/boot_flow/boot_flow.gd` with `BOOT_FLOW_SKIP=1`: BOOTFLOW OK |
+
+## 5. Look-dev plan (next)
 See the backlog in `docs/STATUS_LOCAL.md`. In order of value:
 1. Far towns: roof clusters / impostors of Kingsreach and the towns on the horizon mesh (Kingsreach is still invisible past 440 m).
 2. Replace the X-card far trees of the streamed ring with the canopy domes (one visual language near and far).

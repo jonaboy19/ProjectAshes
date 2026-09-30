@@ -2,6 +2,12 @@
 
 The user runs **two Claude sessions on this branch at the same time**: the cloud session and a local PC session (with GPU, Blender GUI access and the Meshy MCP). This file keeps them from stepping on each other. **Read it after every pull.**
 
+## Region 1 look pass (local, 2026-09-30): valley, landmarks, horizon, biome patchwork
+- Built: the Hollin's Reach valley (upper Ashrun: cliffs, falls, terraces, ruins, Stone Gap reveal, gorge gate), the Drowned Bell + Emberglass Ferry, Crownstead Mill Hill, Stagborn Glade, the Wyrm's Ribs; far horizon (whole-world low mesh + canopy domes), biome map + field patchwork, warm rock, golden-hour sky, river-carve fix, updated parchment map.
+- Code: `scripts/region1/region1_{terrain,landmarks,look,horizon}.gd`, `shaders/region1/{biome.gdshaderinc,horizon_*,waterfall}`, data in `data/region1/{landmarks,terrain_stamps}.json` + `data/region1/terrain/`.
+- Hot-file one-liners (world_gen, region_sites, region_dressing, main.gd daylight, terrain shader): see `docs/regions/HOOKS_FOR_CLOUD.md` "Region 1 look pass". Please keep them when merging; `--r1off` is the A/B switch.
+- Tools: `tools_qa/region1/look_capture.gd` (multi-view shots + perf), `bake_valley.gd` (+ `erode_valley.py`, dandrino erosion detail), `bake_biome.gd`, `walkin.gd` (Movie Maker walk), `asset_sheet.gd`.
+
 ## Split of work (from 2026-09-27)
 | Area | Owner | Notes |
 |---|---|---|

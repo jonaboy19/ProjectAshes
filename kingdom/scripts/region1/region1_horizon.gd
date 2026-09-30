@@ -11,7 +11,7 @@ extends Node3D
 
 const HALF := 4096.0
 const CELL := 48.0
-const BLOB_STEP := 26.0
+const BLOB_STEP := 34.0
 const BLOB_CELL := 512.0
 const GRASS := Color(0.42, 0.6, 0.22)
 const FOREST := Color(0.2, 0.34, 0.14)
@@ -27,7 +27,7 @@ var _blob_mat: ShaderMaterial
 var _terrain: Node
 var _built := false
 ## LOW keeps the ground and trims the canopy range.
-var blob_range := 2200.0
+var blob_range := 1700.0
 ## Biome map (set by Region1Look) for the far ground tint and fields.
 var biome: Texture2D:
 	set(v):
@@ -44,7 +44,7 @@ func _ready() -> void:
 	_blob_mat.shader = preload("res://shaders/region1/horizon_canopy.gdshader")
 	var q := get_node_or_null("/root/Quality")
 	if q and int(q.get("view_radius")) <= 2:
-		blob_range = 1100.0
+		blob_range = 0.0          # LOW: ground only (canopy domes cost ~3 ms on the LOW A/B, docs/regions/look/PERF.md)
 	_task = WorkerThreadPool.add_task(_work, false, "region1 horizon")
 
 
@@ -192,6 +192,8 @@ func _finish() -> void:
 	mi.custom_aabb = AABB(Vector3(-HALF, -50, -HALF), Vector3(HALF * 2, 500, HALF * 2))
 	add_child(mi)
 	var blob := _blob_mesh()
+	if blob_range <= 0.0:
+		(_result["blobs"] as Dictionary).clear()
 	var count := 0
 	var blobs: Dictionary = _result["blobs"]
 	for key: Vector2i in blobs:

@@ -19,6 +19,7 @@ const NEAR := 420.0
 const NEAR_FREE := 520.0
 const FAR_SIZE := 7.5
 const FAR_END := 2600.0
+const ROCK_NEAR := 260.0
 const BIOME := "res://assets/incoming/region1/terrain/biome_map.png"
 
 var focus := Vector3.ZERO
@@ -401,10 +402,15 @@ func _build_cliffs(kit: Dictionary) -> void:
 		mi.free()
 	if meshes.is_empty():
 		return
+	var lumps: Array[Mesh] = []
+	for m in meshes:
+		lumps.append(_lump(m.get_aabb(), Color("8a755c")))
+	var qn := get_node_or_null("/root/Quality")
+	var low := qn != null and int(qn.get("view_radius")) <= 2
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(kit.get("seed", 7))
 	var step := float(kit.get("step", 8.0))
-	var cell := 160.0
+	var cell := 96.0
 	var cells: Dictionary = {}       # Vector2i -> Array (per mesh) of Transform3D
 	var count := 0
 	for e: Dictionary in Region1Terrain._stamps:
@@ -415,7 +421,7 @@ func _build_cliffs(kit: Dictionary) -> void:
 				var px := x + rng.randf_range(-0.45, 0.45) * step
 				var pz := z + rng.randf_range(-0.45, 0.45) * step
 				var f := Region1Terrain.face(px, pz)
-				if f > 0.3 and rng.randf() < f * 1.2:
+				if f > 0.5 and rng.randf() < f * 1.2 * float(kit.get("density", 1.0)):
 					var pick := rng.randf() * total
 					var mi := 0
 					while mi < weights.size() - 1 and pick > weights[mi]:
@@ -446,19 +452,47 @@ func _build_cliffs(kit: Dictionary) -> void:
 			var list: Array[Transform3D] = cells[key][mi]
 			if list.is_empty():
 				continue
-			var mm := MultiMesh.new()
-			mm.transform_format = MultiMesh.TRANSFORM_3D
-			mm.mesh = meshes[mi]
-			mm.instance_count = list.size()
-			for i in list.size():
-				mm.set_instance_transform(i, list[i])
-			var mmi := MultiMeshInstance3D.new()
-			mmi.name = "Cliffs_%d_%d_%d" % [key.x, key.y, mi]
-			mmi.multimesh = mm
-			mmi.visibility_range_end = float(kit.get("end", 1600.0))
-			mmi.visibility_range_end_margin = 30.0
-			add_child(mmi)
-	print("Region1Look: %d cliff rocks in %d cells" % [count, cells.size()])
+			# Full rock (1.5-2.5k tris) near; past ROCK_NEAR a 48-tri painted lump that fills the same box.
+			for lod in (1 if low else 2):
+				var mm := MultiMesh.new()
+				mm.transform_format = MultiMesh.TRANSFORM_3D
+				mm.mesh = meshes[mi] if lod == 0 else lumps[mi]
+				mm.instance_count = list.size()
+				for i in list.size():
+					mm.set_instance_transform(i, list[i])
+				var mmi := MultiMeshInstance3D.new()
+				mmi.name = "Cliffs_%d_%d_%d_%d" % [key.x, key.y, mi, lod]
+				mmi.multimesh = mm
+				if lod == 0:
+					mmi.visibility_range_end = 320.0 if low else ROCK_NEAR   # LOW: rocks only near (triangle budget 300k)
+				else:
+					mmi.visibility_range_begin = ROCK_NEAR
+					mmi.visibility_range_end = float(kit.get("end", 1600.0))
+				mmi.visibility_range_end_margin = 20.0
+				if low or lod == 1:
+					mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+				add_child(mmi)
+	var tri_note := ""
+	for mi in meshes.size():
+		tri_note += " %d" % (meshes[mi].get_faces().size() / 3)
+	print("Region1Look: %d cliff rocks in %d cells (tris per rock:%s)" % [count, cells.size(), tri_note])
+
+
+## A low-poly lump (8 x 4 sphere, 48 tris) filling `box`, painted warm stone: the far stand-in for a cliff rock.
+static func _lump(box: AABB, col: Color) -> Mesh:
+	var sm := SphereMesh.new()
+	sm.radial_segments = 8
+	sm.rings = 4
+	sm.radius = 0.5
+	sm.height = 1.0
+	var st := SurfaceTool.new()
+	st.append_from(sm, 0, Transform3D(Basis.from_scale(box.size * Vector3(0.85, 0.8, 0.85)), box.get_center()))
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = col
+	mat.roughness = 0.95
+	var out := st.commit()
+	out.surface_set_material(0, mat)
+	return out
 
 
 # --- Waterfalls ---------------------------------------------------------------------
