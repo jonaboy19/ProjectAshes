@@ -66,3 +66,14 @@ The rest (R§39/40, L§1/2/3/44/45/47/50) are design rules: the player never con
 - **Dungeons and caves:** caves, hidden caves (behind waterfalls, vines, collapsed rock) and small dungeons across the region, each with its own danger tier, loot, lore and puzzles.
 - **The hidden valley:** a secluded, untouched valley reached through a hidden pass. On first discovery a short discovery cutscene plays: a camera sweep, music and a line like "No one has walked here in an age…". It is lush, pristine and an ideal place to found your own settlement.
 - **Priority:** finish the beginning of the game so new players have hours of play across the whole first region.
+
+## Progression and content scale (user direction, 2026-09-30)
+
+- **Level range:** the whole game runs to level 500, and Region 1 caps around 50–60. Clearing Region 1 must take weeks, not hours. Protections against rushing:
+  - repetition decay
+  - regional saturation past about level 55
+  - several parallel sources of XP
+- **Cultivation** is required on every path: one shared ladder of realms and stages, with a different flavour per path. Region 1 reaches the first two or three realms. Breakthroughs carry risk, and manuals come from schools, dungeons and towers.
+- **Natural dungeons end in a boss.** Separately, **dungeon towers** work like Sword Art Online's Aincrad: floors, labyrinths, safe zones, boss doors and first-clear rewards, with NPC parties racing you to the next floor.
+- **Items:** a full set of hundreds of items with recipes, market stock by town identity, and loot tables.
+- **Unused models and animations:** once the current agents land, audit all imported models and animations and place or wire everything unused, such as meshy_free packs, the animation libraries and the region kits.
