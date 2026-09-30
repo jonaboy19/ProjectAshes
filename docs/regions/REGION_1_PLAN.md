@@ -303,7 +303,7 @@ Each package is sized for **one Sonnet agent, about 1–3 hours**. IDs: **L** = 
 | Hook | File | Change |
 |---|---|---|
 | H1 | `scripts/core/main.gd` `_ready` | `world.add_child(preload("res://scripts/region1/region1_root.gd").new())` (1 line) |
-| H2 | `autoload/life.gd` `snapshot/restore` | `d["region1"] = Region1State.snapshot()` / `restore` (2 lines) |
+| H2 | `autoload/life.gd` `snapshot/restore` | Implemented on `gpt/living-world-integration`: versioned `Region1State` data is written to and restored from the Life snapshot; review in draft PR #5. Old saves default missing region1 state to reset modules. |
 | H3 | `autoload/frontier.gd` `threat_at` / coverage | coverage Callable overridable by `Wardlines` (≤ 5 lines) |
 | H4 | `scripts/sim/monster_ecology.gd` | spawn-variant callback for Scar cells (≤ 5 lines) |
 | H5 | terrain shader | sample the global `scar_mask` texture parameter for a violet tint (≤ 10 lines) |

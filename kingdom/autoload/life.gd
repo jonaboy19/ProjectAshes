@@ -1227,6 +1227,8 @@ func snapshot() -> Dictionary:
 		"childhood_events": childhood_events.serialize(),
 		"awakening": awakening.serialize(),
 	}
+	# Region1 hook (docs/regions/REGION_1_PLAN.md)
+	d["region1"] = Region1State.snapshot()
 	if player and is_instance_valid(player):
 		d["player"] = {"x": player.global_position.x, "y": player.global_position.y,
 			"z": player.global_position.z, "health": player.get("health")}
@@ -1282,6 +1284,8 @@ func restore(d: Dictionary) -> void:
 			player.revive(false)     # a save loaded from the death screen
 		if player.has_method("set_health"):
 			player.set_health(int(p.get("health", 100)))
+	# Region1 hook (docs/regions/REGION_1_PLAN.md)
+	Region1State.restore(d.get("region1", {}))
 	inventory_changed.emit()
 	employment_changed.emit()
 	Game.stats_changed.emit()
