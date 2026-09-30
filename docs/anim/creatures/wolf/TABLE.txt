@@ -1,0 +1,32 @@
+WOLF creature_models.gd row  (measured on the exported GLB, world space, metres / seconds; wolf.glb scale is baked, keep "scale": 1.0)
+
+	"wolf": {"path": MESHY + "wolf", "scale": 1.0, "walk": 1.07, "run": 4.95, "impact": 0.27, "lunge_impact": 0.57,
+		"clips": {"stalk": "stalk", "limp": "limp"}},   # new roles use their own clip names; no override needed (wolf.gd _play falls back to the role name)
+
+Ground speeds (planted-foot travel per second = what the clip covers at playback rate 1.0):
+  walk   1.07 m/s   (was 0.85 at 0.85 m shoulder; x1.3 scale -> 1.10)          T = 1.067 s, feet locked (slip 0.005 m/s rms, was 1.27)
+  run    4.95 m/s   (table said 2.6: WRONG, that made the gallop play at 1.7x and slide; gallop stance frames measure 4.7-5.0)  T = 0.567 s
+  stalk  0.90 m/s   T = 1.20 s        limp   1.10 m/s   T = 1.00 s        circle_l/r 1.40 m/s sideways, heading -/+0.28 rad/s (5 m orbit)   T = 0.60 s
+  run_turn_l/r      4.95 m/s forward, heading +/-1.50 rad/s (86 deg/s)   T = 0.567 s (loop)
+  playback rate = clamp(actual_speed / authored_speed, 0.6, 1.9)  (same rule wolf.gd already uses)
+
+Impact / event times (seconds from clip start, at playback rate 1.0)
+  attack (unchanged Quaternius clip, 1.33 s): muzzle speed peak 0.17, maximum reach 0.33, keep "impact" 0.27 (use 0.30 to land on full reach)
+  lunge  (1.267 s): impact = bite snap 0.57 (muzzle speed peak 7.2 m/s), lift-off front 0.40 / hind 0.44, land front 0.62 / hind 0.70, deepest crouch 0.34
+  howl   (2.90 s): audio start 0.55, hold loop range 0.70-2.20 (one 1.5 s breath, first/last pose of the range match), lower 2.2-2.9
+  flinch (0.40 s): peak 0.07
+
+Clip names added (all in wolf.glb and wolf_lod1.glb; same names, same skeleton, 30 fps):
+  turn_l90 0.967 s, turn_r90 0.967 s, turn_l180 1.40 s, turn_r180 1.40 s, run_turn_l 0.567 s, run_turn_r 0.567 s,
+  stalk 1.20, circle_l 0.60, circle_r 0.60, lunge 1.267, howl 2.90, flinch 0.40, limp 1.00 (loops: stalk, circle_*, limp, walk, run, run_turn_*)
+  walk and run are now foot-locked versions of the Quaternius clips; the originals stay as walk_orig and run_orig (not used by the game)
+  Root motion tables (turn yaw profile, lunge forward travel): root_motion_tables.txt and patches/P2b_wolf_turn_and_pack_clips.md
+
+Measured foot slip in world space over the planted frames (m/s rms / max), sole height error cm:
+  stalk .001/.002  turn_l90 .001/.002  turn_r90 .001/.003  turn_l180 .002/.008  turn_r180 .002/.009  circle_l .001/.005  circle_r .002/.013
+  limp .001/.004  flinch .001/.002  howl .000/.001  lunge .001/.006  walk .005/.027  (all soles within +-0.4 cm of the ground)
+  run .131/.187 (was 0.94 rms)  run_turn_l .102/.200  run_turn_r .044/.088  (gallop: only 4 planted frames; front paws reach-limited, sole up to 3 cm high)
+
+Suggested SPECIES["wolf"] tweaks for the 1.3x body (wolf.gd, Codex): "radius" 0.34 -> 0.42, "height" 1.1 -> 1.25, "reach"/"strike" +0.2 (2.5 / 2.1) because the muzzle starts 0.15 m further out;
+  limp speed 3.6 is too fast for the limp clip: use <= 2.2 m/s or keep the run clip for fast flight.
+Model: 1.10 m at the shoulder (was 0.85), 1.20 m to the ear tip, ~1.6 m nose to tail base, 14,940 / 4,940 tris, 1024 / 512 px textures, 51 bones (same names).

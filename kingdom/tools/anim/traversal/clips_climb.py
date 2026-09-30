@@ -118,7 +118,7 @@ def ledge_hands(x, z_lift=0.0, lift_w=0.0):
 
 def hang_body(P, sway_x, sway_y, u, look_amp=10.0):
     """pelvis + feet + torso of the hanging body, arms reach the ledge"""
-    P.pelvis = V(sway_x, sway_y - 0.07, 1.125 + 0.006 * math.sin(TAU * u * 2))
+    P.pelvis = V(sway_x, sway_y - 0.02, 1.125 + 0.006 * math.sin(TAU * u * 2))
     ph = TAU * u
     feet = {}
     for side, sx in (("l", 1), ("r", -1)):
@@ -179,7 +179,7 @@ def shimmy_pose(u, sign):
     mean_x = (hx["l"] + hx["r"]) * 0.5
     # body follows the mean hand position with a little lag; leans into the move
     lag = 0.03 * sign
-    P.pelvis = V(mean_x - lag * math.cos(2 * ph) * 0.5, -0.07 + 0.012 * math.sin(2 * ph), 1.125 + 0.006 * math.sin(4 * ph))
+    P.pelvis = V(mean_x - lag * math.cos(2 * ph) * 0.5, -0.02 + 0.012 * math.sin(2 * ph), 1.125 + 0.006 * math.sin(4 * ph))
     hands = {}
     for side, sx in (("l", 1), ("r", -1)):
         G = V(hx[side], -0.27, LEDGE_TOP + 0.02 + 0.02 * lifts[side])

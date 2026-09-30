@@ -1,0 +1,6858 @@
+{
+ "Ladder_Climb_Down_Loop": {
+  "frames": 37,
+  "rel": [
+   [
+    0.045,
+    "foot_l",
+    19
+   ],
+   [
+    0.045,
+    "foot_r",
+    1
+   ],
+   [
+    0.045,
+    "calf_l",
+    1
+   ],
+   [
+    0.045,
+    "calf_r",
+    19
+   ],
+   [
+    0.043,
+    "calf_l",
+    35
+   ],
+   [
+    0.043,
+    "calf_r",
+    17
+   ],
+   [
+    0.043,
+    "calf_l",
+    34
+   ],
+   [
+    0.043,
+    "calf_r",
+    16
+   ]
+  ],
+  "rel_over_0.12": [],
+  "pos": [
+   [
+    0.057,
+    "foot_l",
+    31
+   ],
+   [
+    0.056,
+    "foot_r",
+    13
+   ],
+   [
+    0.056,
+    "foot_r",
+    12
+   ],
+   [
+    0.056,
+    "foot_r",
+    14
+   ],
+   [
+    0.056,
+    "foot_l",
+    30
+   ],
+   [
+    0.056,
+    "foot_l",
+    32
+   ],
+   [
+    0.054,
+    "foot_l",
+    29
+   ],
+   [
+    0.054,
+    "foot_r",
+    11
+   ]
+  ],
+  "rot": [
+   [
+    16.5,
+    "calf_r",
+    17
+   ],
+   [
+    16.5,
+    "calf_r",
+    18
+   ],
+   [
+    16.5,
+    "calf_l",
+    35
+   ],
+   [
+    16.5,
+    "calf_l",
+    36
+   ],
+   [
+    11.8,
+    "calf_l",
+    1
+   ],
+   [
+    11.8,
+    "calf_r",
+    19
+   ],
+   [
+    11.2,
+    "lowerarm_r",
+    25
+   ],
+   [
+    11.2,
+    "lowerarm_l",
+    8
+   ]
+  ],
+  "pos_over_0.12": [],
+  "rot_over_35": [],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.053,
+     "calf_l",
+     34
+    ],
+    "charspace_m": [
+     0.045,
+     "calf_l",
+     1
+    ],
+    "rot_deg": [
+     16.5,
+     "calf_r",
+     17
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.05,
+     "lowerarm_r",
+     30
+    ],
+    "charspace_m": [
+     0.033,
+     "lowerarm_r",
+     30
+    ],
+    "rot_deg": [
+     11.2,
+     "lowerarm_r",
+     25
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.021,
+     "thigh_r",
+     2
+    ],
+    "charspace_m": [
+     0.007,
+     "thigh_r",
+     3
+    ],
+    "rot_deg": [
+     6.8,
+     "thigh_r",
+     17
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.021,
+     "upperarm_r",
+     22
+    ],
+    "charspace_m": [
+     0.008,
+     "upperarm_r",
+     22
+    ],
+    "rot_deg": [
+     8.8,
+     "upperarm_r",
+     30
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.021,
+     "pelvis",
+     20
+    ],
+    "charspace_m": [
+     0.006,
+     "pelvis",
+     4
+    ],
+    "rot_deg": [
+     1.8,
+     "spine_02",
+     18
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.051,
+     "hand_l",
+     11
+    ],
+    "charspace_m": [
+     0.034,
+     "hand_l",
+     11
+    ],
+    "rot_deg": [
+     8.2,
+     "hand_r",
+     2
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.057,
+     "foot_l",
+     31
+    ],
+    "charspace_m": [
+     0.045,
+     "foot_l",
+     19
+    ],
+    "rot_deg": [
+     5.8,
+     "foot_l",
+     1
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 0,
+   "rot_35deg": 0
+  },
+  "pelvis_z_range_m": [
+   0.85,
+   0.87
+  ],
+  "loop_gap_cm": 0.0,
+  "loop_gap_deg": 0.1
+ },
+ "Ladder_Climb_Up_Loop": {
+  "frames": 37,
+  "rel": [
+   [
+    0.045,
+    "foot_l",
+    18
+   ],
+   [
+    0.045,
+    "foot_r",
+    36
+   ],
+   [
+    0.045,
+    "calf_l",
+    36
+   ],
+   [
+    0.045,
+    "calf_r",
+    18
+   ],
+   [
+    0.043,
+    "calf_l",
+    2
+   ],
+   [
+    0.043,
+    "calf_r",
+    20
+   ],
+   [
+    0.043,
+    "calf_l",
+    3
+   ],
+   [
+    0.043,
+    "calf_r",
+    21
+   ]
+  ],
+  "rel_over_0.12": [],
+  "pos": [
+   [
+    0.057,
+    "foot_l",
+    6
+   ],
+   [
+    0.056,
+    "foot_r",
+    24
+   ],
+   [
+    0.056,
+    "foot_r",
+    25
+   ],
+   [
+    0.056,
+    "foot_r",
+    23
+   ],
+   [
+    0.056,
+    "foot_l",
+    7
+   ],
+   [
+    0.056,
+    "foot_l",
+    5
+   ],
+   [
+    0.054,
+    "foot_l",
+    8
+   ],
+   [
+    0.054,
+    "foot_r",
+    26
+   ]
+  ],
+  "rot": [
+   [
+    16.5,
+    "calf_r",
+    19
+   ],
+   [
+    16.5,
+    "calf_l",
+    2
+   ],
+   [
+    16.5,
+    "calf_r",
+    20
+   ],
+   [
+    16.5,
+    "calf_l",
+    1
+   ],
+   [
+    11.8,
+    "calf_r",
+    18
+   ],
+   [
+    11.8,
+    "calf_l",
+    36
+   ],
+   [
+    11.2,
+    "lowerarm_l",
+    30
+   ],
+   [
+    11.2,
+    "lowerarm_l",
+    29
+   ]
+  ],
+  "pos_over_0.12": [],
+  "rot_over_35": [],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.053,
+     "calf_l",
+     3
+    ],
+    "charspace_m": [
+     0.045,
+     "calf_l",
+     36
+    ],
+    "rot_deg": [
+     16.5,
+     "calf_r",
+     19
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.05,
+     "lowerarm_r",
+     7
+    ],
+    "charspace_m": [
+     0.033,
+     "lowerarm_r",
+     7
+    ],
+    "rot_deg": [
+     11.2,
+     "lowerarm_l",
+     30
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.021,
+     "thigh_r",
+     35
+    ],
+    "charspace_m": [
+     0.007,
+     "thigh_r",
+     34
+    ],
+    "rot_deg": [
+     6.8,
+     "thigh_l",
+     2
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.021,
+     "upperarm_r",
+     15
+    ],
+    "charspace_m": [
+     0.008,
+     "upperarm_r",
+     15
+    ],
+    "rot_deg": [
+     8.8,
+     "upperarm_r",
+     7
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.021,
+     "pelvis",
+     17
+    ],
+    "charspace_m": [
+     0.006,
+     "pelvis",
+     34
+    ],
+    "rot_deg": [
+     1.8,
+     "spine_02",
+     19
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.051,
+     "hand_l",
+     26
+    ],
+    "charspace_m": [
+     0.034,
+     "hand_l",
+     26
+    ],
+    "rot_deg": [
+     8.2,
+     "hand_l",
+     17
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.057,
+     "foot_l",
+     6
+    ],
+    "charspace_m": [
+     0.045,
+     "foot_l",
+     18
+    ],
+    "rot_deg": [
+     5.8,
+     "foot_l",
+     36
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 0,
+   "rot_35deg": 0
+  },
+  "pelvis_z_range_m": [
+   0.85,
+   0.87
+  ],
+  "loop_gap_cm": 0.0,
+  "loop_gap_deg": 0.1
+ },
+ "Ledge_Climb_Up": {
+  "frames": 53,
+  "rel": [
+   [
+    0.27,
+    "foot_l",
+    41
+   ],
+   [
+    0.256,
+    "ball_l",
+    41
+   ],
+   [
+    0.248,
+    "ball_leaf_l",
+    41
+   ],
+   [
+    0.214,
+    "foot_r",
+    27
+   ],
+   [
+    0.201,
+    "ball_r",
+    27
+   ],
+   [
+    0.194,
+    "ball_leaf_r",
+    27
+   ],
+   [
+    0.191,
+    "foot_r",
+    26
+   ],
+   [
+    0.191,
+    "calf_l",
+    41
+   ]
+  ],
+  "rel_over_0.12": [
+   [
+    "calf_r",
+    19
+   ],
+   [
+    "calf_r",
+    20
+   ],
+   [
+    "foot_r",
+    21
+   ],
+   [
+    "calf_r",
+    21
+   ],
+   [
+    "foot_r",
+    24
+   ],
+   [
+    "ball_r",
+    24
+   ],
+   [
+    "ball_leaf_r",
+    24
+   ],
+   [
+    "ball_r",
+    25
+   ],
+   [
+    "ball_leaf_r",
+    25
+   ],
+   [
+    "foot_r",
+    25
+   ],
+   [
+    "ball_leaf_r",
+    26
+   ],
+   [
+    "foot_r",
+    26
+   ],
+   [
+    "ball_r",
+    26
+   ],
+   [
+    "foot_r",
+    27
+   ],
+   [
+    "ball_r",
+    27
+   ],
+   [
+    "ball_leaf_r",
+    27
+   ],
+   [
+    "foot_r",
+    28
+   ],
+   [
+    "ball_r",
+    28
+   ],
+   [
+    "ball_leaf_r",
+    28
+   ],
+   [
+    "calf_r",
+    30
+   ]
+  ],
+  "pos": [
+   [
+    0.22,
+    "foot_l",
+    41
+   ],
+   [
+    0.207,
+    "ball_l",
+    41
+   ],
+   [
+    0.199,
+    "ball_leaf_l",
+    41
+   ],
+   [
+    0.192,
+    "foot_r",
+    21
+   ],
+   [
+    0.185,
+    "foot_r",
+    22
+   ],
+   [
+    0.177,
+    "ball_r",
+    21
+   ],
+   [
+    0.177,
+    "calf_r",
+    19
+   ],
+   [
+    0.171,
+    "ball_leaf_r",
+    21
+   ]
+  ],
+  "rot": [
+   [
+    52.1,
+    "calf_l",
+    41
+   ],
+   [
+    45.2,
+    "lowerarm_r",
+    32
+   ],
+   [
+    42.1,
+    "lowerarm_l",
+    32
+   ],
+   [
+    41.3,
+    "lowerarm_l",
+    29
+   ],
+   [
+    41.3,
+    "lowerarm_r",
+    29
+   ],
+   [
+    38.2,
+    "hand_l",
+    32
+   ],
+   [
+    38.0,
+    "hand_r",
+    32
+   ],
+   [
+    34.6,
+    "hand_l",
+    31
+   ]
+  ],
+  "pos_over_0.12": [
+   [
+    "calf_r",
+    15
+   ],
+   [
+    "calf_r",
+    16
+   ],
+   [
+    "calf_r",
+    17
+   ],
+   [
+    "calf_r",
+    18
+   ],
+   [
+    "ball_r",
+    19
+   ],
+   [
+    "calf_r",
+    19
+   ],
+   [
+    "ball_leaf_r",
+    19
+   ],
+   [
+    "foot_r",
+    19
+   ],
+   [
+    "ball_leaf_r",
+    20
+   ],
+   [
+    "foot_r",
+    20
+   ],
+   [
+    "ball_r",
+    20
+   ],
+   [
+    "calf_r",
+    20
+   ],
+   [
+    "foot_r",
+    21
+   ],
+   [
+    "ball_r",
+    21
+   ],
+   [
+    "calf_r",
+    21
+   ],
+   [
+    "ball_leaf_r",
+    21
+   ],
+   [
+    "ball_r",
+    22
+   ],
+   [
+    "ball_leaf_r",
+    22
+   ],
+   [
+    "foot_r",
+    22
+   ],
+   [
+    "foot_r",
+    23
+   ]
+  ],
+  "rot_over_35": [
+   [
+    "lowerarm_r",
+    29
+   ],
+   [
+    "lowerarm_l",
+    29
+   ],
+   [
+    "lowerarm_l",
+    32
+   ],
+   [
+    "hand_l",
+    32
+   ],
+   [
+    "lowerarm_r",
+    32
+   ],
+   [
+    "hand_r",
+    32
+   ],
+   [
+    "calf_l",
+    41
+   ]
+  ],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.177,
+     "calf_r",
+     19
+    ],
+    "charspace_m": [
+     0.191,
+     "calf_l",
+     41
+    ],
+    "rot_deg": [
+     52.1,
+     "calf_l",
+     41
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.16,
+     "lowerarm_r",
+     32
+    ],
+    "charspace_m": [
+     0.119,
+     "lowerarm_l",
+     29
+    ],
+    "rot_deg": [
+     45.2,
+     "lowerarm_r",
+     32
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.08,
+     "thigh_r",
+     31
+    ],
+    "charspace_m": [
+     0.065,
+     "thigh_r",
+     12
+    ],
+    "rot_deg": [
+     27.5,
+     "thigh_r",
+     26
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.082,
+     "upperarm_r",
+     32
+    ],
+    "charspace_m": [
+     0.079,
+     "upperarm_l",
+     24
+    ],
+    "rot_deg": [
+     26.7,
+     "upperarm_r",
+     32
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.086,
+     "Head",
+     33
+    ],
+    "charspace_m": [
+     0.088,
+     "Head",
+     24
+    ],
+    "rot_deg": [
+     5.6,
+     "Head",
+     44
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.152,
+     "hand_l",
+     34
+    ],
+    "charspace_m": [
+     0.094,
+     "hand_l",
+     28
+    ],
+    "rot_deg": [
+     38.2,
+     "hand_l",
+     32
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.22,
+     "foot_l",
+     41
+    ],
+    "charspace_m": [
+     0.27,
+     "foot_l",
+     41
+    ],
+    "rot_deg": [
+     34.5,
+     "foot_r",
+     27
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 13,
+   "rot_35deg": 3
+  },
+  "pelvis_z_range_m": [
+   0.9,
+   1.676
+  ],
+  "contact_drift_cm": [
+   [
+    "hand_l",
+    0,
+    28,
+    2.77
+   ],
+   [
+    "hand_r",
+    0,
+    28,
+    2.78
+   ],
+   [
+    "ball_r",
+    28,
+    52,
+    0.56
+   ],
+   [
+    "ball_l",
+    41,
+    52,
+    0.13
+   ]
+  ]
+ },
+ "Ledge_Drop_Down": {
+  "frames": 33,
+  "rel": [
+   [
+    0.285,
+    "lowerarm_l",
+    13
+   ],
+   [
+    0.285,
+    "lowerarm_r",
+    13
+   ],
+   [
+    0.245,
+    "lowerarm_r",
+    12
+   ],
+   [
+    0.245,
+    "lowerarm_l",
+    12
+   ],
+   [
+    0.209,
+    "hand_r",
+    13
+   ],
+   [
+    0.209,
+    "hand_l",
+    13
+   ],
+   [
+    0.201,
+    "hand_r",
+    12
+   ],
+   [
+    0.201,
+    "hand_l",
+    12
+   ]
+  ],
+  "rel_over_0.12": [
+   [
+    "lowerarm_l",
+    9
+   ],
+   [
+    "lowerarm_r",
+    9
+   ],
+   [
+    "lowerarm_l",
+    10
+   ],
+   [
+    "foot_l",
+    10
+   ],
+   [
+    "hand_l",
+    10
+   ],
+   [
+    "lowerarm_r",
+    10
+   ],
+   [
+    "foot_r",
+    10
+   ],
+   [
+    "hand_r",
+    10
+   ],
+   [
+    "foot_r",
+    11
+   ],
+   [
+    "hand_r",
+    11
+   ],
+   [
+    "lowerarm_l",
+    11
+   ],
+   [
+    "foot_l",
+    11
+   ],
+   [
+    "calf_l",
+    11
+   ],
+   [
+    "calf_r",
+    11
+   ],
+   [
+    "hand_l",
+    11
+   ],
+   [
+    "lowerarm_r",
+    11
+   ],
+   [
+    "hand_r",
+    12
+   ],
+   [
+    "lowerarm_l",
+    12
+   ],
+   [
+    "calf_l",
+    12
+   ],
+   [
+    "lowerarm_r",
+    12
+   ]
+  ],
+  "pos": [
+   [
+    0.283,
+    "lowerarm_l",
+    13
+   ],
+   [
+    0.283,
+    "lowerarm_r",
+    13
+   ],
+   [
+    0.253,
+    "lowerarm_r",
+    12
+   ],
+   [
+    0.253,
+    "lowerarm_l",
+    12
+   ],
+   [
+    0.212,
+    "hand_r",
+    12
+   ],
+   [
+    0.212,
+    "hand_l",
+    12
+   ],
+   [
+    0.212,
+    "hand_r",
+    13
+   ],
+   [
+    0.212,
+    "hand_l",
+    13
+   ]
+  ],
+  "rot": [
+   [
+    60.0,
+    "upperarm_r",
+    13
+   ],
+   [
+    60.0,
+    "upperarm_l",
+    13
+   ],
+   [
+    59.2,
+    "hand_r",
+    13
+   ],
+   [
+    59.2,
+    "hand_l",
+    13
+   ],
+   [
+    54.6,
+    "lowerarm_l",
+    10
+   ],
+   [
+    54.6,
+    "lowerarm_l",
+    9
+   ],
+   [
+    54.6,
+    "lowerarm_r",
+    10
+   ],
+   [
+    54.6,
+    "lowerarm_r",
+    9
+   ]
+  ],
+  "pos_over_0.12": [
+   [
+    "lowerarm_l",
+    9
+   ],
+   [
+    "lowerarm_r",
+    9
+   ],
+   [
+    "lowerarm_l",
+    10
+   ],
+   [
+    "foot_l",
+    10
+   ],
+   [
+    "ball_r",
+    10
+   ],
+   [
+    "calf_l",
+    10
+   ],
+   [
+    "hand_l",
+    10
+   ],
+   [
+    "lowerarm_r",
+    10
+   ],
+   [
+    "calf_r",
+    10
+   ],
+   [
+    "ball_l",
+    10
+   ],
+   [
+    "foot_r",
+    10
+   ],
+   [
+    "hand_r",
+    10
+   ],
+   [
+    "foot_r",
+    11
+   ],
+   [
+    "hand_r",
+    11
+   ],
+   [
+    "lowerarm_l",
+    11
+   ],
+   [
+    "foot_l",
+    11
+   ],
+   [
+    "calf_l",
+    11
+   ],
+   [
+    "calf_r",
+    11
+   ],
+   [
+    "hand_l",
+    11
+   ],
+   [
+    "lowerarm_r",
+    11
+   ]
+  ],
+  "rot_over_35": [
+   [
+    "hand_l",
+    7
+   ],
+   [
+    "hand_r",
+    7
+   ],
+   [
+    "hand_r",
+    8
+   ],
+   [
+    "hand_l",
+    8
+   ],
+   [
+    "lowerarm_l",
+    9
+   ],
+   [
+    "lowerarm_r",
+    9
+   ],
+   [
+    "lowerarm_l",
+    10
+   ],
+   [
+    "lowerarm_r",
+    10
+   ],
+   [
+    "calf_l",
+    11
+   ],
+   [
+    "calf_r",
+    11
+   ],
+   [
+    "calf_l",
+    12
+   ],
+   [
+    "calf_r",
+    12
+   ],
+   [
+    "upperarm_l",
+    12
+   ],
+   [
+    "upperarm_r",
+    12
+   ],
+   [
+    "hand_l",
+    13
+   ],
+   [
+    "upperarm_l",
+    13
+   ],
+   [
+    "hand_r",
+    13
+   ],
+   [
+    "upperarm_r",
+    13
+   ],
+   [
+    "hand_r",
+    14
+   ],
+   [
+    "hand_l",
+    14
+   ]
+  ],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.199,
+     "calf_r",
+     11
+    ],
+    "charspace_m": [
+     0.169,
+     "calf_r",
+     12
+    ],
+    "rot_deg": [
+     42.2,
+     "calf_r",
+     12
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.283,
+     "lowerarm_l",
+     13
+    ],
+    "charspace_m": [
+     0.285,
+     "lowerarm_l",
+     13
+    ],
+    "rot_deg": [
+     54.6,
+     "lowerarm_l",
+     10
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.106,
+     "thigh_r",
+     10
+    ],
+    "charspace_m": [
+     0.071,
+     "thigh_r",
+     11
+    ],
+    "rot_deg": [
+     25.4,
+     "thigh_r",
+     12
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.092,
+     "upperarm_l",
+     13
+    ],
+    "charspace_m": [
+     0.098,
+     "upperarm_l",
+     13
+    ],
+    "rot_deg": [
+     60.0,
+     "upperarm_r",
+     13
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.119,
+     "Head",
+     13
+    ],
+    "charspace_m": [
+     0.124,
+     "Head",
+     13
+    ],
+    "rot_deg": [
+     5.7,
+     "pelvis",
+     13
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.212,
+     "hand_r",
+     12
+    ],
+    "charspace_m": [
+     0.209,
+     "hand_r",
+     13
+    ],
+    "rot_deg": [
+     59.2,
+     "hand_r",
+     13
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.164,
+     "foot_l",
+     10
+    ],
+    "charspace_m": [
+     0.141,
+     "foot_r",
+     11
+    ],
+    "rot_deg": [
+     20.0,
+     "foot_l",
+     12
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 6,
+   "rot_35deg": 10
+  },
+  "pelvis_z_range_m": [
+   0.719,
+   1.152
+  ],
+  "contact_drift_cm": [
+   [
+    "hand_l",
+    0,
+    6,
+    0.18
+   ],
+   [
+    "hand_r",
+    0,
+    6,
+    0.19
+   ],
+   [
+    "ball_l",
+    11,
+    32,
+    0.35
+   ],
+   [
+    "ball_r",
+    11,
+    32,
+    0.35
+   ]
+  ]
+ },
+ "Ledge_Grab": {
+  "frames": 41,
+  "rel": [
+   [
+    0.329,
+    "hand_r",
+    11
+   ],
+   [
+    0.329,
+    "hand_l",
+    11
+   ],
+   [
+    0.321,
+    "hand_r",
+    12
+   ],
+   [
+    0.321,
+    "hand_l",
+    12
+   ],
+   [
+    0.297,
+    "hand_l",
+    10
+   ],
+   [
+    0.297,
+    "hand_r",
+    10
+   ],
+   [
+    0.291,
+    "hand_l",
+    13
+   ],
+   [
+    0.291,
+    "hand_r",
+    13
+   ]
+  ],
+  "rel_over_0.12": [
+   [
+    "hand_r",
+    9
+   ],
+   [
+    "hand_l",
+    9
+   ],
+   [
+    "hand_l",
+    10
+   ],
+   [
+    "hand_r",
+    10
+   ],
+   [
+    "upperarm_l",
+    11
+   ],
+   [
+    "clavicle_r",
+    11
+   ],
+   [
+    "pelvis",
+    11
+   ],
+   [
+    "thigh_l",
+    11
+   ],
+   [
+    "clavicle_l",
+    11
+   ],
+   [
+    "upperarm_r",
+    11
+   ],
+   [
+    "thigh_r",
+    11
+   ],
+   [
+    "neck_01",
+    11
+   ],
+   [
+    "hand_l",
+    11
+   ],
+   [
+    "spine_01",
+    11
+   ],
+   [
+    "hand_r",
+    11
+   ],
+   [
+    "spine_02",
+    11
+   ],
+   [
+    "lowerarm_l",
+    11
+   ],
+   [
+    "Head",
+    11
+   ],
+   [
+    "lowerarm_r",
+    11
+   ],
+   [
+    "spine_03",
+    11
+   ]
+  ],
+  "pos": [
+   [
+    0.329,
+    "hand_r",
+    11
+   ],
+   [
+    0.329,
+    "hand_l",
+    11
+   ],
+   [
+    0.321,
+    "hand_r",
+    12
+   ],
+   [
+    0.321,
+    "hand_l",
+    12
+   ],
+   [
+    0.297,
+    "hand_l",
+    10
+   ],
+   [
+    0.297,
+    "hand_r",
+    10
+   ],
+   [
+    0.291,
+    "hand_l",
+    13
+   ],
+   [
+    0.291,
+    "hand_r",
+    13
+   ]
+  ],
+  "rot": [
+   [
+    71.8,
+    "upperarm_r",
+    10
+   ],
+   [
+    71.8,
+    "upperarm_l",
+    10
+   ],
+   [
+    62.9,
+    "lowerarm_l",
+    15
+   ],
+   [
+    62.9,
+    "lowerarm_r",
+    15
+   ],
+   [
+    57.0,
+    "hand_r",
+    15
+   ],
+   [
+    57.0,
+    "hand_l",
+    15
+   ],
+   [
+    56.3,
+    "hand_l",
+    14
+   ],
+   [
+    56.3,
+    "hand_r",
+    14
+   ]
+  ],
+  "pos_over_0.12": [
+   [
+    "hand_r",
+    9
+   ],
+   [
+    "hand_l",
+    9
+   ],
+   [
+    "hand_l",
+    10
+   ],
+   [
+    "hand_r",
+    10
+   ],
+   [
+    "upperarm_l",
+    11
+   ],
+   [
+    "clavicle_r",
+    11
+   ],
+   [
+    "pelvis",
+    11
+   ],
+   [
+    "thigh_l",
+    11
+   ],
+   [
+    "clavicle_l",
+    11
+   ],
+   [
+    "upperarm_r",
+    11
+   ],
+   [
+    "thigh_r",
+    11
+   ],
+   [
+    "neck_01",
+    11
+   ],
+   [
+    "hand_l",
+    11
+   ],
+   [
+    "spine_01",
+    11
+   ],
+   [
+    "hand_r",
+    11
+   ],
+   [
+    "spine_02",
+    11
+   ],
+   [
+    "lowerarm_l",
+    11
+   ],
+   [
+    "Head",
+    11
+   ],
+   [
+    "lowerarm_r",
+    11
+   ],
+   [
+    "spine_03",
+    11
+   ]
+  ],
+  "rot_over_35": [
+   [
+    "hand_l",
+    10
+   ],
+   [
+    "upperarm_l",
+    10
+   ],
+   [
+    "upperarm_r",
+    10
+   ],
+   [
+    "hand_r",
+    10
+   ],
+   [
+    "upperarm_l",
+    11
+   ],
+   [
+    "upperarm_r",
+    11
+   ],
+   [
+    "foot_r",
+    11
+   ],
+   [
+    "lowerarm_l",
+    11
+   ],
+   [
+    "foot_l",
+    11
+   ],
+   [
+    "lowerarm_r",
+    11
+   ],
+   [
+    "foot_r",
+    12
+   ],
+   [
+    "hand_r",
+    12
+   ],
+   [
+    "lowerarm_l",
+    12
+   ],
+   [
+    "foot_l",
+    12
+   ],
+   [
+    "lowerarm_r",
+    12
+   ],
+   [
+    "hand_l",
+    12
+   ],
+   [
+    "upperarm_l",
+    12
+   ],
+   [
+    "upperarm_r",
+    12
+   ],
+   [
+    "lowerarm_l",
+    13
+   ],
+   [
+    "lowerarm_r",
+    13
+   ]
+  ],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.188,
+     "calf_r",
+     13
+    ],
+    "charspace_m": [
+     0.188,
+     "calf_r",
+     13
+    ],
+    "rot_deg": [
+     27.4,
+     "calf_r",
+     11
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.278,
+     "lowerarm_r",
+     12
+    ],
+    "charspace_m": [
+     0.278,
+     "lowerarm_r",
+     12
+    ],
+    "rot_deg": [
+     62.9,
+     "lowerarm_l",
+     15
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.129,
+     "thigh_l",
+     11
+    ],
+    "charspace_m": [
+     0.129,
+     "thigh_l",
+     11
+    ],
+    "rot_deg": [
+     20.0,
+     "thigh_r",
+     13
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.126,
+     "upperarm_r",
+     11
+    ],
+    "charspace_m": [
+     0.126,
+     "upperarm_r",
+     11
+    ],
+    "rot_deg": [
+     71.8,
+     "upperarm_r",
+     10
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.141,
+     "Head",
+     11
+    ],
+    "charspace_m": [
+     0.141,
+     "Head",
+     11
+    ],
+    "rot_deg": [
+     4.9,
+     "pelvis",
+     10
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.329,
+     "hand_r",
+     11
+    ],
+    "charspace_m": [
+     0.329,
+     "hand_r",
+     11
+    ],
+    "rot_deg": [
+     57.0,
+     "hand_r",
+     15
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.2,
+     "foot_r",
+     13
+    ],
+    "charspace_m": [
+     0.2,
+     "foot_r",
+     13
+    ],
+    "rot_deg": [
+     36.6,
+     "foot_l",
+     12
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 7,
+   "rot_35deg": 6
+  },
+  "pelvis_z_range_m": [
+   0.68,
+   1.3
+  ],
+  "contact_drift_cm": [
+   [
+    "hand_l",
+    15,
+    40,
+    0.24
+   ],
+   [
+    "hand_r",
+    15,
+    40,
+    0.24
+   ]
+  ]
+ },
+ "Ledge_Hang_Idle_Loop": {
+  "frames": 61,
+  "rel": [
+   [
+    0.029,
+    "lowerarm_l",
+    29
+   ],
+   [
+    0.018,
+    "lowerarm_r",
+    29
+   ],
+   [
+    0.016,
+    "lowerarm_r",
+    13
+   ],
+   [
+    0.015,
+    "lowerarm_r",
+    30
+   ],
+   [
+    0.015,
+    "lowerarm_l",
+    30
+   ],
+   [
+    0.011,
+    "lowerarm_l",
+    5
+   ],
+   [
+    0.01,
+    "lowerarm_l",
+    31
+   ],
+   [
+    0.01,
+    "lowerarm_r",
+    31
+   ]
+  ],
+  "rel_over_0.12": [],
+  "pos": [
+   [
+    0.029,
+    "lowerarm_l",
+    29
+   ],
+   [
+    0.018,
+    "lowerarm_r",
+    29
+   ],
+   [
+    0.016,
+    "lowerarm_r",
+    13
+   ],
+   [
+    0.015,
+    "lowerarm_r",
+    30
+   ],
+   [
+    0.015,
+    "lowerarm_l",
+    30
+   ],
+   [
+    0.011,
+    "lowerarm_l",
+    5
+   ],
+   [
+    0.01,
+    "lowerarm_l",
+    31
+   ],
+   [
+    0.01,
+    "lowerarm_r",
+    31
+   ]
+  ],
+  "rot": [
+   [
+    12.4,
+    "lowerarm_l",
+    29
+   ],
+   [
+    7.4,
+    "lowerarm_r",
+    29
+   ],
+   [
+    6.9,
+    "lowerarm_r",
+    13
+   ],
+   [
+    6.8,
+    "upperarm_l",
+    29
+   ],
+   [
+    6.7,
+    "lowerarm_l",
+    30
+   ],
+   [
+    6.1,
+    "lowerarm_r",
+    30
+   ],
+   [
+    5.9,
+    "hand_l",
+    29
+   ],
+   [
+    5.1,
+    "lowerarm_l",
+    51
+   ]
+  ],
+  "pos_over_0.12": [],
+  "rot_over_35": [],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.01,
+     "calf_r",
+     7
+    ],
+    "charspace_m": [
+     0.01,
+     "calf_r",
+     7
+    ],
+    "rot_deg": [
+     4.8,
+     "calf_r",
+     8
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.029,
+     "lowerarm_l",
+     29
+    ],
+    "charspace_m": [
+     0.029,
+     "lowerarm_l",
+     29
+    ],
+    "rot_deg": [
+     12.4,
+     "lowerarm_l",
+     29
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.003,
+     "thigh_r",
+     3
+    ],
+    "charspace_m": [
+     0.003,
+     "thigh_r",
+     3
+    ],
+    "rot_deg": [
+     4.8,
+     "thigh_l",
+     17
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.006,
+     "upperarm_l",
+     32
+    ],
+    "charspace_m": [
+     0.006,
+     "upperarm_l",
+     32
+    ],
+    "rot_deg": [
+     6.8,
+     "upperarm_l",
+     29
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.007,
+     "Head",
+     28
+    ],
+    "charspace_m": [
+     0.007,
+     "Head",
+     28
+    ],
+    "rot_deg": [
+     2.0,
+     "Head",
+     8
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.004,
+     "hand_l",
+     28
+    ],
+    "charspace_m": [
+     0.004,
+     "hand_l",
+     28
+    ],
+    "rot_deg": [
+     5.9,
+     "hand_l",
+     29
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.006,
+     "foot_l",
+     14
+    ],
+    "charspace_m": [
+     0.006,
+     "foot_l",
+     14
+    ],
+    "rot_deg": [
+     4.0,
+     "foot_r",
+     8
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 0,
+   "rot_35deg": 0
+  },
+  "pelvis_z_range_m": [
+   1.119,
+   1.131
+  ],
+  "loop_gap_cm": 0.08,
+  "loop_gap_deg": 1.48
+ },
+ "Ledge_Shimmy_L_Loop": {
+  "frames": 31,
+  "rel": [
+   [
+    0.056,
+    "lowerarm_r",
+    16
+   ],
+   [
+    0.056,
+    "lowerarm_r",
+    1
+   ],
+   [
+    0.053,
+    "calf_l",
+    24
+   ],
+   [
+    0.053,
+    "calf_l",
+    9
+   ],
+   [
+    0.046,
+    "calf_r",
+    11
+   ],
+   [
+    0.046,
+    "calf_r",
+    26
+   ],
+   [
+    0.044,
+    "lowerarm_r",
+    4
+   ],
+   [
+    0.044,
+    "lowerarm_r",
+    19
+   ]
+  ],
+  "rel_over_0.12": [],
+  "pos": [
+   [
+    0.061,
+    "lowerarm_r",
+    4
+   ],
+   [
+    0.061,
+    "lowerarm_r",
+    19
+   ],
+   [
+    0.055,
+    "hand_l",
+    19
+   ],
+   [
+    0.055,
+    "hand_l",
+    4
+   ],
+   [
+    0.054,
+    "hand_r",
+    26
+   ],
+   [
+    0.054,
+    "hand_r",
+    11
+   ],
+   [
+    0.052,
+    "hand_r",
+    12
+   ],
+   [
+    0.052,
+    "hand_r",
+    27
+   ]
+  ],
+  "rot": [
+   [
+    19.5,
+    "lowerarm_r",
+    1
+   ],
+   [
+    19.5,
+    "lowerarm_r",
+    16
+   ],
+   [
+    17.6,
+    "lowerarm_r",
+    19
+   ],
+   [
+    17.6,
+    "lowerarm_r",
+    4
+   ],
+   [
+    16.4,
+    "calf_l",
+    24
+   ],
+   [
+    16.4,
+    "calf_l",
+    9
+   ],
+   [
+    15.1,
+    "lowerarm_l",
+    10
+   ],
+   [
+    15.1,
+    "lowerarm_l",
+    25
+   ]
+  ],
+  "pos_over_0.12": [],
+  "rot_over_35": [],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.05,
+     "calf_l",
+     9
+    ],
+    "charspace_m": [
+     0.053,
+     "calf_l",
+     24
+    ],
+    "rot_deg": [
+     16.4,
+     "calf_l",
+     24
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.061,
+     "lowerarm_r",
+     4
+    ],
+    "charspace_m": [
+     0.056,
+     "lowerarm_r",
+     16
+    ],
+    "rot_deg": [
+     19.5,
+     "lowerarm_r",
+     1
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.035,
+     "thigh_r",
+     19
+    ],
+    "charspace_m": [
+     0.019,
+     "thigh_l",
+     15
+    ],
+    "rot_deg": [
+     7.8,
+     "thigh_l",
+     24
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.04,
+     "upperarm_l",
+     19
+    ],
+    "charspace_m": [
+     0.024,
+     "upperarm_l",
+     23
+    ],
+    "rot_deg": [
+     13.1,
+     "upperarm_r",
+     1
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.042,
+     "Head",
+     3
+    ],
+    "charspace_m": [
+     0.026,
+     "Head",
+     23
+    ],
+    "rot_deg": [
+     4.2,
+     "Head",
+     17
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.055,
+     "hand_l",
+     19
+    ],
+    "charspace_m": [
+     0.038,
+     "hand_l",
+     19
+    ],
+    "rot_deg": [
+     12.8,
+     "hand_r",
+     4
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.043,
+     "foot_r",
+     11
+    ],
+    "charspace_m": [
+     0.032,
+     "foot_l",
+     23
+    ],
+    "rot_deg": [
+     8.9,
+     "foot_r",
+     26
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 0,
+   "rot_35deg": 0
+  },
+  "pelvis_z_range_m": [
+   1.119,
+   1.131
+  ],
+  "loop_gap_cm": 0.08,
+  "loop_gap_deg": 1.56
+ },
+ "Ledge_Shimmy_R_Loop": {
+  "frames": 31,
+  "rel": [
+   [
+    0.053,
+    "calf_r",
+    11
+   ],
+   [
+    0.053,
+    "calf_r",
+    26
+   ],
+   [
+    0.046,
+    "calf_l",
+    24
+   ],
+   [
+    0.046,
+    "calf_l",
+    9
+   ],
+   [
+    0.045,
+    "calf_r",
+    8
+   ],
+   [
+    0.045,
+    "calf_r",
+    23
+   ],
+   [
+    0.042,
+    "lowerarm_l",
+    16
+   ],
+   [
+    0.042,
+    "lowerarm_l",
+    1
+   ]
+  ],
+  "rel_over_0.12": [],
+  "pos": [
+   [
+    0.062,
+    "calf_r",
+    11
+   ],
+   [
+    0.062,
+    "calf_r",
+    26
+   ],
+   [
+    0.055,
+    "hand_l",
+    26
+   ],
+   [
+    0.055,
+    "hand_l",
+    11
+   ],
+   [
+    0.055,
+    "hand_r",
+    19
+   ],
+   [
+    0.055,
+    "hand_r",
+    4
+   ],
+   [
+    0.055,
+    "lowerarm_l",
+    3
+   ],
+   [
+    0.055,
+    "lowerarm_l",
+    18
+   ]
+  ],
+  "rot": [
+   [
+    15.6,
+    "calf_r",
+    26
+   ],
+   [
+    15.6,
+    "calf_r",
+    11
+   ],
+   [
+    15.5,
+    "calf_l",
+    24
+   ],
+   [
+    15.5,
+    "calf_l",
+    9
+   ],
+   [
+    15.0,
+    "lowerarm_l",
+    18
+   ],
+   [
+    15.0,
+    "lowerarm_l",
+    3
+   ],
+   [
+    14.1,
+    "lowerarm_l",
+    1
+   ],
+   [
+    14.1,
+    "lowerarm_l",
+    16
+   ]
+  ],
+  "pos_over_0.12": [],
+  "rot_over_35": [],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.062,
+     "calf_r",
+     11
+    ],
+    "charspace_m": [
+     0.053,
+     "calf_r",
+     11
+    ],
+    "rot_deg": [
+     15.6,
+     "calf_r",
+     26
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.055,
+     "lowerarm_l",
+     3
+    ],
+    "charspace_m": [
+     0.042,
+     "lowerarm_l",
+     16
+    ],
+    "rot_deg": [
+     15.0,
+     "lowerarm_l",
+     18
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.035,
+     "thigh_r",
+     19
+    ],
+    "charspace_m": [
+     0.019,
+     "thigh_l",
+     15
+    ],
+    "rot_deg": [
+     7.2,
+     "thigh_l",
+     24
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.04,
+     "upperarm_l",
+     3
+    ],
+    "charspace_m": [
+     0.025,
+     "upperarm_l",
+     23
+    ],
+    "rot_deg": [
+     9.7,
+     "upperarm_l",
+     1
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.042,
+     "Head",
+     3
+    ],
+    "charspace_m": [
+     0.026,
+     "Head",
+     8
+    ],
+    "rot_deg": [
+     4.2,
+     "Head",
+     17
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.055,
+     "hand_l",
+     26
+    ],
+    "charspace_m": [
+     0.039,
+     "hand_r",
+     19
+    ],
+    "rot_deg": [
+     11.6,
+     "hand_l",
+     3
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.044,
+     "foot_r",
+     11
+    ],
+    "charspace_m": [
+     0.032,
+     "foot_l",
+     23
+    ],
+    "rot_deg": [
+     8.9,
+     "foot_r",
+     26
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 0,
+   "rot_35deg": 0
+  },
+  "pelvis_z_range_m": [
+   1.119,
+   1.131
+  ],
+  "loop_gap_cm": 0.07,
+  "loop_gap_deg": 3.43
+ },
+ "Mantle_High": {
+  "frames": 60,
+  "rel": [
+   [
+    0.398,
+    "hand_l",
+    11
+   ],
+   [
+    0.398,
+    "hand_r",
+    11
+   ],
+   [
+    0.397,
+    "hand_r",
+    10
+   ],
+   [
+    0.397,
+    "hand_l",
+    10
+   ],
+   [
+    0.313,
+    "hand_r",
+    9
+   ],
+   [
+    0.313,
+    "hand_l",
+    9
+   ],
+   [
+    0.291,
+    "calf_r",
+    3
+   ],
+   [
+    0.286,
+    "foot_r",
+    10
+   ]
+  ],
+  "rel_over_0.12": [
+   [
+    "foot_r",
+    3
+   ],
+   [
+    "calf_l",
+    3
+   ],
+   [
+    "calf_r",
+    3
+   ],
+   [
+    "foot_r",
+    5
+   ],
+   [
+    "ball_r",
+    5
+   ],
+   [
+    "ball_leaf_r",
+    5
+   ],
+   [
+    "neck_01",
+    9
+   ],
+   [
+    "foot_r",
+    9
+   ],
+   [
+    "hand_r",
+    9
+   ],
+   [
+    "lowerarm_l",
+    9
+   ],
+   [
+    "foot_l",
+    9
+   ],
+   [
+    "calf_l",
+    9
+   ],
+   [
+    "Head",
+    9
+   ],
+   [
+    "lowerarm_r",
+    9
+   ],
+   [
+    "calf_r",
+    9
+   ],
+   [
+    "hand_l",
+    9
+   ],
+   [
+    "clavicle_r",
+    9
+   ],
+   [
+    "clavicle_l",
+    9
+   ],
+   [
+    "lowerarm_l",
+    10
+   ],
+   [
+    "foot_l",
+    10
+   ]
+  ],
+  "pos": [
+   [
+    0.398,
+    "hand_l",
+    11
+   ],
+   [
+    0.398,
+    "hand_r",
+    11
+   ],
+   [
+    0.397,
+    "hand_r",
+    10
+   ],
+   [
+    0.397,
+    "hand_l",
+    10
+   ],
+   [
+    0.313,
+    "hand_r",
+    9
+   ],
+   [
+    0.313,
+    "hand_l",
+    9
+   ],
+   [
+    0.291,
+    "calf_r",
+    3
+   ],
+   [
+    0.286,
+    "foot_r",
+    10
+   ]
+  ],
+  "rot": [
+   [
+    96.9,
+    "thigh_r",
+    3
+   ],
+   [
+    86.6,
+    "foot_r",
+    3
+   ],
+   [
+    82.2,
+    "upperarm_l",
+    9
+   ],
+   [
+    82.2,
+    "upperarm_r",
+    9
+   ],
+   [
+    79.9,
+    "calf_r",
+    3
+   ],
+   [
+    72.8,
+    "hand_r",
+    9
+   ],
+   [
+    72.8,
+    "hand_l",
+    9
+   ],
+   [
+    66.3,
+    "hand_l",
+    11
+   ]
+  ],
+  "pos_over_0.12": [
+   [
+    "foot_r",
+    3
+   ],
+   [
+    "calf_l",
+    3
+   ],
+   [
+    "calf_r",
+    3
+   ],
+   [
+    "foot_r",
+    5
+   ],
+   [
+    "ball_r",
+    5
+   ],
+   [
+    "ball_leaf_r",
+    5
+   ],
+   [
+    "hand_l",
+    9
+   ],
+   [
+    "foot_r",
+    9
+   ],
+   [
+    "foot_l",
+    9
+   ],
+   [
+    "neck_01",
+    9
+   ],
+   [
+    "lowerarm_l",
+    9
+   ],
+   [
+    "calf_l",
+    9
+   ],
+   [
+    "calf_r",
+    9
+   ],
+   [
+    "hand_r",
+    9
+   ],
+   [
+    "Head",
+    9
+   ],
+   [
+    "lowerarm_r",
+    9
+   ],
+   [
+    "clavicle_r",
+    9
+   ],
+   [
+    "clavicle_l",
+    9
+   ],
+   [
+    "foot_l",
+    10
+   ],
+   [
+    "ball_leaf_l",
+    10
+   ]
+  ],
+  "rot_over_35": [
+   [
+    "thigh_r",
+    3
+   ],
+   [
+    "foot_r",
+    3
+   ],
+   [
+    "calf_r",
+    3
+   ],
+   [
+    "hand_r",
+    9
+   ],
+   [
+    "lowerarm_l",
+    9
+   ],
+   [
+    "lowerarm_r",
+    9
+   ],
+   [
+    "hand_l",
+    9
+   ],
+   [
+    "upperarm_l",
+    9
+   ],
+   [
+    "upperarm_r",
+    9
+   ],
+   [
+    "hand_l",
+    10
+   ],
+   [
+    "upperarm_l",
+    10
+   ],
+   [
+    "upperarm_r",
+    10
+   ],
+   [
+    "hand_r",
+    10
+   ],
+   [
+    "upperarm_l",
+    11
+   ],
+   [
+    "upperarm_r",
+    11
+   ],
+   [
+    "hand_r",
+    11
+   ],
+   [
+    "lowerarm_l",
+    11
+   ],
+   [
+    "hand_l",
+    11
+   ],
+   [
+    "lowerarm_r",
+    11
+   ],
+   [
+    "lowerarm_l",
+    36
+   ]
+  ],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.291,
+     "calf_r",
+     3
+    ],
+    "charspace_m": [
+     0.291,
+     "calf_r",
+     3
+    ],
+    "rot_deg": [
+     79.9,
+     "calf_r",
+     3
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.283,
+     "lowerarm_r",
+     11
+    ],
+    "charspace_m": [
+     0.283,
+     "lowerarm_r",
+     11
+    ],
+    "rot_deg": [
+     62.5,
+     "lowerarm_r",
+     11
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.134,
+     "thigh_l",
+     10
+    ],
+    "charspace_m": [
+     0.134,
+     "thigh_l",
+     10
+    ],
+    "rot_deg": [
+     96.9,
+     "thigh_r",
+     3
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.137,
+     "upperarm_r",
+     10
+    ],
+    "charspace_m": [
+     0.137,
+     "upperarm_r",
+     10
+    ],
+    "rot_deg": [
+     82.2,
+     "upperarm_l",
+     9
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.183,
+     "Head",
+     10
+    ],
+    "charspace_m": [
+     0.183,
+     "Head",
+     10
+    ],
+    "rot_deg": [
+     6.2,
+     "Head",
+     4
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.398,
+     "hand_l",
+     11
+    ],
+    "charspace_m": [
+     0.398,
+     "hand_l",
+     11
+    ],
+    "rot_deg": [
+     72.8,
+     "hand_r",
+     9
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.286,
+     "foot_r",
+     10
+    ],
+    "charspace_m": [
+     0.286,
+     "foot_r",
+     10
+    ],
+    "rot_deg": [
+     86.6,
+     "foot_r",
+     3
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 13,
+   "rot_35deg": 7
+  },
+  "pelvis_z_range_m": [
+   0.718,
+   1.274
+  ],
+  "contact_drift_cm": [
+   [
+    "hand_l",
+    12,
+    35,
+    0.19
+   ],
+   [
+    "hand_r",
+    12,
+    35,
+    0.19
+   ],
+   [
+    "ball_l",
+    2,
+    8,
+    0.06
+   ],
+   [
+    "ball_r",
+    5,
+    8,
+    0.0
+   ],
+   [
+    "ball_r",
+    35,
+    59,
+    0.56
+   ],
+   [
+    "ball_l",
+    48,
+    59,
+    0.13
+   ]
+  ]
+ },
+ "Mantle_Low": {
+  "frames": 45,
+  "rel": [
+   [
+    0.311,
+    "calf_l",
+    21
+   ],
+   [
+    0.284,
+    "calf_r",
+    35
+   ],
+   [
+    0.237,
+    "calf_r",
+    4
+   ],
+   [
+    0.225,
+    "calf_l",
+    22
+   ],
+   [
+    0.222,
+    "calf_l",
+    16
+   ],
+   [
+    0.211,
+    "calf_l",
+    20
+   ],
+   [
+    0.183,
+    "calf_l",
+    15
+   ],
+   [
+    0.182,
+    "ball_leaf_l",
+    14
+   ]
+  ],
+  "rel_over_0.12": [
+   [
+    "calf_r",
+    4
+   ],
+   [
+    "foot_r",
+    4
+   ],
+   [
+    "foot_r",
+    5
+   ],
+   [
+    "ball_r",
+    5
+   ],
+   [
+    "lowerarm_l",
+    5
+   ],
+   [
+    "calf_r",
+    5
+   ],
+   [
+    "ball_leaf_r",
+    5
+   ],
+   [
+    "ball_r",
+    6
+   ],
+   [
+    "calf_r",
+    6
+   ],
+   [
+    "ball_leaf_r",
+    6
+   ],
+   [
+    "ball_r",
+    7
+   ],
+   [
+    "ball_leaf_r",
+    7
+   ],
+   [
+    "foot_r",
+    8
+   ],
+   [
+    "ball_r",
+    8
+   ],
+   [
+    "ball_leaf_r",
+    8
+   ],
+   [
+    "hand_l",
+    10
+   ],
+   [
+    "hand_r",
+    10
+   ],
+   [
+    "foot_l",
+    11
+   ],
+   [
+    "calf_l",
+    11
+   ],
+   [
+    "hand_l",
+    11
+   ]
+  ],
+  "pos": [
+   [
+    0.301,
+    "calf_l",
+    21
+   ],
+   [
+    0.284,
+    "calf_r",
+    35
+   ],
+   [
+    0.272,
+    "calf_l",
+    22
+   ],
+   [
+    0.255,
+    "calf_r",
+    4
+   ],
+   [
+    0.224,
+    "calf_l",
+    16
+   ],
+   [
+    0.204,
+    "ball_leaf_l",
+    14
+   ],
+   [
+    0.2,
+    "ball_l",
+    14
+   ],
+   [
+    0.199,
+    "ball_leaf_l",
+    15
+   ]
+  ],
+  "rot": [
+   [
+    72.3,
+    "thigh_r",
+    35
+   ],
+   [
+    72.2,
+    "foot_r",
+    35
+   ],
+   [
+    53.9,
+    "calf_r",
+    4
+   ],
+   [
+    51.5,
+    "foot_l",
+    16
+   ],
+   [
+    51.4,
+    "foot_l",
+    15
+   ],
+   [
+    51.0,
+    "thigh_l",
+    16
+   ],
+   [
+    47.5,
+    "thigh_l",
+    21
+   ],
+   [
+    47.2,
+    "foot_l",
+    22
+   ]
+  ],
+  "pos_over_0.12": [
+   [
+    "calf_r",
+    4
+   ],
+   [
+    "foot_r",
+    4
+   ],
+   [
+    "foot_r",
+    5
+   ],
+   [
+    "ball_r",
+    5
+   ],
+   [
+    "lowerarm_l",
+    5
+   ],
+   [
+    "calf_r",
+    5
+   ],
+   [
+    "ball_leaf_r",
+    5
+   ],
+   [
+    "foot_r",
+    6
+   ],
+   [
+    "ball_r",
+    6
+   ],
+   [
+    "calf_r",
+    6
+   ],
+   [
+    "ball_leaf_r",
+    6
+   ],
+   [
+    "ball_r",
+    7
+   ],
+   [
+    "calf_r",
+    7
+   ],
+   [
+    "ball_leaf_r",
+    7
+   ],
+   [
+    "foot_r",
+    7
+   ],
+   [
+    "foot_r",
+    8
+   ],
+   [
+    "ball_r",
+    8
+   ],
+   [
+    "ball_leaf_r",
+    8
+   ],
+   [
+    "foot_r",
+    9
+   ],
+   [
+    "hand_r",
+    9
+   ]
+  ],
+  "rot_over_35": [
+   [
+    "calf_r",
+    4
+   ],
+   [
+    "thigh_r",
+    4
+   ],
+   [
+    "lowerarm_l",
+    5
+   ],
+   [
+    "lowerarm_l",
+    9
+   ],
+   [
+    "thigh_l",
+    15
+   ],
+   [
+    "foot_l",
+    15
+   ],
+   [
+    "calf_r",
+    16
+   ],
+   [
+    "foot_l",
+    16
+   ],
+   [
+    "thigh_l",
+    16
+   ],
+   [
+    "lowerarm_r",
+    19
+   ],
+   [
+    "thigh_l",
+    21
+   ],
+   [
+    "lowerarm_r",
+    21
+   ],
+   [
+    "lowerarm_l",
+    21
+   ],
+   [
+    "foot_l",
+    21
+   ],
+   [
+    "thigh_l",
+    22
+   ],
+   [
+    "foot_l",
+    22
+   ],
+   [
+    "thigh_r",
+    35
+   ],
+   [
+    "foot_r",
+    35
+   ]
+  ],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.301,
+     "calf_l",
+     21
+    ],
+    "charspace_m": [
+     0.311,
+     "calf_l",
+     21
+    ],
+    "rot_deg": [
+     53.9,
+     "calf_r",
+     4
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.157,
+     "lowerarm_l",
+     12
+    ],
+    "charspace_m": [
+     0.136,
+     "lowerarm_l",
+     21
+    ],
+    "rot_deg": [
+     42.8,
+     "lowerarm_l",
+     21
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.073,
+     "thigh_r",
+     5
+    ],
+    "charspace_m": [
+     0.056,
+     "thigh_l",
+     1
+    ],
+    "rot_deg": [
+     72.3,
+     "thigh_r",
+     35
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.092,
+     "upperarm_l",
+     5
+    ],
+    "charspace_m": [
+     0.075,
+     "upperarm_r",
+     1
+    ],
+    "rot_deg": [
+     32.2,
+     "upperarm_l",
+     12
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.097,
+     "Head",
+     5
+    ],
+    "charspace_m": [
+     0.081,
+     "Head",
+     1
+    ],
+    "rot_deg": [
+     6.8,
+     "spine_02",
+     5
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.196,
+     "hand_l",
+     10
+    ],
+    "charspace_m": [
+     0.159,
+     "hand_l",
+     10
+    ],
+    "rot_deg": [
+     25.8,
+     "hand_l",
+     10
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.196,
+     "foot_l",
+     14
+    ],
+    "charspace_m": [
+     0.176,
+     "foot_l",
+     14
+    ],
+    "rot_deg": [
+     72.2,
+     "foot_r",
+     35
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 20,
+   "rot_35deg": 9
+  },
+  "pelvis_z_range_m": [
+   0.8,
+   0.946
+  ],
+  "contact_drift_cm": [
+   [
+    "hand_l",
+    12,
+    19,
+    1.83
+   ],
+   [
+    "hand_r",
+    12,
+    19,
+    1.44
+   ],
+   [
+    "ball_l",
+    4,
+    9,
+    0.04
+   ],
+   [
+    "ball_l",
+    23,
+    36,
+    3.16
+   ],
+   [
+    "ball_l",
+    41,
+    44,
+    0.02
+   ],
+   [
+    "ball_r",
+    10,
+    13,
+    1.55
+   ],
+   [
+    "ball_r",
+    36,
+    44,
+    0.48
+   ]
+  ]
+ },
+ "Ride_Gallop_Loop": {
+  "frames": 17,
+  "rel": [
+   [
+    0.029,
+    "lowerarm_l",
+    10
+   ],
+   [
+    0.023,
+    "lowerarm_l",
+    8
+   ],
+   [
+    0.022,
+    "lowerarm_r",
+    10
+   ],
+   [
+    0.017,
+    "lowerarm_r",
+    8
+   ],
+   [
+    0.016,
+    "clavicle_r",
+    1
+   ],
+   [
+    0.016,
+    "upperarm_r",
+    1
+   ],
+   [
+    0.016,
+    "Head",
+    1
+   ],
+   [
+    0.016,
+    "clavicle_l",
+    1
+   ]
+  ],
+  "rel_over_0.12": [],
+  "pos": [
+   [
+    0.029,
+    "lowerarm_l",
+    10
+   ],
+   [
+    0.023,
+    "lowerarm_l",
+    8
+   ],
+   [
+    0.022,
+    "lowerarm_r",
+    10
+   ],
+   [
+    0.017,
+    "lowerarm_r",
+    8
+   ],
+   [
+    0.016,
+    "clavicle_r",
+    1
+   ],
+   [
+    0.016,
+    "upperarm_r",
+    1
+   ],
+   [
+    0.016,
+    "Head",
+    1
+   ],
+   [
+    0.016,
+    "clavicle_l",
+    1
+   ]
+  ],
+  "rot": [
+   [
+    12.2,
+    "lowerarm_l",
+    10
+   ],
+   [
+    11.2,
+    "lowerarm_l",
+    8
+   ],
+   [
+    9.2,
+    "lowerarm_r",
+    10
+   ],
+   [
+    7.7,
+    "lowerarm_r",
+    8
+   ],
+   [
+    7.6,
+    "upperarm_l",
+    10
+   ],
+   [
+    6.9,
+    "hand_l",
+    8
+   ],
+   [
+    6.1,
+    "upperarm_r",
+    10
+   ],
+   [
+    5.5,
+    "hand_r",
+    8
+   ]
+  ],
+  "pos_over_0.12": [],
+  "rot_over_35": [],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.012,
+     "calf_l",
+     5
+    ],
+    "charspace_m": [
+     0.012,
+     "calf_l",
+     5
+    ],
+    "rot_deg": [
+     4.0,
+     "calf_r",
+     8
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.029,
+     "lowerarm_l",
+     10
+    ],
+    "charspace_m": [
+     0.029,
+     "lowerarm_l",
+     10
+    ],
+    "rot_deg": [
+     12.2,
+     "lowerarm_l",
+     10
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.016,
+     "thigh_r",
+     16
+    ],
+    "charspace_m": [
+     0.016,
+     "thigh_r",
+     16
+    ],
+    "rot_deg": [
+     3.3,
+     "thigh_l",
+     12
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.016,
+     "upperarm_r",
+     1
+    ],
+    "charspace_m": [
+     0.016,
+     "upperarm_r",
+     1
+    ],
+    "rot_deg": [
+     7.6,
+     "upperarm_l",
+     10
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.016,
+     "Head",
+     1
+    ],
+    "charspace_m": [
+     0.016,
+     "Head",
+     1
+    ],
+    "rot_deg": [
+     1.5,
+     "Head",
+     5
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.014,
+     "hand_r",
+     3
+    ],
+    "charspace_m": [
+     0.014,
+     "hand_r",
+     3
+    ],
+    "rot_deg": [
+     6.9,
+     "hand_l",
+     8
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.001,
+     "foot_l",
+     8
+    ],
+    "charspace_m": [
+     0.001,
+     "foot_l",
+     8
+    ],
+    "rot_deg": [
+     2.3,
+     "foot_l",
+     6
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 0,
+   "rot_35deg": 0
+  },
+  "pelvis_z_range_m": [
+   1.293,
+   1.352
+  ],
+  "loop_gap_cm": 0.0,
+  "loop_gap_deg": 0.19
+ },
+ "Ride_Idle_Loop": {
+  "frames": 61,
+  "rel": [
+   [
+    0.015,
+    "lowerarm_r",
+    55
+   ],
+   [
+    0.015,
+    "lowerarm_r",
+    44
+   ],
+   [
+    0.014,
+    "lowerarm_l",
+    55
+   ],
+   [
+    0.01,
+    "lowerarm_l",
+    45
+   ],
+   [
+    0.01,
+    "lowerarm_l",
+    44
+   ],
+   [
+    0.008,
+    "lowerarm_r",
+    43
+   ],
+   [
+    0.008,
+    "lowerarm_l",
+    56
+   ],
+   [
+    0.007,
+    "lowerarm_r",
+    56
+   ]
+  ],
+  "rel_over_0.12": [],
+  "pos": [
+   [
+    0.015,
+    "lowerarm_r",
+    55
+   ],
+   [
+    0.015,
+    "lowerarm_r",
+    44
+   ],
+   [
+    0.014,
+    "lowerarm_l",
+    55
+   ],
+   [
+    0.01,
+    "lowerarm_l",
+    45
+   ],
+   [
+    0.01,
+    "lowerarm_l",
+    44
+   ],
+   [
+    0.008,
+    "lowerarm_r",
+    43
+   ],
+   [
+    0.008,
+    "lowerarm_l",
+    56
+   ],
+   [
+    0.007,
+    "lowerarm_r",
+    56
+   ]
+  ],
+  "rot": [
+   [
+    6.7,
+    "lowerarm_r",
+    55
+   ],
+   [
+    6.6,
+    "lowerarm_r",
+    44
+   ],
+   [
+    5.9,
+    "lowerarm_l",
+    55
+   ],
+   [
+    4.4,
+    "lowerarm_l",
+    44
+   ],
+   [
+    4.1,
+    "lowerarm_l",
+    45
+   ],
+   [
+    3.5,
+    "lowerarm_r",
+    43
+   ],
+   [
+    3.5,
+    "lowerarm_l",
+    56
+   ],
+   [
+    3.4,
+    "lowerarm_r",
+    56
+   ]
+  ],
+  "pos_over_0.12": [],
+  "rot_over_35": [],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.0,
+     "calf_r",
+     21
+    ],
+    "charspace_m": [
+     0.0,
+     "calf_r",
+     21
+    ],
+    "rot_deg": [
+     0.5,
+     "calf_r",
+     16
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.015,
+     "lowerarm_r",
+     55
+    ],
+    "charspace_m": [
+     0.015,
+     "lowerarm_r",
+     55
+    ],
+    "rot_deg": [
+     6.7,
+     "lowerarm_r",
+     55
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.0,
+     "thigh_r",
+     4
+    ],
+    "charspace_m": [
+     0.0,
+     "thigh_r",
+     4
+    ],
+    "rot_deg": [
+     0.5,
+     "thigh_r",
+     44
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.001,
+     "upperarm_r",
+     56
+    ],
+    "charspace_m": [
+     0.001,
+     "upperarm_r",
+     56
+    ],
+    "rot_deg": [
+     3.3,
+     "upperarm_r",
+     55
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.002,
+     "Head",
+     56
+    ],
+    "charspace_m": [
+     0.002,
+     "Head",
+     56
+    ],
+    "rot_deg": [
+     3.1,
+     "Head",
+     31
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.002,
+     "hand_r",
+     8
+    ],
+    "charspace_m": [
+     0.002,
+     "hand_r",
+     8
+    ],
+    "rot_deg": [
+     3.3,
+     "hand_r",
+     55
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.001,
+     "foot_r",
+     49
+    ],
+    "charspace_m": [
+     0.001,
+     "foot_r",
+     49
+    ],
+    "rot_deg": [
+     0.3,
+     "foot_l",
+     31
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 0,
+   "rot_35deg": 0
+  },
+  "pelvis_z_range_m": [
+   1.203,
+   1.207
+  ],
+  "loop_gap_cm": 0.0,
+  "loop_gap_deg": 0.09
+ },
+ "Ride_Lean_L_Loop": {
+  "frames": 31,
+  "rel": [
+   [
+    0.008,
+    "Head",
+    13
+   ],
+   [
+    0.008,
+    "Head",
+    14
+   ],
+   [
+    0.008,
+    "upperarm_l",
+    13
+   ],
+   [
+    0.008,
+    "neck_01",
+    13
+   ],
+   [
+    0.008,
+    "upperarm_r",
+    13
+   ],
+   [
+    0.008,
+    "neck_01",
+    14
+   ],
+   [
+    0.008,
+    "upperarm_l",
+    14
+   ],
+   [
+    0.008,
+    "Head",
+    15
+   ]
+  ],
+  "rel_over_0.12": [],
+  "pos": [
+   [
+    0.008,
+    "Head",
+    13
+   ],
+   [
+    0.008,
+    "Head",
+    14
+   ],
+   [
+    0.008,
+    "upperarm_l",
+    13
+   ],
+   [
+    0.008,
+    "neck_01",
+    13
+   ],
+   [
+    0.008,
+    "upperarm_r",
+    13
+   ],
+   [
+    0.008,
+    "neck_01",
+    14
+   ],
+   [
+    0.008,
+    "upperarm_l",
+    14
+   ],
+   [
+    0.008,
+    "Head",
+    15
+   ]
+  ],
+  "rot": [
+   [
+    4.1,
+    "lowerarm_l",
+    21
+   ],
+   [
+    3.2,
+    "lowerarm_l",
+    20
+   ],
+   [
+    3.2,
+    "lowerarm_l",
+    22
+   ],
+   [
+    2.8,
+    "hand_r",
+    14
+   ],
+   [
+    2.8,
+    "hand_r",
+    13
+   ],
+   [
+    2.5,
+    "hand_r",
+    12
+   ],
+   [
+    2.5,
+    "hand_r",
+    15
+   ],
+   [
+    2.2,
+    "lowerarm_l",
+    12
+   ]
+  ],
+  "pos_over_0.12": [],
+  "rot_over_35": [],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.004,
+     "calf_l",
+     13
+    ],
+    "charspace_m": [
+     0.004,
+     "calf_l",
+     13
+    ],
+    "rot_deg": [
+     1.6,
+     "calf_l",
+     13
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.005,
+     "lowerarm_r",
+     14
+    ],
+    "charspace_m": [
+     0.005,
+     "lowerarm_r",
+     14
+    ],
+    "rot_deg": [
+     4.1,
+     "lowerarm_l",
+     21
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.005,
+     "thigh_l",
+     6
+    ],
+    "charspace_m": [
+     0.005,
+     "thigh_l",
+     6
+    ],
+    "rot_deg": [
+     2.0,
+     "thigh_l",
+     29
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.008,
+     "upperarm_l",
+     13
+    ],
+    "charspace_m": [
+     0.008,
+     "upperarm_l",
+     13
+    ],
+    "rot_deg": [
+     1.7,
+     "upperarm_r",
+     15
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.008,
+     "Head",
+     13
+    ],
+    "charspace_m": [
+     0.008,
+     "Head",
+     13
+    ],
+    "rot_deg": [
+     1.7,
+     "pelvis",
+     29
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.006,
+     "hand_l",
+     5
+    ],
+    "charspace_m": [
+     0.006,
+     "hand_l",
+     5
+    ],
+    "rot_deg": [
+     2.8,
+     "hand_r",
+     14
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.001,
+     "foot_r",
+     15
+    ],
+    "charspace_m": [
+     0.001,
+     "foot_r",
+     15
+    ],
+    "rot_deg": [
+     1.6,
+     "foot_l",
+     15
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 0,
+   "rot_35deg": 0
+  },
+  "pelvis_z_range_m": [
+   1.198,
+   1.212
+  ],
+  "loop_gap_cm": 0.0,
+  "loop_gap_deg": 0.32
+ },
+ "Ride_Lean_R_Loop": {
+  "frames": 31,
+  "rel": [
+   [
+    0.008,
+    "Head",
+    29
+   ],
+   [
+    0.008,
+    "Head",
+    30
+   ],
+   [
+    0.008,
+    "upperarm_l",
+    29
+   ],
+   [
+    0.008,
+    "upperarm_l",
+    30
+   ],
+   [
+    0.008,
+    "neck_01",
+    29
+   ],
+   [
+    0.008,
+    "upperarm_r",
+    29
+   ],
+   [
+    0.008,
+    "Head",
+    28
+   ],
+   [
+    0.008,
+    "neck_01",
+    30
+   ]
+  ],
+  "rel_over_0.12": [],
+  "pos": [
+   [
+    0.008,
+    "Head",
+    29
+   ],
+   [
+    0.008,
+    "Head",
+    30
+   ],
+   [
+    0.008,
+    "upperarm_l",
+    29
+   ],
+   [
+    0.008,
+    "upperarm_l",
+    30
+   ],
+   [
+    0.008,
+    "neck_01",
+    29
+   ],
+   [
+    0.008,
+    "upperarm_r",
+    29
+   ],
+   [
+    0.008,
+    "Head",
+    28
+   ],
+   [
+    0.008,
+    "neck_01",
+    30
+   ]
+  ],
+  "rot": [
+   [
+    3.8,
+    "lowerarm_r",
+    29
+   ],
+   [
+    3.4,
+    "lowerarm_r",
+    20
+   ],
+   [
+    3.0,
+    "lowerarm_r",
+    30
+   ],
+   [
+    3.0,
+    "lowerarm_r",
+    28
+   ],
+   [
+    2.6,
+    "lowerarm_r",
+    19
+   ],
+   [
+    2.6,
+    "lowerarm_r",
+    21
+   ],
+   [
+    2.0,
+    "thigh_r",
+    14
+   ],
+   [
+    2.0,
+    "thigh_r",
+    15
+   ]
+  ],
+  "pos_over_0.12": [],
+  "rot_over_35": [],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.004,
+     "calf_r",
+     28
+    ],
+    "charspace_m": [
+     0.004,
+     "calf_r",
+     28
+    ],
+    "rot_deg": [
+     1.7,
+     "calf_l",
+     14
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.005,
+     "lowerarm_l",
+     14
+    ],
+    "charspace_m": [
+     0.005,
+     "lowerarm_l",
+     14
+    ],
+    "rot_deg": [
+     3.8,
+     "lowerarm_r",
+     29
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.005,
+     "thigh_r",
+     21
+    ],
+    "charspace_m": [
+     0.005,
+     "thigh_r",
+     21
+    ],
+    "rot_deg": [
+     2.0,
+     "thigh_r",
+     14
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.008,
+     "upperarm_l",
+     29
+    ],
+    "charspace_m": [
+     0.008,
+     "upperarm_l",
+     29
+    ],
+    "rot_deg": [
+     1.8,
+     "upperarm_l",
+     15
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.008,
+     "Head",
+     29
+    ],
+    "charspace_m": [
+     0.008,
+     "Head",
+     29
+    ],
+    "rot_deg": [
+     1.7,
+     "pelvis",
+     30
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.006,
+     "hand_l",
+     5
+    ],
+    "charspace_m": [
+     0.006,
+     "hand_l",
+     5
+    ],
+    "rot_deg": [
+     1.9,
+     "hand_l",
+     13
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.001,
+     "foot_r",
+     22
+    ],
+    "charspace_m": [
+     0.001,
+     "foot_r",
+     22
+    ],
+    "rot_deg": [
+     1.5,
+     "foot_l",
+     14
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 0,
+   "rot_35deg": 0
+  },
+  "pelvis_z_range_m": [
+   1.198,
+   1.212
+  ],
+  "loop_gap_cm": 0.0,
+  "loop_gap_deg": 0.25
+ },
+ "Ride_Trot_Loop": {
+  "frames": 21,
+  "rel": [
+   [
+    0.055,
+    "lowerarm_l",
+    8
+   ],
+   [
+    0.055,
+    "lowerarm_r",
+    8
+   ],
+   [
+    0.048,
+    "lowerarm_r",
+    9
+   ],
+   [
+    0.048,
+    "lowerarm_l",
+    9
+   ],
+   [
+    0.048,
+    "lowerarm_r",
+    7
+   ],
+   [
+    0.046,
+    "lowerarm_l",
+    7
+   ],
+   [
+    0.045,
+    "upperarm_r",
+    2
+   ],
+   [
+    0.045,
+    "Head",
+    2
+   ]
+  ],
+  "rel_over_0.12": [],
+  "pos": [
+   [
+    0.055,
+    "lowerarm_l",
+    8
+   ],
+   [
+    0.055,
+    "lowerarm_r",
+    8
+   ],
+   [
+    0.048,
+    "lowerarm_r",
+    9
+   ],
+   [
+    0.048,
+    "lowerarm_l",
+    9
+   ],
+   [
+    0.048,
+    "lowerarm_r",
+    7
+   ],
+   [
+    0.046,
+    "lowerarm_l",
+    7
+   ],
+   [
+    0.045,
+    "upperarm_r",
+    2
+   ],
+   [
+    0.045,
+    "Head",
+    2
+   ]
+  ],
+  "rot": [
+   [
+    18.6,
+    "lowerarm_r",
+    8
+   ],
+   [
+    18.6,
+    "lowerarm_r",
+    7
+   ],
+   [
+    13.7,
+    "lowerarm_l",
+    8
+   ],
+   [
+    13.5,
+    "lowerarm_r",
+    5
+   ],
+   [
+    12.9,
+    "lowerarm_l",
+    4
+   ],
+   [
+    12.6,
+    "lowerarm_l",
+    5
+   ],
+   [
+    12.5,
+    "lowerarm_r",
+    4
+   ],
+   [
+    12.4,
+    "lowerarm_l",
+    7
+   ]
+  ],
+  "pos_over_0.12": [],
+  "rot_over_35": [],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.02,
+     "calf_r",
+     3
+    ],
+    "charspace_m": [
+     0.02,
+     "calf_r",
+     3
+    ],
+    "rot_deg": [
+     10.5,
+     "calf_r",
+     9
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.055,
+     "lowerarm_l",
+     8
+    ],
+    "charspace_m": [
+     0.055,
+     "lowerarm_l",
+     8
+    ],
+    "rot_deg": [
+     18.6,
+     "lowerarm_r",
+     8
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.039,
+     "thigh_r",
+     9
+    ],
+    "charspace_m": [
+     0.039,
+     "thigh_r",
+     9
+    ],
+    "rot_deg": [
+     5.2,
+     "thigh_r",
+     9
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.045,
+     "upperarm_r",
+     2
+    ],
+    "charspace_m": [
+     0.045,
+     "upperarm_r",
+     2
+    ],
+    "rot_deg": [
+     6.5,
+     "upperarm_r",
+     5
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.045,
+     "Head",
+     2
+    ],
+    "charspace_m": [
+     0.045,
+     "Head",
+     2
+    ],
+    "rot_deg": [
+     1.6,
+     "neck_01",
+     2
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.02,
+     "hand_r",
+     2
+    ],
+    "charspace_m": [
+     0.02,
+     "hand_r",
+     2
+    ],
+    "rot_deg": [
+     8.8,
+     "hand_l",
+     8
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.001,
+     "foot_r",
+     14
+    ],
+    "charspace_m": [
+     0.001,
+     "foot_r",
+     14
+    ],
+    "rot_deg": [
+     2.7,
+     "foot_r",
+     3
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 0,
+   "rot_35deg": 0
+  },
+  "pelvis_z_range_m": [
+   1.198,
+   1.328
+  ],
+  "loop_gap_cm": 0.03,
+  "loop_gap_deg": 0.2
+ },
+ "Ride_Walk_Loop": {
+  "frames": 37,
+  "rel": [
+   [
+    0.03,
+    "lowerarm_r",
+    24
+   ],
+   [
+    0.028,
+    "lowerarm_l",
+    25
+   ],
+   [
+    0.019,
+    "lowerarm_r",
+    36
+   ],
+   [
+    0.018,
+    "lowerarm_l",
+    36
+   ],
+   [
+    0.015,
+    "lowerarm_l",
+    1
+   ],
+   [
+    0.013,
+    "lowerarm_l",
+    24
+   ],
+   [
+    0.012,
+    "lowerarm_r",
+    23
+   ],
+   [
+    0.01,
+    "lowerarm_l",
+    23
+   ]
+  ],
+  "rel_over_0.12": [],
+  "pos": [
+   [
+    0.03,
+    "lowerarm_r",
+    24
+   ],
+   [
+    0.028,
+    "lowerarm_l",
+    25
+   ],
+   [
+    0.019,
+    "lowerarm_r",
+    36
+   ],
+   [
+    0.018,
+    "lowerarm_l",
+    36
+   ],
+   [
+    0.015,
+    "lowerarm_l",
+    1
+   ],
+   [
+    0.013,
+    "lowerarm_l",
+    24
+   ],
+   [
+    0.012,
+    "lowerarm_r",
+    23
+   ],
+   [
+    0.01,
+    "lowerarm_l",
+    23
+   ]
+  ],
+  "rot": [
+   [
+    12.9,
+    "lowerarm_r",
+    24
+   ],
+   [
+    11.8,
+    "lowerarm_l",
+    25
+   ],
+   [
+    8.7,
+    "lowerarm_r",
+    36
+   ],
+   [
+    7.5,
+    "lowerarm_l",
+    36
+   ],
+   [
+    6.5,
+    "upperarm_r",
+    24
+   ],
+   [
+    6.2,
+    "hand_r",
+    24
+   ],
+   [
+    6.0,
+    "lowerarm_l",
+    1
+   ],
+   [
+    5.9,
+    "upperarm_l",
+    25
+   ]
+  ],
+  "pos_over_0.12": [],
+  "rot_over_35": [],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.003,
+     "calf_l",
+     19
+    ],
+    "charspace_m": [
+     0.003,
+     "calf_l",
+     19
+    ],
+    "rot_deg": [
+     1.3,
+     "calf_r",
+     34
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.03,
+     "lowerarm_r",
+     24
+    ],
+    "charspace_m": [
+     0.03,
+     "lowerarm_r",
+     24
+    ],
+    "rot_deg": [
+     12.9,
+     "lowerarm_r",
+     24
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.004,
+     "thigh_l",
+     7
+    ],
+    "charspace_m": [
+     0.004,
+     "thigh_l",
+     7
+    ],
+    "rot_deg": [
+     1.7,
+     "thigh_l",
+     9
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.005,
+     "upperarm_r",
+     35
+    ],
+    "charspace_m": [
+     0.005,
+     "upperarm_r",
+     35
+    ],
+    "rot_deg": [
+     6.5,
+     "upperarm_r",
+     24
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.005,
+     "Head",
+     35
+    ],
+    "charspace_m": [
+     0.005,
+     "Head",
+     35
+    ],
+    "rot_deg": [
+     1.3,
+     "pelvis",
+     27
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.006,
+     "hand_l",
+     6
+    ],
+    "charspace_m": [
+     0.006,
+     "hand_l",
+     6
+    ],
+    "rot_deg": [
+     6.2,
+     "hand_r",
+     24
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.001,
+     "foot_l",
+     2
+    ],
+    "charspace_m": [
+     0.001,
+     "foot_l",
+     2
+    ],
+    "rot_deg": [
+     1.5,
+     "foot_r",
+     26
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 0,
+   "rot_35deg": 0
+  },
+  "pelvis_z_range_m": [
+   1.198,
+   1.212
+  ],
+  "loop_gap_cm": 0.01,
+  "loop_gap_deg": 0.16
+ },
+ "Vault_Low": {
+  "frames": 61,
+  "rel": [
+   [
+    0.293,
+    "foot_l",
+    33
+   ],
+   [
+    0.289,
+    "ball_l",
+    33
+   ],
+   [
+    0.287,
+    "ball_leaf_l",
+    33
+   ],
+   [
+    0.273,
+    "foot_r",
+    33
+   ],
+   [
+    0.272,
+    "calf_r",
+    32
+   ],
+   [
+    0.27,
+    "ball_r",
+    33
+   ],
+   [
+    0.269,
+    "calf_l",
+    33
+   ],
+   [
+    0.268,
+    "ball_leaf_r",
+    33
+   ]
+  ],
+  "rel_over_0.12": [
+   [
+    "calf_r",
+    4
+   ],
+   [
+    "lowerarm_r",
+    6
+   ],
+   [
+    "calf_l",
+    15
+   ],
+   [
+    "hand_l",
+    16
+   ],
+   [
+    "lowerarm_l",
+    16
+   ],
+   [
+    "hand_r",
+    16
+   ],
+   [
+    "lowerarm_r",
+    16
+   ],
+   [
+    "ball_leaf_l",
+    17
+   ],
+   [
+    "lowerarm_l",
+    17
+   ],
+   [
+    "hand_r",
+    17
+   ],
+   [
+    "hand_l",
+    17
+   ],
+   [
+    "ball_l",
+    17
+   ],
+   [
+    "foot_l",
+    17
+   ],
+   [
+    "ball_leaf_l",
+    18
+   ],
+   [
+    "foot_l",
+    18
+   ],
+   [
+    "ball_l",
+    18
+   ],
+   [
+    "foot_l",
+    19
+   ],
+   [
+    "ball_leaf_l",
+    19
+   ],
+   [
+    "ball_r",
+    19
+   ],
+   [
+    "calf_l",
+    19
+   ]
+  ],
+  "pos": [
+   [
+    0.338,
+    "calf_r",
+    32
+   ],
+   [
+    0.327,
+    "foot_r",
+    33
+   ],
+   [
+    0.327,
+    "foot_l",
+    33
+   ],
+   [
+    0.326,
+    "ball_r",
+    33
+   ],
+   [
+    0.324,
+    "ball_l",
+    33
+   ],
+   [
+    0.324,
+    "ball_leaf_r",
+    33
+   ],
+   [
+    0.322,
+    "ball_leaf_l",
+    33
+   ],
+   [
+    0.318,
+    "calf_r",
+    33
+   ]
+  ],
+  "rot": [
+   [
+    57.4,
+    "lowerarm_l",
+    17
+   ],
+   [
+    55.1,
+    "calf_l",
+    33
+   ],
+   [
+    54.4,
+    "calf_r",
+    4
+   ],
+   [
+    49.7,
+    "upperarm_l",
+    16
+   ],
+   [
+    47.6,
+    "hand_r",
+    32
+   ],
+   [
+    46.0,
+    "hand_r",
+    29
+   ],
+   [
+    45.3,
+    "upperarm_r",
+    32
+   ],
+   [
+    44.5,
+    "lowerarm_r",
+    27
+   ]
+  ],
+  "pos_over_0.12": [
+   [
+    "foot_r",
+    4
+   ],
+   [
+    "calf_r",
+    4
+   ],
+   [
+    "calf_r",
+    5
+   ],
+   [
+    "ball_leaf_r",
+    6
+   ],
+   [
+    "lowerarm_r",
+    6
+   ],
+   [
+    "hand_l",
+    14
+   ],
+   [
+    "hand_r",
+    14
+   ],
+   [
+    "calf_l",
+    15
+   ],
+   [
+    "hand_l",
+    15
+   ],
+   [
+    "hand_r",
+    15
+   ],
+   [
+    "hand_l",
+    16
+   ],
+   [
+    "lowerarm_l",
+    16
+   ],
+   [
+    "hand_r",
+    16
+   ],
+   [
+    "lowerarm_r",
+    16
+   ],
+   [
+    "ball_leaf_l",
+    17
+   ],
+   [
+    "lowerarm_l",
+    17
+   ],
+   [
+    "hand_r",
+    17
+   ],
+   [
+    "hand_l",
+    17
+   ],
+   [
+    "lowerarm_r",
+    17
+   ],
+   [
+    "ball_l",
+    17
+   ]
+  ],
+  "rot_over_35": [
+   [
+    "calf_r",
+    4
+   ],
+   [
+    "hand_r",
+    6
+   ],
+   [
+    "upperarm_l",
+    16
+   ],
+   [
+    "upperarm_l",
+    17
+   ],
+   [
+    "lowerarm_l",
+    17
+   ],
+   [
+    "lowerarm_r",
+    17
+   ],
+   [
+    "thigh_r",
+    21
+   ],
+   [
+    "lowerarm_r",
+    27
+   ],
+   [
+    "lowerarm_r",
+    28
+   ],
+   [
+    "thigh_l",
+    29
+   ],
+   [
+    "upperarm_r",
+    29
+   ],
+   [
+    "hand_r",
+    29
+   ],
+   [
+    "foot_l",
+    29
+   ],
+   [
+    "foot_r",
+    30
+   ],
+   [
+    "lowerarm_r",
+    30
+   ],
+   [
+    "upperarm_r",
+    32
+   ],
+   [
+    "hand_r",
+    32
+   ],
+   [
+    "calf_l",
+    33
+   ],
+   [
+    "hand_r",
+    36
+   ]
+  ],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.338,
+     "calf_r",
+     32
+    ],
+    "charspace_m": [
+     0.272,
+     "calf_r",
+     32
+    ],
+    "rot_deg": [
+     55.1,
+     "calf_l",
+     33
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.281,
+     "lowerarm_r",
+     32
+    ],
+    "charspace_m": [
+     0.218,
+     "lowerarm_l",
+     16
+    ],
+    "rot_deg": [
+     57.4,
+     "lowerarm_l",
+     17
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.201,
+     "thigh_l",
+     32
+    ],
+    "charspace_m": [
+     0.099,
+     "thigh_l",
+     33
+    ],
+    "rot_deg": [
+     36.5,
+     "thigh_r",
+     21
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.228,
+     "upperarm_l",
+     32
+    ],
+    "charspace_m": [
+     0.128,
+     "upperarm_l",
+     33
+    ],
+    "rot_deg": [
+     49.7,
+     "upperarm_l",
+     16
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.234,
+     "Head",
+     32
+    ],
+    "charspace_m": [
+     0.136,
+     "Head",
+     35
+    ],
+    "rot_deg": [
+     4.9,
+     "pelvis",
+     23
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.25,
+     "hand_l",
+     16
+    ],
+    "charspace_m": [
+     0.238,
+     "hand_l",
+     16
+    ],
+    "rot_deg": [
+     47.6,
+     "hand_r",
+     32
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.327,
+     "foot_r",
+     33
+    ],
+    "charspace_m": [
+     0.293,
+     "foot_l",
+     33
+    ],
+    "rot_deg": [
+     38.7,
+     "foot_r",
+     30
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 21,
+   "rot_35deg": 12
+  },
+  "pelvis_z_range_m": [
+   0.72,
+   1.146
+  ],
+  "contact_drift_cm": [
+   [
+    "hand_l",
+    17,
+    18,
+    1.16
+   ],
+   [
+    "hand_r",
+    17,
+    26,
+    0.0
+   ],
+   [
+    "ball_l",
+    6,
+    14,
+    0.87
+   ],
+   [
+    "ball_l",
+    33,
+    40,
+    0.03
+   ],
+   [
+    "ball_l",
+    47,
+    60,
+    0.05
+   ],
+   [
+    "ball_r",
+    0,
+    3,
+    0.03
+   ],
+   [
+    "ball_r",
+    34,
+    36,
+    0.0
+   ],
+   [
+    "ball_r",
+    42,
+    60,
+    1.42
+   ]
+  ]
+ },
+ "Vault_Low_B": {
+  "frames": 61,
+  "rel": [
+   [
+    0.293,
+    "foot_r",
+    33
+   ],
+   [
+    0.289,
+    "ball_r",
+    33
+   ],
+   [
+    0.287,
+    "ball_leaf_r",
+    33
+   ],
+   [
+    0.273,
+    "foot_l",
+    33
+   ],
+   [
+    0.272,
+    "calf_l",
+    32
+   ],
+   [
+    0.27,
+    "ball_l",
+    33
+   ],
+   [
+    0.268,
+    "ball_leaf_l",
+    33
+   ],
+   [
+    0.266,
+    "calf_l",
+    33
+   ]
+  ],
+  "rel_over_0.12": [
+   [
+    "calf_l",
+    4
+   ],
+   [
+    "lowerarm_l",
+    6
+   ],
+   [
+    "calf_r",
+    15
+   ],
+   [
+    "hand_l",
+    16
+   ],
+   [
+    "lowerarm_l",
+    16
+   ],
+   [
+    "hand_r",
+    16
+   ],
+   [
+    "lowerarm_r",
+    16
+   ],
+   [
+    "ball_leaf_r",
+    17
+   ],
+   [
+    "hand_r",
+    17
+   ],
+   [
+    "hand_l",
+    17
+   ],
+   [
+    "lowerarm_r",
+    17
+   ],
+   [
+    "foot_r",
+    17
+   ],
+   [
+    "ball_r",
+    17
+   ],
+   [
+    "foot_r",
+    18
+   ],
+   [
+    "ball_r",
+    18
+   ],
+   [
+    "ball_leaf_r",
+    18
+   ],
+   [
+    "foot_l",
+    19
+   ],
+   [
+    "ball_leaf_l",
+    19
+   ],
+   [
+    "ball_r",
+    19
+   ],
+   [
+    "calf_r",
+    19
+   ]
+  ],
+  "pos": [
+   [
+    0.338,
+    "calf_l",
+    32
+   ],
+   [
+    0.327,
+    "foot_l",
+    33
+   ],
+   [
+    0.327,
+    "foot_r",
+    33
+   ],
+   [
+    0.326,
+    "ball_l",
+    33
+   ],
+   [
+    0.324,
+    "ball_r",
+    33
+   ],
+   [
+    0.324,
+    "ball_leaf_l",
+    33
+   ],
+   [
+    0.322,
+    "ball_leaf_r",
+    33
+   ],
+   [
+    0.318,
+    "calf_l",
+    33
+   ]
+  ],
+  "rot": [
+   [
+    57.4,
+    "lowerarm_r",
+    17
+   ],
+   [
+    55.1,
+    "calf_r",
+    33
+   ],
+   [
+    54.4,
+    "calf_l",
+    4
+   ],
+   [
+    49.8,
+    "upperarm_r",
+    16
+   ],
+   [
+    47.6,
+    "hand_l",
+    32
+   ],
+   [
+    46.4,
+    "hand_l",
+    29
+   ],
+   [
+    45.3,
+    "upperarm_l",
+    32
+   ],
+   [
+    44.5,
+    "lowerarm_l",
+    27
+   ]
+  ],
+  "pos_over_0.12": [
+   [
+    "calf_l",
+    4
+   ],
+   [
+    "foot_l",
+    4
+   ],
+   [
+    "calf_l",
+    5
+   ],
+   [
+    "ball_leaf_l",
+    6
+   ],
+   [
+    "lowerarm_l",
+    6
+   ],
+   [
+    "hand_l",
+    14
+   ],
+   [
+    "hand_r",
+    14
+   ],
+   [
+    "calf_r",
+    15
+   ],
+   [
+    "hand_l",
+    15
+   ],
+   [
+    "hand_r",
+    15
+   ],
+   [
+    "hand_l",
+    16
+   ],
+   [
+    "lowerarm_l",
+    16
+   ],
+   [
+    "hand_r",
+    16
+   ],
+   [
+    "lowerarm_r",
+    16
+   ],
+   [
+    "lowerarm_l",
+    17
+   ],
+   [
+    "ball_leaf_r",
+    17
+   ],
+   [
+    "hand_r",
+    17
+   ],
+   [
+    "lowerarm_r",
+    17
+   ],
+   [
+    "hand_l",
+    17
+   ],
+   [
+    "foot_r",
+    17
+   ]
+  ],
+  "rot_over_35": [
+   [
+    "calf_l",
+    4
+   ],
+   [
+    "hand_l",
+    6
+   ],
+   [
+    "upperarm_r",
+    16
+   ],
+   [
+    "upperarm_r",
+    17
+   ],
+   [
+    "lowerarm_r",
+    17
+   ],
+   [
+    "lowerarm_l",
+    17
+   ],
+   [
+    "thigh_l",
+    21
+   ],
+   [
+    "lowerarm_l",
+    27
+   ],
+   [
+    "lowerarm_l",
+    28
+   ],
+   [
+    "hand_l",
+    29
+   ],
+   [
+    "upperarm_l",
+    29
+   ],
+   [
+    "foot_l",
+    30
+   ],
+   [
+    "lowerarm_l",
+    30
+   ],
+   [
+    "hand_l",
+    32
+   ],
+   [
+    "upperarm_l",
+    32
+   ],
+   [
+    "calf_r",
+    33
+   ],
+   [
+    "hand_l",
+    36
+   ]
+  ],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.338,
+     "calf_l",
+     32
+    ],
+    "charspace_m": [
+     0.272,
+     "calf_l",
+     32
+    ],
+    "rot_deg": [
+     55.1,
+     "calf_r",
+     33
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.281,
+     "lowerarm_l",
+     32
+    ],
+    "charspace_m": [
+     0.218,
+     "lowerarm_r",
+     16
+    ],
+    "rot_deg": [
+     57.4,
+     "lowerarm_r",
+     17
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.201,
+     "thigh_r",
+     32
+    ],
+    "charspace_m": [
+     0.099,
+     "thigh_r",
+     33
+    ],
+    "rot_deg": [
+     36.5,
+     "thigh_l",
+     21
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.228,
+     "upperarm_r",
+     32
+    ],
+    "charspace_m": [
+     0.128,
+     "upperarm_r",
+     33
+    ],
+    "rot_deg": [
+     49.8,
+     "upperarm_r",
+     16
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.234,
+     "Head",
+     32
+    ],
+    "charspace_m": [
+     0.136,
+     "Head",
+     35
+    ],
+    "rot_deg": [
+     4.9,
+     "pelvis",
+     23
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.25,
+     "hand_r",
+     16
+    ],
+    "charspace_m": [
+     0.238,
+     "hand_r",
+     16
+    ],
+    "rot_deg": [
+     47.6,
+     "hand_l",
+     32
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.327,
+     "foot_l",
+     33
+    ],
+    "charspace_m": [
+     0.293,
+     "foot_r",
+     33
+    ],
+    "rot_deg": [
+     39.1,
+     "foot_l",
+     30
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 21,
+   "rot_35deg": 12
+  },
+  "pelvis_z_range_m": [
+   0.72,
+   1.146
+  ],
+  "contact_drift_cm": [
+   [
+    "hand_r",
+    17,
+    18,
+    1.16
+   ],
+   [
+    "hand_l",
+    17,
+    26,
+    0.0
+   ],
+   [
+    "ball_r",
+    6,
+    14,
+    0.87
+   ],
+   [
+    "ball_r",
+    33,
+    40,
+    0.03
+   ],
+   [
+    "ball_r",
+    47,
+    60,
+    0.05
+   ],
+   [
+    "ball_l",
+    0,
+    3,
+    0.03
+   ],
+   [
+    "ball_l",
+    34,
+    36,
+    0.0
+   ],
+   [
+    "ball_l",
+    42,
+    60,
+    1.42
+   ]
+  ]
+ },
+ "Wall_Climb_Up_Loop": {
+  "frames": 43,
+  "rel": [
+   [
+    0.081,
+    "calf_l",
+    1
+   ],
+   [
+    0.074,
+    "calf_r",
+    22
+   ],
+   [
+    0.065,
+    "calf_l",
+    42
+   ],
+   [
+    0.058,
+    "calf_r",
+    23
+   ],
+   [
+    0.05,
+    "calf_r",
+    21
+   ],
+   [
+    0.05,
+    "calf_l",
+    2
+   ],
+   [
+    0.048,
+    "calf_r",
+    20
+   ],
+   [
+    0.047,
+    "calf_r",
+    24
+   ]
+  ],
+  "rel_over_0.12": [],
+  "pos": [
+   [
+    0.086,
+    "calf_l",
+    1
+   ],
+   [
+    0.079,
+    "calf_r",
+    22
+   ],
+   [
+    0.064,
+    "calf_r",
+    23
+   ],
+   [
+    0.063,
+    "calf_l",
+    42
+   ],
+   [
+    0.057,
+    "calf_l",
+    2
+   ],
+   [
+    0.055,
+    "calf_r",
+    24
+   ],
+   [
+    0.052,
+    "calf_l",
+    3
+   ],
+   [
+    0.051,
+    "calf_r",
+    25
+   ]
+  ],
+  "rot": [
+   [
+    22.2,
+    "calf_l",
+    1
+   ],
+   [
+    20.5,
+    "calf_r",
+    22
+   ],
+   [
+    17.0,
+    "calf_l",
+    42
+   ],
+   [
+    15.2,
+    "calf_r",
+    23
+   ],
+   [
+    13.0,
+    "calf_r",
+    21
+   ],
+   [
+    12.9,
+    "calf_l",
+    2
+   ],
+   [
+    12.5,
+    "thigh_l",
+    1
+   ],
+   [
+    12.2,
+    "calf_r",
+    20
+   ]
+  ],
+  "pos_over_0.12": [],
+  "rot_over_35": [],
+  "groups": {
+   "knee(calf)": {
+    "world_m": [
+     0.086,
+     "calf_l",
+     1
+    ],
+    "charspace_m": [
+     0.081,
+     "calf_l",
+     1
+    ],
+    "rot_deg": [
+     22.2,
+     "calf_l",
+     1
+    ]
+   },
+   "elbow(lowerarm)": {
+    "world_m": [
+     0.031,
+     "lowerarm_r",
+     10
+    ],
+    "charspace_m": [
+     0.019,
+     "lowerarm_r",
+     10
+    ],
+    "rot_deg": [
+     7.7,
+     "lowerarm_r",
+     2
+    ]
+   },
+   "hip(thigh)": {
+    "world_m": [
+     0.016,
+     "thigh_l",
+     19
+    ],
+    "charspace_m": [
+     0.007,
+     "thigh_l",
+     19
+    ],
+    "rot_deg": [
+     12.5,
+     "thigh_l",
+     1
+    ]
+   },
+   "shoulder(upperarm)": {
+    "world_m": [
+     0.016,
+     "upperarm_r",
+     19
+    ],
+    "charspace_m": [
+     0.008,
+     "upperarm_r",
+     18
+    ],
+    "rot_deg": [
+     5.0,
+     "upperarm_r",
+     9
+    ]
+   },
+   "trunk(pelvis,spine,neck,head)": {
+    "world_m": [
+     0.016,
+     "pelvis",
+     19
+    ],
+    "charspace_m": [
+     0.007,
+     "pelvis",
+     19
+    ],
+    "rot_deg": [
+     2.2,
+     "spine_03",
+     22
+    ]
+   },
+   "hand": {
+    "world_m": [
+     0.037,
+     "hand_r",
+     10
+    ],
+    "charspace_m": [
+     0.025,
+     "hand_r",
+     10
+    ],
+    "rot_deg": [
+     4.8,
+     "hand_l",
+     20
+    ]
+   },
+   "foot": {
+    "world_m": [
+     0.047,
+     "foot_r",
+     26
+    ],
+    "charspace_m": [
+     0.043,
+     "foot_l",
+     21
+    ],
+    "rot_deg": [
+     8.4,
+     "foot_l",
+     42
+    ]
+   }
+  },
+  "n_frames_over_limit": {
+   "charspace_0.12m": 0,
+   "rot_35deg": 0
+  },
+  "pelvis_z_range_m": [
+   0.875,
+   0.895
+  ],
+  "loop_gap_cm": 0.01,
+  "loop_gap_deg": 0.16
+ }
+}

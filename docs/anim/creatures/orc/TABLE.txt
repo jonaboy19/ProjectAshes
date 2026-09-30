@@ -1,0 +1,24 @@
+ORC  (2.0 m, 24 bones, LOD0 15000 / LOD1 5000 tris, unchanged)   clip time in Godot = frame/30 (first key at 1/30 s)
+
+creatures_models.gd keys        old      new      note
+walk   (m/s)                    1.70     1.70     unchanged; max slip 3.5 cm (2.2 % of the 1.1 m stride)
+run    (m/s)                    5.20     5.84     slip at new speed max 2.5 cm (old speed: 5.1 cm)
+impact (attack, s)              1.11     0.90     frame 27 (peak hand speed 23.6 m/s)
+attack duration (last key)      2.83     2.13 s   64 frames (was 85)
+attack_charged impact           (4.43)   5.17 s   frame 155; duration 7.70 -> 6.33 s (190 frames, was 231)
+KNEEL_RANGE                     0.0-0.6  0.0-0.6  UNCHANGED (frames 1-103 of attack_charged are the original keys, max delta 0.014 cm)
+STAND_RANGE                     2.3-3.4  2.3-3.4  UNCHANGED (ends on frame 103 = 3.43 s Godot time; my authored part starts from exactly that pose)
+
+attack timeline (clip seconds):
+  0.00-0.36  weight back on the rear foot (hips -20 cm), torso arched back -24 deg and twisted -30 deg, both hands raised high (axe overhead)
+  0.42-0.73  HOLD with 3-frame shake, 1.8 cm amplitude (0.37 s hold, 0.73 s from start to strike)
+  0.73-0.85  STRIKE, 4 frames (2 above half peak speed)
+  0.85       impact: hips +18 cm fwd, -16 cm down, torso pitched 32 deg, hands at the low point (wrist 0.45 m, fists never below the floor)
+  0.85-1.02  follow-through, hold to 1.30, settle to the ready stance by 2.10 (last frame == first pose)
+Game windup 0.85 s -> playback speed 0.90/0.85 = 1.06.
+
+attack_charged: 0-3.4 s untouched (kneel + stand up). New charged chop from that standing pose: 3.4-4.3 raise (slow), 4.45-5.0 hold with growing
+  tremble (1.1 cm -> 2.9 cm), 5.0-5.12 strike (2 frames above half peak), 5.12 impact, follow-through, recover to standing by 6.3 s.
+  The old clip had ~3 s of standing around after the chop (7.7 s long). Only used as the kneel source in game.
+other clips changed: death (hips lifted up to 2.2 cm so the falling body no longer sinks into the ground, end pose unchanged), hit (in place, 1.31 m of travel removed).
+unchanged: idle, walk, run keys.

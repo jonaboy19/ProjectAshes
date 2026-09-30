@@ -66,6 +66,7 @@ static var _river_grid: Dictionary = {}           # Vector2i -> PackedInt32Array
 
 
 static func setup(seed_value: int) -> void:
+	Region1Terrain.setup()   # Region1 look hook: terrain stamps + trails as data (docs/regions/LOOK_R1.md)
 	_hills.seed = seed_value
 	_hills.frequency = 0.0022
 	_hills.fractal_octaves = 4
@@ -244,10 +245,13 @@ static func height(x: float, z: float) -> float:
 			var lv: float = q["level"]
 			var dep: float = q["depth"]
 			var f := lv - dep * (1.0 - (d / w) * (d / w)) if d < w else lv + (d - w) * 0.18
-			var hr := _carve(h, f, d - w, 12.0, 0.14)
+			# Region1 look fix (docs/regions/LOOK_R1.md): the levee must fall faster (0.32) than the bank profile f rises
+			# (0.18 per m); with 0.14 low ground was filled up to a plane that kept rising away from the river and ended
+			# in straight cliff steps at the RIVER_CELL grid edge (the "rectangular plateaus" beside the Ashrun).
+			var hr := _carve(h, f, d - w, 12.0, 0.32)
 			# Inside the lake the river may only deepen the bed, never raise it.
 			h = lerpf(minf(h, hr), hr, smoothstep(0.55, 0.95, lake_s))
-	return h
+	return Region1Terrain.stamp(x, z, h)   # Region1 look hook: valley/cliff stamps (docs/regions/LOOK_R1.md)
 
 
 # --- Water ------------------------------------------------------------------------
@@ -790,7 +794,7 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 		w.r = maxf(w.r, sand * 0.85)
 		w.g = maxf(w.g, sand * (0.35 + clampf(-above * 0.2, 0.0, 0.45)))
 		w.a *= 1.0 - sand
-	return w
+	return Region1Terrain.paint(x, z, w)   # Region1 look hook: trails (docs/regions/LOOK_R1.md)
 
 
 ## Footstep family follows the same material weights used to paint the terrain.
@@ -837,7 +841,7 @@ static func forest_density(x: float, z: float, with_clearings := true) -> float:
 				f *= smoothstep(float(c["radius"]), float(c["radius"]) + 10.0, Vector2(x, z).distance_to(c["pos"]))
 	if f > 0.0:
 		f *= smoothstep(6.0, 20.0, shore_distance(x, z))   # no trees (or wolf dens) in water or on beaches
-	return f
+	return f * Region1Terrain.tree_keep(x, z) if f > 0.0 else f   # Region1 look hook: no trees on stamped cliff faces
 
 
 static func nearest_settlement(p: Vector2) -> Dictionary:

@@ -451,3 +451,13 @@ A/B attack slots against the OneShot re-fire pop, lunge = authored step), `P10_d
 - Root motion is in the `root` track (disabled on import like all of `animations/`): move the capsule by `step_in_m` over `step_frames`.
 - Paired finishers: victim root `victim_dist_m` in front of the attacker (stab 1.35, cleave 1.2, spin 1.35), facing it; both clips start on the same frame. Paired sheets: `docs/anim/combat/after/pairs/`.
 - Bow: `Bow_Draw` -> `Bow_Hold` (loop) -> `Bow_Loose` (arrow spawn f1); aim = Blend3(Hold, Bow_Aim_Down, Bow_Aim_Up) by camera pitch, upper-body filter.
+
+## Creature and traversal motion pass (2026-09-30)
+
+Nothing was verified in the real game yet (Godot was not run against the new GLBs). Do that first.
+
+**Wolf** (`docs/anim/patches/P2b_wolf_turn_and_pack_clips.md`, `docs/anim/creatures/wolf/TABLE.txt`): new clips `turn_l90 turn_r90 turn_l180 turn_r180 run_turn_l run_turn_r stalk circle_l circle_r lunge howl flinch limp`; walk/run are foot-locked. Set the `creature_models.gd` wolf row to walk 1.07, run 4.95 (the old 2.6 was wrong), impact 0.27, lunge_impact 0.57. Suggested SPECIES tweaks: radius 0.42, height 1.25, reach and strike +0.2, limp speed <= 2.2.
+**Other creatures**: numbers in `docs/anim/creatures/<name>/TABLE.txt` (boar walk 0.455 run 1.95 impact 0.53; bear 1.4 / 4.05 / 0.70; spider 0.40 / 0.40 / 0.47; wasp impact 0.47; goblin 0.90 / 2.96 / 0.60; orc 1.70 / 5.84 / 0.90; troll 2.50 / 8.22 / 1.20, slam 1.77). Attacks now have a telegraph and hold, so the impact time is later; the windup scale is impact / windup. Hit clips are in place, so knockback needs its own slide. Orc kneel/stand ranges are unchanged.
+**Traversal**: `docs/anim/traversal_v2_HANDOFF.md` (new `Ledge_Grab`, `Ledge_Climb_Up`, `Ledge_Drop_Down`, `Mantle_Low`, `Mantle_High`; rebuilt vault landing, `Loco_Pivot180_Run_L/R`, `Ride_Trot_Loop`).
+
+**Open issues**: boar death has a dark lump; spider attack leg looks hooked in the top view; wasp wing seam at the loop; wolf gallop paws tangle and there is no jaw; troll run 8.22 m/s may be too fast; death clips drift; mantle/ledge-climb legs tuck into the wall and limbs whip; the wolf rim light needs a Godot material; `Ledge_Climb_Up` root Z is 2.12 m, not 1.05 m.

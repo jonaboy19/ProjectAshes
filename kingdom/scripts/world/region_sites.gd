@@ -69,6 +69,8 @@ static func plan(seed_value: int) -> Array[Dictionary]:
 	var academy := _academy(out)
 	if not academy.is_empty():
 		out.append(academy)
+	# Region1 look hook (docs/regions/LOOK_R1.md): landmarks from data/region1/landmarks.json, planned last so every id above stays.
+	out.append_array(preload("res://scripts/region1/region1_landmarks.gd").sites())
 	for i in out.size():
 		out[i]["id"] = i
 	return out

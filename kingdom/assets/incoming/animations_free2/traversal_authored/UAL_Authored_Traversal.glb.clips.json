@@ -3,84 +3,479 @@
   "name": "Vault_Low",
   "loop": false,
   "frames": 61,
-  "seconds": 2.0
+  "seconds": 2.0,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": -2.7,
+   "z": 0.0
+  },
+  "events": {
+   "run_up_takeoff_foot_plant": 7,
+   "toe_off": 14,
+   "hands_on_box": 17,
+   "apex": 24,
+   "push_off_end": 27,
+   "touch_down": 33,
+   "absorb_low_point": 36,
+   "recovery_steps_end": 53,
+   "settled": 60
+  },
+  "contacts": [
+   [
+    "hand_l",
+    17,
+    18
+   ],
+   [
+    "hand_r",
+    17,
+    26
+   ],
+   [
+    "ball_l",
+    6,
+    14
+   ],
+   [
+    "ball_l",
+    33,
+    40
+   ],
+   [
+    "ball_l",
+    47,
+    60
+   ],
+   [
+    "ball_r",
+    0,
+    3
+   ],
+   [
+    "ball_r",
+    34,
+    36
+   ],
+   [
+    "ball_r",
+    42,
+    60
+   ]
+  ]
  },
  {
   "name": "Vault_Low_B",
   "loop": false,
   "frames": 61,
-  "seconds": 2.0
+  "seconds": 2.0,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": -2.7,
+   "z": 0.0
+  },
+  "events": {
+   "run_up_takeoff_foot_plant": 7,
+   "toe_off": 14,
+   "hands_on_box": 17,
+   "apex": 24,
+   "push_off_end": 27,
+   "touch_down": 33,
+   "absorb_low_point": 36,
+   "recovery_steps_end": 53,
+   "settled": 60
+  },
+  "contacts": [
+   [
+    "hand_r",
+    17,
+    18
+   ],
+   [
+    "hand_l",
+    17,
+    26
+   ],
+   [
+    "ball_r",
+    6,
+    14
+   ],
+   [
+    "ball_r",
+    33,
+    40
+   ],
+   [
+    "ball_r",
+    47,
+    60
+   ],
+   [
+    "ball_l",
+    0,
+    3
+   ],
+   [
+    "ball_l",
+    34,
+    36
+   ],
+   [
+    "ball_l",
+    42,
+    60
+   ]
+  ]
  },
  {
   "name": "Ladder_Climb_Up",
   "loop": true,
   "frames": 37,
-  "seconds": 1.2
+  "seconds": 1.2,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.6
+  }
  },
  {
   "name": "Ladder_Climb_Down",
   "loop": true,
   "frames": 37,
-  "seconds": 1.2
+  "seconds": 1.2,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": -0.6
+  }
  },
  {
   "name": "Wall_Climb_Up",
   "loop": true,
   "frames": 43,
-  "seconds": 1.4
+  "seconds": 1.4,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.5
+  }
  },
  {
   "name": "Ledge_Hang_Idle",
   "loop": true,
   "frames": 61,
-  "seconds": 2.0
+  "seconds": 2.0,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  }
  },
  {
   "name": "Ledge_Shimmy_L",
   "loop": true,
   "frames": 31,
-  "seconds": 1.0
+  "seconds": 1.0,
+  "root_delta_m": {
+   "x": 0.5,
+   "y": 0.0,
+   "z": 0.0
+  }
  },
  {
   "name": "Ledge_Shimmy_R",
   "loop": true,
   "frames": 31,
-  "seconds": 1.0
+  "seconds": 1.0,
+  "root_delta_m": {
+   "x": -0.5,
+   "y": 0.0,
+   "z": 0.0
+  }
  },
  {
   "name": "Ride_Idle",
   "loop": true,
   "frames": 61,
-  "seconds": 2.0
+  "seconds": 2.0,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  }
  },
  {
   "name": "Ride_Walk",
   "loop": true,
   "frames": 37,
-  "seconds": 1.2
+  "seconds": 1.2,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  }
  },
  {
   "name": "Ride_Trot",
   "loop": true,
   "frames": 21,
-  "seconds": 0.67
+  "seconds": 0.67,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  }
  },
  {
   "name": "Ride_Gallop",
   "loop": true,
   "frames": 17,
-  "seconds": 0.53
+  "seconds": 0.53,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  }
  },
  {
   "name": "Ride_Lean_L",
   "loop": true,
   "frames": 31,
-  "seconds": 1.0
+  "seconds": 1.0,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  }
  },
  {
   "name": "Ride_Lean_R",
   "loop": true,
   "frames": 31,
-  "seconds": 1.0
+  "seconds": 1.0,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  }
+ },
+ {
+  "name": "Ledge_Grab",
+  "loop": false,
+  "frames": 41,
+  "seconds": 1.33,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "events": {
+   "crouch_low": 8,
+   "toe_off": 12,
+   "hands_contact": 15,
+   "pendulum_peak": 19,
+   "settled_hang": 34,
+   "chain_to_hang_idle": 40
+  },
+  "contacts": [
+   [
+    "hand_l",
+    15,
+    40
+   ],
+   [
+    "hand_r",
+    15,
+    40
+   ]
+  ]
+ },
+ {
+  "name": "Ledge_Climb_Up",
+  "loop": false,
+  "frames": 53,
+  "seconds": 1.73,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": -0.5,
+   "z": 2.12
+  },
+  "events": {
+   "pull_start": 7,
+   "chin_over_ledge": 17,
+   "chest_over_lip": 24,
+   "foot_on_ledge": 28,
+   "hands_release": 29,
+   "left_foot_up": 41,
+   "stand": 46,
+   "settled": 52
+  },
+  "contacts": [
+   [
+    "hand_l",
+    0,
+    28
+   ],
+   [
+    "hand_r",
+    0,
+    28
+   ],
+   [
+    "ball_r",
+    28,
+    52
+   ],
+   [
+    "ball_l",
+    41,
+    52
+   ]
+  ]
+ },
+ {
+  "name": "Ledge_Drop_Down",
+  "loop": false,
+  "frames": 33,
+  "seconds": 1.07,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": 0.36,
+   "z": 0.0
+  },
+  "events": {
+   "release": 6,
+   "touch_down": 11,
+   "absorb_low_point": 15,
+   "settled": 28
+  },
+  "contacts": [
+   [
+    "hand_l",
+    0,
+    6
+   ],
+   [
+    "hand_r",
+    0,
+    6
+   ],
+   [
+    "ball_l",
+    11,
+    32
+   ],
+   [
+    "ball_r",
+    11,
+    32
+   ]
+  ]
+ },
+ {
+  "name": "Mantle_Low",
+  "loop": false,
+  "frames": 45,
+  "seconds": 1.47,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": -1.27,
+   "z": 1.0
+  },
+  "events": {
+   "hands_contact": 12,
+   "foot_on_top": 23,
+   "hands_release": 24,
+   "stand": 40
+  },
+  "contacts": [
+   [
+    "hand_l",
+    12,
+    19
+   ],
+   [
+    "hand_r",
+    12,
+    19
+   ],
+   [
+    "ball_l",
+    4,
+    9
+   ],
+   [
+    "ball_l",
+    23,
+    36
+   ],
+   [
+    "ball_l",
+    41,
+    44
+   ],
+   [
+    "ball_r",
+    10,
+    13
+   ],
+   [
+    "ball_r",
+    36,
+    44
+   ]
+  ]
+ },
+ {
+  "name": "Mantle_High",
+  "loop": false,
+  "frames": 60,
+  "seconds": 1.97,
+  "root_delta_m": {
+   "x": 0.0,
+   "y": -0.9,
+   "z": 1.8
+  },
+  "events": {
+   "jump": 9,
+   "hands_contact": 12,
+   "pull_start": 14,
+   "chest_over": 29,
+   "foot_on_top": 35,
+   "hands_release": 39,
+   "stand": 59
+  },
+  "contacts": [
+   [
+    "hand_l",
+    12,
+    35
+   ],
+   [
+    "hand_r",
+    12,
+    35
+   ],
+   [
+    "ball_l",
+    2,
+    8
+   ],
+   [
+    "ball_r",
+    5,
+    8
+   ],
+   [
+    "ball_r",
+    35,
+    59
+   ],
+   [
+    "ball_l",
+    48,
+    59
+   ]
+  ]
  }
 ]

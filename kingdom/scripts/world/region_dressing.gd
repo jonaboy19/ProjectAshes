@@ -55,6 +55,8 @@ func _ready() -> void:
 		if path != "" and ResourceLoader.exists(path) and Assets.scene(path) != null:
 			n += 1
 	print("RegionDressing: preloaded %d region scenes in %d ms (main thread)" % [n, Time.get_ticks_msec() - t0])
+	# Region1 look hook (docs/regions/LOOK_R1.md): landmark bodies, cliff rocks, waterfalls and the far horizon.
+	add_child(preload("res://scripts/region1/region1_look.gd").new())
 
 
 ## Every file is loaded at boot now, so any part can be built right away.
