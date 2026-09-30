@@ -11,6 +11,7 @@ Scope: use existing saved player-to-NPC memory and recent relationship events fo
 - When `{rumour}` is available, the line uses the current dynamically selected token and acknowledges only that gossip was discussed before. It does not assert that the NPC remembers a specific rumor or that the rumor is new.
 - When no `{rumour}` is available, the repeat line acknowledges that there is nothing to add right now.
 - The villager greeting now has a priority-4 line for `gifted_recently`: “I remember the gift you brought me.” This event means the recipient has a gift modifier from the player within the last game day. A successfully accepted but disliked item can still produce the event, so the line deliberately does not say the NPC liked, used, or appreciated the gift, nor identify the item. Priority 4 lets the existing priority-5/6 hostile and priority-6 insult reactions take precedence.
+- The villager and innkeeper greetings each have a 50% repeat-topic acknowledgement for `discussed:villager:crown` and `discussed:innkeeper:food`, respectively. These remember only that the dialogue node was entered: the villager recalls the Crown as a subject, while the innkeeper recalls going over the menu. They do not claim to remember the exact line, a specific opinion, or a chosen food item. Wording says the subject came up already, so it remains natural when the player returns to `greet` during the same conversation as well as in a later visit.
 
 ## Existing memory contract
 

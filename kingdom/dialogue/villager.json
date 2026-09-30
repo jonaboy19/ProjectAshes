@@ -28,6 +28,7 @@
         {"text": "\"Ah, it's you. Pull up a barrel, I was just about to stop for a breather.\"", "if": {"tier": "friend", "time": ["afternoon", "evening"]}, "p": 2},
         {"text": "\"If it isn't my favourite {kid} in Ashford. What's the news?\"", "if": {"tier": "close_friend"}, "p": 2},
         {"text": "\"{player}. I was hoping you'd come by. Walk with me a moment?\"", "if": {"tier": "close_friend", "child": false}, "p": 2},
+        {"text": "\"We've talked about the Crown already. What do you want to know this time?\"", "if": {"event": "discussed:villager:crown", "chance": 0.5}, "p": 3},
 
         {"text": "\"Soaked to the bone. Rain's good for the fields and bad for everything else.\"", "if": {"weather": ["rain", "storm"], "tier_not": ["enemy", "rival"], "chance": 0.5}, "p": 2},
         {"text": "\"Can't see the end of the lane in this fog. Don't wander off the road.\"", "if": {"weather": "fog", "tier_not": ["enemy", "rival"]}, "p": 2},
