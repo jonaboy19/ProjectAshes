@@ -37,3 +37,23 @@ The rest (R§39/40, L§1/2/3/44/45/47/50) are design rules: the player never con
    - Job interview dialog.
    - Followers and summons panel.
 3. **Performance pass:** profile the gate market city on LOW and keep it within the SIM_HIERARCHY budgets.
+
+## Queued (user direction, 2026-09-30)
+
+- **Survival building** (in progress, `realm/construction.gd`):
+  - You gather and process resources yourself.
+  - Buildings unlock in tiers and levels, with prerequisites and tech.
+  - Construction happens in visible stages, with a worker count and skill-based speed.
+  - You can build anywhere, and builders and haulers walk real paths to the site.
+- **Wars rarer and more realistic:** today about 17–19 wars in 2 simulated years, at war about 31% of the time. The target is roughly one war every 1–3 years, lasting weeks to months. Wars need causes: claims, feuds, succession, raids, Rift crises. Raise the war-declaration tension threshold and the post-war tension (`war_sim.gd`), add war weariness and treaty durations.
+- **The player's character can influence wars at any rank:**
+  - enlist or raise a militia
+  - scout and carry messages
+  - supply the army as a merchant
+  - sabotage, spy or assassinate (with evidence)
+  - negotiate and broker peace, or provoke incidents
+  - fight in engagements personally
+  - defend their home settlement
+  - run a caravan through the front
+  - shift war goals through a lord or council
+  Each action feeds `war_sim` tension, campaign engagements, `factions` war reputation and diplomacy. This starts after war map phase B lands, since both touch campaign code.
