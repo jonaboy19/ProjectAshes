@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Handoff: use the character's culture for Awakening bias
+
+Character creation persists `culture:<id>` in `life_path.flags`, but `Life._run_awakening()` currently sets its culture argument to literal `caldric` before calling `awakening.roll()`. `Awakening.CULTURE_ELEMENT` therefore applies Caldric's earth weighting to characters of every culture. The correction belongs in Life: read a validated culture ID from the persisted flag or identity source and pass it to Awakening, preserving the deterministic roll inputs except for the correct culture and leaving Awakening's weights unchanged. No code was changed because Life overlaps the Codex PR and the visible Claude checkout has unpublished Life changes; Claude should fetch and review it before integration. Manually check each culture, missing/legacy culture fallback, and deterministic save/load. No tests, parser or runtime validation was run. See [AWAKENING_CULTURE_IDENTITY_HANDOFF.md](concepts/AWAKENING_CULTURE_IDENTITY_HANDOFF.md).
+
 ### Handoff: resolve species before guild cull progress
 
 Guild cull contracts target the ecology den's species, but `Life.on_wolf_killed()` currently calls `guild.on_kill(..., "wolf", den_id)` before looking up the den species. `FrontierPresence` reuses Wolf bodies for troll/wyvern/bear dens (presented as `bear`) and corrupted-wolf dens (presented as `wolf`), while retaining their den IDs. Thus bear, troll, wyvern, and corrupted-wolf den culls cannot progress. The fix belongs in Life: validate the den ID and pass its ecology species to the guild, preserving existing body presentation and merit/pelt/echo/drop policy. No code was changed: Life overlaps the current Codex PR, and the visible Claude checkout has unpublished Life changes. Claude should fetch and review that file before coordinating the fix. Suggested manual checks cover all five den species, unknown den IDs, and save/load of active culls. No parser, runtime or test validation was run. See [ADVENTURER_GUILD_SPECIES_ATTRIBUTION_HANDOFF.md](concepts/ADVENTURER_GUILD_SPECIES_ATTRIBUTION_HANDOFF.md).
