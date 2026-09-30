@@ -22,7 +22,7 @@ The latest Claude base already contains the ragdoll pose-hold get-up blend from 
 ## Cost notes
 
 - The camera change reuses the player's existing obstruction ray. A settlement creates only one extra static camera-only box per well; there is no new per-frame scene search.
-- Block-facing enemy lookup runs only while guarding. Hit-stop discovers mixers only for actors actually struck by a non-finisher hit.
+- Block-facing enemy lookup runs at 12.5 Hz while guarding. Hit-stop discovers mixers only for actors actually struck by a non-finisher hit.
 - Run-stop playback adds no NPC work; the optional state graph is created only for the player animator.
 
 ## Deliberately deferred

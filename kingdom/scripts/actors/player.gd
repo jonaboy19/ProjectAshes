@@ -260,6 +260,8 @@ var _drown_warned := false
 var _lock: Node3D
 var _lock_marker: MeshInstance3D
 var _lock_height := 2.0
+var _block_threat: Node3D
+var _block_threat_refresh := 0.0
 var _flick := 0.0
 var _flick_cooldown := 0.0
 var _stick_flicked := false
@@ -1019,10 +1021,13 @@ func _update_facing(dir: Vector3, delta: float) -> void:
 	elif view == View.FIRST or blocking:
 		want = _yaw + PI
 		if blocking and view != View.FIRST:
-			# Guard toward the nearest nearby threat; camera heading is the fallback.
-			var threat := _nearest_enemy(6.0, -1.0)
-			if threat:
-				var threat_dir := threat.global_position - global_position
+			# Refresh at 12.5 Hz while guarding; camera heading is the fallback.
+			_block_threat_refresh -= delta
+			if _block_threat_refresh <= 0.0 or not is_instance_valid(_block_threat):
+				_block_threat = _nearest_enemy(6.0, -1.0)
+				_block_threat_refresh = 0.08
+			if is_instance_valid(_block_threat):
+				var threat_dir := _block_threat.global_position - global_position
 				want = atan2(threat_dir.x, threat_dir.z)
 		rate = FACE_TURN_IDLE
 	elif dir.length() > 0.05 and _swing <= 0.0 and _dodge <= 0.0 and _stunned <= 0.0:
@@ -1033,6 +1038,9 @@ func _update_facing(dir: Vector3, delta: float) -> void:
 		var step := clampf(diff * (1.0 - exp(-FACE_SHARPNESS * delta)), -rate * delta, rate * delta)
 		_model.rotation.y = before + step
 	_yaw_rate = angle_difference(before, _model.rotation.y) / maxf(delta, 0.0001)
+	if not blocking:
+		_block_threat = null
+		_block_threat_refresh = 0.0
 
 
 ## A small lean into turns and against speed changes. Pivots at the feet (the
