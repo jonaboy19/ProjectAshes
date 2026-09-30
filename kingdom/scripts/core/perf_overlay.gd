@@ -47,7 +47,7 @@ func _ensure_label() -> void:
 	if _label:
 		return
 	_label = Label.new()
-	_label.position = Vector2(8, 200)
+	_label.position = Vector2(360, 66)   # under the compass: clear of the HUD's player card and joystick
 	_label.add_theme_font_size_override("font_size", 12)
 	_label.add_theme_color_override("font_color", Color(0.85, 1, 0.85))
 	_label.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -90,7 +90,9 @@ func _process(delta: float) -> void:
 	if _acc < 0.25 or _label == null:
 		return
 	_acc = 0.0
-	var vp := get_viewport()
+	# The world renders in main.gd's SubViewport: the root viewport's render info is always 0.
+	var pl := get_tree().get_first_node_in_group("player")
+	var vp: Viewport = pl.get_viewport() if pl != null else get_viewport()
 	_label.text = "draws %d  prims %dk  objs %d\nscript proc %.2f ms  phys %.2f ms\nnodes %d  skinned %d\nmem %.0f MB  vram %.0f MB" % [
 		vp.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
 		vp.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME) / 1000,

@@ -36,6 +36,7 @@ func setup(p_hud: Node) -> void:
 
 func _ready() -> void:
 	name = "WorkSpots"
+	add_to_group("work_spots")
 	_timer = Timer.new()
 	_timer.wait_time = SLOW
 	_timer.timeout.connect(_on_tick)
@@ -68,10 +69,21 @@ func _nearest_sid(p: Vector2) -> int:
 
 # ------------------------------------------------------------------ polling
 
+## True while the work widget or the "hours slip by" prompt owns the screen (realm encounters wait).
+func is_modal() -> bool:
+	return _widget_open or _busy
+
+
 func _on_tick() -> void:
 	var w := _work()
 	var pl := _player()
 	if w == null or pl == null or _busy:
+		return
+	var enc: Variant = get_parent().get("encounters") if get_parent() != null else null
+	if enc != null and enc.has_method("in_session") and bool(enc.in_session()):
+		if _panel != null and _panel.visible and not _widget_open:
+			_hide_panel()      # a villager is talking to the player: no job prompt underneath
+			_last_state = ""
 		return
 	var p := _p2(pl)
 	var sid := _nearest_sid(p)
