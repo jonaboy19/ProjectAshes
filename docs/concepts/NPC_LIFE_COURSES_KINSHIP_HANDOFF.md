@@ -1,7 +1,7 @@
 # LifeCourses marriage kinship guard — Codex handoff
 
-Date: 30 September 2026  
-Branch: `gpt/living-world-integration`  
+Date: 30 September 2026
+Branch: `gpt/living-world-integration`
 Scope: eligibility checks for new `LifeCourses.try_marry()` pairings. No spouse/parent schema changes, save migration, or retroactive marriage edits.
 
 ## Rules added
