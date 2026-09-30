@@ -357,10 +357,12 @@ func track_war(day: int) -> void:
 	var w: bool = C.life.war.is_at_war()
 	if w and not war_state:
 		war_state = true; war_start = day; war_count += 1; war_enemy = C.life.war.enemy_id()
-		f_events.store_line("%d,war_start,%s" % [day, war_enemy])
+		var cb: Dictionary = C.life.war.war.get("cb", {}) if "cb" in C.life.war.war else {}
+		f_events.store_line("%d,war_start,%s,cause=%s,goal=%s" % [day, war_enemy, str(cb.get("kind", "legacy")), str(C.life.war.war.get("goal", ""))])
 	elif not w and war_state:
 		war_state = false; war_days_total += day - war_start
-		f_events.store_line("%d,war_end,%s,duration=%d" % [day, war_enemy, day - war_start])
+		var lt: Dictionary = C.life.war.last_treaty if "last_treaty" in C.life.war else {}
+		f_events.store_line("%d,war_end,%s,duration=%d,winner=%s,truce=%s" % [day, war_enemy, day - war_start, str(lt.get("winner", "")), str(lt.get("truce_days", ""))])
 
 func open_files() -> void:
 	f_metrics = FileAccess.open(out_dir + tag + "_metrics.csv", FileAccess.WRITE)

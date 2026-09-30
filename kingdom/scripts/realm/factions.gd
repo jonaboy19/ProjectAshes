@@ -524,6 +524,9 @@ const ACT_EFFECTS := {
 	"burn_villages": {"ruthless": 5.0, "honour": -3.0}, "break_treaty": {"honour": -10.0, "ruthless": 2.0},
 	"abandon_allies": {"cowardly": 8.0, "honour": -4.0}, "flee_battle": {"cowardly": 6.0}, "rout": {"cowardly": 4.0},
 	"victory": {"honour": 1.0}, "covert_exposed": {"ruthless": 3.0, "honour": -3.0},
+	"enlist": {"honour": 2.0}, "raise_militia": {"honour": 3.0}, "defend_home": {"honour": 3.0}, "supply_army": {"honour": 1.0},
+	"carry_message": {"honour": 1.0}, "broker_peace": {"honour": 4.0}, "provoke": {"ruthless": 4.0, "honour": -3.0}, "champion": {"honour": 3.0},
+	"profiteer": {"ruthless": 3.0, "honour": -2.0}, "covert": {"ruthless": 2.0},
 }
 
 
@@ -555,6 +558,12 @@ func war_rep(actor: String) -> Dictionary:
 
 
 # --- relations ------------------------------------------------------------------
+
+## Moves a faction's treasury (tribute, war costs). Clamped 0..100 like every wealth figure.
+func add_wealth(id: String, delta: float) -> void:
+	if _factions.has(id):
+		_factions[id]["wealth"] = clampf(float(_factions[id]["wealth"]) + delta, 0.0, 100.0)
+
 
 func change_relation(a: String, b: String, field: String, delta: float) -> void:
 	var k := _key(a, b)

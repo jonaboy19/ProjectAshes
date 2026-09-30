@@ -18,6 +18,7 @@ const Tokens := preload("res://scripts/ui/war/war_tokens.gd")
 const Terrain := preload("res://scripts/ui/war/war_terrain.gd")
 const Radial := preload("res://scripts/ui/war/war_radial.gd")
 const WarPanel := preload("res://scripts/ui/war/war_panel.gd")
+const WarInfluence := preload("res://scripts/realm/war_influence.gd")
 const WarUnits := preload("res://scripts/realm/war_units.gd")
 
 const LEVELS := ["World", "Region", "Local"]
@@ -36,6 +37,7 @@ const STATUS_COL := {"fighting": Color("ff6a4a"), "holding": Color("f0c860"), "e
 ## Tests / other hosts may inject a realm hub; otherwise Life.realm is used (may be absent).
 var realm_override: RefCounted = null
 var cm: RefCounted = null
+var _wi: RefCounted = null
 var style := Tokens.TACTICAL
 var level := 1
 var zoom := ZOOM_REGION
@@ -908,6 +910,29 @@ func select_engagement(id: int, focus := false) -> void:
 func set_tab(t: String) -> void:
 	tab = t
 	_panel.call("rebuild")
+
+
+## "Your part in the war" (scripts/realm/war_influence.gd) for the Life in the tree and this map's realm hub.
+func influence() -> RefCounted:
+	if _wi == null:
+		var life: Node = get_node_or_null("/root/Life")
+		var realm: RefCounted = realm_override
+		if realm == null and life != null and "realm" in life:
+			realm = life.realm
+		_wi = WarInfluence.new(life, realm)
+	return _wi
+
+
+## Runs one of the player's war actions, shows its result line on the map and in the log, and redraws.
+func do_war_action(id: String, params: Dictionary = {}) -> Dictionary:
+	var r: Dictionary = influence().do(id, params)
+	var text := String(r.get("text", ""))
+	say(text)
+	if bool(r.get("ok", false)) and text != "":
+		Game.say(text)
+	refresh()
+	_panel.call("rebuild")
+	return r
 
 
 func selected_pieces() -> Array:

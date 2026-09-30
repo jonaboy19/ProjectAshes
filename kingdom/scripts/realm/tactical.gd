@@ -19,6 +19,13 @@ const AMMO_STEPS := 110.0           # steps of continuous shooting an archer has
 const MANA_STEPS := 34.0
 const FLANK_ANG := 1.22             # rad: beyond this off the facing a hit is a flank hit
 const REAR_ANG := 2.2
+## Fair battles (war3 polish): an attacker picks its approach like the defender picks its ground; to pay for the walk
+## in under fire and its piecemeal arrival it carries the initiative (ATTACK_EDGE on its damage, field battles only, not
+## sieges); the defender's fortify bonus needs a unit that really holds ground above its attacker. Mirrored even
+## 16 v 16 fights now go about 50/50 (they went 10/90 before).
+const ATTACK_EDGE := 1.4
+var _att_edge := 1.0
+const HOLD_HEIGHT := 2.5            # metres above the attacker for the defender's fortify bonus
 const STRIDE := 3                   # units take their turn every STRIDE steps (moving STRIDE steps at once)
 const _ANGS := [0.6, -0.6, 1.2, -1.2, 1.8, -1.8]
 const SEP_EVERY := 12
@@ -605,6 +612,7 @@ func _setup(spec: Dictionary) -> void:
 		opts["ring"] = rg
 	if go.has("street"):
 		opts["street"] = bool(go["street"])
+	_att_edge = 1.0 if go.has("ring") else ATTACK_EDGE
 	var sides: Dictionary = spec.get("sides", {})
 	for k in 2:
 		var key := "a" if k == 0 else "b"
@@ -704,8 +712,7 @@ func _compute_axes(sides: Dictionary) -> void:
 			S[k2]["axis"] = ax + (PI if k2 == 1 else 0.0)
 		if not bool(S[k2]["fixed_anchor"]):
 			var an := cc - dirv * dep
-			if k2 != attacker:
-				an = _best_anchor(an, dirv, dep)
+			an = _best_anchor(an, dirv, dep)
 			S[k2]["anchor"] = [an.x, an.y]
 		var axis_v := Vector2.from_angle(float(S[k2]["axis"]))
 		var anc := _v2(S[k2]["anchor"])
@@ -879,7 +886,7 @@ func add_unit(k: int, spec: Dictionary) -> int:
 	u_meta_surr.append(0)
 	u_v0.append(SPD0 * float(kd["speed"]) * STEP)
 	u_meta.append({"name": String(spec.get("name", kd["name"])), "kind": kind, "layer": String(spec.get("layer", "")), "order": {"behavior": "hold", "since": 0.0},
-		"wp": [], "elite": elite, "wx": float(spec.get("wx", 0.0)), "wy": float(spec.get("wy", 0.0)), "note": "", "bait": false, "role": String(spec.get("role", ""))})
+		"wp": [], "elite": elite, "wx": float(spec.get("wx", 0.0)), "wy": float(spec.get("wy", 0.0)), "note": "", "bait": false, "role": String(spec.get("role", "")), "hero": bool(spec.get("hero", false))})
 	_dk.append(0.0)
 	_dm.append(0.0)
 	_dflag.append(0)
@@ -1612,8 +1619,8 @@ func _combat(nu: int) -> void:
 	var fort := [0.0, 0.0]
 	for k in 2:
 		var sd: Dictionary = S[k]
-		sf[k] = float(sd["cmdf"]) * float(sd["supf"]) * wall * (float(sd["surprise"]) if step_no <= 12 else 1.0)
-		fort[k] = float(sd["fortify"]) * minf(1.0, t / 900.0) if k != attacker else 0.0
+		sf[k] = float(sd["cmdf"]) * float(sd["supf"]) * wall * (float(sd["surprise"]) if step_no <= 12 else 1.0) * (_att_edge if k == attacker else 1.0)
+		fort[k] = float(sd["fortify"]) * minf(1.0, t / 900.0)
 	for i0 in nu:
 		if u_st[i0] == S_FIGHT and u_tgt[i0] >= 0 and _fm_all[u_fm[i0]] == 0 and _bh_kind[u_bh[i0]] != 5:
 			var t0 := u_tgt[i0]
@@ -1678,7 +1685,8 @@ func _combat(nu: int) -> void:
 		var cj := cell_idx(u_x[tg], u_y[tg])
 		var hm := 1.0 + 0.08 * clampf((hh[ci] - hh[cj]) / 6.0, -1.0, 1.0)
 		var dj: float = u_dq[tg] * _bh_def[u_bh[tg]] * _fm_def[fmj] * DEF_T[int(tc[cj])] * defm
-		if fort[u_side[tg]] > 0.0 and (u_st[tg] == S_HOLD or u_st[tg] == S_FIGHT):
+		# the defender's ground bonus is earned: it needs a unit that stands its ground and really sits above its attacker
+		if fort[u_side[tg]] > 0.0 and (u_st[tg] == S_HOLD or u_st[tg] == S_FIGHT) and hh[cj] - hh[ci] >= HOLD_HEIGHT:
 			dj *= 1.0 + fort[u_side[tg]]
 		var varn := 0.92 + 0.16 * _hash(step_no, i, seed)
 		_last_act_t = t
@@ -1695,6 +1703,12 @@ func _morale(nu: int) -> void:
 	var fat_w := float(_wx["fatigue"])
 	var rm := float(ROUND)
 	var routed_now: Array = []
+	# a hero (the player's champion) in the line steadies everyone within 200 m
+	var heroes: Array = []
+	if _has_elite:
+		for h in nu:
+			if u_st[h] < S_DEAD and bool((u_meta[h] as Dictionary).get("hero", false)):
+				heroes.append(h)
 	for i in nu:
 		var st := u_st[i]
 		if st >= S_DEAD:
@@ -1723,6 +1737,13 @@ func _morale(nu: int) -> void:
 			mor -= 0.008 * rm
 		if k <= 0.0 and st != S_FIGHT:
 			mor += 0.003 * rm
+		for h2: int in heroes:
+			if u_side[h2] == u_side[i] and h2 != i:
+				var hx := u_x[h2] - u_x[i]
+				var hy := u_y[h2] - u_y[i]
+				if hx * hx + hy * hy < 40000.0:
+					mor += 0.0025 * rm
+					break
 		mor = clampf(mor, 0.0, 1.0)
 		u_mor[i] = mor
 		if st == S_FIGHT:
@@ -2702,6 +2723,7 @@ func deserialize(d: Dictionary) -> void:
 	_wx = WarUnits.WEATHER.get(weather, WarUnits.WEATHER["clear"])
 	_load_grid({"n": d["n"], "cell": d["cell"], "rows": d["rows"], "feats": d["feats"], "name": d["terrain_name"], "h": d["h"]})
 	opts = (d.get("opts", {}) as Dictionary).duplicate(true)
+	_att_edge = 1.0 if opts.has("ring") else ATTACK_EDGE
 	S = (d["S"] as Array).duplicate(true)
 	for k in 2:
 		var sd: Dictionary = S[k]

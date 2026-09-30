@@ -1095,29 +1095,218 @@ static func _hms(t: float) -> String:
 	return "%02d:%02d" % [(s / 60) % 60 + (s / 3600) * 60, s % 60]
 
 
-## Pixel terrain texture for the current style, hill-shaded from the real heights.
+## Terrain texture for the current style: each battle cell is baked into SMOOTH_UP x SMOOTH_UP pixels. Every ground
+## class is a 0/1 field over the cells, smoothed with a cubic B-spline (separable, so the bake stays around 100 ms) and
+## the strongest class wins each pixel, with a thin anti-aliased seam where two meet: edges become crisp organic curves
+## instead of cell-sized blocks. Hill-shading comes from the same smoothing of the heights, a finer lattice and a
+## pixel hash add mottling and grain, and built structures (walls, gates, towers, buildings) stay crisp. The texture
+## has mipmaps and is drawn with trilinear filtering, so it reads like the reference maps at every zoom.
+const SMOOTH_UP := 4
+const STRUCT_CODES := [10, 11, 12, 13, 14, 16, 17]
+const SEAM := 0.07
+
+
+## Cubic B-spline weights for the 4 taps around a sample at fraction f (they sum to 1).
+static func _bs(f: float) -> PackedFloat32Array:
+	var g := 1.0 - f
+	return PackedFloat32Array([g * g * g / 6.0, (3.0 * f * f * f - 6.0 * f * f + 4.0) / 6.0, (-3.0 * f * f * f + 3.0 * f * f + 3.0 * f + 1.0) / 6.0, f * f * f / 6.0])
+
+
+## Upsamples an n x n field to (n*up)^2 with the cubic B-spline, horizontally then vertically.
+static func _upsample(src: PackedFloat32Array, n: int, up: int, phases: Array) -> PackedFloat32Array:
+	var res := n * up
+	var mid := PackedFloat32Array()
+	mid.resize(res * n)
+	for j in n:
+		var row := j * n
+		for px in res:
+			var w: PackedFloat32Array = phases[px % up]
+			var i0 := px / up + int(w[0])
+			var a := src[row + clampi(i0 - 1, 0, n - 1)] * w[1]
+			a += src[row + clampi(i0, 0, n - 1)] * w[2]
+			a += src[row + clampi(i0 + 1, 0, n - 1)] * w[3]
+			a += src[row + clampi(i0 + 2, 0, n - 1)] * w[4]
+			mid[j * res + px] = a
+	var out := PackedFloat32Array()
+	out.resize(res * res)
+	for py in res:
+		var w2: PackedFloat32Array = phases[py % up]
+		var j0 := py / up + int(w2[0])
+		var r0 := clampi(j0 - 1, 0, n - 1) * res
+		var r1 := clampi(j0, 0, n - 1) * res
+		var r2 := clampi(j0 + 1, 0, n - 1) * res
+		var r3 := clampi(j0 + 2, 0, n - 1) * res
+		var o := py * res
+		for px2 in res:
+			out[o + px2] = mid[r0 + px2] * w2[1] + mid[r1 + px2] * w2[2] + mid[r2 + px2] * w2[3] + mid[r3 + px2] * w2[4]
+	return out
+
+
+## Per pixel phase inside a cell: which cell the 4 spline taps start from (offset) and their weights.
+static func _phase_table(up: int) -> Array:
+	var phases: Array = []
+	for ph in up:
+		var tf := (float(ph) + 0.5) / float(up) - 0.5
+		var off := 0.0
+		if tf < 0.0:
+			off = -1.0
+			tf += 1.0
+		var bw := _bs(tf)
+		phases.append(PackedFloat32Array([off, bw[0], bw[1], bw[2], bw[3]]))
+	return phases
+
+
 func terrain_texture() -> ImageTexture:
 	var sig := "%d|%s" % [style, tt.name]
 	if _tex != null and sig == _tex_sig:
 		return _tex
 	_tex_sig = sig
 	var n: int = tt.n
-	var img := Image.create(n, n, false, Image.FORMAT_RGB8)
+	var up := SMOOTH_UP
+	var res := n * up
 	var pal := _palette()
+	var cells: Array = pal["cells"]
+	var relief := float(pal["relief"])
+	var phases := _phase_table(up)
+	var code_arr := PackedInt32Array()
+	code_arr.resize(n * n)
+	var present := {}
+	var shade_c := PackedFloat32Array()
+	shade_c.resize(n * n)
+	var hs := PackedFloat32Array()
+	hs.resize(n * n)
 	for j in n:
 		for i in n:
-			var code := int(tt.tc[j * n + i])
-			var col: Color = (pal["cells"] as Array)[code]
-			var hl: float = tt.hh[j * n + maxi(i - 1, 0)]
-			var hr: float = tt.hh[j * n + mini(i + 1, n - 1)]
-			var hu: float = tt.hh[maxi(j - 1, 0) * n + i]
-			var hd: float = tt.hh[mini(j + 1, n - 1) * n + i]
-			var shade := clampf(((hl - hr) + (hu - hd)) * 0.012 * float(pal["relief"]), -0.3, 0.3)
-			col = col.lightened(shade) if shade > 0.0 else col.darkened(-shade)
-			img.set_pixel(i, j, col)
+			var acc := 0.0
+			var cnt := 0.0
+			for dj in range(-1, 2):
+				for di in range(-1, 2):
+					var wgt := 2.0 if di == 0 and dj == 0 else 1.0
+					acc += tt.hh[clampi(j + dj, 0, n - 1) * n + clampi(i + di, 0, n - 1)] * wgt
+					cnt += wgt
+			hs[j * n + i] = acc / cnt
+	for j2 in n:
+		for i2 in n:
+			var k := j2 * n + i2
+			var code := int(tt.tc[k])
+			code_arr[k] = code
+			if not (code in STRUCT_CODES):
+				present[code] = true
+			var hl: float = hs[j2 * n + maxi(i2 - 1, 0)]
+			var hr: float = hs[j2 * n + mini(i2 + 1, n - 1)]
+			var hu: float = hs[maxi(j2 - 1, 0) * n + i2]
+			var hd: float = hs[mini(j2 + 1, n - 1) * n + i2]
+			shade_c[k] = clampf(((hl - hr) + (hu - hd)) * 0.012 * relief, -0.3, 0.3)
+	# the classes present on natural ground: a smoothed 0/1 field each
+	var codes: Array = present.keys()
+	var fields: Array = []
+	var ccols: Array = []
+	for c: int in codes:
+		var f := PackedFloat32Array()
+		f.resize(n * n)
+		for k2 in n * n:
+			# a structure cell counts for the natural class around it (the nearest natural neighbour) so it does not leave a hole
+			var cc := code_arr[k2]
+			if cc in STRUCT_CODES:
+				cc = _natural_near(code_arr, n, k2 % n, k2 / n)
+			f[k2] = 1.0 if cc == c else 0.0
+		fields.append(_upsample(f, n, up, phases))
+		ccols.append(cells[c])
+	var shade_up := _upsample(shade_c, n, up, phases)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(tt.seed) * 7919 + 13
+	var mot := n * 2
+	var mott := PackedFloat32Array()
+	mott.resize(mot * mot)
+	for q2 in mot * mot:
+		mott[q2] = rng.randf_range(-1.0, 1.0)
+	var data := PackedByteArray()
+	data.resize(res * res * 3)
+	var nc := codes.size()
+	var grain := 0.03
+	for py in res:
+		var ci_y := clampi(int(float(py) / float(up)), 0, n - 1)
+		var my := (float(py) / float(res)) * float(mot - 1)
+		var my0 := int(my)
+		var mfy := my - float(my0)
+		var my1 := mini(my0 + 1, mot - 1)
+		for px in res:
+			var o1 := py * res + px
+			var ci_x := clampi(int(float(px) / float(up)), 0, n - 1)
+			var nk := ci_y * n + ci_x
+			var r: float
+			var g: float
+			var b: float
+			var sh := shade_up[o1]
+			var structure := code_arr[nk] in STRUCT_CODES
+			if structure:
+				var scol: Color = cells[code_arr[nk]]
+				r = scol.r
+				g = scol.g
+				b = scol.b
+			else:
+				var b1 := -1.0
+				var b2 := -1.0
+				var i1 := 0
+				var i2 := 0
+				for q in nc:
+					var v: float = (fields[q] as PackedFloat32Array)[o1]
+					if v > b1:
+						b2 = b1
+						i2 = i1
+						b1 = v
+						i1 = q
+					elif v > b2:
+						b2 = v
+						i2 = q
+				var t := clampf(0.5 + (b1 - b2) / (2.0 * SEAM), 0.0, 1.0) if nc > 1 else 1.0
+				var c1: Color = ccols[i1]
+				var c2: Color = ccols[i2] if nc > 1 else c1
+				r = lerpf(c2.r, c1.r, t)
+				g = lerpf(c2.g, c1.g, t)
+				b = lerpf(c2.b, c1.b, t)
+				var mx := (float(px) / float(res)) * float(mot - 1)
+				var mx0 := int(mx)
+				var mfx := mx - float(mx0)
+				var mx1 := mini(mx0 + 1, mot - 1)
+				var mn := lerpf(lerpf(mott[my0 * mot + mx0], mott[my0 * mot + mx1], mfx), lerpf(mott[my1 * mot + mx0], mott[my1 * mot + mx1], mfx), mfy)
+				sh += mn * 0.07
+			var hsh := absf(fmod(sin(float(px) * 12.9898 + float(py) * 78.233) * 43758.5453, 1.0))
+			sh += (hsh - 0.5) * grain
+			if sh > 0.0:
+				r = r + (1.0 - r) * sh
+				g = g + (1.0 - g) * sh
+				b = b + (1.0 - b) * sh
+			else:
+				r *= 1.0 + sh
+				g *= 1.0 + sh
+				b *= 1.0 + sh
+			var o := o1 * 3
+			data[o] = clampi(int(r * 255.0), 0, 255)
+			data[o + 1] = clampi(int(g * 255.0), 0, 255)
+			data[o + 2] = clampi(int(b * 255.0), 0, 255)
+	var img := Image.create_from_data(res, res, false, Image.FORMAT_RGB8, data)
+	img.generate_mipmaps()
 	_tex = ImageTexture.create_from_image(img)
 	_contours = _build_contours()
 	return _tex
+
+
+## The most common non-structure class among the 8 neighbours of a cell (open ground if there is none).
+func _natural_near(codes: PackedInt32Array, n: int, x: int, y: int) -> int:
+	var counts := {}
+	for dy in range(-2, 3):
+		for dx in range(-2, 3):
+			var c := codes[clampi(y + dy, 0, n - 1) * n + clampi(x + dx, 0, n - 1)]
+			if not (c in STRUCT_CODES):
+				counts[c] = int(counts.get(c, 0)) + 1
+	var best := 0
+	var bn := -1
+	for c2: int in counts:
+		if int(counts[c2]) > bn:
+			bn = int(counts[c2])
+			best = c2
+	return best
 
 
 func _palette() -> Dictionary:
@@ -1242,7 +1431,7 @@ func _draw_map(ci: Control) -> void:
 	if style == Tokens.TABLE:
 		ci.draw_rect(Rect2(tl - Vector2(14, 14), br - tl + Vector2(28, 28)), Color("6a4a2a"))
 		ci.draw_rect(Rect2(tl - Vector2(14, 14), br - tl + Vector2(28, 28)), Color("2e1e0e"), false, 3.0)
-	ci.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	ci.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	ci.draw_texture_rect(terrain_texture(), Rect2(tl, br - tl), false)
 	# gentle grid at each 200 m
 	var g := 200.0
@@ -1292,16 +1481,27 @@ func _draw_fog(ci: Control) -> void:
 	if _mask.size() != tt.tc.size() or String(tt.phase) == "ended":
 		return
 	if _fog_tex == null or _fog_step != _mask_step:
+		# the fog is smoothed like the ground (cubic B-spline over the cell alphas) so its edge is a soft curve
 		var n: int = tt.n
-		var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
-		for j in n:
-			for i in n:
-				var k := j * n + i
-				var al := 0.0
-				if _mask[k] != 2:
-					al = 0.5 if (k < _seen_cells.size() and _seen_cells[k] == 1) else 0.74
-				img.set_pixel(i, j, Color(0.02, 0.02, 0.03, al))
-		_fog_tex = ImageTexture.create_from_image(img)
+		var up := SMOOTH_UP
+		var res := n * up
+		var al := PackedFloat32Array()
+		al.resize(n * n)
+		for k in n * n:
+			var a := 0.0
+			if _mask[k] != 2:
+				a = 0.5 if (k < _seen_cells.size() and _seen_cells[k] == 1) else 0.74
+			al[k] = a
+		var smooth := _upsample(al, n, up, _phase_table(up))
+		var data := PackedByteArray()
+		data.resize(res * res * 4)
+		for q in res * res:
+			var o := q * 4
+			data[o] = 5
+			data[o + 1] = 5
+			data[o + 2] = 8
+			data[o + 3] = clampi(int(smooth[q] * 255.0), 0, 255)
+		_fog_tex = ImageTexture.create_from_image(Image.create_from_data(res, res, false, Image.FORMAT_RGBA8, data))
 		_fog_step = _mask_step
 	var m: float = tt.size_m()
 	var tl := to_screen(Vector2.ZERO)
