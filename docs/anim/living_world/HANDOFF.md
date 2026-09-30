@@ -57,11 +57,82 @@ Assets: **`P13_assets_life_libs.md`** (optional): 4 lines in `UAL_FILES`, to giv
 
 ## 4. Clip catalogue (188)
 
-(counts per category and the full list: section 7)
+Sources:
+- 132 clips are hand-authored in Blender. They use the IK key-pose framework from the combat pass, with the prop grip
+  contract (`tools/anim/life/`).
+- 56 are CMU everyday mocap retargeted with `retarget_bvh.py` (CMU: free for commercial use, credited in CREDITS.md).
+  The take table is in `UAL_Life_Mocap.glb.life.json` (`notes`).
+- 14 loops have dedicated `_Enter` / `_Exit` transitions (kneel, sit, lie down, hoe, anvil, saw, nail, chop,
+  laundry, mourn, stool). The others blend in over 0.2–0.35 s from neutral.
+- Paired clips (`pair`: hug, handshake, converse, quarrel, comfort) carry their partner distance and facing.
+
+| category | count | clips (L loop, U upper-body layer, P props) |
+|---|---:|---|
+| work | 63 | Carp_Nail_Enter`P`, Carp_Nail_Exit`P`, Carp_Nail`LP`, Carp_Saw_Enter`P`, Carp_Saw_Exit`P`, Carp_Saw`LP`, Chore_Hang_Washing`LP`, Chore_Laundry_Scrub_Enter`P`, Chore_Laundry_Scrub_Exit`P`, Chore_Laundry_Scrub`LP`, Chore_Laundry_Wring`P`, Chore_Sweep`LP`, Chore_Well_Crank`L`, Chore_Well_Lift_Bucket`P`, Cook_Chop`LP`, Cook_Stir`LP`, Farm_Feed_Chickens`LP`, Farm_Harvest_Enter`P`, Farm_Harvest_Exit`P`, Farm_Harvest`LP`, Farm_Hoe_Enter`P`, Farm_Hoe_Exit`P`, Farm_Hoe`LP`, Farm_Milk_Cow_Enter, Farm_Milk_Cow_Exit, Farm_Milk_Cow`L`, Farm_Sow`LP`, Fish_Cast`P`, Fish_Idle_Rod`LP`, Fish_Reel`LP`, Guard_Attention`LP`, Guard_Lean_Spear`LP`, Guard_Look_Out`P`, Market_Arrange`LP`, Market_Call_Out`L`, Market_Hand_Over`P`, Mocap_Buy, Mocap_Carry_Heavy`L`, Mocap_Chop_Wood, Mocap_Dig, Mocap_Fish, Mocap_Hammer_Nail`L`, Mocap_Move_Box, Mocap_Pay, Mocap_Pick_Place, Mocap_Plant, Mocap_Rake, Mocap_Saw`L`, Mocap_Slice, Mocap_Stir`L`, Mocap_Sweep, Shop_Counter_Lean`L`, Shop_Tally`LP`, Shop_Wipe`L`, Smith_Bellows`LP`, Smith_Hammer_Enter`P`, Smith_Hammer_Exit`P`, Smith_Hammer`LP`, Smith_Quench`P`, Wood_Chop_Enter`P`, Wood_Chop_Exit`P`, Wood_Chop`LP`, Wood_Place_Log |
+| social | 50 | Market_Browse`LP`, Mocap_Comfort_A, Mocap_Comfort_B, Mocap_Converse_A`L`, Mocap_Converse_B`L`, Mocap_Cry, Mocap_Direct_Wave, Mocap_Directions, Mocap_Handshake_A, Mocap_Handshake_B, Mocap_Happy, Mocap_Laugh, Mocap_Quarrel_A`L`, Mocap_Quarrel_B`L`, Mocap_Sad, Mocap_Teach, Mocap_Wave_Hello, Music_Flute`LP`, Music_Lute_Sit`LP`, Music_Lute`LP`, Social_Argue_A`L`, Social_Argue_B`L`, Social_Bow, Social_Handshake_A, Social_Handshake_B, Social_Hug_A, Social_Hug_B, Social_Laugh, Social_Laugh_Slap, Social_Mourn_Kneel_Enter, Social_Mourn_Kneel_Exit, Social_Mourn_Kneel`L`, Social_Mourn_Stand`L`, Social_Nod, Social_Point_Directions, Social_Shake_Head, Social_Shrug, Social_Wave_Far, Social_Wave_Greet, Talk_Casual`L`, Talk_Emphatic`L`, Talk_Explain`L`, Talk_Gossip`L`, Talk_Listen_Hips`L`, Talk_Listen_Nod`L`, Tavern_Cheer`LP`, Tavern_Drink`P`, Tavern_Lean_Bar`LP`, Tavern_Sit_Drink`LP`, Tavern_Toast`P` |
+| ambient | 21 | Ambient_Check_Sky, Ambient_Glance_L, Ambient_Glance_R, Ambient_Look_Around, Ambient_Rain_Hunch_Upper`LU`, Ambient_Rub_Arms, Ambient_Scratch_Head, Ambient_Shade_Eyes, Ambient_Shift_Weight, Ambient_Stretch_Morning, Ambient_Wipe_Brow, Ambient_Yawn, Eat_Bowl_Sit`LP`, Eat_Bread_Stand`LP`, Mocap_Cold, Mocap_Look_Around, Mocap_Shift_Weight`L`, Mocap_Stretch_Yawn, Read_Sit`LP`, Read_Stand`LP`, Write_Desk`LP` |
+| rest | 14 | Mocap_Sit_Stool_Enter, Mocap_Sit_Stool_Exit, Mocap_Sit_Stool_Idle`L`, Rest_Doze_Bench`L`, Rest_Sit_Bench_Enter, Rest_Sit_Bench_Exit, Rest_Sit_Bench`L`, Rest_Sit_Chair`L`, Rest_Sit_Ground_Enter, Rest_Sit_Ground_Exit, Rest_Sit_Ground`L`, Rest_Sleep_Ground_Enter, Rest_Sleep_Ground_Exit, Rest_Sleep_Ground`L` |
+| walk | 12 | Guard_Patrol_Walk`LP`, Walk_Brisk`L`, Walk_Cane`LP`, Walk_Careful`L`, Walk_Drunk`L`, Walk_Elder`L`, Walk_Happy`L`, Walk_Limp`L`, Walk_March`L`, Walk_Proud`L`, Walk_Sad`L`, Walk_Tired`L` |
+| carry | 10 | Carry_Basket_Upper`LUP`, Carry_Bucket_Upper`LUP`, Carry_Crate_Upper`LUP`, Carry_Pick_Up`P`, Carry_Plank_Upper`LUP`, Carry_Put_Down`P`, Carry_Sack_Upper`LUP`, Carry_Sheaf_Upper`LUP`, Carry_Two_Buckets_Upper`LUP`, Cart_Push`L` |
+| kid | 9 | Kid_Chase_Chicken`L`, Kid_Clap_Jump, Kid_Hopscotch, Kid_Run_Play`L`, Kid_Skip`L`, Kid_Tag_Touch, Mocap_Hopscotch, Mocap_Skip`L`, Mocap_Tag_Bluff |
+| ritual | 4 | Pray_Kneel_Enter, Pray_Kneel_Exit, Pray_Kneel`L`, Pray_Stand`L` |
+| eat | 4 | Mocap_Chug, Mocap_Drink, Mocap_Eat_Soup, Mocap_Eat_Table |
+| music | 1 | Mocap_Fiddle`L` |
+
+Per library: Work 49, Town 39, Social 44, Mocap 56 = 188
+
+
+In-engine checks on the real villager rig, with props and anchors: `frames/gallery_*.jpg`. Blender sheets per library:
+`clips/{work,town,social,mocap}/*.jpg`. Known weaknesses, as reported per library:
+- fingers use a single curl value (pointing is a fist);
+- mouths are not animated;
+- some mocap social takes slide up to 0.5 m, because the actors really step (Quarrel_A, Handshake_A);
+- stir and scrub are still quite stooped;
+- mocap tool clips are pantomime, with no prop contact.
 
 ## 5. Performance
 
-(filled from the bench below)
+**Per NPC, per LOD level** (`living_world_demo.tscn --mode=bench`, Mobile renderer, RTX 4070 laptop, vsync off).
+- Method: 40 NPCs forced into one tier, then the same scene without them, as a pair; best of 3 pairs.
+- A phone CPU is roughly 5x slower.
+- The HIGH and LOW runs used different thresholds but the same per-tier code, and gave the same per-tier costs.
+
+| LOD level | CPU µs / NPC / frame, HIGH (LOW run) | of which behaviour script | of which LOD script | what is left |
+|---|---:|---:|---:|---|
+| NEAR: full skeleton, every frame, look-at, shadows | **70.6** (67.0) | 2.5 | 1.8 | AnimationMixer ~31 µs + skeleton/skin ~39 µs |
+| MID: process_mode pulse every 2–4 frames, speed × k, no modifiers | **35.1** (29.9) | 0.7 | 3.8 | ~50 % of NEAR |
+| FAR: VAT twin, node kept (skeleton hidden, 1 Hz clock) | **3.7** (6.9) | 0.5 | 5.2 | ~5–10 % of NEAR |
+| data VAT (VatResidents / VatCrowd, no node) | **< 1** (400 instances) | 0 | 0 | GPU only: ~1300 tris near / ~650 far |
+| sprites (existing impostors) | ~0 | | | |
+
+**Measured traps that shaped the design** (`tools_qa/living_world/anim_cost_probe.tscn`):
+- `AnimationPlayer.advance()` in MANUAL mode costs ~320 µs per call on this rig, against ~24 µs for the engine's own
+  processing. Manual stepping at 1/3 rate is therefore ~4x slower than full rate, and villager.gd's current 12 Hz
+  "LOD" makes distant villagers ~2.5x MORE expensive (P13a §7).
+- Toggling `active` or `callback_mode_process` per frame never processes at all.
+- Toggling `process_mode` works and cuts the cost (see the MID row).
+- A skeleton that owns SkeletonModifier3Ds re-poses every frame even when they are inactive, so every tier below
+  NEAR sets `modifier_callback_mode_process = MANUAL`.
+
+**Scenes:**
+| scene | people | tier | result |
+|---|---:|---|---|
+| Demo showcase (`frames/showcase_sheet*.jpg`) | 271 (47 skeletal actors, 104 data-VAT, 120 sprites) | HIGH | 60 fps (vsync), main-thread CPU 9.9 ms; anim-LOD 0.14–0.3 ms, behaviour 0.9–1.7 ms |
+| Stress (`stress_271_people_*.jpg`) | 271, all actors in VAT range | HIGH / LOW | 60 fps (vsync), CPU 10.3 / 7.2 ms; anim-LOD 0.2 ms, behaviour 0.5 ms |
+| Real game, village bench, P13b diff applied (`before_after_village_*.jpg`) | 12 full + **140 VAT** (before: 12 full + 32 sprites, close residents hidden) | HIGH | before 77–87 fps, after 64–76 fps; +210k tris, GPU +0.1–0.7 ms, living-world scripts 0.4–0.7 ms/frame |
+| Real game, same bench | 12 full + up to 40 VAT | LOW | before 99–119 fps, after 104–109 fps (within noise) |
+
+Caveat: the PC was shared with other agents' Godot captures during most of these runs, so wall-clock fps is noisy
+(±15 %). The paired per-NPC CPU numbers are the reliable ones.
+
+Budget for 40+ visible villagers in a town:
+- HIGH (8 NEAR + 30 MID + 100 VAT): about 0.56 + 1.05 + ~0.1 = **~1.7 ms PC CPU**, about 8–9 ms on a mid-range phone. This
+  fits 60 fps, with the rest of the frame at the documented ~7 ms PC.
+- LOW (3 NEAR + 10 MID + 40 VAT): **~0.6 ms PC**, about 3 ms phone. This fits 30 fps easily.
+- VAT textures: 30 MB on HIGH (9 looks) and ~12 MB on LOW (4 looks). The far mesh reuses the same textures.
+
+Open perf items are in the backlog (STATUS_LOCAL): a lighter far VAT (~650 tris) for LOW, finger-free MID clips
+(-45 % of the mixer work), and GPU-side instance culling per settlement MultiMesh.
 
 ## 6. How to rebuild
 
