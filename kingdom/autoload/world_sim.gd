@@ -20,6 +20,9 @@ const WALK_SPEED := 1.3
 ## CPU budget for the whole-world sim per frame, and the radius around the player that is kept fresh.
 const BUDGET_US := 500
 const NEAR_RADIUS := 320.0
+## SmartObjects.find() walks the covered 16 m grid square; cap its radius so a
+## large settlement can't turn one phase transition into an unbounded scan.
+const SMART_TARGET_MAX_RADIUS := 128.0
 ## Real seconds per in-game day.
 const DAY_LENGTH := 720.0
 const FIRST := ["Marcus", "Aldric", "Edda", "Hild", "Osric", "Wynn", "Bertram", "Maud", "Cedric", "Agnes",
@@ -63,12 +66,18 @@ var dbg_frames := 0
 var _near_ids := PackedInt32Array()
 var _near_cursor := 0
 var _near_next := 0.0
+## Semantic work targets are resolved only for settlements in the existing near-simulation ring.
+## Distant rows keep their deterministic cheap schedule targets.
+var smart: SmartObjects
+var _smart_done: Dictionary = {}             # settlement id -> spots populated
+var _near_settlement_ids: Dictionary = {}    # settlement id -> true, rebuilt with _near_ids
 
 
 func _ready() -> void:
 	SeasonsScript.ensure_globals()   # shader globals must exist before shaders compile
 	WorldGen.setup(SEED)
 	_populate()
+	smart = SmartObjects.new()
 	seasons = SeasonsScript.new()
 	add_child(seasons)
 
@@ -98,6 +107,9 @@ func reset() -> void:
 	_near_ids = PackedInt32Array()
 	_near_cursor = 0
 	_near_next = 0.0
+	smart = SmartObjects.new()
+	_smart_done.clear()
+	_near_settlement_ids.clear()
 	_populate()
 	if seasons:
 		seasons.deserialize({"offset": 0})
@@ -275,6 +287,11 @@ func serialize() -> Dictionary:
 
 
 func deserialize(d: Dictionary) -> void:
+	# Claims are transient schedule reservations. Rebuild them from the loaded rows
+	# instead of letting a previous session's people keep slots occupied.
+	smart = SmartObjects.new()
+	_smart_done.clear()
+	_near_settlement_ids.clear()
 	# Active needs belong to the loaded world row, never the session being replaced.
 	npc_need_values = PackedFloat32Array()
 	npc_need_hours = PackedFloat32Array()
@@ -398,6 +415,7 @@ func _refresh_near() -> void:
 	_near_next = _clock + 1.5
 	_near_ids.clear()
 	_near_cursor = 0
+	_near_settlement_ids.clear()
 	var player := get_tree().get_first_node_in_group("player") as Node3D
 	if player == null:
 		return
@@ -405,12 +423,17 @@ func _refresh_near() -> void:
 	for s in WorldGen.settlements:
 		if p.distance_to(s["pos"]) > NEAR_RADIUS + float(s["radius"]) * 2.0:
 			continue
+		_near_settlement_ids[int(s["id"])] = true
 		var r: Vector2i = ranges[s["id"]]
 		for i in range(r.x, r.y):
 			_near_ids.append(i)
 
 
 func _on_phase_change(i: int, old: int, new_phase: int) -> void:
+	# A phase switch can move to a different type of target or fall back when a
+	# slot is unavailable. Drop the old reservation before looking for the new one.
+	if smart != null:
+		smart.release(i)
 	var s: Dictionary = WorldGen.settlements[home[i]]
 	if old == 1:
 		money[i] += WAGES[job[i]]
@@ -424,6 +447,20 @@ func _on_phase_change(i: int, old: int, new_phase: int) -> void:
 
 ## Deterministic point of interest for a person and phase.
 func _spot(s: Dictionary, which: int, i: int) -> Vector2:
+	if which != 0 and smart != null:
+		var sid := int(s["id"])
+		if _near_settlement_ids.has(sid):
+			if not _smart_done.has(sid):
+				_smart_done[sid] = true
+				smart.populate_settlement(s, WorldGen.height)
+			var act := "work" if which == 1 else "shop"
+			var center: Vector2 = s["pos"]
+			var center_3d := Vector3(center.x, WorldGen.height(center.x, center.y), center.y)
+			var semantic_target := smart.target_for(i, center_3d, act,
+				job[i] if i < job.size() else 4, time_of_day,
+				minf(float(s["radius"]) * 2.5, SMART_TARGET_MAX_RADIUS))
+			if semantic_target != Vector2.INF:
+				return semantic_target
 	var r: float = s["radius"]
 	var h := hash(i * 131 + which * 17 + day * (1 if which == 2 else 0))
 	var ang := float(h % 3600) / 3600.0 * TAU

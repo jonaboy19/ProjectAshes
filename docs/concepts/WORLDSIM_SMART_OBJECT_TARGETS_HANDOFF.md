@@ -1,0 +1,28 @@
+# WorldSim smart-object schedule targets — Codex handoff
+
+Date: 30 September 2026  
+Branch: `gpt/living-world-integration`  
+Scope: data-tier schedule destinations only; Claude-owned scenes, assets, animation clips and VAT path are untouched.
+
+## What changed
+
+`kingdom/autoload/world_sim.gd` now owns a transient `SmartObjects` index. When an NPC enters work or market phase, WorldSim can use a generated semantic approach point instead of its deterministic free-form point **if that NPC's settlement is in the existing 320 m near-simulation ring and the activity has an eligible spot**. Otherwise the previous deterministic `_spot()` calculation remains the fallback.
+
+Settlement spots are populated lazily once per near settlement using `WorldGen.height`. The near-settlement IDs are rebuilt alongside the existing near-person cache. Distant settlements do not build/query this index, preserving the cheap data-only path. Search radius is capped at 128 m because `SmartObjects.find()` walks a square of 16 m grid cells; larger settlements fall back to their previous deterministic point beyond that range. Slot reservations are released on every schedule phase change before selecting a destination; this prevents a missing or full activity from leaving an old slot blocked. Claims and the index are reconstructed on reset/load and are not part of save data.
+
+## What this does not do
+
+- It does not make embodied `Villager` actors use `SmartObjects.Session`; their movement, route, collision, and activity animation remain owned by the current live systems.
+- It does not guarantee that every job has a matching generated affordance. Missing work spots intentionally keep the existing fallback.
+- It does not make distant residents' targets immediately reroute when the player enters their settlement. Their next schedule transition resolves a near semantic target.
+- It does not establish runtime correctness, visual naturalness, save/load behavior, or mobile cost. No Godot parse, live run, device profile, or tests were run for this change.
+
+## Coordination for Claude
+
+Please preserve the `WorldSim.smart`, `_smart_done`, and `_near_settlement_ids` adapter when working on `world_sim.gd`. If P13a later connects embodied actors, use the same WorldSim-owned spot/slot claim or define an explicit atomic handoff; do not create a second competing claim owner. On demotion/despawn, release only the actor's matching claim. Schedule changes/load/reset already invalidate transient claims, so the actor session must treat revocation as cancellation and must not snap to stale targets.
+
+The existing P13 proposal in `docs/anim/patches/P13_world_sim_smart_objects.md` remains useful context, but this adapter is narrower than the proposal's unbounded all-settlement wording: it is near-ring only and preserves fallback targets. Before expanding it, profile phase changes, first-time spot population, and time skips on target mobile hardware.
+
+## Next useful system step
+
+Review generated settlement plans against `smart_objects.json` and report coverage by job/activity without changing authored layouts. Then coordinate the embodied session adapter with Claude and test whether approach points are valid street/door destinations. Keep the position owner, route system, and collision path authoritative; a semantic slot is a destination and reservation, not permission to teleport or bypass navigation.
