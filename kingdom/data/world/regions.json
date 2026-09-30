@@ -2,6 +2,12 @@
   "version": 1,
   "_doc": "World map regions. Bounds are x/z metres (north = -z) in the same space as WorldGen. status: current (fully charted, drawn from the baked terrain), unexplored (placeholder shown as 'Unexplored lands' beyond the border). To add a region later: append an entry here, give it status 'current' or 'known' once its terrain exists, and the map will show it.",
   "current": "ashford_vale",
+  "exits": [
+    {"id": "eastern_gate", "direction": "east", "site": "eastern_gate", "locked": true, "leads_to": ["varska_marches", "serathi_lowlands", "solmarch"], "hint": "Closed by order of the Aurelis Patriarchate. Pilgrims are turned back at the ditch."},
+    {"id": "grimfen_pass", "direction": "north", "site": "grimfen_pass", "locked": true, "leads_to": ["frostcrown_holds"], "hint": "Snowed shut since the Long Dark. The Order of the Highwatch keeps the winter watch."},
+    {"id": "harrow_arch", "direction": "south", "site": "landmark_harrowgate", "locked": true, "leads_to": ["solkar_dominion"], "hint": "The desert track starts past the Harrow Arch. Solkar caravans come north each Midsummer."},
+    {"id": "westfen_fen", "direction": "south-west", "site": "landmark_westfen", "locked": true, "leads_to": ["umbrafen_marsh", "veylwood"], "hint": "Veyl rangers speak of a black fen beyond Westfen. No road yet."}
+  ],
   "regions": [
     {
       "id": "ashford_vale",
@@ -14,28 +20,28 @@
     {
       "id": "north_reaches",
       "name": "Unexplored lands",
-      "hint": "The northern reaches",
+      "hint": "Frostcrown Holds: Grimfen Pass is snowed shut",
       "status": "unexplored",
       "bounds": {"min": [-8192, -8192], "max": [8192, -4096]}
     },
     {
       "id": "south_reaches",
       "name": "Unexplored lands",
-      "hint": "The southern reaches",
+      "hint": "Solkar Dominion: the spice road from Harrowgate",
       "status": "unexplored",
       "bounds": {"min": [-8192, 4096], "max": [8192, 8192]}
     },
     {
       "id": "west_reaches",
       "name": "Unexplored lands",
-      "hint": "The western reaches",
+      "hint": "Verdanweald and the Umbrafen: Veyl paths past Westfen",
       "status": "unexplored",
       "bounds": {"min": [-8192, -4096], "max": [-4096, 4096]}
     },
     {
       "id": "east_reaches",
       "name": "Unexplored lands",
-      "hint": "The eastern reaches",
+      "hint": "Aurelis Patriarchate: the Eastern Gate is closed",
       "status": "unexplored",
       "bounds": {"min": [4096, -4096], "max": [8192, 4096]}
     }

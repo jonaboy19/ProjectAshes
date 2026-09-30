@@ -61,6 +61,8 @@ var _player_node := 0
 var _op_counter := 0
 var _enemy := ""                     # enemy faction whose armies we auto-manage
 var _seeded_player := false
+var _life: Variant = null                # the Life node (or a stand-in with .war) from the last tick ctx / bind_life()
+var _treaty_applied := -1                # day of the last peace deal whose terms were applied
 
 # derived (not serialised)
 var _adj: Dictionary = {}           # node -> [[nb, len]]
@@ -288,7 +290,9 @@ func _set_route(a: Dictionary, target: int) -> bool:
 ## has ridden there, and the commander interprets it. Returns the courier record
 ## ({} if the army does not exist or is not yours).
 ## order: {kind: move|attack|hold|camp|retreat|raid, target: node, retreat: orderly|rout|feigned|scorched, formation}
-func issue_order(army_id: int, order: Dictionary) -> Dictionary:
+## opts.speed_mult: a faster rider (the player carrying it himself rides 1.6x a hired courier); opts.safe: the
+## message cannot be cut down on the road (the bearer slips past patrols).
+func issue_order(army_id: int, order: Dictionary, opts: Dictionary = {}) -> Dictionary:
 	_ensure()
 	var a := _army(army_id)
 	if a.is_empty() or a["faction"] != PLAYER:
@@ -297,14 +301,15 @@ func issue_order(army_id: int, order: Dictionary) -> Dictionary:
 	var p := path(origin, int(a["node"]))
 	var hours := 1.0
 	var legs: Array = []
+	var spd := COURIER_SPEED * maxf(0.5, float(opts.get("speed_mult", 1.0)))
 	if p.size() >= 2:
 		var acc := 0.0
 		for i in range(1, p.size()):
 			acc += _elen(p[i - 1], p[i])
-			legs.append([int(p[i]), acc / COURIER_SPEED])
-		hours = maxf(1.0, ceil(acc / COURIER_SPEED))
+			legs.append([int(p[i]), acc / spd])
+		hours = maxf(1.0, ceil(acc / spd))
 	var c := {"id": _next_id, "army_id": army_id, "order": order.duplicate(true), "sent_hour": _hours, "sent_day": _day,
-		"eta_hours": int(hours), "elapsed": 0, "legs": legs, "checked": 0, "intercepted": false}
+		"eta_hours": int(hours), "elapsed": 0, "legs": legs, "checked": 0, "intercepted": false, "safe": bool(opts.get("safe", false))}
 	_next_id += 1
 	_couriers.append(c)
 	return c.duplicate(true)
@@ -325,7 +330,7 @@ func _courier_step(ctx: Dictionary, out: Array) -> void:
 			var nd: int = legs[int(c["checked"])][0]
 			c["checked"] = int(c["checked"]) + 1
 			for e: Dictionary in _armies:
-				if e["faction"] != PLAYER and int(e["node"]) == nd and (e["route"] as Array).is_empty() and \
+				if e["faction"] != PLAYER and int(e["node"]) == nd and (e["route"] as Array).is_empty() and not bool(c.get("safe", false)) and \
 						_rng("intercept", int(c["id"]) * 97 + nd).randf() < 0.22:
 					c["intercepted"] = true
 					dead = true
@@ -595,6 +600,8 @@ func _report_step(out: Array) -> void:
 
 func tick_hour(_hour: int, ctx: Dictionary) -> Array:
 	_ensure()
+	if ctx.get("life") != null:
+		_life = ctx["life"]
 	var out: Array = []
 	if WorldGen.settlements.is_empty():
 		return out
@@ -671,6 +678,8 @@ func _maybe_siege(a: Dictionary) -> void:
 func tick_day(day: int, ctx: Dictionary) -> Array:
 	_ensure()
 	_day = day
+	if ctx.get("life") != null:
+		_life = ctx["life"]
 	var out: Array = []
 	if WorldGen.settlements.is_empty():
 		return out
@@ -679,6 +688,7 @@ func tick_day(day: int, ctx: Dictionary) -> Array:
 		add_depot(PLAYER, _hq, 400.0)
 		_mark_explored(_hq)
 	_sync_war(ctx, out)
+	_feed_casus_belli(out)
 	_field_day()
 	_supply_day(out)
 	_enemy_ai(ctx)
@@ -787,6 +797,7 @@ func _sync_war(ctx: Dictionary, out: Array) -> void:
 		if gone > 0:
 			_armies = _armies.filter(func(x: Dictionary) -> bool: return not (x["faction"] == _enemy and x["auto"]))
 			out.append("The enemy armies have withdrawn under the treaty.")
+		out.append_array(_apply_treaty(_enemy))
 		_enemy = ""
 
 
@@ -1125,19 +1136,21 @@ func _rep(actor: String, act: String) -> void:
 # --- covert ops (R§21) -------------------------------------------------------------
 
 ## kind: sabotage (target node) | assassination (target army id) | forged_letter
-## (target army id; opts.node to misdirect). opts.crestless defaults true.
-## Returns {ok, kind, evidence_id, target_faction}.
+## (target army id; opts.node to misdirect) | spy (target army id: precise intel on it and the enemy court).
+## opts.crestless defaults true. Every op leaves evidence (here and in society.evidence_items): a clumsy or
+## failed one is easy to find, and a found one sours relations, gives the enemy a casus belli and raises tension.
+## Returns {ok, kind, evidence_id, society_evidence, target_faction}.
 func covert_op(kind: String, target: int, opts: Dictionary = {}) -> Dictionary:
 	_ensure()
 	_op_counter += 1
 	var r := _rng("covert", _op_counter)
 	var crestless := bool(opts.get("crestless", true))
-	var res := {"ok": false, "kind": kind, "evidence_id": -1, "target_faction": ""}
+	var res := {"ok": false, "kind": kind, "evidence_id": -1, "society_evidence": "", "target_faction": ""}
 	var skill := 1
 	var tf := _enemy if _enemy != "" else "enemy"
 	var node := target
 	var ta := {}
-	if kind in ["assassination", "forged_letter"]:
+	if kind in ["assassination", "forged_letter", "spy"]:
 		ta = _army(target)
 		if ta.is_empty():
 			return res
@@ -1150,9 +1163,10 @@ func covert_op(kind: String, target: int, opts: Dictionary = {}) -> Dictionary:
 				tf = String(a["faction"])
 				break
 	res["target_faction"] = tf
-	var chance := clampf(0.7 - 0.08 * float(skill) + float(opts.get("agent_skill", 0)) * 0.05, 0.1, 0.9)
+	var chance := clampf((0.85 if kind == "spy" else 0.7) - 0.08 * float(skill) + float(opts.get("agent_skill", 0)) * 0.05, 0.1, 0.9)
 	var ok := r.randf() < chance
 	res["ok"] = ok
+	var war: Variant = _war()
 	if ok:
 		match kind:
 			"sabotage":
@@ -1162,11 +1176,15 @@ func covert_op(kind: String, target: int, opts: Dictionary = {}) -> Dictionary:
 						d["stock"] = float(d["stock"]) * 0.7
 				if opts.has("bridge_to"):
 					block_edge(node, int(opts["bridge_to"]), 6)
+				if war != null:
+					war.add_support(0.03)
 			"assassination":
 				ta["commander"] = {"name": "%s %s" % [FIRST[r.randi() % FIRST.size()], LAST[r.randi() % LAST.size()]],
 					"personality": PERSONALITIES[r.randi() % PERSONALITIES.size()], "skill": 1}
 				ta["morale"] = clampf(float(ta["morale"]) - 0.3, 0.0, 1.0)
 				ta["stunned_until"] = _hours + 12
+				if war != null:
+					war.add_support(0.06)
 			"forged_letter":
 				ta["misled_until"] = _hours + 48
 				ta["order"] = {"kind": "hold", "target": node}
@@ -1174,16 +1192,69 @@ func covert_op(kind: String, target: int, opts: Dictionary = {}) -> Dictionary:
 				ta["state"] = "camped"
 				if opts.has("node"):
 					_set_route(ta, int(opts["node"]))
+				if war != null:
+					war.add_support(0.02)
+			"spy":
+				add_intel(target, "spy", 0.1, 0.95)
+				res["comp_known"] = true
 	var clarity := (0.15 if crestless else 0.5) + (0.0 if ok else 0.35) + r.randf_range(0.0, 0.2)
-	var ev := {"id": _next_id, "kind": kind, "day": _day, "node": node, "target_faction": tf, "clarity": clarity, "discovered": false, "success": ok}
+	if kind == "spy":
+		clarity *= 0.5     # watching leaves fewer marks than cutting
+	var ev := {"id": _next_id, "kind": kind, "day": _day, "node": node, "target_faction": tf, "clarity": clarity, "discovered": false, "success": ok, "soc": ""}
 	_next_id += 1
+	ev["soc"] = _society_evidence(kind, node, clarity)
 	_evidence.append(ev)
 	res["evidence_id"] = ev["id"]
+	res["society_evidence"] = ev["soc"]
 	return res
+
+
+## Records a trace of something the player did that is not a covert_op (a provocation): it can surface like one.
+func note_trace(kind: String, node: int, target_faction: String, clarity: float, soc_id := "") -> int:
+	var ev := {"id": _next_id, "kind": kind, "day": _day, "node": node, "target_faction": target_faction, "clarity": clarity, "discovered": false, "success": true, "soc": soc_id}
+	_next_id += 1
+	_evidence.append(ev)
+	return int(ev["id"])
+
+
+const EVIDENCE_TYPE := {"sabotage": "cut_rope", "assassination": "blade_and_badge", "forged_letter": "forged_seal", "spy": "coded_note"}
+
+
+func _society_evidence(kind: String, node: int, clarity: float) -> String:
+	if hub == null:
+		return ""
+	var soc: RefCounted = hub.mod("society")
+	if soc == null or not soc.has_method("add_evidence"):
+		return ""
+	return String(soc.call("add_evidence", "war_" + kind, String(EVIDENCE_TYPE.get(kind, "trace")), clarity, node))
+
+
+## The bound Life's war_sim, or null.
+func _war() -> Variant:
+	if _life != null and "war" in _life and _life.war != null and _life.war.has_method("add_tension"):
+		return _life.war
+	return null
+
+
+func bind_life(life: Variant) -> void:
+	_life = life
 
 
 func evidence() -> Array:
 	return _evidence.duplicate(true)
+
+
+## Burying the trail: burns the clues of one op (costs the caller's time and gold). Returns true if it was still buried.
+func cover_tracks(evidence_id: int) -> bool:
+	for ev: Dictionary in _evidence:
+		if int(ev["id"]) == evidence_id and not bool(ev["discovered"]):
+			ev["clarity"] = float(ev["clarity"]) * 0.3
+			if hub != null and String(ev.get("soc", "")) != "":
+				var soc: RefCounted = hub.mod("society")
+				if soc != null and soc.has_method("destroy_evidence"):
+					soc.call("destroy_evidence", String(ev["soc"]))
+			return true
+	return false
 
 
 func _evidence_day(out: Array) -> void:
@@ -1201,11 +1272,158 @@ func _evidence_day(out: Array) -> void:
 				if f != null and f.has_method("change_relation"):
 					f.call("change_relation", PLAYER, String(ev["target_faction"]), "grievance", 25.0)
 					f.call("change_relation", PLAYER, String(ev["target_faction"]), "trust", -15.0)
+			var war: Variant = _war()
+			if war != null and String(ev["target_faction"]) in war.WAR_CANDIDATES:
+				var tfn := String(ev["target_faction"])
+				war.add_tension(tfn, 12.0)
+				war.offer_cb(tfn, "incident", "Crown agents were caught behind a %s near %s." % [String(ev["kind"]).replace("_", " "), _nname(int(ev["node"]))], _day, "enemy")
 			_rep(PLAYER, "covert_exposed")
 			keep.append(ev)
 		elif _day - int(ev["day"]) < 30:
 			keep.append(ev)
 	_evidence = keep
+
+
+# --- player influence on the war (scripts/realm/war_influence.gd drives these) ---------------------------
+
+## Feeds war_sim reasons to fight that only the realm knows about: a claim on land the player holds or that
+## is contested, and a succession vacuum in a great house. Checked once a day, at peace.
+func _feed_casus_belli(out: Array) -> void:
+	var war: Variant = _war()
+	if war == null or war.is_at_war() or hub == null:
+		return
+	var r := _rng("cb_feed", _day)
+	var cands: Array = []
+	for id: String in war.WAR_CANDIDATES:
+		if not war.under_truce(id):
+			cands.append(id)
+	if cands.is_empty():
+		return
+	var land: RefCounted = hub.mod("land")
+	if land != null and r.randf() < 0.05:
+		for region in land.regions():
+			var d: Dictionary = land.deed(region)
+			var sid := int(str(region)) if str(region).is_valid_int() else -1
+			if sid < 0 or sid >= WorldGen.settlements.size():
+				continue
+			var frontier := String(WorldGen.settlements[sid].get("kind", "")) == "frontier_town"
+			var mine := String(d.get("holder", "")) == "player" or String(d.get("occupier", "")) == "player"
+			var contested: bool = land.in_conflict(region)
+			if frontier and (mine or contested):
+				var id: String = cands[r.randi() % cands.size()]
+				war.offer_cb(id, "claim", "%s presses its claim to %s, %s." % [war.display_name(id), String(d["name"]), "now in your hands" if mine else "where the crown's rule is contested"], _day, "enemy" if mine else "caldrenn")
+				out.append("Envoys from %s dispute the title to %s." % [war.display_name(id), String(d["name"])])
+				break
+	var nob: Variant = _life.nobility if _life != null and "nobility" in _life else null
+	if nob != null and "houses" in nob and r.randf() < 0.0012:
+		for h: Dictionary in nob.houses:
+			if (h.get("heirs", []) as Array).is_empty():
+				var id2: String = cands[r.randi() % cands.size()]
+				if war.has_cb_kind(id2, "succession"):
+					break
+				war.offer_cb(id2, "succession", "%s has no heir, and %s courts its vassals." % [String(h.get("name", "A great house")), war.display_name(id2)], _day, "enemy")
+				break
+
+
+## Applies a concluded peace's land, tribute, marriage and warmth to the realm. `enemy` is the nation id.
+func _apply_treaty(enemy: String) -> Array:
+	var out: Array = []
+	var war: Variant = _war()
+	if war == null:
+		return out
+	var t: Dictionary = war.last_treaty
+	if t.is_empty() or String(t.get("enemy", "")) != enemy or int(t.get("day", -1)) <= _treaty_applied:
+		return out
+	_treaty_applied = int(t["day"])
+	var winner := String(t.get("winner", "draw"))
+	var f: RefCounted = hub.mod("factions") if hub != null else null
+	var land: RefCounted = hub.mod("land") if hub != null else null
+	var land_name := String(t.get("land", ""))
+	if land_name != "" and land != null:
+		for s: Dictionary in WorldGen.settlements:
+			if String(s["name"]) == land_name:
+				var sid := int(s["id"])
+				if winner == "enemy":
+					land.seize(sid, enemy, _treaty_applied)
+					_captured[str(nearest_node(s["pos"]))] = enemy
+					out.append("%s passes to %s under the treaty." % [land_name, war.display_name(enemy)])
+				else:
+					land.remember(sid, "liberation", 0.5, _treaty_applied)
+					_captured.erase(str(nearest_node(s["pos"])))
+					out.append("%s is confirmed in the crown's hands." % land_name)
+				break
+	var tr := int(t.get("tribute", 0))
+	if f != null and tr > 0 and f.has_method("add_wealth") and winner != "draw":
+		f.call("add_wealth", "caldrenn", float(tr) * (0.02 if winner == "caldrenn" else -0.02))
+		f.call("add_wealth", enemy, float(tr) * (-0.02 if winner == "caldrenn" else 0.02))
+	if f != null and not (t.get("marriage", {}) as Dictionary).is_empty() and f.has_method("propose_marriage"):
+		var m: Dictionary = f.call("propose_marriage", "caldrenn", enemy, false)
+		if bool(m.get("accepted", false)):
+			out.append("A royal match seals the peace with %s." % war.display_name(enemy))
+	if f != null:
+		f.call("change_relation", "caldrenn", enemy, "grievance", -10.0)
+		f.call("change_relation", "caldrenn", enemy, "trust", 6.0)
+	return out
+
+
+## Supplies a player depot (created at `node` if none): army quartermasters buy from merchants. Returns the stock.
+func supply_depot(node: int, amount: float) -> float:
+	_ensure()
+	add_depot(PLAYER, node, amount)
+	var stock := 0.0
+	for d: Dictionary in _depots:
+		if d["faction"] == PLAYER and int(d["node"]) == node:
+			stock = float(d["stock"])
+	# armies camped at or next to the depot eat a little better right away
+	for a: Dictionary in _armies:
+		if a["faction"] == PLAYER and int(a["node"]) == node:
+			a["supply"] = minf(MAX_SUPPLY, float(a["supply"]) + amount / maxf(50.0, float(a["strength"])) * 0.6)
+	return stock
+
+
+## A local levy under the player's own banner at `node` (strength men). Returns the army id.
+func raise_militia(node: int, men: int, army_name := "Militia") -> int:
+	_ensure()
+	var id := spawn_army(PLAYER, node, men, "loyal", army_name)
+	var a := _army(id)
+	a["morale"] = 0.7
+	a["commander"]["skill"] = 1
+	return id
+
+
+## The player fights personally in engagement `eng_id`, on the crown's side (or `side` "a"/"b" if given):
+## an elite champion joins that side (and the tactical map, if open), and its troops fight steadier.
+## Returns {ok, reason, side, wounded, risk}.
+func join_engagement(eng_id: int, side := "") -> Dictionary:
+	var e := engagement_raw(eng_id)
+	if e.is_empty() or String(e["status"]) == "ended":
+		return {"ok": false, "reason": "That fight is over."}
+	var s := side
+	if s == "":
+		if _eng_has_player(e, "a"):
+			s = "a"
+		elif _eng_has_player(e, "b"):
+			s = "b"
+		elif String(e["fa"]) in [PLAYER, "caldrenn"]:
+			s = "a"
+		elif String(e["fb"]) in [PLAYER, "caldrenn"]:
+			s = "b"
+	if s == "":
+		return {"ok": false, "reason": "Neither side there fights for the crown."}
+	if String(e.get("champion_side", "")) != "":
+		return {"ok": false, "reason": "You are already in the line."}
+	e["champion_side"] = s
+	(e["log"] as Array).append("You take a place in the line.")
+	var r := _rng("champion", eng_id)
+	var risk := 0.18
+	var wounded := r.randf() < risk
+	e["champion_wounded"] = wounded
+	_rep(PLAYER, "victory")
+	var tt: RefCounted = _tacs.get(eng_id)
+	if tt != null and String(tt.phase) in ["battle", "deploy"]:
+		var ks := 0 if s == "a" else 1
+		tt.add_unit(ks, {"kind": "champion", "name": "You, sword in hand", "men": 1, "quality": 0.95, "morale": 1.0, "hero": true, "layer": "front"})
+	return {"ok": true, "reason": "", "side": s, "wounded": wounded, "risk": risk}
 
 
 # --- war council (R§35) ------------------------------------------------------------
@@ -2702,6 +2920,10 @@ func _eng_round(e: Dictionary, out: Array) -> void:
 	elif hb - ha > 6.0:
 		env_a["high_ground"] = -1
 		env_b["high_ground"] = 1
+	if String(e.get("champion_side", "")) == "a":
+		env_a["surprise"] = float(env_a["surprise"]) * 1.08
+	elif String(e.get("champion_side", "")) == "b":
+		env_b["surprise"] = float(env_b["surprise"]) * 1.08
 	if bool(e["press"]):
 		env_a["surprise"] = float(env_a["surprise"]) * (1.1 if _eng_has_player(e, "a") else 1.0)
 		env_b["surprise"] = float(env_b["surprise"]) * (1.1 if _eng_has_player(e, "b") and not _eng_has_player(e, "a") else 1.0)
@@ -2892,6 +3114,9 @@ func _end_engagement(e: Dictionary, winner: String, why: String, out: Array) -> 
 			int(cas[pside]), int(cas["b" if pside == "a" else "a"])])
 		if winner != "":
 			_rep(PLAYER, "victory" if won else "")
+		var wsim: Variant = _war()
+		if wsim != null:
+			wsim.note_engagement(won and winner != "", int(cas[pside]), int(cas["b" if pside == "a" else "a"]), Vector2(float(e["x"]), float(e["y"])))
 	while _engs.size() > ENGS_KEEP:
 		var idx := -1
 		for i in _engs.size():
@@ -3101,6 +3326,8 @@ func _side_spec(e: Dictionary, side: String, mine: Array, foes: Array, t: Dictio
 	var elites: Array = []
 	if int(cmd.get("experience", 0)) >= 70 and _hash_f("champion", int(e["id"]) * 2 + (0 if side == "a" else 1)) < 0.5:
 		elites.append({"kind": "champion", "name": "%s's Champion" % String(cmd["name"]), "men": 1, "quality": 0.95, "morale": 0.95, "fatigue": 0.0})
+	if String(e.get("champion_side", "")) == side:
+		elites.append({"kind": "champion", "name": "You, sword in hand", "men": 1, "quality": 0.95, "morale": 1.0, "fatigue": 0.0, "hero": true, "layer": "front"})
 	return {"faction": fac, "player": fac == PLAYER, "name": ("Your army" if fac == PLAYER else fac.capitalize().replace("_", " ")), "cmd": cmd, "units": units, "elites": elites,
 		"supply": float(env["supply"]), "formation": String(FORM_MAP.get(form, "line"))}
 
@@ -3902,7 +4129,7 @@ func serialize() -> Dictionary:
 		"cut": _cut.duplicate(true), "blocked": _blocked.duplicate(true), "battles": _battles.duplicate(true),
 		"pending_live": pl, "evidence": _evidence.duplicate(true), "advisors": _advisors.duplicate(true),
 		"next_id": _next_id, "hours": _hours, "day": _day, "hq": _hq, "player_node": _player_node, "op_counter": _op_counter,
-		"enemy": _enemy, "seeded_player": _seeded_player,
+		"enemy": _enemy, "seeded_player": _seeded_player, "treaty_applied": _treaty_applied,
 		"engs": _engs.duplicate(true), "sight": _sight.duplicate(true), "orders_log": _orders_log.duplicate(true),
 		"pcmd": _pcmd.duplicate(true), "captured": _captured.duplicate(true), "next_uid": _next_uid, "weather": _weather, "season": _season,
 		"tacs": _ser_tacs(), "sieges": _ser_sieges(), "goals": _goals.duplicate(true), "next_goal": _next_goal, "wstaff": _wstaff.duplicate(true)}
@@ -3986,6 +4213,7 @@ func deserialize(d: Dictionary) -> void:
 	for ev: Dictionary in _evidence:
 		_ii(ev, ["id", "day", "node"])
 	_advisors = (d.get("advisors", []) as Array).duplicate(true)
+	_treaty_applied = int(d.get("treaty_applied", -1))
 	_next_id = int(d.get("next_id", 1))
 	_hours = int(d.get("hours", 0))
 	_day = int(d.get("day", 0))

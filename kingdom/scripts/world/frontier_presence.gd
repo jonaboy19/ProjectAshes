@@ -185,7 +185,7 @@ func _spawn_pack(den: Dictionary) -> void:
 	for i in count:
 		var w := Wolf.new()
 		# Apex and Rift-tainted dens reuse the closest body until they get their own models.
-		var sp := String(den["species"])
+		var sp := Frontier.ecology.variant_for(String(den["species"]), den["pos"])   # Region1 hook H4: Scar cells make rift variants
 		w.species = {"troll": "bear", "wyvern": "bear", "bear": "bear", "corrupted_wolf": "wolf"}.get(sp, sp)
 		if sp == "troll" or sp == "wyvern":
 			w.scale = Vector3.ONE * 1.9
@@ -197,8 +197,11 @@ func _spawn_pack(den: Dictionary) -> void:
 		add_child(w)
 		var q: Vector2 = den["pos"] + Vector2(randf_range(-8, 8), randf_range(-8, 8))
 		w.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
+		if sp == "corrupted_wolf":
+			w.set_meta("rift", true)
+			RiftVariants.apply_creature(w, "wolf")   # violet fur (L4 rift kit)
 		w.died.connect(func(dead_wolf: Wolf) -> void:
 			Frontier.ecology.cull(dead_wolf.den_id, 1)
-			Life.on_wolf_killed(dead_wolf.global_position, dead_wolf.den_id))
+			Life.on_wolf_killed(dead_wolf.global_position, dead_wolf.den_id, "rift_wolf" if dead_wolf.has_meta("rift") else ""))
 		list.append(w)
 	_packs[den["id"]] = list

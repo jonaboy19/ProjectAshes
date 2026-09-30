@@ -37,6 +37,7 @@ const DEED_TEXT := {
 	"donation": ["%s gave %s gold to the poor", "%s handed out about %s gold in alms", "%s gave away a fortune, %s gold or more"],
 	"duel_won": ["%s won a duel over %s gold", "%s beat a famed swordsman for about %s gold", "%s cut down a champion, %s gold on the wager"],
 	"crime": ["%s was seen doing something ugly (%s witnesses)", "%s is said to have broken the law, with about %s witnesses", "%s is a terror; %s people swear it"],
+	"tower_clear": ["%s cleared %s floors of a tower", "%s climbed about %s floors of a haunted tower", "%s conquered a tower, %s floors or more"],
 	"generic": ["%s did a great thing (%s)", "%s did something remarkable (about %s)", "%s did a legend's work (%s)"],
 }
 const CRIMES := {
@@ -1032,6 +1033,16 @@ func evidence(sid: int = -1) -> Array:
 		if sid < 0 or int(e["sid"]) == sid:
 			out.append(e.duplicate())
 	return out
+
+
+## A trace left by something other than a street crime (a war covert op: forged seal, cut rope, a dropped
+## badge). Same shape as commit_crime's items, so destroy_evidence() and the investigators treat it alike.
+func add_evidence(crime: String, type: String, strength: float, sid: int) -> String:
+	var eid := _new_id("e")
+	evidence_items.append({"id": eid, "crime": crime, "type": type, "strength": snappedf(clampf(strength, 0.05, 1.0), 0.01), "sid": sid, "day": _day})
+	if evidence_items.size() > 120:
+		evidence_items.pop_front()
+	return eid
 
 
 func destroy_evidence(eid: String) -> bool:

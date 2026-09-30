@@ -108,6 +108,15 @@ def hand_rot(side, dirv, palm):
     return (M1 @ M0.inverted()).to_quaternion()
 
 
+def hand_stages(side, stages, ts):
+    """hand rotation through several (fingers dir, palm normal) stages, blended with slerp between neighbours: ts[i] in 0..1 blends stage i -> i+1.
+    (Lerping the two direction vectors passes through near-parallel finger / palm vectors and flips the wrist by 100+ degrees in one frame.)"""
+    R = hand_rot(side, *stages[0])
+    for st, t in zip(stages[1:], ts):
+        R = R.slerp(hand_rot(side, *st), t)
+    return R
+
+
 def wrist_from_grip(G, R, side):
     return G - (R @ HAND_AXIS[side]) * GRIP_OFF
 
@@ -142,8 +151,8 @@ def set_limbs(P, hands=None, feet=None, kdir=None, edir=None, pelvis_rot=None):
     edir = edir or {}
     for side, sx in (("l", 1), ("r", -1)):
         if hands and side in hands:
-            G, d, palm, grip = hands[side]
-            R = hand_rot(side, d, palm)
+            G, d, palm, grip = hands[side][:4]
+            R = hands[side][4] if len(hands[side]) > 4 else hand_rot(side, d, palm)      # a 5th entry = ready-made rotation (slerped stages)
             w = wrist_from_grip(G, R, side)
             P.t["hand_" + side] = w
             P.abs["hand_" + side] = R
@@ -179,6 +188,74 @@ def solve_pose(P):
             # IK targets follow the world, not the pelvis, so one correction is exact (translation only)
 
 
+POLE_LIMB = {"knee_l": ("thigh_l", "calf_l", "foot_l"), "knee_r": ("thigh_r", "calf_r", "foot_r"),
+             "elbow_l": ("upperarm_l", "lowerarm_l", "hand_l"), "elbow_r": ("upperarm_r", "lowerarm_r", "hand_r")}
+POLE_STEP = 0.10          # max knee / elbow travel (relative to its hip / shoulder) per 30 fps frame before the pole is pulled toward the previous knee
+
+
+def solve_continuous(P, prev):
+    """solve_pose + pole continuity. A 2-bone IK knee / elbow can swing around the hip-ankle axis by 0.3-0.5 m in one frame when the authored
+    pole direction changes quickly near a folded limb (the 0.36 m calf snap of the first Vault_Low), and the bend plane / twist of an
+    (almost) straight limb is undefined (upper arms rolling 120+ degrees in one frame right before a hand releases the wall).
+      * folded limb: after the solve, a joint that moved more than POLE_STEP relative to its parent since the previous frame gets its pole
+        target pulled toward the previous joint direction (half-way per iteration) and the pose is solved again;
+      * straight limb (hip-end distance above 90 % of the limb length): the pole direction is frozen to the previous frame's, blended in
+        with the straightness, so the plane cannot flip.
+    `prev` is the state dict carried from frame to frame."""
+    solve_pose(P)
+    pbs = tgt.pose.bones
+    for pole, (root_b, mid_b, end_b) in POLE_LIMB.items():
+        if pole not in P.t:
+            continue
+        last = 9.0
+        for it in range(8):
+            hip = pbs[root_b].head
+            end = P.t[end_b]
+            ax = (end - hip)
+            full = (pbs[mid_b].head - hip).length + (pbs[end_b].head - pbs[mid_b].head).length
+            if ax.length < 1e-4:
+                break
+            axn = ax.normalized()
+            mid = (hip + end) * 0.5
+            ratio = ax.length / full
+            if ratio > 0.90:                                   # near straight: keep the previous bend plane
+                pd = prev.get(pole + "_dir")
+                if pd is not None:
+                    w = smooth((ratio - 0.90) / 0.06)
+                    cur = P.t[pole] - mid
+                    cur = cur - axn * cur.dot(axn)
+                    pdp = pd - axn * pd.dot(axn)
+                    if cur.length > 1e-5 and pdp.length > 1e-5 and w > 0:
+                        P.t[pole] = mid + cur.normalized().lerp(pdp.normalized(), w).normalized() * 0.6
+                        solve_pose(P)
+                break
+            rel = pbs[mid_b].head - hip
+            jump = (rel - prev[pole]).length if pole in prev else 0.0
+            if jump <= POLE_STEP or jump > 0.95 * last:      # fine, or the limb cannot follow (the end target itself moves that fast)
+                break
+            last = jump
+            kp = prev[pole] - axn * prev[pole].dot(axn)
+            if kp.length < 1e-4:
+                break
+            cur = P.t[pole] - mid
+            cur = cur - axn * cur.dot(axn)
+            if cur.length < 1e-4:
+                cur = kp
+            new = cur.normalized().lerp(kp.normalized(), 0.5).normalized()
+            P.t[pole] = mid + new * 0.6
+            solve_pose(P)
+    for pole, (root_b, mid_b, end_b) in POLE_LIMB.items():
+        prev[pole] = (pbs[mid_b].head - pbs[root_b].head).copy()
+        if pole in P.t:
+            hip = pbs[root_b].head
+            axn = (P.t[end_b] - hip).normalized() if (P.t[end_b] - hip).length > 1e-4 else Vector((0, 0, 1))
+            mid = (hip + P.t[end_b]) * 0.5
+            d = P.t[pole] - mid
+            d = d - axn * d.dot(axn)
+            if d.length > 1e-5:
+                prev[pole + "_dir"] = d.normalized()
+
+
 PROBE = [("thigh_l", "calf_l", 0.075), ("calf_l", "foot_l", 0.055), ("foot_l", "ball_l", 0.04),
          ("thigh_r", "calf_r", 0.075), ("calf_r", "foot_r", 0.055), ("foot_r", "ball_r", 0.04),
          ("pelvis", "spine_01", 0.11), ("spine_01", "spine_02", 0.11), ("spine_02", "spine_03", 0.12),
@@ -194,8 +271,9 @@ def bake2(name, poses, log=None):
         pb.location = Vector()
     frames = []
     diag = []
+    prev = {}
     for fi, P in enumerate(poses):
-        solve_pose(P)
+        solve_continuous(P, prev)
         final = {}
         fin = {}
         adj = {}
@@ -304,8 +382,52 @@ def report_reach(name, diag, tol=0.02):
 
 # ------------------------------------------------------------------ clip registry
 CLIPS = {}
+EVENTS = {}      # clip name -> {event: frame} (written to the .clips.json sidecar)
+CONTACTS = {}    # clip name -> [[bone, frame0, frame1], ...] world-locked hand (wrist) / foot (ball) windows; scan_motion.py checks the drift on the exported GLB
 
 
 def clip(fn):
     CLIPS[fn.__name__] = fn
     return fn
+
+
+# ------------------------------------------------------------------ pose blending / standing pose (used by the ledge + mantle clips)
+def blend_pose(P0, P1, w):
+    """pose interpolation: vectors lerp, world rotations slerp, grip lerp. Anchors are not blended (take P0's if w < 0.5)."""
+    w = max(0.0, min(1.0, w))
+    if w <= 0.0:
+        return P0
+    if w >= 1.0:
+        return P1
+    P = Pose()
+    P.pelvis = P0.pelvis.lerp(P1.pelvis, w)
+    P.root = P0.root.lerp(P1.root, w)
+    for d, a, b in ((P.t, P0.t, P1.t), (P.rot, P0.rot, P1.rot), (P.abs, P0.abs, P1.abs)):
+        for k in set(a) | set(b):
+            if k in a and k in b:
+                d[k] = a[k].lerp(b[k], w) if hasattr(a[k], "lerp") and not isinstance(a[k], Quaternion) else a[k].slerp(b[k], w)
+            else:
+                d[k] = (a[k] if k in a else b[k]).copy()
+    for s in ("l", "r"):
+        P.grip[s] = lerp(P0.grip[s], P1.grip[s], w)
+    P.anchor = P0.anchor if w < 0.5 else P1.anchor
+    return P
+
+
+def stand_pose(org, breath=0.0, head_pitch=-3.0, yaw=0.0):
+    """relaxed idle stand at the world point org (feet on org.z): pelvis 0.895 above the floor, arms hanging with soft elbows,
+    a small stagger. `breath` (-1..1) lifts the chest a few mm. yaw is not used (the character always faces -Y)."""
+    P = Pose()
+    P.root = V(0, 0, 0)
+    P.pelvis = org + V(0.0, 0.03, 0.895 + 0.004 * breath)
+    hands = {}
+    for side, sx in (("l", 1), ("r", -1)):
+        G = org + V(sx * 0.27, 0.05 - 0.02 * breath, 0.80)
+        hands[side] = (G, V(0.06 * sx, -0.10, -1.0), V(-1.0 * sx, 0.0, -0.1), 0.35)
+    feet = {"l": (org + V(0.11, -0.05, ZB0), 6.0, 0.0, 0.0), "r": (org + V(-0.11, 0.05, ZB0), -6.0, 0.0, 0.0)}
+    set_limbs(P, hands, feet, {"l": V(0.15, -1.0, 0.1), "r": V(-0.15, -1.0, 0.1)}, {"l": V(0.7, 0.9, -0.2), "r": V(-0.7, 0.9, -0.2)})
+    set_torso(P, (0, 0, 0), (1.0 + 0.6 * breath, 0, 0), (head_pitch, 0, 0))
+    return P
+
+
+ZB0 = 0.015

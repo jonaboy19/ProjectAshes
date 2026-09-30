@@ -152,6 +152,7 @@ func score_site(pos: Vector2) -> float:
 	if b["flooded"]:
 		return 0.0
 	var s: float = 0.32 * b["water"] + 0.24 * b["wood"] + 0.24 * b["defence"] + 0.20 * b["road"]
+	s += preload("res://scripts/world/hidden_valley.gd").site_bonus(pos)   # Hidden valley hook: fertile vale soil
 	return clampf(s, 0.0, 1.0)
 
 

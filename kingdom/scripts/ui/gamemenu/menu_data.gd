@@ -17,9 +17,9 @@ const RadiantQuests := preload("res://scripts/sim/radiant_quests.gd")
 # ------------------------------------------------------------------ inventory ----
 
 const CATEGORIES := [["all", "All"], ["weapons", "Weapons"], ["armor", "Armor"],
-	["consumables", "Consumables"], ["materials", "Materials"], ["quest", "Quest Items"], ["misc", "Misc"]]
-const RARITY_NAMES := ["Common", "Uncommon", "Rare", "Epic"]
-const RARITY_COLORS := [Color("cfc8b6"), Color("6fd18a"), Color("58a6ff"), Color("b47bff")]
+	["consumables", "Consumables"], ["materials", "Materials"], ["tools", "Tools"], ["quest", "Quest Items"], ["misc", "Misc"]]
+const RARITY_NAMES := ["Common", "Uncommon", "Rare", "Epic", "Legendary"]
+const RARITY_COLORS := [Color("cfc8b6"), Color("6fd18a"), Color("58a6ff"), Color("b47bff"), Color("ffb33d")]
 const QUEST_COLOR := Color("f0b85a")
 ## Item slots in the pack grid (the empty ones are drawn as dark cells).
 const PACK_SLOTS := 48
@@ -45,18 +45,26 @@ static func category_of(id: String) -> String:
 	var info := Crafting.item_info(id)
 	if bool(info.get("quest_item", false)) or String(info.get("category", "")) == "quest":
 		return "quest"
+	if String(info.get("category", "")) == "tool" and String(info.get("type", "")) != "kit" or String(info.get("type", "")) == "tool":
+		return "tools"
 	match String(info.get("slot", "")):
 		"main_hand":
 			return "weapons"
-		"off_hand", "head", "body", "hands", "feet":
+		"off_hand", "head", "body", "hands", "feet", "legs", "cloak", "ring", "amulet":
 			return "armor"
 		"trinket":
 			return "misc"
 	match String(info.get("category", "other")):
-		"food", "healing":
+		"food", "healing", "manual":
 			return "consumables"
-		"material", "ore":
+		"material", "ore", "seed", "feed":
 			return "materials"
+		"ammo":
+			return "weapons"
+		"key", "lore":
+			return "quest"
+		"tool":
+			return "tools"
 	return "misc"
 
 
@@ -67,10 +75,24 @@ static func category_name(cat: String) -> String:
 	return cat.capitalize()
 
 
+const WEAPON_LABELS := {"dagger": "Dagger", "sword": "One-Handed Sword", "sabre": "Sabre", "greatsword": "Two-Handed Sword", "axe": "One-Handed Axe",
+	"battleaxe": "Two-Handed Axe", "mace": "Mace", "warhammer": "Two-Handed Hammer", "spear": "Spear", "halberd": "Halberd", "fist": "Fist Weapon",
+	"shortbow": "Shortbow", "longbow": "Longbow", "crossbow": "Crossbow", "staff": "Staff", "wand": "Wand", "shield": "Shield"}
+const ARMOUR_CLASS_LABELS := {"robe": "Robe", "light": "Light", "medium": "Medium", "heavy": "Heavy"}
+const SLOT_TYPE_LABELS := {"head": "Head", "body": "Body", "hands": "Hands", "legs": "Legs", "feet": "Feet", "cloak": "Cloak",
+	"ring": "Ring", "amulet": "Amulet", "trinket": "Trinket", "off_hand": "Off-hand"}
+
+
 static func item_type_label(id: String) -> String:
 	if TYPE_LABELS.has(id):
 		return String(TYPE_LABELS[id])
 	var info := Crafting.item_info(id)
+	var wt := String(info.get("weapon_type", ""))
+	if WEAPON_LABELS.has(wt):
+		return String(WEAPON_LABELS[wt])
+	var ac := String(info.get("armour_class", ""))
+	if ARMOUR_CLASS_LABELS.has(ac) and SLOT_TYPE_LABELS.has(String(info.get("slot", ""))):
+		return "%s %s" % [ARMOUR_CLASS_LABELS[ac], SLOT_TYPE_LABELS[String(info.get("slot", ""))]]
 	var slot := String(info.get("slot", ""))
 	if slot != "":
 		return String(Equipment.SLOT_NAMES.get(slot, slot.capitalize()))
@@ -80,6 +102,9 @@ static func item_type_label(id: String) -> String:
 		"material": return "Material"
 		"ore": return "Ore"
 		"tack": return "Tack"
+	var t := String(info.get("type", ""))
+	if t != "":
+		return t.replace("_", " ").capitalize()
 	return "Item"
 
 
@@ -111,6 +136,10 @@ static func is_weapon(id: String) -> bool:
 static func rarity_of(id: String, quality := 1) -> int:
 	if category_of(id) == "quest":
 		return -1
+	var explicit: Variant = Crafting.item_info(id).get("rarity")
+	if explicit != null:
+		# Region 1 items carry their own rarity (0 common .. 4 legendary); masterwork gear is one step up.
+		return clampi(int(explicit) + (1 if Equipment.is_equippable(id) and quality >= 2 else 0), 0, 4)
 	if Equipment.is_equippable(id):
 		return clampi(quality, 0, 2)
 	var price := int(Crafting.item_info(id).get("price", 0))
@@ -226,6 +255,7 @@ static func item_detail(id: String, quality := 1, durability := -1) -> Dictionar
 				stat_text(String(info["buff_stat"]), float(info.get("buff_value", 0.0))), int(info.get("buff_hours", 1))]))
 		if info.has("cures"):
 			rows.append(_row("stat_heal", "Cures", String(info["cures"]).replace("_", " ").capitalize()))
+	rows.append_array(_extra_rows(id, info, st, gear))
 	rows.append(_row("stat_weight", "Weight", "%.1f kg" % item_weight(id), item_weight(id), false))
 	if gear:
 		var maxd := Equipment.max_durability(id, quality)
@@ -237,7 +267,8 @@ static func item_detail(id: String, quality := 1, durability := -1) -> Dictionar
 	if flav == "":
 		flav = String(FLAVOUR.get(String(info.get("category", "")), ""))
 	var usable := float(info.get("nutrition", 0.0)) > 0.0 or int(info.get("heal", 0)) > 0 \
-		or info.has("buff_stat") or info.has("cures")
+		or info.has("buff_stat") or info.has("cures") or info.has("qi_restore") or info.has("repair_fraction") \
+		or info.has("cultivation_xp") or info.has("breakthrough_bonus") or info.has("permanent_stat") or info.has("casts") or info.has("effect")
 	var typ := item_type_label(id)
 	if info.has("tool"):
 		typ += " · tool"
@@ -247,8 +278,76 @@ static func item_detail(id: String, quality := 1, durability := -1) -> Dictionar
 		"value": value_of(id, quality)}
 
 
+const EXTRA_LABELS := {"magic": "Magic", "block": "Block", "resist": "Resist", "crit": "Crit chance", "qi_regen": "Qi regen", "max_health": "Health",
+	"max_stamina": "Stamina", "stamina_regen": "Stamina regen", "stealth": "Stealth", "luck": "Luck", "heal_power": "Healing power", "potion_power": "Potion power",
+	"forge_quality": "Forge quality", "charm": "Charm", "regen": "Regen", "armour_pierce": "Armour pierce"}
+const PERCENT_STATS := ["block", "crit", "stealth", "luck", "heal_power", "potion_power", "forge_quality", "charm", "armour_pierce"]
+
+
+## Stat rows a Region 1 item adds beyond armour/damage/speed: magic, block, resist, requirements, set, effects, keeping time.
+static func _extra_rows(id: String, info: Dictionary, st: Dictionary, gear: bool) -> Array[Dictionary]:
+	var rows: Array[Dictionary] = []
+	if gear:
+		for k: String in ["magic", "block", "resist", "crit", "qi_regen", "max_health", "max_stamina", "stamina_regen", "stealth", "luck",
+				"heal_power", "potion_power", "forge_quality", "charm", "regen", "armour_pierce"]:
+			if st.has(k) and absf(float(st[k])) > 0.0001:
+				var v := float(st[k])
+				var txt := ("%+d%%" % int(round(v * 100.0))) if PERCENT_STATS.has(k) else (("%+.2f" % v) if absf(v) < 2.0 and k in ["qi_regen", "stamina_regen", "regen"] else ("%+d" % int(round(v))))
+				rows.append(_row("stat_armour" if k in ["block", "resist"] else "stat_damage" if k in ["magic", "crit", "armour_pierce"] else "stat_heal", String(EXTRA_LABELS.get(k, k)), txt, v))
+		if String(info.get("dmg_type", "")) != "" and bool(info.get("two_handed", false)):
+			rows.append(_row("stat_reach", "Grip", "Two-handed", NAN))
+		var rq := int(info.get("req_level", 1))
+		if rq > 1:
+			rows.append(_row("info", "Requires", "Level %d" % rq, NAN))
+		var set_id := String(info.get("set", ""))
+		if set_id != "" and info.has("set_name"):
+			rows.append(_row("perk", "Set", String(info["set_name"]), NAN))
+	else:
+		if info.has("qi_restore"):
+			rows.append(_row("stat_heal", "Restores qi", str(int(info["qi_restore"])), float(info["qi_restore"])))
+		if info.has("cultivation_xp"):
+			rows.append(_row("perk", "Cultivation", "+%d xp (%s)" % [int(info["cultivation_xp"]), String(info.get("cultivation_realm", "")).replace("_", " ")], NAN))
+		if info.has("breakthrough_bonus"):
+			rows.append(_row("perk", "Breakthrough", "+%d%% chance" % int(round(float(info["breakthrough_bonus"]) * 100.0)), NAN))
+		if info.has("teaches"):
+			rows.append(_row("perk", "Teaches", ", ".join((info["teaches"] as Array).map(func(t: Variant) -> String: return String(t).replace("_", " ").capitalize())), NAN))
+		if info.has("realm") and info.has("teaches"):
+			rows.append(_row("info", "Realm", String(info["realm"]).replace("_", " ").capitalize(), NAN))
+		if info.has("coating_damage"):
+			rows.append(_row("stat_damage", "Coating", "%s +%d × %d hits" % [String(info.get("coating", "")).capitalize(), int(info["coating_damage"]), int(info.get("coating_hits", 1))], NAN))
+		if info.has("repair_fraction"):
+			rows.append(_row("stat_durability", "Repairs", "%d%% durability" % int(round(float(info["repair_fraction"]) * 100.0)), NAN))
+		if info.has("tool_power") and info.has("tool"):
+			rows.append(_row("stat_damage", "Tool power", "x%.2f" % float(info["tool_power"]), float(info["tool_power"])))
+		if info.has("spoil_hours"):
+			var h := float(info["spoil_hours"])
+			rows.append(_row("info", "Keeps", ("%d days" % int(round(h / 24.0))) if h >= 48.0 else ("%d hours" % int(h)), NAN))
+		if info.has("comfort"):
+			rows.append(_row("perk", "Comfort", str(int(info["comfort"])), float(info["comfort"])))
+		var rq2 := int(info.get("req_level", 1))
+		if rq2 > 1:
+			rows.append(_row("info", "Requires", "Level %d" % rq2, NAN))
+	return rows
+
+
 static func stat_text(stat: String, v: float) -> String:
 	match stat:
+		"magic":
+			return "%+d magic" % int(v)
+		"qi_regen":
+			return "%+.1f qi regen" % v
+		"armour":
+			return "%+d armour" % int(v)
+		"resist":
+			return "%+d resist" % int(v)
+		"max_stamina":
+			return "%+d stamina" % int(v)
+		"luck":
+			return "%+d%% luck" % int(round(v * 100.0))
+		"stealth":
+			return "%+d%% stealth" % int(round(v * 100.0))
+		"night_vision":
+			return "night vision"
 		"speed":
 			return "%+d%% speed" % int(round(v * 100.0))
 		"stamina_regen":
@@ -380,10 +479,10 @@ static func _learned_in(skills: Object, trees: Array) -> int:
 
 ## Equipment slots around the paper doll: [{slot, label, icon, id, quality, durability, available}].
 ## The game has no legs slot yet, so "legs" is shown locked.
-const DOLL_LEFT := ["head", "body", "hands", "legs"]
-const DOLL_RIGHT := ["main_hand", "off_hand", "feet", "trinket"]
+const DOLL_LEFT := ["head", "cloak", "body", "hands", "legs"]
+const DOLL_RIGHT := ["main_hand", "off_hand", "feet", "amulet", "ring", "trinket"]
 const DOLL_LABELS := {"head": "Head", "body": "Chest", "hands": "Hands", "legs": "Legs", "feet": "Feet",
-	"main_hand": "Weapon", "off_hand": "Off-hand", "trinket": "Trinket"}
+	"main_hand": "Weapon", "off_hand": "Off-hand", "trinket": "Trinket", "cloak": "Cloak", "ring": "Ring", "amulet": "Amulet"}
 
 
 static func doll_slot(slot: String, equipment: Object = null) -> Dictionary:
@@ -548,6 +647,10 @@ const MAIN_KINDS := ["war_muster", "war_battle", "apex_hunt", "lord_task"]
 ## Completed / failed quests are only counted by the game (no records), so the menu
 ## keeps a session log (GameMenu.log_quest) that Life could feed and persist.
 static var quest_log: Array[Dictionary] = []
+## Region1 hook C7 (docs/regions/REGION_1_PLAN.md): extra quest sources. Each Callable() -> {active: [], completed: [], failed: []}
+## in the same quest shape as above; main.gd's Region1 glue adds the story quest. Journal pages: Callable() -> {title, sub, entries: [{head, text, done}]}.
+static var extra_quests: Array[Callable] = []
+static var extra_journal: Array[Callable] = []
 
 
 static func log_quest(q: Dictionary, state: String) -> void:
@@ -676,6 +779,11 @@ static func quests(radiant: Object = null, guild: Object = null) -> Dictionary:
 			out["completed"].append(e)
 		elif e["state"] == "failed":
 			out["failed"].append(e)
+	for provider: Callable in extra_quests:
+		if provider.is_valid():
+			var extra: Dictionary = provider.call()
+			for k: String in ["active", "completed", "failed"]:
+				(out[k] as Array).append_array(extra.get(k, []))
 	return out
 
 

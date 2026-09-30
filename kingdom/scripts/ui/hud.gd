@@ -91,6 +91,7 @@ var portrait: Control               # the card's round portrait (portrait.gd)
 var compass: Control               # scripts/ui/compass.gd
 var banner: Control                # scripts/ui/discovery_banner.gd
 var world_map: Control             # scripts/ui/world_map.gd
+var parchment: Control             # Region1 hook H6: scripts/ui/map_parchment_layer.gd
 var photo_mode: Control            # scripts/ui/photo_mode.gd
 var discovery: RefCounted          # scripts/sim/discovery.gd (Life.discovery when Life owns one)
 ## The fps / chunk line: hidden unless this is on (`--debug-hud`, or project setting ashes/debug/show_stats).
@@ -121,6 +122,10 @@ var _touch := false
 ## quest tracker: `hud.quest_source = services.radiant()`). Life.radiant is used
 ## automatically when Life owns one.
 var quest_source: Object
+## Region1 hook C7 (docs/regions/REGION_1_PLAN.md): the story quest. `story_tracker` returns {title, objectives: [{text, state}]}
+## (or {} to hide), `story_target` returns a Vector2 compass hint or null. Both are optional and the player can hide the tracker.
+var story_tracker: Callable = Callable()
+var story_target: Callable = Callable()
 
 
 func _init(p: Player) -> void:
@@ -615,6 +620,8 @@ func _update_tracker() -> void:
 		var q: Dictionary = (rq as Object).call("tracked_quest")
 		if not q.is_empty():
 			quest = _radiant_objectives(q)
+	if quest.is_empty() and story_tracker.is_valid():   # Region1 hook C7
+		quest = story_tracker.call()
 	if quest.is_empty():
 		for c: Dictionary in Life.guild.active_for(RAAdventurerGuild.PLAYER):
 			var req := int(c.get("required", 1))
@@ -897,6 +904,10 @@ func _build_overlays() -> void:
 	world_map.travel_check = _travel_block_reason
 	world_map.travel_requested.connect(_on_travel_requested)
 	add_child(world_map)
+	# Region1 hook H6 (docs/regions/REGION_1_PLAN.md): painted parchment map layer
+	parchment = preload("res://scripts/ui/map_parchment_layer.gd").new()
+	world_map.add_layer(parchment)
+	world_map.closed.connect(parchment.release)      # frees the texture (VRAM) while the map is closed
 	photo_mode = PhotoMode.new()
 	photo_mode.closed.connect(func() -> void: _root.visible = true)
 	photo_mode.screenshot_saved.connect(func(path: String) -> void: print("[photo] saved ", path))
@@ -1042,6 +1053,7 @@ func _check_discovery() -> void:
 		if pl["category"] != "settlement":
 			notify("location", "Location Discovered", String(pl["name"]))
 		place_discovered.emit(pl)
+		Life.award_progress("discovery", {"id": String(pl["id"])})   # progression hook
 		_reward_discovery(pl)
 		_marker_timer = 0.0
 
@@ -1089,6 +1101,10 @@ func _quest_target() -> Variant:
 			var qp: Variant = (src as Object).call("active_objective_position")
 			if qp is Vector2:
 				return qp
+	if story_target.is_valid():   # Region1 hook C7: a compass hint, never a world marker
+		var sp: Variant = story_target.call()
+		if sp is Vector2:
+			return sp
 	for c: Dictionary in Life.guild.active_for(RAAdventurerGuild.PLAYER):
 		var t: Dictionary = c.get("target", {})
 		match String(c.get("type", "")):

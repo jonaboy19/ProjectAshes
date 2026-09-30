@@ -183,6 +183,7 @@ func _tab_gameplay() -> void:
 	_row("joystick_size", "Joystick Size", "slider", [], "Size of the on-screen movement stick (touch).")
 	_row("vibration", "Vibration", "toggle", [], "Feel hits and damage on phones.")
 	_row("subtitles", "Subtitles", "toggle", [])
+	_row("tutorial_tips", "Tutorial Tips", "toggle", [], "Short hints the first time you can do something. Turn off if you know the game; \"Show all tips again\" is on the story journal page.")
 	_row("hud_minimap", "HUD: Minimap", "toggle", [])
 	_row("hud_compass", "HUD: Compass", "toggle", [])
 	_row("hud_quests", "HUD: Quest Tracker", "toggle", [])

@@ -398,3 +398,13 @@ Design and evidence: `docs/regions/LOOK_R1.md`, `docs/regions/look/`. The look p
 | Crownstead Mill Hill (430, -190) | the Crownstead Elder Stone is on its crown: move `elder_stones` / the Act IV Crownstead step there; harvest-festival hub | `wardlines.json` hub pos |
 | Stagborn Glade (-1345, -1062) | the Glade Elder Stone and the Antlered Warden arena (the stone ring, r 21 m); stagborn spawn point | `wardlines.json` Glade hub (was (-1180, -980)) |
 | The Wyrm's Ribs (-60, -1700) | Highwatch oath site; Frostcrown tease relic | quest data |
+
+---
+
+# Cloud status (2026-09-30)
+H1 to H7, C3 to C8 and C12 are applied; see the table "Cloud integration status" in REGION_1_PLAN.md. Deviations from the snippets above:
+- The Wardlines override also makes `RARunestoneNetwork.tick_day` a no-op; the glue pushes Wardlines wear back once a day.
+- The five Elder Stones are added to the network by the glue (names start `Elder Stone (`) until the world layout adds dedicated sites.
+- `scripts/region1/scar_tide.gd` (L9) did not exist and was written with C4 (tests in `test_region1_hooks.gd`).
+- H7 uses `WorldGen.settlements[home_settlement]["name"]` for `place`.
+- Story `cutscene` actions other than the Blessing are short staging, not sequences (owner direction).

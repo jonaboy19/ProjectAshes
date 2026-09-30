@@ -28,6 +28,10 @@ var _active: Array = []      # [{squad, camp}]
 
 
 func _process(delta: float) -> void:
+	_ash_timer -= delta
+	if _ash_timer <= 0.0:
+		_ash_timer = 1.0
+		_ash_sample()   # Region1 hook C6
 	_timer -= delta
 	if _timer > 0.0:
 		return
@@ -41,6 +45,7 @@ func _cleanup() -> void:
 	for a: Dictionary in _active.duplicate():
 		var squad: Squad = a["squad"]
 		if not is_instance_valid(squad) or squad.alive() <= 0:
+			AshMemory.close(int(a.get("ash_id", -1)))   # Region1 hook C6
 			if is_instance_valid(a["camp"]):
 				(a["camp"] as Node3D).queue_free()
 			_active.erase(a)
@@ -58,6 +63,22 @@ func _maybe_spawn() -> void:
 	if randf() > per_tick * Frontier.danger_mult(WorldSim.time_of_day) * danger_mult * (1.6 if Life.war.is_at_war() else 1.0):
 		return
 	_spawn_ambush(p)
+
+
+var _ash_timer := 1.0
+
+
+## Region1 hook C6: once a second, record the bandits and the player near each open ambush (AshMemory keeps its own gate).
+func _ash_sample() -> void:
+	for a: Dictionary in _active:
+		if int(a.get("ash_id", -1)) < 0 or not is_instance_valid(a["squad"]):
+			continue
+		var actors := []
+		for s in (a["squad"] as Squad).soldiers:
+			if is_instance_valid(s):
+				actors.append({"id": s.get_instance_id(), "role": "bandit", "pos": Vector2(s.global_position.x, s.global_position.z)})
+		actors.append({"id": "player", "role": "villager", "pos": Vector2(focus.x, focus.z)})
+		AshMemory.sample_now(actors)
 
 
 ## Places the ambush just off the road, in cover, out of the player's sight.
@@ -80,3 +101,6 @@ func _spawn_ambush(near_p: Vector2) -> void:
 	add_child(squad)
 	squad.add_soldiers(randi_range(2, 4), base)
 	_active.append({"squad": squad, "camp": camp})
+	# Region1 hook C6 (docs/regions/REGION_1_PLAN.md): the ambush spot is a flagged site, the raid an Ashsight incident
+	AshMemory.flag_site_static("Roadside ambush", Vector2(base.x, base.z))
+	_active[_active.size() - 1]["ash_id"] = AshMemory.open(&"raid", Vector2(base.x, base.z))

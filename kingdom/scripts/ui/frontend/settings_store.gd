@@ -21,7 +21,7 @@ const DEFAULTS := {
 	"difficulty": 1, "cam_sens": 50, "invert_y": false, "subtitles": true,
 	"hud_minimap": true, "hud_quests": true, "hud_compass": true, "hud_damage": true,
 	"language": 0, "text_size": 1, "colorblind": 0, "screen_shake": 2,
-	"render_scale": 100, "joystick_size": 50, "vibration": true,
+	"render_scale": 100, "joystick_size": 50, "vibration": true, "tutorial_tips": true,
 }
 const SECTION := {
 	"resolution": "display", "display_mode": "display", "vsync": "display", "aa": "display",

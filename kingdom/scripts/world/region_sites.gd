@@ -71,6 +71,14 @@ static func plan(seed_value: int) -> Array[Dictionary]:
 		out.append(academy)
 	# Region1 look hook (docs/regions/LOOK_R1.md): landmarks from data/region1/landmarks.json, planned last so every id above stays.
 	out.append_array(preload("res://scripts/region1/region1_landmarks.gd").sites())
+	# Dungeon towers hook (docs/design/DUNGEON_TOWERS.md): the Ashfall Spire, own RNG stream, planned after everything else.
+	out.append_array(preload("res://scripts/world/towers/tower_planner.gd").sites(seed_value, out))
+	out.append_array(preload("res://scripts/world/hidden_valley.gd").sites())   # Hidden valley hook: the secret vale (after every id above)
+	# Region1 world hook (docs/regions/REGION_1_PLAN.md C1 C2 C10): poster places + one landmark per settlement, after everything above.
+	preload("res://scripts/world/region1_world.gd").plan(out, seed_value)
+	# Caves, mines, hideouts, warrens, crypts and hidden entrances (scripts/world/region_caves.gd): own RNG stream, appended last.
+	out.append_array(preload("res://scripts/world/region_caves.gd").plan(seed_value, out))
+	out.append_array(preload("res://scripts/world/region_pois.gd").plan(seed_value, out))   # Exploration POIs hook (own RNG stream, secret sites)
 	for i in out.size():
 		out[i]["id"] = i
 	return out

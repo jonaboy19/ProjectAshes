@@ -14,6 +14,8 @@ extends Resource
 
 @export var look := ""
 @export var mesh: ArrayMesh
+## Same vertices (same texture columns), coarser index buffer: drawn beyond VatCrowd.far_split. May be null.
+@export var mesh_far: ArrayMesh
 @export var pos_tex: ImageTexture
 @export var nrm_tex: ImageTexture
 @export var clips: Dictionary = {}

@@ -1,0 +1,16 @@
+BOAR  (boar.glb / boar_lod1.glb, identical clips)   values for creature_models.gd  "boar"
+Ground speeds are the speed of the ROOT that keeps stance feet planted (foot-slide minimised); impact = time of peak extremity speed.
+
+clip     dur(s)  ground speed (m/s)   was in table   slip before (at table speed)        slip after
+walk     1.167   0.455                0.45           max stance creep 14.5 cm / mean 5.4    1.45 cm / 0.45   (per-frame max 0.75 cm)
+run      0.600   1.95                 2.7            16.1 / 11.1 cm at 2.7 (9.5/6.6 at v*)  1.18 / 0.91  ; loop pop 6.76 cm -> 0.00
+attack   1.133   impact 0.53 s        0.21           see below
+idle     3.333   -                    -              unchanged (no slip)
+hit      0.667   unchanged; death 1.000 unchanged.
+
+ATTACK (changed): 1.133 s (34 frames), impact 0.53 s. Telegraph 0.50 s: weight sinks back 12 cm/7 cm down, head chain pitches 66 deg down,
+right front hoof paws twice (frames 4-11), 0.2 s held coil with a quiver (frames 12-15), 3-frame gore (frames 14-17: head +96 deg up,
+peak extremity 2.3 m/s vs 0.7 before), follow-through 0.6-0.7 s (head toss, front end lands, 6 cm squash), recovery to idle pose by 1.13 s.
+Before: impact 0.20 s (head dip), 0.13 s telegraph, no hold, body static (centroid moved 11 cm, no drop).
+Game playback scale impact/windup(0.55): before 0.36 (slow motion, 2.9 s swing), now 0.96.
+Recommended entry: "boar": {"walk": 0.455, "run": 1.95, "impact": 0.53}   (no clip override needed)

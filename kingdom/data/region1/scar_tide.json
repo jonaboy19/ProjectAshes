@@ -1,0 +1,19 @@
+{
+	"_about": "Scar Tide tuning (scripts/region1/scar_tide.gd, mechanic N2). Distances in metres, time in game days. Spread is per front cell per day.",
+	"origin": [1380, 980],
+	"initial_radius_cells": 2.5,
+	"spread_after_day": 20,
+	"base_spread": 0.35,
+	"season_spread": [0.8, 1.5, 1.0, 0.0],
+	"block_cov": 0.72,
+	"start_intensity": 40,
+	"rise_per_day": 55,
+	"crystal_chance": 0.12,
+	"bloom_chance": 0.1,
+	"immune_days": 6,
+	"mutate_threshold": 0.35,
+	"mutations": {"wolf": "corrupted_wolf"},
+	"price_full_cells": 500,
+	"price_flood": 0.55,
+	"price_scarce": 1.9
+}

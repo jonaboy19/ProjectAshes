@@ -45,7 +45,7 @@ func _ready() -> void:
 		var err := ResourceSaver.save(asset, path, ResourceSaver.FLAG_COMPRESS)
 		var bytes := asset.vertex_count * asset.frame_count * 12
 		total_bytes += bytes
-		print("VAT %s verts=%d tris=%d frames=%d clips=%d tex=%.2f MB save=%s %d ms" % [look, asset.vertex_count,
+		print("VAT %s far_tris=%d verts=%d tris=%d frames=%d clips=%d tex=%.2f MB save=%s %d ms" % [look, asset.mesh_far.surface_get_array_index_len(0) / 3 if asset.mesh_far else 0, asset.vertex_count,
 			asset.mesh.surface_get_array_index_len(0) / 3, asset.frame_count, asset.clips.size(), bytes / 1048576.0,
 			error_string(err), Time.get_ticks_msec() - t0])
 	print("VAT_DONE total texture %.2f MB" % (total_bytes / 1048576.0))
@@ -75,6 +75,7 @@ func bake_look(look: String, clip_names: Array, fps: float, target_tris: int) ->
 	var red := _reduce(src_arrays, target_tris, mesh.surface_get_format(0))
 	var arrays: Array = red[0]
 	var reduced: PackedInt32Array = red[1]
+	var coarse: PackedInt32Array = red[2]
 	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
 	var uvs: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
@@ -210,6 +211,7 @@ func bake_look(look: String, clip_names: Array, fps: float, target_tris: int) ->
 	var pimg := Image.create_from_data(nv, row, false, Image.FORMAT_RGBAF, rows_p.to_byte_array())
 	pimg.convert(Image.FORMAT_RGBAH)
 	var nimg := Image.create_from_data(nv, row, false, Image.FORMAT_RGBA8, rows_n)
+	var asset := VatAsset.new()
 	var am := ArrayMesh.new()
 	var ma := []
 	ma.resize(Mesh.ARRAY_MAX)
@@ -219,7 +221,20 @@ func bake_look(look: String, clip_names: Array, fps: float, target_tris: int) ->
 	ma[Mesh.ARRAY_TEX_UV2] = out_uv2
 	ma[Mesh.ARRAY_INDEX] = new_idx
 	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, ma)
-	var asset := VatAsset.new()
+	# far mesh: the next meshoptimizer LOD, re-indexed onto the SAME vertex columns (no extra texture memory);
+	# triangles that touch a vertex the near mesh does not keep are dropped.
+	var far_idx := PackedInt32Array()
+	for t in range(0, coarse.size(), 3):
+		if used.has(coarse[t]) and used.has(coarse[t + 1]) and used.has(coarse[t + 2]):
+			far_idx.append(used[coarse[t]])
+			far_idx.append(used[coarse[t + 1]])
+			far_idx.append(used[coarse[t + 2]])
+	if far_idx.size() >= 3 and far_idx.size() < new_idx.size():
+		var fa := ma.duplicate()
+		fa[Mesh.ARRAY_INDEX] = far_idx
+		var fm := ArrayMesh.new()
+		fm.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, fa)
+		asset.mesh_far = fm
 	asset.look = look
 	asset.mesh = am
 	asset.pos_tex = ImageTexture.create_from_image(pimg)
@@ -239,7 +254,7 @@ func bake_look(look: String, clip_names: Array, fps: float, target_tris: int) ->
 func _reduce(arrays: Array, target_tris: int, fmt: int) -> Array:
 	var full: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
 	if full.size() / 3 <= target_tris:
-		return [arrays, full]
+		return [arrays, full, PackedInt32Array()]
 	var im := ImporterMesh.new()
 	var a := arrays.duplicate()
 	for ch in [Mesh.ARRAY_CUSTOM0, Mesh.ARRAY_CUSTOM1, Mesh.ARRAY_CUSTOM2, Mesh.ARRAY_CUSTOM3, Mesh.ARRAY_TANGENT]:
@@ -257,10 +272,21 @@ func _reduce(arrays: Array, target_tris: int, fmt: int) -> Array:
 	full = out_arrays[Mesh.ARRAY_INDEX]
 	var best := full
 	var best_d := absi(full.size() / 3 - target_tris)
+	var lods: Array = [full]
 	for l in im.get_surface_lod_count(0):
 		var idx := im.get_surface_lod_indices(0, l)
+		lods.append(idx)
 		var d := absi(idx.size() / 3 - target_tris)
 		if d < best_d:
 			best_d = d
 			best = idx
-	return [out_arrays, best]
+	# coarse = the LOD closest to half of the chosen one (for the far VAT mesh)
+	var coarse := PackedInt32Array()
+	var cd := 1 << 30
+	for idx: PackedInt32Array in lods:
+		if idx.size() < best.size():
+			var d2 := absi(idx.size() - best.size() / 2)
+			if d2 < cd:
+				cd = d2
+				coarse = idx
+	return [out_arrays, best, coarse]
