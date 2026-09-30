@@ -164,9 +164,14 @@ func start_vale_sequence(pl: Node3D, on_done := Callable()) -> Node:
 	var def := {"shots": shots, "kicker": "A place apart", "title": "The Hidden Vale",
 		"line": "Untouched. No one has walked here in an age...", "title_at": 5.0, "music": MUSIC, "music_db": -3.0,
 		"freeze": [pl], "hide": [hud] if hud else [], "events": birds}
+	# Local look fix: stream the terrain around the flyover, not the frozen player in the slot (the high shot looked
+	# over unbuilt chunks: a void with hovering far-canopy domes). main.gd reads this meta for terrain/water focus.
+	var mid := HV.w(20.0, -20.0)
+	Engine.set_meta("stream_focus", Vector3(mid.x, WorldGen.height(mid.x, mid.y), mid.y))
 	vista = Vista.new()
 	add_child(vista)
 	vista.finished.connect(func(skipped: bool) -> void:
+		Engine.remove_meta("stream_focus")
 		playing = false
 		vista = null
 		_vale_rewards(skipped)

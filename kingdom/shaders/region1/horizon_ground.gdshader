@@ -1,11 +1,18 @@
 shader_type spatial;
 render_mode cull_back, specular_disabled;
 // Far horizon ground (scripts/region1/region1_horizon.gd): vertex-coloured whole-world mesh, discarded under
-// the streamed terrain ring (ring_min..ring_max, updated each frame) so the real chunks own that ground.
+// the streamed chunks that are really built (built_mask) so the real chunks own that ground.
 // A soft macro mottle keeps big fields from reading as flat paint.
 
-uniform vec2 ring_min = vec2(0.0);
-uniform vec2 ring_max = vec2(0.0);
+// Built streamed chunks around the focus (region1_horizon.gd): 1 = a real 64 m chunk covers this ground.
+uniform sampler2D built_mask : filter_nearest, repeat_disable;
+uniform vec2 mask_origin = vec2(1e9);
+uniform float mask_cells = 17.0;
+bool r1_built(vec2 xz) {
+	vec2 m = (xz - mask_origin) / 64.0;
+	if (m.x < 0.0 || m.y < 0.0 || m.x >= mask_cells || m.y >= mask_cells) return false;
+	return texture(built_mask, (floor(m) + 0.5) / mask_cells).r > 0.5;
+}
 #include "res://shaders/region1/biome.gdshaderinc"
 varying vec3 wpos;
 
@@ -22,7 +29,7 @@ void vertex() {
 }
 
 void fragment() {
-	if (wpos.x > ring_min.x + 1.0 && wpos.z > ring_min.y + 1.0 && wpos.x < ring_max.x - 1.0 && wpos.z < ring_max.y - 1.0) {
+	if (r1_built(wpos.xz)) {
 		discard;
 	}
 	float m = vnoise(wpos.xz * 0.012) * 0.6 + vnoise(wpos.xz * 0.05) * 0.4;

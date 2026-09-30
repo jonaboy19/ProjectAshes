@@ -371,8 +371,9 @@ static func paint(x: float, z: float, wt: Color) -> Color:
 	var v := dx * PERP.x + dz * PERP.y
 	var rn := _rn(x, z, u, v)
 	if rn < INSIDE_RN:
-		# A little forest-floor green through the meadow grass: the biome map reads dry gold here, the vale should read lush.
-		wt.a = maxf(wt.a, 0.3 + 0.12 * _nm.get_noise_2d(x * 1.7, z * 1.7))
+		# A touch of forest floor through the meadow grass (local look pass: the biome map now paints the vale lush itself,
+		# so this dropped from 0.3 to 0.1; at 0.3 the leaf-litter texture turned the whole floor olive).
+		wt.a = maxf(wt.a, 0.1 + 0.08 * _nm.get_noise_2d(x * 1.7, z * 1.7))
 	if rn < 1.9:
 		var k := 1.0 - smoothstep(1.55, 1.9, rn)
 		wt.r *= 1.0 - 0.82 * k
@@ -537,6 +538,9 @@ static func _put(buckets: Dictionary, kind: String, x: float, z: float, s: float
 	var slope := absf(WorldGen.height(x + 0.6, z) - h) + absf(WorldGen.height(x, z + 0.6) - h)
 	var sink := 0.15 + minf(slope * 0.7, 0.55)
 	var t := Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(x, h - sink, z))
+	if kind.begins_with("floor/"):   # local look fix: flat moss cards follow the slope instead of floating as strips
+		var nrm := Vector3(WorldGen.height(x - 1.0, z) - WorldGen.height(x + 1.0, z), 2.0, WorldGen.height(x, z - 1.0) - WorldGen.height(x, z + 1.0)).normalized()
+		t = Transform3D(Basis(Quaternion(Vector3.UP, nrm)) * t.basis, Vector3(x, h - 0.05, z))
 	if not buckets.has(kind):
 		buckets[kind] = []
 	buckets[kind].append(t)

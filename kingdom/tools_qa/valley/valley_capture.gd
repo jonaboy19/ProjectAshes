@@ -287,6 +287,9 @@ func _next() -> void:
 		_stream_to(HV.gorge_world(185.0), float(st.get("hour", 14.5)))
 		_life().discovery.found.erase(HV.place_id())
 		_director().call("start_vale_sequence", player)
+		# Like main.gd: the cutscene streams the ground around its camera path (async, as in game).
+		terrain.set("focus", Engine.get_meta("stream_focus", terrain.get("focus")))
+		water.set("focus", terrain.get("focus"))
 		cut_times = st["times"]
 		cut_i = 0
 		wait = 0

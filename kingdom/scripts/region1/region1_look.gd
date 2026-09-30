@@ -436,7 +436,7 @@ func _build_cliffs(kit: Dictionary) -> void:
 					basis = basis * Basis.from_scale(Vector3(k * rng.randf_range(1.0, 1.6), k, k * rng.randf_range(0.55, 0.85)))
 					# Push the rock into the slope (uphill) so it reads as the cliff itself, not a stone stuck on grass.
 					var up := Vector2(gx, gz).normalized() * target * float(kit.get("embed", 0.3))
-					var pos := Vector3(px + up.x, WorldGen.height(px, pz) - target * 0.3, pz + up.y)
+					var pos := Vector3(px + up.x, mesh_floor(px + up.x, pz + up.y, target * 0.2, 2.0) - target * 0.08, pz + up.y)
 					var key := Vector2i(floori(px / cell), floori(pz / cell))
 					if not cells.has(key):
 						var arrs := []
@@ -493,6 +493,23 @@ static func _lump(box: AABB, col: Color) -> Mesh:
 	var out := st.commit()
 	out.surface_set_material(0, mat)
 	return out
+
+
+## Lowest height of the rendered terrain around (x, z) within `r` m: the streamed mesh is a 2 m grid (4 m past
+## 110 m), so on a sheer wall it runs well below WorldGen.height() between vertices. Rocks placed on the exact height
+## floated in front of steep walls; seating them on the lowest grid vertex of their footprint buries them instead.
+static func mesh_floor(x: float, z: float, r: float, g := 4.0) -> float:
+	var lo := INF
+	var x0 := floorf((x - r) / g) * g
+	var z0 := floorf((z - r) / g) * g
+	var gz := z0
+	while gz <= z + r + g:
+		var gx := x0
+		while gx <= x + r + g:
+			lo = minf(lo, WorldGen.height(gx, gz))
+			gx += g
+		gz += g
+	return lo
 
 
 # --- Waterfalls ---------------------------------------------------------------------
