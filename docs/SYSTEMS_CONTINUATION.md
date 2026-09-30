@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Handoff: resolve species before guild cull progress
+
+Guild cull contracts target the ecology den's species, but `Life.on_wolf_killed()` currently calls `guild.on_kill(..., "wolf", den_id)` before looking up the den species. `FrontierPresence` reuses Wolf bodies for troll/wyvern/bear dens (presented as `bear`) and corrupted-wolf dens (presented as `wolf`), while retaining their den IDs. Thus bear, troll, wyvern, and corrupted-wolf den culls cannot progress. The fix belongs in Life: validate the den ID and pass its ecology species to the guild, preserving existing body presentation and merit/pelt/echo/drop policy. No code was changed: Life overlaps the current Codex PR, and the visible Claude checkout has unpublished Life changes. Claude should fetch and review that file before coordinating the fix. Suggested manual checks cover all five den species, unknown den IDs, and save/load of active culls. No parser, runtime or test validation was run. See [ADVENTURER_GUILD_SPECIES_ATTRIBUTION_HANDOFF.md](concepts/ADVENTURER_GUILD_SPECIES_ATTRIBUTION_HANDOFF.md).
+
 ### Latest slice: market fractional carry survives saves
 
 `RAMarket.serialize()` now includes fractional `_carry`; `deserialize()` clears prior carry and restores only numeric finite values in `[0, 1)` for registered goods. Legacy saves without carry continue with empty carry. Stock, purse, modifiers, callers and market rebinding behavior are unchanged. Static source review and `git diff --check` only; no parser, runtime economy, save/load or gameplay validation was run. See [MARKET_FRACTIONAL_CARRY_HANDOFF.md](concepts/MARKET_FRACTIONAL_CARRY_HANDOFF.md).
