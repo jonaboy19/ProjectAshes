@@ -171,7 +171,8 @@ func danger_mult(hour: float) -> float:
 
 
 func serialize() -> Dictionary:
-	return {"runestones": runestones.serialize(), "dens": ecology.serialize(), "eco": ecology.serialize_state(), "rift": rift_instability}
+	# "eco" already carries the dens (deserialize falls back to a legacy top-level "dens" list only when "eco" is absent).
+	return {"runestones": runestones.serialize(), "eco": ecology.serialize_state(), "rift": rift_instability}
 
 
 func deserialize(d: Dictionary) -> void:

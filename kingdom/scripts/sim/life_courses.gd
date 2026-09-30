@@ -47,6 +47,10 @@ const NEARBY_DIST := 900.0
 const CAREERS_ID_BASE := -1000000
 const MAX_NEWS := 400
 const MAX_EVENTS_PER_PERSON := 24
+## The people table is a rolling window: once it holds more than MAX_PEOPLE rows, the longest-dead residents
+## nobody has met (and who aren't famous) are forgotten first. It used to keep every birth and death forever
+## (150 -> 780 rows, +350 KB of save in two simulated years). Living people, the met and the famous stay.
+const MAX_PEOPLE := 320
 
 ## id (int) -> {id, name, birth_day, sex, settlement, culture, occupation,
 ##   rank, trade, traits: Array[String], spouse (-1 none), children: Array[int],
@@ -621,7 +625,24 @@ func tick_day(day: int, ctx: Dictionary = {}) -> Array[String]:
 		var n: Dictionary = _news[i]
 		if bool(people.get(int((n["people"] as Array)[0]), {}).get("famous", false)):
 			out.append(String(n["text"]))
+	_forget_the_dead(day)
 	return out
+
+
+## Trims the table back to MAX_PEOPLE, oldest unmet non-famous dead first. Every lookup here is
+## people.has()-guarded, so dangling parent/child/spouse ids are harmless.
+func _forget_the_dead(_day: int) -> void:
+	if people.size() <= MAX_PEOPLE:
+		return
+	var dead: Array = []
+	for pid: int in people:
+		var p: Dictionary = people[pid]
+		if not bool(p["alive"]) and not bool(p["met"]) and not bool(p["famous"]):
+			dead.append([int(p["death_day"]), pid])
+	dead.sort_custom(func(a: Array, b: Array) -> bool: return int(a[0]) < int(b[0]))
+	var over := people.size() - MAX_PEOPLE
+	for i in mini(over, dead.size()):
+		people.erase(int(dead[i][1]))
 
 
 # --- save ----------------------------------------------------------------------

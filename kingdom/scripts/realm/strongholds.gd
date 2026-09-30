@@ -281,7 +281,7 @@ func catch_up(days: int, ctx: Dictionary) -> Array:
 			rd["phase"] = "done"
 	_raids.clear()
 	# expected additional raids: closed form, a few resolved abstractly
-	var n := mini(int(days * 0.4), 5)
+	var n := mini(int(days * 0.4), 12)   # was capped at 5: a year away resolved 53 raids against 270 played out
 	var r := _rng("stronghold_catch", _day + days)
 	var hit := 0
 	for i in n:
@@ -412,7 +412,7 @@ func _remember(res: Dictionary) -> void:
 	var land: RefCounted = hub.mod("land")
 	if land != null and land.has_method("remember"):
 		if res["success"]:
-			land.call("remember", sid, "neglect", clampf(float(res["loot"]) / 20.0, 0.2, 2.0), _day)
+			land.call("remember", sid, "neglect", clampf(float(res["loot"]) / 40.0, 0.1, 1.0), _day)   # was loot/20 up to 2.0: raids alone drove loyalty to ~0
 		else:
 			land.call("remember", sid, "fair_rule", 0.5, _day)
 	var settlements: RefCounted = hub.mod("settlements")

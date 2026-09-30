@@ -24,6 +24,8 @@ const RANKS := ["Applicant", "Member", "Journeyman", "Master", "Officer", "Leade
 const JOB_HIRE_SCORE := 60.0
 const JOB_MAX_PER_SETTLEMENT := 14
 const BOARD_CAP := 3
+## Guild purses gain 3 a day and pay 1/GUILD_UPKEEP_DIV of what they hold (equilibrium ~2400); they only ever grew before.
+const GUILD_UPKEEP_DIV := 800
 const FIRE_ABSENCES := 3
 const RENT_GRACE_DAYS := 7
 const RUMOUR_LINES_MAX := 3
@@ -1352,7 +1354,8 @@ func _tick_guild_day(day: int, msgs: Array) -> void:
 			g["history"].append("Day %d: rivals sabotaged the stores." % day)
 			if mine:
 				_say(msgs, "%s: rival guildsmen sabotaged the stores." % g["name"])
-		g["treasury"] = int(g["treasury"]) + 3
+		# +3 a day less upkeep of 1/800 of the purse: settles near GUILD_TREASURY_EQ instead of growing forever.
+		g["treasury"] = int(g["treasury"]) + 3 - int(g["treasury"]) / GUILD_UPKEEP_DIV
 		while (g["history"] as Array).size() > 12:
 			g["history"].pop_front()
 
@@ -1650,7 +1653,9 @@ func catch_up(days: int, ctx: Dictionary) -> Array:
 			var p_die := 1.0 - pow(1.0 - maxf(0.0, (float(lead["age"]) - 55.0) * 0.0004), float(days))
 			if _rng("gcatch", day, gid).randf() < p_die:
 				_succession(g, day, msgs, int(g["player"]["rank"]) >= 0, "died while you were away")
-		g["treasury"] = int(g["treasury"]) + 3 * days
+		var eq := 3.0 * GUILD_UPKEEP_DIV                     # where +3/day meets the 1/GUILD_UPKEEP_DIV upkeep
+		var tr := float(g["treasury"])
+		g["treasury"] = int(eq + (tr - eq) * pow(1.0 - 1.0 / GUILD_UPKEEP_DIV, float(days)))
 		lead["age"] = int(lead["age"]) + days / 365
 		if int(g["player"]["rank"]) == 0 and int(g["player"]["probation_until"]) >= 0 and day >= int(g["player"]["probation_until"]):
 			g["player"]["rank"] = 1

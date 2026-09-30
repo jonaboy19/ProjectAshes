@@ -41,6 +41,9 @@ const LIVESTOCK_CHANCE := 0.12
 const RIFT_DEN_CHANCE := 0.06
 const RIFT_DEN_MIN_INSTABILITY := 0.45
 const MAX_EVENTS := 200
+## Hard ceiling on living dens. Migration only ever added dens (25 -> 118 alive in two simulated years, and
+## pop doubling), so past this a crowded den simply stays put and stops growing at its species' max_pop.
+const MAX_ALIVE_DENS := 48
 
 ## Den: {id, species, pos, territory, population, food 0..1, aggression 0..1,
 ## pressure 0..1, alive, apex: bool}
@@ -73,6 +76,14 @@ func spawn_apex(species: String, pos: Vector2, day: int) -> Dictionary:
 	var den := add_den(species, pos, 1)
 	_log_event({"day": day, "type": "apex_arrival", "species": species, "pos": pos, "den_id": int(den["id"])})
 	return den
+
+
+func alive_count() -> int:
+	var n := 0
+	for den in dens:
+		if den["alive"]:
+			n += 1
+	return n
 
 
 func _apex_dens() -> Array:
@@ -149,7 +160,7 @@ func tick_day(coverage: Callable, rift_instability: float, winter: bool) -> void
 		den["pressure"] = clampf(den["pressure"] + apex_push * APEX_PRESSURE_ADD + winter_push, 0.0, 1.0)
 		var displaced := apex_push > 0.0 or winter_push > 0.0
 		var threshold := DISPLACED_MIGRATE_PRESSURE if displaced else MIGRATE_PRESSURE
-		if den["pressure"] > threshold and den["population"] >= sp["pack"] * 2:
+		if den["pressure"] > threshold and den["population"] >= sp["pack"] * 2 and alive_count() < MAX_ALIVE_DENS:
 			_migrate(den, coverage, displaced, apex_source)
 		_maybe_take_livestock(den)
 		den_changed.emit(den)
@@ -213,7 +224,7 @@ func _maybe_take_livestock(den: Dictionary) -> void:
 ## (WorldGen.sites kind "rift_outpost"), independent of the ordinary
 ## population cycle.
 func _maybe_spawn_rift_den(rift_instability: float, day: int) -> void:
-	if rift_instability < RIFT_DEN_MIN_INSTABILITY:
+	if rift_instability < RIFT_DEN_MIN_INSTABILITY or alive_count() >= MAX_ALIVE_DENS + 8:
 		return
 	if _rng.randf() > RIFT_DEN_CHANCE * rift_instability:
 		return
