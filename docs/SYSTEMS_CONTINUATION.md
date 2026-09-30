@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Latest slice: unpaid land tax blocks property sale
+
+`RAProperty.sell()` now returns “Pay your land dues first.” when the owned lot has positive `tax_debt`, before storage/refund/deletion logic. Debt-free sale behavior and rent-debt rules remain unchanged. Static source review and `git diff --check` only; no parser, runtime, save/load or gameplay behavior check was run. See [PROPERTY_TAX_DEBT_SALE_HANDOFF.md](concepts/PROPERTY_TAX_DEBT_SALE_HANDOFF.md).
+
 ### Latest slice: frontier ecology receives the live winter flag
 
 `Frontier.advance_day()` now passes `WorldSim.season == "winter"` to the existing daily `MonsterEcology.tick_day()` call instead of hardcoded `false`. This enables the already-implemented winter food, wolf-pressure and migration inputs without changing other call arguments or timing. Static source review and `git diff --check` only; no parser, runtime season transition, save/load or gameplay behavior check was run. See [FRONTIER_WINTER_ECOLOGY_HANDOFF.md](concepts/FRONTIER_WINTER_ECOLOGY_HANDOFF.md).
