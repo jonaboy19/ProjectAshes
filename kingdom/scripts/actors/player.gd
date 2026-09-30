@@ -1607,6 +1607,11 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 			_animator.play_full(clip, 1.0)
 		else:
 			_animator.play_upper(clip, 1.0)
+	if health > 0 and amount > 0 and _impact_pause:
+		var attacker_mixers: Array = []
+		if from is Node3D:
+			attacker_mixers.append_array((from as Node3D).find_children("*", "AnimationMixer", true, false))
+		_hit_stop(0.045, attacker_mixers)
 
 
 func _hit_side(from: Node) -> String:

@@ -20,6 +20,7 @@ The latest Claude base already contains the ragdoll pose-hold get-up blend from 
 - Added restrained outward FOV pulses on successful parries and finisher hits, and routed combat positional shake through the same Screen Shake access setting (Off = none, Reduced = half, Full = full). FOV pulses cap at 6 degrees and decay independently from landing FOV and positional shake. The preference is read only when an impact occurs.
 - Contact sparks use the sampled sword tip when it is within 0.6 m of the confirmed target contact point; otherwise they keep the reliable target-side fallback position. This uses the existing WeaponTrail skeleton sample at hit time.
 - Wired the existing directional reaction clips for player and soldiers. Player hits select Light/Heavy and Front/Back/Left/Right (heavy at 12% max health or 4 m/s knockback); heavy reactions are full body on foot and upper body while swimming or mounted. Soldier hits use directional Light clips or directional Heavy clips above 4 m/s unless the existing ragdoll knockdown path takes over. Player guard break uses `Stagger_Back` and a small backward capsule impulse.
+- A nonlethal hit on the player locally pauses the player's and attacker's animation mixers for 45 ms after starting the reaction, then restores their prior active/speed state. It does not trigger for zero-damage blocks or death.
 - Changed humanoid-monster and animal attack playback to two phases: scale anticipation to the same authored contact deadline, then restore the clip to 1x for its final 0.2 s. A brief orange flash marks that snap. Damage range/line-of-sight checks, wind-up duration, and cooldowns are unchanged.
 - Added the missing camera-only proxy over settlement wells, eased camera pull-in only for camera-layer props such as awnings, and fade the linked well mesh when it hides the lens; solid world walls keep their immediate response.
 
@@ -30,6 +31,7 @@ The latest Claude base already contains the ragdoll pose-hold get-up blend from 
 - Impact camera feedback adds no scene queries or per-NPC work; the existing access preference controls both positional shake and the FOV pulse.
 - Blade spark placement adds one tip sample per confirmed swing resolution and no new physics query.
 - Directional hit selection is a handful of vector dot products per received hit; clip choice adds no ongoing AI or per-frame work. Soldier ragdolls remain governed by their existing heavy-hit cap.
+- Player hit-pause only searches the attacking actor's animation mixers on an actual nonlethal damaging hit; it is local to those mixers.
 - Enemy wind-up adds one float comparison per active strike; the cue is emitted once per attack-token holder. The attack token budget continues to cap simultaneous cue effects.
 - Run-stop playback adds no NPC work; the optional state graph is created only for the player animator.
 
