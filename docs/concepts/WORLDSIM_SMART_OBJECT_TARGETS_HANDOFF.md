@@ -12,7 +12,7 @@ Settlement spots are populated lazily once per near settlement using `WorldGen.h
 
 ## What this does not do
 
-- It does not make embodied `Villager` actors use `SmartObjects.Session`; their movement, route, collision, and activity animation remain owned by the current live systems.
+- It does not make embodied `Villager` actors use `SmartObjects.Session` or play activity clips. Existing schedule-goal callers may receive the semantic approach point through `WorldSim._spot()`, while route following, movement, collision, and animation remain owned by their current systems.
 - It does not guarantee that every job has a matching generated affordance. Missing work spots intentionally keep the existing fallback.
 - It does not make distant residents' targets immediately reroute when the player enters their settlement. Their next schedule transition resolves a near semantic target.
 - It does not establish runtime correctness, visual naturalness, save/load behavior, or mobile cost. No Godot parse, live run, device profile, or tests were run for this change.
