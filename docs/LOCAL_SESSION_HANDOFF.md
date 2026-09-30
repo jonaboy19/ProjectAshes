@@ -2,6 +2,9 @@
 
 The user runs **two Claude sessions on this branch at the same time**: the cloud session and a local PC session (with GPU, Blender GUI access and the Meshy MCP). This file keeps them from stepping on each other. **Read it after every pull.**
 
+## Tools you can use (read this first)
+Free, licence-checked tools are installed on the local PC in `C:\Users\Jonna\Tools\` and documented with exact headless commands in `tools/README_EXTERNAL_TOOLS.md` and the skill `.claude/skills/ashes-external-tools/SKILL.md`: scrcpy and Perfetto (S22 recording and traces), RenderDoc and AGI (GPU), gltfpack (auto-LOD; use `-noq` for Godot), Instant Meshes (retopo), Real-ESRGAN and Krita (textures), RTMPose (better video mocap), Piper (NPC voices, licence-cleared voices only), rFXGen and jsfxr (SFX), plus Rigify/Wiggle/erosion/Azgaar from round 1. Phone/GPU/Windows-binary tools work only on the local PC; cloud sessions should ask the local session to run them. No Ollama or local LLM.
+
 ## Split of work (from 2026-09-27)
 | Area | Owner | Notes |
 |---|---|---|
@@ -453,6 +456,7 @@ The cloud container has ~15 GB shared by all agents; full-game captures die. The
 5. **Perf round 3 on the real GPU + phone:** city views ~300 draw calls vs 150 budget; Hidden Vale wide views 165-180 draws (eye level 121-149); dungeons ≤ 74. Stalls/plants LOD and guard impostors were the next ideas.
 6. **Play the first 20 minutes + Act I on the phone** ("The Stones Are Dimming"): the headless autoplay passes; the in-game run was OOM-killed at the Blessing Eve step.
 7. **Asset audit (user request):** list imported models/animations that nothing references (meshy_free packs, animation libraries, region kits) and propose where each goes; place the art-side ones.
+   **Audit DONE (cloud-side, from git, no Blender needed):** `docs/qa/ASSET_AUDIT.md` + `docs/qa/asset_audit_unreferenced.csv` (413 MB UNREF, 555 MB unused by the game incl. tools-only; 68 MB safe to exclude from the APK now). Still open for local: the placement and art-side items in sections A and E (scale and y-offset checks on the GPU build), decimating `generated/scan`, and a measured before/after test export.
 8. **TikTok teaser** fallback if the cloud video agent fails again: 15-30 s vertical 1080x1920 gameplay (gate market, aerial, combat, building, war map, keep).
 
 Free CI now runs the whole gdUnit suite + secret scan + 90 MB guard on every push (`.github/workflows/tests.yml`, see skill `ashes-ci`), so you don't need to run the full suite locally before pushing; check the Actions tab after.
