@@ -1,11 +1,43 @@
 {
- "_doc": "VAT bake set for the far crowd tier (tools_qa/living_world/vat_bake.gd). fps: rows per second (the shader interpolates between rows). target_tris: reduced mesh size (LOD picked from ImporterMesh.generate_lods on the _lod1 model). A clip missing from the rig is skipped with a warning. Clip sets are kept short: every clip costs vertex_count x frames x 12 bytes of texture per look.",
- "fps": 10,
- "target_tris": 1100,
+ "_doc": "VAT bake set for the far crowd tier (tools_qa/living_world/vat_bake.gd). fps: rows per second (the shader interpolates between rows). target_tris: reduced mesh size (LOD picked from ImporterMesh.generate_lods on the _lod1 model). A clip missing from the rig is skipped with a warning. Clip sets are kept short: every clip costs vertex_count x frames x 12 bytes of texture per look. Budget: ~2 MB of texture per adult look (~1300 tris, 6 fps interpolated; the next meshoptimizer LOD, ~680 tris, collapses feet and hands into spikes); LOW loads only the looks VatResidents needs near the player.",
+ "fps": 6,
+ "target_tris": 1300,
  "clip_sets": {
-  "adult": ["Idle", "Walk", "Idle_Talking", "Idle_Listening", "Life_Walk_Elder", "Life_Walk_Happy", "Life_Walk_Tired", "Life_Farm_Hoe", "Life_Farm_Harvest", "Life_Farm_Sow", "Life_Chore_Sweep", "Life_Wood_Chop", "Life_Talk_Explain", "Life_Talk_Listen_Nod", "Life_Social_Laugh", "Life_Rest_Sit_Ground", "Life_Market_Call_Out", "Walk+Life_Carry_Bucket_Upper", "Walk+Life_Carry_Sack_Upper", "Farm_Harvest", "TreeChopping", "Sitting_Idle", "Cheering_Two_Hands"],
-  "guard": ["Idle", "Walk", "Idle_Talking", "Life_Guard_Patrol_Walk", "Life_Guard_Lean_Spear", "Life_Guard_Attention", "Life_Walk_March"],
-  "child": ["Idle", "Walk", "Life_Kid_Run_Play", "Life_Kid_Skip", "Life_Kid_Hopscotch", "Life_Kid_Chase_Chicken", "Life_Kid_Clap_Jump", "Jog_Fwd"]
+  "adult": [
+   "Idle",
+   "Walk",
+   "Idle_Talking",
+   "Life_Walk_Happy",
+   "Life_Walk_Tired",
+   "Life_Walk_Elder",
+   "Life_Farm_Hoe",
+   "Life_Farm_Harvest",
+   "Life_Farm_Sow",
+   "Life_Chore_Sweep",
+   "Life_Wood_Chop",
+   "Life_Talk_Explain",
+   "Life_Talk_Listen_Nod",
+   "Life_Market_Call_Out",
+   "Walk+Life_Carry_Bucket_Upper",
+   "Walk+Life_Carry_Sack_Upper",
+   "Sitting_Idle"
+  ],
+  "guard": [
+   "Idle",
+   "Walk",
+   "Idle_Talking",
+   "Life_Guard_Patrol_Walk",
+   "Life_Guard_Lean_Spear",
+   "Life_Guard_Attention"
+  ],
+  "child": [
+   "Idle",
+   "Walk",
+   "Life_Kid_Run_Play",
+   "Life_Kid_Skip",
+   "Life_Kid_Hopscotch",
+   "Life_Kid_Chase_Chicken"
+  ]
  },
  "looks": {
   "villager_man_a": "adult",

@@ -13,9 +13,9 @@
     -1,
     0
    ],
-   "grip2_m": 0.45,
+   "grip2_m": -0.4,
    "hand": "r",
-   "note": "long handle along +Z, blade at the top end, blade edge toward front"
+   "note": "origin = the lower (right) hand 0.5 m above the butt; butt end at -0.50 (left hand ~-0.4), blade centre ~0.88 m along +Z, blade edge toward front (-Y)"
   },
   "shovel": {
    "file": "res://assets/generated/life_props/shovel.glb",

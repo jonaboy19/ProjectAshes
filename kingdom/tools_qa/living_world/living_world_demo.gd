@@ -40,6 +40,19 @@ var _shots: Array = []
 var _baker: ImpostorBaker
 var _frame_ms: Array = []
 var _bench_done := false
+var _ready_done := false
+var t_start := 0
+var t_end := 0
+
+
+class EndMark extends Node:
+	var demo: Node
+
+	func _process(_d: float) -> void:
+		demo.t_end = Time.get_ticks_usec()
+var _beh_ms := 0.0
+var _beh_acc := 0
+var _beh_n := 0
 
 
 func _ready() -> void:
@@ -48,6 +61,11 @@ func _ready() -> void:
 			var kv := a.substr(2).split("=", true, 1)
 			args[kv[0]] = kv[1] if kv.size() > 1 else "1"
 	mode = String(args.get("mode", "showcase"))
+	process_priority = -100000
+	var em := EndMark.new()
+	em.demo = self
+	em.process_priority = 100000
+	add_child(em)
 	hour = float(args.get("hour", "10.0"))
 	rain = args.has("rain")
 	_tint_tiers = args.has("tiers")
@@ -79,6 +97,8 @@ func _ready() -> void:
 	_populate_far()
 	await _populate_sprites()
 	_setup_shots()
+	_t = 0.0
+	_ready_done = true
 
 
 # ================================================================= world
@@ -98,7 +118,7 @@ func _build_environment() -> void:
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.fog_enabled = true
 	env.fog_light_color = pm.sky_horizon_color
-	env.fog_density = 0.0025 if not rain else 0.008
+	env.fog_density = 0.0010 if not rain else 0.006
 	env.fog_sky_affect = 0.3
 	var we := WorldEnvironment.new()
 	we.environment = env
@@ -128,9 +148,12 @@ func _build_environment() -> void:
 	plaza.mesh = pc
 	var cob := StandardMaterial3D.new()
 	cob.albedo_texture = load("res://assets/art/textures/cobblestone.png")
-	cob.uv1_scale = Vector3(14, 14, 14)
+	cob.uv1_scale = Vector3(0.4, 0.4, 0.4)
 	cob.uv1_triplanar = true
-	cob.albedo_color = Color(1.0, 0.95, 0.88)
+	cob.normal_enabled = true
+	cob.normal_texture = load("res://assets/art/textures/cobblestone_normal.png")
+	cob.normal_scale = 1.2
+	cob.albedo_color = Color(0.92, 0.86, 0.78)
 	cob.roughness = 0.95
 	plaza.material_override = cob
 	plaza.position.y = 0.0
@@ -276,7 +299,7 @@ func _actor(look: String, pos: Vector3, yaw_deg := 0.0, child := false, height :
 	a.rotation.y = deg_to_rad(yaw_deg)
 	a._yaw = a.rotation.y
 	actors.append(a)
-	var vat_look := look if VAT_LOOKS.has(look) else ("child_boy" if child else "villager_man_a")
+	var vat_look := VatResidents.look_of_model(a.model)
 	lod.register(a.person, a, a.model, a.anim, a.look_mod, vat_look)
 	return a
 
@@ -475,13 +498,14 @@ func _populate_sprites() -> void:
 
 # ================================================================= frame
 func _process(delta: float) -> void:
-	_t += delta
-	if mode == "bench":
+	t_start = Time.get_ticks_usec()
+	if mode == "bench" or not _ready_done:
 		return
+	_t += delta
 	_tick_data_crowd(delta)
 	_update_camera()
 	_update_overlay(delta)
-	if _tint_tiers or (mode == "showcase" and _t > float(args.get("tint_at", "38.0"))):
+	if (_tint_tiers or (mode == "showcase" and _t > float(args.get("tint_at", "52.0")))) and Engine.get_process_frames() % 15 == 0:
 		_apply_tier_tint(true)
 	if args.has("shot") and not has_meta("shot_done") and _t > float(args.get("shot_at", "5")):
 		set_meta("shot_done", true)
@@ -531,21 +555,27 @@ func _setup_shots() -> void:
 	if mode == "stress":
 		_shots = [{"t": 0.0, "pos": Vector3(0, 30, 70), "look": Vector3(10, 0, 0)}, {"t": 60.0, "pos": Vector3(0, 30, 70), "look": Vector3(10, 0, 0)}]
 		return
-	# showcase: [start time, camera position, look target]
+	# showcase: [start time, camera position, look target]; the timeline starts once everything is spawned
 	_shots = [
-		{"t": 0.0, "pos": Vector3(7, 2.0, 17), "look": Vector3(-2, 1.0, 0)},
-		{"t": 7.0, "pos": Vector3(1, 1.8, 7), "look": Vector3(-8, 1.1, -3)},
-		{"t": 9.0, "pos": Vector3(-8.5, 1.7, -1.5), "look": Vector3(-14, 1.0, -5)},
-		{"t": 15.0, "pos": Vector3(-7.5, 1.7, 1.0), "look": Vector3(-12, 0.9, 3)},
-		{"t": 17.0, "pos": Vector3(-2, 1.7, 3.5), "look": Vector3(0, 1.1, 10.5)},
-		{"t": 23.0, "pos": Vector3(3, 1.7, 3.5), "look": Vector3(1, 1.1, 10.5)},
-		{"t": 25.0, "pos": Vector3(6, 1.8, 2), "look": Vector3(13, 1.1, -4)},
-		{"t": 30.0, "pos": Vector3(7, 1.8, -2), "look": Vector3(13, 1.1, -6)},
-		{"t": 32.0, "pos": Vector3(0, 1.3, 7), "look": Vector3(-5, 0.7, 4)},
-		{"t": 36.0, "pos": Vector3(-1, 1.5, 8), "look": Vector3(-7, 0.7, 8)},
-		{"t": 38.0, "pos": Vector3(0, 6, 22), "look": Vector3(0, 1, 0)},
-		{"t": 48.0, "pos": Vector3(-20, 38, 85), "look": Vector3(25, 0, -5)},
-		{"t": 60.0, "pos": Vector3(-20, 38, 85), "look": Vector3(25, 0, -5)},
+		{"t": 0.0, "pos": Vector3(18, 6, 26), "look": Vector3(-2, 1, -2)},
+		{"t": 6.5, "pos": Vector3(12, 4, 19), "look": Vector3(-4, 1, -4)},
+		{"t": 7.0, "pos": Vector3(-8.0, 1.6, -2.5), "look": Vector3(-14.5, 1.0, -4.8)},
+		{"t": 13.5, "pos": Vector3(-8.5, 1.5, -0.2), "look": Vector3(-12.0, 0.9, 2.8)},
+		{"t": 14.0, "pos": Vector3(-1.0, 1.3, 8.5), "look": Vector3(-5.5, 0.6, 4.5)},
+		{"t": 20.0, "pos": Vector3(0.5, 1.4, 5.5), "look": Vector3(-3.5, 0.7, -2.0)},
+		{"t": 20.5, "pos": Vector3(0.0, 1.7, 4.0), "look": Vector3(0.0, 1.2, 11.0)},
+		{"t": 27.0, "pos": Vector3(4.0, 1.7, 5.0), "look": Vector3(6.5, 1.2, 10.5)},
+		{"t": 27.5, "pos": Vector3(6.0, 1.7, -0.5), "look": Vector3(13.0, 1.1, -5.0)},
+		{"t": 34.0, "pos": Vector3(8.0, 1.7, -6.0), "look": Vector3(13.0, 1.1, -10.0)},
+		{"t": 34.5, "pos": Vector3(0.5, 1.7, -15.0), "look": Vector3(0.0, 1.0, -24.0)},
+		{"t": 40.0, "pos": Vector3(-1.0, 1.7, -8.0), "look": Vector3(-2.5, 1.2, -10.0)},
+		{"t": 40.5, "pos": Vector3(24.0, 2.5, 13.0), "look": Vector3(35.0, 0.8, 27.0)},
+		{"t": 46.0, "pos": Vector3(26.0, 3.0, 18.0), "look": Vector3(37.0, 0.8, 34.0)},
+		{"t": 46.5, "pos": Vector3(10.0, 8.0, 30.0), "look": Vector3(0.0, 0.0, 0.0)},
+		{"t": 56.0, "pos": Vector3(-14.0, 24.0, 56.0), "look": Vector3(14.0, 0.0, 4.0)},
+		{"t": 60.0, "pos": Vector3(-14.0, 24.0, 56.0), "look": Vector3(14.0, 0.0, 4.0)},
+		{"t": 60.5, "pos": Vector3(7.0, 3.2, 13.0), "look": Vector3(-8.0, 0.8, -8.0)},
+		{"t": 68.0, "pos": Vector3(9.0, 3.6, 15.0), "look": Vector3(-6.0, 0.8, -10.0)},
 	]
 
 
@@ -588,6 +618,13 @@ func _build_overlay() -> void:
 
 func _update_overlay(delta: float) -> void:
 	_frame_ms.append(delta * 1000.0)
+	_beh_acc += LifeActor.usec_total
+	LifeActor.usec_total = 0
+	_beh_n += 1
+	if _beh_n >= 30:
+		_beh_ms = _beh_acc / 1000.0 / _beh_n
+		_beh_acc = 0
+		_beh_n = 0
 	if _frame_ms.size() > 60:
 		_frame_ms.pop_front()
 	if overlay == null or Engine.get_process_frames() % 10 != 0:
@@ -598,84 +635,103 @@ func _update_overlay(delta: float) -> void:
 	avg /= maxf(_frame_ms.size(), 1)
 	var c: Array = lod.counts
 	var proc := Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0 + Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0
-	overlay.text = "LIVING WORLD  %s  tier %s   %.0f fps  cpu %.1f ms\nskeletal NEAR %d  MID %d   VAT %d (%d from actors)   sprites %d   = %d people\nanim-LOD %.2f ms  skel updates/frame %d  draw %d" % [
+	overlay.text = "LIVING WORLD  %s  tier %s   %.0f fps  cpu %.1f ms\nskeletal NEAR %d  MID %d   VAT %d (%d from actors)   sprites %d   = %d people\nanim-LOD %.2f ms (advance %.2f, tiering %.2f)  behaviour %.2f ms  skel updates/frame %d  draw %d" % [
 		mode, ["LOW", "MEDIUM", "HIGH", "ULTRA"][lod.tier_index], Engine.get_frames_per_second(), proc,
 		c[0], c[1], crowd.count(), c[2], _sprite_count, actors.size() + _data_crowd.size() + _sprite_count,
-		lod.cpu_usec / 1000.0, lod.skeleton_updates,
+		lod.cpu_usec / 1000.0, lod.advance_usec / 1000.0, lod.retier_usec / 1000.0, _beh_ms, lod.skeleton_updates,
 		int(RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME))]
 
 
 # ================================================================= bench
-## Cost per NPC per LOD tier. For each tier: spawn N actors in a 7x7 grid in view, force the tier, let it settle,
-## then average CPU (process + physics) and frame time over F frames; subtract the empty-scene baseline.
-## "anim only" pauses the actors' own behaviour script so the number is the animation/render cost alone.
+## Cost per NPC per LOD tier. Each row is measured as a PAIR on the same machine state: N NPCs in view (tier forced)
+## for F frames, then the same scene with them removed for F frames; cost = (p50 with - p50 without) / N. Each
+## pair runs `reps` times and the median is reported, so a background process (other Godot / Blender jobs)
+## shifts both halves alike. "anim only" pauses the actors' behaviour script.
 func _run_bench() -> void:
 	Engine.max_fps = 0
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(), true)
 	var n := int(args.get("n", "40"))
 	var frames := int(args.get("frames", "240"))
+	var reps := int(args.get("reps", "3"))
 	cam.position = Vector3(0, 3.0, 16)
 	cam.look_at(Vector3(0, 0.8, 0))
-	await _settle(60)
-	var base := await _measure(frames)
-	var rows := []
-	rows.append(["baseline (village, no NPCs)", 0, base])
+	await _settle(90)
 	var looks := ["villager_man_a", "villager_man_b", "villager_woman_a", "villager_woman_b", "villager_farmer", "elder_man"]
-	for spec: Array in [["NEAR full skeletal + look-at", Tier.NEAR, false], ["MID stepped skeletal (2-4 f)", Tier.MID, false],
-			["FAR VAT via actor", Tier.FAR, false], ["NEAR anim only", Tier.NEAR, true], ["MID anim only", Tier.MID, true],
-			["FAR anim only", Tier.FAR, true]]:
-		lod.force_tier = spec[1]
-		for i in n:
-			var a := _actor(looks[i % looks.size()], Vector3(-6 + (i % 8) * 1.7, 0, -4 + (i / 8) * 1.7), 180)
-			a.set_routine([{"to": a.global_position + Vector3(0, 0, 0.01)}, {"wait": 9999.0}])
-			a._play(["Idle", "Idle_Talking", "Farm_Harvest", "TreeChopping", "Life_Farm_Hoe", "Life_Talk_Explain"][i % 6], 0.0)
-			a.paused = spec[2]
-		await _settle(90)
-		var r := await _measure(frames)
-		rows.append([spec[0], n, r])
-		for a: LifeActor in actors:
-			lod.unregister(a.person)
-			a.queue_free()
-		actors.clear()
+	var rows := []
+	var specs := [["NEAR full skeletal + look-at + behaviour", Tier.NEAR, false], ["MID stepped skeletal + behaviour", Tier.MID, false],
+		["FAR VAT twin (actor node kept) + behaviour", Tier.FAR, false], ["NEAR anim only", Tier.NEAR, true],
+		["MID anim only", Tier.MID, true], ["FAR anim only", Tier.FAR, true]]
+	for spec: Array in specs:
+		var per: Array = []
+		var extra := {}
+		for r in reps:
+			lod.force_tier = spec[1]
+			for i in n:
+				var a := _actor(looks[i % looks.size()], Vector3(-6 + (i % 8) * 1.7, 0, -4 + (i / 8) * 1.7), 180)
+				a.set_routine([{"wait": 9999.0}])
+				a._play(["Idle", "Idle_Talking", "Farm_Harvest", "TreeChopping", "Life_Farm_Hoe", "Life_Talk_Explain"][i % 6], 0.0)
+				a.paused = spec[2]
+			await _settle(90)
+			var with_m := await _measure(frames)
+			for a: LifeActor in actors:
+				lod.unregister(a.person)
+				a.queue_free()
+			actors.clear()
+			await _settle(45)
+			var without := await _measure(frames)
+			per.append([(float(with_m["proc"]) - float(without["proc"])) * 1000.0 / n, (float(with_m["rest"]) - float(without["rest"])) * 1000.0 / n,
+				(float(with_m["p50"]) - float(without["p50"])) * 1000.0 / n])
+			extra = {"beh": float(with_m["beh_us"]) / n, "lod": float(with_m["lod_us"]) / n, "p50": with_m["p50"], "base": without["p50"],
+				"p99": with_m["p99"]}
+		lod.force_tier = -1
+		rows.append([spec[0], n, _best(per), extra])
+	# data-tier VAT only (no nodes), walking in place
+	var nv := n * 10
+	var per_v: Array = []
+	var ev := {}
+	for r in reps:
+		for i in nv:
+			var look: String = looks[i % looks.size()]
+			var va: VatAsset = crowd.assets.get(look)
+			if va:
+				crowd.put(100000 + i, look, Transform3D(Basis().scaled(Vector3.ONE * (1.72 / va.height)), Vector3(-20 + (i % 25) * 1.6, 0, -30 + (i / 25) * 1.6)), "Walk")
+		await _settle(60)
+		var w := await _measure(frames)
+		crowd.clear()
 		await _settle(30)
-	lod.force_tier = -1
-	# data-tier VAT only (no nodes)
-	for i in n * 4:
-		_id += 1
-		var look: String = looks[i % looks.size()]
-		var va: VatAsset = crowd.assets.get(look)
-		if va:
-			crowd.put(_id, look, Transform3D(Basis().scaled(Vector3.ONE * (1.72 / va.height)), Vector3(-10 + (i % 16) * 1.3, 0, -8 + (i / 16) * 1.3)), "Walk")
-	await _settle(60)
-	rows.append(["data VAT (MultiMesh, no nodes)", n * 4, await _measure(frames)])
-	crowd.clear()
-	await _settle(30)
-	# sprites
-	await _populate_sprites()
-	for mmi: MultiMeshInstance3D in _sprites:
-		var mm := mmi.multimesh
-		for i in mm.instance_count:
-			mm.set_instance_transform(i, Transform3D(Basis(), Vector3(-12 + (i % 12) * 2.0, 0, -6 - (i / 12) * 2.0 - _sprites.find(mmi) * 8.0)))
-	await _settle(60)
-	rows.append(["sprites (impostor MultiMesh)", _sprite_count, await _measure(frames)])
-	var lines := ["| tier | NPCs | frame ms (p50 / p99) | GPU ms | frame us / NPC | GPU us / NPC | behaviour script us / NPC | anim-LOD us / NPC |", "|---|---:|---:|---:|---:|---:|---:|---:|"]
+		var wo := await _measure(frames)
+		per_v.append([(float(w["proc"]) - float(wo["proc"])) * 1000.0 / nv, (float(w["rest"]) - float(wo["rest"])) * 1000.0 / nv,
+			(float(w["p50"]) - float(wo["p50"])) * 1000.0 / nv])
+		ev = {"beh": 0.0, "lod": 0.0, "p50": w["p50"], "base": wo["p50"], "p99": w["p99"]}
+	rows.append(["data VAT (MultiMesh, no nodes)", nv, _best(per_v), ev])
+	var lines := ["| tier | NPCs | main-thread process us / NPC | deferred + render-submit us / NPC | CPU total us / NPC | frame (wall) us / NPC | of which behaviour script | of which anim-LOD script |",
+		"|---|---:|---:|---:|---:|---:|---:|---:|"]
 	for row: Array in rows:
-		var r: Dictionary = row[2]
-		var nn: int = row[1]
-		var d := maxf(nn, 1)
-		var fpn: float = (float(r["p50"]) - float(base["p50"])) * 1000.0 / d if nn > 0 else 0.0
-		var gpn: float = (float(r["gpu"]) - float(base["gpu"])) * 1000.0 / d if nn > 0 else 0.0
-		var bpn: float = float(r["beh_us"]) / d if nn > 0 else 0.0
-		var lpn: float = float(r["lod_us"]) / d if nn > 0 else 0.0
-		lines.append("| %s | %d | %.2f (%.2f / %.2f) | %.2f | %.1f | %.1f | %.1f | %.1f |" % [row[0], nn, r["frame"], r["p50"], r["p99"], r["gpu"], fpn, gpn, bpn, lpn])
-	var txt := "\n".join(lines)
-	print("BENCH_TABLE tier=%s\n%s" % [["LOW", "MEDIUM", "HIGH", "ULTRA"][lod.tier_index], txt])
+		var e: Dictionary = row[3]
+		var c: Array = row[2]
+		lines.append("| %s | %d | %.1f | %.1f | **%.1f** | %.1f | %.1f | %.1f |" % [row[0], row[1], c[0], c[1], c[0] + c[1], c[2], e["beh"], e["lod"]])
+	lines.append("")
+	lines.append("Each row: best (lowest) of %d paired runs of %d frames with / without the NPCs; vsync off. Process = first to last _process of the frame (AnimationMixer + scripts); deferred = the rest of the main-thread frame (skeleton updates, render setup, GPU wait)." % [reps, frames])
+	var txt := "
+".join(lines)
+	print("BENCH_TABLE tier=%s
+%s" % [["LOW", "MEDIUM", "HIGH", "ULTRA"][lod.tier_index], txt])
 	var out := String(args.get("out", ""))
 	if out != "":
 		var f := FileAccess.open(out, FileAccess.WRITE)
-		f.store_string(txt + "\n")
+		f.store_string(txt + "
+")
 	get_tree().quit()
+
+
+## Lowest process+deferred cost over the repeated pairs (the run least disturbed by other processes).
+func _best(pairs: Array) -> Array:
+	var best: Array = pairs[0]
+	for p: Array in pairs:
+		if float(p[0]) + float(p[1]) < float(best[0]) + float(best[1]):
+			best = p
+	return best
 
 
 func _settle(frames: int) -> void:
@@ -685,10 +741,12 @@ func _settle(frames: int) -> void:
 
 func _measure(frames: int) -> Dictionary:
 	var gpu := 0.0
-	var beh := 0
 	var lodu := 0
 	var vp := get_viewport().get_viewport_rid()
 	var ft: Array = []
+	var pt: Array = []
+	var rt: Array = []
+	var lodl: Array = []
 	await get_tree().process_frame
 	LifeActor.usec_total = 0
 	var t0 := Time.get_ticks_usec()
@@ -696,12 +754,20 @@ func _measure(frames: int) -> Dictionary:
 	for i in frames:
 		await get_tree().process_frame
 		var now := Time.get_ticks_usec()
-		ft.append((now - last) / 1000.0)
+		var f := (now - last) / 1000.0
+		var pr := (t_end - t_start) / 1000.0
+		ft.append(f)
+		pt.append(pr)
+		rt.append(f - pr)
 		last = now
 		gpu += RenderingServer.viewport_get_measured_render_time_gpu(vp)
-		lodu += lod.cpu_usec
-	beh = LifeActor.usec_total
+		lodl.append(lod.cpu_usec)
+	var beh := LifeActor.usec_total
+	lodl.sort()
+	lodu = lodl[lodl.size() / 2] * frames
 	ft.sort()
-	var frame := (Time.get_ticks_usec() - t0) / 1000.0 / frames
-	return {"frame": frame, "p50": ft[ft.size() / 2], "p99": ft[int(ft.size() * 0.99)], "gpu": gpu / frames,
+	pt.sort()
+	rt.sort()
+	return {"frame": (Time.get_ticks_usec() - t0) / 1000.0 / frames, "p50": ft[ft.size() / 2], "p99": ft[int(ft.size() * 0.99)],
+		"proc": pt[pt.size() / 2], "rest": rt[rt.size() / 2], "gpu": gpu / frames,
 		"beh_us": float(beh) / frames, "lod_us": float(lodu) / frames}

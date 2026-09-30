@@ -185,11 +185,13 @@ def retarget_uri(path):
 @hand
 def p_hoe():
     k = LK("hoe", 101)
-    handle(k, -0.15, 1.32, 0.025)
-    seg(k, (0, 0, 1.2), (0, 0, 1.36), 0.036, "Metal", IRON_LT, r2=0.028)          # socket
-    bar(k, (0, 0, 1.30), (0, -0.13, 1.26), 0.05, 0.035, IRON_LT, "Metal", up=(1, 0, 0))    # neck
-    bx(k, (0.22, 0.17, 0.02), (0, -0.21, 1.235), STEEL, "Metal", rot=(0.28, 0, 0), bevel=0.004)  # blade
-    bx(k, (0.22, 0.02, 0.03), (0, -0.125, 1.255), STEEL_DK, "Metal", rot=(0.28, 0, 0))     # blade rib
+    # grip origin = the LOWER (right) hand, 0.5 m up from the butt, so the other hand can hold the butt end
+    # 0.35-0.45 m behind it (a real hoeing grip); blade 0.85 m beyond the grip.
+    handle(k, -0.50, 0.97, 0.025)
+    seg(k, (0, 0, 0.85), (0, 0, 1.01), 0.036, "Metal", IRON_LT, r2=0.028)          # socket
+    bar(k, (0, 0, 0.95), (0, -0.13, 0.91), 0.05, 0.035, IRON_LT, "Metal", up=(1, 0, 0))    # neck
+    bx(k, (0.22, 0.17, 0.02), (0, -0.21, 0.885), STEEL, "Metal", rot=(0.28, 0, 0), bevel=0.004)  # blade
+    bx(k, (0.22, 0.02, 0.03), (0, -0.125, 0.905), STEEL_DK, "Metal", rot=(0.28, 0, 0))     # blade rib
     return fin(k, "hoe", HAND_BUDGET)
 
 
@@ -560,13 +562,15 @@ def p_basket():
 @hand
 def p_spear():
     k = LK("spear", 125)
-    handle(k, -0.75, 1.32, 0.022, c=hexc("a9784a"), r2=0.019)
-    seg(k, (0, 0, -0.75), (0, 0, -0.71), 0.028, "Metal", IRON_LT, segs=6)
-    seg(k, (0, 0, 1.22), (0, 0, 1.36), 0.036, "Metal", IRON_LT, r2=0.026)
-    pts = [(0, 1.34), (0.05, 1.4), (0.062, 1.5), (0.045, 1.6), (0, 1.72), (-0.045, 1.6), (-0.062, 1.5), (-0.05, 1.4)]
+    # grip origin 0.9 m above the butt (was 0.75: the butt hovered 0.14 m off the ground in the guard idles)
+    Z = -0.15
+    handle(k, -0.75 + Z, 1.32 + Z, 0.022, c=hexc("a9784a"), r2=0.019)
+    seg(k, (0, 0, -0.75 + Z), (0, 0, -0.71 + Z), 0.028, "Metal", IRON_LT, segs=6)
+    seg(k, (0, 0, 1.22 + Z), (0, 0, 1.36 + Z), 0.036, "Metal", IRON_LT, r2=0.026)
+    pts = [(0, 1.34 + Z), (0.05, 1.4 + Z), (0.062, 1.5 + Z), (0.045, 1.6 + Z), (0, 1.72 + Z), (-0.045, 1.6 + Z), (-0.062, 1.5 + Z), (-0.05, 1.4 + Z)]
     pr(k, pts, 0.018, (0, 0, 0), STEEL)
-    bx(k, (0.02, 0.026, 0.3), (0, 0, 1.52), STEEL_DK, "Metal")
-    pr(k, [(0, 1.18), (0.075, 1.09), (0.05, 0.98), (0, 0.9), (-0.05, 0.98), (-0.075, 1.09)], 0.008, (0.0, 0.03, 0),
+    bx(k, (0.02, 0.026, 0.3), (0, 0, 1.52 + Z), STEEL_DK, "Metal")
+    pr(k, [(0, 1.18 + Z), (0.075, 1.09 + Z), (0.05, 0.98 + Z), (0, 0.9 + Z), (-0.05, 0.98 + Z), (-0.075, 1.09 + Z)], 0.008, (0.0, 0.03, 0),
        RED, "Cloth")                                                                       # pennon
     return fin(k, "spear", HAND_BUDGET)
 
