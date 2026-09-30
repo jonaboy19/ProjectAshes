@@ -83,6 +83,7 @@ func _ready() -> void:
 	lod = CrowdAnimLOD.new()
 	lod.vat = crowd
 	lod.camera = cam
+	crowd.camera = cam
 	add_child(lod)
 	var tiers := {"low": 0, "medium": 1, "high": 2, "ultra": 3}
 	if args.has("tier"):
@@ -221,8 +222,8 @@ func _build_village() -> void:
 	for h: Array in houses:
 		_building(h[0], Vector3(h[1], 0, h[2]), h[3])
 	# smithy yard
-	_gen_prop("anvil_stump", Vector3(-14.2, 0, -5.0), 90)
-	so.add("anvil", _xf(Vector3(-14.2, 0, -5.0), 90))
+	_gen_prop("anvil_stump", Vector3(-13.2, 0, -5.0), -90)
+	so.add("anvil", _xf(Vector3(-13.2, 0, -5.0), -90))
 	_life_prop("bellows", Vector3(-15.6, 0, -1.6), 90)
 	so.add("bellows", _xf(Vector3(-15.6, 0, -1.6), 90))
 	_gen_prop("water_trough", Vector3(-15.8, 0, -8.2), 90)
@@ -271,8 +272,8 @@ func _build_village() -> void:
 	# fields east of the square
 	for r in 4:
 		var fz := 20.0 + r * 7.0
-		_building("field_crops", Vector3(38, 0, fz), 90)
-		so.add("field_row", _xf(Vector3(33.0, 0, fz - 2.0), 90))
+		_soil(Vector3(38, 0.02, fz), Vector2(12.0, 5.0))
+		so.add("field_row", _xf(Vector3(36.5, 0, fz - 0.8), 90))
 	# trees
 	var trees := [[-40, -35, "CommonTree_1"], [-46, 20, "CommonTree_3"], [44, -30, "CommonTree_2"], [-20, 38, "CommonTree_4"],
 		[22, 40, "CommonTree_5"], [-55, -5, "Pine_2"], [60, -40, "Pine_1"], [-38, 48, "CommonTree_2"]]
@@ -282,6 +283,27 @@ func _build_village() -> void:
 			var mi := MeshInstance3D.new()
 			mi.mesh = m
 			_place(mi, Vector3(t[0], 0, t[1]), float(absi(hash(t)) % 360))
+
+
+## A tilled field bed: dark soil with furrows (a striped albedo), cheap and readable from far away.
+func _soil(p: Vector3, size: Vector2) -> void:
+	var mi := MeshInstance3D.new()
+	var pm := PlaneMesh.new()
+	pm.size = size
+	mi.mesh = pm
+	var m := StandardMaterial3D.new()
+	var img := Image.create(4, 32, false, Image.FORMAT_RGB8)
+	for y in 32:
+		var c := Color(0.36, 0.25, 0.16) if (y / 4) % 2 == 0 else Color(0.46, 0.33, 0.2)
+		for x in 4:
+			img.set_pixel(x, y, c)
+	m.albedo_texture = ImageTexture.create_from_image(img)
+	m.uv1_scale = Vector3(size.x, size.y / 2.0, 1.0)
+	m.roughness = 1.0
+	mi.material_override = m
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(mi)
+	mi.position = p
 
 
 func _xf(p: Vector3, yaw_deg: float) -> Transform3D:
@@ -434,7 +456,7 @@ func _populate_far() -> void:
 	# far fields: rows of workers
 	for f in 6:
 		var base := Vector3(62 + (f % 3) * 22, 0, -30 + (f / 3) * 55)
-		_building("field_crops", base + Vector3(0, 0, 0), 90)
+		_soil(base + Vector3(0, 0.02, 0), Vector2(16.0, 13.0))
 		for w in 9:
 			_id += 1
 			var p := base + Vector3(randf_range(-7, 7), 0, randf_range(-6, 6))
@@ -511,6 +533,9 @@ func _process(delta: float) -> void:
 		set_meta("shot_done", true)
 		get_viewport().get_texture().get_image().save_png(String(args["shot"]))
 		print("SHOT ", args["shot"])
+		for a: LifeActor in actors.slice(0, 3):
+			print("ACTOR %s pos=%s tier=%d clip=%s phase=%s visible=%s" % [a.look_file, a.global_position, lod.tier_of(a.person), a._clip,
+				str(a.session.phase) if a.session else "-", a.model.visible])
 	if args.has("seconds") and _t > float(args["seconds"]):
 		get_tree().quit()
 
@@ -559,7 +584,8 @@ func _setup_shots() -> void:
 	_shots = [
 		{"t": 0.0, "pos": Vector3(18, 6, 26), "look": Vector3(-2, 1, -2)},
 		{"t": 6.5, "pos": Vector3(12, 4, 19), "look": Vector3(-4, 1, -4)},
-		{"t": 7.0, "pos": Vector3(-8.0, 1.6, -2.5), "look": Vector3(-14.5, 1.0, -4.8)},
+		{"t": 7.0, "pos": Vector3(-9.0, 1.6, -2.4), "look": Vector3(-13.8, 1.0, -5.0)},
+		{"t": 11.0, "pos": Vector3(-9.6, 1.5, -2.9), "look": Vector3(-13.8, 0.9, -5.0)},
 		{"t": 13.5, "pos": Vector3(-8.5, 1.5, -0.2), "look": Vector3(-12.0, 0.9, 2.8)},
 		{"t": 14.0, "pos": Vector3(-1.0, 1.3, 8.5), "look": Vector3(-5.5, 0.6, 4.5)},
 		{"t": 20.0, "pos": Vector3(0.5, 1.4, 5.5), "look": Vector3(-3.5, 0.7, -2.0)},
@@ -569,13 +595,13 @@ func _setup_shots() -> void:
 		{"t": 34.0, "pos": Vector3(8.0, 1.7, -6.0), "look": Vector3(13.0, 1.1, -10.0)},
 		{"t": 34.5, "pos": Vector3(0.5, 1.7, -15.0), "look": Vector3(0.0, 1.0, -24.0)},
 		{"t": 40.0, "pos": Vector3(-1.0, 1.7, -8.0), "look": Vector3(-2.5, 1.2, -10.0)},
-		{"t": 40.5, "pos": Vector3(24.0, 2.5, 13.0), "look": Vector3(35.0, 0.8, 27.0)},
-		{"t": 46.0, "pos": Vector3(26.0, 3.0, 18.0), "look": Vector3(37.0, 0.8, 34.0)},
+		{"t": 40.5, "pos": Vector3(45.0, 2.4, 15.0), "look": Vector3(35.0, 0.8, 27.0)},
+		{"t": 46.0, "pos": Vector3(46.0, 2.8, 22.0), "look": Vector3(35.0, 0.8, 34.0)},
 		{"t": 46.5, "pos": Vector3(10.0, 8.0, 30.0), "look": Vector3(0.0, 0.0, 0.0)},
 		{"t": 56.0, "pos": Vector3(-14.0, 24.0, 56.0), "look": Vector3(14.0, 0.0, 4.0)},
 		{"t": 60.0, "pos": Vector3(-14.0, 24.0, 56.0), "look": Vector3(14.0, 0.0, 4.0)},
-		{"t": 60.5, "pos": Vector3(7.0, 3.2, 13.0), "look": Vector3(-8.0, 0.8, -8.0)},
-		{"t": 68.0, "pos": Vector3(9.0, 3.6, 15.0), "look": Vector3(-6.0, 0.8, -10.0)},
+		{"t": 60.5, "pos": Vector3(15.0, 3.4, 7.0), "look": Vector3(-6.0, 0.8, -4.0)},
+		{"t": 68.0, "pos": Vector3(17.0, 3.8, 9.0), "look": Vector3(-6.0, 0.8, -6.0)},
 	]
 
 
