@@ -41,12 +41,10 @@ const LEG_BONES := ["thigh_l", "upperleg.l", "UpperLeg.L", "thigh.L", "upperleg_
 ## Gameplay clip choices that must beat the asset library. `Assets._ual_for`
 ## only adds its KayKit-name aliases when the name is missing, so the extra
 ## Mesh2Motion library's own 4.46 s `Death_A` shadows `Death_A -> Death01` and
-## keeps a dying actor upright for over a second. `Hit_B` (UAL
-## `Hit_Knockback`) throws the body to the ground and sinks up to 34 cm under
-## the floor on retargeted rigs (HIT_KNOCKBACK_FLOOR_CONTACT_REVIEW.md); the
-## shield-recoil clip keeps both soles planted while the hips drop into a
-## heavy stagger, and the capsule impulse still supplies the push.
-const PREFERRED_CLIPS := {"Death_A": "Death01", "Hit_B": "Block_Hit", "Hit_Knockback": "Block_Hit"}
+## keeps a dying actor upright for over a second. Legacy `Hit_B` requests map
+## to the authored grounded stagger; `Hit_Knockback` remains mapped to the safe
+## shield recoil because that stock clip sinks under the floor on retargeted rigs.
+const PREFERRED_CLIPS := {"Death_A": "Death01", "Hit_B": "Stagger_Back", "Hit_Knockback": "Block_Hit"}
 ## Speed filter response (1/s). Movement is already shaped by the controllers;
 ## this only removes tick-to-tick noise, so keep it short.
 const SPEED_RESPONSE := 18.0

@@ -1582,8 +1582,8 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 			_stunned = 0.9          # guard broken
 			_swing = 0.0
 			_swing_id += 1
-			# Heavy stagger with both feet planted (CharacterAnimator.PREFERRED_CLIPS).
-			_animator.play_full("Hit_B", 1.3)
+			_kick(-facing() * 2.2)
+			_animator.play_full("Stagger_Back", 1.0)
 			Game.say("Guard broken!")
 		else:
 			_animator.play_upper("Block_Hit", 1.5)
@@ -1601,7 +1601,25 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 		_die()
 	elif not blocking:
 		_flinch = FLINCH_TIME
-		_animator.play_upper("Hit_A", 1.5)
+		var heavy := amount >= max_health * 0.12 or knockback.length() >= 4.0
+		var clip := "Hit_%s_%s" % ["Heavy" if heavy else "Light", _hit_side(from)]
+		if heavy and not _mount and not swimming:
+			_animator.play_full(clip, 1.0)
+		else:
+			_animator.play_upper(clip, 1.0)
+
+
+func _hit_side(from: Node) -> String:
+	if not (from is Node3D):
+		return "Front"
+	var to := (from as Node3D).global_position - global_position
+	to.y = 0.0
+	var forward := facing()
+	var front := forward.dot(to)
+	var right := Vector3.UP.cross(forward).dot(to)
+	if absf(front) >= absf(right):
+		return "Front" if front > 0.0 else "Back"
+	return "Right" if right > 0.0 else "Left"
 
 
 func _die() -> void:
