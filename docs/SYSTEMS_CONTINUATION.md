@@ -2,6 +2,10 @@
 
 ## Latest continuation checkpoint — 30 September 2026
 
+### Handoff: decide caravan dispatch ownership before activation
+
+`Economy.tick_hour()` advances caravan arrivals, but repository search finds `Caravans.send()` only in tests and no live dispatch producer/owner. This is a dormant feature/design gap, not a confirmed runtime bug; no live caravans are promised. Before activation, define who funds and selects cargo, the source of dispatch requests, how cargo transfer relates to current abstract imports/surplus trade, arrival receipts/events, and save invariants. Keep cadence coarse and deterministic for mobile. Economy has unpublished Claude changes, so Claude should fetch and review before implementation. No code, parser, runtime or test validation was performed. See [CARAVAN_LIVE_DISPATCH_HANDOFF.md](concepts/CARAVAN_LIVE_DISPATCH_HANDOFF.md).
+
 ### Handoff: verify partial-route arrival against the requested activity
 
 Source review suggests `StreetGraph.route()` can return a closest-reachable partial path and set `last_route_partial`, while `Villager._plan_route()` may ignore that flag and `_steer()` may mark arrival at the path endpoint. If so, an NPC could treat an unreachable work or social slot as reached. This is a route/LOD risk, not a confirmed runtime bug; frequency and impact need an in-game capture. Ask Claude to reproduce an unreachable goal and log requested goal, returned endpoint and partial flag, then determine whether existing route-budget/LOD ownership should treat it as failed approach, release, or replan. No code change is prescribed: `street_graph` has unpublished Claude work and Villager/population LOD files overlap active work. No runtime validation is claimed. See [NPC_PARTIAL_ROUTE_ARRIVAL_HANDOFF.md](concepts/NPC_PARTIAL_ROUTE_ARRIVAL_HANDOFF.md).
