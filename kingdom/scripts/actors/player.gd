@@ -127,6 +127,7 @@ const ProceduralRig := preload("res://scripts/actors/procedural_rig.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const ImpactPause := preload("res://scripts/actors/impact_pause.gd")
 const VFXSpells := preload("res://scripts/vfx/vfx_spells.gd")
+const FlipbookFX := preload("res://scripts/vfx/flipbook_fx.gd")
 const MOUNTED_RADIUS := 0.6      # wider body while mounted so the horse's chest meets walls
 const MOUNTED_CAMERA := 7.5      # third-person distance on horseback
 ## Swimming. Depths are for a full-size body and scale with Life.body_scale().
@@ -707,6 +708,9 @@ func _update_swim_state(depth: float) -> void:
 	var k := Life.body_scale()
 	if not swimming and depth > SWIM_ENTER * k and not dead:
 		swimming = true
+		var surface := WorldGen.water_level_at(global_position.x, global_position.z)
+		if not is_nan(surface):
+			FlipbookFX.play(&"water_splash", Vector3(global_position.x, surface, global_position.z), 0.7, Color.WHITE, get_parent())
 		_reset_jump()
 		_set_crouch(false)
 		_drown = 0.0
@@ -1276,8 +1280,12 @@ func _land_jump(impact_speed: float, dir: Vector3) -> void:
 		if dead:
 			return
 	var ground := Vector3(global_position.x, WorldGen.height(global_position.x, global_position.z), global_position.z)
-	if is_nan(WorldGen.water_level_at(global_position.x, global_position.z)):
+	var water_surface := WorldGen.water_level_at(global_position.x, global_position.z)
+	if is_nan(water_surface):
 		VFXSpells._dust(get_parent(), ground, clampf(0.35 + impact_speed * 0.05, 0.4, 1.2))
+	elif WorldGen.water_depth(global_position.x, global_position.z) > 0.05:
+		FlipbookFX.play(&"water_splash", Vector3(global_position.x, water_surface, global_position.z),
+			clampf(0.5 + impact_speed * 0.035, 0.6, 1.0), Color.WHITE, get_parent())
 	if roll:
 		_land_roll = true
 		_land_roll_speed = maxf(_move_speed * 0.6, 2.2)
