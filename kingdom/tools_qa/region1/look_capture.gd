@@ -25,6 +25,9 @@ var wait := 0
 var samples: PackedFloat32Array = []
 var last_us := 0
 var perf_lines: Array[String] = []
+var float_on := false
+var float_lines: Array[String] = []
+var floater: RefCounted
 
 
 func _initialize() -> void:
@@ -35,6 +38,7 @@ func _initialize() -> void:
 		elif a.begins_with("--tag="): tag = a.substr(6)
 		elif a.begins_with("--only="): only = a.substr(7).split(",", false)
 		elif a.begins_with("--budget="): budget_s = int(a.substr(9))
+		elif a == "--floatcheck": float_on = true
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(views_path))
 	for v: Dictionary in (parsed as Dictionary)["views"]:
 		if only.is_empty() or String(v["name"]) in only:
@@ -147,6 +151,15 @@ func _next() -> void:
 
 
 func _save() -> void:
+	if float_on:
+		if floater == null:
+			floater = load("res://tools_qa/region1/float_check.gd").new()
+		var before: int = floater.get("flagged")
+		var cam_p: Vector3 = cam.global_position if cam.current else (main.get("player") as Node3D).global_position
+		var lines: Array = floater.call("check", String(views[idx]["name"]), main.get("world"), cam_p)
+		for l in lines:
+			float_lines.append(String(l))
+		print("[float] %s flagged=%d" % [views[idx]["name"], int(floater.get("flagged")) - before])
 	var v: Dictionary = views[idx]
 	var img := root.get_viewport().get_texture().get_image()
 	var p := "%s/%s%s.png" % [out_dir, v["name"], ("_" + tag) if tag != "" else ""]
@@ -171,6 +184,14 @@ func _save() -> void:
 
 
 func _finish() -> void:
+	if float_on and floater != null:
+		var ff := FileAccess.open("%s/floats%s.txt" % [out_dir, ("_" + tag) if tag != "" else ""], FileAccess.WRITE)
+		if ff:
+			ff.store_string("checked %d instances, flagged %d (> %.1f m above the rendered ground)
+" % [int(floater.get("checked")), int(floater.get("flagged")), 0.3] + "
+".join(float_lines) + "
+")
+			ff.close()
 	var f := FileAccess.open("%s/perf%s.txt" % [out_dir, ("_" + tag) if tag != "" else ""], FileAccess.WRITE)
 	if f:
 		f.store_string("\n".join(perf_lines) + "\n")

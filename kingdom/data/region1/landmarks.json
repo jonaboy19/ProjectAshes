@@ -516,6 +516,204 @@
 						1.2,
 						2.2
 					]
+				},
+				{
+					"kind": "region/nature/flowers_cool",
+					"w": [
+						-190,
+						-760
+					],
+					"r": 34,
+					"n": 170
+				},
+				{
+					"kind": "region/nature/fern_b",
+					"w": [
+						-190,
+						-760
+					],
+					"r": 36,
+					"r0": 10,
+					"n": 60
+				},
+				{
+					"kind": "region/nature/bush_round",
+					"w": [
+						-190,
+						-760
+					],
+					"r": 38,
+					"r0": 12,
+					"n": 14,
+					"s": [
+						0.7,
+						1.2
+					]
+				},
+				{
+					"kind": "region/nature/flowers_warm",
+					"w": [
+						-205,
+						-690
+					],
+					"r": 34,
+					"n": 170
+				},
+				{
+					"kind": "region/nature/fern_b",
+					"w": [
+						-205,
+						-690
+					],
+					"r": 36,
+					"r0": 10,
+					"n": 60
+				},
+				{
+					"kind": "region/nature/bush_round",
+					"w": [
+						-205,
+						-690
+					],
+					"r": 38,
+					"r0": 12,
+					"n": 14,
+					"s": [
+						0.7,
+						1.2
+					]
+				},
+				{
+					"kind": "region/nature/flowers_cool",
+					"w": [
+						-222,
+						-610
+					],
+					"r": 34,
+					"n": 170
+				},
+				{
+					"kind": "region/nature/fern_b",
+					"w": [
+						-222,
+						-610
+					],
+					"r": 36,
+					"r0": 10,
+					"n": 60
+				},
+				{
+					"kind": "region/nature/bush_round",
+					"w": [
+						-222,
+						-610
+					],
+					"r": 38,
+					"r0": 12,
+					"n": 14,
+					"s": [
+						0.7,
+						1.2
+					]
+				},
+				{
+					"kind": "region/nature/flowers_warm",
+					"w": [
+						-240,
+						-540
+					],
+					"r": 34,
+					"n": 170
+				},
+				{
+					"kind": "region/nature/fern_b",
+					"w": [
+						-240,
+						-540
+					],
+					"r": 36,
+					"r0": 10,
+					"n": 60
+				},
+				{
+					"kind": "region/nature/bush_round",
+					"w": [
+						-240,
+						-540
+					],
+					"r": 38,
+					"r0": 12,
+					"n": 14,
+					"s": [
+						0.7,
+						1.2
+					]
+				},
+				{
+					"kind": "region/nature/flowers_cool",
+					"w": [
+						-258,
+						-420
+					],
+					"r": 34,
+					"n": 170
+				},
+				{
+					"kind": "region/nature/fern_b",
+					"w": [
+						-258,
+						-420
+					],
+					"r": 36,
+					"r0": 10,
+					"n": 60
+				},
+				{
+					"kind": "region/nature/bush_round",
+					"w": [
+						-258,
+						-420
+					],
+					"r": 38,
+					"r0": 12,
+					"n": 14,
+					"s": [
+						0.7,
+						1.2
+					]
+				},
+				{
+					"kind": "region/nature/flowers_warm",
+					"w": [
+						-275,
+						-340
+					],
+					"r": 34,
+					"n": 170
+				},
+				{
+					"kind": "region/nature/fern_b",
+					"w": [
+						-275,
+						-340
+					],
+					"r": 36,
+					"r0": 10,
+					"n": 60
+				},
+				{
+					"kind": "region/nature/bush_round",
+					"w": [
+						-275,
+						-340
+					],
+					"r": 38,
+					"r0": 12,
+					"n": 14,
+					"s": [
+						0.7,
+						1.2
+					]
 				}
 			]
 		},

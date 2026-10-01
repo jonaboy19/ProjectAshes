@@ -77,17 +77,39 @@ void fragment() {
 	float r1_hedge;
 	ga = r1_biome(ga, pa, world_pos.xz, r1_biome_sample(world_pos.xz), r1_hedge);
 	layer(cobble_albedo, cobble_normal, cobble_arm, uv * 0.8, 0.0, ca, cn, co);
-	// Rock: side projection chosen by the dominant horizontal axis of the normal.
+	// Rock: side projection chosen by the dominant horizontal axis of the normal (normal + ARM maps).
 	vec2 ruv = (abs(world_normal.x) > abs(world_normal.z) ? world_pos.zy : world_pos.xy) / (tile_size * 1.5);
-	vec3 ra = texture(rock_albedo, ruv).rgb;
-	// Region1 look (docs/regions/LOOK_R1.md): warm, lighter storybook stone instead of the grey-green scan.
-	// The scan is grey-green (walls read olive): keep its value, repaint its hue as warm sandstone.
+	// Region1 look pass 3 (docs/regions/LOOK_R1.md): painted cliff rock. Albedo is triplanar at two scales (no
+	// projection seams, no stretching on the facets of the 2 m grid), recoloured as warm sandstone, with soft strata
+	// that wander and fade, broad colour patches, dark cracks and moss/grass settling on ledges.
+	vec3 tpw = pow(abs(world_normal), vec3(4.0));
+	tpw /= (tpw.x + tpw.y + tpw.z + 0.0001);
+	vec2 tx = world_pos.zy;
+	vec2 ty = world_pos.xz;
+	vec2 tz = world_pos.xy;
+	float s1 = 1.0 / (tile_size * 1.7);
+	float s2 = 1.0 / (tile_size * 6.5);
+	vec3 ra = (texture(rock_albedo, tx * s1).rgb * tpw.x + texture(rock_albedo, ty * s1).rgb * tpw.y + texture(rock_albedo, tz * s1).rgb * tpw.z) * 0.6
+		+ (texture(rock_albedo, tx * s2 + 0.37).rgb * tpw.x + texture(rock_albedo, ty * s2 + 0.37).rgb * tpw.y + texture(rock_albedo, tz * s2 + 0.37).rgb * tpw.z) * 0.4;
 	float r1_lum = dot(ra, vec3(0.3, 0.59, 0.11));
-	ra = mix(ra, vec3(r1_lum) * vec3(1.18, 1.0, 0.8), 0.7);
-	ra = ra * vec3(1.2, 1.07, 0.86) + vec3(0.05, 0.035, 0.0);
-	// Sandstone strata on steep faces: painted horizontal bands instead of the stretched side projection.
-	float r1_strata = sin(world_pos.y * 0.9 + texture(macro_noise, world_pos.xz * 0.013).r * 7.0);
-	ra *= mix(1.0, mix(0.8, 1.12, smoothstep(-0.35, 0.35, r1_strata)), smoothstep(0.45, 0.75, 1.0 - world_normal.y));
+	float big = texture(macro_noise, world_pos.xz * 0.006 + world_pos.y * 0.004).r;          // 150 m colour patches
+	float mid = texture(macro_noise, vec2(world_pos.x + world_pos.z, world_pos.y) * 0.035).r;  // 30 m breakup on the face
+	vec3 warm = mix(vec3(1.22, 1.02, 0.78), vec3(1.08, 1.0, 0.9), big);                        // ochre -> pale limestone
+	ra = vec3(r1_lum) * warm * mix(0.88, 1.12, mid) + vec3(0.06, 0.045, 0.02);
+	// Strata: thin, low-contrast beds whose height wanders slowly and which fade in and out along the face.
+	float warp = (texture(macro_noise, world_pos.xz * 0.004).r - 0.5) * 6.0;
+	float bed = fract((world_pos.y + warp) / 2.6);
+	float band = smoothstep(0.0, 0.12, bed) * (1.0 - smoothstep(0.82, 1.0, bed));
+	float show = smoothstep(0.35, 0.65, texture(macro_noise, vec2(world_pos.x - world_pos.z, world_pos.y * 0.6) * 0.02).r);
+	float face = smoothstep(0.45, 0.75, 1.0 - world_normal.y);
+	ra *= mix(1.0, mix(0.84, 1.03, band), face * show * 0.8);
+	// Cracks: dark hairlines where a fine noise crosses mid-value.
+	float crk = texture(macro_noise, vec2(world_pos.x + world_pos.z * 0.7, world_pos.y) * 0.09).r;
+	ra *= mix(1.0, 0.62, face * (1.0 - smoothstep(0.0, 0.035, abs(crk - 0.5))));
+	// Moss and grass settle on ledges (the less steep facets of a cliff) in patches.
+	float ledge = (1.0 - smoothstep(0.42, 0.62, 1.0 - world_normal.y)) * smoothstep(0.2, 0.34, 1.0 - world_normal.y);
+	float moss = ledge * smoothstep(0.4, 0.65, texture(macro_noise, world_pos.xz * 0.05).r);
+	ra = mix(ra, vec3(0.34, 0.46, 0.16), moss * 0.75);
 	vec3 rn = texture(rock_normal, ruv).rgb;
 	vec3 ro = texture(rock_arm, ruv).rgb;
 

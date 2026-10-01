@@ -45,7 +45,7 @@ static func plan(origin: Vector2, size: float, seed_value: int) -> Dictionary:
 		var kind := "grass_clump" if roll < 0.82 else ("grass_clump_tall" if roll < 0.95 else "flowers_a")
 		var s := rng.randf_range(0.75, 1.35)
 		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.85, 1.25), s))
-		(kinds[kind] as Array).append(Transform3D(basis, Vector3(x, WorldGen.height(x, z) - 0.03, z)))
+		(kinds[kind] as Array).append(Transform3D(basis, Vector3(x, Region1Terrain.mesh_ground(x, z) - 0.03, z)))
 	_flower_patches(kinds["flowers_a"], origin, size, seed_value)
 	return kinds
 
@@ -82,7 +82,7 @@ static func _flower_patches(out: Array, origin: Vector2, size: float, seed_value
 				continue
 			var s := rng.randf_range(1.4, 2.2)
 			var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.9, 1.3), s))
-			out.append(Transform3D(basis, Vector3(x, WorldGen.height(x, z) - 0.03, z)))
+			out.append(Transform3D(basis, Vector3(x, Region1Terrain.mesh_ground(x, z) - 0.03, z)))
 	# Fisher-Yates over the patch part only (the meadow flowers before it are already random).
 	for i in range(out.size() - 1, start, -1):
 		var j := rng.randi_range(start, i)

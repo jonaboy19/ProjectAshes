@@ -442,7 +442,7 @@ func _plan_forest(key: Vector2i, origin: Vector2) -> Dictionary:
 		var x := origin.x + rng.randf() * CHUNK
 		var z := origin.y + rng.randf() * CHUNK
 		var density := WorldGen.forest_density(x, z)
-		var h := WorldGen.height(x, z)
+		var h := Region1Terrain.mesh_ground(x, z)   # Region1 look fix: sit on the rendered mesh, not the exact height
 		if h > 115.0 or WorldGen.near_water(x, z, 1.5):
 			continue
 		var kind := ""
@@ -536,7 +536,7 @@ static func _roadside_ok(x: float, z: float, road_min: float, road_max: float) -
 
 
 func _roadside_put(buckets: Dictionary, kind: String, x: float, z: float, s: float, rng: RandomNumberGenerator) -> void:
-	var h := WorldGen.height(x, z)
+	var h := Region1Terrain.mesh_ground(x, z)   # Region1 look fix: rendered mesh height
 	var slope := absf(WorldGen.height(x + 0.6, z) - h) + absf(WorldGen.height(x, z + 0.6) - h)
 	var sink := 0.15 + minf(slope * 0.7, 0.55)
 	if not buckets.has(kind):
@@ -626,7 +626,7 @@ func _plan_floor(key: Vector2i, origin: Vector2, buckets: Dictionary) -> void:
 			continue
 		if WorldGen.near_water(x, z, 1.5) or WorldGen.road_distance(x, z) < 4.0 or WorldGen.street_distance(x, z) < 3.0:
 			continue
-		var h := WorldGen.height(x, z)
+		var h := Region1Terrain.mesh_ground(x, z)   # Region1 look fix: rendered mesh height
 		if h > 115.0:
 			continue
 		var pick: Array = FLOOR_KINDS[rng.randi() % FLOOR_KINDS.size()]

@@ -7,6 +7,7 @@ render_mode cull_disabled, depth_draw_opaque, specular_schlick_ggx;
 uniform vec3 core_color : source_color = vec3(0.36, 0.72, 0.82);
 uniform vec3 foam_color : source_color = vec3(0.96, 0.98, 1.0);
 uniform float speed = 1.35;
+uniform float layer_alpha = 1.0;   // back / front sheets of the pass-3 layered falls
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float vnoise(vec2 p) {
@@ -31,6 +32,6 @@ void fragment() {
 	SPECULAR = 0.6;
 	EMISSION = col * 0.12;
 	float fringe = 1.0 - smoothstep(0.44, 0.5, abs(uv.x - 0.5)) * (0.6 + 0.4 * vnoise(vec2(uv.y * 3.0 - t * 2.0, uv.x)));
-	ALPHA = clamp(fringe * mix(0.82, 1.0, foam), 0.0, 1.0);
-	ALPHA_SCISSOR_THRESHOLD = 0.35;
+	ALPHA = clamp(fringe * mix(0.82, 1.0, foam) * layer_alpha, 0.0, 1.0);
+	ALPHA_SCISSOR_THRESHOLD = 0.35 * layer_alpha;
 }

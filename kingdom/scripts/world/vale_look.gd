@@ -51,6 +51,7 @@ func build_vale_cliffs() -> int:
 		mi.free()
 	if meshes.is_empty() or not HV.enabled():
 		return 0
+	cache_heights = true
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7711
 	var cells: Dictionary = {}
@@ -85,16 +86,15 @@ func build_vale_cliffs() -> int:
 			var yaw := atan2(-gx, -gz) + rng.randf_range(-0.6, 0.6)
 			var basis := Basis(Vector3.UP, yaw) * Basis(Vector3.RIGHT, rng.randf_range(-0.2, 0.2))
 			basis = basis * Basis.from_scale(Vector3(k * rng.randf_range(1.0, 1.7), k, k * rng.randf_range(0.6, 0.9)))
-			var up := Vector2(gx, gz).normalized() * target * clampf(0.45 / g, 0.05, 0.4)      # near-vertical walls: barely sunk, so the rock shows
-			# Local look fix: seat on the lowest rendered-mesh vertex of the footprint (rocks floated inside the slot).
-			var pos := Vector3(px + up.x, mesh_floor(px + up.x, pz + up.y, target * 0.2, 2.0) - target * 0.08, pz + up.y)
+			# Local look pass 3: snap onto the rendered wall along its normal and sink 15 % (no rock hangs in the slot).
+			var xf := seat(Transform3D(basis, Vector3(px, ground_at(px, pz), pz)), meshes[mi_i].get_aabb(), ground_normal(px, pz), 0.15)
 			var key := Vector2i(floori(px / CLIFF_CELL), floori(pz / CLIFF_CELL))
 			if not cells.has(key):
 				var arrs := []
 				for _m in meshes.size():
 					arrs.append([] as Array[Transform3D])
 				cells[key] = arrs
-			(cells[key][mi_i] as Array[Transform3D]).append(Transform3D(basis, pos))
+			(cells[key][mi_i] as Array[Transform3D]).append(xf)
 			count += 1
 		z += CLIFF_STEP
 	for key: Vector2i in cells:
@@ -114,4 +114,5 @@ func build_vale_cliffs() -> int:
 			mmi.visibility_range_end = 250.0      # only where the streamed terrain is drawn (the far horizon mesh has its own rock texture)
 			mmi.visibility_range_end_margin = 20.0
 			add_child(mmi)
+	clear_ground_cache()
 	return count

@@ -10,7 +10,7 @@ extends Node3D
 ## main thread in one go. Per frame: two shader parameters.
 
 const HALF := 4096.0
-const CELL := 48.0
+var CELL := 32.0             # far ground grid (m): 32 on MEDIUM+, 48 on LOW (set in _ready)
 const BLOB_STEP := 34.0
 const BLOB_CELL := 512.0
 const GRASS := Color(0.42, 0.6, 0.22)
@@ -50,6 +50,7 @@ func _ready() -> void:
 	var q := get_node_or_null("/root/Quality")
 	if q and int(q.get("view_radius")) <= 2:
 		blob_range = 0.0          # LOW: ground only (canopy domes cost ~3 ms on the LOW A/B, docs/regions/look/PERF.md)
+		CELL = 48.0
 	_mask_tex = ImageTexture.create_from_image(_mask_img)
 	for mat: ShaderMaterial in [_ground_mat, _blob_mat]:
 		mat.set_shader_parameter("built_mask", _mask_tex)

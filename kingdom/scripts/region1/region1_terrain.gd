@@ -23,12 +23,17 @@ static var _stamps: Array[Dictionary] = []
 ## [{pts: PackedVector2Array, half: float, box: Rect2, soft: float}]
 static var _trails: Array[Dictionary] = []
 static var _box := Rect2()
+## Riverside groves (pass 3): extra woodland share on the Hollin's Reach floor, kept off trails and landmark clearings.
+static var _groves: Array[Dictionary] = []      # [{box: Rect2, noise: FastNoiseLite, amount, shore: [in, out]}]
+static var _keep_clear: Array[Vector3] = []     # (x, z, radius)
 
 
 static func setup() -> void:
 	_stamps.clear()
 	_trails.clear()
 	_box = Rect2()
+	_groves.clear()
+	_keep_clear.clear()
 	if not enabled or not FileAccess.file_exists(INDEX) or OS.get_cmdline_user_args().has("--r1off"):
 		return
 	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(INDEX))
@@ -48,6 +53,16 @@ static func setup() -> void:
 		e["x1"] = e["x0"] + cell * (e["nx"] - 1)
 		e["z1"] = e["z0"] + cell * (e["nz"] - 1)
 		_stamps.append(e)
+	for gv: Dictionary in data.get("groves", []):
+		var b: Array = gv["box"]
+		var nz := FastNoiseLite.new()
+		nz.seed = int(gv.get("seed", 5))
+		nz.frequency = float(gv.get("frequency", 0.03))
+		nz.fractal_octaves = 2
+		_groves.append({"box": Rect2(float(b[0]), float(b[1]), float(b[2]) - float(b[0]), float(b[3]) - float(b[1])), "noise": nz,
+			"amount": float(gv.get("amount", 0.8)), "shore": gv.get("shore", [5.0, 45.0])})
+	for kc: Array in data.get("keep_clear", []):
+		_keep_clear.append(Vector3(float(kc[0]), float(kc[1]), float(kc[2])))
 	for tr: Dictionary in data.get("trails", []):
 		var pts := PackedVector2Array()
 		for p: Array in tr["points"]:
@@ -80,6 +95,64 @@ static func tree_keep(x: float, z: float) -> float:
 			continue
 		return clampf(_sample(e, x, z, 2), 0.0, 1.0)
 	return 1.0
+
+
+## WorldGen.forest_density hook (pass 3): natural woodland `f`, plus riverside groves in the valleys, minus cliff faces.
+static func forest(x: float, z: float, f: float) -> float:
+	var p := Vector2(x, z)
+	for g: Dictionary in _groves:
+		if not (g["box"] as Rect2).has_point(p):
+			continue
+		var sh: Array = g["shore"]
+		var sd := WorldGen.shore_distance(x, z)
+		if sd < float(sh[0]) or sd > float(sh[1]) + 15.0:
+			continue
+		var k := smoothstep(float(sh[0]), float(sh[0]) + 6.0, sd) * (1.0 - smoothstep(float(sh[1]), float(sh[1]) + 15.0, sd))
+		var gv := float(g["amount"]) * smoothstep(-0.15, 0.35, (g["noise"] as FastNoiseLite).get_noise_2d(x, z)) * k
+		if gv <= f:
+			continue
+		for c: Vector3 in _keep_clear:
+			var dd := p.distance_to(Vector2(c.x, c.y))
+			if dd < c.z + 10.0:
+				gv *= smoothstep(c.z, c.z + 10.0, dd)
+		gv *= 1.0 - _trail_k(p)
+		f = maxf(f, gv)
+	return f * tree_keep(x, z) if f > 0.0 else f
+
+
+static func _trail_k(p: Vector2) -> float:
+	if _trails.is_empty() or not _box.has_point(p):
+		return 0.0
+	var k := 0.0
+	for tr: Dictionary in _trails:
+		if not (tr["box"] as Rect2).has_point(p):
+			continue
+		var pts: PackedVector2Array = tr["pts"]
+		for i in pts.size() - 1:
+			var a := pts[i]
+			var ab := pts[i + 1] - a
+			var t := clampf((p - a).dot(ab) / maxf(ab.length_squared(), 0.0001), 0.0, 1.0)
+			var d := p.distance_to(a + ab * t)
+			k = maxf(k, 1.0 - smoothstep(float(tr["half"]) + 1.0, float(tr["half"]) + 5.0, d))
+	return k
+
+
+## Height of the RENDERED near ground (the streamed 2 m grid split on the b-c diagonal) at (x, z). Scatter placed on the
+## exact WorldGen.height floats where the mesh cuts corners on steep ground (pass 3 float check); worker-thread safe.
+static func mesh_ground(x: float, z: float) -> float:
+	var ix := floorf(x * 0.5)
+	var iz := floorf(z * 0.5)
+	var fx := x * 0.5 - ix
+	var fz := z * 0.5 - iz
+	var x0 := ix * 2.0
+	var z0 := iz * 2.0
+	var hb := WorldGen.height(x0 + 2.0, z0)
+	var hc := WorldGen.height(x0, z0 + 2.0)
+	if fx + fz <= 1.0:
+		var ha := WorldGen.height(x0, z0)
+		return ha + (hb - ha) * fx + (hc - ha) * fz
+	var hd := WorldGen.height(x0 + 2.0, z0 + 2.0)
+	return hd + (hc - hd) * (1.0 - fx) + (hb - hd) * (1.0 - fz)
 
 
 ## Rock-face mask (0..1) of the stamp at (x, z): where Region1Look lays cliff rocks.

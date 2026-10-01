@@ -280,14 +280,15 @@ func _place(root: Node3D, c: Vector2, lyaw: float, part: Dictionary) -> void:
 
 ## Lowest ground under the part's footprint (so nothing floats on a slope).
 static func _footprint_ground(w: Vector2, yaw: float, size: Vector2) -> float:
-	var lo := WorldGen.height(w.x, w.y)
+	# Lowest RENDERED ground under the footprint (corners, edge midpoints, centre), pass 3: nothing floats on a slope.
+	var lo := ground_at(w.x, w.y)
 	if size.x * size.y < 4.0:
-		return lo - 0.03
-	for cx: float in [-0.4, 0.4]:
-		for cz: float in [-0.4, 0.4]:
+		return lo - 0.05
+	for cx: float in [-0.5, 0.0, 0.5]:
+		for cz: float in [-0.5, 0.0, 0.5]:
 			var q := w + Vector2(size.x * cx, size.y * cz).rotated(-yaw)
-			lo = minf(lo, WorldGen.height(q.x, q.y))
-	return lo - 0.08
+			lo = minf(lo, ground_at(q.x, q.y))
+	return lo - 0.1
 
 
 func _collider(n: Node3D, box: AABB) -> void:
@@ -342,7 +343,8 @@ func _build_scatter(root: Node3D, lm: Dictionary) -> void:
 			if WorldGen.is_water(q.x, q.y) and not bool(sc.get("wet", false)):
 				continue
 			var s := rng.randf_range(smin, smax)
-			list.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(q.x, WorldGen.height(q.x, q.y) - 0.04, q.y)))
+			var rocky := String(sc["kind"]).contains("rock")
+			list.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * s), Vector3(q.x, (minf(ground_at(q.x - s * 0.5, q.y), ground_at(q.x + s * 0.5, q.y)) - s * 0.25) if rocky else ground_at(q.x, q.y) - 0.05, q.y)))
 		if list.is_empty():
 			continue
 		var mm := MultiMesh.new()
@@ -407,6 +409,7 @@ func _build_cliffs(kit: Dictionary) -> void:
 		lumps.append(_lump(m.get_aabb(), Color("8a755c")))
 	var qn := get_node_or_null("/root/Quality")
 	var low := qn != null and int(qn.get("view_radius")) <= 2
+	cache_heights = true
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(kit.get("seed", 7))
 	var step := float(kit.get("step", 8.0))
@@ -434,16 +437,15 @@ func _build_cliffs(kit: Dictionary) -> void:
 					var yaw := atan2(-gx, -gz) + rng.randf_range(-0.6, 0.6)
 					var basis := Basis(Vector3.UP, yaw) * Basis(Vector3.RIGHT, rng.randf_range(-0.2, 0.2)) * Basis(Vector3.FORWARD, rng.randf_range(-0.15, 0.15))
 					basis = basis * Basis.from_scale(Vector3(k * rng.randf_range(1.0, 1.6), k, k * rng.randf_range(0.55, 0.85)))
-					# Push the rock into the slope (uphill) so it reads as the cliff itself, not a stone stuck on grass.
-					var up := Vector2(gx, gz).normalized() * target * float(kit.get("embed", 0.3))
-					var pos := Vector3(px + up.x, mesh_floor(px + up.x, pz + up.y, target * 0.2, 2.0) - target * 0.08, pz + up.y)
+					# Snap onto the rendered wall along its normal, then sink 15 % (pass 3: no rock hangs in the air).
+					var xf := seat(Transform3D(basis, Vector3(px, ground_at(px, pz), pz)), meshes[mi].get_aabb(), ground_normal(px, pz), 0.15)
 					var key := Vector2i(floori(px / cell), floori(pz / cell))
 					if not cells.has(key):
 						var arrs := []
 						for _m in meshes.size():
 							arrs.append([] as Array[Transform3D])
 						cells[key] = arrs
-					(cells[key][mi] as Array[Transform3D]).append(Transform3D(basis, pos))
+					(cells[key][mi] as Array[Transform3D]).append(xf)
 					count += 1
 				x += step
 			z += step
@@ -475,6 +477,7 @@ func _build_cliffs(kit: Dictionary) -> void:
 	var tri_note := ""
 	for mi in meshes.size():
 		tri_note += " %d" % (meshes[mi].get_faces().size() / 3)
+	clear_ground_cache()
 	print("Region1Look: %d cliff rocks in %d cells (tris per rock:%s)" % [count, cells.size(), tri_note])
 
 
@@ -493,6 +496,81 @@ static func _lump(box: AABB, col: Color) -> Mesh:
 	var out := st.commit()
 	out.surface_set_material(0, mat)
 	return out
+
+
+## Height of the RENDERED terrain at (x, z): the streamed ground is a grid of `g` m cells (2 m near, 4 m past the
+## LOD distance) split along the b-c diagonal (TerrainStreamer._plan_chunk / _lod_arrays). This is an exact "raycast"
+## against that mesh without needing physics (collision only exists around the player).
+static var _hc: Dictionary = {}
+static var cache_heights := false   # bulk builds (cliff kits) cache grid-vertex heights; call clear_ground_cache() after
+
+
+static func clear_ground_cache() -> void:
+	_hc.clear()
+	cache_heights = false
+
+
+static func _vh(x: float, z: float) -> float:
+	if not cache_heights:
+		return WorldGen.height(x, z)
+	var k := Vector2i(roundi(x * 2.0), roundi(z * 2.0))
+	var v: Variant = _hc.get(k)
+	if v == null:
+		v = WorldGen.height(x, z)
+		_hc[k] = v
+	return v
+
+
+static func mesh_grid(x: float, z: float, g: float) -> float:
+	var ix := floorf(x / g)
+	var iz := floorf(z / g)
+	var fx := x / g - ix
+	var fz := z / g - iz
+	var x0 := ix * g
+	var z0 := iz * g
+	var hb := _vh(x0 + g, z0)
+	var hc := _vh(x0, z0 + g)
+	if fx + fz <= 1.0:
+		var ha := _vh(x0, z0)
+		return ha + (hb - ha) * fx + (hc - ha) * fz
+	var hd := _vh(x0 + g, z0 + g)
+	return hd + (hc - hd) * (1.0 - fx) + (hb - hd) * (1.0 - fz)
+
+
+## The lower of the near (2 m) and far (4 m) terrain meshes: a prop grounded on this touches the ground at any LOD.
+static func ground_at(x: float, z: float) -> float:
+	return minf(mesh_grid(x, z, 2.0), mesh_grid(x, z, 4.0))
+
+
+static func ground_normal(x: float, z: float, e := 1.5) -> Vector3:
+	return Vector3(ground_at(x - e, z) - ground_at(x + e, z), 2.0 * e, ground_at(x, z - e) - ground_at(x, z + e)).normalized()
+
+
+## Largest height of the local box's bottom corners above the rendered ground once placed with `xf`
+## (negative = every bottom corner is buried). The "bottom" is the 4 corners lowest in world y.
+static func ground_gap(xf: Transform3D, box: AABB) -> float:
+	var pts: Array[Vector3] = []
+	for i in 8:
+		pts.append(xf * box.get_endpoint(i))
+	pts.sort_custom(func(a: Vector3, b: Vector3) -> bool: return a.y < b.y)
+	var gap := -INF
+	for i in 4:
+		gap = maxf(gap, pts[i].y - ground_at(pts[i].x, pts[i].z))
+	return gap
+
+
+## Snaps a prop onto the rendered ground: moves it along -`n` (the ground normal: a raycast into the surface) until
+## no bottom corner hangs in the air, then sinks it by `sink` of its height (0.1-0.2 hides the base).
+static func seat(xf: Transform3D, box: AABB, n: Vector3, sink := 0.15) -> Transform3D:
+	var h := (xf.basis * Vector3(0, box.size.y, 0)).length()
+	var step := maxf(0.15, h * 0.04)
+	var t := xf
+	for i in 60:
+		if ground_gap(t, box) <= 0.0:
+			break
+		t.origin -= n * step
+	t.origin -= n * h * sink
+	return t
 
 
 ## Lowest height of the rendered terrain around (x, z) within `r` m: the streamed mesh is a 2 m grid (4 m past
@@ -514,21 +592,24 @@ static func mesh_floor(x: float, z: float, r: float, g := 4.0) -> float:
 
 # --- Waterfalls ---------------------------------------------------------------------
 
-## {at: [x, z] (foot of the falls), dir: [x, z] (toward the cliff), width, pool_r, reach}
+## {at: [x, z] (foot of the falls), dir: [x, z] (toward the cliff), width, pool_r, reach, over}
+## Pass 3: the falls have volume - three flow sheets (a wide slow back sheet on the rock, the main sheet, a narrow fast
+## front sheet that bows out as it drops), a darkened wet-rock decal around them, a foam ring and a mist + spray
+## particle plume at the base, and the plunge pool disc. About 6 draw calls; particles are GPU (30 + 24).
 func _build_waterfall(root: Node3D, wf: Dictionary) -> void:
 	var base := _v2(wf["at"])
 	var dir := _v2(wf["dir"]).normalized()
 	var side := Vector2(-dir.y, dir.x)
 	var width := float(wf.get("width", 7.0))
 	var reach := float(wf.get("reach", 90.0))
-	# Walk up the cliff: the ribbon hugs the ground 0.9 m proud of it, from the lip back down to the pool.
+	# Walk up the cliff from the foot to the lip.
 	var prof: Array[Vector3] = []
 	var t := 0.0
 	var lip := -1.0
 	var hmax := -INF
 	while t <= reach:
 		var q := base + dir * t
-		var h := WorldGen.height(q.x, q.y)
+		var h := ground_at(q.x, q.y)
 		prof.append(Vector3(q.x, h, q.y))
 		if h > hmax + 0.05:
 			hmax = h
@@ -537,46 +618,71 @@ func _build_waterfall(root: Node3D, wf: Dictionary) -> void:
 	var level := WorldGen.water_level_at(base.x, base.y)
 	if is_nan(level):
 		level = WorldGen.height(base.x, base.y) + 0.3
-	var top := int(lip) + int(wf.get("over", 10))
-	top = mini(top, prof.size() - 1)
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var along := 0.0
-	var prev := Vector3.INF
-	var rows: Array = []
-	for i in range(top, -1, -1):
-		var p: Vector3 = prof[i]
-		var out := -dir * (0.9 + clampf((p.y - level) * 0.02, 0.0, 1.2))
-		var y := maxf(p.y + 0.35, level + 0.05)
-		var pos := Vector3(p.x + out.x, y, p.z + out.y)
-		if prev != Vector3.INF:
-			along += pos.distance_to(prev)
-		prev = pos
-		var wk := lerpf(0.75, 1.25, clampf(float(top - i) / maxf(top, 1), 0.0, 1.0))
-		rows.append([pos, along, width * wk])
-		if y <= level + 0.06 and i < lip:
-			break
-	for r in rows.size() - 1:
-		var a: Array = rows[r]
-		var b: Array = rows[r + 1]
-		var pa: Vector3 = a[0]
-		var pb: Vector3 = b[0]
-		var sa := Vector3(side.x, 0, side.y) * float(a[2]) * 0.5
-		var sb := Vector3(side.x, 0, side.y) * float(b[2]) * 0.5
-		var verts := [pa - sa, pa + sa, pb - sb, pb + sb]
-		var uvs := [Vector2(0, a[1]), Vector2(1, a[1]), Vector2(0, b[1]), Vector2(1, b[1])]
-		for idx in [0, 1, 2, 1, 3, 2]:
-			st.set_uv(uvs[idx] / Vector2(1.0, width))
-			st.set_normal(Vector3(-dir.x, 0.4, -dir.y).normalized())
-			st.add_vertex(verts[idx])
-	var mesh := st.commit()
-	var mi := MeshInstance3D.new()
-	mi.name = "Waterfall"
-	mi.mesh = mesh
-	mi.material_override = _falls_material()
-	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	mi.visibility_range_end = FAR_END
-	root.add_child(mi)
+	var top := mini(int(lip) + int(wf.get("over", 10)), prof.size() - 1)
+	var lip_y: float = prof[int(clampf(lip, 0.0, prof.size() - 1))].y
+	# [name, width factor, extra bow-out per m of drop, base offset, alpha, speed]
+	var layers := [["WaterfallBack", 1.35, 0.0, 0.5, 0.55, 0.8], ["Waterfall", 1.0, 0.035, 1.0, 1.0, 1.35], ["WaterfallFront", 0.62, 0.075, 1.6, 0.9, 2.1]]
+	var landing := Vector3.ZERO
+	for L: Array in layers:
+		var st := SurfaceTool.new()
+		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		var along := 0.0
+		var prev := Vector3.INF
+		var rows: Array = []
+		for i in range(top, -1, -1):
+			var p: Vector3 = prof[i]
+			var drop := maxf(lip_y - p.y, 0.0)
+			var out := -dir * (float(L[3]) + drop * float(L[2]) + clampf((p.y - level) * 0.02, 0.0, 1.2))
+			var y := maxf(p.y + 0.35, level + 0.05)
+			var pos := Vector3(p.x + out.x, y, p.z + out.y)
+			if prev != Vector3.INF:
+				along += pos.distance_to(prev)
+			prev = pos
+			var wk := lerpf(0.75, 1.25, clampf(float(top - i) / maxf(top, 1), 0.0, 1.0)) * float(L[1])
+			rows.append([pos, along, width * wk])
+			if y <= level + 0.06 and i < lip:
+				break
+		for r in rows.size() - 1:
+			var a: Array = rows[r]
+			var b: Array = rows[r + 1]
+			var pa: Vector3 = a[0]
+			var pb: Vector3 = b[0]
+			var sa := Vector3(side.x, 0, side.y) * float(a[2]) * 0.5
+			var sb := Vector3(side.x, 0, side.y) * float(b[2]) * 0.5
+			var verts := [pa - sa, pa + sa, pb - sb, pb + sb]
+			var uvs := [Vector2(0, a[1]), Vector2(1, a[1]), Vector2(0, b[1]), Vector2(1, b[1])]
+			for idx in [0, 1, 2, 1, 3, 2]:
+				st.set_uv(uvs[idx] / Vector2(1.0, width))
+				st.set_normal(Vector3(-dir.x, 0.4, -dir.y).normalized())
+				st.add_vertex(verts[idx])
+		var mi := MeshInstance3D.new()
+		mi.name = String(L[0])
+		mi.mesh = st.commit()
+		var mat := _falls_material().duplicate() as ShaderMaterial
+		mat.set_shader_parameter("layer_alpha", float(L[4]))
+		mat.set_shader_parameter("speed", float(L[5]))
+		mi.material_override = mat
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mi.visibility_range_end = FAR_END if String(L[0]) == "Waterfall" else 700.0
+		root.add_child(mi)
+		if String(L[0]) == "Waterfall":
+			landing = rows[rows.size() - 1][0]
+	var fall_h := maxf(lip_y - level, 4.0)
+	# Wet rock: a darkening decal projected onto the cliff behind and beside the falls.
+	var dec := Decal.new()
+	dec.name = "FallsWet"
+	dec.texture_albedo = _wet_texture()
+	dec.modulate = Color(0.32, 0.3, 0.3, 0.8)
+	dec.albedo_mix = 0.85
+	dec.size = Vector3(width * 3.2, 6.0, fall_h * 1.05)
+	dec.cull_mask = 1
+	dec.distance_fade_enabled = true
+	dec.distance_fade_begin = 260.0
+	dec.distance_fade_length = 80.0
+	root.add_child(dec)
+	var mid := Vector3(landing.x, level + fall_h * 0.5, landing.z)
+	# Decal projects along its -Y: point +Y out of the wall (-dir), +Z up the fall.
+	dec.global_transform = Transform3D(Basis(Vector3(-side.x, 0, -side.y), Vector3(-dir.x, 0, -dir.y), Vector3.UP).orthonormalized(), mid - Vector3(-dir.x, 0, -dir.y) * 1.0)
 	# Plunge pool: a still disc on the river level, the game's own water material when it can be found.
 	var pool_r := float(wf.get("pool_r", 11.0))
 	var disc := CylinderMesh.new()
@@ -593,21 +699,120 @@ func _build_waterfall(root: Node3D, wf: Dictionary) -> void:
 	root.add_child(pool)
 	var pc := base + dir * float(wf.get("pool_off", 6.0))
 	pool.global_position = Vector3(pc.x, level + 0.02, pc.y)
-	# Foam where the water lands.
+	# Foam: a low churning mound plus a flat ring spreading over the pool.
 	var foam := MeshInstance3D.new()
 	foam.name = "FallsFoam"
 	var fm := SphereMesh.new()
 	fm.radius = 1.0
 	fm.height = 0.9
-	fm.radial_segments = 12
+	fm.radial_segments = 14
 	fm.rings = 5
 	foam.mesh = fm
 	foam.material_override = _falls_material()
 	foam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(foam)
-	var landing: Vector3 = rows[rows.size() - 1][0]
 	foam.global_position = Vector3(landing.x, level, landing.z)
-	foam.scale = Vector3(width * 0.8, 1.6, width * 0.5)
+	foam.scale = Vector3(width * 0.95, 2.2, width * 0.7)
+	var ring := MeshInstance3D.new()
+	ring.name = "FallsFoamRing"
+	var rm := CylinderMesh.new()
+	rm.top_radius = width * 1.6
+	rm.bottom_radius = width * 1.6
+	rm.height = 0.04
+	rm.radial_segments = 24
+	ring.mesh = rm
+	var rmat := _falls_material().duplicate() as ShaderMaterial
+	rmat.set_shader_parameter("layer_alpha", 0.55)
+	rmat.set_shader_parameter("speed", 0.4)
+	ring.material_override = rmat
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(ring)
+	ring.global_position = Vector3(landing.x, level + 0.06, landing.z) + Vector3(-dir.x, 0, -dir.y) * width * 0.6
+	# Mist and spray at the base (GPU particles, soft billboards).
+	root.add_child(_mist(Vector3(landing.x, level + 0.6, landing.z), width, -dir, false))
+	root.add_child(_mist(Vector3(landing.x, level + 0.4, landing.z), width, -dir, true))
+
+
+func _mist(at: Vector3, width: float, out: Vector2, spray: bool) -> GPUParticles3D:
+	var p := GPUParticles3D.new()
+	p.name = "FallsMist" if not spray else "FallsSpray"
+	p.amount = 24 if spray else 30
+	p.lifetime = 1.4 if spray else 3.2
+	p.preprocess = 3.0
+	p.visibility_aabb = AABB(Vector3(-width * 2, -2, -width * 2), Vector3(width * 4, 18, width * 4))
+	var pm := ParticleProcessMaterial.new()
+	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	pm.emission_box_extents = Vector3(width * 0.5, 0.3, width * 0.35)
+	pm.direction = Vector3(out.x, 1.2 if spray else 0.6, out.y).normalized()
+	pm.spread = 35.0 if spray else 55.0
+	pm.initial_velocity_min = 3.0 if spray else 0.8
+	pm.initial_velocity_max = 6.0 if spray else 2.0
+	pm.gravity = Vector3(0, -9.0 if spray else 0.25, 0)
+	pm.damping_min = 0.3
+	pm.damping_max = 0.8
+	pm.scale_min = 0.5 if spray else 3.0
+	pm.scale_max = 1.2 if spray else 6.5
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(1, 1, 1, 0.0))
+	ramp.set_color(1, Color(1, 1, 1, 0.0))
+	ramp.add_point(0.15, Color(1, 1, 1, 0.55 if spray else 0.32))
+	ramp.add_point(0.7, Color(1, 1, 1, 0.3 if spray else 0.18))
+	var gt := GradientTexture1D.new()
+	gt.gradient = ramp
+	pm.color_ramp = gt
+	p.process_material = pm
+	var q := QuadMesh.new()
+	q.size = Vector2.ONE
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	m.vertex_color_use_as_albedo = true
+	m.albedo_texture = _soft_dot()
+	m.albedo_color = Color(0.93, 0.97, 1.0)
+	q.material = m
+	p.draw_pass_1 = q
+	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	p.visibility_range_end = 320.0
+	p.position = at
+	p.top_level = true
+	return p
+
+
+static var _dot_tex: Texture2D
+static var _wet_tex: Texture2D
+
+
+static func _soft_dot() -> Texture2D:
+	if _dot_tex == null:
+		var g := Gradient.new()
+		g.set_color(0, Color(1, 1, 1, 1))
+		g.set_color(1, Color(1, 1, 1, 0))
+		var gt := GradientTexture2D.new()
+		gt.gradient = g
+		gt.fill = GradientTexture2D.FILL_RADIAL
+		gt.fill_from = Vector2(0.5, 0.5)
+		gt.fill_to = Vector2(1.0, 0.5)
+		gt.width = 64
+		gt.height = 64
+		_dot_tex = gt
+	return _dot_tex
+
+
+static func _wet_texture() -> Texture2D:
+	if _wet_tex == null:
+		var g := Gradient.new()
+		g.set_color(0, Color(0.2, 0.18, 0.16, 0.85))
+		g.set_color(1, Color(0.2, 0.18, 0.16, 0.0))
+		var gt := GradientTexture2D.new()
+		gt.gradient = g
+		gt.fill = GradientTexture2D.FILL_RADIAL
+		gt.fill_from = Vector2(0.5, 0.5)
+		gt.fill_to = Vector2(1.0, 0.5)
+		gt.width = 64
+		gt.height = 128
+		_wet_tex = gt
+	return _wet_tex
 
 
 func _falls_material() -> ShaderMaterial:

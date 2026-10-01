@@ -846,7 +846,7 @@ static func forest_density(x: float, z: float, with_clearings := true) -> float:
 				f *= smoothstep(float(c["radius"]), float(c["radius"]) + 10.0, Vector2(x, z).distance_to(c["pos"]))
 	if f > 0.0:
 		f *= smoothstep(6.0, 20.0, shore_distance(x, z))   # no trees (or wolf dens) in water or on beaches
-	return f * Region1Terrain.tree_keep(x, z) if f > 0.0 else f   # Region1 look hook: no trees on stamped cliff faces
+	return Region1Terrain.forest(x, z, f)   # Region1 look hook: riverside groves in the valleys, no trees on stamped cliff faces
 
 
 static func nearest_settlement(p: Vector2) -> Dictionary:
