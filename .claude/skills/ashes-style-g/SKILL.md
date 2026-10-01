@@ -21,15 +21,15 @@ Judge with `ashes-style-g-qa`; build assets with `ashes-style-g-assets`. Older `
 | Item | Value |
 |---|---|
 | Sky | `lab_sky.gdshader`: top `2563d8`, horizon `d8e6ff`, ground `8a9a6a`, cloud `ffffff`, cloud shade `b4c4e8`, cover 0.55, soft 0.14, sun_glow 0.5, radiance 32 |
-| Ambient | source COLOR `aab8ee`, energy 0.66 (sky colour, never grey) |
+| Ambient | source COLOR `aab8ee`, energy 0.56 (sky colour, never grey; 0.66 washed shadows out) |
 | Tonemap | FILMIC, exposure 0.92, white 5.5 |
 | SSAO (HIGH, Forward+/Mobile only) | radius 1.6, intensity 2.8, light_affect 0.2 |
 | Glow (not LOW) | intensity 0.5, bloom 0.1, hdr_threshold 1.0, SOFTLIGHT |
 | Fog | on, colour `ecdcbc` (slightly warm), density 0.0030, aerial_perspective 0.5, sky_affect 0 |
-| Adjustments (not LOW) | saturation 1.22, contrast 1.3, colour-correction LUT 64 px: shadow `0a1240`, mid `8a88a4`, high `fff0d0` |
+| Adjustments (not LOW) | saturation 1.22, contrast 1.38, colour-correction LUT 64 px: shadow `0c1640`, mid `8a8a94` (the old `8a88a4` read pink), high `fff0d0` |
 
 ## 2. Lights
-- **Sun**: colour `ffd6a0`, energy 2.7, direction (0.55,-0.62,-0.55) (from behind-left; shadows fall forward-right), blur 1.0, angular distance 0.35.
+- **Sun**: colour `ffd396`, energy 2.9, direction (0.55,-0.62,-0.55) (from behind-left; shadows fall forward-right), blur 1.0, angular distance 0.35.
 - **Bounce fill (fake GI)** `make_fill()`: shadowless DirectionalLight3D travelling UP (direction (-0.45, 0.55, 0.45)), colour `ffb870`, energy 0.3, specular 0. Fills jetty undersides and awnings.
 - **Hemispheric bounce in `lab_polished`**: `ground_bounce (1.0,0.70,0.36)`, `sky_bounce (0.55,0.66,0.98)`, `bounce` 0.36 (0.3 on wood/goods/props, 0.25 ivy), rim 0.5.
 - Do not add omni lights except one lantern; the glow sprite is the cheap version.
@@ -50,18 +50,20 @@ Rule: no pure black, white or grey. Shadows slightly cool-violet, lights golden.
 ## 5. Material by role (one place: `StyleG.material_for`)
 | Role | Shader | Key parameters |
 |---|---|---|
-| ground (cobbles/mud/grass, vertex-colour splat R=mud B=cobble) | `lab_ground` mode 1 | Poly Haven `cobblestone_floor_01`, `brown_mud_02`, `leafy_grass` (diff, nor_gl, arm); tile 3.2; cobble_tint (1.04,0.95,0.84); mud_tint (1.15,0.95,0.78); grass_tint (0.85,1.15,0.5); saturation 1.0; puddles 0 |
+| ground (cobbles/mud/grass, vertex-colour splat R=mud B=cobble) | `lab_ground` mode 1 | Poly Haven `cobblestone_floor_01`, `brown_mud_02`, `leafy_grass` (diff, nor_gl, arm); tile 3.2; cobble_tint (1.03,0.95,0.78); mud_tint (1.15,0.95,0.78); grass_tint (0.85,1.15,0.5); saturation 1.0; puddles 0 |
 | gate_stone (towers, walls) | `lab_grounded` (cull_disabled copy) | `castle_wall_slates`, tile 4/4, detail 1, chroma_keep 0, saturation 0.8, grime 0.35, moss 0.12, atlas_color (0.95,0.94,0.92) |
 | gate_trim (voussoirs, quoins) | `lab_polished` | albedo `dccfb4`, saturation 0.8 |
 | house | `lab_polished` | saturation 1.0, value_gain 0.9, warm_tint (1,0.97,0.9), ao_height 1.6, ao_strength 0.5 |
 | stall | `lab_polished` | saturation 1.0, ao 0.4 |
-| wood / goods / lamp | `lab_polished` | saturation 1.12, ao 0.35, bounce 0.3 |
+| wood / goods | `lab_polished` | saturation 1.0, value_gain 0.9, ao 0.35, bounce 0.3 (1.12 read orange) |
+| lamp | `lab_polished` | saturation 1.12, ao 0.35, bounce 0.3 |
 | tree | `lab_polished` | saturation 1.15, ao 0, roughness 0.9, rim 0.35 |
 | ivy / flowers | `lab_polished` + vertex colour (+ instance colour), double sided | ivy sat 0.95, value_gain 0.78; flowers sat 1.15 |
 | hero_new / villager / guard | `lab_char` | kind 0 skin, 1 cloth, 2 hair, 3 leather; saturation 1.3; G6 `human_*` ignore vertex colour |
 | iron | StandardMaterial3D | `2a2827`, metallic 0.7, roughness 0.5 |
 | banner / flag | StandardMaterial3D double sided | lion texture (red + gold crest), flag `c71a17` |
-Atlas roles keep the asset's own albedo atlas (no re-export). Phones: Poly Haven textures at 1K (`StyleG.ph(set, kind, "1k")`).
+Atlas roles keep the asset's own albedo atlas (no re-export).
+**Weathering (2026-10-01)**: `lab_polished(_lite)` uniforms `weather_tex` (= `assets/generated/style_g/weather_pack.png`, built by `tools_qa/style_lab/make_weather_pack.py` from Poly Haven CC0 disp maps: R plaster, G wood grain, B grime noise, A stone), `weather` per role from `StyleG.WEATHER` (house 1.0, stall 0.8, wood 0.5, lamp 0.5, goods 0.25, foliage/banners 0), `weather_scale` 0.45, `grime_height` 2.2 m above the node origin, `grime_amount` 0.38, `edge_wear` 0.35 (lighter rim along atlas seams), `bump_amount` 0 (0.25+ sparkles on the Meshy plaster atlases). The atlas colour class (dark brown = wood, light = plaster, else stone) picks the detail channel. One extra texture tap (two with streaks). Phones: Poly Haven textures at 1K (`StyleG.ph(set, kind, "1k")`).
 
 ## 6. Camera
 | Use | Position (hero at origin facing -Z) | Look at | FOV (vertical) |
@@ -97,7 +99,8 @@ Camera sits 2.8 m behind and 0.17 m above the hero's head height, pitched about 
 |---|---|---|---|---|
 | Baseline G (before dressing) | 143 | 334k | 534 / 1.14M | at the edge |
 | HIGH (pass 3) | 164 | 565k | 471 / 1.80M | within HIGH budget (200 / 600k) |
-| LOW (pass 5, 12 folk, LOD1/2 houses, 2 vines, half-leaf ivy, 0.3 dressing) | 134 | 379k | 153 / 470k | draws OK (<= 150); tris 26 % over 300k: next levers are the 6 stalls (2.7k each) + goods layouts, 4 LOD1 houses (4.5k), tower cylinders, hero/guards; use LOD2 for all houses beyond 8 m or merge stalls into LOD |
+| LOW (pass 5, 12 folk, LOD1/2 houses, 2 vines, half-leaf ivy, 0.3 dressing) | 134 | 379k (xvfb) / 325k (PC GPU, Mobile) | 153 / 470k | tris over |
+| LOW local pass 2026-10-01 (guards lod1, folk lod1 beyond 10 m, LOD2 houses beyond 8 m) | 114 | 286k | 104 / 368k | within budget. Census showed characters were the big cost: 4 guards 47k (12k each), 12 folk 74k |
 Draw-call levers used: static props merged per material (`_bake_static`), MultiMesh for ivy/flower boxes/tubs/baskets (about 8 draws for ~1500 instances), one merged goods mesh per street side, `lod1` characters beyond 24 m, LOD1/2 houses. Textures: 1K on phone (4x less memory than the 2K lab).
 
 ## 10. Apply G to a game scene
@@ -112,4 +115,5 @@ Draw-call levers used: static props merged per material (`_bake_static`), MultiM
 - Baseline (g3) about 55-60 % of target 03. Pass 1 (kit added): ivy and boxes fit the facades, but ivy neon, goods orange, voussoirs brown. Pass 2: ivy darkened (sat 0.95, value 0.78), wood/goods saturation 1.12, bounce 0.36, gate_stone atlas_color back to neutral, trim blocks as polished limestone. Pass 3: exposure 0.92, contrast 1.3, cooler LUT shadow `0a1240`, fill 0.3: contrast and shadow colour improved (metrics: warmth 1.29, sat 0.34, contrast 0.18, detail 0.05, green 0.04, shadow_b -0.02 vs target 1.34 / 0.40 / 0.23 / 0.07 / 0.02 / -0.06). Estimated score 72/100 (hero 4/10, material richness 6/10 are the gaps).
 - What worked: facade dressing by MultiMesh (about 1100 ivy clumps + 40 boxes + tubs + baskets = about 10 draws); warm bounce as a shadowless upward directional light plus warm `ground_bounce`; warm fog; pointed arch + voussoir ring (instantly reads as "castle gate"); 26 folk with random clip phases; merging stall goods per street side.
 - What did not: warm-tinting `gate_stone` (turns brown); `bounce` 0.42 + fill 0.55 (orange barrels, muddy shadows); `_bake_static` merging per material saves nothing for the houses because every house has its own atlas material (only worth it for shared-material props); the lab "stall" camera is not useful (stands outside the street).
+- Local PC pass (2026-10-01, ~56 -> ~64 re-scored on the GPU): skinned HeroOutfit, weathering pack, pink LUT fixed, ivy variation, hair roughness, LOW budget met. Sheets in `docs/art/style_g/compare/`.
 - Still to do for 85+: bespoke hero (hooded vest, bracers, shaggy hair), real weathered plaster/timber textures instead of the flat Meshy atlases, awning cloth drape, shelves of jars behind counters, more flowers/grass at wall feet, LOW triangle budget.
