@@ -192,6 +192,8 @@ func _ready() -> void:
 	controls.add_child(stick)
 
 	_buttons["attack"] = _button("attack", "", 128, UITheme.ACTION_ATTACK, "broadsword")
+	_buttons["jump"] = _button("jump", "Jump", 72, UITheme.ACTION_UTIL, "")
+	(_buttons["jump"].shape as CircleShape2D).radius = 44.0 # 88 dp target, 72 dp face
 	_buttons["dodge"] = _button("dodge", "", 84, UITheme.ACTION_DODGE, "dodge")
 	_buttons["block"] = _button("block", "", 84, UITheme.ACTION_BLOCK, "checked-shield")
 	# Shadow Dash: a separate ability button (cooldown, own icon tint) so it
@@ -503,6 +505,8 @@ func _layout() -> void:
 	# context actions; the rest of the combat cluster only exists while fighting.
 	_pose(_buttons["attack"], _at(Vector2(168, 168)), 0.0 if talk else 1.0)
 	_pose(_interact, _at(Vector2(168, 168)), 1.0 if talk else 0.0)
+	# Jump sits above Attack; in combat with a target the small Interact takes that slot.
+	_pose(_buttons["jump"], _at(Vector2(168, 300)), 0.0 if (has_target and combat) else 1.0)
 	_pose(_buttons["dodge"], _at(Vector2(270, 112)), 1.0)
 	_pose(_buttons["block"], _at(Vector2(240, 226)), 1.0 if combat else 0.0)
 	_pose(_attack_small, _at(Vector2(352, 104)), 1.0 if talk else 0.0)
@@ -874,8 +878,11 @@ func _rebuild_menu() -> void:
 			child.queue_free()
 		_menu.visible = false
 		_dlg_options = data.get("options", [])
+		var was_dialogue_visible := dialogue.visible
 		dialogue.set_page(data)
 		dialogue.visible = true
+		if not was_dialogue_visible:
+			dialogue.present()
 		_set_chrome_visible(false)
 		return
 	dialogue.visible = false

@@ -42,6 +42,7 @@ var crafting := preload("res://scripts/sim/crafting.gd").new()
 const ItemsDB := preload("res://scripts/sim/items_db.gd")
 const WorldEventLog := preload("res://scripts/systems/world_event_log.gd")
 const ActionRuntime := preload("res://scripts/systems/action_runtime.gd")
+const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
 ## Bounded facts from player actions, available to future dialogue/simulation consumers.
 var world_events = WorldEventLog.new()
 ## Short-lived actor/action leases; deliberately excluded from saves.
@@ -759,22 +760,40 @@ func _offer(e: Dictionary) -> void:
 	pending_offers.append(e)
 	var sc: Dictionary = e.get("scout", {})
 	var org: Dictionary = e.get("org", {})
-	Game.say("%s of %s has been watching you. (See your Pack to answer.)" % [sc.get("name", "A stranger"), org.get("name", "somewhere")])
+	Game.say("%s of %s has been watching you. Open Pack → Journal → Scouting Offers to answer." % [
+		sc.get("name", "A stranger"), org.get("name", "somewhere")])
 
 
 func answer_offer(event_id: int, yes: bool) -> String:
-	for e: Dictionary in pending_offers.duplicate():
-		if int(e["id"]) == event_id:
-			pending_offers.erase(e)
-			if not yes:
-				scouts.decline(event_id)
-				return "You decline, politely."
-			var r := scouts.accept(event_id, WorldSim.day)
-			life_path.set_flag("recruited:" + String(e["org"].get("id", "?")))
-			if bool(e["offer"].get("soulbeast_path", false)):
-				life_path.set_flag("permit:xiava_lake")
-			return String(r.get("text", "You accept the offer."))
-	return ""
+	var e := scouts.offer(event_id)
+	if e.is_empty():
+		return "That offer has expired."
+	if WorldSim.day > int(e.get("offer", {}).get("expires_day", -1)):
+		scouts.tick_day(WorldSim.day)
+		for pending: Dictionary in pending_offers.duplicate():
+			if int(pending.get("id", -1)) == event_id:
+				pending_offers.erase(pending)
+		return "That offer has expired."
+	for pending: Dictionary in pending_offers.duplicate():
+		if int(pending.get("id", -1)) == event_id:
+			pending_offers.erase(pending)
+	if not yes:
+		scouts.decline(event_id)
+		return "You decline, politely."
+	var accepted := scouts.accept(event_id, WorldSim.day)
+	if accepted.is_empty():
+		return "That offer has expired."
+	var org_id := String(accepted["org"].get("id", "?"))
+	life_path.set_flag("recruited:" + org_id)
+	if bool(accepted["offer"].get("soulbeast_path", false)):
+		life_path.set_flag("permit:xiava_lake")
+	var org_name := String(accepted["org"].get("name", "the organization"))
+	biography.add_highlight("Accepted a recruitment offer from %s" % org_name, WorldSim.day)
+	var bonus := int(accepted["offer"].get("signing_bonus", 0))
+	if bonus > 0:
+		Game.add_gold(bonus)
+		return "You accept the offer from %s and receive %d gold to begin." % [org_name, bonus]
+	return "You accept the offer from %s." % org_name
 
 
 ## Effective level for naming: grows with merit, reduced while levels are lost to naming.
@@ -1104,7 +1123,12 @@ func _on_hour(hour: int) -> void:
 			Game.say("Your %s has healed." % String(RAInjuries.info(String(h["type"])).get("name", "injury")).to_lower())
 		magicules.apply_effects(injuries.effects())
 		naming.tick_day(WorldSim.day)
-		scouts.tick_day(WorldSim.day)
+		var expired_offers: Array = scouts.tick_day(WorldSim.day)
+		for expired: Dictionary in expired_offers:
+			for pending: Dictionary in pending_offers.duplicate():
+				if int(pending.get("id", -1)) == int(expired.get("id", -2)):
+					pending_offers.erase(pending)
+			Game.say("The offer from %s has expired." % String(expired.get("scout", {}).get("name", "the recruiter")))
 		_offer(scouts.daily_roll(scout_profile(), WorldSim.day))
 		careers.tick_day(_hire)
 		# Ashford's market (`market`) is bound into `economy` (see _setup_market) and ticks hourly there; ticking
@@ -1464,6 +1488,7 @@ func restore(d: Dictionary) -> void:
 	career_since_day = int(cd.get("since_day", 0))
 	career_sponsor_tier = int(cd.get("sponsor_tier", 0))
 	WorldSim.deserialize(d.get("world", {}))
+	UtilityBrain.restore_active_needs()
 	Game.deserialize(d.get("game", {}))
 	careers.deserialize(d.get("careers", {}))
 	for o in careers.orgs:

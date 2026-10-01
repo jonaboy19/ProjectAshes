@@ -93,7 +93,18 @@ const DODGE_ANIM_RATE := 1.8
 ## step with i-frames, no VFX. Distinct from the Shadow Dash ability below.
 const DODGE_SPEED_MIN := 3.2
 const DODGE_SPEED_MAX := 7.0
+const DODGE_LANE_STEP_DEG := 10.0
+const DODGE_LANE_MAX_DEG := 50.0
 const DODGE_STAMINA := 15.0
+## Jump is intentionally separate from the dodge action. Timing and clip names:
+## docs/anim/patches/P7_jump.md (the clip library is loaded before UAL1).
+const JUMP_BUFFER := 0.12
+const JUMP_START_STAND := 0.15
+const JUMP_START_RUN := 0.13
+const JUMP_STAND_HEIGHT := 1.10
+const JUMP_RUN_HEIGHT := 1.25
+const JUMP_FALL_GRAVITY := 32.0
+const JUMP_TERMINAL := 24.0
 ## Shadow Dash (explicit ability, own input + HUD button, cooldown-gated):
 ## the fast burst with the afterimage VFX that used to fire on every dodge.
 const DASH_SPEED_MIN := 4.0
@@ -121,6 +132,10 @@ const TravelRules := preload("res://scripts/world/travel_rules.gd")
 const ProceduralRig := preload("res://scripts/actors/procedural_rig.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const EquipmentVisuals := preload("res://scripts/actors/equipment_visuals.gd")
+const ImpactPause := preload("res://scripts/actors/impact_pause.gd")
+const VFXSpells := preload("res://scripts/vfx/vfx_spells.gd")
+const FlipbookFX := preload("res://scripts/vfx/flipbook_fx.gd")
+const SettingsStore := preload("res://scripts/ui/frontend/settings_store.gd")
 const MOUNTED_RADIUS := 0.6      # wider body while mounted so the horse's chest meets walls
 const MOUNTED_CAMERA := 7.5      # third-person distance on horseback
 ## Swimming. Depths are for a full-size body and scale with Life.body_scale().
@@ -224,6 +239,28 @@ var _move_dir := Vector3.FORWARD
 var _move_speed := 0.0
 var _pivoting := false
 var _air_time := 0.0
+var _jump_buffer := 0.0
+var _jump_starting := false
+var _jump_delay := 0.0
+var _jump_active := false
+var _jump_left_floor := false
+var _jump_cut := false
+var _jump_running := false
+var _jump_age := 0.0
+var _jump_falling := false
+var _air_visual := false
+var _fall_apex_y := 0.0
+var _land_time := 0.0
+var _land_lock := 0.0
+var _land_roll := false
+var _land_roll_speed := 0.0
+var _landing_dip := 0.0
+var _land_fov := 0.0
+var _impact_fov := 0.0
+var _loco_transition_time := 0.0
+var _impact_pause: Node
+var _camera_fade_visual: GeometryInstance3D
+var _camera_fade_original := 0.0
 var _flinch := 0.0
 var _yaw_rate := 0.0
 var _lean := Vector2.ZERO
@@ -241,6 +278,8 @@ var _drown_warned := false
 var _lock: Node3D
 var _lock_marker: MeshInstance3D
 var _lock_height := 2.0
+var _block_threat: Node3D
+var _block_threat_refresh := 0.0
 var _flick := 0.0
 var _flick_cooldown := 0.0
 var _stick_flicked := false
@@ -270,6 +309,8 @@ func _ready() -> void:
 	floor_snap_length = 0.35
 	_model = Node3D.new()
 	add_child(_model)
+	_impact_pause = ImpactPause.new()
+	add_child(_impact_pause)
 	_build_body()
 	_pivot = Node3D.new()
 	_pivot.position.y = 1.55
@@ -307,7 +348,7 @@ func _ensure_actions() -> void:
 	var wanted := {
 		"lock_on": [KEY_Q, MOUSE_BUTTON_MIDDLE, JOY_BUTTON_RIGHT_STICK],
 		"crouch": [KEY_C, JOY_BUTTON_LEFT_STICK],
-		# Shadow Dash: an explicit ability, not the default dodge (KEY_SPACE).
+		# Shadow Dash: an explicit ability, not the default dodge (K).
 		"ability_dash": [KEY_R, JOY_BUTTON_LEFT_SHOULDER],
 	}
 	for action: String in wanted:
@@ -364,7 +405,7 @@ func _build_body() -> void:
 		body = Assets.character("Player", 1.8, props)
 	_body_node = body
 	_model.add_child(body)
-	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true)
+	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true, true)
 	_ragdoll = Ragdoll.attach(self, body, [_animator.tree, _animator.player])
 	_add_head_look(body)
 	# After the look-at: the rig orders the skeleton's modifiers as
@@ -493,6 +534,18 @@ func _physics_process(delta: float) -> void:
 	_flinch -= delta
 	_attack_buffer -= delta
 	_dodge_buffer -= delta
+	_jump_buffer -= delta
+	_land_lock = maxf(_land_lock - delta, 0.0)
+	if _loco_transition_time > 0.0:
+		_loco_transition_time -= delta
+		if _loco_transition_time <= 0.0:
+			_loco_transition_time = 0.0
+			_animator.finish_air()
+	if _land_time > 0.0:
+		_land_time -= delta
+		if _land_time <= 0.0:
+			_land_roll = false
+			_animator.finish_air()
 	_parry_bonus -= delta
 	_flick_cooldown -= delta
 	_flick *= exp(-8.0 * delta)
@@ -505,7 +558,10 @@ func _physics_process(delta: float) -> void:
 	var wade := WorldGen.water_depth(global_position.x, global_position.z)
 	_update_swim_state(wade)
 	blocking = Input.is_action_pressed("block") and stamina > 0.0 and _dodge <= 0.0 and not dead \
-			and _stunned <= 0.0 and not swimming
+			and _stunned <= 0.0 and not swimming and not _jump_starting and not _jump_active \
+			and _land_time <= 0.0
+	if blocking:
+		_cancel_locomotion_transition()
 	_track_block(delta)
 	_animator.set_blocking(blocking)
 	_consume_buffers()
@@ -534,9 +590,26 @@ func _physics_process(delta: float) -> void:
 	elif wade > 0.5:
 		# Wade slowly past knee depth; past chest depth the body swims instead.
 		speed *= lerpf(0.65, 0.35, clampf((wade - 0.5) / 0.8, 0.0, 1.0))
+	if _land_lock > 0.0:
+		speed *= 0.3
 	var target := dir * speed
-	_air_time = 0.0 if is_on_floor() or swimming else _air_time + delta
+	var floor_before := is_on_floor()
+	_air_time = 0.0 if floor_before or swimming else _air_time + delta
 	var grounded := _air_time <= COYOTE_TIME
+	if _jump_buffer > 0.0 and grounded and not _jump_starting and not _jump_active \
+			and _land_time <= 0.0 and not dead and not swimming and not blocking \
+			and _swing <= 0.0 and _dodge <= 0.0 and _stunned <= 0.0:
+		if crouching:
+			_set_crouch(false) # next physics frame can spend the buffered jump
+		else:
+			_begin_jump(running, floor_before)
+	if _jump_starting:
+		_jump_delay -= delta
+		if _jump_delay <= 0.0:
+			_launch_jump()
+	if _jump_active:
+		_jump_age += delta
+	var speed_before_steer := _move_speed
 	if _dodge > 0.0:
 		# The roll owns movement: its own speed curve, no input smoothing.
 		var speed_lo := DASH_SPEED_MIN if _dodging_ability else DODGE_SPEED_MIN
@@ -544,8 +617,10 @@ func _physics_process(delta: float) -> void:
 		var roll_speed := lerpf(speed_lo, speed_hi, clampf(_dodge / DODGE_TIME, 0.0, 1.0))
 		_move_dir = _dodge_dir
 		_move_speed = roll_speed
+	elif _land_roll:
+		_move_speed = _land_roll_speed
 	else:
-		_steer(target, delta, 1.0 if grounded else AIR_CONTROL)
+		_steer(target, delta, (0.2 if _jump_running else AIR_CONTROL) if _jump_active else (1.0 if grounded else AIR_CONTROL))
 	var planar := _move_dir * _move_speed + _impulse
 	velocity.x = planar.x
 	velocity.z = planar.z
@@ -553,21 +628,34 @@ func _physics_process(delta: float) -> void:
 	if swimming:
 		velocity.y = _swim_vertical(target.length() > 0.1)
 	else:
-		velocity.y = -1.0 if is_on_floor() else velocity.y - GRAVITY * delta
+		if floor_before and not _jump_active:
+			velocity.y = -1.0
+		else:
+			if _jump_active and not _jump_cut and velocity.y > 0.0 and not Input.is_action_pressed("jump"):
+				velocity.y *= 0.45
+				_jump_cut = true
+			var gravity := GRAVITY if velocity.y > 0.0 else JUMP_FALL_GRAVITY
+			if _jump_active and absf(velocity.y) < 1.5:
+				gravity *= 0.5
+			velocity.y = maxf(velocity.y - gravity * delta, -JUMP_TERMINAL)
+	var impact_speed := -velocity.y
 	move_and_slide()
+	_update_jump_after_move(floor_before, impact_speed, dir)
 	_resolve_contacts()
 	_keep_above_ground()
 
 	_update_facing(dir, delta)
 	var real := get_real_velocity()
 	var travel := Vector3(real.x, 0.0, real.z)
+	_update_locomotion_transition(dir, floor_before, speed_before_steer)
 	_animator.update(delta, travel.length() if _dodge <= 0.0 else 0.0, travel)
 	if _rig:
 		# Feet off the ground: airborne, swimming, rolling, dead. Big hits ease the IK off.
 		_rig.call("set_state", travel.length(), is_on_floor(), swimming or dead or _dodge > 0.0,
 				_animator.is_full_busy())
 	_update_lean(delta)
-	_update_footsteps(delta, dir, grounded and not swimming)
+	_update_footsteps(delta, dir, grounded and not swimming and not _jump_starting and not _jump_active \
+			and _land_time <= 0.0)
 
 	_travel_stamina(delta, running and travel.length() > RUN * 0.6)
 	if swimming:
@@ -619,6 +707,7 @@ func toggle_mount(target: Node3D = null) -> void:
 	if dead or swimming or _dodge > 0.0 or _stunned > 0.0:
 		return
 	_release_lock()
+	_reset_jump()
 	_set_crouch(false)
 	if _swing > 0.0:
 		_swing_id += 1
@@ -710,6 +799,10 @@ func _update_swim_state(depth: float) -> void:
 	var k := Life.body_scale()
 	if not swimming and depth > SWIM_ENTER * k and not dead:
 		swimming = true
+		var surface := WorldGen.water_level_at(global_position.x, global_position.z)
+		if not is_nan(surface):
+			FlipbookFX.play(&"water_splash", Vector3(global_position.x, surface, global_position.z), 0.7, Color.WHITE, get_parent())
+		_reset_jump()
 		_set_crouch(false)
 		_drown = 0.0
 		_drown_warned = false
@@ -947,7 +1040,8 @@ func _parry(from: Node) -> void:
 	Audio.sfx("clash")
 	VFX.sparks(get_parent(), at, Color(1.0, 0.97, 0.75), 42)
 	VFX.flash(get_parent(), at, Color(1.0, 0.9, 0.6), 3.0, 0.15, 5.0)
-	_shake.add(0.3)
+	_add_camera_shake(0.3)
+	_fov_punch(4.0)
 	_hit_stop(PARRY_HIT_STOP)
 
 
@@ -1016,6 +1110,15 @@ func _update_facing(dir: Vector3, delta: float) -> void:
 		rate = FACE_TURN_IDLE
 	elif view == View.FIRST or blocking:
 		want = _yaw + PI
+		if blocking and view != View.FIRST:
+			# Refresh at 12.5 Hz while guarding; camera heading is the fallback.
+			_block_threat_refresh -= delta
+			if _block_threat_refresh <= 0.0 or not is_instance_valid(_block_threat):
+				_block_threat = _nearest_enemy(6.0, -1.0)
+				_block_threat_refresh = 0.08
+			if is_instance_valid(_block_threat):
+				var threat_dir := _block_threat.global_position - global_position
+				want = atan2(threat_dir.x, threat_dir.z)
 		rate = FACE_TURN_IDLE
 	elif dir.length() > 0.05 and _swing <= 0.0 and _dodge <= 0.0 and _stunned <= 0.0:
 		want = atan2(dir.x, dir.z)
@@ -1025,6 +1128,9 @@ func _update_facing(dir: Vector3, delta: float) -> void:
 		var step := clampf(diff * (1.0 - exp(-FACE_SHARPNESS * delta)), -rate * delta, rate * delta)
 		_model.rotation.y = before + step
 	_yaw_rate = angle_difference(before, _model.rotation.y) / maxf(delta, 0.0001)
+	if not blocking:
+		_block_threat = null
+		_block_threat_refresh = 0.0
 
 
 ## A small lean into turns and against speed changes. Pivots at the feet (the
@@ -1064,6 +1170,11 @@ func _update_camera(delta: float) -> void:
 	var want_distance: float = rig[0]
 	var k := Life.body_scale()
 	var pivot_goal := Vector3(0.0, 1.55 * k, 0.0)
+	pivot_goal.y += _landing_dip
+	_landing_dip = move_toward(_landing_dip, 0.0, 1.2 * delta)
+	_land_fov = move_toward(_land_fov, 0.0, 14.0 * delta)
+	_impact_fov = move_toward(_impact_fov, 0.0, maxf(_impact_fov, 1.0) * 7.0 * delta)
+	camera.fov = lerpf(camera.fov, 65.0 + _land_fov + _impact_fov, 1.0 - exp(-14.0 * delta))
 	if _mount:
 		pivot_goal.y += _mount.rider_offset(k).y
 		if view == View.THIRD:
@@ -1095,23 +1206,59 @@ func _update_camera(delta: float) -> void:
 	# This runs on top of the spring arm's own collision, which alone missed thin
 	# awnings/roofs; snapping straight to the corrected point every tick made the
 	# camera visibly jerk whenever the ray flickered in and out (corners, foliage) —
-	# so the pull-IN (new occlusion) is instant (never show through a wall for even
-	# one frame) but the release back OUT eases, which absorbs that flicker.
+	# so solid walls still pull in immediately, while camera-only canopy proxies ease
+	# in and may fade their linked mesh. Releasing any occluder eases back out.
+	var camera_fade_target: GeometryInstance3D = null
 	if view == View.THIRD and InteriorDoor.active == null:
 		var from := _pivot.global_position
 		var q := PhysicsRayQueryParameters3D.create(from, camera.global_position, CAMERA_MASK)
 		q.exclude = [get_rid()]
 		var hit := get_world_3d().direct_space_state.intersect_ray(q)
 		var camera_target := camera.global_position
+		var soft_occluder := false
 		if not hit.is_empty():
 			camera_target = (hit["position"] as Vector3) + (from - camera.global_position).normalized() * 0.3
+			var collider := hit.get("collider") as CollisionObject3D
+			soft_occluder = collider != null and (int(collider.collision_layer) & CAMERA_BLOCKER_LAYER) != 0
+			if soft_occluder and collider.has_meta("camera_fade_target"):
+				camera_fade_target = collider.get_meta("camera_fade_target") as GeometryInstance3D
 		if camera_target.distance_to(from) < camera.global_position.distance_to(from):
-			camera.global_position = camera_target
+			if soft_occluder:
+				camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-30.0 * delta))
+			else:
+				camera.global_position = camera_target
 		else:
 			camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-14.0 * delta))
+	_update_camera_fade(camera_fade_target)
 	# Pinned against a wall so tight the lens would sit inside the head: hide the body.
 	if view != View.FIRST:
 		_model.visible = camera.global_position.distance_to(_pivot.global_position) > 0.45 * Life.body_scale()
+
+
+func _update_camera_fade(target: GeometryInstance3D) -> void:
+	if _camera_fade_visual != target:
+		if is_instance_valid(_camera_fade_visual):
+			_camera_fade_visual.transparency = _camera_fade_original
+		_camera_fade_visual = target if is_instance_valid(target) else null
+		if _camera_fade_visual:
+			_camera_fade_original = _camera_fade_visual.transparency
+	if is_instance_valid(_camera_fade_visual):
+		_camera_fade_visual.transparency = maxf(_camera_fade_original, 0.6)
+
+
+func _fov_punch(degrees: float) -> void:
+	# Keep the small contact cue inside the existing accessibility setting. This
+	# is an outward lens pulse, independent of positional camera shake.
+	_impact_fov = maxf(_impact_fov, minf(degrees, 6.0) * _screen_feedback_strength())
+
+
+func _add_camera_shake(amount: float) -> void:
+	_shake.add(amount * _screen_feedback_strength())
+
+
+func _screen_feedback_strength() -> float:
+	# Settings: Off = none, Reduced = half, Full = full. Read on impacts only.
+	return float(clampi(int(SettingsStore.get_value("screen_shake")), 0, 2)) * 0.5
 
 
 func _update_look_target() -> void:
@@ -1130,7 +1277,7 @@ func _update_look_target() -> void:
 # --- Combat -----------------------------------------------------------------------
 
 func attack() -> void:
-	if dead or swimming or _mount != null:
+	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0:
 		return
 	if _can_attack():
 		_start_swing()
@@ -1138,10 +1285,180 @@ func attack() -> void:
 		_attack_buffer = ATTACK_BUFFER   # early press: fire at the next opening
 
 
+## Space / the mobile button buffers a jump briefly through an attack lockout or
+## the last few frames before landing. A second press in the air never relaunches.
+func jump() -> void:
+	if dead or swimming or _mount != null or _menu_open():
+		return
+	_jump_buffer = JUMP_BUFFER
+
+
+func _begin_jump(running: bool, grounded_at_press: bool) -> void:
+	_cancel_locomotion_transition()
+	_jump_running = running and _move_speed >= 4.5
+	var cost := 10.0 if _jump_running else 6.0
+	if stamina < cost:
+		_jump_buffer = 0.0
+		return
+	_spend(cost)
+	_jump_buffer = 0.0
+	_jump_starting = true
+	# On a ledge, honor coyote input immediately instead of letting the start
+	# anticipation spend the grace window falling below the take-off point.
+	_jump_delay = (JUMP_START_RUN if _jump_running else JUMP_START_STAND) if grounded_at_press else 0.0
+	_jump_cut = false
+	_jump_falling = false
+	_fall_apex_y = global_position.y
+	# The run clip's take-off is frame 12; at 3x it reaches contact in 0.13 s.
+	_animator.play_air("Jump_Running_Start" if _jump_running else "Jump_Start", 3.0 if _jump_running else 2.0)
+
+
+func _launch_jump() -> void:
+	_jump_starting = false
+	_jump_active = true
+	_jump_left_floor = false
+	_jump_age = 0.0
+	_air_visual = true
+	_air_time = COYOTE_TIME + 0.01
+	velocity.y = sqrt(2.0 * GRAVITY * (JUMP_RUN_HEIGHT if _jump_running else JUMP_STAND_HEIGHT))
+	_fall_apex_y = global_position.y
+	_animator.play_air("Jump_Rise")
+	VFXSpells._dust(get_parent(), Vector3(global_position.x, WorldGen.height(global_position.x, global_position.z), global_position.z), 0.55 if _jump_running else 0.4)
+	App.vibrate(10)
+
+
+func _update_jump_after_move(floor_before: bool, impact_speed: float, dir: Vector3) -> void:
+	if not is_on_floor() and not swimming:
+		if floor_before and not _jump_active:
+			_fall_apex_y = global_position.y
+		_fall_apex_y = maxf(_fall_apex_y, global_position.y)
+		if _jump_active:
+			_jump_left_floor = true
+			if not _jump_falling and velocity.y <= 0.5:
+				_jump_falling = true
+				_animator.play_air("Jump_Fall")
+		elif not _jump_starting and not _air_visual and _air_time >= 0.15 \
+				and _dodge <= 0.0 and _land_time <= 0.0:
+			_air_visual = true
+			_animator.play_air("Jump_Fall")
+		return
+	if is_on_floor() and ((_jump_active and (_jump_left_floor or _jump_age > 0.18)) \
+			or (not floor_before and _air_visual)):
+		_land_jump(maxf(impact_speed, 0.0), dir)
+
+
+## A measured run-stop clip replaces the abrupt idle pose at high speed. Its
+## root translation is disabled, and the capsule keeps the audited 15 m/s² brake.
+func _update_locomotion_transition(dir: Vector3, grounded: bool, entry_speed: float) -> void:
+	if _loco_transition_time > 0.0:
+		return
+	if not grounded or dead or swimming or blocking or _jump_starting or _jump_active \
+			or _land_time > 0.0 or _dodge > 0.0 or _swing > 0.0 or _stunned > 0.0:
+		return
+	if dir.length() >= 0.05 or entry_speed < 4.0:
+		return
+	var clip := "Loco_RunStop_L" if _animator.gait_phase() < 0.5 else "Loco_RunStop_R"
+	var natural_entry := 3.1 if clip.ends_with("_L") else 3.6
+	var rate := clampf(entry_speed / natural_entry, 0.8, 2.5)
+	var length := _animator.clip_length(clip)
+	if length <= 0.0:
+		return
+	_animator.play_locomotion_transition(clip, rate)
+	_loco_transition_time = length / rate
+
+
+func _cancel_locomotion_transition() -> void:
+	if _loco_transition_time <= 0.0:
+		return
+	_loco_transition_time = 0.0
+	_animator.finish_air()
+
+
+func _land_jump(impact_speed: float, dir: Vector3) -> void:
+	var fall_height := maxf(_fall_apex_y - global_position.y, 0.0)
+	var forward_input := dir.length() > 0.1 and facing().dot(dir.normalized()) > 0.25
+	var running_land := (_jump_running or _move_speed > 4.5) and fall_height <= 3.0
+	var roll := (fall_height >= 3.0 and fall_height <= 6.0) or (fall_height > 1.2 and forward_input)
+	var hard := fall_height >= 1.2 or impact_speed > 11.0
+	_jump_active = false
+	_jump_starting = false
+	_jump_left_floor = false
+	_jump_falling = false
+	_jump_running = false
+	_jump_cut = false
+	_jump_age = 0.0
+	_air_visual = false
+	_air_time = 0.0
+	if fall_height > 6.0 and not roll:
+		take_damage(roundi((fall_height - 6.0) * 8.0), null, Vector3.ZERO, true)
+		if dead:
+			return
+	var ground := Vector3(global_position.x, WorldGen.height(global_position.x, global_position.z), global_position.z)
+	var water_surface := WorldGen.water_level_at(global_position.x, global_position.z)
+	if is_nan(water_surface):
+		VFXSpells._dust(get_parent(), ground, clampf(0.35 + impact_speed * 0.05, 0.4, 1.2))
+	elif WorldGen.water_depth(global_position.x, global_position.z) > 0.05:
+		FlipbookFX.play(&"water_splash", Vector3(global_position.x, water_surface, global_position.z),
+			clampf(0.5 + impact_speed * 0.035, 0.6, 1.0), Color.WHITE, get_parent())
+	if roll:
+		_land_roll = true
+		_land_roll_speed = maxf(_move_speed * 0.6, 2.2)
+		_move_dir = dir.normalized() if dir.length() > 0.1 else facing()
+		_land_time = 0.9
+		_landing_dip = -0.30
+		_animator.play_air("Jump_Land_Roll", 1.8)
+		App.vibrate(35)
+	elif running_land:
+		_land_time = 0.35
+		_landing_dip = -0.10
+		_animator.play_air("Jump_Land_Running", 2.0)
+		App.vibrate(10)
+	elif hard:
+		_land_time = 0.45
+		_land_lock = 0.35
+		_landing_dip = -0.22
+		_land_fov = 2.0
+		_animator.play_air("Jump_Land_Hard", 2.5)
+		App.vibrate(20)
+	else:
+		_land_time = 0.25
+		_landing_dip = -0.10
+		_animator.play_air("Jump_Land_Soft", 2.5)
+		App.vibrate(10)
+	# A jump pressed just before landing should leave the recovery pose on the
+	# first grounded frame; retain the buffer until the next physics step.
+	if _jump_buffer > 0.0:
+		_land_time = 0.0
+		_land_lock = 0.0
+		_land_roll = false
+		_land_roll_speed = 0.0
+
+
+func _reset_jump() -> void:
+	_jump_buffer = 0.0
+	_jump_starting = false
+	_jump_active = false
+	_jump_left_floor = false
+	_jump_falling = false
+	_jump_running = false
+	_jump_cut = false
+	_jump_age = 0.0
+	_air_visual = false
+	_land_time = 0.0
+	_land_lock = 0.0
+	_land_roll = false
+	_land_roll_speed = 0.0
+	_landing_dip = 0.0
+	_land_fov = 0.0
+	_loco_transition_time = 0.0
+	if _animator:
+		_animator.finish_air()
+
+
 ## Plain dodge-roll: short i-frame step, no VFX, no cooldown beyond stamina.
-## Bound to the "dodge" action (KEY_SPACE) and the HUD dodge button.
+## Bound to the "dodge" action (K) and the HUD dodge button.
 func dodge() -> void:
-	if dead or swimming or _mount != null:
+	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0:
 		return
 	if _can_dodge():
 		_start_dodge(false)
@@ -1153,7 +1470,7 @@ func dodge() -> void:
 ## and a higher stamina cost. Bound to "ability_dash" (KEY_R) and the HUD
 ## ability button. Never fires from ordinary movement or the plain dodge.
 func ability_dash() -> void:
-	if dead or swimming or _mount != null:
+	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0:
 		return
 	if dash_cooldown > 0.0 or stamina < DASH_STAMINA:
 		return
@@ -1165,13 +1482,15 @@ func ability_dash() -> void:
 ## An attack may start when idle, in the cancel tail of the previous swing, or
 ## as a roll finishes.
 func _can_attack() -> bool:
-	return not dead and not swimming and _mount == null and _stunned <= 0.0 and _dodge <= DODGE_ATTACK_CANCEL and _swing <= _swing_cancel
+	return not dead and not swimming and _mount == null and not _jump_starting and not _jump_active \
+		and _land_time <= 0.0 and _stunned <= 0.0 and _dodge <= DODGE_ATTACK_CANCEL and _swing <= _swing_cancel
 
 
 ## A roll may cut a swing's startup or recovery, but not its hit frames (it
 ## waits for them), and may chain from the very end of another roll.
 func _can_dodge() -> bool:
-	if dead or swimming or _mount != null or _stunned > 0.0 or stamina < DODGE_STAMINA or _dodge > DODGE_CHAIN:
+	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0 \
+			or _stunned > 0.0 or stamina < DODGE_STAMINA or _dodge > DODGE_CHAIN:
 		return false
 	return not _in_active_frames()
 
@@ -1191,6 +1510,7 @@ func _consume_buffers() -> void:
 
 
 func _start_swing() -> void:
+	_cancel_locomotion_transition()
 	if _dodge > 0.0:
 		_dodge = 0.0                 # roll attack: the swing takes over the roll's tail
 		_animator.stop_full()
@@ -1258,12 +1578,18 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 	var fwd := forward() if view == View.FIRST else facing()
 	var hits := 0
 	var first_hit := Vector3.INF
+	var impacted_mixers: Array = []
+	var blade_tip := _trail.tip_position() if _trail else Vector3.ZERO
 	for enemy in get_tree().get_nodes_in_group("team1"):
 		var to: Vector3 = (enemy as Node3D).global_position - global_position
 		to.y = 0.0
 		if to.length() < 2.6 and fwd.dot(to.normalized()) > 0.2:
 			enemy.take_damage(damage, self, to.normalized() * knockback)
+			if not finisher:
+				impacted_mixers.append_array(enemy.find_children("*", "AnimationMixer", true, false))
 			var point: Vector3 = (enemy as Node3D).global_position + Vector3(0, 0.8, 0) - to.normalized() * 0.3
+			if blade_tip != Vector3.ZERO and blade_tip.distance_to(point) <= 0.6:
+				point = blade_tip
 			VFX.sparks(get_parent(), point, Color(1.0, 0.72, 0.35), 30 if finisher else 18)
 			if hits == 0:
 				first_hit = point
@@ -1274,11 +1600,14 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 			VFX.impact_frame(get_parent(), first_hit, 0.7)
 	if hits > 0:
 		Audio.sfx("hit")
-		_hit_stop(0.09 if finisher else 0.05)
-		_shake.add(0.45 if finisher else 0.22)
+		_hit_stop(0.09 if finisher else 0.05, impacted_mixers)
+		_add_camera_shake(0.45 if finisher else 0.22)
+		if finisher:
+			_fov_punch(3.0)
 
 
 func _start_dodge(is_ability: bool) -> void:
+	_cancel_locomotion_transition()
 	_dodging_ability = is_ability
 	if is_ability:
 		_spend(DASH_STAMINA)
@@ -1288,6 +1617,7 @@ func _start_dodge(is_ability: bool) -> void:
 	var dir := _input_dir()
 	var backward := dir.length() < 0.1
 	_dodge_dir = -facing() if backward else dir.normalized()
+	_dodge_dir = _clear_dodge_lane(_dodge_dir)
 	if not backward:
 		_model.rotation.y = atan2(_dodge_dir.x, _dodge_dir.z)
 	_set_crouch(false)
@@ -1308,6 +1638,35 @@ func _start_dodge(is_ability: bool) -> void:
 	get_tree().create_timer(DODGE_TIME).timeout.connect(_end_dodge_anim)
 
 
+## If the swept roll path hits a hostile capsule, choose the nearest clear lane
+## around it. The probe runs only once per dodge input; regular movement and NPC
+## collision budgets are unchanged. Walls still block the roll normally.
+func _clear_dodge_lane(direction: Vector3) -> Vector3:
+	var speed_min := DASH_SPEED_MIN if _dodging_ability else DODGE_SPEED_MIN
+	var speed_max := DASH_SPEED_MAX if _dodging_ability else DODGE_SPEED_MAX
+	var distance := (speed_min + speed_max) * 0.5 * DODGE_TIME
+	var obstruction := _dodge_obstruction(direction, distance)
+	if obstruction == null or not obstruction.is_in_group("team1"):
+		return direction
+	var right := direction.rotated(Vector3.UP, PI * 0.5)
+	var to_obstruction := obstruction.global_position - global_position
+	var preferred_side := -1.0 if to_obstruction.dot(right) >= 0.0 else 1.0
+	for step in range(1, int(DODGE_LANE_MAX_DEG / DODGE_LANE_STEP_DEG) + 1):
+		var angle := deg_to_rad(float(step) * DODGE_LANE_STEP_DEG)
+		for side in [preferred_side, -preferred_side]:
+			var candidate := direction.rotated(Vector3.UP, angle * side).normalized()
+			if _dodge_obstruction(candidate, distance) == null:
+				return candidate
+	return direction
+
+
+func _dodge_obstruction(direction: Vector3, distance: float) -> Node3D:
+	var result := PhysicsTestMotionResult3D.new()
+	if test_move(global_transform, direction * distance, result):
+		return result.get_collider() as Node3D
+	return null
+
+
 ## When the roll's movement ends and the player is already steering, hand the
 ## legs straight back to locomotion instead of finishing the get-up on the spot.
 func _end_dodge_anim() -> void:
@@ -1320,27 +1679,28 @@ func _kick(v: Vector3) -> void:
 	_impulse = Vector3(v.x, 0.0, v.z)
 
 
-func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> void:
-	if dead or _invulnerable > 0.0 or _hurt_cooldown > 0.0:
+func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, force := false) -> void:
+	if dead or (not force and (_invulnerable > 0.0 or _hurt_cooldown > 0.0)):
 		return
+	_cancel_locomotion_transition()
 	var from_front := true
 	if from is Node3D:
 		var to := (from as Node3D).global_position - global_position
 		to.y = 0.0
 		from_front = facing().dot(to.normalized()) > 0.3
-	if blocking and from_front and _block_age <= PARRY_WINDOW:
+	if not force and blocking and from_front and _block_age <= PARRY_WINDOW:
 		_parry(from)
 		return
-	if blocking and from_front:
+	if not force and blocking and from_front:
 		_spend(amount * 1.6)
 		_kick(-facing() * BLOCK_PUSH)
-		_shake.add(0.15)
+		_add_camera_shake(0.15)
 		if stamina <= 0.0:
 			_stunned = 0.9          # guard broken
 			_swing = 0.0
 			_swing_id += 1
-			# Heavy stagger with both feet planted (CharacterAnimator.PREFERRED_CLIPS).
-			_animator.play_full("Hit_B", 1.3)
+			_kick(-facing() * 2.2)
+			_animator.play_full("Stagger_Back", 1.0)
 			Game.say("Guard broken!")
 		else:
 			_animator.play_upper("Block_Hit", 1.5)
@@ -1353,18 +1713,42 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 	health_changed.emit(health, max_health)
 	if knockback.length_squared() > 0.0001:
 		_kick(knockback)
-	_shake.add(0.3)
+	_add_camera_shake(0.3)
 	if health == 0:
 		_die()
 	elif not blocking:
 		_flinch = FLINCH_TIME
-		_animator.play_upper("Hit_A", 1.5)
+		var heavy := amount >= max_health * 0.12 or knockback.length() >= 4.0
+		var clip := "Hit_%s_%s" % ["Heavy" if heavy else "Light", _hit_side(from)]
+		if heavy and not _mount and not swimming:
+			_animator.play_full(clip, 1.0)
+		else:
+			_animator.play_upper(clip, 1.0)
+	if health > 0 and amount > 0 and _impact_pause:
+		var attacker_mixers: Array = []
+		if from is Node3D:
+			attacker_mixers.append_array((from as Node3D).find_children("*", "AnimationMixer", true, false))
+		_hit_stop(0.045, attacker_mixers)
+
+
+func _hit_side(from: Node) -> String:
+	if not (from is Node3D):
+		return "Front"
+	var to := (from as Node3D).global_position - global_position
+	to.y = 0.0
+	var forward := facing()
+	var front := forward.dot(to)
+	var right := Vector3.UP.cross(forward).dot(to)
+	if absf(front) >= absf(right):
+		return "Front" if front > 0.0 else "Back"
+	return "Right" if right > 0.0 else "Left"
 
 
 func _die() -> void:
 	if _mount:
 		_dismount()
 	_release_lock()
+	_reset_jump()
 	_set_crouch(false)
 	dead = true
 	# Death_A resolves to the long Mesh2Motion stagger/fall clip and can outlast
@@ -1432,7 +1816,12 @@ func _spend(amount: float) -> void:
 
 
 ## Brief freeze on impact: sells the weight of a hit.
-func _hit_stop(duration: float) -> void:
+func _hit_stop(duration: float, impacted_mixers: Array = []) -> void:
+	if duration <= 0.06 and _impact_pause:
+		impacted_mixers.append(_animator.tree)
+		impacted_mixers.append(_animator.player)
+		_impact_pause.call("pause", impacted_mixers, duration)
+		return
 	_hit_stop_token += 1
 	var token := _hit_stop_token
 	_hit_stopping = true
@@ -1444,6 +1833,7 @@ func _hit_stop(duration: float) -> void:
 
 
 func _exit_tree() -> void:
+	_update_camera_fade(null)
 	if _hit_stopping:
 		_hit_stopping = false
 		Engine.time_scale = 1.0   # never leave the world frozen if removed mid hit-stop

@@ -235,7 +235,18 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 
 	for lm in plan["landmarks"]:
 		var lm_size := _footprint(lm["asset"])
-		_piece(root, lm["asset"], lm["pos"], _ground_snap(lm["pos"], lm["yaw"], lm_size), lm["yaw"])
+		var lm_y := _ground_snap(lm["pos"], lm["yaw"], lm_size)
+		var landmark := _piece(root, lm["asset"], lm["pos"], lm_y, lm["yaw"])
+		if lm["asset"] == "well":
+			# The well roof overhangs its walk collider. Let the camera detect its
+			# full visual bounds without making the extra space solid to actors.
+			var well_mesh := Assets.building_mesh("well")
+			if well_mesh != null:
+				var well_proxy: Array[Transform3D] = [Transform3D(Basis(Vector3.UP, lm["yaw"]),
+					Vector3(lm["pos"].x, lm_y, lm["pos"].y))]
+				var visuals := landmark.find_children("*", "GeometryInstance3D", true, false)
+				var fade_target: GeometryInstance3D = visuals[0] if not visuals.is_empty() else null
+				_add_camera_blockers(root, well_mesh, well_proxy, fade_target)
 	# Market stalls and carts ringing the plaza. Plaza-radius footprint estimate
 	# (real stall assets are ~3-4 m): close enough for a per-instance ground snap,
 	# and cheap since it only samples the 4 corners once per stall at build time.
@@ -378,13 +389,29 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	_multimesh(root, Assets.building_mesh("barrel"), sc_barrels, true, true, "barrel")
 	_multimesh(root, Assets.building_mesh("crate"), sc_crates, true, true, "crate")
 	_multimesh(root, Assets.building_mesh("sack_pile"), sc_sacks, true, true, "sack_pile")
-	_multimesh(root, Assets.building_mesh("cart"), sc_carts, true, true)
+	var cart_mesh := Assets.building_mesh("cart")
+	_multimesh(root, cart_mesh, sc_carts, true, true)
+	# Codex: the NPC street graph gets the carts' fitted footprints so routed residents avoid them.
+	plan["npc_nav_obstacles"] = _cart_nav_obstacles(cart_mesh, sc_carts)
 	var props_job = DistrictProps.build(self, root, s, plan, sync)
 	if props_job != null and not props_job.done:
 		_prop_jobs.append(props_job)
 	_decals(root, s, plan)
 	_flush_contact_shadows(root)
 	return root
+
+
+func _cart_nav_obstacles(mesh: Mesh, transforms: Array[Transform3D]) -> Array:
+	var obstacles: Array = []
+	if mesh == null:
+		return obstacles
+	var bounds := mesh.get_aabb()
+	for t: Transform3D in transforms:
+		var scale := t.basis.get_scale()
+		var centre := t * bounds.get_center()
+		obstacles.append([Vector2(centre.x, centre.z), t.basis.get_euler().y,
+			Vector2(bounds.size.x * scale.x, bounds.size.z * scale.z) * 0.45])
+	return obstacles
 
 
 ## One InteriorDoor per enterable lot (inn, smithy, guild, healer, every house),
@@ -856,7 +883,7 @@ func _add_instance_colliders(parent: Node3D, mesh: Mesh, transforms: Array[Trans
 ## camera out of stall awnings/canopies whose cloth extends past the footprint
 ## used for walking, without changing what the player can walk through. Layer
 ## CAMERA_BLOCKER_LAYER only; mask 0 (never collides with anything itself).
-func _add_camera_blockers(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> void:
+func _add_camera_blockers(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], fade_target: GeometryInstance3D = null) -> void:
 	var box := mesh.get_aabb()
 	if box.size == Vector3.ZERO:
 		return
@@ -865,6 +892,8 @@ func _add_camera_blockers(parent: Node3D, mesh: Mesh, transforms: Array[Transfor
 		var body := StaticBody3D.new()
 		body.collision_layer = CAMERA_BLOCKER_LAYER
 		body.collision_mask = 0
+		if fade_target:
+			body.set_meta("camera_fade_target", fade_target)
 		var shape := CollisionShape3D.new()
 		var collider := BoxShape3D.new()
 		collider.size = Vector3(box.size.x * scale.x, box.size.y * scale.y, box.size.z * scale.z)

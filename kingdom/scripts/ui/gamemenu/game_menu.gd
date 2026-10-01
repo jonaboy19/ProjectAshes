@@ -4,7 +4,7 @@ extends Control
 ## Map, Journal, Realm; Q / E cycle, Esc / X close), the tab page in the middle and a key-hint
 ## bar at the bottom. It pauses the game while open, like the other full screens.
 ##
-## Hotkeys while open: I C K J M L jump to a tab (the same key again closes),
+## Hotkeys while open: I C F2 J M L jump to a tab (the same key again closes),
 ## Q / E previous / next tab, Esc, X or Tab close. Each page has its own keys
 ## (shown in the bottom bar). Touch: every tab, chip and hint is a tappable button.
 ##
@@ -23,7 +23,7 @@ const DIR := "res://scripts/ui/gamemenu/"
 const TABS := [
 	["inventory", "Inventory", KEY_I, "tab_inventory.gd"],
 	["character", "Character", KEY_NONE, "tab_character.gd"],
-	["skills", "Skills", KEY_K, "tab_skills.gd"],
+	["skills", "Skills", KEY_F2, "tab_skills.gd"],
 	["cultivation", "Cultivation", KEY_NONE, "tab_cultivation.gd"],
 	["quests", "Quests", KEY_NONE, "tab_quests.gd"],
 	["map", "Map", KEY_M, "tab_map.gd"],
@@ -305,7 +305,7 @@ func _input(e: InputEvent) -> void:
 			return
 	if _pages.has(tab) and bool((_pages[tab] as Control).call("handle_key", k)):
 		return
-	# Tab jumps: I / K / M (the same keys that open the menu from the world) and 1-7 in tab order.
+	# Tab jumps: I / F2 / M (the same keys that open the menu from the world) and 1-7 in tab order.
 	# C, J, L, R and the other combat keys are never menu keys (docs/controls.md).
 	var jump := ""
 	var by_letter := false

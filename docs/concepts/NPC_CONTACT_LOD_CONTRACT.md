@@ -1,8 +1,20 @@
 # NPC contact and LOD movement contract
 
-Implementation handoff for Claude. Source inspected at `e3563fc4`; no gameplay implementation is included here. Refresh `PopulationLOD`, `Villager`, and `WorldSim` before applying this contract.
+Implementation and review handoff for Claude. The original proposal below was written against `e3563fc4`; source has since changed substantially. The dated current-state section supersedes any conflicting source claims below. Refresh `PopulationLOD`, `Villager`, and `WorldSim` before applying any remaining proposal.
 
-## The cap does not guarantee close contact
+## Current implementation snapshot (2026-09-30)
+
+`PopulationLOD.refresh()` runs every 0.25 seconds. It selects full models within 45 m subject to the `Quality` budget, permits a 9 m near override up to 12 total models, caps normal full models at 24, and spawns at most three new models per refresh. Sprites are within 220 m with a combined ceiling of 140, narrowed by `Quality`. A non-full resident closer than 20 m is suppressed rather than rendered as a close flat sprite.
+
+- A full model is a `Villager` `CharacterBody3D` with a capsule enabled inside a 14 m contact radius and disabled again after 17 m. It is on the local-actor layer, and its mask includes world geometry. The player's mask includes the local-actor layer.
+- The nearest eight full models are allowed to use `move_and_slide()` while in contact range. Other embodied residents retain steering and animation but use direct kinematic movement; NPC-to-NPC spacing is steering, not universal capsule resolution. Confirm contact behavior in-game at crowd budget boundaries.
+- Near villagers route over `StreetGraph` using settlement roads, door paths, and fitted lot footprints. The route is stored on the body and recomputed when needed; it is not a `NavigationAgent3D` route shared with data-only residents.
+- `WorldSim._step()` still owns schedules, wages, and market transactions for everyone. Its external-position-owner instance token skips data-position integration while either an embodied `Villager` or a temporarily routed sprite owns movement. Releases are accepted only from the current token, so delayed `_exit_tree()` calls from replaced bodies cannot overwrite a newer sprite/body owner. Bodies transfer resolved position on writeback/removal; selected sprites within their home settlement use a capped `StreetGraph` route when the direct segment is blocked. The graph includes settlement buildings/stalls and now synchronizes the actual plaza-cart placements after settlement dressing is built. A time skip drops temporary sprite routes without overwriting the explicit time-skip destinations and asks embodied bodies to resync.
+- Sprite routes exist only while the sprite is selected for display and near its home settlement. Data-only residents, field/forest travel beyond that local graph, and routes that fail validation still use the cheaper direct mover. The route cursor is presentation-LOD state, not persistent citizen state.
+
+The 9 m override is not an absolute maximum model count on HIGH; it supplements the quality-limited 45 m selection only while the total stays under 12. The current three-spawn-per-refresh limit gives a nominal batch delay when several residents suddenly need models; measure actual latency instead of assuming it is exactly one second. Far-sprite route planning shares `StreetGraph`'s two-route-per-physics-frame budget with embodied route requests; unplanned blocked sprites wait at their current safe point. The original claims below that full models have no body collision and no near-body hysteresis are obsolete.
+
+## Historical contract proposal (some source claims are obsolete)
 
 `PopulationLOD.refresh()` runs every 0.25 seconds. It selects full models within 45 m up to the quality budget, allows a near override within 9 m while the selected count is below 12, and creates at most three new models per refresh. The normal budget can still select up to 24 models; 12 is the near override limit, not an absolute limit on HIGH. Remaining residents become sprites.
 

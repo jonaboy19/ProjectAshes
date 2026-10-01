@@ -15,11 +15,13 @@ const SeasonsScript := preload("res://scripts/sim/seasons.gd")
 const Schedule := preload("res://scripts/population/schedule.gd")
 const TownMood := preload("res://scripts/population/town_mood.gd")
 const TownIdentity := preload("res://scripts/world/town_identity.gd")   # guard density per town
+const NeedRules := preload("res://scripts/sim/npc_need_rules.gd")
 
 const SEED := 1066
 const JOBS := ["Farmer", "Blacksmith", "Merchant", "Guard", "Laborer", "Woodcutter"]
 const WAGES := [6, 12, 15, 9, 5, 7]
 const WALK_SPEED := 1.3
+const NEED_SCHEDULE_BOUNDARIES := [6.0, 21.0, 24.0]
 ## CPU budget for the whole-world sim per frame, and the radius around the player that is kept fresh.
 const BUDGET_US := 500
 const NEAR_RADIUS := 320.0
@@ -47,6 +49,17 @@ var money := PackedInt32Array()
 var health := PackedByteArray()
 var phase := PackedByteArray()      # schedule phase the current target belongs to
 var last_update := PackedFloat32Array()
+## Five normalized UtilityBrain needs per person, kept flat to avoid per-person objects.
+var npc_need_values := PackedFloat32Array()
+var npc_need_hours := PackedFloat64Array()
+var npc_need_valid := PackedByteArray()
+## 1 only when an embodied UtilityBrain, rather than an impostor, advances needs.
+var npc_need_brain_owner := PackedByteArray()
+## Owner instance ID while a higher-detail LOD representation owns position.
+## Schedule, wages and other world-data updates continue, but _step does not
+## integrate a competing movement path behind that representation. The token
+## makes delayed exits from replaced bodies unable to release a newer owner's claim.
+var external_position_owner := PackedInt64Array()
 ## Per settlement: [first_person, end_person), treasury.
 var ranges: Array[Vector2i] = []
 var treasury := PackedInt32Array()
@@ -86,6 +99,11 @@ func reset() -> void:
 	health = PackedByteArray()
 	phase = PackedByteArray()
 	last_update = PackedFloat32Array()
+	npc_need_values = PackedFloat32Array()
+	npc_need_hours = PackedFloat64Array()
+	npc_need_valid = PackedByteArray()
+	npc_need_brain_owner = PackedByteArray()
+	external_position_owner = PackedInt64Array()
 	ranges.clear()
 	treasury = PackedInt32Array()
 	_cursor = 0
@@ -125,6 +143,52 @@ func describe(i: int) -> String:
 	return "%s · %s · %dg" % [person_name(i), JOBS[job[i]], money[i]]
 
 
+## Transfer position ownership at an LOD boundary. WorldSim remains authoritative
+## for schedule and goal; a Villager or routed sprite may own resolved movement.
+func set_external_position_owner(i: int, owner_id: int, owned: bool, resolved_position := Vector2.INF,
+		brain_owns_needs := false) -> void:
+	if i < 0 or i >= pos.size():
+		return
+	# A reset can rebuild WorldSim's deterministic rows before the old world
+	# scene exits. Its stale Villager must not write into the new run. Likewise,
+	# a delayed exit from an old LOD owner cannot release a newer owner's claim.
+	if not owned and external_position_owner[i] != owner_id:
+		return
+	if resolved_position != Vector2.INF:
+		pos[i] = resolved_position
+	external_position_owner[i] = owner_id if owned else 0
+	npc_need_brain_owner[i] = 1 if owned and brain_owns_needs else 0
+
+
+func owns_external_position(i: int, owner_id: int) -> bool:
+	return i >= 0 and i < external_position_owner.size() and external_position_owner[i] == owner_id
+
+
+## Read/write the durable five-value UtilityBrain state. Invalid or absent rows
+## return empty so old saves retain the existing deterministic seed fallback.
+func person_needs(i: int) -> Dictionary:
+	if i < 0 or i >= npc_need_valid.size() or npc_need_valid[i] == 0:
+		return {}
+	var offset := i * 5
+	return {"values": PackedFloat32Array([npc_need_values[offset], npc_need_values[offset + 1],
+		npc_need_values[offset + 2], npc_need_values[offset + 3], npc_need_values[offset + 4]]),
+		"hours": npc_need_hours[i]}
+
+
+func set_person_needs(i: int, owner_id: int, values: PackedFloat32Array, hours: float) -> void:
+	if not owns_external_position(i, owner_id) or i >= npc_need_valid.size() or values.size() != 5 or not is_finite(hours):
+		return
+	var offset := i * 5
+	for n in 5:
+		if not is_finite(values[n]):
+			return
+	for n in 5:
+		var value := values[n]
+		npc_need_values[offset + n] = clampf(value, 0.0, 1.0)
+	npc_need_hours[i] = hours
+	npc_need_valid[i] = 1
+
+
 ## Indices of people within `radius` of p. Only settlements in range are scanned.
 func people_near(p: Vector2, radius: float) -> PackedInt32Array:
 	var out := PackedInt32Array()
@@ -155,6 +219,12 @@ func _populate() -> void:
 			health.append(100)
 			phase.append(255)
 			last_update.append(0.0)
+			for _need in 5:
+				npc_need_values.append(0.0)
+			npc_need_hours.append(0.0)
+			npc_need_valid.append(0)
+			npc_need_brain_owner.append(0)
+			external_position_owner.append(0)
 		ranges.append(Vector2i(start, pos.size()))
 		treasury.append(500)
 	_mood_flags = PackedInt32Array()
@@ -208,16 +278,33 @@ func advance_hours(hours: float) -> void:
 		var want := _current_phase(job[i], i)
 		if want != phase[i]:
 			_on_phase_change(i, phase[i], want)
+		if npc_need_valid[i] != 0 and npc_need_brain_owner[i] == 0:
+			_advance_offline_needs(i, day * 24.0 + time_of_day)
 		pos[i] = target[i]
 		last_update[i] = _clock
 
 
 func serialize() -> Dictionary:
 	return {"day": day, "time": time_of_day, "treasury": Array(treasury), "money": Marshalls.raw_to_base64(money.to_byte_array()),
+		"npc_needs_v": 2, "npc_needs": Marshalls.raw_to_base64(npc_need_values.to_byte_array()),
+		"npc_needs_hours": Marshalls.raw_to_base64(npc_need_hours.to_byte_array()),
+		"npc_needs_valid": Marshalls.raw_to_base64(npc_need_valid),
 		"season": seasons.serialize() if seasons else {}}
 
 
 func deserialize(d: Dictionary) -> void:
+	# Loading an older save into a running session must not inherit needs from the
+	# session being replaced. Missing/invalid fields naturally use seeded fallback.
+	npc_need_values = PackedFloat32Array()
+	npc_need_hours = PackedFloat64Array()
+	npc_need_valid = PackedByteArray()
+	npc_need_brain_owner = PackedByteArray()
+	for _person in pos.size():
+		for _need in 5:
+			npc_need_values.append(0.0)
+		npc_need_hours.append(0.0)
+		npc_need_valid.append(0)
+		npc_need_brain_owner.append(0)
 	if d.is_empty():
 		return
 	day = int(d.get("day", day))
@@ -229,6 +316,29 @@ func deserialize(d: Dictionary) -> void:
 		var m := Marshalls.base64_to_raw(d["money"]).to_int32_array()
 		if m.size() == money.size():
 			money = m
+	var need_version := int(d.get("npc_needs_v", 0))
+	if need_version in [1, 2] and d.has("npc_needs") and d.has("npc_needs_hours") and d.has("npc_needs_valid"):
+		var raw_values := Marshalls.base64_to_raw(String(d["npc_needs"]))
+		var raw_hours := Marshalls.base64_to_raw(String(d["npc_needs_hours"]))
+		var stored_valid := Marshalls.base64_to_raw(String(d["npc_needs_valid"]))
+		var expected_hours_bytes := pos.size() * (8 if need_version == 2 else 4)
+		if raw_values.size() == pos.size() * 5 * 4 and raw_hours.size() == expected_hours_bytes and stored_valid.size() == pos.size():
+			var stored_values := raw_values.to_float32_array()
+			var stored_hours := PackedFloat64Array(raw_hours.to_float64_array()) if need_version == 2 else PackedFloat64Array(raw_hours.to_float32_array())
+			for i in pos.size():
+				if stored_valid[i] == 0:
+					continue
+				if not is_finite(stored_hours[i]):
+					stored_valid[i] = 0
+					continue
+				var offset := i * 5
+				for n in 5:
+					if not is_finite(stored_values[offset + n]) or stored_values[offset + n] < 0.0 or stored_values[offset + n] > 1.0:
+						stored_valid[i] = 0
+						break
+			npc_need_values = stored_values
+			npc_need_hours = stored_hours
+			npc_need_valid = stored_valid
 	if seasons and d.has("season"):
 		seasons.deserialize(d["season"])
 	_last_hour = -1
@@ -265,6 +375,63 @@ func _refresh_moods_now() -> void:
 ## The circumstance mask of settlement `sid` as the rows currently use it.
 func mood_flags(sid: int) -> int:
 	return _mood_flags[sid] if sid >= 0 and sid < _mood_flags.size() else 0
+
+
+## Schedule phase of row `i` at hour `h` (same table as _current_phase; used by Codex's offline need catch-up).
+func _phase_at(person_job: int, h: float, i := -1) -> int:
+	var flags := 0
+	if i >= 0 and i < home.size() and home[i] < _mood_flags.size():
+		flags = _mood_flags[home[i]]
+	return Schedule.phase(person_job, h, flags, i, day)
+
+
+## Distant need state advances only when the resident's existing WorldSim row is
+## already being visited by the time-sliced simulation (or by advance_hours()).
+## Schedule boundaries and meal times split the arithmetic so sleeping and meals
+## are consistent regardless of how many rendered frames elapsed between visits.
+func _advance_offline_needs(i: int, now_hours: float) -> void:
+	var stored_hours := float(npc_need_hours[i])
+	var elapsed := clampf(now_hours - stored_hours, 0.0, NeedRules.OFFLINE_CATCHUP_HOURS)
+	if elapsed <= 0.0:
+		npc_need_hours[i] = now_hours
+		return
+	var offset := i * 5
+	var cursor := now_hours - elapsed
+	var social_rate := NeedRules.social_drain_per_hour(i)
+	var faith_rate := NeedRules.faith_drain_per_hour(i)
+	while cursor < now_hours:
+		var day_start := floorf(cursor / 24.0) * 24.0
+		var local_hour := cursor - day_start
+		var next := now_hours
+		for boundary: float in NEED_SCHEDULE_BOUNDARIES:
+			var event_hour := day_start + boundary
+			if event_hour > cursor + 0.0000001:
+				next = minf(next, event_hour)
+		for meal: float in NeedRules.MEALS:
+			var meal_hour := day_start + meal
+			if meal_hour > cursor + 0.0000001:
+				next = minf(next, meal_hour)
+		if next <= cursor:
+			break
+		var midpoint := fposmod((cursor + next) * 0.5, 24.0)
+		var sleeping := _phase_at(job[i], midpoint, i) == 0 and (midpoint < 6.0 or midpoint >= 21.0)
+		var dt := next - cursor
+		npc_need_values[offset] -= NeedRules.HUNGER_PER_HOUR * dt * (0.5 if sleeping else 1.0)
+		if sleeping:
+			npc_need_values[offset + 1] += NeedRules.SLEEP_PER_HOUR * dt
+		else:
+			npc_need_values[offset + 1] -= NeedRules.FATIGUE_PER_HOUR * dt
+		npc_need_values[offset + 2] -= social_rate * dt
+		npc_need_values[offset + 3] -= faith_rate * dt
+		npc_need_values[offset + 4] -= NeedRules.WATER_PER_HOUR * dt
+		# Recover food exactly when this interval reaches a scheduled meal.
+		for meal: float in NeedRules.MEALS:
+			if absf(next - (day_start + meal)) < 0.000001:
+				npc_need_values[offset] = minf(1.0, npc_need_values[offset] + NeedRules.EAT_RESTORE_PER_HOUR * 0.5)
+		for n in 5:
+			npc_need_values[offset + n] = clampf(npc_need_values[offset + n], 0.0, 1.0)
+		cursor = next
+	npc_need_hours[i] = now_hours
 
 
 ## Time-sliced: the whole database used to be walked at 1500 people per frame
@@ -311,6 +478,13 @@ func _step(i: int) -> void:
 	var want := _current_phase(job[i], i)
 	if want != phase[i]:
 		_on_phase_change(i, phase[i], want)
+	if npc_need_valid[i] != 0 and npc_need_brain_owner[i] == 0:
+		_advance_offline_needs(i, day * 24.0 + time_of_day)
+	# A higher-detail body or routed sprite is the sole position integrator until
+	# it releases this row. WorldSim still updates schedule/economy and eligible
+	# unembodied needs above, then waits for resolved position writeback.
+	if external_position_owner[i] != 0:
+		return
 	var to := target[i] - pos[i]
 	var dist := to.length()
 	if dist > 0.05:

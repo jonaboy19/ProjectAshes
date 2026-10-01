@@ -41,12 +41,10 @@ const LEG_BONES := ["thigh_l", "upperleg.l", "UpperLeg.L", "thigh.L", "upperleg_
 ## Gameplay clip choices that must beat the asset library. `Assets._ual_for`
 ## only adds its KayKit-name aliases when the name is missing, so the extra
 ## Mesh2Motion library's own 4.46 s `Death_A` shadows `Death_A -> Death01` and
-## keeps a dying actor upright for over a second. `Hit_B` (UAL
-## `Hit_Knockback`) throws the body to the ground and sinks up to 34 cm under
-## the floor on retargeted rigs (HIT_KNOCKBACK_FLOOR_CONTACT_REVIEW.md); the
-## shield-recoil clip keeps both soles planted while the hips drop into a
-## heavy stagger, and the capsule impulse still supplies the push.
-const PREFERRED_CLIPS := {"Death_A": "Death01", "Hit_B": "Block_Hit", "Hit_Knockback": "Block_Hit"}
+## keeps a dying actor upright for over a second. Legacy `Hit_B` requests map
+## to the authored grounded stagger; `Hit_Knockback` remains mapped to the safe
+## shield recoil because that stock clip sinks under the floor on retargeted rigs.
+const PREFERRED_CLIPS := {"Death_A": "Death01", "Hit_B": "Stagger_Back", "Hit_Knockback": "Block_Hit"}
 ## Speed filter response (1/s). Movement is already shaped by the controllers;
 ## this only removes tick-to-tick noise, so keep it short.
 const SPEED_RESPONSE := 18.0
@@ -113,9 +111,13 @@ var _stance := ""
 var _stance_w := 0.0
 var _stance_clip_speed := 0.0
 var _stance_lens := Vector2.ONE   # (idle, move) clip lengths
+var _has_air := false
+var _air_state: AnimationNodeStateMachinePlayback
+var _air_weight := 0.0
+var _air_target := 0.0
 
 
-func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "Walking_A", run_anim := "Running_A", idle_anim := "Idle", with_stances := false) -> void:
+func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "Walking_A", run_anim := "Running_A", idle_anim := "Idle", with_stances := false, with_air := false) -> void:
 	_model = model
 	player = Assets.animation_player(model)
 	_anim_root = player.get_node(player.root_node)
@@ -220,7 +222,37 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 	_root.connect_node("full_speed", 0, "full_anim")
 	_root.connect_node("full", 0, "upper")
 	_root.connect_node("full", 1, "full_speed")
-	_root.connect_node("output", 0, "full")
+	var output := "full"
+	var air_output := ""
+	if with_air:
+		_has_air = true
+		# Every air clip can transition directly to every other air clip so an
+		# interrupted launch or a hard landing never queues an unwanted state.
+		var air_states := ["Normal", "Jump_Start", "Jump_Running_Start", "Jump_Rise", "Jump_Fall",
+			"Jump_Land_Soft", "Jump_Land_Hard", "Jump_Land_Roll", "Jump_Land_Running",
+			"Loco_RunStart_F", "Loco_RunStop_L", "Loco_RunStop_R"]
+		var air_machine := AnimationNodeStateMachine.new()
+		for state: String in air_states:
+			air_machine.add_node(state, _anim("Idle" if state == "Normal" else state))
+		var entry := AnimationNodeStateMachineTransition.new()
+		entry.xfade_time = 0.0
+		air_machine.add_transition("Start", "Normal", entry)
+		for from: String in air_states:
+			for to: String in air_states:
+				if from == to:
+					continue
+				var transition := AnimationNodeStateMachineTransition.new()
+				transition.xfade_time = 0.08
+				transition.switch_mode = AnimationNodeStateMachineTransition.SWITCH_MODE_IMMEDIATE
+				air_machine.add_transition(from, to, transition)
+		_root.add_node("air_state", air_machine, Vector2(1100, 250))
+		_root.add_node("air_rate", AnimationNodeTimeScale.new(), Vector2(1250, 250))
+		_root.add_node("air_blend", AnimationNodeBlend2.new(), Vector2(1450, 0))
+		_root.connect_node("air_rate", 0, "air_state")
+		_root.connect_node("air_blend", 0, output)
+		_root.connect_node("air_blend", 1, "air_rate")
+		air_output = "air_blend"
+	_root.connect_node("output", 0, air_output if with_air else output)
 
 	tree = AnimationTree.new()
 	tree.tree_root = _root
@@ -228,6 +260,9 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 	tree.anim_player = tree.get_path_to(player)
 	tree.root_node = tree.get_path_to(_anim_root)
 	tree["parameters/gait_rate/scale"] = 1.0 / _walk_len
+	if _has_air:
+		tree["parameters/air_blend/blend_amount"] = 0.0
+		_air_state = tree["parameters/air_state/playback"]
 	if _has_stances:
 		tree["parameters/stance/blend_amount"] = 0.0
 	tree.active = true
@@ -298,6 +333,9 @@ func _filter_upper(node: AnimationNode) -> void:
 func update(delta: float, speed: float, move_dir := Vector3.ZERO) -> void:
 	if delta <= 0.0:
 		return
+	if _has_air:
+		_air_weight = move_toward(_air_weight, _air_target, 12.0 * delta)
+		tree["parameters/air_blend/blend_amount"] = _air_weight
 	var k := maxf(stride_scale, 0.05)
 	var v := maxf(speed, 0.0) / k
 	_track_motion(delta, move_dir)
@@ -428,6 +466,34 @@ func play_full(anim_name: String, time_scale := 1.0) -> void:
 	_full_anim.animation = _clip(anim_name)
 	tree["parameters/full_speed/scale"] = time_scale
 	tree["parameters/full/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
+
+
+## Optional whole-body air state machine, enabled on the playable character only.
+func play_air(anim_name: String, time_scale := 1.0) -> void:
+	if not _has_air or _air_state == null:
+		return
+	tree["parameters/air_rate/scale"] = time_scale
+	_air_state.travel(anim_name)
+	_air_target = 1.0
+
+
+func finish_air() -> void:
+	if not _has_air or _air_state == null:
+		return
+	_air_state.travel("Normal")
+	_air_target = 0.0
+
+
+func play_locomotion_transition(anim_name: String, time_scale: float) -> void:
+	play_air(anim_name, time_scale)
+
+
+func clip_length(anim_name: String) -> float:
+	return _clip_length(anim_name)
+
+
+func gait_phase() -> float:
+	return _phase
 
 
 ## Hand the body back to locomotion early (dodge recovery cancelled by input).

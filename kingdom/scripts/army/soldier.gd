@@ -248,9 +248,22 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 	else:
 		_busy = 0.35
 		if knockback.length() > 4.0:
-			_animator.play_full("Hit_B", 1.3)
+			_animator.play_full("Hit_Heavy_" + _hit_side(from), 1.0)
 		else:
-			_animator.play_upper("Hit_A", 1.5)
+			_animator.play_upper("Hit_Light_" + _hit_side(from), 1.0)
+
+
+func _hit_side(from: Node) -> String:
+	if not (from is Node3D):
+		return "Front"
+	var to := (from as Node3D).global_position - global_position
+	to.y = 0.0
+	var forward := global_transform.basis.z.normalized()
+	var front := forward.dot(to)
+	var right := Vector3.UP.cross(forward).dot(to)
+	if absf(front) >= absf(right):
+		return "Front" if front > 0.0 else "Back"
+	return "Right" if right > 0.0 else "Left"
 
 
 func _die() -> void:

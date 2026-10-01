@@ -10,7 +10,8 @@ No two world actions share a key, and "Reset controls" in Settings re-creates ev
 |---|---|---|
 | W A S D / arrows | move | left stick |
 | Shift | sprint | stick pushed fully |
-| Space | dodge | Dodge button |
+| Space | jump | Jump button |
+| K | dodge | Dodge button |
 | **J** | attack | Attack button |
 | **L** | block | Block button |
 | **C** | crouch / sneak | Sneak button |
@@ -27,7 +28,7 @@ No two world actions share a key, and "Reset controls" in Settings re-creates ev
 | 4-9 | hand seals (only while a seal sequence is running) | seal pad |
 | **Tab** | Pack menu (last tab) | Pack button |
 | **I** | Pack menu, Inventory tab | Pack button |
-| **K** | Pack menu, Skills tab | hotbar empty slot / technique ring |
+| **F2** | Pack menu, Skills tab | hotbar empty slot / technique ring |
 | M | world map | Map button |
 | P | photo mode | pause menu |
 | Esc | pause menu | pause button / Android back |
@@ -35,9 +36,9 @@ No two world actions share a key, and "Reset controls" in Settings re-creates ev
 | F3 | performance overlay | - |
 
 C, J, K and L used to be both combat keys and menu-tab keys (and K opened a second, older skills
-screen). Now **J, L and C are only ever combat keys**; K only ever opens the Skills tab.
+screen). Now **J, K, L and C are only ever combat keys**; F2 opens the Skills tab.
 
-## Inside the Pack menu (Tab / I / K)
+## Inside the Pack menu (Tab / I / F2)
 
 The menu pauses the game and owns the keyboard, so its keys are page-local and never reach the world.
 
@@ -45,7 +46,7 @@ The menu pauses the game and owns the keyboard, so its keys are page-local and n
 |---|---|
 | Q / E | previous / next tab (gamepad LB / RB) |
 | 1-7 | jump to a tab in bar order: Inventory, Character, Skills, Quests, Map, Journal, Realm |
-| I / K / M | jump to Inventory / Skills / Map (pressing the tab's own key again closes the menu) |
+| I / F2 / M | jump to Inventory / Skills / Map (pressing the tab's own key again closes the menu) |
 | Tab / X / Esc | close |
 | arrows, Enter | move / choose inside a page |
 | page keys | Inventory F G V U; Quests T; Map L (legend) F (focus) P (marker) +/- (zoom) |

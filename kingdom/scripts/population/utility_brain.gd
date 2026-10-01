@@ -31,6 +31,7 @@ const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const RANeedsScript := preload("res://scripts/sim/needs.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const Schedule := preload("res://scripts/population/schedule.gd")
+const NeedRules := preload("res://scripts/sim/npc_need_rules.gd")
 
 ## SIT..CHORE (appended after IDLE so the original indices stay): the purposeful and reactive acts of the
 ## near-NPC layer. They only score above zero when their trigger input is present.
@@ -122,23 +123,23 @@ const COMMIT_BONUS := 1.45
 const KEEP_BONUS := 1.15
 
 ## Needs, per game hour. Rest uses the player's RANeeds rates (0..100 -> 0..1).
-const FATIGUE_PER_HOUR := RANeedsScript.FATIGUE_PER_HOUR / 100.0
-const SLEEP_PER_HOUR := RANeedsScript.SLEEP_PER_HOUR / 100.0
-const HUNGER_PER_HOUR := 0.11
-const WATER_PER_HOUR := 0.09
+const FATIGUE_PER_HOUR := NeedRules.FATIGUE_PER_HOUR
+const SLEEP_PER_HOUR := NeedRules.SLEEP_PER_HOUR
+const HUNGER_PER_HOUR := NeedRules.HUNGER_PER_HOUR
+const WATER_PER_HOUR := NeedRules.WATER_PER_HOUR
 ## Breath drains while on the feet (working, shopping, walking); only sitting or leaning gives it back.
 const BREATH_PER_HOUR := 0.13
 ## Restored per game hour while performing an act at its spot: [need, amount].
 const RESTORE := {
 	Act.SLEEP: [["rest", SLEEP_PER_HOUR]], Act.HOME: [["rest", 0.03]],
-	Act.EAT: [["food", 2.5]], Act.SOCIAL: [["social", 1.5]],
+	Act.EAT: [["food", NeedRules.EAT_RESTORE_PER_HOUR]], Act.SOCIAL: [["social", 1.5]],
 	Act.INN: [["social", 1.0], ["food", 0.6]], Act.PRAY: [["faith", 1.6]],
 	Act.WATER: [["water", 2.2]],
 	Act.SIT: [["breath", 3.0], ["rest", 0.25]], Act.PLAY: [["social", 1.0], ["breath", 0.4]],
 	Act.CHORE: [["breath", 0.05]], Act.TRAIN: [["social", 0.4]], Act.FESTIVE: [["social", 1.6], ["faith", 0.2]],
 	Act.MOURN: [["faith", 1.2], ["social", 0.5]], Act.QUEUE: [["social", 0.3]],
 }
-const MEALS := [7.0, 12.5, 18.5]
+const MEALS := NeedRules.MEALS
 
 ## Sensing ranges, metres.
 const DANGER_NEAR := 5.0
@@ -279,13 +280,8 @@ static func best(ctx: Dictionary, current := -1, bonus := 1.0) -> int:
 ## Seeded personality, stable for life: four traits in 0..1.
 static func personality(p: int) -> Dictionary:
 	var out := {}
-	var k := 0
-	for t: String in ["sociable", "lazy", "pious", "greedy"]:
-		# Sum of two draws: traits cluster around the middle, extremes are rarer.
-		var h1 := hash(p * 2246822519 + k * 3266489917 + 1066)
-		var h2 := hash(p * 668265263 + k * 374761393 + 7)
-		out[t] = (float(h1 % 1000) + float(h2 % 1000)) / 1998.0
-		k += 1
+	for k in range(4):
+		out[["sociable", "lazy", "pious", "greedy"][k]] = NeedRules.trait_value(p, k)
 	return out
 
 
@@ -343,6 +339,26 @@ func seed_needs(h: float, day := 1) -> void:
 	_last_hours = -1.0
 
 
+## Compact save/LOD boundary in stable order: food, rest, social, faith, water.
+func export_needs() -> PackedFloat32Array:
+	return PackedFloat32Array([food, rest, social, faith, water])
+
+
+func import_needs(values: PackedFloat32Array, last_hours: float) -> bool:
+	if values.size() != 5 or not is_finite(last_hours):
+		return false
+	for value: float in values:
+		if not is_finite(value) or value < 0.0 or value > 1.0:
+			return false
+	food = values[0]
+	rest = values[1]
+	social = values[2]
+	faith = values[3]
+	water = values[4]
+	_last_hours = last_hours
+	return true
+
+
 ## Advance needs to absolute game time `now_hours` (day * 24 + time). While
 ## `performing` an act at its spot, that act restores its need.
 func tick(now_hours: float, performing := -1) -> void:
@@ -357,8 +373,8 @@ func tick(now_hours: float, performing := -1) -> void:
 	food -= HUNGER_PER_HOUR * dt * (0.5 if asleep else 1.0)
 	if not asleep:
 		rest -= FATIGUE_PER_HOUR * dt
-	social -= (0.05 + 0.08 * float(traits["sociable"])) * dt
-	faith -= (0.02 + 0.05 * float(traits["pious"])) * dt
+	social -= NeedRules.social_drain_per_hour(person) * dt
+	faith -= NeedRules.faith_drain_per_hour(person) * dt
 	water -= WATER_PER_HOUR * dt
 	if not asleep and performing != Act.SIT and performing != Act.HOME:
 		breath -= BREATH_PER_HOUR * dt
@@ -870,9 +886,22 @@ static func register_body(p: int, node: Node) -> void:
 	_bodies[p] = node.get_instance_id()
 
 
-static func unregister_body(p: int) -> void:
+static func unregister_body(p: int, owner_id := 0) -> void:
+	# queue_free() exits at frame end. A replacement body may already have
+	# registered for this person, so stale cleanup must not erase its registry.
+	if owner_id != 0 and int(_bodies.get(p, 0)) != owner_id:
+		return
 	_bodies.erase(p)
 	chat_leave(p)
+
+
+## A save may be loaded while the world scene remains alive. Replace each active
+## brain from the just-deserialized rows before the next LOD resync can write it.
+static func restore_active_needs() -> void:
+	for p in _bodies.keys():
+		var body := body_of(int(p))
+		if body and body.has_method("restore_needs_from_world"):
+			body.call("restore_needs_from_world")
 
 
 static func body_of(p: int) -> Node3D:

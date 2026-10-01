@@ -23,7 +23,11 @@ const HAIR := UBC + "Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/"
 ## travel is kept on the `root` bone position track, disabled here. To use root motion, set
 ## AnimationPlayer.root_motion_track to "<skeleton>:root" and re-enable that track.
 const UAL_ANIM_DIR := "res://assets/incoming/animations/"
-const UAL_FILES := [Q + "universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
+const UAL_LOCO_DIR := "res://assets/incoming/animations_free2/loco_transitions/"
+const UAL_FILES := [
+	# First match wins: this set's Jump_Start must precede UAL1's older clip.
+	UAL_LOCO_DIR + "UAL_Loco_Transitions.glb",
+	Q + "universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
 	Q + "universal-animation-library-2/Unreal-Godot/UAL2_Standard.glb",
 	# 119 extra CC0 clips retargeted onto UAL (incoming/characters/README.md, "Recommendation"):
 	# dodges, deaths, bow/crossbow, climb, two-handed, farm work, fishing, social.
@@ -547,7 +551,7 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 			continue
 		var inst: Node = Assets.scene(file).instantiate()
 		var ap: AnimationPlayer = inst.find_children("*", "AnimationPlayer", true, false)[0]
-		var root_motion_lib := file.begins_with(UAL_ANIM_DIR)
+		var root_motion_lib := file.begins_with(UAL_ANIM_DIR) or file.begins_with(UAL_LOCO_DIR)
 		for anim_name in ap.get_animation_list():
 			var a: Animation = ap.get_animation(anim_name).duplicate(true)
 			for t in a.get_track_count():
@@ -556,6 +560,11 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 				if colon > 0:
 					a.track_set_path(t, NodePath(sk + tp.substr(colon)))
 					if root_motion_lib and tp.substr(colon) == ":root" and a.track_get_type(t) == Animation.TYPE_POSITION_3D:
+						a.track_set_enabled(t, false)
+					# Turn clips drive the player capsule yaw explicitly; never rotate the
+					# skeleton root as well or the rendered body turns twice.
+					if file.begins_with(UAL_LOCO_DIR) and tp.substr(colon) == ":root" \
+							and a.track_get_type(t) == Animation.TYPE_ROTATION_3D:
 						a.track_set_enabled(t, false)
 			if anim_name == "Sword_Idle":
 				a.loop_mode = Animation.LOOP_LINEAR

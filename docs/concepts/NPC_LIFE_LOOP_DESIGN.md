@@ -1,11 +1,26 @@
 # NPC life-loop design for Rising Ashes
 
-**Status:** implementation design for Claude; not a runtime implementation.
+**Status:** rolling source/design handoff; see the dated implementation snapshot below.
 
 **Baseline inspected:** `claude/focused-curie-m09hbd` at `e3563fc4` (the game branch may have moved; refresh before changing code).
 **Purpose:** turn the existing schedule and population system into visible, physical, interruptible lives without making the whole population expensive.
 
-## What the current code does
+## Current implementation snapshot (2026-09-30)
+
+The older source notes below describe the pre-integration baseline at `e3563fc4`. They are useful as historical diagnosis and design rationale, but several findings have since been implemented. The current Codex branch is `gpt/locomotion-jump-integration`, synced with the fetched Claude branch through `ec7c4960`. Recheck current source before making changes; this status section supersedes conflicting older statements below.
+
+| Area | Current source state | Remaining boundary |
+|---|---|---|
+| Population and schedule | `WorldSim` keeps deterministic resident data in packed arrays, runs a time-budgeted slice, prioritizes people around the player, and changes home/work/market targets. It also pays job wages and market spending. | Unrendered data-only residents still move directly toward a target and have no durable route cursor or persistent daily activity history. |
+| Near-resident movement | `Villager` is a `CharacterBody3D` with acceleration, braking, a `StreetGraph` route through settlement streets/door paths, stuck detection, separation/yield steering, and explicit position ownership: `WorldSim` stops integrating a promoted body's data row until its resolved position is transferred back. Selected sprites near their home settlement also get temporary `StreetGraph` routes when their direct segment is obstructed. | Sprite routes are limited by the existing route budget and are discarded when their display LOD ends. This is not a general navmesh/NavigationAgent system. Field/forest goals, invalid destinations, proxy accuracy, and live LOD transitions still need evidence on a representative route. |
+| Physical contact | A full-model villager has a capsule that is enabled near the player, with enter/exit hysteresis. `PopulationLOD` caps the nearest actors allowed to use contact physics. | Skeleton/model, sprite, and contact budgets are separate; soft NPC separation is not proof that all actors visibly occupying a close crowd are physically blocked. Verify which visible overflow cases remain. |
+| Presentation and cost | Current `PopulationLOD` uses a 45 m full-model range, 220 m sprite range, up to 24 normal full-model slots subject to `Quality`, a 9 m near override capped at 12, and a combined sprite ceiling of 140 subject to `Quality`. It promotes at most three new models per refresh. Villager animation/shadows and contact physics are distance/budget limited. | Treat these as current source settings, not a guarantee of frame rate on a particular phone. Use same-device captures and the latest performance report before changing budgets. |
+| Near behavior | `UtilityBrain` scores 13 simple acts with five needs, seeded traits, schedule, weather, danger, and spectacle inputs. Decisions are staggered; threat samples and sight rays are shared/capped. Villagers can work, seek food/rest/water/faith/social activity, shelter, flee, or watch. The five needs now have flat WorldSim rows, versioned save fields, and transfer at body promotion/removal. | While a body is active, its brain remains the sole needs integrator. Unembodied valid rows advance inside the existing time-sliced WorldSim visit with coarse meal/sleep assumptions and a 24-hour catch-up cap; embodied catch-up remains capped at two game hours. There is no durable citizen relationship graph or episodic memory in `WorldSim`. See [NPC need continuity handoff](NPC_NEEDS_CONTINUITY_HANDOFF.md). |
+| Player and combat feel | The Codex branch includes the authored jump flow, run-stop integration, reaction timing, local hit pause, block-facing, wolf turning, camera occlusion easing, and dodge lane probes. | These changes still need playable-game confirmation; see [locomotion/jump handoff](../anim/CODEX_LOCOMOTION_JUMP.md) and [systems handoff](CODEX_SYSTEMS_HANDOFF.md). |
+
+Do not restart the NPC system or add a second crowd/AI framework. Continue by closing one observed seam at a time: reproduce it in the latest game, preserve one owner for each piece of state, change the smallest responsible layer, then capture both behavior and mobile cost.
+
+## Historical pre-integration source observations (e3563fc4; superseded in parts)
 
 The [interactive daily-rhythm viewer](WORLD_DAILY_RHYTHM_REVIEW.html) exposes an additional source-level behavior risk: residents with the same job change phase on exact shared clock boundaries, and the simulation applies their new targets in a short update burst. The schedule table, real-time conversion, and a deterministic staggering design are in [WORLD_DAILY_RHYTHM_DESIGN.md](WORLD_DAILY_RHYTHM_DESIGN.md).
 
