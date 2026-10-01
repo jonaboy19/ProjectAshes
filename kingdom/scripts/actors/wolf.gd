@@ -24,6 +24,7 @@ signal died(wolf: Wolf)
 const Models := preload("res://scripts/actors/creature_models.gd")
 const Tokens := preload("res://scripts/actors/creature_attack_tokens.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
+const Fighter := preload("res://scripts/combat/npc_fighter.gd")
 const LEGACY_MODEL := "res://assets/incoming/quaternius/ultimate-animated-animals/glTF/Wolf.gltf"
 const LEGACY_CLIPS := {"idle": "Idle", "walk": "Walk", "run": "Gallop", "attack": "Attack",
 	"hit": "Idle_HitReact1", "death": "Death"}
@@ -147,11 +148,16 @@ var _escape_told := false
 var _regen := 0.0
 var _ragdoll: Node
 var _model: Node3D
+var _fighter: RefCounted          # NpcFighter for species with a move table (wolf); others keep SPECIES only
+var _cur_move: Resource
+var _cur_windup := 0.5
 var _ward_timer := 0.0            # seconds spent inside strong coverage (ward "brief")
 
 
 func _ready() -> void:
 	_sp = SPECIES.get(species, SPECIES["wolf"])
+	if species == "wolf" and Fighter.has_archetype("wolf"):
+		_fighter = Fighter.make("wolf", randi())
 	max_health = int(_sp["health"])
 	health = max_health
 	collision_layer = ENEMY_LAYER
@@ -217,7 +223,7 @@ func _physics_process(delta: float) -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node3D
 	if _winding > 0.0:
 		_winding -= delta
-		if is_instance_valid(_strike_target) and _winding > float(_sp["windup"]) * 0.4:
+		if is_instance_valid(_strike_target) and _winding > _cur_windup * 0.4:
 			_face(_strike_target.global_position, delta)   # tracks early, then commits
 		if _winding <= 0.0:
 			_impact()
@@ -451,9 +457,18 @@ func _face(at: Vector3, delta: float) -> void:
 ## Wind-up: stop, growl, play the attack clip slowed so contact lands at `windup`.
 func _begin_attack(target: Node3D) -> void:
 	var windup := float(_sp["windup"])
+	var total := windup + float(_sp["recover"])
+	_cur_move = null
+	if _fighter != null:
+		_cur_move = _fighter.choose_move(global_position.distance_to(target.global_position),
+			"blocking" if bool(target.get("blocking")) else "idle")
+		if _cur_move != null:
+			windup = _cur_move.windup
+			total = _cur_move.total()
+	_cur_windup = windup
 	_attack_cd = randf_range(float(_sp["cooldown"][0]), float(_sp["cooldown"][1]))
 	_winding = windup
-	_busy = windup + float(_sp["recover"])
+	_busy = total
 	_strike_target = target
 	_play("attack", true, clampf(_impact_time / windup, 0.3, 1.5))
 	var voice := String(_sp["voice"])
@@ -461,19 +476,34 @@ func _begin_attack(target: Node3D) -> void:
 		Audio.play_sfx(voice, global_position + Vector3.UP * 0.6, -4.0, 0.1)
 
 
+## Describes the blow in flight for the defender's HitResolver call (player.take_damage reads it).
+func attack_info() -> Dictionary:
+	if _cur_move == null:
+		return {}
+	return {"poise_damage": _cur_move.poise_damage, "lane": _cur_move.lane, "parryable": _cur_move.parryable,
+		"unblockable": _cur_move.unblockable}
+
+
 func _impact() -> void:
 	if _anim:
 		_anim.speed_scale = 1.0
 	var target := _strike_target
 	_strike_target = null
-	if Tokens.can_hit(self, target, float(_sp["reach"]), WORLD_LAYER) and target.has_method("take_damage"):
+	var reach := float(_sp["reach"])
+	var dmg := int(_sp["damage"])
+	var knock := float(_sp["knock"])
+	if _cur_move != null:
+		reach = _cur_move.reach
+		dmg = _cur_move.damage
+		knock = _cur_move.knockback
+	if Tokens.can_hit(self, target, reach, WORLD_LAYER) and target.has_method("take_damage"):
 		var push := (target.global_position - global_position)
 		push.y = 0.0
-		var dmg := int(_sp["damage"])
 		if has_meta("r1_safe") and target.get("health") != null:
 			dmg = mini(dmg, maxi(int(target.get("health")) - 1, 0))   # Region1 C8: the first fight knocks down, it never kills
-		target.take_damage(dmg, self, push.normalized() * float(_sp["knock"]))
+		target.take_damage(dmg, self, push.normalized() * knock)
 		Audio.sfx("hit", global_position, -8.0)
+	_cur_move = null
 	_strikes_left -= 1
 	if _strikes_left <= 0:
 		_end_turn(randf_range(1.4, 2.6))

@@ -34,6 +34,15 @@ extends CharacterBody3D
 signal health_changed(current: int, maximum: int)
 signal stamina_changed(current: float, maximum: float)
 signal view_changed(view: int)
+## Weapon <-> character bus: VFX/audio/HUD subscribe (CombatFeedback), combat code only emits.
+## swing_started: action (CombatAction), info {hit_t, yaw, weak, riposte, combo, anim_speed, first_person}.
+signal swing_started(action: Resource, info: Dictionary)
+## hit_confirmed: contact points of the targets hit this swing, whether it was the finisher.
+signal hit_confirmed(points: Array, finisher: bool)
+## parried: attacker, world point, grade ("perfect" / "knockaway" / "broken").
+signal parried(attacker: Node, point: Vector3, grade: String)
+signal blocked(attacker: Node, guard_broken: bool)
+signal clashed(attacker: Node, won: bool)
 ## The fall animation has played; whoever owns the game decides what happens next
 ## (main.gd shows the death screen). With no listener the player just gets up at spawn_point.
 signal died
@@ -149,19 +158,12 @@ const PARRY_REARM := 0.3         # s the block must be down before a new raise c
 const PARRY_BONUS_TIME := 1.0
 const PARRY_DAMAGE := 1.5
 const PARRY_HIT_STOP := 0.12
-const COMBO := [
-	# "hit" = when the blade actually passes (hand-speed peak measured on the player rig by
-	# tools_qa/feel_capture/measure_hits.gd, divided by "speed"); damage, hitstop and sparks land
-	# there and the slash arc starts SLASH_LEAD earlier (FEEL_AUDIT F3: the old values fired the
-	# horizontal slice 0.2 s before its blade moved).
-	# COMBAT_AUDIT C1-C3 (2026-09-30): the UAL strike-only clips never put the blade through a target in front on the
-	# upper-body layer; the authored Sword_Light_N_Upper set (animations/combat/UAL_Combat.glb) does, on its contact
-	# frame: hit = contact frame / 30 / speed (L1 f9, L2 f7, L3 f9, L4 f16), lock = follow-through end (f15/14/15/23).
-	{"anim": "Sword_Light_1_Upper", "damage": 14, "lock": 0.42, "hit": 0.25, "speed": 1.2, "cost": 10.0},
-	{"anim": "Sword_Light_2_Upper", "damage": 14, "lock": 0.39, "hit": 0.19, "speed": 1.2, "cost": 10.0},
-	{"anim": "Sword_Light_3_Upper", "damage": 18, "lock": 0.42, "hit": 0.25, "speed": 1.2, "cost": 12.0},
-	{"anim": "Sword_Light_4_Upper", "damage": 30, "lock": 0.64, "hit": 0.44, "speed": 1.2, "cost": 16.0, "knockback": 7.0},
-]
+## The sword chain is data now: CombatMoves.combo("sword") (scripts/combat/combat_moves.gd) holds the
+## exact timings that used to live here (anim, damage, lock = whole swing, hit = contact time, cost,
+## knockback). hit_time() = old "hit", total() = old "lock", cancel window = last SWING_CANCEL of it.
+const CombatMoves := preload("res://scripts/combat/combat_moves.gd")
+const HitResolver := preload("res://scripts/combat/hit_resolver.gd")
+const CombatFeedback := preload("res://scripts/combat/combat_feedback.gd")
 ## The slash arc needs ~0.07 s to read, so it spawns this long before the hit.
 const SLASH_LEAD := 0.07
 ## Attack lunge stops short of the target: never push the body into the enemy (FEEL_AUDIT F4).
@@ -199,7 +201,11 @@ var _shake := CameraShake.new()
 var _look_target: Node3D
 var _body_node: Node3D
 var _appearance_key := ""
+var combat_style := "sword"     # key into CombatMoves; another weapon = another table, not another branch
 var _combo := -1
+var _action: Resource           # the CombatAction being swung
+var _feedback: RefCounted
+var _combat_rng := RandomNumberGenerator.new()
 var _swing := 0.0
 var _swing_cancel := 0.0
 var _swing_elapsed := 0.0
@@ -249,6 +255,7 @@ var _block_age := 99.0
 var _block_down := 99.0
 var _was_blocking := false
 var _parry_bonus := 0.0
+var _riposte_mult := PARRY_DAMAGE
 
 
 func _ready() -> void:
@@ -299,6 +306,9 @@ func _ready() -> void:
 	spawn_point = global_position
 	_ensure_actions()
 	_build_lock_marker()
+	_feedback = CombatFeedback.new()
+	_feedback.bind(self)
+	_combat_rng.randomize()
 
 
 ## Actions this controller adds when the project has not defined them.
@@ -937,9 +947,10 @@ func _track_block(delta: float) -> void:
 	_was_blocking = blocking
 
 
-func _parry(from: Node) -> void:
+func _parry(from: Node, grade := "knockaway", refund := 8.0, riposte := 1.5) -> void:
 	_parry_bonus = PARRY_BONUS_TIME
-	stamina = minf(stamina + 8.0, MAX_STAMINA)
+	_riposte_mult = riposte
+	stamina = minf(stamina + refund, MAX_STAMINA)
 	var at := global_position + Vector3.UP * 1.2
 	var push := facing() * 3.5
 	if from is Node3D:
@@ -950,13 +961,7 @@ func _parry(from: Node) -> void:
 	# The attacker's own hit-reaction path (0 damage), after its strike resolves.
 	if from and is_instance_valid(from) and from.has_method("take_damage"):
 		from.call_deferred("take_damage", 0, self, push)
-	_animator.play_upper("Block_Hit", 1.8)
-	VFX.impact_frame(get_parent(), global_position + Vector3.UP * 1.2, 0.5)
-	Audio.sfx("clash")
-	VFX.sparks(get_parent(), at, Color(1.0, 0.97, 0.75), 42)
-	VFX.flash(get_parent(), at, Color(1.0, 0.9, 0.6), 3.0, 0.15, 5.0)
-	_shake.add(0.3)
-	_hit_stop(PARRY_HIT_STOP)
+	parried.emit(from, at, grade)
 
 
 ## Body response: speed and travel direction are tuned separately. `control`
@@ -1202,12 +1207,14 @@ func _start_swing() -> void:
 	if _dodge > 0.0:
 		_dodge = 0.0                 # roll attack: the swing takes over the roll's tail
 		_animator.stop_full()
-	_combo = (_combo + 1) % COMBO.size() if _combo_window > 0.0 else 0
-	var step: Dictionary = COMBO[_combo]
-	var weak: bool = stamina < step["cost"]
+	var steps := CombatMoves.combo(combat_style)
+	_combo = (_combo + 1) % steps.size() if _combo_window > 0.0 else 0
+	var action: Resource = steps[_combo]
+	_action = action
+	var weak: bool = stamina < action.cost
 	# A tired swing plays at 0.7x, so its blade (and hit) arrives later too.
-	var hit_t: float = float(step["hit"]) / (0.7 if weak else 1.0)
-	_spend(step["cost"])
+	var hit_t: float = action.hit_time() / (0.7 if weak else 1.0)
+	_spend(action.cost)
 	# Target assist: face the locked target, else snap toward an enemy roughly in front.
 	var target: Node3D = _lock if is_instance_valid(_lock) else _nearest_enemy(3.8, 0.1)
 	if target:
@@ -1218,44 +1225,36 @@ func _start_swing() -> void:
 		# Travel under IMPULSE_DECEL is v²/(2a): pick v so the step ends at the standoff.
 		var gap := Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length() - LUNGE_STANDOFF
 		lunge = clampf(sqrt(maxf(gap, 0.0) * 2.0 * IMPULSE_DECEL), 0.0, ATTACK_LUNGE)
-	_kick(facing() * lunge)
+	if action.root_motion:
+		_kick(facing() * lunge)
 	_swing_id += 1
-	_swing = step["lock"]
+	_swing = action.total()
 	_swing_elapsed = 0.0
 	_swing_hit = hit_t
-	_swing_cancel = step["lock"] * SWING_CANCEL
-	_combo_window = step["lock"] + COMBO_WINDOW
-	if _combo == COMBO.size() - 1:
+	_swing_cancel = action.cancel_remaining("attack")   # finisher has no window: commits to its recovery
+	_combo_window = action.total() + COMBO_WINDOW
+	if action.finisher:
 		_combo_window = 0.0     # finisher ends the chain
-		_swing_cancel = 0.0     # and commits to its full recovery
-	_animator.play_upper(step["anim"], step["speed"] * (0.7 if weak else 1.0))
-	Audio.sfx("swing", null, -4.0)
-	if _viewmodel.visible:
-		var t := create_tween()
-		t.tween_property(_viewmodel, "rotation", Vector3(-0.35, 1.2 * (1 if _combo % 2 == 0 else -1), 0.5), 0.1)
-		t.tween_property(_viewmodel, "rotation", VIEWMODEL_REST, 0.25)
+	var rate: float = action.anim_speed * (0.7 if weak else 1.0)
+	_animator.play_upper(action.anim, rate)
 	var riposte := _parry_bonus > 0.0
 	_parry_bonus = 0.0
-	var damage: int = int(step["damage"] * (0.5 if weak else 1.0) * (PARRY_DAMAGE if riposte else 1.0))
-	var knock: float = step.get("knockback", 1.5)
-	# Sword arc: tilt alternates with the combo so chops, slices and stabs read differently.
-	var tilts := [0.9, -0.9, 0.05, 0.0]
-	var yaw := _model.rotation.y
-	var arc_col := Color(1.0, 0.9, 0.7) if not weak else Color(0.7, 0.7, 0.75)
-	if riposte:
-		arc_col = Color(1.0, 0.97, 0.55)
-	var id := _swing_id
-	var combo := _combo
-	if _trail and not _viewmodel.visible:
-		# Blade-synced ribbon from the clip's marker window replaces the fixed crescent (it sat above the
-		# enemy's head while the blade was low: COMBAT_AUDIT C4).
-		_trail.swing(step["anim"], step["speed"] * (0.7 if weak else 1.0))
-	else:
-		get_tree().create_timer(maxf(hit_t - SLASH_LEAD, 0.02)).timeout.connect(func() -> void:
-			if is_inside_tree() and id == _swing_id:
-				VFX.slash(get_parent(), global_position + Vector3(0, 1.15 * Life.body_scale(), 0), yaw,
-					tilts[combo % tilts.size()], arc_col, 1.6))
-	get_tree().create_timer(hit_t).timeout.connect(_resolve_hit.bind(damage, knock, _combo == COMBO.size() - 1, id))
+	var damage: int = int(action.damage * (0.5 if weak else 1.0) * (_riposte_mult if riposte else 1.0))
+	_riposte_mult = PARRY_DAMAGE
+	swing_started.emit(action, {"hit_t": hit_t, "yaw": _model.rotation.y, "weak": weak, "riposte": riposte,
+		"combo": _combo, "anim_speed": rate, "first_person": _viewmodel.visible, "id": _swing_id})
+	get_tree().create_timer(hit_t).timeout.connect(_resolve_hit.bind(damage, action.knockback, action.finisher, _swing_id))
+
+
+## Damage and knockback of the swing in progress (breakable.gd and tools read this instead of the table).
+func swing_stats() -> Dictionary:
+	if _action == null:
+		return {"damage": 14, "knockback": 1.5}
+	return {"damage": _action.damage, "knockback": _action.knockback}
+
+
+func swing_id() -> int:
+	return _swing_id
 
 
 func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> void:
@@ -1264,26 +1263,14 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 	if dead or not is_inside_tree():
 		return
 	var fwd := forward() if view == View.FIRST else facing()
-	var hits := 0
-	var first_hit := Vector3.INF
+	var points: Array = []
 	for enemy in get_tree().get_nodes_in_group("team1"):
 		var to: Vector3 = (enemy as Node3D).global_position - global_position
 		to.y = 0.0
 		if to.length() < 2.6 and fwd.dot(to.normalized()) > 0.2:
 			enemy.take_damage(damage, self, to.normalized() * knockback)
-			var point: Vector3 = (enemy as Node3D).global_position + Vector3(0, 0.8, 0) - to.normalized() * 0.3
-			VFX.sparks(get_parent(), point, Color(1.0, 0.72, 0.35), 30 if finisher else 18)
-			if hits == 0:
-				first_hit = point
-			hits += 1
-	if finisher:
-		VFX.shockwave(get_parent(), global_position + fwd * 1.2, Color(1.0, 0.85, 0.45), 3.2)
-		if hits > 0:
-			VFX.impact_frame(get_parent(), first_hit, 0.7)
-	if hits > 0:
-		Audio.sfx("hit")
-		_hit_stop(0.09 if finisher else 0.05)
-		_shake.add(0.45 if finisher else 0.22)
+			points.append((enemy as Node3D).global_position + Vector3(0, 0.8, 0) - to.normalized() * 0.3)
+	hit_confirmed.emit(points, finisher)
 
 
 func _start_dodge(is_ability: bool) -> void:
@@ -1328,6 +1315,8 @@ func _kick(v: Vector3) -> void:
 	_impulse = Vector3(v.x, 0.0, v.z)
 
 
+const PLAYER_POISE := 40.0
+
 func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> void:
 	if dead or _invulnerable > 0.0 or _hurt_cooldown > 0.0:
 		return
@@ -1336,26 +1325,57 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		var to := (from as Node3D).global_position - global_position
 		to.y = 0.0
 		from_front = facing().dot(to.normalized()) > 0.3
-	if blocking and from_front and _block_age <= PARRY_WINDOW:
-		_parry(from)
-		return
-	if blocking and from_front:
-		_spend(amount * 1.6)
-		_kick(-facing() * BLOCK_PUSH)
-		_shake.add(0.15)
-		if stamina <= 0.0:
-			_stunned = 0.9          # guard broken
-			_swing = 0.0
-			_swing_id += 1
-			# Heavy stagger with both feet planted (CharacterAnimator.PREFERRED_CLIPS).
-			_animator.play_full("Hit_B", 1.3)
-			Game.say("Guard broken!")
-		else:
-			_animator.play_upper("Block_Hit", 1.5)
-			Audio.sfx("clash")
-			amount = int(amount * 0.15)
+	# One resolver call per incoming blow. Attackers with a move table describe the blow
+	# (attack_info: lane, poise, parryable...); anything else is a plain parryable mid blow.
+	var atk := {"damage": amount, "poise_damage": float(amount), "lane": 1, "parryable": true, "unblockable": false}
+	var from_action := false
+	if from and is_instance_valid(from) and from.has_method("attack_info"):
+		var info: Dictionary = from.call("attack_info")
+		if not info.is_empty():
+			atk.merge(info, true)
+			atk["damage"] = amount
+			from_action = true
+	var def := {"guarding": blocking, "from_front": from_front, "guard_age": _block_age, "guard_pool": stamina,
+		"guard_cost": 1.6, "poise": PLAYER_POISE, "guard_lane": -1}
+	if from_action and _swing > 0.0 and amount > 0 and _action != null:
+		def["swing"] = {"active_age": _swing_elapsed - _swing_hit, "parryable": true,
+			"poise_damage": _action.poise_damage}
+	var res := HitResolver.resolve(atk, def, _combat_rng)
+	match int(res["result"]):
+		HitResolver.Outcome.CLASHED:
+			var lost: bool = res["winner"] == "attacker" or res["winner"] == "none"
+			if res["winner"] != "attacker" and from and is_instance_valid(from) and from.has_method("take_damage"):
+				var away := Vector3.ZERO
+				if from is Node3D:
+					away = ((from as Node3D).global_position - global_position) * Vector3(1, 0, 1)
+				from.call_deferred("take_damage", 0, self, away.normalized() * float(res["push"]) * 2.0)
+			if lost:
+				_stunned = maxf(_stunned, float(res["defender_stun"]))
+				_swing = 0.0
+				_swing_id += 1
+				_kick(-facing() * float(res["push"]) * 2.0)
+				_animator.play_upper("Block_Hit", 1.5)
+			clashed.emit(from, not lost)
+			return
+		HitResolver.Outcome.PARRIED:
+			_parry(from, String(res["grade"]), float(res["refund"]), float(res["riposte"]))
+			if int(res["damage"]) <= 0:
+				return
+			amount = int(res["damage"])           # a broken parry still lets a part through
+		HitResolver.Outcome.BLOCKED:
+			_spend(float(res["guard_cost"]))
+			_kick(-facing() * BLOCK_PUSH)
+			blocked.emit(from, false)
+			amount = int(res["damage"])
 			if amount == 0:
 				return
+		HitResolver.Outcome.GUARD_BROKEN:
+			_spend(float(res["guard_cost"]))
+			_kick(-facing() * BLOCK_PUSH)
+			_stunned = float(res["defender_stun"])
+			_swing = 0.0
+			_swing_id += 1
+			blocked.emit(from, true)
 	_hurt_cooldown = 0.35
 	health = maxi(health - amount, 0)
 	health_changed.emit(health, max_health)

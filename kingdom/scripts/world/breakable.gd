@@ -546,12 +546,10 @@ static func _sweep(player_ref: WeakRef, sid: int) -> void:
 		fwd = player.forward()     # View.FIRST
 	var damage := 14
 	var knock := 1.5
-	var combo: Variant = player.get("_combo")
-	var table: Variant = player.get_script().get_script_constant_map().get("COMBO") if player.get_script() else null
-	if combo is int and table is Array and int(combo) < (table as Array).size():
-		var step: Dictionary = table[combo]
-		damage = int(step.get("damage", 14))
-		knock = float(step.get("knockback", 1.5))
+	if player.has_method("swing_stats"):
+		var st: Dictionary = player.call("swing_stats")
+		damage = int(st.get("damage", 14))
+		knock = float(st.get("knockback", 1.5))
 	var hits := 0
 	for b in _all.duplicate():
 		if b.broken:
