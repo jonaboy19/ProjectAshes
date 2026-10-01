@@ -290,7 +290,7 @@ const USE_MAKEHUMAN := true
 static func character(file_name: String, height: float, keep: Array[String] = []) -> Node3D:
 	if USE_MAKEHUMAN and MH_LOOKS.has(file_name):
 		var files: Array = MH_LOOKS[file_name]
-		return mh_character(files[randi() % files.size()], height, keep)
+		return mh_character(files[randi() % files.size()], height, keep, false, true)
 	if USE_REALISTIC and LOOKS.has(file_name):
 		return humanoid(LOOKS[file_name], height, keep)
 	var model: Node3D = Assets.scene(CHAR_DIR + file_name + ".glb").instantiate()
@@ -342,13 +342,15 @@ static func visual_aabb(root: Node3D) -> AABB:
 ## to the base skeleton, props on bone attachments, and an AnimationPlayer with
 ## the UAL clips (plus KayKit-name aliases).
 ## A MakeHuman GLB on the UAL skeleton, `height` metres tall, with the UAL clips.
-static func mh_character(file: String, height: float, keep: Array[String] = [], lod1 := false) -> Node3D:
+static func mh_character(file: String, height: float, keep: Array[String] = [], lod1 := false, merge := false) -> Node3D:
 	var root := Node3D.new()
 	var path := (file if file.contains("/") else MH_DIR + file) + ("_lod1" if lod1 and (not file.contains("/") or ResourceLoader.exists(file + "_lod1.glb")) else "") + ".glb"
 	var base: Node3D = Assets.scene(path).instantiate()
 	root.add_child(base)
 	var skeleton: Skeleton3D = base.find_children("*", "Skeleton3D", true, false)[0]
 	var armored := file.begins_with(ARMORED)
+	if merge:      # NPC bodies: parts -> one skinned surface/one atlas material (hero and character creation never merge)
+		preload("res://scripts/world/character_merge.gd").merge(skeleton, path)
 	for part in keep:      # same props as humanoid(); the rig is in metres
 		if armored and part.contains("Helmet"):
 			continue

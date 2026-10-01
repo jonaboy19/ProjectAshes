@@ -749,6 +749,8 @@ static func restyle_mesh(mesh: ArrayMesh, key: String, tier := "", role := "") -
 			m = _cache[dk]
 		if m != null:
 			mesh.surface_set_material(i, m)
+	if tier != "high":
+		load("res://scripts/world/surface_collapse.gd").collapse(mesh, tier)      # LOW/MEDIUM: fewer surfaces = fewer draws
 	return mesh
 
 

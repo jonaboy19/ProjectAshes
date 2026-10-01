@@ -66,7 +66,7 @@ static func create(id: int, file: String, height := 1.72, child := false) -> Lif
 
 func _ready() -> void:
 	amb = LifeAmbience.new(person, is_child, 0.9 if look_file.begins_with("elder") else 0.4)
-	model = Assets.mh_character(look_file, base_height * amb.height, [])
+	model = Assets.mh_character(look_file, base_height * amb.height, [], false, true)
 	model.set_meta("lw_model_root", true)
 	add_child(model)
 	anim = Assets.animation_player(model)

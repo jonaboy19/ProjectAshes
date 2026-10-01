@@ -849,7 +849,7 @@ static func _flush_unit(j: Job) -> void:
 		mesh = _mesh_of(id)
 	if mesh == null:
 		return
-	if j.low and not j.hanging.has(id) and mesh.get_surface_count() >= LOW_MAX_SURFACES:
+	if j.low and not j.hanging.has(id) and maxi(mesh.get_surface_count(), int(mesh.get_meta("orig_surfaces", 0))) >= LOW_MAX_SURFACES:
 		return     # LOW: a 4+ material prop (haystack, ore pile) is 4+ draw calls for a speck of the street
 	var cell := CELL
 	var groups := {}

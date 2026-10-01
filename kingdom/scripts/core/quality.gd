@@ -51,7 +51,7 @@ const GROUPS := {
 const TIERS := [
 	{   # LOW: old phones (Mali-G52, Adreno 610, PowerVR, 2-3 GB RAM), Compatibility renderer
 		"max_3d_height": 540, "scaling": "bilinear", "fps": 30,
-		"shadow": 2, "shadow_size": 2048, "shadow_dist": 60.0, "soft_shadow": 0, "omni_shadows": false,
+		"shadow": 1, "shadow_size": 2048, "shadow_dist": 40.0, "soft_shadow": 0, "omni_shadows": false,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
 		"lod_threshold": 8.0, "range": 0.55, "scatter": 0.3, "particles": 0.35, "aniso": 0, "tex_bias": 1.0, "fog_mul": 1.5,
 		"msaa": 0, "fxaa": false, "npc_full": 5, "rig_budget": 0, "npc_sprites": 10, "view_radius": 2, "light_fade": 35.0, "town_far": 260.0,

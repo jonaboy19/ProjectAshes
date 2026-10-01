@@ -571,6 +571,12 @@ static func _low() -> bool:
 	return q != null and q.tier == q.LOW
 
 
+static func _medium() -> bool:
+	var tree := Engine.get_main_loop() as SceneTree
+	var q: Node = tree.root.get_node_or_null("/root/Quality") if tree else null
+	return q != null and q.tier == q.MEDIUM
+
+
 func _piece(root: Node3D, asset: String, p: Vector2, h: float, yaw: float) -> Node3D:
 	var node := Assets.building_node(asset)
 	node.position = Vector3(p.x, h, p.y)
@@ -1033,7 +1039,7 @@ func _greenery(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberG
 		if not kind.contains("bush") and WorldGen.road_distance(p.x, p.y) < 9.5:
 			continue
 		var t := Transform3D(Basis(Vector3.UP, yaw_t).scaled(Vector3.ONE * sc), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.1, p.y))
-		var gcell := LOD_CELL * 2.4 if _low() else LOD_CELL
+		var gcell := LOD_CELL * 2.4 if _low() else (LOD_CELL * 1.6 if _medium() else LOD_CELL)
 		var gkey := "%s@%d,%d" % [kind, floori(p.x / gcell), floori(p.y / gcell)]   # per cell: see LOD_CELL
 		if not picks.has(gkey):
 			picks[gkey] = []
