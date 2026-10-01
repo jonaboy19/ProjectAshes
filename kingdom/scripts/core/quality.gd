@@ -54,7 +54,7 @@ const TIERS := [
 		"shadow": 2, "shadow_size": 2048, "shadow_dist": 60.0, "soft_shadow": 0, "omni_shadows": false,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
 		"lod_threshold": 8.0, "range": 0.55, "scatter": 0.3, "particles": 0.35, "aniso": 0, "tex_bias": 1.0, "fog_mul": 1.5,
-		"msaa": 0, "fxaa": false, "npc_full": 5, "rig_budget": 0, "npc_sprites": 10, "view_radius": 2, "light_fade": 35.0, "town_far": 420.0,
+		"msaa": 0, "fxaa": false, "npc_full": 5, "rig_budget": 0, "npc_sprites": 10, "view_radius": 2, "light_fade": 35.0, "town_far": 260.0,
 	},
 	{   # MEDIUM: mid-range phones (Adreno 618-650, Mali-G57..G77, Apple A11-A12)
 		"max_3d_height": 720, "scaling": "fsr", "fps": 60,
@@ -525,12 +525,32 @@ func _apply_geometry(g: GeometryInstance3D) -> void:
 	if g.has_meta("q_range"):
 		_set_ranges(g, g.get_meta("q_range"), mul)
 		var far: float = value("town_far")
-		if g.get_meta("q_town", false) and g.visibility_range_end <= 0.0 and far > 0.0:
+		if g.get_meta("q_town", false) and far > 0.0 and (g.visibility_range_end <= 0.0 or (tier == LOW and g.visibility_range_end > far)):
 			# Whole towns (buildings with no range, far LODs) stop at the fog line on
 			# LOW/MEDIUM: from Ashford the capital's ~40 buildings were 600k tris.
 			g.visibility_range_end = far
 			g.visibility_range_end_margin = far * 0.15
 			g.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	if tier <= MEDIUM and g is MultiMeshInstance3D and g.has_meta("q_range") and g.visibility_range_begin > 0.0 and g.visibility_range_end > (150.0 if tier == LOW else 220.0):
+		var im := (g as MultiMeshInstance3D).multimesh.mesh if (g as MultiMeshInstance3D).multimesh else null
+		if im != null and im.get_surface_count() == 1 and im.surface_get_material(0) != null and String(im.surface_get_material(0).resource_name).begins_with("RG_Impostor"):
+			g.visibility_range_end = 150.0 if tier == LOW else 220.0     # tree impostor cards stop at 150 m (the fog line)
+	if tier <= MEDIUM and g.has_meta("q_range") and g.visibility_range_begin <= 0.0 and g.visibility_range_end > 0.0 and not _under_terrain(g):
+		# LOW draw-call pass: small and mid-size props end sooner (each distinct mesh per cell is a draw call).
+		var gm: Mesh = (g as MeshInstance3D).mesh if g is MeshInstance3D else ((g as MultiMeshInstance3D).multimesh.mesh if g is MultiMeshInstance3D and (g as MultiMeshInstance3D).multimesh else null)
+		if gm != null:
+			var ext := maxf(gm.get_aabb().size.x, gm.get_aabb().size.z)
+			var cap := (28.0 if ext < 4.5 else (90.0 if ext < 12.0 else 0.0)) * (1.0 if tier == LOW else 2.0)
+			if cap > 0.0 and g.visibility_range_end > cap:
+				g.visibility_range_end = cap
+	if tier <= MEDIUM and g is MeshInstance3D and not g.has_meta("q_range") and g.visibility_range_end <= 0.0 and (g as MeshInstance3D).skin == null \
+			and (g as MeshInstance3D).mesh != null and not _under_terrain(g) and not g.is_in_group("keep_range"):
+		# LOW/MEDIUM draw-call pass: a loose small mesh (landmark furniture, props) stops drawing past 80 / 160 m.
+		var lb := (g as MeshInstance3D).mesh.get_aabb().size
+		if maxf(lb.x, lb.z) < 12.0 and (g as Node3D).get_parent() is Node3D and not (g.get_parent() is Skeleton3D) and not (g.get_parent() is BoneAttachment3D):
+			g.visibility_range_end = 80.0 if tier == LOW else 160.0
+			g.visibility_range_end_margin = 8.0
+			g.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
 	_small_shadow(g)
 	if g is MultiMeshInstance3D:
 		_thin_scatter(g as MultiMeshInstance3D)

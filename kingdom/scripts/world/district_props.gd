@@ -17,6 +17,8 @@ const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const TownIdentity := preload("res://scripts/world/town_identity.gd")    # kit specs, prop multipliers and town-coloured banners per town
 const GEN := "res://assets/generated/"
 const CELL := 40.0
+## LOW: district props with this many material surfaces or more are not built (each is that many draws).
+const LOW_MAX_SURFACES := 4
 ## Decal budget. The Mobile renderer applies at most 8 decals to one mesh, and the town's own wall (1 per 32 m block) and
 ## ground (5 per 64 m chunk) decals are already near that: so only a few roof patches (downward projectors) and at most
 ## MUD_PER_CHUNK mud decals per 64 m terrain chunk are added here. LOW builds none (TownDecals are not drawn there).
@@ -847,9 +849,12 @@ static func _flush_unit(j: Job) -> void:
 		mesh = _mesh_of(id)
 	if mesh == null:
 		return
+	if j.low and not j.hanging.has(id) and mesh.get_surface_count() >= LOW_MAX_SURFACES:
+		return     # LOW: a 4+ material prop (haystack, ore pile) is 4+ draw calls for a speck of the street
+	var cell := CELL
 	var groups := {}
 	for t: Transform3D in j.batches[id]:
-		var k := Vector2i(floori(t.origin.x / CELL), floori(t.origin.z / CELL))
+		var k := Vector2i(floori(t.origin.x / cell), floori(t.origin.z / cell))
 		if not groups.has(k):
 			groups[k] = [] as Array[Transform3D]
 		(groups[k] as Array[Transform3D]).append(t)

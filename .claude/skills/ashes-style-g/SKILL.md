@@ -101,6 +101,9 @@ Camera sits 2.8 m behind and 0.17 m above the hero's head height, pitched about 
 | HIGH (pass 3) | 164 | 565k | 471 / 1.80M | within HIGH budget (200 / 600k) |
 | LOW (pass 5, 12 folk, LOD1/2 houses, 2 vines, half-leaf ivy, 0.3 dressing) | 134 | 379k (xvfb) / 325k (PC GPU, Mobile) | 153 / 470k | tris over |
 | LOW local pass 2026-10-01 (guards lod1, folk lod1 beyond 10 m, LOD2 houses beyond 8 m) | 114 | 286k | 104 / 368k | within budget. Census showed characters were the big cost: 4 guards 47k (12k each), 12 folk 74k |
+| Thornfield street, game scene (`--shot=settle --town=6`), LOW pass 2026-10-01 low-tier: baseline after rollout | 266 | 272k | 172 / 232k | over (150) |
+| same, after LOW range caps, coarser cells, impostor 150 m, town_far 260 | 152 | 210k | ~118 / 180k | at the budget edge; look is emptier at distance. Gate 183 (over), MEDIUM street 311 (over 250), HIGH 644 / 921k unchanged |
+NOTE: `[perf] draw_calls` in main.gd is the VISIBLE pass only; shadow passes are the separate `[perf-shadow]` line. Levers (quality.gd `_apply_geometry`, settlement_builder `_multimesh*`, district_props LOW_MAX_SURFACES): small meshes end 28 m (LOW) / 56 m (MEDIUM), mid 90/180 m, loose small MeshInstances 80/160 m, impostors 150/220 m. Still to do: gate (multi-surface Kingsreach houses), MEDIUM houses (4 surfaces each), character parts (5 draws per g6 modular folk).
 Draw-call levers used: static props merged per material (`_bake_static`), MultiMesh for ivy/flower boxes/tubs/baskets (about 8 draws for ~1500 instances), one merged goods mesh per street side, `lod1` characters beyond 24 m, LOD1/2 houses. Textures: 1K on phone (4x less memory than the 2K lab).
 
 ## 10. Apply G to a game scene

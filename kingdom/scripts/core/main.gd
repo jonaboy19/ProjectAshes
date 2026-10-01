@@ -1223,6 +1223,9 @@ func _screenshot(shot: String, path: String) -> void:
 		Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0,
 		int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)),
 		PerfOverlay.count_skinned(get_tree())])
+	print("[perf-shadow] shadow_draws=%d shadow_prims=%d" % [
+		rv.call(Viewport.RENDER_INFO_TYPE_SHADOW, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
+		rv.call(Viewport.RENDER_INFO_TYPE_SHADOW, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME)])
 	if _user_args().has("census"):
 		PerfOverlay.print_skeleton_census(get_tree())
 	if _user_args().has("ablate"):

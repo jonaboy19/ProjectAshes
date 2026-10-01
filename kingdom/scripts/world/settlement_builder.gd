@@ -10,6 +10,8 @@ const HERO_LOD := 70.0
 const LOD_CELL := 40.0
 const WIDE_CELL := 100.0
 const MID_CELL := 60.0
+## LOW tier: prop batch cells and tree LOD cells are this much larger (fewer draw calls; ranges switch per cell).
+const LOW_CELL_MUL := 1.6
 ## Builds settlements from their CityPlanner layout when the focus comes within
 ## BUILD_RANGE and frees them past FREE_RANGE. Buildings of the same model are
 ## drawn as one MultiMesh (a capital has ~300 buildings but only ~15 draw
@@ -150,6 +152,8 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 		# Round 2: houses with a baked LOD2 (1.2-1.4k tris, one material) switch per 60 m cell so
 		# the far side of a street drops to LOD2 while the near side keeps LOD1.
 		var cs := LOD_CELL if celled else (MID_CELL if Assets.building_lod2_distance(asset) > 0.0 else WIDE_CELL)
+		if celled and _low():
+			cs *= 1.5     # LOW: fewer house batches (LOD1 stage still overlaps the next by 12 m)
 		var bkey := "%s@%d,%d" % [asset, floori(p.x / cs), floori(p.y / cs)] if (celled or wide) else asset + "@"
 		if not batches.has(bkey):
 			batches[bkey] = []
@@ -725,6 +729,9 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 	if not shadow or (extent < 1.6 and _low()):
 		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF   # small goods: no shadow-map cost
 	var cull := 70.0 if extent < 1.6 else (150.0 if extent < 4.5 else (380.0 if extent < 12.0 else 0.0))
+	if _low():
+		# LOW (2026-10 draw-call pass): Quality scales these by 0.55, so props end at ~30 / ~55 m and mid-size pieces at ~125 m.
+		cull = 55.0 if extent < 1.6 else (100.0 if extent < 4.5 else (230.0 if extent < 12.0 else 0.0))
 	if cull > 0.0:
 		mmi.visibility_range_end = cull
 		mmi.visibility_range_end_margin = cull * 0.1
@@ -740,6 +747,12 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 ## _multimesh() split into cell x cell metre batches, so visibility ranges (and
 ## LOD) work per neighbourhood instead of per town; `cull` > 0 overrides the range.
 func _multimesh_cells(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], cell: float, cull := 0.0, blob := true, shadow := true, tint := Color.WHITE, jitter_seed := 0) -> void:
+	if _low() and mesh != null:
+		# LOW: fewer, larger batches (one draw per mesh per cell). Only for pieces whose range is long enough that a
+		# cell's centre-based range switch cannot hide a prop standing next to the camera.
+		var bb := mesh.get_aabb()
+		if cull >= 90.0 or (cull <= 0.0 and maxf(bb.size.x, bb.size.z) >= 4.5):
+			cell *= LOW_CELL_MUL
 	var groups := {}
 	for t: Transform3D in transforms:
 		var k := Vector2i(floori(t.origin.x / cell), floori(t.origin.z / cell))
@@ -935,7 +948,7 @@ func _contact_shadows(_parent: Node3D, box: AABB, transforms: Array[Transform3D]
 	var size := Vector3(box.size.x * 1.35 + 0.6, 1.0, box.size.z * 1.35 + 0.6)
 	# Big-range blobs (houses) can share one batch per town; small props stay in cells
 	# so their short visibility range still works per neighbourhood.
-	var cell := 48.0 if cull > 0.0 and cull < 300.0 else 100000.0
+	var cell := (48.0 * LOW_CELL_MUL if _low() else 48.0) if cull > 0.0 and cull < 300.0 else 100000.0
 	for t: Transform3D in transforms:
 		var b := t.basis * Basis.from_scale(size)
 		var o := t * centre + Vector3(0, 0.04, 0)
@@ -1020,7 +1033,8 @@ func _greenery(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberG
 		if not kind.contains("bush") and WorldGen.road_distance(p.x, p.y) < 9.5:
 			continue
 		var t := Transform3D(Basis(Vector3.UP, yaw_t).scaled(Vector3.ONE * sc), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.1, p.y))
-		var gkey := "%s@%d,%d" % [kind, floori(p.x / LOD_CELL), floori(p.y / LOD_CELL)]   # per cell: see LOD_CELL
+		var gcell := LOD_CELL * 2.4 if _low() else LOD_CELL
+		var gkey := "%s@%d,%d" % [kind, floori(p.x / gcell), floori(p.y / gcell)]   # per cell: see LOD_CELL
 		if not picks.has(gkey):
 			picks[gkey] = []
 		picks[gkey].append(t)

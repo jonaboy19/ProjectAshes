@@ -181,7 +181,12 @@ static func print_draw_census(tree: SceneTree, vp: Viewport) -> void:
 			mname = String(m0.resource_name)
 			if m0 is BaseMaterial3D and (m0 as BaseMaterial3D).albedo_texture:
 				mname += ":" + String((m0 as BaseMaterial3D).albedo_texture.resource_path).get_file()
-		var key := "%s | %s | %s{%s}%s%s" % [oname, g.get_class(), mesh.resource_path.get_file().get_slice("::", 0) if mesh.resource_path != "" else mesh.get_class(), mname,
+		for si in range(1, mini(mesh.get_surface_count(), 6)):
+			var mi := mesh.surface_get_material(si)
+			mname += "+" + (String(mi.resource_name) if mi else "null")
+		var bsz := mesh.get_aabb().size
+		mname += " sz%.1fx%.1fx%.1f s%d" % [bsz.x, bsz.y, bsz.z, mesh.get_surface_count()]
+		var key := "%s | %s | %s{%s}%s%s" % [oname + "/" + String(g.name).rstrip("0123456789"), g.get_class(), mesh.resource_path.get_file().get_slice("::", 0) if mesh.resource_path != "" else mesh.get_class(), mname,
 			" shadow" if g.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_OFF else "",
 			" vis[%d-%d] %dtri/inst" % [int(g.visibility_range_begin), int(g.visibility_range_end), int(tri_cache[mesh])] if g is MultiMeshInstance3D else ""]
 		var r: Array = rows.get(key, [0, 0, 0])
@@ -189,6 +194,30 @@ static func print_draw_census(tree: SceneTree, vp: Viewport) -> void:
 		r[1] += int(tri_cache[mesh]) * inst
 		r[2] += inst
 		rows[key] = r
+	var mats := {}
+	for n in tree.root.find_children("*", "GeometryInstance3D", true, false):
+		var g2 := n as GeometryInstance3D
+		if not g2.is_visible_in_tree():
+			continue
+		var m2: Mesh = null
+		if g2 is MeshInstance3D:
+			m2 = (g2 as MeshInstance3D).mesh
+		elif g2 is MultiMeshInstance3D and (g2 as MultiMeshInstance3D).multimesh:
+			m2 = (g2 as MultiMeshInstance3D).multimesh.mesh
+		if m2 == null:
+			continue
+		var d2 := cam.global_position.distance_to((g2.global_transform * g2.get_aabb()).get_center())
+		if (g2.visibility_range_end > 0.0 and d2 > g2.visibility_range_end) or d2 < g2.visibility_range_begin or not _aabb_in_frustum(g2.global_transform * g2.get_aabb(), planes):
+			continue
+		for si in m2.get_surface_count():
+			var mm2: Material = g2.material_override if g2.material_override else m2.surface_get_material(si)
+			var kk := "%s|%s|%s" % [mm2.resource_path if mm2 else "null", mm2.get_class() if mm2 else "", mm2.get_instance_id() if mm2 else 0]
+			mats[kk] = int(mats.get(kk, 0)) + 1
+	print("[draw] distinct materials among visible surfaces: %d" % mats.size())
+	var mk := mats.keys()
+	mk.sort_custom(func(a, b): return mats[a] > mats[b])
+	for k in mk.slice(0, 30):
+		print("[mat] %d  %s" % [mats[k], k])
 	var keys := rows.keys()
 	keys.sort_custom(func(a, b): return rows[a][0] > rows[b][0])
 	var td := 0
@@ -197,7 +226,7 @@ static func print_draw_census(tree: SceneTree, vp: Viewport) -> void:
 		td += rows[k][0]
 		tt += rows[k][1]
 	print("[draw] census total draws=%d tris=%d rows=%d" % [td, tt, keys.size()])
-	for k in keys.slice(0, 45):
+	for k in keys.slice(0, 400):
 		print("[draw] draws=%d tris=%d inst=%d  %s" % [rows[k][0], rows[k][1], rows[k][2], k])
 
 

@@ -736,6 +736,8 @@ static func region_tree_chain(parent: Node3D, kind: String, list: Array[Transfor
 		if i > 0:
 			mmi.visibility_range_begin = REGION_LODS[i - 1]
 			mmi.visibility_range_begin_margin = 5.0
+		if i == 2:
+			mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF   # an impostor card starts past the shadow range
 		if i < 2:
 			mmi.visibility_range_end = REGION_LODS[i]
 			mmi.visibility_range_end_margin = 5.0
