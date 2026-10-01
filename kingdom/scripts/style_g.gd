@@ -532,8 +532,9 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 			sm.set_shader_parameter("ao_strength", 0.3)
 			sm.set_shader_parameter("bounce", 0.2)
 			sm.set_shader_parameter("ground_bounce", Color(0.95, 0.74, 0.5))
-			sm.set_shader_parameter("hue_var", 0.5)
-			sm.set_shader_parameter("val_var", 0.28)
+			if game_mode:                  # lab goods meshes have COLOR.a = 1 (no per-piece random): a uniform hue shift turned every barrel/sack yellow
+				sm.set_shader_parameter("hue_var", 0.5)
+				sm.set_shader_parameter("val_var", 0.28)
 		"ivy":
 			sm.set_shader_parameter("saturation", 0.8)             # pass 6: was 0.95 (neon)
 			sm.set_shader_parameter("value_gain", 0.72)

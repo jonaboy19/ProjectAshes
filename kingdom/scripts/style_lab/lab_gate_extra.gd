@@ -196,7 +196,7 @@ static func dress_facades(parent: Node3D, rng: RandomNumberGenerator, house_zs: 
 	var boxes := [[], [], []]
 	var tubs := [[], []]
 	var baskets := [[], []]
-	var vines := 5 if tier == "high" else (4 if tier == "medium" else 2)
+	var vines := 3 if tier != "low" else 2      # pass 4: target 03 shows timber + plaster between ivy (green 0.053 vs 0.017)
 	for side: int in [-1, 1]:
 		var yaw: float = PI * 0.5 * (-side)
 		var out := Vector3(-side, 0, 0)

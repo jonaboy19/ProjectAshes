@@ -104,8 +104,11 @@ static func dress(model: Node3D) -> MeshInstance3D:
 				var rad := rw.lerp(rh, pow(t, 0.8)) * fold
 				var p := Vector3(cx + cos(a) * rad.x, lerpf(waist_y, hem_y, t), cz + sin(a) * rad.y)
 				var side := clampf(cos(a) * 1.4, -1.0, 1.0)     # +x = character's left (UAL faces +z)
-				var wl := t * 0.85 * clampf(0.5 + side * 0.5, 0.0, 1.0)
-				var wr := t * 0.85 * clampf(0.5 - side * 0.5, 0.0, 1.0)
+				# front panel follows the thighs (high knee lifts in jumps/rolls pierced it), back panel stays with the pelvis
+				var front := clampf(sin(a) * 0.5 + 0.5, 0.0, 1.0)              # +z = front
+				var follow := t * lerpf(0.55, 0.97, front)
+				var wl := follow * clampf(0.5 + side * 0.5, 0.0, 1.0)
+				var wr := follow * clampf(0.5 - side * 0.5, 0.0, 1.0)
 				var col := TUNIC_DARK if t > 0.86 else TUNIC.lerp(TUNIC_DARK, 0.25 * (1.0 - absf(sin(a * 7.0))))
 				vs.append([p, [pel, thl, thr], [1.0 - wl - wr, wl, wr], col])
 			_quad(st, vs[0], vs[1], vs[2], vs[3], false)

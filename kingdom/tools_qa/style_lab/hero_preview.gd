@@ -62,6 +62,10 @@ func _run() -> void:
 	print("BONES ", names)
 	var ap := Assets.animation_player(hero)
 	ap.speed_scale = 1.0
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--clips="):
+			await _clip_frames(ap, a.trim_prefix("--clips=").split(","), out, root)
+			return
 	var cam := Camera3D.new()
 	cam.fov = 32
 	root.add_child(cam)
@@ -99,4 +103,47 @@ func _lineup(root: Node3D, out: String) -> void:
 		await process_frame
 	await RenderingServer.frame_post_draw
 	get_root().get_texture().get_image().save_png(out + "_lineup.png")
+	quit()
+
+
+## Outfit-vs-animation check: every clip whose name contains one of `keys`, 8 evenly spaced frames,
+## side and back views, saved as <out>_clip_<name>.png strips (read them with video-review discipline).
+func _clip_frames(ap: AnimationPlayer, keys: PackedStringArray, out: String, root: Node3D) -> void:
+	var cam := Camera3D.new()
+	cam.fov = 34
+	root.add_child(cam)
+	get_root().size = Vector2i(360, 520)
+	var names := []
+	for lib in ap.get_animation_library_list():
+		for c in ap.get_animation_library(lib).get_animation_list():
+			var full := String(c) if String(lib) == "" else "%s/%s" % [lib, c]
+			for k in keys:
+				if k != "" and full.to_lower().contains(k.to_lower()):
+					names.append(full)
+					break
+	print("CLIPS ", names.size(), " ", names)
+	for full: String in names:
+		var anim := ap.get_animation(full)
+		var strip := Image.create(360 * 8, 520 * 2, false, Image.FORMAT_RGBA8)
+		for row in 2:
+			for i in 8:
+				ap.play(full)
+				ap.seek(anim.length * i / 7.99, true)
+				ap.speed_scale = 0.0
+				var hips := Vector3.ZERO
+				var sk := ap.get_parent().find_children("*", "Skeleton3D", true, false)
+				if not sk.is_empty():
+					var s3 := sk[0] as Skeleton3D
+					hips = s3.global_transform * s3.get_bone_global_pose(maxi(0, s3.find_bone("pelvis"))).origin
+				cam.position = hips + (Vector3(3.2, 0.3, 0.0) if row == 0 else Vector3(0.4, 0.5, -3.2))
+				cam.look_at(hips + Vector3(0, 0.1, 0))
+				for f in 3:
+					await process_frame
+				await RenderingServer.frame_post_draw
+				var img := get_root().get_texture().get_image()
+				img.convert(Image.FORMAT_RGBA8)
+				strip.blit_rect(img, Rect2i(0, 0, 360, 520), Vector2i(i * 360, row * 520))
+		var p := "%s_clip_%s.png" % [out, full.replace("/", "_")]
+		strip.save_png(p)
+		print("STRIP -> ", p)
 	quit()
