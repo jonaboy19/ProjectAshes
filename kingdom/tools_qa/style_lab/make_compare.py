@@ -44,7 +44,13 @@ ia = ia.resize((W, int(ia.height * W / ia.width)), Image.LANCZOS)
 ib = ib.resize((W, int(ib.height * W / ib.width)), Image.LANCZOS)
 H = max(ia.height, ib.height)
 sheet = Image.new("RGB", (W * 2 + 30, H + 50), (20, 17, 15))
-f = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 28)
+f = None
+for fp in ("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "C:/Windows/Fonts/arialbd.ttf"):
+    try:
+        f = ImageFont.truetype(fp, 28); break
+    except OSError:
+        pass
+f = f or ImageFont.load_default()
 d = ImageDraw.Draw(sheet)
 sheet.paste(ia, (10, 44)); sheet.paste(ib, (W + 20, 44))
 d.text((14, 6), la, font=f, fill=(255, 226, 170)); d.text((W + 24, 6), lb, font=f, fill=(255, 226, 170))

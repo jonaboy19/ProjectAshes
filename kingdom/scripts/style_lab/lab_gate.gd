@@ -110,7 +110,7 @@ func _street_rows() -> void:
 			var lod := 0 if z > -22.0 else (1 if z > -36.0 else 2)
 			if Style.tier != "high":
 				lod = maxi(lod, 1)                       # medium/low: no 13k-tri LOD0 houses
-			if Style.tier == "low" and z < -14.0:
+			if Style.tier == "low" and z < -8.0:      # LOW tri budget (was -14: 325k on the S22 Mobile renderer)
 				lod = 2
 			var yaw: float = PI * 0.5 * (-side)           # facing the street
 			_place("house", key + (":lod%d" % lod if lod > 0 else ""), Vector3(side * 12.2, 0, z), yaw, 0.8)
@@ -246,7 +246,7 @@ func _people() -> void:
 	var prng := RandomNumberGenerator.new()
 	prng.seed = 5
 	for f in Extra.folk(prng, count):
-		var far: bool = f["pos"].z < -24.0
+		var far: bool = f["pos"].z < (-10.0 if Style.tier == "low" else -24.0)   # LOW: lod1 folk beyond 10 m (tri budget)
 		var m := Assets.mh_character(f["model"], f["h"], [], far)
 		m.set_meta("role", "villager")
 		m.position = f["pos"]
@@ -260,7 +260,7 @@ func _people() -> void:
 		_walk(m, clip, prng.randf() * 1.2)
 	# guards with spears
 	for gp in [[Vector3(6.0, 0, -6.0), 0.45], [Vector3(7.0, 0, -11.5), 0.2], [Vector3(-3.4, 0, -44.0), -0.2], [Vector3(3.4, 0, -44.0), 0.2]]:
-		var g := Assets.mh_character("res://assets/incoming/ai3d/meshy/armored/guard", 1.85)
+		var g := Assets.mh_character("res://assets/incoming/ai3d/meshy/armored/guard", 1.85, [], Style.tier == "low" or gp[0].z < -24.0)   # 12k-tri guard: lod1 on LOW / far
 		g.set_meta("role", "guard")
 		g.position = gp[0]
 		g.rotation.y = gp[1] + (PI if gp[0].z < -40.0 else 0.0)

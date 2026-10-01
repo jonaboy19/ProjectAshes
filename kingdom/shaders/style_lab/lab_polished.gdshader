@@ -23,12 +23,49 @@ uniform float ao_height = 0.9;
 uniform float ao_strength = 0.30;
 uniform float roughness = 0.72;
 uniform float spec = 0.35;
+// Style G weathering (2026-10-01): world-projected Poly Haven detail pack (R plaster, G wood grain, B grime noise,
+// A stone) picked per pixel from the atlas colour class; relief tints the albedo, bumps the normal (HIGH/MEDIUM),
+// adds roughness variation, grime climbing from the wall foot, rain streaks and lighter worn edges along atlas seams.
+uniform sampler2D weather_tex : filter_linear_mipmap, repeat_enable;
+uniform float weather = 0.0;
+uniform float weather_scale = 0.45;
+uniform float grime_height = 2.2;
+uniform float grime_amount = 0.38;
+uniform float edge_wear = 0.35;
+uniform float bump_amount = 0.0;   // 0.25-0.6 sparkled on the Meshy plaster atlases; relief stays in albedo
 varying vec3 wpos;
 varying vec3 wnor;
 
 void vertex() {
 	wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	wnor = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
+}
+
+
+vec4 weather_sample(vec3 p, vec3 n, float s) {
+	vec3 a = abs(n);
+	vec2 uv = a.y > 0.7 ? p.xz : (a.x > a.z ? p.zy : p.xy);
+	return texture(weather_tex, uv * s);
+}
+
+// returns weathered albedo; h = signed relief height for bump
+vec3 weather_albedo(vec3 c, vec3 p, vec3 n, float lum_in, float foot_y, out float h, out float rough_add) {
+	vec4 w = weather_sample(p, n, weather_scale);
+	float streak = texture(weather_tex, vec2(p.x + p.z, p.y * 0.12) * 0.35).b;
+	float wood = smoothstep(0.42, 0.22, lum_in) * step(c.b * 1.1, c.r);
+	float plaster = smoothstep(0.5, 0.72, lum_in);
+	float stone = clamp(1.0 - wood - plaster, 0.0, 1.0);
+	h = (w.r - 0.5) * plaster + (w.g - 0.5) * wood * 1.4 + (w.a - 0.5) * stone;
+	c *= 1.0 + h * 0.4 * weather;
+	// grime from the foot, broken by noise; rain streaks on walls
+	float g = clamp(1.0 - (p.y - foot_y) / grime_height + (w.b - 0.5) * 0.9, 0.0, 1.0);
+	float vert = 1.0 - abs(n.y);
+	g = max(g * g, smoothstep(0.62, 0.85, streak) * 0.45 * vert * plaster);
+	c = mix(c, c * vec3(0.66, 0.6, 0.52), g * grime_amount * weather);
+	// stains: large blotches darken slightly everywhere (lived-in, not flat)
+	c *= 1.0 - (smoothstep(0.55, 0.85, w.b) * 0.12) * weather;
+	rough_add = (0.5 - w.b) * 0.15 + g * 0.1;
+	return c;
 }
 
 void fragment() {
@@ -38,9 +75,29 @@ void fragment() {
 	float l = dot(c, vec3(0.299, 0.587, 0.114));
 	c = mix(vec3(l), c, saturation) * value_gain * warm_tint;
 	float ao = 1.0 - ao_strength * (1.0 - smoothstep(0.0, ao_height, wpos.y));
+	float wh = 0.0;
+	float wr = 0.0;
+	if (weather > 0.0) {
+		// edge wear: atlas seams (timber/plaster borders, block joints) get a lighter chipped rim, masked by noise
+		float seam = clamp(fwidth(l) * 6.0, 0.0, 1.0);
+		c = weather_albedo(c, wpos, wnor, l, NODE_POSITION_WORLD.y, wh, wr);
+		c = mix(c, c * 1.22 + vec3(0.025, 0.02, 0.01), seam * edge_wear * weather * step(0.45, wh + 0.5));
+	}
 	c *= ao;
 	ALBEDO = c;
-	ROUGHNESS = roughness;
+	ROUGHNESS = clamp(roughness + wr * weather, 0.0, 1.0);
+	if (weather > 0.0 && bump_amount > 0.0) {
+		// bump from the world-projected relief (Mikkelsen derivative bump, no tangents needed)
+		vec3 dpdx = dFdx(VERTEX);
+		vec3 dpdy = dFdy(VERTEX);
+		float dhx = dFdx(wh);
+		float dhy = dFdy(wh);
+		vec3 r1 = cross(dpdy, NORMAL);
+		vec3 r2 = cross(NORMAL, dpdx);
+		float det = dot(dpdx, r1);
+		vec3 grad = sign(det) * (dhx * r1 + dhy * r2);
+		NORMAL = normalize(abs(det) * NORMAL - grad * bump_amount * 0.1 * weather);
+	}
 	SPECULAR = spec;
 	// hemispheric bounce as emission: blue from above, honey from the ground
 	float h = wnor.y * 0.5 + 0.5;
