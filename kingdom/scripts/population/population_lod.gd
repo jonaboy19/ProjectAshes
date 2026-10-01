@@ -37,13 +37,15 @@ const MAX_FULL := 24
 ## per look. Quality.npc_sprites narrows this further per tier.
 const MAX_SPRITES := 140
 const MAX_SPAWNS_PER_TICK := 3
-## Contact-range villagers that actually run move_and_slide() each physics frame,
-## nearest-to-player first. A crowd event (flee hazard) can put many more than
-## this into contact range at once; move_and_slide()'s narrow-phase collision
-## cost against a dense cluster of capsules is the expensive part, so the rest
-## fall back to plain kinematic movement (see Villager.physics_active) -- same
-## steering, speed and animation, just no per-pair collision resolution.
+## Contact-range villagers that use the multi-slide controller each physics
+## frame, nearest-to-player first. A crowd event can put more into contact at
+## once; overflow uses one swept collision query (see Villager.physics_active)
+## with the same steering/speed/animation and no NPC-on-NPC collision. Profile
+## both paths before changing this cap.
 const MAX_PHYSICS_CONTACT := 8
+## Retain an active contact slot slightly across ranking refreshes to avoid
+## repeatedly enabling/disabling collision for bodies at the budget edge.
+const PHYSICS_KEEP_BIAS := 0.78
 ## Embodied villagers rank at this fraction of their squared distance (about
 ## 13% closer), so promotion and demotion don't chatter at the budget edge.
 const KEEP_BIAS := 0.75
@@ -181,13 +183,23 @@ func refresh(step_delta := 0.25) -> void:
 			nearest_id = entry[1]
 	for id in _full:
 		(_full[id] as Villager).show_tag = id == nearest_id
-	var physics_slots := 0
+	var physics_candidates: Array = []
 	for entry in dists:
-		if not _full.has(entry[1]):
+		var candidate_id: int = entry[1]
+		if not _full.has(candidate_id):
 			continue
-		var v: Villager = _full[entry[1]]
-		v.physics_active = physics_slots < MAX_PHYSICS_CONTACT
-		physics_slots += 1
+		var v := _full[candidate_id] as Villager
+		var keep_factor := PHYSICS_KEEP_BIAS if v.physics_active else 1.0
+		physics_candidates.append([float(entry[0]) * keep_factor, candidate_id])
+	physics_candidates.sort_custom(func(a: Array, b: Array) -> bool:
+		if float(a[0]) == float(b[0]):
+			return int(a[1]) < int(b[1])
+		return float(a[0]) < float(b[0]))
+	for resident_id in _full:
+		(_full[resident_id] as Villager).physics_active = false
+	for i in mini(MAX_PHYSICS_CONTACT, physics_candidates.size()):
+		var selected_id: int = physics_candidates[i][1]
+		(_full[selected_id] as Villager).physics_active = true
 
 	var used := {}
 	for look in _multimeshes:
@@ -382,7 +394,8 @@ func _release_sprite_route(id: int, final_position := Vector2.INF) -> void:
 ## body actually is.
 func _write_back() -> void:
 	for id in _full:
-		WorldSim.pos[id] = (_full[id] as Villager).sim_position()
+		var v := _full[id] as Villager
+		WorldSim.set_external_position_owner(id, v.get_instance_id(), true, v.sim_position())
 
 
 func _clock_skipped() -> bool:

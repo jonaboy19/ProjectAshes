@@ -25,6 +25,9 @@ const NEED_SCHEDULE_BOUNDARIES := [6.0, 21.0, 24.0]
 ## CPU budget for the whole-world sim per frame, and the radius around the player that is kept fresh.
 const BUDGET_US := 500
 const NEAR_RADIUS := 320.0
+## Keep schedule destinations local to the settlement; SmartObjects uses a
+## per-settlement candidate list, so this range can include the outer farm rows.
+const SMART_TARGET_MAX_RADIUS := 256.0
 ## Real seconds per in-game day.
 const DAY_LENGTH := 720.0
 const FIRST := ["Marcus", "Aldric", "Edda", "Hild", "Osric", "Wynn", "Bertram", "Maud", "Cedric", "Agnes",
@@ -76,12 +79,18 @@ var _near_next := 0.0
 var _mood_flags := PackedInt32Array()
 var _mood_cursor := 0
 var _mood_pending := 0
+## Semantic work targets are resolved only for settlements in the existing near-simulation ring.
+## Distant rows keep their deterministic cheap schedule targets.
+var smart: SmartObjects
+var _smart_done: Dictionary = {}             # settlement id -> external activity spot count indexed
+var _near_settlement_ids: Dictionary = {}    # settlement id -> true, rebuilt with _near_ids
 
 
 func _ready() -> void:
 	SeasonsScript.ensure_globals()   # shader globals must exist before shaders compile
 	WorldGen.setup(SEED)
 	_populate()
+	smart = SmartObjects.new()
 	seasons = SeasonsScript.new()
 	add_child(seasons)
 
@@ -112,6 +121,9 @@ func reset() -> void:
 	_near_ids = PackedInt32Array()
 	_near_cursor = 0
 	_near_next = 0.0
+	smart = SmartObjects.new()
+	_smart_done.clear()
+	_near_settlement_ids.clear()
 	_populate()
 	if seasons:
 		seasons.deserialize({"offset": 0})
@@ -147,7 +159,7 @@ func describe(i: int) -> String:
 ## for schedule and goal; a Villager or routed sprite may own resolved movement.
 func set_external_position_owner(i: int, owner_id: int, owned: bool, resolved_position := Vector2.INF,
 		brain_owns_needs := false) -> void:
-	if i < 0 or i >= pos.size():
+	if i < 0 or i >= pos.size() or owner_id <= 0:
 		return
 	# A reset can rebuild WorldSim's deterministic rows before the old world
 	# scene exits. Its stale Villager must not write into the new run. Likewise,
@@ -280,7 +292,10 @@ func advance_hours(hours: float) -> void:
 			_on_phase_change(i, phase[i], want)
 		if npc_need_valid[i] != 0 and npc_need_brain_owner[i] == 0:
 			_advance_offline_needs(i, day * 24.0 + time_of_day)
-		pos[i] = target[i]
+		# Time skips settle data-only residents immediately. An embodied body
+		# keeps its resolved position and follows the newly selected target.
+		if external_position_owner[i] == 0:
+			pos[i] = target[i]
 		last_update[i] = _clock
 
 
@@ -293,6 +308,11 @@ func serialize() -> Dictionary:
 
 
 func deserialize(d: Dictionary) -> void:
+	# Claims are transient schedule reservations. Rebuild them from the loaded rows
+	# instead of letting a previous session's people keep slots occupied.
+	smart = SmartObjects.new()
+	_smart_done.clear()
+	_near_settlement_ids.clear()
 	# Loading an older save into a running session must not inherit needs from the
 	# session being replaced. Missing/invalid fields naturally use seeded fallback.
 	npc_need_values = PackedFloat32Array()
@@ -498,6 +518,7 @@ func _refresh_near() -> void:
 	_near_next = _clock + 1.5
 	_near_ids.clear()
 	_near_cursor = 0
+	_near_settlement_ids.clear()
 	var player := get_tree().get_first_node_in_group("player") as Node3D
 	if player == null:
 		return
@@ -505,12 +526,16 @@ func _refresh_near() -> void:
 	for s in WorldGen.settlements:
 		if p.distance_to(s["pos"]) > NEAR_RADIUS + float(s["radius"]) * 2.0:
 			continue
+		_near_settlement_ids[int(s["id"])] = true
 		var r: Vector2i = ranges[s["id"]]
 		for i in range(r.x, r.y):
 			_near_ids.append(i)
 
 
 func _on_phase_change(i: int, old: int, new_phase: int) -> void:
+	# A phase switch can move to a different type of target or fall back when a
+	# slot is unavailable. Drop the old reservation before looking for the new one.
+	release_activity_target(i)
 	var s: Dictionary = WorldGen.settlements[home[i]]
 	if old == 1:
 		money[i] += WAGES[job[i]]
@@ -526,8 +551,36 @@ func _on_phase_change(i: int, old: int, new_phase: int) -> void:
 	target[i] = _spot(s, new_phase, i)
 
 
+## Release a near-ring schedule reservation when an embodied UtilityBrain act
+## overrides that schedule goal. A new work/shop goal may claim another slot.
+func release_activity_target(i: int) -> void:
+	if smart != null:
+		smart.release(i)
+
+
 ## Deterministic point of interest for a person and phase.
 func _spot(s: Dictionary, which: int, i: int) -> Vector2:
+	if which == 0 and smart != null:
+		# DailyRhythm can return home before the coarse WorldSim phase changes.
+		# Release the old work slot when that resident's own schedule goal does.
+		smart.release(i)
+	if (which == 1 or which == 2) and smart != null:
+		var sid := int(s["id"])
+		if _near_settlement_ids.has(sid):
+			var act := "work" if which == 1 else "shop"
+			var role := "vendor" if which == 1 and job[i] == 2 else ("customer" if which == 2 else "")
+			var center: Vector2 = s["pos"]
+			var center_3d := Vector3(center.x, WorldGen.height(center.x, center.y), center.y)
+			var near_plan: Dictionary = s.get("plan", {})
+			var activity_spots: Array = near_plan.get("activity_spots", [])
+			if int(_smart_done.get(sid, -1)) != activity_spots.size():
+				smart.populate_settlement(s, WorldGen.height)
+				_smart_done[sid] = activity_spots.size()
+			var semantic_target := smart.target_for(i, center_3d, act,
+				job[i] if i < job.size() else 4, time_of_day,
+				minf(float(s["radius"]) * 2.5, SMART_TARGET_MAX_RADIUS), role, sid)
+			if semantic_target != Vector2.INF:
+				return semantic_target
 	if which >= Schedule.Phase.INN:
 		return Schedule.spot(s, which, i, day)
 	var r: float = s["radius"]

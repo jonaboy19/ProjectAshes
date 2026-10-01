@@ -355,18 +355,32 @@ func on_vacancy(org: Dictionary, seat: Dictionary, careers: Object = null) -> vo
 func _find_or_create_worker(settlement: int, _title: String) -> int:
 	for id: int in people:
 		var p: Dictionary = people[id]
-		if bool(p["alive"]) and int(p["settlement"]) == settlement and String(p["career_org"]) == "":
+		if bool(p["alive"]) and int(p["settlement"]) == settlement \
+			and String(p["career_org"]) == "" and _age_years(p, WorldSim.day) >= 16:
 			return id
 	var culture := "caldric"
 	var sex := "male" if _rng.randf() < 0.5 else "female"
 	var name := _random_name(culture, sex)
 	var age := _rng.randi_range(18, 40)
-	var birth_day := -age * RALifePath.DAYS_PER_YEAR
+	var birth_day := WorldSim.day - age * RALifePath.DAYS_PER_YEAR
 	var id := _new_person(name, birth_day, sex, settlement, culture, "laborer", "career")
 	return id
 
 
 # --- marriage / children -------------------------------------------------------
+
+## Old saves or externally constructed rows may have a missing or malformed
+## parent array. Only actual nonnegative integer entries represent kinship IDs.
+func _valid_parent_ids(person: Dictionary) -> Array[int]:
+	var raw_parents: Variant = person.get("parents", [])
+	var valid: Array[int] = []
+	if not raw_parents is Array:
+		return valid
+	for parent_id: Variant in raw_parents:
+		if parent_id is int and int(parent_id) >= 0:
+			valid.append(int(parent_id))
+	return valid
+
 
 ## Pairs `pid` with an eligible unmarried adult in the same or a nearby
 ## settlement. Returns the spouse id, or -1 if nobody eligible was found.
@@ -374,18 +388,30 @@ func try_marry(pid: int, day: int) -> int:
 	if not people.has(pid):
 		return -1
 	var p: Dictionary = people[pid]
-	if int(p["spouse"]) >= 0:
+	if not bool(p.get("alive", false)) or int(p.get("spouse", -1)) >= 0 \
+		or _age_years(p, day) < 16:
 		return -1
+	var p_parents := _valid_parent_ids(p)
 	var candidates: Array[int] = []
 	for oid: int in people:
 		if oid == pid:
 			continue
 		var o: Dictionary = people[oid]
-		if not bool(o["alive"]) or int(o["spouse"]) >= 0:
+		if not bool(o.get("alive", false)) or int(o.get("spouse", -1)) >= 0:
 			continue
 		if String(o["sex"]) == String(p["sex"]):
 			continue
 		if _age_years(o, day) < 16:
+			continue
+		var o_parents := _valid_parent_ids(o)
+		if p_parents.has(oid) or o_parents.has(pid):
+			continue
+		var shares_parent := false
+		for parent_id: int in p_parents:
+			if o_parents.has(parent_id):
+				shares_parent = true
+				break
+		if shares_parent:
 			continue
 		if not _settlement_near(int(o["settlement"]), int(p["settlement"])):
 			continue

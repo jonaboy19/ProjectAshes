@@ -9,9 +9,10 @@ extends CharacterBody3D
 ##  - Route: along the settlement's streets and door paths (StreetGraph), never
 ##    the straight line through a house; light steering keeps clear of walls,
 ##    other villagers and the player.
-##  - Contact tier: only villagers within CONTACT_ENTER of the player enable
-##    their capsule and move with move_and_slide(); farther ones move along
-##    their route without a physics body.
+##  - Contact tier: villagers within CONTACT_ENTER of the player enable their
+##    capsule. The closest physics budget uses move_and_slide(); overflow uses a
+##    single swept move_and_collide() query, so contact actors still respect the
+##    player and world without enabling NPC-on-NPC physics.
 ##  - Gait: accelerates, brakes into arrival, turns at a bounded rate and slows
 ##    for sharp corners; the walk clip plays at the body's resolved speed over
 ##    its measured ground speed, so feet don't slide.
@@ -34,6 +35,7 @@ const Nameplates := preload("res://scripts/core/nameplates.gd")
 const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
+const NpcSocialGraph := preload("res://scripts/sim/npc_social_graph.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const TownMood := preload("res://scripts/population/town_mood.gd")
 const Schedule := preload("res://scripts/population/schedule.gd")
@@ -252,7 +254,7 @@ var _contact := false
 ## collision against each other), so the rest fall back to the same direct
 ## kinematic move non-contact villagers already use. Steering, speed, animation
 ## and footsteps are unaffected -- only which capsules resolve collisions.
-var physics_active := true
+var physics_active := false
 var _yield_time := 0.0
 var _yield_cooldown := 0.0
 var _yield_to := Vector2.ZERO
@@ -270,6 +272,9 @@ var _surface_timer := 0.0
 var _activity_name := ""
 var _activity_needs_start := true
 var _activity_pause := 0.0
+var _water_token := ""
+var _water_slot := -1
+var _water_working := false
 var _cue_done := false
 var _cue_last := 0.0
 
@@ -347,6 +352,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	NpcWorld.queue_leave(WorldSim.home[person], person)
+	_interrupt_activity()
 	_so_release()
 	if _bubble != null and _bubble.visible:
 		NpcWorld.bubbles_shown = maxi(NpcWorld.bubbles_shown - 1, 0)
@@ -383,8 +389,8 @@ func _make_brain() -> UtilityBrain:
 	if stored.is_empty() or not b.import_needs(stored.get("values", PackedFloat32Array()), float(stored.get("hours", -1.0))):
 		b.seed_needs(DailyRhythm.local_time(person), WorldSim.day)
 	else:
-		# Reconcile at most the brain's existing bounded catch-up window on promotion.
-		b.tick(WorldSim.day * 24.0 + WorldSim.time_of_day, -1)
+		# Reconcile on promotion with the brain's constant-time catch-up (Codex).
+		b.catch_up(WorldSim.day * 24.0 + WorldSim.time_of_day)
 	return b
 
 
@@ -400,11 +406,12 @@ func restore_needs_from_world() -> void:
 	if _brain == null:
 		return
 	WorldSim.set_external_position_owner(person, get_instance_id(), true, Vector2.INF, true)
+	_interrupt_activity()
 	var stored := WorldSim.person_needs(person)
 	if stored.is_empty() or not _brain.import_needs(stored.get("values", PackedFloat32Array()), float(stored.get("hours", -1.0))):
 		_brain.seed_needs(DailyRhythm.local_time(person), WorldSim.day)
 	else:
-		_brain.tick(WorldSim.day * 24.0 + WorldSim.time_of_day, -1)
+		_brain.catch_up(WorldSim.day * 24.0 + WorldSim.time_of_day)
 	_act = -1
 	_brain.act = -1
 	_decide = 0.0
@@ -414,7 +421,11 @@ func restore_needs_from_world() -> void:
 ## WorldSim moved everyone (time skip / load): take its position as the new
 ## truth, settle outside footprints and plan again.
 func resync() -> void:
-	var p: Vector2 = WorldSim.pos[person]
+	# A time skip changes this resident's schedule target, not its live resolved
+	# transform. WorldSim.pos is only the last 4 Hz LOD write-back while owned.
+	UtilityBrain.clear_sound_events()
+	var p: Vector2 = sim_position() if WorldSim.owns_external_position(person, get_instance_id()) else WorldSim.pos[person]
+	_interrupt_activity()
 	if _graph:
 		p = _graph.push_out(p, BODY_RADIUS + 0.12)
 	global_position = Vector3(p.x, WorldGen.height(p.x, p.y), p.y)
@@ -441,7 +452,7 @@ func resync() -> void:
 	_set_indoors(false)
 	_act = -1
 	_brain.act = -1
-	_brain.tick(WorldSim.day * 24.0 + WorldSim.time_of_day, -1)
+	_brain.catch_up(WorldSim.day * 24.0 + WorldSim.time_of_day)
 	_save_needs()
 	_brain.clear_threat_memory()
 	UtilityBrain.clear_sight_for(self)
@@ -468,7 +479,8 @@ func _tick_body(delta: float) -> void:
 		_perform_time += delta
 		return
 	if _arrived and _yield_time <= 0.0:
-		_perform_time += delta
+		if _act != Act.WATER or _water_working:
+			_perform_time += delta
 		if _plan_indoors:
 			_set_indoors(true)
 			return
@@ -483,6 +495,13 @@ func _tick_body(delta: float) -> void:
 	elif _contact and physics_active:
 		velocity = Vector3(planar.x, 0.0, planar.y)
 		move_and_slide()
+	elif _contact:
+		# Keep the expensive multi-slide path capped by PopulationLOD, but never
+		# let an embodied overflow actor cross the player or a solid world shape.
+		# The mask is world/player only (NPCs are on layer 2), so this remains one
+		# bounded sweep without adding pairwise crowd collision.
+		if planar != Vector2.ZERO:
+			move_and_collide(Vector3(planar.x, 0.0, planar.y) * delta)
 	elif planar != Vector2.ZERO:
 		global_position += Vector3(planar.x, 0.0, planar.y) * delta
 	var moved := Vector2(global_position.x, global_position.z) - here
@@ -583,9 +602,9 @@ func _decide_act(here: Vector2) -> void:
 	if fd > danger_v:
 		danger_v = fd
 		danger_p = NpcWorld.incident_pos(NpcWorld.nearest(NpcWorld.Kind.FIRE, here, NpcWorld.FIRE_DANGER_FAR))
-	var heard := NpcWorld.alarm_at(here, NpcWorld.Kind.SCREAM) * 0.9
-	if heard > danger_v and not guard:
-		danger_v = heard
+	var scream := NpcWorld.alarm_at(here, NpcWorld.Kind.SCREAM) * 0.9
+	if scream > danger_v and not guard:
+		danger_v = scream
 		danger_p = NpcWorld.incident_pos(NpcWorld.nearest(NpcWorld.Kind.SCREAM, here, 40.0))
 	if danger_v > 0.4 and danger_p != Vector2.INF:
 		_scared_at = danger_p
@@ -593,10 +612,20 @@ func _decide_act(here: Vector2) -> void:
 	var player_p := Vector2.INF
 	if _player:
 		player_p = Vector2(_player.global_position.x, _player.global_position.z)
-	# The fight-watch signal only uses hostile samples this villager actually
-	# saw. Explicit notices remain their existing authored/audible-style signal.
+	# Sight-based fight interest still uses only hostile samples this villager
+	# actually saw. Movement noise adds a separate, anonymous look cue outdoors.
 	var sight := UtilityBrain.spectacle_at(here, player_p, visible_threats)
-	var performing := _indoors or (_arrived and _yield_time <= 0.0)
+	var heard := UtilityBrain.heard_player_at(here, _player, tree, _graph) if not _indoors else [0.0, Vector2.INF]
+	if not _indoors:
+		var sound_event := UtilityBrain.audible_event_at(here, tree, _graph)
+		if float(sound_event[0]) > float(heard[0]):
+			heard = sound_event
+	if float(heard[0]) > 0.0:
+		_brain.remember_heard_sound(heard[1], float(heard[0]))
+	var heard_memory := _brain.heard_memory()
+	var interest: Array = sight if float(sight[0]) >= float(heard_memory[0]) else heard_memory
+	var performing := _indoors or (_arrived and _yield_time <= 0.0
+		and (_act != Act.WATER or _water_is_performing(here)))
 	_brain.tick(WorldSim.day * 24.0 + WorldSim.time_of_day, _act if performing else -1)
 	_save_needs()
 	_state = DailyRhythm.state(person)
@@ -608,6 +637,9 @@ func _decide_act(here: Vector2) -> void:
 	var committed := not performing or _perform_time < float(PERFORM_FOR.get(_act, MIN_PERFORM))
 	var act := _brain.decide(ctx, committed)
 	if act != _act:
+		# UtilityBrain can override the coarse work/market schedule. Release its
+		# reservation before planning the new act; WORK/SHOP will reacquire as needed.
+		WorldSim.release_activity_target(person)
 		if _act == Act.SOCIAL:
 			UtilityBrain.chat_leave(person)
 		if _act == Act.QUEUE:
@@ -624,17 +656,31 @@ func _decide_act(here: Vector2) -> void:
 		_so_ended = false
 		_apply_plan(here, danger_p, _look_for(act, danger_p, sight[1], player_p, here))
 		return
+	_record_completed_social()
 	match act:
 		Act.FLEE:
 			# Still in danger at the end of the run: keep going from here.
 			if _arrived and not _plan_indoors:
 				_apply_plan(here, danger_p, sight[1])
 		Act.WATCH:
-			if sight[1] != Vector2.INF and (sight[1] as Vector2).distance_to(_look_point) > 3.0:
-				_apply_plan(here, danger_p, sight[1])
+			if interest[1] != Vector2.INF and (interest[1] as Vector2).distance_to(_look_point) > 3.0:
+				_apply_plan(here, danger_p, interest[1])
 		Act.SOCIAL:
 			if _partner < 0:
-				_partner = UtilityBrain.chat_partner(person)
+				# Waiting residents retry at the existing staggered decision cadence,
+				# allowing a bounded candidate group to form before pairing by familiarity.
+				var social_plan := _brain.plan_goal(Act.SOCIAL, here, _graph, danger_p, interest[1])
+				_partner = int(social_plan["partner"])
+				var social_goal: Vector2 = social_plan["goal"]
+				if _partner >= 0 and social_goal.distance_to(_goal) > 0.1:
+					_goal = social_goal
+					_needs_route = true
+					_arrived = false
+		Act.WATER:
+			# Capacity conflicts leave the resident where they are. Retry only on
+			# this already staggered decision tick, never every physics frame.
+			if _water_token.is_empty():
+				_apply_plan(here, danger_p, interest[1])
 		Act.PATROL:
 			if _arrived and _perform_time > float(PERFORM_FOR[Act.PATROL]):
 				_apply_plan(here, danger_p, Vector2.INF)
@@ -649,6 +695,30 @@ func _decide_act(here: Vector2) -> void:
 			if slot >= 0 and slot != _fire_slot:
 				_fire_slot = slot
 				_apply_plan(here, danger_p, NpcWorld.incident_pos(slot))
+
+
+## Persist one NPC-to-NPC tie only after the current pair has spent time together
+## at its shared social activity. Lower person ID owns the single write.
+func _record_completed_social() -> void:
+	if _act != Act.SOCIAL or not _arrived or _yield_time > 0.0 or _perform_time < MIN_PERFORM:
+		return
+	if _partner < 0 or person > _partner or UtilityBrain.chat_partner(person) != _partner:
+		return
+	var partner_body := UtilityBrain.body_of(_partner)
+	if partner_body == null or not is_instance_valid(partner_body):
+		return
+	var here := Vector2(global_position.x, global_position.z)
+	var other := Vector2(partner_body.global_position.x, partner_body.global_position.z)
+	if here.distance_squared_to(other) > 9.0:
+		return
+	var life := get_node_or_null("/root/Life")
+	var graph: Variant = life.get("npc_social_graph") if life else null
+	if graph == null or not graph.has_method("record_conversation"):
+		return
+	var a := NpcSocialGraph.worldsim_person(WorldSim.SEED, person)
+	var b := NpcSocialGraph.worldsim_person(WorldSim.SEED, _partner)
+	var day := float(WorldSim.day) + WorldSim.time_of_day / 24.0
+	graph.call("record_conversation", a, b, day)
 
 
 ## Everything the body knows that the brain scores: fire, a drawn weapon, a crime it saw or heard, being
@@ -754,12 +824,30 @@ func _apply_plan(here: Vector2, hazard: Vector2, look: Vector2) -> void:
 	_pace = _pace_for(_act)
 	_perform_time = 0.0
 	_interrupt_activity()
+	if _act == Act.WATER:
+		var water_lease := _reserve_water_slot(plan)
+		if water_lease.is_empty():
+			goal = here
+			_plan_indoors = false
+			_face_pref = Vector2.INF
+		else:
+			goal = water_lease["goal"]
+			_face_pref = (WorldGen.settlements[WorldSim.home[person]]["pos"] as Vector2) - goal
 	# Leave the previous smart object (gracefully, with its exit clip, unless running for it).
 	var spot: Array = plan["spot"]
+	var spot_claim_failed := false
 	_so_leave(not spot.is_empty() or _act == Act.FLEE or _act == Act.ALARM or _act == Act.HIDE or _act == Act.SHELTER or _act == Act.PROTEST)
 	if not spot.is_empty():
-		_so_begin(spot)
-	if WorldSim.job[person] != 0 and spot.is_empty() and not _plan_indoors and _act != Act.FLEE:
+		if not _so_begin(spot):
+			# Another resident may claim a candidate after planning but before this
+			# session starts. Do not walk to an unowned workstation; retry next think tick.
+			spot = []
+			spot_claim_failed = true
+			goal = here
+			_plan_indoors = false
+			_face_pref = Vector2.INF
+			_so_ended = true
+	if WorldSim.job[person] != 0 and spot.is_empty() and not spot_claim_failed and not _plan_indoors and _act != Act.FLEE:
 		goal = NpcWorld.out_of_fields(WorldSim.home[person], goal)
 	_act_started(here, hazard, look, now)
 	var was_inside := _indoors
@@ -781,7 +869,9 @@ func _apply_plan(here: Vector2, hazard: Vector2, look: Vector2) -> void:
 	if was_inside and _plan_indoors and goal.distance_to(sim_position()) < 1.0:
 		_set_indoors(true)    # e.g. eat -> sleep: stay in
 		return
-	if _goal == Vector2.INF or goal.distance_to(_goal) > 1.0 or not _arrived:
+	var water_slot_needs_route := (_act == Act.WATER and not _water_token.is_empty()
+		and sim_position().distance_to(goal) > 0.55)
+	if _goal == Vector2.INF or goal.distance_to(_goal) > 1.0 or not _arrived or water_slot_needs_route:
 		_goal = goal
 		_needs_route = true
 		_arrived = false
@@ -1037,9 +1127,77 @@ func _begin_sidestep(here: Vector2, direction: Vector2, duration: float, face_pl
 
 
 func _interrupt_activity() -> void:
+	if not _water_token.is_empty():
+		var life := get_node_or_null("/root/Life")
+		var activities: Variant = life.get("npc_activity_runtime") if life else null
+		if activities != null and activities.has_method("release"):
+			activities.call("release", _water_token)
+	_water_token = ""
+	_water_slot = -1
+	_water_working = false
+	_interrupt_animation()
+
+
+## Clear only presentation state. Walking toward a reserved activity must not
+## release its capacity lease; real interruptions use _interrupt_activity().
+func _interrupt_animation() -> void:
 	_activity_name = ""
 	_activity_needs_start = true
 	_activity_pause = 0.0
+
+
+## Reserve one generated well approach plus this resident's actor channel.
+## The exact row/settlement identifiers are scoped to this deterministic world.
+func _reserve_water_slot(plan: Dictionary) -> Dictionary:
+	var slots: PackedVector2Array = plan.get("well_slots", PackedVector2Array())
+	if slots.is_empty():
+		return {}
+	var source_ref := String(plan.get("water_source", ""))
+	var life := get_node_or_null("/root/Life")
+	var activities: Variant = life.get("npc_activity_runtime") if life else null
+	if activities == null or not activities.has_method("reserve_water_source"):
+		return {}
+	var sid: int = WorldSim.home[person]
+	var now_s := Time.get_ticks_msec() / 1000.0
+	for offset in mini(slots.size(), 2):
+		var slot := (person + offset) % mini(slots.size(), 2)
+		var started: Dictionary = activities.call("reserve_water_source", person, sid, source_ref, slot, now_s)
+		if bool(started.get("ok", false)):
+			_water_token = String(started.get("token", ""))
+			_water_slot = slot
+			return {"goal": slots[slot]}
+	return {}
+
+
+## Water is restored only at a cleared approach while this token still owns a
+## working lease. The existing animation is a presentation cue, never authority.
+func _water_is_performing(here: Vector2) -> bool:
+	if _water_token.is_empty():
+		_water_working = false
+		return false
+	var life := get_node_or_null("/root/Life")
+	var activities: Variant = life.get("npc_activity_runtime") if life else null
+	if activities == null or not activities.has_method("phase"):
+		_water_working = false
+		return false
+	var now_s := Time.get_ticks_msec() / 1000.0
+	var phase := String(activities.call("phase", _water_token, now_s))
+	if phase.is_empty():
+		_water_token = ""
+		_water_slot = -1
+		_water_working = false
+		return false
+	var facing := Vector2(sin(_heading), cos(_heading))
+	var face_dir := _face_pref.normalized() if _face_pref != Vector2.INF else Vector2.ZERO
+	var aligned := face_dir == Vector2.ZERO or facing.dot(face_dir) >= 0.9
+	var at_slot := (_arrived and _yield_time <= 0.0 and here.distance_to(_goal) <= 0.65
+		and _resolved_speed <= 0.18 and aligned)
+	if phase == "begun" and at_slot:
+		_water_working = bool(activities.call("start_work", _water_token, now_s))
+		phase = "working" if _water_working else ""
+	else:
+		_water_working = phase == "working" and at_slot
+	return _water_working
 
 
 # ---------------------------------------------------------------- steering
@@ -1251,9 +1409,12 @@ func _work_cue(activity: String) -> void:
 	if _cue_done or f < float(cue[1]):
 		return
 	_cue_done = true
-	if _player == null or global_position.distance_squared_to(_player.global_position) > WORK_SOUND_RANGE * WORK_SOUND_RANGE:
-		return
 	if Audio.has_method("has_sound") and not Audio.has_sound(cue[0]):
+		return
+	var sound_level := 0.38 if activity == "TreeChopping" else 0.28
+	var sound_radius := 13.0 if activity == "TreeChopping" else 8.0
+	UtilityBrain.sound_notice(Vector2(global_position.x, global_position.z), sound_level, sound_radius, 1.0)
+	if _player == null or global_position.distance_squared_to(_player.global_position) > WORK_SOUND_RANGE * WORK_SOUND_RANGE:
 		return
 	Audio.play_sfx(cue[0], global_position + Vector3(0, 0.6, 0), -9.0, 0.1)
 
@@ -1286,6 +1447,10 @@ func _activity_for_person() -> String:
 		Act.TRAIN:
 			if _so == null:
 				return _first_clip(ACT_CLIPS[Act.TRAIN])
+		Act.WATER:
+			if _water_is_performing(sim_position()):
+				return _first_clip(ACT_CLIPS.get(Act.WATER, []))
+			return ""
 	return _first_clip(ACT_CLIPS.get(_act, []))
 
 

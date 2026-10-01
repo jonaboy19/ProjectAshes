@@ -1,8 +1,10 @@
 # NPC life-loop design for Rising Ashes
 
 **Status:** rolling source/design handoff; see the dated implementation snapshot below.
+**Status:** living-world behavior design and acceptance contract for Claude. Movement/LOD/needs and a narrow water activity are now implemented on the Codex integration branch; this document is not evidence of runtime acceptance.
 
-**Baseline inspected:** `claude/focused-curie-m09hbd` at `e3563fc4` (the game branch may have moved; refresh before changing code).
+**Original source audit:** `claude/focused-curie-m09hbd` at `e3563fc4`. Current source findings are summarized above from Codex branch `gpt/living-world-integration`; recheck Claude local/unpushed work before changing shared files.
+
 **Purpose:** turn the existing schedule and population system into visible, physical, interruptible lives without making the whole population expensive.
 
 ## Current implementation snapshot (2026-09-30)
@@ -21,10 +23,22 @@ The older source notes below describe the pre-integration baseline at `e3563fc4`
 Do not restart the NPC system or add a second crowd/AI framework. Continue by closing one observed seam at a time: reproduce it in the latest game, preserve one owner for each piece of state, change the smallest responsible layer, then capture both behavior and mobile cost.
 
 ## Historical pre-integration source observations (e3563fc4; superseded in parts)
+## Current implementation snapshot — 30 September 2026
+
+- `WorldSim` remains the cheap schedule/data owner. It uses a bounded per-frame time budget, prioritizes residents near the player, and leaves embodied movement to the owning body. Distant rows still move directly toward coarse schedule targets; `DailyRhythm` supplies a deterministic two-game-hour per-person delay and `PopulationLOD` holds unembodied residents until their local schedule reaches a shared phase.
+- `PopulationLOD` keeps full-model, sprite, physics and animation budgets separate. It writes embodied positions back under an instance token and preserves a body's resolved position during time skips. Promotion/demotion still reconstructs route intent rather than preserving a full route/velocity handoff record.
+- `Villager` is a `CharacterBody3D`, routes near bodies through `StreetGraph`, uses acceleration/braking/facing and resolved speed for locomotion, and yields to the player. Within contact range it enables its capsule; the nearest eight selected bodies use `move_and_slide()`, and moving overflow uses one swept `move_and_collide()` query against world/player shapes. Actor-to-actor separation is steering-based. See [NPC_CONTACT_LOD_CONTRACT.md](NPC_CONTACT_LOD_CONTRACT.md) for collision limits and required runtime checks.
+- `UtilityBrain` chooses needs and acts on staggered decision ticks. Sight requests are FIFO and budgeted at four casts per 500 ms; each observer rotates through up to four nearest hostile candidates, and unseen threats decay from anonymous last-known positions. A deterministic courage trait modestly changes existing FLEE/WATCH scores. Discrete sounds receive coarse damping behind settlement geometry. Conspicuous resolved combat techniques feed a 64-entry coalescing spectacle queue that can prompt nearby villagers to look. These cues do not identify a culprit or establish crime-witness evidence. Relationships retain bounded dialogue-topic memory, not witnessed crime, NPC biographies or propagated rumors.
+- The first live physical activity is leased water fetching at two generated approaches or an abstract plaza break. Its need recovery and animation are gated on arrival, stop, facing and lease state. Offscreen catch-up approximates scheduled sleep, meals and hydration in constant time but does not debit an economy or recover social/faith needs. Other visible activities are not yet backed by generic approach/occupancy/work-order mechanics.
+- Wolves, monsters and ambient critters remain separate behavior/movement implementations; do not assume the villager route/physics guarantees apply to wildlife.
+
+This is source review only. Godot runtime, visual behavior, save/load, crowd contention and mobile frame cost remain unverified. Claude owns active rigs/scenes/colliders and should confirm the Meshy building collision before systems code is used to mask missing content.
+
+## Historical baseline findings at e3563fc4
 
 The [interactive daily-rhythm viewer](WORLD_DAILY_RHYTHM_REVIEW.html) exposes an additional source-level behavior risk: residents with the same job change phase on exact shared clock boundaries, and the simulation applies their new targets in a short update burst. The schedule table, real-time conversion, and a deterministic staggering design are in [WORLD_DAILY_RHYTHM_DESIGN.md](WORLD_DAILY_RHYTHM_DESIGN.md).
 
-The current system has a strong foundation: all residents exist cheaply as data in `WorldSim`; `PopulationLOD` promotes only a limited near set to full models; and work/home/market intent is already derived from the time of day. The gap is between that intent and what the player sees.
+At that historical baseline, the system had a strong foundation: all residents exist cheaply as data in `WorldSim`; `PopulationLOD` promotes only a limited near set to full models; and work/home/market intent is already derived from the time of day. The gap is between that intent and what the player sees.
 
 - `WorldSim._current_phase()` selects only home, work, or market. `_on_phase_change()` replaces a person's target with a newly selected point. `_simulate_slice()` advances the position directly toward it at `WALK_SPEED`, in a straight line.
 - `WorldSim._spot()` can choose a point by distance and angle, and shop/home targets stand near a lot. A target is not an authored entrance, counter, field row, patrol node, or occupied activity anchor.
@@ -33,9 +47,9 @@ The current system has a strong foundation: all residents exist cheaply as data 
 - The [follower/gait review](NPC_FOLLOWER_ANIMATION_REVIEW.html) and [source notes](NPC_FOLLOWER_ANIMATION_REVIEW.md) trace a new frame-rate/population interaction: `WorldSim` updates at most 1,500 rows per frame, while the embodied villager only selects `Walking_A` when its gap to the data position exceeds 0.15 m. This is a measured source-level hypothesis about why visible NPCs may glide or flicker between states; capture the actual gap, resolved velocity, clip, and playback rate before treating it as a proven runtime failure.
 - `Critter` selects a random point within a radius and moves directly there while sampling terrain height. Its own comment explicitly says it has no physics or navigation. `Wolf` and `Monster` also advance their global position directly toward the target. The hostile state machines add intent, but the movement does not route around buildings or resolve body contact.
 
-These are source observations. They do not by themselves prove that every visible failure still reproduces on the latest working game branch. Re-run the named checks after Claude's current QA pass.
+These are historical source observations, not current behavior claims. Re-run relevant checks against the latest Claude working copy before implementing any proposal below.
 
-## The behavior model to build
+## Behavior model and remaining design
 
 Keep schedule truth cheap and persistent. Make the close, visible actor a presentation and physical-execution tier for that truth.
 
@@ -58,7 +72,7 @@ Keep `WorldSim` as owner of schedule, job, home, money, long-term goal, and low-
 
 When a resident is promoted to the near tier, initialize the body at the stored world position and let its physics controller own motion while embodied. It reports its resolved position and arrival/goal status back at a controlled cadence. Do not have both the simulation and the body advance the same resident at once. On demotion, store the body’s final position and meaningful state before freeing it. Promotion/demotion must never snap an actor through a wall or back to an old simulation point.
 
-The [contact and LOD contract](NPC_CONTACT_LOD_CONTRACT.md) makes this handoff concrete and addresses a cap exception: model selection and three-spawns-per-refresh do not guarantee that every close visible resident has a full model. Separate contact eligibility from skeleton budgets, define an overflow/density policy, and preserve one movement owner through proxy/full-model swaps.
+The [contact and LOD contract](NPC_CONTACT_LOD_CONTRACT.md) makes this handoff concrete: contact actors keep a physical capsule; eight use multi-slide movement and overflow uses a single swept collision check. Model selection and three-spawns-per-refresh still do not guarantee instant promotion to a full body. Runtime-test contact density, spawn delay, overflow recovery and the separate route-only tier before changing either budget.
 
 ### State set and interrupt order
 

@@ -30,6 +30,8 @@ const INN_CLOSE := 22.5
 const INN_SHARE := 30
 ## WorldSim's schedule boundaries (see WorldSim._current_phase).
 const BOUNDARIES := [6.0, 8.5, 9.25, 10.0, 11.5, 12.0, 13.0, 14.0, 15.5, 16.0, 17.0, 18.0, 18.75, 19.5, 21.0, 22.5, 23.5]
+## Settlement plans are immutable for the fixed world seed; cache inn presence once.
+static var _inn_lot_by_settlement := {}
 
 
 ## Stable delay behind the shared clock for person i today, in game hours.
@@ -58,9 +60,36 @@ static func flags_of(i: int) -> int:
 	return WorldSim.mood_flags(WorldSim.home[i])
 
 
+## Whether resident i's settlement plan has an inn, using the cached lookup.
+static func has_inn_lot(i: int) -> bool:
+	return _has_inn_lot(i)
+
+
+static func _has_inn_lot(i: int) -> bool:
+	if i < 0 or i >= WorldSim.home.size():
+		return false
+	var settlement_id := int(WorldSim.home[i])
+	if settlement_id < 0 or settlement_id >= WorldGen.settlements.size():
+		return false
+	if _inn_lot_by_settlement.has(settlement_id):
+		return bool(_inn_lot_by_settlement[settlement_id])
+	var settlement: Dictionary = WorldGen.settlements[settlement_id]
+	var plan: Dictionary = settlement.get("plan", {})
+	for lot: Dictionary in plan.get("lots", []):
+		if String(lot.get("asset", "")) == "inn":
+			_inn_lot_by_settlement[settlement_id] = true
+			return true
+	_inn_lot_by_settlement[settlement_id] = false
+	return false
+
+
 ## Where person i wants to be right now.
 static func state(i: int) -> int:
-	return phase_at(WorldSim.job[i], local_time(i), flags_of(i), i, WorldSim.day)
+	var p := phase_at(WorldSim.job[i], local_time(i), flags_of(i), i, WorldSim.day)
+	# Codex: an inn evening only where the settlement plan actually has an inn.
+	if p == State.INN and not _has_inn_lot(i):
+		return State.HOME
+	return p
 
 
 ## True while WorldSim has already moved person i to a new phase but their own
@@ -92,7 +121,7 @@ static func goal(i: int, st: int, graph: StreetGraph) -> Vector2:
 			var ang := (float(h % 1000) / 1000.0 - 0.5) * 2.2
 			var dist := 1.8 + float((h / 1000) % 100) / 100.0 * 3.2
 			return graph.inn_door + graph.inn_facing.rotated(ang) * dist
-		return WorldSim._spot(s, State.MARKET, i)
+		return WorldSim._spot(s, State.HOME, i)
 	return WorldSim._spot(s, st, i)
 
 

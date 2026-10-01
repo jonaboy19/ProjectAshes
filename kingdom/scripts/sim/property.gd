@@ -355,6 +355,8 @@ func sell(lot_id: String) -> String:
 	if not is_owned(lot_id):
 		return "You don't own this."
 	var st: Dictionary = state[lot_id]
+	if int(st.get("tax_debt", 0)) > 0:
+		return "Pay your land dues first."
 	if not (st.get("storage", []) as Array).is_empty():
 		return "Empty your storage chest first."
 	var r: Dictionary = _registry[lot_id]

@@ -1,7 +1,7 @@
 # Region 1 hooks: exact code for the cloud session (H1 and H2)
 
-Scaffold is in (package L0): `kingdom/scripts/region1/`, tests `kingdom/tests/test_region1_scaffold.gd`, guide `kingdom/data/region1/README.md`.
-Each hook is one small commit with the comment `# Region1 hook (docs/regions/REGION_1_PLAN.md)`. Merge origin first.
+Scaffold is in (package L0): `kingdom/scripts/region1/`, tests `kingdom/tests/test_region1_scaffold.gd`, guide `kingdom/data/region1/README.md`. H2 is implemented on Codex branch `gpt/living-world-integration`; review in draft PR #5 and do not duplicate it. H1 is not wired: `Main` does not instantiate `Region1Root`, and the module manifest is empty.
+Re-read Claude's current work before applying remaining hooks; each change is additive and uses the comment `# Region1 hook (docs/regions/REGION_1_PLAN.md)`.
 
 ## H1: `kingdom/scripts/core/main.gd`, in `_ready`
 Paste right after the `world.add_child(frontier)` / `Frontier.frontier_event.connect(...)` lines (any point after `world` exists and before the loading screen ends is fine; the node only reads the `WorldSim` autoload, so order does not matter):

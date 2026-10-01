@@ -284,6 +284,14 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	var stand_3_a := st_a.slice((st_a.size() + 1) / 2)
 	var stand_2_b := st_b.slice(0, (st_b.size() + 1) / 2)
 	var stand_4_b := st_b.slice((st_b.size() + 1) / 2)
+	var activity_spots: Array[Dictionary] = []
+	for group_name in ["a", "b"]:
+		var placements: Array = st_a if group_name == "a" else st_b
+		for i in placements.size():
+			var placement: Transform3D = placements[i]
+			activity_spots.append({"type": "market_stall", "position": placement.origin,
+				"yaw": placement.basis.get_euler().y, "identity": "market/plaza/%s/%d" % [group_name, i]})
+	plan["activity_spots"] = activity_spots
 	_multimesh(root, Assets.building_mesh("market_stand_1"), stand_1_a, true, true)
 	_multimesh(root, Assets.building_mesh("market_stand_3"), stand_3_a, true, true)
 	_multimesh(root, Assets.building_mesh("market_stand_2"), stand_2_b, true, true)
@@ -1022,6 +1030,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 	var c: Vector2 = s["pos"]
 	var r: float = s["radius"]
 	var tiles: Array[Transform3D] = []
+	var activity_spots: Array = plan.get("activity_spots", []).duplicate()
 	var fences: Array[Transform3D] = []
 	var stacks: Array[Transform3D] = []
 	var placed: Array[Vector2] = []
@@ -1041,6 +1050,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		var yaw := ang + PI * 0.5
 		var bx := Vector2(cos(yaw), -sin(yaw))
 		var bz := Vector2(sin(yaw), cos(yaw))
+		var field_index := placed.size() - 1
 		# Lint: a 10 m tile on a steep slope is buried up to 19 m (corner snap only reaches the lowest corner),
 		# and fields must not run into a windmill. Skip the whole field (rng stream stays unchanged).
 		var field_ok := true
@@ -1064,7 +1074,11 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 				# tile sampled only at its centre (the old code) could float or bury by
 				# most of the local slope across its width. Corner-snap it like a
 				# building lot instead.
-				tiles.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, _ground_snap(p, yaw, Vector3(10.0, 1.0, 10.0), 0.05), p.y)))
+				var tile_xform := Transform3D(Basis(Vector3.UP, yaw),
+					Vector3(p.x, _ground_snap(p, yaw, Vector3(10.0, 1.0, 10.0), 0.05), p.y))
+				tiles.append(tile_xform)
+				activity_spots.append({"type": "field_row", "position": tile_xform.origin, "yaw": yaw,
+					"identity": "farm/field/%d/tile/%d" % [field_index, ix * nz + iz]})
 		# Fence around the field (3 m sections), leaving a gap on one side.
 		var hx := nx * 5.0 + 1.0
 		var hz := nz * 5.0 + 1.0
@@ -1103,6 +1117,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		body.rotation.y = hy
 		body.add_child(shape)
 		root.add_child(body)
+	plan["activity_spots"] = activity_spots
 	# One batch instead of a node per haystack (5 surfaces each: 25 draws in view).
 	_multimesh_cells(root, Assets.building_mesh("haystack"), stacks, 60.0, 0.0, false)
 	_multimesh_cells(root, Assets.building_mesh("field_crops"), tiles, 60.0, 0.0, false)
@@ -1113,8 +1128,11 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator) -> void:
 	var lots: Array = plan["lots"]
 	var sets := {"garden_plot": [], "woodpile": [], "washing_line": []}
+	var activity_spots: Array = plan.get("activity_spots", []).duplicate()
+	var published_woodpiles := 0
 	var yard_spots: Array[Vector2] = []
-	for lot: Dictionary in lots:
+	for lot_i in lots.size():
+		var lot: Dictionary = lots[lot_i]
 		if not (String(lot["asset"]).begins_with("house") or String(lot["asset"]).begins_with("mhouse")):
 			continue
 		var yaw: float = lot["yaw"]
@@ -1155,7 +1173,14 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 			if not _spot_ok(at, ky, ysz):
 				continue   # steep yard: no woodpile / line / plot hanging off the bank
 			yard_spots.append(at)
-			(sets[kind] as Array).append(Transform3D(Basis(Vector3.UP, ky), Vector3(at.x, _ground_snap(at, ky, ysz, 0.03), at.y)))
+			var xform := Transform3D(Basis(Vector3.UP, ky), Vector3(at.x, _ground_snap(at, ky, ysz, 0.03), at.y))
+			(sets[kind] as Array).append(xform)
+			# Existing woodpiles double as small lumber-work points. Cap the
+			# published set so large towns don't create one work slot per house.
+			if kind == "woodpile" and published_woodpiles < 8:
+				activity_spots.append({"type": "chopping_block", "position": xform.origin,
+					"yaw": ky, "identity": "homestead/woodpile/%d" % lot_i})
+				published_woodpiles += 1
 	plan["yard_spots"] = yard_spots   # district_props.gd keeps its own props off these
 	for kind: String in sets:
 		var list: Array[Transform3D] = []
@@ -1163,6 +1188,7 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 		# Yard clutter per 80 m cell with a 120 m range (66 m on LOW): a capital has
 		# ~200 of these, and as one town-wide batch they were all drawn from anywhere.
 		_multimesh_cells(root, Assets.building_mesh(kind), list, 80.0, 120.0, true, true, Color(0.62, 0.56, 0.42) if kind == "garden_plot" and not bool(_prof.get("legacy", false)) else Color.WHITE)
+	plan["activity_spots"] = activity_spots
 	_front_gardens(root, plan, rng)
 
 
@@ -1507,6 +1533,30 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 				add.call("barrel_cluster", tbx, ty)
 	# Goods on and around every stall and at the townhouse shop fronts (MarketGoods): render-only.
 	stalls_by_town[s["id"]] = stall_spots
+	# Publish the final, clearance-adjusted placements as data so WorldSim's
+	# SmartObjects index can send shoppers to the actual stalls, not guessed points.
+	var activity_spots: Array = plan.get("activity_spots", []).duplicate()
+	for i in stall_spots.size():
+		var stall: Array = stall_spots[i]
+		var p: Vector2 = stall[1]
+		activity_spots.append({"type": "market_stall",
+			"position": Vector3(p.x, WorldGen.height(p.x, p.y), p.y),
+			"yaw": float(stall[2]), "identity": "market/street/%d" % i})
+	# Publish work targets beside the exact gate watch posts. The residents' target
+	# is offset inward from the decorative guard actors so they don't overlap.
+	if plan["walls"]:
+		for gate_i in plan["gates"].size():
+			var gate_angle: float = plan["gates"][gate_i]
+			var gate_dir := Vector2(cos(gate_angle), sin(gate_angle))
+			var gate_side := Vector2(-gate_dir.y, gate_dir.x)
+			for side_i in 2:
+				var side_sign := -1.0 if side_i == 0 else 1.0
+				var post := c + gate_dir * (r - 7.0) + gate_side * side_sign * 4.2 - gate_dir * 2.5
+				activity_spots.append({"type": "guard_post",
+					"position": Vector3(post.x, WorldGen.height(post.x, post.y), post.y),
+					"yaw": atan2(-gate_dir.x, -gate_dir.y),
+					"identity": "guard/gate/%d/side/%d" % [gate_i, side_i]})
+	plan["activity_spots"] = activity_spots
 	_market_dressing(root, s, plan, stall_spots, solid, corridors)
 	# A pair of town guards standing watch just inside every gate, as in the reference.
 	if plan["walls"]:
