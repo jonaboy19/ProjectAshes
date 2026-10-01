@@ -13,11 +13,11 @@ extends "res://scripts/realm/realm_module.gd"
 const MAX_WAVES := 16
 const MAX_SPECIALISTS := 30
 const MAX_NEWS := 40
-const QUARTER_MIN := 36.0               # foreign inflow (people, fading) a place needs before newcomers form a quarter of their own
-const QUARTER_WEEKS := 6.0              # ... held for this many weeks
+const QUARTER_MIN := 85.0               # foreign inflow (people, fading) a place needs before newcomers form a quarter of their own
+const QUARTER_WEEKS := 8.0              # ... held for this many weeks
 const PULL_DELTA := 0.15                # attraction gain over its reference that draws settlers from neighbours
-const PULL_P := 0.08                    # weekly chance a place that qualifies actually draws a group
-const PULL_MIN := 14                    # smallest settler group worth a wave (no daily trickles)
+const PULL_P := 0.03                    # weekly chance a place that qualifies actually draws a group
+const PULL_MIN := 20                    # smallest settler group worth a wave (no daily trickles)
 const GOV_PUSH := 0.8                   # weight of governance.emigration_pressure in a place's push
 const NEWS_MAG := {"wave": 0.3, "arrival": 0.2, "refugees": 1.5, "quarter": 2.0, "tradition": 1.5, "master": 0.6, "master_arrived": 1.0, "master_left": 1.0}
 const FIELDS := ["smith", "scholar", "healer", "architect", "trainer", "commander"]
@@ -426,7 +426,7 @@ func _eval_place(node: String, day: int, weeks: float) -> Array:
 				out.append("%d people are leaving %s%s." % [int(w["n"]), pname, " (%s)" % cause])
 	# 2. boom: merchants, workers, mercenaries, researchers and criminals walk in from the wider kingdom
 	var boom := float(civ.call("boom_of", node, day).get("power", 0.0))
-	if boom > 0.15 and float(p["H"]) < 1.12 and refugees_at(node) < pop / 2 + 10 and _waves.size() < MAX_WAVES and r.randf() < 1.0 - pow(0.8, weeks):
+	if boom > 0.25 and float(p["H"]) < 1.12 and refugees_at(node) < pop / 2 + 10 and _waves.size() < MAX_WAVES and r.randf() < 1.0 - pow(0.92, weeks):
 		var kind2 := _composition(r, p)
 		var n2 := maxi(8, int((4.0 + 18.0 * boom) * weeks * (0.7 + 0.6 * r.randf())))
 		var cul := _roll_culture(r)

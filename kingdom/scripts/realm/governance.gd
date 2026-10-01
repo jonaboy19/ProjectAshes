@@ -14,6 +14,7 @@ const Soc := preload("res://scripts/realm/society.gd")
 const SAVE_VERSION := 1
 const YEAR := 360
 const TERM_DAYS := 1440
+const REVOLT_GRACE := 300       # no revolt in a world's first year
 const LAW_ANGER := -0.25       # a bloc must be this unhappy before a council votes a law change
 const PETITION_EASE_GAP := 600  # a petition is only heard if no law changed in this many days
 const LAW_COOLDOWN := 2000     # days between agenda law changes in one settlement (laws are stable for years)
@@ -566,8 +567,8 @@ func _reelect_prob(ins: Dictionary) -> float:
 		for b: String in BLOCS:
 			m += float(ops.get(b, 0.0))
 		m /= float(BLOCS.size())
-		return clampf(0.76 + 0.6 * m + 0.25 * (_quality(ins) - 0.5), 0.05, 0.95)
-	return 0.85
+		return clampf(0.8 + 0.6 * m + 0.25 * (_quality(ins) - 0.5), 0.05, 0.95)
+	return 0.9
 
 
 ## One institution's weekly step (dt = 7 days when sliced, `days` in catch-up).
@@ -752,7 +753,7 @@ func _reactions(sid: int, msgs: Array, dt := 1) -> void:
 		if st != null and st.has_method("_start"):
 			st.call("_start", sid, "strike", 0.4)
 		msgs.append("The %s of %s have downed tools in protest." % [worst, name])
-	if wv < -0.8 and mean < -0.35 and int(neg[worst]) >= 45 and _day - int(rc["revolt"]) > 360 and r.randf() < 0.5:
+	if _day >= REVOLT_GRACE and wv < -0.8 and mean < -0.35 and int(neg[worst]) >= 45 and _day - int(rc["revolt"]) > 360 and r.randf() < 0.5:
 		rc["revolt"] = _day
 		_emit("revolt", sid, "Revolt in %s! The %s drive out their %s." % [name, worst, _title(_inst["s:%d" % sid])], 3.0, "", true)
 		msgs.append("Revolt in %s! The ruler has been driven out." % name)

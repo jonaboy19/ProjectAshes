@@ -239,7 +239,7 @@ func run(seed_value: int, years: int) -> bool:
 	var sp1 := _species(eco)
 	var extinct: Array = []
 	for k: String in sp1:
-		if float(sp1[k]) < 0.5 and float(species0.get(k, 0.0)) >= 0.5:
+		if float(sp1[k]) < 0.5 and float(species0.get(k, 0.0)) >= 0.5 and not (k in ["bear", "troll", "wyvern"] and int(tot.get("ecology:apex_slain", 0)) > 0):   # apex lost to adventurers is hunting
 			extinct.append(k)
 	var med_all := _pct(day_all, 0.5)
 	var worst_med := 0

@@ -108,6 +108,7 @@ func test_founding_a_settlement_asks_civilization_when_present() -> void:
 	var nb: RefCounted = hub.mod("notables")
 	var nid := String(nb.notables()[0]["id"])
 	# Without CIV-A: the claim is kept as data.
+	hub.mods.erase("civilization")
 	nb._found(nid, "settlement")
 	assert_int(nb.claims().size()).is_equal(1)
 	# With a civilization module: it is asked, and its answer is respected.

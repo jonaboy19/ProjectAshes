@@ -15,8 +15,8 @@ extends "res://scripts/realm/realm_module.gd"
 const Soc := preload("res://scripts/realm/society.gd")
 const Titles := preload("res://scripts/sim/titles.gd")
 const SAVE_VERSION := 1
-const ROAD_SPEED := 500.0        # world units per day for rumours carried by travellers
-const COURIER_SPEED := 1000.0    # official notices
+const ROAD_SPEED := 750.0        # world units per day for rumours carried by travellers (500 before the 12 km world, x1.5)
+const COURIER_SPEED := 1500.0    # official notices (x1.5 with the 12 km world)
 const SHARPEN_UNITS := 1200.0    # extra road distance that adds one level of detail
 const SHARPEN_DAYS := 5.0
 const ITEM_CAP := 70
