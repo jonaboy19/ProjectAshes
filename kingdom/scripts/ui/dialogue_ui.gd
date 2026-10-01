@@ -37,6 +37,8 @@ var _buttons: Array[Button] = []
 var _enabled: Array[bool] = []
 var _sel := 0
 var _bust_holder: Control
+var _bust_tween: Tween
+var _present_tween: Tween
 
 
 func _ready() -> void:
@@ -184,7 +186,21 @@ func set_page(data: Dictionary) -> void:
 	_build_choices(data.get("options", []))
 
 
+## Starts the dialogue overlay with a short ease so the world shade and UI do not pop
+## onto the screen in one frame. HUD calls this only when opening a new conversation.
+func present() -> void:
+	if _present_tween and _present_tween.is_running():
+		_present_tween.kill()
+	var tint := modulate
+	tint.a = 0.0
+	modulate = tint
+	_present_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_present_tween.tween_property(self, "modulate", Color.WHITE, 0.25)
+
+
 func _set_bust(model: Node3D, look: String) -> void:
+	if _bust_tween and _bust_tween.is_running():
+		_bust_tween.kill()
 	_placeholder.visible = true
 	if model != null and is_instance_valid(model) and _model_ok(model):
 		_bust.set_model_copy(model)
@@ -196,6 +212,11 @@ func _set_bust(model: Node3D, look: String) -> void:
 		_bust.visible = true
 	else:
 		_bust.visible = false
+	var tint := _bust_holder.modulate
+	tint.a = 0.0
+	_bust_holder.modulate = tint
+	_bust_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_bust_tween.tween_property(_bust_holder, "modulate", Color.WHITE, 0.25)
 	_shade.queue_redraw()
 	_placeholder.queue_redraw()
 

@@ -140,6 +140,8 @@ func test_chat_pairs_up_two_people() -> void:
 	var first := UtilityBrain.chat_join(0, 900001, Vector2(10, 0))
 	assert_int(int(first[1])).is_equal(-1)
 	assert_bool(UtilityBrain.chat_waiting(0, 900002)).is_true()
+	for w: Dictionary in UtilityBrain._chat_wait.get(0, []):   # Codex: pairing needs CHAT_MIN_WAIT_MS of waiting
+		w["since_ms"] = int(w["since_ms"]) - UtilityBrain.CHAT_MIN_WAIT_MS - 1
 	var second := UtilityBrain.chat_join(0, 900002, Vector2(20, 0))
 	assert_int(int(second[1])).is_equal(900001)
 	assert_int(UtilityBrain.chat_partner(900001)).is_equal(900002)

@@ -50,6 +50,7 @@ var _fidget := ""
 var _chat: Dictionary = {}         # {center, face, speaking: Callable, turn}
 var _wait := 0.0
 var _task: Dictionary = {}
+var _deferred_command: Dictionary = {}
 var _snap: Variant = null
 var _weather_upper := ""
 
@@ -106,14 +107,18 @@ func set_routine(tasks: Array) -> void:
 
 
 func walk_to(p: Vector3, upper := "") -> void:
-	_end_session()
+	if _end_session({"kind": "walk", "point": p, "upper": upper}):
+		_chat = {}
+		return
 	_chat = {}
 	_target = p
 	_upper = upper
 
 
 func use_spot(o: SmartObjects, spot: int, slot: int) -> bool:
-	_end_session()
+	if _end_session({"kind": "spot", "objects": o, "spot": spot, "slot": slot}):
+		_chat = {}
+		return true  # accepted; the new slot is claimed after the old exit completes
 	_chat = {}
 	if not o.claim(spot, slot, person):
 		return false
@@ -123,17 +128,47 @@ func use_spot(o: SmartObjects, spot: int, slot: int) -> bool:
 
 
 func chat_with(center: Vector3, face_yaw: float, speaking: Callable) -> void:
-	_end_session()
+	if _end_session({"kind": "chat", "center": center, "face": face_yaw, "speaking": speaking}):
+		_chat = {}
+		return
 	_chat = {"center": center, "face": face_yaw, "speaking": speaking, "turn": -1, "stand": global_position}
 
 
-func _end_session() -> void:
+## Interrupt an activity. If it has an exit clip, retain its lease and actor
+## session until that clip ends, then apply the replacement command.
+func _end_session(next_command: Dictionary = {}) -> bool:
 	if session:
 		session.interrupt()
-		if so:
-			so.release(person)
+		if session.phase != SmartObjects.Session.DONE:
+			_deferred_command = next_command.duplicate()
+			_target = null
+			return true
 		session = null
+		props.clear()
 	_snap = null
+	_deferred_command = {}
+	return false
+
+
+func _apply_deferred_command() -> void:
+	var command := _deferred_command
+	_deferred_command = {}
+	match String(command.get("kind", "")):
+		"walk":
+			walk_to(command["point"], String(command.get("upper", "")))
+		"spot":
+			if not use_spot(command["objects"], int(command["spot"]), int(command["slot"])):
+				_wait = 1.5
+		"chat":
+			chat_with(command["center"], float(command["face"]), command["speaking"])
+
+
+func _exit_tree() -> void:
+	# The actor cannot finish a visible exit after removal, so release its lease
+	# immediately rather than leaving the spot occupied forever.
+	if session:
+		session.cancel_now()
+	session = null
 
 
 func _next_task() -> void:
@@ -214,7 +249,10 @@ func _body(delta: float) -> void:
 			session = null
 			_snap = null
 			props.clear()
-			_next_task()
+			if not _deferred_command.is_empty():
+				_apply_deferred_command()
+			else:
+				_next_task()
 	elif not _chat.is_empty():
 		_target = null
 		face = float(_chat["face"])

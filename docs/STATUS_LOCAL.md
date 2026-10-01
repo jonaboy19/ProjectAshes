@@ -3,7 +3,7 @@
 The local session updates this file whenever a task starts or finishes. **Cloud session: read it after each pull.**
 Who owns which area: `docs/LOCAL_SESSION_HANDOFF.md`.
 
-_Last update: 2026-10-01 (Style G art-director pass); before: 2026-09-30 (horses and riding: rig, 50 horse + 57 rider clips, HorseRig/RiderSync/RiderIK, VAT herds, P14; living world: 188 life clips, VAT crowds, animation LOD, smart objects, P13; combat animation director pass: COMBAT_AUDIT.md, 44 combat clips, weapon trail, markers, P9-P12; world map review); Region 1 look pass: Hollin's Reach valley, 5 landmarks, far horizon, biome patchwork, parchment map)_
+_Last update: 2026-10-01 (Codex animation + living-world branches merged and reviewed in game, see CODEX_INTEGRATION_REVIEW.md; Style G art-director pass); before that 2026-09-30 (horses and riding: rig, 50 horse + 57 rider clips, HorseRig/RiderSync/RiderIK, VAT herds, P14; living world: 188 life clips, VAT crowds, animation LOD, smart objects, P13; combat animation director pass: COMBAT_AUDIT.md, 44 combat clips, weapon trail, markers, P9-P12; world map review); Region 1 look pass: Hollin's Reach valley, 5 landmarks, far horizon, biome patchwork, parchment map)_
 
 ## Done (recent)
 | Date | What | Where | Commit |

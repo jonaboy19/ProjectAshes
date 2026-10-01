@@ -20,7 +20,7 @@ extends RefCounted
 ##
 ## Inputs come from: the time of day on the person's own staggered clock
 ## (DailyRhythm, kept as the baseline schedule consideration), their career
-## shift, a seeded personality (sociable, lazy, pious, greedy), needs that
+## shift, a seeded personality (sociable, lazy, pious, greedy, courageous), needs that
 ## decay with game time (food, rest, company, faith, household water), rain,
 ## nearby hostiles and anything noteworthy the player is doing.
 ##
@@ -31,6 +31,7 @@ const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const RANeedsScript := preload("res://scripts/sim/needs.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const Schedule := preload("res://scripts/population/schedule.gd")
+const NeedRules := preload("res://scripts/sim/npc_need_rules.gd")
 
 ## SIT..CHORE (appended after IDLE so the original indices stay): the purposeful and reactive acts of the
 ## near-NPC layer. They only score above zero when their trigger input is present.
@@ -80,7 +81,7 @@ const ACTIONS := {
 	Act.INN: [0.8, [["evening", Resp.RANGE, 0.0, 1.0], ["sociable", Resp.RANGE, 0.25, 1.0],
 		["sched_inn", Resp.RANGE, 0.55, 1.0], ["money", Resp.RANGE, 0.3, 1.0],
 		["lonely", Resp.RANGE, 0.6, 1.0], ["guard", Resp.RANGE, 1.0, 0.0],
-		["child", Resp.RANGE, 1.0, 0.0]]],
+		["child", Resp.RANGE, 1.0, 0.0], ["inn_available", Resp.BINARY, 0.5, 0.0]]],
 	Act.PRAY: [0.6, [["pious", Resp.EXP, 1.5, 0.0], ["faithless", Resp.LOGISTIC, 8.0, 0.4],
 		["daytime", Resp.BINARY, 0.5, 0.0], ["holy_day", Resp.RANGE, 0.75, 1.0],
 		["sched_work", Resp.RANGE, 1.0, 0.5], ["service", Resp.RANGE, 0.7, 1.0]]],
@@ -132,23 +133,31 @@ const COMMIT_BONUS := 1.45
 const KEEP_BONUS := 1.15
 
 ## Needs, per game hour. Rest uses the player's RANeeds rates (0..100 -> 0..1).
-const FATIGUE_PER_HOUR := RANeedsScript.FATIGUE_PER_HOUR / 100.0
-const SLEEP_PER_HOUR := RANeedsScript.SLEEP_PER_HOUR / 100.0
-const HUNGER_PER_HOUR := 0.11
-const WATER_PER_HOUR := 0.09
+const FATIGUE_PER_HOUR := NeedRules.FATIGUE_PER_HOUR
+const SLEEP_PER_HOUR := NeedRules.SLEEP_PER_HOUR
+const HUNGER_PER_HOUR := NeedRules.HUNGER_PER_HOUR
+const WATER_PER_HOUR := NeedRules.WATER_PER_HOUR
+## Coarse food restoration for each scheduled meal during constant-time LOD catch-up.
+const OFFSCREEN_MEAL_RESTORE := 0.75
+## Abstract drinking paired with meals keeps distant residents hydrated without
+## pretending every one of them is a physical well user.
+const OFFSCREEN_WATER_PER_MEAL := WATER_PER_HOUR * 24.0 / 3.0
+## Offscreen recovery is expected schedule exposure, not recorded individual acts.
+const OFFSCREEN_INN_SHARE := DailyRhythm.INN_SHARE / 100.0
+const OFFSCREEN_HOLY_PERIOD := 168.0
 ## Breath drains while on the feet (working, shopping, walking); only sitting or leaning gives it back.
 const BREATH_PER_HOUR := 0.13
 ## Restored per game hour while performing an act at its spot: [need, amount].
 const RESTORE := {
 	Act.SLEEP: [["rest", SLEEP_PER_HOUR]], Act.HOME: [["rest", 0.03]],
-	Act.EAT: [["food", 2.5]], Act.SOCIAL: [["social", 1.5]],
+	Act.EAT: [["food", NeedRules.EAT_RESTORE_PER_HOUR]], Act.SOCIAL: [["social", 1.5]],
 	Act.INN: [["social", 1.0], ["food", 0.6]], Act.PRAY: [["faith", 1.6]],
 	Act.WATER: [["water", 2.2]],
 	Act.SIT: [["breath", 3.0], ["rest", 0.25]], Act.PLAY: [["social", 1.0], ["breath", 0.4]],
 	Act.CHORE: [["breath", 0.05]], Act.TRAIN: [["social", 0.4]], Act.FESTIVE: [["social", 1.6], ["faith", 0.2]],
 	Act.MOURN: [["faith", 1.2], ["social", 0.5]], Act.QUEUE: [["social", 0.3]],
 }
-const MEALS := [7.0, 12.5, 18.5]
+const MEALS := NeedRules.MEALS
 
 ## Sensing ranges, metres.
 const DANGER_NEAR := 5.0
@@ -158,9 +167,21 @@ const WATCH_RANGE := 32.0
 const SENSE_INTERVAL_MS := 500
 const THREAT_RAY_BUDGET := 4
 const THREAT_RAY_WINDOW_MS := 500
+const SIGHT_CANDIDATES_PER_OBSERVER := 4
 const LAST_SEEN_SECONDS := 3.0
+const LAST_HEARD_SECONDS := 3.0
 const SIGHT_QUEUE_MAX := 64
+const NOTICE_MAX := 64
+const NOTICE_MERGE_RADIUS := 1.0
+const NOTICE_MAX_SECONDS := 30.0
+const SOUND_EVENT_MAX := 32
+const SOUND_EVENT_MERGE_RADIUS := 1.5
+const SOUND_EVENT_MAX_SECONDS := 10.0
+const SOUND_OCCLUSION_CANDIDATES := 4
 const CHAT_GAP := 1.3           # metres between two people chatting
+const CHAT_WAIT_MAX := 8        # bounded candidates per settlement, not a global resident scan
+const CHAT_MIN_WAIT_MS := 1200  # let a small set assemble before choosing a companion
+const CHAT_WAIT_FAIRNESS_SECONDS := 20.0
 ## Short-term memory of where danger was seen: slots, seconds kept, radius that is given a wide berth.
 const MEM_SLOTS := 3
 const MEM_SECONDS := 75
@@ -186,13 +207,12 @@ static var _ray_window_stats := {"requested": 0, "admitted": 0, "exhausted": 0,
 static var _ray_total_stats := {"requested": 0, "admitted": 0, "exhausted": 0,
 	"occluded": 0, "visible": 0, "stale": 0, "unavailable": 0}
 static var _notices: Array = []              # [pos: Vector2, strength, expires_ms]
+static var _sound_events: Array = []          # [pos: Vector2, strength, radius, expires_ms]
 static var _weather: Node
 static var _poi := {}                        # settlement id -> Dictionary
 static var _bodies := {}                     # person -> instance id of its Villager
-static var _chat_wait := {}                  # settlement id -> [person, spot]
+static var _chat_wait := {}                  # settlement id -> [{person, spot, since_ms}, ...]
 static var _chat_partner := {}               # person -> partner person
-static var _chat_open := {}                  # settlement id -> anchor person of a pair that has room for a third
-static var _chat_geo := {}                   # anchor person -> [spot, side direction] of their conversation
 
 # ---------------------------------------------------------------- per person
 var person := -1
@@ -222,6 +242,11 @@ var _last_hours := -1.0
 var _last_seen := Vector2.INF
 var _last_seen_ms := -100000
 var _last_seen_strength := 0.0
+## Short anonymous sound-origin memory; unlike event/relationship data it lives
+## only as long as this embodied brain and is cleared at indoor/time-skip edges.
+var _last_heard := Vector2.INF
+var _last_heard_ms := -100000
+var _last_heard_strength := 0.0
 var _sight_observer_ref: WeakRef
 
 
@@ -259,6 +284,13 @@ static func score(action: int, ctx: Dictionary) -> float:
 		if s <= 0.0:
 			return 0.0
 		total *= s + (1.0 - s) * mod * s
+	# Apply temperament after shared consideration compensation so courage=0.5
+	# leaves the previous FLEE/WATCH scores exactly intact.
+	var courage := clampf(float(ctx.get("courage", 0.5)), 0.0, 1.0)
+	if action == Act.FLEE:
+		total *= lerpf(1.15, 0.85, courage)
+	elif action == Act.WATCH:
+		total *= lerpf(0.9, 1.1, courage)
 	return total
 
 
@@ -286,16 +318,11 @@ static func best(ctx: Dictionary, current := -1, bonus := 1.0) -> int:
 	return pick
 
 
-## Seeded personality, stable for life: four traits in 0..1.
+## Seeded personality, stable for life: five traits in 0..1.
 static func personality(p: int) -> Dictionary:
 	var out := {}
-	var k := 0
-	for t: String in ["sociable", "lazy", "pious", "greedy"]:
-		# Sum of two draws: traits cluster around the middle, extremes are rarer.
-		var h1 := hash(p * 2246822519 + k * 3266489917 + 1066)
-		var h2 := hash(p * 668265263 + k * 374761393 + 7)
-		out[t] = (float(h1 % 1000) + float(h2 % 1000)) / 1998.0
-		k += 1
+	for k in range(5):
+		out[["sociable", "lazy", "pious", "greedy", "courage"][k]] = NeedRules.trait_value(p, k)
 	return out
 
 
@@ -314,7 +341,7 @@ static func time_inputs(h: float, lazy := 0.5) -> Dictionary:
 ## A complete input set with neutral defaults, overridden by `over`. Tests and
 ## tools build contexts with this; villagers use context().
 static func make_context(hour: float, over: Dictionary = {}, p_traits: Dictionary = {}) -> Dictionary:
-	var tr := {"sociable": 0.5, "lazy": 0.5, "pious": 0.5, "greedy": 0.5}
+	var tr := {"sociable": 0.5, "lazy": 0.5, "pious": 0.5, "greedy": 0.5, "courage": 0.5}
 	tr.merge(p_traits, true)
 	var ctx := time_inputs(hour, tr["lazy"])
 	ctx.merge(tr, true)
@@ -323,7 +350,7 @@ static func make_context(hour: float, over: Dictionary = {}, p_traits: Dictionar
 		"sched_market": 1.0 if st == 2 else 0.0, "sched_inn": 0.0,
 		"tired": 0.3, "rest": 0.7, "hungry": 0.3, "lonely": 0.4, "faithless": 0.3, "thirst": 0.2,
 		"money": 0.5, "rain": 0.0, "rain_exposed": 0.0, "danger": 0.0, "spectacle": 0.0,
-		"partner": 0.0, "guard": 0.0, "holy_day": 0.0, "child": 0.0, "patrol_turn": 0.0, "brave": 0.6,
+		"partner": 0.0, "guard": 0.0, "holy_day": 0.0, "inn_available": 1.0, "winded": 0.3, "child": 0.0, "patrol_turn": 0.0, "brave": 0.6,
 		"sched_temple": 1.0 if st == DailyRhythm.State.TEMPLE else 0.0, "sched_train": 0.0, "sched_social": 0.0}, true)
 	ctx.merge(over, true)
 	apply_circumstances(ctx, hour)
@@ -353,13 +380,33 @@ func seed_needs(h: float, day := 1) -> void:
 	_last_hours = -1.0
 
 
+## Compact save/LOD boundary in stable order: food, rest, social, faith, water.
+func export_needs() -> PackedFloat32Array:
+	return PackedFloat32Array([food, rest, social, faith, water])
+
+
+func import_needs(values: PackedFloat32Array, last_hours: float) -> bool:
+	if values.size() != 5 or not is_finite(last_hours):
+		return false
+	for value: float in values:
+		if not is_finite(value) or value < 0.0 or value > 1.0:
+			return false
+	food = values[0]
+	rest = values[1]
+	social = values[2]
+	faith = values[3]
+	water = values[4]
+	_last_hours = last_hours
+	return true
+
+
 ## Advance needs to absolute game time `now_hours` (day * 24 + time). While
 ## `performing` an act at its spot, that act restores its need.
-func tick(now_hours: float, performing := -1) -> void:
+func tick(now_hours: float, performing := -1, elapsed_cap := 2.0) -> void:
 	if _last_hours < 0.0:
 		_last_hours = now_hours
 		return
-	var dt := clampf(now_hours - _last_hours, 0.0, 2.0)
+	var dt := clampf(now_hours - _last_hours, 0.0, maxf(0.0, elapsed_cap))
 	_last_hours = now_hours
 	if dt <= 0.0:
 		return
@@ -367,21 +414,120 @@ func tick(now_hours: float, performing := -1) -> void:
 	food -= HUNGER_PER_HOUR * dt * (0.5 if asleep else 1.0)
 	if not asleep:
 		rest -= FATIGUE_PER_HOUR * dt
-	social -= (0.05 + 0.08 * float(traits["sociable"])) * dt
-	faith -= (0.02 + 0.05 * float(traits["pious"])) * dt
+	social -= NeedRules.social_drain_per_hour(person) * dt
+	faith -= NeedRules.faith_drain_per_hour(person) * dt
 	water -= WATER_PER_HOUR * dt
 	if not asleep and performing != Act.SIT and performing != Act.HOME:
 		breath -= BREATH_PER_HOUR * dt
 	if RESTORE.has(performing):
 		var q := meal_q if performing == Act.EAT else 1.0
-		for r: Array in RESTORE[performing]:
-			set(r[0], float(get(r[0])) + float(r[1]) * dt * q)
+		if performing != Act.SOCIAL or _has_valid_nearby_chat_pair(person):
+			for r: Array in RESTORE[performing]:
+				set(r[0], float(get(r[0])) + float(r[1]) * dt * q)
 	food = clampf(food, 0.0, 1.0)
 	rest = clampf(rest, 0.0, 1.0)
 	social = clampf(social, 0.0, 1.0)
 	faith = clampf(faith, 0.0, 1.0)
 	water = clampf(water, 0.0, 1.0)
 	breath = clampf(breath, 0.0, 1.0)
+
+
+## Social need restores only during a real reciprocal pair at conversational range.
+## Called from the existing staggered need tick, never per frame.
+func _has_valid_nearby_chat_pair(p: int) -> bool:
+	var partner := chat_partner(p)
+	if partner < 0 or chat_partner(partner) != p:
+		return false
+	var own_body := body_of(p)
+	var partner_body := body_of(partner)
+	if own_body == null or partner_body == null \
+		or not is_instance_valid(own_body) or not is_instance_valid(partner_body):
+		return false
+	var own_xz := Vector2(own_body.global_position.x, own_body.global_position.z)
+	var partner_xz := Vector2(partner_body.global_position.x, partner_body.global_position.z)
+	return own_xz.distance_to(partner_xz) <= 3.0
+
+
+## Bring data-tier needs current in constant time after an NPC spent time
+## unembodied. Approximate scheduled sleep and meal recovery, while the remaining
+## needs continue their existing linear decay; never loop once per skipped hour.
+func catch_up(now_hours: float) -> void:
+	if _last_hours < 0.0 or now_hours <= _last_hours:
+		_last_hours = now_hours
+		return
+	var start_hours := _last_hours
+	var elapsed := now_hours - start_hours
+	var delay := DailyRhythm.delay(person) if person >= 0 else 0.0
+	var sleeping := _scheduled_sleep_total(now_hours, delay) - _scheduled_sleep_total(start_hours, delay)
+	sleeping = clampf(sleeping, 0.0, elapsed)
+	var awake := elapsed - sleeping
+	rest += SLEEP_PER_HOUR * sleeping - FATIGUE_PER_HOUR * awake
+	food -= HUNGER_PER_HOUR * (awake + sleeping * 0.5)
+	var meals := _scheduled_meals(start_hours, now_hours, delay)
+	food += OFFSCREEN_MEAL_RESTORE * meals
+	var sociable := float(traits["sociable"])
+	var pious := float(traits["pious"])
+	var public_hours := _periodic_window_total(now_hours, 24.0, 17.0, 19.5) - _periodic_window_total(start_hours, 24.0, 17.0, 19.5)
+	var inn_hours := _periodic_window_total(now_hours, 24.0, 19.5, 22.5) - _periodic_window_total(start_hours, 24.0, 19.5, 22.5)
+	var daytime_hours := _periodic_window_total(now_hours, 24.0, 6.0, 17.0) - _periodic_window_total(start_hours, 24.0, 6.0, 17.0)
+	var holy_hours := _periodic_window_total(now_hours, OFFSCREEN_HOLY_PERIOD, 0.0, 24.0) - _periodic_window_total(start_hours, OFFSCREEN_HOLY_PERIOD, 0.0, 24.0)
+	# Public schedule exposure grants only fractional, anonymous need recovery.
+	# It creates no companion, conversation, relationship or witnessed event.
+	var guard := job == 3
+	var expected_social_hours_per_day := (0.45 + 0.75 * sociable) if guard else (0.4 + 0.9 * sociable)
+	var social_recovery := public_hours * expected_social_hours_per_day / 2.5 * float(RESTORE[Act.SOCIAL][0][1])
+	if not guard and person >= 0 and DailyRhythm.has_inn_lot(person):
+		# DailyRhythm sends a seeded 30% of non-guards to the inn. Across an
+		# unobserved interval use that share as expectation only where one exists;
+		# don't mint visits.
+		social_recovery += inn_hours * OFFSCREEN_INN_SHARE * float(RESTORE[Act.INN][0][1])
+	social -= (0.05 + 0.08 * sociable) * elapsed
+	social += social_recovery
+	# Expected prayer time follows daytime availability and piety. Holy-day
+	# weight uses the existing weekly day%7 schedule, without recording prayer.
+	var prayer_hours_per_day := 1.2 * pious
+	var prayer_recovery := daytime_hours * prayer_hours_per_day / 11.0 * float(RESTORE[Act.PRAY][0][1])
+	prayer_recovery += holy_hours * pious * 0.25 / 24.0 * float(RESTORE[Act.PRAY][0][1])
+	faith -= (0.02 + 0.05 * pious) * elapsed
+	faith += prayer_recovery
+	water += OFFSCREEN_WATER_PER_MEAL * meals - WATER_PER_HOUR * elapsed
+	food = clampf(food, 0.0, 1.0)
+	rest = clampf(rest, 0.0, 1.0)
+	social = clampf(social, 0.0, 1.0)
+	faith = clampf(faith, 0.0, 1.0)
+	water = clampf(water, 0.0, 1.0)
+	_last_hours = now_hours
+
+
+## Cumulative sleep time for repeating personal sleep windows. `delay` matches
+## DailyRhythm's current per-person clock offset; past daily jitter is averaged.
+func _scheduled_sleep_total(hours: float, delay: float) -> float:
+	var start := 20.5 + 2.0 * float(traits["lazy"])
+	var wake := 5.5 + 1.2 * float(traits["lazy"])
+	var duration := 24.0 - start + wake
+	var local := hours - delay
+	var day_index := floorf(local / 24.0)
+	var hour := local - day_index * 24.0
+	return day_index * duration + minf(hour, wake) + maxf(hour - start, 0.0)
+
+
+## Number of scheduled meal windows completed in (start, end], independent of
+## elapsed duration, so large time skips remain a fixed three-step calculation.
+func _scheduled_meals(start_hours: float, end_hours: float, delay: float) -> int:
+	var count := 0
+	for meal: float in MEALS:
+		var anchor := meal + 0.5 + delay
+		count += floori((end_hours - anchor) / 24.0) - floori((start_hours - anchor) / 24.0)
+	return maxi(count, 0)
+
+
+## Cumulative hours inside a repeating, non-wrapping window. O(1) for any
+## interval length, including large offscreen skips.
+func _periodic_window_total(hours: float, period: float, window_start: float, window_end: float) -> float:
+	var duration := window_end - window_start
+	var cycles := floorf(hours / period)
+	var local := hours - cycles * period
+	return cycles * duration + clampf(local - window_start, 0.0, duration)
 
 
 ## Inputs for this person now. `hour` is their own clock, `sched` DailyRhythm's
@@ -426,6 +572,7 @@ func context(hour: float, sched: int, raining: bool, danger: float, spectacle: f
 	ctx["partner"] = 1.0 if partner else 0.0
 	ctx["guard"] = guard
 	ctx["holy_day"] = 1.0 if day % 7 == 0 else 0.0
+	ctx["inn_available"] = 1.0 if DailyRhythm.has_inn_lot(person) else 0.0
 	ctx["brave"] = 0.3 + 0.7 * (1.0 - float(traits["lazy"])) * (0.6 + 0.4 * float(traits["sociable"]))
 	ctx["nerve"] = maxf(float(ctx["brave"]), guard)
 	# the body's own observations (fire, armed, crime, hide, seat, play_spot, chore_spot, child, patrol_turn,
@@ -504,7 +651,7 @@ static func hazards(tree: SceneTree) -> PackedVector2Array:
 
 
 ## Ambient 360-degree line-of-sight sensing; no facing cone is modeled.
-## Selects up to two candidates within WATCH_RANGE in one O(n) pass, without
+## Selects up to four candidates within WATCH_RANGE in one O(n) pass, without
 ## copying or sorting the shared cache. Ray results can be unknown when budget
 ## is exhausted; unknown candidates never count as visible.
 func sense_threats(viewer: Node3D, tree: SceneTree, world_layer: int) -> Dictionary:
@@ -517,7 +664,7 @@ func sense_threats(viewer: Node3D, tree: SceneTree, world_layer: int) -> Diction
 	_roll_ray_window(now)
 	_prune_sight_queue(now)
 	var eye := viewer.global_position + Vector3.UP * 1.4
-	var nearest: Array = [] # [distance_squared, target instance id]
+	var nearest: Array = [] # up to four [distance_squared, target instance id] candidates
 	var range_squared := WATCH_RANGE * WATCH_RANGE
 	for sample: Array in _threat_samples:
 		var target_id := int(sample[1])
@@ -533,22 +680,25 @@ func sense_threats(viewer: Node3D, tree: SceneTree, world_layer: int) -> Diction
 		if distance_squared > range_squared:
 			continue
 		var entry := [distance_squared, int(sample[1])]
-		if nearest.is_empty() or distance_squared < float(nearest[0][0]):
-			nearest.push_front(entry)
-		elif nearest.size() < 2:
-			nearest.append(entry)
-		elif distance_squared < float(nearest[1][0]):
-			nearest[1] = entry
-		if nearest.size() > 2:
-			nearest.resize(2)
+		var insert_i := nearest.size()
+		for i in range(nearest.size()):
+			if distance_squared < float(nearest[i][0]):
+				insert_i = i
+				break
+		nearest.insert(insert_i, entry)
+		if nearest.size() > SIGHT_CANDIDATES_PER_OBSERVER:
+			nearest.pop_back()
 	# New requests join the tail. Refreshing an existing pair does not change age.
-	# Keep one pending request per observer. Alternate between the two nearest
-	# candidates after each completed request so a nearer repeat cannot monopolize.
+	# Keep one pending request per observer. Rotate through up to four nearest
+	# threats after each completed request so one target cannot monopolize checks.
 	if not nearest.is_empty():
 		var last_target: int = int(_last_sight_target.get(viewer.get_instance_id(), -1))
-		var selected: int = int(nearest[0][1])
-		if nearest.size() > 1 and selected == last_target:
-			selected = int(nearest[1][1])
+		var selected_i := 0
+		for i in range(nearest.size()):
+			if int(nearest[i][1]) == last_target:
+				selected_i = (i + 1) % nearest.size()
+				break
+		var selected: int = int(nearest[selected_i][1])
 		_enqueue_sight(viewer, selected, world_layer, now)
 	# Any observer decision may service the oldest eligible work using that
 	# request's own world and current positions. Each admitted request costs 1 ray.
@@ -789,11 +939,38 @@ func clear_threat_memory() -> void:
 	_last_seen = Vector2.INF
 	_last_seen_ms = -100000
 	_last_seen_strength = 0.0
+	clear_hearing_memory()
 	if _sight_observer_ref != null:
 		var observer := _sight_observer_ref.get_ref() as Node3D
 		if observer != null:
 			clear_sight_for(observer)
 		_sight_observer_ref = null
+
+
+func remember_heard_sound(at: Vector2, strength: float, now_ms: int = -1) -> void:
+	if at == Vector2.INF or not is_finite(at.x) or not is_finite(at.y) \
+	or not is_finite(strength) or strength <= 0.0:
+		return
+	_last_heard = at
+	_last_heard_ms = Time.get_ticks_msec() if now_ms < 0 else now_ms
+	_last_heard_strength = clampf(strength, 0.0, 1.0)
+
+
+func heard_memory(now_ms: int = -1) -> Array:
+	if _last_heard == Vector2.INF:
+		return [0.0, Vector2.INF]
+	var current_ms := Time.get_ticks_msec() if now_ms < 0 else now_ms
+	var age := float(current_ms - _last_heard_ms) / 1000.0
+	if age < 0.0 or age >= LAST_HEARD_SECONDS:
+		clear_hearing_memory()
+		return [0.0, Vector2.INF]
+	return [_last_heard_strength * (1.0 - age / LAST_HEARD_SECONDS), _last_heard]
+
+
+func clear_hearing_memory() -> void:
+	_last_heard = Vector2.INF
+	_last_heard_ms = -100000
+	_last_heard_strength = 0.0
 
 
 ## Remove queued work and mailbox data when this observer is reset or indoors.
@@ -877,10 +1054,30 @@ static func danger_at(here: Vector2, list: PackedVector2Array) -> Array:
 	return [1.0 - smoothstep(DANGER_NEAR, DANGER_FAR, sqrt(best_d)), at]
 
 
-## Tell nearby villagers something noteworthy happened at `pos` (a feat, a
-## spell, a performance...). Any system may call this; it costs one array entry.
-static func notice(pos: Vector2, strength := 1.0, seconds := 8.0) -> void:
-	_notices.append([pos, clampf(strength, 0.0, 1.0), Time.get_ticks_msec() + int(seconds * 1000.0)])
+## Add a short-lived, anonymous spectacle for nearby villagers. This is an
+## explicit stimulus, not sight/hearing evidence; callers should only publish
+## conspicuous events. Coalesce same-place bursts and hard-cap shared storage.
+static func notice(pos: Vector2, strength: float = 1.0, seconds: float = 8.0) -> void:
+	if not is_finite(pos.x) or not is_finite(pos.y) or not is_finite(strength) or not is_finite(seconds):
+		return
+	var now := Time.get_ticks_msec()
+	for i in range(_notices.size() - 1, -1, -1):
+		if int(_notices[i][2]) <= now:
+			_notices.remove_at(i)
+	var level := clampf(strength, 0.0, 1.0)
+	var duration := clampf(seconds, 0.0, NOTICE_MAX_SECONDS)
+	if level <= 0.0 or duration <= 0.0:
+		return
+	var expires := now + int(duration * 1000.0)
+	for n: Array in _notices:
+		var notice_pos: Vector2 = n[0]
+		if notice_pos.distance_squared_to(pos) <= NOTICE_MERGE_RADIUS * NOTICE_MERGE_RADIUS:
+			n[1] = maxf(float(n[1]), level)
+			n[2] = maxi(int(n[2]), expires)
+			return
+	if _notices.size() >= NOTICE_MAX:
+		_notices.pop_front()
+	_notices.append([pos, level, expires])
 
 
 ## 0..1 interest at `here`, and where to look (Vector2.INF when nothing).
@@ -909,6 +1106,126 @@ static func spectacle_at(here: Vector2, player_pos: Vector2, list: PackedVector2
 	return [top, at]
 
 
+## Weakly localize the player's current movement noise for nearby outdoor
+## villagers. This is a cheap range cue, not identity, line of sight or combat
+## evidence; uncertainty deliberately biases the investigation point inward.
+static func heard_player_at(here: Vector2, player: Node3D, tree: SceneTree,
+		graph: StreetGraph = null) -> Array:
+	if player == null or not is_instance_valid(player) or player.get("dead") == true \
+	or not player.has_method("noise_radius"):
+		return [0.0, Vector2.INF]
+	var velocity: Vector3 = player.get("velocity")
+	if velocity.length_squared() < 0.1225:
+		return [0.0, Vector2.INF]
+	var radius := clampf(float(player.call("noise_radius")), 0.0, 18.0)
+	if radius <= 0.0:
+		return [0.0, Vector2.INF]
+	radius *= _weather_noise_mult(tree)
+	var source := Vector2(player.global_position.x, player.global_position.z)
+	var offset := source - here
+	var distance := offset.length()
+	if distance >= radius:
+		return [0.0, Vector2.INF]
+	var strength := (1.0 - distance / radius) * _sound_transmission(here, source, graph)
+	return [strength, _approximate_sound_point(here, source, distance / radius)]
+
+
+## Publish a short-lived acoustic event with no actor identity. Use this for
+## discrete sounds that have actually resolved, not for visual effects alone.
+static func sound_notice(pos: Vector2, strength := 1.0, radius := 24.0, seconds := 4.0) -> void:
+	if not is_finite(pos.x) or not is_finite(pos.y) or not is_finite(strength) \
+	or not is_finite(radius) or not is_finite(seconds):
+		return
+	var level := clampf(strength, 0.0, 1.0)
+	var reach := clampf(radius, 1.0, 48.0)
+	var duration := clampf(seconds, 0.0, SOUND_EVENT_MAX_SECONDS)
+	if level <= 0.0 or duration <= 0.0:
+		return
+	var now := Time.get_ticks_msec()
+	_prune_sound_events(now)
+	for i in range(_sound_events.size()):
+		var event: Array = _sound_events[i]
+		if (event[0] as Vector2).distance_squared_to(pos) <= SOUND_EVENT_MERGE_RADIUS * SOUND_EVENT_MERGE_RADIUS:
+			event[1] = maxf(float(event[1]), level)
+			event[2] = maxf(float(event[2]), reach)
+			event[3] = maxi(int(event[3]), now + int(duration * 1000.0))
+			return
+	if _sound_events.size() >= SOUND_EVENT_MAX:
+		_sound_events.pop_front()
+	_sound_events.append([pos, level, reach, now + int(duration * 1000.0)])
+
+
+## Best decaying discrete sound at this listener, after weather attenuation.
+static func audible_event_at(here: Vector2, tree: SceneTree,
+		graph: StreetGraph = null) -> Array:
+	var now := Time.get_ticks_msec()
+	_prune_sound_events(now)
+	var candidates: Array = [] # strongest [level, source, distance ratio] before geometry damping
+	var attenuation := _weather_noise_mult(tree)
+	for event: Array in _sound_events:
+		var source: Vector2 = event[0]
+		var radius := float(event[2]) * attenuation
+		var distance := here.distance_to(source)
+		if distance >= radius:
+			continue
+		var level := float(event[1]) * (1.0 - distance / radius)
+		var entry := [level, source, distance / radius]
+		var inserted := false
+		for i in range(candidates.size()):
+			if level > float(candidates[i][0]):
+				candidates.insert(i, entry)
+				inserted = true
+				break
+		if not inserted and candidates.size() < SOUND_OCCLUSION_CANDIDATES:
+			candidates.append(entry)
+		if candidates.size() > SOUND_OCCLUSION_CANDIDATES:
+			candidates.pop_back()
+	var top := 0.0
+	var at := Vector2.INF
+	for candidate: Array in candidates:
+		var source: Vector2 = candidate[1]
+		var level := float(candidate[0]) * _sound_transmission(here, source, graph)
+		if level > top:
+			top = level
+			at = _approximate_sound_point(here, source, float(candidate[2]))
+	return [top, at]
+
+
+## Approximate sound damping behind settlement geometry without spending a
+## physics ray. The route graph mirrors building footprints and town walls;
+## obstruction muffles rather than erases sound. Terrain, doors and interiors
+## are not represented, so this is deliberately a broad acoustic cue.
+static func _sound_transmission(listener: Vector2, source: Vector2, graph: StreetGraph) -> float:
+	if graph == null:
+		return 1.0
+	return 1.0 if graph.clear_line(listener, source, 0.0) else 0.35
+
+
+static func _prune_sound_events(now_ms: int) -> void:
+	for i in range(_sound_events.size() - 1, -1, -1):
+		if int(_sound_events[i][3]) <= now_ms:
+			_sound_events.remove_at(i)
+
+
+static func clear_sound_events() -> void:
+	_sound_events.clear()
+
+
+static func _weather_noise_mult(tree: SceneTree) -> float:
+	if _weather == null or not is_instance_valid(_weather):
+		_weather = tree.get_first_node_in_group("weather") if tree else null
+	if _weather and is_instance_valid(_weather) and _weather.has_method("noise_mult"):
+		return clampf(float(_weather.call("noise_mult")), 0.4, 1.0)
+	return 1.0
+
+
+static func _approximate_sound_point(listener: Vector2, source: Vector2, distance_ratio: float) -> Vector2:
+	var offset := source - listener
+	var direction := offset / maxf(offset.length(), 0.001)
+	var guessed_distance := maxf(offset.length() - lerpf(0.75, 3.0, clampf(distance_ratio, 0.0, 1.0)), 0.0)
+	return listener + direction * guessed_distance
+
+
 static func is_raining(tree: SceneTree) -> bool:
 	if _weather == null or not is_instance_valid(_weather):
 		_weather = tree.get_first_node_in_group("weather") if tree else null
@@ -922,9 +1239,22 @@ static func register_body(p: int, node: Node) -> void:
 	_bodies[p] = node.get_instance_id()
 
 
-static func unregister_body(p: int) -> void:
+static func unregister_body(p: int, owner_id := 0) -> void:
+	# queue_free() exits at frame end. A replacement body may already have
+	# registered for this person, so stale cleanup must not erase its registry.
+	if owner_id != 0 and int(_bodies.get(p, 0)) != owner_id:
+		return
 	_bodies.erase(p)
 	chat_leave(p)
+
+
+## A save may be loaded while the world scene remains alive. Replace each active
+## brain from the just-deserialized rows before the next LOD resync can write it.
+static func restore_active_needs() -> void:
+	for p in _bodies.keys():
+		var body := body_of(int(p))
+		if body and body.has_method("restore_needs_from_world"):
+			body.call("restore_needs_from_world")
 
 
 static func body_of(p: int) -> Node3D:
@@ -935,50 +1265,87 @@ static func body_of(p: int) -> Node3D:
 
 ## Someone in settlement `sid` is standing in the plaza waiting for company.
 static func chat_waiting(sid: int, p: int) -> bool:
-	if _chat_open.has(sid):
-		var anchor: int = _chat_open[sid]
-		if anchor != p and body_of(anchor) != null and not _chat_partner.has(p):
+	for waiting: Dictionary in _chat_waiters(sid):
+		if int(waiting["person"]) != p:
 			return true
-		if body_of(anchor) == null:
-			_chat_open.erase(sid)
-	if not _chat_wait.has(sid):
-		return false
-	var w: Array = _chat_wait[sid]
-	if w[0] == p:
-		return false
-	if body_of(w[0]) == null:
-		_chat_wait.erase(sid)
-		return false
-	return true
+	return false
 
 
 ## Join or start a chat. Returns [goal spot, partner person or -1].
 static func chat_join(sid: int, p: int, own_spot: Vector2) -> Array:
 	if _chat_partner.has(p):
 		return [own_spot, _chat_partner[p]]
-	if _chat_open.has(sid) and _chat_open[sid] != p and body_of(_chat_open[sid]) != null:
-		# A third person joins the pair: stands a third of the way round the circle.
-		var a: int = _chat_open[sid]
-		_chat_open.erase(sid)
-		var geo: Array = _chat_geo.get(a, [own_spot, Vector2.RIGHT])
-		_chat_partner[p] = a
-		return [(geo[0] as Vector2) + (geo[1] as Vector2).rotated(TAU / 3.0) * CHAT_GAP, a]
-	if _chat_wait.has(sid) and chat_waiting(sid, p):
-		var w: Array = _chat_wait[sid]
-		_chat_wait.erase(sid)
-		var other: int = w[0]
-		var spot: Vector2 = w[1]
+	var waiting := _chat_waiters(sid)
+	var best_i := -1
+	var best_score := -INF
+	var now_ms := Time.get_ticks_msec()
+	for i in range(waiting.size()):
+		var candidate: Dictionary = waiting[i]
+		var other := int(candidate["person"])
+		if other == p or _chat_partner.has(other) or now_ms - int(candidate["since_ms"]) < CHAT_MIN_WAIT_MS:
+			continue
+		var waited := clampf(float(now_ms - int(candidate["since_ms"])) / (CHAT_WAIT_FAIRNESS_SECONDS * 1000.0), 0.0, 1.0)
+		var familiar := clampf(_chat_affinity(p, other) / 60.0, 0.0, 1.0)
+		# Familiarity gives a modest nudge; time waiting can offset the full bonus.
+		var score := familiar * 0.45 + waited * 0.45
+		if score > best_score:
+			best_score = score
+			best_i = i
+	if best_i >= 0:
+		var w: Dictionary = waiting.pop_at(best_i)
+		waiting = waiting.filter(func(entry: Dictionary) -> bool: return int(entry.get("person", -1)) != p)
+		if waiting.is_empty():
+			_chat_wait.erase(sid)
+		else:
+			_chat_wait[sid] = waiting
+		var other := int(w["person"])
+		var spot: Vector2 = w["spot"]
 		_chat_partner[p] = other
 		_chat_partner[other] = p
 		var side := own_spot - spot
 		if side.length() < 0.1:
 			side = Vector2.RIGHT.rotated(float(p) * 2.399)
-		_chat_geo[other] = [spot, side.normalized()]
-		if hash(other * 7 + p) % 3 != 0:
-			_chat_open[sid] = other      # two thirds of pairs stay open for a third person
 		return [spot + side.normalized() * CHAT_GAP, other]
-	_chat_wait[sid] = [p, own_spot]
+	var existing_i := -1
+	for i in range(waiting.size()):
+		if int(waiting[i]["person"]) == p:
+			existing_i = i
+			break
+	if existing_i >= 0:
+		waiting[existing_i]["spot"] = own_spot
+	elif waiting.size() < CHAT_WAIT_MAX:
+		waiting.append({"person": p, "spot": own_spot, "since_ms": now_ms})
+	if not waiting.is_empty():
+		_chat_wait[sid] = waiting
 	return [own_spot, -1]
+
+
+static func _chat_waiters(sid: int) -> Array:
+	var waiting: Array = _chat_wait.get(sid, [])
+	var live: Array = []
+	for entry: Dictionary in waiting:
+		var p := int(entry.get("person", -1))
+		if p >= 0 and not _chat_partner.has(p) and body_of(p) != null:
+			live.append(entry)
+	if live.is_empty():
+		_chat_wait.erase(sid)
+	else:
+		_chat_wait[sid] = live
+	return live
+
+
+static func _chat_affinity(a: int, b: int) -> float:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null or tree.root == null:
+		return 0.0
+	var life := tree.root.get_node_or_null("Life")
+	var graph: Variant = life.get("npc_social_graph") if life else null
+	if graph == null or not graph.has_method("affinity"):
+		return 0.0
+	var a_id := "worldsim:%d:%d" % [WorldSim.SEED, a]
+	var b_id := "worldsim:%d:%d" % [WorldSim.SEED, b]
+	var now_day := float(WorldSim.day) + float(WorldSim.time_of_day) / 24.0
+	return float(graph.call("affinity", a_id, b_id, now_day))
 
 
 static func chat_partner(p: int) -> int:
@@ -990,18 +1357,23 @@ static func chat_partner(p: int) -> int:
 
 
 static func chat_leave(p: int) -> void:
-	for sid in _chat_open.keys():
-		if _chat_open[sid] == p:
-			_chat_open.erase(sid)
-	_chat_geo.erase(p)
 	for sid in _chat_wait.keys():
-		if _chat_wait[sid][0] == p:
+		var waiting: Array = _chat_wait[sid]
+		waiting = waiting.filter(func(entry: Dictionary) -> bool: return int(entry.get("person", -1)) != p)
+		if waiting.is_empty():
 			_chat_wait.erase(sid)
+		else:
+			_chat_wait[sid] = waiting
 	if _chat_partner.has(p):
 		var other: int = _chat_partner[p]
 		_chat_partner.erase(p)
 		if _chat_partner.get(other, -1) == p:
 			_chat_partner.erase(other)
+
+
+static func clear_transient_social() -> void:
+	_chat_wait.clear()
+	_chat_partner.clear()
 
 
 # ================================================================ places (cached per settlement)
@@ -1014,7 +1386,8 @@ static func places(sid: int, graph: StreetGraph) -> Dictionary:
 	var plan: Dictionary = s.get("plan", {})
 	var c: Vector2 = s["pos"]
 	var out := {"well": Vector2.INF, "shrine": Vector2.INF, "shrine_face": Vector2.ZERO,
-		"plaza": c, "plaza_r": float(plan.get("plaza_r", 12.0)),
+		"well_slots": PackedVector2Array(), "water_source": "", "plaza": c,
+		"plaza_r": float(plan.get("plaza_r", 12.0)),
 		"eaves": PackedVector2Array(), "eaves_face": PackedVector2Array()}
 	for lm: Dictionary in plan.get("landmarks", []):
 		var asset := String(lm["asset"])
@@ -1022,7 +1395,21 @@ static func places(sid: int, graph: StreetGraph) -> Dictionary:
 		var yaw: float = lm["yaw"]
 		var face := Vector2(sin(yaw), cos(yaw))
 		if asset == "well":
-			out["well"] = _clear(graph, p + Vector2(1.0, 0.6).normalized() * 1.6, 0.4)
+			out["water_source"] = "well"
+			var outward := Vector2(1.0, 0.6).normalized()
+			out["well"] = _clear(graph, p + outward * 1.6, 0.4)
+			var tangent := Vector2(-outward.y, outward.x)
+			var slots: PackedVector2Array = out["well_slots"]
+			for side in [-1.0, 1.0]:
+				var slot := _clear(graph, p + outward * 2.4 + tangent * 0.75 * side, 0.45)
+				var separated := true
+				for previous in slots:
+					if slot.distance_to(previous) < 1.2:
+						separated = false
+						break
+				if separated:
+					slots.append(slot)
+			out["well_slots"] = slots
 		elif (asset == "temple" or asset == "bell_tower" or asset == "chapel") and out["shrine"] == Vector2.INF:
 			var spot := p + face * 4.0
 			for d: float in [4.0, 6.0, 8.0, 10.0, 12.0, 14.0]:
@@ -1031,6 +1418,26 @@ static func places(sid: int, graph: StreetGraph) -> Dictionary:
 					break
 			out["shrine"] = _clear(graph, spot, 0.45)
 			out["shrine_face"] = -face
+	if String(out["water_source"]).is_empty():
+		# Some fortified plans have no well landmark. Keep thirst behavior by
+		# assigning two low-fidelity plaza water-break points instead of making
+		# the need impossible to satisfy. This fallback is abstract: it creates no
+		# visible vessel, item, gold, XP or other resource.
+		out["water_source"] = "plaza_break"
+		var fallback_outward := Vector2(1.0, 0.6).normalized()
+		var fallback_tangent := Vector2(-fallback_outward.y, fallback_outward.x)
+		var radius := maxf(2.5, float(out["plaza_r"]) * 0.45)
+		var fallback_slots: PackedVector2Array = out["well_slots"]
+		for side in [-1.0, 1.0]:
+			var fallback_slot := _clear(graph, c + fallback_outward * radius + fallback_tangent * 0.75 * side, 0.45)
+			var fallback_separated := true
+			for previous in fallback_slots:
+				if fallback_slot.distance_to(previous) < 1.2:
+					fallback_separated = false
+					break
+			if fallback_separated:
+				fallback_slots.append(fallback_slot)
+		out["well_slots"] = fallback_slots
 	var eaves_p := PackedVector2Array()
 	var eaves_f := PackedVector2Array()
 	for lot: Dictionary in plan.get("lots", []):
@@ -1102,7 +1509,8 @@ func plan_goal(action: int, here: Vector2, graph: StreetGraph, hazard: Vector2, 
 	var sid: int = WorldSim.home[person]
 	var s: Dictionary = WorldGen.settlements[sid]
 	var pl := places(sid, graph)
-	var out := {"goal": here, "face": Vector2.INF, "indoors": false, "partner": -1, "look": Vector2.INF, "spot": []}
+	var out := {"goal": here, "face": Vector2.INF, "indoors": false, "partner": -1,
+		"look": Vector2.INF, "spot": [], "well_slots": PackedVector2Array(), "water_source": ""}
 	var home: Vector2 = WorldSim._spot(s, 0, person)
 	var has_home: bool = not (s.get("plan", {}) as Dictionary).get("lots", []).is_empty()
 	var pick: Array = []
@@ -1148,12 +1556,12 @@ func plan_goal(action: int, here: Vector2, graph: StreetGraph, hazard: Vector2, 
 				else:
 					out["goal"] = (pl["plaza"] as Vector2)
 		Act.WATER:
-			pick = find_spot(action, here, 90.0)
-			if pick.is_empty():
-				var well: Vector2 = pl["well"] if pl["well"] != Vector2.INF else pl["plaza"]
-				var ang := float(hash(person * 71 + 9) % 628) / 100.0
-				out["goal"] = _clear(graph, well + Vector2(cos(ang), sin(ang)) * 0.6, 0.45)
-				out["face"] = (s["pos"] as Vector2) - (out["goal"] as Vector2)
+			var well: Vector2 = pl["well"] if pl["well"] != Vector2.INF else pl["plaza"]
+			var ang := float(hash(person * 71 + 9) % 628) / 100.0
+			out["goal"] = _clear(graph, well + Vector2(cos(ang), sin(ang)) * 0.6, 0.45)
+			out["face"] = (s["pos"] as Vector2) - (out["goal"] as Vector2)
+			out["well_slots"] = pl["well_slots"]
+			out["water_source"] = pl["water_source"]
 		Act.SIT, Act.PLAY, Act.CHORE:
 			var reach := 45.0 if action != Act.CHORE else 30.0
 			pick = find_spot(action, here if action != Act.CHORE else home, reach)
@@ -1357,7 +1765,7 @@ static func label(action: int, travelling: bool) -> String:
 		Act.SOCIAL: return "looking for company" if travelling else "chatting"
 		Act.INN: return "off to the inn" if travelling else "at the inn"
 		Act.PRAY: return "off to pray" if travelling else "praying"
-		Act.WATER: return "fetching water" if travelling else "at the well"
+		Act.WATER: return "fetching water" if travelling else "at the water point"
 		Act.SHELTER: return "running from the rain" if travelling else "sheltering"
 		Act.FLEE: return "fleeing!" if travelling else "hiding"
 		Act.WATCH: return "watching"

@@ -117,7 +117,7 @@ func _on_hour(_hour: int) -> void:
 
 func advance_day(day: int) -> void:
 	runestones.tick_day(day)
-	ecology.tick_day(runestones.coverage, rift_instability, false)
+	ecology.tick_day(runestones.coverage, rift_instability, WorldSim.season == "winter")
 	_maybe_apex_moves_in(day)
 	threat.expire(day)
 	for s in runestones.stones:

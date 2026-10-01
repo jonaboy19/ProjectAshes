@@ -40,15 +40,22 @@ var discovery := preload("res://scripts/sim/discovery.gd").new()
 ## left on the ground; saved under "interactives" (scripts/world/world_state.gd).
 var world_state: RefCounted = preload("res://scripts/world/world_state.gd").shared()
 var relationships := preload("res://scripts/sim/relationships.gd").new()
+## Sparse NPC-to-NPC ties from completed embodied conversations; separate from player opinion.
+var npc_social_graph := preload("res://scripts/sim/npc_social_graph.gd").new()
 var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
 var crafting := preload("res://scripts/sim/crafting.gd").new()
 const ItemsDB := preload("res://scripts/sim/items_db.gd")
 const WorldEventLog := preload("res://scripts/systems/world_event_log.gd")
 const ActionRuntime := preload("res://scripts/systems/action_runtime.gd")
+const NpcActivityRuntime := preload("res://scripts/systems/npc_activity_runtime.gd")
+const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
+const NpcSocialGraph := preload("res://scripts/sim/npc_social_graph.gd")
 ## Bounded facts from player actions, available to future dialogue/simulation consumers.
 var world_events = WorldEventLog.new()
 ## Short-lived actor/action leases; deliberately excluded from saves.
 var action_runtime = ActionRuntime.new()
+## NPC activity names/leases adapt onto the same transient ActionRuntime authority.
+var npc_activity_runtime = NpcActivityRuntime.new(action_runtime)
 ## Active craft token -> generation-qualified station resource key.
 var _craft_station_actions: Dictionary = {}
 var equipment := preload("res://scripts/sim/equipment.gd").new()
@@ -120,7 +127,7 @@ func _ready() -> void:
 
 ## Every state object of a run (recreated by reset()).
 const STATE := ["life_path", "titles", "triggers", "careers", "guild", "magicules", "naming", "injuries", "scouts",
-	"discovery", "relationships", "radiant", "crafting", "equipment", "skills", "mastery", "biography", "property",
+	"discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "mastery", "biography", "property",
 	"nobility", "lordship", "family", "soul", "skill_evolution", "echoes", "life_courses", "war", "realm",
 	"homestead", "tendencies", "childhood_events", "awakening", "needs", "market", "economy"]
 
@@ -134,6 +141,8 @@ func reset() -> void:
 	_hud = null
 	Game.reset()
 	WorldSim.reset()
+	UtilityBrain.clear_sound_events()
+	UtilityBrain.clear_transient_social()
 	Frontier.reset()
 	Region1State.reset()
 	world_state.call("clear")
@@ -151,6 +160,7 @@ func reset() -> void:
 		set(n, get(n).get_script().new())
 	world_events = WorldEventLog.new()
 	action_runtime = ActionRuntime.new()
+	npc_activity_runtime = NpcActivityRuntime.new(action_runtime)
 	_craft_station_actions.clear()
 	pending_offers.clear()
 	appearance = {}
@@ -764,22 +774,40 @@ func _offer(e: Dictionary) -> void:
 	pending_offers.append(e)
 	var sc: Dictionary = e.get("scout", {})
 	var org: Dictionary = e.get("org", {})
-	Game.say("%s of %s has been watching you. (See your Pack to answer.)" % [sc.get("name", "A stranger"), org.get("name", "somewhere")])
+	Game.say("%s of %s has been watching you. Open Pack → Journal → Scouting Offers to answer." % [
+		sc.get("name", "A stranger"), org.get("name", "somewhere")])
 
 
 func answer_offer(event_id: int, yes: bool) -> String:
-	for e: Dictionary in pending_offers.duplicate():
-		if int(e["id"]) == event_id:
-			pending_offers.erase(e)
-			if not yes:
-				scouts.decline(event_id)
-				return "You decline, politely."
-			var r := scouts.accept(event_id, WorldSim.day)
-			life_path.set_flag("recruited:" + String(e["org"].get("id", "?")))
-			if bool(e["offer"].get("soulbeast_path", false)):
-				life_path.set_flag("permit:xiava_lake")
-			return String(r.get("text", "You accept the offer."))
-	return ""
+	var e := scouts.offer(event_id)
+	if e.is_empty():
+		return "That offer has expired."
+	if WorldSim.day > int(e.get("offer", {}).get("expires_day", -1)):
+		scouts.tick_day(WorldSim.day)
+		for pending: Dictionary in pending_offers.duplicate():
+			if int(pending.get("id", -1)) == event_id:
+				pending_offers.erase(pending)
+		return "That offer has expired."
+	for pending: Dictionary in pending_offers.duplicate():
+		if int(pending.get("id", -1)) == event_id:
+			pending_offers.erase(pending)
+	if not yes:
+		scouts.decline(event_id)
+		return "You decline, politely."
+	var accepted := scouts.accept(event_id, WorldSim.day)
+	if accepted.is_empty():
+		return "That offer has expired."
+	var org_id := String(accepted["org"].get("id", "?"))
+	life_path.set_flag("recruited:" + org_id)
+	if bool(accepted["offer"].get("soulbeast_path", false)):
+		life_path.set_flag("permit:xiava_lake")
+	var org_name := String(accepted["org"].get("name", "the organization"))
+	biography.add_highlight("Accepted a recruitment offer from %s" % org_name, WorldSim.day)
+	var bonus := int(accepted["offer"].get("signing_bonus", 0))
+	if bonus > 0:
+		Game.add_gold(bonus)
+		return "You accept the offer from %s and receive %d gold to begin." % [org_name, bonus]
+	return "You accept the offer from %s." % org_name
 
 
 ## Effective level for naming: grows with merit, reduced while levels are lost to naming.
@@ -1109,7 +1137,12 @@ func _on_hour(hour: int) -> void:
 			Game.say("Your %s has healed." % String(RAInjuries.info(String(h["type"])).get("name", "injury")).to_lower())
 		magicules.apply_effects(injuries.effects())
 		naming.tick_day(WorldSim.day)
-		scouts.tick_day(WorldSim.day)
+		var expired_offers: Array = scouts.tick_day(WorldSim.day)
+		for expired: Dictionary in expired_offers:
+			for pending: Dictionary in pending_offers.duplicate():
+				if int(pending.get("id", -1)) == int(expired.get("id", -2)):
+					pending_offers.erase(pending)
+			Game.say("The offer from %s has expired." % String(expired.get("scout", {}).get("name", "the recruiter")))
 		_offer(scouts.daily_roll(scout_profile(), WorldSim.day))
 		careers.tick_day(_hire)
 		# Ashford's market (`market`) is bound into `economy` (see _setup_market) and ticks hourly there; ticking
@@ -1420,6 +1453,7 @@ func snapshot() -> Dictionary:
 		"scouts": scouts.serialize(),
 		"discovery": discovery.serialize(),
 		"relationships": relationships.serialize(),
+		"npc_social_graph": npc_social_graph.serialize(),
 		"mastery": mastery.serialize(),
 		"biography": biography.serialize(),
 		"property": property.serialize(),
@@ -1458,6 +1492,10 @@ func snapshot() -> Dictionary:
 func restore(d: Dictionary) -> void:
 	action_runtime.reset()
 	_craft_station_actions.clear()
+	UtilityBrain.clear_sound_events()
+	UtilityBrain.clear_transient_social()
+	# Optional social data must not leak across loading an older/empty save.
+	npc_social_graph = NpcSocialGraph.new()
 	# Older saves simply start a fresh journal. Invalid new journal data is isolated
 	# from the rest of the save so existing player state still restores normally.
 	world_events = WorldEventLog.new()
@@ -1472,6 +1510,7 @@ func restore(d: Dictionary) -> void:
 	career_since_day = int(cd.get("since_day", 0))
 	career_sponsor_tier = int(cd.get("sponsor_tier", 0))
 	WorldSim.deserialize(d.get("world", {}))
+	UtilityBrain.restore_active_needs()
 	Game.deserialize(d.get("game", {}))
 	careers.deserialize(d.get("careers", {}))
 	for o in careers.orgs:
@@ -1489,7 +1528,7 @@ func restore(d: Dictionary) -> void:
 		life_path.deserialize(d["life_path"])
 		titles.deserialize(d.get("titles", {}))
 		triggers.deserialize(d.get("triggers", {}))
-	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes", "realm"]:
+	for key: String in ["guild", "magicules", "naming", "injuries", "scouts", "discovery", "relationships", "npc_social_graph", "radiant", "crafting", "equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening", "mastery", "biography", "property", "nobility", "lordship", "family", "life_courses", "war", "soul", "skill_evolution", "echoes", "realm"]:
 		if d.has(key):
 			get(key).deserialize(d[key])
 	appearance = d.get("appearance", {})

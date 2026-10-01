@@ -237,7 +237,18 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 
 	for lm in plan["landmarks"]:
 		var lm_size := _footprint(lm["asset"])
-		_piece(root, lm["asset"], lm["pos"], _ground_snap(lm["pos"], lm["yaw"], lm_size), lm["yaw"])
+		var lm_y := _ground_snap(lm["pos"], lm["yaw"], lm_size)
+		var landmark := _piece(root, lm["asset"], lm["pos"], lm_y, lm["yaw"])
+		if lm["asset"] == "well":
+			# The well roof overhangs its walk collider. Let the camera detect its
+			# full visual bounds without making the extra space solid to actors.
+			var well_mesh := Assets.building_mesh("well")
+			if well_mesh != null:
+				var well_proxy: Array[Transform3D] = [Transform3D(Basis(Vector3.UP, lm["yaw"]),
+					Vector3(lm["pos"].x, lm_y, lm["pos"].y))]
+				var visuals := landmark.find_children("*", "GeometryInstance3D", true, false)
+				var fade_target: GeometryInstance3D = visuals[0] if not visuals.is_empty() else null
+				_add_camera_blockers(root, well_mesh, well_proxy, fade_target)
 	# Market stalls and carts ringing the plaza. Plaza-radius footprint estimate
 	# (real stall assets are ~3-4 m): close enough for a per-instance ground snap,
 	# and cheap since it only samples the 4 corners once per stall at build time.
@@ -275,6 +286,14 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	var stand_3_a := st_a.slice((st_a.size() + 1) / 2)
 	var stand_2_b := st_b.slice(0, (st_b.size() + 1) / 2)
 	var stand_4_b := st_b.slice((st_b.size() + 1) / 2)
+	var activity_spots: Array[Dictionary] = []
+	for group_name in ["a", "b"]:
+		var placements: Array = st_a if group_name == "a" else st_b
+		for i in placements.size():
+			var placement: Transform3D = placements[i]
+			activity_spots.append({"type": "market_stall", "position": placement.origin,
+				"yaw": placement.basis.get_euler().y, "identity": "market/plaza/%s/%d" % [group_name, i]})
+	plan["activity_spots"] = activity_spots
 	_multimesh(root, Assets.building_mesh("market_stand_1"), stand_1_a, true, true)
 	_multimesh(root, Assets.building_mesh("market_stand_3"), stand_3_a, true, true)
 	_multimesh(root, Assets.building_mesh("market_stand_2"), stand_2_b, true, true)
@@ -380,7 +399,10 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	_multimesh(root, Assets.building_mesh("barrel"), sc_barrels, true, true, "barrel")
 	_multimesh(root, Assets.building_mesh("crate"), sc_crates, true, true, "crate")
 	_multimesh(root, Assets.building_mesh("sack_pile"), sc_sacks, true, true, "sack_pile")
-	_multimesh(root, Assets.building_mesh("cart"), sc_carts, true, true)
+	var cart_mesh := Assets.building_mesh("cart")
+	_multimesh(root, cart_mesh, sc_carts, true, true)
+	# Codex: the NPC street graph gets the carts' fitted footprints so routed residents avoid them.
+	plan["npc_nav_obstacles"] = _cart_nav_obstacles(cart_mesh, sc_carts)
 	var props_job = DistrictProps.build(self, root, s, plan, sync)
 	if props_job != null and not props_job.done:
 		_prop_jobs.append(props_job)
@@ -388,6 +410,19 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	_decals(root, s, plan)
 	_flush_contact_shadows(root)
 	return root
+
+
+func _cart_nav_obstacles(mesh: Mesh, transforms: Array[Transform3D]) -> Array:
+	var obstacles: Array = []
+	if mesh == null:
+		return obstacles
+	var bounds := mesh.get_aabb()
+	for t: Transform3D in transforms:
+		var scale := t.basis.get_scale()
+		var centre := t * bounds.get_center()
+		obstacles.append([Vector2(centre.x, centre.z), t.basis.get_euler().y,
+			Vector2(bounds.size.x * scale.x, bounds.size.z * scale.z) * 0.45])
+	return obstacles
 
 
 ## One InteriorDoor per enterable lot (inn, smithy, guild, healer, every house),
@@ -866,7 +901,7 @@ func _add_instance_colliders(parent: Node3D, mesh: Mesh, transforms: Array[Trans
 ## camera out of stall awnings/canopies whose cloth extends past the footprint
 ## used for walking, without changing what the player can walk through. Layer
 ## CAMERA_BLOCKER_LAYER only; mask 0 (never collides with anything itself).
-func _add_camera_blockers(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]) -> void:
+func _add_camera_blockers(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], fade_target: GeometryInstance3D = null) -> void:
 	var box := mesh.get_aabb()
 	if box.size == Vector3.ZERO:
 		return
@@ -875,6 +910,8 @@ func _add_camera_blockers(parent: Node3D, mesh: Mesh, transforms: Array[Transfor
 		var body := StaticBody3D.new()
 		body.collision_layer = CAMERA_BLOCKER_LAYER
 		body.collision_mask = 0
+		if fade_target:
+			body.set_meta("camera_fade_target", fade_target)
 		var shape := CollisionShape3D.new()
 		var collider := BoxShape3D.new()
 		collider.size = Vector3(box.size.x * scale.x, box.size.y * scale.y, box.size.z * scale.z)
@@ -1003,6 +1040,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 	var c: Vector2 = s["pos"]
 	var r: float = s["radius"]
 	var tiles: Array[Transform3D] = []
+	var activity_spots: Array = plan.get("activity_spots", []).duplicate()
 	var fences: Array[Transform3D] = []
 	var stacks: Array[Transform3D] = []
 	var placed: Array[Vector2] = []
@@ -1022,6 +1060,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		var yaw := ang + PI * 0.5
 		var bx := Vector2(cos(yaw), -sin(yaw))
 		var bz := Vector2(sin(yaw), cos(yaw))
+		var field_index := placed.size() - 1
 		# Lint: a 10 m tile on a steep slope is buried up to 19 m (corner snap only reaches the lowest corner),
 		# and fields must not run into a windmill. Skip the whole field (rng stream stays unchanged).
 		var field_ok := true
@@ -1045,7 +1084,11 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 				# tile sampled only at its centre (the old code) could float or bury by
 				# most of the local slope across its width. Corner-snap it like a
 				# building lot instead.
-				tiles.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, _ground_snap(p, yaw, Vector3(10.0, 1.0, 10.0), 0.05), p.y)))
+				var tile_xform := Transform3D(Basis(Vector3.UP, yaw),
+					Vector3(p.x, _ground_snap(p, yaw, Vector3(10.0, 1.0, 10.0), 0.05), p.y))
+				tiles.append(tile_xform)
+				activity_spots.append({"type": "field_row", "position": tile_xform.origin, "yaw": yaw,
+					"identity": "farm/field/%d/tile/%d" % [field_index, ix * nz + iz]})
 		# Fence around the field (3 m sections), leaving a gap on one side.
 		var hx := nx * 5.0 + 1.0
 		var hz := nz * 5.0 + 1.0
@@ -1084,6 +1127,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		body.rotation.y = hy
 		body.add_child(shape)
 		root.add_child(body)
+	plan["activity_spots"] = activity_spots
 	# One batch instead of a node per haystack (5 surfaces each: 25 draws in view).
 	_multimesh_cells(root, Assets.building_mesh("haystack"), stacks, 60.0, 0.0, false)
 	_multimesh_cells(root, Assets.building_mesh("field_crops"), tiles, 60.0, 0.0, false)
@@ -1094,8 +1138,11 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGenerator) -> void:
 	var lots: Array = plan["lots"]
 	var sets := {"garden_plot": [], "woodpile": [], "washing_line": []}
+	var activity_spots: Array = plan.get("activity_spots", []).duplicate()
+	var published_woodpiles := 0
 	var yard_spots: Array[Vector2] = []
-	for lot: Dictionary in lots:
+	for lot_i in lots.size():
+		var lot: Dictionary = lots[lot_i]
 		if not (String(lot["asset"]).begins_with("house") or String(lot["asset"]).begins_with("mhouse")):
 			continue
 		var yaw: float = lot["yaw"]
@@ -1136,7 +1183,14 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 			if not _spot_ok(at, ky, ysz):
 				continue   # steep yard: no woodpile / line / plot hanging off the bank
 			yard_spots.append(at)
-			(sets[kind] as Array).append(Transform3D(Basis(Vector3.UP, ky), Vector3(at.x, _ground_snap(at, ky, ysz, 0.03), at.y)))
+			var xform := Transform3D(Basis(Vector3.UP, ky), Vector3(at.x, _ground_snap(at, ky, ysz, 0.03), at.y))
+			(sets[kind] as Array).append(xform)
+			# Existing woodpiles double as small lumber-work points. Cap the
+			# published set so large towns don't create one work slot per house.
+			if kind == "woodpile" and published_woodpiles < 8:
+				activity_spots.append({"type": "chopping_block", "position": xform.origin,
+					"yaw": ky, "identity": "homestead/woodpile/%d" % lot_i})
+				published_woodpiles += 1
 	plan["yard_spots"] = yard_spots   # district_props.gd keeps its own props off these
 	for kind: String in sets:
 		var list: Array[Transform3D] = []
@@ -1144,6 +1198,7 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 		# Yard clutter per 80 m cell with a 120 m range (66 m on LOW): a capital has
 		# ~200 of these, and as one town-wide batch they were all drawn from anywhere.
 		_multimesh_cells(root, Assets.building_mesh(kind), list, 80.0, 120.0, true, true, Color(0.62, 0.56, 0.42) if kind == "garden_plot" and not bool(_prof.get("legacy", false)) else Color.WHITE)
+	plan["activity_spots"] = activity_spots
 	_front_gardens(root, plan, rng)
 
 
@@ -1488,6 +1543,30 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 				add.call("barrel_cluster", tbx, ty)
 	# Goods on and around every stall and at the townhouse shop fronts (MarketGoods): render-only.
 	stalls_by_town[s["id"]] = stall_spots
+	# Publish the final, clearance-adjusted placements as data so WorldSim's
+	# SmartObjects index can send shoppers to the actual stalls, not guessed points.
+	var activity_spots: Array = plan.get("activity_spots", []).duplicate()
+	for i in stall_spots.size():
+		var stall: Array = stall_spots[i]
+		var p: Vector2 = stall[1]
+		activity_spots.append({"type": "market_stall",
+			"position": Vector3(p.x, WorldGen.height(p.x, p.y), p.y),
+			"yaw": float(stall[2]), "identity": "market/street/%d" % i})
+	# Publish work targets beside the exact gate watch posts. The residents' target
+	# is offset inward from the decorative guard actors so they don't overlap.
+	if plan["walls"]:
+		for gate_i in plan["gates"].size():
+			var gate_angle: float = plan["gates"][gate_i]
+			var gate_dir := Vector2(cos(gate_angle), sin(gate_angle))
+			var gate_side := Vector2(-gate_dir.y, gate_dir.x)
+			for side_i in 2:
+				var side_sign := -1.0 if side_i == 0 else 1.0
+				var post := c + gate_dir * (r - 7.0) + gate_side * side_sign * 4.2 - gate_dir * 2.5
+				activity_spots.append({"type": "guard_post",
+					"position": Vector3(post.x, WorldGen.height(post.x, post.y), post.y),
+					"yaw": atan2(-gate_dir.x, -gate_dir.y),
+					"identity": "guard/gate/%d/side/%d" % [gate_i, side_i]})
+	plan["activity_spots"] = activity_spots
 	_market_dressing(root, s, plan, stall_spots, solid, corridors)
 	# A pair of town guards standing watch just inside every gate, as in the reference.
 	if plan["walls"]:

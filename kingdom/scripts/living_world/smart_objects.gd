@@ -24,9 +24,12 @@ const JOBS := ["Farmer", "Blacksmith", "Merchant", "Guard", "Laborer", "Woodcutt
 
 var types: Dictionary = {}
 var building_spots: Dictionary = {}
-var spots: Array = []               # Array[Dictionary]: {id, type, xform, settlement, holders: Array, drift}
+var spots: Array = []               # Array[Dictionary]: {id, identity, has_stable_identity, type, xform, settlement, holders, drift}
 var _grid: Dictionary = {}          # Vector2i -> Array[int]
-var _held: Dictionary = {}          # person -> [spot, slot]
+var _settlement_spots: Dictionary = {} # settlement id -> Array[int], for bounded local schedule queries
+var _held: Dictionary = {}          # person -> [spot, slot, claim_token]
+var _spot_by_identity: Dictionary = {} # stable identity -> transient spot index
+var _claim_serial := 0
 var _rng := RandomNumberGenerator.new()
 
 
@@ -38,21 +41,49 @@ func _init() -> void:
 	_rng.seed = 1066
 
 
-func add(type: String, xform: Transform3D, settlement := -1) -> int:
+func add(type: String, xform: Transform3D, settlement := -1, stable_identity := "") -> int:
 	if not types.has(type):
 		push_warning("SmartObjects: unknown type " + type)
 		return -1
+	if not stable_identity.is_empty() and _spot_by_identity.has(stable_identity):
+		var existing := int(_spot_by_identity[stable_identity])
+		if String(spots[existing]["type"]) != type:
+			push_warning("SmartObjects: identity reused for a different type: " + stable_identity)
+			return -1
+		return existing
 	var id := spots.size()
 	var cap := (types[type]["slots"] as Array).size()
 	var holders := []
 	holders.resize(cap)
 	holders.fill(-1)
-	spots.append({"id": id, "type": type, "xform": xform, "settlement": settlement, "holders": holders, "drift": 0.0})
+	spots.append({"id": id, "identity": stable_identity if not stable_identity.is_empty() else "runtime/%d" % id,
+		"has_stable_identity": not stable_identity.is_empty(), "type": type, "xform": xform,
+		"settlement": settlement, "holders": holders, "drift": 0.0})
+	if not stable_identity.is_empty():
+		_spot_by_identity[stable_identity] = id
+	if settlement >= 0:
+		if not _settlement_spots.has(settlement):
+			_settlement_spots[settlement] = []
+		(_settlement_spots[settlement] as Array).append(id)
 	var c := _cell(xform.origin)
 	if not _grid.has(c):
 		_grid[c] = []
 	_grid[c].append(id)
 	return id
+
+
+## Stable slot key for an authoritative action lease. Runtime-only manually added
+## demo spots deliberately have no persistent resource key.
+func slot_resource_key(spot: int, slot: int) -> String:
+	if spot < 0 or spot >= spots.size():
+		return ""
+	var sp: Dictionary = spots[spot]
+	if not bool(sp.get("has_stable_identity", false)):
+		return ""
+	var holders: Array = sp["holders"]
+	if slot < 0 or slot >= holders.size():
+		return ""
+	return "%s/slot/%d" % [String(sp["identity"]), slot]
 
 
 ## Spots for one WorldGen settlement: every lot / landmark whose asset has a building_spots entry
@@ -63,7 +94,10 @@ func populate_settlement(s: Dictionary, height_fn: Callable = Callable()) -> int
 	var items: Array = []
 	items.append_array(plan.get("lots", []))
 	items.append_array(plan.get("landmarks", []))
-	for lot: Dictionary in items:
+	var settlement_id := int(s.get("id", -1))
+	var lot_count := (plan.get("lots", []) as Array).size()
+	for item_i in items.size():
+		var lot: Dictionary = items[item_i]
 		var key := String(lot.get("asset", ""))
 		var list: Array = building_spots.get(key, [])
 		if list.is_empty() and (key.begins_with("house") or key.begins_with("mhouse") or key.contains("townhouse")):
@@ -71,7 +105,10 @@ func populate_settlement(s: Dictionary, height_fn: Callable = Callable()) -> int
 		var p2: Vector2 = lot.get("pos", Vector2.ZERO)
 		var yaw := float(lot.get("yaw", 0.0))
 		var b := Basis(Vector3.UP, yaw)
-		for e: Dictionary in list:
+		var item_kind := "lot" if item_i < lot_count else "landmark"
+		var item_identity := "%s/%d/%d/%d" % [item_kind, roundi(p2.x * 10.0), roundi(p2.y * 10.0), item_i]
+		for spot_i in list.size():
+			var e: Dictionary = list[spot_i]
 			var h := hash(p2) ^ hash(e["type"])
 			if e.has("chance") and float(absi(h) % 1000) / 1000.0 > float(e["chance"]):
 				continue
@@ -79,44 +116,81 @@ func populate_settlement(s: Dictionary, height_fn: Callable = Callable()) -> int
 			var o := Vector3(p2.x, 0.0, p2.y) + b * Vector3(float(at[0]), float(at[1]), float(at[2]))
 			if height_fn.is_valid():
 				o.y = float(height_fn.call(o.x, o.z))
-			add(e["type"], Transform3D(b * Basis(Vector3.UP, deg_to_rad(float(e.get("yaw", 0.0)))), o), int(s.get("id", -1)))
+			var identity := "settlement/%d/%s/%s/%d/%s" % [settlement_id, item_identity, key, spot_i, String(e["type"])]
+			add(e["type"], Transform3D(b * Basis(Vector3.UP, deg_to_rad(float(e.get("yaw", 0.0)))), o), settlement_id, identity)
 			n += 1
+	# Some activity spots are laid out only when their streamed presentation is
+	# built (market stalls receive exact collision-clearance adjustments there).
+	# Consume the resulting plain data without owning or instancing those visuals.
+	for external_i in (plan.get("activity_spots", []) as Array).size():
+		var e: Dictionary = plan["activity_spots"][external_i]
+		var type := String(e.get("type", ""))
+		var identity := String(e.get("identity", ""))
+		if type.is_empty() or identity.is_empty() or typeof(e.get("position")) != TYPE_VECTOR3:
+			continue
+		var p: Vector3 = e["position"]
+		var yaw := float(e.get("yaw", 0.0))
+		add(type, Transform3D(Basis(Vector3.UP, yaw), p), settlement_id,
+			"settlement/%d/%s" % [settlement_id, identity])
+		n += 1
 	return n
 
 
 ## Best free [spot, slot] near pos for a filter {act, job (name or index), hour, kid, tags: [...], type, role},
-## or [] when nothing fits. Score = distance, a little noise per person so neighbours spread out.
-## `avoid` (optional): points (x, z) whose surroundings within `avoid_r` metres are skipped, the asking NPC's
-## short-term memory of where danger was seen (scripts/population/utility_brain.gd).
+## optionally limited to one `settlement` candidate list; [] when nothing fits. `avoid` points are danger memory.
 func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1, avoid := PackedVector2Array(), avoid_r := 0.0) -> Array:
 	var best := []
 	var best_s := INF
-	var r := int(ceil(radius / CELL))
-	var c0 := _cell(pos)
-	for dx in range(-r, r + 1):
-		for dz in range(-r, r + 1):
-			for id: int in _grid.get(c0 + Vector2i(dx, dz), []):
-				var sp: Dictionary = spots[id]
-				var t: Dictionary = types[sp["type"]]
-				if not _matches(sp["type"], t, filter):
-					continue
-				var d := (sp["xform"] as Transform3D).origin.distance_to(pos)
-				if d > radius:
-					continue
-				if avoid_r > 0.0 and _near_any((sp["xform"] as Transform3D).origin, avoid, avoid_r):
-					continue
-				var slots: Array = t["slots"]
-				for k in slots.size():
-					if sp["holders"][k] != -1:
-						continue
-					var role := String(slots[k].get("role", ""))
-					if filter.has("role") and role != "" and role != filter["role"]:
-						continue
-					var score := d + float(absi(hash(person * 7 + id * 131 + k)) % 100) * 0.03
-					if score < best_s:
-						best_s = score
-						best = [id, k]
+	var candidate_ids: Array = []
+	if filter.has("settlement"):
+		candidate_ids = _settlement_spots.get(int(filter["settlement"]), [])
+	else:
+		var r := int(ceil(radius / CELL))
+		var c0 := _cell(pos)
+		for dx in range(-r, r + 1):
+			for dz in range(-r, r + 1):
+				candidate_ids.append_array(_grid.get(c0 + Vector2i(dx, dz), []))
+	for id: int in candidate_ids:
+		var sp: Dictionary = spots[id]
+		var t: Dictionary = types[sp["type"]]
+		if not _matches(sp["type"], t, filter):
+			continue
+		var origin: Vector3 = (sp["xform"] as Transform3D).origin
+		var d := origin.distance_to(pos)
+		if d > radius:
+			continue
+		if avoid_r > 0.0 and _near_any(origin, avoid, avoid_r):
+			continue
+		var slots: Array = t["slots"]
+		for k in slots.size():
+			# A data-tier resident often asks for its schedule target again on
+			# every coarse simulation step. Keep its existing slot eligible so
+			# refreshing the same goal does not make it churn through the queue.
+			if sp["holders"][k] != -1 and sp["holders"][k] != person:
+				continue
+			if not _slot_matches(slots[k], filter):
+				continue
+			var score := d + float(absi(hash(person * 7 + id * 131 + k)) % 100) * 0.03
+			if sp["holders"][k] == person:
+				score -= 1.0  # small hysteresis keeps a valid activity stable
+			if score < best_s:
+				best_s = score
+				best = [id, k]
 	return best
+
+
+func _slot_matches(slot: Dictionary, filter: Dictionary) -> bool:
+	var role := String(slot.get("role", ""))
+	if filter.has("role") and role != filter["role"]:
+		return false
+	# Slot-specific eligibility supports shared affordances such as a
+	# merchant-only vendor position beside public customer positions.
+	if filter.has("job") and slot.has("jobs"):
+		var j = filter["job"]
+		var jn: String = JOBS[j] if typeof(j) == TYPE_INT and j >= 0 and j < JOBS.size() else String(j)
+		if not (slot["jobs"] as Array).has(jn):
+			return false
+	return true
 
 
 static func _near_any(o: Vector3, pts: PackedVector2Array, r: float) -> bool:
@@ -127,6 +201,8 @@ static func _near_any(o: Vector3, pts: PackedVector2Array, r: float) -> bool:
 
 
 func _matches(type: String, t: Dictionary, f: Dictionary) -> bool:
+	if (f.get("exclude_types", []) as Array).has(type):
+		return false
 	if f.has("type") and f["type"] != type:
 		return false
 	if f.has("act") and not (t.get("acts", []) as Array).has(f["act"]):
@@ -136,6 +212,8 @@ func _matches(type: String, t: Dictionary, f: Dictionary) -> bool:
 		var jn: String = JOBS[j] if typeof(j) == TYPE_INT and j >= 0 and j < JOBS.size() else String(j)
 		if not (t["jobs"] as Array).has(jn):
 			return false
+	if bool(f.get("job_required", false)) and not t.has("jobs"):
+		return false
 	if f.has("hour") and t.has("hours"):
 		var h := float(f["hour"])
 		var hr: Array = t["hours"]
@@ -158,9 +236,13 @@ func claim(spot: int, slot: int, person: int) -> bool:
 	var h: Array = spots[spot]["holders"]
 	if slot < 0 or slot >= h.size() or (h[slot] != -1 and h[slot] != person):
 		return false
+	var current: Array = _held.get(person, [])
+	if current.size() >= 3 and int(current[0]) == spot and int(current[1]) == slot and h[slot] == person:
+		return true  # idempotent refresh: preserve the Session's lease token
 	release(person)
+	_claim_serial += 1
 	h[slot] = person
-	_held[person] = [spot, slot]
+	_held[person] = [spot, slot, _claim_serial]
 	return true
 
 
@@ -175,7 +257,26 @@ func release(person: int) -> void:
 
 
 func held_by(person: int) -> Array:
-	return _held.get(person, [])
+	var held: Array = _held.get(person, [])
+	return held.slice(0, 2) if held.size() >= 2 else held
+
+
+## Monotonic per-claim token. A Session keeps this token so an old activity
+## cannot release or continue using a newer claim made by the same person id.
+func claim_token(person: int) -> int:
+	var held: Array = _held.get(person, [])
+	return int(held[2]) if held.size() >= 3 else -1
+
+
+func owns_claim(person: int, spot: int, slot: int, token: int) -> bool:
+	var held: Array = _held.get(person, [])
+	return (token >= 0 and held.size() >= 3 and int(held[0]) == spot
+		and int(held[1]) == slot and int(held[2]) == token)
+
+
+func release_claim(person: int, spot: int, slot: int, token: int) -> void:
+	if owns_claim(person, spot, slot, token):
+		release(person)
 
 
 func occupancy(spot: int) -> int:
@@ -236,8 +337,38 @@ func activity(spot: int, slot := 0) -> Dictionary:
 
 ## WorldSim hook for data-tier people: 2D approach target for (person, act, job) near a settlement centre,
 ## soft-claimed (occupancy counted) so a crowd spreads over the spots. Vector2.INF when none.
-func target_for(person: int, center: Vector3, act: String, job: int, hour: float, radius := 120.0) -> Vector2:
-	var pick := find(center, {"act": act, "job": job, "hour": hour}, radius, person)
+func target_for(person: int, center: Vector3, act: String, job: int, hour: float, radius := 120.0, role := "", settlement_id := -1) -> Vector2:
+	var filter := {"act": act, "job": job, "hour": hour}
+	if settlement_id >= 0:
+		filter["settlement"] = settlement_id
+	if not role.is_empty():
+		filter["role"] = role
+	# Public workers can visit stalls as customers, but should not treat a
+	# customer position as their work station during the work phase.
+	if act == "work" and job != JOBS.find("Merchant"):
+		filter["exclude_types"] = ["market_stall"]
+		filter["job_required"] = true
+	if act == "work" and job == JOBS.find("Guard"):
+		filter["tags"] = ["guard"]
+	# Most schedule-goal refreshes ask for the same reservation again. Reuse it
+	# directly rather than scanning this settlement's complete activity list.
+	var current := held_by(person)
+	if current.size() >= 2:
+		var spot_id := int(current[0])
+		var slot_id := int(current[1])
+		if spot_id >= 0 and spot_id < spots.size():
+			var sp: Dictionary = spots[spot_id]
+			var t: Dictionary = types[sp["type"]]
+			var slots: Array = t["slots"]
+			var within_range := (sp["xform"] as Transform3D).origin.distance_to(center) <= radius
+			var same_settlement := (not filter.has("settlement")
+				or int(sp.get("settlement", -1)) == int(filter["settlement"]))
+			if (within_range and same_settlement and _matches(String(sp["type"]), t, filter)
+					and slot_id >= 0 and slot_id < slots.size()
+					and _slot_matches(slots[slot_id], filter)):
+				var held_target := approach_point(spot_id, slot_id)
+				return Vector2(held_target.x, held_target.z)
+	var pick := find(center, filter, radius, person)
 	if pick.is_empty():
 		return Vector2.INF
 	claim(pick[0], pick[1], person)
@@ -274,12 +405,14 @@ class Session:
 	var _rng := RandomNumberGenerator.new()
 	var _t := 0.0
 	var _event_sent := false
+	var _claim_token := -1
 
 	func _init(o: SmartObjects, p: int, sp: int, sl: int, sd: int) -> void:
 		so = o
 		person = p
 		spot = sp
 		slot = sl
+		_claim_token = o.claim_token(p)
 		_rng.seed = hash(sd * 7919 + sp)
 		act = o.activity(sp, sl)
 		var dur: Array = act.get("duration", [30, 60])
@@ -295,6 +428,12 @@ class Session:
 			_go(EXIT if act.get("exit", "") != "" else DONE)
 		elif phase in [APPROACH, ALIGN]:
 			_go(DONE)
+
+
+	## Immediate teardown path for a body that is being removed and cannot play
+	## its exit animation. Normal gameplay interruptions should use interrupt().
+	func cancel_now() -> void:
+		_go(DONE)
 
 	func stand() -> Transform3D:
 		return so.stand_xform(spot, slot)
@@ -319,9 +458,16 @@ class Session:
 				if clip == "":
 					_go(DONE)
 			DONE:
-				so.release(person)
+				so.release_claim(person, spot, slot, _claim_token)
 
 	func update(delta: float, body: Vector3, clip_done: bool) -> Dictionary:
+		# A replacement schedule, despawn, or LOD handoff may revoke this claim.
+		# Stop producing clips/events immediately, without touching a newer lease.
+		if phase != DONE and not so.owns_claim(person, spot, slot, _claim_token):
+			phase = DONE
+			clip = ""
+			return {"phase": DONE, "move_to": null, "face": NAN, "clip": "",
+				"restart": false, "props": [], "event": null}
 		_t += delta
 		var out := {"phase": phase, "move_to": null, "face": NAN, "clip": clip, "restart": false, "props": [], "event": null}
 		var sx := stand()
@@ -337,8 +483,12 @@ class Session:
 				out["move_to"] = sx.origin
 				out["face"] = atan2(sx.basis.z.x, sx.basis.z.z)
 				out["clip"] = ""
-				if Vector2(body.x - sx.origin.x, body.z - sx.origin.z).length() < 0.06 or _t > 1.5:
+				var alignment_error := Vector2(body.x - sx.origin.x, body.z - sx.origin.z).length()
+				if alignment_error < 0.06:
 					_go(ENTER)
+				elif _t > 1.5:
+					# Never play a contact animation from a visibly wrong position.
+					_go(DONE)
 			ENTER:
 				out["face"] = atan2(sx.basis.z.x, sx.basis.z.z)
 				out["snap"] = sx

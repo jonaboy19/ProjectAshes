@@ -80,8 +80,8 @@ const KEYS := {
 	"move_left": [KEY_A, KEY_LEFT], "move_right": [KEY_D, KEY_RIGHT],
 	"sprint": [KEY_SHIFT], "attack": [KEY_J], "block": [KEY_L], "interact": [KEY_E],
 	"view_cycle": [KEY_V], "zoom_in": [KEY_EQUAL], "zoom_out": [KEY_MINUS],
-	"dodge": [KEY_SPACE], "eat": [KEY_F], "quick_save": [KEY_F5], "quick_load": [KEY_F9],
-	"journal": [KEY_TAB], "menu_inventory": [KEY_I], "menu_skills": [KEY_K],
+	"jump": [KEY_SPACE], "dodge": [KEY_K], "eat": [KEY_F], "quick_save": [KEY_F5], "quick_load": [KEY_F9],
+	"journal": [KEY_TAB], "menu_inventory": [KEY_I], "menu_skills": [KEY_F2],
 	"world_map": [KEY_M], "photo_mode": [KEY_P],
 	"lock_on": [KEY_Q], "crouch": [KEY_C], "ability_dash": [KEY_R],
 	"order_follow": [KEY_1], "order_hold": [KEY_2], "order_charge": [KEY_3],
@@ -116,6 +116,6 @@ func _setup_input() -> void:
 			var jb := InputEventJoypadButton.new()
 			jb.button_index = b
 			InputMap.action_add_event(action, jb)
-	# The legacy skills screen has no key of its own: K opens the Skills tab of the Pack menu.
+	# The legacy skills screen has no key of its own: F2 opens the Skills tab of the Pack menu.
 	if not InputMap.has_action("skills_screen"):
 		InputMap.add_action("skills_screen")

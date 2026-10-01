@@ -11,6 +11,7 @@
         {"text": "\"We're closing, friend. One cup, then home.\"", "if": {"time": "night"}, "p": 2},
         {"text": "\"Come in out of the wet! Hang your cloak by the fire.\"", "if": {"weather": ["rain", "storm"]}, "p": 2},
         {"text": "\"My best customer! Your usual corner's free.\"", "if": {"min_tier": "friend"}, "p": 3},
+        {"text": "\"We went over the menu already. Looking for something different today?\"", "if": {"event": "discussed:innkeeper:food", "chance": 0.5}, "p": 3},
         {"text": "\"You. Pay first this time.\"", "if": {"tier": ["rival", "enemy"]}, "p": 5},
         {"text": "\"Half the village is drinking to your health tonight, you know.\"", "if": {"event": "quest_done"}, "p": 4}
       ],
@@ -24,6 +25,8 @@
     },
     "gossip": {
       "lines": [
+        {"text": "\"We spoke about village gossip before, didn't we? Here's what people are saying now: {rumour}\"", "if": {"event": "discussed:innkeeper:gossip", "has": "rumour"}},
+        {"text": "\"We've already had a turn at gossip, haven't we? Nothing else worth passing on just now.\"", "if": {"event": "discussed:innkeeper:gossip", "not_has": "rumour"}},
         {"text": "\"An inn hears everything, and repeats half of it. {rumour}\"", "if": {"has": "rumour"}},
         {"text": "\"Quiet night. The smith lost at dice again, if that counts.\""},
         {"text": "The innkeeper polishes a mug that is already clean. \"{hint}\"", "if": {"has": "hint", "min_tier": "acquaintance"}, "p": 2, "do": [["tell_hint"]]},

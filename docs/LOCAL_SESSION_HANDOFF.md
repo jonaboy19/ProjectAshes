@@ -511,3 +511,49 @@ The user picked Style Lab box **G** (`kingdom/scenes/style_lab`, run `--style_la
 3. **Foliage and dressing kit:** ivy, flower boxes, potted plants, produce, pottery, sacks.
 4. **Lighting on the real GPU:** golden bounce, local contrast, and 2 shadow splits at 60 m on the phone. Report fps and draws for G on the S22.
 5. Then roll G out to Thornfield first (`docs/design/VERTICAL_SLICE.md`), then all towns.
+## 2026-09-30 (Codex PR #4): feel/system continuation
+- Branch `gpt/locomotion-jump-integration` is synced with the latest fetched Claude head `b6cc215c` by merge commit `89498a11`; review the branch before cherry-picking or merging because it touches player, HUD, input, life and combat-adjacent code.
+- Preserved Claude's player appearance/death flow while keeping the jump-enabled animator, local hit-pause helper, and dodge lane probe. Controls are now **Space = Jump, K = Dodge, F2 = Pack Skills**; the central input map, tab hotkey, and `docs/controls.md` agree.
+- Added 0.25 s dialogue shade/UI and portrait reveals (F13 presentation only; camera framing inside the speaker/cart remains open), plus event-only dodge sweeps to choose a clear side lane around a hostile capsule (F15). Claude should visually verify both in the real game, including mobile touch.
+- Added restored Journal responses for persistent scout offers and documented that the shown ongoing wage is not active payroll yet; see `docs/concepts/CODEX_SYSTEMS_HANDOFF.md`.
+- **Runtime validation remains pending.** No test suite was run in this continuation; `git diff --check` passed. Keep the captured-game validation list in `docs/anim/CODEX_LOCOMOTION_JUMP.md` current.
+
+## 2026-09-30 (Codex): NPC need continuity handoff
+- Initial source review found that `UtilityBrain` needs did not survive body LOD or save/load. This finding is superseded by the partial implementation below.
+- Added the handoff and current-source snapshot; these docs now distinguish implemented persistence from unfinished offline progression.
+
+## 2026-09-30 (Codex): single-owner NPC position integration
+- `Villager` physics bodies already route and move near actors; `WorldSim._step()` also advanced their data positions until the next 4 Hz `PopulationLOD._write_back()`. Added a packed ownership flag so the world slice continues schedule/economy updates but skips position integration for embodied residents.
+- Promotion writes the route-cleared spawn position into `WorldSim` and claims ownership. On body exit, the resolved final position is stored and ownership is released. Time skips remain explicit bulk settles followed by `Villager.resync()`.
+- Updated the current-state sections of `NPC_CONTACT_LOD_CONTRACT.md` and `NPC_LIFE_LOOP_DESIGN.md`; the old e3563fc4 findings remain clearly labeled as historical. The distant data/sprite mover still follows direct targets and is the next NPC/building pathing gap.
+- Source reviewed and `git diff --check` passed. No Godot runtime check or test suite was run; confirm body lifecycle/reset ordering and movement feel in the playable project before merge.
+
+## 2026-09-30 (Codex): local routes for visible sprite residents
+- Selected sprite residents near their home settlement now check direct-line clearance against the existing `StreetGraph`. Only obstructed routes claim temporary position ownership and move along validated waypoints; clear routes keep the existing `WorldSim` mover.
+- Route planning consumes the existing two-per-physics-frame budget shared with near villagers. When that budget is unavailable or a path is invalid, the sprite holds its last safe position and retries; no 3D navigation agent, NPC node, or physics body was added.
+- Route state is discarded when a sprite leaves the visible sprite set or a time skip settles the population. Data-only residents and field/forest travel outside the local graph remain coarse direct movement. This narrows the building-crossing gap but does not solve all distant-world navigation.
+- `NPC_CONTACT_LOD_CONTRACT.md` and `NPC_LIFE_LOOP_DESIGN.md` now distinguish these current limits. `git diff --check` passed; no runtime or test suite was run. Validate blocked routes, target changes, LOD promotion/demotion, time skips, and frame cost in Godot.
+
+## 2026-09-30 (Codex): source-specific NPC position ownership
+- Replaced the boolean `WorldSim.external_position_owner` marker with a packed instance-ID owner token. A release now succeeds only when its caller is still the recorded owner.
+- This closes a concrete LOD transition race: `PopulationLOD` can `queue_free()` a body and route the same resident as a sprite before the old body's deferred `_exit_tree()` runs. The old body's cleanup previously could release the sprite's claim and write its stale position over the routed position. Body and sprite movement owners now have distinct tokens, so delayed cleanup cannot displace a newer claim.
+- Updated `NPC_CONTACT_LOD_CONTRACT.md`. `git diff --check` passed; no Godot runtime check or test suite was run. Validate repeated body↔sprite transitions and world reset with deferred body exits during Claude's captured-game pass.
+
+## 2026-09-30 (Codex): NPC need continuity transfer and save layer
+- Added five flat per-person need values, game-hour timestamps, and validity bytes in `WorldSim`; the save payload uses versioned packed fields. Old/malformed fields use the seeded fallback, and loading clears prior in-memory need state first.
+- `UtilityBrain` exports/imports the existing five needs without changing scoring or rates. Villagers restore on promotion, sync after the existing staggered brain tick and on exit, and preserve state through resync. A body advances at most the existing two-game-hour catch-up bound; schedule-aware unembodied need progression remains open.
+- `Life.restore()` refreshes active brains from the selected save immediately, so loading while still in the world does not let a subsequent resync overwrite saved need values with the previous session. Deferred body cleanup now unregisters only its own instance, preserving a newly promoted body's registry entry.
+- Need writes require the current Villager instance to own that resident row, preventing a deferred old body from saving into a reset/new run.
+- Updated `NPC_NEEDS_CONTINUITY_HANDOFF.md`, `NPC_LIFE_LOOP_DESIGN.md`, and `CODEX_SYSTEMS_HANDOFF.md` with implemented behavior and remaining work. `git diff --check` passed; no runtime or test suite was run. Validate old/new save round trips, LOD churn, reset/deferred exits, time skips, serialized size, and mobile cost in Godot.
+
+## 2026-09-30 (Codex): time-sliced unembodied need progression
+- Added `scripts/sim/npc_need_rules.gd` as the shared source for depletion rates, deterministic personality traits, and meal hours used by both embodied brains and WorldSim rows.
+- `WorldSim._step()` now advances only initialized, non-body-owned need rows when those residents are already visited by the existing time-sliced simulation. The existing `advance_hours()` settle loop does the same once for unembodied rows; embodied Villagers retain exclusive brain ownership and apply their existing two-hour catch-up.
+- Coarse offline rules use the existing three meal hours, half-hour meal recovery at the current eat rate, and night rest when the resident's shared schedule is home. The 24-hour cap bounds stale/corrupt catch-up. No new all-population per-frame pass or resident Nodes were added. This is a continuity approximation, not exact daily act history.
+- On save load while the world is alive, active brains are refreshed from deserialized rows; Villager brain ownership is re-established before the next simulation step. Runtime/save-size/mobile-cost acceptance still needs a real Godot capture; no tests or runtime were run here.
+- Save format is now version 2 with double-precision need timestamps; the reader accepts version 1's float32 timestamp format so an already-created Codex-branch save remains readable.
+
+## 2026-09-30 (Codex): route around solid plaza carts
+- `SettlementBuilder` now writes the actual six solid cart placements into the shared settlement plan as fitted horizontal obstacle boxes. The existing `StreetGraph` syncs those boxes lazily, including when the graph was cached before settlement dressing finished, and rebuilds its route edges once to avoid those cart footprints.
+- Cart placement and collision proxies are unchanged; this only gives local NPC routes the same blocker information already used by the physical world. No broad prop rewrite or extra runtime navigation nodes were added.
+- Updated F17 in `docs/anim/FEEL_AUDIT.md` and the current `NPC_CONTACT_LOD_CONTRACT.md`. `git diff --check` passed; no runtime or tests were run. Validate route paths through the plaza and verify detours do not deadlock at stalls.

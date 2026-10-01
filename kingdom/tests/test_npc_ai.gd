@@ -250,6 +250,11 @@ func test_decision_budget_slices_frames() -> void:
 	assert_int(granted).is_equal(NpcWorld.DECIDE_PER_FRAME)
 
 
+func _age_chat_waiters(sid: int) -> void:
+	for w: Dictionary in UtilityBrain._chat_wait.get(sid, []):
+		w["since_ms"] = int(w["since_ms"]) - UtilityBrain.CHAT_MIN_WAIT_MS - 1
+
+
 func test_three_can_chat_together() -> void:
 	var a := auto_free(Node3D.new()) as Node3D
 	var b := auto_free(Node3D.new()) as Node3D
@@ -260,8 +265,10 @@ func test_three_can_chat_together() -> void:
 	var sid := 77
 	# Find a pair that stays open for a third (two in three do).
 	UtilityBrain.chat_join(sid, 910001, Vector2(0, 0))
+	_age_chat_waiters(sid)   # Codex: a waiter must have waited CHAT_MIN_WAIT_MS before pairing
 	var second := UtilityBrain.chat_join(sid, 910002, Vector2(5, 0))
 	assert_int(int(second[1])).is_equal(910001)
+	_age_chat_waiters(sid)
 	if UtilityBrain.chat_waiting(sid, 910003):
 		var third := UtilityBrain.chat_join(sid, 910003, Vector2(9, 9))
 		assert_int(int(third[1])).is_equal(910001)

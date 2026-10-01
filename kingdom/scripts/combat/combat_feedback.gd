@@ -46,7 +46,7 @@ func _on_swing_started(action: Resource, info: Dictionary) -> void:
 					SLASH_TILTS[combo_i % SLASH_TILTS.size()], arc_col, 1.6))
 
 
-func _on_hit_confirmed(points: Array, finisher: bool) -> void:
+func _on_hit_confirmed(points: Array, finisher: bool, mixers: Array) -> void:
 	var p := _p
 	for pt: Vector3 in points:
 		VFX.sparks(p.get_parent(), pt, Color(1.0, 0.72, 0.35), 30 if finisher else 18)
@@ -57,8 +57,10 @@ func _on_hit_confirmed(points: Array, finisher: bool) -> void:
 			VFX.impact_frame(p.get_parent(), points[0], 0.7)
 	if not points.is_empty():
 		Audio.sfx("hit")
-		p._hit_stop(0.09 if finisher else 0.05)
-		p._shake.add(0.45 if finisher else 0.22)
+		p._hit_stop(0.09 if finisher else 0.05, mixers)
+		p._add_camera_shake(0.45 if finisher else 0.22)
+		if finisher:
+			p._fov_punch(3.0)
 
 
 func _on_parried(_attacker: Node, at: Vector3, grade: String) -> void:
@@ -68,16 +70,18 @@ func _on_parried(_attacker: Node, at: Vector3, grade: String) -> void:
 	Audio.sfx("clash")
 	VFX.sparks(p.get_parent(), at, Color(1.0, 0.97, 0.75), 60 if grade == "perfect" else 42)
 	VFX.flash(p.get_parent(), at, Color(1.0, 0.9, 0.6), 3.0, 0.15, 5.0)
-	p._shake.add(0.3)
+	p._add_camera_shake(0.3)
+	p._fov_punch(4.0)
 	p._hit_stop(p.PARRY_HIT_STOP * (1.4 if grade == "perfect" else 1.0))
 
 
 func _on_blocked(_attacker: Node, guard_broken: bool) -> void:
 	var p := _p
-	p._shake.add(0.15)
+	p._add_camera_shake(0.15)
 	if guard_broken:
 		# Heavy stagger with both feet planted (CharacterAnimator.PREFERRED_CLIPS).
-		p._animator.play_full("Hit_B", 1.3)
+		p._kick(-p.facing() * 2.2)
+		p._animator.play_full("Stagger_Back", 1.0)
 		Game.say("Guard broken!")
 	else:
 		p._animator.play_upper("Block_Hit", 1.5)
@@ -88,5 +92,5 @@ func _on_clashed(_attacker: Node, won: bool) -> void:
 	var p := _p
 	Audio.sfx("clash")
 	VFX.sparks(p.get_parent(), p.global_position + p.facing() * 1.0 + Vector3.UP * 1.2, Color(1.0, 0.95, 0.7), 36)
-	p._shake.add(0.3 if won else 0.4)
+	p._add_camera_shake(0.3 if won else 0.4)
 	p._hit_stop(0.08)

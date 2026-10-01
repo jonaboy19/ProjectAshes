@@ -22,6 +22,7 @@ const SoulScreen := preload("res://scripts/ui/soul_screen.gd")
 const FamilyScreen := preload("res://scripts/ui/family_screen.gd")
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const RAProperty := preload("res://scripts/sim/property.gd")
+const SeasonsScript := preload("res://scripts/sim/seasons.gd")
 const MEGAKIT := "res://assets/incoming/quaternius/fantasy-props-megakit/Exports/glTF/"
 const BOARD := "res://assets/generated/notice_board.glb"
 const BED_PRICE := 3
@@ -880,7 +881,8 @@ func world_from_game() -> Dictionary:
 	var sites: Array = []
 	for st: Dictionary in WorldGen.sites:
 		sites.append({"name": st["name"], "kind": st["kind"], "pos": st["pos"]})
-	var world := {"home": _home_pos(), "dens": dens, "sites": sites, "places": Life.lore.places}
+	var world := {"home": _home_pos(), "dens": dens, "sites": sites, "places": Life.lore.places,
+		"days_left_in_season": SeasonsScript.DAYS_PER_SEASON - WorldSim.seasons.day_of_season() + 1}
 	if Life.career_id != "":
 		world["career_rank"] = {"career": Life.career_id, "rank": Life.career_rank}
 	world["at_war"] = bool(Life.life_path.flags.get("at_war", false))
