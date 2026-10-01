@@ -55,6 +55,12 @@ signal exit_requested
 ## Force the third-person view while inside (the town/command zooms don't fit a room).
 @export var force_third_person := true
 
+const DoorModel := preload("res://scripts/world/door_model.gd")
+const Locks := preload("res://scripts/world/locks.gd")
+const Perception := preload("res://scripts/population/perception.gd")
+const Evidence := preload("res://scripts/population/evidence.gd")
+const NPC_WORLD := "res://scripts/population/npc_world.gd"
+
 ## Physics layer 20: the player carries it (main.gd) so door triggers can mask
 ## only the player instead of every body on layer 1.
 const PLAYER_TRIGGER_LAYER := 1 << 19
@@ -66,6 +72,11 @@ static var active: InteriorDoor = null
 static var external_dispatch := false
 
 var interior: Node3D = null
+## Door state machine (scripts/world/door_model.gd): null for exit doors and doors without a stable id.
+var model: RefCounted = null
+## The hinged leaf animated by the open/close tween, when the door has one ("Leaf" child).
+var _leaf: Node3D = null
+var _tween: Tween = null
 var _player: Node3D = null
 var _near := false
 var _hidden: Array[Node3D] = []
@@ -82,6 +93,8 @@ func _ready() -> void:
 	process_physics_priority = 100    # after the player moved its camera
 	set_process(false)
 	set_physics_process(active == self)
+	if not is_exit:
+		_setup_model()
 	if not is_exit and has_meta("asset") and not has_meta("building_name"):
 		var at: Variant = get_meta("lot_pos") if has_meta("lot_pos") else Vector2(global_position.x, global_position.z)
 		var town := ""
@@ -118,6 +131,87 @@ static func tag_player(player: CollisionObject3D) -> void:
 	player.collision_layer |= PLAYER_TRIGGER_LAYER
 
 
+## Stable id: meta "door_id", else "<settlement>/door/<lot x>_<lot z>" from the lot position (deterministic plans).
+func _setup_model() -> void:
+	var did := String(get_meta("door_id")) if has_meta("door_id") else ""
+	var lot := Vector2.INF
+	if has_meta("lot_pos"):
+		var lp: Variant = get_meta("lot_pos")
+		if lp is Vector2:
+			lot = lp
+	if did == "" and lot != Vector2.INF and not WorldGen.settlements.is_empty():
+		did = DoorModel.make_id(String(WorldGen.nearest_settlement(lot).get("name", "")), lot)
+	if did == "":
+		return
+	var lock := String(get_meta("lock_id")) if has_meta("lock_id") else ""
+	if lock != "":
+		Locks.define(lock, String(get_meta("key_id")) if has_meta("key_id") else lock, int(get_meta("lock_level")) if has_meta("lock_level") else 1,
+			bool(get_meta("locked", true)), bool(get_meta("public", false)))
+	model = DoorModel.create(did, Vector2(global_position.x, global_position.z), lock, lot)
+	DoorModel.register(model)
+	_leaf = get_node_or_null("Leaf") as Node3D
+	if _leaf != null:
+		_leaf.rotation.y = -float(model.get("open_amount")) * 1.57
+
+
+func _exit_tree() -> void:
+	if model != null:
+		DoorModel.unregister(String(model.get("id")))
+
+
+## Declare this door locked by `lock_id` (dressing / quests): one lock may guard several doors and chests.
+func set_lock(lock_id: String, key_id := "", level := 1, locked := true, is_public := false) -> void:
+	if model == null:
+		return
+	Locks.define(lock_id, key_id, level, locked, is_public)
+	model.set("lock_id", lock_id)
+	model.call("load_state")
+
+
+## Do a door verb ("open", "close", "unlock", "lockpick", "lock", "break", "examine") as the player. Plays the
+## swing tween, reports noise / evidence / crime. Returns the model's result (ok, reason ...).
+func use_verb(verb: String, holder := {}) -> Dictionary:
+	if model == null:
+		return {"ok": true, "reason": ""}
+	var h: Dictionary = holder if not holder.is_empty() else Locks.player_holder()
+	var res: Dictionary = model.call("use", verb, h)
+	var at := Vector2(global_position.x, global_position.z)
+	if int(res.get("noise", -1)) >= 0:
+		Perception.emit_sound(int(res["noise"]), at, -1.0, "door", Perception.Occ.SAME_CELL)
+	if int(res.get("evidence", -1)) >= 0:
+		Evidence.add(int(res["evidence"]), at, int(WorldGen.nearest_settlement(at).get("id", -1)) if not WorldGen.settlements.is_empty() else -1)
+	if String(res.get("crime", "")) != "" and is_inside_tree():
+		var sid := int(WorldGen.nearest_settlement(at).get("id", -1)) if not WorldGen.settlements.is_empty() else -1
+		(load(NPC_WORLD) as GDScript).call("report_crime", get_tree(), String(res["crime"]), at, sid, true)
+	_animate()
+	return res
+
+
+## Swing the leaf with a Tween only while the door moves; the model settles when it ends.
+func _animate() -> void:
+	if model == null:
+		return
+	var st := int(model.get("state"))
+	if st != DoorModel.State.OPENING and st != DoorModel.State.CLOSING:
+		if _leaf != null:
+			_leaf.rotation.y = -float(model.get("open_amount")) * 1.57
+		return
+	if _tween != null and _tween.is_valid():
+		_tween.kill()
+	var target := float(model.call("target_amount"))
+	if not is_inside_tree():
+		model.call("settle")
+		return
+	_tween = create_tween()
+	_tween.tween_method(func(v: float) -> void:
+		model.set("open_amount", v)
+		if _leaf != null:
+			_leaf.rotation.y = -v * 1.57, float(model.get("open_amount")), target, DoorModel.SWING_SECONDS)
+	_tween.finished.connect(func() -> void:
+		if model != null:
+			model.call("settle"))
+
+
 func prompt() -> String:
 	# A house lot the player owns or rents (scripts/sim/property.gd) reads
 	# "Enter your home" instead of the generic prompt. Guarded so a build
@@ -126,6 +220,8 @@ func prompt() -> String:
 	if not is_exit and has_meta("lot_pos") and "property" in Life and Life.property != null \
 			and Life.property.is_yours(get_meta("lot_pos")):
 		return "Enter your home"
+	if model != null and bool(model.call("is_locked")):
+		return "Locked"
 	return prompt_text
 
 
@@ -166,11 +262,33 @@ func use() -> void:
 	if is_exit:
 		exit_requested.emit()
 	elif active == null:
+		# The scene swap is the result of the "open" verb: a locked door answers with its reason instead.
+		if model != null:
+			if bool(model.call("is_locked")):
+				# Verb priority: unlock (key) before lockpick; with neither the door answers "It is locked."
+				var h := Locks.player_holder()
+				if Locks.has_key(h, String(model.get("lock_id"))):
+					use_verb("unlock", h)
+				elif bool(h.get("lockpick", false)):
+					use_verb("lockpick", h)
+			var res := use_verb("open")
+			if not bool(res.get("ok", false)):
+				_deny(String(res.get("reason", "")))
+				return
 		enter(_player if _player else get_tree().get_first_node_in_group("player") as Node3D)
+
+
+## The door will not open: say why (Game.say message pill when the autoload exists).
+func _deny(reason: String) -> void:
+	var g := get_node_or_null("/root/Game") if is_inside_tree() else null
+	if g != null and g.has_method("say") and reason != "":
+		g.call("say", reason)
 
 
 func enter(player: Node3D) -> void:
 	if player == null or active != null or not _can_enter():
+		return
+	if model != null and bool(model.call("is_locked")):
 		return
 	_player = player
 	interior = _make_interior()
@@ -260,6 +378,8 @@ func leave() -> void:
 		interior.queue_free()
 	interior = null
 	active = null
+	if model != null and bool(model.call("is_open")) and int(model.get("state")) != DoorModel.State.BROKEN:
+		use_verb("close")
 	set_physics_process(false)
 	if is_instance_valid(_player):
 		var out := global_transform * return_offset

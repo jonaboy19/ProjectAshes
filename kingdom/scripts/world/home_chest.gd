@@ -11,9 +11,12 @@ extends Node3D
 ## dispatch only knows about a fixed set of node types).
 
 const RAProperty := preload("res://scripts/sim/property.gd")
+const Locks := preload("res://scripts/world/locks.gd")
 
 ## The lot_id this chest belongs to (scripts/sim/property.gd).
 var lot_id := ""
+## Optional shared lock (scripts/world/locks.gd): doors, chests and gates naming the same lock_id share one key.
+var lock_id := ""
 
 var _last_use_frame := -100
 var _menu_was_open := false
@@ -24,7 +27,7 @@ func _ready() -> void:
 
 
 func prompt() -> String:
-	return "Storage chest"
+	return "Storage chest (locked)" if lock_id != "" and Locks.is_locked(lock_id) else "Storage chest"
 
 
 func use() -> void:
@@ -32,6 +35,13 @@ func use() -> void:
 	if f - _last_use_frame < 2:
 		return
 	_last_use_frame = f
+	if lock_id != "" and Locks.is_locked(lock_id):
+		var h := Locks.player_holder()
+		if not Locks.unlock(lock_id, h) and not bool(Locks.try_pick(lock_id, h).get("ok", false)):
+			var g := get_node_or_null("/root/Game")
+			if g != null and g.has_method("say"):
+				g.call("say", "It is locked.")
+			return
 	var hud := _hud()
 	if hud != null:
 		hud.call("show_menu", _menu)

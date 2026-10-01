@@ -36,6 +36,9 @@ var naming := RANaming.new()
 var injuries := RAInjuries.new()
 var scouts := RAScouts.new()
 var discovery := preload("res://scripts/sim/discovery.gd").new()
+## Persistent state of interactive world objects (doors, chests, locks, broken props) and the evidence
+## left on the ground; saved under "interactives" (scripts/world/world_state.gd).
+var world_state: RefCounted = preload("res://scripts/world/world_state.gd").shared()
 var relationships := preload("res://scripts/sim/relationships.gd").new()
 ## Sparse NPC-to-NPC ties from completed embodied conversations; separate from player opinion.
 var npc_social_graph := preload("res://scripts/sim/npc_social_graph.gd").new()
@@ -142,6 +145,8 @@ func reset() -> void:
 	UtilityBrain.clear_transient_social()
 	Frontier.reset()
 	Region1State.reset()
+	world_state.call("clear")
+	preload("res://scripts/population/evidence.gd").reset()
 	var qw := get_node_or_null("/root/QuestWeaverGameState")
 	if qw and qw.has_method("load_from_data"):
 		qw.call("load_from_data", {})
@@ -1475,6 +1480,9 @@ func snapshot() -> Dictionary:
 	}
 	# Region1 hook (docs/regions/REGION_1_PLAN.md)
 	d["region1"] = Region1State.snapshot()
+	var interactives: Dictionary = world_state.call("snapshot")
+	interactives["evidence"] = preload("res://scripts/population/evidence.gd").serialize()
+	d["interactives"] = interactives
 	if player and is_instance_valid(player):
 		d["player"] = {"x": player.global_position.x, "y": player.global_position.y,
 			"z": player.global_position.z, "health": player.get("health")}
@@ -1537,6 +1545,10 @@ func restore(d: Dictionary) -> void:
 			player.set_health(int(p.get("health", 100)))
 	# Region1 hook (docs/regions/REGION_1_PLAN.md)
 	Region1State.restore(d.get("region1", {}))
+	# Two-phase: only the dictionaries load here; each door / chest pulls its own state by id when it is built.
+	world_state.call("restore", d.get("interactives", {}))
+	var inter: Variant = d.get("interactives", {})
+	preload("res://scripts/population/evidence.gd").deserialize(inter.get("evidence", []) if inter is Dictionary else [])
 	inventory_changed.emit()
 	employment_changed.emit()
 	Game.stats_changed.emit()

@@ -20,9 +20,13 @@ extends RefCounted
 const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const TownMood := preload("res://scripts/population/town_mood.gd")
 const Schedule := preload("res://scripts/population/schedule.gd")
+const Perception := preload("res://scripts/population/perception.gd")
+const Witness := preload("res://scripts/population/witness.gd")
+const Evidence := preload("res://scripts/population/evidence.gd")
+const DoorModel := preload("res://scripts/world/door_model.gd")
 const BRAIN := "res://scripts/population/utility_brain.gd"
 
-enum Kind { FIRE, FIGHT, CRIME, FESTIVAL, SCREAM, FUNERAL }
+enum Kind { FIRE, FIGHT, CRIME, FESTIVAL, SCREAM, FUNERAL, SOUND, CALL_FOR_HELP, BODY_FOUND, SUSPICIOUS }
 
 const SLOTS := 16
 const REFRESH_MS := 400
@@ -54,6 +58,8 @@ static var _i_str := PackedFloat32Array()
 static var _i_until := PackedInt32Array()
 static var _i_sid := PackedInt32Array()
 static var _i_serial := PackedInt32Array()
+static var _i_eid := PackedInt32Array()      # event id (sounds: Perception.emit_sound)
+static var _i_cap := PackedFloat32Array()    # sounds: the most alert one event can give
 static var _serial := 0
 static var _ready_store := false
 
@@ -63,6 +69,10 @@ static var _armed_until := -100000
 static var _player_pos := Vector2.INF
 static var _player_vel := Vector2.ZERO
 static var _player_mounted := false
+static var _player_crouch := false
+static var _player_armed := false
+static var _player_running := false
+static var _wanted := {}                 # sid -> [expires_ms, bool] cached Society bounty > 0
 static var _mover_pos := PackedVector2Array()
 static var _mover_vel := PackedVector2Array()
 static var _mover_n := 0
@@ -90,6 +100,7 @@ static var _rumour_cache := {}           # sid -> [expires_ms, Array[String]]
 static var _queues := {}                 # sid -> Array of person ids waiting at the bread stall (front first)
 static var _assault_ms := -100000
 static var _realm_sync_ms := -100000
+static var _lamp_sync_ms := -100000
 static var _fire_nodes := {}             # sid -> Node3D (the burning thing for a realm fire emergency)
 
 
@@ -104,6 +115,9 @@ static func _ensure_store() -> void:
 	_i_until.resize(SLOTS)
 	_i_sid.resize(SLOTS)
 	_i_serial.resize(SLOTS)
+	_i_eid.resize(SLOTS)
+	_i_cap.resize(SLOTS)
+	_i_eid.fill(0)
 	_i_until.fill(0)
 	_mover_pos.resize(8)
 	_mover_vel.resize(8)
@@ -126,9 +140,17 @@ static func reset() -> void:
 	_queues.clear()
 	_assault_ms = -100000
 	_realm_sync_ms = -100000
+	_lamp_sync_ms = -100000
 	_fire_nodes.clear()
 	smart = null
 	bubbles_shown = 0
+	_wanted.clear()
+	_player_crouch = false
+	_player_armed = false
+	_player_running = false
+	Perception.reset()
+	Witness.reset()
+	Evidence.reset()
 	_ensure_store()
 
 
@@ -164,6 +186,59 @@ static func report(kind: int, pos: Vector2, radius := 20.0, seconds := 20.0, str
 	elif kind == Kind.FUNERAL:
 		pass       # mourners react through nearest(Kind.FUNERAL), not as a spectacle
 	return slot
+
+
+## A sound (Perception.emit_sound): the ring slot of its kind and place is refreshed, else the oldest is reused.
+## `loudness` is the effective radius in metres; listeners read it with sound_at().
+static func report_sound(sound_kind: int, pos: Vector2, loudness: float, event_id: int, cap: float, sid := -1) -> int:
+	var slot := report(Kind.SOUND, pos, loudness, 3.0, clampf(loudness / 40.0, 0.05, 1.0), sid)
+	_i_eid[slot] = event_id
+	_i_cap[slot] = cap
+	_i_aux_kind_set(slot, sound_kind)
+	return slot
+
+
+static var _i_sound_kind := PackedInt32Array()
+
+
+static func _i_aux_kind_set(slot: int, k: int) -> void:
+	if _i_sound_kind.size() != SLOTS:
+		_i_sound_kind.resize(SLOTS)
+	_i_sound_kind[slot] = k
+
+
+## Number of live sounds in the ring.
+static func sound_count() -> int:
+	if not _ready_store:
+		return 0
+	var now := Time.get_ticks_msec()
+	var n := 0
+	for i in SLOTS:
+		if _i_until[i] > now and _i_kind[i] == Kind.SOUND:
+			n += 1
+	return n
+
+
+const HEAR_SLOPE := 0.15
+
+
+## The sound that would alert a listener at `here` most: [gain, pos, event_id] ([0.0, INF, 0] when none reaches it).
+## gain = clamp(1 + (loudness_eff - distance) * HEAR_SLOPE, 1, cap of its kind), only inside the effective loudness.
+static func best_sound(here: Vector2) -> Array:
+	var best := [0.0, Vector2.INF, 0]
+	if not _ready_store:
+		return best
+	var now := Time.get_ticks_msec()
+	for i in SLOTS:
+		if _i_until[i] <= now or _i_kind[i] != Kind.SOUND:
+			continue
+		var d := here.distance_to(_i_pos[i])
+		if d >= _i_rad[i]:
+			continue
+		var g := clampf(1.0 + (_i_rad[i] - d) * HEAR_SLOPE, 1.0, _i_cap[i])
+		if g > float(best[0]):
+			best = [g, _i_pos[i], _i_eid[i]]
+	return best
 
 
 static func incident_alive(slot: int) -> bool:
@@ -270,6 +345,11 @@ static func refresh(tree: SceneTree) -> void:
 		_player_pos = p
 		_player_mounted = pl.has_method("is_mounted") and bool(pl.call("is_mounted"))
 		var armed := bool(pl.get("blocking")) or float(pl.get("_swing")) > 0.0 or bool(pl.get_meta("weapon_drawn", false))
+		_player_crouch = pl.get("crouching") == true
+		_player_armed = armed
+		_player_running = _player_vel.length() > 3.2
+		Perception.set_environment(WorldSim.time_of_day, 1.0 if _raining(tree) else 0.0,
+			pl.get("_indoors") == true, bool(pl.get_meta("lantern_lit", false)))
 		if armed:
 			_armed_until = now + ARMED_LATCH_MS
 	else:
@@ -294,9 +374,76 @@ static func refresh(tree: SceneTree) -> void:
 		if node != null:
 			report(Kind.FIRE, Vector2(node.global_position.x, node.global_position.z), 25.0, 1.5, float(node.get_meta("fire_strength", 1.0)))
 	_watch_assault(tree, now)
+	if Witness.pending_count() > 0:
+		Witness.tick(now, _society())
+	if now - _lamp_sync_ms > 5000:
+		_lamp_sync_ms = now
+		sync_lamps(tree)
 	if now - _realm_sync_ms > 5000:
 		_realm_sync_ms = now
 		sync_realm_incidents(tree)
+
+
+## Lit street lamps near the player become light sources for Perception.light_at (analytic, no render): the
+## OmniLight3D nodes of group "street_lamp" (settlement_builder.gd) whose energy is on, nearest 32 within 60 m.
+static func sync_lamps(tree: SceneTree) -> void:
+	Perception.clear_lights()
+	if _player_pos == Vector2.INF:
+		return
+	var near: Array = []
+	for n in tree.get_nodes_in_group("street_lamp"):
+		var l := n as OmniLight3D
+		if l == null or l.light_energy < 0.05 or not l.is_visible_in_tree():
+			continue
+		var p := Vector2(l.global_position.x, l.global_position.z)
+		var d2 := p.distance_squared_to(_player_pos)
+		if d2 < 3600.0:
+			near.append([d2, p, l.omni_range])
+	near.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
+	for e: Array in near.slice(0, Perception.MAX_LIGHTS):
+		Perception.register_light(e[1], float(e[2]), 0.6)
+
+
+static func _raining(tree: SceneTree) -> bool:
+	return (load(BRAIN) as GDScript).call("is_raining", tree)
+
+
+## Stance multiplier of the player for vision (crouch 0.5, walk 1, run 1.25, mounted 1.4).
+static func player_stance() -> float:
+	return Perception.stance_term(_player_crouch, _player_running, _player_mounted)
+
+
+static func player_still() -> bool:
+	return _player_vel.length() < 0.3
+
+
+## How suspicious the player looks to people of settlement `sid` right now (Perception.suspicion_factor).
+static func player_suspicion(sid: int) -> float:
+	var now := Time.get_ticks_msec()
+	var w: Array = _wanted.get(sid, [])
+	if w.is_empty() or int(w[0]) < now:
+		var soc := _society()
+		var wanted := soc != null and sid >= 0 and int(soc.call("bounty", sid)) > 0
+		w = [now + 2000, wanted]
+		_wanted[sid] = w
+	return Perception.suspicion_factor(_player_crouch, _player_armed, bool(w[1]), WorldSim.time_of_day)
+
+
+## A door that person `person` of settlement `sid` cannot pass: a locked (or jammed) door near `door_pos`
+## whose household they do not belong to. False for no known door, broken doors and own-lot doors.
+static func door_blocked(sid: int, door_pos: Vector2, person: int) -> bool:
+	if DoorModel.count() == 0:
+		return false
+	var d: RefCounted = DoorModel.door_near(door_pos, 2.5)
+	if d == null:
+		return false
+	var h := {"keys": [], "master": person >= 0 and person < WorldSim.job.size() and WorldSim.job[person] == 3}
+	var owner: Vector2 = d.get("owner_home")
+	if owner != Vector2.INF and sid >= 0 and sid < WorldGen.settlements.size() and person >= 0:
+		var home: Vector2 = WorldSim._spot(WorldGen.settlements[sid], 0, person)
+		if owner.distance_to(home) < 7.0:
+			(h["keys"] as Array).append(DoorModel.lot_key(owner))
+	return bool(d.call("blocked_for", h))
 
 
 ## A drawn weapon swung beside a villager is an assault: witnesses shout and run for the watch, the town's
@@ -810,9 +957,14 @@ static func mourn_spot(at: Vector2, person: int) -> Vector2:
 ## count goes to society.commit_crime (existing API). Returns that call's result plus {"seen_by": n}.
 static func report_crime(tree: SceneTree, kind: String, pos: Vector2, sid := -1, culprit_is_player := true) -> Dictionary:
 	_ensure_store()
-	var witnesses: Array = []
+	var now := Time.get_ticks_msec()
+	var cands: Array = []
+	var heard := 0
 	if tree != null:
+		refresh(tree)        # light / stance for this very moment (rate limited, cheap)
 		var graph := StreetGraph.for_settlement(sid) as StreetGraph if sid >= 0 else null
+		var stance := player_stance() if culprit_is_player else 1.0
+		var light := Perception.light_at(pos)
 		for n in tree.get_nodes_in_group("villager"):
 			var v := n as Node3D
 			if v == null or not v.has_method("witness"):
@@ -821,17 +973,40 @@ static func report_crime(tree: SceneTree, kind: String, pos: Vector2, sid := -1,
 			var d := vp.distance_to(pos)
 			if d > CRIME_HEARING:
 				continue
-			var saw := d <= CRIME_SIGHT and (graph == null or graph.clear_line(vp, pos, 0.05))
+			# Seen = the culprit's visibility for THIS person (cone, light, distance, stance, line), not a flat roll.
+			var vis := 0.0
+			if d <= CRIME_SIGHT:
+				var clear := graph == null or graph.clear_line(vp, pos, 0.05)
+				var facing := Vector2.ZERO
+				var acu := 1.0
+				if v.has_method("perception_facing"):
+					facing = v.call("perception_facing")
+					acu = float(v.call("perception_acuity"))
+				vis = Witness.sight(vp, facing, acu, pos, light, stance, clear)
+			var saw := vis >= Witness.SEEN_VIS
 			if v.call("witness", pos, kind, saw, culprit_is_player):
 				if saw:
-					witnesses.append("")
+					var person := int(v.get("person"))
+					cands.append({"id": Witness.witness_id(sid, person), "person": person, "vis": vis,
+						"guard": person >= 0 and person < WorldSim.job.size() and WorldSim.job[person] == 3})
+				else:
+					heard += 1
 	report(Kind.CRIME, pos, CRIME_HEARING, 30.0, 1.0, sid)
-	var out := {"ok": false, "seen_by": witnesses.size()}
+	Evidence.leave_traces(kind, pos, sid, now)
+	var out := {"ok": false, "seen_by": cands.size(), "heard_by": heard, "pending": false}
 	var soc := _society()
 	if soc != null and sid >= 0 and culprit_is_player:
-		var res: Dictionary = soc.call("commit_crime", kind, sid, witnesses)
-		res["seen_by"] = witnesses.size()
-		return res
+		# Reporting is a task: the crime reaches Society when a witness reaches a guard or after the timeout.
+		var cid := Witness.begin(kind, sid, pos, cands, now, soc, true)
+		out["case"] = cid
+		if cid > 0:
+			var c := Witness.case_of(cid)
+			if c["status"] == "committed":
+				var res: Dictionary = (c["result"] as Dictionary).duplicate()
+				res["seen_by"] = cands.size()
+				res["case"] = cid
+				return res
+			out["pending"] = true
 	return out
 
 
@@ -881,6 +1056,10 @@ const LINES := {
 	"crime": ["Thief! Stop them!", "Guards! Guards!", "Murder!", "Help! Somebody help!"],
 	"alarm_guard": ["There! Over there!", "He went that way!", "Fetch the watch!"],
 	"guard_respond": ["Where? Show me!", "Stand aside!", "Hold there!"],
+	"notice": ["Hm?", "Who's there?", "Did you see that?", "What was that?"],
+	"suspicious": ["Hey, you there!", "What are you up to?", "I'm watching you.", "State your business."],
+	"suspicious_guard": ["Halt! Who goes there?", "Show yourself!", "You, there. Stand still."],
+	"search": ["Come out, whoever you are!", "I know someone's here.", "Search the area!", "Check the alleys."],
 	"flee": ["Run!", "Get inside!", "Wolf!", "It's coming!", "Save yourselves!"],
 	"hide": ["Is it gone?", "Shh...", "Stay quiet."],
 	"fire": ["Fire!", "Water, bring water!", "The fire's spreading!", "Form a line!"],
