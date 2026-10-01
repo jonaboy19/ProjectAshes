@@ -128,6 +128,20 @@ func _ensure_elder_stones(net: RARunestoneNetwork) -> void:
 			s["elder"] = true
 
 
+## Road and anchor stones the story names (the Miller's Stone, the Silverford test stone, the edge anchor) become
+## real network stones next to their places when the world has none within 70 m. They are found again after a
+## save by name, exactly like the Elder Stones, so the stone list is the same on every load.
+func _ensure_story_stones(net: RARunestoneNetwork) -> void:
+	for spec: Dictionary in Places.story_stone_specs():
+		var have := false
+		for s: Dictionary in net.stones:
+			if String(s["name"]) == String(spec["name"]) or (not bool(spec["force"]) and not String(s["name"]).begins_with(ELDER_PREFIX) and (s["pos"] as Vector2).distance_to(spec["pos"]) < 70.0):
+				have = true
+				break
+		if not have:
+			net.add_stone(spec["pos"], 130.0, -1, String(spec["name"]))
+
+
 func _elder_label(id: String) -> String:
 	match id:
 		"elder_glade": return "Stagborn Glade"
@@ -150,6 +164,7 @@ func _bind_wardlines() -> void:
 		return
 	_net = Frontier.runestones
 	_ensure_elder_stones(_net)
+	_ensure_story_stones(_net)
 	var elders := elder_network_ids(_net)
 	if not (wl.layout_source == "network" and wl.n == _net.stones.size()):
 		wl.bind_network(_net, elders)    # a save loaded later replaces this with its own layout

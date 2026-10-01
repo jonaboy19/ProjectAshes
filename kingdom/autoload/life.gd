@@ -1217,6 +1217,8 @@ func on_wolf_killed(_where: Vector3, den_id := -1, variant := "") -> void:
 	var r1_species := variant if variant != "" else "wolf"
 	if den_id >= 0 and den_id < Frontier.ecology.dens.size() and String(Frontier.ecology.dens[den_id].get("species", "wolf")) == "corrupted_wolf":
 		r1_species = "rift_wolf"
+	elif den_id >= 0 and den_id < Frontier.ecology.dens.size() and String(Frontier.ecology.dens[den_id].get("species", "")) == "stagborn_warden":
+		r1_species = "stagborn_warden"      # Region 1 story: the Antlered Warden's defeat (r1_story_director.gd)
 	region1_kill.emit(r1_species, _where)
 	for c: Dictionary in guild.on_kill(RAAdventurerGuild.PLAYER, "wolf", den_id):
 		if guild.is_ready(int(c["id"])):

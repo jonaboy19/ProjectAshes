@@ -281,7 +281,7 @@
 			"requires": {"steps": ["a2_first_ashsight"]},
 			"dialogue": [{"node": "corin_caught", "after": "fight"}],
 			"objectives": [
-				{"id": "reach", "type": "enter_area", "place": "duskbriar_bandit_camp"},
+				{"id": "reach", "type": "enter_area", "place": "duskbriar_bandit_camp", "do": [["spawn", "ashen_hand_saboteur", "duskbriar_bandit_camp", 3]]},
 				{"id": "fight", "type": "kill", "target": "ashen_hand_saboteur", "place": "duskbriar_bandit_camp", "count": 3},
 				{"id": "fate", "type": "choice", "group": "corin_fate"}
 			],
@@ -437,7 +437,7 @@
 			"requires": {"steps": ["a3_kindling_return"]},
 			"dialogue": [{"node": "ring_dark"}, {"node": "maren_last", "after": "stand"}],
 			"objectives": [
-				{"id": "dark", "type": "flag", "flag": "r1.a3.ring_dark"},
+				{"id": "dark", "type": "flag", "flag": "r1.a3.ring_dark", "do": [["spawn", "rift_wolf", "ashford_ring", 5]]},
 				{"id": "wolves", "type": "kill", "target": "rift_wolf", "place": "ashford_ring", "count": 5,
 					"do": [["cutscene", "maren_last_stand"]]},
 				{"id": "stand", "type": "cutscene_done", "cutscene": "maren_last_stand"},
@@ -546,7 +546,7 @@
 			],
 			"objectives": [
 				{"id": "reach", "type": "enter_area", "place": "highwatch_keep"},
-				{"id": "gate", "type": "flag", "flag": "r1.a4.gate"},
+				{"id": "gate", "type": "flag", "flag": "r1.a4.gate", "do": [["spawn", "rift_wolf", "highwatch_gate", 6]]},
 				{"id": "hold", "type": "kill", "target": "rift_wolf", "place": "highwatch_gate", "count": 6},
 				{"id": "asked", "type": "flag", "flag": "r1.a4.rowan_ember_asked"},
 				{"id": "ember", "type": "ember_choice", "who": "rowan", "group": "rowan_ember", "do": [["cutscene", "rowan_ember"]]},
@@ -659,7 +659,7 @@
 			"requires": {"steps": ["a5_turn_the_tide"]},
 			"dialogue": [{"node": "troll_rises", "after": "reach"}],
 			"objectives": [
-				{"id": "reach", "type": "enter_area", "place": "rift_mouth"},
+				{"id": "reach", "type": "enter_area", "place": "rift_mouth", "do": [["spawn", "scarbound_troll", "rift_mouth", 1]]},
 				{"id": "seen", "type": "flag", "flag": "r1.a5.troll_seen"},
 				{"id": "boss", "type": "defeat", "target": "scarbound_troll"}
 			],

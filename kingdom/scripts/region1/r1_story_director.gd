@@ -55,6 +55,27 @@ const STAGING := {
 	"maren_last_stand": ["Maren holds the ring", "Her ember sinks into the heart-stone and the circle turns gold.", "quest"],
 }
 const STAGING_SECONDS := 3.2
+## Spawns tied to an objective of a step: dropped when the step finishes without them (Act I's wolf and fawn come on completion).
+const FIGHT_SPAWNS := ["rift_wolf", "scarbound_troll", "ashen_hand_saboteur"]
+## The living world hears what the player does: step id -> [home settlement, news kind, text, magnitude, official, deed or ""].
+## Posted once, when the step completes, through the realm news module (rumours travel the roads at road speed) and
+## the player's fame ledger (deeds become a nickname in time). Nothing here changes the story; it only makes the Vale talk.
+const ECHOES := {
+	"a2_greenhollow": ["Oakvale", "crisis", "The Pennick barn at Greenhollow burned. The Captain's patrol had checked its stone a week before.", 1.0, false, ""],
+	"a2_duskbriar": ["Ashford", "crisis_resolved", "Raiders of the Ashen Hand were driven off their camp by Ashford's young stone-carver.", 1.0, false, "bandits_broken"],
+	"a3_council": ["Kingsreach", "petition", "The Council of Wardens heard the Dawn relics argued, and a child of Ashford was asked to speak.", 1.2, true, ""],
+	"a3_scar_front": ["Oakvale", "crisis", "The Scar has reached the south fields of Greenhollow.", 1.5, false, "defended"],
+	"a3_ring_falls": ["Ashford", "crisis_failed", "Maren Coldbrook held Ashford's heart-stone alight by hand until it took her. The ring burns gold.", 2.0, false, "defended"],
+	"a3_the_ledger": ["Kingsreach", "crisis_resolved", "Captain Bram Hollis of the Guard is named for selling the Vale's failing stones.", 1.8, true, ""],
+	"a4_glade_trial": ["Oakvale", "migration", "The Stagborn herd walks the Glade again, and the Elder Stone there is lit.", 1.0, false, "discovery"],
+	"a4_highwatch": ["Highcliff", "succession", "Sir Rowan Ashby of Highwatch is dead at his gate, and his ember is placed.", 1.5, true, ""],
+	"a4_five_hearts": ["Kingsreach", "crisis_resolved", "All five Elder Stones of the Vale burn again.", 2.0, true, "defended"],
+	"a5_scarbound": ["Kingsreach", "apex_slain", "The Scarbound Troll fell at the Scar Mouth.", 2.0, false, "beast_slain"],
+	"a5_seal": ["Kingsreach", "crisis_resolved", "The Scar Mouth is sealed. Travellers speak of a light that did not come from the sun.", 3.0, true, "rift_sealed"],
+	"a5_homecoming": ["Ashford", "founded", "Ashford lights its lanterns a year on, and the heart-stone hums.", 1.0, false, ""],
+}
+## Creature species the game reports -> the story's big-creature target (defeat objectives).
+const BOSS_ALIAS := {"stagborn_warden": "antlered_warden", "scarbound_troll": "scarbound_troll"}
 
 var story: Region1StoryQuest
 var hud: Node
@@ -78,6 +99,7 @@ var _rng := RandomNumberGenerator.new()
 var _item_ids: PackedStringArray = PackedStringArray()
 var _last_sig := ""
 var _wolf: Node
+var _boss: Node
 ## Tests: Callable(target, at, n, place) replaces the real spawns (no models needed).
 var spawn_override: Callable = Callable()
 var _ancestor_name := ""
@@ -142,7 +164,7 @@ func _restore(d: Dictionary) -> void:
 	_pending_spawns = []
 	for p: Variant in d.get("pending", []):
 		if p is Dictionary:
-			_pending_spawns.append({"target": String(p.get("target", "")), "place": String(p.get("place", "")), "n": int(p.get("n", 1))})
+			_pending_spawns.append({"target": String(p.get("target", "")), "place": String(p.get("place", "")), "n": int(p.get("n", 1)), "step": String(p.get("step", ""))})
 	_ancestor_name = String(d.get("ancestor", ""))
 	_stone_name = String(d.get("stone", "the stone"))
 	_inside.clear()
@@ -260,9 +282,11 @@ func _on_kill(species: String, where: Vector3) -> void:
 		if not r.is_empty() and p.distance_to(r["pos"]) <= float(r["radius"]) * 2.0 + 20.0:
 			places.append(id)
 	for pl in places:
-		_handle(story.notify(&"kill", {"target": species, "place": pl, "amount": 1 if pl != "" else 1}, ctx()))
-		if pl == "":
-			continue
+		_handle(story.notify(&"kill", {"target": species, "place": pl, "amount": 1}, ctx()))
+	# The great creatures count as beaten when they fall, the same as the parley route (never a hard gate).
+	var boss: String = String(BOSS_ALIAS.get(species, ""))
+	if boss != "":
+		_handle(story.notify(&"defeat", {"target": boss}, ctx()))
 	if species == "wolf" and _wolf != null and is_instance_valid(_wolf):
 		_wolf = null
 
@@ -282,6 +306,7 @@ func _handle(events: Array) -> void:
 				var cid := String(e["step"])
 				_toast("quest", "Done: %s" % String(story.step(cid).get("title", cid)), "")
 				Life.award_progress("quest", {"id": "r1_" + cid})
+				_echo(cid)
 				step_completed.emit(cid)
 			"objective_done":
 				pass
@@ -325,7 +350,7 @@ func _apply_action(a: Array, step_id: String) -> void:
 		"marker":
 			_marked = String(a[1])
 		"spawn":
-			_pending_spawns.append({"target": String(a[1]), "place": String(a[2]) if a.size() > 2 else "", "n": int(a[3]) if a.size() > 3 else 1})
+			_pending_spawns.append({"target": String(a[1]), "place": String(a[2]) if a.size() > 2 else "", "n": int(a[3]) if a.size() > 3 else 1, "step": step_id})
 		"tutorial":
 			if glue != null and glue.get("tutorial") != null:
 				var t: Variant = glue.get("tutorial")
@@ -340,6 +365,22 @@ func _apply_action(a: Array, step_id: String) -> void:
 			pass
 		"close":
 			_end_conv()
+
+
+func _echo(step_id: String) -> void:
+	if not ECHOES.has(step_id) or Life.realm == null:
+		return
+	var e: Array = ECHOES[step_id]
+	var sid := 0
+	for st: Dictionary in WorldGen.settlements:
+		if String(st["name"]) == String(e[0]):
+			sid = int(st["id"])
+			break
+	var news: Variant = Life.realm.mod("news")
+	if news != null and news.has_method("post"):
+		news.call("post", String(e[1]), sid, String(e[2]), float(e[3]), "", bool(e[4]))
+		if String(e[5]) != "" and news.has_method("record_deed"):
+			news.call("record_deed", "player", Life.life_path.given_name, String(e[5]), sid, float(e[3]))
 
 
 # --- cutscene stand-ins -----------------------------------------------------------------
@@ -396,6 +437,9 @@ func _process_pending_spawns() -> void:
 		return
 	var pp := _pp()
 	for sp: Dictionary in _pending_spawns.duplicate():
+		if String(sp["target"]) in FIGHT_SPAWNS and String(sp.get("step", "")) != "" and story.is_done(String(sp["step"])):
+			_pending_spawns.erase(sp)   # the step moved on without the creature: it never shows up late
+			continue
 		var r := Places.resolve(String(sp["place"]))
 		if r.is_empty() or pp.distance_to(r["pos"]) > 110.0:
 			continue          # the creature waits for the player to come by: nothing is forced on a far traveller
@@ -420,6 +464,14 @@ func _spawn(target: String, at: Vector2, n: int, place: String) -> void:
 			var q := at + Vector2(-4, 3)
 			cr.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
 			cr.scale = Vector3.ONE * 0.55
+		"rift_wolf":
+			_spawn_rift_wolves(at, n)
+		"ashen_hand_saboteur":
+			var cr2: Node = get_tree().get_first_node_in_group("r1_creatures") if is_inside_tree() else null
+			if cr2 != null and cr2.has_method("wake_camp"):
+				cr2.call("wake_camp", at)   # the camp's own Ashen Hand roster fills again; its deaths are the quest's kills
+		"scarbound_troll":
+			_spawn_troll(at)
 		_:
 			push_warning("Region1: no spawn for %s yet" % target)
 
@@ -439,6 +491,44 @@ func _spawn_wolf(ring: Vector2) -> void:
 	w.died.connect(func(dead: Wolf) -> void: Life.on_wolf_killed(dead.global_position, -1))
 	_wolf = w
 	_toast("quest", "Something at the ring's edge", "A lone wolf. Keep your guard up.")
+
+
+## Rift wolves out of the dark at the ring (Act III) and the Highwatch gate (Act IV): violet-furred, in a loose circle.
+func _spawn_rift_wolves(at: Vector2, n: int) -> void:
+	for i in n:
+		var w := Wolf.new()
+		w.species = "wolf"
+		w.home = at
+		w.territory = 70.0
+		w.scale = Vector3.ONE * 1.2
+		w.set_meta("rift", true)
+		world.add_child(w)
+		var q := at + Vector2(30.0, 0.0).rotated(TAU * float(i) / float(maxi(n, 1)) + 0.4)
+		w.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
+		RiftVariants.apply_creature(w, "wolf")
+		w.died.connect(func(dead: Wolf) -> void: Life.on_wolf_killed(dead.global_position, -1, "rift_wolf"))
+	_toast("quest", "Rift wolves", "They came out of the dark between the stones.")
+
+
+## The Scarbound Troll at the Scar Mouth (Act V): an optional big creature (the quest also offers a parley).
+func _spawn_troll(at: Vector2) -> void:
+	if is_instance_valid(_boss):
+		return
+	var t := CampMonster.new()
+	t.species = "troll"
+	t.home = at
+	t.home_radius = 28.0
+	t.named = "Scarbound Troll"
+	world.add_child(t)
+	if t.is_queued_for_deletion():
+		return   # model not available
+	t.scale = Vector3.ONE * 1.25
+	var q := at + Vector2(12.0, -6.0)
+	t.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
+	t.died.connect(func(_m: CampMonster) -> void:
+		_handle(story.notify(&"defeat", {"target": "scarbound_troll"}, ctx())))
+	_boss = t
+	_toast("quest", "It was a troll, once", "The ground at the Scar Mouth shakes.")
 
 
 # --- characters in the world -------------------------------------------------------------

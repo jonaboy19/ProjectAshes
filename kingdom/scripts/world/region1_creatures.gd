@@ -34,6 +34,7 @@ static func data() -> Dictionary:
 
 func _ready() -> void:
 	name = "Region1Creatures"
+	add_to_group("r1_creatures")
 	if OS.get_cmdline_user_args().has("--r1worldoff"):
 		set_process(false)
 		return
@@ -213,7 +214,14 @@ func _update_camps(p: Vector2) -> void:
 			c["squad"] = null
 			squad = null
 		if squad != null:
-			if (squad as Squad).alive() <= 0:
+			# Story hook: each raider of the Ashen Hand that falls is a kill the main quest can count (never required to fight).
+			var alive: int = (squad as Squad).alive()
+			var prev: int = int(c.get("alive", alive))
+			if alive < prev and String(c["band"]) == "The Ashen Hand":
+				for k in prev - alive:
+					Life.region1_kill.emit("ashen_hand_saboteur", Vector3(site["pos"].x, 0.0, site["pos"].y))
+			c["alive"] = alive
+			if alive <= 0:
 				c["dead_day"] = int(WorldSim.day)
 				(squad as Squad).queue_free()
 				c["squad"] = null
@@ -225,6 +233,7 @@ func _update_camps(p: Vector2) -> void:
 				c["squad"] = null
 		elif d < build and int(WorldSim.day) - int(c["dead_day"]) >= respawn:
 			c["squad"] = _spawn_roster(site, int(c["n"]))
+			c["alive"] = int(c["n"])
 
 
 func _spawn_roster(site: Dictionary, n: int) -> Squad:
@@ -238,3 +247,10 @@ func _spawn_roster(site: Dictionary, n: int) -> Squad:
 	add_child(squad)
 	squad.add_soldiers(n, base)
 	return squad
+
+
+## Story hook (r1_story_director.gd): a camp the player has emptied fills again at once when the quest needs its band.
+func wake_camp(at: Vector2) -> void:
+	for c: Dictionary in _camps:
+		if (c["site"]["pos"] as Vector2).distance_to(at) < 90.0 and c["squad"] == null:
+			c["dead_day"] = -999
