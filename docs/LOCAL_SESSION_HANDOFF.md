@@ -468,3 +468,11 @@ The cloud container has ~15 GB shared by all agents; full-game captures die. The
 8. **TikTok teaser** fallback if the cloud video agent fails again: 15-30 s vertical 1080x1920 gameplay (gate market, aerial, combat, building, war map, keep).
 
 Free CI now runs the whole gdUnit suite + secret scan + 90 MB guard on every push (`.github/workflows/tests.yml`, see skill `ashes-ci`), so you don't need to run the full suite locally before pushing; check the Actions tab after.
+
+## 2026-10-01 (cloud -> local + Codex): vertical slice "perfect the basics" (read docs/design/VERTICAL_SLICE.md)
+The user watched the full 1:47 build. Don't push graphics up globally; perfect the basics around Thornfield. Your items:
+1. **P0 ground pass:** terrain seams and dark square patches outside town, road edges blending into mud and grass, dirt beside buildings, wheel ruts and foot traffic at gates and markets, stones, weeds, broken wood and drainage, contact shadows where buildings meet the ground, decals at doors, stalls, wells and stables, subtle elevation instead of dead-flat lots. Run `world_lint` (skill `ashes-world-lint`) after any placement change. Ask cloud for code changes in `settlement_builder.gd`, `region_dressing.gd` or `terrain` if needed.
+2. **P0 player character (with Codex for animation):** proportions (currently small, thin, simple next to the world), walk, run, idle variants, accel/decel, turning, foot IK, weapon hand, cloth and hair springs where cheap, plus exhausted, injured and carrying gaits. Later: outfits per career.
+3. **P1 building and material unification:** one timber thickness, plaster, stone size, roof, window, door and foundation standard, the same weathering and saturation. Plus 20–30 modular detail props (chimney, flower boxes, firewood, sign, damaged plaster, shutters, barrels, laundry, fence). Cloud will attach them procedurally per house; tell us the asset keys.
+4. **P1 look pass for the Thornfield districts and the runestone road identity** once cloud's layout lands (screenshots, judge against the art reference).
+**Codex:** item 2 animation (locomotion set, turns, foot placement, gait variants).
