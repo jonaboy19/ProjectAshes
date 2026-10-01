@@ -587,6 +587,7 @@ func _spawn_npc(key: String, giver: String, at: Vector2, face_to: Vector2) -> vo
 	var display := _display_name(giver)
 	var npc := NPC.new().setup(giver, display, String(LOOKS.get(giver, "critter:deer" if giver == "thistle" else "Rogue_Hooded")), Callable(self, "npc_menu"))
 	npc.spawned_for = key
+	_hide_world_twin(_display_name(giver), at, true)
 	world.add_child(npc)
 	(npc as Node3D).call("place", at, face_to)
 	_npcs[key] = npc
@@ -595,8 +596,25 @@ func _spawn_npc(key: String, giver: String, at: Vector2, face_to: Vector2) -> vo
 func _free_npc(key: String) -> void:
 	var n: Variant = _npcs.get(key)
 	if is_instance_valid(n):
+		_hide_world_twin(_display_name(String(key).get_slice("@", 0)), Vector2((n as Node3D).global_position.x, (n as Node3D).global_position.z), false)
+	if is_instance_valid(n):
 		(n as Node).queue_free()
 	_npcs.erase(key)
+
+
+## The world may already stand a named person where the quest wants them (Sir Rowan at Highwatch Keep): only one is ever there.
+## The world's Station is hidden and switched off while the quest's character is out, and comes back when it is freed.
+func _hide_world_twin(display: String, at: Vector2, hide: bool) -> void:
+	if not is_inside_tree():
+		return
+	for st: Node in get_tree().get_nodes_in_group("r1_world_npc"):
+		if String(st.get_meta("npc_name", "")) != display or not (st is Node3D):
+			continue
+		var q := Vector2((st as Node3D).global_position.x, (st as Node3D).global_position.z)
+		if q.distance_to(at) > 90.0:
+			continue
+		(st as Node3D).visible = not hide
+		st.process_mode = Node.PROCESS_MODE_DISABLED if hide else Node.PROCESS_MODE_INHERIT
 
 
 func _clear_npcs() -> void:
@@ -625,6 +643,7 @@ func npc_menu(npc_id: String) -> Dictionary:
 	var opts: Array = []
 	for o: Dictionary in _conv["options"]:
 		opts.append([String(o["text"]), _pick.bind(o)])
+	opts.append_array(_lore_options(npc_id))
 	if glue != null and glue.has_method("npc_extra_options") and String(_conv["node"]) != "":
 		for extra: Array in glue.call("npc_extra_options", npc_id):
 			opts.append(extra)
@@ -738,6 +757,36 @@ func hosts_with_talk() -> Array[Dictionary]:
 			var h := _entry_host(s, e)
 			out.append({"npc": h, "step": id, "place": String(s.get("place", ""))})
 	return out
+
+
+## Optional side leads, offered as extra rows (never required): Harrok knows the caves under Greyseam; Wren has hunters' tales
+## from the Glade that point toward the Hidden Vale. Text only, no markers.
+func _lore_options(npc_id: String) -> Array:
+	var out: Array = []
+	if npc_id == "harrok_ashmaw" and (story.is_active("a4_greyseam") or story.is_done("a4_greyseam")):
+		out.append(["Ask about caves in the hills", Callable(self, "_lead_cave")])
+	if npc_id == "wren_coldbrook" and (story.is_active("a4_glade_trial") or story.is_done("a4_glade_trial")):
+		out.append(["Ask about the hunters' old tales", Callable(self, "_lead_vale")])
+	return out
+
+
+func _lead_cave() -> String:
+	var ex: Variant = Life.realm.mod("exploration") if Life.realm != null else null
+	if ex == null:
+		return "Harrok shrugs. Nothing he will say."
+	var r: Dictionary = ex.call("rumour_for", _pp(), 4411)
+	if r.is_empty():
+		return "Harrok grunts. All the caves he knew, you have already heard of."
+	ex.call("learn_lead", String(r["site_id"]), int(WorldSim.day))
+	return "Harrok scratches a line in the dirt. %s (added to your leads)" % String(r["text"])
+
+
+func _lead_vale() -> String:
+	var HV := preload("res://scripts/world/hidden_valley.gd")
+	var soc: Variant = Life.realm.mod("society") if Life.realm != null else null
+	if soc != null:
+		soc.call("learn", "lead:hidden_vale_hunters", String(HV.HUNTER_LINES[0]))
+	return String(HV.HUNTER_LINES[0])
 
 
 # --- parley: non-combat routes for the big creatures ------------------------------------

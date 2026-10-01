@@ -119,6 +119,8 @@ static func _npc(root: Node3D, npc: Dictionary, site: Dictionary) -> void:
 			opts.append(["What is %s known for?" % town, func() -> String: return String(npc["trade"])])
 		return {"title": title, "body": String(npc.get("greet", "Well met, traveller.")), "options": opts}
 	var st := Station.new(title, "Talk", menu)
+	st.add_to_group("r1_world_npc")
+	st.set_meta("npc_name", String(npc.get("name", "")))
 	root.add_child(st)
 	var at: Array = npc.get("at", [0, 4])
 	st.global_position = _ground_at(root, at)
