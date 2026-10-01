@@ -38,13 +38,19 @@ const Schedule := preload("res://scripts/population/schedule.gd")
 ##   PATROL    guards walk the settlement's patrol loop              HIDE     stay indoors after a scare, peek out later
 ##   PROTEST   step back from a drawn weapon and complain            ALARM    witnesses run to a guard / guards run to the crime
 ##   FIREFIGHT fetch and throw water at a fire                       CHORE    sweep, laundry, cooking, chickens near home
+## NOTICE..SEARCH (appended after QUEUE): the alert classes of scripts/population/perception.gd (inputs a_notice,
+## a_susp, a_search; the fourth class, alarmed, drives ALARM through the crime input).
+##   NOTICE      stop and turn toward what drew the eye         INVESTIGATE walk to the alert point and look around
+##   SEARCH      comb the area around the alert point
 ## TRAIN..QUEUE (appended after CHORE): the circumstances of the town (scripts/population/town_mood.gd).
 ##   TRAIN     guards and militia drill at the training yard         MOURN    attend a funeral
 ##   FESTIVE   celebrate on the plaza on festival days               QUEUE    stand in the bread line when food is short
 enum Act { SLEEP, HOME, EAT, WORK, SHOP, SOCIAL, INN, PRAY, WATER, SHELTER, FLEE, WATCH, IDLE,
-	SIT, PLAY, PATROL, HIDE, PROTEST, ALARM, FIREFIGHT, CHORE, TRAIN, MOURN, FESTIVE, QUEUE }
+	SIT, PLAY, PATROL, HIDE, PROTEST, ALARM, FIREFIGHT, CHORE, TRAIN, MOURN, FESTIVE, QUEUE,
+	NOTICE, INVESTIGATE, SEARCH }
 const NAMES := ["sleep", "home", "eat", "work", "shop", "socialise", "inn", "pray", "water", "shelter", "flee", "watch", "idle",
-	"sit", "play", "patrol", "hide", "protest", "alarm", "firefight", "chore", "train", "mourn", "festive", "queue"]
+	"sit", "play", "patrol", "hide", "protest", "alarm", "firefight", "chore", "train", "mourn", "festive", "queue",
+	"notice", "investigate", "search"]
 
 ## Response curves (Pennycook's set plus a remap):
 ##  BINARY    x >= a ? 1 : b             (b is the floor below the threshold)
@@ -111,12 +117,16 @@ const ACTIONS := {
 	# Bread line: food short, the stall open, nothing urgent.
 	Act.QUEUE: [0.85, [["queue", Resp.BINARY, 0.5, 0.0], ["scarce", Resp.RANGE, 0.0, 1.0],
 		["child", Resp.RANGE, 1.0, 0.0], ["danger", Resp.RANGE, 1.0, 0.0]]],
+	# Alert classes (perception.gd). The nerve input is max(brave, guard) set by the body: the timid stare, the watch acts.
+	Act.NOTICE: [0.9, [["a_notice", Resp.BINARY, 0.5, 0.0], ["danger", Resp.RANGE, 1.0, 0.0]]],
+	Act.INVESTIGATE: [1.0, [["a_susp", Resp.BINARY, 0.5, 0.0], ["danger", Resp.RANGE, 1.0, 0.0], ["nerve", Resp.RANGE, 0.3, 1.0]]],
+	Act.SEARCH: [1.05, [["a_search", Resp.BINARY, 0.5, 0.0], ["danger", Resp.RANGE, 1.0, 0.0], ["nerve", Resp.RANGE, 0.35, 1.0]]],
 }
 
 ## Acts carried out indoors: the villager walks to the door and goes inside.
 const INDOOR := [Act.SLEEP, Act.HOME, Act.EAT, Act.HIDE]
 ## Acts that may break a commitment at once (they get the current act's bonus too).
-const URGENT := [Act.FLEE, Act.SHELTER, Act.HIDE, Act.PROTEST, Act.ALARM]
+const URGENT := [Act.FLEE, Act.SHELTER, Act.HIDE, Act.PROTEST, Act.ALARM, Act.NOTICE, Act.INVESTIGATE, Act.SEARCH]
 ## Score bonus for the current act: while still committed (just arrived) and after.
 const COMMIT_BONUS := 1.45
 const KEEP_BONUS := 1.15
@@ -417,6 +427,7 @@ func context(hour: float, sched: int, raining: bool, danger: float, spectacle: f
 	ctx["guard"] = guard
 	ctx["holy_day"] = 1.0 if day % 7 == 0 else 0.0
 	ctx["brave"] = 0.3 + 0.7 * (1.0 - float(traits["lazy"])) * (0.6 + 0.4 * float(traits["sociable"]))
+	ctx["nerve"] = maxf(float(ctx["brave"]), guard)
 	# the body's own observations (fire, armed, crime, hide, seat, play_spot, chore_spot, child, patrol_turn,
 	# and the town's circumstances: holiday, festive, curfew, mourning_town, scarce, queue, train, mourn)
 	for k: String in inp:
@@ -503,10 +514,7 @@ func sense_threats(viewer: Node3D, tree: SceneTree, world_layer: int) -> Diction
 	_sight_observer_ref = weakref(viewer)
 	hazards(tree)
 	var now := Time.get_ticks_msec()
-	if now - _ray_window_ms >= THREAT_RAY_WINDOW_MS:
-		_ray_window_ms = now
-		_rays_used = 0
-		_reset_ray_window_stats()
+	_roll_ray_window(now)
 	_prune_sight_queue(now)
 	var eye := viewer.global_position + Vector3.UP * 1.4
 	var nearest: Array = [] # [distance_squared, target instance id]
@@ -567,6 +575,50 @@ func sense_threats(viewer: Node3D, tree: SceneTree, world_layer: int) -> Diction
 					out["visible"] = mail["visible"]
 		_sight_mail.erase(viewer_id)
 	return out
+
+
+static func _roll_ray_window(now: int) -> void:
+	if now - _ray_window_ms >= THREAT_RAY_WINDOW_MS:
+		_ray_window_ms = now
+		_rays_used = 0
+		_reset_ray_window_stats()
+
+
+## ONE ray out of the same budget sense_threats uses (THREAT_RAY_BUDGET per THREAT_RAY_WINDOW_MS), for the
+## perception pipeline once the cheap gates passed (perception.gd). 1 = clear line, 0 = blocked,
+## -1 = no budget left or no physics space (unknown: the caller keeps its last answer).
+static func try_ray(viewer: Node3D, to: Vector3, world_layer: int, now := -1) -> int:
+	if viewer == null or not viewer.is_inside_tree():
+		return -1
+	var t := now if now >= 0 else Time.get_ticks_msec()
+	_roll_ray_window(t)
+	if _rays_used >= THREAT_RAY_BUDGET:
+		_record_ray_stat("exhausted")
+		return -1
+	var space := viewer.get_world_3d().direct_space_state if viewer.get_world_3d() != null else null
+	if space == null:
+		return -1
+	var query := PhysicsRayQueryParameters3D.create(viewer.global_position + Vector3.UP * 1.5, to, world_layer)
+	var body := viewer as CollisionObject3D
+	if body != null:
+		query.exclude = [body.get_rid()]
+	_rays_used += 1
+	_record_ray_stat("admitted")
+	return 1 if space.intersect_ray(query).is_empty() else 0
+
+
+## A guard (not `exclude`) with a body within `radius` of `here`; -1 when none. Used for "the witness reached a guard".
+static func guard_within(here: Vector2, radius: float, exclude := -1) -> int:
+	var r2 := radius * radius
+	for p: int in _bodies:
+		if p == exclude or p >= WorldSim.job.size() or WorldSim.job[p] != 3:
+			continue
+		var b := body_of(p)
+		if b == null:
+			continue
+		if Vector2(b.global_position.x, b.global_position.z).distance_squared_to(here) <= r2:
+			return p
+	return -1
 
 
 static func _enqueue_sight(viewer: Node3D, target_id: int, world_layer: int, now: int) -> void:
@@ -1199,6 +1251,25 @@ func plan_goal(action: int, here: Vector2, graph: StreetGraph, hazard: Vector2, 
 			out["face"] = centre - (out["goal"] as Vector2)
 			if fslot >= 0:
 				out["look"] = centre
+		Act.NOTICE:
+			# Stop and turn toward what drew the eye.
+			out["goal"] = here
+			if look_at != Vector2.INF:
+				out["look"] = look_at
+				out["face"] = look_at - here
+		Act.INVESTIGATE:
+			# Walk toward the alert point and stop a few steps short, looking at it.
+			if look_at != Vector2.INF:
+				var from3 := here - look_at
+				out["goal"] = _clear(graph, look_at + (from3.normalized() if from3.length() > 0.5 else Vector2.RIGHT) * 2.5, 0.45)
+				out["look"] = look_at
+		Act.SEARCH:
+			# Comb the area: each searcher takes its own point on a ring round the alert point.
+			if look_at != Vector2.INF:
+				var sa := float(absi(hash([person, int(look_at.x), int(look_at.y)])) % 628) / 100.0
+				var sr := 3.0 + float(absi(hash(person * 31 + 7)) % 40) / 10.0
+				out["goal"] = _clear(graph, look_at + Vector2(cos(sa), sin(sa)) * sr, 0.45)
+				out["look"] = look_at
 		Act.QUEUE:
 			var q := NpcWorld.queue_spot(sid, person)
 			if q.is_empty():
@@ -1226,6 +1297,8 @@ func hide_spot(pl: Dictionary, here: Vector2, hazard: Vector2, graph: StreetGrap
 		var d := here.distance_to(eaves[i])
 		if d > 38.0:
 			continue
+		if NpcWorld.door_blocked(WorldSim.home[person], eaves[i], person):
+			continue       # a locked door we have no key to is no hiding place
 		var gain := 0.0
 		if hazard != Vector2.INF:
 			gain = eaves[i].distance_to(hazard) - hazard.distance_to(here)
@@ -1300,4 +1373,7 @@ static func label(action: int, travelling: bool) -> String:
 		Act.MOURN: return "going to the funeral" if travelling else "mourning"
 		Act.FESTIVE: return "off to the festivities" if travelling else "celebrating"
 		Act.QUEUE: return "joining the bread line" if travelling else "queueing for bread"
+		Act.NOTICE: return "turning to look"
+		Act.INVESTIGATE: return "going to check" if travelling else "looking around"
+		Act.SEARCH: return "searching" if travelling else "searching the area"
 	return "idling"

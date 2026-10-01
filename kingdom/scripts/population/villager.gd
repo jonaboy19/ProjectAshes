@@ -35,6 +35,9 @@ const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
+const Perception := preload("res://scripts/population/perception.gd")
+const Witness := preload("res://scripts/population/witness.gd")
+const Evidence := preload("res://scripts/population/evidence.gd")
 const TownMood := preload("res://scripts/population/town_mood.gd")
 const Schedule := preload("res://scripts/population/schedule.gd")
 const TownIdentity := preload("res://scripts/world/town_identity.gd")
@@ -111,6 +114,9 @@ const ACT_CLIPS := {
 	Act.MOURN: ["Life_Social_Mourn_Stand", "Life_Mocap_Sad", "Life_Pray_Stand", "Idle_Subtle"],
 	Act.FESTIVE: ["Dance", "Life_Tavern_Cheer", "Life_Social_Laugh", "Cheering_Two_Hands"],
 	Act.QUEUE: ["Life_Ambient_Shift_Weight", "Life_Ambient_Look_Around", "Life_Ambient_Wipe_Brow", "Idle_Subtle"],
+	Act.NOTICE: ["Life_Ambient_Shade_Eyes", "Life_Ambient_Look_Around", "Idle_Listening", "Idle_Subtle"],
+	Act.INVESTIGATE: ["Life_Ambient_Look_Around", "Idle_Listening", "Idle_Subtle"],
+	Act.SEARCH: ["Life_Ambient_Look_Around", "Life_Guard_Look_Out", "Idle_Subtle"],
 }
 ## Clips of the same act varied per person: the devout kneel at a funeral, some dance and some cheer.
 const MOURN_KNEEL := ["Life_Social_Mourn_Kneel", "Life_Pray_Kneel"]
@@ -131,7 +137,7 @@ const STUCK_PROGRESS := 0.3
 ## Smart object sessions advance at this rate (their state machine allocates a result per update).
 const SESSION_HZ := 10.0
 ## Real seconds an act is held after arriving when it is not the default MIN_PERFORM.
-const PERFORM_FOR := {Act.PROTEST: 3.0, Act.PATROL: 3.5, Act.FIREFIGHT: 5.0, Act.ALARM: 7.0, Act.WATCH: 6.0,
+const PERFORM_FOR := {Act.NOTICE: 1.6, Act.INVESTIGATE: 4.0, Act.SEARCH: 9.0, Act.PROTEST: 3.0, Act.PATROL: 3.5, Act.FIREFIGHT: 5.0, Act.ALARM: 7.0, Act.WATCH: 6.0,
 	Act.MOURN: 18.0, Act.FESTIVE: 20.0, Act.QUEUE: 14.0, Act.TRAIN: 16.0}
 ## Real-time gaps between a villager's grumbles about the state of the town, and the wake-up routine's cooldown.
 const GRUMBLE_GAP_MS := 75000
@@ -218,6 +224,13 @@ var _greet_cd := 0
 var _crime_until := 0
 var _crime_pos := Vector2.INF
 var _crime_heard := false
+var _slot := -1                   # Perception slot (alert scalar, hearing)
+var _acuity := 1.0
+var _reporter := false            # saw a crime and has not reported it to a guard yet
+var _last_class := 0
+var _bark_cd := 0
+var _evi_id := 0                  # evidence found, reaction pending
+var _evi_at := 0
 var _peek_until := 0
 var _oneshot := ""
 var _oneshot_until := 0
@@ -337,6 +350,8 @@ func _ready() -> void:
 	add_child(_tag)
 	_tag.text = WorldSim.describe(person)
 	_brain = _make_brain()
+	_acuity = 1.3 if WorldSim.job[person] == 3 else (0.8 if _child else 1.0)
+	_slot = Perception.bind(person, _acuity, WorldSim.job[person] == 3)
 	UtilityBrain.register_body(person, self)
 	# First decision now, later ones on this person's own phase.
 	_decide = 0.0
@@ -351,6 +366,7 @@ func _exit_tree() -> void:
 		NpcWorld.bubbles_shown = maxi(NpcWorld.bubbles_shown - 1, 0)
 	UtilityBrain.clear_sight_for(self)
 	UtilityBrain.unregister_body(person)
+	Perception.unbind(person)
 
 
 ## Components other systems attach to an embodied villager's model go here
@@ -508,6 +524,7 @@ func _think_tick() -> void:
 	if travelling:
 		_avoid += _extra_steering(here)
 	_separation = _neighbour_push(here)
+	_perceive(here, now_ms, player_distance)
 	_maybe_greet(here, player_distance, now_ms)
 	_reaction_tick(here, now_ms)
 	if travelling and _yield_time <= 0.0:
@@ -600,6 +617,11 @@ func _decide_act(here: Vector2) -> void:
 		Act.SOCIAL:
 			if _partner < 0:
 				_partner = UtilityBrain.chat_partner(person)
+		Act.NOTICE, Act.INVESTIGATE, Act.SEARCH:
+			# The point moved (a new sighting or sound): go there.
+			var ap := Perception.point_of(_slot)
+			if ap != Vector2.INF and ap.distance_to(_look_point) > 3.0:
+				_apply_plan(here, danger_p, ap)
 		Act.PATROL:
 			if _arrived and _perform_time > float(PERFORM_FOR[Act.PATROL]):
 				_apply_plan(here, danger_p, Vector2.INF)
@@ -620,10 +642,12 @@ func _decide_act(here: Vector2) -> void:
 ## in hiding, guard duty turns and whether a seat / play patch / chore is at hand.
 func _gather_inputs(here: Vector2, now: int, guard: bool) -> void:
 	var inp := _brain.inp
+	Perception.inputs(_slot, inp, now)
+	inp["evidence_near"] = 1.0 if _evi_id != 0 else 0.0
 	inp["child"] = 1.0 if _child else 0.0
 	inp["fire"] = NpcWorld.fire_interest(here)
 	inp["armed"] = NpcWorld.armed_pressure(here) if now >= _protest_cd else 0.0
-	inp["crime"] = _crime_input(here, now)
+	inp["crime"] = maxf(_crime_input(here, now), inp.get("a_alarm", 0.0) as float)
 	inp["hide"] = 1.0 if (now < _hide_until and not guard) else 0.0
 	var hour := DailyRhythm.local_time(person)
 	var sid: int = WorldSim.home[person]
@@ -697,9 +721,13 @@ func _look_for(act: int, danger_p: Vector2, sight_p: Vector2, player_p: Vector2,
 			return player_p
 		Act.HIDE:
 			return _scared_at
+		Act.NOTICE, Act.INVESTIGATE, Act.SEARCH:
+			return Perception.point_of(_slot)
 		Act.ALARM:
 			if _crime_pos != Vector2.INF and Time.get_ticks_msec() < _crime_until:
 				return _crime_pos
+			if Perception.class_of(_slot) == Perception.Cls.ALARMED and Perception.point_of(_slot) != Vector2.INF:
+				return Perception.point_of(_slot)
 			var slot := NpcWorld.nearest(NpcWorld.Kind.CRIME, here, NpcWorld.CRIME_HEARING)
 			return NpcWorld.incident_pos(slot) if slot >= 0 else Vector2.INF
 		Act.FIREFIGHT:
@@ -759,6 +787,8 @@ func _pace_for(act: int) -> float:
 		Act.ALARM: return ALARM_PACE
 		Act.FIREFIGHT: return FIRE_PACE
 		Act.HIDE: return 1.9
+		Act.INVESTIGATE: return 1.4
+		Act.SEARCH: return 1.25
 		Act.PROTEST: return 0.85
 		Act.QUEUE: return 1.1
 		Act.MOURN: return 0.85
@@ -780,6 +810,12 @@ func _act_started(here: Vector2, hazard: Vector2, look: Vector2, now: int) -> vo
 			_say(NpcWorld.line("armed_guard" if guard else "armed", person, sec))
 		Act.ALARM:
 			_say(NpcWorld.line("guard_respond" if guard else "crime", person, sec))
+		Act.NOTICE:
+			_say(NpcWorld.line("notice", person, sec), 2.0)
+		Act.INVESTIGATE:
+			_say(NpcWorld.line("suspicious_guard" if guard else "suspicious", person, sec), 2.4)
+		Act.SEARCH:
+			_say(NpcWorld.line("search", person, sec), 2.6)
 		Act.FIREFIGHT:
 			_say(NpcWorld.line("fire", person, sec))
 			if _props != null:
@@ -1522,8 +1558,112 @@ func witness(pos: Vector2, _kind: String, saw: bool, _by_player: bool) -> bool:
 	_crime_until = now + 25000
 	_crime_pos = pos
 	_crime_heard = not saw
+	_reporter = saw
+	Perception.set_class_at_least(_slot, Perception.Cls.ALARMED if saw else Perception.Cls.SUSPICIOUS, pos, now)
 	_decide = 0.0          # think about it on the next tick
 	return true
+
+
+## Unit-vector heading in the XZ plane (what perception treats as the facing of this body).
+func perception_facing() -> Vector2:
+	return Vector2(sin(_heading), cos(_heading))
+
+
+func perception_acuity() -> float:
+	return _acuity
+
+
+## Killed, knocked out or bribed: this witness will never report (hook for combat / bribery).
+func silence() -> void:
+	_reporter = false
+	Witness.silence(person, Time.get_ticks_msec(), NpcWorld._society())
+
+
+## One think tick of perception (3.3 Hz per body, staggered by the body's own phase): cheap gates first (distance,
+## cone, light, stance), then ONE ray from the shared budget, then the alert scalar; sounds and found evidence
+## add to it. The data tier never gets here.
+func _perceive(here: Vector2, now_ms: int, player_distance: float) -> void:
+	if _slot < 0:
+		return
+	var t0 := Time.get_ticks_usec() if Perception.profile else 0
+	var seen_vis := 0.0
+	var factor := 0.0
+	var pp := Vector2.INF
+	if _player != null and is_instance_valid(_player) and player_distance < Perception.FAR_M * Perception.GUARD_RANGE:
+		pp = Vector2(_player.global_position.x, _player.global_position.z)
+		var vis := Perception.vis(here, perception_facing(), pp, Perception.light_at(pp, now_ms), NpcWorld.player_stance(),
+			NpcWorld.player_still(), _acuity)
+		if vis > Perception.VIS_MIN:
+			var r := UtilityBrain.try_ray(self, _player.global_position + Vector3.UP * 1.2, WORLD_LAYER, now_ms)
+			if r == 1:
+				seen_vis = vis
+			elif r == -1 and now_ms - Perception.last_ray_ms[_slot] < 1200:
+				seen_vis = vis * 0.5       # no ray left in the budget: trust the last look for a moment
+			factor = NpcWorld.player_suspicion(WorldSim.home[person])
+	Perception.update(_slot, seen_vis, factor, pp, now_ms, THINK_INTERVAL)
+	Perception.listen(_slot, here, now_ms)
+	_evidence_tick(here, now_ms)
+	_report_tick(here, now_ms)
+	var c := Perception.class_of(_slot)
+	if c > _last_class and now_ms >= _bark_cd and c < Perception.Cls.ALARMED:
+		_bark_cd = now_ms + 6000
+		_decide = 0.0              # an upward class change is thought about at once
+	_last_class = c
+	if Perception.profile:
+		Perception.prof_usec += Time.get_ticks_usec() - t0
+		Perception.prof_calls += 1
+
+
+## A witness who saw a crime and got to a guard has reported it (Witness commits to Society); one who gave up
+## (fled or hid) will not.
+func _report_tick(here: Vector2, now_ms: int) -> void:
+	if not _reporter:
+		return
+	if not Witness.is_running(person):
+		_reporter = false
+		return
+	if UtilityBrain.guard_within(here, Witness.REPORT_RADIUS, person) >= 0 or WorldSim.job[person] == 3:
+		Witness.deliver(person, now_ms, NpcWorld._society())
+		_reporter = false
+	elif _act == Act.FLEE or _act == Act.HIDE or _act == Act.SHELTER:
+		Witness.abandon(person, now_ms, NpcWorld._society())
+		_reporter = false
+
+
+## Evidence near this body (a body, blood, a broken door ...): notice it once, react after a deterministic 0.5-1.5 s.
+func _evidence_tick(here: Vector2, now_ms: int) -> void:
+	if _evi_id != 0:
+		if now_ms < _evi_at:
+			return
+		var id := _evi_id
+		_evi_id = 0
+		if not Evidence.exists(id):
+			return
+		var epos := Evidence.pos_of(id)
+		Evidence.mark_seen(id, person)
+		Evidence.feed(id, NpcWorld._society())
+		var guard := WorldSim.job[person] == 3
+		var happened := Evidence.age_ms(id, now_ms) < Evidence.HAPPEN_MS
+		if guard:
+			Perception.set_class_at_least(_slot, Perception.Cls.SEARCHING, epos, now_ms)
+			NpcWorld.report(NpcWorld.Kind.BODY_FOUND, epos, 40.0, 20.0, 0.8)
+		else:
+			Perception.set_class_at_least(_slot, Perception.Cls.ALARMED if (_child == false and happened) else Perception.Cls.SUSPICIOUS, epos, now_ms)
+		_decide = 0.0
+		return
+	if _indoors or Evidence.count <= 0:
+		return
+	var found := Evidence.nearest_unseen(here, 12.0, person)
+	if found == 0:
+		return
+	# The cheap gate: it must be lit enough to make out and roughly in front of us.
+	var epos2 := Evidence.pos_of(found)
+	if Perception.light_at(epos2, now_ms) < 0.25 and Perception.cone(perception_facing(), epos2 - here) <= 0.0:
+		return
+	if Perception.cone(perception_facing(), epos2 - here) <= 0.0:
+		return
+	_evi_id = found
+	_evi_at = now_ms + Evidence.reaction_delay_ms(person, found)
 
 
 ## Short line above the head (at most NpcWorld.MAX_BUBBLES on screen, only near the player).

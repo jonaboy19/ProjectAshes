@@ -948,7 +948,10 @@ func disguise_check(npc_id: String) -> bool:
 
 # ----------------------------------------------------------- L§33/34 crime
 
-func commit_crime(kind: String, sid: int, witnesses_near: Variant = 0) -> Dictionary:
+## `opts` (optional, from NpcWorld/Witness): {"vis": [0..1 per witness]} says each witness really saw the culprit
+## (perception decided it, so the flat see chance is skipped) and how well: recognition falls with darkness and
+## distance. Without opts the old flat chances (0.9 day / 0.55 night) apply, so existing callers are unchanged.
+func commit_crime(kind: String, sid: int, witnesses_near: Variant = 0, opts: Dictionary = {}) -> Dictionary:
 	if not CRIMES.has(kind):
 		return {"ok": false, "reason": "Unknown crime."}
 	_ensure_npcs()
@@ -967,13 +970,22 @@ func commit_crime(kind: String, sid: int, witnesses_near: Variant = 0) -> Dictio
 	var identified := 0
 	var reported := 0
 	var slums := 0.25 if String(player.get("district", "")) == "slums" else 0.0
+	var vis_list: Array = opts.get("vis", [])
+	var wi := -1
 	for w: Variant in wlist:
+		wi += 1
 		var wid := String(w)
 		var see := 0.55 if night else 0.9
+		var wvis := -1.0
+		if wi < vis_list.size():
+			wvis = float(vis_list[wi])
+			see = 1.0
 		if r.randf() > see:
 			continue
 		noticed += 1
 		var recog := clampf(0.65 - disguise * 0.6 + fame_at(sid) * 0.004, 0.05, 0.95)
+		if wvis >= 0.0:
+			recog = clampf(recog * clampf(0.4 + 0.6 * wvis, 0.3, 1.0), 0.05, 0.95)
 		if wid != "" and npcs.has(wid):
 			recog = clampf(recog + _rel_dim(wid, "familiarity") / 250.0, 0.05, 0.98)
 			if disguise_check(wid):
