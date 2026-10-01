@@ -77,3 +77,8 @@ The rest (R§39/40, L§1/2/3/44/45/47/50) are design rules: the player never con
 - **Natural dungeons end in a boss.** Separately, **dungeon towers** work like Sword Art Online's Aincrad: floors, labyrinths, safe zones, boss doors and first-clear rewards, with NPC parties racing you to the next floor.
 - **Items:** a full set of hundreds of items with recipes, market stock by town identity, and loot tables.
 - **Unused models and animations:** once the current agents land, audit all imported models and animations and place or wire everything unused, such as meshy_free packs, the animation libraries and the region kits.
+
+## Travel and world size (user decision, 2026-10-01)
+- World grows from 8 km to **12 × 12 km** (`WorldGen.WORLD_HALF` 4096 → 6144). Scale realm travel speeds again so in-game travel times stay consistent, and fill the new land (POIs, camps, dens, roads) so it never feels empty.
+- **Travel takes real effort:** town to town takes in-game hours, with stamina, night camping, weather, horse and cart for speed. Fast travel is only between discovered waystations, and costs gold and time.
+- **Road events:** caravans, ambushes, travellers with news, roadside camps, and monster territories, driven by the civilization, ecology and news modules.
