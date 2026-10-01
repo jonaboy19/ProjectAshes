@@ -18,6 +18,7 @@ const PLAYER_SOLID_RANGE := 16.0
 const WORLD_LAYER := 1
 const SOLDIER_LAYER := 4
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
+const Fighter := preload("res://scripts/combat/npc_fighter.gd")
 
 var team := 0
 var squad: Squad
@@ -47,6 +48,10 @@ var _velocity := Vector3.ZERO
 var _step_distance := 0.0
 var _ragdoll: Node
 var _hit_from := Vector3.INF
+## Humanoid fighter model: bandits (team 1) and guards/militia (team 0) pick moves from CombatMoves and
+## guard on a rank-based chance (npc_fighter.gd). Squad stances still scale block_chance.
+var _fighter: RefCounted
+var _cur_move: Resource
 
 
 static func create(team_id: int, look: String, file: String, keep: Array[String]) -> Soldier:
@@ -60,6 +65,8 @@ static func create(team_id: int, look: String, file: String, keep: Array[String]
 
 func _ready() -> void:
 	# Distant troops remain cheap; only nearby troops participate in physics.
+	_fighter = Fighter.make("bandit" if team == 1 else "guard", randi())
+	block_chance = _fighter.react_chance()
 	collision_layer = SOLDIER_LAYER
 	collision_mask = WORLD_LAYER
 	_actor_shape = CollisionShape3D.new()
@@ -204,14 +211,39 @@ func _update_player_collision() -> void:
 
 func _attack() -> void:
 	_attack_cooldown = randf_range(1.1, 1.5)
-	_busy = 0.5
-	_animator.play_upper(["1H_Melee_Attack_Chop", "1H_Melee_Attack_Slice_Diagonal", "1H_Melee_Attack_Slice_Horizontal"][randi() % 3], 1.4)
 	var victim := combat_target
-	get_tree().create_timer(0.3).timeout.connect(func() -> void:
+	# Defaults are the old fixed swing: contact 0.3 s in, busy 0.5 s, `damage` per hit.
+	var hit_delay := 0.3
+	var busy := 0.5
+	var dmg := damage
+	_cur_move = null
+	if _fighter != null and victim != null:
+		_cur_move = _fighter.choose_move(global_position.distance_to(victim.global_position),
+			"blocking" if bool(victim.get("blocking")) else "idle")
+		if _cur_move != null:
+			var ref: Resource = _fighter.default_move()
+			var k: float = _cur_move.windup / ref.windup
+			hit_delay = 0.3 * k
+			busy = 0.5 * k
+			dmg = maxi(int(round(float(damage) * _cur_move.damage / ref.damage)), 1)
+	_busy = busy
+	_animator.play_upper(["1H_Melee_Attack_Chop", "1H_Melee_Attack_Slice_Diagonal", "1H_Melee_Attack_Slice_Horizontal"][randi() % 3], 1.4 / maxf(hit_delay / 0.3, 0.5))
+	var move := _cur_move
+	get_tree().create_timer(hit_delay).timeout.connect(func() -> void:
 		if not dead and is_instance_valid(victim) and not victim.get("dead") \
 				and global_position.distance_to(victim.global_position) < ATTACK_RANGE + 0.5:
-			victim.take_damage(damage, self)
-			Audio.sfx("clash" if randf() < 0.5 else "hit", global_position, -6.0))
+			victim.take_damage(dmg, self)
+			Audio.sfx("clash" if randf() < 0.5 else "hit", global_position, -6.0)
+		if _cur_move == move:
+			_cur_move = null)
+
+
+## Describes the blow in flight for the defender's HitResolver call.
+func attack_info() -> Dictionary:
+	if _cur_move == null:
+		return {}
+	return {"poise_damage": _cur_move.poise_damage, "lane": _cur_move.lane, "parryable": _cur_move.parryable,
+		"unblockable": _cur_move.unblockable}
 
 
 func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> void:
@@ -229,7 +261,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 	if from is Node3D:
 		var to := (from as Node3D).global_position - global_position
 		from_front = global_transform.basis.z.dot(Vector3(to.x, 0, to.z).normalized()) > 0.3
-	if from_front and randf() < block_chance and _busy <= 0.0:
+	if from_front and _busy <= 0.0 and not _fighter.consider_reaction(Time.get_ticks_msec() * 0.001, block_chance).is_empty():
 		_guard = 0.6
 		_impulse = knockback * 0.4
 		_animator.play_upper("Block_Hit", 1.5)

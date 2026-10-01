@@ -26,6 +26,7 @@ signal died(monster: CampMonster)
 const Models := preload("res://scripts/actors/creature_models.gd")
 const Tokens := preload("res://scripts/actors/creature_attack_tokens.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
+const Fighter := preload("res://scripts/combat/npc_fighter.gd")
 const PLAYER_SOLID_RANGE := 16.0
 ## Hit knockback plays out as a short slide (time constant KNOCK_TAU, same 0.12 m per
 ## unit of knockback as before) instead of an instant teleport (FEEL_AUDIT F5).
@@ -108,10 +109,15 @@ var _model: Node3D
 var _hit_push := Vector3.ZERO
 var _hit_from := Vector3.INF
 var _ward_timer := 0.0            # seconds spent inside strong coverage (ward "brief")
+var _fighter: RefCounted          # NpcFighter: move choice from the CombatMoves table (null = SPECIES row only)
+var _cur_move: Resource           # the CombatAction being swung
+var _cur_windup := 0.5
 
 
 func _ready() -> void:
 	var sp: Dictionary = SPECIES[species]
+	if Fighter.has_archetype(species):
+		_fighter = Fighter.make(species, randi())
 	collision_layer = ENEMY_LAYER
 	collision_mask = WORLD_LAYER
 	floor_snap_length = 0.25
@@ -223,7 +229,7 @@ func _physics_process(delta: float) -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node3D
 	if _winding > 0.0:
 		_winding -= delta
-		if is_instance_valid(_strike_target) and _winding > float(SPECIES[species]["windup"]) * 0.4:
+		if is_instance_valid(_strike_target) and _winding > _cur_windup * 0.4:
 			_face(_strike_target.global_position, delta)   # tracks early, then commits
 		if _winding <= STRIKE_TIME and not _strike_snap_sent:
 			_strike_snap_sent = true
@@ -455,10 +461,19 @@ func _face(at: Vector3, delta: float) -> void:
 func _strike(foe: Node3D) -> void:
 	var sp: Dictionary = SPECIES[species]
 	var windup := float(sp["windup"])
+	var total := windup + float(sp["recover"])
+	_cur_move = null
+	if _fighter != null:
+		var dist := global_position.distance_to(foe.global_position)
+		_cur_move = _fighter.choose_move(dist, "blocking" if bool(foe.get("blocking")) else "idle")
+		if _cur_move != null:
+			windup = _cur_move.windup
+			total = _cur_move.total()
+	_cur_windup = windup
 	_attack_cd = randf_range(float(sp["cooldown"][0]), float(sp["cooldown"][1]))
 	_winding = windup
 	_strike_snap_sent = false
-	_busy = windup + float(sp["recover"])
+	_busy = total
 	_strike_target = foe
 	var pre := maxf(_impact_time - STRIKE_TIME, 0.05)
 	var hold := maxf(windup - STRIKE_TIME, 0.05)
@@ -469,6 +484,14 @@ func _strike(foe: Node3D) -> void:
 		Audio.play_sfx(voice, global_position + Vector3.UP * float(sp["height"]) * 0.8, -5.0, 0.1)
 
 
+## Describes the blow in flight for the defender's HitResolver call (player.take_damage reads it).
+func attack_info() -> Dictionary:
+	if _cur_move == null:
+		return {}
+	return {"poise_damage": _cur_move.poise_damage, "lane": _cur_move.lane, "parryable": _cur_move.parryable,
+		"unblockable": _cur_move.unblockable}
+
+
 func _impact() -> void:
 	if _anim:
 		_anim.speed_scale = 1.0
@@ -476,12 +499,20 @@ func _impact() -> void:
 	var foe := _strike_target
 	_strike_target = null
 	var sp: Dictionary = SPECIES[species]
-	if Tokens.can_hit(self, foe, float(sp["reach"]), WORLD_LAYER) and foe.has_method("take_damage"):
-		var dmg := int(sp["damage"]) + level
+	var reach := float(sp["reach"])
+	var base := int(sp["damage"])
+	var knock := float(sp["knock"])
+	if _cur_move != null:
+		reach = _cur_move.reach
+		base = _cur_move.damage
+		knock = _cur_move.knockback
+	if Tokens.can_hit(self, foe, reach, WORLD_LAYER) and foe.has_method("take_damage"):
+		var dmg := base + level
 		var push := foe.global_position - global_position
 		push.y = 0.0
-		foe.take_damage(dmg, self, push.normalized() * float(sp["knock"]))
+		foe.take_damage(dmg, self, push.normalized() * knock)
 		VFX.sparks(get_parent(), foe.global_position + Vector3(0, 0.9, 0), Color(1.0, 0.6, 0.4), 12)
+	_cur_move = null
 	_strikes_left -= 1
 	if _strikes_left <= 0:
 		_end_turn(randf_range(1.2, 2.4))
@@ -525,6 +556,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 	if _winding > 0.0:
 		_winding = 0.0
 		_strike_target = null
+		_cur_move = null
 		_show_telegraph(false)
 	if _ragdoll and _ragdoll.is_down():
 		_busy = maxf(_busy, 0.3)     # already on the ground
