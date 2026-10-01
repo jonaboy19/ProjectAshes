@@ -20,6 +20,9 @@ const CAMS := {
 const CAMS_G := {
 	"over": {"pos": Vector3(0.0, 1.95, 2.8), "at": Vector3(0.0, 4.2, -30.0), "fov": 52.0},
 	"close": {"pos": Vector3(2.4, 1.55, 3.0), "at": Vector3(0.0, 1.25, -1.0), "fov": 40.0},
+	"facade": {"pos": Vector3(1.0, 2.2, -4.0), "at": Vector3(-8.5, 4.0, -13.0), "fov": 55.0},
+	"gate": {"pos": Vector3(0.0, 2.5, -4.0), "at": Vector3(0.0, 14.0, -40.0), "fov": 62.0},
+	"stall": {"pos": Vector3(1.5, 1.7, -2.0), "at": Vector3(-6.7, 1.2, -5.0), "fov": 55.0},
 }
 
 var _args := {}
@@ -35,6 +38,7 @@ var _stat_t := 0.0
 
 func _ready() -> void:
 	_args = _parse_args()
+	Style.tier = String(_args.get("tier", "high"))
 	if OS.has_feature("mobile"):
 		DisplayServer.screen_set_orientation(DisplayServer.SCREEN_LANDSCAPE)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -143,7 +147,7 @@ func _shot_mode() -> void:
 		for i in 8:
 			await get_tree().process_frame
 		var per_cam := {}
-		for which in ["over", "close"]:
+		for which in (["over", "close", "facade", "gate", "stall"] if id == "G" else ["over", "close"]):
 			_point_cam(box, which)
 			for i in 5:
 				await get_tree().process_frame

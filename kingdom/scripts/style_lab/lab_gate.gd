@@ -7,11 +7,17 @@ extends Node3D
 
 const Chars := preload("res://scripts/style_lab/lab_chars.gd")
 const Common := preload("res://scripts/style_lab/lab_common.gd")
+const Extra := preload("res://scripts/style_lab/lab_gate_extra.gd")
+const Style := preload("res://scripts/style_lab/lab_style.gd")
+const StyleG := preload("res://scripts/style_g.gd")
 
 const STREET_HALF := 7.2
 var lamp_top := Vector3(-5.0, 3.2, -9.0)
 var tri_note := {}
 var _rng := RandomNumberGenerator.new()
+var _stalls: Array = []        # [pos, yaw, theme] for the extra stall dressing
+var _house_zs: Array = []
+var stats := {}
 
 
 func build(_style_id := "G") -> void:
@@ -21,7 +27,10 @@ func build(_style_id := "G") -> void:
 	_gatehouse(Vector3(0, 0, -38))
 	_street_rows()
 	_extras()
+	_dressing()
 	_people()
+	_bake_static()
+	tri_note = stats
 
 
 # --- ground -----------------------------------------------------------------------------------------------------
@@ -99,6 +108,10 @@ func _street_rows() -> void:
 		while z > -44.0:
 			var key: String = keys[(i + (0 if side < 0 else 2)) % 4]
 			var lod := 0 if z > -22.0 else (1 if z > -36.0 else 2)
+			if Style.tier != "high":
+				lod = maxi(lod, 1)                       # medium/low: no 13k-tri LOD0 houses
+			if Style.tier == "low" and z < -14.0:
+				lod = 2
 			var yaw: float = PI * 0.5 * (-side)           # facing the street
 			_place("house", key + (":lod%d" % lod if lod > 0 else ""), Vector3(side * 12.2, 0, z), yaw, 0.8)
 			# stall in front of every other house, awning over the pavement
@@ -106,6 +119,7 @@ func _street_rows() -> void:
 				var stall_key := "market_stall_red" if (i / 2 + (0 if side < 0 else 1)) % 2 == 0 else "market_stall_green"
 				var sp := Vector3(side * 6.7, 0, z)
 				_place("stall", stall_key, sp, yaw, 1.0)
+				_stalls.append([sp, yaw, themes[n % themes.size()]])
 				var goods := MarketGoods.layout(themes[n % themes.size()])
 				n += 1
 				if goods:
@@ -115,6 +129,8 @@ func _street_rows() -> void:
 					gm.rotation.y = yaw
 					gm.set_meta("role", "goods")
 					add_child(gm)
+			if side == -1:
+				_house_zs.append(z)
 			z -= 6.6
 			i += 1
 
@@ -156,6 +172,66 @@ func _extras() -> void:
 		_place("house", "house_%d" % _rng.randi_range(1, 8), p, _rng.randf_range(-0.4, 0.4), 1.1)
 
 
+# --- Style G dressing: ivy, flower boxes, tubs, baskets (MultiMesh) and 2x stall goods (one merged mesh) -----------------
+
+func _dressing() -> void:
+	var zs := _house_zs.filter(func(z: float) -> bool: return z > -38.0)
+	stats = Extra.dress_facades(self, _rng, zs, Style.tier)
+	var dens := 1.0 if Style.tier == "high" else (0.8 if Style.tier == "medium" else 0.3)
+	var by_side := {-1: [], 1: []}
+	for s: Array in _stalls:
+		by_side[-1 if s[0].x < 0.0 else 1].append(s)
+	for sd: int in [-1, 1]:
+		var mi := Extra.dress_stalls(by_side[sd], _rng, dens)
+		add_child(mi)
+		stats["goods_pieces_%d" % sd] = mi.get_meta("pieces")
+
+
+## Merges static MeshInstances that share one source material into ONE surface/draw (also cuts shadow-pass draws 4x).
+## Skinned characters, trees, the ground and the gatehouse are left alone.
+func _bake_static() -> void:
+	var groups := {}        # "role|mat id" -> {st, mat, role}
+	var dead: Array[Node] = []
+	for c in get_children():
+		var role := String(c.get_meta("role")) if c.has_meta("role") else ""
+		if role not in ["house", "stall", "goods", "wood", "flowers", "lamp", "banner"]:
+			continue
+		var mi: MeshInstance3D = null
+		var xf := Transform3D.IDENTITY
+		if c is MeshInstance3D:
+			mi = c
+			xf = c.transform
+		elif c is Node3D and c.get_child_count() == 1 and c.get_child(0) is MeshInstance3D:
+			mi = c.get_child(0)
+			xf = (c as Node3D).transform * mi.transform
+		if mi == null or mi.mesh == null or mi.has_meta("keep_material"):
+			continue
+		for si in mi.mesh.get_surface_count():
+			var mat: Material = mi.mesh.surface_get_material(si)
+			var key := "%s|%d" % [role, mat.get_instance_id() if mat else 0]
+			if not groups.has(key):
+				var st := SurfaceTool.new()
+				st.begin(Mesh.PRIMITIVE_TRIANGLES)
+				groups[key] = {"st": st, "mat": mat, "role": role}
+			(groups[key]["st"] as SurfaceTool).append_from(mi.mesh, si, xf)
+		dead.append(c)
+	var before := dead.size()
+	for d in dead:
+		remove_child(d)
+		d.queue_free()
+	for key: String in groups:
+		var g: Dictionary = groups[key]
+		var mesh := (g["st"] as SurfaceTool).commit()
+		mesh.surface_set_material(0, g["mat"])
+		var mi2 := MeshInstance3D.new()
+		mi2.name = "Baked_" + key.replace("|", "_")
+		mi2.mesh = mesh
+		mi2.set_meta("role", g["role"])
+		add_child(mi2)
+	stats["baked_from"] = before
+	stats["baked_to"] = groups.size()
+
+
 # --- people -----------------------------------------------------------------------------------------------------
 
 func _people() -> void:
@@ -166,25 +242,22 @@ func _people() -> void:
 	hero.set_meta("blob", 0.6)
 	add_child(hero)
 	_walk(hero, "Walk", 0.28)
-	var folk := [
-		["villager_woman_a", Vector3(-3.2, 0, -7.0), 0.5, "Idle"],       # blue dress, facing us
-		["villager_woman_b", Vector3(-5.6, 0, -5.2), 1.3, "Idle"],        # red dress at the stall
-		["villager_merchant", Vector3(-8.1, 0, -6.4), 1.5, "Idle"],       # stallholder
-		["villager_man_b", Vector3(1.6, 0, -15.0), PI, "Walk"],           # orange tunic walking away
-		["villager_man_a", Vector3(-1.3, 0, -17.5), PI + 0.2, "Walk"],
-		["villager_farmer", Vector3(3.5, 0, -22.0), 0.3, "Walk"],
-		["villager_baker", Vector3(-4.0, 0, -26.0), PI - 0.3, "Walk"],
-		["villager_woman_b", Vector3(0.4, 0, -29.0), 0.1, "Walk"],
-		["villager_man_b", Vector3(5.6, 0, -33.0), PI, "Walk"],
-	]
-	for f in folk:
-		var m := Assets.mh_character(f[0], 1.68 if f[0].contains("woman") else 1.76)
+	var count := 26 if Style.tier == "high" else (20 if Style.tier == "medium" else 12)
+	var prng := RandomNumberGenerator.new()
+	prng.seed = 5
+	for f in Extra.folk(prng, count):
+		var far: bool = f["pos"].z < -24.0
+		var m := Assets.mh_character(f["model"], f["h"], [], far)
 		m.set_meta("role", "villager")
-		m.position = f[1]
-		m.rotation.y = f[2]
+		m.position = f["pos"]
+		m.rotation.y = f["yaw"]
 		m.set_meta("blob", 0.5)
 		add_child(m)
-		_walk(m, f[3], _rng.randf())
+		var clip: String = f["clip"]
+		var ap := Assets.animation_player(m)
+		if ap and not ap.has_animation(clip):
+			clip = "Walk" if clip.begins_with("Walk") else "Idle"
+		_walk(m, clip, prng.randf() * 1.2)
 	# guards with spears
 	for gp in [[Vector3(6.0, 0, -6.0), 0.45], [Vector3(7.0, 0, -11.5), 0.2], [Vector3(-3.4, 0, -44.0), -0.2], [Vector3(3.4, 0, -44.0), 0.2]]:
 		var g := Assets.mh_character("res://assets/incoming/ai3d/meshy/armored/guard", 1.85)
@@ -261,8 +334,8 @@ func _gatehouse(at: Vector3) -> void:
 	var poly := PackedVector2Array([Vector2(-half_gate, 0), Vector2(-arch_w, 0), Vector2(-arch_w, arch_spring)])
 	var arc := 14
 	for i in range(1, arc):
-		var a := PI - PI * float(i) / arc
-		poly.append(Vector2(cos(a) * arch_w, arch_spring + sin(a) * (arch_w * 1.2)))
+		var ax := -arch_w + 2.0 * arch_w * float(i) / arc
+		poly.append(Vector2(ax, arch_spring + _pointed(ax, arch_w)))
 	poly.append(Vector2(arch_w, arch_spring))
 	poly.append(Vector2(arch_w, 0))
 	poly.append(Vector2(half_gate, 0))
@@ -281,8 +354,8 @@ func _gatehouse(at: Vector3) -> void:
 		pass
 	var tunnel_pts: Array[Vector2] = [Vector2(-arch_w, 0), Vector2(-arch_w, arch_spring)]
 	for i in range(1, arc):
-		var a2 := PI - PI * float(i) / arc
-		tunnel_pts.append(Vector2(cos(a2) * arch_w, arch_spring + sin(a2) * (arch_w * 1.2)))
+		var ax2 := -arch_w + 2.0 * arch_w * float(i) / arc
+		tunnel_pts.append(Vector2(ax2, arch_spring + _pointed(ax2, arch_w)))
 	tunnel_pts.append(Vector2(arch_w, arch_spring))
 	tunnel_pts.append(Vector2(arch_w, 0))
 	for i in tunnel_pts.size() - 1:
@@ -356,6 +429,91 @@ func _gatehouse(at: Vector3) -> void:
 	pmi.mesh = pc.commit()
 	pmi.set_meta("role", "iron")
 	root.add_child(pmi)
+	# pointed-arch voussoir ring (alternating long/short stones, keystone) on both faces + stone dressing, own surface
+	var vst := SurfaceTool.new()
+	vst.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var ring: Array[Vector2] = [Vector2(-arch_w, arch_spring)]
+	var nseg := 18
+	for i in range(1, nseg):
+		var vx := -arch_w + 2.0 * arch_w * float(i) / nseg
+		ring.append(Vector2(vx, arch_spring + _pointed(vx, arch_w)))
+	ring.append(Vector2(arch_w, arch_spring))
+	for zf in [0.12, -depth - 0.12]:
+		for i in ring.size() - 1:
+			var p0 := ring[i]
+			var p1 := ring[i + 1]
+			var mid := (p0 + p1) * 0.5
+			var tn := (p1 - p0).normalized()
+			var nrm2 := Vector2(-tn.y, tn.x)
+			if nrm2.dot(mid - Vector2(0, arch_spring * 0.6)) < 0.0:
+				nrm2 = -nrm2
+			var thick := 0.95 if i % 2 == 0 else 1.3
+			if i == nseg / 2 - 1 or i == nseg / 2:
+				thick = 1.5
+			var ang := atan2(tn.y, tn.x)
+			_box_z(vst, mid + nrm2 * thick * 0.5, Vector3((p1 - p0).length() * 0.9, thick, 0.35), ang, zf)
+		# base blocks at the springing of the arch
+		for sgn2 in [-1.0, 1.0]:
+			_box_z(vst, Vector2(sgn2 * (arch_w + 0.6), 0.9), Vector3(1.2, 1.8, 0.35), 0.0, zf)
+			_box_z(vst, Vector2(sgn2 * (arch_w + 0.6), 2.7), Vector3(1.2, 1.2, 0.35), 0.0, zf)
+	var vmi := MeshInstance3D.new()
+	vmi.name = "Voussoirs"
+	vmi.mesh = vst.commit()
+	vmi.set_meta("role", "gate_trim")
+	root.add_child(vmi)
+	# turrets with conical roofs: one on each tower (outer rear), one at each curtain wall end
+	for tp in [[Vector3(-13.6, 17.0, -2.6), 2.0, 5.5], [Vector3(13.6, 17.0, -2.6), 2.0, 5.5], [Vector3(-9.6, 17.0, -2.6), 1.5, 4.0],
+			[Vector3(9.6, 17.0, -2.6), 1.5, 4.0], [Vector3(-45.0, 7.5, -2.5), 2.3, 6.0], [Vector3(45.0, 7.5, -2.5), 2.3, 6.0]]:
+		var tc: Vector3 = tp[0]
+		var tr: float = tp[1]
+		var th: float = tp[2]
+		var body := CylinderMesh.new()
+		body.top_radius = tr
+		body.bottom_radius = tr * 1.05
+		body.height = th
+		body.radial_segments = 14
+		body.rings = 1
+		var bmi := MeshInstance3D.new()
+		bmi.mesh = body
+		bmi.position = tc + Vector3(0, th * 0.5, 0)
+		bmi.set_meta("role", "gate_stone")
+		root.add_child(bmi)
+		var cone := CylinderMesh.new()
+		cone.top_radius = 0.0
+		cone.bottom_radius = tr * 1.35
+		cone.height = tr * 3.0
+		cone.radial_segments = 14
+		cone.rings = 1
+		var cmi2 := MeshInstance3D.new()
+		cmi2.mesh = cone
+		cmi2.position = tc + Vector3(0, th + cone.height * 0.5 - 0.1, 0)
+		cmi2.set_meta("role", "turret_roof")
+		cmi2.set_meta("keep_material", true)
+		cmi2.material_override = Extra.roof_material("roof_slate" if tp[0].x < 0.0 else "roof_terracotta")
+		root.add_child(cmi2)
+		var fin := MeshInstance3D.new()
+		var fm2 := CylinderMesh.new()
+		fm2.top_radius = 0.02
+		fm2.bottom_radius = 0.05
+		fm2.height = 1.4
+		fm2.radial_segments = 4
+		fm2.rings = 1
+		fin.mesh = fm2
+		fin.position = cmi2.position + Vector3(0, cone.height * 0.5 + 0.5, 0)
+		fin.set_meta("role", "wood")
+		root.add_child(fin)
+		var fl := MeshInstance3D.new()
+		var fq := QuadMesh.new()
+		fq.size = Vector2(1.1, 0.6)
+		fl.mesh = fq
+		fl.position = fin.position + Vector3(0.6, 0.45, 0)
+		fl.set_meta("role", "flag")
+		root.add_child(fl)
+	# ivy up the front of the towers and the curtain wall ends
+	var irng := RandomNumberGenerator.new()
+	irng.seed = 21
+	for sgn3 in [-1.0, 1.0]:
+		Extra.ivy_tower(root, Vector3(sgn3 * 11.2, 0.0, -depth * 0.5), 5.3, PI * (0.30 if sgn3 > 0.0 else 0.55), PI * (0.45 if sgn3 > 0.0 else 0.70), 6, irng)
 	# red lion banners and flags
 	for b in [[Vector3(-6.4, 9.0, 0.12), 5.2], [Vector3(6.4, 9.0, 0.12), 5.2], [Vector3(0, 11.2, 0.12), 3.0]]:
 		var q := MeshInstance3D.new()
@@ -418,3 +576,31 @@ static func _crenels(st: SurfaceTool, a: Vector3, b: Vector3, depth: float, merl
 	for i in n:
 		var x := a.x + merlon * 0.5 + i * merlon * 2.0 + merlon * 0.5
 		_box_at(st, Vector3(x, a.y + h * 0.5, a.z), Vector3(merlon, h, depth), 0.0)
+
+
+## pointed (two-centred) arch rise above the springing line at x (|x| <= w); apex at x = 0
+static func _pointed(x: float, w: float) -> float:
+	var r := 1.3 * w
+	var cx := r - w
+	return sqrt(maxf(r * r - pow(absf(x) + cx, 2.0), 0.0))
+
+
+## box in the XY plane rotated by `ang` about Z, spanning z0 +- size.z/2
+static func _box_z(st: SurfaceTool, c: Vector2, s: Vector3, ang: float, z0: float) -> void:
+	var b := Basis(Vector3.BACK, ang)
+	var h := s * 0.5
+	var ctr := Vector3(c.x, c.y, z0)
+	var faces := [
+		[Vector3.UP, [Vector3(-h.x, h.y, -h.z), Vector3(h.x, h.y, -h.z), Vector3(h.x, h.y, h.z), Vector3(-h.x, h.y, h.z)]],
+		[Vector3.DOWN, [Vector3(-h.x, -h.y, h.z), Vector3(h.x, -h.y, h.z), Vector3(h.x, -h.y, -h.z), Vector3(-h.x, -h.y, -h.z)]],
+		[Vector3.FORWARD, [Vector3(h.x, -h.y, -h.z), Vector3(-h.x, -h.y, -h.z), Vector3(-h.x, h.y, -h.z), Vector3(h.x, h.y, -h.z)]],
+		[Vector3.BACK, [Vector3(-h.x, -h.y, h.z), Vector3(h.x, -h.y, h.z), Vector3(h.x, h.y, h.z), Vector3(-h.x, h.y, h.z)]],
+		[Vector3.LEFT, [Vector3(-h.x, -h.y, -h.z), Vector3(-h.x, -h.y, h.z), Vector3(-h.x, h.y, h.z), Vector3(-h.x, h.y, -h.z)]],
+		[Vector3.RIGHT, [Vector3(h.x, -h.y, h.z), Vector3(h.x, -h.y, -h.z), Vector3(h.x, h.y, -h.z), Vector3(h.x, h.y, h.z)]],
+	]
+	for f in faces:
+		var n: Vector3 = b * (f[0] as Vector3)
+		var q: Array = f[1]
+		for k in [0, 1, 2, 0, 2, 3]:
+			st.set_normal(n)
+			st.add_vertex(ctr + b * (q[k] as Vector3))

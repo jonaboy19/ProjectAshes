@@ -1,0 +1,44 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://shaders/style_lab/lab_ground.gdshader" id="1_5ihri"]
+[ext_resource type="Texture2D" path="res://assets/incoming/polyhaven/textures/cobblestone_floor_01/cobblestone_floor_01_diff_2k.jpg" id="2_of8st"]
+[ext_resource type="Texture2D" path="res://assets/incoming/polyhaven/textures/cobblestone_floor_01/cobblestone_floor_01_nor_gl_2k.jpg" id="3_oqp6x"]
+[ext_resource type="Texture2D" path="res://assets/incoming/polyhaven/textures/cobblestone_floor_01/cobblestone_floor_01_arm_2k.jpg" id="4_345ho"]
+[ext_resource type="Texture2D" path="res://assets/incoming/polyhaven/textures/leafy_grass/leafy_grass_diff_2k.jpg" id="5_27uup"]
+[ext_resource type="Texture2D" path="res://assets/incoming/polyhaven/textures/leafy_grass/leafy_grass_nor_gl_2k.jpg" id="6_a1ydb"]
+[ext_resource type="Texture2D" path="res://assets/incoming/polyhaven/textures/leafy_grass/leafy_grass_arm_2k.jpg" id="7_2ax5v"]
+[ext_resource type="Texture2D" path="res://assets/incoming/polyhaven/textures/brown_mud_02/brown_mud_02_diff_2k.jpg" id="8_np0h2"]
+[ext_resource type="Texture2D" path="res://assets/incoming/polyhaven/textures/brown_mud_02/brown_mud_02_nor_gl_2k.jpg" id="9_gflwr"]
+[ext_resource type="Texture2D" path="res://assets/incoming/polyhaven/textures/brown_mud_02/brown_mud_02_arm_2k.jpg" id="10_q8xi5"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_jrvm4"]
+frequency = 0.012
+fractal_octaves = 4
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_148p4"]
+width = 256
+height = 256
+noise = SubResource("FastNoiseLite_jrvm4")
+seamless = true
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_5ihri")
+shader_parameter/mode = 1
+shader_parameter/grass_a = ExtResource("5_27uup")
+shader_parameter/mud_a = ExtResource("8_np0h2")
+shader_parameter/cobble_a = ExtResource("2_of8st")
+shader_parameter/grass_n = ExtResource("6_a1ydb")
+shader_parameter/mud_n = ExtResource("9_gflwr")
+shader_parameter/cobble_n = ExtResource("3_oqp6x")
+shader_parameter/grass_r = ExtResource("7_2ax5v")
+shader_parameter/mud_r = ExtResource("10_q8xi5")
+shader_parameter/cobble_r = ExtResource("4_345ho")
+shader_parameter/noise_tex = SubResource("NoiseTexture2D_148p4")
+shader_parameter/tile = 3.2
+shader_parameter/grass_tint = Color(0.85, 1.15, 0.5, 1)
+shader_parameter/mud_tint = Color(1.15, 0.95, 0.78, 1)
+shader_parameter/cobble_tint = Color(1.04, 0.95, 0.84, 1)
+shader_parameter/saturation = 1.0
+shader_parameter/posterize = null
+shader_parameter/puddles = 0.0

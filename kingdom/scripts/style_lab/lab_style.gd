@@ -11,6 +11,7 @@ extends RefCounted
 ## No class_name (project rule).
 
 const Common := preload("res://scripts/style_lab/lab_common.gd")
+const StyleG := preload("res://scripts/style_g.gd")
 const SH := "res://shaders/style_lab/"
 const IDS := ["A", "B", "C", "D", "E", "F", "G"]
 const TITLES := {
@@ -25,6 +26,7 @@ const TITLES := {
 const SUN_FORWARD := Vector3(-0.58, -0.60, -0.55)   # late afternoon from the front-right, same in every box
 
 static var _cache := {}
+static var tier := "high"      # G only: --tier=high|medium|low (Style G budgets, see StyleG.TIERS)
 
 
 # --- public ---------------------------------------------------------------------------------------------------
@@ -43,6 +45,8 @@ static func setup(id: String, vp: SubViewport, dio: Node3D, lamp_pos: Vector3) -
 	ctx["we"] = we
 	_restyle(id, dio)
 	_lamp(id, dio, lamp_pos)
+	if id == "G":
+		vp.add_child(StyleG.make_fill())
 	if id == "C":
 		_blobs(dio)
 		_decals(dio)
@@ -70,8 +74,8 @@ static func finalize(id: String, ctx: Dictionary, vp: SubViewport) -> void:
 			env.glow_enabled = true
 			env.ssao_enabled = false
 		"G":
-			env.glow_enabled = true
-			env.ssao_enabled = fwd
+			env.glow_enabled = tier != "low"
+			env.ssao_enabled = fwd and tier == "high"
 		"E":
 			env.glow_enabled = false
 			env.ssao_enabled = false
@@ -84,8 +88,8 @@ static func finalize(id: String, ctx: Dictionary, vp: SubViewport) -> void:
 		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
 		sun.directional_shadow_max_distance = 30.0
 	elif id == "G":
-		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
-		sun.directional_shadow_max_distance = 110.0
+		sun.directional_shadow_mode = StyleG.SHADOW[tier]["mode"]
+		sun.directional_shadow_max_distance = StyleG.SHADOW[tier]["dist"]
 	else:
 		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
 		sun.directional_shadow_max_distance = 40.0
@@ -97,6 +101,9 @@ static func finalize(id: String, ctx: Dictionary, vp: SubViewport) -> void:
 static func env_for(id: String) -> Environment:
 	var env := Environment.new()
 	env.background_mode = Environment.BG_SKY
+	if id == "G":
+		StyleG.apply_environment(env, tier)
+		return env
 	match id:
 		"A": _env_a(env)
 		"B": _env_b(env)
@@ -328,6 +335,8 @@ static func _sun_dir(id: String) -> Vector3:
 
 
 static func _sun(id: String) -> DirectionalLight3D:
+	if id == "G":
+		return StyleG.make_sun(tier)
 	var s := DirectionalLight3D.new()
 	s.name = "Sun" + id
 	s.look_at_from_position(Vector3.ZERO, _sun_dir(id))
@@ -535,6 +544,12 @@ static func _is_char(role: String) -> bool:
 
 
 static func _material(id: String, role: String, orig: Material, mi: MeshInstance3D) -> Material:
+	if id == "G":
+		if role == "ground" or role in ["gate_stone", "gate_trim", "iron", "banner", "flag"]:
+			return StyleG.material_for(role, orig)
+		if Common.params(orig).is_empty():
+			return null
+		return StyleG.material_for(role, orig, int(_skin_kind(mi)), tier, not String(mi.name).begins_with("human_"))
 	if role == "ground":
 		return _ground_mat(id)
 	if role == "skirt":
@@ -547,7 +562,7 @@ static func _material(id: String, role: String, orig: Material, mi: MeshInstance
 			sm2.albedo_color = Color(0.30, 0.48, 0.14) if role == "meadow" else Color(0.40, 0.48, 0.66)
 			_cache[key2] = sm2
 		return _cache[key2]
-	if id == "G" and role in ["gate_stone", "iron", "banner", "flag"]:
+	if id == "G" and role in ["gate_stone", "gate_trim", "iron", "banner", "flag"]:
 		return _gate_special(role, orig, mi)
 	var p := Common.params(orig)
 	if p.is_empty():

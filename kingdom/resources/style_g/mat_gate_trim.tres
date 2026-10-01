@@ -1,0 +1,37 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://shaders/style_lab/lab_polished.gdshader" id="1_3cgvh"]
+
+[sub_resource type="Image" id="Image_6uin0"]
+data = {
+"data": PackedByteArray(255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255),
+"format": "RGBA8",
+"height": 2,
+"mipmaps": false,
+"width": 2
+}
+
+[sub_resource type="ImageTexture" id="ImageTexture_dq3qr"]
+image = SubResource("Image_6uin0")
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_3cgvh")
+shader_parameter/albedo_tex = SubResource("ImageTexture_dq3qr")
+shader_parameter/albedo_color = Color(0.8627451, 0.8117647, 0.7058824, 1)
+shader_parameter/use_vertex_color = false
+shader_parameter/uv_scale = Vector2(1, 1)
+shader_parameter/uv_offset = Vector2(0, 0)
+shader_parameter/alpha_cut = null
+shader_parameter/saturation = 0.8
+shader_parameter/value_gain = 1.0
+shader_parameter/warm_tint = Color(1, 0.97, 0.9, 1)
+shader_parameter/sky_bounce = Color(0.55, 0.66, 0.98, 1)
+shader_parameter/ground_bounce = Color(1, 0.7, 0.36, 1)
+shader_parameter/bounce = 0.36
+shader_parameter/rim_color = null
+shader_parameter/rim_amount = 0.5
+shader_parameter/ao_height = 1.6
+shader_parameter/ao_strength = 0.5
+shader_parameter/roughness = null
+shader_parameter/spec = null
