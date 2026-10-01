@@ -29,9 +29,18 @@ extends RefCounted
 const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const RANeedsScript := preload("res://scripts/sim/needs.gd")
+const NpcWorld := preload("res://scripts/population/npc_world.gd")
 
-enum Act { SLEEP, HOME, EAT, WORK, SHOP, SOCIAL, INN, PRAY, WATER, SHELTER, FLEE, WATCH, IDLE }
-const NAMES := ["sleep", "home", "eat", "work", "shop", "socialise", "inn", "pray", "water", "shelter", "flee", "watch", "idle"]
+## SIT..CHORE (appended after IDLE so the original indices stay): the purposeful and reactive acts of the
+## near-NPC layer. They only score above zero when their trigger input is present.
+##   SIT       rest on a bench / lean at a wall when winded          PLAY     children at hopscotch / the play patch
+##   PATROL    guards walk the settlement's patrol loop              HIDE     stay indoors after a scare, peek out later
+##   PROTEST   step back from a drawn weapon and complain            ALARM    witnesses run to a guard / guards run to the crime
+##   FIREFIGHT fetch and throw water at a fire                       CHORE    sweep, laundry, cooking, chickens near home
+enum Act { SLEEP, HOME, EAT, WORK, SHOP, SOCIAL, INN, PRAY, WATER, SHELTER, FLEE, WATCH, IDLE,
+	SIT, PLAY, PATROL, HIDE, PROTEST, ALARM, FIREFIGHT, CHORE }
+const NAMES := ["sleep", "home", "eat", "work", "shop", "socialise", "inn", "pray", "water", "shelter", "flee", "watch", "idle",
+	"sit", "play", "patrol", "hide", "protest", "alarm", "firefight", "chore"]
 
 ## Response curves (Pennycook's set plus a remap):
 ##  BINARY    x >= a ? 1 : b             (b is the floor below the threshold)
@@ -51,7 +60,8 @@ const ACTIONS := {
 	Act.EAT: [0.9, [["hungry", Resp.LOGISTIC, 10.0, 0.5], ["meal", Resp.RANGE, 0.35, 1.0]]],
 	Act.WORK: [0.8, [["sched_work", Resp.RANGE, 0.03, 1.0], ["lazy", Resp.RANGE, 1.0, 0.6],
 		["greedy", Resp.RANGE, 0.8, 1.0], ["rest", Resp.LOGISTIC, 12.0, 0.15],
-		["rain_exposed", Resp.RANGE, 1.0, 0.35]]],
+		["rain_exposed", Resp.RANGE, 1.0, 0.35], ["child", Resp.RANGE, 1.0, 0.0],
+		["patrol_turn", Resp.RANGE, 1.0, 0.45]]],
 	Act.SHOP: [0.6, [["sched_market", Resp.RANGE, 0.12, 1.0], ["market_open", Resp.BINARY, 0.5, 0.0],
 		["money", Resp.RANGE, 0.2, 1.0], ["greedy", Resp.RANGE, 1.0, 0.6]]],
 	Act.SOCIAL: [0.55, [["lonely", Resp.LOGISTIC, 8.0, 0.45], ["sociable", Resp.RANGE, 0.2, 1.0],
@@ -60,10 +70,10 @@ const ACTIONS := {
 	Act.INN: [0.8, [["evening", Resp.RANGE, 0.0, 1.0], ["sociable", Resp.RANGE, 0.25, 1.0],
 		["sched_inn", Resp.RANGE, 0.55, 1.0], ["money", Resp.RANGE, 0.3, 1.0],
 		["lonely", Resp.RANGE, 0.6, 1.0], ["guard", Resp.RANGE, 1.0, 0.0],
-		["inn_available", Resp.BINARY, 0.5, 0.0]]],
+		["child", Resp.RANGE, 1.0, 0.0], ["inn_available", Resp.BINARY, 0.5, 0.0]]],
 	Act.PRAY: [0.6, [["pious", Resp.EXP, 1.5, 0.0], ["faithless", Resp.LOGISTIC, 8.0, 0.4],
 		["daytime", Resp.BINARY, 0.5, 0.0], ["holy_day", Resp.RANGE, 0.75, 1.0],
-		["sched_work", Resp.RANGE, 1.0, 0.5]]],
+		["sched_work", Resp.RANGE, 1.0, 0.5], ["service", Resp.RANGE, 0.7, 1.0]]],
 	Act.WATER: [0.5, [["thirst", Resp.LOGISTIC, 9.0, 0.5], ["chores", Resp.RANGE, 0.25, 1.0],
 		["lazy", Resp.RANGE, 1.0, 0.6], ["daytime", Resp.BINARY, 0.5, 0.0]]],
 	Act.SHELTER: [0.95, [["rain", Resp.BINARY, 0.5, 0.0], ["night", Resp.RANGE, 1.0, 0.0],
@@ -72,12 +82,25 @@ const ACTIONS := {
 	Act.WATCH: [0.9, [["spectacle", Resp.LOGISTIC, 10.0, 0.4], ["sociable", Resp.RANGE, 0.5, 1.0],
 		["danger", Resp.RANGE, 1.0, 0.0]]],
 	Act.IDLE: [0.05, []],
+	Act.SIT: [0.5, [["seat", Resp.BINARY, 0.5, 0.0], ["winded", Resp.LOGISTIC, 8.0, 0.4], ["night", Resp.RANGE, 1.0, 0.0],
+		["sched_work", Resp.RANGE, 1.0, 0.45], ["child", Resp.RANGE, 1.0, 0.3], ["rain", Resp.RANGE, 1.0, 0.0]]],
+	Act.PLAY: [0.75, [["child", Resp.BINARY, 0.5, 0.0], ["play_spot", Resp.BINARY, 0.5, 0.0], ["daytime", Resp.BINARY, 0.5, 0.0],
+		["night", Resp.RANGE, 1.0, 0.0], ["rain", Resp.RANGE, 1.0, 0.0]]],
+	Act.PATROL: [0.86, [["guard", Resp.BINARY, 0.5, 0.0], ["sched_work", Resp.RANGE, 0.03, 1.0], ["patrol_turn", Resp.BINARY, 0.5, 0.0]]],
+	Act.HIDE: [1.25, [["hide", Resp.BINARY, 0.5, 0.0], ["guard", Resp.RANGE, 1.0, 0.0]]],
+	Act.PROTEST: [1.1, [["armed", Resp.LOGISTIC, 10.0, 0.3], ["danger", Resp.RANGE, 1.0, 0.0]]],
+	Act.ALARM: [1.35, [["crime", Resp.LOGISTIC, 10.0, 0.3], ["danger", Resp.RANGE, 1.0, 0.0]]],
+	Act.FIREFIGHT: [1.0, [["fire", Resp.BINARY, 0.12, 0.0], ["brave", Resp.RANGE, 0.0, 1.0], ["danger", Resp.RANGE, 1.0, 0.0],
+		["child", Resp.RANGE, 1.0, 0.0]]],
+	Act.CHORE: [0.5, [["chores", Resp.LOGISTIC, 6.0, 0.35], ["chore_spot", Resp.BINARY, 0.5, 0.0], ["lazy", Resp.RANGE, 1.0, 0.5],
+		["daytime", Resp.BINARY, 0.5, 0.0], ["sched_work", Resp.RANGE, 1.0, 0.55], ["child", Resp.RANGE, 1.0, 0.0],
+		["rain", Resp.RANGE, 1.0, 0.0]]],
 }
 
 ## Acts carried out indoors: the villager walks to the door and goes inside.
-const INDOOR := [Act.SLEEP, Act.HOME, Act.EAT]
+const INDOOR := [Act.SLEEP, Act.HOME, Act.EAT, Act.HIDE]
 ## Acts that may break a commitment at once (they get the current act's bonus too).
-const URGENT := [Act.FLEE, Act.SHELTER]
+const URGENT := [Act.FLEE, Act.SHELTER, Act.HIDE, Act.PROTEST, Act.ALARM]
 ## Score bonus for the current act: while still committed (just arrived) and after.
 const COMMIT_BONUS := 1.45
 const KEEP_BONUS := 1.15
@@ -95,12 +118,16 @@ const OFFSCREEN_WATER_PER_MEAL := WATER_PER_HOUR * 24.0 / 3.0
 ## Offscreen recovery is expected schedule exposure, not recorded individual acts.
 const OFFSCREEN_INN_SHARE := DailyRhythm.INN_SHARE / 100.0
 const OFFSCREEN_HOLY_PERIOD := 168.0
+## Breath drains while on the feet (working, shopping, walking); only sitting or leaning gives it back.
+const BREATH_PER_HOUR := 0.13
 ## Restored per game hour while performing an act at its spot: [need, amount].
 const RESTORE := {
 	Act.SLEEP: [["rest", SLEEP_PER_HOUR]], Act.HOME: [["rest", 0.03]],
 	Act.EAT: [["food", 2.5]], Act.SOCIAL: [["social", 1.5]],
 	Act.INN: [["social", 1.0], ["food", 0.6]], Act.PRAY: [["faith", 1.6]],
 	Act.WATER: [["water", 2.2]],
+	Act.SIT: [["breath", 3.0], ["rest", 0.25]], Act.PLAY: [["social", 1.0], ["breath", 0.4]],
+	Act.CHORE: [["breath", 0.05]],
 }
 const MEALS := [7.0, 12.5, 18.5]
 
@@ -127,6 +154,10 @@ const CHAT_GAP := 1.3           # metres between two people chatting
 const CHAT_WAIT_MAX := 8        # bounded candidates per settlement, not a global resident scan
 const CHAT_MIN_WAIT_MS := 1200  # let a small set assemble before choosing a companion
 const CHAT_WAIT_FAIRNESS_SECONDS := 20.0
+## Short-term memory of where danger was seen: slots, seconds kept, radius that is given a wide berth.
+const MEM_SLOTS := 3
+const MEM_SECONDS := 75
+const MEM_RADIUS := 16.0
 
 # ---------------------------------------------------------------- shared state
 static var _hazards := PackedVector2Array()
@@ -168,6 +199,14 @@ var job := 4
 ## Career shift hours (x..y) when the person holds a seat in a career org, else (-1, -1).
 var shift := Vector2(-1, -1)
 var org_id := ""
+var breath := 0.7
+## Extra inputs set by the body each decision (fire, armed, crime, hide, seat ...), merged into context().
+var inp := {}
+## Short-term danger memory: positions and expiry (ms). Slots are reused oldest first, nothing allocates.
+var mem_pos := PackedVector2Array([Vector2.INF, Vector2.INF, Vector2.INF])
+var mem_until := PackedInt32Array([0, 0, 0])
+var patrol_i := 0
+var _ctx := {}
 var _last_hours := -1.0
 ## One short-lived, anonymous last-seen point. This is not persistent identity.
 var _last_seen := Vector2.INF
@@ -187,6 +226,7 @@ func _init(p: int = -1, p_job := 4, org_shift := Vector2(-1, -1), p_org := "") -
 	shift = org_shift
 	org_id = p_org
 	traits = personality(p)
+	patrol_i = absi(hash(p * 17 + 5)) % 8
 
 
 # ================================================================ scoring (pure)
@@ -235,11 +275,10 @@ static func scores(ctx: Dictionary) -> PackedFloat32Array:
 ## Best act for `ctx`. The current act gets `bonus` (commitment); urgent acts
 ## compete without it. Ties go to the lower act index (deterministic).
 static func best(ctx: Dictionary, current := -1, bonus := 1.0) -> int:
-	var s := scores(ctx)
 	var pick := Act.IDLE
 	var top := -1.0
-	for a in s.size():
-		var v := s[a]
+	for a in NAMES.size():
+		var v := score(a, ctx)
 		# Urgent acts share the bonus, so a commitment never blocks them.
 		if a == current or a in URGENT:
 			v *= bonus
@@ -269,18 +308,9 @@ static func _bell(h: float, centre: float, width: float) -> float:
 
 ## Time-of-day inputs for hour `h` (the person's own clock).
 static func time_inputs(h: float, lazy := 0.5) -> Dictionary:
-	var wake := 5.5 + lazy * 1.2
-	var night := maxf(smoothstep(20.5, 22.5, h), 1.0 - smoothstep(wake - 0.5, wake + 1.0, h))
-	var meal := 0.0
-	for m: float in MEALS:
-		meal = maxf(meal, _bell(h, m, 1.1))
-	return {
-		"hour": h, "night": night, "meal": meal,
-		"evening": smoothstep(18.0, 19.5, h) * (1.0 - smoothstep(22.5, 23.5, h)),
-		"market_open": 1.0 if h >= 8.0 and h < 19.0 else 0.0,
-		"daytime": 1.0 if h >= 7.0 and h < 20.5 else 0.0,
-		"chores": maxf(_bell(h, 7.5, 1.8), _bell(h, 17.0, 1.5)),
-	}
+	var out := {}
+	_time_into(h, lazy, out)
+	return out
 
 
 ## A complete input set with neutral defaults, overridden by `over`. Tests and
@@ -295,7 +325,8 @@ static func make_context(hour: float, over: Dictionary = {}, p_traits: Dictionar
 		"sched_market": 1.0 if st == 2 else 0.0, "sched_inn": 0.0,
 		"tired": 0.3, "rest": 0.7, "hungry": 0.3, "lonely": 0.4, "faithless": 0.3, "thirst": 0.2,
 		"money": 0.5, "rain": 0.0, "rain_exposed": 0.0, "danger": 0.0, "spectacle": 0.0,
-		"partner": 0.0, "guard": 0.0, "holy_day": 0.0, "inn_available": 1.0}, true)
+		"partner": 0.0, "guard": 0.0, "holy_day": 0.0, "inn_available": 1.0,
+		"winded": 0.3, "child": 0.0, "patrol_turn": 0.0, "brave": 0.6}, true)
 	ctx.merge(over, true)
 	return ctx
 
@@ -319,6 +350,7 @@ func seed_needs(h: float, day := 1) -> void:
 	social = 0.35 + float(r % 100) / 160.0
 	faith = 0.3 + float((r / 100) % 100) / 150.0
 	water = 0.3 + float((r / 10000) % 100) / 140.0
+	breath = 0.25 + float((r / 1000) % 100) / 135.0
 	_last_hours = -1.0
 
 
@@ -359,6 +391,8 @@ func tick(now_hours: float, performing := -1, elapsed_cap := 2.0) -> void:
 	social -= (0.05 + 0.08 * float(traits["sociable"])) * dt
 	faith -= (0.02 + 0.05 * float(traits["pious"])) * dt
 	water -= WATER_PER_HOUR * dt
+	if not asleep and performing != Act.SIT and performing != Act.HOME:
+		breath -= BREATH_PER_HOUR * dt
 	if RESTORE.has(performing):
 		if performing != Act.SOCIAL or _has_valid_nearby_chat_pair(person):
 			for r: Array in RESTORE[performing]:
@@ -368,6 +402,7 @@ func tick(now_hours: float, performing := -1, elapsed_cap := 2.0) -> void:
 	social = clampf(social, 0.0, 1.0)
 	faith = clampf(faith, 0.0, 1.0)
 	water = clampf(water, 0.0, 1.0)
+	breath = clampf(breath, 0.0, 1.0)
 
 
 ## Social need restores only during a real reciprocal pair at conversational range.
@@ -472,27 +507,60 @@ func _periodic_window_total(hours: float, period: float, window_start: float, wi
 ## state for them (the baseline), the rest sensed by the villager.
 func context(hour: float, sched: int, raining: bool, danger: float, spectacle: float,
 		partner: bool, money_frac: float, day := 1) -> Dictionary:
-	var ctx := time_inputs(hour, traits["lazy"])
-	ctx.merge(traits, true)
+	var ctx := _ctx
+	_time_into(hour, float(traits["lazy"]), ctx)
+	ctx["sociable"] = traits["sociable"]
+	ctx["lazy"] = traits["lazy"]
+	ctx["pious"] = traits["pious"]
+	ctx["greedy"] = traits["greedy"]
 	var on_shift := sched == DailyRhythm.State.WORK
 	if shift.x >= 0.0:
 		on_shift = hour >= shift.x and hour < shift.y
 	var outdoor := job == 0 or job == 3 or job == 4 or job == 5
 	var guard := 1.0 if job == 3 else 0.0
 	var rain := 1.0 if raining else 0.0
-	ctx.merge({
-		"sched_home": 1.0 if sched == DailyRhythm.State.HOME else 0.0,
-		"sched_work": 1.0 if on_shift else 0.0,
-		"sched_market": 1.0 if sched == DailyRhythm.State.MARKET else 0.0,
-		"sched_inn": 1.0 if sched == DailyRhythm.State.INN else 0.0,
-		"tired": 1.0 - rest, "rest": rest, "hungry": 1.0 - food, "lonely": 1.0 - social,
-		"faithless": 1.0 - faith, "thirst": 1.0 - water, "money": clampf(money_frac, 0.0, 1.0),
-		"rain": rain, "rain_exposed": rain * (1.0 if outdoor else 0.0) * (1.0 - guard),
-		"danger": danger, "spectacle": spectacle, "partner": 1.0 if partner else 0.0,
-		"guard": guard, "holy_day": 1.0 if day % 7 == 0 else 0.0,
-		"inn_available": 1.0 if DailyRhythm.has_inn_lot(person) else 0.0,
-	}, true)
+	ctx["sched_home"] = 1.0 if sched == DailyRhythm.State.HOME else 0.0
+	ctx["sched_work"] = 1.0 if on_shift else 0.0
+	ctx["sched_market"] = 1.0 if sched == DailyRhythm.State.MARKET else 0.0
+	ctx["sched_inn"] = 1.0 if sched == DailyRhythm.State.INN else 0.0
+	ctx["tired"] = 1.0 - rest
+	ctx["rest"] = rest
+	ctx["hungry"] = 1.0 - food
+	ctx["lonely"] = 1.0 - social
+	ctx["faithless"] = 1.0 - faith
+	ctx["thirst"] = 1.0 - water
+	ctx["winded"] = 1.0 - breath
+	ctx["money"] = clampf(money_frac, 0.0, 1.0)
+	ctx["rain"] = rain
+	ctx["rain_exposed"] = rain * (1.0 if outdoor else 0.0) * (1.0 - guard)
+	ctx["danger"] = danger
+	ctx["spectacle"] = spectacle
+	ctx["partner"] = 1.0 if partner else 0.0
+	ctx["guard"] = guard
+	ctx["holy_day"] = 1.0 if day % 7 == 0 else 0.0
+	ctx["inn_available"] = 1.0 if DailyRhythm.has_inn_lot(person) else 0.0
+	ctx["brave"] = 0.3 + 0.7 * (1.0 - float(traits["lazy"])) * (0.6 + 0.4 * float(traits["sociable"]))
+	# the body's own observations (fire, armed, crime, hide, seat, play_spot, chore_spot, child, patrol_turn)
+	for k: String in inp:
+		ctx[k] = inp[k]
 	return ctx
+
+
+## time_inputs() written into `into` (the brain reuses one dictionary instead of allocating per decision).
+static func _time_into(h: float, lazy: float, into: Dictionary) -> void:
+	var wake := 5.5 + lazy * 1.2
+	var night := maxf(smoothstep(20.5, 22.5, h), 1.0 - smoothstep(wake - 0.5, wake + 1.0, h))
+	var meal := 0.0
+	for m: float in MEALS:
+		meal = maxf(meal, _bell(h, m, 1.1))
+	into["hour"] = h
+	into["night"] = night
+	into["meal"] = meal
+	into["evening"] = smoothstep(18.0, 19.5, h) * (1.0 - smoothstep(22.5, 23.5, h))
+	into["market_open"] = 1.0 if h >= 8.0 and h < 19.0 else 0.0
+	into["daytime"] = 1.0 if h >= 7.0 and h < 20.5 else 0.0
+	into["chores"] = maxf(maxf(_bell(h, 7.5, 1.8), _bell(h, 17.0, 1.5)), 0.8 * _bell(h, 19.2, 0.9))
+	into["service"] = maxf(_bell(h, 8.75, 1.0), 0.7 * _bell(h, 18.25, 0.7))
 
 
 ## Choose the next act; `committed` while the current act has only just begun.
@@ -696,7 +764,10 @@ static func _process_oldest_sight(now: int) -> void:
 		var mail_ref: WeakRef = mail["viewer"]
 		if mail_ref.get_ref() != viewer or int(mail["observed_ms"]) != now:
 			mail = {"viewer": viewer_ref, "visible": PackedVector2Array(), "observed_ms": now}
-		(mail["visible"] as PackedVector2Array).append(Vector2(target.x, target.z))
+		# (a cast-and-append on a dictionary value only changes a temporary copy: write it back)
+		var seen_now: PackedVector2Array = mail["visible"]
+		seen_now.append(Vector2(target.x, target.z))
+		mail["visible"] = seen_now
 		mail["observed_ms"] = now
 		_sight_mail[observer_id] = mail
 		while _sight_mail.size() > SIGHT_QUEUE_MAX:
@@ -812,6 +883,59 @@ static func clear_sight_for(viewer: Node3D) -> void:
 		var ref: WeakRef = _sight_queue[i]["viewer"]
 		if ref.get_ref() == viewer:
 			_sight_queue.remove_at(i)
+
+
+# ================================================================ short-term memory (avoid where danger was seen)
+## Remember that danger was seen at `p`: spots within MEM_RADIUS are avoided for `seconds`. A repeat sighting
+## near a remembered point refreshes it; otherwise the oldest slot is overwritten.
+func remember_danger(p: Vector2, seconds := float(MEM_SECONDS)) -> void:
+	if p == Vector2.INF:
+		return
+	var now := Time.get_ticks_msec()
+	var slot := 0
+	var oldest := 1 << 60
+	for i in MEM_SLOTS:
+		if mem_until[i] > now and mem_pos[i].distance_squared_to(p) < 36.0:
+			slot = i
+			oldest = -1
+			break
+		var u := mem_until[i] if mem_until[i] > now else 0
+		if u < oldest:
+			oldest = u
+			slot = i
+	mem_pos[slot] = p
+	mem_until[slot] = now + int(seconds * 1000.0)
+
+
+## True when `p` lies within `r` of a remembered danger spot that has not expired.
+func avoids(p: Vector2, r := MEM_RADIUS) -> bool:
+	var now := Time.get_ticks_msec()
+	for i in MEM_SLOTS:
+		if mem_until[i] > now and mem_pos[i].distance_squared_to(p) < r * r:
+			return true
+	return false
+
+
+## Steering push (length 0..1) away from remembered danger spots within MEM_RADIUS of `here`.
+func avoid_push(here: Vector2) -> Vector2:
+	var now := Time.get_ticks_msec()
+	var push := Vector2.ZERO
+	for i in MEM_SLOTS:
+		if mem_until[i] <= now:
+			continue
+		var d := here.distance_to(mem_pos[i])
+		if d < MEM_RADIUS and d > 0.05:
+			push += (here - mem_pos[i]) / d * (1.0 - d / MEM_RADIUS)
+	return push.limit_length(1.0)
+
+
+## Live memory points (expired slots read as INF); `mem_pos` itself is passed to SmartObjects.find.
+func live_memory() -> PackedVector2Array:
+	var now := Time.get_ticks_msec()
+	for i in MEM_SLOTS:
+		if mem_until[i] <= now and mem_pos[i] != Vector2.INF:
+			mem_pos[i] = Vector2.INF
+	return mem_pos
 
 
 ## 0..1 danger at `here` and the nearest hazard (Vector2.INF when none).
@@ -1237,17 +1361,51 @@ static func nearest_eaves(pl: Dictionary, p: Vector2, reach := 30.0) -> int:
 	return best_i
 
 
+## Smart object filter for `action` (see scripts/living_world/smart_objects.gd), or {} for acts without one.
+func spot_filter(action: int) -> Dictionary:
+	var hour: float = WorldSim.time_of_day
+	match action:
+		Act.WORK:
+			var f := {"act": "work", "job": job, "hour": hour}
+			if job == 2:
+				f["role"] = "vendor"
+			return f
+		Act.SHOP: return {"act": "shop", "role": "customer", "hour": hour}
+		Act.INN: return {"act": "inn", "hour": hour, "not_tags": ["music"]}
+		Act.PRAY: return {"act": "pray", "hour": hour}
+		Act.WATER: return {"act": "water", "hour": hour}
+		Act.SIT: return {"act": "rest", "hour": hour}
+		Act.PLAY: return {"act": "play", "hour": hour, "kid": true}
+		Act.CHORE: return {"act": "home", "hour": hour}
+	return {}
+
+
+## A free slot for `action` near `here` ([spot, slot] or []), skipping places this person remembers danger at.
+func find_spot(action: int, here: Vector2, radius := 60.0) -> Array:
+	var f := spot_filter(action)
+	if f.is_empty() or NpcWorld.smart == null:
+		return []
+	var avoid := live_memory()
+	return NpcWorld.find_spot(person, f, here, radius, avoid, MEM_RADIUS)
+
+
+func has_spot(action: int, here: Vector2, radius := 45.0) -> bool:
+	return not find_spot(action, here, radius).is_empty()
+
+
 ## Where person `p` goes to carry out `action`, and how to stand there.
-## Returns {goal: Vector2, face: Vector2 (INF = no preference), indoors: bool,
-##          partner: int, look: Vector2 (INF = none)}.
+## Returns {goal: Vector2, face: Vector2 (INF = no preference), indoors: bool, partner: int,
+##          look: Vector2 (INF = none), spot: [spot, slot] of a smart object to use there ([] = none)}.
+## `look_at` is the thing the act is about: what to watch, the player who drew a weapon, the crime, the fire.
 func plan_goal(action: int, here: Vector2, graph: StreetGraph, hazard: Vector2, look_at: Vector2) -> Dictionary:
 	var sid: int = WorldSim.home[person]
 	var s: Dictionary = WorldGen.settlements[sid]
 	var pl := places(sid, graph)
 	var out := {"goal": here, "face": Vector2.INF, "indoors": false, "partner": -1,
-		"look": Vector2.INF, "well_slots": PackedVector2Array(), "water_source": ""}
+		"look": Vector2.INF, "spot": [], "well_slots": PackedVector2Array(), "water_source": ""}
 	var home: Vector2 = WorldSim._spot(s, 0, person)
 	var has_home: bool = not (s.get("plan", {}) as Dictionary).get("lots", []).is_empty()
+	var pick: Array = []
 	match action:
 		Act.SLEEP, Act.HOME, Act.EAT:
 			out["goal"] = home
@@ -1256,16 +1414,22 @@ func plan_goal(action: int, here: Vector2, graph: StreetGraph, hazard: Vector2, 
 			if org_id == "inn":
 				out["goal"] = DailyRhythm.goal(person, DailyRhythm.State.INN, graph)
 			else:
-				out["goal"] = WorldSim._spot(s, 1, person)
-				# Craftsmen mostly work inside their shops (WorldSim.is_indoors).
-				out["indoors"] = (job == 1 or job == 2) and person % 3 != 0 and has_home
+				pick = find_spot(action, here, 90.0)
+				if pick.is_empty():
+					out["goal"] = WorldSim._spot(s, 1, person)
+					# Craftsmen mostly work inside their shops (WorldSim.is_indoors).
+					out["indoors"] = (job == 1 or job == 2) and person % 3 != 0 and has_home
 		Act.SHOP:
-			out["goal"] = WorldSim._spot(s, 2, person)
-			out["face"] = (pl["plaza"] as Vector2) - (out["goal"] as Vector2)
+			pick = find_spot(action, here, 70.0)
+			if pick.is_empty():
+				out["goal"] = WorldSim._spot(s, 2, person)
+				out["face"] = (pl["plaza"] as Vector2) - (out["goal"] as Vector2)
 		Act.INN:
-			out["goal"] = DailyRhythm.goal(person, DailyRhythm.State.INN, graph)
-			if graph and graph.inn_door != Vector2.INF:
-				out["face"] = graph.inn_door - (out["goal"] as Vector2)
+			pick = find_spot(action, here, 90.0)
+			if pick.is_empty():
+				out["goal"] = DailyRhythm.goal(person, DailyRhythm.State.INN, graph)
+				if graph and graph.inn_door != Vector2.INF:
+					out["face"] = graph.inn_door - (out["goal"] as Vector2)
 		Act.SOCIAL:
 			var h := hash(person * 9176 + WorldSim.day * 31)
 			var ang := float(h % 628) / 100.0
@@ -1274,13 +1438,15 @@ func plan_goal(action: int, here: Vector2, graph: StreetGraph, hazard: Vector2, 
 			out["goal"] = joined[0]
 			out["partner"] = joined[1]
 		Act.PRAY:
-			if pl["shrine"] != Vector2.INF:
-				var h := hash(person * 523 + 3)
-				var off := Vector2(float(h % 100) / 100.0 - 0.5, float((h / 100) % 100) / 100.0 - 0.5) * 3.0
-				out["goal"] = _clear(graph, (pl["shrine"] as Vector2) + off, 0.45)
-				out["face"] = pl["shrine_face"]
-			else:
-				out["goal"] = (pl["plaza"] as Vector2)
+			pick = find_spot(action, here, 120.0)
+			if pick.is_empty():
+				if pl["shrine"] != Vector2.INF:
+					var h := hash(person * 523 + 3)
+					var off := Vector2(float(h % 100) / 100.0 - 0.5, float((h / 100) % 100) / 100.0 - 0.5) * 3.0
+					out["goal"] = _clear(graph, (pl["shrine"] as Vector2) + off, 0.45)
+					out["face"] = pl["shrine_face"]
+				else:
+					out["goal"] = (pl["plaza"] as Vector2)
 		Act.WATER:
 			var well: Vector2 = pl["well"] if pl["well"] != Vector2.INF else pl["plaza"]
 			var ang := float(hash(person * 71 + 9) % 628) / 100.0
@@ -1288,27 +1454,143 @@ func plan_goal(action: int, here: Vector2, graph: StreetGraph, hazard: Vector2, 
 			out["face"] = (s["pos"] as Vector2) - (out["goal"] as Vector2)
 			out["well_slots"] = pl["well_slots"]
 			out["water_source"] = pl["water_source"]
+		Act.SIT, Act.PLAY, Act.CHORE:
+			var reach := 45.0 if action != Act.CHORE else 30.0
+			pick = find_spot(action, here if action != Act.CHORE else home, reach)
+			if pick.is_empty():
+				out["goal"] = here
 		Act.SHELTER:
 			var e := nearest_eaves(pl, here)
-			if has_home and (e < 0 or here.distance_to(home) < here.distance_to((pl["eaves"] as PackedVector2Array)[e]) + 8.0):
+			var cover := NpcWorld.nearest_stall_cover(sid, here, 18.0)
+			var eaves_d := INF if e < 0 else here.distance_to((pl["eaves"] as PackedVector2Array)[e])
+			if has_home and (e < 0 or here.distance_to(home) < minf(eaves_d, here.distance_to(cover) if cover != Vector2.INF else INF) + 8.0):
 				out["goal"] = home
 				out["indoors"] = true
+			elif cover != Vector2.INF and here.distance_to(cover) < eaves_d:
+				out["goal"] = _clear(graph, cover, 0.45)
+				out["face"] = (pl["plaza"] as Vector2) - cover
 			elif e >= 0:
 				out["goal"] = (pl["eaves"] as PackedVector2Array)[e]
 				out["face"] = (pl["eaves_face"] as PackedVector2Array)[e]
 		Act.FLEE:
+			remember_danger(hazard)
 			var away := (here - hazard).normalized() if hazard != Vector2.INF else Vector2.RIGHT
-			if has_home and (home - hazard).length() > (here - hazard).length() + 3.0 and (home - here).dot(away) > 0.0:
+			var door := hide_spot(pl, here, hazard, graph)
+			if door != Vector2.INF:
+				out["goal"] = door
+				out["indoors"] = true
+			elif has_home and (home - hazard).length() > (here - hazard).length() + 3.0 and (home - here).dot(away) > 0.0:
 				out["goal"] = home
 				out["indoors"] = true
 			else:
 				out["goal"] = _clear(graph, here + away * 20.0, 0.45)
+		Act.HIDE:
+			var door2 := hide_spot(pl, here, hazard, graph)
+			if door2 != Vector2.INF:
+				out["goal"] = door2
+				out["indoors"] = true
+			elif has_home:
+				out["goal"] = home
+				out["indoors"] = true
+			if hazard != Vector2.INF:
+				out["look"] = hazard
 		Act.WATCH:
 			if look_at != Vector2.INF:
 				var from := here - look_at
 				var d := clampf(from.length(), 5.0, 8.0)
 				out["goal"] = _clear(graph, look_at + (from.normalized() if from.length() > 0.1 else Vector2.RIGHT) * d, 0.45)
 				out["look"] = look_at
+		Act.PROTEST:
+			# Back off from the drawn weapon, facing its owner.
+			if look_at != Vector2.INF:
+				var back := (here - look_at).normalized() if here.distance_to(look_at) > 0.1 else Vector2.RIGHT
+				var dest := here + back * 2.6
+				if graph != null:
+					dest = graph.push_out(dest, 0.5)
+					if not graph.clear_line(here, dest, 0.3):
+						dest = here
+				out["goal"] = dest
+				out["look"] = look_at
+		Act.ALARM:
+			out = _plan_alarm(out, here, graph, pl, look_at)
+		Act.FIREFIGHT:
+			if look_at != Vector2.INF:
+				var from2 := here - look_at
+				var ang2 := float(absi(hash(person * 61 + 4)) % 628) / 100.0
+				var ring := 5.4 + float(absi(hash(person * 13)) % 20) / 10.0
+				var dir2 := (from2.normalized() if from2.length() > 0.5 else Vector2.RIGHT).rotated(sin(ang2) * 0.9)
+				out["goal"] = _clear(graph, look_at + dir2 * ring, 0.45)
+				out["look"] = look_at
+		Act.PATROL:
+			var wp := NpcWorld.patrol_point(sid, patrol_i)
+			patrol_i += 1
+			if wp != Vector2.INF:
+				out["goal"] = _clear(graph, wp, 0.45)
+	out["spot"] = pick
+	if not pick.is_empty():
+		var so := NpcWorld.spots()
+		var ap: Vector3 = so.approach_point(pick[0], pick[1])
+		var sx: Transform3D = so.stand_xform(pick[0], pick[1])
+		out["goal"] = _clear(graph, Vector2(ap.x, ap.z), 0.2)
+		out["face"] = Vector2(sx.basis.z.x, sx.basis.z.z)
+		out["indoors"] = false
+	return out
+
+
+## A house door to duck into, away from `hazard`, within a short dash (Vector2.INF when none).
+func hide_spot(pl: Dictionary, here: Vector2, hazard: Vector2, graph: StreetGraph) -> Vector2:
+	var eaves: PackedVector2Array = pl["eaves"]
+	var best := Vector2.INF
+	var best_score := -INF
+	for i in eaves.size():
+		var d := here.distance_to(eaves[i])
+		if d > 38.0:
+			continue
+		var gain := 0.0
+		if hazard != Vector2.INF:
+			gain = eaves[i].distance_to(hazard) - hazard.distance_to(here)
+			if eaves[i].distance_to(hazard) < 7.0:
+				continue
+			if (eaves[i] - here).dot(here - hazard) < 0.0 and d > 6.0:
+				gain -= 12.0
+		var sc := gain - d * 0.8
+		if sc > best_score:
+			best_score = sc
+			best = eaves[i]
+	return best
+
+
+func _plan_alarm(out: Dictionary, here: Vector2, graph: StreetGraph, pl: Dictionary, crime_at: Vector2) -> Dictionary:
+	if job == 3:
+		# A guard goes to look: stop a few steps short of the spot.
+		if crime_at != Vector2.INF:
+			var from := here - crime_at
+			out["goal"] = _clear(graph, crime_at + (from.normalized() if from.length() > 0.5 else Vector2.RIGHT) * 4.0, 0.45)
+			out["look"] = crime_at
+		return out
+	# Everyone else runs for the nearest guard, or a guard post / the plaza when none is about.
+	var goal := Vector2.INF
+	var best_d := INF
+	for p: int in _bodies:
+		if p == person or p >= WorldSim.job.size() or WorldSim.job[p] != 3:
+			continue
+		var b := body_of(p)
+		if b == null:
+			continue
+		var bp := Vector2(b.global_position.x, b.global_position.z)
+		var d := here.distance_squared_to(bp)
+		if d < best_d and d < 60.0 * 60.0:
+			best_d = d
+			goal = bp
+	if goal == Vector2.INF:
+		var post := NpcWorld.find_spot(person, {"act": "work", "job": 3}, here, 80.0)
+		if not post.is_empty():
+			var o: Vector3 = NpcWorld.spots().approach_point(post[0], post[1])
+			goal = Vector2(o.x, o.z)
+		else:
+			goal = pl["plaza"]
+	out["goal"] = _clear(graph, goal, 0.45)
+	out["look"] = crime_at
 	return out
 
 
@@ -1326,4 +1608,12 @@ static func label(action: int, travelling: bool) -> String:
 		Act.SHELTER: return "running from the rain" if travelling else "sheltering"
 		Act.FLEE: return "fleeing!" if travelling else "hiding"
 		Act.WATCH: return "watching"
+		Act.SIT: return "looking for a seat" if travelling else "resting"
+		Act.PLAY: return "off to play" if travelling else "playing"
+		Act.PATROL: return "on patrol" if travelling else "keeping watch"
+		Act.HIDE: return "ducking inside" if travelling else "hiding"
+		Act.PROTEST: return "backing away" if travelling else "complaining"
+		Act.ALARM: return "raising the alarm" if travelling else "reporting"
+		Act.FIREFIGHT: return "fetching water" if travelling else "fighting the fire"
+		Act.CHORE: return "off to a chore" if travelling else "doing chores"
 	return "idling"

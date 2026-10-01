@@ -45,6 +45,7 @@ extends RefCounted
 const RALifePath := preload("res://scripts/sim/life_path.gd")
 const RATendencies := preload("res://scripts/sim/tendencies.gd")
 const RAAwakening := preload("res://scripts/sim/awakening.gd")
+const R1EmberLegacy := preload("res://scripts/region1/ember_legacy.gd")   # Region1 hook H7 (docs/regions/REGION_1_PLAN.md)
 
 ## Courtship point thresholds to advance a stage.
 const COURT_POINTS_COURTING := 20.0
@@ -561,6 +562,9 @@ func succeed_to(heir_id: Variant) -> Dictionary:
 	var family_name := Life.life_path.family_name
 	var home_settlement := Life.life_path.home_settlement
 	var home_pos := Life.life_path.home_pos
+	# Region1 hook (docs/regions/REGION_1_PLAN.md) H7: file the ember of the outgoing life
+	R1EmberLegacy.emit_life_ended(Life.biography, Life.echoes, old_name, old_age, family_name, WorldSim.day,
+		{"place": String(WorldGen.settlements[home_settlement]["name"]) if home_settlement >= 0 and home_settlement < WorldGen.settlements.size() else "", "mastery": Life.mastery.xp, "tendencies": Life.tendencies.values})
 	# Archive the outgoing life before anything else changes.
 	chronicles.append({"name": old_name, "family_name": family_name,
 		"summary": Life.biography.summary(WorldSim.day), "day": WorldSim.day})

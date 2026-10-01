@@ -199,6 +199,30 @@
 			"danger": "deadly",
 			"danger_tier": 3,
 			"description": "The oldest goblin warren on the map, at the far north-western edge, where the rim mountains begin. A troll is said to rule the lowest chamber."
-		}
+		},
+		{"id": "silverford", "name": "Silverford", "kind": "town", "pos": [2092, -2007], "radius": 115, "hidden": true, "description": "The guild town on the Silverrun ford (WorldGen's Ironmarch): Masons' and Runecarvers' Guild, Merchants' Hall, Adventurers' branch.", "settlement_id": 12, "alias_of": "Ironmarch"},
+		{"id": "greenhollow", "name": "Greenhollow", "kind": "village", "pos": [-942, -633], "radius": 60, "hidden": true, "description": "The farming village of the meadows (WorldGen's Oakvale): the Pennick farm and the Great Oak.", "settlement_id": 8, "alias_of": "Oakvale"},
+		{"id": "highwatch_keep", "name": "Highwatch Keep", "kind": "keep", "pos": [120.3, -1672.7], "radius": 42, "hidden": true, "description": "Stronghold of the Order of the Highwatch and the Ember Lancers, on the ridge above Highcliff.", "site": "highwatch_keep"},
+		{"id": "highwatch_gate", "name": "Highwatch north gate", "kind": "story_place", "pos": [110.8, -1658.2], "radius": 40, "hidden": true, "description": "The keep's gate, where the road from Highcliff arrives."},
+		{"id": "elder_highwatch", "name": "Highwatch Elder Stone", "kind": "elder_stone", "pos": [105.5, -1650.1], "radius": 20, "hidden": true, "description": "The Elder Stone before Highwatch's gate.", "site": "elder_highwatch"},
+		{"id": "elder_greyseam", "name": "Greyseam Elder Stone", "kind": "elder_stone", "pos": [-86.7, -443.8], "radius": 20, "hidden": true, "description": "The Elder Stone above the Greyseam rift seam.", "site": "elder_greyseam"},
+		{"id": "elder_elden", "name": "Elden Elder Stone", "kind": "elder_stone", "pos": [-1199.6, -91.3], "radius": 20, "hidden": true, "description": "The Elder Stone at the end of the Elden Road.", "site": "elder_elden"},
+		{"id": "greyseam_seam", "name": "The rift seam, lower Greyseam", "kind": "story_place", "pos": [-86.7, -443.8], "radius": 30, "hidden": true, "description": "Where the rift seam runs under Greyseam Mine."},
+		{"id": "elder_glade", "name": "Glade Elder Stone", "kind": "elder_stone", "pos": [-1345.0, -1060.0], "radius": 20, "hidden": true, "description": "The fallen Elder Stone of the Stagborn Glade (look landmark stagborn_glade)."},
+		{"id": "elder_crownstead", "name": "Crownstead Elder Stone", "kind": "elder_stone", "pos": [430.0, -192.0], "radius": 20, "hidden": true, "description": "The Elder Stone on the crown of Crownstead Mill Hill (look landmark crownstead_mill_hill)."},
+		{"id": "crownstead", "name": "Crownstead", "kind": "estate", "pos": [430.0, -190.0], "radius": 90, "hidden": true, "description": "The Crown's farms: the three-windmill hill and the Steward's Hall."},
+		{"id": "elden_road", "name": "The Elden Road", "kind": "road", "pos": [-950.0, -120.0], "radius": 20, "hidden": false, "description": "The old runestone road west from the Shrine of the Sleeping Flame to the Elden Elder Stone.", "path": [[-700, -160], [-1200, -91]], "to": "elder_elden", "from": "shrine_of_the_sleeping_flame"},
+		{"id": "eastern_gate", "name": "The Eastern Gate", "kind": "border_gate", "pos": [3771.9, 480.8], "radius": 46, "hidden": true, "description": "Closed border post to the Church realms (Aurelis, Varska, Serathi).", "site": "eastern_gate", "locked": true, "hint": "Closed by order of the Aurelis Patriarchate."},
+		{"id": "grimfen_pass", "name": "Grimfen Pass", "kind": "pass", "pos": [559.5, -3597.8], "radius": 30, "hidden": true, "description": "Snowed shut since the Long Dark; the road to the Frostcrown Holds.", "site": "grimfen_pass", "locked": true, "hint": "Snowed shut since the Long Dark."},
+		{"id": "scar_arena", "name": "Scar Mouth Arena", "kind": "scar_arena", "pos": [2702.8, 2535.2], "radius": 28, "hidden": true, "description": "The arena before the Ashen Scar's mouth: the optional finale encounter.", "site": "scar_arena"},
+		{"id": "rift_mouth", "name": "The Rift Mouth", "kind": "story_place", "pos": [2699.9, 2513.4], "radius": 60, "hidden": true, "description": "The violet mouth in the Scar Mouth Arena (story id rift_mouth)."},
+		{"id": "miller_stone", "name": "The Miller's Stone", "kind": "story_place", "pos": [123.0, -14.0], "radius": 22, "hidden": true, "description": "The standing stone by the Old Mill Staff Yard."},
+		{"id": "old_mill_staff_yard", "name": "Old Mill Staff Yard", "kind": "story_place", "pos": [126.0, 0.0], "radius": 24, "hidden": true, "description": "Maren Coldbrook's staff yard, at Ashford's edge.", "site": "landmark_ashford"},
+		{"id": "ashford_ring", "name": "Ashford runestone circle", "kind": "story_place", "pos": [0.0, 12.0], "radius": 26, "hidden": true, "description": "The ring of stones at the heart of Ashford."},
+		{"id": "silverford_guild_hall", "name": "Masons' and Runecarvers' Guild hall", "kind": "story_place", "pos": [2063.8, -1789.7], "radius": 30, "hidden": true, "description": "The guild hall (interior: guildhall_interior).", "site": "landmark_ironmarch"},
+		{"id": "silverford_market", "name": "Silverford market", "kind": "story_place", "pos": [2066.2, -1807.5], "radius": 40, "hidden": true, "description": "The market before the guild hall."},
+		{"id": "greenhollow_farm", "name": "Pennick farm, Greenhollow", "kind": "story_place", "pos": [-830.5, -603.5], "radius": 50, "hidden": true, "description": "Gilda Pennick's farm.", "site": "landmark_oakvale"},
+		{"id": "greenhollow_south_fields", "name": "Greenhollow's south fields", "kind": "story_place", "pos": [-842.5, -612.9], "radius": 70, "hidden": true, "description": "The wheat rows on the south edge, where the Scar reaches first."},
+		{"id": "greenhollow_road", "name": "The Greenhollow road", "kind": "story_place", "pos": [-471, -317], "radius": 60, "hidden": true, "description": "The frontier road between Ashford and Greenhollow."}
 	]
 }

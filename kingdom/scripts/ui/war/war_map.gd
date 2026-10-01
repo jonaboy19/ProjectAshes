@@ -18,6 +18,7 @@ const Tokens := preload("res://scripts/ui/war/war_tokens.gd")
 const Terrain := preload("res://scripts/ui/war/war_terrain.gd")
 const Radial := preload("res://scripts/ui/war/war_radial.gd")
 const WarPanel := preload("res://scripts/ui/war/war_panel.gd")
+const WarInfluence := preload("res://scripts/realm/war_influence.gd")
 const WarUnits := preload("res://scripts/realm/war_units.gd")
 
 const LEVELS := ["World", "Region", "Local"]
@@ -36,6 +37,7 @@ const STATUS_COL := {"fighting": Color("ff6a4a"), "holding": Color("f0c860"), "e
 ## Tests / other hosts may inject a realm hub; otherwise Life.realm is used (may be absent).
 var realm_override: RefCounted = null
 var cm: RefCounted = null
+var _wi: RefCounted = null
 var style := Tokens.TACTICAL
 var level := 1
 var zoom := ZOOM_REGION
@@ -910,6 +912,29 @@ func set_tab(t: String) -> void:
 	_panel.call("rebuild")
 
 
+## "Your part in the war" (scripts/realm/war_influence.gd) for the Life in the tree and this map's realm hub.
+func influence() -> RefCounted:
+	if _wi == null:
+		var life: Node = get_node_or_null("/root/Life")
+		var realm: RefCounted = realm_override
+		if realm == null and life != null and "realm" in life:
+			realm = life.realm
+		_wi = WarInfluence.new(life, realm)
+	return _wi
+
+
+## Runs one of the player's war actions, shows its result line on the map and in the log, and redraws.
+func do_war_action(id: String, params: Dictionary = {}) -> Dictionary:
+	var r: Dictionary = influence().do(id, params)
+	var text := String(r.get("text", ""))
+	say(text)
+	if bool(r.get("ok", false)) and text != "":
+		Game.say(text)
+	refresh()
+	_panel.call("rebuild")
+	return r
+
+
 func selected_pieces() -> Array:
 	var out: Array = []
 	for p: Dictionary in pieces:
@@ -1064,6 +1089,28 @@ func follow_advice(index: int) -> void:
 	var r: Dictionary = cm.call("follow_advice", index)
 	say("You follow your advisor's plan." if not r.is_empty() and not (r["courier"] as Dictionary).is_empty() else "There is no army to carry out that plan.")
 	refresh()
+
+
+## "Command battle": the engagement's battlefield on the real ground (scripts/ui/war/tactical_view.gd).
+func open_tactical(eng_id: int) -> Control:
+	if cm == null:
+		return null
+	var tt: RefCounted = cm.call("tactical_open", eng_id)
+	if tt == null:
+		say("There is no battle to command there.")
+		return null
+	var v: Control = load("res://scripts/ui/war/tactical_view.gd").open_modal(self, tt, cm, eng_id, Callable(self, "refresh"))
+	return v
+
+
+## A siege of a stronghold (scripts/ui/war/siege_view.gd).
+func open_siege(key: String) -> Control:
+	if cm == null:
+		return null
+	var sg: RefCounted = cm.call("siege", key)
+	if sg == null:
+		return null
+	return load("res://scripts/ui/war/siege_view.gd").open_modal(self, sg, cm, key)
 
 
 func begin_target_mode() -> void:

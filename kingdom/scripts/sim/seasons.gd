@@ -55,6 +55,8 @@ const FESTIVALS := [
 	{"id": "midsummer", "name": "Midsummer Fair", "season": SUMMER, "day": 14},
 	{"id": "harvest", "name": "Harvest Festival", "season": AUTUMN, "day": 21},
 	{"id": "solstice", "name": "Winter Solstice", "season": WINTER, "day": 14},
+	# Region1 (docs/regions/STORY_R1.md): the night Ashford floats lanterns for the dead. Last night of autumn.
+	{"id": "kindling_night", "name": "Kindling Night", "season": AUTUMN, "day": 28},
 ]
 ## Global shader parameter names and their summer (neutral) defaults.
 const G_TINT := &"season_tint"

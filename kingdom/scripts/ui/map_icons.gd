@@ -146,8 +146,20 @@ static func draw_marker(ci: CanvasItem, kind: String, c: Vector2, s: float, host
 			_palisade(ci, c, g, w)
 		"fort":
 			_fort(ci, c, g, w)
-		"watchfort", "academy":
-			_tower(ci, c, g, STONE, BLUE if kind == "watchfort" else GOLD, w, false)
+		"watchfort", "academy", "keep", "estate", "chapel":
+			_tower(ci, c, g, STONE, BLUE if kind in ["watchfort", "keep"] else GOLD, w, false)
+		"elder_stone":
+			_menhir(ci, c, g, w)
+		"border_gate":
+			_gate(ci, c, g, w)
+		"pass":
+			_peaks(ci, c, g, w)
+		"scar_arena":
+			_rift(ci, c, g, w)
+		"caravan_camp":
+			_tent(ci, c, g, GOLD, w, RED)
+		"landmark", "glade", "windmill_hill":
+			_signpost(ci, c, g, w)
 		"tower_ruin":
 			_tower(ci, c, g, STONE_DARK, Color(0, 0, 0, 0), w, true)
 		"rift_outpost":
@@ -392,3 +404,32 @@ static func draw_rose(ci: CanvasItem, c: Vector2, r: float, font: Font) -> void:
 	var nw := font.get_string_size("N", HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 	ci.draw_string_outline(font, c + Vector2(-nw * 0.5, -r * 1.2), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 4, CREAM)
 	ci.draw_string(font, c + Vector2(-nw * 0.5, -r * 1.2), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, RED)
+
+
+# --- Region 1 kinds (scripts/world/region1_world.gd) ----------------------------------------------------------------
+
+## An Elder Stone: a carved standing stone on a dais with blue rune light.
+static func _menhir(ci: CanvasItem, c: Vector2, g: float, w: float) -> void:
+	_poly(ci, PackedVector2Array([c + Vector2(-g * 0.75, g * 0.85), c + Vector2(-g * 0.55, g * 0.55), c + Vector2(g * 0.55, g * 0.55), c + Vector2(g * 0.75, g * 0.85)]), STONE_DARK, w)
+	_poly(ci, PackedVector2Array([c + Vector2(-g * 0.3, g * 0.6), c + Vector2(-g * 0.22, -g * 0.85), c + Vector2(g * 0.05, -g * 1.0), c + Vector2(g * 0.3, -g * 0.8), c + Vector2(g * 0.28, g * 0.6)]), STONE, w)
+	for k in 3:
+		ci.draw_line(c + Vector2(-g * 0.05, -g * 0.55 + k * g * 0.38), c + Vector2(g * 0.12, -g * 0.4 + k * g * 0.38), Color("3aa6ff"), w * 1.2, true)
+	ci.draw_circle(c + Vector2(0, -g * 0.95), g * 0.14, Color("8fd6ff"))
+
+
+## A closed border gate: two towers, a barred arch and a red bar across it.
+static func _gate(ci: CanvasItem, c: Vector2, g: float, w: float) -> void:
+	_poly(ci, _rectp(c, -g * 0.95, -g * 0.55, -g * 0.4, g * 0.85), STONE, w)
+	_poly(ci, _rectp(c, g * 0.4, -g * 0.55, g * 0.95, g * 0.85), STONE, w)
+	_poly(ci, PackedVector2Array([c + Vector2(-g * 1.05, -g * 0.55), c + Vector2(-g * 0.68, -g * 1.0), c + Vector2(-g * 0.3, -g * 0.55)]), BLUE, w)
+	_poly(ci, PackedVector2Array([c + Vector2(g * 0.3, -g * 0.55), c + Vector2(g * 0.68, -g * 1.0), c + Vector2(g * 1.05, -g * 0.55)]), GOLD, w)
+	ci.draw_line(c + Vector2(-g * 0.42, g * 0.2), c + Vector2(g * 0.42, g * 0.2), RED, w * 2.4, true)
+	ci.draw_line(c + Vector2(-g * 0.42, g * 0.52), c + Vector2(g * 0.42, g * 0.52), RED, w * 2.4, true)
+
+
+## A snowed-shut pass: two peaks with snow caps.
+static func _peaks(ci: CanvasItem, c: Vector2, g: float, w: float) -> void:
+	_poly(ci, PackedVector2Array([c + Vector2(-g * 1.0, g * 0.8), c + Vector2(-g * 0.3, -g * 0.8), c + Vector2(g * 0.25, g * 0.8)]), STONE_DARK, w)
+	_poly(ci, PackedVector2Array([c + Vector2(-g * 0.1, g * 0.8), c + Vector2(g * 0.5, -g * 0.45), c + Vector2(g * 1.05, g * 0.8)]), STONE, w)
+	_poly(ci, PackedVector2Array([c + Vector2(-g * 0.52, -g * 0.3), c + Vector2(-g * 0.3, -g * 0.8), c + Vector2(-g * 0.08, -g * 0.3), c + Vector2(-g * 0.22, -g * 0.42), c + Vector2(-g * 0.38, -g * 0.22)]), Color("f4f8ff"), w * 0.7)
+	ci.draw_line(c + Vector2(-g * 0.9, g * 0.85), c + Vector2(g * 0.95, g * 0.85), Color("f4f8ff"), w * 1.6, true)

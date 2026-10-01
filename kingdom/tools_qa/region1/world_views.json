@@ -1,0 +1,485 @@
+{
+ "_comment": "C1/C2/C10 world sites, for tools_qa/region1/look_capture.gd (generated from world_dump.gd)",
+ "views": [
+  {
+   "name": "w_highwatch_keep",
+   "at": [
+    51.8,
+    -1631.4
+   ],
+   "look": [
+    120.3,
+    -1672.7
+   ],
+   "up": 6.0,
+   "look_up": 4,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_elder_highwatch",
+   "at": [
+    86.7,
+    -1638.8
+   ],
+   "look": [
+    105.5,
+    -1650.1
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_crownstead_estate",
+   "at": [
+    596.9,
+    -114.7
+   ],
+   "look": [
+    620.5,
+    -80.0
+   ],
+   "up": 6.0,
+   "look_up": 4,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_elder_greyseam",
+   "at": [
+    -98.4,
+    -419.7
+   ],
+   "look": [
+    -86.7,
+    -443.8
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_elder_elden",
+   "at": [
+    -1174.0,
+    -79.0
+   ],
+   "look": [
+    -1199.6,
+    -91.3
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_dawn_chapel",
+   "at": [
+    813.3,
+    -423.5
+   ],
+   "look": [
+    839.8,
+    -409.5
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_eastern_gate",
+   "at": [
+    3719.7,
+    455.6
+   ],
+   "look": [
+    3771.9,
+    480.8
+   ],
+   "up": 6.0,
+   "look_up": 4,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_grimfen_pass",
+   "at": [
+    540.4,
+    -3558.2
+   ],
+   "look": [
+    559.5,
+    -3597.8
+   ],
+   "up": 6.0,
+   "look_up": 4,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_scar_arena",
+   "at": [
+    2687.7,
+    2580.8
+   ],
+   "look": [
+    2702.8,
+    2535.2
+   ],
+   "up": 6.0,
+   "look_up": 4,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_solkar_camp",
+   "at": [
+    2017.0,
+    -1849.2
+   ],
+   "look": [
+    1990.9,
+    -1831.4
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_ashford",
+   "at": [
+    99.0,
+    -13.1
+   ],
+   "look": [
+    126.0,
+    0.0
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_kingsreach",
+   "at": [
+    358.2,
+    -320.0
+   ],
+   "look": [
+    323.5,
+    -322.0
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_millbrook",
+   "at": [
+    1100.6,
+    729.0
+   ],
+   "look": [
+    1128.8,
+    714.8
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_stonehollow",
+   "at": [
+    -468.1,
+    1064.5
+   ],
+   "look": [
+    -453.7,
+    1034.6
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_eastmere",
+   "at": [
+    882.9,
+    1305.7
+   ],
+   "look": [
+    884.7,
+    1274.2
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_redwater",
+   "at": [
+    847.9,
+    -1211.8
+   ],
+   "look": [
+    838.0,
+    -1181.8
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_thornfield",
+   "at": [
+    1336.0,
+    -197.0
+   ],
+   "look": [
+    1306.1,
+    -211.4
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_greywatch",
+   "at": [
+    1451.4,
+    1663.6
+   ],
+   "look": [
+    1432.3,
+    1692.7
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_oakvale",
+   "at": [
+    -856.8,
+    -626.2
+   ],
+   "look": [
+    -830.5,
+    -603.5
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_highcliff",
+   "at": [
+    165.5,
+    -1394.9
+   ],
+   "look": [
+    186.5,
+    -1371.3
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_brackenmoor",
+   "at": [
+    254.8,
+    1231.4
+   ],
+   "look": [
+    223.3,
+    1233.7
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_westfen",
+   "at": [
+    20.8,
+    1027.5
+   ],
+   "look": [
+    34.5,
+    999.0
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_ironmarch",
+   "at": [
+    2086.2,
+    -1833.4
+   ],
+   "look": [
+    2065.4,
+    -1801.6
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_saltwick",
+   "at": [
+    -3418.6,
+    3455.5
+   ],
+   "look": [
+    -3411.9,
+    3488.0
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_cindermoor",
+   "at": [
+    -2909.3,
+    803.1
+   ],
+   "look": [
+    -2928.0,
+    775.6
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_dunhallow",
+   "at": [
+    -1785.2,
+    -2075.0
+   ],
+   "look": [
+    -1791.7,
+    -2040.8
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_wolfsend",
+   "at": [
+    3326.1,
+    242.4
+   ],
+   "look": [
+    3349.7,
+    221.4
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_harrowgate",
+   "at": [
+    -185.8,
+    2857.2
+   ],
+   "look": [
+    -197.8,
+    2822.8
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_emberfall",
+   "at": [
+    -1805.6,
+    2410.0
+   ],
+   "look": [
+    -1791.9,
+    2381.5
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  },
+  {
+   "name": "w_landmark_ravenscar",
+   "at": [
+    975.5,
+    -3317.9
+   ],
+   "look": [
+    1004.0,
+    -3304.1
+   ],
+   "up": 2.4,
+   "look_up": 2.6,
+   "hour": 15,
+   "fov": 62,
+   "warm": 120
+  }
+ ]
+}

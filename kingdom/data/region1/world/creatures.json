@@ -1,0 +1,39 @@
+{
+	"version": 1,
+	"_doc": "Package C11: where Region 1's signature and uncommon creatures live (scripts/world/region1_creatures.gd). `dens` are seeded into Frontier.ecology once per species (species keys = creature_models keys, see monster_ecology SPECIES); `near` = site:<name> | settlement:<Name> | lake | [x, z]; `d` = metres from it; `water` = must stand by water. `herds` move with the seasons along `route` (spring and summer to the summer range, autumn and winter home), m per in-game day. `camps` are the bandit rosters placed at bandit_camp sites (Ashen Hand at Duskbriar). Optional encounters only: nothing here gates progress.",
+	"dens": [
+		{"tag": "glade_herd", "species": "stagborn_elk", "pop": [9, 11], "near": "site:Stagborn Glade", "d": [10, 55]},
+		{"tag": "hollin_herd", "species": "stagborn_elk", "pop": [6, 8], "near": "site:Hollin Watch", "d": [40, 140]},
+		{"tag": "glade_warden", "species": "stagborn_warden", "pop": [1, 1], "near": "site:Stagborn Glade", "d": [6, 16]},
+		{"tag": "ghoul_hollin", "species": "ghoul", "pop": [3, 5], "near": "site:Hollin's Reach Ruins", "d": [20, 70]},
+		{"tag": "ghoul_beacon", "species": "ghoul", "pop": [3, 4], "near": "site:The Old Beacon", "d": [15, 55]},
+		{"tag": "ghoul_broken_watch", "species": "ghoul", "pop": [3, 4], "near": "site:Broken Watch", "d": [15, 55]},
+		{"tag": "ghoul_sundered", "species": "ghoul", "pop": [3, 5], "near": "site:Sundered Tower", "d": [15, 55]},
+		{"tag": "wasp_crownstead", "species": "giant_wasp", "pop": [3, 5], "near": "site:Crownstead Steward's Hall", "d": [70, 150]},
+		{"tag": "wasp_beacon", "species": "giant_wasp", "pop": [3, 4], "near": "site:The Old Beacon", "d": [80, 160]},
+		{"tag": "wasp_brackenmoor", "species": "giant_wasp", "pop": [3, 5], "near": "settlement:Brackenmoor", "d": [260, 420]},
+		{"tag": "toad_westfen", "species": "bog_toad", "pop": [3, 5], "near": "settlement:Westfen", "d": [90, 230], "water": true},
+		{"tag": "toad_mere", "species": "bog_toad", "pop": [3, 4], "near": "lake", "d": [95, 170], "water": true},
+		{"tag": "toad_whisper", "species": "bog_toad", "pop": [2, 4], "near": "site:Whisper Hollow", "d": [30, 110], "water": true},
+		{"tag": "toad_silverford", "species": "bog_toad", "pop": [3, 5], "near": "site:Silverford Guild Hall", "d": [200, 420], "water": true},
+		{"tag": "slime_scar", "species": "rift_slime", "pop": [5, 7], "near": "site:The Ashen Scar", "d": [60, 140]},
+		{"tag": "slime_rift", "species": "rift_slime", "pop": [4, 6], "near": "site:The Rift", "d": [50, 120]},
+		{"tag": "slime_seam", "species": "rift_slime", "pop": [3, 4], "near": "site:Greyseam Elder Stone", "d": [12, 40]},
+		{"tag": "wraith_scar", "species": "rift_wraith", "pop": [2, 2], "near": "site:Scar Mouth Arena", "d": [5, 30]},
+		{"tag": "wraith_rift", "species": "rift_wraith", "pop": [1, 2], "near": "site:The Rift", "d": [20, 70]}
+	],
+	"herds": [
+		{"tag": "glade_herd", "home": "site:Stagborn Glade", "summer": [-560, -1980], "speed": 75.0, "note": "north along the old ward-lines in spring, home by autumn"},
+		{"tag": "hollin_herd", "home": "site:Hollin Watch", "summer": [-140, -1130], "speed": 55.0, "note": "up the Ashrun valley toward Greyseam and the Wyrm's Ribs"}
+	],
+	"camps": {
+		"Bandit Camp": {"n": 5, "band": "The Ashen Hand", "captain": "Varrick Ash"},
+		"Red Hand Camp": {"n": 4, "band": "The Red Hand", "captain": "Dask Redhand"},
+		"Blackthorn Camp": {"n": 5, "band": "Blackthorn Company", "captain": "Isolde Thorne"},
+		"Gallows Camp": {"n": 6, "band": "The Gallows Crew", "captain": "Hob Gallows"}
+	},
+	"camp_default": {"n": 4, "band": "Outlaws", "captain": ""},
+	"camp_build": 170.0,
+	"camp_free": 330.0,
+	"camp_respawn_days": 6
+}

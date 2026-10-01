@@ -1,6 +1,6 @@
 ---
 name: ashes-external-tools
-description: Approved external tools for Rising Ashes animation (Rigify horse, Wiggle 2, Bone Dynamics, Expy Kit) and world building (A.N.T.Landscape, dandrino erosion, Azgaar maps, Terrain3D import), with licence verdicts and headless commands. Use before rigging animals or horses, adding spring bones or hair/tail/cloth motion, or generating terrain, rivers or maps.
+description: Approved external tools for Rising Ashes - animation (Rigify horse, Wiggle 2, Bone Dynamics, Expy Kit, RTMPose video mocap), world building (A.N.T.Landscape, erosion, Azgaar, Terrain3D), phone and GPU profiling (scrcpy, Perfetto, AGI, RenderDoc), meshes and textures (gltfpack LOD, Instant Meshes, Real-ESRGAN, Krita), NPC voices (Piper) and SFX (rFXGen, jsfxr) - with licence verdicts and headless commands. Use before rigging, terrain, profiling the S22, simplifying or retopologising a GLB, upscaling a texture, generating voice lines or sound effects.
 ---
 
 # External tools for Rising Ashes
@@ -28,3 +28,24 @@ Rejected, do not reinstall: Gaea (non-commercial free tier), World Machine, Casc
 4. Look at every proof render before reporting. Workbench does not draw armatures; `bl_common.bone_lines` draws bones as tubes.
 5. In the game itself use Godot's built-in `SpringBoneSimulator3D` for spring bones; Wiggle 2 and Bone Dynamics are for baking motion into clips in Blender.
 6. Heightmaps: erode with `erode_heightmap.py`, import to Terrain3D as r16 (0..1, scaled by max height). Azgaar rivers and cells GeoJSON can seed river splines and biome zones.
+
+## Round 2 tools (2026-09-30) - full notes and proofs in `tools/README_EXTERNAL_TOOLS.md`
+Local PC only (GPU or phone): scrcpy, Perfetto recording, AGI, RenderDoc, Real-ESRGAN, Krita, Instant Meshes. Portable CPU tools: gltfpack, rtmlib, Piper, rFXGen, jsfxr. No Ollama or local LLM (owner rule).
+
+| Tool | Licence | Use | Command |
+|---|---|---|---|
+| scrcpy 4.1 | Apache-2.0 | record/mirror S22 (`R5CT849XNVF`), no input | `tools/external/s22_capture.ps1 -Kind video -Seconds 10 -Out x.mp4` |
+| Perfetto v58.2 | Apache-2.0 | S22 CPU/frame trace + SQL | `s22_capture.ps1 -Kind trace ...` then `trace_processor_shell.exe -q q.sql x.pftrace` |
+| RenderDoc 1.46 | MIT | one-frame capture, draw calls (Godot on D3D12) | `tools/external/renderdoc_godot.ps1 -Project <dir> -Out <dir>` |
+| AGI 3.3.3 | Apache-2.0 | phone GPU GUI; not device-tested, S22 is Exynos/Xclipse (doubtful); it installs an APK on the phone, never run it while another agent uses the phone | `Tools\agi\agi\agi.exe` |
+| gltfpack 1.3 | MIT | GLB auto-LOD/simplify. For Godot always `-noq` (4.6.3 cannot import quantized or meshopt GLBs); use `-sa` on Meshy meshes | `gltfpack.exe -i in.glb -o out.glb -noq -si 0.4 -sa` |
+| Instant Meshes | BSD-3 | quad retopo of single-shell organic meshes only (saddle, straps, buildings break); obj/ply in, drops UVs | `glb_to_obj.py` via blender.sh, then `"Instant Meshes.exe" in.obj -o out.obj -f 600 -d -b -c 30` |
+| Real-ESRGAN ncnn | MIT code, BSD-3 weights | 2x/3x/4x texture upscale, `-g 2` = RTX 4070 | `realesrgan-ncnn-vulkan.exe -i a.png -o b.png -n realesrgan-x4plus -s 4 -g 2` |
+| Krita 6.0.4 | GPL-3 | painting, headless convert | `krita.com in.png --export --export-filename out.kra` |
+| rtmlib/RTMPose | Apache-2.0 | 2D keypoints; 0.06 vs MediaPipe 0.17 torso-length error on the synthetic clip, but 2D only | `Tools\rtmlib\venv\Scripts\python.exe kingdom/tools/anim/video_mocap/rtm_extract.py clip.mp4 out.npz` |
+| Piper (MIT binary) | voices: only public-domain (norman, john, kristin, cori) and CC-BY libritts-high (credit needed); NC, SA and Lessac-derived voices rejected | NPC lines | `tools/external/piper_say.ps1 -Voice norman -Text "..." -Out x.wav` |
+| rFXGen 5.0 | zlib | fixed presets (hit, coin, laser, explosion, powerup, jump, blip) | `rfxgen.exe -g hit -o x.wav` |
+| jsfxr 1.4.1 | Unlicense | seeded SFX variations | `node tools/external/jsfxr_gen.js hitHurt 7 x.wav 3` |
+
+Not installed: Upscayl (AGPL GUI, duplicate of Real-ESRGAN), FreeMoCap (AGPL, multi-camera), Piper 1.x GPL fork.
+RenderDoc scripts run only inside `qrenderdoc.exe --python`. `bash` in PowerShell is WSL on this PC: run `blender.sh` via the Bash tool (Git Bash).

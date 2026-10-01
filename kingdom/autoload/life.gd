@@ -7,6 +7,8 @@ extends Node
 ## with real WorldSim people, leaving genuine vacancies.
 
 signal inventory_changed
+## Region1 hook (docs/regions/REGION_1_PLAN.md) C7: a creature the player killed (story kill objectives). species is a registry target id.
+signal region1_kill(species: String, where: Vector3)
 signal employment_changed
 signal grown(age: int)
 
@@ -190,6 +192,7 @@ func _new_life() -> void:
 	crafting.crafted.connect(func(res: Dictionary) -> void:
 		var sk := String(res.get("skill", ""))
 		var item_id := String(res.get("item", ""))
+		award_progress("craft", {"subject": item_id})
 		world_events.publish("item_crafted", "player", "item:" + item_id if not item_id.is_empty() else "", _abs_hours(), {
 			"skill": sk, "count": int(res.get("count", 0)), "quality": int(res.get("quality", 0)),
 			"xp": int(res.get("xp", 0)), "tag": String(res.get("tag", "crafted")),
@@ -782,7 +785,75 @@ func answer_offer(event_id: int, yes: bool) -> String:
 
 ## Effective level for naming: grows with merit, reduced while levels are lost to naming.
 func player_level() -> int:
+	var prog: Variant = _progression()
+	if prog != null:
+		return int(prog.level)   # docs/balance/PROGRESSION_R1.md hook: the cultivation module owns the level curve
 	return maxi(1, 1 + int(sqrt(float(Game.merit))) + age() / 4 - naming.level_penalty(WorldSim.day))
+
+
+## Item effects only world systems can apply (equipment.consume calls this): pills, manuals/scrolls, coatings, recall,
+## wards, reveals. Returns a short line for the toast, or "" when nothing happened (the item is still spent).
+func apply_item_effect(id: String, info: Dictionary) -> String:
+	var cult: Variant = realm.mod("cultivation") if realm != null else null
+	if info.has("cultivation_xp"):
+		if cult == null or (cult.cultivating() as Array).is_empty():
+			return "The pill's warmth fades; you aren't cultivating yet."
+		return "Qi +%d." % int(cult.add_pill_qi(float(info["cultivation_xp"])))
+	if info.has("breakthrough_bonus"):
+		if cult != null:
+			cult.pill_bonus = maxf(float(cult.pill_bonus), float(info["breakthrough_bonus"]))
+		return "Your next breakthrough is steadier (+%d%%)." % int(round(float(info["breakthrough_bonus"]) * 100.0))
+	if info.has("permanent_stat"):
+		var stat := String(info["permanent_stat"])
+		equipment.add_buff("Tempered body", stat, float(info.get("value", 5.0)), 24.0 * 365.0 * 200.0)
+		return "Your %s grows for good." % stat.replace("_", " ")
+	if info.has("casts"):
+		var r: Dictionary = skills.grant(String(info["casts"]))
+		if not bool(r.get("ok", true)):
+			return String(r.get("text", ""))
+		return "You learn %s." % String(skills.get_def(String(info["casts"])).get("name", String(info["casts"]).replace("_", " ")))
+	if info.has("coating"):
+		equipment.add_buff("%s coating" % String(info["coating"]).capitalize(), String(info["coating"]) + "_damage", float(info.get("value", 6.0)), 1.0)
+		return "Your blade is coated for an hour."
+	match String(info.get("effect", "")):
+		"ward":
+			equipment.add_buff("Ward", "armor", float(info.get("value", 8.0)), 2.0)
+			return "A ward settles around you."
+		"recall":
+			if player != null and not WorldGen.settlements.is_empty():
+				var home: Vector2 = WorldGen.settlements[0]["pos"]
+				var near: Dictionary = WorldGen.nearest_settlement(Vector2(player.global_position.x, player.global_position.z))
+				if near.has("pos"):
+					home = near["pos"]
+				player.global_position = Vector3(home.x, WorldGen.height(home.x, home.y) + 1.0, home.y)
+				return "The world folds; you stand at the edge of town."
+			return ""
+		"reveal":
+			if player != null:
+				var pp := Vector2(player.global_position.x, player.global_position.z)
+				for s: Dictionary in WorldGen.sites:
+					if bool(s.get("secret", false)) and (s["pos"] as Vector2).distance_to(pp) < 400.0 and discovery.reveal_site(s, WorldSim.day):
+						return "Hidden ways show themselves: %s." % String(s["name"])
+			return "Nothing hidden lies near."
+	return ""
+
+
+## The character-level module (cultivation.prog), or null before the realm exists.
+func _progression() -> Variant:
+	if realm == null:
+		return null
+	var cult: Variant = realm.mod("cultivation")
+	return cult.prog if cult != null and cult.get("prog") != null else null
+
+
+## Progression hook (docs/balance/PROGRESSION_R1.md section 5): award XP for an activity. Null-safe.
+func award_progress(activity: String, ctx: Dictionary = {}) -> void:
+	var prog: Variant = _progression()
+	if prog != null:
+		var c := ctx.duplicate()
+		c["day"] = WorldSim.day
+		c["region"] = "region1"
+		prog.award(activity, c)
 
 
 ## Name a yielded monster: pays magicules, may cost levels or cause injuries.
@@ -874,6 +945,8 @@ func _setup_market() -> void:
 	market.add_good("wolf_pelt", 8, 6, 0)
 	market.add_good("wolf_meat", 2, 10, 0)
 	market.add_good("firewood", 1, 30, 6)
+	market.add_good("scar_crystal", 40, 4, 0)   # Region1 hook C4: the Scar's harvest sells here too
+	market.add_good("scarbloom", 18, 6, 0)
 	preload("res://scripts/sim/gathering_items.gd").register(self)
 	economy.setup(0)
 	economy.bind_home_market(0, market)
@@ -976,7 +1049,7 @@ func _on_hour(hour: int) -> void:
 	if cam.has_method("set_player_rank"):
 		cam.set_player_rank(CareerLadders.military_rank_for(career_rank) if career_id == "soldier" else "")
 	# City life and society keep a signed ledger instead of touching the purse.
-	for k: String in ["city_life", "society", "education", "household", "callups", "enterprise"]:
+	for k: String in ["city_life", "society", "education", "household", "callups", "enterprise", "construction"]:
 		var m: RefCounted = realm.mod(k)
 		if m != null and m.has_method("take_pending_gold"):
 			var net := int(m.take_pending_gold())
@@ -1069,12 +1142,19 @@ func add_merit(amount: int, reason: String) -> void:
 
 
 func on_monster_killed(species: String) -> void:
+	award_progress("kill", {"subject": species, "magnitude": 1})
+	region1_kill.emit(species, player.global_position if player and is_instance_valid(player) else Vector3.ZERO)
 	guild.on_kill(RAAdventurerGuild.PLAYER, species, -1)
 	add_merit(12 if species == "orc" else 6, "%s slain" % species)
 	record("hunted")
 
 
-func on_wolf_killed(_where: Vector3, den_id := -1) -> void:
+func on_wolf_killed(_where: Vector3, den_id := -1, variant := "") -> void:
+	award_progress("kill", {"subject": "rift_wolf" if variant != "" else "wolf", "magnitude": 1})
+	var r1_species := variant if variant != "" else "wolf"
+	if den_id >= 0 and den_id < Frontier.ecology.dens.size() and String(Frontier.ecology.dens[den_id].get("species", "wolf")) == "corrupted_wolf":
+		r1_species = "rift_wolf"
+	region1_kill.emit(r1_species, _where)
 	for c: Dictionary in guild.on_kill(RAAdventurerGuild.PLAYER, "wolf", den_id):
 		if guild.is_ready(int(c["id"])):
 			Game.say("Commission ready to turn in: %s" % c.get("title", ""))
@@ -1176,6 +1256,11 @@ func buy(item: String) -> String:
 func sell(item: String) -> String:
 	if count(item) <= 0:
 		return "You have no %s." % item_name(item)
+	var gov: Variant = realm.mod("governance")   # CIV-B law hook: banned monster-part trade
+	if gov != null:
+		var refusal: String = gov.refuses_item(int(realm.mod("city_life").near_settlement()), item)
+		if refusal != "":
+			return refusal
 	var got := market.sell(item)
 	if got < 0:
 		return "The merchant can't afford it today."
@@ -1395,6 +1480,9 @@ func _on_old_age_death() -> void:
 	var story := "\n".join(biography.summary(WorldSim.day))
 	if heirs.is_empty():
 		Game.say("%s dies in old age, with no heir to carry the name.\n%s" % [life_path.full_name(), story])
+		# Region1 hook (docs/regions/REGION_1_PLAN.md) H7: the story ends, the ember remains
+		preload("res://scripts/region1/ember_legacy.gd").emit_life_ended(biography, echoes, life_path.full_name(), age(),
+			life_path.family_name, WorldSim.day, {"place": String(WorldGen.settlements[life_path.home_settlement]["name"]) if life_path.home_settlement >= 0 and life_path.home_settlement < WorldGen.settlements.size() else "", "mastery": mastery.xp, "tendencies": tendencies.values})
 		return
 	var heir: Dictionary = heirs[0]
 	Game.say("%s dies in old age. %s carries on the family.\n%s" % [life_path.full_name(), String(heir.get("name", "Your heir")), story])

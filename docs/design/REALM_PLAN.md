@@ -57,3 +57,28 @@ The rest (R§39/40, L§1/2/3/44/45/47/50) are design rules: the player never con
   - run a caravan through the front
   - shift war goals through a lord or council
   Each action feeds `war_sim` tension, campaign engagements, `factions` war reputation and diplomacy. This starts after war map phase B lands, since both touch campaign code.
+
+## Freedom and exploration first (user direction, 2026-09-30)
+
+- **Quests are optional.** Players can do anything, go anywhere and become anything. Exploration is the core pleasure, so reward curiosity: secrets, lore, rare resources, knowledge facts, vistas and hidden places.
+- **No hard boss gates.** The user doesn't like "real bosses". Big creatures, such as the Scarbound Troll or the Antlered Warden, are optional encounters you can avoid, outwit, tame or appease. They are never required walls for progress.
+- **One power path is the main one.** Magic, bending, knight arts or martial arts. A second path is very hard to learn, as `power_paths.gd` already models.
+- **Dungeons and caves:** caves, hidden caves (behind waterfalls, vines, collapsed rock) and small dungeons across the region, each with its own danger tier, loot, lore and puzzles.
+- **The hidden valley:** a secluded, untouched valley reached through a hidden pass. On first discovery a short discovery cutscene plays: a camera sweep, music and a line like "No one has walked here in an age…". It is lush, pristine and an ideal place to found your own settlement.
+- **Priority:** finish the beginning of the game so new players have hours of play across the whole first region.
+
+## Progression and content scale (user direction, 2026-09-30)
+
+- **Level range:** the whole game runs to level 500, and Region 1 caps around 50–60. Clearing Region 1 must take weeks, not hours. Protections against rushing:
+  - repetition decay
+  - regional saturation past about level 55
+  - several parallel sources of XP
+- **Cultivation** is required on every path: one shared ladder of realms and stages, with a different flavour per path. Region 1 reaches the first two or three realms. Breakthroughs carry risk, and manuals come from schools, dungeons and towers.
+- **Natural dungeons end in a boss.** Separately, **dungeon towers** work like Sword Art Online's Aincrad: floors, labyrinths, safe zones, boss doors and first-clear rewards, with NPC parties racing you to the next floor.
+- **Items:** a full set of hundreds of items with recipes, market stock by town identity, and loot tables.
+- **Unused models and animations:** once the current agents land, audit all imported models and animations and place or wire everything unused, such as meshy_free packs, the animation libraries and the region kits.
+
+## Travel and world size (user decision, 2026-10-01)
+- World grows from 8 km to **12 × 12 km** (`WorldGen.WORLD_HALF` 4096 → 6144). Scale realm travel speeds again so in-game travel times stay consistent, and fill the new land (POIs, camps, dens, roads) so it never feels empty.
+- **Travel takes real effort:** town to town takes in-game hours, with stamina, night camping, weather, horse and cart for speed. Fast travel is only between discovered waystations, and costs gold and time.
+- **Road events:** caravans, ambushes, travellers with news, roadside camps, and monster territories, driven by the civilization, ecology and news modules.

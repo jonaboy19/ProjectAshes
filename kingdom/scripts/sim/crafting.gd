@@ -21,6 +21,7 @@ signal skill_up(skill: String, level: int)
 signal station_invalidated(ref: String, generation: int)
 
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
+const ItemsDB := preload("res://scripts/sim/items_db.gd")
 const StationIdentity := preload("res://scripts/systems/station_identity.gd")
 const RECIPES_PATH := "res://data/recipes.json"
 const ITEMS_PATH := "res://data/items.json"
@@ -88,7 +89,41 @@ static func recipe_data() -> Dictionary:
 	if _recipe_data.is_empty():
 		var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(RECIPES_PATH))
 		_recipe_data = d if d is Dictionary else {}
+		_merge_recipe_extras(_recipe_data)
 	return _recipe_data
+
+
+## data/recipes/*.json: new skills, stations and recipes are added to data/recipes.json's (old ids win).
+static func _merge_recipe_extras(data: Dictionary) -> void:
+	var ex: Dictionary = ItemsDB.recipe_extras()
+	if ex.is_empty():
+		return
+	var skills: Dictionary = data.get("skills", {})
+	for k: String in ex.get("skills", {}):
+		if not skills.has(k):
+			skills[k] = ex["skills"][k]
+	data["skills"] = skills
+	var stations: Dictionary = data.get("stations", {})
+	for k: String in ex.get("stations", {}):
+		if not stations.has(k):
+			stations[k] = (ex["stations"][k] as Dictionary).duplicate(true)
+	for k: String in ex.get("station_skill_adds", {}):
+		if stations.has(k):
+			var list: Array = stations[k].get("skills", [])
+			for sk: String in ex["station_skill_adds"][k]:
+				if not list.has(sk):
+					list.append(sk)
+			stations[k]["skills"] = list
+	data["stations"] = stations
+	var recipes: Array = data.get("recipes", [])
+	var have := {}
+	for r: Dictionary in recipes:
+		have[String(r["id"])] = true
+	for r: Dictionary in ex.get("recipes", []):
+		if not have.has(String(r["id"])):
+			recipes.append(r)
+			have[String(r["id"])] = true
+	data["recipes"] = recipes
 
 
 ## Every item prototype with inheritance resolved: data/items.json plus the
@@ -103,6 +138,7 @@ static func item_db() -> Dictionary:
 	for id: String in Gathering.ITEMS:
 		if not raw.has(id):
 			raw[id] = (Gathering.ITEMS[id] as Dictionary).duplicate()
+	ItemsDB.merge_into(raw)        # data/items/*.json: the Region 1 set (old ids keep working)
 	for id: String in raw:
 		_item_db[id] = _resolve(raw, id, 0)
 	return _item_db
@@ -379,9 +415,7 @@ func craft(id: String, inv: Object, kinds: Variant = null, ctx: Dictionary = {})
 		var qtext := (quality_name(q) + " ") if gear else ("Masterwork batch: " if q == Quality.MASTERWORK else "")
 		res["text"] = "%s%s%s." % [qtext, item_name(item), (" ×%d" % n) if n > 1 else ""]
 	var mult := float(ctx.get("xp_mult", 1.0)) * career_xp_mult(skill, String(ctx.get("org", "")))
-	var tool := String(TOOLS.get(skill, ""))
-	if tool != "" and (int(inv.call("count", tool)) > 0 or _wields(ctx.get("equipment"), tool)):
-		mult *= TOOL_XP_MULT
+	mult *= tool_bonus(skill, inv, ctx.get("equipment"))
 	var gained := int(round(float(r.get("xp", 5)) * mult))
 	var before := lvl
 	var after := add_xp(skill, gained)
@@ -397,8 +431,81 @@ func craft(id: String, inv: Object, kinds: Variant = null, ctx: Dictionary = {})
 	return res
 
 
+## Skill -> tool property values that speed it up (items with "tool": value; tool_tier raises the bonus).
+const TOOL_KINDS := {"smithing": ["smithing"], "mining": ["mining"], "carpentry": ["carpentry", "woodcutting"], "alchemy": ["alchemy"],
+	"masonry": ["masonry"], "leatherwork": ["skinning"], "fletching": ["carpentry"], "cooking": [], "tailoring": []}
+static var _tools_for: Dictionary = {}
+
+
+## Item ids that count as the tool for a crafting skill (the old TOOLS id plus every item with a matching "tool" property).
+static func tool_ids(skill: String) -> Array:
+	if _tools_for.has(skill):
+		return _tools_for[skill]
+	var out: Array = []
+	if TOOLS.has(skill):
+		out.append(String(TOOLS[skill]))
+	var kinds: Array = TOOL_KINDS.get(skill, [])
+	for id: String in item_db():
+		var t := String(item_db()[id].get("tool", ""))
+		if t != "" and kinds.has(t) and not out.has(id):
+			out.append(id)
+	_tools_for[skill] = out
+	return out
+
+
+## XP multiplier from carrying or wielding a tool for `skill` (1.0 without): TOOL_XP_MULT, +0.05 per tool tier above iron.
+func tool_bonus(skill: String, inv: Object, eq: Variant = null) -> float:
+	var best := 0.0
+	for id: String in tool_ids(skill):
+		if (inv != null and int(inv.call("count", id)) > 0) or _wields(eq, id):
+			var tier := int(item_info(id).get("tool_tier", 2))
+			best = maxf(best, TOOL_XP_MULT + 0.05 * float(maxi(0, tier - 2)))
+	return maxf(1.0, best)
+
+
 static func _wields(eq: Variant, tool: String) -> bool:
 	return eq is Object and (eq as Object).has_method("item_in") and String((eq as Object).call("item_in", "main_hand")) == tool
+
+
+## Why `id` can't be salvaged now ("" when it can): needs the item, the station and the skill level.
+func can_salvage(id: String, inv: Object, kinds: Variant = null) -> String:
+	var sv: Dictionary = ItemsDB.salvage_for(id)
+	if sv.is_empty():
+		return "That can't be broken down."
+	if int(inv.call("count", id)) <= 0:
+		return "You have no %s." % item_name(id)
+	if kinds is Array:
+		var ok := false
+		for k in sv.get("stations", []):
+			if kinds.has(k):
+				ok = true
+		if not ok:
+			var names := PackedStringArray()
+			for k in sv.get("stations", []):
+				names.append(station_name(String(k)).to_lower())
+			return "Needs a %s." % " or ".join(names)
+	if level(String(sv.get("skill", "smithing"))) < int(sv.get("level", 1)):
+		return "Needs %s %d." % [skill_name(String(sv["skill"])), int(sv["level"])]
+	return ""
+
+
+## Breaks one `id` down into materials (about 45% of what it cost) and grants a little xp.
+## Returns {ok, text, yield: [{item, count}], xp}.
+func salvage(id: String, inv: Object, kinds: Variant = null) -> Dictionary:
+	var why := can_salvage(id, inv, kinds)
+	if why != "":
+		return {"ok": false, "text": why}
+	var sv: Dictionary = ItemsDB.salvage_for(id)
+	if not bool(inv.call("take", id, 1)):
+		return {"ok": false, "text": "You have no %s." % item_name(id)}
+	var parts := PackedStringArray()
+	for y: Dictionary in sv["yield"]:
+		give_item(inv, String(y["item"]), int(y["count"]))
+		parts.append("%d %s" % [int(y["count"]), item_name(String(y["item"]))])
+	var skill := String(sv.get("skill", "smithing"))
+	var gained := int(sv.get("xp", 2))
+	add_xp(skill, gained)
+	return {"ok": true, "text": "Salvaged %s: %s." % [item_name(id), ", ".join(parts)], "yield": sv["yield"], "xp": gained, "skill": skill}
 
 
 ## Gives `n` of `item`; with a quality (>= 0) and a GLoot inventory, as separate

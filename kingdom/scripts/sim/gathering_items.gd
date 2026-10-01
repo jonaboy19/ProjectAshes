@@ -8,6 +8,8 @@ extends RefCounted
 ## save that carries these items is loaded. AmbientLife and Lakeside call it
 ## from _ready; Life can also call it from _setup_market().
 
+const ItemsDB := preload("res://scripts/sim/items_db.gd")
+
 ## Protoset entries, in the same shape as data/items.json.
 const ITEMS := {
 	"venison": {"inherits": "food", "name": "Venison", "price": 5, "nutrition": 30},
@@ -141,6 +143,7 @@ static func forage_kind(forest: float, roll: float) -> String:
 static func register(life: Node) -> void:
 	if life == null:
 		return
+	ItemsDB.register(life)        # the Region 1 item set (data/items/*.json) rides along: Life already calls this at boot
 	var inv: Variant = life.get("inventory")
 	if inv != null and inv.protoset != null:
 		var json: JSON = inv.protoset

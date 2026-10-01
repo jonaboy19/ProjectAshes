@@ -12,6 +12,8 @@ import trav_lib as TL
 import clips_vault
 import clips_climb
 import clips_ride
+import clips_ledge
+import clips_mantle
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 OUT = os.path.abspath(argv[0])
@@ -67,7 +69,18 @@ if __name__ == "__main__":
         report_reach(name, diag)
         if name.startswith("Vault"):
             report_box(name, diag, clips_vault.BOX)
+        elif name.startswith("Ledge"):
+            report_box(name, diag, clips_ledge.BOX)
+        elif name in clips_mantle.BOXES:
+            report_box(name, diag, clips_mantle.BOXES[name])
         made.append((name, act))
-        report.append({"name": name, "loop": loop, "frames": len(poses), "seconds": round((len(poses) - 1) / FPS, 2)})
+        r0, r1 = poses[0].root, poses[-1].root
+        entry = {"name": name, "loop": loop, "frames": len(poses), "seconds": round((len(poses) - 1) / FPS, 2),
+                 "root_delta_m": {"x": round(r1.x - r0.x, 3), "y": round(r1.y - r0.y, 3), "z": round(r1.z - r0.z, 3)}}
+        if name in TL.EVENTS:
+            entry["events"] = TL.EVENTS[name]
+        if name in TL.CONTACTS:
+            entry["contacts"] = TL.CONTACTS[name]
+        report.append(entry)
         print("CLIP", name, len(poses), flush=True)
     export(made, report, OUT)

@@ -1,12 +1,12 @@
 # NPC well activity: production slice contract
 
-**Status:** implemented additively on the Codex PR branch as the first production activity slice; live-game/runtime validation is still pending. Base at implementation: Claude remote head `3177be61`.
+**Status:** implemented additively on the Codex PR branch as the first production activity slice; live-game/runtime validation is still pending. The current Codex branch also merges Claude published head `ddfd3797` and connects Villager to general `SmartObjects.Session` activities. This handoff remains specifically about water's separate `ActionRuntime` lease. The original implementation was based on Claude remote head `3177be61`.
 
 ## Why this is the first slice
 
 The near NPC stack already has a `WATER` utility action, a persistent water need, a generated well landmark, a route graph that deliberately loops around the well, and water-gathering animation candidates. That makes a water-fetch visit the smallest real-world activity that can exercise selection, movement, contact, crowd capacity, animation, interruption and LOD without inventing a new inventory or production system.
 
-It must reuse the live NPC stack. `UtilityBrain` chooses the need; `Villager` owns its route, collision, facing and animation; `WorldSim` owns coarse resident data and schedule; `ActionRuntime` can provide a short-lived reservation. `LifeActor` and `SmartObjects` remain QA/reference-only. Do not create another per-person node, brain, movement loop, need store, or station registry.
+It must reuse the live NPC stack. `UtilityBrain` chooses the need; `Villager` owns its route, collision, facing and animation; `WorldSim` owns coarse resident data and schedule; `ActionRuntime` provides water's short-lived reservation. Gameplay Villagers now also use `SmartObjects.Session` for accepted non-water activities; those sessions own only their activity-slot occupancy and presentation lifecycle. `LifeActor` remains QA/reference-only. Do not create another per-person node, brain, movement loop, need store, or station registry.
 
 ## Current behavior and gaps
 

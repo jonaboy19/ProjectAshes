@@ -141,3 +141,24 @@ cd kingdom
 godot --headless --path . -s docs/balance/data/run.gd (copy of /tmp/claude-0/balance/run.gd; core.gd must sit next to it, paths inside point at /tmp/claude-0/balance) -- days=730 tag=after           # CSVs in /tmp/claude-0/balance
 godot --headless --path . -s docs/balance/data/run.gd (copy of /tmp/claude-0/balance/run.gd; core.gd must sit next to it, paths inside point at /tmp/claude-0/balance) -- mode=catchup tag=after
 ```
+
+## Addendum: rarer, reasoned wars (war3, same day)
+
+The "Checked and fine" note above recommended raising `TENSION_WAR_THRESHOLD` or `TENSION_AFTER_WAR`. The user asked for one war every 1-3 years lasting weeks to months, each with a cause, so `scripts/sim/war_sim.gd` was redesigned instead of re-tuned:
+
+- **Casus belli required.** Tension alone simmers (capped at 65 while there is no reason to fight) and can never declare war. A war needs a live casus belli: claim (a frontier town the player holds or that is contested, from `land.gd`, fed by `campaign.gd`), noble feud (`nobility.feuds()`), succession (a house with no heir, or a disputed court), repeated raids (6 border raids inside 45 days), Rift crisis (instability >= 0.5 for 4 days), broken treaty (`break_truce`) and insult to a house. The reason, its goal (land, tribute, hostages, marriage) and who holds the grievance are in the declaration line and the news, e.g. "War: Caldrenn takes up arms against Urrokai. Cause: Urrokai raiders have hit our border villages 6 times this season."
+- **Truce.** Every peace starts a 150-420 day truce during which nothing is declared (tested). Breaking it (player `provoke`, or `break_truce`) hands the other side a casus belli.
+- **Weariness and length.** Both sides tire every day plus per battle; battles are 30% per day (x0.35 in winter); a war ends when weariness (plus peace pressure from brokers) passes 1.0, when one side holds the whole front, or after 240 days; never before 14 days.
+- **Peace terms.** Land (a named frontier region, applied to `land.gd` and the campaign's captured list), tribute (faction wealth), hostages (held and released), a royal marriage (`factions.propose_marriage`) and a truce length, chosen by the war goal and the winner (a white peace when even). Shown in the Realm tab (Diplomacy view) and the new war panel card.
+
+Harness `docs/balance/data/run.gd` (its `war_start`/`war_end` event lines now carry cause, goal, winner and truce length), before -> after:
+
+| run | wars | days at war | share of time | duration |
+|---|---|---|---|---|
+| 730 days, before | 19 | 229 | 31% | 11-14 days each |
+| 730 days, after | 0 | 0 | 0% | (first war comes later, see below) |
+| 2190 days (6 years), after | 5 started, 4 finished | 283 of 4 finished + 65 of the open one | about 13-16% | 49-95 days |
+
+6-year event log after the change: day 854 Urrokai (raids, goal tribute, crown won, 95 days, truce 349), 1298 Urrokai (raids, draw, 52 days, truce 210), 1653 Urrokai (raids, enemy won, 87 days, truce 379), 1962 Ongur (succession, goal marriage, draw, 49 days, truce 210), 2125 Urrokai (claim on land, goal land, running). That is 0.8 wars a year with 300-460 quiet days between them; the first war arrives after 2.3 years because nothing had given anyone a reason. The standalone run in `tests/test_war.gd` (8 seeds x 16 years, feuds 0-4) gives 0.36 wars a year, 7% of the time at war, 30-124 days, and a median peace over 200 days; the test asserts 0.25-1.0 wars/year, under 20% of time at war, lengths within 14-240 days.
+
+Tactical fairness (same day): mirrored even 16 v 16 fights (20 varied open spots, both sides as attacker) went from the attacker winning about 10% (0 of 20 as side a, 4 of 20 as side b) to 55% (11 of 20 decided) and side a 9 of 20. Causes: only the defender searched for good ground, the defender got its fortify bonus just for standing still, and the attacker arrived piecemeal. Both sides now search their anchor, the fortify bonus needs a unit that really holds ground 2.5 m above its attacker, and the attacker carries `Tactical.ATTACK_EDGE = 1.4` on its damage in field battles (not sieges). 16 v 16 for 600 steps: 41 ms (budget 50).

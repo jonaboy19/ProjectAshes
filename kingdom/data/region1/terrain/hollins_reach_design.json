@@ -1,0 +1,274 @@
+{
+	"_comment": "Design of the Hollin's Reach valley stamp, baked by tools_qa/region1/bake_valley.gd into hollins_reach.res (Image RGF: R = metres added, G = terrace tread hint). s = metres along the upper Ashrun from its source at (-150, -900) (the valley head), downstream. Tables are [s, value] pairs, linearly interpolated. West/east are the river's right/left banks looking downstream (south). See docs/regions/LOOK_R1.md. v2: a narrow gorge (Hollin's Gate, s 560-660) closes the mouth so walking in from the Ashrun Bridge the valley opens all at once with the falls at its end.",
+	"id": "hollins_reach",
+	"river_index": 0,
+	"spine_length": 780,
+	"cell": 3,
+	"margin": 230,
+	"floor_half": [
+		[
+			0,
+			24
+		],
+		[
+			90,
+			36
+		],
+		[
+			250,
+			58
+		],
+		[
+			420,
+			78
+		],
+		[
+			520,
+			86
+		],
+		[
+			585,
+			46
+		],
+		[
+			640,
+			38
+		],
+		[
+			690,
+			90
+		],
+		[
+			780,
+			220
+		]
+	],
+	"west": {
+		"wall": [
+			[
+				0,
+				36
+			],
+			[
+				300,
+				44
+			],
+			[
+				520,
+				60
+			],
+			[
+				640,
+				46
+			],
+			[
+				700,
+				90
+			]
+		],
+		"rim": [
+			[
+				0,
+				94
+			],
+			[
+				140,
+				88
+			],
+			[
+				300,
+				74
+			],
+			[
+				450,
+				62
+			],
+			[
+				540,
+				58
+			],
+			[
+				620,
+				62
+			],
+			[
+				680,
+				34
+			],
+			[
+				740,
+				6
+			],
+			[
+				780,
+				0
+			]
+		],
+		"cliff": [
+			[
+				0,
+				1
+			],
+			[
+				430,
+				1
+			],
+			[
+				500,
+				0.6
+			],
+			[
+				570,
+				0.95
+			],
+			[
+				660,
+				0.9
+			],
+			[
+				720,
+				0.2
+			]
+		],
+		"outer": 150
+	},
+	"east": {
+		"wall": [
+			[
+				0,
+				36
+			],
+			[
+				200,
+				42
+			],
+			[
+				290,
+				96
+			],
+			[
+				520,
+				110
+			],
+			[
+				580,
+				50
+			],
+			[
+				650,
+				44
+			],
+			[
+				700,
+				110
+			]
+		],
+		"rim": [
+			[
+				0,
+				94
+			],
+			[
+				110,
+				80
+			],
+			[
+				190,
+				64
+			],
+			[
+				290,
+				36
+			],
+			[
+				520,
+				30
+			],
+			[
+				575,
+				48
+			],
+			[
+				630,
+				56
+			],
+			[
+				690,
+				28
+			],
+			[
+				750,
+				4
+			],
+			[
+				780,
+				0
+			]
+		],
+		"cliff": [
+			[
+				0,
+				1
+			],
+			[
+				165,
+				1
+			],
+			[
+				210,
+				0.2
+			],
+			[
+				255,
+				0.2
+			],
+			[
+				290,
+				0
+			],
+			[
+				540,
+				0
+			],
+			[
+				580,
+				0.9
+			],
+			[
+				660,
+				0.85
+			],
+			[
+				720,
+				0.2
+			]
+		],
+		"outer": 130,
+		"notch": {
+			"s": 232,
+			"width": 26,
+			"depth": 0.62
+		},
+		"terraces": {
+			"s0": 300,
+			"s1": 540,
+			"step": 4,
+			"ramp": 18
+		}
+	},
+	"head": {
+		"outer": 230,
+		"falls_notch": 0.2,
+		"falls_width": 0.14
+	},
+	"pool": {
+		"off": 16,
+		"r": 13,
+		"depth": 2.4
+	},
+	"noise": {
+		"rim": 0.14,
+		"floor": 24,
+		"ledges": 2.2
+	}
+}

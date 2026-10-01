@@ -23,6 +23,7 @@ var settlements: SettlementBuilder
 var population: PopulationLOD
 var frontier: FrontierPresence
 var region: RegionDressing
+var region1: Node   # scripts/region1/region1_glue.gd (Region1 hooks)
 const Flow := preload("res://scripts/ui/frontend/flow.gd")
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
 const RoadTraffic := preload("res://scripts/world/road_traffic.gd")
@@ -36,6 +37,8 @@ var ambient_fx: Node3D
 var noble_courts: Node3D
 var lord_hall: Node3D
 var realm_presence: Node3D
+var build_resources: Node3D
+var construction_view: Node3D
 var _order_from: Variant = null   # command view: where the current drag order started
 var player: Player
 var hud: HUD
@@ -116,6 +119,8 @@ func _ready() -> void:
 	frontier = FrontierPresence.new()
 	world.add_child(frontier)
 	Frontier.frontier_event.connect(func(text: String, _pos: Vector2) -> void: Game.say(text))
+	# Region1 hook (docs/regions/REGION_1_PLAN.md)
+	world.add_child(preload("res://scripts/region1/region1_root.gd").new())
 	var spawn := Vector3(HOME_SPAWN.x, WorldGen.height(HOME_SPAWN.x, HOME_SPAWN.y) + 0.5, HOME_SPAWN.y)
 	terrain.focus = spawn
 	settlements.focus = spawn
@@ -189,6 +194,13 @@ func _ready() -> void:
 	realm_presence = preload("res://scripts/world/realm_presence.gd").new()
 	realm_presence.setup(hud)
 	world.add_child(realm_presence)
+	build_resources = preload("res://scripts/world/build_resources.gd").new()
+	build_resources.name = "BuildResources"
+	world.add_child(build_resources)
+	construction_view = preload("res://scripts/world/construction_view.gd").new()
+	construction_view.name = "ConstructionView"
+	construction_view.hud = hud
+	world.add_child(construction_view)
 
 	hud.set_loading_text("Waking the world...", 0.95)
 	await get_tree().process_frame
@@ -200,6 +212,13 @@ func _ready() -> void:
 	_spawn_raiders(FIRST_CAMP, 12)
 	WorldSim.hour_changed.connect(func(_h: int) -> void: _maybe_spawn_war_battle())
 
+	# Region1 hook (docs/regions/REGION_1_PLAN.md) C3-C8, C12: wards, Scar, embers, Ashsight, story, tutorial, audio
+	region1 = preload("res://scripts/region1/region1_glue.gd").new()
+	region1.name = "Region1Glue"
+	world.add_child(region1)
+	region1.setup(self)
+	world.add_child(preload("res://scripts/world/towers/tower_site.gd").new())   # towers hook (docs/design tower plan)
+
 	hud.set_loading_text("Ready", 1.0)
 	hud.hide_loading()
 	Quality.start_adaptive()
@@ -210,6 +229,11 @@ func _ready() -> void:
 		player.apply_age()
 	if args.has("shot"):
 		_screenshot(args["shot"], args.get("out", "user://shot.png"))
+	elif args.has("qa"):
+		# QA driver: --qa=res://tools_qa/construction/build_qa.gd (its run(main) takes over from here)
+		var qa: Node = (load(String(args["qa"])) as GDScript).new()
+		add_child(qa)
+		qa.call("run", self)
 	elif args.has("demo"):
 		_run_demo()
 	elif args.has("skipintro") or Flow.wants_skip_intro():   # loading a save from the menu
@@ -308,8 +332,9 @@ func _process(delta: float) -> void:
 	if player == null or not player.is_inside_tree() or terrain == null or army == null:   # still loading (awaits in _ready)
 		return
 	var focus := player.global_position
-	terrain.focus = focus
-	water.focus = focus
+	# Region1 look hook: a cutscene may stream the ground around its camera path (Hidden Vale flyover, exploration_director.gd).
+	terrain.focus = Engine.get_meta("stream_focus", focus)
+	water.focus = terrain.focus
 	settlements.focus = focus
 	population.focus = focus
 	frontier.focus = focus
@@ -317,6 +342,8 @@ func _process(delta: float) -> void:
 	road_traffic.focus = focus
 	road_events.focus = focus
 	homestead_view.focus = focus
+	build_resources.focus = focus
+	construction_view.focus = focus
 	ambient_fx.focus = focus
 	noble_courts.focus = focus
 	camps.focus = focus
@@ -375,6 +402,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		var target := player.nearest_interactable()
 		if target is Captain:
 			hud.show_menu(services.captain_menu)
+		elif target is Station and (target as Station).name == "WarTable":
+			# the War Room table opens the war map directly, in war-table style (docs/design/WAR_COMMAND_RULEBOOK.md §2)
+			var wm: Control = load("res://scripts/ui/war/war_map.gd").open_modal(hud, Life.realm)
+			wm.call("set_style", 2)
 		elif target is Station:
 			hud.show_menu((target as Station).open)
 		elif target is CampMonster:
@@ -595,11 +626,14 @@ func _update_daylight() -> void:
 	sun.rotation = Vector3(-lerpf(0.15, 1.1, day_amount), PI * 0.25 + (t - 12.0) / 12.0 * PI * 0.5, 0)
 	# At night the key light becomes a cool moon so the world stays readable.
 	var night := 1.0 - smoothstep(0.0, 0.25, day_amount)
+	# Region1 look (docs/regions/LOOK_R1.md): the sky and bounce light stay bright through the golden hour
+	# (~16-18 h) instead of turning navy at 17 h; the sun itself still lowers and warms with day_amount.
+	var sky_amount := clampf(day_amount * 1.8, 0.0, 1.0)
 	sun.light_energy = lerpf(lerpf(0.05, 1.7, day_amount), 0.42, night)
 	sun.light_color = Color("ff9a5a").lerp(Color("ffd9a2"), day_amount).lerp(Color("8fa8ff"), night)
-	env.ambient_light_energy = lerpf(lerpf(0.25, 0.7, day_amount), 0.4, night)
-	env.fog_light_color = Color("1b2238").lerp(Color("c9d4e6"), day_amount)
-	env.background_energy_multiplier = lerpf(0.08, 1.0, day_amount) + night * 0.12
+	env.ambient_light_energy = lerpf(lerpf(0.25, 0.7, sky_amount), 0.4, night)
+	env.fog_light_color = Color("1b2238").lerp(Color("c9d4e6"), sky_amount)
+	env.background_energy_multiplier = lerpf(0.08, 1.0, sky_amount) + night * 0.12
 	baker.set_light(lerpf(0.35, 1.0, day_amount))
 	# Emberglass Mere turns ember-coloured around sunset (lore); rain rings follow the weather.
 	var rain: float = weather.rain_amount() if weather else 0.0

@@ -72,6 +72,36 @@ const SPECIES := {
 		"strike": 1.9, "windup": 0.8, "recover": 0.6, "cooldown": [2.0, 2.8], "flee_below": 0,
 		"slots": 1, "ring": 5.0, "radius": 0.42, "height": 1.6, "poise": true, "voice": "",
 		"ward": "ignore"},
+	# Region 1 creatures (package C11). Stats are first estimates; behaviour (herd graze / flee / antler charge, Warden phases)
+	# is Codex's (X3, X4). Stagborn never start a fight (aggro 0) and run when hurt; the Antlered Warden is an OPTIONAL encounter.
+	"ghoul": {"health": 70, "damage": 12, "knock": 2.0, "walk": 0.6, "trot": 1.2, "run": 2.4,
+		"flee": 2.4, "limp": 1.6, "aggro": 12.0, "stalk": 18.0, "stalk_speed": 0.5, "reach": 2.0,
+		"strike": 1.5, "windup": 0.9, "recover": 0.6, "cooldown": [1.8, 2.6], "flee_below": 0,
+		"slots": 2, "ring": 4.0, "radius": 0.4, "height": 1.7, "poise": false, "voice": "", "ward": "ignore"},
+	"giant_wasp": {"health": 24, "damage": 7, "knock": 0.5, "walk": 1.0, "trot": 2.4, "run": 4.2,
+		"flee": 4.4, "limp": 2.5, "aggro": 13.0, "stalk": 20.0, "stalk_speed": 1.0, "reach": 1.8,
+		"strike": 1.4, "windup": 0.5, "recover": 0.5, "cooldown": [1.2, 1.8], "flee_below": 6,
+		"slots": 3, "ring": 3.5, "radius": 0.3, "height": 1.2, "poise": false, "voice": "", "ward": "shun"},
+	"bog_toad": {"health": 40, "damage": 8, "knock": 1.5, "walk": 0.4, "trot": 1.0, "run": 2.2,
+		"flee": 2.4, "limp": 1.6, "aggro": 6.0, "stalk": 0.0, "stalk_speed": 0.0, "reach": 2.4,
+		"strike": 2.0, "windup": 0.6, "recover": 0.6, "cooldown": [1.8, 2.6], "flee_below": 8,
+		"slots": 2, "ring": 3.5, "radius": 0.4, "height": 0.6, "poise": false, "voice": "", "ward": "shun"},
+	"rift_slime": {"health": 26, "damage": 6, "knock": 0.5, "walk": 0.5, "trot": 0.9, "run": 1.4,
+		"flee": 1.6, "limp": 1.0, "aggro": 9.0, "stalk": 12.0, "stalk_speed": 0.4, "reach": 1.4,
+		"strike": 1.1, "windup": 0.5, "recover": 0.4, "cooldown": [1.4, 2.0], "flee_below": 0,
+		"slots": 3, "ring": 3.0, "radius": 0.4, "height": 0.7, "poise": false, "voice": "", "ward": "ignore"},
+	"rift_wraith": {"health": 90, "damage": 16, "knock": 2.5, "walk": 1.0, "trot": 2.0, "run": 3.6,
+		"flee": 3.6, "limp": 2.0, "aggro": 15.0, "stalk": 28.0, "stalk_speed": 0.9, "reach": 2.6,
+		"strike": 2.0, "windup": 0.8, "recover": 0.6, "cooldown": [2.0, 3.0], "flee_below": 0,
+		"slots": 1, "ring": 5.0, "radius": 0.5, "height": 1.9, "poise": true, "voice": "", "ward": "ignore"},
+	"stagborn_elk": {"health": 70, "damage": 12, "knock": 4.0, "walk": 1.2, "trot": 2.6, "run": 5.2,
+		"flee": 5.2, "limp": 3.4, "aggro": 0.0, "stalk": 0.0, "stalk_speed": 0.0, "reach": 2.6,
+		"strike": 2.0, "windup": 0.9, "recover": 0.7, "cooldown": [2.5, 3.5], "flee_below": 60,
+		"slots": 1, "ring": 6.0, "radius": 0.5, "height": 1.6, "poise": false, "voice": "", "ward": "ignore"},
+	"stagborn_warden": {"health": 420, "damage": 24, "knock": 6.0, "walk": 1.24, "trot": 2.8, "run": 6.9,
+		"flee": 6.9, "limp": 3.0, "aggro": 0.0, "stalk": 0.0, "stalk_speed": 0.0, "reach": 3.4,
+		"strike": 2.8, "windup": 1.1, "recover": 0.9, "cooldown": [2.4, 3.4], "flee_below": 0,
+		"slots": 1, "ring": 7.0, "radius": 0.8, "height": 2.4, "poise": true, "voice": "", "ward": "ignore"},
 }
 ## "brief" wards (bears...) may sit inside strong coverage this long before the
 ## usual retreat-at-strong-coverage rule catches up with them.
@@ -439,7 +469,10 @@ func _impact() -> void:
 	if Tokens.can_hit(self, target, float(_sp["reach"]), WORLD_LAYER) and target.has_method("take_damage"):
 		var push := (target.global_position - global_position)
 		push.y = 0.0
-		target.take_damage(int(_sp["damage"]), self, push.normalized() * float(_sp["knock"]))
+		var dmg := int(_sp["damage"])
+		if has_meta("r1_safe") and target.get("health") != null:
+			dmg = mini(dmg, maxi(int(target.get("health")) - 1, 0))   # Region1 C8: the first fight knocks down, it never kills
+		target.take_damage(dmg, self, push.normalized() * float(_sp["knock"]))
 		Audio.sfx("hit", global_position, -8.0)
 	_strikes_left -= 1
 	if _strikes_left <= 0:

@@ -24,6 +24,7 @@ const TABS := [
 	["inventory", "Inventory", KEY_I, "tab_inventory.gd"],
 	["character", "Character", KEY_NONE, "tab_character.gd"],
 	["skills", "Skills", KEY_K, "tab_skills.gd"],
+	["cultivation", "Cultivation", KEY_NONE, "tab_cultivation.gd"],
 	["quests", "Quests", KEY_NONE, "tab_quests.gd"],
 	["map", "Map", KEY_M, "tab_map.gd"],
 	["journal", "Journal", KEY_NONE, "tab_journal.gd"],

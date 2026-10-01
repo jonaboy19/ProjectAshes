@@ -1,4 +1,9 @@
 {
 	"_comment": "Region1Root instantiates each enabled row whose script exists. Add one row per package. Scripts must extend Region1Sim.",
-	"modules": []
+	"modules": [
+		{"name": "wardlines", "script": "res://scripts/region1/wardlines.gd", "enabled": true},
+		{"name": "scar_tide", "script": "res://scripts/region1/scar_tide.gd", "enabled": true},
+		{"name": "ember_legacy", "script": "res://scripts/region1/ember_legacy.gd", "enabled": true},
+		{"name": "ash_memory", "script": "res://scripts/region1/ash_memory.gd", "enabled": true}
+	]
 }

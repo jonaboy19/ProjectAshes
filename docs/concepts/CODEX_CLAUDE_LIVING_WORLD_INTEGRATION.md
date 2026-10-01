@@ -4,6 +4,8 @@
 
 ## Current source map
 
+**Current integration update — 1 October 2026:** the snapshot descriptions below are historical and predate the merge of Claude published head `ddfd3797`. Gameplay `Villager` now consumes `SmartObjects.Session` for accepted activities, while movement and collision remain Villager-owned. SIT/PLAY/CHORE activities remain available. Social pairing is owned by the reciprocal bounded UtilityBrain pair system; water continues through the single `ActionRuntime` lease. WorldSim persists five needs; the additional breath need is only active-body state, does not advance in offscreen catch-up, and is reseeded when the brain is recreated. See the top of `docs/SYSTEMS_CONTINUATION.md` for the current merged checkpoint.
+
 The code integration baseline is the fetched remote Claude branch head `3177be61` (30 September 2026); this Codex branch also merges Claude's later docs-only commit `0ea3d579`. Earlier notes below distinguish source observations made against `d163255f`; recheck the actual PC checkout before applying anything because local changes may be newer.
 
 | Responsibility | Current owner/source | Integration rule |
@@ -15,10 +17,10 @@ The code integration baseline is the fetched remote Claude branch head `3177be61
 | Player actions, crafting and transient action tokens | `kingdom/scripts/systems/action_runtime.gd`, `kingdom/scripts/sim/crafting.gd` | Reuse the existing validation/commit path for real effects. A visual activity animation must never award a second effect. |
 | Brief embodied NPC activities | `kingdom/scripts/systems/npc_activity_runtime.gd`; `Life.action_runtime`; `Villager` | The well-water slice uses the shared action lease authority and existing near-body route/animation path. Keep tokens transient; do not add a parallel station or effect owner. |
 | Crafting station identity and player occupancy | `kingdom/scripts/systems/station_identity.gd`, `kingdom/scripts/sim/crafting.gd`, `Life` | Exact generated station references and registration generations are used by player crafting. This is not a generic NPC `WorkSpots` bridge; don't add a second station registry. |
-| Experimental activity definitions/sessions and demo actor | `kingdom/scripts/living_world/smart_objects.gd`, `life_actor.gd`, `kingdom/tools_qa/living_world/` | Reference implementation only. The gameplay population does not currently call this API. `LifeActor` moves directly and is not a replacement for `Villager` physics. |
+| Experimental activity definitions/sessions and demo actor | `kingdom/scripts/living_world/smart_objects.gd`, `life_actor.gd`, `kingdom/tools_qa/living_world/` | `SmartObjects.Session` is now consumed by the gameplay population for accepted activities. `LifeActor` remains QA/reference-only, moves directly and is not a replacement for `Villager` physics. |
 | Animation clips, props, contact points and scene wiring | Claude | Systems may request a named clip/marker/socket contract; do not edit or replace the active animation, model, scene or project wiring without coordination. |
 
-`rg` over the current snapshot found `SmartObjects` construction and session use in the living-world QA demo only. No `WorldSim`, `Villager`, `PopulationLOD`, crafting or production-world caller was found. Therefore the demo is not evidence of live-game integration.
+The 30 September source inventory below found `SmartObjects` session use in the living-world QA demo only. That statement is superseded by the 1 October integration update above: `Villager` now consumes accepted sessions. `LifeActor` remains QA/reference-only.
 
 ## Changes in this handoff branch
 
@@ -30,7 +32,7 @@ The first live activity adapter now uses the existing `WATER` action. It provide
 
 Generated settlement placements now receive a semantic identity derived from settlement, placement kind/index/position, asset and authored activity ordinal. Their in-memory integer handles remain transient; `slot_resource_key()` exposes a stable key only for generated placements. Hand-placed QA demo spots intentionally return no persistent resource key. This is a starting identity contract for a fixed deterministic world plan, not yet a migration-safe ID across changes to `CityPlanner` ordering.
 
-Alignment now has a bounded failure path: if the body does not reach the authored stand point within 1.5 seconds, the session releases its own claim and ends. It does not enter the contact animation and snap from a visibly incorrect location. `LifeActor` now queues one replacement order through the old session's exit clip; actor removal releases the lease immediately because no animation can finish after despawn. These are reference-layer safety fixes; they do not wire smart objects into gameplay or bind slot keys to `ActionRuntime`.
+Alignment now has a bounded failure path: if the body does not reach the authored stand point within 1.5 seconds, the session releases its own claim and ends. It does not enter the contact animation and snap from a visibly incorrect location. `LifeActor` queues one replacement order through the old session's exit clip; actor removal releases the lease immediately because no animation can finish after despawn. The session layer is now connected to gameplay Villagers for accepted activities. Its slot claim remains the capacity owner for those activities; water uses the separate `ActionRuntime` lease, and no work/production effect is awarded by an animation session.
 
 No runtime or device validation is claimed in this handoff.
 

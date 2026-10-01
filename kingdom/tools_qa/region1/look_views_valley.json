@@ -1,0 +1,146 @@
+{
+	"_comment": "Region 1 landmark views for look_capture.gd (docs/regions/look/).",
+	"views": [
+		{
+			"name": "v1_reveal_stone_gap",
+			"at": [
+				-96,
+				-652
+			],
+			"look": [
+				-200,
+				-760
+			],
+			"up": 1.8,
+			"look_up": 10,
+			"hour": 15.2,
+			"fov": 66
+		},
+		{
+			"name": "v2_falls_from_floor",
+			"at": [
+				-196,
+				-700
+			],
+			"look": [
+				-146,
+				-915
+			],
+			"up": 2,
+			"look_up": 30,
+			"hour": 15.2
+		},
+		{
+			"name": "v3_valley_aerial",
+			"at": [
+				-340,
+				-250
+			],
+			"look": [
+				-190,
+				-760
+			],
+			"up": 140,
+			"look_up": 0,
+			"hour": 15.6
+		},
+		{
+			"name": "v4_mouth_up_valley",
+			"at": [
+				-262,
+				-380
+			],
+			"look": [
+				-160,
+				-900
+			],
+			"up": 2.2,
+			"look_up": 40,
+			"hour": 15.6
+		},
+		{
+			"name": "v5_ruins_terraces",
+			"at": [
+				-205,
+				-470
+			],
+			"look": [
+				-120,
+				-480
+			],
+			"up": 3,
+			"look_up": 4,
+			"hour": 15
+		},
+		{
+			"name": "v6_approach_ridge",
+			"at": [
+				-20,
+				-585
+			],
+			"look": [
+				-90,
+				-660
+			],
+			"up": 1.8,
+			"look_up": 3,
+			"hour": 15.2
+		},
+		{
+			"name": "l1_drowned_bell_ferry",
+			"at": [
+				-352,
+				296
+			],
+			"look": [
+				-500,
+				306
+			],
+			"up": 3,
+			"look_up": 4,
+			"hour": 16.4
+		},
+		{
+			"name": "l2_crownstead_hill",
+			"at": [
+				540,
+				-110
+			],
+			"look": [
+				430,
+				-192
+			],
+			"up": 4,
+			"look_up": 18,
+			"hour": 15.4
+		},
+		{
+			"name": "l3_stagborn_glade",
+			"at": [
+				-1322,
+				-1030
+			],
+			"look": [
+				-1350,
+				-1080
+			],
+			"up": 2,
+			"look_up": 6,
+			"hour": 15.5
+		},
+		{
+			"name": "l4_wyrms_ribs",
+			"at": [
+				-10,
+				-1612
+			],
+			"look": [
+				-60,
+				-1700
+			],
+			"up": 22,
+			"look_up": 6,
+			"hour": 15.4
+		}
+	]
+}

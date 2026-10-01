@@ -24,12 +24,19 @@ extends CharacterBody3D
 ##    perform at the spot (clip, facing, going indoors), idle otherwise.
 ##  - Thinking (contact tier, spacing, stuck checks, facing) runs every
 ##    THINK_INTERVAL on a per-person phase, not every frame.
+##  - Purpose and reactions (docs: NpcWorld / UtilityBrain): work, shop, sit, pray, fetch water, chores and
+##    play at real smart-object spots (SmartObjects sessions with life clips and props), guards patrol,
+##    everyone steps back from a drawn weapon, flees and hides from danger and peeks out later, runs to a
+##    guard when they witness a crime, throws water at fires, keeps off crop fields and out of the way of
+##    carts and riders, greets the player by how the town regards them and remembers where danger was seen.
+##    Evaluation is sliced (NpcWorld.take_decide_budget) and only ever runs for these near bodies.
 
 const Nameplates := preload("res://scripts/core/nameplates.gd")
 const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
 const NpcSocialGraph := preload("res://scripts/sim/npc_social_graph.gd")
+const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const Act := UtilityBrain.Act
 
 const WORLD_LAYER := 1
@@ -73,26 +80,51 @@ const MIN_PERFORM := 8.0
 ## Pace multipliers: running from danger, hurrying out of the rain.
 const FLEE_PACE := 2.7
 const SHELTER_PACE := 1.35
+const ALARM_PACE := 2.1
+const FIRE_PACE := 1.7
+## Armed-player personal space (metres) replaces PERSONAL_SPACE while a weapon is drawn this close.
+const ARMED_SPACE := 2.8
 ## Seconds each speaker holds the floor in a chat.
 const TURN_SECONDS := 4.0
-## Clip candidates per act, first one the rig has wins (UAL / UAL extras).
+## Clip candidates per act, first one the rig has wins (life clips first, UAL / UAL extras as fallback).
 const ACT_CLIPS := {
-	Act.SHOP: ["Idle_Talking", "Interact"],
-	Act.INN: ["Idle_Talking", "Cheering_Two_Hands"],
-	Act.PRAY: ["G6_pray", "Taichi_Idle", "Meditate", "Fixing_Kneeling"],
-	Act.WATER: ["G6_gathering", "Chore_Pick_Up_Box", "Interact", "PickUp_Table"],
-	Act.SHELTER: ["Shivering", "Idle_Subtle"],
+	Act.SHOP: ["Life_Market_Browse", "Idle_Talking", "Interact"],
+	Act.INN: ["Life_Tavern_Lean_Bar", "Idle_Talking", "Cheering_Two_Hands"],
+	Act.PRAY: ["Life_Pray_Kneel", "Life_Pray_Stand", "G6_pray", "Taichi_Idle", "Meditate", "Fixing_Kneeling"],
+	Act.WATER: ["Life_Chore_Well_Crank", "G6_gathering", "Chore_Pick_Up_Box", "Interact", "PickUp_Table"],
+	Act.SHELTER: ["Life_Mocap_Cold", "Life_Ambient_Rub_Arms", "Shivering", "Idle_Subtle"],
 	Act.FLEE: ["Shivering", "Idle_Hurt"],
-	Act.WATCH: ["Idle_Listening", "Idle_Subtle"],
-	Act.SLEEP: ["Lie_Down_Idle", "Sitting_Idle"], Act.HOME: ["Chore_Sweep", "Sitting_Idle"], Act.EAT: ["Consume_Item", "Sitting_Idle"],
+	Act.WATCH: ["Life_Ambient_Shade_Eyes", "Idle_Listening", "Idle_Subtle"],
+	Act.SLEEP: ["Life_Rest_Sleep_Ground", "Lie_Down_Idle", "Sitting_Idle"],
+	Act.HOME: ["Life_Chore_Sweep", "Chore_Sweep", "Sitting_Idle"],
+	Act.EAT: ["Life_Eat_Bread_Stand", "Consume_Item", "Sitting_Idle"],
+	Act.SIT: ["Sitting_Idle", "Idle_Subtle"],
+	Act.PLAY: ["Life_Kid_Run_Play", "Idle_Subtle"],
+	Act.HIDE: ["Life_Mocap_Cold", "Shivering", "Idle_Subtle"],
+	Act.PROTEST: ["Life_Social_Argue_A", "Life_Social_Shake_Head", "Idle_Hurt", "Idle_Talking"],
+	Act.ALARM: ["Life_Social_Point_Directions", "Life_Mocap_Directions", "Idle_Talking"],
+	Act.FIREFIGHT: ["Life_Carry_Put_Down", "Life_Carry_Pick_Up", "Chore_Pick_Up_Box", "Interact"],
+	Act.CHORE: ["Life_Chore_Sweep", "Chore_Sweep", "Interact"],
+	Act.PATROL: ["Life_Guard_Look_Out", "Idle_Shield", "Idle_Subtle"],
 }
-const TALK_CLIPS := ["Idle_Talking"]
-const LISTEN_CLIPS := ["Idle_Listening", "Head_Nod", "Idle_Talking"]
-const ALONE_CLIPS := ["Idle_Subtle"]
-const JOB_CLIPS := [["Farm_Harvest"], ["Fixing_Kneeling"], ["Idle_Talking"], ["Idle_Shield"], ["Interact"], ["TreeChopping"]]
+const TALK_CLIPS := ["Life_Talk_Casual", "Life_Talk_Explain", "Life_Talk_Gossip", "Life_Talk_Emphatic", "Idle_Talking"]
+const LISTEN_CLIPS := ["Life_Talk_Listen_Nod", "Life_Talk_Listen_Hips", "Idle_Listening", "Head_Nod", "Idle_Talking"]
+const ALONE_CLIPS := ["Life_Ambient_Shift_Weight", "Idle_Subtle"]
+const JOB_CLIPS := [["Life_Farm_Hoe", "Farm_Harvest"], ["Life_Smith_Hammer", "Fixing_Kneeling"], ["Life_Market_Call_Out", "Idle_Talking"],
+	["Life_Guard_Lean_Spear", "Idle_Shield"], ["Life_Carp_Saw", "Interact"], ["Life_Wood_Chop", "TreeChopping"]]
+## One-shot greeting clips by how the town regards the player.
+const GREET_CLIPS := {"warm": ["Life_Social_Wave_Greet", "Life_Social_Nod"], "neutral": ["Life_Social_Nod", "Head_Nod"],
+	"cold": ["Life_Social_Shake_Head", "Idle_Subtle"]}
 ## Stuck check window and the progress expected in it.
 const STUCK_WINDOW := 1.2
 const STUCK_PROGRESS := 0.3
+## Smart object sessions advance at this rate (their state machine allocates a result per update).
+const SESSION_HZ := 10.0
+## Real seconds an act is held after arriving when it is not the default MIN_PERFORM.
+const PERFORM_FOR := {Act.PROTEST: 3.0, Act.PATROL: 3.5, Act.FIREFIGHT: 5.0, Act.ALARM: 7.0, Act.WATCH: 6.0}
+const PROTEST_COOLDOWN_MS := 25000
+const GREET_RANGE := 3.4
+const BUBBLE_SECONDS := 3.2
 const STEP_RANGE := 11.0
 const WORK_SOUND_RANGE := 16.0
 ## Activity clip -> [sound, fraction of the clip where the tool lands]. Approximate
@@ -111,6 +143,8 @@ var neighbours: Array = []
 var _file := ""
 var _keep: Array[String] = []
 var _anim: AnimationPlayer
+var _skeleton: Skeleton3D
+var _child := false
 var _meshes: Array[GeometryInstance3D] = []
 var _anim_lod := false
 var _anim_accum := 0.0
@@ -147,6 +181,44 @@ var _face_now := Vector2.INF      # resolved each think tick
 var _pace := 1.0
 var _activity_want := ""
 var _clip_cache := {}
+
+# Smart object use (SmartObjects.Session driven at SESSION_HZ; see _so_*).
+var _props: LifeProps.Holder
+var _so: SmartObjects.Session
+var _so_acc := 0.0
+var _so_clip := ""
+var _so_clip_done := false
+var _so_last_pos := 0.0
+var _so_phase := -1
+var _so_face := NAN
+var _so_move := Vector3.INF
+var _so_snap := false
+var _so_snap_to := Vector3.ZERO
+var _so_ended := false
+var _so_leaving := false
+
+# Awareness and reactions (times are Time.get_ticks_msec()).
+var _hide_until := 0
+var _scared_at := Vector2.INF
+var _protest_cd := 0
+var _greet_cd := 0
+var _crime_until := 0
+var _crime_pos := Vector2.INF
+var _crime_heard := false
+var _peek_until := 0
+var _oneshot := ""
+var _oneshot_until := 0
+var _oneshot_started := false
+var _oneshot_face_player := false
+var _bubble: Label3D
+var _bubble_until := 0
+var _fire_slot := -1
+var _throw_t := 0.0
+var _gossip_turn := -1
+var _prev_act := -1
+var _regard := 0.0
+var _regard_ms := 0
+var _avoid_extra := Vector2.ZERO
 
 # Motion.
 var _walk_speed := WALK_SPEED
@@ -213,14 +285,21 @@ func _ready() -> void:
 	_shape.position.y = capsule.height * 0.5
 	_shape.disabled = true
 	add_child(_shape)
-	var model := Assets.character(_file, 1.7, _keep)
+	_child = NpcWorld.is_child(person)
+	var model := Assets.character(_file, 1.7 * (0.78 if _child else 1.0), _keep)
 	add_child(model)
 	_anim = Assets.animation_player(model)
+	LifeLibrary.install(_anim)      # idempotent: the life clips are added to the shared rig library once
 	for n in model.find_children("*", "MeshInstance3D", true, false):
 		_meshes.append(n as GeometryInstance3D)
 	_add_head_look(model)
+	var skeletons := model.find_children("*", "Skeleton3D", true, false)
+	if not skeletons.is_empty():
+		_skeleton = skeletons[0] as Skeleton3D
+		_props = LifeProps.Holder.new(_skeleton)
 	_attach_components(model)
 	_graph = StreetGraph.for_person(person) as StreetGraph
+	NpcWorld.ensure_spots(WorldSim.home[person], get_parent())
 	# Promotion: start where the simulation had this person, moved out of any
 	# footprint it cut through, facing the way they were heading.
 	var p: Vector2 = WorldSim.pos[person]
@@ -233,7 +312,7 @@ func _ready() -> void:
 	rotation.y = _heading
 	# Stable per-person variation: pace, think phase, gait phase.
 	var h := hash(person * 2654435761 + 7)
-	_walk_speed = WALK_SPEED * (0.9 + float(h % 200) / 1000.0)
+	_walk_speed = WALK_SPEED * (0.9 + float(h % 200) / 1000.0) * (1.12 if _child else 1.0)
 	_think = float((h / 200) % 1000) / 1000.0 * THINK_INTERVAL
 	_stuck_from = p
 	_tag = Label3D.new()
@@ -254,6 +333,9 @@ func _exit_tree() -> void:
 	_save_needs()
 	_interrupt_activity()
 	WorldSim.set_external_position_owner(person, get_instance_id(), false, sim_position())
+	_so_release()
+	if _bubble != null and _bubble.visible:
+		NpcWorld.bubbles_shown = maxi(NpcWorld.bubbles_shown - 1, 0)
 	UtilityBrain.clear_sight_for(self)
 	UtilityBrain.unregister_body(person, get_instance_id())
 
@@ -336,6 +418,11 @@ func resync() -> void:
 	_step_distance = 0.0
 	# Time skips invalidate transient choices, not durable needs.
 	UtilityBrain.chat_leave(person)
+	_so_release()
+	_hide_until = 0
+	_crime_until = 0
+	_peek_until = 0
+	_oneshot_until = 0
 	_set_indoors(false)
 	_act = -1
 	_brain.act = -1
@@ -364,8 +451,12 @@ func _physics_process(delta: float) -> void:
 	var here := Vector2(global_position.x, global_position.z)
 	if _contact:
 		_check_yield(here, delta)
-	var planar := _steer(here, delta)
-	if _contact and physics_active:
+	var driving := _so != null and _so_frame(delta)
+	var planar := Vector2.ZERO if driving else _steer(here, delta)
+	if driving:
+		velocity = Vector3.ZERO
+		global_position = _so_step(delta)
+	elif _contact and physics_active:
 		velocity = Vector3(planar.x, 0.0, planar.y)
 		move_and_slide()
 	elif _contact:
@@ -410,9 +501,13 @@ func _think_tick() -> void:
 	_set_contact(not _indoors and (player_distance < CONTACT_ENTER or (_contact and player_distance < CONTACT_EXIT)))
 	_apply_distance_lod(player_distance)
 	_decide -= THINK_INTERVAL
-	if _decide <= 0.0:
-		_decide += DECIDE_INTERVAL
+	# Sliced: a limited number of utility decisions per physics frame across all villagers; a refused
+	# one stays due and is taken on the next think tick.
+	if _decide <= 0.0 and NpcWorld.take_decide_budget():
+		_decide = maxf(_decide, -DECIDE_INTERVAL) + DECIDE_INTERVAL
 		_decide_act(here)
+	var now_ms := Time.get_ticks_msec()
+	_bubble_tick(now_ms)
 	if _indoors:
 		return
 	_update_facing(here)
@@ -421,7 +516,11 @@ func _think_tick() -> void:
 		_plan_route(here)
 	var travelling := _path_i < _path.size()
 	_avoid = _graph.repulse(here, 1.0) if _graph and travelling else Vector2.ZERO
+	if travelling:
+		_avoid += _extra_steering(here)
 	_separation = _neighbour_push(here)
+	_maybe_greet(here, player_distance, now_ms)
+	_reaction_tick(here, now_ms)
 	if travelling and _yield_time <= 0.0:
 		_check_stuck(here)
 	else:
@@ -450,12 +549,30 @@ func _save_needs() -> void:
 ## and turn a new act into a goal. Same act: only dynamic goals are refreshed.
 func _decide_act(here: Vector2) -> void:
 	var tree := get_tree()
+	NpcWorld.refresh(tree)
+	var now := Time.get_ticks_msec()
 	var sensed := {"visible": PackedVector2Array()}
 	if not _indoors:
 		sensed = _brain.sense_threats(self, tree, WORLD_LAYER)
 	var visible_threats: PackedVector2Array = sensed["visible"]
 	var remembered_threats: PackedVector2Array = sensed.get("remembered", visible_threats)
 	var danger := _brain.remembered_danger(here, remembered_threats, int(sensed.get("observed_ms", -1)))
+	var danger_v: float = danger[0]
+	var danger_p: Vector2 = danger[1]
+	var own_sight := danger_v
+	var guard := WorldSim.job[person] == 3
+	# Fires and screams are dangers too (heard, not seen): they carry the position to run from.
+	var fd := NpcWorld.fire_danger(here)
+	if fd > danger_v:
+		danger_v = fd
+		danger_p = NpcWorld.incident_pos(NpcWorld.nearest(NpcWorld.Kind.FIRE, here, NpcWorld.FIRE_DANGER_FAR))
+	var heard := NpcWorld.alarm_at(here, NpcWorld.Kind.SCREAM) * 0.9
+	if heard > danger_v and not guard:
+		danger_v = heard
+		danger_p = NpcWorld.incident_pos(NpcWorld.nearest(NpcWorld.Kind.SCREAM, here, 40.0))
+	if danger_v > 0.4 and danger_p != Vector2.INF:
+		_scared_at = danger_p
+		_brain.remember_danger(danger_p)
 	var player_p := Vector2.INF
 	if _player:
 		player_p = Vector2(_player.global_position.x, _player.global_position.z)
@@ -478,9 +595,10 @@ func _decide_act(here: Vector2) -> void:
 	_state = DailyRhythm.state(person)
 	var sid: int = WorldSim.home[person]
 	var company := UtilityBrain.chat_waiting(sid, person) or UtilityBrain.chat_partner(person) >= 0
+	_gather_inputs(here, now, guard)
 	var ctx := _brain.context(DailyRhythm.local_time(person), _state, UtilityBrain.is_raining(tree),
-		danger[0], interest[0], company, float(WorldSim.money[person]) / 60.0, WorldSim.day)
-	var committed := not performing or _perform_time < MIN_PERFORM
+		danger_v, sight[0], company, float(WorldSim.money[person]) / 60.0, WorldSim.day)
+	var committed := not performing or _perform_time < float(PERFORM_FOR.get(_act, MIN_PERFORM))
 	var act := _brain.decide(ctx, committed)
 	if act != _act:
 		# UtilityBrain can override the coarse work/market schedule. Release its
@@ -488,23 +606,32 @@ func _decide_act(here: Vector2) -> void:
 		WorldSim.release_activity_target(person)
 		if _act == Act.SOCIAL:
 			UtilityBrain.chat_leave(person)
+		_prev_act = _act
 		_act = act
-		_apply_plan(here, danger[1], interest[1])
+		# Someone who bolts from what they saw themselves shouts it to the street.
+		if act == Act.FLEE and own_sight > 0.5 and danger_p != Vector2.INF:
+			NpcWorld.report(NpcWorld.Kind.SCREAM, danger_p, 28.0, 8.0, 0.9)
+		_apply_plan(here, danger_p, _look_for(act, danger_p, sight[1], player_p, here))
+		return
+	if _so_ended:
+		# The smart object use ran its course: pick the next spot for the same purpose.
+		_so_ended = false
+		_apply_plan(here, danger_p, _look_for(act, danger_p, sight[1], player_p, here))
 		return
 	_record_completed_social()
 	match act:
 		Act.FLEE:
 			# Still in danger at the end of the run: keep going from here.
 			if _arrived and not _plan_indoors:
-				_apply_plan(here, danger[1], sight[1])
+				_apply_plan(here, danger_p, sight[1])
 		Act.WATCH:
 			if interest[1] != Vector2.INF and (interest[1] as Vector2).distance_to(_look_point) > 3.0:
-				_apply_plan(here, danger[1], interest[1])
+				_apply_plan(here, danger_p, interest[1])
 		Act.SOCIAL:
 			if _partner < 0:
 				# Waiting residents retry at the existing staggered decision cadence,
 				# allowing a bounded candidate group to form before pairing by familiarity.
-				var social_plan := _brain.plan_goal(Act.SOCIAL, here, _graph, danger[1], interest[1])
+				var social_plan := _brain.plan_goal(Act.SOCIAL, here, _graph, danger_p, interest[1])
 				_partner = int(social_plan["partner"])
 				var social_goal: Vector2 = social_plan["goal"]
 				if _partner >= 0 and social_goal.distance_to(_goal) > 0.1:
@@ -515,7 +642,21 @@ func _decide_act(here: Vector2) -> void:
 			# Capacity conflicts leave the resident where they are. Retry only on
 			# this already staggered decision tick, never every physics frame.
 			if _water_token.is_empty():
-				_apply_plan(here, danger[1], sight[1])
+				_apply_plan(here, danger_p, interest[1])
+		Act.PATROL:
+			if _arrived and _perform_time > float(PERFORM_FOR[Act.PATROL]):
+				_apply_plan(here, danger_p, Vector2.INF)
+		Act.ALARM:
+			if _arrived and _perform_time > float(PERFORM_FOR[Act.ALARM]):
+				# Reported (or arrived at the scene): the excitement is over.
+				if not guard:
+					_say(NpcWorld.line("alarm_guard", person, now / 1000))
+				_crime_until = 0
+		Act.FIREFIGHT:
+			var slot := NpcWorld.nearest(NpcWorld.Kind.FIRE, here, NpcWorld.FIRE_REACH)
+			if slot >= 0 and slot != _fire_slot:
+				_fire_slot = slot
+				_apply_plan(here, danger_p, NpcWorld.incident_pos(slot))
 
 
 ## Persist one NPC-to-NPC tie only after the current pair has spent time together
@@ -542,14 +683,62 @@ func _record_completed_social() -> void:
 	graph.call("record_conversation", a, b, day)
 
 
+## Everything the body knows that the brain scores: fire, a drawn weapon, a crime it saw or heard, being
+## in hiding, guard duty turns and whether a seat / play patch / chore is at hand.
+func _gather_inputs(here: Vector2, now: int, guard: bool) -> void:
+	var inp := _brain.inp
+	inp["child"] = 1.0 if _child else 0.0
+	inp["fire"] = NpcWorld.fire_interest(here)
+	inp["armed"] = NpcWorld.armed_pressure(here) if now >= _protest_cd else 0.0
+	inp["crime"] = _crime_input(here, now)
+	inp["hide"] = 1.0 if (now < _hide_until and not guard) else 0.0
+	inp["patrol_turn"] = 1.0 if guard and ((now / 45000 + person) & 1) == 0 else 0.0
+	var hour := DailyRhythm.local_time(person)
+	inp["seat"] = 1.0 if (_brain.breath < 0.72 and not _indoors and hour >= 7.0 and hour < 21.0 and _brain.has_spot(Act.SIT, here)) else 0.0
+	inp["play_spot"] = 1.0 if (_child and _brain.has_spot(Act.PLAY, here)) else 0.0
+	var chore := 0.0
+	if not _child and ((hour >= 6.5 and hour < 9.0) or (hour >= 16.0 and hour < 20.5)):
+		var s: Dictionary = WorldGen.settlements[WorldSim.home[person]]
+		if _brain.has_spot(Act.CHORE, WorldSim._spot(s, 0, person), 30.0):
+			chore = 1.0
+	inp["chore_spot"] = chore
+
+
+func _crime_input(here: Vector2, now: int) -> float:
+	if now < _crime_until:
+		return 0.55 if _crime_heard else 1.0
+	return NpcWorld.alarm_at(here, NpcWorld.Kind.CRIME) * 0.6
+
+
+## The point an act is about (what to watch, who drew a weapon, the crime, the fire, what scared us).
+func _look_for(act: int, danger_p: Vector2, sight_p: Vector2, player_p: Vector2, here: Vector2) -> Vector2:
+	match act:
+		Act.WATCH:
+			return sight_p
+		Act.PROTEST:
+			return player_p
+		Act.HIDE:
+			return _scared_at
+		Act.ALARM:
+			if _crime_pos != Vector2.INF and Time.get_ticks_msec() < _crime_until:
+				return _crime_pos
+			var slot := NpcWorld.nearest(NpcWorld.Kind.CRIME, here, NpcWorld.CRIME_HEARING)
+			return NpcWorld.incident_pos(slot) if slot >= 0 else Vector2.INF
+		Act.FIREFIGHT:
+			_fire_slot = NpcWorld.nearest(NpcWorld.Kind.FIRE, here, NpcWorld.FIRE_REACH)
+			return NpcWorld.incident_pos(_fire_slot) if _fire_slot >= 0 else Vector2.INF
+	return sight_p
+
+
 func _apply_plan(here: Vector2, hazard: Vector2, look: Vector2) -> void:
 	var plan := _brain.plan_goal(_act, here, _graph, hazard, look)
 	var goal: Vector2 = plan["goal"]
+	var now := Time.get_ticks_msec()
 	_plan_indoors = plan["indoors"]
 	_face_pref = plan["face"]
 	_look_point = plan["look"]
 	_partner = plan["partner"]
-	_pace = FLEE_PACE if _act == Act.FLEE else (SHELTER_PACE if _act == Act.SHELTER else 1.0)
+	_pace = _pace_for(_act)
 	_perform_time = 0.0
 	_interrupt_activity()
 	if _act == Act.WATER:
@@ -561,8 +750,32 @@ func _apply_plan(here: Vector2, hazard: Vector2, look: Vector2) -> void:
 		else:
 			goal = water_lease["goal"]
 			_face_pref = (WorldGen.settlements[WorldSim.home[person]]["pos"] as Vector2) - goal
+	# Leave the previous smart object (gracefully, with its exit clip, unless running for it).
+	var spot: Array = plan["spot"]
+	var spot_claim_failed := false
+	_so_leave(not spot.is_empty() or _act == Act.FLEE or _act == Act.ALARM or _act == Act.HIDE or _act == Act.SHELTER or _act == Act.PROTEST)
+	if not spot.is_empty():
+		if not _so_begin(spot):
+			# Another resident may claim a candidate after planning but before this
+			# session starts. Do not walk to an unowned workstation; retry next think tick.
+			spot = []
+			spot_claim_failed = true
+			goal = here
+			_plan_indoors = false
+			_face_pref = Vector2.INF
+			_so_ended = true
+	if WorldSim.job[person] != 0 and spot.is_empty() and not spot_claim_failed and not _plan_indoors and _act != Act.FLEE:
+		goal = NpcWorld.out_of_fields(WorldSim.home[person], goal)
+	_act_started(here, hazard, look, now)
 	var was_inside := _indoors
 	_set_indoors(false)
+	if was_inside and _prev_act == Act.HIDE and _act != Act.HIDE:
+		# Out of hiding: stop at the door and look where the scare was before carrying on.
+		_peek_until = now + 3400
+		_wait = 3.4
+		_begin_oneshot(["Life_Ambient_Look_Around", "Idle_Subtle"], 3.2)
+		if _scared_at != Vector2.INF:
+			_say(NpcWorld.line("hide", person, now / 1000), 2.6)
 	if was_inside and _plan_indoors and goal.distance_to(sim_position()) < 1.0:
 		_set_indoors(true)    # e.g. eat -> sleep: stay in
 		return
@@ -574,6 +787,46 @@ func _apply_plan(here: Vector2, hazard: Vector2, look: Vector2) -> void:
 		_arrived = false
 
 
+func _pace_for(act: int) -> float:
+	match act:
+		Act.FLEE: return FLEE_PACE
+		Act.SHELTER: return SHELTER_PACE
+		Act.ALARM: return ALARM_PACE
+		Act.FIREFIGHT: return FIRE_PACE
+		Act.HIDE: return 1.9
+		Act.PROTEST: return 0.85
+	return 1.0
+
+
+## Bookkeeping and barks when a new act starts.
+func _act_started(here: Vector2, hazard: Vector2, look: Vector2, now: int) -> void:
+	var sec := now / 1000
+	var guard := WorldSim.job[person] == 3
+	match _act:
+		Act.FLEE:
+			_hide_until = now + 16000 + (person % 6) * 1000
+			_say(NpcWorld.line("flee", person, sec), 2.4)
+			if hazard != Vector2.INF:
+				_brain.remember_danger(hazard)
+		Act.PROTEST:
+			_protest_cd = now + PROTEST_COOLDOWN_MS
+			_say(NpcWorld.line("armed_guard" if guard else "armed", person, sec))
+		Act.ALARM:
+			_say(NpcWorld.line("guard_respond" if guard else "crime", person, sec))
+		Act.FIREFIGHT:
+			_say(NpcWorld.line("fire", person, sec))
+			if _props != null:
+				_props.show_props([{"id": "bucket", "hand": "r"}])
+		Act.SHELTER:
+			if person % 4 == 0:
+				_say(NpcWorld.line("rain", person, sec), 2.6)
+		Act.WATCH:
+			if person % 3 == 0 and look != Vector2.INF:
+				_say(NpcWorld.line("festival" if NpcWorld.nearest(NpcWorld.Kind.FESTIVAL, here, 60.0) >= 0 else "fight", person, sec), 2.6)
+	if _act != Act.FIREFIGHT and _so == null and _props != null:
+		_props.clear()
+
+
 ## Inside a building: hidden, no capsule, not a talk target.
 func _set_indoors(on: bool) -> void:
 	if on == _indoors:
@@ -581,6 +834,8 @@ func _set_indoors(on: bool) -> void:
 	if on:
 		UtilityBrain.clear_sight_for(self)
 	_indoors = on
+	if on:
+		_so_release()
 	if on and _brain != null:
 		_brain.clear_threat_memory()
 	visible = not on
@@ -600,6 +855,13 @@ func _set_indoors(on: bool) -> void:
 ## watched, or the spot's own facing. Resolved on think ticks only.
 func _update_facing(here: Vector2) -> void:
 	_face_now = Vector2.INF
+	var now := Time.get_ticks_msec()
+	if now < _peek_until and _scared_at != Vector2.INF:
+		_face_now = _scared_at - here
+		return
+	if now < _oneshot_until and _player != null and _oneshot_face_player:
+		_face_now = Vector2(_player.global_position.x, _player.global_position.z) - here
+		return
 	if _partner >= 0 and UtilityBrain.chat_partner(person) != _partner:
 		_partner = -1    # they walked off: carry on alone
 	_partner_node = UtilityBrain.body_of(_partner) if _partner >= 0 else null
@@ -712,11 +974,15 @@ func _check_yield(here: Vector2, delta: float) -> void:
 		return
 	var rel := here - Vector2(_player.global_position.x, _player.global_position.z)
 	var d := rel.length()
-	if d > YIELD_RADIUS or d < 0.001:
+	var yield_radius := YIELD_RADIUS * (2.2 if NpcWorld.player_mounted() else 1.0)
+	var space := ARMED_SPACE if NpcWorld.armed_pressure(here) > 0.2 else PERSONAL_SPACE
+	if d > maxf(yield_radius, space) or d < 0.001:
 		return
-	# Personal space: ease away from the player while close.
-	if d < PERSONAL_SPACE:
-		_player_push = rel / d * (PERSONAL_SPACE - d) / PERSONAL_SPACE
+	# Personal space: ease away from the player while close (wider while a weapon is drawn).
+	if d < space:
+		_player_push = rel / d * (space - d) / space
+	if d > yield_radius:
+		return
 	if _yield_cooldown > 0.0 or _yield_time > 0.0:
 		return
 	var player_velocity := Vector2.ZERO
@@ -895,6 +1161,9 @@ func _steer(here: Vector2, delta: float) -> Vector2:
 
 # ---------------------------------------------------------------- animation
 func _update_animation(delta: float) -> void:
+	if _so != null and _so_phase >= SmartObjects.Session.ENTER and _so_phase <= SmartObjects.Session.EXIT:
+		_walking = false      # a smart object session owns the clip (enter / loop / between / exit)
+		return
 	if not _walking and _resolved_speed > 0.14:
 		_walking = true
 	elif _walking and _resolved_speed < 0.07 and _move_speed < 0.1:
@@ -902,7 +1171,8 @@ func _update_animation(delta: float) -> void:
 	if not _walking:
 		_update_activity(delta)
 		return
-	_interrupt_animation()
+	_interrupt_activity()
+	_oneshot_started = false
 	var running := _resolved_speed > 2.2
 	var clip := "Running_A" if running else "Walking_A"
 	var clip_speed := RUN_CLIP_SPEED if running else WALK_CLIP_SPEED
@@ -983,6 +1253,15 @@ func _update_activity(delta: float) -> void:
 	_step_distance = 0.0
 	if _anim == null:
 		return
+	if _oneshot != "" and Time.get_ticks_msec() < _oneshot_until:
+		if not _oneshot_started:
+			_oneshot_started = true
+			_anim.play(_oneshot, 0.25)
+		return
+	if _oneshot_started:
+		_oneshot_started = false
+		_oneshot = ""
+		_activity_needs_start = true
 	_anim.speed_scale = _idle_rate() if _anim.current_animation == "Idle" else 1.0
 	# Work only once actually at the spot; waiting, yielding or stopped mid-route idles.
 	var activity := _activity_want if _arrived and _yield_time <= 0.0 else ""
@@ -1044,10 +1323,10 @@ func _activity_for_person() -> String:
 			return _first_clip(JOB_CLIPS[job])
 		Act.SOCIAL:
 			if _partner_node == null:
-				return _first_clip(ALONE_CLIPS)
+				return _pick_clip(ALONE_CLIPS, 0)
 			# Take turns: one talks while the other listens, swapping every few seconds.
-			var turn := int(Time.get_ticks_msec() / int(TURN_SECONDS * 1000.0)) % 2 == 0
-			return _first_clip(TALK_CLIPS if turn == (person < _partner) else LISTEN_CLIPS)
+			var t := int(Time.get_ticks_msec() / int(TURN_SECONDS * 1000.0))
+			return _pick_clip(TALK_CLIPS if (t % 2 == 0) == (person < _partner) else LISTEN_CLIPS, t / 2 + person)
 		Act.SHOP, Act.INN:
 			if job == 3:
 				return _first_clip(JOB_CLIPS[3])
@@ -1087,3 +1366,292 @@ func _play(anim_name: String) -> void:
 ## Per-person idle playback rate, 0.9-1.1 (stable for a person).
 func _idle_rate() -> float:
 	return 0.9 + 0.2 * fmod(float(person) * 0.618034, 1.0)
+
+
+# ---------------------------------------------------------------- smart objects
+## Claim `pick` ([spot, slot]) and start its session; the route leads to the approach point.
+func _so_begin(pick: Array) -> bool:
+	var so := NpcWorld.spots()
+	_so_release()
+	if not so.claim(pick[0], pick[1], person):
+		return false
+	_so = so.session(person, pick[0], pick[1])
+	_so_phase = SmartObjects.Session.APPROACH
+	_so_acc = 0.0
+	_so_ended = false
+	return true
+
+
+## Stop using the current object. Graceful (play its exit clip) unless `urgent`.
+func _so_leave(urgent: bool) -> void:
+	if _so == null:
+		return
+	var exit := String(_so.act.get("exit", ""))
+	if not urgent and _so_phase >= SmartObjects.Session.ENTER and _so_phase <= SmartObjects.Session.BETWEEN \
+			and exit != "" and _anim != null and _anim.has_animation(exit):
+		_so.interrupt()        # exit clip, then DONE releases the slot
+		_so_leaving = true
+		_wait = float(LifeLibrary.info(exit).get("seconds", 0.8))
+	else:
+		_so_release()
+
+
+func _so_release() -> void:
+	if NpcWorld.smart != null:
+		NpcWorld.smart.release(person)
+	_so = null
+	_so_phase = -1
+	_so_move = Vector3.INF
+	_so_snap = false
+	_so_leaving = false
+	_so_clip = ""
+	if _props != null and _act != Act.FIREFIGHT:
+		_props.clear()
+
+
+## Advance the session (at SESSION_HZ) and turn toward what it wants. True while it owns the body.
+func _so_frame(delta: float) -> bool:
+	var leaving := _so_phase >= SmartObjects.Session.ALIGN
+	if not _arrived and not leaving:
+		return false          # still walking to the approach point
+	_so_acc += delta
+	_so_track_clip()
+	if _so_acc >= 1.0 / SESSION_HZ:
+		var out := _so.update(_so_acc, global_position, _so_clip_done)
+		_so_acc = 0.0
+		_so_clip_done = false
+		_so_apply(out)
+		if _so == null:
+			return false
+	if _so_phase < SmartObjects.Session.ALIGN:
+		return false
+	var want := _so_face
+	if is_nan(want) and _so_move != Vector3.INF:
+		var to := _so_move - global_position
+		if to.length_squared() > 0.0004:
+			want = atan2(to.x, to.z)
+	if not is_nan(want):
+		_heading = rotate_toward(_heading, want, TURN_RATE * 1.3 * delta)
+	_move_speed = 0.0
+	return true
+
+
+func _so_step(delta: float) -> Vector3:
+	var pos := global_position
+	if _so_move != Vector3.INF:
+		var to := _so_move - pos
+		to.y = 0.0
+		var d := to.length()
+		if d > 0.02:
+			pos += to / d * minf(0.9 * delta, d)
+	elif _so_snap:
+		pos = pos.lerp(_so_snap_to, 1.0 - exp(-8.0 * delta))
+	return pos
+
+
+func _so_apply(out: Dictionary) -> void:
+	_so_phase = int(out["phase"])
+	var clip: String = out["clip"]
+	if clip != "" and _anim != null and _anim.has_animation(clip):
+		if out["restart"] or _so_clip != clip:
+			_so_play(clip, float(LifeLibrary.info(clip).get("blend_in", 0.25)), bool(out["restart"]))
+		_anim.speed_scale = _idle_rate() if bool(LifeLibrary.info(clip).get("loop", false)) else 1.0
+	if _props != null and _so_phase >= SmartObjects.Session.ENTER and _so_phase <= SmartObjects.Session.EXIT:
+		_props.show_props(out["props"])
+	_so_face = float(out["face"])
+	_so_move = out["move_to"] if out["move_to"] != null else Vector3.INF
+	var snap: Variant = out.get("snap")
+	_so_snap = snap != null
+	if _so_snap:
+		_so_snap_to = (snap as Transform3D).origin
+		_so_snap_to.y = global_position.y
+	var ev: Variant = out["event"]
+	if ev != null:
+		LivingEvents.emit(String((ev as Dictionary).get("kind", "work")), global_position, float((ev as Dictionary).get("radius", 10.0)), 2.0)
+	if _so_phase == SmartObjects.Session.DONE:
+		var was_leaving := _so_leaving
+		_so_release()
+		_so_ended = not was_leaving
+
+
+func _so_play(clip: String, blend: float, restart: bool) -> void:
+	_anim.play(clip, blend)
+	if restart and clip == _so_clip:
+		_anim.seek(0.0, true)
+	_so_clip = clip
+	_so_last_pos = 0.0
+	_so_clip_done = false
+
+
+## Loop wrap / one-shot end detection (the session needs to know a cycle finished).
+func _so_track_clip() -> void:
+	if _anim == null or _so_clip == "" or _anim.current_animation != _so_clip:
+		return
+	var pos := _anim.current_animation_position
+	var a := _anim.get_animation(_so_clip)
+	if a == null:
+		return
+	if a.loop_mode != Animation.LOOP_NONE:
+		if pos + 0.0001 < _so_last_pos:
+			_so_clip_done = true
+	elif not _anim.is_playing() or pos >= a.length - 0.02:
+		_so_clip_done = true
+	_so_last_pos = pos
+
+
+# ---------------------------------------------------------------- reactions and barks
+## Steering on top of the street graph's wall push: keep away from where danger was seen, out of the
+## crop fields (unless a farmer) and out of the way of a cart or rider bearing down on this spot.
+func _extra_steering(here: Vector2) -> Vector2:
+	var push := _brain.avoid_push(here) * 0.8
+	if WorldSim.job[person] != 0:
+		push += NpcWorld.field_push(WorldSim.home[person], here) * 1.2
+	var mv := NpcWorld.mover_push(here)
+	if mv != Vector2.ZERO:
+		push += mv * 2.0
+		if mv.length() > 0.7 and _yield_time <= 0.0 and _yield_cooldown <= 0.0:
+			_begin_sidestep(here, mv, 1.1)
+			_yield_cooldown = 1.6
+	return push
+
+
+## Greet (or coldly ignore) the player who walks up: what they say and do depends on how the settlement
+## regards them (society reputation, read only). Stops for a moment, turns, one-shot clip + bark.
+func _maybe_greet(here: Vector2, player_distance: float, now: int) -> void:
+	if player_distance > GREET_RANGE or now < _greet_cd or _player == null or _indoors:
+		return
+	if _act == Act.FLEE or _act == Act.HIDE or _act == Act.PROTEST or _act == Act.ALARM or _act == Act.FIREFIGHT \
+			or _act == Act.SLEEP or _yield_time > 0.0 or _so_phase >= SmartObjects.Session.ALIGN and _act == Act.WORK:
+		return
+	if NpcWorld.player_armed():
+		return
+	var to := Vector2(_player.global_position.x, _player.global_position.z) - here
+	if to.length() > 1.4 and Vector2(sin(_heading), cos(_heading)).dot(to.normalized()) < -0.25:
+		return       # behind their back
+	_greet_cd = now + 70000 + (person % 25) * 1000
+	if now - _regard_ms > 5000:
+		_regard_ms = now
+		_regard = NpcWorld.regard_of_player(WorldSim.home[person])
+	var cat := "greet_warm" if _regard > 0.25 else ("greet_cold" if _regard < -0.25 else "greet_neutral")
+	if cat == "greet_neutral" and DailyRhythm.local_time(person) >= 19.0 and person % 2 == 0:
+		cat = "greet_evening"
+	var clips: Array = GREET_CLIPS["warm" if _regard > 0.25 else ("cold" if _regard < -0.25 else "neutral")]
+	if _so_phase < SmartObjects.Session.ENTER:
+		_begin_oneshot(clips, 1.9)
+		_oneshot_face_player = true
+		if _path_i < _path.size() or not _arrived:
+			_wait = maxf(_wait, 1.5)
+	_say(NpcWorld.line(cat, person, now / 60000))
+
+## Townsfolk gossip about hidden caves: speaks a rumour from the exploration module and learns the lead.
+func _gossip_cave_lead(here: Vector2) -> bool:
+	var ex: Variant = Life.realm.mod("exploration") if Life.realm != null else null
+	if ex == null:
+		return false
+	var r: Dictionary = ex.rumour_for(here, person)
+	if r.is_empty():
+		return false
+	_say(String(r["text"]), 4.6)
+	ex.learn_lead(String(r["site_id"]), WorldSim.day)
+	return true
+
+
+func _reaction_tick(here: Vector2, now: int) -> void:
+	# Gossip: in a chat pair the speaker says something now and then, when the player is near enough to hear.
+	if _act == Act.SOCIAL and _arrived and _partner_node != null and _player != null:
+		var turn := int(now / int(TURN_SECONDS * 1000.0))
+		if turn != _gossip_turn:
+			_gossip_turn = turn
+			if (turn % 2 == 0) == (person < _partner) and global_position.distance_squared_to(_player.global_position) < 196.0 \
+					and (turn + person) % 3 == 0:
+				var sid: int = WorldSim.home[person]
+				var rumours := NpcWorld.rumour_lines(sid)
+				if not rumours.is_empty() and (turn / 3 + person) % 2 == 0:
+					_say(String(rumours[(turn + person) % rumours.size()]), 4.6)
+				elif turn % 4 == 0 and _gossip_cave_lead(here):
+					pass   # a cave / hidden-entrance rumour was spoken (and learned)
+				else:
+					_say(NpcWorld.line("gossip_generic", person, turn), 3.6)
+	# Fire: water thrown at the flames shrinks them (and dies out sooner with more helpers).
+	if _act == Act.FIREFIGHT and _arrived and _fire_slot >= 0:
+		_throw_t -= THINK_INTERVAL
+		if _throw_t <= 0.0:
+			_throw_t = 2.4
+			NpcWorld.douse(_fire_slot, 0.08)
+			if _contact:
+				var fp := NpcWorld.incident_pos(_fire_slot)
+				VFX.sparks(get_parent(), Vector3(fp.x, WorldGen.height(fp.x, fp.y) + 0.9, fp.y), Color(0.55, 0.78, 1.0), 8)
+
+
+## A crime happened at `pos` (NpcWorld.report_crime): did this villager see it (or only hear it)?
+## Witnesses shout and, like everyone who heard, run for a guard; guards go to look.
+func witness(pos: Vector2, _kind: String, saw: bool, _by_player: bool) -> bool:
+	var now := Time.get_ticks_msec()
+	_crime_until = now + 25000
+	_crime_pos = pos
+	_crime_heard = not saw
+	_decide = 0.0          # think about it on the next tick
+	return true
+
+
+## Short line above the head (at most NpcWorld.MAX_BUBBLES on screen, only near the player).
+func _say(text: String, seconds := BUBBLE_SECONDS) -> void:
+	if text == "" or _indoors or _player == null:
+		return
+	if global_position.distance_squared_to(_player.global_position) > 26.0 * 26.0:
+		return
+	var showing := _bubble != null and _bubble.visible
+	if not showing and NpcWorld.bubbles_shown >= NpcWorld.MAX_BUBBLES:
+		return
+	if _bubble == null:
+		_bubble = Label3D.new()
+		_bubble.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		_bubble.double_sided = true
+		_bubble.no_depth_test = false
+		_bubble.pixel_size = 0.0042
+		_bubble.font_size = 34
+		_bubble.outline_size = 10
+		_bubble.modulate = Color(1.0, 0.96, 0.82)
+		_bubble.outline_modulate = Color(0.08, 0.06, 0.05, 0.95)
+		_bubble.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_bubble.width = 360.0
+		_bubble.position.y = 2.25 if not _child else 1.85
+		_bubble.visible = false
+		add_child(_bubble)
+	_bubble.text = text
+	if not showing:
+		NpcWorld.bubbles_shown += 1
+		_bubble.visible = true
+	_bubble_until = Time.get_ticks_msec() + int(seconds * 1000.0)
+
+
+func _bubble_tick(now: int) -> void:
+	if _bubble != null and _bubble.visible and (now >= _bubble_until or _indoors):
+		_bubble.visible = false
+		NpcWorld.bubbles_shown = maxi(NpcWorld.bubbles_shown - 1, 0)
+
+
+func _begin_oneshot(names: Array, seconds: float) -> void:
+	var clip := _first_clip(names)
+	if clip == "":
+		return
+	_oneshot = clip
+	_oneshot_until = Time.get_ticks_msec() + int(seconds * 1000.0)
+	_oneshot_started = false
+	_oneshot_face_player = false
+
+
+## Stable per-person pick among the clips the rig has (`salt` varies it over time).
+func _pick_clip(names: Array, salt: int) -> String:
+	if names.is_empty() or _anim == null:
+		return ""
+	var key := names.hash()
+	var avail: Array = _clip_cache.get(key, [])
+	if avail.is_empty():
+		for n: String in names:
+			if _anim.has_animation(n):
+				avail.append(n)
+		_clip_cache[key] = avail
+	if avail.is_empty():
+		return ""
+	return avail[absi(person * 31 + salt) % avail.size()]

@@ -313,6 +313,23 @@ Each package is sized for **one Sonnet agent, about 1–3 hours**. IDs: **L** = 
 - Hot files are otherwise **no-touch** for local agents: `main.gd`, `life.gd`, `player.gd`, `hud.gd`, `world_gen.gd`, `settlement_builder.gd`, `terrain_streamer.gd`, `population_lod.gd`, `assets.gd`, `quality.gd`, `world_sim.gd`. Codex owns animation code in `player.gd`, `character_animator.gd`, `wolf.gd`, `monster.gd`, `critter.gd`, `villager.gd` and `soldier.gd`.
 - Never run a Godot import in a temporary worktree. Fetch and merge origin before every push. Update `docs/STATUS_LOCAL.md` and the handoff.
 
+### Cloud integration status (C-H, H3-H7, C3-C8, C12), 2026-09-30
+All wired through one node, `kingdom/scripts/region1/region1_glue.gd` (created in `main.gd` after H1), plus the hooks below. Nothing is locked behind the story: quests are optional, the tracker can be hidden, and big creatures have a parley route.
+| Package | Status | Where |
+|---|---|---|
+| C-H (H1, H2) | done, test `tests/test_region1_hooks.gd` | `main.gd`, `life.gd` (also `Life.region1_kill` signal) |
+| H3 + C3 Wardlines | done: override, elder stones as network stones, stone menu (carve, mend, link, relight), carve canvas `r1_carve_view.gd`, map layer `r1_map_layer.gd`, daily push-back | `runestone_network.gd`, glue |
+| H4, H5, C4 Scar Tide | done: `scar_tide.gd` written here (L9 had not landed), variants + rift fur, `scar_mask` global in `terrain.gdshader`, burn / harvest / ward station, scar goods + price multiplier, story outbreaks | `monster_ecology.gd`, `frontier_presence.gd`, `economy.gd`, `terrain.gdshader`, `project.godot` |
+| H6 parchment | done (`add_layer`, hud wiring) | `world_map.gd`, `hud.gd` |
+| H7 + C5 Ember Legacy | done: emit on succession and old-age death, 3-card ember menu, ancestor stones (bark page, card, Wardlines bubble), Rowan's ember | `family.gd`, `life.gd`, glue |
+| C6 + C6b Ashsight | done: raid emitters, flagged sites, kneel station, staged memories for story sites, controller (camera, grade, HUD) | `road_events.gd`, `monster_ecology.gd`, glue |
+| C7 story runtime | done: `r1_story_director.gd` (talk, areas, kills, tracker text lead + compass hint, Quests tab, Journal page), Act I autoplay test `tests/test_region1_story_play.gd` | `hud.gd`, `menu_data.gd`, `tab_journal.gd` |
+| C8 onboarding | done: tutorial bridge, safe first wolf (`r1_safe`), settings toggle + "Show all tips again" | glue, `wolf.gd`, settings |
+| C12 audio | done: area themes + hysteresis, story cues, scar bed, rune hum, ward / carve SFX | `audio_director.gd`, `music_bank.gd` |
+| QA 2026-09-30 | full gdUnit suite 1184 cases, 2 failures outside Region 1 (see handoff); Region 1 suites green; in-game Act I autoplay reaches the Blessing (`tools_qa/region1/r1_hooks_qa.gd --r1=act1`); screenshots + sheet via `--r1=shots` / `--r1=ashsight` | `/tmp/claude-0/shots/r1_hooks_sheet.png` |
+| Extras | tower_site hook in `main.gd`, `society.gd` `tower_clear`, XP via `Life.award_progress`, cave rumours in villager gossip (`exploration.rumour_for` + `learn_lead`) | `villager.gd` |
+Cutscenes: only the Blessing (the game's own age-12 ceremony) is used; other `cutscene` actions are short in-world staging (banner, music cue, camera nudge).
+
 ### Acceptance-test toolkit (existing)
 - Screenshots: `godot --path kingdom -- --shot=<name> --out=<png>` (`main.gd`; supports `site_<kind>`, `interior_<name>`, `city`, `guild` …). Add new shot names for new sites.
 - Frame sheets: `tools/qa/video_to_sheets.sh` (skill `ashes-video-review`) for any motion or VFX.
@@ -321,7 +338,7 @@ Each package is sized for **one Sonnet agent, about 1–3 hours**. IDs: **L** = 
 ### M0: canon and scaffolding
 | ID | Owner | Package | Inputs → outputs | Depends | Acceptance |
 |---|---|---|---|---|---|
-| **C0** | cloud | **Canon data**: nation display names, Church realms and new nations as data rows, poster places (Highwatch Keep, Silverford alias, Crownstead, Greenhollow, Elden Road, Stagborn Glade, 5 Elder Stones, Eastern Gate, Grimfen Pass, Ashen Scar) in `data/world/first_region.json` + `nations.json`; banner on `GDD.md` / `KINGDOM_DESIGN.md` | §0 tables → JSON + docs | owner OK on §0 | `RAWorldLore` tests pass; world map shows new names (screenshot) |
+| **C0** | cloud | **Canon data**: nation display names, Church realms and new nations as data rows, poster places (Highwatch Keep, Silverford alias, Crownstead, Greenhollow, Elden Road, Stagborn Glade, 5 Elder Stones, Eastern Gate, Grimfen Pass, Ashen Scar) in `data/world/first_region.json` + `nations.json`; banner on `GDD.md` / `KINGDOM_DESIGN.md` **[DONE 2026-09-30 (nations renamed, teaser realms, poster places in first_region.json, banners; see WORLD_R1.md)]** | §0 tables → JSON + docs | owner OK on §0 | `RAWorldLore` tests pass; world map shows new names (screenshot) |
 | **L0** | local | **Region1 scaffold**: `scripts/region1/region1_root.gd`, `region1_state.gd` (snapshot and restore registry), `data/region1/README.md`, test harness `tools_qa/region1/region1_sandbox.tscn` (a standalone scene that runs sims without `main`) | → new files | — | Sandbox runs headless; gdUnit smoke test |
 | **C-H** | cloud | **Hooks H1 + H2** | L0 → 3 lines | L0 | Save/load round-trip keeps `region1` data (test) |
 
@@ -333,8 +350,8 @@ Each package is sized for **one Sonnet agent, about 1–3 hours**. IDs: **L** = 
 | **L3** | local | **Silverford guild hall + chapel of the Dawn Throne** (Meshy or `meshy_free` churches, warm white and gold Church palette) + interiors (new `scenes/interiors/guildhall_interior.tscn`, `chapel_interior.tscn`) | → assets + interior scenes | — | `--shot=interior_guildhall`, `interior_chapel` |
 | **L4** | local | **Rift-touched kit**: violet foliage variants (material swap on the existing nature GLBs), scar-crystal clusters (`meshy_free` crystals), rift ground decals, rift-wolf/boar material variants, import check for `rift_slime` / `rift_wraith` | → `assets/incoming/region1/rift/` | — | Side-by-side normal vs rift sheet; still reads as the sunny look, not grimdark |
 | **L5** | local | **Stagborn models**: Stagborn elk (herd) and the Antlered Warden (Meshy rigged, idle/walk/run/attack/hit/death; LOD1) | → `assets/incoming/ai3d/meshy/creatures/stagborn_*` | — | Turntable frame sheet; tris ≤ 8k / 15k |
-| **C1** | cloud | **Region layout**: add sites to `region_sites.gd` (Highwatch Keep, Elder Stones ×5, Stagborn Glade, Eastern Gate, Grimfen Pass barrier, Crownstead estate, Rift-mouth arena); pick the Silverford town; place L1–L3 | L1–L3 → site entries | C0, L1–L3 | `--shot=site_<kind>` for each; no tree intersection; fps unchanged ±5 % |
-| **C2** | cloud | **Settlement identity**: one trade, landmark, named NPC and rumour set per settlement; place `meshy_free` market, farm and water props | C0 → data + dressing | C1 | Screenshot per settlement (12); a playtester can name each town from its screenshot |
+| **C1** | cloud | **Region layout**: add sites to `region_sites.gd` (Highwatch Keep, Elder Stones ×5, Stagborn Glade, Eastern Gate, Grimfen Pass barrier, Crownstead estate, Rift-mouth arena); pick the Silverford town; place L1–L3 **[DONE 2026-09-30 (Highwatch Keep, 5 Elder Stones, Eastern Gate, Grimfen Pass, Scar Mouth Arena, Crownstead Steward's Hall, Dawn chapel, Silverford = Ironmarch; see WORLD_R1.md)]** | L1–L3 → site entries | C0, L1–L3 | `--shot=site_<kind>` for each; no tree intersection; fps unchanged ±5 % |
+| **C2** | cloud | **Settlement identity**: one trade, landmark, named NPC and rumour set per settlement; place `meshy_free` market, farm and water props **[DONE 2026-09-30 (20 settlements: trade, landmark, named NPC, rumours)]** | C0 → data + dressing | C1 | Screenshot per settlement (12); a playtester can name each town from its screenshot |
 | **L6** | local | **Mine and Rift pocket interiors**: a short Greyseam tunnel with a rift seam, and the Scar-mouth arena room | → `scenes/interiors/mine_interior.tscn`, `scar_arena.tscn` | L4 | `--shot=interior_mine`; ≤ 150 draws |
 
 ### M2: signature mechanics playable
@@ -361,7 +378,7 @@ Each package is sized for **one Sonnet agent, about 1–3 hours**. IDs: **L** = 
 | **C7** | cloud | **Quest runtime wiring**: step triggers (enter area, talk, kill, carve, ashsight, festival), quest tracker pin on the HUD, compass markers, rewards, Journal tab | existing scripts → small hooks | L14, L15 | Headless autoplay completes Act I; Quests tab shows correct steps |
 | **C8** | cloud | **Onboarding flow**: birth → first 20 minutes with L16 prompts, a safe first fight (one wolf at the ring edge at dusk), first stone repair; apply `boot_wiring_wip.patch` | existing scripts → small hooks | L16 | New player reaches "first glyph" in ≤ 20 min in a playtest-bot run; screenshots per step |
 | **C9** | cloud | **Cutscenes**: Blessing ceremony, Elder Stone relight, finale (shot lists for `cutscene_player.gd`) | existing scripts → small hooks | L14 | Frame sheets of each cutscene |
-| **C10** | cloud | **Border teases**: Eastern Gate post + pilgrims, Solkar caravans at the Midsummer Fair, Grimfen Pass snow barrier, envoy chapel NPC | existing scripts → small hooks | C1, L3 | Screenshots; map shows locked exits with hints |
+| **C10** | cloud | **Border teases**: Eastern Gate post + pilgrims, Solkar caravans at the Midsummer Fair, Grimfen Pass snow barrier, envoy chapel NPC **[DONE 2026-09-30 (Eastern Gate + pilgrims, Solkar camp in summer, Grimfen snow barrier, Envoy Lucan; map exits). Ambient pilgrim traffic on the road is still open]** | existing scripts → small hooks | C1, L3 | Screenshots; map shows locked exits with hints |
 
 ### M4: combat and creatures
 | ID | Owner | Package | Inputs → outputs | Depends | Acceptance |
@@ -373,7 +390,7 @@ Each package is sized for **one Sonnet agent, about 1–3 hours**. IDs: **L** = 
 | **X5** | Codex | **Bow**: player draw, aim and release on touch (hold-to-aim, auto-assist) + bandit archers | clips → controller | X1 | Hit test; frame sheets |
 | **X6** | Codex | **Boss: the Scarbound Troll**: phases, arena hazards (scar crystals), stagger windows | clips → controller | L6, X1 | Full-fight video sheet; beatable at the target progression |
 | **X7** | Codex | **Riding**: ride idle, walk, trot, gallop on `mount_controller.gd` with the riding horse | clips → controller | X1 | Frame sheets at every gait; no foot slide |
-| **C11** | cloud | **Creature placement and ecology tuning**: Stagborn herds and migration, rift variants from Scar cells, ghoul, wasp and bog toad dens, bandit roster | existing scripts → small hooks | X3, X4, C4 | 3-day headless ecology log; screenshot per creature in habitat |
+| **C11** | cloud | **Creature placement and ecology tuning**: Stagborn herds and migration, rift variants from Scar cells, ghoul, wasp and bog toad dens, bandit roster **[DONE 2026-09-30 (placement: Stagborn herds + migration, Warden, ghoul/wasp/toad/rift dens, bandit rosters). Behaviour is Codex X3/X4]** | existing scripts → small hooks | X3, X4, C4 | 3-day headless ecology log; screenshot per creature in habitat |
 
 ### M5: polish and balance
 | ID | Owner | Package | Inputs → outputs | Depends | Acceptance |

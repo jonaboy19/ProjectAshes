@@ -15,6 +15,7 @@ const RETREATS := ["orderly", "rout", "feigned", "scorched"]
 const FORMATIONS := ["line", "wedge", "square", "skirmish", "column"]
 const NEEDS_TARGET := ["move", "attack", "retreat"]
 const WarMap := preload("res://scripts/ui/war/war_map.gd")
+const War := preload("res://scripts/sim/war_sim.gd")
 const TOUCH_H := 64.0
 const SIDE_W := 400.0
 const EMPTY := "Nothing known yet."
@@ -437,6 +438,9 @@ func _signature(id: String) -> Array:
 		"diplomacy":
 			var fa := mod("factions")
 			if fa != null:
+				var lw: Variant = Life.get("war")
+				if lw != null and lw.has_method("all_diplomacy"):
+					s.append([lw.all_diplomacy(), lw.last_treaty])
 				s.append_array([fa.call("factions").size(), fa.call("relation", "player", "church"), fa.call("kingship_paths"),
 					fa.call("marriages"), fa.call("sects"), fa.call("news", 6)])
 		"land":
@@ -818,11 +822,39 @@ func _detach_map() -> void:
 
 # --------------------------------------------------------------------- Diplomacy ----
 
+## Border tension, truces, reasons to fight and the last peace deal (war_sim.gd), above the powers list.
+func _fill_war_diplomacy(box: VBoxContainer) -> void:
+	var war: Variant = Life.get("war")
+	if war == null or not war.has_method("all_diplomacy"):
+		return
+	box.add_child(Kit.section("War and Peace"))
+	var grid := _grid()
+	box.add_child(grid)
+	for n: Dictionary in war.all_diplomacy():
+		var v := _card()
+		var head := HBoxContainer.new()
+		head.add_child(Kit.lbl(String(n["name"]), 19, AF.TEXT, false, "title_bold"))
+		head.add_child(Kit.hspacer())
+		var st := String(n["state"])
+		head.add_child(Kit.lbl("At war" if st == "war" else ("Truce, %d days" % int(n["truce_days"]) if st == "truce" else "Peace"), 17, STANCE_COL.get("war" if st == "war" else ("friendly" if st == "truce" else "wary"), AF.TEXT), false, "title"))
+		v.add_child(head)
+		v.add_child(_stat_bar("Tension", float(n["tension"]) / 100.0, Kit.BAD if float(n["tension"]) > 60.0 else Color("e0b45a"), str(int(n["tension"]))))
+		for r: String in (n["reasons"] as Array):
+			v.add_child(Kit.lbl("Casus belli: " + r, 15, AF.TEXT_DIM, true))
+		for h: String in (n["hostages"] as Array):
+			v.add_child(Kit.lbl("Hostage: " + h, 15, AF.TEXT_DIM, true))
+		grid.add_child(_framed(v))
+	var lt: Dictionary = war.last_treaty
+	if not lt.is_empty():
+		box.add_child(Kit.lbl("Last peace: %s after %d days, %s." % [War.display_name(String(lt.get("enemy", ""))), int(lt.get("duration", 0)), String(lt.get("text", ""))], 15, AF.TEXT_DIM, true))
+
+
 func _fill_diplomacy(box: VBoxContainer) -> void:
 	var fa := mod("factions")
 	if fa == null:
 		_empty(box)
 		return
+	_fill_war_diplomacy(box)
 	box.add_child(Kit.section("Powers of the Realm"))
 	var grid := _grid()
 	box.add_child(grid)

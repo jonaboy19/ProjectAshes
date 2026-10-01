@@ -1,0 +1,5497 @@
+{
+ "version": 1,
+ "_doc": "Package C2: one trade, landmark, named NPC and rumour set per settlement (WorldGen NAMES order = settlement id). `alias` = the poster name shown instead (Oakvale = Greenhollow, Ironmarch = Silverford). Landmark parts use the RegionSites part format plus 'free:'/'r1:' keys (see tools/region1/gen_world_data.py). Consumed by scripts/world/region1_world.gd (sites) and scripts/world/region1_identity.gd (rumours).",
+ "settlements": [
+  {
+   "name": "Ashford",
+   "alias": "",
+   "trade": "Milling and the hearth: the stream turns the mill, the ring of stones keeps the dark out.",
+   "tagline": "Hearth and Stone",
+   "landmark": {
+    "name": "Old Mill Staff Yard",
+    "clear": 20,
+    "parts": [
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      -9.0,
+      -4,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      -9.0,
+      10,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      -5.4,
+      -4,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      -5.4,
+      10,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      -1.8,
+      -4,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      1.8,
+      -4,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      5.4,
+      -4,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      5.4,
+      10,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      9.0,
+      -4,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      9.0,
+      10,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      -9,
+      -0.5,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      9,
+      -0.5,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      -9,
+      3.0,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      9,
+      3.0,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      -9,
+      6.5,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      9,
+      6.5,
+      90,
+      0,
+      0
+     ],
+     [
+      "farm/scarecrow",
+      -5,
+      0,
+      20,
+      1,
+      0
+     ],
+     [
+      "farm/scarecrow",
+      0,
+      1.5,
+      0,
+      1,
+      0
+     ],
+     [
+      "farm/scarecrow",
+      5,
+      0,
+      -20,
+      1,
+      0
+     ],
+     [
+      "props/weapon_rack",
+      -7,
+      -2.5,
+      90,
+      0,
+      0
+     ],
+     [
+      "props/weapon_rack",
+      7,
+      -2.5,
+      -90,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      8,
+      7,
+      30,
+      0,
+      0
+     ],
+     [
+      "props/water_trough",
+      -8,
+      7,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:buildings/hut_long_thatch@4.6",
+      0,
+      -10,
+      0,
+      1,
+      0
+     ],
+     [
+      "r1:stones/road_stone_b_menhir",
+      -14,
+      3,
+      90,
+      1,
+      0
+     ],
+     [
+      "free:props/well_wood_roof@3.2",
+      13,
+      4,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/bench",
+      4,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -4,
+      12.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      4,
+      12.5,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -4,
+      3.4,
+      12.5,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      8,
+      true
+     ],
+     [
+      4,
+      3.4,
+      12.5,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      8,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "ASHFORD",
+      "sub": "Hearth and Stone",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Maren Coldbrook",
+       "role": "staff teacher",
+       "look": "Mage",
+       "at": [
+        2.5,
+        4.5
+       ],
+       "yaw": 200,
+       "greet": "Staff up. Feet apart. No, the other apart.",
+       "trade": "Ashford lives by the mill and the ring: every child learns the staff in this yard, and every child learns to touch the stones.",
+       "lines": [
+        "Not bad. Not good. Not bad. Come back when your grip stops trembling.",
+        "Forty slept the night I held the stone. Fair trade. Don't tell your mother I said so.",
+        "The Miller's Stone sang a little flat last week. Idra says stones get tired. I say so do I."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Maren Coldbrook",
+    "role": "staff teacher",
+    "look": "Mage",
+    "at": [
+     2.5,
+     4.5
+    ],
+    "yaw": 200,
+    "greet": "Staff up. Feet apart. No, the other apart.",
+    "trade": "Ashford lives by the mill and the ring: every child learns the staff in this yard, and every child learns to touch the stones.",
+    "lines": [
+     "Not bad. Not good. Not bad. Come back when your grip stops trembling.",
+     "Forty slept the night I held the stone. Fair trade. Don't tell your mother I said so.",
+     "The Miller's Stone sang a little flat last week. Idra says stones get tired. I say so do I."
+    ]
+   },
+   "rumours": [
+    "The Miller's Stone hums flat some evenings. Idra Vell says it is only tired.",
+    "The Guard has nine spears for forty-one stones. Captain Hollis counts them like sheep.",
+    "Children who beat Maren Coldbrook at staves get honey cakes. Nobody has yet.",
+    "Somebody left a lantern on the Miller's Stone at dusk. Nobody will say who."
+   ]
+  },
+  {
+   "name": "Kingsreach",
+   "alias": "",
+   "trade": "Crown and court: the Council of Wardens sits here, the tournaments are run here, the great market is here.",
+   "tagline": "Crown, Court and Lists",
+   "landmark": {
+    "name": "Royal Tourney Lists",
+    "clear": 26,
+    "parts": [
+     [
+      "free:fences/fence_board_panel@1.4",
+      -11.0,
+      -8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      -11.0,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      -7.33,
+      -8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      -7.33,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      -3.67,
+      -8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      -3.67,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      0.0,
+      -8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      3.67,
+      -8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      3.67,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      7.33,
+      -8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      7.33,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      11.0,
+      -8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      11.0,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      -11,
+      -4.0,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      11,
+      -4.0,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      -11,
+      0.0,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      11,
+      0.0,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      -11,
+      4.0,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_board_panel@1.4",
+      11,
+      4.0,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:camp/tent_conical_striped@4.2",
+      -15,
+      -6,
+      50,
+      1,
+      0
+     ],
+     [
+      "free:camp/tent_conical_striped@4.2",
+      15,
+      -6,
+      -50,
+      1,
+      0
+     ],
+     [
+      "free:camp/tent_conical_striped@4.2",
+      -16,
+      6,
+      70,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_striped_shields@3.2",
+      16,
+      7,
+      -80,
+      1,
+      0
+     ],
+     [
+      "free:banners/banner_tall_cross@5.2",
+      -12,
+      10,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_tall_cross@5.2",
+      12,
+      10,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_stand_spear_flag@4.6",
+      -6,
+      -9,
+      180,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_stand_spear_flag@4.6",
+      6,
+      -9,
+      180,
+      0,
+      0
+     ],
+     [
+      "free:interior/weapon_rack_swords@1.6",
+      -9,
+      -10,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:props/shield_dragon_heraldic@1.4",
+      9,
+      -10.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "gen:bunting@1.0",
+      0,
+      9.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "r1:highwatch/banner_pole",
+      -8,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "r1:highwatch/banner_pole",
+      8,
+      12,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      11,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      8,
+      true
+     ],
+     [
+      3,
+      3.4,
+      11,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      8,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "KINGSREACH",
+      "sub": "Crown, Court and Lists",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Herald Corwin Vale",
+       "role": "Herald of the Wardens",
+       "look": "Noble",
+       "at": [
+        0,
+        6
+       ],
+       "yaw": 0,
+       "greet": "Hear ye. Well, hear me, at least.",
+       "trade": "Kingsreach is where Valencious decides things: the Council of Wardens, the Royal Ember Academy and the Midsummer tourney all answer to this one hill.",
+       "lines": [
+        "The Crown Princess rode out with four guards and came back with six more. Nobody knows where they came from.",
+        "The Wardens vote on the stones each Kindling Night. The vote is always 'more hands'. The hands never come.",
+        "The Dawn Throne's envoy has taken the old chapel. The King let him. Make of that what you will."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Herald Corwin Vale",
+    "role": "Herald of the Wardens",
+    "look": "Noble",
+    "at": [
+     0,
+     6
+    ],
+    "yaw": 0,
+    "greet": "Hear ye. Well, hear me, at least.",
+    "trade": "Kingsreach is where Valencious decides things: the Council of Wardens, the Royal Ember Academy and the Midsummer tourney all answer to this one hill.",
+    "lines": [
+     "The Crown Princess rode out with four guards and came back with six more. Nobody knows where they came from.",
+     "The Wardens vote on the stones each Kindling Night. The vote is always 'more hands'. The hands never come.",
+     "The Dawn Throne's envoy has taken the old chapel. The King let him. Make of that what you will."
+    ]
+   },
+   "rumours": [
+    "The Crown Princess rode out with four guards and came back with six.",
+    "The Council voted 'more hands for the stones' again. The hands are still not here.",
+    "The Dawn Throne's envoy took the old chapel by the north road. The King allowed it.",
+    "The Academy is scouting: a scholar in blue asked after children who can make the stones hum."
+   ]
+  },
+  {
+   "name": "Millbrook",
+   "alias": "",
+   "trade": "Flour and bread: the great windmill grinds the vale's wheat; the bakehouse feeds three villages.",
+   "tagline": "Mill and Bakehouse",
+   "landmark": {
+    "name": "Millbrook Great Mill",
+    "clear": 22,
+    "parts": [
+     [
+      "farm/windmill",
+      0,
+      -6,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:buildings/cottage_small_thatch@5.4",
+      -11,
+      0,
+      70,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_awning_red@3.0",
+      9,
+      5,
+      -60,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_crates_cream@2.8",
+      13,
+      1,
+      -80,
+      1,
+      0
+     ],
+     [
+      "free:carts/cart_cargo_spoke@2.4",
+      -8,
+      9,
+      30,
+      1,
+      0
+     ],
+     [
+      "props/sack_pile",
+      6,
+      1,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/sack_pile",
+      -5,
+      4,
+      40,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      7.5,
+      8.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      -13,
+      8,
+      20,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/basket_produce",
+      10.5,
+      7,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/crate_stack",
+      -4,
+      -1,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/woodpile",
+      -12,
+      -7,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -6.0,
+      -14.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -1.9,
+      -14.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      2.2,
+      -14.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      6.3,
+      -14.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -6.0,
+      -18.1,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -1.9,
+      -18.1,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      2.2,
+      -18.1,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      6.3,
+      -18.1,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      3,
+      3.4,
+      11,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      8,
+      true
+     ],
+     [
+      -11,
+      2.4,
+      3,
+      [
+       1.0,
+       0.55,
+       0.25
+      ],
+      6,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "MILLBROOK",
+      "sub": "Mill and Bakehouse",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Hob Millwright",
+       "role": "miller",
+       "look": "Barbarian",
+       "at": [
+        3,
+        6
+       ],
+       "yaw": 0,
+       "greet": "Mind the sails and mind your hat.",
+       "trade": "Millbrook's windmill grinds the flour for the whole vale; the smell of its bakehouse is the first thing travellers mention.",
+       "lines": [
+        "The sails turned backward on their own last Tuesday. Swear to it. Flour everywhere.",
+        "Redwater dyers pay in cloth, Thornfield brewers pay in ale. I prefer the ale.",
+        "A sack of Millbrook flour is good luck on a road with no stones. Take two."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Hob Millwright",
+    "role": "miller",
+    "look": "Barbarian",
+    "at": [
+     3,
+     6
+    ],
+    "yaw": 0,
+    "greet": "Mind the sails and mind your hat.",
+    "trade": "Millbrook's windmill grinds the flour for the whole vale; the smell of its bakehouse is the first thing travellers mention.",
+    "lines": [
+     "The sails turned backward on their own last Tuesday. Swear to it. Flour everywhere.",
+     "Redwater dyers pay in cloth, Thornfield brewers pay in ale. I prefer the ale.",
+     "A sack of Millbrook flour is good luck on a road with no stones. Take two."
+    ]
+   },
+   "rumours": [
+    "The mill sails turned backward on their own last Tuesday. Flour everywhere.",
+    "Thornfield's brewer pays for barley in ale. The miller prefers that.",
+    "A sack of Millbrook flour is said to be good luck on a stoneless road.",
+    "The east road is quiet. Quieter than it should be, says the baker."
+   ]
+  },
+  {
+   "name": "Stonehollow",
+   "alias": "",
+   "trade": "Cut stone: its quarry squared the stones of half the vale's waymarks, and its masons carve for the Guild at Silverford.",
+   "tagline": "Quarry and Masons",
+   "landmark": {
+    "name": "Stonehollow Quarry",
+    "clear": 24,
+    "parts": [
+     [
+      "free:nature/rock_limestone_tall@6.5",
+      -8,
+      -9,
+      20,
+      1,
+      0
+     ],
+     [
+      "free:nature/rock_limestone_tall@5.2",
+      -3,
+      -13,
+      160,
+      1,
+      0
+     ],
+     [
+      "free:nature/rock_blue_brown@4.0",
+      7,
+      -11,
+      60,
+      1,
+      0
+     ],
+     [
+      "mine/mine_winch",
+      6,
+      -4,
+      180,
+      1,
+      0
+     ],
+     [
+      "props/anvil_stump",
+      -4,
+      1,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/anvil_stump",
+      -1.5,
+      3,
+      40,
+      0,
+      0
+     ],
+     [
+      "nature:rock_slab",
+      -10.0,
+      4.0,
+      0,
+      0,
+      0.0
+     ],
+     [
+      "nature:rock_slab",
+      -8.1,
+      4.3,
+      10,
+      0,
+      0.0
+     ],
+     [
+      "nature:rock_slab",
+      -6.2,
+      4.0,
+      20,
+      0,
+      0.0
+     ],
+     [
+      "nature:rock_slab",
+      -4.3,
+      4.3,
+      30,
+      0,
+      0.0
+     ],
+     [
+      "nature:rock_slab",
+      -2.4,
+      4.0,
+      40,
+      0,
+      0.0
+     ],
+     [
+      "nature:rock_slab",
+      -8.5,
+      4.2,
+      0,
+      0,
+      0.42
+     ],
+     [
+      "nature:rock_slab",
+      -6.6,
+      4.2,
+      4,
+      0,
+      0.42
+     ],
+     [
+      "nature:rock_slab",
+      -4.7,
+      4.2,
+      8,
+      0,
+      0.42
+     ],
+     [
+      "nature:rock_cluster",
+      11,
+      3,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:boulder_large",
+      13,
+      -4,
+      40,
+      1,
+      0
+     ],
+     [
+      "mine/mine_cart",
+      2,
+      -6,
+      90,
+      1,
+      0
+     ],
+     [
+      "mine/rail_straight",
+      2,
+      -2,
+      0,
+      0,
+      0
+     ],
+     [
+      "mine/rail_straight",
+      2,
+      2,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:ruins/arch_baroque_old@5.6",
+      0,
+      8.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -6,
+      10,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:carts/cart_plain_a@2.2",
+      11,
+      8,
+      -30,
+      1,
+      0
+     ],
+     [
+      "props/woodpile",
+      -13,
+      1,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -6,
+      3.4,
+      10,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      8,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "STONEHOLLOW",
+      "sub": "Quarry and Masons",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Brenna Flint",
+       "role": "quarrymaster",
+       "look": "Blacksmith",
+       "at": [
+        2,
+        7
+       ],
+       "yaw": 0,
+       "greet": "Stone doesn't care how your morning went.",
+       "trade": "Stonehollow cuts the stone: every waymark on the Ember Road came from this quarry, and every Silverford mason starts here.",
+       "lines": [
+        "A good waystone takes three weeks to cut and a day to crack. Cheaper to keep them lit, I say.",
+        "We sent forty blocks to Silverford for the Guild. Odrin Thale paid late and apologised well.",
+        "The deep face hums at night. Not the stones; the rock. It remembers being mountain."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Brenna Flint",
+    "role": "quarrymaster",
+    "look": "Blacksmith",
+    "at": [
+     2,
+     7
+    ],
+    "yaw": 0,
+    "greet": "Stone doesn't care how your morning went.",
+    "trade": "Stonehollow cuts the stone: every waymark on the Ember Road came from this quarry, and every Silverford mason starts here.",
+    "lines": [
+     "A good waystone takes three weeks to cut and a day to crack. Cheaper to keep them lit, I say.",
+     "We sent forty blocks to Silverford for the Guild. Odrin Thale paid late and apologised well.",
+     "The deep face hums at night. Not the stones; the rock. It remembers being mountain."
+    ]
+   },
+   "rumours": [
+    "A good waystone takes three weeks to cut and a day to crack, says the quarrymaster.",
+    "The deep quarry face hums at night. The masons have stopped working past dusk.",
+    "Silverford's Guild ordered forty blocks and paid late, but apologised well.",
+    "A cart of green-veined stone went north with a Runeward escort. Nobody says where."
+   ]
+  },
+  {
+   "name": "Eastmere",
+   "alias": "",
+   "trade": "Milk, butter and cheese: the eastern pastures' herds come home to Eastmere's dairy.",
+   "tagline": "Dairy and Cheese",
+   "landmark": {
+    "name": "Eastmere Dairy",
+    "clear": 22,
+    "parts": [
+     [
+      "farm/barn",
+      -2,
+      -8,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_cheese_awning@3.0",
+      9,
+      4,
+      -70,
+      1,
+      0
+     ],
+     [
+      "free:farm/cows_pair@1.6",
+      -10,
+      3,
+      70,
+      0,
+      0
+     ],
+     [
+      "free:farm/cow_spotted@1.5",
+      -13,
+      7,
+      20,
+      0,
+      0
+     ],
+     [
+      "free:farm/cow_spotted@1.5",
+      -7,
+      9,
+      130,
+      0,
+      0
+     ],
+     [
+      "props/water_trough",
+      -9,
+      0,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -16.0,
+      -1,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -16.0,
+      13,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -12.0,
+      -1,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -12.0,
+      13,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -8.0,
+      -1,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -8.0,
+      13,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -4.0,
+      -1,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -4.0,
+      13,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -16,
+      2.5,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -4,
+      2.5,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -16,
+      6.0,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -4,
+      6.0,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -16,
+      9.5,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -4,
+      9.5,
+      90,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      6,
+      8.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      7.4,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      6.6,
+      9.6,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      12,
+      -3,
+      20,
+      0,
+      0
+     ],
+     [
+      "free:farm/chicken_coop_small@1.8",
+      13,
+      6,
+      -90,
+      1,
+      0
+     ],
+     [
+      "props/lamp_post",
+      2,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/basket_produce",
+      10,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/sack_pile",
+      5,
+      -4,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_cabbage",
+      4,
+      -14,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_cabbage",
+      8,
+      -14,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      2,
+      3.4,
+      11,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      8,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "EASTMERE",
+      "sub": "Dairy and Cheese",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Tilda Marsh",
+       "role": "dairymaid",
+       "look": "Mage",
+       "at": [
+        3,
+        6.5
+       ],
+       "yaw": 0,
+       "greet": "Mind the pail, it's still warm.",
+       "trade": "Eastmere's herds are the vale's largest: cheese wheels from this dairy go west as far as Kingsreach's tables.",
+       "lines": [
+        "The spotted cow prefers the roadside verge. She knows which stones are dark. Clever girl.",
+        "We send cheese to Silverford for the Solkar traders. They pay in saffron. I don't know what to do with saffron.",
+        "Eastmere's butter keeps three weeks in a cold cellar. Four if the Runeward blesses the cellar."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Tilda Marsh",
+    "role": "dairymaid",
+    "look": "Mage",
+    "at": [
+     3,
+     6.5
+    ],
+    "yaw": 0,
+    "greet": "Mind the pail, it's still warm.",
+    "trade": "Eastmere's herds are the vale's largest: cheese wheels from this dairy go west as far as Kingsreach's tables.",
+    "lines": [
+     "The spotted cow prefers the roadside verge. She knows which stones are dark. Clever girl.",
+     "We send cheese to Silverford for the Solkar traders. They pay in saffron. I don't know what to do with saffron.",
+     "Eastmere's butter keeps three weeks in a cold cellar. Four if the Runeward blesses the cellar."
+    ]
+   },
+   "rumours": [
+    "The spotted cow prefers the roadside verge. She seems to know which stones are dark.",
+    "Saffron has arrived at the dairy. Nobody ordered saffron.",
+    "Eastmere butter keeps three weeks in a cold cellar, four if a warden blesses it.",
+    "Wolves took no sheep this year. Wolves took a dairy cart, on the east road, in daylight."
+   ]
+  },
+  {
+   "name": "Redwater",
+   "alias": "",
+   "trade": "Dyes and cloth: madder red, woad blue and weld gold steep in the vats along the stream.",
+   "tagline": "Dyers and Cloth",
+   "landmark": {
+    "name": "Redwater Dye Works",
+    "clear": 22,
+    "parts": [
+     [
+      "free:buildings/house_timber_tall@7.0",
+      0,
+      -9,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/barrel",
+      -6.0,
+      0.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      -3.8,
+      0.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      -1.6,
+      0.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      0.6,
+      0.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_crossbar@4.5",
+      -10,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_crossbar@4.5",
+      -6,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_crossbar@4.5",
+      -2,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_crossbar@4.5",
+      2,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_crossbar@4.5",
+      6,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_crossbar@4.5",
+      10,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_gold_finials@4.8",
+      -8,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_gold_finials@4.8",
+      -4,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_gold_finials@4.8",
+      0,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_gold_finials@4.8",
+      4,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_gold_finials@4.8",
+      8,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:market/stall_red_awning_goods@3.0",
+      11,
+      3,
+      -70,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_market_sign_red@3.0",
+      -12,
+      3,
+      70,
+      1,
+      0
+     ],
+     [
+      "gen:bunting@1.0",
+      0,
+      4.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/crate_stack",
+      7.5,
+      -3,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/sack_pile",
+      -8,
+      -4,
+      30,
+      0,
+      0
+     ],
+     [
+      "free:carts/cart_open_wide@2.2",
+      13,
+      9,
+      -40,
+      1,
+      0
+     ],
+     [
+      "props/water_trough",
+      4,
+      1.5,
+      90,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      0,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:flora/bellflower_purple@0.9",
+      -12,
+      10,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:flora/bouquet_bright@0.8",
+      12,
+      11,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      0,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "REDWATER",
+      "sub": "Dyers and Cloth",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Mirel Redhand",
+       "role": "master dyer",
+       "look": "Mage",
+       "at": [
+        -3,
+        6.5
+       ],
+       "yaw": 0,
+       "greet": "Don't shake my hand; you'll be red until Tuesday.",
+       "trade": "Redwater's dyers colour half the vale's cloth: their red is the Crown's red, and the Guild's blue comes from their woad vats.",
+       "lines": [
+        "Royal blue is woad and a lot of patience. Silverford pays double for the good batch.",
+        "The stream runs red on dye days. Children in the next valley think it is an omen. We let them.",
+        "Somebody stole a bolt of Highwatch blue. The thief is easy to spot. He is the man who is not wearing it."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Mirel Redhand",
+    "role": "master dyer",
+    "look": "Mage",
+    "at": [
+     -3,
+     6.5
+    ],
+    "yaw": 0,
+    "greet": "Don't shake my hand; you'll be red until Tuesday.",
+    "trade": "Redwater's dyers colour half the vale's cloth: their red is the Crown's red, and the Guild's blue comes from their woad vats.",
+    "lines": [
+     "Royal blue is woad and a lot of patience. Silverford pays double for the good batch.",
+     "The stream runs red on dye days. Children in the next valley think it is an omen. We let them.",
+     "Somebody stole a bolt of Highwatch blue. The thief is easy to spot. He is the man who is not wearing it."
+    ]
+   },
+   "rumours": [
+    "The stream runs red on dye days. Children downstream think it is an omen.",
+    "A bolt of Highwatch blue went missing. The thief should be easy to spot.",
+    "Silverford pays double for the good woad batch, and complains the price.",
+    "The Solkar traders want a yellow we don't know how to make."
+   ]
+  },
+  {
+   "name": "Thornfield",
+   "alias": "",
+   "trade": "Barley and ale: Thornfield's brewery and tithe barn; its hedgerows of thorn keep the fields safe.",
+   "tagline": "Barley and Brewery",
+   "landmark": {
+    "name": "Thornfield Brewery",
+    "clear": 24,
+    "parts": [
+     [
+      "farm/granary",
+      -3,
+      -10,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:buildings/tavern_wooden_long@5.6",
+      10,
+      -4,
+      -90,
+      1,
+      0
+     ],
+     [
+      "free:props/keg_iron_banded_upright@1.2",
+      -8.0,
+      0.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:props/keg_iron_banded_upright@1.2",
+      -6.4,
+      0.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:props/keg_iron_banded_upright@1.2",
+      -4.8,
+      0.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:props/keg_iron_banded_upright@1.2",
+      -3.2,
+      0.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:props/keg_iron_banded_side@0.9",
+      -7.0,
+      2.4,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:props/keg_iron_banded_side@0.9",
+      -5.4,
+      2.4,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:props/keg_iron_banded_side@0.9",
+      -3.8,
+      2.4,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:furniture/table_tavern_feast@1.1",
+      -1,
+      5.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:furniture/table_bench_tavern@0.9",
+      3,
+      7.5,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:furniture/tavern_set_barrels_a@1.3",
+      6,
+      4,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:carts/cart_barrels@2.1",
+      -12,
+      7,
+      50,
+      1,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -14.0,
+      -18.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -9.9,
+      -18.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -5.8,
+      -18.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -1.7,
+      -18.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -14.0,
+      -22.1,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -9.9,
+      -22.1,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -5.8,
+      -22.1,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -1.7,
+      -22.1,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.2",
+      -16.0,
+      14,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.2",
+      -12.8,
+      14,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.2",
+      -9.6,
+      14,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.2",
+      6.0,
+      14,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.2",
+      9.2,
+      14,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.2",
+      12.4,
+      14,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ],
+     [
+      3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ],
+     [
+      10,
+      2.6,
+      -1,
+      [
+       1.0,
+       0.55,
+       0.25
+      ],
+      7,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "THORNFIELD",
+      "sub": "Barley and Brewery",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Hesta Thorne",
+       "role": "brewmistress",
+       "look": "Innkeeper",
+       "at": [
+        0,
+        8.5
+       ],
+       "yaw": 0,
+       "greet": "First pint is free if you can name the hop.",
+       "trade": "Thornfield's barley goes into the vale's ale, and its thorn hedges have kept the wolves off the fields for three generations.",
+       "lines": [
+        "Thorn hedges hold better than stones, some years. Wolves hate the scratch; stones hate the wear.",
+        "My ale won a Kingsreach prize. The Council gave a scroll. I asked for gold. They sent a second scroll.",
+        "The tithe barn is half full. Half. After a good harvest. Somebody is sitting on the rest."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Hesta Thorne",
+    "role": "brewmistress",
+    "look": "Innkeeper",
+    "at": [
+     0,
+     8.5
+    ],
+    "yaw": 0,
+    "greet": "First pint is free if you can name the hop.",
+    "trade": "Thornfield's barley goes into the vale's ale, and its thorn hedges have kept the wolves off the fields for three generations.",
+    "lines": [
+     "Thorn hedges hold better than stones, some years. Wolves hate the scratch; stones hate the wear.",
+     "My ale won a Kingsreach prize. The Council gave a scroll. I asked for gold. They sent a second scroll.",
+     "The tithe barn is half full. Half. After a good harvest. Somebody is sitting on the rest."
+    ]
+   },
+   "rumours": [
+    "Thorn hedges hold better than stones some years, says the brewmistress.",
+    "The tithe barn stands half empty after a good harvest. Someone has been sitting on the rest.",
+    "Thornfield ale won a Kingsreach prize and a scroll. The brewer wanted gold.",
+    "A Church envoy's cart passed east and did not stop to buy ale. The brewer took it personally."
+   ]
+  },
+  {
+   "name": "Greywatch",
+   "alias": "",
+   "trade": "Spears and discipline: the Greywatch Spear Hall drills the militia that marches under the Order of the Highwatch.",
+   "tagline": "Spear Hall and Militia",
+   "landmark": {
+    "name": "Greywatch Spear Hall",
+    "clear": 26,
+    "parts": [
+     [
+      "free:buildings/tavern_wooden_long@6.4",
+      0,
+      -10,
+      0,
+      1,
+      0
+     ],
+     [
+      "r1:highwatch/training_yard",
+      -15,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:castle/tower_square_small@9.0",
+      14,
+      -8,
+      -40,
+      1,
+      0
+     ],
+     [
+      "r1:highwatch/guard_post",
+      -5,
+      6,
+      15,
+      0,
+      0
+     ],
+     [
+      "r1:highwatch/guard_post",
+      5,
+      6,
+      -15,
+      0,
+      0
+     ],
+     [
+      "free:interior/weapon_racks_spears@1.8",
+      9,
+      2,
+      -90,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_tall_cross@5.0",
+      -9,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_tall_cross@5.0",
+      9,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "r1:highwatch/banner_pole",
+      0,
+      7.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      13,
+      4,
+      10,
+      0,
+      0
+     ],
+     [
+      "props/water_trough",
+      12,
+      -1,
+      90,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ],
+     [
+      3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ],
+     [
+      14,
+      9,
+      -8,
+      [
+       1.0,
+       0.55,
+       0.25
+      ],
+      10,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "GREYWATCH",
+      "sub": "Spear Hall and Militia",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Sergeant Ulric Greyspear",
+       "role": "drill sergeant",
+       "look": "Guard",
+       "at": [
+        0,
+        4
+       ],
+       "yaw": 0,
+       "greet": "Shoulders back. The spear is not a walking stick.",
+       "trade": "Greywatch trains the spear line for the north: the Order's recruits come through this hall before they see Highwatch.",
+       "lines": [
+        "Spears up, feet planted, and do not look at the wolf. Look at the man next to you.",
+        "The Order sent us forty recruits. Thirty stayed. Twenty can hold a line. Ten can keep it.",
+        "Sir Rowan Ashby says a knight is a spearman who did not quit. Rowan would."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Sergeant Ulric Greyspear",
+    "role": "drill sergeant",
+    "look": "Guard",
+    "at": [
+     0,
+     4
+    ],
+    "yaw": 0,
+    "greet": "Shoulders back. The spear is not a walking stick.",
+    "trade": "Greywatch trains the spear line for the north: the Order's recruits come through this hall before they see Highwatch.",
+    "lines": [
+     "Spears up, feet planted, and do not look at the wolf. Look at the man next to you.",
+     "The Order sent us forty recruits. Thirty stayed. Twenty can hold a line. Ten can keep it.",
+     "Sir Rowan Ashby says a knight is a spearman who did not quit. Rowan would."
+    ]
+   },
+   "rumours": [
+    "The Order sent forty recruits to the Spear Hall. Thirty stayed, ten can hold a line.",
+    "Sergeant Greyspear says a knight is just a spearman who did not quit.",
+    "The watch-fires at Highwatch burned twice last week. Nobody will say why.",
+    "Drums on the north wind after dusk. The sergeant says it is the wind."
+   ]
+  },
+  {
+   "name": "Oakvale",
+   "alias": "Greenhollow",
+   "trade": "Crops and the great oak: Greenhollow's south meadows feed the vale; the Pennick farm is the largest.",
+   "tagline": "Fields and the Great Oak",
+   "landmark": {
+    "name": "Pennick Farm, Greenhollow",
+    "clear": 26,
+    "parts": [
+     [
+      "nature:oak_a",
+      -3,
+      -14,
+      0,
+      1,
+      0
+     ],
+     [
+      "farm/barn",
+      10,
+      -9,
+      90,
+      1,
+      0
+     ],
+     [
+      "farm/granary",
+      -11,
+      -7,
+      0,
+      1,
+      0
+     ],
+     [
+      "farm/chicken_coop",
+      14,
+      1,
+      -90,
+      1,
+      0
+     ],
+     [
+      "farm/hay_wagon",
+      4,
+      0,
+      100,
+      1,
+      0
+     ],
+     [
+      "props/hay_bales",
+      -5,
+      2,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      -8,
+      4,
+      40,
+      0,
+      0
+     ],
+     [
+      "free:farm/wheelbarrow_wooden_old@1.0",
+      8,
+      6,
+      30,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -16.0,
+      4.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -11.9,
+      4.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -7.8,
+      4.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -16.0,
+      8.1,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -11.9,
+      8.1,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -7.8,
+      8.1,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -16.0,
+      12.2,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -11.9,
+      12.2,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      -7.8,
+      12.2,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_cabbage",
+      1.0,
+      6.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_cabbage",
+      5.1,
+      6.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_cabbage",
+      9.2,
+      6.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_cabbage",
+      1.0,
+      10.1,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_cabbage",
+      5.1,
+      10.1,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_cabbage",
+      9.2,
+      10.1,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/scarecrow",
+      -4,
+      11,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/water_trough",
+      13,
+      7,
+      90,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      0,
+      13,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/fence_rail",
+      -17.0,
+      18,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/fence_rail",
+      -13.8,
+      18,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/fence_rail",
+      -10.6,
+      18,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/fence_rail",
+      -7.4,
+      18,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/fence_rail",
+      -4.2,
+      18,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/fence_rail",
+      -1.0,
+      18,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/fence_rail",
+      2.2,
+      18,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/fence_rail",
+      5.4,
+      18,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/fence_rail",
+      8.6,
+      18,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/fence_rail",
+      11.8,
+      18,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/fence_rail",
+      15.0,
+      18,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      0,
+      3.4,
+      13,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "GREENHOLLOW",
+      "sub": "Fields and the Great Oak",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Gilda Pennick",
+       "role": "farmer",
+       "look": "Mother",
+       "at": [
+        2,
+        6
+       ],
+       "yaw": 0,
+       "greet": "If you're here for eggs, the hens are sulking.",
+       "trade": "Greenhollow's south fields are the vale's bread: the Pennick farm brings in a third of the harvest, and the Great Oak is older than the village.",
+       "lines": [
+        "The south fields have gone strange at the edge. Violet. Only a little. I'm told it's the light.",
+        "We tithe to the Crown in wheat and to the Runeward in bread. The Runeward eat better.",
+        "My barn burned once. Only the once. I keep the old scorch on the beam so the new barn remembers."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Gilda Pennick",
+    "role": "farmer",
+    "look": "Mother",
+    "at": [
+     2,
+     6
+    ],
+    "yaw": 0,
+    "greet": "If you're here for eggs, the hens are sulking.",
+    "trade": "Greenhollow's south fields are the vale's bread: the Pennick farm brings in a third of the harvest, and the Great Oak is older than the village.",
+    "lines": [
+     "The south fields have gone strange at the edge. Violet. Only a little. I'm told it's the light.",
+     "We tithe to the Crown in wheat and to the Runeward in bread. The Runeward eat better.",
+     "My barn burned once. Only the once. I keep the old scorch on the beam so the new barn remembers."
+    ]
+   },
+   "rumours": [
+    "The south fields have gone violet at the edge. Only a little. Somebody says it's the light.",
+    "The Great Oak hums in a storm. Gilda Pennick insists it always has.",
+    "The Runeward eat better than the Crown's tax men; Greenhollow bread has a lot to do with it.",
+    "Wolves came to the hedge at noon. Not at night. At noon."
+   ]
+  },
+  {
+   "name": "Highcliff",
+   "alias": "",
+   "trade": "Steel and horses: the armourers and stablers who outfit the knights of Highwatch Keep on the ridge above.",
+   "tagline": "Armoury and Stables",
+   "landmark": {
+    "name": "Highcliff Armoury",
+    "clear": 22,
+    "parts": [
+     [
+      "free:buildings/smithy_open_shed@5.6",
+      0,
+      -9,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/anvil_stump",
+      -2,
+      -2,
+      20,
+      0,
+      0
+     ],
+     [
+      "free:interior/armour_stand_knight@2.4",
+      7,
+      0,
+      -30,
+      0,
+      0
+     ],
+     [
+      "free:interior/weapon_rack_swords@1.6",
+      -8,
+      -4,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:interior/shelf_weapons_display@2.2",
+      9,
+      -6,
+      -90,
+      0,
+      0
+     ],
+     [
+      "free:creatures/horse_saddled@2.0",
+      -9,
+      6,
+      60,
+      0,
+      0
+     ],
+     [
+      "free:props/chest_iron_box@0.9",
+      4,
+      -4,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/water_trough",
+      -12,
+      3,
+      90,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      -14,
+      8,
+      10,
+      0,
+      0
+     ],
+     [
+      "r1:highwatch/banner_pole",
+      -6,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "r1:highwatch/banner_pole",
+      6,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      0,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      6,
+      7,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      -16,
+      4,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      -16,
+      7.1,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_rustic@1.2",
+      -16,
+      10.2,
+      90,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      0,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ],
+     [
+      0,
+      2.0,
+      -6,
+      [
+       1.0,
+       0.55,
+       0.25
+      ],
+      8,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "HIGHCLIFF",
+      "sub": "Armoury and Stables",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Dagna Holt",
+       "role": "armourer",
+       "look": "Blacksmith",
+       "at": [
+        2,
+        5
+       ],
+       "yaw": 0,
+       "greet": "Steel's honest. People aren't. Show me your blade.",
+       "trade": "Highcliff outfits the Order of the Highwatch: the lancers' mail is hammered here, and the ridge stable breeds the knights' chargers.",
+       "lines": [
+        "Sir Rowan's armour has been mended eleven times. He refuses to buy new. Says it remembers his knees.",
+        "Steel from Hollowdeep comes south through Kingsreach. The price of it is a crime.",
+        "The chargers know the road to the pass. They won't go past the last banner. Smart animals."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Dagna Holt",
+    "role": "armourer",
+    "look": "Blacksmith",
+    "at": [
+     2,
+     5
+    ],
+    "yaw": 0,
+    "greet": "Steel's honest. People aren't. Show me your blade.",
+    "trade": "Highcliff outfits the Order of the Highwatch: the lancers' mail is hammered here, and the ridge stable breeds the knights' chargers.",
+    "lines": [
+     "Sir Rowan's armour has been mended eleven times. He refuses to buy new. Says it remembers his knees.",
+     "Steel from Hollowdeep comes south through Kingsreach. The price of it is a crime.",
+     "The chargers know the road to the pass. They won't go past the last banner. Smart animals."
+    ]
+   },
+   "rumours": [
+    "Sir Rowan Ashby's armour has been mended eleven times. He refuses new.",
+    "The chargers will not go past the last banner on the north road. Smart animals.",
+    "A knight rode down from Highwatch with frost on his cloak in midsummer.",
+    "Hollowdeep steel is three times the price this season."
+   ]
+  },
+  {
+   "name": "Brackenmoor",
+   "alias": "",
+   "trade": "Pelts and venison: a hunters' hold on the edge of the wild, where every hunter carries a wolf-tooth token.",
+   "tagline": "Hunters and Pelts",
+   "landmark": {
+    "name": "Hunters' Lodge",
+    "clear": 22,
+    "parts": [
+     [
+      "free:buildings/hut_long_thatch@5.2",
+      0,
+      -9,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:camp/tent_hide_hut@3.4",
+      -11,
+      -2,
+      60,
+      1,
+      0
+     ],
+     [
+      "free:camp/tent_hide_hut@3.4",
+      11,
+      -3,
+      -60,
+      1,
+      0
+     ],
+     [
+      "ruins/campfire",
+      0,
+      1,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.3",
+      -9,
+      5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.3",
+      -6,
+      5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.3",
+      6,
+      5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.3",
+      9,
+      5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/weapon_rack",
+      -5,
+      -3,
+      90,
+      0,
+      0
+     ],
+     [
+      "props/weapon_rack",
+      5,
+      -3,
+      -90,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_ragged_spear@3.6",
+      -5,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_ragged_spear@3.6",
+      5,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/woodpile",
+      10,
+      3,
+      10,
+      0,
+      0
+     ],
+     [
+      "free:props/axe_battle_upright@1.4",
+      -3,
+      3,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:creatures/wolf_grey@0.9",
+      2.5,
+      4.5,
+      200,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      0,
+      12,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      0,
+      0.8,
+      1,
+      [
+       1.0,
+       0.55,
+       0.25
+      ],
+      10,
+      true
+     ],
+     [
+      0,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      8,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "BRACKENMOOR",
+      "sub": "Hunters and Pelts",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Garrick Bracken",
+       "role": "huntmaster",
+       "look": "Hunter",
+       "at": [
+        -3,
+        6
+       ],
+       "yaw": 0,
+       "greet": "Keep your voice down. The bracken listens.",
+       "trade": "Brackenmoor hunts what the stones do not reach: its pelts and venison feed the frontier, and its hunters know every den by smell.",
+       "lines": [
+        "Wolves came in from the east ridge at noon last week. Noon. They have learned the stones are tired.",
+        "A white hart was seen in the north wood, antlers like a cathedral. We do not shoot the white hart.",
+        "If you see a den, tell me before you tell the Guard. The Guard counts. I hunt."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Garrick Bracken",
+    "role": "huntmaster",
+    "look": "Hunter",
+    "at": [
+     -3,
+     6
+    ],
+    "yaw": 0,
+    "greet": "Keep your voice down. The bracken listens.",
+    "trade": "Brackenmoor hunts what the stones do not reach: its pelts and venison feed the frontier, and its hunters know every den by smell.",
+    "lines": [
+     "Wolves came in from the east ridge at noon last week. Noon. They have learned the stones are tired.",
+     "A white hart was seen in the north wood, antlers like a cathedral. We do not shoot the white hart.",
+     "If you see a den, tell me before you tell the Guard. The Guard counts. I hunt."
+    ]
+   },
+   "rumours": [
+    "Wolves came down from the east ridge at noon last week. They have learned the stones are tired.",
+    "A white hart was seen in the north wood, antlers like a cathedral. Nobody shoots the white hart.",
+    "The huntmaster pays for news of dens, and double for news of wasps.",
+    "Hunters say the bog to the west has started singing at night."
+   ]
+  },
+  {
+   "name": "Westfen",
+   "alias": "",
+   "trade": "Herbs and peat: the marsh's boardwalks, reed huts and herb racks; the only healers who will walk into the fen.",
+   "tagline": "Herbwives and Boardwalk",
+   "landmark": {
+    "name": "Westfen Herb Walk",
+    "clear": 22,
+    "parts": [
+     [
+      "free:buildings/hut_wood_vine@4.8",
+      0,
+      -9,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:buildings/hut_long_thatch@4.4",
+      -13,
+      -4,
+      70,
+      1,
+      0
+     ],
+     [
+      "free:water/dock_weathered_pier@0.6",
+      0,
+      4,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:flora/mushrooms_blue_glow@0.9",
+      -6,
+      1.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:flora/mushrooms_blue_glow@0.9",
+      -3,
+      2.7,
+      20,
+      0,
+      0
+     ],
+     [
+      "free:flora/mushrooms_blue_glow@0.9",
+      0,
+      1.5,
+      40,
+      0,
+      0
+     ],
+     [
+      "free:flora/mushrooms_blue_glow@0.9",
+      3,
+      2.7,
+      60,
+      0,
+      0
+     ],
+     [
+      "free:flora/mushrooms_blue_glow@0.9",
+      6,
+      1.5,
+      80,
+      0,
+      0
+     ],
+     [
+      "free:flora/mushroom_redcap@0.7",
+      7,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:flora/mushroom_brown@0.6",
+      8.5,
+      2.5,
+      30,
+      0,
+      0
+     ],
+     [
+      "free:flora/mushroom_bowl_orange@0.8",
+      6,
+      3.2,
+      70,
+      0,
+      0
+     ],
+     [
+      "free:flora/bellflower_purple@0.9",
+      10.0,
+      7,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:flora/bellflower_purple@0.9",
+      11.4,
+      7,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:flora/bellflower_purple@0.9",
+      12.8,
+      7,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:fern_a",
+      -10.0,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:fern_a",
+      -7.4,
+      9,
+      40,
+      0,
+      0
+     ],
+     [
+      "nature:fern_a",
+      -4.8,
+      9,
+      80,
+      0,
+      0
+     ],
+     [
+      "nature:fern_a",
+      -2.2,
+      9,
+      120,
+      0,
+      0
+     ],
+     [
+      "nature:fern_a",
+      0.4,
+      9,
+      160,
+      0,
+      0
+     ],
+     [
+      "nature:fern_a",
+      3.0,
+      9,
+      200,
+      0,
+      0
+     ],
+     [
+      "nature:fern_a",
+      5.6,
+      9,
+      240,
+      0,
+      0
+     ],
+     [
+      "nature:fern_a",
+      8.2,
+      9,
+      280,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.3",
+      -8.0,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.3",
+      -4.8,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.3",
+      -1.6,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.3",
+      1.6,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:market/stall_potion@3.0",
+      12,
+      -2,
+      -70,
+      1,
+      0
+     ],
+     [
+      "props/basket_produce",
+      9.5,
+      1,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:dead_snag",
+      14,
+      -8,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      0,
+      12,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      0,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ],
+     [
+      -2,
+      0.9,
+      1.5,
+      [
+       0.4,
+       0.9,
+       1.0
+      ],
+      6,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "WESTFEN",
+      "sub": "Herbwives and Boardwalk",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Nessa Fenn",
+       "role": "herbwife",
+       "look": "Herbalist",
+       "at": [
+        3,
+        6.5
+       ],
+       "yaw": 0,
+       "greet": "Wipe your boots. The moss minds.",
+       "trade": "Westfen's herbwives are the only healers who will walk the fen at night, and the boardwalk keeps the marsh from swallowing the road.",
+       "lines": [
+        "The toads are bigger this year. Bog toads. Long tongue, short temper. Don't step on the pretty ones.",
+        "Westfen tea cures fever. It also cures company. People don't stay to ask for a second cup.",
+        "Something sings under the boards when the wind is west. The Veyl rangers say it is only the marsh."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Nessa Fenn",
+    "role": "herbwife",
+    "look": "Herbalist",
+    "at": [
+     3,
+     6.5
+    ],
+    "yaw": 0,
+    "greet": "Wipe your boots. The moss minds.",
+    "trade": "Westfen's herbwives are the only healers who will walk the fen at night, and the boardwalk keeps the marsh from swallowing the road.",
+    "lines": [
+     "The toads are bigger this year. Bog toads. Long tongue, short temper. Don't step on the pretty ones.",
+     "Westfen tea cures fever. It also cures company. People don't stay to ask for a second cup.",
+     "Something sings under the boards when the wind is west. The Veyl rangers say it is only the marsh."
+    ]
+   },
+   "rumours": [
+    "The bog toads are bigger this year. Long tongue, short temper.",
+    "Westfen tea cures fever. It also cures company.",
+    "Something sings under the boards when the wind is from the west.",
+    "Veyl rangers passed through, speaking of a black fen further south-west."
+   ]
+  },
+  {
+   "name": "Ironmarch",
+   "alias": "Silverford",
+   "trade": "Crafts and contracts: the Masons' and Runecarvers' Guild, the Merchants' Hall and the Adventurers' branch all keep hall here by the ford.",
+   "tagline": "Guild Town on the Ford",
+   "landmark": {
+    "name": "Silverford Guild Hall",
+    "clear": 30,
+    "parts": [
+     [
+      "r1:silverford/guildhall_silverford",
+      0,
+      -12,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:buildings/house_stone_fantasy@8.0",
+      -17,
+      -10,
+      70,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_blue_shields@3.0",
+      11,
+      3,
+      -80,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_small_workshop@3.0",
+      -11,
+      4,
+      80,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_potion@3.0",
+      13,
+      -4,
+      -60,
+      1,
+      0
+     ],
+     [
+      "r1:stones/road_stone_a_slab",
+      -6,
+      8,
+      0,
+      1,
+      0
+     ],
+     [
+      "r1:stones/road_stone_d_pillar",
+      6,
+      8,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:banners/banner_stand_tall_narrow@4.4",
+      -7,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_stand_tall_narrow@4.4",
+      7,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/well",
+      0,
+      4,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/notice_board",
+      -9,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/crate_stack",
+      9,
+      -8,
+      0,
+      0,
+      0
+     ],
+     [
+      "gen:bunting@1.0",
+      0,
+      11.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/bench",
+      4,
+      7.5,
+      90,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ],
+     [
+      3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ],
+     [
+      0,
+      3.0,
+      6,
+      [
+       0.55,
+       0.8,
+       1.0
+      ],
+      9,
+      false
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "SILVERFORD",
+      "sub": "Guild Town on the Ford",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Odrin Thale",
+       "role": "Guildmaster of Runecarvers",
+       "look": "Noble",
+       "at": [
+        0,
+        -5.5
+       ],
+       "yaw": 0,
+       "greet": "Irritatingly clean, my ledgers. You may look.",
+       "trade": "Silverford is where the vale's crafts are licensed: no stone is carved, no contract sealed and no caravan weighed without the Guild's mark.",
+       "lines": [
+        "The Guild holds the only licence to cut a waystone. The Crown holds the only licence to be angry about it.",
+        "A Solkar mistress has paid the Hall in sunstone oil. It burns silver. Nobody asks how.",
+        "We count stones for the Runeward. The count, I confess, has been... generous."
+       ]
+      }
+     ],
+     "doors": [
+      {
+       "scene": "res://scenes/interiors/guildhall_interior.tscn",
+       "at": [
+        0,
+        -5.0
+       ],
+       "yaw": 0.0,
+       "prompt": "Enter the Guild Hall"
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Odrin Thale",
+    "role": "Guildmaster of Runecarvers",
+    "look": "Noble",
+    "at": [
+     0,
+     -5.5
+    ],
+    "yaw": 0,
+    "greet": "Irritatingly clean, my ledgers. You may look.",
+    "trade": "Silverford is where the vale's crafts are licensed: no stone is carved, no contract sealed and no caravan weighed without the Guild's mark.",
+    "lines": [
+     "The Guild holds the only licence to cut a waystone. The Crown holds the only licence to be angry about it.",
+     "A Solkar mistress has paid the Hall in sunstone oil. It burns silver. Nobody asks how.",
+     "We count stones for the Runeward. The count, I confess, has been... generous."
+    ]
+   },
+   "rumours": [
+    "The Guild alone may cut a waystone; the Crown alone may be angry about it.",
+    "A Solkar caravan mistress paid the Hall in sunstone oil. It burns silver.",
+    "The Merchants' Hall is buying iron at any price. Somebody is arming somebody.",
+    "Guild ledgers say forty stones are lit. Wardens say twenty-six. One of them is counting wrong."
+   ]
+  },
+  {
+   "name": "Saltwick",
+   "alias": "",
+   "trade": "Salt and dried fish: the far south-west's salt pans and fish-racks, every wagon south of the stones smells of Saltwick.",
+   "tagline": "Salt Pans and Fisheries",
+   "landmark": {
+    "name": "Saltwick Salt Works",
+    "clear": 24,
+    "parts": [
+     [
+      "free:buildings/lumber_mill@6.5",
+      0,
+      -10,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/sack_pile",
+      -9.0,
+      0.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/sack_pile",
+      -6.2,
+      0.5,
+      30,
+      0,
+      0
+     ],
+     [
+      "props/sack_pile",
+      -3.4,
+      0.5,
+      60,
+      0,
+      0
+     ],
+     [
+      "props/sack_pile",
+      -0.6,
+      0.5,
+      90,
+      0,
+      0
+     ],
+     [
+      "props/sack_pile",
+      2.2,
+      0.5,
+      120,
+      0,
+      0
+     ],
+     [
+      "props/sack_pile",
+      5.0,
+      0.5,
+      150,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      -8.0,
+      5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      -5.8,
+      5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      -3.6,
+      5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      -1.4,
+      5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:props/barrels_crates_stack@1.8",
+      11,
+      -1,
+      -60,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_crates_cream@2.8",
+      10,
+      6,
+      -70,
+      1,
+      0
+     ],
+     [
+      "gen:rowboat@1.0",
+      -12,
+      8,
+      30,
+      0,
+      0
+     ],
+     [
+      "gen:rowboat@1.0",
+      -15,
+      4,
+      -20,
+      0,
+      0
+     ],
+     [
+      "gen:pier@0.7",
+      -10,
+      12,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_orange@1.2",
+      3,
+      -1,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_rail_orange@1.2",
+      6.2,
+      -1,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:carts/cart_hand_long@1.8",
+      7,
+      10,
+      40,
+      1,
+      0
+     ],
+     [
+      "props/lamp_post",
+      0,
+      13,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/water_trough",
+      -3,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/crate_stack",
+      13,
+      8,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      0,
+      3.4,
+      13,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "SALTWICK",
+      "sub": "Salt Pans and Fisheries",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Orla Saltmaster",
+       "role": "salt-master",
+       "look": "Innkeeper",
+       "at": [
+        3,
+        6.5
+       ],
+       "yaw": 0,
+       "greet": "Lick the wall if you don't believe me.",
+       "trade": "Saltwick's pans are the vale's pantry: salted fish and sea-salt go north along the frontier road, and nothing keeps a winter like Saltwick salt.",
+       "lines": [
+        "A pinch of Saltwick salt on the doorstep keeps the small dark things out. Also the neighbours.",
+        "The last caravan never made it past the Emberfall Roadhouse. Bandits, or worse: bad weather.",
+        "Frontier roads have few stones. We salt the verge. Wolves hate a salted track."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Orla Saltmaster",
+    "role": "salt-master",
+    "look": "Innkeeper",
+    "at": [
+     3,
+     6.5
+    ],
+    "yaw": 0,
+    "greet": "Lick the wall if you don't believe me.",
+    "trade": "Saltwick's pans are the vale's pantry: salted fish and sea-salt go north along the frontier road, and nothing keeps a winter like Saltwick salt.",
+    "lines": [
+     "A pinch of Saltwick salt on the doorstep keeps the small dark things out. Also the neighbours.",
+     "The last caravan never made it past the Emberfall Roadhouse. Bandits, or worse: bad weather.",
+     "Frontier roads have few stones. We salt the verge. Wolves hate a salted track."
+    ]
+   },
+   "rumours": [
+    "A pinch of salt on the doorstep keeps small dark things out, say Saltwick folk.",
+    "The last salt caravan never made it past the Emberfall Roadhouse.",
+    "Wolves hate a salted track; Saltwick salts its verges where the stones are few.",
+    "The far pans have a sheen no salt should have."
+   ]
+  },
+  {
+   "name": "Cindermoor",
+   "alias": "",
+   "trade": "Charcoal and smelting: Cindermoor's kilns burn the moorland oak that feeds the vale's forges.",
+   "tagline": "Charcoal Burners",
+   "landmark": {
+    "name": "Cindermoor Kilns",
+    "clear": 24,
+    "parts": [
+     [
+      "mine/miners_hut",
+      10,
+      -8,
+      -60,
+      1,
+      0
+     ],
+     [
+      "props/woodpile",
+      -10.0,
+      -6.0,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/woodpile",
+      -6.8,
+      -3.5,
+      15,
+      0,
+      0
+     ],
+     [
+      "props/woodpile",
+      -3.6,
+      -6.0,
+      30,
+      0,
+      0
+     ],
+     [
+      "props/woodpile",
+      -0.4,
+      -3.5,
+      45,
+      0,
+      0
+     ],
+     [
+      "props/woodpile",
+      2.8,
+      -6.0,
+      60,
+      0,
+      0
+     ],
+     [
+      "mine/ore_pile_coal",
+      -8,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      "mine/ore_pile_coal",
+      -3,
+      2.5,
+      50,
+      0,
+      0
+     ],
+     [
+      "mine/ore_pile_coal",
+      3,
+      0.5,
+      120,
+      0,
+      0
+     ],
+     [
+      "mine/ore_pile_coal",
+      8,
+      3,
+      200,
+      0,
+      0
+     ],
+     [
+      "mine/mine_cart",
+      11,
+      3,
+      90,
+      1,
+      0
+     ],
+     [
+      "mine/rail_straight",
+      11,
+      7,
+      0,
+      0,
+      0
+     ],
+     [
+      "mine/rail_end",
+      11,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "ruins/campfire",
+      -1,
+      -1,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:stump_broken",
+      -13,
+      4,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:stump_broken",
+      -15,
+      8,
+      40,
+      0,
+      0
+     ],
+     [
+      "free:carts/cart_plain_b@2.2",
+      -9,
+      9,
+      -30,
+      1,
+      0
+     ],
+     [
+      "props/barrel",
+      6,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      0,
+      13,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:dead_snag",
+      -14,
+      -14,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:dead_snag",
+      -12,
+      -14,
+      40,
+      0,
+      0
+     ],
+     [
+      "nature:dead_snag",
+      -10,
+      -14,
+      80,
+      0,
+      0
+     ],
+     [
+      "nature:dead_snag",
+      -8,
+      -14,
+      120,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -1,
+      0.9,
+      -1,
+      [
+       1.0,
+       0.55,
+       0.25
+      ],
+      11,
+      true
+     ],
+     [
+      -8,
+      1.0,
+      0,
+      [
+       1.0,
+       0.55,
+       0.25
+      ],
+      7,
+      true
+     ],
+     [
+      0,
+      3.4,
+      13,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "CINDERMOOR",
+      "sub": "Charcoal Burners",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Dov Sutt",
+       "role": "charcoal burner",
+       "look": "Rogue",
+       "at": [
+        2,
+        6
+       ],
+       "yaw": 0,
+       "greet": "Don't breathe near the kiln. Or do. I'm not your mother.",
+       "trade": "Cindermoor burns the moorland oak to charcoal; every forge from Stonehollow to Highcliff cooks on Cindermoor black.",
+       "lines": [
+        "Smoke on the moor after dusk is ours. If it's smoke you can't smell, it isn't.",
+        "Charcoal costs more this year. The forests are thinner. Somebody is cutting beyond the ward.",
+        "The far kiln was cold when I woke. No fire, no ash, not even the scorch on the ground. Odd."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Dov Sutt",
+    "role": "charcoal burner",
+    "look": "Rogue",
+    "at": [
+     2,
+     6
+    ],
+    "yaw": 0,
+    "greet": "Don't breathe near the kiln. Or do. I'm not your mother.",
+    "trade": "Cindermoor burns the moorland oak to charcoal; every forge from Stonehollow to Highcliff cooks on Cindermoor black.",
+    "lines": [
+     "Smoke on the moor after dusk is ours. If it's smoke you can't smell, it isn't.",
+     "Charcoal costs more this year. The forests are thinner. Somebody is cutting beyond the ward.",
+     "The far kiln was cold when I woke. No fire, no ash, not even the scorch on the ground. Odd."
+    ]
+   },
+   "rumours": [
+    "Smoke on the moor after dusk is ours. If you can't smell it, it is not.",
+    "Charcoal costs more this year: someone is cutting trees beyond the ward.",
+    "A kiln went cold overnight with no ash and no scorch left.",
+    "Dov Sutt swears the old moor road has a stone nobody carved."
+   ]
+  },
+  {
+   "name": "Dunhallow",
+   "alias": "",
+   "trade": "Carts and wheels: the wheelwrights and carters of the north-west, where every wagon on the vale's roads was mended at least once.",
+   "tagline": "Wheelwrights and Carters",
+   "landmark": {
+    "name": "Dunhallow Wagon Yard",
+    "clear": 26,
+    "parts": [
+     [
+      "free:carts/wagon_covered@3.2",
+      -8,
+      -4,
+      30,
+      1,
+      0
+     ],
+     [
+      "free:carts/cart_thatched_roof@2.6",
+      2,
+      -8,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:carts/cart_apothecary@2.6",
+      11,
+      -3,
+      -80,
+      1,
+      0
+     ],
+     [
+      "free:carts/cart_two_wheel@2.0",
+      -13,
+      3,
+      70,
+      1,
+      0
+     ],
+     [
+      "free:carts/cart_plain_a@2.2",
+      10,
+      7,
+      -50,
+      1,
+      0
+     ],
+     [
+      "free:carts/cart_hand_long@1.8",
+      -4,
+      6,
+      10,
+      1,
+      0
+     ],
+     [
+      "free:buildings/smithy_tiled_house@6.4",
+      0,
+      -15,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/covered_wagon",
+      15,
+      4,
+      -100,
+      1,
+      0
+     ],
+     [
+      "props/woodpile",
+      -15,
+      -8,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/anvil_stump",
+      4,
+      -4,
+      30,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      7,
+      3,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      -8,
+      10,
+      10,
+      0,
+      0
+     ],
+     [
+      "props/water_trough",
+      6,
+      10,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:farm/wheelbarrow_planter@1.0",
+      -1,
+      10,
+      40,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      0,
+      13,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -7,
+      13,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      0,
+      3.4,
+      13,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ],
+     [
+      -7,
+      3.4,
+      13,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "DUNHALLOW",
+      "sub": "Wheelwrights and Carters",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Wynn Cartwright",
+       "role": "master wheelwright",
+       "look": "Barbarian",
+       "at": [
+        2,
+        7
+       ],
+       "yaw": 0,
+       "greet": "Never trust a wheel that squeaks. It's telling you something.",
+       "trade": "Dunhallow mends the wheels of the world: every caravan that crosses the vale's far roads stops here for an axle and a bowl of soup.",
+       "lines": [
+        "A wheel lasts four hundred miles on stone road and forty on none. Do the maths on the frontier.",
+        "I fixed a Solkar wagon. Wheels were different. Wider. They roll in sand, so, fewer stones.",
+        "The Dunhallow road to Ashford is the longest ungarrisoned track in the vale. Take a spare axle."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Wynn Cartwright",
+    "role": "master wheelwright",
+    "look": "Barbarian",
+    "at": [
+     2,
+     7
+    ],
+    "yaw": 0,
+    "greet": "Never trust a wheel that squeaks. It's telling you something.",
+    "trade": "Dunhallow mends the wheels of the world: every caravan that crosses the vale's far roads stops here for an axle and a bowl of soup.",
+    "lines": [
+     "A wheel lasts four hundred miles on stone road and forty on none. Do the maths on the frontier.",
+     "I fixed a Solkar wagon. Wheels were different. Wider. They roll in sand, so, fewer stones.",
+     "The Dunhallow road to Ashford is the longest ungarrisoned track in the vale. Take a spare axle."
+    ]
+   },
+   "rumours": [
+    "A wheel lasts four hundred miles on stone road and forty on none.",
+    "Dunhallow fixed a Solkar wagon with wide desert wheels. Carters are still arguing.",
+    "The Dunhallow road to Ashford is the longest ungarrisoned track in the vale.",
+    "A wagon-train lost a wheel near the old beacon and the carters came home without a driver."
+   ]
+  },
+  {
+   "name": "Wolfsend",
+   "alias": "",
+   "trade": "Watch and wolf-hunting: the easternmost village, where the ditch-and-stake watch keeps an eye on the Eastern Gate road.",
+   "tagline": "Wolf Watch",
+   "landmark": {
+    "name": "Wolfsend Watch Post",
+    "clear": 22,
+    "parts": [
+     [
+      "free:castle/watchtower_stone_small@9.0",
+      0,
+      -10,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:fences/fence_palisade@3.2",
+      -12.0,
+      -2,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:fences/fence_palisade@3.2",
+      -8.8,
+      -2,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:fences/fence_palisade@3.2",
+      -5.6,
+      -2,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:fences/fence_palisade@3.2",
+      5.0,
+      -2,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:fences/fence_palisade@3.2",
+      8.2,
+      -2,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:fences/fence_palisade@3.2",
+      11.4,
+      -2,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:lighting/torch_stake@2.0",
+      -5,
+      3,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:lighting/torch_stake@2.0",
+      5,
+      3,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_ragged_spear@3.6",
+      -9,
+      7,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_ragged_spear@3.6",
+      9,
+      7,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:creatures/wolf_dark@0.9",
+      -2,
+      6,
+      160,
+      0,
+      0
+     ],
+     [
+      "free:creatures/wolf_grey@0.9",
+      2.5,
+      7.5,
+      210,
+      0,
+      0
+     ],
+     [
+      "props/weapon_rack",
+      10,
+      -5,
+      -90,
+      0,
+      0
+     ],
+     [
+      "props/woodpile",
+      -11,
+      -6,
+      0,
+      0,
+      0
+     ],
+     [
+      "ruins/campfire",
+      0,
+      2,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      12,
+      4,
+      30,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      0,
+      12,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      0,
+      0.8,
+      2,
+      [
+       1.0,
+       0.55,
+       0.25
+      ],
+      10,
+      true
+     ],
+     [
+      -5,
+      2.6,
+      3,
+      [
+       1.0,
+       0.55,
+       0.25
+      ],
+      6,
+      true
+     ],
+     [
+      5,
+      2.6,
+      3,
+      [
+       1.0,
+       0.55,
+       0.25
+      ],
+      6,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "WOLFSEND",
+      "sub": "Wolf Watch",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Carrow Dunmere",
+       "role": "wolf-warden",
+       "look": "Hunter",
+       "at": [
+        2,
+        5.5
+       ],
+       "yaw": 0,
+       "greet": "Eastward is the Gate. Westward is home. Wolves are everywhere.",
+       "trade": "Wolfsend is the vale's last village before the Eastern Gate: its watchmen turn back pilgrims, hunt wolves and sell wolf-tooth luck.",
+       "lines": [
+        "The Gate's shut. Church's order. Pilgrims queue at the ditch and wait. We feed them, nobody asked.",
+        "Wolves come at dawn this month, not dusk. Hunters say it's the moon. The hunters are wrong.",
+        "A rider came through at night, sunlit banner under his cloak. He did not stop. Horse was lathered."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Carrow Dunmere",
+    "role": "wolf-warden",
+    "look": "Hunter",
+    "at": [
+     2,
+     5.5
+    ],
+    "yaw": 0,
+    "greet": "Eastward is the Gate. Westward is home. Wolves are everywhere.",
+    "trade": "Wolfsend is the vale's last village before the Eastern Gate: its watchmen turn back pilgrims, hunt wolves and sell wolf-tooth luck.",
+    "lines": [
+     "The Gate's shut. Church's order. Pilgrims queue at the ditch and wait. We feed them, nobody asked.",
+     "Wolves come at dawn this month, not dusk. Hunters say it's the moon. The hunters are wrong.",
+     "A rider came through at night, sunlit banner under his cloak. He did not stop. Horse was lathered."
+    ]
+   },
+   "rumours": [
+    "The Eastern Gate is shut by the Patriarch's order. Pilgrims queue at the ditch.",
+    "Wolves come at dawn this month, not at dusk.",
+    "A rider with a sun-banner under his cloak crossed at night and did not stop.",
+    "Wolf-tooth luck sells well in Wolfsend. Hunters wear it; the pilgrims buy it."
+   ]
+  },
+  {
+   "name": "Harrowgate",
+   "alias": "",
+   "trade": "The south gate of the vale: every caravan from the Solkar road stages here, and the harrow arch marks the last stones before the desert track.",
+   "tagline": "The Southern Gate",
+   "landmark": {
+    "name": "Harrow Arch and Caravan Stage",
+    "clear": 28,
+    "parts": [
+     [
+      "free:ruins/arch_baroque_old@9.0",
+      0,
+      -4,
+      0,
+      1,
+      0
+     ],
+     [
+      "gen:bunting@1.0",
+      0,
+      -3,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:camp/tent_conical_striped@4.2",
+      -13,
+      -7,
+      60,
+      1,
+      0
+     ],
+     [
+      "free:camp/tent_conical_striped@4.2",
+      13,
+      -8,
+      -60,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_potion@3.0",
+      -10,
+      4,
+      80,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_fruit_cream@3.0",
+      10,
+      3,
+      -80,
+      1,
+      0
+     ],
+     [
+      "free:carts/wagon_covered@3.2",
+      -15,
+      5,
+      70,
+      1,
+      0
+     ],
+     [
+      "props/covered_wagon",
+      15,
+      6,
+      -70,
+      1,
+      0
+     ],
+     [
+      "road/caravan_wagon",
+      8,
+      10,
+      -20,
+      1,
+      0
+     ],
+     [
+      "props/sack_pile",
+      -6,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/sack_pile",
+      -5,
+      7.6,
+      40,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      6,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/crate_stack",
+      4,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_stand_spear_flag@4.4",
+      -5,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_stand_spear_flag@4.4",
+      5,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -2.5,
+      13.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      2.5,
+      13.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:flora/stump_dead_tall@3.0",
+      17,
+      -2,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -2.5,
+      3.4,
+      13.5,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ],
+     [
+      2.5,
+      3.4,
+      13.5,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      9,
+      true
+     ],
+     [
+      0,
+      4.0,
+      -3,
+      [
+       1.0,
+       0.8,
+       0.45
+      ],
+      11,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "HARROWGATE",
+      "sub": "The Southern Gate",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Kavi ar-Sunhaven",
+       "role": "Solkar spice merchant",
+       "look": "Trader",
+       "at": [
+        -7,
+        6
+       ],
+       "yaw": 0,
+       "greet": "Saffron, cardamom, sunstone salt. Smell first, argue after.",
+       "trade": "Harrowgate is the vale's southern door: the Solkar caravans from the desert come up this road, and the spice smell reaches Emberfall on a south wind.",
+       "lines": [
+        "Midsummer we go north to the Fair at Silverford. The spice price doubles by the Guild's hall. It's fair, it's only mathematics.",
+        "Our wagons have wide wheels for sand. Your stone roads are too narrow. We drive on the verge. The verge is quite full.",
+        "Sunstone oil burns silver. A drop on a dark stone makes it glow for an hour. Don't tell the Runeward; they'd buy all of it."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Kavi ar-Sunhaven",
+    "role": "Solkar spice merchant",
+    "look": "Trader",
+    "at": [
+     -7,
+     6
+    ],
+    "yaw": 0,
+    "greet": "Saffron, cardamom, sunstone salt. Smell first, argue after.",
+    "trade": "Harrowgate is the vale's southern door: the Solkar caravans from the desert come up this road, and the spice smell reaches Emberfall on a south wind.",
+    "lines": [
+     "Midsummer we go north to the Fair at Silverford. The spice price doubles by the Guild's hall. It's fair, it's only mathematics.",
+     "Our wagons have wide wheels for sand. Your stone roads are too narrow. We drive on the verge. The verge is quite full.",
+     "Sunstone oil burns silver. A drop on a dark stone makes it glow for an hour. Don't tell the Runeward; they'd buy all of it."
+    ]
+   },
+   "rumours": [
+    "Solkar caravans are due at the Midsummer Fair. The spice price doubles by Silverford.",
+    "Sunstone oil, a drop on a dark stone, makes it glow for an hour. The Runeward would buy all of it.",
+    "The south road is quiet but for Solkar wagons, and the wagons say it is very busy in the desert.",
+    "An old arch on the south road: the Harrow. Nobody knows who built it. The spice-merchants bow."
+   ]
+  },
+  {
+   "name": "Emberfall",
+   "alias": "",
+   "trade": "Glass and ember-crystal: a star fell here in the old days, and Emberfall's glassblowers have worked its red glass since.",
+   "tagline": "Glass Kilns and the Fallen Star",
+   "landmark": {
+    "name": "Emberfall Glass Kiln",
+    "clear": 22,
+    "parts": [
+     [
+      "free:magic/crystal_red_pedestal@2.4",
+      0,
+      -6,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:magic/orb_red_stand@1.6",
+      -5,
+      -3,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:buildings/hut_long_thatch@4.6",
+      11,
+      -7,
+      -60,
+      1,
+      0
+     ],
+     [
+      "nature:rock_cluster",
+      8.5,
+      -6.0,
+      -90,
+      0,
+      0
+     ],
+     [
+      "nature:rock_cluster",
+      6.01,
+      0.01,
+      -135,
+      0,
+      0
+     ],
+     [
+      "nature:rock_cluster",
+      0.0,
+      2.5,
+      -180,
+      0,
+      0
+     ],
+     [
+      "nature:rock_cluster",
+      -6.01,
+      0.01,
+      135,
+      0,
+      0
+     ],
+     [
+      "nature:rock_cluster",
+      -8.5,
+      -6.0,
+      90,
+      0,
+      0
+     ],
+     [
+      "nature:rock_cluster",
+      -6.01,
+      -12.01,
+      45,
+      0,
+      0
+     ],
+     [
+      "nature:rock_cluster",
+      -0.0,
+      -14.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:rock_cluster",
+      6.01,
+      -12.01,
+      -45,
+      0,
+      0
+     ],
+     [
+      "props/anvil_stump",
+      -7,
+      3,
+      20,
+      0,
+      0
+     ],
+     [
+      "free:market/stall_potion@3.0",
+      10,
+      3,
+      -80,
+      1,
+      0
+     ],
+     [
+      "props/barrel",
+      6,
+      7,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/crate_stack",
+      -9,
+      6,
+      10,
+      0,
+      0
+     ],
+     [
+      "free:magic/crystal_red_pedestal@1.2",
+      5,
+      3,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      0,
+      13,
+      0,
+      0,
+      0
+     ],
+     [
+      "ruins/campfire",
+      -2.5,
+      2,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:flowers_warm",
+      4,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:flowers_warm",
+      -4,
+      9,
+      0,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      0,
+      2.4,
+      -6,
+      [
+       1.0,
+       0.45,
+       0.3
+      ],
+      14,
+      true
+     ],
+     [
+      -2.5,
+      0.9,
+      2,
+      [
+       1.0,
+       0.55,
+       0.25
+      ],
+      9,
+      true
+     ],
+     [
+      0,
+      3.4,
+      13,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      8,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "EMBERFALL",
+      "sub": "Glass Kilns and the Fallen Star",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Teyo Emberglass",
+       "role": "glasswright",
+       "look": "Innkeeper",
+       "at": [
+        3,
+        5.5
+       ],
+       "yaw": 0,
+       "greet": "Red glass, hot and honest. Mind the heat.",
+       "trade": "Emberfall's red glass is the vale's rarest craft: the fallen star's crystal gives it its glow, and the lantern-makers of Silverford pay in silver.",
+       "lines": [
+        "The crystal hums when the stones dim. I'm not saying it means anything. I'm saying it hums.",
+        "Wind from the south brings spice. Wind from the west brings cold. Wind from the Scar brings nothing. That's worse.",
+        "A Solkar trader wanted a window for a desert temple. I made it. It was the reddest thing I have ever seen."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Teyo Emberglass",
+    "role": "glasswright",
+    "look": "Innkeeper",
+    "at": [
+     3,
+     5.5
+    ],
+    "yaw": 0,
+    "greet": "Red glass, hot and honest. Mind the heat.",
+    "trade": "Emberfall's red glass is the vale's rarest craft: the fallen star's crystal gives it its glow, and the lantern-makers of Silverford pay in silver.",
+    "lines": [
+     "The crystal hums when the stones dim. I'm not saying it means anything. I'm saying it hums.",
+     "Wind from the south brings spice. Wind from the west brings cold. Wind from the Scar brings nothing. That's worse.",
+     "A Solkar trader wanted a window for a desert temple. I made it. It was the reddest thing I have ever seen."
+    ]
+   },
+   "rumours": [
+    "Emberfall's crystal hums whenever a stone goes dim.",
+    "Wind from the south brings spice, the west brings cold. Wind from the Scar brings nothing, and that is worse.",
+    "The lantern makers of Silverford pay in silver for Emberfall red glass.",
+    "A fallen-star fragment went missing from the kiln. The glass was bluer the next day."
+   ]
+  },
+  {
+   "name": "Ravenscar",
+   "alias": "",
+   "trade": "Furs and ravens: the last village before Grimfen Pass, where trappers watch the snowline and ravens watch the trappers.",
+   "tagline": "Trappers below the Pass",
+   "landmark": {
+    "name": "Ravenscar Raven Tower",
+    "clear": 22,
+    "parts": [
+     [
+      "free:castle/watchtower_stone_small@10.0",
+      0,
+      -10,
+      0,
+      1,
+      0
+     ],
+     [
+      "nature:dead_snag",
+      -8,
+      -4,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:dead_snag",
+      9,
+      -6,
+      90,
+      0,
+      0
+     ],
+     [
+      "free:camp/tent_hide_hut@3.4",
+      -12,
+      3,
+      50,
+      1,
+      0
+     ],
+     [
+      "free:camp/tent_hide_hut@3.4",
+      12,
+      2,
+      -50,
+      1,
+      0
+     ],
+     [
+      "props/weapon_rack",
+      -6,
+      4,
+      90,
+      0,
+      0
+     ],
+     [
+      "props/woodpile",
+      7,
+      3,
+      0,
+      0,
+      0
+     ],
+     [
+      "ruins/campfire",
+      0,
+      2.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_ragged_spear@3.6",
+      -4,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_ragged_spear@3.6",
+      4,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:props/chest_dark_iron@0.8",
+      3,
+      -3,
+      0,
+      0,
+      0
+     ],
+     [
+      "r1:landmarks/giant_tusk",
+      -15,
+      -8,
+      40,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      0,
+      13,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:spruce_a",
+      -17.0,
+      -16,
+      0,
+      1,
+      0
+     ],
+     [
+      "nature:spruce_a",
+      -13.6,
+      -16,
+      30,
+      1,
+      0
+     ],
+     [
+      "nature:spruce_a",
+      -10.2,
+      -16,
+      60,
+      1,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      0,
+      0.9,
+      2.5,
+      [
+       1.0,
+       0.55,
+       0.25
+      ],
+      9,
+      true
+     ],
+     [
+      0,
+      3.4,
+      13,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      8,
+      true
+     ],
+     [
+      0,
+      11,
+      -10,
+      [
+       0.6,
+       0.9,
+       1.0
+      ],
+      12,
+      false
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "RAVENSCAR",
+      "sub": "Trappers below the Pass",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Ulla Crowe",
+       "role": "trapper",
+       "look": "Hunter",
+       "at": [
+        -3,
+        6
+       ],
+       "yaw": 0,
+       "greet": "Ravens are listening. Don't say anything you'd regret.",
+       "trade": "Ravenscar trades furs for grain: the trappers know the snowline, and they are the only ones who have seen Grimfen Pass this century.",
+       "lines": [
+        "The Pass has been shut since the Long Dark. Snow is the lock. The key is spring, if spring ever comes up there.",
+        "We've found bones bigger than a cart below the ridge. Horned. Frosted. Nothing alive has horns that long.",
+        "On clear winter nights the north sky goes green. The ravens go quiet. So do we."
+       ]
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Ulla Crowe",
+    "role": "trapper",
+    "look": "Hunter",
+    "at": [
+     -3,
+     6
+    ],
+    "yaw": 0,
+    "greet": "Ravens are listening. Don't say anything you'd regret.",
+    "trade": "Ravenscar trades furs for grain: the trappers know the snowline, and they are the only ones who have seen Grimfen Pass this century.",
+    "lines": [
+     "The Pass has been shut since the Long Dark. Snow is the lock. The key is spring, if spring ever comes up there.",
+     "We've found bones bigger than a cart below the ridge. Horned. Frosted. Nothing alive has horns that long.",
+     "On clear winter nights the north sky goes green. The ravens go quiet. So do we."
+    ]
+   },
+   "rumours": [
+    "The Pass has been shut since the Long Dark. Snow is the lock, and spring is the key.",
+    "Trappers found bones bigger than a cart below the ridge. Horned, and frosted.",
+    "On clear winter nights the north sky goes green and the ravens go quiet.",
+    "A Highwatch knight came up to watch the snowline. He stayed three days and left his tent."
+   ]
+  }
+ ]
+}

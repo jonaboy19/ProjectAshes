@@ -22,7 +22,12 @@ func on_show() -> void:
 func refresh() -> void:
 	_data = MD.journal()
 	var items: Array = [{"id": "chronicle", "name": "Chronicle", "icon": "jr_chronicle"},
-		{"id": "biography", "name": "Biography", "icon": "jr_bio"}, {"id": "family", "name": "Family", "icon": "jr_family"}]
+		{"id": "biography", "name": "Biography", "icon": "jr_bio"}, {"id": "family", "name": "Family", "icon": "jr_family"},
+		{"id": "discoveries", "name": "Discoveries", "icon": "jr_chronicle"}]   # Hidden valley hook: found secrets, a bare count for the rest
+	for i in MD.extra_journal.size():   # Region1 hook C7: the story journal
+		if MD.extra_journal[i].is_valid():
+			var page: Dictionary = MD.extra_journal[i].call()
+			items.append({"id": "story:%d" % i, "name": String(page.get("title", "Story")), "icon": "jr_chronicle"})
 	var people: Array = _data["people"]
 	items.append({"header": "People met"})
 	if people.is_empty():
@@ -43,12 +48,16 @@ func _show_detail() -> void:
 	match id:
 		"chronicle":
 			_chronicle(d)
+		"discoveries":
+			_discoveries(d)
 		"biography":
 			_biography(d)
 		"family":
 			_family(d)
 		_:
-			if id.begins_with("p:"):
+			if id.begins_with("story:"):
+				_story(d, int(id.substr(6)))
+			elif id.begins_with("p:"):
 				_person(d, int(id.substr(2)))
 
 
@@ -64,6 +73,30 @@ func _line(d: VBoxContainer, text: String, dim := false) -> void:
 	h.add_child(Kit.diamond(8.0, AF.GOLD_DIM if dim else AF.GOLD))
 	h.add_child(Kit.lbl(text, 17, AF.TEXT_DIM if dim else AF.TEXT, true))
 	d.add_child(h)
+
+
+## Region1 hook C7: a story journal page from MD.extra_journal (first-person entries, newest last).
+func _story(d: VBoxContainer, i: int) -> void:
+	if i >= MD.extra_journal.size() or not MD.extra_journal[i].is_valid():
+		return
+	var page: Dictionary = MD.extra_journal[i].call()
+	_title(d, String(page.get("title", "")), String(page.get("sub", "")))
+	var entries: Array = page.get("entries", [])
+	if entries.is_empty():
+		d.add_child(Kit.lbl("Nothing written yet.", 17, AF.TEXT_DIM, true, "italic"))
+	for e: Dictionary in entries:
+		if String(e.get("head", "")) != "":
+			d.add_child(Kit.section(String(e["head"]), 18))
+		d.add_child(Kit.lbl(String(e.get("text", "")), 17, AF.TEXT_DIM if bool(e.get("done", false)) else AF.TEXT, true, "italic" if bool(e.get("done", false)) else "body"))
+	for act: Dictionary in page.get("actions", []):
+		var b := Kit.button(String(act.get("label", "")), false, 44, 16)
+		b.custom_minimum_size.x = 210
+		var cb: Callable = act.get("call", Callable())
+		b.pressed.connect(func() -> void:
+			if cb.is_valid():
+				cb.call()
+			_show_detail())
+		d.add_child(b)
 
 
 func _chronicle(d: VBoxContainer) -> void:
@@ -102,6 +135,27 @@ func _biography(d: VBoxContainer) -> void:
 	for t: Dictionary in titles:
 		d.add_child(Kit.lbl(String(t["name"]), 17, AF.GOLD_BRIGHT, false, "title"))
 		d.add_child(Kit.lbl(String(t["desc"]), 15, AF.TEXT_DIM, true, "italic"))
+
+
+## Found secrets by name with their lore; unfound ones are only a count (no spoilers). Data: RegionPois.journal().
+func _discoveries(d: VBoxContainer) -> void:
+	var j: Dictionary = preload("res://scripts/world/region_pois.gd").journal(Life.discovery)
+	var found: Array = j["found"]
+	_title(d, "Discoveries", "%d found" % found.size() if found.size() > 0 else "Nothing found yet")
+	if found.is_empty():
+		d.add_child(Kit.lbl("Wander off the roads. Vistas, shrines, old camps and stranger things are waiting for anyone who looks.", 17, AF.TEXT_DIM, true, "italic"))
+	for e: Dictionary in found:
+		d.add_child(Kit.lbl(String(e["name"]), 19, AF.GOLD_BRIGHT, false, "title"))
+		d.add_child(Kit.lbl("%s  ·  Day %d" % [_kind_label(String(e["kind"])), int(e["day"])], 14, AF.GOLD))
+		d.add_child(Kit.lbl(String(e["lore"]), 16, AF.TEXT, true))
+	var left := int(j["unfound"])
+	if left > 0:
+		d.add_child(Kit.section("Still out there", 18))
+		d.add_child(Kit.lbl("%d %s yet to be found." % [left, "secret" if left == 1 else "secrets"], 17, AF.TEXT_DIM, true, "italic"))
+
+
+static func _kind_label(kind: String) -> String:
+	return preload("res://scripts/sim/discovery.gd").kind_label(kind)
 
 
 func _family(d: VBoxContainer) -> void:

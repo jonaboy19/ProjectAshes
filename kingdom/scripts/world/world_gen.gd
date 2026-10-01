@@ -66,6 +66,7 @@ static var _river_grid: Dictionary = {}           # Vector2i -> PackedInt32Array
 
 
 static func setup(seed_value: int) -> void:
+	Region1Terrain.setup()   # Region1 look hook: terrain stamps + trails as data (docs/regions/LOOK_R1.md)
 	_hills.seed = seed_value
 	_hills.frequency = 0.0022
 	_hills.fractal_octaves = 4
@@ -79,9 +80,11 @@ static func setup(seed_value: int) -> void:
 	_forest.frequency = 0.006
 	_forest.fractal_octaves = 2
 	_initialized = true
+	preload("res://scripts/world/hidden_valley.gd").reset()   # Hidden valley hook 1/2 (scripts/world/hidden_valley.gd): off until the layout is known
 	_place_settlements(seed_value)
 	_connect_roads()
 	_build_indexes()
+	preload("res://scripts/world/hidden_valley.gd").setup(seed_value)   # Hidden valley hook 2/2: picks its spot once towns and roads exist
 	for st in settlements:
 		st["plan"] = CityPlanner.plan(st, gate_angles(st), seed_value)
 	_place_water(seed_value)
@@ -196,7 +199,7 @@ static func _raw_height(x: float, z: float) -> float:
 	var mountains := pow(ridge, 2.2) * 160.0 * valley
 	var edge := maxf(absf(x), absf(z))
 	var rim := pow(smoothstep(WORLD_HALF - 250.0, WORLD_HALF, edge), 1.5) * 200.0
-	return hills + mountains + rim + _detail.get_noise_2d(x, z) * 0.6
+	return preload("res://scripts/world/hidden_valley.gd").shape(x, z, hills + mountains + rim + _detail.get_noise_2d(x, z) * 0.6)   # Hidden valley hook
 
 
 static func height(x: float, z: float) -> float:
@@ -244,10 +247,13 @@ static func height(x: float, z: float) -> float:
 			var lv: float = q["level"]
 			var dep: float = q["depth"]
 			var f := lv - dep * (1.0 - (d / w) * (d / w)) if d < w else lv + (d - w) * 0.18
-			var hr := _carve(h, f, d - w, 12.0, 0.14)
+			# Region1 look fix (docs/regions/LOOK_R1.md): the levee must fall faster (0.32) than the bank profile f rises
+			# (0.18 per m); with 0.14 low ground was filled up to a plane that kept rising away from the river and ended
+			# in straight cliff steps at the RIVER_CELL grid edge (the "rectangular plateaus" beside the Ashrun).
+			var hr := _carve(h, f, d - w, 12.0, 0.32)
 			# Inside the lake the river may only deepen the bed, never raise it.
 			h = lerpf(minf(h, hr), hr, smoothstep(0.55, 0.95, lake_s))
-	return h
+	return Region1Terrain.stamp(x, z, h)   # Region1 look hook: valley/cliff stamps (docs/regions/LOOK_R1.md)
 
 
 # --- Water ------------------------------------------------------------------------
@@ -382,6 +388,7 @@ static func _place_water(seed_value: int) -> void:
 	var out_dir := (tail - ctrl[ctrl.size() - 2]).normalized()
 	ctrl.append(tail + out_dir * _edge_distance(tail, out_dir))
 	_add_river(_polyline(ctrl, 5.0, 40.0), false, true)
+	preload("res://scripts/world/hidden_valley.gd").add_water()   # Hidden valley hook: stream + pond (not in `rivers`, so not on the map)
 
 
 static func _place_home_water(seed_value: int) -> void:
@@ -790,7 +797,8 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 		w.r = maxf(w.r, sand * 0.85)
 		w.g = maxf(w.g, sand * (0.35 + clampf(-above * 0.2, 0.0, 0.45)))
 		w.a *= 1.0 - sand
-	return w
+	w = preload("res://scripts/world/hidden_valley.gd").paint(x, z, w)   # Hidden valley hook: no paths in the vale
+	return Region1Terrain.paint(x, z, w)   # Region1 look hook: trails (docs/regions/LOOK_R1.md)
 
 
 ## Footstep family follows the same material weights used to paint the terrain.
@@ -810,6 +818,7 @@ static func woodland(x: float, z: float) -> float:
 
 static func forest_density(x: float, z: float, with_clearings := true) -> float:
 	var f := clampf(_forest.get_noise_2d(x, z) * 1.8 + 0.25, 0.0, 1.0)
+	f = preload("res://scripts/world/hidden_valley.gd").forest(x, z, f, with_clearings)   # Hidden valley hook: groves, meadows, bare gorge
 	var near := nearest_settlement(Vector2(x, z))
 	if not near.is_empty():
 		# Fade starts at radius*1.8, not 1.2: height() blends a settlement's flat
@@ -837,7 +846,7 @@ static func forest_density(x: float, z: float, with_clearings := true) -> float:
 				f *= smoothstep(float(c["radius"]), float(c["radius"]) + 10.0, Vector2(x, z).distance_to(c["pos"]))
 	if f > 0.0:
 		f *= smoothstep(6.0, 20.0, shore_distance(x, z))   # no trees (or wolf dens) in water or on beaches
-	return f
+	return f * Region1Terrain.tree_keep(x, z) if f > 0.0 else f   # Region1 look hook: no trees on stamped cliff faces
 
 
 static func nearest_settlement(p: Vector2) -> Dictionary:

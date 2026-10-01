@@ -13,6 +13,16 @@ const BUILD := 240.0
 const FREE := 330.0
 const LOD_DIST := 55.0
 const Breakable := preload("res://scripts/world/breakable.gd")
+## Region 1 world packages (C1 C2 C10): extra asset keys "free:<cat>/<name>@<h>" (incoming/meshy_free) and
+## "r1:<dir>/<name>@<h>" (incoming/region1), and bodies that are not meshes (signs, named NPCs, doors).
+const Extras := preload("res://scripts/world/region1_extras.gd")
+const FREE_PACK := "res://assets/incoming/meshy_free/"
+const R1 := "res://assets/incoming/region1/"
+const R1_KIT := "res://assets/incoming/region1/highwatch/highwatch_kit.tres"
+const R1_KIT_LOW := "res://assets/incoming/region1/highwatch/highwatch_kit_low.tres"
+## Site kinds (and minimum part count) whose parts are merged into per-material meshes (see _bake_site).
+const BAKE_KINDS := ["farm", "roadside", "waystation"]
+const BAKE_MIN_PARTS := 12
 const BRIDGE_DECK := {"road/bridge_stone": [2.6, 12.0], "road/bridge_wood": [1.6, 14.0]}
 
 var focus := Vector3.ZERO
@@ -55,6 +65,13 @@ func _ready() -> void:
 		if path != "" and ResourceLoader.exists(path) and Assets.scene(path) != null:
 			n += 1
 	print("RegionDressing: preloaded %d region scenes in %d ms (main thread)" % [n, Time.get_ticks_msec() - t0])
+	# Region1 look hook (docs/regions/LOOK_R1.md): landmark bodies, cliff rocks, waterfalls and the far horizon.
+	add_child(preload("res://scripts/region1/region1_look.gd").new())
+	add_child(preload("res://scripts/world/exploration_director.gd").new())   # Hidden valley hook: the vale, its cutscene and the exploration POIs
+	# Region1 world hook (docs/regions/REGION_1_PLAN.md C11): creature dens, Stagborn herds, bandit rosters (placement only).
+	add_child(preload("res://scripts/world/region1_creatures.gd").new())
+	# Caves hook (scripts/world/region_caves.gd): walk-in doors for the planned cave, mine, hideout and crypt sites.
+	add_child(preload("res://scripts/world/region_caves_view.gd").new())
 
 
 ## Every file is loaded at boot now, so any part can be built right away.
@@ -64,6 +81,8 @@ func _ready_to_spawn(_asset: String) -> bool:
 
 ## The GLB paths _spawn will load for an asset key (LOD0 and LOD1).
 func _paths(asset: String) -> Array:
+	if asset.begins_with("free:") or asset.begins_with("r1:"):
+		return []      # loaded when a site is built: hundreds of baked textures must not sit in VRAM from boot
 	if asset.begins_with("meshy:"):
 		var n := asset.substr(6).split("@")[0]
 		return [MESHY + n + "_lod0.glb", MESHY + n + "_lod1.glb"]
@@ -131,6 +150,8 @@ func _process_inner(delta: float) -> void:
 	for site in WorldGen.sites:
 		var id: int = site["id"]
 		var d := p.distance_to(site["pos"])
+		if not _in_season(site):
+			d = INF      # seasonal pieces (the Solkar caravans) exist only in their season
 		if d < BUILD and not _built.has(id):
 			_built[id] = _build(site)
 		elif d > FREE and _built.has(id):
@@ -145,7 +166,7 @@ func _process_inner(delta: float) -> void:
 ## Builds every site at once (screenshots, tests, teleports): blocks on purpose.
 func build_all_now() -> void:
 	for site in WorldGen.sites:
-		if not _built.has(site["id"]):
+		if not _built.has(site["id"]) and _in_season(site):
 			_built[site["id"]] = _build(site)
 	while not _queue.is_empty():
 		var item: Array = _queue.pop_front()
@@ -155,6 +176,14 @@ func build_all_now() -> void:
 			_build_part(item[0], item[1], item[1]["parts"][item[3]])
 		else:
 			_build_light(item[0], item[1]["lights"][item[3]])
+
+
+## Sites may name a season ("season": "summer"); everything else is always there.
+func _in_season(site: Dictionary) -> bool:
+	if not site.has("season"):
+		return true
+	var ws := get_node_or_null("/root/WorldSim")
+	return ws != null and String(ws.get("season")) == String(site["season"])
 
 
 func built_count() -> int:
@@ -176,14 +205,30 @@ func _build(site: Dictionary) -> Node3D:
 		return root
 	_scatter_ground(root, site)
 	# Parts and lights are queued and built a few per frame (see _drain_queue).
+	# Big multi-part sites (farms, the waystation) are baked into a few merged meshes once their last part is in.
+	if String(site["kind"]) in BAKE_KINDS and site["parts"].size() >= BAKE_MIN_PARTS:
+		root.set_meta("pending", site["parts"].size())
+		root.set_meta("site_id", site["id"])
 	for i in site["parts"].size():
 		_queue.append([root, site, "part", i])
 	for i in site["lights"].size():
 		_queue.append([root, site, "light", i])
+	if site.has("x"):
+		Extras.build(root, site)
 	return root
 
 
 func _build_part(root: Node3D, site: Dictionary, part: Array) -> void:
+	_build_part_node(root, site, part)
+	if root.has_meta("pending"):
+		var left := int(root.get_meta("pending")) - 1
+		root.set_meta("pending", left)
+		if left <= 0:
+			root.remove_meta("pending")
+			_bake_site(root)
+
+
+func _build_part_node(root: Node3D, site: Dictionary, part: Array) -> void:
 	var basis := Basis(Vector3.UP, float(site["yaw"]))
 	var off: Vector2 = part[1]
 	var world := root.global_position + basis * Vector3(off.x, 0.0, off.y)
@@ -192,10 +237,11 @@ func _build_part(root: Node3D, site: Dictionary, part: Array) -> void:
 		return
 	root.add_child(n)
 	n.rotation.y = float(part[2])
+	n.set_meta("bakeable", not String(part[0]).begins_with("nature:") and not (String(part[0]).begins_with("props/") and Breakable.is_breakable(String(part[0]).trim_prefix("props/"))))
 	# Settle on the lowest ground under the footprint so nothing floats on a slope.
 	var box := Assets.visual_aabb(n)
 	var ground := _footprint_ground(world, basis * Basis(Vector3.UP, float(part[2])), box)
-	n.global_position = Vector3(world.x, ground, world.z)
+	n.global_position = Vector3(world.x, ground + (float(part[4]) if part.size() > 4 else 0.0), world.z)
 	var prop := String(part[0]).trim_prefix("props/")
 	if String(part[0]).begins_with("props/") and Breakable.is_breakable(prop):
 		var b: StaticBody3D = Breakable.new()   # barrels, crates, sacks: smashable, always solid
@@ -207,6 +253,83 @@ func _build_part(root: Node3D, site: Dictionary, part: Array) -> void:
 		_add_sails(n)
 	if not String(part[0]).begins_with("props/"):
 		_base_clutter(root, world, basis * Basis(Vector3.UP, float(part[2])), box)
+
+
+var _bake_cache: Dictionary = {}     # site id -> {range key: ArrayMesh}, so a rebuilt site costs no merge
+
+
+## Draw-call pass: a farm is ~150 parts, each its own MeshInstance3D with 1-6 surfaces (180 draws, 58 distinct
+## mesh+material pairs). Every static part's meshes are merged, per visibility range, into ONE ArrayMesh whose
+## surfaces are grouped by material look (RG_Timber of the barn and of the fence rail are the same material), so a
+## farm draws ~20 surfaces. Colliders, sails, breakables and wind-shaded nature stay their own nodes; the look is the
+## same geometry with the same materials, ranges and shadow flags.
+func _bake_site(root: Node3D) -> void:
+	var inv := root.global_transform.affine_inverse()
+	var groups := {}        # range key -> [MeshInstance3D]
+	for n in root.get_children():
+		if not (n is Node3D) or not n.has_meta("bakeable") or not bool(n.get_meta("bakeable")):
+			continue
+		for mi in n.find_children("*", "MeshInstance3D", true, false):
+			var g := mi as MeshInstance3D
+			if g.mesh == null:
+				continue
+			var key := "%.1f|%.1f|%d" % [g.visibility_range_begin, g.visibility_range_end, g.cast_shadow]
+			if not groups.has(key):
+				groups[key] = []
+			(groups[key] as Array).append(g)
+	var sid: Variant = root.get_meta("site_id", -1)
+	var cached: Dictionary = _bake_cache.get(sid, {})
+	var first_bake := cached.is_empty()
+	for key: String in groups:
+		var list: Array = groups[key]
+		var mesh: ArrayMesh = cached.get(key)
+		if mesh == null:
+			var by_look := {}     # material look -> SurfaceTool
+			var mats := {}
+			for g: MeshInstance3D in list:
+				var xf: Transform3D = inv * g.global_transform
+				for i in g.mesh.get_surface_count():
+					var mat: Material = g.get_active_material(i)
+					var look := _material_look(mat)
+					if not by_look.has(look):
+						var st := SurfaceTool.new()
+						st.begin(Mesh.PRIMITIVE_TRIANGLES)
+						by_look[look] = st
+						mats[look] = mat
+					(by_look[look] as SurfaceTool).append_from(g.mesh, i, xf)
+			mesh = ArrayMesh.new()
+			for look: String in by_look:
+				var st: SurfaceTool = by_look[look]
+				st.commit(mesh)
+				mesh.surface_set_material(mesh.get_surface_count() - 1, mats[look])
+			cached[key] = mesh
+		var ref: MeshInstance3D = list[0]
+		var baked := MeshInstance3D.new()
+		baked.name = "Baked"
+		baked.mesh = mesh
+		baked.cast_shadow = ref.cast_shadow
+		baked.visibility_range_begin = ref.visibility_range_begin
+		baked.visibility_range_begin_margin = ref.visibility_range_begin_margin
+		baked.visibility_range_end = ref.visibility_range_end
+		baked.visibility_range_end_margin = ref.visibility_range_end_margin
+		baked.visibility_range_fade_mode = ref.visibility_range_fade_mode
+		root.add_child(baked)
+		for g: MeshInstance3D in list:
+			g.get_parent().remove_child(g)
+			g.free()
+	if first_bake:
+		_bake_cache[sid] = cached
+
+
+## Two materials with the same name, texture, colour and class render the same: one surface serves both.
+static func _material_look(mat: Material) -> String:
+	if mat == null:
+		return "null"
+	if mat is BaseMaterial3D:
+		var b := mat as BaseMaterial3D
+		return "%s|%s|%s|%d|%d|%.2f|%.2f|%s" % [b.resource_name, b.albedo_texture.resource_path if b.albedo_texture else "-",
+			b.albedo_color.to_html(), b.transparency, b.cull_mode, b.roughness, b.metallic, b.vertex_color_use_as_albedo]
+	return str(mat.get_instance_id())
 
 
 func _build_light(root: Node3D, l: Array) -> void:
@@ -266,6 +389,8 @@ func _footprint_ground(world: Vector3, basis: Basis, box: AABB) -> float:
 ## "farm/barn" -> region set, "props/x" -> generated props, "nature:x" -> region
 ## nature (with its wind materials), "meshy:x@H" -> a Meshy landmark scaled to H m.
 func _spawn(asset: String) -> Node3D:
+	if asset.begins_with("free:") or asset.begins_with("r1:"):
+		return _spawn_kit(asset)
 	if asset.begins_with("meshy:"):
 		var spec := asset.substr(6).split("@")
 		var target := float(spec[1]) if spec.size() > 1 else 4.0
@@ -317,6 +442,37 @@ func _spawn(asset: String) -> Node3D:
 	if asset.begins_with("props/"):
 		return _lod_pair(GEN + asset + ".glb", "", 0.0)
 	return _lod_pair(REGION + asset + ".glb", REGION + asset + "_lod1.glb", LOD_DIST)
+
+
+## "free:market/stall_apples@3.2" (Meshy free pack) or "r1:stones/elder_stone" (the local session's Region 1 kits):
+## LOD0 and LOD1 pair, fitted to @H metres tall when given (else natural size), standing on its own base.
+## The Highwatch kit ships without textures: its atlas material goes on every mesh.
+func _spawn_kit(asset: String) -> Node3D:
+	var is_free := asset.begins_with("free:")
+	var spec := asset.substr(5 if is_free else 3).split("@")
+	var base := (FREE_PACK if is_free else R1) + spec[0]
+	var lod0 := base + "_lod0.glb"
+	var lod1 := base + "_lod1.glb"
+	if not ResourceLoader.exists(lod0):
+		lod0 = base + ".glb"
+		lod1 = ""
+	var target := float(spec[1]) if spec.size() > 1 else 0.0
+	var n := _lod_pair(lod0, lod1, 55.0 if target < 6.0 else 85.0, target)
+	if n == null:
+		return null
+	var box := Assets.visual_aabb(n)
+	var k := target / maxf(box.size.y, 0.01) if target > 0.0 else 1.0
+	if spec[0].begins_with("highwatch/"):
+		var low := int(Quality.tier) <= 1
+		var mat := load(R1_KIT_LOW if low else R1_KIT) as Material
+		if mat != null:
+			for mi in n.find_children("*", "MeshInstance3D", true, false):
+				(mi as MeshInstance3D).material_override = mat
+	var holder := Node3D.new()
+	holder.add_child(n)
+	n.scale = Vector3.ONE * k
+	n.position.y = -box.position.y * k
+	return holder
 
 
 ## `fit_height` > 0: the piece is later scaled to that height (Meshy landmarks import at
