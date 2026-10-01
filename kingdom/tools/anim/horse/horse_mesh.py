@@ -201,7 +201,7 @@ def build_mane(game, body):
     inv = body.matrix_world.inverted()
     bm = bmesh.new()
     recs = []
-    NL = 15
+    NL = 13
     y0, y1 = poll.y + 0.06, neck[1].y + 0.02
     for li in range(NL):
         c = li / (NL - 1)
@@ -213,26 +213,38 @@ def build_mane(game, body):
         ax = (b - a).normalized()
         up = (V(0, 0, 1) - ax * ax.z).normalized()
         right = V(-1, 0, 0)
-        length = 0.13 + 0.12 * math.sin(math.pi * min(1.0, c * 1.15))
-        width = 0.050 + 0.028 * math.sin(math.pi * c)
+        # storybook mane: each clump wraps over the crest from the left edge, then HANGS down the right side
+        hang = 0.07 + 0.15 * math.sin(math.pi * min(1.0, c * 1.1)) + 0.02 * math.sin(li * 1.9)
+        width = 0.075 + 0.02 * math.sin(math.pi * c)
+        sw = 0.5                                    # share of the rings that hug the crest
         rings, us = [], []
-        nr = 8
+        nr = 10
+        prev = None
+        last_hug = None
         for kk in range(nr):
             s = kk / (nr - 1)
-            th = -0.30 + s * (1.45 + 0.35 * length / 0.25)
-            d = up * math.cos(th) + right * math.sin(th)
-            d = (d - ax * d.dot(ax)).normalized()
-            o = inv @ (axis_p + d * 0.8)
-            hit = t.ray_cast(o, (inv.to_3x3() @ (-d)).normalized())
-            base = (body.matrix_world @ hit[0]) if hit[0] is not None else axis_p + d * 0.12
-            lift = 0.010 + 0.028 * math.sin(math.pi * min(1.0, s * 1.2)) * (length / 0.25)
-            ctr = base + d * lift + V(0.0, 0.02 * s + 0.010 * math.sin(li * 2.3) * s, 0.0)
-            T = (up * -math.sin(th) + right * math.cos(th))
-            T = (T - ax * T.dot(ax)).normalized()
-            w = width * (1.0 - 0.85 * s ** 2.2)
-            rings.append(_ring(ctr, T, ax, max(w, 0.006), 0.018 * (1 - 0.6 * s) + 0.005, 5))
+            if s <= sw:
+                u = s / sw
+                th = -0.28 + u * 1.30
+                d = up * math.cos(th) + right * math.sin(th)
+                d = (d - ax * d.dot(ax)).normalized()
+                o = inv @ (axis_p + d * 0.8)
+                hit = t.ray_cast(o, (inv.to_3x3() @ (-d)).normalized())
+                base = (body.matrix_world @ hit[0]) if hit[0] is not None else axis_p + d * 0.12
+                ctr = base + d * (0.014 + 0.022 * math.sin(math.pi * u))
+                last_hug = (ctr.copy(), d.copy())
+            else:
+                u = (s - sw) / (1.0 - sw)
+                p0, d0 = last_hug
+                ctr = p0 + V(0, 0, -1) * hang * u + d0 * (0.03 * u + 0.02 * u * u) + V(0, 0.03 * u, 0)
+            ctr = ctr + ax * (0.018 * math.sin(li * 2.3 + s * 4.0) * s)          # a little wave along the crest
+            T = (ctr - prev).normalized() if prev is not None else (up * 0.3 + right).normalized()
+            prev = ctr.copy()
+            w = width * (1.0 - 0.8 * s ** 2.0)
+            th_ = 0.032 * (1 - 0.65 * s) + 0.006
+            rings.append(_ring(ctr, T, ax, max(w, 0.008), th_, 6))
             us.append(s)
-        for v, ri in _tube(bm, rings, 5):
+        for v, ri in _tube(bm, rings, 6):
             recs.append((v, us[ri], y, "neck"))
     fa = W @ gb["mane_0_a"].head_local
     fdir = (W @ gb["mane_0_b"].tail_local - fa)
