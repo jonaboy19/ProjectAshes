@@ -151,6 +151,12 @@ func set_status(t: String, ok := true) -> void:
 	_status_box.visible = t != ""
 
 
+## Place is only pressable while the blueprint is green.
+func set_place_ok(ok: bool) -> void:
+	if _big_place != null:
+		_big_place.disabled = not ok
+
+
 ## One line above the big placement buttons: what is being placed, its rotation, the grid.
 func set_place_info(t: String) -> void:
 	if _place_info != null:

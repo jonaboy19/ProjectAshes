@@ -429,6 +429,7 @@ func update_ghost() -> void:
 		_last_reason = why
 		_ok = ok
 		_say("Ready to build here. Tap Place to lay the blueprint." if ok else why, ok)
+	menu.call("set_place_ok", ok)
 	menu.call("set_place_info", "%s  ·  %d°  ·  grid %s" % [String(D.CATALOG[kind]["name"]), int(round(rad_to_deg(rot))), "on" if snap_on else "off"])
 
 

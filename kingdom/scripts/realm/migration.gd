@@ -13,6 +13,13 @@ extends "res://scripts/realm/realm_module.gd"
 const MAX_WAVES := 16
 const MAX_SPECIALISTS := 30
 const MAX_NEWS := 40
+const QUARTER_MIN := 36.0               # foreign inflow (people, fading) a place needs before newcomers form a quarter of their own
+const QUARTER_WEEKS := 6.0              # ... held for this many weeks
+const PULL_DELTA := 0.15                # attraction gain over its reference that draws settlers from neighbours
+const PULL_P := 0.08                    # weekly chance a place that qualifies actually draws a group
+const PULL_MIN := 14                    # smallest settler group worth a wave (no daily trickles)
+const GOV_PUSH := 0.8                   # weight of governance.emigration_pressure in a place's push
+const NEWS_MAG := {"wave": 0.3, "arrival": 0.2, "refugees": 1.5, "quarter": 2.0, "tradition": 1.5, "master": 0.6, "master_arrived": 1.0, "master_left": 1.0}
 const FIELDS := ["smith", "scholar", "healer", "architect", "trainer", "commander"]
 const TITLES := {"smith": "Master Smith", "scholar": "Scholar", "healer": "Healer", "architect": "Master Builder", "trainer": "Weapon-Master", "commander": "Captain"}
 const FIRST := ["Orin", "Maela", "Tobin", "Isra", "Bram", "Yssa", "Corvin", "Hale", "Nessa", "Dorran", "Petra", "Alric", "Sable", "Wick", "Eda", "Kellan"]
@@ -40,6 +47,7 @@ var _spec: Array = []
 var _next_spec := 1
 var _news: Array = []
 var _next_news := 1
+var _seq := 0                           # news.gd cursor counter (= last event id)
 var _digest: Array = []
 var _route_cache: Dictionary = {}       # transient: "a|b" -> {h, day}
 var _mc: Dictionary = {}                # transient: node -> settled masters
@@ -173,8 +181,8 @@ func stats() -> Dictionary:
 	return _stat.duplicate()
 
 
-func news_events() -> Array:
-	return _news
+func news_events(since := 0) -> Array:
+	return _news if since <= 0 else _news.filter(func(e: Dictionary) -> bool: return int(e["seq"]) > since)
 
 
 func news_since(last_id: int) -> Array:
@@ -328,12 +336,21 @@ func _outside_entry(to: String) -> String:
 	return best
 
 
+## Civilization's push plus governance's emigration pressure (harsh laws, angry blocs, strikes) for a static place (null-guarded).
+func _push_total(node: String, p: Dictionary) -> float:
+	var push := float(p["push"])
+	var gov: RefCounted = hub.mod("governance") if hub != null else null
+	if gov != null and gov.has_method("emigration_pressure") and not bool(p["dyn"]):
+		push = clampf(push + GOV_PUSH * maxf(0.0, float(gov.call("emigration_pressure", int(p["sid"]))) - 0.25), 0.0, 1.0)
+	return push
+
+
 func _cause_of(p: Dictionary) -> String:
 	var opts := {"war": 0.6 * float(p["war"]), "monsters": 0.5 * float(p["monster"]), "famine": 0.3 if float(p["famine"]) > 10.0 else 0.0,
-		"hard times": 0.9 * float(p["unrest"]), "isolation": 0.3 * minf(1.0, float(p["cut"]) / 120.0), "decline": 0.25 * maxf(0.0, float(p["ref"]) - float(p["attr"])) * 2.0}
+		"hard times": 0.9 * float(p["unrest"]), "isolation": 0.3 * minf(1.0, float(p["cut"]) / 120.0), "harsh rule": float(p.get("gov_push", 0.0)), "decline": 0.25 * maxf(0.0, float(p["ref"]) - float(p["attr"])) * 2.0}
 	var best := "hard times"
 	var bv := -1.0
-	for k: String in ["war", "monsters", "famine", "hard times", "isolation", "decline"]:
+	for k: String in ["war", "monsters", "famine", "hard times", "isolation", "harsh rule", "decline"]:
 		if float(opts[k]) > bv:
 			bv = float(opts[k])
 			best = k
@@ -391,7 +408,8 @@ func _eval_place(node: String, day: int, weeks: float) -> Array:
 	var pname := String(p["name"])
 	_normalize(node, pop)
 	# 1. push: people leave a place in trouble
-	var push := float(p["push"])
+	var push := _push_total(node, p)
+	p["gov_push"] = 0.5 * (push - float(p["push"]))
 	if push > 0.35 and pop >= 30:
 		cd["emi"] = float(cd.get("emi", 0.0)) + float(pop) * (push - 0.25) * 0.035 * weeks
 	else:
@@ -417,12 +435,12 @@ func _eval_place(node: String, day: int, weeks: float) -> Array:
 			out.append("A group of %d %s is heading for %s." % [n2, kind2, pname])
 	# 3. pull: a place that has grown more attractive than its neighbours draws settlers from them
 	var delta := float(p["attr"]) - float(p["ref"])
-	if delta > 0.10 and float(p["H"]) < 1.05 and _waves.size() < MAX_WAVES and r.randf() < 1.0 - pow(0.85, weeks):
+	if delta > PULL_DELTA and float(p["H"]) < 1.05 and _waves.size() < MAX_WAVES and r.randf() < 1.0 - pow(1.0 - PULL_P, weeks):
 		var src := _pick_source(civ, node, r)
 		if src != "":
 			var spop := int(civ.call("population", src))
 			var n3 := int(minf(float(spop) * 0.03, 4.0 + 60.0 * delta) * weeks)
-			if n3 >= 6:
+			if n3 >= PULL_MIN:
 				send_wave(src, node, n3, "settlers", "better prospects", _dominant_culture(src), day)
 	# 4. refugees in the camp are taken in as housing allows
 	out.append_array(_refugees_week(civ, node, p, pop, weeks, day, r))
@@ -581,10 +599,10 @@ func _culture_week(_civ_ref: RefCounted, node: String, p: Dictionary, pop: int, 
 		for d: Dictionary in ds:
 			if String(d["quarter"]) == c:
 				has_q = true
-		var thr := maxf(14.0, 0.06 * float(pop))
+		var thr := maxf(QUARTER_MIN, 0.10 * float(pop))
 		if float(infl[c]) >= thr and not has_q and ds.size() < 5:
 			sustain[c] = float(sustain.get(c, 0.0)) + weeks
-			if float(sustain[c]) >= 3.0:
+			if float(sustain[c]) >= QUARTER_WEEKS:
 				var take := int(minf(float(infl[c]), float(pop) * 0.3))
 				var src: Dictionary = ds[ds.size() - 1]
 				src["n"] = maxi(0, int(src["n"]) - take)
@@ -738,7 +756,10 @@ func _specialists_day(day: int) -> Array:
 
 func _news_add(kind: String, node: String, text: String, day: int) -> void:
 	var civ := _civ()
-	_news.append({"id": _next_news, "day": day, "kind": kind, "node": node, "name": String(civ.call("name_of", node)) if civ != null else node, "text": text})
+	var sid := int(civ.call("news_sid", node)) if civ != null else -1
+	_news.append({"id": _next_news, "seq": _next_news, "day": day, "kind": kind, "node": node, "name": String(civ.call("name_of", node)) if civ != null else node,
+		"text": text, "sid": sid, "mag": float(NEWS_MAG.get(kind, 1.0)), "detail": "", "official": false})
+	_seq = _next_news
 	_next_news += 1
 	if _news.size() > MAX_NEWS:
 		_news.pop_front()
@@ -854,6 +875,12 @@ func deserialize(d: Dictionary) -> void:
 	_next_spec = int(d.get("next_spec", 1))
 	_news = (d.get("news", []) as Array).duplicate(true)
 	_next_news = int(d.get("next_news", 1))
+	_seq = _next_news - 1
+	for e: Dictionary in _news:   # saves from before news.gd wiring
+		if not e.has("seq"):
+			e["seq"] = int(e["id"])
+			e["sid"] = -1
+			e["mag"] = float(NEWS_MAG.get(String(e["kind"]), 1.0))
 	_digest = (d.get("digest", []) as Array).duplicate()
 	_day = int(d.get("day", 0))
 	_inited = bool(d.get("inited", false))

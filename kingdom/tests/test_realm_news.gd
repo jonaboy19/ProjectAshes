@@ -303,3 +303,32 @@ func test_day_chunks_cost() -> void:
 	for i in 50:
 		nw.items_at(i % WorldGen.settlements.size())
 	assert_int(Time.get_ticks_usec() - t1).is_less(50000)
+
+
+func test_civilization_boom_and_migration_quarter_reach_tavern_news() -> void:
+	var hub := _mk()
+	var nw: RefCounted = hub.mod("news")
+	var civ: RefCounted = hub.mod("civilization")
+	var mig: RefCounted = hub.mod("migration")
+	civ._ensure()
+	civ.discover("s2", "iron", 0.8, 1)
+	mig._news_add("quarter", "s2", "Travellers from the far coast now keep a quarter of their own in Test Town.", 1)
+	mig.send_wave("s3", "s2", 5, "settlers", "", "native", 1)   # routine flow: stays out of the gossip ring
+	# conformant events: seq (the cursor), sid, mag, text, detail, official, and the old keys kept
+	for ev: Dictionary in civ.news_events() + mig.news_events():
+		for k in ["seq", "kind", "sid", "day", "mag", "text", "detail", "official", "id", "node", "name"]:
+			assert_bool(ev.has(k)).is_true()
+	assert_int(int(civ._seq)).is_equal(int(civ._next_news) - 1)
+	_run(hub, 1, 1, ["news"])
+	var items: Array = nw.news_for(2, "tavern", 10)
+	var kinds: Array = items.map(func(x: Dictionary) -> String: return x["kind"])
+	assert_bool(kinds.has("boom")).is_true()
+	assert_bool(kinds.has("quarter")).is_true()
+	assert_bool(kinds.has("wave")).is_false()
+	var n1: int = nw.stats()["items"]
+	_run(hub, 2, 4, ["news"])
+	assert_int(int(nw.stats()["items"])).is_equal(n1)             # no double posting
+	# a far listener hears it later and vaguer
+	var far: Array = nw.news_for(0, "tavern", 10)
+	for it: Dictionary in far:
+		assert_bool(String(it["text"]) != "").is_true()

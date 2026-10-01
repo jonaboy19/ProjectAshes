@@ -22,7 +22,9 @@ const OCC_WEIGHT := {
 const DRIFT_PER_DAY := 0.06
 const IDENTITY_K := 3.0
 const FOOD_PER_RESIDENT := 0.0016         # bread-equivalents per resident per day
-const STOCK_CAP := 4000.0
+const FIRE_P := 0.0025                   # daily chance of a fire in a settlement (living-world tuning: was 0.010, i.e. a blaze every ~3 months)
+const PLAGUE_P := 0.0015                 # extra daily chance of sickness in winter or on a thin larder (was 0.006)
+const STOCK_CAP := 12000.0               # granaries hold the autumn harvest through winter (living-world tuning)
 ## Natural recovery: logistic growth (per day) of pop toward its seeded carrying capacity while the place
 ## is fed. Emergencies only ever subtracted people before (balance run: -29% in two years), so this closes
 ## the ratchet; the equilibrium sits at roughly 1 - loss_rate / POP_REGROWTH of the seeded size.
@@ -39,7 +41,7 @@ const CHAINS := {
 	"smelter": {"inputs": {"ore": 1.0, "wood": 0.5}, "outputs": {"iron": 0.6}},
 	"smithy": {"inputs": {"iron": 0.5, "wood": 0.2}, "outputs": {"tools": 0.5}},
 }
-const SEASON_FARM := {"spring": 0.5, "summer": 1.0, "autumn": 2.0, "winter": 0.1}
+const SEASON_FARM := {"spring": 0.7, "summer": 1.0, "autumn": 1.7, "winter": 0.35}   # winter roots, stores and hunting (mean 0.94)
 
 const EMERGENCY := {
 	"fire": {"window": 8, "cost": 30, "text": "A fire is spreading through %s."},
@@ -117,8 +119,8 @@ func _seed_settlement(s: Dictionary) -> void:
 	var stock := {}
 	for it in ["grain", "flour", "bread", "wood", "fish", "ore", "iron", "tools"]:
 		stock[it] = 0.0
-	stock["bread"] = pop * FOOD_PER_RESIDENT * (20.0 + 20.0 * r.randf())
-	stock["grain"] = pop * FOOD_PER_RESIDENT * (10.0 + 20.0 * r.randf())
+	stock["bread"] = pop * FOOD_PER_RESIDENT * 25.0 * (8.0 + 12.0 * r.randf())   # days of food: a settlement starts with a month or two in store
+	stock["grain"] = pop * FOOD_PER_RESIDENT * 25.0 * (25.0 + 35.0 * r.randf())
 	stock["wood"] = 40.0 + 60.0 * r.randf()
 	stock["iron"] = 8.0 + 10.0 * r.randf()
 	stock["flour"] = 10.0
@@ -503,9 +505,9 @@ func _tick_day_one(sid: Variant, day: int, ctx: Dictionary) -> Array:
 	var starving: bool = int(d["shortage"].get("food", 0)) >= 3
 	if starving:
 		kind = "famine"
-	elif roll < 0.010 + (0.010 if season == "summer" else 0.0) + 0.000005 * d["pop"]:
+	elif roll < FIRE_P + (FIRE_P if season == "summer" else 0.0) + 0.000005 * d["pop"]:
 		kind = "fire"
-	elif roll < 0.016 + 0.000004 * d["pop"] and (bread < d["pop"] * FOOD_PER_RESIDENT * 6.0 or season == "winter"):
+	elif roll < FIRE_P * (2.0 if season == "summer" else 1.0) + 0.000005 * d["pop"] + PLAGUE_P + 0.000004 * d["pop"] and (bread < d["pop"] * FOOD_PER_RESIDENT * 6.0 or season == "winter"):
 		kind = "plague"
 	elif int(d["shortage"].get("tools", 0)) + int(d["shortage"].get("bread", 0)) >= 5 and r.randf() < 0.2:
 		kind = "strike"

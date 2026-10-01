@@ -637,7 +637,22 @@ func _declutter() -> void:
 			n.tag.set_mode(0)
 		else:
 			n.tag.lift_px = 0.0
-			n.tag.show_icon(float(d["pct"]), String(d["stall"]) != "")
+			# an icon that would sit on a full tag (or behind the camera) stays hidden
+			var show := true
+			if cam != null:
+				var iw := n.global_position + Vector3(0, n.tag.base_y, 0)
+				if cam.is_position_behind(iw):
+					show = false
+				else:
+					var ip := cam.unproject_position(iw)
+					for q: Rect2 in placed:
+						if q.grow(14.0).has_point(ip):
+							show = false
+							break
+			if show:
+				n.tag.show_icon(float(d["pct"]), String(d["stall"]) != "")
+			else:
+				n.tag.set_mode(0)
 
 
 ## Keep every visible tag the same size on screen whatever the distance (cheap: a handful of nodes).

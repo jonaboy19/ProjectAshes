@@ -27,6 +27,8 @@ const NICK_AT := 4.5
 const SUBJECT_CAP := 40
 const DIP_CAP := 32
 
+const DELEGATION_P := 0.035   # weekly chance of a delegation (about 1.8 a year realm-wide)
+const MIN_POST_MAG := 0.5   # routine flows (migration waves, arrivals) stay out of the gossip ring
 const SOURCES := ["governance", "notables", "civilization", "migration", "ecology"]
 const VAGUE := {
 	"expedition_lost": "Folk whisper that an expedition has vanished somewhere %s.",
@@ -49,6 +51,41 @@ const VAGUE := {
 	"delegation": "Fine carriages were seen on the road %s.",
 	"marriage": "They say two great houses are to be joined, somewhere %s.",
 	"embassy": "Foreigners are settling in %s.",
+	# ecology
+	"apex_arrival": "Something huge and hungry has been seen %s.",
+	"apex_slain": "Hunters say a great beast %s is dead at last.",
+	"prey_boom": "The game is thick as flies %s this year.",
+	"species_gone": "Old hunters swear a whole kind of beast has vanished from the land %s.",
+	"migration": "Herds are moving on the roads %s.",
+	"sighting": "Somebody claims to have seen something strange %s.",
+	"monster_raid": "Monsters hit a settlement %s, they say.",
+	"monster_march": "Monsters are massing and moving %s.",
+	"monster_settled": "Monsters have made a lair %s.",
+	"apex_gone": "The great beast %s has not been seen in a long while.",
+	"adventurers": "Sell-swords are drifting in %s.",
+	"adventurers_left": "The sell-swords have left %s.",
+	"brood": "Hunters found a nest %s.",
+	"monster_parley": "Some say the monsters %s sent envoys.",
+	"monster_trade": "Monster traders were seen at a market %s.",
+	# civilization and migration
+	"boom": "There is talk of a strike, and riches, %s.",
+	"founded": "Settlers have put up huts %s.",
+	"tier_up": "A place %s is growing fast.",
+	"tier_down": "A place %s is dwindling.",
+	"ruin": "A settlement %s has been abandoned.",
+	"route_lost": "A road %s has been cut, and the carters grumble.",
+	"depleted": "Diggers %s say the seam has run dry.",
+	"resettled": "Folk have gone back to old ruins %s.",
+	"project": "Masons are busy %s.",
+	"failed": "Settlers %s gave up their new camp and walked away.",
+	"wave": "A column of settlers was seen on the road %s.",
+	"arrival": "New faces have arrived %s.",
+	"refugees": "Ragged refugees are on the roads %s.",
+	"quarter": "Foreigners have a quarter of their own %s now.",
+	"tradition": "A foreign custom has taken root %s.",
+	"master": "A master craftsman has been heard of %s.",
+	"master_arrived": "A master craftsman has come to settle %s.",
+	"master_left": "A master craftsman has left %s.",
 }
 const NOUN := {
 	"expedition_lost": "a vanished expedition", "expedition_missing": "an overdue expedition", "expedition_out": "an expedition setting out",
@@ -56,6 +93,14 @@ const NOUN := {
 	"crisis_resolved": "a problem solved", "succession": "a new ruler", "revolt": "a revolt", "strike": "a strike", "petition": "a petition",
 	"law": "a new law", "founded_org": "a new foundation", "research_done": "a discovery", "relic_lead": "strange relics",
 	"delegation": "a foreign delegation", "marriage": "a wedding of houses", "embassy": "an embassy",
+	"apex_arrival": "a huge beast", "apex_slain": "a slain beast", "prey_boom": "plentiful game", "species_gone": "a vanished species",
+	"migration": "moving herds", "sighting": "a strange sighting", "monster_raid": "a monster raid", "monster_march": "a marching horde",
+	"monster_settled": "a monster lair", "apex_gone": "a missing beast", "adventurers": "arriving adventurers",
+	"adventurers_left": "departing adventurers", "brood": "a nest", "monster_parley": "monster envoys", "monster_trade": "monster traders", "boom": "a mining strike", "founded": "a new camp", "tier_up": "a growing town",
+	"tier_down": "a shrinking town", "ruin": "an abandoned place", "route_lost": "a cut road", "depleted": "an empty mine",
+	"resettled": "a resettled ruin", "project": "new building works", "failed": "a failed camp", "wave": "settlers on the move", "arrival": "newcomers",
+	"refugees": "refugees", "quarter": "a foreign quarter", "tradition": "a foreign custom", "master": "a master craftsman",
+	"master_arrived": "a master craftsman", "master_left": "a departing craftsman",
 }
 const DEED_NICK := {
 	"beast_slain": ["Wolfbane", "the Beast-Slayer", "Fangbreaker", "Hornless", "the Hunter-Saint"],
@@ -522,7 +567,7 @@ func _diplomacy_day(day: int) -> void:
 		if a != b and float(fa.relation(a, b).get("trust", 0.0)) >= 55.0:
 			fa.propose_marriage(a, b)
 	# A delegation travels to a court: friendly powers send them most, which deepens the friendship.
-	if r.randf() < 0.15:
+	if r.randf() < DELEGATION_P:
 		var friendly: Array = []
 		for a1: String in ids:
 			for b1: String in ids:
@@ -588,7 +633,7 @@ func _ingest() -> void:
 		var evs: Array = m.news_events(last) if m.get_method_argument_count("news_events") > 0 else m.news_events()
 		for e: Dictionary in evs:
 			mx = maxi(mx, int(e.get("seq", 0)))
-			if int(e.get("seq", 0)) > last:
+			if int(e.get("seq", 0)) > last and float(e.get("mag", 1.0)) >= MIN_POST_MAG:
 				post(String(e.get("kind", "news")), int(e.get("sid", -1)), String(e.get("text", "")), float(e.get("mag", 1.0)),
 					String(e.get("detail", "")), bool(e.get("official", false)), int(e.get("day", _day)))
 		_cursor[src] = mx

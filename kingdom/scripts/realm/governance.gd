@@ -14,6 +14,9 @@ const Soc := preload("res://scripts/realm/society.gd")
 const SAVE_VERSION := 1
 const YEAR := 360
 const TERM_DAYS := 1440
+const LAW_ANGER := -0.25       # a bloc must be this unhappy before a council votes a law change
+const PETITION_EASE_GAP := 600  # a petition is only heard if no law changed in this many days
+const LAW_COOLDOWN := 2000     # days between agenda law changes in one settlement (laws are stable for years)
 const BLOCS := ["merchants", "farmers", "soldiers", "scholars", "clergy", "poor", "outsiders"]
 const SEATS := ["merchants", "military", "landowners", "guilds", "temple", "commons"]
 const SEAT_BLOC := {"merchants": "merchants", "military": "soldiers", "landowners": "farmers", "guilds": "scholars",
@@ -324,6 +327,8 @@ func set_law(sid: int, key: String, level: int, reason := "decree") -> bool:
 	if law_level(sid, key) == level:
 		return false
 	(_laws[str(sid)] as Dictionary)[key] = level
+	if _react.has(str(sid)):
+		(_react[str(sid)] as Dictionary)["law"] = _day
 	_static.erase(str(sid))
 	_emit("law", sid, "%s now sets %s to \"%s\" (%s)." % [_sname(sid), key.replace("_", " "), law(sid, key), reason], 1.0, "", true)
 	return true
@@ -561,8 +566,8 @@ func _reelect_prob(ins: Dictionary) -> float:
 		for b: String in BLOCS:
 			m += float(ops.get(b, 0.0))
 		m /= float(BLOCS.size())
-		return clampf(0.55 + 0.6 * m + 0.25 * (_quality(ins) - 0.5), 0.05, 0.95)
-	return 0.6
+		return clampf(0.76 + 0.6 * m + 0.25 * (_quality(ins) - 0.5), 0.05, 0.95)
+	return 0.85
 
 
 ## One institution's weekly step (dt = 7 days when sliced, `days` in catch-up).
@@ -734,7 +739,7 @@ func _reactions(sid: int, msgs: Array, dt := 1) -> void:
 	var name := _sname(sid)
 	if _day < 90:
 		return   # a fresh world gets a season of grace before anyone takes to the streets
-	if wv < -0.4 and int(neg[worst]) >= 10 and _day - int((rc["pet"] as Dictionary).get(worst, -999)) > 60:
+	if wv < -0.4 and int(neg[worst]) >= 10 and _day - int((rc["pet"] as Dictionary).get(worst, -999)) > 60 and _day - int(rc.get("law", -99999)) > PETITION_EASE_GAP:
 		(rc["pet"] as Dictionary)[worst] = _day
 		_emit("petition", sid, "The %s of %s petition their %s." % [worst, name, _title(_inst["s:%d" % sid])], 1.0,
 			"They want the laws that hurt them eased.", true)
@@ -933,8 +938,9 @@ func _agenda(sid: int) -> void:
 	var worst_v := 1.0
 	for b2: String in BLOCS:
 		worst_v = minf(worst_v, float((_op[str(sid)] as Dictionary)[b2]))
-	if roll < 0.5 and worst_v > -0.15:
-		roll = 0.75   # nobody is angry enough to change a law: build something instead
+	var rc_l: Dictionary = _react[str(sid)]
+	if roll < 0.5 and (worst_v > LAW_ANGER or _day - int(rc_l.get("law", -99999)) < LAW_COOLDOWN):
+		roll = 0.75   # nobody is angry enough to change a law (or one was changed recently): build something instead
 	if roll < 0.5:
 		# Law: the most discontented bloc asks for the change that helps it most.
 		var ops: Dictionary = _op[str(sid)]

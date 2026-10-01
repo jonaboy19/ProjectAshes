@@ -609,7 +609,10 @@ static func _process_oldest_sight(now: int) -> void:
 		var mail_ref: WeakRef = mail["viewer"]
 		if mail_ref.get_ref() != viewer or int(mail["observed_ms"]) != now:
 			mail = {"viewer": viewer_ref, "visible": PackedVector2Array(), "observed_ms": now}
-		(mail["visible"] as PackedVector2Array).append(Vector2(target.x, target.z))
+		# (a cast-and-append on a dictionary value only changes a temporary copy: write it back)
+		var seen_now: PackedVector2Array = mail["visible"]
+		seen_now.append(Vector2(target.x, target.z))
+		mail["visible"] = seen_now
 		mail["observed_ms"] = now
 		_sight_mail[observer_id] = mail
 		while _sight_mail.size() > SIGHT_QUEUE_MAX:

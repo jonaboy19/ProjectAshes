@@ -119,7 +119,7 @@ const STUCK_PROGRESS := 0.3
 ## Smart object sessions advance at this rate (their state machine allocates a result per update).
 const SESSION_HZ := 10.0
 ## Real seconds an act is held after arriving when it is not the default MIN_PERFORM.
-const PERFORM_FOR := {Act.PROTEST: 3.0, Act.PATROL: 3.5, Act.FIREFIGHT: 5.0, Act.ALARM: 3.0, Act.WATCH: 6.0}
+const PERFORM_FOR := {Act.PROTEST: 3.0, Act.PATROL: 3.5, Act.FIREFIGHT: 5.0, Act.ALARM: 7.0, Act.WATCH: 6.0}
 const PROTEST_COOLDOWN_MS := 25000
 const GREET_RANGE := 3.4
 const BUBBLE_SECONDS := 3.2

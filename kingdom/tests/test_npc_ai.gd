@@ -295,3 +295,33 @@ func test_24_brains_decide_cheaply() -> void:
 	# A decision reuses its context dictionary: no allocation per decision.
 	var b0 := brains[0]
 	assert_bool(is_same(b0.context(10.0, 1, false, 0.0, 0.0, false, 0.5), b0.context(11.0, 1, false, 0.0, 0.0, false, 0.5))).is_true()
+
+
+# ---------------------------------------------------------------- sensing pipeline (a hostile in plain sight scares)
+func test_a_hostile_in_the_open_is_seen_and_feared() -> void:
+	var viewer := CharacterBody3D.new()
+	var beast := CharacterBody3D.new()
+	beast.add_to_group("team1")
+	beast.add_to_group("combatant")
+	get_tree().root.add_child(viewer)
+	get_tree().root.add_child(beast)
+	viewer.global_position = Vector3(0, 0, 0)
+	beast.global_position = Vector3(4, 0, 0)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var b := UtilityBrain.new(41, 0)
+	UtilityBrain._sense_ms = -100000
+	UtilityBrain._ray_window_ms = -100000
+	var seen := 0
+	var danger := 0.0
+	for i in 5:
+		var out := b.sense_threats(viewer, get_tree(), 1)
+		var vis: PackedVector2Array = out.get("remembered", out["visible"])
+		seen += vis.size()
+		var d: Array = b.remembered_danger(Vector2(0, 0), vis, int(out.get("observed_ms", -1)))
+		danger = maxf(danger, float(d[0]))
+		await get_tree().physics_frame
+	viewer.queue_free()
+	beast.queue_free()
+	assert_int(seen).is_greater(0)
+	assert_float(danger).is_greater(0.7)

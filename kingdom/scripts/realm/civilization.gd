@@ -26,6 +26,7 @@ const DEMOTE_DAYS := 45.0
 const RUIN_POP := 6
 const RUIN_DAYS := 60.0
 const DYNAMIC_CAP := 12
+const FARM_FEEDS_STATIC := 80.0                              # what a chain farm feeds in settlements.gd (4 grain/day x 0.94 seasons / 0.04 a head, less milling loss)
 const FARM_FEEDS := 40.0                                     # people one farm unit feeds
 const FARM_JOBS := 14.0
 const SERVICE := 0.25                                        # shop/smith/carter jobs per resident at full trade
@@ -33,6 +34,13 @@ const OCCUPANCY := 0.9                                       # neutral pop / hou
 const GROW_RATE := 0.0034
 const SHRINK_RATE := 0.0055
 const MAX_NEWS := 40
+const CAMP_FAIL_P := 0.0025             # weekly base chance a young camp is given up (scaled up by danger, poor safety and unrest)
+const FOUND_P := 0.06                   # weekly chance that founders set out (about 1.5 camps a year)
+const FOUND_FROM := 120                 # no frontier camps in the first months of a world
+const FOUND_GAP := 75                   # days between two foundings, whoever founds
+const ECO_DANGER := 0.6                 # share of ecology danger_level (0..1) that weighs on a place as monster pressure
+const ECO_PROSPERITY := 0.04            # attraction from an adventurer economy (inns, healers, bounties)
+const NEWS_MAG := {"boom": 2.0, "founded": 1.5, "tier_up": 1.5, "tier_down": 1.5, "ruin": 2.5, "route_lost": 1.2, "depleted": 1.2, "resettled": 1.5, "project": 0.8, "failed": 1.5}
 const MAX_HISTORY := 6
 const KEEP_DONE_SITES := 40
 
@@ -74,6 +82,7 @@ var _blocked: Dictionary = {}           # edge key -> day the lost route reopens
 var _isolated: Dictionary = {}          # node -> day it is reconnected (a town the world forgot)
 var _news: Array = []
 var _next_news := 1
+var _seq := 0                           # news.gd cursor counter (= last event id)
 var _digest: Array = []
 var _day := 0
 var _inited := false
@@ -335,8 +344,8 @@ func pull_of(node: String) -> float:
 	return float(place(node).get("pull", 0.0))
 
 
-func news_events() -> Array:
-	return _news
+func news_events(since := 0) -> Array:
+	return _news if since <= 0 else _news.filter(func(e: Dictionary) -> bool: return int(e["seq"]) > since)
 
 
 func news_since(last_id: int) -> Array:
@@ -500,6 +509,69 @@ func found_place(pos: Vector2, pname := "", founder := "", day := -1, pop := 12)
 	return node
 
 
+## Settlement id a news item is filed under: a static place's own sid, a dynamic camp files under the nearest static place (news.gd
+## measures road distance between settlement ids only).
+func news_sid(node: String) -> int:
+	var p: Dictionary = _places.get(node, {})
+	if p.is_empty():
+		return -1
+	if not bool(p["dyn"]):
+		return int(p["sid"])
+	var best := -1
+	var bd := INF
+	var pos := Vector2(p["pos"][0], p["pos"][1])
+	for s: Dictionary in WorldGen.settlements:
+		var d := pos.distance_squared_to(s["pos"])
+		if d < bd:
+			bd = d
+			best = int(s["id"])
+	return best
+
+
+## notables.gd hook: an NPC founder stakes a claim near settlement `req.near`. req {founder, nid, near, name, kind}. Returns {ok, node}.
+func request_founding(req: Dictionary) -> Dictionary:
+	_ensure()
+	var near := int(req.get("near", -1))
+	if near < 0 or near >= WorldGen.settlements.size() or dynamic_count() >= DYNAMIC_CAP or _day - _last_found() < FOUND_GAP:
+		return {"ok": false}
+	var cm := _mod("camps")
+	if cm == null:
+		return {"ok": false}
+	var home: Vector2 = WorldGen.settlements[near]["pos"]
+	var r := _rng("reqfound", _day, String(req.get("nid", "")))
+	var best := Vector2.ZERO
+	var bs := -1.0
+	for _i in 10:
+		var ang := r.randf() * TAU
+		var pos := home + Vector2(cos(ang), sin(ang)) * r.randf_range(130.0, 320.0)
+		if _nearest_dist(pos) < 160.0:
+			continue
+		var sc := float(cm.call("score_site", pos)) + 0.3 * _coverage(pos)
+		if sc > bs and float(cm.call("score_site", pos)) >= float(cm.get("MIN_CAMP_SCORE")) + 0.03:
+			bs = sc
+			best = pos
+	if bs < 0.0:
+		return {"ok": false}
+	var node := found_place(best, String(req.get("name", "")), String(req.get("founder", "")), _day, 9 + r.randi() % 6)
+	return {"ok": node != "", "node": node}
+
+
+## governance.gd hook: a council approved a project at settlement `sid`. Kinds: market walls school temple granary hospital hostel.
+## Queues it at the place with a high priority (the treasury still has to pay); returns {ok, id}.
+func request_project(sid: int, kind: String) -> Dictionary:
+	_ensure()
+	var p: Dictionary = _places.get("s%d" % sid, {})
+	var k: String = {"walls": "wall", "granary": "irrigation", "hospital": "well", "hostel": "house", "temple": "school"}.get(kind, kind)
+	if p.is_empty() or bool(p["ruin"]) or not PROJECTS.has(k) or _proj_count(p, k) >= int(PROJECTS[k]["max"]) or _proj_open(p, k) >= 1 or (p["proj"] as Array).size() >= 6:
+		return {"ok": false}
+	var pid := _next_project
+	_next_project += 1
+	_projects[pid] = {"id": pid, "node": String(p["node"]), "kind": k, "cost": int(_project_cost(p, k)), "days": snappedf(_project_days(p, k), 0.1),
+		"state": "queued", "queued": _day, "start": -1, "done": -1, "site": 0, "score": 0.95}
+	(p["proj"] as Array).append(pid)
+	return {"ok": true, "id": pid}
+
+
 static func _a(word: String) -> String:
 	return "an" if word.substr(0, 1) in ["a", "e", "i", "o", "u"] else "a"
 
@@ -602,6 +674,29 @@ func _cov_of(p: Dictionary, day: int, n: float) -> float:
 	return float(p["cov"])
 
 
+## Ecology's view of the land around a place (null-guarded): {danger 0..1, prosperity 0..1}. A dynamic camp reads its nearest settlement's zone.
+func _eco_read(p: Dictionary) -> Dictionary:
+	var eco := _mod("ecology")
+	if eco == null or not eco.has_method("danger_level"):
+		return {"danger": 0.0, "prosperity": 0.0}
+	var sid := int(p["sid"]) if not bool(p["dyn"]) else news_sid(String(p["node"]))
+	if sid < 0:
+		return {"danger": 0.0, "prosperity": 0.0}
+	var ae: Dictionary = eco.call("adventurer_economy", sid) if eco.has_method("adventurer_economy") else {}
+	return {"danger": clampf(float(eco.call("monster_pressure", sid)), 0.0, 1.0) * (1.0 if not bool(p["dyn"]) else 0.8), "prosperity": clampf(float(ae.get("prosperity", 0.0)), 0.0, 1.0)}
+
+
+## The settlement's real farm chains follow what the place has built (farmsteads, irrigation): the food it is credited with is grown.
+func _sync_farms(p: Dictionary) -> void:
+	var stl := _mod("settlements")
+	if stl == null or bool(p["dyn"]):
+		return
+	var sid := int(p["sid"])
+	var want := int(round(float(p["farms"]) * (1.0 + float(p["food_x"]))))
+	if want > int((stl.call("chains", sid) as Dictionary).get("farm", 0)):
+		stl.call("set_chain", sid, "farm", want)
+
+
 func _pc(p: Dictionary) -> float:
 	return float(p["popc"])
 
@@ -613,7 +708,7 @@ func _safety(p: Dictionary, cov: float) -> float:
 ## How many people the land and the roads can feed (farms, hunting, imports); static places keep a seeded import term so the capital's
 ## grain from the provinces does not read as famine.
 func _food_cap(p: Dictionary, R: float) -> float:
-	return 18.0 + FARM_FEEDS * float(p["farms"]) * (1.0 + float(p["food_x"])) + 40.0 * R + float(p["fimp"])
+	return 18.0 + (FARM_FEEDS if bool(p["dyn"]) else FARM_FEEDS_STATIC) * float(p["farms"]) * (1.0 + float(p["food_x"])) + 40.0 * R + float(p["fimp"])
 
 
 func _food_ratio(p: Dictionary, R: float) -> float:
@@ -707,12 +802,14 @@ func _inputs(p: Dictionary, day: int, n := 1.0) -> Dictionary:
 	var Hr := pop / maxf(1.0, float(p["housing"]))
 	var boom := _boom_power(p, day)
 	var cut_pen := 0.35 * minf(1.0, float(p["cut"]) / 60.0) if cut else 0.0
+	var eco_r := _eco_read(p)
 	var A := 0.27 * S + 0.20 * clampf(F / 1.2, 0.0, 1.0) + 0.20 * clampf(Jr / 1.3, 0.0, 1.0) + 0.15 * R + 0.08 * _leader_cached(p, day, n) \
 		+ 0.10 * clampf(1.25 - Hr, 0.0, 1.0) + 0.4 * boom - 0.25 * float(p["unrest"]) - 0.10 * float(p["crime"]) - cut_pen
+	A += ECO_PROSPERITY * float(eco_r["prosperity"])
 	var mg := _mod("migration")
 	if mg != null and mg.has_method("master_count"):
 		A += 0.04 * minf(2.0, float(mg.call("master_count", node)))
-	return {"Kf": _food_cap(p, R), "Kj": _jobs_cap(p, R), "S": S, "F": F, "J": Jr, "R": R, "H": Hr, "boom": boom, "A": clampf(A, 0.0, 1.0), "cut": cut, "links": live, "trade": trade}
+	return {"eco": float(eco_r["danger"]), "Kf": _food_cap(p, R), "Kj": _jobs_cap(p, R), "S": S, "F": F, "J": Jr, "R": R, "H": Hr, "boom": boom, "A": clampf(A, 0.0, 1.0), "cut": cut, "links": live, "trade": trade}
 
 
 # --------------------------------------------------------------- the step (closed form in n days)
@@ -768,6 +865,10 @@ func _step_place(p: Dictionary, day: int, n: float, ctx: Dictionary) -> Array:
 	p["crime"] = float(p["crime"]) + (c_tgt - float(p["crime"])) * k_fast
 	var decay := exp(-0.02 * n)
 	p["monster"] = float(p["monster"]) * decay
+	if float(inp["eco"]) > 0.0:   # the wild around the place keeps pressing: monsters settle at a share of ecology's danger
+		var m_tgt := ECO_DANGER * float(inp["eco"])
+		if float(p["monster"]) < m_tgt:
+			p["monster"] = float(p["monster"]) + (m_tgt - float(p["monster"])) * (1.0 - exp(-0.05 * n))
 	if bool(ctx.get("at_war", false)):
 		var frontier := bool(p["dyn"]) or (int(p["sid"]) < WorldGen.settlements.size() and String(WorldGen.settlements[int(p["sid"])]["kind"]) == "frontier_town")
 		p["war"] = minf(1.0, float(p["war"]) + (0.004 if frontier else 0.0015) * n)
@@ -1160,6 +1261,7 @@ func _complete_project(p: Dictionary, pr: Dictionary, day: int) -> Array:
 			p["housing"] = float(p["housing"]) + 6.0
 		"irrigation":
 			p["food_x"] = float(p["food_x"]) + 0.15
+			_sync_farms(p)
 		"guards":
 			p["patrol"] = minf(0.35, float(p["patrol"]) + 0.08)
 		"wall":
@@ -1261,6 +1363,16 @@ func _weekly_place(p: Dictionary, day: int, weeks: float) -> Array:
 		return _resettle(p, day, weeks)
 	var node: String = p["node"]
 	var r := _rng("week", day, node)
+	# a young frontier camp can simply fail: a hard winter, fever, raiders or the wild drive the settlers off
+	if bool(p["dyn"]) and int(p["tier"]) == 0 and day - int(p["founded"]) > 90 and _pop(p) < 40:
+		var eco_d := float(_eco_read(p)["danger"])
+		var hz := CAMP_FAIL_P * (0.4 + 2.5 * eco_d + 1.2 * (1.0 - clampf(float(p["S"]), 0.0, 1.0)) + 0.6 * float(p["unrest"]))
+		if r.randf() < 1.0 - pow(1.0 - hz, weeks):
+			var why := "driven off by monsters" if eco_d > 0.25 else ("starved out by a hard winter" if float(p["F"]) < 1.0 else "emptied by fever")
+			var fline := "The settlers at %s, %s, have given up." % [String(p["name"]), why]
+			_news_add("failed", node, fline, day)
+			_hist(p, day, "failed: %s" % why)
+			return [fline] + _make_ruin(p, day)
 	# a prospector finds something (rare)
 	var q_find := 0.0012 * (0.6 + 0.2 * float(p["tier"]))
 	if not no_finds.has(node) and r.randf() < 1.0 - pow(1.0 - q_find, weeks):
@@ -1277,6 +1389,7 @@ func _weekly_place(p: Dictionary, day: int, weeks: float) -> Array:
 		var stl := _mod("settlements")
 		if stl != null and not bool(p["dyn"]):
 			stl.call("add_structure", int(p["sid"]), "farm", 1)
+			_sync_farms(p)
 		_hist(p, day, "new farmstead")
 	# a trade route reroutes (rare)
 	if int(p["tier"]) >= 1 and r.randf() < 1.0 - pow(1.0 - 0.0002, weeks):
@@ -1337,10 +1450,10 @@ func _resettle(p: Dictionary, day: int, weeks: float) -> Array:
 
 ## Weekly founding of a dynamic camp along a safe route or near a find (cap DYNAMIC_CAP).
 func _found_step(day: int, weeks: float) -> Array:
-	if dynamic_count() >= DYNAMIC_CAP or day < 30:
+	if dynamic_count() >= DYNAMIC_CAP or day < FOUND_FROM or day - _last_found() < FOUND_GAP:
 		return []
 	var r := _rng("founding", day, 0)
-	if r.randf() >= 1.0 - pow(1.0 - 0.14, weeks):
+	if r.randf() >= 1.0 - pow(1.0 - FOUND_P, weeks):
 		return []
 	var cm := _mod("camps")
 	if cm == null:
@@ -1395,6 +1508,15 @@ func _found_step(day: int, weeks: float) -> Array:
 	return ["%s have raised a camp called %s." % [_up(String(_places[node]["founder"])), _places[node]["name"]]]
 
 
+## Day the latest dynamic place was founded (founders, finds and notables share one pace: a camp every few months at most).
+func _last_found() -> int:
+	var d := -9999
+	for node: String in _places:
+		if bool(_places[node]["dyn"]):
+			d = maxi(d, int(_places[node]["founded"]))
+	return d
+
+
 func _nearest_dist(pos: Vector2) -> float:
 	var bd := INF
 	for node: String in _places:
@@ -1424,7 +1546,9 @@ func _push_prices(ctx: Dictionary) -> void:
 # --------------------------------------------------------------- news / history
 
 func _news_add(kind: String, node: String, text: String, day: int) -> void:
-	_news.append({"id": _next_news, "day": day, "kind": kind, "node": node, "name": name_of(node), "text": text})
+	_news.append({"id": _next_news, "seq": _next_news, "day": day, "kind": kind, "node": node, "name": name_of(node), "text": text,
+		"sid": news_sid(node), "mag": float(NEWS_MAG.get(kind, 1.0)), "detail": "", "official": false})
+	_seq = _next_news
 	_next_news += 1
 	if _news.size() > MAX_NEWS:
 		_news.pop_front()
@@ -1571,6 +1695,12 @@ func deserialize(d: Dictionary) -> void:
 	_ids_cache = []
 	_news = (d.get("news", []) as Array).duplicate(true)
 	_next_news = int(d.get("next_news", 1))
+	_seq = _next_news - 1
+	for e: Dictionary in _news:   # saves from before news.gd wiring
+		if not e.has("seq"):
+			e["seq"] = int(e["id"])
+			e["sid"] = news_sid(String(e["node"]))
+			e["mag"] = float(NEWS_MAG.get(String(e["kind"]), 1.0))
 	_digest = (d.get("digest", []) as Array).duplicate()
 	_day = int(d.get("day", 0))
 	_inited = bool(d.get("inited", false))
