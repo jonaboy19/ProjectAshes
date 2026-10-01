@@ -489,3 +489,11 @@ The user isn't happy with the overall look on phone, or with the main character.
 2. Upgrade the character models in each box with the best free models you have. The asset audit's unused list (555 MB) is the first place to look.
 3. Don't apply anything game-wide until the user picks a style. After that, the chosen style is rolled out (`docs/design/STYLE_LAB.md`).
 **Unused models (user request):** keep the audit list. Anything that doesn't fit Region 1 gets tagged for Region 2 in the audit doc, so nothing is wasted.
+
+## 2026-10-01 (cloud -> local + Codex): STYLE G IS THE GAME STYLE (user decision). Art pass to bring G to 75%+
+The user picked Style Lab box **G** (`kingdom/scenes/style_lab`, run `--style_lab --box=G`), the recreation of `docs/art/reference/03_TARGET_gate_market_detailed.webp`. It's at about 55–60% of the target today. Cloud is writing the skills `ashes-style-g`, `ashes-style-g-assets` and `ashes-style-g-qa`, refactoring G into a reusable style resource, and adding ivy, props, crowd, arch and warm bounce in the lab. **Your art pass** (judge on GPU and the S22 against 03 with `ashes-style-g-qa`):
+1. **Hero (top priority; the user dislikes the current one):** a hooded traveller. Brown hair, green tunic, hooded brown leather vest, satchel, bracers, boots, believable proportions, under about 6k tris, on the existing UAL skeleton. Codex checks animation fit.
+2. **Houses and stalls in G quality:** weathered painterly-real timber, plaster and stone (replace the flat Meshy atlases), LOD0/1/2, at 1K textures on the phone.
+3. **Foliage and dressing kit:** ivy, flower boxes, potted plants, produce, pottery, sacks.
+4. **Lighting on the real GPU:** golden bounce, local contrast, and 2 shadow splits at 60 m on the phone. Report fps and draws for G on the S22.
+5. Then roll G out to Thornfield first (`docs/design/VERTICAL_SLICE.md`), then all towns.
