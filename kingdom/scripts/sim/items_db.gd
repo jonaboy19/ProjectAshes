@@ -247,6 +247,43 @@ static func spoiled_into(id: String, age_hours: float) -> String:
 	return String(info(id).get("spoils_into", "spoiled_food"))
 
 
+## Shelf life of at least this many hours counts as preserved (jerky, smoked, salted, pickled, dried, hardtack ...): it
+## keeps its nutrition longer before it goes off.
+const PRESERVED_HOURS := 1000.0
+## Fresh food loses nutrition from this share of its shelf life on (preserved food later), down to STALE_FLOOR just before it spoils.
+const STALE_START := 0.5
+const STALE_START_PRESERVED := 0.8
+const STALE_FLOOR := 0.6
+## Stack property that carries a pack stack's age in game hours (absent = fresh).
+const AGE_PROP := "age_hours"
+
+
+static func is_preserved(id: String) -> bool:
+	return spoil_hours(id) >= PRESERVED_HOURS
+
+
+## Nutrition multiplier of food that is `age_hours` old: 1.0 while fresh, falling to STALE_FLOOR as it nears spoiling
+## (0.0 once spoiled). Items without spoil data are always 1.0.
+static func freshness(id: String, age_hours: float) -> float:
+	var h := spoil_hours(id)
+	if h <= 0.0:
+		return 1.0
+	var f := age_hours / h
+	if f >= 1.0:
+		return 0.0
+	var start := STALE_START_PRESERVED if is_preserved(id) else STALE_START
+	if f <= start:
+		return 1.0
+	return lerpf(1.0, STALE_FLOOR, (f - start) / (1.0 - start))
+
+
+## Closed-form ageing of one stack: {age: new age in hours, into: the spoiled item id ("" = still good)}. Any amount of time
+## (a night's sleep, a week of fast travel) costs the same single step.
+static func age_by(id: String, age_hours: float, add_hours: float) -> Dictionary:
+	var age := maxf(age_hours, 0.0) + maxf(add_hours, 0.0)
+	return {"age": age, "into": spoiled_into(id, age)}
+
+
 # --- sets --------------------------------------------------------------------------------------------------------------
 
 static func set_of(id: String) -> String:

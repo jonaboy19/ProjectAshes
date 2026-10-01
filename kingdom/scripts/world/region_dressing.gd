@@ -242,7 +242,12 @@ func _build_part_node(root: Node3D, site: Dictionary, part: Array) -> void:
 	n.set_meta("bakeable", not String(part[0]).begins_with("nature:") and not (String(part[0]).begins_with("props/") and Breakable.is_breakable(String(part[0]).trim_prefix("props/"))))
 	# Settle on the lowest ground under the footprint so nothing floats on a slope.
 	var box := Assets.visual_aabb(n)
-	var ground := _footprint_ground(world, basis * Basis(Vector3.UP, float(part[2])), box)
+	var pbasis := basis * Basis(Vector3.UP, float(part[2]))
+	if String(part[0]).begins_with("farm/crop_") and _ground_spread(world, pbasis, box) > CROP_MAX_SPREAD:
+		root.remove_child(n)      # a field tile on a hillside is buried by the lowest-corner snap (lint): leave that tile out
+		n.free()
+		return
+	var ground := _footprint_ground(world, pbasis, box)
 	n.global_position = Vector3(world.x, ground + (float(part[4]) if part.size() > 4 else 0.0), world.z)
 	var prop := String(part[0]).trim_prefix("props/")
 	if String(part[0]).begins_with("props/") and Breakable.is_breakable(prop):
@@ -375,6 +380,23 @@ func _base_clutter(root: Node3D, world: Vector3, basis: Basis, box: AABB) -> voi
 		root.add_child(mi)
 		mi.rotation.y = rng.randf() * TAU
 		mi.global_position = Vector3(at.x, WorldGen.height(at.x, at.z) - 0.03, at.z)
+
+
+## Steepest field tile a site lays (m of height difference across its footprint, a tile is 1.2 m tall); steeper tiles are skipped.
+const CROP_MAX_SPREAD := 0.9
+
+
+## Height difference across the part's footprint (centre and the corners at 80 %).
+func _ground_spread(world: Vector3, basis: Basis, box: AABB) -> float:
+	var lo := WorldGen.height(world.x, world.z)
+	var hi := lo
+	for corner in [Vector3(box.position.x, 0, box.position.z), Vector3(box.end.x, 0, box.position.z),
+			Vector3(box.position.x, 0, box.end.z), Vector3(box.end.x, 0, box.end.z)]:
+		var q: Vector3 = world + basis * (corner * 0.8)
+		var h := WorldGen.height(q.x, q.z)
+		lo = minf(lo, h)
+		hi = maxf(hi, h)
+	return hi - lo
 
 
 func _footprint_ground(world: Vector3, basis: Basis, box: AABB) -> float:

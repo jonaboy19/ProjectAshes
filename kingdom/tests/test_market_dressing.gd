@@ -91,6 +91,7 @@ func test_settlement_dressing_is_render_only_and_within_budget() -> void:
 	builder.focus = Vector3(town["pos"].x, 0.0, town["pos"].y)
 	for _i in 6:                 # one settlement per call
 		builder.update_now()
+	builder.finish_prop_jobs()   # the district props stream over frames in the game
 	assert_bool(builder._built.has(town["id"])).is_true()
 	var root: Node3D = builder._built[town["id"]]
 	# every goods MultiMesh: no shadows, culled early, shared material

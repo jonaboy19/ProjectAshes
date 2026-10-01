@@ -13,8 +13,8 @@ description: The Rising Ashes item, recipe, shop and loot database (ItemsDB, 1,2
 - **Crafting:** `crafting.gd` handles merge, `salvage` and tool tier bonuses. Stations: oven, brew vat, loom and jeweller's bench, or an existing fallback station.
 
 ## Hooks not wired yet (check before assuming)
-- Equipment visuals: attach `visual_node` when `Life.equipment.changed` fires.
+- (Done) Equipment visuals: `scripts/actors/equipment_visuals.gd` attaches `visual_node` to the skeleton bones on `Life.equipment.changed` (player.gd `_equip_vis`); seating offsets in its SEAT table still need a visual pass on a PC render.
 - `Life.apply_item_effect(id, info) -> String` for pills, scrolls, coatings and recall. Until it exists those items are refused.
 - `req_level` isn't enforced in `equip()`.
-- Spoilage data is unused (nothing ages stacks). `plant()` doesn't consume seeds.
+- (Done) Spoilage: `Life.age_pack(hours)` ages food stacks (`age_hours` stack property) on the day tick (`_spoilage_tick`, closed form on catch-up); spoiled stacks become `spoils_into`; stale food feeds less (`ItemsDB.freshness`). `plant()` still doesn't consume seeds.
 - Crafting screen rows show blank white icons for many recipes.

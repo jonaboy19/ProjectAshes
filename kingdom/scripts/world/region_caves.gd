@@ -185,6 +185,8 @@ static func _find(sp: Array, rng: RandomNumberGenerator, capital: Vector2, rifts
 			"hill", "rift1", "rift2", "ruin":
 				if sl < 0.22 or sl > 0.55:       # steeper than this and the cave mouth hangs off the slope (world lint, seed 2024)
 					continue
+				if _mouth_rise(q) > MOUTH_RISE_MAX:   # a spur or cliff edge: the mouth would be buried (world lint, Skullpick Undercroft)
+					continue
 				score = minf(sl, 0.5) * 3.0 - WorldGen.forest_density(q.x, q.y) * 1.2
 			"water":
 				if sl > 0.5 or WorldGen.is_water(q.x, q.y) or WorldGen.near_water(q.x, q.y, 8.0) or not WorldGen.near_water(q.x, q.y, 60.0):
@@ -225,6 +227,21 @@ static func _spot_ok(p: Vector2, r: float, taken: Array[Dictionary], dry: bool) 
 		if p.distance_to(t["pos"]) < r + reach:
 			return false
 	return true
+
+
+## How far the ground at the mouth's centre stands above the lowest corner of its jambs (the mouth is snapped to that
+## corner, see RegionCavesView._build): a mouth is 4.4 m tall, so more than about 2.4 m buries its top.
+const MOUTH_RISE_MAX := 2.4
+
+
+static func _mouth_rise(p: Vector2) -> float:
+	var down := _downhill(p)
+	var basis := Basis(Vector3.UP, atan2(down.x, down.y))
+	var lowest := WorldGen.height(p.x, p.y)
+	for jamb: Vector2 in [Vector2(-4.0, -1.2), Vector2(4.0, -1.2), Vector2(-4.0, 1.2), Vector2(4.0, 1.2)]:
+		var q := basis * Vector3(jamb.x, 0.0, jamb.y)
+		lowest = minf(lowest, WorldGen.height(p.x + q.x, p.y + q.z))
+	return WorldGen.height(p.x, p.y) - lowest
 
 
 static func _slope(p: Vector2) -> float:

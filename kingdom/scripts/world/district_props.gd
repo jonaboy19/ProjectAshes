@@ -121,6 +121,9 @@ class Ctx extends RefCounted:
 	var seg_grid := {}                      # Vector2i (16 m cell) -> Array of [a, b, half width]: streets and door paths
 	var rect_grid := {}                     # Vector2i (16 m cell of a lot's centre) -> Array of indices into rects
 
+	var segs: Array = []                    # [a, b, half width, kind] of every street and door path, fed to the grid by add_segs
+
+	## Cheap: the lots and the segment grid are filled in slices by the build job (add_lots / add_segs).
 	func _init(builder, s: Dictionary, p: Dictionary) -> void:
 		b = builder
 		plan = p
@@ -128,7 +131,14 @@ class Ctx extends RefCounted:
 		r = float(p["wall_radius"])
 		plaza_r = float(p["plaza_r"])
 		walled = bool(p["walls"])
-		for lot: Dictionary in p["lots"]:
+		for st: Dictionary in p["streets"]:
+			segs.append([st["a"], st["b"], float(st["w"]) * 0.5, 0])
+		for pt: Dictionary in p.get("paths", []):
+			segs.append([pt["a"], pt["b"], float(pt["w"]) * 0.5, 1])
+
+	func add_lots(i0: int, i1: int) -> void:
+		for i in range(i0, i1):
+			var lot: Dictionary = plan["lots"][i]
 			var size: Vector3 = b._footprint(lot["asset"])
 			var lp: Vector2 = lot["pos"]
 			var rk := Vector2i(floori(lp.x / 16.0), floori(lp.y / 16.0))
@@ -136,10 +146,11 @@ class Ctx extends RefCounted:
 				rect_grid[rk] = []
 			(rect_grid[rk] as Array).append(rects.size())
 			rects.append([lp, float(lot["yaw"]), size.x * 0.5, size.z * 0.5, float(b._ground_snap(lp, lot["yaw"], size))])
-		for st: Dictionary in p["streets"]:
-			_grid_add(st["a"], st["b"], float(st["w"]) * 0.5, 0)
-		for pt: Dictionary in p.get("paths", []):
-			_grid_add(pt["a"], pt["b"], float(pt["w"]) * 0.5, 1)
+
+	func add_segs(i0: int, i1: int) -> void:
+		for i in range(i0, i1):
+			var sg: Array = segs[i]
+			_grid_add(sg[0], sg[1], float(sg[2]), int(sg[3]))
 
 	const GRID := 16.0
 	const GRID_REACH := 18.0
@@ -198,8 +209,9 @@ class Ctx extends RefCounted:
 			claim(q, 3.1)
 
 	## Claim the 1.1 m door aprons of every lot (a lane straight out from the door) so nothing stands in front of a door.
-	func claim_doors() -> void:
-		for lot: Dictionary in plan["lots"]:
+	func claim_doors(i0: int, i1: int) -> void:
+		for i in range(i0, i1):
+			var lot: Dictionary = plan["lots"][i]
 			var dp := BuildingProfiles.door_point(lot)
 			var fwd := Vector2(sin(float(lot["yaw"])), cos(float(lot["yaw"])))
 			for k in 4:
@@ -277,110 +289,273 @@ static func _add(batches: Dictionary, id: String, p: Vector2, yaw: float, sc := 
 	return true
 
 
-## Batch one mesh id into 40 m cells; solid ids get colliders. Wall-mounted ids (hanging_...) are named so the world
-## lint knows they hang on a wall on purpose.
-static func _flush(b, root: Node3D, batches: Dictionary, solid_ids: Dictionary, hanging: Dictionary) -> void:
-	var holder := Node3D.new()
-	holder.name = "DistrictProps"
-	root.add_child(holder)
-	for id: String in batches:
-		var mesh := _mesh_of(id)
-		if mesh == null:
-			continue
-		var groups := {}
-		for t: Transform3D in batches[id]:
-			var k := Vector2i(floori(t.origin.x / CELL), floori(t.origin.z / CELL))
-			if not groups.has(k):
-				groups[k] = [] as Array[Transform3D]
-			(groups[k] as Array[Transform3D]).append(t)
-		for k: Vector2i in groups:
-			var mmi: MultiMeshInstance3D = b._multimesh(holder, mesh, groups[k], not hanging.has(id), solid_ids.has(id))
-			if mmi:
-				mmi.name = ("hanging_" if hanging.has(id) else "dp_") + id.replace(":", "_").replace("/", "_")
-
-
-static func build(b, root: Node3D, s: Dictionary, plan: Dictionary) -> void:
-	if plan.get("district_anchors", []).is_empty():
-		return
-	var sid: int = s["id"]
-	var ctx := Ctx.new(b, s, plan)
-	# Door aprons and the gate market's stalls are off limits.
-	ctx.claim_doors()
-	ctx.claim_yards()
-	for st: Array in b.stalls_by_town.get(sid, []):
-		ctx.claim(st[1], 3.4)
-	var low: bool = b._low()
+## Time-sliced build of one town's district props. Created by build(); step(budget_ms) advances it. The phases run in the
+## same order, with the same RNG streams, as the old all-at-once build, so the result is identical; only the cost is
+## spread over frames (SettlementBuilder drains it with DP_BUDGET_MS per frame). While it runs the town root carries
+## the meta "props_pending" (AmbientFx reads the chimneys only after it is cleared).
+class Job extends RefCounted:
+	var b
+	var root: Node3D
+	var s: Dictionary
+	var plan: Dictionary
+	var ctx: Ctx
+	var low := false
+	var runner := Callable()
+	var done := false
+	var phase := 0
+	var cur := 0                            # generic cursor of the current phase
+	# shared build state
 	var batches := {}
 	var solid_ids := {}
 	var hanging := {}
-	var decals: Array = []      # [kind, pos Vector3, basis, size Vector3, tint]
+	var decals: Array = []                  # [kind, pos Vector3, basis, size Vector3, tint, layer, (tag)]
 	var marks := {"yard": Vector2.INF, "wells": [], "boards": [], "stables": [], "gates": []}
 	var smoke: Array[Vector3] = []
-	_house_details(ctx, s, plan, b, batches, solid_ids, hanging, decals, low, smoke)
-	_district_sets(ctx, s, plan, batches, solid_ids, marks, low)
-	_drill_yard(ctx, s, plan, batches, solid_ids, marks)
-	if not low:
-		_mud(ctx, s, plan, decals)
-	_flush(b, root, batches, solid_ids, hanging)
-	_flush_decals(root, decals, low)
-	for pt: Vector3 in smoke:
-		root.add_child(b._smoke_emitter(pt))
-	plan["marks"] = marks
+	var rng := RandomNumberGenerator.new()
+	# house details
+	var keep_every := 1
+	# district sets
+	var cands := {}
+	var lots_in := {}
+	var anchors_present := {}
+	var dk_i := 0
+	var spec_i := 0
+	var spec_on := false
+	var spec_pool: Array = []
+	var spec_count := 0
+	var spec_placed := 0
+	var spec_tries := 0
+	var gx := 0.0
+	# drill yard / mud
+	var best := Vector2.INF
+	var best_room := 0.0
+	var mud_n := 0
+	# flush
+	var ids: Array = []
+	var work: Array = []                    # [id, mesh, transforms] cells waiting for their MultiMesh
+	var holder: Node3D
+	var roofs := 0
+	var chunks := {}
+	# stats (QA)
+	var ms_total := 0.0
+	var ms_worst := 0.0
+	var slices := 0
+	var phase_worst := {}                   # QA: phase -> longest single unit in ms
+
+	## Run units until the budget (ms; <= 0 = run to the end) is spent. Returns true when the job is finished.
+	func step(budget_ms: float) -> bool:
+		if not done:
+			runner.call(self, budget_ms)
+		return done
+
+
+const PH_LOTS := 0
+const PH_SEGS := 1
+const PH_CLAIMS := 2
+const PH_DETAILS := 3
+const PH_CAND_INIT := 4
+const PH_CAND_STREETS := 5
+const PH_CAND_GRID := 6
+const PH_CAND_SHUFFLE := 7
+const PH_SETS := 8
+const PH_DRILL_SCAN := 9
+const PH_DRILL_PLACE := 10
+const PH_MUD := 11
+const PH_FLUSH := 12
+const PH_DECALS := 13
+const PH_SMOKE := 14
+const LOTS_PER_UNIT := 6
+const SEGS_PER_UNIT := 3
+const TRIES_PER_UNIT := 3
+const DOORS_PER_UNIT := 16
+
+
+## Start the district props of one town. `sync` runs it to the end before returning (tests, the world lint); otherwise the
+## caller drives it with job.step(budget_ms) once per frame. Returns null for a town without districts.
+static func build(b, root: Node3D, s: Dictionary, plan: Dictionary, sync := true) -> Job:
+	if plan.get("district_anchors", []).is_empty():
+		return null
+	var j := Job.new()
+	j.b = b
+	j.root = root
+	j.s = s
+	j.plan = plan
+	j.low = b._low()
+	j.runner = _run
+	j.ctx = Ctx.new(b, s, plan)
+	j.keep_every = 2 if j.low else 1        # LOW: every second lot gets detailed
+	root.set_meta("props_pending", true)
+	if sync:
+		j.step(0.0)
+	return j
+
+
+static func _run(j: Job, budget_ms: float) -> void:
+	var t0 := Time.get_ticks_usec()
+	var lim := budget_ms * 1000.0
+	while not j.done:
+		if not is_instance_valid(j.root):
+			j.done = true                   # the town was freed while it was building
+			break
+		var u0 := Time.get_ticks_usec()
+		var ph := j.phase
+		_unit(j)
+		var now := Time.get_ticks_usec()
+		j.phase_worst[ph] = maxf(float(j.phase_worst.get(ph, 0.0)), (now - u0) / 1000.0)
+		if budget_ms > 0.0 and now - t0 >= lim:
+			break
+	var ms := (Time.get_ticks_usec() - t0) / 1000.0
+	j.ms_total += ms
+	j.ms_worst = maxf(j.ms_worst, ms)
+	j.slices += 1
+
+
+## One small unit of work of the current phase (a few lots, one street, one column of the grid, a handful of placement
+## tries, one MultiMesh...).
+static func _unit(j: Job) -> void:
+	var ctx := j.ctx
+	match j.phase:
+		PH_LOTS:
+			var n: int = (j.plan["lots"] as Array).size()
+			ctx.add_lots(j.cur, mini(j.cur + LOTS_PER_UNIT, n))
+			j.cur += LOTS_PER_UNIT
+			if j.cur >= n:
+				_next(j, PH_SEGS)
+		PH_SEGS:
+			var n: int = ctx.segs.size()
+			ctx.add_segs(j.cur, mini(j.cur + SEGS_PER_UNIT, n))
+			j.cur += SEGS_PER_UNIT
+			if j.cur >= n:
+				_next(j, PH_CLAIMS)
+		PH_CLAIMS:
+			# Door aprons and the gate market's stalls are off limits.
+			var n: int = (j.plan["lots"] as Array).size()
+			ctx.claim_doors(j.cur, mini(j.cur + DOORS_PER_UNIT, n))
+			j.cur += DOORS_PER_UNIT
+			if j.cur >= n:
+				ctx.claim_yards()
+				for st: Array in j.b.stalls_by_town.get(int(j.s["id"]), []):
+					ctx.claim(st[1], 3.4)
+				_next(j, PH_DETAILS)
+		PH_DETAILS:
+			var n: int = (j.plan["lots"] as Array).size()
+			if j.cur < n and j.cur % j.keep_every == 0:
+				_house_lot(j, j.cur)
+			j.cur += 1
+			if j.cur >= n:
+				_next(j, PH_CAND_INIT)
+		PH_CAND_INIT:
+			j.rng.seed = 8101 + int(j.s["id"])
+			for lot: Dictionary in j.plan["lots"]:
+				var dk := String(lot.get("district", ""))
+				j.lots_in[dk] = int(j.lots_in.get(dk, 0)) + 1
+			for a: Dictionary in j.plan["district_anchors"]:
+				j.anchors_present[a["kind"]] = true
+			for dk: String in Districts.KINDS:
+				j.cands[dk] = {"edge": [], "yard": []}
+			_next(j, PH_CAND_STREETS)
+		PH_CAND_STREETS:
+			var streets: Array = j.plan["streets"]
+			if j.cur < streets.size():
+				_cand_street(j, streets[j.cur])
+				j.cur += 1
+			if j.cur >= streets.size():
+				_next(j, PH_CAND_GRID)
+				j.gx = -ctx.r
+		PH_CAND_GRID:
+			_cand_column(j)
+			j.gx += 4.0
+			if j.gx > ctx.r:
+				_next(j, PH_CAND_SHUFFLE)
+		PH_CAND_SHUFFLE:
+			# Deterministic shuffle, one (district, edge|yard) list per unit.
+			var dk: String = Districts.KINDS[j.cur / 2]
+			var arr: Array = j.cands[dk]["edge" if j.cur % 2 == 0 else "yard"]
+			for i in range(arr.size() - 1, 0, -1):
+				var k := j.rng.randi() % (i + 1)
+				var tmp = arr[i]
+				arr[i] = arr[k]
+				arr[k] = tmp
+			j.cur += 1
+			if j.cur >= Districts.KINDS.size() * 2:
+				_next(j, PH_SETS)
+		PH_SETS:
+			_sets_unit(j)
+		PH_DRILL_SCAN:
+			_drill_column(j)
+		PH_DRILL_PLACE:
+			_drill_place(j)
+		PH_MUD:
+			_mud_street(j)
+		PH_FLUSH:
+			_flush_unit(j)
+		PH_DECALS:
+			_decal_unit(j)
+		PH_SMOKE:
+			if j.cur < j.smoke.size():
+				j.root.add_child(j.b._smoke_emitter(j.smoke[j.cur]))
+				j.cur += 1
+			if j.cur >= j.smoke.size():
+				j.plan["marks"] = j.marks
+				j.root.set_meta("props_pending", false)
+				j.done = true
+
+
+static func _next(j: Job, phase: int) -> void:
+	j.phase = phase
+	j.cur = 0
 
 
 # --- House details ----------------------------------------------------------------------------------------------------
 
-static func _house_details(ctx: Ctx, s: Dictionary, plan: Dictionary, b, batches: Dictionary, solid_ids: Dictionary,
-		hanging: Dictionary, decals: Array, low: bool, smoke: Array[Vector3]) -> void:
-	var rng := RandomNumberGenerator.new()
-	var keep_every := 2 if low else 1       # LOW: every second lot gets detailed
-	var li := -1
-	for lot: Dictionary in plan["lots"]:
-		li += 1
-		if li % keep_every != 0:
+static func _house_lot(j: Job, li: int) -> void:
+	var ctx := j.ctx
+	var b = j.b
+	var lot: Dictionary = j.plan["lots"][li]
+	var rng := j.rng
+	var batches := j.batches
+	var asset := String(lot["asset"])
+	var size: Vector3 = b._footprint(asset)
+	var p: Vector2 = lot["pos"]
+	var yaw: float = lot["yaw"]
+	rng.seed = int(lot.get("seed", li)) + 4242
+	var fwd := Vector2(sin(yaw), cos(yaw))
+	var side := Vector2(fwd.y, -fwd.x)
+	var gh: float = b._ground_snap(p, yaw, size)
+	for e: Dictionary in HouseDetails.choose(lot, size, rng):
+		var key: String = e["key"]
+		var at := p + side * float(e["x"]) + fwd * float(e["z"])
+		if HouseDetails.is_decal(key):
+			_detail_decal(j.decals, key, e, at, fwd, gh, size)
 			continue
-		var asset := String(lot["asset"])
-		var size: Vector3 = b._footprint(asset)
-		var p: Vector2 = lot["pos"]
-		var yaw: float = lot["yaw"]
-		rng.seed = int(lot.get("seed", li)) + 4242
-		var fwd := Vector2(sin(yaw), cos(yaw))
-		var side := Vector2(fwd.y, -fwd.x)
-		var gh: float = b._ground_snap(p, yaw, size)
-		for e: Dictionary in HouseDetails.choose(lot, size, rng):
-			var key: String = e["key"]
-			var at := p + side * float(e["x"]) + fwd * float(e["z"])
-			if HouseDetails.is_decal(key):
-				_detail_decal(decals, key, e, at, fwd, gh, size)
+		var wall := bool(e.get("wall", false)) or (float(e["y"]) > 0.0 and (e["slot"] as String) in ["wall_a", "wall_b", "roof"])
+		var id := "d:" + key
+		if wall:
+			# Wall items hang on the wall plane at a height above the building's own base.
+			if HouseDetails.mesh_for(key) == null:
 				continue
-			var wall := bool(e.get("wall", false)) or (float(e["y"]) > 0.0 and (e["slot"] as String) in ["wall_a", "wall_b", "roof"])
-			var id := "d:" + key
-			if wall:
-				# Wall items hang on the wall plane at a height above the building's own base.
-				if HouseDetails.mesh_for(key) == null:
+			# A lot on a steep bank: the lowest-corner snap leaves its uphill front below the ground; nothing hangs in the hill.
+			var ground_here := WorldGen.height(at.x, at.y)
+			if float(e["y"]) > 0.0:
+				if ground_here > gh + float(e["y"]) - 0.3:
 					continue
-				# A lot on a steep bank: the lowest-corner snap leaves its uphill front below the ground; nothing hangs in the hill.
-				var ground_here := WorldGen.height(at.x, at.y)
-				if float(e["y"]) > 0.0:
-					if ground_here > gh + float(e["y"]) - 0.3:
-						continue
-				elif ground_here > gh + 0.7 or ground_here < gh - 0.35:
-					continue   # a ground-standing wall piece (chimney): neither buried in the bank nor hanging off it
-				var basis := Basis(Vector3.UP, yaw + float(e["yaw"])).scaled(Vector3.ONE * float(e["scale"]))
-				if not batches.has(id):
-					batches[id] = [] as Array[Transform3D]
-				(batches[id] as Array[Transform3D]).append(Transform3D(basis, Vector3(at.x, gh + float(e["y"]), at.y)))
-				if key != "chimney_stack":
-					hanging[id] = true
-				elif not low and smoke.size() < SMOKE_CAP and (lot["district"] in ["craft", "poor", "military"]) and rng.randf() < 0.75:
-					smoke.append(Vector3(at.x, gh + 4.45, at.y) + Vector3(side.x, 0.0, side.y) * signf(float(e["x"])) * 0.4)
-				continue
-			# Floor items: free ground only (a neighbour's wall, a street or another prop rules the spot out).
-			var rad := float(e["r"])
-			if not ctx.ok_at(at, rad, 0.2):
-				continue
-			if _add(batches, id, at, yaw + float(e["yaw"]), float(e["scale"])):
-				ctx.claim(at, rad)
+			elif ground_here > gh + 0.7 or ground_here < gh - 0.35:
+				continue   # a ground-standing wall piece (chimney): neither buried in the bank nor hanging off it
+			var basis := Basis(Vector3.UP, yaw + float(e["yaw"])).scaled(Vector3.ONE * float(e["scale"]))
+			if not batches.has(id):
+				batches[id] = [] as Array[Transform3D]
+			(batches[id] as Array[Transform3D]).append(Transform3D(basis, Vector3(at.x, gh + float(e["y"]), at.y)))
+			if key != "chimney_stack":
+				j.hanging[id] = true
+			elif not j.low and j.smoke.size() < SMOKE_CAP and (lot["district"] in ["craft", "poor", "military"]) and rng.randf() < 0.75:
+				j.smoke.append(Vector3(at.x, gh + 4.45, at.y) + Vector3(side.x, 0.0, side.y) * signf(float(e["x"])) * 0.4)
+			continue
+		# Floor items: free ground only (a neighbour's wall, a street or another prop rules the spot out).
+		var rad := float(e["r"])
+		if not ctx.ok_at(at, rad, 0.2):
+			continue
+		if _add(batches, id, at, yaw + float(e["yaw"]), float(e["scale"])):
+			ctx.claim(at, rad)
 
 
 static func _detail_decal(decals: Array, key: String, e: Dictionary, at: Vector2, _fwd: Vector2, gh: float, _size: Vector3) -> void:
@@ -390,163 +565,154 @@ static func _detail_decal(decals: Array, key: String, e: Dictionary, at: Vector2
 			Color(0.55, 0.38, 0.26, 0.95), TownDecals.WALL_LAYER, "roof"])
 
 
-static func _flush_decals(root: Node3D, decals: Array, low: bool) -> void:
-	if low or decals.is_empty() or not TownDecals.available():
-		return
-	var holder := Node3D.new()
-	holder.name = "DetailDecals"
-	root.add_child(holder)
-	var roofs := 0
-	var chunks := {}
-	for d: Array in decals:
-		if d.size() > 6 and d[6] == "roof":
-			if roofs >= DECAL_CAP:
-				continue
-			roofs += 1
-		else:
-			var at: Vector3 = d[1]
-			var ck := Vector2i(floori(at.x / 64.0), floori(at.z / 64.0))
-			if int(chunks.get(ck, 0)) >= MUD_PER_CHUNK:
-				continue
-			chunks[ck] = int(chunks.get(ck, 0)) + 1
-		var dec := TownDecals.make(String(d[0]), d[3], int(d[5]), d[4])
-		holder.add_child(dec)
-		dec.global_transform = Transform3D(d[2], d[1])
-
-
 # --- District sets ----------------------------------------------------------------------------------------------------
 
 ## Candidate spots for every district at once, shuffled: {district: {"edge": [[pos, yaw], ...], "yard": [...]}}.
 ## Edge spots sit 1.6-2.6 m off the edge of a (non gate-road) street facing it; yard spots are free-standing, 1.5-15 m
-## from a street. Generated once per town (the grid and the nearest-anchor lookups are the cost).
-static func _all_candidates(ctx: Ctx, plan: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
-	var anchors: Array = plan["district_anchors"]
-	var out := {}
-	for dk: String in Districts.KINDS:
-		out[dk] = {"edge": [], "yard": []}
-	for st: Dictionary in plan["streets"]:
-		var w: float = st["w"]
-		if w >= 11.0:
-			continue        # the broad gate road belongs to the gate market
-		var a: Vector2 = st["a"]
-		var bb: Vector2 = st["b"]
-		var length := a.distance_to(bb)
-		var dir := (bb - a) / maxf(length, 0.001)
-		var nrm := Vector2(-dir.y, dir.x)
-		var t := rng.randf_range(2.0, 5.0)
-		while t < length - 1.0:
-			for sd: float in [-1.0, 1.0]:
-				var p := a + dir * t + nrm * sd * (w * 0.5 + rng.randf_range(1.6, 2.6))
-				if p.distance_to(ctx.c) > ctx.plaza_r + 3.0:
-					var face := -nrm * sd
-					(out[Districts.nearest_kind(anchors, p)]["edge"] as Array).append([p, atan2(face.x, face.y)])
-			t += rng.randf_range(4.5, 8.0)
-	var step := 4.0
-	var gx := -ctx.r
-	while gx <= ctx.r:
-		var gz := -ctx.r
-		while gz <= ctx.r:
-			var p := ctx.c + Vector2(gx + rng.randf_range(-1.4, 1.4), gz + rng.randf_range(-1.4, 1.4))
-			gz += step
-			var d := p.distance_to(ctx.c)
-			if d > ctx.r - 8.0 or d < ctx.plaza_r + 3.0:
-				continue
-			var sdist := ctx.edge_dist(p, 0)
-			if sdist < 1.5 or sdist > 15.0:
-				continue
-			(out[Districts.nearest_kind(anchors, p)]["yard"] as Array).append([p, rng.randf() * TAU])
-		gx += step
-	# Deterministic shuffle.
-	for dk: String in Districts.KINDS:
-		for from: String in ["edge", "yard"]:
-			var arr: Array = out[dk][from]
-			for i in range(arr.size() - 1, 0, -1):
-				var j := rng.randi() % (i + 1)
-				var tmp = arr[i]
-				arr[i] = arr[j]
-				arr[j] = tmp
-	return out
+## from a street. Generated once per town (the grid and the nearest-anchor lookups are the cost), a street / a grid
+## column per unit.
+static func _cand_street(j: Job, st: Dictionary) -> void:
+	var rng := j.rng
+	var anchors: Array = j.plan["district_anchors"]
+	var w: float = st["w"]
+	if w >= 11.0:
+		return        # the broad gate road belongs to the gate market
+	var a: Vector2 = st["a"]
+	var bb: Vector2 = st["b"]
+	var length := a.distance_to(bb)
+	var dir := (bb - a) / maxf(length, 0.001)
+	var nrm := Vector2(-dir.y, dir.x)
+	var t := rng.randf_range(2.0, 5.0)
+	while t < length - 1.0:
+		for sd: float in [-1.0, 1.0]:
+			var p := a + dir * t + nrm * sd * (w * 0.5 + rng.randf_range(1.6, 2.6))
+			if p.distance_to(j.ctx.c) > j.ctx.plaza_r + 3.0:
+				var face := -nrm * sd
+				(j.cands[Districts.nearest_kind(anchors, p)]["edge"] as Array).append([p, atan2(face.x, face.y)])
+		t += rng.randf_range(4.5, 8.0)
 
 
-static func _district_sets(ctx: Ctx, s: Dictionary, plan: Dictionary, batches: Dictionary, solid_ids: Dictionary, marks: Dictionary, low: bool) -> void:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 8101 + int(s["id"])
-	var lots_in := {}
-	for lot: Dictionary in plan["lots"]:
-		var dk := String(lot.get("district", ""))
-		lots_in[dk] = int(lots_in.get(dk, 0)) + 1
-	var anchors_present := {}
-	for a: Dictionary in plan["district_anchors"]:
-		anchors_present[a["kind"]] = true
-	var cands := _all_candidates(ctx, plan, rng)
-	for dk: String in Districts.KINDS:
-		if not anchors_present.has(dk) or not SETS.has(dk):
+static func _cand_column(j: Job) -> void:
+	var ctx := j.ctx
+	var rng := j.rng
+	var anchors: Array = j.plan["district_anchors"]
+	var gz := -ctx.r
+	while gz <= ctx.r:
+		var p := ctx.c + Vector2(j.gx + rng.randf_range(-1.4, 1.4), gz + rng.randf_range(-1.4, 1.4))
+		gz += 4.0
+		var d := p.distance_to(ctx.c)
+		if d > ctx.r - 8.0 or d < ctx.plaza_r + 3.0:
 			continue
-		var edge: Array = cands[dk]["edge"]
-		var yard: Array = cands[dk]["yard"]
-		var lots_n := int(lots_in.get(dk, 0))
-		for spec: Dictionary in SETS[dk]:
-			var want := float(spec["n"]) * lots_n * (0.6 if low else 1.0)
-			var count := int(want) + (1 if rng.randf() < want - int(want) else 0)
-			count = maxi(count, int(spec.get("min", 0)) if lots_n >= 8 else 0)
-			var pool: Array = edge if spec["from"] == "edge" else yard
-			var rad: float = spec["r"]
-			var id: String = spec["id"]
-			var placed := 0
-			var tries := 0
-			while placed < count and tries < pool.size() and tries < 700:
-				var cand: Array = pool[tries]
-				tries += 1
-				var p: Vector2 = cand[0]
-				if not ctx.ok_at(p, rad, 0.5 if spec["from"] == "edge" else 1.0):
-					continue
-				var yaw: float = cand[1] if bool(spec.get("face", false)) else rng.randf() * TAU
-				if not _add(batches, id, p, yaw, 1.0):
-					continue
-				ctx.claim(p, rad)
-				placed += 1
-				if bool(spec.get("solid", false)):
-					solid_ids[id] = true
-				if id == "well":
-					(marks["wells"] as Array).append(p)
-				elif id == "g:notice_board":
-					(marks["boards"] as Array).append(p)
+		var sdist := ctx.edge_dist(p, 0)
+		if sdist < 1.5 or sdist > 15.0:
+			continue
+		(j.cands[Districts.nearest_kind(anchors, p)]["yard"] as Array).append([p, rng.randf() * TAU])
 
 
-## The training yard: the roomiest free ground in the military ward gets a row of straw dummies, weapon racks and hay targets.
-static func _drill_yard(ctx: Ctx, s: Dictionary, plan: Dictionary, batches: Dictionary, solid_ids: Dictionary, marks: Dictionary) -> void:
+## A handful of placement tries of the current (district, spec); moves on to the next spec / district / phase.
+static func _sets_unit(j: Job) -> void:
+	var ctx := j.ctx
+	var rng := j.rng
+	var kinds: Array = Districts.KINDS
+	if j.dk_i >= kinds.size():
+		_start_drill(j)
+		return
+	var dk: String = kinds[j.dk_i]
+	if not j.anchors_present.has(dk) or not SETS.has(dk) or j.spec_i >= (SETS[dk] as Array).size():
+		j.dk_i += 1
+		j.spec_i = 0
+		j.spec_on = false
+		return
+	var spec: Dictionary = SETS[dk][j.spec_i]
+	var edge_spec: bool = spec["from"] == "edge"
+	if not j.spec_on:
+		var lots_n := int(j.lots_in.get(dk, 0))
+		var want := float(spec["n"]) * lots_n * (0.6 if j.low else 1.0)
+		var count := int(want) + (1 if rng.randf() < want - int(want) else 0)
+		count = maxi(count, int(spec.get("min", 0)) if lots_n >= 8 else 0)
+		j.spec_count = count
+		j.spec_pool = j.cands[dk]["edge" if edge_spec else "yard"]
+		j.spec_placed = 0
+		j.spec_tries = 0
+		j.spec_on = true
+	var rad: float = spec["r"]
+	var id: String = spec["id"]
+	var pool: Array = j.spec_pool
+	var n := 0
+	while j.spec_placed < j.spec_count and j.spec_tries < pool.size() and j.spec_tries < 700 and n < TRIES_PER_UNIT:
+		var cand: Array = pool[j.spec_tries]
+		j.spec_tries += 1
+		n += 1
+		var p: Vector2 = cand[0]
+		if not ctx.ok_at(p, rad, 0.5 if edge_spec else 1.0):
+			continue
+		var yaw: float = cand[1] if bool(spec.get("face", false)) else rng.randf() * TAU
+		if not _add(j.batches, id, p, yaw, 1.0):
+			continue
+		ctx.claim(p, rad)
+		j.spec_placed += 1
+		if bool(spec.get("solid", false)):
+			j.solid_ids[id] = true
+		if id == "well":
+			(j.marks["wells"] as Array).append(p)
+		elif id == "g:notice_board":
+			(j.marks["boards"] as Array).append(p)
+	if j.spec_placed >= j.spec_count or j.spec_tries >= pool.size() or j.spec_tries >= 700:
+		j.spec_i += 1
+		j.spec_on = false
+
+
+# --- Drill yard -------------------------------------------------------------------------------------------------------
+
+static func _start_drill(j: Job) -> void:
 	var present := false
-	for a: Dictionary in plan["district_anchors"]:
+	for a: Dictionary in j.plan["district_anchors"]:
 		if a["kind"] == Districts.MILITARY:
 			present = true
 	if not present:
+		_start_mud(j)
 		return
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 8209 + int(s["id"])
-	var best := Vector2.INF
-	var best_room := 0.0
+	j.best = Vector2.INF
+	j.best_room = 0.0
+	_next(j, PH_DRILL_SCAN)
+	j.gx = -j.ctx.r
+
+
+## The training yard: the roomiest free ground in the military ward gets a row of straw dummies, weapon racks and hay
+## targets. The scan takes one grid column per unit.
+static func _drill_column(j: Job) -> void:
+	var ctx := j.ctx
 	var step := 2.5
-	var gx := -ctx.r
-	while gx <= ctx.r:
-		var gz := -ctx.r
-		while gz <= ctx.r:
-			var p := ctx.c + Vector2(gx, gz)
-			gz += step
-			if p.distance_to(ctx.c) > ctx.r - 12.0 or Districts.nearest_kind(plan["district_anchors"], p) != Districts.MILITARY:
-				continue
-			var room := 9.0
-			while room > 5.0 and not ctx.ok_at(p, room, 1.0):
-				room -= 1.0
-			if room > best_room or (room == best_room and best == Vector2.INF):
-				best_room = room
-				best = p
-		gx += step
+	var gz := -ctx.r
+	while gz <= ctx.r:
+		var p := ctx.c + Vector2(j.gx, gz)
+		gz += step
+		if p.distance_to(ctx.c) > ctx.r - 12.0 or Districts.nearest_kind(j.plan["district_anchors"], p) != Districts.MILITARY:
+			continue
+		var room := 9.0
+		while room > 5.0 and not ctx.ok_at(p, room, 1.0):
+			room -= 1.0
+		if room > j.best_room or (room == j.best_room and j.best == Vector2.INF):
+			j.best_room = room
+			j.best = p
+	j.gx += step
+	if j.gx > ctx.r:
+		_next(j, PH_DRILL_PLACE)
+
+
+static func _drill_place(j: Job) -> void:
+	var best := j.best
+	var best_room := j.best_room
 	if best == Vector2.INF or best_room < 5.5:
+		_start_mud(j)
 		return
+	var batches := j.batches
+	var stage := j.cur
+	j.cur += 1                              # three stages (dummies / hay + racks / banner), one per unit
 	# Face the yard toward the nearest street.
 	var sdir := Vector2.DOWN
 	var bd := INF
-	for st: Dictionary in plan["streets"]:
+	for st: Dictionary in j.plan["streets"]:
 		var q := Geometry2D.get_closest_point_to_segment(best, st["a"], st["b"])
 		if best.distance_to(q) < bd:
 			bd = best.distance_to(q)
@@ -555,42 +721,131 @@ static func _drill_yard(ctx: Ctx, s: Dictionary, plan: Dictionary, batches: Dict
 	var fwd := Vector2(sin(yaw), cos(yaw))
 	var side := Vector2(fwd.y, -fwd.x)
 	var span := best_room - 1.8
-	for i in 4:
-		var q := best - fwd * span * 0.35 + side * (-1.5 + i) * 2.1
-		_add(batches, "g:region/farm/scarecrow", q, yaw + PI, 1.0)
-	for i in 3:
-		var q2 := best + fwd * span * 0.45 + side * (-1.0 + i) * 2.6
-		if _add(batches, "hay", q2, yaw + PI, 1.0):
-			pass
-	for sg: float in [-1.0, 1.0]:
-		var q3 := best + side * sg * span * 0.8
-		if _add(batches, "weapon_rack", q3, yaw + sg * PI * 0.5, 1.0):
-			solid_ids["weapon_rack"] = true
-	_add(batches, "banner_pole", best + fwd * span * 0.8 - side * span * 0.6, yaw, 1.0)
-	ctx.claim(best, best_room)
-	marks["yard"] = best
+	if stage == 0:
+		for i in 4:
+			var q := best - fwd * span * 0.35 + side * (-1.5 + i) * 2.1
+			_add(batches, "g:region/farm/scarecrow", q, yaw + PI, 1.0)
+	elif stage == 1:
+		for i in 3:
+			var q2 := best + fwd * span * 0.45 + side * (-1.0 + i) * 2.6
+			_add(batches, "hay", q2, yaw + PI, 1.0)
+		for sg: float in [-1.0, 1.0]:
+			var q3 := best + side * sg * span * 0.8
+			if _add(batches, "weapon_rack", q3, yaw + sg * PI * 0.5, 1.0):
+				j.solid_ids["weapon_rack"] = true
+	else:
+		_add(batches, "banner_pole", best + fwd * span * 0.8 - side * span * 0.6, yaw, 1.0)
+		j.ctx.claim(best, best_room)
+		j.marks["yard"] = best
+		_start_mud(j)
 
 
-## Muddy lanes: brown ground decals along the poor quarter's streets and a few puddles.
-static func _mud(ctx: Ctx, s: Dictionary, plan: Dictionary, decals: Array) -> void:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 8317 + int(s["id"])
-	var n := 0
-	for st: Dictionary in plan["streets"]:
-		var w: float = st["w"]
-		if w >= 11.0:
-			continue
-		var a: Vector2 = st["a"]
-		var bb: Vector2 = st["b"]
-		var length := a.distance_to(bb)
-		var dir := (bb - a) / maxf(length, 0.001)
-		var t := rng.randf_range(1.0, 5.0)
-		while t < length:
-			var p := a + dir * t + Vector2(-dir.y, dir.x) * rng.randf_range(-1.0, 1.0)
-			if Districts.nearest_kind(plan["district_anchors"], p) == Districts.POOR and p.distance_to(ctx.c) > ctx.plaza_r + 6.0 and n < 28:
-				var kind := "dirt" if rng.randf() < 0.6 else "puddle"
-				var tint := Color(0.62, 0.46, 0.3, 0.95) if kind == "dirt" else Color(1, 1, 1, 0.92)
-				decals.append([kind, Vector3(p.x, WorldGen.height(p.x, p.y) + 0.3, p.y), Basis(Vector3.UP, atan2(dir.x, dir.y)),
-					Vector3(rng.randf_range(3.0, 4.6), 2.0, rng.randf_range(4.0, 7.0)), tint, TownDecals.GROUND_LAYER])
-				n += 1
-			t += rng.randf_range(5.0, 9.0)
+# --- Mud --------------------------------------------------------------------------------------------------------------
+
+## After the drill yard (the phase order of the old build): the mud lanes, or straight to the flush on LOW.
+static func _start_mud(j: Job) -> void:
+	if j.low:
+		_flush_init(j)
+	else:
+		j.rng.seed = 8317 + int(j.s["id"])
+		j.mud_n = 0
+		_next(j, PH_MUD)
+
+
+## Muddy lanes: brown ground decals along the poor quarter's streets and a few puddles (one street per unit).
+static func _mud_street(j: Job) -> void:
+	var ctx := j.ctx
+	var rng := j.rng
+	var streets: Array = j.plan["streets"]
+	if j.cur >= streets.size():
+		_flush_init(j)
+		return
+	var st: Dictionary = streets[j.cur]
+	j.cur += 1
+	var w: float = st["w"]
+	if w >= 11.0:
+		return
+	var a: Vector2 = st["a"]
+	var bb: Vector2 = st["b"]
+	var length := a.distance_to(bb)
+	var dir := (bb - a) / maxf(length, 0.001)
+	var t := rng.randf_range(1.0, 5.0)
+	while t < length:
+		var p := a + dir * t + Vector2(-dir.y, dir.x) * rng.randf_range(-1.0, 1.0)
+		if Districts.nearest_kind(j.plan["district_anchors"], p) == Districts.POOR and p.distance_to(ctx.c) > ctx.plaza_r + 6.0 and j.mud_n < 28:
+			var kind := "dirt" if rng.randf() < 0.6 else "puddle"
+			var tint := Color(0.62, 0.46, 0.3, 0.95) if kind == "dirt" else Color(1, 1, 1, 0.92)
+			j.decals.append([kind, Vector3(p.x, WorldGen.height(p.x, p.y) + 0.3, p.y), Basis(Vector3.UP, atan2(dir.x, dir.y)),
+				Vector3(rng.randf_range(3.0, 4.6), 2.0, rng.randf_range(4.0, 7.0)), tint, TownDecals.GROUND_LAYER])
+			j.mud_n += 1
+		t += rng.randf_range(5.0, 9.0)
+
+
+# --- Flush: MultiMeshes, decals, smoke --------------------------------------------------------------------------------
+
+## Batch one mesh id into 40 m cells; solid ids get colliders. Wall-mounted ids (hanging_...) are named so the world
+## lint knows they hang on a wall on purpose. One id is split into cells per unit, one cell becomes a MultiMesh per unit.
+static func _flush_init(j: Job) -> void:
+	j.holder = Node3D.new()
+	j.holder.name = "DistrictProps"
+	j.root.add_child(j.holder)
+	j.ids = j.batches.keys()
+	_next(j, PH_FLUSH)
+
+
+static func _flush_unit(j: Job) -> void:
+	if not j.work.is_empty():
+		var w: Array = j.work.pop_back()
+		var wid: String = w[0]
+		var mmi: MultiMeshInstance3D = j.b._multimesh(j.holder, w[1], w[2], not j.hanging.has(wid), j.solid_ids.has(wid))
+		if mmi:
+			mmi.name = ("hanging_" if j.hanging.has(wid) else "dp_") + wid.replace(":", "_").replace("/", "_")
+		return
+	if j.cur >= j.ids.size():
+		# Decals next (none on LOW, none without the decal shader).
+		if j.low or j.decals.is_empty() or not TownDecals.available():
+			_next(j, PH_SMOKE)
+		else:
+			var dh := Node3D.new()
+			dh.name = "DetailDecals"
+			j.root.add_child(dh)
+			j.holder = dh
+			_next(j, PH_DECALS)
+		return
+	var id: String = j.ids[j.cur]
+	j.cur += 1
+	var mesh := _mesh_of(id)
+	if mesh == null:
+		return
+	var groups := {}
+	for t: Transform3D in j.batches[id]:
+		var k := Vector2i(floori(t.origin.x / CELL), floori(t.origin.z / CELL))
+		if not groups.has(k):
+			groups[k] = [] as Array[Transform3D]
+		(groups[k] as Array[Transform3D]).append(t)
+	# Same cell order as the old flush: the queue is popped from the back, so push reversed.
+	var keys: Array = groups.keys()
+	keys.reverse()
+	for k: Vector2i in keys:
+		j.work.append([id, mesh, groups[k]])
+
+
+static func _decal_unit(j: Job) -> void:
+	if j.cur >= j.decals.size():
+		_next(j, PH_SMOKE)
+		return
+	var d: Array = j.decals[j.cur]
+	j.cur += 1
+	if d.size() > 6 and d[6] == "roof":
+		if j.roofs >= DECAL_CAP:
+			return
+		j.roofs += 1
+	else:
+		var at: Vector3 = d[1]
+		var ck := Vector2i(floori(at.x / 64.0), floori(at.z / 64.0))
+		if int(j.chunks.get(ck, 0)) >= MUD_PER_CHUNK:
+			return
+		j.chunks[ck] = int(j.chunks.get(ck, 0)) + 1
+	var dec := TownDecals.make(String(d[0]), d[3], int(d[5]), d[4])
+	j.holder.add_child(dec)
+	dec.global_transform = Transform3D(d[2], d[1])

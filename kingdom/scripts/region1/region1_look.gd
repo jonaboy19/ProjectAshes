@@ -265,7 +265,10 @@ func _place(root: Node3D, c: Vector2, lyaw: float, part: Dictionary) -> void:
 	else:
 		var box: AABB = m[2]
 		var k: float = m[3]
-		y = _footprint_ground(w, yaw, Vector2(box.size.x, box.size.z) * k)
+		var fp := Vector2(box.size.x, box.size.z) * k
+		if bool(part.get("nudge", false)):     # opt-in (data/region1/landmarks.json): never for pieces of a composition
+			w = _flat_spot(w, yaw, fp, box.size.y * k)
+		y = _footprint_ground(w, yaw, fp)
 	y += float(part.get("y", 0.0)) - float(part.get("sink", 0.0))
 	root.add_child(n)
 	n.global_position = Vector3(w.x, y, w.y)
@@ -276,6 +279,41 @@ func _place(root: Node3D, c: Vector2, lyaw: float, part: Dictionary) -> void:
 		_collider(n, m[2])
 	if String(part["a"]) == "gen:farm/windmill":
 		_add_sails(n)
+
+
+## A part whose footprint straddles a drop (other world seeds move the terrain under these fixed coordinates: the lowest-corner
+## snap then buries it) steps to the nearest ground within 10 m that is flat enough; otherwise it stays (world lint).
+static func _flat_spot(w: Vector2, yaw: float, size: Vector2, height: float) -> Vector2:
+	if size.x * size.y < 4.0:
+		return w
+	var limit := maxf(0.8, height * 0.3)
+	if _footprint_spread(w, yaw, size) <= limit:
+		return w
+	var best := w
+	var best_spread := INF
+	for r: float in [2.0, 4.0, 6.0, 8.0, 10.0]:
+		for i in 8:
+			var q := w + Vector2.from_angle(TAU * i / 8.0) * r
+			var sp := _footprint_spread(q, yaw, size)
+			if sp < best_spread:
+				best_spread = sp
+				best = q
+		if best_spread <= limit:
+			break
+	return best if best_spread < _footprint_spread(w, yaw, size) else w
+
+
+static func _footprint_spread(w: Vector2, yaw: float, size: Vector2) -> float:
+	var h0 := WorldGen.height(w.x, w.y)
+	var lo := h0
+	var hi := h0
+	for cx: float in [-0.4, 0.4]:
+		for cz: float in [-0.4, 0.4]:
+			var q := w + Vector2(size.x * cx, size.y * cz).rotated(-yaw)
+			var h := WorldGen.height(q.x, q.y)
+			lo = minf(lo, h)
+			hi = maxf(hi, h)
+	return hi - lo
 
 
 ## Lowest ground under the part's footprint (so nothing floats on a slope).
@@ -437,6 +475,15 @@ func _build_cliffs(kit: Dictionary) -> void:
 					# Push the rock into the slope (uphill) so it reads as the cliff itself, not a stone stuck on grass.
 					var up := Vector2(gx, gz).normalized() * target * float(kit.get("embed", 0.3))
 					var pos := Vector3(px + up.x, mesh_floor(px + up.x, pz + up.y, target * 0.2, 2.0) - target * 0.08, pz + up.y)
+					# No rock on a road: its footprint (the mesh box at the rock's scale) keeps clear of the road's half-width (world lint).
+					if WorldGen.road_distance(pos.x, pos.z) < 14.0:
+						var bs := basis.get_scale()
+						var ab := meshes[mi].get_aabb().size
+						var reach := 0.5 * maxf(ab.x * bs.x, ab.z * bs.z) * 1.15 + 0.4
+						var ri := WorldGen.road_info(pos.x, pos.z)
+						if float(ri["dist"]) < float(ri["width"]) * 0.5 + reach:
+							x += step
+							continue
 					var key := Vector2i(floori(px / cell), floori(pz / cell))
 					if not cells.has(key):
 						var arrs := []

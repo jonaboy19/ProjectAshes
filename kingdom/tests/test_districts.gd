@@ -87,3 +87,46 @@ func test_outer_identity_sites() -> void:
 			assert_str(st["kind"]).is_equal("roadside")
 	for k in ["ward_marker", "checkpoint", "warning_post", "cracked_stone", "caravan"]:
 		assert_bool(idents.has(k)).override_failure_message("missing %s sites: %s" % [k, idents]).is_true()
+
+
+func _dp_count(root: Node3D) -> int:
+	var holder := root.get_node_or_null("DistrictProps")
+	return 0 if holder == null else holder.find_children("*", "MultiMeshInstance3D", true, false).size()
+
+
+## The town's district props are built over frames (per-frame budget), with the very same result as the all-at-once build.
+func test_district_props_build_is_time_sliced_and_identical() -> void:
+	var s := _thornfield()
+	var sb := SettlementBuilder.new()
+	add_child(sb)
+	auto_free(sb)
+	var root: Node3D = sb._build(s, false)
+	assert_bool(bool(root.get_meta("props_pending", false))).is_true()
+	assert_int(sb._prop_jobs.size()).is_equal(1)
+	assert_int(_dp_count(root)).is_equal(0)           # nothing of it exists yet: no hitch in the build frame
+	var job = sb._prop_jobs[0]
+	var steps := 0
+	while not job.step(1.0) and steps < 20000:
+		steps += 1
+	assert_bool(job.done).is_true()
+	assert_int(steps).is_greater(5)                    # really spread out
+	assert_bool(bool(root.get_meta("props_pending", false))).is_false()
+	var sliced := _dp_count(root)
+	assert_int(sliced).is_greater(20)
+	var root2: Node3D = sb._build(s, true)             # tests and the world lint build synchronously
+	assert_bool(bool(root2.get_meta("props_pending", false))).is_false()
+	assert_int(_dp_count(root2)).is_equal(sliced)
+	assert_int(root2.find_children("*", "Decal", true, false).size()).is_equal(root.find_children("*", "Decal", true, false).size())
+	assert_int(root2.get_child_count()).is_equal(root.get_child_count())
+
+
+func test_finish_prop_jobs_completes_pending_towns() -> void:
+	var s := _thornfield()
+	var sb := SettlementBuilder.new()
+	add_child(sb)
+	auto_free(sb)
+	var root: Node3D = sb._build(s, false)
+	sb.finish_prop_jobs()
+	assert_bool(bool(root.get_meta("props_pending", false))).is_false()
+	assert_int(sb._prop_jobs.size()).is_equal(0)
+	assert_int(_dp_count(root)).is_greater(20)

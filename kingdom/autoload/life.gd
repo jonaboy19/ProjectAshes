@@ -39,6 +39,7 @@ var discovery := preload("res://scripts/sim/discovery.gd").new()
 var relationships := preload("res://scripts/sim/relationships.gd").new()
 var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
 var crafting := preload("res://scripts/sim/crafting.gd").new()
+const ItemsDB := preload("res://scripts/sim/items_db.gd")
 const WorldEventLog := preload("res://scripts/systems/world_event_log.gd")
 const ActionRuntime := preload("res://scripts/systems/action_runtime.gd")
 ## Bounded facts from player actions, available to future dialogue/simulation consumers.
@@ -105,6 +106,8 @@ var inventory: Inventory
 var player: Node3D        # set by main once the player exists
 
 var _last_abs := -1.0     # absolute in-game hours at the last tick
+const NO_CLOCK := -1.0e9  # `_spoil_abs` before the first day tick
+var _spoil_abs := NO_CLOCK   # absolute in-game hours the pack's food was last aged to
 
 
 func _ready() -> void:
@@ -158,6 +161,7 @@ func reset() -> void:
 
 ## Wires the state objects together and begins the first life (boot, and again after reset()).
 func _new_life() -> void:
+	_spoil_abs = _abs_hours()
 	equipment.clock = _abs_hours
 	if not crafting.station_invalidated.is_connected(_on_craft_station_invalidated):
 		crafting.station_invalidated.connect(_on_craft_station_invalidated)
@@ -1082,6 +1086,7 @@ func _on_hour(hour: int) -> void:
 		for msg: String in family.daily_tick(WorldSim.day):
 			Game.say(msg)
 		_contracts_daily()
+		_spoilage_tick()
 		var threat := 0.0
 		if player and is_instance_valid(player):
 			var t: Dictionary = Frontier.threat_at(Vector2(player.global_position.x, player.global_position.z))
@@ -1264,6 +1269,61 @@ func take(item: String, amount := 1) -> bool:
 	return true
 
 
+# --- food spoilage ---------------------------------------------------------------------------------------------------
+# Food with spoil data (ItemsDB.spoil_hours) ages in the pack: each stack carries an `age_hours` property (absent = fresh) that
+# grows on the realm day tick (hour 6, see _on_hour) by the game time elapsed since the last time, in ONE step however long
+# that was (sleep, fast travel, waiting). Past its shelf life a stack turns into its `spoils_into` item (Spoiled Food);
+# before that, stale food gives less nutrition (use_item). Cured / smoked / salted / dried food has a long shelf life in the data.
+
+## Called once a day (hour 6) and after skipping time: ages the pack by the game time since the last call.
+func _spoilage_tick() -> void:
+	var now := _abs_hours()
+	if _spoil_abs <= NO_CLOCK or now < _spoil_abs:
+		_spoil_abs = now
+		return
+	var elapsed := now - _spoil_abs
+	if elapsed < 1.0:
+		return
+	_spoil_abs = now
+	age_pack(elapsed)
+
+
+## Ages every food stack in the pack by `hours` game hours (closed form). Returns {aged, spoiled}: stacks aged and items turned bad.
+func age_pack(hours: float) -> Dictionary:
+	var out := {"aged": 0, "spoiled": 0}
+	if hours <= 0.0 or inventory == null:
+		return out
+	var spoiled: Array = []         # [spoiled id, count, name of the good item]
+	for it: InventoryItem in inventory.get_items().duplicate():
+		var id := it.get_prototype().get_prototype_id()
+		if ItemsDB.spoil_hours(id) <= 0.0:
+			continue
+		var r := ItemsDB.age_by(id, float(it.get_property(ItemsDB.AGE_PROP, 0.0)), hours)
+		out["aged"] += 1
+		if String(r["into"]) != "":
+			spoiled.append([String(r["into"]), it.get_stack_size(), item_name(id)])
+			inventory.remove_item(it)
+		else:
+			it.set_property(ItemsDB.AGE_PROP, float(r["age"]))
+	for s: Array in spoiled:
+		give(String(s[0]), int(s[1]))
+		out["spoiled"] += int(s[1])
+		Game.say("%d %s spoiled in your pack." % [int(s[1]), String(s[2]).to_lower()])
+	# Stacks of one kind that now share an age merge back into one.
+	for it: InventoryItem in inventory.get_items().duplicate():
+		if is_instance_valid(it) and it.has_property(ItemsDB.AGE_PROP) and it.get_inventory() == inventory:
+			inventory.pack_item(it)
+	inventory_changed.emit()
+	return out
+
+
+## Age in game hours of the stack `take(item)` consumes first (the first stack of that id); 0 = fresh.
+func food_age(item: String) -> float:
+	for it in inventory.get_items_with_prototype_id(item):
+		return float(it.get_property(ItemsDB.AGE_PROP, 0.0))
+	return 0.0
+
+
 func item_prop(item: String, prop: String, default: Variant = null) -> Variant:
 	return inventory.get_prototree().get_prototype_property(item, prop, default)
 
@@ -1280,6 +1340,7 @@ func use_item(item: String) -> String:
 	var heal := int(item_prop(item, "heal", 0))
 	if nutrition <= 0.0 and heal <= 0:
 		return "You can't use %s." % item_name(item)
+	nutrition *= ItemsDB.freshness(item, food_age(item))     # stale food feeds less (spoilage)
 	take(item)
 	if nutrition > 0.0:
 		needs.eat(nutrition)
@@ -1340,6 +1401,7 @@ func snapshot() -> Dictionary:
 		"market": market.serialize(),
 		"economy": economy.serialize(),
 		"inventory": inventory.serialize(),
+		"spoil_abs": _spoil_abs,
 		"frontier": Frontier.serialize(),
 		"life_path": life_path.serialize(),
 		"titles": titles.serialize(),
@@ -1411,6 +1473,7 @@ func restore(d: Dictionary) -> void:
 	market.deserialize(d.get("market", {}))
 	economy.deserialize(d.get("economy", {}), 0, market)
 	inventory.deserialize(d.get("inventory", {}))
+	_spoil_abs = float(d.get("spoil_abs", NO_CLOCK))
 	Frontier.deserialize(d.get("frontier", {}))
 	if d.has("life_path"):
 		life_path.deserialize(d["life_path"])

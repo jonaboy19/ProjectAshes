@@ -1684,7 +1684,7 @@
     "slope": 0.3,
     "prefer_high": 0.12,
     "d_pref": 0,
-    "face": "south"
+    "face": "east"
    },
    "parts": [
     [

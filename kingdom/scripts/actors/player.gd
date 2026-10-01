@@ -120,6 +120,7 @@ const TravelRules := preload("res://scripts/world/travel_rules.gd")
 ## Foot IK on slopes and steps, torso and weapon/shield secondary motion.
 const ProceduralRig := preload("res://scripts/actors/procedural_rig.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
+const EquipmentVisuals := preload("res://scripts/actors/equipment_visuals.gd")
 const MOUNTED_RADIUS := 0.6      # wider body while mounted so the horse's chest meets walls
 const MOUNTED_CAMERA := 7.5      # third-person distance on horseback
 ## Swimming. Depths are for a full-size body and scale with Life.body_scale().
@@ -191,6 +192,7 @@ var _model: Node3D
 var _animator: CharacterAnimator
 var _rig: Node
 var _trail: WeaponTrail          # blade ribbon on the fast frames (COMBAT_AUDIT C4)
+var _equip_vis: RefCounted       # worn / wielded item models on the skeleton bones (Life.equipment.changed)
 var _ragdoll: Node
 var _viewmodel: Node3D
 var _shake := CameraShake.new()
@@ -370,6 +372,9 @@ func _build_body() -> void:
 	_rig = ProceduralRig.attach(body, self, true)
 	_animator.rig = _rig
 	_trail = WeaponTrail.attach(body)
+	var sks := body.find_children("*", "Skeleton3D", true, false)
+	if not sks.is_empty():
+		_equip_vis = EquipmentVisuals.new(sks[0], Life.equipment)
 
 
 ## Applies `Life.appearance` (skin, hair, head, outfit, sex) to the world model: after New Game the
@@ -393,6 +398,9 @@ func apply_appearance() -> void:
 		_body_node.queue_free()    # also frees the rig, trail, look-at modifier and animator nodes
 	_rig = null
 	_trail = null
+	if _equip_vis != null:
+		(_equip_vis as EquipmentVisuals).detach()
+		_equip_vis = null
 	_build_body()
 	apply_age()
 	if dead:

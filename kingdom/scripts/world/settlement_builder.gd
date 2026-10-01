@@ -34,6 +34,9 @@ const GATE_JAMB := 0.9
 ## Steepest ground (m of height difference across a 10 m field tile) a crop tile is laid on.
 const FIELD_MAX_SPREAD := 1.0
 
+## Per-frame budget (ms on desktop, about 5x on a phone) for the time-sliced district props of a freshly streamed town.
+const DP_BUDGET_MS := 3.0
+
 signal settlement_built(settlement: Dictionary, root: Node3D)
 
 var focus := Vector3.ZERO
@@ -42,15 +45,36 @@ var _timer := 0.0
 var _footprints: Dictionary = {} # asset -> Vector3 size at BUILDING_SCALE
 ## settlement id -> [[stall key, position, yaw, solid index], ...] of the gate-market stalls (QA shots, tests).
 var stalls_by_town: Dictionary = {}
+var _prop_jobs: Array = []       # unfinished DistrictProps jobs (time-sliced, drained in _process)
 
 
 func _process(delta: float) -> void:
 	Breakable.tick(delta)   # breakable clutter: melee sweep + regrowth (once per frame)
+	_drain_prop_jobs(DP_BUDGET_MS)
 	_timer -= delta
 	if _timer > 0.0:
 		return
 	_timer = 0.5
 	update_now()
+
+
+## Advance the oldest unfinished district-props job within `budget_ms`; finished or orphaned jobs are dropped.
+func _drain_prop_jobs(budget_ms: float) -> void:
+	if _prop_jobs.is_empty():
+		return
+	var j = _prop_jobs[0]
+	if j.done or not is_instance_valid(j.root):
+		_prop_jobs.pop_front()
+		return
+	if j.step(budget_ms):
+		_prop_jobs.pop_front()
+
+
+## Finish every pending district-props job now (tests, QA captures).
+func finish_prop_jobs() -> void:
+	for j in _prop_jobs:
+		j.step(0.0)
+	_prop_jobs.clear()
 
 
 func update_now() -> void:
@@ -59,7 +83,7 @@ func update_now() -> void:
 		var d: float = p.distance_to(s["pos"]) - s["radius"]
 		var id: int = s["id"]
 		if d < BUILD_RANGE and not _built.has(id):
-			_built[id] = _build(s)
+			_built[id] = _build(s, false)
 			settlement_built.emit(s, _built[id])
 			return          # one per tick keeps frame times smooth
 		elif d > FREE_RANGE and _built.has(id):
@@ -67,7 +91,8 @@ func update_now() -> void:
 			_built.erase(id)
 
 
-func _build(s: Dictionary) -> Node3D:
+## `sync`: build the district props before returning (tests, the world lint); the game streams them over frames.
+func _build(s: Dictionary, sync := true) -> Node3D:
 	var root := Node3D.new()
 	root.name = s["name"]
 	add_child(root)
@@ -324,7 +349,9 @@ func _build(s: Dictionary) -> Node3D:
 	_multimesh(root, Assets.building_mesh("crate"), sc_crates, true, true, "crate")
 	_multimesh(root, Assets.building_mesh("sack_pile"), sc_sacks, true, true, "sack_pile")
 	_multimesh(root, Assets.building_mesh("cart"), sc_carts, true, true)
-	DistrictProps.build(self, root, s, plan)
+	var props_job = DistrictProps.build(self, root, s, plan, sync)
+	if props_job != null and not props_job.done:
+		_prop_jobs.append(props_job)
 	_decals(root, s, plan)
 	_flush_contact_shadows(root)
 	return root

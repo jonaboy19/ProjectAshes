@@ -1166,6 +1166,7 @@ func _screenshot(shot: String, path: String) -> void:
 			settlements.focus = Vector3(capst["pos"].x + cos(gas) * (float(capst["radius"]) - 40.0), 0, capst["pos"].y + sin(gas) * (float(capst["radius"]) - 40.0))
 			for _i in 4:
 				settlements.update_now()
+			settlements.finish_prop_jobs()   # QA shot: the town props stream over frames in the game
 			var spots: Array = settlements.stalls_by_town.get(capst["id"], [])
 			var pick: Array = spots[clampi(int(_user_args().get("n", "3")), 0, maxi(spots.size() - 1, 0))] if not spots.is_empty() else []
 			if not pick.is_empty():
@@ -1189,6 +1190,7 @@ func _screenshot(shot: String, path: String) -> void:
 			player.set_camera(atan2(-tl.x, -tl.y), float(_user_args().get("pitch", "-0.12")))
 			settlements.focus = player.global_position
 			settlements.update_now()
+			settlements.finish_prop_jobs()   # QA shot: the town props stream over frames in the game
 			if _user_args().has("air"):      # --air=55: a camera 55 m above the square looking down at it
 				hud.visible = false
 				player.visible = false
@@ -1210,6 +1212,7 @@ func _screenshot(shot: String, path: String) -> void:
 			settlements.focus = player.global_position
 			for _i in 4:
 				settlements.update_now()
+			settlements.finish_prop_jobs()   # QA shot: the town props stream over frames in the game
 			var droot: Node3D = settlements._built.get(dtn["id"])
 			var picks: Array[Decal] = []
 			var want := String(_user_args().get("kind", "wall"))

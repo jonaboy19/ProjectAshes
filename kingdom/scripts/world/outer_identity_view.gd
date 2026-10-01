@@ -24,7 +24,7 @@ func _process(delta: float) -> void:
 	if _timer > 0.0:
 		return
 	_timer = 1.5
-	refresh_now()
+	refresh_now(false)
 
 
 func _focus() -> Vector2:
@@ -38,8 +38,9 @@ func _low() -> bool:
 	return q != null and q.tier == q.LOW
 
 
-## Build and free everything for the current focus (also called by the QA shots).
-func refresh_now() -> void:
+## Build and free everything for the current focus (also called by the QA shots). In the game (`all` false) at most one
+## site is built per tick (decal nodes plus, once per beast class, a 64 x 256 print texture), so nothing hitches.
+func refresh_now(all := true) -> void:
 	if _low() or not TownDecalsScript.available():
 		return
 	var f := _focus()
@@ -50,6 +51,8 @@ func refresh_now() -> void:
 		var d := f.distance_to(site["pos"])
 		if d < BUILD and not _edges.has(id):
 			_edges[id] = _build_edge(site)
+			if not all:
+				return
 		elif d > FREE and _edges.has(id):
 			(_edges[id] as Node3D).queue_free()
 			_edges.erase(id)
@@ -60,6 +63,8 @@ func refresh_now() -> void:
 			var near: bool = f.distance_to(den["pos"]) < BUILD and den["alive"] and int(den["population"]) > 0
 			if near and not _dens.has(did):
 				_dens[did] = _build_tracks(den)
+				if not all:
+					return
 			elif (not near and f.distance_to(den["pos"]) > FREE or not den["alive"]) and _dens.has(did):
 				(_dens[did] as Node3D).queue_free()
 				_dens.erase(did)
