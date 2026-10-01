@@ -27,7 +27,7 @@ void fragment() {
 		EMISSION = vec3(1.0, 0.55, 0.40) * c * 0.10 + rim_color * fres * rim_amount * 0.25;
 	} else if (kind == 2) {
 		c = mix(vec3(l), c, saturation);
-		ROUGHNESS = 0.38; SPECULAR = 0.65;
+		ROUGHNESS = 0.62; SPECULAR = 0.3;   // was 0.38/0.65: sky reflection turned hair into a grey "helmet" seen from behind
 		EMISSION = rim_color * fres * rim_amount * 0.45 + c * 0.06;
 	} else if (kind == 3) {
 		c = mix(vec3(l), c, saturation);

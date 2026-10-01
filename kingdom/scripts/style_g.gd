@@ -83,7 +83,7 @@ static func apply_environment(env: Environment, tier := "high") -> void:
 	# fake GI, part 1: ambient is the sky colour, slightly warmed so shadows stay blue-violet but never cold grey
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color("aab8ee")
-	env.ambient_light_energy = 0.66
+	env.ambient_light_energy = 0.56            # deeper shadows (local GPU pass 2026-10-01; was 0.66)
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.tonemap_exposure = 0.92
 	env.tonemap_white = 5.5
@@ -97,21 +97,21 @@ static func apply_environment(env: Environment, tier := "high") -> void:
 	env.glow_hdr_threshold = 1.0
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
 	env.fog_enabled = true
-	env.fog_light_color = Color("ecdcbc")            # slightly warm haze (was cool d9e3f2)
+	env.fog_light_color = Color("e9d6ae")            # slightly warm haze (was cool d9e3f2)
 	env.fog_density = 0.0030
 	env.fog_aerial_perspective = 0.5
 	env.fog_sky_affect = 0.0
 	env.adjustment_enabled = tier != "low"
 	env.adjustment_saturation = 1.22
-	env.adjustment_contrast = 1.3
-	env.adjustment_color_correction = lut(Color("0a1240"), Color("8a88a4"), Color("fff0d0"))
+	env.adjustment_contrast = 1.38
+	env.adjustment_color_correction = lut(Color("0c1640"), Color("8a8a94"), Color("fff0d0"))   # mids 8a88a4 -> 8a8a94: less pink
 
 
 # --- lights ------------------------------------------------------------------------------------------------------
 
 const SUN_FORWARD := Vector3(0.55, -0.62, -0.55)     # from behind-left: shadows fall forward-right as in target 03
-const SUN_COLOR := "ffd6a0"
-const SUN_ENERGY := 2.7
+const SUN_COLOR := "ffd8a4"     # 2026-10-01 pass 2: warmth 1.46 -> toward 1.34
+const SUN_ENERGY := 2.9
 
 ## Shadow settings per tier: [mode, max_distance, atlas 4096/2048/1024 is a project setting (shadow_atlas)].
 const SHADOW := {
@@ -170,6 +170,18 @@ static func ph(set_name: String, kind: String, res := "2k") -> Texture2D:
 			p = PH % [set_name, set_name, kind, "2k"]
 		_tex[key] = load(p)
 	return _tex[key]
+
+
+## Weathering strength per role (lab_polished `weather`): relief, grime from the foot, streaks, worn seams.
+## Pack: assets/generated/style_g/weather_pack.png (tools_qa/style_lab/make_weather_pack.py).
+const WEATHER := {"house": 1.0, "stall": 0.8, "wood": 0.5, "lamp": 0.5, "goods": 0.25, "tree": 0.0, "ivy": 0.0, "flowers": 0.0, "banner": 0.0, "flag": 0.0}
+static var _weather_tex: Texture2D
+
+
+static func weather_pack() -> Texture2D:
+	if _weather_tex == null:
+		_weather_tex = load("res://assets/generated/style_g/weather_pack.png")
+	return _weather_tex
 
 
 static func white() -> Texture2D:
@@ -272,6 +284,8 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 	sm.set_shader_parameter("sky_bounce", Color(0.55, 0.66, 0.98))
 	sm.set_shader_parameter("rim_amount", 0.5)
 	sm.set_shader_parameter("bounce", 0.36)
+	sm.set_shader_parameter("weather_tex", weather_pack())
+	sm.set_shader_parameter("weather", WEATHER.get(role, 0.6))
 	match role:
 		"tree":
 			sm.set_shader_parameter("saturation", 1.15)
@@ -285,12 +299,15 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 			sm.set_shader_parameter("warm_tint", Color(1.0, 0.97, 0.9))
 			sm.set_shader_parameter("ao_height", 1.6)
 			sm.set_shader_parameter("ao_strength", 0.5)
+			sm.set_shader_parameter("vao_strength", 1.0)
 		"stall":
-			sm.set_shader_parameter("saturation", 1.0)
+			sm.set_shader_parameter("saturation", 0.82)      # richer, calmer cloth (target awnings are faded, not candy)
+			sm.set_shader_parameter("value_gain", 0.93)
+			sm.set_shader_parameter("warm_tint", Color(1.02, 0.97, 0.88))
 			sm.set_shader_parameter("ao_strength", 0.4)
 		"ivy":
 			sm.set_shader_parameter("saturation", 0.95)
-			sm.set_shader_parameter("value_gain", 0.78)
+			sm.set_shader_parameter("value_gain", 0.72)
 			sm.set_shader_parameter("ao_strength", 0.0)
 			sm.set_shader_parameter("rim_amount", 0.2)
 			sm.set_shader_parameter("bounce", 0.25)
@@ -298,7 +315,8 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 			sm.set_shader_parameter("saturation", 1.15)
 			sm.set_shader_parameter("ao_strength", 0.0)
 		_:
-			sm.set_shader_parameter("saturation", 1.12)       # wood, goods, lamp, banner poles: warm but NOT orange
+			sm.set_shader_parameter("saturation", 1.0 if role in ["wood", "goods"] else 1.12)   # wood/goods 1.0: crates and sacks read orange at 1.12
+			sm.set_shader_parameter("value_gain", 0.9 if role in ["wood", "goods"] else 1.04)
 			sm.set_shader_parameter("ao_strength", 0.35)
 			sm.set_shader_parameter("bounce", 0.3)
 	return sm
@@ -325,7 +343,7 @@ static func _ground() -> Material:
 	m.set_shader_parameter("noise_tex", _noise_cached())
 	m.set_shader_parameter("tile", 3.2)
 	m.set_shader_parameter("saturation", 1.0)
-	m.set_shader_parameter("cobble_tint", Color(1.04, 0.95, 0.84))     # golden cobbles
+	m.set_shader_parameter("cobble_tint", Color(1.03, 0.95, 0.78))     # golden cobbles (0.84 blue read pink)
 	m.set_shader_parameter("mud_tint", Color(1.15, 0.95, 0.78))
 	m.set_shader_parameter("grass_tint", Color(0.85, 1.15, 0.5))
 	m.set_shader_parameter("puddles", 0.0)
@@ -368,6 +386,10 @@ static func _gate_stone() -> Material:
 	sm.set_shader_parameter("saturation", 0.8)
 	sm.set_shader_parameter("grime", 0.35)
 	sm.set_shader_parameter("moss", 0.12)
+	sm.set_shader_parameter("normal_depth", 1.7)                  # gate block relief (pass 2)
+	sm.set_shader_parameter("b_alb", ph("medieval_blocks_02", "diff"))   # second layer: bigger dressed blocks, breaks the slate rhythm
+	sm.set_shader_parameter("b_nor", ph("medieval_blocks_02", "nor_gl"))
+	sm.set_shader_parameter("b_arm", ph("medieval_blocks_02", "arm"))
 	return sm
 
 

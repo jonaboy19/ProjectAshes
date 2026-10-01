@@ -1,4 +1,5 @@
 extends Node3D
+const StyleGVao := preload("res://scripts/style_g_vao.gd")
 ## Style Lab box G: the Kingsreach gate market, recreated from docs/art/reference/03_TARGET_gate_market_detailed.webp
 ## with the game's own assets plus a code-built gatehouse (two round crenellated towers, arch, portcullis).
 ## Composition: a long cobbled street running -Z toward the gate, jettied timber townhouses both sides, striped stalls
@@ -92,6 +93,8 @@ func _place(role: String, key: String, pos: Vector3, yaw: float, scale := 1.0) -
 	var mesh := Assets.building_mesh(key)
 	if mesh == null:
 		mesh = Assets.building_mesh(key.get_slice(":lod", 0))
+	if role == "house":
+		mesh = StyleGVao.baked(mesh)              # baked vertex AO (COLOR.a), Style G pass 2
 	mi.mesh = mesh
 	root.add_child(mi)
 	add_child(root)
@@ -110,7 +113,7 @@ func _street_rows() -> void:
 			var lod := 0 if z > -22.0 else (1 if z > -36.0 else 2)
 			if Style.tier != "high":
 				lod = maxi(lod, 1)                       # medium/low: no 13k-tri LOD0 houses
-			if Style.tier == "low" and z < -14.0:
+			if Style.tier == "low" and z < -8.0:      # LOW tri budget (was -14: 325k on the S22 Mobile renderer)
 				lod = 2
 			var yaw: float = PI * 0.5 * (-side)           # facing the street
 			_place("house", key + (":lod%d" % lod if lod > 0 else ""), Vector3(side * 12.2, 0, z), yaw, 0.8)
@@ -246,7 +249,7 @@ func _people() -> void:
 	var prng := RandomNumberGenerator.new()
 	prng.seed = 5
 	for f in Extra.folk(prng, count):
-		var far: bool = f["pos"].z < -24.0
+		var far: bool = f["pos"].z < (-10.0 if Style.tier == "low" else -24.0)   # LOW: lod1 folk beyond 10 m (tri budget)
 		var m := Assets.mh_character(f["model"], f["h"], [], far)
 		m.set_meta("role", "villager")
 		m.position = f["pos"]
@@ -258,18 +261,66 @@ func _people() -> void:
 		if ap and not ap.has_animation(clip):
 			clip = "Walk" if clip.begins_with("Walk") else "Idle"
 		_walk(m, clip, prng.randf() * 1.2)
+	_vat_crowd()
 	# guards with spears
 	for gp in [[Vector3(6.0, 0, -6.0), 0.45], [Vector3(7.0, 0, -11.5), 0.2], [Vector3(-3.4, 0, -44.0), -0.2], [Vector3(3.4, 0, -44.0), 0.2]]:
-		var g := Assets.mh_character("res://assets/incoming/ai3d/meshy/armored/guard", 1.85)
+		var g := Assets.mh_character("res://assets/incoming/ai3d/meshy/armored/guard", 1.85, [], Style.tier == "low" or gp[0].z < -24.0)   # 12k-tri guard: lod1 on LOW / far
 		g.set_meta("role", "guard")
 		g.position = gp[0]
 		g.rotation.y = gp[1] + (PI if gp[0].z < -40.0 else 0.0)
 		g.set_meta("blob", 0.6)
+		_blue_guard(g)
 		add_child(g)
 		_walk(g, "Idle", 0.2)
 		var sp := _spear()
 		sp.position = gp[0] + Vector3(0.45, 0, 0.1).rotated(Vector3.UP, g.rotation.y)
 		add_child(sp)
+
+
+## Target 03 guards wear blue-steel armour with a blue tabard: tint the Meshy guard atlas toward blue.
+func _blue_guard(g: Node3D) -> void:
+	for n in g.find_children("*", "MeshInstance3D", true, false):
+		var m := n as MeshInstance3D
+		for si in m.mesh.get_surface_count():
+			var mat := m.get_active_material(si)
+			if mat is BaseMaterial3D:
+				var t := (mat as BaseMaterial3D).duplicate() as BaseMaterial3D
+				t.albedo_color = Color(0.66, 0.78, 1.08)
+				m.set_surface_override_material(si, t)
+
+
+## Far crowd (26-70 m, through the arch): living-world VAT residents, animated in the vertex shader (no skeletons).
+func _vat_crowd() -> void:
+	var looks := ["villager_man_a", "villager_man_b", "villager_woman_a", "villager_woman_b", "villager_farmer", "elder_man", "villager_guard"]
+	var crowd := VatCrowd.new()
+	crowd.name = "VatFar"
+	crowd.set_meta("role", "vat")
+	add_child(crowd)
+	crowd.load_looks(looks)
+	crowd.camera = get_viewport().get_camera_3d() if is_inside_tree() else null
+	var n := 28 if Style.tier == "high" else (20 if Style.tier == "medium" else 8)
+	crowd.far_split = 60.0 if Style.tier != "low" else 30.0     # LOW: 650-tri far mesh beyond 30 m
+	var r := RandomNumberGenerator.new()
+	r.seed = 77
+	var id := 0
+	for i in n:
+		var look: String = looks[r.randi() % looks.size()]
+		if not crowd.assets.has(look):
+			continue
+		var a: VatAsset = crowd.assets[look]
+		var walks := []
+		var idles := []
+		for c: String in a.clips.keys():
+			(walks if c.to_lower().contains("walk") else idles).append(c)
+		var walking := r.randf() < 0.65 and not walks.is_empty()
+		var clip: String = (walks if walking else (idles if not idles.is_empty() else walks)).pick_random()
+		var z := r.randf_range(-27.0, -62.0)
+		var x := r.randf_range(-5.2, 5.2) * (0.55 if z < -44.0 else 1.0)       # narrower through the gate passage
+		var yaw := (0.0 if r.randf() < 0.5 else PI) if walking else r.randf_range(0, TAU)
+		var sc := 1.72 / maxf(a.height, 0.5) * r.randf_range(0.92, 1.06)
+		var xf := Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * sc), Vector3(x, 0, z))
+		crowd.put(id, look, xf, clip, -1.0, 1.0, Color.from_hsv(r.randf(), 0.35, 0.5))
+		id += 1
 
 
 func _spear() -> Node3D:

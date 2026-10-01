@@ -39,6 +39,10 @@ QuestWeaverGameState="*res://addons/quest_weaver/core/quest_weaver_game_state.gd
 PhantomCameraManager="*res://addons/phantom_camera/scripts/managers/phantom_camera_manager.gd"
 DebugMenu="*uid://cggqb75a8w8r"
 
+[debug_draw_3d]
+
+settings/addon_root_folder="res://addons/debug_draw_3d"
+
 [display]
 
 window/size/viewport_width=1280

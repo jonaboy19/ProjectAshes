@@ -339,7 +339,7 @@ static func visual_aabb(root: Node3D) -> AABB:
 ## A MakeHuman GLB on the UAL skeleton, `height` metres tall, with the UAL clips.
 static func mh_character(file: String, height: float, keep: Array[String] = [], lod1 := false) -> Node3D:
 	var root := Node3D.new()
-	var path := (file if file.contains("/") else MH_DIR + file) + ("_lod1" if lod1 and not file.contains("/") else "") + ".glb"
+	var path := (file if file.contains("/") else MH_DIR + file) + ("_lod1" if lod1 and (not file.contains("/") or ResourceLoader.exists(file + "_lod1.glb")) else "") + ".glb"
 	var base: Node3D = Assets.scene(path).instantiate()
 	root.add_child(base)
 	var skeleton: Skeleton3D = base.find_children("*", "Skeleton3D", true, false)[0]

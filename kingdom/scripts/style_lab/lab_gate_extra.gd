@@ -11,6 +11,19 @@ static var _vc_mat: Material
 static var _vc_mat2: Material
 
 
+## Ivy clump colour with real variation (2026-10-01): mostly deep leaf greens, some dark shaded clumps, a few
+## sun-yellowed and russet ones, so walls do not read as one flat bright sheet.
+static func ivy_color(rng: RandomNumberGenerator) -> Color:
+	var r := rng.randf()
+	if r < 0.12:
+		return Color.from_hsv(rng.randf_range(0.14, 0.19), rng.randf_range(0.5, 0.7), rng.randf_range(0.7, 0.9))   # yellowed
+	if r < 0.17:
+		return Color.from_hsv(rng.randf_range(0.05, 0.09), rng.randf_range(0.45, 0.6), rng.randf_range(0.5, 0.7))  # russet
+	if r < 0.42:
+		return Color.from_hsv(rng.randf_range(0.27, 0.33), rng.randf_range(0.6, 0.85), rng.randf_range(0.35, 0.55)) # shaded
+	return Color.from_hsv(rng.randf_range(0.22, 0.31), rng.randf_range(0.5, 0.8), rng.randf_range(0.55, 0.85))
+
+
 static func lin(hex: String) -> Color:
 	return Color(hex).srgb_to_linear()
 
@@ -197,7 +210,7 @@ static func dress_facades(parent: Node3D, rng: RandomNumberGenerator, house_zs: 
 					var xf := Transform3D(Basis(Vector3.UP, yaw) * Basis(Vector3.BACK, rng.randf() * TAU) * Basis.from_scale(Vector3.ONE * rng.randf_range(0.8, 1.25)),
 						Vector3(fx, y, zc + rng.randf_range(-0.3, 0.3)) + out * 0.04)
 					ivy_x.append(xf)
-					ivy_c.append(Color.from_hsv(rng.randf_range(0.24, 0.31), rng.randf_range(0.55, 0.8), rng.randf_range(0.7, 0.95)))
+					ivy_c.append(ivy_color(rng))
 					y += 0.19
 			# flower boxes: two rows, 2 per row, staggered
 			for row in [[3.5, -1.55], [5.9, 1.45]]:
@@ -240,7 +253,7 @@ static func ivy_tower(parent: Node3D, centre: Vector3, radius: float, a0: float,
 			var yaw := atan2(n.x, n.z)
 			xs.append(Transform3D(Basis(Vector3.UP, yaw) * Basis(Vector3.BACK, rng.randf() * TAU) * Basis.from_scale(Vector3.ONE * rng.randf_range(1.2, 2.0)),
 				centre + n * (radius - 0.02) + Vector3(0, y, 0)))
-			cs.append(Color.from_hsv(rng.randf_range(0.24, 0.30), rng.randf_range(0.55, 0.8), rng.randf_range(0.7, 0.95)))
+			cs.append(ivy_color(rng))
 			y += 0.4
 			a += rng.randf_range(-0.03, 0.03)
 	parent.add_child(multimesh(ivy_clump(5), xs, cs, vc_material(true), "TowerIvy"))

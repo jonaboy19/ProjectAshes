@@ -166,3 +166,84 @@ Gotchas found while proving:
 | Piper 1.x (piper1-gpl) | GPL-3 fork; the MIT 2023 binary is enough. |
 | Lessac-derived and NC Piper voices | See the voice table above. |
 | Ollama and any local LLM | Forbidden by the owner. |
+
+## Agent MCP toolchain (2026-10-01)
+
+Plan and statuses: `docs/TOOLCHAIN_PLAN.md`. Audit: `docs/TOOLCHAIN_AUDIT.md`. Installed in `C:\Users\Jonna\Tools\`, registered for Claude Code at **project scope** in the repo's `.mcp.json` (no secrets: only paths under `%USERPROFILE%` and a localhost URL). Claude Code asks once per PC to trust a project `.mcp.json`; approve it.
+
+| MCP (name in `.mcp.json`) | Version, licence, source | Where | Needs running |
+|---|---|---|---|
+| `dcc-mcp` (Godot and Blender through one gateway) | dcc-mcp-godot 0.9.0 (MIT, PyPI, github.com/dcc-mcp/dcc-mcp-godot), dcc-mcp-blender 0.2.12 (MIT, PyPI), dcc-mcp-core 0.20.39 | `Tools\dcc-mcp\venv` (Godot side), `Tools\dcc-mcp\blender-site` (Blender side, installed with Blender's own Python via `pip --target`) | `tools/mcp/dcc_mcp_start.ps1 -Blender -Godot kingdom` |
+| `serena` | serena-agent 1.7.0, app GPL-3.0-or-later and SolidLSP MIT (a developer tool; its output is not encumbered), github.com/oraios/serena | `Tools\serena\venv`, project config `kingdom/.serena/project.yml` (language `gdscript`, ignores `addons/**` and `assets/**`) | the Godot editor with its LSP on port 6008 (the same start script) |
+| `context7` | @upstash/context7-mcp 4.1.1 (MIT) | `Tools\context7\node_modules` | nothing; works without an API key (rate limited), no account |
+
+Not MCP: **Debug Draw 3D 1.7.3** (MIT, github.com/DmitriySalnikov/godot_debug_draw_3d, asset 1766) is committed in `kingdom/addons/debug_draw_3d`. Only the Windows, Linux x86_64 and Android arm32/arm64 libraries are kept (11 MB of the 42 MB); the upstream `.gdextension` lists the rest, which are simply absent. Release templates load a no-op library, so DD3D calls cost nothing in a shipping build; debug builds draw. In game code gate calls with `OS.is_debug_build()` and a debug flag, and never leave `DebugDraw3D` draws unconditional. Boot check: `--headless --import`, then a script confirming `Engine.has_singleton("DebugDraw3D")` prints `true`, no errors. The editor library sends anonymous usage statistics unless the editor setting `debug_draw_3d/settings/telemetry_state` is 2 ("Refuse"); it was set to 2 on this PC in `%APPDATA%\Godot\editor_settings-4.6.tres` (backup next to it, `.pre-dd3d.bak`). On another PC set it in Editor Settings.
+
+### Start and stop (this PC)
+```
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/mcp/dcc_mcp_start.ps1 -Blender -Godot kingdom
+tools/mcp/dcc_mcp_status.sh                       # gateway answers and lists live skills
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/mcp/dcc_mcp_stop.ps1   # stops only the PIDs the start script wrote
+```
+The start script is idempotent. It runs the Godot editor **headless** (`--editor --headless --lsp-port 6008`), installs and enables the DCC-MCP Godot plugin in that checkout if needed, and starts `dcc-mcp-godot serve`. The first scan of the full project takes several minutes; wait for `kingdom/.godot/dcc_mcp_godot_bootstrap.json` to say `"status":"ready"` and for TCP 6008. Run it from the checkout you want the editor to open (a worktree is fine). Logs: `Tools\dcc-mcp\logs`.
+
+Rules:
+- **One Godot editor at a time** for the MCP (bridge port 3847; set `DCC_MCP_GODOT_BRIDGE_PORT` before starting both processes for a second one).
+- Never `taskkill` Godot or Blender globally (other agents use them).
+- The gateway (`dcc-mcp-server gateway`, port 9765) is machine-wide and exits by itself 5 minutes after the last adapter stops, so the stop script leaves it alone.
+- Run the start script in the background from Bash (`( ... &)`), because the hidden children keep the tool call open otherwise.
+- **The DCC-MCP Godot plugin is opt-in and must never be committed.** Enabling it adds `res://addons/dcc_mcp_godot/plugin.cfg` to `[editor_plugins]` and an autoload (`DccMcpRuntimePeer`) in `kingdom/project.godot`; the start script adds `kingdom/addons/dcc_mcp_godot/` and `kingdom/.dcc-mcp/` to the shared `.git/info/exclude`. Before committing, `git diff kingdom/project.godot` and revert those lines (`git checkout kingdom/project.godot`, or `dcc-mcp-godot uninstall kingdom --yes`). Godot itself also adds a harmless `[debug_draw_3d] settings/addon_root_folder` section when it loads Debug Draw 3D; that one is committed.
+
+### How agents use each MCP
+- **dcc-mcp** exposes four gateway tools: `search`, `describe`, `load_skill`, `call`. Flow: `search` (`kind=skill`, `dcc_type=godot|blender`), then `load_skill`, then `call` with `tool_slug` `<dcc>.<instance8>.<tool>` (the 8-character instance id is `_instance_short` in the search result). Load only the domain skill you need; tools stay deferred until then.
+  - Godot skills used so far: `godot-project` (`inspect_project`), `godot-analysis` (`get_project_statistics`, `find_unused_resources`), `godot-scene-management` (`get_scene_tree`, `open_scene`, `play_scene`, `stop_scene`), `godot-editor` (`get_editor_errors`, `get_output_log`, `get_editor_screenshot`, `get_game_screenshot`), `godot-testing-qa`, `godot-runtime`, `godot-profiling`. Inspect before you mutate; scene edits use Godot's undo. A headless editor has no real viewport, so check whether screenshots come back before relying on them.
+  - Blender skills: `blender-scene`, `blender-mesh-ops` (`create_primitive` takes `primitive_type`, `get_poly_count` takes `object_name`), plus UV, rigging, materials and `blender-interchange` (`export_gltf`), 42 skills in all. This Blender is headless and `--factory-startup` (default cube, camera, light). For GLB that goes into Godot 4.6.3 keep using gltfpack `-noq`.
+  - Anything that does not need a live editor should still use `tools/external/blender.sh` scripts or the Godot CLI. Use the MCP to inspect and change a running editor or scene.
+- **serena**: `get_symbols_overview`, `find_symbol` (always give `relative_path`; a whole-project scan through Godot's LSP takes 30 to 60 s or more), `find_referencing_symbols`, `replace_symbol_body`, `search_for_pattern`. Prefer these to reading a 1,000-line file. Name paths look like `quality.gd/tier_name`. Godot's LSP has no `workspace/symbol`; the first references call took 52 s cold.
+- **context7**: `resolve-library-id` (query `godot` gives `/godotengine/godot-docs`), then `query-docs`. Use it for Godot 4.6, addon and library docs instead of pasting docs into context.
+
+### Proofs (commands and results, 2026-10-01 on this PC; raw log `C:\Users\Jonna\Tools\_proof\mcp\proof.txt`)
+The Godot proof ran on a sparse worktree that had `scenes`, `scripts`, `addons`, `autoload`, `shaders`, `data`, `locale` and `dialogue` but not `assets/`, so the counts are for that subset.
+```
+dcc-mcp-godot verify kingdom --dcc-path <Godot 4.6.3 console exe> --python Tools\dcc-mcp\venv\Scripts\python.exe --json   -> directly_usable true, typed_ping ok
+mcp_call.sh call godot.<id>.godot_project__inspect_project                -> engine 4.6.3-stable, main scene res://scenes/boot.tscn
+mcp_call.sh call godot.<id>.godot_analysis__get_project_statistics        -> 25 scenes, 193 scripts, 2 shaders (500-file scan cap)
+mcp_call.sh call godot.<id>.godot_scene_management__get_scene_tree        -> scene_path res://scenes/boot.tscn
+mcp_call.sh call blender.<id>.blender_mesh_ops__create_primitive {"primitive_type":"cube","name":"AshesProofCube"} -> "Created cube primitive AshesProofCube"
+mcp_call.sh call blender.<id>.blender_scene__list_objects                 -> "Found 4 objects"   (Blender 5.2.0 LTS, headless)
+serena start-mcp-server --project kingdom --context ide   (cwd = repo root), find_referencing_symbols quality.gd/tier_name -> settings_screen.gd _update_caption line 239 and settings_menu.gd
+context7 resolve-library-id {"libraryName":"godot","query":"GDScript SpringBoneSimulator3D"} -> /godotengine/godot-docs (39,604 snippets), /godotengine/godot, /websites/godotengine_en_4_7
+godot --headless --path kingdom --import ; then -s dd3d_probe.gd         -> DD3D_CLASS_EXISTS=true, DD3D_SINGLETON=true
+```
+The stdio probe used for Serena and Context7 is `Tools\serena\mcp_probe.py` (a 20-line client built on the `mcp` Python package). `mcp_call.sh` is `tools/mcp/mcp_call.sh`.
+
+### Codex setup (this PC)
+Codex does not read `.mcp.json`. Add to `%USERPROFILE%\.codex\config.toml` (no secrets):
+```toml
+[mcp_servers.dcc-mcp]
+url = "http://127.0.0.1:9765/mcp"
+
+[mcp_servers.serena]
+command = 'C:\Users\Jonna\Tools\serena\venv\Scripts\serena.exe'
+args = ["start-mcp-server", "--project", "C:\\Users\\Jonna\\Documents\\ProjectAshes\\kingdom", "--context", "ide", "--open-web-dashboard", "false"]
+
+[mcp_servers.context7]
+command = "node"
+args = ['C:\Users\Jonna\Tools\context7\node_modules\@upstash\context7-mcp\dist\index.js']
+```
+Point Serena's `--project` at the checkout Codex is working in. If a Codex session cannot use MCP, `tools/mcp/mcp_call.sh <search|load_skill|call> '<json>'` talks to the same gateway from any shell. The plugin-marketplace route in the dcc-mcp README (`codex plugin marketplace add dcc-mcp/dcc-mcp-agent-plugins`) was not used: it is not needed and would add a second path to the same servers.
+
+### Cloud session setup
+The cloud session cannot reach this PC's gateway (`127.0.0.1` there is the cloud box), has no Blender 5.2 build of ours and no GPU, so:
+- **Context7**: works as is, `npx -y @upstash/context7-mcp@4.1.1` in the cloud session's MCP config. No key needed.
+- **Serena**: `uvx --from git+https://github.com/oraios/serena serena start-mcp-server --project kingdom --context ide`. With no Godot editor there is no GDScript language server and the symbol tools fail; use `search_for_pattern`, file and memory tools only, or run `godot --headless --editor --lsp-port 6008 --path kingdom` in the cloud box if a Godot binary is available.
+- **dcc-mcp**: skip. Use `ashes-cloud-blender` for Blender work and the Godot CLI/GdUnit4 for checks. Never record `127.0.0.1:9765` results in docs as if the cloud ran them.
+- Do not put keys in the repo. Context7 can use `CONTEXT7_API_KEY` from the session's secret store if rate limits bite; it is optional.
+
+### Gotchas found
+- `dcc-mcp-godot serve` accepts no extra arguments (anything else prints `unknown command`).
+- The Godot launcher exe spawns a console child; the stop script also stops the children of its recorded PID.
+- Godot headless `--import` and editor runs rewrite `.import` files, `godot_gas/*.tres` and `addons/effekseer/bin/windows/~libeffekseer.x86_64.dll`, and create untracked `.uid` files. Revert them or leave them out of commits (`git add` only your own paths).
+- DCC-MCP Blender needs `PYTHONPATH=Tools\dcc-mcp\blender-site`; the bootstrap restores it inside Blender 5's isolated Python. Do not install the adapter's startup hook or Extension ZIP: that would load it into every Blender session on this PC.
+- Serena with no editor running fails to start its language server after 30 s and the symbol tools then error.
+- Android Performance Analyzer: see `docs/TOOLCHAIN_PLAN.md`. Not installed (562 MB, SDK licence).
