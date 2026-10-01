@@ -7,11 +7,14 @@ extends RefCounted
 ## works at any model scale. Cost: 1 extra skinned MeshInstance3D (one surface, ~1.3k tris).
 ## Usage: HeroOutfit.dress(model)   (model = Assets.mh_character / CharacterCreation.build_model result)
 
-const TUNIC := Color("44692c")
-const TUNIC_DARK := Color("31501f")
+const TUNIC := Color("3b5e26")
+const TUNIC_DARK := Color("2c461b")
 const LEATHER := Color("5c381f")
 const LEATHER_DARK := Color("3f2614")
 const BRASS := Color("b08a3c")
+const HAIR := Color("7a4a26")
+const HOOD := Color("6e4527")
+const HAIR_DARK := Color("4a2c16")
 
 static var _sk: Skeleton3D
 static var _body_pts: PackedVector3Array
@@ -26,6 +29,14 @@ static func tint_tunic(model: Node3D) -> void:
 			if mat is BaseMaterial3D:
 				var t := (mat as BaseMaterial3D).duplicate() as BaseMaterial3D
 				t.albedo_color = Color(0.62, 0.86, 0.5)
+				m.set_surface_override_material(si, t)
+	for n in model.find_children("*boots*", "MeshInstance3D", true, false):
+		var m := n as MeshInstance3D
+		for si in m.mesh.get_surface_count():
+			var mat := m.get_active_material(si)
+			if mat is BaseMaterial3D:
+				var t := (mat as BaseMaterial3D).duplicate() as BaseMaterial3D
+				t.albedo_color = Color(0.82, 0.56, 0.36)    # tall boots read as warm brown leather against the dark trousers
 				m.set_surface_override_material(si, t)
 	for n in model.find_children("*hair*", "MeshInstance3D", true, false):
 		var m := n as MeshInstance3D
@@ -153,30 +164,63 @@ static func dress(model: Node3D) -> MeshInstance3D:
 					var col := LEATHER.lerp(LEATHER_DARK, 0.3 * absf(sin(k[1] * 5.0)) * (1.0 - wu))
 					vs.append([p, [sp1, sp3], [1.0 - wu, wu], col])
 				_quad(st, vs[0], vs[1], vs[2], vs[3], true)
+		# satchel strap lying ON the jerkin shell (front: right hip -> left shoulder), torso bones only = no arm fins
+		var prev := Vector3.ZERO
+		var sn := 12
+		for si2 in sn + 1:
+			var t := float(si2) / sn
+			var y := lerpf(y0 - 0.02 * unit, y1 - 0.01 * unit, t)
+			var kk := (y - y0) / maxf(0.001, y1 - y0)
+			var rb3: Vector2 = r_lo.lerp(r_mid, clampf(kk * 2.0, 0.0, 1.0)) if kk < 0.5 else r_mid.lerp(r_hi, clampf(kk * 2.0 - 1.0, 0.0, 1.0))
+			var rr := rb3 * 1.08 + Vector2(0.006, 0.01) * unit
+			var a2 := lerpf(PI * 0.5 + 0.95, PI * 0.5 - 0.75, t)        # angle on the ellipse, +z = front
+			var pt := Vector3(cx + cos(a2) * (rr.x + 0.01 * unit), y, cz + sin(a2) * (rr.y + 0.012 * unit))
+			if si2 > 0:
+				_strap(st, prev, pt, 0.045 * unit, Vector3(cos(a2), 0, sin(a2)), sp1, sp3, clampf(kk, 0.0, 1.0), LEATHER_DARK)
+			prev = pt
 	# --- hood rolled down: thick collar ring around the neck base + a drape down the back -----------------------
 	if neck >= 0 and sp3 >= 0:
 		var p_n := _pos(neck)
 		var cy := p_n.y - 0.02 * unit
 		var rn := Vector2(0.095, 0.09) * unit
 		_ring(st, Vector3(p_n.x, cy, p_n.z - 0.01 * unit), rn, 0.07 * unit, 0.055 * unit, [neck, sp3], [0.4, 0.6], LEATHER, 16)
-		var top := cy - 0.01 * unit
-		var bot := cy - 0.26 * unit
-		var w := 9
-		for j in 4:
-			var t0 := float(j) / 4.0
-			var t1 := float(j + 1) / 4.0
-			for i in w:
-				var u0 := float(i) / w
-				var u1 := float(i + 1) / w
+		# the hood itself, lying folded on the upper back: a half-ellipsoid bag, wide at the collar, pinched to a tip
+		var hc := Vector3(p_n.x, cy - 0.11 * unit, p_n.z - 0.075 * unit)
+		var nth := 10
+		var nph := 7
+		for pj in nph:
+			for ti in nth:
 				var vs: Array = []
-				for k in [[t0, u0], [t1, u0], [t1, u1], [t0, u1]]:
-					var y := lerpf(top, bot, k[0])
-					var rr := _fit(y, Vector2(0.15, 0.11) * unit) * 1.12 + Vector2(0.02, 0.035) * unit
-					var half := lerpf(0.95, 0.35, pow(k[0], 1.4))          # pointed hood tip
-					var a := PI + lerpf(-half, half, k[1]) + PI * 0.5        # centred on -z (back)
-					var p := Vector3(p_n.x + cos(a) * rr.x, y, p_n.z + sin(a) * rr.y)
-					vs.append([p, [sp3, neck], [0.8, 0.2], LEATHER.lerp(LEATHER_DARK, k[0] * 0.5)])
+				for k in [[pj, ti], [pj + 1, ti], [pj + 1, ti + 1], [pj, ti + 1]]:
+					var ph := PI * 0.08 + PI * 0.84 * float(k[0]) / nph
+					var th := lerpf(-PI * 0.55, PI * 0.55, float(k[1]) / nth)
+					var pinch := 1.0 - 0.55 * float(k[0]) / nph
+					var d := Vector3(sin(ph) * sin(th) * 0.135 * pinch, cos(ph) * 0.15, -sin(ph) * cos(th) * 0.11 - 0.015) * unit
+					var wn := clampf(1.0 - float(k[0]) / 3.0, 0.0, 0.4)
+					var col := HOOD.lerp(LEATHER_DARK, 0.1 + 0.4 * float(k[0]) / nph)
+					vs.append([hc + d, [sp3, neck], [1.0 - wn, wn], col])
 				_quad(st, vs[0], vs[1], vs[2], vs[3], false)
+	# --- shaggy hair: tufts rooted on the G6 hair cap, skinned to the head ------------------------------------------
+	var head := _b(["Head", "head"])
+	if head >= 0:
+		var hp := _pos(head)
+		var crown := hp + Vector3(0, 0.09, 0) * unit
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 11
+		var n_t := 0
+		for p in _body_pts:
+			if p.y < hp.y + 0.035 * unit or p.distance_to(crown) > 0.15 * unit or n_t > 70:
+				continue
+			if rng.randf() > 0.22:
+				continue
+			var out := (p - crown).normalized()
+			if out.z > 0.55 and p.y < crown.y + 0.02 * unit:
+				continue                                           # keep the face clear
+			var dir := (out * 0.35 + Vector3(0, -0.85, 0) + Vector3(rng.randf_range(-0.15, 0.15), 0, rng.randf_range(-0.15, 0.15))).normalized()
+			var ln := rng.randf_range(0.04, 0.07) * unit * (0.6 if p.y > crown.y else 1.0)
+			var col := HAIR.lerp(HAIR_DARK, rng.randf_range(0.0, 0.6))
+			_tuft(st, p - out * 0.006 * unit, dir, ln, 0.02 * unit, head, col)
+			n_t += 1
 	# --- bracers on both forearms ---------------------------------------------------------------------------------
 	for pair in [[lal, hal], [lar, har]]:
 		if pair[0] < 0 or pair[1] < 0:
@@ -331,6 +375,19 @@ static func _box(st: SurfaceTool, c: Vector3, size: Vector3, yaw: float, bs: Arr
 		cs.append(c + bas * Vector3(h.x * (1 if i & 1 else -1), h.y * (1 if i & 2 else -1), h.z * (1 if i & 4 else -1)))
 	for f in [[0, 1, 3, 2], [4, 6, 7, 5], [0, 4, 5, 1], [2, 3, 7, 6], [0, 2, 6, 4], [1, 5, 7, 3]]:
 		_quad(st, [cs[f[0]], bs, ws, col], [cs[f[1]], bs, ws, col], [cs[f[2]], bs, ws, col], [cs[f[3]], bs, ws, col], false)
+
+
+static func _tuft(st: SurfaceTool, root: Vector3, dir: Vector3, ln: float, r: float, bone: int, col: Color) -> void:
+	var u := dir.cross(Vector3.UP if absf(dir.y) < 0.9 else Vector3.RIGHT).normalized()
+	var v := dir.cross(u)
+	var tip := [root + dir * ln, [bone], [1.0], col.lightened(0.12)]
+	var base := []
+	for k in 3:
+		var a := TAU * k / 3.0
+		base.append([root + (u * cos(a) + v * sin(a)) * r, [bone], [1.0], col])
+	for k in 3:
+		for vv in [base[k], base[(k + 1) % 3], tip]:
+			_vert(st, vv)
 
 
 static func _strap(st: SurfaceTool, p0: Vector3, p1: Vector3, w: float, out: Vector3, b0: int, b1: int, wu: float, col: Color) -> void:

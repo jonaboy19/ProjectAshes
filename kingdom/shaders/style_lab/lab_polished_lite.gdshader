@@ -28,10 +28,11 @@ uniform float spec = 0.35;
 // adds roughness variation, grime climbing from the wall foot, rain streaks and lighter worn edges along atlas seams.
 uniform sampler2D weather_tex : filter_linear_mipmap, repeat_enable;
 uniform float weather = 0.0;
-uniform float weather_scale = 0.45;
+uniform float weather_scale = 0.32;
 uniform float grime_height = 2.2;
 uniform float grime_amount = 0.38;
 uniform float edge_wear = 0.35;
+uniform float vao_strength = 0.0;   // baked vertex AO in COLOR.a (StyleG.bake_vertex_ao)
 uniform float bump_amount = 0.6;
 varying vec3 wpos;
 varying vec3 wnor;
@@ -45,7 +46,7 @@ void vertex() {
 vec4 weather_sample(vec3 p, vec3 n, float s) {
 	vec3 a = abs(n);
 	vec2 uv = a.y > 0.7 ? p.xz : (a.x > a.z ? p.zy : p.xy);
-	return texture(weather_tex, uv * s);
+	return texture(weather_tex, uv * s, 0.8);   // +0.8 mip bias: no shimmer/sparkle at distance
 }
 
 // returns weathered albedo; h = signed relief height for bump
@@ -83,9 +84,9 @@ void fragment() {
 		c = weather_albedo(c, wpos, wnor, l, NODE_POSITION_WORLD.y, wh, wr);
 		c = mix(c, c * 1.22 + vec3(0.025, 0.02, 0.01), seam * edge_wear * weather * step(0.45, wh + 0.5));
 	}
-	c *= ao;
+	c *= ao * mix(1.0, COLOR.a, vao_strength);
 	ALBEDO = c;
-	ROUGHNESS = clamp(roughness + wr * weather, 0.0, 1.0);
+	ROUGHNESS = clamp(mix(roughness, 0.9, weather * 0.7) + wr * weather, 0.0, 1.0);
 	SPECULAR = spec;
 	// cheap hemispheric fill baked into albedo-ish emission (no fresnel, no pow)
 	EMISSION = c * mix(ground_bounce, sky_bounce, wnor.y * 0.5 + 0.5) * bounce;

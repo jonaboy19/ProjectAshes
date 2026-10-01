@@ -11,6 +11,7 @@ def chan(name, kind="disp", blur=24):
     im = Image.open(T % (name, name, kind)).convert("L").resize((N, N), Image.LANCZOS)
     a = np.asarray(im, np.float32)
     lo = np.asarray(im.filter(ImageFilter.GaussianBlur(blur)), np.float32)
+    a = np.asarray(im.filter(ImageFilter.GaussianBlur(1.6)), np.float32)   # no sub-mm grain: it sparkled on bright plaster
     d = a - lo
     d = d / (np.percentile(np.abs(d), 98) + 1e-3)
     return np.clip(0.5 + 0.5 * d, 0, 1)

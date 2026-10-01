@@ -110,7 +110,7 @@ static func apply_environment(env: Environment, tier := "high") -> void:
 # --- lights ------------------------------------------------------------------------------------------------------
 
 const SUN_FORWARD := Vector3(0.55, -0.62, -0.55)     # from behind-left: shadows fall forward-right as in target 03
-const SUN_COLOR := "ffd396"
+const SUN_COLOR := "ffd8a4"     # 2026-10-01 pass 2: warmth 1.46 -> toward 1.34
 const SUN_ENERGY := 2.9
 
 ## Shadow settings per tier: [mode, max_distance, atlas 4096/2048/1024 is a project setting (shadow_atlas)].
@@ -299,8 +299,11 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 			sm.set_shader_parameter("warm_tint", Color(1.0, 0.97, 0.9))
 			sm.set_shader_parameter("ao_height", 1.6)
 			sm.set_shader_parameter("ao_strength", 0.5)
+			sm.set_shader_parameter("vao_strength", 1.0)
 		"stall":
-			sm.set_shader_parameter("saturation", 1.0)
+			sm.set_shader_parameter("saturation", 0.82)      # richer, calmer cloth (target awnings are faded, not candy)
+			sm.set_shader_parameter("value_gain", 0.93)
+			sm.set_shader_parameter("warm_tint", Color(1.02, 0.97, 0.88))
 			sm.set_shader_parameter("ao_strength", 0.4)
 		"ivy":
 			sm.set_shader_parameter("saturation", 0.95)
@@ -383,6 +386,10 @@ static func _gate_stone() -> Material:
 	sm.set_shader_parameter("saturation", 0.8)
 	sm.set_shader_parameter("grime", 0.35)
 	sm.set_shader_parameter("moss", 0.12)
+	sm.set_shader_parameter("normal_depth", 1.7)                  # gate block relief (pass 2)
+	sm.set_shader_parameter("b_alb", ph("medieval_blocks_02", "diff"))   # second layer: bigger dressed blocks, breaks the slate rhythm
+	sm.set_shader_parameter("b_nor", ph("medieval_blocks_02", "nor_gl"))
+	sm.set_shader_parameter("b_arm", ph("medieval_blocks_02", "arm"))
 	return sm
 
 
