@@ -82,6 +82,35 @@ func _ready() -> void:
 	process_physics_priority = 100    # after the player moved its camera
 	set_process(false)
 	set_physics_process(active == self)
+	if not is_exit and has_meta("asset") and not has_meta("building_name"):
+		var at: Variant = get_meta("lot_pos") if has_meta("lot_pos") else Vector2(global_position.x, global_position.z)
+		var town := ""
+		if at is Vector2 and not WorldGen.settlements.is_empty():
+			town = String(WorldGen.nearest_settlement(at).get("name", ""))
+		var bn := building_name(String(get_meta("asset")), town, at if at is Vector2 else Vector2.ZERO)
+		if bn != "":
+			set_meta("building_name", bn)       # read by the HUD's "Enter — <name>" label
+
+
+const INN_ADJ := ["Golden", "Rusty", "Silver", "Laughing", "Sleeping", "Crimson", "Wandering", "Merry", "Gilded", "Broken"]
+const INN_NOUN := ["Stag", "Anvil", "Lantern", "Crow", "Barrel", "Boar", "Crown", "Hound", "Oak", "Wheatsheaf"]
+const SMITH := ["Brand", "Garrick", "Hale", "Torvin", "Aldric", "Marek", "Osric", "Bryce"]
+
+
+## Deterministic building name for a lot: "Golden Stag Inn", "Hale's Smithy", "Ashford Adventurer Guild"...
+## Same town + position always gives the same name; "" when the asset has no special name (houses).
+static func building_name(asset: String, town: String, pos: Vector2) -> String:
+	var h := absi(hash("%s|%d|%d" % [town, roundi(pos.x), roundi(pos.y)]))
+	match asset:
+		"inn":
+			return "%s %s Inn" % [INN_ADJ[h % INN_ADJ.size()], INN_NOUN[(h / 11) % INN_NOUN.size()]]
+		"blacksmith":
+			return "%s's Smithy" % SMITH[h % SMITH.size()]
+		"adventurer_guild":
+			return ("%s Adventurer Guild" % town).strip_edges()
+		"healer_house":
+			return ("%s Healer's House" % town).strip_edges()
+	return ""
 
 
 ## Makes `player` detectable by street doors that mask PLAYER_TRIGGER_LAYER.

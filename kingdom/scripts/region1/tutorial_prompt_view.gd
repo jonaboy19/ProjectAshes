@@ -134,8 +134,8 @@ func _layout() -> void:
 	if prompt.is_empty() or _pill == null:
 		return
 	var k := _ui_scale()
-	_label.add_theme_font_size_override("font_size", int(round(40.0 * k)))
-	_skip.add_theme_font_size_override("font_size", int(round(34.0 * k)))
+	_label.add_theme_font_size_override("font_size", int(round(30.0 * k)))
+	_skip.add_theme_font_size_override("font_size", int(round(26.0 * k)))
 	_skip.custom_minimum_size = Vector2(SKIP_SIZE, SKIP_SIZE) * maxf(k, 1.0)
 	_pill.reset_size()
 	var sz := _pill.get_combined_minimum_size()
@@ -143,13 +143,9 @@ func _layout() -> void:
 		# A text-only hint (realm_encounters.gd): no ring, no gesture, high and centred.
 		_pill.position = Vector2(clampf((size.x - sz.x) * 0.5, 16.0, maxf(16.0, size.x - sz.x - 16.0)), size.y * 0.16)
 		return
-	var a := anchor_pos(String(prompt.get("anchor", "center")))
-	# Above the anchor; below it near the top edge, and below the big glyph for "trace".
-	var below := a.y <= size.y * 0.3 or String(prompt.get("touch", "")) == "trace"
-	var gap := (140.0 if String(prompt.get("touch", "")) == "trace" else 110.0) * k
-	var y := a.y + gap if below else a.y - 120.0 * k - sz.y
-	var x := clampf(a.x - sz.x * 0.5, 16.0, size.x - sz.x - 16.0)
-	_pill.position = Vector2(x, clampf(y, 16.0, size.y - sz.y - 16.0))
+	# A small pill top-centre under the location line: never over the joystick or the combat cluster
+	# (the pulsing ring in _draw still points at the HUD element it is about).
+	_pill.position = Vector2(clampf((size.x - sz.x) * 0.5, 16.0, maxf(16.0, size.x - sz.x - 16.0)), size.y * 0.115)
 
 
 func _process(delta: float) -> void:

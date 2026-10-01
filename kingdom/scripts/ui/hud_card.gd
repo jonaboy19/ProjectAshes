@@ -283,19 +283,27 @@ class Card extends Control:
 class QuestTracker extends PanelContainer:
 	const AF := preload("res://scripts/ui/ashes_frame.gd")
 	const HudArt := preload("res://scripts/ui/hud_art.gd")
+	const FADE_AFTER := 10.0          # seconds without a change before the tracker fades away
+	const LINE_W := 300.0
 
+	signal toggled(expanded: bool)
+
+	var expanded := false
 	var _box: VBoxContainer
 	var _kicker: Label
 	var _title: Label
 	var _rows: VBoxContainer
 	var _sig := ""
+	var _quest: Dictionary = {}
+	var _idle := 0.0
+	var _faded := false
 
 	func _init() -> void:
 		custom_minimum_size = Vector2(332, 0)
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var sb := HudArt.card_box(0.8, 10)
-		sb.content_margin_left = 14
-		sb.content_margin_right = 12
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		var sb := HudArt.card_box(0.8, 8)
+		sb.content_margin_left = 12
+		sb.content_margin_right = 10
 		add_theme_stylebox_override("panel", sb)
 		_box = VBoxContainer.new()
 		_box.add_theme_constant_override("separation", 2)
@@ -316,7 +324,6 @@ class QuestTracker extends PanelContainer:
 		_title.add_theme_font_override("font", AF.wfont(700))
 		_title.add_theme_font_size_override("font_size", 15)
 		_title.add_theme_color_override("font_color", AF.GOLD_BRIGHT)
-		_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		head.add_child(_title)
@@ -325,6 +332,7 @@ class QuestTracker extends PanelContainer:
 		_rows.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_box.add_child(_rows)
 		visible = false
+		_apply_mode()
 
 	## quest = {} to hide, else {title, objectives: [{text, state: "done"|"current"|"todo"}]}.
 	func set_quest(quest: Dictionary) -> void:
@@ -332,12 +340,11 @@ class QuestTracker extends PanelContainer:
 		if sig == _sig:
 			return
 		_sig = sig
+		_quest = quest
 		if quest.is_empty():
 			visible = false
 			return
-		visible = true
-		_title.text = String(quest.get("title", ""))
-		_settle.call_deferred()
+		reveal()
 		for c in _rows.get_children():
 			_rows.remove_child(c)
 			c.queue_free()
@@ -352,10 +359,70 @@ class QuestTracker extends PanelContainer:
 			l.add_theme_color_override("font_color", HudArt.IVORY if state == "current" else (AF.TEXT_DIM if state == "todo" else Color(HudArt.OK_GREEN, 0.85)))
 			l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			_rows.add_child(l)
+		_apply_mode()
+
+	## The one-line form: "Quest name  ·  current step".
+	func collapsed_text() -> String:
+		var step := ""
+		for o: Dictionary in _quest.get("objectives", []):
+			if String(o.get("state", "")) == "current":
+				step = String(o.get("text", ""))
+				break
+		var title := String(_quest.get("title", ""))
+		return title if step == "" else "%s  ·  %s" % [title, step]
+
+	## Shows the tracker again (a quest change, or the status card was opened) and restarts the 10 s idle timer.
+	func reveal() -> void:
+		_idle = 0.0
+		_faded = false
+		modulate.a = 1.0
+		visible = not _quest.is_empty()
+
+	func set_expanded(v: bool) -> void:
+		if v == expanded:
+			return
+		expanded = v
+		_idle = 0.0
+		_apply_mode()
+		toggled.emit(v)
+
+	func _apply_mode() -> void:
+		_rows.visible = expanded
+		if expanded:
+			_title.text = String(_quest.get("title", ""))
+			_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			_title.clip_text = false
+			_title.custom_minimum_size.x = 0
+		else:
+			_title.text = collapsed_text()
+			_title.autowrap_mode = TextServer.AUTOWRAP_OFF
+			_title.clip_text = true
+			_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+			_title.custom_minimum_size.x = LINE_W
 		reset_size()
+		_settle.call_deferred()
+
+	func _process(delta: float) -> void:
+		if not visible:
+			return
+		_idle += delta
+		if _idle > FADE_AFTER and not expanded:
+			modulate.a = move_toward(modulate.a, 0.0, delta / 0.6)
+			if modulate.a <= 0.0 and not _faded:
+				_faded = true
+				visible = false
+		elif modulate.a < 1.0:
+			modulate.a = 1.0
+
+	func _gui_input(e: InputEvent) -> void:
+		if e is InputEventScreenTouch and e.pressed:
+			set_expanded(not expanded)
+			accept_event()
 
 	## Autowrapped labels first measure at zero width (very tall); once laid out, shrink back.
 	func _settle() -> void:
+		if not is_inside_tree():
+			return
 		for i in 2:
 			await get_tree().process_frame
 		size = Vector2(custom_minimum_size.x, 0.0)

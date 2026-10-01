@@ -204,3 +204,34 @@ func test_safe_insets_pushes_hud_inside_notch() -> void:
 	assert_float(ins.z).is_equal_approx(64.0, 0.5)
 	assert_vector(Vector2(ins.y, ins.w)).is_equal(Vector2.ZERO)
 	assert_object(HudScript.safe_insets(Vector2.ZERO, Rect2(), Vector2(1280, 720))).is_equal(Vector4.ZERO)
+
+
+# --- follow-ups: door names, one-line quest tracker -------------------------------------
+
+func test_door_building_names_are_deterministic_and_typed() -> void:
+	var Door_ := preload("res://scripts/interiors/interior_door.gd")
+	var a: String = Door_.building_name("inn", "Ashford", Vector2(10, 20))
+	assert_str(a).ends_with(" Inn")
+	assert_str(Door_.building_name("inn", "Ashford", Vector2(10, 20))).is_equal(a)
+	assert_str(Door_.building_name("blacksmith", "Ashford", Vector2(3, 4))).ends_with("Smithy")
+	assert_str(Door_.building_name("adventurer_guild", "Ashford", Vector2.ZERO)).is_equal("Ashford Adventurer Guild")
+	assert_str(Door_.building_name("house_a", "Ashford", Vector2.ZERO)).is_empty()
+
+
+func test_quest_tracker_is_one_line_then_expands_and_fades() -> void:
+	var tr: Control = HudCard.QuestTracker.new()
+	add_child(auto_free(tr))
+	tr.set_quest({"title": "The Stones Are Dimming", "objectives": [
+		{"text": "Hear what happened", "state": "current"}, {"text": "Later", "state": "todo"}]})
+	assert_bool(tr.visible).is_true()
+	assert_bool(tr.expanded).is_false()
+	assert_str(tr.collapsed_text()).is_equal("The Stones Are Dimming  ·  Hear what happened")
+	assert_bool(tr._rows.visible).is_false()
+	tr.set_expanded(true)
+	assert_bool(tr._rows.visible).is_true()
+	tr.set_expanded(false)
+	for i in 30:
+		tr._process(0.5)       # 15 s with no change
+	assert_bool(tr.visible).is_false()
+	tr.set_quest({"title": "New", "objectives": []})
+	assert_bool(tr.visible).is_true()
