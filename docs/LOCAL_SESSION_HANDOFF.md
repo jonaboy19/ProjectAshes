@@ -19,6 +19,8 @@ Skills: `ashes-style-g`, `ashes-style-g-assets`, `ashes-style-g-qa` (updated wit
 
 - **Pass 3 (~70):** contrast/warmth grade (metrics now within the QA ranges except contrast 0.22 vs 0.23), satchel strap continuous across the front. Spring bones NOT added (would need new bones on the shared skeleton). Codex merge 0fa52409 still not on origin; S22 still unplugged.
 
+- **Pass 4 (~71):** outfit checked on all 62 Codex/UAL action clips after a43f7a1e (`tools_qa/style_lab/hero_preview.gd --clips=...`, sheets `docs/anim/hero_outfit/`); skirt front now follows the thighs (high-knee jumps/tucks pierced it). Ivy 5 -> 3 vines (green metric 0.053 -> 0.035). Lab regression from the game rollout fixed: `goods` hue_var only in game_mode (lab goods have COLOR.a = 1 -> every barrel/sack turned yellow). **Not done by local (needs owner OK):** the Loco_Pivot180 wiring and run-stop sword pop in player.gd are animation behaviour, which the owner reserved for Codex.
+
 ## Region 1 look pass (local, 2026-09-30): valley, landmarks, horizon, biome patchwork
 - Built: the Hollin's Reach valley (upper Ashrun: cliffs, falls, terraces, ruins, Stone Gap reveal, gorge gate), the Drowned Bell + Emberglass Ferry, Crownstead Mill Hill, Stagborn Glade, the Wyrm's Ribs; far horizon (whole-world low mesh + canopy domes), biome map + field patchwork, warm rock, golden-hour sky, river-carve fix, updated parchment map.
 - Code: `scripts/region1/region1_{terrain,landmarks,look,horizon}.gd`, `shaders/region1/{biome.gdshaderinc,horizon_*,waterfall}`, data in `data/region1/{landmarks,terrain_stamps}.json` + `data/region1/terrain/`.
