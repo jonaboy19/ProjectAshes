@@ -11,6 +11,7 @@ extends Node3D
 const Nameplates := preload("res://scripts/core/nameplates.gd")
 const AF := preload("res://scripts/ui/ashes_frame.gd")
 const Widget := preload("res://scripts/ui/work_widget.gd")
+const CareerTasks := preload("res://scripts/ui/career_tasks.gd")
 const SLOW := 2.0
 const FAST := 0.5
 const ACCEL_STEP := 0.25
@@ -284,6 +285,9 @@ func _open_task() -> void:
 		return
 	_widget_open = true
 	_ensure_ui()
+	# The scribe's copy / seal-comparison / ledger tasks are full mini-tasks (scribe.gd) on their own screen.
+	if String(t.get("rich", "")) != "" and _open_rich(String(t["rich"])):
+		return
 	_last_state = "widget"
 	_clear()
 	_panel.visible = true
@@ -293,6 +297,28 @@ func _open_task() -> void:
 	wd.setup(t)
 	wd.finished.connect(_on_task_done)
 	_box.add_child(wd)
+
+
+## Opens the full-screen scribe task; its quality comes back like any widget's. False when the player
+## has no standing for it (freelancers copy only), so the plain widget is used instead.
+func _open_rich(kind: String) -> bool:
+	var screen: Control = CareerTasks.open_rich(_layer, kind)
+	if screen == null:
+		return false
+	_last_state = "widget"
+	_hide_panel()
+	var done := [false]
+	screen.task_done.connect(func(q: float, _res: Dictionary) -> void:
+		done[0] = true
+		_on_task_done(q, -1))
+	screen.closed.connect(func() -> void:
+		if not done[0]:
+			var hub: Variant = Life.get("realm")
+			if hub != null:
+				hub.mod("scribe").call("abandon_task")
+			_widget_open = false
+			_last_state = "")
+	return true
 
 
 func _on_task_done(q: float, choice: int) -> void:

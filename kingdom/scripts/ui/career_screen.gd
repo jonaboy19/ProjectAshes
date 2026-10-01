@@ -12,6 +12,7 @@ extends Control
 
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
 const Mastery := preload("res://scripts/sim/mastery.gd")
+const CareerTasks := preload("res://scripts/ui/career_tasks.gd")
 const SELF_PATH := "res://scripts/ui/career_screen.gd"
 
 var _was_paused := false
@@ -140,6 +141,7 @@ func _refresh() -> void:
 		content.add_child(_body("%s — %s" % [career.capitalize(), CareerLadders.title_for(career, rank)]))
 	else:
 		content.add_child(_body("No career yet. Take up work in the village to begin one."))
+	_trades_section(content)
 	content.add_child(_heading("Next rank"))
 	if career != "":
 		var ctx := _promotion_ctx(career, rank, mastery, biography)
@@ -165,12 +167,44 @@ func _refresh() -> void:
 			var yr_text := " (%d yr)" % yrs if yrs > 0 else ""
 			content.add_child(_body("%s — %s%s" % [String(row["discipline"]).capitalize(), row["word"], yr_text]))
 	content.add_child(_heading("Reputation"))
-	for sphere: String in ["military", "trade", "craft", "farming", "faith", "underworld"]:
+	for sphere: String in ["military", "trade", "craft", "farming", "faith", "letters", "underworld"]:
 		var v := float(biography.call("rep", sphere))
 		content.add_child(_body("%s: %d" % [sphere.capitalize(), int(round(v))]))
 	content.add_child(_heading("Biography"))
 	for line: String in (biography.call("summary", int(WorldSim.day)) as Array):
 		content.add_child(_body(String(line)))
+
+
+## One row per trade with its rank, opening the work and ladder screen (career_tasks.gd).
+func _trades_section(content: VBoxContainer) -> void:
+	content.add_child(_heading("Trades and ladders"))
+	for c: String in CareerTasks.CAREER_ORDER:
+		var rank_text := "not begun"
+		if c == "scribe":
+			var sc: Variant = _mod("scribe")
+			if sc != null and (bool(sc.get("active")) or int(sc.get("rank")) > 0):
+				rank_text = String(sc.call("rank_title"))
+		else:
+			var tr: Variant = _mod("trades")
+			if tr != null and bool(tr.call("is_member", c)):
+				rank_text = String(tr.call("rank_title", c))
+		var b := Button.new()
+		b.text = "%s: %s" % [String(CareerTasks.CAREER_NAMES[c]), rank_text]
+		b.custom_minimum_size = Vector2(0, 52)
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.pressed.connect(_open_trade.bind(c))
+		content.add_child(b)
+
+
+func _mod(name: String) -> Variant:
+	var hub: Variant = Life.get("realm")
+	return hub.mod(name) if hub != null else null
+
+
+func _open_trade(c: String) -> void:
+	var parent := get_parent()
+	close_screen()
+	CareerTasks.open_for(parent, c)
 
 
 func _content() -> VBoxContainer:

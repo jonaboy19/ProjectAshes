@@ -1,107 +1,71 @@
 {
 	"farmer": [
 		{"id": "field_hand", "title": "Field Hand", "requires": {}},
-		{"id": "tenant_farmer", "title": "Tenant Farmer", "requires": {
-			"mastery": {"farming": 10}, "property": "leased_plot", "days_in_rank": 24}},
-		{"id": "smallholder", "title": "Smallholder", "requires": {
-			"mastery": {"farming": 22}, "property": "owns_plot", "days_in_rank": 60}},
-		{"id": "employer", "title": "Employer", "requires": {
-			"mastery": {"farming": 32}, "money": 300, "days_in_rank": 60}},
-		{"id": "landholder", "title": "Landholder", "requires": {
-			"mastery": {"farming": 42}, "reputation": {"farming": 20}, "money": 800, "days_in_rank": 90}},
-		{"id": "estate_owner", "title": "Estate Owner", "requires": {
-			"mastery": {"farming": 55}, "reputation": {"farming": 35}, "money": 2000, "days_in_rank": 120}},
-		{"id": "regional_supplier", "title": "Regional Supplier", "requires": {
-			"mastery": {"farming": 70}, "reputation": {"farming": 50}, "money": 5000, "days_in_rank": 150}}
+		{"id": "tenant_farmer", "title": "Tenant Farmer", "requires": {"mastery": {"farming": 10}, "property": "leased_plot", "days_in_rank": 24, "stats": {"harvests": 2}}},
+		{"id": "smallholder", "title": "Smallholder", "requires": {"mastery": {"farming": 22}, "property": "owns_plot", "days_in_rank": 60, "stats": {"harvests": 6, "rent_weeks": 6}}},
+		{"id": "employer", "title": "Employer", "requires": {"mastery": {"farming": 32}, "money": 300, "days_in_rank": 60, "stats": {"harvests": 10}}},
+		{"id": "landholder", "title": "Landholder", "requires": {"mastery": {"farming": 42}, "reputation": {"farming": 20}, "money": 800, "days_in_rank": 90, "stats": {"harvests": 16}}},
+		{"id": "estate_owner", "title": "Estate Owner", "requires": {"mastery": {"farming": 55}, "reputation": {"farming": 35}, "money": 2000, "days_in_rank": 120, "stats": {"tenants": 3, "harvests": 24}}},
+		{"id": "regional_supplier", "title": "Regional Supplier", "requires": {"mastery": {"farming": 70}, "reputation": {"farming": 50}, "money": 5000, "days_in_rank": 150}}
 	],
 	"soldier": [
 		{"id": "militia", "title": "Militia", "requires": {}},
-		{"id": "recruit", "title": "Levy Recruit", "requires": {
-			"mastery": {"soldiering": 4}, "days_in_rank": 12}},
-		{"id": "soldier", "title": "Sworn Soldier", "requires": {
-			"mastery": {"soldiering": 12}, "days_in_rank": 24, "seat": {"org": "guard", "title": "Guard"}}},
-		{"id": "veteran", "title": "Seasoned Blade", "requires": {
-			"mastery": {"soldiering": 24, "swordsmanship": 12}, "days_in_rank": 36, "wartime_speeds": true}},
-		{"id": "squad_leader", "title": "Squad Leader", "requires": {
-			"mastery": {"soldiering": 34, "leadership": 10}, "reputation": {"military": 15},
-			"days_in_rank": 48, "seat": {"org": "guard", "title": "Sergeant"}, "wartime_speeds": true}},
-		{"id": "junior_officer", "title": "Junior Officer", "requires": {
-			"mastery": {"soldiering": 44, "leadership": 20}, "reputation": {"military": 25},
-			"days_in_rank": 60, "sponsor": true, "wartime_speeds": true}},
-		{"id": "captain", "title": "Captain", "requires": {
-			"mastery": {"soldiering": 54, "leadership": 30, "command": 20}, "reputation": {"military": 35},
-			"days_in_rank": 72, "seat": {"org": "guard", "title": "Captain"}, "sponsor": true, "wartime_speeds": true}},
-		{"id": "commander", "title": "Commander", "requires": {
-			"mastery": {"soldiering": 66, "leadership": 45, "command": 35}, "reputation": {"military": 50},
-			"days_in_rank": 96, "sponsor": true, "wartime_speeds": true}},
-		{"id": "general", "title": "General", "requires": {
-			"mastery": {"soldiering": 80, "leadership": 60, "command": 55}, "reputation": {"military": 70},
-			"days_in_rank": 120, "sponsor": true, "wartime_speeds": true}}
+		{"id": "recruit", "title": "Levy Recruit", "requires": {"mastery": {"soldiering": 4}, "days_in_rank": 12}},
+		{"id": "soldier", "title": "Sworn Soldier", "requires": {"mastery": {"soldiering": 12}, "days_in_rank": 24, "seat": {"org": "guard", "title": "Guard"}}},
+		{"id": "veteran", "title": "Seasoned Blade", "requires": {"mastery": {"soldiering": 24, "swordsmanship": 12}, "days_in_rank": 36, "wartime_speeds": true}},
+		{"id": "squad_leader", "title": "Squad Leader", "requires": {"mastery": {"soldiering": 34, "leadership": 10}, "reputation": {"military": 15}, "days_in_rank": 48, "seat": {"org": "guard", "title": "Sergeant"}, "wartime_speeds": true, "stats": {"drills": 8}}},
+		{"id": "junior_officer", "title": "Junior Officer", "requires": {"mastery": {"soldiering": 44, "leadership": 20}, "reputation": {"military": 25}, "days_in_rank": 60, "sponsor": true, "wartime_speeds": true, "stats": {"squad_missions": 4}}},
+		{"id": "captain", "title": "Captain", "requires": {"mastery": {"soldiering": 54, "leadership": 30, "command": 20}, "reputation": {"military": 35}, "days_in_rank": 72, "seat": {"org": "guard", "title": "Captain"}, "sponsor": true, "wartime_speeds": true, "stats": {"squad_missions": 8, "campaign_actions": 2}}},
+		{"id": "commander", "title": "Commander", "requires": {"mastery": {"soldiering": 66, "leadership": 45, "command": 35}, "reputation": {"military": 50}, "days_in_rank": 96, "sponsor": true, "wartime_speeds": true}},
+		{"id": "general", "title": "General", "requires": {"mastery": {"soldiering": 80, "leadership": 60, "command": 55}, "reputation": {"military": 70}, "days_in_rank": 120, "sponsor": true, "wartime_speeds": true}}
 	],
 	"merchant": [
 		{"id": "peddler", "title": "Peddler", "requires": {}},
-		{"id": "cart_trader", "title": "Cart Trader", "requires": {
-			"mastery": {"trading": 10}, "property": "owns_cart", "days_in_rank": 24}},
-		{"id": "caravan_owner", "title": "Caravan Owner", "requires": {
-			"mastery": {"trading": 24}, "money": 400, "days_in_rank": 48}},
-		{"id": "shopkeeper", "title": "Shopkeeper", "requires": {
-			"mastery": {"trading": 34}, "property": "owns_shop", "reputation": {"trade": 20}, "days_in_rank": 60}},
-		{"id": "trading_house", "title": "Trading House", "requires": {
-			"mastery": {"trading": 50}, "reputation": {"trade": 40}, "money": 2500, "days_in_rank": 96}},
-		{"id": "merchant_prince", "title": "Merchant Prince", "requires": {
-			"mastery": {"trading": 72}, "reputation": {"trade": 60}, "money": 8000, "days_in_rank": 150, "sponsor": true}}
+		{"id": "cart_trader", "title": "Cart Trader", "requires": {"mastery": {"trading": 10}, "property": "owns_cart", "days_in_rank": 24, "stats": {"deals": 6}}},
+		{"id": "caravan_owner", "title": "Caravan Owner", "requires": {"mastery": {"trading": 24}, "money": 400, "days_in_rank": 48, "stats": {"deals": 16}}},
+		{"id": "shopkeeper", "title": "Shopkeeper", "requires": {"mastery": {"trading": 34}, "property": "owns_shop", "reputation": {"trade": 20}, "days_in_rank": 60, "stats": {"stall_days": 8}}},
+		{"id": "trading_house", "title": "Trading House", "requires": {"mastery": {"trading": 50}, "reputation": {"trade": 40}, "money": 2500, "days_in_rank": 96, "stats": {"caravans_run": 1, "deals": 40}, "property": "owns_workshop"}},
+		{"id": "merchant_prince", "title": "Merchant Prince", "requires": {"mastery": {"trading": 72}, "reputation": {"trade": 60}, "money": 8000, "days_in_rank": 150, "sponsor": true}}
 	],
 	"blacksmith": [
 		{"id": "apprentice", "title": "Apprentice", "requires": {"seat": {"org": "smithy", "title": "Apprentice"}}},
-		{"id": "journeyman", "title": "Journeyman", "requires": {
-			"mastery": {"smithing": 18}, "days_in_rank": 36, "seat": {"org": "smithy", "title": "Journeyman"}}},
-		{"id": "independent_smith", "title": "Independent Smith", "requires": {
-			"mastery": {"smithing": 30}, "money": 250, "days_in_rank": 48}},
-		{"id": "master_smith", "title": "Master Smith", "requires": {
-			"mastery": {"smithing": 46}, "reputation": {"craft": 30}, "days_in_rank": 72}},
-		{"id": "workshop_owner", "title": "Workshop Owner", "requires": {
-			"mastery": {"smithing": 56}, "reputation": {"craft": 40}, "money": 1500, "days_in_rank": 90}},
-		{"id": "guild_master", "title": "Guild Master", "requires": {
-			"mastery": {"smithing": 68}, "reputation": {"craft": 55}, "money": 3000, "days_in_rank": 120, "sponsor": true}},
-		{"id": "royal_smith", "title": "Royal Smith", "requires": {
-			"mastery": {"smithing": 85}, "reputation": {"craft": 70}, "days_in_rank": 150, "sponsor": true}}
+		{"id": "journeyman", "title": "Journeyman", "requires": {"mastery": {"smithing": 18}, "days_in_rank": 36, "seat": {"org": "smithy", "title": "Journeyman"}, "stats": {"pieces": 6}}},
+		{"id": "independent_smith", "title": "Independent Smith", "requires": {"mastery": {"smithing": 30}, "money": 250, "days_in_rank": 48, "stats": {"pieces": 15, "good_pieces": 5}}},
+		{"id": "master_smith", "title": "Master Smith", "requires": {"mastery": {"smithing": 46}, "reputation": {"craft": 30}, "days_in_rank": 72, "stats": {"commissions": 4, "fine_pieces": 4}}},
+		{"id": "workshop_owner", "title": "Workshop Owner", "requires": {"mastery": {"smithing": 56}, "reputation": {"craft": 40}, "money": 1500, "days_in_rank": 90, "stats": {"commissions": 8}, "property": "owns_workshop"}},
+		{"id": "guild_master", "title": "Guild Master", "requires": {"mastery": {"smithing": 68}, "reputation": {"craft": 55}, "money": 3000, "days_in_rank": 120, "sponsor": true}},
+		{"id": "royal_smith", "title": "Royal Smith", "requires": {"mastery": {"smithing": 85}, "reputation": {"craft": 70}, "days_in_rank": 150, "sponsor": true}}
 	],
 	"hunter": [
 		{"id": "novice_hunter", "title": "Novice Hunter", "requires": {}},
-		{"id": "hunter", "title": "Hunter", "requires": {
-			"mastery": {"hunting": 16}, "days_in_rank": 30}},
-		{"id": "monster_hunter", "title": "Monster Hunter", "requires": {
-			"mastery": {"hunting": 32, "beast_lore": 14}, "reputation": {"craft": 15}, "days_in_rank": 60}},
-		{"id": "master_hunter", "title": "Master Hunter", "requires": {
-			"mastery": {"hunting": 50, "beast_lore": 30}, "reputation": {"craft": 30}, "days_in_rank": 96}}
+		{"id": "hunter", "title": "Hunter", "requires": {"mastery": {"hunting": 16}, "days_in_rank": 30}},
+		{"id": "monster_hunter", "title": "Monster Hunter", "requires": {"mastery": {"hunting": 32, "beast_lore": 14}, "reputation": {"craft": 15}, "days_in_rank": 60}},
+		{"id": "master_hunter", "title": "Master Hunter", "requires": {"mastery": {"hunting": 50, "beast_lore": 30}, "reputation": {"craft": 30}, "days_in_rank": 96}}
 	],
 	"healer": [
 		{"id": "herbalist", "title": "Herbalist", "requires": {}},
-		{"id": "healer", "title": "Healer", "requires": {
-			"mastery": {"herbalism": 16, "healing": 10}, "days_in_rank": 30}},
-		{"id": "master_healer", "title": "Master Healer", "requires": {
-			"mastery": {"healing": 34, "alchemy": 20}, "reputation": {"faith": 20}, "days_in_rank": 72}},
-		{"id": "royal_physician", "title": "Royal Physician", "requires": {
-			"mastery": {"healing": 60, "alchemy": 40}, "reputation": {"faith": 45}, "days_in_rank": 120, "sponsor": true}}
+		{"id": "healer", "title": "Healer", "requires": {"mastery": {"herbalism": 16, "healing": 10}, "days_in_rank": 30}},
+		{"id": "master_healer", "title": "Master Healer", "requires": {"mastery": {"healing": 34, "alchemy": 20}, "reputation": {"faith": 20}, "days_in_rank": 72}},
+		{"id": "royal_physician", "title": "Royal Physician", "requires": {"mastery": {"healing": 60, "alchemy": 40}, "reputation": {"faith": 45}, "days_in_rank": 120, "sponsor": true}}
 	],
 	"innkeeper": [
 		{"id": "server", "title": "Server", "requires": {"seat": {"org": "inn", "title": "Server"}}},
-		{"id": "innkeeper", "title": "Innkeeper", "requires": {
-			"mastery": {"cooking": 14}, "days_in_rank": 36, "seat": {"org": "inn", "title": "Innkeeper"}}},
-		{"id": "tavern_owner", "title": "Tavern Owner", "requires": {
-			"mastery": {"cooking": 28}, "money": 350, "days_in_rank": 60}},
-		{"id": "inn_chain_owner", "title": "Innkeeping Magnate", "requires": {
-			"mastery": {"cooking": 45}, "reputation": {"trade": 25}, "money": 2000, "days_in_rank": 96}}
+		{"id": "innkeeper", "title": "Innkeeper", "requires": {"mastery": {"cooking": 14}, "days_in_rank": 36, "seat": {"org": "inn", "title": "Innkeeper"}}},
+		{"id": "tavern_owner", "title": "Tavern Owner", "requires": {"mastery": {"cooking": 28}, "money": 350, "days_in_rank": 60}},
+		{"id": "inn_chain_owner", "title": "Innkeeping Magnate", "requires": {"mastery": {"cooking": 45}, "reputation": {"trade": 25}, "money": 2000, "days_in_rank": 96}}
 	],
 	"guard": [
 		{"id": "recruit_guard", "title": "Guard Recruit", "requires": {"seat": {"org": "guard", "title": "Guard"}}},
-		{"id": "guard", "title": "Guard", "requires": {
-			"mastery": {"soldiering": 8}, "days_in_rank": 24}},
-		{"id": "sergeant", "title": "Sergeant", "requires": {
-			"mastery": {"soldiering": 20, "leadership": 8}, "reputation": {"military": 12},
-			"days_in_rank": 48, "seat": {"org": "guard", "title": "Sergeant"}}},
-		{"id": "captain_of_guard", "title": "Captain of the Guard", "requires": {
-			"mastery": {"soldiering": 34, "leadership": 20}, "reputation": {"military": 25},
-			"days_in_rank": 72, "seat": {"org": "guard", "title": "Captain"}, "sponsor": true}}
+		{"id": "guard", "title": "Guard", "requires": {"mastery": {"soldiering": 8}, "days_in_rank": 24}},
+		{"id": "sergeant", "title": "Sergeant", "requires": {"mastery": {"soldiering": 20, "leadership": 8}, "reputation": {"military": 12}, "days_in_rank": 48, "seat": {"org": "guard", "title": "Sergeant"}}},
+		{"id": "captain_of_guard", "title": "Captain of the Guard", "requires": {"mastery": {"soldiering": 34, "leadership": 20}, "reputation": {"military": 25}, "days_in_rank": 72, "seat": {"org": "guard", "title": "Captain"}, "sponsor": true}}
+	],
+	"scribe": [
+		{"id": "copyist", "title": "Copyist", "requires": {}},
+		{"id": "clerk", "title": "Clerk", "requires": {"mastery": {"scholarship": 8}, "reputation": {"letters": 5}, "days_in_rank": 10, "stats": {"copies": 5}}},
+		{"id": "registrar", "title": "Registrar", "requires": {"mastery": {"scholarship": 18}, "reputation": {"letters": 14}, "days_in_rank": 21, "exam": "registrar_exam", "stats": {"forgeries_caught": 2, "tax_audits": 2}}},
+		{"id": "stewards_secretary", "title": "Steward's Secretary", "requires": {"mastery": {"scholarship": 28}, "reputation": {"letters": 26}, "days_in_rank": 35, "sponsor": true, "clean": true, "stats": {"translations": 3, "restricted_reads": 1}}},
+		{"id": "steward", "title": "Steward", "requires": {"mastery": {"scholarship": 38}, "reputation": {"letters": 40}, "days_in_rank": 49, "sponsor": true, "clean": true, "exam": "steward_exam", "money": 120}},
+		{"id": "envoy", "title": "Envoy", "requires": {"mastery": {"scholarship": 50, "leadership": 8}, "reputation": {"letters": 55}, "days_in_rank": 70, "sponsor": true, "clean": true, "stats": {"estate_weeks": 6}}}
 	]
 }

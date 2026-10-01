@@ -153,6 +153,10 @@ func player_work() -> Dictionary:
 			var w := String(TPL_TO_WORK.get(String(j.get("tpl", "")), ""))
 			if w != "":
 				return {"job": w, "employed": true, "employer": String(j["employer"]), "sid": int(j["sid"]), "via": "city_life"}
+	var sc := _mod("scribe")
+	if sc != null and bool(sc.get("active")):
+		var patron: Dictionary = sc.get("patron")
+		return {"job": "scribe", "employed": true, "employer": String(patron.get("name", "the scriptorium")), "sid": int(sc.get("home_sid")), "via": "scribe"}
 	if Life != null:
 		var cr: Variant = Life.careers
 		if cr is RefCounted and (cr as RefCounted).call("is_employed"):
@@ -304,7 +308,7 @@ func resolve_task(quality: float, choice := -1) -> Dictionary:
 	var q := clampf(quality, 0.0, 1.0)
 	var tip := 0
 	var regard := 0.0
-	if String(t["widget"]) == "choice":
+	if String(t["widget"]) == "choice" and (choice >= 0 or not t.has("rich")):
 		var opts: Array = t["options"]
 		var o: Dictionary = opts[clampi(choice, 0, opts.size() - 1)]
 		q = float(o["q"])
@@ -493,6 +497,8 @@ func finish(ctx := {}) -> Dictionary:
 			wage_gold = int(round(float(seat.get("wage", 0)) * 0.5 * maxf(0.0, q - 0.5) * 2.0))
 		else:
 			wage_gold = int(round(float(jd["wage"]) * 0.5 * maxf(0.0, q - 0.5) * 2.0))
+	elif bool(shift["employed"]) and String(shift["via"]) == "scribe":
+		res["wage_via"] = "scribe"   # scribe.gd paid each task by the piece, plus the weekly stipend
 	else:
 		res["wage_via"] = "freelance"
 		wage_gold = int(round(float(jd["wage"]) * clampf(q, 0.0, 1.2) * (0.6 if not done else 1.0)))

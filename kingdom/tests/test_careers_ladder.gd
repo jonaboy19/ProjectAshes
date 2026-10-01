@@ -141,7 +141,7 @@ func test_troops_for_rank_grows_with_soldier_rank() -> void:
 
 
 func test_ladders_load_and_chain() -> void:
-	for career: String in ["farmer", "soldier", "merchant", "blacksmith", "hunter", "healer", "innkeeper", "guard"]:
+	for career: String in ["farmer", "soldier", "merchant", "blacksmith", "hunter", "healer", "innkeeper", "guard", "scribe"]:
 		var l := CareerLadders.ladder(career)
 		assert_array(l).override_failure_message(career).is_not_empty()
 	assert_str(CareerLadders.title_for("soldier", "captain")).is_equal("Captain")
@@ -203,6 +203,59 @@ func test_wartime_speeds_time_in_rank() -> void:
 	ctx["at_war"] = true
 	var wartime := CareerLadders.check_promotion(ctx)
 	assert_bool(Array(wartime["missing"] as PackedStringArray).any(func(s: String) -> bool: return s.contains("days"))).is_false()
+
+
+# --- counters, exams, clean record, requirement lines -----------------------------------
+
+func _ctx_for(career: String, rank: String, m: Mastery, b: Biography) -> Dictionary:
+	return {"career": career, "rank": rank, "since_day": 0, "day": 400, "mastery": m, "biography": b,
+		"gold": 5000, "at_war": false, "sponsor_tier": 0}
+
+
+func test_stats_requirements_count_things_done_not_just_time() -> void:
+	var m := Mastery.new()
+	for d in 60:
+		m.gain("farming", 1.0, d)
+	var ctx := _ctx_for("farmer", "field_hand", m, Biography.new())
+	ctx["leased_plot"] = true
+	var check := CareerLadders.check_promotion(ctx)
+	assert_bool(check["eligible"]).is_false()
+	assert_bool(Array(check["missing"] as PackedStringArray).any(func(s: String) -> bool: return s.contains("Harvests 2 (have 0)"))).is_true()
+	ctx["career_stats"] = {"harvests": 2}
+	assert_bool(CareerLadders.check_promotion(ctx)["eligible"]).is_true()
+
+
+func test_exam_and_clean_record_requirements() -> void:
+	var m := Mastery.new()
+	for d in 200:
+		m.gain("scholarship", 2.0, d)
+		m.gain("leadership", 2.0, d)
+	var b := Biography.new()
+	b.change_rep("letters", 80.0)
+	var ctx := _ctx_for("scribe", "stewards_secretary", m, b)
+	ctx["sponsor_tier"] = 4
+	var check := CareerLadders.check_promotion(ctx)
+	assert_bool(Array(check["missing"] as PackedStringArray).any(func(s: String) -> bool: return s.contains("Steward's Accounts"))).is_true()
+	ctx["exams"] = {"steward_exam": 5}
+	assert_bool(CareerLadders.check_promotion(ctx)["eligible"]).is_true()
+	ctx["clean_record"] = false
+	assert_bool(Array(CareerLadders.check_promotion(ctx)["missing"] as PackedStringArray).any(func(s: String) -> bool: return s.contains("clean record"))).is_true()
+
+
+func test_requirement_lines_mark_what_is_met() -> void:
+	var m := Mastery.new()
+	for d in 30:
+		m.gain("scholarship", 1.0, d)
+	var ctx := _ctx_for("scribe", "copyist", m, Biography.new())
+	ctx["career_stats"] = {"copies": 2}
+	var lines := CareerLadders.next_lines(ctx)
+	assert_int(lines.size()).is_greater(3)
+	var by_text := {}
+	for l: Dictionary in lines:
+		by_text[String(l["text"])] = bool(l["met"])
+	assert_bool(bool(by_text["Scholarship mastery 8 (have %d)" % m.level("scholarship")])).is_true()
+	assert_bool(bool(by_text["Copies 5 (have 2)"])).is_false()
+	assert_bool(CareerLadders.next_lines({"career": "scribe", "rank": "envoy"}).is_empty()).is_true()
 
 
 # --- career-born quests ---------------------------------------------------------------

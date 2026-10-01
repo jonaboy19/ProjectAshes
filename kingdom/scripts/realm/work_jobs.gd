@@ -5,7 +5,8 @@ extends RefCounted
 ##        sits outside the walls), spots [{kind, label, r?}], seq (Array of task ids) or
 ##        by_season {season: [ids]}, tasks {id: task}, problems [problem], orders [text templates],
 ##        say {great|ok|poor: [lines with %s = employer]}}
-## task = {id, label, spot (spot kind), widget "timing"|"hold"|"choice", hours (game hours the
+## task = {id, label, spot (spot kind), widget "timing"|"hold"|"choice", rich? ("copy"|"forgery"|"tax": a
+##         scribe.gd mini-task replaces the widget and reports a quality), hours (game hours the
 ##         task takes; routine work speeds time up), diff 0..1, text, options (choice only)}
 ## option = {text, q 0..1, tip (gold), regard (city reputation delta)}
 ## problem = {id, text, weight, options [{text, q, tip, regard, injure (days), callup (template id),
@@ -294,6 +295,13 @@ static func _build() -> Dictionary:
 		["Copy %d contracts for the guild (pays %dg)", "Draft %d letters for the steward (pays %dg)", "Audit %d ledgers (pays %dg)"],
 		{"great": ["%s: \"Not a blot. A hand worth hiring.\"", "%s: \"Your letters are art.\""], "ok": ["%s: \"Legible.\"", "%s: \"It will pass inspection.\""],
 		"poor": ["%s: \"This deed is smeared beyond use.\"", "%s: \"Do you call that writing?\""]})
+
+	# The scribe's copy, file and tally tasks open the full mini-tasks of scribe.gd (accuracy copying, seal
+	# comparison, tax ledger). The plain widget stays as the fallback for tests and tiny screens.
+	var sc_tasks: Dictionary = d["scribe"]["tasks"]
+	sc_tasks["copy"]["rich"] = "copy"
+	sc_tasks["file"]["rich"] = "forgery"
+	sc_tasks["tally"]["rich"] = "tax"
 
 	# ---- innkeeper / tavern worker
 	d["innkeeper"] = _job("Tavern Hand", "cooking", 5, [11, 23], false,

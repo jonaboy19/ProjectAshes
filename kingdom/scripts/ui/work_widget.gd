@@ -21,10 +21,12 @@ var _zone: ColorRect
 var _fill_rect: ColorRect
 var _hint: Label
 var _speed := 1.0
+var _bw := BAR_W      # bar width; a narrow (portrait) screen passes task["bar_w"] to shrink it
 
 
 func setup(t: Dictionary) -> void:
 	task = t
+	_bw = minf(float(t.get("bar_w", BAR_W)), BAR_W)
 	_kind = String(t["widget"])
 	add_theme_constant_override("separation", 10)
 	set_process(false)
@@ -39,7 +41,7 @@ func setup(t: Dictionary) -> void:
 
 func _bar() -> Control:
 	var track := Control.new()
-	track.custom_minimum_size = Vector2(BAR_W, BAR_H)
+	track.custom_minimum_size = Vector2(_bw, BAR_H)
 	track.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	var bg := ColorRect.new()
 	bg.color = Color(0, 0, 0, 0.6)
@@ -54,12 +56,12 @@ func _bar() -> Control:
 	var at := float(task["zone_at"])
 	_zone = ColorRect.new()
 	_zone.color = Color(AF.GOLD.r, AF.GOLD.g, AF.GOLD.b, 0.45)
-	_zone.position = Vector2((at - w * 0.5) * BAR_W, 0)
-	_zone.size = Vector2(w * BAR_W, BAR_H)
+	_zone.position = Vector2((at - w * 0.5) * _bw, 0)
+	_zone.size = Vector2(w * _bw, BAR_H)
 	track.add_child(_zone)
 	var centre := ColorRect.new()
 	centre.color = AF.GOLD_BRIGHT
-	centre.position = Vector2(at * BAR_W - 1.0, 0)
+	centre.position = Vector2(at * _bw - 1.0, 0)
 	centre.size = Vector2(2, BAR_H)
 	track.add_child(centre)
 	return track
@@ -126,11 +128,11 @@ func _process(delta: float) -> void:
 		return
 	if _kind == "timing":
 		_t += delta * _speed
-		_marker.position.x = pingpong(_t, 1.0) * BAR_W - 3.0
+		_marker.position.x = pingpong(_t, 1.0) * _bw - 3.0
 	elif _kind == "hold" and _holding:
 		_fill = minf(1.0, _fill + delta * _speed * 0.55)
-		_fill_rect.size.x = _fill * BAR_W
-		_marker.position.x = _fill * BAR_W - 3.0
+		_fill_rect.size.x = _fill * _bw
+		_marker.position.x = _fill * _bw - 3.0
 		if _fill >= 1.0:
 			_hold_up()
 

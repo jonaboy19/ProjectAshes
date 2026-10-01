@@ -31,13 +31,15 @@ const MODULES := {
 	"household": preload("res://scripts/realm/household.gd"),
 	"callups": preload("res://scripts/realm/callups.gd"),
 	"work": preload("res://scripts/realm/work.gd"),
+	"scribe": preload("res://scripts/realm/scribe.gd"),
+	"trades": preload("res://scripts/realm/career_trades.gd"),
 	"enterprise": preload("res://scripts/realm/enterprise.gd"),
 	"construction": preload("res://scripts/realm/construction.gd"),
 	"towers": preload("res://scripts/realm/towers.gd"),
 	"ecology": preload("res://scripts/realm/ecology.gd"),
 }
 ## Order matters within a tier: land before factions before campaign.
-const ORDER := ["settlements", "land", "camps", "civilization", "migration", "followers", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "enterprise", "construction", "towers", "ecology"]
+const ORDER := ["settlements", "land", "camps", "civilization", "migration", "followers", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "trades", "enterprise", "construction", "towers", "ecology"]
 ## Max microseconds of realm work per frame (mobile: ~0.6 ms of a 16.6 ms frame).
 const PUMP_BUDGET_USEC := 600
 
