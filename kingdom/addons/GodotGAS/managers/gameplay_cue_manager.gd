@@ -30,7 +30,7 @@ func _ready() -> void:
 func _load_registry() -> void:
 	var cue_registry_path: = GodotGasProjectSettings.get_registry_cue_path()
 	if not ResourceLoader.exists(cue_registry_path):
-		if not Engine.is_editor_hint() or EditorInterface.is_plugin_enabled("GodotGAS"):
+		if not Engine.is_editor_hint() or (Engine.has_singleton("EditorInterface") and Engine.get_singleton("EditorInterface").is_plugin_enabled("GodotGAS")):
 			push_warning("GodotGAS: No cue registry found at " + cue_registry_path)
 		return
 		

@@ -253,7 +253,7 @@ func detect_tier() -> int:
 	var gpu := RenderingServer.get_video_adapter_name()
 	var vendor := RenderingServer.get_video_adapter_vendor()
 	var cores := OS.get_processor_count()
-	var ram_gb := float(OS.get_memory_info().get("physical", 0)) / 1073741824.0
+	var ram_gb := _physical_ram_gb()
 	var screen := DisplayServer.screen_get_size()
 	var t := HIGH
 	var why := "%s / %s, %d cores, %.1f GB, %dx%d, %s" % [gpu, vendor, cores, ram_gb, screen.x, screen.y, renderer()]
@@ -314,6 +314,20 @@ static func _mobile_gpu_tier(gpu: String) -> int:
 	if g.contains("powervr") or g.contains("sgx") or g.contains("vivante") or g.contains("tegra"):
 		return LOW
 	return MEDIUM
+
+
+## Physical RAM in GB. On Android OS.get_memory_info() reports -1 for "physical" (seen on a Galaxy S22: "-0.0 GB"),
+## so the RAM rules never fired; /proc/meminfo has MemTotal in kB.
+static func _physical_ram_gb() -> float:
+	var b := float(OS.get_memory_info().get("physical", 0))
+	if b > 0.0:
+		return b / 1073741824.0
+	var f := FileAccess.open("/proc/meminfo", FileAccess.READ)
+	if f != null:
+		var line := f.get_line()
+		if line.begins_with("MemTotal:"):
+			return float(line.get_slice(":", 1).strip_edges().get_slice(" ", 0)) / 1048576.0
+	return 0.0
 
 
 static func _first_number(s: String) -> int:
