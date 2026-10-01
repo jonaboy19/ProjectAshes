@@ -1,12 +1,12 @@
 // Region 1 biome colour (docs/regions/LOOK_R1.md), shared by shaders/terrain.gdshader and the far horizon.
-// The biome map (tools_qa/region1/bake_biome.gd, 16 m/px over the 8 km world) holds
+// The biome map (tools_qa/region1/bake_biome.gd, 16 m/px over the 12 km world) holds
 //   R farmland, G heather uplands, B lush river greens, A dry gold meadow.
 // Farmland is drawn as a patchwork of fields like the Valencious poster: rotated blocks of 30-70 m
 // fields in wheat gold, fresh green, barley cream, ploughed earth and flax blue, with dark hedgerow seams.
 // Everything is multiplied into the grass albedo, so textures, seasons and weather still apply on top.
 
 uniform sampler2D region_biome : hint_default_black, filter_linear, repeat_disable;
-uniform vec4 region_biome_rect = vec4(-4096.0, -4096.0, 8192.0, 8192.0);
+uniform vec4 region_biome_rect = vec4(-6144.0, -6144.0, 12288.0, 12288.0);
 
 float r1_hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 

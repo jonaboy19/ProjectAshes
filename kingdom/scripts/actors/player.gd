@@ -116,6 +116,7 @@ const CAMERA_MASK := 1 | CAMERA_BLOCKER_LAYER
 const BODY_RADIUS := 0.35
 ## Riding.
 const MountController := preload("res://scripts/actors/mount_controller.gd")
+const TravelRules := preload("res://scripts/world/travel_rules.gd")
 ## Foot IK on slopes and steps, torso and weapon/shield secondary motion.
 const ProceduralRig := preload("res://scripts/actors/procedural_rig.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
@@ -229,6 +230,10 @@ var _hit_stop_token := 0
 var _hit_stopping := false
 var _capsule: CapsuleShape3D
 var _mount: MountController
+## Travel rules (travel_rules.gd): seconds spent running, winded (out of stamina: walk), seconds of gallop.
+var _run_time := 0.0
+var _winded := false
+var _gallop_time := 0.0
 var _drown := 0.0
 var _drown_warned := false
 var _lock: Node3D
@@ -502,7 +507,7 @@ func _physics_process(delta: float) -> void:
 		_set_crouch(false)            # sprinting stands up
 	var locked := is_instance_valid(_lock)
 	var running := (sprint or (touch_move.length() > 0.92 and not crouching) or view >= View.TOWN) \
-			and not blocking and not crouching and (not locked or sprint)
+			and not blocking and not crouching and (not locked or sprint) and not _winded
 	_strafing = (blocking or (locked and not running)) and not swimming
 	_animator.set_strafing(_strafing and not blocking)
 	var speed := (RUN if running else WALK) * Life.needs.speed()
@@ -556,13 +561,31 @@ func _physics_process(delta: float) -> void:
 	_update_lean(delta)
 	_update_footsteps(delta, dir, grounded and not swimming)
 
+	_travel_stamina(delta, running and travel.length() > RUN * 0.6)
 	if swimming:
 		_swim_stamina(delta, travel.length() > 0.3)
 	elif _stamina_delay <= 0.0 and not blocking:
-		stamina = minf(stamina + 28.0 * delta * Life.needs.stamina_regen(), MAX_STAMINA * Life.needs.stamina_cap())
+		stamina = minf(stamina + 28.0 * delta * Life.needs.stamina_regen() * (TravelRules.WINDED_REGEN if _winded else 1.0), MAX_STAMINA * Life.needs.stamina_cap())
 	stamina_changed.emit(stamina, MAX_STAMINA)
 	_update_look_target()
 	_update_camera(delta)
+
+
+## Long runs cost stamina (docs/design/REALM_PLAN.md "Travel and world size"): a run is free for TravelRules.RUN_FREE_S
+## seconds, then drains until you are winded and must walk. Town view and swimming are exempt (swimming has its own drain).
+func _travel_stamina(delta: float, running_fast: bool) -> void:
+	if running_fast and view < View.TOWN and not swimming:
+		_run_time += delta
+		var drain := TravelRules.run_drain(_run_time)
+		if drain > 0.0:
+			stamina = maxf(stamina - drain * delta, 0.0)
+			_stamina_delay = 0.6
+	else:
+		_run_time = maxf(0.0, _run_time - delta * 2.0)
+	var was := _winded
+	_winded = TravelRules.is_winded(stamina, _winded, MAX_STAMINA * Life.needs.stamina_cap())
+	if _winded and not was and not dead:
+		Game.say("You are winded. Walk for a while.")
 
 
 ## Never fall through unloaded/streaming ground.
@@ -641,6 +664,12 @@ func _physics_mounted(delta: float) -> void:
 		_dismount()
 		return
 	var dir := Vector3.ZERO if dead else _input_dir()
+	var gal := TravelRules.gallop_step(_gallop_time, _mount.speed > MountController.CANTER_SPEED + 0.6, delta, _mount.gallop_allowed)
+	_gallop_time = float(gal[0])
+	if bool(gal[1]) != _mount.gallop_allowed:
+		_mount.gallop_allowed = bool(gal[1])
+		if not _mount.gallop_allowed:
+			Game.say("The horse is blowing hard. Let it canter.")
 	var planar := _mount.drive(delta, dir, Input.is_action_pressed("sprint"), global_position)
 	velocity.x = planar.x
 	velocity.z = planar.z

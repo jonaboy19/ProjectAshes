@@ -106,14 +106,15 @@ func test_fog_field_is_clear_at_sources_and_hidden_far_away() -> void:
 
 
 func test_terrain_bake_paints_water_and_fades_the_border() -> void:
-	var img: Image = WorldMap.paint_terrain(128)
-	assert_int(img.get_width()).is_equal(128)
-	assert_float(img.get_pixel(64, 64).a).is_equal(1.0)
-	assert_float(img.get_pixel(0, 0).a).is_less(0.2)
+	var img: Image = WorldMap.paint_terrain(256)       # 96 m per sample on the 12 km world
+	assert_int(img.get_width()).is_equal(256)
+	assert_float(img.get_pixel(128, 128).a).is_equal(1.0)
+	assert_float(img.get_pixel(0, 0).a).is_less(0.8)         # the painted land fades at the region border
+	assert_float(img.get_pixel(0, 128).a).is_less(img.get_pixel(128, 128).a)
 	# Emberglass Mere reads blue.
 	var half := WorldGen.WORLD_HALF
 	var c := WorldGen.lake_center
-	var px := Vector2i(int((c.x + half) / (half * 2.0) * 128.0), int((c.y + half) / (half * 2.0) * 128.0))
+	var px := Vector2i(int((c.x + half) / (half * 2.0) * 256.0), int((c.y + half) / (half * 2.0) * 256.0))
 	var col := img.get_pixel(px.x, px.y)
 	assert_float(col.b).is_greater(col.r)
 

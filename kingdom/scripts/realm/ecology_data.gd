@@ -79,5 +79,5 @@ const DOM_LEVELS := [[0.2, "wild"], [0.45, "tolerated"], [0.7, "tamed"], [1.01, 
 ## Intelligent monster factions.
 const FACTION_INTENTS := ["hold", "trade", "raid", "negotiate", "migrate", "settle"]
 const DECISION_DAYS := 10
-const MARCH_M_PER_DAY := 450.0
+const MARCH_M_PER_DAY := 675.0          # metres per day a clan marches (450 before the 12 km world, x1.5)
 const FACTION_SPECIES := {"goblin": {"strength": 14.0, "temper": 0.55, "cunning": 0.45}, "orc": {"strength": 11.0, "temper": 0.65, "cunning": 0.55}}

@@ -1,5 +1,5 @@
 extends RefCounted
-## Exploration rewards across the region: 26 small points of interest that pay for wandering (docs/design/REALM_PLAN.md
+## Exploration rewards across the region: 56 small points of interest (26 at first, 30 more for the 12 km world) that pay for wandering (docs/design/REALM_PLAN.md
 ## "Freedom and exploration first"). Vistas, hidden shrines, lore stones, abandoned camps with notes, rare herb patches,
 ## caches under landmarks, old battlefields, a fishing secret, a hermit, a hunter who knows a rumour, and Rift anomalies
 ## that only show at night.
@@ -54,7 +54,7 @@ const ITEMS := {
 
 ## The 26 POIs. name, kind, lore (journal text), reward: items [[id, n]], gold, know (construction facts), reveal (map
 ## radius m), lead [fact, text] (Society knowledge, text only), xp. Order fixes the planner's cell choice.
-const DEFS: Array[Dictionary] = [
+const BASE_DEFS: Array[Dictionary] = [
 	{"id": "kestrel", "kind": "poi_vista", "name": "Kestrel's Perch", "reveal": 700.0, "xp": 12,
 		"lore": "From this shelf of rock the whole country lies flat: fields like a patchwork quilt, a river like a dropped ribbon, and far off, smoke from somebody's hearth."},
 	{"id": "longlook", "kind": "poi_vista", "name": "The Long Look", "reveal": 700.0, "xp": 12,
@@ -109,6 +109,52 @@ const DEFS: Array[Dictionary] = [
 	{"id": "corwen", "kind": "poi_hunter", "name": "Old Corwen's Camp", "xp": 15, "reveal": 350.0,
 		"lore": "An old hunter keeps a camp here, in the lee of the ridge. He knows every animal track within a day's walk and talks about them to anyone who will sit still."},
 ]
+
+## The 12 x 12 km world (2.25x the area of the 8 km one) adds 30 more points of interest, same rules and kinds. Hermit and hunter
+## stay single (their stations are keyed by id in exploration_director.gd).
+const EXTRA_ROWS: Array = [
+	{"id": "hawks_rest", "kind": "poi_vista", "name": "Hawk's Rest", "reveal": 700.0, "xp": 12, "lore": "A flat grey shelf where hawks nest in spring. From here the road is a thread, and the villages are smoke."},
+	{"id": "beacon_knoll", "kind": "poi_vista", "name": "Beacon Knoll", "reveal": 700.0, "xp": 12, "lore": "A ring of blackened stones from the days when a fire here told the next hill that the road was open. Somebody still brings kindling."},
+	{"id": "open_hand", "kind": "poi_vista", "name": "The Open Hand", "reveal": 700.0, "xp": 12, "lore": "Five fingers of rock reach over the valley. Locals say if you stand in the palm at dawn the whole country wakes up under you."},
+	{"id": "thistle_look", "kind": "poi_vista", "name": "Thistle Ridge Lookout", "reveal": 700.0, "xp": 12, "lore": "Thistles crowd the crest and the wind carries seed over the edge in clouds. The view runs a full day's ride in every direction."},
+	{"id": "greywing", "kind": "poi_vista", "name": "Greywing Overlook", "reveal": 700.0, "xp": 12, "lore": "A cairn with a heron's feather tied to it. Pilgrims left the stones; the feather is replaced every spring by someone nobody has seen."},
+	{"id": "patient_stag", "kind": "poi_shrine", "name": "Shrine of the Patient Stag", "xp": 15, "items": [["spirit_dew", 2]], "reveal": 350.0, "lore": "A stag carved in the lee of a boulder, antlers worn smooth by hands. Coins and carved birds lie in the hollow at its feet."},
+	{"id": "lichen_altar", "kind": "poi_shrine", "name": "The Lichen Altar", "xp": 15, "items": [["spirit_dew", 1], ["healing_herb", 2]], "reveal": 350.0, "lore": "The altar wears a coat of orange lichen so even it looks painted. Nothing was ever written on it, and everyone who passes leaves something."},
+	{"id": "drowned_saint", "kind": "poi_shrine", "name": "The Drowned Saint's Cairn", "xp": 15, "items": [["spirit_dew", 2]], "gold": 20, "reveal": 350.0, "lore": "A cairn of river stones, each one wet when you touch it, even in a drought. Ferrymen add a stone when a crossing goes safely."},
+	{"id": "candle_hollow", "kind": "poi_shrine", "name": "Candle Hollow", "xp": 15, "items": [["spirit_dew", 2]], "reveal": 350.0, "lore": "Stubs of wax cover every ledge of this hollow. None of them are lit, yet the stone is warm."},
+	{"id": "ploughman", "kind": "poi_lore", "name": "The Ploughman's Stone", "xp": 20, "know": ["build:carpentry"], "reveal": 300.0, "lore": "A man behind a plough and two oxen are scratched into the stone. Beneath them, a plough frame drawn joint by joint, as a lesson."},
+	{"id": "furnace_stone", "kind": "poi_lore", "name": "The Furnace Stone", "xp": 20, "know": ["build:fire"], "reveal": 300.0, "lore": "Pictures of a kiln, bellows and a bar of glowing iron. The last panel shows a hand holding the finished blade up to the sun."},
+	{"id": "wallers_mark", "kind": "poi_lore", "name": "The Wallers' Mark", "xp": 20, "know": ["build:masonry"], "reveal": 300.0, "lore": "A dry-stone wall runs to the stone and ends. The mason's lesson is carved into the face: lay the largest first, and never trust a corner."},
+	{"id": "tally_stone", "kind": "poi_lore", "name": "The Tally Stone", "xp": 20, "know": ["build:masonry"], "reveal": 300.0, "lore": "Hundreds of tally marks, in groups of five, climb the stone. Beside them a single line of letters: 'Counted, and not one came home.'"},
+	{"id": "peddler", "kind": "poi_camp", "name": "The Peddler's Last Stop", "xp": 18, "items": [["bandage", 2]], "gold": 25, "lore": "A cart tilted on a broken axle, its canopy torn. A ledger lies open: 'Owed me four silver, all of them.' The last page is blank."},
+	{"id": "smuggler_blind", "kind": "poi_camp", "name": "The Smugglers' Blind", "xp": 18, "items": [["iron_dagger", 1], ["cheese", 2]], "gold": 40, "lore": "A lean-to dug into a bank, with a false floor. Someone has already looked underneath, and not very hard."},
+	{"id": "drover", "kind": "poi_camp", "name": "The Drover's Camp", "xp": 18, "items": [["cheese", 3]], "know": ["build:carpentry"], "lore": "Hurdles and a trampled paddock, a fire pit with a spit still in it. A herd was here, and left in a hurry."},
+	{"id": "scout_blind", "kind": "poi_camp", "name": "Scout's Blind", "xp": 18, "items": [["bandage", 2], ["healing_salve", 1]], "gold": 20, "lore": "A hide of branches covers a view of the road. A scratched map is pinned inside, with a cross where the road bends."},
+	{"id": "foxglove", "kind": "poi_herbs", "name": "Foxglove Bank", "xp": 12, "items": [["moonpetal", 2], ["healing_herb", 2]], "reveal": 250.0, "lore": "Tall foxgloves line the bank like a congregation. Herbalists come in June and leave quickly, because the bank is steeper than it looks."},
+	{"id": "bittermint", "kind": "poi_herbs", "name": "Bittermint Hollow", "xp": 12, "items": [["moonpetal", 2], ["mushroom", 3]], "reveal": 250.0, "lore": "A hollow where mint grows wild and bitter. Deer stand in it at dusk and chew the leaves slowly."},
+	{"id": "silvergrass", "kind": "poi_herbs", "name": "Silvergrass Meadow", "xp": 12, "items": [["moonpetal", 3]], "reveal": 250.0, "lore": "The grass here is the colour of old coins and rustles even when the air is still. A herbalist's stool stands abandoned at the edge."},
+	{"id": "nightbell", "kind": "poi_herbs", "name": "Nightbell Glade", "xp": 12, "items": [["moonpetal", 3], ["healing_herb", 2]], "reveal": 250.0, "lore": "Blue bells hang from every stem and ring faintly after dark. In daylight they are only flowers."},
+	{"id": "drovers_cache", "kind": "poi_cache", "name": "The Drover's Hidden Purse", "xp": 18, "gold": 110, "items": [["copper_ring", 1]], "lore": "A cairn of white stones marks a loose slab. Whoever hid the purse knew the road well and did not trust it."},
+	{"id": "collapsed_cellar", "kind": "poi_cache", "name": "Beneath the Collapsed Cellar", "xp": 18, "gold": 150, "items": [["healing_salve", 2]], "lore": "Only the cellar survives of whatever stood here. A strongbox was chained to a post. The chain is rusted; the strongbox is not."},
+	{"id": "tinkers_second", "kind": "poi_cache", "name": "The Tinker's Second Box", "xp": 18, "gold": 70, "items": [["tools", 2], ["horseshoe", 2]], "lore": "The tinker buried two boxes. This is the other. It is marked with a cairn of two stones, one on top of the other."},
+	{"id": "hollow_stump", "kind": "poi_cache", "name": "The Hollow Stump", "xp": 18, "gold": 90, "items": [["iron_ingot", 2]], "lore": "A stump rotted hollow, with a tin lid pressed neatly across the top. Moss has grown over the lid, but not across the seam."},
+	{"id": "beacon_field", "kind": "poi_battlefield", "name": "The Beacon Field", "xp": 22, "items": [["battlefield_relic", 2], ["iron_ingot", 1]], "reveal": 400.0, "lore": "A beacon was lit here once, too late. The field still has the shape of the shield wall, and the grass grows greener where it stood."},
+	{"id": "rooks_acre", "kind": "poi_battlefield", "name": "Rook's Acre", "xp": 22, "items": [["battlefield_relic", 3]], "gold": 30, "reveal": 400.0, "lore": "Rooks hold this field. Nobody can say how many fell here, but the rooks have never run short."},
+	{"id": "last_charge", "kind": "poi_battlefield", "name": "The Last Charge", "xp": 22, "items": [["battlefield_relic", 2]], "gold": 50, "reveal": 400.0, "lore": "A line of lance heads, each driven point-first into the ground, rusted to the colour of the earth. Whoever planted them wanted the charge remembered."},
+	{"id": "still_reach", "kind": "poi_fishing", "name": "The Still Reach", "xp": 15, "items": [["silverfin", 1]], "reveal": 300.0, "lore": "A long reach of river where the current gives up and the trout sit in rows. The old anglers keep its name quiet."},
+	{"id": "pale_seam", "kind": "poi_rift", "name": "The Pale Seam", "xp": 25, "items": [["rift_shard", 1]], "reveal": 300.0, "lore": "A slit in the air, pale as milk, that closes when you look at it directly. The grass around it is bent toward the opening."},
+]
+
+## Typed DEFS: the 26 hand-written POIs, then the extras (order fixes the planner's cell choice).
+static var DEFS: Array[Dictionary] = _build_defs()
+
+
+static func _build_defs() -> Array[Dictionary]:
+	var all: Array[Dictionary] = []
+	all.append_array(BASE_DEFS)
+	for row: Variant in EXTRA_ROWS:
+		all.append(row as Dictionary)
+	return all
 
 ## Filled by plan(): poi id -> {pos: Vector2, yaw: float}.
 static var placed: Dictionary = {}
@@ -169,12 +215,14 @@ static func plan(seed_value: int, taken: Array[Dictionary]) -> Array[Dictionary]
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value * 97 + 41
 	var out: Array[Dictionary] = []
-	# 7 x 7 cells of the +-3.5 km land; shuffled, each POI takes the next cell that yields a good spot.
+	# n x n cells of the +-5.6 km land (10 x 10 for the 56 POIs, cells of ~1.1 km); shuffled, each POI takes the next cell
+	# that yields a good spot.
 	var cells: Array[Vector2] = []
 	var half := WorldGen.WORLD_HALF - EDGE
-	var cs := half * 2.0 / 7.0
-	for j in 7:
-		for i in 7:
+	var gn := maxi(7, int(ceil(sqrt(float(DEFS.size()) * 1.7))))
+	var cs := half * 2.0 / float(gn)
+	for j in gn:
+		for i in gn:
 			cells.append(Vector2(-half + i * cs, -half + j * cs))
 	_shuffle(cells, rng)
 	var ci := 0
@@ -257,14 +305,56 @@ static func _free(p: Vector2, taken: Array[Dictionary], kind: String) -> bool:
 	for g in WorldGen.camp_grounds:
 		if p.distance_to(g["pos"]) < float(g["radius"]) * 1.8 + 30.0:
 			return false
-	for t in taken:
-		var d := p.distance_to(t["pos"])
-		if String(t.get("kind", "")).begins_with("poi_"):
-			if d < SPACING:
-				return false
-		elif d < float(t.get("clear", 0.0)) + 40.0:
+	_sync_grid(taken)
+	var cx := floori(p.x / GRID)
+	var cy := floori(p.y / GRID)
+	for dy in range(-1, 2):
+		for dx in range(-1, 2):
+			var bucket: Variant = _g_cells.get(Vector2i(cx + dx, cy + dy))
+			if bucket != null:
+				for t: Dictionary in bucket:
+					if _blocks(p, t):
+						return false
+	for t: Dictionary in _g_big:
+		if _blocks(p, t):
 			return false
 	return slope_at(p) < 0.55
+
+
+static func _blocks(p: Vector2, t: Dictionary) -> bool:
+	var d := p.distance_to(t["pos"])
+	if String(t.get("kind", "")).begins_with("poi_"):
+		return d < SPACING
+	return d < float(t.get("clear", 0.0)) + 40.0
+
+
+## The taken list (700 sites, growing by one per POI) is bucketed once on a grid wider than SPACING, so a candidate only meets its
+## neighbours instead of every site in the world. Wide-footprint sites (the valley) stay in a short always-checked list.
+const GRID := 256.0
+static var _g_cells: Dictionary = {}
+static var _g_big: Array = []
+static var _g_taken: Array = []
+static var _g_n := 0
+
+
+static func _sync_grid(taken: Array[Dictionary]) -> void:
+	if not is_same(taken, _g_taken) or taken.size() < _g_n:
+		_g_taken = taken
+		_g_cells = {}
+		_g_big = []
+		_g_n = 0
+	while _g_n < taken.size():
+		var t: Dictionary = taken[_g_n]
+		_g_n += 1
+		if float(t.get("clear", 0.0)) + 40.0 > GRID - 16.0 and not String(t.get("kind", "")).begins_with("poi_"):
+			_g_big.append(t)
+			continue
+		var tp: Vector2 = t["pos"]
+		var key := Vector2i(floori(tp.x / GRID), floori(tp.y / GRID))
+		if _g_cells.has(key):
+			(_g_cells[key] as Array).append(t)
+		else:
+			_g_cells[key] = [t]
 
 
 static func slope_at(p: Vector2) -> float:

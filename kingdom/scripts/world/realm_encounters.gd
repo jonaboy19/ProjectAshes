@@ -17,6 +17,8 @@ extends Node
 
 const PromptView := preload("res://scripts/region1/tutorial_prompt_view.gd")
 const DrillYard := preload("res://scripts/world/drill_yard.gd")
+const TravelRules := preload("res://scripts/world/travel_rules.gd")
+const Crafting := preload("res://scripts/sim/crafting.gd")
 
 const SCOUT_AGE := 9            ## education.gd SCOUT_AGE
 const TICK := 2.0
@@ -31,6 +33,13 @@ const KEEP_DAYS := 40           ## delivered keys older than this are forgotten
 const SQUARE_R := 70.0          ## "the village square" for the scouts' noon test
 const NOON := [12, 17]
 const HINT_SECONDS := 7.0
+## Road events (docs/design/REALM_PLAN.md "Travel and world size"): a caravan, a traveller with news, a roadside camp or
+## an ambush meets the player on the road. Paced by travel_rules.gd (ROAD_COOLDOWN_H game hours AND ROAD_MIN_DIST metres
+## between two events, a small chance per tick scaled by the road's danger), so a long walk has a few meetings, not a stream.
+const CARAVAN_STOCK := ["bread", "cheese", "jerky", "bandage", "waterskin", "tinderbox", "bedroll"]
+const CARAVAN_MARKUP := 1.35
+const MEAL_PRICE := 4
+const CAMP_REST_H := 1.0
 
 ## One line each, short enough for a pill. The first time the event happens only.
 const HINTS := {
@@ -73,6 +82,8 @@ var _hint_queue: Array[String] = []
 var _hint_until := 0.0
 var _hint_shown := ""
 var _spawn_fail := 0
+var _road_ok := 0                        ## abs game hour before which no road event happens
+var _road_last := Vector2.INF            ## where the last road event happened
 
 
 func setup(p_hud: Node) -> void:
@@ -81,6 +92,7 @@ func setup(p_hud: Node) -> void:
 
 func _ready() -> void:
 	name = "RealmEncounters"
+	add_to_group("realm_encounters")      # Life.camp_here finds it to give a night ambush a body
 	WorldSim.hour_changed.connect(_on_hour)
 	_timer = Timer.new()
 	_timer.wait_time = TICK
@@ -103,7 +115,8 @@ func _exit_tree() -> void:
 # --- save -------------------------------------------------------------------------------
 
 func snapshot() -> Dictionary:
-	return {"delivered": delivered.duplicate(), "hints": hints_seen.duplicate()}
+	return {"delivered": delivered.duplicate(), "hints": hints_seen.duplicate(), "road_ok": _road_ok,
+		"road_last": [_road_last.x, _road_last.y] if _road_last != Vector2.INF else []}
 
 
 func restore(d: Dictionary) -> void:
@@ -117,6 +130,9 @@ func restore(d: Dictionary) -> void:
 	if hs is Dictionary:
 		for k: Variant in hs:
 			hints_seen[String(k)] = true
+	_road_ok = int(d.get("road_ok", 0))
+	var rl: Variant = d.get("road_last", [])
+	_road_last = Vector2(float((rl as Array)[0]), float((rl as Array)[1])) if rl is Array and (rl as Array).size() == 2 else Vector2.INF
 	_pending = {}
 	_s = {}
 
@@ -188,7 +204,103 @@ func pick_next(ctx: Dictionary = {}) -> Dictionary:
 			var rk := "cur:%s:%d" % [o["id"], day]
 			if int(o["accepted_day"]) >= 0 and day > int(o["accepted_day"]) and not delivered.has(rk):
 				return {"kind": "callup_report", "key": rk, "offer": o}
+	if bool(ctx.get("roads", true)):
+		return road_event(ctx)
 	return {}
+
+
+## The nearest bandit camp or hideout (metres), cached: the sites never change after WorldGen.setup.
+static var _bandit_sites: Array[Vector2] = []
+static var _bandit_sig := -1
+
+
+static func bandit_distance(p: Vector2) -> float:
+	if _bandit_sig != WorldGen.sites.size():
+		_bandit_sig = WorldGen.sites.size()
+		_bandit_sites.clear()
+		for site: Dictionary in WorldGen.sites:
+			if String(site.get("kind", "")) in ["bandit_camp", "hideout"]:
+				_bandit_sites.append(site["pos"])
+	var best := 1.0e9
+	for b: Vector2 in _bandit_sites:
+		best = minf(best, p.distance_to(b))
+	return best
+
+
+## A road event for the player's position, or {}. Pure given ctx (all optional, for tests): pos, abs_hour, hour, day,
+## road_ok, last_pos, road_info {dist, tier}, danger {total, sources}, caravans (Array of {name, dest}), bandit_dist,
+## near_town, rolls [gate, pick, variant].
+func road_event(ctx: Dictionary = {}) -> Dictionary:
+	var pos := Vector2.INF
+	if ctx.has("pos"):
+		pos = ctx["pos"]
+	else:
+		var pl := _player()
+		if pl == null or bool(pl.get("dead")):
+			return {}
+		pos = Vector2(pl.global_position.x, pl.global_position.z)
+	if int(ctx.get("abs_hour", _abs_hour())) < int(ctx.get("road_ok", _road_ok)):
+		return {}
+	var last: Vector2 = ctx.get("last_pos", _road_last)
+	if last != Vector2.INF and pos.distance_to(last) < TravelRules.ROAD_MIN_DIST:
+		return {}
+	var ri: Dictionary = ctx["road_info"] if ctx.has("road_info") else WorldGen.road_info(pos.x, pos.y)
+	if float(ri["dist"]) > TravelRules.ROAD_MAX_DIST:
+		return {}
+	var near_town := false
+	var near: Dictionary = WorldGen.nearest_settlement(pos)
+	if not near.is_empty():
+		var dn := pos.distance_to(near["pos"])
+		if dn < float(near["radius"]) * 1.6:
+			return {}                # never inside a settlement
+		near_town = dn < 1200.0
+	if ctx.has("near_town"):
+		near_town = bool(ctx["near_town"])
+	var danger: Dictionary = ctx["danger"] if ctx.has("danger") else {}
+	if not ctx.has("danger"):
+		var eco: Variant = _mod("ecology")
+		if eco != null and eco.has_method("danger_at"):
+			danger = eco.danger_at(pos)
+	var caravans: Array = []
+	if ctx.has("caravans"):
+		caravans = ctx["caravans"]
+	else:
+		var ent: Variant = _mod("enterprise")
+		if ent != null and ent.has_method("list_caravans"):
+			for c: Dictionary in ent.list_caravans():
+				if String(c.get("state", "")) == "travel" and (ent.caravan_pos(c) as Vector2).distance_to(pos) < 900.0:
+					caravans.append({"name": String(c.get("name", "A caravan")), "dest": _settlement_name(int(c.get("dest", -1)))})
+	var day := int(ctx.get("day", WorldSim.day))
+	var hour := int(ctx.get("hour", int(WorldSim.time_of_day)))
+	var tier := String(ri["tier"])
+	var bd := float(ctx["bandit_dist"]) if ctx.has("bandit_dist") else bandit_distance(pos)
+	var weights := TravelRules.road_weights({"tier": tier, "danger": float(danger.get("total", 0.0)), "bandit_dist": bd,
+		"caravans": caravans.size(), "near_town": near_town, "hour": hour})
+	var rolls: Array = ctx.get("rolls", [randf(), randf(), randf()])
+	var sub := TravelRules.pick_road_kind(weights, float(rolls[0]), float(rolls[1]))
+	if sub == "":
+		return {}
+	var key := "road:%d:%d:%s" % [day, hour, sub]
+	if delivered.has(key):
+		return {}
+	var sources: Array = danger.get("sources", [])
+	var species := String((sources[0] as Dictionary).get("species", "")) if not sources.is_empty() else ""
+	var e := {"kind": "road", "sub": sub, "key": key, "pos": pos, "tier": tier, "danger": float(danger.get("total", 0.0)),
+		"variant": int(float(rolls[2]) * 1000.0), "near_town": near_town}
+	match sub:
+		"caravan":
+			if not caravans.is_empty():
+				e["caravan"] = caravans[int(float(rolls[2]) * caravans.size()) % caravans.size()]
+		"ambush":
+			var beasts := species != "" and float(danger.get("total", 0.0)) >= 12.0 and bd > 700.0 and not species in ["clan"]
+			e["foe"] = "beasts" if beasts else "bandits"
+			e["species"] = species if beasts else ""
+			e["toll"] = TravelRules.ambush_toll(float(danger.get("total", 0.0)))
+	return e
+
+
+func _settlement_name(sid: int) -> String:
+	return String(WorldGen.settlements[sid]["name"]) if sid >= 0 and sid < WorldGen.settlements.size() else "the next town"
 
 
 func _near_square() -> bool:
@@ -225,8 +337,23 @@ func _on_tick() -> void:
 		return
 	var entry := _pending
 	_pending = {}
+	if String(entry["kind"]) == "road":
+		if _road_stale(entry):
+			return                      # the player has walked on: the road offers something else later
+		if String(entry["sub"]) == "ambush" and String(entry.get("foe", "")) == "beasts":
+			_road_beasts(entry)
+			return
 	if not _begin(entry):
 		_pending = entry     # no room to arrive yet: try again on the next tick
+
+
+## A road event is only for where the player was when it rolled.
+func _road_stale(entry: Dictionary) -> bool:
+	var pl := _player()
+	if pl == null:
+		return true
+	var pp := Vector2(pl.global_position.x, pl.global_position.z)
+	return pp.distance_to(entry["pos"]) > 140.0 or float(WorldGen.road_info(pp.x, pp.y)["dist"]) > TravelRules.ROAD_MAX_DIST * 1.5
 
 
 func _player() -> Node3D:
@@ -275,6 +402,7 @@ func _look_of(entry: Dictionary) -> String:
 		"encounter": return String(ENC_LOOK.get(String((entry["enc"] as Dictionary).get("kind", "")), "Bandit"))
 		"scout_test": return "Noble" if float((entry["scout"] as Dictionary).get("noble_pressure", 0.0)) > 0.15 else "Guard"
 		"scout_news": return "Elder_Man"
+		"road": return _road_look(entry)
 		"grad": return String(ORG_LOOK.get(String((entry["offer"] as Dictionary)["org"]), "Guard"))
 		_: return String(LOOK_BY_TEMPLATE.get(String((entry["offer"] as Dictionary)["template"]), "Rogue_Hooded"))
 
@@ -316,7 +444,8 @@ func _begin(entry: Dictionary) -> bool:
 		_arrive()
 		return true
 	var pp := Vector2(pl.global_position.x, pl.global_position.z)
-	var at := _find_spawn(pl, pp, 12.0 if String(entry["kind"]) == "encounter" else SPAWN_DIST)
+	var hurried := String(entry["kind"]) == "encounter" or (String(entry["kind"]) == "road" and String(entry.get("sub", "")) == "ambush")
+	var at := _find_spawn(pl, pp, 12.0 if hurried else SPAWN_DIST)
 	if at == Vector2.INF:
 		_spawn_fail += 1
 		if _spawn_fail < 4:
@@ -332,7 +461,7 @@ func _begin(entry: Dictionary) -> bool:
 	body.global_position = Vector3(at.x, WorldGen.height(at.x, at.y), at.y)
 	_play(body, ["Walk", "Walking_A"])
 	_s["body"] = body
-	_s["speed"] = RUN_SPEED if String(entry["kind"]) == "encounter" else WALK_SPEED
+	_s["speed"] = RUN_SPEED if hurried else WALK_SPEED
 	_s["last"] = 0.0
 	_tween = create_tween()
 	_tween.tween_method(_step, 0.0, GIVE_UP_S, GIVE_UP_S)
@@ -417,6 +546,8 @@ func _arrive() -> void:
 	_s["t_open"] = Time.get_ticks_msec() / 1000.0
 	var entry: Dictionary = _s["entry"]
 	delivered[String(entry["key"])] = WorldSim.day
+	if String(entry["kind"]) == "road":
+		_road_done(entry)
 	_open(entry)
 	if hud != null and hud.has_method("show_menu") and not _s.is_empty():
 		hud.show_menu(_page)
@@ -510,6 +641,7 @@ func _open(entry: Dictionary) -> void:
 		"scout_test": _open_scout_test(entry["scout"])
 		"grad": _open_grad(entry["offer"])
 		"encounter": _open_encounter(entry["enc"])
+		"road": _open_road(entry)
 
 
 # call-ups ----
@@ -719,6 +851,202 @@ func _enc_pick(choice: String) -> String:
 	var out := String(ENC_OUTCOME.get(String(res.get("outcome", "safe")), ""))
 	_say(" ".join(PackedStringArray([out] + lines.map(func(m: Variant) -> String: return String(m)))), [["Go on", _end]])
 	return ""
+
+
+# road events ----
+
+## Pacing bookkeeping once a road event has fired (a session opened or beasts spawned).
+func _road_done(entry: Dictionary) -> void:
+	_road_ok = _abs_hour() + TravelRules.ROAD_COOLDOWN_H
+	_road_last = entry["pos"]
+
+
+func _road_look(entry: Dictionary) -> String:
+	var v := int(entry.get("variant", 0))
+	match String(entry.get("sub", "")):
+		"caravan": return "Trader"
+		"ambush": return "Bandit"
+		"camp": return ["Hunter", "Innkeeper", "Barbarian"][v % 3]
+		_: return ["Rogue_Hooded", "Hunter", "Elder_Man", "Herbalist"][v % 4]
+
+
+func _news_line(pos: Vector2, salt: int) -> String:
+	var nw: Variant = _mod("news")
+	var line := ""
+	if nw != null and nw.has_method("tavern_line_at"):
+		line = String(nw.tavern_line_at(pos, salt))
+	return line if line != "" else "Nothing much stirs on the roads this season, and that is news enough these days."
+
+
+func _open_road(entry: Dictionary) -> void:
+	var pos: Vector2 = entry["pos"]
+	var v := int(entry.get("variant", 0))
+	match String(entry["sub"]):
+		"caravan":
+			var c: Dictionary = entry.get("caravan", {})
+			_s["speaker"] = String(c.get("name", ["Caravan master", "Wagon-boss", "Carter"][v % 3]))
+			_s["role"] = "Merchant caravan"
+			_banner("location", "Caravan on the Road", String(c.get("dest", "")), "Wagons halt")
+			var bound := "bound for %s" % String(c["dest"]) if c.has("dest") else "heading down the road"
+			_say("\"Well met, traveller. We are %s, and the road is long. We have a little to spare if you have coin, and we would hear how the road ahead looks.\"" % bound,
+				[["Buy supplies", _rd_shop], ["Ask about the road", _rd_news.bind(v)], ["Safe travels", _end]])
+		"news":
+			_s["speaker"] = ["A weary traveller", "A packman", "A pilgrim", "A drover"][v % 4]
+			_s["role"] = "On the road"
+			_banner("location", "A Traveller", "Word from the road", "You are not alone")
+			_say("\"Well met. You are the first soul I have seen since morning. %s\"" % _news_line(pos, v),
+				[["Share a bite", _rd_share.bind(v)], ["Ask for more", _rd_news.bind(v + 1)], ["Farewell", _end]])
+		"camp":
+			_s["speaker"] = ["A camp-keeper", "A tinker", "A drover"][v % 3]
+			_s["role"] = "Roadside camp"
+			_banner("location", "A Roadside Camp", "Smoke between the trees", "A fire to rest by")
+			_say("\"Fire is free to anyone who brings no trouble. Sit down. There is stew if you have a few coins.\"",
+				[["Rest by the fire (1 hour)", _rd_rest], ["Hot meal (%d gold)" % MEAL_PRICE, _rd_meal], ["Hear the news", _rd_news.bind(v)], ["Move on", _end]])
+		"ambush":
+			var toll := int(entry.get("toll", 20))
+			_s["speaker"] = "Highwayman"
+			_s["role"] = "On the road"
+			_banner("quest", "Ambush!", "Stand and deliver", "The road is not safe")
+			_say("\"That is far enough. Your purse, or your blood on the road. %d gold will do.\"" % toll,
+				[["Pay %d gold" % toll, _rd_pay.bind(toll)], ["Fight", _rd_fight.bind(3, 38.0)], ["Run", _rd_fight.bind(2, 62.0)]])
+
+
+func _rd_news(salt: int) -> String:
+	var pos: Vector2 = (_s["entry"] as Dictionary)["pos"]
+	var sub := String((_s["entry"] as Dictionary)["sub"])
+	_say("\"%s\"" % _news_line(pos, salt + 7), [["Thank you", _end]] if sub != "camp" else [["Thank you", _end], ["Rest by the fire (1 hour)", _rd_rest]])
+	return ""
+
+
+func _rd_share(_salt: int) -> String:
+	if Life.count("bread") > 0 or Life.count("cheese") > 0:
+		Life.take("bread" if Life.count("bread") > 0 else "cheese", 1)
+		_say("\"Kind of you. Here, a tip for the road: keep to the stones after dark, and do not camp near a den.\"", [["Farewell", _end]])
+	else:
+		_say("\"You have little to share, and so do I. Walk well.\"", [["Farewell", _end]])
+	return ""
+
+
+func _rd_shop() -> String:
+	var opts: Array = []
+	for id: String in CARAVAN_STOCK:
+		var price := _stock_price(id)
+		if price > 0:
+			opts.append(["%s  ·  %d gold" % [Crafting.item_name(id), price], _rd_buy.bind(id, price)])
+	opts.append(["Never mind", _end])
+	_say("\"Take your pick. I will not cheat you, much.\"  (You have %d gold.)" % Game.gold, opts)
+	return ""
+
+
+func _stock_price(id: String) -> int:
+	var info := Crafting.item_info(id)
+	if info.is_empty():
+		return 0
+	return maxi(2, int(ceil(float(info.get("price", 5)) * CARAVAN_MARKUP)))
+
+
+func _rd_buy(id: String, price: int) -> String:
+	if Game.gold < price:
+		_say("\"Come back when you can afford it.\"", [["Look again", _rd_shop], ["Farewell", _end]])
+		return ""
+	Game.add_gold(-price)
+	Life.give(id, 1)
+	_say("\"Pleasure. Anything else?\"  (%d gold left.)" % Game.gold, [["Look again", _rd_shop], ["Farewell", _end]])
+	return ""
+
+
+func _rd_rest() -> String:
+	WorldSim.advance_hours(CAMP_REST_H)
+	Life.needs.rest = minf(100.0, Life.needs.rest + 8.0)
+	Life.needs.changed.emit()
+	var pl := _player()
+	if pl != null and pl.get("stamina") != null:
+		pl.set("stamina", 100.0)
+	_say("\"There. Better. A hot fire does more than people think.\"", [["Thank them", _end]])
+	return ""
+
+
+func _rd_meal() -> String:
+	if Game.gold < MEAL_PRICE:
+		_say("\"Stew is four gold. You have less. Sit anyway.\"", [["Rest by the fire (1 hour)", _rd_rest], ["Move on", _end]])
+		return ""
+	Game.add_gold(-MEAL_PRICE)
+	Life.needs.eat(38.0)
+	_say("\"Eat. It is mostly beans and mostly hot.\"", [["Rest by the fire (1 hour)", _rd_rest], ["Move on", _end]])
+	return ""
+
+
+func _rd_pay(toll: int) -> String:
+	if Game.gold < toll:
+		_say("\"You have not got it? Then we take what you have, and the rest from your hide.\"",
+			[["Fight", _rd_fight.bind(3, 30.0)], ["Run", _rd_fight.bind(2, 62.0)]])
+		return ""
+	Game.add_gold(-toll)
+	_say("\"Wise. Off you go. We never saw you.\"", [["Go on", _end]])
+	return ""
+
+
+func _rd_fight(count: int, dist: float) -> String:
+	var entry: Dictionary = _s["entry"]
+	_spawn_bandits(entry["pos"], count, dist)
+	_end()
+	return ""
+
+
+## Raiders of the existing RoadEvents node (the same squad as the camp ambush) appear just off the road.
+func _spawn_bandits(pos: Vector2, count: int, _dist: float) -> void:
+	var re: Node = get_tree().root.find_child("RoadEvents", true, false) if is_inside_tree() else null
+	if re != null and re.has_method("force_ambush"):
+		re.force_ambush(pos, count)
+
+
+## A beast ambush from an ecology territory has no talking: the animals come out of the verge.
+func _road_beasts(entry: Dictionary) -> void:
+	_road_done(entry)
+	delivered[String(entry["key"])] = WorldSim.day
+	_banner("quest", "Something in the Trees", String(entry.get("species", "wolf")).replace("_", " ").capitalize(), "The road is not safe")
+	_spawn_beasts(String(entry.get("species", "wolf")), entry["pos"], 2 + int(entry.get("danger", 0.0) / 40.0))
+
+
+func _spawn_beasts(species: String, pos: Vector2, count: int) -> void:
+	var look := {"troll": "bear", "wyvern": "bear", "bear": "bear", "corrupted_wolf": "wolf"}.get(species, species) as String
+	if look not in ["wolf", "bear", "boar"]:
+		look = "wolf"
+	for i in count:
+		var w := Wolf.new()
+		w.species = look
+		if species == "corrupted_wolf":
+			w.scale = Vector3.ONE * 1.2
+		w.home = pos
+		w.territory = 90.0
+		add_child(w)
+		var a := randf() * TAU
+		var q := pos + Vector2.from_angle(a) * randf_range(26.0, 40.0)
+		w.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
+		w.died.connect(func(dead_wolf: Wolf) -> void: Life.on_wolf_killed(dead_wolf.global_position, -1, ""))
+
+
+## Life.camp_here: the night's ambush (bandits or beasts) arrives at the camp.
+func on_camp(foe: String, species: String, _ctx: Dictionary) -> void:
+	var pl := _player()
+	if pl == null:
+		return
+	var pp := Vector2(pl.global_position.x, pl.global_position.z)
+	_banner("quest", "Attack at Night!", "Raiders" if foe == "bandits" else species.replace("_", " ").capitalize(), "Your camp is found")
+	if foe == "beasts":
+		_spawn_beasts(species if species != "" else "wolf", pp, 3)
+	else:
+		_spawn_bandits(pp, 3, 35.0)
+	_road_ok = _abs_hour() + TravelRules.ROAD_COOLDOWN_H
+	_road_last = pp
+
+
+## Life.camp_here: a traveller shared the fire (the news line goes to the notification pill).
+func camp_visitor() -> void:
+	var pl := _player()
+	if pl == null or hud == null or not hud.has_method("notify"):
+		return
+	hud.notify("quest", "A traveller at the fire", _news_line(Vector2(pl.global_position.x, pl.global_position.z), WorldSim.day))
 
 
 # --- hints (tutorial prompt view) -------------------------------------------------------

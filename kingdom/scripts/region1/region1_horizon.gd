@@ -9,9 +9,9 @@ extends Node3D
 ## Built on a WorkerThreadPool task (pure WorldGen maths, no resource loading) and turned into meshes on the
 ## main thread in one go. Per frame: two shader parameters.
 
-const HALF := 4096.0
-const CELL := 48.0
-const BLOB_STEP := 34.0
+const HALF := 6144.0
+const CELL := 72.0              # 48 m on the 8 km world: same ~58k triangles over a 2.25x larger map
+const BLOB_STEP := 42.0          # 34 m before the 12 km world (canopy domes are culled by range, so frame cost is unchanged)
 const BLOB_CELL := 512.0
 const GRASS := Color(0.42, 0.6, 0.22)
 const FOREST := Color(0.2, 0.34, 0.14)

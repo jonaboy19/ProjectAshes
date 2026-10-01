@@ -109,6 +109,13 @@ func _ensure_loaded() -> bool:
 	return true
 
 
+## True when the painted sheet spans the whole streamed world. The sheet is baked offline (GPU, tools_qa/map/run_paint.sh);
+## the 12 km world outgrew the 8 km sheet, so until it is repainted the map draws its own terrain instead of showing
+## the new land as blank paper.
+func covers_world() -> bool:
+	return -_origin.x >= WorldGen.WORLD_HALF - 8.0 and -_origin.y >= WorldGen.WORLD_HALF - 8.0
+
+
 ## Frees the texture reference (VRAM) while the map is closed.
 func release() -> void:
 	_tex = null
@@ -138,7 +145,7 @@ func display_name(data_name: String) -> String:
 ## Called from world_map._draw(): paints the parchment (+fog) in the map's own canvas. Returns true when it did, so the map
 ## skips its own terrain, rivers, roads and fog.
 func paint_under(canvas: Control) -> bool:
-	if not enabled or not _ensure_loaded():
+	if not enabled or not _ensure_loaded() or not covers_world():
 		return false
 	var top_left: Vector2 = canvas.call("to_screen", image_to_world(Vector2.ZERO))
 	var bottom_right: Vector2 = canvas.call("to_screen", image_to_world(_img_size))

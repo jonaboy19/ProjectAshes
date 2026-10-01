@@ -20,7 +20,8 @@ const MAX_TRIGGER := 200.0       # big areas (a forest, a castle) trigger at the
 const MERGE_DISTANCE := 30.0     # a lore place this close to a known place is the same place
 const CAMP_KINDS := ["goblin_warren", "orc_village"]
 const HOSTILE_KINDS := ["goblin_warren", "orc_village", "bandit_camp", "rift", "hideout", "warren_tunnels"]
-const TRAVEL_KINDS := ["village", "town", "castle", "capital", "waystation"]
+## Fast travel is a coach between discovered waystations only (travel_rules.gd); every settlement has a coach inn.
+const TRAVEL_KINDS := ["waystation"]
 
 const KIND_LABELS := {
 	"village": "Village", "town": "Market Town", "castle": "Royal Castle", "capital": "Royal Capital",
@@ -75,7 +76,7 @@ func build(settlements: Array, sites: Array, lore_places: Array, camps: Array) -
 		var r := float(s.get("radius", TRIGGER_RADIUS))
 		_add({"id": "settlement:%s" % s["name"], "name": display_name(String(s["name"])), "kind": String(s.get("kind", "village")),
 			"category": "settlement", "pos": p, "radius": clampf(r, TRIGGER_RADIUS, MAX_TRIGGER), "hostile": false,
-			"travel": true, "travel_pos": _settlement_arrival(s)})
+			"travel": false, "travel_pos": _settlement_arrival(s)})
 	# Camps take their names from the lore places they were laid out from.
 	for i in camps.size():
 		var c: Dictionary = camps[i]

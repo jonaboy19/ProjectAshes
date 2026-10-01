@@ -19,7 +19,7 @@ extends "res://scripts/realm/realm_module.gd"
 ## Life calls take_pending_gold().
 
 const REGION := "caldrenn"
-const TRAVEL_SPEED := 40.0             # metres per hour with a cart
+const TRAVEL_SPEED := 60.0             # metres per hour with a cart (40 before the 12 km world; x1.5)
 const STAY_HOURS := 36
 const ENCOUNTER_TIMEOUT_H := 2
 const TAX_EVERY := 30

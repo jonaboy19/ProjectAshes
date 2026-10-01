@@ -57,7 +57,12 @@ func test_valley_forts_and_new_land_bastions_and_rift_outposts() -> void:
 			names.append(String(s["name"]))
 		elif s["kind"] == "rift_outpost":
 			rift_outposts += 1
-	assert_int(forts).is_equal(4)
+	# the 12 km world adds a bastion at each new town and frontier hold (as ground allows)
+	var new_holds := 0
+	for st in WorldGen.settlements:
+		if int(st["id"]) >= WorldGen.core_settlement_count and st["kind"] in ["town", "frontier_town"]:
+			new_holds += 1
+	assert_int(forts).is_between(4, 2 + new_holds)
 	assert_array(names).contains(["Kingsroad Bastion", "Farwatch Bastion"])
 	assert_int(rift_outposts).is_equal(2)
 

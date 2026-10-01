@@ -1,6 +1,6 @@
 extends Region1Sim
 ## Mechanic N2, the Scar Tide (package L9, written with C4): Rift corruption that spreads over a
-## 32 m grid covering the whole 8 x 8 km map, cell by cell, on a daily clock.
+## 32 m grid covering the whole 12 x 12 km map, cell by cell, on a daily clock.
 ##
 ##   * Spread: every day each cell on the front may infect one 4-neighbour. The chance follows the
 ##     season (summer fastest, winter asleep: the containment window) and is cut by Wardlines
@@ -18,9 +18,9 @@ extends Region1Sim
 ## Tuning and mutation tables: data/region1/scar_tide.json. Tick cost is proportional to the front
 ## (a few hundred cells at most), far under 2 ms.
 
-const N := 256
+const N := 384                 # 12288 m / 32 m (256 for the 8 km world; saves resample, see restore)
 const CELL := 32.0
-const HALF := 4096.0
+const HALF := 6144.0
 const DATA_PATH := "res://data/region1/scar_tide.json"
 const SAVE_STATE_VERSION := 1
 const DIRS := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]

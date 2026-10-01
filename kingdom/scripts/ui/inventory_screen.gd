@@ -675,9 +675,9 @@ func _show_detail() -> void:
 	_detail_text.text = lines.strip_edges()
 	var info := Crafting.item_info(id)
 	var usable := float(info.get("nutrition", 0.0)) > 0.0 or int(info.get("heal", 0)) > 0 \
-		or info.has("buff_stat") or info.has("cures")
+		or info.has("buff_stat") or info.has("cures") or info.has("rest_bonus")
 	_btn_use.visible = usable and slot == ""
-	_btn_use.text = "Eat" if category_of(id) == "food" else "Use"
+	_btn_use.text = "Eat" if category_of(id) == "food" else ("Camp" if info.has("rest_bonus") else "Use")
 	_btn_equip.visible = gear
 	_btn_equip.text = "Take off" if slot != "" else "Equip"
 	if gear and slot == "":

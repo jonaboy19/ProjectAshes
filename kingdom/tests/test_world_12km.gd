@@ -1,7 +1,7 @@
 extends GdUnitTestSuite
-## The 8 x 8 km world: the original valley is untouched, the new land is filled (settlements,
-## roads, forts, bridges, rifts, camps, a second river) and danger climbs with distance from
-## Kingsreach. Also guards the spatial index (exact answers) and the population budget.
+## The 12 x 12 km world (was 8 x 8, and 4 x 4 before that): the original valley and the 8 km world are untouched, the
+## new ring is filled (settlements, roads, coach inns, forts, bridges, rifts, camps, caves, points of interest, dens) and danger
+## climbs with distance from Kingsreach. Also guards the spatial index (exact answers) and the population budget.
 
 
 func before() -> void:
@@ -15,13 +15,14 @@ func _capital() -> Vector2:
 	return Vector2.ZERO
 
 
-func test_world_is_8_km_wide() -> void:
-	assert_float(WorldGen.WORLD_HALF).is_equal(4096.0)
+func test_world_is_12_km_wide() -> void:
+	assert_float(WorldGen.WORLD_HALF).is_equal(6144.0)
 
 
-func test_new_land_has_about_twenty_settlements_with_unique_names() -> void:
+func test_new_land_has_about_thirty_settlements_with_unique_names() -> void:
 	var n := WorldGen.settlements.size()
-	assert_int(n).is_between(18, 24)
+	assert_int(n).is_between(26, 34)
+	assert_int(WorldGen.outer_block1_count).is_equal(20)      # the 8 km world keeps its 20 places
 	assert_int(WorldGen.core_settlement_count).is_equal(12)
 	var names := {}
 	var outer := 0
@@ -38,7 +39,7 @@ func test_new_land_has_about_twenty_settlements_with_unique_names() -> void:
 			outer_town = outer_town or s["kind"] == "town"
 			outer_frontier = outer_frontier or s["kind"] == "frontier_town"
 			hamlets += 1 if bool(s.get("hamlet", false)) else 0
-	assert_int(outer).is_greater_equal(6)
+	assert_int(outer).is_greater_equal(14)
 	assert_bool(outer_town).is_true()
 	assert_bool(outer_frontier).is_true()
 	assert_int(hamlets).is_greater_equal(1)
@@ -70,24 +71,26 @@ func test_new_land_sites_are_filled_and_inside_the_world() -> void:
 		kinds[s["kind"]] = int(kinds.get(s["kind"], 0)) + 1
 		var p: Vector2 = s["pos"]
 		assert_bool(absf(p.x) < WorldGen.WORLD_HALF and absf(p.y) < WorldGen.WORLD_HALF).override_failure_message("%s outside" % s["name"]).is_true()
-	assert_int(int(kinds.get("fort", 0))).is_greater_equal(4)
-	assert_int(int(kinds.get("watchfort", 0))).is_greater_equal(4)
+	assert_int(int(kinds.get("fort", 0))).is_greater_equal(6)
+	assert_int(int(kinds.get("watchfort", 0))).is_greater_equal(6)
 	assert_int(int(kinds.get("bridge", 0))).is_greater_equal(2)
 	assert_int(int(kinds.get("rift", 0))).is_equal(2)
 	assert_int(int(kinds.get("rift_outpost", 0))).is_equal(2)
-	assert_int(int(kinds.get("mine", 0))).is_greater_equal(2)
-	assert_int(int(kinds.get("bandit_camp", 0))).is_greater_equal(3)
-	assert_int(int(kinds.get("tower_ruin", 0))).is_greater_equal(3)
-	assert_int(int(kinds.get("waystation", 0))).is_greater_equal(2)
+	assert_int(int(kinds.get("mine", 0))).is_greater_equal(4)
+	assert_int(int(kinds.get("bandit_camp", 0))).is_greater_equal(7)
+	assert_int(int(kinds.get("tower_ruin", 0))).is_greater_equal(8)
+	assert_int(int(kinds.get("waystation", 0))).is_greater_equal(30)   # roadhouses, wayside inns and a coach inn per settlement
 	# The academy ends the original plan (nothing older moved): later packages (look landmarks, towers, hidden valley, Region 1
-	# world, caves) only append after it, and none of them adds farms, waystones or roadside sites.
+	# world, caves) only append after it, and none of them adds farms or bridges.
 	var academy_at := -1
 	for s in WorldGen.sites:
 		if String(s["kind"]) == "academy":
 			academy_at = int(s["id"])
 	assert_int(academy_at).is_greater(0)
 	for i in range(academy_at + 1, WorldGen.sites.size()):
-		assert_bool(String(WorldGen.sites[i]["kind"]) in ["farm", "roadside", "bridge"]).is_false()
+		# (the "Rising Ashes identity" planner, outer_identity.gd, appends ward markers and road furniture of kind "roadside" after
+		# everything else on its own RNG stream; farms and bridges still all come before the academy)
+		assert_bool(String(WorldGen.sites[i]["kind"]) in ["farm", "bridge"]).is_false()
 
 
 func test_bandit_camps_and_rifts_thicken_with_distance() -> void:
@@ -96,7 +99,7 @@ func test_bandit_camps_and_rifts_thicken_with_distance() -> void:
 	for s in WorldGen.sites:
 		if s["kind"] == "bandit_camp" and (s["pos"] as Vector2).distance_to(cap) > 1600.0:
 			far_camps += 1
-	assert_int(far_camps).is_greater_equal(3)
+	assert_int(far_camps).is_greater_equal(7)
 	var scar := Vector2.ZERO
 	var rift := Vector2.ZERO
 	for s in WorldGen.sites:
@@ -123,7 +126,7 @@ func test_lore_camps_get_more_dangerous_the_further_from_kingsreach() -> void:
 		last = int(pl["danger_tier"])
 	assert_int(last).is_equal(3)
 	# Every camp ground is dry ground away from settlements and roads.
-	assert_int(WorldGen.camp_grounds.size()).is_greater_equal(6)
+	assert_int(WorldGen.camp_grounds.size()).is_greater_equal(12)
 	for g in WorldGen.camp_grounds:
 		var p: Vector2 = g["pos"]
 		assert_bool(WorldGen.is_water(p.x, p.y)).is_false()
@@ -142,8 +145,8 @@ func test_far_dens_are_deadlier_than_near_ones() -> void:
 			corrupted += 1
 		elif d["species"] == "wolf" and dist > 1400.0:
 			far_wolves += 1
-	assert_int(far_wolves).is_greater_equal(8)
-	assert_int(corrupted).is_greater_equal(3)
+	assert_int(far_wolves).is_greater_equal(14)
+	assert_int(corrupted).is_greater_equal(10)
 
 
 func test_second_river_runs_through_the_east_and_needs_bridges() -> void:
@@ -163,7 +166,7 @@ func test_spatial_index_answers_exactly_like_a_full_scan() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 99
 	for i in 400:
-		var p := Vector2(rng.randf_range(-4300, 4300), rng.randf_range(-4300, 4300))
+		var p := Vector2(rng.randf_range(-6400, 6400), rng.randf_range(-6400, 6400))
 		if i % 3 == 0:
 			p = (WorldGen.settlements[rng.randi() % WorldGen.settlements.size()]["pos"] as Vector2) + Vector2(rng.randf_range(-300, 300), rng.randf_range(-300, 300))
 		var best := INF
@@ -191,3 +194,57 @@ func test_streaming_radius_does_not_depend_on_world_size() -> void:
 	assert_int(t.grass_radius).is_equal(1)
 	assert_float(TerrainStreamer.CHUNK).is_equal(64.0)
 	t.free()
+
+
+func test_every_settlement_but_hamlets_has_a_coach_inn_waystation() -> void:
+	var inns := {}
+	for st in WorldGen.sites:
+		if String(st["kind"]) == "waystation" and String(st["name"]).ends_with(" Coach Inn"):
+			inns[String(st["name"]).trim_suffix(" Coach Inn")] = st["pos"]
+	for s in WorldGen.settlements:
+		if bool(s.get("hamlet", false)):
+			continue
+		assert_bool(inns.has(s["name"])).override_failure_message("no coach inn for %s" % s["name"]).is_true()
+		assert_float((inns[s["name"]] as Vector2).distance_to(s["pos"])).is_less(float(s["radius"]) * 1.5 + 260.0)
+
+
+func test_long_roads_have_wayside_inns_and_travellers_camps() -> void:
+	var inns := 0
+	var camps := 0
+	for s in WorldGen.sites:
+		if String(s["kind"]) == "waystation" and String(s["name"]).ends_with("Wayside Inn"):
+			inns += 1
+		if String(s["kind"]) == "roadside" and String(s["name"]) == "Travellers' Camp":
+			camps += 1
+	assert_int(inns).is_greater_equal(2)
+	assert_int(camps).is_greater_equal(6)
+
+
+func test_the_new_ring_is_filled_proportionally() -> void:
+	# 2.25x the area of the 8 km world: caves 18 -> 40, points of interest 26 -> 56, lore camps 6 -> 14.
+	var caves := 0
+	var pois := 0
+	for s in WorldGen.sites:
+		if s.has("cave"):
+			caves += 1
+		if String(s.get("poi", "")) != "":
+			pois += 1
+	assert_int(caves).is_greater_equal(34)
+	assert_int(pois).is_greater_equal(50)
+	# Every ring of 2 km has something in it, including the outermost one.
+	var rings := {}
+	for s in WorldGen.sites:
+		var p: Vector2 = s["pos"]
+		rings[int(maxf(absf(p.x), absf(p.y)) / 2000.0)] = true
+	for r in 3:
+		assert_bool(rings.has(r)).override_failure_message("nothing in ring %d" % r).is_true()
+
+
+func test_outer_roads_keep_the_8_km_worlds_layout() -> void:
+	# The 8 km world's 19 roads are unchanged, a new village only ever adds its own road.
+	assert_int(WorldGen.roads.size()).is_equal(WorldGen.settlements.size() - 1)
+	var older := 0
+	for r in WorldGen.roads:
+		if maxi(r.x, r.y) < WorldGen.outer_block1_count:
+			older += 1
+	assert_int(older).is_equal(WorldGen.outer_block1_count - 1)

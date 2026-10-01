@@ -19,8 +19,8 @@ const WarAdvisors := preload("res://scripts/realm/war_advisors.gd")
 const Military := preload("res://scripts/sim/military.gd")
 
 const PLAYER := "player"
-const ARMY_SPEED := 120.0          # metres per hour on a road (world is 8 km wide; was 60 on the 4 km map)
-const COURIER_SPEED := 360.0        # (was 180 on the 4 km map)
+const ARMY_SPEED := 180.0          # metres per hour on a road (world is 12 km wide; 60 on the 4 km map, 120 on the 8 km map)
+const COURIER_SPEED := 540.0        # (180 on the 4 km map, 360 on the 8 km map)
 const INTEL_HALF_LIFE := 5.0       # days
 const INTEL_DROP := 0.04
 const MAX_SUPPLY := 6.0
@@ -1546,7 +1546,7 @@ const ENG_MAX_ROUNDS := 30
 const SIGHT_KEEP_HOURS := 120
 const ORDERS_KEEP := 60
 const ENGS_KEEP := 24
-const MAP_HALF := 4096.0
+const MAP_HALF := WorldGen.WORLD_HALF
 const TERR_CELL := 128.0
 
 var _engs: Array = []               # engagement records

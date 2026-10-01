@@ -2,11 +2,11 @@ extends RefCounted
 ## Terrain for the War Map: samples the REAL world (WorldGen height, water, forest) into small data
 ## textures, a few rows per frame, and a shader paints them in one of three styles with hill-shading and
 ## contour lines. Sampling is progressive (never a hitch) and cached; switching style only changes a uniform.
-##   world  : the whole 8 km world at ~40 m / texel (baked once, shared)
+##   world  : the whole 12 km world at ~40 m / texel (baked once, shared)
 ##   region : a ~3.6 km square around the focus at ~15 m / texel
 ##   local  : a ~1.1 km square around the focus at ~4.5 m / texel (the actual area)
 
-const WORLD_RES := 200
+const WORLD_RES := 300            # ~40 m per texel over the 12 km world (200 for 8 km)
 const REGION_SPAN := 3600.0
 const REGION_RES := 240
 const LOCAL_SPAN := 1100.0

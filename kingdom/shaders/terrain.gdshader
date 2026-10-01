@@ -34,7 +34,7 @@ global uniform float autumn_amount;
 global uniform float winter_amount;
 global uniform float snow_amount;
 global uniform float bloom_amount;
-// Region1 hook H5 (docs/regions/REGION_1_PLAN.md): Scar Tide mask, 1 texel per 32 m over the whole 8 x 8 km map (scripts/region1/scar_tide.gd).
+// Region1 hook H5 (docs/regions/REGION_1_PLAN.md): Scar Tide mask, 1 texel per 32 m over the whole 12 x 12 km map (scripts/region1/scar_tide.gd).
 global uniform sampler2D scar_mask : filter_linear;
 
 // Region1 look (docs/regions/LOOK_R1.md): biome tints and the farmland patchwork (region_biome is set by Region1Look).
@@ -146,7 +146,7 @@ void fragment() {
 		albedo = mix(albedo, albedo * vec3(0.92, 1.04, 0.9), bloom_amount * 0.3);
 	}
 	// Region1 hook H5: violet rift corruption, glowing at the creeping front
-	float scar = texture(scar_mask, (world_pos.xz + 4096.0) / 8192.0).r;
+	float scar = texture(scar_mask, (world_pos.xz + 6144.0) / 12288.0).r;
 	if (scar > 0.004) {
 		float sc = smoothstep(0.3, 0.62, scar + (texture(macro_noise, world_pos.xz * 0.05).r - 0.5) * 0.45);
 		float front = sc * (1.0 - smoothstep(0.55, 0.95, scar));

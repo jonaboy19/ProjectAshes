@@ -78,7 +78,7 @@ func test_walking_close_discovers_once() -> void:
 	assert_array(events).contains_exactly(["Old Well", "Testholm"])
 	assert_bool(d.is_discovered("lore:cave")).is_false()
 	assert_int(d.discovered_count()).is_equal(2)
-	assert_int(d.travel_points().size()).is_equal(1)
+	assert_int(d.travel_points().size()).is_equal(0)       # settlements are not fast-travel points: only waystations are
 	assert_int(d.nearby(Vector2(0, 0), 600.0).size()).is_equal(2)
 	assert_int(d.nearby(Vector2(0, 0), 900.0, true).size()).is_equal(3)
 

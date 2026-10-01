@@ -5,7 +5,7 @@ description: Headless visual-bug detector for the Rising Ashes world - finds flo
 
 # ashes-world-lint
 
-Builds every site's dressing exactly like the game does (RegionDressing, Region1Look landmarks, Hidden Vale ValeLook, caves, dungeon tower spire + camp, all 20 settlements through SettlementBuilder) under the dummy renderer, then checks every placed mesh and every MultiMesh instance against `WorldGen`. About 50 s for the whole world, about 1 GB RAM, no GPU, no xvfb.
+Builds every site's dressing exactly like the game does (RegionDressing, Region1Look landmarks, Hidden Vale ValeLook, caves, dungeon tower spire + camp, all 30 settlements through SettlementBuilder) under the dummy renderer, then checks every placed mesh and every MultiMesh instance against `WorldGen`. About 50 s for the whole world, about 1 GB RAM, no GPU, no xvfb.
 
 ## Run it
 From `kingdom/` (Godot is `/tmp/claude-0/godot/Godot_v4.6.2-stable_linux.x86_64`):

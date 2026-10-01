@@ -4,11 +4,20 @@ extends RefCounted
 ## Everything is a pure function of the seed so chunks can be generated in any
 ## order, on demand, and regenerated identically after unloading.
 
-const WORLD_HALF := 4096.0          # 8 km x 8 km (was 4 km; the original valley is the +-2 km core)
+const WORLD_HALF := 6144.0          # 12 km x 12 km (was 8 km, and 4 km before that; the original valley is the +-2 km core)
 const SETTLEMENT_COUNT := 10        # random villages/towns of the original valley (see _place_settlements)
 ## Settlements added in the new land beyond the original valley, in placement order:
 ## [kind, count, radius, population]. "hamlet" is a small village (kind stays "village").
-const OUTER_SETTLEMENTS := [["town", 1, 115.0, 720], ["frontier_town", 1, 75.0, 380], ["village", 4, 60.0, 210], ["hamlet", 2, 42.0, 90]]
+## The first eight are the 8 km world's; the second block fills the 12 km world's outer ring (own order, so the first eight
+## keep their names and roles).
+const OUTER_SETTLEMENTS := [["town", 1, 115.0, 720], ["frontier_town", 1, 75.0, 380], ["village", 4, 60.0, 210], ["hamlet", 2, 42.0, 90],
+	["town", 1, 110.0, 640], ["frontier_town", 1, 75.0, 360], ["village", 5, 60.0, 200], ["hamlet", 3, 42.0, 90]]
+## The Hidden Vale (hidden_valley.gd CANDIDATES[0]) takes the first candidate with 720 m of room from every town and road:
+## the 12 km ring keeps its towns and its roads clear of that spot so the vale stays where the lore put it.
+const VALE_KEEP_OUT := Vector2(-2040.0, 40.0)
+const VALE_KEEP_OUT_R := 1150.0
+const VALE_ROAD_R := 900.0
+const OUTER_BLOCK_1 := 4                 # OUTER_SETTLEMENTS entries 0..3 are the 8 km world's, 4..7 the 12 km world's
 const OUTER_MIN_SPACING := 520.0
 const OUTER_EDGE_MARGIN := 520.0
 ## Names are unique (Discovery keys places by name). The first twelve are the original valley's.
@@ -16,12 +25,14 @@ const NAMES := ["Ashford", "Kingsreach", "Millbrook", "Stonehollow", "Eastmere",
 	"Thornfield", "Greywatch", "Oakvale", "Highcliff", "Brackenmoor", "Westfen",
 	"Ironmarch", "Saltwick", "Cindermoor", "Dunhallow", "Wolfsend", "Harrowgate",
 	"Emberfall", "Ravenscar", "Longmeadow", "Blackwater", "Frostmere", "Amberley",
-	"Skarholm", "Thistledown", "Marrowick", "Coldharbor"]
+	"Skarholm", "Thistledown", "Marrowick", "Coldharbor", "Hollowmere", "Duskwater"]
 
 ## Each settlement: {id, name, pos: Vector2, radius, base_h, kind: "village"|"town"|"castle", population}
 static var settlements: Array[Dictionary] = []
 ## How many settlements belong to the original valley (ids below this keep their old layout and roads).
 static var core_settlement_count := 0
+## How many settlements the 8 km world had (valley + its outer block): ids from here on are the 12 km world's ring.
+static var outer_block1_count := 0
 ## Flattened grounds for monster camps from data/world/first_region.json: [{pos, radius, base_h}]
 static var camp_grounds: Array[Dictionary] = []
 ## Road segments as pairs of settlement ids.
@@ -178,17 +189,24 @@ static func _build_indexes() -> void:
 
 static func _place_camp_grounds() -> void:
 	camp_grounds.clear()
+	for c in _lore_camp_positions():
+		camp_grounds.append({"pos": c[0], "radius": float(c[1]) * 1.15, "base_h": _raw_height((c[0] as Vector2).x, (c[0] as Vector2).y)})
+
+
+## [pos, radius] of every goblin warren and orc village in data/world/first_region.json.
+static func _lore_camp_positions() -> Array:
+	var out: Array = []
 	var path := "res://data/world/first_region.json"
 	if not FileAccess.file_exists(path):
-		return
+		return out
 	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not data is Dictionary:
-		return
+		return out
 	for pl: Dictionary in data.get("places", []):
 		if String(pl.get("kind", "")) in ["goblin_warren", "orc_village"]:
 			var arr: Array = pl["pos"]
-			var c := Vector2(float(arr[0]), float(arr[1]))
-			camp_grounds.append({"pos": c, "radius": float(pl.get("radius", 30.0)) * 1.15, "base_h": _raw_height(c.x, c.y)})
+			out.append([Vector2(float(arr[0]), float(arr[1])), float(pl.get("radius", 30.0))])
+	return out
 
 
 static func _raw_height(x: float, z: float) -> float:
@@ -880,6 +898,7 @@ const FRONTIER_TOWN_RADIUS := 75.0
 
 static func _place_settlements(seed_value: int) -> void:
 	settlements.clear()
+	outer_block1_count = 0
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	# Home village at the origin, the royal castle a ride away to the north-east.
@@ -943,7 +962,17 @@ const RIVER2_CTRL := [Vector2(2448, -2736), Vector2(2640, -2544), Vector2(2736, 
 	Vector2(2448, -1680), Vector2(2352, -1392), Vector2(2640, -1104), Vector2(2736, -816), Vector2(2928, -528),
 	Vector2(2928, -240), Vector2(2736, 48), Vector2(2640, 336), Vector2(2448, 624), Vector2(2448, 912),
 	Vector2(2544, 1200), Vector2(2352, 1488), Vector2(2544, 1776), Vector2(2736, 2064), Vector2(2832, 2352),
-	Vector2(2928, 2640), Vector2(3216, 2928), Vector2(3312, 3216), Vector2(3504, 3504), Vector2(3504, 3792)]
+	Vector2(2928, 2640), Vector2(3216, 2928), Vector2(3312, 3216), Vector2(3504, 3504), Vector2(3504, 3792),
+	# The 12 km world's extension to the south edge, routed the same way (least-cost downhill-averse path over the terrain).
+	Vector2(3456, 4032), Vector2(3360, 4320), Vector2(3264, 4608), Vector2(3360, 4896), Vector2(3360, 5184),
+	Vector2(3168, 5472), Vector2(3072, 5760), Vector2(2880, 6048)]
+
+
+static func _near_lore_camp(p: Vector2, camps: Array, dist: float) -> bool:
+	for c in camps:
+		if p.distance_to(c[0]) < dist:
+			return true
+	return false
 
 
 ## The two river courses that run through the new land, for keeping settlements off them.
@@ -967,10 +996,16 @@ static func _place_outer_settlements(fixed: Array, seed_value: int) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value + 9127
 	var capital: Vector2 = fixed[1]["pos"]
-	var lim := WORLD_HALF - OUTER_EDGE_MARGIN
-	for spec: Array in OUTER_SETTLEMENTS:
+	var camp_spots := _lore_camp_positions()
+	for spec_i in OUTER_SETTLEMENTS.size():
+		var spec: Array = OUTER_SETTLEMENTS[spec_i]
 		var label := String(spec[0])
 		var radius := float(spec[2])
+		var far := spec_i >= OUTER_BLOCK_1      # the 12 km world's second block: fans out over the whole outer ring
+		if spec_i == OUTER_BLOCK_1:
+			outer_block1_count = fixed.size()  # block 1 (and the roads between it and the valley) stay exactly as in the 8 km world
+		# Block 1 keeps the 8 km world's limits, so every town, road and lore pin of that world is where it was.
+		var lim := (WORLD_HALF if far else 4096.0) - OUTER_EDGE_MARGIN
 		for _n in int(spec[1]):
 			var best := Vector2.INF
 			var best_score := -INF
@@ -978,6 +1013,10 @@ static func _place_outer_settlements(fixed: Array, seed_value: int) -> void:
 				var p := Vector2(rng.randf_range(-lim, lim), rng.randf_range(-lim, lim))
 				if maxf(absf(p.x), absf(p.y)) < OUTER_INNER_EDGE:
 					continue
+				if far and p.distance_to(VALE_KEEP_OUT) < VALE_KEEP_OUT_R:
+					continue          # the Hidden Vale stays pristine: no town of the 12 km ring within sight of it
+				if far and _near_lore_camp(p, camp_spots, 700.0):
+					continue          # nor within earshot of a goblin warren or an orc hold
 				if _raw_height(p.x, p.y) > (58.0 if label == "town" else 70.0):
 					continue
 				var gap := INF
@@ -987,10 +1026,10 @@ static func _place_outer_settlements(fixed: Array, seed_value: int) -> void:
 					continue
 				if not _clear_of_rivers(p, radius * 1.8 + 30.0):
 					continue
-				var score := minf(gap, 1800.0) - p.length() * 0.3 + rng.randf() * 100.0
+				var score := minf(gap, 1800.0) - p.length() * (0.12 if far else 0.3) + rng.randf() * 100.0
 				match label:
 					"town":
-						score -= absf(p.distance_to(capital) - 2100.0) * 0.8
+						score -= absf(p.distance_to(capital) - (4300.0 if far else 2100.0)) * 0.8
 					"frontier_town":
 						score += p.distance_to(capital) * 0.6
 				if score > best_score:
@@ -1114,20 +1153,28 @@ static func _connect_roads() -> void:
 	# (and to itself) but never adds a road to Ashford or the capital, so their gates,
 	# streets and the gate market stay exactly as they were.
 	var core := core_settlement_count if core_settlement_count > 0 else settlements.size()
-	for limit: int in [core, settlements.size()]:
+	# Three phases (valley, the 8 km world's outer block, the 12 km world's ring) so the older roads never change
+	# when the newer ring grows: a new village only ever adds its own road.
+	var b1 := outer_block1_count if outer_block1_count > core else settlements.size()
+	for limit: int in [core, b1, settlements.size()]:
 		while linked.size() < limit:
 			var best := Vector2i(-1, -1)
 			var best_d := INF
-			for a in linked:
-				if limit > core and a < 2:
-					continue
-				for s in settlements:
-					var b: int = s["id"]
-					if linked.has(b) or b >= limit:
+			for pass_i in 2:                  # pass 1 keeps clear of the Hidden Vale; pass 2 only if that left a village stranded
+				if pass_i == 1 and best.x >= 0:
+					break
+				for a in linked:
+					if limit > core and a < 2:
 						continue
-					var d: float = settlements[a]["pos"].distance_to(s["pos"])
-					if d < best_d:
-						best_d = d
-						best = Vector2i(a, b)
+					for s in settlements:
+						var b: int = s["id"]
+						if linked.has(b) or b >= limit:
+							continue
+						if pass_i == 0 and limit > b1 and Geometry2D.get_closest_point_to_segment(VALE_KEEP_OUT, settlements[a]["pos"], s["pos"]).distance_to(VALE_KEEP_OUT) < VALE_ROAD_R:
+							continue          # a road of the 12 km ring never passes through the Hidden Vale's foothills
+						var d: float = settlements[a]["pos"].distance_to(s["pos"])
+						if d < best_d:
+							best_d = d
+							best = Vector2i(a, b)
 			roads.append(best)
 			linked[best.y] = true

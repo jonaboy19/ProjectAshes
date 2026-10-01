@@ -528,6 +528,7 @@ func test_false_retreat_bait_is_taken_by_the_green_and_recognised_by_the_experie
 		var dattrs := {"tactics": 50, "experience": 30, "scouting": 30} if label == "novice" else {"tactics": 90, "experience": 92, "scouting": 88}
 		var dfn := _side(_army16(), "caldrenn", 2, "loyal", dattrs)
 		var tt := _mk(41, att, dfn, {"deploy": false})
+		_flat(tt)       # the mechanic under test is the AI's bait, not the ground (the real ground here changes with the world)
 		(tt.S[0]["ai"] as Dictionary)["force_plan"] = "false_retreat"
 		tt.run_to_end(330)
 		results[label] = {"fr": AI.ai_log(tt, 0, "false_retreat").size(), "took": AI.ai_log(tt, 1, "took_bait").size(), "ignored": AI.ai_log(tt, 1, "ignored_bait").size(),

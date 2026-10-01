@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
 ## The Hidden Vale and the exploration POIs: deterministic terrain, one way in (the gorge), found once, saved, and a
-## top-tier settlement site; the 26 POIs are placed, spread out, secret until found and listed without spoilers.
+## top-tier settlement site; the 56 POIs (26 + 30 for the 12 km world) are placed, spread out, secret until found and listed without spoilers.
 
 const HV := preload("res://scripts/world/hidden_valley.gd")
 const POIS := preload("res://scripts/world/region_pois.gd")
@@ -225,12 +225,12 @@ func test_discovery_sequence_is_8_to_15_seconds_and_skippable() -> void:
 
 # --- POIs ------------------------------------------------------------------------------------------------------
 
-func test_all_26_pois_are_placed_apart_and_secret() -> void:
+func test_all_pois_are_placed_apart_and_secret() -> void:
 	var sites: Array[Dictionary] = []
 	for s: Dictionary in WorldGen.sites:
 		if String(s.get("poi", "")) != "" and String(s["poi"]) != "hidden_vale":
 			sites.append(s)
-	assert_int(sites.size()).is_equal(26)
+	assert_int(sites.size()).is_equal(POIS.DEFS.size())          # 26 + 30 for the 12 km world: every one finds ground
 	var names := {}
 	for i in sites.size():
 		var s: Dictionary = sites[i]
@@ -270,14 +270,14 @@ func test_poi_plan_is_deterministic_and_leaves_the_world_layout_alone() -> void:
 func test_journal_lists_found_ones_and_only_counts_the_rest() -> void:
 	var d := _disc()
 	var j0: Dictionary = POIS.journal(d)
-	assert_int(int(j0["total"])).is_equal(27)        # 26 POIs + the vale
+	assert_int(int(j0["total"])).is_equal(POIS.DEFS.size() + 1)        # 56 POIs (26 + 30 for the 12 km world) + the vale
 	assert_int((j0["found"] as Array).size()).is_equal(0)
-	assert_int(int(j0["unfound"])).is_equal(27)
+	assert_int(int(j0["unfound"])).is_equal(POIS.DEFS.size() + 1)
 	d.discover(_sid(_poi_site("hermit")), 7)
 	d.discover(HV.place_id(), 8)
 	var j1: Dictionary = POIS.journal(d)
 	assert_int((j1["found"] as Array).size()).is_equal(2)
-	assert_int(int(j1["unfound"])).is_equal(25)
+	assert_int(int(j1["unfound"])).is_equal(POIS.DEFS.size() - 1)
 	assert_bool(bool(j1["vale"])).is_true()
 	# No unfound name or text leaks through the page data.
 	var blob := JSON.stringify(j1)

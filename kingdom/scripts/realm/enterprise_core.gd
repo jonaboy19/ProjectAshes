@@ -8,6 +8,8 @@ extends "res://scripts/realm/realm_module.gd"
 ## drains it with take_pending_gold() (autoload/life.gd _on_hour ledger list; the UI also settles
 ## after a player action so the purse is current).
 
+## Metres per hour on a road: the same as camps.TRAVEL_M_PER_HOUR (700 on the 8 km map, 1050 on the 12 km map).
+const ROAD_M_PER_HOUR := 1050.0
 const D := preload("res://scripts/realm/enterprise_data.gd")
 const SettlementsScript := preload("res://scripts/realm/settlements.gd")
 
@@ -674,11 +676,11 @@ func route_info(a: int, b: int) -> Dictionary:
 	var path: Array = cm.call("route", a, b)
 	if path.is_empty():
 		var d := _spos(a).distance_to(_spos(b))
-		info["hours"] = d * 2.2 / 700.0
+		info["hours"] = d * 2.2 / ROAD_M_PER_HOUR
 		info["length"] = d
 		info["risk"] = 0.14
 		info["nodes"] = ["s%d" % a, "s%d" % b]
-		info["legs"] = [{"a": "s%d" % a, "b": "s%d" % b, "hours": d * 2.2 / 700.0, "len": d}]
+		info["legs"] = [{"a": "s%d" % a, "b": "s%d" % b, "hours": d * 2.2 / ROAD_M_PER_HOUR, "len": d}]
 		_route_cache[key] = info
 		return info
 	var legs: Array = []
@@ -694,7 +696,7 @@ func route_info(a: int, b: int) -> Dictionary:
 		var nb: String = path[i + 1]
 		var e: Dictionary = cm.call("road", na, nb)
 		var ln := float(e.get("len", cm.call("node_pos", na).distance_to(cm.call("node_pos", nb))))
-		var hrs := ln * float(cm.call("road_factor", na, nb)) / 700.0
+		var hrs := ln * float(cm.call("road_factor", na, nb)) / ROAD_M_PER_HOUR
 		var r := float(cm.call("raid_risk", na, nb))
 		var mid: Vector2 = (cm.call("node_pos", na) as Vector2).lerp(cm.call("node_pos", nb), 0.5)
 		if sh != null and na.begins_with("s") and nb.begins_with("s"):

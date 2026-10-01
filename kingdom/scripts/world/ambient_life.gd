@@ -70,6 +70,16 @@ func _ready() -> void:
 				1: _group(p, [["sheep", rng.randi_range(6, 9)], ["sheepdog", 1]], 12.0)
 				_: _group(p, [["goat", rng.randi_range(3, 5)]], 8.0)
 		_group(c + Vector2(4, 6), [["pigeon", rng.randi_range(4, 7)]], 6.0)
+	# Every waystation (coach inn, roadhouse, wayside inn) ties up a horse or two: in the 12 km world a horse is the fast way
+	# across (player.toggle_mount, mount_controller.gd). Own RNG so nothing above changes.
+	var wrng := RandomNumberGenerator.new()
+	wrng.seed = 5151
+	for site in WorldGen.sites:
+		if String(site["kind"]) == "waystation":
+			var wyaw := float(site["yaw"])
+			var wp: Vector2 = site["pos"]
+			var tied := wp + Vector2(sin(wyaw), cos(wyaw)) * 9.0 + Vector2(cos(wyaw), -sin(wyaw)) * 8.0
+			_group(tied, [["horse", 1], ["horse_grey", 1]] if wrng.randf() < 0.5 else [["horse", 1]], 3.0)
 	# Waterfowl on the lake shore.
 	var lc: Vector2 = WorldGen.lake_center
 	if lc.x < 1.0e5:

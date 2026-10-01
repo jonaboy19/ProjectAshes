@@ -21,9 +21,10 @@ const MapIcons := preload("res://scripts/ui/map_icons.gd")
 const Discovery := preload("res://scripts/sim/discovery.gd")
 
 const REGIONS_PATH := "res://data/world/regions.json"
-const TEX_SIZE := 1024                 # baked texture edge (fields are painted at half of this)
-const FOG_RES := 128                   # fog mask cells across the region
-const TRAVEL_SPEED := 30000.0          # metres per in-game hour (30 km/h)
+const TEX_SIZE := 1536                 # baked texture edge (fields are painted at half of this; 1024 for the 8 km world, same ~16 m per field cell at 12 km)
+const FOG_RES := 192                   # fog mask cells across the region (128 for the 8 km world)
+const TravelRules := preload("res://scripts/world/travel_rules.gd")
+## Fast travel is a coach between discovered waystations (travel_rules.gd): it costs gold and in-game hours.
 const MIN_TRAVEL := 60.0               # metres: closer than this you are already there
 const TAP_SLOP := 14.0
 const BORDER_MARGIN := 700.0           # how far past the region border you can pan (metres)
@@ -72,7 +73,7 @@ const BLURBS := {
 	"rift_outpost": "The last camp before the Rift.",
 	"rift": "A wound in the world. Nothing good comes out of it.",
 	"tower_ruin": "Crumbled stones of an older age.",
-	"waystation": "A roadside rest with a noticeboard and fast travel.",
+	"waystation": "A coach inn or roadhouse: a noticeboard, a tied horse, and a coach to any waystation you have found, for a fare.",
 	"bandit_camp": "Brigands watch the road from here.",
 	"goblin_warren": "A goblin warren. Best avoided.",
 	"orc_village": "An orc stronghold on the frontier.",
@@ -1590,11 +1591,14 @@ func _select(pl: Dictionary) -> void:
 	if pl["travel"]:
 		var dist := _player_pos().distance_to(pl["travel_pos"])
 		var hours := travel_hours(dist)
+		var fare := TravelRules.fare(dist)
 		var reason := travel_check.call() as String if travel_check.is_valid() else ""
 		if reason == "" and dist < MIN_TRAVEL:
 			reason = "You are already here."
+		if reason == "":
+			reason = TravelRules.ride_block_reason(TravelRules.waystation_at(_player_pos(), WorldGen.sites), fare, Game.gold)
 		_travel_btn.disabled = reason != ""
-		_travel_btn.text = "Fast Travel  ·  %s" % fmt_hours(hours)
+		_travel_btn.text = "Coach  ·  %s  ·  %d gold" % [fmt_hours(hours), fare]
 		if reason != "":
 			info += "\n" + reason
 	_card_info.text = info
@@ -1622,7 +1626,7 @@ func _on_travel() -> void:
 
 
 static func travel_hours(distance: float) -> float:
-	return distance / TRAVEL_SPEED
+	return TravelRules.coach_hours(distance)
 
 
 static func fmt_hours(h: float) -> String:

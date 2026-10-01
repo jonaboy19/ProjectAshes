@@ -280,6 +280,7 @@ func _ready() -> void:
 	_chrome.add_child(hotbar)
 	(card as HudCard.Card).toggled.connect(_on_card_toggled)
 	card.resized.connect(_layout_left)
+	(tracker as HudCard.QuestTracker).toggled.connect(func(_e: bool) -> void: _layout_left())
 	(card.health as Meter).max_value = player.max_health
 	(card.health as Meter).value = player.health
 	(card.stamina as Meter).max_value = Player.MAX_STAMINA
@@ -987,7 +988,9 @@ func _refresh_danger_visibility() -> void:
 		_layout_left()
 
 
-func _on_card_toggled(_expanded: bool) -> void:
+func _on_card_toggled(expanded: bool) -> void:
+	if expanded:
+		(tracker as HudCard.QuestTracker).reveal()
 	_refresh_danger_visibility()
 	_layout_left()
 

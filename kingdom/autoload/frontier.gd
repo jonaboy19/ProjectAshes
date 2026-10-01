@@ -71,13 +71,15 @@ func _seed_frontier() -> void:
 	_seed_far_dens()
 
 
-## The rest of the 8 x 8 km map: dens in the far woods, more of them and deadlier the further
+## The rest of the 12 x 12 km map (was 8 x 8): dens in the far woods, more of them and deadlier the further
 ## they sit from Kingsreach (bands of [min, max] metres, den count, species, pack size).
 ## Their own RNG stream, so the valley's eight dens above are exactly where they always were.
+## The 12 x 12 km world (2.25x the area) has ~2.25x the dens: the two outer bands are the new ring.
 const FAR_DEN_BANDS := [
-	[1400.0, 2500.0, 6, "wolf", Vector2i(5, 10)],
-	[2500.0, 3400.0, 6, "wolf", Vector2i(8, 13)],
-	[3400.0, 6000.0, 5, "corrupted_wolf", Vector2i(4, 8)],
+	[1400.0, 2500.0, 8, "wolf", Vector2i(5, 10)],
+	[2500.0, 3400.0, 10, "wolf", Vector2i(8, 13)],
+	[3400.0, 4600.0, 9, "corrupted_wolf", Vector2i(4, 8)],
+	[4600.0, 9000.0, 10, "corrupted_wolf", Vector2i(6, 10)],
 ]
 
 
@@ -139,7 +141,7 @@ func _maybe_apex_moves_in(day: int) -> void:
 	var c: Vector2 = WorldGen.settlements[0]["pos"]
 	for _t in 60:
 		var ang := rng.randf() * TAU
-		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(900.0, 2600.0)
+		var p := c + Vector2(cos(ang), sin(ang)) * rng.randf_range(900.0, 3800.0)
 		if WorldGen.forest_density(p.x, p.y) < 0.4 or runestones.coverage(p) > 0.02:
 			continue
 		ecology.spawn_apex("troll" if rng.randf() < 0.4 else "bear", p, ecology.current_day())

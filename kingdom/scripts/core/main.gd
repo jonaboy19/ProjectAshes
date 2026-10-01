@@ -759,6 +759,60 @@ func _user_args() -> Dictionary:
 	return out
 
 
+## HUD QA shots (--shot=hud_explore|hud_npc|hud_door|hud_work|hud_combat): the exploration / combat HUD at a
+## street, beside a villager, at a door, at a work spot and in a fight (see docs in .claude/skills/ashes-visual-qa).
+func _hud_shot(shot: String) -> void:
+	_teleport(Vector2(1.0, 7.5), 0.0)
+	player.set_camera(0.25, -0.12)
+	for i in 30:
+		await get_tree().process_frame
+	match shot:
+		"hud_npc":
+			var best: Node3D = null
+			var bd := 1e9
+			for v in get_tree().get_nodes_in_group("villager"):
+				var d := (v as Node3D).global_position.distance_to(player.global_position)
+				if (v as Node3D).is_visible_in_tree() and d < bd:
+					bd = d
+					best = v
+			if best:
+				var at := best.global_position + Vector3(1.8, 0, 1.0)
+				_teleport(Vector2(at.x, at.z), 0.0)
+				var look := best.global_position - player.global_position
+				player.set_camera(atan2(-look.x, -look.z), -0.12)
+		"hud_door":
+			var door: InteriorDoor = null
+			for n in world.find_children("*", "InteriorDoor", true, false):
+				if (n as InteriorDoor).interior_scene.contains("inn_interior"):
+					door = n
+					break
+			if door:
+				_teleport(Vector2(door.global_position.x, door.global_position.z), 0.0)
+				var fwd := -door.global_transform.basis.z
+				player.set_camera(atan2(-fwd.x, -fwd.z) + PI, -0.12)
+		"hud_work":
+			var spot: Node3D = null
+			for st in get_tree().get_nodes_in_group("station"):
+				if (st as Station).verb == "Work":
+					spot = st
+					break
+			if spot == null:      # no career work spot in this build yet: a stand-in so the label can be judged
+				spot = Station.new("Blacksmith", "Work", Callable())
+				world.add_child(spot)
+				spot.global_position = player.global_position + player.forward() * 1.5
+			else:
+				_teleport(Vector2(spot.global_position.x + 1.5, spot.global_position.z + 1.5), 0.0)
+			var lk := spot.global_position - player.global_position
+			player.set_camera(atan2(-lk.x, -lk.z), -0.15)
+		"hud_combat":
+			_teleport(FIRST_CAMP + Vector2(-15, 6), 0.0)
+			player._invulnerable = 999.0      # QA: stay alive long enough to read the combat HUD
+			var cd := Vector3(FIRST_CAMP.x, 0, FIRST_CAMP.y) - player.global_position
+			player.set_camera(atan2(-cd.x, -cd.z), -0.15)
+	for i in 40:
+		await get_tree().process_frame
+
+
 func _screenshot(shot: String, path: String) -> void:
 	WorldSim.time_of_day = float(_user_args().get("hour", "16.2"))   # late-afternoon side light
 	var warmup := 60
@@ -932,6 +986,9 @@ func _screenshot(shot: String, path: String) -> void:
 			# Street level on the plaza's south side, looking north across the square.
 			_teleport(Vector2(1.0, 7.5), 0.0)
 			player.set_camera(0.25, -0.12)
+		"hud_explore", "hud_npc", "hud_door", "hud_work", "hud_combat":
+			await _hud_shot(shot)
+			warmup = 100
 		"first":
 			player.set_view(Player.View.FIRST)
 			player.set_camera(PI * 0.9, -0.05)

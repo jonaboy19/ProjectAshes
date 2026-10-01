@@ -5492,6 +5492,2124 @@
     "On clear winter nights the north sky goes green and the ravens go quiet.",
     "A Highwatch knight came up to watch the snowline. He stayed three days and left his tent."
    ]
+  },
+  {
+   "name": "Longmeadow",
+   "alias": "",
+   "trade": "Wool and fairs: the long meadows north of the Silverrun feed the vale's flocks, and the autumn fair on the green is the biggest market between the stones and the sea.",
+   "tagline": "Wool and Fairs",
+   "landmark": {
+    "name": "Longmeadow Fair Green",
+    "clear": 28,
+    "parts": [
+     [
+      "free:buildings/house_stone_fantasy@8.0",
+      0,
+      -12,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_crates_cream@2.8",
+      -11,
+      3,
+      80,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_blue_shields@3.0",
+      11,
+      3,
+      -80,
+      1,
+      0
+     ],
+     [
+      "free:market/stall_potion@3.0",
+      13,
+      -4,
+      -60,
+      1,
+      0
+     ],
+     [
+      "free:banners/banner_gold_finials@4.8",
+      -7,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_gold_finials@4.8",
+      7,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/well",
+      0,
+      4,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/hay_bales",
+      -14,
+      -6,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      -12,
+      -9,
+      30,
+      0,
+      0
+     ],
+     [
+      "free:farm/cow_spotted@1.5",
+      -16,
+      2,
+      40,
+      0,
+      0
+     ],
+     [
+      "gen:bunting@1.0",
+      0,
+      11.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/notice_board",
+      -9,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/bench",
+      4,
+      7.5,
+      90,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ],
+     [
+      3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "LONGMEADOW",
+      "sub": "Wool and Fairs",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Marta Fairwood",
+       "role": "fair-reeve",
+       "look": "Trader",
+       "greet": "Wool by the stone, fleece by the cart, gossip free.",
+       "trade": "Longmeadow's autumn fair sets the price of wool for the whole vale, and nobody sells a fleece before the reeve rings the bell.",
+       "lines": [
+        "The fair-reeve rings the bell at dawn. Sell a fleece before it and the whole green hears about it.",
+        "Flocks are down this year. The wolves are bolder past the Silverrun.",
+        "Caravans bring spice from the south and leave with wool. Mostly. Sometimes they leave with less."
+       ],
+       "at": [
+        2,
+        6
+       ],
+       "yaw": 0
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Marta Fairwood",
+    "role": "fair-reeve",
+    "look": "Trader",
+    "greet": "Wool by the stone, fleece by the cart, gossip free.",
+    "trade": "Longmeadow's autumn fair sets the price of wool for the whole vale, and nobody sells a fleece before the reeve rings the bell.",
+    "lines": [
+     "The fair-reeve rings the bell at dawn. Sell a fleece before it and the whole green hears about it.",
+     "Flocks are down this year. The wolves are bolder past the Silverrun.",
+     "Caravans bring spice from the south and leave with wool. Mostly. Sometimes they leave with less."
+    ],
+    "at": [
+     2,
+     6
+    ],
+    "yaw": 0
+   },
+   "rumours": [
+    "The autumn fair is the richest day of the year. Thieves know it too.",
+    "Wool prices climb every time the eastern road closes.",
+    "A shepherd swears a white ram leads the flock home in the fog.",
+    "Fair-reeve Marta keeps a ledger of every fleece sold since the Long Dark."
+   ]
+  },
+  {
+   "name": "Blackwater",
+   "alias": "",
+   "trade": "The ferry and the garrison: Blackwater holds the crossing on the outer road, and every cart pays the toll to the watch.",
+   "tagline": "Ferry and Garrison",
+   "landmark": {
+    "name": "Blackwater Ford Post",
+    "clear": 24,
+    "parts": [
+     [
+      "free:buildings/hut_long_thatch@4.6",
+      0,
+      -10,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/weapon_rack",
+      9,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/weapon_rack",
+      -9,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_ragged_spear@3.6",
+      -7,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_ragged_spear@3.6",
+      7,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_palisade@3.2",
+      -8,
+      -2,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_palisade@3.2",
+      8,
+      -2,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/crate_stack",
+      9,
+      -8,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      -8,
+      5,
+      0,
+      0,
+      0
+     ],
+     [
+      "gen:rowboat@1.0",
+      -14,
+      8,
+      30,
+      0,
+      0
+     ],
+     [
+      "ruins/campfire",
+      12,
+      2,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/notice_board",
+      -9,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/bench",
+      4,
+      7.5,
+      90,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ],
+     [
+      3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "BLACKWATER",
+      "sub": "Ferry and Garrison",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Sergeant Holt",
+       "role": "ford-sergeant",
+       "look": "Guard",
+       "greet": "Toll is a copper a cart. Walkers are free. Fighters are welcome.",
+       "trade": "Blackwater's watch keeps the ford open and the road toll honest, and rides out when the outer road goes quiet.",
+       "lines": [
+        "Coin first, questions after. That is the order at Blackwater.",
+        "If the road goes silent for a day, we ride. Last time we found the cart and nobody else.",
+        "The garrison needs hands. Pay is poor, the stories are good."
+       ],
+       "at": [
+        2,
+        6
+       ],
+       "yaw": 0
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Sergeant Holt",
+    "role": "ford-sergeant",
+    "look": "Guard",
+    "greet": "Toll is a copper a cart. Walkers are free. Fighters are welcome.",
+    "trade": "Blackwater's watch keeps the ford open and the road toll honest, and rides out when the outer road goes quiet.",
+    "lines": [
+     "Coin first, questions after. That is the order at Blackwater.",
+     "If the road goes silent for a day, we ride. Last time we found the cart and nobody else.",
+     "The garrison needs hands. Pay is poor, the stories are good."
+    ],
+    "at": [
+     2,
+     6
+    ],
+    "yaw": 0
+   },
+   "rumours": [
+    "The watch rode out three nights ago and came back with fewer men.",
+    "The ford floods with the first thaw. Carts wait a week.",
+    "A toll-keeper swears the black water takes a coin every spring.",
+    "Bandits ask the watch the toll before they hit the road. A joke, sort of."
+   ]
+  },
+  {
+   "name": "Frostmere",
+   "alias": "",
+   "trade": "Smoked fish and furs: Frostmere's racks stay cold from autumn to spring, and its trappers know every track north of the mere.",
+   "tagline": "Smokehouses and Trappers",
+   "landmark": {
+    "name": "Frostmere Smokehouse",
+    "clear": 22,
+    "parts": [
+     [
+      "free:camp/tent_hide_hut@3.4",
+      0,
+      -10,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/woodpile",
+      9,
+      -6,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/woodpile",
+      11,
+      -3,
+      40,
+      0,
+      0
+     ],
+     [
+      "free:camp/tent_hide_hut@3.4",
+      -11,
+      -4,
+      60,
+      1,
+      0
+     ],
+     [
+      "ruins/campfire",
+      0,
+      3,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      -8,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      -6,
+      6.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:rock_cluster",
+      14,
+      -2,
+      30,
+      0,
+      0
+     ],
+     [
+      "nature:spruce_a",
+      -15,
+      -10,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:spruce_a",
+      15,
+      -12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/sack_pile",
+      8,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/notice_board",
+      -9,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/bench",
+      4,
+      7.5,
+      90,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ],
+     [
+      3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "FROSTMERE",
+      "sub": "Smokehouses and Trappers",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Ulf Greybeard",
+       "role": "smokehouse master",
+       "look": "Hunter",
+       "greet": "If the smoke is thin, the fish is good.",
+       "trade": "Frostmere's smokehouses cure the mere's whitefish for the whole north, and its trappers sell pelts to every caravan that braves the road.",
+       "lines": [
+        "Thin smoke, good fish. Thick smoke, the neighbours are burning something they shouldn't.",
+        "The mere froze early. The ice sings at night.",
+        "A trapper went north in autumn and came back without his dogs."
+       ],
+       "at": [
+        2,
+        6
+       ],
+       "yaw": 0
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Ulf Greybeard",
+    "role": "smokehouse master",
+    "look": "Hunter",
+    "greet": "If the smoke is thin, the fish is good.",
+    "trade": "Frostmere's smokehouses cure the mere's whitefish for the whole north, and its trappers sell pelts to every caravan that braves the road.",
+    "lines": [
+     "Thin smoke, good fish. Thick smoke, the neighbours are burning something they shouldn't.",
+     "The mere froze early. The ice sings at night.",
+     "A trapper went north in autumn and came back without his dogs."
+    ],
+    "at": [
+     2,
+     6
+    ],
+    "yaw": 0
+   },
+   "rumours": [
+    "The ice on Frostmere sings at night. Fishers stay ashore.",
+    "Trappers found a wolf track the size of a plate.",
+    "Smoked whitefish keeps a winter. Smoked wolf, nobody has tried.",
+    "A hermit lives past the north shore and trades only in silence."
+   ]
+  },
+  {
+   "name": "Amberley",
+   "alias": "",
+   "trade": "Honey and beeswax: Amberley's hives line every hedge, and its candles light the shrines of the whole outer road.",
+   "tagline": "Honey and Beeswax",
+   "landmark": {
+    "name": "Amberley Apiary",
+    "clear": 22,
+    "parts": [
+     [
+      "farm/barn",
+      0,
+      -11,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/hay_bales",
+      -10,
+      -4,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      -8,
+      -6,
+      30,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      9,
+      2,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      11,
+      2.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      13,
+      3,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/basket_produce",
+      -6,
+      5,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -12,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -9,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_farm_white@1.2",
+      -6,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:fern_a",
+      12,
+      -8,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/notice_board",
+      -9,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/bench",
+      4,
+      7.5,
+      90,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ],
+     [
+      3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "AMBERLEY",
+      "sub": "Honey and Beeswax",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Edda Hivewarden",
+       "role": "beekeeper",
+       "look": "Herbalist",
+       "greet": "Hold still. If one lands, it is deciding about you.",
+       "trade": "Amberley's hives give honey for mead and wax for candles; every wayshrine on the outer road burns Amberley wax.",
+       "lines": [
+        "Never swat. Bow. They notice manners.",
+        "Candles burn longer if you hum while you pour. Nobody knows why.",
+        "The wild bees nest in the old tower. Nobody wants that honey."
+       ],
+       "at": [
+        2,
+        6
+       ],
+       "yaw": 0
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Edda Hivewarden",
+    "role": "beekeeper",
+    "look": "Herbalist",
+    "greet": "Hold still. If one lands, it is deciding about you.",
+    "trade": "Amberley's hives give honey for mead and wax for candles; every wayshrine on the outer road burns Amberley wax.",
+    "lines": [
+     "Never swat. Bow. They notice manners.",
+     "Candles burn longer if you hum while you pour. Nobody knows why.",
+     "The wild bees nest in the old tower. Nobody wants that honey."
+    ],
+    "at": [
+     2,
+     6
+    ],
+    "yaw": 0
+   },
+   "rumours": [
+    "A swarm settled on the shrine road and will not leave.",
+    "Amberley mead is stronger than it tastes. Travellers learn once.",
+    "Wax candles from Amberley are said to keep the dark out for an hour more.",
+    "The hive in the old tower hums in a key nobody can name."
+   ]
+  },
+  {
+   "name": "Skarholm",
+   "alias": "",
+   "trade": "Ore and coal: Skarholm's shafts feed the vale's forges, and the carters leave heavy and come back light.",
+   "tagline": "Ore and Coal",
+   "landmark": {
+    "name": "Skarholm Ore Yard",
+    "clear": 26,
+    "parts": [
+     [
+      "mine/ore_pile_coal",
+      -9,
+      -2,
+      0,
+      0,
+      0
+     ],
+     [
+      "mine/ore_pile_coal",
+      -6,
+      -3,
+      40,
+      0,
+      0
+     ],
+     [
+      "mine/ore_pile_iron",
+      8,
+      -3,
+      20,
+      0,
+      0
+     ],
+     [
+      "mine/mine_cart",
+      0,
+      4,
+      0,
+      0,
+      0
+     ],
+     [
+      "mine/rail_straight",
+      0,
+      8,
+      180,
+      0,
+      0
+     ],
+     [
+      "mine/rail_straight",
+      0,
+      12,
+      180,
+      0,
+      0
+     ],
+     [
+      "mine/rail_straight",
+      0,
+      16,
+      180,
+      0,
+      0
+     ],
+     [
+      "props/anvil_stump",
+      10,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/anvil_stump",
+      12,
+      4,
+      50,
+      0,
+      0
+     ],
+     [
+      "props/crate_stack",
+      -10,
+      7,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:banners/banner_crossbar@4.5",
+      -7,
+      11,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:carts/cart_plain_a@2.2",
+      -12,
+      -8,
+      40,
+      1,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/notice_board",
+      -9,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/bench",
+      4,
+      7.5,
+      90,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ],
+     [
+      3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "SKARHOLM",
+      "sub": "Ore and Coal",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Brann Coalhand",
+       "role": "yard-boss",
+       "look": "Blacksmith",
+       "greet": "Mind the cart. It does not mind you.",
+       "trade": "Skarholm's yard sorts ore from the north shafts and ships it to every forge on the outer road; coal black is the town's colour.",
+       "lines": [
+        "Coal dust never leaves. Not the lungs, not the soul, not the stew.",
+        "The north shaft is closed again. The foreman says it is the roof. The miners say it is not.",
+        "We pay well. We pay in coal when the coin runs short."
+       ],
+       "at": [
+        2,
+        6
+       ],
+       "yaw": 0
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Brann Coalhand",
+    "role": "yard-boss",
+    "look": "Blacksmith",
+    "greet": "Mind the cart. It does not mind you.",
+    "trade": "Skarholm's yard sorts ore from the north shafts and ships it to every forge on the outer road; coal black is the town's colour.",
+    "lines": [
+     "Coal dust never leaves. Not the lungs, not the soul, not the stew.",
+     "The north shaft is closed again. The foreman says it is the roof. The miners say it is not.",
+     "We pay well. We pay in coal when the coin runs short."
+    ],
+    "at": [
+     2,
+     6
+    ],
+    "yaw": 0
+   },
+   "rumours": [
+    "The north shaft was sealed after a night of knocking from below.",
+    "Skarholm iron rings a different note. Smiths can tell.",
+    "A carter says the ore wagons weigh more going out than they did coming in.",
+    "The yard boss keeps a lantern burning for the miners who did not come up."
+   ]
+  },
+  {
+   "name": "Thistledown",
+   "alias": "",
+   "trade": "Sheep and spinning: Thistledown's wethers graze the downs, and its spinners sell the finest thread on the outer road.",
+   "tagline": "Sheep and Spinners",
+   "landmark": {
+    "name": "Thistledown Fold",
+    "clear": 22,
+    "parts": [
+     [
+      "farm/granary",
+      0,
+      -10,
+      0,
+      1,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.3",
+      -12,
+      4,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.3",
+      -9,
+      4,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.3",
+      -6,
+      4,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:fences/fence_woven_wattle@1.3",
+      -3,
+      4,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      10,
+      -4,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      12,
+      -2,
+      30,
+      0,
+      0
+     ],
+     [
+      "free:farm/cow_spotted@1.5",
+      -8,
+      9,
+      70,
+      0,
+      0
+     ],
+     [
+      "props/water_trough",
+      6,
+      5,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/scarecrow",
+      13,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:rock_slab",
+      -14,
+      -6,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/notice_board",
+      -9,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/bench",
+      4,
+      7.5,
+      90,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ],
+     [
+      3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "THISTLEDOWN",
+      "sub": "Sheep and Spinners",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Wenna Spindle",
+       "role": "head spinner",
+       "look": "Mother",
+       "greet": "Mind the wool. It sticks to everything, especially opinions.",
+       "trade": "Thistledown spins the downs' wool into thread; its spinners' guild sets the thread price from here to the stones.",
+       "lines": [
+        "Spin clockwise on a good day and anticlockwise on a bad one. The wool knows.",
+        "Sheep go missing near the old barrow. The shepherds do not look for them.",
+        "A good thread is worth more than a good sword in winter."
+       ],
+       "at": [
+        2,
+        6
+       ],
+       "yaw": 0
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Wenna Spindle",
+    "role": "head spinner",
+    "look": "Mother",
+    "greet": "Mind the wool. It sticks to everything, especially opinions.",
+    "trade": "Thistledown spins the downs' wool into thread; its spinners' guild sets the thread price from here to the stones.",
+    "lines": [
+     "Spin clockwise on a good day and anticlockwise on a bad one. The wool knows.",
+     "Sheep go missing near the old barrow. The shepherds do not look for them.",
+     "A good thread is worth more than a good sword in winter."
+    ],
+    "at": [
+     2,
+     6
+    ],
+    "yaw": 0
+   },
+   "rumours": [
+    "Sheep vanish near the downs' old barrow and nobody goes looking.",
+    "Thistledown thread is stronger than rope and half the price.",
+    "The spinners sing while they work. The songs are older than the village.",
+    "A lamb was born with silver wool. It lasted a day."
+   ]
+  },
+  {
+   "name": "Marrowick",
+   "alias": "",
+   "trade": "Hides and leather: Marrowick's tanneries stink for a mile, and every saddle on the outer road was cut here.",
+   "tagline": "Hides and Tanners",
+   "landmark": {
+    "name": "Marrowick Tannery",
+    "clear": 22,
+    "parts": [
+     [
+      "free:buildings/hut_long_thatch@4.6",
+      0,
+      -10,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/weapon_rack",
+      -9,
+      3,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/woodpile",
+      9,
+      -6,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      9,
+      3,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      11,
+      3.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      13,
+      4,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/sack_pile",
+      -8,
+      7,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:market/stall_small_workshop@3.0",
+      12,
+      -6,
+      -70,
+      1,
+      0
+     ],
+     [
+      "nature:dead_snag",
+      -14,
+      -8,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/water_trough",
+      -5,
+      6,
+      90,
+      0,
+      0
+     ],
+     [
+      "props/crate_stack",
+      -11,
+      -3,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/notice_board",
+      -9,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/bench",
+      4,
+      7.5,
+      90,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ],
+     [
+      3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "MARROWICK",
+      "sub": "Hides and Tanners",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Garrick Tanner",
+       "role": "master tanner",
+       "look": "Barbarian",
+       "greet": "You will smell it before you see it. That is the business.",
+       "trade": "Marrowick's tanneries cure hide for saddles, boots and harness; the smell is the price of the finest leather in the outer ring.",
+       "lines": [
+        "Wind from the west and the whole town can breathe. Wind from the east and we hold our noses together.",
+        "Good leather needs time, oak bark and a strong stomach.",
+        "Wolf pelts sell high this season. So do the ones who bring them."
+       ],
+       "at": [
+        2,
+        6
+       ],
+       "yaw": 0
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Garrick Tanner",
+    "role": "master tanner",
+    "look": "Barbarian",
+    "greet": "You will smell it before you see it. That is the business.",
+    "trade": "Marrowick's tanneries cure hide for saddles, boots and harness; the smell is the price of the finest leather in the outer ring.",
+    "lines": [
+     "Wind from the west and the whole town can breathe. Wind from the east and we hold our noses together.",
+     "Good leather needs time, oak bark and a strong stomach.",
+     "Wolf pelts sell high this season. So do the ones who bring them."
+    ],
+    "at": [
+     2,
+     6
+    ],
+    "yaw": 0
+   },
+   "rumours": [
+    "The river runs brown below Marrowick. Fishermen go upstream.",
+    "A rider's saddle from Marrowick is said to hold a seat through a gallop and a storm.",
+    "The tannery cat has been there longer than the tannery.",
+    "Hunters bring pelts at dusk and do not stay for supper."
+   ]
+  },
+  {
+   "name": "Coldharbor",
+   "alias": "",
+   "trade": "Boats and rope: Coldharbor's slip builds the ferries and flat boats that cross the Silverrun, and its ropewalk is a quarter mile long.",
+   "tagline": "Boatwrights",
+   "landmark": {
+    "name": "Coldharbor Slip",
+    "clear": 22,
+    "parts": [
+     [
+      "gen:pier@0.7",
+      -10,
+      10,
+      90,
+      0,
+      0
+     ],
+     [
+      "gen:rowboat@1.0",
+      -12,
+      6,
+      30,
+      0,
+      0
+     ],
+     [
+      "gen:rowboat@1.0",
+      -15,
+      3,
+      -20,
+      0,
+      0
+     ],
+     [
+      "free:buildings/lumber_mill@6.5",
+      0,
+      -10,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/woodpile",
+      9,
+      -4,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      8,
+      5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/barrel",
+      10,
+      5.5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/crate_stack",
+      12,
+      -7,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/water_trough",
+      -4,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:carts/cart_hand_long@1.8",
+      7,
+      9,
+      40,
+      1,
+      0
+     ],
+     [
+      "nature:rock_cluster",
+      14,
+      -2,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/notice_board",
+      -9,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/bench",
+      4,
+      7.5,
+      90,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ],
+     [
+      3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "COLDHARBOR",
+      "sub": "Boatwrights",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Ysolde Rope",
+       "role": "boatwright",
+       "look": "Innkeeper",
+       "greet": "If it floats, we built it. If it sank, somebody else did.",
+       "trade": "Coldharbor builds the river's boats and twists its rope; every ferry on the Silverrun was laid down on this slip.",
+       "lines": [
+        "A boat is promises held together with pitch. Break one, break the other.",
+        "The river freezes late. Ferries run until the first snow, and sometimes after.",
+        "We built one boat with a keel of black oak. It never leaked and never came back."
+       ],
+       "at": [
+        2,
+        6
+       ],
+       "yaw": 0
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Ysolde Rope",
+    "role": "boatwright",
+    "look": "Innkeeper",
+    "greet": "If it floats, we built it. If it sank, somebody else did.",
+    "trade": "Coldharbor builds the river's boats and twists its rope; every ferry on the Silverrun was laid down on this slip.",
+    "lines": [
+     "A boat is promises held together with pitch. Break one, break the other.",
+     "The river freezes late. Ferries run until the first snow, and sometimes after.",
+     "We built one boat with a keel of black oak. It never leaked and never came back."
+    ],
+    "at": [
+     2,
+     6
+    ],
+    "yaw": 0
+   },
+   "rumours": [
+    "The ropewalk is a quarter mile long and still too short for the new ferry.",
+    "A boatwright swears the river speaks in the spring melt.",
+    "One ferry crosses at night. Nobody has seen its pilot.",
+    "Coldharbor pitch burns blue. Do not ask why."
+   ]
+  },
+  {
+   "name": "Hollowmere",
+   "alias": "",
+   "trade": "Reeds and baskets: Hollowmere cuts the mere's reeds for thatch and weaves baskets for every market from here to the capital.",
+   "tagline": "Reeds and Baskets",
+   "landmark": {
+    "name": "Hollowmere Reed Cutters",
+    "clear": 20,
+    "parts": [
+     [
+      "free:buildings/hut_long_thatch@4.6",
+      0,
+      -10,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/basket_produce",
+      -8,
+      3,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/basket_produce",
+      -6,
+      4,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/basket_produce",
+      -4,
+      3,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      9,
+      -5,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/hay_bales",
+      11,
+      -3,
+      30,
+      0,
+      0
+     ],
+     [
+      "farm/crop_cabbage",
+      -9,
+      7,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_cabbage",
+      -6,
+      7,
+      0,
+      0,
+      0
+     ],
+     [
+      "farm/crop_wheat",
+      8,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/water_trough",
+      4,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "nature:fern_a",
+      13,
+      -9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/notice_board",
+      -9,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/bench",
+      4,
+      7.5,
+      90,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ],
+     [
+      3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "HOLLOWMERE",
+      "sub": "Reeds and Baskets",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Nell Reedwife",
+       "role": "reed-cutter",
+       "look": "Herbalist",
+       "greet": "Tread soft. The mere remembers footsteps.",
+       "trade": "Hollowmere cuts the mere's reeds for thatch and weaves baskets by the thousand; a good roof in the outer ring is a Hollowmere roof.",
+       "lines": [
+        "Cut reeds at the low tide of the moon, never the high. The mere does not like greed.",
+        "A basket carries more than you think and less than you hope.",
+        "Lights on the mere after dark are not ours. We do not follow them."
+       ],
+       "at": [
+        2,
+        6
+       ],
+       "yaw": 0
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Nell Reedwife",
+    "role": "reed-cutter",
+    "look": "Herbalist",
+    "greet": "Tread soft. The mere remembers footsteps.",
+    "trade": "Hollowmere cuts the mere's reeds for thatch and weaves baskets by the thousand; a good roof in the outer ring is a Hollowmere roof.",
+    "lines": [
+     "Cut reeds at the low tide of the moon, never the high. The mere does not like greed.",
+     "A basket carries more than you think and less than you hope.",
+     "Lights on the mere after dark are not ours. We do not follow them."
+    ],
+    "at": [
+     2,
+     6
+    ],
+    "yaw": 0
+   },
+   "rumours": [
+    "Lights drift over the mere after midnight. The reed-cutters do not follow them.",
+    "A Hollowmere roof outlasts three storms and one landlord.",
+    "Baskets from here are said to keep bread fresh a week.",
+    "An old woman talks to the mere and says it answers."
+   ]
+  },
+  {
+   "name": "Duskwater",
+   "alias": "",
+   "trade": "Lanterns and night fishing: Duskwater's fishers work by lamplight, and its glassworkers sell lanterns to every road inn.",
+   "tagline": "Lanterns and Night Fishers",
+   "landmark": {
+    "name": "Duskwater Lamp Pier",
+    "clear": 22,
+    "parts": [
+     [
+      "gen:pier@0.7",
+      -10,
+      10,
+      90,
+      0,
+      0
+     ],
+     [
+      "gen:rowboat@1.0",
+      -13,
+      6,
+      30,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -6,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -2,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      2,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      6,
+      8,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:buildings/hut_long_thatch@4.6",
+      0,
+      -10,
+      0,
+      1,
+      0
+     ],
+     [
+      "props/barrel",
+      9,
+      2,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/crate_stack",
+      11,
+      -6,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/sack_pile",
+      8,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      "free:market/stall_potion@3.0",
+      13,
+      -3,
+      -60,
+      1,
+      0
+     ],
+     [
+      "props/lamp_post",
+      -3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/lamp_post",
+      3,
+      12,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/notice_board",
+      -9,
+      9,
+      0,
+      0,
+      0
+     ],
+     [
+      "props/bench",
+      4,
+      7.5,
+      90,
+      0,
+      0
+     ]
+    ],
+    "lights": [
+     [
+      -3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ],
+     [
+      3,
+      3.4,
+      12,
+      [
+       1.0,
+       0.72,
+       0.4
+      ],
+      10,
+      true
+     ]
+    ],
+    "x": {
+     "label": {
+      "text": "DUSKWATER",
+      "sub": "Lanterns and Night Fishers",
+      "at": [
+       0,
+       10.5
+      ],
+      "h": 3.3
+     },
+     "npcs": [
+      {
+       "name": "Orsen Wick",
+       "role": "lantern-maker",
+       "look": "Mage",
+       "greet": "A lamp is only a promise to come home. Buy two.",
+       "trade": "Duskwater's night fishers hang lanterns over the water to draw the shoals, and its lantern-makers keep every road inn lit.",
+       "lines": [
+        "Night fishing needs light and silence. Most of us can only manage the first.",
+        "A lantern left burning on the pier brings the boats home. Mostly.",
+        "The old fishers say the dark water has a second bottom."
+       ],
+       "at": [
+        2,
+        6
+       ],
+       "yaw": 0
+      }
+     ]
+    }
+   },
+   "npc": {
+    "name": "Orsen Wick",
+    "role": "lantern-maker",
+    "look": "Mage",
+    "greet": "A lamp is only a promise to come home. Buy two.",
+    "trade": "Duskwater's night fishers hang lanterns over the water to draw the shoals, and its lantern-makers keep every road inn lit.",
+    "lines": [
+     "Night fishing needs light and silence. Most of us can only manage the first.",
+     "A lantern left burning on the pier brings the boats home. Mostly.",
+     "The old fishers say the dark water has a second bottom."
+    ],
+    "at": [
+     2,
+     6
+    ],
+    "yaw": 0
+   },
+   "rumours": [
+    "Lanterns on the pier burn all night and the boats still lose their way.",
+    "Duskwater lanterns are said to burn through a gale.",
+    "A fisher pulled up a glass float with a candle still alight inside.",
+    "On still nights you can hear a bell under the water."
+   ]
   }
  ]
 }

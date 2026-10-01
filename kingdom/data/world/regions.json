@@ -14,7 +14,7 @@
       "name": "The Ashford Vale",
       "realm": "Valencious",
       "status": "current",
-      "bounds": {"min": [-4096, -4096], "max": [4096, 4096]},
+      "bounds": {"min": [-6144, -6144], "max": [6144, 6144]},
       "places": "res://data/world/first_region.json"
     },
     {
@@ -22,28 +22,28 @@
       "name": "Unexplored lands",
       "hint": "Frostcrown Holds: Grimfen Pass is snowed shut",
       "status": "unexplored",
-      "bounds": {"min": [-8192, -8192], "max": [8192, -4096]}
+      "bounds": {"min": [-12288, -12288], "max": [12288, -6144]}
     },
     {
       "id": "south_reaches",
       "name": "Unexplored lands",
       "hint": "Solkar Dominion: the spice road from Harrowgate",
       "status": "unexplored",
-      "bounds": {"min": [-8192, 4096], "max": [8192, 8192]}
+      "bounds": {"min": [-12288, 6144], "max": [12288, 12288]}
     },
     {
       "id": "west_reaches",
       "name": "Unexplored lands",
       "hint": "Verdanweald and the Umbrafen: Veyl paths past Westfen",
       "status": "unexplored",
-      "bounds": {"min": [-8192, -4096], "max": [-4096, 4096]}
+      "bounds": {"min": [-12288, -6144], "max": [-6144, 6144]}
     },
     {
       "id": "east_reaches",
       "name": "Unexplored lands",
       "hint": "Aurelis Patriarchate: the Eastern Gate is closed",
       "status": "unexplored",
-      "bounds": {"min": [4096, -4096], "max": [8192, 4096]}
+      "bounds": {"min": [6144, -6144], "max": [12288, 6144]}
     }
   ]
 }

@@ -1039,7 +1039,7 @@ func _on_hour(hour: int) -> void:
 	if cam.has_method("set_player_rank"):
 		cam.set_player_rank(CareerLadders.military_rank_for(career_rank) if career_id == "soldier" else "")
 	# City life and society keep a signed ledger instead of touching the purse.
-	for k: String in ["city_life", "society", "education", "household", "callups", "enterprise", "construction"]:
+	for k: String in ["city_life", "society", "education", "household", "callups", "enterprise", "construction", "scribe", "trades"]:
 		var m: RefCounted = realm.mod(k)
 		if m != null and m.has_method("take_pending_gold"):
 			var net := int(m.take_pending_gold())
@@ -1118,6 +1118,74 @@ func sleep(quality := 1.0) -> String:
 	if player and player.get("health") != null:
 		player.heal(int(20 * hours * quality))
 	return "You sleep %d hours and wake %s." % [int(hours), needs.rest_label().to_lower()]
+
+
+## Night camping on the road (scripts/world/travel_rules.gd): a Bedroll or Travel Tent used outdoors from dusk. Sleeps rough
+## until morning (a tinderbox lights a fire), but the night can be interrupted: bandits or beasts (realm_encounters.on_camp),
+## a thief, or a traveller at the fire with news. Returns the line for the toast; the kit is never used up.
+func camp_here(_kit_id := "") -> String:
+	var TR := preload("res://scripts/world/travel_rules.gd")
+	if player == null or not is_instance_valid(player) or bool(player.get("dead")):
+		return "You can't camp now."
+	var pos := Vector2(player.global_position.x, player.global_position.z)
+	var near: Dictionary = WorldGen.nearest_settlement(pos)
+	var ratio := 99.0
+	if not near.is_empty():
+		ratio = pos.distance_to(near["pos"]) / maxf(float(near["radius"]), 1.0)
+	var kit := TR.camp_kit({"bedroll": count("bedroll"), "tent_kit": count("tent_kit"), "tinderbox": count("tinderbox")})
+	var enemies := false
+	for e in get_tree().get_nodes_in_group("team1"):
+		if e is Node3D and (e as Node3D).is_visible_in_tree() and (e as Node3D).global_position.distance_to(player.global_position) < 45.0:
+			enemies = true
+			break
+	var why := TR.camp_block_reason(int(WorldSim.time_of_day), InteriorDoor.active != null, ratio, enemies, kit)
+	if why != "":
+		return why
+	var eco: Variant = realm.mod("ecology") if realm != null else null
+	var danger := {}
+	if eco != null and eco.has_method("danger_at"):
+		danger = eco.danger_at(pos)
+	var sources: Array = danger.get("sources", [])
+	var ri := WorldGen.road_info(pos.x, pos.y)
+	var bandit_dist := 1.0e9
+	for site: Dictionary in WorldGen.sites:
+		if String(site.get("kind", "")) in ["bandit_camp", "hideout"]:
+			bandit_dist = minf(bandit_dist, pos.distance_to(site["pos"]))
+	var ctx := {"danger": float(danger.get("total", 0.0)), "road_dist": float(ri["dist"]), "bandit_dist": bandit_dist, "tier": String(ri["tier"]),
+		"fire": bool(kit["fire"]), "tent": bool(kit["tent"]), "species": String((sources[0] as Dictionary).get("species", "")) if not sources.is_empty() else ""}
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([WorldSim.SEED, WorldSim.day, int(pos.x / 60.0), int(pos.y / 60.0)])
+	var plan: Dictionary = TR.camp_outcome(ctx, rng.randf(), rng.randf())
+	var quality := TR.camp_quality(kit)
+	var night := TR.night_hours(WorldSim.time_of_day)
+	var enc := get_tree().get_first_node_in_group("realm_encounters")
+	var line := ""
+	var slept := night
+	match String(plan["outcome"]):
+		"ambush":
+			slept = clampf(float(plan["hours"]), 1.0, night)
+			line = "You are woken by %s." % ("shouting outside the tent" if String(plan["foe"]) == "bandits" else "growls beyond the firelight")
+		"thief":
+			slept = clampf(float(plan["hours"]), 1.0, night)
+			var lost := mini(Game.gold, maxi(5, int(Game.gold * 0.12)))
+			Game.add_gold(-lost)
+			line = "You wake to find a thief gone, and %d gold with him." % lost if lost > 0 else "You wake to a thief's footsteps, and he leaves empty-handed."
+		"visitor":
+			line = "A traveller shares your fire and the road's news."
+	needs.sleep(slept, quality)
+	WorldSim.advance_hours(slept)
+	_last_abs = _abs_hours()
+	player.heal(int(20 * slept * quality))
+	if slept >= night - 0.01 and player.get("stamina") != null:
+		player.set("stamina", 100.0)
+	record("camped")
+	if String(plan["outcome"]) == "ambush" and enc != null and enc.has_method("on_camp"):
+		enc.on_camp(String(plan["foe"]), String(plan["species"]), ctx)
+	elif String(plan["outcome"]) == "visitor" and enc != null and enc.has_method("camp_visitor"):
+		enc.camp_visitor()
+	if line == "":
+		line = "You sleep %d hours under the stars and wake %s." % [int(slept), needs.rest_label().to_lower()]
+	return line
 
 
 # --- merit & rank ----------------------------------------------------------------
@@ -1441,6 +1509,9 @@ func _on_career_post_changed() -> void:
 func _career_daily() -> void:
 	if career_id == "":
 		return
+	# The scribe career promotes itself (patron, exams, counters): scripts/realm/scribe.gd.
+	if career_id == "scribe":
+		return
 	var ctx := {
 		"career": career_id, "rank": career_rank, "since_day": career_since_day, "day": WorldSim.day,
 		"mastery": mastery, "biography": biography, "careers": careers, "gold": Game.gold,
@@ -1450,6 +1521,11 @@ func _career_daily() -> void:
 	}
 	economy.has_shop = property.owned().any(func(p: Variant) -> bool: return p is Dictionary and String(p.get("kind", "")) == "trader")
 	ctx.merge(economy.ladder_ctx())
+	# Counters and property the lighter ladders read (harvests, drills, pieces, workshops): career_trades.gd.
+	var trades: Variant = realm.mod("trades") if realm != null else null
+	if trades != null:
+		ctx["career_stats"] = trades.career_stats(career_id)
+		ctx["owns_workshop"] = bool(trades.ladder_ctx(career_id, WorldSim.day).get("owns_workshop", false))
 	if bool(CareerLadders.check_promotion(ctx)["eligible"]):
 		var r: Dictionary = CareerLadders.promote(ctx)
 		career_rank = String(r["rank"])

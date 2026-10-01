@@ -7,10 +7,10 @@ extends "res://scripts/realm/realm_module.gd"
 ## "c<id>" (a founded camp). Public calls also accept a bare int for a
 ## settlement id and a Vector2 (x, z) where noted.
 
-const TRAVEL_M_PER_HOUR := 700.0          # compressed world scale (was 350 on the 4 km map; doubled with the 8 km world so a cross-map trip takes the same time)
+const TRAVEL_M_PER_HOUR := 1050.0         # compressed world scale (350 on the 4 km map, 700 on the 8 km map, x1.5 for the 12 km map so a cross-map trip takes the same time)
 const MIN_CAMP_SCORE := 0.22
 const CAMP_SPACING := 60.0
-const LINK_RANGE := 1200.0                # a new camp auto-links to a node this close (was 900 on the 4 km map)
+const LINK_RANGE := 1500.0                # a new camp auto-links to a node this close (900 on the 4 km map, 1200 on the 8 km map)
 
 ## Road level -> {speed multiplier (lower = faster), trade weight, visibility}.
 const ROAD_LEVELS := {

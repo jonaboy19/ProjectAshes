@@ -18,7 +18,7 @@
 			"minority_cultures": ["urrokai", "veyl"],
 			"capital": "Kingsreach",
 			"cities": ["Kingsreach", "Highcliff Keep", "Vaelmouth", "Ironmarch"],
-			"villages": ["Ashford", "Millbrook", "Stonehollow", "Eastmere", "Redwater", "Thornfield", "Greywatch", "Oakvale", "Highcliff", "Brackenmoor", "Westfen", "Saltwick", "Cindermoor", "Dunhallow", "Wolfsend", "Harrowgate", "Emberfall", "Ravenscar", "Longmeadow", "Blackwater", "Frostmere", "Amberley", "Skarholm", "Thistledown", "Marrowick", "Coldharbor"],
+			"villages": ["Ashford", "Millbrook", "Stonehollow", "Eastmere", "Redwater", "Thornfield", "Greywatch", "Oakvale", "Highcliff", "Brackenmoor", "Westfen", "Saltwick", "Cindermoor", "Dunhallow", "Wolfsend", "Harrowgate", "Emberfall", "Ravenscar", "Longmeadow", "Blackwater", "Frostmere", "Amberley", "Skarholm", "Thistledown", "Marrowick", "Coldharbor", "Hollowmere", "Duskwater"],
 			"military_divisions": ["runeward_legion", "ember_lancers", "royal_soulbeast_riders"],
 			"relations": {
 				"seirune_isles": "friendly",

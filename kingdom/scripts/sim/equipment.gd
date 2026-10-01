@@ -228,6 +228,8 @@ func prune_buffs(now := NAN) -> void:
 func consume(life: Object, id: String, now := NAN) -> String:
 	if int(life.call("count", id)) <= 0:
 		return "You have no %s." % Crafting.item_name(id)
+	if item_info(id).has("rest_bonus") and life.has_method("camp_here"):
+		return String(life.call("camp_here", id))      # a bedroll or tent: camps for the night, is never used up (any level)
 	if life.has_method("player_level") and not meets_requirements(id, int(life.call("player_level"))):
 		return "You need level %d to use %s." % [ItemsDB.req_level(id), Crafting.item_name(id)]
 	var info := item_info(id)

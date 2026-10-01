@@ -206,7 +206,7 @@ static func gen_grid(center: Vector2, n: int, cell: float, opts: Dictionary = {}
 			var y := oy + (float(j) + 0.5) * cell
 			var code := T_OPEN
 			if have:
-				if absf(x) > 4096.0 or absf(y) > 4096.0:
+				if absf(x) > WorldGen.WORLD_HALF or absf(y) > WorldGen.WORLD_HALF:
 					code = T_MOUNT
 				else:
 					code = _classify(x, y, i, j, n, cell, hs, hmean, near_set, bridges, fine)

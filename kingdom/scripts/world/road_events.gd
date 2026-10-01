@@ -81,8 +81,13 @@ func _ash_sample() -> void:
 		AshMemory.sample_now(actors)
 
 
+## An ambush on demand (realm_encounters.gd road events and night camps): the same raiders, `count` of them.
+func force_ambush(near_p: Vector2, count := 3) -> void:
+	_spawn_ambush(near_p, count)
+
+
 ## Places the ambush just off the road, in cover, out of the player's sight.
-func _spawn_ambush(near_p: Vector2) -> void:
+func _spawn_ambush(near_p: Vector2, count := 0) -> void:
 	var along := Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized()
 	var spot := near_p + along * randf_range(SPAWN_RANGE.x, SPAWN_RANGE.y)
 	var hidden := spot
@@ -99,7 +104,7 @@ func _spawn_ambush(near_p: Vector2) -> void:
 	squad.anchor = base
 	squad.aggro_radius = 28.0
 	add_child(squad)
-	squad.add_soldiers(randi_range(2, 4), base)
+	squad.add_soldiers(count if count > 0 else randi_range(2, 4), base)
 	_active.append({"squad": squad, "camp": camp})
 	# Region1 hook C6 (docs/regions/REGION_1_PLAN.md): the ambush spot is a flagged site, the raid an Ashsight incident
 	AshMemory.flag_site_static("Roadside ambush", Vector2(base.x, base.z))

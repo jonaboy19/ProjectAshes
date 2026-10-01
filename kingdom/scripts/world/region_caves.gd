@@ -1,5 +1,5 @@
 extends RefCounted
-## Caves, mines, hideouts, warrens and crypts across the 8 x 8 km region.
+## Caves, mines, hideouts, warrens and crypts across the 12 x 12 km region.
 ##
 ## TWO JOBS in one file (no class_name):
 ##  1. `RegionCavesScript.plan(seed, taken)` (static): the site entries appended at the very end of
@@ -36,9 +36,32 @@ const SPECS := [
 	["The Sunken Vault", "crypt", true, "night", Vector2(3000, 4300), "hill"],
 	["Gloamreach Cavern", "cave", false, "", Vector2(3200, 4700), "hill"],
 	["Moonwell Hollow", "flooded", true, "night", Vector2(1600, 2800), "water"],
+	# The 12 x 12 km world (2.25x the area): twenty-two more, deeper out (bands from Kingsreach reach 6.8 km).
+	["Hollowfang Barrow", "crypt", true, "rockfall", Vector2(3400, 5200), "hill"],
+	["Greywater Caverns", "cave", false, "", Vector2(2400, 3800), "hill"],
+	["Ironroot Workings", "mine", false, "", Vector2(3000, 4600), "hill"],
+	["Mudtooth Tunnels", "warren", false, "", Vector2(3600, 5400), "hill"],
+	["Lantern Hollow", "flooded", true, "night", Vector2(2800, 4400), "water"],
+	["The Drowned Chapel", "crypt", false, "", Vector2(2000, 3400), "ruin"],
+	["Cragmouth Hideout", "hideout", false, "", Vector2(2600, 4200), "road"],
+	["Shrike's Nest", "cave", true, "vines", Vector2(3800, 5600), "hill"],
+	["Coldseam Delve", "mine", true, "rockfall", Vector2(3800, 5600), "hill"],
+	["Wyrmbone Cavern", "cave", false, "", Vector2(4200, 6200), "hill"],
+	["Ashfall Undercroft", "crypt", true, "night", Vector2(4200, 6200), "ruin"],
+	["Black Rill Grotto", "flooded", false, "", Vector2(3000, 5000), "water"],
+	["Gallows Hideout", "hideout", false, "", Vector2(3500, 5500), "road"],
+	["Fenwick Burrows", "warren", false, "", Vector2(1800, 3200), "hill"],
+	["The Sleeping Barrow", "crypt", true, "rockfall", Vector2(2600, 4200), "hill"],
+	["Hushwater Hollows", "flooded", false, "", Vector2(4000, 6000), "water"],
+	["Redtusk Mine", "mine", false, "", Vector2(4500, 6500), "hill"],
+	["Stonewatch Cave", "cave", false, "", Vector2(1900, 3300), "hill"],
+	["Moth-Eaten Crypt", "crypt", false, "", Vector2(4800, 6800), "ruin"],
+	["Owlgrave Warren", "warren", false, "", Vector2(4400, 6400), "hill"],
+	["Silverthread Vein", "mine", true, "vines", Vector2(3200, 5000), "hill"],
+	["Thistle Gap Hideout", "hideout", false, "", Vector2(2200, 3800), "road"],
 ]
 ## visible dungeon index -> hidden dungeon index it points at (a journal inside carries the lead)
-const LEADS := {1: 2, 3: 0, 4: 11, 5: 6, 7: 8, 9: 15, 12: 13, 10: 17}
+const LEADS := {1: 2, 3: 0, 4: 11, 5: 6, 7: 8, 9: 15, 12: 13, 10: 17, 19: 18, 20: 26, 23: 28, 24: 32, 27: 25, 29: 22, 31: 38}
 const KIND_OF := {"cave": "cave", "flooded": "cave", "crystal": "cave", "mine": "old_mine", "hideout": "hideout", "warren": "warren_tunnels", "crypt": "crypt"}
 const CAVE_KINDS := ["cave", "old_mine", "hideout", "warren_tunnels", "crypt", "hidden_cave"]
 const RUMOURS := {
@@ -160,7 +183,7 @@ static func _find(sp: Array, rng: RandomNumberGenerator, capital: Vector2, rifts
 		var score := 0.0
 		match rule:
 			"hill", "rift1", "rift2", "ruin":
-				if sl < 0.22 or sl > 0.75:
+				if sl < 0.22 or sl > 0.55:       # steeper than this and the cave mouth hangs off the slope (world lint, seed 2024)
 					continue
 				score = minf(sl, 0.5) * 3.0 - WorldGen.forest_density(q.x, q.y) * 1.2
 			"water":

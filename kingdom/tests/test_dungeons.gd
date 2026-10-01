@@ -168,9 +168,9 @@ func test_lore_and_resources_exist() -> void:
 
 # --- world entrances ----------------------------------------------------------------------------
 
-func test_region_plan_places_12_to_20_entrances() -> void:
+func test_region_plan_places_24_to_44_entrances() -> void:
 	var sites := Caves.cave_sites()
-	assert_int(sites.size()).is_between(12, 20)
+	assert_int(sites.size()).is_between(24, 44)       # 18 on the 8 km world, 40 specs for the 12 km one
 	var ids := {}
 	var hidden := 0
 	var tiers := {}

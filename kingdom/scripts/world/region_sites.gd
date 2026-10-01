@@ -79,6 +79,7 @@ static func plan(seed_value: int) -> Array[Dictionary]:
 	# Caves, mines, hideouts, warrens, crypts and hidden entrances (scripts/world/region_caves.gd): own RNG stream, appended last.
 	out.append_array(preload("res://scripts/world/region_caves.gd").plan(seed_value, out))
 	out.append_array(preload("res://scripts/world/region_pois.gd").plan(seed_value, out))   # Exploration POIs hook (own RNG stream, secret sites)
+	out.append_array(preload("res://scripts/world/outer_identity.gd").plan(seed_value, out))   # Rising Ashes identity beyond the wards (own RNG stream, thins roadside farms there)
 	for i in out.size():
 		out[i]["id"] = i
 	return out
@@ -120,12 +121,63 @@ static func _free(p: Vector2, r: float, taken: Array[Dictionary], road_gap := 10
 	for g in WorldGen.camp_grounds:
 		if p.distance_to(g["pos"]) < float(g["radius"]) * 1.6 + r:
 			return false
-	for t in taken:
-		# `tight`: a site with no cleared ground (waystone, signpost) only needs its own footprint.
-		var reach := (2.5 if float(t["clear"]) < 1.0 else maxf(float(t["clear"]), 12.0) + 6.0) if tight else maxf(float(t["clear"]), 12.0) + 6.0
-		if p.distance_to(t["pos"]) < r + reach:
+	_sync_grid(taken)
+	if r + GRID_REACH > GRID_CELL:         # a very wide footprint: scan everything
+		for t in taken:
+			if _too_close(p, r, t, tight):
+				return false
+		return true
+	var cx := floori(p.x / GRID_CELL)
+	var cy := floori(p.y / GRID_CELL)
+	for dy in range(-1, 2):
+		for dx in range(-1, 2):
+			var bucket: Variant = _g_cells.get(Vector2i(cx + dx, cy + dy))
+			if bucket != null:
+				for t: Dictionary in bucket:
+					if _too_close(p, r, t, tight):
+						return false
+	for t: Dictionary in _g_big:
+		if _too_close(p, r, t, tight):
 			return false
 	return true
+
+
+static func _too_close(p: Vector2, r: float, t: Dictionary, tight: bool) -> bool:
+	# `tight`: a site with no cleared ground (waystone, signpost) only needs its own footprint.
+	var clear := float(t["clear"])
+	var reach := (2.5 if clear < 1.0 else maxf(clear, 12.0) + 6.0) if tight else maxf(clear, 12.0) + 6.0
+	return p.distance_to(t["pos"]) < r + reach
+
+
+## _free() runs thousands of times against hundreds of sites while the world is planned (settlement landmarks alone search 433
+## spots each), so the taken list is bucketed on a coarse grid the first time it is seen and extended as it grows. Sites whose own
+## footprint is wide (valley, keep) stay in a short list that is always checked.
+const GRID_CELL := 160.0
+const GRID_REACH := 90.0          ## footprints (clear + 6) above this go to _g_big
+static var _g_cells: Dictionary = {}
+static var _g_big: Array = []
+static var _g_taken: Array = []
+static var _g_n := 0
+
+
+static func _sync_grid(taken: Array[Dictionary]) -> void:
+	if not is_same(taken, _g_taken) or taken.size() < _g_n:
+		_g_taken = taken
+		_g_cells = {}
+		_g_big = []
+		_g_n = 0
+	while _g_n < taken.size():
+		var t: Dictionary = taken[_g_n]
+		_g_n += 1
+		if maxf(float(t["clear"]), 12.0) + 6.0 > GRID_REACH:
+			_g_big.append(t)
+			continue
+		var tp: Vector2 = t["pos"]
+		var key := Vector2i(floori(tp.x / GRID_CELL), floori(tp.y / GRID_CELL))
+		if _g_cells.has(key):
+			(_g_cells[key] as Array).append(t)
+		else:
+			_g_cells[key] = [t]
 
 
 static func _slope(p: Vector2) -> float:
@@ -447,9 +499,10 @@ static func _mine(taken: Array[Dictionary]) -> Dictionary:
 		for gz in range(0, 10):
 			var q := Vector2(gx * 45.0 - 60.0, -380.0 - gz * 45.0)
 			var sl := _slope(q)
-			if sl < 0.18 or sl > 0.8 or not _free(q, 16.0, taken, 25.0):
+			# A portal cut into a gentle hillside: the 4 m rail pieces and the winch of a steeper cut hang in the air (world lint).
+			if sl < 0.18 or sl > 0.4 or not _free(q, 16.0, taken, 25.0):
 				continue
-			var score := minf(sl, 0.45) * 4.0 - absf(q.length() - 520.0) / 200.0 - WorldGen.forest_density(q.x, q.y) * 3.0
+			var score := minf(sl, 0.4) * 4.0 - absf(q.length() - 520.0) / 200.0 - WorldGen.forest_density(q.x, q.y) * 3.0
 			if score > best_score:
 				best_score = score
 				best = q
@@ -739,24 +792,32 @@ static func _outer_sites(out: Array[Dictionary], rng: RandomNumberGenerator, cor
 			out.append(farm)
 	out.append_array(_bridges(true))
 	out.append_array(_waystones(rng, true))
-	# A roadhouse (stable, trough, notice board, fast-travel point) halfway along each long new road.
+	# A roadhouse (stable, trough, notice board, fast-travel point) halfway along each long new road, and on the
+	# 12 km world's long roads a wayside inn a third of the way in from each end (a journey has rest stops).
 	for road in WorldGen.roads:
 		if not _is_outer_road(road):
 			continue
 		var a: Vector2 = WorldGen.settlements[road.x]["pos"]
 		var b: Vector2 = WorldGen.settlements[road.y]["pos"]
-		if a.distance_to(b) < 1500.0:
+		var rlen := a.distance_to(b)
+		if rlen < 1500.0:
 			continue
 		var far_end := road.x if a.distance_to(capital) > b.distance_to(capital) else road.y
-		for t: float in [0.5, 0.42, 0.58, 0.35, 0.65]:
-			var mid := a.lerp(b, t)
-			var dir := _nearest_road_dir(mid)
-			var ground := mid + Vector2(dir.y, -dir.x) * 18.0
-			if _free(ground, 24.0, out, -30.0) and not WorldGen.is_water(mid.x, mid.y) and _slope(ground) < 0.25:
-				var st := _waystation({"pos": mid})
-				st["name"] = "%s Roadhouse" % WorldGen.settlements[far_end]["name"]
-				out.append(st)
-				break
+		var stops: Array = [[[0.5, 0.42, 0.58, 0.35, 0.65], "%s Roadhouse" % WorldGen.settlements[far_end]["name"]]]
+		if rlen >= 2000.0:
+			stops.append([[0.2, 0.17, 0.23, 0.26], "%s Wayside Inn" % WorldGen.settlements[road.x]["name"]])
+		if rlen >= 2400.0:
+			stops.append([[0.8, 0.77, 0.83, 0.74], "%s Wayside Inn" % WorldGen.settlements[road.y]["name"]])
+		for stop: Array in stops:
+			for t: float in stop[0]:
+				var mid := a.lerp(b, t)
+				var dir := _nearest_road_dir(mid)
+				var ground := mid + Vector2(dir.y, -dir.x) * 18.0
+				if _free(ground, 24.0, out, -30.0) and not WorldGen.is_water(mid.x, mid.y) and _slope(ground) < 0.25:
+					var st := _waystation({"pos": mid})
+					st["name"] = String(stop[1])
+					out.append(st)
+					break
 	# Bastions: one at the new town, one on the far frontier hold.
 	for s in WorldGen.settlements:
 		if int(s["id"]) < core or not (s["kind"] in ["town", "frontier_town"]):
@@ -772,19 +833,30 @@ static func _outer_sites(out: Array[Dictionary], rng: RandomNumberGenerator, cor
 		var look := _lookout("%s Lookout" % s["name"], s["pos"], float(s["radius"]), out, rng)
 		if not look.is_empty():
 			out.append(look)
-	# Old ruins and a second mine, far from home.
-	var ruin_names := ["Sundered Tower", "The Old Beacon", "Broken Watch"]
+	# Old ruins and more mines, far from home: the 12 km world's ring has four more ruins, a third and a fourth mine
+	# and a thicker scatter of bandit camps (2.25x the area, ~2.25x the places).
+	var ruin_names := ["Sundered Tower", "The Old Beacon", "Broken Watch", "Fallen Beacon", "Hollow Keep", "The Weeping Arch", "Ashen Watch",
+		"Cracked Obelisk", "Drowned Keep", "Thornwatch", "The Hollow Crown", "Last Beacon"]
+	var ruin_dist := [1800.0, 2500.0, 3200.0, 3700.0, 4300.0, 4800.0, 5200.0, 3400.0, 4000.0, 4600.0, 5000.0, 5400.0]
 	for i in ruin_names.size():
-		var ruin := _far_ruin(ruin_names[i], 1800.0 + i * 700.0, out, rng)
+		var ruin := _far_ruin(ruin_names[i], float(ruin_dist[i]), out, rng)
 		if not ruin.is_empty():
 			out.append(ruin)
-	var mine := _far_mine("Deepvein Mine", out, rng)
-	if not mine.is_empty():
-		out.append(mine)
+	# Hilltop watch posts across the outer ring (the new land beyond 3.4 km): somebody keeps a fire lit on each.
+	var look_names := ["Eastwatch Post", "Northreach Post", "Saltmarch Post", "Westerly Post", "Greyfell Post", "Farsight Post"]
+	for i in look_names.size():
+		var lk := _far_lookout(look_names[i], 3400.0 + (i % 3) * 500.0, out, rng)
+		if not lk.is_empty():
+			out.append(lk)
+	var mine_names := ["Deepvein Mine", "Ironroot Mine", "Coldseam Mine"]
+	for i in mine_names.size():
+		var mine := _far_mine(mine_names[i], out, rng, 2200.0 + i * 1500.0)
+		if not mine.is_empty():
+			out.append(mine)
 	# Bandit camps in the deep woods: more of them, and further out, the harder the land.
-	var camp_names := ["Red Hand Camp", "Blackthorn Camp", "Gallows Camp"]
+	var camp_names := ["Red Hand Camp", "Blackthorn Camp", "Gallows Camp", "Ravenfoot Camp", "Hangman's Rest", "Ashtooth Camp", "Wolf-Howl Camp"]
 	for i in camp_names.size():
-		var spot := _wild_spot(rng, out, capital, 1700.0 + i * 800.0, 2600.0 + i * 900.0)
+		var spot := _wild_spot(rng, out, capital, 1700.0 + i * 650.0, 2600.0 + i * 800.0)
 		if spot != Vector2.INF:
 			out.append(_bandit_camp({"pos": spot, "radius": 40.0}, rng, out, camp_names[i]))
 	# A second Rift, with its own outpost, in the far south-east.
@@ -797,6 +869,40 @@ static func _outer_sites(out: Array[Dictionary], rng: RandomNumberGenerator, cor
 	var rng_road := RandomNumberGenerator.new()
 	rng_road.seed = rng.seed ^ 0x2d51de
 	_roadside_sites(out, rng_road)
+	_coach_stops(out)
+
+
+## A coaching inn just outside the gate of every town and village (not hamlets): the fast-travel network is
+## waystation to waystation (docs/design/REALM_PLAN.md "Travel and world size"), so each place people live in
+## has one on its main road. Own pass, no random draws; kind "waystation" like the roadhouses.
+static func _coach_stops(out: Array[Dictionary]) -> void:
+	for s in WorldGen.settlements:
+		if bool(s.get("hamlet", false)):
+			continue
+		var c: Vector2 = s["pos"]
+		var rad := float(s["radius"])
+		var gates := WorldGen.gate_angles(s)
+		var angles: Array = []
+		for g in gates:
+			angles.append(float(g))
+		for i in 12:
+			angles.append(TAU * i / 12.0)
+		var placed := false
+		for ang: float in angles:
+			for dist: float in [rad * 1.5 + 60.0, rad * 1.5 + 90.0, rad * 1.5 + 130.0, rad * 1.5 + 190.0]:
+				var mid := c + Vector2.from_angle(ang) * dist
+				var dir := _nearest_road_dir(mid)
+				var ground := mid + Vector2(dir.y, -dir.x) * 18.0
+				if WorldGen.is_water(mid.x, mid.y) or not _free(ground, 24.0, out, -30.0) or _slope(ground) > 0.25:
+					continue
+				var st := _waystation({"pos": mid})
+				st["name"] = "%s Coach Inn" % s["name"]
+				st["coach_inn"] = true
+				out.append(st)
+				placed = true
+				break
+			if placed:
+				break
 
 
 ## Roadside life on the new roads: signposts outside every gate, then every 190-330 m a smallholding,
@@ -828,22 +934,26 @@ static func _roadside_sites(out: Array[Dictionary], rng: RandomNumberGenerator) 
 			var near_town := minf(t, length - t) < 1100.0
 			var roll := rng.randf()
 			var kind := "field"
-			if roll < 0.28 and near_town:
+			if roll < 0.24 and near_town:
 				kind = "farm"
-			elif roll < 0.50:
+			elif roll < 0.42:
 				kind = "field" if near_town else "wagon"
-			elif roll < 0.70:
+			elif roll < 0.54:
 				kind = "wagon"
-			elif roll < 0.80:
+			elif roll < 0.63:
 				kind = "shrine"
-			elif roll < 0.92:
+			elif roll < 0.73:
 				kind = "rest"
+			elif roll < 0.88:
+				# The long roads of the 12 km world: a travellers' camp where the road is far from any town (a
+				# smallholding's worth of field near one).
+				kind = "camp" if minf(t, length - t) > 500.0 else "field"
 			else:
 				kind = "sign"
 			if kind == last_kind and kind != "field":
 				kind = "wagon" if kind != "wagon" else "rest"
 			last_kind = kind
-			var radius := {"farm": 24.0, "field": 17.0, "wagon": 8.0, "shrine": 4.0, "rest": 7.0, "sign": 2.0}[kind] as float
+			var radius := {"farm": 24.0, "field": 17.0, "wagon": 8.0, "shrine": 4.0, "rest": 7.0, "camp": 9.0, "sign": 2.0}[kind] as float
 			for tries in 8:
 				var tt := t + (tries / 2) * 22.0 * (1.0 if tries % 2 == 0 else -1.0)
 				var flip := 1.0 if (tries % 2 == 0) == (rng.randf() < 0.5) else -1.0
@@ -913,6 +1023,14 @@ static func _roadside_site(kind: String, pos: Vector2, yaw: float, rng: RandomNu
 			_part(site, "props/water_trough", Vector2(-3.4, 0.6), PI * 0.5)
 			_part(site, "nature:oak_a", Vector2(-4.5, -4.5), 0.0, true)
 			_part(site, "nature:bush_berry", Vector2(4.5, -4.0), 0.0)
+		"camp":
+			site = _site("Travellers' Camp", "roadside", pos, yaw, 10.0, false)
+			_part(site, "ruins/campfire", Vector2(0, 0), 0.0)
+			_part(site, "ruins/bandit_tent" if rng.randf() < 0.5 else "ruins/bandit_lean_to", Vector2(-4.5, -3.5), 0.4 + rng.randf() * 0.4, true)
+			_part(site, "props/woodpile", Vector2(4.5, -3.0), 0.0)
+			_part(site, "props/sack_pile", Vector2(3.0, 3.6), 0.6)
+			_part(site, "props/barrel", Vector2(-3.4, 3.2), 0.0)
+			site["lights"].append([Vector3(0, 1.0, 0), Color(1.0, 0.62, 0.32), 7.0, true])
 		"sign":
 			site = _site("Signpost", "roadside", pos, yaw, 0.0)
 			_part(site, "props/signpost", Vector2.ZERO, 0.0, true)
@@ -964,6 +1082,30 @@ static func _lookout(lookout_name: String, center: Vector2, guard_radius: float,
 	return site
 
 
+## A watch post (watchfort landmark) on the highest free ground in the ring of the map `dist` metres or more from Ashford.
+static func _far_lookout(lookout_name: String, dist: float, taken: Array[Dictionary], rng: RandomNumberGenerator) -> Dictionary:
+	var best := Vector2.INF
+	var best_h := -INF
+	var lim := WorldGen.WORLD_HALF - 420.0
+	for i in 150:
+		var q := Vector2(rng.randf_range(-lim, lim), rng.randf_range(-lim, lim))
+		if q.length() < dist or not _free(q, 16.0, taken, 30.0) or _slope(q) > 0.25:
+			continue
+		var h := WorldGen.height(q.x, q.y)
+		if h > best_h and h < 80.0:
+			best_h = h
+			best = q
+	if best == Vector2.INF:
+		return {}
+	var site := _site(lookout_name, "watchfort", best, rng.randf() * TAU, 20.0, true)
+	_part(site, "meshy:landmark_watchfort@15", Vector2.ZERO, 0.0, true)
+	_part(site, "props/weapon_rack", Vector2(9, 8), 0.0)
+	_part(site, "props/crate_stack", Vector2(-9, 8), 0.4)
+	_part(site, "ruins/campfire", Vector2(0, 14), 0.0)
+	site["lights"].append([Vector3(0, 12.0, 0), Color(1.0, 0.6, 0.3), 14.0, true])
+	return site
+
+
 ## The shell of an old tower on a knoll roughly `dist` metres from Ashford.
 static func _far_ruin(ruin_name: String, dist: float, taken: Array[Dictionary], rng: RandomNumberGenerator) -> Dictionary:
 	var best := Vector2.INF
@@ -989,13 +1131,13 @@ static func _far_ruin(ruin_name: String, dist: float, taken: Array[Dictionary], 
 
 
 ## A second mine, cut into a slope of the far hills.
-static func _far_mine(mine_name: String, taken: Array[Dictionary], rng: RandomNumberGenerator) -> Dictionary:
+static func _far_mine(mine_name: String, taken: Array[Dictionary], rng: RandomNumberGenerator, min_len := 2200.0) -> Dictionary:
 	var best := Vector2.INF
 	var best_score := -INF
 	var lim := WorldGen.WORLD_HALF - 420.0
 	for i in 500:
 		var q := Vector2(rng.randf_range(-lim, lim), rng.randf_range(-lim, lim))
-		if q.length() < 2200.0:
+		if q.length() < min_len:
 			continue
 		var sl := _slope(q)
 		if sl < 0.2 or sl > 0.6 or not _free(q, 16.0, taken, 25.0):

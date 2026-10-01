@@ -51,7 +51,7 @@ people aren't drawn. Names are derived from their id, so they cost no storage.
 
 ## World
 
-- 8 × 8 km (was 4 × 4 km; `WorldGen.WORLD_HALF = 4096`), deterministic from a seed; 64 m chunks streamed around the player (the streamed radius, LOD and memory do not depend on world size).
+- 12 × 12 km (was 8 × 8, and 4 × 4 before; `WorldGen.WORLD_HALF = 6144`), deterministic from a seed; 64 m chunks streamed around the player (the streamed radius, LOD and memory do not depend on world size).
 - Settlements are placed by rules (spacing, flat ground) and connected by a road
   network (minimum spanning tree); terrain is flattened for towns and cut for roads.
 - Settlement meshes build within 520 m and free beyond 700 m.

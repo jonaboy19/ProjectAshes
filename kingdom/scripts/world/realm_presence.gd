@@ -668,7 +668,7 @@ func _war_menu() -> Dictionary:
 func _map_texture() -> ImageTexture:
 	if _map_tex != null:
 		return _map_tex
-	var n := 96
+	var n := 144           # 96 for the 8 km world: the same ~85 m per pixel at 12 km
 	var img := Image.create(n, n, false, Image.FORMAT_RGB8)
 	var half := WorldGen.WORLD_HALF
 	for j in n:

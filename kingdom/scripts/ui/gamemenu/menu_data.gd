@@ -268,7 +268,7 @@ static func item_detail(id: String, quality := 1, durability := -1) -> Dictionar
 		flav = String(FLAVOUR.get(String(info.get("category", "")), ""))
 	var usable := float(info.get("nutrition", 0.0)) > 0.0 or int(info.get("heal", 0)) > 0 \
 		or info.has("buff_stat") or info.has("cures") or info.has("qi_restore") or info.has("repair_fraction") \
-		or info.has("cultivation_xp") or info.has("breakthrough_bonus") or info.has("permanent_stat") or info.has("casts") or info.has("effect")
+		or info.has("cultivation_xp") or info.has("breakthrough_bonus") or info.has("permanent_stat") or info.has("casts") or info.has("effect") or info.has("rest_bonus")
 	var typ := item_type_label(id)
 	if info.has("tool"):
 		typ += " · tool"

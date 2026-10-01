@@ -240,16 +240,28 @@ func test_wiping_out_wolves_lets_corrupted_wolves_spread() -> void:
 func test_winter_migration_brings_wolves_into_a_village_zone_and_villagers_see_them() -> void:
 	var m := _mk()
 	var human := -1
+	var best_supply := 0.0
 	for i in m.zone_count():
 		var z: Dictionary = m._zones[i]
-		var has_wild_nb := false
+		if float(z["wild"]) >= 0.5:
+			continue
+		# The wolves pushed this way in winter: the wolves of every wilder neighbour whose least wild way out is this zone
+		# (the 12 km world has many more zones, so take the best-fed village zone rather than the first one found).
+		var supply := 0.0
 		for j: int in z["neigh"]:
 			if float(m._zones[j]["wild"]) > float(z["wild"]) + 0.3 and float((m._st[j]["n"] as Array)[D.WOLF]) > 3.0:
-				has_wild_nb = true
-		if has_wild_nb and float(z["wild"]) < 0.5:
+				var out_to: int = m._best_nb(m._zones[j]["neigh"], func(k: int) -> float: return -float(m._zones[k]["wild"]))
+				if out_to == i:
+					supply += float((m._st[j]["n"] as Array)[D.WOLF])
+		if supply > best_supply:
+			best_supply = supply
 			human = i
-			break
 	assert_int(human).is_greater_equal(0)
+	# A hard winter in the wild zones beside it: the migration mechanic is under test, not how many wolves the map starts with
+	# (a village zone in the 12 km world loses what trickles in to its hunters, so the push has to be a real one).
+	for j: int in m._zones[human]["neigh"]:
+		if float(m._zones[j]["wild"]) > float(m._zones[human]["wild"]) + 0.3 and int(m._best_nb(m._zones[j]["neigh"], func(k: int) -> float: return -float(m._zones[k]["wild"]))) == human:
+			(m._st[j]["n"] as Array)[D.WOLF] = 40.0
 	(m._st[human]["n"] as Array)[D.WOLF] = 0.0
 	(m._st[human]["seen"] as Dictionary).erase("wolf")
 	for week in 8:

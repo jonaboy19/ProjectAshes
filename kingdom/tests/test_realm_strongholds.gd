@@ -12,7 +12,7 @@ func _mk() -> Strongholds:
 func test_strongholds_at_chokepoints_deterministic() -> void:
 	var a := _mk()
 	var b := _mk()
-	assert_int(a.strongholds().size()).is_between(3, 44)
+	assert_int(a.strongholds().size()).is_between(3, 64)
 	assert_str(JSON.stringify(a.serialize())).is_equal(JSON.stringify(b.serialize()))
 	for s: Dictionary in a.strongholds():
 		assert_bool(s["owner"] != "").is_true()

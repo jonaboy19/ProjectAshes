@@ -11,8 +11,8 @@ extends "res://scripts/realm/realm_module.gd"
 
 const CHOKE_KINDS := ["bridge", "fort", "watchfort", "rift_outpost", "rift", "waystation"]
 const RAIDER_KINDS := ["bandits", "monsters", "rival_lord", "mercenaries", "militants", "soulbeasts"]
-const MAX_STRONGHOLDS := 44          # (30 on the 4 km map; the 8 km world has ~40 chokepoint candidates)
-const RAID_SPEED := 840.0          # metres per hour (world is 8 km wide; was 420 on the 4 km map)
+const MAX_STRONGHOLDS := 64          # (30 on the 4 km map, 44 on the 8 km map; the 12 km world has ~60 chokepoint candidates)
+const RAID_SPEED := 1260.0         # metres per hour (world is 12 km wide; 420 on the 4 km map, 840 on the 8 km map)
 const MAX_RAIDS := 6
 const RESULTS_MAX := 20
 const PASS_MIN_LEN := 700.0
@@ -43,7 +43,7 @@ func _ensure() -> void:
 	var edges := WorldGen.roads
 	var cands: Array = []
 	for s: Dictionary in WorldGen.sites:
-		if String(s.get("kind", "")) in CHOKE_KINDS:
+		if String(s.get("kind", "")) in CHOKE_KINDS and not bool(s.get("coach_inn", false)):      # a town's coach inn is not a chokepoint
 			cands.append({"name": String(s.get("name", "Post")), "kind": String(s["kind"]), "pos": s["pos"]})
 	# junctions (degree >= 3 settlements) and mountain passes on long roads
 	var deg := {}
