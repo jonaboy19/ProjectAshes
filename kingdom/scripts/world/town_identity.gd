@@ -523,17 +523,11 @@ static func vc_material(mat: Material) -> Material:
 
 
 # ================================================================ colour language: banners, bunting, awnings
-static func _vc_material() -> StandardMaterial3D:
+static func _vc_material() -> Material:
 	var k := "vcmat"
-	if _mat_cache.has(k):
-		return _mat_cache[k]
-	var m := StandardMaterial3D.new()
-	m.vertex_color_use_as_albedo = true
-	m.vertex_color_is_srgb = true
-	m.roughness = 0.9
-	m.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
-	_mat_cache[k] = m
-	return m
+	if not _mat_cache.has(k):
+		_mat_cache[k] = preload("res://scripts/style_g.gd").vertex_color_material("cloth", true)   # Style G cloth; town colours stay in the vertices
+	return _mat_cache[k]
 
 
 static func _box(st: SurfaceTool, c: Vector3, sz: Vector3, col: Color) -> void:

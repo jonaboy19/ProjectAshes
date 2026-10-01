@@ -81,7 +81,7 @@ static func _puff(r: float, seg := 6) -> SphereMesh:
 	s.radius = r
 	s.height = r * 2.0
 	s.radial_segments = seg
-	s.rings = 3
+	s.rings = 3 if seg > 4 else 2
 	return s
 
 
@@ -108,7 +108,7 @@ static func ivy_clump(seed_v := 1, leaves := 11) -> ArrayMesh:
 	return vc.commit()
 
 
-static func flower_box(variant: int) -> ArrayMesh:
+static func flower_box(variant: int, lite := false) -> ArrayMesh:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 40 + variant
 	var vc := VC.new()
@@ -116,17 +116,17 @@ static func flower_box(variant: int) -> ArrayMesh:
 	bx.size = Vector3(1.1, 0.24, 0.28)
 	vc.add(bx, Transform3D(Basis.IDENTITY, Vector3(0, 0.12, 0.14)), lin(StyleG.PALETTE["timber_light"]))
 	var cols: Array = [["flower_red", "plaster", "flower_pink"], ["flower_yellow", "flower_purple", "plaster"], ["flower_pink", "flower_yellow", "flower_red"]][variant % 3]
-	for i in 7:
-		vc.add(_puff(0.1), Transform3D(Basis.from_scale(Vector3(1, 0.7, 1)), Vector3(-0.46 + i * 0.153, 0.27, 0.14 + rng.randf_range(-0.04, 0.04))), lin(StyleG.PALETTE["ivy"]))
-	for i in 11:
+	for i in (4 if lite else 7):
+		vc.add(_puff(0.1, 4 if lite else 6), Transform3D(Basis.from_scale(Vector3(1, 0.7, 1)), Vector3(-0.46 + i * (0.27 if lite else 0.153), 0.27, 0.14 + rng.randf_range(-0.04, 0.04))), lin(StyleG.PALETTE["ivy"]))
+	for i in (5 if lite else 11):
 		var fp := Vector3(rng.randf_range(-0.5, 0.5), rng.randf_range(0.31, 0.4), rng.randf_range(0.08, 0.22))
-		vc.add(_puff(0.062), Transform3D(Basis.IDENTITY, fp), lin(StyleG.PALETTE[cols[rng.randi() % 3]]))
-	for i in 5:   # trailing leaves over the front
+		vc.add(_puff(0.062, 4 if lite else 6), Transform3D(Basis.IDENTITY, fp), lin(StyleG.PALETTE[cols[rng.randi() % 3]]))
+	for i in (2 if lite else 5):   # trailing leaves over the front
 		_leaf(vc, Vector3(-0.42 + i * 0.21, 0.02, 0.3), rng.randf_range(0.22, 0.34), rng.randf() * 0.4, Vector2(0.1, 0), lin("4b8a28"))
 	return vc.commit()
 
 
-static func basket(variant: int) -> ArrayMesh:
+static func basket(variant: int, lite := false) -> ArrayMesh:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 70 + variant
 	var vc := VC.new()
@@ -138,14 +138,14 @@ static func basket(variant: int) -> ArrayMesh:
 	cm.rings = 1
 	vc.add(cm, Transform3D(Basis.IDENTITY, Vector3(0, 0.14, 0)), lin("a8773a"))
 	var fruit: Array = [["flower_red", "apple_hi", "flower_red"], ["flower_yellow", "banner_gold", "foliage"]][variant % 2]
-	for i in 9:
-		var a := TAU * i / 9.0
-		var rad := 0.13 if i < 8 else 0.0
-		vc.add(_puff(0.085), Transform3D(Basis.IDENTITY, Vector3(cos(a) * rad, 0.3 + (0.07 if i == 8 else 0.0), sin(a) * rad)), lin(StyleG.PALETTE.get(fruit[rng.randi() % 3], "d8342b")))
+	for i in (5 if lite else 9):
+		var a := TAU * i / (5.0 if lite else 9.0)
+		var rad := 0.13 if i < (4 if lite else 8) else 0.0
+		vc.add(_puff(0.085, 4 if lite else 6), Transform3D(Basis.IDENTITY, Vector3(cos(a) * rad, 0.3 + (0.07 if i == 8 else 0.0), sin(a) * rad)), lin(StyleG.PALETTE.get(fruit[rng.randi() % 3], "d8342b")))
 	return vc.commit()
 
 
-static func flower_tub(variant: int) -> ArrayMesh:
+static func flower_tub(variant: int, lite := false) -> ArrayMesh:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 90 + variant
 	var vc := VC.new()
@@ -156,15 +156,15 @@ static func flower_tub(variant: int) -> ArrayMesh:
 	cm.radial_segments = 8
 	cm.rings = 1
 	vc.add(cm, Transform3D(Basis.IDENTITY, Vector3(0, 0.21, 0)), lin("7a5330"))
-	for i in 6:
-		var a := TAU * i / 6.0
-		vc.add(_puff(0.2), Transform3D(Basis.from_scale(Vector3(1, 0.8, 1)), Vector3(cos(a) * 0.2, 0.5, sin(a) * 0.2)), lin(StyleG.PALETTE["ivy"]))
-	vc.add(_puff(0.24), Transform3D(Basis.IDENTITY, Vector3(0, 0.58, 0)), lin(StyleG.PALETTE["foliage"]))
+	for i in (3 if lite else 6):
+		var a := TAU * i / (3.0 if lite else 6.0)
+		vc.add(_puff(0.2, 4 if lite else 6), Transform3D(Basis.from_scale(Vector3(1, 0.8, 1)), Vector3(cos(a) * 0.2, 0.5, sin(a) * 0.2)), lin(StyleG.PALETTE["ivy"]))
+	vc.add(_puff(0.24, 4 if lite else 6), Transform3D(Basis.IDENTITY, Vector3(0, 0.58, 0)), lin(StyleG.PALETTE["foliage"]))
 	var cols: Array = [["flower_purple", "plaster", "flower_pink"], ["flower_red", "flower_yellow", "plaster"]][variant % 2]
-	for i in 14:
+	for i in (6 if lite else 14):
 		var a2 := rng.randf() * TAU
 		var r := rng.randf_range(0.0, 0.3)
-		vc.add(_puff(0.07), Transform3D(Basis.IDENTITY, Vector3(cos(a2) * r, rng.randf_range(0.62, 0.84), sin(a2) * r)), lin(StyleG.PALETTE[cols[rng.randi() % 3]]))
+		vc.add(_puff(0.07, 4 if lite else 6), Transform3D(Basis.IDENTITY, Vector3(cos(a2) * r, rng.randf_range(0.62, 0.84), sin(a2) * r)), lin(StyleG.PALETTE[cols[rng.randi() % 3]]))
 	return vc.commit()
 
 

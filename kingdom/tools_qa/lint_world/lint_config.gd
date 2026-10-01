@@ -33,12 +33,12 @@ const BURIED_OK := ["rock", "boulder", "cliff", "stone", "stump", "log", "root",
 ## Never a sink/buried finding (they are meant to be embedded).
 const SINK_OK := ["plinth", "waterfall", "fallsfoam", "falls"]
 ## Never an overlap finding (natural clusters, bases under buildings, trees and plants).
-const OVERLAP_SKIP := ["snow", "drift", "mound", "fx", "vines", "waterfall", "fallsfoam", "rock", "boulder", "cliff", "plinth", "tree", "pine", "oak", "birch", "willow", "bush", "fern", "flower", "grass",
+const OVERLAP_SKIP := ["gdressing", "snow", "drift", "mound", "fx", "vines", "waterfall", "fallsfoam", "rock", "boulder", "cliff", "plinth", "tree", "pine", "oak", "birch", "willow", "bush", "fern", "flower", "grass",
 	"hedge", "stump", "log", "nature", "baked"]   # "baked": RegionDressing._bake_site merges a whole site into one mesh (not a prop)
 ## Boulders: judged by mesh vertices against the terrain (embedded, never plinthed), not by their box.
 const ROCKY := ["rock", "boulder", "cliff", "crag", "scree", "menhir", "megalith", "cairn"]
 ## May hover on purpose.
-const FLOAT_OK := ["lantern_hang", "hanging", "banner", "flag", "sail", "hanging", "chandelier", "rift", "portal", "crystal", "orb", "spirit",
+const FLOAT_OK := ["gdressing", "lantern_hang", "hanging", "banner", "flag", "sail", "hanging", "chandelier", "rift", "portal", "crystal", "orb", "spirit",
 	"mist", "fog", "rune", "glow", "smoke", "sign_hang", "bell", "cloud", "bird", "firefly", "wisp", "beam", "shaft",
 	"bunting", "garland", "streamer", "pennant"]
 ## May stand in water (is_water) without the site being tagged wet.

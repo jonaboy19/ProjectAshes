@@ -8,6 +8,10 @@ render_mode cull_back, diffuse_lambert_wrap, specular_schlick_ggx;
 uniform sampler2D albedo_tex : source_color, filter_linear_mipmap, repeat_enable;
 uniform vec4 albedo_color : source_color = vec4(1.0);
 uniform bool use_vertex_color = false;
+uniform bool vcol_srgb = false;        // game meshes bake sRGB vertex/instance colours (town tints); the lab bakes linear
+uniform bool local_ao = false;         // game: AO ramp from height above the instance origin (terrain is not at y = 0)
+uniform float hue_var = 0.0;           // goods: per-piece hue rotation from COLOR.a (market goods bake a random value there)
+uniform float val_var = 0.0;
 uniform vec2 uv_scale = vec2(1.0);
 uniform vec2 uv_offset = vec2(0.0);
 uniform float alpha_cut = 0.0;
@@ -72,10 +76,24 @@ vec3 weather_albedo(vec3 c, vec3 p, vec3 n, float lum_in, float foot_y, out floa
 void fragment() {
 	vec4 t = texture(albedo_tex, UV * uv_scale + uv_offset);
 	vec3 c = t.rgb * albedo_color.rgb;
-	if (use_vertex_color) { c *= COLOR.rgb; }
+	if (use_vertex_color) {
+		vec3 vc = COLOR.rgb;
+		if (vcol_srgb) { vc = mix(pow((vc + 0.055) / 1.055, vec3(2.4)), vc / 12.92, step(vc, vec3(0.04045))); }
+		c *= vc;
+	}
+	if (hue_var > 0.0) {
+		float k = COLOR.a - 0.5;
+		float ang = k * hue_var;
+		float cs = cos(ang);
+		float sn = sin(ang);
+		vec3 ax = vec3(0.57735);
+		c = c * cs + cross(ax, c) * sn + ax * dot(ax, c) * (1.0 - cs);   // rotate around the grey axis
+		c *= 1.0 + k * val_var;
+	}
 	float l = dot(c, vec3(0.299, 0.587, 0.114));
 	c = mix(vec3(l), c, saturation) * value_gain * warm_tint;
-	float ao = 1.0 - ao_strength * (1.0 - smoothstep(0.0, ao_height, wpos.y));
+	float hy = local_ao ? wpos.y - MODEL_MATRIX[3].y : wpos.y;
+	float ao = 1.0 - ao_strength * (1.0 - smoothstep(0.0, ao_height, hy));
 	float wh = 0.0;
 	float wr = 0.0;
 	if (weather > 0.0) {

@@ -98,7 +98,7 @@ func test_settlement_dressing_is_render_only_and_within_budget() -> void:
 	var goods := 0
 	for mmi in root.find_children("*", "MultiMeshInstance3D", true, false):
 		var mesh := (mmi as MultiMeshInstance3D).multimesh.mesh
-		if mesh != null and mesh.get_surface_count() == 1 and mesh.surface_get_material(0) == MarketGoods.material():
+		if mesh != null and mesh.get_surface_count() == 1 and MarketGoods.is_goods_material(mesh.surface_get_material(0)):
 			goods += 1
 			assert_int((mmi as MultiMeshInstance3D).cast_shadow).is_equal(GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
 			assert_float((mmi as MultiMeshInstance3D).visibility_range_end).is_less_equal(80.0)
@@ -122,7 +122,7 @@ func test_settlement_dressing_is_render_only_and_within_budget() -> void:
 	for mmi in root.find_children("*", "MultiMeshInstance3D", true, false):
 		mmis += 1
 		var mesh2 := (mmi as MultiMeshInstance3D).multimesh.mesh
-		if mesh2 != null and mesh2.get_surface_count() == 1 and mesh2.surface_get_material(0) == MarketGoods.material():
+		if mesh2 != null and mesh2.get_surface_count() == 1 and MarketGoods.is_goods_material(mesh2.surface_get_material(0)):
 			goods_inst += (mmi as MultiMeshInstance3D).multimesh.instance_count
 			goods_tris += (mmi as MultiMeshInstance3D).multimesh.instance_count * (mesh2.surface_get_array_index_len(0) / 3)
 	print("PERF Kingsreach: %d MultiMeshInstance3D, goods: %d MMIs' instances %d, %d tris total; decals %d (ground chunks %s)" % [mmis, goods, goods_inst, goods_tris, root.find_children("*", "Decal", true, false).size(), chunks])

@@ -92,6 +92,7 @@ func _ready() -> void:
 	_ground_material.set_shader_parameter("cobble_normal", load("res://assets/art/textures/cobblestone_normal.png"))
 	_ground_material.set_shader_parameter("cobble_arm", load("res://assets/art/textures/cobblestone_arm.png"))   # AO, rough, metal
 	_ground_material.set_shader_parameter("macro_noise", _noise_texture(0.01, 3, false))
+	_ground_material.set_shader_parameter("cobble_tint", Color(1.0, 0.97, 0.92))     # Style G honey cobbles (light touch: the sun warms them)
 	for tree: String in REGION_TREES:
 		var kind: String = REGION + tree
 		if not ResourceLoader.exists("res://assets/generated/" + kind + "_lod2.glb"):

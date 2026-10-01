@@ -27,6 +27,7 @@ const SHOP_HALF := Vector2(0.8, 0.5)               # a shop-front set's half ext
 const SHOP_X := 2.3                                # lateral offset from the door line
 const SHOP_Z := 0.55                               # depth from the front wall
 
+const StyleG := preload("res://scripts/style_g.gd")
 static var _pieces := {}       # name -> ArrayMesh (one surface, no material)
 static var _material: StandardMaterial3D
 static var _cache := {}        # id -> ArrayMesh
@@ -51,6 +52,11 @@ static func material() -> StandardMaterial3D:
 		_material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 		_material.resource_name = "MarketGoods"
 	return _material
+
+
+## True for the goods atlas material or its Style G restyle.
+static func is_goods_material(m: Material) -> bool:
+	return m == material() or StyleG.source_of(m) == material()
 
 
 static func _load() -> void:
@@ -88,11 +94,14 @@ static func layout(id: String) -> ArrayMesh:
 		return null
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var vrng := RandomNumberGenerator.new()
+	vrng.seed = hash(id)
 	for it: Array in items:
 		var m: Mesh = _pieces.get(String(it[0]))
 		if m == null:
 			push_warning("MarketGoods: layout %s uses a missing piece '%s'" % [id, it[0]])
 			continue
+		m = _varied(m, vrng.randf())
 		var pos := Vector3(it[1], it[2], it[3])
 		var yaw := deg_to_rad(float(it[4]))
 		var sc: float = it[5] if it.size() > 5 else 1.0
@@ -102,9 +111,37 @@ static func layout(id: String) -> ArrayMesh:
 		st.append_from(m, 0, Transform3D(basis, pos))
 	st.generate_normals()
 	var out := st.commit()
-	out.surface_set_material(0, material())
+	# Style G: role "goods" (less orange, hue/value rotation per piece read from COLOR.a, see _varied)
+	out.surface_set_material(0, StyleG.material_for("goods", material(), 1, StyleG.current_tier(), true))
 	_cache[id] = out
 	return out
+
+
+## Copy of a piece whose vertex alpha carries a per-piece random number: the goods shader rotates hue / value by it, so
+## the apples of one stall are not all the same orange. Cached per (piece, quantised value).
+static var _varied_cache := {}
+
+
+static func _varied(m: Mesh, v: float) -> Mesh:
+	var q := int(v * 8.0)
+	var key := "%d|%d" % [m.get_instance_id(), q]
+	if _varied_cache.has(key):
+		return _varied_cache[key]
+	var arr := m.surface_get_arrays(0)
+	var cols: PackedColorArray = arr[Mesh.ARRAY_COLOR] if arr[Mesh.ARRAY_COLOR] != null else PackedColorArray()
+	if cols.is_empty():
+		_varied_cache[key] = m
+		return m
+	var a := (q + 0.5) / 8.0
+	for i in cols.size():
+		var c := cols[i]
+		c.a = a
+		cols[i] = c
+	arr[Mesh.ARRAY_COLOR] = cols
+	var vm := ArrayMesh.new()
+	vm.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	_varied_cache[key] = vm
+	return vm
 
 
 static func tri_count(id: String) -> int:
