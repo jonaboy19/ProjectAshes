@@ -104,6 +104,10 @@ const JUMP_START_RUN := 0.13
 const JUMP_STAND_HEIGHT := 1.10
 const JUMP_RUN_HEIGHT := 1.25
 const JUMP_FALL_GRAVITY := 32.0
+## Variable height: releasing Jump only trims the rise after this much air time, so a tap
+## (released during the take-off wind-up, the usual mobile press) still gives a readable hop.
+const JUMP_CUT_MIN_AGE := 0.1
+const JUMP_CUT_SCALE := 0.6
 const JUMP_TERMINAL := 24.0
 ## Shadow Dash (explicit ability, own input + HUD button, cooldown-gated):
 ## the fast burst with the afterimage VFX that used to fire on every dodge.
@@ -631,8 +635,8 @@ func _physics_process(delta: float) -> void:
 		if floor_before and not _jump_active:
 			velocity.y = -1.0
 		else:
-			if _jump_active and not _jump_cut and velocity.y > 0.0 and not Input.is_action_pressed("jump"):
-				velocity.y *= 0.45
+			if _jump_active and not _jump_cut and velocity.y > 0.0 and _jump_age >= JUMP_CUT_MIN_AGE and not Input.is_action_pressed("jump"):
+				velocity.y *= JUMP_CUT_SCALE
 				_jump_cut = true
 			var gravity := GRAVITY if velocity.y > 0.0 else JUMP_FALL_GRAVITY
 			if _jump_active and absf(velocity.y) < 1.5:
@@ -1661,7 +1665,7 @@ func _clear_dodge_lane(direction: Vector3) -> Vector3:
 
 
 func _dodge_obstruction(direction: Vector3, distance: float) -> Node3D:
-	var result := PhysicsTestMotionResult3D.new()
+	var result := KinematicCollision3D.new()
 	if test_move(global_transform, direction * distance, result):
 		return result.get_collider() as Node3D
 	return null

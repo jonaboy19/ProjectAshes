@@ -124,7 +124,7 @@ func tap(code: Key) -> void:
 
 
 func release_all() -> void:
-	for k in [KEY_W, KEY_A, KEY_S, KEY_D, KEY_SHIFT, KEY_L, KEY_SPACE, KEY_J]:
+	for k in [KEY_W, KEY_A, KEY_S, KEY_D, KEY_SHIFT, KEY_L, KEY_SPACE, KEY_J, KEY_K]:
 		key(k, false)
 	_look_px = 0.0
 
@@ -248,6 +248,10 @@ func _run() -> void:
 	if want("16"): await _s16_wolves()
 	if want("17"): await _s17_horse()
 	if want("18"): await _s18_swim()
+	if want("19"): await _s19_jumps()
+	if want("20"): await _s20_fall_land()
+	if want("21") or want("22"): await _s21_22_parry_heavy_hit()
+	if want("23"): await _s23_companions()
 	log_line("DONE")
 	_index.close()
 	_csv.close()
@@ -472,17 +476,17 @@ func _s10_13_combat() -> void:
 	if want("12"):
 		player.stamina = Player.MAX_STAMINA
 		begin("12_dodge")
-		await tap(KEY_SPACE)          # backward roll (no stick)
+		await tap(KEY_K)          # backward roll (no stick)
 		await frames(30)
 		key(KEY_D, true)
 		await frames(2)
-		await tap(KEY_SPACE)          # side roll
+		await tap(KEY_K)          # side roll
 		await frames(10)
 		key(KEY_D, false)
 		await frames(25)
 		key(KEY_W, true)
 		await frames(2)
-		await tap(KEY_SPACE)          # forward roll, then keep running
+		await tap(KEY_K)          # forward roll, then keep running
 		await frames(30)
 		key(KEY_W, false)
 		await frames(25)
@@ -661,3 +665,136 @@ func _s18_swim() -> void:
 	key(KEY_W, false)
 	await frames(40)
 	finish()
+
+
+# --- Codex integration review (docs/anim/CODEX_INTEGRATION_REVIEW.md) -----------------
+
+## Standing jump, running jump (sprint), and jump spam on landing (buffer).
+func _s19_jumps() -> void:
+	await teleport(_flat, 0.0)
+	begin("19_jumps")
+	await frames(15)
+	await tap(KEY_SPACE)               # standing jump
+	await frames(45)
+	key(KEY_SHIFT, true)
+	key(KEY_W, true)
+	await frames(40)
+	await tap(KEY_SPACE)               # running jump
+	await frames(40)
+	key(KEY_W, false)
+	key(KEY_SHIFT, false)
+	await frames(40)
+	for i in 4:                        # spam: buffered re-jumps
+		await tap(KEY_SPACE)
+		await frames(9)
+	await frames(50)
+	finish()
+
+
+## Drop from 2.5 m (soft/hard land) and 7 m (roll / fall damage), standing and running.
+func _s20_fall_land() -> void:
+	for h: float in [2.5, 7.0]:
+		await teleport(_flat, 0.0, 15)
+		player.health = player.max_health
+		begin("20_fall_%dm" % int(h))
+		player.global_position += Vector3.UP * h
+		player.velocity = Vector3.ZERO
+		await frames(70)
+		finish()
+	await teleport(_flat, 0.0, 15)
+	begin("20_fall_run_4m")
+	key(KEY_W, true)
+	key(KEY_SHIFT, true)
+	await frames(20)
+	player.global_position += Vector3.UP * 4.0
+	await frames(60)
+	key(KEY_W, false)
+	key(KEY_SHIFT, false)
+	await frames(30)
+	finish()
+	player.health = player.max_health
+
+
+## 21: block raised 3 frames before a hit lands (parry). 22: heavy hits from four sides, then a guard break.
+func _s21_22_parry_heavy_hit() -> void:
+	var wild := await _find_flat(140.0, true)
+	await teleport(wild, 0.0, 30)
+	var fwd := Vector2(-sin(player._yaw), -cos(player._yaw))
+	var orc := _spawn_orc(wild + fwd * 2.0)
+	orc.set_physics_process(false)
+	player.set_camera(yaw_to(orc.global_position) + 1.0, -0.22)
+	player.stamina = Player.MAX_STAMINA
+	player.health = player.max_health
+	await frames(20)
+	if want("21"):
+		begin("21_parry")
+		for i in 2:
+			key(KEY_L, true)
+			await frames(3)
+			player.take_damage(12, orc, (player.global_position - orc.global_position).normalized() * 2.0)
+			await frames(40)
+			key(KEY_L, false)
+			await frames(15)
+		await frames(20)
+		finish()
+	if want("22"):
+		player.health = player.max_health * 4
+		begin("22_hit_reactions")
+		for ang: float in [0.0, PI * 0.5, PI, -PI * 0.5]:
+			var src := Node3D.new()
+			main.world.add_child(src)
+			var d := Vector3(-sin(player._yaw + ang), 0, -cos(player._yaw + ang))
+			src.global_position = player.global_position + d * 1.5
+			player.take_damage(4, src, -d * 1.0)          # light
+			await frames(30)
+			player.take_damage(int(player.max_health * 0.15), src, -d * 5.0, true)   # heavy
+			await frames(45)
+			src.queue_free()
+		player.stamina = 1.0                          # guard break
+		key(KEY_L, true)
+		await frames(10)
+		player.take_damage(20, orc, Vector3.ZERO)
+		await frames(50)
+		key(KEY_L, false)
+		await frames(20)
+		player.health = player.max_health
+		finish()
+	if is_instance_valid(orc):
+		orc.queue_free()
+
+
+## Companions: four knights follow a walk and a sprint, then stop with the player; combo finisher on an orc next to them.
+func _s23_companions() -> void:
+	await teleport(_flat, 0.0, 15)
+	var sq: Squad = main.army
+	sq.add_soldiers(4, player.global_position + Vector3(0, 0, 3))
+	sq.command(Squad.Order.FOLLOW)
+	await frames(60)
+	for so in sq.soldiers:
+		log_line("knight at %.1f m vis=%s" % [so.global_position.distance_to(player.global_position), so.is_visible_in_tree()])
+	if not sq.soldiers.is_empty():
+		player.set_camera(yaw_to(sq.soldiers[0].global_position), -0.45)   # knights in view; S walks the player toward the lens, they follow
+	begin("23_companions_follow_stop")
+	key(KEY_S, true)
+	await frames(80)
+	key(KEY_SHIFT, true)
+	await frames(60)
+	key(KEY_SHIFT, false)
+	key(KEY_S, false)
+	await frames(90)
+	for so in sq.soldiers:
+		log_line("after stop knight at %.1f m" % so.global_position.distance_to(player.global_position))
+	finish()
+	var fwd := Vector2(-sin(player._yaw), -cos(player._yaw))
+	var here := Vector2(player.global_position.x, player.global_position.z)
+	var orc := _spawn_orc(here + fwd * 6.0)
+	player.stamina = Player.MAX_STAMINA
+	player.set_camera(yaw_to(orc.global_position) + 1.2, -0.25)
+	begin("23_companions_fight")
+	for i in 4:
+		await tap(KEY_J)
+		await frames(12)
+	await frames(120)
+	finish()
+	if is_instance_valid(orc):
+		orc.queue_free()
