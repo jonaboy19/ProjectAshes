@@ -101,7 +101,14 @@ func test_courtship_advances_stage_with_points() -> void:
 	fam.add_courtship_points("npc_b", RAFamily.COURT_POINTS_COURTING)
 	assert_str(fam.stage("npc_b")).is_equal("courting")
 	fam.add_courtship_points("npc_b", RAFamily.COURT_POINTS_BETROTHED - RAFamily.COURT_POINTS_COURTING)
-	assert_str(fam.stage("npc_b")).is_equal("betrothed")
+	# Points alone no longer betroth (Codex: betrothal is gated behind propose()).
+	assert_str(fam.stage("npc_b")).is_equal("courting")
+	if not fam._has_marriage_home():
+		assert_str(fam.propose("npc_b")).contains("home")
+		assert_str(fam.stage("npc_b")).is_equal("courting")
+	else:
+		assert_str(fam.propose("npc_b")).is_empty()
+		assert_str(fam.stage("npc_b")).is_equal("betrothed")
 
 
 func test_cannot_court_once_married() -> void:
