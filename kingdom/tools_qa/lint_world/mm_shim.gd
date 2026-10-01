@@ -17,3 +17,17 @@ static func rec(mm: MultiMesh, i: int, t: Transform3D) -> void:
 		arr.resize(i + 1)
 	arr[i] = t
 	mm.set_instance_transform(i, t)
+
+
+static func rec_col(mm: MultiMesh, i: int, c: Color) -> void:
+	var arr: Array
+	if mm.has_meta("lint_col"):
+		arr = mm.get_meta("lint_col")
+	else:
+		arr = []
+		arr.resize(mm.instance_count)
+		mm.set_meta("lint_col", arr)
+	if i >= arr.size():
+		arr.resize(i + 1)
+	arr[i] = c
+	mm.set_instance_color(i, c)

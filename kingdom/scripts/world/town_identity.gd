@@ -36,7 +36,23 @@ const ROOF_GROUPS := {
 }
 const ROOF_KINDS := ["thatch", "shingle", "slate", "red", "tall"]
 const WALL_STYLES := ["stone", "low", "palisade", "hedge", "runestones", "none"]
-const LAYOUT_KINDS := ["royal", "radial", "terraced", "strung", "loose", "green", "close", "bank", "lanes", "campus", "hold"]
+const LAYOUT_KINDS := ["royal", "radial", "terraced", "strung", "loose", "green", "close", "bank", "lanes", "campus", "hold", "v_green", "v_linear", "v_cluster", "v_cross"]
+## Village / hamlet signature vocabulary: three (hamlets: two) of these features and one street pattern per place, never the same set twice.
+const VILLAGE_FEATURES := ["green", "chapel", "mill", "smithy", "jetty", "orchard", "fieldring", "pond", "maypole"]
+const VILLAGE_STREETS := ["green", "linear", "cluster", "crossroads"]
+const STREET_LAYOUTS := {"green": "v_green", "linear": "v_linear", "cluster": "v_cluster", "crossroads": "v_cross"}
+const VF_ARCH := {
+	"green": {"farming": 2, "pastoral": 3, "religious": 2, "scholarly": 1, "merchant": 1},
+	"chapel": {"religious": 4, "scholarly": 2, "farming": 1, "pastoral": 1, "fishing": 1, "hunting": 1},
+	"mill": {"farming": 3, "craft": 2, "pastoral": 1, "merchant": 1},
+	"smithy": {"mining": 3, "fortress": 3, "craft": 3, "criminal": 1, "merchant": 1, "hunting": 1},
+	"jetty": {"fishing": 4, "merchant": 1},
+	"orchard": {"farming": 2, "religious": 3, "pastoral": 1, "scholarly": 1},
+	"fieldring": {"farming": 3, "pastoral": 2},
+	"pond": {"pastoral": 2, "farming": 1, "religious": 1, "scholarly": 1},
+	"maypole": {"farming": 2, "pastoral": 2, "religious": 1, "merchant": 1}}
+const VF_TERRAIN := {"jetty": {"mere": 3, "river": 3, "coast": 3, "marsh": 2}, "pond": {"mere": 2, "marsh": 2, "stream": 2, "river": 1},
+	"mill": {"stream": 2, "river": 1, "hill": 1}, "orchard": {"hill": 1}, "chapel": {"hill": 1}, "fieldring": {"hill": -2, "forest": -2}, "green": {"hill": -1}, "maypole": {"forest": 1}}
 const ARCH_KINDS := ["royal", "merchant", "craft", "farming", "pastoral", "mining", "fortress", "hunting", "religious", "scholarly", "criminal", "fishing"]
 const SIZE_CLASSES := ["hamlet", "village", "frontier", "town", "castle"]
 
@@ -56,9 +72,15 @@ const LAYOUTS := {
 	"lanes": {"rings": [0.40, 0.68], "lanes_mul": 2.1, "plaza": 0.8, "narrow": 0.7},
 	"campus": {"rings": [0.5], "lanes_mul": 1.0, "plaza": 1.35, "density": 0.95, "academy": true},
 	"hold": {"rings": [0.5], "lanes_mul": 0.8, "plaza": 0.9, "density": 0.92, "compact": 0.9},
+	# Village street patterns (the generic "loose" villages are re-cut into one of these; see village_sig).
+	"v_green": {"rings": [0.5], "lanes_mul": 0.6, "plaza": 1.7, "density": 0.62},
+	"v_linear": {"rings": [], "lanes": 2, "plaza": 0.85, "ellipse": 0.3, "corridor": 0.2, "density": 0.8},
+	"v_cluster": {"rings": [0.4], "lanes_mul": 0.6, "plaza": 0.8, "density": 0.7, "compact": 0.7},
+	"v_cross": {"rings": [], "lanes": 2, "plaza": 0.85, "ellipse": 0.12, "corridor": 0.26, "density": 0.8},
 }
 
 ## QA switch (signature report --legacy): every town gets the unchanged original layout and look, for before / after numbers.
+const VILLAGE_THRESHOLD := 0.25
 static var legacy_all := false
 static var _data: Dictionary = {}
 static var _cultures: Dictionary = {}
@@ -68,6 +90,8 @@ static var _mat_cache: Dictionary = {}
 static var _bias_cache: Dictionary = {}
 static var _roof_of: Dictionary = {}
 static var _fit_cache: Dictionary = {}
+static var _vsig_cache: Dictionary = {}
+static var _vsig_key := ""
 
 
 # ================================================================ data
@@ -94,6 +118,8 @@ static func culture_data(id: String) -> Dictionary:
 
 ## Forget cached profiles (a new world seed moves the towns).
 static func reset() -> void:
+	_vsig_cache.clear()
+	_vsig_key = ""
 	_cache.clear()
 	_bias_cache.clear()
 
@@ -245,6 +271,10 @@ static func _make(s: Dictionary) -> Dictionary:
 	p["tower"] = float(e.get("tower", arch.get("tower", 1.0)))
 	p["stone"] = float(e.get("stone", arch.get("stone", 0.4)))
 	var layout := String(e.get("layout", arch.get("layout", "loose")))
+	var vsig := village_sig(s) if (sz == "village" or sz == "hamlet") and arch_id != "royal" and not legacy_all else {}
+	if not vsig.is_empty() and layout == "loose":
+		layout = String(STREET_LAYOUTS[vsig["street"]])
+	p["vsig"] = vsig
 	p["layout"] = layout
 	var lay: Dictionary = (LAYOUTS.get(layout, {}) as Dictionary).duplicate(true)
 	# Very small places keep a plain spacing: no ring street fits a 42 m hamlet's lots anyway.
@@ -756,6 +786,133 @@ static func tint_model(model: Node, color: Color, strength: float) -> void:
 			mi.set_surface_override_material(si, ov)
 
 
+# ================================================================ village signatures
+static func _street_of_layout(layout: String) -> String:
+	match layout:
+		"strung", "bank":
+			return "linear"
+		"hold", "close", "lanes":
+			return "cluster"
+		"radial":
+			return "crossroads"
+		"campus", "green":
+			return "green"
+	return ""
+
+
+static func _vsig_distance(a: Dictionary, b: Dictionary) -> float:
+	return 0.7 * _jaccard(a["features"], b["features"]) + 0.3 * (0.0 if a["street"] == b["street"] else 1.0)
+
+
+## Signature of one village / hamlet: {street, features}. Assigned for ALL villages of the world at once (cached) so that no two
+## share a feature set: greedy in id order, each picks its best-scoring set (archetype + terrain affinity + a seeded jitter) that
+## stays >= 0.55 (relaxing to 0.45 / 0.35 / 0.2) away from every set already given out. {} for towns.
+static func village_sig(s: Dictionary) -> Dictionary:
+	var list: Array = WorldGen.settlements
+	if list.is_empty():
+		return {}
+	var key := "%d|%s|%d,%d" % [list.size(), String((list[0] as Dictionary).get("name", "")), roundi(((list[-1] as Dictionary)["pos"] as Vector2).x), roundi(((list[-1] as Dictionary)["pos"] as Vector2).y)]
+	if key != _vsig_key:
+		_vsig_cache = _assign_villages(list)
+		_vsig_key = key
+	return _vsig_cache.get(int(s.get("id", -1)), {})
+
+
+static func _assign_villages(list: Array) -> Dictionary:
+	var towns: Dictionary = data().get("towns", {})
+	var out := {}
+	var chosen: Array = []
+	var street_use := {}
+	var feat_use := {}
+	for st: Dictionary in list:
+		var sz := size_class(st)
+		if sz != "village" and sz != "hamlet":
+			continue
+		var e: Dictionary = towns.get(String(st.get("name", "")), {})
+		if e.is_empty():
+			e = _auto_entry(st)
+		var arch_id := String(e.get("arch", "farming"))
+		if arch_id == "royal":
+			continue
+		var arch: Dictionary = (data().get("archetypes", {}) as Dictionary).get(arch_id, {})
+		var sn := sense(st)
+		var tags: Array = []
+		if float(sn["relief"]) >= 105.0:
+			tags.append("hill")
+		if float(sn["forest"]) >= 0.37:
+			tags.append("forest")
+		tags.append_array(e.get("terrain", []))
+		tags.append_array(e.get("hint", []))
+		var rng := RandomNumberGenerator.new()
+		rng.seed = absi(hash([int(st.get("id", 0)), String(st.get("name", "")), roundi((st["pos"] as Vector2).x), roundi((st["pos"] as Vector2).y)]))
+		var layout := String(e.get("layout", arch.get("layout", "loose")))
+		var street := _street_of_layout(layout)
+		if street == "":
+			var best_n := 999
+			var order := VILLAGE_STREETS.duplicate()
+			for i in order.size():       # seeded shuffle, then the least used pattern wins
+				var j := rng.randi() % order.size()
+				var tmp = order[i]
+				order[i] = order[j]
+				order[j] = tmp
+			for cand: String in order:
+				if int(street_use.get(cand, 0)) < best_n:
+					best_n = int(street_use.get(cand, 0))
+					street = cand
+		street_use[street] = int(street_use.get(street, 0)) + 1
+		var k := 2 if sz == "hamlet" else 3
+		var aff := {}
+		for f: String in VILLAGE_FEATURES:
+			var v := float((VF_ARCH.get(f, {}) as Dictionary).get(arch_id, 0))
+			for t: String in tags:
+				v += float((VF_TERRAIN.get(f, {}) as Dictionary).get(t, 0))
+			aff[f] = v
+		var cands: Array = []
+		var n := VILLAGE_FEATURES.size()
+		for i in n:
+			for j in range(i + 1, n):
+				for l in range(j + 1, n) if k == 3 else range(j, j + 1):
+					var set: Array = [VILLAGE_FEATURES[i], VILLAGE_FEATURES[j]] if k == 2 else [VILLAGE_FEATURES[i], VILLAGE_FEATURES[j], VILLAGE_FEATURES[l]]
+					if k == 2 and l != j:
+						continue
+					if set.has("pond") and set.has("jetty"):
+						continue
+					if set.has("jetty") and float(aff["jetty"]) < 3.0:
+						continue          # a jetty needs water or a fishing trade
+					var sc := 0.0
+					for f: String in set:
+						sc += float(aff[f]) - 0.9 * float(feat_use.get(f, 0))      # spread the vocabulary: popular features get dearer
+					cands.append([sc + rng.randf_range(0.0, 2.2), set])
+		cands.sort_custom(func(x: Array, y: Array) -> bool: return float(x[0]) > float(y[0]))
+		var pick: Array = []
+		for thr: float in [0.55, 0.45, 0.35, 0.2]:
+			for c: Array in cands:
+				var sig := {"street": street, "features": c[1]}
+				var ok := true
+				for o: Dictionary in chosen:
+					if _vsig_distance(sig, o) < thr:
+						ok = false
+						break
+				if ok:
+					pick = c[1]
+					break
+			if not pick.is_empty():
+				break
+		if pick.is_empty():
+			pick = (cands[0] as Array)[1]
+		var sigd := {"street": street, "features": pick}
+		chosen.append(sigd)
+		for f: String in pick:
+			feat_use[f] = int(feat_use.get(f, 0)) + 1
+		out[int(st.get("id", 0))] = sigd
+	return out
+
+
+## Village-only distance: half the full profile distance, half the signature (feature-set Jaccard + street pattern).
+static func village_distance(a: Dictionary, b: Dictionary) -> float:
+	return 0.5 * distance(a, b) + 0.5 * _vsig_distance(a["vsig"], b["vsig"])
+
+
 # ================================================================ signature and distinctness
 ## Named features of a profile (the "town signature" the report lists).
 static func signature(prof: Dictionary) -> Dictionary:
@@ -763,7 +920,8 @@ static func signature(prof: Dictionary) -> Dictionary:
 		"culture": prof["culture"] + ("+" + String(prof["influence"]) if String(prof["influence"]) != "" else ""),
 		"roof": prof["roof_main"], "palette": prof["palette"], "wall": prof["wall"], "layout": prof["layout"],
 		"banner": "%s/%s" % [(prof["banner"][0] as Color).to_html(false), (prof["banner"][1] as Color).to_html(false)],
-		"guard": (prof["guard"] as Color).to_html(false), "guards": prof["guards"], "kits": prof["kits"], "terrain": prof["terrain"]}
+		"guard": (prof["guard"] as Color).to_html(false), "guards": prof["guards"], "kits": prof["kits"], "terrain": prof["terrain"],
+		"street": String((prof["vsig"] as Dictionary).get("street", "")), "features": (prof["vsig"] as Dictionary).get("features", [])}
 
 
 static func _jaccard(a: Array, b: Array) -> float:
@@ -839,4 +997,25 @@ static func report(settlements: Array, threshold := 0.2) -> Dictionary:
 		row["nearest"] = near_n
 		row["nearest_distance"] = near_d
 		rows.append(row)
-	return {"rows": rows, "min_distance": min_d, "min_pair": min_pair, "mean_distance": sum / maxf(pairs, 1), "pairs": pairs, "threshold": threshold, "violations": bad}
+	var vil: Array = []
+	for pr: Dictionary in profs:
+		if not (pr["vsig"] as Dictionary).is_empty():
+			vil.append(pr)
+	var vmin := 9.0
+	var vpair := ["", ""]
+	var vsum := 0.0
+	var vpairs := 0
+	var vbad: Array = []
+	for i in vil.size():
+		for j in range(i + 1, vil.size()):
+			var vd := village_distance(vil[i], vil[j])
+			vsum += vd
+			vpairs += 1
+			if vd < vmin:
+				vmin = vd
+				vpair = [vil[i]["name"], vil[j]["name"]]
+			if vd < VILLAGE_THRESHOLD:
+				vbad.append([vil[i]["name"], vil[j]["name"], vd])
+	return {"villages": vil.size(), "village_min_distance": vmin, "village_min_pair": vpair, "village_mean_distance": vsum / maxf(vpairs, 1),
+		"village_pairs": vpairs, "village_threshold": VILLAGE_THRESHOLD, "village_violations": vbad,
+		"rows": rows, "min_distance": min_d, "min_pair": min_pair, "mean_distance": sum / maxf(pairs, 1), "pairs": pairs, "threshold": threshold, "violations": bad}

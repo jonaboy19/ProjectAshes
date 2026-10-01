@@ -6,6 +6,8 @@ extends Node
 ## <out>/<town>_street.png (eye level at the first gate road toward the square); the caller tiles them (PIL). Never run with --headless.
 
 const DEFAULT_TOWNS := ["Skarholm", "Longmeadow", "Highcliff", "Harrowgate", "Amberley", "Marrowick", "Saltwick", "Ashford"]
+## --towns=villages: 8 villages with different signatures + 4 towns (the village signature sheet).
+const VILLAGE_SET := ["Eastmere", "Oakvale", "Cindermoor", "Amberley", "Marrowick", "Ashford", "Harrowgate", "Frostmere", "Ironmarch", "Highcliff", "Longmeadow", "Saltwick"]
 var main: Node
 var cam: Camera3D
 var _hour := 15.0
@@ -21,6 +23,8 @@ func run(m: Node) -> void:
 	var out_dir := String(args.get("out", "/tmp/claude-0/shots/towns"))
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	var towns: Array = String(args.get("towns", "")).split(",", false) if args.has("towns") else DEFAULT_TOWNS
+	if towns == ["villages"]:
+		towns = VILLAGE_SET
 	main.hud.visible = false
 	main.player.visible = false
 	WorldSim.time_of_day = float(args.get("hour", "15.0"))
@@ -81,6 +85,7 @@ func _visit(town: Dictionary, out_dir: String) -> void:
 	cam.current = true
 	for i in 60:
 		await get_tree().process_frame
+	await _wait_ring(main.player.global_position, String(town["name"]) + " air")
 	_save(town, out_dir, "air")
 	if OS.get_cmdline_user_args().has("--probe"):
 		var troot: Node = main.settlements._built.get(town["id"])
@@ -116,6 +121,7 @@ func _visit(town: Dictionary, out_dir: String) -> void:
 	main.terrain.build_all_now()
 	for i in 30:
 		await get_tree().process_frame
+	await _wait_ring(Vector3(eye.x, 0, eye.y), String(town["name"]) + " street")
 	_save(town, out_dir, "street")
 	await _feature_shot(town, out_dir)
 
@@ -158,6 +164,32 @@ func _feature_shot(town: Dictionary, out_dir: String) -> void:
 		_save(town, out_dir, "feature")
 		print("FEATURE ", town["name"], " ", id)
 		return
+
+
+## True when every terrain chunk of the streamer's ring around `p` is built, its worker tasks are done and no plan is waiting.
+func _ring_ok(p: Vector3) -> bool:
+	var t = main.terrain
+	t.focus = p
+	var center: Vector2i = t.chunk_of(p)
+	for dz in range(-t.view_radius, t.view_radius + 1):
+		for dx in range(-t.view_radius, t.view_radius + 1):
+			if not t._chunks.has(center + Vector2i(dx, dz)):
+				return false
+	return t._tasks.is_empty()
+
+
+## Blocks until the terrain streamer reports the ring under the camera complete (up to ~900 frames); logs the outcome.
+func _wait_ring(p: Vector3, label: String) -> void:
+	main.terrain.focus = p
+	main.terrain.build_all_now()
+	var n := 0
+	while not _ring_ok(p) and n < 900:
+		main.terrain.build_all_now()
+		await get_tree().process_frame
+		n += 1
+	for i in 6:
+		await get_tree().process_frame     # one more frame: collision / grass of the last chunk
+	print("RING %s complete=%s frames=%d chunks=%d" % [label, str(_ring_ok(p)), n, main.terrain.loaded_count()])
 
 
 func _save(town: Dictionary, out_dir: String, tag: String) -> void:

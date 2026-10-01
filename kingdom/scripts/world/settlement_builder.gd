@@ -20,6 +20,7 @@ const Breakable := preload("res://scripts/world/breakable.gd")
 const NpcWorldScript := preload("res://scripts/population/npc_world.gd")
 const DistrictProps := preload("res://scripts/world/district_props.gd")   # district prop sets + house details (VERTICAL_SLICE P1)
 const TownIdentity := preload("res://scripts/world/town_identity.gd")      # per-town visual identity profile (data/world/town_identity.json)
+const VillageFeatures := preload("res://scripts/world/village_features.gd")   # village / hamlet signature landmarks (green, chapel, mill, smithy, pond ...)
 const TownView := preload("res://scripts/world/town_identity_view.gd")     # wall styles and outskirts yards of that profile
 
 const BUILD_RANGE := 650.0
@@ -301,6 +302,9 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 		var p := c + Vector2(cos(ang), sin(ang)) * r * rng.randf_range(1.2, 1.45)
 		var mill_yaw := rng.randf() * TAU
 		var mill_clear := true
+		var vsig: Dictionary = _prof.get("vsig", {})
+		if not vsig.is_empty() and not (vsig["features"] as Array).has("mill") and mill_spots.size() >= 1:
+			mill_clear = false      # a village without the "mill" signature keeps one plain windmill at most (rng stream unchanged)
 		for mq: Vector2 in mill_spots:
 			if mq.distance_to(p) < 24.0:
 				mill_clear = false
@@ -318,6 +322,7 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	_gate_outskirts(root, s, plan, gates)
 	_footprint_clutter(root, plan, rng)
 	TownView.yards(self, root, s, plan, _prof)     # outskirts of the town's industry: mine yard, granary, boatyard, watch towers ...
+	VillageFeatures.build(self, root, s, plan, _prof)     # villages and hamlets: their own set of green / chapel / mill / smithy / pond / orchard ...
 	_square_lamps(root, s, plan)
 	if s["kind"] != "village":
 		_gate_market(root, s, plan, rng)
@@ -480,7 +485,7 @@ func _plinths(root: Node3D, lots: Array) -> void:
 		_plinth_mesh = BoxMesh.new()
 		_plinth_mesh.size = Vector3.ONE
 		var mat := StandardMaterial3D.new()
-		mat.albedo_color = Color(0.66, 0.60, 0.50)   # warm tan stone, not dark brown under the sun
+		mat.albedo_color = Color(0.47, 0.43, 0.37)   # weathered foundation stone: a plinth edge must never read as a pale square from above (lint "flat" audit, lum < 0.5)
 		mat.roughness = 0.95
 		_plinth_mesh.material = mat
 	var transforms: Array[Transform3D] = []

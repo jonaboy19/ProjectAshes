@@ -54,6 +54,7 @@ var _corner_cache := {}
 ## Rewrites (in memory) the builder scripts so MultiMesh transforms survive the dummy renderer; undone by restore().
 func patch_builders() -> void:
 	var re := RegEx.create_from_string("\\b([A-Za-z_][\\w\\.]*)\\.set_instance_transform\\(")
+	var re_col := RegEx.create_from_string("\\b([A-Za-z_][\\w\\.]*)\\.set_instance_color\\(")
 	var n := 0
 	var paths: Array = CFG.PATCH_SCRIPTS.duplicate()
 	for k: String in CFG.SOURCE_TWEAKS:
@@ -69,6 +70,9 @@ func patch_builders() -> void:
 			out = re.sub(out, fn + "($1, ", true)
 			if out != sc.source_code:
 				out += "\n\nstatic func %s(mm: MultiMesh, i: int, t: Transform3D) -> void:\n\tpreload(\"res://tools_qa/lint_world/mm_shim.gd\").rec(mm, i, t)\n" % fn
+			var out2 := re_col.sub(out, fn + "c($1, ", true)
+			if out2 != out:
+				out = out2 + "\n\nstatic func %sc(mm: MultiMesh, i: int, c: Color) -> void:\n\tpreload(\"res://tools_qa/lint_world/mm_shim.gd\").rec_col(mm, i, c)\n" % fn
 		for tw: Array in CFG.SOURCE_TWEAKS.get(path, []):
 			out = out.replace(String(tw[0]), String(tw[1]))
 		if out == sc.source_code:
@@ -441,6 +445,12 @@ func _multi_units(g: Dictionary, mmi: MultiMeshInstance3D, out: Array) -> void:
 		var um := _make_unit(g, mmi, "#%d" % i, t * la, foot, text, "", false, true)
 		um["mesh"] = mm.mesh
 		um["xf"] = t
+		if mm.has_meta("lint_col"):
+			var ca: Array = mm.get_meta("lint_col")
+			if i < ca.size() and ca[i] != null:
+				um["col"] = ca[i]
+		if mmi.material_override != null:
+			um["override"] = mmi.material_override
 		out.append(um)
 
 
@@ -493,6 +503,159 @@ func _lint_group(g: Dictionary) -> void:
 		if u["multi"]:
 			stats["instances"] = int(stats["instances"]) + 1
 		_check_ground(g, u)
+	if String(g["kind"]) == "settlement":
+		_lint_flat(g, units)
+
+
+# =====================================================================================================================
+# Flat pale ground pieces (plot pads, plinths without a building, yard pads, bare decals)
+# =====================================================================================================================
+var _tex_lum := {}
+var _mesh_col := {}
+
+
+## Mean colour of the UP-facing surface of a mesh as it renders: albedo colour x vertex colour (when the material reads it) x the
+## texture's mean colour. {color, textured, lum}. Imported textures that cannot be read headless count as mid-grey (never pale).
+func _flat_color(mesh: Mesh, override: Material = null) -> Dictionary:
+	var key := mesh.get_instance_id() * 31 + (override.get_instance_id() if override != null else 0)
+	if _mesh_col.has(key):
+		return _mesh_col[key]
+	var acc := Color(0, 0, 0, 0)
+	var wsum := 0.0
+	var textured := false
+	var shader := false
+	for si in mesh.get_surface_count():
+		var mat: Material = override if override != null else mesh.surface_get_material(si)
+		var base := Color(0.8, 0.8, 0.8)
+		var use_vc := false
+		var tex_c := Color.WHITE
+		if mat is StandardMaterial3D:
+			var sm := mat as StandardMaterial3D
+			base = sm.albedo_color
+			use_vc = sm.vertex_color_use_as_albedo
+			if sm.albedo_texture != null:
+				textured = true
+				tex_c = _texture_mean(sm.albedo_texture)
+		elif mat != null:
+			shader = true
+			base = Color(0.5, 0.5, 0.5)
+		var vcol := Color.WHITE
+		var weight := 1.0
+		var arrays: Array = mesh.surface_get_arrays(si) if mesh is ArrayMesh or mesh is PrimitiveMesh else []
+		if arrays.size() > Mesh.ARRAY_VERTEX and arrays[Mesh.ARRAY_VERTEX] != null and (arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array).size() >= 3:
+			var vs: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			var cs: Variant = arrays[Mesh.ARRAY_COLOR] if arrays.size() > Mesh.ARRAY_COLOR else null
+			var idx: Variant = arrays[Mesh.ARRAY_INDEX] if arrays.size() > Mesh.ARRAY_INDEX else null
+			var tri_n := (idx as PackedInt32Array).size() / 3 if idx != null and (idx as PackedInt32Array).size() > 0 else vs.size() / 3
+			var ca := Color(0, 0, 0, 0)
+			var aw := 0.0
+			for t in tri_n:
+				var i0 := t * 3
+				var i1 := t * 3 + 1
+				var i2 := t * 3 + 2
+				if idx != null and (idx as PackedInt32Array).size() > 0:
+					i0 = (idx as PackedInt32Array)[i0]
+					i1 = (idx as PackedInt32Array)[i1]
+					i2 = (idx as PackedInt32Array)[i2]
+				var n := (vs[i1] - vs[i0]).cross(vs[i2] - vs[i0])
+				var area := n.length() * 0.5
+				if area <= 0.0001 or n.normalized().y > -0.5:      # Godot front faces are clockwise: the cross product of an UP-facing triangle points DOWN
+					continue
+				aw += area
+				if cs != null and (cs as PackedColorArray).size() == vs.size():
+					var cc := cs as PackedColorArray
+					ca += (cc[i0] + cc[i1] + cc[i2]) * (area / 3.0)
+				else:
+					ca += Color.WHITE * area
+			if aw > 0.0:
+				vcol = Color(ca.r / aw, ca.g / aw, ca.b / aw, 1.0)
+				weight = aw
+			else:
+				weight = 0.0001
+		var col := Color(base.r * tex_c.r, base.g * tex_c.g, base.b * tex_c.b)
+		if use_vc:
+			col = Color(col.r * vcol.r, col.g * vcol.g, col.b * vcol.b)
+		acc += Color(col.r * weight, col.g * weight, col.b * weight, weight)
+		wsum += weight
+	var out := {"color": Color(0.5, 0.5, 0.5), "textured": textured, "shader": shader, "lum": 0.5}
+	if wsum > 0.0:
+		var c := Color(acc.r / wsum, acc.g / wsum, acc.b / wsum)
+		out["color"] = c
+		out["lum"] = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b
+	_mesh_col[key] = out
+	return out
+
+
+func _texture_mean(tex: Texture2D) -> Color:
+	var k := tex.get_instance_id()
+	if _tex_lum.has(k):
+		return _tex_lum[k]
+	var c := Color(0.55, 0.55, 0.55)
+	var img := tex.get_image()
+	if img != null and not img.is_empty():
+		if img.is_compressed():
+			img.decompress()
+		img.resize(8, 8, Image.INTERPOLATE_BILINEAR)
+		var r := 0.0
+		var g := 0.0
+		var b := 0.0
+		for y in 8:
+			for x in 8:
+				var px := img.get_pixel(x, y)
+				r += px.r
+				g += px.g
+				b += px.b
+		c = Color(r / 64.0, g / 64.0, b / 64.0)
+	_tex_lum[k] = c
+	return c
+
+
+func _point_in_poly(p: Vector2, poly: PackedVector2Array) -> bool:
+	return poly.size() >= 3 and Geometry2D.is_point_in_polygon(p, poly)
+
+
+## A "flat ground piece": lower than CFG.FLAT_MAX_H with a footprint of at least CFG.FLAT_MIN_AREA m2 (a plot pad, plinth, yard pad,
+## pan, bare decal quad). Pale (rendered luminance >= CFG.FLAT_PALE_LUM) ones are a major finding unless a building stands on
+## them (a plinth under its house) or the tag lists in lint_config.gd mark them as intended and blended. Every candidate is listed
+## in the JSON under "flat_audit" (path, builder, luminance, area, textured, covered) so the numbers are visible.
+func _lint_flat(g: Dictionary, units: Array) -> void:
+	var buildings: Array = []
+	for u: Dictionary in units:
+		if not String(u["text"]).contains("plinth") and float(u["area"]) >= 12.0 and (bool(u["building"]) or (u["aabb"] as AABB).size.y >= 2.5):
+			buildings.append(u)     # anything tall with a real footprint counts as "a building stands here" (hero buildings are not all name-tagged)
+	var rows: Array = []
+	for u: Dictionary in units:
+		var mesh: Mesh = u.get("mesh")
+		if mesh == null or (bool(u["building"]) and not String(u["text"]).contains("plinth")):
+			continue
+		var ab: AABB = u["aabb"]
+		var area: float = u["area"]
+		if ab.size.y > CFG.FLAT_MAX_H or area < CFG.FLAT_MIN_AREA:
+			continue
+		var info := _flat_color(mesh, u.get("override"))
+		if bool(info["shader"]):
+			continue       # contact-shadow blobs and decal shaders: dark multiply layers, not painted pads
+		var col: Color = info["color"]
+		if u.has("col"):
+			var ic: Color = u["col"]
+			col = Color(col.r * ic.r, col.g * ic.g, col.b * ic.b)
+		var lum := 0.2126 * col.r + 0.7152 * col.g + 0.0722 * col.b
+		var centre := Vector2(ab.get_center().x, ab.get_center().z)
+		var covered := false
+		var foot: PackedVector2Array = u["foot"]
+		for bu: Dictionary in buildings:
+			var bf: PackedVector2Array = bu["foot"]
+			if _point_in_poly(centre, bf):
+				covered = true       # a building stands on it: a plinth under its house
+				break
+		var text: String = u["text"]
+		var intended := _tags(text, CFG.FLAT_OK)
+		var pale: bool = lum >= CFG.FLAT_PALE_LUM
+		rows.append({"path": u["path"], "builder": u["builder"], "what": String(u["text"]).substr(0, 60), "lum": snappedf(lum, 0.01), "area": snappedf(area, 0.1),
+			"h": snappedf(ab.size.y, 0.01), "textured": bool(info["textured"]), "covered": covered, "intended": intended, "pale": pale})
+		if pale and not covered and not intended:
+			_add_issue(g, u, "flat", "major", lum, "flat ground piece %.0f m2 x %.2f m high, rendered luminance %.2f (pale, %s): a bare pad from above; darken / texture it or blend its edge into the ground" % [area, ab.size.y, lum, "textured" if bool(info["textured"]) else "untextured"])
+	g["flat"] = rows
 
 
 func _shrunk_samples(u: Dictionary) -> Array:
@@ -829,7 +992,23 @@ func to_dict() -> Dictionary:
 		by_kind[i["site_kind"]][i["severity"]] += 1
 	return {"seed": seed_value, "sites": filter, "totals": {"groups": groups.size(), "props": stats["units"], "instances": stats["instances"],
 		"severe": count_sev("severe"), "major": count_sev("major"), "minor": count_sev("minor"), "allowlisted": allowed.size()},
-		"by_kind": by_kind, "untracked_multimeshes": untracked, "groups": gl, "issues": issues, "allowlisted": allowed}
+		"by_kind": by_kind, "untracked_multimeshes": untracked, "groups": gl, "issues": issues, "allowlisted": allowed, "flat_audit": _flat_export()}
+
+
+func _flat_export() -> Dictionary:
+	var out := {}
+	for g: Dictionary in groups:
+		if g.has("flat"):
+			var rows: Array = g["flat"]
+			var n_pale := 0
+			var n_cov := 0
+			for r: Dictionary in rows:
+				if bool(r["pale"]):
+					n_pale += 1
+				if bool(r["covered"]):
+					n_cov += 1
+			out[String(g["name"])] = {"flat_pieces": rows.size(), "pale": n_pale, "covered": n_cov, "rows": rows}
+	return out
 
 
 func text_report(top_n := 15) -> String:
@@ -858,6 +1037,17 @@ func text_report(top_n := 15) -> String:
 		shown += 1
 		if shown >= top_n:
 			break
+	var flat := _flat_export()
+	if not flat.is_empty():
+		out.append("")
+		out.append("Flat ground pieces per town (>= %.0f m2, <= %.1f m high): pieces / pale (lum >= %.2f) / of which under a building; flagged = major 'flat' issues" % [CFG.FLAT_MIN_AREA, CFG.FLAT_MAX_H, CFG.FLAT_PALE_LUM])
+		var flagged := {}
+		for i: Dictionary in issues:
+			if i["type"] == "flat":
+				flagged[String(i["site"])] = int(flagged.get(String(i["site"]), 0)) + 1
+		for nm: String in flat:
+			var e: Dictionary = flat[nm]
+			out.append("  %-12s %3d pieces  %3d pale  %3d covered  %3d flagged" % [nm, e["flat_pieces"], e["pale"], e["covered"], int(flagged.get(nm, 0))])
 	out.append("")
 	out.append("Draw budget (distinct mesh+material draws per site, worst 10):")
 	var gs := groups.duplicate()

@@ -250,3 +250,18 @@ func test_builder_applies_the_profile() -> void:
 		if mm2.mesh == TownIdentity.mesh_by_id("g:region/ruins/bandit_palisade"):
 			pal += mm2.instance_count
 	assert_int(pal).is_greater(30)
+
+
+func test_villages_have_unique_signatures() -> void:
+	var rep := TownIdentity.report(WorldGen.settlements, THRESHOLD)
+	assert_int(int(rep["villages"])).is_greater_equal(15)
+	assert_int((rep["village_violations"] as Array).size()).override_failure_message("villages too similar: %s" % str(rep["village_violations"])).is_equal(0)
+	assert_float(float(rep["village_min_distance"])).is_greater_equal(TownIdentity.VILLAGE_THRESHOLD)
+	var seen := {}
+	for r: Dictionary in rep["rows"]:
+		if String(r["street"]) == "":
+			continue
+		assert_bool(TownIdentity.VILLAGE_STREETS.has(r["street"])).is_true()
+		var key := ",".join(PackedStringArray(r["features"]))
+		assert_bool(seen.has(key)).override_failure_message("%s repeats the feature set %s" % [r["name"], key]).is_false()
+		seen[key] = true
