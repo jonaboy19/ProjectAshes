@@ -7,7 +7,7 @@ extends SceneTree
 ##   godot --path kingdom -s <abs>/tools/qa/bench/bench.gd -- --adult --skipintro \
 ##         --quality=low --scene=village [--seconds=10] [--png=<file>] [--csv=<file>] [--uncapped]
 ## Add `--rendering-method gl_compatibility` (engine arg, before --) for the Compatibility renderer.
-## Scenes: village (Ashford plaza, street level), city (capital gate street),
+## Scenes: village (Ashford plaza, street level), city (capital gate street), pos (--at=x,z --look=x,z [--pitch=-0.1]),
 ##         battle (24 soldiers charging the raider camp), aerial (over Ashford).
 
 var main: Control
@@ -20,6 +20,8 @@ var cpu: PackedFloat32Array = []
 var draws: PackedFloat32Array = []
 var prims: PackedFloat32Array = []
 var objs: PackedFloat32Array = []
+var wdraws: PackedFloat32Array = []   # draw calls of the 3D world viewport only (no HUD canvas)
+var wprims: PackedFloat32Array = []
 var world_vp: SubViewport
 
 
@@ -63,6 +65,8 @@ func _process(delta: float) -> bool:
 			prims.append(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME))
 			objs.append(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME))
 			if world_vp:
+				wdraws.append(world_vp.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME))
+				wprims.append(world_vp.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME))
 				gpu.append(RenderingServer.viewport_get_measured_render_time_gpu(world_vp.get_viewport_rid()))
 			if t > float(args.get("seconds", "10")) and args.has("gpuprof"):
 				phase = "gpuprof"
@@ -93,6 +97,14 @@ func _stage() -> void:
 			main._teleport(sp, 0.0)
 			var look: Vector2 = cp - sp
 			main.player.set_camera(atan2(-look.x, -look.y), -0.12)
+		"pos":
+			# --at=x,z --look=x,z : stand at a world position facing a point (Region 1 / Hidden Vale views from tools_qa/region1/*.json).
+			var pa := String(args.get("at", "0,0")).split(",")
+			var pl := String(args.get("look", "0,1")).split(",")
+			var atp := Vector2(float(pa[0]), float(pa[1]))
+			var lkp := Vector2(float(pl[0]), float(pl[1])) - atp
+			main._teleport(atp, 0.0)
+			main.player.set_camera(atan2(-lkp.x, -lkp.y), float(args.get("pitch", "-0.1")))
 		"battle":
 			_al("Game").rank = 2
 			var p := Vector2(main.FIRST_CAMP.x - 22, main.FIRST_CAMP.y + 6)
@@ -118,13 +130,13 @@ func _stage() -> void:
 
 func _finish() -> void:
 	var r := {
-		"scene": args.get("scene", "village"), "quality": _al("Quality").tier_name(), "renderer": _al("Quality").renderer(),
+		"label": args.get("label", ""), "scene": args.get("scene", "village"), "quality": _al("Quality").tier_name(), "renderer": _al("Quality").renderer(),
 		"gpu_name": RenderingServer.get_video_adapter_name(),
 		"size": "%dx%d" % [world_vp.size.x, world_vp.size.y], "scale": world_vp.scaling_3d_scale,
 		"frames": frames.size(), "fps_avg": 1000.0 / _mean(frames), "ms_avg": _mean(frames),
 		"ms_p95": _pct(frames, 0.95), "ms_p99": _pct(frames, 0.99),
 		"gpu_ms_avg": _mean(gpu), "cpu_process_ms": _mean(cpu),
-		"draw_calls": _mean(draws), "primitives": _mean(prims), "objects": _mean(objs),
+		"draw_calls": _mean(draws), "world_draws": _mean(wdraws), "world_prims": _mean(wprims), "primitives": _mean(prims), "objects": _mean(objs),
 		"vram_mb": Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0,
 		"tex_mb": Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0,
 		"static_mb": Performance.get_monitor(Performance.MEMORY_STATIC) / 1048576.0,
@@ -307,8 +319,9 @@ func _draw_census() -> void:
 		var tris := 0
 		if mesh is ArrayMesh:
 			for si in mesh.get_surface_count():
-				var ia: PackedInt32Array = mesh.surface_get_arrays(si)[Mesh.ARRAY_INDEX]
-				tris += ia.size() / 3 if ia.size() > 0 else (mesh.surface_get_arrays(si)[Mesh.ARRAY_VERTEX] as PackedVector3Array).size() / 3
+				var arrs: Array = mesh.surface_get_arrays(si)
+				var ia: Variant = arrs[Mesh.ARRAY_INDEX]
+				tris += (ia as PackedInt32Array).size() / 3 if ia != null and (ia as PackedInt32Array).size() > 0 else ((arrs[Mesh.ARRAY_VERTEX] as PackedVector3Array).size() / 3 if arrs[Mesh.ARRAY_VERTEX] != null else 0)
 		var key := "%-14s %-22s %-34s %6d tris x%-4d" % [owner.left(14), g.get_class().left(22), mname.left(34), tris, inst]
 		groups[key] = groups.get(key, 0) + surf
 		tri_groups[key] = tri_groups.get(key, 0) + tris * inst
@@ -319,14 +332,14 @@ func _draw_census() -> void:
 		print("DRAWS owner %-14s %d" % [o, by_owner[o]])
 	var keys := groups.keys()
 	keys.sort_custom(func(a, b) -> bool: return groups[a] > groups[b])
-	for k in keys.slice(0, 30):
+	for k in keys.slice(0, int(args.get("census_n", "30"))):
 		print("DRAWS %4d  %s" % [groups[k], k])
 	keys.sort_custom(func(a, b) -> bool: return tri_groups[a] > tri_groups[b])
 	var tsum := 0
 	for k in keys:
 		tsum += tri_groups[k]
 	print("TRIS in view (LOD0 of each in-range level, before mesh LOD): %d" % tsum)
-	for k in keys.slice(0, 30):
+	for k in keys.slice(0, int(args.get("census_n", "30"))):
 		print("TRIS %8d  %s" % [tri_groups[k], k])
 
 

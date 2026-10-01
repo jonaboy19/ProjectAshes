@@ -1,0 +1,581 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+Vulkan 1.4.341 - Forward Mobile - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Quality: Low (forced)
+[audio] mood silence -> wilderness (threat 0, hostiles 0, interior )
+WARNING: Screen-space ambient occlusion (SSAO) is only available when using the Forward+ or Compatibility renderers.
+   at: environment_set_ssao (servers/rendering/storage/environment_storage.cpp:700)
+   GDScript backtrace (most recent call first):
+       [0] _build_environment (res://scripts/core/main.gd:580)
+       [1] _ready (res://scripts/core/main.gd:85)
+[audio] music silence -> wild_c (mood wilderness, intensity 0.00)
+RegionDressing: preloaded 154 region scenes in 426 ms (main thread)
+WARNING: 'res://assets/incoming/meshy_free/castle/watchtower_stone_small_lod0.glb': In external resource #0, invalid UID: 'uid://dd7mha8visv3s' - using text path instead: 'res://assets/incoming/meshy_free/castle/watchtower_stone_small_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:150)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/region1/region1_look.gd:47)
+       [6] _ready (res://scripts/world/region_dressing.gd:66)
+       [7] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/castle/watchtower_stone_small_lod1.glb': In external resource #0, invalid UID: 'uid://bm5bbb2fme77v' - using text path instead: 'res://assets/incoming/meshy_free/castle/watchtower_stone_small_lod1_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:161)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/region1/region1_look.gd:47)
+       [6] _ready (res://scripts/world/region_dressing.gd:66)
+       [7] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/buildings/house_ivy_damaged_lod0.glb': In external resource #0, invalid UID: 'uid://b0uk2u76c1xug' - using text path instead: 'res://assets/incoming/meshy_free/buildings/house_ivy_damaged_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:150)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/region1/region1_look.gd:47)
+       [6] _ready (res://scripts/world/region_dressing.gd:66)
+       [7] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/buildings/house_ivy_damaged_lod1.glb': In external resource #0, invalid UID: 'uid://dtfvqujrkmlmx' - using text path instead: 'res://assets/incoming/meshy_free/buildings/house_ivy_damaged_lod1_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:161)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/region1/region1_look.gd:47)
+       [6] _ready (res://scripts/world/region_dressing.gd:66)
+       [7] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/churches/chapel_stone_small_lod0.glb': In external resource #0, invalid UID: 'uid://dwvjsg2sbrsac' - using text path instead: 'res://assets/incoming/meshy_free/churches/chapel_stone_small_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:150)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/region1/region1_look.gd:47)
+       [6] _ready (res://scripts/world/region_dressing.gd:66)
+       [7] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/churches/chapel_stone_small_lod1.glb': In external resource #0, invalid UID: 'uid://c1xln7bbmur3o' - using text path instead: 'res://assets/incoming/meshy_free/churches/chapel_stone_small_lod1_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:161)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/region1/region1_look.gd:47)
+       [6] _ready (res://scripts/world/region_dressing.gd:66)
+       [7] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/churches/church_spire_tan_lod0.glb': In external resource #0, invalid UID: 'uid://clx6odmceia6' - using text path instead: 'res://assets/incoming/meshy_free/churches/church_spire_tan_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:150)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/region1/region1_look.gd:47)
+       [6] _ready (res://scripts/world/region_dressing.gd:66)
+       [7] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/churches/church_spire_tan_lod1.glb': In external resource #0, invalid UID: 'uid://dt7ysf4u5vjmk' - using text path instead: 'res://assets/incoming/meshy_free/churches/church_spire_tan_lod1_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:161)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/region1/region1_look.gd:47)
+       [6] _ready (res://scripts/world/region_dressing.gd:66)
+       [7] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/nature/tree_old_a_lod0.glb': In external resource #0, invalid UID: 'uid://c4pqa7scmc0f8' - using text path instead: 'res://assets/incoming/meshy_free/nature/tree_old_a_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:150)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/region1/region1_look.gd:47)
+       [6] _ready (res://scripts/world/region_dressing.gd:66)
+       [7] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/nature/tree_old_a_lod1.glb': In external resource #0, invalid UID: 'uid://bpuwc5n5ihkat' - using text path instead: 'res://assets/incoming/meshy_free/nature/tree_old_a_lod1_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:161)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/region1/region1_look.gd:47)
+       [6] _ready (res://scripts/world/region_dressing.gd:66)
+       [7] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/nature/rock_limestone_tall_lod0.glb': In external resource #0, invalid UID: 'uid://dux14ykjuxs6w' - using text path instead: 'res://assets/incoming/meshy_free/nature/rock_limestone_tall_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _build_cliffs (res://scripts/region1/region1_look.gd:394)
+       [3] _ready (res://scripts/region1/region1_look.gd:51)
+       [4] _ready (res://scripts/world/region_dressing.gd:66)
+       [5] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/nature/rock_blue_brown_lod0.glb': In external resource #0, invalid UID: 'uid://b2lfg6rnt3i4y' - using text path instead: 'res://assets/incoming/meshy_free/nature/rock_blue_brown_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _build_cliffs (res://scripts/region1/region1_look.gd:394)
+       [3] _ready (res://scripts/region1/region1_look.gd:51)
+       [4] _ready (res://scripts/world/region_dressing.gd:66)
+       [5] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/nature/rock_grey_plain_lod0.glb': In external resource #0, invalid UID: 'uid://oc5sj41btv44' - using text path instead: 'res://assets/incoming/meshy_free/nature/rock_grey_plain_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _build_cliffs (res://scripts/region1/region1_look.gd:394)
+       [3] _ready (res://scripts/region1/region1_look.gd:51)
+       [4] _ready (res://scripts/world/region_dressing.gd:66)
+       [5] _ready (res://scripts/core/main.gd:169)
+Region1Look: 621 cliff rocks in 7 cells
+Region1Look: 5 landmarks, built in 1184 ms
+WARNING: 'res://assets/incoming/meshy_free/nature/tree_old_b_lod0.glb': In external resource #0, invalid UID: 'uid://ctxifaq5uk7gt' - using text path instead: 'res://assets/incoming/meshy_free/nature/tree_old_b_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:150)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/world/vale_look.gd:20)
+       [6] _ready (res://scripts/world/exploration_director.gd:58)
+       [7] _ready (res://scripts/world/region_dressing.gd:67)
+       [8] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/nature/tree_old_b_lod1.glb': In external resource #0, invalid UID: 'uid://3n1btqvnvdfc' - using text path instead: 'res://assets/incoming/meshy_free/nature/tree_old_b_lod1_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:161)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/world/vale_look.gd:20)
+       [6] _ready (res://scripts/world/exploration_director.gd:58)
+       [7] _ready (res://scripts/world/region_dressing.gd:67)
+       [8] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/nature/tree_old_twisted_lod0.glb': In external resource #0, invalid UID: 'uid://ce53gnpl1so4k' - using text path instead: 'res://assets/incoming/meshy_free/nature/tree_old_twisted_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:150)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/world/vale_look.gd:20)
+       [6] _ready (res://scripts/world/exploration_director.gd:58)
+       [7] _ready (res://scripts/world/region_dressing.gd:67)
+       [8] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/nature/tree_old_twisted_lod1.glb': In external resource #0, invalid UID: 'uid://dcqkruwbq4ptf' - using text path instead: 'res://assets/incoming/meshy_free/nature/tree_old_twisted_lod1_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:161)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/world/vale_look.gd:20)
+       [6] _ready (res://scripts/world/exploration_director.gd:58)
+       [7] _ready (res://scripts/world/region_dressing.gd:67)
+       [8] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/nature/tree_old_rocks_lod0.glb': In external resource #0, invalid UID: 'uid://do2ynr03wmeb7' - using text path instead: 'res://assets/incoming/meshy_free/nature/tree_old_rocks_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:150)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/world/vale_look.gd:20)
+       [6] _ready (res://scripts/world/exploration_director.gd:58)
+       [7] _ready (res://scripts/world/region_dressing.gd:67)
+       [8] _ready (res://scripts/core/main.gd:169)
+WARNING: 'res://assets/incoming/meshy_free/nature/tree_old_rocks_lod1.glb': In external resource #0, invalid UID: 'uid://ba1kvdur0uqgn' - using text path instead: 'res://assets/incoming/meshy_free/nature/tree_old_rocks_lod1_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _model (res://scripts/region1/region1_look.gd:161)
+       [3] _place (res://scripts/region1/region1_look.gd:251)
+       [4] _build_parts (res://scripts/region1/region1_look.gd:215)
+       [5] _ready (res://scripts/world/vale_look.gd:20)
+       [6] _ready (res://scripts/world/exploration_director.gd:58)
+       [7] _ready (res://scripts/world/region_dressing.gd:67)
+       [8] _ready (res://scripts/core/main.gd:169)
+ValeLook: 1331 cliff rocks
+[audio] bed -> village_day (interior=, t=8.1 h)
+[audio] mood wilderness -> r1_village_day (threat 0, hostiles 0, interior )
+[audio] music wild_c -> r1_village_day (mood r1_village_day, intensity 0.00)
+Region1Horizon: ground 57800x1, 30480 canopy blobs in 256 cells
+[audio] bed -> meadow_day (interior=, t=15.0 h)
+[audio] mood r1_village_day -> wilderness (threat 8, hostiles 0, interior )
+[audio] music r1_village_day -> wild_a (mood wilderness, intensity 0.00)
+[audio] stinger discovery
+WARNING: 'res://assets/incoming/meshy_free/buildings/tavern_wooden_long_lod0.glb': In external resource #0, invalid UID: 'uid://fhqkiqsx5jdn' - using text path instead: 'res://assets/incoming/meshy_free/buildings/tavern_wooden_long_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _lod_pair (res://scripts/world/region_dressing.gd:392)
+       [3] _spawn_kit (res://scripts/world/region_dressing.gd:365)
+       [4] _spawn (res://scripts/world/region_dressing.gd:298)
+       [5] _build_part (res://scripts/world/region_dressing.gd:218)
+       [6] _drain_queue (res://scripts/world/region_dressing.gd:113)
+       [7] _process_inner (res://scripts/world/region_dressing.gd:132)
+       [8] _process (res://scripts/world/region_dressing.gd:125)
+WARNING: 'res://assets/incoming/meshy_free/buildings/tavern_wooden_long_lod1.glb': In external resource #0, invalid UID: 'uid://xbvf78rtmyq8' - using text path instead: 'res://assets/incoming/meshy_free/buildings/tavern_wooden_long_lod1_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _lod_pair (res://scripts/world/region_dressing.gd:400)
+       [3] _spawn_kit (res://scripts/world/region_dressing.gd:365)
+       [4] _spawn (res://scripts/world/region_dressing.gd:298)
+       [5] _build_part (res://scripts/world/region_dressing.gd:218)
+       [6] _drain_queue (res://scripts/world/region_dressing.gd:113)
+       [7] _process_inner (res://scripts/world/region_dressing.gd:132)
+       [8] _process (res://scripts/world/region_dressing.gd:125)
+[audio] story cue r1_village_day for 140 s
+[audio] mood wilderness -> r1_village_day (threat 8, hostiles 0, interior )
+[audio] music wild_a -> r1_village_day (mood r1_village_day, intensity 0.00)
+WARNING: 'res://assets/incoming/meshy_free/props/keg_iron_banded_upright_lod0.glb': In external resource #0, invalid UID: 'uid://bd8n5txc0oa82' - using text path instead: 'res://assets/incoming/meshy_free/props/keg_iron_banded_upright_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _lod_pair (res://scripts/world/region_dressing.gd:392)
+       [3] _spawn_kit (res://scripts/world/region_dressing.gd:365)
+       [4] _spawn (res://scripts/world/region_dressing.gd:298)
+       [5] _build_part (res://scripts/world/region_dressing.gd:218)
+       [6] _drain_queue (res://scripts/world/region_dressing.gd:113)
+       [7] _process_inner (res://scripts/world/region_dressing.gd:132)
+       [8] _process (res://scripts/world/region_dressing.gd:125)
+WARNING: 'res://assets/incoming/meshy_free/props/keg_iron_banded_side_lod0.glb': In external resource #0, invalid UID: 'uid://cer46naqn7h' - using text path instead: 'res://assets/incoming/meshy_free/props/keg_iron_banded_side_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _lod_pair (res://scripts/world/region_dressing.gd:392)
+       [3] _spawn_kit (res://scripts/world/region_dressing.gd:365)
+       [4] _spawn (res://scripts/world/region_dressing.gd:298)
+       [5] _build_part (res://scripts/world/region_dressing.gd:218)
+       [6] _drain_queue (res://scripts/world/region_dressing.gd:113)
+       [7] _process_inner (res://scripts/world/region_dressing.gd:132)
+       [8] _process (res://scripts/world/region_dressing.gd:125)
+WARNING: 'res://assets/incoming/meshy_free/furniture/table_tavern_feast_lod0.glb': In external resource #0, invalid UID: 'uid://bwq6kmtugp1bw' - using text path instead: 'res://assets/incoming/meshy_free/furniture/table_tavern_feast_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _lod_pair (res://scripts/world/region_dressing.gd:392)
+       [3] _spawn_kit (res://scripts/world/region_dressing.gd:365)
+       [4] _spawn (res://scripts/world/region_dressing.gd:298)
+       [5] _build_part (res://scripts/world/region_dressing.gd:218)
+       [6] _drain_queue (res://scripts/world/region_dressing.gd:113)
+       [7] _process_inner (res://scripts/world/region_dressing.gd:132)
+       [8] _process (res://scripts/world/region_dressing.gd:125)
+WARNING: 'res://assets/incoming/meshy_free/furniture/table_bench_tavern_lod0.glb': In external resource #0, invalid UID: 'uid://6oyk0uk80r4p' - using text path instead: 'res://assets/incoming/meshy_free/furniture/table_bench_tavern_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _lod_pair (res://scripts/world/region_dressing.gd:392)
+       [3] _spawn_kit (res://scripts/world/region_dressing.gd:365)
+       [4] _spawn (res://scripts/world/region_dressing.gd:298)
+       [5] _build_part (res://scripts/world/region_dressing.gd:218)
+       [6] _drain_queue (res://scripts/world/region_dressing.gd:113)
+       [7] _process_inner (res://scripts/world/region_dressing.gd:132)
+       [8] _process (res://scripts/world/region_dressing.gd:125)
+WARNING: 'res://assets/incoming/meshy_free/furniture/tavern_set_barrels_a_lod0.glb': In external resource #0, invalid UID: 'uid://b7t24l8hxdds2' - using text path instead: 'res://assets/incoming/meshy_free/furniture/tavern_set_barrels_a_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _lod_pair (res://scripts/world/region_dressing.gd:392)
+       [3] _spawn_kit (res://scripts/world/region_dressing.gd:365)
+       [4] _spawn (res://scripts/world/region_dressing.gd:298)
+       [5] _build_part (res://scripts/world/region_dressing.gd:218)
+       [6] _drain_queue (res://scripts/world/region_dressing.gd:113)
+       [7] _process_inner (res://scripts/world/region_dressing.gd:132)
+       [8] _process (res://scripts/world/region_dressing.gd:125)
+WARNING: 'res://assets/incoming/meshy_free/carts/cart_barrels_lod0.glb': In external resource #0, invalid UID: 'uid://n1oq6uwi7yua' - using text path instead: 'res://assets/incoming/meshy_free/carts/cart_barrels_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _lod_pair (res://scripts/world/region_dressing.gd:392)
+       [3] _spawn_kit (res://scripts/world/region_dressing.gd:365)
+       [4] _spawn (res://scripts/world/region_dressing.gd:298)
+       [5] _build_part (res://scripts/world/region_dressing.gd:218)
+       [6] _drain_queue (res://scripts/world/region_dressing.gd:113)
+       [7] _process_inner (res://scripts/world/region_dressing.gd:132)
+       [8] _process (res://scripts/world/region_dressing.gd:125)
+WARNING: 'res://assets/incoming/meshy_free/fences/fence_woven_wattle_lod0.glb': In external resource #0, invalid UID: 'uid://b5jo5kvilb7s3' - using text path instead: 'res://assets/incoming/meshy_free/fences/fence_woven_wattle_lod0_lod_bake.jpg'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] scene (res://scripts/world/assets.gd:190)
+       [1] static_model (res://scripts/world/assets.gd:678)
+       [2] _lod_pair (res://scripts/world/region_dressing.gd:392)
+       [3] _spawn_kit (res://scripts/world/region_dressing.gd:365)
+       [4] _spawn (res://scripts/world/region_dressing.gd:298)
+       [5] _build_part (res://scripts/world/region_dressing.gd:218)
+       [6] _drain_queue (res://scripts/world/region_dressing.gd:113)
+       [7] _process_inner (res://scripts/world/region_dressing.gd:132)
+       [8] _process (res://scripts/world/region_dressing.gd:125)
+DRAWS total surfaces in view: 317
+DRAWS owner Chunk          34
+DRAWS owner Kingsreach     38
+DRAWS owner Thornfield     23
+DRAWS owner                211
+DRAWS owner AmbientFX      2
+DRAWS owner BuildResources 1
+DRAWS owner ConstructionView 1
+DRAWS owner RaiderCamp     5
+DRAWS owner Ashsight       1
+DRAWS owner root           1
+DRAWS   30  Kingsreach     MeshInstance3D         mill                                 8126 tris x1   
+DRAWS   16                 MeshInstance3D         ArrayMesh                             140 tris x1   
+DRAWS   16                 MeshInstance3D         CylinderMesh                            0 tris x1   
+DRAWS   15                 MeshInstance3D         windmill_lod1.glb::ArrayMesh_56vxt    628 tris x1   
+DRAWS   14                 MeshInstance3D         nature:region/nature/rock_medium      320 tris x1   
+DRAWS   14                 MeshInstance3D         nature:region/nature/bush_round       316 tris x1   
+DRAWS   12                 MeshInstance3D         QuadMesh                                0 tris x1   
+DRAWS   11  Chunk          MeshInstance3D         ArrayMesh                             640 tris x1   
+DRAWS    8  Chunk          MultiMeshInstance3D    nature:region/nature/log_mossy        136 tris x1   
+DRAWS    8                 MeshInstance3D         SphereMesh                              0 tris x1   
+DRAWS    7                 MeshInstance3D         nature:region/nature/fern_b            42 tris x1   
+DRAWS    6                 MeshInstance3D         pier.glb::ArrayMesh_jwgbl            9628 tris x1   
+DRAWS    6                 MeshInstance3D         ArrayMesh                            2985 tris x1   
+DRAWS    6                 MeshInstance3D         ArrayMesh                             668 tris x1   
+DRAWS    5                 MeshInstance3D         ArrayMesh                             864 tris x1   
+DRAWS    5                 MeshInstance3D         nature:region/nature/flowers_warm      36 tris x1   
+DRAWS    5                 MeshInstance3D         ArrayMesh                             544 tris x1   
+DRAWS    4                 MeshInstance3D         ArrayMesh                            2740 tris x1   
+DRAWS    4  RaiderCamp     MeshInstance3D         tent.gltf::ArrayMesh_gitgt             86 tris x1   
+DRAWS    4  Thornfield     MultiMeshInstance3D    nature:region/nature/bush_hazel       356 tris x1   
+DRAWS    4  Thornfield     MultiMeshInstance3D    nature:region/nature/bush_round       316 tris x1   
+DRAWS    4                 MeshInstance3D         ArrayMesh                            1997 tris x1   
+DRAWS    4  Thornfield     MultiMeshInstance3D    nature:region/nature/beech_a_lod1     406 tris x2   
+DRAWS    4                 MeshInstance3D         rowboat.glb::ArrayMesh_xguwu         2780 tris x1   
+DRAWS    4                 Label3D                Label3D                                 0 tris x1   
+DRAWS    4                 MeshInstance3D         shield_round_wood_boss.glb::ArrayM    658 tris x1   
+DRAWS    4                 MeshInstance3D         ArrayMesh                            1076 tris x1   
+DRAWS    3                 MeshInstance3D         ArrayMesh                            4028 tris x1   
+DRAWS    3                 MeshInstance3D         bench                                 600 tris x1   
+DRAWS    3                 MeshInstance3D         ArrayMesh                            2480 tris x1   
+DRAWS    3                 MeshInstance3D         ArrayMesh                            1998 tris x1   
+DRAWS    3  Kingsreach     MeshInstance3D         castle                              23340 tris x1   
+DRAWS    2                 MeshInstance3D         ArrayMesh                              96 tris x1   
+DRAWS    2                 MultiMeshInstance3D    nature:region/nature/bush_round       316 tris x7   
+DRAWS    2                 MultiMeshInstance3D    nature:region/nature/rock_medium      320 tris x7   
+DRAWS    2  Chunk          MultiMeshInstance3D    nature:region/nature/log_mossy        136 tris x2   
+DRAWS    2  Kingsreach     MeshInstance3D         temple                              13799 tris x1   
+DRAWS    2  Kingsreach     MeshInstance3D         stable                               8077 tris x1   
+DRAWS    2  Thornfield     MultiMeshInstance3D    nature:region/nature/bush_round       316 tris x2   
+DRAWS    2  Thornfield     MultiMeshInstance3D    nature:region/nature/beech_a         1332 tris x2   
+DRAWS    2  Thornfield     MultiMeshInstance3D    nature:region/nature/young_oak_lod    246 tris x1   
+DRAWS    2  Thornfield     MultiMeshInstance3D    nature:region/nature/beech_a_lod1     406 tris x1   
+DRAWS    2  Chunk          MultiMeshInstance3D    nature:region/nature/bush_berry       316 tris x1   
+DRAWS    2                 MeshInstance3D         Sword_Bronze.gltf::ArrayMesh_d0hwa   1540 tris x1   
+DRAWS    2                 MeshInstance3D         villager_guard.glb::ArrayMesh_sjks   7595 tris x1   
+DRAWS    2  Chunk          MeshInstance3D         ArrayMesh                            2048 tris x1   
+DRAWS    1  root           MeshInstance3D         player_young.glb::ArrayMesh_6mskr    8351 tris x1   
+DRAWS    1                 MeshInstance3D         BoxMesh                                 0 tris x1   
+DRAWS    1                 MeshInstance3D         g6_f_worker_apron.glb::ArrayMesh_u    334 tris x1   
+DRAWS    1                 MeshInstance3D         g6_f_worker_apron.glb::ArrayMesh_m    740 tris x1   
+DRAWS    1                 MeshInstance3D         g6_f_worker_apron.glb::ArrayMesh_s    488 tris x1   
+DRAWS    1                 MeshInstance3D         g6_f_worker_apron.glb::ArrayMesh_u   1166 tris x1   
+DRAWS    1                 MeshInstance3D         g6_f_worker_apron.glb::ArrayMesh_m    404 tris x1   
+DRAWS    1  Ashsight       GPUParticles3D         GPUParticles3D                          0 tris x1   
+DRAWS    1  RaiderCamp     MeshInstance3D         weaponrack.gltf::ArrayMesh_wpw2h       42 tris x1   
+DRAWS    1  ConstructionVi MultiMeshInstance3D    BoxMesh                                 0 tris x0   
+DRAWS    1  BuildResources MultiMeshInstance3D    nature:Rock_Medium_3                  522 tris x10  
+DRAWS    1  AmbientFX      GPUParticles3D         GPUParticles3D                          0 tris x1   
+DRAWS    1  AmbientFX      MultiMeshInstance3D    ArrayMesh                               7 tris x4   
+DRAWS    1                 MeshInstance3D         ArrayMesh                            3598 tris x1   
+DRAWS    1                 MeshInstance3D         ArrayMesh                            2997 tris x1   
+DRAWS    1                 MeshInstance3D         ArrayMesh                            5000 tris x1   
+DRAWS    1                 MeshInstance3D         ArrayMesh                            3987 tris x1   
+DRAWS    1                 MeshInstance3D         ArrayMesh                            3000 tris x1   
+DRAWS    1  Chunk          MeshInstance3D         ArrayMesh                             198 tris x1   
+DRAWS    1  Chunk          MeshInstance3D         ArrayMesh                             156 tris x1   
+DRAWS    1  Chunk          MeshInstance3D         ArrayMesh                             114 tris x1   
+DRAWS    1  Chunk          MeshInstance3D         ArrayMesh                             216 tris x1   
+DRAWS    1  Chunk          MeshInstance3D         ArrayMesh                             336 tris x1   
+DRAWS    1  Chunk          MeshInstance3D         ArrayMesh                             108 tris x1   
+DRAWS    1  Chunk          MeshInstance3D         ArrayMesh                             444 tris x1   
+DRAWS    1  Chunk          MeshInstance3D         ArrayMesh                             360 tris x1   
+DRAWS    1  Chunk          MeshInstance3D         ArrayMesh                             348 tris x1   
+DRAWS    1  Kingsreach     MeshInstance3D         signpost                              878 tris x1   
+DRAWS    1  Thornfield     MultiMeshInstance3D    nature:region/nature/beech_a_lod2       6 tris x1   
+DRAWS    1  Thornfield     MultiMeshInstance3D    nature:region/nature/oak_b_lod2         6 tris x1   
+DRAWS    1  Thornfield     MultiMeshInstance3D    PlaneMesh                               0 tris x7   
+DRAWS    1                 MultiMeshInstance3D    QuadMesh                                0 tris x0   
+DRAWS    1                 MeshInstance3D         player_young.glb::ArrayMesh_6mskr    8351 tris x1   
+DRAWS    1                 MeshInstance3D         anglo_saxon_helm2.glb::ArrayMesh_0    716 tris x1   
+DRAWS    1                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe   1312 tris x1   
+DRAWS    1                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe    500 tris x1   
+DRAWS    1                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe    148 tris x1   
+DRAWS    1                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe     88 tris x1   
+DRAWS    1                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe     44 tris x1   
+DRAWS    1                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe    176 tris x1   
+DRAWS    1                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe    152 tris x1   
+DRAWS    1                 MeshInstance3D         ArrayMesh                           57800 tris x1   
+DRAWS    1                 MultiMeshInstance3D    ArrayMesh                              30 tris x125 
+DRAWS    1                 MultiMeshInstance3D    ArrayMesh                              30 tris x71  
+DRAWS    1                 MultiMeshInstance3D    ArrayMesh                              30 tris x27  
+DRAWS    1                 MultiMeshInstance3D    nature:nature/flowers_a                88 tris x8   
+DRAWS    1                 MultiMeshInstance3D    nature:nature/grass_clump_tall        120 tris x8   
+DRAWS    1                 MultiMeshInstance3D    nature:region/nature/flowers_warm      36 tris x10  
+DRAWS    1                 MultiMeshInstance3D    nature:region/nature/flowers_cool      36 tris x4   
+DRAWS    1                 MultiMeshInstance3D    nature:region/nature/fern_b            42 tris x5   
+TRIS in view (LOD0 of each in-range level, before mesh LOD): 290821
+TRIS    57800                 MeshInstance3D         ArrayMesh                           57800 tris x1   
+TRIS    24378  Kingsreach     MeshInstance3D         mill                                 8126 tris x1   
+TRIS    23340  Kingsreach     MeshInstance3D         castle                              23340 tris x1   
+TRIS    17910                 MeshInstance3D         ArrayMesh                            2985 tris x1   
+TRIS    13799  Kingsreach     MeshInstance3D         temple                              13799 tris x1   
+TRIS     9628                 MeshInstance3D         pier.glb::ArrayMesh_jwgbl            9628 tris x1   
+TRIS     8351                 MeshInstance3D         player_young.glb::ArrayMesh_6mskr    8351 tris x1   
+TRIS     8351  root           MeshInstance3D         player_young.glb::ArrayMesh_6mskr    8351 tris x1   
+TRIS     8077  Kingsreach     MeshInstance3D         stable                               8077 tris x1   
+TRIS     7988                 MeshInstance3D         ArrayMesh                            1997 tris x1   
+TRIS     7595                 MeshInstance3D         villager_guard.glb::ArrayMesh_sjks   7595 tris x1   
+TRIS     7040  Chunk          MeshInstance3D         ArrayMesh                             640 tris x1   
+TRIS     5994                 MeshInstance3D         ArrayMesh                            1998 tris x1   
+TRIS     5220  BuildResources MultiMeshInstance3D    nature:Rock_Medium_3                  522 tris x10  
+TRIS     5000                 MeshInstance3D         ArrayMesh                            5000 tris x1   
+TRIS     4096  Chunk          MeshInstance3D         ArrayMesh                            2048 tris x1   
+TRIS     4028                 MeshInstance3D         ArrayMesh                            4028 tris x1   
+TRIS     3987                 MeshInstance3D         ArrayMesh                            3987 tris x1   
+TRIS     3750                 MultiMeshInstance3D    ArrayMesh                              30 tris x125 
+TRIS     3598                 MeshInstance3D         ArrayMesh                            3598 tris x1   
+TRIS     3080                 MeshInstance3D         Sword_Bronze.gltf::ArrayMesh_d0hwa   1540 tris x1   
+TRIS     3000                 MeshInstance3D         ArrayMesh                            3000 tris x1   
+TRIS     2997                 MeshInstance3D         ArrayMesh                            2997 tris x1   
+TRIS     2780                 MeshInstance3D         rowboat.glb::ArrayMesh_xguwu         2780 tris x1   
+TRIS     2740                 MeshInstance3D         ArrayMesh                            2740 tris x1   
+TRIS     2664  Thornfield     MultiMeshInstance3D    nature:region/nature/beech_a         1332 tris x2   
+TRIS     2480                 MeshInstance3D         ArrayMesh                            2480 tris x1   
+TRIS     2240                 MultiMeshInstance3D    nature:region/nature/rock_medium      320 tris x7   
+TRIS     2240                 MeshInstance3D         nature:region/nature/rock_medium      320 tris x1   
+TRIS     2212                 MultiMeshInstance3D    nature:region/nature/bush_round       316 tris x7   
+TRIS     2212                 MeshInstance3D         nature:region/nature/bush_round       316 tris x1   
+TRIS     2152                 MeshInstance3D         ArrayMesh                            1076 tris x1   
+TRIS     2130                 MultiMeshInstance3D    ArrayMesh                              30 tris x71  
+TRIS     2004                 MeshInstance3D         ArrayMesh                             668 tris x1   
+TRIS     1884                 MeshInstance3D         windmill_lod1.glb::ArrayMesh_56vxt    628 tris x1   
+TRIS     1800                 MeshInstance3D         bench                                 600 tris x1   
+TRIS     1624  Thornfield     MultiMeshInstance3D    nature:region/nature/beech_a_lod1     406 tris x2   
+TRIS     1312                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe   1312 tris x1   
+TRIS     1166                 MeshInstance3D         g6_f_worker_apron.glb::ArrayMesh_u   1166 tris x1   
+TRIS     1120                 MeshInstance3D         ArrayMesh                             140 tris x1   
+TRIS      960                 MultiMeshInstance3D    nature:nature/grass_clump_tall        120 tris x8   
+TRIS      878  Kingsreach     MeshInstance3D         signpost                              878 tris x1   
+TRIS      864                 MeshInstance3D         ArrayMesh                             864 tris x1   
+TRIS      810                 MultiMeshInstance3D    ArrayMesh                              30 tris x27  
+TRIS      740                 MeshInstance3D         g6_f_worker_apron.glb::ArrayMesh_m    740 tris x1   
+TRIS      716                 MeshInstance3D         anglo_saxon_helm2.glb::ArrayMesh_0    716 tris x1   
+TRIS      712  Thornfield     MultiMeshInstance3D    nature:region/nature/bush_hazel       356 tris x1   
+TRIS      704                 MultiMeshInstance3D    nature:nature/flowers_a                88 tris x8   
+TRIS      658                 MeshInstance3D         shield_round_wood_boss.glb::ArrayM    658 tris x1   
+TRIS      632  Thornfield     MultiMeshInstance3D    nature:region/nature/bush_round       316 tris x1   
+TRIS      632  Thornfield     MultiMeshInstance3D    nature:region/nature/bush_round       316 tris x2   
+TRIS      544                 MeshInstance3D         ArrayMesh                             544 tris x1   
+TRIS      544  Chunk          MultiMeshInstance3D    nature:region/nature/log_mossy        136 tris x1   
+TRIS      500                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe    500 tris x1   
+TRIS      488                 MeshInstance3D         g6_f_worker_apron.glb::ArrayMesh_s    488 tris x1   
+TRIS      444  Chunk          MeshInstance3D         ArrayMesh                             444 tris x1   
+TRIS      406  Thornfield     MultiMeshInstance3D    nature:region/nature/beech_a_lod1     406 tris x1   
+TRIS      404                 MeshInstance3D         g6_f_worker_apron.glb::ArrayMesh_m    404 tris x1   
+TRIS      360  Chunk          MeshInstance3D         ArrayMesh                             360 tris x1   
+TRIS      360                 MultiMeshInstance3D    nature:region/nature/flowers_warm      36 tris x10  
+TRIS      348  Chunk          MeshInstance3D         ArrayMesh                             348 tris x1   
+TRIS      344  RaiderCamp     MeshInstance3D         tent.gltf::ArrayMesh_gitgt             86 tris x1   
+TRIS      336  Chunk          MeshInstance3D         ArrayMesh                             336 tris x1   
+TRIS      334                 MeshInstance3D         g6_f_worker_apron.glb::ArrayMesh_u    334 tris x1   
+TRIS      316  Chunk          MultiMeshInstance3D    nature:region/nature/bush_berry       316 tris x1   
+TRIS      294                 MeshInstance3D         nature:region/nature/fern_b            42 tris x1   
+TRIS      272  Chunk          MultiMeshInstance3D    nature:region/nature/log_mossy        136 tris x2   
+TRIS      246  Thornfield     MultiMeshInstance3D    nature:region/nature/young_oak_lod    246 tris x1   
+TRIS      216  Chunk          MeshInstance3D         ArrayMesh                             216 tris x1   
+TRIS      210                 MultiMeshInstance3D    nature:region/nature/fern_b            42 tris x5   
+TRIS      198  Chunk          MeshInstance3D         ArrayMesh                             198 tris x1   
+TRIS      192                 MeshInstance3D         ArrayMesh                              96 tris x1   
+TRIS      180                 MeshInstance3D         nature:region/nature/flowers_warm      36 tris x1   
+TRIS      176                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe    176 tris x1   
+TRIS      156  Chunk          MeshInstance3D         ArrayMesh                             156 tris x1   
+TRIS      152                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe    152 tris x1   
+TRIS      148                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe    148 tris x1   
+TRIS      144                 MultiMeshInstance3D    nature:region/nature/flowers_cool      36 tris x4   
+TRIS      114  Chunk          MeshInstance3D         ArrayMesh                             114 tris x1   
+TRIS      108  Chunk          MeshInstance3D         ArrayMesh                             108 tris x1   
+TRIS       88                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe     88 tris x1   
+TRIS       44                 MeshInstance3D         fishing-hut-on-stilts.glb::ArrayMe     44 tris x1   
+TRIS       42  RaiderCamp     MeshInstance3D         weaponrack.gltf::ArrayMesh_wpw2h       42 tris x1   
+TRIS       28  AmbientFX      MultiMeshInstance3D    ArrayMesh                               7 tris x4   
+TRIS        6  Thornfield     MultiMeshInstance3D    nature:region/nature/oak_b_lod2         6 tris x1   
+TRIS        6  Thornfield     MultiMeshInstance3D    nature:region/nature/beech_a_lod2       6 tris x1   
+TRIS        0  AmbientFX      GPUParticles3D         GPUParticles3D                          0 tris x1   
+TRIS        0                 MeshInstance3D         BoxMesh                                 0 tris x1   
+TRIS        0                 MultiMeshInstance3D    QuadMesh                                0 tris x0   
+TRIS        0  Thornfield     MultiMeshInstance3D    PlaneMesh                               0 tris x7   
+TRIS        0                 Label3D                Label3D                                 0 tris x1   
+TRIS        0                 MeshInstance3D         SphereMesh                              0 tris x1   
+TRIS        0                 MeshInstance3D         QuadMesh                                0 tris x1   
+TRIS        0                 MeshInstance3D         CylinderMesh                            0 tris x1   
+TRIS        0  Ashsight       GPUParticles3D         GPUParticles3D                          0 tris x1   
+TRIS        0  ConstructionVi MultiMeshInstance3D    BoxMesh                                 0 tris x0   
+BENCH {"chunks":25,"cpu_process_ms":58.3481508043077,"draw_calls":450.003703703704,"fps_avg":44.8874572075564,"frames":270,"gpu_ms_avg":3.68146666597437,"gpu_name":"NVIDIA GeForce RTX 4070 Laptop GPU","ms_avg":22.2779382529082,"ms_p95":22.3419990539551,"ms_p99":28.0629997253418,"nodes":10182.0,"npc_full":0,"npc_sprites":10,"objects":1111.0037037037,"primitives":268132.622222222,"quality":"Low","renderer":"mobile","scale":0.75,"scene":"pos","size":"1280x720","static_mb":644.405758857727,"tex_mb":506.91064453125,"vram_mb":722.393218994141}
+ERROR: 76 RID allocations of type 'P11JoltShape3D' were leaked at exit.
+ERROR: 1138 RID allocations of type 'N10RendererRD11MeshStorage4MeshE' were leaked at exit.
+ERROR: 931 RID allocations of type 'N10RendererRD15MaterialStorage8MaterialE' were leaked at exit.
+ERROR: 30 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.
+ERROR: 446 RID allocations of type 'N10RendererRD14TextureStorage7TextureE' were leaked at exit.
+ERROR: 52 RID allocations of type 'PN18TextServerAdvanced22ShapedTextDataAdvancedE' were leaked at exit.
+ERROR: 1 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.
+ERROR: 29 shaders of type SceneForwardMobileShaderRD were never freed
+   at: ~ShaderRD (servers/rendering/renderer_rd/shader_rd.cpp:1056)
+ERROR: 1 shaders of type CanvasShaderRD were never freed
+   at: ~ShaderRD (servers/rendering/renderer_rd/shader_rd.cpp:1056)
+WARNING: 932 RIDs of type "UniformBuffer" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 4668 RIDs of type "IndexArray" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 4668 RIDs of type "IndexBuffer" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 173 RIDs of type "VertexArray" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 3651 RIDs of type "VertexBuffer" were leaked.
+   at: _free_rids (servers/rendering/rendering_device.cpp:7295)
+WARNING: 813 RIDs of type "Texture" were leaked.
+   at: finalize (servers/rendering/rendering_device.cpp:7505)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2663)
+ERROR: 3286 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+ERROR: Pages in use exist at exit in PagedAllocator: N7Variant5Pools11BucketLargeE
+   at: ~PagedAllocator (./core/templates/paged_allocator.h:169)
+ERROR: Pages in use exist at exit in PagedAllocator: N7Variant5Pools12BucketMediumE
+   at: ~PagedAllocator (./core/templates/paged_allocator.h:169)
+ERROR: Pages in use exist at exit in PagedAllocator: N7Variant5Pools11BucketSmallE
+   at: ~PagedAllocator (./core/templates/paged_allocator.h:169)

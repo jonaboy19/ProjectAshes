@@ -1,0 +1,7 @@
+w_highwatch_keep avg_ms=22.22 p95_ms=24.30 fps=45 draws=224 prims=1286345 objs=321
+w_crownstead_estate avg_ms=22.22 p95_ms=23.97 fps=45 draws=267 prims=952553 objs=415
+w_grimfen_pass avg_ms=20.35 p95_ms=22.31 fps=49 draws=161 prims=465477 objs=250
+w_landmark_kingsreach avg_ms=18.40 p95_ms=20.64 fps=54 draws=365 prims=2725531 objs=477
+w_landmark_ironmarch avg_ms=20.56 p95_ms=23.11 fps=49 draws=310 prims=1150727 objs=373
+w_grimfen_pass_night avg_ms=16.79 p95_ms=17.80 fps=60 draws=159 prims=519056 objs=256
+w_solkar_camp_summer avg_ms=20.63 p95_ms=22.81 fps=48 draws=380 prims=1416490 objs=484
