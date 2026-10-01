@@ -1,0 +1,5240 @@
+[
+ {
+  "name": "Horse_Ride_Idle",
+  "glb_name": "Horse_Ride_Idle_Loop",
+  "loop": true,
+  "frames": 121,
+  "fps": 30,
+  "seconds": 4.0,
+  "synced_to": "Idle",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    81
+   ],
+   "hand_r": [
+    0.0,
+    80
+   ],
+   "foot_l": [
+    0.0,
+    44
+   ],
+   "foot_r": [
+    0.0,
+    44
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    81
+   ],
+   "r": [
+    0.0,
+    80
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    44
+   ],
+   "r": [
+    0.0,
+    44
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   13
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": [
+    0.0015,
+    39
+   ],
+   "penetration_max_m": [
+    0.0177,
+    12,
+    "calf_l"
+   ],
+   "horse_frames": 121
+  }
+ },
+ {
+  "name": "Horse_Ride_Idle_LookAround",
+  "glb_name": "Horse_Ride_Idle_LookAround",
+  "loop": false,
+  "frames": 121,
+  "fps": 30,
+  "seconds": 4.0,
+  "synced_to": "Idle",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "look_left": 24,
+   "look_right": 72,
+   "look_back": 92
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    60
+   ],
+   "hand_r": [
+    0.0011,
+    93
+   ],
+   "foot_l": [
+    0.0,
+    44
+   ],
+   "foot_r": [
+    0.0,
+    44
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    60
+   ],
+   "r": [
+    0.0011,
+    93
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    44
+   ],
+   "r": [
+    0.0,
+    44
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   13
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": [
+    0.0016,
+    48
+   ],
+   "penetration_max_m": [
+    0.0177,
+    12,
+    "calf_l"
+   ],
+   "horse_frames": 121
+  }
+ },
+ {
+  "name": "Horse_Ride_Walk",
+  "glb_name": "Horse_Ride_Walk_Loop",
+  "loop": true,
+  "frames": 35,
+  "fps": 30,
+  "seconds": 1.133,
+  "synced_to": "Walk",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    2
+   ],
+   "hand_r": [
+    0.0,
+    19
+   ],
+   "foot_l": [
+    0.0001,
+    30
+   ],
+   "foot_r": [
+    0.0001,
+    13
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    2
+   ],
+   "r": [
+    0.0,
+    19
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    30
+   ],
+   "r": [
+    0.0001,
+    13
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.086,
+   8
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0012,
+    2
+   ],
+   "grip_miss_max_m": [
+    0.0016,
+    2
+   ],
+   "penetration_max_m": [
+    0.0194,
+    26,
+    "calf_r"
+   ],
+   "horse_frames": 35
+  }
+ },
+ {
+  "name": "Horse_Ride_Trot",
+  "glb_name": "Horse_Ride_Trot_Loop",
+  "loop": true,
+  "frames": 23,
+  "fps": 30,
+  "seconds": 0.733,
+  "synced_to": "Trot",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "rise": 1,
+   "sit": 11
+  },
+  "notes": "posting (rising) trot: rise with diagonal FR+HL (frames 0-10), sit on FL+HR (11-22); one rise per stride",
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": "sit phase only (frames 11-22)",
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    19
+   ],
+   "hand_r": [
+    0.0,
+    19
+   ],
+   "foot_l": [
+    0.0001,
+    15
+   ],
+   "foot_r": [
+    0.0001,
+    13
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    19
+   ],
+   "r": [
+    0.0,
+    19
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    15
+   ],
+   "r": [
+    0.0001,
+    13
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.081,
+   21
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0011,
+    13
+   ],
+   "grip_miss_max_m": [
+    0.0017,
+    9
+   ],
+   "penetration_max_m": [
+    0.0216,
+    5,
+    "calf_l"
+   ],
+   "horse_frames": 23
+  }
+ },
+ {
+  "name": "Horse_Ride_Trot_Sit",
+  "glb_name": "Horse_Ride_Trot_Sit_Loop",
+  "loop": true,
+  "frames": 23,
+  "fps": 30,
+  "seconds": 0.733,
+  "synced_to": "Trot",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    1
+   ],
+   "hand_r": [
+    0.0,
+    12
+   ],
+   "foot_l": [
+    0.0,
+    13
+   ],
+   "foot_r": [
+    0.0,
+    1
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    1
+   ],
+   "r": [
+    0.0,
+    12
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    13
+   ],
+   "r": [
+    0.0,
+    1
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.081,
+   10
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0009,
+    20
+   ],
+   "grip_miss_max_m": [
+    0.0015,
+    11
+   ],
+   "penetration_max_m": [
+    0.0164,
+    0,
+    "calf_r"
+   ],
+   "horse_frames": 23
+  }
+ },
+ {
+  "name": "Horse_Ride_Canter_L",
+  "glb_name": "Horse_Ride_Canter_L_Loop",
+  "loop": true,
+  "frames": 19,
+  "fps": 30,
+  "seconds": 0.6,
+  "synced_to": "Canter_L",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    13
+   ],
+   "hand_r": [
+    0.0,
+    11
+   ],
+   "foot_l": [
+    0.0001,
+    3
+   ],
+   "foot_r": [
+    0.0001,
+    1
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    13
+   ],
+   "r": [
+    0.0,
+    11
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    3
+   ],
+   "r": [
+    0.0001,
+    1
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.081,
+   15
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0011,
+    6
+   ],
+   "grip_miss_max_m": [
+    0.0016,
+    4
+   ],
+   "penetration_max_m": [
+    0.02,
+    4,
+    "calf_r"
+   ],
+   "horse_frames": 19
+  }
+ },
+ {
+  "name": "Horse_Ride_Canter_R",
+  "glb_name": "Horse_Ride_Canter_R_Loop",
+  "loop": true,
+  "frames": 19,
+  "fps": 30,
+  "seconds": 0.6,
+  "synced_to": "Canter_R",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    11
+   ],
+   "hand_r": [
+    0.0,
+    13
+   ],
+   "foot_l": [
+    0.0001,
+    1
+   ],
+   "foot_r": [
+    0.0001,
+    3
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    11
+   ],
+   "r": [
+    0.0,
+    13
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    1
+   ],
+   "r": [
+    0.0001,
+    3
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.081,
+   15
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0011,
+    6
+   ],
+   "grip_miss_max_m": [
+    0.0017,
+    4
+   ],
+   "penetration_max_m": [
+    0.0194,
+    4,
+    "calf_l"
+   ],
+   "horse_frames": 19
+  }
+ },
+ {
+  "name": "Horse_Ride_Canter_TwoPoint_L",
+  "glb_name": "Horse_Ride_Canter_TwoPoint_L_Loop",
+  "loop": true,
+  "frames": 19,
+  "fps": 30,
+  "seconds": 0.6,
+  "synced_to": "Canter_L",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": false,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.002,
+    9
+   ],
+   "hand_r": [
+    0.0025,
+    9
+   ],
+   "foot_l": [
+    0.0,
+    17
+   ],
+   "foot_r": [
+    0.0,
+    13
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.002,
+    9
+   ],
+   "r": [
+    0.0025,
+    9
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    17
+   ],
+   "r": [
+    0.0,
+    13
+   ]
+  },
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0012,
+    15
+   ],
+   "grip_miss_max_m": [
+    0.0024,
+    9
+   ],
+   "penetration_max_m": [
+    0.0243,
+    8,
+    "calf_l"
+   ],
+   "horse_frames": 19
+  }
+ },
+ {
+  "name": "Horse_Ride_Gallop_L",
+  "glb_name": "Horse_Ride_Gallop_L_Loop",
+  "loop": true,
+  "frames": 15,
+  "fps": 30,
+  "seconds": 0.467,
+  "synced_to": "Gallop_L",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": false,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    3
+   ],
+   "hand_r": [
+    0.0,
+    12
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    6
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    3
+   ],
+   "r": [
+    0.0,
+    12
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    6
+   ]
+  },
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.002,
+    12
+   ],
+   "grip_miss_max_m": [
+    0.0015,
+    10
+   ],
+   "penetration_max_m": [
+    0.025,
+    5,
+    "calf_l"
+   ],
+   "horse_frames": 15
+  }
+ },
+ {
+  "name": "Horse_Ride_Gallop_R",
+  "glb_name": "Horse_Ride_Gallop_R_Loop",
+  "loop": true,
+  "frames": 15,
+  "fps": 30,
+  "seconds": 0.467,
+  "synced_to": "Gallop_R",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": false,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    12
+   ],
+   "hand_r": [
+    0.0,
+    3
+   ],
+   "foot_l": [
+    0.0,
+    6
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    12
+   ],
+   "r": [
+    0.0,
+    3
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    6
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.002,
+    12
+   ],
+   "grip_miss_max_m": [
+    0.0015,
+    10
+   ],
+   "penetration_max_m": [
+    0.0249,
+    5,
+    "calf_r"
+   ],
+   "horse_frames": 15
+  }
+ },
+ {
+  "name": "Horse_Ride_BackUp",
+  "glb_name": "Horse_Ride_BackUp_Loop",
+  "loop": true,
+  "frames": 41,
+  "fps": 30,
+  "seconds": 1.333,
+  "synced_to": "BackUp",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    36
+   ],
+   "hand_r": [
+    0.0,
+    6
+   ],
+   "foot_l": [
+    0.0001,
+    39
+   ],
+   "foot_r": [
+    0.0001,
+    19
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    36
+   ],
+   "r": [
+    0.0,
+    6
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    39
+   ],
+   "r": [
+    0.0001,
+    19
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.0882,
+   17
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0013,
+    20
+   ],
+   "grip_miss_max_m": [
+    0.0011,
+    20
+   ],
+   "penetration_max_m": [
+    0.0181,
+    4,
+    "calf_l"
+   ],
+   "horse_frames": 41
+  }
+ },
+ {
+  "name": "Horse_Ride_Walk_Turn_L",
+  "glb_name": "Horse_Ride_Walk_Turn_L_Loop",
+  "loop": true,
+  "frames": 35,
+  "fps": 30,
+  "seconds": 1.133,
+  "synced_to": "Walk_Turn_L",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    30
+   ],
+   "hand_r": [
+    0.0,
+    2
+   ],
+   "foot_l": [
+    0.0001,
+    10
+   ],
+   "foot_r": [
+    0.0001,
+    21
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    30
+   ],
+   "r": [
+    0.0,
+    2
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    10
+   ],
+   "r": [
+    0.0001,
+    21
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.084,
+   23
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0013,
+    6
+   ],
+   "grip_miss_max_m": [
+    0.0015,
+    2
+   ],
+   "penetration_max_m": [
+    0.0196,
+    31,
+    "calf_r"
+   ],
+   "horse_frames": 35
+  }
+ },
+ {
+  "name": "Horse_Ride_Walk_Turn_R",
+  "glb_name": "Horse_Ride_Walk_Turn_R_Loop",
+  "loop": true,
+  "frames": 35,
+  "fps": 30,
+  "seconds": 1.133,
+  "synced_to": "Walk_Turn_R",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    19
+   ],
+   "hand_r": [
+    0.0,
+    13
+   ],
+   "foot_l": [
+    0.0001,
+    4
+   ],
+   "foot_r": [
+    0.0001,
+    27
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    19
+   ],
+   "r": [
+    0.0,
+    13
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    4
+   ],
+   "r": [
+    0.0001,
+    27
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.084,
+   6
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0013,
+    23
+   ],
+   "grip_miss_max_m": [
+    0.0018,
+    2
+   ],
+   "penetration_max_m": [
+    0.0212,
+    14,
+    "calf_l"
+   ],
+   "horse_frames": 35
+  }
+ },
+ {
+  "name": "Horse_Ride_Trot_Turn_L",
+  "glb_name": "Horse_Ride_Trot_Turn_L_Loop",
+  "loop": true,
+  "frames": 23,
+  "fps": 30,
+  "seconds": 0.733,
+  "synced_to": "Trot_Turn_L",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": "sit phase only (frames 11-22)",
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    0
+   ],
+   "hand_r": [
+    0.0,
+    15
+   ],
+   "foot_l": [
+    0.0001,
+    17
+   ],
+   "foot_r": [
+    0.0001,
+    20
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    15
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    17
+   ],
+   "r": [
+    0.0001,
+    20
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.081,
+   21
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0011,
+    16
+   ],
+   "grip_miss_max_m": [
+    0.0015,
+    11
+   ],
+   "penetration_max_m": [
+    0.0206,
+    5,
+    "calf_r"
+   ],
+   "horse_frames": 23
+  }
+ },
+ {
+  "name": "Horse_Ride_Trot_Turn_R",
+  "glb_name": "Horse_Ride_Trot_Turn_R_Loop",
+  "loop": true,
+  "frames": 23,
+  "fps": 30,
+  "seconds": 0.733,
+  "synced_to": "Trot_Turn_R",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": "sit phase only (frames 11-22)",
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    19
+   ],
+   "hand_r": [
+    0.0,
+    17
+   ],
+   "foot_l": [
+    0.0001,
+    13
+   ],
+   "foot_r": [
+    0.0001,
+    17
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    19
+   ],
+   "r": [
+    0.0,
+    17
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    13
+   ],
+   "r": [
+    0.0001,
+    17
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.081,
+   11
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0011,
+    18
+   ],
+   "grip_miss_max_m": [
+    0.0017,
+    20
+   ],
+   "penetration_max_m": [
+    0.0256,
+    6,
+    "calf_l"
+   ],
+   "horse_frames": 23
+  }
+ },
+ {
+  "name": "Horse_Ride_Canter_Turn_L",
+  "glb_name": "Horse_Ride_Canter_Turn_L_Loop",
+  "loop": true,
+  "frames": 19,
+  "fps": 30,
+  "seconds": 0.6,
+  "synced_to": "Canter_Turn_L",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    0
+   ],
+   "hand_r": [
+    0.0,
+    9
+   ],
+   "foot_l": [
+    0.0001,
+    3
+   ],
+   "foot_r": [
+    0.0001,
+    12
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    9
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    3
+   ],
+   "r": [
+    0.0001,
+    12
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.081,
+   15
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0012,
+    7
+   ],
+   "grip_miss_max_m": [
+    0.0017,
+    3
+   ],
+   "penetration_max_m": [
+    0.0205,
+    4,
+    "calf_r"
+   ],
+   "horse_frames": 19
+  }
+ },
+ {
+  "name": "Horse_Ride_Canter_Turn_R",
+  "glb_name": "Horse_Ride_Canter_Turn_R_Loop",
+  "loop": true,
+  "frames": 19,
+  "fps": 30,
+  "seconds": 0.6,
+  "synced_to": "Canter_Turn_R",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    9
+   ],
+   "hand_r": [
+    0.0,
+    0
+   ],
+   "foot_l": [
+    0.0001,
+    12
+   ],
+   "foot_r": [
+    0.0001,
+    3
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    9
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    12
+   ],
+   "r": [
+    0.0001,
+    3
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.081,
+   1
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0012,
+    7
+   ],
+   "grip_miss_max_m": [
+    0.0017,
+    3
+   ],
+   "penetration_max_m": [
+    0.0208,
+    4,
+    "calf_l"
+   ],
+   "horse_frames": 19
+  }
+ },
+ {
+  "name": "Horse_Ride_Gallop_Turn_L",
+  "glb_name": "Horse_Ride_Gallop_Turn_L_Loop",
+  "loop": true,
+  "frames": 15,
+  "fps": 30,
+  "seconds": 0.467,
+  "synced_to": "Gallop_Turn_L",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": false,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    10
+   ],
+   "hand_r": [
+    0.0,
+    12
+   ],
+   "foot_l": [
+    0.0,
+    10
+   ],
+   "foot_r": [
+    0.0,
+    7
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    10
+   ],
+   "r": [
+    0.0,
+    12
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    10
+   ],
+   "r": [
+    0.0,
+    7
+   ]
+  },
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0014,
+    12
+   ],
+   "grip_miss_max_m": [
+    0.002,
+    10
+   ],
+   "penetration_max_m": [
+    0.0255,
+    1,
+    "calf_r"
+   ],
+   "horse_frames": 15
+  }
+ },
+ {
+  "name": "Horse_Ride_Gallop_Turn_R",
+  "glb_name": "Horse_Ride_Gallop_Turn_R_Loop",
+  "loop": true,
+  "frames": 15,
+  "fps": 30,
+  "seconds": 0.467,
+  "synced_to": "Gallop_Turn_R",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": false,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    12
+   ],
+   "hand_r": [
+    0.0,
+    10
+   ],
+   "foot_l": [
+    0.0,
+    7
+   ],
+   "foot_r": [
+    0.0,
+    10
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    12
+   ],
+   "r": [
+    0.0,
+    10
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    7
+   ],
+   "r": [
+    0.0,
+    10
+   ]
+  },
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0014,
+    12
+   ],
+   "grip_miss_max_m": [
+    0.002,
+    10
+   ],
+   "penetration_max_m": [
+    0.0262,
+    14,
+    "calf_l"
+   ],
+   "horse_frames": 15
+  }
+ },
+ {
+  "name": "Horse_Ride_Walk_Start",
+  "glb_name": "Horse_Ride_Walk_Start",
+  "loop": false,
+  "frames": 46,
+  "fps": 30,
+  "seconds": 1.5,
+  "synced_to": "Walk_Start",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "leg_aid": 5
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    8
+   ],
+   "hand_r": [
+    0.0,
+    8
+   ],
+   "foot_l": [
+    0.0001,
+    30
+   ],
+   "foot_r": [
+    0.0001,
+    33
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    8
+   ],
+   "r": [
+    0.0,
+    8
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    30
+   ],
+   "r": [
+    0.0001,
+    33
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0012,
+    23
+   ],
+   "grip_miss_max_m": [
+    0.0018,
+    42
+   ],
+   "penetration_max_m": [
+    0.0195,
+    33,
+    "calf_r"
+   ],
+   "horse_frames": 46
+  }
+ },
+ {
+  "name": "Horse_Ride_Walk_Stop",
+  "glb_name": "Horse_Ride_Walk_Stop",
+  "loop": false,
+  "frames": 55,
+  "fps": 30,
+  "seconds": 1.8,
+  "synced_to": "Walk_Stop",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "half_halt": 10
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    28
+   ],
+   "hand_r": [
+    0.0,
+    28
+   ],
+   "foot_l": [
+    0.0001,
+    12
+   ],
+   "foot_r": [
+    0.0001,
+    26
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    28
+   ],
+   "r": [
+    0.0,
+    28
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    12
+   ],
+   "r": [
+    0.0001,
+    26
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   44
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0014,
+    9
+   ],
+   "grip_miss_max_m": [
+    0.0018,
+    9
+   ],
+   "penetration_max_m": [
+    0.0187,
+    3,
+    "calf_l"
+   ],
+   "horse_frames": 55
+  }
+ },
+ {
+  "name": "Horse_Ride_Trot_Stop",
+  "glb_name": "Horse_Ride_Trot_Stop",
+  "loop": false,
+  "frames": 49,
+  "fps": 30,
+  "seconds": 1.6,
+  "synced_to": "Trot_Stop",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "sit": 9,
+   "half_halt": 16
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": [
+   [
+    9,
+    48
+   ]
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    6
+   ],
+   "hand_r": [
+    0.0,
+    6
+   ],
+   "foot_l": [
+    0.0001,
+    42
+   ],
+   "foot_r": [
+    0.0001,
+    42
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    6
+   ],
+   "r": [
+    0.0,
+    6
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    42
+   ],
+   "r": [
+    0.0001,
+    42
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.081,
+   30
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0012,
+    37
+   ],
+   "grip_miss_max_m": [
+    0.0014,
+    18
+   ],
+   "penetration_max_m": [
+    0.0202,
+    4,
+    "calf_r"
+   ],
+   "horse_frames": 49
+  }
+ },
+ {
+  "name": "Horse_Ride_Gallop_Stop",
+  "glb_name": "Horse_Ride_Gallop_Stop",
+  "loop": false,
+  "frames": 61,
+  "fps": 30,
+  "seconds": 2.0,
+  "synced_to": "Gallop_Stop",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "sit_deep": 16,
+   "pull": 18,
+   "halt": 46
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": [
+   [
+    16,
+    60
+   ]
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0089,
+    38
+   ],
+   "hand_r": [
+    0.0088,
+    38
+   ],
+   "foot_l": [
+    0.0001,
+    56
+   ],
+   "foot_r": [
+    0.0001,
+    56
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0089,
+    38
+   ],
+   "r": [
+    0.0088,
+    38
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    56
+   ],
+   "r": [
+    0.0001,
+    56
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.081,
+   23
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0014,
+    3
+   ],
+   "grip_miss_max_m": [
+    0.0085,
+    38
+   ],
+   "penetration_max_m": [
+    0.021,
+    2,
+    "calf_r"
+   ],
+   "horse_frames": 61
+  }
+ },
+ {
+  "name": "Horse_Ride_Turn_InPlace_L",
+  "glb_name": "Horse_Ride_Turn_InPlace_L",
+  "loop": false,
+  "frames": 58,
+  "fps": 30,
+  "seconds": 1.9,
+  "synced_to": "Turn_InPlace_L",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    26
+   ],
+   "hand_r": [
+    0.0,
+    49
+   ],
+   "foot_l": [
+    0.0001,
+    51
+   ],
+   "foot_r": [
+    0.0,
+    12
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    26
+   ],
+   "r": [
+    0.0,
+    49
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    51
+   ],
+   "r": [
+    0.0,
+    12
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   9
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0008,
+    44
+   ],
+   "grip_miss_max_m": [
+    0.0016,
+    45
+   ],
+   "penetration_max_m": [
+    0.0294,
+    34,
+    "calf_r"
+   ],
+   "horse_frames": 58
+  }
+ },
+ {
+  "name": "Horse_Ride_Turn_InPlace_R",
+  "glb_name": "Horse_Ride_Turn_InPlace_R",
+  "loop": false,
+  "frames": 58,
+  "fps": 30,
+  "seconds": 1.9,
+  "synced_to": "Turn_InPlace_R",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    49
+   ],
+   "hand_r": [
+    0.0,
+    25
+   ],
+   "foot_l": [
+    0.0,
+    33
+   ],
+   "foot_r": [
+    0.0001,
+    51
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    49
+   ],
+   "r": [
+    0.0,
+    25
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    33
+   ],
+   "r": [
+    0.0001,
+    51
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   9
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0009,
+    7
+   ],
+   "grip_miss_max_m": [
+    0.0016,
+    47
+   ],
+   "penetration_max_m": [
+    0.0245,
+    23,
+    "calf_l"
+   ],
+   "horse_frames": 58
+  }
+ },
+ {
+  "name": "Horse_Ride_Rear",
+  "glb_name": "Horse_Ride_Rear",
+  "loop": false,
+  "frames": 85,
+  "fps": 30,
+  "seconds": 2.8,
+  "synced_to": "Rear",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "grab_mane": 14,
+   "top": 36,
+   "front_hooves_down": 68
+  },
+  "notes": "hands stay on the rein grips at the base of the neck (fists closed = grabbing the mane), torso folds onto the neck",
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0001,
+    58
+   ],
+   "hand_r": [
+    0.0001,
+    58
+   ],
+   "foot_l": [
+    0.0001,
+    8
+   ],
+   "foot_r": [
+    0.0001,
+    8
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0001,
+    58
+   ],
+   "r": [
+    0.0001,
+    58
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    8
+   ],
+   "r": [
+    0.0001,
+    8
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   1
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0016,
+    53
+   ],
+   "grip_miss_max_m": [
+    0.0019,
+    5
+   ],
+   "penetration_max_m": [
+    0.0278,
+    43,
+    "thigh_r"
+   ],
+   "horse_frames": 85
+  }
+ },
+ {
+  "name": "Horse_Ride_Buck",
+  "glb_name": "Horse_Ride_Buck",
+  "loop": false,
+  "frames": 58,
+  "fps": 30,
+  "seconds": 1.9,
+  "synced_to": "Buck",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "thrown_forward": 21,
+   "recover": 32
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": [
+   [
+    0,
+    14
+   ],
+   [
+    32,
+    57
+   ]
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0125,
+    31
+   ],
+   "hand_r": [
+    0.0125,
+    31
+   ],
+   "foot_l": [
+    0.0001,
+    52
+   ],
+   "foot_r": [
+    0.0001,
+    52
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0125,
+    31
+   ],
+   "r": [
+    0.0125,
+    31
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    52
+   ],
+   "r": [
+    0.0001,
+    52
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   12
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.001,
+    55
+   ],
+   "grip_miss_max_m": [
+    0.0122,
+    31
+   ],
+   "penetration_max_m": [
+    0.0182,
+    20,
+    "calf_l"
+   ],
+   "horse_frames": 58
+  }
+ },
+ {
+  "name": "Horse_Ride_Spook_L",
+  "glb_name": "Horse_Ride_Spook_L",
+  "loop": false,
+  "frames": 46,
+  "fps": 30,
+  "seconds": 1.5,
+  "synced_to": "Spook_L",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "lurch": 5,
+   "recovered": 34
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    5
+   ],
+   "hand_r": [
+    0.0,
+    28
+   ],
+   "foot_l": [
+    0.0001,
+    15
+   ],
+   "foot_r": [
+    0.0001,
+    19
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    5
+   ],
+   "r": [
+    0.0,
+    28
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    15
+   ],
+   "r": [
+    0.0001,
+    19
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   18
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0012,
+    8
+   ],
+   "grip_miss_max_m": [
+    0.0015,
+    16
+   ],
+   "penetration_max_m": [
+    0.0179,
+    14,
+    "calf_l"
+   ],
+   "horse_frames": 46
+  }
+ },
+ {
+  "name": "Horse_Ride_Spook_R",
+  "glb_name": "Horse_Ride_Spook_R",
+  "loop": false,
+  "frames": 46,
+  "fps": 30,
+  "seconds": 1.5,
+  "synced_to": "Spook_R",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "lurch": 5,
+   "recovered": 34
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    28
+   ],
+   "hand_r": [
+    0.0,
+    5
+   ],
+   "foot_l": [
+    0.0001,
+    19
+   ],
+   "foot_r": [
+    0.0001,
+    15
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    28
+   ],
+   "r": [
+    0.0,
+    5
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    19
+   ],
+   "r": [
+    0.0001,
+    15
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   18
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0012,
+    9
+   ],
+   "grip_miss_max_m": [
+    0.0015,
+    16
+   ],
+   "penetration_max_m": [
+    0.0178,
+    22,
+    "calf_l"
+   ],
+   "horse_frames": 46
+  }
+ },
+ {
+  "name": "Horse_Ride_Hit_L",
+  "glb_name": "Horse_Ride_Hit_L",
+  "loop": false,
+  "frames": 25,
+  "fps": 30,
+  "seconds": 0.8,
+  "synced_to": "Hit_L",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "jolt": 2
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    2
+   ],
+   "hand_r": [
+    0.0,
+    13
+   ],
+   "foot_l": [
+    0.0,
+    3
+   ],
+   "foot_r": [
+    0.0,
+    9
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    2
+   ],
+   "r": [
+    0.0,
+    13
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    3
+   ],
+   "r": [
+    0.0,
+    9
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   9
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0013,
+    6
+   ],
+   "grip_miss_max_m": [
+    0.0009,
+    6
+   ],
+   "penetration_max_m": [
+    0.0178,
+    3,
+    "calf_r"
+   ],
+   "horse_frames": 25
+  }
+ },
+ {
+  "name": "Horse_Ride_Hit_R",
+  "glb_name": "Horse_Ride_Hit_R",
+  "loop": false,
+  "frames": 25,
+  "fps": 30,
+  "seconds": 0.8,
+  "synced_to": "Hit_R",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "jolt": 2
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    13
+   ],
+   "hand_r": [
+    0.0,
+    2
+   ],
+   "foot_l": [
+    0.0,
+    9
+   ],
+   "foot_r": [
+    0.0,
+    3
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    13
+   ],
+   "r": [
+    0.0,
+    2
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    9
+   ],
+   "r": [
+    0.0,
+    3
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   11
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0012,
+    7
+   ],
+   "grip_miss_max_m": [
+    0.0009,
+    6
+   ],
+   "penetration_max_m": [
+    0.0205,
+    4,
+    "calf_l"
+   ],
+   "horse_frames": 25
+  }
+ },
+ {
+  "name": "Horse_Ride_Jump_Full",
+  "glb_name": "Horse_Ride_Jump_Full",
+  "loop": false,
+  "frames": 58,
+  "fps": 30,
+  "seconds": 1.9,
+  "synced_to": "Jump_Full",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "fold": 10,
+   "takeoff": 13,
+   "land": 30,
+   "seated": 44
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": [
+   [
+    0,
+    4
+   ],
+   [
+    44,
+    57
+   ]
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0001,
+    15
+   ],
+   "hand_r": [
+    0.0001,
+    15
+   ],
+   "foot_l": [
+    0.0001,
+    55
+   ],
+   "foot_r": [
+    0.0001,
+    55
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0001,
+    15
+   ],
+   "r": [
+    0.0001,
+    15
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    55
+   ],
+   "r": [
+    0.0001,
+    55
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   57
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0014,
+    17
+   ],
+   "grip_miss_max_m": [
+    0.0018,
+    48
+   ],
+   "penetration_max_m": [
+    0.0189,
+    11,
+    "calf_l"
+   ],
+   "horse_frames": 58
+  }
+ },
+ {
+  "name": "Horse_Ride_Jump_Takeoff",
+  "glb_name": "Horse_Ride_Jump_Takeoff",
+  "loop": false,
+  "frames": 15,
+  "fps": 30,
+  "seconds": 0.467,
+  "synced_to": "Jump_Takeoff",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "fold": 10,
+   "takeoff": 13
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": false,
+  "split_of": [
+   "Horse_Ride_Jump_Full",
+   0,
+   14
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    12
+   ],
+   "hand_r": [
+    0.0,
+    12
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    12
+   ],
+   "r": [
+    0.0,
+    12
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0009,
+    2
+   ],
+   "grip_miss_max_m": [
+    0.0009,
+    12
+   ],
+   "penetration_max_m": [
+    0.0189,
+    11,
+    "calf_l"
+   ],
+   "horse_frames": 15
+  }
+ },
+ {
+  "name": "Horse_Ride_Jump_Air",
+  "glb_name": "Horse_Ride_Jump_Air",
+  "loop": false,
+  "frames": 18,
+  "fps": 30,
+  "seconds": 0.567,
+  "synced_to": "Jump_Air",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "land": 16
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": false,
+  "split_of": [
+   "Horse_Ride_Jump_Full",
+   14,
+   31
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0001,
+    1
+   ],
+   "hand_r": [
+    0.0001,
+    1
+   ],
+   "foot_l": [
+    0.0,
+    13
+   ],
+   "foot_r": [
+    0.0,
+    13
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0001,
+    1
+   ],
+   "r": [
+    0.0001,
+    1
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    13
+   ],
+   "r": [
+    0.0,
+    13
+   ]
+  },
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0015,
+    10
+   ],
+   "grip_miss_max_m": [
+    0.0017,
+    1
+   ],
+   "penetration_max_m": [
+    0.0185,
+    12,
+    "calf_r"
+   ],
+   "horse_frames": 18
+  }
+ },
+ {
+  "name": "Horse_Ride_Jump_Land",
+  "glb_name": "Horse_Ride_Jump_Land",
+  "loop": false,
+  "frames": 27,
+  "fps": 30,
+  "seconds": 0.867,
+  "synced_to": "Jump_Land",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "seated": 13
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": false,
+  "split_of": [
+   "Horse_Ride_Jump_Full",
+   31,
+   57
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    8
+   ],
+   "hand_r": [
+    0.0,
+    8
+   ],
+   "foot_l": [
+    0.0001,
+    24
+   ],
+   "foot_r": [
+    0.0001,
+    24
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    8
+   ],
+   "r": [
+    0.0,
+    8
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    24
+   ],
+   "r": [
+    0.0001,
+    24
+   ]
+  },
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0009,
+    4
+   ],
+   "grip_miss_max_m": [
+    0.0018,
+    17
+   ],
+   "penetration_max_m": [
+    0.0176,
+    22,
+    "calf_r"
+   ],
+   "horse_frames": 27
+  }
+ },
+ {
+  "name": "Horse_Ride_Swim",
+  "glb_name": "Horse_Ride_Swim_Loop",
+  "loop": true,
+  "frames": 37,
+  "fps": 30,
+  "seconds": 1.2,
+  "synced_to": "Swim",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    26
+   ],
+   "hand_r": [
+    0.0,
+    8
+   ],
+   "foot_l": [
+    0.0001,
+    19
+   ],
+   "foot_r": [
+    0.0001,
+    1
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    26
+   ],
+   "r": [
+    0.0,
+    8
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    19
+   ],
+   "r": [
+    0.0001,
+    1
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.0993,
+   5
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0012,
+    16
+   ],
+   "grip_miss_max_m": [
+    0.0013,
+    3
+   ],
+   "penetration_max_m": [
+    0.0204,
+    2,
+    "calf_r"
+   ],
+   "horse_frames": 37
+  }
+ },
+ {
+  "name": "Horse_Ride_Graze",
+  "glb_name": "Horse_Ride_Graze_Loop",
+  "loop": true,
+  "frames": 121,
+  "fps": 30,
+  "seconds": 4.0,
+  "synced_to": "Graze",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "notes": "loose reins: the horse's head is down (rein grips move ~0.25 m forward/down); the hands rest low on the withers. The rein grips are out of reach here: IK the reins' rein_grip bones to the rider's palms in game.",
+  "hands_on_grips": false,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.001,
+    98
+   ],
+   "hand_r": [
+    0.001,
+    98
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0192,
+    74,
+    "calf_l"
+   ],
+   "horse_frames": 121
+  }
+ },
+ {
+  "name": "Horse_Ride_Drink",
+  "glb_name": "Horse_Ride_Drink_Loop",
+  "loop": true,
+  "frames": 91,
+  "fps": 30,
+  "seconds": 3.0,
+  "synced_to": "Drink",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "notes": "loose reins: the horse's head is down (rein grips move ~0.25 m forward/down); the hands rest low on the withers. The rein grips are out of reach here: IK the reins' rein_grip bones to the rider's palms in game.",
+  "hands_on_grips": false,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.001,
+    73
+   ],
+   "hand_r": [
+    0.001,
+    73
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0191,
+    29,
+    "calf_l"
+   ],
+   "horse_frames": 91
+  }
+ },
+ {
+  "name": "Horse_Ride_Mount_L",
+  "glb_name": "Horse_Ride_Mount_L",
+  "loop": false,
+  "frames": 67,
+  "fps": 30,
+  "seconds": 2.2,
+  "synced_to": null,
+  "layer": "full",
+  "root_delta_m": [
+   -0.56,
+   0.18,
+   0.0
+  ],
+  "events": {
+   "grab": 12,
+   "foot_in_stirrup": 19,
+   "spring": 27,
+   "leg_over": 41,
+   "seated": 56,
+   "mount_done": 66
+  },
+  "contacts": [
+   [
+    "ball_l",
+    19,
+    66,
+    "stirrup_L"
+   ],
+   [
+    "ball_r",
+    58,
+    66,
+    "stirrup_R"
+   ]
+  ],
+  "notes": "horse at rest (play with Idle); root bone travels from the stand point (horse-root space) to the horse root; ends on Horse_Ride_Idle frame 0",
+  "start_stand_point": [
+   0.56,
+   -0.18,
+   0.0
+  ],
+  "start_yaw_deg": -90.0,
+  "hands_on_grips": [
+   [
+    62,
+    66
+   ]
+  ],
+  "feet_in_stirrups": [
+   [
+    60,
+    66
+   ]
+  ],
+  "seated": [
+   [
+    60,
+    66
+   ]
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0303,
+    21
+   ],
+   "hand_r": [
+    0.0001,
+    9
+   ],
+   "foot_l": [
+    0.0001,
+    29
+   ],
+   "foot_r": [
+    0.0001,
+    49
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    62
+   ],
+   "r": [
+    0.0,
+    62
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0005,
+    60
+   ],
+   "r": [
+    0.0028,
+    60
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   62
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0032,
+    60
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.098,
+    15,
+    "thigh_l"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Mount_R",
+  "glb_name": "Horse_Ride_Mount_R",
+  "loop": false,
+  "frames": 67,
+  "fps": 30,
+  "seconds": 2.2,
+  "synced_to": null,
+  "layer": "full",
+  "root_delta_m": [
+   0.56,
+   0.18,
+   0.0
+  ],
+  "events": {
+   "grab": 12,
+   "foot_in_stirrup": 19,
+   "spring": 27,
+   "leg_over": 41,
+   "seated": 56,
+   "mount_done": 66
+  },
+  "contacts": [
+   [
+    "ball_r",
+    19,
+    66,
+    "stirrup_R"
+   ],
+   [
+    "ball_l",
+    58,
+    66,
+    "stirrup_L"
+   ]
+  ],
+  "notes": "horse at rest (play with Idle); root bone travels from the stand point (horse-root space) to the horse root; ends on Horse_Ride_Idle frame 0",
+  "start_stand_point": [
+   -0.56,
+   -0.18,
+   0.0
+  ],
+  "start_yaw_deg": 90.0,
+  "hands_on_grips": [
+   [
+    62,
+    66
+   ]
+  ],
+  "feet_in_stirrups": [
+   [
+    60,
+    66
+   ]
+  ],
+  "seated": [
+   [
+    60,
+    66
+   ]
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0001,
+    9
+   ],
+   "hand_r": [
+    0.0303,
+    21
+   ],
+   "foot_l": [
+    0.0001,
+    49
+   ],
+   "foot_r": [
+    0.0001,
+    29
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    62
+   ],
+   "r": [
+    0.0,
+    62
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0028,
+    60
+   ],
+   "r": [
+    0.0005,
+    60
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   62
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0032,
+    60
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0993,
+    15,
+    "thigh_r"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Dismount_L",
+  "glb_name": "Horse_Ride_Dismount_L",
+  "loop": false,
+  "frames": 61,
+  "fps": 30,
+  "seconds": 2.0,
+  "synced_to": null,
+  "layer": "full",
+  "root_delta_m": [
+   0.66,
+   -0.2,
+   0.0
+  ],
+  "events": {
+   "leg_over": 18,
+   "foot_out": 32,
+   "land": 40,
+   "dismount_done": 60
+  },
+  "contacts": [
+   [
+    "ball_l",
+    0,
+    31,
+    "stirrup_L"
+   ],
+   [
+    "ball_r",
+    0,
+    4,
+    "stirrup_R"
+   ]
+  ],
+  "notes": "horse at rest; root bone travels from the horse root to the ground stand point (root motion); ends standing, facing forward",
+  "end_stand_point": [
+   0.66,
+   -0.2,
+   0.0
+  ],
+  "end_yaw_deg": 0.0,
+  "hands_on_grips": [
+   [
+    0,
+    0
+   ]
+  ],
+  "feet_in_stirrups": [
+   [
+    0,
+    0
+   ]
+  ],
+  "seated": [
+   [
+    0,
+    0
+   ]
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0231,
+    40
+   ],
+   "hand_r": [
+    0.0,
+    37
+   ],
+   "foot_l": [
+    0.0001,
+    31
+   ],
+   "foot_r": [
+    0.0001,
+    25
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0759,
+    33,
+    "thigh_l"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Dismount_R",
+  "glb_name": "Horse_Ride_Dismount_R",
+  "loop": false,
+  "frames": 61,
+  "fps": 30,
+  "seconds": 2.0,
+  "synced_to": null,
+  "layer": "full",
+  "root_delta_m": [
+   -0.66,
+   -0.2,
+   0.0
+  ],
+  "events": {
+   "leg_over": 18,
+   "foot_out": 32,
+   "land": 40,
+   "dismount_done": 60
+  },
+  "contacts": [
+   [
+    "ball_r",
+    0,
+    31,
+    "stirrup_R"
+   ],
+   [
+    "ball_l",
+    0,
+    4,
+    "stirrup_L"
+   ]
+  ],
+  "notes": "horse at rest; root bone travels from the horse root to the ground stand point (root motion); ends standing, facing forward",
+  "end_stand_point": [
+   -0.66,
+   -0.2,
+   0.0
+  ],
+  "end_yaw_deg": 0.0,
+  "hands_on_grips": [
+   [
+    0,
+    0
+   ]
+  ],
+  "feet_in_stirrups": [
+   [
+    0,
+    0
+   ]
+  ],
+  "seated": [
+   [
+    0,
+    0
+   ]
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    37
+   ],
+   "hand_r": [
+    0.0231,
+    40
+   ],
+   "foot_l": [
+    0.0001,
+    25
+   ],
+   "foot_r": [
+    0.0001,
+    31
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0756,
+    33,
+    "thigh_r"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Dismount_Jump",
+  "glb_name": "Horse_Ride_Dismount_Jump",
+  "loop": false,
+  "frames": 41,
+  "fps": 30,
+  "seconds": 1.333,
+  "synced_to": null,
+  "layer": "full",
+  "root_delta_m": [
+   0.88,
+   -0.28,
+   0.0
+  ],
+  "events": {
+   "push_off": 9,
+   "land": 26,
+   "dismount_done": 40
+  },
+  "notes": "horse at rest; vaults off to the left (both hands on the withers), lands in a crouch; root bone -> ground point",
+  "end_stand_point": [
+   0.88,
+   -0.28,
+   0.0
+  ],
+  "end_yaw_deg": 0.0,
+  "hands_on_grips": [
+   [
+    0,
+    0
+   ]
+  ],
+  "feet_in_stirrups": [
+   [
+    0,
+    0
+   ]
+  ],
+  "seated": [
+   [
+    0,
+    0
+   ]
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    18
+   ],
+   "hand_r": [
+    0.0001,
+    20
+   ],
+   "foot_l": [
+    0.0001,
+    35
+   ],
+   "foot_r": [
+    0.0001,
+    18
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0984,
+    9,
+    "thigh_r"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_FallOff",
+  "glb_name": "Horse_Ride_FallOff",
+  "loop": false,
+  "frames": 58,
+  "fps": 30,
+  "seconds": 1.9,
+  "synced_to": "Buck",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "thrown": 21,
+   "hit_ground": 34,
+   "lying": 45
+  },
+  "notes": "rider catapulted forward-right by the buck, lands on his back beside the horse (head away from it). root stays at the clip origin: the rider's world pose = horse root * D(t) * clip; after the clip re-parent the rider to the ground at end_ground_point (horse-root space)",
+  "end_ground_point": [
+   -1.3,
+   -1.55,
+   0.0
+  ],
+  "hands_on_grips": [
+   [
+    0,
+    16
+   ]
+  ],
+  "feet_in_stirrups": [
+   [
+    0,
+    17
+   ]
+  ],
+  "seated": [
+   [
+    0,
+    13
+   ]
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0001,
+    26
+   ],
+   "hand_r": [
+    0.0,
+    25
+   ],
+   "foot_l": [
+    0.0,
+    16
+   ],
+   "foot_r": [
+    0.0,
+    16
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    15
+   ],
+   "r": [
+    0.0,
+    15
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    16
+   ],
+   "r": [
+    0.0,
+    16
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   12
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": [
+    0.0014,
+    11
+   ],
+   "penetration_max_m": [
+    0.085,
+    21,
+    "calf_r"
+   ],
+   "horse_frames": 58
+  }
+ },
+ {
+  "name": "Horse_Ride_Death",
+  "glb_name": "Horse_Ride_Death",
+  "loop": false,
+  "frames": 103,
+  "fps": 30,
+  "seconds": 3.4,
+  "synced_to": "Death",
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "feet_out": 21,
+   "jump": 27,
+   "land": 40,
+   "kneel": 72
+  },
+  "notes": "horse collapses onto its right side; the rider jumps clear to the left, lands in a crouch and kneels facing the horse. root stays at the clip origin (world = horse root * D(t) * clip); re-parent to the ground at end_ground_point",
+  "end_yaw_deg": -90.0,
+  "end_ground_point": [
+   1.8,
+   -0.15,
+   0.0
+  ],
+  "hands_on_grips": [
+   [
+    0,
+    18
+   ]
+  ],
+  "feet_in_stirrups": [
+   [
+    0,
+    19
+   ]
+  ],
+  "seated": [
+   [
+    0,
+    20
+   ]
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    33
+   ],
+   "hand_r": [
+    0.0,
+    34
+   ],
+   "foot_l": [
+    0.0001,
+    66
+   ],
+   "foot_r": [
+    0.0001,
+    24
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    15
+   ],
+   "r": [
+    0.0,
+    15
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    15
+   ],
+   "r": [
+    0.0,
+    19
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   16
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": [
+    0.0014,
+    4
+   ],
+   "penetration_max_m": [
+    0.0646,
+    23,
+    "calf_r"
+   ],
+   "horse_frames": 103
+  }
+ },
+ {
+  "name": "Horse_Ride_Rein_Turn_L",
+  "glb_name": "Horse_Ride_Rein_Turn_L",
+  "loop": false,
+  "frames": 31,
+  "fps": 30,
+  "seconds": 1.0,
+  "synced_to": null,
+  "layer": "upper",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "upper_bones": [
+   "spine_01",
+   "spine_02",
+   "spine_03",
+   "neck_01",
+   "Head",
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l",
+   "index_01_l",
+   "index_02_l",
+   "index_03_l",
+   "index_04_leaf_l",
+   "middle_01_l",
+   "middle_02_l",
+   "middle_03_l",
+   "middle_04_leaf_l",
+   "pinky_01_l",
+   "pinky_02_l",
+   "pinky_03_l",
+   "pinky_04_leaf_l",
+   "ring_01_l",
+   "ring_02_l",
+   "ring_03_l",
+   "ring_04_leaf_l",
+   "thumb_01_l",
+   "thumb_02_l",
+   "thumb_03_l",
+   "thumb_04_leaf_l",
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r",
+   "index_01_r",
+   "index_02_r",
+   "index_03_r",
+   "index_04_leaf_r",
+   "middle_01_r",
+   "middle_02_r",
+   "middle_03_r",
+   "middle_04_leaf_r",
+   "pinky_01_r",
+   "pinky_02_r",
+   "pinky_03_r",
+   "pinky_04_leaf_r",
+   "ring_01_r",
+   "ring_02_r",
+   "ring_03_r",
+   "ring_04_leaf_r",
+   "thumb_01_r",
+   "thumb_02_r",
+   "thumb_03_r",
+   "thumb_04_leaf_r"
+  ],
+  "events": {
+   "rein_open": 9,
+   "rein_release": 20
+  },
+  "hands_on_grips": [
+   [
+    0,
+    2
+   ],
+   [
+    30,
+    30
+   ]
+  ],
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    23
+   ],
+   "hand_r": [
+    0.0,
+    8
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0177,
+    30,
+    "calf_l"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Rein_Turn_R",
+  "glb_name": "Horse_Ride_Rein_Turn_R",
+  "loop": false,
+  "frames": 31,
+  "fps": 30,
+  "seconds": 1.0,
+  "synced_to": null,
+  "layer": "upper",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "upper_bones": [
+   "spine_01",
+   "spine_02",
+   "spine_03",
+   "neck_01",
+   "Head",
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l",
+   "index_01_l",
+   "index_02_l",
+   "index_03_l",
+   "index_04_leaf_l",
+   "middle_01_l",
+   "middle_02_l",
+   "middle_03_l",
+   "middle_04_leaf_l",
+   "pinky_01_l",
+   "pinky_02_l",
+   "pinky_03_l",
+   "pinky_04_leaf_l",
+   "ring_01_l",
+   "ring_02_l",
+   "ring_03_l",
+   "ring_04_leaf_l",
+   "thumb_01_l",
+   "thumb_02_l",
+   "thumb_03_l",
+   "thumb_04_leaf_l",
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r",
+   "index_01_r",
+   "index_02_r",
+   "index_03_r",
+   "index_04_leaf_r",
+   "middle_01_r",
+   "middle_02_r",
+   "middle_03_r",
+   "middle_04_leaf_r",
+   "pinky_01_r",
+   "pinky_02_r",
+   "pinky_03_r",
+   "pinky_04_leaf_r",
+   "ring_01_r",
+   "ring_02_r",
+   "ring_03_r",
+   "ring_04_leaf_r",
+   "thumb_01_r",
+   "thumb_02_r",
+   "thumb_03_r",
+   "thumb_04_leaf_r"
+  ],
+  "events": {
+   "rein_open": 9,
+   "rein_release": 20
+  },
+  "hands_on_grips": [
+   [
+    0,
+    2
+   ],
+   [
+    30,
+    30
+   ]
+  ],
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    8
+   ],
+   "hand_r": [
+    0.0,
+    23
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0177,
+    30,
+    "calf_l"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Spur",
+  "glb_name": "Horse_Ride_Spur",
+  "loop": false,
+  "frames": 25,
+  "fps": 30,
+  "seconds": 0.8,
+  "synced_to": null,
+  "layer": "full",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "events": {
+   "spur": [
+    5,
+    12
+   ]
+  },
+  "notes": "legs carry the aid (heels squeeze twice): play full-body (idle / walk) or upper_bones only for the forward lean",
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    11
+   ],
+   "hand_r": [
+    0.0,
+    11
+   ],
+   "foot_l": [
+    0.0001,
+    5
+   ],
+   "foot_r": [
+    0.0001,
+    5
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    11
+   ],
+   "r": [
+    0.0,
+    11
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0001,
+    5
+   ],
+   "r": [
+    0.0001,
+    5
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0034,
+    0,
+    "calf_l"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Stop_Pull",
+  "glb_name": "Horse_Ride_Stop_Pull",
+  "loop": false,
+  "frames": 31,
+  "fps": 30,
+  "seconds": 1.0,
+  "synced_to": null,
+  "layer": "upper",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "upper_bones": [
+   "spine_01",
+   "spine_02",
+   "spine_03",
+   "neck_01",
+   "Head",
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l",
+   "index_01_l",
+   "index_02_l",
+   "index_03_l",
+   "index_04_leaf_l",
+   "middle_01_l",
+   "middle_02_l",
+   "middle_03_l",
+   "middle_04_leaf_l",
+   "pinky_01_l",
+   "pinky_02_l",
+   "pinky_03_l",
+   "pinky_04_leaf_l",
+   "ring_01_l",
+   "ring_02_l",
+   "ring_03_l",
+   "ring_04_leaf_l",
+   "thumb_01_l",
+   "thumb_02_l",
+   "thumb_03_l",
+   "thumb_04_leaf_l",
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r",
+   "index_01_r",
+   "index_02_r",
+   "index_03_r",
+   "index_04_leaf_r",
+   "middle_01_r",
+   "middle_02_r",
+   "middle_03_r",
+   "middle_04_leaf_r",
+   "pinky_01_r",
+   "pinky_02_r",
+   "pinky_03_r",
+   "pinky_04_leaf_r",
+   "ring_01_r",
+   "ring_02_r",
+   "ring_03_r",
+   "ring_04_leaf_r",
+   "thumb_01_r",
+   "thumb_02_r",
+   "thumb_03_r",
+   "thumb_04_leaf_r"
+  ],
+  "events": {
+   "pull": 9,
+   "release": 20
+  },
+  "hands_on_grips": [
+   [
+    0,
+    2
+   ],
+   [
+    30,
+    30
+   ]
+  ],
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    25
+   ],
+   "hand_r": [
+    0.0,
+    25
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0177,
+    30,
+    "calf_l"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Sword_Idle",
+  "glb_name": "Horse_Ride_Sword_Idle_Loop",
+  "loop": true,
+  "frames": 61,
+  "fps": 30,
+  "seconds": 2.0,
+  "synced_to": null,
+  "layer": "upper",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "upper_bones": [
+   "spine_01",
+   "spine_02",
+   "spine_03",
+   "neck_01",
+   "Head",
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l",
+   "index_01_l",
+   "index_02_l",
+   "index_03_l",
+   "index_04_leaf_l",
+   "middle_01_l",
+   "middle_02_l",
+   "middle_03_l",
+   "middle_04_leaf_l",
+   "pinky_01_l",
+   "pinky_02_l",
+   "pinky_03_l",
+   "pinky_04_leaf_l",
+   "ring_01_l",
+   "ring_02_l",
+   "ring_03_l",
+   "ring_04_leaf_l",
+   "thumb_01_l",
+   "thumb_02_l",
+   "thumb_03_l",
+   "thumb_04_leaf_l",
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r",
+   "index_01_r",
+   "index_02_r",
+   "index_03_r",
+   "index_04_leaf_r",
+   "middle_01_r",
+   "middle_02_r",
+   "middle_03_r",
+   "middle_04_leaf_r",
+   "pinky_01_r",
+   "pinky_02_r",
+   "pinky_03_r",
+   "pinky_04_leaf_r",
+   "ring_01_r",
+   "ring_02_r",
+   "ring_03_r",
+   "ring_04_leaf_r",
+   "thumb_01_r",
+   "thumb_02_r",
+   "thumb_03_r",
+   "thumb_04_leaf_r"
+  ],
+  "hands_on_grips": false,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "weapon": "sword_r",
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    13
+   ],
+   "hand_r": [
+    0.0,
+    12
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0177,
+    60,
+    "calf_l"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Sword_Swing_L",
+  "glb_name": "Horse_Ride_Sword_Swing_L",
+  "loop": false,
+  "frames": 37,
+  "fps": 30,
+  "seconds": 1.2,
+  "synced_to": null,
+  "layer": "upper",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "upper_bones": [
+   "spine_01",
+   "spine_02",
+   "spine_03",
+   "neck_01",
+   "Head",
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l",
+   "index_01_l",
+   "index_02_l",
+   "index_03_l",
+   "index_04_leaf_l",
+   "middle_01_l",
+   "middle_02_l",
+   "middle_03_l",
+   "middle_04_leaf_l",
+   "pinky_01_l",
+   "pinky_02_l",
+   "pinky_03_l",
+   "pinky_04_leaf_l",
+   "ring_01_l",
+   "ring_02_l",
+   "ring_03_l",
+   "ring_04_leaf_l",
+   "thumb_01_l",
+   "thumb_02_l",
+   "thumb_03_l",
+   "thumb_04_leaf_l",
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r",
+   "index_01_r",
+   "index_02_r",
+   "index_03_r",
+   "index_04_leaf_r",
+   "middle_01_r",
+   "middle_02_r",
+   "middle_03_r",
+   "middle_04_leaf_r",
+   "pinky_01_r",
+   "pinky_02_r",
+   "pinky_03_r",
+   "pinky_04_leaf_r",
+   "ring_01_r",
+   "ring_02_r",
+   "ring_03_r",
+   "ring_04_leaf_r",
+   "thumb_01_r",
+   "thumb_02_r",
+   "thumb_03_r",
+   "thumb_04_leaf_r"
+  ],
+  "events": {
+   "windup": 10,
+   "hit": 14,
+   "follow_through": 21,
+   "recover": 27
+  },
+  "notes": "starts/ends on Horse_Ride_Sword_Idle; reins in the left hand; blade = thumb direction",
+  "hands_on_grips": false,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "weapon": "sword_r",
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    33
+   ],
+   "hand_r": [
+    0.0001,
+    8
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0177,
+    36,
+    "calf_l"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Sword_Swing_R",
+  "glb_name": "Horse_Ride_Sword_Swing_R",
+  "loop": false,
+  "frames": 37,
+  "fps": 30,
+  "seconds": 1.2,
+  "synced_to": null,
+  "layer": "upper",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "upper_bones": [
+   "spine_01",
+   "spine_02",
+   "spine_03",
+   "neck_01",
+   "Head",
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l",
+   "index_01_l",
+   "index_02_l",
+   "index_03_l",
+   "index_04_leaf_l",
+   "middle_01_l",
+   "middle_02_l",
+   "middle_03_l",
+   "middle_04_leaf_l",
+   "pinky_01_l",
+   "pinky_02_l",
+   "pinky_03_l",
+   "pinky_04_leaf_l",
+   "ring_01_l",
+   "ring_02_l",
+   "ring_03_l",
+   "ring_04_leaf_l",
+   "thumb_01_l",
+   "thumb_02_l",
+   "thumb_03_l",
+   "thumb_04_leaf_l",
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r",
+   "index_01_r",
+   "index_02_r",
+   "index_03_r",
+   "index_04_leaf_r",
+   "middle_01_r",
+   "middle_02_r",
+   "middle_03_r",
+   "middle_04_leaf_r",
+   "pinky_01_r",
+   "pinky_02_r",
+   "pinky_03_r",
+   "pinky_04_leaf_r",
+   "ring_01_r",
+   "ring_02_r",
+   "ring_03_r",
+   "ring_04_leaf_r",
+   "thumb_01_r",
+   "thumb_02_r",
+   "thumb_03_r",
+   "thumb_04_leaf_r"
+  ],
+  "events": {
+   "windup": 10,
+   "hit": 14,
+   "follow_through": 21,
+   "recover": 27
+  },
+  "notes": "starts/ends on Horse_Ride_Sword_Idle; reins in the left hand; blade = thumb direction",
+  "hands_on_grips": false,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "weapon": "sword_r",
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0101,
+    10
+   ],
+   "hand_r": [
+    0.0001,
+    10
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0177,
+    36,
+    "calf_l"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Bow_Draw",
+  "glb_name": "Horse_Ride_Bow_Draw",
+  "loop": false,
+  "frames": 31,
+  "fps": 30,
+  "seconds": 1.0,
+  "synced_to": null,
+  "layer": "upper",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "upper_bones": [
+   "spine_01",
+   "spine_02",
+   "spine_03",
+   "neck_01",
+   "Head",
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l",
+   "index_01_l",
+   "index_02_l",
+   "index_03_l",
+   "index_04_leaf_l",
+   "middle_01_l",
+   "middle_02_l",
+   "middle_03_l",
+   "middle_04_leaf_l",
+   "pinky_01_l",
+   "pinky_02_l",
+   "pinky_03_l",
+   "pinky_04_leaf_l",
+   "ring_01_l",
+   "ring_02_l",
+   "ring_03_l",
+   "ring_04_leaf_l",
+   "thumb_01_l",
+   "thumb_02_l",
+   "thumb_03_l",
+   "thumb_04_leaf_l",
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r",
+   "index_01_r",
+   "index_02_r",
+   "index_03_r",
+   "index_04_leaf_r",
+   "middle_01_r",
+   "middle_02_r",
+   "middle_03_r",
+   "middle_04_leaf_r",
+   "pinky_01_r",
+   "pinky_02_r",
+   "pinky_03_r",
+   "pinky_04_leaf_r",
+   "ring_01_r",
+   "ring_02_r",
+   "ring_03_r",
+   "ring_04_leaf_r",
+   "thumb_01_r",
+   "thumb_02_r",
+   "thumb_03_r",
+   "thumb_04_leaf_r"
+  ],
+  "events": {
+   "drop_reins": 4,
+   "nock": 15,
+   "full_draw": 26
+  },
+  "notes": "aim 70 deg to the left of forward, slightly up; ends on Horse_Ride_Bow_Aim frame 0",
+  "hands_on_grips": false,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "weapon": "bow_l",
+  "aim_dir_clip": [
+   0.939,
+   -0.342,
+   0.03
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0001,
+    10
+   ],
+   "hand_r": [
+    0.0001,
+    5
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0177,
+    30,
+    "calf_l"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Bow_Aim",
+  "glb_name": "Horse_Ride_Bow_Aim_Loop",
+  "loop": true,
+  "frames": 41,
+  "fps": 30,
+  "seconds": 1.333,
+  "synced_to": null,
+  "layer": "upper",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "upper_bones": [
+   "spine_01",
+   "spine_02",
+   "spine_03",
+   "neck_01",
+   "Head",
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l",
+   "index_01_l",
+   "index_02_l",
+   "index_03_l",
+   "index_04_leaf_l",
+   "middle_01_l",
+   "middle_02_l",
+   "middle_03_l",
+   "middle_04_leaf_l",
+   "pinky_01_l",
+   "pinky_02_l",
+   "pinky_03_l",
+   "pinky_04_leaf_l",
+   "ring_01_l",
+   "ring_02_l",
+   "ring_03_l",
+   "ring_04_leaf_l",
+   "thumb_01_l",
+   "thumb_02_l",
+   "thumb_03_l",
+   "thumb_04_leaf_l",
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r",
+   "index_01_r",
+   "index_02_r",
+   "index_03_r",
+   "index_04_leaf_r",
+   "middle_01_r",
+   "middle_02_r",
+   "middle_03_r",
+   "middle_04_leaf_r",
+   "pinky_01_r",
+   "pinky_02_r",
+   "pinky_03_r",
+   "pinky_04_leaf_r",
+   "ring_01_r",
+   "ring_02_r",
+   "ring_03_r",
+   "ring_04_leaf_r",
+   "thumb_01_r",
+   "thumb_02_r",
+   "thumb_03_r",
+   "thumb_04_leaf_r"
+  ],
+  "hands_on_grips": false,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "weapon": "bow_l",
+  "aim_dir_clip": [
+   0.939,
+   -0.342,
+   0.03
+  ],
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    6
+   ],
+   "hand_r": [
+    0.0,
+    29
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0177,
+    40,
+    "calf_l"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Bow_Release",
+  "glb_name": "Horse_Ride_Bow_Release",
+  "loop": false,
+  "frames": 37,
+  "fps": 30,
+  "seconds": 1.2,
+  "synced_to": null,
+  "layer": "upper",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "upper_bones": [
+   "spine_01",
+   "spine_02",
+   "spine_03",
+   "neck_01",
+   "Head",
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l",
+   "index_01_l",
+   "index_02_l",
+   "index_03_l",
+   "index_04_leaf_l",
+   "middle_01_l",
+   "middle_02_l",
+   "middle_03_l",
+   "middle_04_leaf_l",
+   "pinky_01_l",
+   "pinky_02_l",
+   "pinky_03_l",
+   "pinky_04_leaf_l",
+   "ring_01_l",
+   "ring_02_l",
+   "ring_03_l",
+   "ring_04_leaf_l",
+   "thumb_01_l",
+   "thumb_02_l",
+   "thumb_03_l",
+   "thumb_04_leaf_l",
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r",
+   "index_01_r",
+   "index_02_r",
+   "index_03_r",
+   "index_04_leaf_r",
+   "middle_01_r",
+   "middle_02_r",
+   "middle_03_r",
+   "middle_04_leaf_r",
+   "pinky_01_r",
+   "pinky_02_r",
+   "pinky_03_r",
+   "pinky_04_leaf_r",
+   "ring_01_r",
+   "ring_02_r",
+   "ring_03_r",
+   "ring_04_leaf_r",
+   "thumb_01_r",
+   "thumb_02_r",
+   "thumb_03_r",
+   "thumb_04_leaf_r"
+  ],
+  "events": {
+   "release": 2,
+   "reins": 36
+  },
+  "hands_on_grips": [
+   [
+    36,
+    36
+   ]
+  ],
+  "feet_in_stirrups": true,
+  "seated": true,
+  "weapon": "bow_l",
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0001,
+    4
+   ],
+   "hand_r": [
+    0.0001,
+    27
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    36
+   ],
+   "r": [
+    0.0,
+    36
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0177,
+    36,
+    "calf_l"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Hit_React_L",
+  "glb_name": "Horse_Ride_Hit_React_L",
+  "loop": false,
+  "frames": 25,
+  "fps": 30,
+  "seconds": 0.8,
+  "synced_to": null,
+  "layer": "upper",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "upper_bones": [
+   "spine_01",
+   "spine_02",
+   "spine_03",
+   "neck_01",
+   "Head",
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l",
+   "index_01_l",
+   "index_02_l",
+   "index_03_l",
+   "index_04_leaf_l",
+   "middle_01_l",
+   "middle_02_l",
+   "middle_03_l",
+   "middle_04_leaf_l",
+   "pinky_01_l",
+   "pinky_02_l",
+   "pinky_03_l",
+   "pinky_04_leaf_l",
+   "ring_01_l",
+   "ring_02_l",
+   "ring_03_l",
+   "ring_04_leaf_l",
+   "thumb_01_l",
+   "thumb_02_l",
+   "thumb_03_l",
+   "thumb_04_leaf_l",
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r",
+   "index_01_r",
+   "index_02_r",
+   "index_03_r",
+   "index_04_leaf_r",
+   "middle_01_r",
+   "middle_02_r",
+   "middle_03_r",
+   "middle_04_leaf_r",
+   "pinky_01_r",
+   "pinky_02_r",
+   "pinky_03_r",
+   "pinky_04_leaf_r",
+   "ring_01_r",
+   "ring_02_r",
+   "ring_03_r",
+   "ring_04_leaf_r",
+   "thumb_01_r",
+   "thumb_02_r",
+   "thumb_03_r",
+   "thumb_04_leaf_r"
+  ],
+  "events": {
+   "hit": 1
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    10
+   ],
+   "hand_r": [
+    0.0,
+    6
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    10
+   ],
+   "r": [
+    0.0,
+    6
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0177,
+    24,
+    "calf_l"
+   ],
+   "horse_frames": null
+  }
+ },
+ {
+  "name": "Horse_Ride_Hit_React_R",
+  "glb_name": "Horse_Ride_Hit_React_R",
+  "loop": false,
+  "frames": 25,
+  "fps": 30,
+  "seconds": 0.8,
+  "synced_to": null,
+  "layer": "upper",
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "upper_bones": [
+   "spine_01",
+   "spine_02",
+   "spine_03",
+   "neck_01",
+   "Head",
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l",
+   "index_01_l",
+   "index_02_l",
+   "index_03_l",
+   "index_04_leaf_l",
+   "middle_01_l",
+   "middle_02_l",
+   "middle_03_l",
+   "middle_04_leaf_l",
+   "pinky_01_l",
+   "pinky_02_l",
+   "pinky_03_l",
+   "pinky_04_leaf_l",
+   "ring_01_l",
+   "ring_02_l",
+   "ring_03_l",
+   "ring_04_leaf_l",
+   "thumb_01_l",
+   "thumb_02_l",
+   "thumb_03_l",
+   "thumb_04_leaf_l",
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r",
+   "index_01_r",
+   "index_02_r",
+   "index_03_r",
+   "index_04_leaf_r",
+   "middle_01_r",
+   "middle_02_r",
+   "middle_03_r",
+   "middle_04_leaf_r",
+   "pinky_01_r",
+   "pinky_02_r",
+   "pinky_03_r",
+   "pinky_04_leaf_r",
+   "ring_01_r",
+   "ring_02_r",
+   "ring_03_r",
+   "ring_04_leaf_r",
+   "thumb_01_r",
+   "thumb_02_r",
+   "thumb_03_r",
+   "thumb_04_leaf_r"
+  ],
+  "events": {
+   "hit": 1
+  },
+  "hands_on_grips": true,
+  "feet_in_stirrups": true,
+  "seated": true,
+  "ik_max_err_m": {
+   "hand_l": [
+    0.0,
+    6
+   ],
+   "hand_r": [
+    0.0,
+    11
+   ],
+   "foot_l": [
+    0.0,
+    0
+   ],
+   "foot_r": [
+    0.0,
+    0
+   ]
+  },
+  "rein_grip_miss_m": {
+   "l": [
+    0.0,
+    6
+   ],
+   "r": [
+    0.0,
+    11
+   ]
+  },
+  "stirrup_miss_m": {
+   "l": [
+    0.0,
+    0
+   ],
+   "r": [
+    0.0,
+    0
+   ]
+  },
+  "pelvis_clearance_min_m": [
+   0.085,
+   0
+  ],
+  "world_check": {
+   "stirrup_miss_max_m": [
+    0.0005,
+    0
+   ],
+   "grip_miss_max_m": null,
+   "penetration_max_m": [
+    0.0177,
+    24,
+    "calf_l"
+   ],
+   "horse_frames": null
+  }
+ }
+]

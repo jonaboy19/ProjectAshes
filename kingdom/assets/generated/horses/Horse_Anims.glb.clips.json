@@ -1,0 +1,3436 @@
+[
+ {
+  "name": "Walk",
+  "loop": true,
+  "frames": 35,
+  "fps": 30,
+  "seconds": 1.133,
+  "root_delta_m": [
+   0.0,
+   -1.7,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 1.5,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     9,
+     28
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     11
+    ],
+    [
+     26,
+     34
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     20
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     3
+    ],
+    [
+     17,
+     34
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0569,
+  "gait": "walk",
+  "stride_m": 1.7,
+  "stride_s": 1.133,
+  "footfall_phase": {
+   "HL": 0.0,
+   "FL": 0.25,
+   "HR": 0.5,
+   "FR": 0.75
+  },
+  "duty": 0.6,
+  "lead": "L",
+  "events": {
+   "hoof_FL": [
+    8,
+    9
+   ],
+   "hoof_FR": [
+    25,
+    26
+   ],
+   "hoof_HL": [
+    0
+   ],
+   "hoof_HR": [
+    17
+   ]
+  }
+ },
+ {
+  "name": "Trot",
+  "loop": true,
+  "frames": 23,
+  "fps": 30,
+  "seconds": 0.733,
+  "root_delta_m": [
+   0.0,
+   -2.64,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 3.6,
+  "hoof_slide_m": {
+   "FL": 0.0111,
+   "FR": 0.0111,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     11,
+     20
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     9
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     9
+    ]
+   ],
+   "HR": [
+    [
+     11,
+     20
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0976,
+  "gait": "trot",
+  "stride_m": 2.64,
+  "stride_s": 0.733,
+  "footfall_phase": {
+   "HL": 0.0,
+   "FR": 0.0,
+   "HR": 0.5,
+   "FL": 0.5
+  },
+  "duty": 0.42,
+  "lead": "L",
+  "events": {
+   "hoof_FL": [
+    11
+   ],
+   "hoof_FR": [
+    0
+   ],
+   "hoof_HL": [
+    0
+   ],
+   "hoof_HR": [
+    11
+   ]
+  }
+ },
+ {
+  "name": "Canter_L",
+  "loop": true,
+  "frames": 19,
+  "fps": 30,
+  "seconds": 0.6,
+  "root_delta_m": [
+   0.0,
+   -3.48,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 5.8,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     8,
+     14
+    ]
+   ],
+   "FR": [
+    [
+     5,
+     10
+    ]
+   ],
+   "HL": [
+    [
+     4,
+     10
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     6
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.2182,
+  "gait": "canter",
+  "stride_m": 3.48,
+  "stride_s": 0.6,
+  "footfall_phase": {
+   "HR": 0.0,
+   "HL": 0.2,
+   "FR": 0.24,
+   "FL": 0.44
+  },
+  "duty": {
+   "HR": 0.36,
+   "HL": 0.36,
+   "FR": 0.33,
+   "FL": 0.34
+  },
+  "lead": "L",
+  "events": {
+   "hoof_FL": [
+    8
+   ],
+   "hoof_FR": [
+    4
+   ],
+   "hoof_HL": [
+    4
+   ],
+   "hoof_HR": [
+    0
+   ]
+  }
+ },
+ {
+  "name": "Canter_R",
+  "loop": true,
+  "frames": 19,
+  "fps": 30,
+  "seconds": 0.6,
+  "root_delta_m": [
+   0.0,
+   -3.48,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 5.8,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     5,
+     10
+    ]
+   ],
+   "FR": [
+    [
+     8,
+     14
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     6
+    ]
+   ],
+   "HR": [
+    [
+     4,
+     10
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.2182,
+  "gait": "canter",
+  "stride_m": 3.48,
+  "stride_s": 0.6,
+  "footfall_phase": {
+   "HL": 0.0,
+   "HR": 0.2,
+   "FL": 0.24,
+   "FR": 0.44
+  },
+  "duty": {
+   "HL": 0.36,
+   "HR": 0.36,
+   "FL": 0.33,
+   "FR": 0.34
+  },
+  "lead": "R",
+  "events": {
+   "hoof_FL": [
+    4
+   ],
+   "hoof_FR": [
+    8
+   ],
+   "hoof_HL": [
+    0
+   ],
+   "hoof_HR": [
+    4
+   ]
+  }
+ },
+ {
+  "name": "Gallop_L",
+  "loop": true,
+  "frames": 15,
+  "fps": 30,
+  "seconds": 0.467,
+  "root_delta_m": [
+   0.0,
+   -5.133,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 11.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     6,
+     9
+    ]
+   ],
+   "FR": [
+    [
+     5,
+     7
+    ]
+   ],
+   "HL": [
+    [
+     2,
+     5
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     3
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.5277,
+  "gait": "gallop",
+  "stride_m": 5.133,
+  "stride_s": 0.467,
+  "footfall_phase": {
+   "HR": 0.0,
+   "HL": 0.11,
+   "FR": 0.3,
+   "FL": 0.41
+  },
+  "duty": {
+   "HR": 0.26,
+   "HL": 0.26,
+   "FR": 0.25,
+   "FL": 0.26
+  },
+  "lead": "L",
+  "events": {
+   "hoof_FL": [
+    6
+   ],
+   "hoof_FR": [
+    4
+   ],
+   "hoof_HL": [
+    2
+   ],
+   "hoof_HR": [
+    0
+   ]
+  }
+ },
+ {
+  "name": "Gallop_R",
+  "loop": true,
+  "frames": 15,
+  "fps": 30,
+  "seconds": 0.467,
+  "root_delta_m": [
+   0.0,
+   -5.133,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 11.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     5,
+     7
+    ]
+   ],
+   "FR": [
+    [
+     6,
+     9
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     3
+    ]
+   ],
+   "HR": [
+    [
+     2,
+     5
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.5277,
+  "gait": "gallop",
+  "stride_m": 5.133,
+  "stride_s": 0.467,
+  "footfall_phase": {
+   "HL": 0.0,
+   "HR": 0.11,
+   "FL": 0.3,
+   "FR": 0.41
+  },
+  "duty": {
+   "HL": 0.26,
+   "HR": 0.26,
+   "FL": 0.25,
+   "FR": 0.26
+  },
+  "lead": "R",
+  "events": {
+   "hoof_FL": [
+    4
+   ],
+   "hoof_FR": [
+    6
+   ],
+   "hoof_HL": [
+    0
+   ],
+   "hoof_HR": [
+    2
+   ]
+  }
+ },
+ {
+  "name": "BackUp",
+  "loop": true,
+  "frames": 41,
+  "fps": 30,
+  "seconds": 1.333,
+  "root_delta_m": [
+   0.0,
+   0.933,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.7,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     6
+    ],
+    [
+     20,
+     40
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     26
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     26
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     6
+    ],
+    [
+     20,
+     40
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "backup",
+  "stride_m": 0.933,
+  "stride_s": 1.333,
+  "footfall_phase": {
+   "HL": 0.0,
+   "FR": 0.0,
+   "HR": 0.5,
+   "FL": 0.5
+  },
+  "duty": 0.66,
+  "lead": "L",
+  "events": {
+   "hoof_FL": [
+    20
+   ],
+   "hoof_FR": [
+    0
+   ],
+   "hoof_HL": [
+    0
+   ],
+   "hoof_HR": [
+    20
+   ]
+  }
+ },
+ {
+  "name": "Walk_Start",
+  "loop": false,
+  "frames": 46,
+  "fps": 30,
+  "seconds": 1.5,
+  "root_delta_m": [
+   0.0,
+   -1.275,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.85,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     7,
+     34
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     13
+    ],
+    [
+     32,
+     45
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     25
+    ],
+    [
+     40,
+     45
+    ]
+   ],
+   "HR": [
+    [
+     22,
+     43
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0482,
+  "gait": "walk",
+  "transition": true,
+  "speed_in": 0.0,
+  "speed_out": 1.5,
+  "events": {
+   "hoof_FL": [
+    6
+   ],
+   "hoof_FR": [
+    31
+   ],
+   "hoof_HL": [
+    40
+   ],
+   "hoof_HR": [
+    21
+   ]
+  }
+ },
+ {
+  "name": "Walk_Stop",
+  "loop": false,
+  "frames": 55,
+  "fps": 30,
+  "seconds": 1.8,
+  "root_delta_m": [
+   0.0,
+   -0.675,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.375,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     15
+    ],
+    [
+     39,
+     54
+    ]
+   ],
+   "FR": [
+    [
+     12,
+     54
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     5
+    ],
+    [
+     24,
+     54
+    ]
+   ],
+   "HR": [
+    [
+     3,
+     40
+    ],
+    [
+     51,
+     54
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0947,
+  "gait": "walk",
+  "transition": true,
+  "speed_in": 1.5,
+  "speed_out": 0.0,
+  "events": {
+   "hoof_FL": [
+    38
+   ],
+   "hoof_FR": [
+    11
+   ],
+   "hoof_HL": [
+    23
+   ],
+   "hoof_HR": [
+    2,
+    50
+   ]
+  }
+ },
+ {
+  "name": "Trot_Start",
+  "loop": false,
+  "frames": 37,
+  "fps": 30,
+  "seconds": 1.2,
+  "root_delta_m": [
+   0.0,
+   -2.43,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 2.025,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     13
+    ],
+    [
+     29,
+     36
+    ]
+   ],
+   "FR": [
+    [
+     17,
+     26
+    ]
+   ],
+   "HL": [
+    [
+     17,
+     26
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     13
+    ],
+    [
+     29,
+     36
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.1586,
+  "gait": "trot",
+  "transition": true,
+  "speed_in": 0.0,
+  "speed_out": 3.6,
+  "events": {
+   "hoof_FL": [
+    28
+   ],
+   "hoof_FR": [
+    16
+   ],
+   "hoof_HL": [
+    16
+   ],
+   "hoof_HR": [
+    28
+   ]
+  }
+ },
+ {
+  "name": "Trot_Stop",
+  "loop": false,
+  "frames": 49,
+  "fps": 30,
+  "seconds": 1.6,
+  "root_delta_m": [
+   0.0,
+   -1.53,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.956,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     5
+    ],
+    [
+     21,
+     48
+    ]
+   ],
+   "FR": [
+    [
+     8,
+     18
+    ],
+    [
+     38,
+     48
+    ]
+   ],
+   "HL": [
+    [
+     8,
+     18
+    ],
+    [
+     38,
+     48
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     5
+    ],
+    [
+     21,
+     48
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.1721,
+  "gait": "trot",
+  "transition": true,
+  "speed_in": 3.6,
+  "speed_out": 0.0,
+  "events": {
+   "hoof_FL": [
+    21
+   ],
+   "hoof_FR": [
+    7,
+    37
+   ],
+   "hoof_HL": [
+    7,
+    37
+   ],
+   "hoof_HR": [
+    21
+   ]
+  }
+ },
+ {
+  "name": "Canter_Start_L",
+  "loop": false,
+  "frames": 37,
+  "fps": 30,
+  "seconds": 1.2,
+  "root_delta_m": [
+   0.0,
+   -3.77,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 3.142,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     1
+    ],
+    [
+     20,
+     26
+    ]
+   ],
+   "FR": [
+    [
+     15,
+     22
+    ],
+    [
+     35,
+     36
+    ]
+   ],
+   "HL": [
+    [
+     14,
+     21
+    ],
+    [
+     34,
+     36
+    ]
+   ],
+   "HR": [
+    [
+     9,
+     17
+    ],
+    [
+     31,
+     36
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.2742,
+  "gait": "canter",
+  "transition": true,
+  "speed_in": 0.0,
+  "speed_out": 5.8,
+  "events": {
+   "hoof_FL": [
+    19
+   ],
+   "hoof_FR": [
+    15,
+    34
+   ],
+   "hoof_HL": [
+    14,
+    34
+   ],
+   "hoof_HR": [
+    8,
+    30
+   ]
+  }
+ },
+ {
+  "name": "Gallop_Stop",
+  "loop": false,
+  "frames": 61,
+  "fps": 30,
+  "seconds": 2.0,
+  "root_delta_m": [
+   0.0,
+   -6.325,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 3.162,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.026,
+   "HR": 0.0396
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     6,
+     10
+    ],
+    [
+     23,
+     31
+    ],
+    [
+     52,
+     60
+    ]
+   ],
+   "FR": [
+    [
+     3,
+     7
+    ],
+    [
+     19,
+     25
+    ],
+    [
+     46,
+     60
+    ]
+   ],
+   "HL": [
+    [
+     2,
+     7
+    ],
+    [
+     18,
+     25
+    ],
+    [
+     45,
+     60
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     4
+    ],
+    [
+     14,
+     21
+    ],
+    [
+     40,
+     60
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.5145,
+  "gait": "gallop",
+  "transition": true,
+  "speed_in": 11.0,
+  "speed_out": 0.0,
+  "events": {
+   "hoof_FL": [
+    5,
+    23,
+    51
+   ],
+   "hoof_FR": [
+    2,
+    18,
+    45
+   ],
+   "hoof_HL": [
+    2,
+    18,
+    44
+   ],
+   "hoof_HR": [
+    14,
+    40
+   ]
+  }
+ },
+ {
+  "name": "Turn_InPlace_L",
+  "loop": false,
+  "frames": 58,
+  "fps": 30,
+  "seconds": 1.9,
+  "root_delta_m": [
+   0.6,
+   0.6,
+   0.0
+  ],
+  "root_yaw_deg": 90.0,
+  "speed_mps": 0.447,
+  "hoof_slide_m": {
+   "FL": 0.0076,
+   "FR": 0.003,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     8,
+     21
+    ],
+    [
+     32,
+     57
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     9
+    ],
+    [
+     20,
+     33
+    ],
+    [
+     48,
+     57
+    ]
+   ],
+   "HL": [
+    [
+     2,
+     15
+    ],
+    [
+     26,
+     39
+    ],
+    [
+     50,
+     57
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     3
+    ],
+    [
+     14,
+     27
+    ],
+    [
+     38,
+     57
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.1221,
+  "gait": "turn",
+  "turn_deg": 90,
+  "events": {
+   "hoof_FL": [
+    8,
+    32
+   ],
+   "hoof_FR": [
+    20,
+    47
+   ],
+   "hoof_HL": [
+    2,
+    26,
+    50
+   ],
+   "hoof_HR": [
+    14,
+    38
+   ]
+  }
+ },
+ {
+  "name": "Turn_InPlace_R",
+  "loop": false,
+  "frames": 58,
+  "fps": 30,
+  "seconds": 1.9,
+  "root_delta_m": [
+   -0.6,
+   0.6,
+   0.0
+  ],
+  "root_yaw_deg": -90.0,
+  "speed_mps": 0.447,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     8,
+     21
+    ],
+    [
+     32,
+     57
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     9
+    ],
+    [
+     20,
+     33
+    ],
+    [
+     48,
+     57
+    ]
+   ],
+   "HL": [
+    [
+     2,
+     15
+    ],
+    [
+     26,
+     39
+    ],
+    [
+     50,
+     57
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     3
+    ],
+    [
+     14,
+     27
+    ],
+    [
+     38,
+     57
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.1004,
+  "gait": "turn",
+  "turn_deg": -90,
+  "events": {
+   "hoof_FL": [
+    8,
+    32
+   ],
+   "hoof_FR": [
+    20,
+    47
+   ],
+   "hoof_HL": [
+    2,
+    26,
+    50
+   ],
+   "hoof_HR": [
+    14,
+    38
+   ]
+  }
+ },
+ {
+  "name": "Walk_Turn_L",
+  "loop": true,
+  "frames": 35,
+  "fps": 30,
+  "seconds": 1.133,
+  "root_delta_m": [
+   0.565,
+   -1.567,
+   0.0
+  ],
+  "root_yaw_deg": 39.67,
+  "speed_mps": 1.47,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     9,
+     28
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     11
+    ],
+    [
+     26,
+     34
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     20
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     3
+    ],
+    [
+     17,
+     34
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0854,
+  "gait": "walk",
+  "turn_deg_s": 35,
+  "lean_deg": 3.0,
+  "lead": "L",
+  "radius_m": 2.46,
+  "stride_m": 1.7,
+  "events": {
+   "hoof_FL": [
+    8,
+    9
+   ],
+   "hoof_FR": [
+    25,
+    26
+   ],
+   "hoof_HL": [
+    0
+   ],
+   "hoof_HR": [
+    17
+   ]
+  }
+ },
+ {
+  "name": "Walk_Turn_R",
+  "loop": true,
+  "frames": 35,
+  "fps": 30,
+  "seconds": 1.133,
+  "root_delta_m": [
+   -0.565,
+   -1.567,
+   0.0
+  ],
+  "root_yaw_deg": -39.67,
+  "speed_mps": 1.47,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     9,
+     28
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     11
+    ],
+    [
+     26,
+     34
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     20
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     3
+    ],
+    [
+     17,
+     34
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0854,
+  "gait": "walk",
+  "turn_deg_s": -35,
+  "lean_deg": -3.0,
+  "lead": "L",
+  "radius_m": 2.46,
+  "stride_m": 1.7,
+  "events": {
+   "hoof_FL": [
+    8,
+    9
+   ],
+   "hoof_FR": [
+    25,
+    26
+   ],
+   "hoof_HL": [
+    0
+   ],
+   "hoof_HR": [
+    17
+   ]
+  }
+ },
+ {
+  "name": "Trot_Turn_L",
+  "loop": true,
+  "frames": 23,
+  "fps": 30,
+  "seconds": 0.733,
+  "root_delta_m": [
+   0.661,
+   -2.526,
+   0.0
+  ],
+  "root_yaw_deg": 29.33,
+  "speed_mps": 3.561,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0208,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     11,
+     20
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     9
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     9
+    ]
+   ],
+   "HR": [
+    [
+     11,
+     20
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.1445,
+  "gait": "trot",
+  "turn_deg_s": 40,
+  "lean_deg": 7.0,
+  "lead": "L",
+  "radius_m": 5.16,
+  "stride_m": 2.64,
+  "events": {
+   "hoof_FL": [
+    11
+   ],
+   "hoof_FR": [
+    0
+   ],
+   "hoof_HL": [
+    0
+   ],
+   "hoof_HR": [
+    11
+   ]
+  }
+ },
+ {
+  "name": "Trot_Turn_R",
+  "loop": true,
+  "frames": 23,
+  "fps": 30,
+  "seconds": 0.733,
+  "root_delta_m": [
+   -0.661,
+   -2.526,
+   0.0
+  ],
+  "root_yaw_deg": -29.33,
+  "speed_mps": 3.561,
+  "hoof_slide_m": {
+   "FL": 0.0208,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     11,
+     20
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     9
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     9
+    ]
+   ],
+   "HR": [
+    [
+     11,
+     20
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.1445,
+  "gait": "trot",
+  "turn_deg_s": -40,
+  "lean_deg": -7.0,
+  "lead": "L",
+  "radius_m": 5.16,
+  "stride_m": 2.64,
+  "events": {
+   "hoof_FL": [
+    11
+   ],
+   "hoof_FR": [
+    0
+   ],
+   "hoof_HL": [
+    0
+   ],
+   "hoof_HR": [
+    11
+   ]
+  }
+ },
+ {
+  "name": "Canter_Turn_L",
+  "loop": true,
+  "frames": 19,
+  "fps": 30,
+  "seconds": 0.6,
+  "root_delta_m": [
+   0.718,
+   -3.379,
+   0.0
+  ],
+  "root_yaw_deg": 24.0,
+  "speed_mps": 5.758,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     8,
+     14
+    ]
+   ],
+   "FR": [
+    [
+     5,
+     10
+    ]
+   ],
+   "HL": [
+    [
+     4,
+     10
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     6
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.2711,
+  "gait": "canter",
+  "turn_deg_s": 40,
+  "lean_deg": 12.0,
+  "lead": "L",
+  "radius_m": 8.31,
+  "stride_m": 3.48,
+  "events": {
+   "hoof_FL": [
+    8
+   ],
+   "hoof_FR": [
+    4
+   ],
+   "hoof_HL": [
+    4
+   ],
+   "hoof_HR": [
+    0
+   ]
+  }
+ },
+ {
+  "name": "Canter_Turn_R",
+  "loop": true,
+  "frames": 19,
+  "fps": 30,
+  "seconds": 0.6,
+  "root_delta_m": [
+   -0.718,
+   -3.379,
+   0.0
+  ],
+  "root_yaw_deg": -24.0,
+  "speed_mps": 5.758,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     5,
+     10
+    ]
+   ],
+   "FR": [
+    [
+     8,
+     14
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     6
+    ]
+   ],
+   "HR": [
+    [
+     4,
+     10
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.2711,
+  "gait": "canter",
+  "turn_deg_s": -40,
+  "lean_deg": -12.0,
+  "lead": "R",
+  "radius_m": 8.31,
+  "stride_m": 3.48,
+  "events": {
+   "hoof_FL": [
+    4
+   ],
+   "hoof_FR": [
+    8
+   ],
+   "hoof_HL": [
+    0
+   ],
+   "hoof_HR": [
+    4
+   ]
+  }
+ },
+ {
+  "name": "Gallop_Turn_L",
+  "loop": true,
+  "frames": 15,
+  "fps": 30,
+  "seconds": 0.467,
+  "root_delta_m": [
+   0.665,
+   -5.075,
+   0.0
+  ],
+  "root_yaw_deg": 14.93,
+  "speed_mps": 10.969,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     6,
+     9
+    ]
+   ],
+   "FR": [
+    [
+     5,
+     7
+    ]
+   ],
+   "HL": [
+    [
+     2,
+     5
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     3
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.5658,
+  "gait": "gallop",
+  "turn_deg_s": 32,
+  "lean_deg": 16.0,
+  "lead": "L",
+  "radius_m": 19.7,
+  "stride_m": 5.133,
+  "events": {
+   "hoof_FL": [
+    6
+   ],
+   "hoof_FR": [
+    4
+   ],
+   "hoof_HL": [
+    2
+   ],
+   "hoof_HR": [
+    0
+   ]
+  }
+ },
+ {
+  "name": "Gallop_Turn_R",
+  "loop": true,
+  "frames": 15,
+  "fps": 30,
+  "seconds": 0.467,
+  "root_delta_m": [
+   -0.665,
+   -5.075,
+   0.0
+  ],
+  "root_yaw_deg": -14.93,
+  "speed_mps": 10.969,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     5,
+     7
+    ]
+   ],
+   "FR": [
+    [
+     6,
+     9
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     3
+    ]
+   ],
+   "HR": [
+    [
+     2,
+     5
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.5658,
+  "gait": "gallop",
+  "turn_deg_s": -32,
+  "lean_deg": -16.0,
+  "lead": "R",
+  "radius_m": 19.7,
+  "stride_m": 5.133,
+  "events": {
+   "hoof_FL": [
+    4
+   ],
+   "hoof_FR": [
+    6
+   ],
+   "hoof_HL": [
+    0
+   ],
+   "hoof_HR": [
+    2
+   ]
+  }
+ },
+ {
+  "name": "Cart_Pull_Walk",
+  "loop": true,
+  "frames": 37,
+  "fps": 30,
+  "seconds": 1.2,
+  "root_delta_m": [
+   0.0,
+   -1.5,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 1.25,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     9,
+     32
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     14
+    ],
+    [
+     27,
+     36
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     23
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     5
+    ],
+    [
+     18,
+     36
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0434,
+  "gait": "cart_walk",
+  "stride_m": 1.5,
+  "stride_s": 1.2,
+  "footfall_phase": {
+   "HL": 0.0,
+   "FL": 0.25,
+   "HR": 0.5,
+   "FR": 0.75
+  },
+  "duty": 0.64,
+  "lead": "L",
+  "events": {
+   "hoof_FL": [
+    9
+   ],
+   "hoof_FR": [
+    27
+   ],
+   "hoof_HL": [
+    0
+   ],
+   "hoof_HR": [
+    18
+   ]
+  }
+ },
+ {
+  "name": "Cart_Pull_Trot",
+  "loop": true,
+  "frames": 25,
+  "fps": 30,
+  "seconds": 0.8,
+  "root_delta_m": [
+   0.0,
+   -2.4,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 3.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     12,
+     22
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     10
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     10
+    ]
+   ],
+   "HR": [
+    [
+     12,
+     22
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.078,
+  "gait": "cart_trot",
+  "stride_m": 2.4,
+  "stride_s": 0.8,
+  "footfall_phase": {
+   "HL": 0.0,
+   "FR": 0.0,
+   "HR": 0.5,
+   "FL": 0.5
+  },
+  "duty": 0.42,
+  "lead": "L",
+  "events": {
+   "hoof_FL": [
+    12
+   ],
+   "hoof_FR": [
+    0
+   ],
+   "hoof_HL": [
+    0
+   ],
+   "hoof_HR": [
+    12
+   ]
+  }
+ },
+ {
+  "name": "Idle",
+  "loop": true,
+  "frames": 121,
+  "fps": 30,
+  "seconds": 4.0,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     120
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     120
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     120
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     120
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "idle"
+ },
+ {
+  "name": "Idle_RestHind",
+  "loop": true,
+  "frames": 121,
+  "fps": 30,
+  "seconds": 4.0,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     120
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     120
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     120
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     120
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "idle"
+ },
+ {
+  "name": "Idle_ShiftWeight",
+  "loop": false,
+  "frames": 91,
+  "fps": 30,
+  "seconds": 3.0,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     90
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     90
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     90
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     31
+    ],
+    [
+     44,
+     90
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "idle",
+  "events": {
+   "hoof_HR": [
+    44
+   ]
+  }
+ },
+ {
+  "name": "Idle_EarFlick",
+  "loop": false,
+  "frames": 61,
+  "fps": 30,
+  "seconds": 2.0,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     60
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     60
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     60
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     60
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "idle"
+ },
+ {
+  "name": "Idle_TailSwish",
+  "loop": false,
+  "frames": 76,
+  "fps": 30,
+  "seconds": 2.5,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     75
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     75
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     75
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     75
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "idle",
+  "events": {
+   "tail_swish": [
+    9,
+    28
+   ]
+  }
+ },
+ {
+  "name": "Idle_HeadToss",
+  "loop": false,
+  "frames": 61,
+  "fps": 30,
+  "seconds": 2.0,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     60
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     60
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     60
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     60
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "idle"
+ },
+ {
+  "name": "Idle_Snort",
+  "loop": false,
+  "frames": 55,
+  "fps": 30,
+  "seconds": 1.8,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     54
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     54
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     54
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     54
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "idle",
+  "events": {
+   "snort": [
+    18
+   ]
+  }
+ },
+ {
+  "name": "Graze_Enter",
+  "loop": false,
+  "frames": 49,
+  "fps": 30,
+  "seconds": 1.6,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     7
+    ],
+    [
+     20,
+     48
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     48
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     48
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     48
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "idle",
+  "events": {
+   "hoof_FL": [
+    20
+   ]
+  }
+ },
+ {
+  "name": "Graze_Exit",
+  "loop": false,
+  "frames": 49,
+  "fps": 30,
+  "seconds": 1.6,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     25
+    ],
+    [
+     38,
+     48
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     48
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     48
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     48
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "idle",
+  "events": {
+   "hoof_FL": [
+    38
+   ]
+  }
+ },
+ {
+  "name": "Graze",
+  "loop": true,
+  "frames": 121,
+  "fps": 30,
+  "seconds": 4.0,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     120
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     120
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     120
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     120
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "idle",
+  "events": {
+   "chew": [
+    0,
+    20,
+    40,
+    60,
+    80,
+    100
+   ]
+  }
+ },
+ {
+  "name": "Drink_Enter",
+  "loop": false,
+  "frames": 49,
+  "fps": 30,
+  "seconds": 1.6,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     7
+    ],
+    [
+     20,
+     48
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     48
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     48
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     48
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "idle",
+  "events": {
+   "hoof_FL": [
+    20
+   ]
+  }
+ },
+ {
+  "name": "Drink_Exit",
+  "loop": false,
+  "frames": 49,
+  "fps": 30,
+  "seconds": 1.6,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     25
+    ],
+    [
+     38,
+     48
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     48
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     48
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     48
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "idle",
+  "events": {
+   "hoof_FL": [
+    38
+   ]
+  }
+ },
+ {
+  "name": "Drink",
+  "loop": true,
+  "frames": 91,
+  "fps": 30,
+  "seconds": 3.0,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     90
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     90
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     90
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     90
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "idle",
+  "events": {
+   "swallow": [
+    15,
+    45,
+    75
+   ]
+  }
+ },
+ {
+  "name": "Rear",
+  "loop": false,
+  "frames": 85,
+  "fps": 30,
+  "seconds": 2.8,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     13
+    ],
+    [
+     68,
+     84
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     13
+    ],
+    [
+     68,
+     84
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     84
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     84
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0237,
+  "gait": "action",
+  "events": {
+   "neigh": [
+    30
+   ],
+   "hoof_FL": [
+    68
+   ],
+   "hoof_FR": [
+    68
+   ]
+  }
+ },
+ {
+  "name": "Buck",
+  "loop": false,
+  "frames": 58,
+  "fps": 30,
+  "seconds": 1.9,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     57
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     57
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     12
+    ],
+    [
+     37,
+     57
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     12
+    ],
+    [
+     37,
+     57
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0506,
+  "gait": "action",
+  "events": {
+   "kick": [
+    20
+   ],
+   "hoof_HL": [
+    37
+   ],
+   "hoof_HR": [
+    37
+   ]
+  }
+ },
+ {
+  "name": "Spook_L",
+  "loop": false,
+  "frames": 46,
+  "fps": 30,
+  "seconds": 1.5,
+  "root_delta_m": [
+   -1.2,
+   -0.3,
+   0.0
+  ],
+  "root_yaw_deg": -32.0,
+  "speed_mps": 0.825,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     1
+    ],
+    [
+     8,
+     12
+    ],
+    [
+     20,
+     24
+    ],
+    [
+     31,
+     45
+    ]
+   ],
+   "FR": [
+    [
+     2,
+     7
+    ],
+    [
+     14,
+     18
+    ],
+    [
+     25,
+     45
+    ]
+   ],
+   "HL": [
+    [
+     2,
+     7
+    ],
+    [
+     14,
+     18
+    ],
+    [
+     25,
+     45
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     1
+    ],
+    [
+     8,
+     12
+    ],
+    [
+     20,
+     24
+    ],
+    [
+     31,
+     45
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "action",
+  "threat_side": "L",
+  "events": {
+   "hoof_FL": [
+    8,
+    19,
+    31
+   ],
+   "hoof_FR": [
+    2,
+    13,
+    25
+   ],
+   "hoof_HL": [
+    2,
+    13,
+    25
+   ],
+   "hoof_HR": [
+    8,
+    19,
+    31
+   ],
+   "startle": [
+    3
+   ]
+  }
+ },
+ {
+  "name": "Spook_R",
+  "loop": false,
+  "frames": 46,
+  "fps": 30,
+  "seconds": 1.5,
+  "root_delta_m": [
+   1.2,
+   -0.3,
+   0.0
+  ],
+  "root_yaw_deg": 32.0,
+  "speed_mps": 0.825,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     1
+    ],
+    [
+     8,
+     12
+    ],
+    [
+     20,
+     24
+    ],
+    [
+     31,
+     45
+    ]
+   ],
+   "FR": [
+    [
+     2,
+     7
+    ],
+    [
+     14,
+     18
+    ],
+    [
+     25,
+     45
+    ]
+   ],
+   "HL": [
+    [
+     2,
+     7
+    ],
+    [
+     14,
+     18
+    ],
+    [
+     25,
+     45
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     1
+    ],
+    [
+     8,
+     12
+    ],
+    [
+     20,
+     24
+    ],
+    [
+     31,
+     45
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "action",
+  "threat_side": "R",
+  "events": {
+   "hoof_FL": [
+    8,
+    19,
+    31
+   ],
+   "hoof_FR": [
+    2,
+    13,
+    25
+   ],
+   "hoof_HL": [
+    2,
+    13,
+    25
+   ],
+   "hoof_HR": [
+    8,
+    19,
+    31
+   ],
+   "startle": [
+    3
+   ]
+  }
+ },
+ {
+  "name": "Hit_L",
+  "loop": false,
+  "frames": 25,
+  "fps": 30,
+  "seconds": 0.8,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     24
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     3
+    ],
+    [
+     12,
+     24
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     24
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     24
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "action",
+  "hit_side": "L",
+  "events": {
+   "hit": [
+    0
+   ],
+   "hoof_FR": [
+    12
+   ]
+  }
+ },
+ {
+  "name": "Hit_R",
+  "loop": false,
+  "frames": 25,
+  "fps": 30,
+  "seconds": 0.8,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     3
+    ],
+    [
+     12,
+     24
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     24
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     24
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     24
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "action",
+  "hit_side": "R",
+  "events": {
+   "hit": [
+    0
+   ],
+   "hoof_FL": [
+    12
+   ]
+  }
+ },
+ {
+  "name": "Death",
+  "loop": false,
+  "frames": 103,
+  "fps": 30,
+  "seconds": 3.4,
+  "root_delta_m": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 0.0,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     0,
+     102
+    ]
+   ],
+   "FR": [
+    [
+     0,
+     102
+    ]
+   ],
+   "HL": [
+    [
+     0,
+     102
+    ]
+   ],
+   "HR": [
+    [
+     0,
+     102
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.0884,
+  "gait": "action",
+  "events": {
+   "knees": [
+    27
+   ],
+   "body_ground": [
+    60
+   ],
+   "roll": [
+    62
+   ]
+  }
+ },
+ {
+  "name": "Jump_Full",
+  "loop": false,
+  "frames": 58,
+  "fps": 30,
+  "seconds": 1.9,
+  "root_delta_m": [
+   0.0,
+   -10.26,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 5.4,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [
+    [
+     3,
+     9
+    ],
+    [
+     31,
+     35
+    ]
+   ],
+   "FR": [
+    [
+     1,
+     6
+    ],
+    [
+     33,
+     38
+    ],
+    [
+     54,
+     57
+    ]
+   ],
+   "HL": [
+    [
+     9,
+     13
+    ],
+    [
+     40,
+     45
+    ],
+    [
+     54,
+     57
+    ]
+   ],
+   "HR": [
+    [
+     8,
+     13
+    ],
+    [
+     38,
+     43
+    ],
+    [
+     50,
+     55
+    ]
+   ]
+  },
+  "leg_overreach_m": 0.5773,
+  "gait": "jump",
+  "height_m": 1.05,
+  "splits": [
+   [
+    "Jump_Takeoff",
+    0,
+    14
+   ],
+   [
+    "Jump_Air",
+    14,
+    31
+   ],
+   [
+    "Jump_Land",
+    31,
+    57
+   ]
+  ],
+  "events": {
+   "hoof_FL": [
+    3,
+    31
+   ],
+   "hoof_FR": [
+    1,
+    33,
+    54
+   ],
+   "hoof_HL": [
+    8,
+    40,
+    53
+   ],
+   "hoof_HR": [
+    7,
+    38,
+    50
+   ],
+   "takeoff": [
+    13
+   ],
+   "land": [
+    30
+   ]
+  }
+ },
+ {
+  "name": "Jump_Takeoff",
+  "loop": false,
+  "frames": 15,
+  "fps": 30,
+  "seconds": 0.467,
+  "root_delta_m": [
+   0.0,
+   -2.52,
+   0.049
+  ],
+  "split_of": "Jump_Full",
+  "source_frames": [
+   0,
+   14
+  ],
+  "events": {
+   "hoof_FL": [
+    3
+   ],
+   "hoof_FR": [
+    1
+   ],
+   "hoof_HL": [
+    8
+   ],
+   "hoof_HR": [
+    7
+   ],
+   "takeoff": [
+    13
+   ],
+   "land": []
+  }
+ },
+ {
+  "name": "Jump_Air",
+  "loop": false,
+  "frames": 18,
+  "fps": 30,
+  "seconds": 0.567,
+  "root_delta_m": [
+   0.0,
+   -3.06,
+   -0.049
+  ],
+  "split_of": "Jump_Full",
+  "source_frames": [
+   14,
+   31
+  ],
+  "events": {
+   "hoof_FL": [
+    17
+   ],
+   "hoof_FR": [],
+   "hoof_HL": [],
+   "hoof_HR": [],
+   "takeoff": [],
+   "land": [
+    16
+   ]
+  }
+ },
+ {
+  "name": "Jump_Land",
+  "loop": false,
+  "frames": 27,
+  "fps": 30,
+  "seconds": 0.867,
+  "root_delta_m": [
+   0.0,
+   -4.68,
+   0.0
+  ],
+  "split_of": "Jump_Full",
+  "source_frames": [
+   31,
+   57
+  ],
+  "events": {
+   "hoof_FL": [
+    0
+   ],
+   "hoof_FR": [
+    2,
+    23
+   ],
+   "hoof_HL": [
+    9,
+    22
+   ],
+   "hoof_HR": [
+    7,
+    19
+   ],
+   "takeoff": [],
+   "land": []
+  }
+ },
+ {
+  "name": "Swim",
+  "loop": true,
+  "frames": 37,
+  "fps": 30,
+  "seconds": 1.2,
+  "root_delta_m": [
+   0.0,
+   -1.32,
+   0.0
+  ],
+  "root_yaw_deg": 0.0,
+  "speed_mps": 1.1,
+  "hoof_slide_m": {
+   "FL": 0.0,
+   "FR": 0.0,
+   "HL": 0.0,
+   "HR": 0.0
+  },
+  "stance_frames": {
+   "FL": [],
+   "FR": [],
+   "HL": [],
+   "HR": []
+  },
+  "leg_overreach_m": 0.0,
+  "gait": "swim",
+  "root_is_water_surface": true,
+  "stride_m": 1.32,
+  "events": {
+   "stroke": [
+    0,
+    18
+   ]
+  }
+ }
+]
