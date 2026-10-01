@@ -21,6 +21,9 @@ const LARGE_FOOT := 3.0            # m: ... and at least this much on its longes
 const FOOT_SHRINK := 0.8           # footprint samples sit at 80 % of the half-extent (as the game's snap does)
 const DRAW_BUDGET := 32            # distinct mesh+material draws per dressing site
 const DRAW_BUDGET_BY_GROUP := {"settlement": 500, "vale": 120, "r1look": 120, "caves": 32, "tower": 64}
+const FLAT_MAX_H := 0.7            # m: lower than this = a flat ground piece (plot pad, plinth, yard pad, pan, decal quad)
+const FLAT_MIN_AREA := 6.0        # m2 footprint: smaller bits read as clutter, not as a pad
+const FLAT_PALE_LUM := 0.50        # rendered luminance (albedo x vertex colour x texture mean x instance tint) at or above = pale
 const ROAD_SEVERE_FRAC := 0.5      # centre within this share of the road width = on the road (severe for solid props)
 
 # --- Tag lists (lower-case substrings of "asset | node name | mesh name | resource path") -----------------------------
@@ -58,6 +61,8 @@ const ROAD_OK := ["waystone", "signpost", "sign", "milestone", "marker", "bridge
 const WET_SITE_KINDS := ["bridge", "old_bridge", "ferry", "sunken_chapel", "waterfall", "poi_fishing", "hollow", "lakeside"]
 const ROAD_SITE_KINDS := ["bridge", "old_bridge", "waystation", "waystone", "wayshrine", "roadside", "border_gate", "pass",
 	"watchfort", "caravan_camp"]
+## Flat pale ground pieces that are intended AND blended (a lower-case substring of "node | mesh | asset" text): salt pans have a dirt rim.
+const FLAT_OK := ["salt_pan"]
 ## Parent names that mark a designed kit (overlaps between its children are intended).
 const KIT_PARENT_TOKENS := ["kit", "interior", "cliff", "stalls_row"]
 ## Pairs of tokens that may overlap by design (walls with gates/towers, stalls with their goods...).

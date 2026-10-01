@@ -473,8 +473,10 @@ static func _caravan_camp(pl: Placer) -> void:
 		var q := p + Vector2.from_angle(a) * 8.0
 		pl.put("g:region/road/caravan_wagon", q, a + PI * 0.5, 1.0, true)
 	for k in 2:
-		var q2 := p + Vector2.from_angle(2.6 + k * 1.9) * 5.5
-		pl.put("g:region/ruins/bandit_tent", q2, 2.6 + k * 1.9, 1.0, true)
+		# Tents sit BETWEEN the wagons (wagons at 0.4 + k * 120 degrees): the old fixed angles put one tent into a 6.2 m wagon (lint: overlap 36 %).
+		var ta := 0.4 + PI / 3.0 + k * (TAU / 3.0)
+		var q2 := p + Vector2.from_angle(ta) * 5.0
+		pl.put("g:region/ruins/bandit_tent", q2, ta, 1.0, true)
 	pl.put("hay", p + Vector2(3.0, 3.0), 0.7, 1.0, false)
 	pl.put("barrel_cluster", p + Vector2(-3.4, 2.4), 0.2, 1.0, false)
 

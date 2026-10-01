@@ -11,6 +11,12 @@ func run(seed_value: int, out: String, threshold: float, legacy := false) -> int
 	lines.append("=== TOWN SIGNATURES seed=%d  %d towns, %d pairs ===" % [seed_value, (rep["rows"] as Array).size(), int(rep["pairs"])])
 	lines.append("distinctness (weighted Gower distance 0..1): min %.3f (%s / %s), mean %.3f, threshold %.2f, pairs below threshold: %d" % [
 		float(rep["min_distance"]), (rep["min_pair"] as Array)[0], (rep["min_pair"] as Array)[1], float(rep["mean_distance"]), threshold, (rep["violations"] as Array).size()])
+	lines.append("villages + hamlets (scored separately): %d places, %d pairs, min %.3f (%s / %s), mean %.3f, threshold %.2f, pairs below: %d" % [
+		int(rep["villages"]), int(rep["village_pairs"]), float(rep["village_min_distance"]), (rep["village_min_pair"] as Array)[0], (rep["village_min_pair"] as Array)[1],
+		float(rep["village_mean_distance"]), float(rep["village_threshold"]), (rep["village_violations"] as Array).size()])
+	for r: Dictionary in rep["rows"]:
+		if String(r["street"]) != "":
+			lines.append("  %-12s %-8s street %-10s features %s" % [r["name"], r["size"], r["street"], ", ".join(PackedStringArray(r["features"]))])
 	lines.append("")
 	lines.append("%-12s %-9s %-9s %-9s %-7s %-10s %-10s %-9s %-15s %-8s %s" % ["town", "arch", "size", "roof", "wall", "layout", "palette", "banner", "kits", "nearest", "terrain"])
 	for r: Dictionary in rep["rows"]:
@@ -41,6 +47,8 @@ func run(seed_value: int, out: String, threshold: float, legacy := false) -> int
 		for lm: Dictionary in plan["landmarks"]:
 			lms.append(String(lm["asset"]))
 		lines.append("%-12s %-9s lots %3d  along %5.1f across %5.1f  streets %3d  plaza %4.1f  roofs [%s]  landmarks %s" % [st["name"], prof["layout"], (plan["lots"] as Array).size(), along, across, (plan["streets"] as Array).size(), float(plan["plaza_r"]), ", ".join(shares), ",".join(lms)])
+	for b: Array in rep["village_violations"]:
+		lines.append("VILLAGES TOO SIMILAR: %s / %s  distance %.3f" % [b[0], b[1], float(b[2])])
 	for b: Array in rep["violations"]:
 		lines.append("TOO SIMILAR: %s / %s  distance %.3f" % [b[0], b[1], float(b[2])])
 	var text := "\n".join(lines)
@@ -52,4 +60,4 @@ func run(seed_value: int, out: String, threshold: float, legacy := false) -> int
 	var jf := FileAccess.open(out + ".json", FileAccess.WRITE)
 	jf.store_string(JSON.stringify(rep, "  "))
 	jf.close()
-	return 0 if (rep["violations"] as Array).is_empty() else 1
+	return 0 if (rep["violations"] as Array).is_empty() and (rep["village_violations"] as Array).is_empty() else 1

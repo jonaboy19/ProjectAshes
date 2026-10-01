@@ -133,6 +133,12 @@ func _work() -> void:
 			var x := -HALF + i * CELL
 			var z := -HALF + j * CELL
 			hs[j * n + i] = WorldGen.height(x, z)
+	var lvs := PackedFloat32Array()
+	lvs.resize(n * n)
+	for j in n:
+		for i in n:
+			lvs[j * n + i] = WorldGen.water_level_at(-HALF + i * CELL, -HALF + j * CELL)
+	var raised := _raised_water(lvs, hs, n)
 	for j in n:
 		for i in n:
 			var x := -HALF + i * CELL
@@ -146,10 +152,16 @@ func _work() -> void:
 			var wg := maxf(0.0, 1.0 - (w.r + w.g + w.b + w.a))
 			var tot := wg + w.r + w.g + w.b + w.a + 0.0001
 			var col := (GRASS * wg + PATH * w.r + ROCK * w.g + COBBLE * w.b + FOREST * w.a) / tot
-			var lv := WorldGen.water_level_at(x, z)
+			var lv := lvs[j * n + i]
 			if not is_nan(lv) and lv > h + 0.1:
-				col = WATER
-				h = lv
+				# Water only where the whole neighbourhood is water or higher ground (see _water_interior): a river is far
+				# narrower than this 72 m grid, so a lone raised vertex used to become a flat blue slab hanging over the lower
+				# ground beside it. Shore vertices keep their ground height and only tint, a soft edge.
+				if raised[j * n + i] == 1:
+					col = WATER
+					h = lv
+				else:
+					col = col.lerp(WATER, 0.45)
 			col.a = 1.0
 			verts[j * n + i] = Vector3(x, h, z)
 			cols[j * n + i] = col
@@ -190,6 +202,31 @@ func _work() -> void:
 			bx += BLOB_STEP
 		bz += BLOB_STEP
 	_result = {"n": n, "verts": verts, "cols": cols, "idx": idx, "blobs": blobs}
+
+
+## Which grid vertices are drawn raised to the water level: wet ones whose 8 neighbours are all raised themselves or ground at least as
+## high as this vertex's water level (minus 0.5 m). Iterated until stable, so a raised vertex never has a lower dry or shore
+## neighbour to hang over (a river is far narrower than this 72 m grid: its lone wet vertices stay on the ground and only tint).
+static func _raised_water(lvs: PackedFloat32Array, hs: PackedFloat32Array, n: int) -> PackedByteArray:
+	var r := PackedByteArray()
+	r.resize(n * n)
+	for k in n * n:
+		r[k] = 1 if (not is_nan(lvs[k]) and lvs[k] > hs[k] + 0.1) else 0
+	var changed := true
+	while changed:
+		changed = false
+		for j in n:
+			for i in n:
+				var k := j * n + i
+				if r[k] == 0:
+					continue
+				for dj in range(-1, 2):
+					for di in range(-1, 2):
+						var q := clampi(j + dj, 0, n - 1) * n + clampi(i + di, 0, n - 1)
+						if r[q] == 0 and hs[q] < lvs[k] - 0.5:
+							r[k] = 0
+							changed = true
+	return r
 
 
 ## Bilinear height of the horizon grid at (x, z).
