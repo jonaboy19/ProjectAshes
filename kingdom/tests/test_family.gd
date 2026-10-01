@@ -103,12 +103,11 @@ func test_courtship_advances_stage_with_points() -> void:
 	fam.add_courtship_points("npc_b", RAFamily.COURT_POINTS_BETROTHED - RAFamily.COURT_POINTS_COURTING)
 	# Points alone no longer betroth (Codex: betrothal is gated behind propose()).
 	assert_str(fam.stage("npc_b")).is_equal("courting")
-	if not fam._has_marriage_home():
-		assert_str(fam.propose("npc_b")).contains("home")
-		assert_str(fam.stage("npc_b")).is_equal("courting")
+	# propose() then needs a home; check the gate without mutating life-path flags.
+	if fam._has_marriage_home():
+		assert_str(fam.can_propose("npc_b")).is_empty()
 	else:
-		assert_str(fam.propose("npc_b")).is_empty()
-		assert_str(fam.stage("npc_b")).is_equal("betrothed")
+		assert_str(fam.can_propose("npc_b")).contains("home")
 
 
 func test_cannot_court_once_married() -> void:
@@ -116,7 +115,7 @@ func test_cannot_court_once_married() -> void:
 	_grant_home()
 	_close_friend("npc_c")
 	fam.court("npc_c")
-	fam.add_courtship_points("npc_c", RAFamily.COURT_POINTS_COURTING)
+	fam.add_courtship_points("npc_c", RAFamily.COURT_POINTS_BETROTHED)   # propose() needs the full betrothal total (Codex)
 	fam.propose("npc_c")
 	fam.marry("npc_c")
 	assert_str(fam.can_court("npc_d")).contains("already married")

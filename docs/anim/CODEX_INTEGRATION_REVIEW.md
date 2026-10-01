@@ -75,7 +75,10 @@ There are no other named companion characters in the current build. The army squ
 ## Tests
 - Parse/import: clean after the fixes.
 - Boot flow (`tools_qa/boot_flow/boot_flow.gd`, `BOOT_FLOW_SKIP=1`): **BOOTFLOW OK**.
-- gdUnit: see the commit message and the STATUS_LOCAL entry for the final count.
+- **gdUnit (full run, 109 suites, 1473 cases):** 8 failures, all accounted for.
+  - 4 were Codex contract changes, now fixed in the tests: betrothal needs `propose()` with the full points total, and chat pairing needs `CHAT_MIN_WAIT_MS` (test_family x2, test_npc_ai, test_utility_brain). Re-run green.
+  - 4 dressing/world-lint failures (test_region1_world, test_region_sites, test_world_lint x2) **also fail on the pre-merge commit d10c6c4b** in this worktree. They come from the missing meshy_free imports, not from the merge.
+  - test_micro_events `test_every_scene_can_be_staged_in_a_real_town` failed in the full run but **passes in isolation** on HEAD, where Thornfield's inn door is found. It is order-dependent, through cached state left by an earlier suite. Watch it in CI.
 - Environment note: in this worktree a few `meshy_free` GLBs (fence_rail_rustic, hut_long_thatch, well_wood_roof) failed to load from the copied import cache. That produced null errors in RegionDressing and region1_look. Neither Codex branch touches these files.
 
 ## Remaining issues (priority order)
