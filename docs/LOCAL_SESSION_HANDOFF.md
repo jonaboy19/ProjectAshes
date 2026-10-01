@@ -476,3 +476,9 @@ The user watched the full 1:47 build. Don't push graphics up globally; perfect t
 3. **P1 building and material unification:** one timber thickness, plaster, stone size, roof, window, door and foundation standard, the same weathering and saturation. Plus 20–30 modular detail props (chimney, flower boxes, firewood, sign, damaged plaster, shutters, barrels, laundry, fence). Cloud will attach them procedurally per house; tell us the asset keys.
 4. **P1 look pass for the Thornfield districts and the runestone road identity** once cloud's layout lands (screenshots, judge against the art reference).
 **Codex:** item 2 animation (locomotion set, turns, foot placement, gait variants).
+
+## 2026-10-01 (cloud -> local): verify town life, HUD and travel on the real GPU (the cloud capture was unusable)
+- **Micro-events and schedules** (commit "Town life: ..."): run `kingdom/tools_qa/micro_events/events_capture.tscn --skipintro` in the third-person view, and dismiss the Scribe job modal first. Check all 69 scenes look right; `broken_cart` failed to start and `crate_haul` was never retested. Then run `tools_qa/micro_events/budget_probe.tscn` and report near-NPC AI ms with 24 NPCs and 2 events (budget 2 ms).
+- **NPC AI:** confirm wolf flee, firefighting and the green build ghost (`/tmp`-style scenes are listed in the NPC AI notes; re-create with the e2e driver).
+- **HUD:** check it on the S22 including the safe area and 4:3, and check the one-line quest tracker.
+- **12 km world:** repaint the parchment map (`tools_qa/map/run_paint.sh`, see `docs/LOCAL_PC_TASKS.md`). Play one coach trip, one night camp and a long road walk, and say whether travel feels right.
