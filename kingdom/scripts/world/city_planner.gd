@@ -11,6 +11,7 @@ extends RefCounted
 
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const Districts := preload("res://scripts/world/districts.gd")
+const TownIdentity := preload("res://scripts/world/town_identity.gd")   # per-town layout shape + roof mix (data/world/town_identity.json)
 
 const LOT_SPACING := 10.5
 const LOT_CLEARANCE := 9.5
@@ -27,7 +28,7 @@ const TRADES := ["inn", "blacksmith", "stable", "blacksmith"]
 ## these pieces at native size, ignoring the plan's "scale"). Used to keep lots and props off them.
 const LANDMARK_HALF := {
 	"temple": Vector2(7.75, 14.25), "castle": Vector2(14.4, 14.9), "bell_tower": Vector2(3.7, 3.75),
-	"well": Vector2(1.2, 1.2), "stable": Vector2(6.05, 4.2)}
+	"well": Vector2(1.2, 1.2), "stable": Vector2(6.05, 4.2), "chapel": Vector2(4.3, 6.9)}
 ## Clear space kept between a lot's footprint rectangle and a landmark's.
 const LANDMARK_GAP := 1.5
 ## A lot's footprint keeps this far inside the town wall (wall half depth + a tower's 3.7 m half width + margin)
@@ -48,12 +49,17 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 	var gates: Array[float] = gate_angles.duplicate()
 	while gates.size() < 2:
 		gates.append((gates[0] + PI) if not gates.is_empty() else rng.randf() * TAU)
-	var plaza_r := maxf(12.0, r * 0.13)
+	# Visual identity: the town's layout shape (rings, lanes, plaza, density, road corridors; empty = the original layout).
+	var prof := TownIdentity.profile(s)
+	var lay: Dictionary = prof["lay"]
+	var plaza_r := maxf(12.0, r * 0.13) * float(lay.get("plaza", 1.0))
 	var walled := kind != "village"
 	var result := {"streets": [], "lots": [], "walls": walled, "wall_radius": r, "gates": gates,
 		"plaza_r": plaza_r, "landmarks": [], "inner_wall": 0.0, "centre": c}
 	var streets: Array = result["streets"]
 
+	var lctx := TownIdentity.layout_context(prof, c, r, gates)
+	var narrow := float(lay.get("narrow", 1.0))
 	# Main streets: plaza to each gate.
 	for g in gates:
 		var d := Vector2(cos(g), sin(g))
@@ -65,13 +71,15 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 		"castle": rings = [0.34, 0.56, 0.78]
 		"town": rings = [0.42, 0.72]
 		_: rings = [0.55]
+	if lay.has("rings"):
+		rings.assign(lay["rings"])
 	for rf in rings:
 		var rr := r * rf
 		var segs := maxi(10, int(TAU * rr / 16.0))
 		for i in segs:
 			var a0 := TAU * i / segs
 			var a1 := TAU * (i + 1) / segs
-			streets.append({"a": c + Vector2(cos(a0), sin(a0)) * rr, "b": c + Vector2(cos(a1), sin(a1)) * rr, "w": 5.5})
+			streets.append({"a": c + Vector2(cos(a0), sin(a0)) * rr, "b": c + Vector2(cos(a1), sin(a1)) * rr, "w": 5.5 * narrow})
 	# Radial lanes between the first ring and the walls, avoiding the main streets.
 	var lanes := 5
 	match kind:
@@ -79,12 +87,17 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 		"frontier_town": lanes = 6   # small palisade hold: fewer lanes than a real town
 		"town": lanes = 8
 		"castle": lanes = 11
+	if lay.has("lanes"):
+		lanes = int(lay["lanes"])
+	elif lay.has("lanes_mul"):
+		lanes = maxi(2, roundi(lanes * float(lay["lanes_mul"])))
+	var lane_from: float = rings[0] if not rings.is_empty() else 0.34
 	for i in lanes:
 		var ang := TAU * (i + 0.5) / lanes + rng.randf_range(-0.12, 0.12)
 		if _near_angle(ang, gates, 0.3):
 			continue
 		var d := Vector2(cos(ang), sin(ang))
-		streets.append({"a": c + d * r * rings[0], "b": c + d * r * (0.96 if walled else 0.9), "w": 4.5})
+		streets.append({"a": c + d * r * lane_from, "b": c + d * r * (0.96 if walled else 0.9), "w": 4.5 * narrow})
 
 	# Landmarks around the plaza.
 	var landmarks: Array = result["landmarks"]
@@ -95,8 +108,21 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 		landmarks.append({"asset": "well", "pos": c, "yaw": 0.0, "scale": 1.0})
 	var church_ang := gates[0] + PI * 0.5
 	var church_r := plaza_r + (14.0 if kind != "village" else 8.0) if kind != "castle" else r * 0.3
+	var church_pos := c + Vector2(cos(church_ang), sin(church_ang)) * church_r
+	var church_yaw := atan2(-cos(church_ang), -sin(church_ang))
+	if bool(lay.get("temple_centre", false)) and kind != "castle":
+		# Religious towns: the temple (bell tower in a village) stands in the middle of a big close, facing the first gate;
+		# the well moves to the edge of the green.
+		church_pos = c
+		church_yaw = atan2(cos(float(gates[0])), sin(float(gates[0])))
+		var wa := float(gates[0]) + PI * 0.5
+		landmarks[0] = {"asset": "well", "pos": c + Vector2(cos(wa), sin(wa)) * (plaza_r * 0.6), "yaw": 0.0, "scale": 1.0}
 	landmarks.append({"asset": "temple" if kind != "village" else "bell_tower",
-		"pos": c + Vector2(cos(church_ang), sin(church_ang)) * church_r, "yaw": atan2(-cos(church_ang), -sin(church_ang)), "scale": 9.0 if kind == "village" else 11.0})
+		"pos": church_pos, "yaw": church_yaw, "scale": 9.0 if kind == "village" else 11.0})
+	if bool(lay.get("academy", false)) and kind != "castle":
+		# Scholarly towns: an academy / library hall opposite the first gate.
+		var aa := float(gates[0]) + PI
+		landmarks.append({"asset": "chapel", "pos": c + Vector2(cos(aa), sin(aa)) * (plaza_r + 13.0), "yaw": atan2(-cos(aa), -sin(aa)), "scale": 1.0})
 	if kind != "village":
 		var keep_ang := gates[0] - PI * 0.5
 		landmarks.append({"asset": "stable", "pos": c + Vector2(cos(keep_ang), sin(keep_ang)) * (church_r + 2.0),
@@ -105,43 +131,54 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 	# Lots along every street.
 	var lots: Array = result["lots"]
 	var blocked: Array[Vector2] = []
-	for st in streets:
-		var a: Vector2 = st["a"]
-		var b: Vector2 = st["b"]
-		var w: float = st["w"]
-		var dir := (b - a).normalized()
-		var normal := Vector2(-dir.y, dir.x)
-		var length := a.distance_to(b)
-		var t := LOT_SPACING * 0.5
-		while t < length:
-			for side: float in [-1.0, 1.0]:
-				var gate_road := w >= 11.0   # broad market road: tall townhouses set back behind the stalls
-				var p := a + dir * t + normal * side * (w * 0.5 + (8.4 if gate_road else 5.6))
-				if _lot_ok(p, c, r, plaza_r, walled, result["inner_wall"], streets, blocked, landmarks):
-					var face := -normal * side
-					var dist_frac := p.distance_to(c) / r
-					var asset: String = HOMES[rng.randi() % HOMES.size()]
-					if walled:
-						# Towns speak one architectural language (the art reference): tall jettied
-						# townhouses and the painted Blender houses, no mixed-style Meshy shells.
-						asset = TOWNHOUSES[rng.randi() % TOWNHOUSES.size()] if rng.randf() < 0.55 \
-							else "house_%d" % (1 + rng.randi() % 16)
-					if dist_frac < 0.5 and rng.randf() < 0.3:
-						asset = TRADES[rng.randi() % TRADES.size()]
-					elif gate_road:
-						asset = TOWNHOUSES[rng.randi() % TOWNHOUSES.size()]
-					var lyaw := atan2(face.x, face.y)
-					if not fits(asset, p, lyaw, c, r, walled, result["inner_wall"], landmarks):
-						asset = SMALL_HOUSE
+	var lay_out := func(lc: Dictionary) -> void:
+		for st in streets:
+			var a: Vector2 = st["a"]
+			var b: Vector2 = st["b"]
+			var w: float = st["w"]
+			var dir := (b - a).normalized()
+			var normal := Vector2(-dir.y, dir.x)
+			var length := a.distance_to(b)
+			var t := LOT_SPACING * 0.5
+			while t < length:
+				for side: float in [-1.0, 1.0]:
+					var gate_road := w >= 11.0   # broad market road: tall townhouses set back behind the stalls
+					var p := a + dir * t + normal * side * (w * 0.5 + (8.4 if gate_road else 5.6))
+					if _lot_ok(p, c, r, plaza_r, walled, result["inner_wall"], streets, blocked, landmarks) and TownIdentity.keep_lot(lc, p):
+						var face := -normal * side
+						var dist_frac := p.distance_to(c) / r
+						var asset: String = HOMES[rng.randi() % HOMES.size()]
+						if walled:
+							# Towns speak one architectural language (the art reference): tall jettied
+							# townhouses and the painted Blender houses, no mixed-style Meshy shells.
+							asset = TOWNHOUSES[rng.randi() % TOWNHOUSES.size()] if rng.randf() < 0.55 \
+								else "house_%d" % (1 + rng.randi() % 16)
+						if dist_frac < 0.5 and rng.randf() < 0.3:
+							asset = TRADES[rng.randi() % TRADES.size()]
+						elif gate_road:
+							asset = TOWNHOUSES[rng.randi() % TOWNHOUSES.size()]
+						var lyaw := atan2(face.x, face.y)
 						if not fits(asset, p, lyaw, c, r, walled, result["inner_wall"], landmarks):
-							continue
-					lots.append({"asset": asset, "pos": p, "yaw": lyaw})
-					blocked.append(p)
-			t += LOT_SPACING
+							asset = SMALL_HOUSE
+							if not fits(asset, p, lyaw, c, r, walled, result["inner_wall"], landmarks):
+								continue
+						lots.append({"asset": asset, "pos": p, "yaw": lyaw})
+						blocked.append(p)
+				t += LOT_SPACING
+	lay_out.call(lctx)
+	# A layout shape that thins a small place too far (a strung hamlet, a loose village) is relaxed step by step until the place
+	# keeps a believable number of homes (the guild and healer need a handful, a village needs a street).
+	var relax := 0
+	var min_lots := TownIdentity.min_lots(prof)
+	while lots.size() < min_lots and relax < 4 and not lay.is_empty():
+		relax += 1
+		lots.clear()
+		blocked.clear()
+		lay_out.call(TownIdentity.relaxed(lctx, relax))
 	if kind == "frontier_town":
 		_infill(lots, blocked, streets, landmarks, c, r, plaza_r, result["inner_wall"], rng)
 	_civic_lots(lots, c, r, walled, result["inner_wall"], landmarks)
-	_zone_districts(result, kind, c, r, plaza_r, walled, seed_value)
+	_zone_districts(result, kind, c, r, plaza_r, walled, seed_value, prof)
 	result["paths"] = _door_paths(lots, streets)
 	return result
 
@@ -155,7 +192,7 @@ const MAX_EXTRA_STABLES := 1
 const VARIANT_MAX_FOOT := 10.6
 
 
-static func _zone_districts(plan_data: Dictionary, kind: String, c: Vector2, r: float, plaza_r: float, walled: bool, seed_value: int) -> void:
+static func _zone_districts(plan_data: Dictionary, kind: String, c: Vector2, r: float, plaza_r: float, walled: bool, seed_value: int, prof: Dictionary = {}) -> void:
 	var lots: Array = plan_data["lots"]
 	var landmarks: Array = plan_data["landmarks"]
 	var inner: float = plan_data["inner_wall"]
@@ -206,6 +243,9 @@ static func _zone_districts(plan_data: Dictionary, kind: String, c: Vector2, r: 
 			continue
 		if not fits(want, p, lot["yaw"], c, r, walled, inner, landmarks):
 			continue
+		# An unwalled place has no wall to keep a big building off the slope where the flattened ground ends.
+		if not walled and want in ["stable", "blacksmith", "mhouse_manor"] and p.distance_to(c) + maxf(big.x, big.z) * 0.5 > r * 0.88:
+			continue
 		# A neighbour closer than a big building's reach would overlap it: only the lot grid's own spacing is trusted.
 		if want in ["stable", "blacksmith", "mhouse_manor"] and _crowded(lots, i, want):
 			continue
@@ -218,6 +258,11 @@ static func _zone_districts(plan_data: Dictionary, kind: String, c: Vector2, r: 
 			stables += 1
 		elif want == "mhouse_manor":
 			courthouse = true
+	# Identity restyle: the town's roof mix decides which plain houses it uses (thatch hamlet, slate guild town ...).
+	if not prof.is_empty():
+		TownIdentity.restyle_lots(plan_data, prof, seed_value, func(a: String, lp: Vector2, yw: float) -> bool:
+			var sz := BuildingProfiles.size_of(a)
+			return maxf(sz.x, sz.z) <= VARIANT_MAX_FOOT and fits(a, lp, yw, c, r, walled, inner, landmarks))
 
 
 ## True when another lot sits closer than the two buildings' half widths (plus a 1.5 m lane) allow.

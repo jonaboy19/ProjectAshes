@@ -19,6 +19,8 @@ const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const Breakable := preload("res://scripts/world/breakable.gd")
 const NpcWorldScript := preload("res://scripts/population/npc_world.gd")
 const DistrictProps := preload("res://scripts/world/district_props.gd")   # district prop sets + house details (VERTICAL_SLICE P1)
+const TownIdentity := preload("res://scripts/world/town_identity.gd")      # per-town visual identity profile (data/world/town_identity.json)
+const TownView := preload("res://scripts/world/town_identity_view.gd")     # wall styles and outskirts yards of that profile
 
 const BUILD_RANGE := 650.0
 const FREE_RANGE := 850.0
@@ -92,7 +94,18 @@ func update_now() -> void:
 
 
 ## `sync`: build the district props before returning (tests, the world lint); the game streams them over frames.
+## Profile of the town being built (set at the top of _build; the builder builds one town at a time).
+var _prof: Dictionary = {}
+
+
+## The stock mesh of a dressing key, or the town-coloured variant (banners, bunting, awnings) of its profile.
+func _town_mesh(key: String) -> Mesh:
+	var v := TownIdentity.mesh_variant(_prof, key)
+	return v if v != null else Assets.building_mesh(key)
+
+
 func _build(s: Dictionary, sync := true) -> Node3D:
+	_prof = TownIdentity.profile(s)
 	var root := Node3D.new()
 	root.name = s["name"]
 	add_child(root)
@@ -116,6 +129,8 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	# nothing per frame -- one extra WorldGen.height() sample per corner, once,
 	# at settlement-build time).
 	var batches := {}
+	var bcolors := {}         # batch key -> per-instance colours (the town palette; empty for the legacy look)
+	var tinted := not bool(_prof.get("legacy", false))
 	var plinths: Array = []   # [pos, yaw, size, ground_y] for _plinths() below
 	for lot in plan["lots"]:
 		var p: Vector2 = lot["pos"]
@@ -139,6 +154,10 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 		var gh := _ground_snap(p, lot["yaw"], size)
 		var t := Transform3D(Basis(Vector3.UP, lot["yaw"]), Vector3(p.x, gh, p.y))
 		batches[bkey].append(t)
+		if tinted:
+			if not bcolors.has(bkey):
+				bcolors[bkey] = []
+			bcolors[bkey].append(TownIdentity.lot_tint(_prof, lot))
 		var body := BuildingProfiles.make_body(asset, size)
 		body.position = Vector3(p.x, gh, p.y)
 		body.rotation.y = lot["yaw"]
@@ -150,6 +169,7 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 		var asset := bkey.get_slice("@", 0)
 		var list: Array[Transform3D] = []
 		list.assign(batches[bkey])
+		var cols: Array = bcolors.get(bkey, [])
 		var lod := Assets.building_lod_mesh(asset)
 		if lod:
 			# LOD chain as MultiMeshes with hard range switches: detailed model up close,
@@ -172,15 +192,17 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 						chain.append([Assets.building_lod_level_mesh(asset, lv), Assets.building_lod_level_distance(asset, lv)])
 			chain = chain.filter(func(c: Array) -> bool: return c[0] != null)
 			for i in chain.size():
-				var mm := _multimesh(root, chain[i][0], list, i == 0)
+				var mm := _multimesh(root, chain[i][0], list, i == 0, false, "", true, cols)
 				mm.layers |= TownDecals.WALL_LAYER      # receives wall decals (see _decals)
 				mm.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
 				mm.visibility_range_begin = chain[i][1]
 				mm.visibility_range_begin_margin = 10.0 if i > 0 else 0.0
-				mm.visibility_range_end = chain[i + 1][1] if i + 1 < chain.size() else 0.0
+				# A few metres of overlap with the next stage: with hard switches and margins a MultiMesh whose bounds centre sat at
+				# the boundary could be culled by both stages (a pale empty plinth where a house should stand).
+				mm.visibility_range_end = chain[i + 1][1] + 12.0 if i + 1 < chain.size() else 0.0
 				mm.visibility_range_end_margin = 10.0 if i + 1 < chain.size() else 0.0
 		else:
-			var hm := _multimesh(root, Assets.building_mesh(asset), list)
+			var hm := _multimesh(root, Assets.building_mesh(asset), list, true, false, "", true, cols)
 			if hm:
 				hm.layers |= TownDecals.WALL_LAYER
 		_chimney_smoke(root, asset, list, rng)
@@ -220,6 +242,7 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	var stalls2: Array[Transform3D] = []
 	var pr: float = plan["plaza_r"]
 	var n_stalls := 6 if s["kind"] == "village" else 12
+	n_stalls = clampi(roundi(n_stalls * float(_prof.get("stalls", 1.0))), 3, 20)    # merchant towns pack the square, farm hamlets do not
 	var stall_size := Vector3(3.5, 2.5, 3.5)
 	for i in n_stalls:
 		var ang := TAU * i / n_stalls + 0.2
@@ -263,8 +286,6 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	_add_camera_blockers(root, Assets.building_mesh("market_stand_4"), stand_4_b)
 
 	var c: Vector2 = s["pos"]
-	if plan["walls"]:
-		_wall_ring(root, c, plan["wall_radius"], plan["gates"], 40, 5)
 	if plan["inner_wall"] > 0.0:
 		_wall_ring(root, c, plan["inner_wall"], plan["gates"], 16, 4)
 
@@ -289,10 +310,14 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 			continue   # two mills never share a hill (lint: mill inside mill)
 		mill_spots.append(p)
 		_piece(root, "mill", p, _ground_snap(p, mill_yaw, _footprint("mill")), mill_yaw)   # lint: corner snap, not centre height
+	plan["mill_spots"] = mill_spots     # town_identity_view.gd keeps its yards off the windmills
+	plan["field_stacks"] = []
 	_fields(root, s, plan, rng, gates, mill_spots)
+	TownView.walls(self, root, s, plan, _prof)     # stone / low / palisade / hedge / runestones / none (after mills and fields: it keeps off them)
 	_homesteads(root, s, plan, rng)
 	_gate_outskirts(root, s, plan, gates)
 	_footprint_clutter(root, plan, rng)
+	TownView.yards(self, root, s, plan, _prof)     # outskirts of the town's industry: mine yard, granary, boatyard, watch towers ...
 	_square_lamps(root, s, plan)
 	if s["kind"] != "village":
 		_gate_market(root, s, plan, rng)
@@ -509,7 +534,7 @@ func _piece(root: Node3D, asset: String, p: Vector2, h: float, yaw: float) -> No
 
 ## Stone wall ring (Quaternius RTS pieces stretched to each segment) with towers,
 ## leaving gatehouses where roads enter.
-func _wall_ring(root: Node3D, c: Vector2, radius: float, gates: Array, segments: int, tower_every: int) -> void:
+func _wall_ring(root: Node3D, c: Vector2, radius: float, gates: Array, segments: int, tower_every: int, tower_mult := 1.0, height_scale := 1.0) -> void:
 	var wall_mesh := Assets.building_mesh("wall")
 	var tower_mesh := Assets.building_mesh("wall_tower")
 	var gate_mesh := Assets.building_mesh("wall_gate")
@@ -521,7 +546,7 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, gates: Array, segments:
 	# Real-size sections (the Blender wall is 8 m long) instead of stretching a few;
 	# a tower roughly every 48 m.
 	segments = maxi(12, int(round(TAU * radius / native_len)))
-	tower_every = maxi(3, int(round(48.0 / native_len)))
+	tower_every = maxi(2, int(round(48.0 / native_len / maxf(tower_mult, 0.05))))
 	var seg_len := TAU * radius / segments
 	var s := seg_len / maxf(native_len, 0.01)          # uniform: keeps the wall's proportions
 	# Lay the ring out from the gates: each gate opening is centred exactly on its street's
@@ -568,7 +593,7 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, gates: Array, segments:
 		# ring sits right at the edge of WorldGen's flatten radius, where a segment
 		# can already be in the blended slope beyond it.
 		var h := WorldGen.height(mp.x, mp.y) - 0.05
-		var t := Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * ps), Vector3(mp.x, h, mp.y))
+		var t := Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3(ps, ps * (height_scale if not is_gate else 1.0), ps)), Vector3(mp.x, h, mp.y))
 		(gate_walls if is_gate else walls).append(t)
 		if not is_gate:
 			# Sections beside a gate stop GATE_JAMB short of their visual end, so the opening is
@@ -578,15 +603,15 @@ func _wall_ring(root: Node3D, c: Vector2, radius: float, gates: Array, segments:
 			var body := StaticBody3D.new()
 			var shape := CollisionShape3D.new()
 			var box := BoxShape3D.new()
-			box.size = Vector3(1.8, native.size.y * ps, maxf(0.5, chord - t0 - t1))
+			box.size = Vector3(1.8, native.size.y * ps * height_scale, maxf(0.5, chord - t0 - t1))
 			shape.shape = box
 			var dn := dir / maxf(chord, 0.001)
 			var mc := mp + dn * ((t0 - t1) * 0.5)
-			body.position = Vector3(mc.x, h + native.size.y * ps * 0.5, mc.y)
+			body.position = Vector3(mc.x, h + native.size.y * ps * height_scale * 0.5, mc.y)
 			body.rotation.y = atan2(dir.x, dir.y)
 			body.add_child(shape)
 			root.add_child(body)
-			if wall_i % tower_every == 0:
+			if tower_mult > 0.0 and wall_i % tower_every == 0:
 				towers.append(Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * ps * 1.05), Vector3(p0.x, h, p0.y)))
 			wall_i += 1
 	# Per 150 m stretch of wall, so the automatic mesh LODs pick the far side's
@@ -629,17 +654,28 @@ func _lod_cells(parent: Node3D, key: String, transforms: Array[Transform3D], cel
 ## Instanced placement. Culls by object size (small clutter vanishes first) and,
 ## unless blob is false, grounds each instance with a soft contact shadow.
 ## A `breakable` kind (Breakable.KINDS) makes each instance collider breakable.
-func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob := true, collide := false, breakable := "", shadow := true) -> MultiMeshInstance3D:
+func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob := true, collide := false, breakable := "", shadow := true, colors: Array = []) -> MultiMeshInstance3D:
 	if mesh == null or transforms.is_empty():
 		return null
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
+	var use_cols := colors.size() == transforms.size()
+	if use_cols:
+		mm.use_colors = true     # per-instance town palette tint: same draw calls, no extra materials
 	mm.mesh = mesh
 	mm.instance_count = transforms.size()
 	for i in transforms.size():
 		mm.set_instance_transform(i, transforms[i])
+		if use_cols:
+			mm.set_instance_color(i, colors[i])
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
+	if use_cols and mesh.get_surface_count() == 1:
+		# Meshy buildings do not read vertex colour: a shared copy of their material that does (one per source material).
+		var m0 := mesh.surface_get_material(0)
+		var vm := TownIdentity.vc_material(m0)
+		if vm != m0:
+			mmi.material_override = vm
 	var box := mesh.get_aabb()
 	var extent := maxf(box.size.x, box.size.z)
 	# Round 2: on LOW, props under 1.6 m (crates, barrels, sacks, decals' planes) never cast shadows.
@@ -660,7 +696,7 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 
 ## _multimesh() split into cell x cell metre batches, so visibility ranges (and
 ## LOD) work per neighbourhood instead of per town; `cull` > 0 overrides the range.
-func _multimesh_cells(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], cell: float, cull := 0.0, blob := true, shadow := true) -> void:
+func _multimesh_cells(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], cell: float, cull := 0.0, blob := true, shadow := true, tint := Color.WHITE) -> void:
 	var groups := {}
 	for t: Transform3D in transforms:
 		var k := Vector2i(floori(t.origin.x / cell), floori(t.origin.z / cell))
@@ -670,7 +706,11 @@ func _multimesh_cells(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]
 	for k: Vector2i in groups:
 		var list: Array[Transform3D] = []
 		list.assign(groups[k])
-		var mmi := _multimesh(parent, mesh, list, blob, false, "", shadow)
+		var cols: Array = []
+		if tint != Color.WHITE:
+			cols.resize(list.size())
+			cols.fill(tint)
+		var mmi := _multimesh(parent, mesh, list, blob, false, "", shadow, cols)
 		if mmi and cull > 0.0:
 			mmi.visibility_range_end = cull
 			mmi.visibility_range_end_margin = cull * 0.1
@@ -951,7 +991,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 	var fences: Array[Transform3D] = []
 	var stacks: Array[Transform3D] = []
 	var placed: Array[Vector2] = []
-	for i in (7 if s["kind"] == "village" else 10):
+	for i in roundi((7 if s["kind"] == "village" else 10) * TownIdentity.field_mult(_prof)):
 		var ang := rng.randf() * TAU
 		if CityPlanner._near_angle(ang, gates, 0.35):
 			continue
@@ -1018,6 +1058,7 @@ func _fields(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumberGen
 		if not hay_ok:
 			continue   # steep or beside a windmill: no haystack (the fields are already laid)
 		stacks.append(Transform3D(Basis(Vector3.UP, hy), Vector3(hp.x, _ground_snap(hp, hy, _footprint("haystack"), 0.0), hp.y)))
+		(plan["field_stacks"] as Array).append(hp)
 		var hsize := _footprint("haystack")
 		var body := StaticBody3D.new()
 		var shape := CollisionShape3D.new()
@@ -1047,12 +1088,15 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 		var side := Vector2(fwd.y, -fwd.x)
 		var p: Vector2 = lot["pos"]
 		var roll := rng.randf()
-		var kind := "garden_plot" if roll < 0.45 else ("woodpile" if roll < 0.75 else "washing_line")
+		# Vegetable plots read as pale bare squares from a distance: only farming-minded towns keep many of them.
+		var legacy := bool(_prof.get("legacy", false))
+		var garden_share := 0.45 if legacy else (0.3 if String(_prof.get("arch", "")) in ["farming", "pastoral", "religious"] else 0.08)
+		var kind := "garden_plot" if roll < garden_share else ("woodpile" if roll < (0.75 if legacy else 0.62) else "washing_line")
 		# Beside the house means beside ITS wall: the side offset follows the footprint (a 10 m manor
 		# used to get a washing line through its wall).
 		var half_w := BuildingProfiles.size_of(String(lot["asset"])).x * 0.5
 		var at := p - fwd * 7.0 if kind == "garden_plot" else p + side * (half_w + 3.4 if rng.randf() < 0.5 else -(half_w + 3.4)) - fwd * 1.0
-		if CityPlanner.street_distance(plan, at) < 3.0 or CityPlanner.path_distance(plan, at) < 1.5:
+		if CityPlanner.street_distance(plan, at) < (6.0 if kind == "washing_line" and not bool(_prof.get("legacy", false)) else 3.0) or CityPlanner.path_distance(plan, at) < 1.5:
 			continue
 		var clear := true
 		# Yard items are up to ~5 m wide: clear of every house rectangle, the landmarks, the wall ring and each other.
@@ -1084,7 +1128,7 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 		list.assign(sets[kind])
 		# Yard clutter per 80 m cell with a 120 m range (66 m on LOW): a capital has
 		# ~200 of these, and as one town-wide batch they were all drawn from anywhere.
-		_multimesh_cells(root, Assets.building_mesh(kind), list, 80.0, 120.0)
+		_multimesh_cells(root, Assets.building_mesh(kind), list, 80.0, 120.0, true, true, Color(0.62, 0.56, 0.42) if kind == "garden_plot" and not bool(_prof.get("legacy", false)) else Color.WHITE)
 	_front_gardens(root, plan, rng)
 
 
@@ -1097,6 +1141,8 @@ func _gate_outskirts(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array
 	var rng2 := RandomNumberGenerator.new()
 	rng2.seed = 4242 + int(s["id"])
 	var c: Vector2 = s["pos"]
+	var spots: Array[Vector2] = []
+	plan["outskirt_spots"] = spots      # stalls, wagons, crates by the gate roads: district props and yards keep off them
 	var wr: float = float(plan["wall_radius"]) if plan["walls"] else float(s["radius"]) * 1.1
 	var lists := {}
 	for ga: float in gates:
@@ -1141,6 +1187,7 @@ func _gate_outskirts(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array
 				if not lists.has(kind):
 					lists[kind] = []
 				(lists[kind] as Array).append(Transform3D(Basis(Vector3.UP, yaw), Vector3(at.x, _ground_snap(at, yaw, _footprint(kind), 0.03), at.y)))
+				spots.append(at)
 			u += 7.0 + rng2.randf() * 5.0
 		var lu := wr + 12.0
 		while lu < wr + 80.0:
@@ -1232,7 +1279,7 @@ func _village_square(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomN
 		if rng.randf() < 0.35:
 			add.call("barrel_cluster", front + right * 2.8 + fwd * 0.6, yaw + rng.randf_range(-0.5, 0.5))
 	for key: String in batches:
-		var mesh := Assets.building_mesh(key)
+		var mesh := _town_mesh(key)
 		if mesh != null:
 			_multimesh_cells(root, mesh, batches[key], 40.0, 0.0, key != "bunting")
 	_square_edge(root, s, plan, rng)
@@ -1383,7 +1430,7 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 					add.call("banner_pole", edge, face)
 				if near_gate and (k % 3 != 0 or rng.randf() < 0.5):
 					var sp := p + nrm * side * (half + 1.7)
-					var stall_key := "market_stall_red" if rng.randf() < 0.55 else "market_stall_green"
+					var stall_key := "market_stall_red" if rng.randf() < TownIdentity.stall_red_share(_prof) else "market_stall_green"
 					var spx: Vector2 = placed_solid.call(stall_key, sp, face, dir)
 					if is_inf(spx.x):
 						# No free spot: no stall (a ghost stall used to overlap its neighbours; lint: 53 overlaps).
@@ -1433,10 +1480,13 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 			var gd := Vector2(cos(g), sin(g))
 			var gside := Vector2(-gd.y, gd.x)
 			for sd: float in [-1.0, 1.0]:
+				if sd > 0.0 and float(_prof.get("guards", 1.0)) < 0.7:
+					continue   # shabby and criminal towns post one guard where others post a pair
 				var gp: Vector2 = c + gd * (r - 7.0) + gside * sd * 4.2
 				var guard := Assets.character("Guard", 1.8, [])
 				if guard == null:
 					continue
+				TownIdentity.tint_model(guard, _prof.get("guard", Color.WHITE), 0.0 if bool(_prof.get("legacy", false)) else 0.62)   # the town's uniform colour
 				root.add_child(guard)
 				guard.global_position = Vector3(gp.x, WorldGen.height(gp.x, gp.y), gp.y)
 				guard.rotation.y = atan2(-gd.x, -gd.y)   # facing into town, watching the street
@@ -1446,7 +1496,7 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 				DistanceCull.attach(guard, 80.0, ganim)
 	# Red-and-gold banners hung along the inner face of the walls either side of each gate.
 	var wall_mesh := Assets.building_mesh("wall")
-	if plan["walls"] and wall_mesh != null:
+	if plan["walls"] and wall_mesh != null and String(_prof.get("wall", "stone")) == "stone":
 		var wall_h := wall_mesh.get_aabb().size.y
 		for g: float in plan["gates"]:
 			for j in range(-6, 7):
@@ -1458,7 +1508,7 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 				add.call("wall_banner", wp, inward, wall_h - 1.4)
 				add.call("flower_strip", c + Vector2(cos(ang), sin(ang)) * (r - 2.2), inward + PI * 0.5)
 	for key: String in batches:
-		var mesh := Assets.building_mesh(key)
+		var mesh := _town_mesh(key)
 		if mesh != null:
 			# Per-neighbourhood batches: a town-wide MultiMesh's AABB centre is the plaza,
 			# so its visibility range would hide stalls standing right beside the player.

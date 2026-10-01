@@ -25,6 +25,7 @@ const MicroScene := preload("res://scripts/population/micro_scene.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const TownMood := preload("res://scripts/population/town_mood.gd")
 const Schedule := preload("res://scripts/population/schedule.gd")
+const TownIdentity := preload("res://scripts/world/town_identity.gd")   # per-town street-activity bias (data/world/town_identity.json)
 
 const POOL: Array = Catalog.POOL
 const MAX_ACTIVE := 2
@@ -108,6 +109,8 @@ static func weight_of(e: Dictionary, ctx: Dictionary) -> float:
 	for flag: String in mods:
 		if bool(ctx.get(flag, false)):
 			w *= float(mods[flag])
+	if ctx.has("town_bias"):
+		w *= float((ctx["town_bias"] as Dictionary).get(String(e["id"]), 1.0))    # a mining town sees ore carts, a market town caravans
 	var dw: Dictionary = e.get("dw", {})
 	var d := String(ctx.get("district", ""))
 	w *= float(dw.get(d, dw.get("*", 1.0))) if d != "" else float(dw.get("*", 1.0))
@@ -255,7 +258,7 @@ func _tick() -> void:
 	var hour := WorldSim.time_of_day
 	var mood := TownMood.mood_of(here)
 	var raining := _raining()
-	var extra := {"shutters_down": _any_shutter_down(here)}
+	var extra := {"shutters_down": _any_shutter_down(here), "town_bias": TownIdentity.activity_bias(here)}
 	var ctx := make_context(hour, WorldSim.day, district_of(s, pp), raining, mood, String(s["kind"]), extra)
 	var ids: Array = []
 	for sc in active:
@@ -269,7 +272,7 @@ func _tick() -> void:
 		return
 	var ok := _start(id, here, pp, player, seed_i)
 	if ok:
-		var act := Schedule.street_activity(String(s["kind"]), hour, int(mood["flags"]), WorldSim.day)
+		var act := clampf(Schedule.street_activity(String(s["kind"]), hour, int(mood["flags"]), WorldSim.day) * TownIdentity.busy(here), 0.0, 1.0)
 		var rnd := float(hash([serial, 77]) % 1000) / 1000.0
 		_next_ms = now + int(gap_seconds(act, rnd) * 1000.0)
 	else:

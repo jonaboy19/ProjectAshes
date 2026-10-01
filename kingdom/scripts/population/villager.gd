@@ -37,6 +37,7 @@ const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const TownMood := preload("res://scripts/population/town_mood.gd")
 const Schedule := preload("res://scripts/population/schedule.gd")
+const TownIdentity := preload("res://scripts/world/town_identity.gd")
 const Act := UtilityBrain.Act
 
 const WORLD_LAYER := 1
@@ -299,6 +300,9 @@ func _ready() -> void:
 	add_child(_shape)
 	_child = NpcWorld.is_child(person)
 	var model := Assets.character(_file, 1.7 * (0.78 if _child else 1.0), _keep)
+	# Colour language: this town's guard uniform / clothing palette (culture + archetype) as a tint of the shared materials.
+	var tt: Array = TownIdentity.person_tint(WorldSim.home[person], person, WorldSim.job[person] == 3)
+	TownIdentity.tint_model(model, tt[0], float(tt[1]))
 	add_child(model)
 	_anim = Assets.animation_player(model)
 	LifeLibrary.install(_anim)      # idempotent: the life clips are added to the shared rig library once

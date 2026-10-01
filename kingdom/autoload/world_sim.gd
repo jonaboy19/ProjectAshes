@@ -14,6 +14,7 @@ signal hour_changed(hour: int)
 const SeasonsScript := preload("res://scripts/sim/seasons.gd")
 const Schedule := preload("res://scripts/population/schedule.gd")
 const TownMood := preload("res://scripts/population/town_mood.gd")
+const TownIdentity := preload("res://scripts/world/town_identity.gd")   # guard density per town
 
 const SEED := 1066
 const JOBS := ["Farmer", "Blacksmith", "Merchant", "Guard", "Laborer", "Woodcutter"]
@@ -146,7 +147,7 @@ func _populate() -> void:
 		for n in int(s["population"]):
 			var i := pos.size()
 			home.append(s["id"])
-			job.append(_pick_job(rng, s["kind"]))
+			job.append(TownIdentity.adjust_job(_pick_job(rng, s["kind"]), s, n))    # fortress towns post more guards, criminal ones fewer
 			var spot := _spot(s, 0, i)
 			pos.append(spot)
 			target.append(spot)

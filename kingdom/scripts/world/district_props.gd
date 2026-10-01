@@ -14,6 +14,7 @@ extends RefCounted
 const Districts := preload("res://scripts/world/districts.gd")
 const HouseDetails := preload("res://scripts/world/house_details.gd")
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
+const TownIdentity := preload("res://scripts/world/town_identity.gd")    # kit specs, prop multipliers and town-coloured banners per town
 const GEN := "res://assets/generated/"
 const CELL := 40.0
 ## Decal budget. The Mobile renderer applies at most 8 decals to one mesh, and the town's own wall (1 per 32 m block) and
@@ -207,6 +208,10 @@ class Ctx extends RefCounted:
 	func claim_yards() -> void:
 		for q: Vector2 in plan.get("yard_spots", []):
 			claim(q, 3.1)
+		for e: Array in plan.get("town_claims", []):
+			claim(e[0], float(e[1]))
+		for q: Vector2 in plan.get("outskirt_spots", []):
+			claim(q, 3.6)
 
 	## Claim the 1.1 m door aprons of every lot (a lane straight out from the door) so nothing stands in front of a door.
 	func claim_doors(i0: int, i1: int) -> void:
@@ -314,6 +319,8 @@ class Job extends RefCounted:
 	var rng := RandomNumberGenerator.new()
 	# house details
 	var keep_every := 1
+	var prof: Dictionary = {}               # TownIdentity profile of this town
+	var specs := {}                         # district kind -> [spec] (the base SETS filtered by the profile + its kit specs)
 	# district sets
 	var cands := {}
 	var lots_in := {}
@@ -381,12 +388,19 @@ static func build(b, root: Node3D, s: Dictionary, plan: Dictionary, sync := true
 	j.s = s
 	j.plan = plan
 	j.low = b._low()
+	j.prof = TownIdentity.profile(s)
 	j.runner = _run
 	j.ctx = Ctx.new(b, s, plan)
 	j.keep_every = 2 if j.low else 1        # LOW: every second lot gets detailed
 	root.set_meta("props_pending", true)
 	if sync:
+		# The job flushes its own contact-shadow blobs when it ends (a sliced job ends after the builder's flush): keep the
+		# builder's pending blobs out of that flush so the sync and the sliced build give the same nodes.
+		var pending: Dictionary = b._blob_batch.duplicate()
+		b._blob_batch.clear()
 		j.step(0.0)
+		for k in pending:
+			b._blob_batch[k] = pending[k]
 	return j
 
 
@@ -496,6 +510,7 @@ static func _unit(j: Job) -> void:
 				j.root.add_child(j.b._smoke_emitter(j.smoke[j.cur]))
 				j.cur += 1
 			if j.cur >= j.smoke.size():
+				j.b._flush_contact_shadows(j.root)     # the blobs of this job's props belong to THIS town (a sliced job ends after _build's own flush)
 				j.plan["marks"] = j.marks
 				j.root.set_meta("props_pending", false)
 				j.done = true
@@ -610,6 +625,19 @@ static func _cand_column(j: Job) -> void:
 
 
 ## A handful of placement tries of the current (district, spec); moves on to the next spec / district / phase.
+## The prop specs of district `dk` in this town: the shared SETS (minus what the town's character rules out) followed by its
+## identity kit specs (ore carts in a mining town, drying racks in a dyers', haystacks in a farm village ...).
+static func _specs_of(j: Job, dk: String) -> Array:
+	if not j.specs.has(dk):
+		var out: Array = []
+		for sp: Dictionary in SETS.get(dk, []):
+			if TownIdentity.prop_mult(j.prof, String(sp["id"])) > 0.0:
+				out.append(sp)
+		out.append_array(TownIdentity.kit_specs(j.prof, dk))
+		j.specs[dk] = out
+	return j.specs[dk]
+
+
 static func _sets_unit(j: Job) -> void:
 	var ctx := j.ctx
 	var rng := j.rng
@@ -618,16 +646,16 @@ static func _sets_unit(j: Job) -> void:
 		_start_drill(j)
 		return
 	var dk: String = kinds[j.dk_i]
-	if not j.anchors_present.has(dk) or not SETS.has(dk) or j.spec_i >= (SETS[dk] as Array).size():
+	if not j.anchors_present.has(dk) or j.spec_i >= _specs_of(j, dk).size():
 		j.dk_i += 1
 		j.spec_i = 0
 		j.spec_on = false
 		return
-	var spec: Dictionary = SETS[dk][j.spec_i]
+	var spec: Dictionary = _specs_of(j, dk)[j.spec_i]
 	var edge_spec: bool = spec["from"] == "edge"
 	if not j.spec_on:
 		var lots_n := int(j.lots_in.get(dk, 0))
-		var want := float(spec["n"]) * lots_n * (0.6 if j.low else 1.0)
+		var want := float(spec["n"]) * lots_n * (0.6 if j.low else 1.0) * TownIdentity.prop_mult(j.prof, String(spec["id"]))
 		var count := int(want) + (1 if rng.randf() < want - int(want) else 0)
 		count = maxi(count, int(spec.get("min", 0)) if lots_n >= 8 else 0)
 		j.spec_count = count
@@ -647,7 +675,7 @@ static func _sets_unit(j: Job) -> void:
 		if not ctx.ok_at(p, rad, 0.5 if edge_spec else 1.0):
 			continue
 		var yaw: float = cand[1] if bool(spec.get("face", false)) else rng.randf() * TAU
-		if not _add(j.batches, id, p, yaw, 1.0):
+		if not _add(j.batches, id, p, yaw, float(spec.get("sc", 1.0))):
 			continue
 		ctx.claim(p, rad)
 		j.spec_placed += 1
@@ -814,7 +842,9 @@ static func _flush_unit(j: Job) -> void:
 		return
 	var id: String = j.ids[j.cur]
 	j.cur += 1
-	var mesh := _mesh_of(id)
+	var mesh := TownIdentity.mesh_variant(j.prof, id)     # banners, wall banners and awnings in the town's colours
+	if mesh == null:
+		mesh = _mesh_of(id)
 	if mesh == null:
 		return
 	var groups := {}
