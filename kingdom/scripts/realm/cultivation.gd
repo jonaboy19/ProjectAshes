@@ -32,6 +32,8 @@ static var _data: Dictionary = {}
 
 var prog: RefCounted = Prog.new()
 var primary := ""
+## Breakthrough chance banked by a swallowed pill (items' breakthrough_bonus); spent by the next attempt.
+var pill_bonus := 0.0
 var insight := 0.0
 var insight_total := 0.0
 var toxicity := 0.0
@@ -511,6 +513,7 @@ func breakthrough_info(path: String, opts: Dictionary = {}) -> Dictionary:
 	f["overflow"] = 0.15 * clampf((qi - 1.0) / (float(data()["overflow_cap"]) - 1.0), 0.0, 1.0)
 	f["insight"] = 0.02 * float(clampi(int(opts.get("extra_insight", 0)), 0, 5))
 	f["pill"] = 0.12 if bool(opts.get("pill", false)) else 0.0
+	f["pill"] += pill_bonus
 	var dens := density(String(opts.get("loc", "wilds")), path)
 	f["place"] = 0.08 if dens >= 2.4 else (0.05 if dens >= 1.8 else 0.0)
 	f["master"] = 0.05 if bool(opts.get("master", false)) else 0.0
@@ -562,6 +565,8 @@ func _pill_need_overlap(path: String) -> int:
 ## -> {ok, success, reason, chance, roll, severity, realm, stage, msg}
 func attempt_breakthrough(path: String, opts: Dictionary = {}) -> Dictionary:
 	var info := breakthrough_info(path, opts)
+	if bool(info.get("ok", false)):
+		pill_bonus = 0.0
 	var res := {"ok": false, "success": false, "reason": info["reason"], "chance": info["chance"], "roll": -1.0, "severity": "", "msg": ""}
 	if not bool(info["ok"]):
 		res["msg"] = "Cannot break through yet (%s)." % String(info["reason"])
@@ -809,3 +814,15 @@ func deserialize(d: Dictionary) -> void:
 	_rng.seed = _seed
 	if d.has("rng"):
 		_rng.state = int(String(d["rng"]))
+
+
+## Item hook (pills): adds `amount` qi to the main path's current stage. Returns the qi actually added.
+func add_pill_qi(amount: float) -> int:
+	var path := primary if _tracks.has(primary) else (String(cultivating()[0]) if not cultivating().is_empty() else "")
+	if path == "":
+		return 0
+	var t: Dictionary = _tracks[path]
+	var need := float(stage_need_qi(int(t["realm"]), int(t["stage"])))
+	var before := float(t["qi"])
+	t["qi"] = minf(float(data()["overflow_cap"]), before + amount / maxf(need, 1.0))
+	return int(round((float(t["qi"]) - before) * need))

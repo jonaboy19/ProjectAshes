@@ -184,7 +184,7 @@ static func req_level(id: String) -> int:
 
 ## True when a character of `level` may use the item (no requirement: always).
 static func meets_requirements(id: String, level: int) -> bool:
-	return level >= int(info(id).get("req_level", 1))
+	return level >= req_level(id)
 
 
 static func type_of(id: String) -> String:

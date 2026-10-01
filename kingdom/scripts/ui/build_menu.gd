@@ -556,7 +556,16 @@ func _refresh_crop_box() -> void:
 			b.text = "Plant %s" % Life.item_name(item)
 			b.focus_mode = Control.FOCUS_NONE
 			b.pressed.connect(func() -> void:
-				set_status(Life.homestead.plant(plot, _cell, item))
+				# Planting uses a seed: "seed_<crop>" if that item exists, else a generic "seed"; crops without seed items stay free.
+				var seed_id := "seed_" + item
+				var needs_seed := not preload("res://scripts/sim/items_db.gd").info(seed_id).is_empty()
+				if needs_seed and Life.count(seed_id) <= 0 and Life.count("seed") <= 0:
+					set_status("You have no %s." % Life.item_name(seed_id))
+					return
+				var err: String = Life.homestead.plant(plot, _cell, item)
+				if err == "" and needs_seed:
+					Life.take(seed_id if Life.count(seed_id) > 0 else "seed", 1)
+				set_status(err)
 				_refresh_crop_box())
 			_crop_box.add_child(b)
 	else:

@@ -781,6 +781,53 @@ func player_level() -> int:
 	return maxi(1, 1 + int(sqrt(float(Game.merit))) + age() / 4 - naming.level_penalty(WorldSim.day))
 
 
+## Item effects only world systems can apply (equipment.consume calls this): pills, manuals/scrolls, coatings, recall,
+## wards, reveals. Returns a short line for the toast, or "" when nothing happened (the item is still spent).
+func apply_item_effect(id: String, info: Dictionary) -> String:
+	var cult: Variant = realm.mod("cultivation") if realm != null else null
+	if info.has("cultivation_xp"):
+		if cult == null or (cult.cultivating() as Array).is_empty():
+			return "The pill's warmth fades; you aren't cultivating yet."
+		return "Qi +%d." % int(cult.add_pill_qi(float(info["cultivation_xp"])))
+	if info.has("breakthrough_bonus"):
+		if cult != null:
+			cult.pill_bonus = maxf(float(cult.pill_bonus), float(info["breakthrough_bonus"]))
+		return "Your next breakthrough is steadier (+%d%%)." % int(round(float(info["breakthrough_bonus"]) * 100.0))
+	if info.has("permanent_stat"):
+		var stat := String(info["permanent_stat"])
+		equipment.add_buff("Tempered body", stat, float(info.get("value", 5.0)), 24.0 * 365.0 * 200.0)
+		return "Your %s grows for good." % stat.replace("_", " ")
+	if info.has("casts"):
+		var r: Dictionary = skills.grant(String(info["casts"]))
+		if not bool(r.get("ok", true)):
+			return String(r.get("text", ""))
+		return "You learn %s." % String(skills.get_def(String(info["casts"])).get("name", String(info["casts"]).replace("_", " ")))
+	if info.has("coating"):
+		equipment.add_buff("%s coating" % String(info["coating"]).capitalize(), String(info["coating"]) + "_damage", float(info.get("value", 6.0)), 1.0)
+		return "Your blade is coated for an hour."
+	match String(info.get("effect", "")):
+		"ward":
+			equipment.add_buff("Ward", "armor", float(info.get("value", 8.0)), 2.0)
+			return "A ward settles around you."
+		"recall":
+			if player != null and not WorldGen.settlements.is_empty():
+				var home: Vector2 = WorldGen.settlements[0]["pos"]
+				var near: Dictionary = WorldGen.nearest_settlement(Vector2(player.global_position.x, player.global_position.z))
+				if near.has("pos"):
+					home = near["pos"]
+				player.global_position = Vector3(home.x, WorldGen.height(home.x, home.y) + 1.0, home.y)
+				return "The world folds; you stand at the edge of town."
+			return ""
+		"reveal":
+			if player != null:
+				var pp := Vector2(player.global_position.x, player.global_position.z)
+				for s: Dictionary in WorldGen.sites:
+					if bool(s.get("secret", false)) and (s["pos"] as Vector2).distance_to(pp) < 400.0 and discovery.reveal_site(s, WorldSim.day):
+						return "Hidden ways show themselves: %s." % String(s["name"])
+			return "Nothing hidden lies near."
+	return ""
+
+
 ## The character-level module (cultivation.prog), or null before the realm exists.
 func _progression() -> Variant:
 	if realm == null:
