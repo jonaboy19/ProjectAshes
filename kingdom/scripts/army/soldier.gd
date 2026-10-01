@@ -19,6 +19,11 @@ const WORLD_LAYER := 1
 const SOLDIER_LAYER := 4
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const Fighter := preload("res://scripts/combat/npc_fighter.gd")
+const CombatStats := preload("res://scripts/combat/combat_stats.gd")
+## Pre-table soldier numbers. Army fights keep them: the table's HP/damage apply to duels with the player;
+## blows between NPCs are rescaled by BASE_HP / max_health so a battle lasts as long as before.
+const BASE_HP := 40.0
+const BASE_DAMAGE := 8.0
 
 var team := 0
 var squad: Squad
@@ -52,6 +57,8 @@ var _hit_from := Vector3.INF
 ## guard on a rank-based chance (npc_fighter.gd). Squad stances still scale block_chance.
 var _fighter: RefCounted
 var _cur_move: Resource
+var _stats := {}
+var _npc_scale := 1.0           # damage taken from non-player sources (BASE_HP / max_health)
 
 
 static func create(team_id: int, look: String, file: String, keep: Array[String]) -> Soldier:
@@ -67,6 +74,11 @@ func _ready() -> void:
 	# Distant troops remain cheap; only nearby troops participate in physics.
 	_fighter = Fighter.make("bandit" if team == 1 else "guard", randi())
 	block_chance = _fighter.react_chance()
+	var pl := CombatStats.player_level()
+	_stats = _fighter.apply_level(pl, pl)          # soldiers are "matching level": the table value
+	max_health = int(_stats["hp"])
+	health = max_health
+	_npc_scale = minf(BASE_HP / float(max_health), 1.0)
 	collision_layer = SOLDIER_LAYER
 	collision_mask = WORLD_LAYER
 	_actor_shape = CollisionShape3D.new()
@@ -210,8 +222,9 @@ func _update_player_collision() -> void:
 
 
 func _attack() -> void:
-	_attack_cooldown = randf_range(1.1, 1.5)
 	var victim := combat_target
+	var vs_player := victim != null and victim.is_in_group("player")
+	_attack_cooldown = randf_range(1.1, 1.5) * (float(_stats.get("cdm", 1.0)) if vs_player else 1.0)
 	# Defaults are the old fixed swing: contact 0.3 s in, busy 0.5 s, `damage` per hit.
 	var hit_delay := 0.3
 	var busy := 0.5
@@ -226,6 +239,9 @@ func _attack() -> void:
 			hit_delay = 0.3 * k
 			busy = 0.5 * k
 			dmg = maxi(int(round(float(damage) * _cur_move.damage / ref.damage)), 1)
+			if vs_player:
+				# Duel numbers: table damage multiplier, with squad unit scaling kept (damage / 8).
+				dmg = maxi(int(round(float(_cur_move.damage) * float(_stats.get("dmg", 1.0)) * float(damage) / BASE_DAMAGE)), 1)
 	_busy = busy
 	_animator.play_upper(["1H_Melee_Attack_Chop", "1H_Melee_Attack_Slice_Diagonal", "1H_Melee_Attack_Slice_Horizontal"][randi() % 3], 1.4 / maxf(hit_delay / 0.3, 0.5))
 	var move := _cur_move
@@ -249,6 +265,8 @@ func attack_info() -> Dictionary:
 func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> void:
 	if dead:
 		return
+	if _npc_scale < 1.0 and amount > 0 and not (from != null and from.is_in_group("player")):
+		amount = maxi(int(round(float(amount) * _npc_scale)), 1)     # army fights stay as long as before
 	var from_front := true
 	_hit_from = (from as Node3D).global_position if from is Node3D else Vector3.INF
 	if _ragdoll and _ragdoll.is_down():

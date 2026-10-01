@@ -112,6 +112,7 @@ var _ward_timer := 0.0            # seconds spent inside strong coverage (ward "
 var _fighter: RefCounted          # NpcFighter: move choice from the CombatMoves table (null = SPECIES row only)
 var _cur_move: Resource           # the CombatAction being swung
 var _cur_windup := 0.5
+var _stats := {}                  # CombatStats row for this body (empty = SPECIES numbers)
 
 
 func _ready() -> void:
@@ -156,7 +157,11 @@ func _ready() -> void:
 	_impact_time = float(info["impact"])
 	var lv: Array = sp["level"]
 	level = randi_range(int(lv[0]), int(lv[1]))
-	max_health = int(sp["health"]) + level * 4
+	if _fighter != null:
+		_stats = _fighter.apply_level(level)      # data/combat/archetypes.json, scaled by level vs player level
+		max_health = int(_stats["hp"])
+	else:
+		max_health = int(sp["health"]) + level * 4
 	health = max_health
 	_label = Label3D.new()
 	Nameplates.style(_label, Color.WHITE, 26, 30.0)
@@ -470,7 +475,7 @@ func _strike(foe: Node3D) -> void:
 			windup = _cur_move.windup
 			total = _cur_move.total()
 	_cur_windup = windup
-	_attack_cd = randf_range(float(sp["cooldown"][0]), float(sp["cooldown"][1]))
+	_attack_cd = randf_range(float(sp["cooldown"][0]), float(sp["cooldown"][1])) * float(_stats.get("cdm", 1.0))
 	_winding = windup
 	_strike_snap_sent = false
 	_busy = total
@@ -507,7 +512,7 @@ func _impact() -> void:
 		base = _cur_move.damage
 		knock = _cur_move.knockback
 	if Tokens.can_hit(self, foe, reach, WORLD_LAYER) and foe.has_method("take_damage"):
-		var dmg := base + level
+		var dmg := int(round(float(base) * float(_stats.get("dmg", 1.0)))) + level
 		var push := foe.global_position - global_position
 		push.y = 0.0
 		foe.take_damage(dmg, self, push.normalized() * knock)

@@ -25,6 +25,7 @@ const Models := preload("res://scripts/actors/creature_models.gd")
 const Tokens := preload("res://scripts/actors/creature_attack_tokens.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const Fighter := preload("res://scripts/combat/npc_fighter.gd")
+const CombatStats := preload("res://scripts/combat/combat_stats.gd")
 const LEGACY_MODEL := "res://assets/incoming/quaternius/ultimate-animated-animals/glTF/Wolf.gltf"
 const LEGACY_CLIPS := {"idle": "Idle", "walk": "Walk", "run": "Gallop", "attack": "Attack",
 	"hit": "Idle_HitReact1", "death": "Death"}
@@ -153,6 +154,7 @@ var _model: Node3D
 var _fighter: RefCounted          # NpcFighter for species with a move table (wolf); others keep SPECIES only
 var _cur_move: Resource
 var _cur_windup := 0.5
+var _stats := {}                  # CombatStats row (wolf only; other species use SPECIES numbers)
 var _ward_timer := 0.0            # seconds spent inside strong coverage (ward "brief")
 
 
@@ -161,6 +163,9 @@ func _ready() -> void:
 	if species == "wolf" and Fighter.has_archetype("wolf"):
 		_fighter = Fighter.make("wolf", randi())
 	max_health = int(_sp["health"])
+	if _fighter != null:
+		_stats = _fighter.apply_level(CombatStats.player_level())   # matching level: table value
+		max_health = int(_stats["hp"])
 	health = max_health
 	collision_layer = ENEMY_LAYER
 	collision_mask = WORLD_LAYER
@@ -480,7 +485,7 @@ func _begin_attack(target: Node3D) -> void:
 			windup = _cur_move.windup
 			total = _cur_move.total()
 	_cur_windup = windup
-	_attack_cd = randf_range(float(_sp["cooldown"][0]), float(_sp["cooldown"][1]))
+	_attack_cd = randf_range(float(_sp["cooldown"][0]), float(_sp["cooldown"][1])) * float(_stats.get("cdm", 1.0))
 	_winding = windup
 	_strike_snap_sent = false
 	_busy = total
@@ -516,6 +521,7 @@ func _impact() -> void:
 	if Tokens.can_hit(self, target, reach, WORLD_LAYER) and target.has_method("take_damage"):
 		var push := (target.global_position - global_position)
 		push.y = 0.0
+		dmg = int(round(float(dmg) * float(_stats.get("dmg", 1.0))))
 		if has_meta("r1_safe") and target.get("health") != null:
 			dmg = mini(dmg, maxi(int(target.get("health")) - 1, 0))   # Region1 C8: the first fight knocks down, it never kills
 		target.take_damage(dmg, self, push.normalized() * knock)

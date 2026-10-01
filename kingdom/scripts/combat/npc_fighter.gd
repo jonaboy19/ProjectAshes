@@ -10,6 +10,7 @@ extends RefCounted
 ## holds and never picks an attack move (acquire first, fight second).
 
 const Moves := preload("res://scripts/combat/combat_moves.gd")
+const CombatStats := preload("res://scripts/combat/combat_stats.gd")
 
 enum Intent { HOLD, APPROACH, CIRCLE, POKE, COMBO, GUARD, RETREAT, FEINT }
 const INTENT_NAMES := ["hold", "approach", "circle", "poke", "combo", "guard", "retreat", "feint"]
@@ -24,16 +25,8 @@ const AGGRO_TIMER := Vector2(2.0, 5.0)
 ## hp/dmg/cdm here are duel-calibrated "matching level" values (tools_qa/combat/duel_arena.gd; targets in
 ## docs below): dmg multiplies move damage, cdm multiplies the cooldown row. Real SPECIES hp is untouched.
 ## style = key in CombatMoves; rank 0..10; poise; guard_pool = block stamina; tags free-form.
-const ARCHETYPES := {
-	"goblin": {"level": 2, "style": "goblin", "rank": 2, "poise": 60.0, "guard": false, "base": 0.55, "hp": 170, "cd": [1.4, 2.0], "dmg": 5.8, "cdm": 0.4},
-	"orc": {"level": 7, "style": "orc", "rank": 4, "poise": 40.0, "guard": false, "base": 0.6, "hp": 95, "cd": [2.0, 2.8]},
-	"troll": {"level": 11, "style": "troll", "rank": 3, "poise": 120.0, "guard": false, "base": 0.5, "hp": 220, "cd": [2.6, 3.4], "dmg": 0.65},
-	"wolf": {"style": "wolf", "rank": 3, "poise": 14.0, "guard": false, "base": 0.7, "hp": 45, "cd": [1.4, 2.0]},
-	"bandit": {"style": "bandit", "rank": 5, "poise": 65.0, "guard": true, "base": 0.55, "hp": 170, "cd": [1.1, 1.5], "dmg": 3.3, "cdm": 0.6},
-	"bandit_chief": {"style": "bandit", "rank": 7, "poise": 45.0, "guard": true, "base": 0.65, "hp": 110, "cd": [0.9, 1.3]},
-	"guard": {"style": "guard", "rank": 7, "poise": 80.0, "guard": true, "base": 0.5, "hp": 200, "cd": [1.1, 1.5], "dmg": 2.0, "cdm": 0.7},
-	"captain": {"style": "guard", "rank": 8, "poise": 60.0, "guard": true, "base": 0.55, "hp": 130, "cd": [0.9, 1.3]},
-}
+## Stat table: data/combat/archetypes.json (via combat_stats.gd), at matching level.
+static var ARCHETYPES: Dictionary = CombatStats.archetypes()
 
 var archetype := ""
 var style := ""
@@ -224,3 +217,13 @@ func absorb(pdmg: float, now: float) -> bool:
 	poise = poise_max * POISE_RESET
 	_immune_until = now + STAGGER_IMMUNE
 	return true
+
+
+## Scales this fighter's table stats for an enemy of `enemy_level` meeting the player (poise, cooldown mult);
+## returns the full stats dict ({hp, dmg, cdm, poise, rank}) for the body to take its HP and damage from.
+func apply_level(enemy_level: int, player_level := -1) -> Dictionary:
+	var st: Dictionary = CombatStats.stats(archetype, enemy_level, player_level)
+	poise_max = float(st["poise"])
+	poise = poise_max
+	cd_mult = float(st["cdm"])
+	return st
