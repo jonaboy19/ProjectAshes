@@ -83,7 +83,7 @@ static func apply_environment(env: Environment, tier := "high") -> void:
 	# fake GI, part 1: ambient is the sky colour, slightly warmed so shadows stay blue-violet but never cold grey
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color("aab8ee")
-	env.ambient_light_energy = 0.56            # deeper shadows (local GPU pass 2026-10-01; was 0.66)
+	env.ambient_light_energy = 0.48            # deeper shadows (local GPU pass 2026-10-01; was 0.66)
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.tonemap_exposure = 0.92
 	env.tonemap_white = 5.5
@@ -97,21 +97,21 @@ static func apply_environment(env: Environment, tier := "high") -> void:
 	env.glow_hdr_threshold = 1.0
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
 	env.fog_enabled = true
-	env.fog_light_color = Color("e9d6ae")            # slightly warm haze (was cool d9e3f2)
+	env.fog_light_color = Color("e2dccc")            # slightly warm haze (was cool d9e3f2)
 	env.fog_density = 0.0030
 	env.fog_aerial_perspective = 0.5
 	env.fog_sky_affect = 0.0
 	env.adjustment_enabled = tier != "low"
 	env.adjustment_saturation = 1.22
-	env.adjustment_contrast = 1.38
-	env.adjustment_color_correction = lut(Color("0c1640"), Color("8a8a94"), Color("fff0d0"))   # mids 8a88a4 -> 8a8a94: less pink
+	env.adjustment_contrast = 1.6     # pass 3: contrast metric 0.19 -> target 0.23
+	env.adjustment_color_correction = lut(Color("0c1640"), Color("8a8a94"), Color("fff4e2"))   # pass 3: cooler highs (warmth 1.45 -> 1.34); mids 8a88a4 -> 8a8a94: less pink
 
 
 # --- lights ------------------------------------------------------------------------------------------------------
 
 const SUN_FORWARD := Vector3(0.55, -0.62, -0.55)     # from behind-left: shadows fall forward-right as in target 03
-const SUN_COLOR := "ffd8a4"     # 2026-10-01 pass 2: warmth 1.46 -> toward 1.34
-const SUN_ENERGY := 2.9
+const SUN_COLOR := "ffdcb0"     # 2026-10-01 pass 2: warmth 1.46 -> toward 1.34
+const SUN_ENERGY := 3.0
 
 ## Shadow settings per tier: [mode, max_distance, atlas 4096/2048/1024 is a project setting (shadow_atlas)].
 const SHADOW := {
@@ -343,7 +343,7 @@ static func _ground() -> Material:
 	m.set_shader_parameter("noise_tex", _noise_cached())
 	m.set_shader_parameter("tile", 3.2)
 	m.set_shader_parameter("saturation", 1.0)
-	m.set_shader_parameter("cobble_tint", Color(1.03, 0.95, 0.78))     # golden cobbles (0.84 blue read pink)
+	m.set_shader_parameter("cobble_tint", Color(1.0, 0.95, 0.82))     # golden cobbles (pass 3: less orange) (0.84 blue read pink)
 	m.set_shader_parameter("mud_tint", Color(1.15, 0.95, 0.78))
 	m.set_shader_parameter("grass_tint", Color(0.85, 1.15, 0.5))
 	m.set_shader_parameter("puddles", 0.0)
