@@ -21,15 +21,17 @@ const FEINT_CANCEL := 0.4        # a feint backs out at this fraction of the win
 const AGGRO_STEP := 0.2
 const AGGRO_TIMER := Vector2(2.0, 5.0)
 
+## hp/dmg/cdm here are duel-calibrated "matching level" values (tools_qa/combat/duel_arena.gd; targets in
+## docs below): dmg multiplies move damage, cdm multiplies the cooldown row. Real SPECIES hp is untouched.
 ## style = key in CombatMoves; rank 0..10; poise; guard_pool = block stamina; tags free-form.
 const ARCHETYPES := {
-	"goblin": {"style": "goblin", "rank": 2, "poise": 18.0, "guard": false, "base": 0.55, "hp": 32, "cd": [1.4, 2.0]},
-	"orc": {"style": "orc", "rank": 4, "poise": 40.0, "guard": false, "base": 0.6, "hp": 95, "cd": [2.0, 2.8]},
-	"troll": {"style": "troll", "rank": 3, "poise": 120.0, "guard": false, "base": 0.5, "hp": 220, "cd": [2.6, 3.4]},
+	"goblin": {"level": 2, "style": "goblin", "rank": 2, "poise": 60.0, "guard": false, "base": 0.55, "hp": 170, "cd": [1.4, 2.0], "dmg": 5.8, "cdm": 0.4},
+	"orc": {"level": 7, "style": "orc", "rank": 4, "poise": 40.0, "guard": false, "base": 0.6, "hp": 95, "cd": [2.0, 2.8]},
+	"troll": {"level": 11, "style": "troll", "rank": 3, "poise": 120.0, "guard": false, "base": 0.5, "hp": 220, "cd": [2.6, 3.4], "dmg": 0.65},
 	"wolf": {"style": "wolf", "rank": 3, "poise": 14.0, "guard": false, "base": 0.7, "hp": 45, "cd": [1.4, 2.0]},
-	"bandit": {"style": "bandit", "rank": 4, "poise": 30.0, "guard": true, "base": 0.55, "hp": 60, "cd": [1.1, 1.5]},
+	"bandit": {"style": "bandit", "rank": 5, "poise": 65.0, "guard": true, "base": 0.55, "hp": 170, "cd": [1.1, 1.5], "dmg": 3.3, "cdm": 0.6},
 	"bandit_chief": {"style": "bandit", "rank": 7, "poise": 45.0, "guard": true, "base": 0.65, "hp": 110, "cd": [0.9, 1.3]},
-	"guard": {"style": "guard", "rank": 6, "poise": 45.0, "guard": true, "base": 0.5, "hp": 70, "cd": [1.1, 1.5]},
+	"guard": {"style": "guard", "rank": 7, "poise": 80.0, "guard": true, "base": 0.5, "hp": 200, "cd": [1.1, 1.5], "dmg": 2.0, "cdm": 0.7},
 	"captain": {"style": "guard", "rank": 8, "poise": 60.0, "guard": true, "base": 0.55, "hp": 130, "cd": [0.9, 1.3]},
 }
 
@@ -46,6 +48,17 @@ var rng := RandomNumberGenerator.new()
 var _aggro_timer := 0.0
 var _last_react := -99.0
 var _think_acc := 0.0
+## Poise: every blow chips it; at 0 the fighter staggers, refills to POISE_RESET and is immune to
+## further staggers for STAGGER_IMMUNE seconds (no infinite stun-lock). Below the break a blow
+## never interrupts a windup (hyper-armour). Regenerates POISE_REGEN/s after POISE_IDLE seconds.
+const POISE_RESET := 0.6
+const STAGGER_IMMUNE := 1.6
+const POISE_REGEN := 8.0
+const POISE_IDLE := 1.5
+var poise := -1.0
+var cd_mult := 1.0              # scales the cooldown row: lower = more pressure
+var _last_hit := -99.0
+var _immune_until := -99.0
 
 
 static func has_archetype(name: String) -> bool:
@@ -68,6 +81,8 @@ func setup(arch: String, seed_value := 1, rank_override := -1) -> void:
 	base_aggression = clampf(float(d["base"]) + (rank - 4) * 0.02, 0.1, 0.95)
 	aggression = base_aggression
 	moves = Moves.moves(style)
+	poise = poise_max
+	cd_mult = float(d.get("cdm", 1.0))
 	rng.seed = seed_value
 	_aggro_timer = rng.randf_range(AGGRO_TIMER.x, AGGRO_TIMER.y)
 
@@ -75,7 +90,7 @@ func setup(arch: String, seed_value := 1, rank_override := -1) -> void:
 ## Seconds between attack starts (the SPECIES cooldown rows; soldiers use their 1.1-1.5 s).
 func cooldown() -> float:
 	var d: Dictionary = ARCHETYPES.get(archetype, ARCHETYPES["goblin"])
-	return rng.randf_range(float(d["cd"][0]), float(d["cd"][1]))
+	return rng.randf_range(float(d["cd"][0]), float(d["cd"][1])) * cd_mult
 
 
 func default_move() -> Resource:
@@ -194,3 +209,18 @@ func think(dt: float, ctx: Dictionary) -> Dictionary:
 	var heavy: bool = moves.size() > 1 and move != moves[0] and move.poise_damage > moves[0].poise_damage
 	out["intent"] = Intent.COMBO if (heavy or (open and rng.randf() < aggression)) else Intent.POKE
 	return out
+
+
+## A blow of `pdmg` poise damage lands at clock `now`. True when it staggers the fighter.
+func absorb(pdmg: float, now: float) -> bool:
+	if now - _last_hit > POISE_IDLE:
+		poise = minf(poise_max, poise + POISE_REGEN * (now - _last_hit - POISE_IDLE))
+	_last_hit = now
+	if now < _immune_until:
+		return false
+	poise -= pdmg
+	if poise > 0.0:
+		return false
+	poise = poise_max * POISE_RESET
+	_immune_until = now + STAGGER_IMMUNE
+	return true

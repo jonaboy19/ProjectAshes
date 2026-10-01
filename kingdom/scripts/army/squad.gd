@@ -317,8 +317,33 @@ func is_routed() -> bool:
 func target_for(s: Soldier) -> Node3D:
 	var e: Variant = _targets.get(s)
 	if e != null and is_instance_valid(e) and not (e as Node).get("dead"):
+		if (e as Node).is_in_group("player") and not _sees_player(s, e as Node3D):
+			return null            # acquisition: a man only fights what Perception says he can see
 		return e
 	return null
+
+
+const _Perception := preload("res://scripts/population/perception.gd")
+const SIGHT_MEMORY := 3.0          # s a seen player stays acquired after sight is lost
+const CLOSE_SIGHT := 6.0           # m: inside this he has noticed you regardless
+var _seen_until := {}
+
+
+func _sees_player(s: Soldier, p: Node3D) -> bool:
+	var now := Time.get_ticks_msec() * 0.001
+	var d := s.global_position.distance_to(p.global_position)
+	if d < CLOSE_SIGHT:
+		_seen_until[s] = now + SIGHT_MEMORY
+		return true
+	var fwd := s.global_transform.basis.z
+	var pos := Vector2(s.global_position.x, s.global_position.z)
+	var tp := Vector2(p.global_position.x, p.global_position.z)
+	var stance: float = _Perception.STANCE_CROUCH if bool(p.get("crouching")) else _Perception.STANCE_WALK
+	var vis: float = _Perception.vis(pos, Vector2(fwd.x, fwd.z), tp, _Perception.light_at(tp), stance, false, 1.0)
+	if vis > _Perception.VIS_MIN:
+		_seen_until[s] = now + SIGHT_MEMORY
+		return true
+	return float(_seen_until.get(s, 0.0)) > now
 
 
 ## Walking/running speed multiplier from formation and troop type (cached:

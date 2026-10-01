@@ -3,7 +3,7 @@ extends SceneTree
 ## (CombatMoves tables), the real decision model (NpcFighter) and the real HitResolver. No scenes, no
 ## physics: distance is one axis. Prints win rate, mean time-to-kill, parry/clash/dodge rates for balance.
 ##
-## Run:  $G --headless --path . -s res://tools_qa/combat/duel_arena.gd -- [--n=200] [--seed=1] [--only=bot_vs_goblin]
+## Run:  $G --headless --path . -s res://tools_qa/combat/duel_arena.gd -- [--n=200] [--seed=1] [--only=a,b]
 ## Same seed, same numbers. Matchups use "bot" (a scripted player: combo, parry/dodge by skill) or an
 ## NpcFighter archetype. Tunables live in MATCHUPS and the player constants below.
 
@@ -18,9 +18,16 @@ const CLOSE_SPEED := 3.0
 const PLAYER_HP := 120
 const PLAYER_STAMINA := 100.0
 const STAMINA_REGEN := 16.0
+const STAMINA_DELAY := 1.0    # s after a spend before stamina regenerates (player _stamina_delay)
 const COMBO_WINDOW := 0.45
 const DODGE_COST := 15.0
 const DODGE_TIME := 0.35
+const REACT_BASE := 0.10      # player-bot reaction chance = BASE + SKILL * skill
+const REACT_SKILL := 0.5
+const BEAT_MIN := 0.2        # s between a bot's decisions (human beat), more when unskilled
+const WHIFF_BASE := 0.25     # chance an unskilled swing misses entirely
+const CLASH_RANK := 1.2      # clash stat per fighter rank
+const DODGE_NOISE := 0.30     # s of timing error on an unskilled dodge
 
 enum St { IDLE, WINDUP, RECOVER, STUN, GUARD, DODGE }
 
@@ -32,6 +39,8 @@ const MATCHUPS := [
 	["bot_vs_wolf", "bot", "wolf", 0.5],
 	["bot_vs_bandit", "bot", "bandit", 0.5],
 	["bot_vs_guard", "bot", "guard", 0.5],
+	["skilled_bot_vs_goblin", "bot", "goblin", 0.9],
+	["skilled_bot_vs_troll", "bot", "troll", 0.9],
 	["skilled_bot_vs_bandit", "bot", "bandit", 0.9],
 	["skilled_bot_vs_guard", "bot", "guard", 0.9],
 	["bot_vs_3_goblins", "bot", "goblin", 0.5, 3],
@@ -65,6 +74,11 @@ class Fx:
 	var stun := 0.0
 	var guard_age := 99.0
 	var guard_left := 0.0
+	var level := 0
+	var serial := 0            # increments per swing started
+	var reacted_to := -1       # foe swing serial already rolled for
+	var stam_delay := 0.0
+	var dmg := 1.0
 	var parry_ok := true       # NPC guard counts as a timed parry this time
 	var dodge_left := 0.0
 	var pending := {}          # scheduled reaction {kind, at}
@@ -75,6 +89,8 @@ class Fx:
 	var think := 0.0
 	var cooldown := 0.0
 	var poise_idle := 0.0
+	var last_hit := -99.0
+	var immune_until := -99.0
 	var riposte := 1.0
 	var riposte_t := 0.0
 	var press := false
@@ -91,6 +107,10 @@ class Fx:
 	var killed_at := 0.0
 
 
+## --set=bandit.hp=90,bandit.dmg=1.8,goblin.rank=3 overrides archetype numbers for balance sweeps.
+static var _OVER := {}
+
+
 static func _mk(kind: String, skill: float, seed_value: int) -> Fx:
 	var f := Fx.new()
 	f.name = kind
@@ -103,13 +123,19 @@ static func _mk(kind: String, skill: float, seed_value: int) -> Fx:
 		f.poise = 40.0
 		f.poise_max = 40.0
 	else:
-		f.fighter = Fighter.make(kind, seed_value)
+		var ov: Dictionary = _OVER.get(kind, {})
+		f.fighter = Fighter.make(kind, seed_value, int(ov.get("rank", -1)))
+		f.fighter.cd_mult = float(ov.get("cd", f.fighter.cd_mult))
+		f.dmg = float(ov.get("dmg", Fighter.ARCHETYPES[kind].get("dmg", 1.0)))
 		f.moves = f.fighter.moves
 		var d: Dictionary = Fighter.ARCHETYPES[kind]
-		f.hp = int(d["hp"])
+		f.hp = int(ov.get("hp", d["hp"]))
+		f.level = int(d.get("level", 0))
 		f.max_hp = f.hp
-		f.poise = float(d["poise"])
+		f.poise = float(ov.get("poise", d["poise"]))
 		f.poise_max = f.poise
+		f.fighter.poise_max = f.poise
+		f.fighter.poise = f.poise
 		f.skill = clampf(f.fighter.rank / 10.0 * 0.5, 0.0, 0.5)   # share of guards that land as timed parries
 	return f
 
@@ -128,13 +154,20 @@ func _init() -> void:
 			n = int(a.substr(4))
 		elif a.begins_with("--seed="):
 			seed_base = int(a.substr(7))
+		elif a.begins_with("--set="):
+			for kv: String in a.substr(6).split(","):
+				var parts := kv.split("=")
+				var left := parts[0].split(".")
+				if not _OVER.has(left[0]):
+					_OVER[left[0]] = {}
+				_OVER[left[0]][left[1]] = float(parts[1])
 		elif a.begins_with("--only="):
 			only = a.substr(7)
 	print("duel arena: n=%d seed=%d dt=%.2f" % [n, seed_base, DT])
 	print("%-24s %6s %7s %7s %7s %7s %7s %7s %7s" % ["matchup", "A win%", "B win%", "draw%", "TTK(s)", "parry%A", "clash/d", "dodge/d", "A hp%"])
 	var report := {}
 	for m: Array in MATCHUPS:
-		if only != "" and String(m[0]) != only:
+		if only != "" and not (String(m[0]) in only.split(",")):
 			continue
 		report[m[0]] = _run_matchup(m, n, seed_base)
 	quit(0)
@@ -233,15 +266,15 @@ func _reach(f: Fx) -> float:
 
 
 func _step(me: Fx, foe: Fx) -> void:
-	me.stamina = minf(me.stamina + STAMINA_REGEN * DT, PLAYER_STAMINA) if me.bot else me.stamina
+	if me.bot:
+		me.stam_delay -= DT
+		if me.stam_delay <= 0.0:
+			me.stamina = minf(me.stamina + STAMINA_REGEN * DT, PLAYER_STAMINA)
 	me.cooldown -= DT
 	me.combo_t -= DT
 	me.riposte_t -= DT
 	if me.riposte_t <= 0.0:
 		me.riposte = 1.0
-	me.poise_idle += DT
-	if me.poise_idle > 1.5:
-		me.poise = minf(me.poise + 8.0 * DT, me.poise_max)
 	me.guard_pool = minf(me.guard_pool + 10.0 * DT, 100.0) if me.st != St.GUARD else me.guard_pool
 	me.t += DT * me.rate
 	match me.st:
@@ -325,13 +358,17 @@ func _react(me: Fx, foe: Fx) -> bool:
 	if not _foe_threat(foe) or _dist > foe.cur.reach + 0.3 or me.st != St.IDLE:
 		return false
 	var untill: float = foe.cur.hit_time() - foe.t       # time left to the foe's contact
+	if me.bot and me.reacted_to == foe.serial:
+		return false                                      # one reaction roll per enemy swing
 	if me.bot:
+		me.reacted_to = foe.serial
 		# Player-bot reaction: skill sets the chance and how tight the timing lands.
-		if _rng.randf() < 0.25 + 0.7 * me.skill and untill > 0.1:
+		if _rng.randf() < REACT_BASE + REACT_SKILL * me.skill and untill > 0.1:
 			var parry := _rng.randf() < 0.65
 			var jitter := (1.0 - me.skill) * 0.16
 			var lead := 0.03 + _rng.randf_range(0.0, 0.1 + jitter)
-			me.pending = {"kind": "guard" if parry else "dodge", "at": _time + maxf(untill - (lead if parry else 0.2), 0.0)}
+			var dodge_noise := _rng.randf_range(-1.0, 1.0) * (1.0 - me.skill * 0.7) * DODGE_NOISE
+			me.pending = {"kind": "guard" if parry else "dodge", "at": _time + maxf(untill - (lead if parry else 0.2 + dodge_noise), 0.0)}
 	else:
 		var r: Dictionary = me.fighter.consider_reaction(_time)
 		if not r.is_empty() and untill > float(r["delay"]):
@@ -346,6 +383,7 @@ func _bot_swing(me: Fx, foe: Fx) -> void:
 	var act: Resource = steps[me.combo]
 	me.weak = me.stamina < act.cost
 	me.stamina = maxf(me.stamina - act.cost, 0.0)
+	me.stam_delay = STAMINA_DELAY
 	me.rate = 0.7 if me.weak else 1.0
 	_begin(me, act)
 	me.combo_t = act.total() / me.rate + COMBO_WINDOW
@@ -353,6 +391,7 @@ func _bot_swing(me: Fx, foe: Fx) -> void:
 
 func _begin(me: Fx, act: Resource) -> void:
 	me.cur = act
+	me.serial += 1
 	me.st = St.WINDUP
 	me.t = 0.0
 	me.resolved = false
@@ -371,9 +410,9 @@ func _bot_think(me: Fx, foe: Fx) -> void:
 		return
 	if foe.st == St.STUN or foe.st == St.RECOVER or foe.st == St.IDLE or not _foe_threat(foe):
 		# Human beat: a short decision delay, longer and sloppier at low skill (also whiffs).
-		me.think = _rng.randf_range(0.1, 0.35 + (1.0 - me.skill) * 0.5)
+		me.think = _rng.randf_range(BEAT_MIN, BEAT_MIN + 0.25 + (1.0 - me.skill) * 0.6)
 		_bot_swing(me, foe)
-		if _rng.randf() < 0.12 * (1.0 - me.skill) + 0.05:
+		if _rng.randf() < WHIFF_BASE * (1.0 - me.skill) + 0.05:
 			me.cur_whiff = true
 
 
@@ -432,21 +471,20 @@ func _strike(me: Fx, foe: Fx) -> void:
 	foe.strikes_at_me += 1
 	var dmg_scale := (0.5 if me.weak else 1.0) * me.riposte
 	me.riposte = 1.0
-	var atk := Resolver.attack_from(act, 0.0, dmg_scale)
+	var atk := Resolver.attack_from(act, _stat(me), dmg_scale)
+	atk["damage"] = int(round(float(atk["damage"]) * me.dmg)) + me.level     # monster.gd adds its level to every blow
 	var def := {"guarding": foe.st == St.GUARD, "from_front": true, "guard_age": foe.guard_age if foe.parry_ok else 99.0,
 		"guard_pool": foe.guard_pool if not foe.bot else foe.stamina, "guard_cost": 1.6 if foe.bot else 0.6,
 		"poise": foe.poise, "evading": foe.st == St.DODGE, "guard_lane": -1}
 	if foe.st == St.WINDUP and foe.cur != null and not foe.resolved:
 		# measured against the defender's own contact frame (player.gd passes the same quantity)
 		def["swing"] = {"active_age": foe.t - foe.cur.hit_time(), "parryable": foe.cur.parryable,
-			"poise_damage": foe.cur.poise_damage}
+			"poise_damage": foe.cur.poise_damage, "stat": _stat(foe)}
 	var r := Resolver.resolve(atk, def, _rng)
 	match int(r["result"]):
 		Resolver.Outcome.HIT:
 			_damage(foe, int(r["damage"]), float(r["poise_damage"]))
 			me.hits_landed += 1
-			if float(r["defender_stun"]) > 0.0:
-				_stun(foe, float(r["defender_stun"]))
 		Resolver.Outcome.BLOCKED:
 			foe.blocks += 1
 			if foe.bot:
@@ -485,12 +523,29 @@ func _strike(me: Fx, foe: Fx) -> void:
 		me.think = 0.0
 
 
+## Clash stat: rank-weighted for fighters, a fixed mid value for the player-bot.
+func _stat(f: Fx) -> float:
+	return 4.0 if f.bot else float(f.fighter.rank) * CLASH_RANK
+
+
 func _damage(f: Fx, dmg: int, poise_dmg: float) -> void:
 	f.hp -= dmg
+	if f.fighter != null:
+		var broke: bool = f.fighter.absorb(poise_dmg, _time)
+		f.poise = f.fighter.poise
+		if broke:
+			_stun(f, 0.5)
+		return
+	# the bot follows the same rule: break, refill to 60%, 1.6 s immune
+	if _time - f.last_hit > Fighter.POISE_IDLE:
+		f.poise = minf(f.poise_max, f.poise + Fighter.POISE_REGEN * (_time - f.last_hit - Fighter.POISE_IDLE))
+	f.last_hit = _time
+	if _time < f.immune_until:
+		return
 	f.poise -= poise_dmg
-	f.poise_idle = 0.0
 	if f.poise <= 0.0:
-		f.poise = f.poise_max * 0.5
+		f.poise = f.poise_max * Fighter.POISE_RESET
+		f.immune_until = _time + Fighter.STAGGER_IMMUNE
 		_stun(f, 0.5)
 
 

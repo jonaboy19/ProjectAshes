@@ -550,6 +550,10 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		return
 	if from is Node3D:
 		_provoked = 15.0
+	# Hyper-armour: a blow below the poise break (parries and clashes send amount 0 and always stagger)
+	# does not interrupt the swing; a break staggers and grants 1.6 s of immunity (npc_fighter.absorb).
+	if _fighter != null and _winding > 0.0 and amount > 0 and not _fighter.absorb(float(amount), Time.get_ticks_msec() * 0.001):
+		return
 	if bool(_sp["poise"]) and _winding > 0.0:
 		return                        # heavy beasts shrug off hits mid-swing
 	_winding = 0.0
