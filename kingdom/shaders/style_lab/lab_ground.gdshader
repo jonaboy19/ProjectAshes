@@ -52,7 +52,7 @@ void fragment() {
 		vec3 nk = texture(cobble_n, uv * 0.8).rgb;
 		vec3 n = mix(mix(ng, nm, wm), nk, wc);
 		NORMAL_MAP = n;
-		NORMAL_MAP_DEPTH = 1.0;
+		NORMAL_MAP_DEPTH = 1.0 + 0.7 * wc;     // deeper cobbles (2026-10-01)
 		float rg = texture(grass_r, uv * 1.15).g;
 		float rm = texture(mud_r, uv * 0.9).g;
 		float rk = texture(cobble_r, uv * 0.8).g;
@@ -60,8 +60,10 @@ void fragment() {
 		float pud = smoothstep(0.55, 0.75, nz) * puddles * (wm * 0.8 + wc * 0.4);
 		ROUGHNESS = mix(rough, 0.08, pud);
 		ALBEDO *= 1.0 - pud * 0.35;
-		AO = mix(1.0, mix(mix(texture(grass_r, uv * 1.15).r, texture(mud_r, uv * 0.9).r, wm), texture(cobble_r, uv * 0.8).r, wc), 0.8);
-		AO_LIGHT_AFFECT = 0.4;
+		float aot = mix(mix(texture(grass_r, uv * 1.15).r, texture(mud_r, uv * 0.9).r, wm), texture(cobble_r, uv * 0.8).r, wc);
+		AO = mix(1.0, aot, 0.95);
+		AO_LIGHT_AFFECT = 0.55;
+		ALBEDO *= mix(1.0, smoothstep(0.25, 0.85, aot), 0.45 * wc);   // dark grout between the cobbles, also in sunlight
 	} else {
 		ROUGHNESS = 0.95;
 		SPECULAR = 0.15;

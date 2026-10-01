@@ -23,6 +23,8 @@ uniform sampler2D cobble_arm : filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D macro_noise : filter_linear_mipmap, repeat_enable;
 uniform float tile_size = 4.0;            // metres per texture repeat
 uniform vec3 grass_tint : source_color = vec3(0.85, 1.0, 0.7);
+// Style G: golden honey cobbles (StyleG cobble_tint) and a warm sun-baked path.
+uniform vec3 cobble_tint : source_color = vec3(1.0);
 // Rain soak, driven by scripts/world/weather.gd (0 = dry: the look is unchanged).
 // Flat ground darkens and turns glossy, streets and paths more than grass, and
 // low spots in the macro noise collect mirror-smooth puddles.
@@ -77,6 +79,7 @@ void fragment() {
 	float r1_hedge;
 	ga = r1_biome(ga, pa, world_pos.xz, r1_biome_sample(world_pos.xz), r1_hedge);
 	layer(cobble_albedo, cobble_normal, cobble_arm, uv * 0.8, 0.0, ca, cn, co);
+	ca *= cobble_tint;
 	// Rock: side projection chosen by the dominant horizontal axis of the normal.
 	vec2 ruv = (abs(world_normal.x) > abs(world_normal.z) ? world_pos.zy : world_pos.xy) / (tile_size * 1.5);
 	vec3 ra = texture(rock_albedo, ruv).rgb;

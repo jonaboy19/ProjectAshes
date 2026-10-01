@@ -126,6 +126,73 @@ func _stats(box: Dictionary) -> Dictionary:
 	}
 
 
+## On-device fps bench (S22): hold the "over" camera N seconds, print STYLEG_BENCH {json} (logcat tag godot),
+## save one frame to user://styleg_bench_<tier>.png. Launch: see .claude/skills/ashes-style-g-qa (phone section).
+func _bench(box: Dictionary, seconds: float) -> void:
+	_point_cam(box, "over")
+	if _args.has("uncap"):                       # headroom: no tier fps cap, no vsync
+		Engine.max_fps = 0
+		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+	for i in 90:
+		await get_tree().process_frame          # warm-up: shader compiles, streaming
+	var times := PackedFloat32Array()
+	var t0 := Time.get_ticks_usec()
+	var last := t0
+	while Time.get_ticks_usec() - t0 < int(seconds * 1e6):
+		await get_tree().process_frame
+		var now := Time.get_ticks_usec()
+		times.append((now - last) / 1000.0)
+		last = now
+	var sorted := times.duplicate()
+	sorted.sort()
+	var avg := 0.0
+	for t in times:
+		avg += t
+	avg /= maxf(1.0, times.size())
+	var st := _stats(box)
+	var res := {"tier": Style.tier, "uncapped": _args.has("uncap"), "frames": times.size(), "fps_avg": snappedf(1000.0 / avg, 0.1), "ms_avg": snappedf(avg, 0.01),
+		"ms_p95": snappedf(sorted[int(sorted.size() * 0.95)], 0.01), "ms_p99": snappedf(sorted[int(sorted.size() * 0.99)], 0.01),
+		"draws": st["draw_calls"], "tris": st["primitives"], "gpu": RenderingServer.get_video_adapter_name(),
+		"renderer": RenderingServer.get_current_rendering_method(), "size": [(box["vp"] as SubViewport).size.x, (box["vp"] as SubViewport).size.y]}
+	print("STYLEG_BENCH ", JSON.stringify(res))
+	await RenderingServer.frame_post_draw
+	(box["vp"] as SubViewport).get_texture().get_image().save_png("user://styleg_bench_%s.png" % Style.tier)
+
+
+## Triangle census per role (LOD0 mesh tris x instances; GPU auto-LOD and culling not applied). `--census`.
+func _census(root: Node3D) -> void:
+	var by := {}
+	for n in root.find_children("*", "GeometryInstance3D", true, false):
+		var tris := 0
+		var mesh: Mesh = null
+		var count := 1
+		if n is MeshInstance3D:
+			mesh = (n as MeshInstance3D).mesh
+		elif n is MultiMeshInstance3D and (n as MultiMeshInstance3D).multimesh:
+			mesh = (n as MultiMeshInstance3D).multimesh.mesh
+			count = (n as MultiMeshInstance3D).multimesh.visible_instance_count
+			if count < 0:
+				count = (n as MultiMeshInstance3D).multimesh.instance_count
+		if mesh == null or not (n as Node3D).is_visible_in_tree():
+			continue
+		for si in mesh.get_surface_count():
+			var a := mesh.surface_get_arrays(si)
+			var idx: PackedInt32Array = a[Mesh.ARRAY_INDEX] if a[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+			tris += (idx.size() if idx.size() > 0 else (a[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()) / 3
+		var role := "?"
+		var p: Node = n
+		while p and p != root:
+			if p.has_meta("role"):
+				role = String(p.get_meta("role")) + ":" + String(p.name).get_slice("@", 0).left(24)
+				break
+			p = p.get_parent()
+		by[role] = int(by.get(role, 0)) + tris * count
+	var keys := by.keys()
+	keys.sort_custom(func(a, b): return by[a] > by[b])
+	for k in keys.slice(0, 40):
+		print("CENSUS %8d %s" % [by[k], k])
+
+
 # --- shot mode ------------------------------------------------------------------------------------------------
 
 func _shot_mode() -> void:
@@ -147,6 +214,12 @@ func _shot_mode() -> void:
 		for i in 8:
 			await get_tree().process_frame
 		var per_cam := {}
+		if _args.has("census"):
+			_census(box["dio"] as Node3D)
+		if _args.has("bench"):
+			await _bench(box, float(_args.get("bench", "10")))
+			get_tree().quit()
+			return
 		for which in (["over", "close", "facade", "gate", "stall"] if id == "G" else ["over", "close"]):
 			_point_cam(box, which)
 			for i in 5:

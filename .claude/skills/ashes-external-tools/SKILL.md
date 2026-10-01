@@ -1,6 +1,6 @@
 ---
 name: ashes-external-tools
-description: Approved external tools for Rising Ashes - animation (Rigify horse, Wiggle 2, Bone Dynamics, Expy Kit, RTMPose video mocap), world building (A.N.T.Landscape, erosion, Azgaar, Terrain3D), phone and GPU profiling (scrcpy, Perfetto, AGI, RenderDoc), meshes and textures (gltfpack LOD, Instant Meshes, Real-ESRGAN, Krita), NPC voices (Piper) and SFX (rFXGen, jsfxr) - with licence verdicts and headless commands. Use before rigging, terrain, profiling the S22, simplifying or retopologising a GLB, upscaling a texture, generating voice lines or sound effects.
+description: Approved external tools for Rising Ashes - animation (Rigify horse, Wiggle 2, Bone Dynamics, Expy Kit, RTMPose video mocap), world building (A.N.T.Landscape, erosion, Azgaar, Terrain3D), phone and GPU profiling (scrcpy, Perfetto, AGI, RenderDoc), meshes and textures (gltfpack LOD, Instant Meshes, Real-ESRGAN, Krita), NPC voices (Piper) and SFX (rFXGen, jsfxr) - with licence verdicts and headless commands. Also the agent MCP toolchain (DCC-MCP Godot and Blender, Serena, Context7, Debug Draw 3D): how to start and call them. Use before rigging, terrain, profiling the S22, simplifying or retopologising a GLB, upscaling a texture, generating voice lines or sound effects.
 ---
 
 # External tools for Rising Ashes
@@ -49,3 +49,21 @@ Local PC only (GPU or phone): scrcpy, Perfetto recording, AGI, RenderDoc, Real-E
 
 Not installed: Upscayl (AGPL GUI, duplicate of Real-ESRGAN), FreeMoCap (AGPL, multi-camera), Piper 1.x GPL fork.
 RenderDoc scripts run only inside `qrenderdoc.exe --python`. `bash` in PowerShell is WSL on this PC: run `blender.sh` via the Bash tool (Git Bash).
+
+## Agent MCP toolchain (2026-10-01) - full notes in `tools/README_EXTERNAL_TOOLS.md`, plan in `docs/TOOLCHAIN_PLAN.md`
+Three MCP servers are registered at project scope in `.mcp.json` (approve the trust prompt once). Exactly ONE Godot MCP exists (DCC-MCP Godot); do not add another.
+
+| MCP | Use it for | Start |
+|---|---|---|
+| `dcc-mcp` (gateway `http://127.0.0.1:9765/mcp`, tools `search`, `describe`, `load_skill`, `call`) | Godot: inspect project, scene tree, open/play/stop scenes, editor errors and output, QA assertions, profiling. Blender 5.2 headless: primitives, mesh ops, UV, rig, materials, glTF export | `powershell -NoProfile -ExecutionPolicy Bypass -File tools/mcp/dcc_mcp_start.ps1 -Blender -Godot kingdom` (run it in the background; stop with `dcc_mcp_stop.ps1`) |
+| `serena` | Symbol overview, find symbol, find references and symbol-level edits in GDScript, instead of reading big files. Always pass `relative_path` | needs the Godot editor LSP on port 6008, which the same start script provides |
+| `context7` | Current docs for Godot 4.6 and addons (`resolve-library-id` then `query-docs`) | nothing, no key |
+
+Flow for dcc-mcp: `search` with `kind=skill` and `dcc_type`, `load_skill`, then `call` with `tool_slug` `<dcc>.<instance8>.<tool>`. If no tools answer, the back ends are not running: start them first. `tools/mcp/mcp_call.sh` makes the same calls from any shell (Codex fallback).
+Rules:
+- One Godot editor at a time for the MCP. Never kill Godot or Blender globally; the stop script kills only its own PIDs.
+- **Never commit the DCC-MCP Godot plugin lines in `kingdom/project.godot`** (plugin and `DccMcpRuntimePeer` autoload). The plugin is enabled per checkout by the start script and excluded in `.git/info/exclude`. `git diff kingdom/project.godot` before every commit; the `[debug_draw_3d]` section is the only addition to keep.
+- The Godot editor run touches `.import`, `.uid` and `godot_gas` files: commit only your own paths.
+- Debug Draw 3D (`kingdom/addons/debug_draw_3d`, committed) is a GDExtension: `DebugDraw3D.draw_*` / `DebugDraw2D`. Release templates make it a no-op; gate game calls with `OS.is_debug_build()` and a debug flag so nothing draws unless debugging.
+- Android Performance Analyzer is not installed (562 MB, Android SDK licence the owner must accept); use Perfetto + `s22_capture.ps1` as before.
+- No Godot LSP means Serena symbol tools fail; start the editor (headless is fine) before using them.

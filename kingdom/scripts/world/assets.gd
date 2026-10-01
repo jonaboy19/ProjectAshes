@@ -4,6 +4,7 @@ extends RefCounted
 ## scale, part visibility, colliders, animation looping, MultiMesh meshes and
 ## pre-rendered sprite impostors for distant crowds.
 
+const StyleG := preload("res://scripts/style_g.gd")
 const CHAR_DIR := "res://assets/kaykit/characters/"
 const MED_DIR := "res://assets/kaykit/medieval/"
 const WEAPON_DIR := "res://assets/kaykit/weapons/"
@@ -343,7 +344,7 @@ static func visual_aabb(root: Node3D) -> AABB:
 ## A MakeHuman GLB on the UAL skeleton, `height` metres tall, with the UAL clips.
 static func mh_character(file: String, height: float, keep: Array[String] = [], lod1 := false) -> Node3D:
 	var root := Node3D.new()
-	var path := (file if file.contains("/") else MH_DIR + file) + ("_lod1" if lod1 and not file.contains("/") else "") + ".glb"
+	var path := (file if file.contains("/") else MH_DIR + file) + ("_lod1" if lod1 and (not file.contains("/") or ResourceLoader.exists(file + "_lod1.glb")) else "") + ".glb"
 	var base: Node3D = Assets.scene(path).instantiate()
 	root.add_child(base)
 	var skeleton: Skeleton3D = base.find_children("*", "Skeleton3D", true, false)[0]
@@ -671,6 +672,7 @@ static func building_mesh(key: String) -> ArrayMesh:
 	# Meshy buildings carry their own LOD chain (lod0/1/2 files): automatic LODs on
 	# top of already-decimated meshes crumpled their walls and roofs at mid range.
 	mesh = _transformed(mesh, fit, not path.begins_with(MESHY))
+	StyleG.restyle_mesh(mesh, key)       # Style G: every building/prop surface gets its role material (atlas + tints kept)
 	_building_cache[key] = mesh
 	return mesh
 
@@ -718,7 +720,7 @@ static func static_model(path: String) -> Node3D:
 	return mi
 
 
-static func merged_mesh(path: String) -> ArrayMesh:
+static func merged_mesh(path: String, style := true) -> ArrayMesh:
 	if not ResourceLoader.exists(path):
 		push_warning("Missing building: " + path)
 		return null
@@ -750,7 +752,11 @@ static func merged_mesh(path: String) -> ArrayMesh:
 		var st: SurfaceTool = tools[mat]
 		st.commit(out)
 		out.surface_set_material(out.get_surface_count() - 1, mat)
-	return out if out.get_surface_count() > 0 else null
+	if out.get_surface_count() == 0:
+		return null
+	if style:
+		StyleG.restyle_mesh(out, path.get_file().get_basename())    # Style G role materials (idempotent; building_mesh/static_model reuse it)
+	return out
 
 
 static func _transformed(mesh: ArrayMesh, xform: Transform3D, auto_lods := true) -> ArrayMesh:
@@ -934,7 +940,7 @@ static func nature_mesh(key: String) -> ArrayMesh:
 	# real scale, origin already at the base centre, wind materials from its import, own LOD files.
 	var region := key.begins_with("region/")
 	var is_scan := key.begins_with("scan/") or key.begins_with("nature/") or region
-	var mesh := merged_mesh("res://assets/generated/" + key + ".glb" if is_scan else NATURE_DIR + key + ".gltf")
+	var mesh := merged_mesh("res://assets/generated/" + key + ".glb" if is_scan else NATURE_DIR + key + ".gltf", false)
 	if mesh == null:
 		return null
 	if region:
@@ -949,5 +955,11 @@ static func nature_mesh(key: String) -> ArrayMesh:
 	var s: float = 1.0 if is_scan else NATURE[key] / maxf(box.size.y, 0.001)
 	mesh = _transformed(mesh, Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * s),
 		Vector3(-(box.position.x + box.size.x * 0.5) * s, -box.position.y * s, -(box.position.z + box.size.z * 0.5) * s)))
+	if not is_scan:
+		# Quaternius stylized-nature kit (no wind shader): Style G tree / foliage / stone roles. The Blender "nature/" and
+		# "region/" sets keep their wind + season shaders.
+		var k := key.to_lower()
+		var role := "tree" if (k.contains("tree") or k.contains("pine") or k.contains("twisted")) else ("stone" if (k.contains("rock") or k.contains("pebble") or k.contains("stone")) else "foliage")
+		StyleG.restyle_mesh(mesh, "nature/" + key, "", role)
 	_building_cache[cache_key] = mesh
 	return mesh

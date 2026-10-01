@@ -406,7 +406,15 @@ func _build_body() -> void:
 		body = (load("res://scripts/ui/character_creation.gd") as GDScript).call("build_model", look, 1.8, props)
 	_appearance_key = var_to_str(look) if body != null else ""
 	if body == null:
-		body = Assets.character("Player", 1.8, props)
+		# Style G default hero (target 03 hooded traveller): G6 villager tunic tinted green + skinned HeroOutfit
+		var hero_look: Dictionary = (load("res://scripts/style_lab/lab_chars.gd") as GDScript).get("HERO_LOOK")
+		body = (load("res://scripts/ui/character_creation.gd") as GDScript).call("build_model", hero_look, 1.8, props)
+		if body == null:
+			body = Assets.character("Player", 1.8, props)
+		else:
+			var outfit: GDScript = load("res://scripts/actors/hero_outfit.gd")
+			outfit.call("tint_tunic", body)
+			outfit.call("dress", body)
 	_body_node = body
 	_model.add_child(body)
 	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true, true)

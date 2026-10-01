@@ -12,6 +12,7 @@ extends RefCounted
 ## Meshes are batched with SettlementBuilder._multimesh_cells (one MultiMesh per key per 40 m cell), decals go through
 ## TownDecals; nothing runs per frame.
 
+const StyleG := preload("res://scripts/style_g.gd")
 const Districts := preload("res://scripts/world/districts.gd")
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const DETAIL_DIR := "res://assets/generated/details/"
@@ -223,16 +224,13 @@ static func _place(key: String, slot: String, size: Vector3, front: float, door_
 
 # --- Procedural stand-ins -------------------------------------------------------------------------------------------
 
-static var _mat: StandardMaterial3D
+static var _mat: Material
 
 
-static func _material() -> StandardMaterial3D:
+## Style G role "timber" with sRGB vertex colours (the stand-ins bake their own colours and town tints).
+static func _material() -> Material:
 	if _mat == null:
-		_mat = StandardMaterial3D.new()
-		_mat.vertex_color_use_as_albedo = true
-		_mat.vertex_color_is_srgb = true
-		_mat.roughness = 0.9
-		_mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+		_mat = StyleG.vertex_color_material("timber", true)
 	return _mat
 
 

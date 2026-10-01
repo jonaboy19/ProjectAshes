@@ -26,6 +26,8 @@ var region: RegionDressing
 var region1: Node   # scripts/region1/region1_glue.gd (Region1 hooks)
 const Flow := preload("res://scripts/ui/frontend/flow.gd")
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
+const StyleG := preload("res://scripts/style_g.gd")
+const SeasonsScript := preload("res://scripts/sim/seasons.gd")
 const RoadTraffic := preload("res://scripts/world/road_traffic.gd")
 const RoadEvents := preload("res://scripts/world/road_events.gd")
 var road_traffic: Node3D
@@ -51,6 +53,7 @@ var services: VillageServices
 var camps: MonsterCamps
 var ambient: AmbientLife
 var sun: DirectionalLight3D
+var fill: DirectionalLight3D
 var env: Environment
 var _status_timer := 0.0
 var _raids_cleared := 0
@@ -558,84 +561,34 @@ func _on_raiders_defeated(camp: Node3D) -> void:
 # --- Environment & day/night ------------------------------------------------------
 
 func _build_environment() -> void:
-	# Real captured sky (Poly Haven HDRI, CC0) lights the scene and fills reflections.
-	# Graded toward the art reference's saturated storybook blue (shaders/storybook_sky.gdshader).
-	var sky_mat := ShaderMaterial.new()
-	sky_mat.shader = load("res://shaders/storybook_sky.gdshader")
-	sky_mat.set_shader_parameter("panorama", load("res://assets/generated/sky/kloofendal_43d_clear_puresky_2k.hdr"))
-	var sky := Sky.new()
-	sky.sky_material = sky_mat
-	sky.radiance_size = Sky.RADIANCE_SIZE_256
+	# Style G (skills ashes-style-g): ONE look. Environment, sun and bounce fill come from scripts/style_g.gd; the
+	# Quality autoload re-applies SSAO / glow / shadows per tier when these nodes enter the tree.
+	StyleG.game_mode = true
+	var tier := StyleG.tier_name(Quality.tier)
 	env = Environment.new()
-	env.background_mode = Environment.BG_SKY
-	env.sky = sky
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = 0.7
-	# Warm bounce mixed into the sky ambient: blue-violet shadows, but sunlit stone stays honey-warm.
-	env.ambient_light_color = Color("ffe2bd")
-	env.ambient_light_sky_contribution = 0.72
-	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
-	# AgX: filmic highlight roll-off and natural colour (less "cartoon" than ACES + saturation).
-	env.tonemap_mode = Environment.TONE_MAPPER_AGX
-	env.tonemap_exposure = 1.2
-	env.tonemap_white = 7.0
-	# Modern lighting (Forward+ on desktop; the Mobile renderer skips what it can't do).
-	env.ssao_enabled = true
-	env.ssao_radius = 1.4
-	env.ssao_intensity = 2.0
-	env.ssao_detail = 0.6          # tighter occlusion where objects meet the ground
-	env.ssao_light_affect = 0.15
-	# SSIL, SDFGI and volumetric fog are Forward+ only; asking for them on the Mobile /
-	# Compatibility renderers just prints warnings before Quality turns them off.
-	var forward_plus := RenderingServer.get_current_rendering_method() == "forward_plus"
-	env.ssil_enabled = forward_plus
-	env.sdfgi_enabled = forward_plus
-	env.sdfgi_use_occlusion = true
-	env.glow_enabled = true
-	env.glow_intensity = 0.6
-	env.glow_bloom = 0.07
-	env.glow_hdr_threshold = 1.1
-	env.fog_enabled = true
-	env.fog_light_color = Color("c9d4e6")
-	env.fog_density = 0.0006
-
-	env.fog_aerial_perspective = 0.3
-	env.fog_sky_affect = 0.15
-	env.volumetric_fog_enabled = forward_plus
-	env.volumetric_fog_density = 0.0025
-	env.volumetric_fog_albedo = Color("e8dccb")
-	env.volumetric_fog_length = 64.0
-	env.adjustment_enabled = true
-	# Cosy stylised target (docs/art_reference): warm and saturated, not grey-photoreal.
-	env.adjustment_saturation = 1.28
-	env.adjustment_contrast = 1.1
+	StyleG.apply_environment(env, tier, true)
+	# SSIL, SDFGI and volumetric fog are Forward+ only; Quality switches them on for ULTRA.
+	env.ssil_enabled = false
+	env.sdfgi_enabled = false
+	env.volumetric_fog_enabled = false
 	var we := WorldEnvironment.new()
 	we.environment = env
 	world.add_child(we)
-	sun = DirectionalLight3D.new()
-	sun.shadow_enabled = true
-	sun.shadow_blur = 1.5
-	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
-	sun.directional_shadow_max_distance = 140.0
-	sun.light_angular_distance = 0.8
+	sun = StyleG.make_sun(tier)
 	sun.light_volumetric_fog_energy = 1.4
 	world.add_child(sun)
+	fill = StyleG.make_fill()
+	world.add_child(fill)
 
 
 func _update_daylight() -> void:
 	var t := WorldSim.time_of_day
-	var day_amount := clampf(sin((t - 6.0) / 12.0 * PI) * 1.4, 0.0, 1.0)   # 0 at night, 1 at noon
-	sun.rotation = Vector3(-lerpf(0.15, 1.1, day_amount), PI * 0.25 + (t - 12.0) / 12.0 * PI * 0.5, 0)
-	# At night the key light becomes a cool moon so the world stays readable.
+	# The seasons' day length (Seasons.daylight_of) is squeezed into Style G's solar hours: 6 = sunrise, 18 = sunset.
+	var dl: Vector2 = SeasonsScript.daylight_of(WorldSim.day, t)
+	var solar := StyleG.solar_hour(t, dl.x, dl.y)
+	var day_amount := clampf(sin((solar - 6.0) / 12.0 * PI) * 1.4, 0.0, 1.0)   # 0 at night, 1 at noon
 	var night := 1.0 - smoothstep(0.0, 0.25, day_amount)
-	# Region1 look (docs/regions/LOOK_R1.md): the sky and bounce light stay bright through the golden hour
-	# (~16-18 h) instead of turning navy at 17 h; the sun itself still lowers and warms with day_amount.
-	var sky_amount := clampf(day_amount * 1.8, 0.0, 1.0)
-	sun.light_energy = lerpf(lerpf(0.05, 1.7, day_amount), 0.42, night)
-	sun.light_color = Color("ff9a5a").lerp(Color("ffd9a2"), day_amount).lerp(Color("8fa8ff"), night)
-	env.ambient_light_energy = lerpf(lerpf(0.25, 0.7, sky_amount), 0.4, night)
-	env.fog_light_color = Color("1b2238").lerp(Color("c9d4e6"), sky_amount)
-	env.background_energy_multiplier = lerpf(0.08, 1.0, sky_amount) + night * 0.12
+	StyleG.apply_daylight(env, sun, fill, solar, solar)
 	baker.set_light(lerpf(0.35, 1.0, day_amount))
 	# Emberglass Mere turns ember-coloured around sunset (lore); rain rings follow the weather.
 	var rain: float = weather.rain_amount() if weather else 0.0
@@ -1142,7 +1095,7 @@ func _screenshot(shot: String, path: String) -> void:
 			var cpg: Vector2 = capg["pos"]
 			var ga: float = capg["plan"]["gates"][0]
 			var dirg := Vector2(cos(ga), sin(ga))
-			var spg: Vector2 = cpg + dirg * (float(capg["radius"]) - 42.0)
+			var spg: Vector2 = cpg + dirg * (float(capg["radius"]) - float(_user_args().get("gate_in", "42")))
 			_teleport(spg, 0.0)
 			player.set_camera(atan2(-dirg.x, -dirg.y), -0.05)
 			warmup = 120

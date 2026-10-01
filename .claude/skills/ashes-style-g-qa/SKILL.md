@@ -15,9 +15,18 @@ Target: `docs/art/reference/03_TARGET_gate_market_detailed.webp`. Recipe: skill 
 Never `pkill -f`; read the log for `style_lab G over ->` and `EXIT 0` (a render takes about 8 min).
 For a game scene (not the lab) use `ashes-visual-qa` to get a gameplay-camera shot, then score it the same way.
 
+### Windows PC (real GPU, same counts as the S22 Mobile renderer)
+`kingdom/tools_qa/style_lab/render_win.sh <out-prefix> [high|medium|low]` (Godot 4.6.3 console exe, `--rendering-method mobile`, 1920x1080, 15 min timeout; about 1 min per tier). Python is `py` (has PIL).
+Triangle census per role: add `--census` to the Godot command (prints `CENSUS <tris> <role:name>`; LOD0 tris x instances). Use it before guessing where LOW tris go.
+Hero only: `godot --path kingdom --rendering-driver vulkan -s tools_qa/style_lab/hero_preview.gd -- --out=PREFIX` (back / 3/4 / side, two walk phases; `--lineup` = every G6 outfit x hair).
+
+### Phone (S22, `R5CT849XNVF`)
+On-device fps of the lab view: `adb shell am start -n com.risingashes.game/com.godot.game.GodotApp --esa command_line_params "res://scenes/style_lab/style_lab.tscn,--,--shot=style_lab,--box=G,--tier=low,--bench=15[,--uncap]"`
+then `adb logcat -s godot | grep STYLEG_BENCH` (fps_avg, ms_p95/p99, draws, tris) and `adb shell dumpsys gfxinfo com.risingashes.game`. Frame saved as `user://styleg_bench_<tier>.png`. Run each tier; `--uncap` = headroom without the tier cap.
+
 ## 2. Compare
 ```
-python3 kingdom/tools_qa/style_lab/make_compare.py <render.png> docs/art/reference/03_TARGET_gate_market_detailed.webp <sheet.png> "G pass N" "Target 03"
+python3 (Windows: py) kingdom/tools_qa/style_lab/make_compare.py <render.png> docs/art/reference/03_TARGET_gate_market_detailed.webp <sheet.png> "G pass N" "Target 03"
 ```
 Writes the 2-up sheet AND prints metrics (render vs target 03): `warmth` R/B mean (1.34), `sat` (0.40), `contrast` luminance std (0.23),
 `detail` edge density (0.071), `green` foliage fraction (0.017), `shadow_b` B-R in darkest 20% (-0.06). Read the sheet with Read, then score.
@@ -36,10 +45,10 @@ Metrics that are off by more than 25% name the failure (section 5).
 | Gate (5) | Pointed arch with visible voussoir ring, raised portcullis, banners, crenellations, conical turret roofs, ivy on the tower foot |
 
 Score each 0-10, multiply by weight/10. **Ship minimum: 75 total and no category below 5/10.** Report the number, the sheet path and the
-three lowest categories. G pass history: baseline 55-60 %, kit pass 3 about 72 % (just under the bar: hero 4/10, material richness 6/10; see `ashes-style-g` log).
+three lowest categories. G pass history: baseline 55-60 %, cloud kit pass 3 claimed 72 %; re-scored on the PC GPU 2026-10-01 it was ~56 (hero 2/10: grey-helmet head, material 4/10, light 5/10 pink). Local pass L5: ~64 (hero 5, light 7, material 5). Score honestly from the render, not from the log.
 
 ## 4. Budgets checked with the same run (from `P_stats.json`, "over" camera, per tier)
-HIGH: <= 200 draws, <= 600k tris (G now 164 / 565k). MEDIUM: <= 170 draws, <= 450k. LOW: <= 150 draws, <= 300k visible tris, 2 shadow splits (G now 134 / 379k: tris still over).
+HIGH: <= 200 draws, <= 600k tris (G now 164 / 565k). MEDIUM: <= 170 draws, <= 450k. LOW: <= 150 draws, <= 300k visible tris, 2 shadow splits (2026-10-01, Mobile renderer on the PC GPU: 114 / 286k, OK).
 Failing a budget fails the pass even if the picture is perfect.
 
 ## 5. Failure -> fix
@@ -53,4 +62,7 @@ Failing a budget fails the pass even if the picture is perfect.
 | Neon ivy | ivy shader saturation 0.95, value_gain 0.78, vertex greens `3a6a22..6f9e30`, instance colour hsv(0.24-0.31, 0.55-0.8, 0.7-0.95) |
 | Brown gate stone | Do not warm `atlas_color` of `gate_stone` (castle_wall_slates turns brown); keep (0.95,0.94,0.92); trim blocks use the polished limestone `dccfb4` |
 | Draw calls over budget | Merge static props per material (`lab_gate.gd _bake_static`), MultiMesh repeats, LOD1/2 houses, `lod1` characters beyond 24 m, tier low drops folk to 14 |
+| Character hair reads as a grey helmet from behind | lab_char hair roughness 0.62 / specular 0.3 (sky reflection) |
+| Pink light | LUT mid must be neutral (`8a8a94`, not `8a88a4`); cobble_tint blue <= 0.8 |
+| Warmth > 1.6 after a light change | do not push the LUT high to `ffe6b4` + sun `ffcf8a` together (pass L1 went orange, warmth 1.82) |
 | Black characters | Never use the SSS pass; `lab_char` shader only; G6 `human_*` meshes ignore vertex colour |

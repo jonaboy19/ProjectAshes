@@ -2,6 +2,8 @@ class_name SettlementBuilder
 extends Node3D
 
 ## Distance where Meshy hero buildings swap to their light LOD.
+const StyleG := preload("res://scripts/style_g.gd")
+const GDressing := preload("res://scripts/world/g_dressing.gd")
 const DistanceCull := preload("res://scripts/core/distance_cull.gd")
 const HERO_LOD := 70.0
 ## Buildings and greenery are batched per model per LOD_CELL x LOD_CELL metres.
@@ -404,6 +406,7 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	var props_job = DistrictProps.build(self, root, s, plan, sync)
 	if props_job != null and not props_job.done:
 		_prop_jobs.append(props_job)
+	GDressing.dress_town(root, s, plan, _footprint, StyleG.current_tier())    # Style G: ivy, flower boxes, tubs, baskets
 	_decals(root, s, plan)
 	_flush_contact_shadows(root)
 	return root
@@ -736,7 +739,7 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 
 ## _multimesh() split into cell x cell metre batches, so visibility ranges (and
 ## LOD) work per neighbourhood instead of per town; `cull` > 0 overrides the range.
-func _multimesh_cells(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], cell: float, cull := 0.0, blob := true, shadow := true, tint := Color.WHITE) -> void:
+func _multimesh_cells(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], cell: float, cull := 0.0, blob := true, shadow := true, tint := Color.WHITE, jitter_seed := 0) -> void:
 	var groups := {}
 	for t: Transform3D in transforms:
 		var k := Vector2i(floori(t.origin.x / cell), floori(t.origin.z / cell))
@@ -750,6 +753,13 @@ func _multimesh_cells(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D]
 		if tint != Color.WHITE:
 			cols.resize(list.size())
 			cols.fill(tint)
+		elif jitter_seed != 0:
+			# Style G: no two stalls the same orange. A per-instance colour (seeded by town + position, so a rebuilt town
+			# looks identical) nudges every channel a few percent; the goods shader also rotates hue per piece.
+			for t: Transform3D in list:
+				var jr := RandomNumberGenerator.new()
+				jr.seed = hash([jitter_seed, int(t.origin.x * 4.0), int(t.origin.z * 4.0)])
+				cols.append(Color(1.0 + jr.randf_range(-0.07, 0.07), 1.0 + jr.randf_range(-0.05, 0.05), 1.0 + jr.randf_range(-0.09, 0.09), 1.0))
 		var mmi := _multimesh(parent, mesh, list, blob, false, "", shadow, cols)
 		if mmi and cull > 0.0:
 			mmi.visibility_range_end = cull
@@ -1890,7 +1900,7 @@ func _market_dressing(root: Node3D, s: Dictionary, plan: Dictionary, stall_spots
 		var list: Array[Transform3D] = []
 		list.assign(batches[id])
 		# Per-neighbourhood batches (as for the stalls), no blob shadow, no shadow casting.
-		_multimesh_cells(root, mesh, list, LOD_CELL, 70.0, false, false)
+		_multimesh_cells(root, mesh, list, LOD_CELL, 70.0, false, false, Color.WHITE, 0 if bool(_prof.get("legacy", false)) else 7331 + int(s["id"]))
 	if OS.get_cmdline_user_args().has("--goods-stats"):
 		print("[goods] %s: %s" % [s["name"], stats])
 
