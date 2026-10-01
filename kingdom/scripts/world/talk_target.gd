@@ -86,7 +86,11 @@ func _retarget(v: Node3D) -> void:
 		return
 	global_position = v.global_position
 	var npc := npc_of(v)
-	title = String(npc.get("name", "Villager"))
+	title = String(npc.get("name", ""))
+	if title == "" and int(npc.get("person", -1)) >= 0:
+		title = WorldSim.person_name(int(npc["person"]))      # "Talk — Roland Ward" on the HUD button
+	if title == "":
+		title = "Villager"
 	menu = talk_menu.bind(npc) if talk_menu.is_valid() else Callable()
 	if not is_in_group("interactable"):
 		add_to_group("interactable")

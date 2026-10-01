@@ -217,6 +217,19 @@ static func glyph(glyph_name: String, size := 96) -> ImageTexture:
 			segs.append([Vector2(0.58, 0.5) * s, Vector2(0.5, 0.78) * s])
 			segs.append([Vector2(0.5, 0.78) * s, Vector2(0.42, 0.5) * s])
 			segs.append([Vector2(0.42, 0.5) * s, Vector2(0.5, 0.22) * s])
+		"menu":
+			for y in [0.3, 0.5, 0.7]:
+				segs.append([Vector2(0.24, y) * s, Vector2(0.76, y) * s])
+		"star":
+			var sp := PackedVector2Array()
+			for i in 5:
+				var a := -PI * 0.5 + i * TAU / 5.0 * 2.0
+				sp.append(Vector2(0.5, 0.52) * s + Vector2(cos(a), sin(a)) * s * 0.36)
+			for i in 5:
+				segs.append([sp[i], sp[(i + 1) % 5]])
+		"slots":
+			for c: Vector2 in [Vector2(0.32, 0.32), Vector2(0.68, 0.32), Vector2(0.32, 0.68), Vector2(0.68, 0.68)]:
+				discs.append([c * s, s * 0.09])
 		_:
 			rings.append([Vector2(0.5, 0.5) * s, s * 0.3])
 	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)

@@ -35,6 +35,7 @@ var skills_screen: Control
 const Discovery := preload("res://scripts/sim/discovery.gd")
 const CompassBar := preload("res://scripts/ui/compass.gd")
 const WorldMap := preload("res://scripts/ui/world_map.gd")
+const TravelRules := preload("res://scripts/world/travel_rules.gd")
 const PhotoMode := preload("res://scripts/ui/photo_mode.gd")
 const PauseMenu := preload("res://scripts/ui/frontend/pause_menu.gd")
 const DiscoveryBanner := preload("res://scripts/ui/discovery_banner.gd")
@@ -48,6 +49,8 @@ const NotifyStack := preload("res://scripts/ui/notify_stack.gd")
 const DialogueUI := preload("res://scripts/ui/dialogue_ui.gd")
 const Portrait := preload("res://scripts/ui/portrait.gd")
 const SkillsSim := preload("res://scripts/sim/skills.gd")
+const HudMode := preload("res://scripts/ui/hud_mode.gd")
+const InteractLabel := preload("res://scripts/ui/interact_label.gd")
 
 const DISCOVERY_RATE := 0.25       # s between discovery checks
 const MARKER_RATE := 1.0           # s between compass marker rebuilds
@@ -59,7 +62,10 @@ const DOCK_SIZE := 52
 const DOCK_STEP := 72              # button + caption
 const ABILITY_DASH_COLOR := Color("6d5cff")   # violet: distinct from the teal plain dodge
 const LEFT := 12.0                 # left / right screen margin of the HUD cards
-const MINIMAP_SIZE := 124.0
+const MINIMAP_SIZE := 100.0
+const MENU_AUTO_CLOSE := 7.0        # s the button fan stays open
+const FAN_RINGS := [[3, 92.0], [4, 168.0], [5, 244.0], [6, 320.0]]   # [items, radius] of the menu fan, nearest ring first
+const DANGER_SHOWN := 20.0          # the danger badge appears from this threat
 
 var player: Player
 var controls: Control
@@ -68,6 +74,29 @@ var _toast: Label
 var _toast_tween: Tween
 var _interact: TouchScreenButton
 var _interact_label: Label
+var _interact_small: TouchScreenButton        # the interact button as a context action (combat, or no room)
+var _attack_small: TouchScreenButton          # attack as a context action while a target owns the primary slot
+var _eat_button: TouchScreenButton
+var _menu_button: TouchScreenButton
+var _pill: Control                            # HudCard.ActionPill: "Talk — Roland Ward"
+var _techniques: Control
+var mode := HudMode.new()                     # exploration / combat layout state (tests read it)
+var target: Node3D                            # the current interactable (null when nothing is in reach)
+var target_label: Dictionary = {}             # InteractLabel.resolve(target)
+var _menu_open_t := 0.0                       # >0: seconds left until the fan closes itself
+var fan_open := false
+var _fan: Array[TouchScreenButton] = []
+var _goal: Dictionary = {}                    # TouchScreenButton -> goal position
+var _fade_goal: Dictionary = {}               # TouchScreenButton -> goal alpha
+var _snap := true
+var _safe := Rect2(0, 0, 1280, 720)
+var _combat_timer := 0.0
+var _dash_cooling := false
+var _food_low := false
+var _danger_total := 0.0
+var _prev_health := -1
+var _pill_a := 0.0
+var stick: VirtualJoystick
 var _dash_cooldown_label: Label
 var _order_buttons: Array[TouchScreenButton] = []
 var _buttons: Dictionary = {}
@@ -154,7 +183,7 @@ func _ready() -> void:
 		if e is InputEventScreenDrag:
 			player.add_look(e.relative * App.look_scale))
 	controls.add_child(look)
-	var stick := VirtualJoystick.new()
+	stick = VirtualJoystick.new()
 	stick.anchor_right = 0.4
 	stick.anchor_top = 0.3
 	stick.anchor_bottom = 1.0
@@ -182,12 +211,26 @@ func _ready() -> void:
 	_buttons["view"] = _button("view_cycle", "Look", DOCK_SIZE, UITheme.ACTION_UTIL, "eye-target")
 	_buttons["zoom_out"] = _button("zoom_out", "−", 44, UITheme.ACTION_UTIL, "")
 	_buttons["zoom_in"] = _button("zoom_in", "+", 44, UITheme.ACTION_UTIL, "")
-	_interact = _button("interact", "Talk", 96, UITheme.ACTION_TALK, "hand")
+	_interact = _button("interact", "", 128, UITheme.ACTION_TALK, "hand")
+	_interact_small = _button("interact", "Talk", 72, UITheme.ACTION_TALK, "hand")
+	_attack_small = _button("attack", "", 72, UITheme.ACTION_ATTACK, "broadsword")
+	_eat_button = _button("eat", "Eat", 72, Color("5fae6b"), "hand")
+	_menu_button = _make_button("", "", 60, UITheme.ACTION_UTIL, UITheme.glyph("menu"), true)
+	_menu_button.pressed.connect(toggle_fan)
+	_buttons["menu"] = _menu_button
+	_buttons["skills"] = _button("", "Skills", DOCK_SIZE, UITheme.ACTION_UTIL, "glyph:star")
+	(_buttons["skills"] as TouchScreenButton).pressed.connect(func() -> void: GameMenu.open(self, "skills"))
+	_buttons["quickbar"] = _button("", "Slots", DOCK_SIZE, UITheme.ACTION_UTIL, "glyph:slots")
+	(_buttons["quickbar"] as TouchScreenButton).pressed.connect(func() -> void:
+		mode.hotbar_pinned = not mode.hotbar_pinned)
 	_pack_button = _button("journal", "Pack", DOCK_SIZE, UITheme.ACTION_UTIL, "knapsack")
 	_pause_button = _make_button("", "", 52, UITheme.ACTION_UTIL, UITheme.glyph("pause"))
 	_pause_button.pressed.connect(open_pause)
 	_interact_label = _interact.get_child(0)
 	_interact.visible = false
+	_interact_small.visible = false
+	_attack_small.visible = false
+	_eat_button.visible = false
 	for extra: Array in [["order_retreat", KEY_G], ["order_formation", KEY_B], ["ability_dash", KEY_R]]:
 		if not InputMap.has_action(extra[0]):
 			InputMap.add_action(extra[0])
@@ -201,8 +244,14 @@ func _ready() -> void:
 		_order_buttons.append(b)
 	var techniques := TechniqueButtons.new()
 	techniques.visible = _touch or "--technique-ring" in OS.get_cmdline_user_args()
+	techniques.fade = 0.0
 	controls.add_child(techniques)
+	_techniques = techniques
 	techniques.open_skills_requested.connect(func() -> void: GameMenu.open(self, "skills"))
+	_pill = HudCard.ActionPill.new()
+	_pill.modulate.a = 0.0
+	_pill.visible = false
+	controls.add_child(_pill)
 
 	_chrome = Control.new()
 	_chrome.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -216,6 +265,7 @@ func _ready() -> void:
 	tracker = HudCard.QuestTracker.new()
 	_chrome.add_child(tracker)
 	danger_badge = HudCard.DangerBadge.new()
+	danger_badge.visible = false
 	_chrome.add_child(danger_badge)
 	info = HudCard.InfoBlock.new()
 	_chrome.add_child(info)
@@ -228,6 +278,8 @@ func _ready() -> void:
 	hotbar.player = player
 	hotbar.open_skills_requested.connect(func() -> void: GameMenu.open(self, "skills"))
 	_chrome.add_child(hotbar)
+	(card as HudCard.Card).toggled.connect(_on_card_toggled)
+	card.resized.connect(_layout_left)
 	(card.health as Meter).max_value = player.max_health
 	(card.health as Meter).value = player.health
 	(card.stamina as Meter).max_value = Player.MAX_STAMINA
@@ -298,14 +350,22 @@ func _ready() -> void:
 	player.health_changed.connect(func(c: int, m: int) -> void:
 		if c < int((card.health as Meter).value):
 			App.vibrate(35)
+			mode.engage()      # taking damage is combat: the full cluster comes up
 		(card.health as Meter).max_value = m
 		(card.health as Meter).value = c)
 	Game.toast.connect(_say)
 	if Life.has_signal("inventory_changed"):
 		Life.inventory_changed.connect(func() -> void: _inv_dirty = true)
 	_build_overlays()
-	get_viewport().size_changed.connect(_layout)
+	get_viewport().size_changed.connect(_on_resized)
 	_layout()
+	_snap = false
+
+
+func _on_resized() -> void:
+	_snap = true
+	_layout()
+	_snap = false
 
 
 ## True while the world-generation veil is up (it frees itself after fading out).
@@ -361,8 +421,8 @@ func _make_button(action: String, text: String, size: int, color: Color, ic: Tex
 	var face := HudArt.round_face(size, _fill_for(color), ic, tint, 0.66 if size >= 96 else 0.62)
 	b.texture_normal = face
 	b.texture_pressed = face
-	b.pressed.connect(func() -> void: b.modulate = Color(1.35, 1.25, 1.05))
-	b.released.connect(func() -> void: b.modulate = Color.WHITE)
+	b.pressed.connect(func() -> void: b.modulate = Color(1.35, 1.25, 1.05, b.modulate.a))
+	b.released.connect(func() -> void: b.modulate = Color(1, 1, 1, b.modulate.a))
 	var circle := CircleShape2D.new()
 	circle.radius = size * 0.5
 	b.shape = circle
@@ -379,58 +439,154 @@ func _make_button(action: String, text: String, size: int, color: Color, ic: Tex
 	return b
 
 
+## Insets of the screen's safe area (notch, rounded corners, gesture bar) in HUD units, as Vector4(left, top, right, bottom).
+## `win` is the window in pixels, `safe` the OS safe rectangle in pixels, `view` the HUD viewport in units.
+static func safe_insets(win: Vector2, safe: Rect2, view: Vector2) -> Vector4:
+	if win.x <= 0.0 or win.y <= 0.0 or safe.size.x <= 0.0 or safe.size.y <= 0.0:
+		return Vector4.ZERO
+	var k := view.y / win.y
+	return Vector4(clampf(safe.position.x * k, 0.0, 120.0), clampf(safe.position.y * k, 0.0, 80.0),
+		clampf((win.x - safe.end.x) * k, 0.0, 120.0), clampf((win.y - safe.end.y) * k, 0.0, 80.0))
+
+
+func _safe_rect(s: Vector2) -> Rect2:
+	var ins := Vector4.ZERO
+	if OS.has_feature("mobile"):
+		ins = safe_insets(Vector2(DisplayServer.window_get_size()), DisplayServer.get_display_safe_area(), s)
+	var l := maxf(LEFT, ins.x)
+	var tp := maxf(8.0, ins.y)
+	var r := maxf(LEFT, ins.z)
+	var bt := maxf(LEFT, ins.w)
+	return Rect2(l, tp, s.x - l - r, s.y - tp - bt)
+
+
+## A bottom-right offset in the old "s - offset" convention, moved inside the safe area.
+func _at(off: Vector2) -> Vector2:
+	return _safe.end - (off - Vector2(LEFT, LEFT))
+
+
+## Sets where a button should be and how visible; it eases there (or jumps while `_snap`).
+func _pose(b: TouchScreenButton, pos: Vector2, alpha := 1.0) -> void:
+	_goal[b] = pos
+	_fade_goal[b] = alpha
+	if _snap:
+		b.position = pos
+		b.modulate.a = alpha
+		b.visible = alpha > 0.03
+
+
+func _ease_buttons(delta: float) -> void:
+	var k := 1.0 - exp(-delta * 15.0)
+	for b: TouchScreenButton in _goal.keys():
+		if not is_instance_valid(b):
+			_goal.erase(b)
+			_fade_goal.erase(b)
+			continue
+		var goal: Vector2 = _goal[b]
+		var ag := float(_fade_goal[b])
+		if b == _buttons.get("ability_dash") and _dash_cooling:
+			ag *= 0.35
+		b.position = goal if b.position.distance_squared_to(goal) < 0.25 else b.position.lerp(goal, k)
+		var a := lerpf(b.modulate.a, ag, k)
+		b.modulate.a = ag if absf(a - ag) < 0.01 else a
+		b.visible = b.modulate.a > 0.03
+
+
 func _layout() -> void:
 	var s := get_viewport().get_visible_rect().size
-	_buttons["attack"].position = s - Vector2(168, 168)
-	_buttons["dodge"].position = s - Vector2(270, 112)
-	_buttons["block"].position = s - Vector2(240, 226)
-	_buttons["ability_dash"].position = s - Vector2(357, 96)   # left of Dodge, below the technique arc
-	_interact.position = s - Vector2(150, 300)
-	# The right-hand column: Map, Look, Lock, Sneak, ...  then Pack and the camera zoom; a
-	# second column to its left when the first is full, kept clear of the attack cluster.
-	var col := s.x - LEFT - DOCK_SIZE
-	var top := MINIMAP_SIZE + 16.0    # below the minimap
-	_pause_button.position = Vector2(s.x * 0.5 + 250.0, 12.0)   # right of the compass
-	var bottom := s.y - 300.0 - 8.0
-	var rows := maxi(1, int((bottom - top - DOCK_SIZE) / DOCK_STEP) + 1)
-	var stack: Array[TouchScreenButton] = _dock.duplicate()
-	stack.insert(mini(1, stack.size()), _buttons["view"])
-	stack.append(_pack_button)
-	for i in stack.size():
-		@warning_ignore("integer_division")
-		var c := i / rows
-		stack[i].position = Vector2(col - c * (DOCK_SIZE + 14), top + (i % rows) * DOCK_STEP)
-	# Camera zoom: two small buttons beside the minimap's foot, left of the column.
-	var zx := col - 2 * (DOCK_SIZE + 14) - 4.0
-	_buttons["zoom_in"].position = Vector2(zx, top)
-	_buttons["zoom_out"].position = Vector2(zx, top + 52.0)
+	_safe = _safe_rect(s)
+	var combat := mode.in_combat()
+	var has_target := target != null
+	var talk := has_target and not combat
+	# Bottom right: ONE big primary button (interact when something is in reach, else attack) and a few
+	# context actions; the rest of the combat cluster only exists while fighting.
+	_pose(_buttons["attack"], _at(Vector2(168, 168)), 0.0 if talk else 1.0)
+	_pose(_interact, _at(Vector2(168, 168)), 1.0 if talk else 0.0)
+	_pose(_buttons["dodge"], _at(Vector2(270, 112)), 1.0)
+	_pose(_buttons["block"], _at(Vector2(240, 226)), 1.0 if combat else 0.0)
+	_pose(_attack_small, _at(Vector2(352, 104)), 1.0 if talk else 0.0)
+	_pose(_buttons["ability_dash"], _at(Vector2(357, 96)), 1.0 if combat else 0.0)
+	_pose(_eat_button, _at(Vector2(436, 96)), 1.0 if (_food_low and not combat) else 0.0)
+	_pose(_interact_small, _at(Vector2(150, 300)), 1.0 if (has_target and combat) else 0.0)
+	if _techniques:
+		_techniques.inset = Vector2(s.x - _safe.end.x - LEFT, s.y - _safe.end.y - LEFT).max(Vector2.ZERO)
 	for i in _order_buttons.size():
 		_order_buttons[i].position = Vector2(s.x * 0.5 - 150 + i * 62, s.y - 176)
 	for b: TouchScreenButton in _anchored:
-		b.position = s - (_anchored[b] as Vector2)
-	# Top: minimap and info at the right, compass in the middle.
-	minimap.position = Vector2(s.x - LEFT - MINIMAP_SIZE, 8.0)
-	info.size = Vector2(290, 84)
-	info.position = Vector2(minimap.position.x - 8.0 - info.size.x, 10.0)
+		b.position = _safe.end + Vector2(LEFT, LEFT) - (_anchored[b] as Vector2)
+	# The pill with the verb and target sits on top of the primary button, right-aligned with it.
+	_place_pill()
+	# Top right: the small minimap with the place / time block to its left, the menu button below it.
+	minimap.position = Vector2(_safe.end.x - MINIMAP_SIZE, _safe.position.y)
+	info.size = Vector2(290, 58)
+	info.position = Vector2(minimap.position.x - 10.0 - info.size.x, _safe.position.y + 2.0)
+	_pose_fan()
 	if compass:
 		var w := clampf(s.x - 2.0 * 450.0, 240.0, 460.0)
 		compass.size = Vector2(w, compass.custom_minimum_size.y)
-		compass.position = Vector2((s.x - w) * 0.5, 10.0)
-	hotbar.position = Vector2((s.x - hotbar.size.x) * 0.5, s.y - hotbar.size.y - 6.0)
+		compass.position = Vector2((s.x - w) * 0.5, _safe.position.y + 2.0)
+	# The hotbar only exists when it is relevant: slides up from the bottom edge.
+	var hb := mode.hotbar_wanted()
+	hotbar.position = Vector2((s.x - hotbar.size.x) * 0.5, _safe.end.y - hotbar.size.y + (0.0 if hb else 36.0))
+	if stick:
+		stick.offset_left = maxf(0.0, _safe.position.x - LEFT)
+		stick.offset_bottom = -maxf(0.0, s.y - _safe.end.y - LEFT)
 	_layout_left()
+
+
+func _place_pill() -> void:
+	var pr := _at(Vector2(40, 0)).x
+	_pill.position = Vector2(pr - _pill.size.x, _at(Vector2(0, 168)).y - _pill.size.y - 10.0 + (1.0 - _pill_a) * 12.0)
+
+
+## The menu button and the radial fan of utility buttons that opens from it: Pack, Map, Skills, Look, Lock,
+## Sneak, camera zoom, quick slots, Pause and any button other code added to the dock.
+func _pose_fan() -> void:
+	var centre := Vector2(_safe.end.x - 30.0, _safe.position.y + MINIMAP_SIZE + 42.0)
+	var bsz := 60.0
+	_pose(_menu_button, centre - Vector2(bsz, bsz) * 0.5, 1.0)
+	var items: Array[TouchScreenButton] = []
+	for key: String in ["pack", "map", "skills", "view", "lock_on", "crouch", "zoom_in", "zoom_out", "quickbar"]:
+		var b: TouchScreenButton = _pack_button if key == "pack" else _buttons.get(key)
+		if b != null and not items.has(b):
+			items.append(b)
+	items.append(_pause_button)
+	for b in _dock:
+		if not items.has(b):
+			items.append(b)
+	_fan = items
+	var idx := 0
+	for ring: Array in FAN_RINGS:
+		var n := mini(int(ring[0]), items.size() - idx)
+		for k in n:
+			var b := items[idx]
+			idx += 1
+			if not b.has_meta("fan_wired"):
+				b.set_meta("fan_wired", true)
+				b.pressed.connect(_on_fan_pressed.bind(b))
+			var a := deg_to_rad(95.0 + (80.0 * k / maxf(n - 1, 1.0) if n > 1 else 40.0))
+			var p := centre + Vector2(cos(a), sin(a)) * float(ring[1])
+			var half := Vector2(b.texture_normal.get_size()) * 0.5
+			var at := p - half
+			at.x = clampf(at.x, _safe.position.x, _safe.end.x - half.x * 2.0)
+			_pose(b, at if fan_open else centre - half, 1.0 if fan_open else 0.0)
+		if idx >= items.size():
+			break
 
 
 ## The left stack: card, quest tracker, danger badge, then the notification popups.
 func _layout_left() -> void:
-	var y := 10.0
-	card.position = Vector2(LEFT, y)
+	var y := _safe.position.y + 2.0
+	var x := _safe.position.x
+	card.position = Vector2(x, y)
 	y += card.size.y + 8.0
 	if tracker.visible:
-		tracker.position = Vector2(LEFT, y)
+		tracker.position = Vector2(x, y)
 		y += tracker.get_combined_minimum_size().y + 8.0
-	danger_badge.position = Vector2(LEFT, y)
-	y += danger_badge.size.y + 10.0
-	notifications.position = Vector2(LEFT, y)
+	if danger_badge.visible:
+		danger_badge.position = Vector2(x, y)
+		y += danger_badge.size.y + 10.0
+	notifications.position = Vector2(x, y)
 
 
 func show_toast(text: String) -> void:
@@ -565,7 +721,7 @@ func _poll_events() -> void:
 
 # --- status -------------------------------------------------------------------------
 
-func update_status(soldiers: int, order_name: String, target: Node3D, perf: String) -> void:
+func update_status(soldiers: int, order_name: String, target_node: Node3D, perf: String) -> void:
 	_soldiers = soldiers
 	hotbar.soldiers = soldiers
 	var c := Life.careers
@@ -586,7 +742,12 @@ func update_status(soldiers: int, order_name: String, target: Node3D, perf: Stri
 	if mag is Object and aw is Object and bool(aw.get("done")):
 		soul_frac = clampf(float(mag.current) / maxf(float(mag.effective_max()), 1.0), 0.0, 1.0)
 	(card as HudCard.Card).set_state(Game.rank_name(), Game.rank, job_line, Game.gold, Game.merit,
-		"%s  ·  %s" % [n.hunger_label(), n.rest_label()], n.food >= 25.0 and n.rest >= 30.0, soldiers_text, soul_frac)
+		"%s  ·  %s" % [n.hunger_label(), n.rest_label()], n.food >= 25.0 and n.rest >= 30.0, soldiers_text, soul_frac,
+		clampf(n.food / 100.0, 0.0, 1.0))
+	var low := n.food < 40.0 and Life.best_food() != ""
+	if low != _food_low:
+		_food_low = low
+		_layout()
 	var p := Vector2(player.global_position.x, player.global_position.z)
 	var near := WorldGen.nearest_settlement(p)
 	var place := "Wilderness"
@@ -597,13 +758,12 @@ func update_status(soldiers: int, order_name: String, target: Node3D, perf: Stri
 		if d >= near["radius"] * 1.6 and not named.is_empty():
 			place = "%s  ·  %s %dm" % [named["name"], near["name"], int(d)]
 	var t := WorldSim.time_of_day
+	(info as HudCard.InfoBlock).show_realm = (card as HudCard.Card).expanded
 	(info as HudCard.InfoBlock).set_info(place, "Day %d · %s" % [WorldSim.day, String(WorldSim.season).capitalize()],
 		"%02d:%02d" % [int(t), int(fmod(t, 1.0) * 60.0)], t < 6.0 or t >= 20.0,
 		"Realm  %s souls" % _thousands(WorldSim.population()))
 	_perf.text = perf
-	_interact.visible = target != null
-	if target and target.has_method("prompt"):
-		_interact_label.text = target.prompt()
+	_set_target(target_node)
 	for b in _order_buttons:
 		b.visible = soldiers > 0
 	_update_tracker()
@@ -815,6 +975,21 @@ func update_danger(t: Dictionary) -> void:
 		label += "  ·  " + String(lines[0][0])
 	var c := Color("7be0a0").lerp(Color("ff7b5c"), clampf(total / 70.0, 0.0, 1.0))
 	(danger_badge as HudCard.DangerBadge).set_danger(label, c)
+	_danger_total = total
+	_refresh_danger_visibility()
+
+
+## "Safe" is noise: the badge only shows when the area is dangerous or the status card is open.
+func _refresh_danger_visibility() -> void:
+	var show := _danger_total >= DANGER_SHOWN or (card as HudCard.Card).expanded
+	if show != danger_badge.visible:
+		danger_badge.visible = show
+		_layout_left()
+
+
+func _on_card_toggled(_expanded: bool) -> void:
+	_refresh_danger_visibility()
+	_layout_left()
 
 
 static func _thousands(n: int) -> String:
@@ -941,12 +1116,23 @@ func set_quest_target(pos: Variant) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _veil() or not visible:
 		return
+	if event.is_action_pressed("ui_cancel") and fan_open:
+		close_fan()
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("ui_cancel") and not is_menu_open() and not world_map.visible and not photo_mode.is_active() \
 			and not _fade.visible and get_node_or_null("PauseMenu") == null:
 		open_pause()
 		get_viewport().set_input_as_handled()
 		return
+	if event.is_action_pressed("ui_cancel") and fan_open:
+		close_fan()
+		get_viewport().set_input_as_handled()
+		return
+	if not is_menu_open() and event is InputEventKey and not hotbar.visible:
+		hotbar.refresh()
 	if not is_menu_open() and hotbar.handle_key(event):
+		mode.reveal_hotbar()
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("menu_inventory") and not (event is InputEventKey and event.echo):
@@ -1023,21 +1209,125 @@ func _process(delta: float) -> void:
 		_event_timer = EVENT_RATE
 		_poll_events()
 	_update_dash_button()
+	_update_modes(delta)
+
+
+# --- layout modes: exploration / combat, menu fan, contextual primary action ---------------
+
+var _hostile_near := false
+var _hostile_scan := 0.0
+var _hb_a := 0.0
+var _hb_refresh := 0.0
+
+
+func _scan_hostiles() -> bool:
+	var p := player.global_position
+	var range2 := HudMode.ENGAGE_RANGE * HudMode.ENGAGE_RANGE
+	for e in get_tree().get_nodes_in_group("team1"):
+		if e is Node3D and is_instance_valid(e) and e.get("dead") != true \
+				and (e as Node3D).global_position.distance_squared_to(p) < range2:
+			return true
+	return false
+
+
+func _update_modes(delta: float) -> void:
+	_hostile_scan -= delta
+	if _hostile_scan <= 0.0:
+		_hostile_scan = 0.2
+		_hostile_near = _scan_hostiles()
+	var weapon := Input.is_action_pressed("attack") or Input.is_action_pressed("block") or player.blocking
+	var was := mode.in_combat()
+	mode.update(delta, _hostile_near, weapon)
+	if mode.in_combat() != was:
+		if mode.in_combat():
+			(card as HudCard.Card).set_expanded(false)
+			fan_open = false
+		_layout()
+	var k := 1.0 - exp(-delta * 12.0)
+	if _techniques:
+		_techniques.fade = mode.eased()
+	# Hotbar: only in combat, while building, pinned from the menu, or just after a slot key.
+	var want_hb := mode.hotbar_wanted()
+	_hb_a = lerpf(_hb_a, 1.0 if want_hb else 0.0, k)
+	if absf(_hb_a - (1.0 if want_hb else 0.0)) < 0.01:
+		_hb_a = 1.0 if want_hb else 0.0
+	hotbar.modulate.a = _hb_a
+	hotbar.mouse_filter = Control.MOUSE_FILTER_STOP if _hb_a > 0.5 else Control.MOUSE_FILTER_IGNORE
+	hotbar.position.y = _safe.end.y - hotbar.size.y + (1.0 - _hb_a) * 36.0
+	hotbar.visible = _hb_a > 0.02
+	if not hotbar.visible:
+		_hb_refresh -= delta
+		if _hb_refresh <= 0.0:
+			_hb_refresh = 0.5
+			hotbar.refresh()      # keeps the number keys working while the bar is hidden
+	# The action pill rides above the primary button.
+	var talk := target != null and not mode.in_combat() and not is_menu_open()
+	_pill_a = lerpf(_pill_a, 1.0 if talk else 0.0, k)
+	if absf(_pill_a - (1.0 if talk else 0.0)) < 0.01:
+		_pill_a = 1.0 if talk else 0.0
+	_pill.modulate.a = _pill_a
+	_pill.visible = _pill_a > 0.03
+	_place_pill()
+	_ease_buttons(delta)
+	if fan_open:
+		_menu_open_t -= delta
+		if _menu_open_t <= 0.0:
+			close_fan()
+
+
+func _set_target(n: Node3D) -> void:
+	var changed := n != target
+	target = n
+	if n != null:
+		var lab := InteractLabel.resolve(n)
+		if lab != target_label:
+			target_label = lab
+			_apply_label()
+	if changed:
+		_layout()
+
+
+func _apply_label() -> void:
+	_pill.set_label(String(target_label.get("verb", "")), String(target_label.get("target", "")))
+	var res := HudArt.resolve_icon(String(target_label.get("icon", "hand")))
+	var big := HudArt.round_face(128, _fill_for(UITheme.ACTION_TALK), res[0], res[1], 0.66)
+	_interact.texture_normal = big
+	_interact.texture_pressed = big
+	var small := HudArt.round_face(72, _fill_for(UITheme.ACTION_TALK), res[0], res[1], 0.62)
+	_interact_small.texture_normal = small
+	_interact_small.texture_pressed = small
+	(_interact_small.get_child(0) as Label).text = String(target_label.get("verb", "")).left(9)
+	_place_pill()
+
+
+func toggle_fan() -> void:
+	if fan_open:
+		close_fan()
+	else:
+		fan_open = true
+		_menu_open_t = MENU_AUTO_CLOSE
+		_layout()
+
+
+func close_fan() -> void:
+	if fan_open:
+		fan_open = false
+		_layout()
+
+
+func _on_fan_pressed(b: TouchScreenButton) -> void:
+	if b == _buttons.get("zoom_in") or b == _buttons.get("zoom_out") or b == _buttons.get("quickbar"):
+		_menu_open_t = MENU_AUTO_CLOSE
+	else:
+		close_fan.call_deferred()
 
 
 ## Shadow Dash cooldown: dim the button and show the seconds left while it
 ## recharges, like the technique slots' cooldown dim.
 func _update_dash_button() -> void:
 	var left: float = player.dash_cooldown
-	var b: TouchScreenButton = _buttons.get("ability_dash")
-	if b == null:
-		return
-	if left > 0.05:
-		b.modulate.a = 0.35
-		_dash_cooldown_label.text = "%d" % ceili(left)
-	else:
-		b.modulate.a = 1.0
-		_dash_cooldown_label.text = ""
+	_dash_cooling = left > 0.05
+	_dash_cooldown_label.text = "%d" % ceili(left) if _dash_cooling else ""
 
 
 func _player_xz() -> Vector2:
@@ -1086,6 +1376,7 @@ func _refresh_markers() -> void:
 	minimap.markers = list
 	var qt: Variant = _quest_target()
 	compass.quest_target = qt
+	compass.visible = qt != null and not mode.in_combat()      # the minimap covers the rest
 	minimap.quest_target = qt
 
 
@@ -1137,6 +1428,14 @@ func _travel_block_reason() -> String:
 
 
 func _on_travel_requested(pos: Vector2, hours: float, place: Dictionary) -> void:
+	# The coach (travel_rules.gd): the fare is paid at the stop, and it only runs from a waystation.
+	var here := Vector2(player.global_position.x, player.global_position.z)
+	var fare := TravelRules.fare(here.distance_to(pos))
+	var why := TravelRules.ride_block_reason(TravelRules.waystation_at(here, WorldGen.sites), fare, Game.gold)
+	if why != "":
+		show_toast(why)
+		return
+	Game.add_gold(-fare)
 	_fade.visible = true
 	_fade.color.a = 0.0
 	var tw := create_tween()
@@ -1157,4 +1456,4 @@ func _on_travel_requested(pos: Vector2, hours: float, place: Dictionary) -> void
 	tw2.tween_property(_fade, "color:a", 0.0, 0.7)
 	await tw2.finished
 	_fade.visible = false
-	show_toast("Arrived at %s  ·  %s on the road" % [place.get("name", "your destination"), WorldMap.fmt_hours(hours)])
+	show_toast("Arrived at %s  ·  %s by coach  ·  %d gold" % [place.get("name", "your destination"), WorldMap.fmt_hours(hours), fare])

@@ -29,6 +29,17 @@ const TREE_ICONS := {"swordsmanship": "broadsword", "iaido": "broadsword", "comm
 
 var caster: Node
 var skills: RefCounted
+## HUD combat fade 0..1: the ring is hidden (and cannot be tapped) in the calm exploration layout.
+var fade := 1.0:
+	set(v):
+		fade = v
+		_apply_fade()
+## Safe-area inset of the bottom-right corner (HUD sets it): the ring hangs off the attack button.
+var inset := Vector2.ZERO:
+	set(v):
+		inset = v
+		if is_inside_tree() and not _slots.is_empty():
+			_layout()
 
 var _slots: Array[TouchScreenButton] = []
 var _glyphs: Array[Label] = []
@@ -59,6 +70,7 @@ func _ready() -> void:
 	_shown.resize(Skills.ACTIVE_SLOTS)
 	_shown.fill(null)
 	_layout()
+	_apply_fade()
 
 
 func _process(_delta: float) -> void:
@@ -133,12 +145,24 @@ func _build_slot(i: int) -> void:
 
 func _layout() -> void:
 	var s := get_viewport_rect().size
-	var c := s - ATTACK_CENTER
+	var c := s - ATTACK_CENTER - inset
 	for i in _slots.size():
 		var a := deg_to_rad(float(RING_ANGLES[i]))
 		var centre := c + Vector2(-cos(a), -sin(a)) * RING_RADIUS
 		_slots[i].position = centre - Vector2(SLOT_SIZE, SLOT_SIZE) * 0.5
 	_layout_seal_pad()
+
+
+## Empty slots stay hidden (the Skills entry of the menu equips them); the rest fade with the combat layout.
+func _apply_fade() -> void:
+	if _slots.is_empty():
+		return
+	for i in _slots.size():
+		var id := String(skills.loadout[i]) if skills != null and i < skills.loadout.size() else ""
+		_slots[i].visible = id != "" and fade > 0.02
+		_slots[i].modulate.a = fade
+	if _overlay:
+		_overlay.modulate.a = fade
 
 
 func slot_centre(i: int) -> Vector2:
@@ -149,6 +173,7 @@ func _refresh() -> void:
 	if skills == null:
 		return
 	_shown = skills.loadout.duplicate()
+	_apply_fade()
 	for i in _slots.size():
 		var id := String(_shown[i]) if i < _shown.size() else ""
 		var b := _slots[i]

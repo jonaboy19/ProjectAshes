@@ -60,6 +60,12 @@ func _process(delta: float) -> void:
 	_acc = 0.0
 	if not is_visible_in_tree():
 		return
+	refresh()
+
+
+## Rebinds the caster and rereads loadout / consumables. The HUD calls it while the bar is hidden so the
+## number keys keep working.
+func refresh() -> void:
 	_bind()
 	var parts := PackedStringArray()
 	if _skills != null:

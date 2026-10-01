@@ -45,25 +45,37 @@ class Card extends Control:
 	const AF := preload("res://scripts/ui/ashes_frame.gd")
 	const HudArt := preload("res://scripts/ui/hud_art.gd")
 	const PORTRAIT := 74.0
+	const MINI := Vector2(94, 94)         # collapsed: portrait inside three thin rings
+	const FULL := Vector2(332, 172)
+	const MINI_PORTRAIT := 52.0
+	const AUTO_COLLAPSE := 8.0            # seconds an expanded card stays open
+
+	signal toggled(expanded: bool)
 
 	var health: Meter
 	var stamina: Meter
 	var soul: Meter
 	var portrait: Control
+	var expanded := false
 	var _title: Label
 	var _job: Label
 	var _gold: Label
 	var _merit: Label
 	var _needs: Label
 	var _soldiers: Label
+	var _detail: Array[Control] = []      # everything that only the expanded card shows
 	var _rank := 0
 	var _box: StyleBoxFlat
 	var _soul_visible := false
+	var _t := 0.0                         # 0 collapsed .. 1 expanded (eased in _process)
+	var _food := 1.0
+	var _open_for := 0.0
+	var _press := Vector2.INF
 
 	func _init() -> void:
-		size = Vector2(332, 172)
+		size = MINI
 		custom_minimum_size = size
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		mouse_filter = Control.MOUSE_FILTER_STOP
 		_box = HudArt.card_box(0.84)
 
 	func _ready() -> void:
@@ -96,6 +108,10 @@ class Card extends Control:
 		_soldiers.position = Vector2(150, 142)
 		_soldiers.size = Vector2(168, 20)
 		_soldiers.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		for c: Control in [_title, _job, _gold, _merit, health, stamina, _needs, _soldiers]:
+			_detail.append(c)
+		_apply(true)
+		set_process(true)
 
 	func _lbl(fs: int, col: Color, title: bool) -> Label:
 		var l := Label.new()
@@ -113,17 +129,62 @@ class Card extends Control:
 		if portrait and is_instance_valid(portrait):
 			portrait.queue_free()
 		portrait = p
-		p.position = Vector2(16, 16)
-		p.size = Vector2(PORTRAIT, PORTRAIT)
-		p.custom_minimum_size = p.size
+		p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(p)
 		move_child(p, 0)
+		_apply(true)
+
+	func set_expanded(v: bool) -> void:
+		if v == expanded:
+			return
+		expanded = v
+		_open_for = 0.0
+		toggled.emit(v)
+
+	func eased() -> float:
+		return _t * _t * (3.0 - 2.0 * _t)
+
+	func _process(delta: float) -> void:
+		if expanded:
+			_open_for += delta
+			if _open_for > AUTO_COLLAPSE:
+				set_expanded(false)
+		var goal := 1.0 if expanded else 0.0
+		if not is_equal_approx(_t, goal):
+			_t = move_toward(_t, goal, delta / 0.22)
+			_apply(false)
+		elif _t == 0.0:
+			queue_redraw()      # the rings follow health / stamina / hunger
+
+	func _apply(snap: bool) -> void:
+		var e := eased()
+		var s := MINI.lerp(FULL, e)
+		custom_minimum_size = s
+		size = s
+		for c in _detail:
+			if c != null:
+				c.modulate.a = e
+				c.visible = e > 0.02
+		if soul:
+			soul.modulate.a = e
+			soul.visible = _soul_visible and e > 0.02
+		if portrait and is_instance_valid(portrait):
+			var d := lerpf(MINI_PORTRAIT, PORTRAIT, e)
+			var centre := _portrait_centre()
+			portrait.size = Vector2(d, d)
+			portrait.custom_minimum_size = portrait.size
+			portrait.position = centre - portrait.size * 0.5
+		queue_redraw()
+
+	func _portrait_centre() -> Vector2:
+		return MINI * 0.5 if _t <= 0.0 else (MINI * 0.5).lerp(Vector2(16 + PORTRAIT * 0.5, 16 + PORTRAIT * 0.5), eased())
 
 	func set_state(rank_name: String, rank: int, job: String, gold: int, merit: int, needs: String, needs_ok: bool,
-			soldiers_text: String, soul_frac: float) -> void:
+			soldiers_text: String, soul_frac: float, food_frac := 1.0) -> void:
 		if rank != _rank:
 			_rank = rank
 			queue_redraw()
+		_food = clampf(food_frac, 0.0, 1.0)
 		_title.text = rank_name.to_upper()
 		_job.text = job
 		_gold.text = "%d gold" % gold
@@ -134,39 +195,80 @@ class Card extends Control:
 		var show_soul := soul_frac >= 0.0
 		if show_soul != _soul_visible:
 			_soul_visible = show_soul
-			soul.visible = show_soul
+			soul.visible = show_soul and eased() > 0.02
 		if show_soul:
 			soul.max_value = 1.0
 			soul.value = soul_frac
 
+	func _gui_input(e: InputEvent) -> void:
+		if not e is InputEventScreenTouch:
+			return
+		if e.pressed:
+			_press = e.position
+		else:
+			if _press != Vector2.INF and e.position.distance_to(_press) < 24.0:
+				set_expanded(not expanded)
+				accept_event()
+			_press = Vector2.INF
+
+	## Fractions for the three collapsed rings (health, stamina, hunger).
+	func ring_values() -> Array[float]:
+		var h := clampf(health.value / maxf(health.max_value, 1.0), 0.0, 1.0) if health else 1.0
+		var s := clampf(stamina.value / maxf(stamina.max_value, 1.0), 0.0, 1.0) if stamina else 1.0
+		return [h, s, _food]
+
 	func _draw() -> void:
-		draw_style_box(_box, Rect2(Vector2.ZERO, size))
-		# A thin inner gold hairline for depth.
-		draw_rect(Rect2(Vector2(3, 3), size - Vector2(6, 6)), Color(AF.GOLD, 0.16), false, 1.0)
-		var pc := Vector2(16 + PORTRAIT * 0.5, 16 + PORTRAIT * 0.5)
+		var e := eased()
+		var pc := _portrait_centre()
+		var pr := lerpf(MINI_PORTRAIT, PORTRAIT, e) * 0.5
+		if e > 0.0:
+			var bx := _box.duplicate() as StyleBoxFlat
+			bx.bg_color.a *= e
+			bx.border_color.a *= e
+			bx.shadow_color.a *= e
+			draw_style_box(bx, Rect2(Vector2.ZERO, size))
+			# A thin inner gold hairline for depth.
+			draw_rect(Rect2(Vector2(3, 3), size - Vector2(6, 6)), Color(AF.GOLD, 0.16 * e), false, 1.0)
 		# Portrait socket + rim.
-		draw_circle(pc, PORTRAIT * 0.5 + 4.0, Color(0, 0, 0, 0.55))
-		draw_circle(pc, PORTRAIT * 0.5, Color(0.1, 0.08, 0.06, 1.0))
-		draw_arc(pc, PORTRAIT * 0.5 + 1.5, 0, TAU, 56, AF.GOLD, 3.0, true)
-		draw_arc(pc, PORTRAIT * 0.5 + 3.4, 0, TAU, 56, Color(AF.GOLD, 0.35), 1.0, true)
+		draw_circle(pc, pr + 4.0, Color(0, 0, 0, 0.55))
+		draw_circle(pc, pr, Color(0.1, 0.08, 0.06, 1.0))
+		draw_arc(pc, pr + 1.5, 0, TAU, 56, AF.GOLD, 3.0, true)
+		draw_arc(pc, pr + 3.4, 0, TAU, 56, Color(AF.GOLD, 0.35), 1.0, true)
+		if e < 1.0:
+			_draw_rings(pc, pr, 1.0 - e)
+		if e <= 0.02:
+			return
 		# Rank crest pinned to the portrait's lower right.
-		HudArt.draw_crest(self, Rect2(Vector2(66, 62), Vector2(30, 38)), HudArt.rank_emblem(_rank))
+		var crest := Rect2(Vector2(66, 62), Vector2(30, 38))
+		if e > 0.6:
+			HudArt.draw_crest(self, crest, HudArt.rank_emblem(_rank))
 		# Coin and merit star icons.
 		var gy := 60.0 + 12.0
-		draw_circle(Vector2(108, gy), 8.0, AF.GOLD)
-		draw_arc(Vector2(108, gy), 5.2, 0, TAU, 20, Color("8a6224"), 1.4, true)
-		draw_arc(Vector2(108, gy), 8.0, 0, TAU, 24, AF.GOLD_BRIGHT, 1.2, true)
-		_star(Vector2(200, gy), 8.5, HudArt.IVORY)
+		var ac := Color(1, 1, 1, e)
+		draw_circle(Vector2(108, gy), 8.0, Color(AF.GOLD, e))
+		draw_arc(Vector2(108, gy), 5.2, 0, TAU, 20, Color(0.54, 0.384, 0.141, e), 1.4, true)
+		draw_arc(Vector2(108, gy), 8.0, 0, TAU, 24, Color(AF.GOLD_BRIGHT, e), 1.2, true)
+		_star(Vector2(200, gy), 8.5, Color(HudArt.IVORY, e))
 		# Bar icons.
 		var hi := HudArt.icon("health")
 		if hi:
-			draw_texture_rect(hi, Rect2(Vector2(12, 92), Vector2(17, 17)), false)
+			draw_texture_rect(hi, Rect2(Vector2(12, 92), Vector2(17, 17)), false, ac)
 		var si := HudArt.icon("stamina")
 		if si:
-			draw_texture_rect(si, Rect2(Vector2(12, 109), Vector2(17, 17)), false)
+			draw_texture_rect(si, Rect2(Vector2(12, 109), Vector2(17, 17)), false, ac)
 		if _soul_visible:
-			HudArt.diamond(self, Vector2(20, 130), 5.0, HudArt.SOUL_BLUE)
-		draw_line(Vector2(14, 138), Vector2(size.x - 14, 138), Color(AF.GOLD, 0.2), 1.0)
+			HudArt.diamond(self, Vector2(20, 130), 5.0, Color(HudArt.SOUL_BLUE, e))
+		draw_line(Vector2(14, 138), Vector2(size.x - 14, 138), Color(AF.GOLD, 0.2 * e), 1.0)
+
+	## Thin concentric rings outside the portrait: health (red), stamina (gold), hunger (green; amber when low).
+	func _draw_rings(pc: Vector2, pr: float, a: float) -> void:
+		var vals := ring_values()
+		var cols := [HudArt.HEART_RED, HudArt.STAMINA_GOLD, Color("8fcf6a") if vals[2] > 0.3 else Color("ff9a4a")]
+		for i in 3:
+			var r := pr + 8.0 + i * 4.6
+			draw_arc(pc, r, 0, TAU, 48, Color(0, 0, 0, 0.5 * a), 3.2, true)
+			if vals[i] > 0.004:
+				draw_arc(pc, r, -PI * 0.5, -PI * 0.5 + TAU * vals[i], 48, Color(cols[i], a), 3.0, true)
 
 	func _star(c: Vector2, r: float, col: Color) -> void:
 		var pts := PackedVector2Array()
@@ -269,6 +371,7 @@ class InfoBlock extends Control:
 	var time_text := ""
 	var night := false
 	var realm := ""
+	var show_realm := false             # the realm-souls line: only when the status card is expanded
 	var _tf: Font
 	var _bf: Font
 
@@ -316,7 +419,8 @@ class InfoBlock extends Control:
 		else:
 			HudArt.draw_sun(self, ic, 9.5, Color("ffc94a"))
 		_text(_bf, day_line, 19, ic.x - 15.0, 50.0, HudArt.IVORY)
-		_text(_bf, realm, 15, rx, 72.0, Color(HudArt.IVORY, 0.78))
+		if show_realm:
+			_text(_bf, realm, 15, rx, 72.0, Color(HudArt.IVORY, 0.78))
 
 
 # ------------------------------------------------------------------------------------
@@ -352,3 +456,59 @@ class DangerBadge extends Control:
 		var pts := HudArt.shield_points(r, 6)
 		draw_colored_polygon(pts, Color(tint, 0.9))
 		draw_string(AF.font(), Vector2(30, 18), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, HudArt.IVORY)
+
+
+# ------------------------------------------------------------------------------------
+## The contextual interaction label that sits on top of the primary action button:
+## "Talk — Roland Ward" in the parchment / gold card style (replaces the old "Tap to use" caption).
+class ActionPill extends Control:
+	const AF := preload("res://scripts/ui/ashes_frame.gd")
+	const HudArt := preload("res://scripts/ui/hud_art.gd")
+	const MAX_W := 380.0
+	const H := 40.0
+
+	var verb := ""
+	var target := ""
+	var _box: StyleBoxFlat
+	var _fs := 21
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_box = HudArt.card_box(0.9, 8)
+		_box.set_corner_radius_all(10)
+		size = Vector2(120, H)
+
+	func set_label(v: String, t: String) -> void:
+		if v == verb and t == target:
+			return
+		verb = v
+		target = t
+		_fs = 21
+		var tw := _measure()
+		while tw > MAX_W and _fs > 14:
+			_fs -= 1
+			tw = _measure()
+		size = Vector2(minf(tw, MAX_W) + 30.0, H)
+		queue_redraw()
+
+	func _measure() -> float:
+		var w := AF.wfont(700).get_string_size(verb, HORIZONTAL_ALIGNMENT_LEFT, -1, _fs).x
+		if target != "":
+			w += AF.font().get_string_size("  —  " + target, HORIZONTAL_ALIGNMENT_LEFT, -1, _fs).x
+		return w
+
+	func _draw() -> void:
+		draw_style_box(_box, Rect2(Vector2.ZERO, size))
+		draw_rect(Rect2(Vector2(3, 3), size - Vector2(6, 6)), Color(AF.GOLD, 0.16), false, 1.0)
+		var base := Vector2(15, H * 0.5 + _fs * 0.36)
+		var vf := AF.wfont(700)
+		var bf := AF.font()
+		draw_string_outline(vf, base, verb, HORIZONTAL_ALIGNMENT_LEFT, -1, _fs, 4, Color(0, 0, 0, 0.7))
+		draw_string(vf, base, verb, HORIZONTAL_ALIGNMENT_LEFT, -1, _fs, AF.GOLD_BRIGHT)
+		if target != "":
+			var x := base.x + vf.get_string_size(verb, HORIZONTAL_ALIGNMENT_LEFT, -1, _fs).x
+			var rest := "  —  "
+			draw_string(bf, Vector2(x, base.y), rest, HORIZONTAL_ALIGNMENT_LEFT, -1, _fs, Color(AF.GOLD, 0.7))
+			x += bf.get_string_size(rest, HORIZONTAL_ALIGNMENT_LEFT, -1, _fs).x
+			draw_string_outline(bf, Vector2(x, base.y), target, HORIZONTAL_ALIGNMENT_LEFT, MAX_W, _fs, 4, Color(0, 0, 0, 0.7))
+			draw_string(bf, Vector2(x, base.y), target, HORIZONTAL_ALIGNMENT_LEFT, MAX_W, _fs, HudArt.IVORY)
