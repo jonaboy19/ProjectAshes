@@ -13,6 +13,8 @@ var stock: Dictionary = {}         # item id -> units on hand
 var target: Dictionary = {}        # item id -> stock the market considers normal
 var produce: Dictionary = {}       # item id -> units made locally per day
 var purse := 200
+## Fractional hourly market income, preserved until it forms whole purse units.
+var _purse_carry := 0.0
 ## Event multipliers on top of the stock/target curve (economy.gd: road danger,
 ## season, festivals, war, a new mine). item id -> multiplier, missing = 1.0.
 ## Doesn't change base_price/stock, so old saves and RAMarket call sites are unaffected.
@@ -116,7 +118,14 @@ func tick_hours(dh: float, population: int) -> void:
 		var nxt := clampi(cur + whole, 0, cap)
 		_carry[item] = acc - float(whole) if nxt == cur + whole else 0.0
 		stock[item] = nxt
-	purse = mini(purse + int(round(15.0 * frac)), 600)
+	if purse >= 600:
+		purse = 600
+		_purse_carry = 0.0
+	else:
+		var income := 15.0 * frac + _purse_carry
+		var whole_income := floori(income)
+		purse = mini(purse + whole_income, 600)
+		_purse_carry = income - float(whole_income) if purse < 600 else 0.0
 
 
 ## Lets `units` of `item` arrive (fractions carry over); never past 3x the target.
@@ -133,7 +142,7 @@ func add_stock(item: String, units: float) -> void:
 
 func serialize() -> Dictionary:
 	return {"stock": stock.duplicate(), "purse": purse, "modifiers": modifiers.duplicate(),
-		"carry": _carry.duplicate()}
+		"carry": _carry.duplicate(), "purse_carry": _purse_carry}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -142,6 +151,12 @@ func deserialize(d: Dictionary) -> void:
 		if stock.has(item):
 			stock[item] = int(s[item])
 	purse = int(d.get("purse", purse))
+	_purse_carry = 0.0
+	var saved_purse_carry: Variant = d.get("purse_carry", 0.0)
+	if typeof(saved_purse_carry) in [TYPE_INT, TYPE_FLOAT]:
+		var purse_amount := float(saved_purse_carry)
+		if is_finite(purse_amount) and purse_amount >= 0.0 and purse_amount < 1.0:
+			_purse_carry = purse_amount
 	modifiers = (d.get("modifiers", {}) as Dictionary).duplicate()
 	_carry.clear()
 	var saved_carry: Variant = d.get("carry", {})
