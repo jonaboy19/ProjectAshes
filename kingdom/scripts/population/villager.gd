@@ -35,6 +35,8 @@ const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
+const TownMood := preload("res://scripts/population/town_mood.gd")
+const Schedule := preload("res://scripts/population/schedule.gd")
 const Act := UtilityBrain.Act
 
 const WORLD_LAYER := 1
@@ -104,7 +106,16 @@ const ACT_CLIPS := {
 	Act.FIREFIGHT: ["Life_Carry_Put_Down", "Life_Carry_Pick_Up", "Chore_Pick_Up_Box", "Interact"],
 	Act.CHORE: ["Life_Chore_Sweep", "Chore_Sweep", "Interact"],
 	Act.PATROL: ["Life_Guard_Look_Out", "Idle_Shield", "Idle_Subtle"],
+	Act.TRAIN: ["Life_Guard_Attention", "Idle_Shield", "Idle_Subtle"],
+	Act.MOURN: ["Life_Social_Mourn_Stand", "Life_Mocap_Sad", "Life_Pray_Stand", "Idle_Subtle"],
+	Act.FESTIVE: ["Dance", "Life_Tavern_Cheer", "Life_Social_Laugh", "Cheering_Two_Hands"],
+	Act.QUEUE: ["Life_Ambient_Shift_Weight", "Life_Ambient_Look_Around", "Life_Ambient_Wipe_Brow", "Idle_Subtle"],
 }
+## Clips of the same act varied per person: the devout kneel at a funeral, some dance and some cheer.
+const MOURN_KNEEL := ["Life_Social_Mourn_Kneel", "Life_Pray_Kneel"]
+const FESTIVE_DANCE := ["Dance", "Life_Tavern_Cheer", "Life_Social_Laugh", "Life_Mocap_Happy"]
+const POOR_MEAL := ["Life_Mocap_Eat_Soup", "Life_Eat_Bread_Stand", "Consume_Item"]
+const WAKE_CLIPS := ["Life_Ambient_Stretch_Morning", "Life_Ambient_Yawn", "Life_Mocap_Stretch_Yawn", "Idle_Subtle"]
 const TALK_CLIPS := ["Life_Talk_Casual", "Life_Talk_Explain", "Life_Talk_Gossip", "Life_Talk_Emphatic", "Idle_Talking"]
 const LISTEN_CLIPS := ["Life_Talk_Listen_Nod", "Life_Talk_Listen_Hips", "Idle_Listening", "Head_Nod", "Idle_Talking"]
 const ALONE_CLIPS := ["Life_Ambient_Shift_Weight", "Idle_Subtle"]
@@ -119,7 +130,10 @@ const STUCK_PROGRESS := 0.3
 ## Smart object sessions advance at this rate (their state machine allocates a result per update).
 const SESSION_HZ := 10.0
 ## Real seconds an act is held after arriving when it is not the default MIN_PERFORM.
-const PERFORM_FOR := {Act.PROTEST: 3.0, Act.PATROL: 3.5, Act.FIREFIGHT: 5.0, Act.ALARM: 7.0, Act.WATCH: 6.0}
+const PERFORM_FOR := {Act.PROTEST: 3.0, Act.PATROL: 3.5, Act.FIREFIGHT: 5.0, Act.ALARM: 7.0, Act.WATCH: 6.0,
+	Act.MOURN: 18.0, Act.FESTIVE: 20.0, Act.QUEUE: 14.0, Act.TRAIN: 16.0}
+## Real-time gaps between a villager's grumbles about the state of the town, and the wake-up routine's cooldown.
+const GRUMBLE_GAP_MS := 75000
 const PROTEST_COOLDOWN_MS := 25000
 const GREET_RANGE := 3.4
 const BUBBLE_SECONDS := 3.2
@@ -217,6 +231,9 @@ var _prev_act := -1
 var _regard := 0.0
 var _regard_ms := 0
 var _avoid_extra := Vector2.ZERO
+var _grumble_cd := 0
+var _mood: Dictionary = {}
+var _monster_hide_cd := 0
 
 # Motion.
 var _walk_speed := WALK_SPEED
@@ -324,6 +341,7 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	NpcWorld.queue_leave(WorldSim.home[person], person)
 	_so_release()
 	if _bubble != null and _bubble.visible:
 		NpcWorld.bubbles_shown = maxi(NpcWorld.bubbles_shown - 1, 0)
@@ -399,6 +417,16 @@ func resync() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if NpcWorld.profile:
+		var t0 := Time.get_ticks_usec()
+		_tick_body(delta)
+		NpcWorld.prof_usec += Time.get_ticks_usec() - t0
+		NpcWorld.prof_calls += 1
+	else:
+		_tick_body(delta)
+
+
+func _tick_body(delta: float) -> void:
 	_think -= delta
 	if _think <= 0.0:
 		_think += THINK_INTERVAL
@@ -543,6 +571,8 @@ func _decide_act(here: Vector2) -> void:
 	if act != _act:
 		if _act == Act.SOCIAL:
 			UtilityBrain.chat_leave(person)
+		if _act == Act.QUEUE:
+			NpcWorld.queue_leave(sid, person)
 		_prev_act = _act
 		_act = act
 		# Someone who bolts from what they saw themselves shouts it to the street.
@@ -591,8 +621,13 @@ func _gather_inputs(here: Vector2, now: int, guard: bool) -> void:
 	inp["armed"] = NpcWorld.armed_pressure(here) if now >= _protest_cd else 0.0
 	inp["crime"] = _crime_input(here, now)
 	inp["hide"] = 1.0 if (now < _hide_until and not guard) else 0.0
-	inp["patrol_turn"] = 1.0 if guard and ((now / 45000 + person) & 1) == 0 else 0.0
 	var hour := DailyRhythm.local_time(person)
+	var sid: int = WorldSim.home[person]
+	_mood = TownMood.mood_of(sid)
+	var festival: bool = String(_mood.get("festival", "")) != ""
+	var edgy: bool = float(_mood.get("war", 0.0)) >= 0.5 or bool(_mood.get("curfew", false)) or float(_mood.get("monster", 0.0)) >= 0.5
+	inp["patrol_turn"] = 1.0 if guard and ((((now / 45000 + person) % 3) != 0) if edgy else (((now / 45000 + person) & 1) == 0)) else 0.0
+	_gather_town_inputs(here, now, guard, hour, festival)
 	inp["seat"] = 1.0 if (_brain.breath < 0.72 and not _indoors and hour >= 7.0 and hour < 21.0 and _brain.has_spot(Act.SIT, here)) else 0.0
 	inp["play_spot"] = 1.0 if (_child and _brain.has_spot(Act.PLAY, here)) else 0.0
 	var chore := 0.0
@@ -601,6 +636,46 @@ func _gather_inputs(here: Vector2, now: int, guard: bool) -> void:
 		if _brain.has_spot(Act.CHORE, WorldSim._spot(s, 0, person), 30.0):
 			chore = 1.0
 	inp["chore_spot"] = chore
+
+
+## The town's circumstances as inputs (town_mood.gd): rest days and festivals, curfew, mourning, shortages, war
+## and monsters, plus whether a drill, a bread line or a funeral is at hand for this person.
+func _gather_town_inputs(here: Vector2, now: int, guard: bool, hour: float, festival: bool) -> void:
+	var inp := _brain.inp
+	var sid: int = WorldSim.home[person]
+	var rest_day: bool = bool(_mood.get("rest_day", false))
+	var scarcity := float(_mood.get("scarcity", 0.0))
+	var war := float(_mood.get("war", 0.0))
+	var monster := float(_mood.get("monster", 0.0))
+	inp["holiday"] = 1.0 if (rest_day or festival) else 0.0
+	inp["festive"] = 1.0 if (festival and hour >= 9.5 and hour < 23.5 and not guard) else 0.0
+	inp["curfew"] = 1.0 if bool(_mood.get("curfew", false)) else 0.0
+	inp["mourning_town"] = float(_mood.get("mourning", 0.0))
+	inp["scarce"] = scarcity
+	_brain.meal_q = TownMood.meal_quality(scarcity)
+	# Drill: scheduled, or the militia in wartime (a spot must exist, so nobody drills at an empty yard).
+	var train := 0.0
+	if not _child and (_state == DailyRhythm.State.TRAIN or (war >= 0.5 and (guard or WorldSim.job[person] == 4 or WorldSim.job[person] == 5) and hour >= 14.0 and hour < 17.0)):
+		train = 1.0 if _brain.has_spot(Act.TRAIN, here, 140.0) else 0.0
+	inp["train"] = train
+	# Bread line: scarcity at the busy hours, for anyone who is not on duty.
+	var queue := 0.0
+	var q_level := TownMood.queue_level(scarcity, hour)
+	if q_level > 0.3 and not guard and not _child and _brain.food < 0.85 and not NpcWorld.bread_stall(sid).is_empty():
+		if _act == Act.QUEUE or NpcWorld.queue_length(sid) < NpcWorld.QUEUE_MAX:
+			queue = 1.0
+	inp["queue"] = queue
+	# A funeral nearby (reported by NpcWorld.report(Kind.FUNERAL, ...)): the town goes to it, the watch does not.
+	var mourn := 0.0
+	var fslot := NpcWorld.nearest(NpcWorld.Kind.FUNERAL, here, NpcWorld.FUNERAL_REACH)
+	if fslot >= 0 and not guard:
+		mourn = 0.2 + 0.8 * (1.0 - clampf(here.distance_to(NpcWorld.incident_pos(fslot)) / NpcWorld.FUNERAL_REACH, 0.0, 1.0))
+	inp["mourn"] = mourn
+	# A raid at the gates: those who are not the watch go indoors and keep away from the walls for a while.
+	if monster >= 0.8 and not guard and now >= _monster_hide_cd and not _indoors:
+		_monster_hide_cd = now + 60000
+		_hide_until = now + 22000 + (person % 5) * 1000
+		_scared_at = WorldGen.settlements[sid]["pos"] + Vector2(cos(float(person)), sin(float(person))) * float(WorldGen.settlements[sid]["radius"]) * 0.9
 
 
 func _crime_input(here: Vector2, now: int) -> float:
@@ -657,6 +732,13 @@ func _apply_plan(here: Vector2, hazard: Vector2, look: Vector2) -> void:
 		_begin_oneshot(["Life_Ambient_Look_Around", "Idle_Subtle"], 3.2)
 		if _scared_at != Vector2.INF:
 			_say(NpcWorld.line("hide", person, now / 1000), 2.6)
+	elif was_inside and (_prev_act == Act.SLEEP or _prev_act == Act.HOME or _prev_act == Act.EAT) and _act != _prev_act \
+			and not _plan_indoors and DailyRhythm.local_time(person) >= 5.0 and DailyRhythm.local_time(person) < 10.0:
+		# Wake: the morning stretch at the door before the day begins.
+		_begin_oneshot(WAKE_CLIPS, 2.2)
+		_wait = maxf(_wait, 2.2)
+		if person % 4 == 0:
+			_say(NpcWorld.line("wake", person, now / 60000), 2.2)
 	if was_inside and _plan_indoors and goal.distance_to(sim_position()) < 1.0:
 		_set_indoors(true)    # e.g. eat -> sleep: stay in
 		return
@@ -674,6 +756,8 @@ func _pace_for(act: int) -> float:
 		Act.FIREFIGHT: return FIRE_PACE
 		Act.HIDE: return 1.9
 		Act.PROTEST: return 0.85
+		Act.QUEUE: return 1.1
+		Act.MOURN: return 0.85
 	return 1.0
 
 
@@ -699,6 +783,18 @@ func _act_started(here: Vector2, hazard: Vector2, look: Vector2, now: int) -> vo
 		Act.SHELTER:
 			if person % 4 == 0:
 				_say(NpcWorld.line("rain", person, sec), 2.6)
+		Act.QUEUE:
+			if person % 2 == 0:
+				_say(NpcWorld.line("queue" if person % 4 == 0 else "shortage", person, sec), 3.0)
+		Act.FESTIVE:
+			if person % 3 == 0:
+				_say(NpcWorld.line("festival_talk", person, sec), 2.8)
+		Act.MOURN:
+			if person % 3 == 0:
+				_say(NpcWorld.line("mourning", person, sec), 3.0)
+		Act.EAT:
+			if float(_mood.get("scarcity", 0.0)) >= 0.4 and person % 3 == 0:
+				_say(NpcWorld.line("meal_poor", person, sec), 2.8)
 		Act.WATCH:
 			if person % 3 == 0 and look != Vector2.INF:
 				_say(NpcWorld.line("festival" if NpcWorld.nearest(NpcWorld.Kind.FESTIVAL, here, 60.0) >= 0 else "fight", person, sec), 2.6)
@@ -1138,6 +1234,19 @@ func _activity_for_person() -> String:
 		Act.SHOP, Act.INN:
 			if job == 3:
 				return _first_clip(JOB_CLIPS[3])
+		Act.EAT:
+			if float(_mood.get("scarcity", 0.0)) >= 0.4:
+				return _first_clip(POOR_MEAL)
+		Act.MOURN:
+			if float(_brain.traits["pious"]) > 0.6:
+				var kneel := _first_clip(MOURN_KNEEL)
+				if kneel != "":
+					return kneel
+		Act.FESTIVE:
+			return _pick_clip(FESTIVE_DANCE, int(Time.get_ticks_msec() / 14000))
+		Act.TRAIN:
+			if _so == null:
+				return _first_clip(ACT_CLIPS[Act.TRAIN])
 	return _first_clip(ACT_CLIPS.get(_act, []))
 
 
@@ -1360,7 +1469,22 @@ func _gossip_cave_lead(here: Vector2) -> bool:
 	return true
 
 
+## Grumble (or cheer) about the state of the town when the player is near: shortages, war, monsters, a death,
+## the law, a holiday. Rare per person (GRUMBLE_GAP_MS) and only when a bubble is free (_say's budget).
+func _maybe_grumble(here: Vector2, now: int) -> void:
+	if now < _grumble_cd or _player == null or _act == Act.SLEEP or _act == Act.FLEE or _act == Act.HIDE:
+		return
+	if global_position.distance_squared_to(_player.global_position) > 100.0:
+		return
+	var cat := TownMood.grumble_category(_mood)
+	_grumble_cd = now + GRUMBLE_GAP_MS + (person % 17) * 1000
+	if cat == "" or (person + now / 90000) % 3 != 0:
+		return
+	_say(NpcWorld.line(cat, person, now / 60000), 3.4)
+
+
 func _reaction_tick(here: Vector2, now: int) -> void:
+	_maybe_grumble(here, now)
 	# Gossip: in a chat pair the speaker says something now and then, when the player is near enough to hear.
 	if _act == Act.SOCIAL and _arrived and _partner_node != null and _player != null:
 		var turn := int(now / int(TURN_SECONDS * 1000.0))

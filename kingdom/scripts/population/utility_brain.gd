@@ -30,6 +30,7 @@ const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const RANeedsScript := preload("res://scripts/sim/needs.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
+const Schedule := preload("res://scripts/population/schedule.gd")
 
 ## SIT..CHORE (appended after IDLE so the original indices stay): the purposeful and reactive acts of the
 ## near-NPC layer. They only score above zero when their trigger input is present.
@@ -37,10 +38,13 @@ const NpcWorld := preload("res://scripts/population/npc_world.gd")
 ##   PATROL    guards walk the settlement's patrol loop              HIDE     stay indoors after a scare, peek out later
 ##   PROTEST   step back from a drawn weapon and complain            ALARM    witnesses run to a guard / guards run to the crime
 ##   FIREFIGHT fetch and throw water at a fire                       CHORE    sweep, laundry, cooking, chickens near home
+## TRAIN..QUEUE (appended after CHORE): the circumstances of the town (scripts/population/town_mood.gd).
+##   TRAIN     guards and militia drill at the training yard         MOURN    attend a funeral
+##   FESTIVE   celebrate on the plaza on festival days               QUEUE    stand in the bread line when food is short
 enum Act { SLEEP, HOME, EAT, WORK, SHOP, SOCIAL, INN, PRAY, WATER, SHELTER, FLEE, WATCH, IDLE,
-	SIT, PLAY, PATROL, HIDE, PROTEST, ALARM, FIREFIGHT, CHORE }
+	SIT, PLAY, PATROL, HIDE, PROTEST, ALARM, FIREFIGHT, CHORE, TRAIN, MOURN, FESTIVE, QUEUE }
 const NAMES := ["sleep", "home", "eat", "work", "shop", "socialise", "inn", "pray", "water", "shelter", "flee", "watch", "idle",
-	"sit", "play", "patrol", "hide", "protest", "alarm", "firefight", "chore"]
+	"sit", "play", "patrol", "hide", "protest", "alarm", "firefight", "chore", "train", "mourn", "festive", "queue"]
 
 ## Response curves (Pennycook's set plus a remap):
 ##  BINARY    x >= a ? 1 : b             (b is the floor below the threshold)
@@ -95,6 +99,18 @@ const ACTIONS := {
 	Act.CHORE: [0.5, [["chores", Resp.LOGISTIC, 6.0, 0.35], ["chore_spot", Resp.BINARY, 0.5, 0.0], ["lazy", Resp.RANGE, 1.0, 0.5],
 		["daytime", Resp.BINARY, 0.5, 0.0], ["sched_work", Resp.RANGE, 1.0, 0.55], ["child", Resp.RANGE, 1.0, 0.0],
 		["rain", Resp.RANGE, 1.0, 0.0]]],
+	# Scheduled drill (sched_train) or militia in wartime; not in the rain, not while a monster is about.
+	Act.TRAIN: [0.8, [["train", Resp.BINARY, 0.5, 0.0], ["sched_train", Resp.RANGE, 0.1, 1.0], ["rain", Resp.RANGE, 1.0, 0.0],
+		["danger", Resp.RANGE, 1.0, 0.0], ["child", Resp.RANGE, 1.0, 0.0]]],
+	# A funeral in earshot: the devout and the sociable go, children rarely.
+	Act.MOURN: [0.98, [["mourn", Resp.BINARY, 0.15, 0.0], ["danger", Resp.RANGE, 1.0, 0.0], ["pious", Resp.RANGE, 0.45, 1.0],
+		["child", Resp.RANGE, 1.0, 0.3]]],
+	# Festival day: the whole town on the plaza (the scheduled SOCIAL phase), the sullen least.
+	Act.FESTIVE: [0.9, [["festive", Resp.BINARY, 0.5, 0.0], ["sociable", Resp.RANGE, 0.35, 1.0], ["danger", Resp.RANGE, 1.0, 0.0],
+		["sched_social", Resp.RANGE, 0.35, 1.0], ["rain", Resp.RANGE, 1.0, 0.5]]],
+	# Bread line: food short, the stall open, nothing urgent.
+	Act.QUEUE: [0.85, [["queue", Resp.BINARY, 0.5, 0.0], ["scarce", Resp.RANGE, 0.0, 1.0],
+		["child", Resp.RANGE, 1.0, 0.0], ["danger", Resp.RANGE, 1.0, 0.0]]],
 }
 
 ## Acts carried out indoors: the villager walks to the door and goes inside.
@@ -119,7 +135,8 @@ const RESTORE := {
 	Act.INN: [["social", 1.0], ["food", 0.6]], Act.PRAY: [["faith", 1.6]],
 	Act.WATER: [["water", 2.2]],
 	Act.SIT: [["breath", 3.0], ["rest", 0.25]], Act.PLAY: [["social", 1.0], ["breath", 0.4]],
-	Act.CHORE: [["breath", 0.05]],
+	Act.CHORE: [["breath", 0.05]], Act.TRAIN: [["social", 0.4]], Act.FESTIVE: [["social", 1.6], ["faith", 0.2]],
+	Act.MOURN: [["faith", 1.2], ["social", 0.5]], Act.QUEUE: [["social", 0.3]],
 }
 const MEALS := [7.0, 12.5, 18.5]
 
@@ -181,6 +198,8 @@ var job := 4
 var shift := Vector2(-1, -1)
 var org_id := ""
 var breath := 0.7
+## How full the table is (TownMood.meal_quality): scales what an EAT act restores.
+var meal_q := 1.0
 ## Extra inputs set by the body each decision (fire, armed, crime, hide, seat ...), merged into context().
 var inp := {}
 ## Short-term danger memory: positions and expiry (ms). Slots are reused oldest first, nothing allocates.
@@ -294,8 +313,10 @@ static func make_context(hour: float, over: Dictionary = {}, p_traits: Dictionar
 		"sched_market": 1.0 if st == 2 else 0.0, "sched_inn": 0.0,
 		"tired": 0.3, "rest": 0.7, "hungry": 0.3, "lonely": 0.4, "faithless": 0.3, "thirst": 0.2,
 		"money": 0.5, "rain": 0.0, "rain_exposed": 0.0, "danger": 0.0, "spectacle": 0.0,
-		"partner": 0.0, "guard": 0.0, "holy_day": 0.0, "child": 0.0, "patrol_turn": 0.0, "brave": 0.6}, true)
+		"partner": 0.0, "guard": 0.0, "holy_day": 0.0, "child": 0.0, "patrol_turn": 0.0, "brave": 0.6,
+		"sched_temple": 1.0 if st == DailyRhythm.State.TEMPLE else 0.0, "sched_train": 0.0, "sched_social": 0.0}, true)
 	ctx.merge(over, true)
+	apply_circumstances(ctx, hour)
 	return ctx
 
 
@@ -342,8 +363,9 @@ func tick(now_hours: float, performing := -1) -> void:
 	if not asleep and performing != Act.SIT and performing != Act.HOME:
 		breath -= BREATH_PER_HOUR * dt
 	if RESTORE.has(performing):
+		var q := meal_q if performing == Act.EAT else 1.0
 		for r: Array in RESTORE[performing]:
-			set(r[0], float(get(r[0])) + float(r[1]) * dt)
+			set(r[0], float(get(r[0])) + float(r[1]) * dt * q)
 	food = clampf(food, 0.0, 1.0)
 	rest = clampf(rest, 0.0, 1.0)
 	social = clampf(social, 0.0, 1.0)
@@ -365,6 +387,10 @@ func context(hour: float, sched: int, raining: bool, danger: float, spectacle: f
 	var on_shift := sched == DailyRhythm.State.WORK
 	if shift.x >= 0.0:
 		on_shift = hour >= shift.x and hour < shift.y
+	# Rest days and festivals: only the watch and the inn's own staff keep their shifts.
+	var holiday: bool = float(inp.get("holiday", 0.0)) > 0.5
+	if holiday and job != 3 and org_id != "inn":
+		on_shift = false
 	var outdoor := job == 0 or job == 3 or job == 4 or job == 5
 	var guard := 1.0 if job == 3 else 0.0
 	var rain := 1.0 if raining else 0.0
@@ -372,6 +398,9 @@ func context(hour: float, sched: int, raining: bool, danger: float, spectacle: f
 	ctx["sched_work"] = 1.0 if on_shift else 0.0
 	ctx["sched_market"] = 1.0 if sched == DailyRhythm.State.MARKET else 0.0
 	ctx["sched_inn"] = 1.0 if sched == DailyRhythm.State.INN else 0.0
+	ctx["sched_temple"] = 1.0 if sched == DailyRhythm.State.TEMPLE else 0.0
+	ctx["sched_train"] = 1.0 if sched == DailyRhythm.State.TRAIN else 0.0
+	ctx["sched_social"] = 1.0 if sched == DailyRhythm.State.SOCIAL else 0.0
 	ctx["tired"] = 1.0 - rest
 	ctx["rest"] = rest
 	ctx["hungry"] = 1.0 - food
@@ -388,10 +417,36 @@ func context(hour: float, sched: int, raining: bool, danger: float, spectacle: f
 	ctx["guard"] = guard
 	ctx["holy_day"] = 1.0 if day % 7 == 0 else 0.0
 	ctx["brave"] = 0.3 + 0.7 * (1.0 - float(traits["lazy"])) * (0.6 + 0.4 * float(traits["sociable"]))
-	# the body's own observations (fire, armed, crime, hide, seat, play_spot, chore_spot, child, patrol_turn)
+	# the body's own observations (fire, armed, crime, hide, seat, play_spot, chore_spot, child, patrol_turn,
+	# and the town's circumstances: holiday, festive, curfew, mourning_town, scarce, queue, train, mourn)
 	for k: String in inp:
 		ctx[k] = inp[k]
+	apply_circumstances(ctx, hour)
 	return ctx
+
+
+## The town's circumstances bend the baseline inputs (the acts themselves are unchanged):
+## the schedule's temple and square slots make a person devout and sociable for the hour, curfew empties the
+## evening, mourning quietens it, and the last of a scarce larder is eaten at home.
+static func apply_circumstances(ctx: Dictionary, hour: float) -> void:
+	if float(ctx.get("sched_temple", 0.0)) > 0.5:
+		ctx["pious"] = maxf(float(ctx["pious"]), 0.7)
+		ctx["service"] = maxf(float(ctx.get("service", 0.0)), 1.0)
+		ctx["faithless"] = maxf(float(ctx.get("faithless", 0.0)), 0.7)
+		ctx["daytime"] = 1.0
+	if float(ctx.get("sched_social", 0.0)) > 0.5:
+		ctx["lonely"] = maxf(float(ctx.get("lonely", 0.0)), 0.7)
+		ctx["sociable"] = maxf(float(ctx.get("sociable", 0.0)), 0.6)
+	if float(ctx.get("curfew", 0.0)) > 0.5 and hour >= 20.0:
+		ctx["evening"] = 0.0
+		ctx["night"] = maxf(float(ctx.get("night", 0.0)), 0.9)
+	var mourn := float(ctx.get("mourning_town", 0.0))
+	if mourn > 0.0:
+		ctx["evening"] = float(ctx.get("evening", 0.0)) * (1.0 - 0.5 * mourn)
+		ctx["sociable"] = float(ctx.get("sociable", 0.5)) * (1.0 - 0.4 * mourn)
+	var scarce := float(ctx.get("scarce", 0.0))
+	if scarce > 0.0:
+		ctx["money"] = float(ctx.get("money", 0.5)) * (1.0 - 0.5 * scarce)
 
 
 ## time_inputs() written into `into` (the brain reuses one dictionary instead of allocating per decision).
@@ -924,11 +979,15 @@ static func places(sid: int, graph: StreetGraph) -> Dictionary:
 					break
 			out["shrine"] = _clear(graph, spot, 0.45)
 			out["shrine_face"] = -face
+	var eaves_p := PackedVector2Array()
+	var eaves_f := PackedVector2Array()
 	for lot: Dictionary in plan.get("lots", []):
 		var yaw: float = lot["yaw"]
 		var face := Vector2(sin(yaw), cos(yaw))
-		(out["eaves"] as PackedVector2Array).append(_clear(graph, (lot["pos"] as Vector2) + face * 3.0, 0.45))
-		(out["eaves_face"] as PackedVector2Array).append(face)
+		eaves_p.append(_clear(graph, (lot["pos"] as Vector2) + face * 3.0, 0.45))
+		eaves_f.append(face)
+	out["eaves"] = eaves_p       # (packed arrays are copy-on-write: appending through a cast of a dictionary value is lost)
+	out["eaves_face"] = eaves_f
 	_poi[sid] = out
 	return out
 
@@ -966,6 +1025,7 @@ func spot_filter(action: int) -> Dictionary:
 		Act.SIT: return {"act": "rest", "hour": hour}
 		Act.PLAY: return {"act": "play", "hour": hour, "kid": true}
 		Act.CHORE: return {"act": "home", "hour": hour}
+		Act.TRAIN: return {"act": "train", "hour": hour}
 	return {}
 
 
@@ -1114,6 +1174,38 @@ func plan_goal(action: int, here: Vector2, graph: StreetGraph, hazard: Vector2, 
 			patrol_i += 1
 			if wp != Vector2.INF:
 				out["goal"] = _clear(graph, wp, 0.45)
+		Act.TRAIN:
+			pick = find_spot(action, here, 140.0)
+			if pick.is_empty():
+				out["goal"] = _clear(graph, Schedule.spot(s, Schedule.Phase.TRAIN, person, WorldSim.day), 0.45)
+		Act.MOURN:
+			var slot := NpcWorld.nearest(NpcWorld.Kind.FUNERAL, here, NpcWorld.FUNERAL_REACH)
+			var at := look_at
+			if slot >= 0:
+				at = NpcWorld.incident_pos(slot)
+			if at != Vector2.INF:
+				out["goal"] = _clear(graph, NpcWorld.mourn_spot(at, person), 0.45)
+				out["face"] = at - (out["goal"] as Vector2)
+				out["look"] = at
+		Act.FESTIVE:
+			var fslot := NpcWorld.nearest(NpcWorld.Kind.FESTIVAL, here, 90.0)
+			var centre: Vector2 = pl["plaza"]
+			if fslot >= 0:
+				centre = NpcWorld.incident_pos(fslot)
+			var ring := hash(person * 29 + 11)
+			var fa := float(posmod(ring, 628)) / 100.0
+			var fr := 3.2 + float(posmod(ring / 628, 100)) / 100.0 * minf(float(pl["plaza_r"]) * 0.7, 7.0)
+			out["goal"] = _clear(graph, centre + Vector2(cos(fa), sin(fa)) * fr, 0.45)
+			out["face"] = centre - (out["goal"] as Vector2)
+			if fslot >= 0:
+				out["look"] = centre
+		Act.QUEUE:
+			var q := NpcWorld.queue_spot(sid, person)
+			if q.is_empty():
+				out["goal"] = here
+			else:
+				out["goal"] = _clear(graph, q[0], 0.3)
+				out["face"] = q[1]
 	out["spot"] = pick
 	if not pick.is_empty():
 		var so := NpcWorld.spots()
@@ -1204,4 +1296,8 @@ static func label(action: int, travelling: bool) -> String:
 		Act.ALARM: return "raising the alarm" if travelling else "reporting"
 		Act.FIREFIGHT: return "fetching water" if travelling else "fighting the fire"
 		Act.CHORE: return "off to a chore" if travelling else "doing chores"
+		Act.TRAIN: return "off to drill" if travelling else "drilling"
+		Act.MOURN: return "going to the funeral" if travelling else "mourning"
+		Act.FESTIVE: return "off to the festivities" if travelling else "celebrating"
+		Act.QUEUE: return "joining the bread line" if travelling else "queueing for bread"
 	return "idling"

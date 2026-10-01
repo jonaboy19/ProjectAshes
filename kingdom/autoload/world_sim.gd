@@ -12,6 +12,8 @@ extends Node
 signal hour_changed(hour: int)
 
 const SeasonsScript := preload("res://scripts/sim/seasons.gd")
+const Schedule := preload("res://scripts/population/schedule.gd")
+const TownMood := preload("res://scripts/population/town_mood.gd")
 
 const SEED := 1066
 const JOBS := ["Farmer", "Blacksmith", "Merchant", "Guard", "Laborer", "Woodcutter"]
@@ -56,6 +58,10 @@ var dbg_frames := 0
 var _near_ids := PackedInt32Array()
 var _near_cursor := 0
 var _near_next := 0.0
+## Schedule.F_* mask per settlement (TownMood), refreshed one settlement per frame after each hour change.
+var _mood_flags := PackedInt32Array()
+var _mood_cursor := 0
+var _mood_pending := 0
 
 
 func _ready() -> void:
@@ -150,6 +156,9 @@ func _populate() -> void:
 			last_update.append(0.0)
 		ranges.append(Vector2i(start, pos.size()))
 		treasury.append(500)
+	_mood_flags = PackedInt32Array()
+	_mood_flags.resize(WorldGen.settlements.size())
+	_mood_flags.fill(0)
 
 
 func _pick_job(rng: RandomNumberGenerator, kind: String) -> int:
@@ -168,7 +177,10 @@ func _process(delta: float) -> void:
 	var hour := int(time_of_day)
 	if hour != _last_hour:
 		_last_hour = hour
+		_mood_pending = _mood_flags.size()
+		_mood_cursor = 0
 		hour_changed.emit(hour)
+	_refresh_mood_step()
 	var _t0 := Time.get_ticks_usec()
 	_simulate_slice()
 	dbg_slice_usec += Time.get_ticks_usec() - _t0
@@ -190,8 +202,9 @@ func advance_hours(hours: float) -> void:
 		if hour != _last_hour:
 			_last_hour = hour
 			hour_changed.emit(hour)
+	_refresh_moods_now()
 	for i in pos.size():
-		var want := _current_phase(job[i])
+		var want := _current_phase(job[i], i)
 		if want != phase[i]:
 			_on_phase_change(i, phase[i], want)
 		pos[i] = target[i]
@@ -222,16 +235,35 @@ func deserialize(d: Dictionary) -> void:
 		phase[i] = 255
 
 
-## Schedule phase for the current hour: 0 home, 1 work, 2 market.
-func _current_phase(person_job: int) -> int:
-	var h := time_of_day
-	if h < 6.0 or h >= 21.0:
-		return 0
-	if person_job == 3:          # guards keep watch all day
-		return 1
-	if h < 17.0:
-		return 2 if (h >= 12.0 and h < 13.0 and person_job == 4) else 1
-	return 2 if h < 19.5 else 0
+## Schedule phase for the current hour (scripts/population/schedule.gd): 0 home, 1 work, 2 market, 3 inn,
+## 4 temple, 5 training yard, 6 plaza. Without a person it is the original three-phase table.
+func _current_phase(person_job: int, i := -1) -> int:
+	var flags := 0
+	if i >= 0 and i < home.size() and home[i] < _mood_flags.size():
+		flags = _mood_flags[home[i]]
+	return Schedule.phase(person_job, time_of_day, flags, i, day)
+
+
+## One settlement's circumstance mask per call (rest day, festival, war, shortages, mourning, curfew ...).
+func _refresh_mood_step() -> void:
+	if _mood_pending <= 0 or _mood_flags.is_empty():
+		return
+	_mood_pending -= 1
+	var sid := _mood_cursor
+	_mood_cursor = (_mood_cursor + 1) % _mood_flags.size()
+	_mood_flags[sid] = TownMood.flags_of(sid)
+
+
+func _refresh_moods_now() -> void:
+	TownMood.clear_cache()
+	for sid in _mood_flags.size():
+		_mood_flags[sid] = TownMood.flags_of(sid)
+	_mood_pending = 0
+
+
+## The circumstance mask of settlement `sid` as the rows currently use it.
+func mood_flags(sid: int) -> int:
+	return _mood_flags[sid] if sid >= 0 and sid < _mood_flags.size() else 0
 
 
 ## Time-sliced: the whole database used to be walked at 1500 people per frame
@@ -275,7 +307,7 @@ func _simulate_slice() -> void:
 func _step(i: int) -> void:
 	var dt := _clock - last_update[i]
 	last_update[i] = _clock
-	var want := _current_phase(job[i])
+	var want := _current_phase(job[i], i)
 	if want != phase[i]:
 		_on_phase_change(i, phase[i], want)
 	var to := target[i] - pos[i]
@@ -311,12 +343,18 @@ func _on_phase_change(i: int, old: int, new_phase: int) -> void:
 		var spend := mini(money[i], 3 + (i % 6))
 		money[i] -= spend
 		treasury[home[i]] += spend
+	elif new_phase == 3 and money[i] > 2:
+		var tab := mini(money[i], 2 + (i % 4))      # a round at the inn
+		money[i] -= tab
+		treasury[home[i]] += tab
 	phase[i] = new_phase
 	target[i] = _spot(s, new_phase, i)
 
 
 ## Deterministic point of interest for a person and phase.
 func _spot(s: Dictionary, which: int, i: int) -> Vector2:
+	if which >= Schedule.Phase.INN:
+		return Schedule.spot(s, which, i, day)
 	var r: float = s["radius"]
 	var h := hash(i * 131 + which * 17 + day * (1 if which == 2 else 0))
 	var ang := float(h % 3600) / 3600.0 * TAU

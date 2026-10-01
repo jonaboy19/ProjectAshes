@@ -12,8 +12,11 @@ extends RefCounted
 ## and WorldSim's own phase, wages and targets are left untouched.
 
 const StreetGraph := preload("res://scripts/population/street_graph.gd")
+const Schedule := preload("res://scripts/population/schedule.gd")
+const TownMood := preload("res://scripts/population/town_mood.gd")
 
-enum State { HOME, WORK, MARKET, INN }
+## Same numbers as Schedule.Phase: the places a person can be (scripts/population/schedule.gd).
+enum State { HOME, WORK, MARKET, INN, TEMPLE, TRAIN, SOCIAL }
 
 ## Largest departure delay, in game hours (2.0 h = 60 real seconds). Wider than
 ## the original 0.9 h so a schedule boundary (e.g. the 17:00 market call) empties
@@ -26,7 +29,7 @@ const INN_CLOSE := 22.5
 ## Percentage of (non-guard) residents who stop at the inn on a given evening.
 const INN_SHARE := 30
 ## WorldSim's schedule boundaries (see WorldSim._current_phase).
-const BOUNDARIES := [6.0, 12.0, 13.0, 17.0, 19.5, 21.0]
+const BOUNDARIES := [6.0, 8.5, 9.25, 10.0, 11.5, 12.0, 13.0, 14.0, 15.5, 16.0, 17.0, 18.0, 18.75, 19.5, 21.0, 22.5, 23.5]
 
 
 ## Stable delay behind the shared clock for person i today, in game hours.
@@ -40,36 +43,31 @@ static func local_time(i: int) -> float:
 	return wrapf(WorldSim.time_of_day - delay(i), 0.0, 24.0)
 
 
-## WorldSim._current_phase() evaluated at hour h: 0 home, 1 work, 2 market.
-## (Mirrors that function, which only reads the current world time.)
-static func phase_at(job: int, h: float) -> int:
-	if h < 6.0 or h >= 21.0:
-		return 0
-	if job == 3:
-		return 1
-	if h < 17.0:
-		return 2 if (h >= 12.0 and h < 13.0 and job == 4) else 1
-	return 2 if h < 19.5 else 0
+## WorldSim._current_phase() evaluated at hour h (scripts/population/schedule.gd). Without flags / a person
+## this is the original three-phase table: 0 home, 1 work, 2 market.
+static func phase_at(job: int, h: float, flags := 0, i := -1, day := 1) -> int:
+	return Schedule.phase(job, h, flags, i, day)
 
 
 static func goes_to_inn(i: int) -> bool:
-	return WorldSim.job[i] != 3 and hash(i * 31 + WorldSim.day * 977) % 100 < INN_SHARE
+	return Schedule.goes_to_inn(i, WorldSim.day, WorldSim.mood_flags(WorldSim.home[i]))
+
+
+## Circumstance mask of the person's settlement as the schedule rows use it (rest day, festival, war ...).
+static func flags_of(i: int) -> int:
+	return WorldSim.mood_flags(WorldSim.home[i])
 
 
 ## Where person i wants to be right now.
 static func state(i: int) -> int:
-	var t := local_time(i)
-	var p := phase_at(WorldSim.job[i], t)
-	if p == 0 and t >= INN_OPEN and t < INN_CLOSE and goes_to_inn(i):
-		return State.INN
-	return p
+	return phase_at(WorldSim.job[i], local_time(i), flags_of(i), i, WorldSim.day)
 
 
 ## True while WorldSim has already moved person i to a new phase but their own
 ## clock hasn't reached it yet.
 static func lagging(i: int) -> bool:
 	var sim_phase: int = WorldSim.phase[i]
-	return sim_phase != 255 and phase_at(WorldSim.job[i], local_time(i)) != sim_phase
+	return sim_phase != 255 and phase_at(WorldSim.job[i], local_time(i), flags_of(i), i, WorldSim.day) != sim_phase
 
 
 ## True for a short window after any shared schedule boundary: outside it no
@@ -103,7 +101,7 @@ static func goal(i: int, st: int, graph: StreetGraph) -> Vector2:
 static func still_home(i: int) -> bool:
 	if WorldSim.time_of_day < 6.0 or WorldSim.time_of_day >= 6.0 + MAX_DELAY:
 		return false
-	if phase_at(WorldSim.job[i], local_time(i)) != 0:
+	if phase_at(WorldSim.job[i], local_time(i), flags_of(i), i, WorldSim.day) != 0:
 		return false
 	var s: Dictionary = WorldGen.settlements[WorldSim.home[i]]
 	return WorldSim.pos[i].distance_squared_to(WorldSim._spot(s, 0, i)) < 2.25
@@ -120,6 +118,12 @@ static func label(i: int, st: int, travelling: bool) -> String:
 			return "off to market" if travelling else "at the market"
 		State.INN:
 			return "off to the inn" if travelling else "at the inn"
+		State.TEMPLE:
+			return "off to the temple" if travelling else "at the temple"
+		State.TRAIN:
+			return "off to drill" if travelling else "drilling"
+		State.SOCIAL:
+			return "off to the square" if travelling else "on the square"
 	var t := local_time(i)
 	if t >= INN_CLOSE or t < 6.0:
 		return "turning in"

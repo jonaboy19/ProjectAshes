@@ -68,6 +68,8 @@ func _maybe_spawn(p: Vector2) -> void:
 	var node := _build_visual(kind)
 	if node == null:
 		return
+	if kind != "patrol":
+		node.add_to_group("vehicle")     # NpcWorld.mover_push: villagers step out of a wagon's or rider's way
 	add_child(node)
 	_groups.append({"a": a, "b": b, "t": randf_range(0.0, 0.8), "speed": float(SPEED.get(kind, 1.6)), "node": node})
 

@@ -185,7 +185,18 @@ func shatter(hit: Vector3, force := 3.0, from: Node = null) -> int:
 	_dust(global_position, 14)
 	if from and from.is_in_group("player"):
 		give_loot(roll_loot(kind, _rng))
+		_report_theft()
 	return n
+
+
+## Smashing a crate or barrel open inside a settlement and pocketing what falls out is petty theft: whoever
+## saw it shouts for the watch and the town's society module records it (NpcWorld.report_crime).
+func _report_theft() -> void:
+	var here := Vector2(global_position.x, global_position.z)
+	for s: Dictionary in WorldGen.settlements:
+		if here.distance_to(s["pos"]) < float(s["radius"]) * 0.95:
+			(load("res://scripts/population/npc_world.gd") as GDScript).call("report_crime", get_tree(), "pickpocket", here, int(s["id"]), true)
+			return
 
 
 ## Puts the prop back (intact, full health, solid).

@@ -18,9 +18,11 @@ extends RefCounted
 ## Distant tiers never touch this: WorldSim / sprites / VAT stay as they were.
 
 const StreetGraph := preload("res://scripts/population/street_graph.gd")
+const TownMood := preload("res://scripts/population/town_mood.gd")
+const Schedule := preload("res://scripts/population/schedule.gd")
 const BRAIN := "res://scripts/population/utility_brain.gd"
 
-enum Kind { FIRE, FIGHT, CRIME, FESTIVAL, SCREAM }
+enum Kind { FIRE, FIGHT, CRIME, FESTIVAL, SCREAM, FUNERAL }
 
 const SLOTS := 16
 const REFRESH_MS := 400
@@ -36,6 +38,13 @@ const MOVER_LOOKAHEAD := 3.0
 const MOVER_CLEAR := 2.6
 const DECIDE_PER_FRAME := 3
 const MAX_BUBBLES := 4
+const FUNERAL_REACH := 55.0
+## Longest bread line (people) a settlement forms, and the gap between two people in it.
+const QUEUE_MAX := 8
+const QUEUE_GAP := 0.85
+## A swing of the drawn weapon this close to a villager is an assault (once per ASSAULT_COOLDOWN_MS).
+const ASSAULT_RANGE := 1.9
+const ASSAULT_COOLDOWN_MS := 20000
 
 # ------------------------------------------------------------------ incidents
 static var _i_kind := PackedInt32Array()
@@ -61,6 +70,16 @@ static var _prev_nodes := {}             # instance id -> Vector2 (previous posi
 static var _decide_frame := -1
 static var _decide_used := 0
 static var bubbles_shown := 0
+## QA: when true the near-NPC layer adds its script time here, in microseconds, by kind of callback so a cost can be
+## expressed per 60 Hz frame whatever the real frame rate: villager physics ticks (prof_usec / prof_calls), micro actors
+## and the director per rendered frame (prof_frame_usec), the PopulationLOD refresh (prof_lod_usec / prof_lod_calls,
+## which runs every 0.25 s, about once per 15 frames).
+static var profile := false
+static var prof_usec := 0
+static var prof_calls := 0
+static var prof_frame_usec := 0
+static var prof_lod_usec := 0
+static var prof_lod_calls := 0
 
 # ------------------------------------------------------------------ fields / spots
 static var _fields := {}                 # sid -> Array of [centre, unit x axis, half extents]
@@ -68,6 +87,10 @@ static var smart: SmartObjects
 static var _spots_done := {}             # sid -> true
 static var _places := {}                 # sid -> Dictionary (stalls, benches, posts, patrol route)
 static var _rumour_cache := {}           # sid -> [expires_ms, Array[String]]
+static var _queues := {}                 # sid -> Array of person ids waiting at the bread stall (front first)
+static var _assault_ms := -100000
+static var _realm_sync_ms := -100000
+static var _fire_nodes := {}             # sid -> Node3D (the burning thing for a realm fire emergency)
 
 
 static func _ensure_store() -> void:
@@ -100,6 +123,10 @@ static func reset() -> void:
 	_spots_done.clear()
 	_places.clear()
 	_rumour_cache.clear()
+	_queues.clear()
+	_assault_ms = -100000
+	_realm_sync_ms = -100000
+	_fire_nodes.clear()
 	smart = null
 	bubbles_shown = 0
 	_ensure_store()
@@ -134,6 +161,8 @@ static func report(kind: int, pos: Vector2, radius := 20.0, seconds := 20.0, str
 	_i_serial[slot] = _serial
 	if kind == Kind.FIGHT or kind == Kind.FESTIVAL:
 		(load(BRAIN) as GDScript).call("notice", pos, strength, seconds)
+	elif kind == Kind.FUNERAL:
+		pass       # mourners react through nearest(Kind.FUNERAL), not as a spectacle
 	return slot
 
 
@@ -264,6 +293,96 @@ static func refresh(tree: SceneTree) -> void:
 		var node := n as Node3D
 		if node != null:
 			report(Kind.FIRE, Vector2(node.global_position.x, node.global_position.z), 25.0, 1.5, float(node.get_meta("fire_strength", 1.0)))
+	_watch_assault(tree, now)
+	if now - _realm_sync_ms > 5000:
+		_realm_sync_ms = now
+		sync_realm_incidents(tree)
+
+
+## A drawn weapon swung beside a villager is an assault: witnesses shout and run for the watch, the town's
+## society module records it (the one place a swing at a person becomes a real crime).
+static func _watch_assault(tree: SceneTree, now: int) -> void:
+	if _player_pos == Vector2.INF or now - _assault_ms < ASSAULT_COOLDOWN_MS:
+		return
+	var pl := tree.get_first_node_in_group("player") as Node3D
+	if pl == null or float(pl.get("_swing")) <= 0.0:
+		return
+	var victim := Vector2.INF
+	for n in tree.get_nodes_in_group("villager"):
+		var v := n as Node3D
+		if v == null:
+			continue
+		var vp := Vector2(v.global_position.x, v.global_position.z)
+		if vp.distance_to(_player_pos) <= ASSAULT_RANGE:
+			victim = vp
+			break
+	if victim == Vector2.INF:
+		return
+	_assault_ms = now
+	report_crime(tree, "assault", victim, _sid_at(victim), true)
+	report(Kind.FIGHT, victim, 24.0, 10.0, 0.9, _sid_at(victim))
+
+
+## Settlement id whose area contains `p` (-1 outside every settlement).
+static func _sid_at(p: Vector2) -> int:
+	var best := -1
+	var best_d := INF
+	for s: Dictionary in WorldGen.settlements:
+		var d := p.distance_to(s["pos"])
+		if d < float(s["radius"]) * 1.4 and d < best_d:
+			best_d = d
+			best = int(s["id"])
+	return best
+
+
+## Realm facts that have a place in the street become incidents the near AI reacts to: a settlement fire
+## emergency (realm/settlements.gd) burns at a house near the plaza while the player is within earshot, and
+## a funeral is held for a recent death. Cheap: a few dictionary reads every 5 s, only for the nearest town.
+static func sync_realm_incidents(tree: SceneTree) -> void:
+	if _player_pos == Vector2.INF:
+		return
+	var sid := _sid_at(_player_pos)
+	if sid < 0:
+		return
+	var mood := TownMood.mood_of(sid)
+	# A festival day (scripts/sim/seasons.gd): the plaza is a spectacle people gather at all day.
+	var hour: float = WorldSim.time_of_day
+	if String(mood.get("festival", "")) != "" and hour >= 9.5 and hour < 23.5:
+		var c: Vector2 = WorldGen.settlements[sid]["pos"]
+		report(Kind.FESTIVAL, c, 55.0, 8.0, 0.7, sid)
+	var node: Node3D = _fire_nodes.get(sid)
+	if bool(mood.get("fire", false)):
+		if node == null or not is_instance_valid(node):
+			var at := _fire_site(sid)
+			if at != Vector2.INF:
+				node = Node3D.new()
+				node.name = "RealmFire"
+				node.set_meta("fire_strength", 0.8)
+				node.add_to_group("fire_hazard")
+				var host := tree.current_scene
+				if host != null:
+					host.add_child(node)
+					node.global_position = Vector3(at.x, WorldGen.height(at.x, at.y), at.y)
+					_fire_nodes[sid] = node
+					var vfx: Variant = load("res://scripts/vfx/vfx.gd")
+					if vfx != null:
+						(vfx as GDScript).call("fire_pillar", host, node.global_position, 1.1, 6.0)
+	elif node != null:
+		if is_instance_valid(node):
+			node.remove_from_group("fire_hazard")
+			node.queue_free()
+		_fire_nodes.erase(sid)
+
+
+## A house front near the plaza (deterministic per settlement and day) for a fire to break out at.
+static func _fire_site(sid: int) -> Vector2:
+	var s: Dictionary = WorldGen.settlements[sid]
+	var lots: Array = (s.get("plan", {}) as Dictionary).get("lots", [])
+	if lots.is_empty():
+		return s["pos"] + Vector2(6.0, 4.0)
+	var lot: Dictionary = lots[posmod(hash(sid * 7 + WorldSim.day), lots.size())]
+	var yaw: float = lot["yaw"]
+	return (lot["pos"] as Vector2) + Vector2(sin(yaw), cos(yaw)) * 3.6
 
 
 static func _push_mover(p: Vector2, v: Vector2) -> void:
@@ -411,6 +530,12 @@ const LOCAL_TYPES := {
 		"activity": {"loop": ["Life_Mocap_Move_Box", "Life_Mocap_Pick_Place", "Life_Carry_Pick_Up"], "duration": [40, 120], "cycles": [2, 3]},
 		"jobs": ["Laborer", "Woodcutter", "Farmer", "Blacksmith"], "acts": ["work"], "hours": [6, 19], "tags": ["work", "haul"],
 	},
+	"training_dummy": {
+		"slots": [{"stand": [0.0, 0.0, 1.1], "face": 180}], "approach": 1.0,
+		"activity": {"loop": ["Punch_Jab", "Sword_Attack", "Punch_Cross", "Sword_Attack"], "between": ["Life_Guard_Attention", "Life_Ambient_Wipe_Brow"],
+			"cycles": [3, 5], "duration": [30, 90]},
+		"acts": ["train"], "hours": [6, 20], "tags": ["train", "loud"],
+	},
 	"wall_idle": {
 		"slots": [{"stand": [0.0, 0.0, 0.0], "face": 0}], "approach": 0.6,
 		"activity": {"loop": ["Life_Ambient_Shift_Weight", "Life_Ambient_Look_Around"], "between": ["Life_Ambient_Scratch_Head", "Life_Ambient_Check_Sky"],
@@ -442,7 +567,12 @@ static func ensure_spots(sid: int, host: Node = null) -> void:
 	var c: Vector2 = s["pos"]
 	var graph := StreetGraph.for_settlement(sid) as StreetGraph
 	var pr: float = plan.get("plaza_r", 12.0)
-	var places := {"stalls": PackedVector2Array(), "stall_yaw": PackedFloat32Array(), "benches": PackedVector2Array(),
+	# (Packed arrays are copy-on-write: appending to `places["stalls"] as PackedVector2Array` changed a temporary,
+	# so the stall list stayed empty. Fill local arrays and store them.)
+	var stall_pts := PackedVector2Array()
+	var stall_yaws := PackedFloat32Array()
+	var bench_pts := PackedVector2Array()
+	var places := {"stalls": stall_pts, "stall_yaw": stall_yaws, "benches": bench_pts,
 		"patrol": PackedVector2Array(), "plaza": c, "plaza_r": pr}
 	# Market stalls ring the plaza exactly as SettlementBuilder / StreetGraph lay them out.
 	var n_stalls := 6 if s["kind"] == "village" else 12
@@ -450,8 +580,8 @@ static func ensure_spots(sid: int, host: Node = null) -> void:
 		var ang := TAU * i / n_stalls + 0.2
 		var sp := c + Vector2(cos(ang), sin(ang)) * (pr - 3.0)
 		var yaw := atan2(-cos(ang), -sin(ang))
-		(places["stalls"] as PackedVector2Array).append(sp)
-		(places["stall_yaw"] as PackedFloat32Array).append(yaw)
+		stall_pts.append(sp)
+		stall_yaws.append(yaw)
 		# Keeper behind the counter, customers on the plaza side (market_stall slot frame: +Z is the front).
 		so.add("market_stall", Transform3D(Basis(Vector3.UP, yaw), Vector3(sp.x, WorldGen.height(sp.x, sp.y), sp.y)), sid)
 	# Benches between the stalls, facing the square.
@@ -460,7 +590,7 @@ static func ensure_spots(sid: int, host: Node = null) -> void:
 		var ang2 := TAU * (2.0 * i + 1.0) / n_stalls + 0.2
 		var bp := c + Vector2(cos(ang2), sin(ang2)) * (pr - 2.2)
 		var byaw := atan2(-cos(ang2), -sin(ang2))
-		(places["benches"] as PackedVector2Array).append(bp)
+		bench_pts.append(bp)
 		var h := WorldGen.height(bp.x, bp.y)
 		so.add("bench", Transform3D(Basis(Vector3.UP, byaw), Vector3(bp.x, h, bp.y)), sid)
 		_add_bench_prop(host, Vector3(bp.x, h, bp.y), byaw)
@@ -486,6 +616,18 @@ static func ensure_spots(sid: int, host: Node = null) -> void:
 		if graph != null:
 			wp = graph.push_out(wp, 0.6)
 		so.add("wall_idle", Transform3D(Basis(Vector3.UP, yaw2 + PI), Vector3(wp.x, WorldGen.height(wp.x, wp.y), wp.y)), sid)
+	# The training yard: four dummies in a row facing the plaza, a hay-bale target and a weapon rack beside each pair.
+	var yard := Schedule.spot(s, Schedule.Phase.TRAIN, 0, 1)
+	var to_plaza := (c - yard).normalized() if c.distance_to(yard) > 1.0 else Vector2.DOWN
+	var row_axis := Vector2(-to_plaza.y, to_plaza.x)
+	var yaw_t := atan2(to_plaza.x, to_plaza.y)
+	for ti in 4:
+		var dp := yard + row_axis * (float(ti) * 2.4 - 3.6)
+		if graph != null:
+			dp = graph.push_out(dp, 0.9)
+		so.add("training_dummy", Transform3D(Basis(Vector3.UP, yaw_t + PI), Vector3(dp.x, WorldGen.height(dp.x, dp.y), dp.y)), sid)
+		_add_prop(host, "hay", dp - to_plaza * 1.5, yaw_t)
+	_add_prop(host, "weapon_rack", yard + row_axis * 6.4, yaw_t)
 	# Job workplaces from work.gd: each spot becomes the matching smart object, so a farmer hoes at the
 	# farm's field, the smith hammers at the smithy and guards hold the gate post the player's shifts use.
 	var work := _work_module()
@@ -520,6 +662,9 @@ static func ensure_spots(sid: int, host: Node = null) -> void:
 		route.append(c + Vector2(-pr * 0.8, -pr * 0.4))
 	route.append(c + Vector2(-pr * 0.5, pr * 0.2))
 	places["patrol"] = route
+	places["stalls"] = stall_pts
+	places["stall_yaw"] = stall_yaws
+	places["benches"] = bench_pts
 	_places[sid] = places
 
 
@@ -538,6 +683,18 @@ static func _add_bench_prop(host: Node, at: Vector3, yaw: float) -> void:
 		return
 	node.position = at
 	node.rotation.y = yaw + PI
+	node.add_to_group("npc_prop")
+	host.add_child(node)
+
+
+static func _add_prop(host: Node, key: String, p: Vector2, yaw: float) -> void:
+	if host == null or not is_instance_valid(host):
+		return
+	var node := Assets.building_node(key, false)
+	if node == null:
+		return
+	node.position = Vector3(p.x, WorldGen.height(p.x, p.y), p.y)
+	node.rotation.y = yaw
 	node.add_to_group("npc_prop")
 	host.add_child(node)
 
@@ -580,6 +737,71 @@ static func find_spot(person: int, filter: Dictionary, here: Vector2, radius: fl
 	if smart == null:
 		return []
 	return smart.find(Vector3(here.x, 0.0, here.y), filter, radius, person, avoid, avoid_r)
+
+
+# ================================================================ queue, funeral, festival
+## The bread stall of settlement `sid`: the first plaza stall, the counter side outward. [position, yaw].
+static func bread_stall(sid: int) -> Array:
+	var pl: Dictionary = _places.get(sid, {})
+	var stalls: PackedVector2Array = pl.get("stalls", PackedVector2Array())
+	if stalls.is_empty():
+		return []
+	var yaws: PackedFloat32Array = pl["stall_yaw"]
+	return [stalls[0], yaws[0]]
+
+
+## How many people stand in the bread line of `sid` right now (people who left or went indoors drop out).
+static func queue_length(sid: int) -> int:
+	var q: Array = _queues.get(sid, [])
+	var n := 0
+	for p: int in q:
+		if _body_of(p) != null:
+			n += 1
+	return n
+
+
+static func _body_of(p: int) -> Node3D:
+	return (load(BRAIN) as GDScript).call("body_of", p) as Node3D
+
+
+## Join (or keep a place in) the bread line; returns [spot, facing] or [] when the line is full or there is no stall.
+static func queue_spot(sid: int, person: int) -> Array:
+	var st := bread_stall(sid)
+	if st.is_empty():
+		return []
+	var q: Array = _queues.get(sid, [])
+	var idx := q.find(person)
+	if idx < 0:
+		var live: Array = []
+		for p: int in q:
+			if _body_of(p) != null:
+				live.append(p)
+		q = live
+		if q.size() >= QUEUE_MAX:
+			_queues[sid] = q
+			return []
+		q.append(person)
+		idx = q.size() - 1
+		_queues[sid] = q
+	var stall_p: Vector2 = st[0]
+	var yaw: float = st[1]
+	var front := Vector2(sin(yaw), cos(yaw))        # towards the customers' side
+	var side := Vector2(-front.y, front.x)
+	# A line that bends away from the counter: first person at the counter, the rest back and to one side.
+	var spot := stall_p + front * (1.7 + float(idx) * QUEUE_GAP) + side * (float(idx) * 0.18)
+	return [spot, -front]
+
+
+static func queue_leave(sid: int, person: int) -> void:
+	if _queues.has(sid):
+		(_queues[sid] as Array).erase(person)
+
+
+## A place among the mourners round a funeral at `at` (a loose half circle facing it).
+static func mourn_spot(at: Vector2, person: int) -> Vector2:
+	var h := absi(hash(person * 41 + 3))
+	var a := float(h % 628) / 100.0
+	return at + Vector2(cos(a), sin(a)) * (2.6 + float((h / 628) % 100) / 100.0 * 3.4)
 
 
 # ================================================================ crime
@@ -668,6 +890,57 @@ const LINES := {
 	"gossip_player": ["They say a stranger did that?", "Is that the one everybody talks about?"],
 	"festival": ["What's all the noise?", "Come see!", "A fine show!"],
 	"fight": ["Fight! Fight!", "Break it up!", "Someone fetch the guard!"],
+	# the town's circumstances (town_mood.gd): grumbling about shortages, war, monsters, deaths, the law, holidays
+	"shortage": ["Bread's gone up again.", "Nothing left on the shelves.", "How are we meant to feed the children?", "Half a loaf, and they call that a price.",
+		"The granary is empty, mark my words.", "Third day on thin porridge..."],
+	"queue": ["Is this the line for bread?", "Been standing here since dawn.", "They'll run out before I get to the front.", "No pushing at the back!"],
+	"meal_poor": ["Thin soup again.", "Not much on the plate tonight.", "Bread and scrape, that is supper."],
+	"war_talk": ["They say the levy is coming.", "My brother marched in spring. No word since.", "The crown wants more men.", "War taxes, war prices."],
+	"monster_talk": ["Bar the doors tonight.", "Something was at the fence again.", "Stay off the road after dark.", "The wardstones aren't what they were."],
+	"mourning": ["A sad day for the town.", "He will be missed.", "May the ash take him gently.", "We shall light a candle."],
+	"curfew_talk": ["Home before the bell, they say.", "The watch is out in force.", "Keep your head down, keep your purse close.", "Curfew again. Who does it help?"],
+	"festival_talk": ["Come and dance!", "The best festival in years!", "Have you tried the honey cakes?", "A fine day for it!"],
+	"rest_talk": ["Day of rest at last.", "Not a hoe in sight today.", "Temple, then a pie.", "Sleep in, they said. The cockerel didn't hear."],
+	"wake": ["Morning!", "Another day...", "Up with the sun.", "Where did I leave my boots?"],
+	"drunk": ["I'm not drunk! The road is crooked!", "One more... for the road...", "You're my best friend, you are!", "Hic... excuse me."],
+	"barkeep": ["Out! And stay out!", "You've had enough, friend.", "Come back when you can stand!"],
+	"merchant_a": ["That's robbery!", "Three coins and not a copper less!", "Your scales are false!"],
+	"merchant_b": ["Cheat! Thief!", "Quality has its price!", "Ask anyone, my cloth is the finest!"],
+	"thief": ["Out of my way!", "Not me!", "Catch me if you can!"],
+	"stop_thief": ["Stop, thief!", "My purse! My purse!", "Guards! After him!"],
+	"recruiter": ["The crown needs good men!", "A silver a week and a meal a day!", "Join the levy, defend your homes!", "Who will stand for Valencious?"],
+	"crier": ["Hear ye, hear ye!", "News from the road!", "By order of the council!"],
+	"performer": ["Gather round, gather round!", "A song for a copper!", "Listen to the tale of the ash-bound king!"],
+	"audience": ["Bravo!", "Another!", "Marvellous!", "Here, a copper for you."],
+	"sermon": ["The ash remembers all.", "From ember, a new fire.", "Be generous in lean times.", "Mourn, but do not despair."],
+	"gate_close": ["Gates closing!", "Last call, travellers!", "Lock it up for the night.", "All quiet?"],
+	"gate_open": ["Gates open!", "Dawn's here, let them in.", "Another quiet night."],
+	"shift": ["Your watch.", "All quiet.", "Nothing to report.", "Keep your eyes open."],
+	"lamp": ["Light for the road.", "Mind the flame!", "Dusk already..."],
+	"beggar": ["Spare a copper?", "Alms for the hungry...", "Bless you, kind soul."],
+	"market_close": ["Closing up!", "Last chance, bargains!", "See you at dawn."],
+	"broken_cart": ["Blast this wheel!", "I'll never make market now.", "Could someone lend a hand?"],
+	"thanks": ["Bless you!", "You've saved my day.", "Take this, you've earned it."],
+	"child_play": ["Tag! You're it!", "Can't catch me!", "Race you to the well!", "Wait for me!"],
+	"dog": ["Come back here, you wretched dog!", "Not the hens!", "Bad dog!"],
+	"traveller": ["Just passing through.", "My papers are in order.", "I come from the coast, officer."],
+	"guard_ask": ["State your business.", "Papers, traveller.", "Where are you bound?"],
+	"noble": ["Make way for his lordship!", "Clear the road!"],
+	"adventurer": ["Where is the guild hall?", "Heard there's a nest to the north.", "I need a drink and a bed."],
+	"delivery": ["Mind your backs!", "Fresh flour for the baker!", "Where does this crate go?"],
+	"laundry": ["Plenty of sun for drying today.", "My arms ache from wringing.", "Hand me those pegs."],
+	"gossip_well": ["Did you hear what happened last night?", "She said what?", "And with the miller's wife!"],
+	"funeral": ["Rest now, old friend.", "Gently, gently...", "Lower your heads."],
+	"wedding": ["Long life to the couple!", "A kiss! A kiss!", "Throw the barley!"],
+	"fire_bucket": ["Pass the bucket!", "More water!", "Keep the line moving!"],
+	"hunter": ["Wolves on the road!", "Fresh venison!", "Close the gates early!"],
+	"courier": ["Message for the captain!", "Make way, urgent post!", "News from the front!"],
+	"healer": ["Keep the water boiled.", "Rest and broth, that will mend him.", "Burn the bedding."],
+	"tax": ["The crown's due, if you please.", "Your ledger, merchant.", "Quarter's tax. No excuses."],
+	"farmer_home": ["Another long day.", "Fields are dry as bone.", "The ox is lame again."],
+	"teacher": ["Again, from the top!", "Letters first, play after.", "Who can read this word?"],
+	"peddler": ["Ribbons, pins, needles!", "Charms against the dark!", "Finest trinkets, cheap!"],
+	"kneel": ["For those we lost.", "Light a candle for the dead."],
 }
 
 

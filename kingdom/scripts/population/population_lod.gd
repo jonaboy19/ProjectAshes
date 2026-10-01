@@ -15,6 +15,8 @@ extends Node3D
 
 const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
+const MicroEvents := preload("res://scripts/population/micro_events.gd")
+const NpcWorld := preload("res://scripts/population/npc_world.gd")
 
 const FULL_RANGE := 45.0
 const SPRITE_RANGE := 220.0
@@ -70,6 +72,8 @@ var _held: Dictionary = {}        # person id -> true while its departure is hel
 var _last_time := -1.0
 var _sprite_cache: Dictionary = {}   # person id -> [raw pos, pushed-out ground point]
 var _sprite_hidden: Dictionary = {}  # person id -> true while suppressed inside SPRITE_MIN_DIST
+## Street scenes (cart passing, funeral, gates closing ...) of the settlement the player is in.
+var micro: Node
 
 
 func setup(baker: ImpostorBaker) -> void:
@@ -89,13 +93,21 @@ func setup(baker: ImpostorBaker) -> void:
 		mmi.custom_aabb = AABB(Vector3(-5000, -500, -5000), Vector3(10000, 1500, 10000))
 		add_child(mmi)
 		_multimeshes[look] = mm
+	micro = MicroEvents.new()
+	add_child(micro)
 
 
 func _process(delta: float) -> void:
 	_timer -= delta
 	if _timer <= 0.0:
 		_timer = 0.25
-		refresh()
+		if NpcWorld.profile:
+			var t0 := Time.get_ticks_usec()
+			refresh()
+			NpcWorld.prof_lod_usec += Time.get_ticks_usec() - t0
+			NpcWorld.prof_lod_calls += 1
+		else:
+			refresh()
 
 
 func refresh() -> void:
