@@ -18,6 +18,7 @@ const MID_CELL := 60.0
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const Breakable := preload("res://scripts/world/breakable.gd")
 const NpcWorldScript := preload("res://scripts/population/npc_world.gd")
+const DistrictProps := preload("res://scripts/world/district_props.gd")   # district prop sets + house details (VERTICAL_SLICE P1)
 
 const BUILD_RANGE := 650.0
 const FREE_RANGE := 850.0
@@ -323,6 +324,7 @@ func _build(s: Dictionary) -> Node3D:
 	_multimesh(root, Assets.building_mesh("crate"), sc_crates, true, true, "crate")
 	_multimesh(root, Assets.building_mesh("sack_pile"), sc_sacks, true, true, "sack_pile")
 	_multimesh(root, Assets.building_mesh("cart"), sc_carts, true, true)
+	DistrictProps.build(self, root, s, plan)
 	_decals(root, s, plan)
 	_flush_contact_shadows(root)
 	return root
@@ -1049,6 +1051,7 @@ func _homesteads(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumbe
 				continue   # steep yard: no woodpile / line / plot hanging off the bank
 			yard_spots.append(at)
 			(sets[kind] as Array).append(Transform3D(Basis(Vector3.UP, ky), Vector3(at.x, _ground_snap(at, ky, ysz, 0.03), at.y)))
+	plan["yard_spots"] = yard_spots   # district_props.gd keeps its own props off these
 	for kind: String in sets:
 		var list: Array[Transform3D] = []
 		list.assign(sets[kind])

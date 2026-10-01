@@ -26,3 +26,57 @@ Then the systems get replicated across Valencious.
 | P1 | Rising Ashes identity outside the walls: runestones along maintained roads, a visible protected/unprotected boundary, damaged stones, monster warning posts, checkpoints, abandoned carts beyond protection, Soulbeast tracks, caravans waiting for escort, shrines, Rift traders, returning patrols | cloud (placement and sim) plus local (look) |
 | P1 | Real careers. Scribe: copying, forgery detection, translation, tax records, clerk, steward, restricted records, noble secrets, estates, diplomacy. Also ladders for farmer, soldier, merchant and blacksmith | cloud |
 | P2 | Weather and seasons visible in town; crime, law and economy reactions; larger population; deep relationships; combat and VFX | later |
+
+## Detail prop keys (house detailing hooks, cloud session 2026-10-01)
+
+Every house lot gets 2-6 attachments chosen by district + wealth + the lot's own seed (`scripts/world/house_details.gd`, placed by
+`scripts/world/district_props.gd`, called from `SettlementBuilder._build`). There are 29 keys. **Each key is a hook for the local
+session:** drop a GLB at `kingdom/assets/generated/details/<key>.glb` and it replaces the stand-in everywhere (first match wins, no code
+change; merged per material, one MultiMesh per key per 40 m cell). Convention: real metres, +Y up, **origin on the ground** for floor
+items and **on the wall plane at the middle of the item, +Z out of the wall** for wall items (window boxes, signs, shutters, lanterns,
+awnings, banners, plaster patches), one material per key where possible (each key is one draw call).
+
+| Key | Slots (wall_a/wall_b = front wall left/right of the door, door_a/door_b = floor beside the door, side, yard, post, roof) | Stand-in today |
+|---|---|---|
+| `chimney_stack` | side | procedural (`house_details.gd` `_proc("chimney")`) |
+| `flower_box` | wall_a,wall_b | existing `Assets.building_mesh("planter_box")` |
+| `flower_planter` | door_a,door_b | existing `Assets.building_mesh("flower_planter")` |
+| `firewood_stack` | side,door_a,door_b,yard | existing `Assets.building_mesh("woodpile")` |
+| `shop_sign` | wall_a,wall_b | existing `Assets.building_mesh("shop_sign")` |
+| `damaged_plaster` | wall_a,wall_b | procedural (`house_details.gd` `_proc("plaster_patch")`) |
+| `shutters_open` | wall_a,wall_b | procedural (`house_details.gd` `_proc("shutters_open")`) |
+| `shutters_closed` | wall_a,wall_b | procedural (`house_details.gd` `_proc("shutters_closed")`) |
+| `shutters_painted` | wall_a,wall_b | procedural (`house_details.gd` `_proc("shutters_painted")`) |
+| `barrel_pair` | door_a,door_b,side | existing `Assets.building_mesh("barrel_cluster")` |
+| `rain_barrel` | side,door_a,door_b | existing `Assets.building_mesh("barrel")` |
+| `laundry_line` | yard | existing `Assets.building_mesh("washing_line")` |
+| `fence_run` | yard,door_a,door_b | existing `Assets.building_mesh("fence")` |
+| `hanging_lantern` | wall_a,wall_b | procedural (`house_details.gd` `_proc("lantern")`) |
+| `bench` | door_a,door_b | existing `Assets.building_mesh("bench")` |
+| `hand_cart` | yard,door_a,door_b | existing `Assets.building_mesh("hand_cart")` |
+| `market_cart` | yard | existing `Assets.building_mesh("cart")` |
+| `lamp_post` | post | existing `Assets.building_mesh("lamp_post")` |
+| `crate_stack` | door_a,door_b,side | existing `Assets.building_mesh("crate_stack")` |
+| `sack_pile` | door_a,door_b,side | existing `Assets.building_mesh("sack_pile")` |
+| `hay_bale` | yard,side | existing `Assets.building_mesh("hay")` |
+| `striped_awning` | wall_a,wall_b | procedural (`house_details.gd` `_proc("awning")`) |
+| `wall_banner` | wall_a,wall_b | existing `Assets.building_mesh("wall_banner")` |
+| `drying_rack` | yard | procedural (`house_details.gd` `_proc("drying_rack")`) |
+| `weapon_rack` | door_a,door_b,yard | existing `Assets.building_mesh("weapon_rack")` |
+| `anvil` | door_a,door_b,yard | existing `Assets.building_mesh("anvil_stump")` |
+| `roof_patch` | roof | TownDecals `plaster` (downward roof projector) |
+| `flower_bed` | yard,door_a,door_b | existing `Assets.building_mesh("flower_bed")` |
+| `water_trough` | yard,door_a,door_b | existing `Assets.building_mesh("water_trough")` |
+
+Wall-mounted keys are named `hanging_*` in the scene so the world lint knows they hang on purpose. The `roof_patch` decal is capped at 8 per
+town (the Mobile renderer applies 8 decals per mesh). District street furniture (`district_props.gd` `SETS`) uses existing assets only.
+
+## Districts and outside-the-walls identity (cloud session 2026-10-01)
+
+- `scripts/world/districts.gd`: six districts per town (market, craft, poor, admin, inn, military) from weighted anchors; `CityPlanner.plan`
+  writes `plan["district_anchors"]`, `lot["district"]`, `lot["wealth"]`, `lot["seed"]`, and swaps plain houses for district variants.
+  **`Districts.district_at(pos) -> String`** (any world point; "" in the countryside), `Districts.locate(pos)`, `CityPlanner.district_at(plan, pos)`.
+  After a town is built `plan["marks"]` holds `{yard, wells[], boards[]}` (drill yard centre, communal wells, notice boards) for NPC schedules.
+- `scripts/world/outer_identity.gd` plans ward markers, checkpoints, shrines, warning posts, cracked runestones, abandoned carts, waiting
+  caravans (`escort: true`) and Rift traders (`rift_trader: true`) as `roadside` sites with an `ident` tag; `outer_identity_view.gd` draws the
+  ash ground tint beyond the wards and Soulbeast tracks around live ecology dens.

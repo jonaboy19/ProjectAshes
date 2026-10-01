@@ -10,6 +10,7 @@ extends RefCounted
 ## rejected where they would overlap a street, another building or the walls.
 
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
+const Districts := preload("res://scripts/world/districts.gd")
 
 const LOT_SPACING := 10.5
 const LOT_CLEARANCE := 9.5
@@ -50,7 +51,7 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 	var plaza_r := maxf(12.0, r * 0.13)
 	var walled := kind != "village"
 	var result := {"streets": [], "lots": [], "walls": walled, "wall_radius": r, "gates": gates,
-		"plaza_r": plaza_r, "landmarks": [], "inner_wall": 0.0}
+		"plaza_r": plaza_r, "landmarks": [], "inner_wall": 0.0, "centre": c}
 	var streets: Array = result["streets"]
 
 	# Main streets: plaza to each gate.
@@ -140,8 +141,103 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 	if kind == "frontier_town":
 		_infill(lots, blocked, streets, landmarks, c, r, plaza_r, result["inner_wall"], rng)
 	_civic_lots(lots, c, r, walled, result["inner_wall"], landmarks)
+	_zone_districts(result, kind, c, r, plaza_r, walled, seed_value)
 	result["paths"] = _door_paths(lots, streets)
 	return result
+
+
+## District zoning (scripts/world/districts.gd): anchors, a district and a wealth on every lot, and the building variants
+## each quarter favours (tall merchant houses in the market, small houses in the poor quarter, a courthouse beside the
+## temple, a second smithy or stable where the quarter wants one). Own RNG stream: the layout above is untouched.
+const MAX_EXTRA_SMITHS := 2
+const MAX_EXTRA_STABLES := 1
+## A swapped-in house must not be wider or deeper than this (the lot spacing was drawn for houses).
+const VARIANT_MAX_FOOT := 10.6
+
+
+static func _zone_districts(plan_data: Dictionary, kind: String, c: Vector2, r: float, plaza_r: float, walled: bool, seed_value: int) -> void:
+	var lots: Array = plan_data["lots"]
+	var landmarks: Array = plan_data["landmarks"]
+	var inner: float = plan_data["inner_wall"]
+	var anchors := Districts.anchors(kind, c, r, plaza_r, plan_data["gates"], lots, landmarks)
+	plan_data["district_anchors"] = anchors
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([seed_value, "districts"]) + 31 * lots.size()
+	var smiths := 0
+	var stables := 0
+	var courthouse := false
+	# The lot nearest the admin anchor becomes the courthouse / steward's hall (one per town that has a civic quarter).
+	var court_idx := -1
+	var court_best := INF
+	var admin_anchors := Districts.anchors_of(anchors, Districts.ADMIN)
+	for i in lots.size():
+		lots[i]["district"] = Districts.nearest_kind(anchors, lots[i]["pos"])
+		if lots[i]["district"] == Districts.ADMIN and String(lots[i]["asset"]).begins_with("house") and not admin_anchors.is_empty():
+			var d := (lots[i]["pos"] as Vector2).distance_to(admin_anchors[0]["pos"])
+			if d < court_best:
+				court_best = d
+				court_idx = i
+	for i in lots.size():
+		var lot: Dictionary = lots[i]
+		var dk: String = lot["district"]
+		var p: Vector2 = lot["pos"]
+		var asset := String(lot["asset"])
+		lot["wealth"] = Districts.wealth_of(dk, p.distance_to(c) / r, rng)
+		lot["seed"] = hash([seed_value, roundi(p.x * 4.0), roundi(p.y * 4.0)])
+		if not (asset.begins_with("house") or asset.begins_with("mhouse")):
+			continue   # inn, smithy, guild hall, healer, stable keep their lot
+		var want := asset
+		var role := ""
+		var roll := rng.randf()
+		if i == court_idx and not courthouse:
+			want = "mhouse_manor"
+			role = "courthouse"
+		elif dk == Districts.CRAFT and smiths < MAX_EXTRA_SMITHS and roll < 0.16:
+			want = "blacksmith"
+			role = "workshop"
+		elif dk == Districts.INN and stables < MAX_EXTRA_STABLES and roll < 0.14:
+			want = "stable"
+		elif Districts.VARIANTS.has(dk) and roll < 0.78:
+			want = Districts.pick(Districts.VARIANTS[dk], rng)
+		if want == asset:
+			continue
+		var big := BuildingProfiles.size_of(want)
+		if want != "stable" and want != "blacksmith" and maxf(big.x, big.z) > VARIANT_MAX_FOOT:
+			continue
+		if not fits(want, p, lot["yaw"], c, r, walled, inner, landmarks):
+			continue
+		# A neighbour closer than a big building's reach would overlap it: only the lot grid's own spacing is trusted.
+		if want in ["stable", "blacksmith", "mhouse_manor"] and _crowded(lots, i, want):
+			continue
+		lot["asset"] = want
+		if role != "":
+			lot["role"] = role
+		if want == "blacksmith":
+			smiths += 1
+		elif want == "stable":
+			stables += 1
+		elif want == "mhouse_manor":
+			courthouse = true
+
+
+## True when another lot sits closer than the two buildings' half widths (plus a 1.5 m lane) allow.
+static func _crowded(lots: Array, idx: int, asset: String) -> bool:
+	var me: Dictionary = lots[idx]
+	var s := BuildingProfiles.size_of(asset)
+	var reach := maxf(s.x, s.z) * 0.5
+	for j in lots.size():
+		if j == idx:
+			continue
+		var o: Dictionary = lots[j]
+		var os := BuildingProfiles.size_of(String(o["asset"]))
+		if (me["pos"] as Vector2).distance_to(o["pos"]) < reach + maxf(os.x, os.z) * 0.5 + 1.5:
+			return true
+	return false
+
+
+## District ("market", "craft", "poor", "admin", "inn", "military", or "" outside the walls) of a world point of a plan.
+static func district_at(plan_data: Dictionary, p: Vector2) -> String:
+	return Districts.at_plan(plan_data, p)
 
 
 ## Small walled hold: the keep-off-the-wall rule takes its outer row of lots, so further houses go on free plots

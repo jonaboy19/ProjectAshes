@@ -72,6 +72,8 @@ func _ready() -> void:
 	add_child(preload("res://scripts/world/region1_creatures.gd").new())
 	# Caves hook (scripts/world/region_caves.gd): walk-in doors for the planned cave, mine, hideout and crypt sites.
 	add_child(preload("res://scripts/world/region_caves_view.gd").new())
+	# Rising Ashes identity hook (scripts/world/outer_identity.gd): ward-edge ground tint and Soulbeast tracks near live dens.
+	add_child(preload("res://scripts/world/outer_identity_view.gd").new())
 
 
 ## Every file is loaded at boot now, so any part can be built right away.
