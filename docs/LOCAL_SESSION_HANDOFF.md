@@ -17,6 +17,8 @@ Skills: `ashes-style-g`, `ashes-style-g-assets`, `ashes-style-g-qa` (updated wit
 
 - **Pass 2 (same day, ~67):** vertex AO bake (houses), sparkle fix (bump back at 0.3), deeper cobbles + gate block detail, calmer stall cloth, hood bag + shaggy hair tufts + strap on the jerkin, brown boots, blue guards, VAT far crowd, warmth 1.46 -> 1.42. LOW 297k/128. Codex merge (PA_wt_codexint, 0fa52409) not on origin yet: outfit NOT re-verified on Codex's new clips. S22 still unplugged: no phone fps.
 
+- **Pass 3 (~70):** contrast/warmth grade (metrics now within the QA ranges except contrast 0.22 vs 0.23), satchel strap continuous across the front. Spring bones NOT added (would need new bones on the shared skeleton). Codex merge 0fa52409 still not on origin; S22 still unplugged.
+
 ## Region 1 look pass (local, 2026-09-30): valley, landmarks, horizon, biome patchwork
 - Built: the Hollin's Reach valley (upper Ashrun: cliffs, falls, terraces, ruins, Stone Gap reveal, gorge gate), the Drowned Bell + Emberglass Ferry, Crownstead Mill Hill, Stagborn Glade, the Wyrm's Ribs; far horizon (whole-world low mesh + canopy domes), biome map + field patchwork, warm rock, golden-hour sky, river-carve fix, updated parchment map.
 - Code: `scripts/region1/region1_{terrain,landmarks,look,horizon}.gd`, `shaders/region1/{biome.gdshaderinc,horizon_*,waterfall}`, data in `data/region1/{landmarks,terrain_stamps}.json` + `data/region1/terrain/`.

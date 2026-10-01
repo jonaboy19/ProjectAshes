@@ -166,7 +166,7 @@ static func dress(model: Node3D) -> MeshInstance3D:
 				_quad(st, vs[0], vs[1], vs[2], vs[3], true)
 		# satchel strap lying ON the jerkin shell (front: right hip -> left shoulder), torso bones only = no arm fins
 		var prev := Vector3.ZERO
-		var sn := 12
+		var sn := 20
 		for si2 in sn + 1:
 			var t := float(si2) / sn
 			var y := lerpf(y0 - 0.02 * unit, y1 - 0.01 * unit, t)
@@ -174,7 +174,7 @@ static func dress(model: Node3D) -> MeshInstance3D:
 			var rb3: Vector2 = r_lo.lerp(r_mid, clampf(kk * 2.0, 0.0, 1.0)) if kk < 0.5 else r_mid.lerp(r_hi, clampf(kk * 2.0 - 1.0, 0.0, 1.0))
 			var rr := rb3 * 1.08 + Vector2(0.006, 0.01) * unit
 			var a2 := lerpf(PI * 0.5 + 0.95, PI * 0.5 - 0.75, t)        # angle on the ellipse, +z = front
-			var pt := Vector3(cx + cos(a2) * (rr.x + 0.01 * unit), y, cz + sin(a2) * (rr.y + 0.012 * unit))
+			var pt := Vector3(cx + cos(a2) * (rr.x + 0.022 * unit), y, cz + sin(a2) * (rr.y + 0.026 * unit))   # clear of the jerkin + tunic (no z-fight)
 			if si2 > 0:
 				_strap(st, prev, pt, 0.045 * unit, Vector3(cos(a2), 0, sin(a2)), sp1, sp3, clampf(kk, 0.0, 1.0), LEATHER_DARK)
 			prev = pt
