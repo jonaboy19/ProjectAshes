@@ -482,3 +482,10 @@ The user watched the full 1:47 build. Don't push graphics up globally; perfect t
 - **NPC AI:** confirm wolf flee, firefighting and the green build ghost (`/tmp`-style scenes are listed in the NPC AI notes; re-create with the e2e driver).
 - **HUD:** check it on the S22 including the safe area and 4:3, and check the one-line quest tracker.
 - **12 km world:** repaint the parchment map (`tools_qa/map/run_paint.sh`, see `docs/LOCAL_PC_TASKS.md`). Play one coach trip, one night camp and a long road walk, and say whether travel feels right.
+
+## 2026-10-01 (cloud -> local): Style Lab on the phone (user wants to choose the look)
+The user isn't happy with the overall look on phone, or with the main character. Cloud is building `kingdom/scenes/style_lab/style_lab.tscn`: 4–5 small dioramas of the same medieval street corner plus the main character. The styles are A current, B storybook painterly, C grounded medieval PBR, D polished stylised, and E a low-end-safe version. When it lands:
+1. Render it on the GPU (`--shot=style_lab`) and **run it on the S22** (flag `--style_lab`). Send the user screenshots or a short screen recording of each box, plus fps and draws per box.
+2. Upgrade the character models in each box with the best free models you have. The asset audit's unused list (555 MB) is the first place to look.
+3. Don't apply anything game-wide until the user picks a style. After that, the chosen style is rolled out (`docs/design/STYLE_LAB.md`).
+**Unused models (user request):** keep the audit list. Anything that doesn't fit Region 1 gets tagged for Region 2 in the audit doc, so nothing is wasted.
