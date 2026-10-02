@@ -967,9 +967,22 @@ func _gui_input(e: InputEvent) -> void:
 
 
 func _tap(pos: Vector2) -> void:
+	for group: Dictionary in _marker_groups():
+		if int(group.count) > 1 and to_screen(group.place.pos).distance_to(pos) < 28.0:
+			_center = group.place.pos
+			_zoom = minf(_max_zoom(), _zoom * 2.0)
+			_clamp_center()
+			queue_redraw()
+			return
 	var best := {}
 	var best_d := 34.0
+	var pickable: Array[Dictionary] = []
+	for group: Dictionary in _marker_groups():
+		pickable.append(group.place)
 	for pl: Dictionary in _shown:
+		if is_area(String(pl.kind)):
+			pickable.append(pl)
+	for pl: Dictionary in pickable:
 		if not _passes(pl):
 			continue
 		var d := to_screen(pl["pos"]).distance_to(pos)
@@ -1031,7 +1044,9 @@ func _stone_visible(s: Dictionary) -> bool:
 
 func _draw() -> void:
 	var full := Rect2(Vector2.ZERO, size)
-	if _paper:
+	if not embedded:
+		draw_rect(full, Color("151923"))
+	elif _paper:
 		draw_texture_rect(_paper, full, false)
 	else:
 		draw_rect(full, PAPER_LIGHT)
@@ -1130,20 +1145,20 @@ func _draw_neighbours() -> void:
 		var sr := Rect2(to_screen(b.position), b.size * _zoom)
 		if not sr.intersects(view):
 			continue
-		draw_rect(sr, Color(0.62, 0.48, 0.28, 0.16))
-		draw_texture_rect(_hatch, sr, true)
-		draw_rect(sr, Color(INK, 0.35), false, 2.0)
+		draw_rect(sr, Color("1b2030"))
+		draw_rect(sr, Color(0.6, 0.65, 0.8, 0.12), false, 2.0)
 		var vis := sr.intersection(view)
 		if vis.size.x > 160.0 and vis.size.y > 60.0:
 			var c := vis.get_center()
 			var nm := String(r.get("name", "Unexplored lands")).to_upper()
 			var nw := nm.length() * 17.0
 			c.x = clampf(c.x, vis.position.x + nw * 0.5 + 8.0, maxf(vis.end.x - nw * 0.5 - 8.0, vis.position.x + nw * 0.5 + 8.0))
-			_draw_spaced(nm, c + Vector2(0, -4), 18, Color(INK, 0.55), 4.0)
+			_draw_spaced(nm, c + Vector2(0, -4), 18, Color(0.75, 0.79, 0.88, 0.5), 4.0)
 			var hint := String(r.get("hint", ""))
 			if hint != "":
 				var tw := _font.get_string_size(hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
-				draw_string(_font, c + Vector2(-tw * 0.5, 22), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(INK, 0.5))
+				if tw < vis.size.x - 24.0:
+					draw_string(_font, c + Vector2(-tw * 0.5, 22), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(0.75, 0.79, 0.88, 0.4))
 
 
 func _draw_spaced(text: String, centre: Vector2, fs: int, col: Color, spacing: float, outline := false) -> void:
@@ -1220,6 +1235,13 @@ func _draw_places() -> void:
 	var view := Rect2(Vector2(-60, -60), size + Vector2(120, 120))
 	var sc := clampf(0.8 + _zoom * 0.9, 0.8, 1.4)
 	var used: Array[Rect2] = []
+	var groups := _marker_groups()
+	var represented: Dictionary = {}
+	for group: Dictionary in groups:
+		represented[group.place.id] = group.count
+		var marker_size := _icon_size(String(group.place.kind)) * sc
+		used.append(Rect2(to_screen(group.place.pos) - Vector2.ONE * marker_size * 0.55, Vector2.ONE * marker_size * 1.1))
+	used.append(Rect2(to_screen(_player_pos()) - Vector2(22, 22), Vector2(44, 44)))
 	# Settlement footprints first, so icons sit on top of them.
 	for pl: Dictionary in _shown:
 		if pl["category"] == "settlement" and _passes(pl):
@@ -1232,7 +1254,7 @@ func _draw_places() -> void:
 	var sizes := {}
 	for pl: Dictionary in _shown:
 		var kind := String(pl["kind"])
-		if is_area(kind) or not _passes(pl):
+		if is_area(kind) or not _passes(pl) or not represented.has(pl.id):
 			continue
 		var c := to_screen(pl["pos"])
 		if not view.has_point(c):
@@ -1241,6 +1263,13 @@ func _draw_places() -> void:
 		sizes[pl["id"]] = s
 		var sel: bool = not _selected.is_empty() and _selected["id"] == pl["id"]
 		MapIcons.draw_marker(self, kind, c, s, bool(pl["hostile"]), sel)
+		if int(represented[pl.id]) > 1:
+			var badge := c + Vector2(s * 0.45, s * 0.4)
+			draw_circle(badge, 12.0, CREAM)
+			draw_arc(badge, 12.0, 0.0, TAU, 24, INK, 1.5, true)
+			var text := str(represented[pl.id])
+			var width := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+			draw_string(_font, badge + Vector2(-width * 0.5, 4.5), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, INK)
 		if pl["travel"]:
 			draw_circle(c + Vector2(s * 0.5, -s * 0.5), 5.0, MapIcons.TRAVEL)
 			draw_arc(c + Vector2(s * 0.5, -s * 0.5), 5.0, 0, TAU, 12, MapIcons.INK, 1.2, true)
@@ -1256,6 +1285,8 @@ func _draw_places() -> void:
 		if is_area(kind):
 			_draw_area_label(pl, c, used)
 			continue
+		if not represented.has(pl.id):
+			continue
 		if not (kind in BIG_LABEL_KINDS or sel or _zoom > 0.3):
 			continue
 		if kind in ["farm", "wayshrine"] and not sel and _zoom < 0.7:
@@ -1264,7 +1295,31 @@ func _draw_places() -> void:
 		var big := kind in ["castle", "capital"]
 		var fs := 22 if big else (17 if kind in ["town", "village", "frontier_town"] else 14)
 		var col := Color("7a1f1a") if big else (Color("5a2a0e") if not pl["hostile"] else Color("9a1f1f"))
-		_draw_label(String(pl["name"]), c + Vector2(0, s * 0.62 + fs * 0.9), fs, col, used, sel)
+		if not _draw_label(String(pl["name"]), c + Vector2(0, s * 0.62 + fs * 0.9), fs, col, used, sel):
+			_draw_label(String(pl["name"]), c + Vector2(0, -s * 0.65 - 8.0), fs, col, used, sel)
+
+
+## Cluster only already-visible places. Reuse this layout for drawing and touch
+## picking so an invisible icon cannot steal a tap. Zooming exposes members.
+func _marker_groups() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var view := Rect2(Vector2(-60, -60), size + Vector2(120, 120))
+	for i in range(_shown.size() - 1, -1, -1):
+		var pl: Dictionary = _shown[i]
+		if is_area(String(pl.kind)) or not _passes(pl) or not view.has_point(to_screen(pl.pos)):
+			continue
+		var joined := false
+		if _zoom < 0.6 and (_selected.is_empty() or pl.id != _selected.id):
+			for group: Dictionary in result:
+				if not _selected.is_empty() and group.place.id == _selected.id:
+					continue
+				if to_screen(pl.pos).distance_to(to_screen(group.place.pos)) < 44.0:
+					group.count = int(group.count) + 1
+					joined = true
+					break
+		if not joined:
+			result.append({"place": pl, "count": 1})
+	return result
 
 
 func _icon_size(kind: String) -> float:
@@ -1278,17 +1333,18 @@ func _icon_size(kind: String) -> float:
 	return 28.0
 
 
-func _draw_label(text: String, anchor: Vector2, fs: int, col: Color, used: Array[Rect2], force := false) -> void:
+func _draw_label(text: String, anchor: Vector2, fs: int, col: Color, used: Array[Rect2], force := false) -> bool:
 	var tw := _title_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 	var rect := Rect2(anchor + Vector2(-tw * 0.5 - 3, -fs), Vector2(tw + 6, fs + 5))
 	if not force:
 		for u in used:
 			if u.intersects(rect):
-				return
+				return false
 	used.append(rect)
 	var p := anchor + Vector2(-tw * 0.5, 0)
 	draw_string_outline(_title_font, p, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 6, Color(CREAM, 0.92))
 	draw_string(_title_font, p, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
+	return true
 
 
 func _draw_area_label(pl: Dictionary, c: Vector2, used: Array[Rect2]) -> void:
