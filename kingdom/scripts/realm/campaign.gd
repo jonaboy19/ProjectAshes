@@ -3882,7 +3882,11 @@ func enemy_pieces() -> Array:
 	var out: Array = []
 	for key: String in _sight:
 		var s: Dictionary = _sight[key]
+		if int(s["hour"]) > _hours or int(s.get("received_hour", s["hour"])) > _hours:
+			continue
 		var age := maxi(0, _hours - int(s["hour"]))
+		if age > SIGHT_KEEP_HOURS:
+			continue
 		var widen := 1.0 + minf(float(age) * 0.01, 2.0)
 		var mid := (float(s["min"]) + float(s["max"])) * 0.5
 		var half := (float(s["max"]) - float(s["min"])) * 0.5
@@ -4251,7 +4255,7 @@ func deserialize(d: Dictionary) -> void:
 		_ii(e["cas"], ["a", "b"])
 	_sight = (d.get("sight", {}) as Dictionary).duplicate(true)
 	for k5: String in _sight:
-		_ii(_sight[k5], ["army_id", "unit_id", "hour", "min", "max", "comp_hour"])
+		_ii(_sight[k5], ["army_id", "unit_id", "hour", "received_hour", "min", "max", "comp_hour"])
 		_ii(_sight[k5]["comp"], (_sight[k5]["comp"] as Dictionary).keys())
 	_orders_log = (d.get("orders_log", []) as Array).duplicate(true)
 	for ol: Dictionary in _orders_log:
