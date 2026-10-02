@@ -117,6 +117,7 @@ var _air_state: AnimationNodeStateMachinePlayback
 var _air_weight := 0.0
 var _air_target := 0.0
 var _pivot_yaw_curves: Dictionary = {}
+var _pivot_root_tracks: Dictionary = {}
 
 
 func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "Walking_A", run_anim := "Running_A", idle_anim := "Idle", with_stances := false, with_air := false) -> void:
@@ -557,6 +558,23 @@ func pivot_yaw(anim_name: String, at: float) -> float:
 	var frame := clampf(at * 30.0, 0.0, values.size() - 1.0)
 	var index := floori(frame)
 	return lerpf(values[index], values[mini(index + 1, values.size() - 1)], frame - index)
+
+
+func pivot_position(anim_name: String, at: float) -> Vector3:
+	if not player.has_animation(_clip(anim_name)):
+		return Vector3.ZERO
+	var animation := player.get_animation(_clip(anim_name))
+	if not _pivot_root_tracks.has(anim_name):
+		var found := -1
+		for track in animation.get_track_count():
+			if animation.track_get_type(track) == Animation.TYPE_POSITION_3D and String(animation.track_get_path(track)).ends_with(":root"):
+				found = track
+				break
+		_pivot_root_tracks[anim_name] = found
+	var root_track: int = _pivot_root_tracks[anim_name]
+	if root_track < 0:
+		return Vector3.ZERO
+	return animation.position_track_interpolate(root_track, clampf(at, 0.0, animation.length)) - animation.position_track_interpolate(root_track, 0.0)
 
 
 func gait_phase() -> float:

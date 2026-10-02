@@ -248,6 +248,12 @@ var _step_distance := 0.0
 var _move_dir := Vector3.FORWARD
 var _move_speed := 0.0
 var _pivoting := false
+var _pivot_clip := ""
+var _pivot_elapsed := 0.0
+var _pivot_length := 0.0
+var _pivot_rate := 1.0
+var _pivot_start_yaw := 0.0
+var _pivot_yaw_scale := 1.0
 var _air_time := 0.0
 var _jump_buffer := 0.0
 var _jump_starting := false
@@ -1064,6 +1070,12 @@ func _parry(from: Node, grade := "knockaway", refund := 8.0, riposte := 1.5) -> 
 ## Body response: speed and travel direction are tuned separately. `control`
 ## scales every rate (reduced in the air).
 func _steer(target: Vector3, delta: float, control: float) -> void:
+	if _pivot_clip != "":
+		if target.length() < 0.05 or not is_on_floor() or swimming or dead or _stunned > 0.0:
+			_cancel_pivot()
+		else:
+			_advance_pivot(delta)
+			return
 	var want_speed := target.length()
 	if want_speed < 0.05:
 		_pivoting = false
@@ -1077,6 +1089,11 @@ func _steer(target: Vector3, delta: float, control: float) -> void:
 	else:
 		var angle := _move_dir.signed_angle_to(want_dir, Vector3.UP)
 		if absf(angle) > PIVOT_ANGLE:
+			if _move_speed >= 4.0 and is_on_floor() and not _strafing and not blocking \
+					and view != View.FIRST and not crouching and _swing <= 0.0 and _stunned <= 0.0 and not _jump_active and not _jump_starting:
+				if _begin_pivot(want_dir):
+					_advance_pivot(delta)
+					return
 			_pivoting = true
 		if _pivoting:
 			# Reversal: brake hard along the old line (no wide arc), then set off.
@@ -1113,11 +1130,17 @@ func _resolve_contacts() -> void:
 		if into < 0.0:
 			_impulse -= n * into
 	var real := get_real_velocity()
+	if _pivot_clip != "" and Vector2(real.x, real.z).length() < _move_speed * 0.5:
+		_cancel_pivot()
 	_move_speed = minf(_move_speed, Vector2(real.x, real.z).length() + 0.5)
 
 
 func _update_facing(dir: Vector3, delta: float) -> void:
 	var before := _model.rotation.y
+	if _pivot_clip != "":
+		_model.rotation.y = _pivot_start_yaw + _animator.pivot_yaw(_pivot_clip, _pivot_elapsed) * _pivot_yaw_scale
+		_yaw_rate = angle_difference(before, _model.rotation.y) / maxf(delta, 0.0001)
+		return
 	var want := before
 	var rate := 0.0
 	if _strafing and is_instance_valid(_lock) and _dodge <= 0.0 and _stunned <= 0.0:
@@ -1384,10 +1407,56 @@ func _update_locomotion_transition(dir: Vector3, grounded: bool, entry_speed: fl
 
 
 func _cancel_locomotion_transition() -> void:
+	_cancel_pivot()
 	if _loco_transition_time <= 0.0:
 		return
 	_loco_transition_time = 0.0
 	_animator.finish_locomotion_transition()
+
+
+func _begin_pivot(want_dir: Vector3) -> bool:
+	var turn := angle_difference(_model.rotation.y, atan2(want_dir.x, want_dir.z))
+	var clip := "Loco_Pivot180_Run_L"
+	var length := _animator.clip_length(clip)
+	var end_yaw := _animator.pivot_yaw(clip, length)
+	if signf(end_yaw) != signf(turn):
+		clip = "Loco_Pivot180_Run_R"
+		length = _animator.clip_length(clip)
+		end_yaw = _animator.pivot_yaw(clip, length)
+	if length <= 0.0 or absf(end_yaw) < 2.3 or (absf(turn / end_yaw) < 0.8 or absf(turn / end_yaw) > 1.2):
+		return false
+	_cancel_locomotion_transition()
+	_pivot_clip = clip
+	_pivot_length = length
+	_pivot_elapsed = 0.0
+	_pivot_rate = clampf(_move_speed / 4.0, 0.8, 1.5)
+	_pivot_start_yaw = _model.rotation.y
+	_pivot_yaw_scale = turn / end_yaw
+	_pivoting = false
+	_animator.play_air(clip, _pivot_rate)
+	return true
+
+
+func _advance_pivot(delta: float) -> void:
+	var previous := _animator.pivot_position(_pivot_clip, _pivot_elapsed)
+	_pivot_elapsed = minf(_pivot_elapsed + delta * _pivot_rate, _pivot_length)
+	var next := _animator.pivot_position(_pivot_clip, _pivot_elapsed)
+	var travel := (next - previous).rotated(Vector3.UP, _pivot_start_yaw) * Life.body_scale()
+	travel.y = 0.0
+	_move_speed = travel.length() / maxf(delta, 0.0001)
+	if travel.length_squared() > 0.000001:
+		_move_dir = travel.normalized()
+	if _pivot_elapsed >= _pivot_length:
+		_model.rotation.y = _pivot_start_yaw + _animator.pivot_yaw(_pivot_clip, _pivot_length) * _pivot_yaw_scale
+		_cancel_pivot()
+
+
+func _cancel_pivot() -> void:
+	if _pivot_clip == "":
+		return
+	_pivot_clip = ""
+	_pivoting = false
+	_animator.finish_air()
 
 
 func _land_jump(impact_speed: float, dir: Vector3) -> void:
@@ -1451,6 +1520,8 @@ func _land_jump(impact_speed: float, dir: Vector3) -> void:
 
 
 func _reset_jump() -> void:
+	if _animator:
+		_cancel_locomotion_transition()
 	_jump_buffer = 0.0
 	_jump_starting = false
 	_jump_active = false
