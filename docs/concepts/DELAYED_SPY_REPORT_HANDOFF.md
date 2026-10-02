@@ -15,3 +15,11 @@ Campaign now skips expired entries during display rather than waiting for its ne
 This API is not a completed spying feature. The host must authenticate the witness, prove perception, store the observation at acquisition, and deliver it through an actual communication channel. Town spying still needs assignments, travel, observation targets, detection, report delivery and UI. Existing strategic spy missions have not been replaced.
 
 Do not use this path to inject all enemy positions into the map. A visible marker represents received evidence, not global truth.
+
+## Report delivery queue
+
+`queue_observation` accepts the same observation plus communication travel hours. It validates the snapshot before placing it in a bounded 64-entry pending queue, rejects duplicate witness/army/time observations, and exposes nothing to the map before arrival. Campaign's hourly tick delivers due records through `report_observation`. If newer knowledge arrived first, the older courier report is discarded. Successful delivery emits one notification.
+
+Pending reports are included in Campaign serialization and restored after its clock, including compatibility with saves without this field. Restore work examines at most 64 records. The focused fixture exercises exact queue/delivery/restore methods and verifies hidden-before-arrival behavior, pending JSON restoration, age and position retention, exactly one delivery and queue capacity. Full Campaign save and startup remain unverified.
+
+This queue is a data delivery mechanism. It does not prove a physical courier travelled safely or that a witness saw the target. Assignment/travel systems must validate those facts, compute travel hours, and enqueue only legitimate observations. Interception, courier loss and town espionage tasks remain pending.

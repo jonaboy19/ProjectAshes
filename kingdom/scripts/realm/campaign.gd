@@ -18,6 +18,8 @@ const Siege := preload("res://scripts/realm/siege.gd")
 const WarAdvisors := preload("res://scripts/realm/war_advisors.gd")
 const Military := preload("res://scripts/sim/military.gd")
 const SightingReport := preload("res://scripts/realm/sighting_report.gd")
+const MAX_SPY_REPORTS := 64
+var _spy_reports: Array[Dictionary] = []
 
 const PLAYER := "player"
 const ARMY_SPEED := 180.0          # metres per hour on a road (world is 12 km wide; 60 on the 4 km map, 120 on the 8 km map)
@@ -607,6 +609,7 @@ func tick_hour(_hour: int, ctx: Dictionary) -> Array:
 	if WorldGen.settlements.is_empty():
 		return out
 	_hours += 1
+	_deliver_spy_reports(out)
 	var pp: Variant = ctx.get("player_pos")
 	if pp is Vector2:
 		_player_node = nearest_node(pp)
@@ -3951,6 +3954,52 @@ func report_observation(army_id: int, faction: String, source: String, position:
 	return true
 
 
+## Called after a validated witness sends a report. Travel time is supplied by
+## the host's communication route, not recomputed from live enemy positions.
+func queue_observation(army_id: int, faction: String, source: String, position: Vector2,
+		observed_hour: int, minimum: int, maximum: int, travel_hours: int) -> bool:
+	if travel_hours < 1 or travel_hours > SIGHT_KEEP_HOURS or observed_hour > _hours \
+			or _spy_reports.size() >= MAX_SPY_REPORTS:
+		return false
+	var report := SightingReport.build(army_id, faction, source, position,
+		observed_hour, _hours + travel_hours, SIGHT_KEEP_HOURS, minimum, maximum)
+	if report.is_empty():
+		return false
+	for pending: Dictionary in _spy_reports:
+		if pending["key"] == report["key"] and pending["source"] == source and int(pending["hour"]) == observed_hour:
+			return false
+	_spy_reports.append(report)
+	return true
+
+
+func _deliver_spy_reports(out: Array) -> void:
+	var keep: Array[Dictionary] = []
+	for report: Dictionary in _spy_reports:
+		if int(report["received_hour"]) > _hours:
+			keep.append(report)
+			continue
+		if report_observation(int(report["army_id"]), String(report["faction"]), String(report["source"]),
+				Vector2(float(report["x"]), float(report["y"])), int(report["hour"]), int(report["min"]), int(report["max"])):
+			out.append("A scout report arrived: an enemy force was observed %d hours ago." % (_hours - int(report["hour"])))
+	_spy_reports = keep
+
+
+func _restore_spy_reports(rows: Variant) -> void:
+	_spy_reports.clear()
+	if not rows is Array:
+		return
+	for index in range(mini(rows.size(), MAX_SPY_REPORTS)):
+		if not rows[index] is Dictionary:
+			continue
+		var row: Dictionary = rows[index]
+		var report := SightingReport.build(int(row.get("army_id", 0)), String(row.get("faction", "")),
+			String(row.get("source", "")), Vector2(float(row.get("x", INF)), float(row.get("y", INF))),
+			int(row.get("hour", -1)), int(row.get("received_hour", -1)), SIGHT_KEEP_HOURS,
+			int(row.get("min", -1)), int(row.get("max", -1)))
+		if not report.is_empty() and int(report["hour"]) <= _hours:
+			_spy_reports.append(report)
+
+
 
 ## The player's own pieces (truth: your own forces are always known), with their orders.
 func own_pieces() -> Array:
@@ -4154,7 +4203,7 @@ func serialize() -> Dictionary:
 		"pending_live": pl, "evidence": _evidence.duplicate(true), "advisors": _advisors.duplicate(true),
 		"next_id": _next_id, "hours": _hours, "day": _day, "hq": _hq, "player_node": _player_node, "op_counter": _op_counter,
 		"enemy": _enemy, "seeded_player": _seeded_player, "treaty_applied": _treaty_applied,
-		"engs": _engs.duplicate(true), "sight": _sight.duplicate(true), "orders_log": _orders_log.duplicate(true),
+		"engs": _engs.duplicate(true), "sight": _sight.duplicate(true), "spy_reports": _spy_reports.duplicate(true), "orders_log": _orders_log.duplicate(true),
 		"pcmd": _pcmd.duplicate(true), "captured": _captured.duplicate(true), "next_uid": _next_uid, "weather": _weather, "season": _season,
 		"tacs": _ser_tacs(), "sieges": _ser_sieges(), "goals": _goals.duplicate(true), "next_goal": _next_goal, "wstaff": _wstaff.duplicate(true)}
 
@@ -4240,6 +4289,7 @@ func deserialize(d: Dictionary) -> void:
 	_treaty_applied = int(d.get("treaty_applied", -1))
 	_next_id = int(d.get("next_id", 1))
 	_hours = int(d.get("hours", 0))
+	_restore_spy_reports(d.get("spy_reports", []))
 	_day = int(d.get("day", 0))
 	_hq = int(d.get("hq", 0))
 	_player_node = int(d.get("player_node", 0))
