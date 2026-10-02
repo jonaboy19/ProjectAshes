@@ -1043,7 +1043,9 @@ func _stone_visible(s: Dictionary) -> bool:
 
 func _draw() -> void:
 	var full := Rect2(Vector2.ZERO, size)
-	if _paper:
+	if not embedded:
+		draw_rect(full, Color("151923"))
+	elif _paper:
 		draw_texture_rect(_paper, full, false)
 	else:
 		draw_rect(full, PAPER_LIGHT)
@@ -1142,20 +1144,20 @@ func _draw_neighbours() -> void:
 		var sr := Rect2(to_screen(b.position), b.size * _zoom)
 		if not sr.intersects(view):
 			continue
-		draw_rect(sr, Color(0.62, 0.48, 0.28, 0.16))
-		draw_texture_rect(_hatch, sr, true)
-		draw_rect(sr, Color(INK, 0.35), false, 2.0)
+		draw_rect(sr, Color("1b2030"))
+		draw_rect(sr, Color(0.6, 0.65, 0.8, 0.12), false, 2.0)
 		var vis := sr.intersection(view)
 		if vis.size.x > 160.0 and vis.size.y > 60.0:
 			var c := vis.get_center()
 			var nm := String(r.get("name", "Unexplored lands")).to_upper()
 			var nw := nm.length() * 17.0
 			c.x = clampf(c.x, vis.position.x + nw * 0.5 + 8.0, maxf(vis.end.x - nw * 0.5 - 8.0, vis.position.x + nw * 0.5 + 8.0))
-			_draw_spaced(nm, c + Vector2(0, -4), 18, Color(INK, 0.55), 4.0)
+			_draw_spaced(nm, c + Vector2(0, -4), 18, Color(0.75, 0.79, 0.88, 0.5), 4.0)
 			var hint := String(r.get("hint", ""))
 			if hint != "":
 				var tw := _font.get_string_size(hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
-				draw_string(_font, c + Vector2(-tw * 0.5, 22), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(INK, 0.5))
+				if tw < vis.size.x - 24.0:
+					draw_string(_font, c + Vector2(-tw * 0.5, 22), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(0.75, 0.79, 0.88, 0.4))
 
 
 func _draw_spaced(text: String, centre: Vector2, fs: int, col: Color, spacing: float, outline := false) -> void:
