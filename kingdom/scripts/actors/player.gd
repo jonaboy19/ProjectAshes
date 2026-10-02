@@ -562,7 +562,7 @@ func _physics_process(delta: float) -> void:
 		_loco_transition_time -= delta
 		if _loco_transition_time <= 0.0:
 			_loco_transition_time = 0.0
-			_animator.finish_air()
+			_animator.finish_locomotion_transition()
 	if _land_time > 0.0:
 		_land_time -= delta
 		if _land_time <= 0.0:
@@ -1387,7 +1387,7 @@ func _cancel_locomotion_transition() -> void:
 	if _loco_transition_time <= 0.0:
 		return
 	_loco_transition_time = 0.0
-	_animator.finish_air()
+	_animator.finish_locomotion_transition()
 
 
 func _land_jump(impact_speed: float, dir: Vector3) -> void:

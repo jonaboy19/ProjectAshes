@@ -81,6 +81,7 @@ var rig: Node
 var _root: AnimationNodeBlendTree
 var _upper_anim: AnimationNodeAnimation
 var _full_anim: AnimationNodeAnimation
+var _loco_anim: AnimationNodeAnimation
 var _block_target := 0.0
 var _block := 0.0
 var _speed := 0.0
@@ -226,6 +227,20 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 	var air_output := ""
 	if with_air:
 		_has_air = true
+		# Stops keep the equipped upper body from the normal/armed layers.
+		# A separate node also preserves that filter throughout fade-out.
+		_loco_anim = _anim("Loco_RunStop_L")
+		_root.add_node("loco_anim", _loco_anim)
+		_root.add_node("loco_rate", AnimationNodeTimeScale.new())
+		var loco := AnimationNodeOneShot.new()
+		loco.fadein_time = 0.08
+		loco.fadeout_time = 0.18
+		_filter_lower(loco)
+		_root.add_node("loco_transition", loco)
+		_root.connect_node("loco_rate", 0, "loco_anim")
+		_root.connect_node("loco_transition", 0, output)
+		_root.connect_node("loco_transition", 1, "loco_rate")
+		output = "loco_transition"
 		# Every air clip can transition directly to every other air clip so an
 		# interrupted launch or a hard landing never queues an unwanted state.
 		var air_states := ["Normal", "Jump_Start", "Jump_Running_Start", "Jump_Rise", "Jump_Fall",
@@ -325,6 +340,17 @@ func _filter_upper(node: AnimationNode) -> void:
 				break
 		if not lower:
 			node.set_filter_path(NodePath("%s:%s" % [sk_path, bone]), true)
+
+
+func _filter_lower(node: AnimationNode) -> void:
+	node.filter_enabled = true
+	var sk_path := String(_anim_root.get_path_to(_skeleton))
+	for i in _skeleton.get_bone_count():
+		var bone := _skeleton.get_bone_name(i)
+		for key: String in LOWER_KEYS:
+			if bone.begins_with(key) or bone.contains(key):
+				node.set_filter_path(NodePath("%s:%s" % [sk_path, bone]), true)
+				break
 
 
 ## Call every frame with the character's horizontal speed (resolved travel, not
@@ -485,7 +511,16 @@ func finish_air() -> void:
 
 
 func play_locomotion_transition(anim_name: String, time_scale: float) -> void:
-	play_air(anim_name, time_scale)
+	if _loco_anim == null:
+		return
+	_loco_anim.animation = _clip(anim_name)
+	tree["parameters/loco_rate/scale"] = time_scale
+	tree["parameters/loco_transition/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
+
+
+func finish_locomotion_transition() -> void:
+	if _loco_anim != null:
+		tree["parameters/loco_transition/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT
 
 
 func clip_length(anim_name: String) -> float:
