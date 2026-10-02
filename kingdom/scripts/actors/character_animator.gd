@@ -116,6 +116,7 @@ var _has_air := false
 var _air_state: AnimationNodeStateMachinePlayback
 var _air_weight := 0.0
 var _air_target := 0.0
+var _pivot_yaw_curves: Dictionary = {}
 
 
 func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "Walking_A", run_anim := "Running_A", idle_anim := "Idle", with_stances := false, with_air := false) -> void:
@@ -245,7 +246,8 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 		# interrupted launch or a hard landing never queues an unwanted state.
 		var air_states := ["Normal", "Jump_Start", "Jump_Running_Start", "Jump_Rise", "Jump_Fall",
 			"Jump_Land_Soft", "Jump_Land_Hard", "Jump_Land_Roll", "Jump_Land_Running",
-			"Loco_RunStart_F", "Loco_RunStop_L", "Loco_RunStop_R"]
+			"Loco_RunStart_F", "Loco_RunStop_L", "Loco_RunStop_R",
+			"Loco_Pivot180_Run_L", "Loco_Pivot180_Run_R"]
 		var air_machine := AnimationNodeStateMachine.new()
 		for state: String in air_states:
 			air_machine.add_node(state, _anim("Idle" if state == "Normal" else state))
@@ -525,6 +527,36 @@ func finish_locomotion_transition() -> void:
 
 func clip_length(anim_name: String) -> float:
 	return _clip_length(anim_name)
+
+
+## Read disabled root rotation as data; the controller owns the visible yaw.
+## Unwrap each sample so a +188 degree turn does not jump to -172 degrees.
+func pivot_yaw(anim_name: String, at: float) -> float:
+	if not _pivot_yaw_curves.has(anim_name):
+		var curve := PackedFloat32Array()
+		if not player.has_animation(_clip(anim_name)):
+			return 0.0
+		var animation := player.get_animation(_clip(anim_name))
+		var root_track := -1
+		for track in animation.get_track_count():
+			if animation.track_get_type(track) == Animation.TYPE_ROTATION_3D and String(animation.track_get_path(track)).ends_with(":root"):
+				root_track = track
+				break
+		if root_track < 0:
+			return 0.0
+		var previous := animation.rotation_track_interpolate(root_track, 0.0).get_euler().y
+		var accumulated := 0.0
+		curve.append(0.0)
+		for frame in range(1, ceili(animation.length * 30.0) + 1):
+			var sample := animation.rotation_track_interpolate(root_track, minf(float(frame) / 30.0, animation.length)).get_euler().y
+			accumulated += angle_difference(previous, sample)
+			curve.append(accumulated)
+			previous = sample
+		_pivot_yaw_curves[anim_name] = curve
+	var values: PackedFloat32Array = _pivot_yaw_curves[anim_name]
+	var frame := clampf(at * 30.0, 0.0, values.size() - 1.0)
+	var index := floori(frame)
+	return lerpf(values[index], values[mini(index + 1, values.size() - 1)], frame - index)
 
 
 func gait_phase() -> float:

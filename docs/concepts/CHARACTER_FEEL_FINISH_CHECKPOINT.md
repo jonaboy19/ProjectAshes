@@ -8,6 +8,10 @@ Next implementation: preserve upper-body armed pose during locomotion transition
 
 ## Run-stop layer implemented
 
+## Pivot yaw sampling implemented; controller hookup still pending
+
+Both authored Pivot180 clips are registered in the air machine. `pivot_yaw()` reads the actual disabled root rotation track as data, caches 30 Hz samples, unwraps heading past ±180 degrees and interpolates at clip time. It applies no rotation itself, preserving Assets' existing prevention of double root yaw. The same headless diagnostic now checks disabled synthetic root tracks ending +188 and -182 degrees, plus midpoint interpolation; checks pass. Actual imported-clip frame capture and Player movement/facing coordination remain pending. Registering clips alone does not fix the reversal snap.
+
 CharacterAnimator now has a dedicated filtered locomotion OneShot with independent playback rate, 0.08 s blend-in and 0.18 s blend-out. Only the existing LOWER_KEYS bones are included; armed arms/hand/weapon pose remains with the normal upper-body layers. Stops no longer borrow the full-body air blend. Player transition expiry/cancellation now finishes that OneShot separately; jumps and landings keep the existing full-body air machine. No clip or outfit was edited.
 
 Headless Godot 4.6.3 check passed using a copied animator with only its Assets.animation_player lookup replaced by a direct model lookup, and a synthetic three-bone fixture. It confirms the lower filter includes pelvis/thigh, excludes hand, locomotion transitions leave air target at zero, filters persist through fade-out, and jump uses an unfiltered air blend. This verifies code parsing and layer configuration, not the real hero's pose or a visible sword-pop fix. Real equipped-hero frame capture and interruption coverage remain required. Pivot clips are still unwired.
