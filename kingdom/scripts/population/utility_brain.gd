@@ -479,7 +479,7 @@ func _scheduled_sleep_total(hours: float, delay: float) -> float:
 	var wake := 5.5 + 1.2 * float(traits["lazy"])
 	var duration := 24.0 - start + wake
 	var local := hours - delay
-	var day_index := floor(local / 24.0)
+	var day_index := floorf(local / 24.0)
 	var hour := local - day_index * 24.0
 	return day_index * duration + minf(hour, wake) + maxf(hour - start, 0.0)
 
@@ -498,7 +498,7 @@ func _scheduled_meals(start_hours: float, end_hours: float, delay: float) -> int
 ## interval length, including large offscreen skips.
 func _periodic_window_total(hours: float, period: float, window_start: float, window_end: float) -> float:
 	var duration := window_end - window_start
-	var cycles := floor(hours / period)
+	var cycles := floorf(hours / period)
 	var local := hours - cycles * period
 	return cycles * duration + clampf(local - window_start, 0.0, duration)
 
