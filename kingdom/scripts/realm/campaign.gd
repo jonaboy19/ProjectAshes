@@ -17,6 +17,7 @@ const Tactical := preload("res://scripts/realm/tactical.gd")
 const Siege := preload("res://scripts/realm/siege.gd")
 const WarAdvisors := preload("res://scripts/realm/war_advisors.gd")
 const Military := preload("res://scripts/sim/military.gd")
+const SightingReport := preload("res://scripts/realm/sighting_report.gd")
 
 const PLAYER := "player"
 const ARMY_SPEED := 180.0          # metres per hour on a road (world is 12 km wide; 60 on the 4 km map, 120 on the 8 km map)
@@ -3924,6 +3925,25 @@ func report_sighting(army_id: int, source := "rumour", precision := 0.4) -> bool
 	_sight[key] = {"key": key, "army_id": army_id, "unit_id": 0, "faction": String(a["faction"]), "x": p.x, "y": p.y, "hour": _hours,
 		"min": rg.x, "max": rg.y, "exact": false, "comp": (old.get("comp", comp) as Dictionary).duplicate(), "comp_hour": int(old.get("comp_hour", -1)),
 		"mounted": false, "source": source, "terrain": String(terrain_at(p)["id"])}
+	return true
+
+
+## Delayed scouts/spies submit what they actually observed, never current truth.
+## Caller authenticates the witness and communication path before delivery.
+## Old observations must not replace more recent knowledge or refresh its age.
+func report_observation(army_id: int, faction: String, source: String, position: Vector2,
+		observed_hour: int, minimum: int, maximum: int) -> bool:
+	var report := SightingReport.build(army_id, faction, source, position,
+		observed_hour, _hours, SIGHT_KEEP_HOURS, minimum, maximum)
+	if report.is_empty():
+		return false
+	var key: String = report["key"]
+	var previous: Dictionary = _sight.get(key, {})
+	if not previous.is_empty() and int(previous["hour"]) >= observed_hour:
+		return false
+	if previous.is_empty() and _sight.size() >= 128:
+		return false
+	_sight[key] = report
 	return true
 
 
