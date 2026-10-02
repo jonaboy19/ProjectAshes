@@ -435,8 +435,23 @@ func _leader_news(c: Dictionary, sid: int, near: bool, r: RandomNumberGenerator)
 		var here := _spos(sid)
 		for a: Dictionary in cm.call("armies"):
 			if String(a["faction"]) != "player" and (a["pos"] as Vector2).distance_to(here) < 1100.0:
-				if bool(cm.call("report_sighting", int(a["id"]), "caravan", 0.35)):
-					_creport(c, "The leader glimpsed soldiers on the road near %s and sent word." % _sname(sid))
+				var men := 0
+				for unit: Dictionary in a.get("units", []):
+					if not bool(unit.get("detached", false)):
+						men += int(unit.get("men", 0))
+				var observed_hour := int(cm.call("now_hours"))
+				var source := "caravan:%d" % int(c["id"])
+				var minimum := maxi(0, floori(float(men) * 0.65))
+				var maximum := ceili(float(men) * 1.35)
+				if near:
+					cm.call("report_observation", int(a["id"]), String(a["faction"]), source,
+						a["pos"], observed_hour, minimum, maximum)
+				else:
+					# Communication estimate to the caravan's home, not enemy travel.
+					# A route-aware courier can replace this distance estimate later.
+					var hours := maxi(1, ceili(here.distance_to(_spos(int(c["home"]))) / 540.0))
+					cm.call("queue_observation", int(a["id"]), String(a["faction"]), source,
+						a["pos"], observed_hour, minimum, maximum, hours)
 				break
 
 

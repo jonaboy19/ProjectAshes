@@ -23,3 +23,9 @@ Do not use this path to inject all enemy positions into the map. A visible marke
 Pending reports are included in Campaign serialization and restored after its clock, including compatibility with saves without this field. Restore work examines at most 64 records. The focused fixture exercises exact queue/delivery/restore methods and verifies hidden-before-arrival behavior, pending JSON restoration, age and position retention, exactly one delivery and queue capacity. Full Campaign save and startup remain unverified.
 
 This queue is a data delivery mechanism. It does not prove a physical courier travelled safely or that a witness saw the target. Assignment/travel systems must validate those facts, compute travel hours, and enqueue only legitimate observations. Interception, courier loss and town espionage tasks remain pending.
+
+## First existing producer connected
+
+Enterprise caravan leaders now capture the observed position, Campaign hour and rough strength range when the existing town-stop observation rule succeeds. Distant observations enter the delivery queue, using a minimum one-hour straight-line communication estimate to the caravan's home at 540 m/hour. A nearby leader can deliver immediately. The early army-news notification was removed; queued reports notify upon actual data delivery.
+
+The pre-existing 1100 m observation rule and curious-leader probability are retained. This is strategic observation, not physical line-of-sight verification. The communication estimate is not a navigated courier and does not model interception. A future route-aware courier must replace that estimate without changing the stored observation. Enterprise runtime and the full-project startup are still being checked.
