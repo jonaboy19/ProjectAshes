@@ -15,3 +15,7 @@ During isolated project import two generic floor() calls in utility_brain.gd fai
 ## Current 12 km authoring atlas
 
 The updated production exporter ran successfully at seed 1066 and produced 30 settlements and 29 road links. `region_atlas_current.json` contains current geography; `region_atlas_current.png` renders it with a dark exterior. `render_region_atlas_current.py` reproduces the image. Scale, mapping and sample spacing derive from exported bounds (-6144 to +6144 m), giving 96 m relief samples. This export includes undiscovered sites and is an authoring overview, not a player-facing intelligence map. The earlier illustrated 8 km map must not be treated as geographically accurate for this build. Export shutdown logs still report resource leaks.
+
+## Current runtime capture
+
+`region_map_current_runtime.png` is the current production Control rendered at 1600x900 in Compatibility/OpenGL, with fresh Discovery and seed 1066. The harness now loads the map after autoload registration, requires visible point markers, and requires an actual multi-marker cluster tap. Member conservation and tap-to-zoom pass. Kingsreach's label sits above its cluster; the exterior is dark, coach travel remains in the script, and undiscovered marker eligibility remains controlled by Discovery. This does not establish touch-device performance or visual quality during full gameplay. Capture exits zero and writes the PNG, but logs texture/resource leaks at shutdown.

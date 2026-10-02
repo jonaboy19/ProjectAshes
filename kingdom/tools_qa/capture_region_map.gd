@@ -1,16 +1,22 @@
 extends SceneTree
-const Map = preload("res://scripts/ui/world_map.gd")
 const Discovery = preload("res://scripts/sim/discovery.gd")
 func _initialize() -> void:
 	call_deferred("_capture")
 func _capture() -> void:
+	# Load after autoload registration; preloading this Control from the entry
+	# script compiles its Game references before that singleton exists.
+	var Map: Variant = load("res://scripts/ui/world_map.gd")
+	if Map == null or not Map.can_instantiate():
+		quit(1)
+		return
 	WorldGen.setup(1066)
 	var discovery := Discovery.new()
 	discovery.build_from_world()
-	var map := Map.new()
+	var map: Variant = Map.new()
 	map.discovery = discovery
 	root.add_child(map)
 	map.open()
+	await process_frame
 	var groups: Array[Dictionary] = map._marker_groups()
 	var members := 0
 	for group: Dictionary in groups:
@@ -20,13 +26,17 @@ func _capture() -> void:
 		if not Map.is_area(String(place.kind)) and map._passes(place) and Rect2(Vector2(-60, -60), map.size + Vector2(120, 120)).has_point(map.to_screen(place.pos)):
 			eligible += 1
 	assert(members == eligible, "Clustering must preserve visible members")
+	assert(eligible > 0, "The fixture must contain visible point markers")
+	var tested_cluster := false
 	for group: Dictionary in groups:
 		if int(group.count) > 1:
 			var old_zoom: float = map._zoom
 			map._tap(map.to_screen(group.place.pos))
 			assert(map._zoom > old_zoom, "Cluster tap must zoom")
+			tested_cluster = true
 			map.fit_region()
 			break
+	assert(tested_cluster, "The fixture must actually exercise a cluster tap")
 	print("MAP_CLUSTER_CHECK member conservation and cluster zoom passed")
 	var deadline := Time.get_ticks_msec() + 120000
 	while Map._texture == null and Time.get_ticks_msec() < deadline:
