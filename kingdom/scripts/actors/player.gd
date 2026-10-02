@@ -1071,7 +1071,8 @@ func _parry(from: Node, grade := "knockaway", refund := 8.0, riposte := 1.5) -> 
 ## scales every rate (reduced in the air).
 func _steer(target: Vector3, delta: float, control: float) -> void:
 	if _pivot_clip != "":
-		if target.length() < 0.05 or not is_on_floor() or swimming or dead or _stunned > 0.0:
+		if target.length() < 0.05 or not is_on_floor() or swimming or dead or _stunned > 0.0 \
+				or crouching or blocking or _strafing or view == View.FIRST:
 			_cancel_pivot()
 		else:
 			_advance_pivot(delta)
@@ -1433,13 +1434,18 @@ func _begin_pivot(want_dir: Vector3) -> bool:
 	_pivot_start_yaw = _model.rotation.y
 	_pivot_yaw_scale = turn / end_yaw
 	_pivoting = false
-	_animator.play_air(clip, _pivot_rate)
+	_animator.play_air(clip, _pivot_rate, true)
 	return true
 
 
 func _advance_pivot(delta: float) -> void:
+	var clip_time := _animator.air_clip_time(_pivot_clip)
+	if clip_time < 0.0:
+		# State-machine travel enters on its next animation evaluation.
+		_move_speed = 0.0
+		return
 	var previous := _animator.pivot_position(_pivot_clip, _pivot_elapsed)
-	_pivot_elapsed = minf(_pivot_elapsed + delta * _pivot_rate, _pivot_length)
+	_pivot_elapsed = clampf(clip_time, _pivot_elapsed, _pivot_length)
 	var next := _animator.pivot_position(_pivot_clip, _pivot_elapsed)
 	var travel := (next - previous).rotated(Vector3.UP, _pivot_start_yaw) * Life.body_scale()
 	travel.y = 0.0

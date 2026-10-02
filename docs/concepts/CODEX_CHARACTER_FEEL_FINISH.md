@@ -23,11 +23,13 @@ The actual shipped GLB also passes root sampling checks:
 
 Summed sampled movement matches each endpoint. This checks the sampler, not visual quality in the game.
 
+Follow-up: the graph enters a requested clip on animation evaluation, so an independently accumulated controller timer can lead its pose. Player now reads the state machine's actual clip position for pivot movement and heading. A real-GLB fixture verifies agreement with that playback position and rate increments at 0.5x, 1x and 1.5x. Starting a new pivot explicitly resets its state to avoid reusing a previous pivot's end time. End-to-end physics/render interpolation and hit-pause appearance still require a game recording.
+
 ## Still required before merge
 
 1. Run the full project startup. A direct isolated `--check-only --script player.gd` cannot compile the autoload identifier `Life`; that invocation does not establish a startup regression or a successful Player compilation.
 2. Record both reversal directions with the Style G hero, including a wall, an edge, released stick, attack, dodge and jump interruptions.
-3. Check AnimationTree playback time against the physics root-sampling clock, including slow motion and hit pause. The present patch samples using physics elapsed time; exact visual clock agreement has not been demonstrated.
+3. Check end-to-end AnimationTree/physics/render interpolation, including slow motion and hit pause. The controller samples the graph clock; the live game's frame ordering and interpolated pose still need review.
 4. Inspect foot contact, lean, outgoing gait and sword continuity frame by frame. The lower-body stop filter is a proposed fix, not an observed in-game pass yet.
 5. Measure on S22. No phone performance claim is supported by these desktop checks.
 

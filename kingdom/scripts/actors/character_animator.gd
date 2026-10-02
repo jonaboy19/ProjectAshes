@@ -498,11 +498,14 @@ func play_full(anim_name: String, time_scale := 1.0) -> void:
 
 
 ## Optional whole-body air state machine, enabled on the playable character only.
-func play_air(anim_name: String, time_scale := 1.0) -> void:
+func play_air(anim_name: String, time_scale := 1.0, restart := false) -> void:
 	if not _has_air or _air_state == null:
 		return
 	tree["parameters/air_rate/scale"] = time_scale
-	_air_state.travel(anim_name)
+	if restart:
+		_air_state.start(anim_name, true)
+	else:
+		_air_state.travel(anim_name)
 	_air_target = 1.0
 
 
@@ -528,6 +531,14 @@ func finish_locomotion_transition() -> void:
 
 func clip_length(anim_name: String) -> float:
 	return _clip_length(anim_name)
+
+
+## The animation graph owns action time, including time scaling and pauses.
+## Negative means that the requested state has not entered yet.
+func air_clip_time(anim_name: String) -> float:
+	if not tree.active or _air_state == null or String(_air_state.get_current_node()) != anim_name:
+		return -1.0
+	return _air_state.get_current_play_position()
 
 
 ## Read disabled root rotation as data; the controller owns the visible yaw.
