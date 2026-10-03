@@ -1,0 +1,106 @@
+{
+  "limitations": [
+    "Ankle joint height is not sole clearance or a contact state.",
+    "Analytic terrain height excludes props and collision support.",
+    "Final bone poses use interpolated skeleton transforms; bone-local interpolation is not exposed.",
+    "Rapid authored swings can have large steps; these numbers do not establish a pop."
+  ],
+  "metrics": {
+    "boot|foot_l": {
+      "samples": 89,
+      "max_relative_step_m": 0.34560710194381744,
+      "max_rotation_step_deg": 89.99992106925808,
+      "min_ankle_terrain_gap_m": 0.035336,
+      "step_frame": 166,
+      "rotation_frame": 166
+    },
+    "boot|foot_r": {
+      "samples": 89,
+      "max_relative_step_m": 0.5415940165788359,
+      "max_rotation_step_deg": 89.99993710156077,
+      "min_ankle_terrain_gap_m": 0.046239,
+      "step_frame": 166,
+      "rotation_frame": 166
+    },
+    "boot|hand_r": {
+      "samples": 89,
+      "max_relative_step_m": 0.4845423938965481,
+      "max_rotation_step_deg": 90.04431031967421,
+      "min_ankle_terrain_gap_m": null,
+      "step_frame": 166,
+      "rotation_frame": 166
+    },
+    "02_start_stop_run|foot_l": {
+      "samples": 135,
+      "max_relative_step_m": 0.4411762117272351,
+      "max_rotation_step_deg": 63.554318074543275,
+      "min_ankle_terrain_gap_m": 0.091439,
+      "step_frame": 278,
+      "rotation_frame": 203
+    },
+    "02_start_stop_run|foot_r": {
+      "samples": 135,
+      "max_relative_step_m": 0.2738673429783009,
+      "max_rotation_step_deg": 38.41454395734788,
+      "min_ankle_terrain_gap_m": 0.031793,
+      "step_frame": 278,
+      "rotation_frame": 242
+    },
+    "02_start_stop_run|hand_r": {
+      "samples": 135,
+      "max_relative_step_m": 0.1545908752999531,
+      "max_rotation_step_deg": 17.306185550003285,
+      "min_ankle_terrain_gap_m": null,
+      "step_frame": 242,
+      "rotation_frame": 242
+    },
+    "gap|foot_l": {
+      "samples": 20,
+      "max_relative_step_m": 0.0018252479283772125,
+      "max_rotation_step_deg": 0.16166080411748673,
+      "min_ankle_terrain_gap_m": 0.063049,
+      "step_frame": 330,
+      "rotation_frame": 335
+    },
+    "gap|foot_r": {
+      "samples": 20,
+      "max_relative_step_m": 0.0012131957797511812,
+      "max_rotation_step_deg": 0.17447002139595763,
+      "min_ankle_terrain_gap_m": 0.106319,
+      "step_frame": 330,
+      "rotation_frame": 330
+    },
+    "gap|hand_r": {
+      "samples": 20,
+      "max_relative_step_m": 0.003612849429482946,
+      "max_rotation_step_deg": 0.4404723075915125,
+      "min_ankle_terrain_gap_m": null,
+      "step_frame": 340,
+      "rotation_frame": 335
+    },
+    "04_pivot_180_run|foot_l": {
+      "samples": 235,
+      "max_relative_step_m": 0.38901327394962026,
+      "max_rotation_step_deg": 58.18958467894007,
+      "min_ankle_terrain_gap_m": 0.013277,
+      "step_frame": 492,
+      "rotation_frame": 353
+    },
+    "04_pivot_180_run|foot_r": {
+      "samples": 235,
+      "max_relative_step_m": 0.5256985051766959,
+      "max_rotation_step_deg": 51.258837081199,
+      "min_ankle_terrain_gap_m": -0.010245,
+      "step_frame": 407,
+      "rotation_frame": 407
+    },
+    "04_pivot_180_run|hand_r": {
+      "samples": 235,
+      "max_relative_step_m": 0.2118291534798895,
+      "max_rotation_step_deg": 48.076480927672755,
+      "min_ankle_terrain_gap_m": null,
+      "step_frame": 420,
+      "rotation_frame": 407
+    }
+  }
+}

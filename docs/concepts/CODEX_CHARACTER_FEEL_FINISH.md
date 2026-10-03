@@ -76,3 +76,22 @@ The optional --pose-data flag records foot_l, foot_r and hand_r world positions/
 Capture completed: C:/Users/Jonna/Documents/Codex/2026-10-03/hero-pose-diagnostics/. No script parse/compile errors or closed-file telemetry error logged; renderer teardown leaks persist. Summary is checked in as hero_pose_summary.json.
 
 Important follow-up: pivot scenario frame 407 flags 0.673 m right-ankle relative displacement and 64.94 degree right-foot rotation in one recorded frame; hand rotation changes 65.81 degrees. Stop scenario frame 278 flags 0.590 m left-ankle relative displacement. These indicate frames requiring investigation, not proven penetration or sword pops. The pose sampler combines final bone poses with interpolated skeleton world transforms; bone-local render interpolation is not exposed. The reviewed every-frame pivot-entry sheet is pivot_entry_pose_review.jpg. Improve transition entry/stop phase continuity only after distinguishing graph blend, procedural modifiers and source clip pose differences. Do not claim planted feet or completed AAA movement from the earlier smooth root-travel recording.
+
+## Transition refinement and isolation evidence
+
+The --no-procedural QA flag disables the five SkeletonModifier3D nodes for a comparison recording. Stop/pivot discontinuities were essentially unchanged in that LOW fixture. This narrows this fixture's cause to clips/graph rather than those modifiers; it does not establish behavior at HIGH. The authored pivot clock now correctly records _pivot_clip, rather than the unrelated fallback _pivoting flag.
+
+Refinement: run-stop fade-in increased from 0.08 to 0.14 seconds. Authored running pivots use a 0.167-second outer entry blend; other air clips retain the existing rate. On pivot completion, the last pivot pose fades directly into the underlying armed graph, avoiding the extra bare-Idle transition. Exit rate remains the original 12/s. Root playback clocks, collision movement and turn durations are unchanged.
+
+Repeated actual-game recording: C:/Users/Jonna/Documents/Codex/2026-10-03/hero-transition-final/. It completed 02/04 with no logged script parse/compile or closed-CSV errors. Renderer/resource shutdown leaks remain. Final summary: hero_pose_final_summary.json. Every-frame exit sheet: pivot_exit_final_review.jpg.
+
+| Diagnostic maximum | Baseline | Refined |
+| --- | --- | --- |
+| Stop left ankle relative step | 0.590 m | 0.441 m |
+| Stop right ankle relative step | 0.334 m | 0.274 m |
+| Pivot scenario right ankle relative step | 0.673 m | 0.526 m |
+| Pivot scenario sword hand relative step | 0.339 m | 0.212 m |
+| Pivot scenario sword hand rotation step | 65.81 degrees | 48.08 degrees |
+| Pivot scenario left ankle relative step | 0.334 m | 0.389 m |
+
+The later left-foot maximum at frame 492 worsened; this scenario also includes release/stop and a walking reversal, so it remains an explicit follow-up. Entry changes are still large: this is incremental improvement, not phase-matched or planted-foot approval. Bone sampling/interpolation and analytic-ground limitations remain as above. Repeat HIGH outfit review, opposite pivot, collision/edge and attack/jump/dodge interruption checks before integration approval.

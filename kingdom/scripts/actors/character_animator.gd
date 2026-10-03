@@ -116,6 +116,7 @@ var _has_air := false
 var _air_state: AnimationNodeStateMachinePlayback
 var _air_weight := 0.0
 var _air_target := 0.0
+var _air_blend_rate := 12.0
 var _pivot_yaw_curves: Dictionary = {}
 var _pivot_root_tracks: Dictionary = {}
 
@@ -235,7 +236,7 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 		_root.add_node("loco_anim", _loco_anim)
 		_root.add_node("loco_rate", AnimationNodeTimeScale.new())
 		var loco := AnimationNodeOneShot.new()
-		loco.fadein_time = 0.08
+		loco.fadein_time = 0.14
 		loco.fadeout_time = 0.18
 		_filter_lower(loco)
 		_root.add_node("loco_transition", loco)
@@ -363,7 +364,7 @@ func update(delta: float, speed: float, move_dir := Vector3.ZERO) -> void:
 	if delta <= 0.0:
 		return
 	if _has_air:
-		_air_weight = move_toward(_air_weight, _air_target, 12.0 * delta)
+		_air_weight = move_toward(_air_weight, _air_target, _air_blend_rate * delta)
 		tree["parameters/air_blend/blend_amount"] = _air_weight
 	var k := maxf(stride_scale, 0.05)
 	var v := maxf(speed, 0.0) / k
@@ -501,6 +502,9 @@ func play_full(anim_name: String, time_scale := 1.0) -> void:
 func play_air(anim_name: String, time_scale := 1.0, restart := false) -> void:
 	if not _has_air or _air_state == null:
 		return
+	# Running pivots enter from an arbitrary gait pose, unlike the linked jump set.
+	# Spread that pose change across ten physics ticks without slowing its clock.
+	_air_blend_rate = 6.0 if anim_name.begins_with("Loco_Pivot180_Run_") else 12.0
 	tree["parameters/air_rate/scale"] = time_scale
 	if restart:
 		_air_state.start(anim_name, true)
@@ -512,7 +516,11 @@ func play_air(anim_name: String, time_scale := 1.0, restart := false) -> void:
 func finish_air() -> void:
 	if not _has_air or _air_state == null:
 		return
-	_air_state.travel("Normal")
+	_air_blend_rate = 12.0
+	# Keep the finished pivot pose while the outer blend returns to armed gait.
+	# Travelling through bare Idle here adds a second, unrelated hand/foot pose.
+	if not String(_air_state.get_current_node()).begins_with("Loco_Pivot180_Run_"):
+		_air_state.travel("Normal")
 	_air_target = 0.0
 
 

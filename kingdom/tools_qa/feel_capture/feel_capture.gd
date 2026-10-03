@@ -34,6 +34,7 @@ var _flat := Vector2.ZERO
 var _look_px := 0.0          # camera yaw drag per frame (pixels), applied in _process
 var _closeup := false
 var _default_hero := false
+var _no_procedural := false
 var _pose_csv: FileAccess
 var _pose_skeleton: Skeleton3D
 var _pose_bones: Dictionary = {}
@@ -44,6 +45,7 @@ func _ready() -> void:
 	var args := _args()
 	_closeup = args.has("closeup")
 	_default_hero = args.has("default-hero")
+	_no_procedural = args.has("no-procedural")
 	out_dir = String(args.get("out", ProjectSettings.globalize_path("res://").path_join("../docs/anim/feel/capture"))).simplify_path()
 	if args.has("only"):
 		only = String(args["only"]).split(",", false)
@@ -132,7 +134,8 @@ func _pose_telemetry() -> void:
 		var pose := _pose_skeleton.get_global_transform_interpolated() * _pose_skeleton.get_bone_global_pose(_pose_bones[name])
 		var p := pose.origin
 		var q := pose.basis.orthonormalized().get_rotation_quaternion()
-		var clip := player._pivot_clip if player._pivoting else ""
+		# _pivoting is the fallback brake state; authored pivots use _pivot_clip.
+		var clip := player._pivot_clip
 		var clock := player._animator.air_clip_time(clip) if not clip.is_empty() else -1.0
 		_pose_csv.store_line("%d,%s,%s,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%s,%.6f" % [frame, scn, name, p.x, p.y, p.z, q.x, q.y, q.z, q.w, p.y - WorldGen.height(p.x, p.z), clip, clock])
 
@@ -269,6 +272,11 @@ func _run() -> void:
 	WorldSim.time_of_day = 13.0
 	Life.life_path.set_age(18, WorldSim.day, WorldSim.time_of_day)
 	player.apply_age()
+	if _no_procedural:
+		var modifiers := player._body_node.find_children("*", "SkeletonModifier3D", true, false)
+		for modifier: SkeletonModifier3D in modifiers:
+			modifier.active = false
+		log_line("Pose isolation: disabled %d procedural skeleton modifiers" % modifiers.size())
 	player.set_view(Player.View.THIRD)
 	log_line("Quality tier=%d npc_full=%d" % [Quality.tier, Quality.npc_full])
 	_flat = await _find_flat(25.0)
