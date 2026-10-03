@@ -34,6 +34,9 @@ var _flat := Vector2.ZERO
 var _look_px := 0.0          # camera yaw drag per frame (pixels), applied in _process
 var _closeup := false
 var _default_hero := false
+var _pose_csv: FileAccess
+var _pose_skeleton: Skeleton3D
+var _pose_bones: Dictionary = {}
 
 
 func _ready() -> void:
@@ -45,6 +48,10 @@ func _ready() -> void:
 	if args.has("only"):
 		only = String(args["only"]).split(",", false)
 	DirAccess.make_dir_recursive_absolute(out_dir)
+	if args.has("pose-data"):
+		_pose_csv = FileAccess.open(out_dir.path_join("pose.csv"), FileAccess.WRITE)
+		_pose_csv.store_line("frame,scenario,bone,x,y,z,qx,qy,qz,qw,terrain_gap,pivot_clip,pivot_time")
+		RenderingServer.frame_post_draw.connect(_pose_telemetry)
 	_csv = FileAccess.open(out_dir.path_join("telemetry.csv"), FileAccess.WRITE)
 	_csv.store_line("frame,scenario,x,y,z,real_speed,move_speed,anim_speed,model_yaw_deg,yaw_rate,loco_blend,gait_rate,cam_x,cam_y,cam_z,on_floor,process_ms,render_cam_dist,render_body_x,render_body_z")
 	_index = FileAccess.open(out_dir.path_join("scenarios.txt"), FileAccess.WRITE)
@@ -104,6 +111,30 @@ func _telemetry() -> void:
 		cp.x, cp.y, cp.z, 1 if player.is_on_floor() else 0, pms, rb.distance_to(rc), rb.x, rb.z])
 	_label.text = "FEEL %s  f%d  t%.2fs | body %.2f m/s  anim %.2f  loco %.2f  rate %.2f | face %.0f°" % [
 		scn, frame - _scn_start, (frame - _scn_start) / FPS, rs, anim.shown_speed() if anim else 0.0, loco, rate, yaw]
+
+
+func _pose_telemetry() -> void:
+	if _pose_csv == null or not is_processing() or not is_instance_valid(player):
+		return
+	if not is_instance_valid(_pose_skeleton):
+		var found := player._body_node.find_children("*", "Skeleton3D", true, false)
+		if found.is_empty():
+			return
+		_pose_skeleton = found[0] as Skeleton3D
+		_pose_bones.clear()
+		for name: String in ["foot_l", "foot_r", "hand_r"]:
+			var index := _pose_skeleton.find_bone(name)
+			if index >= 0:
+				_pose_bones[name] = index
+	for name: String in _pose_bones:
+		# Final bone pose after modifiers, under interpolated skeleton transform.
+		# Bone-local render interpolation is not exposed; this is a pose diagnostic.
+		var pose := _pose_skeleton.get_global_transform_interpolated() * _pose_skeleton.get_bone_global_pose(_pose_bones[name])
+		var p := pose.origin
+		var q := pose.basis.orthonormalized().get_rotation_quaternion()
+		var clip := player._pivot_clip if player._pivoting else ""
+		var clock := player._animator.air_clip_time(clip) if not clip.is_empty() else -1.0
+		_pose_csv.store_line("%d,%s,%s,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%s,%.6f" % [frame, scn, name, p.x, p.y, p.z, q.x, q.y, q.z, q.w, p.y - WorldGen.height(p.x, p.z), clip, clock])
 
 
 # --- helpers -------------------------------------------------------------------------
@@ -266,6 +297,10 @@ func _run() -> void:
 	log_line("DONE")
 	# quit() is deferred; stop the next frame from writing the closed CSV.
 	set_process(false)
+	if _pose_csv:
+		RenderingServer.frame_post_draw.disconnect(_pose_telemetry)
+		_pose_csv.close()
+		_pose_csv = null
 	_index.close()
 	_csv.close()
 	get_tree().quit(0)
