@@ -38,3 +38,11 @@ Do not overwrite Claude's latest main to integrate this branch. Compare against 
 ## Continuing mission
 
 Playable traversal remains pending: the existing lab's authored vault audit detects body penetration, so it is not ready for production approval. Map readability and intelligence-report work have separate handoffs. These should continue after the two animation issues are reviewed.
+
+## 3 October verification update
+
+The isolated full project import completed. Actual Player, Enterprise and Campaign scripts load with project autoloads; Campaign's pending and delivered spy-report JSON save round trips pass. A rendered Compatibility/OpenGL launch with `--quit-after 300 -- --codex_verify` takes the QA path into the real main scene, exits zero and logs no script parse, compile or runtime errors. This supersedes the earlier direct `--check-only` limitation as evidence of script loading and startup, but does not establish clean teardown or animation quality.
+
+The default headless launch hits null image readback in the pre-existing impostor baker. Rendered startup was used to avoid treating that headless result as a game regression. Frontend boot and authoring captures also log shutdown resource leaks.
+
+The existing production feel-capture harness is now recording scenarios 02 (run stop) and 04 (running reversal), using the real main scene and input path at 30 fps. Until the recording finishes and its frames are inspected, these motions remain visually unverified. No Style G outfit or environment source was edited. The user has directed work away from the map for now.
