@@ -1,0 +1,11 @@
+{
+  "triangles_before": 47556,
+  "triangles": 2700,
+  "size_metres": [
+    0.800000011920929,
+    0.7976174354553223,
+    0.7860031723976135
+  ],
+  "materials": 1,
+  "source": "C:\\Users\\Jonna\\Documents\\Codex\\3d-tools\\TripoSR\\output\\crate_test\\0\\mesh.glb"
+}
