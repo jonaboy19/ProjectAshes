@@ -32,11 +32,15 @@ var _index: FileAccess
 var _label: Label
 var _flat := Vector2.ZERO
 var _look_px := 0.0          # camera yaw drag per frame (pixels), applied in _process
+var _closeup := false
+var _default_hero := false
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var args := _args()
+	_closeup = args.has("closeup")
+	_default_hero = args.has("default-hero")
 	out_dir = String(args.get("out", ProjectSettings.globalize_path("res://").path_join("../docs/anim/feel/capture"))).simplify_path()
 	if args.has("only"):
 		only = String(args["only"]).split(",", false)
@@ -224,6 +228,13 @@ func _run() -> void:
 	while not (main and main.get("player") != null and main.player.is_inside_tree() and main.get("hud") != null and not main.hud._veil()):
 		await get_tree().process_frame
 	player = main.player
+	if _default_hero:
+		Life.appearance = {}
+		player.apply_appearance()
+		log_line("Appearance fixture: default Style G hero")
+	if _closeup and player.camera:
+		player.camera.fov = 35.0
+		log_line("Closeup fixture: 35 degree camera FOV")
 	WorldSim.time_of_day = 13.0
 	Life.life_path.set_age(18, WorldSim.day, WorldSim.time_of_day)
 	player.apply_age()
