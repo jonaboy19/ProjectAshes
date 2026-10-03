@@ -46,3 +46,9 @@ The isolated full project import completed. Actual Player, Enterprise and Campai
 The default headless launch hits null image readback in the pre-existing impostor baker. Rendered startup was used to avoid treating that headless result as a game regression. Frontend boot and authoring captures also log shutdown resource leaks.
 
 The existing production feel-capture harness is now recording scenarios 02 (run stop) and 04 (running reversal), using the real main scene and input path at 30 fps. Until the recording finishes and its frames are inspected, these motions remain visually unverified. No Style G outfit or environment source was edited. The user has directed work away from the map for now.
+
+## Physics-clock recording review — 3 October
+
+The production capture finished for scenarios 02 and 04. At 30 rendered fps, the idle AnimationTree clock gave alternating movement/zero samples across 60 Hz capsule ticks. The Player tree now evaluates on physics ticks. In the repeated real main-scene capture, pivot frames 408–430 show nonzero measured travel speed throughout, decelerating from 3.00 m/s to 0.41 m/s and accelerating back to 5.75 m/s. Heading progresses through the authored turn, with a maximum sampled step of about 18 degrees rather than a two-frame reversal. No script parse/compile/runtime errors were found in the capture log.
+
+Recording: C:/Users/Jonna/Documents/Codex/2026-10-03/character-feel-physics-clock/stop_pivot.avi. Telemetry and scenario ranges are beside it. The contact sheet is pivot_physics_clock_review.jpg. Grass obscures feet; this fixture does not establish foot locking or the intended Style G outfit. Both-direction obstruction/interruptions, hit pause, sword continuity and S22 profiling remain pending. The physics callback is Player-only; review all other Player actions before integration.

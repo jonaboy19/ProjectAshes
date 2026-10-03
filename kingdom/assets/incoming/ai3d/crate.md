@@ -10,3 +10,5 @@
 - Quality: REJECTED for automatic game replacement. Preview shows soft geometry, pale color and questionable orientation. Existing source crate is the better asset. No collision or gameplay scene was added.
 
 This verifies a free local generation/export route, not a production quality improvement. Keep in incoming for review. Check orientation, normals, color handling and an unrelated prop before approving this pipeline for asset production.
+
+Orientation follow-up: TripoSR uses Z-up vertices but exports them as a GLB that Blender treats as Y-up. The preparation now explicitly selects Euler rotation mode and removes that import rotation before scaling. The updated preview is upright. It still has pale surfaces and softened edges, so it remains rejected. This correction does not establish material or normal quality.

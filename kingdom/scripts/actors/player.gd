@@ -434,6 +434,10 @@ func _build_body() -> void:
 	_body_node = body
 	_model.add_child(body)
 	_animator = CharacterAnimator.new(body, RUN, WALK, "Walking_A", "Running_A", "Idle", true, true)
+	# Root-driven actions need a new graph sample for every capsule physics tick.
+	# Idle processing at 30 rendered fps otherwise alternates travel and zero
+	# velocity across the two 60 Hz physics ticks in each rendered frame.
+	_animator.tree.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_PHYSICS
 	_ragdoll = Ragdoll.attach(self, body, [_animator.tree, _animator.player])
 	_add_head_look(body)
 	# After the look-at: the rig orders the skeleton's modifiers as
