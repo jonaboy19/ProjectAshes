@@ -54,3 +54,9 @@ The production capture finished for scenarios 02 and 04. At 30 rendered fps, the
 Recording: C:/Users/Jonna/Documents/Codex/2026-10-03/character-feel-physics-clock/stop_pivot.avi. Telemetry and scenario ranges are beside it. The contact sheet is pivot_physics_clock_review.jpg. Grass obscures feet; this fixture does not establish foot locking or the intended Style G outfit. Both-direction obstruction/interruptions, hit pause, sword continuity and S22 profiling remain pending. The physics callback is Player-only; review all other Player actions before integration.
 
 3 October follow-up: the authored traversal lab's preflight initialization no longer creates all segment collision shapes in one burst. Reviewable source/data and reproduction notes are in traversal_preflight_lab/. Existing vault collision rejection is preserved; traversal remains unapproved.
+
+## Action recording after physics clock change
+
+The real-game follow-up finished combo, standing/running/buffered jump, three fall/landing cases, parry and directional hit-reaction scenarios (09, 19, 20, 21, 22), 1,534 rendered frames. Video, telemetry and scenario ranges: C:/Users/Jonna/Documents/Codex/2026-10-03/character-action-physics-clock/. Reviewed contact sheets: jump_physics_clock_review.jpg and combo_physics_clock_review.jpg. Visible jumps and sword poses progress; these wide views do not prove precise foot contact, blade-hit timing or outfit clipping. Close views and interruptions remain required.
+
+No script parse/compile errors were logged. At teardown the harness wrote telemetry after closing its CSV because quit() is deferred. It now disables _process before closing the files. This small harness fix has not yet been checked in a repeated recording. Other renderer/resource leak messages remain unresolved; exit zero is not clean teardown. Auto quality stepped down under the 30 fps Movie Maker cap, so this capture provides no mobile performance measurement.

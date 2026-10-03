@@ -253,6 +253,8 @@ func _run() -> void:
 	if want("21") or want("22"): await _s21_22_parry_heavy_hit()
 	if want("23"): await _s23_companions()
 	log_line("DONE")
+	# quit() is deferred; stop the next frame from writing the closed CSV.
+	set_process(false)
 	_index.close()
 	_csv.close()
 	get_tree().quit(0)
