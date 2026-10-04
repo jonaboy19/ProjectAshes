@@ -229,6 +229,7 @@ var _swing := 0.0
 var _swing_cancel := 0.0
 var _swing_elapsed := 0.0
 var _swing_hit := 0.0
+var _swing_time_scale := 1.0    # action seconds to elapsed seconds for the current playback
 var _swing_id := 0
 var _combo_window := 0.0
 var _attack_buffer := 0.0
@@ -1593,7 +1594,7 @@ func _can_dodge() -> bool:
 
 
 func _in_active_frames() -> bool:
-	return _swing > 0.0 and _swing_elapsed >= _swing_hit - ACTIVE_BEFORE and _swing_elapsed <= _swing_hit + ACTIVE_AFTER
+	return _swing > 0.0 and _swing_elapsed >= _swing_hit - ACTIVE_BEFORE * _swing_time_scale and _swing_elapsed <= _swing_hit + ACTIVE_AFTER * _swing_time_scale
 
 
 func _consume_buffers() -> void:
@@ -1616,8 +1617,11 @@ func _start_swing() -> void:
 	var action: Resource = steps[_combo]
 	_action = action
 	var weak: bool = stamina < action.cost
-	# A tired swing plays at 0.7x, so its blade (and hit) arrives later too.
-	var hit_t: float = action.hit_time() / (0.7 if weak else 1.0)
+	# Move data already includes the normal clip rate. Scale every action clock
+	# together when exhaustion slows playback; leave the input grace period alone.
+	var playback_multiplier := 0.7 if weak else 1.0
+	_swing_time_scale = 1.0 / playback_multiplier
+	var hit_t: float = action.hit_time() * _swing_time_scale
 	_spend(action.cost)
 	# Target assist: face the locked target, else snap toward an enemy roughly in front.
 	var target: Node3D = _lock if is_instance_valid(_lock) else _nearest_enemy(3.8, 0.1)
@@ -1632,14 +1636,14 @@ func _start_swing() -> void:
 	if action.root_motion:
 		_kick(facing() * lunge)
 	_swing_id += 1
-	_swing = action.total()
+	_swing = action.total() * _swing_time_scale
 	_swing_elapsed = 0.0
 	_swing_hit = hit_t
-	_swing_cancel = action.cancel_remaining("attack")   # finisher has no window: commits to its recovery
-	_combo_window = action.total() + COMBO_WINDOW
+	_swing_cancel = action.cancel_remaining("attack") * _swing_time_scale   # finisher has no window: commits to its recovery
+	_combo_window = _swing + COMBO_WINDOW
 	if action.finisher:
 		_combo_window = 0.0     # finisher ends the chain
-	var rate: float = action.anim_speed * (0.7 if weak else 1.0)
+	var rate: float = action.anim_speed * playback_multiplier
 	_animator.play_upper(action.anim, rate)
 	var riposte := _parry_bonus > 0.0
 	_parry_bonus = 0.0
