@@ -40,6 +40,21 @@ var _pose_skeleton: Skeleton3D
 var _pose_bones: Dictionary = {}
 var _capture_failed := false
 
+class ActorContactDriver extends Node:
+	var actor: CharacterBody3D
+	var target: CharacterBody3D
+	var contacted := false
+	var direction := Vector3.ZERO
+	func _physics_process(delta: float) -> void:
+		if not is_instance_valid(actor):
+			return
+		actor.velocity.x = direction.x
+		actor.velocity.z = direction.z
+		actor.velocity.y = 0.0 if actor.is_on_floor() else actor.velocity.y - 18.0 * delta
+		actor.move_and_slide()
+		for collision_index in actor.get_slide_collision_count():
+			contacted = contacted or actor.get_slide_collision(collision_index).get_collider() == target
+
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -163,6 +178,8 @@ func tap(code: Key) -> void:
 
 
 func release_all() -> void:
+	if is_instance_valid(player):
+		player.touch_move = Vector2.ZERO
 	for k in [KEY_W, KEY_A, KEY_S, KEY_D, KEY_SHIFT, KEY_L, KEY_SPACE, KEY_J, KEY_K]:
 		key(k, false)
 	_look_px = 0.0
@@ -305,6 +322,8 @@ func _run() -> void:
 	if want("23"): await _s23_companions()
 	if want("24"): await _s24_pivot_interruptions()
 	if want("25"): await _s25_pivot_wall()
+	if want("26"): await _s26_pivot_directions()
+	if want("27"): await _s27_actor_contact()
 	log_line("DONE")
 	# quit() is deferred; stop the next frame from writing the closed CSV.
 	set_process(false)
@@ -315,6 +334,129 @@ func _run() -> void:
 	_index.close()
 	_csv.close()
 	get_tree().quit(1 if _capture_failed else 0)
+
+
+func _s27_actor_contact() -> void:
+	for moving: bool in [false, true]:
+		# Acquire an embodied resident inside its actual LOD range first.
+		var town: Vector2 = WorldGen.settlements[0]["pos"]
+		await teleport(town, 0.0, 90)
+		var actor: Villager = null
+		var nearest := INF
+		for candidate in get_tree().get_nodes_in_group("villager"):
+			if candidate is Villager and is_instance_valid(candidate._shape):
+				var distance: float = candidate.global_position.distance_squared_to(player.global_position)
+				if distance < nearest:
+					nearest = distance
+					actor = candidate
+		if actor == null:
+			_capture_failed = true
+			log_line("FAIL: no real villager available for contact fixture")
+			return
+		var original := actor.global_transform
+		var original_velocity := actor.velocity
+		var processing := actor.is_physics_processing()
+		var disabled := actor._shape.disabled
+		var lod_owner := actor.get_parent()
+		var lod_processing := lod_owner.is_processing()
+		lod_owner.set_process(false)
+		actor.set_physics_process(false)
+		actor._shape.set_deferred("disabled", false)
+		await frames(2)
+		# main._teleport refreshes LOD synchronously even when its process is paused.
+		# Relocate the owned body first so that refresh sees it at the new focus.
+		actor.global_position = ground(_flat) + Vector3.RIGHT * 4.0
+		actor.global_position.y = WorldGen.height(actor.global_position.x, actor.global_position.z)
+		WorldSim.set_external_position_owner(actor.person, actor.get_instance_id(), true, actor.sim_position(), true)
+		actor.reset_physics_interpolation()
+		await teleport(_flat, 0.0, 0)
+		await frames(30)
+		begin("27_actor_contact_%s" % ("moving" if moving else "stationary"))
+		key(KEY_SHIFT, true)
+		key(KEY_W, true)
+		await frames(55)
+		if not is_instance_valid(actor):
+			_capture_failed = true
+			log_line("FAIL: villager removed during contact fixture")
+			lod_owner.set_process(lod_processing)
+			finish()
+			return
+		var approach := player._move_dir.normalized()
+		actor.global_position = player.global_position + approach * 0.8
+		actor.global_position.y = WorldGen.height(actor.global_position.x, actor.global_position.z)
+		actor.reset_physics_interpolation()
+		actor.velocity = Vector3.ZERO
+		var driver := ActorContactDriver.new()
+		driver.actor = actor
+		driver.target = player
+		driver.direction = -approach * 0.6 if moving else Vector3.ZERO
+		main.add_child(driver)
+		key(KEY_W, false)
+		key(KEY_S, true)
+		var contacted := false
+		var minimum := INF
+		for i in 35:
+			await frames(1)
+			if not is_instance_valid(actor):
+				break
+			for collision_index in player.get_slide_collision_count():
+				contacted = contacted or player.get_slide_collision(collision_index).get_collider() == actor
+			contacted = contacted or driver.contacted
+			var separation := player.global_position - actor.global_position
+			minimum = minf(minimum, Vector2(separation.x, separation.z).length())
+		if not is_instance_valid(actor):
+			_capture_failed = true
+			log_line("FAIL: villager removed while sampling contact")
+			driver.set_physics_process(false)
+			driver.queue_free()
+			lod_owner.set_process(lod_processing)
+			finish()
+			return
+		var actor_capsule := actor._shape.shape as CapsuleShape3D
+		var clearance := player._capsule.radius + actor_capsule.radius
+		if not contacted or minimum < clearance - 0.035:
+			_capture_failed = true
+			log_line("FAIL: actor contacted=%s min_spacing=%.3f required=%.3f" % [contacted, minimum, clearance])
+		else:
+			log_line("Actor contact confirmed; min_spacing=%.3f required=%.3f" % [minimum, clearance])
+		driver.set_physics_process(false)
+		driver.queue_free()
+		actor.global_transform = original
+		WorldSim.set_external_position_owner(actor.person, actor.get_instance_id(), true, actor.sim_position(), true)
+		actor.velocity = original_velocity
+		actor.reset_physics_interpolation()
+		actor._shape.set_deferred("disabled", disabled)
+		actor.set_physics_process(processing)
+		lod_owner.set_process(lod_processing)
+		finish()
+		await frames(2)
+
+
+func _s26_pivot_directions() -> void:
+	for side: float in [-0.12, 0.12]:
+		await teleport(_flat, 0.0, 30)
+		begin("26_pivot_%s" % ("left" if side < 0 else "right"))
+		key(KEY_SHIFT, true)
+		key(KEY_W, true)
+		await frames(55)
+		key(KEY_W, false)
+		player.touch_move = Vector2(side, 1.0).normalized()
+		await frames(3)
+		var expected := "Loco_Pivot180_Run_L" if side < 0 else "Loco_Pivot180_Run_R"
+		if player._pivot_clip != expected:
+			_capture_failed = true
+			log_line("FAIL: expected %s, entered %s" % [expected, player._pivot_clip])
+			finish()
+			return
+		log_line("Direction fixture entered %s" % expected)
+		await frames(40)
+		var error := absf(angle_difference(player._model.rotation.y, atan2(side, 1.0)))
+		if not player._pivot_clip.is_empty() or error > 0.05:
+			_capture_failed = true
+			log_line("FAIL: pivot did not finish aligned; heading_error=%.3f" % error)
+		else:
+			log_line("Direction fixture finished aligned; heading_error=%.3f" % error)
+		finish()
 
 
 func _s25_pivot_wall() -> void:
