@@ -1,0 +1,216 @@
+{
+  "clips": [
+    {
+      "available": true,
+      "clip": "Sword_Idle",
+      "max_landmark_delta_metres": 0.00000242893497670593,
+      "sample_seconds": 0.166666662693024
+    },
+    {
+      "available": true,
+      "clip": "Sword_Idle",
+      "max_landmark_delta_metres": 0.00000259477110375883,
+      "sample_seconds": 0.499999988079071
+    },
+    {
+      "available": true,
+      "clip": "Sword_Idle",
+      "max_landmark_delta_metres": 0.00000256564067058207,
+      "sample_seconds": 0.749999982118607
+    },
+    {
+      "available": true,
+      "clip": "Sword_Idle",
+      "max_landmark_delta_metres": 0.00000252139147960406,
+      "sample_seconds": 1.08333330750465
+    },
+    {
+      "available": true,
+      "clip": "Sword_Idle",
+      "max_landmark_delta_metres": 0.00000268440180661855,
+      "sample_seconds": 1.49999996423721
+    },
+    {
+      "available": true,
+      "clip": "Running_A",
+      "max_landmark_delta_metres": 0.00000267086693384044,
+      "sample_seconds": 0.0933333337306976
+    },
+    {
+      "available": true,
+      "clip": "Running_A",
+      "max_landmark_delta_metres": 0.00000115269892830838,
+      "sample_seconds": 0.280000001192093
+    },
+    {
+      "available": true,
+      "clip": "Running_A",
+      "max_landmark_delta_metres": 0.00000184196676400461,
+      "sample_seconds": 0.420000001788139
+    },
+    {
+      "available": true,
+      "clip": "Running_A",
+      "max_landmark_delta_metres": 0.00000217669526136888,
+      "sample_seconds": 0.606666669249535
+    },
+    {
+      "available": true,
+      "clip": "Running_A",
+      "max_landmark_delta_metres": 0.00000182476867394143,
+      "sample_seconds": 0.840000003576279
+    },
+    {
+      "available": true,
+      "clip": "Jump_Rise",
+      "max_landmark_delta_metres": 0.000000978610387392109,
+      "sample_seconds": 0.0800000011920929
+    },
+    {
+      "available": true,
+      "clip": "Jump_Rise",
+      "max_landmark_delta_metres": 0.000000938329549171613,
+      "sample_seconds": 0.240000003576279
+    },
+    {
+      "available": true,
+      "clip": "Jump_Rise",
+      "max_landmark_delta_metres": 0.00000102018555026007,
+      "sample_seconds": 0.360000005364418
+    },
+    {
+      "available": true,
+      "clip": "Jump_Rise",
+      "max_landmark_delta_metres": 0.000000972579073277302,
+      "sample_seconds": 0.520000007748604
+    },
+    {
+      "available": true,
+      "clip": "Jump_Rise",
+      "max_landmark_delta_metres": 0.000000956725330070185,
+      "sample_seconds": 0.720000010728836
+    },
+    {
+      "available": true,
+      "clip": "Jump_Land_Roll",
+      "max_landmark_delta_metres": 0.00000261928175859794,
+      "sample_seconds": 0.166666662693024
+    },
+    {
+      "available": true,
+      "clip": "Jump_Land_Roll",
+      "max_landmark_delta_metres": 0.000000590055890370422,
+      "sample_seconds": 0.499999988079071
+    },
+    {
+      "available": true,
+      "clip": "Jump_Land_Roll",
+      "max_landmark_delta_metres": 0.00000189051047527755,
+      "sample_seconds": 0.749999982118607
+    },
+    {
+      "available": true,
+      "clip": "Jump_Land_Roll",
+      "max_landmark_delta_metres": 0.00000268700614469708,
+      "sample_seconds": 1.08333330750465
+    },
+    {
+      "available": true,
+      "clip": "Jump_Land_Roll",
+      "max_landmark_delta_metres": 0.00000182849146312947,
+      "sample_seconds": 1.49999996423721
+    },
+    {
+      "available": true,
+      "clip": "Roll",
+      "max_landmark_delta_metres": 0.000000599019244873489,
+      "sample_seconds": 0.146666669845581
+    },
+    {
+      "available": true,
+      "clip": "Roll",
+      "max_landmark_delta_metres": 0.000000679597519592789,
+      "sample_seconds": 0.440000009536743
+    },
+    {
+      "available": true,
+      "clip": "Roll",
+      "max_landmark_delta_metres": 0.00000248420724346943,
+      "sample_seconds": 0.660000014305115
+    },
+    {
+      "available": true,
+      "clip": "Roll",
+      "max_landmark_delta_metres": 0.0000024619180294394,
+      "sample_seconds": 0.953333353996277
+    },
+    {
+      "available": true,
+      "clip": "Roll",
+      "max_landmark_delta_metres": 0.00000130761407035607,
+      "sample_seconds": 1.32000002861023
+    },
+    {
+      "available": true,
+      "clip": "Sword_Regular_A",
+      "max_landmark_delta_metres": 0.00000201602574634308,
+      "sample_seconds": 0.0433333337306976
+    },
+    {
+      "available": true,
+      "clip": "Sword_Regular_A",
+      "max_landmark_delta_metres": 0.00000255697159445845,
+      "sample_seconds": 0.130000001192093
+    },
+    {
+      "available": true,
+      "clip": "Sword_Regular_A",
+      "max_landmark_delta_metres": 0.00000242719738707819,
+      "sample_seconds": 0.195000001788139
+    },
+    {
+      "available": true,
+      "clip": "Sword_Regular_A",
+      "max_landmark_delta_metres": 0.00000227320856538427,
+      "sample_seconds": 0.281666669249535
+    },
+    {
+      "available": true,
+      "clip": "Sword_Regular_A",
+      "max_landmark_delta_metres": 0.00000208749270314001,
+      "sample_seconds": 0.390000003576279
+    },
+    {
+      "available": true,
+      "clip": "Idle_Shield",
+      "max_landmark_delta_metres": 0.00000119211620130955,
+      "sample_seconds": 0.25
+    },
+    {
+      "available": true,
+      "clip": "Idle_Shield",
+      "max_landmark_delta_metres": 0.00000132967295485287,
+      "sample_seconds": 0.75
+    },
+    {
+      "available": true,
+      "clip": "Idle_Shield",
+      "max_landmark_delta_metres": 0.000000965992967394413,
+      "sample_seconds": 1.125
+    },
+    {
+      "available": true,
+      "clip": "Idle_Shield",
+      "max_landmark_delta_metres": 0.00000131073056763853,
+      "sample_seconds": 1.625
+    },
+    {
+      "available": true,
+      "clip": "Idle_Shield",
+      "max_landmark_delta_metres": 0.00000120397783121007,
+      "sample_seconds": 2.25
+    }
+  ],
+  "missing_bones": [],
+  "rest_position_delta_metres": 0.00000140047131935717
+}

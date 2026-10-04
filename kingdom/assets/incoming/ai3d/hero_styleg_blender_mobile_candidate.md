@@ -1,0 +1,17 @@
+# Mobile Blender hero candidate and rig review — 4 October 2026
+
+Current candidate: hero_styleg_blender_mobile_candidate.glb. Exported GLB has **5,779 triangles, six meshes and one 65-bone skin**. The first Blender viewport counts included an unexported 80-triangle Icosphere; actual exported index counts are authoritative. The prior candidate GLB likewise has 9,832 triangles, rather than the 9,912 Blender scene count previously recorded.
+
+Mobile version reduces only subdivided head and hand meshes to 45 percent of their refined geometry. Clothing, boots, hair and Claude's generated HeroOutfit geometry are unchanged. Source licenses still apply. No new text prompt: existing Style G modular hero refined in Blender 5.2.
+
+Rig evidence: loaded original assembled hero and candidate in Godot 4.6.3 OpenGL Compatibility, attached the existing Assets._ual_for library to the candidate with its skeleton-relative track paths. All 65 bone names exist. Maximum rest landmark position delta ~0.0000014 m. Seven clips (Sword_Idle, Running_A, Jump_Rise, Jump_Land_Roll, Roll, Sword_Regular_A, Idle_Shield), each sampled at 10, 30, 45, 65 and 90 percent: 35 rendered samples. JSON records head, hand, foot and pelvis landmark deltas, not skinned vertex positions. These support sampled skeleton/animation compatibility; they do not prove every clip, blend, collision, skin deformation or gameplay attachment works.
+
+Reviewed running, jump rise, roll and attack comparisons visually. Original on LEFT, candidate on RIGHT. No gross pose mismatch in inspected images. Face/hand rounding is modest; face texture, hair silhouette and outfit detail remain insufficient for the target reference. Candidate boots/materials show changed shading. Do not call this a final quality upgrade or ship automatically. Improving topology cannot replace authored detailed facial and garment art.
+
+Still needed: compare at the real gameplay camera under Style G lighting, inspect every extreme action pose and close-up fingers, measure device cost on S22, preserve editable modular customization, confirm sword/shield sockets and procedural rig, audit source license notices. No production player wiring changed. No phone measurements.
+
+Runtime exits 0 with no script/parse errors, but existing asset-cache/renderer resource leaks remain at shutdown; not a clean-exit claim.
+
+Reproduction: kingdom/tools_qa/review_blender_hero.gd uses direct GLTFDocument loading, avoiding a full project import. Run Godot with --path kingdom --rendering-method gl_compatibility --rendering-driver opengl3 --script res://tools_qa/review_blender_hero.gd -- --quality=low. Local output currently C:/Users/Jonna/Documents/Codex/3d-tools/TripoSR; copy to your own output directory before use on another machine. Export helper builds the real hero; Blender compatibility adapter removes hidden mesh nodes before stripping unsupported KHR_node_visibility. Pipeline scripts are copied alongside this document in character_blender_pipeline/. They operate on hero_source.glb in their directory; paths/output naming are explicit in the scripts. Do not overwrite original game assets.
+
+The mobile GLB excludes clips but keeps its skin. It is a single assembled outfit, not a replacement customization system. Transfer approved changes back to separate modular meshes for production. Size comes from original 1.78 m hero assembly; exact bounds require rest-pose mesh measurement.

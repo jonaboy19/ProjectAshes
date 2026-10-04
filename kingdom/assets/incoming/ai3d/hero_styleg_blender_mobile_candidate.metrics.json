@@ -1,0 +1,37 @@
+{
+  "triangles": 5779,
+  "meshes": [
+    {
+      "name": "human_male_hair_3",
+      "triangles": 148,
+      "vertex_groups": 65
+    },
+    {
+      "name": "human_male_hands_default",
+      "triangles": 1998,
+      "vertex_groups": 65
+    },
+    {
+      "name": "human_male_head_3",
+      "triangles": 1317,
+      "vertex_groups": 65
+    },
+    {
+      "name": "human_male_light_armor_2",
+      "triangles": 884,
+      "vertex_groups": 65
+    },
+    {
+      "name": "human_male_light_boots_2",
+      "triangles": 404,
+      "vertex_groups": 65
+    },
+    {
+      "name": "HeroOutfit",
+      "triangles": 1028,
+      "vertex_groups": 65
+    }
+  ],
+  "armatures": 1,
+  "animations_exported": false
+}
