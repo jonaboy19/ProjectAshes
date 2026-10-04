@@ -1,0 +1,13 @@
+# TripoSG local setup checkpoint — 4 October 2026
+
+Official repository https://github.com/VAST-AI-Research/TripoSG checked out locally at fc5c40990181e2a756c4e0b1c2f4d6b5202faf8c in C:/Users/Jonna/Documents/Codex/3d-tools/TripoSG. This is a newer shape generator, distinct from TripoSR and the paid hosted Tripo3D service. No generated TripoSG output yet.
+
+Official requirements: GitHub says at least 8 GB CUDA memory; model card says >8 GB, so this 8 GB laptop is borderline, not guaranteed. Official weights list three safetensor files totaling 7.946 GB. Checked disk free space (~30 GB before setup), then started explicit model-only download; weights_download.log tracks progress. No BRIA model downloaded. Tool .venv shares read-only runtime packages from existing TripoSR environment via .pth; new dependencies installed only into TripoSG env: diffusers 0.32.2, peft 0.13.2, accelerate 1.2.1, jaxtyping, typeguard, pymeshlab, opencv-python-headless 4.10.0.84. Upstream obsolete numpy 1.22.3 pin was not installed over Python 3.12's working numpy 1.26.4.
+
+Local diso.py supplies inference-only CPU Lewiner marching cubes in place of compiled differentiable dual marching cubes. This CHANGES geometry extraction and must be reviewed; not equivalence proven. It rejects deformations/quads/normalization modes, handles unknown field samples with a finite mask. Neural inference remains intended for CUDA. Import status in pipeline_import.log, download status in weights_download.log. Windows inference not verified and no quality claim yet.
+
+Commercial-use consideration: TripoSG repository/model identify MIT; upstream NOTICE also lists third-party code and licenses. Default inference script automatically downloads BRIA RMBG-1.4, whose model card limits free use to noncommercial and requires a commercial agreement otherwise. Use native transparent Blender reference renders to avoid that background-removal model entirely. Preserve upstream notices; input assets keep original licenses.
+
+Next: inspect actual import/download process outcome, render alpha input from Blender, run shape reconstruction without BRIA using the pipeline directly, review front/back anatomy, reduce and rig only if demonstrably better. Generator provides untextured shape in upstream inference; it does not solve textures, skeleton or modular customization. Do not replace production assets on installation success alone.
+
+Primary references: https://github.com/VAST-AI-Research/TripoSG ; https://huggingface.co/VAST-AI/TripoSG ; https://huggingface.co/briaai/RMBG-1.4 . Microsoft TRELLIS.2 official installation asks for Linux and at least 24 GB VRAM: https://github.com/microsoft/TRELLIS.2 . No installation of that unsupported official path was attempted.
