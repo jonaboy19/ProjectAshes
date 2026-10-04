@@ -1203,18 +1203,23 @@ func _update_lean(delta: float) -> void:
 	_model.rotation.z = _lean.y
 
 
+## AudioDirector retains distance polling only for players without this owner.
+func owns_footstep_events() -> bool:
+	return true
+
+
 ## Step sounds land on the gait's footfalls (the animator's shared walk/run phase).
 func _update_footsteps(delta: float, input_dir: Vector3, grounded: bool) -> void:
 	var speed := Vector2(velocity.x, velocity.z).length()
 	var footfall := _animator.consume_footstep()
-	if input_dir.length_squared() < 0.01 or speed < 0.6 or _dodge > 0.0 or dead or not grounded:
+	if input_dir.length_squared() < 0.01 or speed < 0.6 or _dodge > 0.0 or dead or not grounded or _animator.is_stand_attack():
 		_step_distance = 0.0
 		return
 	_step_distance += speed * delta
 	# Fallback spacing in case the animator is inactive: never go silent over ~1.6 m.
 	if footfall or _step_distance > 1.6:
 		_step_distance = 0.0
-		Audio.sfx("step_" + WorldGen.footstep_surface(global_position.x, global_position.z), global_position, -6.0)
+		Audio.play_footstep(global_position, "", -2.0)
 
 
 func _update_camera(delta: float) -> void:

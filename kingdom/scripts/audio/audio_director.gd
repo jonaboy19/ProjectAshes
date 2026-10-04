@@ -184,6 +184,7 @@ var _idle_timer := 4.0
 var _interior := ""                # "", "tavern", "smithy", "healer", "guild", "house"
 var _surface := "grass"
 var _player: Node3D
+var _player_owns_steps := false
 var _r1_area := ""                 # Region 1 area under the player ("" = none), see R1_AREA_THEMES
 var _r1_area_since := 0.0
 var _r1_area_pending := ""
@@ -388,6 +389,8 @@ func play_ui(sound: String, volume_db := 0.0) -> void:
 
 ## One footstep on a surface ("" = look it up at `position`).
 func play_footstep(position: Vector3, surface := "", volume_db := 0.0) -> void:
+	if not footsteps_enabled:
+		return
 	var s := surface if surface != "" else surface_at(position)
 	_surface = s
 	var stream := _pick("step_" + s)
@@ -486,6 +489,10 @@ func _physics_process(_delta: float) -> void:
 func _update_context() -> void:
 	if _player == null or not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group("player") as Node3D
+		_player_owns_steps = _player != null and _player.has_method("owns_footstep_events") and bool(_player.call("owns_footstep_events"))
+		_last_pos = Vector3.INF
+		_stride = 0.0
+		_last_dodge = 0.0
 	_interior = _interior_kind()
 	_env.set_indoors(_interior)
 	var bed := ""
@@ -784,6 +791,9 @@ func _poll_player() -> void:
 			play_sfx("dodge", pos, -2.0)
 		_last_dodge = float(dodge)
 	if not footsteps_enabled or (_player.get("dead") == true):
+		return
+	if _player_owns_steps:
+		_stride = 0.0
 		return
 	var on_floor: bool = _player.call("is_on_floor") if _player.has_method("is_on_floor") else true
 	if not on_floor or moved > 3.0:      # teleports (doors, respawn) don't make steps
