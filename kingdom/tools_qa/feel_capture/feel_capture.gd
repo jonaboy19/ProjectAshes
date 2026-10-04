@@ -304,6 +304,7 @@ func _run() -> void:
 	if want("21") or want("22"): await _s21_22_parry_heavy_hit()
 	if want("23"): await _s23_companions()
 	if want("24"): await _s24_pivot_interruptions()
+	if want("25"): await _s25_pivot_wall()
 	log_line("DONE")
 	# quit() is deferred; stop the next frame from writing the closed CSV.
 	set_process(false)
@@ -314,6 +315,55 @@ func _run() -> void:
 	_index.close()
 	_csv.close()
 	get_tree().quit(1 if _capture_failed else 0)
+
+
+func _s25_pivot_wall() -> void:
+	await teleport(_flat, 0.0, 30)
+	begin("25_pivot_wall")
+	key(KEY_SHIFT, true)
+	key(KEY_W, true)
+	await frames(55)
+	var approach := player._move_dir.normalized()
+	var origin := player.global_position
+	var wall := StaticBody3D.new()
+	wall.collision_layer = 1
+	wall.collision_mask = 0
+	var box := BoxShape3D.new()
+	box.size = Vector3(6.0, 3.0, 0.25)
+	var shape := CollisionShape3D.new()
+	shape.shape = box
+	wall.add_child(shape)
+	var mesh := MeshInstance3D.new()
+	var visual := BoxMesh.new()
+	visual.size = box.size
+	mesh.mesh = visual
+	wall.add_child(mesh)
+	main.add_child(wall)
+	wall.global_position = origin + approach * 0.8 + Vector3.UP * 1.5
+	wall.rotation.y = atan2(approach.x, approach.z)
+	key(KEY_W, false)
+	key(KEY_S, true)
+	var entered := false
+	var cancelled := false
+	var contacted := false
+	var peak_forward := 0.0
+	for i in 24:
+		await frames(1)
+		entered = entered or not player._pivot_clip.is_empty()
+		cancelled = cancelled or (entered and player._pivot_clip.is_empty())
+		for collision_index in player.get_slide_collision_count():
+			contacted = contacted or player.get_slide_collision(collision_index).get_collider() == wall
+		peak_forward = maxf(peak_forward, (player.global_position - origin).dot(approach))
+	# Near face is 0.675 m from origin; include the actual capsule radius.
+	var safe_forward := 0.675 - player._capsule.radius + 0.03
+	if not entered or not contacted or not cancelled or peak_forward >= safe_forward:
+		_capture_failed = true
+		log_line("FAIL: wall pivot entered=%s contacted=%s cancelled=%s peak_forward=%.3f" % [entered, contacted, cancelled, peak_forward])
+	else:
+		log_line("Wall pivot cancelled without crossing wall; peak_forward=%.3f" % peak_forward)
+	finish()
+	wall.queue_free()
+	await frames(2)
 
 
 func _s24_pivot_interruptions() -> void:

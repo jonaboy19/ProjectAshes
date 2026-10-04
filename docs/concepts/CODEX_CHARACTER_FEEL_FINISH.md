@@ -103,3 +103,13 @@ The real main-scene capture completed five active-pivot interruptions: stick rel
 Scenario 24 adds this reproducible check. A failed condition now records FAIL and exits nonzero instead of leaving an assertion-aborted recording alive. The captured pass used the earlier assertion form; the nonzero failure path itself has not been exercised.
 
 pose_motion_summary.py now also removes logged model yaw to produce approximate body-local steps/rotations. The earlier left-foot maximum at frame 492 occurs while model yaw changes about 26.6 degrees from rest. Its body-local maximum is 0.299 m at frame 429 in BOTH baseline and refined recordings, so the earlier world-relative maximum should not be described as proof of worse source pose continuity. These approximate local metrics use physics-recorded model yaw, not an exact rendered bone-local transform; interpolation and contact limitations still apply.
+
+## 4 October: confirmed wall collision during authored pivot
+
+Scenario 25 creates a temporary 6 × 3 × 0.25 m StaticBody wall 0.8 m ahead immediately before reversal. It requires actual slide contact with that wall, an entered authored pivot, cancellation, and a peak forward centre displacement below wall near-face distance minus the player's actual capsule radius (3 cm tolerance).
+
+The first fixture placed the wall too far away (1.1 m): the pivot's forward peak was only 0.608 m and it never contacted that wall. It correctly failed cancellation and exited 1. That was a fixture geometry mistake, not proof of a gameplay defect. The closer, contact-required fixture completed with exit 0: peak centre travel 0.325 m, near face 0.675 m and capsule radius 0.35 m. The root-driven turn cancelled at the collision without the capsule crossing the wall. No gameplay contact code change was necessary.
+
+Video/telemetry: C:/Users/Jonna/Documents/Codex/2026-10-04/hero-pivot-wall-contact/. Reviewed sheet: pivot_wall_contact_review.jpg. No script parse/compile errors logged; renderer shutdown leaks remain. This is one adult LOW, left-pivot, static-wall case. Opposite-direction, edge/fall, moving NPC/player and different body-size cases remain required. The temporary wall exists only in the QA scene; no game scene or assets were modified.
+
+The failed first fixture also exercises the harness's failure reporting and nonzero exit path, replacing the earlier unverified failure-path note.

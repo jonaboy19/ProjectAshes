@@ -1,3 +1,5 @@
+> Historical checkpoint from 2 October. For current implementation, recordings and unresolved checks, read [CODEX_CHARACTER_FEEL_FINISH.md](CODEX_CHARACTER_FEEL_FINISH.md). The pivot wiring and full-project startup described as pending below have since progressed.
+
 # Character feel finish checkpoint
 
 2 October 2026. Isolated branch gpt/character-feel-finish now starts from published Claude head 1983bfeb. Explicit fetch showed origin/main at 31ecc059 is behind; origin/claude/focused-curie-m09hbd contains locomotion integration merge 0fa52409 and Style G pass 4 bf05e677. Do not infer that Codex's local code is missing because main is behind. Both existing dirty Claude worktrees remain untouched.
