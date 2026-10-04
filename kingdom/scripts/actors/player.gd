@@ -231,7 +231,9 @@ var _swing_elapsed := 0.0
 var _swing_hit := 0.0
 var _swing_time_scale := 1.0    # action seconds to elapsed seconds for the current playback
 var _attack_step_time := -1.0
-var _attack_step_velocity := Vector3.ZERO
+var _attack_step_end := 0.0
+var _attack_step_distance := 0.0
+var _attack_step_direction := Vector3.ZERO
 var _attack_step_id := -1
 var _swing_id := 0
 var _combo_window := 0.0
@@ -560,10 +562,6 @@ func _input_dir() -> Vector3:
 func _physics_process(delta: float) -> void:
 	_swing -= delta
 	_swing_elapsed += delta
-	if _attack_step_time >= 0.0 and _swing_elapsed >= _attack_step_time:
-		_attack_step_time = -1.0
-		if _attack_step_id == _swing_id and _swing > 0.0 and not dead and is_on_floor() and not swimming and _mount == null:
-			_kick(_attack_step_velocity)
 	_combo_window -= delta
 	_dodge -= delta
 	dash_cooldown = maxf(dash_cooldown - delta, 0.0)
@@ -661,7 +659,7 @@ func _physics_process(delta: float) -> void:
 		_move_speed = _land_roll_speed
 	else:
 		_steer(target, delta, (0.2 if _jump_running else AIR_CONTROL) if _jump_active else (1.0 if grounded else AIR_CONTROL))
-	var planar := _move_dir * _move_speed + _impulse
+	var planar := _move_dir * _move_speed + _impulse + _attack_step_motion(delta)
 	velocity.x = planar.x
 	velocity.z = planar.z
 	_impulse = _impulse.move_toward(Vector3.ZERO, IMPULSE_DECEL * delta)
@@ -1656,16 +1654,21 @@ func _start_swing() -> void:
 		var markers := CombatMarkers.get_clip(base_anim) if standing else {}
 		var step_m := float(markers.get("step_in_m", 0.0)) * Life.body_scale()
 		var step_frames: Variant = markers.get("step_frames", [])
-		if standing and step_m > 0.0 and step_frames is Array and not step_frames.is_empty():
+		if standing and step_m > 0.0 and step_frames is Array and step_frames.size() >= 2 and float(step_frames[1]) > float(step_frames[0]):
 			if target:
 				var gap := Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length() - LUNGE_STANDOFF
 				step_m = minf(step_m, maxf(gap, 0.0))
 			_attack_step_time = float(step_frames[0]) / 30.0 / rate
-			_attack_step_velocity = facing() * sqrt(2.0 * IMPULSE_DECEL * step_m)
+			_attack_step_end = float(step_frames[1]) / 30.0 / rate
+			_attack_step_distance = step_m
+			_attack_step_direction = facing()
 			_attack_step_id = _swing_id
 		else:
 			_kick(facing() * lunge)
 	_swing = action.total() * _swing_time_scale
+	if action.finisher and _attack_step_time >= 0.0:
+		# The standing finisher's authored plant is later than its old lock.
+		_swing = maxf(_swing, _attack_step_end)
 	_swing_elapsed = 0.0
 	_swing_hit = hit_t
 	_swing_cancel = action.cancel_remaining("attack") * _swing_time_scale   # finisher has no window: commits to its recovery
@@ -1691,6 +1694,23 @@ func swing_stats() -> Dictionary:
 
 func swing_id() -> int:
 	return _swing_id
+
+
+## Bounded marker-window travel through the existing body collision path.
+## No accumulated catch-up after a wall hit, and no motion survives cancellation.
+func _attack_step_motion(delta: float) -> Vector3:
+	if _attack_step_time < 0.0:
+		return Vector3.ZERO
+	if _attack_step_id != _swing_id or dead or not is_on_floor() or swimming or _mount != null or _dodge > 0.0 or _stunned > 0.0 or _jump_starting or _jump_active:
+		_attack_step_time = -1.0
+		return Vector3.ZERO
+	var span := maxf(_attack_step_end - _attack_step_time, 0.001)
+	var before := clampf((_swing_elapsed - delta - _attack_step_time) / span, 0.0, 1.0)
+	var after := clampf((_swing_elapsed - _attack_step_time) / span, 0.0, 1.0)
+	var travel := (smoothstep(0.0, 1.0, after) - smoothstep(0.0, 1.0, before)) * _attack_step_distance
+	if _swing_elapsed >= _attack_step_end:
+		_attack_step_time = -1.0
+	return _attack_step_direction * travel / maxf(delta, 0.001)
 
 
 func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> void:
@@ -1786,6 +1806,7 @@ func _end_dodge_anim() -> void:
 
 ## One-off horizontal velocity kick. It replaces any kick still decaying.
 func _kick(v: Vector3) -> void:
+	_attack_step_time = -1.0    # a hit/roll/moving attack replaces authored standing travel
 	_impulse = Vector3(v.x, 0.0, v.z)
 
 
