@@ -38,6 +38,7 @@ var _no_procedural := false
 var _pose_csv: FileAccess
 var _pose_skeleton: Skeleton3D
 var _pose_bones: Dictionary = {}
+var _capture_failed := false
 
 
 func _ready() -> void:
@@ -302,6 +303,7 @@ func _run() -> void:
 	if want("20"): await _s20_fall_land()
 	if want("21") or want("22"): await _s21_22_parry_heavy_hit()
 	if want("23"): await _s23_companions()
+	if want("24"): await _s24_pivot_interruptions()
 	log_line("DONE")
 	# quit() is deferred; stop the next frame from writing the closed CSV.
 	set_process(false)
@@ -311,7 +313,41 @@ func _run() -> void:
 		_pose_csv = null
 	_index.close()
 	_csv.close()
-	get_tree().quit(0)
+	get_tree().quit(1 if _capture_failed else 0)
+
+
+func _s24_pivot_interruptions() -> void:
+	for action: String in ["release", "attack", "dodge", "jump", "block"]:
+		await teleport(_flat, 0.0, 30)
+		player.stamina = player.MAX_STAMINA
+		begin("24_pivot_interrupt_%s" % action)
+		key(KEY_SHIFT, true)
+		key(KEY_W, true)
+		await frames(55)
+		key(KEY_W, false)
+		key(KEY_S, true)
+		await frames(6)
+		if player._pivot_clip.is_empty():
+			_capture_failed = true
+			log_line("FAIL: interruption fixture did not enter authored pivot")
+			finish()
+			return
+		log_line("Interrupt %s entered %s" % [action, player._pivot_clip])
+		match action:
+			"release": key(KEY_S, false)
+			"attack": await tap(KEY_J)
+			"dodge": await tap(KEY_K)
+			"jump": await tap(KEY_SPACE)
+			"block": key(KEY_L, true)
+		await frames(8)
+		if not player._pivot_clip.is_empty():
+			_capture_failed = true
+			log_line("FAIL: authored pivot survived interruption: %s" % action)
+			finish()
+			return
+		log_line("Interrupt %s cancelled authored pivot" % action)
+		await frames(35)
+		finish()
 
 
 func _s01_start_stop_walk() -> void:

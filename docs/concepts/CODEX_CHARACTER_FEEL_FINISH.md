@@ -95,3 +95,11 @@ Repeated actual-game recording: C:/Users/Jonna/Documents/Codex/2026-10-03/hero-t
 | Pivot scenario left ankle relative step | 0.334 m | 0.389 m |
 
 The later left-foot maximum at frame 492 worsened; this scenario also includes release/stop and a walking reversal, so it remains an explicit follow-up. Entry changes are still large: this is incremental improvement, not phase-matched or planted-foot approval. Bone sampling/interpolation and analytic-ground limitations remain as above. Repeat HIGH outfit review, opposite pivot, collision/edge and attack/jump/dodge interruption checks before integration approval.
+
+## 4 October: interruption checks and turning diagnostic correction
+
+The real main-scene capture completed five active-pivot interruptions: stick release, attack, dodge, jump and block. Each entered Loco_Pivot180_Run_L before the interruption and cleared _pivot_clip within the fixture's next eight frames (ten including a two-frame action tap). Video and telemetry: C:/Users/Jonna/Documents/Codex/2026-10-03/hero-pivot-interruptions/. Reviewed jump interruption sheet: pivot_interruption_review.jpg. This proves cancellation in these LOW, open-ground cases, not instantaneous input response, visual quality or opposite-direction/wall/edge coverage. No script parse/compile errors logged; teardown resource leaks remain.
+
+Scenario 24 adds this reproducible check. A failed condition now records FAIL and exits nonzero instead of leaving an assertion-aborted recording alive. The captured pass used the earlier assertion form; the nonzero failure path itself has not been exercised.
+
+pose_motion_summary.py now also removes logged model yaw to produce approximate body-local steps/rotations. The earlier left-foot maximum at frame 492 occurs while model yaw changes about 26.6 degrees from rest. Its body-local maximum is 0.299 m at frame 429 in BOTH baseline and refined recordings, so the earlier world-relative maximum should not be described as proof of worse source pose continuity. These approximate local metrics use physics-recorded model yaw, not an exact rendered bone-local transform; interpolation and contact limitations still apply.
