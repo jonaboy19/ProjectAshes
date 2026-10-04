@@ -80,6 +80,8 @@ var stride_scale := 1.0
 var rig: Node
 var _root: AnimationNodeBlendTree
 var _upper_anim: AnimationNodeAnimation
+var _attack_anims: Dictionary = {}
+var _attack_slot := 0
 var _full_anim: AnimationNodeAnimation
 var _loco_anim: AnimationNodeAnimation
 var _block_target := 0.0
@@ -226,6 +228,29 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 	_root.connect_node("full_speed", 0, "full_anim")
 	_root.connect_node("full", 0, "upper")
 	_root.connect_node("full", 1, "full_speed")
+	# Reuse P9's serial alternating slots on the playable rig only. Keep the
+	# crowd trees small and preserve full-body dodge/hit priority above attacks.
+	if with_air:
+		_root.disconnect_node("full", 0)
+		var attack_base := "upper"
+		for kind in ["atk", "stand"]:
+			for slot in ["a", "b"]:
+				var key: String = kind + "_" + slot
+				var clip_node := _anim("1H_Melee_Attack_Chop")
+				_attack_anims[key] = clip_node
+				_root.add_node(key + "_anim", clip_node)
+				_root.add_node(key + "_speed", AnimationNodeTimeScale.new())
+				var shot := AnimationNodeOneShot.new()
+				shot.fadein_time = 0.06
+				shot.fadeout_time = 0.2
+				if kind == "atk":
+					_filter_upper(shot)
+				_root.add_node(key, shot)
+				_root.connect_node(key + "_speed", 0, key + "_anim")
+				_root.connect_node(key, 0, attack_base)
+				_root.connect_node(key, 1, key + "_speed")
+				attack_base = key
+		_root.connect_node("full", 0, attack_base)
 	var output := "full"
 	var air_output := ""
 	if with_air:
@@ -486,6 +511,7 @@ func shown_speed() -> float:
 
 ## Arms-only action (attack, cast, block hit) layered over locomotion.
 func play_upper(anim_name: String, time_scale := 1.0) -> void:
+	stop_attack()
 	_upper_anim.animation = _clip(anim_name)
 	tree["parameters/upper_speed/scale"] = time_scale
 	tree["parameters/upper/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
@@ -493,6 +519,7 @@ func play_upper(anim_name: String, time_scale := 1.0) -> void:
 
 ## Whole-body action (dodge roll, stagger) that overrides locomotion.
 func play_full(anim_name: String, time_scale := 1.0) -> void:
+	stop_attack()
 	_full_anim.animation = _clip(anim_name)
 	tree["parameters/full_speed/scale"] = time_scale
 	tree["parameters/full/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
@@ -608,6 +635,7 @@ func stop_full() -> void:
 
 ## Cut an arms-only action short (e.g. a dodge cancelling a swing's recovery).
 func stop_upper() -> void:
+	stop_attack()
 	if tree["parameters/upper/active"]:
 		tree["parameters/upper/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT
 
@@ -658,15 +686,51 @@ func _first_clip(names: Array) -> String:
 
 
 func is_upper_busy() -> bool:
-	return tree["parameters/upper/active"]
+	if tree["parameters/upper/active"]:
+		return true
+	for key: String in _attack_anims:
+		if tree["parameters/%s/active" % key]:
+			return true
+	return false
 
 
 func is_full_busy() -> bool:
-	return tree["parameters/full/active"]
+	return tree["parameters/full/active"] or is_stand_attack()
+
+
+## Existing full-body sword clips when planted, upper variants while moving.
+func play_attack(anim_name: String, time_scale := 1.0, standing := true) -> void:
+	var base := anim_name.trim_suffix("_Upper")
+	if _attack_anims.is_empty() or not player.has_animation(base):
+		play_upper(anim_name, time_scale)
+		return
+	_attack_slot = 1 - _attack_slot
+	var key := ("stand_" if standing else "atk_") + ("a" if _attack_slot == 0 else "b")
+	var chosen := base + "_Upper" if not standing and player.has_animation(base + "_Upper") else base
+	var clip_node: AnimationNodeAnimation = _attack_anims[key]
+	clip_node.animation = chosen
+	tree["parameters/%s_speed/scale" % key] = time_scale
+	for other: String in _attack_anims:
+		if other != key:
+			tree["parameters/%s/request" % other] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT
+	if tree["parameters/upper/active"]:
+		tree["parameters/upper/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT
+	tree["parameters/%s/request" % key] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
+
+
+func stop_attack() -> void:
+	for key: String in _attack_anims:
+		# Also replaces a pending FIRE before the graph's next evaluation.
+		tree["parameters/%s/request" % key] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT
+
+
+func is_stand_attack() -> bool:
+	return not _attack_anims.is_empty() and (tree["parameters/stand_a/active"] or tree["parameters/stand_b/active"])
 
 
 ## Death and other terminal poses bypass the tree.
 func play_terminal(anim_name: String) -> void:
+	stop_attack()
 	tree.active = false
 	player.play(_clip(anim_name), 0.1)
 

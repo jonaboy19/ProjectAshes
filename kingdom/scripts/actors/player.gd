@@ -230,6 +230,9 @@ var _swing_cancel := 0.0
 var _swing_elapsed := 0.0
 var _swing_hit := 0.0
 var _swing_time_scale := 1.0    # action seconds to elapsed seconds for the current playback
+var _attack_step_time := -1.0
+var _attack_step_velocity := Vector3.ZERO
+var _attack_step_id := -1
 var _swing_id := 0
 var _combo_window := 0.0
 var _attack_buffer := 0.0
@@ -557,6 +560,10 @@ func _input_dir() -> Vector3:
 func _physics_process(delta: float) -> void:
 	_swing -= delta
 	_swing_elapsed += delta
+	if _attack_step_time >= 0.0 and _swing_elapsed >= _attack_step_time:
+		_attack_step_time = -1.0
+		if _attack_step_id == _swing_id and _swing > 0.0 and not dead and is_on_floor() and not swimming and _mount == null:
+			_kick(_attack_step_velocity)
 	_combo_window -= delta
 	_dodge -= delta
 	dash_cooldown = maxf(dash_cooldown - delta, 0.0)
@@ -1633,9 +1640,26 @@ func _start_swing() -> void:
 		# Travel under IMPULSE_DECEL is v²/(2a): pick v so the step ends at the standoff.
 		var gap := Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length() - LUNGE_STANDOFF
 		lunge = clampf(sqrt(maxf(gap, 0.0) * 2.0 * IMPULSE_DECEL), 0.0, ATTACK_LUNGE)
-	if action.root_motion:
-		_kick(facing() * lunge)
 	_swing_id += 1
+	_attack_step_time = -1.0
+	var rate: float = action.anim_speed * playback_multiplier
+	var base_anim := String(action.anim).trim_suffix("_Upper")
+	var standing := _move_speed < 0.3 and is_on_floor() and not crouching and view != View.FIRST
+	# Reuse the full-body step contract only when its matching clip exists.
+	standing = standing and _animator.player.has_animation(base_anim)
+	if action.root_motion:
+		var markers := CombatMarkers.get_clip(base_anim) if standing else {}
+		var step_m := float(markers.get("step_in_m", 0.0)) * Life.body_scale()
+		var step_frames: Variant = markers.get("step_frames", [])
+		if standing and step_m > 0.0 and step_frames is Array and not step_frames.is_empty():
+			if target:
+				var gap := Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length() - LUNGE_STANDOFF
+				step_m = minf(step_m, maxf(gap, 0.0))
+			_attack_step_time = float(step_frames[0]) / 30.0 / rate
+			_attack_step_velocity = facing() * sqrt(2.0 * IMPULSE_DECEL * step_m)
+			_attack_step_id = _swing_id
+		else:
+			_kick(facing() * lunge)
 	_swing = action.total() * _swing_time_scale
 	_swing_elapsed = 0.0
 	_swing_hit = hit_t
@@ -1643,8 +1667,7 @@ func _start_swing() -> void:
 	_combo_window = _swing + COMBO_WINDOW
 	if action.finisher:
 		_combo_window = 0.0     # finisher ends the chain
-	var rate: float = action.anim_speed * playback_multiplier
-	_animator.play_upper(action.anim, rate)
+	_animator.play_attack(action.anim, rate, standing)
 	var riposte := _parry_bonus > 0.0
 	_parry_bonus = 0.0
 	var damage: int = int(action.damage * (0.5 if weak else 1.0) * (_riposte_mult if riposte else 1.0))
