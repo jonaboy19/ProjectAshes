@@ -23,5 +23,6 @@ triangles=0
 for o in meshes:o.data.calc_loop_triangles();triangles+=len(o.data.loop_triangles)
 if triangles>15000:raise RuntimeError('Hero candidate over triangle cap')
 bpy.ops.wm.save_as_mainfile(filepath=str(base/'hero_refined_rigged.blend'))
-bpy.ops.export_scene.gltf(filepath=str(base/'hero_refined_rigged.glb'),export_format='GLB')
+bpy.ops.export_scene.gltf(filepath=str(base/'hero_refined_rigged.glb'),export_format='GLB',export_animations=False)
 (base/'hero_refined_rigged.metrics.json').write_text(json.dumps({'triangles':triangles,'changes':changes,'mesh_count':len(meshes),'armatures':len([o for o in bpy.context.scene.objects if o.type=='ARMATURE'])},indent=2))
+
