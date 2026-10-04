@@ -1,0 +1,11 @@
+{
+  "triangles_before": 23380,
+  "triangles": 11998,
+  "size_metres": [
+    0.7392387390136719,
+    0.8188443183898926,
+    1.7999999523162842
+  ],
+  "materials": 1,
+  "source": "output\\hero_styleg_v2\\0\\mesh.glb"
+}
