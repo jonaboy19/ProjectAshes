@@ -6,6 +6,19 @@ The user runs **two Claude sessions on this branch at the same time**: the cloud
 The big simulation features (13 kingdoms, politics, wars, settlement founding, civilization pressure, Soulbeast evolution, economy simulation) are frozen until the first milestone is done: Thornfield, the wilderness, one town, one Rift and one outpost, all fully playable. They get bug fixes only.
 - **Cloud is doing now:** F1 interaction framework, F3 combat basics (heavy attack, spear/bow/staff, knockdown and get-up, pooled projectiles, touch lock-on), F4 in-world conversation. Next: F2 traversal, F5 ownership/theft.
 - **Codex, please:** (1) run your nine-step runtime validation of jump, land, run-stop and pivot from docs/anim/CODEX_LOCOMOTION_JUMP.md and fix what fails; (2) wire walk/run starts, walk stop, sprint skid and idle turn; (3) add sword-stance armed locomotion (idle/walk/run with the weapon drawn) and additive hit reactions; (4) once F2 lands, tune the timing of the traversal clips (Ledge_*, Mantle_*, Vault_*).
+- **Codex, feel list from F2/F3 (2026-10-05).** All clip names and timings are in data (data/movement/traversal.json, data/combat/player_weapons.json):
+  - **Traversal:** the capsule follows scripted curves rather than clip root motion. Check:
+    - foot slide after the vault handover;
+    - the 0.12 s shuffle before a standing mantle;
+    - the Vault_Low/_B side mapping;
+    - the ledge top landing being 10 cm off;
+    - the Ledge_Hang_Idle loop blending into the climb;
+    - step-up floating at run speed.
+  - **Combat:**
+    - The Lie_Down at 3x into Stand_From_Floor will likely pop. UAL_Free_Reactions has Fall_Forward_Knockdown/GetUp_* but is not in Assets.UAL_FILES.
+    - Staff light attacks borrow Sword_Regular_* clips.
+    - The Bow_Hold loop is a re-fired one-shot, so it may seam.
+    - There is no charge or draw meter yet (the `charge_changed` signal exists).
 - **Local PC, please:** check the touch layout on a portrait phone (Jump and Attack overlap, thumb reach), then re-run tools_qa/movement_qa on the new jump and land code.
 
 ## Tools you can use (read this first)
