@@ -9,7 +9,8 @@ Updated 2026-10-05 (release QA pass 2, PC-side fixes; phone runs paused while th
 |---|--:|---|
 | A (origin 2be0118e-era, before) | 1,404 MB | arm64 + armv7 |
 | B: texture fix + excludes | 945 MB | same, plus the fixes below |
-| C: + 512 px phone cap, arm64 only | **650 MB** | current |
+| C: + 512 px phone cap, arm64 only | 650 MB | |
+| D: + editor-only addons excluded (sky_3d, gloot, proton_scatter, phantom_camera examples) | **624 MB** | current |
 
 Target is under 500 MB (ideally 300 MB). Still a blocker.
 
@@ -25,8 +26,8 @@ Target is under 500 MB (ideally 300 MB). Still a blocker.
 - Excluded `assets/incoming/polyhaven/hdris/*`.
 - Android export: arm64 only (armv7 dropped, -28 MB lib).
 
-### Still in the 650 MB (build C)
-Meshes `.scn` ~240 MB (Meshy LOD0s with generated LODs and shadow meshes), already-VRAM textures, VAT bakes 26 MB, audio 64 MB, engine 25 MB. Next: per-file exclude of the remaining UNREF kit files from `asset_audit_unreferenced.csv` (221 still shipped), 256 px cap for distant props, and an AAB (Play splits per device).
+### Still in the 624 MB (build D)
+Meshes `.scn` ~240 MB (Meshy LOD0s with generated LODs and shadow meshes), already-VRAM textures, VAT bakes 26 MB, audio 64 MB, engine 25 MB. No single culprit left (largest folder: in-use `ai3d/meshy` buildings, 36 MB of meshes). The audit CSV's still-shipped UNREF files are only ~4 MB and sit in kits whose names are built in code, so they were left in. Options to get under 500 MB, each a quality call for the owner: 256 px phone cap for non-hero textures (about -130 MB, blurrier buildings up close on HIGH), music/ambience re-encoded at 96 kbps (about -25 MB), or disabling generated LODs/shadow meshes on Meshy models that ship their own LOD1.
 
 ## Boot errors
 - GodotGAS (`project_settings.gd` 153/162, `gameplay_cue_manager.gd`): confirmed unused (only comments and the credits list). Plugin and autoload removed; folder excluded from export.
