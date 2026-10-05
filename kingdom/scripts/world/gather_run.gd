@@ -15,7 +15,10 @@ static func open(host: Node, node: Dictionary, title: String, tool_tier: int, se
 		return null
 	var layer := CanvasLayer.new()
 	layer.layer = 18
-	host.add_child(layer)
+	# The world lives in a SubViewport behind the HUD: a panel parented there never gets clicks (the HUD's full-screen
+	# look area swallows them). Parent it to the game scene's own viewport so it sits above the HUD (layer 10).
+	var tree := host.get_tree()
+	(tree.current_scene if tree != null and tree.current_scene != null else host).add_child(layer)
 	var panel: Control = GatherPanel.new()
 	layer.add_child(panel)
 	panel.call("setup", s, title)

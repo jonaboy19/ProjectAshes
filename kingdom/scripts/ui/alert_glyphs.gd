@@ -140,7 +140,7 @@ func refresh() -> void:
 		var host: Node3D = nodes.get(person)
 		if host == null:
 			continue
-		var sp: Sprite3D = _used.get(person)
+		var sp: Sprite3D = _used.get(person) if is_instance_valid(_used.get(person)) else null
 		if sp == null:
 			sp = _take()
 			if sp == null:
@@ -156,6 +156,8 @@ func refresh() -> void:
 
 
 func _take() -> Sprite3D:
+	# A sprite parented to a villager that was freed is freed with it: drop dead pool entries first.
+	_pool.assign(_pool.filter(func(x: Variant) -> bool: return is_instance_valid(x)))
 	for sp in _pool:
 		if not _used.values().has(sp):
 			return sp
@@ -167,7 +169,7 @@ func _take() -> Sprite3D:
 
 
 func _release(person: int) -> void:
-	var sp: Sprite3D = _used.get(person)
+	var sp: Sprite3D = _used.get(person) if is_instance_valid(_used.get(person)) else null
 	_used.erase(person)
 	if sp != null and sp.get_parent() != null:
 		sp.get_parent().remove_child(sp)

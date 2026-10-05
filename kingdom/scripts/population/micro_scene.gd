@@ -1390,5 +1390,11 @@ func _t_broken_cart() -> bool:
 	add_child(st)
 	station = st
 	# Nobody comes? After a while two passers-by mend it.
-	get_tree().create_timer(maxf(duration - 5.0, 20.0)).timeout.connect(func() -> void: go.call())
+	# A child Timer (not a SceneTreeTimer): it dies with this scene, so `go` (which uses self) never fires on a freed scene.
+	var mend := Timer.new()
+	mend.one_shot = true
+	mend.wait_time = maxf(duration - 5.0, 20.0)
+	add_child(mend)
+	mend.timeout.connect(func() -> void: go.call())
+	mend.start()
 	return true

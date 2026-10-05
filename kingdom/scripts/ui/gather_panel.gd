@@ -67,7 +67,9 @@ func _options() -> Array:
 
 func _rebuild() -> void:
 	if _widget != null:
-		_box.remove_child(_widget)
+		# Not remove_child(): this runs inside the clicked button's own pressed signal, and pulling that Button out of the
+		# tree mid-event crashed the engine (signal 11 under xvfb). Hide it so it stops sizing the panel; queue_free is deferred.
+		_widget.visible = false
 		_widget.queue_free()
 	_taps.text = "Taps left: %d" % session.taps_left()
 	var opts := _options()

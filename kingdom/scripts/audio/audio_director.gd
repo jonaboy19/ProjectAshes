@@ -801,8 +801,8 @@ func _poll_player() -> void:
 
 
 func _poll_creatures() -> void:
-	if not listener or not is_instance_valid(listener):
-		return
+	if not listener or not is_instance_valid(listener) or not listener.is_inside_tree():
+		return      # the listener is being freed with the old scene (Exit to Menu / reload)
 	var lp := listener.global_position
 	# player hurt / death
 	if _player and is_instance_valid(_player):
@@ -854,7 +854,7 @@ func _is_boss(c: Node) -> bool:
 
 
 func _creature_idle() -> void:
-	if not listener or not is_instance_valid(listener):
+	if not listener or not is_instance_valid(listener) or not listener.is_inside_tree():
 		return
 	var lp := listener.global_position
 	if randf() < 0.6 and _animal_voice(lp):

@@ -224,8 +224,7 @@ func _layout() -> void:
 	if _panel == null:
 		return
 	var vw := get_viewport().get_visible_rect().size
-	position = Vector2.ZERO
-	size = vw
+	# (full-rect anchors from _ready already size this root; assigning size warned)
 	var w := clampf(vw.x * 0.96, 320.0, 980.0)
 	var h := vw.y * 0.94
 	_panel.anchor_left = 0.5
