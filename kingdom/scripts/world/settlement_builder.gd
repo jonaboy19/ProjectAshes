@@ -25,6 +25,8 @@ const NpcWorldScript := preload("res://scripts/population/npc_world.gd")
 const DistrictProps := preload("res://scripts/world/district_props.gd")   # district prop sets + house details (VERTICAL_SLICE P1)
 const TownIdentity := preload("res://scripts/world/town_identity.gd")      # per-town visual identity profile (data/world/town_identity.json)
 const VillageFeatures := preload("res://scripts/world/village_features.gd")   # village / hamlet signature landmarks (green, chapel, mill, smithy, pond ...)
+const LampGlow := preload("res://scripts/world/lamp_glow.gd")             # lamp light sources: billboard glow batch, omni only on HIGH+
+const TorchProps := preload("res://scripts/world/torch_props.gd")         # braziers / wall torches (emissive mesh, no omni light)
 const TownView := preload("res://scripts/world/town_identity_view.gd")     # wall styles and outskirts yards of that profile
 
 const BUILD_RANGE := 650.0
@@ -1306,21 +1308,25 @@ func _square_lamps(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 	var pr: float = plan["plaza_r"]
 	var n := 6 if s["kind"] == "village" else 10
 	var posts: Array[Transform3D] = []
+	var lamp_specs: Array = []
 	for i in n:
 		var a := TAU * (i + 0.5) / n
 		var p := c + Vector2(cos(a), sin(a)) * (pr + 1.2)
 		var yaw := atan2(c.x - p.x, c.y - p.y)
 		var gy := WorldGen.height(p.x, p.y) - 0.03
 		posts.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(p.x, gy, p.y)))
-		var light := OmniLight3D.new()
-		light.light_color = Color(1.0, 0.72, 0.4)
-		light.omni_range = 9.0
-		light.light_energy = 0.0
-		light.add_to_group("street_lamp")
-		root.add_child(light)
-		light.global_position = Vector3(p.x, gy + 2.35, p.y) + Vector3(sin(yaw), 0, cos(yaw)) * 0.62
+		lamp_specs.append({"pos": Vector3(p.x, gy + 2.35, p.y) + Vector3(sin(yaw), 0, cos(yaw)) * 0.62,
+			"color": Color(1.0, 0.72, 0.4), "range": 9.0})
 	_multimesh_cells(root, Assets.building_mesh("lamp_post"), posts, LOD_CELL)
 	var gates: Array = plan["gates"]
+	if not gates.is_empty():
+		# A brazier either side of the first gate: emissive mesh + billboard glow, no omni light (LampGlow).
+		var g0: float = gates[0]
+		for side: float in [-1.0, 1.0]:
+			var bp: Vector2 = c + Vector2(cos(g0), sin(g0)) * (float(s["radius"]) + 4.0) + Vector2(-sin(g0), cos(g0)) * 3.2 * side
+			var br: Dictionary = TorchProps.brazier(root, Vector3(bp.x, WorldGen.height(bp.x, bp.y), bp.y), g0)
+			lamp_specs.append({"pos": br["glow_pos"], "color": Color(1.0, 0.55, 0.2), "range": 7.0, "size": 1.8})
+	LampGlow.build(root, lamp_specs)
 	if not gates.is_empty():
 		var ga: float = gates[0]
 		var sp: Vector2 = c + Vector2(cos(ga), sin(ga)) * (float(s["radius"]) + 8.0) + Vector2(-sin(ga), cos(ga)) * 5.0
@@ -1634,14 +1640,10 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 						walk.append(tr)
 				_add_instance_colliders(root, mesh, walk)
 				_add_camera_blockers(root, mesh, batches[key])
+	var street_specs: Array = []
 	for lp: Vector3 in lights.slice(0, 24):
-		var light := OmniLight3D.new()
-		light.light_color = Color(1.0, 0.72, 0.4)
-		light.omni_range = 8.0
-		light.light_energy = 0.0
-		light.add_to_group("street_lamp")
-		root.add_child(light)
-		light.global_position = lp
+		street_specs.append({"pos": lp, "color": Color(1.0, 0.72, 0.4), "range": 8.0})
+	LampGlow.build(root, street_specs)
 
 
 ## Sparse painted decals (TownDecals): moss and dirt at wall feet, worn plaster patches, soot above the

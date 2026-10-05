@@ -1131,7 +1131,7 @@ func _step_night() -> void:
 	var lamps := get_tree().get_nodes_in_group("street_lamp")
 	var lit := 0
 	for l in lamps:
-		if (l as Light3D).visible and (l as Light3D).light_energy > 0.1:
+		if (l as Node3D).visible and float(l.get("light_energy")) > 0.1:
 			lit += 1
 	log_line("Night: %d street lamps, %d lit; sun energy %.2f" % [lamps.size(), lit, main.sun.light_energy])
 	if lit == 0:

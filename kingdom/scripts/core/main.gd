@@ -598,8 +598,9 @@ func _update_daylight() -> void:
 		Audio.set_wind(preload("res://scripts/world/weather.gd").wind_strength)
 	var lamp_energy := 1.6 * night
 	for l in get_tree().get_nodes_in_group("street_lamp"):
-		(l as OmniLight3D).light_energy = lamp_energy
-		(l as OmniLight3D).visible = lamp_energy > 0.01
+		# LampNode (billboard glow, omni light only on HIGH+) or a plain OmniLight3D: both take light_energy.
+		l.set("light_energy", lamp_energy)
+		(l as Node3D).visible = lamp_energy > 0.01
 
 
 # --- Scripted demo (for trailer capture with --write-movie) ------------------------

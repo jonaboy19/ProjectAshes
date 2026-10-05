@@ -12,6 +12,7 @@ extends Node3D
 
 const Landmarks := preload("res://scripts/region1/region1_landmarks.gd")
 const Horizon := preload("res://scripts/region1/region1_horizon.gd")
+const LampGlow := preload("res://scripts/world/lamp_glow.gd")   # lamp glow batch + LampNode (omni light only on HIGH+)
 const FREE := "res://assets/incoming/meshy_free/"
 const R1 := "res://assets/incoming/region1/"
 const REGION := "res://assets/generated/region/"
@@ -402,19 +403,15 @@ func _build_scatter(root: Node3D, lm: Dictionary) -> void:
 func _build_lights(root: Node3D, lm: Dictionary) -> void:
 	var c := _v2(lm["pos"])
 	var lyaw := deg_to_rad(float(lm.get("yaw", 0.0)))
+	var specs: Array = []
 	for l: Dictionary in lm.get("lights", []):
 		var w := _v2(l["w"]) if l.has("w") else c + _v2(l["at"]).rotated(-lyaw)
-		var light := OmniLight3D.new()
-		light.light_color = Color(String(l.get("color", "ffb35c")))
-		light.omni_range = float(l.get("range", 9.0))
-		light.light_energy = 0.0
-		light.shadow_enabled = false
-		light.add_to_group("street_lamp")
-		root.add_child(light)
 		var base := WorldGen.water_level_at(w.x, w.y) if bool(l.get("water", false)) else WorldGen.height(w.x, w.y)
 		if is_nan(base):
 			base = WorldGen.height(w.x, w.y)
-		light.global_position = Vector3(w.x, base + float(l.get("y", 2.5)), w.y)
+		specs.append({"pos": Vector3(w.x, base + float(l.get("y", 2.5)), w.y), "color": Color(String(l.get("color", "ffb35c"))),
+			"range": float(l.get("range", 9.0))})
+	LampGlow.build(root, specs)
 
 
 # --- Cliff kits -------------------------------------------------------------------

@@ -405,13 +405,13 @@ static func sync_lamps(tree: SceneTree) -> void:
 		return
 	var near: Array = []
 	for n in tree.get_nodes_in_group("street_lamp"):
-		var l := n as OmniLight3D
-		if l == null or l.light_energy < 0.05 or not l.is_visible_in_tree():
+		var l := n as Node3D       # OmniLight3D or LampNode (glow-only on LOW / MEDIUM): both expose light_energy, omni_range
+		if l == null or float(l.get("light_energy")) < 0.05 or not l.is_visible_in_tree():
 			continue
 		var p := Vector2(l.global_position.x, l.global_position.z)
 		var d2 := p.distance_squared_to(_player_pos)
 		if d2 < 3600.0:
-			near.append([d2, p, l.omni_range])
+			near.append([d2, p, float(l.get("omni_range"))])
 	near.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
 	for e: Array in near.slice(0, Perception.MAX_LIGHTS):
 		Perception.register_light(e[1], float(e[2]), 0.6)

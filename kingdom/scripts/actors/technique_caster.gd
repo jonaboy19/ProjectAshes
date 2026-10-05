@@ -46,6 +46,7 @@ const EffectSet := preload("res://scripts/abilities/effect_set.gd")
 const PowerTrees := preload("res://scripts/abilities/power_trees.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
 const VFX_PATH := "res://scripts/vfx/vfx.gd"
+const TechniqueVfx := preload("res://scripts/vfx/technique_vfx.gd")
 const SPECTACLE_SHAPES := ["projectile", "chain", "dash", "blink", "melee", "cone", "aoe", "target_aoe"]
 const KEYS := {"technique_1": KEY_U, "technique_2": KEY_Y, "technique_3": KEY_O, "technique_4": KEY_H,
 	"seal_1": KEY_4, "seal_2": KEY_5, "seal_3": KEY_6, "seal_4": KEY_7, "seal_5": KEY_8, "seal_6": KEY_9}
@@ -109,12 +110,29 @@ func _ready() -> void:
 	_vfx_script = load(VFX_PATH)
 	for m: Dictionary in _vfx_script.get_script_method_list():
 		_vfx_info[String(m["name"])] = m
+	_bind_technique_vfx()
 	for action: String in KEYS:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
 			var ev := InputEventKey.new()
 			ev.physical_keycode = KEYS[action]
 			InputMap.action_add_event(action, ev)
+
+
+## The shared technique timing template (anticipation, flash, limb glow, travel, impact, residue) listens to the
+## runner; techniques with their own VFX method keep their bespoke travel and impact (scripts/vfx/technique_vfx.gd).
+func _bind_technique_vfx() -> void:
+	var tv: Node = TechniqueVfx.new()
+	tv.name = "TechniqueVfx"
+	add_child(tv)
+	tv.bind_runner(runner, {
+		"origin": _origin, "aim": _aim, "world": _world,
+		"is_player": func() -> bool: return player != null and player == Life.player,
+		"skeleton_root": player,
+		"bespoke": func(def: Dictionary) -> bool:
+			var v := String(def.get("vfx", ""))
+			return v != "" and _vfx_info.has(v),
+	})
 
 
 ## Life's skills when Life owns them (so they are saved), else a fresh set.

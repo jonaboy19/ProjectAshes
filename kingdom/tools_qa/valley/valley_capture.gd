@@ -135,8 +135,8 @@ func _daylight(t: float) -> void:
 	env.background_energy_multiplier = lerpf(0.08, 1.0, sky_amount) + night * 0.12
 	var lamp := 1.6 * night
 	for l in get_nodes_in_group("street_lamp"):
-		(l as OmniLight3D).light_energy = lamp
-		(l as OmniLight3D).visible = lamp > 0.01
+		l.set("light_energy", lamp)
+		(l as Node3D).visible = lamp > 0.01
 
 
 func _build_steps() -> void:
