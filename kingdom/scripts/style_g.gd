@@ -249,6 +249,9 @@ static func apply_daylight(env: Environment, sun: DirectionalLight3D, fill: Dire
 			amb = amb.lerp(Color("c4b4a4"), 0.5 * clampf(float(p["sun_energy"]) / 2.5, 0.0, 1.0))     # day only (night stays moonlit blue); pass 3: warm-neutral shadow side (blue-grey patches on the ground read flat)
 		env.ambient_light_color = amb
 		env.ambient_light_energy = float(p["ambient_energy"])
+		if env.has_meta("game_look"):
+			# AAA pass 5: night read murky on the phone (NPCs black silhouettes): a moonlit floor for the ambient
+			env.ambient_light_energy = maxf(float(p["ambient_energy"]), 0.85)
 		env.fog_light_color = p["fog"]
 		env.background_energy_multiplier = float(p["bg_energy"])
 		var sm := env.sky.sky_material as ShaderMaterial if env.sky else null

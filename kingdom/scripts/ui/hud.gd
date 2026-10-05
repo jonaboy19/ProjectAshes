@@ -1431,6 +1431,7 @@ func _apply_label() -> void:
 	var small := HudArt.round_face(72, _fill_for(UITheme.ACTION_TALK), res[0], res[1], 0.62)
 	_world_icon.set("face", small)
 	_world_icon.set("verb", String(target_label.get("verb", "")))
+	_world_icon.set("who", String(target_label.get("target", "")))
 	_interact_small.texture_normal = small
 	_interact_small.texture_pressed = small
 	(_interact_small.get_child(0) as Label).text = String(target_label.get("verb", "")).left(9)

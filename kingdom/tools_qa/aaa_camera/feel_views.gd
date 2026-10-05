@@ -124,6 +124,8 @@ func _run() -> void:
 				print("FEELVIEW chore ", id, " ", n.call("spawn_now", id))
 			break
 	await frames(240)
+	WorldSim.time_of_day = 15.5
+	await frames(60)
 	var tgt: Node = main.hud.get("target")
 	print("FEELVIEW focus ", tgt, " tag_visible=", (tgt.get("_tag") as Label3D).visible if tgt and tgt.get("_tag") else "n/a")
 	await shot("5_benchmark")
