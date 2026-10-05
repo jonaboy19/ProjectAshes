@@ -177,6 +177,14 @@ static func nearest_unseen(here: Vector2, radius: float, person: int) -> int:
 	return best
 
 
+## Id of an entry of `kind` within `tol` of `pos` (0 when none): lets a restored body re-link to its saved evidence.
+static func find_at(kind: int, pos: Vector2, tol := 0.3) -> int:
+	for i in MAX:
+		if _uid[i] != 0 and _kind[i] == kind and _pos[i].distance_to(pos) <= tol:
+			return _uid[i]
+	return 0
+
+
 ## Deterministic reaction delay in ms for `person` finding entry `id` (0.5 - 1.5 s).
 static func reaction_delay_ms(person: int, id: int) -> int:
 	return DELAY_MIN_MS + absi(hash([person, id])) % DELAY_SPAN_MS

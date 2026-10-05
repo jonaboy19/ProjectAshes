@@ -90,7 +90,71 @@ static func down(person: int, kind: int, pos: Vector2, sid: int, now_ms: int, so
 		"pos": pos, "sid": sid, "evidence": eid}
 	takedowns += 1
 	Witness.silence(person, now_ms, soc)
+	if kind == Kind.KILL:
+		_die_in_data_tier(person, pos, sid)
 	return eid
+
+
+## The data tier sees the death too: WorldSim marks the row dead (off schedules, purse to the heir, ties forgotten) and
+## the body rests where it fell. Skipped when there is no WorldSim row (unit tests with invented ids).
+static func _die_in_data_tier(person: int, pos: Vector2, _sid: int) -> void:
+	var ws := _world_sim()
+	if ws == null or person < 0 or person >= int(ws.call("population")):
+		return
+	ws.call("kill_person", person, pos)
+
+
+static func _world_sim() -> Node:
+	var loop := Engine.get_main_loop()
+	return (loop as SceneTree).root.get_node_or_null("WorldSim") if loop is SceneTree else null
+
+
+## The body was found for the first time: the town hears of it (a news line, a rumour at the tavern) and, for a
+## kill, mourners gather (NpcWorld FUNERAL incident, the hook the mourn act already reads). Once per person.
+static func on_found(evidence_id: int, now_ms: int) -> bool:
+	for p: int in _down:
+		var row: Dictionary = _down[p]
+		if int(row["evidence"]) != evidence_id or bool(row.get("announced", false)):
+			continue
+		row["announced"] = true
+		if int(row["kind"]) != Kind.KILL:
+			return false
+		var sid := int(row["sid"])
+		var nm := _person_name(p)
+		_post_news(sid, "%s was found dead in the street." % nm)
+		(load(NPC_WORLD) as GDScript).call("report", 5, row["pos"], 40.0, 240.0, 1.0, sid)      # Kind.FUNERAL
+		return true
+	return false
+
+
+static func _person_name(p: int) -> String:
+	var ws := _world_sim()
+	return String(ws.call("person_name", p)) if ws != null and p >= 0 else "Someone"
+
+
+static func _post_news(sid: int, text: String) -> void:
+	var loop := Engine.get_main_loop()
+	var life: Node = (loop as SceneTree).root.get_node_or_null("Life") if loop is SceneTree else null
+	if life == null or life.get("realm") == null:
+		return
+	var news: Variant = (life.get("realm") as RefCounted).call("mod", "news")
+	if news != null and news.has_method("post"):
+		news.call("post", "villager_killed", sid, text, 0.6, text, false)
+
+
+## Everyone currently down (persons), for PopulationLOD to give a lying body to.
+static func persons() -> Array:
+	return _down.keys()
+
+
+static func kind_of(person: int) -> int:
+	return int(_down[person]["kind"]) if _down.has(person) else -1
+
+
+static func wake_in_s(person: int, now_ms: int) -> float:
+	if not _down.has(person) or int(_down[person]["kind"]) != Kind.KO:
+		return 0.0
+	return maxf(float(int(_down[person]["until_ms"]) - now_ms) / 1000.0, 1.0)
 
 
 ## KO'd people stand up when their time is over (or on demand). Returns the persons who woke; their body evidence goes.
@@ -130,15 +194,18 @@ static func witnessed_by_others(tree: SceneTree, kind: int, pos: Vector2, sid: i
 	return (load(NPC_WORLD) as GDScript).call("report_crime", tree, "murder" if kind == Kind.KILL else "assault", pos, sid, true, false)
 
 
-## Persistence: the dead stay dead; KO'd people wake on load (they are not worth saving).
-static func serialize() -> Array:
+## Persistence: the dead stay dead and KO'd people stay down for the rest of their time (clock-relative seconds).
+static func serialize(now_ms := -1) -> Array:
+	var now := now_ms if now_ms >= 0 else Time.get_ticks_msec()
 	var out: Array = []
 	for p: int in _down:
-		if int(_down[p]["kind"]) == Kind.KILL:
-			out.append([p, snappedf(Vector2(_down[p]["pos"]).x, 0.1), snappedf(Vector2(_down[p]["pos"]).y, 0.1), int(_down[p]["sid"])])
+		var row: Dictionary = _down[p]
+		out.append([p, snappedf(Vector2(row["pos"]).x, 0.1), snappedf(Vector2(row["pos"]).y, 0.1), int(row["sid"]), int(row["kind"]),
+			snappedf(wake_in_s(p, now), 0.1), 1 if bool(row.get("announced", false)) else 0])
 	return out
 
 
+## Restores the registry and re-links each body to its saved Evidence entry (restore Evidence FIRST), adding one when missing.
 static func deserialize(rows: Variant, now_ms := -1) -> void:
 	_down.clear()
 	if not rows is Array:
@@ -148,5 +215,14 @@ static func deserialize(rows: Variant, now_ms := -1) -> void:
 		if not r is Array or (r as Array).size() < 4:
 			continue
 		var a: Array = r
-		var eid := Evidence.add(Evidence.Kind.BODY, Vector2(float(a[1]), float(a[2])), int(a[3]), now, "murder")
-		_down[int(a[0])] = {"kind": Kind.KILL, "until_ms": 0, "pos": Vector2(float(a[1]), float(a[2])), "sid": int(a[3]), "evidence": eid}
+		var kind := int(a[4]) if a.size() > 4 else Kind.KILL
+		if kind != Kind.KO and kind != Kind.KILL:
+			continue
+		var pos := Vector2(float(a[1]), float(a[2]))
+		var ek: int = Evidence.Kind.BODY if kind == Kind.KILL else Evidence.Kind.KO
+		var eid := Evidence.find_at(ek, pos)
+		if eid == 0:
+			eid = Evidence.add(ek, pos, int(a[3]), now, "murder" if kind == Kind.KILL else "assault")
+		var wake := float(a[5]) if a.size() > 5 else KO_SECONDS
+		_down[int(a[0])] = {"kind": kind, "until_ms": now + int(wake * 1000.0) if kind == Kind.KO else 0, "pos": pos,
+			"sid": int(a[3]), "evidence": eid, "announced": a.size() > 6 and int(a[6]) == 1}

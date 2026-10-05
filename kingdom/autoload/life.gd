@@ -1504,6 +1504,11 @@ func snapshot() -> Dictionary:
 	d["region1"] = Region1State.snapshot()
 	var interactives: Dictionary = world_state.call("snapshot")
 	interactives["evidence"] = preload("res://scripts/population/evidence.gd").serialize()
+	# Search, knocked-out / killed people and the town's guard alert (all clock-relative).
+	var now_ms := Time.get_ticks_msec()
+	interactives["search"] = preload("res://scripts/population/search.gd").serialize(now_ms)
+	interactives["takedown"] = preload("res://scripts/combat/takedown.gd").serialize(now_ms)
+	interactives["guard_alert"] = preload("res://scripts/population/alert_net.gd").serialize(now_ms)
 	d["interactives"] = interactives
 	if player and is_instance_valid(player):
 		d["player"] = {"x": player.global_position.x, "y": player.global_position.y,
@@ -1572,6 +1577,11 @@ func restore(d: Dictionary) -> void:
 	world_state.call("restore", d.get("interactives", {}))
 	var inter: Variant = d.get("interactives", {})
 	preload("res://scripts/population/evidence.gd").deserialize(inter.get("evidence", []) if inter is Dictionary else [])
+	var inter_d: Dictionary = inter if inter is Dictionary else {}
+	var now_ms2 := Time.get_ticks_msec()
+	preload("res://scripts/combat/takedown.gd").deserialize(inter_d.get("takedown", []), now_ms2)       # after Evidence: re-links bodies
+	preload("res://scripts/population/search.gd").deserialize(inter_d.get("search", []), now_ms2)
+	preload("res://scripts/population/alert_net.gd").deserialize(inter_d.get("guard_alert", []), now_ms2)
 	inventory_changed.emit()
 	employment_changed.emit()
 	Game.stats_changed.emit()

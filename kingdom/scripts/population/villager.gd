@@ -1935,6 +1935,31 @@ func go_down(kind: int) -> void:
 		get_tree().create_timer(Takedown.KO_SECONDS).timeout.connect(wake_up)
 
 
+## A body restored from a save (PopulationLOD gives every person Takedown still holds down a lying body near the player):
+## no crime, no evidence added - the registry already has both. A KO'd one wakes when its saved time is up.
+func lie_restored(kind: int) -> void:
+	if _down_kind >= 0:
+		return
+	_down_kind = kind
+	_reporter = false
+	var bp := Takedown.body_pos(person)
+	if bp != Vector2.INF:
+		global_position = Vector3(bp.x, WorldGen.height(bp.x, bp.y), bp.y)
+	remove_from_group("villager")
+	add_to_group("villager_down")
+	_interrupt_activity()
+	set_physics_process(false)
+	if _tag != null:
+		_tag.visible = false
+	if _anim != null:
+		_anim.stop()
+	if _model_node != null:
+		_model_node.rotation.x = -PI * 0.5
+		_model_node.position.y = 0.16
+	if kind == Takedown.Kind.KO:
+		get_tree().create_timer(Takedown.wake_in_s(person, Time.get_ticks_msec())).timeout.connect(wake_up)
+
+
 ## A knocked-out person comes round (timer or Takedown.tick): back on their feet, wary.
 func wake_up() -> void:
 	if _down_kind != Takedown.Kind.KO or not is_inside_tree():
@@ -2024,6 +2049,7 @@ func _evidence_tick(here: Vector2, now_ms: int) -> void:
 			return
 		var epos := Evidence.pos_of(id)
 		Evidence.mark_seen(id, person)
+		Takedown.on_found(id, now_ms)         # a body found for the first time: news, mourners
 		Evidence.feed(id, NpcWorld._society())
 		var guard := WorldSim.job[person] == 3
 		var happened := Evidence.age_ms(id, now_ms) < Evidence.HAPPEN_MS

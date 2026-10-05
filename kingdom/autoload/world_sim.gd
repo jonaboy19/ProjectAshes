@@ -133,6 +133,58 @@ func population() -> int:
 	return pos.size()
 
 
+func is_dead(i: int) -> bool:
+	return i >= 0 and i < health.size() and health[i] == 0
+
+
+func dead_list() -> Array:
+	var out: Array = []
+	for i in health.size():
+		if health[i] == 0:
+			out.append(i)
+	return out
+
+
+## Next living person of the same settlement after `i` (the heir of a dead person's purse); -1 when none.
+func heir_of(i: int) -> int:
+	if i < 0 or i >= pos.size():
+		return -1
+	var r: Vector2i = ranges[home[i]]
+	var n := r.y - r.x
+	for k in range(1, n):
+		var j := r.x + (i - r.x + k) % n
+		if health[j] != 0:
+			return j
+	return -1
+
+
+## A person dies (killed): their row leaves the schedules and the walk, their purse goes to the heir, claims are
+## released and social ties forgotten. Returns the heir (-1 none). Idempotent.
+func kill_person(i: int, at := Vector2.INF) -> int:
+	if i < 0 or i >= pos.size() or health[i] == 0:
+		return -1
+	var heir := heir_of(i)
+	if heir >= 0:
+		money[heir] += money[i]
+		money[i] = 0
+	_mark_dead(i)
+	if at != Vector2.INF:
+		pos[i] = at
+		target[i] = at
+	var life := get_node_or_null("/root/Life")
+	var graph: Variant = life.get("npc_social_graph") if life else null
+	if graph != null and graph.has_method("forget"):
+		graph.call("forget", "worldsim:%d:%d" % [SEED, i])
+	return heir
+
+
+func _mark_dead(i: int) -> void:
+	health[i] = 0
+	phase[i] = 255
+	if smart != null:
+		smart.release(i)
+
+
 func person_name(i: int) -> String:
 	var h := hash(i * 7919 + SEED)
 	return "%s %s" % [FIRST[h % FIRST.size()], LAST[(h / 31) % LAST.size()]]
@@ -210,7 +262,7 @@ func people_near(p: Vector2, radius: float) -> PackedInt32Array:
 			continue
 		var range_i: Vector2i = ranges[s["id"]]
 		for i in range(range_i.x, range_i.y):
-			if pos[i].distance_squared_to(p) < r2:
+			if health[i] != 0 and pos[i].distance_squared_to(p) < r2:
 				out.append(i)
 	return out
 
@@ -304,6 +356,7 @@ func serialize() -> Dictionary:
 		"npc_needs_v": 2, "npc_needs": Marshalls.raw_to_base64(npc_need_values.to_byte_array()),
 		"npc_needs_hours": Marshalls.raw_to_base64(npc_need_hours.to_byte_array()),
 		"npc_needs_valid": Marshalls.raw_to_base64(npc_need_valid),
+		"dead": dead_list(),
 		"season": seasons.serialize() if seasons else {}}
 
 
@@ -361,6 +414,13 @@ func deserialize(d: Dictionary) -> void:
 			npc_need_valid = stored_valid
 	if seasons and d.has("season"):
 		seasons.deserialize(d["season"])
+	# The dead stay dead (killed by the player, Takedown); everyone else is alive again.
+	health.fill(100)
+	var dead_rows: Variant = d.get("dead", [])
+	if dead_rows is Array:
+		for row: Variant in dead_rows:
+			if (row is int or row is float) and int(row) >= 0 and int(row) < pos.size():
+				_mark_dead(int(row))
 	_last_hour = -1
 	for i in pos.size():
 		phase[i] = 255
@@ -493,6 +553,8 @@ func _simulate_slice() -> void:
 
 
 func _step(i: int) -> void:
+	if health[i] == 0:
+		return                  # dead: off every schedule, job and walk
 	var dt := _clock - last_update[i]
 	last_update[i] = _clock
 	var want := _current_phase(job[i], i)

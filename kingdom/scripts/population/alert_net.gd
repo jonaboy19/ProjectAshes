@@ -135,3 +135,26 @@ static func shout(caller: int, from: Vector2, last_known: Vector2, alert_value: 
 	if int(out["guards"]) > 0:
 		Search.begin(last_known, sid, now_ms, eid)
 	return out
+
+
+# ================================================================ persistence
+## guard_alert per town as [sid, level, ms since the last raise] (clock-relative, the session clock restarts on load).
+static func serialize(now_ms: int) -> Array:
+	var out: Array = []
+	for sid: int in _level:
+		var lv := level(sid, now_ms)
+		if lv > 0:
+			out.append([sid, int(_level[sid][0]), now_ms - int(_level[sid][1])])
+	return out
+
+
+static func deserialize(rows: Variant, now_ms: int) -> void:
+	_level.clear()
+	_lock_end.clear()
+	if not rows is Array:
+		return
+	for r: Variant in rows:
+		if not r is Array or (r as Array).size() < 3:
+			continue
+		var a: Array = r
+		_level[int(a[0])] = [clampi(int(a[1]), 0, MAX_LEVEL), now_ms - maxi(int(a[2]), 0)]

@@ -173,6 +173,16 @@ func refresh(step_delta := 0.25) -> void:
 		_villagers.erase(v)
 		v.queue_free()
 		_full.erase(id)
+	# Bodies on the ground (killed / knocked out, also after a load) near the player get a lying body.
+	if Takedown.down_count() > 0:
+		for did: int in Takedown.persons():
+			if _full.has(did) or did < 0 or did >= WorldSim.population():
+				continue
+			var bp := Takedown.body_pos(did)
+			if bp != Vector2.INF and bp.distance_squared_to(p2) < FULL_RANGE * FULL_RANGE:
+				var body := _spawn(did)
+				_full[did] = body
+				body.lie_restored(Takedown.kind_of(did))
 	var spawned := 0
 	for id in want_full:
 		if not _full.has(id) and spawned < MAX_SPAWNS_PER_TICK:

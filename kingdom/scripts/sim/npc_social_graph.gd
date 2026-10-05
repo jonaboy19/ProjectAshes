@@ -78,6 +78,18 @@ func affinity(a: String, b: String, now_day := -1.0) -> float:
 	return value * (1.0 - fade)
 
 
+## A person died: every tie they had goes. Returns how many edges were dropped.
+func forget(id: String) -> int:
+	var drop: Array = []
+	for key: String in edges:
+		var e: Dictionary = edges[key]
+		if String(e["a"]) == id or String(e["b"]) == id:
+			drop.append(key)
+	for key: String in drop:
+		edges.erase(key)
+	return drop.size()
+
+
 func _evict_oldest() -> void:
 	var oldest_key := ""
 	var oldest_day := INF
