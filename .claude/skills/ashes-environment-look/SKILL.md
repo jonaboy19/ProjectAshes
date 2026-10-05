@@ -43,3 +43,11 @@ Rock-theme dungeon shells (Rift): world triplanar, sharpened weights (pow 4), Po
 ## Known open items (not this pass)
 Oakvale aerial washout = fog/aerial perspective at altitude (Style G env owner); blurry/pixelated house atlases up close = asset
 texture resolution/filtering (build-kit / Meshy agents).
+
+## Pass 3 (2026-10-05) - shipped
+- Rift: `thornfield_rift.json` organic=true (jittered two-row walls: real cave silhouettes instead of 3 m boxes) + cave_rock with
+  Poly Haven rock_face 1k (tile 4 m, rock.png 7 m macro at 0.35, luminance-only contrast, no vertex-colour darkening).
+  Lesson: the first version looked "flat" because the post chain crushed a low-contrast scan in a dark, foggy room; probe with
+  ALBEDO = raw sample before tuning (no `return` in fragment()).
+- look_capture pins WorldSim.time_of_day every frame (intro/sleep advance_hours() pushed shots to night).
+- Terrain/grass edits stay on local-wip/env: neutral at best; the COLOR.r mud shoulder draws a hard dark rim on cobbles.

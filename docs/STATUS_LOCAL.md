@@ -334,7 +334,8 @@ AAA-review backlog from this task:
 ## 2026-10-05 Environment surfaces (ashes-environment-look)
 - PUSHED (verified on GPU, p02 bandit camp + p06 Watch Post): "☠ N · Line" squad standards only show in command view, for all squads.
 - PUSHED: env capture views `tools_qa/environment/env_views.json` (8 world + 4 Thornfield POIs at real positions); look_capture hides HUD/caption layers. Always pass --quality=high|low.
-- NOT pushed, branch `local-wip/env`: terrain anti-tiling/height blend/mud shoulders/under-grass shade, grass ground-match, cave triplanar rock. Comparisons were invalid (time of day drifted to night/sunset in several after-shots) and the cave shader rendered flat/untextured (worse than before). Needs: fix capture time-of-day drift, debug cave_rock in wilds_standalone, re-capture.
+- PUSHED pass 3: Rift organic cave walls + triplanar rock_face cave shader (clearly better: real shapes, sharp stone, no blur); capture clock pinned.
+- NOT pushed (local-wip/env): terrain anti-tiling/height blend/mud shoulders/under-grass shade, grass ground-match: controlled re-capture showed no clear gain; mud shoulder adds a hard dark rim on cobbles.
 - Cloud POI renders: outdoor flat beige = harness stand-in heightfield, not the game. Rift box rooms with blurry stretched rock = real.
 - Oakvale aerial washout (fog/aerial perspective at altitude) and blurry house atlases up close: not addressed, owners Style G env / build-kit.
 - LOW tier: no LOW changes pushed (phone-perf agent unaffected).

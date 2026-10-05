@@ -68,6 +68,8 @@ func _process(_dt: float) -> bool:
 	if idx >= views.size():
 		_finish()
 		return true
+	# Pin the clock every frame: intro/sleep events advance_hours() and drifted shots to night (env pass 2026-10-05).
+	root.get_node("WorldSim").set("time_of_day", float((views[idx] as Dictionary).get("hour", 16.2)))
 	match phase:
 		0:   # streaming / warm-up
 			wait -= 1

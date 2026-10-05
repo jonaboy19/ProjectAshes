@@ -178,3 +178,4 @@ CC0 (credited with thanks):
 - Skeleton layout from the **Rigify** horse metarig (Blender, GPL tool; generated rigs and output are unencumbered). Gait timings follow published equine biomechanics (footfall order and duty factors), no mocap.
 
 * `assets/incoming/meshy_dl3/` (97 GLBs: town houses, castles, props, magic items, elementals, horse, rigged and static medieval characters): **owner-downloaded Meshy models, licence per the owner's Meshy plan**; re-baked/decimated, rigs kept. See `assets/incoming/meshy_dl3/CREDITS.md` and `docs/art/meshy_dl3/README.md`.
+- Poly Haven `rock_face` (CC0) - Rift / cave rock shells (shaders/environment/cave_rock.gdshader)
