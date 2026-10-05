@@ -1,8 +1,9 @@
 class_name GroundItem
 extends Node3D
 ## An item lying in the world: "Take" puts it in Life.inventory and removes the node.
-## Optional owner (meta "owner", also in the `taken` signal) so a later theft rule can treat taking someone's
-## belongings as a crime; nothing here enforces it yet.
+## Optional owner (meta "owner", also in the `taken` signal). Taking something owned by somebody else is theft
+## (scripts/sim/ownership.gd, theft.gd): the verb reads "Steal", the item is flagged stolen and a witness check runs.
+## Taken items stay taken across saves (WorldState delta "taken" under the stable id).
 
 signal taken(item_id: String, qty: int, owner_id: String)
 
@@ -14,6 +15,9 @@ var owner_id := "":
 		set_meta("owner", v)
 var _gone := false
 
+const Ownership := preload("res://scripts/sim/ownership.gd")
+const Theft := preload("res://scripts/sim/theft.gd")
+
 
 ## Drops `qty` of `item` at `pos` (global) under `parent`.
 static func spawn(parent: Node, pos: Vector3, item: String, count := 1, owner := "") -> GroundItem:
@@ -24,15 +28,32 @@ static func spawn(parent: Node, pos: Vector3, item: String, count := 1, owner :=
 	g.name = "Ground_%s" % item
 	parent.add_child(g)
 	g.global_position = pos
+	g._apply_saved()
 	return g
 
 
 func _ready() -> void:
 	_build_visual()
-	Interactable.attach(self, {"id_fn": func() -> String: return "ground/%s/%d_%d" % [item_id, roundi(global_position.x * 10.0), roundi(global_position.z * 10.0)],
+	Interactable.attach(self, {"id_fn": _id,
 		"verb": "Take", "range": 2.6, "can": func(_p: Node) -> bool: return not _gone,
 		"do": func(p: Node) -> void: take(p),
-		"label": func() -> Dictionary: return {"verb": "Take", "target": _display()}})
+		"label": func() -> Dictionary: return {"verb": Theft.verb_for(_owner()), "target": _display()}})
+
+
+## Explicit owner, else the building the item lies in (meta "building_owner" on the room), else public.
+func _owner() -> String:
+	return owner_id if owner_id != "" else Ownership.owner_of(self)
+
+
+func _id() -> String:
+	return "ground/%s/%d_%d" % [item_id, roundi(global_position.x * 10.0), roundi(global_position.z * 10.0)]
+
+
+## A saved "taken" removes the node silently (no message, no signal).
+func _apply_saved() -> void:
+	if Ownership.state_taken(_id()):
+		_gone = true
+		queue_free()
 
 
 func _display() -> String:
@@ -45,9 +66,17 @@ func take(_player: Node = null) -> bool:
 	if _gone or item_id == "":
 		return false
 	_gone = true
-	Life.give(item_id, qty)
-	taken.emit(item_id, qty, owner_id)
-	Game.say("You take %s." % _display())
+	var verb := "take"
+	var who := _owner()
+	if Ownership.is_theft(who):
+		verb = "steal"
+		var at := Vector2(global_position.x, global_position.z)
+		Theft.steal(get_tree(), who, item_id, qty, "ground", at, Theft.sid_at(at))
+	else:
+		Life.give(item_id, qty)
+	Ownership.mark_taken(_id())
+	taken.emit(item_id, qty, who)
+	Game.say("You %s %s." % [verb, _display()])
 	queue_free()
 	return true
 

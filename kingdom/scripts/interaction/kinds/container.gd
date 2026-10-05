@@ -2,8 +2,14 @@ extends "res://scripts/world/home_chest.gd"
 ## A crate, barrel or cupboard anyone can "Open": the home chest's storage menu (HomeChest._menu through
 ## hud.show_menu, including its lock handling via `lock_id`) over an in-world list of stacks instead of a
 ## property's storage. Contents are rolled once from the container id (`roll_contents`) so they are the same
-## every visit; withdrawing and depositing go through Life like the home chest does. Optional owner meta for
-## later theft rules.
+## every visit; withdrawing and depositing go through Life like the home chest does.
+## Ownership (scripts/sim/ownership.gd): the container's own meta "owner", else the building it stands in (meta
+## "building_owner" on the room). Withdrawing from somebody else's container is a burglary: the rows read "Steal", the
+## goods are flagged stolen and a witness check runs (scripts/sim/theft.gd). Contents and the opened flag persist as
+## a WorldState delta under "container/<id>".
+
+const Ownership_ := preload("res://scripts/sim/ownership.gd")
+const Theft_ := preload("res://scripts/sim/theft.gd")
 
 const KIND_NAMES := ["Crate", "Barrel", "Cupboard"]
 
@@ -46,6 +52,25 @@ static func roll_contents(id: String) -> Array:
 func _ready() -> void:
 	super()
 	_build_visual()
+	var st := Ownership_.container_state(_interact_id())
+	if st["contents"] is Array:
+		contents = (st["contents"] as Array).duplicate(true)
+
+
+## Who owns what is inside (explicit meta, else the building).
+func owner_key() -> String:
+	return Ownership_.owner_of(self)
+
+
+func _menu() -> Dictionary:
+	if not bool(Ownership_.container_state(_interact_id())["opened"]):
+		Ownership_.save_container(_interact_id(), contents)
+	var m := super()
+	if Ownership_.is_theft(owner_key()):
+		for o: Array in m["options"]:
+			if String(o[0]).begins_with("Withdraw "):
+				o[0] = "Steal " + String(o[0]).trim_prefix("Withdraw ")
+	return m
 
 
 func _interact_id() -> String:
@@ -75,12 +100,19 @@ func _withdraw(item: String, qty: int) -> String:
 		if String(st["item"]) != item:
 			continue
 		var n := mini(qty, int(st["qty"]))
-		Life.give(item, n)
+		var who := owner_key()
+		var theft := Ownership_.is_theft(who)
+		if theft:
+			var at := Vector2(global_position.x, global_position.z)
+			Theft_.steal(get_tree(), who, item, n, "container", at, Theft_.sid_at(at))
+		else:
+			Life.give(item, n)
 		if n >= int(st["qty"]):
 			contents.remove_at(i)
 		else:
 			st["qty"] = int(st["qty"]) - n
-		return "You take %s ×%d." % [Life.item_name(item), n]
+		Ownership_.save_container(_interact_id(), contents)
+		return "You %s %s ×%d." % ["steal" if theft else "take", Life.item_name(item), n]
 	return "It is not there any more."
 
 
@@ -90,11 +122,13 @@ func _deposit(item: String, qty: int) -> String:
 	for st: Dictionary in contents:
 		if String(st["item"]) == item:
 			st["qty"] = int(st["qty"]) + qty
+			Ownership_.save_container(_interact_id(), contents)
 			return "You put %s ×%d away." % [Life.item_name(item), qty]
 	if contents.size() >= capacity:
 		Life.give(item, qty)
 		return "It is full."
 	contents.append({"item": item, "qty": qty})
+	Ownership_.save_container(_interact_id(), contents)
 	return "You put %s ×%d away." % [Life.item_name(item), qty]
 
 

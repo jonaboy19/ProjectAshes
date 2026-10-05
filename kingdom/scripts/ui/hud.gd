@@ -978,7 +978,18 @@ func _rebuild_menu() -> void:
 			if is_menu_open():
 				_rebuild_menu())
 		list.add_child(btn)
-	scroll.custom_minimum_size.y = minf(options.size() * 52.0, vw.y * 0.45)
+	# Whole rows only (a half row at the bottom reads as cut off) and a hint when more rows are below.
+	var row_h := 52.0
+	var max_h := vw.y * 0.45
+	var full_h := options.size() * row_h
+	if full_h > max_h:
+		scroll.custom_minimum_size.y = maxf(floorf(max_h / row_h), 2.0) * row_h
+		var more := AF.label("▼  scroll for more  (%d options)" % options.size(), 14, AF.TEXT_DIM)
+		more.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		box.add_child(more)
+		box.move_child(more, scroll.get_index() + 1)
+	else:
+		scroll.custom_minimum_size.y = full_h
 	var close := AF.gold_button("Close")
 	close.custom_minimum_size = Vector2(width, 44)
 	close.pressed.connect(close_menu)
@@ -1371,7 +1382,7 @@ func _set_target(n: Node3D) -> void:
 
 
 func _apply_label() -> void:
-	_pill.set_label(String(target_label.get("verb", "")), String(target_label.get("target", "")))
+	_pill.set_label(String(target_label.get("verb", "")), String(target_label.get("target", "")), bool(target_label.get("danger", false)))
 	var res := HudArt.resolve_icon(String(target_label.get("icon", "hand")))
 	var big := HudArt.round_face(128, _fill_for(UITheme.ACTION_TALK), res[0], res[1], 0.66)
 	_interact.texture_normal = big

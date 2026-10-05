@@ -9,7 +9,7 @@ extends RefCounted
 ## Without it the label is derived, in order, from: a Station's `verb` + `title` (NPCs, work spots, boards);
 ## a door's building name (meta "building_name", else its prompt text); the node's prompt() text
 ## ("Enter the smithy" -> Enter — Smithy); finally a node `title` / `display_name` / meta "display_name".
-## Always returns {verb, target, text, icon}; never an empty verb.
+## Always returns {verb, target, text, icon, danger}; never an empty verb.
 
 const SEP := " — "
 const ARTICLES := ["the ", "a ", "an "]
@@ -17,6 +17,8 @@ const ALIASES := {"Read": "Inspect", "Use": "Use", "Name": "Name"}
 const ICONS := {"talk": "conversation", "inspect": "magnifying-glass", "read": "magnifying-glass", "enter": "walk",
 	"leave": "walk", "exit": "walk", "ride": "walk", "dismount": "walk"}
 const GENERIC_NAMES := ["TalkTarget", "Villager", ""]
+## Verbs that are crimes: the HUD pill draws them in red (package F5).
+const DANGER_VERBS := ["Steal", "Pickpocket", "Rob"]
 
 
 static func resolve(n: Object) -> Dictionary:
@@ -110,7 +112,7 @@ static func _pack(verb: String, target: String) -> Dictionary:
 	verb = verb.left(1).to_upper() + verb.substr(1)
 	var key := verb.to_lower().split(" ")[0]
 	return {"verb": verb, "target": target, "text": verb + (SEP + target if target != "" else ""),
-		"icon": String(ICONS.get(key, "hand"))}
+		"icon": String(ICONS.get(key, "hand")), "danger": DANGER_VERBS.has(verb)}
 
 
 ## Capitalises words that start lower-case ("fields (hold)" -> "Fields (hold)"); keeps given names as they are.

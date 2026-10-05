@@ -33,6 +33,12 @@ const TalkTarget := preload("res://scripts/world/talk_target.gd")
 const TalkSession := preload("res://scripts/ui/talk_session.gd")
 const Region1Identity := preload("res://scripts/world/region1_identity.gd")
 const QUEST_SEED := 1066 * 31
+const Ownership := preload("res://scripts/sim/ownership.gd")
+const ShopHours := preload("res://scripts/sim/shop_hours.gd")
+const CrimeWatch := preload("res://scripts/population/crime_watch.gd")
+const Theft := preload("res://scripts/sim/theft.gd")
+## NPC marker role -> ShopHours kind (the service shuts outside these hours; the inn never does).
+const ROLE_HOURS := {"blacksmith": "blacksmith", "healer": "healer", "receptionist": "guild"}
 const SOCIAL_TICK := 0.5
 ## Service keepers you can talk to: id -> [role, dialogue file, radiant giver role].
 const KEEPERS := {
@@ -80,7 +86,9 @@ func _ready() -> void:
 	# Merchant in front of the first plaza stall (see SettlementBuilder).
 	var ang := 0.2
 	var stall := c + Vector2(cos(ang), sin(ang)) * (pr - 4.6)
-	_person("Market Trader", "Trade", merchant_menu, stall, c, "Trader")
+	var trader := _person("Market Trader", "Trade", _hours_gate("general_store", "Market Trader", merchant_menu), stall, c, "Trader")
+	trader.hours_kind = "general_store"
+	CrimeWatch.install(self)     # pickpocket hold, trespass, arrest (package F5)
 	_prop("Barrel_Apples", stall + Vector2(-sin(ang), cos(ang)) * 1.6, 1.0)
 	_prop("FarmCrate_Apple", stall + Vector2(sin(ang), -cos(ang)) * 1.5, 1.0)
 	# Innkeeper beside the inn's entrance, clear of the InteriorDoor (he is also
@@ -174,12 +182,15 @@ func _role_service(role: String) -> Array:
 ## they own or rent gets a storage chest and, on a bed marker, a place to sleep.
 func _on_interior_entered(room: Node3D, door: InteriorDoor = null) -> void:
 	Life.crafting.scan_interior(room, _building_ref_for_door(door))
+	room.set_meta("building_owner", Ownership.owner_for_door(door))     # who owns what is inside (F5)
 	InnProps.populate(room)    # one of each interaction kind in the inn (scripts/interaction/kinds/)
 	for m in room.find_children("NPC_*", "Marker3D", true, false):
 		var svc := _role_service(String(m.get_meta("role", "")))
 		if svc.is_empty():
 			continue
-		var st := Station.new(svc[0], svc[1], svc[2])
+		var hk := String(ROLE_HOURS.get(String(m.get_meta("role", "")), ""))
+		var st := Station.new(svc[0], svc[1], _hours_gate(hk, String(svc[0]), svc[2]) if hk != "" else svc[2])
+		st.hours_kind = hk
 		st.name = "Service_" + String(m.name).trim_prefix("NPC_")
 		room.add_child(st)
 		st.global_position = (m as Marker3D).global_position
@@ -305,17 +316,43 @@ func _deliver_contract(id: int) -> String:
 	return "That contract is gone."
 
 
+## Wraps a service menu so it is shut outside the kind's opening hours (data/living_world/shop_hours.json): the
+## merchant says "Come back in the morning." and offers nothing.
+func _hours_gate(kind: String, title: String, open_menu: Callable) -> Callable:
+	return func() -> Dictionary:
+		var refusal := ShopHours.refusal(kind)
+		if refusal == "":
+			return open_menu.call()
+		return {"title": title, "body": "\"%s\"\n(%s)" % [refusal, ShopHours.hours_text(kind)], "options": []}
+
+
+## A fence's counter: pays a share of the list price for stolen goods, asks nothing (scripts/sim/theft.gd).
+func _fence_sell(item: String) -> String:
+	return String(Theft.fence_sell(item, -1).get("text", ""))
+
+
 func merchant_menu() -> Dictionary:
 	var m := Life.market
 	var opts: Array = []
-	for item: String in ["bread", "apple", "cheese", "bandage", "firewood"]:
-		opts.append(["Buy %s  —  %dg  (%d in stock)" % [Life.item_name(item), m.price(item), m.stock[item]],
+	# What the general store really has on the shelf now (ItemsDB shop + the market's own stock), not a fixed list.
+	for line: Dictionary in ShopHours.stock_lines(m, "general_store", 1, 10):
+		var item := String(line["item"])
+		opts.append(["Buy %s  —  %dg  (%d in stock)" % [Life.item_name(item), int(line["price"]), int(line["stock"])],
 			Life.buy.bind(item), m.can_buy(item, Game.gold) == ""])
 	for item: String in ["wolf_pelt", "wolf_meat", "firewood"]:
 		var n := Life.count(item)
 		if n > 0:
 			opts.append(["Sell %s ×%d  —  %dg each" % [Life.item_name(item), n, m.sell_price(item)],
 				Life.sell.bind(item), m.purse >= m.sell_price(item)])
+	if Theft.fence_available() and ShopHours.is_open("black_market"):
+		var fenced := {}
+		for st: Dictionary in Theft.stolen_stacks():
+			var fid := String(st["item"])
+			if fenced.has(fid):
+				continue
+			fenced[fid] = true
+			opts.append(["Fence %s (no questions)  —  %dg each" % [Life.item_name(fid), Theft.fence_price(fid)],
+				_fence_sell.bind(fid), true])
 	for c: Dictionary in Life.economy.contracts:
 		var need := int(c["amount"]) - int(c["filled"])
 		var have := Life.count(String(c["item"]))

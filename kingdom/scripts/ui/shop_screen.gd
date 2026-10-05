@@ -423,10 +423,16 @@ func _transact() -> void:
 	if _sel == "" or market == null:
 		return
 	if _selling:
+		var Theft_ := preload("res://scripts/sim/theft.gd")      # stolen goods (F5): honest shops refuse them
+		var hot: String = Theft_.sale_gate(_sel, 0)
+		if hot != "":
+			_status = hot
+			refresh()
+			return
 		var got := int(market.call("sell", _sel))
 		if got < 0:
 			_status = "The merchant can't afford it today."
-		elif not bool(Life.take(_sel, 1)):
+		elif not (Theft_.take_one_for_sale(_sel, 0) or bool(Life.take(_sel, 1))):
 			_status = "You have no %s." % MD.Crafting.item_name(_sel)
 		else:
 			Game.add_gold(got)
