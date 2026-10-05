@@ -14,7 +14,7 @@ var _busy := false
 
 func _ready() -> void:
 	# Style Lab (docs/design/STYLE_LAB.md): `-- --style_lab` or `-- --shot=style_lab` opens it instead of the game.
-	if OS.get_cmdline_user_args().has("--style_lab") or OS.get_cmdline_user_args().has("--shot=style_lab"):
+	if (OS.get_cmdline_user_args().has("--style_lab") or OS.get_cmdline_user_args().has("--shot=style_lab")) and ResourceLoader.exists("res://scenes/style_lab/style_lab.tscn"):
 		get_tree().change_scene_to_file.call_deferred("res://scenes/style_lab/style_lab.tscn")
 		return
 	if Flow.is_qa_launch():

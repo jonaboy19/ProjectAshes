@@ -54,7 +54,7 @@ func _ready() -> void:
 	_menu.add_child(FE.menu_row("Extras", func() -> void: Extras.open(self)))
 	_menu.add_child(FE.menu_row(tr("MENU_CREDITS"), func() -> void: Credits.open(self)))
 	# Debug builds (and any build with a `user://style_lab.flag` file): the Style Lab look-dev scene.
-	if OS.is_debug_build() or FileAccess.file_exists("user://style_lab.flag"):
+	if (OS.is_debug_build() or FileAccess.file_exists("user://style_lab.flag")) and ResourceLoader.exists("res://scenes/style_lab/style_lab.tscn"):
 		_menu.add_child(FE.menu_row("Style Lab", func() -> void: get_tree().change_scene_to_file("res://scenes/style_lab/style_lab.tscn")))
 	# iOS apps must not offer a Quit button (App Store guideline); Android and desktop do.
 	if not OS.has_feature("ios"):
