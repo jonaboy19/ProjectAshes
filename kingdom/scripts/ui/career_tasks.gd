@@ -14,6 +14,7 @@ const AF := preload("res://scripts/ui/ashes_frame.gd")
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
 const Widget := preload("res://scripts/ui/work_widget.gd")
 const Data := preload("res://scripts/realm/scribe_data.gd")
+const SoldierUI := preload("res://scripts/ui/soldier_ui.gd")
 const SELF_PATH := "res://scripts/ui/career_tasks.gd"
 const OK_COL := Color("7be0a0")
 const BAD_COL := Color("ff7a6e")
@@ -305,11 +306,17 @@ func _rank_title() -> String:
 	if _is_scribe():
 		var sc := _sc()
 		return sc.rank_title() if sc != null and bool(sc.get("active")) else ("Unemployed" if sc != null and int(sc.get("rank")) == 0 else "Out of post")
+	if career == "soldier" and _mod("soldier") != null:
+		var so := _mod("soldier")
+		return so.rank_title() if bool(so.get("active")) else "Not enlisted"
 	var tr := _tr()
 	return tr.rank_title(career) if tr != null else "-"
 
 
 func _subtitle() -> String:
+	if career == "soldier" and _mod("soldier") != null:
+		var so := _mod("soldier")
+		return "%d merit. %s" % [int(so.get("merit")), "Posted to %s." % String(so.get("post").get("name", "")) if bool(so.get("active")) else "Enlist at the guard post."]
 	if _is_scribe():
 		var sc := _sc()
 		if sc == null:
@@ -327,7 +334,9 @@ func _subtitle() -> String:
 # ------------------------------------------------------------------ work tab
 
 func _show_work() -> void:
-	if _is_scribe():
+	if career == "soldier" and _mod("soldier") != null:
+		SoldierUI.fill_work(self, _mod("soldier"))
+	elif _is_scribe():
 		_show_scribe_menu()
 	else:
 		_show_trade_menu()
@@ -816,6 +825,10 @@ func _advance_clock() -> void:
 # ------------------------------------------------------------------ ladder tab
 
 func _show_ladder() -> void:
+	if career == "soldier" and _mod("soldier") != null:
+		_add(AF.heading("The ladder", 20))
+		SoldierUI.fill_ladder(self, _mod("soldier"))
+		return
 	var day := _day()
 	var ladder := CareerLadders.ladder(career)
 	var ctx: Dictionary = {}

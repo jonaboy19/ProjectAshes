@@ -4,6 +4,7 @@ extends Node3D
 ## up to the limit of your rank.
 
 const Nameplates := preload("res://scripts/core/nameplates.gd")
+const SoldierUI := preload("res://scripts/ui/soldier_ui.gd")
 signal recruit_requested(count: int)
 
 var title := "Captain of the Guard"
@@ -11,6 +12,7 @@ var title := "Captain of the Guard"
 
 func _ready() -> void:
 	add_to_group("interactable")
+	_attach_squad.call_deferred()
 	var model := Assets.character("Guard", 1.85, ["Knight_Helmet", "2H_Sword"])
 	add_child(model)
 	var anim := Assets.animation_player(model)
@@ -23,6 +25,13 @@ func _ready() -> void:
 	add_child(tag)
 
 
+## F11: the node that keeps the player's squad bodies in the world (scripts/actors/squad_manager.gd).
+func _attach_squad() -> void:
+	var host: Node = get_tree().current_scene if is_inside_tree() and get_tree().current_scene != null else get_parent()
+	if host != null:
+		preload("res://scripts/actors/squad_manager.gd").attach(host)
+
+
 func prompt() -> String:
 	return "Talk"
 
@@ -32,7 +41,8 @@ func use() -> void:
 	var hud := Interaction.hud(self)
 	var sv := Interaction.services(self)
 	if hud != null and sv != null:
-		hud.call("show_menu", Callable(sv, "captain_menu"))
+		# F11: the soldier career's menu (enlist, muster, duty, promotion, leave); the old company-hiring menu stays behind it.
+		hud.call("show_menu", Callable(SoldierUI, "captain_menu").bind(sv))
 
 
 ## Direct enlist used by the scripted demo; players normally use the Captain's menu.

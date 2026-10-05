@@ -13,6 +13,7 @@ extends Control
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
 const Mastery := preload("res://scripts/sim/mastery.gd")
 const CareerTasks := preload("res://scripts/ui/career_tasks.gd")
+const SoldierUI := preload("res://scripts/ui/soldier_ui.gd")
 const SELF_PATH := "res://scripts/ui/career_screen.gd"
 
 var _was_paused := false
@@ -141,6 +142,7 @@ func _refresh() -> void:
 	else:
 		content.add_child(_body("No career yet. Take up work in the village to begin one."))
 	_trades_section(content)
+	SoldierUI.add_career_section(content, _heading, _body)
 	content.add_child(_heading("Next rank"))
 	if career != "":
 		var ctx := _promotion_ctx(career, rank, mastery, biography)
