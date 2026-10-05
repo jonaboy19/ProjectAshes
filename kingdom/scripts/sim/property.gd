@@ -90,9 +90,9 @@ var _last_day := -1
 func _ensure_registered(settlement_idx: int) -> void:
 	if _registered.has(settlement_idx):
 		return
-	_registered[settlement_idx] = true
 	if settlement_idx < 0 or settlement_idx >= WorldGen.settlements.size():
 		return
+	_registered[settlement_idx] = true
 	var s: Dictionary = WorldGen.settlements[settlement_idx]
 	var lots: Array = s["plan"].get("lots", [])
 	var mult := float(SETTLEMENT_MULT.get(String(s["kind"]), 1.0))
@@ -417,6 +417,8 @@ func daily(day: int) -> Array[String]:
 	for lot_id: String in state.keys().duplicate():
 		var st: Dictionary = state[lot_id]
 		var status := String(st.get("status", ""))
+		if status in ["rented", "rented_room", "owned"] and not _ensure_lot_registered(lot_id):
+			continue   # Never treat a missing definition as zero rent or tax.
 		match status:
 			"rented", "rented_room":
 				out.append_array(_tick_rent(lot_id, st, day))
@@ -472,7 +474,20 @@ func _tick_tax(lot_id: String, st: Dictionary, day: int) -> Array[String]:
 
 # --- storage ---------------------------------------------------------------------------
 
+## Restore only the settlement needed by a saved lot; definitions remain unsaved.
+func _ensure_lot_registered(lot_id: String) -> bool:
+	if _registry.has(lot_id):
+		return true
+	var prefix := lot_id.get_slice(":", 0)
+	if not prefix.begins_with("s") or not prefix.substr(1).is_valid_int():
+		return false
+	_ensure_registered(prefix.substr(1).to_int())
+	return _registry.has(lot_id)
+
+
 func can_store(lot_id: String) -> bool:
+	if not _ensure_lot_registered(lot_id):
+		return false
 	var r: Dictionary = _registry.get(lot_id, {})
 	return is_held(lot_id) and not bool(r.get("is_inn_room", false))
 
@@ -482,6 +497,8 @@ func storage_of(lot_id: String) -> Array:
 
 
 func storage_capacity(lot_id: String) -> int:
+	if not _ensure_lot_registered(lot_id):
+		return 0
 	var kind := String(_registry.get(lot_id, {}).get("kind", ""))
 	return int(KIND_INFO.get(kind, {}).get("storage", 0))
 
