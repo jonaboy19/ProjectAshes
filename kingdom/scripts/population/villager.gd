@@ -1597,6 +1597,8 @@ func _so_frame(delta: float) -> bool:
 		elif _yield_time <= 0.0:
 			_so_approach_stall += delta
 		if _so_approach_stall >= 12.0:
+			if _brain != null:
+				_brain.remember_unreachable_spot(_so.spot)
 			_so_release()
 			_so_ended = true
 			_path = PackedVector2Array()

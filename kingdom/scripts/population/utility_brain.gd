@@ -236,6 +236,8 @@ var inp := {}
 var mem_pos := PackedVector2Array([Vector2.INF, Vector2.INF, Vector2.INF])
 var mem_until := PackedInt32Array([0, 0, 0])
 var patrol_i := 0
+## Local approach failures, separate from danger memory; never persisted.
+var _unreachable_spots := {}
 var _ctx := {}
 var _last_hours := -1.0
 ## One short-lived, anonymous last-seen point. This is not persistent identity.
@@ -1489,10 +1491,30 @@ func spot_filter(action: int) -> Dictionary:
 
 
 ## A free slot for `action` near `here` ([spot, slot] or []), skipping places this person remembers danger at.
+func remember_unreachable_spot(spot: int) -> void:
+	if spot < 0:
+		return
+	if not _unreachable_spots.has(spot) and _unreachable_spots.size() >= 4:
+		var oldest := -1
+		var expiry := 9223372036854775807
+		for id: int in _unreachable_spots:
+			if int(_unreachable_spots[id]) < expiry:
+				oldest = id
+				expiry = int(_unreachable_spots[id])
+		_unreachable_spots.erase(oldest)
+	_unreachable_spots[spot] = Time.get_ticks_msec() + 30000
+
+
 func find_spot(action: int, here: Vector2, radius := 60.0) -> Array:
 	var f := spot_filter(action)
 	if f.is_empty() or NpcWorld.smart == null:
 		return []
+	var now := Time.get_ticks_msec()
+	for id: int in _unreachable_spots.keys():
+		if int(_unreachable_spots[id]) <= now:
+			_unreachable_spots.erase(id)
+	if not _unreachable_spots.is_empty():
+		f["exclude_spots"] = _unreachable_spots
 	var avoid := live_memory()
 	return NpcWorld.find_spot(person, f, here, radius, avoid, MEM_RADIUS)
 

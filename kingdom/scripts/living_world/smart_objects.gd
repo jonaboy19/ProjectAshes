@@ -151,6 +151,8 @@ func find(pos: Vector3, filter: Dictionary, radius := 60.0, person := -1, avoid 
 			for dz in range(-r, r + 1):
 				candidate_ids.append_array(_grid.get(c0 + Vector2i(dx, dz), []))
 	for id: int in candidate_ids:
+		if filter.get("exclude_spots", {}).has(id):
+			continue
 		var sp: Dictionary = spots[id]
 		var t: Dictionary = types[sp["type"]]
 		if not _matches(sp["type"], t, filter):
