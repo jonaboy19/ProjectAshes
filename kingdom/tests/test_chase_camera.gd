@@ -55,7 +55,7 @@ func test_open_ground_and_rooftop_frame_higher() -> void:
 	_run(open, {"open": true}, 3.0)
 	_run(roof, {"rooftop": true}, 3.0)
 	_run(base, {}, 3.0)
-	assert_float(open.lift()).is_greater(base.lift() + 0.2)
+	assert_float(open.lift()).is_greater(base.lift() + 0.05)     # AAA pass: OPEN_LIFT 0.3 -> 0.1 (tighter framing)
 	assert_float(roof.lift()).is_greater(open.lift())
 	assert_float(roof.dist_offset()).is_greater(open.dist_offset())
 	assert_float(open.pitch_offset()).is_less(0.0)       # looks a little further down

@@ -4,6 +4,7 @@
 // Keeps the saturation grade, warm tint and the height-based contact-AO ramp (all baked into albedo).
 shader_type spatial;
 render_mode cull_back, diffuse_lambert_wrap, specular_schlick_ggx, vertex_lighting;
+#include "res://shaders/camera_see_through.gdshaderinc"
 
 uniform sampler2D albedo_tex : source_color, filter_linear_mipmap, repeat_enable;
 uniform vec4 albedo_color : source_color = vec4(1.0);
@@ -74,6 +75,9 @@ vec3 weather_albedo(vec3 c, vec3 p, vec3 n, float lum_in, float foot_y, out floa
 }
 
 void fragment() {
+	if (hero_see_through(VERTEX, FRAGCOORD.xy, PROJECTION_MATRIX)) {
+		discard;
+	}
 	vec4 t = texture(albedo_tex, UV * uv_scale + uv_offset);
 	vec3 c = t.rgb * albedo_color.rgb;
 	if (use_vertex_color) {

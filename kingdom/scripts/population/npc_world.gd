@@ -44,7 +44,7 @@ const CRIME_HEARING := 40.0
 const MOVER_LOOKAHEAD := 3.0
 const MOVER_CLEAR := 2.6
 const DECIDE_PER_FRAME := 3
-const MAX_BUBBLES := 4
+const MAX_BUBBLES := 2      # AAA pass: was 4
 const FUNERAL_REACH := 55.0
 ## Longest bread line (people) a settlement forms, and the gap between two people in it.
 const QUEUE_MAX := 8

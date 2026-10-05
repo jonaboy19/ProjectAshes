@@ -201,7 +201,7 @@ func refresh(step_delta := 0.25) -> void:
 		_sprite_routes.erase(id)
 	full_count = _full.size()
 	var nearest_id: int = -1
-	var nearest_d := 36.0
+	var nearest_d := 20.0     # squared: the one name plate shows within ~4.5 m (was 6 m)
 	for entry in dists:
 		if _full.has(entry[1]) and entry[0] < nearest_d:
 			nearest_d = entry[0]

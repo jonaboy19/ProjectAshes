@@ -1,5 +1,7 @@
 class_name Villager
 extends CharacterBody3D
+const ContactBlobS := preload("res://scripts/actors/contact_blob.gd")
+const SettingsStoreS := preload("res://scripts/ui/frontend/settings_store.gd")
 ## The embodied form of one WorldSim person near the player.
 ##
 ## While embodied, this body owns the resident's movement; WorldSim keeps the
@@ -370,7 +372,8 @@ func _ready() -> void:
 	_tag.remove_from_group("nameplate")      # driven by show_tag / Nameplates.suppressed below
 	_tag.position.y = 1.95
 	add_child(_tag)
-	_tag.text = WorldSim.describe(person)
+	_tag.text = WorldSim.person_name(person)
+	ContactBlobS.attach(self, 0.32 if _child else 0.42)
 	_brain = _make_brain()
 	_acuity = 1.3 if WorldSim.job[person] == 3 else (0.8 if _child else 1.0)
 	_slot = Perception.bind(person, _acuity, WorldSim.job[person] == 3)
@@ -607,7 +610,11 @@ func _think_tick() -> void:
 	_tag_timer -= THINK_INTERVAL
 	if show_tag and _tag_timer <= 0.0:
 		_tag_timer = 1.0
-		_tag.text = "%s\n%s" % [WorldSim.describe(person), UtilityBrain.label(_act, travelling)]
+		# Clean screen (AAA pass 2026-10-06): a name only. Job, gold and state are the Developer Simulation Overlay (Settings).
+		if bool(SettingsStoreS.get_value("dev_sim_overlay")):
+			_tag.text = "%s\n%s" % [WorldSim.describe(person), UtilityBrain.label(_act, travelling)]
+		else:
+			_tag.text = WorldSim.person_name(person)
 
 
 # ---------------------------------------------------------------- choosing
@@ -2151,7 +2158,7 @@ func _evidence_tick(here: Vector2, now_ms: int) -> void:
 func _say(text: String, seconds := BUBBLE_SECONDS) -> void:
 	if text == "" or _indoors or _player == null:
 		return
-	if global_position.distance_squared_to(_player.global_position) > 26.0 * 26.0:
+	if global_position.distance_squared_to(_player.global_position) > 11.0 * 11.0:     # barks only up close (was 26 m)
 		return
 	var showing := _bubble != null and _bubble.visible
 	if not showing and NpcWorld.bubbles_shown >= NpcWorld.MAX_BUBBLES:
@@ -2161,8 +2168,8 @@ func _say(text: String, seconds := BUBBLE_SECONDS) -> void:
 		_bubble.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		_bubble.double_sided = true
 		_bubble.no_depth_test = false
-		_bubble.pixel_size = 0.0042
-		_bubble.font_size = 34
+		_bubble.pixel_size = 0.0032
+		_bubble.font_size = 30
 		_bubble.outline_size = 10
 		_bubble.modulate = Color(1.0, 0.96, 0.82)
 		_bubble.outline_modulate = Color(0.08, 0.06, 0.05, 0.95)

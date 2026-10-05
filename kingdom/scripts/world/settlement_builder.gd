@@ -1345,15 +1345,26 @@ func _medieval_gates(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array
 		var yaw_r := atan2(dir.x, dir.y)
 		var half := float(WorldGen.road_info(c.x + dir.x * wr, c.y + dir.y * wr)["width"]) * 0.5
 		# Cobble apron in the gate mouth (2 m tiles, hand-laid jitter); LOW: a narrower strip.
+		# AAA pass 2026-10-06: the 2 m tiles were laid as a hard 5x7 rectangle (a flat patch with straight edges on the phone).
+		# Now the apron is an ellipse that frays out: tiles near its edge are dropped with rising probability, shrunk and sunk
+		# a few cm so the terrain grass laps over them, and every tile turns by a random quarter so the pattern does not repeat.
 		var rows := 3 if low else 5
+		var hu := 3.6
+		var hl := float(rows) * 1.0 + 0.4
 		for iu in range(-2, 5):
 			for il in rows:
 				var lat := (il - (rows - 1) * 0.5) * 2.0
 				var q := c + dir * (wr + iu * 2.0) + side * lat
 				if WorldGen.is_water(q.x, q.y):
 					continue
-				(lists["cobble"] as Array).append(Transform3D(Basis(Vector3.UP, yaw_r + rng3.randf_range(-0.05, 0.05)),
-					Vector3(q.x + rng3.randf_range(-0.04, 0.04), WorldGen.height(q.x, q.y) + 0.005, q.y)))
+				var e := Vector2((float(iu) - 1.0) * 2.0 / hu, lat / hl).length()     # 0 centre .. ~1.2 corners
+				if e > 0.62 and rng3.randf() < smoothstep(0.62, 1.15, e):
+					continue
+				var sc := lerpf(1.0, 0.82, smoothstep(0.5, 1.1, e)) * rng3.randf_range(0.95, 1.05)
+				var sink := lerpf(0.005, -0.035, smoothstep(0.55, 1.1, e))
+				var quarter := float(rng3.randi() % 4) * PI * 0.5
+				(lists["cobble"] as Array).append(Transform3D(Basis(Vector3.UP, yaw_r + quarter + rng3.randf_range(-0.12, 0.12)).scaled(Vector3(sc, 1.0, sc)),
+					Vector3(q.x + rng3.randf_range(-0.15, 0.15), WorldGen.height(q.x, q.y) + sink, q.y + rng3.randf_range(-0.15, 0.15))))
 		# Mud puddles along the gate road, both sides, thicker beyond the wall.
 		for k in (4 if low else 8):
 			var uu := wr + rng3.randf_range(-14.0, 52.0)

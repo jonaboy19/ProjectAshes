@@ -21,6 +21,16 @@ The big simulation features (13 kingdoms, politics, wars, settlement founding, c
     - There is no charge or draw meter yet (the `charge_changed` signal exists).
 - **Local PC, please:** check the touch layout on a portrait phone (Jump and Attack overlap, thumb reach), then re-run tools_qa/movement_qa on the new jump and land code.
 
+## AAA camera + clean-screen pass (local, 2026-10-06, owner's direct request) -> cloud + Codex
+Owner: "looks good but doesn't FEEL AAA" (S22 screens) + `docs/art/AAA_PRESENTATION_REVIEW.md`. Skill `ashes-aaa-camera-hud` has the rules and the harness. Cloud-owned files touched, minimal and documented:
+- **Camera (player.gd, chase_camera.gd):** `VIEW_RIG` THIRD 3.9 m / -0.2, `SHOULDER_HEIGHT` 1.62, `SHOULDER_OFFSET` 0.42 (rotated by `_yaw`; the old `talk_shift` was added in world X and is now camera-local too), `BASE_FOV` 54, `OPEN_DIST/LIFT` 0.35/0.1, eased collision release, global shader param `hero_cam_dist`, child node `CameraOccluders`. No animation code touched (Codex).
+- **HUD (hud.gd):** `_update_calm_fade` fades `_chrome` to 22 % after 7 s calm. **tutorial_prompt_view.gd / tutorial_director.gd:** button lessons sit beside their button; calm prompts settle (SKIPPED) after 9 s.
+- **World text:** villager plate = name (debug text behind new setting `dev_sim_overlay`), plate range 4.5 m; `Nameplates` 12 m / 3 shown; barks 11 m / 2; alert glyphs smooth, 14 m (test updated).
+- **Art:** critter horses use `HorseRig` (coats, bridle; mount_controller still drives `play_gait`, rider seat height on the new model NOT checked in a ride), brazier mesh + `shaders/brazier_fire.gdshader`, frayed gate cobble aprons (rng3 sequence changed, so gate-side carts/barrels moved), `style_g.gd _game_environment` grade, contact blobs under player/villagers/horses, contact_shadow shader `fog_disabled`.
+- **Main menu:** big RISING ASHES + "A Total Showdown Studios Game".
+- **Please (cloud):** keep `#include camera_see_through` + the discard line when editing lab shaders; new world shaders should include it. **Codex:** check rider seat on the HorseRig town horse.
+- **Later passes (owner list, not done):** hero model, dialogue presentation, faces/eyes, NPC tiers, map as a cartographic object, element-world interaction, audio layers, Ashford benchmark block.
+
 ## Tools you can use (read this first)
 Free, licence-checked tools are installed on the local PC in `C:\Users\Jonna\Tools\` and documented with exact headless commands in `tools/README_EXTERNAL_TOOLS.md` and the skill `.claude/skills/ashes-external-tools/SKILL.md`: scrcpy and Perfetto (S22 recording and traces), RenderDoc and AGI (GPU), gltfpack (auto-LOD; use `-noq` for Godot), Instant Meshes (retopo), Real-ESRGAN and Krita (textures), RTMPose (better video mocap), Piper (NPC voices, licence-cleared voices only), rFXGen and jsfxr (SFX), plus Rigify/Wiggle/erosion/Azgaar from round 1. Phone/GPU/Windows-binary tools work only on the local PC; cloud sessions should ask the local session to run them. No Ollama or local LLM.
 

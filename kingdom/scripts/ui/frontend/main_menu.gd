@@ -33,10 +33,24 @@ func _ready() -> void:
 	col.add_theme_constant_override("separation", 6)
 	left.add_child(col)
 	var lc := CenterContainer.new()
-	lc.add_child(FE.logo(0.62))
+	lc.add_child(FE.logo(0.42))
 	col.add_child(lc)
-	var t := FE.title_label(30)
-	col.add_child(t)
+	# AAA pass 2026-10-06 (owner review): RISING ASHES is the dominant element of the screen, with a small studio credit.
+	var head := VBoxContainer.new()
+	head.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	head.offset_left = 56 + 340
+	head.offset_right = -24
+	head.offset_top = 70
+	head.add_theme_constant_override("separation", 2)
+	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(head)
+	head.add_child(FE.title_label(96))
+	var studio := AF.label("A Total Showdown Studios Game", 18, Color(1, 0.95, 0.85, 0.85))
+	studio.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	studio.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+	studio.add_theme_constant_override("shadow_offset_x", 1)
+	studio.add_theme_constant_override("shadow_offset_y", 1)
+	head.add_child(studio)
 	var sp := Control.new()
 	sp.custom_minimum_size = Vector2(0, 22)
 	col.add_child(sp)

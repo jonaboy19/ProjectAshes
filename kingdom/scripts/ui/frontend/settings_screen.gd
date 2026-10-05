@@ -193,6 +193,7 @@ func _tab_gameplay() -> void:
 	_row("hud_compass", "HUD: Compass", "toggle", [])
 	_row("hud_quests", "HUD: Quest Tracker", "toggle", [])
 	_row("hud_damage", "HUD: Damage Numbers", "toggle", [])
+	_row("dev_sim_overlay", "Developer Simulation Overlay", "toggle", [], "Show each resident's job, gold and current activity above their name (debug).")
 
 
 func _tab_controls() -> void:

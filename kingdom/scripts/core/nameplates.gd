@@ -11,11 +11,11 @@ extends RefCounted
 ##
 ## Reference: pixel_size 0.0022 at font 36 is what army/squad.gd's screen-constant banner uses.
 const PX := 0.0016
-const MAX_DIST := 22.0
+const MAX_DIST := 12.0      # AAA pass 2026-10-06: names only near the player (was 22)
 
-const FADE_CAP := 25.0          # plates are gone by here (bosses / landmarks that ask for more keep it)
-const FADE_LEN := 7.0
-const MAX_SHOWN := 6
+const FADE_CAP := 14.0          # plates are gone by here (bosses / landmarks that ask for more keep it)
+const FADE_LEN := 4.0
+const MAX_SHOWN := 3
 const MIN_PX := 17.0            # on-screen font height at 720p (scaled with the viewport height, never below this)
 const SIGN_MARGIN := 24.0       # px around a town board's rectangle
 

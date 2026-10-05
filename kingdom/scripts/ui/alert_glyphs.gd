@@ -9,9 +9,9 @@ extends Node
 const Perception := preload("res://scripts/population/perception.gd")
 
 const MAX_GLYPHS := 4
-const SHOW_RANGE := 25.0
+const SHOW_RANGE := 14.0     # AAA pass: was 25 m
 const HZ := 0.25
-const CELL := 32
+const CELL := 64
 const HEAD_Y := 2.45
 const HEAD_Y_CHILD := 2.05
 
@@ -57,30 +57,39 @@ static func pick(rows: Array, max_n := MAX_GLYPHS) -> Array:
 
 
 ## The shared atlas: one white row of CELL x CELL cells ('?' then '!'), dark outline (tinted by the sprite's modulate).
+## AAA pass 2026-10-06: smooth anti-aliased glyphs (distance to strokes, soft dark outline) instead of the 5x7 pixel font,
+## which read as debug art next to the painted world. Same atlas layout: one row of CELL x CELL cells, '?' then '!'.
 static func atlas() -> ImageTexture:
 	if _atlas != null:
 		return _atlas
 	var img := Image.create(CELL * 2, CELL, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0, 0, 0, 0))
+	var s := float(CELL) / 64.0
 	for g: String in BITMAPS:
-		var ox := int(CELLS[g]) * CELL + 8
-		var oy := 4
-		var rows: Array = BITMAPS[g]
-		var on := {}
-		for y in rows.size():
-			for x in (rows[y] as String).length():
-				if (rows[y] as String)[x] == "#":
-					for dy in 3:
-						for dx in 3:
-							on[Vector2i(ox + x * 3 + dx, oy + y * 3 + dy)] = true
-		for p: Vector2i in on:
-			for oy2 in range(-2, 3):
-				for ox2 in range(-2, 3):
-					var q := p + Vector2i(ox2, oy2)
-					if not on.has(q) and q.x >= 0 and q.y >= 0 and q.x < CELL * 2 and q.y < CELL:
-						img.set_pixelv(q, Color(0.06, 0.05, 0.05, 0.95))
-		for p: Vector2i in on:
-			img.set_pixelv(p, Color(1, 1, 1, 1))
+		var ox := float(int(CELLS[g]) * CELL)
+		var segs: Array = []      # [a, b] stroke segments in 64-unit cell space
+		var dot := Vector2(32, 54)
+		if g == "!":
+			segs.append([Vector2(32, 9), Vector2(32, 40)])
+		else:
+			var prev := Vector2.ZERO
+			for i in 15:
+				var t := lerpf(PI * 1.05, PI * 2.45, float(i) / 14.0)
+				var q := Vector2(32, 22) + Vector2(cos(t), sin(t)) * 12.0
+				if i > 0:
+					segs.append([prev, q])
+				prev = q
+			segs.append([prev, Vector2(32, 42)])
+		for y in CELL:
+			for x in CELL:
+				var p := Vector2(x + 0.5, y + 0.5) / s
+				var d := p.distance_to(dot) - 5.0
+				for sg: Array in segs:
+					d = minf(d, Geometry2D.get_closest_point_to_segment(p, sg[0], sg[1]).distance_to(p) - 4.0)
+				var fill := clampf(0.5 - d * s, 0.0, 1.0)
+				var edge := clampf(0.5 - (d - 3.0) * s, 0.0, 1.0)
+				var c := Color(0.06, 0.05, 0.05, edge * 0.85).lerp(Color(1, 1, 1, 1), fill)
+				img.set_pixel(int(ox) + x, y, c)
+	img.generate_mipmaps()
 	_atlas = ImageTexture.create_from_image(img)
 	return _atlas
 
@@ -94,8 +103,8 @@ func _make_sprite() -> Sprite3D:
 	sp.shaded = false
 	sp.double_sided = true
 	sp.alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED
-	sp.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	sp.pixel_size = 0.016
+	sp.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	sp.pixel_size = 0.0065
 	sp.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	sp.visibility_range_end = SHOW_RANGE + 2.0
 	return sp
