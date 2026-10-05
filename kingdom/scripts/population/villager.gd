@@ -1561,7 +1561,11 @@ func _so_leave(urgent: bool) -> void:
 
 
 func _so_release() -> void:
-	if NpcWorld.smart != null:
+	if _so != null:
+		# The session owns a particular claim token. A newer schedule claim
+		# for this person must survive cleanup of the old activity.
+		_so.cancel_now()
+	elif NpcWorld.smart != null:
 		NpcWorld.smart.release(person)
 	_so = null
 	_so_phase = -1
