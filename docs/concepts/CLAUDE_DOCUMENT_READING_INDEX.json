@@ -390,7 +390,7 @@
       "path": "docs/concepts/CODEX_SYSTEMS_HANDOFF.md",
       "lines": 40,
       "sha256": "7A3ACD07FB5CC4DE19D76B179D671E7BE1999D4A954A63A5D2A414FE8349F768",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/concepts/COLLISION_FACADE_REVIEW.md",
@@ -474,7 +474,7 @@
       "path": "docs/concepts/LOCOMOTION_PHASE_AND_FOOT_CONTACT_DESIGN.md",
       "lines": 67,
       "sha256": "75D20DF7CB696B4845898E6220613C3923D8B434A51EEE98EE521AB3B4D616B8",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/concepts/LOCOMOTION_SPEED_REVIEW.md",
@@ -528,7 +528,7 @@
       "path": "docs/concepts/NPC_ANIMATION_TRANSITION_DESIGN.md",
       "lines": 70,
       "sha256": "728F861BEE7E75A51D8A603974E0E934A5874F9F17050CA7066FDA25F61A18E5",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/concepts/NPC_CAPTURE_TRACE_VIEWER.md",
@@ -744,7 +744,7 @@
       "path": "docs/concepts/WORLD_DAILY_RHYTHM_DESIGN.md",
       "lines": 57,
       "sha256": "D84CA035B57560FC68F1E7AA826A244B66B54E83DF41743043008C7B9D23DAD4",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/concepts/WORLDSIM_SMART_OBJECT_TARGETS_HANDOFF.md",
