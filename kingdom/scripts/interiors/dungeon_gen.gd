@@ -667,7 +667,7 @@ static func _room_lights(gen: Dictionary, content: Dictionary, T: Dictionary, ri
 				var p := _pick_wall(gen, rid, true)
 				if p != {}:
 					content["lights"].append({"id": _uid(uid, "g"), "kind": "crystal", "pos": p["pos"] + Vector3(0, 0.0, 0), "yaw": p["yaw"],
-						"color": Color(0.7, 0.4, 1.0), "range": 9.0, "energy": 1.6, "room": rid})
+						"color": Color(0.7, 0.4, 1.0), "range": 10.0, "energy": 2.4, "room": rid})
 		_:
 			if rid == 0 or rng.randf() < lit:
 				var k2 := 2 if (role in ["entrance", "boss", "lore", "vault"] or kind == "torch") else 1

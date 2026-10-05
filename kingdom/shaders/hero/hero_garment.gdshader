@@ -13,6 +13,7 @@ uniform sampler2D noise_tex : hint_default_white, filter_linear_mipmap, repeat_e
 uniform sampler2D albedo_tex : source_color, hint_default_white, filter_linear_mipmap, repeat_enable;
 uniform bool use_albedo_tex = false;
 uniform bool use_vertex_color = true;
+uniform vec4 base_color : source_color = vec4(1.0);
 uniform int asset_kind = 0;           // material id used when UV2 is absent (G6 meshes)
 uniform bool has_uv2 = true;
 uniform vec3 sway = vec3(0.0);        // model-space metres at weight 1
@@ -39,7 +40,7 @@ void vertex() {
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 
 void fragment() {
-	vec3 c = use_vertex_color ? COLOR.rgb : vec3(1.0);
+	vec3 c = (use_vertex_color ? COLOR.rgb : vec3(1.0)) * base_color.rgb;
 	vec2 uvt = UV;
 	if (use_albedo_tex) { c *= texture(albedo_tex, UV).rgb; uvt = UV * 6.0; }
 	int id = int(v_mat + 0.5);

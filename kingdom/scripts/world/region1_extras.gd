@@ -121,6 +121,8 @@ static func _body(look: String) -> Node3D:
 
 
 static func _npc(root: Node3D, npc: Dictionary, site: Dictionary) -> void:
+	if bool(npc.get("hub", false)):
+		return          # a hub (Thornfield's Hesta) builds this person with her own body and menu: no second twin here
 	var title := "%s · %s" % [npc.get("name", "Villager"), npc.get("role", "")]
 	var state := {"i": 0}
 	var lines: Array = npc.get("lines", [])

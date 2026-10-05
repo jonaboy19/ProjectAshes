@@ -279,19 +279,24 @@ for v in bmc.verts:
     p = M @ v.co
     hx = abs(p.x - neck.x)
     back = (p - neck).dot(-fwd) > -0.02
-    if neck.z - 0.13 < p.z < neck.z + 0.035 and hx < 0.2 and (back or (hx > 0.1 and p.z > neck.z - 0.06)):   # front: only the shoulder tops
+    if neck.z - 0.13 < p.z < neck.z + 0.035 and hx < 0.16 and (back or (hx > 0.1 and p.z > neck.z - 0.05)):   # front: only the shoulder tops
         keep.add(v.index)
 bmesh.ops.delete(bmc, geom=[f for f in bmc.faces if not any(x.index in keep for x in f.verts)], context="FACES")
 bmesh.ops.delete(bmc, geom=[v for v in bmc.verts if not v.link_faces], context="VERTS")
 bmesh.ops.subdivide_edges(bmc, edges=bmc.edges[:], cuts=2, use_grid_fill=True, smooth=0.6)   # sparse 4k body -> cloth density
-bmesh.ops.smooth_vert(bmc, verts=bmc.verts[:], factor=0.5, use_axis_x=True, use_axis_y=True, use_axis_z=True)
+for _ in range(6):
+    bmesh.ops.smooth_vert(bmc, verts=bmc.verts[:], factor=0.5, use_axis_x=True, use_axis_y=True, use_axis_z=True)
+# rolled hem: pull boundary verts in toward the body so no edge stands off as a shard
+for _ in range(2):
+    bnd = [v for v in bmc.verts if v.is_boundary]
+    bmesh.ops.smooth_vert(bmc, verts=bnd, factor=0.8, use_axis_x=True, use_axis_y=True, use_axis_z=True)
 bmc.normal_update()
 bag_c = neck + fwd * -0.11 + Vector((0, 0, -0.08))
 for v in bmc.verts:
     p = M @ v.co
     bag = math.exp(-((p.x - neck.x) ** 2) / (2 * 0.06 ** 2)) * math.exp(-((p.z - bag_c.z) ** 2) / (2 * 0.045 ** 2)) * (1.0 if (p - neck).dot(-fwd) > 0 else 0.0)
     rim = ss(neck.z - 0.01, neck.z + 0.035, p.z)          # rolled edge at the neck stands up a little
-    off = HOOD_OFF + 0.035 * bag + 0.006 * rim
+    off = (HOOD_OFF + 0.035 * bag + 0.006 * rim) * (0.35 if v.is_boundary else 1.0)
     v.co += M.inverted().to_3x3() @ ((M.to_3x3() @ v.normal).normalized() * off)
 hood_me = bpy.data.meshes.new("Hood")
 bmc.to_mesh(hood_me); bmc.free()
@@ -302,7 +307,7 @@ for g in ob.vertex_groups:
     hood.vertex_groups.new(name=g.name)
 hood.parent = arm
 hm = hood.modifiers.new("Armature", "ARMATURE"); hm.object = arm
-sol = hood.modifiers.new("Solid", "SOLIDIFY"); sol.thickness = 0.006; sol.offset = 1.0
+sol = hood.modifiers.new("Solid", "SOLIDIFY"); sol.thickness = 0.012; sol.offset = 1.0
 bpy.context.view_layer.objects.active = hood
 bpy.ops.object.modifier_move_to_index(modifier="Solid", index=0)
 bpy.ops.object.modifier_apply(modifier="Solid")

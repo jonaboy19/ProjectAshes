@@ -54,3 +54,18 @@ Rating: about 6/10 in close-up and about 6 at the shoulder cam. **Not default.**
 Rating: close-up about 6.5/10, shoulder cam about 6.5, clips 7.
 
 Benchmark street: NOT run. The full worktree's Godot import segfaulted while disk free fell to 3.7 GB (other agents writing). The worktree was removed. The hero stays off by default.
+
+## Pass 5 (2026-10-06): `m12_sheet.jpg` (shell visible), `m13_sheet.jpg` (shell hidden)
+- **Hands:** they now use the same `hero_character` shader as the body. The tint is the measured ratio of the Meshy skin mean to the G6 hand texture mean (0.68, 0.69, 0.73), and they now match the face.
+- **Sword:** `HeroTierA.regrip()` puts the handle centre between the curled middle finger and the thumb in the Sword_Idle pose. The sword now sits in the fist. The same bug exists on the current G6 hero (the handle lies across the wrist).
+- **Mantle:** smoothed, thicker, with a darker wool tint, but the front shoulder slabs still read as shards in close-up. It is hidden (`SHOW_HOOD_SHELL = false`).
+
+Rating: about 6.5/10. Still not default.
+
+## Paid Meshy hero, first pass (2026-10-06): `n1_sheet.jpg`
+- **Source:** `ProjectAshes_art_staging/hero_meshy/hero_rigged.glb` (35 credits, spent by the coordinator). Re-rigged to UAL with the same pipeline, LOD0 18k / LOD1 17.6k / LOD2 3k, saved as `assets/generated/characters/hero_tier_a/hero_meshy2*.glb`.
+- **Result:** it loses (about 3/10).
+  - The texture did not come through. `extract_texture` grabbed image 0, which is probably not the PBR base colour, so the model renders flat dark grey.
+  - The body is a bulky cloak block with a dark face.
+  - The boots stretch into skis again (the boot was shifted 9.7 cm).
+- **Next:** pick the base-colour image by its material slot, then re-run `hero_fix` without `--keep_hands`.
