@@ -1104,7 +1104,7 @@
       "path": "docs/SYSTEMS_MASTERPLAN.md",
       "lines": 135,
       "sha256": "98A7679D958F01DA569C0C595DC8E881B2E820FAE43A2BAA2E0373BFB669740E",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/TOOLCHAIN_AUDIT.md",
@@ -1128,7 +1128,7 @@
       "path": "docs/WORLD_LORE.md",
       "lines": 223,
       "sha256": "D70BC11B4B59B2C0B9A9D82FA5BFC90D33E2CAC7334382E55F949F61D6664FE8",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     }
   ],
   "original_attachments": [
