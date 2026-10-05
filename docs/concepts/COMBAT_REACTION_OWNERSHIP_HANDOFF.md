@@ -24,3 +24,7 @@ Light-hit knockback still cancels standing step travel through the existing kick
 - Real phone frame cost and memory. Conversion happens at player setup; no performance claim is made.
 
 This is a local patch for integration review. Claude's shared checkout and asset/model work were not edited.
+
+## Mount transition follow-up
+
+Mounting now calls the same interruption cleanup before handing movement to MountController, replacing the older swing-only reset. Pending contact, marker travel, combo window and weapon trail therefore relinquish ownership together. This does not integrate RiderSync, mounted sword clips or mount/dismount animations. Review mounting during windup, active/recovery frames and after local impact pause; no runtime result is recorded.

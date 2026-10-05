@@ -150,13 +150,13 @@
       "path": "docs/anim/patches/P13_assets_life_libs.md",
       "lines": 18,
       "sha256": "5690D0175DB0470C964BA8C3561DCD0EA500DFB6982C6551FF44123CE58B997A",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P13_population_lod_vat.md",
       "lines": 73,
       "sha256": "D2E05205AFC4030978EE715632DF5EEB8075EDEEA7F087C2F5149CCAEDC07B7B",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P13_villager_life_clips.md",
@@ -168,7 +168,7 @@
       "path": "docs/anim/patches/P13_world_sim_smart_objects.md",
       "lines": 48,
       "sha256": "EC6AAF1CF3DF2DF5BDF30E6BB24C6338DF7CD75F285ADED1941742C098C44CE6",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P14a_mount_controller_horse_rig.md",
@@ -180,7 +180,7 @@
       "path": "docs/anim/patches/P14b_player_rider_sync.md",
       "lines": 77,
       "sha256": "7AEC39B16F9DA22912FEABCD40B455194DABBD2ADD617C61B1E5299CBC092503",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P14c_critter_horses_and_herds.md",
@@ -222,7 +222,7 @@
       "path": "docs/anim/patches/P6_npc_foot_ik_cost.md",
       "lines": 26,
       "sha256": "2DD33225C63F801A4C74AABA4A4F5D40344C2DC917B5299087A347A1A310435B",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P7_jump.md",

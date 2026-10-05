@@ -753,10 +753,7 @@ func toggle_mount(target: Node3D = null) -> void:
 	_release_lock()
 	_reset_jump()
 	_set_crouch(false)
-	if _swing > 0.0:
-		_swing_id += 1
-	_swing = 0.0
-	_attack_buffer = 0.0
+	_interrupt_swing()
 	_dodge_buffer = 0.0
 	blocking = false
 	_animator.set_blocking(false)

@@ -98,3 +98,11 @@ Current player source search found no named walk-start, run-start, walk-stop, sk
 Free-library HANDOFF_CODEX output was truncated. Its first 65 lines have now been explicitly read; the central clip-table rows still need segmented coverage. Its initial timer example and player `speed_scale` hitstop recipe are insufficient for the current AnimationTree and pause-aware combat clock. Use the existing local clock contract instead of copying that historical example into gameplay. No new movement or collision code was changed in this reading pass.
 
 Completed P5 locomotion transition contract. Comparing its nonzero authored start speeds against current zero-speed, speed-dependent player acceleration confirms why exit-rate matching alone is insufficient. `LOCOMOTION_START_REUSE_REVIEW.md` records the required collision, analog-input and interruption boundaries for using these existing clips without forced travel or double movement. This is an integration design review, not a shipped start implementation.
+
+## Horse and crowd contracts
+
+Completed P14b rider-sync, P13 smart-object schedule, P13 population VAT, P6 NPC IK cost and P13 optional life-library handoffs. Source search of current player and population_lod found no RiderSync, VatResidents or CrowdAnimLOD identifiers; player riding still updates its normal animator and uses MountController's rider offset. These handoffs are proposals relative to this local source, not current gameplay acceptance. Re-read the latest Claude implementation before taking any broader riding/LOD ownership.
+
+P6 explains why attaching dormant skeleton modifiers defeated animation throttling in the measured fixture. A rig pool is proposed, not delivered or performance-approved. P13's approximately-zero CPU VAT statement excludes other world simulation, refresh and rendering costs; it must not become an overall crowd budget claim.
+
+The mount transition now reuses `_interrupt_swing()` rather than a partial manual reset. This is a combat-ownership cleanup only, with mount-under-impact-pause/runtime checks still pending in the reaction handoff.
