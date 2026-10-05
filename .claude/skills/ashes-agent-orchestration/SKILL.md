@@ -39,3 +39,4 @@ description: How the local Rising Ashes session splits work across subagents che
 - **Orphan processes.** Every Godot or Blender run needs a timeout (`--quit-after`, or a watchdog). Before finishing, an agent kills the PIDs it started (check `Get-Process` against the start time and command line).
   - On 2026-09-29 a forgotten anim_tech bench burned 100% of a core for 6.6 hours and invalidated every perf measurement that day.
   - Perf agents first list running Godot and Blender processes, then report the machine load next to their numbers.
+- **Never `rm -rf` outside your own worktree or temp folder.** Print and check the absolute path first. On 2026-10-06 an MSYS path bug (`C:\c\...`) led an agent to wipe stray folder copies. Use `MSYS_NO_PATHCONV=1` or Windows paths when running git from bash.
