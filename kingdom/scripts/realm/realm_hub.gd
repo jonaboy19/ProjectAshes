@@ -37,9 +37,10 @@ const MODULES := {
 	"construction": preload("res://scripts/realm/construction.gd"),
 	"towers": preload("res://scripts/realm/towers.gd"),
 	"ecology": preload("res://scripts/realm/ecology.gd"),
+	"build_kit": preload("res://scripts/realm/build_kit.gd"),   # Build-kit hook: modular piece building (docs/regions/HOOKS_FOR_CLOUD.md)
 }
 ## Order matters within a tier: land before factions before campaign.
-const ORDER := ["settlements", "land", "camps", "civilization", "migration", "followers", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "trades", "enterprise", "construction", "towers", "ecology"]
+const ORDER := ["settlements", "land", "camps", "civilization", "migration", "followers", "factions", "strongholds", "campaign", "city_life", "society", "governance", "notables", "news", "exploration", "power_paths", "education", "cultivation", "household", "callups", "work", "scribe", "trades", "enterprise", "construction", "towers", "ecology", "build_kit"]
 ## Max microseconds of realm work per frame (mobile: ~0.6 ms of a 16.6 ms frame).
 const PUMP_BUDGET_USEC := 600
 

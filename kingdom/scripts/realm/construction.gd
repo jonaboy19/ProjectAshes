@@ -484,6 +484,37 @@ func place(kind: String, pos: Vector2, yaw: float, upgrade_of := 0, from := Vect
 	return {"ok": true, "reason": "", "id": id}
 
 
+
+## Build-kit hook (scripts/realm/build_kit.gd; docs/regions/HOOKS_FOR_CLOUD.md): a blueprint of kit pieces becomes one ordinary
+## site of kind "kit_plan" with its own material bill and labour-hours, so the existing crews, hauling, stages and stalls raise it.
+## The kit grid already checked the ground and support; this only stocks the site like place() does.
+func place_kit_plan(pos: Vector2, yaw: float, cost: Dictionary, hours: float, label := "") -> Dictionary:
+	var hid := holding_at(pos)
+	if hid == 0:
+		hid = _new_holding(pos)
+	var id := _next_site
+	_next_site += 1
+	var need := {}
+	for item: String in cost:
+		if int(cost[item]) > 0:
+			need[item] = int(cost[item])
+	var s := {"id": id, "kind": "kit_plan", "pos": [pos.x, pos.y], "yaw": yaw, "holding": hid, "state": "site",
+		"progress": 0.0, "total": maxf(hours, 1.0), "need": need, "have": {}, "workers": [],
+		"upgrade_of": 0, "started_day": _day, "done_day": -1, "carry": 0.0, "label": label}
+	sites[id] = s
+	_trail_dirty = true
+	for item: String in need:
+		var n := int(need[item])
+		var from_store := mini(store_count(hid, item), n)
+		if from_store > 0:
+			(holdings[hid]["store"] as Dictionary)[item] = store_count(hid, item) - from_store
+		var from_pack := mini(_have(item), n - from_store)
+		if from_pack > 0:
+			_take(item, from_pack)
+		if from_store + from_pack > 0:
+			(s["have"] as Dictionary)[item] = from_store + from_pack
+	return {"ok": true, "reason": "", "id": id}
+
 # ------------------------------------------------------------------ NPC development sites (realm/civilization.gd)
 ## A settlement's own project (houses, walls, a market...) shown as a normal staged site (foundation -> frame -> walls ->
 ## roof -> done) with no holding, no crew and no materials to haul: civilization.gd sets its progress from the calendar, so the
