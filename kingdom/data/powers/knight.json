@@ -133,6 +133,7 @@
     ],
     "vfx": "stone_skin",
     "anim": [
+     "Guard_Ready_Defensive",
      "Sword_Block",
      "Karate_Block"
     ],
@@ -218,6 +219,7 @@
     ],
     "vfx": "qi_shield",
     "anim": [
+     "Guard_Ready_Defensive",
      "Sword_Block",
      "G6_cast_off_hand_shield"
     ],
@@ -267,6 +269,7 @@
     ],
     "vfx": "impact",
     "anim": [
+     "Fire_Stride_Strike_F",
      "Sword_Dash",
      "Sprint"
     ],
@@ -525,6 +528,7 @@
     ],
     "vfx": "impact",
     "anim": [
+     "Fire_Stride_Strike_F",
      "Sword_Dash",
      "Sprint"
     ],
@@ -711,6 +715,7 @@
     ],
     "vfx": "qi_shield",
     "anim": [
+     "Guard_Ready_Defensive",
      "G6_cast_off_hand_shield",
      "Sword_Block"
     ],

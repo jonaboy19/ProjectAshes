@@ -63,7 +63,10 @@
 			"shape": "aoe",
 			"radius": 4.5,
 			"knockback": 14.0,
-			"anim": "G6_power_up_2",
+			"anim": [
+				"Air_Jump_Twist",
+				"G6_power_up_2"
+			],
 			"anim_mode": "full",
 			"anim_speed": 1.5,
 			"hit_time": 0.25,
@@ -86,7 +89,10 @@
 			"damage": 14,
 			"shape": "dash",
 			"range": 9.0,
-			"anim": "Slide",
+			"anim": [
+				"Air_Evade_L",
+				"Slide"
+			],
 			"anim_mode": "full",
 			"anim_speed": 1.5,
 			"hit_time": 0.1,
@@ -119,6 +125,7 @@
 				"pull": 3.0
 			},
 			"anim": [
+				"Air_SpinJump_360",
 				"Magic_Casting",
 				"G6_channel_unarmed_magic"
 			],

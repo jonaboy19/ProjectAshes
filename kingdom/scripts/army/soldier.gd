@@ -23,6 +23,7 @@ const AbilityLib := preload("res://scripts/abilities/ability_lib.gd")
 const Telegraph := preload("res://scripts/combat/telegraph.gd")
 const CombatStats := preload("res://scripts/combat/combat_stats.gd")
 const NpcCaster := preload("res://scripts/combat/npc_caster.gd")
+const BendingLibrary := preload("res://scripts/actors/bending_library.gd")
 const EffectSet := preload("res://scripts/abilities/effect_set.gd")
 ## Pre-table soldier numbers. Army fights keep them: the table's HP/damage apply to duels with the player;
 ## blows between NPCs are multiplied by max_health / BASE_HP, so a 170-200 HP body loses the SAME FRACTION of its
@@ -414,7 +415,10 @@ func _caster_tick(delta: float) -> void:
 		if bool(r.get("ok", false)):
 			_attack_cooldown = maxf(_attack_cooldown, 0.8)
 			_face(victim.global_position - global_position)
-			_animator.play_upper("Spellcast_Raise" if String(r.get("phase", "")) == "chant" else "Spellcast_Shoot", 1.0)
+			# A bending clip plays from the runner's `started` signal (_on_cast_started, windup start).
+			var chant := String(r.get("phase", "")) == "chant"
+			if chant or not BendingLibrary.is_bending(AbilityLib.get_def(String(d["ability"]))):
+				_animator.play_upper("Spellcast_Raise" if chant else "Spellcast_Shoot", 1.0)
 	elif String(d["intent"]) == "kite":
 		_kite_t = 0.6
 
@@ -425,6 +429,8 @@ func _on_chant_started(id: String, info: Dictionary) -> void:
 
 
 func _on_cast_started(id: String, ab: Dictionary) -> void:
+	if not dead and BendingLibrary.is_bending(ab):
+		BendingLibrary.play_cast(_animator, ab)       # CMU bending clip through the upper / full OneShot slot
 	if float(ab.get("windup", 0.0)) >= 0.4:
 		_telegraph_cast(id, float(ab["windup"]))
 
@@ -454,7 +460,8 @@ func _on_cast_executed(_id: String, ab: Dictionary, cast: Dictionary) -> void:
 		return
 	# Damage scale like the melee blows: row dmg_mult and the squad unit scaling (damage / BASE_DAMAGE).
 	var dmg := maxi(int(round(float(cast["damage"]) * float(_caster.row.get("dmg_mult", 1.0)) * float(damage) / BASE_DAMAGE)), 1) if int(cast["damage"]) > 0 else 0
-	_animator.play_upper("Spellcast_Shoot" if kind in ["projectile", "target_aoe", "aoe", "chain"] else "1H_Melee_Attack_Chop", 1.2)
+	if not BendingLibrary.is_bending(ab):       # a bending clip already plays from the cast start
+		_animator.play_upper("Spellcast_Shoot" if kind in ["projectile", "target_aoe", "aoe", "chain"] else "1H_Melee_Attack_Chop", 1.2)
 	var dist := global_position.distance_to(victim.global_position)
 	match kind:
 		"projectile":

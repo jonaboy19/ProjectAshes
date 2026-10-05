@@ -47,6 +47,7 @@ const PowerTrees := preload("res://scripts/abilities/power_trees.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
 const VFX_PATH := "res://scripts/vfx/vfx.gd"
 const TechniqueVfx := preload("res://scripts/vfx/technique_vfx.gd")
+const BendingLibrary := preload("res://scripts/actors/bending_library.gd")
 const SPECTACLE_SHAPES := ["projectile", "chain", "dash", "blink", "melee", "cone", "aoe", "target_aoe"]
 const KEYS := {"technique_1": KEY_U, "technique_2": KEY_Y, "technique_3": KEY_O, "technique_4": KEY_H,
 	"seal_1": KEY_4, "seal_2": KEY_5, "seal_3": KEY_6, "seal_4": KEY_7, "seal_5": KEY_8, "seal_6": KEY_9}
@@ -568,24 +569,18 @@ func _play_clip(def: Dictionary) -> void:
 	var anim: Variant = player.get("_animator")
 	if anim == null:
 		return
-	var clip := String(def["anim"])
 	var ap: Variant = (anim as Object).get("player")
 	if ap is AnimationPlayer:
-		# First clip of the preference list the rig has (new imports first, stock UAL last).
-		clip = ""
-		for c: String in def.get("anims", [def["anim"]]):
-			if (ap as AnimationPlayer).has_animation(c):
-				clip = c
-				break
-		if clip == "":
-			clip = _fallback_clip(def)
-			if not (ap as AnimationPlayer).has_animation(clip):
-				return
+		# First clip of the preference list the rig has (bending clips install on demand, new imports first,
+		# stock UAL last). BendingLibrary.play_cast uses the same upper / full OneShot slots as before and
+		# only retimes the clip so its strike lands on the technique's windup.
+		BendingLibrary.play_cast(anim, def, _fallback_clip(def))
+		return
 	var speed := float(def["anim_speed"])
 	if String(def["anim_mode"]) == "full":
-		anim.call("play_full", clip, speed)
+		anim.call("play_full", String(def["anim"]), speed)
 	else:
-		anim.call("play_upper", clip, speed)
+		anim.call("play_upper", String(def["anim"]), speed)
 
 
 func _fallback_clip(def: Dictionary) -> String:

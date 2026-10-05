@@ -25,12 +25,16 @@
 			"range": 14.0,
 			"speed": 20.0,
 			"knockback": 4.0,
-			"anim": "Throw_Object",
+			"anim": [
+				"Earth_Lunge_L",
+				"Throw_Object"
+			],
 			"anim_speed": 1.4,
 			"hit_time": 0.28,
 			"vfx": "stone_bullet",
 			"element": "earth",
-			"max_rank": 3
+			"max_rank": 3,
+			"anim_mode": "upper"
 		},
 		{
 			"id": "earth_rooted",
@@ -65,7 +69,10 @@
 			"effect": {
 				"stun": 0.5
 			},
-			"anim": "Attack_Ground_Pound",
+			"anim": [
+				"Earth_PunchSeq_L",
+				"Attack_Ground_Pound"
+			],
 			"anim_mode": "full",
 			"anim_speed": 1.4,
 			"hit_time": 0.4,
@@ -94,7 +101,10 @@
 				},
 				"duration": 8.0
 			},
-			"anim": "G6_power_up_3",
+			"anim": [
+				"Earth_Punch_Hold_Deep",
+				"G6_power_up_3"
+			],
 			"anim_mode": "full",
 			"hit_time": 0.4,
 			"vfx": "stone_skin",
@@ -122,7 +132,10 @@
 			"effect": {
 				"stun": 1.2
 			},
-			"anim": "Attack_Ground_Pound",
+			"anim": [
+				"Earth_PunchSeq_Deep",
+				"Attack_Ground_Pound"
+			],
 			"anim_mode": "full",
 			"anim_speed": 1.1,
 			"hit_time": 0.5,
@@ -150,7 +163,10 @@
 			"range": 7.0,
 			"angle": 100.0,
 			"knockback": 12.0,
-			"anim": "G6_cast_off_hand_shield",
+			"anim": [
+				"Earth_Crouch_Reach_L",
+				"G6_cast_off_hand_shield"
+			],
 			"anim_mode": "full",
 			"hit_time": 0.5,
 			"vfx": "stone_wall",

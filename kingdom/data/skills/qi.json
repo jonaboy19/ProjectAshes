@@ -26,7 +26,10 @@
 				"qi": 30,
 				"cultivate": 8
 			},
-			"anim": "Meditate",
+			"anim": [
+				"Cultivate_Yoga_Floor_Flow",
+				"Meditate"
+			],
 			"anim_mode": "full",
 			"anim_speed": 1.0,
 			"hit_time": 0.8,
@@ -95,6 +98,7 @@
 				"duration": 5.0
 			},
 			"anim": [
+				"Guard_Ready_Defensive",
 				"Taichi_Idle",
 				"G6_power_up"
 			],
