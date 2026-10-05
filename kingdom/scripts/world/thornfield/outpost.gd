@@ -246,6 +246,10 @@ func _build_captain() -> void:
 func captain_menu() -> Dictionary:
 	if menu_provider.is_valid():
 		return menu_provider.call()
+	# The Watch Post is the Soldier career's post: its captain enlists, takes muster and hands out duty.
+	var soldier_ui: GDScript = load("res://scripts/ui/soldier_ui.gd")
+	if soldier_ui != null and soldier_ui.call("module") != null:
+		return soldier_ui.call("captain_menu", Interaction.services(self))
 	var c: Dictionary = cfg["captain"]
 	var m: Dictionary = Wilds.post()
 	return {"title": "%s, %s" % [String(c["name"]), String(c["title"])],
