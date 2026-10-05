@@ -266,8 +266,9 @@ static func materials(theme: String) -> Dictionary:
 	var glow := StandardMaterial3D.new()
 	glow.vertex_color_use_as_albedo = true
 	glow.emission_enabled = true
-	glow.emission = Color(1, 1, 1)
-	glow.emission_energy_multiplier = 1.6
+	# Style G: crystals and caps glow in their own hue, never a white-hot blob (the theme's light colour).
+	glow.emission = Color(0.68, 0.44, 1.0) if theme == "crystal" else Color(0.80, 1.0, 0.92)
+	glow.emission_energy_multiplier = 1.5
 	glow.roughness = 0.3
 	glow.albedo_color = Color(1, 1, 1)
 	out["glow"] = glow

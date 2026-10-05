@@ -560,7 +560,7 @@ func _tick_body(delta: float) -> void:
 	else:
 		_update_animation(delta)
 	_update_head_look(delta)
-	_tag.visible = Nameplates.focus == self and not Nameplates.suppressed
+	_tag.visible = false if not bool(SettingsStoreS.get_value("dev_sim_overlay")) else (show_tag and not Nameplates.suppressed)     # AAA pass 5: the focused name is drawn by the HUD world icon
 
 
 # ---------------------------------------------------------------- thinking
@@ -1765,8 +1765,11 @@ func _maybe_greet(here: Vector2, player_distance: float, now: int) -> void:
 		_regard_ms = now
 		_regard = NpcWorld.regard_of_player(WorldSim.home[person])
 	var cat := "greet_warm" if _regard > 0.25 else ("greet_cold" if _regard < -0.25 else "greet_neutral")
-	if cat == "greet_neutral" and DailyRhythm.local_time(person) >= 19.0 and person % 2 == 0:
-		cat = "greet_evening"
+	var hr := DailyRhythm.local_time(person)
+	if cat == "greet_neutral" and (hr >= 18.0 or hr < 4.0):
+		cat = "greet_evening"      # AAA pass 5: every neutral greeting after dusk is an evening one ("Morning." at dusk read wrong)
+	elif cat == "greet_neutral" and hr < 10.5 and person % 2 == 0:
+		cat = "greet_morning"
 	var clips: Array = GREET_CLIPS["warm" if _regard > 0.25 else ("cold" if _regard < -0.25 else "neutral")]
 	if _so_phase < SmartObjects.Session.ENTER:
 		_begin_oneshot(clips, 1.9)

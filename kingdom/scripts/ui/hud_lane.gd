@@ -10,6 +10,8 @@ extends RefCounted
 
 const ORDER := ["toast", "hint", "banner"]
 const GAP := 8.0
+## Preferred top y (720p px) of the banner: just under the compass, so the screen centre stays clear.
+const BANNER_Y := 58.0
 
 static var _rects: Dictionary = {}          # id -> Vector2(top y, height) while on screen
 static var _menu_open := false

@@ -1,5 +1,5 @@
 extends Control
-## Centre-screen event banners in the dark-gold style of the user's template:
+## Top-band event banners (under the compass, never over the player) in the dark-gold style of the user's template:
 ##   LOCATION DISCOVERED  a framed card with the tower-and-crown crest and the big place name,
 ##   QUEST COMPLETED      a strip with crossed-sword icon, quest title underneath,
 ##   LEVEL UP             a strip with the phoenix and "Level N - +1 Skill Point".
@@ -120,57 +120,52 @@ func _fade_band(vw: Vector2, cy: float, h: float, a: float, strength := 0.66) ->
 
 
 func _draw_location(vw: Vector2, k: float, a: float, rise: float) -> void:
+	# A compact plaque in the top band (under the compass), never the middle of the screen: the player stays visible.
 	var cx := vw.x * 0.5
-	var w := 600.0 * k
-	var h := 214.0 * k
-	var top := HudLane.y_for("banner", vw.y * 0.16) + rise
+	var w := 380.0 * k
+	var h := 84.0 * k
+	var top := HudLane.y_for("banner", HudLane.BANNER_Y * k) + rise
 	HudLane.report("banner", top - rise, h)
 	var r := Rect2(Vector2(cx - w * 0.5, top), Vector2(w, h))
-	_fade_band(vw, r.get_center().y, h + 70.0 * k, a, 0.5)
-	draw_rect(r, Color(0.035, 0.03, 0.026, 0.9 * a))
-	# Lit upper half, like an illuminated plaque.
+	_fade_band(vw, r.get_center().y, h + 10.0 * k, a, 0.22)
+	draw_rect(r, Color(0.035, 0.03, 0.026, 0.84 * a))
 	draw_rect(Rect2(r.position, Vector2(r.size.x, r.size.y * 0.5)), Color(0.85, 0.66, 0.31, 0.05 * a))
-	HudArt.draw_ornate_frame(self, r, AF.GOLD, a, 18.0 * k)
-	# Crest, with a soft glow behind.
+	HudArt.draw_ornate_frame(self, r, AF.GOLD, a, 10.0 * k)
+	# Crest on the left, with a soft glow behind.
 	var crest := HudArt.emblem("tower_crown")
-	var cs := 76.0 * k
-	var cc := Vector2(cx, top + 16.0 * k + cs * 0.5)
+	var cs := 46.0 * k
+	var cc := Vector2(r.position.x + 14.0 * k + cs * 0.5 + 6.0 * k, r.get_center().y)
 	draw_circle(cc, cs * 0.62, Color(AF.GOLD, 0.08 * a))
 	if crest:
 		draw_texture_rect(crest, Rect2(cc - Vector2(cs, cs) * 0.5, Vector2(cs, cs)), false, Color(1, 1, 1, a))
-	# Kicker, big name, subtitle.
+	# Kicker, name, subtitle: centred in the space right of the crest.
+	var tx := cc.x + cs * 0.5 + 14.0 * k
+	var avail := r.end.x - tx - 18.0 * k
 	var kicker := _kicker if _kicker != "" else "LOCATION DISCOVERED"
-	var ks := int(15 * k)
-	var kw := _spaced_width(_body_font, kicker, ks, 5.0 * k)
-	var ky := top + 16.0 * k + cs + 24.0 * k
-	_draw_spaced(_body_font, kicker, Vector2(cx - kw * 0.5, ky), ks, 5.0 * k, Color(AF.GOLD_BRIGHT, 0.95 * a))
-	var ts := int(46 * k)
-	var spread := lerpf(2.0, 8.0, ease(clampf(_t / DURATION, 0.0, 1.0), 0.4)) * k
-	while ts > 20 and _spaced_width(_title_font, _title, ts, spread) > w - 70.0 * k:
+	var ks := int(11 * k)
+	var kw := _spaced_width(_body_font, kicker, ks, 3.0 * k)
+	var ky := r.position.y + 22.0 * k
+	_draw_spaced(_body_font, kicker, Vector2(tx + (avail - kw) * 0.5, ky), ks, 3.0 * k, Color(AF.GOLD_BRIGHT, 0.95 * a))
+	var ts := int(26 * k)
+	var spread := lerpf(1.0, 4.0, ease(clampf(_t / DURATION, 0.0, 1.0), 0.4)) * k
+	while ts > 14 and _spaced_width(_title_font, _title, ts, spread) > avail:
 		ts -= 2
 	var tw := _spaced_width(_title_font, _title, ts, spread)
-	var ty := ky + 12.0 * k + ts * 0.9
-	_draw_spaced(_title_font, _title, Vector2(cx - tw * 0.5, ty + 3), ts, spread, Color(0, 0, 0, 0.55 * a))
-	_draw_spaced(_title_font, _title, Vector2(cx - tw * 0.5, ty), ts, spread, Color(HudArt.IVORY, a))
+	var ty := ky + 6.0 * k + ts * 0.85
+	_draw_spaced(_title_font, _title, Vector2(tx + (avail - tw) * 0.5, ty + 2), ts, spread, Color(0, 0, 0, 0.55 * a))
+	_draw_spaced(_title_font, _title, Vector2(tx + (avail - tw) * 0.5, ty), ts, spread, Color(HudArt.IVORY, a))
 	if _subtitle != "":
-		var ss := int(16 * k)
+		var ss := int(11 * k)
 		var st := _subtitle.to_upper()
-		var sw := _spaced_width(_body_font, st, ss, 4.0 * k)
-		var sy := r.end.y - 16.0 * k
-		_draw_spaced(_body_font, st, Vector2(cx - sw * 0.5, sy), ss, 4.0 * k, Color(HudArt.IVORY_DIM, HudArt.IVORY_DIM.a * a))
-		var grow := ease(smoothstep(0.1, FADE_IN + 0.5, _t), 0.5)
-		var gap := sw * 0.5 + 16.0 * k
-		var len := 130.0 * k * grow
-		var ry := sy - ss * 0.35
-		HudArt.draw_rule(self, Vector2(cx - gap - len, ry), Vector2(cx - gap, ry), AF.GOLD, a)
-		HudArt.draw_rule(self, Vector2(cx + gap, ry), Vector2(cx + gap + len, ry), AF.GOLD, a)
+		var sw := _spaced_width(_body_font, st, ss, 2.5 * k)
+		_draw_spaced(_body_font, st, Vector2(tx + (avail - sw) * 0.5, r.end.y - 9.0 * k), ss, 2.5 * k, Color(HudArt.IVORY_DIM, HudArt.IVORY_DIM.a * a))
 
 
 func _draw_strip(vw: Vector2, k: float, a: float, rise: float) -> void:
 	var cx := vw.x * 0.5
-	var w := 500.0 * k
-	var h := 92.0 * k
-	var top := HudLane.y_for("banner", vw.y * 0.2) + rise
+	var w := 420.0 * k
+	var h := 76.0 * k
+	var top := HudLane.y_for("banner", HudLane.BANNER_Y * k) + rise
 	HudLane.report("banner", top - rise, h)
 	var r := Rect2(Vector2(cx - w * 0.5, top), Vector2(w, h))
 	_fade_band(vw, r.get_center().y, h + 44.0 * k, a, 0.45)
@@ -180,8 +175,8 @@ func _draw_strip(vw: Vector2, k: float, a: float, rise: float) -> void:
 		PackedColorArray([Color(AF.GOLD, 0.16 * a), Color(AF.GOLD, 0.0), Color(AF.GOLD, 0.0), Color(AF.GOLD, 0.16 * a)]))
 	HudArt.draw_ornate_frame(self, r, AF.GOLD, a, 14.0 * k)
 	# Diamond-framed icon on the left.
-	var ic := Vector2(r.position.x + 52.0 * k, r.get_center().y)
-	var ir := 30.0 * k
+	var ic := Vector2(r.position.x + 42.0 * k, r.get_center().y)
+	var ir := 24.0 * k
 	HudArt.diamond(self, ic, ir, Color(0.06, 0.05, 0.04, a))
 	var dm := PackedVector2Array([ic + Vector2(0, -ir), ic + Vector2(ir, 0), ic + Vector2(0, ir), ic + Vector2(-ir, 0), ic + Vector2(0, -ir)])
 	draw_polyline(dm, Color(AF.GOLD, a), 2.0, true)
@@ -190,18 +185,18 @@ func _draw_strip(vw: Vector2, k: float, a: float, rise: float) -> void:
 		var s := ir * 1.35
 		draw_texture_rect(tex, Rect2(ic - Vector2(s, s) * 0.5, Vector2(s, s)), false, Color(1, 1, 1, a))
 	# Headline (centred in the space right of the icon) and detail line.
-	var tx := r.position.x + 100.0 * k
+	var tx := r.position.x + 82.0 * k
 	var tw_avail := r.end.x - tx - 24.0 * k
-	var hs := int(24 * k)
+	var hs := int(20 * k)
 	var spread := 3.0 * k
 	while hs > 14 and _spaced_width(_title_font, _title, hs, spread) > tw_avail:
 		hs -= 2
 	var hw := _spaced_width(_title_font, _title, hs, spread)
 	var hx := tx + (tw_avail - hw) * 0.5
-	var hy := r.position.y + h * 0.42
+	var hy := r.position.y + h * 0.40
 	_draw_spaced(_title_font, _title, Vector2(hx, hy + 2), hs, spread, Color(0, 0, 0, 0.5 * a))
 	_draw_spaced(_title_font, _title, Vector2(hx, hy), hs, spread, Color(AF.GOLD_BRIGHT, a))
-	var ds := int(20 * k)
+	var ds := int(16 * k)
 	while ds > 12 and _text_font.get_string_size(_subtitle, HORIZONTAL_ALIGNMENT_LEFT, -1, ds).x > tw_avail:
 		ds -= 1
 	var dw := _text_font.get_string_size(_subtitle, HORIZONTAL_ALIGNMENT_LEFT, -1, ds).x

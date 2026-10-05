@@ -58,7 +58,7 @@ func _run() -> void:
 		if not baseline:
 			(load("res://scripts/actors/hero_tier_a.gd") as GDScript).call("dress_meshy_hero", hero)
 	else:
-		hero = (load(CC) as GDScript).call("build_model", HERO_LOOK, 1.78, [] as Array[String])
+		hero = (load(CC) as GDScript).call("build_model", HERO_LOOK, 1.78, ["1H_Sword"] as Array[String])
 		root.add_child(hero)
 		var outfit: GDScript = load("res://scripts/actors/hero_outfit.gd")
 		outfit.call("tint_tunic", hero)

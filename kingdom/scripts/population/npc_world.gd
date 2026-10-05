@@ -1118,7 +1118,8 @@ static func rumour_lines(sid: int) -> Array:
 # ================================================================ lines (barks)
 const LINES := {
 	"greet_warm": ["Good day to you!", "Well met, friend!", "Blessings on you.", "Ah, it's you! Welcome."],
-	"greet_neutral": ["Morning.", "Good day.", "Mind the cart.", "Fine weather."],
+	"greet_neutral": ["Good day.", "Mind the cart.", "Fine weather.", "Day to you."],
+	"greet_morning": ["Morning.", "Early start?", "Fresh morning."],     # AAA pass 5: villager.gd picks by hour
 	"greet_cold": ["Hmph.", "Keep your distance.", "We don't want trouble.", "...Stranger."],
 	"greet_evening": ["Good evening.", "Late to be out.", "Mind the dark roads."],
 	"armed": ["Put that away!", "Sheathe your blade!", "Easy now, easy!", "Watch where you point that!", "Not in the market!"],

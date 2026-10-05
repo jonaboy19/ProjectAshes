@@ -7,6 +7,7 @@ extends Control
 const SIZE := 46.0               # px at 1080p
 var target: Node3D
 var verb := ""
+var who := ""                    # small name under the verb (the focused villager); replaces the floating name plate
 var face: Texture2D
 var _a := 0.0
 var _pos := Vector2.ZERO
@@ -36,7 +37,7 @@ func step(delta: float, cam: Camera3D, allowed: bool) -> void:
 
 static func _height(n: Node3D) -> float:
 	if n is CharacterBody3D or n.is_in_group("villager") or n.get("current") != null:
-		return 2.6      # above the focused name plate (1.95 m)
+		return 2.2
 	if n.get("kind") != null and String(n.get("kind")).begins_with("horse"):
 		return 2.2
 	return 1.3
@@ -49,9 +50,10 @@ func _draw() -> void:
 	var s := SIZE * k * lerpf(0.85, 1.0, _a)
 	var c := Color(1, 1, 1, _a)
 	draw_texture_rect(face, Rect2(_pos - Vector2(s, s) * 0.5, Vector2(s, s)), false, c)
-	if verb != "":
+	var line := verb if who == "" or who == verb else "%s  %s" % [verb, who]
+	if line != "":
 		var fs := int(15.0 * k)
-		var w := _font.get_string_size(verb, HORIZONTAL_ALIGNMENT_CENTER, -1, fs).x
+		var w := _font.get_string_size(line, HORIZONTAL_ALIGNMENT_CENTER, -1, fs).x
 		var at := _pos + Vector2(-w * 0.5, s * 0.5 + fs + 2.0)
-		draw_string_outline(_font, at, verb, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 4, Color(0.05, 0.04, 0.03, 0.8 * _a))
-		draw_string(_font, at, verb, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1.0, 0.93, 0.75, _a))
+		draw_string_outline(_font, at, line, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 4, Color(0.05, 0.04, 0.03, 0.8 * _a))
+		draw_string(_font, at, line, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1.0, 0.93, 0.75, _a))

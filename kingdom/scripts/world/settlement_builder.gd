@@ -555,6 +555,7 @@ func _plinths(root: Node3D, lots: Array) -> void:
 		var mat := StandardMaterial3D.new()
 		mat.albedo_color = Color(0.47, 0.43, 0.37)   # weathered foundation stone: a plinth edge must never read as a pale square from above (lint "flat" audit, lum < 0.5)
 		mat.roughness = 0.95
+		mat.albedo_color = Color(0.52, 0.45, 0.37)   # AAA pass 5: warmer foundation stone (read purple in shade)
 		_plinth_mesh.material = mat
 	var transforms: Array[Transform3D] = []
 	for entry in lots:

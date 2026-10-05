@@ -50,6 +50,27 @@ static func build(root: Node3D, specs: Array, glow_size := 1.3) -> Array:
 	mi.custom_aabb = AABB(Vector3(-200, -20, -200), Vector3(400, 80, 400))   # instances spread over the whole town
 	mi.visible = false
 	root.add_child(mi)
+	# AAA pass 5: warm pools on the ground under every glow (child of the batch, so they share its night visibility)
+	var pm := MultiMesh.new()
+	pm.transform_format = MultiMesh.TRANSFORM_3D
+	var plane := PlaneMesh.new()
+	plane.size = Vector2.ONE
+	var pmat := ShaderMaterial.new()
+	pmat.shader = preload("res://shaders/light_pool.gdshader")
+	plane.material = pmat
+	pm.mesh = plane
+	pm.instance_count = specs.size()
+	for i in specs.size():
+		var pp: Vector3 = specs[i]["pos"]
+		var rad := clampf(float(specs[i].get("range", 9.0)) * 0.75, 3.0, 8.0)
+		var gy := WorldGen.height(pp.x, pp.z) + 0.06
+		pm.set_instance_transform(i, Transform3D(Basis.IDENTITY.scaled(Vector3(rad * 2.0, 1.0, rad * 2.0)), Vector3(pp.x, gy, pp.z)))
+	var pools := MultiMeshInstance3D.new()
+	pools.name = "LightPools"
+	pools.multimesh = pm
+	pools.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	pools.top_level = true
+	mi.add_child(pools)
 	for sp: Dictionary in specs:
 		var n := LampNode.new()
 		n.name = "Lamp"

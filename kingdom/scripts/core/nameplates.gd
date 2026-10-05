@@ -17,6 +17,7 @@ const FADE_CAP := 14.0          # plates are gone by here (bosses / landmarks th
 const FADE_LEN := 4.0
 const MAX_SHOWN := 3
 const MIN_PX := 17.0            # on-screen font height at 720p (scaled with the viewport height, never below this)
+const SUB_SCALE := 0.62         # a subtitle line is this fraction of the plate font
 const MAX_LIFT := 64.0          # px (at 720p) a plate is raised to clear a town board
 const SIGN_MARGIN := 24.0       # px around a town board's rectangle
 
@@ -43,11 +44,53 @@ static func style(tag: Label3D, color: Color, font := 30, max_dist := MAX_DIST) 
 	return tag
 
 
+## A smaller second line (a title such as "Brewmistress") under a plate `tag`: one plate for the owner, not two stacked
+## ones. The line is not in group "nameplate" (so it never counts against MAX_SHOWN); `refresh()` and `set_suppressed()`
+## drive it from its owner plate through the "np_sub" meta.
+static func add_subtitle(tag: Label3D, text: String, color := Color("c8b68a")) -> Label3D:
+	var sub := Label3D.new()
+	sub.text = text
+	sub.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sub.fixed_size = true
+	sub.pixel_size = tag.pixel_size
+	sub.font_size = maxi(int(round(tag.font_size * SUB_SCALE)), 12)
+	sub.outline_size = 6
+	sub.modulate = color
+	sub.no_depth_test = false
+	sub.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR
+	sub.visible = tag.visible
+	tag.add_child(sub)
+	tag.set_meta("np_sub", sub)
+	return sub
+
+
+## Keeps the subtitle glued under its plate (pure: `lift_px` is the plate's offset.y in its own label pixels).
+static func place_subtitle(tag: Label3D) -> void:
+	if tag == null:
+		return
+	if not tag.has_meta("np_sub"):
+		return
+	var sub := tag.get_meta("np_sub") as Label3D
+	if sub == null or not is_instance_valid(sub):
+		return
+	sub.visible = tag.visible
+	sub.layers = tag.layers
+	sub.transparency = tag.transparency
+	sub.pixel_size = tag.pixel_size
+	sub.visibility_range_end = tag.visibility_range_end
+	sub.visibility_range_end_margin = tag.visibility_range_end_margin
+	sub.visibility_range_fade_mode = tag.visibility_range_fade_mode
+	# below the plate by half of each line's height (+ a small gap), in label pixels
+	sub.offset.y = tag.offset.y - (tag.font_size * 0.5 + sub.font_size * 0.5 + 6.0)
+
+
 static func set_suppressed(tree: SceneTree, on: bool) -> void:
 	if on == suppressed:
 		return
 	suppressed = on
 	tree.call_group("nameplate", "set_visible", not on)
+	for t in tree.get_nodes_in_group("nameplate"):
+		place_subtitle(t as Label3D)
 
 
 
@@ -155,3 +198,4 @@ static func refresh(tree: SceneTree, cam: Camera3D) -> void:
 		t.pixel_size = snapped_pixel_size(t.font_size, vh, cam.fov)
 		# Label3D.offset is in label pixels; a fixed_size label shows one label pixel as (pixel_size * px_per_unit) screen pixels.
 		t.offset.y = lift / (t.pixel_size * vh / (2.0 * tan(deg_to_rad(cam.fov) * 0.5))) if lift > 0.0 else 0.0
+		place_subtitle(t)

@@ -14,7 +14,7 @@ const BARN_DOOR := Vector2(-3.0, -5.2)        # the yard in front of it
 const BREWHOUSE_AT := Vector2(10.0, -4.0)
 const TABLE_AT := Vector2(-1.0, 5.5)          # the long table beside Hesta's stool
 const FIELD_AT := Vector2(-8.0, -20.0)        # the wheat rows behind the granary
-const HESTA_AT := Vector2(0.0, 8.5)
+const HESTA_AT := Vector2(-6.5, 9.0)         # clear ground left of the name board and lamp posts, facing the street
 ## Site-local offsets inside the farm (RegionSites._farmstead).
 const WINDMILL_AT := Vector2(-14.0, -14.0)
 const PIG_STY_AT := Vector2(-4.0, -2.0)

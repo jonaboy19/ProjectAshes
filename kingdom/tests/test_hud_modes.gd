@@ -309,7 +309,7 @@ func test_banner_holds_its_clock_while_a_sheet_is_open() -> void:
 func test_nameplates_fade_out_by_their_cap_and_keep_the_nearest_six() -> void:
 	assert_float(Nameplates.fade_alpha(5.0, 25.0)).is_equal(1.0)
 	assert_float(Nameplates.fade_alpha(25.0, 25.0)).is_equal(0.0)
-	assert_float(Nameplates.fade_alpha(21.5, 25.0)).is_between(0.2, 0.8)
+	assert_float(Nameplates.fade_alpha(23.5, 25.0)).is_between(0.2, 0.8)       # FADE_LEN is 4 m
 	var rows: Array = []
 	for i in 10:
 		rows.append({"id": i, "dist": float(10 - i)})                      # id 9 is nearest
@@ -386,3 +386,29 @@ func test_ascii_quotes_become_open_and_close_quotes() -> void:
 	assert_str(AshesFrame.typographic("(\"aside\")")).is_equal("(\u201caside\u201d)")
 	assert_str(AshesFrame.typographic("Don't go; 'tis late")).is_equal("Don\u2019t go; \u2018tis late")
 	assert_str(AshesFrame.typographic("No quotes here.")).is_equal("No quotes here.")
+
+
+func test_a_plate_gets_one_smaller_second_line_and_it_follows_the_plate() -> void:
+	var tag := Label3D.new()
+	tag.text = "Hesta Thorne"
+	add_child(tag)
+	auto_free(tag)
+	Nameplates.style(tag, Color.WHITE, 28)
+	var sub := Nameplates.add_subtitle(tag, "Brewmistress")
+	assert_bool(sub.is_in_group("nameplate")).is_false()              # never counts as a second plate
+	assert_int(sub.font_size).is_less(tag.font_size)
+	tag.transparency = 0.6
+	tag.offset.y = 10.0
+	Nameplates.place_subtitle(tag)
+	assert_float(sub.transparency).is_equal_approx(0.6, 0.001)
+	assert_float(sub.offset.y).is_less(tag.offset.y)                  # sits under the name
+	tag.visible = false
+	Nameplates.place_subtitle(tag)
+	assert_bool(sub.visible).is_false()
+
+
+func test_the_discovery_banner_sits_in_the_top_band_not_the_screen_centre() -> void:
+	HudLane.reset()
+	assert_float(HudLane.BANNER_Y).is_less(120.0)
+	assert_float(HudLane.y_for("banner", HudLane.BANNER_Y)).is_equal(HudLane.BANNER_Y)
+	HudLane.reset()

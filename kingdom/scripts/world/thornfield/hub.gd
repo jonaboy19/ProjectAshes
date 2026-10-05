@@ -148,6 +148,7 @@ func _build_hesta() -> Node3D:
 	var w := Sites.to_world(b, Sites.HESTA_AT)
 	var st := Station.new(String(e["name"]), "Talk", Callable())
 	st.name = "Hesta"
+	st.subtitle = String(e.get("role", "Brewmistress")).capitalize()    # one plate: the name, the title as a smaller second line
 	st.set_meta("npc_id", "hesta_thorne")
 	st.menu = func() -> Dictionary:
 		var sv := Interaction.services(self)
@@ -156,7 +157,7 @@ func _build_hesta() -> Node3D:
 		return sv.call("talk_menu", {"id": "hesta_thorne", "name": String(e["name"])})
 	add_child(st)
 	st.global_position = Vector3(w.x, WorldGen.height(w.x, w.y), w.y)
-	var toward := Sites.to_world(b, Sites.TABLE_AT) - w
+	var toward := Sites.front(b)            # faces the street, not the table (a sign post and lanterns stand in between)
 	st.rotation.y = atan2(toward.x, toward.y)
 	var body: Node3D = HestaBody.new()
 	st.add_child(body)

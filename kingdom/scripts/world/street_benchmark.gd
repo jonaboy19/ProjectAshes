@@ -6,6 +6,7 @@ extends RefCounted
 ## worn verges. All MultiMesh (one draw per kind) with contact blobs; decals only on MEDIUM+ (TownDecals budget rules).
 ## Called from SettlementBuilder._build for Ashford only. Preload; no class_name.
 
+const LampGlow := preload("res://scripts/world/lamp_glow.gd")
 const STREET := 0              # plan["streets"][0]: plaza -> first gate
 const REACH := 17.0            # lots whose centre is within this of the street line face it
 const DOOR := 4.4              # lot centre -> door line (houses are fitted to ~10 m lots)
@@ -21,7 +22,7 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary) -> int
 	var dir := (e - a).normalized()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 90210 + int(s["id"])
-	var lists := {"woodpile": [], "washing_line": [], "water_trough": [], "barrel": [], "bench": [], "crate_stack": [], "sack_pile": []}
+	var lists := {"woodpile": [], "washing_line": [], "water_trough": [], "barrel": [], "bench": [], "crate_stack": [], "sack_pile": [], "mf_lantern_wall_scroll": []}
 	var doors: Array = []          # [door point, out normal toward street, side sign, t along street]
 	for lot: Dictionary in plan["lots"]:
 		var lp: Vector2 = lot["pos"]
@@ -87,6 +88,17 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary) -> int
 			for sg: float in [1.0, -1.0]:
 				_decal(holder, "dirt", a + dir * (t2 + 4.0) + dir.orthogonal() * sg * (half + 0.6), atan2(dir.x, dir.y), Vector3(2.2, 2.0, 6.0), Color(1, 1, 1, 0.75))
 			t2 += rng.randf_range(9.0, 14.0)
+	# the street's daily work routine (dawn farmers .. night watch) and warm door lanterns at night
+	var routines: Node = preload("res://scripts/world/street_routines.gd").new()
+	routines.set("centre", a + dir * a.distance_to(e) * 0.5)
+	holder.add_child(routines)
+	var lamps: Array = []
+	for d: Array in doors:
+		var lp2: Vector2 = (d[0] as Vector2) + (d[1] as Vector2) * 0.35
+		_add(lists, "mf_lantern_wall_scroll", lp2, atan2((d[1] as Vector2).x, (d[1] as Vector2).y), 1.75)
+		lamps.append({"pos": Vector3(lp2.x, WorldGen.height(lp2.x, lp2.y) + 2.1, lp2.y), "color": Color(1.0, 0.66, 0.32), "range": 6.0, "size": 0.7})
+	if not lamps.is_empty():
+		LampGlow.build(holder, lamps)
 	var placed := 0
 	for kind: String in lists:
 		var list: Array[Transform3D] = []
@@ -94,6 +106,8 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary) -> int
 		if list.is_empty():
 			continue
 		var mesh: Mesh = Assets.building_mesh(kind)
+		if kind == "washing_line":
+			mesh = load("res://scripts/build/kit_meshes.gd").mesh("laundry_line")     # coloured cloth (washing_line.glb read as white boards)
 		if mesh == null:
 			continue
 		b.call("_multimesh", holder, mesh, list, true, false)

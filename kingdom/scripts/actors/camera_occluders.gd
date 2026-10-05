@@ -25,7 +25,7 @@ func step(delta: float, cam: Vector3, pivot: Vector3, active: bool) -> void:
 		_scan(cam, pivot, active and enabled)
 	for id: int in _faded.keys():
 		var e: Dictionary = _faded[id]
-		if not is_instance_valid(e["node"]):      # check before the cast: casting a freed node is an error every frame
+		if not is_instance_valid(e["node"]):          # freed (a pooled body recycled, a chunk streamed out): cast would error
 			_faded.erase(id)
 			continue
 		var gi := e["node"] as GeometryInstance3D
@@ -82,6 +82,7 @@ func _fadeable(gi: GeometryInstance3D, pivot: Vector3) -> bool:
 
 func _exit_tree() -> void:
 	for id: int in _faded:
-		if is_instance_valid(_faded[id]["node"]):
-			(_faded[id]["node"] as GeometryInstance3D).transparency = float(_faded[id]["orig"])
+		var gi := _faded[id]["node"] as GeometryInstance3D
+		if is_instance_valid(gi):
+			gi.transparency = float(_faded[id]["orig"])
 	_faded.clear()

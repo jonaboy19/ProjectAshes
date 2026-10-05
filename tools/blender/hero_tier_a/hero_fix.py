@@ -12,7 +12,7 @@ from mathutils.bvhtree import BVHTree
 
 a = sys.argv[sys.argv.index("--") + 1:]
 SRC, OUT = a[0], a[1]
-COLLAR = float(next((x.split("=")[1] for x in a if x.startswith("--collar=")), "0.05"))
+SHOULDER = float(next((x.split("=")[1] for x in a if x.startswith("--shoulder=")), "0.18"))
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=SRC)
 arm = [o for o in bpy.data.objects if o.type == "ARMATURE"][0]
@@ -112,24 +112,45 @@ for s in (("l", "r") if FINGERS else ()):
         nfi += 1
 print("FINGER verts", nfi)
 
-# ---- collar: cream shell above the chest pulled inward -----------------------------------------------------------
+# ---- shoulder/collar sculpt: the Meshy shirt balloons around the neck. Slim the depth, narrow a little and slope the
+# shoulders down, fading out toward the arms (T-pose arms start at |x| ~0.2) and leaving the head alone.
+def ss(e0, e1, x):
+    t = max(0.0, min(1.0, (x - e0) / (e1 - e0)))
+    return t * t * (3 - 2 * t)
 chest = B["spine_03"][0].z; neck = B["neck_01"][0]
 ncol = 0
 for i, p in enumerate(P):
-    if not (chest - 0.02 < p.z < neck.z + 0.04) or abs(p.x - neck.x) > 0.2:      # T-pose arms share this height band
+    if p.z < chest - 0.05 or p.z > neck.z + 0.07 or weights(i).get("Head", 0.0) > 0.4:
         continue
-    c = tex_at(vuv[i])
-    mx, mn = max(c), min(c)
-    if mx < 0.3 or (mx - mn) / max(mx, 1e-4) > 0.45:
-        continue
-    r = math.hypot(p.x - neck.x, (p.y - neck.y))
-    f = max(0.0, min(1.0, (r - 0.06) / 0.05)) * max(0.0, min(1.0, (p.z - chest + 0.02) / 0.06))
+    hx = abs(p.x - neck.x)
+    f = (1.0 - ss(0.16, 0.24, hx)) * ss(chest - 0.05, chest + 0.03, p.z)
     if f <= 0:
         continue
-    d = -N[i] * COLLAR * f + Vector((0, 0, -0.006 * f))
-    me.vertices[i].co += M.inverted().to_3x3() @ d
+    q = Vector((neck.x + (p.x - neck.x) * (1 - 0.06 * f), neck.y + (p.y - neck.y) * (1 - SHOULDER * f), p.z - 0.02 * f * ss(0.05, 0.15, hx)))
+    me.vertices[i].co = M.inverted() @ q
+    P[i] = q
     ncol += 1
-print("COLLAR verts", ncol)
+print("SHOULDER verts", ncol)
+
+# ---- hands: the Meshy hands are fused mitts. Cut them at the wrist; HeroTierA attaches the G6 hands (real finger bones).
+hand_cut = []
+for s_ in ("l", "r"):
+    hh = B["hand_" + s_][0]
+    out = (B["hand_" + s_][1] - hh).normalized()
+    for i, p in enumerate(P):
+        if weights(i).get("hand_" + s_, 0.0) > 0.4 and (p - hh).dot(out) > 0.015:
+            hand_cut.append(i)
+if "--keep_hands" not in a:
+    bmh = bmesh.new(); bmh.from_mesh(me); bmh.verts.ensure_lookup_table()
+    bmesh.ops.delete(bmh, geom=[bmh.verts[i] for i in hand_cut], context="VERTS")
+    bmh.to_mesh(me); bmh.free()
+    uvl = me.uv_layers.active.data
+    P = [M @ v.co for v in me.vertices]
+    N = [(M.to_3x3() @ v.normal).normalized() for v in me.vertices]
+    vuv = {}
+    for l in me.loops:
+        vuv.setdefault(l.vertex_index, uvl[l.index].uv.copy())
+print("HAND verts cut", len(hand_cut))
 
 # ---- triangulated BVH with UVs for surface sampling ----------------------------------------------------------------
 bm = bmesh.new(); bm.from_mesh(me); bm.transform(M)
@@ -194,6 +215,9 @@ print("EYES", [(tuple(round(v, 3) for v in e[0])) for e in eyes])
 
 # ---- lids: 9x5 surface patch over each eye, UV from the skin 1.3 cm above (upper lid), Basis = rolled up, Blink = closed
 lv, lf, luv, lkey, lcol = [], [], [], [], []
+# lids take ONE plain skin texel (upper cheek), shading comes from hero_lid: no brow/eye texels smeared onto the lid
+_ch = sample(nose - fwd * 0.02 + Vector((0.035, 0, 0.012)) + fwd * 0.1, -fwd)
+cheek_uv = _ch[2] if _ch else Vector((0.5, 0.5))
 EW, EH = 0.032, 0.016
 for cen, nrm, sx in eyes:
     base = len(lv)
@@ -211,7 +235,7 @@ for cen, nrm, sx in eyes:
                 hit, n_ = s_[0], s_[1]
             pos = hit + n_ * (0.0012 + 0.0012 * math.cos(u * math.pi) * (0.5 - v))
             s2 = sample(cen + Vector((u * EW * 0.8, 0, EH * 0.5)) + fwd * 0.1, -fwd)   # upper-lid skin band
-            luv.append(s2[2] if s2 else Vector((0.5, 0.5)))
+            luv.append(cheek_uv)
             lv.append(pos)
             edge = min(1.0, (0.5 - abs(u)) / 0.18) * min(1.0, (v + 0.5) / 0.25 + 0.2)
             lcol.append((u + 0.5, v + 0.5))          # lid-local coords -> UV2 (soft border + lash line in hero_lid)
@@ -244,6 +268,58 @@ for i, p in enumerate(lv):
 g = lo.vertex_groups.new(name="Head"); g.add(list(range(len(lv))), 1.0, "REPLACE")
 lo.parent = arm
 mo = lo.modifiers.new("Armature", "ARMATURE"); mo.object = arm
+
+# ---- hood: separate cloth shell grown from the body's collar/upper back (same weights -> deforms with the body, offset
+# along the normals -> never clips), open V at the front, a folded hood bag bulging on the back. Material slot "Hood".
+HOOD_OFF = 0.016
+bmc = bmesh.new(); bmc.from_mesh(me)
+dl = bmc.verts.layers.deform.active
+keep = set()
+for v in bmc.verts:
+    p = M @ v.co
+    hx = abs(p.x - neck.x)
+    back = (p - neck).dot(-fwd) > -0.02
+    if neck.z - 0.13 < p.z < neck.z + 0.035 and hx < 0.16 and (back or (hx > 0.1 and p.z > neck.z - 0.05)):   # front: only the shoulder tops
+        keep.add(v.index)
+bmesh.ops.delete(bmc, geom=[f for f in bmc.faces if not any(x.index in keep for x in f.verts)], context="FACES")
+bmesh.ops.delete(bmc, geom=[v for v in bmc.verts if not v.link_faces], context="VERTS")
+bmesh.ops.subdivide_edges(bmc, edges=bmc.edges[:], cuts=2, use_grid_fill=True, smooth=0.6)   # sparse 4k body -> cloth density
+for _ in range(6):
+    bmesh.ops.smooth_vert(bmc, verts=bmc.verts[:], factor=0.5, use_axis_x=True, use_axis_y=True, use_axis_z=True)
+# rolled hem: pull boundary verts in toward the body so no edge stands off as a shard
+for _ in range(2):
+    bnd = [v for v in bmc.verts if v.is_boundary]
+    bmesh.ops.smooth_vert(bmc, verts=bnd, factor=0.8, use_axis_x=True, use_axis_y=True, use_axis_z=True)
+bmc.normal_update()
+bag_c = neck + fwd * -0.11 + Vector((0, 0, -0.08))
+for v in bmc.verts:
+    p = M @ v.co
+    bag = math.exp(-((p.x - neck.x) ** 2) / (2 * 0.06 ** 2)) * math.exp(-((p.z - bag_c.z) ** 2) / (2 * 0.045 ** 2)) * (1.0 if (p - neck).dot(-fwd) > 0 else 0.0)
+    rim = ss(neck.z - 0.01, neck.z + 0.035, p.z)          # rolled edge at the neck stands up a little
+    off = (HOOD_OFF + 0.035 * bag + 0.006 * rim) * (0.35 if v.is_boundary else 1.0)
+    v.co += M.inverted().to_3x3() @ ((M.to_3x3() @ v.normal).normalized() * off)
+hood_me = bpy.data.meshes.new("Hood")
+bmc.to_mesh(hood_me); bmc.free()
+hood = bpy.data.objects.new("Hood", hood_me)
+bpy.context.scene.collection.objects.link(hood)
+hood.matrix_world = ob.matrix_world.copy()
+for g in ob.vertex_groups:
+    hood.vertex_groups.new(name=g.name)
+hood.parent = arm
+hm = hood.modifiers.new("Armature", "ARMATURE"); hm.object = arm
+sol = hood.modifiers.new("Solid", "SOLIDIFY"); sol.thickness = 0.012; sol.offset = 1.0
+bpy.context.view_layer.objects.active = hood
+bpy.ops.object.modifier_move_to_index(modifier="Solid", index=0)
+bpy.ops.object.modifier_apply(modifier="Solid")
+mat = bpy.data.materials.new("Hood")
+hood_me.materials.clear(); hood_me.materials.append(mat)
+hc = hood_me.color_attributes.new("Col", "BYTE_COLOR", "POINT")
+for i, v in enumerate(hood_me.vertices):
+    t = ((M @ v.co).z - (neck.z - 0.13)) / 0.17
+    c = (0.11 + 0.04 * t, 0.065 + 0.025 * t, 0.035 + 0.012 * t, 1.0)       # brown wool, lighter at the rolled edge
+    hc.data[i].color = c
+hood_me.color_attributes.active_color = hc
+print("HOOD verts", len(hood_me.vertices))
 
 # write the patched texture back
 img.pixels[:] = px.ravel()
