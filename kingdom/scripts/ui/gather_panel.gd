@@ -118,3 +118,9 @@ func _close(result: Dictionary) -> void:
 ## Leave without taking (menu closed, player walked off): whatever was extracted is lost with the node untouched.
 func cancel() -> void:
 	_close({"ok": false, "count": 0, "consumed": 0})
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not _done and event.is_action_pressed("ui_cancel"):
+		cancel()
+		get_viewport().set_input_as_handled()

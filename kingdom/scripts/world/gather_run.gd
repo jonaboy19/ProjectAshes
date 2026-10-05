@@ -10,6 +10,10 @@ const Crafting := preload("res://scripts/sim/crafting.gd")
 ## Opens the panel under `host`. on_done(result: Dictionary) runs once (take result, or an empty result when
 ## cancelled). Returns the panel, or null when the session could not start (empty node).
 static func open(host: Node, node: Dictionary, title: String, tool_tier: int, seed_value: int, on_done: Callable) -> Control:
+	var actor: Variant = Life.player
+	if not (actor is Node3D) or not is_instance_valid(actor):
+		return null
+	var start_pos: Vector3 = actor.global_position
 	var s := GatherSession.new()
 	if not s.start(node, skill_level(String(GatherSession.KINDS.get(String(node.get("kind", "")), {}).get("skill", ""))), tool_tier, seed_value):
 		return null
@@ -22,7 +26,17 @@ static func open(host: Node, node: Dictionary, title: String, tool_tier: int, se
 	panel.connect("finished", func(res: Dictionary) -> void:
 		if is_instance_valid(layer):
 			layer.queue_free()
-		on_done.call(res))
+		if on_done.is_valid():
+			on_done.call(res))
+	var guard := Timer.new()
+	guard.wait_time = 0.2
+	panel.add_child(guard)
+	guard.timeout.connect(func() -> void:
+		if not is_instance_valid(actor) or actor != Life.player:
+			panel.call("cancel")
+		elif bool(actor.get("dead")) or actor.global_position.distance_squared_to(start_pos) > 16.0:
+			panel.call("cancel"))
+	guard.start()
 	return panel
 
 
