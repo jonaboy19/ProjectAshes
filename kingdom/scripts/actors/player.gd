@@ -1067,6 +1067,7 @@ func _track_block(delta: float) -> void:
 
 
 func _parry(from: Node, grade := "knockaway", refund := 8.0, riposte := 1.5) -> void:
+	_interrupt_swing()
 	_parry_bonus = PARRY_BONUS_TIME
 	_riposte_mult = riposte
 	stamina = minf(stamina + refund, MAX_STAMINA)
@@ -1596,14 +1597,14 @@ func ability_dash() -> void:
 ## An attack may start when idle, in the cancel tail of the previous swing, or
 ## as a roll finishes.
 func _can_attack() -> bool:
-	return not _combat_mixer_paused() and not dead and not swimming and _mount == null and not _jump_starting and not _jump_active \
+	return not _combat_mixer_paused() and not _animator.is_reaction_busy() and not dead and not swimming and _mount == null and not _jump_starting and not _jump_active \
 		and _land_time <= 0.0 and _stunned <= 0.0 and _dodge <= DODGE_ATTACK_CANCEL and _swing <= _swing_cancel
 
 
 ## A roll may cut a swing's startup or recovery, but not its hit frames (it
 ## waits for them), and may chain from the very end of another roll.
 func _can_dodge() -> bool:
-	if _combat_mixer_paused() or dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0 \
+	if _combat_mixer_paused() or _animator.is_reaction_busy() or dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0 \
 			or _stunned > 0.0 or stamina < DODGE_STAMINA or _dodge > DODGE_CHAIN:
 		return false
 	return not _in_active_frames()
@@ -1736,6 +1737,19 @@ func _dispatch_swing_contact() -> void:
 	_resolve_hit(int(receipt["damage"]), float(receipt["knockback"]), bool(receipt["finisher"]), int(receipt["id"]))
 
 
+## Replacement poses relinquish contact, travel and combo ownership together.
+func _interrupt_swing() -> void:
+	_swing_id += 1
+	_swing = 0.0
+	_combo_window = 0.0
+	_attack_step_time = -1.0
+	_pending_swing_hit.clear()
+	_attack_buffer = 0.0
+	_animator.stop_upper()
+	if _trail:
+		_trail.stop()
+
+
 func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> void:
 	if id >= 0 and id != _swing_id:
 		return    # the swing was cancelled (dodge) before its hit frame
@@ -1824,7 +1838,7 @@ func _dodge_obstruction(direction: Vector3, distance: float) -> Node3D:
 ## legs straight back to locomotion instead of finishing the get-up on the spot.
 func _end_dodge_anim() -> void:
 	if _dodge <= 0.0 and _input_dir().length() > 0.1 and not dead:
-		_animator.stop_full()
+		_animator.finish_dodge()
 
 
 ## One-off horizontal velocity kick. It replaces any kick still decaying.
@@ -1882,6 +1896,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 				return
 			amount = int(res["damage"])           # a broken parry still lets a part through
 		HitResolver.Outcome.BLOCKED:
+			_interrupt_swing()
 			_spend(float(res["guard_cost"]))
 			_kick(-facing() * BLOCK_PUSH)
 			blocked.emit(from, false)
@@ -1906,10 +1921,13 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 	elif not blocking:
 		_flinch = FLINCH_TIME
 		var heavy := amount >= max_health * 0.12 or knockback.length() >= 4.0
-		var clip := "Hit_%s_%s" % ["Heavy" if heavy else "Light", _hit_side(from)]
+		var side := _hit_side(from)
+		var clip := "Hit_%s_%s" % ["Heavy" if heavy else "Light", side]
 		if heavy and not _mount and not swimming:
+			_interrupt_swing()
 			_animator.play_full(clip, 1.0)
-		else:
+		elif heavy or not _animator.play_flinch(side):
+			_interrupt_swing()
 			_animator.play_upper(clip, 1.0)
 	if health > 0 and amount > 0 and _impact_pause:
 		var attacker_mixers: Array = []
@@ -1932,6 +1950,7 @@ func _hit_side(from: Node) -> String:
 
 
 func _die() -> void:
+	_interrupt_swing()
 	if _mount:
 		_dismount()
 	_release_lock()

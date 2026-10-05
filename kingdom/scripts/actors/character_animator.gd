@@ -82,6 +82,8 @@ var _root: AnimationNodeBlendTree
 var _upper_anim: AnimationNodeAnimation
 var _attack_anims: Dictionary = {}
 var _attack_slot := 0
+var _flinch_anim: AnimationNodeAnimation
+var _has_flinch := false
 var _full_anim: AnimationNodeAnimation
 var _loco_anim: AnimationNodeAnimation
 var _block_target := 0.0
@@ -296,7 +298,21 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 		_root.connect_node("air_blend", 0, output)
 		_root.connect_node("air_blend", 1, "air_rate")
 		air_output = "air_blend"
-	_root.connect_node("output", 0, air_output if with_air else output)
+	var final_output: String = air_output if with_air else output
+	if with_air and _install_additive_flinch():
+		_flinch_anim = _anim("player_flinch/Front")
+		_root.add_node("flinch_anim", _flinch_anim)
+		var flinch := AnimationNodeOneShot.new()
+		flinch.mix_mode = AnimationNodeOneShot.MIX_MODE_ADD
+		flinch.fadein_time = 0.03
+		flinch.fadeout_time = 0.16
+		_filter_upper(flinch)
+		_root.add_node("flinch", flinch)
+		_root.connect_node("flinch", 0, final_output)
+		_root.connect_node("flinch", 1, "flinch_anim")
+		final_output = "flinch"
+		_has_flinch = true
+	_root.connect_node("output", 0, final_output)
 
 	tree = AnimationTree.new()
 	tree.tree_root = _root
@@ -316,6 +332,53 @@ func _anim(anim_name: String) -> AnimationNodeAnimation:
 	var a := AnimationNodeAnimation.new()
 	a.animation = anim_name
 	return a
+
+
+## Reuse anim_tech's rest-relative additive conversion on local copies only.
+## Rotation-only recoil preserves locomotion/root translation and leg tracks.
+func _install_additive_flinch() -> bool:
+	if _skeleton == null:
+		return false
+	for side in ["Front", "Back", "Left", "Right"]:
+		if not player.has_animation("Hit_Light_" + side):
+			return false
+	if player.has_animation_library("player_flinch"):
+		return true
+	var library := AnimationLibrary.new()
+	for side: String in ["Front", "Back", "Left", "Right"]:
+		var clip := player.get_animation("Hit_Light_" + side).duplicate(true) as Animation
+		clip.loop_mode = Animation.LOOP_NONE
+		for track in range(clip.get_track_count() - 1, -1, -1):
+			var path := String(clip.track_get_path(track))
+			var bone := path.substr(path.find(":") + 1) if path.contains(":") else ""
+			var index := _skeleton.find_bone(bone)
+			var lower := false
+			for key: String in LOWER_KEYS:
+				if bone.to_lower().contains(key.to_lower()):
+					lower = true
+					break
+			if clip.track_get_type(track) != Animation.TYPE_ROTATION_3D or index < 0 or lower:
+				clip.remove_track(track)
+				continue
+			var reference: Quaternion = clip.rotation_track_interpolate(track, 0.0)
+			var rest := _skeleton.get_bone_rest(index).basis.get_rotation_quaternion()
+			for key_index in clip.track_get_key_count(track):
+				var pose: Quaternion = clip.track_get_key_value(track, key_index)
+				clip.track_set_key_value(track, key_index, (rest * (reference.inverse() * pose).normalized()).normalized())
+		library.add_animation(side, clip)
+		if clip.get_track_count() == 0:
+			return false
+	player.add_animation_library("player_flinch", library)
+	return true
+
+
+## Light recoil preserves the attack/locomotion owner instead of replacing it.
+func play_flinch(side: String) -> bool:
+	if not _has_flinch or not player.has_animation("player_flinch/" + side):
+		return false
+	_flinch_anim.animation = "player_flinch/" + side
+	tree["parameters/flinch/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
+	return true
 
 
 ## A looping gait clip stretched onto a one-second timeline, so clips of
@@ -520,6 +583,8 @@ func play_upper(anim_name: String, time_scale := 1.0) -> void:
 ## Whole-body action (dodge roll, stagger) that overrides locomotion.
 func play_full(anim_name: String, time_scale := 1.0) -> void:
 	stop_attack()
+	if _has_flinch:
+		tree["parameters/flinch/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT
 	_full_anim.animation = _clip(anim_name)
 	tree["parameters/full_speed/scale"] = time_scale
 	tree["parameters/full/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
@@ -698,6 +763,17 @@ func is_full_busy() -> bool:
 	return tree["parameters/full/active"] or is_stand_attack()
 
 
+func is_reaction_busy() -> bool:
+	var owns_pose := String(_full_anim.animation).begins_with("Hit_Heavy_") or String(_full_anim.animation).begins_with("Stagger_")
+	return owns_pose and (tree["parameters/full/active"] or tree["parameters/full/request"] == AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+
+
+## An old dodge callback must not fade a newer full-body reaction.
+func finish_dodge() -> void:
+	if _full_anim.animation in ["Dodge_Forward", "Dodge_Backward"]:
+		stop_full()
+
+
 ## Existing full-body sword clips when planted, upper variants while moving.
 func play_attack(anim_name: String, time_scale := 1.0, standing := true) -> void:
 	var base := anim_name.trim_suffix("_Upper")
@@ -731,6 +807,8 @@ func is_stand_attack() -> bool:
 ## Death and other terminal poses bypass the tree.
 func play_terminal(anim_name: String) -> void:
 	stop_attack()
+	if _has_flinch:
+		tree["parameters/flinch/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT
 	tree.active = false
 	player.play(_clip(anim_name), 0.1)
 
