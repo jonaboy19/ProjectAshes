@@ -1084,8 +1084,11 @@ func _update_banner() -> void:
 		and dist > 22.0 and dist < 260.0 and not get_tree().get_nodes_in_group("cutscene_active").size()
 	# Our own army's standard only shows in the command / overview cameras, not over the
 	# plaza while it follows us around town (playtest: "12 · Line" hanging over Ashford).
-	if vis and leader and is_instance_valid(leader) and leader.get("view") != null:
-		vis = int(leader.get("view")) >= 2
+	# Every squad's standard (bandits, garrisons, ours) is a command-view tool only: in the normal
+	# third-person view "☠ 4 · Line" floated over bandit camps and the Watch Post (POI review 2026-10-05).
+	var viewer: Node = leader if leader and is_instance_valid(leader) else get_tree().get_first_node_in_group("player")
+	if vis:
+		vis = viewer != null and viewer.get("view") != null and int(viewer.get("view")) >= 2
 	if vis and not banner.visible:
 		_standard.global_position = _banner_pos    # appear in place, don't slide in
 	banner.visible = vis

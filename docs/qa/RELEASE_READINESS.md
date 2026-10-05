@@ -12,7 +12,8 @@ Updated 2026-10-05 (release QA pass 2, PC-side fixes; phone runs paused while th
 | C: + 512 px phone cap, arm64 only | 650 MB | |
 | D: + editor-only addons excluded (sky_3d, gloot, proton_scatter, phantom_camera examples) | 624 MB | |
 | E: 256 px phone cap (owner's choice), hero + characters 1024 | 528 MB | 1181 textures capped |
-| F: no generated shadow meshes on Meshy GLBs (meshy_free, meshy_dl3, ai3d/meshy) | **511 MB** | current |
+| F: no generated shadow meshes on Meshy GLBs (meshy_free, meshy_dl3, ai3d/meshy) | 511 MB | |
+| G: Style Lab scene + its 2K sky excluded (dev tool; menu entry and `--style_lab` hidden when the scene is absent) | **502 MB** (479 MiB) | current |
 
 Target is under 500 MB (ideally 300 MB). Still a blocker.
 
@@ -57,3 +58,11 @@ Meshes `.scn` ~240 MB (Meshy LOD0s with generated LODs and shadow meshes), alrea
 
 ## Shadow meshes (build F)
 Godot's generated shadow meshes are only a depth-pass optimisation; shadows draw from the full mesh without them. Generated LODs were kept: placed Meshy props rely on them at distance. Town shots at LOW before/after (`docs/qa/release/meshy_shadow/town_before_after_low.jpg`): same draw calls and triangles, pixel differences only on walking NPCs. Caveat: the Style Lab town uses few Meshy GLBs, so a shot of a Region 1 yard with the placed models is still owed.
+
+## Google Play path (AAB + Play Asset Delivery)
+The APK is a sideload/test format. Play needs an **AAB**, and the base module (code, engine, everything needed at first launch) is capped at **200 MB** compressed; the whole bundle may be up to 4 GB through asset packs. 502 MB does not fit a base module, so the release build needs Play Asset Delivery:
+1. Export preset: `gradle_build/use_gradle_build=true`, `gradle_build/export_format=1` (AAB). Needs the Android build template (`Project > Install Android Build Template`) and the JDK/SDK already set up for the editor.
+2. Split the content: keep boot, menus, the player, the first village and UI in the base (target under 150 MB); move region art, Meshy models, music and ambience into PCK files that ship as **install-time** asset packs (downloaded with the app, no code change to load), or **fast-follow** packs for later regions.
+3. Godot side: build each pack as its own PCK (a second export preset whose include filter is the pack's folders, `--export-pack`), add them under `android/build/assetPacks/<pack>/src/main/assets/` with a `build.gradle` (`deliveryType "install-time"`), list them in `settings.gradle` and the app's `assetPacks`. At boot, `ProjectSettings.load_resource_pack()` mounts each PCK before the main menu (install-time packs are plain files in the APK set).
+4. Verify with `bundletool build-apks --local-testing` and `bundletool install-apks` on the S22 before uploading to the closed test.
+Until then the debug APK stays the owner/closed-test channel.

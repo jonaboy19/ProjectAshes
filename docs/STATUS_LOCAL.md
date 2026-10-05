@@ -330,3 +330,11 @@ AAA-review backlog from this task:
 - Missing .gd.uid files added; boot_splash / ui backgrounds / IMFell fonts / UAL_Authored_Traversal .import files are already committed upstream. Kay_* duplicate-clip error did not reproduce on a fresh import (fixed upstream by the `_Repeat` rename); spinning-wheel no longer imports its broken animation.
 - Backlog: village view is the heaviest CPU view (13-16 ms): run --sysprof there; 2400 MultiMeshInstance3D nodes at the lake (merge per cell); a CPU-hog anim_tech Godot process (PID 87784, 5 h at 100 %) from another session skews all benchmarks; Mobile renderer prints mipmap errors with the ULTRA water shader; tree canopy still a bit cooler than the reference.
 - 2026-09-30 external tools: Rigify horse, Wiggle 2, Bone Dynamics, Expy Kit, A.N.T.Landscape, dandrino erosion, Azgaar maps installed and proven headlessly (Gaea, Cascadeur Free, Rokoko, AnimAide rejected); see tools/README_EXTERNAL_TOOLS.md and .claude/skills/ashes-external-tools/SKILL.md
+
+## 2026-10-05 Environment surfaces (ashes-environment-look)
+- PUSHED (verified on GPU, p02 bandit camp + p06 Watch Post): "☠ N · Line" squad standards only show in command view, for all squads.
+- PUSHED: env capture views `tools_qa/environment/env_views.json` (8 world + 4 Thornfield POIs at real positions); look_capture hides HUD/caption layers. Always pass --quality=high|low.
+- NOT pushed, branch `local-wip/env`: terrain anti-tiling/height blend/mud shoulders/under-grass shade, grass ground-match, cave triplanar rock. Comparisons were invalid (time of day drifted to night/sunset in several after-shots) and the cave shader rendered flat/untextured (worse than before). Needs: fix capture time-of-day drift, debug cave_rock in wilds_standalone, re-capture.
+- Cloud POI renders: outdoor flat beige = harness stand-in heightfield, not the game. Rift box rooms with blurry stretched rock = real.
+- Oakvale aerial washout (fog/aerial perspective at altitude) and blurry house atlases up close: not addressed, owners Style G env / build-kit.
+- LOW tier: no LOW changes pushed (phone-perf agent unaffected).
