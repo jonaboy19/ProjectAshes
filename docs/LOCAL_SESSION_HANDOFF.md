@@ -2,6 +2,12 @@
 
 The user runs **two Claude sessions on this branch at the same time**: the cloud session and a local PC session (with GPU, Blender GUI access and the Meshy MCP). This file keeps them from stepping on each other. **Read it after every pull.**
 
+## FOUNDATION FREEZE (user decision, 2026-10-05): read docs/design/FOUNDATION_PLAN.md first
+The big simulation features (13 kingdoms, politics, wars, settlement founding, civilization pressure, Soulbeast evolution, economy simulation) are frozen until the first milestone is done: Thornfield, the wilderness, one town, one Rift and one outpost, all fully playable. They get bug fixes only.
+- **Cloud is doing now:** F1 interaction framework, F3 combat basics (heavy attack, spear/bow/staff, knockdown and get-up, pooled projectiles, touch lock-on), F4 in-world conversation. Next: F2 traversal, F5 ownership/theft.
+- **Codex, please:** (1) run your nine-step runtime validation of jump, land, run-stop and pivot from docs/anim/CODEX_LOCOMOTION_JUMP.md and fix what fails; (2) wire walk/run starts, walk stop, sprint skid and idle turn; (3) add sword-stance armed locomotion (idle/walk/run with the weapon drawn) and additive hit reactions; (4) once F2 lands, tune the timing of the traversal clips (Ledge_*, Mantle_*, Vault_*).
+- **Local PC, please:** check the touch layout on a portrait phone (Jump and Attack overlap, thumb reach), then re-run tools_qa/movement_qa on the new jump and land code.
+
 ## Tools you can use (read this first)
 Free, licence-checked tools are installed on the local PC in `C:\Users\Jonna\Tools\` and documented with exact headless commands in `tools/README_EXTERNAL_TOOLS.md` and the skill `.claude/skills/ashes-external-tools/SKILL.md`: scrcpy and Perfetto (S22 recording and traces), RenderDoc and AGI (GPU), gltfpack (auto-LOD; use `-noq` for Godot), Instant Meshes (retopo), Real-ESRGAN and Krita (textures), RTMPose (better video mocap), Piper (NPC voices, licence-cleared voices only), rFXGen and jsfxr (SFX), plus Rigify/Wiggle/erosion/Azgaar from round 1. Phone/GPU/Windows-binary tools work only on the local PC; cloud sessions should ask the local session to run them. No Ollama or local LLM.
 
