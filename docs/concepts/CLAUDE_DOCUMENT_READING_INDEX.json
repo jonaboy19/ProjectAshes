@@ -1130,5 +1130,31 @@
       "sha256": "D70BC11B4B59B2C0B9A9D82FA5BFC90D33E2CAC7334382E55F949F61D6664FE8",
       "coverage": "pending_or_partial_see_checkpoint"
     }
+  ],
+  "original_attachments": [
+    {
+      "path": "C:/Users/Jonna/.codex/attachments/c58ce2cf-de81-4d0b-a13d-318bd45bdec3/Geplakte tekst.txt",
+      "lines": 201,
+      "sha256": "8640505B584E2BDF246E831C1AAB6839C3506C401825E2FE3C2F40B224E0FE80",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "C:/Users/Jonna/.codex/attachments/c246c0c7-5eea-4711-ba29-6cd03fb6e47e/Geplakte tekst.txt",
+      "lines": 231,
+      "sha256": "B046AC2BE8BFAC9D8B2C7ABCD814589C816C433AECD3EE86E626AC9958752401",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "C:/Users/Jonna/.codex/attachments/23192324-b18f-4ce5-93c8-ee74f39f5929/Geplakte tekst.txt",
+      "lines": 404,
+      "sha256": "8AB9BA5A8631CFE8E41A246B5F625B5168E65C7C33ED28597B8C024AAB4AE093",
+      "coverage": "pending_explicit_read"
+    },
+    {
+      "path": "C:/Users/Jonna/.codex/attachments/ad811f02-4a3a-42b7-bd97-003ac2f3c55e/Geplakte tekst.txt",
+      "lines": 445,
+      "sha256": "AB6D52383ED3F4E3FA5D1AC5D70DE99396E3A0573771FEB475C88F3B901F8E61",
+      "coverage": "pending_explicit_read"
+    }
   ]
 }

@@ -132,3 +132,11 @@ Completed CAST_R1 and EMOTION_MAP_R1. Their named relationships, losses and reve
 The emotion document lists unique story-animation requests, but current story-director comments explicitly use short in-world staging rather than full cutscenes, consistent with the later cloud status/owner direction. Do not implement the original cinematics as an unsolicited replacement. A targeted animation-sidecar name search found no named Idra/Maren/nuzzle/lantern-hang takes; that search does not prove there is no reusable generic clip or unpublished authored work. Resolve mappings from existing assets before commissioning new ones.
 
 AshGhostClips was read through its initial loader section, not fully. It already copies selected free packs into a small ghost library and aligns action contact to recorded instants. Keep that replay/presentation owner independent of gameplay damage and NPC witness knowledge. No story, ghost, asset or dialogue file was edited in this pass.
+
+## Original pasted notes
+
+Located all four original pasted-text attachments. Completed the 201-line occupation/life-experience note and 231-line character-presentation note. The other two (404 and 445 lines) remain pending explicit segmented reads. Attachment coverage is now separately recorded with content hashes in the reading index; these files are outside the repository docs inventory.
+
+The occupation note calls for multiple concurrent occupations, actual-practice capability and world-backed work opportunities. It proposes an architecture, not delivered code. Preserve the current career/history distinction and generic action commit owner when developing it. No class-choice gate or replacement skill system is implied by this note.
+
+The presentation note distinguishes floor IK from planted-foot locking, and highlights weapon grip, stances, directional locomotion, context hands and event/contact synchronization. Local light-flinch work addresses only the physical-reaction subset. It does not establish weapon-specific grips, finger animation, full directional starts or world-space foot locking. The proposed nearest 5–10 detailed characters are a suggested allocation, not an approved device budget; the later measured modifier/LOD cost handoff constrains it.
