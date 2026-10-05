@@ -9,11 +9,11 @@ const BuildKit := preload("res://scripts/realm/build_kit.gd")
 
 ## kit material -> [Style G role, Poly Haven set ("" = flat colour), tint, uv scale]
 const KIT_MATS := {
-	"kit_plaster": ["plaster", "clay_plaster", "efe3c8", 0.5],
+	"kit_plaster": ["plaster", "damaged_plaster", "f4ead2", 0.5],
 	"kit_timber": ["timber", "medieval_wood", "6a4a34", 0.5],
 	"kit_plank": ["timber", "brown_planks_05", "b89a78", 0.5],
 	"kit_log": ["timber", "medieval_wood", "8a6a4c", 0.5],
-	"kit_stone": ["stone", "medieval_blocks_02", "d6cfc2", 0.5],
+	"kit_stone": ["stone", "castle_wall_slates", "e4e0d6", 0.5],
 	"kit_cobble": ["cobble", "cobblestone_floor_01", "cfc8bb", 0.5],
 	"kit_thatch": ["roof", "thatch_roof_angled", "e8c88a", 0.5],
 	"kit_slate": ["roof", "red_slate_roof_tiles_01", "8592a8", 0.5],
@@ -54,6 +54,8 @@ static func kit_material(name: String, tier := "") -> Material:
 
 ## One merged, restyled mesh per piece and LOD (cached for the session).
 static func mesh(kind: String, lod := 0) -> ArrayMesh:
+	if lod > 0 and not kind.begins_with("meshy_"):
+		lod = 0          # Blender kit pieces are <= 700 tris: their aggressive gltfpack LOD1 tore roofs and gables (lab 2026-10-05)
 	var key := "%s:%d" % [kind, lod]
 	if _meshes.has(key):
 		return _meshes[key]

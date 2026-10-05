@@ -17,6 +17,8 @@ const COLLIDE_LAYERS := ["foundation", "wall", "floor", "stairs", "pillar", "fen
 var kit: RefCounted                      # the build_kit module
 var low_tier := false
 var with_collision := true
+## In the game the kit follows the terrain (WorldGen.height); labs keep their own flat ground.
+var use_world_height := true
 var _roots: Dictionary = {}              # gid -> Node3D
 var _seen_rev := -1
 var _t := 0.0
@@ -28,7 +30,7 @@ var stats := {}
 func _ready() -> void:
 	if kit == null and Life.get("realm") != null:
 		kit = Life.realm.mod("build_kit")
-	if kit != null and not WorldGen.settlements.is_empty():
+	if kit != null and use_world_height and not WorldGen.settlements.is_empty():
 		kit.height_fn = func(x: float, z: float) -> float: return WorldGen.height(x, z)
 
 
@@ -103,8 +105,8 @@ func rebuild(gid: int) -> void:
 		if look == "plan":
 			_mmi(root, KitMeshes.mesh(kind, 1), xfs, 0.0, FAR_END * 0.5, KitMeshes.ghost_material("blueprint"))
 		else:
-			var has_lod1 := ResourceLoader.exists(BuildKit.mesh_path(kind, 1))
-			_mmi(root, KitMeshes.mesh(kind, 0), xfs, 0.0, lod1_from if has_lod1 else FAR_END, null)
+			var has_lod1 := kind.begins_with("meshy_") and ResourceLoader.exists(BuildKit.mesh_path(kind, 1))
+			_mmi(root, KitMeshes.mesh(kind, 0), xfs, 0.0, lod1_from if has_lod1 else 0.0, null)
 			if has_lod1:
 				_mmi(root, KitMeshes.mesh(kind, 1), xfs, lod1_from, FAR_END, null)
 	_roads(root, gid)

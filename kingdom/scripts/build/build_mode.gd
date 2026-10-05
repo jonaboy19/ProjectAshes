@@ -94,7 +94,7 @@ func open() -> void:
 			renderer.name = "BuildKitView"
 			renderer.set("kit", kit)
 			world.add_child(renderer)
-	if kit != null and not WorldGen.settlements.is_empty():
+	if kit != null and not WorldGen.settlements.is_empty() and (renderer == null or bool(renderer.get("use_world_height"))):
 		kit.height_fn = func(x: float, z: float) -> float: return WorldGen.height(x, z)
 	if hud != null and hud.get("controls") != null:
 		(hud.get("controls") as Control).visible = false
@@ -455,8 +455,9 @@ func _process(_delta: float) -> void:
 		return
 	match mode:
 		"piece":
-			if kind == "":
-				_ghost.visible = false
+			if kind == "" or _ghost == null:
+				if _ghost:
+					_ghost.visible = false
 				_cost.text = "Pick a piece from the tray."
 				return
 			last_snap = kit.snap_world(gid, kind, aim, rot, level)
