@@ -89,6 +89,7 @@ func _ready() -> void:
 	var trader := _person("Market Trader", "Trade", _hours_gate("general_store", "Market Trader", merchant_menu), stall, c, "Trader")
 	trader.hours_kind = "general_store"
 	CrimeWatch.install(self)     # pickpocket hold, trespass, arrest (package F5)
+	preload("res://scripts/quests/quest_pump.gd").attach(self)   # feeds the library quest bus (F7)
 	_prop("Barrel_Apples", stall + Vector2(-sin(ang), cos(ang)) * 1.6, 1.0)
 	_prop("FarmCrate_Apple", stall + Vector2(sin(ang), -cos(ang)) * 1.5, 1.0)
 	# Innkeeper beside the inn's entrance, clear of the InteriorDoor (he is also
@@ -1347,6 +1348,7 @@ func _talk_page() -> Dictionary:
 	for c: Dictionary in DialogueRunner.choices(d, _talk["node"], ctx):
 		opts.append([c["text"], _choose.bind(c)])
 	_add_courtship_options(opts, info)
+	preload("res://scripts/quests/quest_talk.gd").add_options(opts, info, hud)   # library quests (F7)
 	if Life.soul.tier() >= RANaming.MIN_SOUL_TIER and String(info.get("id", "")) != "" \
 			and rel.opinion(info["id"], now) >= RANaming.PERSON_TRUST_MIN \
 			and Life.naming.soul_bonds.size() < RANaming.bond_limit(Life.soul.tier()):

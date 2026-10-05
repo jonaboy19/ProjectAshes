@@ -1,0 +1,104 @@
+{
+ "id": "thornfield_grain_carts",
+ "title": "Wolves at the Grain Carts",
+ "summary": "Wolves have been testing the hedge at dusk. The last grain cart must reach the mill in one piece.",
+ "giver": {
+  "npc": "hesta_thorne",
+  "name": "Hesta Thorne",
+  "place": "thornfield"
+ },
+ "requires": [
+  "thornfield_spoiled_barley"
+ ],
+ "offer_text": "\"The sound barley goes to the mill tomorrow, and the wolves know it. Load the cart, keep it alive, get it there. I will not ask twice.\"",
+ "stages": [
+  {
+   "id": "load",
+   "title": "Load the cart",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "sacks",
+     "type": "collect",
+     "item": "barley",
+     "count": 4,
+     "text": "Gather 4 sacks of sound barley for the cart"
+    }
+   ]
+  },
+  {
+   "id": "guard",
+   "title": "Hold off the wolves",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "cart",
+     "type": "protect",
+     "actor": "grain_cart_1",
+     "name": "the grain cart",
+     "hours": 1
+    },
+    {
+     "id": "wolves",
+     "type": "kill",
+     "target": "wolf",
+     "place": "thornfield_fields",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "road",
+   "title": "Take the cart to the mill",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "escort",
+     "type": "escort",
+     "actor": "grain_cart_1",
+     "name": "the grain cart",
+     "place": "thornfield_mill",
+     "radius": 14,
+     "pos": [
+      -30,
+      -18
+     ]
+    }
+   ]
+  },
+  {
+   "id": "mill",
+   "title": "Hand the barley to the miller",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "handover",
+     "type": "deliver",
+     "item": "barley",
+     "count": 4,
+     "to": "thornfield_miller",
+     "text": "Hand the barley to the miller"
+    }
+   ]
+  }
+ ],
+ "rewards": {
+  "gold": 40,
+  "rep": {
+   "thornfield": 6
+  },
+  "relationship": [
+   {
+    "npc": "hesta_thorne",
+    "label": "Got the grain through",
+    "value": 8,
+    "days": 60
+   }
+  ]
+ },
+ "on_fail": {
+  "rep": {
+   "thornfield": -3
+  }
+ }
+}
