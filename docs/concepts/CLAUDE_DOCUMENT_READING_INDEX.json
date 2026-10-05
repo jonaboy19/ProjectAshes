@@ -810,7 +810,7 @@
       "path": "docs/design/RETINUE_SETTLEMENT_ASCENSION.md",
       "lines": 1106,
       "sha256": "26E8F6473B0C65B46901A1306CD7A336CF18FF85F4001CB8DE0CBAAC3AED1535",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/design/SIM_HIERARCHY.md",
