@@ -212,6 +212,7 @@
     ],
     "vfx": "qi_shield",
     "anim": [
+     "Water_Lean_Sway_B",
      "Parry_Quick",
      "Spell_Simple_Shoot"
     ],
@@ -296,11 +297,12 @@
     ],
     "vfx": "water_ring",
     "anim": [
+     "Water_Whirl",
      "G6_channel_unarmed_magic",
      "Spell_Simple_Shoot"
     ],
     "anim_speed": 1.0,
-    "anim_mode": "upper"
+    "anim_mode": "full"
    }
   },
   {
@@ -332,6 +334,7 @@
     "effects": [],
     "vfx": "whirlwind",
     "anim": [
+     "Lightning_Point_Snap",
      "G6_cast_two_handed_staff",
      "Spell_Simple_Shoot"
     ],
@@ -370,6 +373,7 @@
     "effects": [],
     "vfx": "water_whip",
     "anim": [
+     "Water_SpinReach_L",
      "Magic_Cast_L",
      "Spell_Simple_Shoot"
     ],
@@ -416,6 +420,7 @@
     ],
     "vfx": "water_heal",
     "anim": [
+     "Water_Flow_SunSalute",
      "G6_pray",
      "Spell_Simple_Shoot"
     ],
@@ -462,11 +467,12 @@
     ],
     "vfx": "tidal_wave",
     "anim": [
+     "Water_Dance_ArmsHigh",
      "G6_cast_unarmed_magic_2",
      "Spell_Simple_Shoot"
     ],
     "anim_speed": 1.0,
-    "anim_mode": "upper"
+    "anim_mode": "full"
    }
   },
   {
@@ -499,6 +505,7 @@
     "effects": [],
     "vfx": "stone_bullet",
     "anim": [
+     "Earth_Lunge_R",
      "Magic_Cast_R",
      "Spell_Simple_Shoot"
     ],
@@ -548,11 +555,12 @@
     ],
     "vfx": "stone_wall",
     "anim": [
+     "Earth_Crouch_Reach_R",
      "G6_cast_off_hand_shield",
      "Spell_Simple_Shoot"
     ],
     "anim_speed": 1.0,
-    "anim_mode": "upper"
+    "anim_mode": "full"
    }
   },
   {
@@ -593,11 +601,12 @@
     ],
     "vfx": "quake",
     "anim": [
+     "Earth_PunchSeq_Deep",
      "Attack_Ground_Pound",
      "Spell_Simple_Shoot"
     ],
     "anim_speed": 1.0,
-    "anim_mode": "upper"
+    "anim_mode": "full"
    }
   },
   {
@@ -642,6 +651,7 @@
     ],
     "vfx": "fireball",
     "anim": [
+     "Fire_Box_Jab_Hook_B",
      "Punch_Jab",
      "Spell_Simple_Shoot"
     ],
@@ -696,6 +706,7 @@
     ],
     "vfx": "fire_nova",
     "anim": [
+     "Fire_Box_Flurry_E",
      "G6_cast_unarmed_magic_2",
      "Spell_Simple_Shoot"
     ],
@@ -748,11 +759,12 @@
     ],
     "vfx": "flame_wave",
     "anim": [
+     "Fire_Punch_Kick",
      "G6_channel_unarmed_magic",
      "Spell_Simple_Shoot"
     ],
     "anim_speed": 1.0,
-    "anim_mode": "upper"
+    "anim_mode": "full"
    }
   },
   {
@@ -786,11 +798,12 @@
     "effects": [],
     "vfx": "wind_blade",
     "anim": [
+     "Air_Jump_Twist",
      "Magic_Cast_R",
      "Spell_Simple_Shoot"
     ],
     "anim_speed": 1.0,
-    "anim_mode": "upper"
+    "anim_mode": "full"
    }
   },
   {
@@ -828,6 +841,7 @@
     "effects": [],
     "vfx": "wind_trail",
     "anim": [
+     "Air_Evade_L",
      "Sword_Dash",
      "Spell_Simple_Shoot"
     ],
@@ -874,11 +888,12 @@
     ],
     "vfx": "whirlwind",
     "anim": [
+     "Air_SpinJump_360",
      "G6_cast_two_handed_staff",
      "Spell_Simple_Shoot"
     ],
     "anim_speed": 1.0,
-    "anim_mode": "upper"
+    "anim_mode": "full"
    }
   }
  ],
