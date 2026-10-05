@@ -389,6 +389,21 @@ func interrupt(reason := "interrupted") -> bool:
 
 # --- apply ------------------------------------------------------------------------
 
+## A body-level interruption replaces every pending cast animation, including
+## overlapping windups. Use the ordinary interruption rules for each payment.
+func interrupt_all(reason := "interrupted") -> bool:
+	var changed := false
+	if phase == Phase.CHANT:
+		changed = interrupt(reason)
+	while not _pending.is_empty():
+		phase = Phase.WINDUP
+		changed = interrupt(reason) or changed
+	_lock = 0.0
+	_rec = 0.0
+	phase = Phase.IDLE
+	return changed
+
+
 ## Puts the ability's riders for `which` ("enemy" or "self") onto `eset` by family and stacking rule.
 ## `amount` is the damage dealt (burn strength scales with it); `power` scales wards and heals.
 ## -> {actions: [{family, action}], statuses: [{status, duration}], heal: int, restore: {res: n}, requests: [...]}

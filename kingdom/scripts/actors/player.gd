@@ -1904,6 +1904,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 					away = ((from as Node3D).global_position - global_position) * Vector3(1, 0, 1)
 				from.call_deferred("take_damage", 0, self, away.normalized() * float(res["push"]) * 2.0)
 			if lost:
+				_interrupt_technique("clash")
 				_stunned = maxf(_stunned, float(res["defender_stun"]))
 				_swing = 0.0
 				_swing_id += 1
@@ -1924,6 +1925,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 			if amount == 0:
 				return
 		HitResolver.Outcome.GUARD_BROKEN:
+			_interrupt_technique("guard broken")
 			_spend(float(res["guard_cost"]))
 			_kick(-facing() * BLOCK_PUSH)
 			_stunned = float(res["defender_stun"])
@@ -1939,6 +1941,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 	if health == 0:
 		_die()
 	elif not blocking:
+		_interrupt_technique("hit reaction")
 		_flinch = FLINCH_TIME
 		var heavy := amount >= max_health * 0.12 or knockback.length() >= 4.0
 		var clip := "Hit_%s_%s" % ["Heavy" if heavy else "Light", _hit_side(from)]
@@ -1966,7 +1969,14 @@ func _hit_side(from: Node) -> String:
 	return "Right" if right > 0.0 else "Left"
 
 
+func _interrupt_technique(reason: String) -> void:
+	var caster := get_node_or_null("TechniqueCaster")
+	if caster != null and caster.has_method("interrupt_cast"):
+		caster.call("interrupt_cast", reason)
+
+
 func _die() -> void:
+	_interrupt_technique("death")
 	if _mount:
 		_dismount()
 	_release_lock()

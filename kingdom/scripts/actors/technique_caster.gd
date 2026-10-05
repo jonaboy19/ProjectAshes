@@ -306,6 +306,14 @@ func _end_seals(success: bool) -> void:
 	seals_ended.emit(id, success)
 
 
+## Called when a hit reaction, guard break or death takes control of the body.
+## Released projectiles and existing target effects remain independent.
+func interrupt_cast(reason := "interrupted") -> void:
+	runner.interrupt_all(reason)
+	if is_sealing():
+		_end_seals(false)
+
+
 ## Casts a technique (legacy skills.gd tree or data/powers path tree). Chant-gated spells (magic path, seals) need
 ## the chant unless the caster qualifies for chantless casting: then they fire at once, otherwise the seal pad opens.
 func cast_technique(id: String, sealed := false) -> Dictionary:
@@ -357,6 +365,10 @@ func _blocked() -> String:
 		return "No body."
 	if _flag(player, "dead"):
 		return "Dead."
+	for state: String in ["_stunned", "_flinch"]:
+		var remaining: Variant = player.get(state)
+		if remaining != null and float(remaining) > 0.0:
+			return "Recovering from a hit."
 	if _flag(player, "swimming"):
 		return "Swimming."
 	if player.has_method("is_mounted") and player.call("is_mounted"):
