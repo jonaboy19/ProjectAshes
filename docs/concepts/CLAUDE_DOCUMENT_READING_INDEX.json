@@ -6,7 +6,7 @@
       "path": "docs/addons/README.md",
       "lines": 112,
       "sha256": "63A9993A623D8A4F71AEA682668864AECF55435497FE9865EDB734122CF618C3",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/advanced/README.md",
@@ -66,7 +66,7 @@
       "path": "docs/anim/FEEL_AUDIT.md",
       "lines": 107,
       "sha256": "05786F97AE7A6AA6CEE64FB823EB1DF8553C825CD7BA71450CA3AC3250F1F461",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/free_library/clip_tables.md",
