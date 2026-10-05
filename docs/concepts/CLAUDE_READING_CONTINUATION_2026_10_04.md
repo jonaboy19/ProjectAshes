@@ -218,3 +218,11 @@ The current turning slowdown means actual travel can be below _speed, while gait
 Followed the confirmed P2b gait mismatch into wolf.gd's current physics path. Movement multiplies _speed by turn_pace but the locomotion role and playback rate previously read _speed. They now use a local gait_speed from the commanded planar step velocity after turning slowdown. When no travel is requested (inside target tolerance), gait_speed is zero, so a residual speed accumulator no longer selects a moving loop. The speed accumulator, acceleration, turn trajectory, collision path, attack and species behavior remain unchanged.
 
 This generic controller serves multiple creatures; all inherit the same movement/animation correction. The retained 0.6–1.9 playback clamp can still mismatch very slow motion, and commanded velocity is not actual displacement after collision. Those are separate remaining limitations, not solved planted-foot contact. No run-turn clips or pause-aware enemy action changes were added. Source diff reviewed only; no runtime capture or tests run.
+
+## Free-library review provenance and trimmed contact timing
+
+Completed review_results.md (109 lines), and read polish_review.md through line 75; the latter remains partial. Review results distinguishes hook punches from true uppercuts, rejects clips without readable recovery, and explicitly notes weapon previews lacked the weapon prop. Its early KayKit weapon OK verdicts therefore do not override the later actual-sword combat audit. Boxing takes need target facing before a large torso wind-up, and multi-hit take names do not reliably describe strike count.
+
+The later polish note changes some clip lengths without changing names. JumpHigh_B loses 0.75 s at the start and Swing_R loses 0.35 s, so older handoff hit markers need corresponding trim offsets; use current sidecar rather than copied tables. It also renames Kay_Crouch_Idle to Kay_Crouch_Walk because it is a stride cycle, not a stationary pose. A targeted search of skills.gd and technique_caster.gd found none of these named kick/boxing/crouch identifiers, so no currently proven caller was altered. Traversal v2.1 supersedes the older vault calf-snap and rung notes in these reviews.
+
+No clips were regenerated, no assets changed and no tests or captures run. Complete polish-review coverage remains pending from line 76 onward.

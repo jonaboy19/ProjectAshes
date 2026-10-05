@@ -102,7 +102,7 @@
       "path": "docs/anim/free_library/review_results.md",
       "lines": 109,
       "sha256": "1F74974C1B95E7DB5267AB7F2B4C3E7639687956200A6277AA9ABF8ABC92478C",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/horses/HANDOFF.md",
