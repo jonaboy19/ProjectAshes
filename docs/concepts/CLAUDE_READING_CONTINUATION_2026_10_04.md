@@ -294,3 +294,17 @@ The document requires recruits to retain WorldSim identity, family and career hi
 Confirmed source time units remain DAY_LENGTH = 720 and DAYS_PER_YEAR = 12. This unusually compressed ageing must remain distinct from 28-day seasons and the document's adult-day progression; do not translate all year/season intervals with a single constant. The design's strict stages, prerequisites and numbers are proposals to reconcile with later player-direction and existing balance, not an instruction to replace current progression wholesale.
 
 No code, assets, tests or captures changed. Next reading resumes at line 311 of RETINUE_SETTLEMENT_ASCENSION.md.
+
+## Retinue/settlement/ascension: partial read through line 620
+
+Continued lines 311–620 completely. Covered taming accessibility, bond/upkeep, beast roles and ward/Scar ties, land-claim legality, building/support/blueprints, roads, production/rations, contentment/tier budgets and the beginning of grudges/raids. The document remains partial; next read starts at line 621.
+
+Current realm/construction.gd already owns holding storage/deposit/withdraw, placement and upgrade costs, grid snapping and terrain/overlap/settlement/site/road/forest/homestead exclusions. Its can_place_here uses current settlement radii and building footprints, rather than this proposal's universal 350/600 m setbacks. Do not overwrite that API with a separate land_claim implementation simply because the old design names one. Legal tenure, permission to fortify, Ward Claim duration and structural support remain distinct requirements whose implementation must be checked individually. No files matching grudge, land_claim or build_renderer were found by the targeted path search; that does not prove equivalent functionality is absent elsewhere.
+
+Construction has pending_gold and take_pending_gold, and Life contains the adapter consumption path. Preserve this transaction boundary and trace exact-once costs, delivery, refunds and resource storage before extending building stages. The proposal's 1 ration/person-day economy differs from realm aggregate and household food accounting; avoid treating those different units as interchangeable or paying/feeding one resident in multiple systems. Careful unit reconciliation is required before copying its winter balance numbers.
+
+Building bodies and follow bodies must fit shared mobile budgets. The document's proposed ascension Region1Sim 2 ms hourly tick, settlement piece rendering/baking costs and follower caps are design limits, not measured runtime values. Packed 16-byte pieces acquire base64/JSON overhead; the cited settlement and total save targets require actual encoded save measurements including roads, inventories and history. The newer civilization document's 1 MB two-year whole-save target differs from this document's 2 MB Region1 rule, so acceptance must use the current agreed scope.
+
+Taming accessibility explicitly requires both wider timing windows and a no-rhythm hold alternative, preserving trust/fear logic. Future implementation must not make precise taps the only route. Wardwalker/Scar-grazer and beast Ember effects need authoritative links to wardlines/scar_tide/ember systems and bounded cadence; adding a second coverage or front-cell simulator would duplicate Region1 ownership. Grudge causality must distinguish observed evidence from world facts before NPCs retaliate; the proposed source_event/Ashsight id is not itself proof a living NPC witnessed the act.
+
+No gameplay, assets, tests, benchmarks or captures changed.
