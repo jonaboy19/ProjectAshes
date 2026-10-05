@@ -253,7 +253,7 @@ static func apply_daylight(env: Environment, sun: DirectionalLight3D, fill: Dire
 # --- lights ------------------------------------------------------------------------------------------------------
 
 const SUN_FORWARD := Vector3(0.55, -0.62, -0.55)     # from behind-left: shadows fall forward-right as in target 03
-const SUN_COLOR := "ffdcb0"     # 2026-10-01 pass 2: warmth 1.46 -> toward 1.34
+const SUN_COLOR := "ffe0bc"     # 2026-10-01 pass 2: warmth 1.46 -> toward 1.34
 const SUN_ENERGY := 3.0
 
 ## Shadow settings per tier: [mode, max_distance, atlas 4096/2048/1024 is a project setting (shadow_atlas)].

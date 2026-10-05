@@ -68,7 +68,8 @@ Atlas roles keep the asset's own albedo atlas (no re-export).
 ## 6. Camera
 | Use | Position (hero at origin facing -Z) | Look at | FOV (vertical) |
 |---|---|---|---|
-| Gameplay and QA "over" | (0, 1.95, 2.8) | (0, 4.2, -30) | 52 |
+| QA "over" (target 03 framing, full-body hero, pass 5) | (0, 1.8, 3.8) | (0, 2.9, -30) | 52 |
+| Old gameplay "over" (hero cut at the waist; do not use for scoring) | (0, 1.95, 2.8) | (0, 4.2, -30) | 52 |
 | QA close | (2.4, 1.55, 3.0) | (0, 1.25, -1) | 40 |
 | QA facade | (1, 2.2, -4) | (-8.5, 4, -13) | 55 |
 | QA gate | (0, 2.5, -4) | (0, 14, -40) | 62 |
@@ -123,6 +124,7 @@ Draw-call levers used: static props merged per material (`_bake_static`), MultiM
 - Local PC pass (2026-10-01, ~56 -> ~64 re-scored on the GPU): skinned HeroOutfit, weathering pack, pink LUT fixed, ivy variation, hair roughness, LOW budget met. Sheets in `docs/art/style_g/compare/`.
 - Pass 2 (2026-10-01, ~67): baked vertex AO for houses (`scripts/style_g_vao.gd`, COLOR.a, `vao_strength`), weather pack blurred 1.6 px + scale 0.32 + mip bias 0.8 + weathered roughness 0.9 (sparkle mostly gone, bump back at 0.3), cobble normal depth 1.7 + dark grout in albedo, gate stone b-layer `medieval_blocks_02` + normal_depth 1.7, stall cloth saturation 0.82, sun `ffd8a4` (warmth 1.42), guards tinted blue-steel, far crowd = living-world `VatCrowd` (28/20/8 per tier, 26-62 m). LOW 297k / 128 draws.
 - Pass 3 (~70): contrast 1.6, ambient 0.48, sun `ffdcb0` x3.0, LUT high `fff4e2`, fog `e2dccc`, cobble_tint (1.0,0.95,0.82): metrics warmth 1.39, sat 0.41, contrast 0.22, detail 0.068, shadow_b -0.013. A LUT shadow of `0a1452` overshoots (shadow_b +0.055, blue shadows): keep `0c1640`.
+- Pass 5 (2026-10-05, ~73): QA over camera moved to the target framing (full-body hero, (0,1.8,3.8) -> (0,2.9,-30)); sun `ffe0bc`. Metrics warmth 1.41, sat 0.41, contrast 0.22, detail 0.070. LOW 262k / 108 draws. Hero refinement candidates (TripoSR rejected, Blender subdivided head/hands, docs/concepts/BLENDER_HERO_*) are review-only; HeroOutfit stays the shipped outfit.
 - Still to do for 85+: bespoke hero (hooded vest, bracers, shaggy hair), real weathered plaster/timber textures instead of the flat Meshy atlases, awning cloth drape, shelves of jars behind counters, more flowers/grass at wall feet, LOW triangle budget.
 
 

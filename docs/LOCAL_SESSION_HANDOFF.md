@@ -32,6 +32,8 @@ Skills: `ashes-style-g`, `ashes-style-g-assets`, `ashes-style-g-qa` (updated wit
 
 - **Pass 4 (~71):** outfit checked on all 62 Codex/UAL action clips after a43f7a1e (`tools_qa/style_lab/hero_preview.gd --clips=...`, sheets `docs/anim/hero_outfit/`); skirt front now follows the thighs (high-knee jumps/tucks pierced it). Ivy 5 -> 3 vines (green metric 0.053 -> 0.035). Lab regression from the game rollout fixed: `goods` hue_var only in game_mode (lab goods have COLOR.a = 1 -> every barrel/sack turned yellow). **Not done by local (needs owner OK):** the Loco_Pivot180 wiring and run-stop sword pop in player.gd are animation behaviour, which the owner reserved for Codex.
 
+- **Pass 5 (10-05, ~73):** QA camera matches target 03 framing (full-body hero). For the cloud/Codex: the game camera should frame the hero full-body like target 03 (about 3.8 m back, 1.8 m high). Placement/build-kit agent owns placement; local owns light/material/hero look. Phone still unplugged.
+
 ## Region 1 look pass (local, 2026-09-30): valley, landmarks, horizon, biome patchwork
 - Built: the Hollin's Reach valley (upper Ashrun: cliffs, falls, terraces, ruins, Stone Gap reveal, gorge gate), the Drowned Bell + Emberglass Ferry, Crownstead Mill Hill, Stagborn Glade, the Wyrm's Ribs; far horizon (whole-world low mesh + canopy domes), biome map + field patchwork, warm rock, golden-hour sky, river-carve fix, updated parchment map.
 - Code: `scripts/region1/region1_{terrain,landmarks,look,horizon}.gd`, `shaders/region1/{biome.gdshaderinc,horizon_*,waterfall}`, data in `data/region1/{landmarks,terrain_stamps}.json` + `data/region1/terrain/`.
