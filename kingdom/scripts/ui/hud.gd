@@ -1400,7 +1400,7 @@ func _update_modes(delta: float) -> void:
 	if absf(_pill_a - (1.0 if talk else 0.0)) < 0.01:
 		_pill_a = 1.0 if talk else 0.0
 	_pill.modulate.a = _pill_a
-	_pill.visible = _pill_a > 0.03
+	_pill.visible = false     # AAA pass 3: duplicate of the big button + the icon on the NPC
 	_place_pill()
 	_ease_buttons(delta)
 	if fan_open:
@@ -1412,6 +1412,7 @@ func _update_modes(delta: float) -> void:
 func _set_target(n: Node3D) -> void:
 	var changed := n != target
 	target = n
+	Nameplates.focus = n
 	if n != null:
 		var lab := InteractLabel.resolve(n)
 		if lab != target_label:

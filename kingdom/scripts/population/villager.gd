@@ -368,7 +368,7 @@ func _ready() -> void:
 	_think = float((h / 200) % 1000) / 1000.0 * THINK_INTERVAL
 	_stuck_from = p
 	_tag = Label3D.new()
-	Nameplates.style(_tag, Color(1, 0.95, 0.85), 26, 14.0)
+	Nameplates.style(_tag, Color(1, 0.95, 0.85), 18, 14.0)
 	_tag.remove_from_group("nameplate")      # driven by show_tag / Nameplates.suppressed below
 	_tag.position.y = 1.95
 	add_child(_tag)
@@ -560,7 +560,7 @@ func _tick_body(delta: float) -> void:
 	else:
 		_update_animation(delta)
 	_update_head_look(delta)
-	_tag.visible = show_tag and not Nameplates.suppressed
+	_tag.visible = Nameplates.focus == self and not Nameplates.suppressed
 
 
 # ---------------------------------------------------------------- thinking
@@ -608,7 +608,7 @@ func _think_tick() -> void:
 			_surface = Audio.surface_at(global_position) if Audio.has_method("surface_at") \
 				else WorldGen.footstep_surface(global_position.x, global_position.z)
 	_tag_timer -= THINK_INTERVAL
-	if show_tag and _tag_timer <= 0.0:
+	if Nameplates.focus == self and _tag_timer <= 0.0:
 		_tag_timer = 1.0
 		# Clean screen (AAA pass 2026-10-06): a name only. Job, gold and state are the Developer Simulation Overlay (Settings).
 		if bool(SettingsStoreS.get_value("dev_sim_overlay")):
