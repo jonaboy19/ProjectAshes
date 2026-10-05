@@ -1661,8 +1661,14 @@ func _s_craft() -> void:
 
 # ---------------------------------------------------------------------------------------- fight
 
+var _fight_swings := 0
+
+
 func _fight(e: Node3D, label: String, limit: float) -> bool:
 	var t_start := now()
+	_fight_swings = 0
+	var on_swing := func(_a: Resource, _i: Dictionary) -> void: _fight_swings += 1
+	player.swing_started.connect(on_swing)
 	var hits := 0
 	var healed := false
 	var shots_taken := 0
@@ -1691,12 +1697,14 @@ func _fight(e: Node3D, label: String, limit: float) -> bool:
 		beat("fight %s hits %d" % [label, hits])
 		if int(now() - t_start) % 10 == 0 and int(now() - t_start) != int(_last_fight_log):
 			_last_fight_log = int(now() - t_start)
-			L("fight %s t=%.0f dist %.1f enemy hp %s state %s player hp %d hits %d" % [label, now() - t_start, d, str(e.get("health")), str(e.get("state")), player.health, hits])
+			L("fight %s t=%.0f dist %.1f enemy hp %s state %s player hp %d hits %d | swings %d stun %.2f swing %.2f kd %s stamina %.0f lock %s" % [label, now() - t_start, d, str(e.get("health")), str(e.get("state")), player.health, hits, _fight_swings, float(player._stunned), float(player._swing), str(player._arms.kd.is_active()), float(player.stamina), str(player._lock)])
 		if shots_taken < 2 and now() - t_start > 4.0 * (shots_taken + 1):
 			shots_taken += 1
 			await shot("fight_%s_%d" % [label, shots_taken])
 		await frames(1)
 	release_all()
+	if player.swing_started.is_connected(on_swing):
+		player.swing_started.disconnect(on_swing)
 	var dead := not is_instance_valid(e) or bool(e.get("dead"))
 	if not dead:
 		L("%s survived: health %s state %s" % [label, str(e.get("health")), str(e.get("state"))])
@@ -3117,7 +3125,18 @@ func _s_tf_combat() -> void:
 						check("tapping it again releases the lock", player._lock == null or not is_instance_valid(player._lock), str(player._lock))
 			else:
 				note("the HUD lock button is hidden outside combat state (no tap)")
-		# finish it with taps
+		# finish it with taps. The heavy leaves a 45 hp wolf at a few hp, under its flee_below (15): by design it then runs home
+		# faster than a 2 fps software-GL bot can chase (it was 25 m away and healing in the failing runs). The light-attack check
+		# is about the swings landing, so the wolf is brought back to the player and made to fight on (a scripted hook, logged).
+		if is_instance_valid(w) and not bool(w.get("dead")):
+			L("[HOOK] wolf state %s hp %d dist %.1f after the heavy: bring it back to the player and pin it to fight to the death" % [str(w.state), int(w.health), p2().distance_to(Vector2(w.global_position.x, w.global_position.z))])
+			var sp: Dictionary = (w._sp as Dictionary).duplicate()
+			sp["flee_below"] = 0
+			w._sp = sp
+			w.state = Wolf.State.ATTACK
+			w._provoked = 30.0
+			var back := p2() + Vector2(-sin(player._yaw), -cos(player._yaw)) * 1.8
+			w.global_position = Vector3(back.x, WorldGen.height(back.x, back.y) + 0.3, back.y)
 		var dead := await _fight(w, "heavy wolf", 40.0)
 		check("the wolf can be finished with light attacks", dead)
 	heal_player()

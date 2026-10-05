@@ -6,6 +6,7 @@ const Stats := preload("res://scripts/combat/combat_stats.gd")
 const Fighter := preload("res://scripts/combat/npc_fighter.gd")
 const SoldierScript := preload("res://scripts/army/soldier.gd")
 const WolfScript := preload("res://scripts/actors/wolf.gd")
+const CombatMovesScript := preload("res://scripts/combat/combat_moves.gd")
 
 
 func test_table_has_every_archetype() -> void:
@@ -71,3 +72,72 @@ func test_army_blows_between_npcs_are_rescaled() -> void:
 	var lost: int = hp0 - s.health
 	assert_int(lost).is_between(30, 36)
 	assert_float(float(lost) / float(hp0)).is_between(0.17, 0.23)
+
+
+# --- the wolf in a long fight (tf_combat "the wolf can be finished with light attacks" flake) -------------------------
+# Cause found in the playtest logs: a heavy swing leaves the 45 hp wolf at ~3 hp, under its flee_below (15), so by design it
+# runs (flee speed above the player's walk, ESCAPE_DISTANCE 30) and retreats home healing; the bot then chased it at 2 fps and
+# timed out. These pin the real-game side: blows always land on a fleeing wolf, light swings can finish it, and a body that fled
+# and was pooled comes back whole.
+
+func _wolf_with_player() -> Array:
+	var w: Node = auto_free(WolfScript.new())
+	w.species = "wolf"
+	add_child(w)
+	var p: Node3D = auto_free(Node3D.new())
+	add_child(p)
+	p.global_position = Vector3(3, 0, 0)
+	return [w, p]
+
+
+func test_a_badly_hurt_wolf_flees_but_every_blow_still_lands() -> void:
+	var wp := _wolf_with_player()
+	var w: Node = wp[0]
+	var p: Node3D = wp[1]
+	w.take_damage(w.max_health - 3, p)                       # a heavy leaves it at 3 hp
+	assert_int(w.health).is_equal(3)
+	w._decide(p, 0.0)
+	assert_int(w.state).is_equal(WolfScript.State.FLEE)
+	w.take_damage(2, p)                                      # a light tap while it runs still counts
+	assert_int(w.health).is_equal(1)
+	w.take_damage(2, p)
+	assert_bool(w.dead).is_true()
+	assert_bool(w.is_in_group("team1")).is_false()
+
+
+func test_light_swings_finish_a_full_health_wolf() -> void:
+	var wp := _wolf_with_player()
+	var w: Node = wp[0]
+	var p: Node3D = wp[1]
+	var light: int = int(CombatMovesScript.combo("sword")[0].damage)
+	assert_int(light).is_greater(0)
+	var swings := 0
+	while not w.dead and swings < 20:
+		w.take_damage(light, p)
+		w._decide(p, 0.0)
+		swings += 1
+	assert_bool(w.dead).is_true()
+	assert_int(swings).is_less(12)
+
+
+func test_a_wolf_that_fled_and_was_recycled_is_whole_again() -> void:
+	var wp := _wolf_with_player()
+	var w: Node = wp[0]
+	var p: Node3D = wp[1]
+	if w._model == null:
+		return                                               # model not imported in this run: reset() has nothing to restore
+	w.take_damage(w.max_health - 2, p)
+	w._decide(p, 0.0)
+	w._regen = 0.7
+	w._flee_time = 4.0
+	w._escape_told = true
+	w._busy = 2.0
+	w.reset()
+	assert_int(w.state).is_equal(WolfScript.State.ROAM)
+	assert_int(w.health).is_equal(w.max_health)
+	assert_bool(w.dead).is_false()
+	assert_float(w._regen).is_equal(0.0)
+	assert_float(w._flee_time).is_equal(0.0)
+	assert_bool(w._escape_told).is_false()
+	assert_float(w._busy).is_equal(0.0)
+	assert_bool(w.is_in_group("team1")).is_true()

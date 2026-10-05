@@ -54,9 +54,9 @@ func refresh_light() -> void:
 		carried.light_energy = 1.7
 		carried.light_color = Color(1.0, 0.72, 0.42)
 	elif dark:
-		carried.omni_range = 5.5
-		carried.light_energy = 1.0
-		carried.light_color = Color(0.65, 0.78, 1.0)
+		carried.omni_range = 6.5          # no torch: still enough to read the hero and the floor around him (a torch reaches 11 m)
+		carried.light_energy = 1.4
+		carried.light_color = Color(0.72, 0.74, 1.0)
 	else:
 		carried.omni_range = 6.5
 		carried.light_energy = 0.9
@@ -68,7 +68,12 @@ func _process(delta: float) -> void:
 	if _player == null or not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group("player") as Node3D
 	if _player != null and carried != null:
-		carried.global_position = _player.global_position + Vector3(0, 1.7, 0)
+		# a little toward the camera, so the hero's back (the side the player looks at) catches the light too
+		var toward_cam := Vector3.ZERO
+		var cam: Camera3D = _player.get("camera") as Camera3D if _player.get("camera") is Camera3D else null
+		if cam != null:
+			toward_cam = Vector3(cam.global_basis.z.x, 0.0, cam.global_basis.z.z).normalized() * 1.1
+		carried.global_position = _player.global_position + Vector3(0, 1.7, 0) + toward_cam
 	for f: Array in flicker:
 		var l := f[0] as OmniLight3D
 		if is_instance_valid(l):

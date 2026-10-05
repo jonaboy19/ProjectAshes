@@ -94,6 +94,8 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary) -> int
 		if list.is_empty():
 			continue
 		var mesh: Mesh = Assets.building_mesh(kind)
+		if kind == "washing_line":
+			mesh = load("res://scripts/build/kit_meshes.gd").mesh("laundry_line")     # coloured cloth (washing_line.glb read as white boards)
 		if mesh == null:
 			continue
 		b.call("_multimesh", holder, mesh, list, true, false)

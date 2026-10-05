@@ -11,6 +11,7 @@ const Root := preload("res://scripts/interiors/dungeon_root.gd")
 const Thing := preload("res://scripts/interiors/dungeon_thing.gd")
 const Creature := preload("res://scripts/interiors/dungeon_creature.gd")
 const MAX_LIGHTS := 12
+const MAX_LIGHTS_PER_ROOM := 4      # phone budget: a room never carries more real lights than this (emissive meshes are free)
 
 
 ## opts: day (int), lead (String hidden-entrance id a journal points at), creatures (bool, default true),
@@ -106,8 +107,12 @@ static func _environment(g: Dictionary) -> Environment:
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color(0, 0, 0)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = g["ambient"]
-	env.ambient_light_energy = 1.6 if not bool(g["dark"]) else 1.5
+	# Readable without a torch: the theme's ambient is lifted toward its wall tint (crystal caves read violet), the
+	# torch / lights still make the difference between dim and lit.
+	var amb: Color = g["ambient"]
+	var tint: Color = g.get("tint", amb)
+	env.ambient_light_color = amb.lerp(tint, 0.55 if g.get("light_kind", "") == "crystal" else 0.30)
+	env.ambient_light_energy = 1.6 if not bool(g["dark"]) else (3.2 if g.get("light_kind", "") == "crystal" else 2.2)
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.fog_enabled = true
 	env.fog_light_color = g["fog"]
@@ -145,28 +150,54 @@ static func _water(g: Dictionary) -> MeshInstance3D:
 
 
 static func _exit_visual(root: Node3D, exit: Node3D, inward: Vector3) -> void:
-	# a bright opening: the way back to daylight
+	# the way back to daylight: a soft swirling opening (gold core fading into the cave's violet), never a flat white card
 	var q := MeshInstance3D.new()
-	var bm := QuadMesh.new()       # one-sided (faces into the room): a box showed its white back to a camera pushed behind the wall
-	bm.size = Vector2(2.4, 2.8)
+	var bm := QuadMesh.new()       # one-sided (faces into the room): a box showed its back to a camera pushed behind the wall
+	bm.size = Vector2(2.0, 2.2)
 	q.mesh = bm
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.85, 0.92, 1.0)
-	mat.emission_enabled = true
-	mat.emission = Color(0.85, 0.95, 1.0)
-	mat.emission_energy_multiplier = 2.2
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	var mat := ShaderMaterial.new()
+	mat.shader = _portal_shader()
 	q.material_override = mat
-	q.position = Vector3(0, 1.4, -0.55)
+	q.position = Vector3(0, 1.15, -0.55)
 	q.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	exit.add_child(q)
 	exit.rotation.y = atan2(inward.x, inward.z)
 	var l := OmniLight3D.new()
-	l.light_color = Color(0.8, 0.9, 1.0)
+	l.light_color = Color(1.0, 0.82, 0.55)
 	l.omni_range = 9.0
-	l.light_energy = 1.2
+	l.light_energy = 1.0
 	l.position = Vector3(0, 1.8, 1.2)
 	exit.add_child(l)
+
+
+static var _portal: Shader
+
+
+static func _portal_shader() -> Shader:
+	if _portal == null:
+		_portal = Shader.new()
+		_portal.code = """
+shader_type spatial;
+render_mode unshaded, blend_mix, cull_back, depth_draw_never, shadows_disabled;
+// Soft exit opening: a slow spiral of warm daylight gold into rift violet, feathered at the edge. Peak value stays
+// well under pure white (Style G: no flat white rectangles).
+void fragment() {
+	vec2 p = (UV - vec2(0.5)) * vec2(1.0, 1.1);
+	float r = length(p) * 2.0;
+	float ang = atan(p.y, p.x);
+	float spin = ang + r * 3.2 - TIME * 0.55;
+	float arms = 0.5 + 0.5 * sin(spin * 3.0);
+	float core = 1.0 - smoothstep(0.0, 0.85, r);
+	vec3 gold = vec3(0.90, 0.72, 0.42);
+	vec3 violet = vec3(0.50, 0.32, 0.80);
+	vec3 col = mix(violet, gold, clamp(core * 0.9 + arms * 0.18, 0.0, 1.0));
+	col *= 0.80 + 0.12 * arms;
+	float edge = 1.0 - smoothstep(0.55, 1.0, r);
+	ALBEDO = min(col, vec3(0.92));
+	ALPHA = edge * (0.55 + 0.4 * core);
+}
+"""
+	return _portal
 
 
 # ---------------------------------------------------------------------------------------------
@@ -179,6 +210,7 @@ static func _lights(root, g: Dictionary, content: Dictionary, theme: String) -> 
 	var glow_caps: Array[Transform3D] = []
 	var crystals: Array[Transform3D] = []
 	var made := 0
+	var per_room := {}
 	var ordered: Array = content["lights"].duplicate()
 	# entrance room first, so the lights near the player always exist
 	ordered.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["room"]) < int(b["room"]))
@@ -202,9 +234,16 @@ static func _lights(root, g: Dictionary, content: Dictionary, theme: String) -> 
 				light_pos = pos + Vector3(0, 0.9, 0) + inward * 0.4
 			"crystal":
 				crystals.append(Transform3D(Basis(Vector3.UP, randf() * TAU).scaled(Vector3.ONE * 1.5), pos + inward * 0.2))
+				# two small emissive companions on the floor beside it: glow without another real light
+				var side := inward.cross(Vector3.UP)
+				for k in 2:
+					var off := (0.9 + 0.5 * k) * (1.0 if k == 0 else -1.0)
+					crystals.append(Transform3D(Basis(Vector3.UP, randf() * TAU).scaled(Vector3.ONE * (0.8 + 0.3 * k)), pos + inward * (0.6 + 0.3 * k) + side * off))
 				light_pos = pos + Vector3(0, 1.2, 0) + inward * 0.6
-		if made >= MAX_LIGHTS:
+		var room_id := int(l.get("room", -1))
+		if made >= MAX_LIGHTS or int(per_room.get(room_id, 0)) >= MAX_LIGHTS_PER_ROOM:
 			continue
+		per_room[room_id] = int(per_room.get(room_id, 0)) + 1
 		made += 1
 		var omni := OmniLight3D.new()
 		omni.light_color = l["color"]

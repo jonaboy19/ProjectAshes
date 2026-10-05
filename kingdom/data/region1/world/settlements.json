@@ -2132,6 +2132,7 @@
       {
        "name": "Hesta Thorne",
        "role": "brewmistress",
+       "hub": true,
        "look": "Innkeeper",
        "at": [
         0,
@@ -2152,6 +2153,7 @@
    "npc": {
     "name": "Hesta Thorne",
     "role": "brewmistress",
+    "hub": true,
     "look": "Innkeeper",
     "at": [
      0,

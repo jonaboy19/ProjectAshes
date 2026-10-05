@@ -156,8 +156,8 @@ static func generate(path := PATH) -> Dictionary:
 		match kind:
 			"crystal":
 				entry["color"] = Color(0.7, 0.4, 1.0)
-				entry["range"] = 9.0
-				entry["energy"] = 1.6
+				entry["range"] = 10.0
+				entry["energy"] = 2.4
 			"brazier":
 				entry["color"] = Color(1.0, 0.72, 0.42)
 				entry["range"] = 11.0
