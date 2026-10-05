@@ -774,13 +774,13 @@
       "path": "docs/design/CIVILIZATION.md",
       "lines": 89,
       "sha256": "1C28D7D7CD974D961EEC0937C6CE13B70CB538CC918C1909219EEF94FAD6983B",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/design/DUNGEON_TOWERS.md",
       "lines": 56,
       "sha256": "1AADDC255E709655FAF3C1112E33797FD68A35AAD2CCB4E735388EC2E0737FC3",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/design/ITEMS_R1.md",
@@ -798,7 +798,7 @@
       "path": "docs/design/REALM_PLAN.md",
       "lines": 85,
       "sha256": "3393F580665D72DB05F9F1804E3C33DF605F7694E59F80930EA586A9742BE8F5",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/design/REALM_WAR_SETTLEMENT.md",
