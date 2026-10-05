@@ -444,6 +444,11 @@ func _menu_open() -> bool:
 ## Procedural head tracking: the head turns toward the nearest enemy or person.
 ## The character model with its animation, ragdoll, head look, foot IK and weapon trail.
 ## `Life.appearance` (character creation) picks the modular G6 look; no appearance = the default hero.
+## Tier-A Meshy hero (docs/art/hero_tier_a). Off until it beats the G6 hero in the benchmark street; `--hero_tier_a` forces it.
+const TIER_A_HERO := false
+const TIER_A_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy"
+
+
 func _build_body() -> void:
 	var props: Array[String] = ["1H_Sword", "Round_Shield"]
 	var look: Variant = Life.get("appearance")
@@ -451,6 +456,10 @@ func _build_body() -> void:
 	if look is Dictionary and not (look as Dictionary).is_empty():
 		body = (load("res://scripts/ui/character_creation.gd") as GDScript).call("build_model", look, 1.8, props)
 	_appearance_key = var_to_str(look) if body != null else ""
+	if body == null and (TIER_A_HERO or "--hero_tier_a" in OS.get_cmdline_user_args()) and ResourceLoader.exists(TIER_A_PATH + ".glb"):
+		# Tier-A hero (skill ashes-hero-character): Meshy villager on UAL + hood/satchel/strap + G6 hands + blink lids
+		body = Assets.mh_character(TIER_A_PATH, 1.8, props)
+		(load("res://scripts/actors/hero_tier_a.gd") as GDScript).call("dress_meshy_hero", body)
 	if body == null:
 		# Style G default hero (target 03 hooded traveller): G6 villager tunic tinted green + skinned HeroOutfit
 		var hero_look: Dictionary = (load("res://scripts/style_lab/lab_chars.gd") as GDScript).get("HERO_LOOK")

@@ -254,6 +254,18 @@ static func dress_meshy_hero(model: Node3D) -> Node:
 	upgrade_meshy(model)
 	var outfit: MeshInstance3D = (load("res://scripts/actors/hero_outfit.gd") as GDScript).call("dress", model, ["satchel", "strap", "belt"])   # fitted hood: WIP (shards at the chest), off
 	var sk := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	var noise: Texture2D = (load("res://scripts/actors/hero_outfit.gd") as GDScript).call("noise_texture")
+	# hood: the separate cloth shell from hero_fix.py (offset from the body, same weights) in wool
+	for n in model.find_children("Hood*", "MeshInstance3D", true, false):
+		var hm := ShaderMaterial.new()
+		hm.shader = load(SH + "hero_garment.gdshader")
+		hm.set_shader_parameter("noise_tex", noise)
+		hm.set_shader_parameter("has_uv2", false)
+		hm.set_shader_parameter("asset_kind", 1)
+		hm.set_shader_parameter("use_vertex_color", true)
+		(n as MeshInstance3D).material_override = hm
+	# hands: the Meshy mitts are cut at the wrist; the G6 hands (real finger bones) are retargeted onto this skeleton
+	attach_hands(sk, noise)
 	var parts := {}
 	for n in model.find_children("*Lids*", "MeshInstance3D", true, false):
 		parts["Lids"] = n
@@ -269,3 +281,28 @@ static func dress_meshy_hero(model: Node3D) -> Node:
 	sk.add_child(drv)
 	drv.call("setup", sk, parts, outfit)
 	return drv
+
+
+const G6_ALL := "res://assets/incoming/characters/g6-ual/g6_m_modular_all.glb"
+## Retargets the G6 male hands (740 tris, 15 finger bones per hand) onto any UAL skeleton: clip finger curls = real grip.
+static func attach_hands(sk: Skeleton3D, noise: Texture2D, tint := Color(0.74, 0.64, 0.58)) -> MeshInstance3D:
+	if sk.has_node("TierA_human_male_hands_default"):
+		return sk.get_node("TierA_human_male_hands_default")
+	var src: Node = (load(G6_ALL) as PackedScene).instantiate()
+	var src_sk := src.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	var mi: MeshInstance3D = null
+	for n in src.find_children("*hands_default*", "MeshInstance3D", true, false):
+		mi = _retarget(n as MeshInstance3D, src_sk, sk)
+		var hm := _mat("hero_skin", noise)
+		hm.set_shader_parameter("use_masks", false)
+		hm.set_shader_parameter("pore_scale", 40.0)
+		var sm := (n as MeshInstance3D).get_active_material(0)
+		if sm is BaseMaterial3D:
+			hm.set_shader_parameter("albedo_tex", (sm as BaseMaterial3D).albedo_texture)
+		hm.set_shader_parameter("tint", tint)
+		hm.set_shader_parameter("flush_amount", 0.0)
+		hm.set_shader_parameter("scatter_color", Color(0.75, 0.45, 0.35))
+		mi.material_override = hm
+		break
+	src.free()
+	return mi
