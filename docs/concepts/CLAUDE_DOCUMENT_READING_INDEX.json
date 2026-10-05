@@ -42,7 +42,7 @@
       "path": "docs/anim/COMBAT_AUDIT.md",
       "lines": 176,
       "sha256": "0AF8C90C539C36718C8F15618327486FDEA35D5EEE9BC567B1D24BB512E7432E",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/combat/authored_metrics.md",
@@ -54,7 +54,7 @@
       "path": "docs/anim/combat/library_metrics.md",
       "lines": 72,
       "sha256": "CF669B00A8BA20D32C5C0B01BAE8A918C69022C83C95844706C4BC5631D67670",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/farm/README.md",
