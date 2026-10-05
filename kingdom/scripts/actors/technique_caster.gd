@@ -93,7 +93,8 @@ var _seal_time := 0.0
 func _init() -> void:
 	name = "TechniqueCaster"
 	runner = Runner.new()
-	runner.overlap_windups = true
+	# One body, one cast pose: never release an older technique beneath a new clip.
+	runner.overlap_windups = false
 	runner.hooks = {
 		"lookup": _lookup, "known": _hook_known, "blocked": _blocked, "pools": _hook_pools,
 		"numbers": _hook_numbers, "commit": _hook_commit, "cooldown_left": _hook_cooldown_left,
@@ -207,7 +208,7 @@ func can_cast_slot(slot: int) -> Dictionary:
 	var id := String(skills.loadout[slot]) if skills and slot >= 0 and slot < skills.loadout.size() else ""
 	if id == "":
 		return {"ok": false, "reason": "Empty slot."}
-	return skills.can_cast(id, pools())
+	return runner.can_use(id)
 
 
 ## `with_seals`: sealed techniques open the seal pad first (touch); without it

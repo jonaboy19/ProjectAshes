@@ -29,3 +29,7 @@ Existing refund behavior is preserved: the player currently has custom commit ho
 ## Melee / dodge / jump ownership (Codex)
 Successful action starts cancel unreleased casting: melee and both dodge types at their start functions; jump only after its stamina check succeeds. Buffered or rejected inputs do not cancel a cast. New casts are rejected during swing, dodge, landing or jump states. Interrupted casting fades its upper/full animation layers, including recovery, before the replacement action starts. Air casts are not introduced by this pass. Casting-to-casting overlap is still the existing policy and remains open for contact mapping.
 No runtime or tests were run.
+
+## Cast-to-cast ownership and HUD eligibility (Codex)
+Player overlap_windups is disabled. AbilityRunner now rejects another technique during an unreleased windup or recovery, preserving its existing lockout and cooldown rules. This removes the previous multiple-paid-windups/single-replaced-animation case. can_cast_slot uses runner.can_use so HUD callers receive the same body-state, lifecycle and path checks as actual casting. No automatic cast queue is added; existing button feedback can explain Busy.
+No runtime or tests were run. Long bending clips still need measured contact/recovery mapping before assignment.
