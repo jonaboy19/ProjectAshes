@@ -40,6 +40,9 @@ const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const Perception := preload("res://scripts/population/perception.gd")
 const Witness := preload("res://scripts/population/witness.gd")
 const Evidence := preload("res://scripts/population/evidence.gd")
+const Search := preload("res://scripts/population/search.gd")
+const AlertNet := preload("res://scripts/population/alert_net.gd")
+const Takedown := preload("res://scripts/combat/takedown.gd")
 const TownMood := preload("res://scripts/population/town_mood.gd")
 const Schedule := preload("res://scripts/population/schedule.gd")
 const TownIdentity := preload("res://scripts/world/town_identity.gd")
@@ -232,6 +235,10 @@ var _reporter := false            # saw a crime and has not reported it to a gua
 var _last_class := 0
 var _bark_cd := 0
 var _evi_id := 0                  # evidence found, reaction pending
+var _hp := 30                     # civilians are fragile; a guard has Takedown.HP_GUARD
+var _down_kind := -1              # Takedown.Kind once knocked out / killed, -1 on their feet
+var _model_node: Node3D
+var _search_checked_ms := 0
 var _evi_at := 0
 var _peek_until := 0
 var _oneshot := ""
@@ -322,6 +329,7 @@ func _ready() -> void:
 	var tt: Array = TownIdentity.person_tint(WorldSim.home[person], person, WorldSim.job[person] == 3)
 	TownIdentity.tint_model(model, tt[0], float(tt[1]))
 	add_child(model)
+	_model_node = model
 	_anim = Assets.animation_player(model)
 	LifeLibrary.install(_anim)      # idempotent: the life clips are added to the shared rig library once
 	for n in model.find_children("*", "MeshInstance3D", true, false):
@@ -358,6 +366,7 @@ func _ready() -> void:
 	_brain = _make_brain()
 	_acuity = 1.3 if WorldSim.job[person] == 3 else (0.8 if _child else 1.0)
 	_slot = Perception.bind(person, _acuity, WorldSim.job[person] == 3)
+	_hp = Takedown.hp_for(WorldSim.job[person] == 3, person)
 	UtilityBrain.register_body(person, self)
 	# First decision now, later ones on this person's own phase.
 	_decide = 0.0
@@ -375,6 +384,7 @@ func _exit_tree() -> void:
 	WorldSim.set_external_position_owner(person, get_instance_id(), false, sim_position())
 	UtilityBrain.clear_sight_for(self)
 	UtilityBrain.unregister_body(person, get_instance_id())
+	Search.release(person, NpcWorld.smart)
 	Perception.unbind(person)
 
 
@@ -1779,6 +1789,170 @@ func silence() -> void:
 	Witness.silence(person, Time.get_ticks_msec(), NpcWorld._society())
 
 
+## An alarmed guard shouts: everyone within earshot (occlusion by walls) is told once per event id.
+func _call_for_help(here: Vector2, now_ms: int) -> void:
+	var at := Perception.point_of(_slot)
+	if at == Vector2.INF or not AlertNet.can_shout(person, now_ms):
+		return
+	var res := AlertNet.shout(person, here, at, Perception.alert[_slot], int(Perception.src[_slot]), WorldSim.home[person], now_ms,
+		NpcWorld.alert_listeners(get_tree()), _graph)
+	if bool(res["shouted"]):
+		_say(NpcWorld.line("alarm_guard", person, now_ms / 1000))
+
+
+## Told of an alarm by someone who saw it (AlertNet.shout): guards go to search the place, citizens duck out of sight.
+func hear_alarm(at: Vector2, _event_id: int, from_guard: bool) -> void:
+	if _down_kind >= 0:
+		return
+	var now := Time.get_ticks_msec()
+	if WorldSim.job[person] == 3:
+		Perception.set_class_at_least(_slot, Perception.Cls.SEARCHING, at, now)
+	else:
+		_hide_until = now + 14000 + (person % 5) * 1000
+		_scared_at = at
+		_brain.remember_danger(at)
+	_decide = 0.0
+	if from_guard and bubbles_ok():
+		_say(NpcWorld.line("alarm_guard" if WorldSim.job[person] == 3 else "flee", person, now / 1000), 2.4)
+
+
+func bubbles_ok() -> bool:
+	return NpcWorld.bubbles_shown < NpcWorld.MAX_BUBBLES
+
+
+func alert_class() -> int:
+	return Perception.class_of(_slot)
+
+
+func is_indoors() -> bool:
+	return _indoors
+
+
+## Search upkeep for someone in the SEARCH act: look at the claimed spot for Search.CHECK_S, mark it checked and move
+## to the next; a player crouched in a hiding spot is found by proximity and light; a finished search stands the
+## searcher down (danger remembered) so the class falls back step by step.
+func _search_tick(here: Vector2, now_ms: int) -> void:
+	var sid_s := Search.search_of(person)
+	if _act != Act.SEARCH:
+		if sid_s != 0:
+			Search.release(person, NpcWorld.smart)
+		return
+	if sid_s == 0:
+		return
+	if not Search.is_active(sid_s, now_ms):
+		var o := Search.origin_of(sid_s)
+		Search.release(person, NpcWorld.smart)
+		_brain.remember_danger(o)
+		Perception.stand_down(_slot, now_ms)
+		_decide = 0.0
+		return
+	var hide := NpcWorld.player_hide_spot()
+	if hide >= 0 and _player != null and is_instance_valid(_player):
+		var mine := Search.claimed_spot(person)
+		var checking := mine == hide and _arrived
+		var light := Perception.light_at(Search.spot_pos(hide), now_ms)
+		if Search.found(hide, here, light, checking):
+			var pp := Vector2(_player.global_position.x, _player.global_position.z)
+			Search.mark_found(sid_s)
+			NpcWorld.set_player_hide_spot(-1)
+			Perception.set_class_at_least(_slot, Perception.Cls.ALARMED, pp, now_ms)
+			_say(NpcWorld.line("alarm_guard", person, now_ms / 1000), 2.4)
+			_decide = 0.0
+			return
+	if _arrived and _perform_time >= Search.CHECK_S and now_ms - _search_checked_ms > 1000:
+		_search_checked_ms = now_ms
+		Search.finish_check(person, NpcWorld.smart)
+		var ap := Perception.point_of(_slot)
+		_apply_plan(here, Vector2.INF, ap)
+
+
+## Is this body on the ground (KO'd or dead)? Such bodies are out of the "villager" group and do not think.
+func is_down() -> bool:
+	return _down_kind >= 0
+
+
+func is_dead() -> bool:
+	return _down_kind == Takedown.Kind.KILL
+
+
+## Blows from the player (player.gd `_resolve_hit`) and anything else with a take_damage(amount, from, knockback)
+## contract. From behind and unnoticed the player knocks them out (non-lethal); otherwise the blow hurts, the
+## victim panics, and at 0 HP they die. Both silence a witness and leave a body (Takedown.down).
+func take_damage(amount: int, from: Node = null, _knockback := Vector3.ZERO) -> void:
+	if _down_kind >= 0:
+		return
+	var here := Vector2(global_position.x, global_position.z)
+	var guard := WorldSim.job[person] == 3
+	var by_player := from != null and from.is_in_group("player")
+	var from_pos := here
+	if from is Node3D:
+		from_pos = Vector2((from as Node3D).global_position.x, (from as Node3D).global_position.z)
+	if by_player and Takedown.can_takedown(from_pos, here, perception_facing(), Perception.class_of(_slot), guard):
+		go_down(Takedown.Kind.KO)
+		return
+	_hp -= maxi(amount, 0)
+	if _hp <= 0:
+		go_down(Takedown.Kind.KILL)
+		return
+	var now := Time.get_ticks_msec()
+	Perception.set_class_at_least(_slot, Perception.Cls.ALARMED, from_pos, now)
+	_crime_until = now + 25000
+	_crime_pos = from_pos
+	_decide = 0.0
+
+
+## Lie down as a body: out of the "villager" group, silenced (Witness) and registered as Evidence (Takedown.down); anyone
+## who saw it is a witness of an assault / murder. A knocked-out person wakes after Takedown.KO_SECONDS.
+func go_down(kind: int) -> void:
+	if _down_kind >= 0:
+		return
+	_down_kind = kind
+	_reporter = false
+	var now := Time.get_ticks_msec()
+	var here := Vector2(global_position.x, global_position.z)
+	var sid: int = WorldSim.home[person]
+	remove_from_group("villager")
+	add_to_group("villager_down")
+	_interrupt_activity()
+	_so_release()
+	Search.release(person, NpcWorld.smart)
+	set_physics_process(false)
+	velocity = Vector3.ZERO
+	if _tag != null:
+		_tag.visible = false
+	if _bubble != null and _bubble.visible:
+		_bubble.visible = false
+		NpcWorld.bubbles_shown = maxi(NpcWorld.bubbles_shown - 1, 0)
+	if _anim != null:
+		_anim.stop()
+	if _model_node != null:
+		var tw := create_tween()
+		tw.tween_property(_model_node, "rotation:x", -PI * 0.5, 0.35)
+		tw.parallel().tween_property(_model_node, "position:y", 0.16, 0.35)
+	Takedown.down(person, kind, here, sid, now, NpcWorld._society())
+	Takedown.witnessed_by_others(get_tree(), kind, here, sid)
+	if kind == Takedown.Kind.KO:
+		get_tree().create_timer(Takedown.KO_SECONDS).timeout.connect(wake_up)
+
+
+## A knocked-out person comes round (timer or Takedown.tick): back on their feet, wary.
+func wake_up() -> void:
+	if _down_kind != Takedown.Kind.KO or not is_inside_tree():
+		return
+	Takedown.wake(person)
+	_down_kind = -1
+	remove_from_group("villager_down")
+	add_to_group("villager")
+	set_physics_process(true)
+	if _model_node != null:
+		_model_node.rotation.x = 0.0
+		_model_node.position.y = 0.0
+	if _tag != null:
+		_tag.visible = true
+	Perception.set_class_at_least(_slot, Perception.Cls.SEARCHING, Vector2(global_position.x, global_position.z), Time.get_ticks_msec())
+	_decide = 0.0
+
+
 ## One think tick of perception (3.3 Hz per body, staggered by the body's own phase): cheap gates first (distance,
 ## cone, light, stance), then ONE ray from the shared budget, then the alert scalar; sounds and found evidence
 ## add to it. The data tier never gets here.
@@ -1804,7 +1978,11 @@ func _perceive(here: Vector2, now_ms: int, player_distance: float) -> void:
 	Perception.listen(_slot, here, now_ms)
 	_evidence_tick(here, now_ms)
 	_report_tick(here, now_ms)
+	_search_tick(here, now_ms)
 	var c := Perception.class_of(_slot)
+	if c == Perception.Cls.ALARMED and WorldSim.job[person] == 3 and AlertNet.can_shout(person, now_ms) \
+			and Perception.point_of(_slot) != Vector2.INF:
+		_call_for_help(here, now_ms)
 	if c > _last_class and now_ms >= _bark_cd and c < Perception.Cls.ALARMED:
 		_bark_cd = now_ms + 6000
 		_decide = 0.0              # an upward class change is thought about at once
@@ -1822,9 +2000,14 @@ func _report_tick(here: Vector2, now_ms: int) -> void:
 	if not Witness.is_running(person):
 		_reporter = false
 		return
-	if UtilityBrain.guard_within(here, Witness.REPORT_RADIUS, person) >= 0 or WorldSim.job[person] == 3:
+	var gp := UtilityBrain.guard_within(here, Witness.REPORT_RADIUS, person)
+	if gp >= 0 or WorldSim.job[person] == 3:
 		Witness.deliver(person, now_ms, NpcWorld._society())
 		_reporter = false
+		# The guard who was told takes it up: searching at the place it happened, and calls the rest.
+		var gb := UtilityBrain.body_of(gp) if gp >= 0 else null
+		if gb != null and gb.has_method("hear_alarm") and Perception.point_of(_slot) != Vector2.INF:
+			gb.call("hear_alarm", Perception.point_of(_slot), Perception.new_event_id(), true)
 	elif _act == Act.FLEE or _act == Act.HIDE or _act == Act.SHELTER:
 		Witness.abandon(person, now_ms, NpcWorld._society())
 		_reporter = false
@@ -1847,6 +2030,7 @@ func _evidence_tick(here: Vector2, now_ms: int) -> void:
 		if guard:
 			Perception.set_class_at_least(_slot, Perception.Cls.SEARCHING, epos, now_ms)
 			NpcWorld.report(NpcWorld.Kind.BODY_FOUND, epos, 40.0, 20.0, 0.8)
+			_call_for_help(here, now_ms)
 		else:
 			Perception.set_class_at_least(_slot, Perception.Cls.ALARMED if (_child == false and happened) else Perception.Cls.SUSPICIOUS, epos, now_ms)
 		_decide = 0.0

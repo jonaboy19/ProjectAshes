@@ -15,6 +15,7 @@ extends RefCounted
 ## so a thousand callers cost one realm read each.
 
 const Schedule := preload("res://scripts/population/schedule.gd")
+const AlertNet := preload("res://scripts/population/alert_net.gd")
 const SeasonsScript := preload("res://scripts/sim/seasons.gd")
 
 const REFRESH_MS := 4000
@@ -49,7 +50,7 @@ static func read(sid: int) -> Dictionary:
 	var day := _clock_day()
 	var hour := _clock_hour()
 	var m := {"sid": sid, "rest_day": day % 7 == 0, "festival": "", "festival_name": "", "war": 0.0, "monster": 0.0,
-		"scarcity": 0.0, "mourning": 0.0, "curfew": false, "crime": 0.0, "fire": false, "plague": false, "flags": 0}
+		"scarcity": 0.0, "mourning": 0.0, "curfew": false, "crime": 0.0, "fire": false, "plague": false, "lockdown": false, "flags": 0}
 	var cal := day + _day_offset()
 	var fest := SeasonsScript.festival_on(cal)
 	if not fest.is_empty():
@@ -63,6 +64,8 @@ static func read(sid: int) -> Dictionary:
 			m["war"] = 0.55 + 0.45 * _front_closeness(war, sid)
 	if realm != null and sid >= 0:
 		_read_realm(realm, sid, day, hour, m)
+	# The watch has raised the alarm twice over (alert_net.gd guard_alert): the town goes to ground for a while.
+	m["lockdown"] = sid >= 0 and AlertNet.lockdown(sid, Time.get_ticks_msec())
 	var ov: Dictionary = override.get(-1, {})
 	m.merge(ov, true)
 	m.merge(override.get(sid, {}), true)
@@ -85,7 +88,7 @@ static func flags_from(m: Dictionary) -> int:
 		f |= Schedule.F_SCARCE
 	if float(m.get("mourning", 0.0)) >= 0.5:
 		f |= Schedule.F_MOURN
-	if bool(m.get("curfew", false)):
+	if bool(m.get("curfew", false)) or bool(m.get("lockdown", false)):
 		f |= Schedule.F_CURFEW
 	return f
 

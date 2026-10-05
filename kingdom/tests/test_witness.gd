@@ -85,7 +85,7 @@ func test_guards_who_saw_it_report_at_once_and_unseen_means_no_case() -> void:
 
 
 func test_society_gets_real_ids_and_visibility_not_the_flat_roll() -> void:
-	WorldGen.setup(2024)
+	WorldGen.setup(WorldSim.SEED)
 	var soc: RefCounted = Hub.new().mod("society")
 	var before := (soc.get("crimes") as Array).size()
 	var id := Witness.begin("robbery", 0, Vector2.ZERO, [_w(1, 0.9), _w(2, 0.2), _w(3, 0.5)], 0, soc)
@@ -128,7 +128,7 @@ func test_theft_in_daylight_has_more_witnesses_than_crouched_at_night() -> void:
 
 
 func test_scenario_witness_stopped_before_the_guard_records_no_crime() -> void:
-	WorldGen.setup(2024)
+	WorldGen.setup(WorldSim.SEED)
 	var soc: RefCounted = Hub.new().mod("society")
 	var crimes: Array = soc.get("crimes")
 	var before := crimes.size()

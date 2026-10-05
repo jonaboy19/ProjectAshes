@@ -24,6 +24,7 @@ const Catalog := preload("res://scripts/population/micro_catalog.gd")
 const MicroScene := preload("res://scripts/population/micro_scene.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const TownMood := preload("res://scripts/population/town_mood.gd")
+const AlertNet := preload("res://scripts/population/alert_net.gd")
 const Schedule := preload("res://scripts/population/schedule.gd")
 const TownIdentity := preload("res://scripts/world/town_identity.gd")   # per-town street-activity bias (data/world/town_identity.json)
 
@@ -77,6 +78,7 @@ static func make_context(hour: float, day: int, district: String, raining: bool,
 		"mourn": float(mood.get("mourning", 0.0)) >= 0.5, "monster": float(mood.get("monster", 0.0)) >= 0.5,
 		"curfew": bool(mood.get("curfew", false)), "crime": float(mood.get("crime", 0.0)) >= 0.5,
 		"plague": bool(mood.get("plague", false)), "fire": bool(mood.get("fire", false)), "shutters_down": false,
+		"lockdown": bool(mood.get("lockdown", false)), "post_lockdown": false,
 	}
 	ctx.merge(extra, true)
 	return ctx
@@ -251,14 +253,19 @@ func _tick() -> void:
 	if here < 0:
 		return
 	var now := Time.get_ticks_msec()
-	if now < _next_ms or not _may_start(player):
+	# A lockdown (the watch raised the alarm) pulls the shutters down at once, even with a weapon out.
+	var lock := AlertNet.lockdown(here, now) and not _any_shutter_down(here)
+	if lock or AlertNet.post_lockdown(here, now):
+		_next_ms = mini(_next_ms, now)
+	if now < _next_ms or not _may_start(player, lock or AlertNet.post_lockdown(here, now)):
 		return
 	var s: Dictionary = WorldGen.settlements[here]
 	NpcWorld.ensure_spots(here, get_parent())
 	var hour := WorldSim.time_of_day
 	var mood := TownMood.mood_of(here)
 	var raining := _raining()
-	var extra := {"shutters_down": _any_shutter_down(here), "town_bias": TownIdentity.activity_bias(here)}
+	var extra := {"shutters_down": _any_shutter_down(here), "town_bias": TownIdentity.activity_bias(here),
+		"post_lockdown": AlertNet.post_lockdown(here, now)}
 	var ctx := make_context(hour, WorldSim.day, district_of(s, pp), raining, mood, String(s["kind"]), extra)
 	var ids: Array = []
 	for sc in active:
@@ -331,8 +338,8 @@ func actors_alive() -> int:
 	return n
 
 
-func _may_start(player: Node3D) -> bool:
-	if InteriorDoor.active != null or bool(player.get("dead")) or NpcWorld.player_armed():
+func _may_start(player: Node3D, ignore_armed := false) -> bool:
+	if InteriorDoor.active != null or bool(player.get("dead")) or (NpcWorld.player_armed() and not ignore_armed):
 		return false
 	var pop := get_parent()
 	var villagers := int(pop.get("full_count")) if pop != null and pop.get("full_count") != null else 0
@@ -433,7 +440,10 @@ func _sync_world_state(here: int, pp: Vector2) -> void:
 	var h := WorldSim.time_of_day
 	var day_open := h >= 8.5 and h < 17.0
 	if day_open:
+		var now_ms := Time.get_ticks_msec()
 		for town: int in _shutters:
+			if AlertNet.lockdown(town, now_ms):
+				continue          # the town is shut on purpose
 			for idx: int in _shutters[town]:
 				var n: Node3D = _shutters[town][idx]
 				if is_instance_valid(n) and bool(n.get_meta("down", false)):

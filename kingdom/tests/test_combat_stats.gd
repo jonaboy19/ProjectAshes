@@ -56,7 +56,7 @@ func test_spawned_bandit_and_guard_soldiers_use_the_table() -> void:
 		var pl := Stats.player_level()
 		var st := Stats.stats(arch, pl, pl)
 		assert_int(s.max_health).is_equal(st["hp"])
-		assert_float(s._npc_scale).is_equal_approx(40.0 / float(st["hp"]), 0.0001)
+		assert_float(s._npc_scale).is_equal_approx(float(st["hp"]) / 40.0, 0.0001)
 
 
 func test_army_blows_between_npcs_are_rescaled() -> void:
@@ -67,5 +67,7 @@ func test_army_blows_between_npcs_are_rescaled() -> void:
 	add_child(other)
 	var hp0: int = s.health
 	s.take_damage(8, other)
-	assert_int(hp0 - s.health).is_less_equal(3)     # 8 damage on a 170 HP body ~ 8 * 40/170
-	assert_int(hp0 - s.health).is_greater(0)
+	# 8 damage used to be 20% of a 40 HP soldier: on a 170 HP body it is the same 20% (8 * 170/40 = 34).
+	var lost: int = hp0 - s.health
+	assert_int(lost).is_between(30, 36)
+	assert_float(float(lost) / float(hp0)).is_between(0.17, 0.23)

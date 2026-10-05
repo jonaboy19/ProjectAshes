@@ -17,6 +17,8 @@ const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const MicroEvents := preload("res://scripts/population/micro_events.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
+const AlertGlyphs := preload("res://scripts/ui/alert_glyphs.gd")
+const Takedown := preload("res://scripts/combat/takedown.gd")
 
 const FULL_RANGE := 45.0
 const SPRITE_RANGE := 220.0
@@ -99,6 +101,7 @@ func setup(baker: ImpostorBaker) -> void:
 		_multimeshes[look] = mm
 	micro = MicroEvents.new()
 	add_child(micro)
+	add_child(AlertGlyphs.new())        # ?/! above the heads of the few who are watching the player
 
 
 func _process(delta: float) -> void:
@@ -139,6 +142,8 @@ func refresh(step_delta := 0.25) -> void:
 	for i in ids:
 		if WorldSim.is_indoors(i) or (morning and DailyRhythm.still_home(i)):
 			continue
+		if Takedown.is_down(i):
+			continue            # a body on the ground (KO'd / dead): no sprite, no respawn; the node keeps lying below
 		var d2: float = WorldSim.pos[i].distance_squared_to(p2)
 		dists.append([d2, i, d2 * KEEP_BIAS if _full.has(i) else d2])
 	dists.sort_custom(func(a: Array, b: Array) -> bool: return a[2] < b[2])
@@ -158,6 +163,9 @@ func refresh(step_delta := 0.25) -> void:
 		if want_full.has(id):
 			continue
 		var v: Villager = _full[id]
+		# A body on the ground stays where it fell while the player is anywhere near.
+		if v.is_down() and v.global_position.distance_squared_to(focus) < 90.0 * 90.0:
+			continue
 		# Someone standing against the player keeps their body until they step away.
 		if not WorldSim.is_indoors(id) and v.global_position.distance_squared_to(focus) < CONTACT_KEEP * CONTACT_KEEP:
 			want_full[id] = true

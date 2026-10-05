@@ -1681,6 +1681,16 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 			if blade_tip != Vector3.ZERO and blade_tip.distance_to(point) <= 0.6:
 				point = blade_tip
 			points.append(point)
+	# People in front of a drawn blade: a silent takedown from behind knocks them out, any other blow hurts and can kill
+	# (villager.gd take_damage; Takedown leaves the body as Evidence and silences a witness).
+	for v in get_tree().get_nodes_in_group("villager"):
+		if not (v as Node).has_method("take_damage"):
+			continue
+		var tv: Vector3 = (v as Node3D).global_position - global_position
+		tv.y = 0.0
+		if tv.length() < 2.2 and fwd.dot(tv.normalized()) > 0.2:
+			(v as Node).call("take_damage", damage, self, tv.normalized() * knockback)
+			points.append((v as Node3D).global_position + Vector3(0, 0.9, 0))
 	hit_confirmed.emit(points, finisher, impacted_mixers)
 
 

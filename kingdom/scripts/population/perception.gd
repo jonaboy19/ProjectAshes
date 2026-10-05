@@ -48,6 +48,8 @@ const STANCE_CROUCH := 0.5
 const STANCE_WALK := 1.0
 const STANCE_RUN := 1.25
 const STANCE_MOUNTED := 1.4
+## Crouched inside a claimed hiding spot (search.gd): nearly invisible to anyone who is not on top of it.
+const STANCE_HIDDEN := 0.22
 
 # vision
 const CONE_FULL := 1.2217305    # 70 degrees
@@ -445,6 +447,15 @@ static func stimulate(slot: int, gain: float, at: Vector2, event_id: int, now_ms
 	point[slot] = at
 	_settle(slot, now_ms)
 	return true
+
+
+## The search is over (expired / nothing found): drop the alert to just under SEARCHING so the class
+## settles back one step at a time (DROP_GAP_MS) instead of staying on the hunt for ever.
+static func stand_down(slot: int, now_ms: int) -> void:
+	if slot < 0:
+		return
+	alert[slot] = minf(alert[slot], T_SEARCHING - 0.5)
+	_settle(slot, now_ms)
 
 
 ## Jump straight to a class (a body found, a witnessed crime): alert is raised to at least its threshold + 0.5.

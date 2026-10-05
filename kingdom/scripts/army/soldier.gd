@@ -21,7 +21,9 @@ const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const Fighter := preload("res://scripts/combat/npc_fighter.gd")
 const CombatStats := preload("res://scripts/combat/combat_stats.gd")
 ## Pre-table soldier numbers. Army fights keep them: the table's HP/damage apply to duels with the player;
-## blows between NPCs are rescaled by BASE_HP / max_health so a battle lasts as long as before.
+## blows between NPCs are multiplied by max_health / BASE_HP, so a 170-200 HP body loses the SAME FRACTION of its
+## health per blow as the old 40 HP one (a battle lasts as long as before). The factor was inverted once
+## (BASE_HP / max_health) which made army fights ~20x longer; tests/test_combat_stats.gd pins the direction.
 const BASE_HP := 40.0
 const BASE_DAMAGE := 8.0
 
@@ -58,7 +60,7 @@ var _hit_from := Vector3.INF
 var _fighter: RefCounted
 var _cur_move: Resource
 var _stats := {}
-var _npc_scale := 1.0           # damage taken from non-player sources (BASE_HP / max_health)
+var _npc_scale := 1.0           # damage multiplier for non-player sources (max_health / BASE_HP, >= 1)
 
 
 static func create(team_id: int, look: String, file: String, keep: Array[String]) -> Soldier:
@@ -78,7 +80,7 @@ func _ready() -> void:
 	_stats = _fighter.apply_level(pl, pl)          # soldiers are "matching level": the table value
 	max_health = int(_stats["hp"])
 	health = max_health
-	_npc_scale = minf(BASE_HP / float(max_health), 1.0)
+	_npc_scale = maxf(float(max_health) / BASE_HP, 1.0)
 	collision_layer = SOLDIER_LAYER
 	collision_mask = WORLD_LAYER
 	_actor_shape = CollisionShape3D.new()
@@ -265,7 +267,7 @@ func attack_info() -> Dictionary:
 func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> void:
 	if dead:
 		return
-	if _npc_scale < 1.0 and amount > 0 and not (from != null and from.is_in_group("player")):
+	if _npc_scale > 1.0 and amount > 0 and not (from != null and from.is_in_group("player")):
 		amount = maxi(int(round(float(amount) * _npc_scale)), 1)     # army fights stay as long as before
 	var from_front := true
 	_hit_from = (from as Node3D).global_position if from is Node3D else Vector3.INF

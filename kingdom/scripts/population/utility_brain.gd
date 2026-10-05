@@ -1672,8 +1672,13 @@ func plan_goal(action: int, here: Vector2, graph: StreetGraph, hazard: Vector2, 
 				out["goal"] = _clear(graph, look_at + (from3.normalized() if from3.length() > 0.5 else Vector2.RIGHT) * 2.5, 0.45)
 				out["look"] = look_at
 		Act.SEARCH:
-			# Comb the area: each searcher takes its own point on a ring round the alert point.
-			if look_at != Vector2.INF:
+			# Comb the area: claim a hiding spot of this alarm's Search (doorway, alley, stall, haystack, crate);
+			# without a free spot (searcher cap) hold a point on a ring round the alert point.
+			var claimed := NpcWorld.search_goal(person, here, look_at, sid)
+			if not claimed.is_empty():
+				out["goal"] = _clear(graph, claimed[0], 0.3)
+				out["look"] = claimed[1]
+			elif look_at != Vector2.INF:
 				var sa := float(absi(hash([person, int(look_at.x), int(look_at.y)])) % 628) / 100.0
 				var sr := 3.0 + float(absi(hash(person * 31 + 7)) % 40) / 10.0
 				out["goal"] = _clear(graph, look_at + Vector2(cos(sa), sin(sa)) * sr, 0.45)

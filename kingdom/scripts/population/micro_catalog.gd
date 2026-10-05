@@ -22,7 +22,7 @@ extends RefCounted
 ##   p         template parameters (see micro_scene.gd)
 ##
 ## Context flags (micro_events.make_context): rain night dusk dawn day market_open war festival rest scarce mourn
-## monster curfew crime plague fire shutters_down.
+## monster curfew crime plague fire shutters_down lockdown post_lockdown.
 
 const POOL := [
 	# ------------------------------------------------------------------ vehicles
@@ -297,6 +297,11 @@ const POOL := [
 		"mods": {"rain": 1.4, "monster": 1.6, "war": 1.1}, "dw": {"market": 5.0, "inn": 0.8, "*": 0.3}, "p": {"close": true, "max": 6}},
 	{"id": "market_opening", "tpl": "shutters", "w": 4.0, "cd": 300, "dur": [35, 45], "when": {"h": [6.5, 9.5], "need": ["shutters_down"]}, "bell": [[7.8, 0.9]],
 		"mods": {"rest": 0.4}, "dw": {"market": 5.0, "*": 0.3}, "p": {"close": false, "max": 6}},
+	# The watch raised the alarm (alert_net.gd guard_alert >= 2): shutters come down at once, and go up again afterwards.
+	{"id": "lockdown_shutters", "tpl": "shutters", "w": 40.0, "cd": 90, "dur": [20, 30], "when": {"h": [0, 24], "need": ["lockdown"]},
+		"mods": {}, "dw": {"market": 5.0, "*": 0.5}, "p": {"close": true, "max": 6}},
+	{"id": "lockdown_reopen", "tpl": "shutters", "w": 40.0, "cd": 60, "dur": [20, 30], "when": {"h": [0, 24], "need": ["shutters_down", "post_lockdown"], "not": ["lockdown"]},
+		"mods": {}, "dw": {"market": 5.0, "*": 0.5}, "p": {"close": false, "max": 6}},
 	{"id": "lamp_lighter", "tpl": "lamp", "w": 3.0, "cd": 330, "dur": [50, 70], "when": {"h": [17.0, 20.7]}, "bell": [[18.4, 1.0]],
 		"mods": {"rain": 0.8, "monster": 0.7}, "dw": {"market": 2.0, "admin": 2.0, "inn": 2.0, "poor": 1.0, "military": 0.8, "craft": 1.0}, "p": {}},
 	{"id": "gates_closing", "tpl": "gate", "w": 4.5, "cd": 380, "dur": [45, 60], "when": {"h": [20.0, 22.8], "kinds": ["town", "frontier_town", "castle"]}, "bell": [[21.2, 0.9]],

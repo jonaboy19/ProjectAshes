@@ -24,6 +24,9 @@ const Perception := preload("res://scripts/population/perception.gd")
 const Witness := preload("res://scripts/population/witness.gd")
 const Evidence := preload("res://scripts/population/evidence.gd")
 const DoorModel := preload("res://scripts/world/door_model.gd")
+const Search := preload("res://scripts/population/search.gd")
+const AlertNet := preload("res://scripts/population/alert_net.gd")
+const Takedown := preload("res://scripts/combat/takedown.gd")
 const BRAIN := "res://scripts/population/utility_brain.gd"
 
 enum Kind { FIRE, FIGHT, CRIME, FESTIVAL, SCREAM, FUNERAL, SOUND, CALL_FOR_HELP, BODY_FOUND, SUSPICIOUS }
@@ -72,6 +75,7 @@ static var _player_mounted := false
 static var _player_crouch := false
 static var _player_armed := false
 static var _player_running := false
+static var _player_hide_spot := -1       # search.gd spot the crouched player is hidden in (-1 none)
 static var _wanted := {}                 # sid -> [expires_ms, bool] cached Society bounty > 0
 static var _mover_pos := PackedVector2Array()
 static var _mover_vel := PackedVector2Array()
@@ -151,6 +155,10 @@ static func reset() -> void:
 	Perception.reset()
 	Witness.reset()
 	Evidence.reset()
+	Search.reset()
+	AlertNet.reset()
+	Takedown.reset()
+	_player_hide_spot = -1
 	_ensure_store()
 
 
@@ -348,6 +356,7 @@ static func refresh(tree: SceneTree) -> void:
 		_player_crouch = pl.get("crouching") == true
 		_player_armed = armed
 		_player_running = _player_vel.length() > 3.2
+		_player_hide_spot = Search.hidden_spot(p, _player_crouch and not _player_mounted)
 		Perception.set_environment(WorldSim.time_of_day, 1.0 if _raining(tree) else 0.0,
 			pl.get("_indoors") == true, bool(pl.get_meta("lantern_lit", false)))
 		if armed:
@@ -374,6 +383,10 @@ static func refresh(tree: SceneTree) -> void:
 		if node != null:
 			report(Kind.FIRE, Vector2(node.global_position.x, node.global_position.z), 25.0, 1.5, float(node.get_meta("fire_strength", 1.0)))
 	_watch_assault(tree, now)
+	if not Search.searches.is_empty():
+		Search.tick(now, smart)
+	if Takedown.down_count() > 0:
+		Takedown.tick(now)
 	if Witness.pending_count() > 0:
 		Witness.tick(now, _society())
 	if now - _lamp_sync_ms > 5000:
@@ -410,7 +423,18 @@ static func _raining(tree: SceneTree) -> bool:
 
 ## Stance multiplier of the player for vision (crouch 0.5, walk 1, run 1.25, mounted 1.4).
 static func player_stance() -> float:
+	if _player_hide_spot >= 0:
+		return Perception.STANCE_HIDDEN
 	return Perception.stance_term(_player_crouch, _player_running, _player_mounted)
+
+
+## The search spot the crouched player is hidden in (-1 none).
+static func player_hide_spot() -> int:
+	return _player_hide_spot
+
+
+static func set_player_hide_spot(spot: int) -> void:
+	_player_hide_spot = spot
 
 
 static func player_still() -> bool:
@@ -461,6 +485,12 @@ static func _watch_assault(tree: SceneTree, now: int) -> void:
 			continue
 		var vp := Vector2(v.global_position.x, v.global_position.z)
 		if vp.distance_to(_player_pos) <= ASSAULT_RANGE:
+			# A silent takedown from behind is judged when it lands (Takedown / villager.go_down), not as a brawl.
+			if v.has_method("perception_facing") and v.has_method("alert_class"):
+				var pn := int(v.get("person"))
+				var is_guard := pn >= 0 and pn < WorldSim.job.size() and WorldSim.job[pn] == 3
+				if Takedown.can_takedown(_player_pos, vp, v.call("perception_facing"), int(v.call("alert_class")), is_guard):
+					continue
 			victim = vp
 			break
 	if victim == Vector2.INF:
@@ -683,6 +713,12 @@ const LOCAL_TYPES := {
 			"cycles": [3, 5], "duration": [30, 90]},
 		"acts": ["train"], "hours": [6, 20], "tags": ["train", "loud"],
 	},
+	# A place to look for someone: doorway, alley, behind a stall, haystack, crate (search.gd claims and checks them).
+	"search": {
+		"slots": [{"stand": [0.0, 0.0, 0.9], "face": 180}], "approach": 0.9,
+		"activity": {"loop": ["Life_Ambient_Look_Around"], "duration": [3, 4], "cycles": [1, 1]},
+		"acts": ["search"], "tags": ["search"],
+	},
 	"wall_idle": {
 		"slots": [{"stand": [0.0, 0.0, 0.0], "face": 0}], "approach": 0.6,
 		"activity": {"loop": ["Life_Ambient_Shift_Weight", "Life_Ambient_Look_Around"], "between": ["Life_Ambient_Scratch_Head", "Life_Ambient_Check_Sky"],
@@ -750,6 +786,8 @@ static func ensure_spots(sid: int, host: Node = null) -> void:
 	so.add("hopscotch", Transform3D(Basis(Vector3.UP, 0.4), Vector3(hp.x, WorldGen.height(hp.x, hp.y), hp.y)), sid)
 	var pp := c + Vector2(cos(4.3), sin(4.3)) * pr * 0.3
 	so.add("play_area", Transform3D(Basis(Vector3.UP, 1.0), Vector3(pp.x, WorldGen.height(pp.x, pp.y), pp.y)), sid)
+	# Places a searcher looks into (doorways, alleys, behind stalls, haystacks, crates).
+	Search.populate(so, sid, plan, c, pr, float(s.get("radius", 60.0)), stall_pts, graph, WorldGen.height)
 	# People stand about by house fronts too.
 	var lots: Array = plan.get("lots", [])
 	var k := 0
@@ -886,6 +924,37 @@ static func find_spot(person: int, filter: Dictionary, here: Vector2, radius: fl
 	return smart.find(Vector3(here.x, 0.0, here.y), filter, radius, person, avoid, avoid_r)
 
 
+# ================================================================ search and alert sharing
+## Where `person` should look next in the search for an alarm at `at`: the approach point of a claimed search spot.
+## Returns [goal, look] ([] when the searcher cap is reached or no spot is left: they hold and watch instead).
+static func search_goal(person: int, here: Vector2, at: Vector2, sid: int) -> Array:
+	if at == Vector2.INF:
+		return []
+	var now := Time.get_ticks_msec()
+	var slot := Perception.slot_of(person)
+	var eid := int(Perception.src[slot]) if slot >= 0 else 0
+	var id := Search.begin(at, sid, now, eid)
+	var spot := Search.claim(id, person, here, spots())
+	if spot < 0:
+		return []
+	return [Search.approach(spot, spots()), Search.spot_pos(spot)]
+
+
+## Everyone embodied who could hear a shout: [{person, pos, guard, node}] from the "villager" group (tier 0 only).
+static func alert_listeners(tree: SceneTree) -> Array:
+	var out: Array = []
+	if tree == null:
+		return out
+	for n in tree.get_nodes_in_group("villager"):
+		var v := n as Node3D
+		if v == null or not v.has_method("hear_alarm"):
+			continue
+		var p := int(v.get("person"))
+		out.append({"person": p, "pos": Vector2(v.global_position.x, v.global_position.z),
+			"guard": p >= 0 and p < WorldSim.job.size() and WorldSim.job[p] == 3, "node": v})
+	return out
+
+
 # ================================================================ queue, funeral, festival
 ## The bread stall of settlement `sid`: the first plaza stall, the counter side outward. [position, yaw].
 static func bread_stall(sid: int) -> Array:
@@ -955,7 +1024,7 @@ static func mourn_spot(at: Vector2, person: int) -> Vector2:
 ## A crime happened at `pos`. Villagers within sight (not behind a house) who are not looking away
 ## become witnesses: they shout and run for a guard; guards within earshot come to look. The witness
 ## count goes to society.commit_crime (existing API). Returns that call's result plus {"seen_by": n}.
-static func report_crime(tree: SceneTree, kind: String, pos: Vector2, sid := -1, culprit_is_player := true) -> Dictionary:
+static func report_crime(tree: SceneTree, kind: String, pos: Vector2, sid := -1, culprit_is_player := true, leave_traces := true) -> Dictionary:
 	_ensure_store()
 	var now := Time.get_ticks_msec()
 	var cands: Array = []
@@ -992,7 +1061,8 @@ static func report_crime(tree: SceneTree, kind: String, pos: Vector2, sid := -1,
 				else:
 					heard += 1
 	report(Kind.CRIME, pos, CRIME_HEARING, 30.0, 1.0, sid)
-	Evidence.leave_traces(kind, pos, sid, now)
+	if leave_traces:
+		Evidence.leave_traces(kind, pos, sid, now)
 	var out := {"ok": false, "seen_by": cands.size(), "heard_by": heard, "pending": false}
 	var soc := _society()
 	if soc != null and sid >= 0 and culprit_is_player:
