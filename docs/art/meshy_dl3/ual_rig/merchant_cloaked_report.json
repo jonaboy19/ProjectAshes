@@ -1,0 +1,15 @@
+{
+ "name": "merchant_cloaked",
+ "height_m": 1.72,
+ "lod0_tris": 7000,
+ "lod1_tris": 2910,
+ "model_units_top": 1.8828,
+ "model_units_top_all": 1.8828,
+ "head_bone_z": 1.5691,
+ "pelvis_z": 0.9167,
+ "mh_character_height_param": 1.577,
+ "forearm_radius": 0.06,
+ "skirt_verts": 3188,
+ "head_rigid_verts": 634,
+ "heat_missed": 7796
+}

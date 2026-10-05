@@ -18,6 +18,8 @@ func _asset_exists(a: String) -> bool:
 	var base := ""
 	if key.begins_with("free:"):
 		return ResourceLoader.exists("res://assets/incoming/meshy_free/%s_lod0.glb" % key.substr(5))
+	if key.begins_with("dl3:"):
+		return ResourceLoader.exists("res://assets/incoming/meshy_dl3/%s_lod0.glb" % key.substr(4))
 	if key.begins_with("r1:"):
 		base = "res://assets/incoming/region1/" + key.substr(3)
 		return ResourceLoader.exists(base + "_lod0.glb") or ResourceLoader.exists(base + ".glb")

@@ -18,6 +18,20 @@ const HAIR_DARK := Color("4a2c16")
 
 static var _sk: Skeleton3D
 static var _body_pts: PackedVector3Array
+## Tier-A material tagging (shaders/hero/hero_garment.gdshader): UV2.x = material id, UV2.y = sway weight,
+## COLOR.a = 1 where leather panels get stitched seams. Set by _piece() before each garment piece.
+enum M { LINEN, WOOL, LEATHER, METAL, ASSET, HAIR }
+static var _mat := 0
+static var _sway_top := 1e9
+static var _sway_len := 1.0
+static var _stitch := false
+
+
+static func _piece(mat: int, sway_top := 1e9, sway_len := 1.0, stitch := false) -> void:
+	_mat = mat
+	_sway_top = sway_top
+	_sway_len = sway_len
+	_stitch = stitch
 
 
 ## Tints the G6 "Villager Tunic" body mesh to the target's green tunic (sleeves + skirt read as one garment).
@@ -83,6 +97,7 @@ static func dress(model: Node3D) -> MeshInstance3D:
 	var hem_y := lerpf(p_thl.y, p_knee.y, 0.55)
 	var cx := (p_thl.x + p_thr.x) * 0.5
 	var cz := p_pel.z
+	_piece(M.WOOL, waist_y - 0.06 * unit, (waist_y - hem_y) * 1.4)
 	# --- tunic skirt (fitted to the body at the waist, flared and folded at the hem) --------------------------
 	var rw := _fit(waist_y, Vector2(0.16, 0.12) * unit) * 1.06
 	var rh := _fit(hem_y, Vector2(0.2, 0.14) * unit)
@@ -115,12 +130,16 @@ static func dress(model: Node3D) -> MeshInstance3D:
 	# --- belt + buckle ---------------------------------------------------------------------------------------
 	var belt_y := waist_y + 0.015 * unit
 	var rb := _fit(belt_y, rw) * 1.09
+	_piece(M.LEATHER, 1e9, 1.0, true)
 	_ring(st, Vector3(cx, belt_y, cz), rb, 0.035 * unit, 0.012 * unit, [pel], [1.0], LEATHER_DARK, 20)
+	_piece(M.METAL)
 	_box(st, Vector3(cx, belt_y, cz + rb.y + 0.01 * unit), Vector3(0.05, 0.045, 0.012) * unit, 0.0, [pel], [1.0], BRASS)
 	# --- satchel on the right hip + flap + diagonal strap to the left shoulder --------------------------------
 	var bag_c := Vector3(cx - rb.x * 1.05, belt_y - 0.13 * unit, cz + rb.y * 0.35)
+	_piece(M.LEATHER, bag_c.y + 0.1 * unit, 0.5 * unit, true)
 	_box(st, bag_c, Vector3(0.07, 0.2, 0.24) * unit, 0.12, [pel, thr], [0.7, 0.3], LEATHER)
 	_box(st, bag_c + Vector3(-0.03, 0.06, 0.0) * unit, Vector3(0.025, 0.1, 0.25) * unit, 0.12, [pel, thr], [0.7, 0.3], LEATHER_DARK)
+	_piece(M.METAL, bag_c.y + 0.1 * unit, 0.5 * unit)
 	_box(st, bag_c + Vector3(-0.045, 0.02, 0.0) * unit, Vector3(0.012, 0.03, 0.03) * unit, 0.12, [pel, thr], [0.7, 0.3], BRASS)
 	if sp3 >= 0:
 		var p_sh := _pos(sp3)
@@ -141,11 +160,13 @@ static func dress(model: Node3D) -> MeshInstance3D:
 			prev_f = f
 			prev_b = bk
 	# --- pouch on the left front of the belt --------------------------------------------------------------------
+	_piece(M.LEATHER, belt_y, 0.4 * unit, true)
 	_box(st, Vector3(cx + rb.x * 0.62, belt_y - 0.06 * unit, cz + rb.y * 0.92), Vector3(0.09, 0.09, 0.04) * unit, 0.0, [pel, thl], [0.8, 0.2], LEATHER)
 	# --- leather jerkin over the green tunic: open at the front, waist to armpits ------------------------------------
 	if sp3 >= 0 and sp1 >= 0:
 		var y0 := belt_y + 0.02 * unit
 		var y1 := _pos(sp3).y + 0.1 * unit
+		_piece(M.LEATHER, 1e9, 1.0, true)
 		var vr := 6
 		var vs_n := 22
 		var r_lo := _fit(y0, Vector2(0.15, 0.11) * unit)
@@ -186,8 +207,10 @@ static func dress(model: Node3D) -> MeshInstance3D:
 		var p_n := _pos(neck)
 		var cy := p_n.y - 0.02 * unit
 		var rn := Vector2(0.095, 0.09) * unit
+		_piece(M.WOOL)
 		_ring(st, Vector3(p_n.x, cy, p_n.z - 0.01 * unit), rn, 0.07 * unit, 0.055 * unit, [neck, sp3], [0.4, 0.6], LEATHER, 16)
 		# the hood itself, lying folded on the upper back: a half-ellipsoid bag, wide at the collar, pinched to a tip
+		_piece(M.WOOL, cy - 0.03 * unit, 0.35 * unit)
 		var hc := Vector3(p_n.x, cy - 0.11 * unit, p_n.z - 0.075 * unit)
 		var nth := 10
 		var nph := 7
@@ -207,6 +230,7 @@ static func dress(model: Node3D) -> MeshInstance3D:
 	var head := _b(["Head", "head"])
 	if head >= 0:
 		var hp := _pos(head)
+		_piece(M.HAIR, hp.y + 0.2 * unit, 0.25 * unit)
 		var crown := hp + Vector3(0, 0.09, 0) * unit
 		var rng := RandomNumberGenerator.new()
 		rng.seed = 11
@@ -225,6 +249,7 @@ static func dress(model: Node3D) -> MeshInstance3D:
 			_tuft(st, p - out * 0.006 * unit, dir, ln, 0.02 * unit, head, col)
 			n_t += 1
 	# --- bracers on both forearms ---------------------------------------------------------------------------------
+	_piece(M.LEATHER, 1e9, 1.0, true)
 	for pair in [[lal, hal], [lar, har]]:
 		if pair[0] < 0 or pair[1] < 0:
 			continue
@@ -234,20 +259,49 @@ static func dress(model: Node3D) -> MeshInstance3D:
 		var r := _fit_axis(a.lerp(b, 0.7), ax.normalized(), 0.04 * unit) * 1.18
 		_tube(st, a.lerp(b, 0.42), a.lerp(b, 0.9), r, r * 1.12, [pair[0]], [1.0], LEATHER, 12)
 	st.generate_normals()
+	st.generate_tangents()
 	var mi := MeshInstance3D.new()
 	mi.name = "HeroOutfit"
 	mi.mesh = st.commit()
-	var mat := StandardMaterial3D.new()
-	mat.vertex_color_use_as_albedo = true
-	mat.vertex_color_is_srgb = true
-	mat.roughness = 0.85
-	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	mi.material_override = mat
+	mi.material_override = garment_material()
 	mi.set_meta("role", "hero_new")
 	_sk.add_child(mi)
 	mi.skeleton = NodePath("..")
 	mi.skin = _sk.create_skin_from_rest_transforms()
 	return mi
+
+
+## Tier-A garment material (hero_garment.gdshader; HeroTierA drives its `sway` uniform per character).
+## Falls back to a vertex-colour StandardMaterial3D if the shader is missing.
+static func garment_material() -> Material:
+	var sh: Shader = load("res://shaders/hero/hero_garment.gdshader")
+	if sh == null:
+		var mat := StandardMaterial3D.new()
+		mat.vertex_color_use_as_albedo = true
+		mat.vertex_color_is_srgb = true
+		mat.roughness = 0.85
+		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		return mat
+	var sm := ShaderMaterial.new()
+	sm.shader = sh
+	sm.set_shader_parameter("noise_tex", noise_texture())
+	return sm
+
+
+static var _noise: Texture2D
+static func noise_texture() -> Texture2D:
+	if _noise == null:
+		var nt := NoiseTexture2D.new()
+		nt.width = 256
+		nt.height = 256
+		nt.seamless = true
+		nt.generate_mipmaps = true
+		var fn := FastNoiseLite.new()
+		fn.frequency = 0.06
+		fn.fractal_octaves = 3
+		nt.noise = fn
+		_noise = nt
+	return _noise
 
 
 # --- helpers ---------------------------------------------------------------------------------------------------------
@@ -330,7 +384,12 @@ static func _vert(st: SurfaceTool, v: Array) -> void:
 		if bs[i] >= 0:
 			bones[i] = bs[i]
 			weights[i] = float(ws[i]) / maxf(tot, 0.0001)
-	st.set_color(v[3])
+	var p: Vector3 = v[0]
+	var col: Color = v[3]
+	col.a = 1.0 if _stitch else 0.0
+	st.set_color(col)
+	st.set_uv(Vector2(atan2(p.x, p.z) * 0.16, -p.y))          # ~metres around the body / down: weave, grain, stitch rows
+	st.set_uv2(Vector2(float(_mat), clampf((_sway_top - p.y) / _sway_len, 0.0, 1.0)))
 	st.set_bones(bones)
 	st.set_weights(weights)
 	st.add_vertex(v[0])

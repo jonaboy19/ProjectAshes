@@ -15,6 +15,7 @@
  },
 
  "bandit_camp": {
+  "extras": [["dl3:carts/wagon_canvas_a@3.37", 12.5, -0.5, 100, 0], ["dl3:props/keg_big@1.1", 9.6, -3.4, 0, 0], ["dl3:props/keg_big@1.1", 10.8, -2.6, 40, 0], ["dl3:furniture/table_bench_set@1.07", -10.5, 3.0, 70, 0], ["dl3:creatures/horse_saddled_brown@2.19", 13.5, 8.0, 200, 0]],
   "id": "thornfield_bandit_camp",
   "name": "Ash Hand Camp",
   "offset": [294, 170],
@@ -95,6 +96,7 @@
  ],
 
  "rift": {
+  "extras": [["dl3:creatures/elemental_earth_golem@2.4", -7.5, 0.5, 90, 0]],
   "id": "thornfield_rift",
   "name": "The Cleft at Thornfield",
   "entrance_offset": [0, 420],
@@ -103,6 +105,7 @@
  },
 
  "outpost": {
+  "extras": [["dl3:market/stall_rug_wood@2.65", -6.5, -9.4, 0, 0], ["dl3:carts/wagon_shields_covered@2.65", 13.2, -4.5, 90, 0], ["dl3:furniture/table_long_wood@0.66", -0.8, 11.2, 0, 0], ["dl3:furniture/bench_lantern_posts@2.2", 6.4, 11.0, 270, 0], ["dl3:creatures/horse_saddled_brown@2.19", 13.4, 0.9, 90, 0], ["dl3:props/keg_big@1.1", -13.4, 1.2, 0, 0], ["dl3:props/keg_big@1.1", -13.4, 2.5, 30, 0], ["dl3:props/firewood_stack_oven@1.04", -13.3, 10.6, 90, 0], ["dl3:props/swords_scabbards_trio@1.09", -13.7, -5.7, 90, 0], ["dl3:props/shield_round_wood@0.9", -13.8, -0.9, 90, 0]],
   "_doc": "Fort layout in the road frame: x across the road, z along it (the road's own direction is read from WorldGen at build time). The fort is centred on the Soldier career's post.",
   "half": [15.0, 13.0],
   "gate_gap": 5.0,

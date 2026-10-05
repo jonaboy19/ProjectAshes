@@ -4,6 +4,7 @@ extends RefCounted
 ## footprint, with a plain box standing in when a model is missing so headless tests still get a node.
 ## `boxes_mesh` merges a few boxes into ONE mesh (one draw) for posts, decks and gates.
 
+const FillStyle := preload("res://scripts/world/fill_style.gd")
 const GEN := "res://assets/generated/"
 const MODELS := {
 	"tent": GEN + "region/ruins/bandit_tent.glb",
@@ -65,6 +66,40 @@ static func prop(parent: Node3D, key: String, at: Vector2, yaw := 0.0, sc := 1.0
 	parent.add_child(mi)
 	mi.global_transform = Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * s), Vector3(at.x, low - 0.05, at.y))
 	return mi
+
+
+## A Meshy batch 3 model ("dl3:<cat>/<name>", assets/incoming/meshy_dl3) at world XZ `at`, yawed, fitted to `height` metres (natural size
+## when 0), settled on the lowest ground under its footprint (yaw only: it never tilts) and lifted `lift` m. It gets the Style G role
+## materials (Assets.static_model) plus the per-model treatment from FillStyle.TREAT. Returns the node, null when the model is missing.
+## `model` may carry an "@H" suffix (then H is the height).
+static func model(parent: Node3D, model_key: String, at: Vector2, yaw := 0.0, height := 0.0, lift := 0.0) -> Node3D:
+	var key := model_key if model_key.begins_with("dl3:") else "dl3:" + model_key
+	var spec := key.split("@")
+	if spec.size() > 1 and height <= 0.0:
+		height = float(spec[1])
+	var path := FillStyle.dl3_path(spec[0], 0)
+	if not ResourceLoader.exists(path):
+		return null
+	var n := Assets.static_model(path)
+	if n == null:
+		return null
+	FillStyle.apply(n, spec[0])
+	var holder := Node3D.new()
+	holder.name = spec[0].get_file().capitalize().replace(" ", "")
+	holder.add_child(n)
+	var box := Assets.visual_aabb(n)
+	var k := height / box.size.y if height > 0.0 and box.size.y > 0.01 else 1.0
+	n.scale = Vector3.ONE * k
+	n.position = Vector3(-box.get_center().x * k, -box.position.y * k, -box.get_center().z * k)
+	var ext := maxf(box.size.x, box.size.z) * 0.5 * k
+	var low := WorldGen.height(at.x, at.y)
+	for i in 8:
+		var a := TAU * i / 8.0 + yaw
+		low = minf(low, WorldGen.height(at.x + cos(a) * ext * 0.8, at.y + sin(a) * ext * 0.8))
+	parent.add_child(holder)
+	holder.global_transform = Transform3D(Basis(Vector3.UP, yaw), Vector3(at.x, low - 0.05 + lift, at.y))
+	holder.set_meta("dl3", spec[0])
+	return holder
 
 
 ## An invisible solid box under `node` (collision layer 1, the world layer).

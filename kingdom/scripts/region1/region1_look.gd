@@ -118,7 +118,7 @@ func _apply_biome() -> void:
 
 # --- Assets --------------------------------------------------------------------
 
-## "free:cat/name" -> meshy_free, "r1:dir/name" -> region1 kits, "gen:farm/windmill" -> generated/region,
+## "free:cat/name" -> meshy_free, "dl3:cat/name" -> meshy_dl3 (Meshy batch 3), "r1:dir/name" -> region1 kits, "gen:farm/windmill" -> generated/region,
 ## "nature:oak_a" -> region nature, or a res:// path. Returns [lod0, lod1 or ""].
 static func asset_paths(a: String) -> Array:
 	var p0 := ""
@@ -126,6 +126,9 @@ static func asset_paths(a: String) -> Array:
 	if a.begins_with("free:"):
 		p0 = FREE + a.substr(5) + "_lod0.glb"
 		p1 = FREE + a.substr(5) + "_lod1.glb"
+	elif a.begins_with("dl3:"):
+		p0 = "res://assets/incoming/meshy_dl3/" + a.substr(4) + "_lod0.glb"
+		p1 = "res://assets/incoming/meshy_dl3/" + a.substr(4) + "_lod1.glb"
 	elif a.begins_with("r1:"):
 		p0 = R1 + a.substr(3) + "_lod0.glb"
 		p1 = R1 + a.substr(3) + "_lod1.glb"

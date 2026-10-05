@@ -52,7 +52,7 @@ func _ready() -> void:
 		_b = stand_at + along.normalized() * 3.4
 		_goal = _b
 		global_position = Vector3(_a.x, WorldGen.height(_a.x, _a.y), _a.y)
-	_model = Assets.character("Rogue_Hooded", 1.74, [])
+	_model = Assets.character("Meshy_Traveller", 1.74, [])      # Meshy batch 3: a hooded, cloaked stranger on the UAL rig
 	add_child(_model)
 	_anim = Assets.animation_player(_model)
 	_play("Idle")

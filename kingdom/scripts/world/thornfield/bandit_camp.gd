@@ -63,6 +63,9 @@ func build() -> void:
 	fire_light = Props.fire_light(_root, Wilds.ground(at(def["campfire"]["offset"]), 1.4), 1.5, 12.0)
 	for c: Array in def["crates"]:
 		Props.prop(_root, "crate_stack", at(c), float(c[0]) * 0.7)
+	# Meshy batch 3 loot wagon, kegs and a tethered horse (data "extras": [model, x, z, yaw_deg, height] camp-local, world axes).
+	for e: Array in def.get("extras", []):
+		Props.model(_root, String(e[0]), at(e), deg_to_rad(float(e[3])), float(e[4]))
 	_build_lookout()
 	var cd: Dictionary = def["chest"]
 	var stacks: Array = []
