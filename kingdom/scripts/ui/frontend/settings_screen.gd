@@ -183,6 +183,7 @@ func _tab_gameplay() -> void:
 	_row("cast_camera", "Cast Camera", "toggle", [], "A short push-in on big techniques. Any action skips it.")
 	_row("talk_camera", "Conversation Camera", "toggle", [], "The camera eases to an over-the-shoulder view while you talk to someone.")
 	_row("wheel_slow", "Slow Time In Wheel", "toggle", [], "The technique wheel slows the world while it is open.")
+	_row("auto_vault", "Auto Vault", "toggle", [], "Sprinting into a low obstacle vaults it. Off: use the Vault button or jump.")
 	_row("joystick_size", "Joystick Size", "slider", [], "Size of the on-screen movement stick (touch).")
 	_row("vibration", "Vibration", "toggle", [], "Feel hits and damage on phones.")
 	_row("subtitles", "Subtitles", "toggle", [])

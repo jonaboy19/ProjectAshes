@@ -2,8 +2,8 @@ class_name Ladder
 extends Node3D
 ## A simple vertical move between two markers: "Climb" at the bottom takes the player to the top marker and "Climb"
 ## at the top takes them back down. Each end is a child Marker3D carrying its own Interactable, so the picker
-## offers whichever end the player stands at. (Climbing animation and a held-climb state belong to the traversal
-## package F2; this is the instant, reliable version.)
+## offers whichever end the player stands at. A player with a traversal driver (scripts/actors/traversal.gd)
+## climbs over time with the ladder clip; any other node is moved at once.
 
 signal climbed(to_top: bool)
 
@@ -48,6 +48,11 @@ func height() -> float:
 func climb(player: Node3D, to_top: bool) -> Vector3:
 	var dest := top.global_position if to_top else bottom.global_position
 	if player == null:
+		return dest
+	# F2: a player with a traversal driver climbs over time (ladder clip, scripted move); anything else is moved at once.
+	var trav: Variant = player.get("_trav")
+	if trav is Object and (trav as Object).has_method("begin_ladder") \
+			and bool((trav as Object).call("begin_ladder", global_position, dest, to_top, func() -> void: climbed.emit(to_top))):
 		return dest
 	player.global_position = dest
 	if player is CharacterBody3D:

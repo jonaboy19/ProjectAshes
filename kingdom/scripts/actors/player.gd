@@ -187,6 +187,7 @@ const CombatFeedback := preload("res://scripts/combat/combat_feedback.gd")
 const CombatFeel := preload("res://scripts/combat/combat_feel.gd")
 const EnemyHighlight := preload("res://scripts/combat/enemy_highlight.gd")
 const ChaseCamera := preload("res://scripts/actors/chase_camera.gd")
+const Traversal := preload("res://scripts/actors/traversal.gd")   # F2: vault / mantle / ledge / ladder / step-up (logic lives there)
 ## The slash arc needs ~0.07 s to read, so it spawns this long before the hit.
 const SLASH_LEAD := 0.07
 ## Attack lunge stops short of the target: never push the body into the enemy (FEEL_AUDIT F4).
@@ -300,6 +301,7 @@ var _hit_stop_token := 0
 var _hit_stopping := false
 var _capsule: CapsuleShape3D
 var _mount: MountController
+var _trav: Traversal.Driver
 ## Travel rules (travel_rules.gd): seconds spent running, winded (out of stamina: walk), seconds of gallop.
 var _run_time := 0.0
 var _winded := false
@@ -344,6 +346,8 @@ func _ready() -> void:
 	_impact_pause = ImpactPause.new()
 	add_child(_impact_pause)
 	add_child(InteractionController.new())
+	_trav = Traversal.Driver.new(self)
+	_trav.register_provider()
 	_build_body()
 	_arms = PlayerArms.new(self)
 	_pivot = Node3D.new()
@@ -594,6 +598,8 @@ func _physics_process(delta: float) -> void:
 	if _mount != null:
 		_physics_mounted(delta)
 		return
+	if _trav.tick(delta, _input_dir()):
+		return                          # a scripted vault / mantle / ledge / ladder move owns the body
 
 	var dir := Vector3.ZERO if dead or _stunned > 0.0 else _input_dir()
 	var wade := WorldGen.water_depth(global_position.x, global_position.z)
@@ -680,6 +686,8 @@ func _physics_process(delta: float) -> void:
 				gravity *= 0.5
 			velocity.y = maxf(velocity.y - gravity * delta, -JUMP_TERMINAL)
 	var impact_speed := -velocity.y
+	if floor_before and not _jump_active and not swimming and _move_speed > 0.1:
+		_trav.step_assist(delta, _move_dir, _move_speed)
 	move_and_slide()
 	_update_jump_after_move(floor_before, impact_speed, dir)
 	_resolve_contacts()
@@ -1438,6 +1446,8 @@ func attack_release() -> void:
 ## the last few frames before landing. A second press in the air never relaunches.
 func jump() -> void:
 	if dead or swimming or _mount != null or _menu_open():
+		return
+	if _trav.on_jump_pressed():
 		return
 	_jump_buffer = JUMP_BUFFER
 

@@ -22,7 +22,7 @@ const DEFAULTS := {
 	"hud_minimap": true, "hud_quests": true, "hud_compass": true, "hud_damage": true,
 	"language": 0, "text_size": 1, "colorblind": 0, "screen_shake": 2,
 	"render_scale": 100, "joystick_size": 50, "vibration": true, "tutorial_tips": true,
-	"cast_camera": true, "talk_camera": true, "wheel_slow": true,
+	"cast_camera": true, "talk_camera": true, "wheel_slow": true, "auto_vault": true,
 }
 const SECTION := {
 	"resolution": "display", "display_mode": "display", "vsync": "display", "aa": "display",
