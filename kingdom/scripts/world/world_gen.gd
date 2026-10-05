@@ -756,6 +756,20 @@ static func color_at(x: float, z: float, h: float, slope: float) -> Color:
 			w.a = 0.0
 		elif dc < near["radius"] * 0.95 and paved:
 			w.r = maxf(w.r, 0.35)   # trampled yards inside the walls
+		if near.has("plan"):
+			# Gate cobble aprons (AAA pass 2, 2026-10-06): painted into the terrain's cobble channel with a noisy, feathered
+			# rim instead of 2 m tile meshes laid as a hard rectangle (settlement_builder._medieval_gates no longer lays them).
+			var gplan: Dictionary = near["plan"]
+			var gwr: float = float(gplan["wall_radius"]) if gplan["walls"] else float(near["radius"]) * 1.1
+			if absf(dc - gwr) < 12.0:
+				for ga: float in gplan["gates"]:
+					var gd := Vector2(cos(ga), sin(ga))
+					var rel := Vector2(x, z) - (Vector2(near["pos"]) + gd * (gwr + 2.0))
+					var e := Vector2(rel.dot(gd) / 7.5, rel.dot(gd.orthogonal()) / 5.5).length() + _detail.get_noise_2d(x * 0.6, z * 0.6) * 0.28
+					var ap := 1.0 - smoothstep(0.62, 1.0, e)
+					if ap > 0.0:
+						w.b = maxf(w.b, ap)
+						w.a = 0.0
 		if near.has("plan") and dc < near["radius"] * 1.1:
 			var pd := CityPlanner.path_distance(near["plan"], Vector2(x, z))
 			if pd < 0.8:

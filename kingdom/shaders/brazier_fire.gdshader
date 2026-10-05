@@ -1,27 +1,29 @@
-// Brazier / torch flame (AAA pass 2026-10-06): unshaded, a white-gold core fading to orange and dark red at the tips,
-// a cheap vertex sway and flicker. Replaces the flat yellow cone. No textures, no transparency (mobile friendly).
+// Brazier / torch flame (AAA pass 2, 2026-10-06): a looping 8x4 flipbook (assets/vfx/flipbooks/flame_loop.png, baked by
+// tools_qa/vfx_flipbooks/bake_flame_loop.gd) on one Y-axis billboard quad, additive and unshaded. One quad per fire,
+// no sorting issues, no light; each fire starts on its own frame. The quad is a surface of the merged brazier mesh,
+// centred on the model's vertical axis, so the billboard turns about that axis.
 shader_type spatial;
-render_mode unshaded, cull_disabled, shadows_disabled;
+render_mode blend_add, unshaded, depth_draw_never, cull_disabled, shadows_disabled;
 
-uniform float height = 0.55;     // flame height in model space (base at y0)
-uniform float y0 = 0.9;
-uniform float energy = 1.35;
+uniform sampler2D flipbook : source_color, filter_linear_mipmap, repeat_disable;
+uniform float fps = 24.0;
+uniform float energy = 1.6;
 
-varying float h;
+varying float seed;
 
 void vertex() {
-	h = clamp((VERTEX.y - y0) / height, 0.0, 1.0);
-	float seed = MODEL_MATRIX[3].x * 1.7 + MODEL_MATRIX[3].z * 2.3;
-	float t = TIME * 6.0 + seed;
-	VERTEX.x += sin(t + VERTEX.y * 7.0) * 0.045 * h * h;
-	VERTEX.z += cos(t * 1.3 + VERTEX.y * 5.0) * 0.045 * h * h;
-	VERTEX.y += (sin(t * 2.1) * 0.5 + 0.5) * 0.06 * h;
+	seed = fract(MODEL_MATRIX[3].x * 0.137 + MODEL_MATRIX[3].z * 0.291) * 32.0;
+	vec3 up = vec3(0.0, 1.0, 0.0);
+	vec3 right = normalize(cross(up, INV_VIEW_MATRIX[2].xyz));
+	vec3 fwd = normalize(cross(right, up));
+	mat4 bb = mat4(vec4(right, 0.0), vec4(up, 0.0), vec4(fwd, 0.0), MODEL_MATRIX[3]);
+	MODELVIEW_MATRIX = VIEW_MATRIX * bb;
 }
 
 void fragment() {
-	vec3 core = vec3(1.0, 0.78, 0.36);
-	vec3 mid = vec3(1.0, 0.55, 0.12);
-	vec3 tip = vec3(0.75, 0.18, 0.04);
-	vec3 c = h < 0.45 ? mix(core, mid, h / 0.45) : mix(mid, tip, (h - 0.45) / 0.55);
-	ALBEDO = c * energy;
+	float f = mod(floor(TIME * fps + seed), 32.0);
+	vec2 cell = vec2(mod(f, 8.0), floor(f / 8.0));
+	vec4 c = texture(flipbook, (UV + cell) / vec2(8.0, 4.0));
+	ALBEDO = c.rgb * energy;
+	ALPHA = c.a;
 }

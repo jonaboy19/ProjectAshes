@@ -24,8 +24,7 @@ static func _flame_mat(kind: String) -> ShaderMaterial:
 	if not _mats.has("flame_" + kind):
 		var m := ShaderMaterial.new()
 		m.shader = preload("res://shaders/brazier_fire.gdshader")
-		m.set_shader_parameter("y0", 0.9 if kind == "brazier" else 0.66)
-		m.set_shader_parameter("height", 0.62 if kind == "brazier" else 0.34)
+		m.set_shader_parameter("flipbook", load("res://assets/vfx/flipbooks/flame_loop.png"))
 		_mats["flame_" + kind] = m
 	return _mats["flame_" + kind]
 
@@ -56,6 +55,12 @@ static func _fire_mat() -> StandardMaterial3D:
 
 static func _add(st: SurfaceTool, prim: PrimitiveMesh, xf: Transform3D) -> void:
 	st.append_from(prim, 0, xf)
+
+
+static func _flame_quad(size: Vector2) -> QuadMesh:
+	var q := QuadMesh.new()
+	q.size = size
+	return q
 
 
 static func _cyl(top: float, bottom: float, h: float, seg := 8) -> CylinderMesh:
@@ -119,18 +124,12 @@ static func mesh(kind: String) -> ArrayMesh:
 			var r := sqrt(rng.randf()) * 0.22
 			var t := rng.randf() * TAU
 			_add(coals, lump, Transform3D(Basis.IDENTITY, Vector3(cos(t) * r, 0.9 + (0.22 - r) * 0.35, sin(t) * r)))
-		for i in 5:      # flame tongues: one tall centre, four leaning outward
-			var a := TAU * i / 4.0
-			var tall := 0.62 if i == 4 else rng.randf_range(0.36, 0.48)
-			var w := 0.16 if i == 4 else 0.1
-			var lean := Basis.IDENTITY if i == 4 else Basis(Vector3(-sin(a), 0, cos(a)), 0.22)
-			var off := Vector3.ZERO if i == 4 else Vector3(cos(a), 0, sin(a)) * 0.1
-			_add(fire, _cyl(0.0, w, tall, 7), Transform3D(lean, off + Vector3(0, 0.9 + tall * 0.5, 0)))
+		_add(fire, _flame_quad(Vector2(0.78, 1.0)), Transform3D(Basis.IDENTITY, Vector3(0, 0.86 + 0.5, 0)))   # flipbook billboard
 	else:
 		_add(iron, _cyl(0.025, 0.025, 0.5, 6), Transform3D(Basis(Vector3.RIGHT, 0.0), Vector3(0, 0.35, 0.0)))   # stick
 		_add(iron, _cyl(0.07, 0.04, 0.12, 6), Transform3D(Basis.IDENTITY, Vector3(0, 0.62, 0)))   # cup
 		_add(iron, _cyl(0.02, 0.02, 0.3, 5), Transform3D(Basis(Vector3.RIGHT, PI * 0.5), Vector3(0, 0.3, 0.14)))   # wall bracket
-		_add(fire, _cyl(0.0, 0.09, 0.28, 6), Transform3D(Basis.IDENTITY, Vector3(0, 0.82, 0)))
+		_add(fire, _flame_quad(Vector2(0.34, 0.46)), Transform3D(Basis.IDENTITY, Vector3(0, 0.64 + 0.23, 0)))
 	var am := iron.commit()
 	fire.commit(am)
 	am.surface_set_material(0, _iron_mat())

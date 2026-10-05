@@ -85,6 +85,7 @@ var _attack_small: TouchScreenButton          # attack as a context action while
 var _eat_button: TouchScreenButton
 var _menu_button: TouchScreenButton
 var _pill: Control                            # HudCard.ActionPill: "Talk — Roland Ward"
+var _world_icon: Control                      # world_prompt_icon.gd: small icon ON the interactable
 var _techniques: Control
 var objective_marker: Control                 # world marker for the player pin only (objective_marker.gd)
 var threat_plates: Control                    # engaged / locked hostiles only (threat_plates.gd)
@@ -265,6 +266,8 @@ func _ready() -> void:
 	_techniques = techniques
 	techniques.open_skills_requested.connect(func() -> void: GameMenu.open(self, "skills"))
 	techniques.wheel_requested.connect(func(at: Vector2) -> void: technique_wheel.open_wheel("touch", at))
+	_world_icon = preload("res://scripts/ui/world_prompt_icon.gd").new()
+	controls.add_child(_world_icon)
 	_pill = HudCard.ActionPill.new()
 	_pill.modulate.a = 0.0
 	_pill.visible = false
@@ -1314,6 +1317,8 @@ func _process(delta: float) -> void:
 	_update_dash_button()
 	_update_modes(delta)
 	_update_calm_fade(delta)
+	_world_icon.set("target", target)
+	_world_icon.call("step", delta, player.get("camera") as Camera3D, not is_menu_open() and not GameMenu.is_open(self))
 
 
 ## AAA pass 2026-10-06 (skill ashes-aaa-camera-hud): the HUD furniture (card, compass, tracker, minimap, clock) eases to
@@ -1423,6 +1428,8 @@ func _apply_label() -> void:
 	_interact.texture_normal = big
 	_interact.texture_pressed = big
 	var small := HudArt.round_face(72, _fill_for(UITheme.ACTION_TALK), res[0], res[1], 0.62)
+	_world_icon.set("face", small)
+	_world_icon.set("verb", String(target_label.get("verb", "")))
 	_interact_small.texture_normal = small
 	_interact_small.texture_pressed = small
 	(_interact_small.get_child(0) as Label).text = String(target_label.get("verb", "")).left(9)

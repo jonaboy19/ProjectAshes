@@ -108,6 +108,11 @@ func _run() -> void:
 
 
 	await shot("3_aftermath")
+	# 5. the benchmark street (streets[0]) from a third of the way down, looking toward the gate, slightly to the houses
+	var bst: Dictionary = plan["streets"][0]
+	var bd := ((bst["b"] as Vector2) - (bst["a"] as Vector2)).normalized()
+	await _place((bst["a"] as Vector2) + bd * 22.0 - bd.orthogonal() * 1.5, bd.rotated(0.3))
+	await shot("5_benchmark")
 	# 4. a town horse up close (textured HorseRig vs the old flat Quaternius one).
 	var best: Node3D = null
 	for n in get_tree().get_nodes_in_group("interactable"):
@@ -161,19 +166,21 @@ func _near_lot(plan: Dictionary, to: Vector2) -> Dictionary:
 	return best
 
 
-## Walk from the spawn through the plaza and out along the first gate road; Movie Maker records every frame.
+## Walk the benchmark street (plan streets[0], plaza -> gate): Movie Maker records every frame. The old route crossed the
+## market and snagged on a stall.
 func _walk(c: Vector2, plan: Dictionary) -> void:
-	var sp: Vector2 = main.HOME_SPAWN
-	var ga := float(plan["gates"][0])
-	var dir := Vector2(cos(ga), sin(ga))
-	await _place(sp, (c + dir * 6.0) - sp)
+	var st: Dictionary = plan["streets"][0]
+	var a: Vector2 = st["a"]
+	var e: Vector2 = st["b"]
+	var dir := (e - a).normalized()
+	await _place(a + dir * 2.0, dir)
 	player.touch_move = Vector2(0, -1)
 	var t := 0
 	while t < 420:
 		var here := Vector2(player.global_position.x, player.global_position.z)
-		var goal := c + dir * (60.0 if t > 120 else 6.0)
-		var want := yaw_for((goal - here).normalized())
-		player.set_camera(lerp_angle(player._yaw, want, 0.04), player._pitch)
+		var ahead := a + dir * ((here - a).dot(dir) + 8.0)
+		var want := yaw_for((ahead - here).normalized())
+		player.set_camera(lerp_angle(player._yaw, want, 0.08), player._pitch)
 		if t == 240:
 			Input.action_press("sprint")
 		await get_tree().process_frame
