@@ -36,3 +36,45 @@ The new footstep ownership adapter changes audio playback only. It does not publ
 - `5921f1f5`: one player footstep owner using the existing audio pool.
 
 These commits are local on `gpt/character-feel-finish`; no push or merge is claimed. Their handoffs explicitly retain runtime, visual/audio and phone acceptance gaps. Continue source review and current-Claude comparison before integration.
+
+## Reading inventory
+
+`CLAUDE_DOCUMENT_READING_INDEX.json` indexes 188 Markdown files currently under `docs`, with line counts and SHA-256 content fingerprints. Authorship is mixed; this is a coverage inventory, not proof Claude authored every entry. Nine explicit full reads from this continuation are marked; other entries remain pending or partial, even if previous conversation may have read sections. Continue by recorded sections and refresh a changed fingerprint before carrying forward its coverage.
+
+New full reads: P10 directional reaction handoff, character reference README, and rig deformation visual handoff. Read SYSTEMS_CLAUDE_HANDOFF first 60 lines in a truncated batch and the integration/memory handoffs in a further truncated batch; no full-read claim is made for those.
+
+## Impact-pause integration remains open
+
+The standing marker-window travel uses the actor action clock. The local impact pause currently freezes mixers without freezing that clock, so body travel/recovery can continue under a frozen pose. This must be addressed before visual acceptance. A fix needs to keep contact dispatch, marker travel, recovery/cancel clocks and feedback on one pause-aware action timeline; changing only recovery or a hit timer would leave inconsistent clocks. Do not treat local source commits as ready for production merge while this remains unreviewed.
+
+The complete source-derived integration contract is now in `COMBAT_ACTION_CLOCK_INTEGRATION.md`. WeaponTrail has an independent process clock shared by its emission window and ribbon ageing; these must be separated if action time is paused. Player's first-person tween is another independent presentation path. The contract records those consumers so a recovery-only patch cannot accidentally be called complete.
+
+## Social, family and economy reading checkpoint
+
+Eleven further handoffs were read without truncation: social graph, temperament, dialogue topic memory, courtship cadence/proposal, LifeCourses kinship/vacancy age, child succession, market fractional carry/purse income, and property tax sale gate. The index now records 20 full reads from this continuation.
+
+The social graph is bounded familiarity from completed nearby chats, not agreement, friendship or witness confidence. Dialogue remembers topic entry, not exact rumor content. Date cadence does not prove travel or time spent together. Preserve those distinctions in animation or dialogue presentation; do not use a gesture or a schedule approximation as proof an encounter occurred.
+
+Source cross-check: current UtilityBrain pairing supplies the current fractional game day to `NpcSocialGraph.affinity`, matching the documented effective decay lookup. Current LifeCourses deserialization explicitly converts parent IDs into an integer array, so a normal JSON number representation alone does not establish a missing-kinship bug. The marriage guard excludes pairs sharing any accepted parent ID, including half siblings despite the handoff's narrower wording. No family or economy code was changed.
+
+Market carry and property gates are already documented implementation slices; their remaining runtime/save checks should be finished through existing owners, not rebuilt as new systems. This reading does not approve those slices in-game.
+
+## 5 October continuation
+
+The reading index now records 31 full handoff reads. Additional completed reads cover observed-event memory, semantic work targets, caravan dispatch, Awakening culture, cull species/den attribution, stale wolf issues, winter ecology and three radiant-quest handoffs. Refresh fetched refs found Claude at `1983bfeb` and main at `31ecc059`.
+
+Source comparison confirmed the historical culture and guild-species gaps still exist on the fetched Claude branch. Focused local fixes and their unchanged reward/identity boundaries are recorded in `LIFE_IDENTITY_INPUT_FIXES_HANDOFF.md` (commit `b5a52409`). Caravan dispatch remains an ownership/design question; reading its handoff is not authorization to invent an automatic funding/cargo policy.
+
+The pause-aware player combat subset is now implemented locally in `906bf7e1`; see the latest source checkpoint in `COMBAT_ACTION_CLOCK_INTEGRATION.md`. It is not a parser/runtime/visual approval. Source review must still check reaction priority, contact frame order, older dodge/landing timers and restoration. In particular, the current take-damage path can replace attack animation with a reaction without always ending the attack action; determine whether light hits should preserve an attack through additive flinch or explicitly interrupt it. Do not silently change poise/balance to hide that ownership mismatch.
+
+Quest and economy handoffs show existing small correctness slices. Reuse those producers and durable IDs rather than infer a completed quest, physical visit or observed event from its animation. The remaining reading and runtime acceptance scope stays open.
+
+## Advanced animation tools reading checkpoint
+
+Completed full reads of the advanced catalogue, runtime-tech README, video-mocap README and authored combat metrics. Their current content fingerprints are refreshed in the reading index. Four more documents have explicit full coverage; the overall reading task remains incomplete.
+
+The runtime-tech document explicitly recommends folding additive flinch into CharacterAnimator's existing tree. Local commit `9652aa1a` implements a rotation-only variant using the existing directional light-reaction clips. The demo used different source clips and a OneShot/identity/Add2 topology; its measured foot offsets and timings do not establish acceptance of this implementation. See `COMBAT_REACTION_OWNERSHIP_HANDOFF.md` for the changed interruption rules and pending checks.
+
+Performance table phone values are PC measurements multiplied by five, not S22 measurements. The catalogue's root-track loader claim still needs checking per loaded library; do not apply it universally. Authored metrics report large slide values for spin finishers and running attacks in their specific full-body/root-motion fixture. They identify review candidates, not confirmed defects in the present blended gameplay or evidence that all clips should be replaced.
+
+Video mocap is an available offline pipeline, but the recorded validation is synthetic only. It has weak wrist/finger recovery, unreliable jumps/spins and flat-ground foot pinning. Reuse existing accepted clips first; new footage needs source-versus-retarget review before gameplay wiring. No new dependency installation or asset generation is needed for the current combat ownership patch.

@@ -1,0 +1,1134 @@
+{
+  "date": "2026-10-05",
+  "scope": "All Markdown under docs; authorship is mixed. Only explicit full reads from current continuation marked complete.",
+  "entries": [
+    {
+      "path": "docs/addons/README.md",
+      "lines": 112,
+      "sha256": "63A9993A623D8A4F71AEA682668864AECF55435497FE9865EDB734122CF618C3",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/advanced/README.md",
+      "lines": 74,
+      "sha256": "B6EA731BC67E998D560E1CECEEB6EE37CB98EA77DCB338332F0EC5518C314FF5",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/anim/advanced/tech/README.md",
+      "lines": 80,
+      "sha256": "683726F40F6280C3A8261DA554AA50CEBDBF3A85F288487CAD5A82B9D714C019",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/anim/advanced/video_mocap/README.md",
+      "lines": 40,
+      "sha256": "2159D4398AA69533960A19D92283EAE3269A4FEFAF4A728510E767E4F5CA0347",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/anim/CODEX_INTEGRATION_REVIEW.md",
+      "lines": 92,
+      "sha256": "D1E3F4E19EC3E9C01F32C8DA4281C26CE91B6C0C0ED1DFC57A04842D447CE57C",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/CODEX_LOCOMOTION_JUMP.md",
+      "lines": 63,
+      "sha256": "DB5743652F4ECBCED55DBB229463565C8BBE09442D3E9E84DBE64E514397AA60",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/COMBAT_AUDIT.md",
+      "lines": 176,
+      "sha256": "0AF8C90C539C36718C8F15618327486FDEA35D5EEE9BC567B1D24BB512E7432E",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/combat/authored_metrics.md",
+      "lines": 50,
+      "sha256": "E0399D83B7B19F97700F2BEA701E458DD94EDD36E0AF0C015798BCD7B9AC9F6D",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/anim/combat/library_metrics.md",
+      "lines": 72,
+      "sha256": "CF669B00A8BA20D32C5C0B01BAE8A918C69022C83C95844706C4BC5631D67670",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/farm/README.md",
+      "lines": 38,
+      "sha256": "DF67DFBE425C4447C64366B99635A1BDA787D8D3BAD48677D64A9B9D5A53920F",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/FEEL_AUDIT.md",
+      "lines": 107,
+      "sha256": "05786F97AE7A6AA6CEE64FB823EB1DF8553C825CD7BA71450CA3AC3250F1F461",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/free_library/clip_tables.md",
+      "lines": 149,
+      "sha256": "F16BF0D2172E15F7AAC6300567A038D57808429322F7D73770E1DF6E265EE76F",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/free_library/HANDOFF_CODEX.md",
+      "lines": 463,
+      "sha256": "B7BB1B5203910C639C78DED3B1F40EE90BBB757974D07683222845497D62B363",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/free_library/polish_casting.md",
+      "lines": 151,
+      "sha256": "94807A66FA1267F7E3A8E8927D88AD41D6971D9D36742E90FA0F4DDD3B0CD1AD",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/free_library/polish_review.md",
+      "lines": 270,
+      "sha256": "24C71EA8C5D41E8267B7979C18DEB96BB983A88583A43258BB7B849A6543941A",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/free_library/README.md",
+      "lines": 29,
+      "sha256": "E902A6042CC74794F7BEC9B81A02CE2BF7908F71E783070CF958ED7AACA80E98",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/free_library/review_results.md",
+      "lines": 109,
+      "sha256": "1F74974C1B95E7DB5267AB7F2B4C3E7639687956200A6277AA9ABF8ABC92478C",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/horses/HANDOFF.md",
+      "lines": 223,
+      "sha256": "1205946541A1A7EFEC3DDCDA007B82B537CC0B8AFE47E94E4F58428548E1CC98",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/living_world/bench_high.md",
+      "lines": 11,
+      "sha256": "6FA89AA8D0804014564D9870E5CE2E5F57530647EA7A128606AC2AA648B5023E",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/living_world/bench_low.md",
+      "lines": 11,
+      "sha256": "8DAB32DA8F787A820FD8D9ADD438723F65C002D8A59C3BC723271E92C0EF4EDB",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/living_world/HANDOFF.md",
+      "lines": 156,
+      "sha256": "F58C3DCBAA688B92C1DA219302FE0B97AB838D00112C008E30C6C0FC41DC3FAA",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P10_directional_hit_reactions.md",
+      "lines": 69,
+      "sha256": "5CB1E9DF2386433F6EDC76C26A7699B6677EBFCC5C27A98312B6E8249B7BEE18",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/anim/patches/P11_enemy_attack_windup.md",
+      "lines": 50,
+      "sha256": "C000407907017A812A60E27213D12CBC42A2162E9BF7EB33E37A882ED7517977",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P12_hitstop_camera_fov.md",
+      "lines": 42,
+      "sha256": "1F9D480A9C6711A7E7FE64447D3E658BD8410ABD2FD907AAAC86717CB1378DF6",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P13_assets_life_libs.md",
+      "lines": 18,
+      "sha256": "5690D0175DB0470C964BA8C3561DCD0EA500DFB6982C6551FF44123CE58B997A",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P13_population_lod_vat.md",
+      "lines": 73,
+      "sha256": "D2E05205AFC4030978EE715632DF5EEB8075EDEEA7F087C2F5149CCAEDC07B7B",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P13_villager_life_clips.md",
+      "lines": 196,
+      "sha256": "F8A4A1E20DC5FFFAEE0765E6A9412D7030F83363A26EB5F0EE518D3F75DD611D",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P13_world_sim_smart_objects.md",
+      "lines": 48,
+      "sha256": "EC6AAF1CF3DF2DF5BDF30E6BB24C6338DF7CD75F285ADED1941742C098C44CE6",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P14a_mount_controller_horse_rig.md",
+      "lines": 86,
+      "sha256": "5289CEBB087D8454FDE1228430F406BDBCA1BFE6D381427CA2C0CE22DBD366C9",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P14b_player_rider_sync.md",
+      "lines": 77,
+      "sha256": "7AEC39B16F9DA22912FEABCD40B455194DABBD2ADD617C61B1E5299CBC092503",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P14c_critter_horses_and_herds.md",
+      "lines": 45,
+      "sha256": "546123A4B667CDD4444E80610C7959A5DEBEAFEAE55616FA3410A8ADDDF8BA28",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P15_codex_integration_fixes.md",
+      "lines": 36,
+      "sha256": "7679B96B7F58C8C5B723226B5023B99102C15F3AC8388DC28ABA93865864B7A4",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/anim/patches/P2b_wolf_turn_and_pack_clips.md",
+      "lines": 189,
+      "sha256": "08DE16EB2B99CC8C962DCD0D2D130F4784C7F60764CA1CBDE955641ACDE40A0E",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P3_getup_pop.md",
+      "lines": 22,
+      "sha256": "4003529F4870381EFC1EB528B0A63D02E7440BAFBE0114EE51EF289611BAFAD6",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P4_camera_occluders.md",
+      "lines": 20,
+      "sha256": "E6123E67C3E6B6317AF4590E5F8DE3CB871AD6B43BCEA732DD83FDBA3DF9CF5C",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P5_locomotion_transitions.md",
+      "lines": 68,
+      "sha256": "58D061032CEDC42843368DD51593D40B1FE5A2CF9A187B52FEA5592D47307359",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P6_npc_foot_ik_cost.md",
+      "lines": 26,
+      "sha256": "2DD33225C63F801A4C74AABA4A4F5D40344C2DC917B5299087A347A1A310435B",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P7_jump.md",
+      "lines": 72,
+      "sha256": "503AC63D479F073BD69A8197D3AA3883187D511F393DA419CDC3F14DA9274AD9",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/anim/patches/P9_attack_layering.md",
+      "lines": 214,
+      "sha256": "606F9C3DE647886805F14D691930C80DC0D7816DADE4484185DF241CA540B650",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/anim/traversal_v2_HANDOFF.md",
+      "lines": 63,
+      "sha256": "A5FF038D72A291CE12A7434CEC3030DACF6769A243EA80C16D96B45B2CEAC7DB",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/art/meshy_free_shortlist.md",
+      "lines": 41,
+      "sha256": "D568C5C5E8A6E6519D4CAA15148F48443EC60D72FAAD599CE5FF6B1139C99B18",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/art/meshy_free_triage.md",
+      "lines": 393,
+      "sha256": "79A41F993A6333696B14408B604C4E464A1F16C5A0E5AAEC907E403EEF2E296F",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/art/meshy_free/README.md",
+      "lines": 280,
+      "sha256": "1269F7385457027074B24F0393AD25ABB8608D173B3BA82062A03F048A988584",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/art/reference/characters/README_FOR_CLAUDE.md",
+      "lines": 7,
+      "sha256": "5F60C0CB1BDCA7BFCE3632463E14DA6FEA7638E8E4E6F1A2ED02544E32D640B8",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/art/vfx_elements/README.md",
+      "lines": 82,
+      "sha256": "4D0D706B6F59267DBA735F7EE40B187F9B2F0D59A4C08341D5FDBE3199C54FCE",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/art/vfx_free/README.md",
+      "lines": 38,
+      "sha256": "EB6FA2F45ABEBEA7544052D2090A33B0BCE8870F8C2C80FD374C04A579FE00EF",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/art/VFX_FUTURE_PLAN.md",
+      "lines": 44,
+      "sha256": "14023E1B1086EBC6EA4BBB724863DB289CED3F26F52A1A050FEE0934EC0ABBC7",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/art/vfx_tools/README.md",
+      "lines": 90,
+      "sha256": "D3BCCAB49EC1EAC3FCFE25CC55282EBE1D8AE4AC0C8A5ACBB25964535B01960F",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/balance/BALANCE_RUN_2026-09-30.md",
+      "lines": 164,
+      "sha256": "209911CEF8BB08BAF3935935093051E6E406CFBD2F0AED2CC46224A4377BBE28",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/balance/CIVILIZATION_BALANCE.md",
+      "lines": 55,
+      "sha256": "0D1BAECD16FABB84252F0B2AF717BDA4403BACC88DB12299CB3C8D46432191C8",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/balance/PROGRESSION_R1.md",
+      "lines": 91,
+      "sha256": "E45E51706F2144E1FC9093DC039719775ECCDAE4EF202F97956334AE020E2893",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/ADVENTURER_GUILD_CULL_TARGET_HANDOFF.md",
+      "lines": 13,
+      "sha256": "43A4587B786527C660A74B6BB1388FD72383CA4C832CD59F09E1FDFCE65B37BE",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/ADVENTURER_GUILD_SPECIES_ATTRIBUTION_HANDOFF.md",
+      "lines": 19,
+      "sha256": "4A870EBFB575AA99B20940BC2E13D1D8C9B4F9C6D997C25CF34359B4ED3DDBED",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/AWAKENING_CULTURE_IDENTITY_HANDOFF.md",
+      "lines": 19,
+      "sha256": "E71E55B0CA75D9F38A9468E5DE1329E7552E36BD6121F6C7F3A75C28B680DAA1",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/BLENDER_HERO_CANDIDATE_HANDOFF.md",
+      "lines": 17,
+      "sha256": "A9407FC838D4F94CB36580C700F2CDAC67FF89128666704048CC714BD8D78D28",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/BLENDER_HERO_MOBILE_REVIEW.md",
+      "lines": 17,
+      "sha256": "00D6CF1D88F927834FAAE07DCB9F35DBA4812D340A228135AB574E3C4DA9454E",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/CARAVAN_LIVE_DISPATCH_HANDOFF.md",
+      "lines": 16,
+      "sha256": "4A929234591B2999620EDCD6C95043113FFA780A96212BDDB485869B3629CE3B",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/CAREER_BIOGRAPHY_LIFECYCLE_CONTRACT.md",
+      "lines": 50,
+      "sha256": "B0906D5BBB87B0993C263D79763376D470706586E3D3D6EDB32FFA44A70C0D4F",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/CHARACTER_FEEL_FINISH_CHECKPOINT.md",
+      "lines": 21,
+      "sha256": "8D096EC327FF2B2FE7DEA9211643810DF2C2CB8CF295A6608A746295EDF6A4B4",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/CLAUDE_GAME_FEEL_BRIEF.md",
+      "lines": 81,
+      "sha256": "57E1086009E2BA52D4DB0B62B65A71308659F7B6D30AC94A88DDD67F2640FE48",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/CLAUDE_IMPLEMENTATION_BRIEF.md",
+      "lines": 77,
+      "sha256": "AEAC0F4704AC2F4A89844257C9BB09EAF50A69AAA924D087CB187F70CF147E7F",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/CLAUDE_READING_CONTINUATION_2026_10_04.md",
+      "lines": 38,
+      "sha256": "BA94C53F800E44CBEFEDE7D1E4087223F41EF6BFBFCD27AD947292E7FFA78AC8",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/CODEX_CHARACTER_FEEL_FINISH.md",
+      "lines": 127,
+      "sha256": "30D8C39D3455A296511B3E17301BCF6375B6BCC49D2625B49D65B085ED90642A",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/CODEX_CLAUDE_LIVING_WORLD_INTEGRATION.md",
+      "lines": 85,
+      "sha256": "548E2807031C02374F5A4A253D45A79E3C41F79FFB52CCDFEFAA113B37C44B1C",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/CODEX_SYSTEMS_HANDOFF.md",
+      "lines": 40,
+      "sha256": "7A3ACD07FB5CC4DE19D76B179D671E7BE1999D4A954A63A5D2A414FE8349F768",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/COLLISION_FACADE_REVIEW.md",
+      "lines": 37,
+      "sha256": "33AF5C7E3D2895B8243AD608AEFEF263A2E108496CC5AE0F236730C4D4EEB997",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/COLLISION_VISUAL_AUDIT.md",
+      "lines": 45,
+      "sha256": "7662BBAA4B24A961A35A6A9B744E0115678085B3E70CF3952EA718189C9BB37C",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/COMBAT_FOOTWORK_REUSE_CHECKPOINT.md",
+      "lines": 67,
+      "sha256": "58D6C3A6C9C6320324C891B45B24E3761CFD0932688D4D0FECFA9AC7588EEF82",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/COMBAT_PRESSURE_AND_READABILITY.md",
+      "lines": 76,
+      "sha256": "B479703E6C336C8C55B45133C618729C3360BD4F4A3AEB0C553F0E323A42A848",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/CURRENT_RUN_VISUAL_REVIEW.md",
+      "lines": 70,
+      "sha256": "FF81F63E98221968F990C9FBBC5802014AEF1F71A0A724DD6AB7C6B71BB63687",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/DELAYED_SPY_REPORT_HANDOFF.md",
+      "lines": 35,
+      "sha256": "F406B2BD5501539906577F88459410EE1262DAF38FC1335D72C496056C701A02",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/DOOR_SERVICE_INTERACTION_CONTRACT.md",
+      "lines": 37,
+      "sha256": "4C57B40D878DFE177B38DC9B52CCD8162835CAA3CAA80B09A3FBEFA6962C913E",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/EXHAUSTED_ATTACK_TIMING_HANDOFF.md",
+      "lines": 33,
+      "sha256": "84AAB9C51553696726BC6BFD4FCDE20024BFAB351C1213209DEAF27909779F2E",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/FOOTSTEP_ACTIVITY_AUDIO_HANDOFF.md",
+      "lines": 33,
+      "sha256": "84BF13D923BB79514D3FFC565AAE7FA5598942782A8EA2FFB33395B0B625DC6A",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/FOOTSTEP_OWNER_SOURCE_CHECKPOINT.md",
+      "lines": 31,
+      "sha256": "FADA2E652D848E54C4067CBBB9038E55E3955E2A2E2324D91B6A814E6C4F2D0E",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/FRONTIER_WINTER_ECOLOGY_HANDOFF.md",
+      "lines": 13,
+      "sha256": "FA16ED4808AA23032792FD46C87575435E037F9715CBD14CEE0EA8E4A3BCCAAB",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/HERO_LEATHER_EXPERIMENT.md",
+      "lines": 9,
+      "sha256": "86943FA201E88E65BFDFE6D75F5CC49502EE9A1952E86113D5E5938D4745037D",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/HIT_KNOCKBACK_FLOOR_CONTACT_REVIEW.md",
+      "lines": 9,
+      "sha256": "7D62E59BF8C08CDC8EAA3AA503357D6256E61A57763E12C1A44B1FD3ED30C59E",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/LOCOMOTION_PHASE_AND_FOOT_CONTACT_DESIGN.md",
+      "lines": 67,
+      "sha256": "75D20DF7CB696B4845898E6220613C3923D8B434A51EEE98EE521AB3B4D616B8",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/LOCOMOTION_SPEED_REVIEW.md",
+      "lines": 41,
+      "sha256": "749EBAF1871961A1228EA46BD6A45844F7AB89EC74C80EB7900B3F8BE1CC979F",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/LOCOMOTION_START_STOP_TURN_CONTRACT.md",
+      "lines": 42,
+      "sha256": "2CB86302ED9522B32BDD7B5A88ACBADF4DC8586C8F6553A239EF6E1FC29C2F28",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/LORDSHIP_STALE_WOLF_ISSUE_HANDOFF.md",
+      "lines": 13,
+      "sha256": "B6999DAFE4302EAEBB7EF18D96EBAF1A948C4336A4BCBBED045F7659C03151FD",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/MARKET_FRACTIONAL_CARRY_HANDOFF.md",
+      "lines": 13,
+      "sha256": "74A7381D21CADC95D09B61430F832D233BF5C36F276B0F2E691695E179E63497",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/MARKET_PURSE_INCOME_HANDOFF.md",
+      "lines": 7,
+      "sha256": "3523D4F3949F7FACC895C67741DAB3B2013DB7AE7B10E90EC67266389784C64A",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NATURAL_WORLD_CLAUDE_HANDOFF.md",
+      "lines": 127,
+      "sha256": "7E43CFC0350C54ED16B4A91D83155257C72DC7D4D4401FA31D966C04354EEC4A",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/NATURAL_WORLD_FEEL_PLAN.md",
+      "lines": 178,
+      "sha256": "DCE89DBB2FD24130C07E77FDE651AADCCC84EC9001EFB69E030DF576022D4307",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/NATURAL_WORLD_WORK_ORDER.md",
+      "lines": 116,
+      "sha256": "43E9DBAEB3B69A5E5034B45115B3EE8453543DC1E15C5A59B65603E124374E74",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/NPC_ANIMATION_TRANSITION_DESIGN.md",
+      "lines": 70,
+      "sha256": "728F861BEE7E75A51D8A603974E0E934A5874F9F17050CA7066FDA25F61A18E5",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/NPC_CAPTURE_TRACE_VIEWER.md",
+      "lines": 17,
+      "sha256": "BB0F93CEA5198EDBD2A6D9E654713F8BC4C8596FA1EE6E0BD95F406595751BE4",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/NPC_CHILD_SUCCESSION_HANDOFF.md",
+      "lines": 13,
+      "sha256": "96EBC6C4EFAEDF2E043BFA2CDF35C148B07847BAB59892BF0D313A0E581972B6",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NPC_CONTACT_LOD_CONTRACT.md",
+      "lines": 77,
+      "sha256": "02EEDC41ECA5EF6116934414FA374B1CA565AE8A42176DCCD4501FA814730ACD",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/NPC_COURTSHIP_DATE_CADENCE_HANDOFF.md",
+      "lines": 16,
+      "sha256": "8A1D21C39DCEDA3E4B64EBD2EB8FFF4962859D87F7760A9B68086FF7537D3192",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NPC_COURTSHIP_PROPOSAL_GATE_HANDOFF.md",
+      "lines": 15,
+      "sha256": "3C97E556E78715554F4FDEE943E3CFE530CB8D8707DF14AB24C7AFF4BF81EEB1",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NPC_DIALOGUE_TOPIC_MEMORY_HANDOFF.md",
+      "lines": 26,
+      "sha256": "042399F0030355F52A403AC0EA70D1EFA1B27C33BC0E728DD12B1FECB41C8B8C",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NPC_FOLLOWER_ANIMATION_REVIEW.md",
+      "lines": 48,
+      "sha256": "FCADAA3201A815BBADB7A7E14DF7EE80E5E89CF57599CF5B279085C193903198",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/NPC_LIFE_COURSES_KINSHIP_HANDOFF.md",
+      "lines": 16,
+      "sha256": "DF55DDA1A0E51A0A3EBE68B61D4CF382325B59544DE1111F44BE2D5C5D4E15B9",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NPC_LIFE_COURSES_VACANCY_AGE_HANDOFF.md",
+      "lines": 15,
+      "sha256": "B1E68818522857770AF953CFF1A668BE6A8A1595B6CFDE6F4BEF8A39FB25E963",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NPC_LIFE_LOOP_DESIGN.md",
+      "lines": 173,
+      "sha256": "C9B0F00316F256EDAB51812C565B61FBD7165ACFFF8B344095C86718645AD7BB",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/NPC_MOVEMENT_HEARING_HANDOFF.md",
+      "lines": 28,
+      "sha256": "69AB5CCB87654FDF18A7BC086E7F527DF20302E48C10F4DAC3FE1B79BDF20C3B",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NPC_NAVIGATION_GODOT46_NOTES.md",
+      "lines": 64,
+      "sha256": "E9F0A1E53A21BF3C30FA182342533274DCA29356E23D706BBB21856A323F2581",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/NPC_NEEDS_CONTINUITY_HANDOFF.md",
+      "lines": 61,
+      "sha256": "0278D2A58FE63074DA8DE2104B8C4DA56421DF26D44850D7B785AA1AA802C7D1",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/NPC_OBSERVED_MEMORY_HANDOFF.md",
+      "lines": 51,
+      "sha256": "0422064E26C7FEFDBBF310ECA0CEF536357035374E17B6A92C6A7C19AE6CABC3",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NPC_OFFSCREEN_NEEDS_HANDOFF.md",
+      "lines": 25,
+      "sha256": "534245DD59ECC27E4EB19A3832435F01259EBC287AE01E22B9328B1503E3E1B6",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NPC_OPTIONAL_INN_ROUTINE_HANDOFF.md",
+      "lines": 16,
+      "sha256": "28D3D8123DA8277D784A73BA9C6DA81E81EBD94ED817CF3088DBA478E9B2924A",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NPC_PARTIAL_ROUTE_ARRIVAL_HANDOFF.md",
+      "lines": 19,
+      "sha256": "A7E81CC2291E3981E48855EF4652B00F0B89A02D6D3A8CF99EC4A4958CF95768",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NPC_PHASE_REVIEW.md",
+      "lines": 22,
+      "sha256": "B207BC77A65F615DFC22C2CA0E9C97E99C14B1FC9B7676E9F750307782F755A4",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/NPC_ROUTE_AUDIT.md",
+      "lines": 27,
+      "sha256": "B6109E307FFCD42995A0AC92C7A0F29EC9638EAE6E02ECD1706183D2CCD71469",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/NPC_SOCIAL_GRAPH_HANDOFF.md",
+      "lines": 28,
+      "sha256": "96D6A53E38757D762039EFE11903A67AEFE3C598CA07253BCB8DE2AB6618EBF0",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NPC_TEMPERAMENT_HANDOFF.md",
+      "lines": 18,
+      "sha256": "F78F094E6361E30B49D0C2B9BAC1D92C016AE09AD9B748B6F334FD43278CCA7D",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/NPC_WELL_ACTIVITY_HANDOFF.md",
+      "lines": 62,
+      "sha256": "B55790E18F7A44CBA155DC617C3CCE25724C36ABF16CF61DC56DECEF40A36B06",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/OPEN_WORLD_PATTERN_STUDY.md",
+      "lines": 64,
+      "sha256": "50E2BFAE1344452429A3E05CD2360154D9DAF4CF2FB63B90AF3F11CF4BE7764B",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/PLAYER_MECHANICS_RESPONSE_REVIEW.md",
+      "lines": 38,
+      "sha256": "C7429F3E2BE7D9EEC84345C873C389831F9D60CCEC83FACFAFB45A52EA4A76C8",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/PROPERTY_TAX_DEBT_SALE_HANDOFF.md",
+      "lines": 13,
+      "sha256": "25BDDC0E41B6E63C4948468E6365ECCD8F42DFA8C6A8E10850F60811C444E9C6",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/RADIANT_APEX_HUNT_HANDOFF.md",
+      "lines": 15,
+      "sha256": "587DBEFEF8698AF8766CC8B7AC94D0C8ACD8D230417CAB819970ABCF0EB9E250",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/RADIANT_FARMER_SEASON_DEADLINE_HANDOFF.md",
+      "lines": 17,
+      "sha256": "293ACFB028293A8AFAEF04DC74EA7A528A5DC3CED0390DEDAB78B054E31599CA",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/RADIANT_QUEST_TRACKING_HANDOFF.md",
+      "lines": 13,
+      "sha256": "46CCB039362CC82F3C3B4CCAADDB41235A0BB36883D0587E6CA98AA9D653741C",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/REAL_WORLD_GAME_FEEL_PLAN.md",
+      "lines": 147,
+      "sha256": "EC0357792F7A82E5B8A6661278C50D4AA24788444294562F677208A072BF8D9E",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/REGION_MAP_READABILITY_HANDOFF.md",
+      "lines": 21,
+      "sha256": "314FD1BC9FBC5339EE6021B374E923E672F37E37F82714013334F329939ABBB9",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/RIG_DEFORMATION_VISUAL_HANDOFF.md",
+      "lines": 29,
+      "sha256": "72F002239157A396ED5E3035C7CBC7DF133D7BD77B88CEEA8A6C2962F987A0D0",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/concepts/traversal_preflight_lab/README.md",
+      "lines": 9,
+      "sha256": "2B5D67623E05A8974E5A55BB7CA63074578F1D998EBBC553F1AC4B2B314CBE3A",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/TRIPOSG_SETUP_CHECKPOINT.md",
+      "lines": 15,
+      "sha256": "48D560717F4C1DE06A41B0DAFA33355C42D422450B07862AAB8A777101F7708F",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/TRIPOSR_HERO_REVIEW.md",
+      "lines": 19,
+      "sha256": "61839A90A7E2ADF0774469418CF62C155F1FC22C1BFFA9076AF14FC059895D21",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/TRIPOSR_LOCAL_PIPELINE_HANDOFF.md",
+      "lines": 11,
+      "sha256": "F1831BD222294B39E6EEB0E47EF9C7DDDE41F462074C6D65F30C7054E29DFD0C",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/WORLD_DAILY_RHYTHM_DESIGN.md",
+      "lines": 57,
+      "sha256": "D84CA035B57560FC68F1E7AA826A244B66B54E83DF41743043008C7B9D23DAD4",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/concepts/WORLDSIM_SMART_OBJECT_TARGETS_HANDOFF.md",
+      "lines": 29,
+      "sha256": "AB6D4200EC7EAC2EC84C4C9C27B89144E0371E2D86BAE81F126B7E9B1C6D0C1D",
+      "coverage": "full_read_recorded"
+    },
+    {
+      "path": "docs/controls.md",
+      "lines": 60,
+      "sha256": "C304B0F8C2B014AC1027C13095B963F321DA62530E2332FCD0DF5E3F69127550",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/design/ACADEMY_PLAN.md",
+      "lines": 102,
+      "sha256": "BA52C10ED212440FA7A007B30D4BDBF2D8482C8F9E0D4748B9BD48AA3098B719",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/design/CHILDHOOD_ACADEMIES.md",
+      "lines": 1296,
+      "sha256": "1334553ACCA37EA31A343BC4152B77B4C19F6D729AEB230A8C2AF75A4B213D4C",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/design/CIVILIZATION.md",
+      "lines": 89,
+      "sha256": "1C28D7D7CD974D961EEC0937C6CE13B70CB538CC918C1909219EEF94FAD6983B",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/design/DUNGEON_TOWERS.md",
+      "lines": 56,
+      "sha256": "1AADDC255E709655FAF3C1112E33797FD68A35AAD2CCB4E735388EC2E0737FC3",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/design/ITEMS_R1.md",
+      "lines": 128,
+      "sha256": "E5BA574A7361C2BE65935144F760CAC5ECAC31BF5FEAAEFF659C1090C3BD0CB7",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/design/LIVING_WORLD.md",
+      "lines": 1264,
+      "sha256": "6119E745126F5E0FB1A0530F3C285F206E93D355C9C3F391033377505FE138A7",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/design/REALM_PLAN.md",
+      "lines": 85,
+      "sha256": "3393F580665D72DB05F9F1804E3C33DF605F7694E59F80930EA586A9742BE8F5",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/design/REALM_WAR_SETTLEMENT.md",
+      "lines": 1237,
+      "sha256": "DE64F9F4F5E6C02D967B27B8F9F58137ACD88921A0C1A5B947F1BD7D8ED8C692",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/design/RETINUE_SETTLEMENT_ASCENSION.md",
+      "lines": 1106,
+      "sha256": "26E8F6473B0C65B46901A1306CD7A336CF18FF85F4001CB8DE0CBAAC3AED1535",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/design/SIM_HIERARCHY.md",
+      "lines": 91,
+      "sha256": "0026CA7789BEDA896E258C36803306C0B60728F958B97B17770C808F363B42E6",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/design/STYLE_LAB.md",
+      "lines": 76,
+      "sha256": "B51BE2E29E8104721D3CD3FB4439F5D1180557AD8B98CF51DD6F82BFBD86469A",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/design/VERTICAL_SLICE.md",
+      "lines": 82,
+      "sha256": "53129A1B2855F4AF371BD0DC323BCE484C10839EE684AD86199596CAD3CF6646",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/design/WAR_COMMAND_RULEBOOK.md",
+      "lines": 875,
+      "sha256": "BCEBC48DE644ABEF61504C5590F663E3DB8A89CC8AB17944E730DC521B61A611",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/DOWNLOAD_LIST.md",
+      "lines": 78,
+      "sha256": "4B17C7BE710D97D1EBDE2E2F971086730BD723F94919DC767905D5385F83DD90",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/future/AAA_PIPELINE_PLAN.md",
+      "lines": 53,
+      "sha256": "C6CDC7A7B96916C657450ABD3A2A9633807C4A6E44EF854342ED7FC253DB7313",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/future/COMBAT_FRAMEWORK_PLAN.md",
+      "lines": 122,
+      "sha256": "10E3EE6DA7C2C49282A961B619EC4B7EA2AC8C2FAAFD0F67B204AA91E9361EF3",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/future/README.md",
+      "lines": 8,
+      "sha256": "94783861BDE79E708A2AC283747D85B6C5D60D8653B840775AA44CDECD7D5C22",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/GDD.md",
+      "lines": 98,
+      "sha256": "293DB1FD66E45271E1B704D8981C0DE04222E410A9B669DD0BC08554896148C5",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/KINGDOM_DESIGN.md",
+      "lines": 89,
+      "sha256": "1F69674820B1A913A1523543C7D8708933653F3D88E2DB58BD89DC86220E3FC7",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/LOCAL_PC_TASKS.md",
+      "lines": 46,
+      "sha256": "7607015A736E944E8AA4847F327D04A9E9A7882FC62E70CDFB3C580B91158C9D",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/LOCAL_SESSION_HANDOFF.md",
+      "lines": 561,
+      "sha256": "061F6AE852238A58786E74C47BB60A5766B84A784FFE8F92BB1D662621415BBA",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/OPEN_SOURCE_AUDIT.md",
+      "lines": 328,
+      "sha256": "AB8225633171BEA1FF557587C429833F34F3151D2212D27DB91BCD06C47EC7B0",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/OPEN_SOURCE_REFERENCES.md",
+      "lines": 50,
+      "sha256": "870105FD40880A1E36F146F6680AE59F029D9C287723D708840BF59B1DFE2822",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/perf/PERF_PASS_2026-09-29.md",
+      "lines": 59,
+      "sha256": "36602F39B83C60FC5015D7EA98D97B6E312966A78F7CAA7D399FAAFC2F626958",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/platform/ACCOUNTS_AND_SERVICES.md",
+      "lines": 79,
+      "sha256": "5981D2020674F2D121FC37F68BCCFB640B9DC2B4C853B3458BBB16091D5BB732",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/anim_qa_report_only_animal_fox.md",
+      "lines": 75,
+      "sha256": "95BF8327C0944BE2B723110D4687A8FECB8800674FDAE1B4C7490A18CDBA2DCA",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/anim_qa_report_only_villager_man_a.md",
+      "lines": 113,
+      "sha256": "73D2C8D91B5BD864993567BA3149B8CCBE1A7D2EC125CF24F9AE9C8169500149",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/anim_qa_report.md",
+      "lines": 1722,
+      "sha256": "1321765FC986BB6FA00F0949204923E478999F67F84470FF40266C232E89B7EC",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/ASSET_AUDIT.md",
+      "lines": 230,
+      "sha256": "8B2881AFFF7F8BE12F873D0EA2118162062AFB722D9F6DA96D668E0FC4DD6E70",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/github_tools_survey.md",
+      "lines": 118,
+      "sha256": "4A88BCA05FAAE83CA541B5BD34A045C751388148015D447A8D87C7FE5BBA5401",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/grounding/animation_timing.md",
+      "lines": 95,
+      "sha256": "16C8974B2AB629FA734312C8F07BCBA911097A2D2125A4C99BAB3BBEEB6355EF",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/grounding/report.md",
+      "lines": 289,
+      "sha256": "C236816D2DC221506481D2934EAF31B80FE57691FDABC0BC643364673A0FB90A",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/LINT.md",
+      "lines": 57,
+      "sha256": "BF202D55F5B0AFD657D39AAABEAFF15C942EEFE5FC76038059FBDCC4A86B98F8",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/movement/REPORT.md",
+      "lines": 27,
+      "sha256": "C65C3A6C7409282A1D126319E3841F9E0105BCC0FA944A08DFAF16C11608B5F0",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/npc_density.md",
+      "lines": 121,
+      "sha256": "3DDCC95D40A2FE9E367A4BCE6CC4693746B14FB200B5072B13740EB2D2E6EE0E",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/PERFORMANCE.md",
+      "lines": 414,
+      "sha256": "F3EAE9241D10953765ED7104A1F66D1A803EF3780E23AFC2C6CA3E326A8580E1",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/PLAYTEST_REPORT.md",
+      "lines": 76,
+      "sha256": "4D5229E7DC318B353775093112EC99432A601F29E8DD2BA254F5C618712AB4D5",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/stability.md",
+      "lines": 347,
+      "sha256": "BACE06F8E70F27C0700097B3430686F117C3B73EA50FB712DFB2A9C39D6F0A09",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/qa/stuck_check.md",
+      "lines": 76,
+      "sha256": "4C075464283E5ECB4CAA4CC078FA84D6700384355417725ACF8042A06CA360B2",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/regions/AUDIO_R1.md",
+      "lines": 117,
+      "sha256": "9CCC093ACBF3C7D7F91C4FEF7BFFDF330077168A59647AB07BE7970A33636126",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/regions/CAST_R1.md",
+      "lines": 116,
+      "sha256": "6BB2EA2AFE8D426B01DF595F54D003978F51FEF17F63A5D6F9E69D7284431BF0",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/regions/EMOTION_MAP_R1.md",
+      "lines": 283,
+      "sha256": "C97633200CC118137B498C8C32F9A052501FF13530514D4A6A2AE33B6C027917",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/regions/HOOKS_FOR_CLOUD.md",
+      "lines": 410,
+      "sha256": "E2C6082BD019CE3B51451BCFEB72E408BA06828388067D9D9D6FD9F374C3FFB2",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/regions/LOOK_R1.md",
+      "lines": 105,
+      "sha256": "65FFCA283B11E9BD191A4DE018B005C46C87053042456B900E6812845056C1B7",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/regions/look/PERF.md",
+      "lines": 46,
+      "sha256": "3BF307DEAB5FA43E6BDA052DED3F904E5D9F5446AB9641795697DE55A49ECBDA",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/regions/OWNER_DECISIONS.md",
+      "lines": 27,
+      "sha256": "9D8B37F6F14ACD920718BBB7CC4A1C1FACAA052B5E5A2D409A01A24A703ADCA4",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/regions/REGION_1_PLAN.md",
+      "lines": 437,
+      "sha256": "E6F54901AD35FE8E47B62025B45EF8CE3B6EC1C5FE9721073AABC9834F30685D",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/regions/STORY_R1.md",
+      "lines": 178,
+      "sha256": "672DCCED06385871D95B065CD2F258AF3A34637A0CEA38DC4864C340BCAEB8B1",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/regions/WORLD_R1.md",
+      "lines": 65,
+      "sha256": "0DBECAF5284DBDC07AC5642E2F78ED93AE7E43B2D8E5FDF4568B1C93F26D6505",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/RELEASE.md",
+      "lines": 74,
+      "sha256": "FCDC25EEC6484AE2D8CF3DBFC1DE24A32795F2ADF8FACA4DE30C0354B77AAC9E",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/research/MINING_COMBAT_WORLD.md",
+      "lines": 190,
+      "sha256": "D1CB50CA4841D0FD5F1CBE1E9220DCFE531560771CE4A7C994D725643AF89B58",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/research/MINING_PERCEPTION_INTERACTION.md",
+      "lines": 501,
+      "sha256": "C22D37D8B04E2D5C8EB89E1CB682697E74F5C82A00A524DAE0C80453FAA35411",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/RISING_ASHES_LIFE_SIM_DESIGN.md",
+      "lines": 108,
+      "sha256": "AE5B4A022ABBE4CAC3C90BB9938B2BFB1E8FB732EBF854EE623E06C38D47066B",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/RISING_ASHES_OPEN_WORLD.md",
+      "lines": 274,
+      "sha256": "3EA01BE6162824F5A88821F085545F45B8CCFDB89DF8F568CBEC925E8B4ADDD1",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/STATUS_LOCAL.md",
+      "lines": 328,
+      "sha256": "B3D12A12AEB70CF29B8087D7A25D746467A180A7598158F650DE8E562BE50F34",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/SYSTEMS_CLAUDE_HANDOFF.md",
+      "lines": 74,
+      "sha256": "5A07812A71BC6A86C1610D045D8714BDB68973854ED967FDE3424BBBB272F277",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/SYSTEMS_CONTINUATION.md",
+      "lines": 246,
+      "sha256": "6359E764F08C6EC8E1472785E90AEF53D2B145A1D7E5F810B522134D37CCF8B5",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/SYSTEMS_MASTERPLAN.md",
+      "lines": 135,
+      "sha256": "98A7679D958F01DA569C0C595DC8E881B2E820FAE43A2BAA2E0373BFB669740E",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/TOOLCHAIN_AUDIT.md",
+      "lines": 40,
+      "sha256": "A5DC74A340E85044873A0F9530A81BD31D0D5B6C9A8DAA3417987B03FF065947",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/TOOLCHAIN_PLAN.md",
+      "lines": 85,
+      "sha256": "4CA3F41F52AC31813BF0B549CA0C5496DF4FE84046B10FAEC7E09A0F12546BD3",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/ui/world_map/README.md",
+      "lines": 45,
+      "sha256": "A599ACF57695270C5B1D0DCBF4CEDA6523332334B5AD6C85D0226F498CD549AB",
+      "coverage": "pending_or_partial_see_checkpoint"
+    },
+    {
+      "path": "docs/WORLD_LORE.md",
+      "lines": 223,
+      "sha256": "D70BC11B4B59B2C0B9A9D82FA5BFC90D33E2CAC7334382E55F949F61D6664FE8",
+      "coverage": "pending_or_partial_see_checkpoint"
+    }
+  ]
+}
