@@ -19,3 +19,15 @@ Lineup of all 7 Meshy UAL characters: `ml_sheet.jpg`. villager_green_vest is the
 4. Eyes and blink: transplant the built eyeballs and lid shape keys, or paint lids.
 5. Add the hood and satchel with sway (the `hero_garment` pieces).
 6. Measure on the S22.
+
+## Pass 2 (2026-10-06): `m5_sheet.jpg`, `m5_clips.jpg`
+New: `hero_fix.py` (foot and finger re-weights, collar pull-in, mouth patch, blink lid patches), `HeroTierA.dress_meshy_hero` (hood, satchel, strap, belt from HeroOutfit, plus the blink driver), and a painterly skin mip with a Style G warm grade and a brighter back.
+
+Rating: still about 6/10 in close-up, so it is **not** made the default hero.
+- Better: the fingers now curl on the sword grip, and the back is less dark.
+- Not fixed:
+  - Ski soles on run, sprint and attack.
+  - The collar blob is barely changed.
+  - The mouth smear remains.
+  - The lid patches render as visible rectangles and need a soft alpha edge.
+  - The hood ring reads as a flat tan band; it needs the real hood geometry.

@@ -13,7 +13,7 @@ lod2 = int(a[3]) if len(a) > 3 else 2000
 def load():
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=src)
-    return [o for o in bpy.data.objects if o.type == "MESH"][0]
+    return max([o for o in bpy.data.objects if o.type == "MESH"], key=lambda o: len(o.data.vertices))
 
 
 def tris(o):

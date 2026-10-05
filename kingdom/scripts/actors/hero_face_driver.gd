@@ -53,6 +53,12 @@ func talk(seconds: float) -> void:
 
 
 func _bs(n: String, w: float) -> void:
+	var lids: MeshInstance3D = parts.get("Lids")
+	if lids and n.begins_with("Blink"):
+		lids.visible = w > 0.03                     # Meshy hero: lid patches only exist while blinking
+		var li := lids.find_blend_shape_by_name("Blink")
+		if li >= 0:
+			lids.set_blend_shape_value(li, w)
 	if _face == null:
 		return
 	var i := _face.find_blend_shape_by_name(n)

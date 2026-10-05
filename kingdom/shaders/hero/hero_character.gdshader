@@ -20,7 +20,8 @@ uniform float detail_scale = 1.0;
 uniform vec3 flush_color : source_color = vec3(0.9, 0.42, 0.36);
 uniform vec3 scatter_color : source_color = vec3(1.0, 0.38, 0.24);
 uniform vec3 rim_color : source_color = vec3(1.0, 0.85, 0.68);
-uniform float ambient_lift = 0.18;          // hero readability in back-lit shadow (character fill)
+uniform float ambient_lift = 0.26;          // hero readability in back-lit shadow (character fill)
+uniform float painterly = 0.7;
 uniform float debug_classes = 0.0;           // 1 = show the class map (QA)
 
 varying vec3 v_pos;
@@ -37,6 +38,7 @@ vec3 rgb2hsv(vec3 c) {
 
 void fragment() {
 	vec3 c = texture(albedo_tex, UV).rgb * tint.rgb;
+	vec3 c_soft = texture(albedo_tex, UV, 1.6).rgb * tint.rgb;      // painterly: skin uses a softer mip (Style G, not photo)
 	vec3 hsv = rgb2hsv(c);
 	float head = smoothstep(neck_y - 0.03, neck_y + 0.02, v_pos.y);
 	float warm = 1.0 - smoothstep(0.08, 0.14, abs(hsv.x - 0.06));             // orange/red-brown hues
@@ -49,6 +51,8 @@ void fragment() {
 	float wool = (1.0 - head) * green * (1.0 - skin);
 	float linen = (1.0 - head) * smoothstep(0.5, 0.65, hsv.z) * (1.0 - smoothstep(0.15, 0.3, hsv.y)) * (1.0 - metal);
 	skin *= 1.0 - wool;
+	c = mix(c, c_soft, skin * painterly);
+	c *= vec3(1.04, 1.0, 0.95);                                     // Style G warm grade
 	float other = clamp(1.0 - skin - hair - leather - metal - wool - linen, 0.0, 1.0);
 
 	vec2 duv = UV * 2048.0 / 64.0 * detail_scale;          // ~1 noise tile per 64 atlas texels
@@ -57,7 +61,7 @@ void fragment() {
 	float n3 = texture(noise_tex, duv * 2.9 + 0.7).r;
 	vec2 nrm = vec2(0.0);
 	// skin: pores + flush where the painted skin is already reddish (cheeks, nose, ears)
-	nrm += vec2(n3 - 0.5, n1 - 0.5) * 0.25 * skin;
+	nrm += vec2(n3 - 0.5, n1 - 0.5) * 0.08 * skin;
 	float redness = smoothstep(0.02, 0.06, 0.06 - hsv.x) * smoothstep(0.3, 0.45, hsv.y);
 	c = mix(c, c * flush_color * 1.6, redness * skin * 0.25);
 	// hair: strands along the atlas V, shifted highlight added in light() via ROUGHNESS band
@@ -92,7 +96,7 @@ void light() {
 	float hair = BACKLIGHT.g;
 	float ndl = dot(NORMAL, LIGHT);
 	float d = clamp(ndl, 0.0, 1.0);
-	float wrap = 0.4 * skin + 0.25 * BACKLIGHT.b;
+	float wrap = 0.4 * skin + 0.45 * BACKLIGHT.b + 0.3 * (1.0 - skin - hair);
 	float w = clamp((ndl + wrap) / (1.0 + wrap), 0.0, 1.0);
 	vec3 diff = vec3(d) + scatter_color * (w - d) * skin * 0.6 + vec3(w - d) * (1.0 - skin) * 0.5;
 	DIFFUSE_LIGHT += diff * ATTENUATION * LIGHT_COLOR / 3.14159;
