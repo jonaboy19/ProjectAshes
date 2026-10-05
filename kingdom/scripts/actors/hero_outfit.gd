@@ -7,8 +7,8 @@ extends RefCounted
 ## works at any model scale. Cost: 1 extra skinned MeshInstance3D (one surface, ~1.3k tris).
 ## Usage: HeroOutfit.dress(model)   (model = Assets.mh_character / CharacterCreation.build_model result)
 
-const TUNIC := Color("3b5e26")
-const TUNIC_DARK := Color("2c461b")
+const TUNIC := Color("34502a")
+const TUNIC_DARK := Color("26391c")
 const LEATHER := Color("5c381f")
 const LEATHER_DARK := Color("3f2614")
 const BRASS := Color("b08a3c")
@@ -28,7 +28,7 @@ static func tint_tunic(model: Node3D) -> void:
 			var mat := m.get_active_material(si)
 			if mat is BaseMaterial3D:
 				var t := (mat as BaseMaterial3D).duplicate() as BaseMaterial3D
-				t.albedo_color = Color(0.62, 0.86, 0.5)
+				t.albedo_color = Color(0.56, 0.74, 0.42)   # olive, target 03
 				m.set_surface_override_material(si, t)
 	for n in model.find_children("*boots*", "MeshInstance3D", true, false):
 		var m := n as MeshInstance3D
@@ -36,7 +36,7 @@ static func tint_tunic(model: Node3D) -> void:
 			var mat := m.get_active_material(si)
 			if mat is BaseMaterial3D:
 				var t := (mat as BaseMaterial3D).duplicate() as BaseMaterial3D
-				t.albedo_color = Color(0.82, 0.56, 0.36)    # tall boots read as warm brown leather against the dark trousers
+				t.albedo_color = Color(0.62, 0.43, 0.3)    # tall boots read as warm brown leather against the dark trousers
 				m.set_surface_override_material(si, t)
 	for n in model.find_children("*hair*", "MeshInstance3D", true, false):
 		var m := n as MeshInstance3D

@@ -18,7 +18,7 @@ const CAMS := {
 }
 
 const CAMS_G := {
-	"over": {"pos": Vector3(0.0, 1.95, 2.8), "at": Vector3(0.0, 4.2, -30.0), "fov": 52.0},
+	"over": {"pos": Vector3(0.0, 1.8, 3.8), "at": Vector3(0.0, 2.9, -30.0), "fov": 52.0},   # pass 5: full-body hero like target 03 (was 1.95 / 2.8, cut at the waist)
 	"close": {"pos": Vector3(2.4, 1.55, 3.0), "at": Vector3(0.0, 1.25, -1.0), "fov": 40.0},
 	"facade": {"pos": Vector3(1.0, 2.2, -4.0), "at": Vector3(-8.5, 4.0, -13.0), "fov": 55.0},
 	"gate": {"pos": Vector3(0.0, 2.5, -4.0), "at": Vector3(0.0, 14.0, -40.0), "fov": 62.0},

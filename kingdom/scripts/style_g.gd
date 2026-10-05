@@ -253,7 +253,7 @@ static func apply_daylight(env: Environment, sun: DirectionalLight3D, fill: Dire
 # --- lights ------------------------------------------------------------------------------------------------------
 
 const SUN_FORWARD := Vector3(0.55, -0.62, -0.55)     # from behind-left: shadows fall forward-right as in target 03
-const SUN_COLOR := "ffdcb0"     # 2026-10-01 pass 2: warmth 1.46 -> toward 1.34
+const SUN_COLOR := "ffe0bc"     # 2026-10-01 pass 2: warmth 1.46 -> toward 1.34
 const SUN_ENERGY := 3.0
 
 ## Shadow settings per tier: [mode, max_distance, atlas 4096/2048/1024 is a project setting (shadow_atlas)].
@@ -443,7 +443,7 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 	if is_char(role):
 		sm.shader = _shader("lab_char")
 		sm.set_shader_parameter("kind", skin_kind)
-		sm.set_shader_parameter("saturation", 1.3)
+		sm.set_shader_parameter("saturation", 1.1)   # pass 6: 1.3 made clothes candy-bright (target 03 crowd is muted)
 	else:
 		sm.shader = _shader("lab_polished_lite" if tier == "low" else "lab_polished")
 	sm.set_shader_parameter("albedo_tex", p["tex"] if p["tex"] != null else white())
@@ -527,8 +527,8 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 			sm.set_shader_parameter("rim_amount", 0.35)
 			sm.set_shader_parameter("bounce", 0.28)
 		"goods":                        # market goods: less orange, per-piece variation from COLOR.a (see MarketGoods.layout)
-			sm.set_shader_parameter("saturation", 1.0)
-			sm.set_shader_parameter("value_gain", 0.96)
+			sm.set_shader_parameter("saturation", 0.9)            # local pass 6: was 1.0 (orange sacks in the foreground)
+			sm.set_shader_parameter("value_gain", 0.92)
 			sm.set_shader_parameter("ao_strength", 0.3)
 			sm.set_shader_parameter("bounce", 0.2)
 			sm.set_shader_parameter("ground_bounce", Color(0.95, 0.74, 0.5))
@@ -545,7 +545,7 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 			sm.set_shader_parameter("saturation", 1.15)
 			sm.set_shader_parameter("ao_strength", 0.0)
 		_:
-			sm.set_shader_parameter("saturation", 1.0 if role in ["wood", "goods"] else 1.12)   # wood/goods 1.0: crates and sacks read orange at 1.12
+			sm.set_shader_parameter("saturation", 0.9 if role in ["wood", "goods"] else 1.12)   # pass 6: barrels/crates still orange at 1.0
 			sm.set_shader_parameter("value_gain", 0.9 if role in ["wood", "goods"] else 1.04)
 			sm.set_shader_parameter("ao_strength", 0.35)
 			sm.set_shader_parameter("bounce", 0.3)
