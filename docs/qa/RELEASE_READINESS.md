@@ -11,7 +11,8 @@ Updated 2026-10-05 (release QA pass 2, PC-side fixes; phone runs paused while th
 | B: texture fix + excludes | 945 MB | same, plus the fixes below |
 | C: + 512 px phone cap, arm64 only | 650 MB | |
 | D: + editor-only addons excluded (sky_3d, gloot, proton_scatter, phantom_camera examples) | 624 MB | |
-| E: 256 px phone cap (owner's choice), hero + characters 1024 | **528 MB** | current; 1181 textures capped |
+| E: 256 px phone cap (owner's choice), hero + characters 1024 | 528 MB | 1181 textures capped |
+| F: no generated shadow meshes on Meshy GLBs (meshy_free, meshy_dl3, ai3d/meshy) | **511 MB** | current |
 
 Target is under 500 MB (ideally 300 MB). Still a blocker.
 
@@ -52,3 +53,7 @@ Meshes `.scn` ~240 MB (Meshy LOD0s with generated LODs and shadow meshes), alrea
 
 ### To do when the phone is back
 `bash tools/qa/phone/soak.sh 120 <out>` for 2-minute checks, one 900 s run at the end. Then: draw calls of the 153 placed Meshy models, LOW shadows, VAT crowd cap, particles, impostors too close.
+
+
+## Shadow meshes (build F)
+Godot's generated shadow meshes are only a depth-pass optimisation; shadows draw from the full mesh without them. Generated LODs were kept: placed Meshy props rely on them at distance. Town shots at LOW before/after (`docs/qa/release/meshy_shadow/town_before_after_low.jpg`): same draw calls and triangles, pixel differences only on walking NPCs. Caveat: the Style Lab town uses few Meshy GLBs, so a shot of a Region 1 yard with the placed models is still owed.
