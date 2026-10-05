@@ -5,6 +5,7 @@
 // Cost: ~7 texture taps, ~60 ALU. HIGH tier only; MEDIUM/LOW should use a baked variant (see docs).
 shader_type spatial;
 render_mode cull_back, specular_schlick_ggx;
+#include "res://shaders/camera_see_through.gdshaderinc"
 
 uniform sampler2D atlas : source_color, filter_linear_mipmap, repeat_enable;
 uniform vec4 atlas_color : source_color = vec4(1.0);
@@ -40,6 +41,9 @@ void vertex() {
 }
 
 void fragment() {
+	if (hero_see_through(VERTEX, FRAGCOORD.xy, PROJECTION_MATRIX)) {
+		discard;
+	}
 	vec4 at = texture(atlas, UV * uv_scale + uv_offset);
 	vec3 base = at.rgb * atlas_color.rgb;
 	if (use_vertex_color) { base *= COLOR.rgb; }

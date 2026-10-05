@@ -2,7 +2,7 @@
 // with a radial falloff (multiply blend, no lighting, no depth write). One
 // MultiMesh per object type, so it costs a single draw call per kind.
 shader_type spatial;
-render_mode blend_mul, unshaded, depth_draw_never, cull_disabled, shadows_disabled;
+render_mode blend_mul, unshaded, depth_draw_never, cull_disabled, shadows_disabled, fog_disabled;
 
 uniform float strength = 0.42;
 

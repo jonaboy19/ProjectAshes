@@ -204,8 +204,8 @@ func test_glyphs_are_capped_hidden_beyond_25m_and_prefer_the_most_alert() -> voi
 		assert_int(int(r[2])).is_not_equal(201)
 		assert_float(float(r[0])).is_less_equal(AlertGlyphs.SHOW_RANGE)
 	assert_int(int(chosen[0][1])).is_equal(Cls.SEARCHING)         # most alert first
-	assert_int(AlertGlyphs.pick([[25.0, Cls.NOTICE, 1]]).size()).is_equal(1)
-	assert_int(AlertGlyphs.pick([[25.1, Cls.NOTICE, 1]]).size()).is_equal(0)
+	assert_int(AlertGlyphs.pick([[AlertGlyphs.SHOW_RANGE, Cls.NOTICE, 1]]).size()).is_equal(1)
+	assert_int(AlertGlyphs.pick([[AlertGlyphs.SHOW_RANGE + 0.1, Cls.NOTICE, 1]]).size()).is_equal(0)
 
 
 func test_one_shared_atlas_for_every_sprite() -> void:

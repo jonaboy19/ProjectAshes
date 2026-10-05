@@ -75,6 +75,11 @@ anti_aliasing/quality/screen_space_aa=1
 
 [shader_globals]
 
+hero_cam_dist={
+"type": "float",
+"value": 0.0
+}
+
 season_tint={
 "type": "vec3",
 "value": Vector3(1, 1, 1)

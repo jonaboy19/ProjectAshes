@@ -1,5 +1,6 @@
 class_name Critter
 extends Node3D
+const ContactBlobS := preload("res://scripts/actors/contact_blob.gd")
 ## An ordinary animal (CC0, incoming/animals): wanders around a home spot,
 ## grazes or pecks, and the skittish ones bolt when the player comes close.
 ## No physics or navigation: it follows the terrain, like wolves and soldiers,
@@ -97,6 +98,10 @@ const CLIP_ALIASES := {"Idle": ["idle"], "Walk": ["walk"], "Run": ["run", "Gallo
 var kind := "chicken"
 var home := Vector2.ZERO
 var _anim: AnimationPlayer
+## AAA pass 2026-10-06: town horses are the textured riding horse (HorseRig: painted coat, bridle, 50 real gaits) instead of
+## the flat-shaded Quaternius low-poly ones. The Quaternius entries above stay as the fallback when the rig assets are absent.
+const RIG_COATS := {"horse": "bay", "horse_grey": "grey", "horse_white": "dappled"}
+var _rig: Node3D
 var _model: Node3D
 ## Visual cull (perf pass 2026-09-29): a city has 100+ hens; beyond CULL_SMALL /
 ## CULL_BIG (scaled by the tier's visibility-range multiplier) the model is hidden
@@ -134,6 +139,22 @@ func _ready() -> void:
 		path = DIR + path
 	if not ResourceLoader.exists(path):
 		queue_free()
+		return
+	if RIG_COATS.has(kind) and ResourceLoader.exists("res://assets/generated/horses/horse_riding.glb"):
+		_rig = HorseRig.new()
+		_rig.set("coat", RIG_COATS[kind])
+		var tack: Array[String] = ["bridle"]
+		_rig.set("tack", tack)
+		add_child(_rig)
+		_model = _rig
+		var blob: MeshInstance3D = ContactBlobS.attach(self, 0.9)
+		blob.scale = Vector3(1.0, 1.0, 2.4)
+		_anim = null
+		huntable = false
+		add_to_group("interactable")
+		rotation.y = randf() * TAU
+		_pause = randf_range(0.0, 4.0)
+		_pick()
 		return
 	var model: Node3D = Assets.scene(path).instantiate()
 	add_child(model)
@@ -311,6 +332,10 @@ func _update_visual_lod(dist: float) -> void:
 		return
 	_culled = want_cull
 	_model.visible = not _culled
+	if _rig != null:
+		var ap: AnimationPlayer = _rig.get("anim")
+		if ap:
+			ap.active = not _culled
 	if _anim:
 		_anim.active = not _culled
 
@@ -330,6 +355,13 @@ func _alias_clips() -> void:
 
 
 func _play(n: String, rate := 1.0) -> void:
+	if _rig != null:
+		if _culled:
+			return
+		var mps := float(ANIM_GROUND_SPEEDS.get(kind, ANIM_GROUND_SPEEDS["horse"]).get(n, 0.0)) * rate
+		_rig.call("set_mode", "graze" if n == "Eat" else "")
+		_rig.call("drive", mps, 0.0, 0.0)
+		return
 	if _anim == null or _culled:
 		return
 	_anim.speed_scale = rate

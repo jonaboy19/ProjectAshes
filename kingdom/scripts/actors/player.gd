@@ -1,5 +1,7 @@
 class_name Player
 extends CharacterBody3D
+const ContactBlobS := preload("res://scripts/actors/contact_blob.gd")
+const CameraOccludersS := preload("res://scripts/actors/camera_occluders.gd")
 ## The player character plus the four-scale camera:
 ##   FIRST   — through the eyes, sword in hand
 ##   THIRD   — close over-the-shoulder exploration
@@ -50,7 +52,12 @@ signal died
 enum View { FIRST, THIRD, TOWN, COMMAND }
 const VIEW_NAMES := ["First person", "Third person", "Town view", "Command view"]
 ## [distance, pitch] per view.
-const VIEW_RIG := [[0.0, -0.1], [5.5, -0.32], [26.0, -0.72], [85.0, -1.2]]
+## AAA camera pass (2026-10-06, skill ashes-aaa-camera-hud): THIRD was 5.5 m / -0.32 rad with a 65 deg vertical FOV, which on a
+## 19.5:9 phone is ~110 deg wide and reads as a strategy view. Now 3.9 m at shoulder height, pitched -0.2, FOV 54 (chase_camera.gd),
+## with SHOULDER_OFFSET to the right: the hero fills about 40% of the screen height.
+const VIEW_RIG := [[0.0, -0.1], [3.9, -0.2], [26.0, -0.72], [85.0, -1.2]]
+const SHOULDER_OFFSET := 0.42     # metres right of the spine (camera-local), exploration and combat
+const SHOULDER_HEIGHT := 1.62     # pivot height for an adult (was 1.55)
 ## Inside a building (InteriorDoor.active): a shorter arm and the lens tipped down a little, so the player and the room
 ## sit in the middle of the frame instead of the player's feet on the bottom edge.
 const INTERIOR_CAM_DIST := 4.4
@@ -215,7 +222,10 @@ var crouching := false
 
 var _yaw := 0.0
 var _pitch := -0.32
-var _distance := 5.5
+var _distance := 3.9
+var _cam_pulled := 0.0
+var _see_last := -1.0
+var _occluders = null
 var _pivot: Node3D
 var _camera_arm: SpringArm3D
 var _model: Node3D
@@ -347,6 +357,7 @@ func _ready() -> void:
 	floor_snap_length = 0.35
 	_model = Node3D.new()
 	add_child(_model)
+	ContactBlobS.attach(self, 0.42)
 	_impact_pause = ImpactPause.new()
 	add_child(_impact_pause)
 	add_child(InteractionController.new())
@@ -355,8 +366,11 @@ func _ready() -> void:
 	_build_body()
 	_arms = PlayerArms.new(self)
 	_pivot = Node3D.new()
-	_pivot.position.y = 1.55
+	_pivot.position.y = SHOULDER_HEIGHT
 	add_child(_pivot)
+	_occluders = CameraOccludersS.new()
+	_occluders.ignore_root = self
+	add_child(_occluders)
 	_camera_arm = SpringArm3D.new()
 	_camera_arm.spring_length = _distance
 	_camera_arm.margin = 0.18
@@ -370,7 +384,7 @@ func _ready() -> void:
 	Life.grown.connect(func(_age: int) -> void: apply_age())
 	camera = Camera3D.new()
 	camera.far = 900.0
-	camera.fov = 65.0
+	camera.fov = ChaseCamera.BASE_FOV
 	_camera_arm.add_child(camera)
 	camera.current = true
 	_viewmodel = Assets.weapon("sword_1handed")
@@ -1243,8 +1257,9 @@ func _update_camera(delta: float) -> void:
 	var rig: Array = VIEW_RIG[view]
 	var want_distance: float = rig[0]
 	var k := Life.body_scale()
-	var pivot_goal := Vector3(0.0, 1.55 * k, 0.0)
+	var pivot_goal := Vector3(0.0, SHOULDER_HEIGHT * k, 0.0)
 	pivot_goal.y += _landing_dip
+	var cam_right := Basis(Vector3.UP, _yaw) * Vector3.RIGHT
 	_landing_dip = move_toward(_landing_dip, 0.0, 1.2 * delta)
 	_land_fov = move_toward(_land_fov, 0.0, 14.0 * delta)
 	_impact_fov = move_toward(_impact_fov, 0.0, maxf(_impact_fov, 1.0) * 7.0 * delta)
@@ -1257,7 +1272,8 @@ func _update_camera(delta: float) -> void:
 		if InteriorDoor.active != null:
 			want_distance = minf(want_distance, INTERIOR_CAM_DIST)     # a room is 4-6 m wide: the 5.5 m arm rode up the walls
 		pivot_goal.y += _chase.lift()
-		pivot_goal.x += _chase.talk_shift()      # conversation: over-the-shoulder
+		# over-the-shoulder; the player root never turns, so the offset is rotated into camera space (the talk shift was world X)
+		pivot_goal += cam_right * (SHOULDER_OFFSET * k * (1.0 - _chase.talk_k()) + _chase.talk_shift())
 	if _mount:
 		pivot_goal.y += _mount.rider_offset(k).y
 		if view == View.THIRD:
@@ -1305,6 +1321,7 @@ func _update_camera(delta: float) -> void:
 		var soft_occluder := false
 		if not hit.is_empty():
 			camera_target = (hit["position"] as Vector3) + (from - camera.global_position).normalized() * 0.3
+			_cam_pulled = 0.35       # hold the pulled-in distance briefly so a ray flickering past a post does not pump the lens
 			var collider := hit.get("collider") as CollisionObject3D
 			soft_occluder = collider != null and (int(collider.collision_layer) & CAMERA_BLOCKER_LAYER) != 0
 			if soft_occluder and collider.has_meta("camera_fade_target"):
@@ -1315,8 +1332,17 @@ func _update_camera(delta: float) -> void:
 			else:
 				camera.global_position = camera_target
 		else:
-			camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-14.0 * delta))
+			# smooth recovery after a pull-in: ease back out, never snap backwards
+			_cam_pulled = maxf(_cam_pulled - delta, 0.0)
+			camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-(3.0 if _cam_pulled > 0.0 else 7.0) * delta))
 	_update_camera_fade(camera_fade_target)
+	# world shaders dither the cone lens -> hero (shaders/camera_see_through.gdshaderinc); 0 turns it off
+	var see := camera.global_position.distance_to(_pivot.global_position) if view == View.THIRD and camera.current else 0.0
+	if absf(see - _see_last) > 0.02:
+		_see_last = see
+		RenderingServer.global_shader_parameter_set(&"hero_cam_dist", see)
+	if _occluders != null:
+		_occluders.step(delta, camera.global_position, _pivot.global_position, view == View.THIRD and InteriorDoor.active == null)
 	_publish_cam_dist()
 	# Pinned against a wall so tight the lens would sit inside the head: hide the body.
 	if view != View.FIRST:
@@ -2073,7 +2099,7 @@ func apply_age() -> void:
 	_model.scale = Vector3.ONE * k
 	if _animator:
 		_animator.stride_scale = k   # a child's shorter legs cover less ground per step
-	_pivot.position.y = 1.55 * k
+	_pivot.position.y = SHOULDER_HEIGHT * k
 
 
 func heal(amount: int) -> void:

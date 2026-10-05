@@ -1313,6 +1313,30 @@ func _process(delta: float) -> void:
 		_poll_events()
 	_update_dash_button()
 	_update_modes(delta)
+	_update_calm_fade(delta)
+
+
+## AAA pass 2026-10-06 (skill ashes-aaa-camera-hud): the HUD furniture (card, compass, tracker, minimap, clock) eases to
+## CALM_ALPHA after CALM_AFTER seconds without combat, damage, gold or menu changes, and comes back at once when any of
+## them happens. The touch controls stay.
+const CALM_AFTER := 7.0
+const CALM_ALPHA := 0.22
+var _calm_t := 0.0
+var _calm_gold := -1
+var _calm_hp := -1
+
+
+func _update_calm_fade(delta: float) -> void:
+	if _chrome == null:
+		return
+	var hp := int(player.get("health")) if player.get("health") != null else 0
+	var gold := _last_gold
+	var busy := _combat_timer > 0.0 or is_menu_open() or hp != _calm_hp or gold != _calm_gold
+	_calm_hp = hp
+	_calm_gold = gold
+	_calm_t = 0.0 if busy else _calm_t + delta
+	var want := CALM_ALPHA if _calm_t > CALM_AFTER else 1.0
+	_chrome.modulate.a = move_toward(_chrome.modulate.a, want, delta * (0.6 if want < 1.0 else 4.0))
 
 
 # --- layout modes: exploration / combat, menu fan, contextual primary action ---------------

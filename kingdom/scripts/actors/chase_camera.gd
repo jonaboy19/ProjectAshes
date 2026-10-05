@@ -20,7 +20,7 @@ extends RefCounted
 ## FOV impulses from combat feel: add_fov_impulse(deg) (positive = outward punch). They decay by themselves and are
 ## clamped, so the combat code can fire them freely without owning the base FOV.
 
-const BASE_FOV := 65.0
+const BASE_FOV := 54.0      # vertical; was 65 (110 deg wide on a 19.5:9 phone). AAA pass 2026-10-06
 const MAX_FOV := 86.0
 const SPRINT_FOV := 7.0
 const DASH_FOV := 10.0
@@ -28,8 +28,8 @@ const GALLOP_FOV := 9.0
 const SPRINT_DIST := 0.9
 const DASH_DIST := 1.4
 const GALLOP_DIST := 1.3
-const OPEN_DIST := 0.7
-const OPEN_LIFT := 0.3
+const OPEN_DIST := 0.35
+const OPEN_LIFT := 0.1
 const OPEN_PITCH := -0.05
 const ROOF_DIST := 1.0
 const ROOF_LIFT := 0.5
@@ -154,6 +154,10 @@ func talking() -> bool:
 
 
 ## Sideways pivot offset (m, camera-local right) for the conversation framing.
+func talk_k() -> float:
+	return _talk_env()
+
+
 func talk_shift() -> float:
 	return _talk_env() * TALK_SHIFT
 

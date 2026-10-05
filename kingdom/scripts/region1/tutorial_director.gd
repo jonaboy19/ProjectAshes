@@ -34,6 +34,7 @@ const SAVE_VERSION := 1
 const GAP_SECONDS := 1.2        # quiet time between two prompts
 const LOST_GRACE := 1.5         # context gone this long -> hide (stays pending)
 const MIN_SHOW := 0.6           # a prompt stays at least this long before a calm swap
+const MAX_CALM_SHOW := 9.0      # AAA pass: a calm prompt (priority < 80) never sits on screen longer; it settles as skipped
 
 ## The prompt table. Order does not matter; `priority` decides.
 ##   action   what notify() must report to dismiss it; amount = how much of it (seconds
@@ -159,6 +160,10 @@ func update(ctx: Dictionary, delta: float) -> void:
 	var blocked := bool(ctx.get("blocked", false))
 	if current != &"":
 		_shown_for += delta
+		if _shown_for >= MAX_CALM_SHOW and _priority(current) < 80 and not _forced.has(current):
+			_state[current] = State.SKIPPED
+			_hide(&"skipped")
+			return
 		if blocked:
 			_hide(&"lost")
 			return

@@ -20,6 +20,28 @@ static func _iron_mat() -> StandardMaterial3D:
 	return _mats["iron"]
 
 
+static func _flame_mat(kind: String) -> ShaderMaterial:
+	if not _mats.has("flame_" + kind):
+		var m := ShaderMaterial.new()
+		m.shader = preload("res://shaders/brazier_fire.gdshader")
+		m.set_shader_parameter("y0", 0.9 if kind == "brazier" else 0.66)
+		m.set_shader_parameter("height", 0.62 if kind == "brazier" else 0.34)
+		_mats["flame_" + kind] = m
+	return _mats["flame_" + kind]
+
+
+static func _coal_mat() -> StandardMaterial3D:
+	if not _mats.has("coal"):
+		var m := StandardMaterial3D.new()
+		m.albedo_color = Color(0.16, 0.08, 0.05)
+		m.roughness = 0.9
+		m.emission_enabled = true
+		m.emission = Color(1.0, 0.32, 0.08)
+		m.emission_energy_multiplier = 1.4
+		_mats["coal"] = m
+	return _mats["coal"]
+
+
 static func _fire_mat() -> StandardMaterial3D:
 	if not _mats.has("fire"):
 		var m := StandardMaterial3D.new()
@@ -54,16 +76,56 @@ static func mesh(kind: String) -> ArrayMesh:
 	iron.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var fire := SurfaceTool.new()
 	fire.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var coals := SurfaceTool.new()
+	coals.begin(Mesh.PRIMITIVE_TRIANGLES)
 	if kind == "brazier":
-		_add(iron, _cyl(0.36, 0.2, 0.26), Transform3D(Basis.IDENTITY, Vector3(0, 0.78, 0)))     # bowl
+		# AAA pass 2026-10-06: a wrought fire basket instead of a cylinder and a flat yellow cone. Flared bowl with a rolled
+		# rim and straps, three curved legs with splayed feet and a tie ring, a heap of glowing coals and five crossed flame
+		# tongues (gradient + sway in brazier_fire.gdshader). Still one mesh, three surfaces, no light.
+		_add(iron, _cyl(0.34, 0.17, 0.22, 12), Transform3D(Basis.IDENTITY, Vector3(0, 0.8, 0)))       # bowl
+		_add(iron, _cyl(0.07, 0.17, 0.08, 12), Transform3D(Basis.IDENTITY, Vector3(0, 0.66, 0)))      # bowl foot
+		var rim := TorusMesh.new()
+		rim.inner_radius = 0.33
+		rim.outer_radius = 0.38
+		rim.rings = 16
+		rim.ring_segments = 6
+		_add(iron, rim, Transform3D(Basis.IDENTITY, Vector3(0, 0.91, 0)))
+		for i in 6:      # vertical straps round the bowl
+			var a := TAU * i / 6.0
+			var strap := BoxMesh.new()
+			strap.size = Vector3(0.035, 0.24, 0.02)
+			_add(iron, strap, Transform3D(Basis(Vector3.UP, -a) * Basis(Vector3.RIGHT, -0.62), Vector3(cos(a), 0, sin(a)) * 0.27 + Vector3(0, 0.8, 0)))
 		for i in 3:
-			var a := TAU * i / 3.0
-			var leg := _cyl(0.03, 0.045, 0.7, 6)
-			var off := Vector3(cos(a), 0, sin(a)) * 0.2
-			var tilt := Basis(Vector3(-sin(a), 0, cos(a)), 0.18)
-			_add(iron, leg, Transform3D(tilt, Vector3(off.x, 0.38, off.z)))
-		_add(fire, _cyl(0.3, 0.3, 0.02, 10), Transform3D(Basis.IDENTITY, Vector3(0, 0.92, 0)))   # coals
-		_add(fire, _cyl(0.0, 0.17, 0.42, 7), Transform3D(Basis.IDENTITY, Vector3(0, 1.13, 0)))    # flame
+			var a := TAU * i / 3.0 + 0.5
+			var out := Vector3(cos(a), 0, sin(a))
+			var axis := Vector3(-sin(a), 0, cos(a))
+			_add(iron, _cyl(0.028, 0.034, 0.42, 6), Transform3D(Basis(axis, -0.32), out * 0.2 + Vector3(0, 0.52, 0)))   # upper leg
+			_add(iron, _cyl(0.034, 0.03, 0.34, 6), Transform3D(Basis(axis, -0.05), out * 0.27 + Vector3(0, 0.17, 0)))   # lower leg
+			_add(iron, _cyl(0.06, 0.07, 0.03, 8), Transform3D(Basis.IDENTITY, out * 0.28 + Vector3(0, 0.015, 0)))        # foot
+		var ring := TorusMesh.new()
+		ring.inner_radius = 0.2
+		ring.outer_radius = 0.235
+		ring.rings = 14
+		ring.ring_segments = 5
+		_add(iron, ring, Transform3D(Basis.IDENTITY, Vector3(0, 0.36, 0)))
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 77
+		for i in 11:     # coal heap
+			var lump := SphereMesh.new()
+			lump.radius = rng.randf_range(0.06, 0.1)
+			lump.height = lump.radius * 1.4
+			lump.radial_segments = 6
+			lump.rings = 3
+			var r := sqrt(rng.randf()) * 0.22
+			var t := rng.randf() * TAU
+			_add(coals, lump, Transform3D(Basis.IDENTITY, Vector3(cos(t) * r, 0.9 + (0.22 - r) * 0.35, sin(t) * r)))
+		for i in 5:      # flame tongues: one tall centre, four leaning outward
+			var a := TAU * i / 4.0
+			var tall := 0.62 if i == 4 else rng.randf_range(0.36, 0.48)
+			var w := 0.16 if i == 4 else 0.1
+			var lean := Basis.IDENTITY if i == 4 else Basis(Vector3(-sin(a), 0, cos(a)), 0.22)
+			var off := Vector3.ZERO if i == 4 else Vector3(cos(a), 0, sin(a)) * 0.1
+			_add(fire, _cyl(0.0, w, tall, 7), Transform3D(lean, off + Vector3(0, 0.9 + tall * 0.5, 0)))
 	else:
 		_add(iron, _cyl(0.025, 0.025, 0.5, 6), Transform3D(Basis(Vector3.RIGHT, 0.0), Vector3(0, 0.35, 0.0)))   # stick
 		_add(iron, _cyl(0.07, 0.04, 0.12, 6), Transform3D(Basis.IDENTITY, Vector3(0, 0.62, 0)))   # cup
@@ -72,7 +134,10 @@ static func mesh(kind: String) -> ArrayMesh:
 	var am := iron.commit()
 	fire.commit(am)
 	am.surface_set_material(0, _iron_mat())
-	am.surface_set_material(1, _fire_mat())
+	am.surface_set_material(1, _flame_mat(kind))
+	if kind == "brazier":
+		coals.commit(am)
+		am.surface_set_material(2, _coal_mat())
 	_meshes[kind] = am
 	return am
 

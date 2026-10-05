@@ -121,7 +121,17 @@ static func apply_environment(env: Environment, tier := "high", game := false) -
 ## Game-only differences: the world is km wide, the lab 45 m (thinner fog, volumetric fog tuned for Ultra).
 ## Quality (autoload) owns SSAO/glow/shadows per tier and is re-applied after this by its node-added hook.
 static func _game_environment(env: Environment, tier: String) -> void:
-	env.fog_density = 0.0016
+	# AAA presentation pass 2026-10-06 (docs/art/AAA_PRESENTATION_REVIEW.md, phone review): less saturation and exposure, a
+	# controlled bloom (the SOFTLIGHT glow washed the S22 frame out), shadows still cool but no longer navy, and more depth haze.
+	env.set_meta("game_look", true)
+	env.tonemap_exposure = 0.86
+	env.glow_intensity = 0.28
+	env.glow_bloom = 0.02
+	env.glow_hdr_threshold = 1.25
+	env.adjustment_saturation = 1.08
+	env.adjustment_contrast = 1.32
+	env.adjustment_color_correction = lut(Color("1b1c34"), Color("8c8a8e"), Color("fff2dc"))
+	env.fog_density = 0.0027
 	env.fog_aerial_perspective = 0.45
 	env.fog_sky_affect = 0.0
 	env.volumetric_fog_albedo = Color("f2e2c0")
@@ -234,7 +244,10 @@ static func apply_daylight(env: Environment, sun: DirectionalLight3D, fill: Dire
 			fill.transform = Transform3D(Basis.looking_at(up, Vector3.UP if absf(up.y) < 0.99 else Vector3.RIGHT), fill.transform.origin)
 			fill.light_energy = float(p["fill_energy"])
 	if env:
-		env.ambient_light_color = p["ambient_color"]
+		var amb: Color = p["ambient_color"]
+		if env.has_meta("game_look"):
+			amb = amb.lerp(Color("b4b0b4"), 0.4)     # cool shadows, not blue ones (phone review 2026-10-06)
+		env.ambient_light_color = amb
 		env.ambient_light_energy = float(p["ambient_energy"])
 		env.fog_light_color = p["fog"]
 		env.background_energy_multiplier = float(p["bg_energy"])

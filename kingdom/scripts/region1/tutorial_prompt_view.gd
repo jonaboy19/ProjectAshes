@@ -135,7 +135,7 @@ func _layout() -> void:
 	if prompt.is_empty() or _pill == null:
 		return
 	var k := _ui_scale()
-	_label.add_theme_font_size_override("font_size", int(round(30.0 * k)))
+	_label.add_theme_font_size_override("font_size", int(round((22.0 if _beside_button() else 30.0) * k)))
 	_skip.add_theme_font_size_override("font_size", int(round(26.0 * k)))
 	_skip.custom_minimum_size = Vector2(SKIP_SIZE, SKIP_SIZE) * maxf(k, 1.0)
 	_pill.reset_size()
@@ -147,6 +147,14 @@ func _restack() -> void:
 	if prompt.is_empty() or _pill == null:
 		return
 	var sz := _pill.get_combined_minimum_size()
+	if _beside_button():
+		# AAA pass 2026-10-06: a button lesson ("Tap to use", "Tap to strike") is a small tag beside the button it is about,
+		# not a big box top-centre: it sits just left of and above the anchor, clamped on screen.
+		var a := anchor_pos(String(prompt.get("anchor", "center")))
+		_pill.position = Vector2(clampf(a.x - sz.x - 70.0 * _ui_scale(), 16.0, size.x - sz.x - 16.0),
+			clampf(a.y - sz.y - 40.0 * _ui_scale(), 16.0, size.y - sz.y - 16.0))
+		HudLane.report("hint", 0.0, 0.0)
+		return
 	var base_y := size.y * (0.16 if bool(prompt.get("plain", false)) else 0.115)
 	# A text-only hint ("plain": no ring, no gesture) is high and centred; the gesture prompt is a small
 	# pill top-centre under the location line, never over the joystick or the combat cluster (the ring in
@@ -154,6 +162,10 @@ func _restack() -> void:
 	_pill.position = Vector2(clampf((size.x - sz.x) * 0.5, 16.0, maxf(16.0, size.x - sz.x - 16.0)),
 		HudLane.y_for("hint", base_y))
 	HudLane.report("hint", _pill.position.y, sz.y if _pill.visible and _pill.modulate.a > 0.02 else 0.0)
+
+
+func _beside_button() -> bool:
+	return String(prompt.get("anchor", "")).begins_with("btn_")
 
 
 func _process(delta: float) -> void:
