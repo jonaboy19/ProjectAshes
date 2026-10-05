@@ -216,7 +216,7 @@
       "path": "docs/anim/patches/P5_locomotion_transitions.md",
       "lines": 68,
       "sha256": "58D061032CEDC42843368DD51593D40B1FE5A2CF9A187B52FEA5592D47307359",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P6_npc_foot_ik_cost.md",
