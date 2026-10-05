@@ -451,3 +451,24 @@ func test_no_copied_poll_interact_is_left() -> void:
 	var main := FileAccess.get_file_as_string("res://scripts/core/main.gd")
 	assert_bool(main.contains("target is Captain")).is_false()
 	assert_bool(main.contains("target is InteriorDoor")).is_false()
+
+
+func test_controller_stamps_the_frame_of_the_press_it_ran() -> void:
+	# main.gd's own "interact" branch (close an open menu) must not see the press that just opened one
+	var p := _player()
+	var host := Node3D.new()
+	add_child(host)
+	auto_free(host)
+	host.global_position = Vector3(0, 0, 1)
+	var ran := []
+	Interactable.attach(host, {"verb": "Use", "do": func(_pl: Node) -> void: ran.append(1)})
+	var ctl := InteractionController.new()
+	p.add_child(ctl)
+	InteractionController.consumed_frame = -1
+	var ev := InputEventAction.new()
+	ev.action = "interact"
+	ev.pressed = true
+	ctl._unhandled_input(ev)
+	assert_int(ran.size()).is_equal(1)
+	assert_int(InteractionController.consumed_frame).is_equal(Engine.get_process_frames())
+

@@ -184,7 +184,8 @@ func quests_awaiting_talk(npc: String) -> PackedStringArray:
 	for id: String in active_ids():
 		for o: RefCounted in (run(id) as Run).objs:
 			if o.type == "talk_to" and not o.is_done() and not o.is_failed() and _listening(run(id), o) \
-					and String(o.data.get("npc", "")).to_lower() == npc.to_lower():
+					and String(o.data.get("node", "")) == "" \
+					and String(o.data.get("npc", "")).to_lower() == npc.to_lower():     # a `node` objective is met inside the conversation, not by a Report button
 				out.append(id)
 				break
 	return out

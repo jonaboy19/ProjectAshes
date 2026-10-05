@@ -13,10 +13,17 @@ var _acc := 0.0
 var _watched: Dictionary = {}     # target id -> {pos: Callable, facing: Callable}
 
 
+static var _live: Node = null       # the one pump of the running world (two pumps double every hours / observe event)
+
+
+## The world's QuestPump. Village services and the Thornfield hub both ask for one: the second call gets the first's.
 static func attach(parent: Node) -> Node:
+	if _live != null and is_instance_valid(_live) and _live.is_inside_tree() and not _live.is_queued_for_deletion():
+		return _live
 	var p: Node = load("res://scripts/quests/quest_pump.gd").new()
 	p.name = "QuestPump"
 	parent.add_child(p)
+	_live = p
 	return p
 
 
@@ -25,6 +32,11 @@ func _ready() -> void:
 	if ws != null and ws.has_signal("hour_changed"):
 		ws.hour_changed.connect(_on_hour)
 	QuestHub.runner()
+
+
+func _exit_tree() -> void:
+	if _live == self:
+		_live = null
 
 
 func watch(target: String, pos_fn: Callable, facing_fn: Callable) -> void:

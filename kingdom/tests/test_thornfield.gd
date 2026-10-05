@@ -496,3 +496,68 @@ func test_the_whole_quest_line_completes_with_real_nodes() -> void:
 	for w: Variant in threat.get("ambush_wolves"):
 		if is_instance_valid(w):
 			w.queue_free()
+
+
+# ---------------------------------------------------------------- playtest fixes (tools_qa/playtest_bot, tf_* stages)
+func test_hesta_is_a_station_with_her_own_dialogue_and_talk_identity() -> void:
+	var info := Roster.info_for_id("hesta_thorne")
+	assert_str(String(info["file"])).is_equal("thornfield/hesta_thorne")
+	assert_bool(DialogueRunner.load_file("thornfield/hesta_thorne").is_empty()).is_false()
+	var sv := VillageServices.new()
+	auto_free(sv)
+	var hi: Dictionary = sv._npc_info({"id": "hesta_thorne", "name": "Hesta Thorne"})
+	assert_str(String(hi["file"])).is_equal("thornfield/hesta_thorne")
+	assert_str(String(hi["role"])).is_equal("brewmistress")
+	var hub: Node = auto_free(Hub.new())
+	add_child(hub)
+	var hesta: Node3D = hub.get("hesta")
+	assert_object(hesta).is_not_null()
+	assert_str(String(hesta.get("title"))).is_equal("Hesta Thorne")
+	assert_bool(hesta.is_in_group("interactable")).is_true()
+
+
+func test_there_is_one_quest_pump_per_world() -> void:
+	# two pumps (village services + the Thornfield hub) used to double every hours / observe event
+	var QuestPump := preload("res://scripts/quests/quest_pump.gd")
+	var host := Node.new()
+	add_child(host)
+	auto_free(host)
+	var p1: Node = QuestPump.attach(host)
+	var p2: Node = QuestPump.attach(host)
+	assert_object(p2).is_same(p1)
+
+
+func test_named_residents_are_inside_their_own_homes_not_the_hash_lot() -> void:
+	Roster.bind(true)
+	var Household := preload("res://scripts/interiors/household.gd")
+	var sid := Roster.settlement_id()
+	var lots: Array = (SliceTown.town()["plan"]["lots"] as Array)
+	var home: Dictionary = SliceTown.building("thornfield_house_8")
+	var maud := Roster.row_of("maud_pennick")
+	assert_bool(Roster.rows_at(sid, int(home["lot"]), 0).has(maud)).is_true()
+	var appears_in := 0
+	for li in lots.size():
+		var list := Household.roster_for_lot({"sid": sid, "lot": li, "count": lots.size()}, 23.0, "house")
+		if list.any(func(e: Dictionary) -> bool: return int(e["person"]) == maud):
+			appears_in += 1
+			assert_int(li).is_equal(int(home["lot"]))
+	assert_int(appears_in).is_equal(1)
+	# the blacksmith works in the smithy lot, not in whatever lot the hash formula picks
+	var smithy: Dictionary = SliceTown.building("thornfield_smithy")
+	assert_bool(Roster.rows_at(sid, int(smithy["lot"]), 1).has(Roster.row_of("roderic_hale"))).is_true()
+
+
+func test_a_shop_door_does_not_say_house() -> void:
+	var BP := preload("res://scripts/world/building_profiles.gd")
+	assert_str(BP.prompt("mhouse_trader")).is_equal("Enter the shop")
+	assert_str(BP.prompt("inn")).is_equal("Enter the inn")
+	assert_str(BP.prompt("house_13")).is_equal("Enter the house")
+
+
+func test_modular_keepers_use_looks_the_asset_loader_knows() -> void:
+	var Lay := preload("res://scripts/interiors/interior_layouts.gd")
+	for id: String in Lay.all_ids():
+		for n: Dictionary in (Lay.layout(id)["npcs"] as Array):
+			var look := String(n["look"])
+			assert_bool(Assets.MH_LOOKS.has(look) or Assets.LOOKS.has(look) or FileAccess.file_exists("res://assets/kaykit/characters/%s.glb" % look)).override_failure_message("%s: look '%s'" % [id, look]).is_true()
+

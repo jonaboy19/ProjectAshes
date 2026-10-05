@@ -492,7 +492,7 @@ func _update_context() -> void:
 	var night := _is_night()
 	if _interior != "":
 		bed = _interior
-	elif _player != null and not WorldGen.settlements.is_empty():
+	elif _player != null and _player.is_inside_tree() and not WorldGen.settlements.is_empty():     # the old player is mid-removal on a scene reload
 		var p := _player.global_position
 		var p2 := Vector2(p.x, p.z)
 		var near := WorldGen.nearest_settlement(p2)

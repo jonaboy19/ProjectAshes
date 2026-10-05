@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Writes dialogue/thornfield/<id>.json for every bound resident of data/region1/world/thornfield_people.json.
+"""Writes dialogue/thornfield/<id>.json for every bound resident (and station residents such as Hesta) of data/region1/world/thornfield_people.json.
 Format: scripts/sim/dialogue_runner.gd. Run from kingdom/:  python3 tools/thornfield/gen_dialogue.py
 Wilm Garrow also gets the nodes the quest line needs ("confession", "bribe_paid"); the `has` keys are set by
 scripts/world/thornfield/thornfield_talk.gd (ctx["thornfield_confront"], ctx["thornfield_bribe_paid"])."""
@@ -65,7 +65,7 @@ def build(p):
 
 n = 0
 for p in people:
-    if not p.get("bind", True):
+    if not p.get("bind", True) and not p.get("station", False):
         continue
     json.dump(build(p), open(os.path.join(OUT, p["id"] + ".json"), "w"), indent=1)
     n += 1

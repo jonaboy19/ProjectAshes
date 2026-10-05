@@ -412,6 +412,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("zoom_in"):
 		player.zoom(-1)
 	elif event.is_action_pressed("interact"):
+		if InteractionController.consumed_frame == Engine.get_process_frames():
+			return      # the player's InteractionController ran this very press (it may just have opened a menu)
 		if hud.is_menu_open():
 			hud.close_menu()
 			return

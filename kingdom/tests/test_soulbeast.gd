@@ -608,3 +608,12 @@ func test_den_is_dry_and_near_thornfield() -> void:
 	var d: float = den.distance_to(t["pos"])
 	assert_float(d).is_greater(float(t["radius"]))
 	assert_float(d).is_less(float(t["radius"]) + 210.0)
+
+
+func test_snapshot_works_outside_the_tree() -> void:
+	# the director saves from its own _exit_tree, when the beast may already be out of the tree
+	var b: Node3D = Beast.new()
+	auto_free(b)
+	var d: Dictionary = b.snapshot()
+	assert_bool(d.has("trust")).is_true()
+

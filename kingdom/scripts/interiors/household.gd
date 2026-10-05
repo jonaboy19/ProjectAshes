@@ -9,6 +9,7 @@ extends RefCounted
 ## live WorldSim / WorldGen. Acts: sleep, eat, hearth, table, counter, drink. Preload this script; no class_name.
 
 const Schedule := preload("res://scripts/population/schedule.gd")
+const ThornfieldRoster := preload("res://scripts/world/thornfield/roster.gd")     # F8: named residents live where the roster says
 
 ## Cap on bodies inside one room (phones: every body is a skinned mesh).
 const MAX_INSIDE := 6
@@ -60,6 +61,12 @@ static func home_act(hour: float, person: int) -> String:
 	return "table"
 
 
+## The schedule phase of person `p` at `hour`: the baseline timetable, then a named Thornfield resident's own overrides
+## (the same two steps as WorldSim._current_phase, so the interior and the street agree on who is home).
+static func _phase(p: int, hour: float, flags: int, day: int, job_of: Callable) -> int:
+	return ThornfieldRoster.override_phase(p, hour, Schedule.phase(int(job_of.call(p)), hour, flags, p, day))
+
+
 ## Who is indoors and what they do. Each entry: {person, act, role}.
 ##   house / tavern bedrooms: residents whose schedule phase is HOME (act from `home_act`)
 ##   shops: the merchants and craftsmen of this workshop whose phase is WORK ("counter") and residents at HOME
@@ -70,14 +77,14 @@ static func roster(residents: Array, workers: Array, everyone: Array, hour: floa
 	var out: Array[Dictionary] = []
 	var seen := {}
 	for p: int in residents:
-		if Schedule.phase(int(job_of.call(p)), hour, flags, p, day) == Schedule.Phase.HOME:
+		if _phase(p, hour, flags, day, job_of) == Schedule.Phase.HOME:
 			out.append({"person": p, "act": home_act(hour, p), "role": "resident"})
 			seen[p] = true
 	if category == "shop":
 		for p: int in workers:
 			if seen.has(p):
 				continue
-			if Schedule.phase(int(job_of.call(p)), hour, flags, p, day) == Schedule.Phase.WORK:
+			if _phase(p, hour, flags, day, job_of) == Schedule.Phase.WORK:
 				out.append({"person": p, "act": "counter", "role": "worker"})
 				seen[p] = true
 				break      # one shopkeeper at the counter
@@ -88,7 +95,7 @@ static func roster(residents: Array, workers: Array, everyone: Array, hour: floa
 				break
 			if seen.has(p):
 				continue
-			if Schedule.phase(int(job_of.call(p)), hour, flags, p, day) == Schedule.Phase.INN:
+			if _phase(p, hour, flags, day, job_of) == Schedule.Phase.INN:
 				out.append({"person": p, "act": "drink", "role": "patron"})
 				seen[p] = true
 				n += 1
@@ -156,13 +163,19 @@ static func roster_for_lot(info: Dictionary, hour: float, category: String) -> A
 	var count := int(info["count"])
 	var job_of := func(i: int) -> int: return int(WorldSim.job[i])
 	var res: Array[int] = []
+	for i in ThornfieldRoster.rows_at(sid, int(info["lot"]), 0):          # a named person lives in their own house, and comes first
+		if not WorldSim.is_dead(i):                                      # (the room holds MAX_INSIDE bodies)
+			res.append(i)
 	for i in residents_of(int(info["lot"]), count, r.x, r.y):
-		if not WorldSim.is_dead(i):
+		if not WorldSim.is_dead(i) and not ThornfieldRoster.is_named(i):
 			res.append(i)
 	var work: Array[int] = []
 	if category == "shop":
+		for i in ThornfieldRoster.rows_at(sid, int(info["lot"]), 1):
+			if not WorldSim.is_dead(i) and int(job_of.call(i)) in [1, 2]:
+				work.append(i)
 		for i in workers_of(int(info["lot"]), count, r.x, r.y, job_of):
-			if not WorldSim.is_dead(i):
+			if not WorldSim.is_dead(i) and not ThornfieldRoster.is_named(i):
 				work.append(i)
 	var all: Array[int] = []
 	if category == "tavern":

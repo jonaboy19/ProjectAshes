@@ -1030,6 +1030,10 @@ func _npc_info(npc: Dictionary) -> Dictionary:
 		"file": "villager", "quest_role": "villager", "culture": "caldric", "faction": "ashford", "bond": "",
 		"pos": _home_pos()}
 	if person < 0:
+		var station_named := ThornfieldRoster.info_for_id(id)     # F8: Hesta Thorne is a Station, not a WorldSim row
+		if not station_named.is_empty():
+			for k: String in ["id", "name", "role", "file", "quest_role"]:
+				info[k] = station_named[k]
 		return info
 	info["name"] = WorldSim.person_name(person)
 	info["role"] = String(WorldSim.JOBS[WorldSim.job[person]]).to_lower()

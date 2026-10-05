@@ -36,6 +36,7 @@ var cart: Node3D
 var clues: Array = []
 var pens: Node3D
 var store: Node3D
+var hesta: Node3D
 
 var _acc := 0.0
 var _inside: Dictionary = {}        # place id -> seconds until the next enter_area
@@ -58,6 +59,7 @@ func _ready() -> void:
 	clues = Clues.build(self)
 	pens = Livestock.build_pens(self)
 	store = _build_barley_store()
+	hesta = _build_hesta()
 	figure = _build_figure()
 	threat = WolfThreat.new()
 	add_child(threat)
@@ -128,6 +130,35 @@ func take_barley() -> String:
 	Life.give("barley", SACKS)
 	Game.say("You take %d sacks of sound barley from the tithe barn." % SACKS)
 	return "ok"
+
+
+## Hesta Thorne, the giver of all three quests: a roster resident that is not a WorldSim row, so she stands at her stool by the
+## brewery table as a Station whose menu is the ordinary conversation (dialogue/thornfield/hesta_thorne.json + the quest options).
+func _build_hesta() -> Node3D:
+	var b := Sites.brewery()
+	var e := Roster.entry("hesta_thorne")
+	if b.is_empty() or e.is_empty():
+		return null
+	var w := Sites.to_world(b, Sites.HESTA_AT)
+	var st := Station.new(String(e["name"]), "Talk", Callable())
+	st.name = "Hesta"
+	st.set_meta("npc_id", "hesta_thorne")
+	st.menu = func() -> Dictionary:
+		var sv := Interaction.services(self)
+		if sv == null:
+			return {"title": String(e["name"]), "body": "...", "options": []}
+		return sv.call("talk_menu", {"id": "hesta_thorne", "name": String(e["name"])})
+	add_child(st)
+	st.global_position = Vector3(w.x, WorldGen.height(w.x, w.y), w.y)
+	var toward := Sites.to_world(b, Sites.TABLE_AT) - w
+	st.rotation.y = atan2(toward.x, toward.y)
+	var body: Node3D = Assets.character("Trader", 1.7, [])
+	if body != null:
+		st.add_child(body)
+		var ap := Assets.animation_player(body)
+		if ap:
+			ap.play("Idle" if ap.has_animation("Idle") else ap.get_animation_list()[0])
+	return st
 
 
 # --- the poll ----------------------------------------------------------------------------------
