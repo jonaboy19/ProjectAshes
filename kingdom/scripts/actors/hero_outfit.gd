@@ -223,32 +223,29 @@ static func dress(model: Node3D, parts: Array = []) -> MeshInstance3D:
 	if neck >= 0 and sp3 >= 0:
 		var p_n := _pos(neck)
 		var cy := p_n.y - 0.02 * unit
-		var rn := Vector2(0.095, 0.09) * unit
-		if not _parts.is_empty():                       # foreign body (Meshy hero): fit the collar ring to the actual neck/collar
-			var fr := _fit(cy, rn)
-			rn = Vector2(maxf(rn.x, fr.x * 1.05), maxf(rn.y, fr.y * 1.05))
-		_piece(M.WOOL)
-		_ring(st, Vector3(p_n.x, cy, p_n.z - 0.01 * unit), rn, 0.07 * unit, 0.055 * unit, [neck, sp3], [0.4, 0.6], LEATHER, 16)
-		# the hood itself, lying folded on the upper back: a half-ellipsoid bag, wide at the collar, pinched to a tip
-		_piece(M.WOOL, cy - 0.03 * unit, 0.35 * unit)
-		var hc := Vector3(p_n.x, cy - 0.11 * unit, p_n.z - 0.075 * unit)
 		if not _parts.is_empty():
-			var back := _fit(hc.y, Vector2(0.15, 0.11) * unit)
-			hc.z = minf(hc.z, cz - back.y + 0.085 * unit)
-		var nth := 10
-		var nph := 7
-		for pj in nph:
-			for ti in nth:
-				var vs: Array = []
-				for k in [[pj, ti], [pj + 1, ti], [pj + 1, ti + 1], [pj, ti + 1]]:
-					var ph := PI * 0.08 + PI * 0.84 * float(k[0]) / nph
-					var th := lerpf(-PI * 0.55, PI * 0.55, float(k[1]) / nth)
-					var pinch := 1.0 - 0.55 * float(k[0]) / nph
-					var d := Vector3(sin(ph) * sin(th) * 0.135 * pinch, cos(ph) * 0.15, -sin(ph) * cos(th) * 0.11 - 0.015) * unit
-					var wn := clampf(1.0 - float(k[0]) / 3.0, 0.0, 0.4)
-					var col := HOOD.lerp(LEATHER_DARK, 0.1 + 0.4 * float(k[0]) / nph)
-					vs.append([hc + d, [sp3, neck], [1.0 - wn, wn], col])
-				_quad(st, vs[0], vs[1], vs[2], vs[3], false)
+			_fitted_hood(st, p_n, cy, unit, neck, sp3)
+		else:
+			var rn := Vector2(0.095, 0.09) * unit
+			_piece(M.WOOL)
+			_ring(st, Vector3(p_n.x, cy, p_n.z - 0.01 * unit), rn, 0.07 * unit, 0.055 * unit, [neck, sp3], [0.4, 0.6], LEATHER, 16)
+			# the hood itself, lying folded on the upper back: a half-ellipsoid bag, wide at the collar, pinched to a tip
+			_piece(M.WOOL, cy - 0.03 * unit, 0.35 * unit)
+			var hc := Vector3(p_n.x, cy - 0.11 * unit, p_n.z - 0.075 * unit)
+			var nth := 10
+			var nph := 7
+			for pj in nph:
+				for ti in nth:
+					var vs: Array = []
+					for k in [[pj, ti], [pj + 1, ti], [pj + 1, ti + 1], [pj, ti + 1]]:
+						var ph := PI * 0.08 + PI * 0.84 * float(k[0]) / nph
+						var th := lerpf(-PI * 0.55, PI * 0.55, float(k[1]) / nth)
+						var pinch := 1.0 - 0.55 * float(k[0]) / nph
+						var d := Vector3(sin(ph) * sin(th) * 0.135 * pinch, cos(ph) * 0.15, -sin(ph) * cos(th) * 0.11 - 0.015) * unit
+						var wn := clampf(1.0 - float(k[0]) / 3.0, 0.0, 0.4)
+						var col := HOOD.lerp(LEATHER_DARK, 0.1 + 0.4 * float(k[0]) / nph)
+						vs.append([hc + d, [sp3, neck], [1.0 - wn, wn], col])
+					_quad(st, vs[0], vs[1], vs[2], vs[3], false)
 	_part("hair")
 	# --- shaggy hair: tufts rooted on the G6 hair cap, skinned to the head ------------------------------------------
 	var head := _b(["Head", "head"])
@@ -327,6 +324,68 @@ static func noise_texture() -> Texture2D:
 		nt.noise = fn
 		_noise = nt
 	return _noise
+
+
+## Hood for a foreign body (Meshy hero): a cowl laid ON the actual collar/shoulders (radius measured per angle from the
+## body mesh), open in a V at the front, with soft folds, plus the hood bag hanging on the measured back. Wool, sways.
+static func _fitted_hood(st: SurfaceTool, p_n: Vector3, cy: float, unit: float, neck: int, sp3: int) -> void:
+	var segs := 28
+	var ys := [cy + 0.035 * unit, cy + 0.0, cy - 0.04 * unit, cy - 0.08 * unit, cy - 0.11 * unit]
+	var ring_pts: Array = []
+	for ri in ys.size():
+		var y: float = ys[ri]
+		var row: Array = []
+		for si in segs + 1:
+			var a := lerpf(PI * 0.5 + 0.9, PI * 2.5 - 0.9, float(si) / segs)     # sides + back only: the front stays the shirt
+			var r := _radial(Vector3(p_n.x, y, p_n.z), a, 0.09 * unit)
+			var fold := 1.0 + sin(a * 9.0 + ri) * 0.06 * float(ri) / 4.0
+			var lift := 0.014 * unit + 0.01 * unit * float(ri) / 4.0
+			row.append(Vector3(p_n.x + cos(a) * (r * fold + lift), y, p_n.z + sin(a) * (r * fold + lift)))
+		ring_pts.append(row)
+	_piece(M.WOOL, cy + 0.02 * unit, 0.2 * unit)
+	for ri in ys.size() - 1:
+		var w0 := clampf(1.0 - float(ri) / 2.0, 0.0, 0.5)
+		var w1 := clampf(1.0 - float(ri + 1) / 2.0, 0.0, 0.5)
+		for si in segs:
+			var c0 := HOOD.lerp(LEATHER_DARK, 0.45 + 0.25 * float(ri) / 4.0)
+			var c1 := HOOD.lerp(LEATHER_DARK, 0.45 + 0.25 * float(ri + 1) / 4.0)
+			_quad(st, [ring_pts[ri][si], [neck, sp3], [w0, 1.0 - w0], c0], [ring_pts[ri + 1][si], [neck, sp3], [w1, 1.0 - w1], c1],
+				[ring_pts[ri + 1][si + 1], [neck, sp3], [w1, 1.0 - w1], c1], [ring_pts[ri][si + 1], [neck, sp3], [w0, 1.0 - w0], c0], false)
+	# hood bag on the back, resting on the measured back surface
+	var hy := cy - 0.1 * unit
+	var back_r := _radial(Vector3(p_n.x, hy, p_n.z), PI * 1.5, 0.11 * unit)
+	var hc := Vector3(p_n.x, hy, p_n.z - back_r + 0.05 * unit)
+	_piece(M.WOOL, cy - 0.03 * unit, 0.3 * unit)
+	var nth := 10
+	var nph := 7
+	for pj in nph:
+		for ti in nth:
+			var vs: Array = []
+			for k in [[pj, ti], [pj + 1, ti], [pj + 1, ti + 1], [pj, ti + 1]]:
+				var ph := PI * 0.08 + PI * 0.84 * float(k[0]) / nph
+				var th := lerpf(-PI * 0.55, PI * 0.55, float(k[1]) / nth)
+				var pinch := 1.0 - 0.55 * float(k[0]) / nph
+				var d := Vector3(sin(ph) * sin(th) * 0.13 * pinch, cos(ph) * 0.13, -sin(ph) * cos(th) * 0.075 - 0.01) * unit
+				var col := HOOD.lerp(LEATHER_DARK, 0.1 + 0.4 * float(k[0]) / nph)
+				vs.append([hc + d, [sp3, neck], [0.85, 0.15], col])
+			_quad(st, vs[0], vs[1], vs[2], vs[3], false)
+
+
+## Largest radial distance of the body around the vertical axis through `c` at height c.y, within +-0.2 rad of angle a.
+static func _radial(c: Vector3, a: float, fallback: float) -> float:
+	var r := 0.0
+	for p in _body_pts:
+		if absf(p.y - c.y) > 0.02:
+			continue
+		var dx := p.x - c.x
+		var dz := p.z - c.z
+		var d := sqrt(dx * dx + dz * dz)
+		if d > 0.26 or d < 0.02:
+			continue
+		var pa := atan2(dz, dx)
+		if absf(wrapf(pa - a, -PI, PI)) < 0.2:
+			r = maxf(r, d)
+	return r if r > 0.01 else fallback
 
 
 # --- helpers ---------------------------------------------------------------------------------------------------------

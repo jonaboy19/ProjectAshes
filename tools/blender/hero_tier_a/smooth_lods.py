@@ -28,7 +28,7 @@ def apply_first(o, mod):
 
 
 def export(path):
-    bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", export_animations=False, export_skins=True,
+    bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", export_animations=False, export_skins=True, export_vertex_color="ACTIVE",
                               export_image_format="JPEG", export_jpeg_quality=92)
 
 

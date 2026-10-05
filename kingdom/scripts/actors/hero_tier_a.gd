@@ -252,11 +252,17 @@ static func upgrade_meshy(model: Node3D, saturation := 0.92) -> ShaderMaterial:
 ## Full Tier-A Meshy hero: material pass + hood/satchel/strap/belt from HeroOutfit + blink lids + sway driver.
 static func dress_meshy_hero(model: Node3D) -> Node:
 	upgrade_meshy(model)
-	var outfit: MeshInstance3D = (load("res://scripts/actors/hero_outfit.gd") as GDScript).call("dress", model, ["satchel", "strap", "hood", "belt"])
+	var outfit: MeshInstance3D = (load("res://scripts/actors/hero_outfit.gd") as GDScript).call("dress", model, ["satchel", "strap", "belt"])   # fitted hood: WIP (shards at the chest), off
 	var sk := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
 	var parts := {}
 	for n in model.find_children("*Lids*", "MeshInstance3D", true, false):
 		parts["Lids"] = n
+		var lm := ShaderMaterial.new()
+		lm.shader = load(SH + "hero_lid.gdshader")
+		var cm := (n as MeshInstance3D).material_override as ShaderMaterial
+		if cm:
+			lm.set_shader_parameter("albedo_tex", cm.get_shader_parameter("albedo_tex"))
+		(n as MeshInstance3D).material_override = lm
 		(n as MeshInstance3D).visible = false
 	var drv: Node = Driver.new()
 	drv.name = "HeroFaceDriver"

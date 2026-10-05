@@ -31,3 +31,15 @@ Rating: still about 6/10 in close-up, so it is **not** made the default hero.
   - The mouth smear remains.
   - The lid patches render as visible rectangles and need a soft alpha edge.
   - The hood ring reads as a flat tan band; it needs the real hood geometry.
+
+## Pass 3 (2026-10-06): `m8_sheet.jpg`, `m8_clips.jpg`
+- **Fixed:** ski soles. The boot is slid about 3.5 cm forward onto the ankle and the foot weights are made rigid. Walk, run, sprint, attack and roll are clean.
+- **Better:**
+  - Lids are softer (alpha border plus a lash line), but the blink still reads as smudged patches.
+  - The mouth patch is gentler, but a small dark notch remains.
+- **Not fixed:**
+  - Collar/shoulder mass. It is the model's own shoulder volume, not a collar band, so it needs Blender sculpt or reshape work.
+  - The fitted hood leaves orange shards at the chest, so it is switched off.
+  - Grip: the Meshy hands are fused mitts. Finger re-weighting shredded them, so it is off (`--fingers`). The sword floats in an open hand.
+
+Rating: about 6/10 in close-up and about 6 at the shoulder cam. **Not default.** It doesn't clearly beat the current hero, and there was no benchmark-street test: the sparse worktree has no town, and disk is too tight for a full worktree.
