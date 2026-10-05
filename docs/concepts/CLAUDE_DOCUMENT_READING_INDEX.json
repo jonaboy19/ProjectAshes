@@ -348,7 +348,7 @@
       "path": "docs/concepts/CAREER_BIOGRAPHY_LIFECYCLE_CONTRACT.md",
       "lines": 50,
       "sha256": "B0906D5BBB87B0993C263D79763376D470706586E3D3D6EDB32FFA44A70C0D4F",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/concepts/CHARACTER_FEEL_FINISH_CHECKPOINT.md",
@@ -1098,7 +1098,7 @@
       "path": "docs/SYSTEMS_CONTINUATION.md",
       "lines": 246,
       "sha256": "6359E764F08C6EC8E1472785E90AEF53D2B145A1D7E5F810B522134D37CCF8B5",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/SYSTEMS_MASTERPLAN.md",

@@ -48,7 +48,7 @@ func current_chapter() -> Dictionary:
 ## current chapter's role and org is a no-op (nothing changed about the life).
 func start_chapter(role: String, org: String, rank: String, place: String, day: int) -> void:
 	var cur := current_chapter()
-	if not cur.is_empty() and String(cur["role"]) == role and String(cur["org"]) == org:
+	if not cur.is_empty() and int(cur["end_day"]) < 0 and String(cur["role"]) == role and String(cur["org"]) == org:
 		return
 	if not cur.is_empty() and int(cur["end_day"]) < 0:
 		cur["end_day"] = day

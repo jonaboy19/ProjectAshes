@@ -84,3 +84,7 @@ Video mocap is an available offline pipeline, but the recorded validation is syn
 Read SYSTEMS_CLAUDE_HANDOFF and the full LIVING_WORLD design. SYSTEMS_CONTINUATION was read in a truncated initial output followed by its middle 95-line block; do not mark it fully covered until an explicit complete segmented read. Historical delivery sections contradict newer sections within those handoffs, so current source remains authoritative.
 
 Current UtilityBrain and WorldSim source confirms the documented breath continuity gap: active breath affects sitting/winded choices but is excluded from the five saved need columns and offscreen catch-up. The coordinated schema/migration boundary is recorded in `NPC_BREATH_CONTINUITY_SOURCE_REVIEW.md`. No population hotpath was edited. The living-world document is a broad design target, not proof its housing, careers, crime, travel or relationship scenarios currently work.
+
+## Career lifecycle follow-up
+
+Completed SYSTEMS_CONTINUATION with explicit first-95/final-56 reads complementing the earlier middle-95 block. Completed CAREER_BIOGRAPHY_LIFECYCLE_CONTRACT and compared its named methods against current Careers, Biography and Life. The documented integration gaps remain in this local source. A focused Biography change permits an explicitly requested chapter restart after closure while preserving duplicate suppression for open chapters; see `BIOGRAPHY_CLOSED_CHAPTER_REENTRY.md`. Rank retention and automatic resignation/dismissal/rehire reconciliation remain unresolved. No runtime acceptance is claimed.
