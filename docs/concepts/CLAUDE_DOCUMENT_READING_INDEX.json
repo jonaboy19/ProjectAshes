@@ -126,7 +126,7 @@
       "path": "docs/anim/living_world/HANDOFF.md",
       "lines": 156,
       "sha256": "F58C3DCBAA688B92C1DA219302FE0B97AB838D00112C008E30C6C0FC41DC3FAA",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P10_directional_hit_reactions.md",
@@ -162,7 +162,7 @@
       "path": "docs/anim/patches/P13_villager_life_clips.md",
       "lines": 196,
       "sha256": "F8A4A1E20DC5FFFAEE0765E6A9412D7030F83363A26EB5F0EE518D3F75DD611D",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P13_world_sim_smart_objects.md",
