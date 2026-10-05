@@ -10,6 +10,7 @@ extends RefCounted
 const Gen := preload("res://scripts/interiors/dungeon_gen.gd")
 const CHUNK := 8
 const TEX := "res://assets/generated/region/textures/"
+const PH_ROCK := "res://assets/incoming/polyhaven/textures/rock_face/rock_face_%s_1k.jpg"   # CC0 Poly Haven
 const POOL_DEPTH := 0.85
 
 static var _mats: Dictionary = {}
@@ -246,7 +247,17 @@ static func materials(theme: String) -> Dictionary:
 	var shell_tex := "rock"
 	if theme == "crypt":
 		shell_tex = "ruin_stone"
-	var out := {"shell": _std(_tex(shell_tex), 0.4)}      # 0.22 stretched one texel over ~5 cm of floor: streaks at grazing angles
+	var out := {"shell": _std(_tex(shell_tex), 0.4)}      # fallback: 0.22 stretched one texel over ~5 cm of floor
+	if shell_tex == "rock" and ResourceLoader.exists(PH_ROCK % "diff"):
+		# ashes-environment-look: real triplanar rock (albedo + normal + ARM, world space) instead of
+		# the stretched albedo-only shell. Vertex colour (theme tint, AO) still multiplies in.
+		var cave := ShaderMaterial.new()
+		cave.shader = preload("res://shaders/environment/cave_rock.gdshader")
+		cave.set_shader_parameter("rock_albedo", load(PH_ROCK % "diff"))
+		cave.set_shader_parameter("rock_normal", load(PH_ROCK % "nor_gl"))
+		cave.set_shader_parameter("rock_arm", load(PH_ROCK % "arm"))
+		cave.set_shader_parameter("macro_rock", _tex("rock"))
+		out["shell"] = cave
 	var kit := StandardMaterial3D.new()
 	kit.vertex_color_use_as_albedo = true
 	kit.roughness = 0.9

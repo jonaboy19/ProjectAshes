@@ -9,7 +9,7 @@
  "level": [4, 10],
  "side": 44,
  "height": [4.4, 6.2],
- "organic": false,
+ "organic": true,
 
  "rooms": [
   {"id": 0, "name": "Rift's Edge Camp", "role": "entrance", "safe": true, "rect": [3, 17, 11, 9], "chamfer": 1},
