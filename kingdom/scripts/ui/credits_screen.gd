@@ -9,9 +9,10 @@ extends Control
 const AF := preload("res://scripts/ui/ashes_frame.gd")
 const FE := preload("res://scripts/ui/frontend/fe.gd")
 const CREDITS_PATH := "res://CREDITS.md"
-## Addons shipped in the build (LimboAI and Terrain3D are disabled; see project.godot).
-const ADDON_LICENCES := ["gloot", "dialogue_manager", "guide", "quest_weaver", "GodotGAS", "sky_3d",
-	"road-generator", "proton_scatter"]
+## Addons shipped in the build (LimboAI, Terrain3D, GodotGAS, GUIDE, Dialogue Manager and
+## Road Generator are disabled and excluded from export; see project.godot).
+const ADDON_LICENCES := ["gloot", "quest_weaver", "sky_3d",
+	"proton_scatter"]
 
 var _text: RichTextLabel
 var _full_button: Button
