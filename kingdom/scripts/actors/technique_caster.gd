@@ -20,6 +20,14 @@ extends Node
 ## their defaults. A projectile VFX may return the Node3D to fly: the caster
 ## moves it and frees it on impact (return null if it animates itself).
 ## Missing methods fall back to VFX.burst / VFX.slash.
+##
+## Orchestration lives in scripts/abilities/ability_runner.gd (the same runner NPC casters use): evaluate ->
+## validate -> chant (seal pad) -> pay on release + cooldown -> windup -> execute (_resolve below) -> apply
+## (effects by family on scripts/abilities/effect_set.gd). This node keeps what is scene-bound: input, the seal
+## pad, animation, targeting queries, projectiles, VFX. Legacy techniques (data/skills) still pay and cool down
+## through skills.gd (begin_cast) so every number is unchanged; path-tree techniques (data/powers) pay through
+## power_paths.use (strain, risk, mastery). Chant-gated spells (magic path, with seals) open the seal pad unless the
+## caster qualifies for chantless casting (PowerTrees.chantless_check), see cast_technique().
 
 signal cast(id: String, def: Dictionary)
 signal failed(id: String, reason: String)
@@ -31,6 +39,11 @@ signal seal_entered(index: int, seal: String, correct: bool)
 signal seals_ended(id: String, success: bool)
 
 const Skills := preload("res://scripts/sim/skills.gd")
+const AbilityDef := preload("res://scripts/abilities/ability_def.gd")
+const AbilityLib := preload("res://scripts/abilities/ability_lib.gd")
+const Runner := preload("res://scripts/abilities/ability_runner.gd")
+const EffectSet := preload("res://scripts/abilities/effect_set.gd")
+const PowerTrees := preload("res://scripts/abilities/power_trees.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
 const VFX_PATH := "res://scripts/vfx/vfx.gd"
 const SPECTACLE_SHAPES := ["projectile", "chain", "dash", "blink", "melee", "cone", "aoe", "target_aoe"]
@@ -44,7 +57,7 @@ const HIT_RADIUS := 0.9          # projectile contact distance (m)
 const DASH_DECEL := 12.0         # player.gd IMPULSE_DECEL: kick speed = sqrt(2 * decel * distance)
 const DASH_WIDTH := 1.6
 const BURN_TICK := 0.5
-const CAST_LOCK := 0.3           # s between casts so taps do not stack
+const CAST_LOCK := 0.3           # s between casts so taps do not stack (the runner's lockout)
 const ELEMENT_COLORS := {
 	"fire": Color(1.0, 0.45, 0.12), "water": Color(0.35, 0.75, 1.0), "wind": Color(0.85, 1.0, 0.95),
 	"earth": Color(0.75, 0.55, 0.3), "lightning": Color(0.7, 0.8, 1.0), "qi": Color(1.0, 0.85, 0.35),
@@ -64,8 +77,12 @@ var _vfx_info: Dictionary = {}   # method name -> script method info
 ## Loaded untyped so calls to methods the VFX agent adds later resolve at runtime.
 var _vfx_script: Script
 var _projectiles: Array = []
-var _burns: Array = []
-var _lock := 0.0
+## The one lifecycle shared with NPC casters (hooks wired in _init).
+var runner: RefCounted
+## Effects on targets we hit (burns...): instance id -> {node, set}.
+var _boards: Dictionary = {}
+var _ability_cache: Dictionary = {}
+var _seal_target: Node3D
 var _seal_id := ""
 var _seal_seq: Array = []
 var _seal_pos := 0
@@ -74,6 +91,14 @@ var _seal_time := 0.0
 
 func _init() -> void:
 	name = "TechniqueCaster"
+	runner = Runner.new()
+	runner.overlap_windups = true
+	runner.hooks = {
+		"lookup": _lookup, "known": _hook_known, "blocked": _blocked, "pools": _hook_pools,
+		"numbers": _hook_numbers, "commit": _hook_commit, "cooldown_left": _hook_cooldown_left,
+		"cooldown_set": _hook_cooldown_set, "fizzle": _hook_fizzle, "profile": _hook_profile,
+		"execute": _hook_execute,
+	}
 
 
 func _ready() -> void:
@@ -117,17 +142,19 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	_lock = maxf(0.0, _lock - delta)
 	if is_sealing():
 		_seal_time -= delta
 		if _seal_time <= 0.0:
-			skills.fizzle(_seal_id)
+			runner.chant_complete(false)       # fizzle: the technique rests briefly (skills.fizzle)
 			_say("The seals slip apart.")
 			_end_seals(false)
 	if skills:
 		skills.tick(delta)
+	for ev: Dictionary in runner.update(delta):    # effects on the caster itself (hot, wards, auras)
+		if String(ev["kind"]) == "hot" and player != null and player.has_method("heal"):
+			player.call("heal", int(ev["amount"]))
 	_update_projectiles(delta)
-	_update_burns(delta)
+	_update_boards(delta)
 
 
 # --- casting -------------------------------------------------------------------
@@ -140,6 +167,8 @@ func pools() -> Dictionary:
 	var mag := _magicules()
 	if mag:
 		out["magicules"] = float(mag.call("spendable"))
+	if skills:
+		out["qi"] = skills.qi
 	return out
 
 
@@ -182,16 +211,20 @@ func seal_time_left() -> float:
 func begin_seals(id: String) -> Dictionary:
 	if is_sealing():
 		cancel_seals()
-	var why := _blocked()
-	if why == "":
-		why = String(skills.can_cast(id, pools()).get("reason", ""))
-	if why != "":
-		failed.emit(id, why)
-		return {"ok": false, "reason": why}
+	var ab := _lookup(id)
+	var target := _pick_target(AbilityDef.flat(ab)) if not ab.is_empty() else null
+	var r: Dictionary = runner.begin(id, {"force_chant": true, "chantless": false, "target": target})
+	if not r["ok"]:
+		failed.emit(id, String(r["reason"]))
+		return r
+	if String(r.get("phase", "")) != "chant":
+		_after_commit(id, r, target)         # nothing to chant: it fired
+		return r
 	_seal_id = id
-	_seal_seq = (skills.get_def(id).get("seals", []) as Array).duplicate()
+	_seal_seq = (r.get("seals", []) as Array).duplicate()
 	_seal_pos = 0
 	_seal_time = SEAL_TIME
+	_seal_target = target
 	var anim: Variant = player.get("_animator")
 	var ap: Variant = (anim as Object).get("player") if anim != null else null
 	if ap is AnimationPlayer:
@@ -210,19 +243,25 @@ func input_seal(seal: String) -> void:
 	var correct := _seal_pos < _seal_seq.size() and String(_seal_seq[_seal_pos]) == seal
 	seal_entered.emit(_seal_pos, seal, correct)
 	if not correct:
-		skills.fizzle(_seal_id)
+		runner.chant_complete(false)
 		_say("Wrong seal. The technique fizzles.")
 		_end_seals(false)
 		return
 	_seal_pos += 1
 	if _seal_pos >= _seal_seq.size():
 		var id := _seal_id
+		var target := _seal_target
 		_end_seals(true)
-		cast_technique(id, true)
+		var r: Dictionary = runner.chant_complete(true, true)
+		if r["ok"]:
+			_after_commit(id, r, target)
+		else:
+			failed.emit(id, String(r["reason"]))
 
 
 func cancel_seals() -> void:
 	if is_sealing():
+		runner.cancel()
 		_end_seals(false)
 
 
@@ -232,42 +271,59 @@ func _end_seals(success: bool) -> void:
 	_seal_seq = []
 	_seal_pos = 0
 	_seal_time = 0.0
+	_seal_target = null
 	seals_ended.emit(id, success)
 
 
+## Casts a technique (legacy skills.gd tree or data/powers path tree). Chant-gated spells (magic path, seals) need
+## the chant unless the caster qualifies for chantless casting: then they fire at once, otherwise the seal pad opens.
 func cast_technique(id: String, sealed := false) -> Dictionary:
-	var why := _blocked()
 	if id == "":
-		why = "Empty slot."
-	if why != "":
-		failed.emit(id, why)
-		return {"ok": false, "reason": why}
-	var r: Dictionary = skills.begin_cast(id, pools(), sealed)
+		failed.emit(id, "Empty slot.")
+		return {"ok": false, "reason": "Empty slot."}
+	var ab := _lookup(id)
+	if ab.is_empty():
+		failed.emit(id, "Not learned.")
+		return {"ok": false, "reason": "Not learned."}
+	var opts := {"sealed": sealed}
+	if AbilityDef.is_chant(ab) and not sealed:
+		if not bool(runner.chantless_allowed(ab)["ok"]):
+			return begin_seals(id)
+		opts["chantless"] = true
+	var flat := AbilityDef.flat(ab)
+	var target := _pick_target(flat)
+	opts["target"] = target
+	var r: Dictionary = runner.begin(id, opts)
 	if not r["ok"]:
 		failed.emit(id, String(r["reason"]))
 		return r
+	if String(r.get("phase", "")) == "chant":
+		return r
+	_after_commit(id, r, target)
+	return r
+
+
+## Same entry point under the path-tree name.
+func cast_ability(id: String, sealed := false) -> Dictionary:
+	return cast_technique(id, sealed)
+
+
+## What the legacy cast did after paying: face the target, play the clip, train, announce.
+func _after_commit(id: String, r: Dictionary, target: Node3D) -> void:
 	var def: Dictionary = r["def"]
-	_pay(String(r["resource"]), float(r["cost"]))
-	_lock = minf(CAST_LOCK, float(def["hit_time"]) + 0.1)
-	var target := _pick_target(def)
 	if target:
 		_face(target.global_position)
 	_play_clip(def)
-	_train(def)
-	var dmg := int(r["damage"])
-	var t := get_tree().create_timer(float(def["hit_time"]))
-	t.timeout.connect(_resolve.bind(id, def, dmg, target))
+	if String((r["ability"] as Dictionary).get("source", "")) == "legacy":
+		_train(def)
 	cast.emit(id, def)
 	if player != null and player == Life.player:
 		Life.on_technique_cast(id, def, target != null)
-	return r
 
 
 func _blocked() -> String:
 	if player == null or not is_instance_valid(player):
 		return "No body."
-	if _lock > 0.0:
-		return "Busy."
 	if _flag(player, "dead"):
 		return "Dead."
 	if _flag(player, "swimming"):
@@ -275,6 +331,119 @@ func _blocked() -> String:
 	if player.has_method("is_mounted") and player.call("is_mounted"):
 		return "Mounted."
 	return ""
+
+
+# --- runner hooks ---------------------------------------------------------------
+
+## The ability for an id: the live skills.gd trees first (so runtime add_tree works), else the path trees.
+func _lookup(id: String) -> Dictionary:
+	if skills != null and skills.techniques.has(id):
+		var t: Dictionary = skills.techniques[id]
+		var c: Variant = _ability_cache.get(id)
+		if c == null or not is_same((c as Dictionary)["t"], t):
+			c = {"t": t, "ab": AbilityDef.from_technique(t)}
+			_ability_cache[id] = c
+		return (c as Dictionary)["ab"]
+	return PowerTrees.ability(id)
+
+
+func _is_legacy(def: Dictionary) -> bool:
+	return String(def.get("source", "")) == "legacy"
+
+
+func _life() -> Node:
+	return get_node_or_null("/root/Life")
+
+
+func _pp() -> Object:
+	var life := _life()
+	if life == null or life.get("realm") == null:
+		return null
+	var hub: Variant = life.get("realm")
+	if hub is Object and (hub as Object).has_method("mod") and (hub.get("mods") as Dictionary).has("power_paths"):
+		return hub.mod("power_paths")
+	return null
+
+
+func _hook_known(id: String) -> bool:
+	if skills != null and skills.techniques.has(id):
+		return skills.is_learned(id)
+	var pp := _pp()
+	return pp != null and bool(pp.call("knows_technique", id))
+
+
+func _hook_pools(def: Dictionary) -> Dictionary:
+	if _is_legacy(def):
+		return pools()
+	# Path-tree techniques are checked and paid by power_paths itself (commit).
+	var out := {}
+	for r: String in (def["costs"] as Dictionary):
+		out[r] = 1.0e9
+	return out
+
+
+func _hook_numbers(id: String, def: Dictionary) -> Dictionary:
+	if not _is_legacy(def) or skills == null:
+		return {}
+	var res := String(AbilityDef.flat(def)["resource"])
+	return {"costs": {res: skills.cost_of(id)}, "cooldown": skills.cooldown_of(id), "damage": skills.damage_of(id)}
+
+
+## Legacy: skills.gd pays qi, starts the cooldown and computes damage; the caster pays stamina / magicules.
+## Path tree: power_paths.use (pool, strain, risk, mastery, second-path penalty).
+func _hook_commit(id: String, def: Dictionary, sealed: bool, _numbers: Dictionary, opts: Dictionary) -> Dictionary:
+	if _is_legacy(def):
+		var r: Dictionary = skills.begin_cast(id, pools(), sealed)
+		if r["ok"]:
+			_pay(String(r["resource"]), float(r["cost"]))
+		return r
+	var pp := _pp()
+	if pp == null:
+		return {"ok": false, "reason": "You walk no power path."}
+	var path := String(def.get("path", ""))
+	var pc := AbilityDef.primary_cost(def)
+	var ctx := {"life": _life(), "technique": id, "path_penalty": true,
+		"chantless": bool(opts.get("chantless", false)), "element": String(def.get("element", ""))}
+	var chk: Dictionary = pp.call("can_use", path, float(pc["amount"]), ctx)
+	if not chk["ok"]:
+		return {"ok": false, "reason": String(chk["reason"])}
+	var res: Dictionary = pp.call("use", path, float(pc["amount"]), ctx)
+	if not res["ok"]:
+		return {"ok": false, "reason": String((res["messages"] as Array)[0]) if not (res["messages"] as Array).is_empty() else "Cannot cast."}
+	for m: Variant in res["messages"]:
+		_say(String(m))
+	for e: Dictionary in res["effects"]:
+		if String(e.get("type", "")) == "damage" and player != null and player.has_method("set_health"):
+			player.call("set_health", int(player.get("health")) - int(e["amount"]))
+	skills.cooldowns[id] = float(def["cooldown"])
+	var dmg := int(round(float(def["damage"]) * float(res["power"])))
+	if sealed and not ((def["cast"] as Dictionary)["seals"] as Array).is_empty():
+		dmg = int(round(dmg * (1.0 + AbilityDef.SEAL_BONUS)))
+	return {"ok": true, "reason": "", "resource": String(pc["resource"]), "cost": float(chk.get("cost", pc["amount"])),
+		"cooldown": float(def["cooldown"]), "damage": dmg}
+
+
+func _hook_cooldown_left(id: String) -> float:
+	return skills.cooldown_left(id) if skills != null else 0.0
+
+
+func _hook_cooldown_set(id: String, seconds: float) -> void:
+	if skills != null:
+		skills.cooldowns[id] = seconds
+
+
+func _hook_fizzle(id: String, seconds: float) -> void:
+	if skills != null:
+		skills.fizzle(id, seconds)
+
+
+func _hook_profile() -> Dictionary:
+	var pp := _pp()
+	return pp.call("profile") if pp != null else {}
+
+
+func _hook_execute(_def: Dictionary, cast_info: Dictionary) -> void:
+	_resolve(String(cast_info["id"]), cast_info["def"], int(cast_info["damage"]), cast_info["target"] as Node3D)
 
 
 func _pay(resource: String, cost: float) -> void:
@@ -691,8 +860,12 @@ func _support(id: String, def: Dictionary) -> void:
 		if fx.has("stamina") and t.get("stamina") != null:
 			var cap := float(t.get("MAX_STAMINA")) if t.get("MAX_STAMINA") != null else 100.0
 			t.set("stamina", minf(cap, float(t.get("stamina")) + float(fx["stamina"]) * k))
-	if fx.has("buff"):
+	if fx.has("buff") and not (fx["buff"] as Dictionary).is_empty():
 		skills.add_buff(fx["buff"], float(fx.get("duration", 6.0)), id)
+	var ab := _lookup(id)
+	if not ab.is_empty() and not _is_legacy(ab):
+		# Path-tree techniques keep wards, auras and heal-over-time as effects on the caster (by family).
+		runner.apply_effects(ab, 0, runner.effects, "self", 1.0, id)
 	if String(def["shape"]) == "utility" or fx.has("harvest") or fx.has("repair") or fx.has("water_crops") or fx.has("reveal"):
 		technique_effect.emit(id, fx, here)
 
@@ -712,28 +885,48 @@ func _hit(e: Node3D, amount: int, dir: Vector3, def: Dictionary) -> void:
 		var shake: Variant = player.get("_shake")
 		if shake is Object and (shake as Object).has_method("add"):
 			shake.call("add", 0.12)
-		if fx.has("burn"):
-			_burns.append({"target": e, "left": float(fx["burn"]), "tick": BURN_TICK,
-				"dps": maxi(1, int(round(amount * 0.08)))})
-	# Crowd control for actors that support it (duck-typed; ignored otherwise).
+	# Riders (burn, stun, slow...) go on the target's effect board by family and stacking rule; crowd control is
+	# also passed to actors that support it (duck-typed; ignored otherwise).
+	var ab := _lookup(String(def.get("id", "")))
+	if ab.is_empty() or (ab["effects"] as Array).is_empty():
+		return
+	var res: Dictionary = runner.apply_effects(ab, amount, _board(e), "enemy", 1.0, String(def.get("id", "")))
 	if e.has_method("apply_status"):
-		for s: String in ["stun", "slow", "fear", "blind", "pull", "reveal"]:
-			if fx.has(s):
-				e.call("apply_status", s, float(fx[s]))
+		for st: Dictionary in res["statuses"]:
+			e.call("apply_status", String(st["status"]), float(st["duration"]))
 
 
-func _update_burns(delta: float) -> void:
-	for b: Dictionary in _burns.duplicate():
-		b["left"] = float(b["left"]) - delta
-		b["tick"] = float(b["tick"]) - delta
-		var t: Variant = b["target"]
-		if not is_instance_valid(t) or float(b["left"]) <= 0.0:
-			_burns.erase(b)
+## The effect set of a hit target (created on first use, dropped when empty or the target is gone).
+func _board(e: Node) -> EffectSet:
+	var iid := e.get_instance_id()
+	if not _boards.has(iid):
+		_boards[iid] = {"node": e, "set": EffectSet.new()}
+	return (_boards[iid] as Dictionary)["set"]
+
+
+func effects_on(e: Node) -> EffectSet:
+	return _board(e)
+
+
+func _update_boards(delta: float) -> void:
+	for iid: int in _boards.keys():
+		var b: Dictionary = _boards[iid]
+		var t: Variant = b["node"]
+		if not is_instance_valid(t):
+			_boards.erase(iid)
 			continue
-		if float(b["tick"]) <= 0.0:
-			b["tick"] = BURN_TICK
-			if not _flag(t, "dead"):
-				(t as Node).call("take_damage", int(b["dps"]), player, Vector3.ZERO)
+		var set: EffectSet = b["set"]
+		for ev: Dictionary in set.tick(delta):
+			if String(ev["kind"]) == "dot" and not _flag(t, "dead"):
+				(t as Node).call("take_damage", int(ev["amount"]), player, Vector3.ZERO)
+		if set.active.is_empty():
+			_boards.erase(iid)
+
+
+## Incoming damage through the caster's own counters (wards, absorbs, damage_taken from path-tree techniques).
+## player.gd can call this before applying a blow: `amount = caster.mitigate(amount)`.
+func mitigate(amount: int, element := "") -> int:
+	return int((runner.effects as EffectSet).mitigate(float(amount), element)["amount"])
 
 
 # --- VFX -----------------------------------------------------------------------

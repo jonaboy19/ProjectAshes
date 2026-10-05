@@ -1,0 +1,1035 @@
+{
+ "id": "sect",
+ "name": "Sect Martial Arts",
+ "tradition": "donghua",
+ "element": "qi",
+ "resource_name": "Internal qi",
+ "blurb": "Donghua-style martial cultivation: open the meridians, circulate internal energy, study manuals under sect masters. Power costs the channels: strain builds with every technique.",
+ "levels": [
+  {
+   "level": 1,
+   "name": "Outer Disciple"
+  },
+  {
+   "level": 5,
+   "name": "Inner Disciple"
+  },
+  {
+   "level": 10,
+   "name": "Core Disciple"
+  },
+  {
+   "level": 15,
+   "name": "Elder's Student"
+  },
+  {
+   "level": 20,
+   "name": "Elder"
+  },
+  {
+   "level": 25,
+   "name": "Grand Elder"
+  },
+  {
+   "level": 30,
+   "name": "Patriarch"
+  }
+ ],
+ "subpath_slots": [
+  [
+   1,
+   1
+  ],
+  [
+   2,
+   2
+  ],
+  [
+   3,
+   2
+  ]
+ ],
+ "strain": {
+  "note": "Each technique adds meridian strain (power_paths.use); above 50% the channels burn, mastery lowers it."
+ },
+ "milestones": [
+  {
+   "id": "meridian_opened",
+   "name": "First meridian opened",
+   "desc": "Open a meridian under a master's eye."
+  },
+  {
+   "id": "sect_trial",
+   "name": "Passed the sect trial",
+   "desc": "Win the outer-to-inner disciple trial."
+  },
+  {
+   "id": "manual_copied",
+   "name": "Copied a manual by hand",
+   "desc": "Study a manual until you can write it from memory."
+  },
+  {
+   "id": "second_path_trial",
+   "name": "Trial of the second path",
+   "desc": "Prove your discipline before widening it."
+  }
+ ],
+ "subpaths": [
+  {
+   "id": "palm",
+   "name": "Palm Arts",
+   "element": "qi",
+   "desc": "Qi in the hand: palms, strikes, flowing exchanges."
+  },
+  {
+   "id": "sword_qi",
+   "name": "Sword-Qi",
+   "element": "metal",
+   "desc": "Qi along the blade: crescents, auras, heaven-splitting cuts."
+  },
+  {
+   "id": "body",
+   "name": "Diamond Body",
+   "element": "earth",
+   "desc": "Qi in flesh and bone: skin like iron, bells that cannot ring."
+  },
+  {
+   "id": "breath",
+   "name": "Breath Cultivation",
+   "element": "qi",
+   "desc": "Breath, meridians and the dantian: recover, circulate, refine."
+  }
+ ],
+ "techniques": [
+  {
+   "id": "st_palm",
+   "name": "Palm Strike",
+   "subpath": "core",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "A palm struck with a thread of internal qi.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 3,
+    "manual": [
+     "m_st1"
+    ],
+    "teacher": [
+     "sect_elder"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 8
+    },
+    "cooldown": 2.4,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "melee",
+     "range": 2.6,
+     "knockback": 2.0
+    },
+    "damage": 24,
+    "effects": [],
+    "vfx": "qi_palm",
+    "anim": [
+     "Karate_Punch",
+     "Punch_Cross"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "strain": 0.03
+   }
+  },
+  {
+   "id": "st_circ",
+   "name": "Small Circulation",
+   "subpath": "core",
+   "tier": 1,
+   "kind": "utility",
+   "desc": "Circulate qi round the first meridians: recover qi and ease the strain.",
+   "req": {
+    "path_level": 2,
+    "realm": 1,
+    "stage": 7,
+    "manual": [
+     "m_st1"
+    ]
+   },
+   "ability": {
+    "costs": {},
+    "cooldown": 22,
+    "windup": 0.9,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "restore",
+      "resource": "qi",
+      "magnitude": 18
+     },
+     {
+      "type": "utility",
+      "key": "strain_relief",
+      "magnitude": 0.15
+     }
+    ],
+    "vfx": "qi_aura",
+    "anim": [
+     "Meditate"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full"
+   }
+  },
+  {
+   "id": "st_step",
+   "name": "Cloud-Stepping",
+   "subpath": "core",
+   "tier": 2,
+   "kind": "mobility",
+   "desc": "A burst of qi in the legs, a step that crosses the room.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 3,
+    "manual": [
+     "m_st2"
+    ],
+    "prereq": [
+     "st_palm"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 10
+    },
+    "cooldown": 7,
+    "windup": 0.15,
+    "targeting": {
+     "kind": "dash",
+     "range": 7
+    },
+    "damage": 0,
+    "effects": [],
+    "vfx": "wind_trail",
+    "anim": [
+     "Sword_Dash",
+     "Sprint"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full",
+    "strain": 0.05
+   }
+  },
+  {
+   "id": "st_nine",
+   "name": "Nine-Palm Thunder",
+   "subpath": "core",
+   "tier": 2,
+   "kind": "attack",
+   "desc": "Nine palms in a heartbeat: the sect's signature exchange.",
+   "req": {
+    "path_level": 8,
+    "realm": 2,
+    "stage": 8,
+    "manual": [
+     "m_st2"
+    ],
+    "teacher": [
+     "sect_elder"
+    ],
+    "prereq": [
+     "st_palm"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 22
+    },
+    "cooldown": 9,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "target_aoe",
+     "range": 6,
+     "radius": 2.5,
+     "hits": 3,
+     "knockback": 1.5
+    },
+    "damage": 40,
+    "effects": [],
+    "vfx": "qi_nova",
+    "anim": [
+     "Karate_Punch",
+     "Punch_Cross"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "strain": 0.1
+   }
+  },
+  {
+   "id": "st_shield",
+   "name": "Qi Shield",
+   "subpath": "core",
+   "tier": 3,
+   "kind": "defense",
+   "desc": "Qi flows outward as a shell that soaks a heavy blow.",
+   "req": {
+    "path_level": 12,
+    "realm": 3,
+    "stage": 4,
+    "manual": [
+     "m_st3"
+    ],
+    "prereq": [
+     "st_circ"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 24
+    },
+    "cooldown": 20,
+    "windup": 0.3,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "ward",
+      "family": "qi_shield",
+      "magnitude": 75,
+      "duration": 12,
+      "rule": "replace_if_stronger"
+     }
+    ],
+    "vfx": "qi_shield",
+    "anim": [
+     "G6_cast_off_hand_shield",
+     "Karate_Block"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "strain": 0.08
+   }
+  },
+  {
+   "id": "st_core",
+   "name": "Golden Core Strike",
+   "subpath": "core",
+   "tier": 4,
+   "kind": "attack",
+   "desc": "A blow carried by the golden core itself.",
+   "req": {
+    "path_level": 20,
+    "realm": 4,
+    "stage": 2,
+    "manual": [
+     "m_st4"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 60
+    },
+    "cooldown": 16,
+    "windup": 0.5,
+    "targeting": {
+     "kind": "target_aoe",
+     "range": 6,
+     "radius": 4
+    },
+    "damage": 110,
+    "effects": [],
+    "vfx": "qi_nova",
+    "anim": [
+     "Attack_Ground_Pound",
+     "Punch_Cross"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "strain": 0.25
+   },
+   "region": 2
+  },
+  {
+   "id": "st_iron_palm",
+   "name": "Iron Palm",
+   "subpath": "palm",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "A palm hardened by years of sand: stuns.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 5,
+    "manual": [
+     "m_st_palm1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 10
+    },
+    "cooldown": 4,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "melee",
+     "range": 2.6
+    },
+    "damage": 30,
+    "effects": [
+     {
+      "type": "stun",
+      "duration": 0.4,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "impact",
+    "anim": [
+     "Karate_Punch",
+     "Punch_Cross"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "strain": 0.05
+   }
+  },
+  {
+   "id": "st_flowing_palm",
+   "name": "Flowing Palm",
+   "subpath": "palm",
+   "tier": 2,
+   "kind": "attack",
+   "desc": "Palms that follow one another in an arc.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 5,
+    "manual": [
+     "m_st_palm2"
+    ],
+    "teacher": [
+     "sect_elder",
+     "palm_master"
+    ],
+    "prereq": [
+     "st_iron_palm"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 16
+    },
+    "cooldown": 6,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "cone",
+     "range": 4,
+     "angle": 100,
+     "hits": 2
+    },
+    "damage": 36,
+    "effects": [],
+    "vfx": "qi_palm",
+    "anim": [
+     "Karate_Punch",
+     "Punch_Cross"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "strain": 0.08
+   }
+  },
+  {
+   "id": "st_thunder_palm",
+   "name": "Thunder Palm",
+   "subpath": "palm",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "Qi released from the palm as a thunderclap.",
+   "req": {
+    "path_level": 11,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_st_palm3"
+    ],
+    "prereq": [
+     "st_flowing_palm"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 26
+    },
+    "cooldown": 8,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "projectile",
+     "range": 16,
+     "speed": 26
+    },
+    "damage": 54,
+    "effects": [],
+    "vfx": "qi_palm",
+    "anim": [
+     "Magic_Cast_R",
+     "Karate_Punch"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "strain": 0.14
+   }
+  },
+  {
+   "id": "st_qi_slash",
+   "name": "Qi Crescent",
+   "subpath": "sword_qi",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "A crescent of qi flung from the blade.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 5,
+    "manual": [
+     "m_st_sword_qi1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 14
+    },
+    "cooldown": 3.5,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "projectile",
+     "range": 16,
+     "speed": 24
+    },
+    "damage": 28,
+    "effects": [],
+    "vfx": "sword_qi",
+    "anim": [
+     "Sword_Attack",
+     "Sword_Regular_A"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "strain": 0.06
+   }
+  },
+  {
+   "id": "st_sword_aura",
+   "name": "Sword Aura",
+   "subpath": "sword_qi",
+   "tier": 2,
+   "kind": "utility",
+   "desc": "Qi clings to the blade, sharpening every cut.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 5,
+    "manual": [
+     "m_st_sword_qi2"
+    ],
+    "teacher": [
+     "sect_elder",
+     "palm_master"
+    ],
+    "prereq": [
+     "st_qi_slash"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 18
+    },
+    "cooldown": 24,
+    "windup": 0.4,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "buff",
+      "family": "sword_aura",
+      "stats": {
+       "sword_damage": 0.25
+      },
+      "duration": 12,
+      "rule": "refresh"
+     }
+    ],
+    "vfx": "qi_aura",
+    "anim": [
+     "G6_power_up",
+     "Sword_Idle"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "strain": 0.06
+   }
+  },
+  {
+   "id": "st_heaven_cut",
+   "name": "Heaven-Splitting Cut",
+   "subpath": "sword_qi",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "One cut that crosses the whole court.",
+   "req": {
+    "path_level": 11,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_st_sword_qi3"
+    ],
+    "prereq": [
+     "st_sword_aura"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 30
+    },
+    "cooldown": 11,
+    "windup": 0.3,
+    "targeting": {
+     "kind": "dash",
+     "range": 9
+    },
+    "damage": 58,
+    "effects": [],
+    "vfx": "sword_arc",
+    "anim": [
+     "Sword_Heavy_Combo",
+     "Sword_Dash"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full",
+    "strain": 0.16
+   }
+  },
+  {
+   "id": "st_iron_skin",
+   "name": "Iron Skin",
+   "subpath": "body",
+   "tier": 1,
+   "kind": "defense",
+   "desc": "Qi settles in the skin.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 5,
+    "manual": [
+     "m_st_body1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 10
+    },
+    "cooldown": 18,
+    "windup": 0.3,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "buff",
+      "family": "iron_skin",
+      "stats": {
+       "damage_taken": -0.25
+      },
+      "duration": 8,
+      "rule": "refresh"
+     }
+    ],
+    "vfx": "stone_skin",
+    "anim": [
+     "G6_power_up",
+     "Karate_Block"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "strain": 0.04
+   }
+  },
+  {
+   "id": "st_golden_bell",
+   "name": "Golden Bell",
+   "subpath": "body",
+   "tier": 2,
+   "kind": "defense",
+   "desc": "A bell of qi no blow can ring.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 5,
+    "manual": [
+     "m_st_body2"
+    ],
+    "teacher": [
+     "sect_elder",
+     "palm_master"
+    ],
+    "prereq": [
+     "st_iron_skin"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 20
+    },
+    "cooldown": 20,
+    "windup": 0.3,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "ward",
+      "family": "golden_bell",
+      "magnitude": 60,
+      "duration": 10,
+      "rule": "replace_if_stronger"
+     }
+    ],
+    "vfx": "qi_shield",
+    "anim": [
+     "G6_cast_off_hand_shield",
+     "Karate_Block"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "strain": 0.07
+   }
+  },
+  {
+   "id": "st_vajra_body",
+   "name": "Vajra Body",
+   "subpath": "body",
+   "tier": 3,
+   "kind": "defense",
+   "desc": "The body becomes a vessel of unmoving force.",
+   "req": {
+    "path_level": 11,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_st_body3"
+    ],
+    "prereq": [
+     "st_golden_bell"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 28
+    },
+    "cooldown": 28,
+    "windup": 0.4,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "buff",
+      "family": "vajra_body",
+      "stats": {
+       "damage_taken": -0.4,
+       "speed": -0.1
+      },
+      "duration": 10,
+      "rule": "refresh"
+     }
+    ],
+    "vfx": "stone_skin",
+    "anim": [
+     "G6_power_up_2",
+     "Karate_Block"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "strain": 0.12
+   }
+  },
+  {
+   "id": "st_breath_gather",
+   "name": "Gathering Breath",
+   "subpath": "breath",
+   "tier": 1,
+   "kind": "utility",
+   "desc": "Draw qi from the world in a long, slow breath.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 2,
+    "manual": [
+     "m_st_breath1"
+    ]
+   },
+   "ability": {
+    "costs": {},
+    "cooldown": 25,
+    "windup": 1.2,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "restore",
+      "resource": "qi",
+      "magnitude": 30
+     },
+     {
+      "type": "cultivate",
+      "magnitude": 6
+     }
+    ],
+    "vfx": "qi_aura",
+    "anim": [
+     "Meditate"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full"
+   }
+  },
+  {
+   "id": "st_nine_breaths",
+   "name": "Nine Breaths",
+   "subpath": "breath",
+   "tier": 2,
+   "kind": "utility",
+   "desc": "Nine breaths round the nine meridians: strain falls away.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 5,
+    "manual": [
+     "m_st_breath2"
+    ],
+    "teacher": [
+     "sect_elder",
+     "palm_master"
+    ],
+    "prereq": [
+     "st_breath_gather"
+    ]
+   },
+   "ability": {
+    "costs": {},
+    "cooldown": 40,
+    "windup": 1.4,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "utility",
+      "key": "strain_relief",
+      "magnitude": 0.35
+     },
+     {
+      "type": "restore",
+      "resource": "qi",
+      "magnitude": 25
+     }
+    ],
+    "vfx": "qi_aura",
+    "anim": [
+     "Meditate"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full"
+   }
+  },
+  {
+   "id": "st_seal_palm",
+   "name": "Sealing Palm",
+   "subpath": "breath",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "A palm that seals the target's own circulation.",
+   "req": {
+    "path_level": 11,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_st_breath3"
+    ],
+    "prereq": [
+     "st_nine_breaths"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "qi": 24
+    },
+    "cooldown": 10,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "melee",
+     "range": 2.8
+    },
+    "damage": 32,
+    "effects": [
+     {
+      "type": "slow",
+      "duration": 3.5,
+      "magnitude": 0.5
+     },
+     {
+      "type": "blind",
+      "duration": 1.5,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "qi_palm",
+    "anim": [
+     "Karate_Punch",
+     "Punch_Cross"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "strain": 0.1
+   }
+  }
+ ],
+ "manuals": [
+  {
+   "id": "m_st_palm1",
+   "name": "Palm Scroll I",
+   "realm": 1,
+   "source": "sect_hall",
+   "techniques": [
+    "st_iron_palm"
+   ],
+   "desc": "A sect text."
+  },
+  {
+   "id": "m_st_palm2",
+   "name": "Palm Scroll II",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "st_flowing_palm"
+   ],
+   "desc": "A sect text."
+  },
+  {
+   "id": "m_st_palm3",
+   "name": "Palm Scroll III",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "st_thunder_palm"
+   ],
+   "desc": "A sect text."
+  },
+  {
+   "id": "m_st_sword_qi1",
+   "name": "Sword-Qi Record I",
+   "realm": 1,
+   "source": "sect_hall",
+   "techniques": [
+    "st_qi_slash"
+   ],
+   "desc": "A sect text."
+  },
+  {
+   "id": "m_st_sword_qi2",
+   "name": "Sword-Qi Record II",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "st_sword_aura"
+   ],
+   "desc": "A sect text."
+  },
+  {
+   "id": "m_st_sword_qi3",
+   "name": "Sword-Qi Record III",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "st_heaven_cut"
+   ],
+   "desc": "A sect text."
+  },
+  {
+   "id": "m_st_body1",
+   "name": "Body-Tempering Verses I",
+   "realm": 1,
+   "source": "sect_hall",
+   "techniques": [
+    "st_iron_skin"
+   ],
+   "desc": "A sect text."
+  },
+  {
+   "id": "m_st_body2",
+   "name": "Body-Tempering Verses II",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "st_golden_bell"
+   ],
+   "desc": "A sect text."
+  },
+  {
+   "id": "m_st_body3",
+   "name": "Body-Tempering Verses III",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "st_vajra_body"
+   ],
+   "desc": "A sect text."
+  },
+  {
+   "id": "m_st_breath1",
+   "name": "Breath Sutra I",
+   "realm": 1,
+   "source": "sect_hall",
+   "techniques": [
+    "st_breath_gather"
+   ],
+   "desc": "A sect text."
+  },
+  {
+   "id": "m_st_breath2",
+   "name": "Breath Sutra II",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "st_nine_breaths"
+   ],
+   "desc": "A sect text."
+  },
+  {
+   "id": "m_st_breath3",
+   "name": "Breath Sutra III",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "st_seal_palm"
+   ],
+   "desc": "A sect text."
+  }
+ ],
+ "version": 1
+}

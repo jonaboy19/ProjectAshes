@@ -1,0 +1,223 @@
+{
+ "_doc": "NPC casters: a NpcFighter archetype for the body/dice plus a power profile and an ability list. Abilities are AbilityDef ids (data/powers/*.json or legacy skills); the same AbilityRunner runs them with costs off (cooldown only). `when`: attack (needs range), gap (mobility to close distance), guard (ward/defence when a blow is coming or hurt), heal (hp below 60 percent), buff (once, when the family is not active). chant_break = damage that breaks a chant. Profiles qualify (or not) for chantless exactly like the player (PowerTrees.chantless_check). dmg_mult scales ability damage for the headless duel arena (tools_qa/combat/caster_duel.gd calibration, level-matched vs the bandit archetype: mage 47 percent, disciple 68, knight 53); real actors take their damage numbers from the fight stats table.",
+ "casters": {
+  "bandit_mage": {
+   "name": "Bandit Mage",
+   "fighter": "bandit",
+   "rank": 3,
+   "level": 12,
+   "path": "magic",
+   "path_level": 4,
+   "theory": 0.1,
+   "realm": 1,
+   "stage": 6,
+   "subpaths": [
+    "fire"
+   ],
+   "manuals": [
+    "m_mg1",
+    "m_mg_fire1"
+   ],
+   "milestones": [],
+   "kite_range": 4.0,
+   "chant_break": 10,
+   "cast_bias": 0.85,
+   "abilities": [
+    {
+     "id": "mg_fire_ember",
+     "weight": 3.0,
+     "when": "attack"
+    },
+    {
+     "id": "mg_spark",
+     "weight": 2.0,
+     "when": "attack"
+    },
+    {
+     "id": "mg_ward",
+     "weight": 2.0,
+     "when": "guard"
+    }
+   ],
+   "dmg_mult": 1.1
+  },
+  "sect_disciple": {
+   "name": "Sect Disciple",
+   "fighter": "guard",
+   "rank": 4,
+   "level": 18,
+   "path": "sect",
+   "path_level": 8,
+   "theory": 0.0,
+   "realm": 2,
+   "stage": 5,
+   "subpaths": [
+    "palm",
+    "body"
+   ],
+   "manuals": [
+    "m_st1",
+    "m_st_palm1",
+    "m_st_palm2",
+    "m_st_body1"
+   ],
+   "teachers": [
+    "sect_elder"
+   ],
+   "milestones": [
+    "meridian_opened"
+   ],
+   "kite_range": 0.0,
+   "chant_break": 0,
+   "cast_bias": 0.7,
+   "abilities": [
+    {
+     "id": "st_palm",
+     "weight": 3.0,
+     "when": "attack"
+    },
+    {
+     "id": "st_iron_palm",
+     "weight": 2.0,
+     "when": "attack"
+    },
+    {
+     "id": "st_flowing_palm",
+     "weight": 1.5,
+     "when": "attack"
+    },
+    {
+     "id": "st_iron_skin",
+     "weight": 2.0,
+     "when": "guard"
+    }
+   ],
+   "dmg_mult": 0.42
+  },
+  "knight_captain": {
+   "name": "Knight Captain",
+   "fighter": "captain",
+   "rank": 6,
+   "level": 26,
+   "path": "knight",
+   "path_level": 13,
+   "theory": 0.0,
+   "realm": 3,
+   "stage": 2,
+   "subpaths": [
+    "forms",
+    "charge",
+    "armour"
+   ],
+   "manuals": [
+    "m_kn1",
+    "m_kn2",
+    "m_kn3",
+    "m_kn_forms1",
+    "m_kn_forms2",
+    "m_kn_charge1",
+    "m_kn_armour1"
+   ],
+   "teachers": [
+    "knight_captain"
+   ],
+   "milestones": [
+    "aura_woken",
+    "oath_sworn"
+   ],
+   "kite_range": 0.0,
+   "chant_break": 0,
+   "cast_bias": 0.65,
+   "abilities": [
+    {
+     "id": "kn_aura",
+     "weight": 1.0,
+     "when": "buff"
+    },
+    {
+     "id": "kn_charge",
+     "weight": 2.0,
+     "when": "gap"
+    },
+    {
+     "id": "kn_rising_slash",
+     "weight": 2.5,
+     "when": "attack"
+    },
+    {
+     "id": "kn_cross_cut",
+     "weight": 2.0,
+     "when": "attack"
+    },
+    {
+     "id": "kn_edge",
+     "weight": 2.0,
+     "when": "attack"
+    },
+    {
+     "id": "kn_guard",
+     "weight": 2.0,
+     "when": "guard"
+    }
+   ],
+   "dmg_mult": 0.45
+  },
+  "veteran_mage": {
+   "name": "Veteran Court Mage",
+   "fighter": "captain",
+   "rank": 7,
+   "level": 90,
+   "path": "magic",
+   "path_level": 24,
+   "theory": 0.85,
+   "realm": 4,
+   "stage": 6,
+   "subpaths": [
+    "fire",
+    "lightning",
+    "water"
+   ],
+   "manuals": [
+    "m_mg1",
+    "m_mg2",
+    "m_mg3",
+    "m_mg4",
+    "m_mg_fire1",
+    "m_mg_fire2",
+    "m_mg_lightning1"
+   ],
+   "milestones": [
+    "first_circle",
+    "theory_exam",
+    "duel_won",
+    "rift_study"
+   ],
+   "kite_range": 5.0,
+   "chant_break": 20,
+   "cast_bias": 0.9,
+   "abilities": [
+    {
+     "id": "mg_fire_wave",
+     "weight": 2.0,
+     "when": "attack"
+    },
+    {
+     "id": "mg_circle_bolt",
+     "weight": 2.0,
+     "when": "attack"
+    },
+    {
+     "id": "mg_spark_chain",
+     "weight": 1.5,
+     "when": "attack"
+    },
+    {
+     "id": "mg_ward",
+     "weight": 2.0,
+     "when": "guard"
+    }
+   ],
+   "dmg_mult": 0.5
+  }
+ }
+}

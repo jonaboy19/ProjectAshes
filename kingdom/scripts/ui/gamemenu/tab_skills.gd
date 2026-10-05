@@ -4,12 +4,15 @@ extends "res://scripts/ui/gamemenu/gm_tab.gd"
 ## Life.mastery, Life.skills (techniques), Life.soul, Life.biography, Life.relationships.
 
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
-const SUBS := [["attributes", "Attribute"], ["skills", "Skills"], ["mastery", "Mastery"],
+const PathsView := preload("res://scripts/ui/gamemenu/paths_view.gd")
+const PowerTrees := preload("res://scripts/abilities/power_trees.gd")
+const SUBS := [["attributes", "Attribute"], ["skills", "Skills"], ["paths", "Paths"], ["mastery", "Mastery"],
 	["reputation", "Reputation"], ["biography", "Biography"]]
 
 var _sub := "skills"
-var _sub_bar: HBoxContainer
+var _sub_bar: FlowContainer           # wraps on a narrow (portrait) screen
 var _ld: Kit.ListDetail
+var _paths: PathsView
 var _picked := {}                     # sub -> selected id
 
 
@@ -18,14 +21,32 @@ func build() -> void:
 	col.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	col.add_theme_constant_override("separation", 10)
 	add_child(col)
-	_sub_bar = HBoxContainer.new()
-	_sub_bar.add_theme_constant_override("separation", 6)
+	_sub_bar = HFlowContainer.new()
+	_sub_bar.add_theme_constant_override("h_separation", 6)
+	_sub_bar.add_theme_constant_override("v_separation", 6)
 	col.add_child(_sub_bar)
 	_ld = Kit.ListDetail.new(260)
 	_ld.selected.connect(func(id: String) -> void:
 		_picked[_sub] = id
 		_show_detail())
 	col.add_child(_ld)
+	_paths = PathsView.new()
+	_paths.visible = false
+	_paths.learn_requested.connect(_on_learn_path_technique)
+	col.add_child(_paths)
+
+
+## The power-path profile of the live character (empty profile before the realm exists).
+func _power_profile() -> Dictionary:
+	var pp: Variant = Life.realm.mod("power_paths") if Life.realm != null and (Life.realm.get("mods") as Dictionary).has("power_paths") else null
+	return pp.profile() if pp != null else PowerTrees.empty_profile()
+
+
+func _on_learn_path_technique(id: String) -> void:
+	var pp: Variant = Life.realm.mod("power_paths") if Life.realm != null else null
+	if pp != null:
+		pp.learn_technique(id)
+	refresh()
 
 
 func open_sub(sub: String, id := "") -> void:
@@ -47,6 +68,13 @@ func refresh() -> void:
 	var pts := Kit.lbl("Skill Points  %d" % int(Life.skills.points), 16, AF.GOLD_BRIGHT, false, "title")
 	pts.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_sub_bar.add_child(pts)
+	var on_paths := _sub == "paths"
+	_ld.visible = not on_paths
+	_paths.visible = on_paths
+	if on_paths:
+		_paths.set_profile(_power_profile())
+		hints_changed()
+		return
 	_ld.set_items(_items(), false)
 	var want := String(_picked.get(_sub, ""))
 	if want != "":

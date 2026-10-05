@@ -16,7 +16,16 @@ extends "res://scripts/realm/realm_module.gd"
 ## type strings), stance 0..1, complexity 0..1, concentration 0..1, armour_load 0..1,
 ## creature (id), region, abs_hours.
 ## Player hooks: call can_use() to show risk/reason, then use() when a skill fires.
+##
+## Power-tree layer (data/powers/*.json via scripts/abilities/power_trees.gd): per path milestones, spell-theory,
+## sub-paths, learned manuals/teachers/techniques and per-technique mastery. Rules enforced here, not only in UI:
+##   - chantless casting (ctx.chantless on the magic path): can_use refuses unless the advanced gate is met
+##     (path level + spell-theory + milestones + cultivation realm), see chantless_ready();
+##   - a second path is very hard to learn: can_learn()/learn_checked() apply PowerTrees.second_path_gate, and
+##     ctx.path_penalty = true makes can_use/use scale power and cost by the path's rank (second path 0.75 power,
+##     1.25 cost; third 0.55 / 1.5). Meditation speed for extra paths lives in cultivation.cross_step.
 
+const PowerTrees := preload("res://scripts/abilities/power_trees.gd")
 const PATHS := ["magic", "bending", "sect", "knight", "beast"]
 const SOURCES := {"academy": 1.0, "teacher": 0.9, "manual": 0.7, "self": 0.5}
 const FIRST_REGION := "valencios_first"
@@ -38,6 +47,10 @@ const SELF_HEAL_DAYS := 5
 ## path -> {src, xp, cur, exh, strain, breath, cond, burden, element, trust:{}}
 var _p: Dictionary = {}
 var _prodigy: Array = []
+var _manuals: Array = []       # manuals read (power trees; cultivation keeps its own list)
+var _teachers: Array = []      # teacher ids that have taught you
+var _known: Array = []         # learned power-tree technique ids
+var _primary := ""
 var _own_inj: Array = []      # [{type, day}] used when no ctx.life
 var _rng := RandomNumberGenerator.new()
 
@@ -64,8 +77,11 @@ func learn(path: String, source: String) -> bool:
 	if not PATHS.has(path) or not SOURCES.has(source) or _p.has(path):
 		return false
 	_p[path] = {"src": source, "xp": 0.0, "cur": 0.0, "exh": 0.0, "strain": 0.0, "breath": 0.7,
-		"cond": 0.3, "burden": 0.0, "element": "water", "trust": {}}
+		"cond": 0.3, "burden": 0.0, "element": "water", "trust": {}, "theory": 0.0, "milestones": [], "subpaths": [],
+		"uses": {}}
 	_p[path]["cur"] = max_of(path)
+	if _primary == "":
+		_primary = path
 	return true
 
 
@@ -115,6 +131,159 @@ func prodigy_reasons() -> Array:
 func set_element(element: String) -> void:
 	if _p.has("bending"):
 		_p["bending"]["element"] = element
+
+
+# --------------------------------------------------------------- power trees
+
+func primary_path() -> String:
+	return _primary
+
+
+func set_primary(path: String) -> bool:
+	if not _p.has(path):
+		return false
+	_primary = path
+	return true
+
+
+## Spell-theory mastery 0..1 (study, academy lessons, treatises). Gates chantless casting and advanced spells.
+func theory(path: String) -> float:
+	return float(_p[path].get("theory", 0.0)) if _p.has(path) else 0.0
+
+
+func study_theory(path: String, amount: float) -> float:
+	if not _p.has(path):
+		return 0.0
+	_p[path]["theory"] = clampf(float(_p[path].get("theory", 0.0)) + amount, 0.0, 1.0)
+	return float(_p[path]["theory"])
+
+
+func milestones(path: String) -> Array:
+	return (_p[path].get("milestones", []) as Array).duplicate() if _p.has(path) else []
+
+
+func add_milestone(path: String, id: String) -> bool:
+	if not _p.has(path) or (_p[path]["milestones"] as Array).has(id):
+		return false
+	(_p[path]["milestones"] as Array).append(id)
+	return true
+
+
+func subpaths(path: String) -> Array:
+	return (_p[path].get("subpaths", []) as Array).duplicate() if _p.has(path) else []
+
+
+## Follow a sub-path (an element, a school, a line). Limited by the realm's slot count.
+func choose_subpath(path: String, id: String, realm := 1) -> bool:
+	if not _p.has(path):
+		return false
+	var ok := false
+	for s: Dictionary in PowerTrees.subpaths(path):
+		if s["id"] == id:
+			ok = true
+	var chosen: Array = _p[path]["subpaths"]
+	if not ok or chosen.has(id) or chosen.size() >= PowerTrees.subpath_slots(path, realm):
+		return false
+	chosen.append(id)
+	if path == "bending":
+		if chosen.size() == 1 and id in ["air", "fire", "earth", "water"]:
+			_p["bending"]["element"] = id
+	return true
+
+
+func manuals() -> Array:
+	return _manuals.duplicate()
+
+
+## Read a power-tree manual. `ctx.realms` ({path: realm}) may enforce the "within one realm" rule like cultivation.
+func learn_manual(id: String, ctx: Dictionary = {}) -> Dictionary:
+	var m := PowerTrees.manual(id)
+	if m.is_empty():
+		return {"ok": false, "reason": "unknown"}
+	if _manuals.has(id):
+		return {"ok": false, "reason": "known"}
+	var path := String(m["path"])
+	if not _p.has(path):
+		return {"ok": false, "reason": "not_cultivating"}
+	var realms: Dictionary = ctx.get("realms", {})
+	if realms.has(path) and int(realms[path]) < int(m["realm"]) - 1:
+		return {"ok": false, "reason": "too_advanced"}
+	_manuals.append(id)
+	return {"ok": true, "reason": ""}
+
+
+func teachers() -> Array:
+	return _teachers.duplicate()
+
+
+func add_teacher(id: String) -> bool:
+	if _teachers.has(id):
+		return false
+	_teachers.append(id)
+	return true
+
+
+func known_techniques() -> Array:
+	return _known.duplicate()
+
+
+func knows_technique(id: String) -> bool:
+	return _known.has(id)
+
+
+## Per-technique mastery 0..1 from use (the first 40 uses reach 100 percent).
+func technique_mastery(id: String) -> float:
+	var path := PowerTrees.path_of(id)
+	if path == "" or not _p.has(path):
+		return 0.0
+	return clampf(float((_p[path].get("uses", {}) as Dictionary).get(id, 0)) / 40.0, 0.0, 1.0)
+
+
+func path_order(path: String) -> int:
+	return PowerTrees.path_order(PowerTrees.profile_from(self), path)
+
+
+func path_penalty(path: String) -> Dictionary:
+	return PowerTrees.path_penalty(path_order(path)) if _p.has(path) else {"power": 0.0, "cost": 1.0, "xp": 0.0}
+
+
+## The power-tree profile of this character (cultivation from the hub when present; `extra` overrides keys).
+func profile(extra: Dictionary = {}) -> Dictionary:
+	var cult: Variant = hub.mod("cultivation") if hub != null and hub.get("mods") is Dictionary and (hub.get("mods") as Dictionary).has("cultivation") else null
+	return PowerTrees.profile_from(self, cult, extra)
+
+
+## Chantless casting open to this character? -> PowerTrees.chantless_check
+func chantless_ready(ctx: Dictionary = {}) -> Dictionary:
+	return PowerTrees.chantless_check(ctx["profile"] if ctx.has("profile") else profile(ctx.get("profile_extra", {})), "magic")
+
+
+## Learn a power-tree technique if every requirement is met. -> {ok, reasons}
+func learn_technique(id: String, extra: Dictionary = {}) -> Dictionary:
+	var st := PowerTrees.state(id, profile(extra))
+	if st["state"] == "known":
+		return {"ok": false, "reasons": ["Already known."]}
+	if st["state"] != "ready":
+		return {"ok": false, "reasons": st["reasons"]}
+	_known.append(id)
+	return {"ok": true, "reasons": []}
+
+
+## Second and third paths are very hard to learn (PowerTrees.second_path_gate); the first path is free.
+func can_learn(path: String, source: String, extra: Dictionary = {}) -> Dictionary:
+	if not PATHS.has(path) or not SOURCES.has(source):
+		return {"ok": false, "reasons": ["Unknown path or source."]}
+	return PowerTrees.second_path_gate(profile(extra), path, source)
+
+
+func learn_checked(path: String, source: String, extra: Dictionary = {}) -> Dictionary:
+	var g := can_learn(path, source, extra)
+	if bool(g["ok"]) and learn(path, source):
+		return g
+	if bool(g["ok"]):
+		g["ok"] = false
+		g["reasons"] = ["Could not learn."]
+	return g
 
 
 # --------------------------------------------------------------- resources
@@ -276,6 +445,16 @@ func _assess(path: String, cost: float, ctx: Dictionary) -> Dictionary:
 	var cx := clampf(float(ctx.get("complexity", 0.3)), 0.0, 1.0)
 	var conc := clampf(float(ctx.get("concentration", 1.0)), 0.0, 1.0)
 	var out := {"ok": true, "risk": 0.0, "reason": "", "cost": cost, "power": 1.0}
+	var rule := _rules(path, ctx)
+	if not rule.is_empty():
+		out["ok"] = false
+		out["reason"] = rule["reason"]
+		return out
+	var pen := {"power": 1.0, "cost": 1.0}
+	if bool(ctx.get("path_penalty", false)):
+		pen = path_penalty(path)
+		cost *= float(pen["cost"])
+		out["cost"] = cost
 	match path:
 		"magic":
 			var exh := _exhaustion("magic", ctx)
@@ -337,6 +516,7 @@ func _assess(path: String, cost: float, ctx: Dictionary) -> Dictionary:
 				out["reason"] = "Your mind is overburdened."
 			out["risk"] = clampf((1.0 - tr) * 0.2 + maxf(0.0, b - 0.5) * 0.8, 0.0, 0.95)
 			out["power"] = (0.4 + 0.6 * tr) * (1.0 - b * 0.3)
+	out["power"] = float(out["power"]) * float(pen["power"])
 	out["risk"] = clampf(float(out["risk"]), 0.0, 0.95)
 	return out
 
@@ -344,6 +524,15 @@ func _assess(path: String, cost: float, ctx: Dictionary) -> Dictionary:
 func can_use(path: String, cost: float, ctx: Dictionary = {}) -> Dictionary:
 	var a := _assess(path, cost, ctx)
 	return {"ok": a["ok"], "risk": a["risk"], "reason": a["reason"]}
+
+
+## Path rules shared by can_use and use: chantless gate, second-path penalty. Returns {} when nothing applies.
+func _rules(path: String, ctx: Dictionary) -> Dictionary:
+	if bool(ctx.get("chantless", false)) and path == "magic" and _p.has("magic"):
+		var c := chantless_ready(ctx)
+		if not bool(c["ok"]):
+			return {"ok": false, "reason": "Chantless casting is beyond you: %s" % " ".join(PackedStringArray(c["reasons"]))}
+	return {}
 
 
 func use(path: String, cost: float, ctx: Dictionary = {}) -> Dictionary:
@@ -425,6 +614,10 @@ func use(path: String, cost: float, ctx: Dictionary = {}) -> Dictionary:
 				effects.append({"type": "mental_strain", "concentration": -0.3})
 				msgs.append("The link floods your mind.")
 	s["cur"] = maxf(float(s["cur"]), -max_of(path) * OVERDRAW)
+	var tech := String(ctx.get("technique", ""))
+	if tech != "":
+		var uses: Dictionary = s["uses"]
+		uses[tech] = int(uses.get(tech, 0)) + 1
 	gain_xp(path, 1.0 + c * 0.1)
 	return {"ok": true, "effects": effects, "messages": msgs, "power": a["power"], "risk": a["risk"]}
 
@@ -472,7 +665,8 @@ func serialize() -> Dictionary:
 	var ps := {}
 	for k: String in _p:
 		ps[k] = (_p[k] as Dictionary).duplicate(true)
-	return {"p": ps, "prodigy": _prodigy.duplicate(), "inj": _own_inj.duplicate(true), "rng": str(_rng.state)}
+	return {"p": ps, "prodigy": _prodigy.duplicate(), "inj": _own_inj.duplicate(true), "rng": str(_rng.state),
+		"manuals": _manuals.duplicate(), "teachers": _teachers.duplicate(), "known": _known.duplicate(), "primary": _primary}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -484,12 +678,25 @@ func deserialize(d: Dictionary) -> void:
 		var s: Dictionary = (ps[k] as Dictionary).duplicate(true)
 		for f: String in ["xp", "cur", "exh", "strain", "breath", "cond", "burden"]:
 			s[f] = float(s.get(f, 0.0))
+		s["theory"] = float(s.get("theory", 0.0))
+		s["milestones"] = (s.get("milestones", []) as Array).duplicate()
+		s["subpaths"] = (s.get("subpaths", []) as Array).duplicate()
+		var u: Dictionary = {}
+		for tk: String in (s.get("uses", {}) as Dictionary):
+			u[tk] = int(s["uses"][tk])
+		s["uses"] = u
 		s["src"] = String(s.get("src", "self"))
 		s["element"] = String(s.get("element", "water"))
 		if not (s.get("trust") is Dictionary):
 			s["trust"] = {}
 		_p[k] = s
 	_prodigy = (d.get("prodigy", []) as Array).duplicate()
+	_manuals = (d.get("manuals", []) as Array).duplicate()
+	_teachers = (d.get("teachers", []) as Array).duplicate()
+	_known = (d.get("known", []) as Array).duplicate()
+	_primary = String(d.get("primary", ""))
+	if _primary == "" or not _p.has(_primary):
+		_primary = (_p.keys()[0] if not _p.is_empty() else "")
 	_own_inj.clear()
 	for e: Dictionary in d.get("inj", []):
 		_own_inj.append({"type": String(e["type"]), "day": int(e["day"])})

@@ -1,0 +1,66 @@
+{
+ "version": 1,
+ "paths": [
+  "magic",
+  "bending",
+  "sect",
+  "knight",
+  "beast"
+ ],
+ "region_cap": {
+  "region": 1,
+  "level": 60,
+  "realm": 3,
+  "path_level": 20,
+  "note": "Region 1 caps character level at 60 and cultivation at Foundation (realm 3)."
+ },
+ "second_path": {
+  "min_primary_level": 12,
+  "min_primary_realm": 2,
+  "min_primary_stage": 5,
+  "min_level": 20,
+  "sources": [
+   "academy",
+   "teacher"
+  ],
+  "milestone": "second_path_trial",
+  "max_paths": 3,
+  "power": [
+   1.0,
+   0.75,
+   0.55
+  ],
+  "cost": [
+   1.0,
+   1.25,
+   1.5
+  ],
+  "xp": [
+   1.0,
+   0.35,
+   0.12
+  ],
+  "note": "A second path needs a developed first path, a teacher or academy, and a trial; afterwards its techniques are weaker and dearer and its xp slower."
+ },
+ "traditions": {
+  "sect": "donghua martial arts: internal energy, cultivation, manuals",
+  "knight": "knight martial arts: aura, reinforced forms, charge, armour arts (separate tree)"
+ },
+ "resources": {
+  "magic": "magicules",
+  "bending": "bending",
+  "sect": "qi",
+  "knight": "stamina",
+  "beast": "beast"
+ },
+ "legacy_tree_paths": {
+  "fire": "magic",
+  "water": "magic",
+  "wind": "magic",
+  "earth": "magic",
+  "lightning": "magic",
+  "qi": "sect",
+  "fist_palm": "sect",
+  "swordsmanship": "knight"
+ }
+}

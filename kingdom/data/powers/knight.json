@@ -1,0 +1,875 @@
+{
+ "id": "knight",
+ "name": "Knight Arts",
+ "tradition": "knight",
+ "element": "none",
+ "resource_name": "Stamina and aura",
+ "blurb": "The knight's own martial arts: aura reinforcing body and blade, reinforced sword forms, charge techniques, armour arts. Fuelled by stamina and conditioning, so it works with empty qi.",
+ "levels": [
+  {
+   "level": 1,
+   "name": "Squire"
+  },
+  {
+   "level": 5,
+   "name": "Knight-Errant"
+  },
+  {
+   "level": 10,
+   "name": "Knight"
+  },
+  {
+   "level": 15,
+   "name": "Aura Knight"
+  },
+  {
+   "level": 20,
+   "name": "Knight-Captain"
+  },
+  {
+   "level": 25,
+   "name": "Paladin"
+  },
+  {
+   "level": 30,
+   "name": "Knight Sovereign"
+  }
+ ],
+ "subpath_slots": [
+  [
+   1,
+   1
+  ],
+  [
+   2,
+   2
+  ],
+  [
+   3,
+   3
+  ]
+ ],
+ "milestones": [
+  {
+   "id": "oath_sworn",
+   "name": "Oath sworn",
+   "desc": "Swear a knight's oath before witnesses."
+  },
+  {
+   "id": "drill_passed",
+   "name": "Passed the drill yard",
+   "desc": "Finish the yard's trials in full harness."
+  },
+  {
+   "id": "aura_woken",
+   "name": "Aura awakened",
+   "desc": "Feel the aura wrap the body for the first time."
+  },
+  {
+   "id": "second_path_trial",
+   "name": "Trial of the second path",
+   "desc": "Prove your discipline before widening it."
+  }
+ ],
+ "subpaths": [
+  {
+   "id": "forms",
+   "name": "Reinforced Forms",
+   "element": "none",
+   "desc": "Sword forms driven by aura: rising cuts, crosses, aura blades."
+  },
+  {
+   "id": "charge",
+   "name": "Charge Arts",
+   "element": "none",
+   "desc": "Momentum made a weapon: rushes, lance runs, stampedes."
+  },
+  {
+   "id": "armour",
+   "name": "Armour Arts",
+   "element": "none",
+   "desc": "Harness as a technique: plate stance, bulwark, ironclad aura."
+  }
+ ],
+ "techniques": [
+  {
+   "id": "kn_brace",
+   "name": "Brace",
+   "subpath": "core",
+   "tier": 1,
+   "kind": "defense",
+   "desc": "Plant your feet: the next blows hit softer.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 3,
+    "manual": [
+     "m_kn1"
+    ],
+    "teacher": [
+     "drill_sergeant"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 8
+    },
+    "cooldown": 10,
+    "windup": 0.2,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "buff",
+      "family": "brace",
+      "stats": {
+       "damage_taken": -0.25
+      },
+      "duration": 4,
+      "rule": "refresh"
+     }
+    ],
+    "vfx": "stone_skin",
+    "anim": [
+     "Sword_Block",
+     "Karate_Block"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  },
+  {
+   "id": "kn_edge",
+   "name": "Reinforced Edge",
+   "subpath": "core",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "A cut with aura along the edge.",
+   "req": {
+    "path_level": 2,
+    "realm": 1,
+    "stage": 7,
+    "manual": [
+     "m_kn1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 12
+    },
+    "cooldown": 3,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "melee",
+     "range": 2.8,
+     "knockback": 2.0
+    },
+    "damage": 26,
+    "effects": [],
+    "vfx": "sword_arc",
+    "anim": [
+     "Sword_Attack",
+     "Sword_Regular_A"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  },
+  {
+   "id": "kn_guard",
+   "name": "Guard Counter",
+   "subpath": "core",
+   "tier": 2,
+   "kind": "defense",
+   "desc": "Take the blow on the shield-arm, answer at once.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 4,
+    "manual": [
+     "m_kn2"
+    ],
+    "prereq": [
+     "kn_brace"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 14
+    },
+    "cooldown": 12,
+    "windup": 0.15,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "ward",
+      "family": "guard_counter",
+      "magnitude": 45,
+      "duration": 6,
+      "rule": "replace_if_stronger"
+     }
+    ],
+    "vfx": "qi_shield",
+    "anim": [
+     "Sword_Block",
+     "G6_cast_off_hand_shield"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  },
+  {
+   "id": "kn_charge",
+   "name": "Aura Charge",
+   "subpath": "core",
+   "tier": 2,
+   "kind": "mobility",
+   "desc": "Lower the shoulder and burst through the line.",
+   "req": {
+    "path_level": 8,
+    "realm": 2,
+    "stage": 8,
+    "manual": [
+     "m_kn2"
+    ],
+    "teacher": [
+     "knight_captain"
+    ],
+    "prereq": [
+     "kn_edge"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 18
+    },
+    "cooldown": 8,
+    "windup": 0.2,
+    "targeting": {
+     "kind": "dash",
+     "range": 8
+    },
+    "damage": 34,
+    "effects": [
+     {
+      "type": "stun",
+      "duration": 0.3,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "impact",
+    "anim": [
+     "Sword_Dash",
+     "Sprint"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full",
+    "element": "none"
+   }
+  },
+  {
+   "id": "kn_aura",
+   "name": "Aura Reinforcement",
+   "subpath": "core",
+   "tier": 3,
+   "kind": "defense",
+   "desc": "Aura wraps body and blade for a time: stronger blows, softer wounds.",
+   "req": {
+    "path_level": 12,
+    "realm": 3,
+    "stage": 4,
+    "manual": [
+     "m_kn3"
+    ],
+    "milestone": [
+     "aura_woken"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 28
+    },
+    "cooldown": 30,
+    "windup": 0.4,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "aura",
+      "family": "knight_aura",
+      "stats": {
+       "sword_damage": 0.2,
+       "damage_taken": -0.15
+      },
+      "duration": 14,
+      "rule": "refresh"
+     }
+    ],
+    "vfx": "qi_aura",
+    "anim": [
+     "G6_power_up_2",
+     "Sword_Idle"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full",
+    "element": "none"
+   }
+  },
+  {
+   "id": "kn_sunder",
+   "name": "Sunder",
+   "subpath": "core",
+   "tier": 4,
+   "kind": "attack",
+   "desc": "A reinforced cut that opens plate.",
+   "req": {
+    "path_level": 20,
+    "realm": 4,
+    "stage": 2,
+    "manual": [
+     "m_kn4"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 40
+    },
+    "cooldown": 12,
+    "windup": 0.5,
+    "targeting": {
+     "kind": "melee",
+     "range": 3.2,
+     "knockback": 4.0
+    },
+    "damage": 100,
+    "effects": [],
+    "vfx": "earth_spike",
+    "anim": [
+     "Sword_Heavy_Combo",
+     "Attack_Ground_Pound"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   },
+   "region": 2
+  },
+  {
+   "id": "kn_rising_slash",
+   "name": "Rising Slash",
+   "subpath": "forms",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "An aura-driven upward cut.",
+   "req": {
+    "path_level": 2,
+    "realm": 1,
+    "stage": 6,
+    "manual": [
+     "m_kn_forms1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 14
+    },
+    "cooldown": 4,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "melee",
+     "range": 2.8,
+     "knockback": 3.0
+    },
+    "damage": 30,
+    "effects": [],
+    "vfx": "sword_arc",
+    "anim": [
+     "Sword_Attack_Air_Vertical",
+     "Sword_Attack"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "kn_cross_cut",
+   "name": "Cross Cut",
+   "subpath": "forms",
+   "tier": 2,
+   "kind": "attack",
+   "desc": "Two reinforced cuts crossing in front of you.",
+   "req": {
+    "path_level": 7,
+    "realm": 2,
+    "stage": 5,
+    "manual": [
+     "m_kn_forms2"
+    ],
+    "teacher": [
+     "knight_captain",
+     "drill_sergeant"
+    ],
+    "prereq": [
+     "kn_rising_slash"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 20
+    },
+    "cooldown": 6,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "cone",
+     "range": 3.2,
+     "angle": 110,
+     "hits": 2
+    },
+    "damage": 38,
+    "effects": [],
+    "vfx": "sword_arc",
+    "anim": [
+     "Sword_Regular_Combo",
+     "Sword_Attack"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "kn_aura_blade",
+   "name": "Aura Blade",
+   "subpath": "forms",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "Aura leaves the blade as a sheet of force.",
+   "req": {
+    "path_level": 12,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_kn_forms3"
+    ],
+    "prereq": [
+     "kn_cross_cut"
+    ],
+    "milestone": [
+     "aura_woken"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 30
+    },
+    "cooldown": 9,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "projectile",
+     "range": 12,
+     "speed": 26,
+     "pierce": true
+    },
+    "damage": 54,
+    "effects": [],
+    "vfx": "sword_qi",
+    "anim": [
+     "Sword_Heavy_Combo",
+     "Sword_Attack"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "kn_shoulder_rush",
+   "name": "Shoulder Rush",
+   "subpath": "charge",
+   "tier": 1,
+   "kind": "mobility",
+   "desc": "A short rush that staggers.",
+   "req": {
+    "path_level": 3,
+    "realm": 1,
+    "stage": 9,
+    "manual": [
+     "m_kn_charge1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 12
+    },
+    "cooldown": 6,
+    "windup": 0.15,
+    "targeting": {
+     "kind": "dash",
+     "range": 5
+    },
+    "damage": 14,
+    "effects": [
+     {
+      "type": "stun",
+      "duration": 0.3,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "impact",
+    "anim": [
+     "Sword_Dash",
+     "Sprint"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full"
+   }
+  },
+  {
+   "id": "kn_lance_rush",
+   "name": "Lance Rush",
+   "subpath": "charge",
+   "tier": 2,
+   "kind": "attack",
+   "desc": "A long run with the point forward, piercing the line.",
+   "req": {
+    "path_level": 7,
+    "realm": 2,
+    "stage": 5,
+    "manual": [
+     "m_kn_charge2"
+    ],
+    "teacher": [
+     "knight_captain",
+     "drill_sergeant"
+    ],
+    "prereq": [
+     "kn_shoulder_rush"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 22
+    },
+    "cooldown": 9,
+    "windup": 0.2,
+    "targeting": {
+     "kind": "dash",
+     "range": 11
+    },
+    "damage": 40,
+    "effects": [],
+    "vfx": "iaido_flash",
+    "anim": [
+     "Sword_Dash",
+     "Sprint"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full"
+   }
+  },
+  {
+   "id": "kn_stampede",
+   "name": "Stampede",
+   "subpath": "charge",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "Momentum and aura together: nothing in the lane stands.",
+   "req": {
+    "path_level": 12,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_kn_charge3"
+    ],
+    "prereq": [
+     "kn_lance_rush"
+    ],
+    "milestone": [
+     "aura_woken"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 32
+    },
+    "cooldown": 12,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "dash",
+     "range": 12
+    },
+    "damage": 56,
+    "effects": [
+     {
+      "type": "stun",
+      "duration": 0.8,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "impact",
+    "anim": [
+     "Sword_Dash",
+     "Attack_Ground_Pound"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full"
+   }
+  },
+  {
+   "id": "kn_plate_stance",
+   "name": "Plate Stance",
+   "subpath": "armour",
+   "tier": 1,
+   "kind": "defense",
+   "desc": "Settle into the harness: its weight becomes strength.",
+   "req": {
+    "path_level": 2,
+    "realm": 1,
+    "stage": 6,
+    "manual": [
+     "m_kn_armour1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 10
+    },
+    "cooldown": 20,
+    "windup": 0.3,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "buff",
+      "family": "plate_stance",
+      "stats": {
+       "damage_taken": -0.2
+      },
+      "duration": 15,
+      "rule": "refresh"
+     }
+    ],
+    "vfx": "stone_skin",
+    "anim": [
+     "Sword_Block",
+     "G6_power_up"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "kn_bulwark",
+   "name": "Bulwark",
+   "subpath": "armour",
+   "tier": 2,
+   "kind": "defense",
+   "desc": "Aura hardens plate into a wall that soaks blows.",
+   "req": {
+    "path_level": 7,
+    "realm": 2,
+    "stage": 5,
+    "manual": [
+     "m_kn_armour2"
+    ],
+    "teacher": [
+     "knight_captain",
+     "drill_sergeant"
+    ],
+    "prereq": [
+     "kn_plate_stance"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 18
+    },
+    "cooldown": 18,
+    "windup": 0.3,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "ward",
+      "family": "bulwark",
+      "magnitude": 55,
+      "duration": 10,
+      "rule": "replace_if_stronger"
+     }
+    ],
+    "vfx": "qi_shield",
+    "anim": [
+     "G6_cast_off_hand_shield",
+     "Sword_Block"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "kn_ironclad",
+   "name": "Ironclad Aura",
+   "subpath": "armour",
+   "tier": 3,
+   "kind": "defense",
+   "desc": "A heavy aura that makes the wearer all but immovable.",
+   "req": {
+    "path_level": 12,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_kn_armour3"
+    ],
+    "prereq": [
+     "kn_bulwark"
+    ],
+    "milestone": [
+     "aura_woken"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "stamina": 26
+    },
+    "cooldown": 28,
+    "windup": 0.4,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "aura",
+      "family": "ironclad",
+      "stats": {
+       "damage_taken": -0.3,
+       "speed": -0.1
+      },
+      "duration": 14,
+      "rule": "refresh"
+     }
+    ],
+    "vfx": "stone_skin",
+    "anim": [
+     "G6_power_up_3",
+     "Sword_Block"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full"
+   }
+  }
+ ],
+ "manuals": [
+  {
+   "id": "m_kn_forms1",
+   "name": "Book of Forms I",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "kn_rising_slash"
+   ],
+   "desc": "A knight's manual."
+  },
+  {
+   "id": "m_kn_forms2",
+   "name": "Book of Forms II",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "kn_cross_cut"
+   ],
+   "desc": "A knight's manual."
+  },
+  {
+   "id": "m_kn_forms3",
+   "name": "Book of Forms III",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "kn_aura_blade"
+   ],
+   "desc": "A knight's manual."
+  },
+  {
+   "id": "m_kn_charge1",
+   "name": "Charge Drills I",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "kn_shoulder_rush"
+   ],
+   "desc": "A knight's manual."
+  },
+  {
+   "id": "m_kn_charge2",
+   "name": "Charge Drills II",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "kn_lance_rush"
+   ],
+   "desc": "A knight's manual."
+  },
+  {
+   "id": "m_kn_charge3",
+   "name": "Charge Drills III",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "kn_stampede"
+   ],
+   "desc": "A knight's manual."
+  },
+  {
+   "id": "m_kn_armour1",
+   "name": "Harness Lore I",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "kn_plate_stance"
+   ],
+   "desc": "A knight's manual."
+  },
+  {
+   "id": "m_kn_armour2",
+   "name": "Harness Lore II",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "kn_bulwark"
+   ],
+   "desc": "A knight's manual."
+  },
+  {
+   "id": "m_kn_armour3",
+   "name": "Harness Lore III",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "kn_ironclad"
+   ],
+   "desc": "A knight's manual."
+  },
+  {
+   "id": "m_kn_aura_note",
+   "name": "Notes on the Waking Aura",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [],
+   "desc": "Teaches no form, only how aura feels."
+  }
+ ],
+ "version": 1
+}

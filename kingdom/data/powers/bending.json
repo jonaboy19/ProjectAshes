@@ -1,0 +1,1008 @@
+{
+ "id": "bending",
+ "name": "Bending",
+ "tradition": "elemental",
+ "element": "water",
+ "resource_name": "Resonance",
+ "blurb": "Breath, stance and place: bend one element by resonating with it. Water near rivers, fire in the dry, air on the heights.",
+ "levels": [
+  {
+   "level": 1,
+   "name": "Breather"
+  },
+  {
+   "level": 5,
+   "name": "Stancer"
+  },
+  {
+   "level": 10,
+   "name": "Bender"
+  },
+  {
+   "level": 15,
+   "name": "Adept Bender"
+  },
+  {
+   "level": 20,
+   "name": "Master Bender"
+  },
+  {
+   "level": 25,
+   "name": "Grand Bender"
+  },
+  {
+   "level": 30,
+   "name": "Avatar-touched"
+  }
+ ],
+ "subpath_slots": [
+  [
+   1,
+   1
+  ],
+  [
+   3,
+   2
+  ]
+ ],
+ "milestones": [
+  {
+   "id": "river_vigil",
+   "name": "Kept a river vigil",
+   "desc": "A night of breath beside moving water."
+  },
+  {
+   "id": "stance_form",
+   "name": "Perfect stance form",
+   "desc": "Hold a form unbroken for a full cycle."
+  },
+  {
+   "id": "element_duel",
+   "name": "Won an elemental duel",
+   "desc": "Beat a bender of another element."
+  },
+  {
+   "id": "second_path_trial",
+   "name": "Trial of the second path",
+   "desc": "Prove your discipline before widening it."
+  }
+ ],
+ "subpaths": [
+  {
+   "id": "water",
+   "name": "Water",
+   "element": "water",
+   "desc": "Flow, heal, redirect. Strong near rivers."
+  },
+  {
+   "id": "earth",
+   "name": "Earth",
+   "element": "earth",
+   "desc": "Root, hold, break. Needs sound legs."
+  },
+  {
+   "id": "fire",
+   "name": "Fire",
+   "element": "fire",
+   "desc": "Breath turned to heat. Strong in the dry."
+  },
+  {
+   "id": "air",
+   "name": "Air",
+   "element": "wind",
+   "desc": "Lightness and pressure. Strong on the heights."
+  }
+ ],
+ "techniques": [
+  {
+   "id": "bn_breath",
+   "name": "Resonant Breath",
+   "subpath": "core",
+   "tier": 1,
+   "kind": "utility",
+   "desc": "A slow breath that steadies resonance.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 3,
+    "manual": [
+     "m_bn1"
+    ]
+   },
+   "ability": {
+    "costs": {},
+    "cooldown": 18,
+    "windup": 0.8,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "restore",
+      "resource": "bending",
+      "magnitude": 14
+     }
+    ],
+    "vfx": "qi_aura",
+    "anim": [
+     "Meditate"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full",
+    "element": "qi"
+   }
+  },
+  {
+   "id": "bn_form1",
+   "name": "First Form",
+   "subpath": "core",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "A basic pushing form with the chosen element.",
+   "req": {
+    "path_level": 2,
+    "realm": 1,
+    "stage": 7,
+    "manual": [
+     "m_bn1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 8
+    },
+    "cooldown": 3,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "cone",
+     "range": 5,
+     "angle": 60,
+     "knockback": 2.5
+    },
+    "damage": 20,
+    "effects": [],
+    "vfx": "sparks",
+    "anim": [
+     "Taichi_Idle",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "bn_flow",
+   "name": "Flowing Guard",
+   "subpath": "core",
+   "tier": 2,
+   "kind": "defense",
+   "desc": "Redirect a blow instead of meeting it.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 3,
+    "manual": [
+     "m_bn2"
+    ],
+    "prereq": [
+     "bn_form1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 10
+    },
+    "cooldown": 12,
+    "windup": 0.2,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "buff",
+      "family": "flowing_guard",
+      "stats": {
+       "damage_taken": -0.3
+      },
+      "duration": 5,
+      "rule": "refresh"
+     }
+    ],
+    "vfx": "qi_shield",
+    "anim": [
+     "Parry_Quick",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "bn_wave",
+   "name": "Resonance Wave",
+   "subpath": "core",
+   "tier": 2,
+   "kind": "attack",
+   "desc": "A wave of resonance across the ground.",
+   "req": {
+    "path_level": 7,
+    "realm": 2,
+    "stage": 7,
+    "manual": [
+     "m_bn2"
+    ],
+    "teacher": [
+     "bending_master"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 16
+    },
+    "cooldown": 7,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "aoe",
+     "radius": 4.5
+    },
+    "damage": 34,
+    "effects": [],
+    "vfx": "quake",
+    "anim": [
+     "G6_cast_unarmed_magic",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "bn_shape",
+   "name": "Shaping",
+   "subpath": "core",
+   "tier": 3,
+   "kind": "utility",
+   "desc": "Hold the element in a shape: a brief reveal of what hides near.",
+   "req": {
+    "path_level": 12,
+    "realm": 3,
+    "stage": 4,
+    "manual": [
+     "m_bn3"
+    ],
+    "prereq": [
+     "bn_wave"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 12
+    },
+    "cooldown": 25,
+    "windup": 0.5,
+    "targeting": {
+     "kind": "aoe",
+     "radius": 12
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "reveal",
+      "duration": 8,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "water_ring",
+    "anim": [
+     "G6_channel_unarmed_magic",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "bn_storm",
+   "name": "Elemental Storm",
+   "subpath": "core",
+   "tier": 4,
+   "kind": "attack",
+   "desc": "The element answers at full voice.",
+   "req": {
+    "path_level": 20,
+    "realm": 4,
+    "stage": 3,
+    "manual": [
+     "m_bn4"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 50
+    },
+    "cooldown": 20,
+    "windup": 0.6,
+    "targeting": {
+     "kind": "aoe",
+     "radius": 8
+    },
+    "damage": 100,
+    "effects": [],
+    "vfx": "whirlwind",
+    "anim": [
+     "G6_cast_two_handed_staff",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   },
+   "region": 2
+  },
+  {
+   "id": "bn_water_whip",
+   "name": "Water Whip",
+   "subpath": "water",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "A lash of water.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 5,
+    "manual": [
+     "m_bn_water1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 8
+    },
+    "cooldown": 2.5,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "cone",
+     "range": 6,
+     "angle": 50
+    },
+    "damage": 18,
+    "effects": [],
+    "vfx": "water_whip",
+    "anim": [
+     "Magic_Cast_L",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "bn_water_mend",
+   "name": "Healing Water",
+   "subpath": "water",
+   "tier": 2,
+   "kind": "support",
+   "desc": "Water that mends.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 4,
+    "manual": [
+     "m_bn_water2"
+    ],
+    "teacher": [
+     "bending_master"
+    ],
+    "prereq": [
+     "bn_water_whip"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 14
+    },
+    "cooldown": 14,
+    "windup": 0.5,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "heal",
+      "magnitude": 34
+     }
+    ],
+    "vfx": "water_heal",
+    "anim": [
+     "G6_pray",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full"
+   }
+  },
+  {
+   "id": "bn_tide_wall",
+   "name": "Tide Wall",
+   "subpath": "water",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "A rising wall of water.",
+   "req": {
+    "path_level": 11,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_bn_water3"
+    ],
+    "prereq": [
+     "bn_water_mend"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 22
+    },
+    "cooldown": 9,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "cone",
+     "range": 7,
+     "angle": 90
+    },
+    "damage": 42,
+    "effects": [
+     {
+      "type": "slow",
+      "duration": 3,
+      "magnitude": 0.4
+     }
+    ],
+    "vfx": "tidal_wave",
+    "anim": [
+     "G6_cast_unarmed_magic_2",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "bn_stone_fist",
+   "name": "Stone Fist",
+   "subpath": "earth",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "A fist of rock thrown forward.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 5,
+    "manual": [
+     "m_bn_earth1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 8
+    },
+    "cooldown": 2.6,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "projectile",
+     "range": 14,
+     "speed": 18
+    },
+    "damage": 22,
+    "effects": [],
+    "vfx": "stone_bullet",
+    "anim": [
+     "Magic_Cast_R",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "bn_rampart",
+   "name": "Rampart",
+   "subpath": "earth",
+   "tier": 2,
+   "kind": "defense",
+   "desc": "Lift a slab between you and harm.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 4,
+    "manual": [
+     "m_bn_earth2"
+    ],
+    "teacher": [
+     "bending_master"
+    ],
+    "prereq": [
+     "bn_stone_fist"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 14
+    },
+    "cooldown": 16,
+    "windup": 0.3,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "ward",
+      "family": "ward",
+      "magnitude": 55,
+      "duration": 9,
+      "rule": "replace_if_stronger"
+     }
+    ],
+    "vfx": "stone_wall",
+    "anim": [
+     "G6_cast_off_hand_shield",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "bn_quake",
+   "name": "Quake",
+   "subpath": "earth",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "The ground jumps.",
+   "req": {
+    "path_level": 11,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_bn_earth3"
+    ],
+    "prereq": [
+     "bn_rampart"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 22
+    },
+    "cooldown": 10,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "aoe",
+     "radius": 5.5
+    },
+    "damage": 40,
+    "effects": [
+     {
+      "type": "stun",
+      "duration": 1.0,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "quake",
+    "anim": [
+     "Attack_Ground_Pound",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "bn_flame_jab",
+   "name": "Flame Jab",
+   "subpath": "fire",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "A burst of heat from the fist.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 5,
+    "manual": [
+     "m_bn_fire1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 8
+    },
+    "cooldown": 2.4,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "projectile",
+     "range": 10,
+     "speed": 22
+    },
+    "damage": 20,
+    "effects": [
+     {
+      "type": "dot",
+      "family": "burn",
+      "duration": 2.5,
+      "dps_ratio": 0.08,
+      "rule": "stack",
+      "max_stacks": 8,
+      "tags": [
+       "fire"
+      ]
+     }
+    ],
+    "vfx": "fireball",
+    "anim": [
+     "Punch_Jab",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "bn_fire_wheel",
+   "name": "Fire Wheel",
+   "subpath": "fire",
+   "tier": 2,
+   "kind": "attack",
+   "desc": "A spinning ring of flame.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 4,
+    "manual": [
+     "m_bn_fire2"
+    ],
+    "teacher": [
+     "bending_master"
+    ],
+    "prereq": [
+     "bn_flame_jab"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 16
+    },
+    "cooldown": 8,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "aoe",
+     "radius": 4
+    },
+    "damage": 32,
+    "effects": [
+     {
+      "type": "dot",
+      "family": "burn",
+      "duration": 3,
+      "dps_ratio": 0.08,
+      "rule": "stack",
+      "max_stacks": 8,
+      "tags": [
+       "fire"
+      ]
+     }
+    ],
+    "vfx": "fire_nova",
+    "anim": [
+     "G6_cast_unarmed_magic_2",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "bn_dragon_breath",
+   "name": "Dragon Breath",
+   "subpath": "fire",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "A long breath of fire.",
+   "req": {
+    "path_level": 11,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_bn_fire3"
+    ],
+    "prereq": [
+     "bn_fire_wheel"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 24
+    },
+    "cooldown": 9,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "cone",
+     "range": 8,
+     "angle": 50
+    },
+    "damage": 50,
+    "effects": [
+     {
+      "type": "dot",
+      "family": "burn",
+      "duration": 4,
+      "dps_ratio": 0.08,
+      "rule": "stack",
+      "max_stacks": 8,
+      "tags": [
+       "fire"
+      ]
+     }
+    ],
+    "vfx": "flame_wave",
+    "anim": [
+     "G6_channel_unarmed_magic",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "bn_gust",
+   "name": "Gust",
+   "subpath": "air",
+   "tier": 1,
+   "kind": "attack",
+   "desc": "A hard push of air.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 5,
+    "manual": [
+     "m_bn_air1"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 6
+    },
+    "cooldown": 2.2,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "cone",
+     "range": 6,
+     "angle": 60,
+     "knockback": 4.0
+    },
+    "damage": 14,
+    "effects": [],
+    "vfx": "wind_blade",
+    "anim": [
+     "Magic_Cast_R",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  },
+  {
+   "id": "bn_air_step",
+   "name": "Air Step",
+   "subpath": "air",
+   "tier": 2,
+   "kind": "mobility",
+   "desc": "A leap on a cushion of air.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 4,
+    "manual": [
+     "m_bn_air2"
+    ],
+    "teacher": [
+     "bending_master"
+    ],
+    "prereq": [
+     "bn_gust"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 10
+    },
+    "cooldown": 7,
+    "windup": 0.15,
+    "targeting": {
+     "kind": "dash",
+     "range": 8
+    },
+    "damage": 0,
+    "effects": [],
+    "vfx": "wind_trail",
+    "anim": [
+     "Sword_Dash",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full"
+   }
+  },
+  {
+   "id": "bn_cyclone",
+   "name": "Cyclone",
+   "subpath": "air",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "A column of spinning air.",
+   "req": {
+    "path_level": 11,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_bn_air3"
+    ],
+    "prereq": [
+     "bn_air_step"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "bending": 22
+    },
+    "cooldown": 10,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "target_aoe",
+     "range": 12,
+     "radius": 3.5
+    },
+    "damage": 40,
+    "effects": [
+     {
+      "type": "pull",
+      "duration": 2.5,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "whirlwind",
+    "anim": [
+     "G6_cast_two_handed_staff",
+     "Spell_Simple_Shoot"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper"
+   }
+  }
+ ],
+ "manuals": [
+  {
+   "id": "m_bn_water1",
+   "name": "Breath of Water",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "bn_water_whip"
+   ],
+   "desc": "A first text on water bending."
+  },
+  {
+   "id": "m_bn_water2",
+   "name": "Forms of Water",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "bn_water_mend"
+   ],
+   "desc": "A second text on water bending."
+  },
+  {
+   "id": "m_bn_water3",
+   "name": "Mastery of Water",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "bn_tide_wall"
+   ],
+   "desc": "A third text on water bending."
+  },
+  {
+   "id": "m_bn_earth1",
+   "name": "Breath of Earth",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "bn_stone_fist"
+   ],
+   "desc": "A first text on earth bending."
+  },
+  {
+   "id": "m_bn_earth2",
+   "name": "Forms of Earth",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "bn_rampart"
+   ],
+   "desc": "A second text on earth bending."
+  },
+  {
+   "id": "m_bn_earth3",
+   "name": "Mastery of Earth",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "bn_quake"
+   ],
+   "desc": "A third text on earth bending."
+  },
+  {
+   "id": "m_bn_fire1",
+   "name": "Breath of Fire",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "bn_flame_jab"
+   ],
+   "desc": "A first text on fire bending."
+  },
+  {
+   "id": "m_bn_fire2",
+   "name": "Forms of Fire",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "bn_fire_wheel"
+   ],
+   "desc": "A second text on fire bending."
+  },
+  {
+   "id": "m_bn_fire3",
+   "name": "Mastery of Fire",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "bn_dragon_breath"
+   ],
+   "desc": "A third text on fire bending."
+  },
+  {
+   "id": "m_bn_air1",
+   "name": "Breath of Air",
+   "realm": 1,
+   "source": "academy",
+   "techniques": [
+    "bn_gust"
+   ],
+   "desc": "A first text on air bending."
+  },
+  {
+   "id": "m_bn_air2",
+   "name": "Forms of Air",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "bn_air_step"
+   ],
+   "desc": "A second text on air bending."
+  },
+  {
+   "id": "m_bn_air3",
+   "name": "Mastery of Air",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "bn_cyclone"
+   ],
+   "desc": "A third text on air bending."
+  }
+ ],
+ "version": 1
+}

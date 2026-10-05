@@ -1,0 +1,881 @@
+{
+ "id": "beast",
+ "name": "Beast Bond",
+ "tradition": "bond",
+ "element": "none",
+ "resource_name": "Soul bond",
+ "blurb": "Synchronise with a creature that trusts you: share senses, give commands, fight as one. Trust is earned beast by beast; the mind pays a burden.",
+ "levels": [
+  {
+   "level": 1,
+   "name": "Companion"
+  },
+  {
+   "level": 5,
+   "name": "Bondmate"
+  },
+  {
+   "level": 10,
+   "name": "Packmate"
+  },
+  {
+   "level": 15,
+   "name": "Beastwarden"
+  },
+  {
+   "level": 20,
+   "name": "Pack-lord"
+  },
+  {
+   "level": 25,
+   "name": "Soul-kin"
+  },
+  {
+   "level": 30,
+   "name": "Beast Sovereign"
+  }
+ ],
+ "subpath_slots": [
+  [
+   1,
+   1
+  ],
+  [
+   2,
+   2
+  ],
+  [
+   3,
+   2
+  ]
+ ],
+ "milestones": [
+  {
+   "id": "first_bond",
+   "name": "First bond",
+   "desc": "A wild creature accepts you."
+  },
+  {
+   "id": "shared_hunt",
+   "name": "Shared a hunt",
+   "desc": "Hunt as one with your bonded beast."
+  },
+  {
+   "id": "burden_borne",
+   "name": "Bore the burden",
+   "desc": "Hold the link through a mind-flood."
+  },
+  {
+   "id": "second_path_trial",
+   "name": "Trial of the second path",
+   "desc": "Prove your discipline before widening it."
+  }
+ ],
+ "subpaths": [
+  {
+   "id": "predator",
+   "name": "Predator Line",
+   "element": "none",
+   "desc": "Wolves and cats: pounces and pack hunts."
+  },
+  {
+   "id": "guardian",
+   "name": "Guardian Line",
+   "element": "none",
+   "desc": "Bears and boars: the beast stands between you and harm."
+  },
+  {
+   "id": "scout",
+   "name": "Scout Line",
+   "element": "none",
+   "desc": "Hawks and owls: eyes in the sky."
+  }
+ ],
+ "techniques": [
+  {
+   "id": "bs_call",
+   "name": "Call",
+   "subpath": "core",
+   "tier": 1,
+   "kind": "utility",
+   "desc": "Call your bonded beast to your side.",
+   "req": {
+    "path_level": 1,
+    "realm": 1,
+    "stage": 3,
+    "manual": [
+     "m_bs1"
+    ],
+    "teacher": [
+     "beastwarden"
+    ],
+    "bond": 0.2
+   },
+   "ability": {
+    "costs": {
+     "beast": 6
+    },
+    "cooldown": 20,
+    "windup": 0.6,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "summon",
+      "key": "bonded_beast",
+      "magnitude": 1
+     }
+    ],
+    "vfx": "rally",
+    "anim": [
+     "Cheering_Two_Hands",
+     "Interact"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  },
+  {
+   "id": "bs_share",
+   "name": "Shared Senses",
+   "subpath": "core",
+   "tier": 1,
+   "kind": "utility",
+   "desc": "See through the beast's eyes: sharper aim, hidden things revealed.",
+   "req": {
+    "path_level": 2,
+    "realm": 1,
+    "stage": 7,
+    "manual": [
+     "m_bs1"
+    ],
+    "bond": 0.3
+   },
+   "ability": {
+    "costs": {
+     "beast": 8
+    },
+    "cooldown": 25,
+    "windup": 0.5,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "buff",
+      "family": "shared_senses",
+      "stats": {
+       "crit_chance": 0.12
+      },
+      "duration": 10,
+      "rule": "refresh"
+     },
+     {
+      "type": "reveal",
+      "duration": 8,
+      "magnitude": 1.0,
+      "target": "self"
+     }
+    ],
+    "vfx": "qi_aura",
+    "anim": [
+     "G6_pray",
+     "Interact"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full",
+    "element": "none"
+   }
+  },
+  {
+   "id": "bs_rally",
+   "name": "Pack Rally",
+   "subpath": "core",
+   "tier": 2,
+   "kind": "support",
+   "desc": "A call that steadies you and allies nearby.",
+   "req": {
+    "path_level": 6,
+    "realm": 2,
+    "stage": 4,
+    "manual": [
+     "m_bs2"
+    ],
+    "bond": 0.4,
+    "prereq": [
+     "bs_call"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "beast": 12
+    },
+    "cooldown": 18,
+    "windup": 0.4,
+    "targeting": {
+     "kind": "aoe",
+     "radius": 8
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "buff",
+      "family": "pack_rally",
+      "stats": {
+       "damage_taken": -0.15,
+       "sword_damage": 0.1
+      },
+      "duration": 10,
+      "rule": "refresh"
+     }
+    ],
+    "vfx": "rally",
+    "anim": [
+     "Cheering_Two_Hands",
+     "Interact"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  },
+  {
+   "id": "bs_link",
+   "name": "Soul Link",
+   "subpath": "core",
+   "tier": 2,
+   "kind": "support",
+   "desc": "Share wounds: you and the beast heal over time.",
+   "req": {
+    "path_level": 8,
+    "realm": 2,
+    "stage": 8,
+    "manual": [
+     "m_bs2"
+    ],
+    "bond": 0.5,
+    "milestone": [
+     "shared_hunt"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "beast": 14
+    },
+    "cooldown": 24,
+    "windup": 0.5,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "hot",
+      "family": "soul_link",
+      "magnitude": 4,
+      "duration": 10,
+      "tick": 1.0,
+      "rule": "refresh"
+     }
+    ],
+    "vfx": "water_heal",
+    "anim": [
+     "G6_pray",
+     "Interact"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full",
+    "element": "none"
+   }
+  },
+  {
+   "id": "bs_fuse",
+   "name": "Bond Fusion",
+   "subpath": "core",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "Fight as one body: the beast's strike lands through you.",
+   "req": {
+    "path_level": 12,
+    "realm": 3,
+    "stage": 4,
+    "manual": [
+     "m_bs3"
+    ],
+    "bond": 0.65,
+    "milestone": [
+     "burden_borne"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "beast": 24
+    },
+    "cooldown": 12,
+    "windup": 0.35,
+    "targeting": {
+     "kind": "target_aoe",
+     "range": 8,
+     "radius": 3
+    },
+    "damage": 56,
+    "effects": [
+     {
+      "type": "stun",
+      "duration": 0.6,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "impact",
+    "anim": [
+     "G6_cast_unarmed_magic_2",
+     "Sword_Attack"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  },
+  {
+   "id": "bs_core",
+   "name": "Soul Bond Core",
+   "subpath": "core",
+   "tier": 4,
+   "kind": "attack",
+   "desc": "The bond becomes a core of its own.",
+   "req": {
+    "path_level": 20,
+    "realm": 4,
+    "stage": 2,
+    "manual": [
+     "m_bs4"
+    ],
+    "bond": 0.85
+   },
+   "ability": {
+    "costs": {
+     "beast": 50
+    },
+    "cooldown": 20,
+    "windup": 0.5,
+    "targeting": {
+     "kind": "aoe",
+     "radius": 7
+    },
+    "damage": 100,
+    "effects": [],
+    "vfx": "impact",
+    "anim": [
+     "G6_cast_two_handed_staff",
+     "Attack_Ground_Pound"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   },
+   "region": 2
+  },
+  {
+   "id": "bs_pounce",
+   "name": "Pounce",
+   "subpath": "predator",
+   "tier": 1,
+   "kind": "mobility",
+   "desc": "The beast leaps; you move with it.",
+   "req": {
+    "path_level": 2,
+    "realm": 1,
+    "stage": 6,
+    "manual": [
+     "m_bs_predator1"
+    ],
+    "bond": 0.3
+   },
+   "ability": {
+    "costs": {
+     "beast": 8
+    },
+    "cooldown": 7,
+    "windup": 0.15,
+    "targeting": {
+     "kind": "dash",
+     "range": 7
+    },
+    "damage": 24,
+    "effects": [],
+    "vfx": "impact",
+    "anim": [
+     "Sword_Dash",
+     "Sprint"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "full",
+    "element": "none"
+   }
+  },
+  {
+   "id": "bs_pack_hunt",
+   "name": "Pack Hunt",
+   "subpath": "predator",
+   "tier": 2,
+   "kind": "attack",
+   "desc": "The beast circles and strikes in an arc.",
+   "req": {
+    "path_level": 7,
+    "realm": 2,
+    "stage": 5,
+    "manual": [
+     "m_bs_predator2"
+    ],
+    "bond": 0.45,
+    "prereq": [
+     "bs_pounce"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "beast": 16
+    },
+    "cooldown": 8,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "cone",
+     "range": 5,
+     "angle": 120,
+     "hits": 2
+    },
+    "damage": 38,
+    "effects": [],
+    "vfx": "impact",
+    "anim": [
+     "G6_cast_unarmed_magic_2",
+     "Sword_Attack"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  },
+  {
+   "id": "bs_alpha_strike",
+   "name": "Alpha Strike",
+   "subpath": "predator",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "A killing leap from beast and bondmate.",
+   "req": {
+    "path_level": 12,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_bs_predator3"
+    ],
+    "bond": 0.6,
+    "prereq": [
+     "bs_pack_hunt"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "beast": 24
+    },
+    "cooldown": 10,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "target_aoe",
+     "range": 9,
+     "radius": 2.5
+    },
+    "damage": 58,
+    "effects": [],
+    "vfx": "impact",
+    "anim": [
+     "Attack_Ground_Pound",
+     "Sword_Attack"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  },
+  {
+   "id": "bs_guard_cmd",
+   "name": "Guard!",
+   "subpath": "guardian",
+   "tier": 1,
+   "kind": "defense",
+   "desc": "The beast takes the blow for you.",
+   "req": {
+    "path_level": 2,
+    "realm": 1,
+    "stage": 6,
+    "manual": [
+     "m_bs_guardian1"
+    ],
+    "bond": 0.3
+   },
+   "ability": {
+    "costs": {
+     "beast": 8
+    },
+    "cooldown": 14,
+    "windup": 0.2,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "ward",
+      "family": "beast_guard",
+      "magnitude": 35,
+      "duration": 8,
+      "rule": "replace_if_stronger"
+     }
+    ],
+    "vfx": "stone_skin",
+    "anim": [
+     "Cheering_Two_Hands",
+     "Interact"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  },
+  {
+   "id": "bs_shield_wall",
+   "name": "Shield Wall",
+   "subpath": "guardian",
+   "tier": 2,
+   "kind": "defense",
+   "desc": "Beast and bondmate hold the line.",
+   "req": {
+    "path_level": 7,
+    "realm": 2,
+    "stage": 5,
+    "manual": [
+     "m_bs_guardian2"
+    ],
+    "bond": 0.45,
+    "prereq": [
+     "bs_guard_cmd"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "beast": 14
+    },
+    "cooldown": 18,
+    "windup": 0.3,
+    "targeting": {
+     "kind": "aoe",
+     "radius": 4
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "buff",
+      "family": "beast_wall",
+      "stats": {
+       "damage_taken": -0.25
+      },
+      "duration": 8,
+      "rule": "refresh"
+     }
+    ],
+    "vfx": "rally",
+    "anim": [
+     "G6_cast_off_hand_shield",
+     "Interact"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  },
+  {
+   "id": "bs_bulwark_bond",
+   "name": "Bulwark Bond",
+   "subpath": "guardian",
+   "tier": 3,
+   "kind": "defense",
+   "desc": "The beast's hide becomes yours.",
+   "req": {
+    "path_level": 12,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_bs_guardian3"
+    ],
+    "bond": 0.6,
+    "prereq": [
+     "bs_shield_wall"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "beast": 22
+    },
+    "cooldown": 26,
+    "windup": 0.3,
+    "targeting": {
+     "kind": "self"
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "ward",
+      "family": "beast_bulwark",
+      "magnitude": 90,
+      "duration": 12,
+      "rule": "replace_if_stronger"
+     }
+    ],
+    "vfx": "stone_skin",
+    "anim": [
+     "G6_power_up_2",
+     "Interact"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  },
+  {
+   "id": "bs_scout_cmd",
+   "name": "Scout!",
+   "subpath": "scout",
+   "tier": 1,
+   "kind": "utility",
+   "desc": "Send the beast ahead: reveal what lies near.",
+   "req": {
+    "path_level": 2,
+    "realm": 1,
+    "stage": 6,
+    "manual": [
+     "m_bs_scout1"
+    ],
+    "bond": 0.3
+   },
+   "ability": {
+    "costs": {
+     "beast": 8
+    },
+    "cooldown": 20,
+    "windup": 0.4,
+    "targeting": {
+     "kind": "aoe",
+     "radius": 14
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "reveal",
+      "duration": 10,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "water_ring",
+    "anim": [
+     "Cheering_Two_Hands",
+     "Interact"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  },
+  {
+   "id": "bs_sky_eye",
+   "name": "Sky Eye",
+   "subpath": "scout",
+   "tier": 2,
+   "kind": "utility",
+   "desc": "See the field from above.",
+   "req": {
+    "path_level": 7,
+    "realm": 2,
+    "stage": 5,
+    "manual": [
+     "m_bs_scout2"
+    ],
+    "bond": 0.45,
+    "prereq": [
+     "bs_scout_cmd"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "beast": 14
+    },
+    "cooldown": 30,
+    "windup": 0.6,
+    "targeting": {
+     "kind": "aoe",
+     "radius": 24
+    },
+    "damage": 0,
+    "effects": [
+     {
+      "type": "reveal",
+      "duration": 14,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "water_ring",
+    "anim": [
+     "G6_pray",
+     "Interact"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  },
+  {
+   "id": "bs_storm_wing",
+   "name": "Storm Wing",
+   "subpath": "scout",
+   "tier": 3,
+   "kind": "attack",
+   "desc": "A flock of wings blinds and buffets.",
+   "req": {
+    "path_level": 12,
+    "realm": 3,
+    "stage": 3,
+    "manual": [
+     "m_bs_scout3"
+    ],
+    "bond": 0.6,
+    "prereq": [
+     "bs_sky_eye"
+    ]
+   },
+   "ability": {
+    "costs": {
+     "beast": 20
+    },
+    "cooldown": 12,
+    "windup": 0.25,
+    "targeting": {
+     "kind": "aoe",
+     "radius": 5
+    },
+    "damage": 30,
+    "effects": [
+     {
+      "type": "blind",
+      "duration": 3,
+      "magnitude": 1.0
+     }
+    ],
+    "vfx": "whirlwind",
+    "anim": [
+     "G6_cast_unarmed_magic_2",
+     "Interact"
+    ],
+    "anim_speed": 1.0,
+    "anim_mode": "upper",
+    "element": "none"
+   }
+  }
+ ],
+ "manuals": [
+  {
+   "id": "m_bs_predator1",
+   "name": "Hunter's Bond I",
+   "realm": 1,
+   "source": "teacher",
+   "techniques": [
+    "bs_pounce"
+   ],
+   "desc": "A beastwarden's lesson."
+  },
+  {
+   "id": "m_bs_predator2",
+   "name": "Hunter's Bond II",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "bs_pack_hunt"
+   ],
+   "desc": "A beastwarden's lesson."
+  },
+  {
+   "id": "m_bs_predator3",
+   "name": "Hunter's Bond III",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "bs_alpha_strike"
+   ],
+   "desc": "A beastwarden's lesson."
+  },
+  {
+   "id": "m_bs_guardian1",
+   "name": "Warden's Bond I",
+   "realm": 1,
+   "source": "teacher",
+   "techniques": [
+    "bs_guard_cmd"
+   ],
+   "desc": "A beastwarden's lesson."
+  },
+  {
+   "id": "m_bs_guardian2",
+   "name": "Warden's Bond II",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "bs_shield_wall"
+   ],
+   "desc": "A beastwarden's lesson."
+  },
+  {
+   "id": "m_bs_guardian3",
+   "name": "Warden's Bond III",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "bs_bulwark_bond"
+   ],
+   "desc": "A beastwarden's lesson."
+  },
+  {
+   "id": "m_bs_scout1",
+   "name": "Sky Bond I",
+   "realm": 1,
+   "source": "teacher",
+   "techniques": [
+    "bs_scout_cmd"
+   ],
+   "desc": "A beastwarden's lesson."
+  },
+  {
+   "id": "m_bs_scout2",
+   "name": "Sky Bond II",
+   "realm": 2,
+   "source": "teacher",
+   "techniques": [
+    "bs_sky_eye"
+   ],
+   "desc": "A beastwarden's lesson."
+  },
+  {
+   "id": "m_bs_scout3",
+   "name": "Sky Bond III",
+   "realm": 3,
+   "source": "dungeon",
+   "techniques": [
+    "bs_storm_wing"
+   ],
+   "desc": "A beastwarden's lesson."
+  }
+ ],
+ "version": 1
+}
