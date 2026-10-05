@@ -20,7 +20,8 @@ const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const AlertGlyphs := preload("res://scripts/ui/alert_glyphs.gd")
 const Takedown := preload("res://scripts/combat/takedown.gd")
 
-const FULL_RANGE := 45.0
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
+const FULL_RANGE := 45.0       # defaults; the live values come from CellStreamer profile "population"
 const SPRITE_RANGE := 220.0
 const NEAR_ALWAYS := 9.0     # metres: never a sprite this close to the player
 const NEAR_HARD_CAP := 12    # but never more than this many full models in total
@@ -35,6 +36,7 @@ const NEAR_HARD_CAP := 12    # but never more than this many full models in tota
 const SPRITE_MIN_DIST := 20.0
 const SPRITE_MIN_DIST_RELEASE := 26.0
 const MAX_FULL := 24
+const ThornfieldRoster := preload("res://scripts/world/thornfield/roster.gd")
 ## Ceiling on total sprites drawn (all job looks combined; see `refresh()`), not
 ## per look. Quality.npc_sprites narrows this further per tier.
 const MAX_SPRITES := 140
@@ -65,6 +67,8 @@ const LOOK_MODEL := {
 }
 
 var focus := Vector3.ZERO
+var _full_range := FULL_RANGE
+var _sprite_range := SPRITE_RANGE
 var full_count := 0
 var sprite_count := 0
 
@@ -135,7 +139,9 @@ func refresh(step_delta := 0.25) -> void:
 	else:
 		_write_back()
 	var p2 := Vector2(focus.x, focus.z)
-	var ids := WorldSim.people_near(p2, SPRITE_RANGE)
+	_full_range = CellStreamer.shared().distance("population", "full")      # F12: the cell manager owns the bands
+	_sprite_range = CellStreamer.shared().distance("population", "load")
+	var ids := WorldSim.people_near(p2, _sprite_range)
 	_update_holds(ids)
 	var morning := WorldSim.time_of_day >= 6.0 and WorldSim.time_of_day < 6.0 + DailyRhythm.MAX_DELAY
 	var dists := []
@@ -145,16 +151,17 @@ func refresh(step_delta := 0.25) -> void:
 		if Takedown.is_down(i):
 			continue            # a body on the ground (KO'd / dead): no sprite, no respawn; the node keeps lying below
 		var d2: float = WorldSim.pos[i].distance_squared_to(p2)
-		dists.append([d2, i, d2 * KEEP_BIAS if _full.has(i) else d2])
+		# Named residents (Thornfield's roster) rank as if closer, so they are the ones who get bodies first.
+		dists.append([d2, i, (d2 * KEEP_BIAS if _full.has(i) else d2) * ThornfieldRoster.embody_weight(i)])
 	dists.sort_custom(func(a: Array, b: Array) -> bool: return a[2] < b[2])
 
 	var want_full := {}
 	# Anyone this close must be a real model: a flat sprite at arm's length looks broken,
 	# so the tier budget may be exceeded up to NEAR_HARD_CAP inside NEAR_ALWAYS.
 	for entry in dists:
-		if entry[2] > FULL_RANGE * FULL_RANGE and entry[0] > NEAR_ALWAYS * NEAR_ALWAYS:
+		if entry[2] > _full_range * _full_range and entry[0] > NEAR_ALWAYS * NEAR_ALWAYS:
 			break
-		var within_budget: bool = want_full.size() < mini(MAX_FULL, Quality.npc_full) and entry[0] <= FULL_RANGE * FULL_RANGE
+		var within_budget: bool = want_full.size() < mini(MAX_FULL, Quality.npc_full) and entry[0] <= _full_range * _full_range
 		var too_close_for_sprite: bool = entry[0] <= NEAR_ALWAYS * NEAR_ALWAYS and want_full.size() < NEAR_HARD_CAP
 		if not (within_budget or too_close_for_sprite):
 			continue
@@ -179,7 +186,7 @@ func refresh(step_delta := 0.25) -> void:
 			if _full.has(did) or did < 0 or did >= WorldSim.population():
 				continue
 			var bp := Takedown.body_pos(did)
-			if bp != Vector2.INF and bp.distance_squared_to(p2) < FULL_RANGE * FULL_RANGE:
+			if bp != Vector2.INF and bp.distance_squared_to(p2) < _full_range * _full_range:
 				var body := _spawn(did)
 				_full[did] = body
 				body.lie_restored(Takedown.kind_of(did))
@@ -429,7 +436,7 @@ func _clock_skipped() -> bool:
 func _update_holds(ids: PackedInt32Array) -> void:
 	if not _held.is_empty():
 		for id: int in _held.keys():
-			if _full.has(id) or not DailyRhythm.lagging(id) or WorldSim.pos[id].distance_to(Vector2(focus.x, focus.z)) > SPRITE_RANGE + 40.0:
+			if _full.has(id) or not DailyRhythm.lagging(id) or WorldSim.pos[id].distance_to(Vector2(focus.x, focus.z)) > _sprite_range + 40.0:
 				_release_hold(id)
 	if not DailyRhythm.in_lag_window():
 		return

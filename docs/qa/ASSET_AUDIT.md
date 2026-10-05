@@ -228,3 +228,95 @@ Do not exclude whole `kenney/`, `polypizza/`, `pirate-kit/` or `ultimate-*` dire
 - "dynamic" files (795, 307.3 MB) are counted as used. Some are false positives (a common word matched), so the true unused total is somewhat higher.
 - Sizes are source GLB/glTF bytes from git, not imported sizes.
 - The scan script is not committed; the method above reproduces it.
+
+
+## 2026-10-05 pass (cloud): the unused models are placed, the rest is excluded
+
+Cloud took every CLOUD-owned proposal of this audit. Method and numbers below come from `tools/qa/asset_audit.py` (new, committed: it reproduces the scan described in "How it was checked"; run `python3 tools/qa/asset_audit.py --dump-all /tmp/all.csv` from the repo root, about a minute). Its totals differ a little from the audit's because it matches `free:<cat>/<name>` keys by category and name (a bare word such as `barrel` no longer counts as a hit for a model in another pack).
+
+### Correction: 29 pack folders are `.gdignore`d, so they never shipped
+`assets/incoming/kaykit/`, `kenney/`, `polypizza/`, `creatus/`, `styloo/`, `chilly-durango/`, `cc0gameassets/`, `opengameart/models|cc-by`, `quaternius/pirate-kit|medieval-village-megakit|ultimate-modular-men|ultimate-modular-women|ultimate-monsters|rpg-characters`, `characters/mesh2motion`, `armor/polypizza` and others carry a `.gdignore`: Godot never imports them, so they are not in the APK/IPA whatever `export_filter="all_resources"` says. Section "APK impact" above counted them as shipped. The checker now reports them as "not shipped (.gdignore)". The same is why the KayKit skeletons and two Ultimate Monsters could not simply be loaded where they lay: copies were made under `assets/kaykit/skeletons/` and `assets/incoming/monsters/quaternius/ultimate/` (with `.import` files) and the code loads those.
+
+### Counts (same checker, before and after)
+| | Used | Dynamic | TOOLS-ONLY | UNREF | Unused by game (files, MB) | Unused and shipped (files, MB) |
+|---|--:|--:|--:|--:|--:|--:|
+| Before (checker, `.gdignore` ignored, as the audit) | 1295 | 714 | 92 | 3111 | 3203, 639.3 | 3067, 624.0 |
+| Before (checker, `.gdignore` counted) | 1295 | 714 | 92 | 3111 | 3203, 639.3 | 692, 368.0 |
+| After this pass (`.gdignore` counted, new export filter applied) | 1367 | 856 | 91 | 2910 | 3001, 515.2 | 252, 29.9 |
+
+Unused files left in the shipped set (252, 29.9 MB) are the small leftovers (under 50 KB each: Kenney-style bits are `.gdignore`d, these are mostly `assets/kaykit/medieval`, `items/armor`, horse tack, Codex animation libraries and the Meshy creature sources that code loads by a built path), kept on purpose. "Dynamic" counts a model whose `cat/name` or base name appears in data or code; some Kenney / KayKit / Creatus hits are accidental common words.
+
+### Placed (cloud-owned proposals), by pack
+| Pack | Models placed | Source MB |
+|---|--:|--:|
+| `generated/scan (Poly Haven rocks)` | 13 | 7.6 |
+| `meshy_free/banners` | 6 | 1.8 |
+| `meshy_free/buildings` | 7 | 8.6 |
+| `meshy_free/castle` | 9 | 12.2 |
+| `meshy_free/churches` | 7 | 8.6 |
+| `meshy_free/creatures` | 11 | 5.3 |
+| `meshy_free/farm` | 12 | 5.5 |
+| `meshy_free/fences` | 8 | 2.3 |
+| `meshy_free/flora` | 3 | 0.8 |
+| `meshy_free/furniture` | 17 | 6.2 |
+| `meshy_free/interior` | 7 | 3.2 |
+| `meshy_free/lighting` | 16 | 4.8 |
+| `meshy_free/loot` | 2 | 0.3 |
+| `meshy_free/magic` | 11 | 4.7 |
+| `meshy_free/market` | 4 | 2.8 |
+| `meshy_free/maybe (promoted)` | 3 | 2.7 |
+| `meshy_free/nature` | 3 | 1.3 |
+| `meshy_free/props` | 12 | 3.1 |
+| `meshy_free/ruins` | 4 | 2.5 |
+| `meshy_free/signs` | 3 | 1.0 |
+| `meshy_free/water` | 2 | 0.9 |
+| **meshy_free + scans total** | **160** | **86.2** |
+
+Other packs: `kaykit/character-pack-skeletons` (copied to `assets/kaykit/skeletons/`): 4 characters + 6 weapon/shield pieces (crypt enemies, KayKit skeletons with their own 95 clips); `quaternius/ultimate-monsters` (copied to `assets/incoming/monsters/quaternius/ultimate/`): 2 (Mushroom King (cave dungeons), Ghost Skull (crystal caves)); `quaternius/ultimate-animated-animals`: 2 (Horse_White (Crownstead, Highwatch), Husky (Grimfen Pass, Frostmere)).
+
+(meshy_free: 144 of the 157 unplaced models in the main folders, 3 of the 29 parked `maybe/` models; the other 13 are the windmill duplicate, the pink chest and the 11 footbridges, below.)
+
+How: `Assets.BUILDINGS` got `mf_*` keys (native size, origin on the base, Style G role by name) so every district builder takes them as ordinary building keys: `DistrictProps.MF_SETS` (lamps, stalls, wells, hay, fences, chairs, tables, chests per district), the identity kits in `tools/town_identity/gen_town_identity.py` -> `data/world/town_identity.json` (`MF_EXTRA`, 40 kit specs), `HouseDetails` (lion shop sign; the hanging lantern now uses `lantern_wall_scroll`; the key count stays 30 for `test_districts`). Everything else goes through site data: 28 new fill sites in `data/region1/world/fill_sites.json` (planned last by `scripts/world/region1_fill.gd`, one hook line at the end of `RegionSites.plan`, so no existing site id moves: filler houses and smithies for Brackenmoor, Westfen, Dunhallow, Harrowgate, Highcliff, Ironmarch; the Wolfsend market street; Oakvale and Eastmere farm yards; the Stonehollow quarry rail; Kingsreach east and west wards and the Crownstead old keep (sandstone castles, keep on plinth, battlement runs); Greywatch outer works; the Eastern Gate queue lane; Dunhallow yard gate; Dawn Chapel close and four more churches; Grimfen winter gate; banners at Highwatch Keep; Scar Mouth orbs, purple lamps and ghost wolf; beached longship and boats at Saltwick and Coldharbor; meadow trees at Ashford), `data/region1/landmarks.json` (Hollin's Reach ruins and ruined huts, Stone Gap and Hollin Falls crystals, Emberglass Ferry hanging lanterns and island chapels, Stagborn Glade treant and arch, 13 rock scans), `settlements.json` (name-board ornaments: signs and wall lanterns). Code: `region_caves_view.gd` (cage torches, crystal pedestals and goblin sentries at cave mouths), `dungeon_creature.gd` (four rigged KayKit skeletons with weapons and shields in the crypts, Mushroom King in cave dungeons, Ghost Skull in crystal caves), `dungeon_thing.gd` (coin piles round vault and boss chests), `critter.gd` and `ambient_life.gd` (rigged Meshy cows and hens, white horse at Crownstead and Highwatch, huskies at Grimfen Pass and Frostmere), `hidden_valley.gd` (elf mound, spirit fox, herb patch, vine arch gate), `tower_site.gd` (portal arches at the great door), and two new code-built interiors, the Steward's Hall (Crownstead) and the Highwatch Keep great hall (`scripts/interiors/hall_room.gd`, doors wired in `sites.json`), furnished with the thrones, chairs, tables, shelves, tapestries, shields, sconces, bed and armour stands.
+
+### Excluded from export (nothing deleted)
+| Pattern group | Models | Source MB |
+|---|--:|--:|
+| `incoming/quaternius/ultimate-animated-character` | 44 | 87.7 |
+| `incoming/quaternius/ultimate-fantasy-rts` | 99 | 37.3 |
+| `incoming/meshy_free/maybe` | 53 | 31.7 |
+| `generated/scan` | 9 | 22.2 |
+| `incoming/quaternius/ultimate-animated-animals` | 7 | 20.2 |
+| `incoming/quaternius/universal-animation-library-2` | 1 | 8.1 |
+| `incoming/quaternius/universal-animation-library` | 1 | 7.6 |
+| `incoming/meshy_free/water` | 11 | 6.0 |
+| `generated/nature` | 7 | 2.1 |
+| `incoming/meshy_free/buildings` | 2 | 1.6 |
+| `generated/village_inn.glb` | 1 | 1.6 |
+| `incoming/ai3d/hero_styleg_blender_candidate.glb` | 1 | 1.4 |
+| `incoming/ai3d/hero_styleg_triposr_experiment.glb` | 1 | 1.4 |
+| `incoming/ai3d/hero_styleg_leather_experiment.glb` | 1 | 1.3 |
+| `incoming/ai3d/hero_styleg_blender_mobile_candidate.glb` | 1 | 1.2 |
+| `generated/village_smithy.glb` | 1 | 1.1 |
+| `incoming/armor/opengameart` | 5 | 0.9 |
+| `generated/village_inn_lod1.glb` | 1 | 0.7 |
+| `generated/village_smithy_lod1.glb` | 1 | 0.5 |
+| `generated/village_stall.glb` | 1 | 0.3 |
+| `generated/village_stall_2.glb` | 1 | 0.3 |
+| `incoming/meshy_free/props` | 1 | 0.2 |
+| `generated/fence_section.glb` | 1 | 0.1 |
+
+**APK source-size saving (measured):** 251 models, **235.3 MB of source glTF/GLB** (240.0 MB counting every source file under the patterns, textures and `.bin` included). What Godot actually packs is smaller because it re-imports each model: summing the imported `.scn`/`.ctex` files in `.godot/imported` for the same files gives **90.6 MB** (desktop VRAM compression; the Android ETC2/ASTC import is about the same). That is about 39% of the source bytes (the audit guessed 40-80%, unmeasured). The lines are in both the Android and iOS `exclude_filter` (225 entries each, per file or per folder when a folder is fully unused). Folders that are `.gdignore`d needed no entry. The audit's own "safe now" list (`maybe/*`, `kaykit/character-animations`, mesh2motion, `_RM` UAL files, `cc0gameassets`) is included; the `.gdignore`d parts of it were already free.
+
+The new CSV column "Region 2 / reserve / reject" (`docs/qa/asset_audit_unreferenced.csv`) carries one decision per file: `reject: <reason>` (wrong style, sci-fi, duplicate, broken, thin/shreds at the mobile budget), `reserve: <reason>` (fits a later region or needs work), `placed now`, or empty (left alone on purpose: animation libraries are Codex's, `items/armor`, horse tack and `ai3d/meshy/creatures` are loaded by code the scan cannot see). `now_status` is the checker's verdict and `shipped_now` says whether the file is still in the APK.
+
+### Decisions on the parked and TOOLS-ONLY items (triage doc `docs/art/meshy_free_triage.md`)
+- `meshy_free/maybe/`: three promoted and placed (`hut_mossy_ruined_a|b` at Hollin's Reach, `bookshelf_nook_corner` in the Steward's Hall); the other 26 are `reject` (dark/realistic, diorama bases, thin geometry, TV-franchise prompts, sci-fi) or `reserve` (brutes, gargoyles, hellhounds, relic ornaments, long bridge: Region 2). All excluded from export.
+- Rejected in the main folders: `buildings/windmill` (exact duplicate of `generated/region/farm/windmill`), `props/chest_pink` (off-palette).
+- Reserved: the 11 `water/bridge_*` footbridges. Region 1 has no 3-9 m water crossing (`tools_qa/asset_use/probe_world.gd --crossings` finds none; its five bridges span 16-27 m), so there was nowhere honest to put them.
+- `tower_round` (meshy_free) stays unplaced in favour of the tuned Highwatch kit piece and the pack's `castle/` mates it duplicates; it is the only audit duplicate left in the tree.
+- Modular kits (`WoodenDockSet.glb` 308 parts in one file, `medieval-village-megakit`, `kaykit/dungeon-remastered`) need a builder, not a placement: reserve.
+
+### Verification
+- World lint (`tools_qa/lint_world/world_lint.gd`): seed 1066 0 severe / 0 major (1342 minor, 6 allowlisted); seed 2024 0 severe / 0 major (1066 minor, 8 allowlisted). One new allowlist entry: the Emberglass Ferry landing stage stands on the water surface, which the lint compares with the terrain under the lake.
+- gdUnit4: `test_world_lint`, `test_districts`, `test_market_dressing`, `test_town_identity`, `test_dungeons`, `test_region1_world`, `test_scripts_parse` all pass; `tools_qa/asset_use/check_new_actors.gd` (rigged skeletons, Mushroom King, Ghost Skull, cows, hens, horse, huskies, the two new halls) exits 0.
+- Renders (xvfb, standalone harness `tools_qa/asset_use/site_shots.gd`, not the full game, which the shared-memory cgroup OOM-kills): `/tmp/claude-0/shots/asset_use_sheet.png`, six spots with new props (Kingsreach east ward, Eastern Gate queue, Hollin's Reach ruins, Wolfsend market street, Dawn Chapel close, Stagborn Glade). Props show in Style G colours and light; the terrain in those frames is the harness's coarse patch, so slopes and seating are not representative (the lint covers placement). Not captured: interiors and crypt actors (checked by the smoke script only), and no on-device timings.

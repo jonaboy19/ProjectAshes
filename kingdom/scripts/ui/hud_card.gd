@@ -534,8 +534,10 @@ class ActionPill extends Control:
 	const MAX_W := 380.0
 	const H := 40.0
 
+	const DANGER_RED := Color("e0463c")
 	var verb := ""
 	var target := ""
+	var danger := false      # a crime verb (Steal, Pickpocket): drawn in red
 	var _box: StyleBoxFlat
 	var _fs := 21
 
@@ -545,11 +547,12 @@ class ActionPill extends Control:
 		_box.set_corner_radius_all(10)
 		size = Vector2(120, H)
 
-	func set_label(v: String, t: String) -> void:
-		if v == verb and t == target:
+	func set_label(v: String, t: String, is_danger := false) -> void:
+		if v == verb and t == target and is_danger == danger:
 			return
 		verb = v
 		target = t
+		danger = is_danger
 		_fs = 21
 		var tw := _measure()
 		while tw > MAX_W and _fs > 14:
@@ -571,7 +574,7 @@ class ActionPill extends Control:
 		var vf := AF.wfont(700)
 		var bf := AF.font()
 		draw_string_outline(vf, base, verb, HORIZONTAL_ALIGNMENT_LEFT, -1, _fs, 4, Color(0, 0, 0, 0.7))
-		draw_string(vf, base, verb, HORIZONTAL_ALIGNMENT_LEFT, -1, _fs, AF.GOLD_BRIGHT)
+		draw_string(vf, base, verb, HORIZONTAL_ALIGNMENT_LEFT, -1, _fs, DANGER_RED if danger else AF.GOLD_BRIGHT)
 		if target != "":
 			var x := base.x + vf.get_string_size(verb, HORIZONTAL_ALIGNMENT_LEFT, -1, _fs).x
 			var rest := "  —  "

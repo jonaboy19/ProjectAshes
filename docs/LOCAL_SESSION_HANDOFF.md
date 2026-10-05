@@ -2,6 +2,25 @@
 
 The user runs **two Claude sessions on this branch at the same time**: the cloud session and a local PC session (with GPU, Blender GUI access and the Meshy MCP). This file keeps them from stepping on each other. **Read it after every pull.**
 
+## FOUNDATION FREEZE (user decision, 2026-10-05): read docs/design/FOUNDATION_PLAN.md first
+The big simulation features (13 kingdoms, politics, wars, settlement founding, civilization pressure, Soulbeast evolution, economy simulation) are frozen until the first milestone is done: Thornfield, the wilderness, one town, one Rift and one outpost, all fully playable. They get bug fixes only.
+- **Cloud is doing now:** F1 interaction framework, F3 combat basics (heavy attack, spear/bow/staff, knockdown and get-up, pooled projectiles, touch lock-on), F4 in-world conversation. Next: F2 traversal, F5 ownership/theft.
+- **Codex, please:** (1) run your nine-step runtime validation of jump, land, run-stop and pivot from docs/anim/CODEX_LOCOMOTION_JUMP.md and fix what fails; (2) wire walk/run starts, walk stop, sprint skid and idle turn; (3) add sword-stance armed locomotion (idle/walk/run with the weapon drawn) and additive hit reactions; (4) once F2 lands, tune the timing of the traversal clips (Ledge_*, Mantle_*, Vault_*).
+- **Codex, feel list from F2/F3 (2026-10-05).** All clip names and timings are in data (data/movement/traversal.json, data/combat/player_weapons.json):
+  - **Traversal:** the capsule follows scripted curves rather than clip root motion. Check:
+    - foot slide after the vault handover;
+    - the 0.12 s shuffle before a standing mantle;
+    - the Vault_Low/_B side mapping;
+    - the ledge top landing being 10 cm off;
+    - the Ledge_Hang_Idle loop blending into the climb;
+    - step-up floating at run speed.
+  - **Combat:**
+    - The Lie_Down at 3x into Stand_From_Floor will likely pop. UAL_Free_Reactions has Fall_Forward_Knockdown/GetUp_* but is not in Assets.UAL_FILES.
+    - Staff light attacks borrow Sword_Regular_* clips.
+    - The Bow_Hold loop is a re-fired one-shot, so it may seam.
+    - There is no charge or draw meter yet (the `charge_changed` signal exists).
+- **Local PC, please:** check the touch layout on a portrait phone (Jump and Attack overlap, thumb reach), then re-run tools_qa/movement_qa on the new jump and land code.
+
 ## Tools you can use (read this first)
 Free, licence-checked tools are installed on the local PC in `C:\Users\Jonna\Tools\` and documented with exact headless commands in `tools/README_EXTERNAL_TOOLS.md` and the skill `.claude/skills/ashes-external-tools/SKILL.md`: scrcpy and Perfetto (S22 recording and traces), RenderDoc and AGI (GPU), gltfpack (auto-LOD; use `-noq` for Godot), Instant Meshes (retopo), Real-ESRGAN and Krita (textures), RTMPose (better video mocap), Piper (NPC voices, licence-cleared voices only), rFXGen and jsfxr (SFX), plus Rigify/Wiggle/erosion/Azgaar from round 1. Phone/GPU/Windows-binary tools work only on the local PC; cloud sessions should ask the local session to run them. No Ollama or local LLM.
 
@@ -587,3 +606,16 @@ The user picked Style Lab box **G** (`kingdom/scenes/style_lab`, run `--style_la
 - `SettlementBuilder` now writes the actual six solid cart placements into the shared settlement plan as fitted horizontal obstacle boxes. The existing `StreetGraph` syncs those boxes lazily, including when the graph was cached before settlement dressing finished, and rebuilds its route edges once to avoid those cart footprints.
 - Cart placement and collision proxies are unchanged; this only gives local NPC routes the same blocker information already used by the physical world. No broad prop rewrite or extra runtime navigation nodes were added.
 - Updated F17 in `docs/anim/FEEL_AUDIT.md` and the current `NPC_CONTACT_LOD_CONTRACT.md`. `git diff --check` passed; no runtime or tests were run. Validate route paths through the plaza and verify detours do not deadlock at stalls.
+
+## 2026-10-05 (cloud): asset-use pass (docs/qa/ASSET_AUDIT.md), LOCAL list
+Cloud placed the unused models through the data tables and builders (details: `docs/qa/ASSET_AUDIT.md`, "2026-10-05 pass") and excluded what does not fit Region 1 from the Android and iOS export (`kingdom/export_presets.cfg`, nothing deleted). What is left for the local session (art rework or GPU checks):
+- **Look pass on a GPU build** (cloud only had xvfb at the LOW tier): yaw and scale of the new fill clusters (`data/region1/world/fill_sites.json`; house fronts face +y, if one faces the wrong way add 180 to its yaw), Style G colour of the new pieces (`lantern_post_purple` and `lamp_post_purple_bracket` at the Scar Mouth Arena, `tower_pink_flag` at Greywatch, the two dragon statues at Emberfall and the Grimfen winter gate), the code-built halls (`scenes/interiors/steward_hall_interior.tscn`, `keep_hall_interior.tscn`: plain plaster shell, add a real room mesh or textures), frame cost of the new roadside clusters on the S22.
+- **Decimate then place** the nine 2-3 MB photo scans in `assets/generated/scan/` (dandelion_01, dead_tree_trunk, fern_02, nettle_plant, root_cluster_01, shrub_03, stone_fire_pit, tree_stump_01, tree_stump_02): they are tagged "reserve" and are in the export `exclude_filter` until then; remove their lines from both presets when they are placed (`tools/blender/decimate_scans.py`).
+- **Horse_White / Husky** are loaded from the Quaternius source glTF (3.6 / 3.1 MB with embedded textures). Convert them like `animals/quaternius/horse_grey.glb` (atlas, trimmed) and point `Critter.KINDS["horse_white"|"husky"]` at the converted files.
+- **KayKit skeletons** (crypt enemies, `dungeon_creature.gd` kinds `skeleton_*`) keep their flat KayKit toon look; repaint or restyle if they clash in the crypt renders. Their weapons hang on `handslot.l/r` through BoneAttachment3D: check the grip rotation.
+- **Rigged Meshy farm animals** (`Critter` kinds `cow_brown_a|b`, `cow_spotted`, `hen_meshy`, `rooster_meshy`): check scale against the Quaternius cow and the walk speed (`KINDS` speeds were copied from the Quaternius ones; `ANIM_GROUND_SPEEDS` has no entry for them).
+- **Meshy MAYBE humanoids** (about 50 models in `docs/art/meshy_free_triage.md`, "needs rigging/pose and a paint pass") are still not optimized; the static `maybe/` pieces are decided in the audit CSV (column "Region 2 / reserve / reject").
+- **Delete or archive** (repo size only, already excluded from the APK): the exact duplicate groups in audit section F (armor source copies, doubled `WoodenDockSet.glb`), `generated/nature`, `generated/village_inn|smithy|stall*`, `generated/fence_section.glb`, `polyhaven/models` (164 MB of sources), the legacy `quaternius/ultimate-animated-character` (keep `Goblin_Male` and the 7 dynamic ones), `ultimate-modular-men|women`, `ultimate-fantasy-rts`, `kenney/*`, `polypizza/*`.
+- **Region 2 reserve** (tagged "reserve", excluded, keep in the tree): `quaternius/pirate-kit`, `kaykit/dungeon-remastered`, `quaternius/medieval-village-megakit`, `styloo/the-company`, `modular-wooden-docks` (a 308-part kit sheet, needs a builder), the 11 `meshy_free/water/bridge_*` footbridges (Region 1 has no 3-9 m water crossing: `tools_qa/asset_use/probe_world.gd --crossings` finds 0), `maybe/` brutes, gargoyles, hellhounds, relics.
+- **Not touched** (other agents): animation libraries under `assets/incoming/animations_free*`, `ai3d/animations`, `characters/_library`, `kaykit/character-animations` is excluded from export only (clips are already merged into the `UAL_Kay_*` libraries).
+- New `.import` files were generated only for the packs the game now loads (KayKit skeletons, Ultimate Monsters); every other pack without a committed `.import` is still unimported, so the editor will import it on first open (they are excluded from export anyway).

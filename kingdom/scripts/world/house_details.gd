@@ -40,7 +40,7 @@ const DEFS := {
 	"rain_barrel": {"slots": ["side", "door_a", "door_b"], "mesh": "barrel", "rich": -0.3, "d": {"poor": 1.4, "craft": 1.0, "inn": 0.9, "market": 0.6, "military": 0.6, "admin": 0.3}, "r": 0.4},
 	"laundry_line": {"slots": ["yard"], "mesh": "kit:laundry_line", "scale": 1.0, "rich": -0.8, "d": {"poor": 2.2, "craft": 0.6, "inn": 0.4, "military": 0.4, "market": 0.1, "admin": 0.0}, "r": 2.3},
 	"fence_run": {"slots": ["yard", "door_a", "door_b"], "mesh": "fence", "rich": -0.1, "d": {"poor": 1.5, "craft": 0.9, "inn": 0.9, "military": 0.5, "market": 0.3, "admin": 0.3}, "r": 1.5},
-	"hanging_lantern": {"slots": ["wall_a", "wall_b"], "mesh": "proc:lantern", "rich": 0.5, "y": 2.45, "d": {"market": 1.2, "admin": 1.4, "inn": 1.5, "military": 1.0, "craft": 0.5, "poor": 0.2}},
+	"hanging_lantern": {"slots": ["wall_a", "wall_b"], "mesh": "mf_lantern_wall_scroll", "rich": 0.5, "y": 2.15, "d": {"market": 1.2, "admin": 1.4, "inn": 1.5, "military": 1.0, "craft": 0.5, "poor": 0.2}},
 	"bench": {"slots": ["door_a", "door_b"], "mesh": "bench", "rich": 0.1, "d": {"inn": 1.5, "admin": 1.2, "market": 0.9, "poor": 0.7, "craft": 0.6, "military": 0.6}, "r": 0.9},
 	"hand_cart": {"slots": ["yard", "door_a", "door_b"], "mesh": "hand_cart", "rich": -0.3, "d": {"market": 1.3, "craft": 1.1, "poor": 1.0, "inn": 0.9, "military": 0.3, "admin": 0.1}, "r": 1.1},
 	"market_cart": {"slots": ["yard"], "mesh": "cart", "rich": 0.0, "d": {"market": 1.2, "inn": 1.4, "craft": 0.6, "poor": 0.3, "military": 0.2, "admin": 0.1}, "r": 2.0},
@@ -56,9 +56,8 @@ const DEFS := {
 	"roof_patch": {"slots": ["roof"], "mesh": "decal:plaster", "rich": -0.9, "d": {"poor": 2.4, "craft": 0.8, "military": 0.6, "inn": 0.4, "market": 0.15, "admin": 0.05}},
 	"flower_bed": {"slots": ["yard", "door_a", "door_b"], "mesh": "flower_bed", "scale": 0.8, "rich": 0.8, "d": {"admin": 1.3, "market": 1.0, "inn": 1.0, "craft": 0.2, "poor": 0.15, "military": 0.0}, "r": 1.2},
 	"water_trough": {"slots": ["yard", "door_a", "door_b"], "mesh": "water_trough", "rich": -0.1, "d": {"inn": 2.0, "craft": 0.8, "poor": 0.6, "military": 0.8, "market": 0.3, "admin": 0.1}, "r": 1.3},
-	# Medieval pass (local): build-kit props (assets/incoming/build_kit) as extra details: a bracket sign over the street, a bigger
-	# laundry line, a hay cart, a mud puddle at the door.
-	"kit_shop_sign": {"slots": ["wall_a", "wall_b"], "mesh": "kit:shop_sign_bracket", "scale": 1.0, "rich": 0.2, "y": 3.15, "d": {"market": 2.0, "craft": 1.5, "inn": 1.4, "admin": 0.3, "poor": 0.15, "military": 0.1}},
+	# Meshy free pack (Assets.BUILDINGS "mf_*": native size, origin at the base): a lion shop sign for rich market frontages (DEFS stays at 30 keys).
+	"shop_sign_lion": {"slots": ["wall_a", "wall_b"], "mesh": "mf_sign_shop_lion", "rich": 0.5, "y": 1.45, "d": {"market": 1.2, "inn": 1.0, "admin": 0.4, "craft": 0.3, "poor": 0.05, "military": 0.05}},
 }
 
 ## Order matters: the draw order of DEFS keys is the iteration order (stable), never Dictionary hashing.

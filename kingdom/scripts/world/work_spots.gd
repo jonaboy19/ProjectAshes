@@ -42,6 +42,7 @@ func _ready() -> void:
 	_timer = Timer.new()
 	_timer.wait_time = SLOW
 	_timer.timeout.connect(_on_tick)
+	_timer.process_mode = Node.PROCESS_MODE_ALWAYS     # so the prompt can hide itself while a menu pauses the game
 	add_child(_timer)
 	_timer.start()
 
@@ -86,6 +87,13 @@ func _on_tick() -> void:
 		if _panel != null and _panel.visible and not _widget_open:
 			_hide_panel()      # a villager is talking to the player: no job prompt underneath
 			_last_state = ""
+		return
+	# The prompt lives above the HUD (layer 18 > 10, so its buttons get clicks): a HUD menu or the pack/map screens opened
+	# on top of it would be covered, so keep it hidden while any of them is open.
+	if get_tree().paused or (not _widget_open and hud != null and is_instance_valid(hud) and (bool(hud.call("is_menu_open")) \
+			or (hud.get_node_or_null("GameMenu") != null and bool(hud.get_node("GameMenu").visible)))):
+		if _panel != null and _panel.visible:
+			_hide_panel()
 		return
 	var p := _p2(pl)
 	var sid := _nearest_sid(p)
@@ -137,7 +145,8 @@ func _ensure_ui() -> void:
 		return
 	_layer = CanvasLayer.new()
 	_layer.layer = 18
-	add_child(_layer)
+	# parent to the game scene (root viewport), not the world SubViewport behind the HUD: clicks never reached it there
+	(get_tree().current_scene if get_tree().current_scene != null else self).add_child(_layer)
 	var root := Control.new()
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE

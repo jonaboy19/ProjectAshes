@@ -235,3 +235,20 @@ func test_quest_tracker_is_one_line_then_expands_and_fades() -> void:
 	assert_bool(tr.visible).is_false()
 	tr.set_quest({"title": "New", "objectives": []})
 	assert_bool(tr.visible).is_true()
+
+
+func test_hud_has_a_default_lock_button_in_combat_that_clears_jump_and_attack() -> void:
+	var h := _hud()
+	h._snap = true
+	h._layout()
+	var lock: TouchScreenButton = h._buttons["lock_combat"]
+	assert_str(lock.action).is_equal("lock_on")                 # a tap presses lock_on = toggle; the look-area flick switches
+	assert_float(h._fade_goal[lock]).is_equal(0.0)              # hidden while exploring
+	h.mode.engage()
+	h._layout()
+	assert_float(h._fade_goal[lock]).is_equal(1.0)
+	var lr: float = (lock.shape as CircleShape2D).radius
+	for other in ["attack", "jump", "dodge", "block", "ability_dash"]:
+		var b: TouchScreenButton = h._buttons[other]
+		var d: float = ((h._goal[lock] as Vector2) + Vector2(lr, lr)).distance_to((h._goal[b] as Vector2) + Vector2((b.shape as CircleShape2D).radius, (b.shape as CircleShape2D).radius))
+		assert_float(d).override_failure_message(other).is_greater(lr + (b.shape as CircleShape2D).radius)

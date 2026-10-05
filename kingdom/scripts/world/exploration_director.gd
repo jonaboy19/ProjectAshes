@@ -29,11 +29,10 @@ var _shaft_mat: ShaderMaterial
 var _spots: Dictionary = {}       # key -> Spot
 var _stations: Dictionary = {}
 var _wildlife_done := false
-var _menu_was_open := false
 var _pois: Array[Dictionary] = []
 
 
-## One interactable: prompt()/use() are all Player.nearest_interactable() and the HUD need.
+## One interactable spot: an Interactable component (attached in _refresh_spots) over prompt()/use().
 class Spot extends Node3D:
 	var director: Node
 	var key := ""
@@ -69,7 +68,6 @@ func _process(delta: float) -> void:
 	look.set("focus", focus)
 	_update_shafts()
 	_update_rifts()
-	_poll_interact()
 	_timer -= delta
 	if _timer > 0.0:
 		return
@@ -442,7 +440,10 @@ func _refresh_spots(at: Vector2) -> void:
 		add_child(sp)
 		var pp: Vector2 = w["pos"]
 		sp.global_position = Vector3(pp.x, WorldGen.height(pp.x, pp.y) + 0.3, pp.y)
-		sp.add_to_group("interactable")
+		Interactable.attach(sp, {"id": "explore/" + key, "verb": "Use", "target": sp.text,
+			"can": func(_pl: Node) -> bool: return not playing,
+			"do": func(_pl: Node) -> void: sp.use(),
+			"label": func() -> String: return sp.prompt()})
 		_spots[key] = sp
 
 
@@ -554,25 +555,6 @@ func play_vista_pan(s: Dictionary) -> void:
 		vista = null)
 	vista.play({"shots": Vista.pan(eye, la, lb, 5.5), "kicker": "A view worth the climb", "title": String(s["name"]), "small": true,
 		"title_at": 0.8, "freeze": [pl], "hide": [hud] if hud else []})
-
-
-# --- Interaction dispatch (same pattern as ForageNodes: main.gd only drives Stations and doors) ---------------------------
-
-func _poll_interact() -> void:
-	var pl := _player()
-	var menu_open := false
-	var h := _hud()
-	if h and h.has_method("is_menu_open"):
-		menu_open = bool(h.call("is_menu_open"))
-	var was := _menu_was_open
-	_menu_was_open = menu_open
-	if pl == null or menu_open or was or playing or _spots.is_empty():
-		return
-	if not Input.is_action_just_pressed("interact") or not pl.has_method("nearest_interactable"):
-		return
-	var target: Variant = pl.call("nearest_interactable")
-	if target is Spot and (target as Spot).director == self:
-		(target as Spot).use()
 
 
 # --- The hermit and the old hunter (Stations: main.gd opens their menu) ------------------------------------------------------

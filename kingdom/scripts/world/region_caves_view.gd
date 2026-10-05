@@ -124,6 +124,8 @@ func _build(s: Dictionary) -> Node3D:
 	var own_mouth := not (theme == "mine" and not hidden) and String(c["reveal"]) != "waterfall"
 	if own_mouth:
 		root.add_child(_mouth(theme, hidden and not revealed, String(c["reveal"])))
+	if revealed:
+		_mouth_dress(root, theme)
 	elif String(c["reveal"]) == "waterfall":
 		root.add_child(_mouth(theme, false, "waterfall"))
 	# the door sits just inside the mouth; `mine_entrance` opens at about z = 2.5
@@ -228,14 +230,57 @@ func reveal(id: String, how: String) -> bool:
 					tw.tween_callback(v.queue_free)
 		for t in node.find_children("reveal_*", "Area3D", true, false):
 			(t as InteriorDoor).monitoring = false
-			if t.is_in_group("interactable"):
-				t.remove_from_group("interactable")
+			Interactable.set_active(t, false)
 	return true
 
 
 ## A dungeon_thing "reveal" interaction calls this (vines cut, rockfall cleared).
 func reveal_by_thing(id: String, how: String) -> void:
 	reveal(id, how)
+
+
+# --- meshy free pack pieces beside a cave mouth ------------------------------------------------
+
+const FREE_PACK := "res://assets/incoming/meshy_free/"
+## theme -> [[asset under meshy_free (lod0), x, z (mouth-local, +z = out of the cave), yaw deg]]: cage torches at working mouths,
+## crystal pedestals at crystal caves, goblin sentries at warrens (docs/qa/ASSET_AUDIT.md section A). Static, no colliders.
+const MOUTH_DRESS := {
+	"mine": [["lighting/torch_dungeon_cage", -3.3, 2.6, 0.0], ["lighting/torch_dungeon_cage", 3.3, 2.6, 0.0]],
+	"hideout": [["lighting/torch_dungeon_cage", -3.0, 2.4, 0.0], ["lighting/torch_hand_silver", 3.2, 2.2, 30.0]],
+	"crypt": [["lighting/torch_dungeon_cage", -3.6, 2.8, 0.0], ["lighting/torch_dungeon_cage", 3.6, 2.8, 0.0]],
+	"cave": [["lighting/torch_hand_silver", -3.2, 2.4, -20.0]],
+	"crystal": [["magic/crystal_cyan_pedestal", -3.4, 2.4, 0.0], ["magic/crystal_blue_pedestal", 3.4, 2.4, 40.0], ["magic/crystal_ice_shard", 5.4, 4.6, 0.0]],
+	"flooded": [["lighting/lantern_hanging_green", 3.2, 2.2, 0.0]],
+	"warren": [["creatures/goblin_ragged", -3.1, 2.6, 25.0], ["creatures/goblin_knife", 3.1, 2.6, -25.0], ["creatures/goblin_armored", 2.2, 5.8, 200.0],
+		["creatures/goblin_a", -5.0, 4.0, 40.0], ["creatures/goblin_b", 5.0, 4.2, -40.0]],
+}
+
+
+func _mouth_dress(root: Node3D, theme: String) -> void:
+	var rows: Array = MOUTH_DRESS.get(theme, [])
+	if rows.is_empty():
+		return
+	var dress := Node3D.new()
+	dress.name = "MouthDress"
+	root.add_child(dress)
+	for row: Array in rows:
+		var path := FREE_PACK + String(row[0]) + "_lod0.glb"
+		if not ResourceLoader.exists(path):
+			continue
+		var n: Node3D = Assets.static_model(path)
+		if n == null:
+			continue
+		dress.add_child(n)
+		n.rotation.y = deg_to_rad(float(row[3]))
+		n.position = Vector3(float(row[1]), 0.0, float(row[2]))
+		var box := Assets.visual_aabb(n)
+		var w := root.global_transform * n.position
+		n.global_position = Vector3(w.x, WorldGen.height(w.x, w.z) - box.position.y - 0.03, w.z)
+		if box.size.length() < 2.5:
+			for g in n.find_children("*", "GeometryInstance3D", true, false):
+				(g as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			if n is GeometryInstance3D:
+				(n as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 
 # --- hidden entrance dressing -----------------------------------------------------------------

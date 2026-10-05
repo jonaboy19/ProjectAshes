@@ -14,7 +14,7 @@ const FOV_MAX := 6.0
 const ROLL := [0.0, 0.012, 0.026]           # radians of camera roll
 const ROLL_MAX := 0.035
 const SHAKE := [0.22, 0.34, 0.5]
-const FLASH := [0.0, 0.0, 0.32]             # full-screen white, ONE frame, finishers only
+const FLASH := [0.0, 0.0, 0.16]             # short warm full-screen tint, ONE frame, finishers only
 
 ## A blow counts as heavy at this knockback, poise damage or damage (riposte hits are heavy too).
 const HEAVY_KNOCK := 3.0
@@ -96,21 +96,22 @@ class Budget extends RefCounted:
 ## Best valid target for a swing: `locked` (a Vector3 or null) wins inside MAGNET_RANGE, else the candidate
 ## with the best distance x angle score inside the cone. `candidates` are world positions of living
 ## enemies. -> {"pos": Vector3 or null, "index": int (-1 = locked/none)}.
-static func pick_target(origin: Vector3, facing: Vector3, candidates: Array, locked: Variant = null) -> Dictionary:
+static func pick_target(origin: Vector3, facing: Vector3, candidates: Array, locked: Variant = null,
+		max_range := MAGNET_RANGE, cone_dot := MAGNET_CONE_DOT) -> Dictionary:
 	var f := Vector3(facing.x, 0.0, facing.z).normalized()
 	if locked is Vector3:
 		var d := _flat(locked as Vector3 - origin).length()
-		if d <= MAGNET_RANGE + 2.0:
+		if d <= max_range + 2.0:
 			return {"pos": locked, "index": -1}
 	var best := -1
 	var best_score := INF
 	for i in candidates.size():
 		var to := _flat((candidates[i] as Vector3) - origin)
 		var d := to.length()
-		if d > MAGNET_RANGE:
+		if d > max_range:
 			continue
 		var dot := f.dot(to / maxf(d, 0.01))
-		if dot <= MAGNET_CONE_DOT:
+		if dot <= cone_dot:
 			continue
 		var score := d * (1.6 - dot)
 		if score < best_score:

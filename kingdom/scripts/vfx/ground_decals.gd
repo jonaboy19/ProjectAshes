@@ -16,6 +16,11 @@ const KINDS := ["scorch", "frost", "cracks", "dust", "footprints", "splash"]
 const TEX_SIZE := 96
 const CAP_BY_TIER := [6, 10, 14, 14]
 const FADE_IN := 0.12
+## Crack decals (earth_quake, knight aura) are sized to the technique's radius, not blown up like a dust or scorch disc:
+## diameter = radius * CRACK_K, between CRACK_MIN and the element's "decal_max" (element_language.json, default CRACK_MAX).
+const CRACK_K := 0.9
+const CRACK_MIN := 2.0
+const CRACK_MAX := 5.0
 
 static var force_quad := false
 static var _tex: Dictionary = {}
@@ -26,6 +31,18 @@ static var _hooked := false
 
 static func for_element(element: Variant) -> String:
 	return String(Lang.get_lang(element).get("decal", "dust"))
+
+
+## Metres across for a crack mark of a technique with this radius (a few metres, never the whole floor).
+static func crack_size(radius: float, max_size := CRACK_MAX) -> float:
+	return clampf(radius * CRACK_K, CRACK_MIN, max_size)
+
+
+## Decal size (diameter) a technique's residue should use: `lang` is the ElementLanguage row, `radius` the technique's radius.
+static func size_for(lang: Dictionary, radius: float) -> float:
+	if String(lang.get("decal", "dust")) == "cracks":
+		return crack_size(radius, float(lang.get("decal_max", CRACK_MAX)))
+	return radius * 1.3
 
 
 static func uses_quad() -> bool:
@@ -165,6 +182,8 @@ static func _make(quad: bool, kind: String) -> Node3D:
 static func spawn(parent: Node, kind: String, pos: Vector3, size := 2.0, life := 6.0, yaw := 0.0) -> Node3D:
 	if parent == null or not parent.is_inside_tree() or not KINDS.has(kind):
 		return null
+	if kind == "cracks":
+		size = minf(size, CRACK_MAX)         # whatever the caller asks, a crack mark never spreads over the whole floor
 	_sweep()
 	while _live.size() >= cap():
 		_retire(_live.pop_front())

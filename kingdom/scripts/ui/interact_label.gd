@@ -2,12 +2,14 @@ extends RefCounted
 ## Turns whatever the player can use into a "Verb — Target" label for the HUD's primary action
 ## button ("Talk — Roland Ward", "Enter — Golden Stag Inn", "Inspect — Notice Board", "Work — Blacksmith").
 ##
+## An Interactable component (scripts/interaction/interactable.gd) supplies verb and target directly; the rest
+## below is the legacy convention for group members that only have prompt()/use().
 ## CONVENTION: an interactable may define `interact_label()` returning either a Dictionary
 ## {verb, target} or a String ("Talk — Roland Ward"), or carry the same as meta "interact_label".
 ## Without it the label is derived, in order, from: a Station's `verb` + `title` (NPCs, work spots, boards);
 ## a door's building name (meta "building_name", else its prompt text); the node's prompt() text
 ## ("Enter the smithy" -> Enter — Smithy); finally a node `title` / `display_name` / meta "display_name".
-## Always returns {verb, target, text, icon}; never an empty verb.
+## Always returns {verb, target, text, icon, danger}; never an empty verb.
 
 const SEP := " — "
 const ARTICLES := ["the ", "a ", "an "]
@@ -15,9 +17,23 @@ const ALIASES := {"Read": "Inspect", "Use": "Use", "Name": "Name"}
 const ICONS := {"talk": "conversation", "inspect": "magnifying-glass", "read": "magnifying-glass", "enter": "walk",
 	"leave": "walk", "exit": "walk", "ride": "walk", "dismount": "walk"}
 const GENERIC_NAMES := ["TalkTarget", "Villager", ""]
+## Verbs that are crimes: the HUD pill draws them in red (package F5).
+const DANGER_VERBS := ["Steal", "Pickpocket", "Rob"]
 
 
 static func resolve(n: Object) -> Dictionary:
+	if n == null or not is_instance_valid(n):
+		return _pack("Use", "")
+	# An attached Interactable component is the source of truth: verb and target come from it.
+	var comp: Interactable = Interactable.component_of(n) if n is Node else null
+	if comp != null:
+		return comp.label()
+	return legacy(n)
+
+
+## The pre-Interactable derivation (interact_label(), meta, Station verb + title, door building name, prompt()).
+## Interactable.label() ends here for wrapped legacy nodes and for components whose label_fn is unset on a door.
+static func legacy(n: Object) -> Dictionary:
 	if n == null or not is_instance_valid(n):
 		return _pack("Use", "")
 	var raw: Variant = null
@@ -82,6 +98,11 @@ static func from_prompt(p: String) -> Dictionary:
 	return {"verb": t.left(sp), "target": rest}
 
 
+## {verb, target, text, icon} from a verb and a target (what Interactable.label() ends in).
+static func pack(verb: String, target: String) -> Dictionary:
+	return _pack(verb, target)
+
+
 static func _pack(verb: String, target: String) -> Dictionary:
 	verb = verb.strip_edges()
 	target = _title_case(target.strip_edges())
@@ -91,7 +112,7 @@ static func _pack(verb: String, target: String) -> Dictionary:
 	verb = verb.left(1).to_upper() + verb.substr(1)
 	var key := verb.to_lower().split(" ")[0]
 	return {"verb": verb, "target": target, "text": verb + (SEP + target if target != "" else ""),
-		"icon": String(ICONS.get(key, "hand"))}
+		"icon": String(ICONS.get(key, "hand")), "danger": DANGER_VERBS.has(verb)}
 
 
 ## Capitalises words that start lower-case ("fields (hold)" -> "Fields (hold)"); keeps given names as they are.

@@ -25,6 +25,7 @@ var frontier: FrontierPresence
 var region: RegionDressing
 var region1: Node   # scripts/region1/region1_glue.gd (Region1 hooks)
 const Flow := preload("res://scripts/ui/frontend/flow.gd")
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
 const StyleG := preload("res://scripts/style_g.gd")
 const SeasonsScript := preload("res://scripts/sim/seasons.gd")
@@ -191,6 +192,7 @@ func _ready() -> void:
 	world.add_child(noble_courts)
 	ambient = AmbientLife.new()
 	world.add_child(ambient)
+	world.add_child(preload("res://scripts/world/soulbeast_director.gd").new())   # F10 the Soulbeast companion
 	var ore := preload("res://scripts/world/ore_vein.gd").new()
 	ore.name = "OreVeins"
 	world.add_child(ore)
@@ -221,6 +223,7 @@ func _ready() -> void:
 	world.add_child(region1)
 	region1.setup(self)
 	world.add_child(preload("res://scripts/world/towers/tower_site.gd").new())   # towers hook (docs/design tower plan)
+	preload("res://scripts/world/thornfield/hub.gd").attach(world)   # F8: Thornfield's quest wiring, clues, cart, wolves, night figure
 
 	hud.set_loading_text("Ready", 1.0)
 	hud.hide_loading()
@@ -352,7 +355,13 @@ func _process(delta: float) -> void:
 	camps.focus = focus
 	ambient.focus = focus
 	# The settings screen's View Distance (Quality tier or override) sets the chunk ring; the command view sees one ring further.
-	terrain.view_radius = Quality.view_radius + (1 if player.view == Player.View.COMMAND and Quality.view_radius >= 4 else 0)
+	# F12: one cell manager sets the radii per quality tier (cell_streamer.gd) and wakes/sleeps the registered spawners and sites.
+	var cells: RefCounted = CellStreamer.shared()
+	cells.update(focus)
+	var ring: int = cells.radius_cells("terrain")
+	terrain.view_radius = ring + (1 if player.view == Player.View.COMMAND and ring >= 4 else 0)
+	terrain.collision_radius = cells.radius_cells("terrain", "full")
+	terrain.grass_radius = cells.radius_cells("terrain", "full")
 	water.view_radius = terrain.view_radius
 	_update_daylight()
 	_status_timer -= delta
@@ -387,7 +396,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if player == null:
 		return
 	if event.is_action_pressed("attack"):
-		player.attack()
+		player.attack_press()        # tap = light combo on release, hold = charged heavy / bow draw (player_arms.gd)
+	elif event.is_action_released("attack"):
+		player.attack_release()
 	elif event.is_action_pressed("jump"):
 		player.jump()
 	elif event.is_action_pressed("dodge"):
@@ -404,19 +415,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		if hud.is_menu_open():
 			hud.close_menu()
 			return
-		var target := player.nearest_interactable()
-		if target is Captain:
-			hud.show_menu(services.captain_menu)
-		elif target is Station and (target as Station).name == "WarTable":
-			# the War Room table opens the war map directly, in war-table style (docs/design/WAR_COMMAND_RULEBOOK.md §2)
-			var wm: Control = load("res://scripts/ui/war/war_map.gd").open_modal(hud, Life.realm)
-			wm.call("set_style", 2)
-		elif target is Station:
-			hud.show_menu((target as Station).open)
-		elif target is CampMonster:
-			hud.show_menu(services.naming_menu.bind(target))
-		elif target is InteriorDoor:
-			(target as InteriorDoor).use()
+		# Everything else is handled by the player's InteractionController (scripts/interaction/), which marks the
+		# event handled before it gets here; this branch only closes an open menu.
 	elif event.is_action_pressed("journal"):
 		if hud.is_menu_open():
 			hud.close_menu()

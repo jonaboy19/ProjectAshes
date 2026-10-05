@@ -1,0 +1,93 @@
+{
+ "id": "thornfield_spoiled_barley",
+ "title": "The Spoiled Barley",
+ "summary": "Half of Thornfield's tithe barley has gone sour. Hesta Thorne wants to know whether it is rot or a person.",
+ "giver": {
+  "npc": "hesta_thorne",
+  "name": "Hesta Thorne",
+  "place": "thornfield"
+ },
+ "offer_text": "\"Look at this. Mould on the top sacks, clean barley underneath. Rot does not choose. Have a look round the barn for me, and keep your eyes open after dark.\"",
+ "turn_in_text": "\"Wilm Garrow. I should have guessed. Thank you. Leave him to me for now.\"",
+ "stages": [
+  {
+   "id": "clues",
+   "title": "Find out what spoiled the barley",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "text": "Search the barn and cellar for clues",
+     "clues": [
+      "thornfield/clue/sack",
+      "thornfield/clue/prints",
+      "thornfield/clue/lock",
+      "thornfield/clue/ledger"
+     ],
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "stakeout",
+   "title": "Watch the barn after dark",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "dusk",
+     "type": "wait",
+     "hours": 2,
+     "window": [
+      19,
+      24
+     ],
+     "text": "Wait for night to fall"
+    },
+    {
+     "id": "watch",
+     "type": "observe",
+     "target": "barn_figure",
+     "name": "the figure at the barn",
+     "range": 16,
+     "seconds": 20,
+     "window": [
+      21,
+      5
+     ],
+     "pos": [
+      6,
+      12
+     ]
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Hesta what you saw",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "hesta_thorne",
+     "text": "Tell Hesta Thorne what you saw"
+    }
+   ]
+  }
+ ],
+ "rewards": {
+  "gold": 15,
+  "rep": {
+   "thornfield": 4
+  },
+  "relationship": [
+   {
+    "npc": "hesta_thorne",
+    "label": "Found who spoiled the barley",
+    "value": 10,
+    "days": 60
+   }
+  ]
+ }
+}

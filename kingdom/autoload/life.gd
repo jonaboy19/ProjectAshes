@@ -1097,7 +1097,7 @@ func _on_hour(hour: int) -> void:
 	if cam.has_method("set_player_rank"):
 		cam.set_player_rank(CareerLadders.military_rank_for(career_rank) if career_id == "soldier" else "")
 	# City life and society keep a signed ledger instead of touching the purse.
-	for k: String in ["city_life", "society", "education", "household", "callups", "enterprise", "construction", "scribe", "trades"]:
+	for k: String in ["city_life", "society", "education", "household", "callups", "enterprise", "construction", "scribe", "soldier", "trades"]:
 		var m: RefCounted = realm.mod(k)
 		if m != null and m.has_method("take_pending_gold"):
 			var net := int(m.take_pending_gold())
@@ -1453,10 +1453,19 @@ func sell(item: String) -> String:
 		var refusal: String = gov.refuses_item(int(realm.mod("city_life").near_settlement()), item)
 		if refusal != "":
 			return refusal
+	# Stolen goods (F5): an honest merchant of the town the item was taken from will not touch it.
+	var Theft_ := preload("res://scripts/sim/theft.gd")
+	var town := 0
+	if player != null and is_instance_valid(player):
+		town = maxi(Theft_.sid_at(Vector2(player.global_position.x, player.global_position.z)), 0)
+	var hot: String = Theft_.sale_gate(item, town)
+	if hot != "":
+		return hot
 	var got := market.sell(item)
 	if got < 0:
 		return "The merchant can't afford it today."
-	take(item)
+	if not Theft_.take_one_for_sale(item, town):
+		take(item)
 	Game.add_gold(got)
 	record("traded", 0.5)
 	return "Sold %s for %d gold." % [item_name(item), got]
@@ -1674,6 +1683,9 @@ func _career_daily() -> void:
 		return
 	# The scribe career promotes itself (patron, exams, counters): scripts/realm/scribe.gd.
 	if career_id == "scribe":
+		return
+	# The soldier career promotes itself (merit, service time, muster): scripts/realm/soldier.gd.
+	if career_id == "soldier" and realm != null and bool(realm.mod("soldier").get("active")):
 		return
 	var ctx := {
 		"career": career_id, "rank": career_rank, "since_day": career_since_day, "day": WorldSim.day,

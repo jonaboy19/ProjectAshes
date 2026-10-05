@@ -11,10 +11,8 @@ extends Node3D
 ## The fish is rolled from Gathering.FISH (perch, trout, pike, and the emberfin
 ## that only rises at sunset); rarer fish pull harder with a narrower zone.
 ##
-## Self-contained like InteriorDoor: always in the "interactable" group with
-## prompt() and use(). It polls "interact" itself while it is the player's
-## nearest interactable, and use() has a per-frame guard, so a main.gd
-## dispatcher that also calls use() does no harm.
+## An Interactable (scripts/interaction/interactable.gd) over prompt() and use(); the player's
+## InteractionController runs use() when the picker chooses it, and use() has a per-frame guard.
 
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
 const Crafting := preload("res://scripts/sim/crafting.gd")
@@ -48,7 +46,6 @@ var _zone_timer := 0.0
 var _progress := 0.25
 var _last_use_frame := -100
 var _last_tap := -1.0
-var _menu_was_open := false
 
 var _bobber: Node3D
 var _bang: Label3D
@@ -65,7 +62,10 @@ var _reel_box: Control
 
 
 func _ready() -> void:
-	add_to_group("interactable")
+	Interactable.attach(self, {"id_fn": func() -> String: return "fishing/%d_%d" % [roundi(global_position.x), roundi(global_position.z)],
+		"verb": "Fish", "range": 3.3,
+		"do": func(_pl: Node) -> void: use(),
+		"label": func() -> String: return prompt()})
 	Gathering.register(Life)
 	_build_marker()
 
@@ -105,7 +105,6 @@ func use() -> void:
 
 func _process(delta: float) -> void:
 	if phase == Phase.IDLE:
-		_poll_interact()
 		return
 	var player := _player()
 	if phase != Phase.DONE and (player == null or bool(player.get("dead")) \
@@ -243,6 +242,7 @@ func _land() -> void:
 	var node := {"kind": "fish", "item": landed, "level": 1 + Gathering.FISH_ORDER.find(landed) * 2,
 		"qty": mini(3, deposits.units(dep_id(), dep_def(), WorldSim.day)), "quality": 50}
 	_finish("The fish is on the line!", true)
+	_close()      # drop the full-screen fishing UI (layer 30) now: for its 1.6 s fade-out it sat above the landing panel and ate its clicks
 	_panel = GatherRun.open(self, node, "Land the %s" % Life.item_name(landed), 0,
 		hash([roundi(global_position.x), roundi(global_position.z), Engine.get_process_frames()]), _on_landed)
 	if _panel == null:
@@ -421,7 +421,7 @@ func _build_ui() -> void:
 		_ui.queue_free()
 	_ui = CanvasLayer.new()
 	_ui.layer = 30
-	add_child(_ui)
+	(get_tree().current_scene if get_tree().current_scene != null else self).add_child(_ui)
 	# Taps anywhere count (phones); the Stop button sits above and eats its own.
 	var blocker := Control.new()
 	blocker.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -502,27 +502,3 @@ func _build_ui() -> void:
 	stop.focus_mode = Control.FOCUS_NONE
 	stop.pressed.connect(func() -> void: _finish("You reel in the line.", false))
 	box.add_child(stop)
-
-
-# --- dispatch --------------------------------------------------------------------
-
-## Self-dispatch of the interact key while this is the nearest interactable.
-func _poll_interact() -> void:
-	var p := _player()
-	if p == null or p.global_position.distance_squared_to(global_position) > 3.3 * 3.3:
-		_menu_was_open = false
-		return
-	var menu_open := _menu_open()
-	var was := _menu_was_open
-	_menu_was_open = menu_open
-	if menu_open or was or not Input.is_action_just_pressed("interact"):
-		return
-	if p.has_method("nearest_interactable") and p.call("nearest_interactable") == self:
-		use()
-
-
-func _menu_open() -> bool:
-	var scene := get_tree().current_scene
-	var hud: Variant = scene.get("hud") if scene else null
-	return hud is Object and is_instance_valid(hud) and (hud as Object).has_method("is_menu_open") \
-		and bool((hud as Object).call("is_menu_open"))

@@ -47,6 +47,7 @@ const Hotbar := preload("res://scripts/ui/hotbar.gd")
 const Minimap := preload("res://scripts/ui/minimap.gd")
 const NotifyStack := preload("res://scripts/ui/notify_stack.gd")
 const DialogueUI := preload("res://scripts/ui/dialogue_ui.gd")
+const DialogueSheet := preload("res://scripts/ui/dialogue_sheet.gd")
 const Portrait := preload("res://scripts/ui/portrait.gd")
 const SkillsSim := preload("res://scripts/sim/skills.gd")
 const HudMode := preload("res://scripts/ui/hud_mode.gd")
@@ -64,6 +65,7 @@ const COMBAT_RANGE := 45.0         # enemies this close block fast travel (same 
 const DOCK_SIZE := 52
 const DOCK_STEP := 72              # button + caption
 const ABILITY_DASH_COLOR := Color("6d5cff")   # violet: distinct from the teal plain dodge
+const LOCK_BUTTON_AT := Vector2(450, 296)    # combat lock button (72 px): clear of Jump / Attack / Block / the technique ring
 const LEFT := 12.0                 # left / right screen margin of the HUD cards
 const MINIMAP_SIZE := 100.0
 const MENU_AUTO_CLOSE := 7.0        # s the button fan stays open
@@ -122,6 +124,7 @@ var hotbar: Control                 # hotbar.gd
 var minimap: Control                # minimap.gd
 var notifications: Control          # notify_stack.gd
 var dialogue: Control               # dialogue_ui.gd
+var dialogue_sheet: Control         # dialogue_sheet.gd: the in-world bottom-sheet conversation
 var portrait: Control               # the card's round portrait (portrait.gd)
 var compass: Control               # scripts/ui/compass.gd
 var banner: Control                # scripts/ui/discovery_banner.gd
@@ -202,6 +205,9 @@ func _ready() -> void:
 	(_buttons["jump"].shape as CircleShape2D).radius = 44.0 # 88 dp target, 72 dp face
 	_buttons["dodge"] = _button("dodge", "", 84, UITheme.ACTION_DODGE, "dodge")
 	_buttons["block"] = _button("block", "", 84, UITheme.ACTION_BLOCK, "checked-shield")
+	# F3: the default lock-on button of the combat cluster: tap toggles the lock (player.toggle_lock), the camera
+	# flick on the look area switches targets. Always present on touch; a second dock "lock_on" (main.gd) stays in the fan.
+	_buttons["lock_combat"] = _button("lock_on", "Lock", 72, UITheme.ACTION_BLOCK, "glyph:lock")
 	# Shadow Dash: a separate ability button (cooldown, own icon tint) so it
 	# never gets confused with the plain dodge above.
 	_buttons["ability_dash"] = _button("ability_dash", "", 72, ABILITY_DASH_COLOR, "dodge")
@@ -349,6 +355,11 @@ func _ready() -> void:
 	dialogue.leave_requested.connect(close_menu)
 	root.add_child(dialogue)
 	root.move_child(dialogue, _toast_box.get_index())      # under the toast, over the HUD furniture
+	dialogue_sheet = DialogueSheet.new()
+	dialogue_sheet.option_picked.connect(_on_dialogue_pick)
+	dialogue_sheet.leave_requested.connect(close_menu)
+	root.add_child(dialogue_sheet)
+	root.move_child(dialogue_sheet, _toast_box.get_index())
 
 	_menu = PanelContainer.new()
 	_menu.theme = AF.theme()
@@ -527,6 +538,7 @@ func _layout() -> void:
 	_pose(_buttons["jump"], _at(Vector2(168, 300)), 0.0 if (has_target and combat) else 1.0)
 	_pose(_buttons["dodge"], _at(Vector2(270, 112)), 1.0)
 	_pose(_buttons["block"], _at(Vector2(240, 226)), 1.0 if combat else 0.0)
+	_pose(_buttons["lock_combat"], _at(LOCK_BUTTON_AT), 1.0 if combat else 0.0)
 	_pose(_attack_small, _at(Vector2(352, 104)), 1.0 if talk else 0.0)
 	_pose(_buttons["ability_dash"], _at(Vector2(357, 96)), 1.0 if combat else 0.0)
 	_pose(_eat_button, _at(Vector2(436, 96)), 1.0 if (_food_low and not combat) else 0.0)
@@ -863,11 +875,17 @@ func close_menu() -> void:
 		Audio.play_ui("close")
 	_menu.visible = false
 	dialogue.visible = false
+	dialogue_sheet.visible = false
 	_set_chrome_visible(true)
 
 
 func is_menu_open() -> bool:
-	return _menu.visible or dialogue.visible
+	return _menu.visible or dialogue.visible or dialogue_sheet.visible
+
+
+## True while the bottom-sheet conversation (not a full-screen menu) is what is showing.
+func is_sheet_open() -> bool:
+	return dialogue_sheet.visible
 
 
 func _set_chrome_visible(v: bool) -> void:
@@ -896,6 +914,17 @@ func _rebuild_menu() -> void:
 			child.queue_free()
 		_menu.visible = false
 		_dlg_options = data.get("options", [])
+		if bool(data.get("in_world", false)):
+			# In-world conversation: a compact bottom sheet, the world stays visible and running.
+			var was_sheet_visible := dialogue_sheet.visible
+			dialogue.visible = false
+			dialogue_sheet.set_page(data)
+			dialogue_sheet.visible = true
+			if not was_sheet_visible:
+				dialogue_sheet.present()
+			_set_chrome_visible(false)
+			return
+		dialogue_sheet.visible = false
 		var was_dialogue_visible := dialogue.visible
 		dialogue.set_page(data)
 		dialogue.visible = true
@@ -904,6 +933,7 @@ func _rebuild_menu() -> void:
 		_set_chrome_visible(false)
 		return
 	dialogue.visible = false
+	dialogue_sheet.visible = false
 	_set_chrome_visible(true)
 	for child in _menu.get_children():
 		child.visible = false     # stop the outgoing page from sizing the panel
@@ -948,7 +978,18 @@ func _rebuild_menu() -> void:
 			if is_menu_open():
 				_rebuild_menu())
 		list.add_child(btn)
-	scroll.custom_minimum_size.y = minf(options.size() * 52.0, vw.y * 0.45)
+	# Whole rows only (a half row at the bottom reads as cut off) and a hint when more rows are below.
+	var row_h := 52.0
+	var max_h := vw.y * 0.45
+	var full_h := options.size() * row_h
+	if full_h > max_h:
+		scroll.custom_minimum_size.y = maxf(floorf(max_h / row_h), 2.0) * row_h
+		var more := AF.label("▼  scroll for more  (%d options)" % options.size(), 14, AF.TEXT_DIM)
+		more.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		box.add_child(more)
+		box.move_child(more, scroll.get_index() + 1)
+	else:
+		scroll.custom_minimum_size.y = full_h
 	var close := AF.gold_button("Close")
 	close.custom_minimum_size = Vector2(width, 44)
 	close.pressed.connect(close_menu)
@@ -1341,7 +1382,7 @@ func _set_target(n: Node3D) -> void:
 
 
 func _apply_label() -> void:
-	_pill.set_label(String(target_label.get("verb", "")), String(target_label.get("target", "")))
+	_pill.set_label(String(target_label.get("verb", "")), String(target_label.get("target", "")), bool(target_label.get("danger", false)))
 	var res := HudArt.resolve_icon(String(target_label.get("icon", "hand")))
 	var big := HudArt.round_face(128, _fill_for(UITheme.ACTION_TALK), res[0], res[1], 0.66)
 	_interact.texture_normal = big

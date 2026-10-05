@@ -1,0 +1,38 @@
+{
+ "_doc": "Opening hours per service kind (ItemsDB shop ids plus the building services inn, healer, guild, smith/general aliases). [open, close] in game hours 0..24; close < open means it stays open past midnight; [0, 24] is always open. `default` applies to a kind not listed. `closed_lines` are what the merchant says when you try to trade out of hours (picked by hour: morning if it opens later today, evening otherwise).",
+ "default": [8, 20],
+ "kinds": {
+  "blacksmith": [7, 19],
+  "smith": [7, 19],
+  "armourer": [7, 19],
+  "bowyer": [7, 19],
+  "general_store": [8, 20],
+  "general": [8, 20],
+  "grocer": [7, 19],
+  "butcher": [7, 18],
+  "fishmonger": [6, 15],
+  "baker": [5, 17],
+  "tavern": [0, 24],
+  "inn": [0, 24],
+  "temple": [6, 21],
+  "healer": [6, 21],
+  "herbalist": [8, 18],
+  "alchemist": [9, 19],
+  "tailor": [8, 18],
+  "leatherworker": [7, 18],
+  "jeweller": [9, 18],
+  "carpenter": [7, 18],
+  "mason": [7, 18],
+  "miners_supply": [6, 18],
+  "stable": [5, 20],
+  "farm_supply": [6, 18],
+  "bookseller": [9, 18],
+  "adventurer_outfitter": [6, 22],
+  "guild": [6, 23],
+  "black_market": [21, 5]
+ },
+ "closed_lines": {
+  "morning": ["Come back in the morning.", "We open at first light. Come back then.", "Shutters are down. Try again in the morning."],
+  "evening": ["We're closed for the day. Come back tomorrow.", "Too late, friend. Come back in the morning.", "Closed. The stall opens again at dawn."]
+ }
+}

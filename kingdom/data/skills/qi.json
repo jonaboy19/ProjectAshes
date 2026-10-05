@@ -14,7 +14,7 @@
 		{
 			"id": "qi_gathering",
 			"name": "Qi Gathering",
-			"desc": "Sit, breathe and draw qi from the world (restores qi, trains cultivation).",
+			"desc": "Stand, breathe and draw qi from the world (restores qi, trains cultivation).",
 			"tier": 1,
 			"col": 0,
 			"resource": "stamina",
@@ -27,8 +27,8 @@
 				"cultivate": 8
 			},
 			"anim": [
-				"Cultivate_Yoga_Floor_Flow",
-				"Meditate"
+				"Water_Flow_SunSalute",
+				"G6_channel_unarmed_magic"
 			],
 			"anim_mode": "full",
 			"anim_speed": 1.0,

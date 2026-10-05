@@ -25,9 +25,13 @@ const HAIR := UBC + "Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/"
 ## AnimationPlayer.root_motion_track to "<skeleton>:root" and re-enable that track.
 const UAL_ANIM_DIR := "res://assets/incoming/animations/"
 const UAL_LOCO_DIR := "res://assets/incoming/animations_free2/loco_transitions/"
+const UAL_TRAV_DIR := "res://assets/incoming/animations_free2/traversal_authored/"
 const UAL_FILES := [
 	# First match wins: this set's Jump_Start must precede UAL1's older clip.
 	UAL_LOCO_DIR + "UAL_Loco_Transitions.glb",
+	# Authored traversal (F2): vault, mantle, ledge grab / hang / climb / drop, ladder, rides. Root track disabled;
+	# scripts/actors/traversal.gd moves the capsule. docs/anim/traversal_v2_HANDOFF.md.
+	UAL_TRAV_DIR + "UAL_Authored_Traversal.glb",
 	Q + "universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
 	Q + "universal-animation-library-2/Unreal-Godot/UAL2_Standard.glb",
 	# 119 extra CC0 clips retargeted onto UAL (incoming/characters/README.md, "Recommendation"):
@@ -73,6 +77,7 @@ const RTS := Q + "ultimate-fantasy-rts/glTF/"
 ## Blender-built village set (tools/blender/make_village_*.py); the old pack paths are gone.
 const GEN := "res://assets/generated/"
 const MESHY := "res://assets/incoming/ai3d/meshy/"
+const MF := "res://assets/incoming/meshy_free/"
 const BUILDINGS := {
 	# Hero buildings generated with Meshy from the concept sheets (user, see
 	# docs/art_reference/concept_*.png), decimated to lod0/lod1 by tools/meshy.
@@ -152,6 +157,51 @@ const BUILDINGS := {
 	"market_stall_red": [GEN + "market_stall_red.glb", 0.0],
 	"market_stall_green": [GEN + "market_stall_green.glb", 0.0],
 	"street_lamp": [GEN + "street_lamp.glb", 0.0],
+	# Meshy free community pack pieces for district dressing (native size, origin centred on the base): docs/qa/ASSET_AUDIT.md "use the unused models".
+	"mf_street_lamp_twin_gold": [MF + "lighting/street_lamp_twin_gold_lod0.glb", 0.0],
+	"mf_street_lantern_gothic": [MF + "lighting/street_lantern_gothic_lod0.glb", 0.0],
+	"mf_street_lantern_whimsical": [MF + "lighting/street_lantern_whimsical_lod0.glb", 0.0],
+	"mf_lamp_post_timber_cross": [MF + "lighting/lamp_post_timber_cross_lod0.glb", 0.0],
+	"mf_lantern_wall_scroll": [MF + "lighting/lantern_wall_scroll_lod0.glb", 0.0],
+	"mf_hay_bale_lowpoly": [MF + "farm/hay_bale_lowpoly_lod0.glb", 0.0],
+	"mf_hay_bale_rect_a": [MF + "farm/hay_bale_rect_a_lod0.glb", 0.0],
+	"mf_hay_bale_round": [MF + "farm/hay_bale_round_lod0.glb", 0.0],
+	"mf_hay_bale_yellow_large": [MF + "farm/hay_bale_yellow_large_lod0.glb", 0.0],
+	"mf_shed_plank_low": [MF + "farm/shed_plank_low_lod0.glb", 0.0],
+	"mf_shed_thatch_small": [MF + "farm/shed_thatch_small_lod0.glb", 0.0],
+	"mf_shed_wood_shingle": [MF + "farm/shed_wood_shingle_lod0.glb", 0.0],
+	"mf_chicken_coop_fenced": [MF + "farm/chicken_coop_fenced_lod0.glb", 0.0],
+	"mf_fence_picket_low": [MF + "fences/fence_picket_low_lod0.glb", 0.0],
+	"mf_fence_picket_tall": [MF + "fences/fence_picket_tall_lod0.glb", 0.0],
+	"mf_fence_plank_panel": [MF + "fences/fence_plank_panel_lod0.glb", 0.0],
+	"mf_fence_rail_grass_a": [MF + "fences/fence_rail_grass_a_lod0.glb", 0.0],
+	"mf_fence_rail_grass_b": [MF + "fences/fence_rail_grass_b_lod0.glb", 0.0],
+	"mf_fence_broken_rail": [MF + "fences/fence_broken_rail_lod0.glb", 0.0],
+	"mf_wall_stone_railing": [MF + "fences/wall_stone_railing_lod0.glb", 0.0],
+	"mf_well_covered_planks": [MF + "props/well_covered_planks_lod0.glb", 0.0],
+	"mf_well_stone_roofed": [MF + "props/well_stone_roofed_lod0.glb", 0.0],
+	"mf_well_stone_shingle": [MF + "props/well_stone_shingle_lod0.glb", 0.0],
+	"mf_axe_long_handle": [MF + "props/axe_long_handle_lod0.glb", 0.0],
+	"mf_chest_blue_iron": [MF + "props/chest_blue_iron_lod0.glb", 0.0],
+	"mf_chest_gold": [MF + "props/chest_gold_lod0.glb", 0.0],
+	"mf_chest_metal_wood": [MF + "props/chest_metal_wood_lod0.glb", 0.0],
+	"mf_chest_orange_metal": [MF + "props/chest_orange_metal_lod0.glb", 0.0],
+	"mf_chest_red_black": [MF + "props/chest_red_black_lod0.glb", 0.0],
+	"mf_chest_silver_lock": [MF + "props/chest_silver_lock_lod0.glb", 0.0],
+	"mf_bush_raspberry": [MF + "flora/bush_raspberry_lod0.glb", 0.0],
+	"mf_bouquet_wild": [MF + "flora/bouquet_wild_lod0.glb", 0.0],
+	"mf_mushroom_glow_brown": [MF + "flora/mushroom_glow_brown_lod0.glb", 0.0],
+	"mf_sign_shop_lion": [MF + "signs/sign_shop_lion_lod0.glb", 0.0],
+	"mf_stall_meat_shingle": [MF + "market/stall_meat_shingle_lod0.glb", 0.0],
+	"mf_stall_potatoes": [MF + "market/stall_potatoes_lod0.glb", 0.0],
+	"mf_stall_open_roof": [MF + "market/stall_open_roof_lod0.glb", 0.0],
+	"mf_shed_striped_awning": [MF + "market/shed_striped_awning_lod0.glb", 0.0],
+	"mf_table_tavern_thick": [MF + "furniture/table_tavern_thick_lod0.glb", 0.0],
+	"mf_table_tavern_trestle": [MF + "furniture/table_tavern_trestle_lod0.glb", 0.0],
+	"mf_table_barrel_top": [MF + "furniture/table_barrel_top_lod0.glb", 0.0],
+	"mf_tavern_set_barrels_b": [MF + "furniture/tavern_set_barrels_b_lod0.glb", 0.0],
+	"mf_chair_simple_a": [MF + "furniture/chair_simple_a_lod0.glb", 0.0],
+	"mf_chair_simple_b": [MF + "furniture/chair_simple_b_lod0.glb", 0.0],
 	"banner_pole": [GEN + "banner_pole.glb", 0.0],
 	"wall_banner": [GEN + "wall_banner.glb", 0.0],
 	"shop_sign": [GEN + "shop_sign.glb", 0.0],
@@ -554,7 +604,7 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 			continue
 		var inst: Node = Assets.scene(file).instantiate()
 		var ap: AnimationPlayer = inst.find_children("*", "AnimationPlayer", true, false)[0]
-		var root_motion_lib := file.begins_with(UAL_ANIM_DIR) or file.begins_with(UAL_LOCO_DIR)
+		var root_motion_lib := file.begins_with(UAL_ANIM_DIR) or file.begins_with(UAL_LOCO_DIR) or file.begins_with(UAL_TRAV_DIR)
 		for anim_name in ap.get_animation_list():
 			var a: Animation = ap.get_animation(anim_name).duplicate(true)
 			for t in a.get_track_count():

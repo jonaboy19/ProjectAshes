@@ -100,6 +100,28 @@
      "n": 0.2,
      "r": 1.2,
      "from": "yard"
+    },
+    {
+     "in": [
+      "poor",
+      "inn",
+      "craft",
+      "market"
+     ],
+     "id": "mf_hay_bale_yellow_large",
+     "n": 0.3,
+     "r": 1.0,
+     "from": "yard"
+    },
+    {
+     "in": [
+      "poor",
+      "inn"
+     ],
+     "id": "mf_hay_bale_round",
+     "n": 0.3,
+     "r": 1.1,
+     "from": "yard"
     }
    ],
    "yards": [
@@ -126,6 +148,17 @@
      "n": 0.3,
      "r": 1.0,
      "from": "edge"
+    },
+    {
+     "in": [
+      "poor",
+      "craft"
+     ],
+     "id": "mf_shed_thatch_small",
+     "n": 0.05,
+     "r": 2.0,
+     "from": "yard",
+     "solid": true
     }
    ]
   },
@@ -174,6 +207,27 @@
      "r": 1.3,
      "from": "edge",
      "face": true
+    },
+    {
+     "in": [
+      "poor",
+      "inn",
+      "craft"
+     ],
+     "id": "mf_fence_rail_grass_a",
+     "n": 0.4,
+     "r": 1.5,
+     "from": "yard"
+    },
+    {
+     "in": [
+      "poor",
+      "inn"
+     ],
+     "id": "mf_fence_rail_grass_b",
+     "n": 0.3,
+     "r": 1.5,
+     "from": "yard"
     }
    ]
   },
@@ -210,6 +264,27 @@
      "n": 0.4,
      "r": 1.6,
      "from": "yard"
+    },
+    {
+     "in": [
+      "poor",
+      "inn"
+     ],
+     "id": "mf_hay_bale_lowpoly",
+     "n": 0.3,
+     "r": 1.0,
+     "from": "yard"
+    },
+    {
+     "in": [
+      "poor",
+      "inn"
+     ],
+     "id": "mf_chicken_coop_fenced",
+     "n": 0.05,
+     "r": 1.6,
+     "from": "yard",
+     "solid": true
     }
    ]
   },
@@ -246,6 +321,27 @@
      "n": 0.5,
      "r": 0.5,
      "from": "edge"
+    },
+    {
+     "in": [
+      "inn",
+      "craft"
+     ],
+     "id": "mf_tavern_set_barrels_b",
+     "n": 0.2,
+     "r": 2.0,
+     "from": "yard"
+    },
+    {
+     "in": [
+      "inn",
+      "market"
+     ],
+     "id": "mf_table_barrel_top",
+     "n": 0.2,
+     "r": 0.8,
+     "from": "edge",
+     "face": true
     }
    ],
    "yards": [
@@ -297,6 +393,27 @@
      "n": 0.2,
      "r": 1.2,
      "from": "yard"
+    },
+    {
+     "in": [
+      "market",
+      "inn",
+      "poor"
+     ],
+     "id": "mf_bouquet_wild",
+     "n": 0.6,
+     "r": 0.4,
+     "from": "edge"
+    },
+    {
+     "in": [
+      "poor",
+      "inn"
+     ],
+     "id": "mf_bush_raspberry",
+     "n": 0.3,
+     "r": 1.0,
+     "from": "yard"
     }
    ]
   },
@@ -324,6 +441,16 @@
      "r": 1.1,
      "from": "edge",
      "face": true
+    },
+    {
+     "in": [
+      "poor",
+      "craft"
+     ],
+     "id": "mf_fence_picket_low",
+     "n": 0.3,
+     "r": 1.5,
+     "from": "yard"
     }
    ],
    "yards": [
@@ -369,6 +496,30 @@
      "r": 0.6,
      "from": "edge",
      "face": true
+    },
+    {
+     "in": [
+      "market",
+      "inn"
+     ],
+     "id": "mf_stall_open_roof",
+     "n": 0.12,
+     "r": 2.7,
+     "from": "edge",
+     "face": true,
+     "solid": true
+    },
+    {
+     "in": [
+      "market",
+      "inn"
+     ],
+     "id": "mf_stall_potatoes",
+     "n": 0.1,
+     "r": 2.9,
+     "from": "edge",
+     "face": true,
+     "solid": true
     }
    ]
   },
@@ -415,6 +566,17 @@
      "r": 1.6,
      "from": "edge",
      "face": true
+    },
+    {
+     "in": [
+      "craft",
+      "poor"
+     ],
+     "id": "mf_chest_orange_metal",
+     "n": 0.04,
+     "r": 0.8,
+     "from": "edge",
+     "face": true
     }
    ],
    "yards": [
@@ -459,6 +621,17 @@
      "n": 0.2,
      "r": 1.7,
      "from": "yard"
+    },
+    {
+     "in": [
+      "craft",
+      "poor"
+     ],
+     "id": "mf_wall_stone_railing",
+     "n": 0.3,
+     "r": 1.4,
+     "from": "edge",
+     "face": true
     }
    ],
    "yards": [
@@ -531,6 +704,16 @@
      "n": 0.2,
      "r": 1.5,
      "from": "yard"
+    },
+    {
+     "in": [
+      "craft",
+      "poor"
+     ],
+     "id": "mf_axe_long_handle",
+     "n": 0.2,
+     "r": 0.9,
+     "from": "edge"
     }
    ]
   },
@@ -595,6 +778,30 @@
      "r": 0.6,
      "from": "edge",
      "face": true
+    },
+    {
+     "in": [
+      "market",
+      "inn",
+      "admin"
+     ],
+     "id": "mf_stall_meat_shingle",
+     "n": 0.1,
+     "r": 2.7,
+     "from": "edge",
+     "face": true,
+     "solid": true
+    },
+    {
+     "in": [
+      "market"
+     ],
+     "id": "mf_shed_striped_awning",
+     "n": 0.06,
+     "r": 3.0,
+     "from": "edge",
+     "face": true,
+     "solid": true
     }
    ]
   },
@@ -644,6 +851,17 @@
      "n": 0.4,
      "r": 0.6,
      "from": "edge"
+    },
+    {
+     "in": [
+      "market",
+      "admin"
+     ],
+     "id": "mf_chest_silver_lock",
+     "n": 0.06,
+     "r": 0.8,
+     "from": "edge",
+     "face": true
     }
    ]
   },
@@ -693,6 +911,17 @@
      "id": "woodpile",
      "n": 0.3,
      "r": 1.7,
+     "from": "yard"
+    },
+    {
+     "in": [
+      "craft",
+      "poor",
+      "inn"
+     ],
+     "id": "mf_hay_bale_round",
+     "n": 0.2,
+     "r": 1.1,
      "from": "yard"
     }
    ],
@@ -746,6 +975,17 @@
      "id": "banner_pole",
      "n": 0.5,
      "r": 0.6,
+     "from": "edge",
+     "face": true
+    },
+    {
+     "in": [
+      "market",
+      "inn"
+     ],
+     "id": "mf_chest_gold",
+     "n": 0.03,
+     "r": 0.8,
      "from": "edge",
      "face": true
     }
@@ -807,6 +1047,16 @@
      "r": 0.6,
      "from": "edge",
      "face": true
+    },
+    {
+     "in": [
+      "craft",
+      "poor"
+     ],
+     "id": "mf_fence_picket_tall",
+     "n": 0.2,
+     "r": 1.5,
+     "from": "yard"
     }
    ]
   },
@@ -884,6 +1134,16 @@
      "n": 0.3,
      "r": 2.4,
      "from": "yard"
+    },
+    {
+     "in": [
+      "craft",
+      "poor"
+     ],
+     "id": "mf_fence_picket_tall",
+     "n": 0.2,
+     "r": 1.5,
+     "from": "yard"
     }
    ]
   },
@@ -934,6 +1194,26 @@
      "n": 0.25,
      "r": 1.2,
      "from": "yard"
+    },
+    {
+     "in": [
+      "military",
+      "admin"
+     ],
+     "id": "mf_lamp_post_timber_cross",
+     "n": 0.3,
+     "r": 0.7,
+     "from": "edge"
+    },
+    {
+     "in": [
+      "military"
+     ],
+     "id": "mf_chest_red_black",
+     "n": 0.05,
+     "r": 0.8,
+     "from": "edge",
+     "face": true
     }
    ]
   },
@@ -957,6 +1237,16 @@
      "from": "edge",
      "face": true,
      "solid": true
+    },
+    {
+     "in": [
+      "military",
+      "poor"
+     ],
+     "id": "mf_lamp_post_timber_cross",
+     "n": 0.25,
+     "r": 0.7,
+     "from": "edge"
     }
    ]
   },
@@ -1005,6 +1295,27 @@
      "r": 1.6,
      "from": "edge",
      "face": true
+    },
+    {
+     "in": [
+      "inn",
+      "military"
+     ],
+     "id": "mf_hay_bale_round",
+     "n": 0.3,
+     "r": 1.1,
+     "from": "yard"
+    },
+    {
+     "in": [
+      "inn",
+      "military"
+     ],
+     "id": "mf_shed_plank_low",
+     "n": 0.04,
+     "r": 1.8,
+     "from": "yard",
+     "solid": true
     }
    ]
   },
@@ -1042,6 +1353,16 @@
      "n": 0.4,
      "r": 1.0,
      "from": "edge"
+    },
+    {
+     "in": [
+      "poor",
+      "craft"
+     ],
+     "id": "mf_fence_broken_rail",
+     "n": 0.2,
+     "r": 1.2,
+     "from": "yard"
     }
    ],
    "yards": [
@@ -1096,6 +1417,16 @@
      "n": 0.1,
      "r": 2.4,
      "from": "yard"
+    },
+    {
+     "in": [
+      "poor",
+      "craft"
+     ],
+     "id": "mf_axe_long_handle",
+     "n": 0.35,
+     "r": 0.9,
+     "from": "edge"
     }
    ]
   },
@@ -1132,6 +1463,17 @@
      "n": 0.4,
      "r": 1.0,
      "from": "edge"
+    },
+    {
+     "in": [
+      "craft",
+      "poor"
+     ],
+     "id": "mf_shed_plank_low",
+     "n": 0.06,
+     "r": 1.8,
+     "from": "yard",
+     "solid": true
     }
    ]
   },
@@ -1157,6 +1499,16 @@
      "n": 0.4,
      "r": 1.5,
      "from": "yard"
+    },
+    {
+     "in": [
+      "poor",
+      "military"
+     ],
+     "id": "mf_lamp_post_timber_cross",
+     "n": 0.25,
+     "r": 0.7,
+     "from": "edge"
     }
    ],
    "yards": [
@@ -1214,6 +1566,27 @@
      "r": 0.6,
      "from": "edge",
      "face": true
+    },
+    {
+     "in": [
+      "admin",
+      "market"
+     ],
+     "id": "mf_street_lantern_whimsical",
+     "n": 0.2,
+     "r": 0.6,
+     "from": "edge"
+    },
+    {
+     "in": [
+      "admin",
+      "market",
+      "poor"
+     ],
+     "id": "mf_bouquet_wild",
+     "n": 0.4,
+     "r": 0.4,
+     "from": "edge"
     }
    ]
   },
@@ -1251,6 +1624,17 @@
      "id": "basket_produce",
      "n": 0.3,
      "r": 0.5,
+     "from": "edge"
+    },
+    {
+     "in": [
+      "admin",
+      "market",
+      "poor"
+     ],
+     "id": "mf_street_lantern_whimsical",
+     "n": 0.25,
+     "r": 0.6,
      "from": "edge"
     }
    ]
@@ -1301,6 +1685,36 @@
      "r": 1.3,
      "from": "edge",
      "face": true
+    },
+    {
+     "in": [
+      "poor",
+      "inn",
+      "admin"
+     ],
+     "id": "mf_bush_raspberry",
+     "n": 0.5,
+     "r": 1.0,
+     "from": "yard"
+    },
+    {
+     "in": [
+      "poor",
+      "craft"
+     ],
+     "id": "mf_bouquet_wild",
+     "n": 0.5,
+     "r": 0.4,
+     "from": "edge"
+    },
+    {
+     "in": [
+      "poor"
+     ],
+     "id": "mf_mushroom_glow_brown",
+     "n": 0.25,
+     "r": 0.6,
+     "from": "yard"
     }
    ]
   },
@@ -1351,6 +1765,16 @@
      "r": 0.7,
      "from": "edge",
      "face": true
+    },
+    {
+     "in": [
+      "admin",
+      "market"
+     ],
+     "id": "mf_street_lamp_twin_gold",
+     "n": 0.35,
+     "r": 0.8,
+     "from": "edge"
     }
    ]
   },
@@ -1390,6 +1814,27 @@
      "n": 0.3,
      "r": 1.5,
      "from": "yard"
+    },
+    {
+     "in": [
+      "admin",
+      "market",
+      "inn"
+     ],
+     "id": "mf_street_lantern_gothic",
+     "n": 0.5,
+     "r": 0.7,
+     "from": "edge"
+    },
+    {
+     "in": [
+      "market",
+      "poor"
+     ],
+     "id": "mf_street_lantern_whimsical",
+     "n": 0.4,
+     "r": 0.6,
+     "from": "edge"
     }
    ]
   },
@@ -1495,6 +1940,17 @@
      "n": 0.1,
      "r": 2.4,
      "from": "yard"
+    },
+    {
+     "in": [
+      "poor",
+      "craft"
+     ],
+     "id": "mf_chest_blue_iron",
+     "n": 0.05,
+     "r": 0.8,
+     "from": "edge",
+     "face": true
     }
    ]
   },
@@ -1545,6 +2001,16 @@
      "n": 0.4,
      "r": 1.0,
      "from": "edge"
+    },
+    {
+     "in": [
+      "craft",
+      "poor"
+     ],
+     "id": "mf_fence_broken_rail",
+     "n": 0.2,
+     "r": 1.2,
+     "from": "yard"
     }
    ],
    "yards": [
@@ -1601,6 +2067,16 @@
      "r": 2.2,
      "from": "yard",
      "solid": true
+    },
+    {
+     "in": [
+      "craft",
+      "poor"
+     ],
+     "id": "mf_fence_broken_rail",
+     "n": 0.15,
+     "r": 1.2,
+     "from": "yard"
     }
    ],
    "yards": [
@@ -1659,6 +2135,16 @@
      "r": 2.2,
      "from": "yard",
      "solid": true
+    },
+    {
+     "in": [
+      "poor",
+      "craft"
+     ],
+     "id": "mf_fence_broken_rail",
+     "n": 0.2,
+     "r": 1.2,
+     "from": "yard"
     }
    ],
    "yards": [

@@ -88,27 +88,22 @@ jobs:
       - name: Import assets
         working-directory: kingdom
         run: timeout 5400 ../godot --headless --path . --import 2>&1 | grep -vE "^\s*$|Loading resource|reimport" | tail -40 || true
-      - name: Run tests
+      - name: Run tests (batched; one process for the whole suite crashes near the end)
         id: run
-        working-directory: kingdom
         run: |
           set +e
-          timeout 3600 ../godot --headless --path . -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd \
-            --add res://tests --ignoreHeadlessMode -rd res://reports/ci -rc 1 > ../test.log 2>&1
+          GODOT="$PWD/godot" LOGDIR="$PWD/kingdom/reports/batches" bash tools/qa/run_tests.sh 20 > test.log 2>&1
           code=$?
           set -e
-          sed 's/\x1b\[[0-9;]*m//g' ../test.log > ../test_plain.log
+          sed 's/\x1b\[[0-9;]*m//g' test.log > test_plain.log
           {
             echo "## gdUnit4 (exit $code)"
-            grep -E "Overall Summary" ../test_plain.log | tail -1
             echo '```'
-            grep -E "FAILED|SCRIPT ERROR|Parse Error|failed to load" ../test_plain.log | sort -u | head -60
+            cat test_plain.log | tail -60
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
-          grep -E "Overall Summary" ../test_plain.log | tail -1
-          grep -E "FAILED|SCRIPT ERROR|Parse Error" ../test_plain.log | sort -u | head -60
-          # 0 = pass, 101 = only orphan warnings (known headless noise).
-          if [ "$code" != "0" ] && [ "$code" != "101" ]; then exit 1; fi
+          cat test_plain.log
+          exit $code
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@v4
@@ -116,5 +111,5 @@ jobs:
           name: gdunit-report
           path: |
             test_plain.log
-            kingdom/reports/ci
+            kingdom/reports/batches
           retention-days: 7

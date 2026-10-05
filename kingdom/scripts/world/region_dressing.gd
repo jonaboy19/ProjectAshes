@@ -9,7 +9,8 @@ extends Node3D
 const REGION := "res://assets/generated/region/"
 const GEN := "res://assets/generated/"
 const MESHY := "res://assets/incoming/ai3d/meshy/"
-const BUILD := 240.0
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
+const BUILD := 240.0       # defaults; live values: CellStreamer profile "dressing"
 const FREE := 330.0
 const LOD_DIST := 55.0
 const Breakable := preload("res://scripts/world/breakable.gd")
@@ -17,6 +18,7 @@ const Breakable := preload("res://scripts/world/breakable.gd")
 ## "r1:<dir>/<name>@<h>" (incoming/region1), and bodies that are not meshes (signs, named NPCs, doors).
 const Extras := preload("res://scripts/world/region1_extras.gd")
 const FREE_PACK := "res://assets/incoming/meshy_free/"
+const FillStyle := preload("res://scripts/world/fill_style.gd")      # Style G per-model treatment of the meshy_free pack
 const R1 := "res://assets/incoming/region1/"
 const R1_KIT := "res://assets/incoming/region1/highwatch/highwatch_kit.tres"
 const R1_KIT_LOW := "res://assets/incoming/region1/highwatch/highwatch_kit_low.tres"
@@ -149,14 +151,16 @@ func _process_inner(delta: float) -> void:
 		return
 	_timer = 0.75
 	var p := Vector2(focus.x, focus.z)
+	var build_dist: float = CellStreamer.shared().distance("dressing", "load")      # F12: one place sets the distances
+	var free_dist: float = CellStreamer.shared().distance("dressing", "free")
 	for site in WorldGen.sites:
 		var id: int = site["id"]
 		var d := p.distance_to(site["pos"])
 		if not _in_season(site):
 			d = INF      # seasonal pieces (the Solkar caravans) exist only in their season
-		if d < BUILD and not _built.has(id):
+		if d < build_dist and not _built.has(id):
 			_built[id] = _build(site)
-		elif d > FREE and _built.has(id):
+		elif d > free_dist and _built.has(id):
 			var n: Node3D = _built[id]
 			_built.erase(id)
 			if is_instance_valid(n):
@@ -312,7 +316,7 @@ func _bake_site(root: Node3D) -> void:
 			cached[key] = mesh
 		var ref: MeshInstance3D = list[0]
 		var baked := MeshInstance3D.new()
-		baked.name = "Baked"
+		baked.name = "Baked_" + key.replace("|", "_").replace(".", "")      # unique per range group (the linter skips names containing "baked"; a second "Baked" would be auto-renamed)
 		baked.mesh = mesh
 		baked.cast_shadow = ref.cast_shadow
 		baked.visibility_range_begin = ref.visibility_range_begin
@@ -390,8 +394,11 @@ const CROP_MAX_SPREAD := 0.9
 func _ground_spread(world: Vector3, basis: Basis, box: AABB) -> float:
 	var lo := WorldGen.height(world.x, world.z)
 	var hi := lo
+	var mid := box.get_center()
 	for corner in [Vector3(box.position.x, 0, box.position.z), Vector3(box.end.x, 0, box.position.z),
-			Vector3(box.position.x, 0, box.end.z), Vector3(box.end.x, 0, box.end.z)]:
+			Vector3(box.position.x, 0, box.end.z), Vector3(box.end.x, 0, box.end.z),
+			Vector3(mid.x, 0, box.position.z), Vector3(mid.x, 0, box.end.z),      # edge midpoints: a ridge between corners
+			Vector3(box.position.x, 0, mid.z), Vector3(box.end.x, 0, mid.z), Vector3(mid.x, 0, mid.z)]:
 		var q: Vector3 = world + basis * (corner * 0.8)
 		var h := WorldGen.height(q.x, q.z)
 		lo = minf(lo, h)
@@ -403,8 +410,11 @@ func _footprint_ground(world: Vector3, basis: Basis, box: AABB) -> float:
 	var lowest := WorldGen.height(world.x, world.z)
 	if box.size.x * box.size.z < 4.0:
 		return lowest - 0.03
+	var mid := box.get_center()
 	for corner in [Vector3(box.position.x, 0, box.position.z), Vector3(box.end.x, 0, box.position.z),
-			Vector3(box.position.x, 0, box.end.z), Vector3(box.end.x, 0, box.end.z)]:
+			Vector3(box.position.x, 0, box.end.z), Vector3(box.end.x, 0, box.end.z),
+			Vector3(mid.x, 0, box.position.z), Vector3(mid.x, 0, box.end.z),      # edge midpoints: a ridge between corners
+			Vector3(box.position.x, 0, mid.z), Vector3(box.end.x, 0, mid.z), Vector3(mid.x, 0, mid.z)]:
 		var q: Vector3 = world + basis * (corner * 0.8)
 		lowest = minf(lowest, WorldGen.height(q.x, q.z))
 	return lowest - 0.08
@@ -492,6 +502,8 @@ func _spawn_kit(asset: String) -> Node3D:
 		if mat != null:
 			for mi in n.find_children("*", "MeshInstance3D", true, false):
 				(mi as MeshInstance3D).material_override = mat
+	elif is_free:
+		FillStyle.apply(n, asset)       # Style G per-model remap (desaturate, matte, role) for the meshy_free pack
 	var holder := Node3D.new()
 	holder.add_child(n)
 	n.scale = Vector3.ONE * k

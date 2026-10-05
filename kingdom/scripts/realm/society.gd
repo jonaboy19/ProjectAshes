@@ -51,6 +51,7 @@ const CRIMES := {
 	"assault": {"sev": 2, "report": 0.6, "fine": 30, "evidence": ["blood", "witness_statement"], "under": 0.5},
 	"illegal_arms": {"sev": 1, "report": 0.5, "fine": 25, "evidence": ["witness_statement"], "under": 0.3},
 	"extortion": {"sev": 3, "report": 0.5, "fine": 90, "evidence": ["witness_statement"], "under": 3.0},
+	"trespass": {"sev": 1, "report": 0.5, "fine": 12, "evidence": ["witness_statement"], "under": 0.3},
 }
 const EVIDENCE_DECAY := {"blood": 0.03, "footprints": 0.2, "stolen_goods": 0.006, "witness_statement": 0.03, "weapon": 0.01,
 	"forged_document": 0.01, "contraband": 0.01}

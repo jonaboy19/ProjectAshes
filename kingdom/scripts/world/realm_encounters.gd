@@ -22,6 +22,7 @@ const Crafting := preload("res://scripts/sim/crafting.gd")
 
 const SCOUT_AGE := 9            ## education.gd SCOUT_AGE
 const TICK := 2.0
+const CreaturePool := preload("res://scripts/core/creature_pool.gd")
 const WALK_SPEED := 2.3
 const RUN_SPEED := 4.4
 const SPAWN_DIST := 15.0
@@ -1013,8 +1014,7 @@ func _spawn_beasts(species: String, pos: Vector2, count: int) -> void:
 	if look not in ["wolf", "bear", "boar"]:
 		look = "wolf"
 	for i in count:
-		var w := Wolf.new()
-		w.species = look
+		var w: Wolf = CreaturePool.wolf("encounters_" + species, look)
 		if species == "corrupted_wolf":
 			w.scale = Vector3.ONE * 1.2
 		w.home = pos

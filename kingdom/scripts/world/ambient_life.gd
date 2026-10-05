@@ -16,6 +16,8 @@ extends Node3D
 
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
 const ForageNodes := preload("res://scripts/world/forage_nodes.gd")
+const CreaturePool := preload("res://scripts/core/creature_pool.gd")
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
 const SPAWN := 110.0
 const SMALL_FLOCK := ["chicken", "pigeon", "duck", "goose"]
 const DESPAWN := 170.0
@@ -80,6 +82,19 @@ func _ready() -> void:
 			var wp: Vector2 = site["pos"]
 			var tied := wp + Vector2(sin(wyaw), cos(wyaw)) * 9.0 + Vector2(cos(wyaw), -sin(wyaw)) * 8.0
 			_group(tied, [["horse", 1], ["horse_grey", 1]] if wrng.randf() < 0.5 else [["horse", 1]], 3.0)
+	# Meshy free / Quaternius extras (own RNG stream, appended after everything above): a white horse at the Crownstead and Highwatch
+	# stables, huskies at the northern camps (Grimfen Pass, Frostmere).
+	var xrng := RandomNumberGenerator.new()
+	xrng.seed = 5152
+	for site in WorldGen.sites:
+		var nm := String(site["name"])
+		var sp: Vector2 = site["pos"]
+		var syaw := float(site["yaw"])
+		var side := Vector2(cos(syaw), -sin(syaw))
+		if nm == "Crownstead Steward's Hall" or nm == "Highwatch Keep":
+			_group(sp + Vector2(sin(syaw), cos(syaw)) * 14.0 + side * 12.0, [["horse_white", 1]], 3.0)
+		elif nm == "Grimfen Pass" or nm == "Frostmere Smokehouse":
+			_group(sp + Vector2(sin(syaw), cos(syaw)) * 9.0 + side * (xrng.randf_range(4.0, 8.0)), [["husky", 2]], 5.0)
 	# Waterfowl on the lake shore.
 	var lc: Vector2 = WorldGen.lake_center
 	if lc.x < 1.0e5:
@@ -87,6 +102,23 @@ func _ready() -> void:
 			var a := TAU * i / 4.0 + 0.4
 			var p := lc + Vector2(cos(a), sin(a)) * (WorldGen.lake_radius + 4.0)
 			_group(p, [["duck", rng.randi_range(3, 5)], ["goose", rng.randi_range(0, 2)]], 6.0)
+	preload("res://scripts/world/thornfield/livestock.gd").add_groups(self)   # F8: Thornfield's pigs, hens, sheep, cows and yard dog
+
+
+## Meshy free pack farm animals stand in for part of the herd and the flock: every other cow wears one of three coats, every other
+## hen or rooster is the rigged Meshy bird (docs/qa/ASSET_AUDIT.md). Deterministic per animal index and group position.
+const COW_COATS := ["cow", "cow_brown_a", "cow_spotted", "cow_brown_b"]
+
+
+static func _variant(kind: String, k: int, at: Vector2) -> String:
+	var h := absi(int(at.x * 0.37) + int(at.y * 0.53)) + k
+	if kind == "cow":
+		return COW_COATS[h % COW_COATS.size()]
+	if kind == "chicken" and h % 2 == 1:
+		return "hen_meshy"
+	if kind == "rooster" and h % 2 == 0:
+		return "rooster_meshy"
+	return kind
 
 
 func _group(pos: Vector2, kinds: Array, radius: float) -> void:
@@ -108,7 +140,13 @@ func _process(delta: float) -> void:
 func _update_group(g: Dictionary, p: Vector2) -> void:
 	var d := p.distance_to(g["pos"])
 	var nodes: Array = g["nodes"]
-	if d < SPAWN and nodes.is_empty():
+	# F12: the group is a spawner site of the cell manager: asleep (UNLOADED) = no bodies, awake = bodies. Without the
+	# manager's tier (-1: not fed this focus) the old distance check is used with the same numbers.
+	var cs: RefCounted = CellStreamer.shared()
+	var tier: int = cs.spawner_tier("ambient", g, g["pos"], p)
+	var wake: bool = d < cs.distance("ambient", "load") if tier < 0 else tier >= CellStreamer.Tier.LOW
+	var sleep: bool = d > cs.distance("ambient", "free") if tier < 0 else tier == CellStreamer.Tier.UNLOADED
+	if wake and nodes.is_empty():
 		for pair: Array in g["kinds"]:
 			var want := int(pair[1])
 			if SMALL_FLOCK.has(pair[0]):
@@ -118,18 +156,16 @@ func _update_group(g: Dictionary, p: Vector2) -> void:
 				if BEASTS.has(pair[0]):
 					_spawn_beast(g, String(pair[0]), nodes)
 					continue
-				var cr := Critter.new()
-				cr.kind = pair[0]
+				var cr: Critter = CreaturePool.critter("ambient", _variant(String(pair[0]), k, g["pos"]))
 				cr.home = g["pos"]
 				add_child(cr)
 				var r: float = g["radius"]
 				var q: Vector2 = g["pos"] + Vector2(randf_range(-r, r), randf_range(-r, r)) * 0.6
 				cr.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
 				nodes.append(cr)
-	elif d > DESPAWN and not nodes.is_empty():
+	elif sleep and not nodes.is_empty():
 		for n in nodes:
-			if is_instance_valid(n):
-				n.queue_free()
+			CreaturePool.give_back(n)
 		nodes.clear()
 
 
@@ -138,8 +174,8 @@ func _update_wild(p: Vector2) -> void:
 	for g in _wild.duplicate():
 		if p.distance_to(g["pos"]) > DESPAWN:
 			for n in g["nodes"]:
-				if is_instance_valid(n):
-					n.queue_free()
+				CreaturePool.give_back(n)
+			CellStreamer.shared().release_spawner("ambient", g)
 			_wild.erase(g)
 	var tries := 6
 	while _wild.size() < WILD_RINGS and tries > 0:
@@ -182,8 +218,7 @@ func _beast_kinds(q: Vector2) -> Array:
 func _spawn_beast(g: Dictionary, kind: String, nodes: Array) -> void:
 	if not Models.has(kind):
 		return
-	var b := Wolf.new()
-	b.species = kind
+	var b: Wolf = CreaturePool.wolf("ambient", kind)
 	b.home = g["pos"]
 	b.territory = float(BEASTS[kind])
 	add_child(b)

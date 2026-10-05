@@ -181,11 +181,13 @@ const PARRY_HIT_STOP := 0.12
 ## exact timings that used to live here (anim, damage, lock = whole swing, hit = contact time, cost,
 ## knockback). hit_time() = old "hit", total() = old "lock", cancel window = last SWING_CANCEL of it.
 const CombatMoves := preload("res://scripts/combat/combat_moves.gd")
+const PlayerArms := preload("res://scripts/actors/player_arms.gd")   # F3: heavy / bow / knockdown glue (logic lives there)
 const HitResolver := preload("res://scripts/combat/hit_resolver.gd")
 const CombatFeedback := preload("res://scripts/combat/combat_feedback.gd")
 const CombatFeel := preload("res://scripts/combat/combat_feel.gd")
 const EnemyHighlight := preload("res://scripts/combat/enemy_highlight.gd")
 const ChaseCamera := preload("res://scripts/actors/chase_camera.gd")
+const Traversal := preload("res://scripts/actors/traversal.gd")   # F2: vault / mantle / ledge / ladder / step-up (logic lives there)
 ## The slash arc needs ~0.07 s to read, so it spawns this long before the hit.
 const SLASH_LEAD := 0.07
 ## Attack lunge stops short of the target: never push the body into the enemy (FEEL_AUDIT F4).
@@ -223,7 +225,8 @@ var _shake := CameraShake.new()
 var _look_target: Node3D
 var _body_node: Node3D
 var _appearance_key := ""
-var combat_style := "sword"     # key into CombatMoves; another weapon = another table, not another branch
+var combat_style := "sword"     # key into CombatMoves; PlayerArms keeps it in step with the equipped weapon type
+var _arms: PlayerArms
 var _combo := -1
 var _action: Resource           # the CombatAction being swung
 var _feedback: RefCounted
@@ -298,6 +301,7 @@ var _hit_stop_token := 0
 var _hit_stopping := false
 var _capsule: CapsuleShape3D
 var _mount: MountController
+var _trav: Traversal.Driver
 ## Travel rules (travel_rules.gd): seconds spent running, winded (out of stamina: walk), seconds of gallop.
 var _run_time := 0.0
 var _winded := false
@@ -341,7 +345,11 @@ func _ready() -> void:
 	add_child(_model)
 	_impact_pause = ImpactPause.new()
 	add_child(_impact_pause)
+	add_child(InteractionController.new())
+	_trav = Traversal.Driver.new(self)
+	_trav.register_provider()
 	_build_body()
+	_arms = PlayerArms.new(self)
 	_pivot = Node3D.new()
 	_pivot.position.y = 1.55
 	add_child(_pivot)
@@ -406,16 +414,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		toggle_lock()
 	elif event.is_action_pressed("crouch"):
 		toggle_crouch()
-	elif event.is_action_pressed("interact"):
-		# Runs before main.gd's handler (deeper in the tree), which ignores horses.
-		if _menu_open():
-			return
-		if _mount:
-			toggle_mount()
-		else:
-			var target := nearest_interactable()
-			if target and target.has_method("rideable") and target.call("rideable"):
-				toggle_mount(target)
+	# "interact" is handled in ONE place: the InteractionController child (scripts/interaction/).
 
 
 func _menu_open() -> bool:
@@ -574,6 +573,7 @@ func _physics_process(delta: float) -> void:
 	dash_cooldown = maxf(dash_cooldown - delta, 0.0)
 	_invulnerable -= delta
 	_stunned -= delta
+	_arms.tick(delta)
 	_hurt_cooldown -= delta
 	_stamina_delay -= delta
 	_flinch -= delta
@@ -598,6 +598,8 @@ func _physics_process(delta: float) -> void:
 	if _mount != null:
 		_physics_mounted(delta)
 		return
+	if _trav.tick(delta, _input_dir()):
+		return                          # a scripted vault / mantle / ledge / ladder move owns the body
 
 	var dir := Vector3.ZERO if dead or _stunned > 0.0 else _input_dir()
 	var wade := WorldGen.water_depth(global_position.x, global_position.z)
@@ -684,6 +686,8 @@ func _physics_process(delta: float) -> void:
 				gravity *= 0.5
 			velocity.y = maxf(velocity.y - gravity * delta, -JUMP_TERMINAL)
 	var impact_speed := -velocity.y
+	if floor_before and not _jump_active and not swimming and _move_speed > 0.1:
+		_trav.step_assist(delta, _move_dir, _move_speed)
 	move_and_slide()
 	_update_jump_after_move(floor_before, impact_speed, dir)
 	_resolve_contacts()
@@ -1247,6 +1251,7 @@ func _update_camera(delta: float) -> void:
 	if view == View.THIRD:
 		want_distance += _chase.dist_offset()
 		pivot_goal.y += _chase.lift()
+		pivot_goal.x += _chase.talk_shift()      # conversation: over-the-shoulder
 	if _mount:
 		pivot_goal.y += _mount.rider_offset(k).y
 		if view == View.THIRD:
@@ -1331,6 +1336,7 @@ func _step_chase(delta: float) -> void:
 	if int(SettingsStore.get_value("screen_shake")) == 0:
 		ctx["strength"] = 0.0     # Screen Shake Off also turns off the lens motion
 	_chase.cast_enabled = bool(SettingsStore.get_value("cast_camera"))
+	_chase.talk_enabled = bool(SettingsStore.get_value("talk_camera"))
 	if _chase.casting() and (Input.is_action_just_pressed("attack") or Input.is_action_just_pressed("dodge")
 			or Input.is_action_just_pressed("jump") or touch_move.length() > 0.5):
 		_chase.cancel_cast()       # skippable: any action takes the camera back
@@ -1338,6 +1344,15 @@ func _step_chase(delta: float) -> void:
 
 
 ## FOV impulse from combat feel code: positive = outward punch. Decays on its own and rides above the base FOV.
+## Conversation framing on/off (TalkSession): eases over ~0.4 s, off when the setting is off.
+func set_talk_framing(on: bool) -> void:
+	_chase.talk_enabled = bool(SettingsStore.get_value("talk_camera"))
+	if on:
+		_chase.begin_talk()
+	else:
+		_chase.end_talk()
+
+
 func add_fov_impulse(degrees: float) -> void:
 	_chase.add_fov_impulse(degrees * _screen_feedback_strength())
 
@@ -1409,16 +1424,30 @@ func _update_look_target() -> void:
 func attack() -> void:
 	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0:
 		return
+	if _arms.bow_tap():
+		return
 	if _can_attack():
 		_start_swing()
 	else:
 		_attack_buffer = ATTACK_BUFFER   # early press: fire at the next opening
 
 
+## Input entry points (main.gd): a tap fires attack() on release, a hold past the data hold time charges a heavy
+## (bow: draws), release swings / fires. See player_arms.gd.
+func attack_press() -> void:
+	_arms.press()
+
+
+func attack_release() -> void:
+	_arms.release()
+
+
 ## Space / the mobile button buffers a jump briefly through an attack lockout or
 ## the last few frames before landing. A second press in the air never relaunches.
 func jump() -> void:
 	if dead or swimming or _mount != null or _menu_open():
+		return
+	if _trav.on_jump_pressed():
 		return
 	_jump_buffer = JUMP_BUFFER
 
@@ -1643,6 +1672,8 @@ func _reset_jump() -> void:
 func dodge() -> void:
 	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0:
 		return
+	if _arms.knock_dodge():
+		return                       # floored: the press is a roll-out (player_arms.gd)
 	if _can_dodge():
 		_start_dodge(false)
 	elif stamina >= DODGE_STAMINA:
@@ -1699,7 +1730,7 @@ func _start_swing() -> void:
 		_animator.stop_full()
 	var steps := CombatMoves.combo(combat_style)
 	_combo = (_combo + 1) % steps.size() if _combo_window > 0.0 else 0
-	var action: Resource = steps[_combo]
+	var action: Resource = _arms.take_forced(steps[_combo])    # a released heavy replaces the combo step
 	_action = action
 	var weak: bool = stamina < action.cost
 	# A tired swing plays at 0.7x, so its blade (and hit) arrives later too.
@@ -1729,7 +1760,7 @@ func _start_swing() -> void:
 	_animator.play_upper(action.anim, rate)
 	var riposte := _parry_bonus > 0.0
 	_parry_bonus = 0.0
-	var damage: int = int(action.damage * (0.5 if weak else 1.0) * (_riposte_mult if riposte else 1.0))
+	var damage: int = int(action.damage * (0.5 if weak else 1.0) * (_riposte_mult if riposte else 1.0) * _arms.take_charge_mult())
 	_riposte_mult = PARRY_DAMAGE
 	swing_started.emit(action, {"hit_t": hit_t, "yaw": _model.rotation.y, "weak": weak, "riposte": riposte,
 		"combo": _combo, "anim_speed": rate, "first_person": _viewmodel.visible, "id": _swing_id})
@@ -1772,11 +1803,15 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 	var points: Array = []
 	var impacted_mixers: Array = []
 	var blade_tip := _trail.tip_position() if _trail else Vector3.ZERO
+	var reach: float = _action.reach if _action != null else 2.6        # spear long, staff wide (CombatAction)
+	var arc_dot: float = _action.arc_dot if _action != null else 0.2
 	for enemy in get_tree().get_nodes_in_group("team1"):
 		var to: Vector3 = (enemy as Node3D).global_position - global_position
 		to.y = 0.0
-		if to.length() < 2.6 and fwd.dot(to.normalized()) > 0.2:
+		if to.length() < reach and fwd.dot(to.normalized()) > arc_dot:
 			enemy.take_damage(damage, self, to.normalized() * knockback)
+			if _action != null and _action.guard_break and enemy.has_method("break_guard"):
+				enemy.call("break_guard", 0.9)
 			impacted_mixers.append_array(enemy.find_children("*", "AnimationMixer", true, false))
 			var point: Vector3 = (enemy as Node3D).global_position + Vector3(0, 0.8, 0) - to.normalized() * 0.3
 			if blade_tip != Vector3.ZERO and blade_tip.distance_to(point) <= 0.6:
@@ -1946,6 +1981,8 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 			_animator.play_full(clip, 1.0)
 		else:
 			_animator.play_upper(clip, 1.0)
+	if health > 0:
+		_arms.on_hit_taken(int(res["result"]), float(atk["poise_damage"]), knockback.length(), from)
 	if health > 0 and amount > 0 and _impact_pause:
 		var attacker_mixers: Array = []
 		if from is Node3D:
@@ -2075,16 +2112,5 @@ func _nearest_enemy(max_dist: float, min_dot: float) -> Node3D:
 
 
 func nearest_interactable() -> Node3D:
-	if _mount and is_instance_valid(_mount.horse):
-		return _mount.horse     # "Dismount"; main.gd ignores horses, player.gd handles them
-	var best: Node3D = null
-	var best_d := 3.2
-	for node in get_tree().get_nodes_in_group("interactable"):
-		var d := global_position.distance_to((node as Node3D).global_position)
-		# Doors, services and pickups beat a passer-by's "Talk" when both are in reach.
-		if node.has_meta("low_priority") and d < 3.2:
-			d = minf(d + 1.6, 3.19)
-		if d < best_d:
-			best_d = d
-			best = node
-	return best
+	# The picker's choice (distance, facing, priority, mount rule); see scripts/interaction/interaction.gd.
+	return Interaction.best_node(self)

@@ -139,6 +139,55 @@ const SETS := {
 }
 
 
+## Meshy free pack pieces (Assets.BUILDINGS "mf_*" keys, native size; docs/qa/ASSET_AUDIT.md "use the unused models"): extra street
+## furniture per district, appended AFTER SETS and before a town's identity-kit specs so the base sets keep their own order.
+const MF_SETS := {
+	"market": [
+		{"id": "mf_street_lantern_whimsical", "n": 0.18, "r": 0.6, "from": "edge"},
+		{"id": "mf_stall_open_roof", "n": 0.05, "r": 2.6, "from": "edge", "face": true, "solid": true},
+		{"id": "mf_stall_potatoes", "n": 0.04, "r": 2.8, "from": "edge", "face": true, "solid": true},
+		{"id": "mf_table_barrel_top", "n": 0.10, "r": 0.8, "from": "edge", "face": true},
+		{"id": "mf_bouquet_wild", "n": 0.12, "r": 0.4, "from": "edge"},
+	],
+	"craft": [
+		{"id": "mf_axe_long_handle", "n": 0.08, "r": 0.8, "from": "edge"},
+		{"id": "mf_chest_metal_wood", "n": 0.05, "r": 0.7, "from": "edge", "face": true},
+		{"id": "mf_hay_bale_rect_a", "n": 0.10, "r": 0.9, "from": "yard"},
+	],
+	"poor": [
+		{"id": "mf_well_stone_shingle", "n": 0.03, "r": 1.9, "from": "yard", "solid": true},
+		{"id": "mf_well_covered_planks", "n": 0.03, "r": 1.9, "from": "yard", "solid": true},
+		{"id": "mf_well_stone_roofed", "n": 0.02, "r": 1.9, "from": "yard", "solid": true},
+		{"id": "mf_hay_bale_round", "n": 0.10, "r": 1.0, "from": "yard"},
+		{"id": "mf_fence_picket_low", "n": 0.20, "r": 1.5, "from": "yard", "face": true},
+		{"id": "mf_fence_plank_panel", "n": 0.12, "r": 1.5, "from": "yard", "face": true},
+		{"id": "mf_shed_thatch_small", "n": 0.04, "r": 2.0, "from": "yard", "solid": true},
+		{"id": "mf_chicken_coop_fenced", "n": 0.03, "r": 1.8, "from": "yard", "solid": true},
+		{"id": "mf_bush_raspberry", "n": 0.10, "r": 1.0, "from": "yard"},
+		{"id": "mf_bouquet_wild", "n": 0.12, "r": 0.4, "from": "edge"},
+	],
+	"admin": [
+		{"id": "mf_street_lamp_twin_gold", "n": 0.22, "r": 0.8, "from": "edge"},
+		{"id": "mf_street_lantern_gothic", "n": 0.22, "r": 0.7, "from": "edge"},
+		{"id": "mf_chest_gold", "n": 0.02, "r": 0.7, "from": "edge", "face": true},
+	],
+	"inn": [
+		{"id": "mf_table_tavern_trestle", "n": 0.10, "r": 1.6, "from": "edge", "face": true, "solid": true},
+		{"id": "mf_table_tavern_thick", "n": 0.08, "r": 1.3, "from": "edge", "face": true, "solid": true},
+		{"id": "mf_chair_simple_a", "n": 0.16, "r": 0.5, "from": "edge", "face": true},
+		{"id": "mf_chair_simple_b", "n": 0.16, "r": 0.5, "from": "edge", "face": true},
+		{"id": "mf_tavern_set_barrels_b", "n": 0.07, "r": 2.0, "from": "yard"},
+		{"id": "mf_hay_bale_yellow_large", "n": 0.10, "r": 1.0, "from": "yard"},
+		{"id": "mf_shed_wood_shingle", "n": 0.03, "r": 1.9, "from": "yard", "solid": true},
+	],
+	"military": [
+		{"id": "mf_lamp_post_timber_cross", "n": 0.20, "r": 0.7, "from": "edge"},
+		{"id": "mf_shed_plank_low", "n": 0.04, "r": 1.8, "from": "yard", "solid": true},
+		{"id": "mf_chest_red_black", "n": 0.04, "r": 0.7, "from": "edge", "face": true},
+		{"id": "mf_axe_long_handle", "n": 0.08, "r": 0.8, "from": "edge"},
+	],
+}
+
 ## Placement context: every constraint a ground prop has to respect, built once per town.
 class Ctx extends RefCounted:
 	var b                                   # SettlementBuilder (dynamic: its helpers are private)
@@ -671,6 +720,9 @@ static func _specs_of(j: Job, dk: String) -> Array:
 				continue      # QA A/B (--medievaloff)
 			if TownIdentity.prop_mult(j.prof, String(sp["id"])) > 0.0:
 				out.append(sp)
+		for sp: Dictionary in MF_SETS.get(dk, []):
+			if TownIdentity.prop_mult(j.prof, String(sp["id"])) > 0.0:
+				out.append(sp)
 		out.append_array(TownIdentity.kit_specs(j.prof, dk))
 		j.specs[dk] = out
 	return j.specs[dk]
@@ -719,7 +771,7 @@ static func _sets_unit(j: Job) -> void:
 		j.spec_placed += 1
 		if bool(spec.get("solid", false)):
 			j.solid_ids[id] = true
-		if id == "well":
+		if id == "well" or id.begins_with("mf_well_"):
 			(j.marks["wells"] as Array).append(p)
 		elif id == "g:notice_board":
 			(j.marks["boards"] as Array).append(p)
