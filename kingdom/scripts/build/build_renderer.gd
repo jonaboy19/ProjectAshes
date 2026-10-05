@@ -12,7 +12,10 @@ const LOD1_FROM := 45.0
 const LOD1_FROM_HIGH := 70.0
 const FAR_END := 400.0
 const POLL := 0.5
+## Settlement roots sit at the grid origin: pieces reach this far from it.
+const GRID_PAD := 64.0
 const COLLIDE_LAYERS := ["foundation", "wall", "floor", "stairs", "pillar", "fence"]
+const TINTED := ["laundry_line", "meshy_banner_stand_iron_frame", "meshy_stall_potatoes", "meshy_stall_open_roof", "meshy_shed_striped_awning", "hay_cart", "meshy_hay_bale_round", "meshy_hay_bale_rect_a", "barrel_cluster", "storage_crates"]
 
 var kit: RefCounted                      # the build_kit module
 var low_tier := false
@@ -35,6 +38,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_cull()
 	_t -= delta
 	if _t > 0.0 or kit == null:
 		return
@@ -106,31 +110,54 @@ func rebuild(gid: int) -> void:
 			_mmi(root, KitMeshes.mesh(kind, 1), xfs, 0.0, FAR_END * 0.5, KitMeshes.ghost_material("blueprint"))
 		else:
 			var has_lod1 := kind.begins_with("meshy_") and ResourceLoader.exists(BuildKit.mesh_path(kind, 1))
-			_mmi(root, KitMeshes.mesh(kind, 0), xfs, 0.0, lod1_from if has_lod1 else 0.0, null)
+			_mmi(root, KitMeshes.mesh(kind, 0), xfs, 0.0, lod1_from if has_lod1 else FAR_END, null, hash(kind) & 0xffff if kind in TINTED else -1)
 			if has_lod1:
 				_mmi(root, KitMeshes.mesh(kind, 1), xfs, lod1_from, FAR_END, null)
+	_skirts(root, gid)
 	_roads(root, gid)
 
 
 static func piece_transform(r: Dictionary) -> Transform3D:
 	var p: Array = r["p"]
 	var deg := float(r["rot"]) * (90.0 if String(r["slot"]) != "free" else 1.0)
-	return Transform3D(Basis(Vector3.UP, deg_to_rad(deg)), Vector3(float(p[0]), float(p[1]), float(p[2])))
+	var xf := Transform3D(Basis(Vector3.UP, deg_to_rad(deg)), Vector3(float(p[0]), float(p[1]), float(p[2])))
+	# Deeper storybook eaves: roof slopes stretch 18 % past the eave (about ridge z = -1), the eave hangs out ~0.35 m more.
+	if String(BuildKit.def(String(r["kind"])).get("layer", "")) == "roof":
+		xf = xf * Transform3D(Basis.IDENTITY.scaled(Vector3(1, 1, 1.18)), Vector3(0, 0, 0.18))
+	return xf
 
 
-func _mmi(root: Node3D, mesh: Mesh, xfs: Array, near: float, far: float, override: Material) -> void:
+func _mmi(root: Node3D, mesh: Mesh, xfs: Array, near: float, far: float, override: Material, tint_seed := -1) -> void:
 	if mesh == null or xfs.is_empty():
 		return
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_colors = tint_seed >= 0
 	mm.mesh = mesh
 	mm.instance_count = xfs.size()
 	for i in xfs.size():
 		mm.set_instance_transform(i, xfs[i])
+	# Distance-cull fix: give the MultiMesh an explicit AABB (its lazily computed one put every piece out of range in the lab).
+	var box := AABB()
+	var mb := mesh.get_aabb()
+	for i in xfs.size():
+		var wb: AABB = (xfs[i] as Transform3D) * mb
+		box = wb if i == 0 else box.merge(wb)
+	mm.custom_aabb = box
+	if tint_seed >= 0:
+		# cloth, banners, laundry, hay: each copy gets its own dye / sun-fade so rows never look stamped
+		var rng := RandomNumberGenerator.new()
+		rng.seed = tint_seed
+		for i in xfs.size():
+			var h := rng.randf()
+			mm.set_instance_color(i, Color.from_hsv(h, 0.25, 1.0).lerp(Color.WHITE, 0.45) * rng.randf_range(0.85, 1.05))
 	var mi := MultiMeshInstance3D.new()
 	mi.multimesh = mm
-	mi.visibility_range_begin = near
-	mi.visibility_range_end = far
+	mi.custom_aabb = mm.custom_aabb
+	# Node visibility ranges culled whole kit MultiMeshes at 35 m in the lab (even with explicit AABBs), so LOD and distance
+	# culling are done per settlement in _cull() instead: near/far are kept as metadata.
+	mi.set_meta("near", near)
+	mi.set_meta("far", far)
 	if override != null:
 		mi.material_override = override
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -223,3 +250,67 @@ static func road_material(m: Material) -> Material:
 		out = load("res://scripts/style_g.gd").double_sided(m as ShaderMaterial)
 	_road_mats[m] = out
 	return out
+
+
+## Mud and cobble skirt round every foundation footprint: a soft disc (vertex alpha fades into the grass) per cell, one MultiMesh.
+func _skirts(root: Node3D, gid: int) -> void:
+	var xfs: Array = []
+	for pid: int in kit.grids[gid]["pieces"]:
+		var r: Dictionary = kit.grids[gid]["pieces"][pid]
+		if String(BuildKit.def(String(r["kind"])).get("layer", "")) == "foundation":
+			var p: Array = r["p"]
+			var g := float(kit.height_fn.call(float(p[0]) + root.position.x, float(p[2]) + root.position.z)) - root.position.y
+			xfs.append(Transform3D(Basis(Vector3.UP, float(pid) * 1.7), Vector3(float(p[0]), g + 0.03, float(p[2]))))
+	if xfs.is_empty():
+		return
+	_mmi(root, skirt_mesh(), xfs, 0.0, FAR_END * 0.5, null)
+
+
+static var _skirt: ArrayMesh
+
+
+static func skirt_mesh() -> ArrayMesh:
+	if _skirt != null:
+		return _skirt
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var n := 14
+	for i in n:
+		var a0 := TAU * i / n
+		var a1 := TAU * (i + 1) / n
+		var r0 := 2.6 + sin(i * 2.3) * 0.35
+		var r1 := 2.6 + sin((i + 1) * 2.3) * 0.35
+		for v: Array in [[Vector3.ZERO, 1.0], [Vector3(cos(a1) * r1, 0, sin(a1) * r1), 0.0], [Vector3(cos(a0) * r0, 0, sin(a0) * r0), 0.0]]:
+			st.set_color(Color(1, 1, 1, v[1]))
+			st.set_uv(Vector2((v[0] as Vector3).x, (v[0] as Vector3).z) * 0.35)
+			st.set_normal(Vector3.UP)
+			st.add_vertex(v[0])
+	_skirt = st.commit()
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = load("res://scripts/style_g.gd").ph("brown_mud_02", "diff", "1k")
+	m.albedo_color = Color("b8a080")
+	m.vertex_color_use_as_albedo = true
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	m.roughness = 1.0
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	_skirt.surface_set_material(0, m)
+	return _skirt
+
+
+## Per-settlement LOD + distance cull (cheap: a few dozen nodes per settlement, run every frame).
+func _cull() -> void:
+	var cam := get_viewport().get_camera_3d() if is_inside_tree() else null
+	if cam == null:
+		return
+	for gid: int in _roots:
+		var root: Node3D = _roots[gid]
+		var d := cam.global_position.distance_to(root.global_position)
+		root.visible = d < FAR_END + GRID_PAD
+		if not root.visible:
+			continue
+		for mi in root.get_children():
+			if mi is GeometryInstance3D and mi.has_meta("far"):
+				var lo := float(mi.get_meta("near"))
+				var hi := float(mi.get_meta("far"))
+				(mi as GeometryInstance3D).visible = d >= lo and d < hi

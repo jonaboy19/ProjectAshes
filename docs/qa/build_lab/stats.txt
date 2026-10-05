@@ -1,1 +1,1 @@
-BUILDLAB pieces=234 multimeshes=53 roads=1 draw_calls=144 primitives=120837
+BUILDLAB pieces=234 multimeshes=54 roads=1 draw_calls=171 primitives=153826

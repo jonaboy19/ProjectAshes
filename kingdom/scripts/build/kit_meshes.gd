@@ -13,13 +13,13 @@ const KIT_MATS := {
 	"kit_timber": ["timber", "medieval_wood", "6a4a34", 0.5],
 	"kit_plank": ["timber", "brown_planks_05", "b89a78", 0.5],
 	"kit_log": ["timber", "medieval_wood", "8a6a4c", 0.5],
-	"kit_stone": ["stone", "castle_wall_slates", "e4e0d6", 0.5],
+	"kit_stone": ["stone", "castle_wall_slates", "e4e0d6", 0.25],
 	"kit_cobble": ["cobble", "cobblestone_floor_01", "cfc8bb", 0.5],
-	"kit_thatch": ["roof", "thatch_roof_angled", "e8c88a", 0.5],
+	"kit_thatch": ["roof", "thatch_roof_angled", "e8c88a", 0.25],
 	"kit_slate": ["roof", "red_slate_roof_tiles_01", "8592a8", 0.5],
 	"kit_shingle": ["roof", "clay_roof_tiles", "a07a5a", 0.5],
 	"kit_iron": ["timber", "", "3a3a3e", 1.0],
-	"kit_cloth": ["cloth", "", "b8463a", 1.0],
+	"kit_cloth": ["cloth", "damaged_plaster", "e2d6bc", 0.5],
 	"kit_clay": ["plaster", "clay_plaster", "c88a68", 0.5],
 	"kit_dirt": ["cobble", "brown_mud_02", "a08a70", 0.5],
 	"kit_hay": ["roof", "thatch_roof_angled", "f0d070", 0.5],
@@ -45,6 +45,7 @@ static func kit_material(name: String, tier := "") -> Material:
 			base.albedo_texture = tex
 			base.uv1_scale = Vector3.ONE * float(spec[3]) * 2.0
 	base.roughness = 0.92
+	base.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC   # calm, mip-mapped at street distance
 	var m: Material = StyleG.material_for(String(spec[0]), base, 1, tier if tier != "" else StyleG.current_tier(), false)
 	if m == null:
 		m = base
