@@ -647,6 +647,14 @@ func _childhood_choice(c: Dictionary) -> void:
 ## Soul Power by tier.
 func _run_awakening() -> void:
 	var culture := "caldric"
+	var selected_cultures: Array[String] = []
+	for candidate: String in awakening.CULTURE_ELEMENT:
+		if life_path.has_flag("culture:" + candidate):
+			selected_cultures.append(candidate)
+	# Legacy/malformed identities keep the historical fallback; never choose
+	# between conflicting flags by Dictionary iteration order.
+	if selected_cultures.size() == 1:
+		culture = selected_cultures[0]
 	var r := awakening.roll(tendencies, culture, WorldSim.SEED, life_path.full_name(), WorldSim.day)
 	for f: String in awakening.flags():
 		life_path.set_flag(f)
@@ -1258,7 +1266,11 @@ func on_wolf_killed(_where: Vector3, den_id := -1, variant := "") -> void:
 	elif den_id >= 0 and den_id < Frontier.ecology.dens.size() and String(Frontier.ecology.dens[den_id].get("species", "")) == "stagborn_warden":
 		r1_species = "stagborn_warden"      # Region 1 story: the Antlered Warden's defeat (r1_story_director.gd)
 	region1_kill.emit(r1_species, _where)
-	for c: Dictionary in guild.on_kill(RAAdventurerGuild.PLAYER, "wolf", den_id):
+	var guild_species := ""
+	if den_id >= 0 and den_id < Frontier.ecology.dens.size():
+		guild_species = String(Frontier.ecology.dens[den_id].get("species", ""))
+	# Den commissions follow ecology identity, not the reused creature body.
+	for c: Dictionary in guild.on_kill(RAAdventurerGuild.PLAYER, guild_species, den_id):
 		if guild.is_ready(int(c["id"])):
 			Game.say("Commission ready to turn in: %s" % c.get("title", ""))
 	add_merit(5, "wolf slain")
