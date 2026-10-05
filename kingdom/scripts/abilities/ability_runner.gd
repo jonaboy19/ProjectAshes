@@ -392,9 +392,9 @@ func interrupt(reason := "interrupted") -> bool:
 ## A body-level interruption replaces every pending cast animation, including
 ## overlapping windups. Use the ordinary interruption rules for each payment.
 func interrupt_all(reason := "interrupted") -> bool:
-	var changed := false
+	var changed := _rec > 0.0
 	if phase == Phase.CHANT:
-		changed = interrupt(reason)
+		changed = interrupt(reason) or changed
 	while not _pending.is_empty():
 		phase = Phase.WINDUP
 		changed = interrupt(reason) or changed

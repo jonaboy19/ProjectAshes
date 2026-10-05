@@ -25,3 +25,7 @@ This addresses impact-pause drift only. Clip contact mapping, playback speed mat
 ## Body interruptions (Codex)
 Player hit reactions, lost clashes, guard breaks and death now call TechniqueCaster.interrupt_cast. AbilityRunner.interrupt_all drains all pending windups, including casts overlapping a chant, using existing interrupt rules and signals. The seal pad closes as failed; existing TechniqueVfx interruption listeners remove unreleased runs. Casting is blocked during player stun/flinch recovery. Released projectiles, target effects and cooldowns remain independent.
 Existing refund behavior is preserved: the player currently has custom commit hooks but no refund hook, so this patch does not promise half-cost refunds for player casts. Dodge, jump and other action replacements still need an ownership policy. No runtime or tests were run.
+
+## Melee / dodge / jump ownership (Codex)
+Successful action starts cancel unreleased casting: melee and both dodge types at their start functions; jump only after its stamina check succeeds. Buffered or rejected inputs do not cancel a cast. New casts are rejected during swing, dodge, landing or jump states. Interrupted casting fades its upper/full animation layers, including recovery, before the replacement action starts. Air casts are not introduced by this pass. Casting-to-casting overlap is still the existing policy and remains open for contact mapping.
+No runtime or tests were run.

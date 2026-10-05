@@ -309,7 +309,12 @@ func _end_seals(success: bool) -> void:
 ## Called when a hit reaction, guard break or death takes control of the body.
 ## Released projectiles and existing target effects remain independent.
 func interrupt_cast(reason := "interrupted") -> void:
-	runner.interrupt_all(reason)
+	var changed: bool = runner.interrupt_all(reason)
+	if changed and is_instance_valid(player):
+		var animator: Variant = player.get("_animator")
+		if is_instance_valid(animator):
+			animator.call("stop_upper")
+			animator.call("stop_full")
 	if is_sealing():
 		_end_seals(false)
 
@@ -369,6 +374,12 @@ func _blocked() -> String:
 		var remaining: Variant = player.get(state)
 		if remaining != null and float(remaining) > 0.0:
 			return "Recovering from a hit."
+	for state: String in ["_swing", "_dodge", "_land_time"]:
+		var remaining: Variant = player.get(state)
+		if remaining != null and float(remaining) > 0.0:
+			return "Finish the current action."
+	if _flag(player, "_jump_starting") or _flag(player, "_jump_active"):
+		return "Jumping."
 	if _flag(player, "swimming"):
 		return "Swimming."
 	if player.has_method("is_mounted") and player.call("is_mounted"):

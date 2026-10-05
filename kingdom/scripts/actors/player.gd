@@ -1432,6 +1432,7 @@ func _begin_jump(running: bool, grounded_at_press: bool) -> void:
 		return
 	_spend(cost)
 	_jump_buffer = 0.0
+	_interrupt_technique("jump")
 	_jump_starting = true
 	# On a ledge, honor coyote input immediately instead of letting the start
 	# anticipation spend the grace window falling below the take-off point.
@@ -1693,6 +1694,7 @@ func _consume_buffers() -> void:
 
 
 func _start_swing() -> void:
+	_interrupt_technique("melee attack")
 	_cancel_locomotion_transition()
 	if _dodge > 0.0:
 		_dodge = 0.0                 # roll attack: the swing takes over the roll's tail
@@ -1796,6 +1798,7 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 
 
 func _start_dodge(is_ability: bool) -> void:
+	_interrupt_technique("dodge")
 	_cancel_locomotion_transition()
 	_dodging_ability = is_ability
 	if is_ability:
