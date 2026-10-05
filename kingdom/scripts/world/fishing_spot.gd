@@ -17,6 +17,9 @@ extends Node3D
 ## dispatcher that also calls use() does no harm.
 
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
+const Crafting := preload("res://scripts/sim/crafting.gd")
+const Deposits := preload("res://scripts/world/deposits.gd")
+const GatherRun := preload("res://scripts/world/gather_run.gd")
 const BITE_WINDOW := 1.1
 const CAST_TIME := 0.9
 const REEL_LIMIT := 30.0
@@ -67,7 +70,22 @@ func _ready() -> void:
 	_build_marker()
 
 
+var deposits := Deposits.new()
+var _panel: Control
+
+
+## The spot's fish stock: a deposit keyed by position, regrowing daily (saved only once fished).
+func dep_id() -> String:
+	return "fishing/dep/fish/%d_%d" % [roundi(global_position.x), roundi(global_position.z)]
+
+
+static func dep_def() -> Dictionary:
+	return Deposits.make_def("fish", "perch", {"cap": 5, "regrow": 2.5})
+
+
 func prompt() -> String:
+	if phase == Phase.IDLE and deposits.is_depleted(dep_id(), dep_def(), WorldSim.day):
+		return "Fished out"
 	return "Fish" if phase == Phase.IDLE else "Reel"
 
 
@@ -77,7 +95,10 @@ func use() -> void:
 		return
 	_last_use_frame = f
 	if phase == Phase.IDLE:
-		_start()
+		if _panel == null and not deposits.is_depleted(dep_id(), dep_def(), WorldSim.day):
+			_start()
+		elif _panel == null:
+			Game.say("The water is still. Nothing is biting here today.")
 	else:
 		_tap()
 
@@ -215,15 +236,35 @@ func _reel(delta: float) -> void:
 		_finish("The line goes slack. It got away.", false)
 
 
+## The fish is on the line: a short GatherSession lands it (a snapped line can lose it, skill and tackle
+## decide the grade) and the catch comes off this spot's fish stock.
 func _land() -> void:
-	Life.give(fish)
+	var landed := fish
+	var node := {"kind": "fish", "item": landed, "level": 1 + Gathering.FISH_ORDER.find(landed) * 2,
+		"qty": mini(3, deposits.units(dep_id(), dep_def(), WorldSim.day)), "quality": 50}
+	_finish("The fish is on the line!", true)
+	_panel = GatherRun.open(self, node, "Land the %s" % Life.item_name(landed), 0,
+		hash([roundi(global_position.x), roundi(global_position.z), Engine.get_process_frames()]), _on_landed)
+	if _panel == null:
+		_on_landed({"ok": true, "item": landed, "count": 1, "consumed": 1, "tier": 1, "xp": 3, "skill": "fishing"})
+
+
+func _on_landed(res: Dictionary) -> void:
+	_panel = null
+	var n: int = deposits.commit(dep_id(), dep_def(), res, WorldSim.day)
+	if n <= 0:
+		Game.say("It slips the hook.")
+		return
+	var item := String(res["item"])
+	Crafting.give_item(Life, item, n, int(res.get("tier", 1)))
 	Life.record("fished")
-	var fish_name := Life.item_name(fish)
-	var text := "You caught %s %s!" % ["an" if "aeiou".contains(fish_name.substr(0, 1).to_lower()) else "a", fish_name]
-	if fish == "emberfin":
+	var fish_name := Life.item_name(item)
+	var text := "You caught %d %s!" % [n, fish_name] if n > 1 else "You caught %s %s!" % ["an" if "aeiou".contains(fish_name.substr(0, 1).to_lower()) else "a", fish_name]
+	if item == "emberfin":
 		text = "An emberfin! Its scales glow like coals in the dusk."
+	text += GatherRun.deliver(res, 0)
+	GatherRun.grant_xp(res)
 	Game.say(text)
-	_finish(text, true)
 
 
 func _finish(text: String, caught: bool) -> void:

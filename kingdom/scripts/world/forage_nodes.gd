@@ -16,6 +16,8 @@ extends Node3D
 ## main.gd also calls use(), the per-frame guard stops a double pick.
 
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
+const Deposits := preload("res://scripts/world/deposits.gd")
+const GatherRun := preload("res://scripts/world/gather_run.gd")
 const SeasonsScript := preload("res://scripts/sim/seasons.gd")
 const MAX_NODES := 12
 const SPAWN := 55.0
@@ -27,8 +29,9 @@ const BERRY_MODEL_FULL := "res://assets/generated/region/nature/bush_berry.glb"
 const CACHE_LIMIT := 4000
 
 var focus := Vector3.ZERO
-## cell -> day it was picked
-var harvested: Dictionary = {}
+## Each spot is a Deposits entry (WorldState overlay "forage/dep/<kind>/<x>_<y>"), gathered through a GatherSession.
+var deposits := Deposits.new()
+var _panel: Control
 var _cells: Dictionary = {}          # cell -> {ok, pos, kind}
 var _active: Dictionary = {}         # cell -> ForageNode
 var _pool: Array = []
@@ -86,15 +89,9 @@ func _center() -> Vector2:
 # --- spawn ring -------------------------------------------------------------------
 
 func _refresh(p: Vector2) -> void:
-	var day: int = WorldSim.day
-	for c: Vector2i in harvested.keys():
-		var info := _cell(c)
-		var wait := int(Gathering.FORAGE.get(String(info.get("kind", "")), {}).get("respawn_days", 1))
-		if day - int(harvested[c]) >= wait:
-			harvested.erase(c)
 	for c: Vector2i in _active.keys():
 		var n: ForageNode = _active[c]
-		if Vector2(n.global_position.x, n.global_position.z).distance_to(p) > DESPAWN or harvested.has(c):
+		if Vector2(n.global_position.x, n.global_position.z).distance_to(p) > DESPAWN or _spent(c, n.kind):
 			_release(c)
 	if _active.size() >= MAX_NODES:
 		return
@@ -104,10 +101,10 @@ func _refresh(p: Vector2) -> void:
 	for dx in range(-r, r + 1):
 		for dz in range(-r, r + 1):
 			var c := here + Vector2i(dx, dz)
-			if _active.has(c) or harvested.has(c):
+			if _active.has(c):
 				continue
 			var info := _cell(c)
-			if not bool(info["ok"]) or not _in_season(info):
+			if not bool(info["ok"]) or not _in_season(info) or _spent(c, String(info["kind"])):
 				continue
 			var pos: Vector3 = info["pos"]
 			var d := Vector2(pos.x, pos.z).distance_to(p)
@@ -194,21 +191,53 @@ func _release(c: Vector2i) -> void:
 
 # --- picking ------------------------------------------------------------------------
 
-func collect(n: ForageNode) -> void:
-	if not _active.has(n.cell) or _active[n.cell] != n:
-		return
-	var f: Dictionary = Gathering.FORAGE.get(n.kind, {})
+static func dep_id(c: Vector2i, kind: String) -> String:
+	return "forage/dep/%s/%d_%d" % [kind, c.x, c.y]
+
+
+## Deposit definition of a forage kind: cap from the kind's max pick, regrown in its respawn_days.
+static func dep_def(kind: String) -> Dictionary:
+	var f: Dictionary = Gathering.FORAGE.get(kind, {})
 	if f.is_empty():
+		return {}
+	var cap := int(f["max"]) + 2
+	return Deposits.make_def("tree" if kind == "firewood" else "herb", String(f["item"]),
+		{"cap": cap, "regrow": float(cap) / float(maxi(1, int(f["respawn_days"]))), "level": 1})
+
+
+func _spent(c: Vector2i, kind: String) -> bool:
+	var def := dep_def(kind)
+	return def.is_empty() or deposits.is_depleted(dep_id(c, kind), def, WorldSim.day)
+
+
+func collect(n: ForageNode) -> void:
+	if _panel != null or not _active.has(n.cell) or _active[n.cell] != n:
 		return
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(Vector3i(n.cell.x, n.cell.y, WorldSim.day))
-	var amount := rng.randi_range(int(f["min"]), int(f["max"]))
-	var item := String(f["item"])
-	Life.give(item, amount)
-	Life.record(String(Gathering.FORAGE_TAGS.get(n.kind, "gathered_herbs")), 0.5)
-	Game.say("Picked %d %s." % [amount, Life.item_name(item)])
-	harvested[n.cell] = WorldSim.day
-	_release(n.cell)
+	var def := dep_def(n.kind)
+	if def.is_empty():
+		return
+	var id := dep_id(n.cell, n.kind)
+	var node := deposits.node(id, def, WorldSim.day)
+	var tier := 1 if n.kind == "firewood" and GatherRun.has_tool("wood_axe") else 0
+	_panel = GatherRun.open(self, node, String(Gathering.FORAGE[n.kind]["verb"]), tier,
+		hash(Vector3i(n.cell.x, n.cell.y, Engine.get_process_frames())), _on_gathered.bind(n.cell, n.kind))
+	if _panel == null:
+		_release(n.cell)
+
+
+func _on_gathered(res: Dictionary, cell: Vector2i, kind: String) -> void:
+	_panel = null
+	var n: int = deposits.commit(dep_id(cell, kind), dep_def(kind), res, WorldSim.day)
+	if n > 0:
+		var text := "Picked %d %s." % [n, Life.item_name(String(res["item"]))]
+		text += GatherRun.deliver(res, n)
+		Life.record(String(Gathering.FORAGE_TAGS.get(kind, "gathered_herbs")), 0.5)
+		var lvl := GatherRun.skill_level(String(res.get("skill", "")))
+		if GatherRun.grant_xp(res) > lvl:
+			text += "  Your %s improves!" % String(res["skill"])
+		Game.say(text)
+	if _active.has(cell) and _spent(cell, kind):
+		_release(cell)
 
 
 ## Self-dispatch of the interact key while standing by one of our nodes.

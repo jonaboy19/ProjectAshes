@@ -7,6 +7,10 @@ extends Node3D
 ## per swing, a pickaxe a stone.
 
 const D := preload("res://scripts/realm/construction_data.gd")
+const Deposits := preload("res://scripts/world/deposits.gd")
+const GatherRun := preload("res://scripts/world/gather_run.gd")
+## Gather-session kind per node kind.
+const SESSION_KIND := {"tree": "tree", "rock": "ore", "clay": "ore", "reeds": "herb"}
 const SHOW_R := 70.0
 const HIDE_R := 95.0
 const POOL := 8
@@ -23,6 +27,8 @@ var _timer := 0.0
 var _sig := ""
 var _menu_was_open := false
 var _last_strike := -1000
+var deposits := Deposits.new()
+var _panel: Control
 
 
 class ResourceSpot extends Node3D:
@@ -265,40 +271,60 @@ func _has_tool(tool: String) -> bool:
 	return eq is Object and String((eq as Object).call("item_in", "main_hand")) == tool
 
 
+## Deposit of a node kind: units = hp * per + finish bonus, regrown over the kind's regrow days.
+static func dep_def(kind: String) -> Dictionary:
+	var nd: Dictionary = D.NODES.get(kind, {})
+	if nd.is_empty():
+		return {}
+	var cap := int(nd["hp"]) * (int(nd["per"]) + int(nd["bonus"])) + int(nd["finish"])
+	return Deposits.make_def(String(SESSION_KIND.get(kind, "ore")), String(nd["item"]),
+		{"cap": cap, "regrow": float(cap) / float(maxi(1, int(nd["regrow"]))), "level": 1})
+
+
 func strike(s: ResourceSpot) -> void:
 	var f := Engine.get_process_frames()
-	if f - _last_strike < 12:
+	if _panel != null or f - _last_strike < 12:
 		return
 	_last_strike = f
 	var cons := _cons()
 	var nd: Dictionary = D.NODES.get(s.kind, {})
 	if nd.is_empty() or not cons.node_ready(s.key, s.kind, WorldSim.day):
 		return
-	var has_tool := _has_tool(String(nd["tool"]))
-	var disc := String(nd["skill"])
-	var lvl := 1
-	if disc != "":
-		lvl = int(Life.mastery.level(disc))
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash([s.cell.x, s.cell.y, WorldSim.day, cons.node_hp(s.key, s.kind)])
-	var r: Dictionary = cons.strike_node(s.key, s.kind, WorldSim.day, has_tool, lvl, rng.randf())
-	var n := int(r["n"])
-	if n <= 0:
-		return
-	var item := String(r["item"])
-	Life.give(item, n)
-	if disc != "":
-		Life.mastery.gain(disc, 0.03, WorldSim.day)
-	Life.record("chopped_wood" if s.kind == "tree" else ("mined" if s.kind == "rock" else "foraged"), 0.3)
-	var text := "+%d %s" % [n, Life.item_name(item)]
-	if bool(r["felled"]):
-		text = "%s. The %s is spent: %d %s." % ["It falls" if s.kind == "tree" else "Nothing left here", "tree" if s.kind == "tree" else "spot", n, Life.item_name(item).to_lower()]
-	elif not has_tool and String(nd["tool"]) != "" and cons.node_hp(s.key, s.kind) == int(nd["hp"]) - 1:
-		text += "  (%s would help.)" % ("An axe" if s.kind == "tree" else "A pickaxe")
-	Game.say(text)
-	Audio.play_ui("pickup")
-	_sig = ""          # redraw (stump, spent rock)
+	var def := dep_def(s.kind)
+	var id := "build/dep/%s/%d_%d" % [s.kind, s.cell.x, s.cell.y]
+	var tier := 1 if _has_tool(String(nd["tool"])) else 0
+	_panel = GatherRun.open(self, deposits.node(id, def, WorldSim.day), String(nd["verb"]), tier,
+		hash([s.cell.x, s.cell.y, WorldSim.day, f]), _on_gathered.bind(s.key, s.kind, id, tier))
+	if _panel == null:
+		_spend(s.key, s.kind)
+
+
+## The deposit is empty: the world node shows as spent (stump, bare rock) until Construction regrows it.
+func _spend(key: String, kind: String) -> void:
+	var cons := _cons()
+	cons.gathered[key] = {"hp": 0, "day": WorldSim.day, "t": WorldSim.day}
+	_sig = ""
 	refresh(_center())
+
+
+func _on_gathered(res: Dictionary, key: String, kind: String, id: String, tier: int) -> void:
+	_panel = null
+	var def := dep_def(kind)
+	var n: int = deposits.commit(id, def, res, WorldSim.day)
+	var nd: Dictionary = D.NODES[kind]
+	if n > 0:
+		var text := "+%d %s" % [n, Life.item_name(String(res["item"]))]
+		text += GatherRun.deliver(res, n)
+		var disc := String(nd["skill"])
+		if disc != "":
+			Life.mastery.gain(disc, 0.03, WorldSim.day)
+		Life.record("chopped_wood" if kind == "tree" else ("mined" if kind == "rock" else "foraged"), 0.3)
+		if tier == 0 and String(nd["tool"]) != "":
+			text += "  (%s would help.)" % ("An axe" if kind == "tree" else "A pickaxe")
+		Game.say(text)
+		Audio.play_ui("pickup")
+	if deposits.is_depleted(id, def, WorldSim.day):
+		_spend(key, kind)
 
 
 func _poll_interact() -> void:

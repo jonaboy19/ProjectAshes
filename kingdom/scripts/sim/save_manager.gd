@@ -85,6 +85,9 @@ var dirty := false
 ## Optional dirty-flagged containers (scripts/sim/save_containers.gd). When set and no snapshot_fn is given,
 ## saves use containers.snapshot(): only dirty containers are re-serialized.
 var containers: RefCounted
+## Extra container set that only feeds is_dirty() (Life keeps its own snapshot but registers its tracked
+## containers here), so a clean game skips a focus-loss save.
+var watch: RefCounted
 var _last_bg_ms := -1
 var _last_autosave_ms := -1
 var _quiet_until_ms := 0
@@ -158,6 +161,8 @@ func is_dirty() -> bool:
 	if dirty:
 		return true
 	if containers != null and bool(containers.call("any_dirty")):
+		return true
+	if watch != null and bool(watch.call("any_dirty")):
 		return true
 	var ws: Variant = load("res://scripts/world/world_state.gd").shared()
 	return ws != null and not (ws.get("dirty") as Dictionary).is_empty()

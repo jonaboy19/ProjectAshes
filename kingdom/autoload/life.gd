@@ -45,6 +45,7 @@ var npc_social_graph := preload("res://scripts/sim/npc_social_graph.gd").new()
 var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
 var crafting := preload("res://scripts/sim/crafting.gd").new()
 const ItemsDB := preload("res://scripts/sim/items_db.gd")
+const SaveContainers := preload("res://scripts/sim/save_containers.gd")
 const WorldEventLog := preload("res://scripts/systems/world_event_log.gd")
 const ActionRuntime := preload("res://scripts/systems/action_runtime.gd")
 const NpcActivityRuntime := preload("res://scripts/systems/npc_activity_runtime.gd")
@@ -113,6 +114,8 @@ var market := RAMarket.new()
 ## Regional markets, caravans, contracts; Ashford keeps using `market` (docs/RISING_ASHES_LIFE_SIM_DESIGN.md).
 var economy := preload("res://scripts/sim/economy.gd").new()
 var inventory: Inventory
+## Dirty-flagged save containers (scripts/sim/save_containers.gd); the SaveManager sees them via `saves.containers`.
+var save_containers := SaveContainers.new()
 var player: Node3D        # set by main once the player exists
 
 var _last_abs := -1.0     # absolute in-game hours at the last tick
@@ -192,6 +195,13 @@ func _new_life() -> void:
 	add_child(inventory)
 	inventory.item_added.connect(func(_i: InventoryItem) -> void: inventory_changed.emit())
 	inventory.item_removed.connect(func(_i: InventoryItem) -> void: inventory_changed.emit())
+	# Dirty-flagged save container: the inventory is only re-serialized after one of its signals fired.
+	save_containers.register("inventory", func() -> Dictionary: return inventory.serialize())
+	var dirty_inv := func(_a: Variant = null, _b: Variant = null) -> void: save_containers.mark_dirty("inventory")
+	inventory.item_added.connect(dirty_inv)
+	inventory.item_removed.connect(dirty_inv)
+	inventory.item_moved.connect(dirty_inv)
+	inventory.item_property_changed.connect(dirty_inv)
 	_setup_orgs()
 	_setup_market()
 	careers.player_changed.connect(func(text: String) -> void:
@@ -1452,7 +1462,7 @@ func snapshot() -> Dictionary:
 		"needs": needs.serialize(),
 		"market": market.serialize(),
 		"economy": economy.serialize(),
-		"inventory": inventory.serialize(),
+		"inventory": save_containers.snapshot()["inventory"],
 		"spoil_abs": _spoil_abs,
 		"frontier": Frontier.serialize(),
 		"life_path": life_path.serialize(),
@@ -1534,6 +1544,7 @@ func restore(d: Dictionary) -> void:
 	market.deserialize(d.get("market", {}))
 	economy.deserialize(d.get("economy", {}), 0, market)
 	inventory.deserialize(d.get("inventory", {}))
+	save_containers.mark_all()
 	_spoil_abs = float(d.get("spoil_abs", NO_CLOCK))
 	Frontier.deserialize(d.get("frontier", {}))
 	if d.has("life_path"):
@@ -1579,6 +1590,7 @@ func _make_save_manager() -> Node:
 	add_child(m)
 	# Focus-loss autosaves skip a clean game (scripts/sim/save_manager.gd is_dirty).
 	inventory_changed.connect(m.mark_dirty)
+	m.watch = save_containers
 	return m
 
 
