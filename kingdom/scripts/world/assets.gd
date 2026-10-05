@@ -42,9 +42,7 @@ const UAL_FILES := [
 	# Authored combat set (docs/anim/COMBAT_AUDIT.md): target-aimed light combo (+ _Upper layer variants),
 	# directional hit reactions, staggers, parry/riposte, finishers, heavy/run/2H/spear/bow, deaths.
 	# Timing markers: animations/combat/combat_markers.json (CombatMarkers). Root track disabled like the rest.
-	UAL_ANIM_DIR + "combat/UAL_Combat.glb",
-	# Claude's CMU bending additions; technique mappings require contact review.
-	"res://assets/incoming/mocap/cmu/clips/UAL_CMU_Bending.glb"]
+	UAL_ANIM_DIR + "combat/UAL_Combat.glb"]
 const WEAPONS := Q + "fantasy-props-megakit/Exports/glTF/"
 const HELMET := Q + "lowpoly-animated-knight/FBX/Helmet1.fbx"
 ## Old KayKit clip names -> UAL clips, so gameplay code keeps using one vocabulary.
@@ -556,8 +554,7 @@ static func _ual_for(skeleton_path: NodePath) -> AnimationLibrary:
 			continue
 		var inst: Node = Assets.scene(file).instantiate()
 		var ap: AnimationPlayer = inst.find_children("*", "AnimationPlayer", true, false)[0]
-		var root_motion_lib := file.begins_with(UAL_ANIM_DIR) or file.begins_with(UAL_LOCO_DIR) \
-			or file.begins_with("res://assets/incoming/mocap/cmu/clips/")
+		var root_motion_lib := file.begins_with(UAL_ANIM_DIR) or file.begins_with(UAL_LOCO_DIR)
 		for anim_name in ap.get_animation_list():
 			var a: Animation = ap.get_animation(anim_name).duplicate(true)
 			for t in a.get_track_count():

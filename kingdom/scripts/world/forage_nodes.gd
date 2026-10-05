@@ -211,7 +211,7 @@ func _spent(c: Vector2i, kind: String) -> bool:
 
 
 func collect(n: ForageNode) -> void:
-	if _panel != null or not _active.has(n.cell) or _active[n.cell] != n:
+	if is_instance_valid(_panel) or not _active.has(n.cell) or _active[n.cell] != n:
 		return
 	var def := dep_def(n.kind)
 	if def.is_empty():

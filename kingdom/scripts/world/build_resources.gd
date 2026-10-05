@@ -283,7 +283,7 @@ static func dep_def(kind: String) -> Dictionary:
 
 func strike(s: ResourceSpot) -> void:
 	var f := Engine.get_process_frames()
-	if _panel != null or f - _last_strike < 12:
+	if is_instance_valid(_panel) or f - _last_strike < 12:
 		return
 	_last_strike = f
 	var cons := _cons()

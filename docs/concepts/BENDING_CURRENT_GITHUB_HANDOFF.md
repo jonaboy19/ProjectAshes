@@ -50,3 +50,6 @@ Claude's pass 6 reports missing chase_camera.gd. Confirmed no tracked implementa
 ## Camera lifecycle cleanup and upstream reconciliation
 Merged Claude Style G pass 6 (f4c86b40) without conflicts; art changes are preserved. Source inspection found _dodging_ability is a retained roll-type flag, not an active timer. Camera dashing now depends on _dodge > 0, so a completed Shadow Dash no longer holds dash lens/distance targets indefinitely. Body interruption cancels the optional cast camera beat. Empty follow-up queues return before allocating a due list.
 Read ashes-performance: maintain near/far budgets, cache scene resources, avoid threaded mesh/material loads, measure on devices before acceptance. No runtime, benchmarks or tests were run in this pass; published changes remain draft.
+
+## Claude upstream supersedes provisional imports
+Merged 2712e63f and d687baaf. Claude's authored chase camera replaces Codex's missing-file substitute. Claude now supplies BendingLibrary, clip metadata and technique mappings; earlier notes saying mappings are absent describe earlier checkpoints. Removed Codex's raw Assets registration to avoid loading uncorrected duplicate bending animations beside Claude's trimmed/floor-corrected named library. Casting ownership/pause patches are retained. This merge is source-reviewed only; no runtime acceptance is claimed.

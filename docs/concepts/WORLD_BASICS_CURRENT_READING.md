@@ -15,3 +15,6 @@ Shared GatherRun now starts a 5 Hz timer owned by the panel. It cancels when the
 
 ## Shared gathering ownership
 GatherRun keeps a weak reference to the active panel. A valid new session cancels the previous panel before opening, so different resource managers cannot leave overlapping gather panels. Normal close clears ownership only for the matching panel; scene teardown does not retain the panel. The 5 Hz lifecycle guard also closes gathering when the player's existing HUD menu/dialogue check becomes true. No resource is marked empty merely because another manager had a session open. Runtime and tests remain unrun; pause-menu ordering and scene-teardown manager references still need review.
+
+## Freed-panel recovery
+Forage, construction-resource and fishing interaction guards now use is_instance_valid(_panel), so an unexpectedly freed panel does not permanently block reopening. Normal exactly-once completion callbacks remain the primary cleanup. No runtime or tests were run.
