@@ -32,6 +32,8 @@ extends CharacterBody3D
 ##    Evaluation is sliced (NpcWorld.take_decide_budget) and only ever runs for these near bodies.
 
 const Nameplates := preload("res://scripts/core/nameplates.gd")
+const DoorPass := preload("res://scripts/world/door_pass.gd")
+const GuardLantern := preload("res://scripts/population/guard_lantern.gd")
 const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
@@ -344,6 +346,8 @@ func _ready() -> void:
 		_skeleton = skeletons[0] as Skeleton3D
 		_props = LifeProps.Holder.new(_skeleton)
 	_attach_components(model)
+	if WorldSim.job[person] == 3:
+		GuardLantern.attach(self)      # F6: lit lanterns at night, the nearest few get a real light
 	_graph = StreetGraph.for_person(person) as StreetGraph
 	NpcWorld.ensure_spots(WorldSim.home[person], get_parent())
 	# Promotion: start where the simulation had this person, moved out of any
@@ -993,7 +997,9 @@ func _set_indoors(on: bool) -> void:
 		_so_release()
 	if on and _brain != null:
 		_brain.clear_threat_memory()
-	visible = not on
+	# F6: near the player the door opens and they step through (scripts/world/door_pass.gd) instead of vanishing.
+	var passed := DoorPass.begin(self, on) if is_inside_tree() else false
+	visible = (not on) or passed
 	if on:
 		remove_from_group("villager")
 		_set_contact(false)

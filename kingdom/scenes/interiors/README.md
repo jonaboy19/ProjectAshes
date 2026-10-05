@@ -163,3 +163,15 @@ Two changes to the behaviour described above:
 
 Service NPCs get their menus from `village_services.gd` `wire_settlement()` (innkeeper, blacksmith,
 receptionist, healer), and death inside calls `InteriorDoor.active.leave()`.
+
+## Modular interiors (F6, in the game now)
+
+`scenes/interiors/modular/<layout>.tscn` (house: cottage, two_room, family_loft, craftsman; shop: general_store,
+bakery, tailor; tavern: tavern_inn, alehouse) are generated from `scripts/interiors/interior_layouts.gd` with the box
+kit `interior_kit.gd` by `modular_interior.gd`: 4 batched draws for the whole shell and furniture. `BuildingProfiles.
+interior_scene(asset, building_id)` picks the variant from a hash of the lot id (houses, the trader's house as a shop,
+the inn as a tavern); the smithy, guild hall and healer keep their hand-made scenes. Furniture is interactable (Sleep
+via `bed_prop.gd`, Sit, owned containers, Climb, hearth, shop counter Station). `interior_light.gd` drives window glass,
+room light, hearth, lamp and ambient from `WorldSim.time_of_day`. `household.gd` puts the people the schedule sends home
+(or to the counter or the bar) inside as bodies. The exit trigger of every interior is grown to contain the spawn
+(`InteriorDoor.cover_point`). Tests: `tests/test_buildings_live.gd`; contact sheet harness: `tools_qa/interiors/`.

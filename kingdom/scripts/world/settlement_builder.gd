@@ -453,7 +453,7 @@ func _interior_doors(root: Node3D, lots: Array) -> void:
 		var gh := _ground_snap(p, yaw, size)
 		var door := InteriorDoor.new()
 		door.name = "Door_%s_%d" % [asset, holder.get_child_count()]
-		door.interior_scene = BuildingProfiles.interior_scene(asset)
+		door.interior_scene = BuildingProfiles.interior_scene(asset, BuildingProfiles.building_id(p))
 		door.prompt_text = BuildingProfiles.prompt(asset)
 		door.collision_layer = 0
 		door.collision_mask = InteriorDoor.PLAYER_TRIGGER_LAYER

@@ -18,15 +18,18 @@ var title := "Crate"
 ## [{item, qty}, ...]
 var contents: Array = []
 var capacity := 12
+## False when the room draws the furniture itself (modular interiors batch it into one mesh).
+var build_visual := true
 
 
 ## Spawns a container at `pos` (global). Empty `stacks` rolls the contents from the id.
-static func spawn(parent: Node, pos: Vector3, id: String, label := "Crate", stacks: Array = [], lock := "", owner := "") -> Node3D:
+static func spawn(parent: Node, pos: Vector3, id: String, label := "Crate", stacks: Array = [], lock := "", owner := "", visual := true) -> Node3D:
 	var c: Node3D = (load("res://scripts/interaction/kinds/container.gd") as GDScript).new()
 	c.set("container_id", id)
 	c.set("title", label)
 	c.set("contents", stacks.duplicate(true) if not stacks.is_empty() else roll_contents(id))
 	c.set("lock_id", lock)
+	c.set("build_visual", visual)
 	c.name = "Container_" + id.replace("/", "_")
 	if owner != "":
 		c.set_meta("owner", owner)
@@ -51,7 +54,8 @@ static func roll_contents(id: String) -> Array:
 
 func _ready() -> void:
 	super()
-	_build_visual()
+	if build_visual:
+		_build_visual()
 	var st := Ownership_.container_state(_interact_id())
 	if st["contents"] is Array:
 		contents = (st["contents"] as Array).duplicate(true)

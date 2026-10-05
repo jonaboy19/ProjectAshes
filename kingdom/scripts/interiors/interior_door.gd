@@ -96,6 +96,7 @@ func _ready() -> void:
 		"verb": "Enter", "enabled": false, "do": func(_pl: Node) -> void: use(),
 		"label": func() -> Dictionary: return load("res://scripts/ui/interact_label.gd").legacy(self)})
 	if not is_exit:
+		add_to_group("entrance_door")
 		_setup_model()
 	if not is_exit and has_meta("asset") and not has_meta("building_name"):
 		var at: Variant = get_meta("lot_pos") if has_meta("lot_pos") else Vector2(global_position.x, global_position.z)
@@ -227,6 +228,44 @@ func prompt() -> String:
 	return prompt_text
 
 
+## Exit doors: grows the trigger box so the point `world_pos` (the player's spawn) is inside it with a margin. The
+## playtest bug: the hand-made exit boxes were 1 m deep and the spawn 1.1 m from the door, so no prompt appeared
+## until the player walked into the box. The shape is copied first (scene sub-resources are shared by instances).
+func cover_point(world_pos: Vector3) -> void:
+	for c in get_children():
+		if c is CollisionShape3D and (c as CollisionShape3D).shape is BoxShape3D:
+			var cs := c as CollisionShape3D
+			var r := reach_box((cs.shape as BoxShape3D).size, cs.position, to_local(world_pos), 0.35)
+			if r.is_empty():
+				return
+			var shape := (cs.shape as BoxShape3D).duplicate() as BoxShape3D
+			shape.size = r["size"]
+			cs.shape = shape
+			cs.position = r["centre"]
+			return
+
+
+## Pure: the smallest box (in the area's local space) that contains the old box (`size` at `centre`) and `point` with
+## `margin` to spare. Empty when the old box already contains it.
+static func reach_box(size: Vector3, centre: Vector3, point: Vector3, margin := 0.35) -> Dictionary:
+	var lo := centre - size * 0.5
+	var hi := centre + size * 0.5
+	var need_lo := Vector3(point.x - margin, lo.y, point.z - margin)
+	var need_hi := Vector3(point.x + margin, hi.y, point.z + margin)
+	if need_lo.x >= lo.x and need_lo.z >= lo.z and need_hi.x <= hi.x and need_hi.z <= hi.z:
+		return {}
+	var nlo := Vector3(minf(lo.x, need_lo.x), lo.y, minf(lo.z, need_lo.z))
+	var nhi := Vector3(maxf(hi.x, need_hi.x), hi.y, maxf(hi.z, need_hi.z))
+	return {"size": nhi - nlo, "centre": (nlo + nhi) * 0.5}
+
+
+## A villager walks in or out of this door: the leaf swings open and shut (scripts/world/door_pass.gd), visual only.
+func npc_pass() -> void:
+	if is_exit or not is_inside_tree():
+		return
+	(load("res://scripts/world/door_pass.gd") as GDScript).call("swing", self)
+
+
 func _on_body_entered(body: Node3D) -> void:
 	if body.is_in_group("player"):
 		_player = body
@@ -326,6 +365,7 @@ func enter(player: Node3D) -> void:
 	for d in interior.find_children("*", "Area3D", true, false):
 		if d is InteriorDoor and (d as InteriorDoor).is_exit:
 			(d as InteriorDoor).exit_requested.connect(leave)
+			(d as InteriorDoor).cover_point(at.origin)
 	interior_entered.emit(interior)
 
 

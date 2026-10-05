@@ -13,11 +13,14 @@ const MOVE_DEADZONE := 0.25
 var kind := "chair"            ## "chair" or "bench"
 var seat_height := 0.0         ## metres above this node's origin the hips rest at
 var occupant: Node3D = null
+## False when the room draws the furniture itself (modular interiors batch it into one mesh).
+var build_visual := true
 
 
 ## A seat at `pos` (global) facing the direction of `yaw`.
-static func spawn(parent: Node, pos: Vector3, yaw: float, seat_kind := "chair") -> Seat:
+static func spawn(parent: Node, pos: Vector3, yaw: float, seat_kind := "chair", visual := true) -> Seat:
 	var s := Seat.new()
+	s.build_visual = visual
 	s.kind = seat_kind
 	s.name = "Seat_%s" % seat_kind
 	parent.add_child(s)
@@ -28,7 +31,8 @@ static func spawn(parent: Node, pos: Vector3, yaw: float, seat_kind := "chair") 
 
 func _ready() -> void:
 	set_physics_process(false)
-	_build_visual()
+	if build_visual:
+		_build_visual()
 	Interactable.attach(self, {"id_fn": func() -> String: return "seat/%s/%d_%d" % [kind, roundi(global_position.x * 10.0), roundi(global_position.z * 10.0)],
 		"verb": "Sit", "range": 2.6,
 		"can": func(p: Node) -> bool: return occupant == null or occupant == p,
