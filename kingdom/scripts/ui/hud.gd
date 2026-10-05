@@ -111,6 +111,7 @@ var _order_buttons: Array[TouchScreenButton] = []
 var _buttons: Dictionary = {}
 var _loading: Control      # WorldLoading while the world is generated
 var _toast_box: PanelContainer
+var _toast_live := false          # a toast is showing or fading: its slot in the HUD lane is held
 var _menu: PanelContainer
 var _menu_source: Callable
 var _pack_button: TouchScreenButton
@@ -635,6 +636,10 @@ func show_toast(text: String) -> void:
 	_toast_tween.tween_property(_toast_box, "modulate:a", 1.0, 0.18)
 	_toast_tween.tween_interval(3.2)
 	_toast_tween.tween_property(_toast_box, "modulate:a", 0.0, 0.45)
+	_toast_tween.tween_callback(func() -> void: _toast_live = false)
+	# Reserve its lane slot NOW (not on the next HUD frame, when the hint pill below may already have been placed over it).
+	_toast_live = true
+	HudLane.report("toast", _toast_box.offset_top, _toast_box.get_combined_minimum_size().y)
 
 
 # --- popups, banners and message classification ---------------------------------------
@@ -1284,7 +1289,7 @@ func open_photo_mode() -> void:
 func _process(delta: float) -> void:
 	# One top-centre stack for toast / hint / banner (hud_lane.gd); menus hold banners and hints back.
 	HudLane.set_menu_open(is_menu_open())
-	HudLane.report("toast", _toast_box.position.y, _toast_box.size.y if _toast_box.modulate.a > 0.02 else 0.0)
+	HudLane.report("toast", _toast_box.offset_top, _toast_box.get_combined_minimum_size().y if _toast_live else 0.0)
 	_plate_timer -= delta
 	if _plate_timer <= 0.0:
 		_plate_timer = 0.1

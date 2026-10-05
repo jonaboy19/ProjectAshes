@@ -4,8 +4,11 @@ extends SceneTree
 ## xvfb-run -a -s "-screen 0 1280x720x24" $G --path . --rendering-driver vulkan -s res://tools_qa/visual_pass/interiors_cam_standalone.gd -- --out=/path.png
 ## Rows: cottage, general_store, tavern_inn; columns: 12:00 and 23:00.
 
-const IDS := ["cottage", "general_store", "tavern_inn"]
-const HOURS := [12.0, 23.0]
+var IDS: Array = ["cottage", "general_store", "tavern_inn"]
+var HOURS: Array = [12.0, 23.0]
+var _loft := false     # --loft: stand the player at the top of the ladder
+var _yaw := NAN        # --yaw=<radians>: camera yaw after the loft teleport
+var _npcs := false     # --npcs: let the household walk in (bodies in view)
 const TILE := Vector2i(560, 315)
 var _out := "/tmp/interiors_cam.png"
 
@@ -14,6 +17,18 @@ func _initialize() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="):
 			_out = a.substr(6)
+		if a.begins_with("--ids="):
+			IDS = Array(a.substr(6).split(","))
+		if a.begins_with("--hours="):
+			HOURS = []
+			for h in a.substr(8).split(","):
+				HOURS.append(float(h))
+		if a == "--loft":
+			_loft = true
+		if a.begins_with("--yaw="):
+			_yaw = float(a.substr(6))
+		if a == "--npcs":
+			_npcs = true
 	_run.call_deferred()
 
 
@@ -48,9 +63,17 @@ func _run() -> void:
 			door.call("enter", p)
 			var room: Node3D = door.get("interior")
 			if room != null:
-				room.set("spawn_npcs", false)
+				room.set("spawn_npcs", _npcs)
 			for i in 90:
 				await physics_frame
+			if _loft and room != null and not (room.get("layout") as Dictionary).get("loft", {}).is_empty():
+				var lf: Dictionary = room.get("layout")["loft"]
+				p.global_position = room.to_global((lf["ladder_top"] as Vector3) + Vector3(0, 0.15, -0.6))
+				p.velocity = Vector3.ZERO
+				if not is_nan(_yaw):
+					p.set_camera(_yaw, -0.2)
+				for i in 90:
+					await physics_frame
 			await process_frame
 			await process_frame
 			var img := root.get_texture().get_image()

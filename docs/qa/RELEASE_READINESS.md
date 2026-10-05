@@ -66,3 +66,19 @@ The APK is a sideload/test format. Play needs an **AAB**, and the base module (c
 3. Godot side: build each pack as its own PCK (a second export preset whose include filter is the pack's folders, `--export-pack`), add them under `android/build/assetPacks/<pack>/src/main/assets/` with a `build.gradle` (`deliveryType "install-time"`), list them in `settings.gradle` and the app's `assetPacks`. At boot, `ProjectSettings.load_resource_pack()` mounts each PCK before the main menu (install-time packs are plain files in the APK set).
 4. Verify with `bundletool build-apks --local-testing` and `bundletool install-apks` on the S22 before uploading to the closed test.
 Until then the debug APK stays the owner/closed-test channel.
+
+## Phone results, build J (2026-10-05 22:23-22:39, S22, Xclipse 920)
+- Size: 620 MB (texture cap back to 512 px for the look; owner: size is secondary).
+- Boot fixed: build G excluded gloot, whose classes the game uses, so `quality.gd`/`life.gd` failed to compile and the S22 sat at a stale LOW (540p). gloot restored; DETECT_VERSION 4 re-detects (Xclipse -> HIGH). Menu backdrop replaced (was a 1280x720 placeholder: the "pixelated menu").
+- First-touch Vulkan crash: not reproduced (taps, walking, dialogue, 15 min).
+- Thermal guard works (AndroidRuntime -> PowerManager): status 2 -> 30 fps cap at 22:24, status 3 -> 75 % scale at 22:26.
+- In game, phone already hot (status 2 at start): MEDIUM 11-12 fps (590 draws, 1.0M tris), adaptive stepped to LOW.
+- 15-min LOW run: 26-29 fps, p95 43-55 ms, draws 215-416, tris 300-665k (over LOW budget 250 / 300k), PSS 3.1-3.2 GB (worse than 2.6), thermal severe throughout. Route partly stalled in a dialogue.
+- HIGH not measured in game (adaptive stepped down); MED see above.
+- Note: test taps killed a villager on the owner's Continue save (attack button near NPC).
+- Screens: C:/Users/Jonna/Downloads/RisingAshes_S22_screens/ (menu before/after, creator, village, map, HUD, dialogue). Missing: gate/market in game, building mode, a real fight.
+
+### Verdict: NO-GO. Remaining blockers
+1. LOW draw calls/triangles (153 placed Meshy models, town ranges) and memory 3.2 GB.
+2. Sustained heat: severe even at 30 fps + 75 %.
+3. Play needs AAB + asset packs (above).

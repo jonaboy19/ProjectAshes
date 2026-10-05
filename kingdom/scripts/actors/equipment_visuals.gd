@@ -18,20 +18,31 @@ const BONES := {
 }
 ## Seating of a prop on its bone (metres, degrees): blade along the hand bone, cocked 45 degrees (-135 about the bone Z) so the
 ## idle blade rides up and out instead of lying flat across the hip (the UAL idle turns the palm forward, so -90 read as a
-## horizontal bar). hand_l keeps the plain -90.
+## horizontal bar). hand_l has its own seat: the left hand bone is mirrored and yawed out, so the right-hand seat put the
+## blade across the body; -90 about Z with the arm's yaw taken out.
 const SEAT := {
 	"hand_r": [Vector3(0.05, 0.02, 0.0), Vector3(0, 0, -135)],
 	"hand_l": [Vector3(0.05, 0.02, 0.0), Vector3(0, 0, -90)],
 	"lowerarm_l": [Vector3(0.12, 0.0, 0.08), Vector3(0, 90, 0)],
 }
+## Models whose long axis is not +Y get their own seat per bone (solved in the idle pose with
+## tools_qa/visual_pass/weapons_fit_standalone.gd, which prints the bone-local Euler that stands the prop up):
+## a bow's limbs run along model X and belly toward -Z, so it is stood upright with the string facing the archer; a crossbow's
+## stock runs along model +Z and points where the body faces.
+const SEAT_BY_FIT := {
+	"bow_a": {"hand_r": [Vector3(0.05, 0.02, 0.0), Vector3(-30, 0, -90)], "hand_l": [Vector3(0.05, 0.02, 0.0), Vector3(-28, -20, -90)]},
+	"bow_b": {"hand_r": [Vector3(0.05, 0.02, 0.0), Vector3(-30, 0, -90)], "hand_l": [Vector3(0.05, 0.02, 0.0), Vector3(-28, -20, -90)]},
+	"crossbow": {"hand_r": [Vector3(0.05, 0.02, 0.0), Vector3(-30, 0, -170)]},
+}
 
 ## Held weapons are fitted by LENGTH, not by the model's native units (the KayKit weapon bits are 1.8-3.3 units long, so
 ## "scale 1.0" drew a 3 m blade): model basename prefix -> [length in metres of the longest axis (visuals.json "scale"
-## multiplies it), grip position along the long axis from the butt (0..1), -1 = the model origin already is the grip].
+## multiplies it), grip position along the long axis from the butt (0..1), -1 = the model origin already is the grip,
+## optional: the long axis index 0 = X, 1 = Y (default), 2 = Z].
 const WEAPON_FIT := {
 	"dagger": [0.38, -1.0], "sword": [0.95, -1.0], "axe": [0.75, -1.0], "hammer": [0.9, -1.0],
 	"spear": [2.0, 0.40], "halberd": [2.0, 0.40], "staff": [1.7, 0.38], "wand": [0.42, -1.0],
-	"bow_a": [1.0, -1.0], "bow_b": [1.25, -1.0], "crossbow": [0.75, -1.0], "fist": [0.28, -1.0],
+	"bow_a": [1.0, -1.0, 0], "bow_b": [1.25, -1.0, 0], "crossbow": [0.75, 0.3, 2], "fist": [0.28, -1.0],
 }
 
 var skeleton: Skeleton3D
@@ -106,19 +117,25 @@ func _set_slot(slot: String, id: String) -> void:
 		att.bone_name = bone
 		skeleton.add_child(att)
 		# Bone space is the rig's own units (the UE rig is in centimetres under a scaled Armature).
+		var fit := fit_for(String(v.get("model", "")))
 		var seat: Array = SEAT.get(String(bones[i]), [Vector3.ZERO, Vector3.ZERO])
+		var by_fit: Dictionary = SEAT_BY_FIT.get(fit_key(String(v.get("model", ""))), {})
+		if by_fit.has(String(bones[i])):
+			seat = by_fit[String(bones[i])]
 		var seat_pos: Vector3 = seat[0]
 		var rot_deg: Vector3 = seat[1]
-		var fit := fit_for(String(v.get("model", "")))
 		if not fit.is_empty() and prop.get_child_count() > 0:
 			var inst := prop.get_child(0) as Node3D
 			var box := Assets.visual_aabb(inst)
 			var longest := maxf(box.size.x, maxf(box.size.y, box.size.z))
+			var axis_i := int(fit[2]) if fit.size() > 2 else 1
+			var axis := Vector3.ZERO
+			axis[axis_i] = 1.0
 			if longest > 0.001:
 				var mirror := signf(prop.scale.x)
 				var k := float(fit[0]) * absf(prop.scale.y) / longest       # metres per model unit
 				prop.scale = Vector3(k * mirror, k, k)
-				seat_pos -= Basis.from_euler(rot_deg * (PI / 180.0)) * Vector3(0, box.position.y + float(fit[1]) * box.size.y, 0) * k \
+				seat_pos -= Basis.from_euler(rot_deg * (PI / 180.0)) * axis * (box.position[axis_i] + float(fit[1]) * box.size[axis_i]) * k \
 					if float(fit[1]) >= 0.0 else Vector3.ZERO
 				style_weapon(inst)
 		prop.scale = prop.scale / rig_scale
@@ -169,13 +186,19 @@ func _bone(name: String) -> String:
 
 ## [length_m, grip_fraction] for a weapon model path (visuals.json "model"), [] for anything that is not a held weapon.
 static func fit_for(model_path: String) -> Array:
+	var key := fit_key(model_path)
+	return WEAPON_FIT[key] if key != "" else []
+
+
+## The WEAPON_FIT key ("sword", "bow_b", ...) a weapon model path matches, "" for anything that is not a held weapon.
+static func fit_key(model_path: String) -> String:
 	if not model_path.contains("/weapons/"):
-		return []
+		return ""
 	var base := model_path.get_file().get_basename().to_lower()
 	for key: String in WEAPON_FIT:
 		if base.begins_with(key):
-			return WEAPON_FIT[key]
-	return []
+			return key
+	return ""
 
 
 ## Style G for held metal and wood: the item's tint (flat bronze #d9a15a read as neon orange) is pulled toward grey and

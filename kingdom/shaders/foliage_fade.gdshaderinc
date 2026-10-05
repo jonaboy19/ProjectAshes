@@ -6,13 +6,13 @@
 //     if (foliage_fade_discard(VERTEX, FRAGCOORD.xy, PROJECTION_MATRIX)) { discard; }
 // VERTEX in fragment() is the view-space position (camera at the origin, looking
 // down -Z). The third-person camera arm points at the player's pivot (1.55 m up,
-// player.gd), so the player sits on the view axis `occlude_distance` metres out;
+// player.gd), so the player sits on the view axis `ashes_cam_dist` metres out (global, any distance);
 // the cone from the lens to that body is dithered away. Orthographic passes
 // (directional-light shadows) are left untouched so shadows keep their leaves.
 
 uniform float fade_near = 2.6;         // metres from the camera: fully cut inside (visual pass: was 1.5, a canopy at 3 m still filled the lens)
 uniform float fade_far = 5.4;          // fully solid beyond (was 3.0; boulders at 3-5 m next to the player filled a third of the frame)
-uniform float occlude_distance = 5.5;  // camera -> player on the view axis; 0 turns the cone off
+global uniform float ashes_cam_dist;   // camera -> player (pivot) distance this frame, set by player.gd (0 = off, e.g. first person / interiors)
 uniform float occlude_radius = 1.3;    // cone half-width at the player's depth
 uniform float occlude_drop = 0.6;      // cone centre sits this far below the pivot (body centre)
 
@@ -29,6 +29,7 @@ float foliage_fade_amount(vec3 view_pos, mat4 proj) {
 	}
 	float keep = smoothstep(fade_near, fade_far, length(view_pos));
 	float depth = -view_pos.z;
+	float occlude_distance = ashes_cam_dist;     // follows the real arm length (lock-on, mounted, wall pull-in): a boulder at any depth in front of the player fades
 	if (occlude_distance > 0.0 && depth > 0.0 && depth < occlude_distance) {
 		float t = depth / occlude_distance;
 		vec2 off = vec2(view_pos.x, view_pos.y + occlude_drop * t);

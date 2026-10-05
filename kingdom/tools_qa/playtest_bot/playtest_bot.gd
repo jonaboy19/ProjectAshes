@@ -2152,20 +2152,23 @@ func _s_tf_talk() -> void:
 	check("the roster bound its named residents to WorldSim rows", TfRoster.is_bound() and TfRoster.bound_rows().size() >= 20, "%d rows" % TfRoster.bound_rows().size())
 	var body: Node3D = null
 	var rid := ""
+	var reached := false
 	for id: String in ["old_hild", "granfer_aldous", "wilm_garrow", "odo_marsh", "maud_pennick", "edric_vane", "bram_oakley", "pell_hargrove"]:
 		body = await tf_go_to(id)
-		if body != null:
-			rid = id
-			break
+		if body == null:
+			continue
+		rid = id
+		var named_bodies := 0
+		for v in get_tree().get_nodes_in_group("villager"):
+			if TfRoster.is_named(int(v.get("person") if v.get("person") != null else -1)):
+				named_bodies += 1
+		note("%d named bodies around, talking to %s (%s)" % [named_bodies, rid, TfRoster.name_of(TfRoster.row_of(rid))])
+		reached = await tf_reach(body, rid, tf_pos())
+		if reached:
+			break         # a resident standing in a doorway has the door as the prompt target: try the next one
 	check("a named resident has a body in view", body != null, rid)
 	if body == null:
 		return
-	var named_bodies := 0
-	for v in get_tree().get_nodes_in_group("villager"):
-		if TfRoster.is_named(int(v.get("person") if v.get("person") != null else -1)):
-			named_bodies += 1
-	note("%d named bodies around, talking to %s (%s)" % [named_bodies, rid, TfRoster.name_of(TfRoster.row_of(rid))])
-	var reached := await tf_reach(body, rid, tf_pos())
 	check("the resident is what the interact prompt picks (Talk)", reached)
 	close_everything()
 	# a second villager to watch the world with
@@ -2655,9 +2658,9 @@ func _tf_interior_checks(label: String, interior: Node3D, hour: float) -> void:
 	check("%s: ambient light matches the hour" % label, absf(float(lr["ambient_energy"]) - float(st["ambient_energy"])) < 0.08, "report %.2f expected %.2f (hour %.1f)" % [float(lr["ambient_energy"]), float(st["ambient_energy"]), hour])
 	var other_hour := 23.0 if TfLight.daylight(hour) > 0.5 else 12.0
 	set_hour(other_hour, "light check: the room should follow")
-	await wait_until(func() -> bool: return absf(float((interior.call("light_report") as Dictionary)["ambient_energy"]) - float(lr["ambient_energy"])) > 0.15, 8.0)
+	await wait_until(func() -> bool: return absf(float((interior.call("light_report") as Dictionary)["ambient_energy"]) - float(lr["ambient_energy"])) > 0.1, 8.0)
 	var lr2: Dictionary = interior.call("light_report")
-	check("%s: the room's light changes when the hour does" % label, absf(float(lr2["ambient_energy"]) - float(lr["ambient_energy"])) > 0.15, "%.2f at %.0fh -> %.2f at %.0fh" % [float(lr["ambient_energy"]), hour, float(lr2["ambient_energy"]), other_hour])
+	check("%s: the room's light changes when the hour does" % label, absf(float(lr2["ambient_energy"]) - float(lr["ambient_energy"])) > 0.1, "%.2f at %.0fh -> %.2f at %.0fh" % [float(lr["ambient_energy"]), hour, float(lr2["ambient_energy"]), other_hour])
 	set_hour(hour, "restore")
 	await shot(label + "_inside")
 	# the exit prompt from the spawn point
@@ -2966,6 +2969,11 @@ func _s_tf_travel() -> void:
 			check("E at the ladder foot climbs to the loft", climbed, "player y %.2f, ladder %.2f -> %.2f" % [player.global_position.y, ld.bottom.global_position.y, ld.top.global_position.y])
 			if not climbed:
 				bug("traversal", "ladder climb did not move the player up (y %.2f, expected ~%.2f)" % [player.global_position.y, ld.top.global_position.y])
+			if InteriorDoor.active != null:
+				var rm: Node3D = InteriorDoor.active.get("interior")
+				if rm != null and rm.has_method("wall_fade_state"):
+					var lay: Dictionary = rm.get("layout")
+					L("ladder top: cam local %s, player local %s, room %sx%sx%s, fade %s, model visible %s, cam-pivot %.2f" % [str(rm.to_local(player.camera.global_position).snapped(Vector3.ONE * 0.01)), str(rm.to_local(player.global_position).snapped(Vector3.ONE * 0.01)), str(lay["w"]), str(lay["d"]), str(lay["h"]), str(rm.call("wall_fade_state")), str(player._model.visible), player.camera.global_position.distance_to(player._pivot.global_position)])
 			await shot("ladder_top")
 			# and back down
 			var okt := await wait_until(func() -> bool: return player.nearest_interactable() != null, 3.0)

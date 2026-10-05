@@ -88,7 +88,14 @@ func _pick() -> void:
 		var is_lock := n3 == locked
 		rows.append({"node": n3, "dist": d, "locked": is_lock,
 			"engaged": is_engaged(st, d, is_lock, n3.get("dead") == true)})
+	var before := _picked
 	_picked = select(rows)
+	# the boxed plate says name + level + health: the monster's own floating name label would print the same words beside it
+	for r: Dictionary in before:
+		if is_instance_valid(r["node"]):
+			(r["node"] as Node).set_meta("np_hide", false)
+	for r: Dictionary in _picked:
+		(r["node"] as Node).set_meta("np_hide", true)
 
 
 func _draw() -> void:
@@ -135,7 +142,7 @@ func plate_width(info: Dictionary) -> float:
 
 
 ## items: [{at, info, locked, a, title, w}] -> the plates to draw. Pixel-snapped; two plates with the same title within
-## MERGE_PX of each other are one plate ("Lv 1  Wolf  x2", the locked / nearer one kept); any other overlap is pushed up
+## MERGE_PX of each other are one plate ("Lv 1  Wolf  x2", the locked / nearer one kept, its bar the LOWEST health of the group); any other overlap is pushed up
 ## by a plate height so nothing prints over another plate. Pure (tests call it with fake positions).
 const PLATE_H := 34.0
 const MERGE_PX := 14.0
@@ -149,6 +156,7 @@ static func layout(items: Array) -> Array:
 		for o: Dictionary in out:
 			if String(o["title"]) == String(it["title"]) and (o["at"] as Vector2).distance_to(it["at"]) < MERGE_PX:
 				o["count"] = int(o.get("count", 1)) + 1
+				o["min_frac"] = minf(float(o.get("min_frac", (o["info"] as Dictionary).get("frac", 1.0))), float((it["info"] as Dictionary).get("frac", 1.0)))
 				o["locked"] = bool(o["locked"]) or bool(it["locked"])
 				merged = true
 				break
@@ -160,6 +168,7 @@ static func layout(items: Array) -> Array:
 		var info: Dictionary = (o["info"] as Dictionary).duplicate()
 		if int(o["count"]) > 1:
 			info["count"] = int(o["count"])
+			info["frac"] = float(o.get("min_frac", info.get("frac", 1.0)))    # a merged plate shows the weakest of the group
 		o["info"] = info
 		var at: Vector2 = o["at"]
 		var w := float(o["w"]) + (26.0 if int(o["count"]) > 1 else 0.0)

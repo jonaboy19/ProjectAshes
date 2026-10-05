@@ -15,6 +15,7 @@ const WALL_T := 0.22
 
 var _surf := {}          # material key -> {v, n, c, i}
 var colliders: Array = []   # [centre: Vector3, size: Vector3, yaw: float]
+var ceiling_colliders: Array = []   # roof slab boxes (physics layer 2: the player stops, the camera arm does not)
 var materials := {}      # material key -> StandardMaterial3D (after build)
 var box_count := 0
 
@@ -67,6 +68,14 @@ func solid(centre: Vector3, size: Vector3, col: Color, mat := "solid", yaw := 0.
 
 func collider(centre: Vector3, size: Vector3, yaw := 0.0) -> void:
 	colliders.append([centre, size, yaw])
+
+
+## The roof slab: it stops the player (physics layer 2, in the player's mask) but not the chase camera's spring arm (mask
+## layers 1 + 10). With a camera-blocking ceiling a player on a loft (pivot 0.5 m under the slab) pinned the lens 0.26 m from
+## the head, hid the body and filled the screen with wall.
+func ceiling_solid(centre: Vector3, size: Vector3, col: Color, group := "") -> void:
+	box(centre, size, col, "solid", 0.0, group)
+	ceiling_colliders.append([centre, size, 0.0])
 
 
 ## A wall along the floor-plan line a..b (Vector2: x, z) from `y0` up to `y1`. `openings` = [{at: metres along a..b,
@@ -155,6 +164,19 @@ func build(parent: Node3D) -> Dictionary:
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		parent.add_child(mi)
 		out[key] = mi
+	if not ceiling_colliders.is_empty():
+		var roof := StaticBody3D.new()
+		roof.name = "CeilingColliders"
+		roof.collision_layer = 2
+		roof.collision_mask = 0
+		parent.add_child(roof)
+		for c: Array in ceiling_colliders:
+			var rs := CollisionShape3D.new()
+			var rb := BoxShape3D.new()
+			rb.size = c[1]
+			rs.shape = rb
+			rs.position = c[0]
+			roof.add_child(rs)
 	if not colliders.is_empty():
 		var body := StaticBody3D.new()
 		body.name = "Colliders"
