@@ -54,3 +54,10 @@ Rating: about 6/10 in close-up and about 6 at the shoulder cam. **Not default.**
 Rating: close-up about 6.5/10, shoulder cam about 6.5, clips 7.
 
 Benchmark street: NOT run. The full worktree's Godot import segfaulted while disk free fell to 3.7 GB (other agents writing). The worktree was removed. The hero stays off by default.
+
+## Pass 5 (2026-10-06): `m12_sheet.jpg` (shell visible), `m13_sheet.jpg` (shell hidden)
+- **Hands:** they now use the same `hero_character` shader as the body. The tint is the measured ratio of the Meshy skin mean to the G6 hand texture mean (0.68, 0.69, 0.73), and they now match the face.
+- **Sword:** `HeroTierA.regrip()` puts the handle centre between the curled middle finger and the thumb in the Sword_Idle pose. The sword now sits in the fist. The same bug exists on the current G6 hero (the handle lies across the wrist).
+- **Mantle:** smoothed, thicker, with a darker wool tint, but the front shoulder slabs still read as shards in close-up. It is hidden (`SHOW_HOOD_SHELL = false`).
+
+Rating: about 6.5/10. Still not default.
