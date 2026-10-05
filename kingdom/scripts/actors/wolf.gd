@@ -28,6 +28,7 @@ const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const Fighter := preload("res://scripts/combat/npc_fighter.gd")
 const SoulbeastAura := preload("res://scripts/actors/soulbeast_aura.gd")
 const CombatStats := preload("res://scripts/combat/combat_stats.gd")
+const NodePool := preload("res://scripts/core/node_pool.gd")
 const LEGACY_MODEL := "res://assets/incoming/quaternius/ultimate-animated-animals/glTF/Wolf.gltf"
 const LEGACY_CLIPS := {"idle": "Idle", "walk": "Walk", "run": "Gallop", "attack": "Attack",
 	"hit": "Idle_HitReact1", "death": "Death"}
@@ -158,6 +159,8 @@ var _cur_move: Resource
 var _cur_windup := 0.5
 var _stats := {}                  # CombatStats row (wolf only; other species use SPECIES numbers)
 var _ward_timer := 0.0            # seconds spent inside strong coverage (ward "brief")
+var _death_tween: Tween
+var _model_scale0 := Vector3.ONE  # F12 pooling: scale the death squash starts from
 
 
 func _ready() -> void:
@@ -201,6 +204,7 @@ func _ready() -> void:
 		return
 	add_child(model)
 	_model = model
+	_model_scale0 = model.scale
 	_anim = Assets.animation_player(model)
 	_ragdoll = Ragdoll.attach(self, model, [_anim])
 	if _kind == "" and _anim:
@@ -214,6 +218,82 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	Tokens.release(self)
+
+
+# --- pooling (F12, scripts/core/node_pool.gd): a released body is as good as new --------------------------
+
+func on_acquire() -> void:
+	pass          # fields were put back by reset() on release; the spawner now sets species-agnostic ones (den, home)
+
+
+func on_release() -> void:
+	Tokens.release(self)
+	Telegraph.end(self)
+
+
+## Everything a fight or a death changed: health, state, AI timers, tokens, tween, groups, signals, ragdoll, model.
+## A body that never entered the tree has nothing to reset (_ready sets it all).
+func reset() -> void:
+	if _model == null:
+		return
+	if _death_tween != null and _death_tween.is_valid():
+		_death_tween.kill()
+	_death_tween = null
+	for c: Dictionary in died.get_connections():
+		died.disconnect(c["callable"])
+	for g in get_groups():
+		if not String(g).begins_with("_") and g != &"team1" and g != &"combatant":
+			remove_from_group(g)
+	for m in get_meta_list():
+		if m != &"_npool":
+			remove_meta(m)
+	add_to_group("team1")
+	add_to_group("combatant")
+	_sp = SPECIES.get(species, SPECIES["wolf"])
+	if species == "wolf" and Fighter.has_archetype("wolf"):
+		_fighter = Fighter.make("wolf", randi())
+		_stats = _fighter.apply_level(CombatStats.player_level())
+		max_health = int(_stats["hp"])
+	else:
+		max_health = int(_sp["health"])
+	health = max_health
+	dead = false
+	state = State.ROAM
+	den_id = -1
+	home = Vector2.ZERO
+	territory = 200.0
+	velocity = Vector3.ZERO
+	scale = Vector3.ONE            # spawners enlarge corrupted wolves and apex beasts
+	_cur_move = null
+	_target = global_position
+	_think = 0.0
+	_attack_cd = 0.0
+	_busy = 0.0
+	_speed = 0.0
+	_knock = Vector3.ZERO
+	_winding = 0.0
+	_strike_snap_sent = false
+	_strike_target = null
+	_turn_rest = 0.0
+	_turn_time = 0.0
+	_strikes_left = randi_range(1, 2)
+	_orbit = 0.0
+	_orbit_dir = 1.0 if randf() < 0.5 else -1.0
+	_orbit_flip = 0.0
+	_circling = false
+	_flee_time = 0.0
+	_provoked = 0.0
+	_escape_told = false
+	_regen = 0.0
+	_ward_timer = 0.0
+	_actor_shape.disabled = true
+	_model.scale = _model_scale0
+	if _ragdoll != null:
+		_ragdoll.call("revive")
+		var sk: Variant = _ragdoll.get("skeleton")
+		if sk is Skeleton3D:
+			(sk as Skeleton3D).reset_bone_poses()
+	_play("idle", true)
 
 
 func _physics_process(delta: float) -> void:
@@ -571,10 +651,11 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 			_play("death", true)
 		died.emit(self)
 		var t := create_tween()
+		_death_tween = t
 		t.tween_interval(6.0)
 		# Squash the model, not the body: Jolt rejects non-uniform body scale.
 		t.tween_property(_model, "scale", _model.scale * Vector3(1, 0.01, 1), 0.5)
-		t.tween_callback(queue_free)
+		t.tween_callback(NodePool.recycle.bind(self))     # pooled bodies go back to their pool, others queue_free
 		return
 	if from is Node3D:
 		_provoked = 15.0

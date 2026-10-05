@@ -9,6 +9,7 @@ extends Node
 ## steps in, ignoring runestone ward (a hungry pack at the hedge does not read the stones).
 
 const Sites := preload("res://scripts/world/thornfield/sites.gd")
+const CreaturePool := preload("res://scripts/core/creature_pool.gd")
 const DEN_RING := Vector2(170.0, 330.0)
 const NIGHT_FROM := 22
 const NIGHT_TO := 5
@@ -132,8 +133,9 @@ func _den_pos() -> Vector2:
 
 
 func _wolf(at: Vector2, home: Vector2, territory: float) -> Node3D:
-	var w := Wolf.new()
-	w.species = "wolf"
+	var w: Wolf = CreaturePool.wolf("thornfield", "wolf")
+	probe_wolves.erase(w)            # a recycled body may still sit in a stale list
+	ambush_wolves.erase(w)
 	w.den_id = den_id
 	w.home = home
 	w.territory = territory
@@ -163,12 +165,12 @@ func _dawn() -> void:
 		if not is_instance_valid(w):
 			continue
 		if player == null or (w as Node3D).global_position.distance_to(player.global_position) > 70.0:
-			(w as Node).queue_free()
+			CreaturePool.give_back(w)
 	probe_wolves.clear()
 
 
 func clear_ambush() -> void:
 	for w: Variant in ambush_wolves:
 		if is_instance_valid(w) and not bool(w.dead):
-			(w as Node).queue_free()
+			CreaturePool.give_back(w)
 	ambush_wolves.clear()

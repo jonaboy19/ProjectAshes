@@ -25,6 +25,7 @@ var frontier: FrontierPresence
 var region: RegionDressing
 var region1: Node   # scripts/region1/region1_glue.gd (Region1 hooks)
 const Flow := preload("res://scripts/ui/frontend/flow.gd")
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
 const StyleG := preload("res://scripts/style_g.gd")
 const SeasonsScript := preload("res://scripts/sim/seasons.gd")
@@ -354,7 +355,13 @@ func _process(delta: float) -> void:
 	camps.focus = focus
 	ambient.focus = focus
 	# The settings screen's View Distance (Quality tier or override) sets the chunk ring; the command view sees one ring further.
-	terrain.view_radius = Quality.view_radius + (1 if player.view == Player.View.COMMAND and Quality.view_radius >= 4 else 0)
+	# F12: one cell manager sets the radii per quality tier (cell_streamer.gd) and wakes/sleeps the registered spawners and sites.
+	var cells: RefCounted = CellStreamer.shared()
+	cells.update(focus)
+	var ring: int = cells.radius_cells("terrain")
+	terrain.view_radius = ring + (1 if player.view == Player.View.COMMAND and ring >= 4 else 0)
+	terrain.collision_radius = cells.radius_cells("terrain", "full")
+	terrain.grass_radius = cells.radius_cells("terrain", "full")
 	water.view_radius = terrain.view_radius
 	_update_daylight()
 	_status_timer -= delta

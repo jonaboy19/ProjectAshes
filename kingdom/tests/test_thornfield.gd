@@ -44,6 +44,7 @@ func after_test() -> void:
 	QuestHub.reset()
 	QuestBus.reset_shared()
 	WorldSim.time_of_day = _time_before
+	preload("res://scripts/core/node_pool.gd").clear_all()     # ambush wolves go back to the pool; free the idle bodies
 	WorldSim.day = _day_before
 	Perception.set_environment(12.0)
 

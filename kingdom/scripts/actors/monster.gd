@@ -28,6 +28,7 @@ const Tokens := preload("res://scripts/actors/creature_attack_tokens.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const Fighter := preload("res://scripts/combat/npc_fighter.gd")
 const Telegraph := preload("res://scripts/combat/telegraph.gd")
+const NodePool := preload("res://scripts/core/node_pool.gd")
 const PLAYER_SOLID_RANGE := 16.0
 ## Hit knockback plays out as a short slide (time constant KNOCK_TAU, same 0.12 m per
 ## unit of knockback as before) instead of an instant teleport (FEEL_AUDIT F5).
@@ -114,6 +115,8 @@ var _fighter: RefCounted          # NpcFighter: move choice from the CombatMoves
 var _cur_move: Resource           # the CombatAction being swung
 var _cur_windup := 0.5
 var _stats := {}                  # CombatStats row for this body (empty = SPECIES numbers)
+var _death_tween: Tween
+var _model_scale0 := Vector3.ONE  # F12 pooling: scale the death squash starts from
 
 
 func _ready() -> void:
@@ -145,6 +148,7 @@ func _ready() -> void:
 		model.scale *= float(sp["height"]) / float(Models.info(_kind)["fit_height"])
 	add_child(model)
 	_model = model
+	_model_scale0 = model.scale
 	var tint: Color = sp["tint"]
 	if tint != Color(1, 1, 1) and _kind != String(sp["model"]):
 		_tint(model, tint)    # only the stand-in body needs recolouring
@@ -177,6 +181,92 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	Tokens.release(self)
+
+
+# --- pooling (F12, scripts/core/node_pool.gd) ------------------------------------------------------------
+
+func on_acquire() -> void:
+	pass
+
+
+func on_release() -> void:
+	Tokens.release(self)
+	Telegraph.end(self)
+	_show_telegraph(false)
+
+
+## A named (evolved, scaled, auraed) monster is never pooled: it leaves the world the old way.
+func recycle() -> void:
+	if named == "":
+		NodePool.recycle(self)
+	else:
+		queue_free()
+
+
+## Back to a freshly spawned body: health, level, state, AI timers, tokens, groups, signals, ragdoll, model.
+func reset() -> void:
+	if _model == null:
+		return
+	if _death_tween != null and _death_tween.is_valid():
+		_death_tween.kill()
+	_death_tween = null
+	for c: Dictionary in died.get_connections():
+		died.disconnect(c["callable"])
+	for m in get_meta_list():
+		if m != &"_npool":
+			remove_meta(m)
+	var sp: Dictionary = SPECIES[species]
+	if Fighter.has_archetype(species):
+		_fighter = Fighter.make(species, randi())
+	var lv: Array = sp["level"]
+	level = randi_range(int(lv[0]), int(lv[1]))
+	if _fighter != null:
+		_stats = _fighter.apply_level(level)
+		max_health = int(_stats["hp"])
+	else:
+		max_health = int(sp["health"]) + level * 4
+	health = max_health
+	dead = false
+	hostile = true
+	named = ""
+	klass = ""
+	state = State.WANDER
+	home = Vector2.ZERO
+	home_radius = 18.0
+	velocity = Vector3.ZERO
+	scale = Vector3.ONE
+	_foe = null
+	_cur_move = null
+	_target = global_position
+	_think = 0.0
+	_attack_cd = 0.0
+	_busy = 0.0
+	_speed = 0.0
+	_knock = Vector3.ZERO
+	_winding = 0.0
+	_strike_snap_sent = false
+	_strike_target = null
+	_turn_rest = 0.0
+	_turn_time = 0.0
+	_strikes_left = randi_range(1, 2)
+	_circling = false
+	_orbit = 0.0
+	_orbit_dir = 1.0 if randf() < 0.5 else -1.0
+	_orbit_flip = 0.0
+	_was_yielded = false
+	_hit_push = Vector3.ZERO
+	_hit_from = Vector3.INF
+	_ward_timer = 0.0
+	_actor_shape.disabled = true
+	_model.scale = _model_scale0
+	if _ragdoll != null:
+		_ragdoll.call("revive")
+		var sk: Variant = _ragdoll.get("skeleton")
+		if sk is Skeleton3D:
+			(sk as Skeleton3D).reset_bone_poses()
+	_set_team(true)
+	_refresh_label()
+	_play("idle", true)
 
 
 func _tint(model: Node, tint: Color) -> void:
@@ -619,10 +709,11 @@ func _die() -> void:
 		_play("death", true)
 	died.emit(self)
 	var t := create_tween()
+	_death_tween = t
 	t.tween_interval(6.0)
 	# Squash the model, not the body: Jolt rejects non-uniform body scale.
 	t.tween_property(_model, "scale", _model.scale * Vector3(1, 0.01, 1), 0.5)
-	t.tween_callback(queue_free)
+	t.tween_callback(recycle)
 
 
 ## Knockdown over (ragdoll.gd moved us under the hips): back on our feet.

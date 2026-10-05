@@ -18,6 +18,7 @@ const Gathering := preload("res://scripts/sim/gathering_items.gd")
 const Deposits := preload("res://scripts/world/deposits.gd")
 const GatherRun := preload("res://scripts/world/gather_run.gd")
 const SeasonsScript := preload("res://scripts/sim/seasons.gd")
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
 const MAX_NODES := 12
 const SPAWN := 55.0
 const DESPAWN := 80.0
@@ -91,12 +92,13 @@ func _center() -> Vector2:
 func _refresh(p: Vector2) -> void:
 	for c: Vector2i in _active.keys():
 		var n: ForageNode = _active[c]
-		if Vector2(n.global_position.x, n.global_position.z).distance_to(p) > DESPAWN or _spent(c, n.kind):
+		if Vector2(n.global_position.x, n.global_position.z).distance_to(p) > CellStreamer.shared().distance("gather", "free") or _spent(c, n.kind):
 			_release(c)
 	if _active.size() >= MAX_NODES:
 		return
 	var want: Array = []
-	var r := int(ceil(SPAWN / CELL))
+	var spawn_m: float = CellStreamer.shared().distance("gather", "load")      # F12: cell manager radii
+	var r := int(ceil(spawn_m / CELL))
 	var here := Vector2i(floori(p.x / CELL), floori(p.y / CELL))
 	for dx in range(-r, r + 1):
 		for dz in range(-r, r + 1):
@@ -108,7 +110,7 @@ func _refresh(p: Vector2) -> void:
 				continue
 			var pos: Vector3 = info["pos"]
 			var d := Vector2(pos.x, pos.z).distance_to(p)
-			if d < SPAWN:
+			if d < spawn_m:
 				want.append([d, c])
 	want.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
 	for w: Array in want:

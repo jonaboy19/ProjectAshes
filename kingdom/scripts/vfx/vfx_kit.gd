@@ -10,6 +10,9 @@ const FX := preload("res://shaders/vfx_fx.gdshader")
 const CIRCLE := preload("res://shaders/vfx_circle.gdshader")
 const GHOST := preload("res://shaders/vfx_ghost.gdshader")
 const IMPACT := preload("res://shaders/vfx_impact.gdshader")
+const NodePool := preload("res://scripts/core/node_pool.gd")
+const PooledEmitter := preload("res://scripts/vfx/pooled_emitter.gd")
+const EMITTER_CAP := 96
 const ATLAS := preload("res://assets/incoming/vfx/atlas/vfx_atlas.png")
 const NOISE := preload("res://assets/incoming/vfx/atlas/vfx_noise.png")
 
@@ -174,7 +177,24 @@ static func fx_mat(mode: int, p: Dictionary, energy := 3.0, opts := {}) -> Shade
 static func free_after(node: Node, seconds: float) -> void:
 	var tw := node.create_tween()
 	tw.tween_interval(seconds)
-	tw.tween_callback(node.queue_free)
+	if node is GPUParticles3D and node.has_meta(NodePool.META):
+		tw.tween_callback(_recycle_emitter.bind(node, int(node.get("gen"))))    # pooled shell (pooled_emitter.gd)
+	else:
+		tw.tween_callback(node.queue_free)
+
+
+static func _recycle_emitter(node: Node, gen: int) -> void:
+	if is_instance_valid(node) and int(node.get("gen")) == gen:
+		NodePool.recycle(node)
+
+
+## One emitter shell: from the shared pool (pooled_emitter.gd), or a plain new() with NodePool.enabled = false.
+static func _emitter() -> GPUParticles3D:
+	if not NodePool.enabled:
+		NodePool.plain_allocs += 1
+		return GPUParticles3D.new()
+	var pool = NodePool.shared("vfx_emitter", func() -> Node: return PooledEmitter.new(), EMITTER_CAP, true)
+	return pool.acquire() as GPUParticles3D
 
 
 static func add(parent: Node, node: Node3D, pos: Vector3) -> Node3D:
@@ -294,7 +314,7 @@ static func _alpha_ramp(kind: String) -> GradientTexture1D:
 ##  alpha "out"|"inout"|"late", stretch (align to velocity), spin (random angle),
 ##  angular (Vector2 deg/s), mat (Material), free (auto-free, default true when one_shot).
 static func emit(parent: Node, pos: Vector3, cfg: Dictionary) -> GPUParticles3D:
-	var p := GPUParticles3D.new()
+	var p := _emitter()
 	var one_shot: bool = cfg.get("one_shot", true)
 	p.amount = maxi(1, int(cfg.get("amount", 16)))
 	p.lifetime = float(cfg.get("life", 0.8))

@@ -16,6 +16,8 @@ extends Node3D
 
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
 const ForageNodes := preload("res://scripts/world/forage_nodes.gd")
+const CreaturePool := preload("res://scripts/core/creature_pool.gd")
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
 const SPAWN := 110.0
 const SMALL_FLOCK := ["chicken", "pigeon", "duck", "goose"]
 const DESPAWN := 170.0
@@ -138,7 +140,13 @@ func _process(delta: float) -> void:
 func _update_group(g: Dictionary, p: Vector2) -> void:
 	var d := p.distance_to(g["pos"])
 	var nodes: Array = g["nodes"]
-	if d < SPAWN and nodes.is_empty():
+	# F12: the group is a spawner site of the cell manager: asleep (UNLOADED) = no bodies, awake = bodies. Without the
+	# manager's tier (-1: not fed this focus) the old distance check is used with the same numbers.
+	var cs: RefCounted = CellStreamer.shared()
+	var tier: int = cs.spawner_tier("ambient", g, g["pos"], p)
+	var wake: bool = d < cs.distance("ambient", "load") if tier < 0 else tier >= CellStreamer.Tier.LOW
+	var sleep: bool = d > cs.distance("ambient", "free") if tier < 0 else tier == CellStreamer.Tier.UNLOADED
+	if wake and nodes.is_empty():
 		for pair: Array in g["kinds"]:
 			var want := int(pair[1])
 			if SMALL_FLOCK.has(pair[0]):
@@ -148,18 +156,16 @@ func _update_group(g: Dictionary, p: Vector2) -> void:
 				if BEASTS.has(pair[0]):
 					_spawn_beast(g, String(pair[0]), nodes)
 					continue
-				var cr := Critter.new()
-				cr.kind = _variant(String(pair[0]), k, g["pos"])
+				var cr: Critter = CreaturePool.critter("ambient", _variant(String(pair[0]), k, g["pos"]))
 				cr.home = g["pos"]
 				add_child(cr)
 				var r: float = g["radius"]
 				var q: Vector2 = g["pos"] + Vector2(randf_range(-r, r), randf_range(-r, r)) * 0.6
 				cr.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
 				nodes.append(cr)
-	elif d > DESPAWN and not nodes.is_empty():
+	elif sleep and not nodes.is_empty():
 		for n in nodes:
-			if is_instance_valid(n):
-				n.queue_free()
+			CreaturePool.give_back(n)
 		nodes.clear()
 
 
@@ -168,8 +174,8 @@ func _update_wild(p: Vector2) -> void:
 	for g in _wild.duplicate():
 		if p.distance_to(g["pos"]) > DESPAWN:
 			for n in g["nodes"]:
-				if is_instance_valid(n):
-					n.queue_free()
+				CreaturePool.give_back(n)
+			CellStreamer.shared().release_spawner("ambient", g)
 			_wild.erase(g)
 	var tries := 6
 	while _wild.size() < WILD_RINGS and tries > 0:
@@ -212,8 +218,7 @@ func _beast_kinds(q: Vector2) -> Array:
 func _spawn_beast(g: Dictionary, kind: String, nodes: Array) -> void:
 	if not Models.has(kind):
 		return
-	var b := Wolf.new()
-	b.species = kind
+	var b: Wolf = CreaturePool.wolf("ambient", kind)
 	b.home = g["pos"]
 	b.territory = float(BEASTS[kind])
 	add_child(b)
