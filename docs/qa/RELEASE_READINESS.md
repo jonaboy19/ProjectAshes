@@ -10,7 +10,8 @@ Updated 2026-10-05 (release QA pass 2, PC-side fixes; phone runs paused while th
 | A (origin 2be0118e-era, before) | 1,404 MB | arm64 + armv7 |
 | B: texture fix + excludes | 945 MB | same, plus the fixes below |
 | C: + 512 px phone cap, arm64 only | 650 MB | |
-| D: + editor-only addons excluded (sky_3d, gloot, proton_scatter, phantom_camera examples) | **624 MB** | current |
+| D: + editor-only addons excluded (sky_3d, gloot, proton_scatter, phantom_camera examples) | 624 MB | |
+| E: 256 px phone cap (owner's choice), hero + characters 1024 | **528 MB** | current; 1181 textures capped |
 
 Target is under 500 MB (ideally 300 MB). Still a blocker.
 
