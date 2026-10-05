@@ -33,3 +33,7 @@ No runtime or tests were run.
 ## Cast-to-cast ownership and HUD eligibility (Codex)
 Player overlap_windups is disabled. AbilityRunner now rejects another technique during an unreleased windup or recovery, preserving its existing lockout and cooldown rules. This removes the previous multiple-paid-windups/single-replaced-animation case. can_cast_slot uses runner.can_use so HUD callers receive the same body-state, lifecycle and path checks as actual casting. No automatic cast queue is added; existing button feedback can explain Busy.
 No runtime or tests were run. Long bending clips still need measured contact/recovery mapping before assignment.
+
+## Delayed close-range follow-up hits (Codex)
+The legacy multi-hit timer path now captures a body-action generation. Melee/cone follow-ups are discarded after interruption or a replacement cast; dead casters discard every scheduled area follow-up. Freed targets are replaced with null before area resolution. Released remote area effects retain their existing independent behavior while the caster lives. These timers still use world time, so follow-up contact timing during impact pause remains unfinished; migrate to the action clock when clip events are mapped.
+Mobile technique_buttons and hotbar were source-reviewed: both consume can_cast_slot's ok flag, so the runner eligibility change has existing consumers. No runtime or tests were run.

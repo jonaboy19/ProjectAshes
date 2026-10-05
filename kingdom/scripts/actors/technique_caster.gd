@@ -88,6 +88,7 @@ var _seal_id := ""
 var _seal_seq: Array = []
 var _seal_pos := 0
 var _seal_time := 0.0
+var _body_action_id := 0   # Invalidates delayed strikes when the body action is replaced.
 
 
 func _init() -> void:
@@ -310,6 +311,7 @@ func _end_seals(success: bool) -> void:
 ## Called when a hit reaction, guard break or death takes control of the body.
 ## Released projectiles and existing target effects remain independent.
 func interrupt_cast(reason := "interrupted") -> void:
+	_body_action_id += 1
 	var changed: bool = runner.interrupt_all(reason)
 	if changed and is_instance_valid(player):
 		var animator: Variant = player.get("_animator")
@@ -355,6 +357,7 @@ func cast_ability(id: String, sealed := false) -> Dictionary:
 
 ## What the legacy cast did after paying: face the target, play the clip, train, announce.
 func _after_commit(id: String, r: Dictionary, target: Node3D) -> void:
+	_body_action_id += 1
 	var def: Dictionary = r["def"]
 	if target:
 		_face(target.global_position)
@@ -676,7 +679,7 @@ func _resolve(id: String, def: Dictionary, dmg: int, target: Node3D) -> void:
 					_area(def, dmg, target, h == hits - 1)
 				else:
 					get_tree().create_timer(float(def["hit_interval"]) * h).timeout.connect(
-						_area.bind(def, dmg, target, h == hits - 1))
+						_area_followup.bind(def, dmg, target, h == hits - 1, _body_action_id))
 	if SPECTACLE_SHAPES.has(shape):
 		# The flash/projectile is an explicit local spectacle, not proof that a
 		# particular villager saw the caster or identified a target.
@@ -707,6 +710,17 @@ func _resolve(id: String, def: Dictionary, dmg: int, target: Node3D) -> void:
 		UtilityBrain.sound_notice(Vector2(here.x, here.z), sound_level, sound_radius, sound_lifetime)
 	if shape in ["aoe", "target_aoe", "cone"] and def["effect"].has("buff"):
 		_support(id, def)
+
+
+## melee / cone / aoe / target_aoe: one volley of hits.
+func _area_followup(def: Dictionary, dmg: int, target: Node3D, last: bool, action_id: int) -> void:
+	if not is_instance_valid(player) or _flag(player, "dead"):
+		return
+	# Remote released area effects are independent; close-range combo strikes
+	# still belong to the body animation that launched them.
+	if String(def["shape"]) in ["melee", "cone"] and action_id != _body_action_id:
+		return
+	_area(def, dmg, target if is_instance_valid(target) else null, last)
 
 
 ## melee / cone / aoe / target_aoe: one volley of hits.
