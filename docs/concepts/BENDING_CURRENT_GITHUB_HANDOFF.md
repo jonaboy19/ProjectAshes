@@ -17,3 +17,7 @@ TechniqueCaster currently advances runner.update(delta) on the physics clock. Sy
 Review contact sheets and clip metadata, choose suitable technique mappings, synchronize release and playback, handle interrupted casts, review mobile cost and runtime appearance. Claude documents several floor-penetration clips, a crouched ending and lightning placeholders; importing them does not resolve those issues.
 
 No runtime, import or tests were run for this patch. This branch is local until pushed. Older gpt/character-feel-finish gameplay patches are not merged into this checkout; reconcile them separately with current GitHub changes.
+
+## Hit pause synchronization (Codex)
+AbilityRunner.update now accepts optional action_dt, defaulting to the existing dt. Only windup, recovery and cast lock use it; cooldowns, timed chants and effects keep world time. TechniqueCaster queries ImpactPause's actual mixer ownership and supplies zero action time during a held animation pause. TechniqueVfx uses the same query to hold unreleased anticipation timelines; released effects remain on world time. Existing NPC callers keep their original single-argument behavior.
+This addresses impact-pause drift only. Clip contact mapping, playback speed matching, multiple overlapping casts and interrupted action ownership remain open. Existing visual particle nodes are not frozen by this change. No runtime or tests were run.

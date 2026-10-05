@@ -129,6 +129,7 @@ func _bind_technique_vfx() -> void:
 		"origin": _origin, "aim": _aim, "world": _world,
 		"is_player": func() -> bool: return player != null and player == Life.player,
 		"skeleton_root": player,
+		"action_paused": _action_paused,
 		"bespoke": func(def: Dictionary) -> bool:
 			var v := String(def.get("vfx", ""))
 			return v != "" and _vfx_info.has(v),
@@ -159,6 +160,18 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 
 
+## Ask the impact-pause owner; an inactive tree can have other causes.
+func _action_paused() -> bool:
+	if not is_instance_valid(player):
+		return false
+	var pause_owner: Variant = player.get("_impact_pause")
+	var animator: Variant = player.get("_animator")
+	if not is_instance_valid(pause_owner) or not is_instance_valid(animator):
+		return false
+	var mixer: Variant = animator.get("tree")
+	return mixer is AnimationMixer and pause_owner.has_method("is_paused") and bool(pause_owner.call("is_paused", mixer))
+
+
 func _physics_process(delta: float) -> void:
 	if is_sealing():
 		_seal_time -= delta
@@ -168,7 +181,7 @@ func _physics_process(delta: float) -> void:
 			_end_seals(false)
 	if skills:
 		skills.tick(delta)
-	for ev: Dictionary in runner.update(delta):    # effects on the caster itself (hot, wards, auras)
+	for ev: Dictionary in runner.update(delta, 0.0 if _action_paused() else delta):    # effects on the caster itself
 		if String(ev["kind"]) == "hot" and player != null and player.has_method("heal"):
 			player.call("heal", int(ev["amount"]))
 	_update_projectiles(delta)

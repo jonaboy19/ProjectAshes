@@ -151,7 +151,12 @@ func begin(id: String, def: Dictionary, opts := {}) -> Dictionary:
 
 
 func _process(delta: float) -> void:
+	var pause_action := false
+	if ctx.has("action_paused") and ctx["action_paused"] is Callable and (ctx["action_paused"] as Callable).is_valid():
+		pause_action = bool((ctx["action_paused"] as Callable).call())
 	for r: Dictionary in _runs.duplicate():
+		if pause_action and not bool(r["executed"]):
+			continue
 		r["t"] = float(r["t"]) + delta
 		_tick(r)
 	if _runs.is_empty():
