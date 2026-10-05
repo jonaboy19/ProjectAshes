@@ -218,6 +218,8 @@ var _so_snap := false
 var _so_snap_to := Vector3.ZERO
 var _so_ended := false
 var _so_leaving := false
+var _so_approach_stall := 0.0
+var _so_approach_from := Vector2.INF
 
 # Awareness and reactions (times are Time.get_ticks_msec()).
 var _hide_until := 0
@@ -1543,6 +1545,8 @@ func _so_begin(pick: Array) -> bool:
 	_so_phase = SmartObjects.Session.APPROACH
 	_so_acc = 0.0
 	_so_ended = false
+	_so_approach_stall = 0.0
+	_so_approach_from = sim_position()
 	return true
 
 
@@ -1573,6 +1577,8 @@ func _so_release() -> void:
 	_so_snap = false
 	_so_leaving = false
 	_so_clip = ""
+	_so_approach_stall = 0.0
+	_so_approach_from = Vector2.INF
 	if _props != null and _act != Act.FIREFIGHT:
 		_props.clear()
 
@@ -1581,6 +1587,21 @@ func _so_release() -> void:
 func _so_frame(delta: float) -> bool:
 	var leaving := _so_phase >= SmartObjects.Session.ALIGN
 	if not _arrived and not leaving:
+		var here := sim_position()
+		# Measure actual body progress, not requested speed or route attempts.
+		# Long successful walks and detours keep their claim; a stalled approach
+		# releases it so other residents can use the activity.
+		if _so_approach_from == Vector2.INF or here.distance_to(_so_approach_from) >= 0.5:
+			_so_approach_from = here
+			_so_approach_stall = 0.0
+		elif _yield_time <= 0.0:
+			_so_approach_stall += delta
+		if _so_approach_stall >= 12.0:
+			_so_release()
+			_so_ended = true
+			_path = PackedVector2Array()
+			_path_i = 0
+			_needs_route = false
 		return false          # still walking to the approach point
 	_so_acc += delta
 	_so_track_clip()
