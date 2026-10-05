@@ -29,6 +29,7 @@
 				"burn": 3.0
 			},
 			"anim": [
+				"Fire_Box_Straight_C",
 				"Magic_Cast_R",
 				"Spell_Simple_Shoot"
 			],
@@ -36,7 +37,8 @@
 			"hit_time": 0.25,
 			"vfx": "fireball",
 			"element": "fire",
-			"max_rank": 3
+			"max_rank": 3,
+			"anim_mode": "upper"
 		},
 		{
 			"id": "fire_kindled_heart",
@@ -70,6 +72,7 @@
 				"burn": 3.0
 			},
 			"anim": [
+				"Fire_Box_Combo_A",
 				"Magic_Cast_L",
 				"G6_cast_unarmed_magic"
 			],
@@ -80,7 +83,8 @@
 			"requires": [
 				"fire_ember_orb"
 			],
-			"max_rank": 3
+			"max_rank": 3,
+			"anim_mode": "full"
 		},
 		{
 			"id": "fire_pillar",
@@ -99,6 +103,7 @@
 				"burn": 4.0
 			},
 			"anim": [
+				"Fire_Box_Combo_B",
 				"Magic_Cast_L",
 				"Spell_Simple_Enter"
 			],
@@ -113,7 +118,8 @@
 			"needs": {
 				"level": 6
 			},
-			"max_rank": 3
+			"max_rank": 3,
+			"anim_mode": "upper"
 		},
 		{
 			"id": "fire_ember_step",
@@ -130,7 +136,10 @@
 			"effect": {
 				"burn": 2.0
 			},
-			"anim": "Roll",
+			"anim": [
+				"Fire_Stride_Strike_F",
+				"Roll"
+			],
 			"anim_mode": "full",
 			"anim_speed": 1.6,
 			"hit_time": 0.15,
@@ -161,7 +170,10 @@
 			"effect": {
 				"burn": 5.0
 			},
-			"anim": "G6_power_up",
+			"anim": [
+				"Fire_Aerial_Flip",
+				"G6_power_up"
+			],
 			"anim_mode": "full",
 			"anim_speed": 1.2,
 			"hit_time": 0.6,

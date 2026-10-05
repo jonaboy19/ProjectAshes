@@ -134,6 +134,7 @@
     "effects": [],
     "vfx": "qi_palm",
     "anim": [
+     "Earth_Lunge_L",
      "Karate_Punch",
      "Punch_Cross"
     ],
@@ -179,6 +180,7 @@
     ],
     "vfx": "qi_aura",
     "anim": [
+     "Cultivate_Yoga_Floor_Flow",
      "Meditate"
     ],
     "anim_speed": 1.0,
@@ -217,6 +219,7 @@
     "effects": [],
     "vfx": "wind_trail",
     "anim": [
+     "Air_Evade_R",
      "Sword_Dash",
      "Sprint"
     ],
@@ -263,6 +266,7 @@
     "effects": [],
     "vfx": "qi_nova",
     "anim": [
+     "Lightning_Punch_Snap",
      "Karate_Punch",
      "Punch_Cross"
     ],
@@ -310,6 +314,7 @@
     ],
     "vfx": "qi_shield",
     "anim": [
+     "Guard_Ready_Defensive",
      "G6_cast_off_hand_shield",
      "Karate_Block"
     ],
@@ -438,6 +443,7 @@
     "effects": [],
     "vfx": "qi_palm",
     "anim": [
+     "Water_Lean_Sway_A",
      "Karate_Punch",
      "Punch_Cross"
     ],
@@ -479,6 +485,7 @@
     "effects": [],
     "vfx": "qi_palm",
     "anim": [
+     "Lightning_Punch_Snap",
      "Magic_Cast_R",
      "Karate_Punch"
     ],
@@ -801,6 +808,7 @@
     ],
     "vfx": "qi_aura",
     "anim": [
+     "Cultivate_Yoga_Floor_Flow",
      "Meditate"
     ],
     "anim_speed": 1.0,
@@ -851,6 +859,7 @@
     ],
     "vfx": "qi_aura",
     "anim": [
+     "Cultivate_Yoga_Floor_Flow",
      "Meditate"
     ],
     "anim_speed": 1.0,

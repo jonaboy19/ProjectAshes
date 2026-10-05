@@ -6,9 +6,11 @@ Source: CMU Graphics Lab Motion Capture Database, terms in `LICENSE` here. Raw B
 (gdignored, `*.bvh` git-ignored); re-fetch with `tools/anim/fetch_cmu_bending.sh`.
 Previews: `_previews/*.jpg` (side strips, 8 frames per clip; `front_sheet_00.jpg` = front view of six key clips) and `docs/anim/cmu_bending/`.
 
-NOT wired into the game: `Assets.UAL_FILES` is unchanged (animation behaviour is owned by Codex, see the handoff in
-`docs/LOCAL_SESSION_HANDOFF.md`). All clips are in place with travel on the optional `root` position track (same convention as
-`animations/README.md`). No clip is flagged as loop.
+Wired as library "bending" by `scripts/actors/bending_library.gd` (not in `Assets.UAL_FILES`): installed on demand on the
+AnimationPlayer of a caster, played through the existing `play_upper` / `play_full` OneShot slots. Per-clip playback data
+(trim window, strike frame, floor lift, blend-out) is `data/powers/bending_clips.json`, built by
+`tools/anim/make_bending_sidecar.py`; the clips are played in place (root travel removed at install). Technique to clip
+mapping: `anim` lists in `data/powers/*.json` and `data/skills/*.json`; see the handoff. No clip is flagged as loop.
 
 Columns: root travel = `travel_m` stored on the `root` track; slide = mean horizontal speed (m/s) of a planted foot with the root
 track enabled (`tools/anim/foot_slide.gd`; about 0.0-0.25 is planted, above 0.5 means airborne or stepping, not sliding).
@@ -52,11 +54,11 @@ track enabled (`tools/anim/foot_slide.gd`; about 0.0-0.25 is planted, above 0.5 
 | `Water_Lean_Sway_B` | 3.5 | 049/49_12 | 1.9-5.4 | 0.07 | 0.04 | 0.06 |
 | `Air_Jump_Kick` | 2.43 | 090/90_07 | 5.0-7.5 | 2.19 | 2.39 | 0.14 |
 
-## Known issues (see handoff)
-- Floor penetration flagged by `preview_free_library.gd --metrics` (lowest joint 5-7 cm below the floor): `Fire_Box_Combo_A`, `Fire_Stride_Strike_F`, `Water_Whirl`. Needs the foot-contact lift or a +Y offset on those frames.
-- `Air_Evade_L/R` travel 4 m: they are basketball evasive runs (Subject 78 "WalkEvasive"), use root motion or play them as a fast dash.
+## Known issues (fixed at playback by BendingLibrary.prepare, the GLB is unchanged)
+- Floor penetration flagged by `preview_free_library.gd --metrics` (lowest joint 5-7 cm below the floor): `Fire_Box_Combo_A`, `Fire_Stride_Strike_F`, `Water_Whirl`. FIXED: per-clip pelvis lift curve while a bone is under the floor (`lift` in the sidecar; `tools/anim/bending_measure.gd --prepared` shows the result, all clips within 2 cm).
+- `Air_Evade_L/R` travel 4 m: they are basketball evasive runs (Subject 78 "WalkEvasive"), FIXED: the root travel track is removed at install, the clips play in place; dash movement belongs to the caster.
 - `Air_Handspring_Evade` and `Fire_Aerial_Flip` are acrobatic flips (airborne; slide values are meaningless).
-- `Earth_Punch_Hold_Deep` ends in a crouch (the source performer drops at the end); trim to 4.6 s if a clean hold is needed.
+- `Earth_Punch_Hold_Deep` ends in a crouch (the source performer drops at the end); FIXED: played as 0-4.6 s with the last 0.7 s easing back to the first pose.
 - `Lightning_*` are placeholders from a traffic-pointing and a punching take; a sharp snap-to-point set should be keyed by hand.
 - Hands are constant finger poses (fist for strikes, relaxed otherwise); mocap has no fingers.
 - Source performers are mixed (CMU subjects 05, 13, 14, 17, 49, 55, 75, 78, 88, 90, 141, 143, 144), so strides and posture differ between clips; the retarget scales by leg length only.

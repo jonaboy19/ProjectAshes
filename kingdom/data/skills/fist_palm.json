@@ -157,6 +157,7 @@
 				"duration": 1.5
 			},
 			"anim": [
+				"Guard_Ready_Defensive",
 				"Parry_Quick",
 				"Karate_Block",
 				"Sword_Block"
@@ -168,7 +169,8 @@
 			"requires": [
 				"fist_breaking_kick"
 			],
-			"max_rank": 3
+			"max_rank": 3,
+			"anim_mode": "upper"
 		},
 		{
 			"id": "fist_earthshaker",
@@ -186,7 +188,10 @@
 			"effect": {
 				"stun": 0.8
 			},
-			"anim": "Attack_Ground_Pound",
+			"anim": [
+				"Earth_Spin_Reach_R",
+				"Attack_Ground_Pound"
+			],
 			"anim_mode": "full",
 			"anim_speed": 1.2,
 			"hit_time": 0.45,
