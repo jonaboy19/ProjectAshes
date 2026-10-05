@@ -130,7 +130,7 @@ func test_knocked_out_people_wake_and_their_body_goes() -> void:
 func test_the_dead_and_the_knocked_out_stay_down_across_a_save() -> void:
 	Takedown.down(8, Takedown.Kind.KILL, VICTIM, 3, 0)
 	Takedown.down(9, Takedown.Kind.KO, VICTIM, 3, 0)
-	var rows := Takedown.serialize()
+	var rows := Takedown.serialize(0)
 	assert_int(rows.size()).is_equal(2)
 	Takedown.reset()
 	Evidence.reset()

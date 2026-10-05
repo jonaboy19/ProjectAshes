@@ -27,6 +27,14 @@ func prompt() -> String:
 	return "Talk"
 
 
+## The interact key: the recruiter's menu (main.gd's VillageServices).
+func use() -> void:
+	var hud := Interaction.hud(self)
+	var sv := Interaction.services(self)
+	if hud != null and sv != null:
+		hud.call("show_menu", Callable(sv, "captain_menu"))
+
+
 ## Direct enlist used by the scripted demo; players normally use the Captain's menu.
 func interact(player: Player, current_soldiers: int) -> void:
 	if not Life.careers.is_employed():

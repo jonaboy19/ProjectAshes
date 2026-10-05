@@ -8,16 +8,15 @@ extends Node3D
 ## the harvest in autumn, repairs and hauling in winter.
 ##
 ## Spawned by scripts/world/homestead_view.gd's ring (within player reach),
-## the same way it already gives the player's own plots a body, so main.gd
-## needs no extra dispatcher. Self-contained like fishing_spot.gd: always in
-## the "interactable" group with prompt() and use(); it polls "interact"
-## itself (held, not tapped) while it is the player's nearest interactable.
+## the same way it already gives the player's own plots a body. An Interactable
+## (scripts/interaction/interactable.gd) with hold_time = WORK_TIME: the player's
+## InteractionController drives the hold (progress, release, walking away) and
+## calls interact when the bar is full, which pays the wage.
 
 const SeasonsScript := preload("res://scripts/sim/seasons.gd")
 const WORK_TIME := 4.0
 const WAGE := 6
 const MASTERY_XP := 1.0
-const LEAVE_DISTANCE := 4.5
 const TASK_NAMES := {
 	SeasonsScript.SPRING: "Sow the fields",
 	SeasonsScript.SUMMER: "Weed the fields",
@@ -30,14 +29,20 @@ var site: Dictionary = {}
 
 var _working := false
 var _progress := 0.0
-var _menu_was_open := false
 var _ui: CanvasLayer
 var _fill: ColorRect
 var _label: Label
 
 
 func _ready() -> void:
-	add_to_group("interactable")
+	var ic := Interactable.attach(self, {"id_fn": func() -> String: return "farm/%s" % String(site.get("name", name)),
+		"verb": "Work", "hold_time": WORK_TIME, "do": func(_pl: Node) -> void: _finish(),
+		"label": func() -> String: return prompt()})
+	ic.hold_started.connect(func(_pl: Node) -> void: _start())
+	ic.hold_progress.connect(func(_pl: Node, f: float) -> void:
+		_progress = f
+		_update_ui())
+	ic.hold_cancelled.connect(func(_pl: Node) -> void: _stop(false))
 
 
 func _current_season() -> int:
@@ -52,34 +57,10 @@ func prompt() -> String:
 	return "%s (hold)" % _task_name() if not _working else _task_name()
 
 
-## Taps do nothing; the hold in _process drives the work. Kept so any
+## Taps do nothing; the controller's hold (hold_time) drives the work. Kept so any
 ## dispatcher that calls use() on tap does no harm.
 func use() -> void:
 	pass
-
-
-func _process(delta: float) -> void:
-	var p := _player()
-	var dead := p != null and bool(p.get("dead"))
-	var near := p != null and not dead and p.global_position.distance_to(global_position) <= LEAVE_DISTANCE
-	var menu_open := _menu_open()
-	if not near or menu_open:
-		if _working:
-			_stop(false)
-		_menu_was_open = menu_open
-		return
-	var nearest: bool = p.has_method("nearest_interactable") and p.call("nearest_interactable") == self
-	var holding: bool = nearest and Input.is_action_pressed("interact")
-	if holding and not _working:
-		_start()
-	elif not holding and _working:
-		_stop(false)
-	if _working:
-		_progress += delta / WORK_TIME
-		_update_ui()
-		if _progress >= 1.0:
-			_finish()
-	_menu_was_open = menu_open
 
 
 func _start() -> void:
@@ -119,7 +100,7 @@ func _build_ui() -> void:
 		_ui.queue_free()
 	_ui = CanvasLayer.new()
 	_ui.layer = 30
-	add_child(_ui)
+	(get_tree().current_scene if get_tree().current_scene != null else self).add_child(_ui)
 	var panel := PanelContainer.new()
 	panel.add_theme_stylebox_override("panel", UITheme.panel_box())
 	panel.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
@@ -171,10 +152,3 @@ func _player() -> Node3D:
 	if pl is Node3D and is_instance_valid(pl):
 		return pl
 	return get_tree().get_first_node_in_group("player") as Node3D
-
-
-func _menu_open() -> bool:
-	var scene := get_tree().current_scene
-	var hud: Variant = scene.get("hud") if scene else null
-	return hud is Object and is_instance_valid(hud) and (hud as Object).has_method("is_menu_open") \
-		and bool((hud as Object).call("is_menu_open"))

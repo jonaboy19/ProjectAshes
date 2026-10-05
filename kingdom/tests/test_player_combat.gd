@@ -73,3 +73,18 @@ func test_guard_break_when_stamina_runs_out() -> void:
 	_p.take_damage(20)
 	assert_float(_p._stunned).is_greater(0.5)
 	assert_int(_p.health).is_less(_p.max_health)
+
+
+func test_f3_hold_attack_is_a_heavy_and_tap_is_a_light() -> void:
+	_p._arms.press(false)
+	_p._arms.tick(0.1)
+	_p._arms.release()
+	assert_str(_p._action.id).is_equal("sword_1")
+	_p._swing = 0.0
+	_p._combo_window = 0.0
+	_p._arms.press(false)
+	_p._arms.tick(0.5)
+	_p._arms.release()
+	assert_str(_p._action.id).is_equal("sword_heavy")
+	assert_float(_p._swing).is_equal_approx(Moves.heavy("sword").total(), 0.0001)
+	assert_float(_p.stamina).is_less(100.0 - Moves.combo("sword")[0].cost)

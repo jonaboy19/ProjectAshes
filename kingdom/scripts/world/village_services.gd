@@ -30,6 +30,7 @@ const Relationships := preload("res://scripts/sim/relationships.gd")
 const RadiantQuests := preload("res://scripts/sim/radiant_quests.gd")
 const DialogueRunner := preload("res://scripts/sim/dialogue_runner.gd")
 const TalkTarget := preload("res://scripts/world/talk_target.gd")
+const TalkSession := preload("res://scripts/ui/talk_session.gd")
 const Region1Identity := preload("res://scripts/world/region1_identity.gd")
 const QUEST_SEED := 1066 * 31
 const SOCIAL_TICK := 0.5
@@ -50,6 +51,7 @@ var recruit: Callable       # (count) -> void
 var talk_target: Node3D
 ## Used until Life owns `relationships` / `radiant` (see relationships()).
 var _rel_local: Relationships = Relationships.new()
+var talk_session: Node               # in-world conversation world side (scripts/ui/talk_session.gd)
 var _radiant_local: RadiantQuests = RadiantQuests.new()
 ## The conversation on screen: {id, info, file, node, line, hint_id}.
 var _talk: Dictionary = {}
@@ -122,6 +124,9 @@ func _ready() -> void:
 	relationships().add_sects(Life.lore.sects)
 	talk_target = TalkTarget.new(hud, talk_menu)
 	add_child(talk_target)
+	talk_session = TalkSession.new()
+	add_child(talk_session)
+	talk_session.ended.connect(_on_talk_session_ended)
 	# Compass / map marker for the tracked radiant quest (HUD asks active_objective_position()).
 	if hud and "quest_source" in hud and hud.get("quest_source") == null:
 		hud.set("quest_source", self)
@@ -169,6 +174,7 @@ func _role_service(role: String) -> Array:
 ## they own or rent gets a storage chest and, on a bed marker, a place to sleep.
 func _on_interior_entered(room: Node3D, door: InteriorDoor = null) -> void:
 	Life.crafting.scan_interior(room, _building_ref_for_door(door))
+	InnProps.populate(room)    # one of each interaction kind in the inn (scripts/interaction/kinds/)
 	for m in room.find_children("NPC_*", "Marker3D", true, false):
 		var svc := _role_service(String(m.get_meta("role", "")))
 		if svc.is_empty():
@@ -203,6 +209,7 @@ func _building_ref_for_door(door: InteriorDoor) -> String:
 
 
 const HomeChest := preload("res://scripts/world/home_chest.gd")
+const InnProps := preload("res://scripts/interaction/kinds/inn_props.gd")
 
 ## Puts a storage chest (if the property has one, i.e. it isn't a bare inn
 ## room) and, on a "BedSpawn" marker, a free "Sleep" station and sets the
@@ -1242,6 +1249,36 @@ func _begin_talk(info: Dictionary) -> void:
 	var rel := relationships()
 	if rel.note_talk(info["id"], _now()):
 		rel.add_modifier(info["id"], "talked", "Chatted recently", 3.0, _now(), 4.0)
+	_start_talk_session(info)
+
+
+## In-world conversation: the NPC stops and faces you, the camera eases over the shoulder, and walking
+## away (or moving the stick) ends it (talk_session.gd). Skipped when there is no HUD or no body to face.
+func _start_talk_session(info: Dictionary) -> void:
+	if talk_session == null or hud == null:
+		return
+	var player := get_tree().get_first_node_in_group("player") as Node3D
+	var body := _npc_node(info)
+	if player == null or body == null:
+		return
+	var open := Callable(hud, "is_menu_open") if hud.has_method("is_menu_open") else Callable()
+	var sheet := Callable(hud, "is_sheet_open") if hud.has_method("is_sheet_open") else Callable()
+	talk_session.begin(player, body, open, sheet, String(info.get("id", "")))
+
+
+func _on_talk_session_ended(reason: String) -> void:
+	if reason != "closed" and reason != "restarted" and hud != null and hud.has_method("is_menu_open") and hud.is_menu_open():
+		hud.close_menu()      # walked away / moved the stick: the sheet closes gracefully
+
+
+## The world body of who you are talking to (a villager, or the keeper's station), or null.
+func _npc_node(info: Dictionary) -> Node3D:
+	var person := int(info.get("person", -1))
+	if person >= 0:
+		for n in get_tree().get_nodes_in_group("villager"):
+			if n.get("person") != null and int(n.get("person")) == person:
+				return n as Node3D
+	return null
 
 
 ## Moves to a dialogue node: fresh rumour/hint, picks and applies the line.
@@ -1293,7 +1330,7 @@ func _talk_page() -> Dictionary:
 		"speaker": String(info["name"]), "role": role.capitalize(), "line": String(_talk["line"]),
 		"relationship": "%s (%s)" % [rel.tier_label(info["id"], now), ("%+d" % opinion) if opinion != 0 else "0"],
 		"rel_value": float(opinion), "portrait_key": String(info["id"]),
-		"model": _npc_model(info), "look": _npc_look(info)}
+		"model": _npc_model(info), "look": _npc_look(info), "in_world": talk_session != null and talk_session.active}
 
 
 ## The live 3D model of who you are talking to (the dialogue bust duplicates it), or null.

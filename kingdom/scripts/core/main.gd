@@ -387,7 +387,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if player == null:
 		return
 	if event.is_action_pressed("attack"):
-		player.attack()
+		player.attack_press()        # tap = light combo on release, hold = charged heavy / bow draw (player_arms.gd)
+	elif event.is_action_released("attack"):
+		player.attack_release()
 	elif event.is_action_pressed("jump"):
 		player.jump()
 	elif event.is_action_pressed("dodge"):
@@ -404,19 +406,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		if hud.is_menu_open():
 			hud.close_menu()
 			return
-		var target := player.nearest_interactable()
-		if target is Captain:
-			hud.show_menu(services.captain_menu)
-		elif target is Station and (target as Station).name == "WarTable":
-			# the War Room table opens the war map directly, in war-table style (docs/design/WAR_COMMAND_RULEBOOK.md §2)
-			var wm: Control = load("res://scripts/ui/war/war_map.gd").open_modal(hud, Life.realm)
-			wm.call("set_style", 2)
-		elif target is Station:
-			hud.show_menu((target as Station).open)
-		elif target is CampMonster:
-			hud.show_menu(services.naming_menu.bind(target))
-		elif target is InteriorDoor:
-			(target as InteriorDoor).use()
+		# Everything else is handled by the player's InteractionController (scripts/interaction/), which marks the
+		# event handled before it gets here; this branch only closes an open menu.
 	elif event.is_action_pressed("journal"):
 		if hud.is_menu_open():
 			hud.close_menu()

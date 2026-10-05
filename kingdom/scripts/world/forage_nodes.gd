@@ -10,10 +10,9 @@ extends Node3D
 ## spawn/despawn ring as AmbientLife). A picked spot stays bare for the kind's
 ## respawn_days in-game days (Gathering.FORAGE).
 ##
-## Each live node is in the "interactable" group with prompt() and use(), so the
-## HUD shows the button. This manager polls "interact" itself while the player
-## stands by one of its nodes, so it works without a dispatcher in main.gd; if
-## main.gd also calls use(), the per-frame guard stops a double pick.
+## Each live node carries an enabled Interactable (scripts/interaction/interactable.gd) plus prompt() and
+## use(); the player's InteractionController runs use() when the picker chooses it, and the per-frame
+## guard stops a double pick.
 
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
 const Deposits := preload("res://scripts/world/deposits.gd")
@@ -36,7 +35,6 @@ var _cells: Dictionary = {}          # cell -> {ok, pos, kind}
 var _active: Dictionary = {}         # cell -> ForageNode
 var _pool: Array = []
 var _timer := 0.0
-var _menu_was_open := false
 var _mats: Dictionary = {}
 var _meshes: Dictionary = {}
 var _berry_scene: PackedScene
@@ -66,11 +64,13 @@ func _ready() -> void:
 		n.manager = self
 		n.visible = false
 		add_child(n)
+		Interactable.attach(n, {"id": "forage/%d" % i, "verb": "Gather", "enabled": false,
+			"do": func(_pl: Node) -> void: n.use(),
+			"label": func() -> String: return n.prompt()})
 		_pool.append(n)
 
 
 func _process(delta: float) -> void:
-	_poll_interact()
 	_timer -= delta
 	if _timer > 0.0:
 		return
@@ -168,7 +168,8 @@ func _place(c: Vector2i) -> void:
 	n.cell = c
 	n.kind = String(info["kind"])
 	for child in n.get_children():
-		(child as Node3D).visible = child.name == n.kind
+		if child is Node3D:
+			(child as Node3D).visible = child.name == n.kind
 	if not n.has_node(n.kind):
 		var v := _visual(n.kind)
 		v.name = n.kind
@@ -176,7 +177,7 @@ func _place(c: Vector2i) -> void:
 	n.global_position = info["pos"]
 	n.rotation.y = float(info["yaw"])
 	n.visible = true
-	n.add_to_group("interactable")
+	Interactable.set_active(n, true)
 	_active[c] = n
 
 
@@ -184,8 +185,7 @@ func _release(c: Vector2i) -> void:
 	var n: ForageNode = _active[c]
 	_active.erase(c)
 	n.visible = false
-	if n.is_in_group("interactable"):
-		n.remove_from_group("interactable")
+	Interactable.set_active(n, false)
 	_pool.append(n)
 
 
@@ -238,30 +238,6 @@ func _on_gathered(res: Dictionary, cell: Vector2i, kind: String) -> void:
 		Game.say(text)
 	if _active.has(cell) and _spent(cell, kind):
 		_release(cell)
-
-
-## Self-dispatch of the interact key while standing by one of our nodes.
-func _poll_interact() -> void:
-	var menu_open := _menu_open()
-	var was := _menu_was_open
-	_menu_was_open = menu_open
-	if menu_open or was or _active.is_empty():
-		return
-	var pl: Variant = Life.player
-	if not (pl is Node3D) or not is_instance_valid(pl) or not Input.is_action_just_pressed("interact"):
-		return
-	if not (pl as Node3D).has_method("nearest_interactable"):
-		return
-	var target: Variant = (pl as Node3D).call("nearest_interactable")
-	if target is ForageNode and (target as ForageNode).manager == self:
-		(target as ForageNode).use()
-
-
-func _menu_open() -> bool:
-	var scene := get_tree().current_scene
-	var hud: Variant = scene.get("hud") if scene else null
-	return hud is Object and is_instance_valid(hud) and (hud as Object).has_method("is_menu_open") \
-		and bool((hud as Object).call("is_menu_open"))
 
 
 # --- visuals ------------------------------------------------------------------------

@@ -48,6 +48,7 @@ const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
 const VFX_PATH := "res://scripts/vfx/vfx.gd"
 const TechniqueVfx := preload("res://scripts/vfx/technique_vfx.gd")
 const BendingLibrary := preload("res://scripts/actors/bending_library.gd")
+const ProjectilePool := preload("res://scripts/vfx/projectile_pool.gd")
 const SPECTACLE_SHAPES := ["projectile", "chain", "dash", "blink", "melee", "cone", "aoe", "target_aoe"]
 const KEYS := {"technique_1": KEY_U, "technique_2": KEY_Y, "technique_3": KEY_O, "technique_4": KEY_H,
 	"seal_1": KEY_4, "seal_2": KEY_5, "seal_3": KEY_6, "seal_4": KEY_7, "seal_5": KEY_8, "seal_6": KEY_9}
@@ -720,31 +721,26 @@ func _launch(def: Dictionary, dmg: int, target: Node3D) -> void:
 		var to := origin + d * float(def["range"])
 		var visual: Variant = _vfx(def, origin, to, float(def["radius"]), 1.0, true)
 		var node: Node3D = visual if visual is Node3D else _orb(def)
-		node.global_position = origin
+		if node != null:
+			node.global_position = origin     # null: every pooled orb is in flight, the cast still travels and hits unseen
 		_projectiles.append({"node": node, "pos": origin, "dir": d, "left": float(def["range"]),
 			"speed": float(def["speed"]), "def": def, "dmg": dmg, "hit": {}})
 
 
-## Plain glowing orb when the VFX library has no projectile for this id.
+## Plain glowing orb when the VFX library has no projectile for this id: a pooled node (projectile_pool.gd),
+## null when the pool's orbs are all in flight.
 func _orb(def: Dictionary) -> Node3D:
-	var mi := MeshInstance3D.new()
-	var sphere := SphereMesh.new()
-	sphere.radius = 0.22
-	sphere.height = 0.44
-	sphere.radial_segments = 12
-	sphere.rings = 6
-	mi.mesh = sphere
-	var mat := StandardMaterial3D.new()
 	var col: Color = ELEMENT_COLORS.get(String(def["element"]), ELEMENT_COLORS["qi"])
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = col.lightened(0.3)
-	mat.emission_enabled = true
-	mat.emission = col
-	mat.emission_energy_multiplier = 3.0
-	mi.material_override = mat
-	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_world().add_child(mi)
-	return mi
+	return ProjectilePool.at(_world()).acquire_orb(col)
+
+
+## Pool nodes go back to the pool; VFX-library nodes are freed as before.
+func _free_projectile(node: Node3D) -> void:
+	if not is_instance_valid(node):
+		return
+	if is_inside_tree() and ProjectilePool.at(_world()).release_node(node):
+		return
+	node.queue_free()
 
 
 func _update_projectiles(delta: float) -> void:
@@ -774,8 +770,7 @@ func _update_projectiles(delta: float) -> void:
 				_explode(def, int(p["dmg"]), pos, p["hit"])
 			elif is_inside_tree():
 				VFX.sparks(_world(), pos, ELEMENT_COLORS.get(String(def["element"]), ELEMENT_COLORS["qi"]), 14)
-			if is_instance_valid(node):
-				node.queue_free()
+			_free_projectile(node)
 
 
 func _explode(def: Dictionary, dmg: int, at: Vector3, already: Dictionary) -> void:

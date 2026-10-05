@@ -220,6 +220,14 @@ func prompt() -> String:
 	return "Name"
 
 
+## The interact key: the naming menu (main.gd's VillageServices).
+func use() -> void:
+	var hud := Interaction.hud(self)
+	var sv := Interaction.services(self)
+	if hud != null and sv != null:
+		hud.call("show_menu", Callable(sv, "naming_menu").bind(self))
+
+
 func _physics_process(delta: float) -> void:
 	if dead:
 		return

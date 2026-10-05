@@ -36,6 +36,8 @@ const StreetGraph := preload("res://scripts/population/street_graph.gd")
 const DailyRhythm := preload("res://scripts/population/daily_rhythm.gd")
 const UtilityBrain := preload("res://scripts/population/utility_brain.gd")
 const NpcSocialGraph := preload("res://scripts/sim/npc_social_graph.gd")
+const TalkPose := preload("res://scripts/population/talk_pose.gd")
+const TalkBark := preload("res://scripts/population/talk_bark.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const Perception := preload("res://scripts/population/perception.gd")
 const Witness := preload("res://scripts/population/witness.gd")
@@ -226,6 +228,8 @@ var _hide_until := 0
 var _scared_at := Vector2.INF
 var _protest_cd := 0
 var _greet_cd := 0
+var _talk := TalkPose.new()       # in-world conversation: stops the act, faces the player (talk_pose.gd)
+var _bark_ms := -1000000
 var _crime_until := 0
 var _crime_pos := Vector2.INF
 var _crime_heard := false
@@ -507,13 +511,13 @@ func _tick_body(delta: float) -> void:
 	if _arrived and _yield_time <= 0.0:
 		if _act != Act.WATER or _water_working:
 			_perform_time += delta
-		if _plan_indoors:
+		if _plan_indoors and not _talk.active:
 			_set_indoors(true)
 			return
 	var here := Vector2(global_position.x, global_position.z)
 	if _contact:
 		_check_yield(here, delta)
-	var driving := _so != null and _so_frame(delta)
+	var driving := _so != null and not _talk.active and _so_frame(delta)
 	var planar := Vector2.ZERO if driving else _steer(here, delta)
 	if driving:
 		velocity = Vector3.ZERO
@@ -583,6 +587,7 @@ func _think_tick() -> void:
 	_separation = _neighbour_push(here)
 	_perceive(here, now_ms, player_distance)
 	_maybe_greet(here, player_distance, now_ms)
+	_maybe_friend_bark(player_distance, now_ms)
 	_reaction_tick(here, now_ms)
 	if travelling and _yield_time <= 0.0:
 		_check_stuck(here)
@@ -1250,6 +1255,11 @@ func _water_is_performing(here: Vector2) -> bool:
 ## Planar velocity for this tick: route following with braking and bounded
 ## turns, plus wall/crowd spacing.
 func _steer(here: Vector2, delta: float) -> Vector2:
+	if _talk.active and _player != null and is_instance_valid(_player):
+		# Mid-conversation: stand still and face the player. The route / wait / activity state is untouched.
+		_heading = TalkPose.turn_heading(_heading, here, Vector2(_player.global_position.x, _player.global_position.z), delta)
+		_move_speed = 0.0
+		return Vector2.ZERO
 	var target_speed := 0.0
 	var dir := Vector2.ZERO
 	var face := Vector2.INF
@@ -1390,7 +1400,7 @@ func _update_head_look(delta: float) -> void:
 	_look_timer = 0.12
 	var forward := Vector3(sin(rotation.y), 0.0, cos(rotation.y))
 	var target := global_position + Vector3(0, 1.45, 0) + forward * 3.0
-	if _player and is_instance_valid(_player) and global_position.distance_squared_to(_player.global_position) < 25.0:
+	if _player and is_instance_valid(_player) and (_talk.active or global_position.distance_squared_to(_player.global_position) < 25.0):
 		target = _player.global_position + Vector3(0, 1.45, 0)
 	elif _arrived and _partner_node and is_instance_valid(_partner_node):
 		target = _partner_node.global_position + Vector3(0, 1.45, 0)
@@ -1414,7 +1424,7 @@ func _update_activity(delta: float) -> void:
 		_activity_needs_start = true
 	_anim.speed_scale = _idle_rate() if _anim.current_animation == "Idle" else 1.0
 	# Work only once actually at the spot; waiting, yielding or stopped mid-route idles.
-	var activity := _activity_want if _arrived and _yield_time <= 0.0 else ""
+	var activity := _activity_want if _arrived and _yield_time <= 0.0 and not _talk.active else ""
 	if activity != _activity_name:
 		_activity_name = activity
 		_activity_needs_start = true
@@ -1678,9 +1688,53 @@ func _extra_steering(here: Vector2) -> Vector2:
 	return push
 
 
+## In-world conversation (TalkSession): stop what you are doing, face the player, look at them. Nothing in
+## the schedule is cancelled, so talk_end() resumes the route / activity where it was.
+func talk_begin(player: Node3D = null) -> void:
+	if player != null:
+		_player = player
+	if _talk.active:
+		return
+	_talk.begin(Time.get_ticks_msec())
+	_oneshot_until = 0
+	_look_timer = 0.0
+	if _bubble != null and _bubble.visible:
+		_bubble_until = 0       # a bark ends when the real talk starts
+
+
+func talk_end() -> void:
+	if not _talk.active:
+		return
+	_talk.end()
+	_greet_cd = maxi(_greet_cd, Time.get_ticks_msec() + 30000)   # no instant re-greeting
+	_activity_needs_start = true
+
+
+func is_talking() -> bool:
+	return _talk.active
+
+
+## Short floating line for a villager who thinks well of the player walking by (talk_bark.gd rate limits it).
+func _maybe_friend_bark(player_distance: float, now: int) -> void:
+	if _talk.active or _indoors or _player == null or player_distance > TalkBark.RANGE or _act == Act.SLEEP \
+			or _act == Act.FLEE or _act == Act.HIDE or _act == Act.ALARM:
+		return
+	var rel: Variant = Life.get("relationships")
+	if rel == null:
+		return
+	var opinion: int = rel.opinion("p%d" % person, WorldSim.day + WorldSim.time_of_day / 24.0)
+	if not TalkBark.eligible(opinion, player_distance, now, _bark_ms, NpcWorld.bubbles_shown):
+		return
+	_bark_ms = now
+	TalkBark.spoke(now)
+	_say(TalkBark.line(person, opinion, now / 60000), TalkBark.SECONDS)
+
+
 ## Greet (or coldly ignore) the player who walks up: what they say and do depends on how the settlement
 ## regards them (society reputation, read only). Stops for a moment, turns, one-shot clip + bark.
 func _maybe_greet(here: Vector2, player_distance: float, now: int) -> void:
+	if _talk.active:
+		return
 	if player_distance > GREET_RANGE or now < _greet_cd or _player == null or _indoors:
 		return
 	if _act == Act.FLEE or _act == Act.HIDE or _act == Act.PROTEST or _act == Act.ALARM or _act == Act.FIREFIGHT \
@@ -1875,6 +1929,12 @@ func is_dead() -> bool:
 	return _down_kind == Takedown.Kind.KILL
 
 
+## A body on the ground can be searched ("Search", scripts/interaction/kinds/corpse_loot.gd): once, while it is down.
+func _make_searchable() -> void:
+	var guard: bool = person >= 0 and person < WorldSim.job.size() and WorldSim.job[person] == 3
+	CorpseLoot.attach(self, "person/%d" % person, CorpseLoot.GUARD if guard else CorpseLoot.CIVILIAN, is_down)
+
+
 ## Blows from the player (player.gd `_resolve_hit`) and anything else with a take_damage(amount, from, knockback)
 ## contract. From behind and unnoticed the player knocks them out (non-lethal); otherwise the blow hurts, the
 ## victim panics, and at 0 HP they die. Both silence a witness and leave a body (Takedown.down).
@@ -1930,6 +1990,7 @@ func go_down(kind: int) -> void:
 		tw.tween_property(_model_node, "rotation:x", -PI * 0.5, 0.35)
 		tw.parallel().tween_property(_model_node, "position:y", 0.16, 0.35)
 	Takedown.down(person, kind, here, sid, now, NpcWorld._society())
+	_make_searchable()
 	Takedown.witnessed_by_others(get_tree(), kind, here, sid)
 	if kind == Takedown.Kind.KO:
 		get_tree().create_timer(Takedown.KO_SECONDS).timeout.connect(wake_up)
@@ -1956,6 +2017,7 @@ func lie_restored(kind: int) -> void:
 	if _model_node != null:
 		_model_node.rotation.x = -PI * 0.5
 		_model_node.position.y = 0.16
+	_make_searchable()
 	if kind == Takedown.Kind.KO:
 		get_tree().create_timer(Takedown.wake_in_s(person, Time.get_ticks_msec())).timeout.connect(wake_up)
 
@@ -1966,6 +2028,7 @@ func wake_up() -> void:
 		return
 	Takedown.wake(person)
 	_down_kind = -1
+	Interactable.set_active(self, false)    # no longer a body to search
 	remove_from_group("villager_down")
 	add_to_group("villager")
 	set_physics_process(true)

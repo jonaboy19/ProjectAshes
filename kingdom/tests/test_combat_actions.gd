@@ -84,3 +84,18 @@ func test_every_creature_has_two_or_three_moves_and_telegraphs() -> void:
 				assert_float(a.windup).is_greater_equal(0.35)
 	assert_object(Moves.find("bandit", "bandit_cleave")).is_not_null()
 	assert_object(Moves.find("bandit", "nope")).is_null()
+
+
+func test_f3_weapon_tables_and_heavies() -> void:
+	for style in ["sword", "spear", "staff"]:
+		var steps: Array = Moves.combo(style)
+		assert_bool(steps.size() >= 3).is_true()
+		var heavy: Resource = Moves.heavy(style)
+		assert_object(heavy).is_not_null()
+		assert_bool(heavy.charge_time > 0.0).is_true()
+		assert_bool(heavy.finisher).is_true()
+		assert_bool(heavy.cancel_windows.is_empty()).is_true()
+	assert_float(Moves.combo("spear")[0].reach).is_greater(Moves.combo("sword")[0].reach)
+	assert_float(Moves.heavy("spear").arc_dot).is_less(Moves.combo("spear")[0].arc_dot)   # the sweep is wider than the thrust
+	assert_int(Moves.moves("sword").size()).is_equal(4)                                   # the old light chain is unchanged
+	assert_bool(Moves.combo("bow")[0].ranged).is_true()

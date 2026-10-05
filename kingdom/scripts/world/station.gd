@@ -10,6 +10,8 @@ var verb := "Use"
 var menu: Callable
 var model_path := ""
 var model_height := 0.0
+## Optional override: Callable(hud) run instead of opening `menu` (the War Room table opens the war map).
+var on_use := Callable()
 
 
 func _init(station_title := "", station_verb := "Use", station_menu := Callable()) -> void:
@@ -30,6 +32,17 @@ func _ready() -> void:
 
 func prompt() -> String:
 	return verb
+
+
+## The interact key (via Interactable's legacy wrapper): open the menu, or run `on_use`.
+func use() -> void:
+	var hud := Interaction.hud(self)
+	if hud == null:
+		return
+	if on_use.is_valid():
+		on_use.call(hud)
+	else:
+		hud.call("show_menu", open)
 
 
 func open() -> Dictionary:

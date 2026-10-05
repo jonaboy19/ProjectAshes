@@ -16,12 +16,12 @@ extends Area3D
 ## only emits `exit_requested`, which the entrance door that loaded the room
 ## listens to.
 ##
-## While the player is in range the door joins the "interactable" group and
-## offers `prompt()`, so the HUD shows its button like any other station.
+## While the player is in range its Interactable component is enabled (the door joins the "interactable"
+## group) and offers `prompt()`, so the HUD shows its button like any other station; the press reaches use()
+## through the player's InteractionController.
 ##
 ## Cost: a town builds one door per house, so an idle door does no per-frame
-## work at all. Only the door the player stands in processes (and only when no
-## external dispatcher handles "interact", see `external_dispatch`), and only the
+## work at all (no polling: the InteractionController owns the interact key), and only the
 ## active entrance runs the camera ray in _physics_process. Street doors use
 ## `PLAYER_TRIGGER_LAYER` as their only mask so they never pair with terrain or
 ## building colliders.
@@ -66,10 +66,10 @@ const NPC_WORLD := "res://scripts/population/npc_world.gd"
 const PLAYER_TRIGGER_LAYER := 1 << 19
 
 static var active: InteriorDoor = null
-## True when the game's own interact handler calls use() on the nearest door
-## (main.gd does). Doors then never poll input, so one key press can't both
-## close a menu / open a service and walk through a door.
-static var external_dispatch := false
+## Legacy flag kept for tools: doors never poll input any more; the player's InteractionController
+## (scripts/interaction/) is the only handler of "interact", so one key press can't both close a menu / open
+## a service and walk through a door.
+static var external_dispatch := true
 
 var interior: Node3D = null
 ## Door state machine (scripts/world/door_model.gd): null for exit doors and doors without a stable id.
@@ -91,8 +91,10 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	process_physics_priority = 100    # after the player moved its camera
-	set_process(false)
 	set_physics_process(active == self)
+	Interactable.attach(self, {"id_fn": func() -> String: return String(model.get("id")) if model != null else String(name),
+		"verb": "Enter", "enabled": false, "do": func(_pl: Node) -> void: use(),
+		"label": func() -> Dictionary: return load("res://scripts/ui/interact_label.gd").legacy(self)})
 	if not is_exit:
 		_setup_model()
 	if not is_exit and has_meta("asset") and not has_meta("building_name"):
@@ -229,32 +231,15 @@ func _on_body_entered(body: Node3D) -> void:
 	if body.is_in_group("player"):
 		_player = body
 		_near = true
-		add_to_group("interactable")
-		set_process(not external_dispatch)
+		Interactable.set_active(self, true)
 		player_in_range_changed.emit(true)
 
 
 func _on_body_exited(body: Node3D) -> void:
 	if body == _player:
 		_near = false
-		if is_in_group("interactable"):
-			remove_from_group("interactable")
-		set_process(false)
+		Interactable.set_active(self, false)
 		player_in_range_changed.emit(false)
-
-
-func _process(_delta: float) -> void:
-	if external_dispatch:
-		set_process(false)
-		return
-	if not _near or _player == null or not Input.is_action_just_pressed("interact"):
-		return
-	# Another interactable (an NPC, a station) closer to the player wins the key press.
-	if _player.has_method("nearest_interactable"):
-		var nearest: Node3D = _player.call("nearest_interactable")
-		if nearest != null and nearest != self:
-			return
-	use()
 
 
 ## Walk through: enter (entrance doors) or ask to leave (exit doors).

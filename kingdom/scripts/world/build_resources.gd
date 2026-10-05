@@ -2,7 +2,7 @@ extends Node3D
 ## Building materials in the wild: trees to fell, rocks to quarry, clay pits and reed beds. Nodes come from a
 ## fixed grid (scripts/realm/construction.gd node_cell) so the same tree stands in the same place every visit.
 ## Everything in range is drawn with a few MultiMeshes (one draw call per kind); only the nearest handful get a
-## pooled interactable body. Felled trees leave a stump and regrow, rocks and pits refill after a few days
+## pooled interactable body (an Interactable component, scripts/interaction/). Felled trees leave a stump and regrow, rocks and pits refill after a few days
 ## (Construction.gathered, saved with the realm). Strikes add up: a tree takes three swings, an axe adds a log
 ## per swing, a pickaxe a stone.
 
@@ -25,7 +25,6 @@ var _meshes: Dictionary = {}
 var _mats: Dictionary = {}
 var _timer := 0.0
 var _sig := ""
-var _menu_was_open := false
 var _last_strike := -1000
 var deposits := Deposits.new()
 var _panel: Control
@@ -51,6 +50,9 @@ func _ready() -> void:
 		s.manager = self
 		s.visible = false
 		add_child(s)
+		Interactable.attach(s, {"id": "build_resources/%d" % i, "verb": "Gather", "enabled": false,
+			"do": func(_pl: Node) -> void: s.use(),
+			"label": func() -> String: return s.prompt()})
 		_spots.append(s)
 
 
@@ -66,7 +68,6 @@ func _center() -> Vector2:
 
 
 func _process(delta: float) -> void:
-	_poll_interact()
 	_timer -= delta
 	if _timer > 0.0:
 		return
@@ -143,7 +144,7 @@ func _claim(entry: Array) -> void:
 			s.cell = entry[1]
 			s.global_position = info["pos"]
 			s.visible = true
-			s.add_to_group("interactable")
+			Interactable.set_active(s, true)
 			_active[s.key] = s
 			return
 
@@ -152,8 +153,7 @@ func _release(key: String) -> void:
 	var s: ResourceSpot = _active[key]
 	_active.erase(key)
 	s.visible = false
-	if s.is_in_group("interactable"):
-		s.remove_from_group("interactable")
+	Interactable.set_active(s, false)
 
 
 func _mm(name: String) -> MultiMeshInstance3D:
@@ -325,26 +325,3 @@ func _on_gathered(res: Dictionary, key: String, kind: String, id: String, tier: 
 		Audio.play_ui("pickup")
 	if deposits.is_depleted(id, def, WorldSim.day):
 		_spend(key, kind)
-
-
-func _poll_interact() -> void:
-	var menu_open := _menu_open()
-	var was := _menu_was_open
-	_menu_was_open = menu_open
-	if menu_open or was or _active.is_empty():
-		return
-	var pl: Variant = Life.player
-	if not (pl is Node3D) or not is_instance_valid(pl) or not Input.is_action_just_pressed("interact"):
-		return
-	if not (pl as Node3D).has_method("nearest_interactable"):
-		return
-	var target: Variant = (pl as Node3D).call("nearest_interactable")
-	if target is ResourceSpot and (target as ResourceSpot).manager == self:
-		(target as ResourceSpot).use()
-
-
-func _menu_open() -> bool:
-	var scene := get_tree().current_scene
-	var hud: Variant = scene.get("hud") if scene else null
-	return hud is Object and is_instance_valid(hud) and (hud as Object).has_method("is_menu_open") \
-		and bool((hud as Object).call("is_menu_open"))

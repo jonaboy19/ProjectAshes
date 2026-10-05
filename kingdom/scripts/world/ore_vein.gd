@@ -7,10 +7,9 @@ extends Node3D
 ## the pool beyond DEACTIVATE (the same ring pattern as forage_nodes.gd). A mined
 ## rock stays bare for RESPAWN_DAYS in-game days.
 ##
-## Each live rock is in the "interactable" group with prompt() and use(). Like
-## ForageNodes, the manager polls "interact" itself while the player stands by
-## one of its rocks, so main.gd needs no dispatcher; a per-frame guard stops a
-## double strike if main.gd also calls use().
+## Each live rock carries an enabled Interactable (scripts/interaction/interactable.gd) and a prompt()/use();
+## the player's InteractionController runs use() when the picker chooses it. A per-frame guard stops a
+## double strike.
 ##
 ## Yield: 1-2 ore, +1 while carrying or wielding a pickaxe, and a chance of +1
 ## that grows with the Mining skill (Life.crafting, when Life owns one).
@@ -50,7 +49,6 @@ var _panel: Control
 var _rocks: Array = []              # OreRock, one per LAYOUT entry
 var _live := false
 var _timer := 0.0
-var _menu_was_open := false
 var _rock_scene: PackedScene
 var _mats: Dictionary = {}
 var _nugget: Mesh
@@ -111,11 +109,13 @@ func _ready() -> void:
 		var p: Vector2 = spots[i][0]
 		r.position = Vector3(p.x, WorldGen.height(p.x, p.y), p.y)
 		r.rotation.y = float(i) * 1.7
+		Interactable.attach(r, {"id": "mine/ore/%d" % i, "verb": String(ORES.get(r.ore, {}).get("verb", "Mine")),
+			"enabled": false, "do": func(_pl: Node) -> void: r.use(),
+			"label": func() -> String: return r.prompt()})
 		_rocks.append(r)
 
 
 func _process(delta: float) -> void:
-	_poll_interact()
 	_timer -= delta
 	if _timer > 0.0:
 		return
@@ -151,16 +151,17 @@ func _refresh() -> void:
 
 
 func _show(r: OreRock) -> void:
-	if r.get_child_count() == 0:
-		r.add_child(_visual(r.ore))
+	if not r.has_node("Visual"):
+		var v := _visual(r.ore)
+		v.name = "Visual"
+		r.add_child(v)
 	r.visible = true
-	r.add_to_group("interactable")
+	Interactable.set_active(r, true)
 
 
 func _hide(r: OreRock) -> void:
 	r.visible = false
-	if r.is_in_group("interactable"):
-		r.remove_from_group("interactable")
+	Interactable.set_active(r, false)
 
 
 # --- mining ---------------------------------------------------------------------------
@@ -210,7 +211,8 @@ func mine(r: OreRock) -> void:
 		return
 	var layer := CanvasLayer.new()
 	layer.layer = 18
-	add_child(layer)
+	# parent to the game scene (root viewport), not the world SubViewport behind the HUD: see gather_run.gd
+	(get_tree().current_scene if get_tree().current_scene != null else self).add_child(layer)
 	var panel: Control = GatherPanel.new()
 	layer.add_child(panel)
 	panel.call("setup", s, "Ore vein: " + Life.item_name(String(def["item"])))
@@ -245,29 +247,6 @@ func _on_gathered(res: Dictionary, r: OreRock, layer: Node, tier: int, lvl: int)
 	Audio.play_ui("pickup")
 	_refresh()
 
-
-## Self-dispatch of the interact key while standing by one of our rocks.
-func _poll_interact() -> void:
-	var menu_open := _menu_open()
-	var was := _menu_was_open
-	_menu_was_open = menu_open
-	if menu_open or was or not _live:
-		return
-	var pl: Variant = Life.player
-	if not (pl is Node3D) or not is_instance_valid(pl) or not Input.is_action_just_pressed("interact"):
-		return
-	if not (pl as Node3D).has_method("nearest_interactable"):
-		return
-	var target: Variant = (pl as Node3D).call("nearest_interactable")
-	if target is OreRock and (target as OreRock).manager == self:
-		(target as OreRock).use()
-
-
-func _menu_open() -> bool:
-	var scene := get_tree().current_scene
-	var hud: Variant = scene.get("hud") if scene else null
-	return hud is Object and is_instance_valid(hud) and (hud as Object).has_method("is_menu_open") \
-		and bool((hud as Object).call("is_menu_open"))
 
 
 # --- visuals ----------------------------------------------------------------------------

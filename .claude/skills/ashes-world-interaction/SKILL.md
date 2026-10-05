@@ -36,3 +36,10 @@ Reference ideas from Amnesia/Penumbra/Doom 3/The Dark Mod (GPL; read-only, see `
 
 ## Checklist for a new interactive object
 1. Type entry in JSON + stable id scheme. 2. Verbs + prompt text. 3. State keys with defaults. 4. Noise/crime hooks. 5. NPC access rule (smart-object type or door edge). 6. Save round-trip test (state equality, mid-delay scheduler). 7. Cost test. 8. Lab screenshot at phone resolution.
+
+## The Interactable framework (package F1, in the code now)
+- `scripts/interaction/interactable.gd` (`Interactable`): a component child. `Interactable.attach(host, {id | id_fn, verb, target, priority, range, hold_time, low_priority, can, do, label, enabled})`. Pooled hosts call `Interactable.set_active(host, bool)`. A legacy group member with `prompt()`/`use()` is wrapped automatically (`Interactable.for_node`), so old nodes keep working.
+- `interaction_picker.gd` (`InteractionPicker.pick(pos, facing, candidates, providers, mounted)`): pure scoring = distance, facing, priority, low-priority penalty, mount wins outright. Extra candidate sources (traversal in F2) register with `Interaction.add_provider(callable)`.
+- `interaction.gd` (`Interaction`): `best(player)`, `best_node`, `activate`. `Player.nearest_interactable()` and the HUD label use it. `interaction_controller.gd` is a child of the Player and the ONLY handler of the "interact" action (tap, or hold when `hold_time > 0` with `hold_started/progress/cancelled` signals). Never poll `Input` for "interact" in a world object, and never add a type chain to main.gd.
+- Kinds in `scripts/interaction/kinds/`: `GroundItem` (Take), `CorpseLoot` (Search), `Seat` (Sit), `container.gd` (Open, reuses home_chest's menu), `Ladder` (Climb), `Lever` (Pull). `inn_props.gd` places one of each in the inn interior.
+- Tests: `tests/test_interaction.gd`.
