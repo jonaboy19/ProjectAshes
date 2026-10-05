@@ -28,8 +28,8 @@ void fragment() {
 	float m = step(threshold, n);
 	float c = step(threshold + band, n);
 	float rim = pow(1.0 - clamp(abs(dot(normalize(NORMAL), normalize(VIEW))), 0.0, 1.0), rim_power);
-	vec3 col = mix(edge_color.rgb, mid_color.rgb, clamp(rim * 0.6 + 0.4, 0.0, 1.0));
-	col = mix(col, core_color.rgb, c);
+	vec3 col = mix(edge_color.rgb, mid_color.rgb, clamp(rim * 0.45 + 0.55, 0.0, 1.0));
+	col = mix(col, core_color.rgb, c * 0.4);
 	ALBEDO = col * energy;
 	float f = floor(fade * steps + 0.5) / steps;
 	ALPHA = m * f * (0.55 + 0.45 * rim + 0.4 * c);

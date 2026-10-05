@@ -50,7 +50,7 @@ const LIMB_SETS := {
 }
 
 ## Swap point for the combat-feel agent's pooled impact scene: Callable(world, element, pos, power, def). When empty,
-## `_stub_impact` plays a ToonVfx burst. Static so one assignment at boot serves every caster.
+## the default `_pool_impact` plays impact_pool.gd (combat-feel) plus a ToonVfx ring burst. Static so one assignment at boot serves every caster.
 static var impact_hook: Callable = Callable()
 
 var ctx: Dictionary = {}
@@ -326,7 +326,28 @@ func _impact(world: Node, element: Variant, at: Vector3, radius: float, r: Dicti
 	if impact_hook.is_valid():
 		impact_hook.call(world, element, at, float(r["power"]), r["def"])
 	else:
-		_stub_impact(world, element, at, radius)
+		_pool_impact(world, element, at, radius, r)
+
+
+const IMPACT_POOL := "res://scripts/vfx/impact_pool.gd"
+const IMPACT_VARIANT := {"ice": "water", "light": "qi", "dark": "qi", "knight": "physical", "beast": "physical"}
+
+
+## Default impact: the combat-feel agent's pooled layered impact (element variants), plus our ring burst.
+func _pool_impact(world: Node, element: Variant, at: Vector3, radius: float, r: Dictionary) -> void:
+	_stub_impact(world, element, at, radius)
+	if not ResourceLoader.exists(IMPACT_POOL):
+		return
+	var script := load(IMPACT_POOL) as GDScript
+	var pool: Object = script.call("at", world)
+	if pool == null:
+		return
+	var id := String(Lang.canon(element, String(r["path"])))
+	var variant := String(IMPACT_VARIANT.get(id, id))
+	if not (script.call("element_names") as Array).has(variant):
+		variant = "physical"
+	var tier_n := clampi(int((r["def"] as Dictionary).get("tier", 1)) - 1, 0, 2)
+	pool.call("play", at + Vector3(0, 0.9, 0), variant, tier_n, Vector3.ZERO, false)
 
 
 static func _stub_impact(world: Node, element: Variant, at: Vector3, radius: float) -> void:

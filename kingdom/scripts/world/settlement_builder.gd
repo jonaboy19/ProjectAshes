@@ -440,6 +440,7 @@ func _interior_doors(root: Node3D, lots: Array) -> void:
 	var holder := Node3D.new()
 	holder.name = "Doors"
 	root.add_child(holder)
+	var torch_specs: Array = []
 	for lot: Dictionary in lots:
 		var asset: String = lot["asset"]
 		if not BuildingProfiles.is_enterable(asset):
@@ -466,6 +467,12 @@ func _interior_doors(root: Node3D, lots: Array) -> void:
 		door.position = Vector3(at.x, gh + local.y, at.y)
 		door.rotation.y = yaw
 		holder.add_child(door)
+		if asset == "inn" or asset.contains("barrack") or asset.contains("guild"):
+			# Wall torch beside the door: emissive mesh + billboard glow, no omni light (TorchProps / LampGlow).
+			var tp := Vector3(at.x, gh + 0.9, at.y) + Vector3(cos(yaw), 0.0, -sin(yaw)) * 1.5 + Vector3(sin(yaw), 0.0, cos(yaw)) * 0.3
+			var wt: Dictionary = TorchProps.wall_torch(root, tp, yaw)
+			torch_specs.append({"pos": wt["glow_pos"], "color": Color(1.0, 0.6, 0.25), "range": 6.0, "size": 1.3})
+	LampGlow.build(root, torch_specs)
 
 
 ## Footprint-aware ground height for a building/prop lot, mirroring
@@ -1593,6 +1600,16 @@ func _gate_market(root: Node3D, s: Dictionary, plan: Dictionary, rng: RandomNumb
 					"yaw": atan2(-gate_dir.x, -gate_dir.y),
 					"identity": "guard/gate/%d/side/%d" % [gate_i, side_i]})
 	plan["activity_spots"] = activity_spots
+	if plan["walls"]:
+		var gate_torches: Array = []
+		for g: float in plan["gates"]:
+			var gdir := Vector2(cos(g), sin(g))
+			var gside := Vector2(-gdir.y, gdir.x)
+			for sg: float in [-1.0, 1.0]:
+				var tpos := c + gdir * (r - 5.0) + gside * sg * 5.4
+				var wt2: Dictionary = TorchProps.brazier(root, Vector3(tpos.x, WorldGen.height(tpos.x, tpos.y), tpos.y), g)
+				gate_torches.append({"pos": wt2["glow_pos"], "color": Color(1.0, 0.55, 0.2), "range": 7.0, "size": 1.8})
+		LampGlow.build(root, gate_torches)
 	_market_dressing(root, s, plan, stall_spots, solid, corridors)
 	# A pair of town guards standing watch just inside every gate, as in the reference.
 	if plan["walls"]:
