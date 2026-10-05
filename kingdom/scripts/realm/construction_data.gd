@@ -144,11 +144,15 @@ const CATALOG := {
 		"size": Vector2(12, 10), "asset": "adventurer_guild", "role": "trade", "needs": ["market", "smithy"], "know": ["build:masonry", "build:architecture"], "min_skill": 0.6, "ident": "library", "upkeep": 1.0},
 	"stone_tower": {"tier": 4, "name": "Stone tower", "desc": "A tall, hard tower for archers.", "cost": {"cut_stone": 60, "plank": 20, "iron_ingot": 4, "tools": 4}, "hours": 160.0,
 		"size": Vector2(6, 6), "asset": "wall_tower", "role": "defence", "needs": ["stone_wall"], "know": ["build:masonry"], "min_skill": 0.55, "ident": "tower", "upkeep": 0.6},
+	# Build-kit hook (scripts/realm/build_kit.gd, docs/regions/HOOKS_FOR_CLOUD.md): a blueprint of kit pieces that a crew raises. Its cost and
+	# hours are set per site by place_kit_plan(); hidden from the building menus.
+	"kit_plan": {"tier": 0, "name": "Kit blueprint", "desc": "Walls, roofs and floors you laid out piece by piece, raised by a crew.", "cost": {}, "hours": 1.0,
+		"size": Vector2(2.4, 2.4), "asset": "res://assets/incoming/build_kit/storage_crates_lod0.glb", "role": "build", "hidden": true},
 }
 const TIER_NAMES := ["Survival", "Camp", "Village", "Town", "Seat of power"]
 const KIND_ORDER := ["campfire", "lean_to", "tent", "drying_rack", "storage_pile", "hut", "fence", "well", "workbench", "sawhorse", "field",
 	"timber_house", "workshop", "mason_bench", "palisade", "watchtower", "barn", "stone_house", "smithy", "market", "stone_wall", "gate", "granary",
-	"keep", "temple", "guild_hall", "stone_tower"]
+	"keep", "temple", "guild_hall", "stone_tower", "kit_plan"]
 ## Facts a master builder will teach (gold, labour days). Needs a master builder within reach.
 const LESSONS := {
 	"build:carpentry": {"name": "Carpentry", "gold": 40},
@@ -173,7 +177,7 @@ static func def(kind: String) -> Dictionary:
 static func kinds_of_tier(t: int) -> Array:
 	var out: Array = []
 	for k: String in KIND_ORDER:
-		if int(CATALOG[k]["tier"]) == t:
+		if int(CATALOG[k]["tier"]) == t and not bool(CATALOG[k].get("hidden", false)):
 			out.append(k)
 	return out
 

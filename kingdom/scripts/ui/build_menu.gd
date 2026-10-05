@@ -255,6 +255,16 @@ func _build() -> void:
 			set_mode(String(t[0])))
 		tabs.add_child(tb)
 		_tab_buttons[t[0]] = tb
+	# Build-kit hook (scripts/build/build_mode.gd, docs/regions/HOOKS_FOR_CLOUD.md): Palworld-style free building with the modular kit.
+	var kit_tab := Button.new()
+	kit_tab.text = "Free build"
+	kit_tab.focus_mode = Control.FOCUS_NONE
+	kit_tab.custom_minimum_size = Vector2(120, 38)
+	kit_tab.pressed.connect(func() -> void:
+		var h := hud
+		close()
+		load("res://scripts/build/build_mode.gd").open_for(h))
+	tabs.add_child(kit_tab)
 
 	var body := HBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL

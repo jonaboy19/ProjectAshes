@@ -1,0 +1,542 @@
+{
+ "meshy_banner_stand_iron_frame": {
+  "aabb_max": [
+   1.1803,
+   3.2,
+   0.5022
+  ],
+  "aabb_min": [
+   -1.1803,
+   0.0,
+   -0.5022
+  ],
+  "materials": [
+   "banner_stand_iron_frame_iron"
+  ],
+  "source": "meshy_free/banners/banner_stand_iron_frame",
+  "tris_lod0": 2496,
+  "tris_lod1": 934
+ },
+ "meshy_bed_canopy_red": {
+  "aabb_max": [
+   1.1881,
+   2.4,
+   1.1756
+  ],
+  "aabb_min": [
+   -1.1881,
+   0.0,
+   -1.1756
+  ],
+  "materials": [
+   "bed_canopy_red_cloth"
+  ],
+  "source": "meshy_free/interior/bed_canopy_red",
+  "tris_lod0": 4493,
+  "tris_lod1": 1478
+ },
+ "meshy_bookshelf_tall_rustic": {
+  "aabb_max": [
+   0.8134,
+   2.2,
+   0.2473
+  ],
+  "aabb_min": [
+   -0.8134,
+   0.0,
+   -0.2473
+  ],
+  "materials": [
+   "bookshelf_tall_rustic_wood"
+  ],
+  "source": "meshy_free/interior/bookshelf_tall_rustic",
+  "tris_lod0": 3490,
+  "tris_lod1": 1208
+ },
+ "meshy_bridge_stone_wood_deck": {
+  "aabb_max": [
+   4.9186,
+   3.0,
+   3.3009
+  ],
+  "aabb_min": [
+   -4.9186,
+   0.0,
+   -3.3009
+  ],
+  "materials": [
+   "bridge_stone_wood_deck_stone"
+  ],
+  "source": "meshy_free/water/bridge_stone_wood_deck",
+  "tris_lod0": 4000,
+  "tris_lod1": 1336
+ },
+ "meshy_chair_simple_a": {
+  "aabb_max": [
+   0.3317,
+   1.0,
+   0.2998
+  ],
+  "aabb_min": [
+   -0.3317,
+   0.0,
+   -0.2998
+  ],
+  "materials": [
+   "chair_simple_a_wood"
+  ],
+  "source": "meshy_free/furniture/chair_simple_a",
+  "tris_lod0": 1998,
+  "tris_lod1": 736
+ },
+ "meshy_chest_copper_lock": {
+  "aabb_max": [
+   0.5548,
+   0.8,
+   0.46
+  ],
+  "aabb_min": [
+   -0.5548,
+   0.0,
+   -0.46
+  ],
+  "materials": [
+   "chest_copper_lock_wood"
+  ],
+  "source": "meshy_free/props/chest_copper_lock",
+  "tris_lod0": 1500,
+  "tris_lod1": 534
+ },
+ "meshy_chest_metal_wood": {
+  "aabb_max": [
+   0.4526,
+   0.8,
+   0.2699
+  ],
+  "aabb_min": [
+   -0.4526,
+   0.0,
+   -0.2699
+  ],
+  "materials": [
+   "chest_metal_wood_wood"
+  ],
+  "source": "meshy_free/props/chest_metal_wood",
+  "tris_lod0": 1500,
+  "tris_lod1": 514
+ },
+ "meshy_chicken_coop_fenced": {
+  "aabb_max": [
+   1.0519,
+   2.0,
+   1.0627
+  ],
+  "aabb_min": [
+   -1.0519,
+   0.0,
+   -1.0627
+  ],
+  "materials": [
+   "chicken_coop_fenced_wood"
+  ],
+  "source": "meshy_free/farm/chicken_coop_fenced",
+  "tris_lod0": 5000,
+  "tris_lod1": 1644
+ },
+ "meshy_dock_circular_wood": {
+  "aabb_max": [
+   5.5053,
+   1.2,
+   5.1298
+  ],
+  "aabb_min": [
+   -5.5053,
+   0.0,
+   -5.1298
+  ],
+  "materials": [
+   "dock_circular_wood_wood"
+  ],
+  "source": "meshy_free/water/dock_circular_wood",
+  "tris_lod0": 2497,
+  "tris_lod1": 862
+ },
+ "meshy_fence_board_gate": {
+  "aabb_max": [
+   1.0056,
+   1.4,
+   0.1639
+  ],
+  "aabb_min": [
+   -1.0056,
+   0.0,
+   -0.1639
+  ],
+  "materials": [
+   "fence_board_gate_wood"
+  ],
+  "source": "meshy_free/fences/fence_board_gate",
+  "tris_lod0": 2500,
+  "tris_lod1": 931
+ },
+ "meshy_fence_picket_low": {
+  "aabb_max": [
+   1.3197,
+   1.0,
+   0.0489
+  ],
+  "aabb_min": [
+   -1.3197,
+   0.0,
+   -0.0489
+  ],
+  "materials": [
+   "fence_picket_low_wood"
+  ],
+  "source": "meshy_free/fences/fence_picket_low",
+  "tris_lod0": 2500,
+  "tris_lod1": 928
+ },
+ "meshy_hay_bale_rect_a": {
+  "aabb_max": [
+   1.0361,
+   0.9,
+   0.6121
+  ],
+  "aabb_min": [
+   -1.0361,
+   0.0,
+   -0.6121
+  ],
+  "materials": [
+   "hay_bale_rect_a_thatch"
+  ],
+  "source": "meshy_free/farm/hay_bale_rect_a",
+  "tris_lod0": 1372,
+  "tris_lod1": 476
+ },
+ "meshy_hay_bale_round": {
+  "aabb_max": [
+   0.6951,
+   1.3,
+   0.5212
+  ],
+  "aabb_min": [
+   -0.6951,
+   0.0,
+   -0.5212
+  ],
+  "materials": [
+   "hay_bale_round_thatch"
+  ],
+  "source": "meshy_free/farm/hay_bale_round",
+  "tris_lod0": 1789,
+  "tris_lod1": 626
+ },
+ "meshy_lamp_post_timber_cross": {
+  "aabb_max": [
+   1.1096,
+   3.8,
+   0.2264
+  ],
+  "aabb_min": [
+   -1.1096,
+   0.0,
+   -0.2264
+  ],
+  "materials": [
+   "lamp_post_timber_cross_timber"
+  ],
+  "source": "meshy_free/lighting/lamp_post_timber_cross",
+  "tris_lod0": 2997,
+  "tris_lod1": 1003
+ },
+ "meshy_lantern_wall_iron": {
+  "aabb_max": [
+   0.1128,
+   0.8,
+   0.1838
+  ],
+  "aabb_min": [
+   -0.1128,
+   0.0,
+   -0.1838
+  ],
+  "materials": [
+   "lantern_wall_iron_iron"
+  ],
+  "source": "meshy_free/lighting/lantern_wall_iron",
+  "tris_lod0": 1998,
+  "tris_lod1": 635
+ },
+ "meshy_shed_striped_awning": {
+  "aabb_max": [
+   1.6827,
+   3.2,
+   1.9805
+  ],
+  "aabb_min": [
+   -1.6827,
+   0.0,
+   -1.9805
+  ],
+  "materials": [
+   "shed_striped_awning_cloth"
+  ],
+  "source": "meshy_free/market/shed_striped_awning",
+  "tris_lod0": 4994,
+  "tris_lod1": 1654
+ },
+ "meshy_shed_thatch_small": {
+  "aabb_max": [
+   2.3327,
+   3.2,
+   1.4299
+  ],
+  "aabb_min": [
+   -2.3327,
+   0.0,
+   -1.4299
+  ],
+  "materials": [
+   "shed_thatch_small_thatch"
+  ],
+  "source": "meshy_free/farm/shed_thatch_small",
+  "tris_lod0": 3984,
+  "tris_lod1": 1440
+ },
+ "meshy_sign_blank_bracket": {
+  "aabb_max": [
+   0.5726,
+   1.4,
+   0.1334
+  ],
+  "aabb_min": [
+   -0.5726,
+   0.0,
+   -0.1334
+  ],
+  "materials": [
+   "sign_blank_bracket_wood"
+  ],
+  "source": "meshy_free/signs/sign_blank_bracket",
+  "tris_lod0": 2500,
+  "tris_lod1": 874
+ },
+ "meshy_sign_shop_lion": {
+  "aabb_max": [
+   0.7158,
+   1.6,
+   0.1086
+  ],
+  "aabb_min": [
+   -0.7158,
+   0.0,
+   -0.1086
+  ],
+  "materials": [
+   "sign_shop_lion_wood"
+  ],
+  "source": "meshy_free/signs/sign_shop_lion",
+  "tris_lod0": 2496,
+  "tris_lod1": 813
+ },
+ "meshy_stall_meat_shingle": {
+  "aabb_max": [
+   1.8741,
+   3.0,
+   1.3393
+  ],
+  "aabb_min": [
+   -1.8741,
+   0.0,
+   -1.3393
+  ],
+  "materials": [
+   "stall_meat_shingle_roof"
+  ],
+  "source": "meshy_free/market/stall_meat_shingle",
+  "tris_lod0": 4876,
+  "tris_lod1": 1545
+ },
+ "meshy_stall_open_roof": {
+  "aabb_max": [
+   1.5726,
+   3.0,
+   1.1806
+  ],
+  "aabb_min": [
+   -1.5726,
+   0.0,
+   -1.1806
+  ],
+  "materials": [
+   "stall_open_roof_roof"
+  ],
+  "source": "meshy_free/market/stall_open_roof",
+  "tris_lod0": 3992,
+  "tris_lod1": 1264
+ },
+ "meshy_stall_potatoes": {
+  "aabb_max": [
+   1.8549,
+   2.8,
+   1.541
+  ],
+  "aabb_min": [
+   -1.8549,
+   0.0,
+   -1.541
+  ],
+  "materials": [
+   "stall_potatoes_wood"
+  ],
+  "source": "meshy_free/market/stall_potatoes",
+  "tris_lod0": 5040,
+  "tris_lod1": 1819
+ },
+ "meshy_street_lantern_gothic": {
+  "aabb_max": [
+   0.6449,
+   3.8,
+   0.3621
+  ],
+  "aabb_min": [
+   -0.6449,
+   0.0,
+   -0.3621
+  ],
+  "materials": [
+   "street_lantern_gothic_iron"
+  ],
+  "source": "meshy_free/lighting/street_lantern_gothic",
+  "tris_lod0": 2995,
+  "tris_lod1": 1126
+ },
+ "meshy_table_tavern_trestle": {
+  "aabb_max": [
+   0.9206,
+   0.9,
+   0.4871
+  ],
+  "aabb_min": [
+   -0.9206,
+   0.0,
+   -0.4871
+  ],
+  "materials": [
+   "table_tavern_trestle_wood"
+  ],
+  "source": "meshy_free/furniture/table_tavern_trestle",
+  "tris_lod0": 2052,
+  "tris_lod1": 708
+ },
+ "meshy_tavern_set_barrels_b": {
+  "aabb_max": [
+   2.7861,
+   1.4,
+   1.9397
+  ],
+  "aabb_min": [
+   -2.7861,
+   0.0,
+   -1.9397
+  ],
+  "materials": [
+   "tavern_set_barrels_b_wood"
+  ],
+  "source": "meshy_free/furniture/tavern_set_barrels_b",
+  "tris_lod0": 4000,
+  "tris_lod1": 1518
+ },
+ "meshy_tower_octagon_wall": {
+  "aabb_max": [
+   6.4489,
+   9.0,
+   6.4038
+  ],
+  "aabb_min": [
+   -6.4489,
+   0.0,
+   -6.4038
+  ],
+  "materials": [
+   "tower_octagon_wall_stone"
+  ],
+  "source": "meshy_free/castle/tower_octagon_wall",
+  "tris_lod0": 5000,
+  "tris_lod1": 1937
+ },
+ "meshy_wall_battlement_block": {
+  "aabb_max": [
+   4.691,
+   4.5,
+   2.5862
+  ],
+  "aabb_min": [
+   -4.691,
+   0.0,
+   -2.5862
+  ],
+  "materials": [
+   "wall_battlement_block_stone"
+  ],
+  "source": "meshy_free/castle/wall_battlement_block",
+  "tris_lod0": 3982,
+  "tris_lod1": 1432
+ },
+ "meshy_wall_stone_railing": {
+  "aabb_max": [
+   1.6197,
+   1.2,
+   0.4035
+  ],
+  "aabb_min": [
+   -1.6197,
+   0.0,
+   -0.4035
+  ],
+  "materials": [
+   "wall_stone_railing_stone"
+  ],
+  "source": "meshy_free/fences/wall_stone_railing",
+  "tris_lod0": 3000,
+  "tris_lod1": 1058
+ },
+ "meshy_well_covered_planks": {
+  "aabb_max": [
+   2.0518,
+   2.6,
+   1.0893
+  ],
+  "aabb_min": [
+   -2.0518,
+   0.0,
+   -1.0893
+  ],
+  "materials": [
+   "well_covered_planks_wood"
+  ],
+  "source": "meshy_free/props/well_covered_planks",
+  "tris_lod0": 3995,
+  "tris_lod1": 1316
+ },
+ "meshy_well_stone_roofed": {
+  "aabb_max": [
+   1.3146,
+   3.4,
+   1.0433
+  ],
+  "aabb_min": [
+   -1.3146,
+   0.0,
+   -1.0433
+  ],
+  "materials": [
+   "well_stone_roofed_stone"
+  ],
+  "source": "meshy_free/props/well_stone_roofed",
+  "tris_lod0": 2491,
+  "tris_lod1": 911
+ }
+}
