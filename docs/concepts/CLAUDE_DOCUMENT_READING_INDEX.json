@@ -588,7 +588,7 @@
       "path": "docs/concepts/NPC_LIFE_LOOP_DESIGN.md",
       "lines": 173,
       "sha256": "C9B0F00316F256EDAB51812C565B61FBD7165ACFFF8B344095C86718645AD7BB",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/concepts/NPC_MOVEMENT_HEARING_HANDOFF.md",
@@ -816,7 +816,7 @@
       "path": "docs/design/SIM_HIERARCHY.md",
       "lines": 91,
       "sha256": "0026CA7789BEDA896E258C36803306C0B60728F958B97B17770C808F363B42E6",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/design/STYLE_LAB.md",
