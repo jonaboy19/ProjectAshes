@@ -1284,6 +1284,18 @@ func count(item: String) -> int:
 	return n
 
 
+## Mean quality tier (0 rough, 1 fine, 2 masterwork) of the carried stacks of `item`, -1 when none carried.
+## Feeds Crafting.input_grade so better materials give better products.
+func quality_of(item: String) -> int:
+	var sum := 0.0
+	var n := 0
+	for it in inventory.get_items_with_prototype_id(item):
+		var q := int(it.get_property("quality", 1))
+		sum += float(q) * float(it.get_stack_size())
+		n += it.get_stack_size()
+	return int(round(sum / float(n))) if n > 0 else -1
+
+
 func give(item: String, amount := 1) -> void:
 	for k in amount:
 		var it := inventory.create_item(item)
@@ -1565,6 +1577,8 @@ func _make_save_manager() -> Node:
 	var m: Node = SaveManager.new()
 	m.name = "SaveManager"
 	add_child(m)
+	# Focus-loss autosaves skip a clean game (scripts/sim/save_manager.gd is_dirty).
+	inventory_changed.connect(m.mark_dirty)
 	return m
 
 

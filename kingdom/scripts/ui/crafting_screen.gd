@@ -314,7 +314,7 @@ func _ctx() -> Dictionary:
 	var c: Variant = Life.get("careers")
 	if c is Object and bool((c as Object).call("is_employed")):
 		org = String(((c as Object).get("player") as Dictionary).get("org", ""))
-	return {"equipment": Inv.shared_equipment(), "org": org}
+	return {"equipment": Inv.shared_equipment(), "org": org, "tension": true}
 
 
 func _browsing() -> bool:
@@ -547,7 +547,7 @@ func _finish_craft(id: String, token: String) -> void:
 	if not bool(committed.get("ok", false)):
 		res = {"ok": false, "text": _action_error_text(String(committed.get("error", "")))}
 	_status.text = String(res.get("text", ""))
-	_status.add_theme_color_override("font_color", UITheme.OK if res.get("ok", false) else UITheme.DANGER)
+	_status.add_theme_color_override("font_color", UITheme.OK if res.get("ok", false) and not res.get("failed", false) else UITheme.DANGER)
 	if res.get("ok", false) and bool(committed.get("newly_committed", false)):
 		Life.record(String(res.get("tag", "crafted")), 0.5)
 		WorldSim.advance_hours(float(res.get("hours", 0.25)))

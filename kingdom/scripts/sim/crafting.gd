@@ -17,6 +17,8 @@ extends RefCounted
 ## inn, woodcutters in RACareers) or carrying the skill's tool speeds learning.
 
 signal crafted(result: Dictionary)
+## A tense craft went wrong (ctx.tension): materials partly lost. Not "crafted": nothing was made.
+signal craft_failed(result: Dictionary)
 signal skill_up(skill: String, level: int)
 signal station_invalidated(ref: String, generation: int)
 
@@ -336,6 +338,45 @@ func roll_quality(lvl: int, recipe_level := 1) -> int:
 	return quality_for_roll(lvl, recipe_level, rng.randf())
 
 
+## Chance a craft succeeds when tension is on: 0.55 + 0.04 per skill level over the recipe, plus a small tool
+## bonus (`tool_mult` is tool_bonus(), 1.0 without a tool), clamped to [0.35, 0.98].
+static func success_chance(lvl: int, recipe_level: int, tool_mult := 1.0) -> float:
+	return clampf(0.55 + 0.04 * float(lvl - recipe_level) + (tool_mult - 1.0) * 0.2, 0.35, 0.98)
+
+
+## Chance a successful craft is a critical success (a quality tier up, or a bonus unit): 3% at the recipe's
+## level, +1.5% per level above (nothing below the recipe's level), max 20%.
+static func crit_chance(lvl: int, recipe_level: int) -> float:
+	var margin := lvl - recipe_level
+	return clampf(0.03 + 0.015 * float(margin), 0.0, 0.20) if margin >= 0 else 0.0
+
+
+## Shifts a quality roll by the mean input grade (0..100, 50 = neutral): up to -/+ MAX_INPUT_SHIFT of the roll
+## range, so rich inputs make better tiers likelier and poor ones worse. Low rolls are the good ones.
+const MAX_INPUT_SHIFT := 0.20
+static func shifted_roll(roll: float, input_grade: float) -> float:
+	var shift := clampf((input_grade - 50.0) / 50.0, -1.0, 1.0) * MAX_INPUT_SHIFT
+	return clampf(roll - shift, 0.0, 0.999999)
+
+
+## Mean grade (0..100) of the inputs `r` would consume from `inv`, or -1 when the inventory does not track
+## quality (then no shift). Inventories may offer quality_of(item) -> tier 0..2 or -1.
+func input_grade(r: Dictionary, inv: Object) -> float:
+	if inv == null or not inv.has_method("quality_of"):
+		return -1.0
+	var sum := 0.0
+	var n := 0
+	for inp: Dictionary in r.get("inputs", []):
+		for alt in alternatives(String(inp["item"])):
+			if int(inv.call("count", alt)) > 0:
+				var t := int(inv.call("quality_of", alt))
+				if t >= 0:
+					sum += [20.0, 55.0, 90.0][clampi(t, 0, 2)] * float(inp["count"])
+					n += int(inp["count"])
+				break
+	return sum / float(n) if n > 0 else -1.0
+
+
 # --- requirements & crafting ---------------------------------------------------------
 
 ## One row per ingredient: {spec, name, need, have}.
@@ -384,19 +425,54 @@ func craft(id: String, inv: Object, kinds: Variant = null, ctx: Dictionary = {})
 		return {"ok": false, "text": why}
 	var r := recipe(id)
 	var skill := String(r["skill"])
+	var lvl := level(skill)
+	var rlvl := int(r.get("level", 1))
+	var grade: float = float(ctx["input_quality"]) if ctx.has("input_quality") else input_grade(r, inv)
+	var tension := bool(ctx.get("tension", false))
+	var mult := float(ctx.get("xp_mult", 1.0)) * career_xp_mult(skill, String(ctx.get("org", "")))
+	var tmult := tool_bonus(skill, inv, ctx.get("equipment"))
+	mult *= tmult
+	var consumed: Array[Dictionary] = []    # [{item, n}] actually taken, to refund on failure
 	for inp: Dictionary in r.get("inputs", []):
 		var left := int(inp["count"])
 		for alt in alternatives(String(inp["item"])):
 			var n := mini(left, int(inv.call("count", alt)))
 			if n > 0:
 				inv.call("take", alt, n)
+				consumed.append({"item": alt, "n": n})
 				left -= n
 			if left <= 0:
 				break
-	var lvl := level(skill)
+	if tension and not bool(r.get("repair", false)):
+		var sroll: float = float(ctx["success_roll"]) if ctx.has("success_roll") else rng.randf()
+		if sroll >= success_chance(lvl, rlvl, tmult):
+			# Failure: half of each input (rounded down) comes back, half the xp, tools untouched.
+			var back: Array[String] = []
+			for c: Dictionary in consumed:
+				var n := int(c["n"]) / 2
+				if n > 0:
+					inv.call("give", String(c["item"]), n)
+					back.append("%d %s" % [n, item_name(String(c["item"]))])
+			var gained_f := int(round(float(r.get("xp", 5)) * mult * 0.5))
+			var after_f := add_xp(skill, gained_f)
+			var fres := {"ok": true, "failed": true, "quality": 0, "item": "", "count": 0, "xp": gained_f,
+				"level": after_f, "level_up": after_f > lvl, "skill": skill,
+				"tag": String(skills.get(skill, {}).get("tag", "crafted")),
+				"hours": float(r.get("time", 1.5)) * 0.25,
+				"text": "The %s goes wrong.%s" % [recipe_name(r).to_lower(), (" You salvage " + ", ".join(back) + ".") if not back.is_empty() else ""]}
+			craft_failed.emit(fres)
+			return fres
 	var roll: float = float(ctx["roll"]) if ctx.has("roll") else rng.randf()
-	var q := quality_for_roll(lvl, int(r.get("level", 1)), roll)
-	var res := {"ok": true, "quality": q, "item": "", "count": 0}
+	if grade >= 0.0:
+		roll = shifted_roll(roll, grade)
+	var q := quality_for_roll(lvl, rlvl, roll)
+	var crit := false
+	if tension and not bool(r.get("repair", false)):
+		var croll: float = float(ctx["crit_roll"]) if ctx.has("crit_roll") else rng.randf()
+		crit = croll < crit_chance(lvl, rlvl)
+		if crit and q < Quality.MASTERWORK:
+			q += 1
+	var res := {"ok": true, "quality": q, "item": "", "count": 0, "crit": crit}
 	if bool(r.get("repair", false)):
 		var eq: Object = ctx["equipment"]
 		var fixed := int(eq.call("repair_all", [0.6, 1.0, 1.0][q]))
@@ -407,15 +483,13 @@ func craft(id: String, inv: Object, kinds: Variant = null, ctx: Dictionary = {})
 		var item := String(out["item"])
 		var n := int(out["count"])
 		var gear := item_info(item).has("slot")
-		if not gear and q == Quality.MASTERWORK:
-			n += 1                         # a masterwork batch yields one extra
+		if not gear and (q == Quality.MASTERWORK or crit):
+			n += 1                         # a masterwork batch (or a critical success) yields one extra
 		give_item(inv, item, n, q if gear else -1)
 		res["item"] = item
 		res["count"] = n
 		var qtext := (quality_name(q) + " ") if gear else ("Masterwork batch: " if q == Quality.MASTERWORK else "")
 		res["text"] = "%s%s%s." % [qtext, item_name(item), (" ×%d" % n) if n > 1 else ""]
-	var mult := float(ctx.get("xp_mult", 1.0)) * career_xp_mult(skill, String(ctx.get("org", "")))
-	mult *= tool_bonus(skill, inv, ctx.get("equipment"))
 	var gained := int(round(float(r.get("xp", 5)) * mult))
 	var before := lvl
 	var after := add_xp(skill, gained)

@@ -16,9 +16,15 @@ extends Node3D
 ## that grows with the Mining skill (Life.crafting, when Life owns one).
 
 const Crafting := preload("res://scripts/sim/crafting.gd")
+const Deposits := preload("res://scripts/world/deposits.gd")
+const GatherSession := preload("res://scripts/sim/gather_session.gd")
+const GatherPanel := preload("res://scripts/ui/gather_panel.gd")
+const SITE_KEY := "greyseam"
 const ACTIVATE := 90.0
 const DEACTIVATE := 120.0
-const RESPAWN_DAYS := 1
+## Per-ore deposit data: units, regrowth per day, node level.
+const DEPOSIT := {"iron": {"cap": 6, "regrow": 3.0, "level": 2}, "copper": {"cap": 6, "regrow": 3.0, "level": 1},
+	"coal": {"cap": 8, "regrow": 4.0, "level": 1}}
 const ROCK_MODEL := "res://assets/generated/region/nature/rock_medium_lod1.glb"
 const ROCK_MODEL_FULL := "res://assets/generated/region/nature/rock_medium.glb"
 const MINING_XP := 4
@@ -39,8 +45,8 @@ const LAYOUT := [
 var focus := Vector3.ZERO
 ## The mine site ({} when the world has none).
 var site: Dictionary = {}
-## rock index -> day it was mined
-var mined: Dictionary = {}
+var deposits := Deposits.new()
+var _panel: Control
 var _rocks: Array = []              # OreRock, one per LAYOUT entry
 var _live := false
 var _timer := 0.0
@@ -137,11 +143,8 @@ func _center() -> Vector2:
 ## Shows every rock that isn't mined out (and lets mined ones regrow).
 func _refresh() -> void:
 	var day: int = WorldSim.day
-	for i: int in mined.keys():
-		if day - int(mined[i]) >= RESPAWN_DAYS:
-			mined.erase(i)
 	for r: OreRock in _rocks:
-		if mined.has(r.index):
+		if deposits.is_depleted(dep_id(r), dep_def(r), day):
 			_hide(r)
 		elif not r.visible:
 			_show(r)
@@ -177,37 +180,70 @@ static func yield_for(ore: String, roll_base: float, roll_skill: float, has_pick
 	return n
 
 
+static func dep_id(r: OreRock) -> String:
+	return Deposits.key(SITE_KEY, "ore", r.index)
+
+
+static func dep_def(r: OreRock) -> Dictionary:
+	return Deposits.make_def("ore", String(ORES[r.ore]["item"]), DEPOSIT.get(r.ore, {}))
+
+
 func mine(r: OreRock) -> void:
-	if not r.visible or mined.has(r.index):
+	if not r.visible or _panel != null:
 		return
-	var o: Dictionary = ORES.get(r.ore, {})
-	var item := String(o["item"])
+	var id := dep_id(r)
+	var def := dep_def(r)
+	var day: int = WorldSim.day
 	var crafting: Variant = Life.get("crafting")
-	var equipment: Variant = Life.get("equipment")
-	var has_pick: bool = Life.count("pickaxe") > 0
-	if equipment is Object and String((equipment as Object).call("item_in", "main_hand")) == "pickaxe":
-		has_pick = true
 	var lvl := 1
 	if crafting is Object:
 		lvl = int((crafting as Object).call("level", "mining"))
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(Vector3i(r.index, WorldSim.day, 5151))
-	var n := yield_for(r.ore, rng.randf(), rng.randf(), has_pick, lvl)
-	Life.give(item, n)
+	var tier := 0
+	if Life.count("pickaxe") > 0:
+		tier = 1
+	var equipment: Variant = Life.get("equipment")
+	if equipment is Object and String((equipment as Object).call("item_in", "main_hand")) == "pickaxe":
+		tier = 1
+	var s := GatherSession.new()
+	if not s.start(deposits.node(id, def, day), lvl, tier, hash(Vector3i(r.index, day, Engine.get_process_frames()))):
+		_hide(r)
+		return
+	var layer := CanvasLayer.new()
+	layer.layer = 18
+	add_child(layer)
+	var panel: Control = GatherPanel.new()
+	layer.add_child(panel)
+	panel.call("setup", s, "Ore vein: " + Life.item_name(String(def["item"])))
+	_panel = panel
+	panel.connect("finished", _on_gathered.bind(r, layer, tier, lvl))
+
+
+func _on_gathered(res: Dictionary, r: OreRock, layer: Node, tier: int, lvl: int) -> void:
+	_panel = null
+	if is_instance_valid(layer):
+		layer.queue_free()
+	var n := deposits.commit(dep_id(r), dep_def(r), res, WorldSim.day)
+	if n <= 0:
+		Game.say("You come away with nothing.")
+		return
+	var item := String(res["item"])
+	Crafting.give_item(Life, item, n, int(res.get("tier", 1)))
 	Life.record("mined", 0.6)
-	var text := "Mined %d %s." % [n, Life.item_name(item)]
+	var text := "Mined %d %s (%s)." % [n, Life.item_name(item), Crafting.quality_name(int(res.get("tier", 1))).to_lower()]
+	var crafting: Variant = Life.get("crafting")
 	if crafting is Object:
-		var mult := Crafting.TOOL_XP_MULT if has_pick else 1.0
-		var before := lvl
-		var after := int((crafting as Object).call("add_xp", "mining", int(round(MINING_XP * mult))))
-		if after > before:
+		var mult := Crafting.TOOL_XP_MULT if tier > 0 else 1.0
+		var after := int((crafting as Object).call("add_xp", "mining", int(round(float(res.get("xp", MINING_XP)) * mult))))
+		if after > lvl:
 			text += "  Mining is now %d!" % after
-	if not has_pick and r.index == 0:
+	if int(res.get("damage", 0)) > 0 and Life.player != null and is_instance_valid(Life.player):
+		(Life.player as Object).call("take_damage", int(res["damage"]), null, Vector3.ZERO)
+		text += "  Rock chips cost you %d health." % int(res["damage"])
+	if tier == 0 and r.index == 0:
 		text += " (A pickaxe would help.)"
 	Game.say(text)
 	Audio.play_ui("pickup")
-	mined[r.index] = WorldSim.day
-	_hide(r)
+	_refresh()
 
 
 ## Self-dispatch of the interact key while standing by one of our rocks.

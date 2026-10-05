@@ -41,6 +41,9 @@ const QUICK := "quick"
 const AUTOSAVE_INTERVAL := 600.0        # real seconds
 ## Two autosaves closer than this collapse into one (except on quit / background).
 const AUTOSAVE_MIN_GAP := 30.0
+const FOCUS_DEBOUNCE_MS := 1500
+## A focus-loss save is skipped when nothing is dirty and the last autosave is younger than this.
+const FOCUS_CLEAN_MAX_AGE_S := 120.0
 const HOSTILE_RADIUS := 30.0
 const THUMB_SIZE := Vector2i(240, 135)
 const LEGACY_PATH := "user://save_%d.json"
@@ -77,6 +80,12 @@ var last_error := ""
 var last_slot := ""
 
 var _auto_timer := 0.0
+## Set by mark_dirty(), cleared by every successful save.
+var dirty := false
+## Optional dirty-flagged containers (scripts/sim/save_containers.gd). When set and no snapshot_fn is given,
+## saves use containers.snapshot(): only dirty containers are re-serialized.
+var containers: RefCounted
+var _last_bg_ms := -1
 var _last_autosave_ms := -1
 var _quiet_until_ms := 0
 var _settlement := -2              # -2 unknown, -1 outside, else settlement index
@@ -110,10 +119,48 @@ func _process(delta: float) -> void:
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_WM_CLOSE_REQUEST:
-		# The app may be killed right after this: save now, without the GPU readback.
-		if _player() != null:
-			autosave("background" if what == NOTIFICATION_APPLICATION_PAUSED else "quit", false, true)
+	handle_lifecycle(what)
+
+
+## App lifecycle -> autosave. Pause/close always save (the app may be killed right after: no GPU readback,
+## through the same atomic write). Focus loss (mobile app switch, desktop alt-tab) saves only when something
+## changed since the last save (is_dirty) or the last save is old. Returns the slot written, "" when skipped.
+## Public so tests (and platform shims) can drive it.
+func handle_lifecycle(what: int) -> String:
+	if _player() == null:
+		return ""
+	var now := Time.get_ticks_msec()
+	match what:
+		NOTIFICATION_APPLICATION_PAUSED:
+			_last_bg_ms = now
+			return autosave("background", false, true)
+		NOTIFICATION_WM_CLOSE_REQUEST:
+			return autosave("quit", false, true)
+		NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+			# A pause usually follows focus loss within the same moment: don't write twice.
+			if _last_bg_ms >= 0 and now - _last_bg_ms < FOCUS_DEBOUNCE_MS:
+				return ""
+			if not is_dirty() and _last_autosave_ms >= 0 and now - _last_autosave_ms < FOCUS_CLEAN_MAX_AGE_S * 1000.0:
+				return ""
+			_last_bg_ms = now
+			return autosave("focus", false, true)
+	return ""
+
+
+## Marks state as changed since the last save (cheap; call from anything that mutates saveable state).
+func mark_dirty() -> void:
+	dirty = true
+
+
+## True when something changed since the last successful save: the manual flag, any dirty container, or
+## deltas in the world-state overlay.
+func is_dirty() -> bool:
+	if dirty:
+		return true
+	if containers != null and bool(containers.call("any_dirty")):
+		return true
+	var ws: Variant = load("res://scripts/world/world_state.gd").shared()
+	return ws != null and not (ws.get("dirty") as Dictionary).is_empty()
 
 
 # --- slots -----------------------------------------------------------------------
@@ -236,6 +283,7 @@ func save_slot(id: String, reason := "manual", thumb := true) -> bool:
 		return _fail("Nothing to save yet.")
 	var ok := write_envelope(id, data, _build_meta(id, reason))
 	if ok:
+		dirty = false
 		last_slot = id
 		if thumb and capture_thumbnails:
 			_save_thumbnail(id)
@@ -620,6 +668,8 @@ func _player() -> Node3D:
 func _snapshot() -> Dictionary:
 	if snapshot_fn.is_valid():
 		return snapshot_fn.call()
+	if containers != null:
+		return containers.call("snapshot")
 	var life := get_node_or_null("/root/Life")
 	return life.call("snapshot") if life else {}
 
