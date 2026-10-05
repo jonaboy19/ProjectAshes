@@ -3,9 +3,10 @@ extends InteriorDoor
 ## the torch cache, sealed doors that need a rune or a pick, pressure plates and spike traps, plus the
 ## "reveal" spots of hidden cave entrances (vines to cut, rockfall to clear).
 ##
-## It extends InteriorDoor on purpose: main.gd's interact handler already calls use() on the nearest
-## InteriorDoor, and the HUD already shows a door's prompt(), so none of this needs a hook in main.gd
-## or the HUD. (Standalone scenes must call InteriorDoor.tag_player(player), which main.gd does.)
+## It extends InteriorDoor on purpose: the door's Interactable component (enabled while the player is in
+## range) already routes the interact key to use(), and the HUD already shows a door's prompt(), so none of
+## this needs a hook in main.gd or the HUD. (Standalone scenes must call InteriorDoor.tag_player(player),
+## which main.gd does.)
 
 const Kit := preload("res://scripts/interiors/dungeon_kit.gd")
 const Items := preload("res://scripts/interiors/dungeon_items.gd")
@@ -40,7 +41,7 @@ func _ready() -> void:
 	super()
 	# Plates and traps trigger on contact (PLAYER_TRIGGER_LAYER only), so they never join "interactable".
 	if kind in ["plate", "trap"]:
-		set_process(false)
+		Interactable.set_active(self, false)
 
 
 func prompt() -> String:
@@ -143,9 +144,7 @@ func _learn(fact: String, text: String) -> bool:
 
 
 func _retire() -> void:
-	if is_in_group("interactable"):
-		remove_from_group("interactable")
-	set_process(false)
+	Interactable.set_active(self, false)
 	monitoring = false
 
 

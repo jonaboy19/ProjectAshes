@@ -29,6 +29,12 @@ enum Lane { HIGH, MID, LOW }
 @export var min_range := 0.0       ## NPC: only chosen when the target is within [min_range, max_range]
 @export var max_range := 99.0
 @export var telegraph := true
+## F3: seconds the attack input must be held before this row fires (0 = a tap). Heavy rows use data hold_time.
+@export var charge_time := 0.0
+@export var guard_break := false   ## breaks a guard (duck-typed break_guard() on the victim) instead of being blocked
+@export var arc_dot := 0.2         ## player melee cone: victim must satisfy forward.dot(to) > arc_dot (staff/sweeps go lower)
+@export var technique := false     ## staff heavy: also casts the equipped technique on release
+@export var ranged := false        ## bow shot row: no melee hit, the arrow flies from the pool
 ## [{tag, from_t, to_t}] in seconds since swing start. Tag "attack" = the next swing may start.
 @export var cancel_windows: Array = []
 

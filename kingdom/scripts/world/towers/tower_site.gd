@@ -425,20 +425,13 @@ func _gate_mesh() -> Node3D:
 	return n
 
 
-# ====================================================================== input and dispatch
+# ====================================================================== dispatch
 
-func _unhandled_input(event: InputEvent) -> void:
-	if not event.is_action_pressed("interact"):
-		return
+## The interact key arrives here from TowerPoint.use() (through the player's InteractionController).
+func use_point(p: Node3D) -> void:
 	if ui != null and ui.menu_open:
 		return
-	var pl := player()
-	if pl == null or not pl.has_method("nearest_interactable"):
-		return
-	var target: Node3D = pl.call("nearest_interactable")
-	if target != null and target.is_in_group("tower_point"):
-		handle_point(target)
-		get_viewport().set_input_as_handled()
+	handle_point(p)
 
 
 func handle_point(p: Node3D) -> void:

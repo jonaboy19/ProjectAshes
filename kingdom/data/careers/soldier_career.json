@@ -1,0 +1,70 @@
+{
+ "_doc": "Soldier career (F11). Read by scripts/sim/soldier_career.gd; state lives in scripts/realm/soldier.gd. ladder_id maps each rank onto the soldier ladder in ladders.json / military.gd so troops_for_rank and pay queries keep one source of truth.",
+ "muster": {"hour": 6, "window": 2, "attend_merit": 1, "miss_merit": -2, "desert_after": 5, "catchup_grace_days": 1},
+ "posts": {
+  "outposts": [
+   {"id": "thornfield_watch_post", "name": "the Thornfield Watch Post", "settlement": "Thornfield", "offset": [70, 25], "radius": 26,
+    "places": {"escort_to": ["thornfield_mill", "thornfield_barn"], "clear_at": ["thornfield_fields"], "orders_to": ["thornfield", "thornfield_mill"]}}
+  ],
+  "fallback": {"id": "town_watch", "name": "the Town Watch", "settlement_index": 0, "offset": [0, 0], "radius_extra": 8,
+   "places": {"escort_to": ["market_gate"], "clear_at": ["outer_fields"], "orders_to": ["town_hall"]}}
+ },
+ "officers": {
+  "first": ["Aldric", "Brenna", "Corin", "Dessa", "Edmar", "Hilde", "Ivo", "Kessa", "Merrick", "Orla"],
+  "last": ["Ashby", "Crane", "Dunn", "Fallow", "Gray", "Hale", "Ironside", "Marsh", "Pike", "Reed"],
+  "titles": ["Sergeant", "Sergeant", "Lieutenant"]
+ },
+ "ranks": [
+  {"id": "recruit", "title": "Recruit", "ladder_id": "recruit", "merit": 0, "min_days": 0, "wage": 35, "squad": 0,
+   "ceremony": "The officer shoves a spear into your hands. \"Stand up straight, recruit. You will do.\"",
+   "kit": {"head": "hide_cap", "body": "hide_vest", "feet": "hide_boots", "main_hand": "bronze_spear", "off_hand": "wooden_buckler"}},
+  {"id": "private", "title": "Private", "ladder_id": "soldier", "merit": 20, "min_days": 7, "wage": 56, "squad": 0,
+   "ceremony": "The line is called to attention. \"Private,\" says your officer, and a plain grey tabard is yours.",
+   "kit": {"legs": "leather_leggings", "cloak": "leather_cloak", "off_hand": "bronze_buckler", "main_hand": "iron_spear"}},
+  {"id": "corporal", "title": "Corporal", "ladder_id": "veteran", "merit": 60, "min_days": 14, "wage": 84, "squad": 2,
+   "ceremony": "Two soldiers fall in behind you. \"Corporal. They are yours now, so keep them breathing.\"",
+   "kit": {"head": "chain_coif", "body": "chain_hauberk", "feet": "chain_boots", "off_hand": "iron_buckler"}},
+  {"id": "sergeant", "title": "Sergeant", "ladder_id": "squad_leader", "merit": 130, "min_days": 21, "wage": 126, "squad": 3,
+   "ceremony": "The captain pins a red knot to your shoulder. \"Sergeant. Three spears, one of you.\"",
+   "kit": {"cloak": "chain_cloak", "off_hand": "iron_shield", "main_hand": "steel_sword"}},
+  {"id": "lieutenant", "title": "Lieutenant", "ladder_id": "junior_officer", "merit": 240, "min_days": 35, "wage": 196, "squad": 4,
+   "ceremony": "The post falls silent as the captain salutes you first. \"Lieutenant. The squad is yours to spend wisely.\"",
+   "kit": {"head": "knight_helm", "body": "steelmail_hauberk", "main_hand": "finesteel_sword"}}
+ ],
+ "merit": {"kill": 1, "kill_cap_per_duty": 6, "commendation": 5, "commendation_chance_clean": 0.35, "duty_failed": -3, "duty_abandoned": -2},
+ "pay": {"dock_per_missed_muster": 0.15, "leave_fraction": 0.5, "desertion_pays": 0},
+ "discipline": {
+  "crime_merit_per_severity": -8,
+  "demote_below_merit": -10,
+  "demote_after_crimes": 2,
+  "demote_merit_floor_fraction": 0.5,
+  "heinous_severity": 6,
+  "desertion_bounty": 120,
+  "desertion_rep": -12,
+  "reenlist_ban_days": 28
+ },
+ "leave": {"max_days": 5, "cooldown_days": 14, "min_rank": 0},
+ "squad": {
+  "archetype": "guard", "base_hp": 60, "hp_per_rank": 6, "wound_hp_fraction": 0.35, "wound_days": 3, "replace_days": 2,
+  "first": ["Tam", "Bryn", "Cade", "Dora", "Finn", "Gwen", "Hob", "Isa", "Jory", "Kit", "Lena", "Mack", "Nell", "Oren", "Pip", "Rolf", "Sive", "Tobin", "Una", "Wat"],
+  "last": ["Barley", "Cook", "Fenn", "Holt", "Lowe", "Marsh", "Nash", "Porter", "Rudd", "Shaw", "Tanner", "Weaver"],
+  "follow_gap": 2.2
+ },
+ "duties": {
+  "patrol": {"title": "Patrol the %s route", "min_rank": 0, "weight": 5, "merit": 5, "gold": 6, "hours": 3,
+   "route": [[0, 40], [45, 25], [55, -20], [10, -45], [-40, -15]], "waypoints": 4, "radius": 9,
+   "summary": "Walk the marked waypoints and show the flag."},
+  "guard_gate": {"title": "Hold the gate tonight", "min_rank": 0, "weight": 3, "merit": 7, "gold": 8, "hours": 6, "window": [21, 5],
+   "summary": "Stand the night watch at the gate and let nobody harm it."},
+  "escort": {"title": "Escort the supply cart", "min_rank": 1, "weight": 3, "merit": 9, "gold": 12, "hours": 4, "radius": 14,
+   "summary": "See the cart safely to its destination."},
+  "clear": {"title": "Clear the %s", "min_rank": 1, "weight": 3, "merit": 10, "gold": 15, "hours": 4,
+   "targets": [{"target": "bandit", "count": 3, "noun": "bandit camp"}, {"target": "wolf", "count": 3, "noun": "wolf den"}],
+   "summary": "Drive the threat out of the district."},
+  "deliver_orders": {"title": "Carry sealed orders", "min_rank": 0, "weight": 4, "merit": 4, "gold": 5, "hours": 2, "item": "sealed_orders",
+   "summary": "Deliver the sealed orders to the addressee."},
+  "investigate": {"title": "Look into a crime report", "min_rank": 2, "weight": 2, "merit": 8, "gold": 10, "hours": 3,
+   "clues": ["crime/report/footprints", "crime/report/dropped_purse", "crime/report/witness"], "count": 2,
+   "summary": "Find the clues at the scene of the reported crime."}
+ }
+}

@@ -1,0 +1,252 @@
+{
+ "id": "thornfield/wilm_garrow",
+ "start": "greet",
+ "nodes": {
+  "greet": {
+   "lines": [
+    {
+     "text": "{first} looks you up and down and says nothing at all.",
+     "if": {
+      "tier": "enemy"
+     },
+     "p": 5
+    },
+    {
+     "text": "\"You again. Say what you want and be quick about it.\"",
+     "if": {
+      "tier": "rival"
+     },
+     "p": 5
+    },
+    {
+     "text": "\"Well, well. A friendly face. Spare a coin for a man between fortunes?\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Evening. Lovely night for it.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"{greeting}\" {first} nods.",
+     "if": {
+      "tier": "stranger"
+     },
+     "p": 1
+    },
+    {
+     "text": "\"Well met, {player}.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 3
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Heard any news?\"",
+     "goto": "rumour",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Pell?\"",
+     "goto": "op_pell_hargrove",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Hesta?\"",
+     "goto": "op_hesta_thorne",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Edric?\"",
+     "goto": "op_edric_vane",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"I saw you at the barn, Wilm. We need to talk.\"",
+     "goto": "confession",
+     "if": {
+      "has": "thornfield_confront"
+     }
+    },
+    {
+     "text": "\"About the rest of that coin you promised...\"",
+     "goto": "bribe_paid",
+     "if": {
+      "has": "thornfield_bribe_paid"
+     }
+    },
+    {
+     "text": "Offer a gift\u2026",
+     "goto": "",
+     "if": {
+      "has": "has_gift_items"
+     },
+     "do": [
+      [
+       "gift"
+      ]
+     ]
+    },
+    {
+     "text": "\"Good day to you.\"",
+     "goto": "@end"
+    }
+   ]
+  },
+  "rumour": {
+   "lines": [
+    {
+     "text": "\"Rot gets into every barn eventually. Nothing a man can do.\"",
+     "p": 2
+    },
+    {
+     "text": "\"I was never near the barn. Ask anyone.\"",
+     "p": 2
+    },
+    {
+     "text": "\"{rumour}\"",
+     "if": {
+      "has": "rumour"
+     },
+     "p": 1
+    },
+    {
+     "text": "\"Nothing I would repeat.\"",
+     "p": 0
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Anything else?\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks for telling me.\"",
+     "goto": "greet",
+     "do": [
+      [
+       "opinion",
+       "chat",
+       "Pleasant talk",
+       2,
+       5
+      ]
+     ]
+    }
+   ]
+  },
+  "op_pell_hargrove": {
+   "lines": [
+    {
+     "text": "\"Pell is my cousin. Good lad. Does not ask questions.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_hesta_thorne": {
+   "lines": [
+    {
+     "text": "\"Hesta is a hard woman. A fair one, I will say that.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_edric_vane": {
+   "lines": [
+    {
+     "text": "\"Edric thinks I owe him. I think he owes me patience.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "confession": {
+   "lines": [
+    {
+     "text": "Wilm goes very still, then laughs, thin and tired. \"A man could get lonely, keeping that secret. A Kingsreach factor paid me to spoil the top sacks. Vinegar and a little mould. I told myself it was only barley.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Think about what you will do about it.\"",
+     "goto": "@end"
+    }
+   ]
+  },
+  "bribe_paid": {
+   "lines": [
+    {
+     "text": "\"Sixty, as promised. Do not look at me like that. You took it.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Goodbye, Wilm.\"",
+     "goto": "@end"
+    }
+   ]
+  }
+ }
+}

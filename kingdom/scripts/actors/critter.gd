@@ -15,6 +15,7 @@ extends Node3D
 ## the player has noise_radius(), notice range scales with it (crouch to stalk).
 
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
+const NodePool := preload("res://scripts/core/node_pool.gd")
 const DIR := "res://assets/incoming/animals/"
 ## Game joins team1 inside this distance to the player (melee reach is 2.6 m,
 ## target assist 3.8 m in player.gd).
@@ -123,6 +124,7 @@ var _flee_speed := 0.0
 const RIDER_DESPAWN := 250.0
 var claimed := false
 var rider_owned := false
+var _death_tweens: Array[Tween] = []   # F12 pooling: killed by reset()
 
 
 func _ready() -> void:
@@ -152,6 +154,51 @@ func _ready() -> void:
 	rotation.y = randf() * TAU
 	_pause = randf_range(0.0, 4.0)
 	_pick()
+
+
+# --- pooling (F12, scripts/core/node_pool.gd) -----------------------------------------------------------
+
+func on_acquire() -> void:
+	pass
+
+
+func on_release() -> void:
+	pass
+
+
+## Back to a freshly spawned animal of the same kind: alive, unclaimed, unculled, upright, full size.
+func reset() -> void:
+	if _model == null:
+		return
+	for t in _death_tweens:
+		if t != null and t.is_valid():
+			t.kill()
+	_death_tweens.clear()
+	if is_in_group("team1"):
+		remove_from_group("team1")
+	dead = false
+	claimed = false
+	rider_owned = false
+	huntable = Gathering.is_game(kind)
+	health = int(Gathering.GAME_HEALTH.get(kind, 0))
+	_stagger = 0.0
+	_fleeing = 0.0
+	_flee_speed = 0.0
+	_move_speed = 0.0
+	_idle_clip = "Idle"
+	_lod_tick = -1
+	_lod_acc = 0.0
+	home = Vector2.ZERO
+	scale = Vector3.ONE
+	rotation = Vector3(0.0, randf() * TAU, 0.0)
+	_culled = false
+	_model.visible = true
+	if _anim:
+		_anim.active = true
+		_anim.speed_scale = 1.0
+	_pause = randf_range(0.0, 4.0)
+	_target = Vector2.ZERO
+	_play("Idle")
 
 
 func _pick() -> void:
@@ -197,7 +244,7 @@ func _physics_process(delta: float) -> void:
 	if rider_owned:
 		var rider := _the_player(get_tree())
 		if rider and rider.global_position.distance_squared_to(global_position) > RIDER_DESPAWN * RIDER_DESPAWN:
-			queue_free()
+			NodePool.recycle(self)
 			return
 	var here := Vector2(global_position.x, global_position.z)
 	var shy: float = _cfg[4]
@@ -401,6 +448,7 @@ func _die(from: Node) -> void:
 		if _anim:
 			_anim.pause()
 		var t := create_tween()
+		_death_tweens.append(t)
 		t.tween_property(self, "rotation:z", PI * 0.5, 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	var by_player := from != null and (from.is_in_group("player") or from.is_in_group("team0"))
 	if by_player:
@@ -409,6 +457,7 @@ func _die(from: Node) -> void:
 		if got != "":
 			Game.say("%s down. %s" % [kind.capitalize(), got])
 	var fade := create_tween()
+	_death_tweens.append(fade)
 	fade.tween_interval(CORPSE_SECONDS)
 	fade.tween_property(self, "scale", Vector3(1, 0.01, 1), 0.6)
-	fade.tween_callback(queue_free)
+	fade.tween_callback(NodePool.recycle.bind(self))

@@ -66,6 +66,8 @@ const STANCES := {
 	"crouch": [["Crouch_Idle"], ["Crouch_Fwd", "Walk_Stealth"], 1.1],
 	"swim": [["Swim_Idle"], ["Swim_Fwd"], 2.2],
 	"ride": [["Driving", "Sitting_Idle", "Sit_Floor_Idle"], ["Driving", "Sitting_Idle", "Sit_Floor_Idle"], 0.0],
+	"sit_chair": [["Life_Rest_Sit_Chair", "Sitting_Idle", "Sit_Floor_Idle"], ["Life_Rest_Sit_Chair", "Sitting_Idle", "Sit_Floor_Idle"], 0.0],
+	"sit_bench": [["Life_Rest_Sit_Bench", "Life_Rest_Sit_Chair", "Sitting_Idle"], ["Life_Rest_Sit_Bench", "Life_Rest_Sit_Chair", "Sitting_Idle"], 0.0],
 }
 const STANCE_BLEND := 5.0        # 1/s cross-fade into and out of a stance
 

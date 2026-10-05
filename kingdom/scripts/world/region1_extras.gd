@@ -130,6 +130,8 @@ static func _npc(root: Node3D, npc: Dictionary, site: Dictionary) -> void:
 				return String(lines[int(state["i"])])])
 		if String(npc.get("trade", "")) != "":
 			opts.append(["What is %s known for?" % town, func() -> String: return String(npc["trade"])])
+		# Library quests (F7) are offered and reported by people in the world: "Ask about work" on a giver's menu.
+		preload("res://scripts/quests/quest_talk.gd").add_options(opts, {"id": String(npc.get("name", "")).to_lower().replace(" ", "_"), "name": String(npc.get("name", ""))})
 		return {"title": title, "body": String(npc.get("greet", "Well met, traveller.")), "options": opts}
 	var st := Station.new(title, "Talk", menu)
 	st.add_to_group("r1_world_npc")

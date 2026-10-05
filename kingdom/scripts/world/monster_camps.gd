@@ -9,6 +9,8 @@ extends Node3D
 const Nameplates := preload("res://scripts/core/nameplates.gd")
 const PACK := "res://assets/incoming/3dassets-dev-ai/medieval-mmo-starter-realm/"
 const GEN := "res://assets/generated/"
+const CreaturePool := preload("res://scripts/core/creature_pool.gd")
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
 const SPAWN_RANGE := 260.0
 const DESPAWN_RANGE := 420.0
 ## Props (huts, palisade, totem, chief, fire light) exist only while the player is within reach:
@@ -142,16 +144,20 @@ func _process(delta: float) -> void:
 		var c: Vector2 = camp["place"]["pos"]
 		var d := p.distance_to(c)
 		var res: Array = camp["residents"]
+		# F12: the camp is a spawner site of the cell manager (profile "camps"): its monsters sleep in an UNLOADED cell.
+		var tier: int = CellStreamer.shared().spawner_tier("camps", camp, c, p)
+		var wake: bool = d < CellStreamer.shared().distance("camps", "load") if tier < 0 else tier >= CellStreamer.Tier.LOW
+		var sleep: bool = d > CellStreamer.shared().distance("camps", "free") if tier < 0 else tier == CellStreamer.Tier.UNLOADED
 		if d < BUILD_RANGE and camp["root"] == null:
 			_build(camp)
-		if d < SPAWN_RANGE and res.is_empty() and _camp_open(camp):
+		if wake and res.is_empty() and _camp_open(camp):
 			if camp["root"] == null:
 				_build(camp)
 			_spawn(camp)
-		elif d > DESPAWN_RANGE and not res.is_empty():
+		elif sleep and not res.is_empty():
 			for m in res:
 				if is_instance_valid(m) and (m as CampMonster).named == "":
-					m.queue_free()
+					CreaturePool.give_back(m)
 			res.clear()
 		if d > FREE_RANGE and res.is_empty() and camp["root"] != null:
 			if is_instance_valid(camp["root"]):
@@ -173,8 +179,7 @@ func _spawn(camp: Dictionary) -> void:
 	var k := float(m_eco.camp_strength(String(camp["place"].get("id", "")))) if m_eco != null else 1.0
 	for entry: Array in camp["roster"]:
 		for i in maxi(1 if int(entry[1]) > 0 else 0, roundi(int(entry[1]) * k)):
-			var m := CampMonster.new()
-			m.species = entry[0]
+			var m: CampMonster = CreaturePool.monster("camps", String(entry[0]))
 			m.home = c
 			m.home_radius = r * (0.45 if entry[0] == "troll" else 0.8)
 			add_child(m)

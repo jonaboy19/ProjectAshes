@@ -9,7 +9,8 @@ extends Node3D
 const REGION := "res://assets/generated/region/"
 const GEN := "res://assets/generated/"
 const MESHY := "res://assets/incoming/ai3d/meshy/"
-const BUILD := 240.0
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
+const BUILD := 240.0       # defaults; live values: CellStreamer profile "dressing"
 const FREE := 330.0
 const LOD_DIST := 55.0
 const Breakable := preload("res://scripts/world/breakable.gd")
@@ -150,14 +151,16 @@ func _process_inner(delta: float) -> void:
 		return
 	_timer = 0.75
 	var p := Vector2(focus.x, focus.z)
+	var build_dist: float = CellStreamer.shared().distance("dressing", "load")      # F12: one place sets the distances
+	var free_dist: float = CellStreamer.shared().distance("dressing", "free")
 	for site in WorldGen.sites:
 		var id: int = site["id"]
 		var d := p.distance_to(site["pos"])
 		if not _in_season(site):
 			d = INF      # seasonal pieces (the Solkar caravans) exist only in their season
-		if d < BUILD and not _built.has(id):
+		if d < build_dist and not _built.has(id):
 			_built[id] = _build(site)
-		elif d > FREE and _built.has(id):
+		elif d > free_dist and _built.has(id):
 			var n: Node3D = _built[id]
 			_built.erase(id)
 			if is_instance_valid(n):

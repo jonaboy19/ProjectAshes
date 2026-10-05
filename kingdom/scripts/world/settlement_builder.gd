@@ -5,7 +5,8 @@ extends Node3D
 const StyleG := preload("res://scripts/style_g.gd")
 const GDressing := preload("res://scripts/world/g_dressing.gd")
 const DistanceCull := preload("res://scripts/core/distance_cull.gd")
-const HERO_LOD := 70.0
+const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
+const HERO_LOD := 70.0       # default; the live value is CellStreamer profile "settlement" full
 ## Buildings and greenery are batched per model per LOD_CELL x LOD_CELL metres.
 const LOD_CELL := 40.0
 const WIDE_CELL := 100.0
@@ -91,11 +92,11 @@ func update_now() -> void:
 	for s in WorldGen.settlements:
 		var d: float = p.distance_to(s["pos"]) - s["radius"]
 		var id: int = s["id"]
-		if d < BUILD_RANGE and not _built.has(id):
+		if d < CellStreamer.shared().distance("settlement", "load") and not _built.has(id):
 			_built[id] = _build(s, false)
 			settlement_built.emit(s, _built[id])
 			return          # one per tick keeps frame times smooth
-		elif d > FREE_RANGE and _built.has(id):
+		elif d > CellStreamer.shared().distance("settlement", "free") and _built.has(id):
 			_built[id].queue_free()
 			_built.erase(id)
 
@@ -191,7 +192,7 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 			var chain: Array = []      # [mesh, begin distance]
 			var d1 := Assets.building_lod_distance(asset)
 			if d1 <= 0.0:
-				d1 = HERO_LOD
+				d1 = CellStreamer.shared().distance("settlement", "full")     # hero LOD, F12
 			if low:
 				chain = [[lod, 0.0], [Assets.building_lod_level_mesh(asset, 2), 45.0], [Assets.building_lod_level_mesh(asset, 3), 100.0]]
 			else:
@@ -453,7 +454,7 @@ func _interior_doors(root: Node3D, lots: Array) -> void:
 		var gh := _ground_snap(p, yaw, size)
 		var door := InteriorDoor.new()
 		door.name = "Door_%s_%d" % [asset, holder.get_child_count()]
-		door.interior_scene = BuildingProfiles.interior_scene(asset)
+		door.interior_scene = BuildingProfiles.interior_scene(asset, BuildingProfiles.building_id(p))
 		door.prompt_text = BuildingProfiles.prompt(asset)
 		door.collision_layer = 0
 		door.collision_mask = InteriorDoor.PLAYER_TRIGGER_LAYER

@@ -5,6 +5,7 @@ extends RefCounted
 ## 1-2 extra moves each. Clip names are roles/names only.
 
 const Action := preload("res://scripts/combat/combat_action.gd")
+const WeaponRules := preload("res://scripts/combat/weapon_rules.gd")
 
 const CANCEL_TAIL := 0.22          ## last fraction of a combo swing that the next swing may cut
 const ACTIVE_LEAD := 0.03          ## active window opens this long before the contact frame (old ACTIVE_BEFORE)
@@ -18,6 +19,37 @@ const SWORD_ROWS := [
 	["Sword_Light_4_Upper", 30, 0.64, 0.44, 1.2, 16.0, 7.0],
 ]
 
+## F3 weapon tables, same row shape as SWORD_ROWS ([anim, damage, lock, hit, speed, cost, knockback], lock and hit are
+## seconds as played). Clip hit frames come from animations/combat/combat_markers.json. Per-style extras (reach,
+## arc_dot, lanes) are in STYLE_EXTRA; the heavy row of each weapon is in HEAVY_ROWS.
+const SPEAR_ROWS := [
+	["Spear_Thrust_1", 13, 0.64, 0.19, 1.25, 9.0, 1.5],
+	["Spear_Thrust_2", 13, 0.75, 0.21, 1.25, 9.0, 1.5],
+	["Souls_Thrust_Attack_1", 20, 0.67, 0.30, 1.0, 13.0, 3.5],
+]
+const STAFF_ROWS := [
+	["Sword_Regular_C", 8, 0.70, 0.28, 1.3, 8.0, 1.5],
+	["Sword_Regular_B", 8, 0.70, 0.26, 1.3, 8.0, 1.5],
+	["Sword_Regular_A", 12, 0.78, 0.32, 1.3, 11.0, 4.0],
+]
+## style -> {reach, arc_dot, lanes}. Spear: long and narrow (thrust lanes); staff: wide arcs; sword: the old 2.6 m / 0.2.
+const STYLE_EXTRA := {
+	"sword": {"reach": 2.6, "arc_dot": 0.2},
+	"spear": {"reach": 3.6, "arc_dot": 0.55, "lanes": [1, 0, 2]},
+	"staff": {"reach": 2.8, "arc_dot": -0.25, "lanes": [0, 1, 2]},
+}
+## Heavy (hold-to-charge) rows: [anim, damage, lock, hit, speed, cost, knockback] + extras. Slower, harder, guard-breaking.
+const HEAVY_ROWS := {
+	"sword": {"row": ["Sword_Heavy_Release", 34, 1.04, 0.145, 1.15, 22.0, 7.0], "reach": 2.9, "arc_dot": 0.0, "guard_break": true},
+	"spear": {"row": ["Spear_Thrust_3", 27, 1.21, 0.364, 1.1, 24.0, 6.0], "reach": 3.8, "arc_dot": -0.35, "guard_break": true},
+	"staff": {"row": ["TwoHand_Overhead", 17, 1.25, 0.47, 1.2, 20.0, 5.0], "reach": 3.0, "arc_dot": -0.1, "technique": true},
+}
+const HEAVY_POISE_MULT := 2.4
+## Bow shot: no melee window; the arrow leaves the pool at release. damage/cost here are nominal (data/combat/player_weapons.json owns the curve).
+const BOW_SHOT := {"id": "bow_shot", "style": "bow", "anim": "Bow_Loose", "damage": 12, "cost": 5.0, "windup": 0.0,
+	"active": 0.0, "recovery": 0.45, "hit_at": 0.0, "reach": 60.0, "ranged": true, "root_motion": false,
+	"poise_damage": 6.0, "knockback": 3.0, "telegraph": false}
+
 static var _cache := {}
 
 
@@ -29,7 +61,7 @@ static func _make(d: Dictionary) -> Resource:
 
 
 ## A swing described the way the old table was (lock = whole swing, hit = contact time).
-static func _combo_step(style: String, n: int, last: bool, row: Array, lane: int) -> Resource:
+static func _combo_step(style: String, n: int, last: bool, row: Array, lane: int, extra := {}) -> Resource:
 	var lock: float = row[2]
 	var hit: float = row[3]
 	var a := _make({"id": "%s_%d" % [style, n + 1], "style": style, "anim": row[0], "damage": row[1],
@@ -38,6 +70,8 @@ static func _combo_step(style: String, n: int, last: bool, row: Array, lane: int
 		"recovery": lock - hit - (ACTIVE_LEN - ACTIVE_LEAD),
 		"poise_damage": float(row[1]) * (2.0 if last else 1.0), "finisher": last,
 		"hitstop": 0.09 if last else 0.05, "reach": 2.6, "root_motion": true})
+	for k: String in extra:
+		a.set(k, extra[k])
 	if not last:
 		a.cancel_windows = [{"tag": "attack", "from_t": lock * (1.0 - CANCEL_TAIL), "to_t": lock}]
 	return a
@@ -97,18 +131,50 @@ const CREATURE := {
 }
 
 
-## Ordered combo chain for the player's weapon style ("sword").
+## Ordered light combo for the player's weapon style ("sword", "spear", "staff"); "bow" is a single ranged shot row.
 static func combo(style: String) -> Array:
 	var key := "combo:" + style
 	if _cache.has(key):
 		return _cache[key]
 	var out: Array = []
-	if style == "sword":
-		for i in SWORD_ROWS.size():
-			out.append(_combo_step(style, i, i == SWORD_ROWS.size() - 1, SWORD_ROWS[i],
-				Action.Lane.HIGH if i == 0 else Action.Lane.MID))
+	var rows: Array = []
+	match style:
+		"sword":
+			rows = SWORD_ROWS
+		"spear":
+			rows = SPEAR_ROWS
+		"staff":
+			rows = STAFF_ROWS
+		"bow":
+			out.append(_make(BOW_SHOT))
+	var ex: Dictionary = STYLE_EXTRA.get(style, {})
+	var lanes: Array = ex.get("lanes", [])
+	for i in rows.size():
+		var lane: int = int(lanes[i]) if i < lanes.size() else (Action.Lane.HIGH if i == 0 else Action.Lane.MID)
+		out.append(_combo_step(style, i, i == rows.size() - 1, rows[i], lane,
+			{"reach": ex.get("reach", 2.6), "arc_dot": ex.get("arc_dot", 0.2)}))
 	_cache[key] = out
 	return out
+
+
+## The hold-to-charge heavy of a weapon style, or null (the bow has none: holding draws it).
+static func heavy(style: String) -> Resource:
+	var key := "heavy:" + style
+	if _cache.has(key):
+		return _cache[key]
+	var h: Dictionary = HEAVY_ROWS.get(style, {})
+	var a: Resource = null
+	if not h.is_empty():
+		var row: Array = h["row"]
+		a = _combo_step(style, 0, true, row, Action.Lane.HIGH, {"reach": h["reach"], "arc_dot": h["arc_dot"],
+			"guard_break": bool(h.get("guard_break", false)), "technique": bool(h.get("technique", false)),
+			"charge_time": WeaponRules.hold_time()})
+		a.id = style + "_heavy"
+		a.poise_damage = float(row[1]) * HEAVY_POISE_MULT
+		a.hitstop = 0.12
+		a.cancel_windows = []
+	_cache[key] = a
+	return a
 
 
 ## Move list for a creature/NPC style (default move first).
@@ -118,7 +184,11 @@ static func moves(style: String) -> Array:
 		return _cache[key]
 	var out: Array = []
 	if style == "sword":
-		out = combo("sword")
+		out = combo("sword")          # the light chain only; heavy("sword") is separate
+	elif style in ["spear", "staff", "bow"]:
+		out = combo(style).duplicate()
+		if heavy(style) != null:
+			out.append(heavy(style))
 	else:
 		for d: Dictionary in CREATURE.get(style, []):
 			var row := d.duplicate()

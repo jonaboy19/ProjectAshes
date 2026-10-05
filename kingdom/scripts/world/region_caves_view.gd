@@ -230,8 +230,7 @@ func reveal(id: String, how: String) -> bool:
 					tw.tween_callback(v.queue_free)
 		for t in node.find_children("reveal_*", "Area3D", true, false):
 			(t as InteriorDoor).monitoring = false
-			if t.is_in_group("interactable"):
-				t.remove_from_group("interactable")
+			Interactable.set_active(t, false)
 	return true
 
 

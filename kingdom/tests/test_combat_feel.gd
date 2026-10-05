@@ -254,3 +254,14 @@ func test_telegraph_helper_rings_only_heavy_attacks() -> void:
 	Telegraph.begin_cast(a, "fire", 3.0, 0.6)
 	assert_int(Rings.at(w).active_count()).is_equal(1)
 	Telegraph.end(a)
+
+
+func test_pick_target_range_and_cone_can_be_widened_for_ranged_weapons() -> void:
+	var far := Vector3(0.5, 0, 15.0)
+	assert_object(Feel.pick_target(Vector3.ZERO, Vector3(0, 0, 1), [far])["pos"]).is_null()                  # melee magnetism: too far
+	var wide: Dictionary = Feel.pick_target(Vector3.ZERO, Vector3(0, 0, 1), [far], null, 32.0, 0.82)
+	assert_object(wide["pos"]).is_not_null()
+	assert_int(wide["index"]).is_equal(0)
+	var off := Vector3(8.0, 0, 8.0)                                                                           # 45 degrees: outside a 0.82 cone
+	assert_object(Feel.pick_target(Vector3.ZERO, Vector3(0, 0, 1), [off], null, 32.0, 0.82)["pos"]).is_null()
+	assert_object(Feel.pick_target(Vector3.ZERO, Vector3(0, 0, 1), [], Vector3(20, 0, 20), 32.0)["pos"]).is_not_null()   # locked, far

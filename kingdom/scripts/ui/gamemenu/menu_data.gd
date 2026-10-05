@@ -784,6 +784,10 @@ static func quests(radiant: Object = null, guild: Object = null) -> Dictionary:
 			var extra: Dictionary = provider.call()
 			for k: String in ["active", "completed", "failed"]:
 				(out[k] as Array).append_array(extra.get(k, []))
+	# Library quests (scripts/quests): objective text comes from each objective's describe().
+	var lib: Dictionary = preload("res://scripts/quests/quest_journal.gd").entries()
+	for k2: String in ["active", "completed", "failed"]:
+		(out[k2] as Array).append_array(lib[k2])
 	return out
 
 

@@ -45,6 +45,11 @@ const CAST_FOV := -6.0
 const CAST_DIST := -1.3
 const CAST_LIFT := 0.12
 const CAST_PITCH := 0.04
+const TALK_TIME := 0.4     # seconds to ease in / out of the conversation framing
+const TALK_FOV := -4.0
+const TALK_DIST := -0.5
+const TALK_LIFT := 0.05
+const TALK_SHIFT := 0.55   # metres the pivot slides to the right (camera-local): over the shoulder
 const RISE := 4.5         # 1/s response when a boost builds
 const FALL := 2.6         # slower release, so a boost eases away instead of snapping
 
@@ -56,18 +61,21 @@ var _impulse := 0.0
 var _cast_left := 0.0
 var _cast_len := CAST_TIME
 var cast_enabled := true
+var talk_enabled := true
+var _talk_on := false
+var _talk_k := 0.0
 
 
 func fov_offset() -> float:
-	return _fov + _impulse + _cast_env() * CAST_FOV
+	return _fov + _impulse + _cast_env() * CAST_FOV + _talk_env() * TALK_FOV
 
 
 func dist_offset() -> float:
-	return _dist + _cast_env() * CAST_DIST
+	return _dist + _cast_env() * CAST_DIST + _talk_env() * TALK_DIST
 
 
 func lift() -> float:
-	return _lift + _cast_env() * CAST_LIFT
+	return _lift + _cast_env() * CAST_LIFT + _talk_env() * TALK_LIFT
 
 
 func pitch_offset() -> float:
@@ -76,7 +84,7 @@ func pitch_offset() -> float:
 
 ## The FOV the camera rests at before landing / hit punches: BASE_FOV plus the smoothed framing offset.
 func fov_base() -> float:
-	return clampf(BASE_FOV + _fov + _cast_env() * CAST_FOV, BASE_FOV - 8.0, MAX_FOV)
+	return clampf(BASE_FOV + _fov + _cast_env() * CAST_FOV + _talk_env() * TALK_FOV, BASE_FOV - 8.0, MAX_FOV)
 
 
 func fov_total() -> float:
@@ -121,6 +129,35 @@ func _cast_env() -> float:
 ## A technique worth a camera moment: tier 3+ or a 10 s+ cooldown (flat def from the ability/skills data).
 static func is_big_technique(flat: Dictionary) -> bool:
 	return int(flat.get("tier", 1)) >= 3 or float(flat.get("cooldown", 0.0)) >= 10.0
+
+
+# --- conversation framing ------------------------------------------------------------
+
+## Talking to someone: ease to a slight over-the-shoulder framing (pivot slides sideways, a little closer,
+## a small FOV narrowing) over TALK_TIME. Returns false when the setting is off. The spring arm and the
+## camera occlusion ray still run after this, so walls win.
+func begin_talk() -> bool:
+	if not talk_enabled:
+		return false
+	_talk_on = true
+	return true
+
+
+func end_talk() -> void:
+	_talk_on = false
+
+
+func talking() -> bool:
+	return _talk_on
+
+
+## Sideways pivot offset (m, camera-local right) for the conversation framing.
+func talk_shift() -> float:
+	return _talk_env() * TALK_SHIFT
+
+
+func _talk_env() -> float:
+	return smoothstep(0.0, 1.0, _talk_k)
 
 
 # --- framing ------------------------------------------------------------------------
@@ -170,6 +207,9 @@ func step(delta: float, ctx: Dictionary) -> void:
 	_impulse = move_toward(_impulse, 0.0, maxf(absf(_impulse), 1.0) * IMPULSE_DECAY * delta)
 	if _cast_left > 0.0:
 		_cast_left = maxf(_cast_left - delta, 0.0)
+	if not talk_enabled:
+		_talk_on = false
+	_talk_k = move_toward(_talk_k, 1.0 if _talk_on else 0.0, delta / TALK_TIME)
 
 
 func _ease(cur: float, goal: float, delta: float) -> float:

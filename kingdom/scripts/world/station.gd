@@ -5,11 +5,16 @@ extends Node3D
 ## menu: Callable() -> {title, body, options: [[label, Callable() -> String]]}
 
 const Nameplates := preload("res://scripts/core/nameplates.gd")
+const ShopHours := preload("res://scripts/sim/shop_hours.gd")
 var title := ""
 var verb := "Use"
 var menu: Callable
 var model_path := ""
 var model_height := 0.0
+## Optional override: Callable(hud) run instead of opening `menu` (the War Room table opens the war map).
+var on_use := Callable()
+## Optional ShopHours kind (data/living_world/shop_hours.json): outside those hours the prompt reads "Closed".
+var hours_kind := ""
 
 
 func _init(station_title := "", station_verb := "Use", station_menu := Callable()) -> void:
@@ -29,7 +34,29 @@ func _ready() -> void:
 
 
 func prompt() -> String:
-	return verb
+	return "Closed" if is_closed() else verb
+
+
+func is_closed() -> bool:
+	return hours_kind != "" and not ShopHours.is_open(hours_kind)
+
+
+## Legacy label hook (interact_label.gd): "Closed - Blacksmith" while shut; "" falls back to verb + title.
+func interact_label() -> Variant:
+	if is_closed():
+		return {"verb": "Closed", "target": title}
+	return ""
+
+
+## The interact key (via Interactable's legacy wrapper): open the menu, or run `on_use`.
+func use() -> void:
+	var hud := Interaction.hud(self)
+	if hud == null:
+		return
+	if on_use.is_valid():
+		on_use.call(hud)
+	else:
+		hud.call("show_menu", open)
 
 
 func open() -> Dictionary:

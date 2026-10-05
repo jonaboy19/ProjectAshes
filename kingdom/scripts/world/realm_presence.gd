@@ -628,6 +628,10 @@ func _check_war_table() -> void:
 func add_war_table(room: Node3D, at: Vector3) -> Station:
 	var st := Station.new("War Room", "Study the map", _war_menu)
 	st.name = "WarTable"
+	st.on_use = func(hud: Node) -> void:
+		# the War Room table opens the war map directly, in war-table style (docs/design/WAR_COMMAND_RULEBOOK.md §2)
+		var wm: Control = load("res://scripts/ui/war/war_map.gd").open_modal(hud, Life.realm)
+		wm.call("set_style", 2)
 	room.add_child(st)
 	st.position = at
 	var table := MeshInstance3D.new()

@@ -657,6 +657,8 @@ func _watch_settlement(p: Node3D) -> void:
 func _player() -> Node3D:
 	if player_override and is_instance_valid(player_override):
 		return player_override
+	if not is_inside_tree():
+		return null     # lifecycle notifications arrive while Life builds this node, before it is in the tree
 	var life := get_node_or_null("/root/Life")
 	if life == null:
 		return null

@@ -25,6 +25,7 @@ extends Region1Sim
 ## Objectives inside a step complete in order: only the first open one listens.
 
 const DialogueRunner := preload("res://scripts/sim/dialogue_runner.gd")
+const StoryLibAdapter := preload("res://scripts/quests/story_lib_adapter.gd")
 const SAVE_STATE_VERSION := 1
 
 ## type -> keys an event must match (when the objective sets them) and the amount key.
@@ -53,6 +54,7 @@ var _by_id: Dictionary = {}
 var status: Dictionary = {}     # step id -> "active" | "done"
 var progress: Dictionary = {}   # step id -> {objective id: amount}
 var flags: Dictionary = {}      # story flags -> true
+var _lib: Dictionary = {}       # library objectives wrapped by "lib" step objectives (scripts/quests/story_lib_adapter.gd)
 
 
 func _init() -> void:
@@ -64,6 +66,7 @@ func _setup() -> void:
 	status.clear()
 	progress.clear()
 	flags.clear()
+	_lib.clear()
 
 
 func load_quest(path: String) -> bool:
@@ -165,9 +168,13 @@ func notify(type: StringName, params: Dictionary = {}, ctx: Dictionary = {}) -> 
 	var t := String(type)
 	if t == "ember_choice" and params.has("who") and params.has("choice"):
 		flags["ember.%s.%s" % [params["who"], params["choice"]]] = true
+	QuestBus.shared().emit_event(type, params)   # library quests hear the story's events too (F7)
 	for id: String in active_steps():
 		var o := _current_objective(id)
 		if o.is_empty():
+			continue
+		if String(o.get("type", "")) == "lib":
+			StoryLibAdapter.feed(_lib, o, t, params, progress[id])
 			continue
 		var hit := _event_hits(o, t, params)
 		if hit.is_empty():
@@ -313,6 +320,8 @@ func _met(o: Dictionary, p: Dictionary, ctx: Dictionary) -> Dictionary:
 			var have := int((ctx.get("items", {}) as Dictionary).get(String(o.get("item", "")), 0))
 			have = maxi(have, int(p.get(String(o.get("id", "")), 0)))
 			return o if have >= int(o.get("count", 1)) else {}
+	if t == "lib":
+		return o if StoryLibAdapter.is_done(_lib, o, p) else {}
 	if EVENT_TYPES.has(t):
 		var need_key := String(EVENT_TYPES[t]["need"])
 		var need := int(o.get(need_key, 1)) if need_key != "" else 1
@@ -369,12 +378,13 @@ func _save_state() -> Dictionary:
 func _load_state(d: Dictionary) -> void:
 	status = (d.get("status", {}) as Dictionary).duplicate()
 	progress = {}
+	_lib.clear()
 	var pr: Dictionary = d.get("progress", {})
 	for k: String in pr:
 		var inner := {}
 		for ok: String in pr[k]:
 			var v: Variant = pr[k][ok]
-			inner[ok] = v if v is bool else int(v)   # JSON turns ints into floats
+			inner[ok] = v if (v is bool or v is String) else int(v)   # JSON turns ints into floats (strings: library objective state)
 		progress[k] = inner
 	flags = {}
 	for f: Variant in d.get("flags", []):

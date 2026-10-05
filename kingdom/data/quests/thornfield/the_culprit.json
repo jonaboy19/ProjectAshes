@@ -1,0 +1,123 @@
+{
+ "id": "thornfield_the_culprit",
+ "title": "Wilm Garrow's Offer",
+ "summary": "You know who spoiled the barley. What you do about it is up to you.",
+ "giver": {
+  "npc": "hesta_thorne",
+  "name": "Hesta Thorne",
+  "place": "thornfield"
+ },
+ "requires": [
+  "thornfield_spoiled_barley"
+ ],
+ "offer_text": "\"You saw him. Now it is your word against his silence. Go and hear what Wilm has to say, then decide. I will live with whatever you choose.\"",
+ "stages": [
+  {
+   "id": "confront",
+   "title": "Confront Wilm",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "barn",
+     "type": "goto",
+     "place": "thornfield_barn",
+     "text": "Find Wilm Garrow at the barn"
+    },
+    {
+     "id": "hear",
+     "type": "talk_to",
+     "npc": "wilm_garrow",
+     "node": "confession",
+     "text": "Hear what Wilm has to say"
+    }
+   ]
+  },
+  {
+   "id": "verdict",
+   "title": "Decide what to do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "wilm_garrow",
+     "options": [
+      {
+       "id": "turn_in",
+       "text": "Tell Wilm you are turning him in to the reeve",
+       "say": "Wilm goes grey. \"Then you have decided.\""
+      },
+      {
+       "id": "bribe",
+       "text": "Take Wilm's 60 gold and say nothing",
+       "say": "His purse is heavier than it looks. \"Sensible.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "turn_in": "turned_in",
+    "bribe": "bribed"
+   }
+  },
+  {
+   "id": "turned_in",
+   "title": "Hesta hears the news",
+   "mode": "all",
+   "end": true,
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "hesta_thorne",
+     "text": "Tell Hesta the reeve has Wilm"
+    }
+   ],
+   "rewards": {
+    "gold": 20,
+    "rep": {
+     "thornfield": 8,
+     "ashford": 2
+    },
+    "relationship": [
+     {
+      "npc": "hesta_thorne",
+      "label": "Did right by the village",
+      "value": 15,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "bribed",
+   "title": "Spend the bribe quietly",
+   "mode": "all",
+   "end": true,
+   "objectives": [
+    {
+     "id": "quiet",
+     "type": "talk_to",
+     "npc": "wilm_garrow",
+     "node": "bribe_paid",
+     "text": "Collect the rest of the bribe from Wilm"
+    }
+   ],
+   "rewards": {
+    "gold": 60,
+    "rep": {
+     "thornfield": -10,
+     "ashford": -2
+    },
+    "relationship": [
+     {
+      "npc": "hesta_thorne",
+      "label": "Heard you looked the other way",
+      "value": -20,
+      "days": 120
+     }
+    ]
+   }
+  }
+ ]
+}

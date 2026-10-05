@@ -475,6 +475,8 @@ static func _creatures(root, g: Dictionary, content: Dictionary, state: Dictiona
 		m.display_name = String(c.get("name", ""))
 		m.trophy = String(c.get("trophy", ""))
 		m.body_scale = float(c.get("scale", 1.0))
+		m.element = String(c.get("element", ""))
+		m.hp_mul = float(c.get("hp_mul", 0.0))
 		m.root = root
 		root.add_child(m)
 		if m.is_queued_for_deletion():

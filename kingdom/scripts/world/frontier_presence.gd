@@ -26,6 +26,7 @@ const APEX_MIN_ROAD_DISTANCE := 140.0
 const APEX_CHANCE := 0.03
 const APEX_SPAWN_RANGE := Vector2(45.0, 70.0)
 const APEX_LIFETIME := 100.0
+const CreaturePool := preload("res://scripts/core/creature_pool.gd")
 
 var focus := Vector3.ZERO
 var _stone_nodes: Dictionary = {}     # stone id -> {node, light, tween}
@@ -128,8 +129,7 @@ func _process(delta: float) -> void:
 			_spawn_pack(den)
 		elif _packs.has(id) and dd > terr + DESPAWN_MARGIN:
 			for w in _packs[id]:
-				if is_instance_valid(w):
-					w.queue_free()
+				CreaturePool.give_back(w)
 			_packs.erase(id)
 	_apex_timer -= 1.0
 	if _apex_timer <= 0.0:
@@ -194,10 +194,10 @@ func _spawn_pack(den: Dictionary) -> void:
 	var list: Array = []
 	var count := mini(int(den["population"]), RAMonsterEcology.SPECIES[den["species"]]["pack"])
 	for i in count:
-		var w := Wolf.new()
 		# Apex and Rift-tainted dens reuse the closest body until they get their own models.
 		var sp := Frontier.ecology.variant_for(String(den["species"]), den["pos"])   # Region1 hook H4: Scar cells make rift variants
-		w.species = {"troll": "bear", "wyvern": "bear", "bear": "bear", "corrupted_wolf": "wolf"}.get(sp, sp)
+		# One pool per variant: the violet rift fur must never leak onto an ordinary wolf.
+		var w: Wolf = CreaturePool.wolf("pack_" + String(sp), {"troll": "bear", "wyvern": "bear", "bear": "bear", "corrupted_wolf": "wolf"}.get(sp, sp))
 		if sp == "troll" or sp == "wyvern":
 			w.scale = Vector3.ONE * 1.9
 		elif sp == "corrupted_wolf":
