@@ -88,3 +88,11 @@ Current UtilityBrain and WorldSim source confirms the documented breath continui
 ## Career lifecycle follow-up
 
 Completed SYSTEMS_CONTINUATION with explicit first-95/final-56 reads complementing the earlier middle-95 block. Completed CAREER_BIOGRAPHY_LIFECYCLE_CONTRACT and compared its named methods against current Careers, Biography and Life. The documented integration gaps remain in this local source. A focused Biography change permits an explicitly requested chapter restart after closure while preserving duplicate suppression for open chapters; see `BIOGRAPHY_CLOSED_CHAPTER_REENTRY.md`. Rank retention and automatic resignation/dismissal/rehire reconciliation remain unresolved. No runtime acceptance is claimed.
+
+## Locomotion review reconciliation
+
+Completed CODEX_INTEGRATION_REVIEW and CODEX_LOCOMOTION_JUMP. These are historical snapshots: their unwired-pivot and P9 statements must not be used to undo newer local implementations. Current player source contains both pivot clip selection and clip-time displacement sampling; this establishes source presence, not acceptance on every quality tier or device. The older phone estimates remain unmeasured multipliers.
+
+Current player source search found no named walk-start, run-start, walk-stop, skid or turn-in-place clip wiring. CharacterAnimator registers RunStart as an available air state, which alone does not prove the player chooses it. Those transition integrations remain distinct from the existing stop/pivot work and require matching capsule acceleration, heading and contact phase; simply triggering the clip would not complete them.
+
+Free-library HANDOFF_CODEX output was truncated. Its first 65 lines have now been explicitly read; the central clip-table rows still need segmented coverage. Its initial timer example and player `speed_scale` hitstop recipe are insufficient for the current AnimationTree and pause-aware combat clock. Use the existing local clock contract instead of copying that historical example into gameplay. No new movement or collision code was changed in this reading pass.

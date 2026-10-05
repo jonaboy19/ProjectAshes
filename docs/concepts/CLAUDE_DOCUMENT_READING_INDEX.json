@@ -30,13 +30,13 @@
       "path": "docs/anim/CODEX_INTEGRATION_REVIEW.md",
       "lines": 92,
       "sha256": "D1E3F4E19EC3E9C01F32C8DA4281C26CE91B6C0C0ED1DFC57A04842D447CE57C",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/CODEX_LOCOMOTION_JUMP.md",
       "lines": 63,
       "sha256": "DB5743652F4ECBCED55DBB229463565C8BBE09442D3E9E84DBE64E514397AA60",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/COMBAT_AUDIT.md",
