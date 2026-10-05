@@ -39,6 +39,10 @@ static func _kind(g: Dictionary, x: int, z: int) -> int:
 	return (g["cells"] as PackedByteArray)[z * side + x]
 
 
+## Vertical noise of an organic floor in metres (was 0.35: at the camp's horizon the faceted floor edge looked curved and warped).
+const FLOOR_BUMP := 0.14
+
+
 ## Vertex position for grid corner (ix, iz) at level 0 (floor), 1 (mid wall), 2 (ceiling).
 static func vertex(g: Dictionary, ix: int, iz: int, lvl: int) -> Vector3:
 	var side: int = g["w"]
@@ -58,7 +62,7 @@ static func vertex(g: Dictionary, ix: int, iz: int, lvl: int) -> Vector3:
 			room = true
 	var y := 0.0
 	if organic:
-		var rough := 0.46 if lvl == 1 else 0.3
+		var rough := 0.46 if lvl == 1 else (0.3 if lvl == 2 else 0.17)    # the floor is jittered least: a wavy floor edge read as a warped horizon
 		x += (_h01(ix, iz, 1, sd) - 0.5) * Gen.CELL * rough * 2.0
 		z += (_h01(ix, iz, 2, sd) - 0.5) * Gen.CELL * rough * 2.0
 		if lvl == 1:
@@ -71,7 +75,7 @@ static func vertex(g: Dictionary, ix: int, iz: int, lvl: int) -> Vector3:
 		ceil_y = lerpf(hmin, hmax, _h01(ix, iz, 3, sd)) + (0.8 if room else 0.0)
 	var floor_y := 0.0
 	if organic:
-		floor_y = (_h01(ix, iz, 4, sd) - 0.5) * 0.35
+		floor_y = (_h01(ix, iz, 4, sd) - 0.5) * FLOOR_BUMP
 	if pool:
 		floor_y = -POOL_DEPTH + (_h01(ix, iz, 5, sd) - 0.5) * 0.2
 	match lvl:
@@ -228,6 +232,7 @@ static func _std(tex: Texture2D, scale: float, rough := 0.95) -> StandardMateria
 	m.albedo_texture = tex
 	m.uv1_triplanar = true
 	m.uv1_scale = Vector3.ONE * scale
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC   # grazing floors smeared into streaks
 	m.roughness = rough
 	m.metallic = 0.0
 	m.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
@@ -241,7 +246,7 @@ static func materials(theme: String) -> Dictionary:
 	var shell_tex := "rock"
 	if theme == "crypt":
 		shell_tex = "ruin_stone"
-	var out := {"shell": _std(_tex(shell_tex), 0.22)}
+	var out := {"shell": _std(_tex(shell_tex), 0.4)}      # 0.22 stretched one texel over ~5 cm of floor: streaks at grazing angles
 	var kit := StandardMaterial3D.new()
 	kit.vertex_color_use_as_albedo = true
 	kit.roughness = 0.9

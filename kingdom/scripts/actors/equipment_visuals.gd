@@ -16,11 +16,22 @@ const BONES := {
 	"head": ["head"], "spine_03": ["spine_03"], "pelvis": ["pelvis"],
 	"foot": ["foot_r", "foot_l"], "calf": ["calf_r", "calf_l"],
 }
-## Seating of a prop on its bone (metres, degrees; same as the default weapons in Assets): blade along the hand bone.
+## Seating of a prop on its bone (metres, degrees): blade along the hand bone, cocked 45 degrees (-135 about the bone Z) so the
+## idle blade rides up and out instead of lying flat across the hip (the UAL idle turns the palm forward, so -90 read as a
+## horizontal bar). hand_l keeps the plain -90.
 const SEAT := {
-	"hand_r": [Vector3(0.05, 0.02, 0.0), Vector3(0, 0, -90)],
+	"hand_r": [Vector3(0.05, 0.02, 0.0), Vector3(0, 0, -135)],
 	"hand_l": [Vector3(0.05, 0.02, 0.0), Vector3(0, 0, -90)],
 	"lowerarm_l": [Vector3(0.12, 0.0, 0.08), Vector3(0, 90, 0)],
+}
+
+## Held weapons are fitted by LENGTH, not by the model's native units (the KayKit weapon bits are 1.8-3.3 units long, so
+## "scale 1.0" drew a 3 m blade): model basename prefix -> [length in metres of the longest axis (visuals.json "scale"
+## multiplies it), grip position along the long axis from the butt (0..1), -1 = the model origin already is the grip].
+const WEAPON_FIT := {
+	"dagger": [0.38, -1.0], "sword": [0.95, -1.0], "axe": [0.75, -1.0], "hammer": [0.9, -1.0],
+	"spear": [2.0, 0.40], "halberd": [2.0, 0.40], "staff": [1.7, 0.38], "wand": [0.42, -1.0],
+	"bow_a": [1.0, -1.0], "bow_b": [1.25, -1.0], "crossbow": [0.75, -1.0], "fist": [0.28, -1.0],
 }
 
 var skeleton: Skeleton3D
@@ -95,10 +106,24 @@ func _set_slot(slot: String, id: String) -> void:
 		att.bone_name = bone
 		skeleton.add_child(att)
 		# Bone space is the rig's own units (the UE rig is in centimetres under a scaled Armature).
-		prop.scale = prop.scale / rig_scale
 		var seat: Array = SEAT.get(String(bones[i]), [Vector3.ZERO, Vector3.ZERO])
-		prop.position = (seat[0] as Vector3) / rig_scale
-		prop.rotation_degrees = seat[1]
+		var seat_pos: Vector3 = seat[0]
+		var rot_deg: Vector3 = seat[1]
+		var fit := fit_for(String(v.get("model", "")))
+		if not fit.is_empty() and prop.get_child_count() > 0:
+			var inst := prop.get_child(0) as Node3D
+			var box := Assets.visual_aabb(inst)
+			var longest := maxf(box.size.x, maxf(box.size.y, box.size.z))
+			if longest > 0.001:
+				var mirror := signf(prop.scale.x)
+				var k := float(fit[0]) * absf(prop.scale.y) / longest       # metres per model unit
+				prop.scale = Vector3(k * mirror, k, k)
+				seat_pos -= Basis.from_euler(rot_deg * (PI / 180.0)) * Vector3(0, box.position.y + float(fit[1]) * box.size.y, 0) * k \
+					if float(fit[1]) >= 0.0 else Vector3.ZERO
+				style_weapon(inst)
+		prop.scale = prop.scale / rig_scale
+		prop.position = seat_pos / rig_scale
+		prop.rotation_degrees = rot_deg
 		att.add_child(prop)
 		list.append(att)
 	if list.is_empty():
@@ -140,3 +165,37 @@ func _bone(name: String) -> String:
 		if bn.to_lower() == low:
 			return bn
 	return ""
+
+
+## [length_m, grip_fraction] for a weapon model path (visuals.json "model"), [] for anything that is not a held weapon.
+static func fit_for(model_path: String) -> Array:
+	if not model_path.contains("/weapons/"):
+		return []
+	var base := model_path.get_file().get_basename().to_lower()
+	for key: String in WEAPON_FIT:
+		if base.begins_with(key):
+			return WEAPON_FIT[key]
+	return []
+
+
+## Style G for held metal and wood: the item's tint (flat bronze #d9a15a read as neon orange) is pulled toward grey and
+## darkened, with a little metal and a soft roughness so the blade catches the sun instead of being a flat colour.
+static func style_weapon(inst: Node) -> void:
+	if inst is MeshInstance3D:
+		var mi := inst as MeshInstance3D
+		if mi.mesh != null:
+			for i in mi.mesh.get_surface_count():
+				var src := mi.get_surface_override_material(i)
+				if src == null:
+					src = mi.mesh.surface_get_material(i)
+				if src is StandardMaterial3D:
+					var m := (src as StandardMaterial3D).duplicate() as StandardMaterial3D
+					var c := m.albedo_color
+					var grey := c.get_luminance()
+					m.albedo_color = Color(c.r, c.g, c.b).lerp(Color(grey, grey, grey), 0.38) * 0.88
+					m.metallic = 0.3
+					m.metallic_specular = 0.6
+					m.roughness = 0.55
+					mi.set_surface_override_material(i, m)
+	for ch in inst.get_children():
+		style_weapon(ch)

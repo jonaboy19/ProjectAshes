@@ -178,3 +178,26 @@ func test_player_impulse_rides_above_base() -> void:
 		p._update_camera(1.0 / 60.0)
 	assert_float(p.camera.fov).is_greater(base + 1.0)
 	assert_float(float(p.camera.get_meta("fov_base"))).is_equal_approx(base, 0.6)
+
+
+func test_talk_framing_lifts_the_talkers_into_the_top_of_the_frame() -> void:
+	# The bottom-sheet conversation covers the lower third: the lens tips down and the pivot sinks a little, so faces and
+	# upper bodies sit in the top 60% (visual pass 2026-10; see tools_qa/visual_pass/talk_standalone.gd).
+	var c := ChaseCamera.new()
+	assert_float(c.talk_tilt()).is_equal(0.0)
+	c.begin_talk()
+	c.step(1.0, {})
+	assert_float(c.talk_tilt()).is_equal_approx(ChaseCamera.TALK_TILT, 0.001)
+	assert_float(c.talk_tilt()).is_between(0.08, 0.25)           # enough to clear the sheet, never a dutch-angle lurch
+	assert_float(c.lift()).is_less(0.0)                          # the pivot sinks: the talkers ride higher
+	c.end_talk()
+	c.step(1.0, {})
+	assert_float(c.talk_tilt()).is_equal_approx(0.0, 0.001)
+
+
+func test_talk_framing_off_means_no_tilt() -> void:
+	var c := ChaseCamera.new()
+	c.talk_enabled = false
+	c.begin_talk()
+	c.step(1.0, {})
+	assert_float(c.talk_tilt()).is_equal(0.0)

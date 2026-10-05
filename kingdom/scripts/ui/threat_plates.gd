@@ -106,6 +106,7 @@ func _draw() -> void:
 			_fade[id] = move_toward(float(_fade[id]), 0.0, 0.12)
 			if float(_fade[id]) <= 0.0:
 				_fade.erase(id)
+	var items: Array = []
 	for r: Dictionary in _picked:
 		var n := r["node"] as Node3D
 		if not is_instance_valid(n):
@@ -115,13 +116,75 @@ func _draw() -> void:
 		var head := n.global_position + Vector3.UP * (float(n.get("plate_height")) if n.get("plate_height") != null else HEAD)
 		if cam.is_position_behind(head):
 			continue
-		_plate(_to_overlay(cam, cam.unproject_position(head)), plate_info(n), bool(r["locked"]), float(_fade[id]) * dim)
+		var info := plate_info(n)
+		items.append({"at": _to_overlay(cam, cam.unproject_position(head)), "info": info, "locked": bool(r["locked"]),
+			"a": float(_fade[id]) * dim, "title": plate_title(info), "w": plate_width(info)})
+	for it: Dictionary in layout(items):
+		_plate(it["at"], it["info"], bool(it["locked"]), float(it["a"]))
+
+
+## "Lv 1  Wolf" (the plate's title line).
+static func plate_title(info: Dictionary) -> String:
+	return "Lv %d  %s" % [int(info["level"]), String(info["name"])]
+
+
+func plate_width(info: Dictionary) -> float:
+	if _font == null:
+		return 96.0
+	return maxf(_font.get_string_size(plate_title(info), HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x + 18.0, 96.0)
+
+
+## items: [{at, info, locked, a, title, w}] -> the plates to draw. Pixel-snapped; two plates with the same title within
+## MERGE_PX of each other are one plate ("Lv 1  Wolf  x2", the locked / nearer one kept); any other overlap is pushed up
+## by a plate height so nothing prints over another plate. Pure (tests call it with fake positions).
+const PLATE_H := 34.0
+const MERGE_PX := 14.0
+
+static func layout(items: Array) -> Array:
+	var out: Array = []
+	for src: Dictionary in items:
+		var it := src.duplicate()
+		it["at"] = Vector2((it["at"] as Vector2).round())
+		var merged := false
+		for o: Dictionary in out:
+			if String(o["title"]) == String(it["title"]) and (o["at"] as Vector2).distance_to(it["at"]) < MERGE_PX:
+				o["count"] = int(o.get("count", 1)) + 1
+				o["locked"] = bool(o["locked"]) or bool(it["locked"])
+				merged = true
+				break
+		if not merged:
+			it["count"] = 1
+			out.append(it)
+	var placed: Array[Rect2] = []
+	for o: Dictionary in out:
+		var info: Dictionary = (o["info"] as Dictionary).duplicate()
+		if int(o["count"]) > 1:
+			info["count"] = int(o["count"])
+		o["info"] = info
+		var at: Vector2 = o["at"]
+		var w := float(o["w"]) + (26.0 if int(o["count"]) > 1 else 0.0)
+		o["w"] = w
+		for _i in 6:
+			var box := Rect2(at + Vector2(-w * 0.5, -40.0), Vector2(w, 30.0))
+			var hit := false
+			for p: Rect2 in placed:
+				if p.intersects(box):
+					hit = true
+					break
+			if not hit:
+				break
+			at.y -= PLATE_H
+		o["at"] = at
+		placed.append(Rect2(at + Vector2(-w * 0.5, -40.0), Vector2(w, 30.0)))
+	return out
 
 
 func _plate(at: Vector2, info: Dictionary, locked: bool, a: float) -> void:
 	if a <= 0.01:
 		return
-	var title := "Lv %d  %s" % [int(info["level"]), String(info["name"])]
+	var title := plate_title(info)
+	if int(info.get("count", 1)) > 1:
+		title += "  x%d" % int(info["count"])
 	var w := maxf(_font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x + 18.0, 96.0)
 	var box := Rect2(at + Vector2(-w * 0.5, -40.0), Vector2(w, 30))
 	draw_rect(box, Color(0.043, 0.039, 0.035, 0.82 * a))

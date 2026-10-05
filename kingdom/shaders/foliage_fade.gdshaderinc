@@ -10,10 +10,10 @@
 // the cone from the lens to that body is dithered away. Orthographic passes
 // (directional-light shadows) are left untouched so shadows keep their leaves.
 
-uniform float fade_near = 1.5;         // metres from the camera: fully cut inside
-uniform float fade_far = 3.0;          // fully solid beyond
+uniform float fade_near = 2.6;         // metres from the camera: fully cut inside (visual pass: was 1.5, a canopy at 3 m still filled the lens)
+uniform float fade_far = 5.4;          // fully solid beyond (was 3.0; boulders at 3-5 m next to the player filled a third of the frame)
 uniform float occlude_distance = 5.5;  // camera -> player on the view axis; 0 turns the cone off
-uniform float occlude_radius = 1.0;    // cone half-width at the player's depth
+uniform float occlude_radius = 1.3;    // cone half-width at the player's depth
 uniform float occlude_drop = 0.6;      // cone centre sits this far below the pivot (body centre)
 
 const float FOLIAGE_BAYER[16] = float[16](

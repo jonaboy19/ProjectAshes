@@ -19,6 +19,7 @@ const GOLD := Color("d8a84e")
 const GOLD_BRIGHT := Color("f3cf7a")
 const TEXT := Color("ece3cf")
 const BODY_FONT := "res://assets/ui/fonts/IMFellEnglish-Regular.ttf"
+const HudLane := preload("res://scripts/ui/hud_lane.gd")
 const SKIP_SIZE := 48.0          # touch target (px at 1080p height, scaled below)
 const DEFAULT_ANCHORS := {
 	"left_stick": Vector2(0.13, 0.76), "screen_right": Vector2(0.70, 0.45),
@@ -138,21 +139,30 @@ func _layout() -> void:
 	_skip.add_theme_font_size_override("font_size", int(round(26.0 * k)))
 	_skip.custom_minimum_size = Vector2(SKIP_SIZE, SKIP_SIZE) * maxf(k, 1.0)
 	_pill.reset_size()
-	var sz := _pill.get_combined_minimum_size()
-	if bool(prompt.get("plain", false)):
-		# A text-only hint (realm_encounters.gd): no ring, no gesture, high and centred.
-		_pill.position = Vector2(clampf((size.x - sz.x) * 0.5, 16.0, maxf(16.0, size.x - sz.x - 16.0)), size.y * 0.16)
+	_restack()
+
+
+## Position only (cheap, every frame): the hint sits below whatever the HUD lane holds above it.
+func _restack() -> void:
+	if prompt.is_empty() or _pill == null:
 		return
-	# A small pill top-centre under the location line: never over the joystick or the combat cluster
-	# (the pulsing ring in _draw still points at the HUD element it is about).
-	_pill.position = Vector2(clampf((size.x - sz.x) * 0.5, 16.0, maxf(16.0, size.x - sz.x - 16.0)), size.y * 0.115)
+	var sz := _pill.get_combined_minimum_size()
+	var base_y := size.y * (0.16 if bool(prompt.get("plain", false)) else 0.115)
+	# A text-only hint ("plain": no ring, no gesture) is high and centred; the gesture prompt is a small
+	# pill top-centre under the location line, never over the joystick or the combat cluster (the ring in
+	# _draw still points at the HUD element it is about). Both sit below the toast in the HUD lane.
+	_pill.position = Vector2(clampf((size.x - sz.x) * 0.5, 16.0, maxf(16.0, size.x - sz.x - 16.0)),
+		HudLane.y_for("hint", base_y))
+	HudLane.report("hint", _pill.position.y, sz.y if _pill.visible and _pill.modulate.a > 0.02 else 0.0)
 
 
 func _process(delta: float) -> void:
 	_t += delta
 	_alpha = move_toward(_alpha, _target_alpha, delta * 5.0)
 	_done_flash = maxf(0.0, _done_flash - delta * 2.0)
-	_pill.modulate.a = _alpha
+	# Held back while a menu / sheet is up; re-stacked under the toast / banner as they come and go.
+	_pill.modulate.a = _alpha if HudLane.allowed("hint") else 0.0
+	_restack()
 	_skip.disabled = _alpha < 0.5
 	if _alpha <= 0.0 and _done_flash <= 0.0 and _target_alpha == 0.0:
 		_pill.visible = false
@@ -160,7 +170,8 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	if prompt.is_empty() or bool(prompt.get("plain", false)) or (_alpha <= 0.01 and _done_flash <= 0.0):
+	if prompt.is_empty() or bool(prompt.get("plain", false)) or (_alpha <= 0.01 and _done_flash <= 0.0) \
+			or not HudLane.allowed("hint"):
 		return
 	var k := _ui_scale()
 	var a := anchor_pos(String(prompt.get("anchor", "center")))

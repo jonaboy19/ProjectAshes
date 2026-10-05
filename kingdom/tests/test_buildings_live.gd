@@ -180,6 +180,53 @@ func test_room_nodes_follow_the_hour() -> void:
 	assert_bool((night["window_color"] as Color).is_equal_approx(day["window_color"])).is_false()
 
 
+func test_night_has_a_floor_but_stays_darker_than_day() -> void:
+	# visual pass 2026-10: the unlit night room was slate-black (ambient 0.08); it keeps a warm floor now.
+	for kind: String in ["house", "shop", "tavern"]:
+		var night := Light.state(2.0, kind)
+		var day := Light.state(12.0, kind)
+		assert_float(float(night["ambient_energy"])).is_greater_equal(Light.NIGHT_FLOOR)
+		assert_float(float(day["ambient_energy"])).is_greater(float(night["ambient_energy"]) + 0.05)     # still a day / night difference
+		assert_float(Light.brightness(12.0, kind)).is_greater(Light.brightness(2.0, kind) * 1.4)
+	var night_c: Color = Light.state(2.0)["ambient_color"]
+	assert_float(night_c.r).is_greater_equal(night_c.b - 0.2)                       # no longer a cold blue-slate
+	assert_float(float(Light.state(23.0)["hearth_light"])).is_greater(0.0)           # lit hearth: a warm pool
+
+
+func test_window_glass_is_dark_at_night_and_sky_by_day_and_never_white() -> void:
+	var room := _room("cottage")
+	var gm: StandardMaterial3D = (room.get("kit").materials as Dictionary)["glass"]
+	room.call("apply_hour", 12.0)
+	var day := gm.albedo_color
+	room.call("apply_hour", 23.0)
+	var night := gm.albedo_color
+	assert_float(day.b).is_greater(day.r)                                            # pale sky, not a white card
+	assert_float(day.get_luminance()).is_less(0.85)
+	assert_float(night.get_luminance()).is_less(day.get_luminance() * 0.4)
+
+
+func test_outer_walls_are_separate_meshes_that_fade_when_the_camera_is_on_their_side() -> void:
+	var room := _room("cottage")
+	var w := float(room.layout["w"])
+	var d := float(room.layout["d"])
+	var h := float(room.layout["h"])
+	# a camera outside the front (S) wall: that wall and its windows go, the others stay
+	var t: Dictionary = room.get_script().wall_fade_targets(Vector3(0, 1.8, d * 0.5 + 3.0), w, d, h)
+	assert_float(float(t["wS"])).is_equal(1.0)
+	assert_float(float(t["wN"])).is_equal(0.0)
+	assert_float(float(t["wE"])).is_equal(0.0)
+	# a camera in the middle of the room hides nothing; one above the ceiling hides the ceiling
+	var mid: Dictionary = room.get_script().wall_fade_targets(Vector3(0, 1.8, 0), w, d, h)
+	for k: String in mid:
+		assert_float(float(mid[k])).is_equal(0.0)
+	assert_float(float(room.get_script().wall_fade_targets(Vector3(0, h + 1.0, 0), w, d, h)["ceil"])).is_equal(1.0)
+	# the groups exist as their own meshes and the room still fits the draw budget
+	var state: Dictionary = room.call("wall_fade_state")
+	for g: String in ["wN", "wE", "wS", "wW", "ceil"]:
+		assert_bool(state.has(g)).is_true()
+	assert_int(int(room.call("draw_estimate")["shell"])).is_less_equal(60)
+
+
 # ---- household roster -----------------------------------------------------------------------------------
 
 func test_home_lot_formula_matches_worldsim() -> void:

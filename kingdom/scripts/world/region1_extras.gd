@@ -43,6 +43,9 @@ static func _label(root: Node3D, lab: Dictionary) -> void:
 	root.add_child(holder)
 	holder.global_position = g
 	var h := float(lab.get("h", 3.4))
+	# Nameplates (core/nameplates.gd) stay off the board's screen rectangle instead of printing over its lettering.
+	holder.add_to_group("world_sign")
+	holder.set_meta("sign_rect", Rect2(-2.4, h - 0.85, 4.8, 1.7))
 	var plank := MeshInstance3D.new()
 	var box := BoxMesh.new()
 	box.size = Vector3(4.6, 1.5, 0.14)

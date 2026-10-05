@@ -55,7 +55,9 @@ static func build(g: Dictionary, state: Dictionary, opts: Dictionary = {}) -> No
 	var inward := Vector3(sin(float(ex["yaw"])), 0, cos(float(ex["yaw"])))
 	var spawn := Marker3D.new()
 	spawn.name = "PlayerSpawn"
-	spawn.position = (ex["pos"] as Vector3) + inward * 1.9 + Vector3(0, 0.1, 0)
+	# 3.2 m in (was 1.9): the chase camera hangs ~4 m behind the player, so a spawn this close to the entrance wall put the
+	# lens in or behind it on the first frames; here the arm has room and the camp is in front of the lens.
+	spawn.position = (ex["pos"] as Vector3) + inward * 3.2 + Vector3(0, 0.1, 0)
 	spawn.rotation.y = atan2(-inward.x, -inward.z)
 	root.add_child(spawn)
 	var exit := InteriorDoor.new()
@@ -109,7 +111,7 @@ static func _environment(g: Dictionary) -> Environment:
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.fog_enabled = true
 	env.fog_light_color = g["fog"]
-	env.fog_density = 0.014 if bool(g["dark"]) else 0.008
+	env.fog_density = 0.010 if bool(g["dark"]) else 0.007
 	env.fog_aerial_perspective = 0.0
 	env.adjustment_enabled = true
 	env.adjustment_saturation = 1.08

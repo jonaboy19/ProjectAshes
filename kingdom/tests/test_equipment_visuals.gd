@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 
 const Equipment := preload("res://scripts/sim/equipment.gd")
 const EquipmentVisuals := preload("res://scripts/actors/equipment_visuals.gd")
+const ItemsDBRef := preload("res://scripts/sim/items_db.gd")
 const BONE_NAMES := ["pelvis", "spine_03", "Head", "lowerarm_l", "hand_l", "hand_r", "calf_l", "calf_r", "foot_l", "foot_r"]
 
 
@@ -123,3 +124,48 @@ func test_items_without_a_model_add_nothing() -> void:
 	if ring != "":
 		eq.equip(ring)
 	assert_int(_eq_nodes(sk).size()).is_equal(0)
+
+
+func test_held_weapons_are_fitted_by_length_not_native_units() -> void:
+	# visual pass 2026-10: the KayKit bits are 1.8 to 3.3 units long, so scale 1.0 drew a 3 m orange blade.
+	var r := _rig()
+	var sk: Skeleton3D = r[0]
+	var eq: Equipment = r[1]
+	var rig_scale: float = Assets._rig_scale(sk)
+	var want := {"bronze_sword": 0.95, "bronze_spear": 2.0, "ash_staff": 1.7, "ash_shortbow": 1.0, "bronze_dagger": 0.38}
+	for id: String in want:
+		eq.equip(id)
+		var att := _eq_nodes(sk)[0] as BoneAttachment3D
+		var prop := att.get_child(0) as Node3D
+		var box: AABB = Assets.visual_aabb(prop.get_child(0) as Node3D)
+		var longest := maxf(box.size.x, maxf(box.size.y, box.size.z))
+		var metres := longest * absf(prop.scale.y) * rig_scale
+		assert_float(metres).is_equal_approx(float(want[id]), 0.03)
+		eq.unequip("main_hand")
+
+
+func test_weapon_fit_table_covers_every_weapon_model_in_the_item_data() -> void:
+	var missing := []
+	for id: String in ItemsDBRef.extra("visuals").keys():
+		var v := ItemsDBRef.visual(id)
+		var path := String(v.get("model", ""))
+		if path.contains("/weapons/") and String(v.get("attach", "")).begins_with("hand") and EquipmentVisuals.fit_for(path).is_empty():
+			missing.append(path.get_file())
+	assert_array(missing).is_empty()
+
+
+func test_weapon_tint_is_pulled_toward_grey_and_darkened() -> void:
+	var mi := MeshInstance3D.new()
+	var mesh := BoxMesh.new()
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.95, 0.55, 0.2)
+	mesh.material = m
+	mi.mesh = mesh
+	auto_free(mi)
+	EquipmentVisuals.style_weapon(mi)
+	var out := mi.get_surface_override_material(0) as StandardMaterial3D
+	assert_object(out).is_not_null()
+	var c := out.albedo_color
+	assert_float(c.s).is_less(m.albedo_color.s)                 # less saturated: not flat orange
+	assert_float(c.v).is_less(m.albedo_color.v)
+	assert_float(out.metallic).is_greater(0.0)
