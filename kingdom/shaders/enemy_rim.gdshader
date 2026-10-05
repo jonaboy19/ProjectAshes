@@ -5,8 +5,8 @@ render_mode blend_add, unshaded, depth_draw_never, cull_back, shadows_disabled;
 
 uniform vec4 color : source_color = vec4(1.0, 0.2, 0.08, 1.0);
 uniform float strength = 1.0;
-uniform float rim_power = 2.2;
-uniform float body = 0.06;      // faint fill so the whole silhouette warms, not just the edge
+uniform float rim_power = 1.5;
+uniform float body = 0.1;      // faint fill so the whole silhouette warms, not just the edge
 
 void fragment() {
 	float f = pow(1.0 - clamp(dot(normalize(NORMAL), normalize(VIEW)), 0.0, 1.0), rim_power);

@@ -20,6 +20,8 @@ var _swings := 0
 var _note := ""
 var _fov_peak := 0.0
 var _roll_peak := 0.0
+var _riposte := false
+var _cam: Camera3D
 
 
 func _ready() -> void:
@@ -58,9 +60,11 @@ func _ready() -> void:
 	_p.swing_started.connect(_on_swing)
 	_p.hit_confirmed.connect(func(points: Array, fin: bool, _m: Array) -> void:
 		var a: Resource = _p.get("_action")
-		var tier := Feel.tier_for(fin, false, a.knockback, a.damage, a.poise_damage, false) if a else 0
+		var tier := Feel.tier_for(fin, false, a.knockback, a.damage, a.poise_damage, _riposte) if a else 0
 		_note = "HIT tier=%s fin=%s pts=%d" % [Feel.TIER_NAMES[tier], fin, points.size()]
 		print("CLIP f=%d %s" % [_f, _note]))
+	_cam = Camera3D.new()
+	add_child(_cam)
 	var layer := CanvasLayer.new()
 	layer.layer = 100
 	add_child(layer)
@@ -74,6 +78,7 @@ func _ready() -> void:
 
 func _on_swing(action: Resource, info: Dictionary) -> void:
 	_swings += 1
+	_riposte = bool(info["riposte"])
 	print("CLIP f=%d swing %d %s riposte=%s" % [_f, _swings, action.id, info["riposte"]])
 	if _swings == 2:
 		_p._parry_bonus = 1.0     # the next swing is a riposte: heavy tier
@@ -82,9 +87,18 @@ func _on_swing(action: Resource, info: Dictionary) -> void:
 func _process(_delta: float) -> void:
 	_f += 1
 	if _f == 14 and is_instance_valid(_b):
-		_p.toggle_lock()
+		_p._set_lock(_b)
+		var h: Node = get_node_or_null("EnemyHighlight")
+		print("CLIP lock highlight active=%s" % (h.call("active_count") if h else "none"))
 	if _f >= 30 and _f % 11 == 0 and _swings < 4:
 		_p.attack()
+	var mid: Vector3 = (_p.global_position + _b.global_position) * 0.5 if is_instance_valid(_b) else _p.global_position
+	var fw: Vector3 = _p.facing()
+	var side := fw.cross(Vector3.UP).normalized()
+	_cam.global_position = mid + side * 3.6 - fw * 1.2 + Vector3(0, 1.5, 0)
+	_cam.look_at(mid + Vector3(0, 1.0, 0), Vector3.UP)
+	_cam.fov = 55.0
+	_cam.current = true
 	_fov_peak = maxf(_fov_peak, _p._impact_fov)
 	_roll_peak = maxf(_roll_peak, absf(_p._impact_roll))
 	var cam: Camera3D = _p.camera

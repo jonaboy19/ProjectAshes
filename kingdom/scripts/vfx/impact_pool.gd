@@ -19,7 +19,10 @@ const DUST_MAX := 8
 const TIER_SIZE := [0.8, 1.15, 1.6]
 const TIER_SPARKS := [0.4, 0.7, 1.0]
 const TIER_SLASHES := [1, 2, 3]
-const BUSY := [0.55, 0.7, 0.85]
+const BUSY := [0.45, 0.5, 0.55]
+## Ground ring diameter in metres (a body is ~0.7 m wide: a finisher ring is ~2.5 body widths) and its start alpha.
+const RING_SIZE := [1.2, 1.5, 1.8]
+const RING_ALPHA := [0.6, 0.8, 1.0]
 
 ## Warm Style G palettes. pal: tint/hot/edge; rise: spark gravity y; v: spark speed; life: spark life;
 ## dust: dust colour (or null); splat: ground splat colour; ring: ring speed scale.
@@ -199,12 +202,12 @@ func play(pos: Vector3, element := "physical", tier := 0, dir := Vector3.ZERO, l
 	_tint(rm, warm)
 	ring.visible = not landing
 	ring.position = Vector3(0, -0.72, 0)     # hit points sit ~0.8 m up: this puts the ring on the ground
-	ring.scale = Vector3.ONE * (2.6 * size)
+	ring.scale = Vector3.ONE * float(RING_SIZE[tier])
 	var rs: float = v["ring"]
 	rm.set_shader_parameter("progress", 0.15)
-	rm.set_shader_parameter("fade", 1.0)
-	tw.tween_property(rm, "shader_parameter/progress", 0.95, 0.30 / rs).set_ease(Tween.EASE_OUT)
-	tw.tween_property(rm, "shader_parameter/fade", 0.0, 0.18).set_delay(0.14 / rs)
+	rm.set_shader_parameter("fade", float(RING_ALPHA[tier]))
+	tw.tween_property(rm, "shader_parameter/progress", 0.95, 0.22 / rs).set_ease(Tween.EASE_OUT)
+	tw.tween_property(rm, "shader_parameter/fade", 0.0, 0.2).set_delay(0.1 / rs)
 
 	var cam := get_viewport().get_camera_3d() if is_inside_tree() else null
 	var n_sl: int = 0 if landing else TIER_SLASHES[tier]

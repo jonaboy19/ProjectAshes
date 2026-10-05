@@ -71,10 +71,6 @@ func _on_hit_confirmed(points: Array, finisher: bool, mixers: Array) -> void:
 		var dir: Vector3 = pt - p.global_position
 		dir.y = 0.0
 		pool.play(pt, element, tier if i < 2 else Feel.Tier.LIGHT, dir.normalized() if dir.length() > 0.01 else fwd)
-	if finisher:
-		VFX.shockwave(world, p.global_position + fwd * 1.2, Color(1.0, 0.85, 0.45), 3.2)
-		if not points.is_empty():
-			VFX.impact_frame(world, points[0], 0.7)
 	if not points.is_empty():
 		Audio.sfx("hit")
 		var side := 1.0 if int(_swing.get("combo", 0)) % 2 == 0 else -1.0
@@ -114,7 +110,7 @@ func _flash_one_frame(alpha: float) -> void:
 		_flash_rect.visible = false
 		_flash_layer.add_child(_flash_rect)
 		p.add_child(_flash_layer)
-	_flash_rect.color = Color(1.0, 0.97, 0.88, alpha * strength)
+	_flash_rect.color = Color(1.0, 0.82, 0.5, alpha * strength)
 	_flash_rect.visible = true
 	RenderingServer.frame_post_draw.connect(_end_flash, CONNECT_ONE_SHOT)
 

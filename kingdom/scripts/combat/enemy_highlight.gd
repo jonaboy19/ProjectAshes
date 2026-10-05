@@ -10,7 +10,7 @@ const SHADER := preload("res://shaders/enemy_rim.gdshader")
 const NODE_NAME := "EnemyHighlight"
 const MAX_ACTIVE := 3
 const MAX_MESHES := 8
-const LOCK_STRENGTH := 0.55
+const LOCK_STRENGTH := 0.95
 const STRIKE_STRENGTH := 1.0
 const LOCK_COLOR := Color(1.0, 0.28, 0.12)
 const STRIKE_COLOR := Color(1.0, 0.12, 0.05)
@@ -124,7 +124,7 @@ func _style(e: Dictionary) -> void:
 	var strike: bool = e["kind"] == "strike"
 	mat.set_shader_parameter("color", STRIKE_COLOR if strike else LOCK_COLOR)
 	mat.set_shader_parameter("strength", STRIKE_STRENGTH if strike else LOCK_STRENGTH)
-	mat.set_shader_parameter("body", 0.14 if strike else 0.04)
+	mat.set_shader_parameter("body", 0.2 if strike else 0.1)
 
 
 func _remove(i: int) -> void:
