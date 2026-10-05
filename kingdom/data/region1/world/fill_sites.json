@@ -163,30 +163,6 @@
      0.43
     ],
     [
-     "free:farm/chicken_hen@0.5",
-     1.5,
-     3.4,
-     40,
-     0,
-     0
-    ],
-    [
-     "free:farm/chicken_rooster@0.6",
-     2.5,
-     4.2,
-     -60,
-     0,
-     0
-    ],
-    [
-     "free:farm/chicken_hen@0.5",
-     0.4,
-     4.8,
-     120,
-     0,
-     0
-    ],
-    [
      "free:flora/bouquet_wild@0.5",
      -6.5,
      2.4,
@@ -369,30 +345,6 @@
      -10.5,
      1.8,
      90,
-     0,
-     0
-    ],
-    [
-     "free:flora/mushroom_glow_brown@0.6",
-     -8,
-     -6.5,
-     0,
-     0,
-     0
-    ],
-    [
-     "free:flora/mushroom_glow_brown@0.6",
-     -9.2,
-     -5.2,
-     80,
-     0,
-     0
-    ],
-    [
-     "free:flora/mushroom_glow_brown@0.6",
-     9.5,
-     -1.5,
-     200,
      0,
      0
     ],
@@ -1269,62 +1221,6 @@
      0
     ],
     [
-     "free:farm/hay_bale_lowpoly@0.69",
-     -9.5,
-     0,
-     20,
-     0,
-     0
-    ],
-    [
-     "free:farm/hay_bale_lowpoly@0.69",
-     -9,
-     1.4,
-     -10,
-     0,
-     0
-    ],
-    [
-     "free:farm/hay_bale_yellow_large@1.02",
-     -3,
-     1.8,
-     0,
-     0,
-     0
-    ],
-    [
-     "free:farm/hay_bale_yellow_large@1.02",
-     -1.7,
-     2.4,
-     50,
-     0,
-     0
-    ],
-    [
-     "free:farm/chicken_hen@0.5",
-     3,
-     1.8,
-     10,
-     0,
-     0
-    ],
-    [
-     "free:farm/chicken_hen@0.5",
-     4.4,
-     2.6,
-     180,
-     0,
-     0
-    ],
-    [
-     "free:farm/chicken_rooster@0.6",
-     5.6,
-     1.6,
-     -70,
-     0,
-     0
-    ],
-    [
      "free:fences/fence_rail_grass_a@1.29",
      -10.0,
      9,
@@ -1628,22 +1524,6 @@
      -3,
      10,
      1,
-     0
-    ],
-    [
-     "free:farm/hay_bale_lowpoly@0.69",
-     3,
-     -2,
-     30,
-     0,
-     0
-    ],
-    [
-     "free:farm/hay_bale_lowpoly@0.69",
-     4.4,
-     -1.2,
-     -20,
-     0,
      0
     ],
     [
@@ -2342,14 +2222,6 @@
      0
     ],
     [
-     "free:castle/tower_pink_flag@10.0",
-     17,
-     -6,
-     0,
-     1,
-     0
-    ],
-    [
      "free:castle/wall_battlement_block@1.92",
      -10.0,
      -10,
@@ -2711,7 +2583,7 @@
    },
    "parts": [
     [
-     "free:churches/church_white_red_spire@13.95",
+     "free:churches/church_spire_small@13.87",
      0,
      -3,
      0,
@@ -2818,22 +2690,6 @@
      "free:flora/bouquet_wild@0.5",
      1.6,
      8,
-     0,
-     0,
-     0
-    ],
-    [
-     "free:lighting/street_lantern_whimsical@2.0",
-     -6,
-     10,
-     0,
-     0,
-     0
-    ],
-    [
-     "free:lighting/street_lantern_whimsical@2.0",
-     6,
-     10,
      0,
      0,
      0
@@ -3115,38 +2971,6 @@
      9,
      0,
      0,
-     0
-    ],
-    [
-     "free:magic/crystal_red_pedestal@1.5",
-     -5,
-     7,
-     0,
-     0,
-     0
-    ],
-    [
-     "free:magic/crystal_red_pedestal@1.5",
-     5,
-     7,
-     0,
-     0,
-     0
-    ],
-    [
-     "free:lighting/street_lantern_whimsical@2.0",
-     8.5,
-     8,
-     0,
-     0,
-     0
-    ],
-    [
-     "free:creatures/dragon_fire_small@2.2",
-     0,
-     10.5,
-     180,
-     1,
      0
     ]
    ],
@@ -3591,46 +3415,6 @@
    },
    "parts": [
     [
-     "free:magic/orb_purple_roots@1.49",
-     -14,
-     -4,
-     20,
-     0,
-     0
-    ],
-    [
-     "free:magic/orb_purple_roots@1.49",
-     14,
-     -3,
-     -30,
-     0,
-     0
-    ],
-    [
-     "free:magic/orb_purple_roots@1.49",
-     0,
-     17,
-     100,
-     0,
-     0
-    ],
-    [
-     "free:magic/crystal_egg_purple@1.2",
-     -6,
-     -12,
-     0,
-     0,
-     0
-    ],
-    [
-     "free:magic/crystal_egg_purple@1.2",
-     7,
-     -14,
-     40,
-     0,
-     0
-    ],
-    [
      "free:lighting/lamp_post_purple_bracket@3.02",
      -11,
      12,
@@ -3857,14 +3641,6 @@
      0,
      0,
      0
-    ],
-    [
-     "free:creatures/dragon_green_armored@3.2",
-     0,
-     9,
-     180,
-     1,
-     0
     ]
    ],
    "lights": [
@@ -3907,30 +3683,6 @@
     "gate": false
    },
    "parts": [
-    [
-     "free:nature/tree_cartoon_green_a@7.0",
-     -9,
-     -3,
-     10,
-     1,
-     0
-    ],
-    [
-     "free:nature/tree_cartoon_green_a@7.0",
-     10,
-     -6,
-     200,
-     1,
-     0
-    ],
-    [
-     "free:nature/tree_cartoon_green_a@7.0",
-     2,
-     6,
-     80,
-     1,
-     0
-    ],
     [
      "free:nature/tree_cartoon_green_b@4.98",
      -13,

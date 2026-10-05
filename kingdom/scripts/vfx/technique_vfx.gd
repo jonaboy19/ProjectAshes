@@ -219,7 +219,7 @@ func _enter(r: Dictionary, phase: String) -> void:
 		"residue":
 			var life := lerpf(3.5, 6.0, clampf(radius / 6.0, 0.0, 1.0))
 			var ground := Vector3(to.x, to.y, to.z)
-			Decals.spawn(world, String(lang["decal"]), ground, radius * 1.3, life, randf() * TAU)
+			Decals.spawn(world, String(lang["decal"]), ground, Decals.size_for(lang, radius), life, randf() * TAU)
 			Toon.particles(world, ground + Vector3(0, 0.2, 0), lang, radius * 0.6)
 
 

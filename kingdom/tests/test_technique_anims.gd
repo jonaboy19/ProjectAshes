@@ -106,13 +106,25 @@ func test_named_techniques_use_their_mapped_clip() -> void:
 		"bn_dragon_breath": "Fire_Punch_Kick", "bn_storm": "Lightning_Point_Snap", "st_circ": "Cultivate_Yoga_Floor_Flow",
 		"st_breath_gather": "Cultivate_Yoga_Floor_Flow", "kn_guard": "Guard_Ready_Defensive",
 		"kn_charge": "Fire_Stride_Strike_F", "fire_flame_wave": "Fire_Box_Combo_A", "water_whip": "Water_SpinReach_L",
-		"qi_gathering": "Cultivate_Yoga_Floor_Flow"}
+		"qi_gathering": "Water_Flow_SunSalute"}
 	var seen := {}
 	for r: Array in _rows():
 		if want.has(r[1]):
 			seen[r[1]] = true
 			assert_str(String(r[2][0])).override_failure_message(String(r[1])).is_equal(want[r[1]])
 	assert_int(seen.size()).is_equal(want.size())
+
+
+func test_qi_gathering_is_a_standing_clip_not_the_floor_yoga() -> void:
+	for r: Array in _rows():
+		if r[1] == "qi_gathering":
+			var anims: Array = r[2]
+			assert_bool(anims.size() >= 2).is_true()
+			assert_bool(String(anims[0]).begins_with("Cultivate_")).override_failure_message("floor-sitting clip: " + str(anims)).is_false()
+			assert_bool(BendingLibrary.has_clip(String(anims[0]))).is_true()
+			assert_str(String(anims[anims.size() - 1])).is_not_equal("Meditate")      # Meditate is a seated stock clip
+			return
+	fail("qi_gathering not found")
 
 
 func test_techniques_keep_a_stock_clip_as_the_last_choice() -> void:

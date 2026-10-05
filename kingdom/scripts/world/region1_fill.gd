@@ -8,6 +8,7 @@ extends RefCounted
 ## Planned LAST in RegionSites.plan, after every other planner, so no existing site id or position moves.
 
 const R1World := preload("res://scripts/world/region1_world.gd")
+const FillStyle := preload("res://scripts/world/fill_style.gd")
 
 
 static func sites(_seed_value: int, out: Array[Dictionary]) -> Array[Dictionary]:
@@ -31,13 +32,21 @@ static func sites(_seed_value: int, out: Array[Dictionary]) -> Array[Dictionary]
 	return res
 
 
+## Placement notes: parts are yaw-only (RegionDressing never tilts a part, so structures stay upright on slopes) and settle on
+## the lowest ground sampled over the footprint (RegionDressing._footprint_ground: corners, edge midpoints and centre).
 ## search.outside [a, b] (settlement centres): metres beyond the settlement's wall ring, the same inner distance the
 ## settlement landmarks use (radius * 1.15 + clear + 4).
 static func _expand(raw: Dictionary) -> Dictionary:
 	var sr: Dictionary = raw["search"]
-	if not sr.has("outside"):
-		return raw
 	var spec := raw.duplicate(true)
+	# Style G pass: models that stay off-style after treatment (FillStyle.DROPPED) are never placed, even if a data edit lists them.
+	var kept: Array = []
+	for part: Array in spec.get("parts", []):
+		if not FillStyle.is_dropped(FillStyle.model_of(String(part[0]))):
+			kept.append(part)
+	spec["parts"] = kept
+	if not sr.has("outside"):
+		return spec
 	var s: Dictionary = R1World._settlement_named(String(sr["center"]).trim_prefix("settlement:"))
 	if s.is_empty():
 		return spec

@@ -185,6 +185,30 @@ func test_decals_are_pooled_capped_and_fade() -> void:
 	assert_int(Decals.active_count()).is_equal(0)
 
 
+func test_crack_decal_is_sized_to_the_technique_radius_not_the_floor() -> void:
+	var quake := Lang.get_lang("earth")
+	assert_str(String(quake["decal"])).is_equal("cracks")
+	# earth_quake radius 6.5 m: a few metres across (it used to be radius * 1.3 = 8.5 m, plus a 13 m ground plane)
+	var sz := Decals.size_for(quake, 6.5)
+	assert_float(sz).is_between(2.0, 5.0)
+	assert_float(Decals.crack_size(6.5)).is_less_equal(Decals.CRACK_MAX)
+	assert_float(Decals.crack_size(0.5)).is_equal(Decals.CRACK_MIN)
+	assert_float(Decals.size_for(quake, 2.5)).is_less(Decals.size_for(quake, 6.5) + 0.001)
+	assert_float(Decals.size_for(Lang.get_lang("fire"), 3.0)).is_equal_approx(3.9, 0.001)   # other decal kinds keep radius * 1.3
+	# spawn() caps a crack whatever the caller asks, and it fades out (pooled, retired after its life)
+	var world := Node3D.new()
+	add_child(world)
+	auto_free(world)
+	Decals.clear()
+	Decals.force_quad = true
+	var q := Decals.spawn(world, "cracks", Vector3.ZERO, 14.0, 0.5) as MeshInstance3D
+	Decals.force_quad = false
+	assert_object(q).is_not_null()
+	assert_float(q.global_transform.basis.get_scale().x).is_less_equal(Decals.CRACK_MAX + 0.01)
+	assert_object(q.get_meta("tw")).is_not_null()
+	Decals.clear()
+
+
 # --- torches / lamps --------------------------------------------------------------------------------
 
 func test_lamps_have_no_omni_on_low_and_medium_but_keep_the_group() -> void:
