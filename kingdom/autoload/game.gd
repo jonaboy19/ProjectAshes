@@ -86,7 +86,7 @@ const KEYS := {
 	"lock_on": [KEY_Q], "crouch": [KEY_C], "ability_dash": [KEY_R],
 	"order_follow": [KEY_1], "order_hold": [KEY_2], "order_charge": [KEY_3],
 	"order_retreat": [KEY_G], "order_formation": [KEY_B],
-	"technique_1": [KEY_U], "technique_2": [KEY_Y], "technique_3": [KEY_O], "technique_4": [KEY_H],
+	"technique_wheel": [KEY_T], "technique_1": [KEY_U], "technique_2": [KEY_Y], "technique_3": [KEY_O], "technique_4": [KEY_H],
 	"seal_1": [KEY_4], "seal_2": [KEY_5], "seal_3": [KEY_6], "seal_4": [KEY_7], "seal_5": [KEY_8], "seal_6": [KEY_9],
 }
 ## Mouse and gamepad defaults: action -> [[mouse buttons], [joypad buttons]].
@@ -94,6 +94,7 @@ const PADS := {
 	"zoom_in": [[MOUSE_BUTTON_WHEEL_UP], []], "zoom_out": [[MOUSE_BUTTON_WHEEL_DOWN], []],
 	"lock_on": [[MOUSE_BUTTON_MIDDLE], [JOY_BUTTON_RIGHT_STICK]],
 	"crouch": [[], [JOY_BUTTON_LEFT_STICK]], "ability_dash": [[], [JOY_BUTTON_LEFT_SHOULDER]],
+	"technique_wheel": [[], [JOY_BUTTON_RIGHT_SHOULDER]],
 }
 
 

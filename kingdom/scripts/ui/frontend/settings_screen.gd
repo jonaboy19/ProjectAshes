@@ -180,6 +180,8 @@ func _tab_gameplay() -> void:
 	_row("difficulty", "Difficulty", "opt", DIFFICULTY)
 	_row("cam_sens", "Camera Sensitivity", "slider", [])
 	_row("invert_y", "Invert Y Axis", "toggle", [])
+	_row("cast_camera", "Cast Camera", "toggle", [], "A short push-in on big techniques. Any action skips it.")
+	_row("wheel_slow", "Slow Time In Wheel", "toggle", [], "The technique wheel slows the world while it is open.")
 	_row("joystick_size", "Joystick Size", "slider", [], "Size of the on-screen movement stick (touch).")
 	_row("vibration", "Vibration", "toggle", [], "Feel hits and damage on phones.")
 	_row("subtitles", "Subtitles", "toggle", [])
