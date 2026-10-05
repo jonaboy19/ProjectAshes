@@ -113,6 +113,8 @@ static func building_id(lot_pos: Vector2) -> String:
 
 
 static func prompt(asset: String) -> String:
+	if not PROMPTS.has(asset) and SHOP_BUILDINGS.has(asset):
+		return "Enter the shop"          # a general shop door used to read "Enter the house"
 	return PROMPTS.get(asset, "Enter the house")
 
 

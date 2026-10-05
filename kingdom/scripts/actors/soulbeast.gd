@@ -275,7 +275,8 @@ static func think_period(level: int) -> float:
 
 
 func snapshot() -> Dictionary:
-	brain.pos = Vector2(global_position.x, global_position.z)
+	if is_inside_tree():          # the director saves from its own _exit_tree, when the beast may already be out of the tree
+		brain.pos = Vector2(global_position.x, global_position.z)
 	return brain.to_dict()
 
 

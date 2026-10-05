@@ -21,7 +21,7 @@ const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const TravelRules := preload("res://scripts/world/travel_rules.gd")
 const STUCK_SECS := 25.0
-const SHOT_DIR := "/tmp/claude-0/shots/playtest"
+var SHOT_DIR := "/tmp/claude-0/shots/playtest"
 
 static var instance: Node = null     # the first bot; a reloaded main hands its world over to it
 
@@ -92,6 +92,8 @@ func run(p_main: Node) -> void:
 	t0 = Time.get_ticks_msec()
 	out_dir = OS.get_environment("PLAYTEST_OUT") if OS.get_environment("PLAYTEST_OUT") != "" else out_dir
 	only = OS.get_environment("PLAYTEST_STAGES")
+	if OS.get_environment("PLAYTEST_SHOTS") != "":
+		SHOT_DIR = OS.get_environment("PLAYTEST_SHOTS")
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	DirAccess.make_dir_recursive_absolute(SHOT_DIR)
 	_log = FileAccess.open(out_dir.path_join("run.log"), FileAccess.WRITE)
@@ -526,6 +528,9 @@ func _run_all() -> void:
 		["story", _s_story], ["adult", _s_adult], ["shop", _s_shop], ["equip", _s_equip], ["eat", _s_eat],
 		["job", _s_job], ["scribe", _s_scribe], ["gather", _s_gather], ["craft", _s_craft], ["fight", _s_fight],
 		["steal", _s_steal], ["sleep", _s_sleep], ["coach", _s_coach], ["save", _s_save],
+		["tf_talk", _s_tf_talk], ["tf_barley", _s_tf_barley], ["tf_cart", _s_tf_cart], ["tf_wilm", _s_tf_wilm],
+		["tf_interior", _s_tf_interior], ["tf_theft", _s_tf_theft], ["tf_travel", _s_tf_travel], ["tf_combat", _s_tf_combat],
+		["tf_soldier", _s_tf_soldier], ["tf_rift", _s_tf_rift], ["tf_beast", _s_tf_beast], ["tf_save", _s_tf_save],
 	]
 	for e: Array in list:
 		if not _want(String(e[0])) and String(e[0]) != "adult":
@@ -546,6 +551,18 @@ func _stage_limit(name: String) -> float:
 		"fight": return 240.0
 		"save": return 360.0
 		"job", "gather": return 200.0
+		"tf_talk": return 200.0
+		"tf_barley": return 420.0
+		"tf_cart": return 520.0
+		"tf_wilm": return 260.0
+		"tf_interior": return 330.0
+		"tf_theft": return 330.0
+		"tf_travel": return 330.0
+		"tf_combat": return 300.0
+		"tf_soldier": return 260.0
+		"tf_rift": return 480.0
+		"tf_beast": return 200.0
+		"tf_save": return 480.0
 	return 150.0
 
 
@@ -574,6 +591,7 @@ func _run_stage(name: String, fn: Callable, limit: float) -> void:
 		gen += 1          # orphan the stage coroutine
 		release_all()
 	_stage_done = true
+	Engine.max_physics_steps_per_frame = 8       # undo any fast_game() of the stage
 	if my_gen == gen - (0 if done[0] else 1):
 		pass
 	close_everything()
@@ -618,7 +636,7 @@ func _finish_metrics() -> void:
 	cur["draws_max"] = dmax
 	cur["prims_max"] = pmax
 	cur["worst_frame_ms"] = _frame_max
-	if not _samples.is_empty() and cur["draws_avg"] < 40.0 and not (cur["name"] in ["menus", "scribe", "boot"]) and not get_tree().paused:
+	if not _samples.is_empty() and cur["draws_avg"] < 40.0 and not (cur["name"] in ["menus", "scribe", "boot", "tf_interior", "tf_rift"]) and not get_tree().paused:
 		bug("render", "world barely renders in this stage: %.0f draw calls on average" % cur["draws_avg"])
 
 
@@ -1660,7 +1678,7 @@ func _fight(e: Node3D, label: String, limit: float) -> bool:
 		else:
 			hold("move_forward", false)
 			hold("sprint", false)
-			await key(KEY_J, 3)
+			await key(KEY_J, 1)         # one frame is a light tap: at 1-2 fps three frames would read as a charged heavy (0.3 s of game time)
 			hits += 1
 		if bool(player.get("dead")):
 			L("player died during %s fight" % label)
@@ -1919,3 +1937,1616 @@ func _take_new_main() -> Node:
 		await frames(5)
 		m = get_tree().current_scene
 	return m
+
+
+# ============================================================================================ Thornfield slice (F1-F12)
+## Stages tf_*: the vertical slice around Thornfield played through the real main scene. Same rules as above: real input
+## where a player can, [HOOK] lines where the bot cheats (time of day, teleports, gold, moving a person into view).
+
+const TfSites := preload("res://scripts/world/thornfield/sites.gd")
+const TfRoster := preload("res://scripts/world/thornfield/roster.gd")
+const TfObserve := preload("res://scripts/quests/objectives/observe.gd")
+const Q_BARLEY := "thornfield_spoiled_barley"
+const Q_CARTS := "thornfield_grain_carts"
+const Q_CULPRIT := "thornfield_the_culprit"
+
+
+func tf_town() -> Dictionary:
+	return TfSites.settlement()
+
+
+func tf_pos() -> Vector2:
+	var t := tf_town()
+	return t["pos"] if not t.is_empty() else Vector2.ZERO
+
+
+func tf_hub() -> Node:
+	return main.world.get_node_or_null("ThornfieldHub")
+
+
+func set_hour(h: float, why := "") -> void:
+	L("[HOOK] clock -> %.1fh %s" % [h, why])
+	WorldSim.time_of_day = h
+
+
+func heal_player(why := "") -> void:
+	if player.health < player.max_health * 0.6:
+		L("[HOOK] heal the player (hp %d) %s" % [player.health, why])
+	player.health = player.max_health
+
+
+func qrun() -> QuestRunner:
+	return QuestHub.runner()
+
+
+## The embodied body of a roster resident (the hidden barn figure does not count), or null.
+func tf_body(id: String) -> Node3D:
+	var row := TfRoster.row_of(id)
+	if row < 0:
+		return null
+	for n in get_tree().get_nodes_in_group("villager"):
+		if n is Node3D and n.get("person") != null and int(n.get("person")) == row and (n as Node3D).is_visible_in_tree() \
+				and not n.is_in_group("barn_figure"):
+			return n
+	return null
+
+
+## Walks (teleports) to where the resident's schedule has them and waits for their body. null + a bug when there is none.
+func tf_go_to(id: String) -> Node3D:
+	var row := TfRoster.row_of(id)
+	if row < 0:
+		bug("roster", "%s is not bound to a WorldSim row" % id)
+		return null
+	var p: Vector2 = WorldSim.pos[row]
+	L("%s (row %d) is at %s, %.0f m away (phase %d, hour %.1f)" % [id, row, str(p.snappedf(0.1)), p2().distance_to(p), WorldSim.phase[row], WorldSim.time_of_day])
+	if p2().distance_to(p) > 15.0:
+		await teleport(p + Vector2(2.5, 1.5), 0.0, 1.0)
+	var ok := await wait_until(func() -> bool: return tf_body(id) != null, 8.0)
+	if not ok:
+		L("[HOOK] population refresh to embody %s" % id)
+		main.population.focus = player.global_position
+		main.population.refresh()
+		await wait_until(func() -> bool: return tf_body(id) != null, 6.0)
+	return tf_body(id)
+
+
+func menu_roots() -> Array:
+	var out: Array = []
+	for n: Variant in [hud.dialogue_sheet, hud.dialogue, hud._menu]:
+		if n != null and is_instance_valid(n) and (n as Control).is_visible_in_tree():
+			out.append(n)
+	return out
+
+
+func menu_texts() -> Array:
+	var t: Array = []
+	for r: Node in menu_roots():
+		for b in buttons_in(r):
+			t.append(button_text(b))
+	return t
+
+
+## Real click on the first visible button (sheet, dialogue or menu) whose text contains `needle`.
+func click_option(needle: String) -> bool:
+	for r: Node in menu_roots():
+		var b := find_button(r, needle, true)
+		if b != null:
+			await click(b, needle)
+			await wait(0.7)
+			return true
+	return false
+
+
+## Stands next to `target` (8 spots around it, nearest the `toward` point first) until the prompt picks it. For a villager the
+## prompt target is the TalkTarget parked on that body.
+func tf_reach(target: Node3D, label: String, toward := Vector2.INF, dist := 1.5) -> bool:
+	var tp := Vector2(target.global_position.x, target.global_position.z)
+	if toward == Vector2.INF:
+		toward = tf_pos()
+	var dir := (toward - tp).normalized()
+	if dir == Vector2.ZERO:
+		dir = Vector2(0, 1)
+	var near: Node3D = null
+	for i in 12:
+		var ang := float(i % 8) * PI / 4.0 * (1.0 if i % 2 == 0 else -1.0)
+		var stand := tp + dir.rotated(ang) * (dist if i < 8 else dist + 0.9)
+		if InteriorDoor.active != null:
+			# inside a room (300 m up): main._teleport would drop the player on the terrain below, so place it at the target's height
+			player.global_position = Vector3(stand.x, target.global_position.y + 0.1, stand.y)
+			player.velocity = Vector3.ZERO
+			player.set_camera(yaw_to(stand, tp), -0.2)
+			player.reset_physics_interpolation()
+			await wait(0.3)
+		else:
+			await teleport(stand, yaw_to(stand, tp), 0.3)
+		face(tp, -0.1)
+		await wait(0.6)
+		near = player.nearest_interactable()
+		if near == target or (near != null and near.name == "TalkTarget" and near.get("current") == target):
+			return true
+	L("reach %s: nearest interactable is %s (%s)" % [label, str(near), String(near.get("title")) if near != null and near.get("title") != null else "-"])
+	return false
+
+
+## Software GL runs at ~1-2 fps and Godot caps a frame at max_physics_steps_per_frame (8) physics steps, so game time crawls
+## (~0.13 game s per frame). Raising the cap lets time-based waits (a 20 s stakeout, the escort walk) finish in reasonable wall time.
+func fast_game(steps: int) -> void:
+	L("[HOOK] Engine.max_physics_steps_per_frame %d -> %d (game time otherwise crawls at 1-2 fps)" % [Engine.max_physics_steps_per_frame, steps])
+	Engine.max_physics_steps_per_frame = steps
+
+
+## An XZ spot 9-15 m from the barn beat that is out of sight for every facing at both ends of it, with the real night light.
+func tf_unseen_spot(a: Vector2, b: Vector2) -> Vector2:
+	var Perc := load("res://scripts/population/perception.gd") as GDScript
+	var mid := (a + b) * 0.5
+	for d: float in [11.0, 13.0, 15.0, 9.0]:
+		for i in 24:
+			var cand := mid + Vector2(cos(float(i) * TAU / 24.0), sin(float(i) * TAU / 24.0)) * d
+			var light: float = Perc.call("light_at", cand)
+			var ok := true
+			for fp: Vector2 in [a, b]:
+				for k in 16:
+					var facing := Vector2(cos(float(k) * TAU / 16.0), sin(float(k) * TAU / 16.0))
+					if not TfObserve.is_unseen(fp, facing, cand, light, 0.6):
+						ok = false
+						break
+				if not ok:
+					break
+			if ok:
+				return cand
+	return Vector2.INF
+
+
+func quest_line(id: String) -> String:
+	var r := qrun()
+	if r.run(id) == null:
+		return "%s: not started" % id
+	var parts: Array = []
+	for o: RefCounted in r.objectives_of(id):
+		parts.append("%s %s%s" % [o.id, o.call("_counter"), "" if not o.is_done() else " done"])
+	return "%s: %s stage %s [%s]" % [id, r.run(id).state, r.stage_of(id), ", ".join(parts)]
+
+
+## Opens Hesta's conversation (Station) and returns the visible option texts.
+func tf_open_hesta() -> bool:
+	var hub := tf_hub()
+	var hesta: Node3D = hub.get("hesta") if hub != null else null
+	if hesta == null or not is_instance_valid(hesta):
+		bug("thornfield", "Hesta Thorne (giver of every Thornfield quest) does not exist in the world")
+		return false
+	close_everything()
+	var hp := Vector2(hesta.global_position.x, hesta.global_position.z)
+	if p2().distance_to(hp) > 6.0 or player.nearest_interactable() != hesta:
+		var ok := await tf_reach(hesta, "Hesta", hp + Vector2(0, 6))
+		if not ok:
+			bug("thornfield", "Hesta is not the nearest interactable from any spot around her")
+			return false
+	var opened := false
+	for attempt in 3:
+		var best0 := Interaction.best(player)
+		L("before E at Hesta: best candidate %s, dist %.1f" % [str(Interaction.node_of(best0)), player.global_position.distance_to(hesta.global_position)])
+		await key(KEY_E)
+		opened = await wait_until(func() -> bool: return hud.is_menu_open(), 6.0)
+		await wait(0.5)
+		if not opened:
+			L("E did nothing at Hesta: menu %s dialogue %s sheet %s paused %s, best now %s" % [str(hud._menu.visible), str(hud.dialogue.visible), str(hud.dialogue_sheet.visible), str(get_tree().paused), str(Interaction.node_of(Interaction.best(player)))])
+			return false
+		var who := String((main.services._talk as Dictionary).get("id", ""))
+		if who == "hesta_thorne":
+			return true
+		bug("ui", "a menu other than Hesta's replaced her conversation (talk id '%s', options %s)" % [who, str(menu_texts()).left(120)])
+		await shot("hesta_hijacked")
+		close_everything()
+		await wait(0.5)
+	return false
+
+
+func _s_tf_talk() -> void:
+	if Life.age() < 18:
+		set_age(18)
+	set_hour(11.0, "named residents are out at market hour")
+	var town := tf_pos()
+	await teleport(town + Vector2(0, 12), 0.0, 1.5)
+	await shot("thornfield_arrive")
+	check("the Thornfield hub is in the world", tf_hub() != null)
+	check("the roster bound its named residents to WorldSim rows", TfRoster.is_bound() and TfRoster.bound_rows().size() >= 20, "%d rows" % TfRoster.bound_rows().size())
+	var body: Node3D = null
+	var rid := ""
+	for id: String in ["old_hild", "granfer_aldous", "wilm_garrow", "odo_marsh", "maud_pennick", "edric_vane", "bram_oakley", "pell_hargrove"]:
+		body = await tf_go_to(id)
+		if body != null:
+			rid = id
+			break
+	check("a named resident has a body in view", body != null, rid)
+	if body == null:
+		return
+	var named_bodies := 0
+	for v in get_tree().get_nodes_in_group("villager"):
+		if TfRoster.is_named(int(v.get("person") if v.get("person") != null else -1)):
+			named_bodies += 1
+	note("%d named bodies around, talking to %s (%s)" % [named_bodies, rid, TfRoster.name_of(TfRoster.row_of(rid))])
+	var reached := await tf_reach(body, rid, tf_pos())
+	check("the resident is what the interact prompt picks (Talk)", reached)
+	close_everything()
+	# a second villager to watch the world with
+	var other: Node3D = null
+	for v in get_tree().get_nodes_in_group("villager"):
+		if v != body and v is Node3D and (v as Node3D).is_visible_in_tree() and not v.is_in_group("barn_figure") and (v as Node3D).global_position.distance_to(player.global_position) < 40.0:
+			other = v
+			break
+	var sess: Node = main.services.talk_session
+	var reasons: Array = []
+	sess.ended.connect(func(r: String) -> void: reasons.append(r))
+	L("before E: best candidate %s (TalkTarget current %s)" % [str(Interaction.node_of(Interaction.best(player))), str(Interaction.node_of(Interaction.best(player)).get("current")) if Interaction.node_of(Interaction.best(player)) != null else "-"])
+	await key(KEY_E)
+	await wait_until(func() -> bool: return hud.is_menu_open(), 6.0)
+	await wait(0.5)
+	check("E opens the in-world conversation sheet", hud.dialogue_sheet.visible, "sheet %s dialogue %s menu %s" % [str(hud.dialogue_sheet.visible), str(hud.dialogue.visible), str(hud._menu.visible)])
+	check("the talk session is active on that body", bool(sess.get("active")) and sess.get("npc") == body)
+	check("the villager has stopped (is_talking)", body.has_method("is_talking") and bool(body.call("is_talking")))
+	await shot("talk_sheet")
+	L("sheet options: %s" % str(menu_texts()).left(300))
+	var b0 := Vector2(body.global_position.x, body.global_position.z)
+	var t0 := WorldSim.time_of_day
+	var o0 := Vector2(other.global_position.x, other.global_position.z) if other != null else Vector2.ZERO
+	await wait(4.0)
+	var b1 := Vector2(body.global_position.x, body.global_position.z)
+	check("the NPC stands still while the sheet is open", b0.distance_to(b1) < 0.6, "moved %.2f m" % b0.distance_to(b1))
+	var fdir: Vector2 = body.call("perception_facing") if body.has_method("perception_facing") else Vector2.ZERO
+	var to_p := (p2() - b1).normalized()
+	check("the NPC faces the player", fdir.length() > 0.1 and fdir.normalized().dot(to_p) > 0.6, "facing %s, to player %s, dot %.2f" % [str(fdir), str(to_p), fdir.normalized().dot(to_p) if fdir.length() > 0.1 else -9.0])
+	check("the world keeps running (clock advances, tree not paused)", WorldSim.time_of_day != t0 and not get_tree().paused, "clock %.3f -> %.3f paused %s" % [t0, WorldSim.time_of_day, str(get_tree().paused)])
+	if other != null and is_instance_valid(other):
+		var o1 := Vector2(other.global_position.x, other.global_position.z)
+		note("another villager moved %.1f m in 4 s while the sheet was open" % o0.distance_to(o1))
+	# pick the first real option (a talk node), then walk away with the movement keys
+	var opts := menu_texts()
+	if not opts.is_empty():
+		await click_option(String(opts[0]).left(12))
+		await wait(0.5)
+		await shot("talk_node")
+	face(b1 + (p2() - b1).normalized() * 10.0, -0.1)    # turn away from the NPC
+	hold("move_forward", true)
+	var gone := await wait_until(func() -> bool: return not bool(sess.get("active")), 6.0)
+	release_all()
+	await wait(0.6)
+	check("walking away ends the talk and closes the sheet", gone and not hud.is_menu_open() and not bool(body.call("is_talking")), "reasons %s, menu open %s" % [str(reasons), str(hud.is_menu_open())])
+	await shot("talk_walked_away")
+	# second route: stand still and leave by distance (teleport 7 m away)
+	if is_instance_valid(body):
+		var again := await tf_reach(body, rid, tf_pos())
+		if again:
+			await key(KEY_E)
+			await wait(1.0)
+			var away := Vector2(body.global_position.x, body.global_position.z) + (p2() - Vector2(body.global_position.x, body.global_position.z)).normalized() * 7.0
+			L("[HOOK] teleport 7 m away from the talker")
+			await teleport(away, 0.0, 0.3)
+			var gone2 := await wait_until(func() -> bool: return not bool(sess.get("active")), 4.0)
+			check("moving more than 4 m away ends the talk (distance)", gone2 and not hud.is_menu_open(), "reasons %s" % str(reasons))
+	close_everything()
+
+
+func _s_tf_barley() -> void:
+	var r := qrun()
+	if Life.age() < 18:
+		set_age(18)
+	set_hour(10.0, "daylight for the clue hunt")
+	var b := TfSites.brewery()
+	check("the Thornfield Brewery landmark exists", not b.is_empty())
+	if b.is_empty():
+		return
+	await teleport(TfSites.to_world(b, TfSites.HESTA_AT + Vector2(0, 7)), 0.0, 1.5)
+	await shot("brewery")
+	var gold0 := Game.gold
+	var opened := await tf_open_hesta()
+	check("E opens Hesta Thorne's conversation", opened)
+	var texts := menu_texts()
+	L("Hesta options: %s" % str(texts).left(300))
+	await shot("hesta_talk")
+	var offered := false
+	if opened:
+		offered = await click_option("Spoiled Barley")
+	check("Hesta offers 'The Spoiled Barley' as an 'Ask about work' option", offered, str(texts).left(200))
+	if not offered and not r.is_active(Q_BARLEY):
+		L("[HOOK] start %s directly" % Q_BARLEY)
+		r.start(Q_BARLEY)
+	close_everything()
+	check("the quest is active", r.is_active(Q_BARLEY), quest_line(Q_BARLEY))
+	# --- clues: walk to each and Examine with E
+	var hub := tf_hub()
+	var examined := 0
+	for c: Node3D in hub.get("clues"):
+		var cid := String(c.get("clue_id"))
+		var ok := await tf_reach(c, cid, TfSites.to_world(b, Vector2(0, 8)), 1.3)
+		if not ok:
+			L("[HOOK] standing on %s: the prompt did not pick it" % cid)
+			await teleport(Vector2(c.global_position.x, c.global_position.z) + Vector2(0.8, 0.8), 0.0, 0.4)
+		face(Vector2(c.global_position.x, c.global_position.z), -0.3)
+		await wait(0.3)
+		var lab: Dictionary = Interaction.label_of(Interaction.best(player)) if not Interaction.best(player).is_empty() else {}
+		await key(KEY_E)
+		await wait(0.6)
+		if bool(c.get("examined")):
+			examined += 1
+		if cid.ends_with("sack"):
+			await shot("clue_sack")
+		L("clue %s examined=%s label %s" % [cid, str(c.get("examined")), str(lab.get("text", lab)).left(60)])
+	check("all 4 clues can be examined with E", examined == 4, "%d/4" % examined)
+	check("the clue stage is complete (3 of 4 needed) and the stakeout began", r.stage_of(Q_BARLEY) == "stakeout", quest_line(Q_BARLEY))
+	await shot("clues_done")
+	# --- stakeout: wait for night (real time from 18:55), then watch the figure unseen
+	set_hour(18.9, "skip the afternoon")
+	var fig: Node3D = hub.get("figure")
+	var fp0: Vector2 = TfSites.figure_spot()
+	await teleport(fp0 + Vector2(0, 12), 0.0, 1.0)
+	player.set("crouching", true)
+	L("[HOOK] crouch on for the stakeout (toggle via player state)")
+	L("[HOOK] WorldSim.advance_hours(2.3): waiting out the dusk (a player rests; the 2 h Wait objective would otherwise take 60 game s)")
+	WorldSim.advance_hours(2.3)
+	await wait(1.0)
+	fast_game(24)
+	var awake := await wait_until(func() -> bool: return bool(fig.get("_awake")), 90.0)
+	L("figure awake %s at hour %.2f" % [str(awake), WorldSim.time_of_day])
+	var beat_a: Vector2 = fig.get("_a")
+	var beat_b: Vector2 = fig.get("_b")
+	var spot := tf_unseen_spot(beat_a, beat_b)
+	if spot == Vector2.INF:
+		spot = (beat_a + beat_b) * 0.5 + Vector2(0, 14)
+		note("no spot is unseen for every facing; using 14 m off the beat")
+	L("stakeout spot %s (%.1f m from the beat centre)" % [str(spot.snappedf(0.1)), spot.distance_to((beat_a + beat_b) * 0.5)])
+	await teleport(spot, yaw_to(spot, fp0), 1.0)
+	var t_wait := now()
+	var last_log := 0.0
+	var watched := false
+	while now() - t_wait < 240.0:
+		beat("stakeout %s" % quest_line(Q_BARLEY).right(60))
+		heal_player("at the stakeout")
+		if now() - last_log > 15.0:
+			last_log = now()
+			L("stakeout t=%.0f hour %.2f figure awake %s dist %.1f | %s" % [now() - t_wait, WorldSim.time_of_day, str(fig != null and fig.visible), p2().distance_to(fig.call("xz")) if fig != null else -1.0, quest_line(Q_BARLEY)])
+		if r.stage_of(Q_BARLEY) == "report":
+			watched = true
+			break
+		await wait(2.0)
+	if fig != null and fig.visible:
+		face(fig.call("xz"), -0.1)
+		await wait(0.3)
+		await shot("barn_figure")
+	check("the barn figure is out at night", fig != null and bool(fig.get("_awake")))
+	if not watched:
+		bug("quest", "the night stakeout did not complete in play in %.0f s: %s" % [now() - t_wait, quest_line(Q_BARLEY)])
+		L("[HOOK] force the stakeout: feed hours and observe events")
+		for h in [19, 20]:
+			QuestBus.shared().emit_event(&"hours", {"amount": 1.0, "hour": float(h)})
+		QuestBus.shared().emit_event(&"observe", {"target": "barn_figure", "dist": 8.0, "unseen": true, "dt": 30.0, "hour": 22.0})
+		await wait(0.5)
+	player.set("crouching", false)
+	Engine.max_physics_steps_per_frame = 8
+	check("the stakeout leads to the report stage", r.stage_of(Q_BARLEY) == "report", quest_line(Q_BARLEY))
+	# --- report back to Hesta (daytime, she is at the brewery 5-22h; night is fine too)
+	set_hour(10.5, "back to morning to report")
+	await teleport(TfSites.to_world(b, TfSites.HESTA_AT + Vector2(0, 7)), 0.0, 1.0)
+	opened = await tf_open_hesta()
+	texts = menu_texts()
+	L("Hesta options on report: %s" % str(texts).left(300))
+	var rep := false
+	if opened and not r.is_done(Q_BARLEY):
+		rep = await click_option("Report")
+	note("reporting: the talk_to objective was %s by opening Hesta's conversation (the 'Report' option %s)" % ["completed" if r.is_done(Q_BARLEY) and not rep else "completed by the option", "was not needed" if not rep else "was clicked"])
+	close_everything()
+	check("The Spoiled Barley completes and pays", r.is_done(Q_BARLEY) and Game.gold >= gold0 + 15, "gold %d -> %d; %s" % [gold0, Game.gold, quest_line(Q_BARLEY)])
+	await shot("barley_done")
+
+
+func _s_tf_cart() -> void:
+	var r := qrun()
+	var hub := tf_hub()
+	if Life.age() < 18:
+		set_age(18)
+	if not r.is_done(Q_BARLEY):
+		L("[HOOK] The Spoiled Barley is not done: completing it so the cart quest is offered")
+		r.start(Q_BARLEY)
+		for id: String in TfObserveIds():
+			QuestBus.shared().emit_event(&"interact", {"id": id})
+		QuestBus.shared().emit_event(&"hours", {"amount": 2.0, "hour": 20.0})
+		QuestBus.shared().emit_event(&"observe", {"target": "barn_figure", "dist": 8.0, "unseen": true, "dt": 30.0, "hour": 22.0})
+		QuestBus.shared().emit_event(&"talk", {"npc": "hesta_thorne"})
+	set_hour(9.0, "morning for the cart")
+	var b := TfSites.brewery()
+	await teleport(TfSites.to_world(b, TfSites.HESTA_AT + Vector2(0, 7)), 0.0, 1.5)
+	var opened := await tf_open_hesta()
+	var offered := false
+	if opened:
+		offered = await click_option("Grain Carts")
+	check("Hesta offers 'Wolves at the Grain Carts' after the barley quest", offered, str(menu_texts()).left(200))
+	if not offered and not r.is_active(Q_CARTS):
+		L("[HOOK] start %s directly" % Q_CARTS)
+		r.start(Q_CARTS)
+	close_everything()
+	check("the cart quest is active at the 'load' stage", r.is_active(Q_CARTS) and r.stage_of(Q_CARTS) == "load", quest_line(Q_CARTS))
+	# --- load: take the sound barley from the tithe barn store
+	var store: Node3D = hub.get("store")
+	var ok := await tf_reach(store, "barley store", TfSites.to_world(b, Vector2(0, 8)), 1.4)
+	check("the barley pile is the interact prompt target", ok)
+	if ok:
+		var lab := Interaction.label_of(Interaction.best(player))
+		L("store label: %s" % str(lab.get("text", lab)).left(80))
+		await key(KEY_E)
+		await wait(1.0)
+	check("E takes 4 sacks of sound barley", Life.count("barley") >= 4, "barley %d" % Life.count("barley"))
+	if Life.count("barley") < 4:
+		L("[HOOK] give 4 barley")
+		Life.give("barley", 4)
+	await wait(1.5)
+	check("the load stage completes and the wolves come (guard stage)", r.stage_of(Q_CARTS) == "guard", quest_line(Q_CARTS))
+	# --- guard: fight the ambush pack at the cart
+	var cart: Node3D = hub.get("cart")
+	check("the grain cart exists in the world", cart != null and is_instance_valid(cart))
+	var threat: Node = hub.get("threat")
+	var got := await wait_until(func() -> bool: return not (threat.get("ambush_wolves") as Array).is_empty(), 8.0)
+	check("an ambush pack spawns for the cart", got, "%d wolves" % (threat.get("ambush_wolves") as Array).size())
+	await shot("cart_ambush_start")
+	if cart != null:
+		await teleport(cart.call("xz") + Vector2(2.5, 2.5), 0.0, 0.6)
+	var t_guard := now()
+	var kills := 0
+	while now() - t_guard < 150.0 and r.stage_of(Q_CARTS) == "guard":
+		heal_player("guarding the cart")
+		var alive: Array = (threat.get("ambush_wolves") as Array).filter(func(w: Variant) -> bool: return is_instance_valid(w) and not bool(w.dead))
+		if alive.is_empty():
+			await wait(1.0)
+			if (threat.get("ambush_wolves") as Array).is_empty() and now() - t_guard > 20.0:
+				break
+			continue
+		var w: Node3D = alive[0]
+		var dead := await _fight(w, "cart wolf", 40.0)
+		if dead:
+			kills += 1
+		if kills <= 1:
+			await shot("cart_wolf_%d" % kills)
+		L("guard: kills %d, cart hp %s, %s" % [kills, str(cart.get("health")) if cart != null else "-", quest_line(Q_CARTS)])
+	check("the pack can be killed in melee (3 wolves)", kills >= 3, "%d kills" % kills)
+	# protect needs 1 game hour (kill needs 3): a player would wait it out; the clock is moved on here
+	if r.stage_of(Q_CARTS) == "guard":
+		L("[HOOK] WorldSim.advance_hours(1.2): the Protect objective counts one game hour (game time crawls at 1-2 fps)")
+		WorldSim.advance_hours(1.2)
+	await wait_until(func() -> bool: return r.stage_of(Q_CARTS) != "guard", 20.0)
+	check("the guard stage completes (cart alive, 3 wolves killed)", r.stage_of(Q_CARTS) == "road", quest_line(Q_CARTS))
+	if r.stage_of(Q_CARTS) == "guard":
+		bug("quest", "guard stage stuck: %s; cart alive %s" % [quest_line(Q_CARTS), str(cart != null and not bool(cart.get("dead")))])
+		r.notify(&"kill", {"target": "wolf", "place": "thornfield_fields", "amount": 3})
+		r.notify(&"hours", {"amount": 2.0, "hour": 12.0})
+		L("[HOOK] forced the guard stage")
+		await wait(1.5)
+	# --- road: escort the cart to the mill on foot
+	await wait(1.0)
+	check("the cart rolls (start_route) in the road stage", cart != null and bool(cart.get("moving")), quest_line(Q_CARTS))
+	var mill: Vector2 = TfSites.door_of_site("thornfield_mill")
+	fast_game(24)
+	var t_road := now()
+	while now() - t_road < 240.0 and r.stage_of(Q_CARTS) == "road" and cart != null and not bool(cart.get("finished")) and not bool(cart.get("dead")):
+		heal_player("escorting")
+		var cp: Vector2 = cart.call("xz")
+		var target := cp + (mill - cp).normalized() * 3.0
+		var walked := await walk_to(target, 1.5, 6.0, false, 3.0)
+		if not walked and p2().distance_to(cp) > 12.0:
+			L("[HOOK] the walk is blocked (tree/rock) %.0f m from the cart: teleporting beside it" % p2().distance_to(cp))
+			await teleport(cp + (mill - cp).normalized() * -3.0, 0.0, 0.2)
+		if int(now() - t_road) % 20 == 0:
+			L("escort t=%.0f cart %s mill %.0f m away player %.0f m from cart" % [now() - t_road, str(cp.snappedf(0.1)), cp.distance_to(mill), p2().distance_to(cp)])
+		await wait(0.3)
+	Engine.max_physics_steps_per_frame = 8
+	await shot("cart_at_mill")
+	await wait_until(func() -> bool: return (cart != null and bool(cart.get("finished"))) or r.stage_of(Q_CARTS) == "mill", 8.0)
+	check("the cart reaches the mill with the player escorting", (cart != null and bool(cart.get("finished"))) or r.stage_of(Q_CARTS) == "mill", "%.0f m from the mill door" % (cart.call("xz").distance_to(mill) if cart != null else -1.0))
+	await wait(2.0)
+	check("the escort stage completes (mill stage: hand over the barley)", r.stage_of(Q_CARTS) == "mill", quest_line(Q_CARTS))
+	if r.stage_of(Q_CARTS) == "road":
+		bug("quest", "escort did not register arrival: %s" % quest_line(Q_CARTS))
+		QuestBus.shared().emit_event(&"arrive", {"actor": "grain_cart_1", "place": "thornfield_mill"})
+		L("[HOOK] forced arrive event")
+		await wait(1.0)
+	# --- mill: the miller takes the barley through the talk menu
+	set_hour(10.0, "the miller works 6-17h")
+	var gold0 := Game.gold
+	var miller := await tf_go_to("thornfield_miller")
+	var delivered := false
+	if miller != null:
+		var rc := await tf_reach(miller, "miller", tf_pos())
+		if rc:
+			await key(KEY_E)
+			await wait(1.0)
+			L("miller options: %s" % str(menu_texts()).left(300))
+			delivered = await click_option("Hand over")
+		close_everything()
+	check("the miller's talk menu has 'Hand over 4 barley' and it works", delivered, quest_line(Q_CARTS))
+	if not delivered and r.stage_of(Q_CARTS) == "mill":
+		L("[HOOK] deliver event")
+		QuestBus.shared().emit_event(&"deliver", {"item": "barley", "to": "thornfield_miller", "amount": 4})
+		await wait(0.6)
+	check("Wolves at the Grain Carts completes and pays 40 gold", r.is_done(Q_CARTS) and Game.gold >= gold0 + 40, "gold %d -> %d; %s" % [gold0, Game.gold, quest_line(Q_CARTS)])
+	await shot("carts_done")
+
+
+func TfObserveIds() -> Array:
+	return ["thornfield/clue/sack", "thornfield/clue/prints", "thornfield/clue/lock", "thornfield/clue/ledger"]
+
+
+func _s_tf_wilm() -> void:
+	var r := qrun()
+	var hub := tf_hub()
+	if Life.age() < 18:
+		set_age(18)
+	if not r.is_done(Q_BARLEY):
+		bug("bot", "Wilm stage needs The Spoiled Barley done first; forcing it")
+		r.start(Q_BARLEY)
+		for id: String in TfObserveIds():
+			QuestBus.shared().emit_event(&"interact", {"id": id})
+		QuestBus.shared().emit_event(&"hours", {"amount": 2.0, "hour": 20.0})
+		QuestBus.shared().emit_event(&"observe", {"target": "barn_figure", "dist": 8.0, "unseen": true, "dt": 30.0, "hour": 22.0})
+		QuestBus.shared().emit_event(&"talk", {"npc": "hesta_thorne"})
+	set_hour(12.0, "Wilm is at the market 11-14h")
+	var b := TfSites.brewery()
+	await teleport(TfSites.to_world(b, TfSites.HESTA_AT + Vector2(0, 7)), 0.0, 1.5)
+	var gold0 := Game.gold
+	var rep0 := 0
+	var opened := await tf_open_hesta()
+	var offered := false
+	if opened:
+		offered = await click_option("Garrow")
+	check("Hesta offers 'Wilm Garrow's Offer'", offered, str(menu_texts()).left(200))
+	if not offered and not r.is_active(Q_CULPRIT):
+		r.start(Q_CULPRIT)
+		L("[HOOK] start %s directly" % Q_CULPRIT)
+	close_everything()
+	check("the culprit quest is active at 'confront'", r.is_active(Q_CULPRIT) and r.stage_of(Q_CULPRIT) == "confront", quest_line(Q_CULPRIT))
+	# goto: the barn
+	var barn := TfSites.place_pos("thornfield_barn")
+	await teleport(barn + Vector2(0, 4), 0.0, 1.0)
+	await wait(3.0)
+	L(quest_line(Q_CULPRIT))
+	# talk to Wilm
+	var wilm := await tf_go_to("wilm_garrow")
+	check("Wilm Garrow has a body at the market at noon", wilm != null)
+	if wilm != null:
+		var ok := await tf_reach(wilm, "wilm", tf_pos())
+		if ok:
+			await key(KEY_E)
+			await wait(1.0)
+			var texts := menu_texts()
+			L("Wilm options: %s" % str(texts).left(400))
+			var heard := await click_option("saw you at the barn")
+			check("Wilm's talk offers the confrontation line", heard, str(texts).left(300))
+			await wait(0.6)
+			await shot("wilm_confession")
+			L("after confession: options %s | %s" % [str(menu_texts()).left(200), quest_line(Q_CULPRIT)])
+			if heard:
+				await click_option("Think about")
+			close_everything()
+		else:
+			close_everything()
+	await wait(1.0)
+	check("hearing the confession advances to the verdict stage", r.stage_of(Q_CULPRIT) == "verdict", quest_line(Q_CULPRIT))
+	if r.stage_of(Q_CULPRIT) == "confront":
+		bug("quest", "Wilm's confession did not register: %s" % quest_line(Q_CULPRIT))
+		QuestBus.shared().emit_event(&"goto", {"place": "thornfield_barn"})
+		QuestBus.shared().emit_event(&"talk", {"npc": "wilm_garrow", "node": "confession"})
+		L("[HOOK] forced confession")
+		await wait(0.8)
+	# the verdict is a Choose objective shown in Wilm's talk menu
+	if wilm != null and is_instance_valid(wilm):
+		var ok2 := await tf_reach(wilm, "wilm", tf_pos())
+		if ok2:
+			await key(KEY_E)
+			await wait(1.0)
+			var texts2 := menu_texts()
+			L("Wilm options at the verdict: %s" % str(texts2).left(400))
+			await shot("wilm_verdict")
+			var chose := await click_option("turning him in")
+			check("the verdict choice 'turn him in' is offered by Wilm and clickable", chose, str(texts2).left(300))
+			close_everything()
+	await wait(0.8)
+	check("choosing 'turn in' branches to 'turned_in'", r.stage_of(Q_CULPRIT) == "turned_in", quest_line(Q_CULPRIT))
+	if r.stage_of(Q_CULPRIT) == "verdict":
+		QuestBus.shared().emit_event(&"choose", {"choice": "verdict", "option": "turn_in"})
+		L("[HOOK] forced verdict choice")
+		await wait(0.6)
+	# tell Hesta
+	opened = await tf_open_hesta()
+	if opened and not r.is_done(Q_CULPRIT):
+		L("Hesta options: %s" % str(menu_texts()).left(300))
+		await click_option("Report")
+	close_everything()
+	check("Wilm's Offer completes (turn-in branch) and pays", r.is_done(Q_CULPRIT) and Game.gold >= gold0 + 20, "gold %d -> %d; %s" % [gold0, Game.gold, quest_line(Q_CULPRIT)])
+	await shot("culprit_done")
+
+
+# ---------------------------------------------------------------------------------------- Thornfield: interiors, theft, traversal
+
+const TfTown := preload("res://scripts/world/thornfield/slice_town.gd")
+const TfLight := preload("res://scripts/interiors/interior_light.gd")
+const TfOwnership := preload("res://scripts/sim/ownership.gd")
+const TfTheft := preload("res://scripts/sim/theft.gd")
+const TfShopHours := preload("res://scripts/sim/shop_hours.gd")
+
+
+func tf_door_for(bid: String) -> InteriorDoor:
+	var bd: Dictionary = TfTown.building(bid)
+	if bd.is_empty():
+		return null
+	var lp: Vector2 = bd["pos"]
+	for n in get_tree().root.find_children("*", "Area3D", true, false):
+		if n is InteriorDoor and not (n as InteriorDoor).is_exit and n.has_meta("lot_pos") and (n.get_meta("lot_pos") as Vector2).distance_to(lp) < 0.05:
+			return n
+	return null
+
+
+## Walks to a Thornfield building's door and enters with E. Returns the interior root, or null (with a bug).
+func tf_enter(bid: String) -> Node3D:
+	var bd: Dictionary = TfTown.building(bid)
+	if bd.is_empty():
+		bug("slice", "no building %s in the Thornfield plan" % bid)
+		return null
+	var dp: Vector2 = bd["door"]
+	await teleport(dp + (tf_pos() - dp).normalized() * 3.0, 0.0, 1.0)
+	var door := tf_door_for(bid)
+	if door == null:
+		bug("slice", "no InteriorDoor was built for %s (door point %s)" % [bid, str(dp)])
+		return null
+	var dpos := Vector2(door.global_position.x, door.global_position.z)
+	var out_dir := (Vector2(door.global_transform.basis.z.x, door.global_transform.basis.z.z)).normalized()
+	var stand := dpos + out_dir * 1.0
+	await teleport(stand, yaw_to(stand, dpos), 0.4)
+	await wait(0.8)
+	var near: Node3D = player.nearest_interactable()
+	check("%s: the door is the interact prompt target" % bid, near == door, "nearest %s" % str(near.name if near != null else "-"))
+	var lab := Interaction.label_of(Interaction.best(player))
+	L("%s door prompt: %s (scene %s)" % [bid, str(lab.get("text", lab)).left(60), door.interior_scene])
+	var t_enter := now()
+	await key(KEY_E)
+	await wait_until(func() -> bool: return InteriorDoor.active != null, 90.0)
+	await wait(2.0)
+	note("%s entered in %.1f s" % [bid, now() - t_enter])
+	if InteriorDoor.active == null:
+		bug("slice", "E at the %s door did not enter the building" % bid)
+		return null
+	return InteriorDoor.active.interior
+
+
+func tf_leave_by_exit(label: String) -> void:
+	var ex: InteriorDoor = null
+	for n in main.find_children("*", "Area3D", true, false):
+		if n is InteriorDoor and (n as InteriorDoor).is_exit:
+			ex = n
+	if ex == null:
+		bug("slice", "%s: no exit door" % label)
+		return
+	if player.global_position.distance_to(ex.global_position) > 1.2:
+		player.global_position = ex.global_position + Vector3(0.0, 0.1, 0.0)      # walked off to the counter / lever: back to the door
+		player.velocity = Vector3.ZERO
+		player.reset_physics_interpolation()
+		await wait(0.8)
+	for attempt in 3:
+		await key(KEY_E)
+		await wait(1.5)
+		if hud.is_menu_open():
+			hud.close_menu()
+			continue
+		if await wait_until(func() -> bool: return InteriorDoor.active == null, 20.0):
+			break
+	await wait(1.5)
+	check("%s: E at the exit leaves the building" % label, InteriorDoor.active == null)
+
+
+func _tf_interior_checks(label: String, interior: Node3D, hour: float) -> void:
+	check("%s: the interior is a modular room" % label, interior != null and interior.has_method("light_report") and not (interior.get("layout") as Dictionary).is_empty(), "layout %s" % str(interior.get("layout_id")))
+	await wait(1.5)
+	var want: Array = interior.call("desired_roster", hour)
+	var bodies: Dictionary = interior.get("bodies")
+	var present := await wait_until(func() -> bool: return not (interior.get("bodies") as Dictionary).is_empty(), 10.0)
+	L("%s household: scheduled %d, bodies %d, furniture %s" % [label, want.size(), (interior.get("bodies") as Dictionary).size(), str(interior.call("furniture_counts"))])
+	if want.is_empty():
+		note("%s: nobody is scheduled here at %.1fh" % [label, hour])
+	else:
+		check("%s: a household member is present at %.1fh" % [label, hour], present, "scheduled %d bodies %d" % [want.size(), (interior.get("bodies") as Dictionary).size()])
+	# light follows the hour
+	var lr: Dictionary = interior.call("light_report")
+	var st: Dictionary = TfLight.state(hour, String(interior.get("layout_id")))
+	check("%s: ambient light matches the hour" % label, absf(float(lr["ambient_energy"]) - float(st["ambient_energy"])) < 0.08, "report %.2f expected %.2f (hour %.1f)" % [float(lr["ambient_energy"]), float(st["ambient_energy"]), hour])
+	var other_hour := 23.0 if TfLight.daylight(hour) > 0.5 else 12.0
+	set_hour(other_hour, "light check: the room should follow")
+	await wait_until(func() -> bool: return absf(float((interior.call("light_report") as Dictionary)["ambient_energy"]) - float(lr["ambient_energy"])) > 0.15, 8.0)
+	var lr2: Dictionary = interior.call("light_report")
+	check("%s: the room's light changes when the hour does" % label, absf(float(lr2["ambient_energy"]) - float(lr["ambient_energy"])) > 0.15, "%.2f at %.0fh -> %.2f at %.0fh" % [float(lr["ambient_energy"]), hour, float(lr2["ambient_energy"]), other_hour])
+	set_hour(hour, "restore")
+	await shot(label + "_inside")
+	# the exit prompt from the spawn point
+	var ex: InteriorDoor = interior.get("exit_door")
+	var near: Node3D = player.nearest_interactable()
+	L("%s spawn: nearest interactable %s, exit door %s, dist %.2f" % [label, str(near.name) if near != null else "-", str(ex.name) if ex != null else "-", player.global_position.distance_to(ex.global_position) if ex != null else -1.0])
+	check("%s: the exit prompt is reachable from the spawn point (no step needed)" % label, ex != null and near == ex)
+
+
+func _s_tf_interior() -> void:
+	if Life.age() < 18:
+		set_age(18)
+	# --- a house: the baker's family home in the evening, when the household is in
+	set_hour(21.0, "evening: a household is at home")
+	var house := await tf_enter("thornfield_house_8")
+	if house != null:
+		await _tf_interior_checks("house", house, 21.0)
+		await tf_leave_by_exit("house")
+	close_everything()
+	# --- a shop: the general shop at midday
+	set_hour(12.0, "midday: the shop is open")
+	var shop := await tf_enter("thornfield_shop")
+	if shop != null:
+		await _tf_interior_checks("shop", shop, 12.0)
+		var counters := get_tree().get_nodes_in_group("shop_counter")
+		check("the shop has a counter Station", not counters.is_empty())
+		if not counters.is_empty():
+			var st: Station = counters[0]
+			check("the counter is open at midday", not st.is_closed(), st.prompt())
+			var okc := await tf_reach(st, "shop counter", Vector2(player.global_position.x, player.global_position.z), 1.3)
+			if okc:
+				await key(KEY_E)
+				await wait_until(func() -> bool: return hud.is_menu_open(), 6.0)
+				L("shop counter menu: %s" % str(menu_texts()).left(200))
+				await shot("shop_counter")
+				close_everything()
+		await tf_leave_by_exit("shop")
+	close_everything()
+
+
+func _tf_open_blocked(label: String) -> bool:
+	return InteriorDoor.active != null
+
+
+## Spawns an owned loose item `ahead` metres in front of the player, returns the GroundItem.
+func tf_drop_owned(item: String, owner: String, ahead := 1.2) -> Node3D:
+	var f := Vector2(-sin(player._yaw), -cos(player._yaw))
+	var at := p2() + f * ahead
+	var gi: Node3D = GroundItem.spawn(main.world, Vector3(at.x, WorldGen.height(at.x, at.y) + 0.1, at.y), item, 1, owner)
+	return gi
+
+
+func _s_tf_theft() -> void:
+	if Life.age() < 18:
+		set_age(18)
+	var sid := int(tf_town()["id"])
+	var house: Dictionary = TfTown.building("thornfield_house_5")
+	var owner := TfOwnership.household(sid, int(house["lot"]))
+	check("a Thornfield household's things are theft to take", TfOwnership.is_theft(owner), owner)
+	var Witness := load("res://scripts/population/witness.gd") as GDScript
+	var soc: RefCounted = NpcWorld._society()
+	# --- seen: an owned loaf at the player's feet, a villager 4 m ahead looking at the player
+	set_hour(12.0, "daylight, the street is busy")
+	var town := tf_pos()
+	await teleport(town + Vector2(0, 9), 0.0, 1.5)
+	var wit: Node3D = null
+	for v in get_tree().get_nodes_in_group("villager"):
+		if v is Node3D and (v as Node3D).is_visible_in_tree() and not v.is_in_group("barn_figure") and (v as Node3D).global_position.distance_to(player.global_position) < 40.0:
+			wit = v
+			break
+	if wit == null:
+		var b := await tf_go_to("old_hild")
+		wit = b
+	check("a villager is around to witness", wit != null)
+	if wit == null:
+		return
+	var wp := Vector2(wit.global_position.x, wit.global_position.z)
+	var stand := wp + (town - wp).normalized() * 4.0
+	await teleport(stand, yaw_to(stand, wp), 0.5)
+	L("[HOOK] turn the villager to face the thief (a passer-by glancing over)")
+	wit.rotation.y = atan2(stand.x - wp.x, stand.y - wp.y)
+	var gi := tf_drop_owned("bread", owner, 1.0)
+	await wait(1.0)
+	var cases0 := (Witness.get("cases") as Array).size()
+	var crimes0 := (soc.get("crimes") as Array).size() if soc != null else -1
+	var near: Node3D = player.nearest_interactable()
+	var lab := Interaction.label_of(Interaction.best(player))
+	L("owned loaf prompt: %s (nearest %s)" % [str(lab.get("text", lab)).left(60), str(near)])
+	check("the owned loaf reads 'Steal' in the prompt", String(lab.get("verb", lab.get("text", ""))).to_lower().contains("steal"), str(lab).left(80))
+	await key(KEY_E)
+	await wait(1.5)
+	var last: Dictionary = TfTheft.last
+	L("Theft.last: %s" % str(last).left(300))
+	check("taking an owned item in view of a villager is a theft that was seen", bool(last.get("theft", false)) and int(last.get("seen_by", 0)) >= 1, str(last).left(200))
+	await wait(4.0)
+	var cases1 := (Witness.get("cases") as Array).size()
+	var crimes1 := (soc.get("crimes") as Array).size() if soc != null else -1
+	check("a witness case / crime was opened for it", cases1 > cases0 or crimes1 > crimes0, "cases %d->%d crimes %d->%d" % [cases0, cases1, crimes0, crimes1])
+	check("the item is flagged as stolen in the pack", TfTheft.carries_stolen(), "stolen stacks %d" % TfTheft.stolen_stacks().size())
+	await shot("theft_seen")
+	# --- unseen: a spot well outside Thornfield with no villager within hearing range (40 m)
+	var quiet := Vector2.INF
+	var near_v := 0
+	for rad: float in [150.0, 190.0, 230.0]:
+		for k in 5:
+			var cand := town + Vector2(cos(float(k) * TAU / 5.0 + 0.4), sin(float(k) * TAU / 5.0 + 0.4)) * rad
+			await teleport(cand, 0.0, 1.0)
+			near_v = 0
+			for v in get_tree().get_nodes_in_group("villager"):
+				if v is Node3D and (v as Node3D).global_position.distance_to(player.global_position) < 45.0:
+					near_v += 1
+			if near_v == 0:
+				quiet = cand
+				break
+		if quiet != Vector2.INF:
+			break
+	L("quiet spot %s: %d villagers within 45 m, settlement id there %d" % [str(quiet), near_v, TfTheft.sid_at(p2())])
+	check("a spot with nobody within hearing range exists near Thornfield", quiet != Vector2.INF)
+	if quiet == Vector2.INF:
+		return
+	var gi2 := tf_drop_owned("apple", owner, 1.0)
+	await wait(1.0)
+	var cases2 := (Witness.get("cases") as Array).size()
+	var crimes2 := (soc.get("crimes") as Array).size() if soc != null else -1
+	await key(KEY_E)
+	await wait(1.5)
+	var last2: Dictionary = TfTheft.last
+	L("Theft.last (unseen): %s" % str(last2).left(300))
+	await wait(4.0)
+	var cases3 := (Witness.get("cases") as Array).size()
+	var crimes3 := (soc.get("crimes") as Array).size() if soc != null else -1
+	check("taking it unseen is still flagged as stolen but nobody saw it", bool(last2.get("theft", false)) and int(last2.get("seen_by", 0)) == 0, str(last2).left(200))
+	check("an unseen theft opens no witness case (no crime is reported)", cases3 == cases2, "cases %d->%d (society crimes %d->%d: the earlier seen theft's case commits in this window)" % [cases2, cases3, crimes2, crimes3])
+	await shot("theft_unseen")
+	# --- shop hours: the smith is shut at 22:00 and open at 10:00
+	check("ShopHours: the blacksmith is open at 10:00 and shut at 22:00", TfShopHours.is_open("blacksmith", 10.0) and not TfShopHours.is_open("blacksmith", 22.0))
+	set_hour(22.0, "night: the smithy is shut")
+	var smithy := await tf_enter("thornfield_smithy")
+	if smithy != null:
+		await wait(2.0)
+		var stations: Array = []
+		for n in smithy.find_children("*", "Station", true, false):
+			stations.append(n)
+		var smith_st: Station = null
+		for s: Station in stations:
+			if s.hours_kind != "":
+				smith_st = s
+		L("smithy stations: %s" % str(stations.map(func(s: Station) -> String: return "%s(%s,%s)" % [s.title, s.hours_kind, s.prompt()])))
+		check("the smithy's counter says Closed at 22:00", smith_st != null and smith_st.is_closed(), str(smith_st.prompt() if smith_st != null else "no station"))
+		if smith_st != null:
+			var ok := await tf_reach(smith_st, "smith station", Vector2(player.global_position.x, player.global_position.z), 1.3)
+			if ok:
+				var lab2 := Interaction.label_of(Interaction.best(player))
+				L("smithy prompt at 22:00: %s" % str(lab2.get("text", lab2)).left(60))
+				await key(KEY_E)
+				await wait_until(func() -> bool: return hud.is_menu_open(), 6.0)
+				var txt := " | ".join(menu_texts())
+				var body := ""
+				for r: Node in menu_roots():
+					for l in r.find_children("*", "Label", true, false):
+						body += String(l.get("text")) + " / "
+				L("smithy menu at 22:00: buttons %s labels %s" % [txt.left(120), body.left(200)])
+				check("the smithy's menu refuses trade out of hours", body.to_lower().contains("closed") or body.to_lower().contains("open") or body.to_lower().contains("come back") or body.to_lower().contains("morning"), body.left(160))
+				await shot("smithy_closed")
+				close_everything()
+		await tf_leave_by_exit("smithy")
+	set_hour(12.0, "restore")
+
+
+func tf_make_box(at: Vector3, size: Vector3, yaw: float, label: String) -> StaticBody3D:
+	var sb := StaticBody3D.new()
+	sb.name = label
+	var cs := CollisionShape3D.new()
+	var bs := BoxShape3D.new()
+	bs.size = size
+	cs.shape = bs
+	sb.add_child(cs)
+	var mi := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = size
+	mi.mesh = bm
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.5, 0.42, 0.34)
+	mi.material_override = m
+	sb.add_child(mi)
+	main.world.add_child(sb)
+	sb.global_position = at + Vector3(0, size.y * 0.5, 0)
+	sb.rotation.y = yaw
+	return sb
+
+
+func _s_tf_travel() -> void:
+	if Life.age() < 18:
+		set_age(18)
+	set_hour(13.0, "daylight")
+	var trav: Object = player._trav
+	var kinds: Array = []
+	trav.started.connect(func(k: StringName) -> void: kinds.append(String(k)))
+	var base := TfSites.place_pos("thornfield_fields")
+	await teleport(base, 0.0, 1.5)
+	var f := Vector2(-sin(player._yaw), -cos(player._yaw))
+	var side := Vector2(f.y, -f.x)
+	var gy := WorldGen.height(base.x, base.y)
+	# --- a low wall (0.8 m high, 0.4 m deep, 6 m wide) 5 m ahead: sprint into it
+	var wp := base + f * 5.0
+	var wall := tf_make_box(Vector3(wp.x, WorldGen.height(wp.x, wp.y), wp.y), Vector3(6.0, 0.8, 0.4), atan2(f.x, f.y), "QAWall")
+	L("[HOOK] placed a 0.8 m wall 5 m ahead (the fields have no low wall)")
+	await shot("vault_before")
+	var y0 := player.global_position.y
+	var side0 := (p2() - wp).dot(f)
+	face(wp + f * 2.0, -0.1)
+	hold("sprint", true)
+	hold("move_forward", true)
+	var t_v := now()
+	while now() - t_v < 14.0:
+		face(wp + f * 4.0, -0.1)
+		await frames(1)
+		if (p2() - wp).dot(f) > 1.0:
+			break
+	release_all()
+	await wait(1.0)
+	var past := (p2() - wp).dot(f)
+	check("sprinting into a 0.8 m wall vaults it (VAULT started)", kinds.has("vault") and past > 0.5, "kinds %s, %.1f m beyond the wall" % [str(kinds), past])
+	if past <= 0.5:
+		bug("traversal", "the player could not cross a 0.8 m wall by sprinting: kinds %s pos %s" % [str(kinds), _pos2s()])
+	await shot("vault_after")
+	wall.queue_free()
+	# --- a 1.6 m wall, 2 m deep: jump to mantle
+	kinds.clear()
+	await teleport(base + side * 12.0, yaw_to(base + side * 12.0, base + side * 12.0 + f), 0.8)
+	var mp := p2() + f * 1.6
+	var wall2 := tf_make_box(Vector3(mp.x, WorldGen.height(mp.x, mp.y), mp.y), Vector3(6.0, 1.6, 2.4), atan2(f.x, f.y), "QAMantle")
+	L("[HOOK] placed a 1.6 m x 2.4 m block 1.6 m ahead")
+	face(mp, -0.1)
+	await wait(0.8)
+	var near: Node3D = player.nearest_interactable()
+	var lab := Interaction.label_of(Interaction.best(player))
+	L("prompt at the block: %s" % str(lab.get("text", lab)).left(60))
+	await key(KEY_SPACE, 3)
+	await wait_until(func() -> bool: return not kinds.is_empty(), 4.0)
+	await wait(6.0)
+	var top_y := WorldGen.height(mp.x, mp.y) + 1.6
+	check("jumping at a 1.6 m block mantles onto it", (kinds.has("mantle_high") or kinds.has("mantle_low")) and player.global_position.y > top_y - 0.35, "kinds %s player y %.2f top %.2f" % [str(kinds), player.global_position.y, top_y])
+	await shot("mantle_top")
+	wall2.queue_free()
+	# --- a 2.3 m ledge: grab, hang, climb
+	kinds.clear()
+	await teleport(base + side * 24.0, yaw_to(base + side * 24.0, base + side * 24.0 + f), 0.8)
+	var lp := p2() + f * 1.3
+	var wall3 := tf_make_box(Vector3(lp.x, WorldGen.height(lp.x, lp.y), lp.y), Vector3(6.0, 2.3, 2.4), atan2(f.x, f.y), "QALedge")
+	L("[HOOK] placed a 2.3 m x 2.4 m block 1.3 m ahead")
+	face(lp, -0.1)
+	await wait(0.8)
+	await key(KEY_SPACE, 3)
+	await wait_until(func() -> bool: return kinds.has("ledge"), 5.0)
+	var hang_log: Array = []
+	var hanging := await wait_until(func() -> bool:
+		hang_log.append("s%d y%.2f" % [int(trav.get("state")), player.global_position.y])
+		return bool(trav.call("hanging")), 12.0)
+	L("ledge: kinds %s hanging %s y %.2f; trace %s" % [str(kinds), str(hanging), player.global_position.y, str(hang_log.filter(func(x: Variant) -> bool: return hang_log.find(x) % 25 == 0)).left(240)])
+	await shot("ledge_hang")
+	var top3 := WorldGen.height(lp.x, lp.y) + 2.3
+	if hanging:
+		await wait(1.0)
+		await key(KEY_SPACE, 3)
+		await wait_until(func() -> bool: return not bool(trav.call("busy")) and player.global_position.y > top3 - 0.4, 14.0)
+	check("a 2.3 m ledge can be grabbed (hang) and climbed", kinds.has("ledge") and hanging and player.global_position.y > top3 - 0.4, "kinds %s hanging %s y %.2f top %.2f" % [str(kinds), str(hanging), player.global_position.y, top3])
+	await shot("ledge_top")
+	wall3.queue_free()
+	# --- a ladder: the Thornfield inn when its layout has a loft, else the first Thornfield building that has one
+	set_hour(14.0, "the inn is open")
+	var BP := load("res://scripts/world/building_profiles.gd") as GDScript
+	var Lay := load("res://scripts/interiors/interior_layouts.gd") as GDScript
+	var loft_bid := ""
+	var inn_layout := ""
+	var slice: Dictionary = (tf_town()["plan"]["slice"] as Dictionary)["buildings"]
+	var ids: Array = slice.keys()
+	ids.sort()
+	ids.erase("thornfield_inn")
+	ids.push_front("thornfield_inn")
+	for bid: String in ids:
+		var bd: Dictionary = slice[bid]
+		var lay := String(BP.call("layout_for", String(bd["asset"]), String(BP.call("building_id", bd["pos"]))))
+		if bid == "thornfield_inn":
+			inn_layout = lay
+		if lay != "" and not (Lay.call("layout", lay) as Dictionary).get("loft", {}).is_empty():
+			loft_bid = bid
+			break
+	note("Thornfield inn layout '%s'; ladder tested in %s" % [inn_layout, loft_bid])
+	if loft_bid != "thornfield_inn":
+		note("the Thornfield inn's generated layout (%s) has no loft or ladder (only tavern_inn and family_loft do)" % inn_layout)
+	var inn := await tf_enter(loft_bid) if loft_bid != "" else null
+	if inn != null:
+		var ladders: Array = inn.get("furniture")["ladders"]
+		L("ladders in %s: %d" % [loft_bid, ladders.size()])
+		check("%s has a ladder" % loft_bid, not ladders.is_empty())
+		if not ladders.is_empty():
+			var ld: Ladder = ladders[0]
+			var y_before := player.global_position.y
+			var okl := await tf_reach(ld.bottom, "ladder bottom", Vector2(ld.bottom.global_position.x, ld.bottom.global_position.z) + Vector2(0, 2), 1.0)
+			L("ladder bottom reached by prompt: %s" % str(okl))
+			await shot("ladder_bottom")
+			await key(KEY_E)
+			await wait(7.0)
+			var climbed := player.global_position.y > ld.bottom.global_position.y + float(ld.height()) * 0.7
+			check("E at the ladder foot climbs to the loft", climbed, "player y %.2f, ladder %.2f -> %.2f" % [player.global_position.y, ld.bottom.global_position.y, ld.top.global_position.y])
+			if not climbed:
+				bug("traversal", "ladder climb did not move the player up (y %.2f, expected ~%.2f)" % [player.global_position.y, ld.top.global_position.y])
+			await shot("ladder_top")
+			# and back down
+			var okt := await wait_until(func() -> bool: return player.nearest_interactable() != null, 3.0)
+			await key(KEY_E)
+			await wait(7.0)
+			L("after the descent: y %.2f (bottom %.2f)" % [player.global_position.y, ld.bottom.global_position.y])
+		await tf_leave_by_exit("inn")
+	close_everything()
+
+
+# ---------------------------------------------------------------------------------------- Thornfield: combat, soldier, Rift, Soulbeast
+
+const TfWilds := preload("res://scripts/world/thornfield/wilds.gd")
+const TfRiftLayout := preload("res://scripts/world/thornfield/rift_layout.gd")
+const TfSoldierCareer := preload("res://scripts/sim/soldier_career.gd")
+const TfSoldierUI := preload("res://scripts/ui/soldier_ui.gd")
+
+
+## A real key held down for `secs` (wall seconds): a charge / a bow draw.
+func key_hold(k: int, secs: float) -> void:
+	beat("hold key %d" % k)
+	var e := InputEventKey.new()
+	e.keycode = k
+	e.physical_keycode = k
+	e.pressed = true
+	Input.parse_input_event(e)
+	await wait(secs)
+	var r := InputEventKey.new()
+	r.keycode = k
+	r.physical_keycode = k
+	r.pressed = false
+	Input.parse_input_event(r)
+	await frames(2)
+
+
+func tf_wolf_at(at: Vector2, provoked := 8.0) -> Wolf:
+	var w := Wolf.new()
+	w.species = "wolf"
+	w.home = at
+	w.territory = 200.0
+	main.world.add_child(w)
+	w.global_position = Vector3(at.x, WorldGen.height(at.x, at.y) + 0.3, at.y)
+	w._provoked = provoked
+	return w
+
+
+func tf_equip(item: String) -> bool:
+	Life.give(item, 1)
+	var r: Variant = Life.equipment.call("equip_from", Life, item)
+	L("[HOOK] give + equip %s -> %s (main_hand %s, style %s)" % [item, str(r), String(Life.equipment.call("item_in", "main_hand")), str(player._arms.style)])
+	return String(Life.equipment.call("item_in", "main_hand")) == item
+
+
+func _s_tf_combat() -> void:
+	if Life.age() < 18:
+		set_age(18)
+	set_hour(13.0, "daylight")
+	var base := TfSites.place_pos("thornfield_fields") + Vector2(14, 6)
+	await teleport(base, 0.0, 1.5)
+	heal_player()
+	var fwd := Vector2(-sin(player._yaw), -cos(player._yaw))
+	var swings: Array = []
+	player.swing_started.connect(func(action: Resource, info: Dictionary) -> void:
+		swings.append("%s|%s" % [str(action.get("id")) if action != null else "-", str(action.resource_path).get_file() if action != null else "-"]))
+	# --- sword: heavy attack on a wolf
+	check("a sword is equipped (combat style sword)", tf_equip("bronze_sword") and player._arms.style == "sword", "style %s" % str(player._arms.style))
+	var w := tf_wolf_at(base + fwd * 1.9, 0.0)
+	w.process_mode = Node.PROCESS_MODE_DISABLED       # a still target for the heavy swing (a live wolf bites and knocks the hold away)
+	L("[HOOK] the wolf is frozen until the heavy attack has landed")
+	await wait(1.0)
+	face(Vector2(w.global_position.x, w.global_position.z), -0.2)
+	await shot("combat_wolf_close")
+	var hp0: int = int(w.health)
+	swings.clear()
+	L("before the heavy: dead %s swimming %s mount %s knockdown %s hp %d/%d wolf state %s dist %.1f" % [str(player.dead), str(player.swimming), str(player._mount), str(player._arms.kd.is_active()), player.health, player.max_health, str(w.state), player.global_position.distance_to(w.global_position)])
+	fast_game(16)
+	var held_log: Array = []
+	var ev := InputEventKey.new()
+	ev.keycode = KEY_J
+	ev.physical_keycode = KEY_J
+	ev.pressed = true
+	Input.parse_input_event(ev)
+	var charging_seen := false
+	await frames(1)
+	L("1 frame after the J press: Input.is_action_pressed(attack)=%s input_held=%s held=%.2f style=%s" % [str(Input.is_action_pressed("attack")), str(player._arms.input_held), float(player._arms.held), str(player._arms.style)])
+	if not bool(player._arms.input_held):
+		bug("combat", "a real J key press did not start an attack hold (Input pressed=%s, input_held=false): calling player.attack_press() directly" % str(Input.is_action_pressed("attack")))
+		player.attack_press()
+		await frames(1)
+		L("after attack_press(): input_held=%s held=%.2f" % [str(player._arms.input_held), float(player._arms.held)])
+	for i in 8:
+		await wait(0.25)
+		held_log.append("held %.2f charging %s input_held %s" % [float(player._arms.held), str(player._arms.charging), str(player._arms.input_held)])
+		charging_seen = charging_seen or bool(player._arms.charging)
+	var evr := InputEventKey.new()
+	evr.keycode = KEY_J
+	evr.physical_keycode = KEY_J
+	evr.pressed = false
+	Input.parse_input_event(evr)
+	await frames(2)
+	L("hold trace: %s" % str(held_log.filter(func(x: Variant) -> bool: return held_log.find(x) % 3 == 0)))
+	await wait(2.5)
+	L("heavy swing log: %s; wolf hp %d -> %s; charging seen %s" % [str(swings), hp0, str(w.health) if is_instance_valid(w) else "gone", str(charging_seen)])
+	var heavy_swing := false
+	for sw: String in swings:
+		if sw.to_lower().contains("heavy"):
+			heavy_swing = true
+	check("holding the attack key then releasing performs a heavy attack", heavy_swing, str(swings))
+	await shot("combat_heavy")
+	check("the heavy attack hurt the wolf", not is_instance_valid(w) or bool(w.get("dead")) or int(w.health) < hp0, "wolf hp %d -> %s" % [hp0, str(w.health) if is_instance_valid(w) else "gone"])
+	if is_instance_valid(w):
+		w.process_mode = Node.PROCESS_MODE_INHERIT
+	# --- lock-on on the wolf (key, then the HUD lock button)
+	if is_instance_valid(w) and not bool(w.get("dead")):
+		face(Vector2(w.global_position.x, w.global_position.z), -0.2)
+		await key(KEY_Q)
+		await wait(0.8)
+		var locked: bool = player._lock != null and is_instance_valid(player._lock)
+		check("Q locks onto the wolf", locked and player._lock == w, "lock %s" % str(player._lock))
+		await shot("combat_lockon")
+		await key(KEY_Q)
+		await wait(0.6)
+		check("Q again releases the lock", player._lock == null or not is_instance_valid(player._lock), str(player._lock))
+		var lb: Node = hud._buttons.get("lock_combat")
+		if lb != null:
+			var lpos: Vector2 = lb.get("global_position") + Vector2(36, 36)
+			L("HUD lock button %s visible_in_tree %s at %s" % [lb.get_class(), str(lb.is_visible_in_tree()), str(lpos)])
+			if lb.is_visible_in_tree():
+				for tap in 2:
+					for pressed in [true, false]:
+						var te := InputEventScreenTouch.new()
+						te.index = 0
+						te.position = lpos
+						te.pressed = pressed
+						Input.parse_input_event(te)
+						await frames(2)
+					await wait(0.8)
+					if tap == 0:
+						check("tapping the HUD lock button locks on", player._lock != null and is_instance_valid(player._lock), str(player._lock))
+					else:
+						check("tapping it again releases the lock", player._lock == null or not is_instance_valid(player._lock), str(player._lock))
+			else:
+				note("the HUD lock button is hidden outside combat state (no tap)")
+		# finish it with taps
+		var dead := await _fight(w, "heavy wolf", 40.0)
+		check("the wolf can be finished with light attacks", dead)
+	heal_player()
+	# --- bow
+	var bow_ok := tf_equip("ash_shortbow")
+	Life.give("flint_arrow", 20)
+	await wait(0.5)
+	check("a shortbow equips as the bow style", bow_ok and player._arms.style == "bow", "style %s" % str(player._arms.style))
+	var arrows0: int = Life.count("flint_arrow")
+	var shots: Array = []
+	player._arms.arrow_shot.connect(func(info: Dictionary) -> void: shots.append(info))
+	var tp := player.global_position
+	var wp := Vector2(tp.x, tp.z) + fwd * 11.0
+	var w2 := tf_wolf_at(wp, 0.0)
+	w2.set("state", 0)
+	await wait(1.0)
+	face(Vector2(w2.global_position.x, w2.global_position.z), -0.1)
+	var whp0: int = int(w2.health)
+	await key_hold(KEY_J, 1.3)
+	await wait(3.0)
+	check("a drawn shot fires an arrow and uses one", shots.size() >= 1 and Life.count("flint_arrow") == arrows0 - 1, "shots %d, arrows %d -> %d, info %s" % [shots.size(), arrows0, Life.count("flint_arrow"), str(shots[0] if not shots.is_empty() else {}).left(120)])
+	L("bow shot: wolf hp %d -> %s" % [whp0, str(w2.health) if is_instance_valid(w2) else "gone"])
+	check("the arrow hit the wolf", not is_instance_valid(w2) or bool(w2.get("dead")) or int(w2.health) < whp0, "wolf hp %d -> %s" % [whp0, str(w2.health) if is_instance_valid(w2) else "gone"])
+	await shot("combat_bow")
+	if is_instance_valid(w2) and not bool(w2.get("dead")):
+		w2.queue_free()
+	# back to a sword so later stages fight normally
+	tf_equip("bronze_sword")
+	heal_player()
+
+
+func _s_tf_soldier() -> void:
+	if Life.age() < 18:
+		set_age(18)
+	var post: Dictionary = TfWilds.post()
+	check("the Soldier career's post is the Watch Post outpost", String(post.get("kind", "")) == "outpost", str(post).left(120))
+	var c: Vector2 = post["pos"]
+	set_hour(9.0, "daytime")
+	await teleport(c + Vector2(0, 22), 0.0, 1.5)
+	var hub := tf_hub()
+	var outpost: Node = hub.get("wilds").get("outpost")
+	var built := await wait_until(func() -> bool: return bool(outpost.get("built")), 45.0)
+	if not built:
+		L("[HOOK] outpost.refresh by hand (its 2 s poll runs on frame time)")
+		outpost.call("refresh", p2(), 2.0)
+		await wait(2.0)
+	check("the Watch Post is built when the player is near", bool(outpost.get("built")))
+	await wait(2.0)
+	await shot("watch_post")
+	var cap: Node3D = outpost.get("captain")
+	check("the post has a captain Station", cap != null and is_instance_valid(cap))
+	if cap == null:
+		return
+	var m: RefCounted = TfSoldierUI.module()
+	check("the soldier module exists", m != null)
+	var day := int(WorldSim.day)
+	check("the player is not yet a soldier", not bool(m.get("active")))
+	# --- enlist through the captain's menu
+	var ok := await tf_reach(cap, "captain", c + Vector2(0, 8), 1.6)
+	check("the captain is the interact prompt target", ok)
+	await key(KEY_E)
+	var opened := await wait_until(func() -> bool: return hud.is_menu_open(), 6.0)
+	L("captain options: %s" % str(menu_texts()).left(300))
+	await shot("captain_menu")
+	check("E opens the captain's menu", opened)
+	var enl := false
+	if opened:
+		enl = await click_option("Enlist")
+	check("the captain's menu has a clickable 'Enlist'", enl, str(menu_texts()).left(200))
+	close_everything()
+	await wait(0.5)
+	check("enlisting makes the player a soldier", bool(m.get("active")), "rank %s" % str(m.call("rank_title")))
+	if not bool(m.get("active")):
+		L("[HOOK] enlist through the module")
+		m.call("enlist", day, "captain")
+	# --- muster: the window is a morning hour
+	var mh := float(TfSoldierCareer.muster()["hour"])
+	set_hour(mh + 0.2, "inside the muster window")
+	var mp: Vector2 = outpost.call("muster_pos")
+	await teleport(mp + Vector2(1.5, 0), 0.0, 1.0)
+	L("at muster yard: at_post %s, in window %s" % [str(m.call("at_post", p2())), str(TfSoldierCareer.in_muster(WorldSim.time_of_day))])
+	ok = await tf_reach(cap, "captain", c + Vector2(0, 8), 1.6)
+	await key(KEY_E)
+	await wait_until(func() -> bool: return hud.is_menu_open(), 6.0)
+	L("captain options (serving): %s" % str(menu_texts()).left(300))
+	await shot("captain_serving")
+	var mus := await click_option("muster")
+	check("the captain's menu has 'Report for muster' and it counts", mus and bool(m.call("attended_on", int(WorldSim.day))), str(menu_texts()).left(200))
+	var duty_btn := false
+	var texts := menu_texts()
+	for t: String in texts:
+		if t.to_lower().begins_with("take duty"):
+			duty_btn = true
+	check("a duty is on offer ('Take duty ...')", duty_btn, str(texts).left(250))
+	if duty_btn:
+		await click_option("Take duty")
+	close_everything()
+	await wait(0.5)
+	var duty: Dictionary = m.get("duty")
+	var druner: QuestRunner = m.call("runner")      # the soldier module keeps its own quest runner
+	check("taking the duty starts its quest", not duty.is_empty() and String(duty.get("state", "")) == "active" and druner.is_active(String(duty.get("id", ""))), "duty state %s, quest active %s (%s)" % [str(duty.get("state", "")), str(druner.is_active(String(duty.get("id", "")))), String(duty.get("text", ""))])
+	var sv: Dictionary = m.call("status_view", int(WorldSim.day))
+	note("soldier: %s, merit %d, duty %s" % [String(sv["rank"]), int(sv["merit"]), str((sv["duty"] as Dictionary).get("text", "-"))])
+	await shot("duty_taken")
+	close_everything()
+
+
+func tf_find_creatures_in_room(root: Node, room_rect: Rect2i, side: int) -> Array:
+	var out: Array = []
+	var lo := TfRiftLayout.cell_pos(side, float(room_rect.position.x), float(room_rect.position.y))
+	var hi := TfRiftLayout.cell_pos(side, float(room_rect.end.x), float(room_rect.end.y))
+	for cr in root.get("creatures"):
+		if not is_instance_valid(cr):
+			continue
+		var lp: Vector3 = (cr as Node3D).position
+		if lp.x >= lo.x and lp.x <= hi.x and lp.z >= lo.z and lp.z <= hi.z:
+			out.append(cr)
+	return out
+
+
+func _s_tf_rift() -> void:
+	if Life.age() < 18:
+		set_age(18)
+	set_hour(12.0, "daytime")
+	var hub := tf_hub()
+	var rift: Node = hub.get("wilds").get("rift")
+	var centre: Vector2 = rift.get("center")
+	await teleport(centre + Vector2(0, 14), 0.0, 1.5)
+	var built := await wait_until(func() -> bool: return bool(rift.get("built")), 45.0)
+	if not built:
+		L("[HOOK] rift.refresh by hand")
+		rift.call("refresh", p2())
+		await wait(1.0)
+	check("the Rift mouth is built near the player", bool(rift.get("built")))
+	var door: InteriorDoor = rift.get("door")
+	if door == null:
+		return
+	await shot("rift_mouth")
+	var ok := await tf_reach(door, "rift door", centre + Vector2(0, 14), 1.2)
+	check("the Rift door is the interact prompt target", ok)
+	var lab := Interaction.label_of(Interaction.best(player))
+	L("rift door prompt: %s" % str(lab.get("text", lab)).left(80))
+	var t_in := now()
+	await key(KEY_E)
+	await wait_until(func() -> bool: return InteriorDoor.active != null, 150.0)
+	await wait(2.5)
+	note("entering the Rift took %.0f s" % (now() - t_in))
+	check("E enters the Rift", InteriorDoor.active == door, str(InteriorDoor.active))
+	if InteriorDoor.active == null:
+		return
+	var root: Node3D = door.interior
+	var extras: Dictionary = door.get("extras")
+	var g: Dictionary = door.call("layout")
+	var side := int(g["side"]) if g.has("side") else 44
+	await shot("rift_camp")
+	var cam: Camera3D = player.camera
+	var envr: Environment = cam.environment
+	L("rift camp camera at %s looking %s, player at %s yaw %.2f; env bg_mode %s bg_color %s ambient %.2f %s tonemap %d glow %s" % [str(cam.global_position.snappedf(0.1)), str((-cam.global_transform.basis.z).snappedf(0.01)), str(player.global_position.snappedf(0.1)), player._yaw, str(envr.background_mode if envr != null else -1), str(envr.background_color if envr != null else "-"), envr.ambient_light_energy if envr != null else -1.0, str(envr.ambient_light_color if envr != null else "-"), envr.tonemap_mode if envr != null else -1, str(envr.glow_enabled if envr != null else "-")])
+	var ex0: Node3D = root.find_child("ExitDoor", true, false)
+	if ex0 != null:
+		L("exit door at %s (%.1f m from the player), quad at %s" % [str(ex0.global_position.snappedf(0.1)), player.global_position.distance_to(ex0.global_position), str(ex0.get_child(0).global_position.snappedf(0.1)) if ex0.get_child_count() > 0 else "-"])
+	player.set_camera(player._yaw + PI, -0.2)
+	await wait(1.2)
+	await shot("rift_camp_turned")
+	player.set_camera(player._yaw + PI, -0.2)
+	await wait(0.8)
+	check("the camp has a quartermaster and a bedroll", extras.has("quartermaster") and extras.has("bed"), str(extras.keys()))
+	# --- rest at the camp bedroll
+	var bed: Node3D = extras.get("bed")
+	if bed != null:
+		hp_hurt_for_rest()
+		var t0 := WorldSim.time_of_day
+		var d0 := WorldSim.day
+		var okb := await tf_reach(bed, "bedroll", Vector2(player.global_position.x, player.global_position.z) + Vector2(2, 0), 1.2)
+		await key(KEY_E)
+		await wait_until(func() -> bool: return hud.is_menu_open(), 6.0)
+		L("bedroll menu: %s" % str(menu_texts()))
+		var rested := await click_option("Rest")
+		await wait(2.5)
+		check("the bedroll rests (clock advanced, hp restored)", rested and (WorldSim.day > d0 or WorldSim.time_of_day != t0) and player.health > int(player.max_health * 0.5), "clock %.1f -> %.1f hp %d/%d (label said 'until morning'; a nap at noon is shorter)" % [t0, WorldSim.time_of_day, player.health, player.max_health])
+		close_everything()
+	# --- room 1 fight
+	var rooms: Array = g["rooms"]
+	var r1: Dictionary = rooms[1]
+	var cr1 := tf_find_creatures_in_room(root, r1["rect"], side)
+	L("room 1 creatures: %d (%s)" % [cr1.size(), str(cr1.map(func(c: Node) -> String: return String(c.get("kind"))))])
+	check("room 1 (Fracture Gallery) has creatures", cr1.size() >= 2, "%d" % cr1.size())
+	if not cr1.is_empty():
+		var first: Node3D = cr1[0]
+		var arrive := first.global_position + Vector3(2.5, 0.2, 0)
+		L("[HOOK] walking to room 1 is a corridor; placing the player at its door")
+		player.global_position = arrive
+		player.velocity = Vector3.ZERO
+		player.reset_physics_interpolation()
+		await wait(1.0)
+		await shot("rift_room1")
+		var killed := 0
+		for cr: Node3D in cr1:
+			if not is_instance_valid(cr) or bool(cr.get("dead")):
+				continue
+			heal_player("rift fight")
+			if await _fight(cr, String(cr.get("kind")), 45.0):
+				killed += 1
+		check("the room 1 creatures can be killed in melee", killed >= cr1.size() - 1, "%d of %d" % [killed, cr1.size()])
+		await shot("rift_room1_after")
+		var st: Dictionary = root.get("state")
+		check("kills are recorded in the dungeon state", (st["killed"] as Dictionary).size() >= killed and killed > 0, str((st["killed"] as Dictionary).keys()))
+	# --- the lever (room 2) opens the shardglass door
+	var lever: Node3D = null
+	for t in (root.get("things") as Dictionary).values():
+		if String(t.get("kind")) == "lever":
+			lever = t
+	check("the Weeping Hall has the lever", lever != null)
+	if lever != null:
+		player.global_position = lever.global_position + Vector3(1.0, 0.3, 1.0)
+		player.velocity = Vector3.ZERO
+		player.reset_physics_interpolation()
+		await wait(1.0)
+		var okl := await tf_reach(lever, "lever", Vector2(lever.global_position.x, lever.global_position.z) + Vector2(1, 1), 1.2)
+		var opened := [false]
+		root.gate_opened.connect(func(_id: int, _how: String) -> void: opened[0] = true)
+		await shot("rift_lever")
+		await key(KEY_E)
+		await wait(2.0)
+		check("pulling the lever opens the gate to the boss room", opened[0] and (root.get("state")["opened"] as Dictionary).size() > 0, "reached %s opened %s" % [str(okl), str(root.get("state")["opened"])])
+	# --- exit
+	var ex: InteriorDoor = null
+	for n in root.find_children("*", "Area3D", true, false):
+		if n is InteriorDoor and (n as InteriorDoor).is_exit:
+			ex = n
+	check("the Rift has an exit door", ex != null)
+	if ex != null:
+		player.global_position = ex.global_position + Vector3(0.6, 0.3, 0)
+		player.velocity = Vector3.ZERO
+		player.reset_physics_interpolation()
+		await wait(1.0)
+		await tf_leave_by_exit("rift")
+	check("the player is back outside near the Rift mouth", InteriorDoor.active == null and p2().distance_to(centre) < 30.0, _pos2s())
+	await shot("rift_outside")
+
+
+func hp_hurt_for_rest() -> void:
+	player.health = maxi(1, int(player.max_health * 0.5))
+
+
+func _s_tf_beast() -> void:
+	if Life.age() < 18:
+		set_age(18)
+	var dir: Node = _find_node_by_script(main.world, "soulbeast_director.gd")
+	check("the Soulbeast director is in the world", dir != null)
+	if dir == null:
+		return
+	var beast: Node3D = dir.get("beast")
+	var den: Node3D = dir.get("den_node")
+	check("the Soulbeast and its den exist", beast != null and is_instance_valid(beast) and den != null, "beast %s den %s" % [str(beast), str(den)])
+	if beast == null or den == null:
+		return
+	set_hour(17.0, "late afternoon: the beast is stirring (nocturnal, asleep 7-18h)")
+	Life.give("bread", 3)
+	Life.give("venison", 2)
+	L("[HOOK] give bread x3 and venison x2")
+	var dp := Vector2(den.global_position.x, den.global_position.z)
+	await teleport(dp + Vector2(16, 0), 0.0, 2.0)
+	await shot("beast_far")
+	var trust0 := float(beast.brain.trust)
+	player.set("crouching", true)
+	L("beast at %s state %s trust %.1f; walking in crouched" % [str(Vector2(beast.global_position.x, beast.global_position.z).snappedf(0.1)), str(beast.brain.state), trust0])
+	fast_game(16)
+	await walk_to(dp + Vector2(3.0, 0.0), 1.5, 60.0, false, 15.0)
+	Engine.max_physics_steps_per_frame = 8
+	player.set("crouching", false)
+	heal_player("near the den")
+	var near: Node3D = player.nearest_interactable()
+	var lab := Interaction.label_of(Interaction.best(player))
+	L("at the den: nearest %s, prompt %s, beast trust %.1f, hp %d" % [str(near), str(lab.get("text", lab)).left(60), float(beast.brain.trust), player.health])
+	await shot("beast_den")
+	var food0: int = Life.count("venison") + Life.count("bread")
+	if near != den:
+		L("[HOOK] standing on the den: the prompt picked %s" % str(near))
+		player.global_position = den.global_position + Vector3(1.0, 0.3, 0.5)
+		await wait(0.8)
+	check("the den offers 'Leave food' when carrying food", Interaction.best(player).get("source", null) != null and String(Interaction.label_of(Interaction.best(player)).get("text", "")).to_lower().contains("food"), str(Interaction.label_of(Interaction.best(player))).left(100))
+	await key(KEY_E)
+	await wait(1.5)
+	var trust1 := float(beast.brain.trust)
+	check("offering food raises the Soulbeast's trust", trust1 > trust0 and Life.count("venison") + Life.count("bread") == food0 - 1, "trust %.1f -> %.1f, food %d -> %d" % [trust0, trust1, food0, Life.count("venison") + Life.count("bread")])
+	await shot("beast_offered")
+	await key(KEY_E)
+	await wait(1.5)
+	var trust2 := float(beast.brain.trust)
+	note("second offer inside the cooldown: trust %.1f -> %.1f (stage %s)" % [trust1, trust2, str(beast.brain.stage())])
+	check("a second offering still adds a little trust", trust2 >= trust1)
+	check("the food is placed at the den", get_tree().get_nodes_in_group("soulbeast_food").size() >= 1)
+	heal_player()
+
+
+# ---------------------------------------------------------------------------------------- Thornfield: save / quit / reload
+
+var tf_taken_ids: Array = []
+var tf_taken_spots: Array = []        # [item, position] of the loose items the save stage took
+
+
+func tf_rift_state() -> Dictionary:
+	var DD: GDScript = load("res://scripts/interiors/dungeon_door.gd")
+	var st: Dictionary = DD.call("state_for", "thornfield_rift")
+	var out := {}
+	for k: String in ["looted", "killed", "opened", "harvested"]:
+		var d: Variant = st.get(k, {})
+		var keys: Array = (d as Dictionary).keys() if d is Dictionary else []
+		keys.sort()
+		out[k] = keys
+	out["boss_dead"] = bool(st.get("boss_dead", false))
+	return out
+
+
+func tf_digest() -> Dictionary:
+	var r := qrun()
+	var q := {}
+	for id: String in [Q_BARLEY, Q_CARTS, Q_CULPRIT]:
+		var run := r.run(id)
+		q[id] = [String(run.state), r.stage_of(id)] if run != null else ["none", ""]
+	var m := TfSoldierUI.module()
+	var sv: Dictionary = m.call("status_view", int(WorldSim.day)) if m != null else {}
+	var dir := _find_node_by_script(main.world, "soulbeast_director.gd")
+	var trust := -1.0
+	if dir != null and dir.get("beast") != null and is_instance_valid(dir.get("beast")):
+		trust = snappedf(float(dir.get("beast").brain.trust), 0.1)
+	var taken := {}
+	for id: String in tf_taken_ids:
+		taken[id] = TfOwnership.state_taken(id)
+	return {"quests": q, "soldier": [bool(sv.get("active", false)), String(sv.get("rank", "")), int(sv.get("merit", 0)), bool(sv.get("attended_today", false))],
+		"trust": trust, "taken": taken, "stolen_stacks": TfTheft.stolen_stacks().size(), "rift": tf_rift_state(),
+		"gold": Game.gold, "day": WorldSim.day, "age": Life.age()}
+
+
+func _s_tf_save() -> void:
+	if Life.age() < 18:
+		set_age(18)
+	set_hour(12.0, "daylight")
+	var r := qrun()
+	var sid := int(tf_town()["id"])
+	# --- build a state worth saving (what earlier stages do for real; whatever is missing is set here and logged)
+	if not r.is_done(Q_BARLEY):
+		L("[HOOK] %s -> done through the bus (the real run is stage tf_barley)" % Q_BARLEY)
+		r.start(Q_BARLEY)
+		for id: String in TfObserveIds():
+			QuestBus.shared().emit_event(&"interact", {"id": id})
+		QuestBus.shared().emit_event(&"hours", {"amount": 2.0, "hour": 20.0})
+		QuestBus.shared().emit_event(&"observe", {"target": "barn_figure", "dist": 8.0, "unseen": true, "dt": 30.0, "hour": 22.0})
+		QuestBus.shared().emit_event(&"talk", {"npc": "hesta_thorne"})
+	if not r.is_active(Q_CARTS) and not r.is_done(Q_CARTS):
+		L("[HOOK] start %s (stage load)" % Q_CARTS)
+		r.start(Q_CARTS)
+	if not r.is_active(Q_CULPRIT) and not r.is_done(Q_CULPRIT):
+		L("[HOOK] start %s" % Q_CULPRIT)
+		r.start(Q_CULPRIT)
+		QuestBus.shared().emit_event(&"enter_area", {"place": "thornfield_barn"})
+	var m := TfSoldierUI.module()
+	if not bool(m.get("active")):
+		L("[HOOK] enlist through the module (the real UI path is stage tf_soldier)")
+		m.call("enlist", int(WorldSim.day), "captain")
+	m.call("add_merit", 7.0)
+	# taken items: a public loose apple taken with E, and an owned loaf stolen with E
+	await teleport(tf_pos() + Vector2(0, 9), 0.0, 1.5)
+	var gi1 := tf_drop_owned("apple", "", 1.0)
+	tf_taken_ids.append(String(gi1.call("_id")))
+	tf_taken_spots.append(["apple", gi1.global_position])
+	await wait(0.8)
+	await key(KEY_E)
+	await wait(1.0)
+	var house: Dictionary = TfTown.building("thornfield_house_5")
+	var gi2 := tf_drop_owned("bread", TfOwnership.household(sid, int(house["lot"])), 1.0)
+	tf_taken_ids.append(String(gi2.call("_id")))
+	await wait(0.8)
+	await key(KEY_E)
+	await wait(1.0)
+	check("both loose items were taken (gone from the world)", not is_instance_valid(gi1) or gi1.is_queued_for_deletion(), "apple gone %s bread gone %s" % [str(not is_instance_valid(gi1) or gi1.is_queued_for_deletion()), str(not is_instance_valid(gi2) or gi2.is_queued_for_deletion())])
+	# trust: leave food at the den
+	var dir := _find_node_by_script(main.world, "soulbeast_director.gd")
+	if dir != null and dir.get("beast") != null:
+		Life.give("bread", 1)
+		L("[HOOK] offer food to the Soulbeast through its API (the real den walk is stage tf_beast)")
+		dir.get("beast").call("offer_food", player)
+	# the Rift: a looted chest and a dead rat, as if cleared
+	var st: Dictionary = (load("res://scripts/interiors/dungeon_door.gd") as GDScript).call("state_for", "thornfield_rift")
+	if (st.get("killed", {}) as Dictionary).is_empty():
+		L("[HOOK] mark Rift m1 killed, chest k1 looted, gate 0 opened (the real run is stage tf_rift)")
+		for k: String in ["looted", "killed", "opened", "harvested"]:
+			if not st.has(k):
+				st[k] = {}
+		st["killed"]["m1"] = true
+		st["looted"]["k1"] = true
+		st["opened"]["0"] = "lever"
+	close_everything()
+	await teleport(tf_pos() + Vector2(5, 5), 0.0, 0.5)
+	var before := tf_digest()
+	var pos_before := p2()
+	L("digest before save: %s" % JSON.stringify(before).left(600))
+	var ok := Life.save_game(3)
+	check("save_game(3) succeeds", ok, "err %s" % str(Life.saves.last_error))
+	await shot("slice_saved")
+	# --- quit to menu, load the slot
+	var slot_id: String = Life._slot_id(3)
+	var tree := get_tree()
+	if get_parent() == main:
+		main.remove_child(self)
+		tree.root.add_child(self)
+	Flow.world_dirty = true
+	Flow.pending_load = slot_id
+	Flow.reset_world_state(tree)
+	Flow.enter_game(tree)
+	L("changing scene back to main.tscn (quit + reload) with pending_load=%s" % slot_id)
+	tree.paused = false
+	var old_main := main
+	tree.change_scene_to_file(Flow.MAIN_SCENE)
+	var got: bool = await await_sig(reloaded, 240.0)
+	if not got:
+		bug("reload", "the reloaded main scene never started the QA hook")
+		return
+	main = await _take_new_main()
+	_grab_refs()
+	await wait_until(func() -> bool: return Flow.pending_load == "", 120.0)
+	await wait(6.0)
+	var after := tf_digest()
+	L("digest after load: %s" % JSON.stringify(after).left(600))
+	var diffs: Array = []
+	for k: String in before:
+		if k in ["day"]:
+			continue
+		if JSON.stringify(before[k]) != JSON.stringify(after[k]):
+			diffs.append("%s: %s -> %s" % [k, JSON.stringify(before[k]).left(120), JSON.stringify(after[k]).left(120)])
+	check("quests, soldier rank, trust, taken items and the Rift state survive save, quit and reload", diffs.is_empty(), "; ".join(diffs))
+	var dpos := pos_before.distance_to(p2())
+	check("the player is restored to where the game was saved (within 6 m)", dpos < 6.0, "saved %s, loaded %s, %.0f m apart" % [str(pos_before.snappedf(0.1)), _pos2s(), dpos])
+	# a taken item stays taken: spawning it again removes it
+	var spot: Array = tf_taken_spots[0]
+	var gi3: Node3D = GroundItem.spawn(main.world, spot[1], String(spot[0]), 1, "")
+	await wait(0.5)
+	check("a taken item does not respawn after the reload", not is_instance_valid(gi3) or gi3.is_queued_for_deletion() or bool(gi3.get("_gone")), str(gi3))
+	await shot("slice_after_reload")

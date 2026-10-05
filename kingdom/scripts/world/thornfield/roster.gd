@@ -174,6 +174,31 @@ static func info_for(row: int) -> Dictionary:
 		"file": "thornfield/" + id, "quest_role": "villager", "age": int(e.get("age", 30))}
 
 
+## Bound rows of settlement `sid` whose home (which 0) or workplace (which 1) is building lot `lot` of its plan. A named person
+## lives and works where the roster says (their door in WorldSim._spot), so a building's interior shows them, not the people
+## the hash formula would have put there (interiors/household.gd).
+static func rows_at(sid: int, lot: int, which: int) -> Array[int]:
+	var out: Array[int] = []
+	if _row_of.is_empty() or sid != settlement_id():
+		return out
+	for id: String in _row_of:
+		var bid := String(_by_id.get(id, {}).get("home" if which == 0 else "work", ""))
+		var b := SliceTown.building(bid)
+		if not b.is_empty() and int(b["lot"]) == lot:
+			out.append(int(_row_of[id]))
+	out.sort()
+	return out
+
+
+## Same as info_for for a resident that is not a WorldSim row (Hesta Thorne, a Station at the brewery), by roster id.
+static func info_for_id(id: String) -> Dictionary:
+	var e: Dictionary = entry(id)
+	if e.is_empty():
+		return {}
+	return {"id": id, "name": String(e.get("name", id)), "role": String(e.get("role", "villager")),
+		"file": "thornfield/" + id, "quest_role": "villager", "age": int(e.get("age", 30))}
+
+
 ## Others' opinion of `id` as dialogue lines is in the dialogue files; this is the data side (kind, value) of
 ## how `a` relates to `b` ({} when unrelated).
 static func relationship(a: String, b: String) -> Dictionary:

@@ -5,6 +5,11 @@ extends Node
 ## while it stays the chosen one, and reports progress through its Interactable's hold_* signals.
 ## While a menu is open the key is left alone, so main.gd can close the menu.
 
+## Process frame of the last key press this controller consumed. The player lives in the world SubViewport, so
+## set_input_as_handled() there does not stop main.gd's own "interact" branch (close an open menu) in the root
+## viewport: without this stamp the same E press that opened a menu closed it again (F1 playtest).
+static var consumed_frame := -1
+
 var player: Node3D
 var _hold: Interactable = null
 var _held := 0.0
@@ -25,6 +30,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	var c := Interaction.best(player)
 	if c.is_empty():
 		return
+	consumed_frame = Engine.get_process_frames()
 	var ht := float(c.get("hold_time", 0.0))
 	var src: Variant = c.get("source", null)
 	if ht > 0.0 and src is Interactable:

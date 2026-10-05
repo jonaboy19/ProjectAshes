@@ -537,6 +537,11 @@ func _abort() -> void:
 
 
 func _arrive() -> void:
+	# The player started a conversation or opened a menu while the traveller was walking over: do not take that
+	# menu away (the F4 talk sheet / a quest giver's menu); the traveller gives up and the encounter may come again.
+	if hud != null and hud.has_method("is_menu_open") and bool(hud.is_menu_open()):
+		_abort()
+		return
 	var body := _body()
 	var pl := _player()
 	if body != null and is_instance_valid(body) and pl != null and not bool(_s["borrowed"]):

@@ -145,8 +145,8 @@ static func _water(g: Dictionary) -> MeshInstance3D:
 static func _exit_visual(root: Node3D, exit: Node3D, inward: Vector3) -> void:
 	# a bright opening: the way back to daylight
 	var q := MeshInstance3D.new()
-	var bm := BoxMesh.new()
-	bm.size = Vector3(2.4, 2.8, 0.1)
+	var bm := QuadMesh.new()       # one-sided (faces into the room): a box showed its white back to a camera pushed behind the wall
+	bm.size = Vector2(2.4, 2.8)
 	q.mesh = bm
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = Color(0.85, 0.92, 1.0)

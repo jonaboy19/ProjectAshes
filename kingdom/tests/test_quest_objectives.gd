@@ -654,3 +654,14 @@ func test_live_rewards_pay_through_the_game_apis() -> void:
 	assert_str(text).contains("+7g")
 	Game.add_gold(-7)
 	Life.relationships.change_rep("thornfield", -3.0)
+
+
+func test_a_talk_objective_with_a_node_is_not_a_report_button() -> void:
+	# "Hear what Wilm has to say" is met inside the conversation (node "confession"); a plain Report would do nothing
+	var r := _runner([{"id": "q_node", "title": "T", "stages": [{"id": "s1", "mode": "all", "objectives": [
+		{"id": "a", "type": "talk_to", "npc": "wilm", "node": "confession"},
+		{"id": "b", "type": "talk_to", "npc": "hesta"}]}]}])
+	assert_str(r.start("q_node")).is_empty()
+	assert_int(r.quests_awaiting_talk("wilm").size()).is_equal(0)
+	assert_int(r.quests_awaiting_talk("hesta").size()).is_equal(1)
+
