@@ -1,0 +1,17 @@
+CMU Graphics Lab Motion Capture Database (BVH conversion by Bruce Hahne / cgspeed, mirror: https://github.com/una-dinosauria/cmu-mocap)
+Licence URL: http://mocap.cs.cmu.edu/  (FAQ: http://mocap.cs.cmu.edu/faqs.php; not reachable from the cloud container, text taken from the mirror's READMEFIRST.txt which quotes it)
+
+CMU places no restrictions on the use of the original dataset, and I (Bruce) place no
+additional restrictions on the use of this particular BVH conversion.
+
+  Use this data!  This data is free for use in research and commercial
+  projects worldwide.  If you publish results obtained using this data,
+  we would appreciate it if you would send the citation to your
+  published paper to jkh+mocap@cs.cmu.edu, and also would add this text
+  to your acknowledgments section: "The data used in this project was
+  obtained from mocap.cs.cmu.edu.  The database was created with funding
+  from NSF EIA-0196217."
+
+Credit line used in the game (kingdom/CREDITS.md): "Motion capture data from the CMU Graphics Lab Motion Capture
+Database (mocap.cs.cmu.edu), created with funding from NSF EIA-0196217."
+Do not resell the raw data: the raw BVH files in _raw/ are git-ignored (see _raw/.gitignore); only retargeted clips ship.
