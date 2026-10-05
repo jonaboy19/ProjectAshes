@@ -51,6 +51,10 @@ enum View { FIRST, THIRD, TOWN, COMMAND }
 const VIEW_NAMES := ["First person", "Third person", "Town view", "Command view"]
 ## [distance, pitch] per view.
 const VIEW_RIG := [[0.0, -0.1], [5.5, -0.32], [26.0, -0.72], [85.0, -1.2]]
+## Inside a building (InteriorDoor.active): a shorter arm and the lens tipped down a little, so the player and the room
+## sit in the middle of the frame instead of the player's feet on the bottom edge.
+const INTERIOR_CAM_DIST := 4.4
+const INTERIOR_LENS_TILT := 0.12
 const VIEWMODEL_REST := Vector3(-0.5, 0.15, -0.35)
 
 const WALK := 2.4
@@ -1250,6 +1254,8 @@ func _update_camera(delta: float) -> void:
 	camera.set_meta("fov_base", _chase.fov_base())
 	if view == View.THIRD:
 		want_distance += _chase.dist_offset()
+		if InteriorDoor.active != null:
+			want_distance = minf(want_distance, INTERIOR_CAM_DIST)     # a room is 4-6 m wide: the 5.5 m arm rode up the walls
 		pivot_goal.y += _chase.lift()
 		pivot_goal.x += _chase.talk_shift()      # conversation: over-the-shoulder
 	if _mount:
@@ -1273,7 +1279,8 @@ func _update_camera(delta: float) -> void:
 		pitch += _chase.pitch_offset()
 	_pivot.rotation = Vector3(lerp_angle(_pivot.rotation.x, pitch, 1.0 - exp(-6.0 * delta)), _yaw, 0)
 	_camera_arm.spring_length = _distance
-	camera.rotation = _shake.step(delta) + Vector3(0.0, 0.0, _impact_roll)
+	var lens_tilt := _chase.talk_tilt() + (INTERIOR_LENS_TILT if InteriorDoor.active != null else 0.0)
+	camera.rotation = _shake.step(delta) + Vector3(-lens_tilt if view == View.THIRD else 0.0, 0.0, _impact_roll)
 	var cp := camera.global_position
 	var floor_h := WorldGen.height(cp.x, cp.z) + 0.6
 	var water_h := WorldGen.water_level_at(cp.x, cp.z)

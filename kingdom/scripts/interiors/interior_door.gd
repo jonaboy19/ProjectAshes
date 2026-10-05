@@ -419,7 +419,7 @@ func _place_player(pos: Vector3, yaw: float) -> void:
 	if "velocity" in _player:
 		_player.set("velocity", Vector3.ZERO)
 	if _player.has_method("set_camera"):
-		_player.call("set_camera", yaw, -0.28)
+		_player.call("set_camera", yaw, -0.36 if active == self else -0.28)
 	if _player is CharacterBody3D:
 		(_player as CharacterBody3D).reset_physics_interpolation()
 

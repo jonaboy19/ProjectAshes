@@ -262,3 +262,25 @@ static func wfont(weight := 600) -> Font:
 	v.base_font = f
 	v.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): weight}
 	return v
+
+
+## Typographic quotes for body text: the IM Fell face draws ASCII " as a closing quote on both sides, so a straight
+## quote that opens a word (start of text, after whitespace, an opening bracket or a dash) becomes “ and every other
+## one ”; the same for ' (‘ opening, ’ closing and in don't). Text without quotes is returned untouched.
+static func typographic(text: String) -> String:
+	if not (text.contains("\"") or text.contains("'")):
+		return text
+	var out := ""
+	var prev := " "
+	for i in text.length():
+		var ch := text[i]
+		if ch == "\"" or ch == "'":
+			var opening := prev in [" ", "\t", "\n", "(", "[", "{", "-", "–", "—", "“", "‘"] \
+				and not (ch == "'" and i + 1 < text.length() and text[i + 1] in [" ", ".", ",", "!", "?"])
+			if ch == "\"":
+				ch = "“" if opening else "”"
+			else:
+				ch = "‘" if opening else "’"
+		out += ch
+		prev = ch
+	return out

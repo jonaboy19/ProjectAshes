@@ -48,7 +48,9 @@ const CAST_PITCH := 0.04
 const TALK_TIME := 0.4     # seconds to ease in / out of the conversation framing
 const TALK_FOV := -4.0
 const TALK_DIST := -0.5
-const TALK_LIFT := 0.05
+const TALK_LIFT := -0.2    # pivot sinks a little: the talkers ride higher in the frame
+const TALK_TILT := 0.13    # radians the lens tips DOWN on top of that (camera-local), so faces and upper bodies sit in the
+						   # top 60% of the screen and the bottom-sheet conversation UI never covers them
 const TALK_SHIFT := 0.55   # metres the pivot slides to the right (camera-local): over the shoulder
 const RISE := 4.5         # 1/s response when a boost builds
 const FALL := 2.6         # slower release, so a boost eases away instead of snapping
@@ -154,6 +156,11 @@ func talking() -> bool:
 ## Sideways pivot offset (m, camera-local right) for the conversation framing.
 func talk_shift() -> float:
 	return _talk_env() * TALK_SHIFT
+
+
+## Camera-local pitch (radians, positive = tipped down) the player adds to the lens while talking.
+func talk_tilt() -> float:
+	return _talk_env() * TALK_TILT
 
 
 func _talk_env() -> float:

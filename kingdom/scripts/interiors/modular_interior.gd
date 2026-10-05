@@ -50,6 +50,13 @@ var _clock := 0.0
 var _last_hour := -1.0
 var _furnished := false
 var _flick := 0.0
+var _group_nodes := {}                 # wall / ceiling group -> Array[MeshInstance3D] (see InteriorKit "group")
+var _group_fade := {}                  # group -> 0 shown .. 1 hidden (eased toward wall_fade_targets)
+
+## The cut-away camera: a wall (with its windows), or the ceiling, fades out while the camera is on its outer side or
+## within WALL_FADE_MARGIN of it, so the chase camera never films the back of a wall or the roof slab.
+const WALL_FADE_MARGIN := 0.6
+const WALL_FADE_RATE := 6.0
 
 
 func _ready() -> void:
@@ -102,11 +109,11 @@ func _build_shell() -> void:
 	var hd := d * 0.5 + t
 	# floor, ceiling, beams
 	kit.solid(Vector3(0, -0.1, 0), Vector3(w + 0.44, 0.2, d + 0.44), FLOOR)
-	kit.solid(Vector3(0, h + 0.1, 0), Vector3(w + 0.44, 0.2, d + 0.44), DARK)
+	kit.solid(Vector3(0, h + 0.1, 0), Vector3(w + 0.44, 0.2, d + 0.44), DARK, "solid", 0.0, "ceil")
 	var beams := 3
 	for i in beams:
 		var z := -d * 0.5 + d * (float(i) + 0.5) / float(beams)
-		kit.box(Vector3(0, h - 0.1, z), Vector3(w - 0.2, 0.18, 0.2), WOOD)
+		kit.box(Vector3(0, h - 0.1, z), Vector3(w - 0.2, 0.18, 0.2), WOOD, "solid", 0.0, "ceil")
 	# outer walls with window and door openings
 	var opens := {"N": [], "S": [], "E": [], "W": []}
 	for win: Dictionary in layout["windows"]:
@@ -114,17 +121,18 @@ func _build_shell() -> void:
 		(opens[wall] as Array).append({"at": _wall_t(wall, float(win["at"]), w, d), "w": float(win["w"]),
 			"y0": float(win["y0"]), "y1": float(win["y1"])})
 	(opens["S"] as Array).append({"at": _wall_t("S", float(layout["door_x"]), w, d), "w": 1.2, "y0": 0.0, "y1": 2.1})
-	kit.wall(Vector2(-hw, -hd), Vector2(hw, -hd), h, PLASTER, opens["N"])
-	kit.wall(Vector2(hw, -hd), Vector2(hw, hd), h, PLASTER, opens["E"])
-	kit.wall(Vector2(hw, hd), Vector2(-hw, hd), h, PLASTER, opens["S"])
-	kit.wall(Vector2(-hw, hd), Vector2(-hw, -hd), h, PLASTER, opens["W"])
+	# one mesh per outer wall (with its windows): the wall between the camera and the room fades out (_fade_walls)
+	kit.wall(Vector2(-hw, -hd), Vector2(hw, -hd), h, PLASTER, opens["N"], Kit.WALL_T, 0.0, "wN")
+	kit.wall(Vector2(hw, -hd), Vector2(hw, hd), h, PLASTER, opens["E"], Kit.WALL_T, 0.0, "wE")
+	kit.wall(Vector2(hw, hd), Vector2(-hw, hd), h, PLASTER, opens["S"], Kit.WALL_T, 0.0, "wS")
+	kit.wall(Vector2(-hw, hd), Vector2(-hw, -hd), h, PLASTER, opens["W"], Kit.WALL_T, 0.0, "wW")
 	# window panes + frames (the pane is the emissive "glass" the light driver colours)
 	for win: Dictionary in layout["windows"]:
 		_build_window(win, w, d)
 	# doorway frame + the leaf standing open against the wall
 	var dx := float(layout["door_x"])
-	kit.box(Vector3(dx - 0.65, 1.05, hd), Vector3(0.1, 2.1, 0.3), WOOD)
-	kit.box(Vector3(dx + 0.65, 1.05, hd), Vector3(0.1, 2.1, 0.3), WOOD)
+	kit.box(Vector3(dx - 0.65, 1.05, hd), Vector3(0.1, 2.1, 0.3), WOOD, "solid", 0.0, "wS")
+	kit.box(Vector3(dx + 0.65, 1.05, hd), Vector3(0.1, 2.1, 0.3), WOOD, "solid", 0.0, "wS")
 	kit.box(Vector3(dx - 0.25, 1.0, hd - 0.55), Vector3(0.9, 2.0, 0.05), DARK, "solid", PI * 0.5 + 0.0)
 	# partitions
 	for part: Dictionary in layout["partitions"]:
@@ -137,6 +145,13 @@ func _build_shell() -> void:
 	for p: Dictionary in layout["props"]:
 		_build_prop(p)
 	_kit_nodes = kit.build(self)
+	for key: String in _kit_nodes:
+		if key.contains("|"):
+			var g := key.get_slice("|", 1)
+			if not _group_nodes.has(g):
+				_group_nodes[g] = []
+				_group_fade[g] = 0.0
+			(_group_nodes[g] as Array).append(_kit_nodes[key])
 
 
 func _build_window(win: Dictionary, w: float, d: float) -> void:
@@ -158,10 +173,16 @@ func _build_window(win: Dictionary, w: float, d: float) -> void:
 			yaw = PI * 0.5
 	var basis := Basis(Vector3.UP, yaw)
 	var mid := (y0 + y1) * 0.5
-	kit.box(pos + Vector3(0, mid, 0), Vector3(ww - 0.06, y1 - y0 - 0.06, 0.04), Color.WHITE, "glass", yaw)
-	kit.box(pos + Vector3(0, y0, 0) + basis * Vector3(0, 0, 0.0), Vector3(ww + 0.12, 0.06, 0.32), WOOD, "solid", yaw)
-	kit.box(pos + Vector3(0, y1, 0), Vector3(ww + 0.12, 0.06, 0.28), WOOD, "solid", yaw)
-	kit.box(pos + Vector3(0, mid, 0), Vector3(0.05, y1 - y0, 0.1), WOOD, "solid", yaw)
+	var gh := y1 - y0
+	# The pane (emissive "glass", tinted by the hour in apply_hour) sits inside a full frame: sill, head, both jambs, a centre
+	# mullion and a transom, so it reads as a window in the wall and never as a floating white card.
+	kit.box(pos + Vector3(0, mid, 0), Vector3(ww - 0.06, gh - 0.06, 0.04), Color.WHITE, "glass", yaw, "w" + wall)
+	kit.box(pos + Vector3(0, y0, 0), Vector3(ww + 0.14, 0.07, 0.34), WOOD, "solid", yaw, "w" + wall)
+	kit.box(pos + Vector3(0, y1, 0), Vector3(ww + 0.14, 0.07, 0.30), WOOD, "solid", yaw, "w" + wall)
+	for sx: float in [-1.0, 1.0]:
+		kit.box(pos + basis * Vector3(sx * (ww * 0.5 + 0.01), 0, 0) + Vector3(0, mid, 0), Vector3(0.07, gh, 0.30), WOOD, "solid", yaw, "w" + wall)
+	kit.box(pos + Vector3(0, mid, 0), Vector3(0.05, gh, 0.1), WOOD, "solid", yaw, "w" + wall)
+	kit.box(pos + Vector3(0, mid + gh * 0.12, 0), Vector3(ww, 0.04, 0.1), WOOD, "solid", yaw, "w" + wall)
 
 
 func _build_loft(loft: Dictionary) -> void:
@@ -305,7 +326,14 @@ func _build_prop(p: Dictionary) -> void:
 			var top := float(layout["h"]) if not (layout["loft"] as Dictionary).is_empty() else Layouts.CEIL
 			var pos2: Vector2 = p["p"]
 			kit.box(Vector3(pos2.x, top - 0.25, pos2.y), Vector3(0.012, 0.5, 0.012), DARK)
-			kit.box(Vector3(pos2.x, top - 0.55, pos2.y), Vector3(0.18, 0.22, 0.18), Color.WHITE, "lamp")
+			# A lantern, not a glowing slab: dark iron caps and posts around a small amber core.
+			var ly := top - 0.55
+			kit.box(Vector3(pos2.x, ly + 0.13, pos2.y), Vector3(0.24, 0.03, 0.24), DARK)
+			kit.box(Vector3(pos2.x, ly - 0.13, pos2.y), Vector3(0.22, 0.03, 0.22), DARK)
+			for cx: float in [-0.095, 0.095]:
+				for cz: float in [-0.095, 0.095]:
+					kit.box(Vector3(pos2.x + cx, ly, pos2.y + cz), Vector3(0.025, 0.24, 0.025), DARK)
+			kit.box(Vector3(pos2.x, ly, pos2.y), Vector3(0.11, 0.16, 0.11), Color(1.0, 0.74, 0.38), "lamp")
 			p["_top"] = top
 
 
@@ -386,7 +414,8 @@ func _build_lights() -> void:
 	_hearth_light.name = "HearthLight"
 	_hearth_light.shadow_enabled = false
 	_hearth_light.light_color = Color(1.0, 0.58, 0.28)
-	_hearth_light.omni_range = 5.5
+	_hearth_light.omni_range = 7.5
+	_hearth_light.omni_attenuation = 1.35        # warm pool round the fire that falls off instead of a hard disc
 	_hearth_light.position = hp
 	add_child(_hearth_light)
 	_hearth_phase = randf() * TAU
@@ -402,6 +431,8 @@ func _build_lights() -> void:
 	we.name = "WorldEnvironment"
 	we.environment = _env
 	add_child(we)
+	if bool(get_meta("embedded", false)):
+		return       # in the game the player's chase camera drives (a fixed preview camera over the door hid the player)
 	var cam := Camera3D.new()
 	cam.name = "PreviewCamera"
 	add_child(cam)
@@ -422,6 +453,8 @@ func apply_hour(hour: float) -> void:
 		var wc: Color = s["window_color"]
 		gm.emission = wc
 		gm.emission_energy_multiplier = float(s["window_energy"])
+		# Unshaded glass shows its albedo too: dark navy at night, pale sky by day (it used to be white either way).
+		gm.albedo_color = Light.NIGHT_GLASS.lerp(Light.DAY_GLASS, float(s["daylight"]))
 	if mats.has("fire"):
 		(mats["fire"] as StandardMaterial3D).emission_energy_multiplier = float(s["fire_glow"])
 	if mats.has("lamp"):
@@ -433,7 +466,7 @@ func apply_hour(hour: float) -> void:
 	_room_light.visible = tot > 0.02
 	if tot > 0.0:
 		_room_light.light_color = (s["window_color"] as Color).lerp(Color(1.0, 0.82, 0.55), lamp_e / tot)
-	_hearth_base = 1.1 * float(s["hearth_energy"])
+	_hearth_base = Light.HEARTH_LIGHT * float(s["hearth_energy"])
 	_hearth_light.light_energy = _hearth_base
 	_hearth_light.visible = _hearth_base > 0.02
 	if _env != null:
@@ -451,8 +484,41 @@ func light_report() -> Dictionary:
 		"window_color": gm.emission if gm != null else Color.BLACK}
 
 
+## Pure: which groups should be hidden for a camera at `cam` (room-local coordinates) in a w x d x h room.
+static func wall_fade_targets(cam: Vector3, w: float, d: float, h: float) -> Dictionary:
+	var m := WALL_FADE_MARGIN
+	return {
+		"wN": 1.0 if cam.z < -d * 0.5 + m else 0.0,
+		"wS": 1.0 if cam.z > d * 0.5 - m else 0.0,
+		"wE": 1.0 if cam.x > w * 0.5 - m else 0.0,
+		"wW": 1.0 if cam.x < -w * 0.5 + m else 0.0,
+		"ceil": 1.0 if cam.y > h - 0.3 else 0.0,
+	}
+
+
+## Eases each group toward its target and applies it (instance transparency; hidden when fully faded). Colliders stay.
+func _fade_walls(delta: float, cam_local: Vector3) -> void:
+	var targets := wall_fade_targets(cam_local, float(layout["w"]), float(layout["d"]), float(layout["h"]))
+	for g: String in _group_nodes:
+		var cur := move_toward(float(_group_fade[g]), float(targets.get(g, 0.0)), delta * WALL_FADE_RATE)
+		if is_equal_approx(cur, float(_group_fade[g])):
+			continue
+		_group_fade[g] = cur
+		for mi: MeshInstance3D in _group_nodes[g]:
+			mi.transparency = cur
+			mi.visible = cur < 0.98
+
+
+func wall_fade_state() -> Dictionary:
+	return _group_fade.duplicate()
+
+
 func _process(delta: float) -> void:
 	_clock += delta
+	if not _group_nodes.is_empty():
+		var cam := get_viewport().get_camera_3d()
+		if cam != null:
+			_fade_walls(delta, to_local(cam.global_position))
 	if _hearth_light != null and _hearth_light.visible:
 		_hearth_light.light_energy = _hearth_base * (1.0 + 0.08 * sin(_clock * 7.1 + _hearth_phase) + 0.05 * sin(_clock * 12.9))
 	_flick += delta

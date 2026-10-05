@@ -12,6 +12,7 @@ extends Control
 
 const AF := preload("res://scripts/ui/ashes_frame.gd")
 const HudArt := preload("res://scripts/ui/hud_art.gd")
+const HudLane := preload("res://scripts/ui/hud_lane.gd")
 
 const DURATION := 3.5
 const FADE_IN := 0.7
@@ -57,6 +58,7 @@ func is_showing() -> bool:
 func _next() -> void:
 	if _queue.is_empty():
 		_t = -1.0
+		HudLane.report("banner", 0.0, 0.0)
 		set_process(false)
 		queue_redraw()
 		return
@@ -70,6 +72,11 @@ func _next() -> void:
 
 
 func _process(delta: float) -> void:
+	if not HudLane.allowed("banner"):
+		# A menu or conversation sheet is open: hold the banner (clock paused) until it closes.
+		HudLane.report("banner", 0.0, 0.0)
+		queue_redraw()
+		return
 	_t += delta
 	if _t >= DURATION:
 		_next()
@@ -85,7 +92,7 @@ func _alpha() -> float:
 
 func _draw() -> void:
 	var a := _alpha()
-	if a <= 0.001:
+	if a <= 0.001 or not HudLane.allowed("banner"):
 		return
 	if _title_font == null:
 		_ready()
@@ -116,7 +123,8 @@ func _draw_location(vw: Vector2, k: float, a: float, rise: float) -> void:
 	var cx := vw.x * 0.5
 	var w := 600.0 * k
 	var h := 214.0 * k
-	var top := vw.y * 0.16 + rise
+	var top := HudLane.y_for("banner", vw.y * 0.16) + rise
+	HudLane.report("banner", top - rise, h)
 	var r := Rect2(Vector2(cx - w * 0.5, top), Vector2(w, h))
 	_fade_band(vw, r.get_center().y, h + 70.0 * k, a, 0.5)
 	draw_rect(r, Color(0.035, 0.03, 0.026, 0.9 * a))
@@ -162,7 +170,8 @@ func _draw_strip(vw: Vector2, k: float, a: float, rise: float) -> void:
 	var cx := vw.x * 0.5
 	var w := 500.0 * k
 	var h := 92.0 * k
-	var top := vw.y * 0.2 + rise
+	var top := HudLane.y_for("banner", vw.y * 0.2) + rise
+	HudLane.report("banner", top - rise, h)
 	var r := Rect2(Vector2(cx - w * 0.5, top), Vector2(w, h))
 	_fade_band(vw, r.get_center().y, h + 44.0 * k, a, 0.45)
 	# Panel: dark, with the gold gradient wash the template's strips have on the icon side.

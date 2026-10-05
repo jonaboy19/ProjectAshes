@@ -21,11 +21,14 @@ var box_count := 0
 
 ## One box. `yaw` turns it about Y around its centre. Faces are shaded a little (top light, bottom dark) so flat
 ## colours still read as volumes under the low ambient of an interior.
-func box(centre: Vector3, size: Vector3, col: Color, mat := "solid", yaw := 0.0) -> void:
-	var s: Dictionary = _surf.get(mat, {})
+## `group` ("" = the shared mesh) splits a material into its own MeshInstance3D "Kit_<mat>_<group>", so a room can fade or hide
+## one wall (and its windows) when the camera is on that side of it; the group shares the material of its `mat`.
+func box(centre: Vector3, size: Vector3, col: Color, mat := "solid", yaw := 0.0, group := "") -> void:
+	var key := mat if group == "" else mat + "|" + group
+	var s: Dictionary = _surf.get(key, {})
 	if s.is_empty():
 		s = {"v": PackedVector3Array(), "n": PackedVector3Array(), "c": PackedColorArray(), "i": PackedInt32Array()}
-		_surf[mat] = s
+		_surf[key] = s
 	var h := size * 0.5
 	var basis := Basis(Vector3.UP, yaw)
 	var faces := [
@@ -57,8 +60,8 @@ func box(centre: Vector3, size: Vector3, col: Color, mat := "solid", yaw := 0.0)
 
 
 ## A box that also blocks: furniture, walls, floors.
-func solid(centre: Vector3, size: Vector3, col: Color, mat := "solid", yaw := 0.0) -> void:
-	box(centre, size, col, mat, yaw)
+func solid(centre: Vector3, size: Vector3, col: Color, mat := "solid", yaw := 0.0, group := "") -> void:
+	box(centre, size, col, mat, yaw, group)
 	collider(centre, size, yaw)
 
 
@@ -69,7 +72,7 @@ func collider(centre: Vector3, size: Vector3, yaw := 0.0) -> void:
 ## A wall along the floor-plan line a..b (Vector2: x, z) from `y0` up to `y1`. `openings` = [{at: metres along a..b,
 ## w: width, y0, y1}] cut gaps; the wood above and below a gap is still built. Collision is the full length except
 ## where an opening reaches the floor (a doorway), so doorways stay walkable.
-func wall(a: Vector2, b: Vector2, y1: float, col: Color, openings: Array = [], thick := WALL_T, y0 := 0.0) -> void:
+func wall(a: Vector2, b: Vector2, y1: float, col: Color, openings: Array = [], thick := WALL_T, y0 := 0.0, group := "") -> void:
 	var dir := b - a
 	var length := dir.length()
 	if length < 0.05:
@@ -83,28 +86,28 @@ func wall(a: Vector2, b: Vector2, y1: float, col: Color, openings: Array = [], t
 		var o0 := clampf(float(o["at"]) - float(o["w"]) * 0.5, 0.0, length)
 		var o1 := clampf(float(o["at"]) + float(o["w"]) * 0.5, 0.0, length)
 		if o0 > t:
-			_wall_piece(a, dir, t, o0, y0, y1, thick, col, yaw, true)
+			_wall_piece(a, dir, t, o0, y0, y1, thick, col, yaw, true, group)
 		var oy0 := float(o.get("y0", 0.0))
 		var oy1 := float(o.get("y1", 2.1))
 		if oy0 > y0 + 0.02:
-			_wall_piece(a, dir, o0, o1, y0, oy0, thick, col, yaw, true)
+			_wall_piece(a, dir, o0, o1, y0, oy0, thick, col, yaw, true, group)
 		if oy1 < y1 - 0.02:
-			_wall_piece(a, dir, o0, o1, oy1, y1, thick, col, yaw, oy0 > y0 + 0.02)
+			_wall_piece(a, dir, o0, o1, oy1, y1, thick, col, yaw, oy0 > y0 + 0.02, group)
 		t = maxf(t, o1)
 	if t < length:
-		_wall_piece(a, dir, t, length, y0, y1, thick, col, yaw, true)
+		_wall_piece(a, dir, t, length, y0, y1, thick, col, yaw, true, group)
 
 
-func _wall_piece(a: Vector2, dir: Vector2, t0: float, t1: float, y0: float, y1: float, thick: float, col: Color, yaw: float, blocks: bool) -> void:
+func _wall_piece(a: Vector2, dir: Vector2, t0: float, t1: float, y0: float, y1: float, thick: float, col: Color, yaw: float, blocks: bool, group := "") -> void:
 	if t1 - t0 < 0.02 or y1 - y0 < 0.02:
 		return
 	var mid := a + dir * ((t0 + t1) * 0.5)
 	var centre := Vector3(mid.x, (y0 + y1) * 0.5, mid.y)
 	var size := Vector3(t1 - t0, y1 - y0, thick)
 	if blocks:
-		solid(centre, size, col, "solid", yaw)
+		solid(centre, size, col, "solid", yaw, group)
 	else:
-		box(centre, size, col, "solid", yaw)
+		box(centre, size, col, "solid", yaw, group)
 
 
 ## The mesh instances (one per material) under `parent`, and a StaticBody3D "Colliders" with the boxes.
@@ -121,10 +124,14 @@ func build(parent: Node3D) -> Dictionary:
 		arrays[Mesh.ARRAY_INDEX] = s["i"]
 		var mesh := ArrayMesh.new()
 		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		var m := StandardMaterial3D.new()
-		m.vertex_color_use_as_albedo = true
-		m.roughness = 0.92
-		match key:
+		var mat_key := key.get_slice("|", 0)
+		var m: StandardMaterial3D = materials.get(mat_key, null)
+		var fresh := m == null
+		if fresh:
+			m = StandardMaterial3D.new()
+			m.vertex_color_use_as_albedo = true
+			m.roughness = 0.92
+		match mat_key if fresh else "":
 			"glass":
 				m.emission_enabled = true
 				m.emission = Color(1.0, 0.95, 0.8)
@@ -141,9 +148,9 @@ func build(parent: Node3D) -> Dictionary:
 				m.emission_energy_multiplier = 2.2
 				m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		mesh.surface_set_material(0, m)
-		materials[key] = m
+		materials[mat_key] = m
 		var mi := MeshInstance3D.new()
-		mi.name = "Kit_" + key
+		mi.name = "Kit_" + key.replace("|", "_")
 		mi.mesh = mesh
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		parent.add_child(mi)

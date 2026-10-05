@@ -171,7 +171,7 @@ func set_page(data: Dictionary) -> void:
 	var role := String(data.get("role", ""))
 	_role_label.text = role
 	_role_label.visible = role != ""
-	_line.text = String(data.get("line", data.get("body", "")))
+	_line.text = AF.typographic(String(data.get("line", data.get("body", ""))))
 	_line_scroll.scroll_vertical = 0
 	var key := String(data.get("portrait_key", _name_label.text))
 	if key != _key:
@@ -235,7 +235,7 @@ func _build_choices(options: Array) -> void:
 		var opt: Array = options[i]
 		var ok: bool = not (opt.size() > 2 and not opt[2])
 		var b := Button.new()
-		b.text = ("%d.  " % (i + 1) if i < 9 else "     ") + String(opt[0])
+		b.text = ("%d.  " % (i + 1) if i < 9 else "     ") + AF.typographic(String(opt[0]))
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.custom_minimum_size = Vector2(0, 46)

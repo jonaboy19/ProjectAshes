@@ -6,6 +6,10 @@ const HudMode := preload("res://scripts/ui/hud_mode.gd")
 const InteractLabel := preload("res://scripts/ui/interact_label.gd")
 const HudCard := preload("res://scripts/ui/hud_card.gd")
 const HudScript := preload("res://scripts/ui/hud.gd")
+const HudLane := preload("res://scripts/ui/hud_lane.gd")
+const Nameplates := preload("res://scripts/core/nameplates.gd")
+const ThreatPlates := preload("res://scripts/ui/threat_plates.gd")
+const AshesFrame := preload("res://scripts/ui/ashes_frame.gd")
 
 
 class Npc extends Node3D:
@@ -252,3 +256,109 @@ func test_hud_has_a_default_lock_button_in_combat_that_clears_jump_and_attack() 
 		var b: TouchScreenButton = h._buttons[other]
 		var d: float = ((h._goal[lock] as Vector2) + Vector2(lr, lr)).distance_to((h._goal[b] as Vector2) + Vector2((b.shape as CircleShape2D).radius, (b.shape as CircleShape2D).radius))
 		assert_float(d).override_failure_message(other).is_greater(lr + (b.shape as CircleShape2D).radius)
+
+
+# --- visual pass 2026-10: one stack for toast / hint / banner ---------------------------------------------------
+
+func test_toast_hint_and_banner_never_overlap() -> void:
+	HudLane.reset()
+	# alone, each keeps its own spot
+	assert_float(HudLane.y_for("hint", 83.0)).is_equal(83.0)
+	HudLane.report("toast", 80.0, 40.0)
+	var hint_y := HudLane.y_for("hint", 83.0)
+	assert_float(hint_y).is_greater_equal(80.0 + 40.0)                   # below the toast
+	HudLane.report("hint", hint_y, 52.0)
+	var banner_y := HudLane.y_for("banner", 115.0)
+	assert_float(banner_y).is_greater_equal(hint_y + 52.0)               # below the toast and the hint
+	# the toast fades: the hint rises again
+	HudLane.report("toast", 80.0, 0.0)
+	assert_float(HudLane.y_for("hint", 83.0)).is_equal(83.0)
+	HudLane.reset()
+
+
+func test_banners_and_hints_wait_while_a_menu_is_open() -> void:
+	HudLane.reset()
+	assert_bool(HudLane.allowed("banner")).is_true()
+	HudLane.set_menu_open(true)
+	assert_bool(HudLane.allowed("banner")).is_false()
+	assert_bool(HudLane.allowed("hint")).is_false()
+	assert_bool(HudLane.allowed("toast")).is_true()
+	HudLane.set_menu_open(false)
+	assert_bool(HudLane.allowed("banner")).is_true()
+	HudLane.reset()
+
+
+func test_banner_holds_its_clock_while_a_sheet_is_open() -> void:
+	HudLane.reset()
+	var banner: Control = load("res://scripts/ui/discovery_banner.gd").new()
+	add_child(banner)
+	auto_free(banner)
+	banner.call("show_place", "Thornfield", "Market Town")
+	HudLane.set_menu_open(true)
+	var t0: float = banner.get("_t")
+	banner.call("_process", 1.0)
+	assert_float(float(banner.get("_t"))).is_equal(t0)                   # paused behind the conversation
+	HudLane.set_menu_open(false)
+	banner.call("_process", 1.0)
+	assert_float(float(banner.get("_t"))).is_greater(t0)
+	HudLane.reset()
+
+
+# --- nameplates ---------------------------------------------------------------------------------------------------
+
+func test_nameplates_fade_out_by_their_cap_and_keep_the_nearest_six() -> void:
+	assert_float(Nameplates.fade_alpha(5.0, 25.0)).is_equal(1.0)
+	assert_float(Nameplates.fade_alpha(25.0, 25.0)).is_equal(0.0)
+	assert_float(Nameplates.fade_alpha(21.5, 25.0)).is_between(0.2, 0.8)
+	var rows: Array = []
+	for i in 10:
+		rows.append({"id": i, "dist": float(10 - i)})                      # id 9 is nearest
+	var keep := Nameplates.nearest_ids(rows)
+	assert_int(keep.size()).is_equal(Nameplates.MAX_SHOWN)
+	assert_bool(keep.has(9)).is_true()
+	assert_bool(keep.has(0)).is_false()
+
+
+func test_nameplate_pixel_size_gives_a_whole_number_of_pixels_readable_at_720p() -> void:
+	for vh: float in [720.0, 1080.0, 1440.0]:
+		var ps := Nameplates.snapped_pixel_size(26, vh, 65.0)
+		var px_per_unit := vh / (2.0 * tan(deg_to_rad(65.0) * 0.5))
+		var px := 26.0 * ps * px_per_unit
+		assert_float(px).is_equal_approx(roundf(px), 0.001)
+		assert_float(px).is_greater_equal(Nameplates.MIN_PX * vh / 720.0 - 0.5)
+
+
+func test_nameplates_stay_off_the_town_board() -> void:
+	var board := Rect2(400, 100, 300, 120)
+	assert_bool(Nameplates.hidden_by_sign(Vector2(500, 150), [board])).is_true()
+	assert_bool(Nameplates.hidden_by_sign(Vector2(500, 300), [board])).is_false()
+	assert_bool(Nameplates.hidden_by_sign(Vector2(500, 150), [])).is_false()
+
+
+func test_threat_plates_merge_twins_and_offset_overlaps() -> void:
+	var info := {"name": "Wolf", "level": 1, "frac": 1.0}
+	var title := ThreatPlates.plate_title(info)
+	assert_str(title).is_equal("Lv 1  Wolf")
+	var twins := ThreatPlates.layout([
+		{"at": Vector2(300.2, 200.1), "info": info, "locked": false, "a": 1.0, "title": title, "w": 100.0},
+		{"at": Vector2(303.0, 204.0), "info": info, "locked": true, "a": 1.0, "title": title, "w": 100.0}])
+	assert_int(twins.size()).is_equal(1)                                   # one plate: "Lv 1  Wolf  x2"
+	assert_int(int((twins[0]["info"] as Dictionary)["count"])).is_equal(2)
+	assert_bool(bool(twins[0]["locked"])).is_true()
+	assert_vector(twins[0]["at"]).is_equal(Vector2(300, 200))              # pixel-snapped
+	var other := {"name": "Bandit", "level": 2, "frac": 1.0}
+	var two := ThreatPlates.layout([
+		{"at": Vector2(300, 200), "info": info, "locked": false, "a": 1.0, "title": title, "w": 100.0},
+		{"at": Vector2(310, 205), "info": other, "locked": false, "a": 1.0, "title": ThreatPlates.plate_title(other), "w": 100.0}])
+	assert_int(two.size()).is_equal(2)
+	assert_float(absf((two[1]["at"] as Vector2).y - (two[0]["at"] as Vector2).y)).is_greater_equal(ThreatPlates.PLATE_H - 0.01)
+
+
+# --- typographic quotes in the talk sheet ----------------------------------------------------------------------------
+
+func test_ascii_quotes_become_open_and_close_quotes() -> void:
+	assert_str(AshesFrame.typographic("He said \"hello there\" and left.")).is_equal("He said \u201chello there\u201d and left.")
+	assert_str(AshesFrame.typographic("\"Quote\" at the start")).is_equal("\u201cQuote\u201d at the start")
+	assert_str(AshesFrame.typographic("(\"aside\")")).is_equal("(\u201caside\u201d)")
+	assert_str(AshesFrame.typographic("Don't go; 'tis late")).is_equal("Don\u2019t go; \u2018tis late")
+	assert_str(AshesFrame.typographic("No quotes here.")).is_equal("No quotes here.")

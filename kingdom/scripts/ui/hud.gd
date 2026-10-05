@@ -51,6 +51,7 @@ const DialogueSheet := preload("res://scripts/ui/dialogue_sheet.gd")
 const Portrait := preload("res://scripts/ui/portrait.gd")
 const SkillsSim := preload("res://scripts/sim/skills.gd")
 const HudMode := preload("res://scripts/ui/hud_mode.gd")
+const HudLane := preload("res://scripts/ui/hud_lane.gd")
 const InteractLabel := preload("res://scripts/ui/interact_label.gd")
 const ObjectiveMarker := preload("res://scripts/ui/objective_marker.gd")
 const ThreatPlates := preload("res://scripts/ui/threat_plates.gd")
@@ -1281,11 +1282,16 @@ func open_photo_mode() -> void:
 
 
 func _process(delta: float) -> void:
+	# One top-centre stack for toast / hint / banner (hud_lane.gd); menus hold banners and hints back.
+	HudLane.set_menu_open(is_menu_open())
+	HudLane.report("toast", _toast_box.position.y, _toast_box.size.y if _toast_box.modulate.a > 0.02 else 0.0)
 	_plate_timer -= delta
 	if _plate_timer <= 0.0:
 		_plate_timer = 0.1
 		# In-world nameplates hide while a dialogue / menu / GameMenu is up.
 		Nameplates.set_suppressed(get_tree(), is_menu_open() or GameMenu.is_open(self))
+		if player != null and is_instance_valid(player) and player.get("camera") is Camera3D:
+			Nameplates.refresh(get_tree(), player.get("camera") as Camera3D)   # fade, nearest-6 cull, pixel snap, town board
 	if not visible or _veil() or player == null or not player.is_inside_tree():
 		return
 	_nav_timer -= delta

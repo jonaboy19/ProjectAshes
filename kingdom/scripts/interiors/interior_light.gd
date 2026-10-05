@@ -19,9 +19,16 @@ const DUSK_END := 19.5
 const NIGHT_WINDOW := Color(0.20, 0.27, 0.48)
 const DAWN_WINDOW := Color(1.0, 0.66, 0.42)
 const DAY_WINDOW := Color(1.0, 0.95, 0.82)
-const NIGHT_AMBIENT := Color(0.34, 0.38, 0.55)
+const NIGHT_AMBIENT := Color(0.46, 0.44, 0.58)
 const DAY_AMBIENT := Color(1.0, 0.92, 0.80)
 const FIRE_AMBIENT := Color(1.0, 0.78, 0.55)
+const NIGHT_GLASS := Color(0.05, 0.07, 0.14)
+const DAY_GLASS := Color(0.50, 0.64, 0.82)
+## Ambient energy of an unlit room at night (it was 0.08, black-and-slate in the playtest). The day / night difference
+## still comes from the daylight omni, the window glass and the ambient peak (DAY_AMBIENT_ENERGY).
+const NIGHT_FLOOR := 0.24
+const DAY_AMBIENT_ENERGY := 0.62
+const HEARTH_LIGHT := 2.0          # omni energy of a lit hearth (was 1.1): a warm pool with falloff round the fire
 
 
 ## 0 at night, 1 in full day, smooth through dawn and dusk.
@@ -68,18 +75,19 @@ static func state(hour: float, kind := "house") -> Dictionary:
 		fire_part += 0.15
 	if lamp:
 		fire_part += 0.10
-	var ambient := lerpf(0.08, 0.62, dl) + fire_part
+	var ambient := lerpf(NIGHT_FLOOR, DAY_AMBIENT_ENERGY, dl) + fire_part
 	return {
 		"daylight": dl,
 		"window_color": window_color(hour),
-		"window_energy": lerpf(0.25, 1.5, dl),
+		"window_energy": lerpf(0.25, 0.45, dl),
 		"day_light_energy": lerpf(0.0, 1.4, dl),
 		"hearth_lit": hearth,
 		"hearth_energy": 1.0 if hearth else 0.0,
+		"hearth_light": HEARTH_LIGHT if hearth else 0.0,
 		"fire_glow": 2.2 if hearth else 0.15,
 		"lamp_on": lamp,
 		"lamp_energy": 0.8 if lamp else 0.0,
-		"ambient_color": NIGHT_AMBIENT.lerp(DAY_AMBIENT, dl).lerp(FIRE_AMBIENT, fire_part * 0.9),
+		"ambient_color": NIGHT_AMBIENT.lerp(DAY_AMBIENT, dl).lerp(FIRE_AMBIENT, fire_part * 1.1),
 		"ambient_energy": ambient,
 	}
 
