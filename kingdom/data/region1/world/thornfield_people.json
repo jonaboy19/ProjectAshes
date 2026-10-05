@@ -1,0 +1,1216 @@
+{
+ "version": 1,
+ "_doc": "Named residents of Thornfield (docs/design/FOUNDATION_PLAN.md F8). Source of truth for scripts/world/thornfield/roster.gd and tools/thornfield/gen_dialogue.py (dialogue/thornfield/<id>.json). job = WorldSim job index (0 farmer, 1 blacksmith, 2 merchant, 3 guard, 4 laborer, 5 woodcutter). home/work are building ids from SliceTown (thornfield_house_N, thornfield_smithy, ...) or site ids (thornfield_brewery, thornfield_farm, thornfield_mill, thornfield_barn). schedule overrides {from, to, phase} replace the baseline schedule phase (home work market inn temple train social) for hours in [from, to). bind=false people are not WorldSim rows (Hesta stands at the brewery as a station).",
+ "residents": [
+  {
+   "id": "hesta_thorne",
+   "name": "Hesta Thorne",
+   "age": 52,
+   "role": "brewmistress",
+   "job": 2,
+   "home": "thornfield_brewery",
+   "work": "thornfield_brewery",
+   "traits": [
+    "shrewd",
+    "proud",
+    "generous with ale"
+   ],
+   "schedule": [
+    {
+     "from": 5,
+     "to": 22,
+     "phase": "work"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "First pint is free if you can name the hop."
+    ],
+    "rumour": [
+     "The tithe barn is half full. Half. After a good harvest."
+    ],
+    "opinions": {
+     "odo_marsh": "Odo has the best nose in the vale and the worst temper.",
+     "wilm_garrow": "Wilm drinks more than he pays for. I keep a tab. He keeps promises about it.",
+     "reeve_alden": "Alden counts barley the way I count grudges: carefully, and aloud."
+    }
+   },
+   "relationships": {
+    "odo_marsh": {
+     "kind": "employer",
+     "value": 30
+    },
+    "pell_hargrove": {
+     "kind": "employer",
+     "value": 25
+    },
+    "reeve_alden": {
+     "kind": "wary ally",
+     "value": 5
+    }
+   },
+   "station": true,
+   "bind": false
+  },
+  {
+   "id": "odo_marsh",
+   "name": "Odo Marsh",
+   "age": 44,
+   "role": "brewer",
+   "job": 2,
+   "home": "thornfield_house_1",
+   "work": "thornfield_brewery",
+   "traits": [
+    "hot-tempered",
+    "meticulous",
+    "loyal"
+   ],
+   "schedule": [
+    {
+     "from": 4,
+     "to": 15,
+     "phase": "work"
+    },
+    {
+     "from": 15,
+     "to": 19,
+     "phase": "home"
+    },
+    {
+     "from": 19.5,
+     "to": 22.5,
+     "phase": "inn"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Mind the kettles. They bite.",
+     "Morning. If it smells good, it is mine; if it smells wrong, it is Pell's."
+    ],
+    "rumour": [
+     "Someone has been in the cellar. The kegs are one short and I counted twice.",
+     "Hesta tastes every batch. I taste it first and pretend I did not."
+    ],
+    "opinions": {
+     "pell_hargrove": "Pell malts well and talks too much. Mostly in that order.",
+     "hesta_thorne": "Hesta pays late and pays fair. I have worked for worse.",
+     "joss_brannock": "Joss waters his ale. I will say no more."
+    }
+   },
+   "relationships": {
+    "pell_hargrove": {
+     "kind": "colleague",
+     "value": 10
+    },
+    "hesta_thorne": {
+     "kind": "employer",
+     "value": 20
+    },
+    "joss_brannock": {
+     "kind": "rival",
+     "value": -15
+    }
+   }
+  },
+  {
+   "id": "pell_hargrove",
+   "name": "Pell Hargrove",
+   "age": 38,
+   "role": "maltster",
+   "job": 4,
+   "home": "thornfield_house_2",
+   "work": "thornfield_brewery",
+   "traits": [
+    "chatty",
+    "curious",
+    "cheerful"
+   ],
+   "schedule": [
+    {
+     "from": 5,
+     "to": 16,
+     "phase": "work"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Smell that? That is next week's ale, sprouting.",
+     "Ho! Mind the damp floor, it is the whole secret."
+    ],
+    "rumour": [
+     "I swear there was a light in the tithe barn last night. No one has a key but the reeve and Hesta.",
+     "Barley comes in sound and goes bad on top. Rot does not work like that."
+    ],
+    "opinions": {
+     "wilm_garrow": "Wilm is my cousin. I love him. I would not leave him alone with a full barrel.",
+     "odo_marsh": "Odo is all bark. Mostly. The kettles, though, those bite."
+    }
+   },
+   "relationships": {
+    "wilm_garrow": {
+     "kind": "cousin",
+     "value": 15
+    },
+    "odo_marsh": {
+     "kind": "colleague",
+     "value": 10
+    }
+   }
+  },
+  {
+   "id": "bram_oakley",
+   "name": "Bram Oakley",
+   "age": 47,
+   "role": "farmer",
+   "job": 0,
+   "home": "thornfield_house_3",
+   "work": "thornfield_farm",
+   "traits": [
+    "stubborn",
+    "hardworking",
+    "superstitious"
+   ],
+   "schedule": [
+    {
+     "from": 5,
+     "to": 18,
+     "phase": "work"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Fine weather for barley, if the wolves let it be.",
+     "Mind the furrows, friend."
+    ],
+    "rumour": [
+     "Tracks by the hedge again this morning. Big ones. They are testing it.",
+     "The thorn hedge holds, but not forever. Nothing does."
+    ],
+    "opinions": {
+     "tilda_fenn": "My sister works harder than any two men and would box my ears for saying it.",
+     "cobb_ardley": "Cobb says the winter will be hard. Cobb says that every year. He is right one year in three."
+    }
+   },
+   "relationships": {
+    "tilda_fenn": {
+     "kind": "sister",
+     "value": 40
+    },
+    "pip_oakley": {
+     "kind": "son",
+     "value": 60
+    },
+    "cobb_ardley": {
+     "kind": "neighbour",
+     "value": 15
+    }
+   }
+  },
+  {
+   "id": "tilda_fenn",
+   "name": "Tilda Fenn",
+   "age": 33,
+   "role": "farmer",
+   "job": 0,
+   "home": "thornfield_house_4",
+   "work": "thornfield_farm",
+   "traits": [
+    "practical",
+    "dry-humoured",
+    "protective"
+   ],
+   "schedule": [
+    {
+     "from": 5,
+     "to": 18,
+     "phase": "work"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "If you are lost, the road is the long straight thing.",
+     "Hello. Do not step on the seedlings."
+    ],
+    "rumour": [
+     "Wolves took a ewe from the high pen. Left the bell, took the ewe.",
+     "I counted sacks twice. The barn is short and nobody will say why."
+    ],
+    "opinions": {
+     "bram_oakley": "My brother thinks every shadow is a wolf. Tonight it might be."
+    }
+   },
+   "relationships": {
+    "bram_oakley": {
+     "kind": "brother",
+     "value": 40
+    },
+    "wren_fenn": {
+     "kind": "daughter",
+     "value": 60
+    }
+   }
+  },
+  {
+   "id": "cobb_ardley",
+   "name": "Cobb Ardley",
+   "age": 61,
+   "role": "farmer",
+   "job": 0,
+   "home": "thornfield_house_5",
+   "work": "thornfield_farm",
+   "traits": [
+    "gloomy",
+    "wise",
+    "slow to anger"
+   ],
+   "schedule": [
+    {
+     "from": 6,
+     "to": 16,
+     "phase": "work"
+    },
+    {
+     "from": 16,
+     "to": 18,
+     "phase": "social"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Hmph. Young legs. Use them.",
+     "Weather is turning. My knee says so."
+    ],
+    "rumour": [
+     "I have seen three wolf winters. This feels like the fourth.",
+     "The old stones hum less than they did."
+    ],
+    "opinions": {
+     "old_hild": "Hild remembers when the hedge was a seedling. She will tell you, too.",
+     "bram_oakley": "Bram is a good lad. Too loud, but good."
+    }
+   },
+   "relationships": {
+    "old_hild": {
+     "kind": "old friend",
+     "value": 35
+    },
+    "bram_oakley": {
+     "kind": "neighbour",
+     "value": 15
+    }
+   }
+  },
+  {
+   "id": "nessa_wick",
+   "name": "Nessa Wick",
+   "age": 29,
+   "role": "farmer",
+   "job": 0,
+   "home": "thornfield_house_6",
+   "work": "thornfield_farm",
+   "traits": [
+    "restless",
+    "kind",
+    "dreams of travel"
+   ],
+   "schedule": [
+    {
+     "from": 5,
+     "to": 17,
+     "phase": "work"
+    },
+    {
+     "from": 17,
+     "to": 19.5,
+     "phase": "market"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Hello! Have you been to Kingsreach? Is it as big as they say?",
+     "Morning. Is it just me, or is the sky bigger today?"
+    ],
+    "rumour": [
+     "The pigs were restless last night. Pigs know.",
+     "Someone left the wicket open at the sheep pen. Not one of us."
+    ],
+    "opinions": {
+     "edric_vane": "Edric sells good rope and bad advice."
+    }
+   },
+   "relationships": {
+    "tilda_fenn": {
+     "kind": "friend",
+     "value": 20
+    }
+   }
+  },
+  {
+   "id": "roderic_hale",
+   "name": "Roderic Hale",
+   "age": 50,
+   "role": "blacksmith",
+   "job": 1,
+   "home": "thornfield_house_7",
+   "work": "thornfield_smithy",
+   "traits": [
+    "gruff",
+    "honest",
+    "proud of his work"
+   ],
+   "schedule": [
+    {
+     "from": 6,
+     "to": 19,
+     "phase": "work"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "If it is not broken do not bring it. If it is, leave it.",
+     "Heat is good. Hammers are better."
+    ],
+    "rumour": [
+     "Three sets of wolf-bells, a dozen nails, and a hinge for the barn door. It had been forced, that hinge.",
+     "Iron prices are up. Nobody tells the Council."
+    ],
+    "opinions": {
+     "tam_birch": "Young Tam wants a good sword. He needs a good sleep first.",
+     "edric_vane": "Edric undercuts me on nails. I forgive him. Mostly."
+    }
+   },
+   "relationships": {
+    "tam_birch": {
+     "kind": "mentor",
+     "value": 20
+    },
+    "edric_vane": {
+     "kind": "rival",
+     "value": -5
+    }
+   }
+  },
+  {
+   "id": "maud_pennick",
+   "name": "Maud Pennick",
+   "age": 41,
+   "role": "baker",
+   "job": 2,
+   "home": "thornfield_house_8",
+   "work": "thornfield_bakery",
+   "traits": [
+    "warm",
+    "gossipy",
+    "early riser"
+   ],
+   "schedule": [
+    {
+     "from": 3.5,
+     "to": 12.5,
+     "phase": "work"
+    },
+    {
+     "from": 12.5,
+     "to": 14,
+     "phase": "market"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Bread's still warm, love. Take a heel.",
+     "The oven wakes me before the cock does."
+    ],
+    "rumour": [
+     "Pell's wife says he comes home smelling of the barn, not the malt-house.",
+     "Half the village owes me for bread, and Wilm owes me twice."
+    ],
+    "opinions": {
+     "wilm_garrow": "Wilm Garrow eats my bread and tells me it is the best in the vale. Pays in compliments.",
+     "joss_brannock": "Joss buys flour from me and sells stew to everyone else. I do not mind."
+    }
+   },
+   "relationships": {
+    "dilly_pennick": {
+     "kind": "daughter",
+     "value": 70
+    },
+    "wilm_garrow": {
+     "kind": "creditor",
+     "value": -5
+    }
+   }
+  },
+  {
+   "id": "edric_vane",
+   "name": "Edric Vane",
+   "age": 46,
+   "role": "shopkeeper",
+   "job": 2,
+   "home": "thornfield_house_9",
+   "work": "thornfield_shop",
+   "traits": [
+    "smooth",
+    "calculating",
+    "secretly generous"
+   ],
+   "schedule": [
+    {
+     "from": 7.5,
+     "to": 18.5,
+     "phase": "work"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Welcome, welcome. Rope, lamp oil, boots, anything under the sun.",
+     "Need something? Probably I have it."
+    ],
+    "rumour": [
+     "Wilm Garrow bought lamp oil twice this week and has no lamp that I know of.",
+     "A trader said the roads east are bad. Prices will follow."
+    ],
+    "opinions": {
+     "roderic_hale": "Roderic's nails are fine nails. Mine are cheaper.",
+     "wilm_garrow": "Wilm owes me forty coppers and a very good story."
+    }
+   },
+   "relationships": {
+    "wilm_garrow": {
+     "kind": "creditor",
+     "value": -10
+    },
+    "roderic_hale": {
+     "kind": "rival",
+     "value": -5
+    }
+   }
+  },
+  {
+   "id": "joss_brannock",
+   "name": "Joss Brannock",
+   "age": 55,
+   "role": "innkeeper",
+   "job": 2,
+   "home": "thornfield_inn",
+   "work": "thornfield_inn",
+   "traits": [
+    "jovial",
+    "nosy",
+    "protective of his regulars"
+   ],
+   "schedule": [
+    {
+     "from": 10,
+     "to": 24,
+     "phase": "work"
+    },
+    {
+     "from": 0,
+     "to": 10,
+     "phase": "home"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Come in, come in. The stew is hot and the beds are only a little damp.",
+     "A seat by the fire for a friendly face."
+    ],
+    "rumour": [
+     "A traveller asked about the barn today. Offered to pay for the answer. I sent him away.",
+     "Guards drink for free on Fridays. Somebody has to keep the peace."
+    ],
+    "opinions": {
+     "odo_marsh": "Odo thinks I water my ale. I merely stretch it. There is a difference.",
+     "hesta_thorne": "Hesta's ale outsells mine three to one. We toast to her anyway."
+    }
+   },
+   "relationships": {
+    "odo_marsh": {
+     "kind": "rival",
+     "value": -10
+    },
+    "hesta_thorne": {
+     "kind": "respected rival",
+     "value": 10
+    }
+   }
+  },
+  {
+   "id": "wulf_ashdown",
+   "name": "Wulf Ashdown",
+   "age": 43,
+   "role": "guard captain",
+   "job": 3,
+   "home": "thornfield_guard_post",
+   "work": "thornfield_guard_post",
+   "traits": [
+    "disciplined",
+    "fair",
+    "tired"
+   ],
+   "schedule": [
+    {
+     "from": 6,
+     "to": 21,
+     "phase": "work"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Keep your blade sheathed inside the walls and we will get on.",
+     "Captain Ashdown. State your business."
+    ],
+    "rumour": [
+     "Tracks of five or six wolves by the north hedge. A pack with a plan.",
+     "I put Ines on the barn road at night. Somebody has been prowling."
+    ],
+    "opinions": {
+     "ines_carrow": "Carrow is the best I have. She does not know it.",
+     "tam_birch": "Birch is green. He will learn or the wolves will teach him."
+    }
+   },
+   "relationships": {
+    "ines_carrow": {
+     "kind": "subordinate",
+     "value": 30
+    },
+    "tam_birch": {
+     "kind": "subordinate",
+     "value": 10
+    }
+   }
+  },
+  {
+   "id": "ines_carrow",
+   "name": "Ines Carrow",
+   "age": 28,
+   "role": "guard",
+   "job": 3,
+   "home": "thornfield_house_10",
+   "work": "thornfield_guard_post",
+   "traits": [
+    "sharp-eyed",
+    "quiet",
+    "dutiful"
+   ],
+   "schedule": [
+    {
+     "from": 21,
+     "to": 6,
+     "phase": "work"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Evening. Keep to the lit roads.",
+     "Night watch. Say your business."
+    ],
+    "rumour": [
+     "I saw a shape slip into the tithe barn two nights ago. By the time I reached it, nothing.",
+     "Wolves at the hedge, three nights in a row."
+    ],
+    "opinions": {
+     "wulf_ashdown": "The Captain does not sleep. I think he is made of oak.",
+     "tam_birch": "Tam talks on watch. I let him, it keeps him awake."
+    }
+   },
+   "relationships": {
+    "wulf_ashdown": {
+     "kind": "captain",
+     "value": 30
+    },
+    "tam_birch": {
+     "kind": "watch partner",
+     "value": 15
+    }
+   }
+  },
+  {
+   "id": "tam_birch",
+   "name": "Tam Birch",
+   "age": 22,
+   "role": "guard",
+   "job": 3,
+   "home": "thornfield_house_11",
+   "work": "thornfield_guard_post",
+   "traits": [
+    "eager",
+    "chatty",
+    "brave to a fault"
+   ],
+   "schedule": [
+    {
+     "from": 6,
+     "to": 21,
+     "phase": "work"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Halt! ...Sorry. Habit. Good day.",
+     "Nothing to report, sir. Ma'am. Whoever you are."
+    ],
+    "rumour": [
+     "I heard howling from the forest last night. It sounded close. It sounded organised.",
+     "Roderic is making me a proper sword. Eventually."
+    ],
+    "opinions": {
+     "ines_carrow": "Ines scares me. Respectfully.",
+     "roderic_hale": "Master Hale says I swing like I am chasing flies."
+    }
+   },
+   "relationships": {
+    "ines_carrow": {
+     "kind": "watch partner",
+     "value": 10
+    },
+    "roderic_hale": {
+     "kind": "mentor",
+     "value": 20
+    }
+   }
+  },
+  {
+   "id": "thornfield_miller",
+   "name": "Osmund Millward",
+   "age": 57,
+   "role": "miller",
+   "job": 4,
+   "home": "thornfield_house_12",
+   "work": "thornfield_mill",
+   "traits": [
+    "patient",
+    "dusty",
+    "fond of puns"
+   ],
+   "schedule": [
+    {
+     "from": 6,
+     "to": 17,
+     "phase": "work"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Grind and bear it, as they say. Welcome to the mill.",
+     "Flour in the hair, flour in the soul."
+    ],
+    "rumour": [
+     "Sound barley is getting scarce. What I am sent lately is half mould.",
+     "The sails turned by themselves last night. Wind, I said. Wind."
+    ],
+    "opinions": {
+     "hesta_thorne": "Hesta's barley is the best in the vale. When it arrives.",
+     "bram_oakley": "Bram brings wheat and fears. I take both."
+    }
+   },
+   "relationships": {
+    "hesta_thorne": {
+     "kind": "supplier",
+     "value": 15
+    },
+    "bram_oakley": {
+     "kind": "supplier",
+     "value": 10
+    }
+   }
+  },
+  {
+   "id": "agnes_thistle",
+   "name": "Agnes Thistle",
+   "age": 63,
+   "role": "herbalist",
+   "job": 2,
+   "home": "thornfield_healer",
+   "work": "thornfield_healer",
+   "traits": [
+    "gentle",
+    "sharp-tongued",
+    "knows everyone's ailments"
+   ],
+   "schedule": [
+    {
+     "from": 7,
+     "to": 18,
+     "phase": "work"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Cough? Rash? Heartbreak? I have a tea for all three.",
+     "Sit. You look pale. Everyone looks pale."
+    ],
+    "rumour": [
+     "Wilm Garrow has been buying poppy and moulds. Odd combination for a man who claims to sleep well.",
+     "Mould on barley is not rot. Rot smells earthy. This smelled of sweet vinegar. Someone poured it."
+    ],
+    "opinions": {
+     "old_hild": "Hild has outlived three healers and she will outlive me.",
+     "wilm_garrow": "Wilm is troubled. I would help him if he let me."
+    }
+   },
+   "relationships": {
+    "old_hild": {
+     "kind": "old friend",
+     "value": 25
+    },
+    "wilm_garrow": {
+     "kind": "patient",
+     "value": 10
+    }
+   }
+  },
+  {
+   "id": "dilly_pennick",
+   "name": "Dilly Pennick",
+   "age": 11,
+   "role": "child",
+   "job": 4,
+   "home": "thornfield_house_8",
+   "work": "thornfield_bakery",
+   "traits": [
+    "bold",
+    "imaginative",
+    "hungry"
+   ],
+   "schedule": [
+    {
+     "from": 8,
+     "to": 12,
+     "phase": "market"
+    },
+    {
+     "from": 14,
+     "to": 18,
+     "phase": "social"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Are you a hero? You look like a hero.",
+     "Want to see a frog? I have a frog."
+    ],
+    "rumour": [
+     "Pip says the barn is haunted. I say it is a person. Pip says that is worse.",
+     "Wolves are just big dogs. Mama says they are not. Mama is wrong, I think."
+    ],
+    "opinions": {
+     "pip_oakley": "Pip is my best friend. Mostly. We argue about dragons.",
+     "wren_fenn": "Wren is too little to play knights. She can be the dragon."
+    }
+   },
+   "relationships": {
+    "pip_oakley": {
+     "kind": "friend",
+     "value": 50
+    },
+    "wren_fenn": {
+     "kind": "friend",
+     "value": 30
+    },
+    "maud_pennick": {
+     "kind": "mother",
+     "value": 70
+    }
+   },
+   "child": true
+  },
+  {
+   "id": "pip_oakley",
+   "name": "Pip Oakley",
+   "age": 9,
+   "role": "child",
+   "job": 4,
+   "home": "thornfield_house_3",
+   "work": "thornfield_farm",
+   "traits": [
+    "shy",
+    "observant",
+    "soft-hearted"
+   ],
+   "schedule": [
+    {
+     "from": 8,
+     "to": 12,
+     "phase": "social"
+    },
+    {
+     "from": 14,
+     "to": 18,
+     "phase": "social"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "...Hello.",
+     "I know where the cats sleep. Do you want to know?"
+    ],
+    "rumour": [
+     "I saw a man at the barn at night through my window. He carried a bucket.",
+     "I am not allowed to talk about it. Da says."
+    ],
+    "opinions": {
+     "dilly_pennick": "Dilly is loud. But she shares her bread."
+    }
+   },
+   "relationships": {
+    "dilly_pennick": {
+     "kind": "friend",
+     "value": 50
+    },
+    "bram_oakley": {
+     "kind": "father",
+     "value": 60
+    }
+   },
+   "child": true
+  },
+  {
+   "id": "wren_fenn",
+   "name": "Wren Fenn",
+   "age": 7,
+   "role": "child",
+   "job": 4,
+   "home": "thornfield_house_4",
+   "work": "thornfield_farm",
+   "traits": [
+    "curious",
+    "fearless",
+    "chatty"
+   ],
+   "schedule": [
+    {
+     "from": 8,
+     "to": 12,
+     "phase": "social"
+    },
+    {
+     "from": 14,
+     "to": 18,
+     "phase": "social"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Hi! I am Wren and I am seven!",
+     "Do you have a dog? I want a dog."
+    ],
+    "rumour": [
+     "There is a big dog by the barn. He does not bark.",
+     "Mama says do not wander, but I wander a little."
+    ],
+    "opinions": {
+     "dilly_pennick": "Dilly lets me be the dragon. I am a very good dragon."
+    }
+   },
+   "relationships": {
+    "dilly_pennick": {
+     "kind": "friend",
+     "value": 30
+    },
+    "tilda_fenn": {
+     "kind": "mother",
+     "value": 60
+    }
+   },
+   "child": true
+  },
+  {
+   "id": "old_hild",
+   "name": "Old Hild Marrow",
+   "age": 78,
+   "role": "elder",
+   "job": 4,
+   "home": "thornfield_house_13",
+   "work": "thornfield_house_13",
+   "traits": [
+    "wistful",
+    "tart",
+    "remembers everything"
+   ],
+   "schedule": [
+    {
+     "from": 9,
+     "to": 12,
+     "phase": "social"
+    },
+    {
+     "from": 14,
+     "to": 17,
+     "phase": "temple"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Sit by me, child. My legs have opinions.",
+     "I knew your grandmother. Or someone like her."
+    ],
+    "rumour": [
+     "The hedge was my father's idea. He cursed it every winter and wept when he died.",
+     "There was a drifter once, years ago. Wilm's father. He also loved a barn at night."
+    ],
+    "opinions": {
+     "granfer_aldous": "Aldous is a fool. I have loved him for fifty years.",
+     "agnes_thistle": "Agnes has good hands. She will not admit it."
+    }
+   },
+   "relationships": {
+    "granfer_aldous": {
+     "kind": "old flame",
+     "value": 40
+    },
+    "agnes_thistle": {
+     "kind": "old friend",
+     "value": 25
+    }
+   }
+  },
+  {
+   "id": "granfer_aldous",
+   "name": "Granfer Aldous",
+   "age": 81,
+   "role": "elder",
+   "job": 4,
+   "home": "thornfield_house_14",
+   "work": "thornfield_house_14",
+   "traits": [
+    "deaf when convenient",
+    "fond of stories",
+    "kind"
+   ],
+   "schedule": [
+    {
+     "from": 9,
+     "to": 13,
+     "phase": "social"
+    },
+    {
+     "from": 15,
+     "to": 18,
+     "phase": "social"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Eh? Speak up, young one. Or do not, I will nod either way.",
+     "Sit. Have you heard the one about the three-legged ox?"
+    ],
+    "rumour": [
+     "Wolves came through the east pass in my youth. We lit bonfires and sang. Never saw one again.",
+     "Do not trust a man who is too friendly to a dog."
+    ],
+    "opinions": {
+     "old_hild": "Hild and I were nearly married. She says nearly. I say nearly."
+    }
+   },
+   "relationships": {
+    "old_hild": {
+     "kind": "old flame",
+     "value": 40
+    }
+   }
+  },
+  {
+   "id": "wilm_garrow",
+   "name": "Wilm Garrow",
+   "age": 35,
+   "role": "drifter",
+   "job": 4,
+   "home": "thornfield_house_15",
+   "work": "thornfield_barn",
+   "traits": [
+    "charming",
+    "desperate",
+    "guilt-ridden"
+   ],
+   "schedule": [
+    {
+     "from": 20.5,
+     "to": 5.5,
+     "phase": "home"
+    },
+    {
+     "from": 11,
+     "to": 14,
+     "phase": "market"
+    },
+    {
+     "from": 14,
+     "to": 20.5,
+     "phase": "inn"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Well, well. A friendly face. Spare a coin for a man between fortunes?",
+     "Evening. Lovely night for it."
+    ],
+    "rumour": [
+     "Rot gets into every barn eventually. Nothing a man can do.",
+     "I was never near the barn. Ask anyone."
+    ],
+    "opinions": {
+     "pell_hargrove": "Pell is my cousin. Good lad. Does not ask questions.",
+     "hesta_thorne": "Hesta is a hard woman. A fair one, I will say that.",
+     "edric_vane": "Edric thinks I owe him. I think he owes me patience."
+    }
+   },
+   "relationships": {
+    "pell_hargrove": {
+     "kind": "cousin",
+     "value": 15
+    },
+    "edric_vane": {
+     "kind": "debtor",
+     "value": -10
+    },
+    "maud_pennick": {
+     "kind": "debtor",
+     "value": -5
+    }
+   },
+   "secret": "Paid by a Kingsreach grain factor to spoil Thornfield's tithe barley so the price would rise.",
+   "nocturnal": true
+  },
+  {
+   "id": "reeve_alden",
+   "name": "Reeve Alden Cray",
+   "age": 54,
+   "role": "reeve",
+   "job": 2,
+   "home": "thornfield_house_16",
+   "work": "thornfield_house_16",
+   "traits": [
+    "pompous",
+    "careful",
+    "fair at heart"
+   ],
+   "schedule": [
+    {
+     "from": 8,
+     "to": 17,
+     "phase": "work"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Reeve Cray. Whatever it is, it is in writing or it did not happen.",
+     "Mind the ledger on the way out."
+    ],
+    "rumour": [
+     "The tithe barn count is short by eleven sacks. Eleven. I wrote it in ink.",
+     "Kingsreach wants its barley on time and bad news late."
+    ],
+    "opinions": {
+     "hesta_thorne": "Hesta and I do not agree. Which is why we get things done.",
+     "wulf_ashdown": "Ashdown keeps the walls. I keep the books. Between us, the village stands."
+    }
+   },
+   "relationships": {
+    "hesta_thorne": {
+     "kind": "wary ally",
+     "value": 5
+    },
+    "wulf_ashdown": {
+     "kind": "colleague",
+     "value": 20
+    }
+   }
+  },
+  {
+   "id": "hob_tanner",
+   "name": "Hob Tanner",
+   "age": 36,
+   "role": "woodcutter",
+   "job": 5,
+   "home": "thornfield_house_17",
+   "work": "thornfield_house_17",
+   "traits": [
+    "solitary",
+    "dry",
+    "unflappable"
+   ],
+   "schedule": [
+    {
+     "from": 5.5,
+     "to": 16,
+     "phase": "work"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Mm.",
+     "Careful where you walk. The forest bites."
+    ],
+    "rumour": [
+     "There is a den north-east, past the old birches. Smells of wolf for a quarter-mile.",
+     "I have never seen so many tracks. They are not hunting, they are looking."
+    ],
+    "opinions": {
+     "bram_oakley": "Bram thinks wolves are demons. They are just hungry. Sometimes that is worse."
+    }
+   },
+   "relationships": {
+    "bram_oakley": {
+     "kind": "neighbour",
+     "value": 10
+    }
+   }
+  },
+  {
+   "id": "sister_cora",
+   "name": "Sister Cora",
+   "age": 39,
+   "role": "temple keeper",
+   "job": 2,
+   "home": "thornfield_house_18",
+   "work": "thornfield_temple",
+   "traits": [
+    "serene",
+    "observant",
+    "stern when needed"
+   ],
+   "schedule": [
+    {
+     "from": 6,
+     "to": 9,
+     "phase": "temple"
+    },
+    {
+     "from": 9,
+     "to": 17,
+     "phase": "work"
+    },
+    {
+     "from": 17.5,
+     "to": 18.5,
+     "phase": "temple"
+    }
+   ],
+   "dialogue": {
+    "greeting": [
+     "Peace be on you, traveller.",
+     "The bell tolls for those who listen."
+    ],
+    "rumour": [
+     "People confess more at the barn door than at the altar, lately.",
+     "Wilm Garrow lit a candle at the shrine last night. He did not say for whom."
+    ],
+    "opinions": {
+     "agnes_thistle": "Agnes and I share the village's aches. She treats the bodies, I the rest.",
+     "old_hild": "Hild keeps the shrine honest."
+    }
+   },
+   "relationships": {
+    "agnes_thistle": {
+     "kind": "friend",
+     "value": 20
+    },
+    "old_hild": {
+     "kind": "parishioner",
+     "value": 15
+    }
+   }
+  }
+ ]
+}

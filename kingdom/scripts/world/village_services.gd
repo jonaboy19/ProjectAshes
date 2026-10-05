@@ -37,6 +37,8 @@ const Ownership := preload("res://scripts/sim/ownership.gd")
 const ShopHours := preload("res://scripts/sim/shop_hours.gd")
 const CrimeWatch := preload("res://scripts/population/crime_watch.gd")
 const Theft := preload("res://scripts/sim/theft.gd")
+const ThornfieldRoster := preload("res://scripts/world/thornfield/roster.gd")
+const ThornfieldTalk := preload("res://scripts/world/thornfield/thornfield_talk.gd")
 ## NPC marker role -> ShopHours kind (the service shuts outside these hours; the inn never does).
 const ROLE_HOURS := {"blacksmith": "blacksmith", "healer": "healer", "receptionist": "guild"}
 const SOCIAL_TICK := 0.5
@@ -1031,6 +1033,10 @@ func _npc_info(npc: Dictionary) -> Dictionary:
 		return info
 	info["name"] = WorldSim.person_name(person)
 	info["role"] = String(WorldSim.JOBS[WorldSim.job[person]]).to_lower()
+	var named := ThornfieldRoster.info_for(person)      # F8: a named resident of Thornfield talks as themselves
+	if not named.is_empty():
+		for k: String in ["id", "name", "role", "file", "quest_role"]:
+			info[k] = named[k]
 	if WorldSim.home[person] != 0:
 		info["faction"] = "crown_caldrenn"
 	for p: Dictionary in Life.life_path.parents:
@@ -1233,7 +1239,7 @@ func _talk_ctx(info: Dictionary) -> Dictionary:
 		gift_items = true
 		break
 	var chores_day: float = rel.modifier_day(id, "chores")
-	return {
+	var ctx := {
 		"id": id, "tier": tier_s, "bond": String(info.get("bond", "")), "opinion": rel.opinion(id, now),
 		"time": DialogueRunner.time_bucket(WorldSim.time_of_day), "weather": _weather_name(),
 		"child": not Life.is_adult(), "age": Life.age(), "role": String(info.get("role", "")),
@@ -1252,6 +1258,8 @@ func _talk_ctx(info: Dictionary) -> Dictionary:
 		"guild_member": Life.guild.is_member(RAAdventurerGuild.PLAYER),
 		"vars": {"family": Life.life_path.family_name},
 	}
+	ctx.merge(ThornfieldTalk.ctx_extra(info))      # F8: quest-driven dialogue keys for the Thornfield residents
+	return ctx
 
 
 func _ready_quests(info: Dictionary) -> Array:
@@ -1336,6 +1344,7 @@ func _enter(node: String) -> void:
 	var msg := _do_actions(line.get("do", []))
 	if msg != "":
 		_talk["line"] += "\n\n" + msg
+	ThornfieldTalk.on_node(info, node)      # F8: `talk {npc, node}` for the quest bus
 
 
 func _talk_page() -> Dictionary:
@@ -1349,6 +1358,7 @@ func _talk_page() -> Dictionary:
 		opts.append([c["text"], _choose.bind(c)])
 	_add_courtship_options(opts, info)
 	preload("res://scripts/quests/quest_talk.gd").add_options(opts, info, hud)   # library quests (F7)
+	ThornfieldTalk.add_options(opts, info)      # F8: hand over goods (Deliver) to the miller and friends
 	if Life.soul.tier() >= RANaming.MIN_SOUL_TIER and String(info.get("id", "")) != "" \
 			and rel.opinion(info["id"], now) >= RANaming.PERSON_TRUST_MIN \
 			and Life.naming.soul_bonds.size() < RANaming.bond_limit(Life.soul.tier()):

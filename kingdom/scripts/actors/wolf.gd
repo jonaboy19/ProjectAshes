@@ -26,6 +26,7 @@ const Tokens := preload("res://scripts/actors/creature_attack_tokens.gd")
 const Telegraph := preload("res://scripts/combat/telegraph.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const Fighter := preload("res://scripts/combat/npc_fighter.gd")
+const SoulbeastAura := preload("res://scripts/actors/soulbeast_aura.gd")
 const CombatStats := preload("res://scripts/combat/combat_stats.gd")
 const LEGACY_MODEL := "res://assets/incoming/quaternius/ultimate-animated-animals/glTF/Wolf.gltf"
 const LEGACY_CLIPS := {"idle": "Idle", "walk": "Walk", "run": "Gallop", "attack": "Attack",
@@ -228,7 +229,7 @@ func _physics_process(delta: float) -> void:
 	_turn_rest -= delta
 	_provoked -= delta
 	_orbit_flip -= delta
-	var player := get_tree().get_first_node_in_group("player") as Node3D
+	var player := _quarry()
 	if _winding > 0.0:
 		_winding -= delta
 		if is_instance_valid(_strike_target) and _winding > _cur_windup * 0.4:
@@ -318,6 +319,21 @@ func _physics_process(delta: float) -> void:
 		_play(locomotion, false, rate)
 
 
+## Who this beast hunts: the player, unless it was given prey (meta "prey": a node with `global_position`,
+## `take_damage` and `dead`, e.g. the Thornfield grain cart) and the player is not within PREY_PLAYER_RANGE.
+const PREY_PLAYER_RANGE := 9.0
+
+
+func _quarry() -> Node3D:
+	var player := get_tree().get_first_node_in_group("player") as Node3D
+	if has_meta("prey"):
+		var prey := get_meta("prey") as Node3D
+		if is_instance_valid(prey) and not bool(prey.get("dead")):
+			if player == null or global_position.distance_to(player.global_position) > PREY_PLAYER_RANGE:
+				return prey
+	return player
+
+
 ## Movement in ATTACK: slot holders close in and strike; others circle.
 func _attack_move(player: Node3D, delta: float) -> float:
 	if player == null:
@@ -393,6 +409,10 @@ func _decide(player: Node3D, cov: float) -> void:
 	# closer, a running one farther. Once fighting, the range stays as it is.
 	if _provoked <= 0.0 and state != State.ATTACK and player.has_method("noise_radius"):
 		aggro *= clampf(float(player.call("noise_radius")) / 10.0, 0.4, 1.6)
+	var wary := 1.0     # F10: a bonded Soulbeast beside the player makes wild wolves wary (soulbeast_aura.gd)
+	if species == "wolf" and _provoked <= 0.0:
+		wary = SoulbeastAura.wary_factor(global_position)
+		aggro *= wary
 	if player_cov > 0.5:
 		_set_state(State.ROAM)            # won't follow prey into protected land
 	elif d < aggro and (in_territory or _provoked > 0.0):
@@ -401,7 +421,7 @@ func _decide(player: Node3D, cov: float) -> void:
 		if _turn_rest <= 0.0 and not Tokens.holds(self, player):
 			if Tokens.request(self, player, int(_sp["slots"])):
 				_turn_time = 0.0
-	elif d < float(_sp["stalk"]) and in_territory:
+	elif d < float(_sp["stalk"]) * wary and in_territory:
 		_set_state(State.STALK)
 	else:
 		_set_state(State.ROAM)
