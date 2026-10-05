@@ -68,11 +68,11 @@ static func install(anim: AnimationPlayer) -> int:
 	var sk := _skeleton_path(anim)
 	if sk == "":
 		return 0
-	_installed[key] = true
 	var lib := _library_for(sk)
 	if lib == null:
 		return 0
 	anim.add_animation_library(LIB, lib)
+	_installed[key] = true
 	return lib.get_animation_list().size()
 
 
@@ -120,7 +120,10 @@ static func play_cast(animator: Object, def: Dictionary, fallback := "") -> Dict
 		hit = float(meta_row.get("hit", 0.0))
 		var windup := float(def.get("windup", def.get("hit_time", 0.25)))
 		if hit > 0.0 and windup > 0.05:
-			speed *= clampf(hit / windup, 0.75, 1.8)
+			# hit / windup is the absolute rate, not a multiplier of data speed.
+			# Retain the authored speed's permitted range without applying it twice.
+			var base_speed := maxf(speed, 0.01)
+			speed = clampf(hit / windup, base_speed * 0.75, base_speed * 1.8)
 	if mode == "full":
 		animator.call("play_full", clip, speed)
 	else:

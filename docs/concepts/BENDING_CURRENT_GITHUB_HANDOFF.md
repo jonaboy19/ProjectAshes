@@ -53,3 +53,6 @@ Read ashes-performance: maintain near/far budgets, cache scene resources, avoid 
 
 ## Claude upstream supersedes provisional imports
 Merged 2712e63f and d687baaf. Claude's authored chase camera replaces Codex's missing-file substitute. Claude now supplies BendingLibrary, clip metadata and technique mappings; earlier notes saying mappings are absent describe earlier checkpoints. Removed Codex's raw Assets registration to avoid loading uncorrected duplicate bending animations beside Claude's trimmed/floor-corrected named library. Casting ownership/pause patches are retained. This merge is source-reviewed only; no runtime acceptance is claimed.
+
+## Bending playback helper review
+Read all of bending_library.gd. Corrected contact retiming: hit/windup is an absolute playback rate, now clamped relative to the authored speed rather than multiplied by it again. Clamping can still prevent exact contact alignment; the runner's windup must eventually reflect actual selected playback timing in those cases. Failed library load no longer permanently records the AnimationPlayer as installed, permitting a later retry. Scene-cache warming, exact contact acceptance and recovery alignment remain unverified. No runtime or tests were run.
