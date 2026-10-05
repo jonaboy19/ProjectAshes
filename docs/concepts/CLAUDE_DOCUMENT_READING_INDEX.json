@@ -90,7 +90,7 @@
       "path": "docs/anim/free_library/polish_review.md",
       "lines": 270,
       "sha256": "24C71EA8C5D41E8267B7979C18DEB96BB983A88583A43258BB7B849A6543941A",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/free_library/README.md",
