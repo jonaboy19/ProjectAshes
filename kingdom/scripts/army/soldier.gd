@@ -20,6 +20,8 @@ const SOLDIER_LAYER := 4
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const Fighter := preload("res://scripts/combat/npc_fighter.gd")
 const CombatStats := preload("res://scripts/combat/combat_stats.gd")
+const NpcCaster := preload("res://scripts/combat/npc_caster.gd")
+const EffectSet := preload("res://scripts/abilities/effect_set.gd")
 ## Pre-table soldier numbers. Army fights keep them: the table's HP/damage apply to duels with the player;
 ## blows between NPCs are multiplied by max_health / BASE_HP, so a 170-200 HP body loses the SAME FRACTION of its
 ## health per blow as the old 40 HP one (a battle lasts as long as before). The factor was inverted once
@@ -62,6 +64,16 @@ var _cur_move: Resource
 var _stats := {}
 var _npc_scale := 1.0           # damage multiplier for non-player sources (max_health / BASE_HP, >= 1)
 
+## Set before add_child (squad.add_soldiers does): an NpcCaster id from data/powers/npc_casters.json makes this soldier
+## a bandit mage, sect disciple or knight captain. The same AbilityRunner as the player's casts, costs off. Active
+## casters are capped world-wide (NpcCaster.MAX_ACTIVE); over the cap the soldier stays a plain fighter.
+var caster_id := ""
+var _caster: RefCounted
+var _caster_think_t := 0.0
+var _kite_t := 0.0
+var _foe_fx: EffectSet
+var _foe_fx_for: Node
+
 
 static func create(team_id: int, look: String, file: String, keep: Array[String]) -> Soldier:
 	var s := Soldier.new()
@@ -74,7 +86,14 @@ static func create(team_id: int, look: String, file: String, keep: Array[String]
 
 func _ready() -> void:
 	# Distant troops remain cheap; only nearby troops participate in physics.
-	_fighter = Fighter.make("bandit" if team == 1 else "guard", randi())
+	if caster_id != "" and NpcCaster.has(caster_id) and NpcCaster.try_acquire():
+		_caster = NpcCaster.make(caster_id, randi())
+		_fighter = _caster.fighter
+		_caster.runner.executed.connect(_on_cast_executed)
+		add_to_group("caster")
+	else:
+		caster_id = ""
+		_fighter = Fighter.make("bandit" if team == 1 else "guard", randi())
 	block_chance = _fighter.react_chance()
 	var pl := CombatStats.player_level()
 	_stats = _fighter.apply_level(pl, pl)          # soldiers are "matching level": the table value
@@ -121,6 +140,8 @@ func _physics_process(delta: float) -> void:
 	if _retarget <= 0.0:
 		_retarget = 0.4
 		_pick_target()
+	if _caster != null:
+		_caster_tick(delta)
 
 	var goal := slot_target
 	var engaging: bool = combat_target != null and is_instance_valid(combat_target) and not combat_target.get("dead")
@@ -130,10 +151,15 @@ func _physics_process(delta: float) -> void:
 	to_goal.y = 0.0
 	var dist := to_goal.length()
 	var desired := Vector3.ZERO
-	if engaging and dist <= ATTACK_RANGE:
+	var casting: bool = _caster != null and _caster.is_casting()
+	if casting:
+		_face(to_goal)                       # planted: chanting or winding up
+	elif engaging and dist <= ATTACK_RANGE:
 		_face(to_goal)
 		if _attack_cooldown <= 0.0 and _busy <= 0.0:
 			_attack()
+	elif engaging and _kite_t > 0.0 and dist > 0.4:
+		desired = -to_goal / dist * WALK * 1.2        # a mage backs off to keep her range
 	elif dist > 0.4:
 		var speed := (RUN if dist > 6.0 or engaging else WALK) * (squad.speed_mult() if squad else 1.0)
 		desired = to_goal / dist * minf(speed, dist * 3.0)
@@ -234,7 +260,7 @@ func _attack() -> void:
 	_cur_move = null
 	if _fighter != null and victim != null:
 		_cur_move = _fighter.choose_move(global_position.distance_to(victim.global_position),
-			"blocking" if bool(victim.get("blocking")) else "idle")
+			"blocking" if _is_blocking(victim) else "idle")
 		if _cur_move != null:
 			var ref: Resource = _fighter.default_move()
 			var k: float = _cur_move.windup / ref.windup
@@ -267,6 +293,10 @@ func attack_info() -> Dictionary:
 func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> void:
 	if dead:
 		return
+	if _caster != null and amount > 0:
+		amount = int(_caster.deal(float(amount))["amount"])      # wards and absorbs soak a blow before it lands (raw blow units, then army scaling)
+		if amount <= 0:
+			return
 	if _npc_scale > 1.0 and amount > 0 and not (from != null and from.is_in_group("player")):
 		amount = maxi(int(round(float(amount) * _npc_scale)), 1)     # army fights stay as long as before
 	var from_front := true
@@ -290,6 +320,12 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		amount = roundi(amount * squad.incoming_mult(self, from))
 	health -= amount
 	_impulse = knockback
+	if _caster != null and health > 0:
+		var poise := float(amount)
+		if from != null and from.has_method("attack_info"):
+			poise = float((from.call("attack_info") as Dictionary).get("poise_damage", poise))
+		if _caster.on_blow(poise, float(amount), Time.get_ticks_msec() * 0.001):
+			_busy = maxf(_busy, 0.5)                                # a stagger breaks the chant
 	if health <= 0:
 		_die()
 	elif Ragdoll.is_heavy(amount, from, knockback) and _ragdoll \
@@ -320,6 +356,7 @@ func _hit_side(from: Node) -> String:
 
 func _die() -> void:
 	dead = true
+	_release_caster()
 	remove_from_group("team%d" % team)
 	remove_from_group("combatant")
 	_actor_shape.set_deferred("disabled", true)
@@ -331,6 +368,113 @@ func _die() -> void:
 	# Squash the model, not the body: Jolt rejects non-uniform body scale.
 	tween.tween_property(_model, "scale", _model.scale * Vector3(1, 0.01, 1), 0.6)
 	tween.tween_callback(queue_free)
+
+
+func _exit_tree() -> void:
+	_release_caster()
+
+
+func _release_caster() -> void:
+	if _caster != null:
+		_caster = null
+		NpcCaster.release()
+		remove_from_group("caster")
+
+
+# --- casting (NpcCaster through the shared AbilityRunner) ------------------------------------
+
+func _is_blocking(victim: Node) -> bool:
+	var b: Variant = victim.get("blocking")        # soldiers have no such property: only the player blocks
+	return b is bool and b
+
+
+func _caster_tick(delta: float) -> void:
+	_caster.update(delta)
+	_kite_t = maxf(0.0, _kite_t - delta)
+	if _foe_fx != null:
+		_tick_foe_fx(delta)
+	_caster_think_t -= delta
+	var victim := combat_target
+	if _caster_think_t > 0.0 or victim == null or not is_instance_valid(victim) or bool(victim.get("dead")) or _busy > 0.0 or _caster.is_casting():
+		return
+	_caster_think_t = NpcCaster.THINK
+	var dist := global_position.distance_to(victim.global_position)
+	var d: Dictionary = _caster.think(NpcCaster.THINK, {"dist": dist, "target_state": "blocking" if _is_blocking(victim) else "idle",
+		"has_token": true, "own_hp_frac": float(health) / maxf(float(max_health), 1.0), "sees_target": true,
+		"strike_range": ATTACK_RANGE})
+	if String(d["ability"]) != "":
+		var r: Dictionary = _caster.cast(String(d["ability"]), victim)
+		if bool(r.get("ok", false)):
+			_attack_cooldown = maxf(_attack_cooldown, 0.8)
+			_face(victim.global_position - global_position)
+			_animator.play_upper("Spellcast_Raise" if String(r.get("phase", "")) == "chant" else "Spellcast_Shoot", 1.0)
+	elif String(d["intent"]) == "kite":
+		_kite_t = 0.6
+
+
+func _on_cast_executed(_id: String, ab: Dictionary, cast: Dictionary) -> void:
+	if dead or _caster == null:
+		return
+	var own: Dictionary = _caster.apply(ab, 0, _caster.effects(), "self")
+	health = mini(max_health, health + int(own["heal"]))
+	var victim: Node3D = cast.get("target") as Node3D
+	var tg: Dictionary = ab["targeting"]
+	var kind := String(tg["kind"])
+	if victim == null or not is_instance_valid(victim) or bool(victim.get("dead")) or kind in ["self", "buff", "utility", "command"]:
+		return
+	# Damage scale like the melee blows: row dmg_mult and the squad unit scaling (damage / BASE_DAMAGE).
+	var dmg := maxi(int(round(float(cast["damage"]) * float(_caster.row.get("dmg_mult", 1.0)) * float(damage) / BASE_DAMAGE)), 1) if int(cast["damage"]) > 0 else 0
+	_animator.play_upper("Spellcast_Shoot" if kind in ["projectile", "target_aoe", "aoe", "chain"] else "1H_Melee_Attack_Chop", 1.2)
+	var dist := global_position.distance_to(victim.global_position)
+	match kind:
+		"projectile":
+			var t := dist / maxf(float(tg["speed"]), 1.0)
+			get_tree().create_timer(t).timeout.connect(func() -> void:
+				if not dead and is_instance_valid(victim) and not bool(victim.get("dead")) \
+						and global_position.distance_to(victim.global_position) <= float(tg["range"]) + 2.0:
+					_spell_hit(victim, dmg, ab))
+		"dash":
+			var dir := victim.global_position - global_position
+			dir.y = 0.0
+			if dist <= float(tg["range"]) + 1.0 and dir.length() > 0.1:
+				_impulse = dir.normalized() * sqrt(2.0 * 12.0 * minf(dist, float(tg["range"])))
+			get_tree().create_timer(0.25).timeout.connect(func() -> void:
+				if not dead and is_instance_valid(victim) and not bool(victim.get("dead")) \
+						and global_position.distance_to(victim.global_position) <= 3.4:
+					_spell_hit(victim, dmg, ab))
+		_:
+			var reach := float(tg["radius"]) if kind == "aoe" else float(tg["range"])
+			if dist <= maxf(reach, 1.0) + 0.6:
+				_spell_hit(victim, dmg, ab)
+
+
+func _spell_hit(victim: Node3D, dmg: int, ab: Dictionary) -> void:
+	var push := victim.global_position - global_position
+	push.y = 0.0
+	push = push.normalized() * float((ab["targeting"] as Dictionary)["knockback"]) if push.length() > 0.05 else Vector3.ZERO
+	if dmg > 0:
+		victim.take_damage(dmg, self, push)
+	var el := String(ab["element"])
+	if is_inside_tree():
+		VFX.burst(get_parent(), victim.global_position, el if VFX.ELEMENTS.has(el) else "qi", 0.6)
+	if (ab["effects"] as Array).is_empty():
+		return
+	if _foe_fx == null or _foe_fx_for != victim:
+		_foe_fx = EffectSet.new()
+		_foe_fx_for = victim
+	var res: Dictionary = _caster.apply(ab, dmg, _foe_fx, "enemy")
+	if victim.has_method("apply_status"):
+		for st: Dictionary in res["statuses"]:
+			victim.call("apply_status", String(st["status"]), float(st["duration"]))
+
+
+func _tick_foe_fx(delta: float) -> void:
+	for ev: Dictionary in _foe_fx.tick(delta):
+		if String(ev["kind"]) == "dot" and is_instance_valid(_foe_fx_for) and not bool(_foe_fx_for.get("dead")):
+			_foe_fx_for.take_damage(int(ev["amount"]), self)
+	if _foe_fx.active.is_empty():
+		_foe_fx = null
+		_foe_fx_for = null
 
 
 ## Knockdown over (ragdoll.gd moved us under the hips and re-enabled the tree).

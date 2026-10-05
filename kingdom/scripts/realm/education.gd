@@ -27,6 +27,7 @@ const SEASON_DAYS := 21
 const YEAR_DAYS := 360
 const COHORT_SIZE := 30
 const COHORTS_KEPT := 3
+const PathTeachers := preload("res://scripts/abilities/path_teachers.gd")
 const REGION := "caldrenn"
 const ATTEND_GAIN := 0.05
 const INTERRUPT_CHANCE := 0.05
@@ -996,6 +997,59 @@ func alma_mater() -> Dictionary:
 	if student.is_empty():
 		return {}
 	return institution(String(student["inst"]))
+
+
+## Named path teachers seated at an institution (scripts/abilities/path_teachers.gd): the sect elders and palm
+## masters of a martial sect, the magisters of an academy, drill sergeants and knight-captains of a knight academy,
+## stance masters, beastwardens (the lodge). The person's name is rolled from the institution id, so it never changes.
+## -> [{id, name, title, path, blurb, ways, lessons: [technique ids], taught: bool, institution}]
+func path_teachers(inst_id: String) -> Array:
+	_ensure()
+	var inst: Dictionary = _insts.get(inst_id, {})
+	var out: Array = []
+	if inst.is_empty() or bool(inst["hidden"]):
+		return out
+	var pp: Variant = hub.mod("power_paths") if hub != null and (hub.mods as Dictionary).has("power_paths") else null
+	var taught: Array = pp.teachers() if pp != null else []
+	for tid: String in PathTeachers.at_venue(String(inst["kind"])):
+		if bool(inst["minor"]) and tid in ["knight_captain", "second_path_examiner", "palm_master"]:
+			continue                   # village halls keep only the first teachers
+		var p := PathTeachers.person(tid, String(inst["id"]) + String(inst["name"]))
+		p["lessons"] = PathTeachers.lessons(tid)
+		p["taught"] = taught.has(tid)
+		p["institution"] = inst_id
+		out.append(p)
+	return out
+
+
+## Standing at an institution for teacher terms: students of it count 3, plus anything the caller reports.
+func path_favour(inst_id: String, extra := 0.0) -> float:
+	var f := extra
+	if is_student() and String(alma_mater().get("id", "")) == inst_id:
+		f += 3.0
+	return f
+
+
+## Study under one of the institution's teachers. ctx: favour, quests, profile_extra. Gold goes through the ledger.
+## -> PathTeachers.learn_from result plus {"name"}
+func learn_from_path_teacher(inst_id: String, teacher_id: String, ctx := {}) -> Dictionary:
+	var roster := path_teachers(inst_id)
+	var who: Dictionary = {}
+	for p: Dictionary in roster:
+		if p["id"] == teacher_id:
+			who = p
+	if who.is_empty():
+		return {"ok": false, "text": "Nobody of that kind teaches here.", "fee": 0, "reasons": ["absent"]}
+	var pp: Variant = hub.mod("power_paths") if hub != null and (hub.mods as Dictionary).has("power_paths") else null
+	var c := ctx.duplicate()
+	c["gold"] = _gold()
+	c["favour"] = path_favour(inst_id, float(ctx.get("favour", 0.0)))
+	var r: Dictionary = PathTeachers.learn_from(teacher_id, pp, c)
+	r["name"] = who["name"]
+	if bool(r["ok"]):
+		pending_gold -= int(r["fee"])
+		_log("%s teaches you at %s." % [who["name"], _insts[inst_id]["name"]])
+	return r
 
 
 func _gen_teachers(inst: Dictionary, cid: String) -> Array:

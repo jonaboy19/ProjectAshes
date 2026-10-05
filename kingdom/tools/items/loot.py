@@ -63,6 +63,8 @@ def build():
     manuals = ids(category="manual", type=["manual"]) + ids(type=["scroll"])
     scrolls = ids(type=["scroll"])
     lore = ids(category="lore")
+    pm_dungeon = ids(power_source=["dungeon"])
+    pm_any = ids(power_source=["dungeon", "teacher"]) + ids(power_source=["academy", "sect_hall"])
     keys = ids(category="key")
     kits = ids(type=["kit", "repair"])
     trade = ids(type=["trade_good"])
@@ -81,14 +83,14 @@ def build():
     theme("rift", "Rift and Scar creatures: ichor, crystals and cores.", [(ids(id_in=["scar_ichor", "rift_dust", "scar_crystal", "scarbloom", "corrupted_fang", "rift_crystal"]), 1.0, (1, 2)), (cores, 0.5, (1, 1)), (gems, 0.2, (1, 1)), (spirit, 0.2, (1, 2)), (ids(id_in=["rift_silk_thread", "spirit_silk_cocoon", "spirit_iron_ore"]), 0.1, (1, 1))])
     theme("chest_common", "Ordinary chests, crates and sacks.", [(food_cooked + food_raw, 0.5, (1, 3)), (potions + ids(id_in=["bandage", "healing_salve", "antidote"]), 0.4, (1, 2)), (tools + kits, 0.25, (1, 1)), (hides + cloth + timber + wood_, 0.4, (1, 4)), (ores + ingots, 0.3, (1, 3)), (weapons, 0.12, (1, 1)), (armour, 0.12, (1, 1)), (gems, 0.05, (1, 1)), (drinks, 0.25, (1, 2))])
     theme("chest_military", "Garrison lockers and armouries.", [(weapons, 0.8, (1, 1)), (armour, 0.8, (1, 1)), (ammo, 0.6, (5, 20)), (kits, 0.4, (1, 2)), (potions, 0.4, (1, 2)), (ids(id_in=["trail_rations", "jerky", "hardtack"]), 0.4, (2, 6)), (ingots, 0.2, (1, 2))])
-    theme("chest_arcane", "Mages' chests and sect caches.", [(manuals, 0.6, (1, 1)), (scrolls, 0.5, (1, 2)), (pills, 0.5, (1, 2)), (potions, 0.3, (1, 1)), (gems, 0.3, (1, 2)), (jewel, 0.3, (1, 1)), (cores, 0.25, (1, 1)), (spirit, 0.3, (1, 3)), (herbs, 0.2, (1, 3)), (lore, 0.12, (1, 1))])
+    theme("chest_arcane", "Mages' chests and sect caches.", [(manuals, 0.6, (1, 1)), (pm_any, 0.4, (1, 1)), (scrolls, 0.5, (1, 2)), (pills, 0.5, (1, 2)), (potions, 0.3, (1, 1)), (gems, 0.3, (1, 2)), (jewel, 0.3, (1, 1)), (cores, 0.25, (1, 1)), (spirit, 0.3, (1, 3)), (herbs, 0.2, (1, 3)), (lore, 0.12, (1, 1))])
     theme("chest_treasure", "Strongboxes with real money in them.", [(gems, 0.7, (1, 3)), (ingots, 0.4, (1, 2)), (jewel, 0.45, (1, 1)), (trade, 0.25, (1, 1)), (ids(id_in=["gold_nugget", "silver_ore"]), 0.4, (1, 4)), (lore, 0.1, (1, 1)), (weapons, 0.12, (1, 1)), (armour, 0.12, (1, 1)), (spirit, 0.15, (1, 2))])
-    theme("dungeon_crypt", "Crypts: undead leavings and burial goods.", [(ids(id_in=["bone_shard", "bone_dust", "ghost_essence", "ghostcap", "candle"]), 0.7, (1, 3)), (jewel, 0.3, (1, 1)), (gems, 0.25, (1, 2)), (weapons, 0.25, (1, 1)), (armour, 0.25, (1, 1)), (manuals, 0.15, (1, 1)), (keys, 0.12, (1, 1)), (ids(id_in=["holy_water", "holy_oil"]), 0.2, (1, 2)), (lore, 0.1, (1, 1))])
+    theme("dungeon_crypt", "Crypts: undead leavings and burial goods.", [(ids(id_in=["bone_shard", "bone_dust", "ghost_essence", "ghostcap", "candle"]), 0.7, (1, 3)), (jewel, 0.3, (1, 1)), (gems, 0.25, (1, 2)), (weapons, 0.25, (1, 1)), (armour, 0.25, (1, 1)), (manuals, 0.15, (1, 1)), (pm_dungeon, 0.18, (1, 1)), (keys, 0.12, (1, 1)), (ids(id_in=["holy_water", "holy_oil"]), 0.2, (1, 2)), (lore, 0.1, (1, 1))])
     theme("dungeon_cave", "Caves and mines: ores, gems, beast remains.", [(ores, 1.0, (1, 4)), (gems, 0.4, (1, 2)), (ingots, 0.15, (1, 2)), (parts + hides, 0.35, (1, 2)), (ids(id_in=["torch", "pasty", "pickaxe", "rope"]), 0.2, (1, 2)), (herbs, 0.15, (1, 3)), (spirit, 0.1, (1, 2))])
-    theme("dungeon_ruin", "Ruins: old steel, lore and trinkets.", [(weapons, 0.35, (1, 1)), (armour, 0.35, (1, 1)), (jewel, 0.25, (1, 1)), (lore, 0.2, (1, 1)), (keys, 0.15, (1, 1)), (manuals, 0.15, (1, 1)), (gems, 0.2, (1, 2)), (potions, 0.3, (1, 1)), (ids(id_in=["old_map_fragment", "treasure_map"]), 0.08, (1, 1))])
+    theme("dungeon_ruin", "Ruins: old steel, lore and trinkets.", [(weapons, 0.35, (1, 1)), (armour, 0.35, (1, 1)), (jewel, 0.25, (1, 1)), (lore, 0.2, (1, 1)), (keys, 0.15, (1, 1)), (manuals, 0.15, (1, 1)), (pm_dungeon, 0.18, (1, 1)), (gems, 0.2, (1, 2)), (potions, 0.3, (1, 1)), (ids(id_in=["old_map_fragment", "treasure_map"]), 0.08, (1, 1))])
     theme("dungeon_warren", "Goblin warrens: scraps, stolen goods, raw meat.", [(ids(id_in=["scrap_iron", "goblin_tooth", "goblin_ear", "iron_nails", "rope", "torch", "goblin_warmap"]), 0.9, (1, 4)), (weapons, 0.25, (1, 1)), (armour, 0.15, (1, 1)), (food_cooked + drinks, 0.4, (1, 2)), (trade, 0.1, (1, 1)), (ids(id_in=["stolen_goods"]), 0.08, (1, 1)), (gems, 0.1, (1, 1))])
-    theme("tower", "Tower floors: arcane treasure, cores and relics.", [(manuals, 0.5, (1, 1)), (pills, 0.5, (1, 2)), (cores, 0.5, (1, 1)), (gems, 0.4, (1, 2)), (jewel, 0.4, (1, 1)), (weapons, 0.3, (1, 1)), (armour, 0.3, (1, 1)), (spirit, 0.4, (1, 3)), (herbs, 0.25, (1, 3)), (ingots, 0.15, (1, 2)), (lore, 0.1, (1, 1))])
-    theme("boss", "Boss rewards: the best gear a tier can give.", [(weapons, 0.8, (1, 1)), (armour, 0.8, (1, 1)), (jewel, 0.5, (1, 1)), (pills, 0.3, (1, 1)), (cores, 0.5, (1, 1)), (gems, 0.4, (1, 2)), (manuals, 0.25, (1, 1)), (ids(id_in=["beast_core", "lesser_core", "greater_core"]), 0.4, (1, 1))])
+    theme("tower", "Tower floors: arcane treasure, cores and relics.", [(manuals, 0.5, (1, 1)), (pm_dungeon, 0.5, (1, 1)), (pills, 0.5, (1, 2)), (cores, 0.5, (1, 1)), (gems, 0.4, (1, 2)), (jewel, 0.4, (1, 1)), (weapons, 0.3, (1, 1)), (armour, 0.3, (1, 1)), (spirit, 0.4, (1, 3)), (herbs, 0.25, (1, 3)), (ingots, 0.15, (1, 2)), (lore, 0.1, (1, 1))])
+    theme("boss", "Boss rewards: the best gear a tier can give.", [(weapons, 0.8, (1, 1)), (armour, 0.8, (1, 1)), (jewel, 0.5, (1, 1)), (pills, 0.3, (1, 1)), (cores, 0.5, (1, 1)), (gems, 0.4, (1, 2)), (manuals, 0.25, (1, 1)), (pm_dungeon, 0.3, (1, 1)), (ids(id_in=["beast_core", "lesser_core", "greater_core"]), 0.4, (1, 1))])
     theme("bandit_camp", "Bandit camps: loot from the road.", [(weapons, 0.4, (1, 1)), (armour, 0.3, (1, 1)), (food_cooked + drinks, 0.5, (1, 3)), (trade, 0.18, (1, 1)), (ids(id_in=["stolen_goods", "bandit_ledger", "lockpicks", "caltrops", "blade_poison_weak", "key_iron"]), 0.3, (1, 1)), (ammo, 0.4, (3, 10)), (potions, 0.3, (1, 1)), (gems, 0.1, (1, 1)), (jewel, 0.12, (1, 1))])
     theme("orc_camp", "Orc camps: tusks, rough steel, strong drink.", [(ids(id_in=["orc_tusk", "boar_hide", "bear_pelt", "iron_ore", "scrap_iron", "bear_meat", "pork", "tribal_token"]), 0.8, (1, 3)), (weapons, 0.35, (1, 1)), (armour, 0.25, (1, 1)), (drinks + food_cooked, 0.4, (1, 2)), (ids(id_in=["stout", "strong_ale", "kumis", "firewater"]), 0.2, (1, 3))])
     theme("ore_vein", "Mining nodes.", [(ores, 1.0, (1, 3)), (gems, 0.2, (1, 1))])
@@ -111,7 +113,10 @@ def build():
                         merged[e[0]] = e
             entries = sorted(merged.values(), key=lambda e: (-e[1], e[0]))
             # trim very long tails to keep files compact but varied
-            entries = [e for e in entries if e[1] >= 0.35][:60]
+            kept = [e for e in entries if e[1] >= 0.35][:60]
+            # path manuals are never trimmed away: every manual has to be findable (tests/test_path_sources.gd)
+            kept += [[e[0], max(e[1], 0.5), e[2], e[3]] for e in entries if e[0].startswith("pm_") and e not in kept]
+            entries = kept
             lo, hi, rmax, rolls, gold = TIER[t]
             mult = {"boss": 1.6, "tower": 1.3, "chest_treasure": 1.3, "chest_arcane": 1.1}.get(name, 1.0)
             tabs[str(t)] = {"rolls": [max(1, int(rolls[0] * mult)), max(1, int(round(rolls[1] * mult)))], "gold": [int(gold[0] * mult), int(gold[1] * mult)], "entries": entries}

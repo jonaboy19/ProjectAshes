@@ -9,6 +9,7 @@ extends Node3D
 ## guards / table / battle on a 2 s Timer. Nothing here runs per frame.
 
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
+const CasterSpawns := preload("res://scripts/combat/caster_spawns.gd")
 const RealmEncounters := preload("res://scripts/world/realm_encounters.gd")
 const DistanceCull := preload("res://scripts/core/distance_cull.gd")
 const REGION := "res://assets/generated/region/"
@@ -753,13 +754,13 @@ func _start_battle(pending: Dictionary) -> void:
 	att.facing = Vector3(1, 0, 0)
 	att.aggro_radius = 60.0
 	add_child(att)
-	att.add_soldiers(na, att.anchor)
+	att.add_soldiers(na, att.anchor, CasterSpawns.mix("raid", na, int(pending["id"])))
 	var def := Squad.new().setup(0, "soldier", "Knight", ["Knight_Helmet", "1H_Sword", "Round_Shield"])
 	def.anchor = _ground(pos + Vector2(24, 0))
 	def.facing = Vector3(-1, 0, 0)
 	def.aggro_radius = 60.0
 	add_child(def)
-	def.add_soldiers(nd, def.anchor)
+	def.add_soldiers(nd, def.anchor, CasterSpawns.mix("garrison", nd, int(pending["id"]) + 7))
 	att.command(Squad.Order.CHARGE)
 	def.command(Squad.Order.CHARGE)
 	_battle = {"id": int(pending["id"]), "att": att, "def": def, "att0": na, "def0": nd}

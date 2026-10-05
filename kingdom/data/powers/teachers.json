@@ -1,0 +1,166 @@
+{
+ "_doc": "Named path teachers. Every technique whose req.teacher lists the id is opened by being taught (a manual is the alternative). `venues` are education.gd institution kinds (plus `barracks` for city garrisons); the institution rolls the person's name from `names`. `ways` are the terms, any one of them opens the lessons unless require is \"all\": gold (fee), favour (standing at the institution: students of it count 3), quest (a quest id the caller reports done). `min_path_level` and the path's own second-path gate (power_paths.learn_checked) still apply. `grants` gives something besides the lessons.",
+ "teachers": {
+  "academy_magister": {
+   "title": "Academy Magister",
+   "path": "magic",
+   "venues": [
+    "magic_academy",
+    "rune_school"
+   ],
+   "min_path_level": 3,
+   "ways": {
+    "gold": 150,
+    "favour": 2,
+    "quest": "magister_errand"
+   },
+   "names": [
+    "Magister Ilvane Corr",
+    "Magister Odrin Vask",
+    "Magister Selwyn Prae"
+   ],
+   "blurb": "Teaches spell-theory and the first circles to anyone who can pay, earn trust or run an errand."
+  },
+  "bending_master": {
+   "title": "Stance Master",
+   "path": "bending",
+   "venues": [
+    "bending_school"
+   ],
+   "min_path_level": 5,
+   "ways": {
+    "gold": 120,
+    "favour": 2,
+    "quest": "river_vigil_for_master"
+   },
+   "names": [
+    "Master Tessaly Rain",
+    "Master Garrow Stone",
+    "Master Linnet Ash"
+   ],
+   "blurb": "Corrects stance and breath; resonance forms from a master come faster than from scrolls."
+  },
+  "sect_elder": {
+   "title": "Sect Elder",
+   "path": "sect",
+   "venues": [
+    "martial_sect"
+   ],
+   "min_path_level": 1,
+   "ways": {
+    "gold": 100,
+    "favour": 3,
+    "quest": "elder_herb_gathering"
+   },
+   "names": [
+    "Elder Mo Zhenhai",
+    "Elder Bai Qingsong",
+    "Elder Lu Tianyin"
+   ],
+   "blurb": "Sect elders hand down the first manuals by mouth. Favour with the hall opens more than gold."
+  },
+  "palm_master": {
+   "title": "Palm Master",
+   "path": "sect",
+   "venues": [
+    "martial_sect"
+   ],
+   "min_path_level": 6,
+   "ways": {
+    "favour": 4,
+    "quest": "palm_trial"
+   },
+   "names": [
+    "Master Xu Longfei",
+    "Master Han Yuewu"
+   ],
+   "blurb": "Does not take coin. Teaches the palm lines to disciples he has watched for a season."
+  },
+  "drill_sergeant": {
+   "title": "Drill Sergeant",
+   "path": "knight",
+   "venues": [
+    "knight_academy",
+    "barracks"
+   ],
+   "min_path_level": 1,
+   "ways": {
+    "gold": 60,
+    "favour": 1,
+    "quest": "drill_yard_trial"
+   },
+   "names": [
+    "Sergeant Brannoch Hale",
+    "Sergeant Ysolde Karn",
+    "Sergeant Dunmore Pike"
+   ],
+   "blurb": "Teaches bracing, forms and harness drill to recruits and the willing."
+  },
+  "knight_captain": {
+   "title": "Knight-Captain",
+   "path": "knight",
+   "venues": [
+    "knight_academy",
+    "barracks"
+   ],
+   "min_path_level": 6,
+   "ways": {
+    "favour": 4,
+    "quest": "captain_oath_errand",
+    "gold": 400
+   },
+   "names": [
+    "Captain Aldric Vane",
+    "Captain Maren Holt",
+    "Captain Orwin Stag"
+   ],
+   "blurb": "Teaches charge and the waking aura to knights who have sworn an oath or earned their place.",
+   "gives": [
+    "m_kn_aura_note"
+   ]
+  },
+  "beastwarden": {
+   "title": "Beastwarden",
+   "path": "beast",
+   "venues": [
+    "monster_lodge"
+   ],
+   "min_path_level": 1,
+   "ways": {
+    "gold": 80,
+    "favour": 2,
+    "quest": "warden_cub_return"
+   },
+   "names": [
+    "Warden Fenna Grey",
+    "Warden Tolliver Moss"
+   ],
+   "blurb": "Shows how to ask a wild creature for trust, and what the link costs the mind."
+  },
+  "second_path_examiner": {
+   "title": "Examiner of Second Paths",
+   "path": "",
+   "venues": [
+    "magic_academy",
+    "bending_school",
+    "martial_sect",
+    "knight_academy"
+   ],
+   "min_path_level": 12,
+   "require": "all",
+   "ways": {
+    "gold": 500,
+    "favour": 4,
+    "quest": "second_path_trial_quest"
+   },
+   "grants": {
+    "milestone": "second_path_trial"
+   },
+   "names": [
+    "Examiner Corvin Thale",
+    "Examiner Isaura Fen"
+   ],
+   "blurb": "Sits the trial that lets a developed disciple widen onto a second path. Gold, standing and a proven deed are all required."
+  }
+ }
+}

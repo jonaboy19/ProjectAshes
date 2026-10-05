@@ -149,9 +149,12 @@ func _ready() -> void:
 	_officer_acc = OFFICER_SCAN
 
 
-func add_soldiers(count: int, near: Vector3) -> void:
+## `casters`: NpcCaster ids (CasterSpawns.mix) for the first soldiers; the rest are plain fighters.
+func add_soldiers(count: int, near: Vector3, casters: Array = []) -> void:
 	for i in count:
 		var s := Soldier.create(team, _look, _file, _keep)
+		if i < casters.size():
+			s.caster_id = String(casters[i])
 		s.squad = self
 		get_parent().add_child(s)
 		var p := near + Vector3(randf_range(-3, 3), 0, randf_range(-3, 3))

@@ -1,0 +1,11 @@
+{
+ "_doc": "Which NPC casters join which squads (scripts/combat/caster_spawns.gd). per = one caster per this many soldiers (rounded down), max = cap per squad, min_count = the squad must be at least this big, chance = roll per squad. Casters are also capped world-wide (NpcCaster.MAX_ACTIVE) and by the patrol limits in scripts/world/path_patrols.gd, so these mixes stay cheap.",
+ "contexts": {
+  "bandit_camp": {"bandit_mage": {"per": 5, "max": 2, "min_count": 5, "chance": 0.8}},
+  "road_ambush": {"bandit_mage": {"per": 4, "max": 1, "min_count": 4, "chance": 0.45}},
+  "raid": {"bandit_mage": {"per": 8, "max": 2, "min_count": 8, "chance": 0.7}},
+  "garrison": {"knight_captain": {"per": 6, "max": 1, "min_count": 6, "chance": 1.0}},
+  "sect_patrol": {"sect_disciple": {"per": 1, "max": 3, "min_count": 2, "chance": 1.0}},
+  "knight_patrol": {"knight_captain": {"per": 4, "max": 1, "min_count": 4, "chance": 1.0}}
+ }
+}

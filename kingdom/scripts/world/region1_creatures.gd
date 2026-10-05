@@ -13,6 +13,8 @@ extends Node
 ## Everything is optional content: nothing here gates the story. Cost: one 1 s timer; the day step touches a handful of dens.
 
 const Squad := preload("res://scripts/army/squad.gd")
+const CasterSpawns := preload("res://scripts/combat/caster_spawns.gd")
+const PathPatrols := preload("res://scripts/world/path_patrols.gd")
 const FILE := "res://data/region1/world/creatures.json"
 const KEEP: Array[String] = ["1H_Axe", "Barbarian_Round_Shield", "Barbarian_Hat"]
 
@@ -44,6 +46,7 @@ func _ready() -> void:
 			var r: Dictionary = (cfg.get("camps", {}) as Dictionary).get(String(s["name"]), cfg.get("camp_default", {}))
 			_camps.append({"site": s, "n": int(r.get("n", 4)), "band": String(r.get("band", "Outlaws")), "squad": null, "dead_day": -999})
 	_timer = 0.5
+	add_child(PathPatrols.new())          # sect-hall disciples and garrison knight captains (budgeted)
 
 
 func _process(delta: float) -> void:
@@ -245,7 +248,7 @@ func _spawn_roster(site: Dictionary, n: int) -> Squad:
 	squad.anchor = base
 	squad.aggro_radius = 26.0
 	add_child(squad)
-	squad.add_soldiers(n, base)
+	squad.add_soldiers(n, base, CasterSpawns.mix("bandit_camp", n, hash(String(site.get("name", ""))) + int(WorldSim.day)))
 	return squad
 
 

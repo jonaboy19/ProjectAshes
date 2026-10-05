@@ -868,7 +868,8 @@
    "realm": 2,
    "source": "teacher",
    "techniques": [],
-   "desc": "Teaches no form, only how aura feels."
+   "milestone": "aura_woken",
+   "desc": "Teaches no form, only how aura feels: reading it awakens yours."
   }
  ],
  "version": 1

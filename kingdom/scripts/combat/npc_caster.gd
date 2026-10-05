@@ -23,7 +23,12 @@ const DATA_PATH := "res://data/powers/npc_casters.json"
 
 const WHEN := ["attack", "gap", "guard", "heal", "buff"]
 
+## Active casters in the world are capped (mobile budget: each one ticks a runner and effect sets).
+const MAX_ACTIVE := 6
+const THINK := 0.25
+
 static var _rows: Dictionary = {}
+static var active := 0
 
 var id := ""
 var row: Dictionary = {}
@@ -45,6 +50,17 @@ static func rows() -> Dictionary:
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(DATA_PATH)) if FileAccess.file_exists(DATA_PATH) else null
 		_rows = (parsed as Dictionary).get("casters", {}) if parsed is Dictionary else {}
 	return _rows
+
+
+static func try_acquire() -> bool:
+	if active >= MAX_ACTIVE:
+		return false
+	active += 1
+	return true
+
+
+static func release() -> void:
+	active = maxi(0, active - 1)
 
 
 static func ids() -> Array:

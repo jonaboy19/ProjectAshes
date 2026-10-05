@@ -233,6 +233,9 @@ func consume(life: Object, id: String, now := NAN) -> String:
 	if life.has_method("player_level") and not meets_requirements(id, int(life.call("player_level"))):
 		return "You need level %d to use %s." % [ItemsDB.req_level(id), Crafting.item_name(id)]
 	var info := item_info(id)
+	if info.has("power_manual") and life.has_method("read_power_manual"):
+		# A path manual: reading teaches it; the book is kept (it can be sold or lent) and a refused read costs nothing.
+		return String((life.call("read_power_manual", id, info) as Dictionary).get("text", ""))
 	var extra := PackedStringArray()
 	var cured := String(info.get("cures", ""))
 	var did := false

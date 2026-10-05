@@ -16,7 +16,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 import core  # noqa: E402
 from core import ITEMS, FILE_OF, RECIPES, ICON, DATA, ROOT, save_json  # noqa: E402
-import glyphs, materials, weapons, armour, food, alchemy, tools, misc, uniques, shops, loot, visuals  # noqa: E402
+import glyphs, materials, weapons, armour, food, alchemy, tools, misc, pathmanuals, uniques, shops, loot, visuals  # noqa: E402
 
 GI_ROOT = os.path.join(ROOT, "assets", "incoming", "game-icons", "icons", "000000", "transparent", "1x1")
 ICON_DIR = os.path.join(ROOT, "assets", "ui", "icons", "items")
@@ -203,6 +203,7 @@ def main():
     alchemy.build()
     tools.build()
     misc.build()
+    pathmanuals.build()
     uniques.build()
     core.resolve_prices()
     bad = core.check_inputs()

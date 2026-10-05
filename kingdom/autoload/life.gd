@@ -45,6 +45,7 @@ var npc_social_graph := preload("res://scripts/sim/npc_social_graph.gd").new()
 var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
 var crafting := preload("res://scripts/sim/crafting.gd").new()
 const ItemsDB := preload("res://scripts/sim/items_db.gd")
+const PathLearning := preload("res://scripts/abilities/path_learning.gd")
 const SaveContainers := preload("res://scripts/sim/save_containers.gd")
 const WorldEventLog := preload("res://scripts/systems/world_event_log.gd")
 const ActionRuntime := preload("res://scripts/systems/action_runtime.gd")
@@ -873,6 +874,16 @@ func apply_item_effect(id: String, info: Dictionary) -> String:
 						return "Hidden ways show themselves: %s." % String(s["name"])
 			return "Nothing hidden lies near."
 	return ""
+
+
+## Reads a path manual item (data/items type manual with power_manual): power_paths / cultivation learn it.
+## Old-script books need glyphs (the Scribe's glyph tables). -> {ok, text}
+func read_power_manual(id: String, info: Dictionary) -> Dictionary:
+	var pp: Variant = realm.mod("power_paths") if realm != null else null
+	var cult: Variant = realm.mod("cultivation") if realm != null else null
+	var scribe: Variant = realm.mod("scribe") if realm != null and (realm.mods as Dictionary).has("scribe") else null
+	var glyphs := (scribe.glyphs_known_list() as Array).size() if scribe != null else 0
+	return PathLearning.read_manual(pp, cult, String(info.get("power_manual", "")), info, {"glyphs": glyphs})
 
 
 ## The character-level module (cultivation.prog), or null before the realm exists.

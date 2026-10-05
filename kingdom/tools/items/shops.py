@@ -85,6 +85,13 @@ def stock_for(i, scale=1.0):
 
 
 SHOPS = {}
+# sect id -> power paths whose academy / sect-hall manuals its shop stocks (every manual is on sale somewhere)
+PATH_SCHOOLS = {
+    "royal_ember_academy": ["magic", "knight"], "hall_of_four_currents": ["magic", "bending"], "dawnflame_seminary": ["magic"],
+    "greywatch_spear_hall": ["knight"], "ashford_staff_yard": ["knight", "sect"], "ninefold_sword_pavilion": ["sect", "knight"],
+    "iron_lotus_monastery": ["sect"], "hollow_moon_school": ["sect"], "windstep_lodge": ["bending"], "anvil_brotherhood": ["sect", "knight"],
+    "verdant_oath_sanctuary": ["beast", "bending"],
+}
 
 
 def shop(sid, name, blurb, rules, services=None, buys=None, min_tier=1, sect=None):
@@ -192,8 +199,9 @@ def build():
     shop("bookseller", "Bookseller & Scribe", "Primers, scrolls, almanacs and writing supplies.", [
         (where(category="lore") + where(id_in=["parchment_blank", "ink", "quill"]), 1),
         (where(category="manual", tier=[1, 2]) + where(type=["scroll"]), 2),
-        (where(category="manual", tier=[3]), 3)],
-         services=["read_aloud", "copy_text"], buys=["lore", "manual"], min_tier=2)
+        (where(category="manual", tier=[3]), 3),
+        (where(power_source=["academy"], power_realm=[1]), 2), (where(power_source=["academy"], power_realm=[2, 3]), 3)],
+         services=["read_aloud", "copy_text", "translate_old_script"], buys=["lore", "manual"], min_tier=2)
     shop("temple", "Temple", "Healing, blessing, holy water and small charms.", [
         (where(id_in=["holy_water", "holy_oil", "minor_healing_potion", "healing_potion", "bandage", "healing_salve", "antidote", "fever_cure", "antivenom", "candle", "candle_box", "talisman_ward_stone", "talisman_healers_knot", "talisman_hearthstone", "scroll_ward", "soul_calm_draught", "clean_water", "incense"]), 1),
         (where(id_in=["greater_healing_potion", "meridian_pill", "pill_clarity", "talisman_scholars_seal", "bonesetting_paste", "lore_sect_customs"]), 2)],
@@ -216,6 +224,9 @@ def build():
         man = []
         for t in trees:
             man += [m for m in misc.MANUALS if m.startswith("manual_%s_t" % t)]
+        # path manuals sold by the schools that teach the path
+        for pth in PATH_SCHOOLS.get(sid, []):
+            man += where(power_path=[pth], power_source=["academy", "sect_hall"])
         robes = ["sectrobe_%s_%d" % (sid, r + 1) for r in range(3)] + ["sectsash_%s" % sid]
         pills = ["pill_qi_gathering", "pill_qi_condensation", "pill_foundation", "pill_foundation_nourish", "pill_body_temper_1", "pill_clarity", "qi_draught_lesser", "qi_draught",
                  "spirit_stone_lesser", "green_tea", "spirit_stone", "pill_core_formation", "pill_body_temper_2", "meridian_pill", "soul_calm_draught"]
