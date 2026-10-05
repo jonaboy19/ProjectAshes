@@ -154,6 +154,16 @@ func test_weapon_fit_table_covers_every_weapon_model_in_the_item_data() -> void:
 	assert_array(missing).is_empty()
 
 
+func test_crossbow_model_loads_and_bows_have_their_own_seat() -> void:
+	assert_bool(ResourceLoader.exists("res://assets/items/weapons/crossbow.gltf")).is_true()
+	var scene := load("res://assets/items/weapons/crossbow.gltf") as PackedScene
+	assert_object(scene).is_not_null()
+	for m: String in ["crossbow.gltf", "bow_B_withString.gltf", "bow_A_withString.gltf"]:
+		var key := EquipmentVisuals.fit_key("res://assets/items/weapons/" + m)
+		assert_bool(EquipmentVisuals.SEAT_BY_FIT.has(key)).is_true()
+	assert_bool((EquipmentVisuals.SEAT_BY_FIT["bow_b"] as Dictionary).has("hand_l")).is_true()   # emberglass longbow
+
+
 func test_weapon_tint_is_pulled_toward_grey_and_darkened() -> void:
 	var mi := MeshInstance3D.new()
 	var mesh := BoxMesh.new()

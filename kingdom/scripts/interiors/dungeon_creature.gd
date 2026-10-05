@@ -13,6 +13,7 @@ extends CharacterBody3D
 signal died(creature: Node)
 
 const Models := preload("res://scripts/actors/creature_models.gd")
+const Nameplates := preload("res://scripts/core/nameplates.gd")
 const QUAT := "res://assets/incoming/monsters/quaternius/"
 ## KayKit Character Pack: Skeletons (CC0): rigged, each file carries its own 95 clips (Idle, Walking_A, Running_A, Hit_A, Death_A, melee and spell attacks).
 const KAY := "res://assets/kaykit/skeletons/"      # copies of the CC0 KayKit pack (assets/incoming/kaykit is .gdignore: Godot never imports it)
@@ -148,13 +149,8 @@ func _ready() -> void:
 	max_health = int((float(_info["hp"]) + level * 4.5) * hp_scale)
 	health = max_health
 	_label = Label3D.new()
-	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.no_depth_test = false
-	_label.font_size = 26
-	_label.pixel_size = 0.006
-	_label.outline_size = 8
+	Nameplates.style(_label, Color.WHITE, 20, 26.0)   # same screen-constant, fading, nearest-N plate as the open-world monsters (it was a world-scale label: a speck at 8 m, a banner at 2 m)
 	_label.position.y = h + 0.45
-	_label.visibility_range_end = 26.0
 	add_child(_label)
 	_refresh_label()
 	add_to_group("combatant")

@@ -130,7 +130,7 @@
     "buffers" : [
         {
             "byteLength" : 28624,
-            "uri" : "Skeleton_Crossbow.bin"
+            "uri" : "crossbow.bin"
         }
     ]
 }

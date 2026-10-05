@@ -127,6 +127,14 @@ ashes_interactor_7={
 "type": "vec4",
 "value": Vector4(0, 0, 0, 0)
 }
+ashes_ground_detail={
+"type": "float",
+"value": 1.0
+}
+ashes_cam_dist={
+"type": "float",
+"value": 0.0
+}
 ashes_interactor_count={
 "type": "int",
 "value": 0

@@ -5,7 +5,7 @@ extends RefCounted
 ## (population/villager.gd) reads `suppressed` itself.
 
 ## Readability pass (visual pass 2026-10): plates fade out between FADE_START and the plate's own max distance (capped at
-## FADE_CAP), only the MAX_SHOWN nearest are drawn, they stay off the town name board (group "world_sign"), and the
+## FADE_CAP), only the MAX_SHOWN nearest are drawn, they ride up above the town name board (group "world_sign") when their owner stands in front of it, and the
 ## on-screen font height is an integer number of pixels (>= MIN_PX at 720p) with mipmaps off, so the text is crisp
 ## instead of a blue smear over roofs and sky. `refresh()` does it all from the HUD's 0.1 s poll.
 ##
@@ -17,6 +17,7 @@ const FADE_CAP := 25.0          # plates are gone by here (bosses / landmarks th
 const FADE_LEN := 7.0
 const MAX_SHOWN := 6
 const MIN_PX := 17.0            # on-screen font height at 720p (scaled with the viewport height, never below this)
+const MAX_LIFT := 64.0          # px (at 720p) a plate is raised to clear a town board
 const SIGN_MARGIN := 24.0       # px around a town board's rectangle
 
 static var suppressed := false
@@ -81,6 +82,19 @@ static func hidden_by_sign(at: Vector2, rects: Array) -> bool:
 	return false
 
 
+## Screen pixels to lift a plate at `at` so it clears every board rectangle (sits just above the top edge of the one it
+## overlaps), but never above `min_y` (the top bar); 0 when it is already clear. Pure. A plate must never vanish just because its owner stands in front of a board.
+static func sign_lift(at: Vector2, rects: Array, min_y := -INF, max_lift := MAX_LIFT) -> float:
+	var lift := 0.0
+	for r: Rect2 in rects:
+		var g := r.grow(SIGN_MARGIN)
+		if g.has_point(at):
+			lift = maxf(lift, at.y - (g.position.y - 16.0))
+	# Capped: a plate in front of a tall board is nudged up (still legible, still apart from a second plate on the same body)
+	# rather than flung to the top of the screen over the compass.
+	return minf(minf(lift, max_lift), maxf(at.y - min_y, 0.0))
+
+
 ## The 10 Hz pass: distance fade, nearest-N cull (layers = 0 hides without touching `visible`, which monsters and
 ## villagers drive themselves), pixel snap, town-board avoidance.
 static func refresh(tree: SceneTree, cam: Camera3D) -> void:
@@ -100,7 +114,8 @@ static func refresh(tree: SceneTree, cam: Camera3D) -> void:
 		rows.append({"id": t.get_instance_id(), "dist": cp.distance_to(t.global_position)})
 	var keep := nearest_ids(rows.filter(func(r: Dictionary) -> bool:
 		var t := instance_from_id(int(r["id"])) as Label3D
-		return t != null and t.visible and float(r["dist"]) < float(t.get_meta("np_max", MAX_DIST))), MAX_SHOWN)
+		return t != null and t.visible and float(r["dist"]) < float(t.get_meta("np_max", MAX_DIST)) \
+			and not (t.get_parent() != null and bool(t.get_parent().get_meta("np_hide", false)))), MAX_SHOWN)
 	var rects: Array = []
 	for sgn in tree.get_nodes_in_group("world_sign"):
 		var h := sgn as Node3D
@@ -126,9 +141,15 @@ static func refresh(tree: SceneTree, cam: Camera3D) -> void:
 			continue
 		var d := float(r["dist"])
 		var show := keep.has(r["id"]) and not cam.is_position_behind(t.global_position)
-		if show and not rects.is_empty() and hidden_by_sign(cam.unproject_position(t.global_position), rects):
-			show = false
+		var owner_node := t.get_parent()
+		if show and owner_node != null and bool(owner_node.get_meta("np_hide", false)):
+			show = false      # this owner already wears a threat plate (ui/threat_plates.gd)
+		var lift := 0.0
+		if show and not rects.is_empty():
+			lift = sign_lift(cam.unproject_position(t.global_position), rects, 84.0 * vh / 720.0, MAX_LIFT * vh / 720.0)
 		var a := fade_alpha(d, float(t.get_meta("np_max", MAX_DIST))) if show else 0.0
 		t.layers = 1 if a > 0.02 else 0
 		t.transparency = 1.0 - a
 		t.pixel_size = snapped_pixel_size(t.font_size, vh, cam.fov)
+		# Label3D.offset is in label pixels; a fixed_size label shows one label pixel as (pixel_size * px_per_unit) screen pixels.
+		t.offset.y = lift / (t.pixel_size * vh / (2.0 * tan(deg_to_rad(cam.fov) * 0.5))) if lift > 0.0 else 0.0

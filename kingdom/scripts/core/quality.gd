@@ -497,6 +497,8 @@ func _apply_globals() -> void:
 	npc_full = value("npc_full")
 	npc_sprites = value("npc_sprites")
 	view_radius = value("view_radius")
+	# shaders/environment/cave_rock.gdshader: LOW one dominant-axis tap, MEDIUM/HIGH the full blend + normal map.
+	RenderingServer.global_shader_parameter_set("ashes_ground_detail", 0.0 if tier == LOW else (0.5 if tier == MEDIUM else 1.0))
 	RenderingServer.directional_shadow_atlas_set_size(int(value("shadow_size")), true)
 	RenderingServer.directional_soft_shadow_filter_set_quality(value("soft_shadow"))
 	RenderingServer.positional_soft_shadow_filter_set_quality(value("soft_shadow"))

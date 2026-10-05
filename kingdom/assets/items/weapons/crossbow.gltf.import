@@ -3,12 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dktostdegdvm6"
-valid=false
+uid="uid://c5k7heyoa7ck1"
+path="res://.godot/imported/crossbow.gltf-9940a6c350b6a1fdbe14be52d3952e02.scn"
 
 [deps]
 
 source_file="res://assets/items/weapons/crossbow.gltf"
+dest_files=["res://.godot/imported/crossbow.gltf-9940a6c350b6a1fdbe14be52d3952e02.scn"]
 
 [params]
 

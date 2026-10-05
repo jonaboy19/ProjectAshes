@@ -44,6 +44,7 @@ var _env: Environment = null
 var _room_light: OmniLight3D = null
 var _hearth_light: OmniLight3D = null
 var _hearth_base := 1.0
+var _night_k := 0.0                    # 0 day .. 1 night: how far the room light has left the ceiling to ride beside the player (dark clothes read black under the ambient alone)
 var _hearth_phase := 0.0
 var _kit_nodes := {}
 var _clock := 0.0
@@ -109,7 +110,7 @@ func _build_shell() -> void:
 	var hd := d * 0.5 + t
 	# floor, ceiling, beams
 	kit.solid(Vector3(0, -0.1, 0), Vector3(w + 0.44, 0.2, d + 0.44), FLOOR)
-	kit.solid(Vector3(0, h + 0.1, 0), Vector3(w + 0.44, 0.2, d + 0.44), DARK, "solid", 0.0, "ceil")
+	kit.ceiling_solid(Vector3(0, h + 0.1, 0), Vector3(w + 0.44, 0.2, d + 0.44), DARK, "ceil")
 	var beams := 3
 	for i in beams:
 		var z := -d * 0.5 + d * (float(i) + 0.5) / float(beams)
@@ -421,7 +422,7 @@ func _build_lights() -> void:
 	_hearth_phase = randf() * TAU
 	_env = Environment.new()
 	_env.background_mode = Environment.BG_COLOR
-	_env.background_color = Color(0.035, 0.028, 0.022)
+	_env.background_color = Light.BACKDROP_NIGHT     # the cut-away room floats in a warm dark tone, not a black void (apply_hour tints it)
 	_env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	_env.ambient_light_color = Color(1, 0.9, 0.78)
 	_env.ambient_light_energy = 0.6
@@ -466,12 +467,14 @@ func apply_hour(hour: float) -> void:
 	_room_light.visible = tot > 0.02
 	if tot > 0.0:
 		_room_light.light_color = (s["window_color"] as Color).lerp(Color(1.0, 0.82, 0.55), lamp_e / tot)
+	_night_k = 1.0 - float(s["daylight"])
 	_hearth_base = Light.HEARTH_LIGHT * float(s["hearth_energy"])
 	_hearth_light.light_energy = _hearth_base
 	_hearth_light.visible = _hearth_base > 0.02
 	if _env != null:
 		_env.ambient_light_color = s["ambient_color"]
 		_env.ambient_light_energy = float(s["ambient_energy"])
+		_env.background_color = Light.BACKDROP_NIGHT.lerp(Light.BACKDROP_DAY, float(s["daylight"]))
 
 
 ## What the light driver last applied, for tests and tools: {room_energy, hearth_energy, ambient_energy, window_energy}.
@@ -519,6 +522,14 @@ func _process(delta: float) -> void:
 		var cam := get_viewport().get_camera_3d()
 		if cam != null:
 			_fade_walls(delta, to_local(cam.global_position))
+			if _night_k > 0.01 and _room_light != null:
+				# Night: the lamp light rides between the lens and the player (a lantern at hand) instead of hanging in the
+				# ceiling centre, so the player and the household in view are lit from the camera's side. Same one light.
+				var who := get_tree().get_first_node_in_group("player") as Node3D
+				var focus := who.global_position + Vector3(0, 1.4, 0) if who != null else cam.global_position
+				var ride := to_local(cam.global_position.lerp(focus, 0.45) + Vector3(0, 0.5, 0))
+				var hang := Vector3(0, Layouts.CEIL - 0.5, 0)
+				_room_light.position = hang.lerp(ride, _night_k)
 	if _hearth_light != null and _hearth_light.visible:
 		_hearth_light.light_energy = _hearth_base * (1.0 + 0.08 * sin(_clock * 7.1 + _hearth_phase) + 0.05 * sin(_clock * 12.9))
 	_flick += delta

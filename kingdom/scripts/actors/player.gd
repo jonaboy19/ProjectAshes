@@ -1317,9 +1317,22 @@ func _update_camera(delta: float) -> void:
 		else:
 			camera.global_position = camera.global_position.lerp(camera_target, 1.0 - exp(-14.0 * delta))
 	_update_camera_fade(camera_fade_target)
+	_publish_cam_dist()
 	# Pinned against a wall so tight the lens would sit inside the head: hide the body.
 	if view != View.FIRST:
 		_model.visible = camera.global_position.distance_to(_pivot.global_position) > 0.45 * Life.body_scale()
+
+
+## Foliage / rock see-through cone (shaders/foliage_fade.gdshaderinc) ends at the player: publish the live lens-to-pivot
+## distance (0 in first person, so nothing is cut). One float, only when it moved.
+var _pub_cam_dist := -1.0
+func _publish_cam_dist() -> void:
+	var d := 0.0
+	if view != View.FIRST and camera != null and _pivot != null:
+		d = camera.global_position.distance_to(_pivot.global_position)
+	if absf(d - _pub_cam_dist) > 0.03:
+		_pub_cam_dist = d
+		RenderingServer.global_shader_parameter_set("ashes_cam_dist", d)
 
 
 ## Feeds ChaseCamera. The expensive questions (hostiles near, open ground) are asked at 4 Hz; the rest is read live.

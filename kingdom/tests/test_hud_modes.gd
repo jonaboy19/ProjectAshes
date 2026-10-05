@@ -335,6 +335,30 @@ func test_nameplates_stay_off_the_town_board() -> void:
 	assert_bool(Nameplates.hidden_by_sign(Vector2(500, 150), [])).is_false()
 
 
+func test_nameplate_over_the_town_board_is_lifted_above_it_not_hidden() -> void:
+	var board := Rect2(400, 100, 300, 120)
+	var lift := Nameplates.sign_lift(Vector2(500, 150), [board])
+	assert_float(lift).is_greater(0.0)
+	# lifted by `lift` px the plate sits above the board's top edge (minus the margin)
+	assert_float(lift).is_less_equal(Nameplates.MAX_LIFT)             # nudged, never flung to the top of the screen
+	var tall := Rect2(400, 40, 300, 600)
+	assert_float(Nameplates.sign_lift(Vector2(500, 300), [tall], 84.0)).is_less_equal(Nameplates.MAX_LIFT)
+	assert_float(Nameplates.sign_lift(Vector2(500, 90), [tall], 84.0)).is_less_equal(6.0)   # near the top bar: barely moves
+	assert_float(Nameplates.sign_lift(Vector2(500, 300), [board])).is_equal(0.0)
+	assert_float(Nameplates.sign_lift(Vector2(500, 150), [])).is_equal(0.0)
+
+
+func test_merged_threat_plate_shows_the_weakest_wolf() -> void:
+	var a := {"name": "Wolf", "level": 1, "frac": 0.9}
+	var b := {"name": "Wolf", "level": 1, "frac": 0.25}
+	var title := ThreatPlates.plate_title(a)
+	var merged := ThreatPlates.layout([
+		{"at": Vector2(300, 200), "info": a, "locked": false, "a": 1.0, "title": title, "w": 100.0},
+		{"at": Vector2(304, 202), "info": b, "locked": false, "a": 1.0, "title": title, "w": 100.0}])
+	assert_int(merged.size()).is_equal(1)
+	assert_float(float((merged[0]["info"] as Dictionary)["frac"])).is_equal_approx(0.25, 0.0001)
+
+
 func test_threat_plates_merge_twins_and_offset_overlaps() -> void:
 	var info := {"name": "Wolf", "level": 1, "frac": 1.0}
 	var title := ThreatPlates.plate_title(info)

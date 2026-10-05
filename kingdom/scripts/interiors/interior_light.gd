@@ -26,6 +26,10 @@ const NIGHT_GLASS := Color(0.05, 0.07, 0.14)
 const DAY_GLASS := Color(0.50, 0.64, 0.82)
 ## Ambient energy of an unlit room at night (it was 0.08, black-and-slate in the playtest). The day / night difference
 ## still comes from the daylight omni, the window glass and the ambient peak (DAY_AMBIENT_ENERGY).
+## What shows around the cut-away room (outside the walls the camera has faded out): a warm dark brown by night, a dusty
+## warm taupe by day, so the room reads as a diorama on a table and not as a hole in the world.
+const BACKDROP_NIGHT := Color(0.16, 0.12, 0.10)
+const BACKDROP_DAY := Color(0.42, 0.34, 0.26)
 const NIGHT_FLOOR := 0.24
 const DAY_AMBIENT_ENERGY := 0.62
 const HEARTH_LIGHT := 2.0          # omni energy of a lit hearth (was 1.1): a warm pool with falloff round the fire
@@ -86,7 +90,7 @@ static func state(hour: float, kind := "house") -> Dictionary:
 		"hearth_light": HEARTH_LIGHT if hearth else 0.0,
 		"fire_glow": 2.2 if hearth else 0.15,
 		"lamp_on": lamp,
-		"lamp_energy": 0.8 if lamp else 0.0,
+		"lamp_energy": 1.25 if lamp else 0.0,
 		"ambient_color": NIGHT_AMBIENT.lerp(DAY_AMBIENT, dl).lerp(FIRE_AMBIENT, fire_part * 1.1),
 		"ambient_energy": ambient,
 	}
