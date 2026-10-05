@@ -27,7 +27,6 @@ const LIB := "bending"
 static var _meta: Dictionary = {}
 static var _meta_loaded := false
 static var _libs: Dictionary = {}        # skeleton path -> AnimationLibrary
-static var _installed: Dictionary = {}   # AnimationPlayer instance id -> true
 
 
 ## Sidecar of every bending clip: {name: {mode, hit, trim, lift, blend_out, element}}.
@@ -62,8 +61,9 @@ static func clip_names() -> PackedStringArray:
 static func install(anim: AnimationPlayer) -> int:
 	if anim == null or not is_instance_valid(anim):
 		return 0
-	var key := anim.get_instance_id()
-	if _installed.has(key) or anim.has_animation_library(LIB):
+	# The live player already owns installation state; no permanent instance-id
+	# registry is needed as streamed NPCs are spawned and freed.
+	if anim.has_animation_library(LIB):
 		return 0
 	var sk := _skeleton_path(anim)
 	if sk == "":
@@ -71,8 +71,8 @@ static func install(anim: AnimationPlayer) -> int:
 	var lib := _library_for(sk)
 	if lib == null:
 		return 0
-	anim.add_animation_library(LIB, lib)
-	_installed[key] = true
+	if anim.add_animation_library(LIB, lib) != OK:
+		return 0
 	return lib.get_animation_list().size()
 
 

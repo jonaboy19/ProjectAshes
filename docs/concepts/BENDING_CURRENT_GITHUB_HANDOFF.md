@@ -56,3 +56,6 @@ Merged 2712e63f and d687baaf. Claude's authored chase camera replaces Codex's mi
 
 ## Bending playback helper review
 Read all of bending_library.gd. Corrected contact retiming: hit/windup is an absolute playback rate, now clamped relative to the authored speed rather than multiplied by it again. Clamping can still prevent exact contact alignment; the runner's windup must eventually reflect actual selected playback timing in those cases. Failed library load no longer permanently records the AnimationPlayer as installed, permitting a later retry. Scene-cache warming, exact contact acceptance and recovery alignment remain unverified. No runtime or tests were run.
+
+## Bending installation lifetime
+Removed the permanent AnimationPlayer-id installation registry. Installation now relies on the live player's existing library membership, which disappears with the player and permits reinstall after removal. Shared per-skeleton animation resources remain cached. Failed add_animation_library calls return zero instead of reporting success. This avoids registry growth with streamed NPC lifetimes; total cache memory and device cost remain unmeasured. No runtime or tests were run.
