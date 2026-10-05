@@ -1380,12 +1380,14 @@ func _add_head_look(model: Node3D) -> void:
 	if skeletons.is_empty():
 		return
 	var skeleton := skeletons[0] as Skeleton3D
-	if skeleton.find_bone("head") < 0:
+	# The rigs name it "Head" (find_bone is case-sensitive, so a lower-case lookup silently gave no head look).
+	var head := "Head" if skeleton.find_bone("Head") >= 0 else "head"
+	if skeleton.find_bone(head) < 0:
 		return
 	_look_target = Node3D.new()
 	add_child(_look_target)
 	var look := LookAtModifier3D.new()
-	look.bone_name = "head"
+	look.bone_name = head
 	look.forward_axis = SkeletonModifier3D.BONE_AXIS_PLUS_Z
 	look.use_angle_limitation = true
 	look.symmetry_limitation = true
