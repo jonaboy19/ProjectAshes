@@ -1318,6 +1318,7 @@ func _process(delta: float) -> void:
 	_update_modes(delta)
 	_update_calm_fade(delta)
 	_world_icon.set("target", target)
+	Nameplates.focus = target.get("current") if target != null and target.get("current") != null else target     # TalkTarget proxies the villager
 	_world_icon.call("step", delta, player.get("camera") as Camera3D, not is_menu_open() and not GameMenu.is_open(self))
 
 
@@ -1412,7 +1413,6 @@ func _update_modes(delta: float) -> void:
 func _set_target(n: Node3D) -> void:
 	var changed := n != target
 	target = n
-	Nameplates.focus = n
 	if n != null:
 		var lab := InteractLabel.resolve(n)
 		if lab != target_label:

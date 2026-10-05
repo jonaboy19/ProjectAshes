@@ -98,7 +98,13 @@ func _run() -> void:
 	var side := Vector2(-dir.y, dir.x)
 	await _place(c + dir * (wr - 7.0) + side * 4.0, dir.rotated(0.35))
 	if OS.get_cmdline_user_args().has("--probe"):
-		_probe()
+		var pp := Vector2(player.global_position.x, player.global_position.z)
+		for l: Dictionary in plan["lots"]:
+			if (l["pos"] as Vector2).distance_to(pp) < 16.0:
+				print("FEELPROBE lot ", l["asset"], " d=", (l["pos"] as Vector2).distance_to(pp))
+		for l: Dictionary in plan["landmarks"]:
+			if (l["pos"] as Vector2).distance_to(pp) < 25.0:
+				print("FEELPROBE landmark ", l["asset"], " d=", (l["pos"] as Vector2).distance_to(pp))
 	await shot("2_street")
 	# 3. aftermath: back to a house front, the camera pushed toward its roof (the thatch that filled the phone screen).
 	var lot := _near_lot(plan, sp)
@@ -118,7 +124,14 @@ func _run() -> void:
 				print("FEELVIEW chore ", id, " ", n.call("spawn_now", id))
 			break
 	await frames(240)
+	var tgt: Node = main.hud.get("target")
+	print("FEELVIEW focus ", tgt, " tag_visible=", (tgt.get("_tag") as Label3D).visible if tgt and tgt.get("_tag") else "n/a")
 	await shot("5_benchmark")
+	for hr in [18.6, 22.0]:
+		WorldSim.time_of_day = hr
+		await frames(90)
+		await shot("6_benchmark_%d" % int(hr))
+	WorldSim.time_of_day = 15.5
 	# 4. a town horse up close (textured HorseRig vs the old flat Quaternius one).
 	var best: Node3D = null
 	for n in get_tree().get_nodes_in_group("interactable"):

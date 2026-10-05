@@ -35,8 +35,8 @@ func step(delta: float, cam: Camera3D, allowed: bool) -> void:
 
 
 static func _height(n: Node3D) -> float:
-	if n is CharacterBody3D or n.is_in_group("villager"):
-		return 2.15
+	if n is CharacterBody3D or n.is_in_group("villager") or n.get("current") != null:
+		return 2.6      # above the focused name plate (1.95 m)
 	if n.get("kind") != null and String(n.get("kind")).begins_with("horse"):
 		return 2.2
 	return 1.3

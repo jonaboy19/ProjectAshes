@@ -246,7 +246,7 @@ static func apply_daylight(env: Environment, sun: DirectionalLight3D, fill: Dire
 	if env:
 		var amb: Color = p["ambient_color"]
 		if env.has_meta("game_look"):
-			amb = amb.lerp(Color("c4b4a4"), 0.5)     # pass 3: warm-neutral shadow side (blue-grey patches on the ground read flat)
+			amb = amb.lerp(Color("c4b4a4"), 0.5 * clampf(float(p["sun_energy"]) / 2.5, 0.0, 1.0))     # day only (night stays moonlit blue); pass 3: warm-neutral shadow side (blue-grey patches on the ground read flat)
 		env.ambient_light_color = amb
 		env.ambient_light_energy = float(p["ambient_energy"])
 		env.fog_light_color = p["fog"]
