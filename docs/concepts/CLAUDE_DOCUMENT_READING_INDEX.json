@@ -228,7 +228,7 @@
       "path": "docs/anim/patches/P7_jump.md",
       "lines": 72,
       "sha256": "503AC63D479F073BD69A8197D3AA3883187D511F393DA419CDC3F14DA9274AD9",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P9_attack_layering.md",
@@ -240,7 +240,7 @@
       "path": "docs/anim/traversal_v2_HANDOFF.md",
       "lines": 63,
       "sha256": "A5FF038D72A291CE12A7434CEC3030DACF6769A243EA80C16D96B45B2CEAC7DB",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/art/meshy_free_shortlist.md",
