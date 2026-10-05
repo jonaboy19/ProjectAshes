@@ -1184,6 +1184,21 @@ func sleep(quality := 1.0) -> String:
 	return "You sleep %d hours and wake %s." % [int(hours), needs.rest_label().to_lower()]
 
 
+## Rest until the next `hour` o'clock (0..24) on the clock, however long that is: a noon nap on a bedroll runs to the next
+## 06:00 (18 h), an evening one to the same dawn. Less than a quarter hour away means tomorrow's. Returns the toast line.
+func sleep_until(hour: float, quality := 1.0) -> String:
+	var hours := fposmod(hour - WorldSim.time_of_day, 24.0)
+	if hours < 0.25:
+		hours += 24.0
+	needs.sleep(hours, quality)
+	WorldSim.advance_hours(hours)
+	WorldSim.time_of_day = fposmod(hour, 24.0)      # advance_hours adds in float steps: land exactly on the hour
+	_last_abs = _abs_hours()
+	if player and player.get("health") != null:
+		player.heal(int(20 * hours * quality))
+	return "You rest %d hours and wake at %02d:00, %s." % [int(roundf(hours)), int(hour), needs.rest_label().to_lower()]
+
+
 ## Night camping on the road (scripts/world/travel_rules.gd): a Bedroll or Travel Tent used outdoors from dusk. Sleeps rough
 ## until morning (a tinderbox lights a fire), but the night can be interrupted: bandits or beasts (realm_encounters.on_camp),
 ## a thief, or a traveller at the fire with news. Returns the line for the toast; the kit is never used up.

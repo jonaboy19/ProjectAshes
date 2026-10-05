@@ -20,6 +20,14 @@ extends RefCounted
 
 enum Tier { UNLOADED, LOW, FULL }
 
+## The focus moved further than this in one update(): a teleport, fast travel or a loading jump, not walking or riding (a
+## horse covers well under 1 m per frame). `teleported(from, to)` fires so caches that only pay off near the old place can let go.
+const TELEPORT_JUMP := 400.0
+## Idle pooled bodies kept per pool after a teleport (the rest are freed; NodePool listens).
+const IDLE_KEEP_AFTER_TELEPORT := 4
+
+signal teleported(from: Vector2, to: Vector2)
+
 const CELL := 64.0
 const MOVE_EPS := 3.0
 ## Per profile, per quality tier (LOW, MEDIUM, HIGH, ULTRA): metres. "terrain" load is Quality view_radius x CELL.
@@ -40,6 +48,7 @@ var quality_tier := -1
 var focus := Vector2(1.0e9, 1.0e9)
 var updates := 0
 var notifications := 0
+var teleports := 0
 
 var _cell_tiers := {}            # profile -> {Vector2i: Tier} (only cells that are not UNLOADED)
 var _watchers := {}              # profile -> Array of [id, Callable]
@@ -96,6 +105,12 @@ func distance(profile: String, key: String) -> float:
 	if profile == "terrain" and key == "load":
 		return float(view_radius()) * CELL
 	return float((def[key] as Array)[_qt()])
+
+
+## True when `pos` is further than `factor` x the "free" distance of `profile` from the focus: out of range for good (UNLOADED, past its
+## hysteresis, and then some). Caches that only make a rebuild cheaper keep their entry until this is true with factor 2.
+func beyond(profile: String, pos: Vector2, factor := 1.0) -> bool:
+	return focus.x < 1.0e8 and focus.distance_to(pos) > distance(profile, "free") * factor
 
 
 ## Same distances for an explicit quality tier (tests, the settings preview).
@@ -268,6 +283,8 @@ func update(world_focus: Vector3) -> bool:
 		return false
 	_last_key = key
 	_dirty = false
+	var jumped := focus.x < 1.0e8 and f.distance_to(focus) > TELEPORT_JUMP
+	var from := focus
 	focus = f
 	updates += 1
 	for profile: String in PROFILES:
@@ -275,6 +292,10 @@ func update(world_focus: Vector3) -> bool:
 			_update_cells(profile)
 		if _sites.has(profile):
 			_update_sites(profile)
+	if jumped:
+		teleports += 1
+		(load("res://scripts/core/node_pool.gd") as GDScript).call("trim_all", IDLE_KEEP_AFTER_TELEPORT)   # the bodies of the place we left
+		teleported.emit(from, f)
 	return true
 
 

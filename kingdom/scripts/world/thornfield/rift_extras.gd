@@ -8,7 +8,8 @@ extends RefCounted
 const Wilds := preload("res://scripts/world/thornfield/wilds.gd")
 const Vent := preload("res://scripts/world/thornfield/rift_vent.gd")
 const Items := preload("res://scripts/interiors/dungeon_items.gd")
-const BED_REST := 0.8
+const BED_QUALITY := 0.8      # a bedroll beside a fire: a little worse than an inn bed
+const BED_WAKE := 6.0         # "Rest until morning" runs to the next 06:00 on the clock
 
 
 ## Builds the extras under `root` (a Node3D at the dungeon origin). Returns {quartermaster, bed, vents}.
@@ -119,7 +120,7 @@ static func rest(from: Node) -> String:
 	var hud := Interaction.hud(from)
 	if hud != null:
 		hud.call("close_menu")
-	return Life.sleep(BED_REST)
+	return Life.sleep_until(BED_WAKE, BED_QUALITY)
 
 
 static func save() -> String:

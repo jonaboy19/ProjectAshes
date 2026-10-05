@@ -90,6 +90,15 @@ static func recycle(node: Node) -> bool:
 	return node.get_meta(META).release(node)
 
 
+## Frees the idle nodes of every shared pool beyond `keep` each (a teleport leaves a pool holding the bodies of the place
+## it left, which nothing will ask for again). Live nodes are untouched. Returns how many nodes were freed.
+static func trim_all(keep := 4) -> int:
+	var freed := 0
+	for k: String in _shared:
+		freed += int(_shared[k].trim_idle(keep))
+	return freed
+
+
 static func _hook_exit() -> void:
 	if _hooked:
 		return
@@ -152,6 +161,18 @@ func release(node: Node) -> bool:
 		parent.remove_child(node)
 	_idle.append(node)
 	return true
+
+
+## Frees the oldest idle nodes down to `keep`. Returns how many were freed.
+func trim_idle(keep := 0) -> int:
+	_purge()
+	var n := 0
+	while _idle.size() > maxi(keep, 0):
+		var node: Node = _idle.pop_front()
+		if is_instance_valid(node):
+			node.free()
+			n += 1
+	return n
 
 
 func release_all() -> void:

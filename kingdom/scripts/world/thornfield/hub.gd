@@ -21,6 +21,8 @@ const Livestock := preload("res://scripts/world/thornfield/livestock.gd")
 const BarnFigure := preload("res://scripts/world/thornfield/barn_figure.gd")
 const GrainCart := preload("res://scripts/world/thornfield/grain_cart.gd")
 const WolfThreat := preload("res://scripts/world/thornfield/wolf_threat.gd")
+const CartRoute := preload("res://scripts/world/thornfield/cart_route.gd")
+const HestaBody := preload("res://scripts/world/thornfield/hesta_body.gd")
 const WildsHub := preload("res://scripts/world/thornfield/wilds_hub.gd")   # F9: the wilds, the Rift, the bandit camp, the outpost
 const TICK := 0.5
 const REENTER := 2.0
@@ -61,6 +63,10 @@ func _ready() -> void:
 	store = _build_barley_store()
 	hesta = _build_hesta()
 	figure = _build_figure()
+	var barn_door := Sites.door_of_site("thornfield_barn")
+	var mill_door := Sites.door_of_site("thornfield_mill")
+	if barn_door != Vector2.INF and mill_door != Vector2.INF:
+		CartRoute.prewarm(barn_door, mill_door)      # the cart's way is planned on a worker thread (cart_route.gd)
 	threat = WolfThreat.new()
 	add_child(threat)
 	wilds = WildsHub.attach(self, threat)
@@ -152,12 +158,9 @@ func _build_hesta() -> Node3D:
 	st.global_position = Vector3(w.x, WorldGen.height(w.x, w.y), w.y)
 	var toward := Sites.to_world(b, Sites.TABLE_AT) - w
 	st.rotation.y = atan2(toward.x, toward.y)
-	var body: Node3D = Assets.character("Trader", 1.7, [])
-	if body != null:
-		st.add_child(body)
-		var ap := Assets.animation_player(body)
-		if ap:
-			ap.play("Idle" if ap.has_animation("Idle") else ap.get_animation_list()[0])
+	var body: Node3D = HestaBody.new()
+	st.add_child(body)
+	st.set_meta("talk_body", body)
 	return st
 
 
@@ -234,11 +237,14 @@ func _on_kill(species: String, where: Vector3) -> void:
 
 # --- the grain cart ------------------------------------------------------------------------------
 
-## Cart route: barn yard -> mill (straight, the farm lane).
+## Cart route: barn yard -> mill. There is no road between them, so CartRoute plans a few waypoints across the farmland that keep
+## clear of every tree, rock, bush, site and building (and wide enough for the player to walk beside the cart).
 func cart_route() -> PackedVector2Array:
 	var a := Sites.door_of_site("thornfield_barn")
 	var m := Sites.door_of_site("thornfield_mill")
-	return PackedVector2Array([a, m]) if a != Vector2.INF and m != Vector2.INF else PackedVector2Array()
+	if a == Vector2.INF or m == Vector2.INF:
+		return PackedVector2Array()
+	return CartRoute.plan(a, m)
 
 
 func _cart_tick() -> void:

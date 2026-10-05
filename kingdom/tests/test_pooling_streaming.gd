@@ -6,6 +6,7 @@ const NodePool := preload("res://scripts/core/node_pool.gd")
 const CreaturePool := preload("res://scripts/core/creature_pool.gd")
 const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
 const Quality3 := preload("res://scripts/core/quality.gd")
+const RegionDressing_ := preload("res://scripts/world/region_dressing.gd")
 
 const HOOKED := """
 extends Node3D
@@ -19,6 +20,10 @@ func on_release() -> void:
 func reset() -> void:
 	resets += 1
 """
+
+
+func before() -> void:
+	WorldGen.setup(WorldSim.SEED)
 
 
 func after_test() -> void:
@@ -345,3 +350,84 @@ func test_default_radii_match_the_old_hardcoded_distances() -> void:
 	assert_float(cs.distance("gather", "free")).is_equal(80.0)
 	assert_int(cs.radius_cells("terrain")).is_equal(4)                       # HIGH, as test_world_12km expects
 	assert_int(cs.radius_cells("terrain", "full")).is_equal(1)
+
+
+# --- teleports release what is out of range ------------------------------------------------------------------------------
+
+func test_trim_idle_frees_the_oldest_idle_nodes_and_keeps_live_ones() -> void:
+	var pool := NodePool.new(func() -> Node: return Node3D.new(), 12, false, "trim")
+	var live: Array[Node] = []
+	for i in 10:
+		live.append(pool.acquire())
+	for i in 8:
+		pool.release(live[i])
+	assert_int(pool.idle_count()).is_equal(8)
+	var kept_idle: Node = live[7]                            # released last: the newest idle body
+	assert_int(pool.trim_idle(3)).is_equal(5)
+	assert_int(pool.idle_count()).is_equal(3)
+	assert_int(pool.live_count()).is_equal(2)               # the two held bodies are untouched
+	assert_bool(is_instance_valid(kept_idle)).is_true()      # the newest idle ones stay
+	assert_bool(is_instance_valid(live[0])).is_false()       # the oldest idle was freed
+	assert_int(pool.trim_idle(0)).is_equal(3)
+	pool.clear()
+
+
+func test_a_teleport_trims_every_pools_idle_bodies() -> void:
+	var a: RefCounted = NodePool.shared("tp_a", func() -> Node: return Node3D.new(), 40, false)
+	var b: RefCounted = NodePool.shared("tp_b", func() -> Node: return Node3D.new(), 40, false)
+	for pool: RefCounted in [a, b]:
+		var held: Array = []
+		for i in 30:
+			held.append(pool.acquire())
+		for n: Node in held:
+			pool.release(n)
+	var cs := _streamer()
+	var jumps: Array = []
+	cs.teleported.connect(func(from: Vector2, to: Vector2) -> void: jumps.append([from, to]))
+	cs.update(Vector3(100, 0, 100))
+	assert_int(a.idle_count()).is_equal(30)                  # the first update is not a jump
+	cs.update(Vector3(160, 0, 100))                          # walking: no
+	cs.update(Vector3(160 + CellStreamer.TELEPORT_JUMP - 10.0, 0, 100))
+	assert_int(jumps.size()).is_equal(0)
+	assert_int(a.idle_count()).is_equal(30)
+	cs.update(Vector3(5000, 0, 5000))                        # a teleport
+	assert_int(jumps.size()).is_equal(1)
+	assert_int(cs.teleports).is_equal(1)
+	assert_int(a.idle_count()).is_equal(CellStreamer.IDLE_KEEP_AFTER_TELEPORT)
+	assert_int(b.idle_count()).is_equal(CellStreamer.IDLE_KEEP_AFTER_TELEPORT)
+
+
+func test_the_dressing_bake_cache_lets_far_sites_go() -> void:
+	var rd := RegionDressing_.new()
+	add_child(auto_free(rd))
+	var far := Vector2.INF
+	var near := Vector2.INF
+	var far_id := -1
+	var near_id := -1
+	var home: Vector2 = WorldGen.sites[0]["pos"]
+	for s in WorldGen.sites:
+		var d: float = (s["pos"] as Vector2).distance_to(home)
+		if near_id < 0 and d < 200.0:
+			near_id = int(s["id"])
+			near = s["pos"]
+		if far_id < 0 and d > 2000.0:
+			far_id = int(s["id"])
+			far = s["pos"]
+	assert_bool(near_id >= 0 and far_id >= 0).is_true()
+	rd.focus = Vector3(home.x, 0, home.y)
+	rd._bake_cache[near_id] = {"k": ArrayMesh.new()}
+	rd._bake_cache[far_id] = {"k": ArrayMesh.new()}
+	assert_int(rd.trim_bake_cache()).is_equal(1)             # the far site's meshes go, the one in range stays
+	assert_bool(rd._bake_cache.has(near_id)).is_true()
+	assert_bool(rd._bake_cache.has(far_id)).is_false()
+	# a standing site keeps its entry whatever the distance
+	rd._bake_cache[far_id] = {"k": ArrayMesh.new()}
+	rd._built[far_id] = Node3D.new()
+	assert_int(rd.trim_bake_cache()).is_equal(0)
+	(rd._built[far_id] as Node).free()
+	rd._built.erase(far_id)
+	# teleport: the focus moves to the far site, now the old one is out of range
+	rd.focus = Vector3(far.x, 0, far.y)
+	assert_int(rd.trim_bake_cache()).is_equal(1)
+	assert_bool(rd._bake_cache.has(far_id)).is_true()
+	assert_bool(rd._bake_cache.has(near_id)).is_false()

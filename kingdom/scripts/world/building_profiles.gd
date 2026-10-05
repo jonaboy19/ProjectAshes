@@ -55,6 +55,9 @@ const Layouts := preload("res://scripts/interiors/interior_layouts.gd")
 ## Building assets whose interior is a shop (the trader's house is a shop front), and the ones that are taverns.
 const SHOP_BUILDINGS := ["mhouse_trader"]
 const TAVERN_BUILDINGS := ["inn"]
+## Thornfield's tagged lots (SliceTown lot["btype"]) get the layout their role needs instead of the id hash: the inn has the
+## loft and its ladder (tavern_inn), the general shop is a general store, the bakery has an oven and counter.
+const SLICE_LAYOUTS := {"tavern": "tavern_inn", "general_shop": "general_store", "bakery": "bakery"}
 const PROMPTS := {"inn": "Enter the inn", "blacksmith": "Enter the smithy",
 	"adventurer_guild": "Enter the guild hall", "healer_house": "Enter the healer's house"}
 
@@ -82,9 +85,9 @@ static func is_enterable(asset: String) -> bool:
 ## inn get a generated layout variant (scripts/interiors/interior_layouts.gd) picked from that id, so the same
 ## building always has the same interior; without one (or for the smithy, guild hall and healer) the hand-made
 ## scene is used.
-static func interior_scene(asset: String, building_id := "") -> String:
+static func interior_scene(asset: String, building_id := "", btype := "") -> String:
 	if building_id != "":
-		var layout := layout_for(asset, building_id)
+		var layout := layout_for(asset, building_id, btype)
 		if layout != "":
 			return Layouts.scene_path(layout)
 	return INTERIORS.get(asset, HOUSE_INTERIOR if is_house(asset) else "")
@@ -102,7 +105,9 @@ static func layout_category(asset: String) -> String:
 
 
 ## The generated layout id of a building ("" when it keeps its hand-made interior).
-static func layout_for(asset: String, building_id: String) -> String:
+static func layout_for(asset: String, building_id: String, btype := "") -> String:
+	if SLICE_LAYOUTS.has(btype) and building_id != "":
+		return String(SLICE_LAYOUTS[btype])      # a slice building (SliceTown lot["btype"]) has the layout its role needs
 	var cat := layout_category(asset)
 	return Layouts.pick(cat, building_id) if cat != "" and building_id != "" else ""
 

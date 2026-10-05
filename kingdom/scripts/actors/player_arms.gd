@@ -27,6 +27,7 @@ const CHARGE_CLIPS := {
 const BOW_DRAW_CLIP_LEN := 0.53
 const BOW_HOLD_CLIP_LEN := 1.15
 const HEAVY_PENDING_LIFE := 0.35       ## a released heavy that could not start yet waits this long for an opening
+const PRESS_BUFFER_LIFE := 6.0         ## a press (or hold) lost to a bite / knockdown waits this long for control to return
 
 var player: Node3D
 var life: Object
@@ -41,6 +42,9 @@ var _real_input := true
 var _clip_t := 0.0
 var _heavy: Resource
 var _heavy_life := 0.0
+var _pending_press := false            # the button went down (or was held) while staggered / floored: starts when control returns
+var _pending_real := true
+var _pending_age := 0.0
 var _charge_mult := 1.0
 static var _ammo_ids := {}
 
@@ -89,7 +93,10 @@ func weapon_type() -> String:
 # --- input: press / release ------------------------------------------------------------------------
 
 func press(real_input := true) -> void:
-	if bool(player.get("dead")) or player.get("_mount") != null or bool(player.get("swimming")) or kd.is_active():
+	if bool(player.get("dead")) or player.get("_mount") != null or bool(player.get("swimming")):
+		return
+	if kd.is_active() or _control_lost():
+		_buffer_press(real_input)      # floored / staggered: remember the press, it starts when control returns
 		return
 	if input_held:
 		return
@@ -101,7 +108,28 @@ func press(real_input := true) -> void:
 		_begin_draw()
 
 
+## Staggered by a hit or rolling: the player cannot start a swing or a charge.
+func _control_lost() -> bool:
+	return float(player.get("_stunned")) > 0.0 or float(player.get("_dodge")) > 0.0
+
+
+## Remembers a press that could not start (not for the bow: a string drawn on its own would surprise).
+func _buffer_press(real_input: bool) -> void:
+	if style == "bow" or input_held:
+		return
+	_pending_press = true
+	_pending_real = real_input
+	_pending_age = 0.0
+
+
+func has_pending_press() -> bool:
+	return _pending_press
+
+
 func release() -> void:
+	if _pending_press and not input_held:
+		_pending_press = false         # let go before control came back: nothing to start
+		return
 	if not input_held:
 		return
 	input_held = false
@@ -126,6 +154,7 @@ func release() -> void:
 
 
 func cancel_hold() -> void:
+	_pending_press = false
 	if charging:
 		_stop_charge_pose()
 	if drawing:
@@ -169,6 +198,9 @@ func tick(delta: float) -> void:
 			_heavy = null
 			_charge_mult = 1.0
 	_tick_knockdown(delta)
+	if _pending_press and not input_held:
+		_tick_pending(delta)
+		return
 	if not input_held:
 		return
 	if bool(player.get("dead")) or kd.is_active():
@@ -200,6 +232,20 @@ func tick(delta: float) -> void:
 			_play_charge(1)
 			_clip_t = float(CHARGE_CLIPS[style][3]) - 0.05
 		charge_changed.emit("charge", WeaponRules.charge_fraction(held))
+
+
+## A buffered press: drop it when the button is up, the player died, or it has waited too long; start it the moment the
+## stun / knockdown / roll is over (press() then begins the hold as if the button had just gone down).
+func _tick_pending(delta: float) -> void:
+	_pending_age += delta
+	if bool(player.get("dead")) or _pending_age > PRESS_BUFFER_LIFE \
+			or (_pending_real and not Input.is_action_pressed("attack")):
+		_pending_press = false
+		return
+	if kd.is_active() or _control_lost():
+		return
+	_pending_press = false
+	press(_pending_real)
 
 
 func _play_charge(which: int) -> void:
@@ -348,7 +394,11 @@ func _cast_equipped_technique() -> void:
 ## take_damage hook: a landed blow (resolver outcome HIT / GUARD_BROKEN) cancels any hold and may floor the player.
 ## result is HitResolver.Outcome as int; returns the knockdown kind ("" = stayed up).
 func on_hit_taken(result: int, poise_damage: float, knockback: float, from: Node) -> String:
+	var was_held := input_held and style != "bow"
+	var was_real := _real_input
 	cancel_hold()
+	if was_held:
+		_buffer_press(was_real)        # still holding the button through the bite: the hold starts again when control returns
 	if result != 0 and result != 3:          # HIT, GUARD_BROKEN
 		return ""
 	if bool(player.get("dead")) or player.get("_mount") != null or bool(player.get("swimming")):

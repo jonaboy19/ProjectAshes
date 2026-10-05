@@ -474,3 +474,90 @@ func test_dodge_press_while_down_is_a_roll_out() -> void:
 	assert_float(_p._dodge).is_greater(0.0)
 	assert_float(_p._stunned).is_less_equal(0.0)
 	assert_float(_p._invulnerable).is_greater(0.3)
+
+
+# --- a press lost to a bite or a knockdown is buffered, not dropped -----------------------------------------------------
+
+func test_a_hit_while_holding_buffers_the_hold_and_restarts_it_when_control_returns() -> void:
+	var arms: Object = _p._arms
+	arms.press(false)
+	arms.tick(0.5)
+	assert_bool(arms.charging).is_true()
+	_p._stunned = 0.4                                  # a wolf bite staggers
+	arms.on_hit_taken(0, 5.0, 1.0, null)
+	assert_bool(arms.input_held).is_false()
+	assert_bool(arms.charging).is_false()
+	assert_bool(arms.has_pending_press()).is_true()
+	arms.tick(0.2)                                     # still staggered: waits
+	assert_bool(arms.input_held).is_false()
+	assert_bool(arms.has_pending_press()).is_true()
+	_p._stunned = 0.0                                  # control is back, the button is still down
+	arms.tick(0.05)
+	assert_bool(arms.has_pending_press()).is_false()
+	assert_bool(arms.input_held).is_true()
+	arms.tick(0.35)
+	assert_bool(arms.charging).is_true()               # the heavy charges again
+	arms.tick(0.4)
+	var id_before: int = _p.swing_id()
+	arms.release()
+	assert_int(_p.swing_id()).is_equal(id_before + 1)
+	assert_str(_p._action.id).is_equal("sword_heavy")
+
+
+func test_a_press_during_knockdown_starts_when_the_player_is_up() -> void:
+	var troll: Foe = auto_free(Foe.new())
+	troll.poise = 60.0
+	troll.unblockable = true
+	add_child(troll)
+	_p.take_damage(30, troll, Vector3(0, 0, -8))
+	var arms: Object = _p._arms
+	assert_bool(arms.kd.is_active()).is_true()
+	arms.press(false)                                  # the button goes down on the floor
+	assert_bool(arms.input_held).is_false()
+	assert_bool(arms.has_pending_press()).is_true()
+	var guard := 0
+	while arms.kd.is_active() and guard < 100:
+		arms.tick(0.1)                                 # fall, down, get-up: the whole knockdown
+		guard += 1
+	_p._stunned = 0.0
+	arms.tick(0.05)
+	assert_bool(arms.kd.is_active()).is_false()
+	assert_bool(arms.input_held).is_true()
+	arms.tick(0.5)
+	assert_bool(arms.charging).is_true()
+
+
+func test_a_press_released_before_control_returns_does_nothing() -> void:
+	var arms: Object = _p._arms
+	_p._stunned = 1.0
+	arms.press(false)
+	assert_bool(arms.has_pending_press()).is_true()
+	arms.release()                                     # let go while still staggered
+	assert_bool(arms.has_pending_press()).is_false()
+	_p._stunned = 0.0
+	arms.tick(0.1)
+	assert_bool(arms.input_held).is_false()
+	assert_int(_p.swing_id()).is_equal(0)
+
+
+func test_a_real_button_that_is_no_longer_down_drops_the_buffered_press() -> void:
+	var arms: Object = _p._arms
+	_p._stunned = 1.0
+	arms.press(true)                                   # real input: the engine's attack action is up in a headless run
+	assert_bool(arms.has_pending_press()).is_true()
+	arms.tick(0.1)
+	assert_bool(arms.has_pending_press()).is_false()
+	assert_bool(arms.input_held).is_false()
+
+
+func test_a_buffered_press_expires_and_the_bow_never_buffers() -> void:
+	var arms: Object = _p._arms
+	_p._stunned = 100.0
+	arms.press(false)
+	arms.tick(PlayerArms.PRESS_BUFFER_LIFE + 0.5)
+	assert_bool(arms.has_pending_press()).is_false()
+	var fake := FakeLife.new()
+	var bow: Object = PlayerArms.new(_p, fake)
+	assert_str(bow.style).is_equal("bow")
+	bow.press(false)
+	assert_bool(bow.has_pending_press()).is_false()    # an unarmed draw would surprise: the bow just ignores the press

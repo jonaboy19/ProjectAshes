@@ -272,3 +272,44 @@ static func on_died(row: int) -> void:
 	if id != "":
 		bus.emit_event(&"died", {"actor": id})
 	bus.emit_event(&"died", {"actor": "p%d" % row})
+
+
+# --- workplace keepers (interiors) ---------------------------------------------------------------
+
+## Roles that run a building (the others just work near it). Keyed by the building type SliceTown tags the lot with.
+const KEEPER_ROLES := {"smithy": "blacksmith", "bakery": "baker", "tavern": "innkeeper", "general_shop": "shopkeeper", "healer": "herbalist"}
+
+
+## The roster entry that runs building `bid` ("thornfield_smithy"): the resident whose `work` is `bid` and whose role is the
+## keeper role of that building type. {} for a building with no named keeper.
+static func keeper_of(bid: String) -> Dictionary:
+	if bid == "":
+		return {}
+	for e: Dictionary in residents():
+		if String(e.get("work", "")) != bid or bool(e.get("child", false)):
+			continue
+		for t: String in KEEPER_ROLES:
+			if String(KEEPER_ROLES[t]) == String(e.get("role", "")) and SliceTown.building(bid).get("type", "") == t:
+				return e
+	return {}
+
+
+## The interior character model for a roster entry: the same look the street body of its job wears (PopulationLOD).
+static func look_of(e: Dictionary) -> String:
+	var pop: GDScript = load("res://scripts/population/population_lod.gd")
+	var job := clampi(int(e.get("job", 4)), 0, pop.JOB_LOOK.size() - 1)
+	return String((pop.LOOK_MODEL[pop.JOB_LOOK[job]] as Array)[0])
+
+
+## "Hale's Smithy", "Pennick's Bakery", "Vane's General Store" for a building with a named keeper; "" otherwise (the inn keeps its
+## hashed inn name).
+static func building_name(bid: String) -> String:
+	var e := keeper_of(bid)
+	if e.is_empty():
+		return ""
+	var last := String(e["name"]).get_slice(" ", 1)
+	match String(SliceTown.building(bid).get("type", "")):
+		"smithy": return "%s's Smithy" % last
+		"bakery": return "%s's Bakery" % last
+		"general_shop": return "%s's General Store" % last
+	return ""
