@@ -568,3 +568,26 @@ func test_the_career_menu_provider_replaces_the_captains_notice() -> void:
 	assert_str(String(fort.captain_menu()["title"])).is_equal("Enlist")
 	Outpost.menu_provider = before_provider
 	assert_str(String(fort.captain_menu()["title"])).contains("Captain")
+
+
+# ---------------------------------------------------------------- playtest gap: the bedroll says "until morning"
+func test_the_bedroll_rests_until_the_next_six_in_the_morning() -> void:
+	var day0 := WorldSim.day
+	for start: float in [12.0, 20.5, 3.0, 5.9, 6.0]:
+		WorldSim.time_of_day = start
+		var d := WorldSim.day
+		var line := RiftExtras.rest(auto_free(Node.new()))
+		assert_float(WorldSim.time_of_day).is_equal_approx(6.0, 0.001)
+		var expect_next_day := start >= 6.0 - 0.25 and start < 24.0           # from 05:45 on, "the next 06:00" is tomorrow's
+		assert_int(WorldSim.day - d).is_equal(1 if expect_next_day else 0)
+		assert_str(line).contains("06:00")
+	WorldSim.day = day0
+
+
+func test_a_noon_nap_on_the_bedroll_is_long_not_two_hours() -> void:
+	WorldSim.time_of_day = 12.0
+	var before := WorldSim.day * 24.0 + WorldSim.time_of_day
+	RiftExtras.rest(auto_free(Node.new()))
+	var slept := WorldSim.day * 24.0 + WorldSim.time_of_day - before
+	assert_float(slept).is_equal_approx(18.0, 0.01)
+	assert_str(String(RiftExtras.bed_menu(auto_free(Node.new()))["options"][0][0])).is_equal("Rest until morning")

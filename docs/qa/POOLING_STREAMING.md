@@ -88,3 +88,59 @@ already despawned at distance); the gain is allocation and GC pressure, not resi
 - Idle pooled nodes are freed at tree exit (`NodePool` hooks `root.tree_exiting`).
 - The harness's stand-in player is a bare `Node3D`, so wolf attack code logs one `bool()` script error that is the same
   with pooling off (it needs the real Player's properties).
+
+## Teleport memory
+
+Playtest: a run grew to about 12 GB and teleport streaming "never freed caches". Harness:
+`godot --headless --fixed-fps 20 res://tools_qa/pooling/teleport_harness.tscn -- [--points=5] [--cycles=N] [--only=terrain|settlements|region|camps|ambient|population] [--pingpong] [--out=file.json]`.
+It runs the real TerrainStreamer, WaterStreamer, SettlementBuilder, RegionDressing, MonsterCamps and AmbientLife on a focus that jumps
+across the five towns farthest from each other (Ashford, then (-5006, 5360), (-3365, -3405), (3014, -3610), (616, 4546)) and back to
+Ashford, settles about 90 frames after each jump, and prints `Performance` OBJECT_COUNT / NODE / RESOURCE / ORPHAN, MEMORY_STATIC,
+process RSS, the static caches, the idle pooled bodies and each streamer's live count. Headless uses the dummy renderer, so
+`RENDER_TEXTURE_MEM_USED`, `RENDER_BUFFER_MEM_USED` and `RENDER_VIDEO_MEM_USED` read 0 there; the GPU side was not measurable and
+the 12 GB itself was not reproduced (the main scene alone is about 11 GB in xvfb on software Vulkan, so a few hundred MB of growth
+is a small part of that, but it is the part that scales with how far the player has been).
+
+**Where it grew** (bisected with `--only=` and `--pingpong`, two points visited six times each):
+- Terrain: chunk nodes, plans and collision are freed (81 chunks and 0 pending plans at every point); no growth.
+- Settlement builder: towns are freed beyond 850 m; ping-pong between two towns is flat after the first rebuild. It keeps shared
+  caches (`TownIdentity` colour-variant meshes, `Assets` building meshes) that grow only with the number of distinct towns seen.
+- Region dressing: `_bake_cache` (the merged ArrayMesh of every site that was ever built, "so a rebuilt site costs no merge") was
+  never released. It is the one cache that grew without bound and held mesh buffers (and their GPU copies) for sites 5 km behind.
+- Pooled creatures: `NodePool` keeps idle bodies forever (up to the pool cap, 24 to 96 per species and spawner), outside the tree. After
+  a teleport the pools of the place you left kept their high-water mark: 455 idle bodies (the "orphans" column) with their skeletons,
+  meshes and animation libraries.
+- Population: sprite atlas and `_sprite_cache` are bounded (the cache clears at 4000); flat.
+
+**Fix, on the cell streamer tiers:**
+- `CellStreamer.update()` detects a jump of more than `TELEPORT_JUMP` (400 m in one update; a horse moves well under 1 m per frame),
+  counts it (`teleports`), emits `teleported(from, to)` and calls `NodePool.trim_all(IDLE_KEEP_AFTER_TELEPORT = 4)`.
+- `NodePool.trim_idle(keep)` / `trim_all(keep)` free the oldest idle bodies down to `keep` per pool; live bodies are never touched.
+- `RegionDressing.trim_bake_cache()` (run from its 0.75 s loop) drops the cached merged meshes of freed sites once they are more than
+  `BAKE_KEEP_FACTOR` (2) x the "dressing" free distance (330 m, so 660 m) from the focus. Walking back and forth across a site's edge
+  still never re-merges; a standing site always keeps its entry.
+- `CellStreamer.beyond(profile, pos, factor)` is the helper for "out of range for good".
+
+**Before / after** (same five far points, MEMORY_STATIC in MB; before = the code without the three changes above):
+
+| Point | Objects before / after | Nodes | Resources | Orphans before / after | MEMORY_STATIC MB before / after | Bake cache entries before / after |
+|---|---|---|---|---|---|---|
+| boot | 6797 / 6797 | 421 / 421 | 2328 / 2328 | 0 / 0 | 442.8 / 442.8 | 0 / 0 |
+| 1 Ashford (0,0) | 24920 / 24918 | 8996 / 8995 | 4289 / 4289 | 0 / 0 | 1100.9 / 1101.0 | 2 / 2 |
+| 2 (-5006,5360) | 18534 / 18519 | 4733 / 4733 | 4440 / 4440 | 14 / 14 | 1112.2 / 1108.8 | 3 / 1 |
+| 3 (-3365,-3405) | 18151 / 18130 | 4225 / 4226 | 4443 / 4443 | 252 / 252 | 1120.5 / 1115.0 | 5 / 2 |
+| 4 (3014,-3610) | 17766 / 17649 | 3616 / 3616 | 4492 / 4492 | 448 / 378 | 1152.4 / 1143.0 | 6 / 1 |
+| 5 (616,4546) | 18890 / 18621 | 4099 / 4099 | 4527 / 4527 | 476 / 280 | 1195.9 / 1183.8 | 9 / 3 |
+| 6 back to Ashford | 26473 / 26344 | 9015 / 9015 | 4527 / 4527 | 455 / 385 | 1239.5 / 1227.4 | 9 / 2 |
+
+(OBJECT_COUNT includes every Node, Resource and RefCounted; the RENDER_* monitors are 0 headless.) The drop is smaller than the
+12 GB report suggests: the bake cache and idle pools were real, unbounded and are now bounded (bake cache 9 -> 2 entries, idle
+bodies at most 4 per pool right after a jump), but most of the remaining growth is shared first-visit caches (the mesh and prop caches
+in `Assets`, `TownIdentity`'s colour variants) that are bounded by the number of distinct models and towns.
+
+**It does not keep growing.** Three laps over three far points (`--points=3 --cycles=3`): Ashford at lap 1 / 2 / 3 =
+1101.0 / 1159.8 / 1160.5 MB MEMORY_STATIC, process RSS 1222 / 1442 / 1443 MB; the other two points are flat to within 1 MB from lap 2
+on. The lap 1 -> 2 step is the one-off cache fill of the towns and props visited; after it a teleport costs nothing that stays.
+
+Tests: `tests/test_pooling_streaming.gd` (`test_trim_idle_*`, `test_a_teleport_trims_every_pools_idle_bodies`,
+`test_the_dressing_bake_cache_lets_far_sites_go`).

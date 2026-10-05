@@ -68,11 +68,14 @@ func _process(_dt: float) -> bool:
 	if idx >= views.size():
 		_finish()
 		return true
+	# Pin the clock every frame: intro/sleep events advance_hours() and drifted shots to night (env pass 2026-10-05).
+	root.get_node("WorldSim").set("time_of_day", float((views[idx] as Dictionary).get("hour", 16.2)))
 	match phase:
 		0:   # streaming / warm-up
 			wait -= 1
 			if wait <= 0:
 				phase = 1
+				_clear_overlays()
 				wait = 90
 				samples.clear()
 				last_us = Time.get_ticks_usec()
@@ -92,6 +95,7 @@ func _next() -> void:
 	if idx >= views.size():
 		return
 	var v: Dictionary = views[idx]
+	_clear_overlays()
 	root.get_node("WorldSim").set("time_of_day", float(v.get("hour", 16.2)))
 	var at := Vector2(float(v["at"][0]), float(v["at"][1]))
 	var look := Vector2(float(v["look"][0]), float(v["look"][1]))
@@ -144,6 +148,18 @@ func _next() -> void:
 	phase = 0
 	wait = int(v.get("warm", 150))
 	print("[look] view ", v["name"], " at ", at)
+
+
+## Look-dev shots are of the world: HUD, cutscene captions,
+## tutorial toasts and dialogue panels are removed (env pass 2026-10-05: they covered the first views).
+func _clear_overlays() -> void:
+	for n in root.find_children("*", "CanvasLayer", true, false):
+		# Keep the layer that presents the game's 3D SubViewport (hiding it drops the real render path).
+		if not n.find_children("*", "SubViewportContainer", true, false).is_empty():
+			continue
+		(n as CanvasLayer).visible = false
+	if cam:
+		cam.current = true
 
 
 func _save() -> void:

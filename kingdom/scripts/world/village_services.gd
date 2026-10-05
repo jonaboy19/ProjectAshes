@@ -71,6 +71,7 @@ var _weather: Node
 var _weather_search := 0.0
 var _gossip: Dictionary = {}
 var _keeper_pos: Dictionary = {}     # keeper id -> Vector2 (where to report back)
+var _slice_keepers: Dictionary = {}  # keeper id ("smith", "innkeeper") -> roster id while inside a Thornfield slice building
 
 
 func setup(p_hud: HUD, p_captain: Captain, p_soldiers: Callable, p_recruit: Callable) -> void:
@@ -192,15 +193,53 @@ func _on_interior_entered(room: Node3D, door: InteriorDoor = null) -> void:
 		if svc.is_empty():
 			continue
 		var hk := String(ROLE_HOURS.get(String(m.get_meta("role", "")), ""))
-		var st := Station.new(svc[0], svc[1], _hours_gate(hk, String(svc[0]), svc[2]) if hk != "" else svc[2])
+		var title := String(svc[0])
+		var slice_keeper := _slice_keeper_for(door)      # Thornfield: the roster's smith / innkeeper runs the building
+		var kid := _keeper_id_for_role(String(m.get_meta("role", "")))
+		if not slice_keeper.is_empty() and kid != "" and _slice_role_matches(slice_keeper, String(m.get_meta("role", ""))):
+			title = String(slice_keeper["name"])
+			_slice_keepers[kid] = String(slice_keeper["id"])
+			m.set_meta("look", ThornfieldRoster.look_of(slice_keeper))
+			m.set_meta("npc_id", String(slice_keeper["id"]))
+		elif kid != "":
+			_slice_keepers.erase(kid)
+		var st := Station.new(title, svc[1], _hours_gate(hk, title, svc[2]) if hk != "" else svc[2])
 		st.hours_kind = hk
 		st.name = "Service_" + String(m.name).trim_prefix("NPC_")
+		if m.has_meta("npc_id"):
+			st.set_meta("npc_id", m.get_meta("npc_id"))
 		room.add_child(st)
 		st.global_position = (m as Marker3D).global_position
+	var counter_keeper := _slice_keeper_for(door)
+	if not counter_keeper.is_empty():
+		for cs in room.find_children("Service_Merchant", "Station", true, false):
+			(cs as Station).set_meta("npc_id", String(counter_keeper["id"]))
+			for lb in cs.find_children("*", "Label3D", false, false):
+				(lb as Label3D).text = String(counter_keeper["name"])
+			(cs as Station).title = String(counter_keeper["name"])
 	if door and door.has_meta("lot_pos"):
 		var lot_id: String = Life.property.find_by_pos(door.get_meta("lot_pos"))
 		if lot_id != "" and Life.property.is_held(lot_id):
 			_furnish_home(room, lot_id)
+
+
+## The roster entry that runs the slice building `door` leads into ({} outside Thornfield's tagged lots).
+func _slice_keeper_for(door: InteriorDoor) -> Dictionary:
+	if door == null or not door.has_meta("bid"):
+		return {}
+	return ThornfieldRoster.keeper_of(String(door.get_meta("bid")))
+
+
+static func _keeper_id_for_role(role: String) -> String:
+	match role:
+		"blacksmith": return "smith"
+		"innkeeper": return "innkeeper"
+	return ""
+
+
+static func _slice_role_matches(keeper: Dictionary, marker_role: String) -> bool:
+	return (marker_role == "blacksmith" and String(keeper.get("role", "")) == "blacksmith") \
+		or (marker_role == "innkeeper" and String(keeper.get("role", "")) == "innkeeper")
 
 
 ## Stable settlement/lot reference for station identity. The property registry
@@ -1014,9 +1053,15 @@ func _keeper_info(id: String) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash([WorldSim.SEED, id])
 	var nm := Life.lore.random_name("caldric", rng)
-	return {"id": id, "person": -1, "name": nm if nm != "" else id.capitalize(), "role": k[0], "file": k[1],
+	var info := {"id": id, "person": -1, "name": nm if nm != "" else id.capitalize(), "role": k[0], "file": k[1],
 		"quest_role": k[2], "culture": "caldric", "faction": "ashford", "bond": "",
 		"pos": _keeper_pos.get(id, _home_pos())}
+	var named := ThornfieldRoster.info_for_id(String(_slice_keepers.get(id, "")))     # Thornfield's own smith / innkeeper
+	if not named.is_empty():
+		for key: String in ["id", "name", "role", "file", "quest_role"]:
+			info[key] = named[key]
+		info["keeper"] = id
+	return info
 
 
 ## Fills in who a villager (TalkTarget.npc_of) or keeper is: name, role, culture,
@@ -1327,6 +1372,12 @@ func _npc_node(info: Dictionary) -> Node3D:
 	if person >= 0:
 		for n in get_tree().get_nodes_in_group("villager"):
 			if n.get("person") != null and int(n.get("person")) == person:
+				return n as Node3D
+	# A named resident that is not a WorldSim row (Hesta Thorne) has a body in group "talk_body" with meta npc_id.
+	var id := String(info.get("id", ""))
+	if id != "":
+		for n in get_tree().get_nodes_in_group("talk_body"):
+			if n is Node3D and String(n.get_meta("npc_id", "")) == id:
 				return n as Node3D
 	return null
 

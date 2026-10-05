@@ -561,3 +561,163 @@ func test_modular_keepers_use_looks_the_asset_loader_knows() -> void:
 			var look := String(n["look"])
 			assert_bool(Assets.MH_LOOKS.has(look) or Assets.LOOKS.has(look) or FileAccess.file_exists("res://assets/kaykit/characters/%s.glb" % look)).override_failure_message("%s: look '%s'" % [id, look]).is_true()
 
+
+
+# ---------------------------------------------------------------- playtest gaps: Hesta's body, inn layout, keepers, cart route
+func test_hesta_has_a_body_the_in_world_talk_binds_to() -> void:
+	var hub: Node = auto_free(Hub.new())
+	add_child(hub)
+	var hesta: Node3D = hub.get("hesta")
+	assert_object(hesta).is_not_null()
+	var body := hesta.get_node_or_null("HestaBody") as Node3D
+	assert_object(body).is_not_null()
+	assert_bool(body.is_in_group("talk_body")).is_true()
+	assert_str(String(body.get_meta("npc_id"))).is_equal("hesta_thorne")
+	assert_bool(body.has_method("talk_begin") and body.has_method("talk_end")).is_true()
+	# VillageServices finds her body for the talk session (a Station has no `person`, so it used to return null)
+	var sv := VillageServices.new()
+	add_child(auto_free(sv))
+	var found: Node3D = sv._npc_node({"id": "hesta_thorne", "person": -1})
+	assert_object(found).is_same(body)
+	assert_object(sv._npc_node({"id": "somebody_else", "person": -1})).is_null()
+	# her menu (the quest options come through the Station) is untouched
+	assert_bool(hesta.get("menu").is_valid()).is_true()
+
+
+func test_hesta_stops_faces_you_and_looks_at_you() -> void:
+	var hub: Node = auto_free(Hub.new())
+	add_child(hub)
+	var hesta: Node3D = hub.get("hesta")
+	var body := hesta.get_node("HestaBody") as Node3D
+	var player := Node3D.new()
+	add_child(auto_free(player))
+	var at := hesta.global_position + Vector3(3.0, 0.0, -2.0)
+	player.global_position = at
+	body.call("talk_begin", player)
+	assert_bool(bool(body.call("is_talking"))).is_true()
+	var to := at - body.global_position
+	var fwd := Vector3(sin(body.global_rotation.y), 0.0, cos(body.global_rotation.y))
+	assert_float(fwd.dot(Vector3(to.x, 0.0, to.z).normalized())).is_greater(0.99)
+	if body.get("model") != null:
+		var look: LookAtModifier3D = body.get("head_look")
+		assert_object(look).is_not_null()       # head look, like a street villager
+		assert_object(body.get("look_target")).is_not_null()
+	body.call("talk_end")
+	assert_bool(bool(body.call("is_talking"))).is_false()
+	# a TalkSession binds to her like to any villager
+	var ts := preload("res://scripts/ui/talk_session.gd").new()
+	add_child(auto_free(ts))
+	ts.begin(player, body, Callable(), Callable(), "hesta_thorne")
+	assert_bool(bool(body.call("is_talking"))).is_true()
+	ts.end()
+	assert_bool(bool(body.call("is_talking"))).is_false()
+
+
+func test_the_slice_inn_shop_and_bakery_get_their_own_layouts() -> void:
+	var BP := preload("res://scripts/world/building_profiles.gd")
+	var Lay := preload("res://scripts/interiors/interior_layouts.gd")
+	# the id hash would have given Thornfield's inn the alehouse: the tagged lot overrides it, whatever the id
+	for i in 40:
+		assert_str(BP.layout_for("inn", "b%d_%d" % [i, i * 7], "tavern")).is_equal("tavern_inn")
+		assert_str(BP.layout_for("mhouse_trader", "b%d_%d" % [i, i * 3], "general_shop")).is_equal("general_store")
+		assert_str(BP.layout_for("house_town_b", "b%d_%d" % [i, i * 5], "bakery")).is_equal("bakery")
+	# untagged lots keep the hash
+	assert_str(BP.layout_for("inn", "b5_5")).is_equal(Lay.pick("tavern", "b5_5"))
+	assert_dict(Lay.layout("tavern_inn")["loft"]).is_not_empty()            # the loft and its ladder
+	# the real plan: each tagged lot's door scene is the forced layout
+	var plan: Dictionary = SliceTown.town()["plan"]
+	var seen := {}
+	for lot: Dictionary in plan["lots"]:
+		var bt := String(lot.get("btype", ""))
+		if bt == "tavern" or bt == "general_shop" or bt == "bakery":
+			var scene := BP.interior_scene(String(lot["asset"]), BP.building_id(lot["pos"]), bt)
+			seen[bt] = scene
+	assert_str(String(seen["tavern"])).is_equal(Lay.scene_path("tavern_inn"))
+	assert_str(String(seen["general_shop"])).is_equal(Lay.scene_path("general_store"))
+	assert_str(String(seen["bakery"])).is_equal(Lay.scene_path("bakery"))
+
+
+func test_roster_keepers_run_their_own_workplaces() -> void:
+	assert_str(String(Roster.keeper_of("thornfield_smithy")["id"])).is_equal("roderic_hale")
+	assert_str(String(Roster.keeper_of("thornfield_bakery")["id"])).is_equal("maud_pennick")
+	assert_str(String(Roster.keeper_of("thornfield_inn")["id"])).is_equal("joss_brannock")
+	assert_str(String(Roster.keeper_of("thornfield_shop")["id"])).is_equal("edric_vane")
+	assert_str(String(Roster.keeper_of("thornfield_healer")["id"])).is_equal("agnes_thistle")
+	assert_bool(Roster.keeper_of("thornfield_house_3").is_empty()).is_true()      # a home has no keeper
+	assert_bool(Roster.keeper_of("").is_empty()).is_true()
+	assert_str(Roster.building_name("thornfield_smithy")).is_equal("Hale's Smithy")
+	assert_str(Roster.building_name("thornfield_bakery")).is_equal("Pennick's Bakery")
+	# the smith wears the look of his job on the street (PopulationLOD), like the rest of the roster
+	var PopLod := preload("res://scripts/population/population_lod.gd")
+	var smith := Roster.keeper_of("thornfield_smithy")
+	assert_str(Roster.look_of(smith)).is_equal(String(PopLod.LOOK_MODEL[PopLod.JOB_LOOK[1]][0]))
+
+
+func test_the_smithy_keeper_is_roderic_hale_with_his_name_look_and_dialogue() -> void:
+	var sv := VillageServices.new()
+	add_child(auto_free(sv))
+	var door := InteriorDoor.new()
+	add_child(auto_free(door))
+	door.set_meta("bid", "thornfield_smithy")
+	door.set_meta("btype", "smithy")
+	var room := Node3D.new()
+	add_child(auto_free(room))
+	var npcs := Node3D.new()
+	npcs.name = "NPCs"
+	room.add_child(npcs)
+	var marker := Marker3D.new()
+	marker.name = "NPC_Blacksmith"
+	marker.set_meta("role", "blacksmith")
+	marker.set_meta("look", "Barbarian")
+	npcs.add_child(marker)
+	sv._on_interior_entered(room, door)
+	var st: Station = room.get_node("Service_Blacksmith")
+	assert_str(st.title).is_equal("Roderic Hale")
+	assert_str(String(st.get_meta("npc_id"))).is_equal("roderic_hale")
+	assert_str(String(marker.get_meta("look"))).is_equal(Roster.look_of(Roster.keeper_of("thornfield_smithy")))
+	var info: Dictionary = sv._keeper_info("smith")
+	assert_str(String(info["id"])).is_equal("roderic_hale")
+	assert_str(String(info["name"])).is_equal("Roderic Hale")
+	assert_str(String(info["file"])).is_equal("thornfield/roderic_hale")
+	assert_bool(DialogueRunner.load_file(String(info["file"])).is_empty()).is_false()
+	# another town's smithy (a door with no slice id) keeps the generic keeper
+	var other := InteriorDoor.new()
+	add_child(auto_free(other))
+	var room2 := Node3D.new()
+	add_child(auto_free(room2))
+	var m2 := Marker3D.new()
+	m2.name = "NPC_Blacksmith"
+	m2.set_meta("role", "blacksmith")
+	room2.add_child(m2)
+	sv._on_interior_entered(room2, other)
+	assert_str((room2.get_node("Service_Blacksmith") as Station).title).is_equal("Blacksmith")
+	assert_str(String(sv._keeper_info("smith")["id"])).is_equal("smith")
+
+
+func test_the_grain_cart_route_keeps_clear_of_trees_and_obstacles() -> void:
+	var CartRoute := preload("res://scripts/world/thornfield/cart_route.gd")
+	var a := Sites.door_of_site("thornfield_barn")
+	var m := Sites.door_of_site("thornfield_mill")
+	var route := CartRoute.plan(a, m)
+	assert_int(route.size()).is_greater(2)            # a planned way, not the old two-point straight line
+	assert_vector(route[0]).is_equal(a)
+	assert_vector(route[route.size() - 1]).is_equal(m)
+	var length := 0.0
+	for i in route.size() - 1:
+		length += route[i].distance_to(route[i + 1])
+	assert_float(length).is_less(a.distance_to(m) * 1.35)       # a detour, not a wander
+	var obstacles := CartRoute.obstacles_between(a, m)
+	assert_int(obstacles.size()).is_greater(0)
+	var worst := INF
+	for i in route.size() - 1:
+		var n := ceili(route[i].distance_to(route[i + 1]))
+		for k in n + 1:
+			var p := route[i].lerp(route[i + 1], float(k) / n)
+			if p.distance_to(a) > 9.0 and p.distance_to(m) > 9.0:          # the two yards belong to their buildings
+				worst = minf(worst, CartRoute.clearance_at(p, obstacles))
+	# 1 m of cart each side plus room for the player to walk beside it
+	assert_float(worst).is_greater(2.5)
+	# the hub hands the cart the same route
+	var hub: Node = auto_free(Hub.new())
+	add_child(hub)
+	assert_int((hub.call("cart_route") as PackedVector2Array).size()).is_equal(route.size())

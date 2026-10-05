@@ -167,6 +167,8 @@ func _process_inner(delta: float) -> void:
 				n.queue_free()
 			_sails = _sails.filter(func(x: Node3D) -> bool: return is_instance_valid(x) and not n.is_ancestor_of(x))
 			_flicker = _flicker.filter(func(x: OmniLight3D) -> bool: return is_instance_valid(x) and not n.is_ancestor_of(x))
+	if not _bake_cache.is_empty():
+		trim_bake_cache()
 
 
 ## Builds every site at once (screenshots, tests, teleports): blocks on purpose.
@@ -267,6 +269,29 @@ func _build_part_node(root: Node3D, site: Dictionary, part: Array) -> void:
 
 
 var _bake_cache: Dictionary = {}     # site id -> {range key: ArrayMesh}, so a rebuilt site costs no merge
+## A site's merged meshes stay cached while it is within this many "free" distances of the focus (CellStreamer profile "dressing"):
+## walking back and forth across its edge never re-merges, but a teleport (or a long trip) lets every far site's meshes go.
+const BAKE_KEEP_FACTOR := 2.0
+
+
+## Drops the cached merged meshes of built-and-freed sites that are out of range (UNLOADED twice over). Sites that are standing
+## keep theirs. Returns how many entries were released.
+func trim_bake_cache() -> int:
+	var cs: RefCounted = CellStreamer.shared()
+	var drop: Array = []
+	for sid: Variant in _bake_cache:
+		if _built.has(sid):
+			continue
+		var pos := Vector2.INF
+		for site in WorldGen.sites:
+			if site["id"] == sid:
+				pos = site["pos"]
+				break
+		if pos == Vector2.INF or Vector2(focus.x, focus.z).distance_to(pos) > float(cs.call("distance", "dressing", "free")) * BAKE_KEEP_FACTOR:
+			drop.append(sid)
+	for sid: Variant in drop:
+		_bake_cache.erase(sid)
+	return drop.size()
 
 
 ## Draw-call pass: a farm is ~150 parts, each its own MeshInstance3D with 1-6 surfaces (180 draws, 58 distinct
