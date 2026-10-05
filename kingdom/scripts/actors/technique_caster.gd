@@ -89,6 +89,7 @@ var _seal_seq: Array = []
 var _seal_pos := 0
 var _seal_time := 0.0
 var _body_action_id := 0   # Invalidates delayed strikes when the body action is replaced.
+var _body_followups: Array[Dictionary] = []
 
 
 func _init() -> void:
@@ -183,7 +184,10 @@ func _physics_process(delta: float) -> void:
 			_end_seals(false)
 	if skills:
 		skills.tick(delta)
-	for ev: Dictionary in runner.update(delta, 0.0 if _action_paused() else delta):    # effects on the caster itself
+	var action_delta := 0.0 if _action_paused() else delta
+	# Advance existing strikes first: a release in runner.update starts at time zero.
+	_update_body_followups(action_delta)
+	for ev: Dictionary in runner.update(delta, action_delta):    # effects on the caster itself
 		if String(ev["kind"]) == "hot" and player != null and player.has_method("heal"):
 			player.call("heal", int(ev["amount"]))
 	_update_projectiles(delta)
@@ -312,6 +316,7 @@ func _end_seals(success: bool) -> void:
 ## Released projectiles and existing target effects remain independent.
 func interrupt_cast(reason := "interrupted") -> void:
 	_body_action_id += 1
+	_body_followups.clear()
 	var changed: bool = runner.interrupt_all(reason)
 	if changed and is_instance_valid(player):
 		var animator: Variant = player.get("_animator")
@@ -357,7 +362,10 @@ func cast_ability(id: String, sealed := false) -> Dictionary:
 
 ## What the legacy cast did after paying: face the target, play the clip, train, announce.
 func _after_commit(id: String, r: Dictionary, target: Node3D) -> void:
-	_body_action_id += 1
+	# Zero-windup casts already executed inside runner.begin; keep their new strikes.
+	if float(r.get("windup", 0.0)) > 0.0:
+		_body_action_id += 1
+		_body_followups.clear()
 	var def: Dictionary = r["def"]
 	if target:
 		_face(target.global_position)
@@ -501,6 +509,8 @@ func _hook_profile() -> Dictionary:
 
 
 func _hook_execute(_def: Dictionary, cast_info: Dictionary) -> void:
+	_body_action_id += 1
+	_body_followups.clear()
 	_resolve(String(cast_info["id"]), cast_info["def"], int(cast_info["damage"]), cast_info["target"] as Node3D)
 
 
@@ -677,6 +687,9 @@ func _resolve(id: String, def: Dictionary, dmg: int, target: Node3D) -> void:
 			for h in hits:
 				if h == 0:
 					_area(def, dmg, target, h == hits - 1)
+				elif shape in ["melee", "cone"]:
+					_body_followups.append({"left": float(def["hit_interval"]) * h,
+						"def": def, "damage": dmg, "target": target, "last": h == hits - 1, "action": _body_action_id})
 				else:
 					get_tree().create_timer(float(def["hit_interval"]) * h).timeout.connect(
 						_area_followup.bind(def, dmg, target, h == hits - 1, _body_action_id))
@@ -713,6 +726,21 @@ func _resolve(id: String, def: Dictionary, dmg: int, target: Node3D) -> void:
 
 
 ## melee / cone / aoe / target_aoe: one volley of hits.
+func _update_body_followups(delta: float) -> void:
+	if delta <= 0.0:
+		return
+	var due: Array[Dictionary] = []
+	for strike: Dictionary in _body_followups:
+		strike["left"] = float(strike["left"]) - delta
+		if float(strike["left"]) <= 0.0:
+			due.append(strike)
+	for strike: Dictionary in due:
+		_body_followups.erase(strike)
+		var target: Variant = strike["target"]
+		_area_followup(strike["def"], int(strike["damage"]), target if is_instance_valid(target) else null,
+			bool(strike["last"]), int(strike["action"]))
+
+
 func _area_followup(def: Dictionary, dmg: int, target: Node3D, last: bool, action_id: int) -> void:
 	if not is_instance_valid(player) or _flag(player, "dead"):
 		return
