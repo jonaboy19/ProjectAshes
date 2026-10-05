@@ -138,13 +138,13 @@
       "path": "docs/anim/patches/P11_enemy_attack_windup.md",
       "lines": 50,
       "sha256": "C000407907017A812A60E27213D12CBC42A2162E9BF7EB33E37A882ED7517977",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P12_hitstop_camera_fov.md",
       "lines": 42,
       "sha256": "1F9D480A9C6711A7E7FE64447D3E658BD8410ABD2FD907AAAC86717CB1378DF6",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P13_assets_life_libs.md",
@@ -204,13 +204,13 @@
       "path": "docs/anim/patches/P3_getup_pop.md",
       "lines": 22,
       "sha256": "4003529F4870381EFC1EB528B0A63D02E7440BAFBE0114EE51EF289611BAFAD6",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P4_camera_occluders.md",
       "lines": 20,
       "sha256": "E6123E67C3E6B6317AF4590E5F8DE3CB871AD6B43BCEA732DD83FDBA3DF9CF5C",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P5_locomotion_transitions.md",

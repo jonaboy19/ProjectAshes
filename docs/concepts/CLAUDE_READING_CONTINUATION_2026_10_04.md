@@ -106,3 +106,7 @@ Completed P14b rider-sync, P13 smart-object schedule, P13 population VAT, P6 NPC
 P6 explains why attaching dormant skeleton modifiers defeated animation throttling in the measured fixture. A rig pool is proposed, not delivered or performance-approved. P13's approximately-zero CPU VAT statement excludes other world simulation, refresh and rendering costs; it must not become an overall crowd budget claim.
 
 The mount transition now reuses `_interrupt_swing()` rather than a partial manual reset. This is a combat-ownership cleanup only, with mount-under-impact-pause/runtime checks still pending in the reaction handoff.
+
+## Enemy and camera follow-up
+
+Completed P11 enemy wind-up, P12 hitstop/FOV, P3 get-up and P4 camera-occluder handoffs. Their patches describe historical states, so they must not be reapplied wholesale. Current ImpactPause, Monster/Wolf countdown and hyper-armour paths reveal an enemy timing risk not covered by the player's shared action clock: enemy winding continues during mixer pause and snap can overwrite the frozen AnimationPlayer rate. See `ENEMY_IMPACT_PAUSE_CLOCK_REVIEW.md`. This is source evidence, not a captured failure or an implemented enemy fix.
