@@ -40,6 +40,11 @@ func _process(_delta: float) -> void:
 	set_process(not _until.is_empty())
 
 
+## Ownership query: remains true until the mixer is actually restored.
+func is_paused(mixer: AnimationMixer) -> bool:
+	return is_instance_valid(mixer) and _until.has(mixer)
+
+
 func _restore(mixer: AnimationMixer) -> void:
 	if mixer is AnimationTree:
 		mixer.active = bool(_until[mixer][1])

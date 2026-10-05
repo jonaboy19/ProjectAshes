@@ -8,6 +8,12 @@ const SLASH_LEAD := 0.07
 const SLASH_TILTS := [0.9, -0.9, 0.05, 0.0]
 
 var _p: Node
+var _visual_id := -1
+var _pending_slash: Dictionary = {}
+var _vm_animating := false
+var _vm_start := Vector3.ZERO
+var _vm_peak := Vector3.ZERO
+var _vm_time_scale := 1.0
 
 
 func bind(player: Node) -> void:
@@ -23,27 +29,58 @@ func _on_swing_started(action: Resource, info: Dictionary) -> void:
 	var p := _p
 	Audio.sfx("swing", null, -4.0)
 	var vm: Node3D = p._viewmodel
+	_visual_id = int(info["id"])
+	_pending_slash.clear()
+	_vm_animating = vm.visible
 	if vm.visible:
-		var t := p.create_tween()
 		var combo: int = info["combo"]
-		t.tween_property(vm, "rotation", Vector3(-0.35, 1.2 * (1 if combo % 2 == 0 else -1), 0.5), 0.1)
-		t.tween_property(vm, "rotation", p.VIEWMODEL_REST, 0.25)
+		_vm_start = vm.rotation
+		_vm_peak = Vector3(-0.35, 1.2 * (1 if combo % 2 == 0 else -1), 0.5)
+		_vm_time_scale = 1.0 / (0.7 if info["weak"] else 1.0)
 	var weak: bool = info["weak"]
 	var arc_col := Color(1.0, 0.9, 0.7) if not weak else Color(0.7, 0.7, 0.75)
 	if info["riposte"]:
 		arc_col = Color(1.0, 0.97, 0.55)
-	var id: int = info["id"]
 	var hit_t: float = info["hit_t"]
 	var yaw: float = info["yaw"]
 	var combo_i: int = info["combo"]
 	if p._trail and not vm.visible:
 		# Blade-synced ribbon from the clip's marker window (COMBAT_AUDIT C4).
 		p._trail.swing(action.anim, info["anim_speed"])
+		p._trail.set_action_clock(0.0)
 	else:
-		p.get_tree().create_timer(maxf(hit_t - SLASH_LEAD, 0.02)).timeout.connect(func() -> void:
-			if is_instance_valid(p) and p.is_inside_tree() and id == p.swing_id():
-				VFX.slash(p.get_parent(), p.global_position + Vector3(0, 1.15 * Life.body_scale(), 0), yaw,
-					SLASH_TILTS[combo_i % SLASH_TILTS.size()], arc_col, 1.6))
+		_pending_slash = {"at": maxf(hit_t - SLASH_LEAD, 0.02), "yaw": yaw, "combo": combo_i, "color": arc_col}
+
+
+## Presentation thresholds share Player's pause-aware action clock.
+func advance_swing(elapsed: float, id: int) -> void:
+	var p := _p
+	if not is_instance_valid(p) or not p.is_inside_tree():
+		return
+	if id != _visual_id or p.dead:
+		_pending_slash.clear()
+		if _vm_animating:
+			p._viewmodel.rotation = p.VIEWMODEL_REST
+		_vm_animating = false
+		if _visual_id >= 0 and p._trail:
+			p._trail.stop()
+		_visual_id = -1
+		return
+	if p._trail and not p._viewmodel.visible:
+		p._trail.set_action_clock(elapsed, p._combat_mixer_paused())
+	if _vm_animating:
+		var windup := 0.1 * _vm_time_scale
+		var recovery := 0.25 * _vm_time_scale
+		if elapsed < windup:
+			p._viewmodel.rotation = _vm_start.lerp(_vm_peak, clampf(elapsed / windup, 0.0, 1.0))
+		else:
+			p._viewmodel.rotation = _vm_peak.lerp(p.VIEWMODEL_REST, clampf((elapsed - windup) / recovery, 0.0, 1.0))
+			_vm_animating = elapsed < windup + recovery
+	if not _pending_slash.is_empty() and elapsed >= float(_pending_slash["at"]):
+		var cue := _pending_slash
+		_pending_slash = {}
+		VFX.slash(p.get_parent(), p.global_position + Vector3(0, 1.15 * Life.body_scale(), 0), float(cue["yaw"]),
+			SLASH_TILTS[int(cue["combo"]) % SLASH_TILTS.size()], cue["color"], 1.6)
 
 
 func _on_hit_confirmed(points: Array, finisher: bool, mixers: Array) -> void:

@@ -163,6 +163,9 @@ var _cols_cap := MAX_COLS
 
 var _ribbon: Ribbon
 var _clock := 0.0                 # scaled seconds since swing()
+var _age_clock := 0.0             # ribbons keep fading while action emission pauses
+var _external_clock := false
+var _action_paused := false
 var _win_a := 0.0
 var _win_b := 0.0
 var _armed := false
@@ -293,6 +296,15 @@ func emit_for(seconds: float) -> void:
 	_begin(0.0, seconds)
 
 
+## Optional player action clock; other callers retain process-time emission.
+func set_action_clock(elapsed: float, paused := false) -> void:
+	_external_clock = true
+	_clock = maxf(elapsed, 0.0)
+	_action_paused = paused
+	if paused:
+		_have_last = false   # don't bridge across a held pose on release
+
+
 func _begin(a: float, b: float) -> void:
 	if _sk == null:
 		return
@@ -304,6 +316,9 @@ func _begin(a: float, b: float) -> void:
 		_fv.resize(_cols_cap * ROWS)
 		_fc.resize(_cols_cap * ROWS)
 	_clock = 0.0
+	_age_clock = 0.0
+	_external_clock = false
+	_action_paused = false
 	_win_a = a
 	_win_b = b
 	_armed = true
@@ -361,7 +376,9 @@ func tip_position() -> Vector3:
 func _process(delta: float) -> void:
 	var t0 := Time.get_ticks_usec()
 	if delta > 0.0:
-		_clock += delta
+		if not _external_clock:
+			_clock += delta
+		_age_clock += delta
 		_step(delta)
 	t_process_usec += Time.get_ticks_usec() - t0
 	t_frames += 1
@@ -369,11 +386,11 @@ func _process(delta: float) -> void:
 
 func _step(delta: float) -> void:
 	# age out
-	while _ps.size() > 0 and _clock - _ps[0] >= _life:
+	while _ps.size() > 0 and _age_clock - _ps[0] >= _life:
 		_pb.remove_at(0)
 		_pt.remove_at(0)
 		_ps.remove_at(0)
-	var live := _armed and _clock >= _win_a
+	var live := _armed and _clock >= _win_a and not _action_paused
 	if live and _clock > _win_b:
 		_armed = false
 		live = false
@@ -406,7 +423,7 @@ func _step(delta: float) -> void:
 							_ps.remove_at(0)
 						_pb.append(_bw_base)
 						_pt.append(tip)
-						_ps.append(_clock)
+						_ps.append(_age_clock)
 						_last_tip = tip
 						_have_last = true
 			elif _have_prev:
@@ -451,7 +468,7 @@ func _upload() -> void:
 		var ba := _pb[i]
 		var ta := _pt[i]
 		var sa := _ps[i]
-		var f := 1.0 - (_clock - sa) * inv_life
+		var f := 1.0 - (_age_clock - sa) * inv_life
 		f = f * f if f > 0.0 else 0.0
 		var o := m * ROWS
 		_fv[o] = ba
@@ -480,7 +497,7 @@ func _upload() -> void:
 				var w := (k + 1) * inv
 				var bp := ba.cubic_interpolate(bb, b_pre, b_post, w)
 				var tp := ta.cubic_interpolate(tb, t_pre, t_post, w)
-				var fs := 1.0 - (_clock - lerpf(sa, sb, w)) * inv_life
+				var fs := 1.0 - (_age_clock - lerpf(sa, sb, w)) * inv_life
 				fs = fs * fs if fs > 0.0 else 0.0
 				var oo := m * ROWS
 				_fv[oo] = bp

@@ -230,6 +230,8 @@ var _swing_cancel := 0.0
 var _swing_elapsed := 0.0
 var _swing_hit := 0.0
 var _swing_time_scale := 1.0    # action seconds to elapsed seconds for the current playback
+var _action_tick_delta := 0.0
+var _pending_swing_hit: Dictionary = {}
 var _attack_step_time := -1.0
 var _attack_step_end := 0.0
 var _attack_step_distance := 0.0
@@ -560,9 +562,10 @@ func _input_dir() -> Vector3:
 
 
 func _physics_process(delta: float) -> void:
-	_swing -= delta
-	_swing_elapsed += delta
-	_combo_window -= delta
+	_action_tick_delta = 0.0 if _combat_mixer_paused() else delta
+	_swing -= _action_tick_delta
+	_swing_elapsed += _action_tick_delta
+	_combo_window -= _action_tick_delta
 	_dodge -= delta
 	dash_cooldown = maxf(dash_cooldown - delta, 0.0)
 	_invulnerable -= delta
@@ -687,6 +690,9 @@ func _physics_process(delta: float) -> void:
 	var travel := Vector3(real.x, 0.0, real.z)
 	_update_locomotion_transition(dir, floor_before, speed_before_steer)
 	_animator.update(delta, travel.length() if _dodge <= 0.0 else 0.0, travel)
+	if _feedback:
+		_feedback.advance_swing(_swing_elapsed, _swing_id)
+	_dispatch_swing_contact()
 	if _rig:
 		# Feet off the ground: airborne, swimming, rolling, dead. Big hits ease the IK off.
 		_rig.call("set_state", travel.length(), is_on_floor(), swimming or dead or _dodge > 0.0,
@@ -1210,7 +1216,7 @@ func owns_footstep_events() -> bool:
 func _update_footsteps(delta: float, input_dir: Vector3, grounded: bool) -> void:
 	var speed := Vector2(velocity.x, velocity.z).length()
 	var footfall := _animator.consume_footstep()
-	if input_dir.length_squared() < 0.01 or speed < 0.6 or _dodge > 0.0 or dead or not grounded or _animator.is_stand_attack():
+	if input_dir.length_squared() < 0.01 or speed < 0.6 or _dodge > 0.0 or dead or not grounded or _animator.is_stand_attack() or _combat_mixer_paused():
 		_step_distance = 0.0
 		return
 	_step_distance += speed * delta
@@ -1590,14 +1596,14 @@ func ability_dash() -> void:
 ## An attack may start when idle, in the cancel tail of the previous swing, or
 ## as a roll finishes.
 func _can_attack() -> bool:
-	return not dead and not swimming and _mount == null and not _jump_starting and not _jump_active \
+	return not _combat_mixer_paused() and not dead and not swimming and _mount == null and not _jump_starting and not _jump_active \
 		and _land_time <= 0.0 and _stunned <= 0.0 and _dodge <= DODGE_ATTACK_CANCEL and _swing <= _swing_cancel
 
 
 ## A roll may cut a swing's startup or recovery, but not its hit frames (it
 ## waits for them), and may chain from the very end of another roll.
 func _can_dodge() -> bool:
-	if dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0 \
+	if _combat_mixer_paused() or dead or swimming or _mount != null or _jump_starting or _jump_active or _land_time > 0.0 \
 			or _stunned > 0.0 or stamina < DODGE_STAMINA or _dodge > DODGE_CHAIN:
 		return false
 	return not _in_active_frames()
@@ -1682,7 +1688,7 @@ func _start_swing() -> void:
 	_riposte_mult = PARRY_DAMAGE
 	swing_started.emit(action, {"hit_t": hit_t, "yaw": _model.rotation.y, "weak": weak, "riposte": riposte,
 		"combo": _combo, "anim_speed": rate, "first_person": _viewmodel.visible, "id": _swing_id})
-	get_tree().create_timer(hit_t).timeout.connect(_resolve_hit.bind(damage, action.knockback, action.finisher, _swing_id))
+	_pending_swing_hit = {"id": _swing_id, "damage": damage, "knockback": action.knockback, "finisher": action.finisher}
 
 
 ## Damage and knockback of the swing in progress (breakable.gd and tools read this instead of the table).
@@ -1705,12 +1711,29 @@ func _attack_step_motion(delta: float) -> Vector3:
 		_attack_step_time = -1.0
 		return Vector3.ZERO
 	var span := maxf(_attack_step_end - _attack_step_time, 0.001)
-	var before := clampf((_swing_elapsed - delta - _attack_step_time) / span, 0.0, 1.0)
+	var before := clampf((_swing_elapsed - _action_tick_delta - _attack_step_time) / span, 0.0, 1.0)
 	var after := clampf((_swing_elapsed - _attack_step_time) / span, 0.0, 1.0)
 	var travel := (smoothstep(0.0, 1.0, after) - smoothstep(0.0, 1.0, before)) * _attack_step_distance
 	if _swing_elapsed >= _attack_step_end:
 		_attack_step_time = -1.0
 	return _attack_step_direction * travel / maxf(delta, 0.001)
+
+
+func _combat_mixer_paused() -> bool:
+	return _impact_pause != null and _animator != null and bool(_impact_pause.call("is_paused", _animator.tree))
+
+
+func _dispatch_swing_contact() -> void:
+	if _pending_swing_hit.is_empty():
+		return
+	if dead or int(_pending_swing_hit["id"]) != _swing_id:
+		_pending_swing_hit.clear()
+		return
+	if _combat_mixer_paused() or _swing_elapsed < _swing_hit:
+		return
+	var receipt := _pending_swing_hit
+	_pending_swing_hit = {}    # callbacks may replace/cancel this action
+	_resolve_hit(int(receipt["damage"]), float(receipt["knockback"]), bool(receipt["finisher"]), int(receipt["id"]))
 
 
 func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> void:
@@ -1985,6 +2008,8 @@ func _hit_stop(duration: float, impacted_mixers: Array = []) -> void:
 		impacted_mixers.append(_animator.tree)
 		impacted_mixers.append(_animator.player)
 		_impact_pause.call("pause", impacted_mixers, duration)
+		if _trail:
+			_trail.set_action_clock(_swing_elapsed, true)
 		return
 	_hit_stop_token += 1
 	var token := _hit_stop_token
