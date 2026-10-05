@@ -621,7 +621,9 @@ func route(from: Vector2, to: Vector2) -> PackedVector2Array:
 	var ga := _attach(goal)
 	if sa.is_empty() or ga.is_empty():
 		last_route_partial = true
-		return PackedVector2Array([goal])
+		# clear_line already rejected this segment. Missing attachments must
+		# not turn a failed graph query into a direct path through a building.
+		return PackedVector2Array()
 	var n := _nodes.size()
 	var start := n
 	var end := n + 1

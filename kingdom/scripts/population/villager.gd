@@ -185,6 +185,7 @@ var _path := PackedVector2Array()
 var _path_i := 0
 var _needs_route := false
 var _arrived := false
+var _route_partial := false
 var _think := 0.0
 
 # Choice (UtilityBrain) and its execution.
@@ -1017,14 +1018,19 @@ func _update_facing(here: Vector2) -> void:
 
 func _plan_route(here: Vector2) -> void:
 	_needs_route = false
+	_route_partial = false
 	if here.distance_to(_goal) < ARRIVE_RADIUS:
 		_path = PackedVector2Array()
 		_path_i = 0
 		_arrived = true
 		return
 	_path = _graph.route(here, _goal) if _graph else PackedVector2Array([_goal])
+	_route_partial = _graph.last_route_partial if _graph else false
 	_path_i = 0
 	_arrived = false
+	if _path.is_empty():
+		_wait = maxf(_wait, 2.0 + float(person % 7) * 0.2)
+		_needs_route = true
 	_stuck_count = 0
 	_stuck_timer = 0.0
 	_stuck_from = here
@@ -1261,7 +1267,12 @@ func _steer(here: Vector2, delta: float) -> Vector2:
 		var last := _path_i == _path.size() - 1
 		if last and d < ARRIVE_RADIUS:
 			_path_i += 1
-			_arrived = true
+			# A partial route ends at a reachable street node, not the activity.
+			# Keep the resident idle there and retry within the shared route budget.
+			_arrived = not _route_partial
+			if _route_partial:
+				_wait = maxf(_wait, 2.0 + float(person % 7) * 0.2)
+				_needs_route = true
 		elif not last and d < WAYPOINT_RADIUS:
 			_path_i += 1
 		else:
