@@ -671,7 +671,7 @@ static func _polished(p: Dictionary, role: String, mi: MeshInstance3D, lite: boo
 		# G6 modular meshes (human_*) carry dark vertex colours on top of a texture: ignore them; MakeHuman needs them
 		sm.set_shader_parameter("use_vertex_color", bool(p["vcol"]) and not String(mi.name).begins_with("human_"))
 		if vivid:
-			sm.set_shader_parameter("saturation", 1.3)
+			sm.set_shader_parameter("saturation", 1.1)   # Style G pass 6 (was 1.3)
 		return sm
 	sm.shader = _shader("lab_polished_lite" if lite else "lab_polished")
 	Common.apply_albedo(sm, p)

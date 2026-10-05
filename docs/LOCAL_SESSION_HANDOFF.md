@@ -34,6 +34,8 @@ Skills: `ashes-style-g`, `ashes-style-g-assets`, `ashes-style-g-qa` (updated wit
 
 - **Pass 5 (10-05, ~73):** QA camera matches target 03 framing (full-body hero). For the cloud/Codex: the game camera should frame the hero full-body like target 03 (about 3.8 m back, 1.8 m high). Placement/build-kit agent owns placement; local owns light/material/hero look. Phone still unplugged.
 
+- **Pass 6 (10-05, ~74):** calmer character saturation (lab_char 1.3 -> 1.1, StyleG + lab), olive tunic, darker boots, wood/goods saturation 0.9. **BROKEN ON ORIGIN (for cloud):** `player.gd` preloads `res://scripts/actors/chase_camera.gd` (added by aca4555b "Combat feel") but the file was never committed: player.gd fails to parse, so the game cannot spawn the player. Please commit the file.
+
 ## Region 1 look pass (local, 2026-09-30): valley, landmarks, horizon, biome patchwork
 - Built: the Hollin's Reach valley (upper Ashrun: cliffs, falls, terraces, ruins, Stone Gap reveal, gorge gate), the Drowned Bell + Emberglass Ferry, Crownstead Mill Hill, Stagborn Glade, the Wyrm's Ribs; far horizon (whole-world low mesh + canopy domes), biome map + field patchwork, warm rock, golden-hour sky, river-carve fix, updated parchment map.
 - Code: `scripts/region1/region1_{terrain,landmarks,look,horizon}.gd`, `shaders/region1/{biome.gdshaderinc,horizon_*,waterfall}`, data in `data/region1/{landmarks,terrain_stamps}.json` + `data/region1/terrain/`.
