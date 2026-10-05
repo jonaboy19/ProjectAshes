@@ -5,6 +5,7 @@ extends RefCounted
 const GatherSession := preload("res://scripts/sim/gather_session.gd")
 const GatherPanel := preload("res://scripts/ui/gather_panel.gd")
 const Crafting := preload("res://scripts/sim/crafting.gd")
+static var _active_panel: WeakRef
 
 
 ## Opens the panel under `host`. on_done(result: Dictionary) runs once (take result, or an empty result when
@@ -17,13 +18,19 @@ static func open(host: Node, node: Dictionary, title: String, tool_tier: int, se
 	var s := GatherSession.new()
 	if not s.start(node, skill_level(String(GatherSession.KINDS.get(String(node.get("kind", "")), {}).get("skill", ""))), tool_tier, seed_value):
 		return null
+	var previous: Variant = _active_panel.get_ref() if _active_panel != null else null
+	if is_instance_valid(previous):
+		previous.call("cancel")
 	var layer := CanvasLayer.new()
 	layer.layer = 18
 	host.add_child(layer)
 	var panel: Control = GatherPanel.new()
 	layer.add_child(panel)
 	panel.call("setup", s, title)
+	_active_panel = weakref(panel)
 	panel.connect("finished", func(res: Dictionary) -> void:
+		if _active_panel != null and _active_panel.get_ref() == panel:
+			_active_panel = null
 		if is_instance_valid(layer):
 			layer.queue_free()
 		if on_done.is_valid():
@@ -35,6 +42,8 @@ static func open(host: Node, node: Dictionary, title: String, tool_tier: int, se
 		if not is_instance_valid(actor) or actor != Life.player:
 			panel.call("cancel")
 		elif bool(actor.get("dead")) or actor.global_position.distance_squared_to(start_pos) > 16.0:
+			panel.call("cancel")
+		elif actor.has_method("_menu_open") and bool(actor.call("_menu_open")):
 			panel.call("cancel"))
 	guard.start()
 	return panel
