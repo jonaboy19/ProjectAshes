@@ -437,6 +437,179 @@
 					],
 					"s": 1.45,
 					"yaw": -12
+				},
+				{
+					"a": "free:ruins/ruin_arch_wall",
+					"w": [
+						-128,
+						-500
+					],
+					"h": 4.0,
+					"yaw": 95,
+					"collide": true
+				},
+				{
+					"a": "free:ruins/ruin_arch_side",
+					"w": [
+						-153,
+						-466
+					],
+					"h": 4.0,
+					"yaw": 20,
+					"collide": true
+				},
+				{
+					"a": "free:ruins/ruin_pergola",
+					"w": [
+						-140,
+						-464
+					],
+					"h": 4.0,
+					"yaw": 90
+				},
+				{
+					"a": "free:magic/crystal_blue_pedestal",
+					"w": [
+						-88,
+						-659
+					],
+					"h": 1.5,
+					"yaw": 0
+				},
+				{
+					"a": "free:magic/crystal_green_pedestal_a",
+					"w": [
+						-83,
+						-653
+					],
+					"h": 1.5,
+					"yaw": 60
+				},
+				{
+					"a": "free:magic/crystal_cyan_pedestal",
+					"w": [
+						-138,
+						-906
+					],
+					"h": 1.5,
+					"yaw": 0
+				},
+				{
+					"a": "free:magic/crystal_green_pedestal_b",
+					"w": [
+						-154,
+						-906
+					],
+					"h": 1.5,
+					"yaw": 40
+				},
+				{
+					"a": "free:magic/crystal_green_pedestal_c",
+					"w": [
+						-146,
+						-901
+					],
+					"h": 1.5,
+					"yaw": 90
+				},
+				{
+					"a": "free:banners/banner_ragged_spear",
+					"w": [
+						-262,
+						-776
+					],
+					"h": 3.5,
+					"yaw": 70
+				},
+				{
+					"a": "free:maybe/buildings/hut_mossy_ruined_a",
+					"w": [
+						-176,
+						-495
+					],
+					"h": 3.2,
+					"yaw": 60,
+					"collide": true
+				},
+				{
+					"a": "free:maybe/buildings/hut_mossy_ruined_b",
+					"w": [
+						-112,
+						-506
+					],
+					"h": 6.4,
+					"yaw": 120,
+					"collide": true
+				},
+				{
+					"a": "res://assets/generated/scan/rock_moss_set_02_1.glb",
+					"w": [
+						-163.4,
+						-921.3
+					],
+					"s": 1.0,
+					"yaw": 0,
+					"sink": 0.1
+				},
+				{
+					"a": "res://assets/generated/scan/rock_moss_set_02_2.glb",
+					"w": [
+						-159.7,
+						-927.4
+					],
+					"s": 1.0,
+					"yaw": 51,
+					"sink": 0.1
+				},
+				{
+					"a": "res://assets/generated/scan/rock_moss_set_02_3.glb",
+					"w": [
+						-154.1,
+						-931.6
+					],
+					"s": 1.0,
+					"yaw": 102,
+					"sink": 0.1
+				},
+				{
+					"a": "res://assets/generated/scan/rock_moss_set_02_4.glb",
+					"w": [
+						-147.3,
+						-933.5
+					],
+					"s": 1.0,
+					"yaw": 153,
+					"sink": 0.1
+				},
+				{
+					"a": "res://assets/generated/scan/rock_moss_set_02_5.glb",
+					"w": [
+						-140.3,
+						-932.6
+					],
+					"s": 1.0,
+					"yaw": 204,
+					"sink": 0.1
+				},
+				{
+					"a": "res://assets/generated/scan/rock_moss_set_02_6.glb",
+					"w": [
+						-134.1,
+						-929.2
+					],
+					"s": 1.0,
+					"yaw": 255,
+					"sink": 0.1
+				},
+				{
+					"a": "res://assets/generated/scan/rock_moss_set_02_7.glb",
+					"w": [
+						-129.7,
+						-923.7
+					],
+					"s": 1.0,
+					"yaw": 306,
+					"sink": 0.1
 				}
 			],
 			"scatter": [
@@ -516,6 +689,26 @@
 						1.2,
 						2.2
 					]
+				}
+			],
+			"lights": [
+				{
+					"w": [
+						-88,
+						-656
+					],
+					"y": 1.6,
+					"color": "8fd0ff",
+					"range": 8
+				},
+				{
+					"w": [
+						-146,
+						-904
+					],
+					"y": 1.8,
+					"color": "8fffd8",
+					"range": 9
 				}
 			]
 		},
@@ -673,6 +866,101 @@
 					],
 					"h": 2.6,
 					"yaw": 100
+				},
+				{
+					"a": "free:lighting/lantern_hanging_blue",
+					"w": [
+						-546.2,
+						308.6
+					],
+					"h": 0.7,
+					"yaw": 0,
+					"y": 2.5
+				},
+				{
+					"a": "free:lighting/lantern_hanging_green",
+					"w": [
+						-548.0,
+						291.6
+					],
+					"h": 0.7,
+					"yaw": 0,
+					"y": 2.5
+				},
+				{
+					"a": "free:lighting/lantern_hanging_blue",
+					"w": [
+						-567.2,
+						301.8
+					],
+					"h": 0.7,
+					"yaw": 0,
+					"y": 2.5
+				},
+				{
+					"a": "free:lighting/lantern_hanging_green",
+					"w": [
+						-540,
+						300.4
+					],
+					"h": 0.7,
+					"yaw": 0,
+					"y": 2.5
+				},
+				{
+					"a": "free:lighting/lantern_hanging_blue",
+					"w": [
+						-534,
+						296
+					],
+					"h": 0.7,
+					"yaw": 0,
+					"y": 2.5
+				},
+				{
+					"a": "free:lighting/lantern_hanging_green",
+					"w": [
+						-534,
+						304.4
+					],
+					"h": 0.7,
+					"yaw": 0,
+					"y": 2.5
+				},
+				{
+					"a": "free:churches/chapel_island_small",
+					"w": [
+						-476,
+						296
+					],
+					"h": 7.0,
+					"yaw": 60,
+					"water": true,
+					"y": -0.2,
+					"far": true
+				},
+				{
+					"a": "free:churches/church_stone_island",
+					"w": [
+						-418,
+						296
+					],
+					"h": 7.7,
+					"yaw": 200,
+					"water": true,
+					"y": -0.2,
+					"far": true
+				},
+				{
+					"a": "free:water/dock_circular_wood",
+					"w": [
+						-540,
+						282
+					],
+					"h": 0.55,
+					"yaw": 20,
+					"water": true,
+					"y": 0.1
 				}
 			],
 			"lights": [
@@ -693,6 +981,15 @@
 					"y": 3,
 					"color": "ffb35c",
 					"range": 10
+				},
+				{
+					"w": [
+						-534,
+						300
+					],
+					"y": 2.8,
+					"color": "7fb8ff",
+					"range": 8
 				}
 			],
 			"scatter": [
@@ -1010,6 +1307,113 @@
 					],
 					"h": 1.2,
 					"yaw": 20
+				},
+				{
+					"a": "free:creatures/treant_forest",
+					"w": [
+						-1330,
+						-1100
+					],
+					"h": 3.2,
+					"yaw": 210,
+					"collide": true
+				},
+				{
+					"a": "free:ruins/arch_dark_pedestal",
+					"w": [
+						-1340,
+						-1074
+					],
+					"h": 4.0,
+					"yaw": 180,
+					"collide": true
+				},
+				{
+					"a": "free:flora/mushroom_glow_brown",
+					"w": [
+						-1352,
+						-1048
+					],
+					"h": 0.6,
+					"yaw": 10
+				},
+				{
+					"a": "free:flora/mushroom_glow_brown",
+					"w": [
+						-1350,
+						-1051
+					],
+					"h": 0.5,
+					"yaw": 80
+				},
+				{
+					"a": "free:flora/bush_raspberry",
+					"w": [
+						-1362,
+						-1056
+					],
+					"h": 1.0,
+					"yaw": 0
+				},
+				{
+					"a": "res://assets/generated/scan/rock_moss_set_01_1.glb",
+					"w": [
+						-1316.5,
+						-1054.4
+					],
+					"s": 1.0,
+					"yaw": 0,
+					"sink": 0.2
+				},
+				{
+					"a": "res://assets/generated/scan/rock_moss_set_01_2.glb",
+					"w": [
+						-1337.4,
+						-1033.5
+					],
+					"s": 1.0,
+					"yaw": 73,
+					"sink": 0.2
+				},
+				{
+					"a": "res://assets/generated/scan/rock_moss_set_01_3.glb",
+					"w": [
+						-1365.9,
+						-1041.1
+					],
+					"s": 1.0,
+					"yaw": 146,
+					"sink": 0.2
+				},
+				{
+					"a": "res://assets/generated/scan/rock_moss_set_01_4.glb",
+					"w": [
+						-1373.5,
+						-1069.6
+					],
+					"s": 1.0,
+					"yaw": 219,
+					"sink": 0.2
+				},
+				{
+					"a": "res://assets/generated/scan/rock_moss_set_01_5.glb",
+					"w": [
+						-1352.6,
+						-1090.5
+					],
+					"s": 1.0,
+					"yaw": 292,
+					"sink": 0.2
+				},
+				{
+					"a": "res://assets/generated/scan/rock_moss_set_01_6.glb",
+					"w": [
+						-1324.1,
+						-1082.9
+					],
+					"s": 1.0,
+					"yaw": 5,
+					"sink": 0.2
 				}
 			],
 			"scatter": [

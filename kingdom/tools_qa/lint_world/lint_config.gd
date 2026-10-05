@@ -40,7 +40,7 @@ const ROCKY := ["rock", "boulder", "cliff", "crag", "scree", "menhir", "megalith
 ## May hover on purpose.
 const FLOAT_OK := ["gdressing", "lantern_hang", "hanging", "banner", "flag", "sail", "hanging", "chandelier", "rift", "portal", "crystal", "orb", "spirit",
 	"mist", "fog", "rune", "glow", "smoke", "sign_hang", "bell", "cloud", "bird", "firefly", "wisp", "beam", "shaft",
-	"bunting", "garland", "streamer", "pennant"]
+	"bunting", "garland", "streamer", "pennant", "wall_torch"]    # wall_torch: bracket torch hung on a wall 0.9 m up (TorchProps), designed
 ## May stand in water (is_water) without the site being tagged wet.
 const WET_OK := ["bridge", "dock", "pier", "boat", "ferry", "reed", "lily", "water", "fish", "raft", "cattail", "pond", "pool",
 	"waterfall", "jetty", "wharf", "net", "buoy", "fallsfoam", "falls"]
@@ -90,4 +90,7 @@ const ALLOW := [
 	# enough to count as a large prop; the other themes' goods are below the overlap volume threshold. (Matches the goods'
 	# size text, so stall-on-stall overlaps of the real market_stall meshes are still reported.)
 	{"type": "overlap", "site": "settlement", "match": "[3.9x1.7x2.1 m]", "reason": "stall_fish goods drawn on their own stall by design"},
+	# Emberglass Ferry landing stage: placed at the lake surface (water: true), the lint compares it to the terrain under the
+	# lake, whose height depends on the seed. It stands in water by design.
+	{"type": "buried", "site": "r1look", "match": "dock_circular_wood", "reason": "ferry landing stage sits on the water surface, not the terrain"},
 ]

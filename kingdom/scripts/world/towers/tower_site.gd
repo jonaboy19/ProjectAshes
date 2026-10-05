@@ -30,6 +30,7 @@ const NEAR_END := 1200.0
 const MID_END := 2700.0
 const ASSETS := "res://assets/generated/"
 const MAX_PARTY := 3
+const PORTAL_ARCHES := ["res://assets/incoming/meshy_free/magic/portal_blue_arch_lod0.glb", "res://assets/incoming/meshy_free/magic/portal_ice_arch_lod0.glb"]
 
 var focus := Vector3.ZERO
 var ui: Node
@@ -169,7 +170,9 @@ func _process(delta: float) -> void:
 		var any_y := -1.0e9
 		for tid: String in sites:
 			any_y = maxf(any_y, float(sites[tid]["pos"].y))
-		if run == null and any_y > -1.0e8 and pl.global_position.y > any_y + INTERIOR_LIFT * 0.5:
+		# (not while a building/dungeon interior is open: InteriorDoor rooms sit 300 m up, which used to read as "in the
+		# clouds" and threw the player to the tower camp the moment they entered any inn, smithy, guild or house)
+		if run == null and InteriorDoor.active == null and any_y > -1.0e8 and pl.global_position.y > any_y + INTERIOR_LIFT * 0.5:
 			_teleport_to_camp(current_tower if current_tower != "" else String(sites.keys()[0]))
 	_slow_update()
 
@@ -309,6 +312,13 @@ func build_camp(tid: String) -> Node3D:
 	# the great door
 	var door := _ground_at(tid, ENTRY_DIST, 0.0)
 	_point(camp, tid, "enter", "Enter %s" % TowerData.tower(tid).get("name", "the tower"), door + Vector3(0, 0.6, 0))
+	# Meshy free pack portal arch over the approach to the great door (docs/qa/ASSET_AUDIT.md section A, magic/)
+	var arch: Node3D = Assets.static_model(PORTAL_ARCHES[absi(tid.hash()) % PORTAL_ARCHES.size()])
+	if arch != null:
+		camp.add_child(arch)
+		arch.position = door + Vector3(0, -0.05, 0)
+		arch.rotation.y = yaw
+		arch.scale = Vector3.ONE * 1.5
 	# scout and quartermaster NPCs
 	var scout_pos := _ground_at(tid, CAMP_DIST - 9.0, 11.0)
 	_npc(camp, "Hunter", scout_pos, yaw + PI * 0.8, "Idle_Listening")

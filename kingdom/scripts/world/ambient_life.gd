@@ -80,6 +80,19 @@ func _ready() -> void:
 			var wp: Vector2 = site["pos"]
 			var tied := wp + Vector2(sin(wyaw), cos(wyaw)) * 9.0 + Vector2(cos(wyaw), -sin(wyaw)) * 8.0
 			_group(tied, [["horse", 1], ["horse_grey", 1]] if wrng.randf() < 0.5 else [["horse", 1]], 3.0)
+	# Meshy free / Quaternius extras (own RNG stream, appended after everything above): a white horse at the Crownstead and Highwatch
+	# stables, huskies at the northern camps (Grimfen Pass, Frostmere).
+	var xrng := RandomNumberGenerator.new()
+	xrng.seed = 5152
+	for site in WorldGen.sites:
+		var nm := String(site["name"])
+		var sp: Vector2 = site["pos"]
+		var syaw := float(site["yaw"])
+		var side := Vector2(cos(syaw), -sin(syaw))
+		if nm == "Crownstead Steward's Hall" or nm == "Highwatch Keep":
+			_group(sp + Vector2(sin(syaw), cos(syaw)) * 14.0 + side * 12.0, [["horse_white", 1]], 3.0)
+		elif nm == "Grimfen Pass" or nm == "Frostmere Smokehouse":
+			_group(sp + Vector2(sin(syaw), cos(syaw)) * 9.0 + side * (xrng.randf_range(4.0, 8.0)), [["husky", 2]], 5.0)
 	# Waterfowl on the lake shore.
 	var lc: Vector2 = WorldGen.lake_center
 	if lc.x < 1.0e5:
@@ -87,6 +100,22 @@ func _ready() -> void:
 			var a := TAU * i / 4.0 + 0.4
 			var p := lc + Vector2(cos(a), sin(a)) * (WorldGen.lake_radius + 4.0)
 			_group(p, [["duck", rng.randi_range(3, 5)], ["goose", rng.randi_range(0, 2)]], 6.0)
+
+
+## Meshy free pack farm animals stand in for part of the herd and the flock: every other cow wears one of three coats, every other
+## hen or rooster is the rigged Meshy bird (docs/qa/ASSET_AUDIT.md). Deterministic per animal index and group position.
+const COW_COATS := ["cow", "cow_brown_a", "cow_spotted", "cow_brown_b"]
+
+
+static func _variant(kind: String, k: int, at: Vector2) -> String:
+	var h := absi(int(at.x * 0.37) + int(at.y * 0.53)) + k
+	if kind == "cow":
+		return COW_COATS[h % COW_COATS.size()]
+	if kind == "chicken" and h % 2 == 1:
+		return "hen_meshy"
+	if kind == "rooster" and h % 2 == 0:
+		return "rooster_meshy"
+	return kind
 
 
 func _group(pos: Vector2, kinds: Array, radius: float) -> void:
@@ -119,7 +148,7 @@ func _update_group(g: Dictionary, p: Vector2) -> void:
 					_spawn_beast(g, String(pair[0]), nodes)
 					continue
 				var cr := Critter.new()
-				cr.kind = pair[0]
+				cr.kind = _variant(String(pair[0]), k, g["pos"])
 				cr.home = g["pos"]
 				add_child(cr)
 				var r: float = g["radius"]

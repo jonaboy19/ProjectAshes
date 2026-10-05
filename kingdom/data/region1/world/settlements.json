@@ -1769,7 +1769,15 @@
        0,
        10.5
       ],
-      "h": 3.3
+      "h": 3.3,
+      "ornaments": [
+       [
+        "signs/sign_blank_rope",
+        -2.75,
+        1.55,
+        0
+       ]
+      ]
      },
      "npcs": [
       {
@@ -2104,7 +2112,21 @@
        0,
        10.5
       ],
-      "h": 3.3
+      "h": 3.3,
+      "ornaments": [
+       [
+        "signs/sign_blank_bracket",
+        -2.9,
+        1.95,
+        0
+       ],
+       [
+        "lighting/lantern_wall_iron",
+        2.15,
+        2.4,
+        0
+       ]
+      ]
      },
      "npcs": [
       {
@@ -2905,7 +2927,21 @@
        0,
        10.5
       ],
-      "h": 3.3
+      "h": 3.3,
+      "ornaments": [
+       [
+        "signs/sign_shop_lion",
+        -2.75,
+        1.9,
+        0
+       ],
+       [
+        "lighting/lantern_wall_iron",
+        2.15,
+        2.4,
+        0
+       ]
+      ]
      },
      "npcs": [
       {
@@ -3455,7 +3491,15 @@
        0,
        10.5
       ],
-      "h": 3.3
+      "h": 3.3,
+      "ornaments": [
+       [
+        "lighting/lantern_wall_iron",
+        2.15,
+        2.4,
+        0
+       ]
+      ]
      },
      "npcs": [
       {
@@ -3686,7 +3730,21 @@
        0,
        10.5
       ],
-      "h": 3.3
+      "h": 3.3,
+      "ornaments": [
+       [
+        "signs/sign_shop_lion",
+        -2.75,
+        1.9,
+        0
+       ],
+       [
+        "lighting/lantern_wall_iron",
+        2.15,
+        2.4,
+        0
+       ]
+      ]
      },
      "npcs": [
       {
@@ -4458,7 +4516,15 @@
        0,
        10.5
       ],
-      "h": 3.3
+      "h": 3.3,
+      "ornaments": [
+       [
+        "signs/sign_blank_bracket",
+        2.9,
+        1.95,
+        0
+       ]
+      ]
      },
      "npcs": [
       {
@@ -4952,7 +5018,21 @@
        0,
        10.5
       ],
-      "h": 3.3
+      "h": 3.3,
+      "ornaments": [
+       [
+        "signs/sign_blank_bracket",
+        -2.9,
+        1.95,
+        0
+       ],
+       [
+        "lighting/lantern_wall_iron",
+        2.15,
+        2.4,
+        0
+       ]
+      ]
      },
      "npcs": [
       {
@@ -5657,7 +5737,15 @@
        0,
        10.5
       ],
-      "h": 3.3
+      "h": 3.3,
+      "ornaments": [
+       [
+        "signs/sign_shop_lion",
+        2.75,
+        1.9,
+        0
+       ]
+      ]
      },
      "npcs": [
       {
@@ -6509,7 +6597,15 @@
        0,
        10.5
       ],
-      "h": 3.3
+      "h": 3.3,
+      "ornaments": [
+       [
+        "lighting/lantern_wall_iron",
+        -2.15,
+        2.4,
+        0
+       ]
+      ]
      },
      "npcs": [
       {

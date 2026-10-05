@@ -14,6 +14,19 @@ signal died(creature: Node)
 
 const Models := preload("res://scripts/actors/creature_models.gd")
 const QUAT := "res://assets/incoming/monsters/quaternius/"
+## KayKit Character Pack: Skeletons (CC0): rigged, each file carries its own 95 clips (Idle, Walking_A, Running_A, Hit_A, Death_A, melee and spell attacks).
+const KAY := "res://assets/kaykit/skeletons/"      # copies of the CC0 KayKit pack (assets/incoming/kaykit is .gdignore: Godot never imports it)
+const KAY_GEAR_DIR := "res://assets/kaykit/skeletons/gear/"
+## Weapons and shields the skeletons carry: [file, bone slot].
+const KAY_GEAR := {
+	"skeleton_minion": [["Skeleton_Axe", "handslot.r"], ["Skeleton_Shield_Small_A", "handslot.l"]],
+	"skeleton_warrior": [["Skeleton_Blade", "handslot.r"], ["Skeleton_Shield_Large_A", "handslot.l"]],
+	"skeleton_rogue": [["Skeleton_Blade", "handslot.r"], ["Skeleton_Shield_Small_B", "handslot.l"]],
+	"skeleton_mage": [["Skeleton_Staff", "handslot.r"]],
+}
+## Quaternius Ultimate Monsters (CC0) that were never converted: loaded straight from their glTF (clips named Idle/Walk/Run/Punch/HitReact/Death ...).
+const UM := "res://assets/incoming/monsters/quaternius/ultimate/"      # copies of two CC0 Ultimate Monsters glTFs (their pack dir is .gdignore)
+const KAY_CLIPS := {"idle": "Idle", "walk": "Walking_A", "run": "Running_A", "attack": "1H_Melee_Attack_Slice_Horizontal", "hit": "Hit_A", "death": "Death_A"}
 const WORLD_LAYER := 1
 const ENEMY_LAYER := 4
 
@@ -34,6 +47,14 @@ const KINDS := {
 	"bog_toad": {"quat": "bog_toad", "hp": 45, "dmg": 8, "walk": 0.8, "run": 2.6, "reach": 1.8, "windup": 0.65, "recover": 0.9, "h": 0.7, "hear": 9.0},
 	"blackcap_brute": {"quat": "blackcap_brute", "hp": 120, "dmg": 16, "walk": 1.2, "run": 2.6, "reach": 2.6, "windup": 0.9, "recover": 0.9, "h": 1.8, "hear": 9.0},
 	"bandit": {"human": "Rogue_Hooded", "hp": 40, "dmg": 8, "walk": 1.3, "run": 3.6, "reach": 2.0, "windup": 0.55, "recover": 0.6, "h": 1.8, "hear": 12.0},
+	"mushroom_king": {"gltf": UM + "MushroomKing.gltf", "gclips": {"idle": "Idle", "walk": "Walk", "run": "Run", "attack": "Punch", "hit": "HitReact", "death": "Death"},
+		"hp": 120, "dmg": 15, "walk": 1.2, "run": 3.0, "reach": 2.6, "windup": 0.8, "recover": 0.9, "h": 2.2, "hear": 9.0},
+	"ghost_skull": {"gltf": UM + "Ghost_Skull.gltf", "gclips": {"idle": "Flying_Idle", "walk": "Flying_Idle", "run": "Fast_Flying", "attack": "Headbutt", "hit": "HitReact", "death": "Death"},
+		"hp": 48, "dmg": 11, "walk": 1.5, "run": 3.4, "reach": 1.8, "windup": 0.5, "recover": 0.8, "h": 1.0, "hear": 12.0, "float": 0.9},
+	"skeleton_minion": {"kay": "Skeleton_Minion", "hp": 30, "dmg": 6, "walk": 1.0, "run": 2.8, "reach": 1.9, "windup": 0.5, "recover": 0.6, "h": 1.7, "hear": 9.0},
+	"skeleton_warrior": {"kay": "Skeleton_Warrior", "hp": 50, "dmg": 10, "walk": 1.0, "run": 2.9, "reach": 2.1, "windup": 0.6, "recover": 0.7, "h": 1.9, "hear": 10.0},
+	"skeleton_rogue": {"kay": "Skeleton_Rogue", "hp": 38, "dmg": 9, "walk": 1.3, "run": 3.6, "reach": 1.9, "windup": 0.4, "recover": 0.5, "h": 1.8, "hear": 12.0, "clip_attack": "1H_Melee_Attack_Stab"},
+	"skeleton_mage": {"kay": "Skeleton_Mage", "hp": 34, "dmg": 11, "walk": 0.9, "run": 2.5, "reach": 2.0, "windup": 0.7, "recover": 0.8, "h": 1.8, "hear": 10.0, "clip_attack": "Spellcast_Shoot"},
 }
 ## kind -> [[item, chance, min, max], ...]; "gold" goes to Game.add_gold.
 const DROPS := {
@@ -48,6 +69,9 @@ const DROPS := {
 	"rift_slime": [["rift_crystal", 0.2, 1, 1]], "rift_wraith": [["rift_crystal", 0.5, 1, 2]],
 	"bog_toad": [["cave_pearl", 0.15, 1, 1]], "blackcap_brute": [["gold", 0.8, 8, 20], ["coal", 0.5, 1, 3]],
 	"bandit": [["gold", 0.9, 4, 14], ["bandage", 0.3, 1, 1], ["apple", 0.3, 1, 1]],
+	"skeleton_minion": [["gold", 0.5, 2, 6]], "skeleton_warrior": [["gold", 0.7, 4, 10], ["old_relic", 0.05, 1, 1]],
+	"mushroom_king": [["gold", 0.9, 10, 24], ["glowcap", 1.0, 2, 4]], "ghost_skull": [["rift_crystal", 0.3, 1, 1], ["ancient_coin", 0.15, 1, 1]],
+	"skeleton_rogue": [["gold", 0.8, 4, 12], ["ancient_coin", 0.1, 1, 1]], "skeleton_mage": [["gold", 0.7, 4, 12], ["old_relic", 0.08, 1, 1]],
 }
 
 enum State { SLEEP, IDLE, CHASE, ATTACK, RETURN, DEAD }
@@ -153,6 +177,29 @@ func _make_model() -> Node3D:
 				for c in ["idle", "walk", "run"]:
 					if ap.has_animation(c):
 						ap.get_animation(c).loop_mode = Animation.LOOP_LINEAR
+	elif _info.has("kay"):
+		var kp: String = KAY + String(_info["kay"]) + ".glb"
+		if ResourceLoader.exists(kp):
+			m = Assets.scene(kp).instantiate()
+			_clips = KAY_CLIPS.duplicate()
+			if _info.has("clip_attack"):
+				_clips["attack"] = _info["clip_attack"]
+			var kap := Assets.animation_player(m)
+			if kap:
+				for c in ["Idle", "Walking_A", "Running_A"]:
+					if kap.has_animation(c):
+						kap.get_animation(c).loop_mode = Animation.LOOP_LINEAR
+			_kay_gear(m)
+	elif _info.has("gltf"):
+		var gp: String = _info["gltf"]
+		if ResourceLoader.exists(gp):
+			m = Assets.scene(gp).instantiate()
+			_clips = (_info["gclips"] as Dictionary).duplicate()
+			var gap := Assets.animation_player(m)
+			if gap:
+				for gc: String in _clips.values():
+					if gap.has_animation(gc) and not ["Death", "HitReact", "Punch", "Headbutt"].has(gc):
+						gap.get_animation(gc).loop_mode = Animation.LOOP_LINEAR
 	elif _info.has("human"):
 		m = Assets.character(String(_info["human"]), float(_info["h"]))
 		_clips = {"idle": "Idle", "walk": "Walk", "run": "Jog_Fwd", "attack": "Sword_Regular_A", "hit": "Hit_Chest", "death": "Death01"}
@@ -173,6 +220,22 @@ func _make_model() -> Node3D:
 	elif m != null and kind == "orc" and boss:
 		_tint(m, Color(0.9, 0.5, 0.45))
 	return m
+
+
+## Hangs the skeleton's weapon and shield on its hand slots (BoneAttachment3D, KayKit convention: handslot.l / handslot.r).
+func _kay_gear(m: Node3D) -> void:
+	var skels := m.find_children("*", "Skeleton3D", true, false)
+	if skels.is_empty() or not KAY_GEAR.has(kind):
+		return
+	var sk := skels[0] as Skeleton3D
+	for g: Array in KAY_GEAR[kind]:
+		var gp: String = KAY_GEAR_DIR + String(g[0]) + ".gltf"
+		if sk.find_bone(String(g[1])) < 0 or not ResourceLoader.exists(gp):
+			continue
+		var att := BoneAttachment3D.new()
+		att.bone_name = String(g[1])
+		sk.add_child(att)
+		att.add_child(Assets.scene(gp).instantiate())
 
 
 func _tint(n: Node, col: Color) -> void:

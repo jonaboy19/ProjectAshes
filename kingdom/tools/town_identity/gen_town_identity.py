@@ -117,6 +117,46 @@ KITS = {
                    "yards": [{"kind": "waterfront", "n": 1}]},
 }
 
+# --- meshy_free pack pieces (Assets.BUILDINGS "mf_*" keys, docs/qa/ASSET_AUDIT.md section A "use the unused models"):
+# extra dressing per kit, appended so every older spec (and its position in the list) stays as it was.
+MF_EXTRA = {
+    "haystacks":  [spec(["poor", "inn", "craft", "market"], "mf_hay_bale_yellow_large", 0.3, 1.0, "yard"), spec(["poor", "inn"], "mf_hay_bale_round", 0.3, 1.1, "yard")],
+    "granary":    [spec(["poor", "craft"], "mf_shed_thatch_small", 0.05, 2.0, "yard", solid=True)],
+    "pens":       [spec(["poor", "inn", "craft"], "mf_fence_rail_grass_a", 0.4, 1.5, "yard"), spec(["poor", "inn"], "mf_fence_rail_grass_b", 0.3, 1.5, "yard")],
+    "dairy":      [spec(["poor", "inn"], "mf_hay_bale_lowpoly", 0.3, 1.0, "yard"), spec(["poor", "inn"], "mf_chicken_coop_fenced", 0.05, 1.6, "yard", solid=True)],
+    "brewery":    [spec(["inn", "craft"], "mf_tavern_set_barrels_b", 0.2, 2.0, "yard"), spec(["inn", "market"], "mf_table_barrel_top", 0.2, 0.8, "edge", face=True)],
+    "bees":       [spec(["market", "inn", "poor"], "mf_bouquet_wild", 0.6, 0.4), spec(["poor", "inn"], "mf_bush_raspberry", 0.3, 1.0, "yard")],
+    "wool":       [spec(["poor", "craft"], "mf_fence_picket_low", 0.3, 1.5, "yard")],
+    "fair_green": [spec(["market", "inn"], "mf_stall_open_roof", 0.12, 2.7, "edge", face=True, solid=True), spec(["market", "inn"], "mf_stall_potatoes", 0.1, 2.9, "edge", face=True, solid=True)],
+    "mine":       [spec(["craft", "poor"], "mf_chest_orange_metal", 0.04, 0.8, "edge", face=True)],
+    "quarry":     [spec(["craft", "poor"], "mf_wall_stone_railing", 0.3, 1.4, "edge", face=True)],
+    "forge_smoke": [spec(["craft", "poor"], "mf_axe_long_handle", 0.2, 0.9, "edge")],
+    "stalls":     [spec(["market", "inn", "admin"], "mf_stall_meat_shingle", 0.1, 2.7, "edge", face=True, solid=True), spec(["market"], "mf_shed_striped_awning", 0.06, 3.0, "edge", face=True, solid=True)],
+    "guild":      [spec(["market", "admin"], "mf_chest_silver_lock", 0.06, 0.8, "edge", face=True)],
+    "wagons":     [spec(["craft", "poor", "inn"], "mf_hay_bale_round", 0.2, 1.1, "yard")],
+    "caravan":    [spec(["market", "inn"], "mf_chest_gold", 0.03, 0.8, "edge", face=True)],
+    "dyers":      [spec(["craft", "poor"], "mf_fence_picket_tall", 0.2, 1.5, "yard")],
+    "tannery":    [spec(["craft", "poor"], "mf_fence_picket_tall", 0.2, 1.5, "yard")],
+    "barracks":   [spec(["military", "admin"], "mf_lamp_post_timber_cross", 0.3, 0.7), spec(["military"], "mf_chest_red_black", 0.05, 0.8, "edge", face=True)],
+    "watch":      [spec(["military", "poor"], "mf_lamp_post_timber_cross", 0.25, 0.7)],
+    "stables":    [spec(["inn", "military"], "mf_hay_bale_round", 0.3, 1.1, "yard"), spec(["inn", "military"], "mf_shed_plank_low", 0.04, 1.8, "yard", solid=True)],
+    "ferry":      [spec(["poor", "craft"], "mf_fence_broken_rail", 0.2, 1.2, "yard")],
+    "smugglers":  [spec(["poor", "craft"], "mf_chest_blue_iron", 0.05, 0.8, "edge", face=True)],
+    "boats":      [spec(["craft", "poor"], "mf_fence_broken_rail", 0.2, 1.2, "yard")],
+    "hunters":    [spec(["poor", "craft"], "mf_axe_long_handle", 0.35, 0.9, "edge")],
+    "smokehouse": [spec(["craft", "poor"], "mf_shed_plank_low", 0.06, 1.8, "yard", solid=True)],
+    "ravens":     [spec(["poor", "military"], "mf_lamp_post_timber_cross", 0.25, 0.7)],
+    "shrines":    [spec(["admin", "market"], "mf_street_lantern_whimsical", 0.2, 0.6), spec(["admin", "market", "poor"], "mf_bouquet_wild", 0.4, 0.4)],
+    "candles":    [spec(["admin", "market", "poor"], "mf_street_lantern_whimsical", 0.25, 0.6)],
+    "herbs":      [spec(["poor", "inn", "admin"], "mf_bush_raspberry", 0.5, 1.0, "yard"), spec(["poor", "craft"], "mf_bouquet_wild", 0.5, 0.4), spec(["poor"], "mf_mushroom_glow_brown", 0.25, 0.6, "yard")],
+    "academy":    [spec(["admin", "market"], "mf_street_lamp_twin_gold", 0.35, 0.8)],
+    "lanterns":   [spec(["admin", "market", "inn"], "mf_street_lantern_gothic", 0.5, 0.7), spec(["market", "poor"], "mf_street_lantern_whimsical", 0.4, 0.6)],
+    "reeds":      [spec(["poor", "craft"], "mf_fence_broken_rail", 0.2, 1.2, "yard")],
+    "salt":       [spec(["craft", "poor"], "mf_fence_broken_rail", 0.15, 1.2, "yard")],
+}
+for _k, _v in MF_EXTRA.items():
+    KITS[_k]["dress"] = KITS[_k].get("dress", []) + _v
+
 # ------------------------------------------------------------------ archetypes
 # activity groups -> multiplier on the micro_events catalogue groups (activity_groups below)
 ARCH = {

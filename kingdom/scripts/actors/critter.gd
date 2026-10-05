@@ -80,7 +80,18 @@ const KINDS := {
 	"deer": ["quaternius/deer.glb", 0.9, 6.0, 18.0, 16.0],
 	"stag": ["quaternius/stag.glb", 0.9, 6.2, 18.0, 18.0],
 	"fox": ["res://assets/generated/animals/fox_gallop.glb", 0.8, 5.0, 14.0, 9.0],
+	# Meshy free pack farm animals (rigged: lowercase idle/walk/eat clips, aliased to the Idle/Walk/Eat names below) and two Quaternius
+	# originals that had no converted copy (clips Idle/Walk/Gallop/Eating, aliased): docs/qa/ASSET_AUDIT.md "use the unused models".
+	"cow_brown_a": ["res://assets/incoming/meshy_free/farm/rigged/cow_brown_a_rigged.glb", 0.7, 2.0, 9.0, 0.0],
+	"cow_brown_b": ["res://assets/incoming/meshy_free/farm/rigged/cow_brown_b_rigged.glb", 0.7, 2.0, 9.0, 0.0],
+	"cow_spotted": ["res://assets/incoming/meshy_free/farm/rigged/cow_spotted_rigged.glb", 0.7, 2.0, 9.0, 0.0],
+	"hen_meshy": ["res://assets/incoming/meshy_free/farm/rigged/chicken_hen_rigged.glb", 0.6, 2.2, 5.0, 2.5],
+	"rooster_meshy": ["res://assets/incoming/meshy_free/farm/rigged/chicken_rooster_rigged.glb", 0.6, 2.2, 5.0, 2.5],
+	"horse_white": ["res://assets/incoming/quaternius/ultimate-animated-animals/glTF/Horse_White.gltf", 0.9, 5.0, 4.0, 0.0],
+	"husky": ["res://assets/incoming/quaternius/ultimate-animated-animals/glTF/Husky.gltf", 1.1, 4.0, 12.0, 0.0],
 }
+## Clip names of the pieces above -> the names this script plays.
+const CLIP_ALIASES := {"Idle": ["idle"], "Walk": ["walk"], "Run": ["run", "Gallop", "walk"], "Eat": ["eat", "Eating"], "Death": ["death"], "Hit": ["hit", "Idle_HitReact1"]}
 
 var kind := "chicken"
 var home := Vector2.ZERO
@@ -90,7 +101,7 @@ var _model: Node3D
 ## CULL_BIG (scaled by the tier's visibility-range multiplier) the model is hidden
 ## and its AnimationPlayer paused, so nobody pays skinning or clip sampling for
 ## animals too small to see. Behaviour keeps running at the far LOD rate.
-const SMALL := ["chicken", "rooster", "duck", "goose", "pigeon", "crow", "rabbit", "cat", "cat_ginger"]
+const SMALL := ["chicken", "rooster", "duck", "goose", "pigeon", "crow", "rabbit", "cat", "cat_ginger", "hen_meshy", "rooster_meshy"]
 const CULL_SMALL := 40.0   # round 2: was 60 (LOW 22 m)
 const CULL_BIG := 100.0
 var _culled := false
@@ -127,6 +138,7 @@ func _ready() -> void:
 	_model = model
 	_anim = Assets.animation_player(model)
 	if _anim:
+		_alias_clips()
 		for a in ["Idle", "Walk", "Run", "Eat", "Walk_Slow"]:
 			if _anim.has_animation(a):
 				_anim.get_animation(a).loop_mode = Animation.LOOP_LINEAR
@@ -254,6 +266,20 @@ func _update_visual_lod(dist: float) -> void:
 	_model.visible = not _culled
 	if _anim:
 		_anim.active = not _culled
+
+
+## Pieces whose clips are named differently (Meshy rigs, Quaternius originals) get the Idle/Walk/Run/Eat names played here.
+func _alias_clips() -> void:
+	var lib := _anim.get_animation_library(&"")
+	if lib == null:
+		return
+	for want: String in CLIP_ALIASES:
+		if lib.has_animation(want):
+			continue
+		for have: String in CLIP_ALIASES[want]:
+			if lib.has_animation(have):
+				lib.add_animation(want, lib.get_animation(have).duplicate())
+				break
 
 
 func _play(n: String, rate := 1.0) -> void:

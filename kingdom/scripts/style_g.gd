@@ -668,6 +668,7 @@ const ASSET_ROLE_TOKENS := [
 	["castle", "house"], ["keep", "house"], ["tower", "house"], ["inn", "house"], ["guild", "house"], ["blacksmith", "house"],
 	["healer", "house"], ["stable", "house"], ["hut", "house"], ["fort", "house"], ["manor", "house"], ["sawmill", "house"],
 	["shrine", "stone"], ["ruin", "stone"],
+	["church", "house"], ["lantern", "lamp"], ["sconce", "lamp"], ["torch_stake", "timber"], ["torch", "lamp"], ["tapestry", "cloth"], ["pillar", "stone"], ["arch_", "stone"], ["_arch", "stone"],
 ]
 
 

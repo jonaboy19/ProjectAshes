@@ -79,7 +79,7 @@ static func mesh(kind: String) -> ArrayMesh:
 
 static func _place(root: Node3D, kind: String, pos: Vector3, yaw: float, glow_y: float) -> Dictionary:
 	var mi := MeshInstance3D.new()
-	mi.name = kind
+	mi.name = "%s_%d" % [kind, root.get_child_count()]      # unique, keeps the kind as prefix (a second "wall_torch" under one root was auto-renamed to @MeshInstance3D@N and lost its name in the world lint)
 	mi.mesh = mesh(kind)
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(mi)

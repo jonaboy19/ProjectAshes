@@ -29,7 +29,7 @@ const THEME := {
 	"cave": {"name": "Cave", "rooms": [3, 10], "size": [4, 8], "cw": 2, "organic": true, "height": [4.5, 7.0],
 		"tint": Color(0.52, 0.48, 0.44), "ambient": Color(0.10, 0.11, 0.14), "fog": Color(0.05, 0.06, 0.08), "lit": 0.0,
 		"res": ["glowcap", "healing_herb", "coal"], "light": "glowcap",
-		"pool": {1: ["bat", "giant_rat", "spider"], 2: ["bat", "spider", "wolf"], 3: ["spider", "wolf", "bear"], 4: ["spider", "wolf", "bear"]},
+		"pool": {1: ["bat", "giant_rat", "spider"], 2: ["bat", "spider", "wolf"], 3: ["spider", "wolf", "bear"], 4: ["spider", "mushroom_king", "bear"]},
 		"boss": {"kind": "bear", "name": "Hollowback, the Den Bear", "trophy": "trophy_bear_claw", "scale": 1.5}},
 	"flooded": {"name": "Flooded Cave", "rooms": [4, 10], "size": [5, 9], "cw": 2, "organic": true, "height": [4.0, 6.0],
 		"tint": Color(0.40, 0.50, 0.52), "ambient": Color(0.07, 0.11, 0.15), "fog": Color(0.03, 0.07, 0.10), "lit": 0.0,
@@ -39,7 +39,7 @@ const THEME := {
 	"crystal": {"name": "Rift Crystal Cave", "rooms": [4, 10], "size": [5, 9], "cw": 2, "organic": true, "height": [5.0, 8.0],
 		"tint": Color(0.42, 0.36, 0.55), "ambient": Color(0.10, 0.07, 0.16), "fog": Color(0.06, 0.03, 0.10), "lit": 0.0,
 		"res": ["rift_crystal", "rift_crystal", "silver_ore"], "light": "crystal",
-		"pool": {1: ["blight_rat", "bat", "rift_slime"], 2: ["rift_slime", "blight_rat", "spider"], 3: ["rift_slime", "rift_wraith", "blight_rat"], 4: ["rift_wraith", "rift_slime", "ghoul"]},
+		"pool": {1: ["blight_rat", "bat", "rift_slime"], 2: ["rift_slime", "blight_rat", "spider"], 3: ["rift_slime", "rift_wraith", "ghost_skull"], 4: ["rift_wraith", "ghost_skull", "ghoul"]},
 		"boss": {"kind": "rift_wraith", "name": "The Shardbound Horror", "trophy": "trophy_shard_heart", "scale": 2.4}},
 	"mine": {"name": "Old Mine", "rooms": [5, 12], "size": [4, 7], "cw": 1, "organic": false, "height": [3.6, 4.6],
 		"tint": Color(0.50, 0.42, 0.34), "ambient": Color(0.09, 0.08, 0.08), "fog": Color(0.05, 0.04, 0.04), "lit": 0.6,
@@ -59,7 +59,7 @@ const THEME := {
 	"crypt": {"name": "Ancient Crypt", "rooms": [5, 10], "size": [5, 9], "cw": 2, "organic": false, "height": [5.0, 6.5],
 		"tint": Color(0.58, 0.58, 0.60), "ambient": Color(0.08, 0.09, 0.12), "fog": Color(0.04, 0.05, 0.08), "lit": 0.6,
 		"res": ["silver_ore"], "light": "brazier",
-		"pool": {1: ["giant_rat", "spider", "bat"], 2: ["ghoul", "spider", "giant_rat"], 3: ["ghoul", "rift_wraith", "ghoul"], 4: ["rift_wraith", "ghoul", "ghoul"]},
+		"pool": {1: ["giant_rat", "skeleton_minion", "bat"], 2: ["ghoul", "skeleton_warrior", "skeleton_minion"], 3: ["skeleton_rogue", "rift_wraith", "ghoul", "skeleton_mage"], 4: ["rift_wraith", "skeleton_warrior", "ghoul", "skeleton_mage"]},
 		"boss": {"kind": "troll", "name": "The Barrow Warden", "trophy": "trophy_warden_seal", "scale": 1.0}},
 }
 

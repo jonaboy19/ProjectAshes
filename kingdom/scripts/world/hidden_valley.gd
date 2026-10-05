@@ -690,6 +690,14 @@ static func _core() -> Dictionary:
 	parts.append(_p(FREE + "magic/crystal_ice_shard", spring + Vector2(2.5, 1.5), 1.6, 10.0))
 	parts.append(_p(FREE + "magic/crystal_ice_shard", spring + Vector2(-1.5, 3.0), 1.1, 70.0))
 	parts.append(_p(FREE + "magic/crystal_ice_shard", spring + Vector2(0.5, -2.5), 0.9, 140.0))
+	# Meshy free pack (docs/qa/ASSET_AUDIT.md): an elf mound beside the old stones, a spirit fox on the mossy rocks, the herb patch by the ruin
+	parts.append(_p(FREE + "magic/portal_elf_mound", stones + Vector2(-17.0, 3.0), 1.8, 90.0))
+	parts.append(_p(FREE + "creatures/spirit_fox_blue", stones + Vector2(9.0, 7.0), 1.15, 215.0))
+	parts.append(_p(FREE + "flora/bush_raspberry", ruin + Vector2(9.0, 7.0), 1.0, 40.0))
+	parts.append(_p(FREE + "flora/bouquet_wild", ruin + Vector2(11.0, 5.5), 0.5, 10.0))
+	parts.append(_p(FREE + "flora/bouquet_wild", ruin + Vector2(7.5, 9.0), 0.5, 140.0))
+	parts.append(_p(FREE + "flora/mushroom_glow_brown", ruin + Vector2(10.0, 9.5), 0.6, 70.0))
+	parts.append(_p(FREE + "flora/mushroom_glow_brown", ruin + Vector2(12.0, 8.0), 0.5, 160.0))
 	var scatter: Array = []
 	scatter.append(_sc(REGION + "flowers_cool", stones, 28.0, 300, 0.0, 0.9, 1.5, 150.0))
 	scatter.append(_sc(REGION + "flowers_warm", kn, 60.0, 420, 14.0, 0.9, 1.5, 150.0))
@@ -719,6 +727,8 @@ static func _gorge_dressing() -> Dictionary:
 	for s: float in [-1.0, 1.0]:
 		var at := inner + PERP * s * (gorge_half_width(GAP_PILLAR_U) + 1.2)
 		parts.append(_p(FREE + "ruins/pillar_mossy_a" if s < 0.0 else FREE + "ruins/pillar_mossy_b", at, 5.2, 90.0 + s * 20.0, {"collide": true}))
+	# The vine arch between the pillars (Meshy free pack, docs/qa/ASSET_AUDIT.md): the vale's own gate, opening along the gorge
+	parts.append(_p(FREE + "magic/portal_vine_arch", inner, 3.8, rad_to_deg(atan2(OUT.x, OUT.y)), {"near": true}))
 	var scatter: Array = []
 	scatter.append(_sc(REGION + "bush_dark", m, 18.0, 70, 2.0, 1.1, 1.8, 140.0))
 	scatter.append(_sc(REGION + "fern_a", m, 22.0, 170, 1.0, 1.1, 1.8, 120.0))

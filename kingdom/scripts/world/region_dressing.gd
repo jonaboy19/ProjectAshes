@@ -312,7 +312,7 @@ func _bake_site(root: Node3D) -> void:
 			cached[key] = mesh
 		var ref: MeshInstance3D = list[0]
 		var baked := MeshInstance3D.new()
-		baked.name = "Baked"
+		baked.name = "Baked_" + key.replace("|", "_").replace(".", "")      # unique per range group (the linter skips names containing "baked"; a second "Baked" would be auto-renamed)
 		baked.mesh = mesh
 		baked.cast_shadow = ref.cast_shadow
 		baked.visibility_range_begin = ref.visibility_range_begin

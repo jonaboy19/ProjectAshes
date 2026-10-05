@@ -402,6 +402,17 @@
       ],
       "yaw": 70
      }
+    ],
+    "doors": [
+     {
+      "scene": "res://scenes/interiors/keep_hall_interior.tscn",
+      "at": [
+       0,
+       2.7
+      ],
+      "yaw": 0.0,
+      "prompt": "Enter the Keep"
+     }
     ]
    },
    "town": "Highcliff",
@@ -1163,6 +1174,17 @@
        "Kingsreach takes two parts in three. The Church envoy has asked for a tenth. The Steward has asked for a holiday.",
        "Tithe wagons leave at dawn. Not one has failed. Not one has been searched. That should tell you something."
       ]
+     }
+    ],
+    "doors": [
+     {
+      "scene": "res://scenes/interiors/steward_hall_interior.tscn",
+      "at": [
+       0,
+       -2.7
+      ],
+      "yaw": 0.0,
+      "prompt": "Enter the Steward's Hall"
      }
     ]
    },

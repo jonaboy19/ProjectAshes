@@ -301,6 +301,32 @@ func _mesh_node(mesh: Mesh, at := Vector3.ZERO, parent: Node3D = null) -> MeshIn
 	return mi
 
 
+## Meshy free pack coins scattered on the floor round a vault or boss chest (docs/qa/ASSET_AUDIT.md "loot/"): flat, static, no collider.
+const COIN_GOLD := "res://assets/incoming/meshy_free/loot/coin_gold_big_lod0.glb"
+const COIN_SILVER := "res://assets/incoming/meshy_free/loot/coin_silver_big_lod0.glb"
+
+
+func _coin_pile(boss: bool) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(name)
+	var n := 11 if boss else 6
+	for i in n:
+		var path := COIN_SILVER if i % 3 == 2 else COIN_GOLD
+		if not ResourceLoader.exists(path):
+			return
+		var coin: Node3D = Assets.static_model(path)
+		if coin == null:
+			return
+		add_child(coin)
+		var a := rng.randf() * TAU
+		var r := rng.randf_range(0.75, 1.25 if boss else 1.0)
+		coin.position = Vector3(cos(a) * r, 0.03 + (i % 4) * 0.006, sin(a) * r)
+		coin.rotation = Vector3(-PI * 0.5, rng.randf() * TAU, 0.0)
+		coin.scale = Vector3.ONE * (1.7 if boss else 1.4)
+		if coin is GeometryInstance3D:
+			(coin as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+
 func _build_visual() -> void:
 	match kind:
 		"chest", "boss_chest":
@@ -321,6 +347,8 @@ func _build_visual() -> void:
 				glow.distance_fade_begin = 12.0
 				glow.distance_fade_length = 6.0
 				add_child(glow)
+			if vault:
+				_coin_pile(kind == "boss_chest")
 		"lever":
 			_mesh_node(Kit.box_acc_mesh([[Vector3(0, 0.9, 0), Vector3(0.5, 0.25, 0.25), 0.0, Color(0.3, 0.27, 0.25)]], theme))
 			_stick = Node3D.new()

@@ -92,6 +92,19 @@ static func _label(root: Node3D, lab: Dictionary) -> void:
 			s.rotation.y = 0.0 if side > 0.0 else PI
 			s.visibility_range_end = 70.0
 			holder.add_child(s)
+	# Meshy free pack ornaments (docs/qa/ASSET_AUDIT.md "signs/"): [asset under meshy_free, x, y above ground, yaw deg] hung on the board.
+	for orn: Array in lab.get("ornaments", []):
+		var op := "res://assets/incoming/meshy_free/" + String(orn[0]) + "_lod0.glb"
+		var on: Node3D = Assets.static_model(op) if ResourceLoader.exists(op) else null
+		if on == null:
+			continue
+		holder.add_child(on)
+		on.position = Vector3(float(orn[1]), float(orn[2]), 0.14)
+		on.rotation.y = deg_to_rad(float(orn[3])) if orn.size() > 3 else 0.0
+		for gi in on.find_children("*", "GeometryInstance3D", true, false):
+			(gi as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if on is GeometryInstance3D:
+			(on as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	holder.rotation.y = deg_to_rad(float(lab.get("yaw", 0.0)))
 
 

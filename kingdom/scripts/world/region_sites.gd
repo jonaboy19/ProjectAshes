@@ -80,6 +80,7 @@ static func plan(seed_value: int) -> Array[Dictionary]:
 	out.append_array(preload("res://scripts/world/region_caves.gd").plan(seed_value, out))
 	out.append_array(preload("res://scripts/world/region_pois.gd").plan(seed_value, out))   # Exploration POIs hook (own RNG stream, secret sites)
 	out.append_array(preload("res://scripts/world/outer_identity.gd").plan(seed_value, out))   # Rising Ashes identity beyond the wards (own RNG stream, thins roadside farms there)
+	out.append_array(preload("res://scripts/world/region1_fill.gd").sites(seed_value, out))   # Region 1 fill clusters (meshy_free filler houses, sheds, stalls): planned very last, no id moves
 	for i in out.size():
 		out[i]["id"] = i
 	return out
