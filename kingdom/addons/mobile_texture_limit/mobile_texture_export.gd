@@ -9,7 +9,7 @@ extends EditorExportPlugin
 ## UI are left alone. Change the numbers, then re-export (the export cache keys on
 ## _get_customization_configuration_hash).
 
-const MAX_PX := 256
+const MAX_PX := 512
 const SMALL_PX := 256
 const HERO_PX := 1024
 ## Hero content keeps up to 2K on phones (the art reference is judged up close):
@@ -39,7 +39,7 @@ func _begin_customize_resources(platform: EditorExportPlatform, features: Packed
 
 
 func _get_customization_configuration_hash() -> int:
-	return hash("mobile_texture_limit v5 %d %d %d %s %s" % [MAX_PX, SMALL_PX, HERO_PX, str(SMALL), str(HERO)])
+	return hash("mobile_texture_limit v6 %d %d %d %s %s" % [MAX_PX, SMALL_PX, HERO_PX, str(SMALL), str(HERO)])
 
 
 func _customize_resource(resource: Resource, path: String) -> Resource:

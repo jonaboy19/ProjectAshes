@@ -34,7 +34,7 @@ const AUTO := -1
 const NAMES := ["Low", "Medium", "High", "Ultra"]
 const SETTINGS_PATH := "user://settings.cfg"
 ## Bump when detect_tier() changes so saved AUTO results are re-detected.
-const DETECT_VERSION := 3
+const DETECT_VERSION := 4   # 4: 2026-10-05, re-detect after builds whose Quality failed to compile (stuck at LOW)
 const SS := preload("res://scripts/ui/frontend/settings_store.gd")
 ## Settings-screen row -> the tier keys it controls (value() reads them from the row's own level).
 const GROUPS := {
@@ -50,7 +50,7 @@ const GROUPS := {
 ## undergrowth instances kept. `shadow`: 0 off, 1 one low-res split, 2 two splits, 4 four.
 const TIERS := [
 	{   # LOW: old phones (Mali-G52, Adreno 610, PowerVR, 2-3 GB RAM), Compatibility renderer
-		"max_3d_height": 540, "scaling": "bilinear", "fps": 30,
+		"max_3d_height": 720, "scaling": "bilinear", "fps": 30,
 		"shadow": 1, "shadow_size": 2048, "shadow_dist": 40.0, "soft_shadow": 0, "omni_shadows": false,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
 		"lod_threshold": 8.0, "range": 0.55, "scatter": 0.3, "particles": 0.35, "aniso": 0, "tex_bias": 1.0, "fog_mul": 1.5,
@@ -61,7 +61,7 @@ const TIERS := [
 		"shadow": 2, "shadow_size": 2048, "shadow_dist": 60.0, "soft_shadow": 1, "omni_shadows": false,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
 		"lod_threshold": 2.0, "range": 0.75, "scatter": 0.6, "particles": 0.6, "aniso": 1, "tex_bias": 0.5, "fog_mul": 1.2,
-		"msaa": 0, "fxaa": false, "npc_full": 8, "rig_budget": 3, "npc_sprites": 22, "view_radius": 3, "light_fade": 50.0, "town_far": 600.0,
+		"msaa": 0, "fxaa": true, "npc_full": 8, "rig_budget": 3, "npc_sprites": 22, "view_radius": 3, "light_fade": 50.0, "town_far": 600.0,
 	},
 	{   # HIGH: recent phones (Adreno 7xx, Mali-G710+, Apple A13+), integrated PC GPUs
 		"max_3d_height": 1080, "scaling": "fsr", "fps": 60,
@@ -122,6 +122,7 @@ var thermal_status := -1
 var _thermal_pm: Object = null
 var _thermal_timer := 0.0
 var _thermal_cool := 0.0
+var _thermal_status_logged := false
 var _thermal_level := 0          # 0 off, 1 fps cap, 2 fps cap + render scale
 var _thermal_prev_fps := 0
 var _thermal_prev_scale := 1.0
@@ -391,15 +392,21 @@ func _process(delta: float) -> void:
 func _read_thermal_status() -> int:
 	if _thermal_pm == null:
 		if not Engine.has_singleton("AndroidRuntime"):
+			print("THERMAL api missing: no AndroidRuntime singleton")
 			return -1
 		var rt: Object = Engine.get_singleton("AndroidRuntime")
-		var act: Object = rt.call("getActivity") if rt.has_method("getActivity") else null
+		var act: Object = rt.call("getActivity")      # JNI singleton: has_method() is always false
 		if act == null:
+			print("THERMAL api missing: getActivity() returned null")
 			return -1
 		_thermal_pm = act.call("getSystemService", "power")
 		if _thermal_pm == null:
 			return -1
-	return int(_thermal_pm.call("getCurrentThermalStatus"))
+	var st: Variant = _thermal_pm.call("getCurrentThermalStatus")
+	if _thermal_status_logged == false:
+		_thermal_status_logged = true
+		print("THERMAL api ok: AndroidRuntime -> PowerManager, status=%s" % str(st))
+	return int(st)
 
 
 func _perf_tick(delta: float) -> void:
