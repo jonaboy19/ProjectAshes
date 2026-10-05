@@ -60,7 +60,7 @@
       "path": "docs/anim/farm/README.md",
       "lines": 38,
       "sha256": "DF67DFBE425C4447C64366B99635A1BDA787D8D3BAD48677D64A9B9D5A53920F",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/FEEL_AUDIT.md",
@@ -96,7 +96,7 @@
       "path": "docs/anim/free_library/README.md",
       "lines": 29,
       "sha256": "E902A6042CC74794F7BEC9B81A02CE2BF7908F71E783070CF958ED7AACA80E98",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/free_library/review_results.md",
@@ -174,7 +174,7 @@
       "path": "docs/anim/patches/P14a_mount_controller_horse_rig.md",
       "lines": 86,
       "sha256": "5289CEBB087D8454FDE1228430F406BDBCA1BFE6D381427CA2C0CE22DBD366C9",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P14b_player_rider_sync.md",
@@ -186,7 +186,7 @@
       "path": "docs/anim/patches/P14c_critter_horses_and_herds.md",
       "lines": 45,
       "sha256": "546123A4B667CDD4444E80610C7959A5DEBEAFEAE55616FA3410A8ADDDF8BA28",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P15_codex_integration_fixes.md",

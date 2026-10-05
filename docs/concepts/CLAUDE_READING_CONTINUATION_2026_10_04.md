@@ -110,3 +110,11 @@ The mount transition now reuses `_interrupt_swing()` rather than a partial manua
 ## Enemy and camera follow-up
 
 Completed P11 enemy wind-up, P12 hitstop/FOV, P3 get-up and P4 camera-occluder handoffs. Their patches describe historical states, so they must not be reapplied wholesale. Current ImpactPause, Monster/Wolf countdown and hyper-armour paths reveal an enemy timing risk not covered by the player's shared action clock: enemy winding continues during mixer pause and snap can overwrite the frozen AnimationPlayer rate. See `ENEMY_IMPACT_PAUSE_CLOCK_REVIEW.md`. This is source evidence, not a captured failure or an implemented enemy fix.
+
+## Horse-controller and creature reading
+
+Completed P14a controller and P14c ambient horse/herd contracts, farm animation README and free-library README. Refetched main/Claude heads; published Claude remains `1983bfeb`. Its player still uses `rider_offset`, and its MountController still has walk 1.7, no named TROT_SPEED, and distance-based HOOF_SPACING. The same specific source paths in this worktree agree. Published source therefore does not implement the proposed P14 controller/rider contract; unpublished worker progress is unknown.
+
+P14 swimming and horse-jump proposals are optional behavior changes, not accepted defaults. They require collision-resolved surface/arc ownership and rider synchronization; an animated horse jumping while its capsule stays grounded is not a physical traversal implementation. Preserve the existing deep-water limits until that complete path is coordinated.
+
+Farm README reports retained clip names but changed chicken flap semantics and bone count; callers should use the burst as specified rather than assume a constant wing cycle. Free-library README also identifies rejected and renamed combat takes and weapon clips reviewed without held props. Reuse the surviving named assets and recheck weapon contact rather than select a clip solely from its filename. No animal assets or movement were edited.
