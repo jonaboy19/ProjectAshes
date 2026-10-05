@@ -291,6 +291,7 @@ func _physics_process(delta: float) -> void:
 	to.y = 0.0
 	if face_player and player and _winding <= 0.0:
 		_face(player.global_position, delta)
+	var gait_speed := 0.0
 	if to.length() > 0.3 and _speed > 0.05:
 		var dir := to.normalized()
 		var turn_pace := 1.0     # local: never feeds back into _speed
@@ -301,6 +302,7 @@ func _physics_process(delta: float) -> void:
 			turn_pace = clampf(0.55 + 0.45 * fwd.dot(dir), 0.35, 1.0)
 			dir = (fwd * 0.65 + dir * 0.35).normalized()
 		var step_velocity := dir * _speed * turn_pace
+		gait_speed = step_velocity.length()
 		if _near_player(player):
 			velocity = step_velocity
 			move_and_slide()
@@ -310,10 +312,10 @@ func _physics_process(delta: float) -> void:
 			p.y = WorldGen.height(p.x, p.z)
 			global_position = p
 	if _busy <= 0.0 and _winding <= 0.0:
-		var running := _speed > _walk_clip_speed * 1.8 and _run_clip_speed > _walk_clip_speed * 1.2
-		var locomotion := "run" if running else ("walk" if _speed > 0.2 else "idle")
+		var running := gait_speed > _walk_clip_speed * 1.8 and _run_clip_speed > _walk_clip_speed * 1.2
+		var locomotion := "run" if running else ("walk" if gait_speed > 0.2 else "idle")
 		var authored := _run_clip_speed if running else _walk_clip_speed
-		var rate := 1.0 if locomotion == "idle" else clampf(_speed / authored, 0.6, 1.9)
+		var rate := 1.0 if locomotion == "idle" else clampf(gait_speed / authored, 0.6, 1.9)
 		_play(locomotion, false, rate)
 
 
