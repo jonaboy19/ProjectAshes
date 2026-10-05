@@ -1,0 +1,128 @@
+{
+ "version": 1,
+ "_doc": "F9: the wilds around Thornfield (scripts/world/thornfield/wilds.gd and friends). Every position is an [x, z] offset in metres from the Thornfield settlement centre (WorldGen.settlements by name), so it follows the town if the layout moves. Places were picked on dry ground 60-420 m out, forested or hilly, away from the road. The outpost is NOT placed here: it sits where data/careers/soldier_career.json puts the Soldier career's post (posts.outposts[0].offset + radius); only its fort layout (local frame: x across the road, z along it) is here. The Rift's room layout is data/region1/world/thornfield_rift.json.",
+ "anchor": "Thornfield",
+
+ "safety": {
+  "_doc": "safety 0..1 = max(road, runestone cover), minus forest_penalty * forest density; 1 inside the town. danger = (base + (1 - base) * (1 - safety)) * Frontier.danger_mult(hour): road by day ~0.15, off-road by day ~1.0, off-road at deep night ~3.0.",
+  "road_safe": 25.0,
+  "road_wild": 110.0,
+  "forest_penalty": 0.25,
+  "base": 0.15,
+  "levels": [[0.35, "safe"], [0.9, "uneasy"], [1.9, "dangerous"], [99.0, "deadly"]],
+  "wolves": {"min_danger": 1.4, "cooldown": 180.0, "count": [2, 3], "spawn_dist": [48.0, 70.0]},
+  "ambush": {"min_danger": 1.8, "cooldown": 260.0, "count": [2, 3], "chance": 0.5}
+ },
+
+ "bandit_camp": {
+  "id": "thornfield_bandit_camp",
+  "name": "Ash Hand Camp",
+  "offset": [294, 170],
+  "radius": 22.0,
+  "build_range": 260.0,
+  "spawn_range": 150.0,
+  "free_range": 240.0,
+  "respawn_days": 4,
+  "lookout": {"offset": [-15, -9], "yaw_deg": 225},
+  "campfire": {"offset": [0, 0]},
+  "tents": [[-6.5, -3.5, 30], [6.5, -4.5, -35], [-5.0, 6.5, 160]],
+  "palisade": [[-9, -12, 0], [-3, -12, 0], [3, -12, 0], [9, -12, 0]],
+  "crates": [[7.5, 4.0], [8.8, 5.6]],
+  "chest": {
+   "offset": [4.0, 3.0],
+   "id": "wilds/bandit_chest",
+   "label": "Bandit strongbox",
+   "stacks": [["bandage", 3], ["arrowheads", 10], ["iron_dagger", 1], ["healing_salve", 1], ["copper_ring", 1]]
+  },
+  "roster": [
+   {"id": "lookout", "offset": [-15, -9], "role": "lookout"},
+   {"id": "b1", "offset": [-2, 3], "role": "bandit"},
+   {"id": "b2", "offset": [3, -2], "role": "bandit"},
+   {"id": "b3", "offset": [6, 5], "role": "bandit"},
+   {"id": "b4", "offset": [-7, 1], "role": "bandit"}
+  ]
+ },
+
+ "hidden": [
+  {
+   "id": "hunters_cache", "kind": "cache", "name": "Hunter's Cache", "offset": [-255, 0],
+   "verb": "Open", "target": "Hunter's cache",
+   "text": "A hollow log lined with oilcloth. A hunter's tally is cut into the bark: wolves, wolves, wolves, and one bear. Whoever stored this planned to come back in the cold months.",
+   "reward": {"items": [["arrowheads", 8], ["bandage", 2], ["wolf_pelt", 1]], "gold": 22}
+  },
+  {
+   "id": "ruined_shrine", "kind": "shrine", "name": "Shrine of the Ash-Warden", "offset": [-165, -286],
+   "verb": "Read", "target": "Weathered carving",
+   "text": "Three stones, one fallen. The carving shows a figure with a flame in each hand standing between a village and a dark seam in the sky. Beneath it: 'The stones hold while the keeper keeps the flame. When a stone is dark, a road is lost.'",
+   "fact": "lore:thornfield_ash_warden", "fact_text": "The first wardens kept the runestones lit by hand. A dark stone means a lost road, and the old shrines mark where they stood.",
+   "reward": {"items": [["healing_herb", 2]], "gold": 0}
+  },
+  {
+   "id": "cave_nook", "kind": "cave", "name": "Miner's Nook", "offset": [169, 97],
+   "text": "A crack in the hillside, shored with two rotten props. Somebody mined here alone.",
+   "layout": "res://data/region1/world/thornfield_nook.json"
+  },
+  {
+   "id": "herb_glade", "kind": "glade", "name": "Fallen-Tree Glade", "offset": [-338, 195],
+   "text": "A pine came down across the gully years ago and became a bridge. On the far side the light is different, and the air smells of crushed mint.",
+   "bridge": {"from": [-322, 179], "to": [-334, 191], "width": 0.9},
+   "herbs": [[-340, 198], [-336, 203], [-345, 195], [-343, 189]]
+  },
+  {
+   "id": "hermit_hut", "kind": "hermit", "name": "Orrin's Hut", "offset": [0, 335],
+   "npc": "Orrin the Hermit",
+   "lines": [
+    "\"I came out here when the sky began to leak. Watch the south: the Rift breathes in and breathes out, and the wolves go where it breathes.\"",
+    "\"The camp at the cleft is a soldier's camp now. They keep a fire, a bed and a quartermaster who counts every candle. Stay close to the fire and you can sleep.\"",
+    "\"Keep to the road by day and it will keep you. Leave it at night and nothing out here will.\""
+   ],
+   "reward": {"items": [["healing_herb", 3]], "gold": 0},
+   "rumour": "Orrin says a quartermaster sells salves and torches at a camp inside the cleft south of his hut."
+  }
+ ],
+
+ "nodes": [
+  {"id": "n_herb_1", "kind": "herb", "offset": [14, 160]},
+  {"id": "n_herb_2", "kind": "herb", "offset": [-12, 232]},
+  {"id": "n_mush_1", "kind": "mushroom", "offset": [24, 298]},
+  {"id": "n_mush_2", "kind": "mushroom", "offset": [-150, -262]},
+  {"id": "n_wood_1", "kind": "firewood", "offset": [-30, 272]},
+  {"id": "n_wood_2", "kind": "firewood", "offset": [-243, 18]},
+  {"id": "n_wood_3", "kind": "firewood", "offset": [280, 150]},
+  {"id": "n_iron_1", "kind": "iron", "offset": [176, 108]},
+  {"id": "n_copper_1", "kind": "copper", "offset": [160, 86]},
+  {"id": "n_coal_1", "kind": "coal", "offset": [-14, 372]}
+ ],
+
+ "rift": {
+  "id": "thornfield_rift",
+  "name": "The Cleft at Thornfield",
+  "entrance_offset": [0, 420],
+  "layout": "res://data/region1/world/thornfield_rift.json",
+  "build_range": 300.0
+ },
+
+ "outpost": {
+  "_doc": "Fort layout in the road frame: x across the road, z along it (the road's own direction is read from WorldGen at build time). The fort is centred on the Soldier career's post.",
+  "half": [15.0, 13.0],
+  "gate_gap": 5.0,
+  "gates": [[0.0, -13.0], [0.0, 13.0]],
+  "watchtower": [[-12.0, -9.5], [12.0, 9.5]],
+  "barracks": {"at": [-8.0, 4.5], "yaw_deg": 90, "interior": "res://scenes/interiors/house_interior.tscn", "name": "Barracks"},
+  "captain": {"at": [-2.5, -3.5], "title": "Captain of the Watch Post", "name": "Captain Aldous Reed"},
+  "muster": {"at": [6.0, -1.0], "radius": 4.5},
+  "dummy": [[8.5, 6.0], [10.0, 3.5]],
+  "campfire": [3.0, 9.0],
+  "route": [[-11.0, -10.0], [11.0, -10.0], [11.0, 10.0], [-11.0, 10.0]],
+  "soldiers": 5,
+  "patrol": 3,
+  "build_range": 240.0,
+  "free_range": 340.0
+ },
+
+ "quartermaster": {
+  "name": "Quartermaster Hale",
+  "stock": [["torch", 4], ["bandage", 6], ["healing_salve", 18], ["antidote", 14], ["stamina_draught", 22], ["arrowheads", 5]],
+  "buys": ["rift_crystal", "wolf_pelt", "old_relic"]
+ }
+}

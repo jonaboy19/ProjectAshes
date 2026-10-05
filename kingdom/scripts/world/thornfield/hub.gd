@@ -21,6 +21,7 @@ const Livestock := preload("res://scripts/world/thornfield/livestock.gd")
 const BarnFigure := preload("res://scripts/world/thornfield/barn_figure.gd")
 const GrainCart := preload("res://scripts/world/thornfield/grain_cart.gd")
 const WolfThreat := preload("res://scripts/world/thornfield/wolf_threat.gd")
+const WildsHub := preload("res://scripts/world/thornfield/wilds_hub.gd")   # F9: the wilds, the Rift, the bandit camp, the outpost
 const TICK := 0.5
 const REENTER := 2.0
 const CARTS := "thornfield_grain_carts"
@@ -29,6 +30,7 @@ const SACKS := 4
 
 var pump: Node
 var threat: Node
+var wilds: Node
 var figure: Node3D
 var cart: Node3D
 var clues: Array = []
@@ -59,6 +61,7 @@ func _ready() -> void:
 	figure = _build_figure()
 	threat = WolfThreat.new()
 	add_child(threat)
+	wilds = WildsHub.attach(self, threat)
 	if Life != null:
 		Roster.seed_social_graph(Life.get("npc_social_graph"), WorldSim.SEED)
 		Life.region1_kill.connect(_on_kill)

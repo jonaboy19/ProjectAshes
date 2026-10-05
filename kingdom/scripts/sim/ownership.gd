@@ -7,6 +7,7 @@ extends RefCounted
 ##   "npc:<id>"                one person's belongings (a villager's coin purse, a dropped tool)
 ##   "household:<sid>:<lot>"   a house of settlement <sid>, lot plan index <lot>
 ##   "shop:<sid>:<id>"         a shop or the inn of settlement <sid> (<id> = building asset or shop kind)
+##   "bandit:<camp>"           loot the bandits took: lifting it from their camp is no crime (F9)
 ##
 ## Taking something that belongs to somebody else is theft (`is_theft`). The player's own house and property are fine.
 ## What theft does about it lives in scripts/sim/theft.gd; trespass in scripts/population/trespass.gd.
@@ -18,7 +19,7 @@ const WorldState := preload("res://scripts/world/world_state.gd")
 const PUBLIC := "public"
 const PLAYER := "player"
 
-enum Kind { PUBLIC, PLAYER, NPC, HOUSEHOLD, SHOP }
+enum Kind { PUBLIC, PLAYER, NPC, HOUSEHOLD, SHOP, BANDIT }
 
 ## Building assets that are shops / services (their interiors follow ShopHours) rather than homes.
 const SHOP_ASSETS := ["inn", "blacksmith", "healer_house", "adventurer_guild"]
@@ -39,6 +40,10 @@ static func shop(sid: int, id: String) -> String:
 	return "shop:%d:%s" % [sid, id]
 
 
+static func bandit(camp_id: String) -> String:
+	return "bandit:%s" % camp_id
+
+
 ## {kind: Kind, sid: int (-1 none), id: String (npc id / lot index / shop id)}.
 static func parse(owner: String) -> Dictionary:
 	if owner == "" or owner == PUBLIC:
@@ -52,6 +57,8 @@ static func parse(owner: String) -> Dictionary:
 		"household":
 			var rest := owner.split(":")
 			return {"kind": Kind.HOUSEHOLD, "sid": int(rest[1]) if rest.size() > 1 else -1, "id": rest[2] if rest.size() > 2 else ""}
+		"bandit":
+			return {"kind": Kind.BANDIT, "sid": -1, "id": p[1] if p.size() > 1 else ""}
 		"shop":
 			var rest2 := owner.split(":", true, 2)
 			return {"kind": Kind.SHOP, "sid": int(rest2[1]) if rest2.size() > 1 else -1, "id": rest2[2] if rest2.size() > 2 else ""}
@@ -132,7 +139,7 @@ static func player_holdings(player: Variant = null) -> Dictionary:
 static func is_theft(owner: String, player: Variant = null) -> bool:
 	var d := parse(owner)
 	match int(d["kind"]):
-		Kind.PUBLIC, Kind.PLAYER:
+		Kind.PUBLIC, Kind.PLAYER, Kind.BANDIT:
 			return false
 		Kind.HOUSEHOLD:
 			return not (player_holdings(player).get("lots", []) as Array).has(lot_id_of(owner))

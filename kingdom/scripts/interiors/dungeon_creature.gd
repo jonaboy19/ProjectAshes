@@ -74,6 +74,10 @@ const DROPS := {
 	"skeleton_rogue": [["gold", 0.8, 4, 12], ["ancient_coin", 0.1, 1, 1]], "skeleton_mage": [["gold", 0.7, 4, 12], ["old_relic", 0.08, 1, 1]],
 }
 
+## F9: element tints for Rift-touched variants of the ordinary monster kinds (multiplied into the albedo).
+const ELEMENT_TINT := {"rift": Color(0.72, 0.5, 1.15)}
+const Rings := preload("res://scripts/vfx/telegraph_rings.gd")
+
 enum State { SLEEP, IDLE, CHASE, ATTACK, RETURN, DEAD }
 
 var kind := "goblin"
@@ -84,6 +88,8 @@ var asleep := false
 var display_name := ""
 var trophy := ""
 var body_scale := 1.0
+var element := ""                 # F9: "rift" = Rift-touched (violet tint, rift crystal drops); "" = plain
+var hp_mul := 0.0                 # F9: > 0 overrides the boss x5 health multiplier (hand-made mini-bosses)
 var root: Node = null             # dungeon_root.gd (flow field, light, drops)
 var home := Vector3.ZERO
 
@@ -109,6 +115,7 @@ var _charge_t := 0.0
 var _wander_to := Vector3.ZERO
 var _lost := 0.0
 var _telegraph: MeshInstance3D
+var _rings_on := false
 var _enraged := false
 var _hover := 0.0
 var _t := 0.0
@@ -137,8 +144,8 @@ func _ready() -> void:
 	_model.scale *= body_scale
 	add_child(_model)
 	_anim = Assets.animation_player(_model)
-	var hp_mul := 5.0 if boss else 1.0
-	max_health = int((float(_info["hp"]) + level * 4.5) * hp_mul)
+	var hp_scale := hp_mul if hp_mul > 0.0 else (5.0 if boss else 1.0)
+	max_health = int((float(_info["hp"]) + level * 4.5) * hp_scale)
 	health = max_health
 	_label = Label3D.new()
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -219,6 +226,8 @@ func _make_model() -> Node3D:
 		_tint(m, Color(0.75, 0.78, 0.85))
 	elif m != null and kind == "orc" and boss:
 		_tint(m, Color(0.9, 0.5, 0.45))
+	if m != null and ELEMENT_TINT.has(element):
+		_tint(m, ELEMENT_TINT[element])
 	return m
 
 
@@ -286,6 +295,8 @@ func _bat_model() -> Node3D:
 
 func _refresh_label() -> void:
 	var nm := display_name if display_name != "" else kind.capitalize().replace("_", " ")
+	if element == "rift" and display_name == "":
+		nm = "Rift-touched " + nm
 	_label.text = "%s  Lv %d" % [nm, level]
 	_label.modulate = Color(1.0, 0.85, 0.5) if boss else Color(1, 1, 1)
 	_label.outline_modulate = Color(0, 0, 0)
@@ -530,6 +541,9 @@ func _show_telegraph(on: bool) -> void:
 			_spawn_telegraph()
 	else:
 		_refresh_label()
+		if _rings_on and get_parent() != null:
+			Rings.at(get_parent()).end(self)
+			_rings_on = false
 		if _telegraph != null:
 			_telegraph.queue_free()
 			_telegraph = null
@@ -539,6 +553,11 @@ func _show_telegraph(on: bool) -> void:
 func _spawn_telegraph() -> void:
 	if _telegraph != null:
 		_telegraph.queue_free()
+	if _move == "slam" and is_inside_tree() and get_parent() != null:
+		# F9: the shared pooled ground telegraph (vfx/telegraph_rings.gd): a rim at the strike radius, an inner ring swelling to it.
+		_rings_on = Rings.at(get_parent()).begin(self, 4.8 * body_scale, _winding, "", true)
+		if _rings_on:
+			return
 	var mi := MeshInstance3D.new()
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = Color(1.0, 0.15, 0.08, 0.45)
