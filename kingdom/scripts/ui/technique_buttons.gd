@@ -12,6 +12,10 @@ extends Control
 ##   controls.add_child(tb)
 
 signal open_skills_requested
+## A slot was held for LONG_PRESS seconds: the HUD opens the technique wheel (scripts/ui/technique_wheel.gd).
+signal wheel_requested(at: Vector2)
+
+const LONG_PRESS := 0.38    # s a slot is held before the wheel replaces the tap-to-cast
 
 const HudArt := preload("res://scripts/ui/hud_art.gd")
 const Skills := preload("res://scripts/sim/skills.gd")
@@ -51,6 +55,8 @@ var _seal_buttons: Array[TouchScreenButton] = []
 var _seal_chips: HBoxContainer
 var _seal_title: Label
 var _tex_cache := {}
+var _down := -1                 # slot being held (cast on release unless it turned into a wheel)
+var _down_ms := 0
 var _font: Font
 
 
@@ -78,6 +84,10 @@ func _process(_delta: float) -> void:
 		caster = _find_caster()
 		if caster:
 			_bind_caster()
+	if _down >= 0 and Time.get_ticks_msec() - _down_ms >= int(LONG_PRESS * 1000.0):
+		var at := slot_centre(_down)
+		_down = -1
+		wheel_requested.emit(at)
 	if skills == null:
 		return
 	if _shown != skills.loadout:
@@ -114,7 +124,8 @@ func _build_slot(i: int) -> void:
 	circle.radius = SLOT_SIZE * 0.5
 	b.shape = circle
 	b.shape_centered = true
-	b.pressed.connect(_on_slot.bind(i))
+	b.pressed.connect(_on_slot_down.bind(i))
+	b.released.connect(_on_slot_up.bind(i))
 	var glyph := Label.new()
 	glyph.size = Vector2(SLOT_SIZE, SLOT_SIZE)
 	glyph.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -209,6 +220,23 @@ static func initials(n: String) -> String:
 	if words.size() >= 2:
 		return (words[0].left(1) + words[1].left(1)).to_upper()
 	return n.left(2)
+
+
+## Empty slots open the skills screen at once; a filled slot casts on release, so a long press can open the wheel instead.
+func _on_slot_down(i: int) -> void:
+	if skills == null or caster == null:
+		return
+	if String(skills.loadout[i]) == "":
+		open_skills_requested.emit()
+		return
+	_down = i
+	_down_ms = Time.get_ticks_msec()
+
+
+func _on_slot_up(i: int) -> void:
+	if _down == i:
+		_down = -1
+		_on_slot(i)
 
 
 func _on_slot(i: int) -> void:

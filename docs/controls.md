@@ -16,6 +16,7 @@ No two world actions share a key, and "Reset controls" in Settings re-creates ev
 | **L** | block | Block button |
 | **C** | crouch / sneak | Sneak button |
 | Q (or middle mouse) | lock on | Lock button (target reticle icon) |
+| T (hold; tap keeps it open) / right shoulder | technique wheel (slows time, aim, release to cast) | Long-press a technique slot |
 | R | shadow dash | Dash button |
 | E | interact / talk | Talk button |
 | F | eat | (Pack menu) |

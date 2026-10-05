@@ -139,6 +139,11 @@ func _show_detail() -> void:
 		_map_btn.custom_minimum_size.x = 170
 		_map_btn.pressed.connect(do_show_on_map)
 		bar.add_child(_map_btn)
+		var pin_btn := Kit.button("Pin to World", false, 48, 16)
+		pin_btn.disabled = not (q["pos"] is Vector2)
+		pin_btn.custom_minimum_size.x = 170
+		pin_btn.pressed.connect(do_pin)
+		bar.add_child(pin_btn)
 
 
 func do_track() -> void:
@@ -158,12 +163,26 @@ func do_show_on_map() -> void:
 	menu.call("show_on_map", q["pos"], String(q["group"]))
 
 
+## Player-pinned world marker: the only way a quest ever gets one (story leads stay text-only).
+func do_pin() -> void:
+	var q := _current()
+	if q.is_empty() or not (q["pos"] is Vector2):
+		return
+	var hud: Object = menu.get("hud")
+	if hud != null and hud.has_method("pin_target"):
+		hud.call("pin_target", q["pos"], String(q["title"]), "Travel")
+		Audio.play_ui("pickup")
+		Game.say("Pinned to the world: %s" % String(q["title"]))
+
+
 func handle_key(e: InputEventKey) -> bool:
 	match e.keycode:
 		KEY_T:
 			do_track()
 		KEY_ENTER, KEY_KP_ENTER:
 			do_show_on_map()
+		KEY_N:
+			do_pin()
 		KEY_UP:
 			_ld.step(-1)
 		KEY_DOWN:
@@ -183,5 +202,5 @@ func hints() -> Array:
 	var q := _current()
 	var can_track := not q.is_empty() and _state == "active" and String(q["source"]) == "radiant" and not bool(q.get("tracked", false))
 	var can_map := not q.is_empty() and q["pos"] is Vector2
-	return [["T", "Track", do_track, not can_track], ["Enter", "Show on Map", do_show_on_map, not can_map],
+	return [["T", "Track", do_track, not can_track], ["Enter", "Show on Map", do_show_on_map, not can_map], ["N", "Pin to World", do_pin, not can_map],
 		["Up/Dn", "Select", func() -> void: _ld.step(1), false]]

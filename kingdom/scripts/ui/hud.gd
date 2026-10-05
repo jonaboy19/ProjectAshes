@@ -51,6 +51,9 @@ const Portrait := preload("res://scripts/ui/portrait.gd")
 const SkillsSim := preload("res://scripts/sim/skills.gd")
 const HudMode := preload("res://scripts/ui/hud_mode.gd")
 const InteractLabel := preload("res://scripts/ui/interact_label.gd")
+const ObjectiveMarker := preload("res://scripts/ui/objective_marker.gd")
+const ThreatPlates := preload("res://scripts/ui/threat_plates.gd")
+const TechniqueWheel := preload("res://scripts/ui/technique_wheel.gd")
 
 const DISCOVERY_RATE := 0.25       # s between discovery checks
 const MARKER_RATE := 1.0           # s between compass marker rebuilds
@@ -80,6 +83,9 @@ var _eat_button: TouchScreenButton
 var _menu_button: TouchScreenButton
 var _pill: Control                            # HudCard.ActionPill: "Talk — Roland Ward"
 var _techniques: Control
+var objective_marker: Control                 # world marker for the player pin only (objective_marker.gd)
+var threat_plates: Control                    # engaged / locked hostiles only (threat_plates.gd)
+var technique_wheel: Control                  # radial technique wheel (technique_wheel.gd)
 var mode := HudMode.new()                     # exploration / combat layout state (tests read it)
 var target: Node3D                            # the current interactable (null when nothing is in reach)
 var target_label: Dictionary = {}             # InteractLabel.resolve(target)
@@ -250,6 +256,7 @@ func _ready() -> void:
 	controls.add_child(techniques)
 	_techniques = techniques
 	techniques.open_skills_requested.connect(func() -> void: GameMenu.open(self, "skills"))
+	techniques.wheel_requested.connect(func(at: Vector2) -> void: technique_wheel.open_wheel("touch", at))
 	_pill = HudCard.ActionPill.new()
 	_pill.modulate.a = 0.0
 	_pill.visible = false
@@ -280,6 +287,12 @@ func _ready() -> void:
 	hotbar.player = player
 	hotbar.open_skills_requested.connect(func() -> void: GameMenu.open(self, "skills"))
 	_chrome.add_child(hotbar)
+	objective_marker = ObjectiveMarker.new()
+	objective_marker.player = player
+	_chrome.add_child(objective_marker)
+	threat_plates = ThreatPlates.new()
+	threat_plates.player = player
+	_chrome.add_child(threat_plates)
 	(card as HudCard.Card).toggled.connect(_on_card_toggled)
 	card.resized.connect(_layout_left)
 	(tracker as HudCard.QuestTracker).toggled.connect(func(_e: bool) -> void: _layout_left())
@@ -301,6 +314,11 @@ func _ready() -> void:
 	notifications.custom_minimum_size = Vector2(NotifyStack.CARD_W, 0)
 	notifications.size = Vector2(NotifyStack.CARD_W, (NotifyStack.CARD_H + 6.0) * NotifyStack.MAX_VISIBLE)
 	root.add_child(notifications)
+
+	technique_wheel = TechniqueWheel.new()
+	technique_wheel.player = player
+	technique_wheel.allowed = Callable(self, "_wheel_allowed")
+	root.add_child(technique_wheel)
 
 	_toast_box = PanelContainer.new()
 	var tb := HudArt.card_box(0.9, 10)
@@ -1121,6 +1139,29 @@ func get_discovery() -> RefCounted:
 func set_quest_target(pos: Variant) -> void:
 	_quest_override = pos
 	_marker_timer = 0.0
+	# The map's own marker is a player pin, so it also gets the in-world marker.
+	if pos is Vector2:
+		pin_target(pos, "Map marker", "Travel")
+	elif pos == null:
+		clear_pin()
+
+
+## Player-pinned world marker (map marker, quest "Pin to World"). Story leads and tracked quests never come here.
+func pin_target(pos: Variant, label := "Pinned", verb := "Travel") -> void:
+	if objective_marker != null:
+		objective_marker.call("set_pin", pos, label, verb)
+
+
+func clear_pin() -> void:
+	if objective_marker != null:
+		objective_marker.call("clear_pin")
+
+
+## The technique wheel only opens in the open world: not under a menu, dialogue, map, photo mode or veil.
+func _wheel_allowed() -> bool:
+	return visible and not _veil() and not is_menu_open() and not GameMenu.is_open(self) \
+			and not world_map.visible and not photo_mode.is_active() and not _fade.visible \
+			and get_node_or_null("PauseMenu") == null
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -1254,6 +1295,8 @@ func _update_modes(delta: float) -> void:
 			fan_open = false
 		_layout()
 	var k := 1.0 - exp(-delta * 12.0)
+	if objective_marker != null:
+		objective_marker.dim = lerpf(objective_marker.dim, 0.4 if mode.in_combat() else 1.0, k)
 	if _techniques:
 		_techniques.fade = mode.eased()
 	# Hotbar: only in combat, while building, pinned from the menu, or just after a slot key.
