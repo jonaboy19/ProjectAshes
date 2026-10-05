@@ -147,6 +147,11 @@ func _restack() -> void:
 	if prompt.is_empty() or _pill == null:
 		return
 	var sz := _pill.get_combined_minimum_size()
+	if String(prompt.get("anchor", "")) == "btn_interact":
+		# AAA pass 2: "Tap to use / talk" is taught by the small icon ON the object (hud world_prompt_icon.gd); no box
+		_pill.position = Vector2(-10000, -10000)
+		HudLane.report("hint", 0.0, 0.0)
+		return
 	if _beside_button():
 		# AAA pass 2026-10-06: a button lesson ("Tap to use", "Tap to strike") is a small tag beside the button it is about,
 		# not a big box top-centre: it sits just left of and above the anchor, clamped on screen.
@@ -182,7 +187,7 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	if prompt.is_empty() or bool(prompt.get("plain", false)) or (_alpha <= 0.01 and _done_flash <= 0.0) \
+	if prompt.is_empty() or String(prompt.get("anchor", "")) == "btn_interact" or bool(prompt.get("plain", false)) or (_alpha <= 0.01 and _done_flash <= 0.0) \
 			or not HudLane.allowed("hint"):
 		return
 	var k := _ui_scale()

@@ -494,6 +494,11 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 			sm.set_shader_parameter("ao_height", 1.6)
 			sm.set_shader_parameter("ao_strength", 0.5)
 			sm.set_shader_parameter("vao_strength", 1.0)
+			# AAA pass 2: Meshy thatch and plaster glinted like crystal close up (spec + rim on faceted normals): matte houses
+			sm.set_shader_parameter("spec", 0.08)
+			sm.set_shader_parameter("roughness", 0.95)
+			sm.set_shader_parameter("bump_amount", 0.12)
+			sm.set_shader_parameter("rim_amount", 0.12)
 		"stall":
 			sm.set_shader_parameter("saturation", 0.82)      # richer, calmer cloth (target awnings are faded, not candy)
 			sm.set_shader_parameter("value_gain", 0.93)
@@ -521,7 +526,11 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 			sm.set_shader_parameter("value_gain", 0.95)
 			sm.set_shader_parameter("ao_strength", 0.15)
 			sm.set_shader_parameter("rim_amount", 0.3)
-			sm.set_shader_parameter("roughness", 0.8)
+			# AAA pass 2: thatch and slate read as crystal up close (specular on the per-face Meshy normals + bump);
+			# roofs are matte: near-zero spec, full roughness, very little bump.
+			sm.set_shader_parameter("roughness", 0.97)
+			sm.set_shader_parameter("spec", 0.04)
+			sm.set_shader_parameter("bump_amount", 0.05)
 		"cobble":                       # paving props and plinth caps
 			sm.set_shader_parameter("saturation", 1.0)
 			sm.set_shader_parameter("warm_tint", Color(1.04, 0.97, 0.86))
