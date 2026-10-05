@@ -792,7 +792,7 @@
       "path": "docs/design/LIVING_WORLD.md",
       "lines": 1264,
       "sha256": "6119E745126F5E0FB1A0530F3C285F206E93D355C9C3F391033377505FE138A7",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/design/REALM_PLAN.md",
@@ -1092,7 +1092,7 @@
       "path": "docs/SYSTEMS_CLAUDE_HANDOFF.md",
       "lines": 74,
       "sha256": "5A07812A71BC6A86C1610D045D8714BDB68973854ED967FDE3424BBBB272F277",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/SYSTEMS_CONTINUATION.md",

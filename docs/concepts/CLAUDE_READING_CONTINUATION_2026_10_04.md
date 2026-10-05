@@ -78,3 +78,9 @@ The runtime-tech document explicitly recommends folding additive flinch into Cha
 Performance table phone values are PC measurements multiplied by five, not S22 measurements. The catalogue's root-track loader claim still needs checking per loaded library; do not apply it universally. Authored metrics report large slide values for spin finishers and running attacks in their specific full-body/root-motion fixture. They identify review candidates, not confirmed defects in the present blended gameplay or evidence that all clips should be replaced.
 
 Video mocap is an available offline pipeline, but the recorded validation is synthetic only. It has weak wrist/finger recovery, unreliable jumps/spins and flat-ground foot pinning. Reuse existing accepted clips first; new footage needs source-versus-retarget review before gameplay wiring. No new dependency installation or asset generation is needed for the current combat ownership patch.
+
+## Systems and living-world reading
+
+Read SYSTEMS_CLAUDE_HANDOFF and the full LIVING_WORLD design. SYSTEMS_CONTINUATION was read in a truncated initial output followed by its middle 95-line block; do not mark it fully covered until an explicit complete segmented read. Historical delivery sections contradict newer sections within those handoffs, so current source remains authoritative.
+
+Current UtilityBrain and WorldSim source confirms the documented breath continuity gap: active breath affects sitting/winded choices but is excluded from the five saved need columns and offscreen catch-up. The coordinated schema/migration boundary is recorded in `NPC_BREATH_CONTINUITY_SOURCE_REVIEW.md`. No population hotpath was edited. The living-world document is a broad design target, not proof its housing, careers, crime, travel or relationship scenarios currently work.
