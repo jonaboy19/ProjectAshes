@@ -629,6 +629,8 @@ func _apply_local_light(l: Light3D) -> void:
 
 
 func _apply_geometry(g: GeometryInstance3D) -> void:
+	if g is Label3D and (g.is_in_group("nameplate") or g.get_parent() is Label3D):
+		return       # nameplates are distance-managed by Nameplates.refresh (nearest 3, fade); a 0.55 range cut them at ~6.6 m from a camera 4 m behind the player
 	var mul: float = value("range")
 	# Visibility ranges: remember the author's values once, then scale them.
 	if not g.has_meta("q_range"):

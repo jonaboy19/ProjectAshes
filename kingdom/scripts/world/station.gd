@@ -7,6 +7,8 @@ extends Node3D
 const Nameplates := preload("res://scripts/core/nameplates.gd")
 const ShopHours := preload("res://scripts/sim/shop_hours.gd")
 var title := ""
+## Optional second, smaller line of the one nameplate (a role: "Brewmistress").
+var subtitle := ""
 var verb := "Use"
 var menu: Callable
 var model_path := ""
@@ -31,6 +33,9 @@ func _ready() -> void:
 	Nameplates.style(tag, Color("f0e0b0"), 28)
 	tag.position.y = 2.4
 	add_child(tag)
+	if subtitle != "":
+		Nameplates.add_subtitle(tag, subtitle)
+		Nameplates.place_subtitle(tag)
 
 
 func prompt() -> String:

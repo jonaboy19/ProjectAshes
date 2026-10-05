@@ -25,10 +25,10 @@ func step(delta: float, cam: Vector3, pivot: Vector3, active: bool) -> void:
 		_scan(cam, pivot, active and enabled)
 	for id: int in _faded.keys():
 		var e: Dictionary = _faded[id]
-		var gi := e["node"] as GeometryInstance3D
-		if not is_instance_valid(gi):
+		if not is_instance_valid(e["node"]):          # freed (a pooled body recycled, a chunk streamed out): cast would error
 			_faded.erase(id)
 			continue
+		var gi := e["node"] as GeometryInstance3D
 		var want := 1.0 if bool(e["hit"]) else 0.0
 		e["k"] = move_toward(float(e["k"]), want, SPEED * delta)
 		gi.transparency = lerpf(float(e["orig"]), maxf(float(e["orig"]), FADE), float(e["k"]))
