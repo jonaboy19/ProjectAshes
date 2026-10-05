@@ -368,7 +368,7 @@ func _ready() -> void:
 	_think = float((h / 200) % 1000) / 1000.0 * THINK_INTERVAL
 	_stuck_from = p
 	_tag = Label3D.new()
-	Nameplates.style(_tag, Color(1, 0.95, 0.85), 26, 14.0)
+	Nameplates.style(_tag, Color(1, 0.95, 0.85), 18, 14.0)
 	_tag.remove_from_group("nameplate")      # driven by show_tag / Nameplates.suppressed below
 	_tag.position.y = 1.95
 	add_child(_tag)
@@ -560,7 +560,7 @@ func _tick_body(delta: float) -> void:
 	else:
 		_update_animation(delta)
 	_update_head_look(delta)
-	_tag.visible = show_tag and not Nameplates.suppressed
+	_tag.visible = false if not bool(SettingsStoreS.get_value("dev_sim_overlay")) else (show_tag and not Nameplates.suppressed)     # AAA pass 5: the focused name is drawn by the HUD world icon
 
 
 # ---------------------------------------------------------------- thinking
@@ -608,7 +608,7 @@ func _think_tick() -> void:
 			_surface = Audio.surface_at(global_position) if Audio.has_method("surface_at") \
 				else WorldGen.footstep_surface(global_position.x, global_position.z)
 	_tag_timer -= THINK_INTERVAL
-	if show_tag and _tag_timer <= 0.0:
+	if Nameplates.focus == self and _tag_timer <= 0.0:
 		_tag_timer = 1.0
 		# Clean screen (AAA pass 2026-10-06): a name only. Job, gold and state are the Developer Simulation Overlay (Settings).
 		if bool(SettingsStoreS.get_value("dev_sim_overlay")):
@@ -1765,8 +1765,11 @@ func _maybe_greet(here: Vector2, player_distance: float, now: int) -> void:
 		_regard_ms = now
 		_regard = NpcWorld.regard_of_player(WorldSim.home[person])
 	var cat := "greet_warm" if _regard > 0.25 else ("greet_cold" if _regard < -0.25 else "greet_neutral")
-	if cat == "greet_neutral" and DailyRhythm.local_time(person) >= 19.0 and person % 2 == 0:
-		cat = "greet_evening"
+	var hr := DailyRhythm.local_time(person)
+	if cat == "greet_neutral" and (hr >= 18.0 or hr < 4.0):
+		cat = "greet_evening"      # AAA pass 5: every neutral greeting after dusk is an evening one ("Morning." at dusk read wrong)
+	elif cat == "greet_neutral" and hr < 10.5 and person % 2 == 0:
+		cat = "greet_morning"
 	var clips: Array = GREET_CLIPS["warm" if _regard > 0.25 else ("cold" if _regard < -0.25 else "neutral")]
 	if _so_phase < SmartObjects.Session.ENTER:
 		_begin_oneshot(clips, 1.9)

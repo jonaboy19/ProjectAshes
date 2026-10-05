@@ -100,8 +100,10 @@ const BUILDINGS := {
 	"house_15": [GEN + "village_house_c_4.glb", 0.0, GEN + "village_house_c_4_lod1.glb", 45.0, GEN + "village_house_c_4_lod2.glb", 100.0],
 	"house_16": [GEN + "village_house_d_4.glb", 0.0, GEN + "village_house_d_4_lod1.glb", 45.0, GEN + "village_house_d_4_lod2.glb", 100.0],
 	# Meshy house types (user, paid plan): fitted to the 10.5 m lots.
-	"mhouse_peasant_a": [MESHY + "house_peasant_a_lod0.glb", 7.5, MESHY + "house_peasant_a_lod1.glb", 45.0, MESHY + "house_peasant_a_lod2.glb", 100.0, MESHY + "house_peasant_a_lod3.glb", 160.0],
-	"mhouse_peasant_b": [MESHY + "house_peasant_b_lod0.glb", 8.0, MESHY + "house_peasant_b_lod1.glb", 45.0, MESHY + "house_peasant_b_lod2.glb", 100.0, MESHY + "house_peasant_b_lod3.glb", 160.0],
+	# AAA pass 4 (2026-10-06): the peasant cottage's roof read as faceted crystal at the new close camera; the owner's dl3
+	# thatch-and-timber cottage has a thick, textured thatch. Same key and 7.5 m fit, so plans, property and saves are unchanged.
+	"mhouse_peasant_a": ["res://assets/incoming/meshy_dl3/buildings/cottage_thatch_timber_lod0.glb", 7.5, "res://assets/incoming/meshy_dl3/buildings/cottage_thatch_timber_lod1.glb", 45.0, MESHY + "house_peasant_a_lod3.glb", 160.0],
+	"mhouse_peasant_b": ["res://assets/incoming/meshy_dl3/buildings/house_straw_thatch_lod0.glb", 8.0, "res://assets/incoming/meshy_dl3/buildings/house_straw_thatch_lod1.glb", 45.0, MESHY + "house_peasant_b_lod2.glb", 100.0, MESHY + "house_peasant_b_lod3.glb", 160.0],
 	"mhouse_family": [MESHY + "house_family_lod0.glb", 9.0, MESHY + "house_family_lod1.glb", 45.0, MESHY + "house_family_lod2.glb", 100.0, MESHY + "house_family_lod3.glb", 160.0],
 	"mhouse_trader": [MESHY + "house_trader_lod0.glb", 8.5, MESHY + "house_trader_lod1.glb", 45.0, MESHY + "house_trader_lod2.glb", 100.0, MESHY + "house_trader_lod3.glb", 160.0],
 	"mhouse_manor": [MESHY + "house_manor_lod0.glb", 10.0, MESHY + "house_manor_lod1.glb", 45.0, MESHY + "house_manor_lod2.glb", 110.0, MESHY + "house_manor_lod3.glb", 160.0],

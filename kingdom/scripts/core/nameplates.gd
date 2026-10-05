@@ -22,6 +22,8 @@ const MAX_LIFT := 64.0          # px (at 720p) a plate is raised to clear a town
 const SIGN_MARGIN := 24.0       # px around a town board's rectangle
 
 static var suppressed := false
+## AAA pass 3: the resident the HUD has in reach (its interact target); only their name shows, small.
+static var focus: Node = null
 
 
 static func style(tag: Label3D, color: Color, font := 30, max_dist := MAX_DIST) -> Label3D:

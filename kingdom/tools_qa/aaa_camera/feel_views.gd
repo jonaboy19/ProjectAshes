@@ -98,7 +98,13 @@ func _run() -> void:
 	var side := Vector2(-dir.y, dir.x)
 	await _place(c + dir * (wr - 7.0) + side * 4.0, dir.rotated(0.35))
 	if OS.get_cmdline_user_args().has("--probe"):
-		_probe()
+		var pp := Vector2(player.global_position.x, player.global_position.z)
+		for l: Dictionary in plan["lots"]:
+			if (l["pos"] as Vector2).distance_to(pp) < 16.0:
+				print("FEELPROBE lot ", l["asset"], " d=", (l["pos"] as Vector2).distance_to(pp))
+		for l: Dictionary in plan["landmarks"]:
+			if (l["pos"] as Vector2).distance_to(pp) < 25.0:
+				print("FEELPROBE landmark ", l["asset"], " d=", (l["pos"] as Vector2).distance_to(pp))
 	await shot("2_street")
 	# 3. aftermath: back to a house front, the camera pushed toward its roof (the thatch that filled the phone screen).
 	var lot := _near_lot(plan, sp)
@@ -108,6 +114,26 @@ func _run() -> void:
 
 
 	await shot("3_aftermath")
+	# 5. the benchmark street (streets[0]) from a third of the way down, looking toward the gate, slightly to the houses
+	var bst: Dictionary = plan["streets"][0]
+	var bd := ((bst["b"] as Vector2) - (bst["a"] as Vector2)).normalized()
+	await _place((bst["a"] as Vector2) + bd * 22.0 - bd.orthogonal() * 1.5, bd.rotated(0.3))
+	for n in get_tree().root.find_children("*", "Node", true, false):
+		if n.has_method("spawn_now") and n.has_method("actors_alive"):
+			for id in ["laundry_day", "street_sweeper", "water_carriers"]:
+				print("FEELVIEW chore ", id, " ", n.call("spawn_now", id))
+			break
+	await frames(240)
+	WorldSim.time_of_day = 15.5
+	await frames(60)
+	var tgt: Node = main.hud.get("target")
+	print("FEELVIEW focus ", tgt, " tag_visible=", (tgt.get("_tag") as Label3D).visible if tgt and tgt.get("_tag") else "n/a")
+	await shot("5_benchmark")
+	for hr in [18.6, 22.0]:
+		WorldSim.time_of_day = hr
+		await frames(90)
+		await shot("6_benchmark_%d" % int(hr))
+	WorldSim.time_of_day = 15.5
 	# 4. a town horse up close (textured HorseRig vs the old flat Quaternius one).
 	var best: Node3D = null
 	for n in get_tree().get_nodes_in_group("interactable"):
@@ -161,19 +187,21 @@ func _near_lot(plan: Dictionary, to: Vector2) -> Dictionary:
 	return best
 
 
-## Walk from the spawn through the plaza and out along the first gate road; Movie Maker records every frame.
+## Walk the benchmark street (plan streets[0], plaza -> gate): Movie Maker records every frame. The old route crossed the
+## market and snagged on a stall.
 func _walk(c: Vector2, plan: Dictionary) -> void:
-	var sp: Vector2 = main.HOME_SPAWN
-	var ga := float(plan["gates"][0])
-	var dir := Vector2(cos(ga), sin(ga))
-	await _place(sp, (c + dir * 6.0) - sp)
+	var st: Dictionary = plan["streets"][0]
+	var a: Vector2 = st["a"]
+	var e: Vector2 = st["b"]
+	var dir := (e - a).normalized()
+	await _place(a + dir * 2.0, dir)
 	player.touch_move = Vector2(0, -1)
 	var t := 0
 	while t < 420:
 		var here := Vector2(player.global_position.x, player.global_position.z)
-		var goal := c + dir * (60.0 if t > 120 else 6.0)
-		var want := yaw_for((goal - here).normalized())
-		player.set_camera(lerp_angle(player._yaw, want, 0.04), player._pitch)
+		var ahead := a + dir * ((here - a).dot(dir) + 8.0)
+		var want := yaw_for((ahead - here).normalized())
+		player.set_camera(lerp_angle(player._yaw, want, 0.08), player._pitch)
 		if t == 240:
 			Input.action_press("sprint")
 		await get_tree().process_frame

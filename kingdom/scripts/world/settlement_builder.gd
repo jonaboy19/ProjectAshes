@@ -353,6 +353,8 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	_homesteads(root, s, plan, rng)
 	_gate_outskirts(root, s, plan, gates)
 	_medieval_gates(root, s, plan, gates)      # Medieval pass (local): mud, cobble apron, hay cart, barrels, banners at the gates and market
+	if String(s.get("name", "")) == "Ashford":
+		preload("res://scripts/world/street_benchmark.gd").build(self, root, s, plan)     # AAA benchmark street (local, 2026-10-06)
 	_footprint_clutter(root, plan, rng)
 	TownView.yards(self, root, s, plan, _prof)     # outskirts of the town's industry: mine yard, granary, boatyard, watch towers ...
 	VillageFeatures.build(self, root, s, plan, _prof)     # villages and hamlets: their own set of green / chapel / mill / smithy / pond / orchard ...
@@ -553,6 +555,7 @@ func _plinths(root: Node3D, lots: Array) -> void:
 		var mat := StandardMaterial3D.new()
 		mat.albedo_color = Color(0.47, 0.43, 0.37)   # weathered foundation stone: a plinth edge must never read as a pale square from above (lint "flat" audit, lum < 0.5)
 		mat.roughness = 0.95
+		mat.albedo_color = Color(0.52, 0.45, 0.37)   # AAA pass 5: warmer foundation stone (read purple in shade)
 		_plinth_mesh.material = mat
 	var transforms: Array[Transform3D] = []
 	for entry in lots:
@@ -1357,6 +1360,8 @@ func _medieval_gates(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array
 				var q := c + dir * (wr + iu * 2.0) + side * lat
 				if WorldGen.is_water(q.x, q.y):
 					continue
+				if true:
+					continue     # AAA pass 2: the apron is painted in the terrain splat now (WorldGen.color_at), no tile meshes
 				var e := Vector2((float(iu) - 1.0) * 2.0 / hu, lat / hl).length()     # 0 centre .. ~1.2 corners
 				if e > 0.62 and rng3.randf() < smoothstep(0.62, 1.15, e):
 					continue

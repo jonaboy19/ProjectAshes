@@ -18,6 +18,20 @@ const HAIR_DARK := Color("4a2c16")
 
 static var _sk: Skeleton3D
 static var _body_pts: PackedVector3Array
+## Tier-A material tagging (shaders/hero/hero_garment.gdshader): UV2.x = material id, UV2.y = sway weight,
+## COLOR.a = 1 where leather panels get stitched seams. Set by _piece() before each garment piece.
+enum M { LINEN, WOOL, LEATHER, METAL, ASSET, HAIR }
+static var _mat := 0
+static var _sway_top := 1e9
+static var _sway_len := 1.0
+static var _stitch := false
+
+
+static func _piece(mat: int, sway_top := 1e9, sway_len := 1.0, stitch := false) -> void:
+	_mat = mat
+	_sway_top = sway_top
+	_sway_len = sway_len
+	_stitch = stitch
 
 
 ## Tints the G6 "Villager Tunic" body mesh to the target's green tunic (sleeves + skirt read as one garment).
@@ -48,7 +62,17 @@ static func tint_tunic(model: Node3D) -> void:
 				m.set_surface_override_material(si, t)
 
 
-static func dress(model: Node3D) -> MeshInstance3D:
+## `parts` = subset to build (skirt, belt, satchel, pouch, jerkin, strap, hood, hair, bracers); empty = all.
+## The Meshy Tier-A hero uses ["satchel", "strap", "hood", "belt"] over its own clothes.
+static var _parts: Array = []
+static var _skip := false
+static func _part(n: String) -> void:
+	_skip = not _parts.is_empty() and not _parts.has(n)
+
+
+static func dress(model: Node3D, parts: Array = []) -> MeshInstance3D:
+	_parts = parts
+	_skip = false
 	var sks := model.find_children("*", "Skeleton3D", true, false)
 	if sks.is_empty():
 		return null
@@ -83,6 +107,8 @@ static func dress(model: Node3D) -> MeshInstance3D:
 	var hem_y := lerpf(p_thl.y, p_knee.y, 0.55)
 	var cx := (p_thl.x + p_thr.x) * 0.5
 	var cz := p_pel.z
+	_piece(M.WOOL, waist_y - 0.06 * unit, (waist_y - hem_y) * 1.4)
+	_part("skirt")
 	# --- tunic skirt (fitted to the body at the waist, flared and folded at the hem) --------------------------
 	var rw := _fit(waist_y, Vector2(0.16, 0.12) * unit) * 1.06
 	var rh := _fit(hem_y, Vector2(0.2, 0.14) * unit)
@@ -112,15 +138,21 @@ static func dress(model: Node3D) -> MeshInstance3D:
 				var col := TUNIC_DARK if t > 0.86 else TUNIC.lerp(TUNIC_DARK, 0.25 * (1.0 - absf(sin(a * 7.0))))
 				vs.append([p, [pel, thl, thr], [1.0 - wl - wr, wl, wr], col])
 			_quad(st, vs[0], vs[1], vs[2], vs[3], false)
+	_part("belt")
 	# --- belt + buckle ---------------------------------------------------------------------------------------
 	var belt_y := waist_y + 0.015 * unit
 	var rb := _fit(belt_y, rw) * 1.09
+	_piece(M.LEATHER, 1e9, 1.0, true)
 	_ring(st, Vector3(cx, belt_y, cz), rb, 0.035 * unit, 0.012 * unit, [pel], [1.0], LEATHER_DARK, 20)
+	_piece(M.METAL)
 	_box(st, Vector3(cx, belt_y, cz + rb.y + 0.01 * unit), Vector3(0.05, 0.045, 0.012) * unit, 0.0, [pel], [1.0], BRASS)
+	_part("satchel")
 	# --- satchel on the right hip + flap + diagonal strap to the left shoulder --------------------------------
 	var bag_c := Vector3(cx - rb.x * 1.05, belt_y - 0.13 * unit, cz + rb.y * 0.35)
+	_piece(M.LEATHER, bag_c.y + 0.1 * unit, 0.5 * unit, true)
 	_box(st, bag_c, Vector3(0.07, 0.2, 0.24) * unit, 0.12, [pel, thr], [0.7, 0.3], LEATHER)
 	_box(st, bag_c + Vector3(-0.03, 0.06, 0.0) * unit, Vector3(0.025, 0.1, 0.25) * unit, 0.12, [pel, thr], [0.7, 0.3], LEATHER_DARK)
+	_piece(M.METAL, bag_c.y + 0.1 * unit, 0.5 * unit)
 	_box(st, bag_c + Vector3(-0.045, 0.02, 0.0) * unit, Vector3(0.012, 0.03, 0.03) * unit, 0.12, [pel, thr], [0.7, 0.3], BRASS)
 	if sp3 >= 0:
 		var p_sh := _pos(sp3)
@@ -140,12 +172,16 @@ static func dress(model: Node3D) -> MeshInstance3D:
 				pass   # strap disabled: fins through the arms in the walk cycle (TODO: lay it on the jerkin shell)
 			prev_f = f
 			prev_b = bk
+	_part("pouch")
 	# --- pouch on the left front of the belt --------------------------------------------------------------------
+	_piece(M.LEATHER, belt_y, 0.4 * unit, true)
 	_box(st, Vector3(cx + rb.x * 0.62, belt_y - 0.06 * unit, cz + rb.y * 0.92), Vector3(0.09, 0.09, 0.04) * unit, 0.0, [pel, thl], [0.8, 0.2], LEATHER)
+	_part("jerkin")
 	# --- leather jerkin over the green tunic: open at the front, waist to armpits ------------------------------------
 	if sp3 >= 0 and sp1 >= 0:
 		var y0 := belt_y + 0.02 * unit
 		var y1 := _pos(sp3).y + 0.1 * unit
+		_piece(M.LEATHER, 1e9, 1.0, true)
 		var vr := 6
 		var vs_n := 22
 		var r_lo := _fit(y0, Vector2(0.15, 0.11) * unit)
@@ -167,6 +203,7 @@ static func dress(model: Node3D) -> MeshInstance3D:
 					var col := LEATHER.lerp(LEATHER_DARK, 0.3 * absf(sin(k[1] * 5.0)) * (1.0 - wu))
 					vs.append([p, [sp1, sp3], [1.0 - wu, wu], col])
 				_quad(st, vs[0], vs[1], vs[2], vs[3], true)
+		_part("strap")
 		# satchel strap lying ON the jerkin shell (front: right hip -> left shoulder), torso bones only = no arm fins
 		var prev := Vector3.ZERO
 		var sn := 20
@@ -181,32 +218,40 @@ static func dress(model: Node3D) -> MeshInstance3D:
 			if si2 > 0:
 				_strap(st, prev, pt, 0.045 * unit, Vector3(cos(a2), 0, sin(a2)), sp1, sp3, clampf(kk, 0.0, 1.0), LEATHER_DARK)
 			prev = pt
+	_part("hood")
 	# --- hood rolled down: thick collar ring around the neck base + a drape down the back -----------------------
 	if neck >= 0 and sp3 >= 0:
 		var p_n := _pos(neck)
 		var cy := p_n.y - 0.02 * unit
-		var rn := Vector2(0.095, 0.09) * unit
-		_ring(st, Vector3(p_n.x, cy, p_n.z - 0.01 * unit), rn, 0.07 * unit, 0.055 * unit, [neck, sp3], [0.4, 0.6], LEATHER, 16)
-		# the hood itself, lying folded on the upper back: a half-ellipsoid bag, wide at the collar, pinched to a tip
-		var hc := Vector3(p_n.x, cy - 0.11 * unit, p_n.z - 0.075 * unit)
-		var nth := 10
-		var nph := 7
-		for pj in nph:
-			for ti in nth:
-				var vs: Array = []
-				for k in [[pj, ti], [pj + 1, ti], [pj + 1, ti + 1], [pj, ti + 1]]:
-					var ph := PI * 0.08 + PI * 0.84 * float(k[0]) / nph
-					var th := lerpf(-PI * 0.55, PI * 0.55, float(k[1]) / nth)
-					var pinch := 1.0 - 0.55 * float(k[0]) / nph
-					var d := Vector3(sin(ph) * sin(th) * 0.135 * pinch, cos(ph) * 0.15, -sin(ph) * cos(th) * 0.11 - 0.015) * unit
-					var wn := clampf(1.0 - float(k[0]) / 3.0, 0.0, 0.4)
-					var col := HOOD.lerp(LEATHER_DARK, 0.1 + 0.4 * float(k[0]) / nph)
-					vs.append([hc + d, [sp3, neck], [1.0 - wn, wn], col])
-				_quad(st, vs[0], vs[1], vs[2], vs[3], false)
+		if not _parts.is_empty():
+			_fitted_hood(st, p_n, cy, unit, neck, sp3)
+		else:
+			var rn := Vector2(0.095, 0.09) * unit
+			_piece(M.WOOL)
+			_ring(st, Vector3(p_n.x, cy, p_n.z - 0.01 * unit), rn, 0.07 * unit, 0.055 * unit, [neck, sp3], [0.4, 0.6], LEATHER, 16)
+			# the hood itself, lying folded on the upper back: a half-ellipsoid bag, wide at the collar, pinched to a tip
+			_piece(M.WOOL, cy - 0.03 * unit, 0.35 * unit)
+			var hc := Vector3(p_n.x, cy - 0.11 * unit, p_n.z - 0.075 * unit)
+			var nth := 10
+			var nph := 7
+			for pj in nph:
+				for ti in nth:
+					var vs: Array = []
+					for k in [[pj, ti], [pj + 1, ti], [pj + 1, ti + 1], [pj, ti + 1]]:
+						var ph := PI * 0.08 + PI * 0.84 * float(k[0]) / nph
+						var th := lerpf(-PI * 0.55, PI * 0.55, float(k[1]) / nth)
+						var pinch := 1.0 - 0.55 * float(k[0]) / nph
+						var d := Vector3(sin(ph) * sin(th) * 0.135 * pinch, cos(ph) * 0.15, -sin(ph) * cos(th) * 0.11 - 0.015) * unit
+						var wn := clampf(1.0 - float(k[0]) / 3.0, 0.0, 0.4)
+						var col := HOOD.lerp(LEATHER_DARK, 0.1 + 0.4 * float(k[0]) / nph)
+						vs.append([hc + d, [sp3, neck], [1.0 - wn, wn], col])
+					_quad(st, vs[0], vs[1], vs[2], vs[3], false)
+	_part("hair")
 	# --- shaggy hair: tufts rooted on the G6 hair cap, skinned to the head ------------------------------------------
 	var head := _b(["Head", "head"])
 	if head >= 0:
 		var hp := _pos(head)
+		_piece(M.HAIR, hp.y + 0.2 * unit, 0.25 * unit)
 		var crown := hp + Vector3(0, 0.09, 0) * unit
 		var rng := RandomNumberGenerator.new()
 		rng.seed = 11
@@ -224,7 +269,9 @@ static func dress(model: Node3D) -> MeshInstance3D:
 			var col := HAIR.lerp(HAIR_DARK, rng.randf_range(0.0, 0.6))
 			_tuft(st, p - out * 0.006 * unit, dir, ln, 0.02 * unit, head, col)
 			n_t += 1
+	_part("bracers")
 	# --- bracers on both forearms ---------------------------------------------------------------------------------
+	_piece(M.LEATHER, 1e9, 1.0, true)
 	for pair in [[lal, hal], [lar, har]]:
 		if pair[0] < 0 or pair[1] < 0:
 			continue
@@ -234,20 +281,111 @@ static func dress(model: Node3D) -> MeshInstance3D:
 		var r := _fit_axis(a.lerp(b, 0.7), ax.normalized(), 0.04 * unit) * 1.18
 		_tube(st, a.lerp(b, 0.42), a.lerp(b, 0.9), r, r * 1.12, [pair[0]], [1.0], LEATHER, 12)
 	st.generate_normals()
+	st.generate_tangents()
 	var mi := MeshInstance3D.new()
 	mi.name = "HeroOutfit"
 	mi.mesh = st.commit()
-	var mat := StandardMaterial3D.new()
-	mat.vertex_color_use_as_albedo = true
-	mat.vertex_color_is_srgb = true
-	mat.roughness = 0.85
-	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	mi.material_override = mat
+	mi.material_override = garment_material()
 	mi.set_meta("role", "hero_new")
 	_sk.add_child(mi)
 	mi.skeleton = NodePath("..")
 	mi.skin = _sk.create_skin_from_rest_transforms()
 	return mi
+
+
+## Tier-A garment material (hero_garment.gdshader; HeroTierA drives its `sway` uniform per character).
+## Falls back to a vertex-colour StandardMaterial3D if the shader is missing.
+static func garment_material() -> Material:
+	var sh: Shader = load("res://shaders/hero/hero_garment.gdshader")
+	if sh == null:
+		var mat := StandardMaterial3D.new()
+		mat.vertex_color_use_as_albedo = true
+		mat.vertex_color_is_srgb = true
+		mat.roughness = 0.85
+		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		return mat
+	var sm := ShaderMaterial.new()
+	sm.shader = sh
+	sm.set_shader_parameter("noise_tex", noise_texture())
+	return sm
+
+
+static var _noise: Texture2D
+static func noise_texture() -> Texture2D:
+	if _noise == null:
+		var nt := NoiseTexture2D.new()
+		nt.width = 256
+		nt.height = 256
+		nt.seamless = true
+		nt.generate_mipmaps = true
+		var fn := FastNoiseLite.new()
+		fn.frequency = 0.06
+		fn.fractal_octaves = 3
+		nt.noise = fn
+		_noise = nt
+	return _noise
+
+
+## Hood for a foreign body (Meshy hero): a cowl laid ON the actual collar/shoulders (radius measured per angle from the
+## body mesh), open in a V at the front, with soft folds, plus the hood bag hanging on the measured back. Wool, sways.
+static func _fitted_hood(st: SurfaceTool, p_n: Vector3, cy: float, unit: float, neck: int, sp3: int) -> void:
+	var segs := 28
+	var ys := [cy + 0.035 * unit, cy + 0.0, cy - 0.04 * unit, cy - 0.08 * unit, cy - 0.11 * unit]
+	var ring_pts: Array = []
+	for ri in ys.size():
+		var y: float = ys[ri]
+		var row: Array = []
+		for si in segs + 1:
+			var a := lerpf(PI * 0.5 + 0.9, PI * 2.5 - 0.9, float(si) / segs)     # sides + back only: the front stays the shirt
+			var r := _radial(Vector3(p_n.x, y, p_n.z), a, 0.09 * unit)
+			var fold := 1.0 + sin(a * 9.0 + ri) * 0.06 * float(ri) / 4.0
+			var lift := 0.014 * unit + 0.01 * unit * float(ri) / 4.0
+			row.append(Vector3(p_n.x + cos(a) * (r * fold + lift), y, p_n.z + sin(a) * (r * fold + lift)))
+		ring_pts.append(row)
+	_piece(M.WOOL, cy + 0.02 * unit, 0.2 * unit)
+	for ri in ys.size() - 1:
+		var w0 := clampf(1.0 - float(ri) / 2.0, 0.0, 0.5)
+		var w1 := clampf(1.0 - float(ri + 1) / 2.0, 0.0, 0.5)
+		for si in segs:
+			var c0 := HOOD.lerp(LEATHER_DARK, 0.45 + 0.25 * float(ri) / 4.0)
+			var c1 := HOOD.lerp(LEATHER_DARK, 0.45 + 0.25 * float(ri + 1) / 4.0)
+			_quad(st, [ring_pts[ri][si], [neck, sp3], [w0, 1.0 - w0], c0], [ring_pts[ri + 1][si], [neck, sp3], [w1, 1.0 - w1], c1],
+				[ring_pts[ri + 1][si + 1], [neck, sp3], [w1, 1.0 - w1], c1], [ring_pts[ri][si + 1], [neck, sp3], [w0, 1.0 - w0], c0], false)
+	# hood bag on the back, resting on the measured back surface
+	var hy := cy - 0.1 * unit
+	var back_r := _radial(Vector3(p_n.x, hy, p_n.z), PI * 1.5, 0.11 * unit)
+	var hc := Vector3(p_n.x, hy, p_n.z - back_r + 0.05 * unit)
+	_piece(M.WOOL, cy - 0.03 * unit, 0.3 * unit)
+	var nth := 10
+	var nph := 7
+	for pj in nph:
+		for ti in nth:
+			var vs: Array = []
+			for k in [[pj, ti], [pj + 1, ti], [pj + 1, ti + 1], [pj, ti + 1]]:
+				var ph := PI * 0.08 + PI * 0.84 * float(k[0]) / nph
+				var th := lerpf(-PI * 0.55, PI * 0.55, float(k[1]) / nth)
+				var pinch := 1.0 - 0.55 * float(k[0]) / nph
+				var d := Vector3(sin(ph) * sin(th) * 0.13 * pinch, cos(ph) * 0.13, -sin(ph) * cos(th) * 0.075 - 0.01) * unit
+				var col := HOOD.lerp(LEATHER_DARK, 0.1 + 0.4 * float(k[0]) / nph)
+				vs.append([hc + d, [sp3, neck], [0.85, 0.15], col])
+			_quad(st, vs[0], vs[1], vs[2], vs[3], false)
+
+
+## Largest radial distance of the body around the vertical axis through `c` at height c.y, within +-0.2 rad of angle a.
+static func _radial(c: Vector3, a: float, fallback: float) -> float:
+	var r := 0.0
+	for p in _body_pts:
+		if absf(p.y - c.y) > 0.02:
+			continue
+		var dx := p.x - c.x
+		var dz := p.z - c.z
+		var d := sqrt(dx * dx + dz * dz)
+		if d > 0.26 or d < 0.02:
+			continue
+		var pa := atan2(dz, dx)
+		if absf(wrapf(pa - a, -PI, PI)) < 0.2:
+			r = maxf(r, d)
+	return r if r > 0.01 else fallback
 
 
 # --- helpers ---------------------------------------------------------------------------------------------------------
@@ -318,6 +456,8 @@ static func _fit_axis(c: Vector3, ax: Vector3, fallback: float) -> float:
 
 
 static func _vert(st: SurfaceTool, v: Array) -> void:
+	if _skip:
+		return
 	var bones := PackedInt32Array([0, 0, 0, 0])
 	var weights := PackedFloat32Array([0, 0, 0, 0])
 	var bs: Array = v[1]
@@ -330,7 +470,12 @@ static func _vert(st: SurfaceTool, v: Array) -> void:
 		if bs[i] >= 0:
 			bones[i] = bs[i]
 			weights[i] = float(ws[i]) / maxf(tot, 0.0001)
-	st.set_color(v[3])
+	var p: Vector3 = v[0]
+	var col: Color = v[3]
+	col.a = 1.0 if _stitch else 0.0
+	st.set_color(col)
+	st.set_uv(Vector2(atan2(p.x, p.z) * 0.16, -p.y))          # ~metres around the body / down: weave, grain, stitch rows
+	st.set_uv2(Vector2(float(_mat), clampf((_sway_top - p.y) / _sway_len, 0.0, 1.0)))
 	st.set_bones(bones)
 	st.set_weights(weights)
 	st.add_vertex(v[0])

@@ -20,7 +20,7 @@ const GOLD_BRIGHT := Color("f3cf7a")
 const TEXT := Color("ece3cf")
 const BODY_FONT := "res://assets/ui/fonts/IMFellEnglish-Regular.ttf"
 const HudLane := preload("res://scripts/ui/hud_lane.gd")
-const SKIP_SIZE := 48.0          # touch target (px at 1080p height, scaled below)
+const SKIP_SIZE := 30.0          # touch target (px at 1080p height, scaled below)
 const DEFAULT_ANCHORS := {
 	"left_stick": Vector2(0.13, 0.76), "screen_right": Vector2(0.70, 0.45),
 	"btn_attack": Vector2(0.89, 0.80), "btn_block": Vector2(0.78, 0.88), "btn_dodge": Vector2(0.94, 0.62),
@@ -49,14 +49,14 @@ func _ready() -> void:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = PANEL
 	sb.border_color = GOLD
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(26)
-	sb.content_margin_left = 22
-	sb.content_margin_right = 14
-	sb.content_margin_top = 8
-	sb.content_margin_bottom = 8
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(14)
+	sb.content_margin_left = 14
+	sb.content_margin_right = 6
+	sb.content_margin_top = 2
+	sb.content_margin_bottom = 2
 	sb.shadow_color = Color(0, 0, 0, 0.5)
-	sb.shadow_size = 10
+	sb.shadow_size = 4
 	_pill.add_theme_stylebox_override("panel", sb)
 	_pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var row := HBoxContainer.new()
@@ -135,9 +135,9 @@ func _layout() -> void:
 	if prompt.is_empty() or _pill == null:
 		return
 	var k := _ui_scale()
-	_label.add_theme_font_size_override("font_size", int(round((22.0 if _beside_button() else 30.0) * k)))
-	_skip.add_theme_font_size_override("font_size", int(round(26.0 * k)))
-	_skip.custom_minimum_size = Vector2(SKIP_SIZE, SKIP_SIZE) * maxf(k, 1.0)
+	_label.add_theme_font_size_override("font_size", int(round(20.0 * k)))      # AAA pass 3: every hint is the small style
+	_skip.add_theme_font_size_override("font_size", int(round(20.0 * k)))
+	_skip.custom_minimum_size = Vector2(SKIP_SIZE, SKIP_SIZE) * k
 	_pill.reset_size()
 	_restack()
 
@@ -147,6 +147,11 @@ func _restack() -> void:
 	if prompt.is_empty() or _pill == null:
 		return
 	var sz := _pill.get_combined_minimum_size()
+	if String(prompt.get("anchor", "")) == "btn_interact":
+		# AAA pass 2: "Tap to use / talk" is taught by the small icon ON the object (hud world_prompt_icon.gd); no box
+		_pill.position = Vector2(-10000, -10000)
+		HudLane.report("hint", 0.0, 0.0)
+		return
 	if _beside_button():
 		# AAA pass 2026-10-06: a button lesson ("Tap to use", "Tap to strike") is a small tag beside the button it is about,
 		# not a big box top-centre: it sits just left of and above the anchor, clamped on screen.
@@ -182,7 +187,7 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	if prompt.is_empty() or bool(prompt.get("plain", false)) or (_alpha <= 0.01 and _done_flash <= 0.0) \
+	if prompt.is_empty() or String(prompt.get("anchor", "")) == "btn_interact" or bool(prompt.get("plain", false)) or (_alpha <= 0.01 and _done_flash <= 0.0) \
 			or not HudLane.allowed("hint"):
 		return
 	var k := _ui_scale()

@@ -28,6 +28,7 @@ uniform float ao_height = 0.9;
 uniform float ao_strength = 0.30;
 uniform float roughness = 0.72;
 uniform float spec = 0.35;
+uniform float normal_soften = 0.45;   // AAA pass 3: bend faceted (Meshy) normals toward world up: thatch stops reading as crystal facets
 // Style G weathering (2026-10-01): world-projected Poly Haven detail pack (R plaster, G wood grain, B grime noise,
 // A stone) picked per pixel from the atlas colour class; relief tints the albedo, bumps the normal (HIGH/MEDIUM),
 // adds roughness variation, grime climbing from the wall foot, rain streaks and lighter worn edges along atlas seams.
@@ -132,5 +133,9 @@ void fragment() {
 	if (alpha_cut > 0.0) {
 		ALPHA = t.a * albedo_color.a;
 		ALPHA_SCISSOR_THRESHOLD = alpha_cut;
+	}
+	if (normal_soften > 0.0) {
+		vec3 up_v = normalize((VIEW_MATRIX * vec4(0.0, 1.0, 0.0, 0.0)).xyz);
+		NORMAL = normalize(mix(NORMAL, up_v, normal_soften * max(dot(NORMAL, up_v), 0.0)));
 	}
 }
