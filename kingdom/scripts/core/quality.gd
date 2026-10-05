@@ -39,7 +39,7 @@ const SS := preload("res://scripts/ui/frontend/settings_store.gd")
 ## Settings-screen row -> the tier keys it controls (value() reads them from the row's own level).
 const GROUPS := {
 	"view": ["view_radius", "range", "scatter", "town_far", "light_fade", "lod_threshold", "npc_full", "npc_sprites", "fog_mul"],
-	"shadows": ["shadow", "shadow_size", "shadow_dist", "soft_shadow", "omni_shadows"],
+	"shadows": ["shadow", "shadow_size", "shadow_dist", "soft_shadow", "omni_shadows", "shadow_min"],
 	"textures": ["aniso", "tex_bias"],
 	"effects": ["ssao", "ssil", "sdfgi", "glow", "vol_fog", "ssr", "particles"],
 }
@@ -51,28 +51,28 @@ const GROUPS := {
 const TIERS := [
 	{   # LOW: old phones (Mali-G52, Adreno 610, PowerVR, 2-3 GB RAM), Compatibility renderer
 		"max_3d_height": 720, "scaling": "bilinear", "fps": 30,
-		"shadow": 1, "shadow_size": 2048, "shadow_dist": 40.0, "soft_shadow": 0, "omni_shadows": false,
+		"shadow": 1, "shadow_size": 1024, "shadow_dist": 24.0, "soft_shadow": 0, "omni_shadows": false, "shadow_min": 3.0,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
 		"lod_threshold": 8.0, "range": 0.55, "scatter": 0.3, "particles": 0.35, "aniso": 0, "tex_bias": 1.0, "fog_mul": 1.5,
-		"msaa": 0, "fxaa": false, "npc_full": 5, "rig_budget": 0, "npc_sprites": 10, "view_radius": 2, "light_fade": 35.0, "town_far": 260.0,
+		"msaa": 0, "fxaa": false, "npc_full": 5, "rig_budget": 0, "npc_sprites": 10, "view_radius": 2, "light_fade": 35.0, "town_far": 200.0,
 	},
 	{   # MEDIUM: mid-range phones (Adreno 618-650, Mali-G57..G77, Apple A11-A12)
 		"max_3d_height": 720, "scaling": "fsr", "fps": 60,
-		"shadow": 2, "shadow_size": 2048, "shadow_dist": 60.0, "soft_shadow": 1, "omni_shadows": false,
+		"shadow": 1, "shadow_size": 2048, "shadow_dist": 50.0, "soft_shadow": 1, "omni_shadows": false, "shadow_min": 1.5,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
 		"lod_threshold": 2.0, "range": 0.75, "scatter": 0.6, "particles": 0.6, "aniso": 1, "tex_bias": 0.5, "fog_mul": 1.2,
 		"msaa": 0, "fxaa": true, "npc_full": 8, "rig_budget": 3, "npc_sprites": 22, "view_radius": 3, "light_fade": 50.0, "town_far": 600.0,
 	},
 	{   # HIGH: recent phones (Adreno 7xx, Mali-G710+, Apple A13+), integrated PC GPUs
 		"max_3d_height": 1080, "scaling": "fsr", "fps": 60,
-		"shadow": 2, "shadow_size": 4096, "shadow_dist": 100.0, "soft_shadow": 2, "omni_shadows": true,
+		"shadow": 2, "shadow_size": 4096, "shadow_dist": 100.0, "soft_shadow": 2, "omni_shadows": true, "shadow_min": 1.0,
 		"ssao": true, "ssil": false, "sdfgi": false, "glow": true, "vol_fog": false, "ssr": false,
 		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 2, "tex_bias": 0.0, "fog_mul": 1.0,
 		"msaa": 0, "fxaa": true, "npc_full": 12, "rig_budget": 6, "npc_sprites": 32, "view_radius": 4, "light_fade": 80.0, "town_far": 0.0,
 	},
 	{   # ULTRA: desktop GPUs; the full Forward+ look the game was lit for
 		"max_3d_height": 0, "scaling": "bilinear", "fps": 0,
-		"shadow": 4, "shadow_size": 4096, "shadow_dist": 140.0, "soft_shadow": 3, "omni_shadows": true,
+		"shadow": 4, "shadow_size": 4096, "shadow_dist": 140.0, "soft_shadow": 3, "omni_shadows": true, "shadow_min": 0.0,
 		"ssao": true, "ssil": true, "sdfgi": true, "glow": true, "vol_fog": true, "ssr": false,
 		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 3, "tex_bias": -0.3, "fog_mul": 1.0,
 		"msaa": 2, "fxaa": true, "npc_full": 16, "rig_budget": 10, "npc_sprites": 45, "view_radius": 5, "light_fade": 0.0, "town_far": 0.0,
@@ -256,8 +256,17 @@ func _save() -> void:
 	cf.save(SETTINGS_PATH)
 
 
+## Phone QA (debug builds only): extra args from user://qa_args.txt, one per line, pushed with `adb shell run-as`.
+## The S22 cannot pass intent extras to the non-exported GodotApp activity (tools/qa/phone/route.sh).
+static func qa_file_args() -> PackedStringArray:
+	if not OS.is_debug_build() or not FileAccess.file_exists("user://qa_args.txt"):
+		return PackedStringArray()
+	return FileAccess.get_file_as_string("user://qa_args.txt").strip_edges().split("
+", false)
+
+
 func _cmdline_tier() -> int:
-	for arg in OS.get_cmdline_user_args() + OS.get_cmdline_args():
+	for arg in OS.get_cmdline_user_args() + OS.get_cmdline_args() + qa_file_args():
 		if arg.begins_with("--quality="):
 			var n := arg.substr(10).to_lower()
 			for i in NAMES.size():
@@ -361,7 +370,7 @@ func start_adaptive() -> void:
 
 func _process(delta: float) -> void:
 	_thermal_tick(delta)
-	if _perf_log and _is_mobile():
+	if _perf_log and (_is_mobile() or OS.get_cmdline_user_args().has("--perflog")):
 		_perf_tick(delta)
 	if not _measuring:
 		return
@@ -417,13 +426,14 @@ func _perf_tick(delta: float) -> void:
 	var n := _perf_ft.size()
 	var sorted := _perf_ft.duplicate()
 	sorted.sort()
-	print("PERF fps=%.1f p50=%.1f p95=%.1f p99=%.1f draws=%d prims=%d objs=%d vram=%d static=%d nodes=%d tier=%s cap=%d scale=%.2f thermal=%d" % [
+	print("PERF fps=%.1f p50=%.1f p95=%.1f p99=%.1f draws=%d prims=%d objs=%d vram=%d tex=%d static=%d nodes=%d tier=%s cap=%d scale=%.2f thermal=%d" % [
 		n / maxf(_perf_t, 0.001), sorted[n / 2] * 1000.0, sorted[mini(n - 1, n * 95 / 100)] * 1000.0,
 		sorted[mini(n - 1, n * 99 / 100)] * 1000.0,
 		Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
 		Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),
 		Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME),
 		int(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0),
+		int(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0),
 		int(Performance.get_monitor(Performance.MEMORY_STATIC) / 1048576.0),
 		Performance.get_monitor(Performance.OBJECT_NODE_COUNT), NAMES[tier], Engine.max_fps, render_scale, thermal_status])
 	_perf_ft.clear()
@@ -654,7 +664,7 @@ func _apply_geometry(g: GeometryInstance3D) -> void:
 		var gm: Mesh = (g as MeshInstance3D).mesh if g is MeshInstance3D else ((g as MultiMeshInstance3D).multimesh.mesh if g is MultiMeshInstance3D and (g as MultiMeshInstance3D).multimesh else null)
 		if gm != null:
 			var ext := maxf(gm.get_aabb().size.x, gm.get_aabb().size.z)
-			var cap := (28.0 if ext < 4.5 else (90.0 if ext < 12.0 else 0.0)) * (1.0 if tier == LOW else 2.0)
+			var cap := (28.0 if ext < 4.5 else ((60.0 if tier == LOW else 90.0) if ext < 12.0 else 0.0)) * (1.0 if tier == LOW else 2.0)
 			if cap > 0.0 and g.visibility_range_end > cap:
 				g.visibility_range_end = cap
 	if tier <= MEDIUM and g is MeshInstance3D and not g.has_meta("q_range") and g.visibility_range_end <= 0.0 and (g as MeshInstance3D).skin == null \
@@ -732,8 +742,9 @@ func _adapt_floor() -> int:
 	return LOW
 
 
-## Props under ~1 m (crates, buckets, flowers, clutter) stop casting sun shadows
-## below ULTRA: a shadow-map pass for each of them costs more than it shows.
+## Static props smaller than the tier's `shadow_min` (LOW 3 m, MEDIUM 1.5 m, HIGH 1 m; crates, barrels, carts, stalls,
+## clutter) stop casting sun shadows: a shadow-map draw for each of them costs more than it shows on a phone. Skinned
+## characters always keep their shadow. ULTRA keeps every caster.
 func _small_shadow(g: GeometryInstance3D) -> void:
 	if not g.has_meta("q_cast"):
 		var mesh: Mesh = null
@@ -743,8 +754,13 @@ func _small_shadow(g: GeometryInstance3D) -> void:
 			mesh = (g as MultiMeshInstance3D).multimesh.mesh
 		if mesh == null or g.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF:
 			return
+		if g is MeshInstance3D and (g as MeshInstance3D).skin != null:
+			return
 		var s := mesh.get_aabb().size * (g as Node3D).global_transform.basis.get_scale()
-		if maxf(maxf(s.x, s.y), s.z) >= 1.0 or (g is MeshInstance3D and (g as MeshInstance3D).skin != null):
+		var ext := maxf(maxf(s.x, s.y), s.z)
+		if ext >= 3.0:
 			return
 		g.set_meta("q_cast", g.cast_shadow)
-	g.cast_shadow = g.get_meta("q_cast") if tier == ULTRA else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		g.set_meta("q_ext", ext)
+	var keep: bool = float(g.get_meta("q_ext", 0.0)) >= float(value("shadow_min"))
+	g.cast_shadow = g.get_meta("q_cast") if keep else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

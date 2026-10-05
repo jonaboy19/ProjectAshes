@@ -84,6 +84,7 @@ var _sprite_hidden: Dictionary = {}  # person id -> true while suppressed inside
 var micro: Node
 var _sprite_routes: Dictionary = {}  # visible sprite id -> bounded StreetGraph route state
 var _refresh_elapsed := 0.0
+var _query_r := 0.0             # adaptive people_near radius (see refresh)
 
 
 func setup(baker: ImpostorBaker) -> void:
@@ -141,7 +142,17 @@ func refresh(step_delta := 0.25) -> void:
 	var p2 := Vector2(focus.x, focus.z)
 	_full_range = CellStreamer.shared().distance("population", "full")      # F12: the cell manager owns the bands
 	_sprite_range = CellStreamer.shared().distance("population", "load")
-	var ids := WorldSim.people_near(p2, _sprite_range)
+	# Perf (release QA 2026-10-06): in the capital people_near returned ~1-2k residents and every refresh filtered, weighted and
+	# lambda-sorted all of them (~20 ms on the PC, ~100 ms on the S22, 4x a second) to keep ~22 (LOW). The query radius now
+	# adapts so about 4x what the tier can show come back; it never drops below the full-model band, so bodies are unchanged.
+	var want_n := (NEAR_HARD_CAP + mini(MAX_FULL, Quality.npc_full) + mini(MAX_SPRITES, Quality.npc_sprites)) * 4
+	if _query_r <= 0.0 or _query_r > _sprite_range:
+		_query_r = _sprite_range
+	var ids := WorldSim.people_near(p2, _query_r)
+	if ids.size() > want_n:
+		_query_r = maxf(_full_range + 6.0, _query_r * 0.8)
+	elif ids.size() < want_n / 2:
+		_query_r = minf(_sprite_range, _query_r * 1.15)
 	_update_holds(ids)
 	var morning := WorldSim.time_of_day >= 6.0 and WorldSim.time_of_day < 6.0 + DailyRhythm.MAX_DELAY
 	var dists := []
@@ -156,13 +167,15 @@ func refresh(step_delta := 0.25) -> void:
 	dists.sort_custom(func(a: Array, b: Array) -> bool: return a[2] < b[2])
 
 	var want_full := {}
+	# The near cap follows the tier (LOW 8, MEDIUM 11, HIGH+ 12): each full villager is ~0.5 ms of script on the S22.
+	var near_cap := mini(NEAR_HARD_CAP, Quality.npc_full + 3)
 	# Anyone this close must be a real model: a flat sprite at arm's length looks broken,
 	# so the tier budget may be exceeded up to NEAR_HARD_CAP inside NEAR_ALWAYS.
 	for entry in dists:
 		if entry[2] > _full_range * _full_range and entry[0] > NEAR_ALWAYS * NEAR_ALWAYS:
 			break
 		var within_budget: bool = want_full.size() < mini(MAX_FULL, Quality.npc_full) and entry[0] <= _full_range * _full_range
-		var too_close_for_sprite: bool = entry[0] <= NEAR_ALWAYS * NEAR_ALWAYS and want_full.size() < NEAR_HARD_CAP
+		var too_close_for_sprite: bool = entry[0] <= NEAR_ALWAYS * NEAR_ALWAYS and want_full.size() < near_cap
 		if not (within_budget or too_close_for_sprite):
 			continue
 		want_full[entry[1]] = true
