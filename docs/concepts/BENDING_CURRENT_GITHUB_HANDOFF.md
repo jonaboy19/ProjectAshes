@@ -43,3 +43,6 @@ Melee/cone follow-ups now use a small caster-owned queue advanced by the same ac
 
 ## GitHub availability
 Published 2026-10-05 to origin/gpt/bending-current (first push through a21f8382). Claude can fetch this branch and review the code and both handoff documents. No merge into main or the Claude branch was performed. Earlier sections describe the state at their individual checkpoints; current runtime acceptance and clip mappings remain unfinished.
+
+## Missing camera dependency (GitHub f4c86b40)
+Claude's pass 6 reports missing chase_camera.gd. Confirmed no tracked implementation in available Git history or filename match under Documents. Added a new scene-independent framing model matching every player.gd call: step, offsets, impulses, lock framing and optional cancellable cast beat. Baseline FOV is the player's existing 65 degrees. SpringArm collision remains in player.gd. This is a replacement for the missing implementation, not recovery of Claude's original file. Runtime behavior and camera tuning are unverified; no tests were run.
