@@ -112,6 +112,25 @@ var _frame_n := 0
 const WARMUP := 4.0
 const WINDOW := 16.0
 
+## Thermal guard (Android, API 29+): every 5 s reads PowerManager.getCurrentThermalStatus()
+## through the AndroidRuntime singleton (app sysfs thermal reads are denied on Samsung).
+## MODERATE (2) or worse caps the frame rate at 30; SEVERE (3) or worse also drops the 3D
+## render scale to 75 %. Released when the status is back at LIGHT (1) or better for 60 s.
+## The settings screen turns it on for the "60" and "Auto" frame-rate limits.
+var thermal_guard := true
+var thermal_status := -1
+var _thermal_pm: Object = null
+var _thermal_timer := 0.0
+var _thermal_cool := 0.0
+var _thermal_level := 0          # 0 off, 1 fps cap, 2 fps cap + render scale
+var _thermal_prev_fps := 0
+var _thermal_prev_scale := 1.0
+# Debug builds on phones: a PERF line in logcat every 10 s for the soak bench
+# (adb logcat -s godot | grep PERF). Release builds print nothing.
+var _perf_log := OS.is_debug_build()
+var _perf_ft := PackedFloat32Array()
+var _perf_t := 0.0
+
 
 func _ready() -> void:
 	for g: String in GROUPS:
@@ -340,6 +359,9 @@ func start_adaptive() -> void:
 
 
 func _process(delta: float) -> void:
+	_thermal_tick(delta)
+	if _perf_log and _is_mobile():
+		_perf_tick(delta)
 	if not _measuring:
 		return
 	_measure_time += delta
@@ -366,6 +388,86 @@ func _process(delta: float) -> void:
 		_measuring = false
 
 
+func _read_thermal_status() -> int:
+	if _thermal_pm == null:
+		if not Engine.has_singleton("AndroidRuntime"):
+			return -1
+		var rt: Object = Engine.get_singleton("AndroidRuntime")
+		var act: Object = rt.call("getActivity") if rt.has_method("getActivity") else null
+		if act == null:
+			return -1
+		_thermal_pm = act.call("getSystemService", "power")
+		if _thermal_pm == null:
+			return -1
+	return int(_thermal_pm.call("getCurrentThermalStatus"))
+
+
+func _perf_tick(delta: float) -> void:
+	_perf_ft.append(delta)
+	_perf_t += delta
+	if _perf_t < 10.0:
+		return
+	var n := _perf_ft.size()
+	var sorted := _perf_ft.duplicate()
+	sorted.sort()
+	print("PERF fps=%.1f p50=%.1f p95=%.1f p99=%.1f draws=%d prims=%d objs=%d vram=%d static=%d nodes=%d tier=%s cap=%d scale=%.2f thermal=%d" % [
+		n / maxf(_perf_t, 0.001), sorted[n / 2] * 1000.0, sorted[mini(n - 1, n * 95 / 100)] * 1000.0,
+		sorted[mini(n - 1, n * 99 / 100)] * 1000.0,
+		Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
+		Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),
+		Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME),
+		int(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0),
+		int(Performance.get_monitor(Performance.MEMORY_STATIC) / 1048576.0),
+		Performance.get_monitor(Performance.OBJECT_NODE_COUNT), NAMES[tier], Engine.max_fps, render_scale, thermal_status])
+	_perf_ft.clear()
+	_perf_t = 0.0
+
+
+func _thermal_tick(delta: float) -> void:
+	_thermal_timer -= delta
+	if _thermal_timer > 0.0 or not _is_mobile():
+		return
+	_thermal_timer = 5.0
+	var st := _read_thermal_status()
+	if st < 0:
+		_thermal_timer = 1e9       # no API on this device: stop polling
+		return
+	if st != thermal_status:
+		print("THERMAL status=%d fps_cap=%d scale=%.2f guard=%s" % [st, Engine.max_fps, render_scale, thermal_guard])
+	thermal_status = st
+	if not thermal_guard:
+		_thermal_set(0)
+		return
+	var want := 2 if st >= 3 else (1 if st >= 2 else 0)
+	if want > _thermal_level:
+		_thermal_cool = 0.0
+		_thermal_set(want)
+	elif want < _thermal_level and st <= 1:
+		_thermal_cool += 5.0
+		if _thermal_cool >= 60.0:
+			_thermal_set(want)
+	else:
+		_thermal_cool = 0.0
+
+
+func _thermal_set(level: int) -> void:
+	if level == _thermal_level:
+		return
+	if _thermal_level == 0:
+		_thermal_prev_fps = Engine.max_fps
+		_thermal_prev_scale = render_scale
+	if level >= 1:
+		Engine.max_fps = 30 if _thermal_prev_fps == 0 else mini(_thermal_prev_fps, 30)
+	else:
+		Engine.max_fps = _thermal_prev_fps
+	var scale := minf(_thermal_prev_scale, 0.75) if level >= 2 else _thermal_prev_scale
+	if not is_equal_approx(scale, render_scale):
+		render_scale = scale
+		_apply_viewports()
+	_thermal_level = level
+	print("THERMAL guard level=%d status=%d fps_cap=%d scale=%.2f" % [level, thermal_status, Engine.max_fps, render_scale])
+
+
 func _target_fps() -> int:
 	var cap := int(Engine.max_fps)
 	if cap <= 0:
@@ -382,6 +484,9 @@ func _apply_globals() -> void:
 	if fps == 0 and (OS.has_feature("mobile") or OS.has_feature("android") or OS.has_feature("ios")):
 		fps = 60
 	Engine.max_fps = fps
+	if _thermal_level > 0:
+		_thermal_prev_fps = fps
+		Engine.max_fps = 30 if fps == 0 else mini(fps, 30)
 	npc_full = value("npc_full")
 	npc_sprites = value("npc_sprites")
 	view_radius = value("view_radius")

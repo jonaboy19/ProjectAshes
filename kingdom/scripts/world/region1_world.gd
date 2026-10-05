@@ -65,6 +65,7 @@ static func plan(out: Array[Dictionary], _seed_value: int) -> void:
 			site = _place(spec, out, true)        # last resort: looser ground
 		if not site.is_empty():
 			out.append(site)
+	_extra_sites(out)
 
 
 # --- placement -------------------------------------------------------------------------
@@ -147,6 +148,14 @@ static func _place(spec: Dictionary, out: Array[Dictionary], loose := false) -> 
 		RegionSites._part(site, String(p[0]), Vector2(float(p[1]), float(p[2])), deg_to_rad(float(p[3])), int(p[4]) != 0)
 		if float(p[5]) != 0.0:
 			(site["parts"][site["parts"].size() - 1] as Array).append(float(p[5]))
+	# Medieval pass (local): unused meshy_free models appended to this site (data/region1/world/meshy_extra.json "add_parts").
+	var extra_parts: Array = []
+	if not OS.get_cmdline_user_args().has("--medievaloff"):
+		extra_parts = (data("meshy_extra.json").get("add_parts", {}) as Dictionary).get(String(spec["id"]), [])
+	for p: Array in extra_parts:
+		RegionSites._part(site, String(p[0]), Vector2(float(p[1]), float(p[2])), deg_to_rad(float(p[3])), int(p[4]) != 0)
+		if float(p[5]) != 0.0:
+			(site["parts"][site["parts"].size() - 1] as Array).append(float(p[5]))
 	for l: Array in spec.get("lights", []):
 		var col: Array = l[3]
 		site["lights"].append([Vector3(float(l[0]), float(l[1]), float(l[2])), Color(float(col[0]), float(col[1]), float(col[2])), float(l[4]), bool(l[5])])
@@ -219,3 +228,32 @@ static func _elden_road(elder: Dictionary, out: Array[Dictionary]) -> void:
 		st["r1id"] = "elden_waymark_%d" % i
 		RegionSites._part(st, "r1:stones/road_stone_" + String(kinds[i % kinds.size()]), Vector2.ZERO, 0.0, true)
 		out.append(st)
+
+
+## Medieval pass (local): the unused meshy_free models as small "roadside" sites on a ring just outside their town
+## (docs/qa/MESHY_PLACEMENT.md). Data: data/region1/world/meshy_extra.json "extra_sites"; roadside sites with >= 12 parts are
+## baked into a handful of draw calls by RegionDressing._bake_site. Planned after every canon site so they only take free ground.
+static func _extra_sites(out: Array[Dictionary]) -> void:
+	if OS.get_cmdline_user_args().has("--medievaloff"):
+		return
+	for es: Dictionary in data("meshy_extra.json").get("extra_sites", []):
+		if not es.has("name"):
+			continue
+		var cen := String(es["center"])
+		var clear := float(es["clear"])
+		var base := 0.0          # "site:<name>" centres: dmin / dmax are plain distances from that site
+		if not cen.begins_with("site:"):
+			var s := _settlement_named(cen)
+			if s.is_empty():
+				continue
+			cen = "settlement:" + cen
+			base = float(s["radius"]) * 1.15 + clear
+		var spec := {"id": es["id"], "name": es["name"], "kind": es["kind"], "clear": clear, "flatten": bool(es.get("flatten", true)),
+			"parts": es["parts"], "lights": [],
+			"search": {"center": cen,"d": [base + float(es["dmin"]), base + float(es["dmax"])],
+				"a": [-3.14159, 3.14159], "r": clear, "slope": 0.2, "prefer_high": 0.0, "d_pref": base + float(es["dmin"]) + 12.0, "face": "center"}}
+		var site := _place(spec, out)
+		if site.is_empty():
+			site = _place(spec, out, true)
+		if not site.is_empty():
+			out.append(site)

@@ -16,7 +16,7 @@ const LEVEL_KEYS := ["view_distance", "shadows", "textures", "effects"]
 const LEVEL_OPTIONS := ["Auto", "Low", "Medium", "High", "Ultra"]
 const DEFAULTS := {
 	"resolution": 0, "display_mode": 0, "vsync": 1, "aa": 1, "view_distance": 0, "shadows": 0,
-	"textures": 0, "effects": 0, "fps_limit": 1,
+	"textures": 0, "effects": 0, "fps_limit": 3,
 	"vol_master": 80, "vol_music": 70, "vol_sfx": 80, "vol_ambience": 75, "vol_voice": 85,
 	"difficulty": 1, "cam_sens": 50, "invert_y": false, "subtitles": true,
 	"hud_minimap": true, "hud_quests": true, "hud_compass": true, "hud_damage": true,
@@ -75,6 +75,10 @@ static func read_all(tree: SceneTree) -> Dictionary:
 	var out := {}
 	for k: String in DEFAULTS:
 		out[k] = cf.get_value(section_of(k), k, DEFAULTS[k])
+	# fps_limit 3 = Auto (tier cap + thermal guard), the default since 2026-10-05. Older saves
+	# stored the old default 1 (60), which overrode LOW's 30 cap on phones: read those as Auto.
+	if not bool(cf.get_value("display", "fps_v2", false)) and int(out["fps_limit"]) == 1:
+		out["fps_limit"] = 3
 	var lv := levels_from_config(cf)
 	for i in LEVEL_KEYS.size():
 		out[LEVEL_KEYS[i]] = lv[i] + 1
@@ -93,6 +97,7 @@ static func write_all(vals: Dictionary) -> void:
 		if vals.has(k):
 			cf.set_value(section_of(k), k, vals[k])
 	cf.set_value("display", "levels_v2", true)
+	cf.set_value("display", "fps_v2", true)
 	cf.save(PATH)
 
 
@@ -121,9 +126,11 @@ static func apply_all(tree: SceneTree, vals := {}, with_preset := false) -> void
 	var q := tree.root.get_node_or_null("Quality")
 	if with_preset and q and vals.has("preset"):
 		q.call("set_choice", int(vals["preset"]) - 1)
-	# Frame cap: 30 = battery saver (Quality), 60 / unlimited via Engine.max_fps.
+	# Frame cap: 30 = battery saver (Quality), 60 / unlimited via Engine.max_fps, 3 = Auto
+	# (the tier's own cap: LOW 30, MEDIUM/HIGH 60). The thermal guard runs for 60 and Auto.
 	if q:
 		var fps := int(vals["fps_limit"])
+		q.set("thermal_guard", fps == 1 or fps == 3)
 		q.call("set_battery_saver", fps == 0)
 		apply_levels(tree, vals)
 		if fps == 1:

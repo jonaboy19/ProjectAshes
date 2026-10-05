@@ -39,6 +39,15 @@ const WALL_GAP := 4.2
 const SMALL_HOUSE := "house_1"
 
 
+## Medieval pass (local): QA A/B switch, `--medievaloff` on the command line restores the pre-pass layout and dressing.
+static func medieval_off() -> bool:
+	return OS.get_cmdline_user_args().has("--medievaloff")
+
+## Medieval pass (local): radius factor of a wandering ring street at angle `a` (about 0.97 .. 1.03, closes on itself).
+static func _wander(a: float, ph: float, rf: float) -> float:
+	return 1.0 + 0.022 * sin(3.0 * a + ph) + 0.011 * sin(7.0 * a + ph * 1.7 + rf * 5.0)
+
+
 ## Returns {streets: [{a, b, w}], lots: [{asset, pos, yaw}], walls: bool,
 ##          wall_radius, gates: [angle], plaza_r, landmarks: [{asset, pos, yaw, scale}]}
 static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> Dictionary:
@@ -61,6 +70,12 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 
 	var lctx := TownIdentity.layout_context(prof, c, r, gates)
 	var narrow := float(lay.get("narrow", 1.0))
+	# Medieval pass (local): narrower lanes (rings 5.5 -> 4.6 m, radial lanes 4.5 -> 3.8 m) and houses set closer to the street edge,
+	# so the quarters read as tight medieval lanes instead of a suburb on a lawn. Main gate roads keep their market width.
+	var off := medieval_off()
+	var ring_w := 5.5 if off else 4.6
+	var lane_w := 4.5 if off else 3.8
+	var wob_ph := float(int(s["id"]) * 37 % 100) * 0.0628
 	# Main streets: plaza to each gate.
 	for g in gates:
 		var d := Vector2(cos(g), sin(g))
@@ -70,17 +85,19 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 	var rings: Array[float] = []
 	match kind:
 		"castle": rings = [0.34, 0.56, 0.78]
-		"town": rings = [0.42, 0.72]
+		"town": rings.assign([0.42, 0.72] if off else [0.40, 0.56, 0.72])    # Medieval pass (local): one more ring (was 0.42 / 0.72): burgage rows back to back
 		_: rings = [0.55]
 	if lay.has("rings"):
 		rings.assign(lay["rings"])
 	for rf in rings:
 		var rr := r * rf
 		var segs := maxi(10, int(TAU * rr / 16.0))
+		# Medieval pass (local): the ring wanders (two slow waves, +-3 % of its radius) so it is no compass circle. A pure function of the
+		# angle (no rng draw), so the rest of the layout stream is unchanged and both ends of a segment agree.
 		for i in segs:
 			var a0 := TAU * i / segs
 			var a1 := TAU * (i + 1) / segs
-			streets.append({"a": c + Vector2(cos(a0), sin(a0)) * rr, "b": c + Vector2(cos(a1), sin(a1)) * rr, "w": 5.5 * narrow})
+			streets.append({"a": c + Vector2(cos(a0), sin(a0)) * rr * (1.0 if off else _wander(a0, wob_ph, rf)), "b": c + Vector2(cos(a1), sin(a1)) * rr * (1.0 if off else _wander(a1, wob_ph, rf)), "w": ring_w * narrow})
 	# Radial lanes between the first ring and the walls, avoiding the main streets.
 	var lanes := 5
 	match kind:
@@ -98,7 +115,12 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 		if _near_angle(ang, gates, 0.3):
 			continue
 		var d := Vector2(cos(ang), sin(ang))
-		streets.append({"a": c + d * r * lane_from, "b": c + d * r * (0.96 if walled else 0.9), "w": 4.5 * narrow})
+		# Medieval pass (local): a lane is two segments with a 2-3 m kink at the middle, alternating left / right (no ruler-straight spokes).
+		var la := c + d * r * lane_from
+		var lb := c + d * r * (0.96 if walled else 0.9)
+		var lmid := (la + lb) * 0.5 + Vector2(-d.y, d.x) * (0.0 if off else (2.6 if i % 2 == 0 else -2.2))
+		streets.append({"a": la, "b": lmid, "w": lane_w * narrow})
+		streets.append({"a": lmid, "b": lb, "w": lane_w * narrow})
 
 	# Landmarks around the plaza.
 	var landmarks: Array = result["landmarks"]
@@ -144,7 +166,7 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 			while t < length:
 				for side: float in [-1.0, 1.0]:
 					var gate_road := w >= 11.0   # broad market road: tall townhouses set back behind the stalls
-					var p := a + dir * t + normal * side * (w * 0.5 + (8.4 if gate_road else 5.6))
+					var p := a + dir * t + normal * side * (w * 0.5 + (8.4 if gate_road else (5.6 if off else 4.7)))
 					if _lot_ok(p, c, r, plaza_r, walled, result["inner_wall"], streets, blocked, landmarks) and TownIdentity.keep_lot(lc, p):
 						var face := -normal * side
 						var dist_frac := p.distance_to(c) / r

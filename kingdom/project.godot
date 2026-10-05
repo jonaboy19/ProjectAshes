@@ -30,9 +30,6 @@ Audio="*res://scripts/audio/audio_director.gd"
 Frontier="*res://autoload/frontier.gd"
 Life="*res://autoload/life.gd"
 App="*res://scripts/core/app_services.gd"
-GameplayCueManager="*res://addons/GodotGAS/managers/gameplay_cue_manager.gd"
-GUIDE="*res://addons/guide/guide.gd"
-DialogueManager="*res://addons/dialogue_manager/dialogue_manager.gd"
 QuestWeaverGlobal="*res://addons/quest_weaver/core/quest_weaver_global.gd"
 QuestWeaverServices="*res://addons/quest_weaver/core/quest_weaver_services.gd"
 QuestWeaverGameState="*res://addons/quest_weaver/core/quest_weaver_game_state.gd"
@@ -53,7 +50,7 @@ window/handheld/orientation=4
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/guide/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/quest_weaver/plugin.cfg", "res://addons/GodotGAS/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/gloot/plugin.cfg", "res://addons/road-generator/plugin.cfg", "res://addons/proton_scatter/plugin.cfg", "res://addons/gdUnit4/plugin.cfg", "res://addons/mobile_texture_limit/plugin.cfg", "res://addons/phantom_camera/plugin.cfg", "res://addons/debug_menu/plugin.cfg")
+enabled=PackedStringArray("res://addons/quest_weaver/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/gloot/plugin.cfg", "res://addons/proton_scatter/plugin.cfg", "res://addons/gdUnit4/plugin.cfg", "res://addons/mobile_texture_limit/plugin.cfg", "res://addons/phantom_camera/plugin.cfg", "res://addons/debug_menu/plugin.cfg")
 
 [filesystem]
 

@@ -198,3 +198,7 @@ func _save(town: Dictionary, out_dir: String, tag: String) -> void:
 	var path := "%s/%s_%s.png" % [out_dir, String(town["name"]), tag]
 	img.save_png(path)
 	print("SHOT ", path)
+	# Medieval pass (local): draw calls / objects / primitives of the frame just saved (A/B: add --medievaloff after the other args).
+	var vp: Viewport = main.viewport
+	print("DRAWS %s %s calls=%d objects=%d prims=%d" % [String(town["name"]), tag, vp.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
+		vp.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_OBJECTS_IN_FRAME), vp.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME)])

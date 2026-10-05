@@ -38,7 +38,7 @@ const DEFS := {
 	"shutters_painted": {"slots": ["wall_a", "wall_b"], "mesh": "proc:shutters_painted", "rich": 0.6, "y": 1.6, "d": {"market": 1.1, "admin": 0.9, "inn": 1.2, "craft": 0.4, "poor": 0.2, "military": 0.2}},
 	"barrel_pair": {"slots": ["door_a", "door_b", "side"], "mesh": "barrel_cluster", "scale": 0.8, "rich": -0.2, "d": {"inn": 1.4, "craft": 1.2, "market": 1.0, "poor": 0.9, "military": 0.8, "admin": 0.3}, "r": 0.9},
 	"rain_barrel": {"slots": ["side", "door_a", "door_b"], "mesh": "barrel", "rich": -0.3, "d": {"poor": 1.4, "craft": 1.0, "inn": 0.9, "market": 0.6, "military": 0.6, "admin": 0.3}, "r": 0.4},
-	"laundry_line": {"slots": ["yard"], "mesh": "washing_line", "scale": 0.9, "rich": -0.8, "d": {"poor": 2.2, "craft": 0.6, "inn": 0.4, "military": 0.4, "market": 0.1, "admin": 0.0}, "r": 2.3},
+	"laundry_line": {"slots": ["yard"], "mesh": "kit:laundry_line", "scale": 1.0, "rich": -0.8, "d": {"poor": 2.2, "craft": 0.6, "inn": 0.4, "military": 0.4, "market": 0.1, "admin": 0.0}, "r": 2.3},
 	"fence_run": {"slots": ["yard", "door_a", "door_b"], "mesh": "fence", "rich": -0.1, "d": {"poor": 1.5, "craft": 0.9, "inn": 0.9, "military": 0.5, "market": 0.3, "admin": 0.3}, "r": 1.5},
 	"hanging_lantern": {"slots": ["wall_a", "wall_b"], "mesh": "mf_lantern_wall_scroll", "rich": 0.5, "y": 2.15, "d": {"market": 1.2, "admin": 1.4, "inn": 1.5, "military": 1.0, "craft": 0.5, "poor": 0.2}},
 	"bench": {"slots": ["door_a", "door_b"], "mesh": "bench", "rich": 0.1, "d": {"inn": 1.5, "admin": 1.2, "market": 0.9, "poor": 0.7, "craft": 0.6, "military": 0.6}, "r": 0.9},
@@ -61,7 +61,7 @@ const DEFS := {
 }
 
 ## Order matters: the draw order of DEFS keys is the iteration order (stable), never Dictionary hashing.
-static var _keys: Array = DEFS.keys()
+static var _keys: Array = DEFS.keys().filter(func(k: String) -> bool: return not (k.begins_with("kit_") and OS.get_cmdline_user_args().has("--medievaloff")))
 static var _mesh_cache: Dictionary = {}
 
 
@@ -85,6 +85,8 @@ static func mesh_for(key: String) -> Mesh:
 			m = _proc(spec.substr(5))
 		elif spec.begins_with("decal:"):
 			m = null
+		elif spec.begins_with("kit:"):
+			m = load("res://scripts/build/kit_meshes.gd").mesh(spec.substr(4))      # shared textured kit materials
 		elif spec.begins_with("gen:"):
 			m = Assets.merged_mesh(GEN + spec.substr(4) + ".glb")
 		else:

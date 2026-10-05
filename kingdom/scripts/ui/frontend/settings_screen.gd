@@ -164,7 +164,8 @@ func _tab_graphics() -> void:
 	_row("shadows", "Shadows", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")
 	_row("textures", "Textures", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")
 	_row("effects", "Effects", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")
-	_row("fps_limit", "Frame Rate Limit", "opt", ["30", "60", "Unlimited"])
+	_row("fps_limit", "Frame Rate Limit", "opt", ["30", "60", "Unlimited", "Auto"],
+		"Auto follows the graphics preset (30 on Low, 60 above) and drops to 30 when the phone gets hot.")
 	_row("render_scale", "Resolution Scale", "slider", [], "50-100 % of the screen resolution for the 3D view. Lower is faster and cooler.")
 
 
