@@ -317,19 +317,27 @@ const G6 := "res://assets/incoming/characters/g6-ual/"
 ## Meshy armored humanoids re-rigged to UAL (user's PC session); their helmets are part of the mesh.
 const ARMORED := "res://assets/incoming/ai3d/meshy/armored/"
 const CDMIR := "res://assets/incoming/characters/cdmir-ual/"
+## Meshy batch 3 bipeds re-rigged onto the UAL skeleton (tools/meshy/armored_rig/meshy3_rerig.py, docs/art/meshy_dl3/README.md).
+const MESHY3 := "res://assets/incoming/meshy_dl3/characters_ual/"
 const MH_LOOKS := {
 	"Rogue_Hooded": ["villager_man_a", "villager_man_b", "villager_woman_a", "villager_woman_b", "elder_man", "elder_woman",
-		G6 + "g6_m_villager_tunic", G6 + "g6_f_villager_tunic", G6 + "g6_f_worker_apron"],
-	"Barbarian": ["villager_man_a", "villager_man_b", "father", "villager_farmer", G6 + "g6_m_worker_apron", G6 + "g6_m_hunter_leather"],
+		G6 + "g6_m_villager_tunic", G6 + "g6_f_villager_tunic", G6 + "g6_f_worker_apron",
+		MESHY3 + "villager_green_vest", MESHY3 + "villager_white_shirt", MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
+	"Barbarian": ["villager_man_a", "villager_man_b", "father", "villager_farmer", G6 + "g6_m_worker_apron", G6 + "g6_m_hunter_leather",
+		MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
 	"Mage": ["villager_woman_a", "villager_woman_b", "mother", "elder_woman", "villager_baker", G6 + "g6_f_villager_tunic", G6 + "g6_f_blacksmith_apron"],
 	"Rogue": ["villager_man_b", "elder_man", "villager_man_a", G6 + "g6_m_villager_tunic", G6 + "g6_m_hunter_leather"],
 	"Blacksmith": [G6 + "g6_m_blacksmith_apron", "villager_smith"], "Innkeeper": [G6 + "g6_m_worker_apron", G6 + "g6_f_worker_apron"],
-	"Hunter": [G6 + "g6_m_hunter_leather", G6 + "g6_f_hunter_leather"], "Monk": [CDMIR + "cdmir_monk"],
-	"Herbalist": [CDMIR + "cdmir_old_lady", "villager_healer"], "Trader": [G6 + "g6_m_villager_tunic", G6 + "g6_f_worker_apron", "villager_merchant"],
+	"Hunter": [G6 + "g6_m_hunter_leather", G6 + "g6_f_hunter_leather", MESHY3 + "guardian_hooded"], "Monk": [CDMIR + "cdmir_monk"],
+	"Herbalist": [CDMIR + "cdmir_old_lady", "villager_healer"], "Trader": [G6 + "g6_m_villager_tunic", G6 + "g6_f_worker_apron", "villager_merchant", MESHY3 + "merchant_cloaked"],
 	"Knight": [ARMORED + "guard", ARMORED + "mercenary"],
-	"Player": ["player_young"], "Guard": [ARMORED + "guard", "villager_guard"], "Baker": ["villager_baker"], "Plate_Knight": [ARMORED + "knight"],
-	"Mercenary": [ARMORED + "mercenary"], "Bandit": [ARMORED + "bandit"], "Noble": [ARMORED + "noble"],
+	"Player": ["player_young"], "Guard": [ARMORED + "guard", "villager_guard"], "Baker": ["villager_baker"], "Plate_Knight": [ARMORED + "knight", MESHY3 + "knight_plate_a"],
+	"Mercenary": [ARMORED + "mercenary"], "Bandit": [ARMORED + "bandit", MESHY3 + "guardian_hooded"], "Noble": [ARMORED + "noble"],
 	"Orc_Warchief": [ARMORED + "orc_warchief"],
+	# Meshy batch 3 (docs/art/meshy_dl3/README.md): named looks for Thornfield's stranger, travellers and extra villagers.
+	"Meshy_Villager": [MESHY3 + "villager_green_vest", MESHY3 + "villager_white_shirt", MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
+	"Meshy_Traveller": [MESHY3 + "guardian_hooded", MESHY3 + "merchant_cloaked"],
+	"Meshy_Knight": [MESHY3 + "knight_plate_a"],
 	"Mother": ["mother"], "Father": ["father"],
 	"Child_Boy": ["child_boy"], "Child_Girl": ["child_girl"],
 	"Elder_Man": ["elder_man"], "Elder_Woman": ["elder_woman"],

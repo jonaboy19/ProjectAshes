@@ -4,6 +4,8 @@ extends RefCounted
 ## this adds the per-model remap on top: desaturate toward the Style G palette, pull value down, matte the gloss
 ## (roughness up, specular down) and optionally force another role (trees, flowers, goods, wood).
 ## Models in DROPPED are not placed at all (fill_sites.json no longer lists them; the list is the test contract).
+## Meshy batch 3 (assets/incoming/meshy_dl3, asset keys "dl3:<cat>/<name>@H") goes through the same pass; its models are keyed
+## "dl3/<cat>/<name>" in DROPPED / TREAT (see DL3_REJECT, DL3_UNPLACED and docs/art/meshy_dl3/README.md "Triage").
 ## Preload; no class_name.
 
 const StyleG := preload("res://scripts/style_g.gd")
@@ -56,20 +58,71 @@ const TREAT := {
 	"water/boat_longship_sail": {"saturation": 0.75},
 	"creatures/wolf_brown": {"roughness": 0.95, "spec": 0.1},
 	"creatures/wolf_ghost": {"roughness": 0.95, "spec": 0.1},
+	# Meshy batch 3 (dl3): realistic PBR bakes, brighter and more saturated than Style G; models not listed are kept as they are.
+	"dl3/buildings/cottage_blue_roof": {"saturation": 0.55, "value_gain": 0.92, "roughness": 0.9},
+	"dl3/buildings/cottage_orange_roof": {"saturation": 0.6, "value_gain": 0.92, "roughness": 0.9},
+	"dl3/buildings/cottage_thatch_timber": {"saturation": 0.75, "value_gain": 0.95},
+	"dl3/buildings/house_orange_thatch": {"saturation": 0.5, "value_gain": 0.88},
+	"dl3/buildings/house_straw_thatch": {"saturation": 0.75, "value_gain": 0.95},
+	"dl3/buildings/tavern_red_roof": {"saturation": 0.6, "value_gain": 0.92, "roughness": 0.9},
+	"dl3/camp/tent_shop_canopy": {"saturation": 0.8},
+	"dl3/carts/wagon_shields_covered": {"saturation": 0.6, "value_gain": 0.9},
+	"dl3/market/stall_rug_wood": {"saturation": 0.65, "value_gain": 0.92},
+	"dl3/castle/fortress_grey_blue": {"saturation": 0.6, "value_gain": 0.92, "roughness": 0.9},
+	"dl3/creatures/horse_saddled_brown": {"saturation": 0.8, "roughness": 0.95, "spec": 0.1},
+	"dl3/creatures/elemental_earth_golem": {"saturation": 0.75, "value_gain": 0.9},
+	"dl3/furniture/table_bench_set": {"saturation": 0.8},
+	"dl3/furniture/bench_lantern_posts": {"saturation": 0.8},
+	"dl3/furniture/table_long_wood": {"saturation": 0.8},
+	"dl3/magic/rack_elixirs": {"saturation": 0.55, "value_gain": 0.88},
+	"dl3/props/keg_big": {"saturation": 0.8},
+	"dl3/props/chest_iron_banded": {"saturation": 0.75, "value_gain": 0.9, "roughness": 0.9},
+	"dl3/props/firewood_stack_oven": {"saturation": 0.8},
+	"dl3/props/shield_round_wood": {"saturation": 0.6, "value_gain": 0.9},
+	"dl3/props/swords_scabbards_trio": {"saturation": 0.8},
 }
 ## banners (all banners/*): sun-faded cloth, not candy
 const BANNER := {"saturation": 0.78, "value_gain": 0.95}
+
+const DL3_ROOT := "res://assets/incoming/meshy_dl3/"
+## Meshy batch 3 rejects (every model with a LOD0 in assets/incoming/meshy_dl3 that is NOT placed, shipped or kept for later use):
+## toy/cartoon colour (teal or sky-blue roofs), glowing/burning or ruined shells, diorama bases, flat UI-like icon plates, candy eggs,
+## VFX-like flame/ice elementals, untextured or failed-rig characters. They are in export_presets.cfg's exclude_filter and
+## never placed (DROPPED includes them; tests/test_fill_style.gd checks both).
+const DL3_REJECT := [
+	"dl3/buildings/cottage_straw_roof_a", "dl3/buildings/cottage_straw_roof_b", "dl3/buildings/tavern_blue_porch",
+	"dl3/buildings/tavern_drunken_dragon", "dl3/castle/armory_keep", "dl3/castle/tower_round_orange_roof", "dl3/camp/tent_hide_conical",
+	"dl3/creatures/elemental_fire", "dl3/creatures/elemental_water",
+	"dl3/magic/eggs_elemental_four", "dl3/magic/runestones_elemental_four", "dl3/magic/sigils_elemental_eight",
+	"dl3/magic/circle_elemental_platform", "dl3/magic/emblem_four_elements", "dl3/magic/potion_green_vine_base",
+	"dl3/characters_static/knight_plate_shield",
+	"dl3/characters_rigged/knight_plate_grey", "dl3/characters_rigged/noblewoman_cape", "dl3/characters_rigged/soldier_shield_sword",
+]
+## Kept models with no placement yet (too small, no water/plinth/interior to put them in): excluded from the export until used.
+const DL3_UNPLACED := [
+	"dl3/churches/cathedral_romanesque", "dl3/characters_static/ser_duncan_knight", "dl3/characters_static/hobo_hooded_beggar",
+	"dl3/loot/coin_gold", "dl3/loot/coin_silver", "dl3/props/door_round_wood", "dl3/props/helmet_sentinel",
+	"dl3/props/pier_plain", "dl3/props/pier_rope_rails", "dl3/props/pier_stairs_bench",
+]
 
 static var _cache := {}
 
 
 static func is_dropped(model: String) -> bool:
-	return DROPPED.has(model)
+	return DROPPED.has(model) or DL3_REJECT.has(model)
 
 
 ## "free:castle/castle_sandstone_a@17.32" or "castle/castle_sandstone_a" -> "castle/castle_sandstone_a".
 static func model_of(asset: String) -> String:
+	if asset.begins_with("dl3:"):
+		return "dl3/" + asset.substr(4).split("@")[0]
 	return asset.trim_prefix("free:").split("@")[0]
+
+
+## "dl3:buildings/cottage_blue_roof@5" or "dl3/buildings/cottage_blue_roof" -> res:// path of its LOD (0 or 1).
+static func dl3_path(asset: String, lod := 0) -> String:
+	var m := model_of(asset) if asset.begins_with("dl3:") else asset
+	return DL3_ROOT + m.trim_prefix("dl3/") + "_lod%d.glb" % lod
 
 
 ## The override dictionary for a model ({} = untreated, the role material alone).

@@ -18,6 +18,7 @@ const Breakable := preload("res://scripts/world/breakable.gd")
 ## "r1:<dir>/<name>@<h>" (incoming/region1), and bodies that are not meshes (signs, named NPCs, doors).
 const Extras := preload("res://scripts/world/region1_extras.gd")
 const FREE_PACK := "res://assets/incoming/meshy_free/"
+const DL3_PACK := "res://assets/incoming/meshy_dl3/"      # Meshy batch 3: asset keys "dl3:<cat>/<name>@H"
 const FillStyle := preload("res://scripts/world/fill_style.gd")      # Style G per-model treatment of the meshy_free pack
 const R1 := "res://assets/incoming/region1/"
 const R1_KIT := "res://assets/incoming/region1/highwatch/highwatch_kit.tres"
@@ -85,7 +86,7 @@ func _ready_to_spawn(_asset: String) -> bool:
 
 ## The GLB paths _spawn will load for an asset key (LOD0 and LOD1).
 func _paths(asset: String) -> Array:
-	if asset.begins_with("free:") or asset.begins_with("r1:"):
+	if asset.begins_with("free:") or asset.begins_with("r1:") or asset.begins_with("dl3:"):
 		return []      # loaded when a site is built: hundreds of baked textures must not sit in VRAM from boot
 	if asset.begins_with("meshy:"):
 		var n := asset.substr(6).split("@")[0]
@@ -448,7 +449,7 @@ func _footprint_ground(world: Vector3, basis: Basis, box: AABB) -> float:
 ## "farm/barn" -> region set, "props/x" -> generated props, "nature:x" -> region
 ## nature (with its wind materials), "meshy:x@H" -> a Meshy landmark scaled to H m.
 func _spawn(asset: String) -> Node3D:
-	if asset.begins_with("free:") or asset.begins_with("r1:"):
+	if asset.begins_with("free:") or asset.begins_with("r1:") or asset.begins_with("dl3:"):
 		return _spawn_kit(asset)
 	if asset.begins_with("meshy:"):
 		var spec := asset.substr(6).split("@")
@@ -507,9 +508,10 @@ func _spawn(asset: String) -> Node3D:
 ## LOD0 and LOD1 pair, fitted to @H metres tall when given (else natural size), standing on its own base.
 ## The Highwatch kit ships without textures: its atlas material goes on every mesh.
 func _spawn_kit(asset: String) -> Node3D:
-	var is_free := asset.begins_with("free:")
-	var spec := asset.substr(5 if is_free else 3).split("@")
-	var base := (FREE_PACK if is_free else R1) + spec[0]
+	var is_dl3 := asset.begins_with("dl3:")
+	var is_free := asset.begins_with("free:") or is_dl3
+	var spec := asset.substr(4 if is_dl3 else (5 if is_free else 3)).split("@")
+	var base := (DL3_PACK if is_dl3 else (FREE_PACK if is_free else R1)) + spec[0]
 	var lod0 := base + "_lod0.glb"
 	var lod1 := base + "_lod1.glb"
 	if not ResourceLoader.exists(lod0):

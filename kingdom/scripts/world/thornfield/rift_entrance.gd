@@ -50,6 +50,9 @@ func build() -> void:
 	_root.add_child(l)
 	l.global_position = Wilds.ground(center) + Vector3(0, 1.8, 0.6)
 	Props.prop(_root, "signpost", center + Vector2(5.0, 4.5), 2.4, 1.0)
+	# Meshy batch 3: a Rift-touched earth-golem effigy beside the cleft (data "rift.extras": [model, x, z, yaw_deg, height], world axes).
+	for e: Array in Wilds.data()["rift"].get("extras", []):
+		Props.model(_root, String(e[0]), center + Vector2(float(e[1]), float(e[2])), deg_to_rad(float(e[3])), float(e[4]))
 	var d: Node = RiftDoor.new()
 	add_child(d)
 	d.call("configure_rift")

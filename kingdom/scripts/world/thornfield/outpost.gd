@@ -108,6 +108,9 @@ func build() -> void:
 	Props.fire_light(_root, Wilds.ground(fire, 1.2), 1.3, 11.0)
 	Props.prop(_root, "notice_board", local(-2.5, -9.0), front_yaw(perp), 0.9)
 	Props.prop(_root, "weapon_rack", local(-12.5, -3.0), front_yaw(perp), 1.0)
+	# Meshy batch 3 yard dressing (data "outpost.extras": [model, x, z, yaw_deg, height, lift] in the road frame; yaw 0 faces along the road).
+	for e: Array in cfg.get("extras", []):
+		Props.model(_root, String(e[0]), local(float(e[1]), float(e[2])), front_yaw(heading) + deg_to_rad(float(e[3])), float(e[4]), float(e[5]) if e.size() > 5 else 0.0)
 
 
 func _ground_low(p: Vector2, r: float) -> float:

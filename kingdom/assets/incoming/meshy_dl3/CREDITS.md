@@ -1,3 +1,6 @@
 # meshy_dl3 credits
 
 130 models generated/downloaded by the project owner from their Meshy account on 2026-10-03/04 (file names `Meshy_AI_*_texture.glb`, `*_generate.glb`, `*_biped.zip`). Provenance: owner-downloaded, licence per owner's Meshy plan; individual community model ids are not in the file names, so no per-model licence lookup was possible. Re-baked (voxel remesh/decimate, single JPEG texture), re-scaled and LOD'd; rigged characters decimated with skeleton kept. See `docs/art/meshy_dl3/README.md`.
+
+## Placement and re-rig (2026-10-05)
+Placed in the world: 31 of the 67 optimized models (`data/region1/world/meshy3_sites.json` yards beside Thornfield, Ashford, Redwater, Highcliff, Greywatch, Blackwater, Marrowick, Amberley and Longmeadow; the Watch Post, bandit camp and Rift mouth through `thornfield_wilds.json` "extras"). Rejects (cartoon, toy-like, glowing/ruined shells, flat icon plates, failed rigs) and kept-but-unplaced models stay out of the export (`export_presets.cfg` exclude_filter). `characters_rigged/` holds the original Mixamo-skeleton skins (not shipped); `characters_ual/` the 7 re-rigged onto the UAL skeleton (`tools/meshy/armored_rig/meshy3_rerig.py`), same provenance as above: owner-downloaded, licence per the owner's Meshy plan.

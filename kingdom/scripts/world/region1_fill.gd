@@ -9,6 +9,8 @@ extends RefCounted
 
 const R1World := preload("res://scripts/world/region1_world.gd")
 const FillStyle := preload("res://scripts/world/fill_style.gd")
+## Meshy batch 3 yards ("dl3:" models: town houses, wagons, tents, horses, a garrison keep), same spec format as fill_sites.json.
+const MESHY3_FILE := "meshy3_sites.json"
 
 
 static func sites(_seed_value: int, out: Array[Dictionary]) -> Array[Dictionary]:
@@ -17,7 +19,10 @@ static func sites(_seed_value: int, out: Array[Dictionary]) -> Array[Dictionary]
 		return res
 	var all: Array[Dictionary] = []
 	all.append_array(out)
-	for raw: Dictionary in R1World.data("fill_sites.json").get("sites", []):
+	var raws: Array = R1World.data("fill_sites.json").get("sites", []).duplicate()
+	if not OS.get_cmdline_user_args().has("--meshy3off"):         # QA A/B for the Meshy batch 3 yards
+		raws.append_array(R1World.data(MESHY3_FILE).get("sites", []))
+	for raw: Dictionary in raws:
 		var spec := _expand(raw)
 		var site: Dictionary = R1World._place(spec, all)
 		if site.is_empty():
