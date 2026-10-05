@@ -1014,7 +1014,7 @@
       "path": "docs/regions/HOOKS_FOR_CLOUD.md",
       "lines": 410,
       "sha256": "E2C6082BD019CE3B51451BCFEB72E408BA06828388067D9D9D6FD9F374C3FFB2",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/regions/LOOK_R1.md",
@@ -1032,7 +1032,7 @@
       "path": "docs/regions/OWNER_DECISIONS.md",
       "lines": 27,
       "sha256": "9D8B37F6F14ACD920718BBB7CC4A1C1FACAA052B5E5A2D409A01A24A703ADCA4",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/regions/REGION_1_PLAN.md",
