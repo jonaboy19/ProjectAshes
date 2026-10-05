@@ -161,7 +161,10 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 			batches[bkey] = []
 		var size := _footprint(asset)
 		var gh := _ground_snap(p, lot["yaw"], size)
-		var t := Transform3D(Basis(Vector3.UP, lot["yaw"]), Vector3(p.x, gh, p.y))
+		# Medieval pass (local): heights differ along a street (0.93 .. 1.13 x, footprint unchanged, so doors / colliders stay put); a pure
+		# function of the lot position, no rng draw.
+		var hv := fposmod(sin(p.x * 12.9898 + p.y * 78.233) * 43758.5453, 1.0)
+		var t := Transform3D(Basis(Vector3.UP, lot["yaw"]).scaled(Vector3(1.0, 1.0 if CityPlanner.medieval_off() else 0.93 + 0.2 * hv, 1.0)), Vector3(p.x, gh, p.y))
 		batches[bkey].append(t)
 		if tinted:
 			if not bcolors.has(bkey):
@@ -347,6 +350,7 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	TownView.walls(self, root, s, plan, _prof)     # stone / low / palisade / hedge / runestones / none (after mills and fields: it keeps off them)
 	_homesteads(root, s, plan, rng)
 	_gate_outskirts(root, s, plan, gates)
+	_medieval_gates(root, s, plan, gates)      # Medieval pass (local): mud, cobble apron, hay cart, barrels, banners at the gates and market
 	_footprint_clutter(root, plan, rng)
 	TownView.yards(self, root, s, plan, _prof)     # outskirts of the town's industry: mine yard, granary, boatyard, watch towers ...
 	VillageFeatures.build(self, root, s, plan, _prof)     # villages and hamlets: their own set of green / chapel / mill / smithy / pond / orchard ...
@@ -1307,6 +1311,110 @@ func _gate_outskirts(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array
 			_multimesh(root, mesh, list, true, true)
 		else:
 			_multimesh_cells(root, mesh, list, LOD_CELL)
+
+
+## Medieval pass (local): the kit props (assets/incoming/build_kit) that make a gate and a market look lived-in and muddy: a cobble apron
+## in the gate mouth, mud puddles in the gate roads and on the plaza, a hay cart and barrel clusters just inside and outside each gate,
+## banner poles flanking the opening. Own RNG (5151 + town id); every spot is rejected on a lot, a street, a landmark or an earlier prop,
+## and batched into one MultiMesh per kind per 40 m cell (a handful of draws per town, none of them with collision except the cart).
+func _medieval_gates(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array[float]) -> void:
+	if gates.is_empty() or CityPlanner.medieval_off():
+		return
+	var kit := "res://assets/incoming/build_kit/"
+	var rng3 := RandomNumberGenerator.new()
+	rng3.seed = 5151 + int(s["id"])
+	var c: Vector2 = s["pos"]
+	var wr: float = float(plan["wall_radius"]) if plan["walls"] else float(s["radius"]) * 1.1
+	var low := _low()
+	var lists := {"cobble": [], "mud": [], "cart": [], "barrels": [], "banner": []}
+	var taken: Array[Vector2] = []
+	for ga: float in gates:
+		var dir := Vector2(cos(ga), sin(ga))
+		var side := Vector2(-dir.y, dir.x)
+		var yaw_r := atan2(dir.x, dir.y)
+		var half := float(WorldGen.road_info(c.x + dir.x * wr, c.y + dir.y * wr)["width"]) * 0.5
+		# Cobble apron in the gate mouth (2 m tiles, hand-laid jitter); LOW: a narrower strip.
+		var rows := 3 if low else 5
+		for iu in range(-2, 5):
+			for il in rows:
+				var lat := (il - (rows - 1) * 0.5) * 2.0
+				var q := c + dir * (wr + iu * 2.0) + side * lat
+				if WorldGen.is_water(q.x, q.y):
+					continue
+				(lists["cobble"] as Array).append(Transform3D(Basis(Vector3.UP, yaw_r + rng3.randf_range(-0.05, 0.05)),
+					Vector3(q.x + rng3.randf_range(-0.04, 0.04), WorldGen.height(q.x, q.y) + 0.005, q.y)))
+		# Mud puddles along the gate road, both sides, thicker beyond the wall.
+		for k in (4 if low else 8):
+			var uu := wr + rng3.randf_range(-14.0, 52.0)
+			var sg := 1.0 if rng3.randf() < 0.5 else -1.0
+			var q2 := c + dir * uu + side * sg * (half * rng3.randf_range(0.2, 1.1))
+			if WorldGen.is_water(q2.x, q2.y) or absf(uu - wr) < 4.0:
+				continue
+			var ps := rng3.randf_range(0.8, 1.7)
+			(lists["mud"] as Array).append(Transform3D(Basis(Vector3.UP, rng3.randf() * TAU).scaled(Vector3(ps, 1.0, ps)),
+				Vector3(q2.x, WorldGen.height(q2.x, q2.y) + 0.012, q2.y)))
+		# A hay cart parked outside the gate, barrel clusters beside the road, banner poles flanking the opening.
+		var cart_sg := 1.0 if rng3.randf() < 0.5 else -1.0
+		var cp := c + dir * (wr + 22.0 + rng3.randf() * 8.0) + side * cart_sg * (half + 9.0)
+		if _medieval_spot_ok(plan, cp, yaw_r + 0.6 * cart_sg, Vector3(1.8, 1.6, 3.2), taken, 4.0):
+			taken.append(cp)
+			(lists["cart"] as Array).append(Transform3D(Basis(Vector3.UP, yaw_r + 0.6 * cart_sg), Vector3(cp.x, _ground_snap(cp, yaw_r, Vector3(1.8, 1.6, 3.2), 0.03), cp.y)))
+		for bk in (1 if low else 3):
+			var bsg := 1.0 if bk % 2 == 0 else -1.0
+			var bp := c + dir * (wr + rng3.randf_range(-11.0, 20.0)) + side * bsg * (half + rng3.randf_range(2.2, 4.0))
+			if absf(bp.distance_to(c) - wr) < 3.5:
+				continue
+			if _medieval_spot_ok(plan, bp, 0.0, Vector3(1.7, 0.9, 1.5), taken, 1.6):
+				taken.append(bp)
+				(lists["barrels"] as Array).append(Transform3D(Basis(Vector3.UP, rng3.randf() * TAU), Vector3(bp.x, WorldGen.height(bp.x, bp.y) - 0.02, bp.y)))
+		if plan["walls"]:
+			for sg3: float in [1.0, -1.0]:
+				var fp := c + dir * (wr - 3.2) + side * sg3 * (half + 1.3)
+				if _medieval_spot_ok(plan, fp, 0.0, Vector3(0.6, 4.0, 0.6), taken, 1.0):
+					taken.append(fp)
+					(lists["banner"] as Array).append(Transform3D(Basis(Vector3.UP, yaw_r), Vector3(fp.x, WorldGen.height(fp.x, fp.y) - 0.03, fp.y)))
+	# Plaza: a few churned-mud puddles near the stalls' edge.
+	var pr: float = plan["plaza_r"]
+	for k in (3 if low else 7):
+		var pa := rng3.randf() * TAU
+		var pq := c + Vector2(cos(pa), sin(pa)) * pr * rng3.randf_range(0.55, 1.15)
+		if CityPlanner.landmark_clearance(plan, pq) < 3.0 or WorldGen.is_water(pq.x, pq.y):
+			continue
+		var pps := rng3.randf_range(0.7, 1.4)
+		(lists["mud"] as Array).append(Transform3D(Basis(Vector3.UP, rng3.randf() * TAU).scaled(Vector3(pps, 1.0, pps)),
+			Vector3(pq.x, WorldGen.height(pq.x, pq.y) + 0.012, pq.y)))
+	# kit materials (textured, shared): the plain GLB colours read as flat green grass over the gate road (QA 2026-10-05)
+	var KitMeshes := load("res://scripts/build/kit_meshes.gd")
+	var meshes := {"cobble": KitMeshes.mesh("road_cobble_tile"), "mud": KitMeshes.mesh("mud_puddle"),
+		"cart": TownIdentity.fitted(kit + "hay_cart_lod1.glb"), "barrels": TownIdentity.fitted(kit + "barrel_cluster_lod1.glb"),
+		"banner": Assets.building_mesh("banner_pole")}
+	for kind: String in lists:
+		var list: Array[Transform3D] = []
+		list.assign(lists[kind])
+		if list.is_empty() or meshes[kind] == null:
+			continue
+		if kind == "cart":
+			_multimesh(root, meshes[kind], list, true, true)
+		else:
+			_multimesh_cells(root, meshes[kind], list, LOD_CELL, 0.0, false, kind != "cobble" and kind != "mud")
+
+
+## Medieval pass (local): is this spot free of lots, streets-in-the-way (only for solid pieces), landmarks and earlier props?
+func _medieval_spot_ok(plan: Dictionary, p: Vector2, yaw: float, size: Vector3, taken: Array[Vector2], gap: float) -> bool:
+	if WorldGen.is_water(p.x, p.y) or not _spot_ok(p, yaw, size):
+		return false
+	if CityPlanner.landmark_clearance(plan, p) < 3.0:
+		return false
+	for lot: Dictionary in plan["lots"]:
+		if (lot["pos"] as Vector2).distance_to(p) < 7.5:
+			return false
+	for q: Vector2 in taken:
+		if q.distance_to(p) < gap + 1.5:
+			return false
+	for q2: Vector2 in plan.get("outskirt_spots", []):
+		if q2.distance_to(p) < gap + 2.0:
+			return false
+	return true
 
 
 ## Lamp posts around the square that glow at night, and a signpost where the road leaves.

@@ -43,6 +43,11 @@ const SETS := {
 		{"id": "sack_pile", "n": 0.30, "r": 1.0, "from": "edge"},
 		{"id": "basket_produce", "n": 0.35, "r": 0.5, "from": "edge"},
 		{"id": "flower_planter", "n": 0.30, "r": 0.7, "from": "edge", "face": true},
+		# Medieval pass (local): meshy_free signs / lamps / stall and a build-kit hay cart.
+		{"id": "f:signs/sign_shop_lion", "n": 0.10, "r": 0.7, "from": "edge", "face": true},
+		{"id": "f:lighting/lamp_post_timber_cross", "n": 0.10, "r": 0.7, "from": "edge", "face": true},
+		{"id": "f:market/stall_potatoes", "n": 0.04, "r": 2.7, "from": "edge", "face": true, "solid": true},
+		{"id": "k:hay_cart", "n": 0.07, "r": 2.0, "from": "yard", "solid": true},
 	],
 	"craft": [
 		{"id": "woodpile", "n": 0.30, "r": 1.7, "from": "yard"},
@@ -59,6 +64,10 @@ const SETS := {
 		{"id": "hay", "n": 0.12, "r": 1.2, "from": "yard"},
 		{"id": "d:drying_rack", "n": 0.16, "r": 1.5, "from": "yard", "face": true},
 		{"id": "street_lamp", "n": 0.15, "r": 0.6, "from": "edge"},
+		# Medieval pass (local)
+		{"id": "f:farm/hay_bale_rect_a", "n": 0.10, "r": 0.9, "from": "yard"},
+		{"id": "f:props/chest_metal_wood", "n": 0.03, "r": 0.8, "from": "yard"},
+		{"id": "f:lighting/torch_hand_silver", "n": 0.05, "r": 0.4, "from": "edge"},
 	],
 	"poor": [
 		{"id": "well", "n": 0.07, "r": 1.7, "from": "yard", "solid": true, "min": 1},
@@ -71,6 +80,14 @@ const SETS := {
 		{"id": "crate", "n": 0.25, "r": 0.6, "from": "edge"},
 		{"id": "water_trough", "n": 0.07, "r": 1.3, "from": "edge", "face": true},
 		{"id": "sack_pile", "n": 0.10, "r": 1.0, "from": "edge"},
+		# Medieval pass (local): village-style wells, hay, broken fences, hens, mud, a hay cart.
+		{"id": "f:props/well_stone_shingle", "n": 0.03, "r": 1.7, "from": "yard", "solid": true},
+		{"id": "f:farm/hay_bale_round", "n": 0.10, "r": 1.2, "from": "yard"},
+		{"id": "f:fences/fence_broken_rail", "n": 0.16, "r": 1.4, "from": "yard"},
+		{"id": "f:farm/chicken_hen", "n": 0.18, "r": 0.4, "from": "edge"},
+		{"id": "f:flora/bush_raspberry", "n": 0.10, "r": 0.8, "from": "yard"},
+		{"id": "k:mud_puddle", "n": 0.35, "r": 0.8, "from": "edge"},
+		{"id": "k:hay_cart", "n": 0.05, "r": 2.0, "from": "yard", "solid": true},
 	],
 	"admin": [
 		{"id": "g:notice_board", "n": 0.30, "r": 1.3, "from": "edge", "face": true, "solid": true},
@@ -81,6 +98,9 @@ const SETS := {
 		{"id": "flower_bed", "n": 0.20, "r": 1.3, "from": "yard"},
 		{"id": "weapon_rack", "n": 0.08, "r": 1.4, "from": "edge", "face": true, "solid": true},
 		{"id": "signpost", "n": 0.12, "r": 0.9, "from": "edge", "face": true},
+		# Medieval pass (local)
+		{"id": "f:lighting/street_lantern_gothic", "n": 0.25, "r": 0.6, "from": "edge"},
+		{"id": "f:banners/banner_stand_iron_frame", "n": 0.12, "r": 0.8, "from": "edge", "face": true},
 	],
 	"inn": [
 		{"id": "hay", "n": 0.30, "r": 1.2, "from": "yard"},
@@ -95,6 +115,11 @@ const SETS := {
 		{"id": "market_stall_green", "n": 0.07, "r": 2.7, "from": "edge", "face": true, "solid": true},
 		{"id": "produce_table", "n": 0.16, "r": 1.1, "from": "edge", "face": true},
 		{"id": "street_lamp", "n": 0.25, "r": 0.6, "from": "edge"},
+		# Medieval pass (local)
+		{"id": "f:furniture/table_barrel_top", "n": 0.14, "r": 0.9, "from": "edge", "face": true},
+		{"id": "f:furniture/chair_simple_a", "n": 0.16, "r": 0.5, "from": "edge", "face": true},
+		{"id": "f:furniture/tavern_set_barrels_b", "n": 0.05, "r": 1.8, "from": "edge", "face": true, "solid": true},
+		{"id": "k:mud_puddle", "n": 0.30, "r": 0.8, "from": "edge"},
 	],
 	"military": [
 		{"id": "weapon_rack", "n": 0.18, "r": 1.4, "from": "edge", "face": true, "solid": true},
@@ -107,6 +132,9 @@ const SETS := {
 		{"id": "barrel", "n": 0.20, "r": 0.5, "from": "edge"},
 		{"id": "street_lamp", "n": 0.30, "r": 0.6, "from": "edge"},
 		{"id": "water_trough", "n": 0.10, "r": 1.3, "from": "edge", "face": true},
+		# Medieval pass (local)
+		{"id": "f:banners/banner_spear_top", "n": 0.14, "r": 0.8, "from": "edge", "face": true},
+		{"id": "k:mud_puddle", "n": 0.25, "r": 0.8, "from": "edge"},
 	],
 }
 
@@ -261,6 +289,12 @@ class Ctx extends RefCounted:
 
 
 static func _mesh_of(id: String) -> Mesh:
+	# Medieval pass (local): "f:<cat>/<name>" = a meshy_free model (LOD1 when it has one), "k:<name>" = a build-kit piece.
+	if id.begins_with("f:"):
+		var fp := "res://assets/incoming/meshy_free/" + id.substr(2)
+		return Assets.merged_mesh(fp + "_lod1.glb") if ResourceLoader.exists(fp + "_lod1.glb") else (Assets.merged_mesh(fp + "_lod0.glb") if ResourceLoader.exists(fp + "_lod0.glb") else null)
+	if id.begins_with("k:"):
+		return load("res://scripts/build/kit_meshes.gd").mesh(id.substr(2))     # shared textured kit materials (raw GLB colours read as flat paint)
 	if id.begins_with("d:"):
 		return HouseDetails.mesh_for(id.substr(2))
 	if id.begins_with("g:"):
@@ -633,6 +667,8 @@ static func _specs_of(j: Job, dk: String) -> Array:
 	if not j.specs.has(dk):
 		var out: Array = []
 		for sp: Dictionary in SETS.get(dk, []):
+			if OS.get_cmdline_user_args().has("--medievaloff") and (String(sp["id"]).begins_with("f:") or String(sp["id"]).begins_with("k:")):
+				continue      # QA A/B (--medievaloff)
 			if TownIdentity.prop_mult(j.prof, String(sp["id"])) > 0.0:
 				out.append(sp)
 		out.append_array(TownIdentity.kit_specs(j.prof, dk))
