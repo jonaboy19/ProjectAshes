@@ -53,10 +53,10 @@ func _run() -> void:
 			meshy = a.trim_prefix("--meshy=")
 	var hero: Node3D
 	if meshy != "":
-		hero = Assets.mh_character(meshy if meshy.contains("/") else "res://assets/incoming/meshy_dl3/characters_ual/" + meshy, 1.78)
+		hero = Assets.mh_character(meshy if meshy.contains("/") else "res://assets/incoming/meshy_dl3/characters_ual/" + meshy, 1.78, ["1H_Sword"] as Array[String])
 		root.add_child(hero)
 		if not baseline:
-			(load("res://scripts/actors/hero_tier_a.gd") as GDScript).call("upgrade_meshy", hero)
+			(load("res://scripts/actors/hero_tier_a.gd") as GDScript).call("dress_meshy_hero", hero)
 	else:
 		hero = (load(CC) as GDScript).call("build_model", HERO_LOOK, 1.78, [] as Array[String])
 		root.add_child(hero)
@@ -117,6 +117,27 @@ func _run() -> void:
 	cam.position = Vector3(0.55, 2.0, -3.85)
 	cam.look_at(Vector3(0.55, 1.35, 2.0))
 	await _shot("shoulder_cam")
+	# blink proof: force the lids closed for one frame
+	var drv := hero.find_children("HeroFaceDriver", "", true, false)
+	if not drv.is_empty():
+		drv[0].call("_bs", "Blink_L", 1.0)
+		cam.fov = 22
+		cam.position = head_p + Vector3(0, -0.05, 0.87)
+		cam.look_at(head_p + Vector3(0, -0.05, 0))
+		drv[0].set_process(false)
+		await _shot("face_blink")
+		drv[0].call("_bs", "Blink_L", 0.0)
+		drv[0].set_process(true)
+	# grip proof: sword idle, close on the right hand
+	_pose(ap, "Sword_Idle", 0.5)
+	for i in 3:
+		await process_frame
+	var hr := sk.find_bone("hand_r")
+	var hp2 := (sk.global_transform * sk.get_bone_global_pose(hr)).origin
+	cam.fov = 30
+	cam.position = hp2 + Vector3(-0.35, 0.12, 0.45)
+	cam.look_at(hp2)
+	await _shot("hand_grip")
 	if _arg("--clips"):
 		await _clips(ap, cam, hero)
 	quit()
@@ -151,7 +172,7 @@ func _shot(name: String) -> void:
 func _clips(ap: AnimationPlayer, cam: Camera3D, hero: Node3D) -> void:
 	get_root().size = Vector2i(420, 560)
 	cam.fov = 34
-	var sets := {"walk": "Walk", "run": "Jog_Fwd", "sprint": "Sprint", "attack": "Sword_Regular_A", "roll": "Roll", "idle": "Idle"}
+	var sets := {"walk": "Walk", "run": "Jog_Fwd", "sprint": "Sprint", "attack": "Sword_Regular_A", "roll": "Roll", "idle": "Idle", "grip": "Sword_Idle"}
 	for k in sets:
 		var clip: String = sets[k]
 		if not ap.has_animation(clip):

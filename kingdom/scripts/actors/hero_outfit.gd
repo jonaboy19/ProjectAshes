@@ -62,7 +62,17 @@ static func tint_tunic(model: Node3D) -> void:
 				m.set_surface_override_material(si, t)
 
 
-static func dress(model: Node3D) -> MeshInstance3D:
+## `parts` = subset to build (skirt, belt, satchel, pouch, jerkin, strap, hood, hair, bracers); empty = all.
+## The Meshy Tier-A hero uses ["satchel", "strap", "hood", "belt"] over its own clothes.
+static var _parts: Array = []
+static var _skip := false
+static func _part(n: String) -> void:
+	_skip = not _parts.is_empty() and not _parts.has(n)
+
+
+static func dress(model: Node3D, parts: Array = []) -> MeshInstance3D:
+	_parts = parts
+	_skip = false
 	var sks := model.find_children("*", "Skeleton3D", true, false)
 	if sks.is_empty():
 		return null
@@ -98,6 +108,7 @@ static func dress(model: Node3D) -> MeshInstance3D:
 	var cx := (p_thl.x + p_thr.x) * 0.5
 	var cz := p_pel.z
 	_piece(M.WOOL, waist_y - 0.06 * unit, (waist_y - hem_y) * 1.4)
+	_part("skirt")
 	# --- tunic skirt (fitted to the body at the waist, flared and folded at the hem) --------------------------
 	var rw := _fit(waist_y, Vector2(0.16, 0.12) * unit) * 1.06
 	var rh := _fit(hem_y, Vector2(0.2, 0.14) * unit)
@@ -127,6 +138,7 @@ static func dress(model: Node3D) -> MeshInstance3D:
 				var col := TUNIC_DARK if t > 0.86 else TUNIC.lerp(TUNIC_DARK, 0.25 * (1.0 - absf(sin(a * 7.0))))
 				vs.append([p, [pel, thl, thr], [1.0 - wl - wr, wl, wr], col])
 			_quad(st, vs[0], vs[1], vs[2], vs[3], false)
+	_part("belt")
 	# --- belt + buckle ---------------------------------------------------------------------------------------
 	var belt_y := waist_y + 0.015 * unit
 	var rb := _fit(belt_y, rw) * 1.09
@@ -134,6 +146,7 @@ static func dress(model: Node3D) -> MeshInstance3D:
 	_ring(st, Vector3(cx, belt_y, cz), rb, 0.035 * unit, 0.012 * unit, [pel], [1.0], LEATHER_DARK, 20)
 	_piece(M.METAL)
 	_box(st, Vector3(cx, belt_y, cz + rb.y + 0.01 * unit), Vector3(0.05, 0.045, 0.012) * unit, 0.0, [pel], [1.0], BRASS)
+	_part("satchel")
 	# --- satchel on the right hip + flap + diagonal strap to the left shoulder --------------------------------
 	var bag_c := Vector3(cx - rb.x * 1.05, belt_y - 0.13 * unit, cz + rb.y * 0.35)
 	_piece(M.LEATHER, bag_c.y + 0.1 * unit, 0.5 * unit, true)
@@ -159,9 +172,11 @@ static func dress(model: Node3D) -> MeshInstance3D:
 				pass   # strap disabled: fins through the arms in the walk cycle (TODO: lay it on the jerkin shell)
 			prev_f = f
 			prev_b = bk
+	_part("pouch")
 	# --- pouch on the left front of the belt --------------------------------------------------------------------
 	_piece(M.LEATHER, belt_y, 0.4 * unit, true)
 	_box(st, Vector3(cx + rb.x * 0.62, belt_y - 0.06 * unit, cz + rb.y * 0.92), Vector3(0.09, 0.09, 0.04) * unit, 0.0, [pel, thl], [0.8, 0.2], LEATHER)
+	_part("jerkin")
 	# --- leather jerkin over the green tunic: open at the front, waist to armpits ------------------------------------
 	if sp3 >= 0 and sp1 >= 0:
 		var y0 := belt_y + 0.02 * unit
@@ -188,6 +203,7 @@ static func dress(model: Node3D) -> MeshInstance3D:
 					var col := LEATHER.lerp(LEATHER_DARK, 0.3 * absf(sin(k[1] * 5.0)) * (1.0 - wu))
 					vs.append([p, [sp1, sp3], [1.0 - wu, wu], col])
 				_quad(st, vs[0], vs[1], vs[2], vs[3], true)
+		_part("strap")
 		# satchel strap lying ON the jerkin shell (front: right hip -> left shoulder), torso bones only = no arm fins
 		var prev := Vector3.ZERO
 		var sn := 20
@@ -202,16 +218,23 @@ static func dress(model: Node3D) -> MeshInstance3D:
 			if si2 > 0:
 				_strap(st, prev, pt, 0.045 * unit, Vector3(cos(a2), 0, sin(a2)), sp1, sp3, clampf(kk, 0.0, 1.0), LEATHER_DARK)
 			prev = pt
+	_part("hood")
 	# --- hood rolled down: thick collar ring around the neck base + a drape down the back -----------------------
 	if neck >= 0 and sp3 >= 0:
 		var p_n := _pos(neck)
 		var cy := p_n.y - 0.02 * unit
 		var rn := Vector2(0.095, 0.09) * unit
+		if not _parts.is_empty():                       # foreign body (Meshy hero): fit the collar ring to the actual neck/collar
+			var fr := _fit(cy, rn)
+			rn = Vector2(maxf(rn.x, fr.x * 1.05), maxf(rn.y, fr.y * 1.05))
 		_piece(M.WOOL)
 		_ring(st, Vector3(p_n.x, cy, p_n.z - 0.01 * unit), rn, 0.07 * unit, 0.055 * unit, [neck, sp3], [0.4, 0.6], LEATHER, 16)
 		# the hood itself, lying folded on the upper back: a half-ellipsoid bag, wide at the collar, pinched to a tip
 		_piece(M.WOOL, cy - 0.03 * unit, 0.35 * unit)
 		var hc := Vector3(p_n.x, cy - 0.11 * unit, p_n.z - 0.075 * unit)
+		if not _parts.is_empty():
+			var back := _fit(hc.y, Vector2(0.15, 0.11) * unit)
+			hc.z = minf(hc.z, cz - back.y + 0.085 * unit)
 		var nth := 10
 		var nph := 7
 		for pj in nph:
@@ -226,6 +249,7 @@ static func dress(model: Node3D) -> MeshInstance3D:
 					var col := HOOD.lerp(LEATHER_DARK, 0.1 + 0.4 * float(k[0]) / nph)
 					vs.append([hc + d, [sp3, neck], [1.0 - wn, wn], col])
 				_quad(st, vs[0], vs[1], vs[2], vs[3], false)
+	_part("hair")
 	# --- shaggy hair: tufts rooted on the G6 hair cap, skinned to the head ------------------------------------------
 	var head := _b(["Head", "head"])
 	if head >= 0:
@@ -248,6 +272,7 @@ static func dress(model: Node3D) -> MeshInstance3D:
 			var col := HAIR.lerp(HAIR_DARK, rng.randf_range(0.0, 0.6))
 			_tuft(st, p - out * 0.006 * unit, dir, ln, 0.02 * unit, head, col)
 			n_t += 1
+	_part("bracers")
 	# --- bracers on both forearms ---------------------------------------------------------------------------------
 	_piece(M.LEATHER, 1e9, 1.0, true)
 	for pair in [[lal, hal], [lar, har]]:
@@ -372,6 +397,8 @@ static func _fit_axis(c: Vector3, ax: Vector3, fallback: float) -> float:
 
 
 static func _vert(st: SurfaceTool, v: Array) -> void:
+	if _skip:
+		return
 	var bones := PackedInt32Array([0, 0, 0, 0])
 	var weights := PackedFloat32Array([0, 0, 0, 0])
 	var bs: Array = v[1]
