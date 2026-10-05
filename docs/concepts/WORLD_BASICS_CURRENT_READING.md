@@ -18,3 +18,7 @@ GatherRun keeps a weak reference to the active panel. A valid new session cancel
 
 ## Freed-panel recovery
 Forage, construction-resource and fishing interaction guards now use is_instance_valid(_panel), so an unexpectedly freed panel does not permanently block reopening. Normal exactly-once completion callbacks remain the primary cleanup. No runtime or tests were run.
+
+## Living-world reading continuation
+Read LIVING_WORLD.md lines 1-379: persistent personal lives, journeys, physical accommodation/property, jobs and entry qualifications, promotions by accomplishments, employment failures and physical quest boards. This is partial document coverage, not a full reading or proof of gameplay completeness. Located existing sim/property.gd, sim/careers.gd, career_ladders.gd and realm/career_trades.gd; their end-to-end coverage still needs inspection.
+Read life_library.gd in full. Fixed its installation flag being set before skeleton-path validation: it now marks completion only after a nonempty clip set is available. Shared-library installation and composite caching remain intact. Missing-resource cache behavior remains a separate concern. No runtime or tests were run.
