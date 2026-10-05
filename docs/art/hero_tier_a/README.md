@@ -43,3 +43,14 @@ Rating: still about 6/10 in close-up, so it is **not** made the default hero.
   - Grip: the Meshy hands are fused mitts. Finger re-weighting shredded them, so it is off (`--fingers`). The sword floats in an open hand.
 
 Rating: about 6/10 in close-up and about 6 at the shoulder cam. **Not default.** It doesn't clearly beat the current hero, and there was no benchmark-street test: the sparse worktree has no town, and disk is too tight for a full worktree.
+
+## Pass 4 (2026-10-06): `m11_sheet.jpg`, `m10_clips.jpg`
+- **Hands:** the Meshy mitts are cut at the wrist and the G6 hands are retargeted on (15 real finger bones each). Clip fists and grips now curl, and all clips are clean. The skin tone is still too orange.
+- **Blink:** the lids sample one plain cheek texel and get a soft border plus a lash line. The half-blink now reads as eyelids.
+- **Hood:** a separate cloth shell grown from the collar and upper back (same weights, offset 1.6 cm plus 6 mm solidify, so it doesn't clip), with a folded bag on the back. At gameplay distance it reads as a brown hooded mantle and hides the shoulder bulk. In close-up its edges are flat and jagged.
+- **Shoulders:** slimmed about 18 % in depth (geometric sculpt). Still broad.
+- **Flag:** `player.gd` has `TIER_A_HERO` (false) and `--hero_tier_a`.
+
+Rating: close-up about 6.5/10, shoulder cam about 6.5, clips 7.
+
+Benchmark street: NOT run. The full worktree's Godot import segfaulted while disk free fell to 3.7 GB (other agents writing). The worktree was removed. The hero stays off by default.
