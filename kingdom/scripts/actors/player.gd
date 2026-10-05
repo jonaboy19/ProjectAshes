@@ -1324,7 +1324,7 @@ func _step_chase(delta: float) -> void:
 	var gallop := _mount != null and _gallop_time > 0.0
 	var ctx := {
 		"speed_k": speed / RUN, "sprinting": Input.is_action_pressed("sprint") and speed > WALK * 1.4 and not blocking,
-		"dashing": _dodge > 0.0 or _dodging_ability, "gallop": gallop, "combat": _chase_combat,
+		"dashing": _dodge > 0.0, "gallop": gallop, "combat": _chase_combat,
 		"locked": is_instance_valid(_lock), "open": _chase_open, "rooftop": _chase_roof,
 		"strength": 1.0 if view == View.THIRD else 0.0,
 	}
@@ -1973,6 +1973,7 @@ func _hit_side(from: Node) -> String:
 
 
 func _interrupt_technique(reason: String) -> void:
+	_chase.cancel_cast()
 	var caster := get_node_or_null("TechniqueCaster")
 	if caster != null and caster.has_method("interrupt_cast"):
 		caster.call("interrupt_cast", reason)

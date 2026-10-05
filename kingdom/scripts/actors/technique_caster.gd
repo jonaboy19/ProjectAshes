@@ -727,7 +727,7 @@ func _resolve(id: String, def: Dictionary, dmg: int, target: Node3D) -> void:
 
 ## melee / cone / aoe / target_aoe: one volley of hits.
 func _update_body_followups(delta: float) -> void:
-	if delta <= 0.0:
+	if delta <= 0.0 or _body_followups.is_empty():
 		return
 	var due: Array[Dictionary] = []
 	for strike: Dictionary in _body_followups:

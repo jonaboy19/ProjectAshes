@@ -46,3 +46,7 @@ Published 2026-10-05 to origin/gpt/bending-current (first push through a21f8382)
 
 ## Missing camera dependency (GitHub f4c86b40)
 Claude's pass 6 reports missing chase_camera.gd. Confirmed no tracked implementation in available Git history or filename match under Documents. Added a new scene-independent framing model matching every player.gd call: step, offsets, impulses, lock framing and optional cancellable cast beat. Baseline FOV is the player's existing 65 degrees. SpringArm collision remains in player.gd. This is a replacement for the missing implementation, not recovery of Claude's original file. Runtime behavior and camera tuning are unverified; no tests were run.
+
+## Camera lifecycle cleanup and upstream reconciliation
+Merged Claude Style G pass 6 (f4c86b40) without conflicts; art changes are preserved. Source inspection found _dodging_ability is a retained roll-type flag, not an active timer. Camera dashing now depends on _dodge > 0, so a completed Shadow Dash no longer holds dash lens/distance targets indefinitely. Body interruption cancels the optional cast camera beat. Empty follow-up queues return before allocating a due list.
+Read ashes-performance: maintain near/far budgets, cache scene resources, avoid threaded mesh/material loads, measure on devices before acceptance. No runtime, benchmarks or tests were run in this pass; published changes remain draft.
