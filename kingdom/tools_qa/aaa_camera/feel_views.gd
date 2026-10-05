@@ -112,6 +112,12 @@ func _run() -> void:
 	var bst: Dictionary = plan["streets"][0]
 	var bd := ((bst["b"] as Vector2) - (bst["a"] as Vector2)).normalized()
 	await _place((bst["a"] as Vector2) + bd * 22.0 - bd.orthogonal() * 1.5, bd.rotated(0.3))
+	for n in get_tree().root.find_children("*", "Node", true, false):
+		if n.has_method("spawn_now") and n.has_method("actors_alive"):
+			for id in ["laundry_day", "street_sweeper", "water_carriers"]:
+				print("FEELVIEW chore ", id, " ", n.call("spawn_now", id))
+			break
+	await frames(240)
 	await shot("5_benchmark")
 	# 4. a town horse up close (textured HorseRig vs the old flat Quaternius one).
 	var best: Node3D = null

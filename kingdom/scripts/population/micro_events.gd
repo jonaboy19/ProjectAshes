@@ -29,7 +29,7 @@ const Schedule := preload("res://scripts/population/schedule.gd")
 const TownIdentity := preload("res://scripts/world/town_identity.gd")   # per-town street-activity bias (data/world/town_identity.json)
 
 const POOL: Array = Catalog.POOL
-const MAX_ACTIVE := 2
+const MAX_ACTIVE := 3       # AAA pass 3: a third vignette keeps the benchmark street working (budget_allows still caps actors)
 const MIN_GAP := 14.0            # real seconds between two starts when the street is quiet
 const MAX_GAP := 34.0
 const TICK := 1.0
