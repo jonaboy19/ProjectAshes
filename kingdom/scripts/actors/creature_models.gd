@@ -32,7 +32,8 @@ const DEFAULT_CLIPS := {"idle": "idle", "walk": "walk", "run": "run", "attack": 
 
 ## kind -> {path (no extension), scale or fit_height, walk, run, impact, clips overrides}
 const MODELS := {
-	"wolf": {"path": MESHY + "wolf", "scale": 1.0, "walk": 0.85, "run": 2.6, "impact": 0.27},
+	# Rebuilt planted-foot clips: measured ground speeds in docs/anim/creatures/wolf/TABLE.txt.
+	"wolf": {"path": MESHY + "wolf", "scale": 1.0, "walk": 1.07, "run": 4.95, "impact": 0.27},
 	"boar": {"path": MESHY + "boar", "scale": 1.0, "walk": 0.45, "run": 2.7, "impact": 0.21},
 	"bear": {"path": MESHY + "bear", "scale": 1.0, "walk": 1.35, "run": 4.0, "impact": 0.27},
 	"goblin": {"path": MESHY + "goblin", "scale": 1.0, "walk": 0.87, "run": 2.64, "impact": 0.55,

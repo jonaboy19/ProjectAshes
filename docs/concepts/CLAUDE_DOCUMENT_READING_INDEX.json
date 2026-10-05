@@ -198,7 +198,7 @@
       "path": "docs/anim/patches/P2b_wolf_turn_and_pack_clips.md",
       "lines": 189,
       "sha256": "08DE16EB2B99CC8C962DCD0D2D130F4784C7F60764CA1CBDE955641ACDE40A0E",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/patches/P3_getup_pop.md",
