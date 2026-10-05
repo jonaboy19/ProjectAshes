@@ -40,3 +40,6 @@ Mobile technique_buttons and hotbar were source-reviewed: both consume can_cast_
 
 ## Follow-up action clock (Codex)
 Melee/cone follow-ups now use a small caster-owned queue advanced by the same action_delta as cast windups. Hit pause holds those deadlines. Interruptions clear the queue; generation checks also protect a due batch against replacement during callbacks. Remote area follow-ups remain on their existing world timers. Existing strikes advance before runner.update so newly released strikes do not lose a physics tick immediately. Zero-windup casts preserve follow-ups created synchronously by runner.begin. No runtime or tests were run.
+
+## GitHub availability
+Published 2026-10-05 to origin/gpt/bending-current (first push through a21f8382). Claude can fetch this branch and review the code and both handoff documents. No merge into main or the Claude branch was performed. Earlier sections describe the state at their individual checkpoints; current runtime acceptance and clip mappings remain unfinished.
