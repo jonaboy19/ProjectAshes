@@ -45,7 +45,7 @@ func _process(delta: float) -> void:
 	if _scan > 0.0:
 		return
 	_scan = SCAN_INTERVAL
-	if hud and hud.has_method("is_menu_open") and hud.is_menu_open() and current != null:
+	if hud and hud.has_method("is_menu_open") and hud.is_menu_open() and is_instance_valid(current):
 		return
 	_retarget(_nearest())
 
@@ -71,6 +71,15 @@ func _nearest() -> Node3D:
 		if d < best_d:
 			best_d = d
 			best = v
+	if best != null:
+		# Range alone must not offer a conversation through a solid wall.
+		# Only the selected candidate costs a ray, at the existing scan cadence.
+		var query := PhysicsRayQueryParameters3D.create(from + Vector3.UP * 1.2,
+			best.global_position + Vector3.UP * 1.2, 1)
+		if _player is CollisionObject3D:
+			query.exclude = [(_player as CollisionObject3D).get_rid()]
+		if not get_world_3d().direct_space_state.intersect_ray(query).is_empty():
+			return null
 	return best
 
 
