@@ -75,10 +75,10 @@ func add_highlight(text: String, day: int) -> void:
 
 
 ## Records a promotion in the current chapter for `role` (opens one first if
-## there is none, or the current one is a different role).
+## there is none, the previous chapter is closed, or it is a different role).
 func promote(role: String, rank_id: String, rank_title: String, day: int, org := "", place := "") -> void:
 	var cur := current_chapter()
-	if cur.is_empty() or String(cur["role"]) != role:
+	if cur.is_empty() or int(cur["end_day"]) >= 0 or String(cur["role"]) != role:
 		start_chapter(role, org, rank_id, place, day)
 		cur = current_chapter()
 	cur["rank"] = rank_id

@@ -1148,13 +1148,13 @@
       "path": "C:/Users/Jonna/.codex/attachments/23192324-b18f-4ce5-93c8-ee74f39f5929/Geplakte tekst.txt",
       "lines": 404,
       "sha256": "8AB9BA5A8631CFE8E41A246B5F625B5168E65C7C33ED28597B8C024AAB4AE093",
-      "coverage": "pending_explicit_read"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "C:/Users/Jonna/.codex/attachments/ad811f02-4a3a-42b7-bd97-003ac2f3c55e/Geplakte tekst.txt",
       "lines": 445,
       "sha256": "AB6D52383ED3F4E3FA5D1AC5D70DE99396E3A0573771FEB475C88F3B901F8E61",
-      "coverage": "pending_explicit_read"
+      "coverage": "full_read_recorded"
     }
   ]
 }
