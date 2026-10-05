@@ -108,7 +108,7 @@
       "path": "docs/anim/horses/HANDOFF.md",
       "lines": 223,
       "sha256": "1205946541A1A7EFEC3DDCDA007B82B537CC0B8AFE47E94E4F58428548E1CC98",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/living_world/bench_high.md",
