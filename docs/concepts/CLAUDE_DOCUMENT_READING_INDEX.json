@@ -1002,13 +1002,13 @@
       "path": "docs/regions/CAST_R1.md",
       "lines": 116,
       "sha256": "6BB2EA2AFE8D426B01DF595F54D003978F51FEF17F63A5D6F9E69D7284431BF0",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/regions/EMOTION_MAP_R1.md",
       "lines": 283,
       "sha256": "C97633200CC118137B498C8C32F9A052501FF13530514D4A6A2AE33B6C027917",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/regions/HOOKS_FOR_CLOUD.md",
