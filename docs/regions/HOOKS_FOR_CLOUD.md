@@ -408,3 +408,15 @@ H1 to H7, C3 to C8 and C12 are applied; see the table "Cloud integration status"
 - `scripts/region1/scar_tide.gd` (L9) did not exist and was written with C4 (tests in `test_region1_hooks.gd`).
 - H7 uses `WorldGen.settlements[home_settlement]["name"]` for `place`.
 - Story `cutscene` actions other than the Blessing are short staging, not sequences (owner direction).
+
+## 2026-10-05 (local): Build kit hooks (skill `ashes-build-kit`)
+Small edits in cloud files, each commented "Build-kit hook":
+- `scripts/realm/construction_data.gd`: hidden kind `kit_plan` in CATALOG + KIND_ORDER (`"hidden": true`); `kinds_of_tier()` skips hidden kinds so menus never list it.
+- `scripts/realm/construction.gd`: `place_kit_plan(pos, yaw, cost, hours, label)` - a site with its own bill/hours, stocked from store then pack like `place()`.
+- `scripts/realm/realm_hub.gd`: module `build_kit` registered last in MODULES/ORDER (saved with the realm).
+- `scripts/ui/build_menu.gd`: "Free build" tab opens `scripts/build/build_mode.gd`.
+Requests for the cloud (not done locally):
+1. C16: claim/founding flow should call `build_kit.ensure_grid` (max 3) instead of founding on the first check tap; homestead plots could become a grid.
+2. Crafting stations (`station` field: forge, anvil, workbench, sawhorse, loom, oven) should register as `construction.STATIONS` / crafting benches when built; `store` pieces should add holding storage; `beds` should count in `beds_of`.
+3. Build camera (top-down 55 deg orbit, pinch zoom) and haptic snap tick on device; lasso/save-as-blueprint not done.
+4. Kit roads should feed `PATH_SPEED` / road_traffic (speed field in pieces.json roads).
