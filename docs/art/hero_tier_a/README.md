@@ -61,3 +61,11 @@ Benchmark street: NOT run. The full worktree's Godot import segfaulted while dis
 - **Mantle:** smoothed, thicker, with a darker wool tint, but the front shoulder slabs still read as shards in close-up. It is hidden (`SHOW_HOOD_SHELL = false`).
 
 Rating: about 6.5/10. Still not default.
+
+## Paid Meshy hero, first pass (2026-10-06): `n1_sheet.jpg`
+- **Source:** `ProjectAshes_art_staging/hero_meshy/hero_rigged.glb` (35 credits, spent by the coordinator). Re-rigged to UAL with the same pipeline, LOD0 18k / LOD1 17.6k / LOD2 3k, saved as `assets/generated/characters/hero_tier_a/hero_meshy2*.glb`.
+- **Result:** it loses (about 3/10).
+  - The texture did not come through. `extract_texture` grabbed image 0, which is probably not the PBR base colour, so the model renders flat dark grey.
+  - The body is a bulky cloak block with a dark face.
+  - The boots stretch into skis again (the boot was shifted 9.7 cm).
+- **Next:** pick the base-colour image by its material slot, then re-run `hero_fix` without `--keep_hands`.
