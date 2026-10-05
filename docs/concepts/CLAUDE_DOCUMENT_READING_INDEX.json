@@ -114,13 +114,13 @@
       "path": "docs/anim/living_world/bench_high.md",
       "lines": 11,
       "sha256": "6FA89AA8D0804014564D9870E5CE2E5F57530647EA7A128606AC2AA648B5023E",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/living_world/bench_low.md",
       "lines": 11,
       "sha256": "8DAB32DA8F787A820FD8D9ADD438723F65C002D8A59C3BC723271E92C0EF4EDB",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/living_world/HANDOFF.md",
@@ -972,7 +972,7 @@
       "path": "docs/qa/PERFORMANCE.md",
       "lines": 414,
       "sha256": "F3EAE9241D10953765ED7104A1F66D1A803EF3780E23AFC2C6CA3E326A8580E1",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/qa/PLAYTEST_REPORT.md",
