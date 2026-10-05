@@ -498,7 +498,7 @@ func _tick_body(delta: float) -> void:
 		_perform_time += delta
 		return
 	if _arrived and _yield_time <= 0.0:
-		if _act != Act.WATER or _water_working:
+		if _activity_is_performing(sim_position()):
 			_perform_time += delta
 		if _plan_indoors:
 			_set_indoors(true)
@@ -651,8 +651,7 @@ func _decide_act(here: Vector2) -> void:
 		_brain.remember_heard_sound(heard[1], float(heard[0]))
 	var heard_memory := _brain.heard_memory()
 	var interest: Array = sight if float(sight[0]) >= float(heard_memory[0]) else heard_memory
-	var performing := _indoors or (_arrived and _yield_time <= 0.0
-		and (_act != Act.WATER or _water_is_performing(here)))
+	var performing := _activity_is_performing(here)
 	_brain.tick(WorldSim.day * 24.0 + WorldSim.time_of_day, _act if performing else -1)
 	_save_needs()
 	_state = DailyRhythm.state(person)
@@ -1023,6 +1022,18 @@ func _update_facing(here: Vector2) -> void:
 		_face_now = _look_point - here
 	elif _face_pref != Vector2.INF:
 		_face_now = _face_pref
+
+
+## Arrival alone is not activity: approach/alignment and entry/exit clips do
+## not satisfy a need or count toward the completed action's commitment.
+func _activity_is_performing(here: Vector2) -> bool:
+	if _indoors:
+		return true
+	if not _arrived or _yield_time > 0.0 or _so_ended:
+		return false
+	if _so != null and _so.phase not in [SmartObjects.Session.LOOP, SmartObjects.Session.BETWEEN]:
+		return false
+	return _act != Act.WATER or _water_is_performing(here)
 
 
 func _plan_route(here: Vector2) -> void:
