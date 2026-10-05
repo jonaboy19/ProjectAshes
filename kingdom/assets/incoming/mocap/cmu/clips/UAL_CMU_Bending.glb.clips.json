@@ -1,0 +1,686 @@
+[
+ {
+  "name": "Water_Flow_SunSalute",
+  "loop": false,
+  "seconds": 4.7,
+  "frames": 142,
+  "keys": 900,
+  "source": "144/144_31.bvh",
+  "range_s": [
+   0.7,
+   5.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.016,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.05,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Water_Dance_ArmsHigh",
+  "loop": false,
+  "seconds": 3.8,
+  "frames": 115,
+  "keys": 1204,
+  "source": "049/49_09.bvh",
+  "range_s": [
+   0.4,
+   4.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.007,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.24,
+  "hip_scale": 0.0516
+ },
+ {
+  "name": "Water_Lean_Sway_A",
+  "loop": false,
+  "seconds": 3.6,
+  "frames": 109,
+  "keys": 1927,
+  "source": "005/05_04.bvh",
+  "range_s": [
+   4.8,
+   8.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.021,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.004,
+  "travel_m": 0.97,
+  "hip_scale": 0.0529
+ },
+ {
+  "name": "Water_SpinReach_L",
+  "loop": false,
+  "seconds": 2.4,
+  "frames": 73,
+  "keys": 902,
+  "source": "144/144_15.bvh",
+  "range_s": [
+   4.4,
+   6.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.04,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Water_Whirl",
+  "loop": false,
+  "seconds": 6.0,
+  "frames": 181,
+  "keys": 2460,
+  "source": "055/55_01.bvh",
+  "range_s": [
+   0.5,
+   6.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.012,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.012,
+  "travel_m": 1.5,
+  "hip_scale": 0.051
+ },
+ {
+  "name": "Air_Evade_L",
+  "loop": false,
+  "seconds": 1.77,
+  "frames": 54,
+  "keys": 1066,
+  "source": "078/78_18.bvh",
+  "range_s": [
+   0,
+   1.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.01,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.01,
+  "travel_m": 4.0,
+  "hip_scale": 0.0565
+ },
+ {
+  "name": "Air_Evade_R",
+  "loop": false,
+  "seconds": 1.47,
+  "frames": 45,
+  "keys": 927,
+  "source": "078/78_19.bvh",
+  "range_s": [
+   0,
+   1.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.01,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.008,
+  "travel_m": 3.42,
+  "hip_scale": 0.0565
+ },
+ {
+  "name": "Air_Duck_Weave_L",
+  "loop": false,
+  "seconds": 1.1,
+  "frames": 34,
+  "keys": 709,
+  "source": "078/78_13.bvh",
+  "range_s": [
+   0,
+   1.1
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.017,
+  "contact_lift_m": 0.113,
+  "min_foot_m": -0.057,
+  "travel_m": 2.02,
+  "hip_scale": 0.0565
+ },
+ {
+  "name": "Air_Balance_OneLeg",
+  "loop": false,
+  "seconds": 4.0,
+  "frames": 121,
+  "keys": 1203,
+  "source": "049/49_18.bvh",
+  "range_s": [
+   0.3,
+   4.3
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.008,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.07,
+  "hip_scale": 0.0516
+ },
+ {
+  "name": "Air_SpinJump_360",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 736,
+  "source": "075/75_08.bvh",
+  "range_s": [
+   1.6,
+   3.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.003,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.003,
+  "travel_m": 0.41,
+  "hip_scale": 0.0514
+ },
+ {
+  "name": "Air_Handspring_Evade",
+  "loop": false,
+  "seconds": 1.3,
+  "frames": 40,
+  "keys": 818,
+  "source": "088/88_04.bvh",
+  "range_s": [
+   3.3,
+   4.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.039,
+  "contact_lift_m": 0.251,
+  "min_foot_m": 0.061,
+  "travel_m": 2.08,
+  "hip_scale": 0.0575
+ },
+ {
+  "name": "Air_Jump_Twist",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 879,
+  "source": "141/141_06.bvh",
+  "range_s": [
+   3.6,
+   5.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.011,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.008,
+  "travel_m": 0.15,
+  "hip_scale": 0.058
+ },
+ {
+  "name": "Earth_Lunge_R",
+  "loop": false,
+  "seconds": 2.5,
+  "frames": 76,
+  "keys": 946,
+  "source": "144/144_17.bvh",
+  "range_s": [
+   3.2,
+   5.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.014,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.04,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Earth_Lunge_L",
+  "loop": false,
+  "seconds": 2.5,
+  "frames": 76,
+  "keys": 976,
+  "source": "144/144_11.bvh",
+  "range_s": [
+   2.9,
+   5.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.013,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.02,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Earth_PunchSeq_L",
+  "loop": false,
+  "seconds": 5.0,
+  "frames": 151,
+  "keys": 2444,
+  "source": "144/144_13.bvh",
+  "range_s": [
+   1.5,
+   6.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.015,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.002,
+  "travel_m": 0.05,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Earth_PunchSeq_Deep",
+  "loop": false,
+  "seconds": 1.6,
+  "frames": 49,
+  "keys": 826,
+  "source": "144/144_20.bvh",
+  "range_s": [
+   3,
+   4.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.014,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.0,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Earth_Crouch_Reach_R",
+  "loop": false,
+  "seconds": 1.8,
+  "frames": 55,
+  "keys": 631,
+  "source": "144/144_24.bvh",
+  "range_s": [
+   15.9,
+   17.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.01,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.16,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Fire_Box_Combo_A",
+  "loop": false,
+  "seconds": 4.4,
+  "frames": 133,
+  "keys": 2415,
+  "source": "013/13_17.bvh",
+  "range_s": [
+   4.6,
+   9
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.014,
+  "contact_lift_m": 0.006,
+  "min_foot_m": -0.02,
+  "travel_m": 0.14,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "Fire_Box_Combo_B",
+  "loop": false,
+  "seconds": 1.4,
+  "frames": 43,
+  "keys": 817,
+  "source": "014/14_02.bvh",
+  "range_s": [
+   20.6,
+   22.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.027,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.54,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Fire_Box_Combo_C",
+  "loop": false,
+  "seconds": 4.4,
+  "frames": 133,
+  "keys": 2430,
+  "source": "017/17_10.bvh",
+  "range_s": [
+   3.8,
+   8.2
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.026,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.01,
+  "travel_m": 0.97,
+  "hip_scale": 0.0517
+ },
+ {
+  "name": "Fire_Punch_Kick",
+  "loop": false,
+  "seconds": 4.3,
+  "frames": 130,
+  "keys": 2388,
+  "source": "141/141_14.bvh",
+  "range_s": [
+   0.5,
+   4.8
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.001,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.009,
+  "travel_m": 0.51,
+  "hip_scale": 0.058
+ },
+ {
+  "name": "Fire_Aerial_Flip",
+  "loop": false,
+  "seconds": 1.9,
+  "frames": 58,
+  "keys": 1168,
+  "source": "088/88_06.bvh",
+  "range_s": [
+   0,
+   1.9
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.069,
+  "contact_lift_m": 0.026,
+  "min_foot_m": -0.02,
+  "travel_m": 1.8,
+  "hip_scale": 0.0575
+ },
+ {
+  "name": "Lightning_Point_Snap",
+  "loop": false,
+  "seconds": 2.9,
+  "frames": 88,
+  "keys": 1284,
+  "source": "013/13_26.bvh",
+  "range_s": [
+   6.1,
+   9.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.011,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.33,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "Lightning_Punch_Snap",
+  "loop": false,
+  "seconds": 1.2,
+  "frames": 37,
+  "keys": 565,
+  "source": "143/143_23.bvh",
+  "range_s": [
+   5.4,
+   6.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.016,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.02,
+  "hip_scale": 0.0592
+ },
+ {
+  "name": "Guard_Ready_Defensive",
+  "loop": false,
+  "seconds": 3.17,
+  "frames": 96,
+  "keys": 1169,
+  "source": "076/76_04.bvh",
+  "range_s": [
+   0.3,
+   3.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.011,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.36,
+  "hip_scale": 0.0558
+ },
+ {
+  "name": "Fire_Box_Jab_Hook_B",
+  "loop": false,
+  "seconds": 2.7,
+  "frames": 82,
+  "keys": 1515,
+  "source": "013/13_17.bvh",
+  "range_s": [
+   13.7,
+   16.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.018,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.0,
+  "travel_m": 0.32,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "Fire_Box_Straight_C",
+  "loop": false,
+  "seconds": 3.0,
+  "frames": 91,
+  "keys": 1675,
+  "source": "013/13_17.bvh",
+  "range_s": [
+   16.4,
+   19.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.011,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.39,
+  "hip_scale": 0.0486
+ },
+ {
+  "name": "Fire_Box_Hooks_D",
+  "loop": false,
+  "seconds": 2.2,
+  "frames": 67,
+  "keys": 1243,
+  "source": "014/14_02.bvh",
+  "range_s": [
+   5.3,
+   7.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.017,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.009,
+  "travel_m": 0.32,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Fire_Box_Flurry_E",
+  "loop": false,
+  "seconds": 1.9,
+  "frames": 58,
+  "keys": 1040,
+  "source": "014/14_02.bvh",
+  "range_s": [
+   7.5,
+   9.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.02,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.21,
+  "hip_scale": 0.0515
+ },
+ {
+  "name": "Fire_Stride_Strike_F",
+  "loop": false,
+  "seconds": 3.4,
+  "frames": 103,
+  "keys": 1920,
+  "source": "017/17_10.bvh",
+  "range_s": [
+   11.0,
+   14.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.013,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.02,
+  "travel_m": 1.04,
+  "hip_scale": 0.0517
+ },
+ {
+  "name": "Earth_Crouch_Reach_L",
+  "loop": false,
+  "seconds": 2.8,
+  "frames": 85,
+  "keys": 947,
+  "source": "144/144_22.bvh",
+  "range_s": [
+   17.8,
+   20.6
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.002,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.09,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Earth_Spin_Reach_R",
+  "loop": false,
+  "seconds": 3.9,
+  "frames": 118,
+  "keys": 1452,
+  "source": "144/144_28.bvh",
+  "range_s": [
+   1.1,
+   5.0
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.012,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.09,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Earth_Punch_Hold_Deep",
+  "loop": false,
+  "seconds": 6.7,
+  "frames": 202,
+  "keys": 3258,
+  "source": "144/144_13.bvh",
+  "range_s": [
+   5,
+   11.7
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": -0.014,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.005,
+  "travel_m": 0.08,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Cultivate_Yoga_Floor_Flow",
+  "loop": false,
+  "seconds": 7.2,
+  "frames": 217,
+  "keys": 1888,
+  "source": "144/144_31.bvh",
+  "range_s": [
+   7.9,
+   15.1
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.082,
+  "contact_lift_m": 0.131,
+  "min_foot_m": -0.001,
+  "travel_m": 0.4,
+  "hip_scale": 0.0583
+ },
+ {
+  "name": "Water_Lean_Sway_B",
+  "loop": false,
+  "seconds": 3.5,
+  "frames": 106,
+  "keys": 1079,
+  "source": "049/49_12.bvh",
+  "range_s": [
+   1.9,
+   5.4
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.004,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.001,
+  "travel_m": 0.07,
+  "hip_scale": 0.0516
+ },
+ {
+  "name": "Air_Jump_Kick",
+  "loop": false,
+  "seconds": 2.43,
+  "frames": 74,
+  "keys": 1346,
+  "source": "090/90_07.bvh",
+  "range_s": [
+   5.0,
+   7.5
+  ],
+  "autotrim": null,
+  "loop_pts": null,
+  "floor_fix_m": 0.004,
+  "contact_lift_m": 0.0,
+  "min_foot_m": -0.056,
+  "travel_m": 2.19,
+  "hip_scale": 0.0502
+ }
+]

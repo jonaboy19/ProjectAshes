@@ -80,6 +80,8 @@ CC0 / public domain (no attribution required; credited with thanks):
 
 - Souls-like combat, magic-casting, parry, roll and interaction animations (`assets/incoming/animations/souls_cat/`) and the foley SFX in `assets/audio/sfx_souls/` are from the **Modular Souls-like Template** by **Cat Prisbrey** (https://github.com/catprisbrey/Cats-Godot4-Modular-Souls-like-Template), Unlicense / CC0. Credit isn't required but is given with thanks. The clips were retargeted onto the UAL skeleton.
 - Karate, tai chi, swordplay, swimming, chore and lie-down motion (`assets/incoming/animations/cmu_mocap/`): "Motion capture data from the **CMU Graphics Lab Motion Capture Database** (mocap.cs.cmu.edu), created with funding from NSF EIA-0196217." BVH conversion by **Bruce Hahne** (cgspeed.com). Free for research and commercial use, with no restrictions; the credit line is the one CMU requests.
+- Bending clips (`assets/incoming/mocap/cmu/clips/UAL_CMU_Bending.glb`, 36 Water/Air/Earth/Fire/Lightning/guard clips): same CMU credit line as above, same terms (see `assets/incoming/mocap/cmu/LICENSE`). Not yet used in the game; list the line once they are.
+- Bending VFX lab (`scenes/vfx_lab/`): techniques re-written from the MIT-licensed sandbox `achrefelouafi/AvatarCastingAbilitiesThreeJS` (c) 2026 mohamedachrefelouafi (no code copied; courtesy credit, not required).
 
 ## Locomotion styles (added 2026-09-28)
 
