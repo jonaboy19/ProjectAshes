@@ -1661,6 +1661,15 @@ func _so_step(delta: float) -> Vector3:
 func _so_apply(out: Dictionary) -> void:
 	_so_phase = int(out["phase"])
 	var clip: String = out["clip"]
+	if clip != "" and (_anim == null or not _anim.has_animation(clip)):
+		# No completion signal will arrive for an unavailable activity clip.
+		# Cancel before props/events or need recovery can pretend it ran.
+		if _brain != null and _so != null:
+			_brain.remember_unreachable_spot(_so.spot)
+		_so_release()
+		_so_ended = true
+		_arrived = false
+		return
 	if clip != "" and _anim != null and _anim.has_animation(clip):
 		if out["restart"] or _so_clip != clip:
 			_so_play(clip, float(LifeLibrary.info(clip).get("blend_in", 0.25)), bool(out["restart"]))
