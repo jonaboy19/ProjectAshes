@@ -78,13 +78,13 @@
       "path": "docs/anim/free_library/HANDOFF_CODEX.md",
       "lines": 463,
       "sha256": "B7BB1B5203910C639C78DED3B1F40EE90BBB757974D07683222845497D62B363",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/free_library/polish_casting.md",
       "lines": 151,
       "sha256": "94807A66FA1267F7E3A8E8927D88AD41D6971D9D36742E90FA0F4DDD3B0CD1AD",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/anim/free_library/polish_review.md",
