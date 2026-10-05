@@ -510,7 +510,14 @@ func _tick_body(delta: float) -> void:
 	var planar := Vector2.ZERO if driving else _steer(here, delta)
 	if driving:
 		velocity = Vector3.ZERO
-		global_position = _so_step(delta)
+		var activity_step := _so_step(delta) - global_position
+		if _contact:
+			# Alignment and pose correction still move the capsule. One sweep
+			# preserves the contact budget and prevents stepping through solids.
+			if activity_step.length_squared() > 0.000001:
+				move_and_collide(activity_step)
+		else:
+			global_position += activity_step
 	elif _contact and physics_active:
 		velocity = Vector3(planar.x, 0.0, planar.y)
 		move_and_slide()
