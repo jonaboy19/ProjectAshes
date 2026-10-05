@@ -27,6 +27,7 @@ const Models := preload("res://scripts/actors/creature_models.gd")
 const Tokens := preload("res://scripts/actors/creature_attack_tokens.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const Fighter := preload("res://scripts/combat/npc_fighter.gd")
+const Telegraph := preload("res://scripts/combat/telegraph.gd")
 const PLAYER_SOLID_RANGE := 16.0
 ## Hit knockback plays out as a short slide (time constant KNOCK_TAU, same 0.12 m per
 ## unit of knockback as before) instead of an instant teleport (FEEL_AUDIT F5).
@@ -484,6 +485,8 @@ func _strike(foe: Node3D) -> void:
 	var hold := maxf(windup - STRIKE_TIME, 0.05)
 	_play("attack", true, clampf(pre / hold, 0.25, 2.0))
 	_show_telegraph(true)
+	var reach: float = _cur_move.reach if _cur_move != null else float(sp["reach"])
+	Telegraph.begin(self, _cur_move, reach, windup, float(sp["knock"]) >= 3.0 or bool(sp["poise"]))
 	var voice := String(sp["voice"])
 	if voice != "" and Audio.has_sound(voice):
 		Audio.play_sfx(voice, global_position + Vector3.UP * float(sp["height"]) * 0.8, -5.0, 0.1)
@@ -567,11 +570,13 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		_strike_target = null
 		_cur_move = null
 		_show_telegraph(false)
+		Telegraph.end(self)
 	if _ragdoll and _ragdoll.is_down():
 		_busy = maxf(_busy, 0.3)     # already on the ground
 		return
-	if Ragdoll.is_heavy(amount, from, knockback) and _ragdoll \
-			and _ragdoll.knock_down(knockback, _hit_from, _get_up):
+	var reaction := Ragdoll.reaction(amount, from, knockback)   # stagger (hit clip) / launch / knockdown
+	if reaction != "stagger" and _ragdoll \
+			and _ragdoll.knock_down(knockback, _hit_from, _get_up, Ragdoll.LAUNCH_LIFT if reaction == "launch" else 1.0):
 		_speed = 0.0
 		_busy = Ragdoll.KNOCK_TIME + 1.2
 		if state == State.ATTACK:

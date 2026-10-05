@@ -183,6 +183,9 @@ const PARRY_HIT_STOP := 0.12
 const CombatMoves := preload("res://scripts/combat/combat_moves.gd")
 const HitResolver := preload("res://scripts/combat/hit_resolver.gd")
 const CombatFeedback := preload("res://scripts/combat/combat_feedback.gd")
+const CombatFeel := preload("res://scripts/combat/combat_feel.gd")
+const EnemyHighlight := preload("res://scripts/combat/enemy_highlight.gd")
+const ChaseCamera := preload("res://scripts/actors/chase_camera.gd")
 ## The slash arc needs ~0.07 s to read, so it spawns this long before the hit.
 const SLASH_LEAD := 0.07
 ## Attack lunge stops short of the target: never push the body into the enemy (FEEL_AUDIT F4).
@@ -273,9 +276,19 @@ var _land_roll_speed := 0.0
 var _landing_dip := 0.0
 var _land_fov := 0.0
 var _impact_fov := 0.0
+var _impact_roll := 0.0       # radians; short camera roll on heavy hits (combat_feel.gd limits it)
 var _loco_transition_time := 0.0
 var _impact_pause: Node
 var _camera_fade_visual: GeometryInstance3D
+## Responsive framing model (scripts/actors/chase_camera.gd): sprint/dash/gallop FOV + distance, open-ground and
+## combat framing, the cast camera. Its offsets sit ON TOP of the rig; collision and foliage fade still win.
+var _chase := ChaseCamera.new()
+var _chase_scan := 0.0
+var _chase_combat := false
+var _chase_open := false
+var _chase_roof := false
+var _caster_hooked := false
+var _caster_scan := 0.0
 var _camera_fade_original := 0.0
 var _flinch := 0.0
 var _yaw_rate := 0.0
@@ -949,9 +962,18 @@ func _set_lock(target: Node3D) -> void:
 	_lock_height = _body_top(target) + 0.45
 	_lock_marker.visible = true
 	_flick = 0.0
+	if get_parent() != null:
+		EnemyHighlight.at(get_parent()).lock(target)
+
+
+## The locked-on enemy, or null (HUD threat plates read it).
+func locked_target() -> Node3D:
+	return _lock if is_instance_valid(_lock) else null
 
 
 func _release_lock() -> void:
+	if _lock != null and get_parent() != null:
+		EnemyHighlight.at(get_parent()).unlock()
 	_lock = null
 	if _lock_marker:
 		_lock_marker.visible = false
@@ -1218,7 +1240,13 @@ func _update_camera(delta: float) -> void:
 	_landing_dip = move_toward(_landing_dip, 0.0, 1.2 * delta)
 	_land_fov = move_toward(_land_fov, 0.0, 14.0 * delta)
 	_impact_fov = move_toward(_impact_fov, 0.0, maxf(_impact_fov, 1.0) * 7.0 * delta)
-	camera.fov = lerpf(camera.fov, 65.0 + _land_fov + _impact_fov, 1.0 - exp(-14.0 * delta))
+	_impact_roll = move_toward(_impact_roll, 0.0, maxf(absf(_impact_roll), 0.01) * 9.0 * delta)
+	_step_chase(delta)
+	camera.fov = lerpf(camera.fov, _chase.fov_base() + _chase.impulse() + _land_fov + _impact_fov, 1.0 - exp(-14.0 * delta))
+	camera.set_meta("fov_base", _chase.fov_base())
+	if view == View.THIRD:
+		want_distance += _chase.dist_offset()
+		pivot_goal.y += _chase.lift()
 	if _mount:
 		pivot_goal.y += _mount.rider_offset(k).y
 		if view == View.THIRD:
@@ -1227,17 +1255,20 @@ func _update_camera(delta: float) -> void:
 		# Frame both: pull back with the gap and shift the pivot a little toward the target.
 		var to := _lock.global_position - global_position
 		to.y = 0.0
+		var frame := ChaseCamera.lock_frame(to.length())
 		if view == View.THIRD:
-			want_distance += clampf(to.length() * 0.12, 0.0, 2.0)
-		pivot_goal += to.limit_length(4.8) * 0.25   # at most 1.2 m
+			want_distance += float(frame["dist"])
+		pivot_goal += to.limit_length(8.0).normalized() * float(frame["shift"])
 	_pivot.position = _pivot.position.lerp(pivot_goal, 1.0 - exp(-6.0 * delta))
 	_distance = lerpf(_distance, want_distance, 1.0 - exp(-5.0 * delta))
 	var pitch: float = _pitch if view <= View.THIRD else rig[1]
 	if view == View.THIRD and absf(_pitch - rig[1]) > 0.9:
 		_pitch = rig[1]
+	if view == View.THIRD:
+		pitch += _chase.pitch_offset()
 	_pivot.rotation = Vector3(lerp_angle(_pivot.rotation.x, pitch, 1.0 - exp(-6.0 * delta)), _yaw, 0)
 	_camera_arm.spring_length = _distance
-	camera.rotation = _shake.step(delta)
+	camera.rotation = _shake.step(delta) + Vector3(0.0, 0.0, _impact_roll)
 	var cp := camera.global_position
 	var floor_h := WorldGen.height(cp.x, cp.z) + 0.6
 	var water_h := WorldGen.water_level_at(cp.x, cp.z)
@@ -1279,6 +1310,56 @@ func _update_camera(delta: float) -> void:
 		_model.visible = camera.global_position.distance_to(_pivot.global_position) > 0.45 * Life.body_scale()
 
 
+## Feeds ChaseCamera. The expensive questions (hostiles near, open ground) are asked at 4 Hz; the rest is read live.
+func _step_chase(delta: float) -> void:
+	_chase_scan -= delta
+	if _chase_scan <= 0.0:
+		_chase_scan = 0.25
+		_chase_combat = _swing > 0.0 or blocking or is_instance_valid(_lock) or _nearest_enemy(14.0, -1.0) != null
+		var arm_clear: bool = _camera_arm != null and _camera_arm.get_hit_length() >= _camera_arm.spring_length - 0.15
+		_chase_open = arm_clear and not swimming and InteriorDoor.active == null
+		_chase_roof = global_position.y - WorldGen.height(global_position.x, global_position.z) > 2.2 and is_on_floor()
+	_hook_caster(delta)
+	var speed := Vector2(velocity.x, velocity.z).length() if _mount == null else _move_speed
+	var gallop := _mount != null and _gallop_time > 0.0
+	var ctx := {
+		"speed_k": speed / RUN, "sprinting": Input.is_action_pressed("sprint") and speed > WALK * 1.4 and not blocking,
+		"dashing": _dodge > 0.0 or _dodging_ability, "gallop": gallop, "combat": _chase_combat,
+		"locked": is_instance_valid(_lock), "open": _chase_open, "rooftop": _chase_roof,
+		"strength": 1.0 if view == View.THIRD else 0.0,
+	}
+	if int(SettingsStore.get_value("screen_shake")) == 0:
+		ctx["strength"] = 0.0     # Screen Shake Off also turns off the lens motion
+	_chase.cast_enabled = bool(SettingsStore.get_value("cast_camera"))
+	if _chase.casting() and (Input.is_action_just_pressed("attack") or Input.is_action_just_pressed("dodge")
+			or Input.is_action_just_pressed("jump") or touch_move.length() > 0.5):
+		_chase.cancel_cast()       # skippable: any action takes the camera back
+	_chase.step(delta, ctx)
+
+
+## FOV impulse from combat feel code: positive = outward punch. Decays on its own and rides above the base FOV.
+func add_fov_impulse(degrees: float) -> void:
+	_chase.add_fov_impulse(degrees * _screen_feedback_strength())
+
+
+func _hook_caster(delta: float) -> void:
+	if _caster_hooked:
+		return
+	_caster_scan -= delta
+	if _caster_scan > 0.0:
+		return
+	_caster_scan = 1.0
+	var caster := get_node_or_null("TechniqueCaster")
+	if caster != null and caster.has_signal("cast"):
+		caster.connect("cast", _on_technique_cast)
+		_caster_hooked = true
+
+
+func _on_technique_cast(_id: String, def: Dictionary) -> void:
+	if view == View.THIRD and _mount == null and ChaseCamera.is_big_technique(def):
+		_chase.begin_cast()
+
+
 func _update_camera_fade(target: GeometryInstance3D) -> void:
 	if _camera_fade_visual != target:
 		if is_instance_valid(_camera_fade_visual):
@@ -1293,7 +1374,12 @@ func _update_camera_fade(target: GeometryInstance3D) -> void:
 func _fov_punch(degrees: float) -> void:
 	# Keep the small contact cue inside the existing accessibility setting. This
 	# is an outward lens pulse, independent of positional camera shake.
-	_impact_fov = maxf(_impact_fov, minf(degrees, 6.0) * _screen_feedback_strength())
+	_impact_fov = CombatFeel.merge_fov(_impact_fov, degrees * _screen_feedback_strength())
+
+
+## Short camera roll (radians, signed) for heavy hits; merged by max and capped (combat_feel.gd).
+func _camera_roll(radians: float) -> void:
+	_impact_roll = CombatFeel.merge_roll(_impact_roll, radians * _screen_feedback_strength())
 
 
 func _add_camera_shake(amount: float) -> void:
@@ -1620,15 +1706,15 @@ func _start_swing() -> void:
 	var hit_t: float = action.hit_time() / (0.7 if weak else 1.0)
 	_spend(action.cost)
 	# Target assist: face the locked target, else snap toward an enemy roughly in front.
-	var target: Node3D = _lock if is_instance_valid(_lock) else _nearest_enemy(3.8, 0.1)
+	var target: Node3D = _magnet_target()
 	if target:
 		var to := target.global_position - global_position
 		_model.rotation.y = atan2(to.x, to.z)
 	var lunge := ATTACK_LUNGE
 	if target:
-		# Travel under IMPULSE_DECEL is v²/(2a): pick v so the step ends at the standoff.
-		var gap := Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length() - LUNGE_STANDOFF
-		lunge = clampf(sqrt(maxf(gap, 0.0) * 2.0 * IMPULSE_DECEL), 0.0, ATTACK_LUNGE)
+		# Magnetism: a small capped step toward the target (combat_feel.gd), ending at the standoff.
+		var flat := Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length()
+		lunge = CombatFeel.lunge_speed(flat, IMPULSE_DECEL, action.finisher, ATTACK_LUNGE * 1.6)
 	if action.root_motion:
 		_kick(facing() * lunge)
 	_swing_id += 1
@@ -1648,6 +1734,22 @@ func _start_swing() -> void:
 	swing_started.emit(action, {"hit_t": hit_t, "yaw": _model.rotation.y, "weak": weak, "riposte": riposte,
 		"combo": _combo, "anim_speed": rate, "first_person": _viewmodel.visible, "id": _swing_id})
 	get_tree().create_timer(hit_t).timeout.connect(_resolve_hit.bind(damage, action.knockback, action.finisher, _swing_id))
+
+
+## The locked target, else the best living enemy in the magnetism cone (combat_feel.gd pick_target).
+func _magnet_target() -> Node3D:
+	if is_instance_valid(_lock):
+		return _lock
+	var enemies: Array = []
+	var pos: Array = []
+	for enemy in get_tree().get_nodes_in_group("team1"):
+		var e := enemy as Node3D
+		if e == null or e.get("dead"):
+			continue
+		enemies.append(e)
+		pos.append(e.global_position)
+	var pick := CombatFeel.pick_target(global_position, facing(), pos)
+	return null if pick["pos"] == null else enemies[int(pick["index"])]
 
 
 ## Damage and knockback of the swing in progress (breakable.gd and tools read this instead of the table).
@@ -1675,8 +1777,7 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 		to.y = 0.0
 		if to.length() < 2.6 and fwd.dot(to.normalized()) > 0.2:
 			enemy.take_damage(damage, self, to.normalized() * knockback)
-			if not finisher:
-				impacted_mixers.append_array(enemy.find_children("*", "AnimationMixer", true, false))
+			impacted_mixers.append_array(enemy.find_children("*", "AnimationMixer", true, false))
 			var point: Vector3 = (enemy as Node3D).global_position + Vector3(0, 0.8, 0) - to.normalized() * 0.3
 			if blade_tip != Vector3.ZERO and blade_tip.distance_to(point) <= 0.6:
 				point = blade_tip

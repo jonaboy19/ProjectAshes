@@ -45,6 +45,11 @@ const BLEND_IN := 0.12
 const BLEND_OUT := 0.35
 const RANGE := 45.0               # metres from the player; terrain collision streams ~64 m
 const HEAVY_KNOCK := 6.0          # knockback at or above this knocks a living actor down
+const LAUNCH_KNOCK := 4.0         # between this and HEAVY_KNOCK: flung up and back (launch), then down
+const LAUNCH_LIFT := 2.2          # extra upward velocity share of a launch (1.0 = a plain knockdown)
+const SETTLE_AFTER := 0.55        # s into a fall before the bodies are damped so they stop sliding
+const SETTLE_LIN_DAMP := 2.2
+const SETTLE_ANG_DAMP := 5.0
 const MIN_BODIES := 5
 const FLOOR_PROBE := 4.0          # metres below the hips a world collider must exist
 ## [role, bone candidates, tip candidates, radius (x torso length), mass (kg),
@@ -129,6 +134,16 @@ static func is_heavy(amount: int, from: Node, knockback: Vector3) -> bool:
 		and knockback.length_squared() > 0.0
 
 
+## Hit reaction for a blow: "stagger" (the actor's own hit clip), "launch" (ragdoll flung up and back) or
+## "knockdown" (ragdoll falls, slides, settles). Pure, so tests and every body share one rule.
+static func reaction(amount: int, from: Node, knockback: Vector3) -> String:
+	if is_heavy(amount, from, knockback):
+		return "knockdown"
+	if knockback.length() >= LAUNCH_KNOCK:
+		return "launch"
+	return "stagger"
+
+
 # --- setup ------------------------------------------------------------------------
 
 ## Adds a ragdoll controller under `who` for the skeleton inside `model`.
@@ -179,23 +194,26 @@ func die(knockback := Vector3.ZERO, hit_from := Vector3.INF) -> bool:
 		return false
 	mode = Mode.DYING
 	_after(DEATH_SIM_TIME, _bake)
+	_after(SETTLE_AFTER, _settle)
 	return true
 
 
 ## Knockdown of a living actor: physical for KNOCK_TIME, then `on_get_up` is
 ## called (play a get-up clip there) and the pose blends back to animation.
-func knock_down(knockback: Vector3, hit_from := Vector3.INF, on_get_up := Callable()) -> bool:
-	if mode != Mode.IDLE or not _start(knockback, hit_from):
+## `lift` > 1 launches the body upward (reaction "launch").
+func knock_down(knockback: Vector3, hit_from := Vector3.INF, on_get_up := Callable(), lift := 1.0) -> bool:
+	if mode != Mode.IDLE or not _start(knockback, hit_from, lift):
 		return false
 	mode = Mode.DOWN
 	_on_get_up = on_get_up
 	_after(KNOCK_TIME, _recover)
+	_after(SETTLE_AFTER, _settle)
 	return true
 
 
 # --- internals --------------------------------------------------------------------
 
-func _start(knockback: Vector3, hit_from: Vector3) -> bool:
+func _start(knockback: Vector3, hit_from: Vector3, lift := 1.0) -> bool:
 	if not is_inside_tree() or skeleton == null or not skeleton.is_visible_in_tree():
 		why = "hidden"
 		return false
@@ -224,13 +242,13 @@ func _start(knockback: Vector3, hit_from: Vector3) -> bool:
 	_sim.influence = 0.0
 	_sim.physical_bones_start_simulation()
 	_blend_to(1.0, BLEND_IN)
-	_throw(knockback, hit_from, 1.0)
+	_throw(knockback, hit_from, 1.0, lift)
 	return true
 
 
 ## Velocities rather than impulses: fresh bodies don't have their mass on the
 ## server yet (same reason as breakable.gd's shards).
-func _throw(knockback: Vector3, hit_from: Vector3, scale_by: float) -> void:
+func _throw(knockback: Vector3, hit_from: Vector3, scale_by: float, lift := 1.0) -> void:
 	var push := knockback
 	push.y = 0.0
 	if push.length() < 0.5:
@@ -247,7 +265,19 @@ func _throw(knockback: Vector3, hit_from: Vector3, scale_by: float) -> void:
 			hit = b
 	for b in _bodies:
 		var share := 1.0 if b == hit else 0.35
-		b.linear_velocity = dir * strength * share + Vector3.UP * (1.2 * share * scale_by)
+		b.linear_velocity = dir * strength * share + Vector3.UP * (1.2 * lift * share * scale_by)
+
+
+## The fall has had its slide: damp the bodies so they come to rest instead of skating, and puff dust where
+## the hips touched down.
+func _settle() -> void:
+	for pb in _bodies:
+		if is_instance_valid(pb):
+			pb.linear_damp = SETTLE_LIN_DAMP
+			pb.angular_damp = SETTLE_ANG_DAMP
+	if _hips != null and is_instance_valid(actor) and actor.get_parent() != null:
+		(load("res://scripts/vfx/impact_pool.gd") as GDScript).call("at", actor.get_parent()).call(
+			"play", _centre(_hips), "earth", 1, Vector3.ZERO, true)
 
 
 ## Straight back to animation (e.g. the player respawning): drops any bodies,

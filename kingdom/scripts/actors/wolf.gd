@@ -23,6 +23,7 @@ signal died(wolf: Wolf)
 
 const Models := preload("res://scripts/actors/creature_models.gd")
 const Tokens := preload("res://scripts/actors/creature_attack_tokens.gd")
+const Telegraph := preload("res://scripts/combat/telegraph.gd")
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const Fighter := preload("res://scripts/combat/npc_fighter.gd")
 const CombatStats := preload("res://scripts/combat/combat_stats.gd")
@@ -493,6 +494,7 @@ func _begin_attack(target: Node3D) -> void:
 	var pre := maxf(_impact_time - STRIKE_TIME, 0.05)
 	var hold := maxf(windup - STRIKE_TIME, 0.05)
 	_play("attack", true, clampf(pre / hold, 0.25, 2.0))
+	Telegraph.begin(self, _cur_move, _cur_move.reach if _cur_move != null else float(_sp["strike"]), windup, bool(_sp["poise"]))
 	var voice := String(_sp["voice"])
 	if voice != "" and Audio.has_sound(voice):
 		Audio.play_sfx(voice, global_position + Vector3.UP * 0.6, -4.0, 0.1)
@@ -562,13 +564,16 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 		return
 	if bool(_sp["poise"]) and _winding > 0.0:
 		return                        # heavy beasts shrug off hits mid-swing
+	if _winding > 0.0:
+		Telegraph.end(self)
 	_winding = 0.0
 	_strike_target = null
 	if _ragdoll and _ragdoll.is_down():
 		_busy = maxf(_busy, 0.3)      # already on the ground
 		return
-	if Ragdoll.is_heavy(amount, from, knockback) and _ragdoll \
-			and _ragdoll.knock_down(knockback, hit_from, _get_up):
+	var reaction := Ragdoll.reaction(amount, from, knockback)   # stagger (hit clip) / launch / knockdown
+	if reaction != "stagger" and _ragdoll \
+			and _ragdoll.knock_down(knockback, hit_from, _get_up, Ragdoll.LAUNCH_LIFT if reaction == "launch" else 1.0):
 		_speed = 0.0
 		_busy = Ragdoll.KNOCK_TIME + 0.5
 		if state == State.ATTACK:

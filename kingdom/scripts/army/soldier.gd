@@ -19,6 +19,8 @@ const WORLD_LAYER := 1
 const SOLDIER_LAYER := 4
 const Ragdoll := preload("res://scripts/actors/ragdoll.gd")
 const Fighter := preload("res://scripts/combat/npc_fighter.gd")
+const AbilityLib := preload("res://scripts/abilities/ability_lib.gd")
+const Telegraph := preload("res://scripts/combat/telegraph.gd")
 const CombatStats := preload("res://scripts/combat/combat_stats.gd")
 const NpcCaster := preload("res://scripts/combat/npc_caster.gd")
 const EffectSet := preload("res://scripts/abilities/effect_set.gd")
@@ -90,6 +92,9 @@ func _ready() -> void:
 		_caster = NpcCaster.make(caster_id, randi())
 		_fighter = _caster.fighter
 		_caster.runner.executed.connect(_on_cast_executed)
+		_caster.runner.chant_started.connect(_on_chant_started)
+		_caster.runner.started.connect(_on_cast_started)
+		_caster.runner.interrupted.connect(_on_cast_interrupted)
 		add_to_group("caster")
 	else:
 		caster_id = ""
@@ -273,6 +278,7 @@ func _attack() -> void:
 	_busy = busy
 	_animator.play_upper(["1H_Melee_Attack_Chop", "1H_Melee_Attack_Slice_Diagonal", "1H_Melee_Attack_Slice_Horizontal"][randi() % 3], 1.4 / maxf(hit_delay / 0.3, 0.5))
 	var move := _cur_move
+	Telegraph.begin(self, move, move.reach if move != null else ATTACK_RANGE, hit_delay)
 	get_tree().create_timer(hit_delay).timeout.connect(func() -> void:
 		if not dead and is_instance_valid(victim) and not victim.get("dead") \
 				and global_position.distance_to(victim.global_position) < ATTACK_RANGE + 0.5:
@@ -328,8 +334,9 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO) -> v
 			_busy = maxf(_busy, 0.5)                                # a stagger breaks the chant
 	if health <= 0:
 		_die()
-	elif Ragdoll.is_heavy(amount, from, knockback) and _ragdoll \
-			and _ragdoll.knock_down(knockback, _hit_from, _get_up):
+	elif Ragdoll.reaction(amount, from, knockback) != "stagger" and _ragdoll \
+			and _ragdoll.knock_down(knockback, _hit_from, _get_up,
+				Ragdoll.LAUNCH_LIFT if Ragdoll.reaction(amount, from, knockback) == "launch" else 1.0):
 		_impulse = Vector3.ZERO
 		_velocity = Vector3.ZERO
 		_busy = Ragdoll.KNOCK_TIME + 0.4
@@ -410,6 +417,29 @@ func _caster_tick(delta: float) -> void:
 			_animator.play_upper("Spellcast_Raise" if String(r.get("phase", "")) == "chant" else "Spellcast_Shoot", 1.0)
 	elif String(d["intent"]) == "kite":
 		_kite_t = 0.6
+
+
+## Charged casts get a ground ring in the ability's element until the cast lands or breaks.
+func _on_chant_started(id: String, info: Dictionary) -> void:
+	_telegraph_cast(id, float(info.get("time", 1.0)))
+
+
+func _on_cast_started(id: String, ab: Dictionary) -> void:
+	if float(ab.get("windup", 0.0)) >= 0.4:
+		_telegraph_cast(id, float(ab["windup"]))
+
+
+func _on_cast_interrupted(_id: String, _reason: String) -> void:
+	Telegraph.end(self)
+
+
+func _telegraph_cast(id: String, seconds: float) -> void:
+	if dead or _caster == null:
+		return
+	var def: Dictionary = AbilityLib.get_def(id)
+	var tg: Dictionary = def.get("targeting", {})
+	var radius := maxf(float(tg.get("radius", 0.0)), 1.6)
+	Telegraph.begin_cast(self, String(def.get("element", "qi")), radius, seconds)
 
 
 func _on_cast_executed(_id: String, ab: Dictionary, cast: Dictionary) -> void:
