@@ -176,3 +176,5 @@ CC0 (credited with thanks):
 ## Horses and riding (added 2026-09-30; see `docs/anim/horses/HANDOFF.md`)
 - **Mesh2Motion** horse mesh (`assets/incoming/characters/mesh2motion/horse-animations.glb`, Scott Petrovic), **CC0** (https://github.com/Mesh2Motion/mesh2motion-app): body shape of the riding horse. Re-welded, subdivided and decimated, old tail removed; new mane, tail, skeleton, skinning, coats, tack, LODs and all 50 horse clips and 57 rider clips are own work (procedural Blender pipeline in `tools/anim/horse/`).
 - Skeleton layout from the **Rigify** horse metarig (Blender, GPL tool; generated rigs and output are unencumbered). Gait timings follow published equine biomechanics (footfall order and duty factors), no mocap.
+
+* `assets/incoming/meshy_dl3/` (97 GLBs: town houses, castles, props, magic items, elementals, horse, rigged and static medieval characters): **owner-downloaded Meshy models, licence per the owner's Meshy plan**; re-baked/decimated, rigs kept. See `assets/incoming/meshy_dl3/CREDITS.md` and `docs/art/meshy_dl3/README.md`.
