@@ -804,7 +804,7 @@
       "path": "docs/design/REALM_WAR_SETTLEMENT.md",
       "lines": 1237,
       "sha256": "DE64F9F4F5E6C02D967B27B8F9F58137ACD88921A0C1A5B947F1BD7D8ED8C692",
-      "coverage": "pending_or_partial_see_checkpoint"
+      "coverage": "full_read_recorded"
     },
     {
       "path": "docs/design/RETINUE_SETTLEMENT_ASCENSION.md",
