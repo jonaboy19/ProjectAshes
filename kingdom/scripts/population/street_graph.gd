@@ -57,6 +57,7 @@ var _adj: Array[PackedInt32Array] = []
 var _edges := PackedInt32Array()    # pairs of node indices
 var _edge_grid := {}                # Vector2i -> PackedInt32Array of edge ids
 var _node_lookup := {}              # Vector2i -> PackedInt32Array of node ids
+var _indexed_edges := 0             # edges already in _edge_grid (new ones are added incrementally)
 
 
 ## Graph of settlement `id` (built on first use), or null without a plan.
@@ -142,9 +143,18 @@ func register_building(c: Vector2, yaw: float, half: Vector2, door: Vector2) -> 
 		var pb := _nodes[nb]
 		# join the nearer end of the street segment it meets
 		_link(n, na if pa.distance_squared_to(door) <= pb.distance_squared_to(door) else nb)
-	_edge_grid.clear()
-	_index_edges()
+	_index_edges()      # only the edges this building added; a full re-index per building was the cost
 	return n
+
+
+## Several buildings at once (construction catch_up after a long absence). Registered in order, so the result
+## is exactly what one register_building call per entry gives; each entry is [centre, yaw, half, door].
+## Returns the door node indices.
+func register_buildings(batch: Array) -> PackedInt32Array:
+	var out := PackedInt32Array()
+	for b: Array in batch:
+		out.append(register_building(b[0], float(b[1]), b[2], b[3]))
+	return out
 
 
 func node_count() -> int:
@@ -314,6 +324,7 @@ func _sync_nav_obstacles() -> void:
 		_edges.clear()
 		_edge_grid.clear()
 		_node_lookup.clear()
+		_indexed_edges = 0
 
 
 func _segment_hits_box(a: Vector2, b: Vector2, k: int, r: float) -> bool:
@@ -521,12 +532,15 @@ func _link(a: int, b: int) -> void:
 	_edges.append(b)
 
 
+## Adds the edges not yet in the grid (all of them after a rebuild).
 func _index_edges() -> void:
-	for e in _edges.size() / 2:
+	var total := _edges.size() / 2
+	for e in range(_indexed_edges, total):
 		var a := _nodes[_edges[e * 2]]
 		var b := _nodes[_edges[e * 2 + 1]]
 		for cell in _cells(Vector2(minf(a.x, b.x), minf(a.y, b.y)), Vector2(maxf(a.x, b.x), maxf(a.y, b.y))):
 			_push(_edge_grid, cell, e)
+	_indexed_edges = total
 
 
 ## Closest reachable point on the network from p: [node a, node b, point], or [].

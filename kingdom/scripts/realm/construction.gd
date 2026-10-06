@@ -21,6 +21,8 @@ var trails: Dictionary = {}         # "a|b" -> {a, b, uses}
 var gathered: Dictionary = {}       # "cx,cz" -> {hp, day, t}
 var external: Dictionary = {}       # kind -> count finished through fief projects
 var pending_gold := 0
+var _street_queue_on := false       # catch_up queues street-graph registrations and flushes them once
+var _street_queue := {}             # settlement id -> [[pos, yaw, half, door], ...]
 var log_lines: Array = []
 
 ## Tests inject these; in the game they stay null and the player's Inventory/purse/mastery are used.
@@ -1180,9 +1182,28 @@ func _register_world(s: Dictionary) -> void:
 			s["fed"] = int(near["id"])
 	var stl_near := WorldGen.nearest_settlement(pos)
 	if not stl_near.is_empty() and pos.distance_to(stl_near["pos"]) < float(stl_near["radius"]) * 3.0:
-		var sg: RefCounted = load("res://scripts/population/street_graph.gd").for_settlement(int(stl_near["id"]))
-		if sg != null and sg.has_method("register_building"):
-			sg.call("register_building", pos, float(s["yaw"]), D.half_size(kind), Nav.door_of(s))
+		var sid := int(stl_near["id"])
+		var entry := [pos, float(s["yaw"]), D.half_size(kind), Nav.door_of(s)]
+		if _street_queue_on:
+			# catch_up: queue, flush once per town (see _flush_street_queue)
+			if not _street_queue.has(sid):
+				_street_queue[sid] = []
+			(_street_queue[sid] as Array).append(entry)
+		else:
+			var sg: RefCounted = load("res://scripts/population/street_graph.gd").for_settlement(sid)
+			if sg != null and sg.has_method("register_building"):
+				sg.call("register_building", entry[0], entry[1], entry[2], entry[3])
+
+
+## Registers the buildings queued during catch_up with their towns' street graphs, in finish order.
+func _flush_street_queue() -> void:
+	_street_queue_on = false
+	var queue := _street_queue
+	_street_queue = {}
+	for sid: int in queue:
+		var sg: RefCounted = load("res://scripts/population/street_graph.gd").for_settlement(sid)
+		if sg != null and sg.has_method("register_buildings"):
+			sg.call("register_buildings", queue[sid])
 
 
 # ------------------------------------------------------------------ settlement levels
@@ -1616,10 +1637,12 @@ func _day_upkeep(_ctx: Dictionary) -> Array:
 ## `days` passed unobserved: replay each day's working hours (early exit per site) and the daily upkeep.
 func catch_up(days: int, ctx: Dictionary) -> Array:
 	var out: Array = []
+	_street_queue_on = true
 	for _d in mini(days, D.CATCH_UP_CAP_DAYS):
 		out.append_array(advance(D.WORK_HOURS_PER_DAY, ctx))
 		_day += 1
 		out.append_array(_day_upkeep(ctx))
+	_flush_street_queue()
 	return out
 
 

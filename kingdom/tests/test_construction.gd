@@ -349,6 +349,89 @@ func test_new_buildings_register_in_the_street_graph() -> void:
 	assert_bool(sg.inside(c)).is_true()
 
 
+func test_catch_up_registers_many_buildings_near_a_town_cheaply() -> void:
+	var m := _mod(_rich())
+	m.bag = {}
+	var best := 0
+	for i in WorldGen.settlements.size():
+		if float(WorldGen.settlements[i]["radius"]) > float(WorldGen.settlements[best]["radius"]):
+			best = i
+	var st: Dictionary = WorldGen.settlements[best]
+	var sg: RefCounted = StreetGraph.for_settlement(best)
+	if sg == null:
+		return
+	sg.node_count()   # the lazy one-off graph build is not what this measures
+	var r := float(st["radius"])
+	var ids: Array[int] = []
+	for i in 60:
+		var pos: Vector2 = st["pos"] + Vector2(r * 1.05 + float(i % 10) * 14.0, -r * 0.5 + float(i / 10) * 14.0)
+		var id := _add_raw(m, "fence" if i % 2 == 0 else "hut", pos)
+		ids.append(id)
+		m._attach(m._new_worker("hired", "H", 0.3, 4, "build"), id)
+	var e0: int = sg._edges.size()
+	var boxes0: int = sg._box_c.size()
+	var t0 := Time.get_ticks_usec()
+	m.catch_up(30, CTX)
+	var ms := (Time.get_ticks_usec() - t0) / 1000.0
+	print("catch_up near town, 60 buildings: %.1f ms" % ms)
+	assert_float(ms).is_less(250.0)
+	for id in ids:
+		assert_str(String(m.sites[id]["state"])).is_equal("done")
+	var done := 0
+	var routed := 0
+	for id in ids:
+		if String(m.sites[id]["state"]) != "done":
+			continue
+		var pos: Vector2 = m.site_pos(m.sites[id])
+		if int(WorldGen.nearest_settlement(pos)["id"]) != best:
+			continue   # registered with a neighbouring town's graph
+		done += 1
+		assert_bool(sg.inside(pos)).is_true()
+		# a route across the footprint's row never enters any footprint
+		var a := pos + Vector2(-12, 0)
+		var b := pos + Vector2(12, 0)
+		if sg.inside(a) or sg.inside(b):
+			continue
+		routed += 1
+		var route: PackedVector2Array = sg.route(a, b)
+		var prev := a
+		for p in route:
+			assert_bool(sg.inside(p, 0.0)).is_false()
+			for k in range(boxes0, sg._box_c.size()):
+				assert_bool(sg._segment_hits_box(prev, p, k, 0.0)).is_false()
+			prev = p
+	assert_int(routed).is_greater(0)
+	assert_int(done).is_greater(15)   # the rest of the 60 stand nearer another town
+	assert_int(sg._edges.size()).is_greater(e0)
+	assert_int(sg._indexed_edges).is_equal(sg._edges.size() / 2)
+
+
+func test_batched_registration_matches_one_by_one() -> void:
+	WorldGen.setup(2024)
+	var st: Dictionary = WorldGen.settlements[0]
+	var r := float(st["radius"])
+	var batch: Array = []
+	for i in 12:
+		var c: Vector2 = st["pos"] + Vector2(r * 0.6 + float(i % 4) * 6.0, -r * 0.4 + float(i / 4) * 6.0)
+		batch.append([c, 0.3 * i, Vector2(2.0, 2.0), c + Vector2(0, 3.3)])
+	var a: RefCounted = StreetGraph.new()
+	a._setup(st)
+	for b: Array in batch:
+		a.register_building(b[0], b[1], b[2], b[3])
+	var c2: RefCounted = StreetGraph.new()
+	c2._setup(st)
+	c2.register_buildings(batch)
+	assert_array(c2._nodes).is_equal(a._nodes)
+	assert_array(c2._edges).is_equal(a._edges)
+	assert_int(c2._edge_grid.size()).is_equal(a._edge_grid.size())
+	# the incremental index equals a full re-index
+	var grid_before: Dictionary = c2._edge_grid.duplicate(true)
+	c2._edge_grid.clear()
+	c2._indexed_edges = 0
+	c2._index_edges()
+	assert_bool(c2._edge_grid == grid_before).is_true()
+
+
 func test_paths_wear_in_with_use_and_become_roads() -> void:
 	var m := _mod(_rich())
 	var a := _done(m, "storage_pile", 0)
