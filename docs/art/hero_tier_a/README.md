@@ -105,3 +105,21 @@ I tried boot-only foot weights plus a shortened coat skirt (`hero_fix.py --coat`
 The "skis" and the cloak bulk are baked into the Meshy geometry, a single fused shell for coat, legs and boots. Fixing them needs manual separation of the coat in Blender, not more scripted heuristics.
 
 Verdict: m13 (about 6.5) stays the best candidate, the paid hero is about 5.5, and the current G6 hero stays the default. Benchmark street not run: neither candidate clearly wins in the sheets.
+
+## Hero v2: part-separated Meshy hero, now the DEFAULT (2026-10-06): `v1_sheet.jpg`, `v1_clips.jpg`, `ig_compare.jpg`, `ig_hero_crop.jpg`
+- **Source:** `ProjectAshes_art_staging/hero_meshy/hero_v2_parts_rigged.glb` (23 credits, smart topology, slim, separate boots, no cloak).
+- **Pipeline:**
+  1. armored_rig to UAL.
+  2. `hero_fix.py --maxshift=0.03` (boot shift is only about 1 cm here, so no skis).
+  3. G6 finger hands, blink lids, hood material mask.
+  4. `smooth_lods.py` to LOD0 17k, LOD1 3.6k, LOD2 3k.
+  5. In-game total: 19.5k tris, 4 materials, 2048 atlas.
+- **Sheet:** clean walk, run, sprint, attack, roll and idle with no skis. The face is a stylised young hero that fits Style G better than the photoreal villager. The sword sits in the fist.
+- **In-game** (full worktree, `tools_qa/aaa_camera/feel_views.tscn`, PC Mobile renderer, 2340x1080): street, village and benchmark street, current G6 hero vs v2. v2 clearly wins: real proportions, hooded leather vest over a green tunic, boots and bracers that read at the 3.9 m shoulder cam.
+- **FPS:** noisy on the shared PC. Two runs each, benchmark views: G6 14-32 fps, v2 7-24 fps. There is no clear regression, but the S22 is not measured.
+- **Rating:** about 7/10 (m13 about 6.5, the old G6 hero about 5 at the shoulder cam). `player.gd` now has `TIER_A_HERO = true`; set it to false to roll back. Custom appearance from character creation still uses G6.
+- **Open:**
+  - The hands are slightly paler than the face.
+  - The brows are a little heavy.
+  - The hood is down (no hood-up variant).
+  - S22 fps and the LOD switch distances are not set.
