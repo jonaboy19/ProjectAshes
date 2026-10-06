@@ -98,3 +98,10 @@ Rating: about 5.5/10.
   - The low-poly face planes up close.
 
 It doesn't beat m13 (about 6.5), so it is not default. Benchmark street not run.
+
+## Paid Meshy hero, pass 4 (2026-10-06): `n5_clips_coat_fail.jpg`, `n6_sheet.jpg`
+I tried boot-only foot weights plus a shortened coat skirt (`hero_fix.py --coat`). It made things worse: the hero floats, the feet turn into stumps, and the hem is jagged. The flag stays off and the shipped asset is back to the pass 3 state (n6 = n4 plus stronger brow lightening).
+
+The "skis" and the cloak bulk are baked into the Meshy geometry, a single fused shell for coat, legs and boots. Fixing them needs manual separation of the coat in Blender, not more scripted heuristics.
+
+Verdict: m13 (about 6.5) stays the best candidate, the paid hero is about 5.5, and the current G6 hero stays the default. Benchmark street not run: neither candidate clearly wins in the sheets.

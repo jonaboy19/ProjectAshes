@@ -79,6 +79,11 @@ for s in ("l", "r"):
         P[i] = P[i] + d
         if p.z > ank + 0.1:
             continue
+        lx = P[i] - fh; lx.z = 0
+        lb = (bh - fh); lb.z = 0
+        tt = max(0.0, min(1.0, lx.dot(lb) / max(lb.length_squared, 1e-6)))
+        if "--coat" in a and (lx - lb * tt).length > 0.075 and P[i].z > 0.03:
+            continue                                         # not boot: coat hem etc. (handled by the skirt pass)
         up = max(0.0, min(1.0, (P[i].z - ank + 0.01) / 0.09))
         toe = max(0.0, min(1.0, ((P[i] - bh).dot(fwd) + 0.01) / 0.04))
         set_w(i, {"foot_" + s: (1 - toe) * (1 - up), "ball_" + s: toe * (1 - up), "calf_" + s: up})
@@ -271,6 +276,38 @@ g = lo.vertex_groups.new(name="Head"); g.add(list(range(len(lv))), 1.0, "REPLACE
 lo.parent = arm
 mo = lo.modifiers.new("Armature", "ARMATURE"); mo.object = arm
 
+# ---- coat skirt: verts below the pelvis that are NOT on a leg -> shortened to just below the knee, pulled in a little,
+# weighted pelvis + nearest thighs (no calf/foot pull = no stretched "skis" and a lighter back silhouette)
+if "--coat" in a:
+    pel = B["pelvis"][0]
+    knee_z = (B["calf_l"][0].z + B["calf_r"][0].z) * 0.5
+    hem_z = knee_z - 0.08
+    ncoat = 0
+    def legd(p, s_):
+        a0 = B["thigh_" + s_][0]; a1 = B["foot_" + s_][0]; ab = a1 - a0
+        t = max(0.0, min(1.0, (p - a0).dot(ab) / ab.length_squared))
+        return (p - (a0 + ab * t)).length
+    for i, p in enumerate(P):
+        if p.z > pel.z - 0.05:
+            continue
+        dl, dr = legd(p, "l"), legd(p, "r")
+        if min(dl, dr) < 0.085:
+            continue
+        q = p.copy()
+        if q.z < hem_z + 0.25:
+            q.z = hem_z + (q.z - (hem_z - 0.5)) * 0.5 if q.z < hem_z + 0.0 else q.z
+            q.z = max(q.z, hem_z - 0.02)
+        c = Vector((pel.x, pel.y, q.z))
+        r = q - c; r.z = 0
+        q = c + r * 0.9 + Vector((0, 0, q.z - c.z))
+        me.vertices[i].co = M.inverted() @ q
+        P[i] = q
+        wl = dr / max(dl + dr, 1e-6)
+        k = max(0.0, min(1.0, (pel.z - q.z) / 0.5))
+        set_w(i, {"pelvis": 1 - 0.6 * k, "thigh_l": 0.6 * k * wl, "thigh_r": 0.6 * k * (1 - wl)})
+        ncoat += 1
+    print("COAT verts", ncoat)
+
 # ---- arms/shoulders: shrink the cross-section around each arm line (T-pose) by NARROW, fading in from the clavicle
 if NARROW > 0:
     for s_ in ("l", "r"):
@@ -315,7 +352,7 @@ for cen, nrm_, sx in eyes:
             y0, y1, x0, x1 = max(0, cy - r), min(H, cy + r + 1), max(0, cx - r), min(W, cx + r + 1)
             patch = px[y0:y1, x0:x1, :3]
             med = np.median(patch.reshape(-1, 3), axis=0)
-            px[y0:y1, x0:x1, :3] = patch * 0.55 + np.maximum(patch, med) * 0.45
+            px[y0:y1, x0:x1, :3] = patch * 0.3 + np.maximum(patch, med * 1.05) * 0.7
 for dz in np.linspace(-0.012, 0.006, 7):
     for dx in np.linspace(-0.025, 0.025, 11):
         s_ = sample(mouth + Vector((dx, 0, dz)) + fwd * 0.1, -fwd)
