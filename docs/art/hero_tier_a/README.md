@@ -123,3 +123,11 @@ Verdict: m13 (about 6.5) stays the best candidate, the paid hero is about 5.5, a
   - The brows are a little heavy.
   - The hood is down (no hood-up variant).
   - S22 fps and the LOD switch distances are not set.
+
+## Hero v2 follow-up (2026-10-07)
+- Hands: tint re-measured in the turnaround under one light (hands were darker and yellower than the face): `HeroTierA.HAND_TINT`.
+- Brows: lightened in `hero_character.gdshader` (`brow_lift`, UV rects of the hero_meshy3 atlas).
+- LOD: `HeroTierA.attach_lods` puts hero_meshy3_lod1/_lod2 on the same skeleton with visibility ranges: LOD0 to 12 m, LOD1 12-30 m, LOD2 beyond (no fade). Checked at 6/20/45 m.
+- Creator: male looks with `"v2": true` (the new default) build the v2 hero via `HeroTierA.build_v2`; skin tone and hair colour tint the skin/hair texels, `"hood": true` adds a rigid hood-up cowl on the Head bone. Head/hair/outfit rows are hidden for v2; female still uses G6; looks without `v2` (old saves, style lab) are unchanged. `player.gd` is untouched.
+- QA: `tools_qa/hero/v2_shots.gd` (look variants, LOD distances), `tools_qa/hero/creator_shot.gd`.
+- Open: hood-up is a simple cowl (hair pokes at the hairline); S22 fps not measured.
