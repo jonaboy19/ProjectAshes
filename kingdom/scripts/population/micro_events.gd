@@ -174,6 +174,9 @@ static func entry_of(id: String) -> Dictionary:
 
 ## May a new scene start? Pure budget rule: scenes running, actors alive and the tier's NPC allowance.
 static func budget_allows(active_scenes: int, actors_alive: int, villagers: int, npc_full: int) -> bool:
+	if npc_full <= 5:
+		return false      # LOW (AAA pass 12): the skeleton census showed vignette actors (3-4 skinned draws per scene) as the gate
+		                  # view's varying draw count; LOW's street life is the sprite / VAT crowd
 	if active_scenes >= MAX_ACTIVE:
 		return false
 	var cap := clampi(npc_full * 2 / 3, 5, ACTOR_CAP_MAX)

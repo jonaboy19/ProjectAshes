@@ -5,6 +5,8 @@ extends RefCounted
 ## pre-rendered sprite impostors for distant crowds.
 
 const StyleG := preload("res://scripts/style_g.gd")
+const BakedVao := preload("res://scripts/world/baked_vao.gd")
+const TownAtlas := preload("res://scripts/world/town_atlas.gd")
 const CHAR_DIR := "res://assets/kaykit/characters/"
 const MED_DIR := "res://assets/kaykit/medieval/"
 const WEAPON_DIR := "res://assets/kaykit/weapons/"
@@ -739,8 +741,11 @@ static func building_mesh(key: String) -> ArrayMesh:
 		Vector3(-(box.position.x + box.size.x * 0.5) * s, -box.position.y * s, -(box.position.z + box.size.z * 0.5) * s))
 	# Meshy buildings carry their own LOD chain (lod0/1/2 files): automatic LODs on
 	# top of already-decimated meshes crumpled their walls and roofs at mid range.
-	mesh = _transformed(mesh, fit, not path.begins_with(MESHY))
+	mesh = _transformed(mesh, fit, not path.begins_with(MESHY), key)
 	StyleG.restyle_mesh(mesh, key)       # Style G: every building/prop surface gets its role material (atlas + tints kept)
+	if mesh.has_meta("baked_vao"):
+		BakedVao.fix_materials(mesh)
+	TownAtlas.fold(mesh, key)           # far stages: shared texture page (see town_atlas.gd)
 	if key.begins_with("lamp_post") or key.begins_with("street_lamp"):
 		_tame_lamp_glow(mesh)
 	_building_cache[key] = mesh
@@ -843,19 +848,27 @@ static func merged_mesh(path: String, style := true) -> ArrayMesh:
 	return out
 
 
-static func _transformed(mesh: ArrayMesh, xform: Transform3D, auto_lods := true) -> ArrayMesh:
+static func _transformed(mesh: ArrayMesh, xform: Transform3D, auto_lods := true, vao_key := "") -> ArrayMesh:
 	# Built through ImporterMesh so the merged mesh gets automatic LODs again
 	# (SurfaceTool merging drops the importer's LODs; without them every tree and
 	# building draws full detail at any distance).
 	var im := ImporterMesh.new()
+	var surfs := []
 	for surf in mesh.get_surface_count():
 		var st := SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 		st.append_from(mesh, surf, xform)
-		im.add_surface(Mesh.PRIMITIVE_TRIANGLES, st.commit_to_arrays(), [], {}, mesh.surface_get_material(surf))
+		surfs.append(st.commit_to_arrays())
+	if BakedVao.apply(vao_key, surfs):
+		im.set_meta("baked_vao", true)     # baked quality: offline AO + painterly light into COLOR (no-op without a blob)
+	for surf in surfs.size():
+		im.add_surface(Mesh.PRIMITIVE_TRIANGLES, surfs[surf], [], {}, mesh.surface_get_material(surf))
 	if auto_lods:
 		im.generate_lods(25.0, 60.0, [])
-	return im.get_mesh()
+	var out := im.get_mesh()
+	if im.has_meta("baked_vao"):
+		out.set_meta("baked_vao", true)
+	return out
 
 
 ## Static building node with a box collider (for landmarks placed individually).

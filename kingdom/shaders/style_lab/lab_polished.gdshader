@@ -11,6 +11,7 @@ uniform vec4 albedo_color : source_color = vec4(1.0);
 uniform bool use_vertex_color = false;
 uniform bool vcol_srgb = false;        // game meshes bake sRGB vertex/instance colours (town tints); the lab bakes linear
 uniform bool local_ao = false;         // game: AO ramp from height above the instance origin (terrain is not at y = 0)
+uniform bool uv2_base = false;         // static-merged batches (static_merge.gd): UV2.x = instance origin height, MODEL_MATRIX is identity
 uniform float hue_var = 0.0;           // goods: per-piece hue rotation from COLOR.a (market goods bake a random value there)
 uniform float val_var = 0.0;
 uniform vec2 uv_scale = vec2(1.0);
@@ -97,7 +98,7 @@ void fragment() {
 	}
 	float l = dot(c, vec3(0.299, 0.587, 0.114));
 	c = mix(vec3(l), c, saturation) * value_gain * warm_tint;
-	float hy = local_ao ? wpos.y - MODEL_MATRIX[3].y : wpos.y;
+	float hy = local_ao ? wpos.y - (uv2_base ? UV2.x : MODEL_MATRIX[3].y) : wpos.y;
 	float ao = 1.0 - ao_strength * (1.0 - smoothstep(0.0, ao_height, hy));
 	float wh = 0.0;
 	float wr = 0.0;

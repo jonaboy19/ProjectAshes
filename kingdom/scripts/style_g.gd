@@ -131,7 +131,7 @@ static func _game_environment(env: Environment, tier: String) -> void:
 	env.adjustment_saturation = 1.08
 	env.adjustment_contrast = 1.32
 	env.adjustment_color_correction = lut(Color("231d28"), Color("8e8a88"), Color("fff2dc"))
-	env.fog_density = 0.0027
+	env.fog_density = 0.0021     # pass 12: 0.0027 washed the aerial view out
 	env.fog_aerial_perspective = 0.45
 	env.fog_sky_affect = 0.0
 	env.volumetric_fog_albedo = Color("f2e2c0")
@@ -484,7 +484,7 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 	sm.set_shader_parameter("weather", WEATHER.get(role, 0.6))
 	if game_mode:
 		sm.set_shader_parameter("local_ao", true)
-		sm.set_shader_parameter("vcol_srgb", p["vsrgb"] if p["vcol"] else true)
+		sm.set_shader_parameter("vcol_srgb", bool(p.get("vsrgb", true)) if bool(p.get("vcol", false)) else true)
 	match role:
 		"tree":
 			sm.set_shader_parameter("saturation", 1.15)
@@ -779,8 +779,9 @@ static func restyle_mesh(mesh: ArrayMesh, key: String, tier := "", role := "") -
 			m = _cache[dk]
 		if m != null:
 			mesh.surface_set_material(i, m)
-	if tier != "high":
-		load("res://scripts/world/surface_collapse.gd").collapse(mesh, tier)      # LOW/MEDIUM: fewer surfaces = fewer draws
+	if tier != "high" or not key.begins_with("nature/"):      # trees keep their bark/leaf split on HIGH
+		# fewer surfaces = fewer draws; HIGH near stage keeps lit windows and lamps
+		load("res://scripts/world/surface_collapse.gd").collapse(mesh, tier, tier == "high" and not key.contains(":lod"))
 	return mesh
 
 

@@ -11,13 +11,14 @@ const NEAR := 70.0
 const SCHEDULE := [
 	[5.3, 8.0, ["farmers_out_dawn", "water_carriers"]],
 	[8.0, 11.0, ["delivery_to_shops", "street_sweeper", "wood_cart"]],
-	[11.0, 15.0, ["laundry_day", "cart_through", "water_carriers"]],
-	[15.0, 17.5, ["street_performer", "hay_wagon", "laundry_day"]],
+	[11.0, 15.0, ["laundry_day", "cart_through", "patrol_returning", "water_carriers"]],
+	[15.0, 17.5, ["street_performer", "patrol_returning", "hay_wagon", "caravan_arrival"]],
 	[17.5, 20.5, ["farmers_return_dusk", "couple_stroll"]],
 	[20.5, 29.3, ["night_watch_rounds"]],
 ]
 
 var centre := Vector2.ZERO
+var enabled_tier := true
 var doors: Array = []                 # door points (Vector2) for the work sounds
 ## Street sound layer (AAA pass 7): a positional murmur of voices by day, work one-shots (hammer, well bucket, rope
 ## creak of a cart) from the doors, birds by day and owls at night. Existing CC0 sounds only (assets/audio/ambience).
@@ -95,6 +96,8 @@ func _process(delta: float) -> void:
 	if plr != null:
 		_sound(delta, Vector2(plr.global_position.x, plr.global_position.z))
 	_acc += delta
+	if not enabled_tier:
+		return
 	if _acc < TICK:
 		return
 	_acc = 0.0
