@@ -2195,4 +2195,4 @@ func _nearest_enemy(max_dist: float, min_dot: float) -> Node3D:
 
 func nearest_interactable() -> Node3D:
 	# The picker's choice (distance, facing, priority, mount rule); see scripts/interaction/interaction.gd.
-	return Interaction.best_node(self)
+	return Interaction.best_node(self)
