@@ -183,7 +183,7 @@ func _house_card(nob: RANobility, h: Dictionary) -> PanelContainer:
 	if not settlements.is_empty():
 		var names := PackedStringArray()
 		for idx: int in settlements:
-			names.append(String(WorldGen.settlements[idx]["name"]))
+			names.append(WorldGen.display_name(String(WorldGen.settlements[idx]["name"])))
 		parts.append("fiefs: " + ", ".join(names))
 	if not (holdings.get("mills", []) as Array).is_empty():
 		parts.append("%d mill(s)" % (holdings["mills"] as Array).size())

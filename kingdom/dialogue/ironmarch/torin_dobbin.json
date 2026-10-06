@@ -29,7 +29,7 @@
      "p": 2
     },
     {
-     "text": "\"Welcome to Ironmarch. Mind the Silverford Guild Hall. Everyone does, eventually.\"",
+     "text": "\"Welcome to Silverford. Mind the Silverford Guild Hall. Everyone does, eventually.\"",
      "if": {
       "tier_not": [
        "enemy",

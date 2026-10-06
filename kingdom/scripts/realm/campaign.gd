@@ -550,7 +550,7 @@ func known_map() -> Array:
 
 
 func _nname(n: int) -> String:
-	return String(WorldGen.settlements[n]["name"]) if n >= 0 and n < WorldGen.settlements.size() else "the wilds"
+	return WorldGen.display_name(String(WorldGen.settlements[n]["name"])) if n >= 0 and n < WorldGen.settlements.size() else "the wilds"
 
 
 func _intel_day(_ctx: Dictionary) -> void:

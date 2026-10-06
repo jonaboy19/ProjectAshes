@@ -239,7 +239,7 @@ func family_tree(id: int) -> Dictionary:
 
 func _settlement_name(idx: int) -> String:
 	if idx >= 0 and idx < WorldGen.settlements.size():
-		return String(WorldGen.settlements[idx]["name"])
+		return WorldGen.display_name(String(WorldGen.settlements[idx]["name"]))
 	return "the village"
 
 

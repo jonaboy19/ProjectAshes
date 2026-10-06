@@ -1,7 +1,7 @@
 {
  "id": "ironmarch_word_from_olwen",
  "title": "Word from Olwen",
- "summary": "Olwen Stoker has seen wolves at the edge of Ironmarch, and Lanny Tollman wants someone to act before the town hears it from the wolves.",
+ "summary": "Olwen Stoker has seen wolves at the edge of Silverford, and Lanny Tollman wants someone to act before the town hears it from the wolves.",
  "giver": {
   "npc": "lanny_tollman",
   "name": "Lanny Tollman",
@@ -50,7 +50,7 @@
      "target": "wolf",
      "place": "ironmarch_outskirts",
      "count": 3,
-     "text": "Kill 3 wolves near Ironmarch"
+     "text": "Kill 3 wolves near Silverford"
     }
    ]
   },

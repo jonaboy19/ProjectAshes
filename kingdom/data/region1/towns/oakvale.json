@@ -63,7 +63,7 @@
    "dialogue": {
     "greeting": [
      "Reeve here. Yes, it is as dull as it sounds. Ask anyway.",
-     "Strangers in Oakvale get one warning and one welcome. You are on the welcome."
+     "Strangers in Greenhollow get one warning and one welcome. You are on the welcome."
     ],
     "rumour": [
      "Everyone owes everyone a little. Nobody agrees on the sum.",
@@ -116,13 +116,13 @@
    "dialogue": {
     "greeting": [
      "Ale is fair, stew is hot, and I do not do credit.",
-     "You will hear Oakvale before you see it. Ask at the Pennick Farm, Greenhollow."
+     "You will hear Greenhollow before you see it. Ask at the Pennick Farm, Greenhollow."
     ],
     "rumour": [
      "Harvest crews drink the barley they cut. Somebody should tax that circle.",
      "The cellar is cold and the cellar is empty. I ordered more. The order came back as promises.",
      "A cart of seed went missing between the barn and the mill. No tracks.",
-     "Whatever you hear about Oakvale, half of it is true. We argue about which half."
+     "Whatever you hear about Greenhollow, half of it is true. We argue about which half."
     ],
     "opinions": {
      "eorl_seedley": "Eorl keeps a tidy yard and an untidy mouth.",
@@ -168,7 +168,7 @@
    "dialogue": {
     "greeting": [
      "Bring iron or bring coin. Preferably iron.",
-     "Oakvale is fields and the great oak. Nobody thinks to say it, but it is true."
+     "Greenhollow is fields and the great oak. Nobody thinks to say it, but it is true."
     ],
     "rumour": [
      "Plough blades, sickles, hinges. Honest iron for honest mud.",
@@ -219,7 +219,7 @@
      "Seed, rope and lamp oil. The three things every farmer remembers on the last day.",
      "Sold three lanterns today. People are afraid of the dark again.",
      "Barn cats bring in too many rats and too few mice. Odd, that.",
-     "Ask in Oakvale who built the Pennick Farm, Greenhollow and you will get a different name each time."
+     "Ask in Greenhollow who built the Pennick Farm, Greenhollow and you will get a different name each time."
     ],
     "opinions": {
      "dorrit_merrow": "Dorrit is good company and better at keeping quiet."
@@ -324,7 +324,7 @@
    "dialogue": {
     "greeting": [
      "Acorns are free. Opinions about the oak are not.",
-     "Folk come to Oakvale for fields and the great oak. Some stay for the quiet."
+     "Folk come to Greenhollow for fields and the great oak. Some stay for the quiet."
     ],
     "rumour": [
      "The oak has a new hollow. The children say a face lives in it. I told them it is a knot.",
@@ -369,7 +369,7 @@
    "dialogue": {
     "greeting": [
      "Mud is honest. Walk on it.",
-     "Welcome to Oakvale. Mind the Pennick Farm, Greenhollow. Everyone does, eventually."
+     "Welcome to Greenhollow. Mind the Pennick Farm, Greenhollow. Everyone does, eventually."
     ],
     "rumour": [
      "The field by the hedge goes quiet at dusk. No crickets. I stopped sowing there.",
@@ -426,7 +426,7 @@
     "rumour": [
      "Violet at the field edge, only a little. I am told it is the light.",
      "Wolves keep to the hedge line and never cross it. As if the hedge were a wall.",
-     "A stranger asked at the Pennick Farm, Greenhollow for the oldest person in Oakvale. We sent him to the wrong house, on purpose."
+     "A stranger asked at the Pennick Farm, Greenhollow for the oldest person in Greenhollow. We sent him to the wrong house, on purpose."
     ],
     "opinions": {
      "gethin_ledger": "Gethin works hard and talks harder.",
@@ -532,12 +532,12 @@
    "dialogue": {
     "greeting": [
      "Grain is weight, flour is weight, patience is the one thing I cannot sell.",
-     "Oakvale is a small place with a long memory. State your name slowly."
+     "Greenhollow is a small place with a long memory. State your name slowly."
     ],
     "rumour": [
      "The mice left the mill. All of them, in one night. That is not a good sign.",
      "The wheat came up thin on the stone side and thick on the far side. Odd.",
-     "If trade slows, Oakvale feels it first. If it speeds up, Oakvale feels it last."
+     "If trade slows, Greenhollow feels it first. If it speeds up, Greenhollow feels it last."
     ],
     "opinions": {
      "cade_yoxall": "Cade works hard and talks harder.",
@@ -591,11 +591,11 @@
    "dialogue": {
     "greeting": [
      "Hold the mule. He is not as bad as he looks.",
-     "First time in Oakvale? The Pennick Farm, Greenhollow is the place to start."
+     "First time in Greenhollow? The Pennick Farm, Greenhollow is the place to start."
     ],
     "rumour": [
      "Toll keepers keep changing. Their prices are the only thing that stays the same.",
-     "Oakvale lives by fields and the great oak. When that fails, so do we."
+     "Greenhollow lives by fields and the great oak. When that fails, so do we."
     ],
     "opinions": {
      "gavin_farrow": "Gavin works hard and talks harder.",
@@ -652,7 +652,7 @@
     ],
     "rumour": [
      "Sheep go missing near the old barrow. The shepherds do not look for them.",
-     "When Oakvale is quiet we say it is peaceful. When it is very quiet we say nothing."
+     "When Greenhollow is quiet we say it is peaceful. When it is very quiet we say nothing."
     ],
     "opinions": {
      "gethin_ledger": "Gethin works hard and talks harder.",
@@ -704,7 +704,7 @@
     ],
     "rumour": [
      "Fewer deer in the cut this year. Fewer birds too. The wood is holding its breath.",
-     "Ask anyone in Oakvale about the Pennick Farm, Greenhollow. You will get four stories and one fact."
+     "Ask anyone in Greenhollow about the Pennick Farm, Greenhollow. You will get four stories and one fact."
     ],
     "opinions": {
      "dorrit_merrow": "Dorrit knows the trade. I will say that for Dorrit.",

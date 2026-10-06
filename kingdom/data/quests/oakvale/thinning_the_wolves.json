@@ -1,7 +1,7 @@
 {
  "id": "oakvale_thinning_the_wolves",
  "title": "Thinning the Wolves",
- "summary": "Wolf sign has been found at the edge of Oakvale: tracks too big for a dog and fences torn outward. Eorl Seedley wants 2 of them dealt with.",
+ "summary": "Wolf sign has been found at the edge of Greenhollow: tracks too big for a dog and fences torn outward. Eorl Seedley wants 2 of them dealt with.",
  "giver": {
   "npc": "eorl_seedley",
   "name": "Eorl Seedley",
@@ -10,7 +10,7 @@
  "requires": [
   "oakvale_light_on_the_scales"
  ],
- "offer_text": "\"The wolves have come closer to Oakvale each night: howling closer every night. Go to the edge and thin them out, before someone is hurt.\"",
+ "offer_text": "\"The wolves have come closer to Greenhollow each night: howling closer every night. Go to the edge and thin them out, before someone is hurt.\"",
  "turn_in_text": "\"Quieter already. I will sleep tonight. A little.\"",
  "stages": [
   {
@@ -37,7 +37,7 @@
      "target": "wolf",
      "place": "oakvale_outskirts",
      "count": 2,
-     "text": "Kill 2 wolves near Oakvale"
+     "text": "Kill 2 wolves near Greenhollow"
     }
    ]
   },

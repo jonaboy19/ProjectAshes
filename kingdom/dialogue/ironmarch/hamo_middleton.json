@@ -29,7 +29,7 @@
      "p": 2
     },
     {
-     "text": "\"Folk come to Ironmarch for guild town on the ford. Some stay for the quiet.\"",
+     "text": "\"Folk come to Silverford for guild town on the ford. Some stay for the quiet.\"",
      "if": {
       "tier_not": [
        "enemy",
@@ -137,7 +137,7 @@
      "p": 2
     },
     {
-     "text": "\"If trade slows, Ironmarch feels it first. If it speeds up, Ironmarch feels it last.\"",
+     "text": "\"If trade slows, Silverford feels it first. If it speeds up, Silverford feels it last.\"",
      "p": 2
     },
     {

@@ -150,7 +150,7 @@ func _home_sid() -> int:
 func _home_name() -> String:
 	var sid := _home_sid()
 	if sid >= 0 and sid < WorldGen.settlements.size():
-		return String(WorldGen.settlements[sid]["name"])
+		return WorldGen.display_name(String(WorldGen.settlements[sid]["name"]))
 	return "home"
 
 

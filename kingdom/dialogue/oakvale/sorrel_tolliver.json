@@ -29,7 +29,7 @@
      "p": 2
     },
     {
-     "text": "\"First time in Oakvale? The Pennick Farm, Greenhollow is the place to start.\"",
+     "text": "\"First time in Greenhollow? The Pennick Farm, Greenhollow is the place to start.\"",
      "if": {
       "tier_not": [
        "enemy",
@@ -133,7 +133,7 @@
      "p": 2
     },
     {
-     "text": "\"Oakvale lives by fields and the great oak. When that fails, so do we.\"",
+     "text": "\"Greenhollow lives by fields and the great oak. When that fails, so do we.\"",
      "p": 2
     },
     {

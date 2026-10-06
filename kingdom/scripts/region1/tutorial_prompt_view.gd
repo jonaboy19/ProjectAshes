@@ -150,7 +150,7 @@ func _restack() -> void:
 	if String(prompt.get("anchor", "")) == "btn_interact":
 		# AAA pass 2: "Tap to use / talk" is taught by the small icon ON the object (hud world_prompt_icon.gd); no box
 		_pill.position = Vector2(-10000, -10000)
-		HudLane.report("hint", 0.0, 0.0)
+		HudLane.report("hint", 0.0, 0.0, get_instance_id())
 		return
 	if _beside_button():
 		# AAA pass 2026-10-06: a button lesson ("Tap to use", "Tap to strike") is a small tag beside the button it is about,
@@ -158,7 +158,7 @@ func _restack() -> void:
 		var a := anchor_pos(String(prompt.get("anchor", "center")))
 		_pill.position = Vector2(clampf(a.x - sz.x - 70.0 * _ui_scale(), 16.0, size.x - sz.x - 16.0),
 			clampf(a.y - sz.y - 40.0 * _ui_scale(), 16.0, size.y - sz.y - 16.0))
-		HudLane.report("hint", 0.0, 0.0)
+		HudLane.report("hint", 0.0, 0.0, get_instance_id())
 		return
 	var base_y := size.y * (0.16 if bool(prompt.get("plain", false)) else 0.115)
 	# A text-only hint ("plain": no ring, no gesture) is high and centred; the gesture prompt is a small
@@ -166,7 +166,11 @@ func _restack() -> void:
 	# _draw still points at the HUD element it is about). Both sit below the toast in the HUD lane.
 	_pill.position = Vector2(clampf((size.x - sz.x) * 0.5, 16.0, maxf(16.0, size.x - sz.x - 16.0)),
 		HudLane.y_for("hint", base_y))
-	HudLane.report("hint", _pill.position.y, sz.y if _pill.visible and _pill.modulate.a > 0.02 else 0.0)
+	HudLane.report("hint", _pill.position.y, sz.y if _pill.visible and HudLane.allowed("hint") else 0.0, get_instance_id())
+
+
+func _exit_tree() -> void:
+	HudLane.report("hint", 0.0, 0.0, get_instance_id())      # a view that leaves the tree frees its lane slot
 
 
 func _beside_button() -> bool:

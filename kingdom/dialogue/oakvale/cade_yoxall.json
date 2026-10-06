@@ -29,7 +29,7 @@
      "p": 2
     },
     {
-     "text": "\"Folk come to Oakvale for fields and the great oak. Some stay for the quiet.\"",
+     "text": "\"Folk come to Greenhollow for fields and the great oak. Some stay for the quiet.\"",
      "if": {
       "tier_not": [
        "enemy",

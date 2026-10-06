@@ -797,10 +797,11 @@ func update_status(soldiers: int, order_name: String, target_node: Node3D, perf:
 	var place := "Wilderness"
 	if not near.is_empty():
 		var d := p.distance_to(near["pos"])
-		place = near["name"] if d < near["radius"] * 1.6 else "Road to %s  (%dm)" % [near["name"], int(d)]
+		var town := town_label(near)      # the same poster name the discovery banner shows
+		place = town if d < near["radius"] * 1.6 else "Road to %s  (%dm)" % [town, int(d)]
 		var named := Life.place_at(p)
 		if d >= near["radius"] * 1.6 and not named.is_empty():
-			place = "%s  ·  %s %dm" % [named["name"], near["name"], int(d)]
+			place = "%s  ·  %s %dm" % [named["name"], town, int(d)]
 	var t := WorldSim.time_of_day
 	(info as HudCard.InfoBlock).show_realm = (card as HudCard.Card).expanded
 	(info as HudCard.InfoBlock).set_info(place, "Day %d · %s" % [WorldSim.day, String(WorldSim.season).capitalize()],
@@ -1470,6 +1471,11 @@ func _update_dash_button() -> void:
 
 func _player_xz() -> Vector2:
 	return Vector2(player.global_position.x, player.global_position.z)
+
+
+## The name of a settlement as the HUD location line, the banner, the map and the town kit print it: one canonical name.
+static func town_label(settlement: Dictionary) -> String:
+	return WorldGen.display_name(String(settlement.get("name", "")))
 
 
 func _check_discovery() -> void:

@@ -29,7 +29,7 @@
      "p": 2
     },
     {
-     "text": "\"First time in Ironmarch? The Silverford Guild Hall is the place to start.\"",
+     "text": "\"First time in Silverford? The Silverford Guild Hall is the place to start.\"",
      "if": {
       "tier_not": [
        "enemy",

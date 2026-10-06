@@ -53,7 +53,7 @@ func seed_road_stones() -> void:
 		var dir := (b - a) / maxf(length, 0.001)
 		var ra: float = WorldGen.settlements[r.x]["radius"] * 1.8
 		var rb: float = WorldGen.settlements[r.y]["radius"] * 1.8
-		var to_name := String(WorldGen.settlements[r.y]["name"])
+		var to_name := WorldGen.display_name(String(WorldGen.settlements[r.y]["name"]))
 		var t := ra + spacing * 0.5
 		var n := 1
 		while t < length - rb:

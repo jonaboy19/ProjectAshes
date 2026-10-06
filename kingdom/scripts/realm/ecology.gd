@@ -237,7 +237,7 @@ func zone_index_of_settlement(sid: int) -> int:
 
 func sname(sid: int) -> String:
 	if sid >= 0 and sid < WorldGen.settlements.size():
-		return String(WorldGen.settlements[sid]["name"])
+		return WorldGen.display_name(String(WorldGen.settlements[sid]["name"]))
 	return "the frontier"
 
 
