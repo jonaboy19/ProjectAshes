@@ -358,7 +358,7 @@ func _refresh_off_shift(w: RefCounted) -> void:
 
 
 func _sname(sid: int) -> String:
-	return String(WorldGen.settlements[sid]["name"]) if sid >= 0 and sid < WorldGen.settlements.size() else "the road"
+	return WorldGen.display_name(String(WorldGen.settlements[sid]["name"])) if sid >= 0 and sid < WorldGen.settlements.size() else "the road"
 
 
 func _dismiss() -> void:

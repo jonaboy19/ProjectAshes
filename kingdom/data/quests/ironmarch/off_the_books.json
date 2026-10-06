@@ -1,7 +1,7 @@
 {
  "id": "ironmarch_off_the_books",
  "title": "Off the Books",
- "summary": "Goods are passing Ironmarch at night without a count. Dolan Trevor knows, and Rosamund Heron can show where it goes.",
+ "summary": "Goods are passing Silverford at night without a count. Dolan Trevor knows, and Rosamund Heron can show where it goes.",
  "giver": {
   "npc": "dolan_trevor",
   "name": "Dolan Trevor",
@@ -34,7 +34,7 @@
      "id": "edge",
      "type": "goto",
      "place": "ironmarch_outskirts",
-     "text": "Go to the edge of Ironmarch where the carts do not stop"
+     "text": "Go to the edge of Silverford where the carts do not stop"
     }
    ]
   },

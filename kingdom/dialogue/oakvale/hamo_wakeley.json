@@ -29,7 +29,7 @@
      "p": 2
     },
     {
-     "text": "\"Welcome to Oakvale. Mind the Pennick Farm, Greenhollow. Everyone does, eventually.\"",
+     "text": "\"Welcome to Greenhollow. Mind the Pennick Farm, Greenhollow. Everyone does, eventually.\"",
      "if": {
       "tier_not": [
        "enemy",

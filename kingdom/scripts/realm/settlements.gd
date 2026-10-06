@@ -208,7 +208,7 @@ func population(sid: int) -> int:
 
 func sname(sid: int) -> String:
 	if sid >= 0 and sid < WorldGen.settlements.size():
-		return String(WorldGen.settlements[sid]["name"])
+		return WorldGen.display_name(String(WorldGen.settlements[sid]["name"]))
 	return "settlement %d" % sid
 
 

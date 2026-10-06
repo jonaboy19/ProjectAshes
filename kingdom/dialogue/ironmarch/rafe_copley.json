@@ -29,7 +29,7 @@
      "p": 2
     },
     {
-     "text": "\"Strangers in Ironmarch get one warning and one welcome. You are on the welcome.\"",
+     "text": "\"Strangers in Silverford get one warning and one welcome. You are on the welcome.\"",
      "if": {
       "tier_not": [
        "enemy",

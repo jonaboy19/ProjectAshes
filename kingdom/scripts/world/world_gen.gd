@@ -881,6 +881,18 @@ static func forest_density(x: float, z: float, with_clearings := true) -> float:
 	return f * Region1Terrain.tree_keep(x, z) if f > 0.0 else f   # Region1 look hook: no trees on stamped cliff faces
 
 
+static var _identity_script: GDScript
+
+
+## THE canonical player-facing name of a settlement (Region 1 canon, docs/regions/WORLD_R1.md): the poster name where there is
+## one ("Ironmarch" -> "Silverford", "Oakvale" -> "Greenhollow"), else the WorldGen name. WorldGen names stay the ids (saves, door ids,
+## town-kit files, `settlement:<name>` place ids); every line the player reads goes through this. Data: settlements.json `alias`.
+static func display_name(settlement_name: String) -> String:
+	if _identity_script == null:
+		_identity_script = load("res://scripts/world/region1_identity.gd")
+	return String(_identity_script.call("display_name", settlement_name))
+
+
 static func nearest_settlement(p: Vector2) -> Dictionary:
 	var best := {}
 	var best_d := INF

@@ -869,7 +869,7 @@ static func journal() -> Dictionary:
 		var sidx := int(p.get("settlement", -1))
 		var place := ""
 		if sidx >= 0 and sidx < WorldGen.settlements.size():
-			place = String(WorldGen.settlements[sidx]["name"])
+			place = WorldGen.display_name(String(WorldGen.settlements[sidx]["name"]))
 		var occ := String(p.get("occupation", ""))
 		(out["people"] as Array).append({"id": id, "name": String(p.get("name", "?")), "alive": bool(p.get("alive", true)),
 			"age": int(lc.call("age_years", id, day)), "role": occ.capitalize(), "place": place,

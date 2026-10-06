@@ -29,7 +29,7 @@
      "p": 2
     },
     {
-     "text": "\"You will hear Oakvale before you see it. Ask at the Pennick Farm, Greenhollow.\"",
+     "text": "\"You will hear Greenhollow before you see it. Ask at the Pennick Farm, Greenhollow.\"",
      "if": {
       "tier_not": [
        "enemy",
@@ -141,7 +141,7 @@
      "p": 2
     },
     {
-     "text": "\"Whatever you hear about Oakvale, half of it is true. We argue about which half.\"",
+     "text": "\"Whatever you hear about Greenhollow, half of it is true. We argue about which half.\"",
      "p": 2
     },
     {

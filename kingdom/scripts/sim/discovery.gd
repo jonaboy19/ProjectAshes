@@ -46,8 +46,6 @@ const KIND_LABELS := {
 	"poi_fishing": "Fishing Secret", "poi_hermit": "Hermit's Hut", "poi_rift": "Rift Anomaly", "poi_hunter": "Hunter's Camp",
 }
 ## Aliases: WorldGen keeps its names (saves, sims and sprites key on them); the map shows the poster name.
-const ALIAS_FILE := "res://data/region1/world/settlements.json"
-static var _aliases: Dictionary = {}
 
 var places: Array[Dictionary] = []
 var found: Dictionary = {}       # id -> day found (int)
@@ -158,15 +156,7 @@ func reveal_site(s: Dictionary, day := 0, found_now := true) -> bool:
 
 ## The poster name for a settlement ("Oakvale" -> "Greenhollow", "Ironmarch" -> "Silverford"), else its own name.
 static func display_name(settlement_name: String) -> String:
-	if _aliases.is_empty():
-		_aliases = {"_": ""}
-		if FileAccess.file_exists(ALIAS_FILE):
-			var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(ALIAS_FILE))
-			if d is Dictionary:
-				for st: Dictionary in d.get("settlements", []):
-					if String(st.get("alias", "")) != "":
-						_aliases[String(st["name"])] = String(st["alias"])
-	return String(_aliases.get(settlement_name, settlement_name))
+	return WorldGen.display_name(settlement_name)
 
 
 func place(id: String) -> Dictionary:

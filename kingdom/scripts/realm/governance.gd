@@ -75,7 +75,7 @@ const DIPLO := ["open trade talks", "sign a border pact", "send envoys", "stiffe
 const TITLE_OF := {"village": "headman", "town": "mayor", "frontier_town": "warden", "castle": "lord", "guild": "guildmaster",
 	"company": "master", "order": "grand master", "state": "ruler"}
 const KIND_SUCC := {"town": "election", "frontier_town": "appointment", "castle": "heredity"}
-const SEED_COMPANIES := ["Greywater Trading Company", "Redwater Mercantile", "Ironmarch Carters"]
+const SEED_COMPANIES := ["Greywater Trading Company", "Redwater Mercantile", "Silverford Carters"]
 const SEED_ORDERS := ["Order of the Pale Lamp", "Ashen Fist", "Circle of Tallow"]
 
 var _inst: Dictionary = {}      # id -> {id, kind, ref, name, sid, succ, leader, next_term, council, tax, prio, appoints, player}
@@ -109,7 +109,7 @@ func _rng(tag: String, day: int, id: Variant) -> RandomNumberGenerator:
 
 func _sname(sid: int) -> String:
 	if sid >= 0 and sid < WorldGen.settlements.size():
-		return String(WorldGen.settlements[sid]["name"])
+		return WorldGen.display_name(String(WorldGen.settlements[sid]["name"]))
 	return "the road"
 
 

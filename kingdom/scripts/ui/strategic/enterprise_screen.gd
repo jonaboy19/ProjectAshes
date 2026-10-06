@@ -102,7 +102,7 @@ func _gname(g: String) -> String:
 
 
 func _sname(i: int) -> String:
-	return String(WorldGen.settlements[i]["name"]) if i >= 0 and i < WorldGen.settlements.size() else "the road"
+	return WorldGen.display_name(String(WorldGen.settlements[i]["name"])) if i >= 0 and i < WorldGen.settlements.size() else "the road"
 
 
 # ------------------------------------------------------------------ frame ----

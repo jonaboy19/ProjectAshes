@@ -297,7 +297,7 @@ func _hh() -> RefCounted:
 
 func _sname(sid: int) -> String:
 	if sid >= 0 and sid < WorldGen.settlements.size():
-		return String(WorldGen.settlements[sid]["name"])
+		return WorldGen.display_name(String(WorldGen.settlements[sid]["name"]))
 	return "the road"
 
 

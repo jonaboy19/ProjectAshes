@@ -29,7 +29,7 @@
      "p": 2
     },
     {
-     "text": "\"Oakvale is fields and the great oak. Nobody thinks to say it, but it is true.\"",
+     "text": "\"Greenhollow is fields and the great oak. Nobody thinks to say it, but it is true.\"",
      "if": {
       "tier_not": [
        "enemy",

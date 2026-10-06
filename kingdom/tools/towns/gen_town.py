@@ -79,6 +79,9 @@ class World:
         self.settlements = jload("data/region1/world/settlements.json")["settlements"]
         self.facts = {f["name"]: f for f in jload("data/region1/world/settlement_facts.json")["settlements"]}
         self.by_name = {s["name"]: s for s in self.settlements}
+        # Region 1 canon (docs/regions/WORLD_R1.md): the poster name a player reads (Ironmarch -> Silverford, Oakvale -> Greenhollow).
+        # Ids, slugs, file names and saves keep the WorldGen name; every line of text uses `shown()`.
+        self.alias = {s["name"]: s["alias"] for s in self.settlements if s.get("alias")}
         self.order = [f["name"] for f in sorted(self.facts.values(), key=lambda f: f["id"])]
         self.rank = {}                       # settlement -> its index among the settlements of its archetype (in id order, Thornfield counts)
         seen = {}
@@ -98,6 +101,11 @@ class World:
         firsts = {first_of(n) for n in full}
         lasts = {n.split(" ")[-1] for n in full if " " in n}
         return full, firsts, lasts
+
+
+def shown(world, name):
+    """The one canonical player-facing name of a settlement."""
+    return world.alias.get(name, name)
 
 
 def town_id(name):
@@ -413,8 +421,8 @@ def finish_people(world, name, residents, edges, rng, threat_noun="wolf"):
     arch = world.identity[name]["arch"]
     ident = world.identity[name]
     al = L.ARCH_LINES[arch]
-    landmark = (s.get("landmark") or {}).get("name", name + " works")
-    fmt = {"town": name, "landmark": landmark, "flavour": ident.get("flavour", "its trade"), "tagline": (s.get("tagline") or "a place of its own").lower()}
+    landmark = (s.get("landmark") or {}).get("name", shown(world, name) + " works")
+    fmt = {"town": shown(world, name), "landmark": landmark, "flavour": ident.get("flavour", "its trade"), "tagline": (s.get("tagline") or "a place of its own").lower()}
     town_greets = [t.format(**fmt) for t in L.TOWN_GREETS]
     town_rumours = list(s.get("rumours", [])) + [t.format(**fmt) for t in L.TOWN_RUMOURS]
     own = len(s.get("rumours", []))
@@ -430,7 +438,7 @@ def finish_people(world, name, residents, edges, rng, threat_noun="wolf"):
     people = []
 
     def fill(t):
-        return t.replace("{town}", name).replace("{Threat}", threat_noun.capitalize()).replace("{threat}", threat_noun)
+        return t.replace("{town}", shown(world, name)).replace("{Threat}", threat_noun.capitalize()).replace("{threat}", threat_noun)
 
     for i, r in enumerate(residents):
         greet = r.pop("_greet")
@@ -639,8 +647,8 @@ def build_town(world, name, names, seed, used):
     if lv:
         doc["livestock"] = lv
     rank = world.rank[name]
-    ctx = Q.Ctx(tid, name, arch, kit, kind, people, doc, th_species, fy, rng, rank, T.ARCHS[arch]["authority"],
-                (s.get("landmark") or {}).get("name", name), {"village": 1.0, "frontier_town": 1.25, "town": 1.3, "castle": 1.6}.get(kind, 1.0))
+    ctx = Q.Ctx(tid, shown(world, name), arch, kit, kind, people, doc, th_species, fy, rng, rank, T.ARCHS[arch]["authority"],
+                (s.get("landmark") or {}).get("name", shown(world, name)), {"village": 1.0, "frontier_town": 1.25, "town": 1.3, "castle": 1.6}.get(kind, 1.0))
     quests, clues, stashes, picks = Q.build_line(ctx)
     doc["clues"] = clues
     doc["stashes"] = stashes

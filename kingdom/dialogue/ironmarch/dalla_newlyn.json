@@ -29,7 +29,7 @@
      "p": 2
     },
     {
-     "text": "\"You will hear Ironmarch before you see it. Ask at the Silverford Guild Hall.\"",
+     "text": "\"You will hear Silverford before you see it. Ask at the Silverford Guild Hall.\"",
      "if": {
       "tier_not": [
        "enemy",
@@ -137,7 +137,7 @@
      "p": 2
     },
     {
-     "text": "\"When Ironmarch is quiet we say it is peaceful. When it is very quiet we say nothing.\"",
+     "text": "\"When Silverford is quiet we say it is peaceful. When it is very quiet we say nothing.\"",
      "p": 2
     },
     {

@@ -194,7 +194,7 @@ func _person_row(lc: LifeCourses, id: int, day: int) -> PanelContainer:
 	var settlement_name := "the village"
 	var sidx := int(p.get("settlement", -1))
 	if sidx >= 0 and sidx < WorldGen.settlements.size():
-		settlement_name = String(WorldGen.settlements[sidx]["name"])
+		settlement_name = WorldGen.display_name(String(WorldGen.settlements[sidx]["name"]))
 	var occ := String(p.get("occupation", ""))
 	var rank := String(p.get("rank", ""))
 	var role_text := ("%s, %s" % [rank.capitalize(), occ]) if rank != "" else occ.capitalize()

@@ -29,7 +29,7 @@
      "p": 2
     },
     {
-     "text": "\"Oakvale is a small place with a long memory. State your name slowly.\"",
+     "text": "\"Greenhollow is a small place with a long memory. State your name slowly.\"",
      "if": {
       "tier_not": [
        "enemy",
@@ -137,7 +137,7 @@
      "p": 2
     },
     {
-     "text": "\"If trade slows, Oakvale feels it first. If it speeds up, Oakvale feels it last.\"",
+     "text": "\"If trade slows, Greenhollow feels it first. If it speeds up, Greenhollow feels it last.\"",
      "p": 2
     },
     {

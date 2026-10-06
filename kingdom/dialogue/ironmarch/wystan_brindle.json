@@ -29,7 +29,7 @@
      "p": 2
     },
     {
-     "text": "\"Ironmarch is guild town on the ford. Nobody thinks to say it, but it is true.\"",
+     "text": "\"Silverford is guild town on the ford. Nobody thinks to say it, but it is true.\"",
      "if": {
       "tier_not": [
        "enemy",

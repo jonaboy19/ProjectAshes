@@ -118,7 +118,7 @@
    "dialogue": {
     "greeting": [
      "Ale is fair, stew is hot, and I do not do credit.",
-     "Welcome to Ironmarch. Mind the Silverford Guild Hall. Everyone does, eventually."
+     "Welcome to Silverford. Mind the Silverford Guild Hall. Everyone does, eventually."
     ],
     "rumour": [
      "Caravan men haggle over the bill, then tip like kings. I have learnt to quote high.",
@@ -177,7 +177,7 @@
    "dialogue": {
     "greeting": [
      "Mind the anvil. It has opinions.",
-     "Strangers in Ironmarch get one warning and one welcome. You are on the welcome."
+     "Strangers in Silverford get one warning and one welcome. You are on the welcome."
     ],
     "rumour": [
      "Wagon tyres, chain, padlocks. The caravans keep my coals warm.",
@@ -227,7 +227,7 @@
    "dialogue": {
     "greeting": [
      "Take your time. Touch nothing you cannot afford.",
-     "Ironmarch is guild town on the ford. Nobody thinks to say it, but it is true."
+     "Silverford is guild town on the ford. Nobody thinks to say it, but it is true."
     ],
     "rumour": [
      "I stock what the caravans forgot. It is a surprisingly good trade.",
@@ -324,7 +324,7 @@
    "dialogue": {
     "greeting": [
      "If it hurts it is working. If it does not hurt, you overpaid.",
-     "Ironmarch is a small place with a long memory. State your name slowly."
+     "Silverford is a small place with a long memory. State your name slowly."
     ],
     "rumour": [
      "Fever in two households. Nothing the stones can mend.",
@@ -373,7 +373,7 @@
    "dialogue": {
     "greeting": [
      "Papers, if you have them. A good story, if you do not.",
-     "First time in Ironmarch? The Silverford Guild Hall is the place to start."
+     "First time in Silverford? The Silverford Guild Hall is the place to start."
     ],
     "rumour": [
      "Fewer travellers on the road, more strange footprints at the verge. I count both.",
@@ -421,12 +421,12 @@
    "dialogue": {
     "greeting": [
      "Evening. Stones are lit, gate is shut, I am cold.",
-     "Folk come to Ironmarch for guild town on the ford. Some stay for the quiet."
+     "Folk come to Silverford for guild town on the ford. Some stay for the quiet."
     ],
     "rumour": [
      "Heard something past the hedge last night. Whatever it was, it was not honest.",
      "Coin from three kingdoms in one purse. The man who paid had clean hands and dirty boots.",
-     "If trade slows, Ironmarch feels it first. If it speeds up, Ironmarch feels it last."
+     "If trade slows, Silverford feels it first. If it speeds up, Silverford feels it last."
     ],
     "opinions": {
      "dolan_trevor": "Dolan knows the trade. I will say that for Dolan.",
@@ -524,12 +524,12 @@
    "dialogue": {
     "greeting": [
      "You are somebody's grandchild. I can tell by the walk.",
-     "You will hear Ironmarch before you see it. Ask at the Silverford Guild Hall."
+     "You will hear Silverford before you see it. Ask at the Silverford Guild Hall."
     ],
     "rumour": [
      "When I was young the stones sang at dusk. Now they hum, like someone ill.",
      "A rival house is undercutting us. By a little. A deliberate little.",
-     "When Ironmarch is quiet we say it is peaceful. When it is very quiet we say nothing."
+     "When Silverford is quiet we say it is peaceful. When it is very quiet we say nothing."
     ],
     "opinions": {
      "larkin_newlyn": "Larkin is blood. That settles most arguments and starts the rest.",
@@ -578,7 +578,7 @@
     ],
     "rumour": [
      "I remember the Long Dark. Nobody asks. Nobody wants the answer.",
-     "Every few years Ironmarch has a winter nobody forgets. The old folk say this one is early."
+     "Every few years Silverford has a winter nobody forgets. The old folk say this one is early."
     ],
     "opinions": {
      "dalla_newlyn": "Dalla lives next door and hears everything I do."
@@ -680,7 +680,7 @@
     ],
     "rumour": [
      "A list of names came to me for copying. Half were crossed out. I copied the crossings too.",
-     "A stranger asked at the Silverford Guild Hall for the oldest person in Ironmarch. We sent him to the wrong house, on purpose."
+     "A stranger asked at the Silverford Guild Hall for the oldest person in Silverford. We sent him to the wrong house, on purpose."
     ],
     "opinions": {
      "drystan_goodrich": "Drystan lives next door and hears everything I do.",
@@ -731,7 +731,7 @@
     ],
     "rumour": [
      "Fair day is coming. Everybody smiles. Nobody is pleased.",
-     "Ask anyone in Ironmarch about the Silverford Guild Hall. You will get four stories and one fact."
+     "Ask anyone in Silverford about the Silverford Guild Hall. You will get four stories and one fact."
     ],
     "opinions": {
      "brida_upton": "Brida works hard and talks harder.",
@@ -782,7 +782,7 @@
     ],
     "rumour": [
      "Caravans bring spice from the south and leave with wool. Mostly.",
-     "Ironmarch lives by guild town on the ford. When that fails, so do we."
+     "Silverford lives by guild town on the ford. When that fails, so do we."
     ],
     "opinions": {
      "fenn_hartwell": "Fenn keeps a tidy yard and an untidy mouth.",
@@ -841,7 +841,7 @@
     ],
     "rumour": [
      "A buyer offered gold for road maps. I said they were free. He did not believe me.",
-     "Ask in Ironmarch who built the Silverford Guild Hall and you will get a different name each time."
+     "Ask in Silverford who built the Silverford Guild Hall and you will get a different name each time."
     ],
     "opinions": {
      "brida_upton": "Brida works hard and talks harder.",
@@ -897,7 +897,7 @@
     ],
     "rumour": [
      "A short weight turned up at the market. The scales are honest. The thumbs, not so.",
-     "Folk say Ironmarch was founded by someone who wanted to be left alone. We have not forgotten."
+     "Folk say Silverford was founded by someone who wanted to be left alone. We have not forgotten."
     ],
     "opinions": {
      "eda_lathom": "Eda is blood. That settles most arguments and starts the rest.",
@@ -948,7 +948,7 @@
     ],
     "rumour": [
      "Letters from the Council come sealed twice now. They do not want them read at the gate.",
-     "Ask in Ironmarch who built the Silverford Guild Hall and you will get a different name each time."
+     "Ask in Silverford who built the Silverford Guild Hall and you will get a different name each time."
     ],
     "opinions": {
      "fenn_hartwell": "Fenn works hard and talks harder.",

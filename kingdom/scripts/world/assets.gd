@@ -321,10 +321,14 @@ const ARMORED := "res://assets/incoming/ai3d/meshy/armored/"
 const CDMIR := "res://assets/incoming/characters/cdmir-ual/"
 ## Meshy batch 3 bipeds re-rigged onto the UAL skeleton (tools/meshy/armored_rig/meshy3_rerig.py, docs/art/meshy_dl3/README.md).
 const MESHY3 := "res://assets/incoming/meshy_dl3/characters_ual/"
+## Shirtless fix (2026-10-06): MESHY3 "villager_green_vest" is NOT in any villager pool. Its fur-collared vest is cut so wide that the
+## chest and shoulders are bare skin (about 40 % of its upper-chest texels are skin; every other look is under 20 %), so the town
+## villager who rolled it rendered shirtless on every tier. The model stays on disk (docs/art/hero_tier_a uses it as the Tier-A hero
+## candidate, which gets its own outfit pass). tests/test_villager_torso.gd measures every pooled look and LOD.
 const MH_LOOKS := {
 	"Rogue_Hooded": ["villager_man_a", "villager_man_b", "villager_woman_a", "villager_woman_b", "elder_man", "elder_woman",
 		G6 + "g6_m_villager_tunic", G6 + "g6_f_villager_tunic", G6 + "g6_f_worker_apron",
-		MESHY3 + "villager_green_vest", MESHY3 + "villager_white_shirt", MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
+		MESHY3 + "villager_white_shirt", MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
 	"Barbarian": ["villager_man_a", "villager_man_b", "father", "villager_farmer", G6 + "g6_m_worker_apron", G6 + "g6_m_hunter_leather",
 		MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
 	"Mage": ["villager_woman_a", "villager_woman_b", "mother", "elder_woman", "villager_baker", G6 + "g6_f_villager_tunic", G6 + "g6_f_blacksmith_apron"],
@@ -337,7 +341,7 @@ const MH_LOOKS := {
 	"Mercenary": [ARMORED + "mercenary"], "Bandit": [ARMORED + "bandit", MESHY3 + "guardian_hooded"], "Noble": [ARMORED + "noble"],
 	"Orc_Warchief": [ARMORED + "orc_warchief"],
 	# Meshy batch 3 (docs/art/meshy_dl3/README.md): named looks for Thornfield's stranger, travellers and extra villagers.
-	"Meshy_Villager": [MESHY3 + "villager_green_vest", MESHY3 + "villager_white_shirt", MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
+	"Meshy_Villager": [MESHY3 + "villager_white_shirt", MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
 	"Meshy_Traveller": [MESHY3 + "guardian_hooded", MESHY3 + "merchant_cloaked"],
 	"Meshy_Knight": [MESHY3 + "knight_plate_a"],
 	"Mother": ["mother"], "Father": ["father"],
