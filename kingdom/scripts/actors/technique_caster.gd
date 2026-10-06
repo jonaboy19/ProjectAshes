@@ -90,12 +90,15 @@ var _seal_id := ""
 var _seal_seq: Array = []
 var _seal_pos := 0
 var _seal_time := 0.0
+var _body_action_id := 0   # Invalidates delayed strikes when the body action is replaced.
+var _body_followups: Array[Dictionary] = []
 
 
 func _init() -> void:
 	name = "TechniqueCaster"
 	runner = Runner.new()
-	runner.overlap_windups = true
+	# One body, one cast pose: never release an older technique beneath a new clip.
+	runner.overlap_windups = false
 	runner.hooks = {
 		"lookup": _lookup, "known": _hook_known, "blocked": _blocked, "pools": _hook_pools,
 		"numbers": _hook_numbers, "commit": _hook_commit, "cooldown_left": _hook_cooldown_left,
@@ -131,6 +134,7 @@ func _bind_technique_vfx() -> void:
 		"origin": _origin, "aim": _aim, "world": _world,
 		"is_player": func() -> bool: return player != null and player == Life.player,
 		"skeleton_root": player,
+		"action_paused": _action_paused,
 		"bespoke": func(def: Dictionary) -> bool:
 			var v := String(def.get("vfx", ""))
 			return v != "" and _vfx_info.has(v),
@@ -161,6 +165,18 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 
 
+## Ask the impact-pause owner; an inactive tree can have other causes.
+func _action_paused() -> bool:
+	if not is_instance_valid(player):
+		return false
+	var pause_owner: Variant = player.get("_impact_pause")
+	var animator: Variant = player.get("_animator")
+	if not is_instance_valid(pause_owner) or not is_instance_valid(animator):
+		return false
+	var mixer: Variant = animator.get("tree")
+	return mixer is AnimationMixer and pause_owner.has_method("is_paused") and bool(pause_owner.call("is_paused", mixer))
+
+
 func _physics_process(delta: float) -> void:
 	if is_sealing():
 		_seal_time -= delta
@@ -170,7 +186,10 @@ func _physics_process(delta: float) -> void:
 			_end_seals(false)
 	if skills:
 		skills.tick(delta)
-	for ev: Dictionary in runner.update(delta):    # effects on the caster itself (hot, wards, auras)
+	var action_delta := 0.0 if _action_paused() else delta
+	# Advance existing strikes first: a release in runner.update starts at time zero.
+	_update_body_followups(action_delta)
+	for ev: Dictionary in runner.update(delta, action_delta):    # effects on the caster itself
 		if String(ev["kind"]) == "hot" and player != null and player.has_method("heal"):
 			player.call("heal", int(ev["amount"]))
 	_update_projectiles(delta)
@@ -196,7 +215,7 @@ func can_cast_slot(slot: int) -> Dictionary:
 	var id := String(skills.loadout[slot]) if skills and slot >= 0 and slot < skills.loadout.size() else ""
 	if id == "":
 		return {"ok": false, "reason": "Empty slot."}
-	return skills.can_cast(id, pools())
+	return runner.can_use(id)
 
 
 ## `with_seals`: sealed techniques open the seal pad first (touch); without it
@@ -295,6 +314,21 @@ func _end_seals(success: bool) -> void:
 	seals_ended.emit(id, success)
 
 
+## Called when a hit reaction, guard break or death takes control of the body.
+## Released projectiles and existing target effects remain independent.
+func interrupt_cast(reason := "interrupted") -> void:
+	_body_action_id += 1
+	_body_followups.clear()
+	var changed: bool = runner.interrupt_all(reason)
+	if changed and is_instance_valid(player):
+		var animator: Variant = player.get("_animator")
+		if is_instance_valid(animator):
+			animator.call("stop_upper")
+			animator.call("stop_full")
+	if is_sealing():
+		_end_seals(false)
+
+
 ## Casts a technique (legacy skills.gd tree or data/powers path tree). Chant-gated spells (magic path, seals) need
 ## the chant unless the caster qualifies for chantless casting: then they fire at once, otherwise the seal pad opens.
 func cast_technique(id: String, sealed := false) -> Dictionary:
@@ -330,6 +364,10 @@ func cast_ability(id: String, sealed := false) -> Dictionary:
 
 ## What the legacy cast did after paying: face the target, play the clip, train, announce.
 func _after_commit(id: String, r: Dictionary, target: Node3D) -> void:
+	# Zero-windup casts already executed inside runner.begin; keep their new strikes.
+	if float(r.get("windup", 0.0)) > 0.0:
+		_body_action_id += 1
+		_body_followups.clear()
 	var def: Dictionary = r["def"]
 	if target:
 		_face(target.global_position)
@@ -346,6 +384,16 @@ func _blocked() -> String:
 		return "No body."
 	if _flag(player, "dead"):
 		return "Dead."
+	for state: String in ["_stunned", "_flinch"]:
+		var remaining: Variant = player.get(state)
+		if remaining != null and float(remaining) > 0.0:
+			return "Recovering from a hit."
+	for state: String in ["_swing", "_dodge", "_land_time"]:
+		var remaining: Variant = player.get(state)
+		if remaining != null and float(remaining) > 0.0:
+			return "Finish the current action."
+	if _flag(player, "_jump_starting") or _flag(player, "_jump_active"):
+		return "Jumping."
 	if _flag(player, "swimming"):
 		return "Swimming."
 	if player.has_method("is_mounted") and player.call("is_mounted"):
@@ -463,6 +511,8 @@ func _hook_profile() -> Dictionary:
 
 
 func _hook_execute(_def: Dictionary, cast_info: Dictionary) -> void:
+	_body_action_id += 1
+	_body_followups.clear()
 	_resolve(String(cast_info["id"]), cast_info["def"], int(cast_info["damage"]), cast_info["target"] as Node3D)
 
 
@@ -633,9 +683,12 @@ func _resolve(id: String, def: Dictionary, dmg: int, target: Node3D) -> void:
 			for h in hits:
 				if h == 0:
 					_area(def, dmg, target, h == hits - 1)
+				elif shape in ["melee", "cone"]:
+					_body_followups.append({"left": float(def["hit_interval"]) * h,
+						"def": def, "damage": dmg, "target": target, "last": h == hits - 1, "action": _body_action_id})
 				else:
 					get_tree().create_timer(float(def["hit_interval"]) * h).timeout.connect(
-						_area.bind(def, dmg, target, h == hits - 1))
+						_area_followup.bind(def, dmg, target, h == hits - 1, _body_action_id))
 	if SPECTACLE_SHAPES.has(shape):
 		# The flash/projectile is an explicit local spectacle, not proof that a
 		# particular villager saw the caster or identified a target.
@@ -666,6 +719,32 @@ func _resolve(id: String, def: Dictionary, dmg: int, target: Node3D) -> void:
 		UtilityBrain.sound_notice(Vector2(here.x, here.z), sound_level, sound_radius, sound_lifetime)
 	if shape in ["aoe", "target_aoe", "cone"] and def["effect"].has("buff"):
 		_support(id, def)
+
+
+## melee / cone / aoe / target_aoe: one volley of hits.
+func _update_body_followups(delta: float) -> void:
+	if delta <= 0.0 or _body_followups.is_empty():
+		return
+	var due: Array[Dictionary] = []
+	for strike: Dictionary in _body_followups:
+		strike["left"] = float(strike["left"]) - delta
+		if float(strike["left"]) <= 0.0:
+			due.append(strike)
+	for strike: Dictionary in due:
+		_body_followups.erase(strike)
+		var target: Variant = strike["target"]
+		_area_followup(strike["def"], int(strike["damage"]), target if is_instance_valid(target) else null,
+			bool(strike["last"]), int(strike["action"]))
+
+
+func _area_followup(def: Dictionary, dmg: int, target: Node3D, last: bool, action_id: int) -> void:
+	if not is_instance_valid(player) or _flag(player, "dead"):
+		return
+	# Remote released area effects are independent; close-range combo strikes
+	# still belong to the body animation that launched them.
+	if String(def["shape"]) in ["melee", "cone"] and action_id != _body_action_id:
+		return
+	_area(def, dmg, target if is_instance_valid(target) else null, last)
 
 
 ## melee / cone / aoe / target_aoe: one volley of hits.

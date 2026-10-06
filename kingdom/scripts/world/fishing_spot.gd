@@ -96,9 +96,9 @@ func use() -> void:
 		return
 	_last_use_frame = f
 	if phase == Phase.IDLE:
-		if _panel == null and not deposits.is_depleted(dep_id(), dep_def(), WorldSim.day):
+		if not is_instance_valid(_panel) and not deposits.is_depleted(dep_id(), dep_def(), WorldSim.day):
 			_start()
-		elif _panel == null:
+		elif not is_instance_valid(_panel):
 			Game.say("The water is still. Nothing is biting here today.")
 	else:
 		_tap()

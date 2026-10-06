@@ -18,6 +18,7 @@ var _taps: Label
 var _widget: Control
 var _box: VBoxContainer
 var _done := false
+var _cancel_button: Button
 
 
 func setup(s: RefCounted, title: String) -> void:
@@ -46,6 +47,11 @@ func setup(s: RefCounted, title: String) -> void:
 	_box.add_child(_status)
 	_taps = Label.new()
 	_box.add_child(_taps)
+	_cancel_button = Button.new()
+	_cancel_button.text = "Leave gathering"
+	_cancel_button.custom_minimum_size.y = 54.0
+	_cancel_button.pressed.connect(cancel)
+	_box.add_child(_cancel_button)
 	_status.text = "Tap Prospect to read the %s." % String(s.kind)
 	_rebuild()
 
@@ -75,6 +81,8 @@ func _rebuild() -> void:
 	var opts := _options()
 	_widget = WorkWidget.new()
 	_box.add_child(_widget)
+	# Keep cancellation below the current activity choices after every rebuild.
+	_box.move_child(_cancel_button, -1)
 	(_widget as Object).call("setup", {"widget": "choice", "options": opts})
 	_widget.connect("finished", _on_pick.bind(opts))
 
@@ -112,3 +120,9 @@ func _close(result: Dictionary) -> void:
 ## Leave without taking (menu closed, player walked off): whatever was extracted is lost with the node untouched.
 func cancel() -> void:
 	_close({"ok": false, "count": 0, "consumed": 0})
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not _done and event.is_action_pressed("ui_cancel"):
+		cancel()
+		get_viewport().set_input_as_handled()

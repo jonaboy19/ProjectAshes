@@ -1396,7 +1396,7 @@ func _step_chase(delta: float) -> void:
 	var gallop := _mount != null and _gallop_time > 0.0
 	var ctx := {
 		"speed_k": speed / RUN, "sprinting": Input.is_action_pressed("sprint") and speed > WALK * 1.4 and not blocking,
-		"dashing": _dodge > 0.0 or _dodging_ability, "gallop": gallop, "combat": _chase_combat,
+		"dashing": _dodge > 0.0, "gallop": gallop, "combat": _chase_combat,
 		"locked": is_instance_valid(_lock), "open": _chase_open, "rooftop": _chase_roof,
 		"strength": 1.0 if view == View.THIRD else 0.0,
 	}
@@ -1529,6 +1529,7 @@ func _begin_jump(running: bool, grounded_at_press: bool) -> void:
 		return
 	_spend(cost)
 	_jump_buffer = 0.0
+	_interrupt_technique("jump")
 	_jump_starting = true
 	# On a ledge, honor coyote input immediately instead of letting the start
 	# anticipation spend the grace window falling below the take-off point.
@@ -1792,6 +1793,7 @@ func _consume_buffers() -> void:
 
 
 func _start_swing() -> void:
+	_interrupt_technique("melee attack")
 	_cancel_locomotion_transition()
 	if _dodge > 0.0:
 		_dodge = 0.0                 # roll attack: the swing takes over the roll's tail
@@ -1899,6 +1901,7 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 
 
 func _start_dodge(is_ability: bool) -> void:
+	_interrupt_technique("dodge")
 	_cancel_locomotion_transition()
 	_dodging_ability = is_ability
 	if is_ability:
@@ -2007,6 +2010,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 					away = ((from as Node3D).global_position - global_position) * Vector3(1, 0, 1)
 				from.call_deferred("take_damage", 0, self, away.normalized() * float(res["push"]) * 2.0)
 			if lost:
+				_interrupt_technique("clash")
 				_stunned = maxf(_stunned, float(res["defender_stun"]))
 				_swing = 0.0
 				_swing_id += 1
@@ -2027,6 +2031,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 			if amount == 0:
 				return
 		HitResolver.Outcome.GUARD_BROKEN:
+			_interrupt_technique("guard broken")
 			_spend(float(res["guard_cost"]))
 			_kick(-facing() * BLOCK_PUSH)
 			_stunned = float(res["defender_stun"])
@@ -2042,6 +2047,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 	if health == 0:
 		_die()
 	elif not blocking:
+		_interrupt_technique("hit reaction")
 		_flinch = FLINCH_TIME
 		var heavy := amount >= max_health * 0.12 or knockback.length() >= 4.0
 		var clip := "Hit_%s_%s" % ["Heavy" if heavy else "Light", _hit_side(from)]
@@ -2071,7 +2077,15 @@ func _hit_side(from: Node) -> String:
 	return "Right" if right > 0.0 else "Left"
 
 
+func _interrupt_technique(reason: String) -> void:
+	_chase.cancel_cast()
+	var caster := get_node_or_null("TechniqueCaster")
+	if caster != null and caster.has_method("interrupt_cast"):
+		caster.call("interrupt_cast", reason)
+
+
 func _die() -> void:
+	_interrupt_technique("death")
 	if _mount:
 		_dismount()
 	_release_lock()
