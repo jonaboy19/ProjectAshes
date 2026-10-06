@@ -495,9 +495,9 @@ static func _polished(role: String, orig: Material, skin_kind: int, tier: String
 		"house":
 			sm.set_shader_parameter("saturation", 1.0)
 			sm.set_shader_parameter("value_gain", 0.9)
-			sm.set_shader_parameter("warm_tint", Color(1.0, 0.97, 0.9))
+			sm.set_shader_parameter("warm_tint", Color(1.05, 0.96, 0.85))     # AAA pass 13: warmer facades
 			sm.set_shader_parameter("ao_height", 1.6)
-			sm.set_shader_parameter("ao_strength", 0.5)
+			sm.set_shader_parameter("ao_strength", 0.62)     # deeper facade shadow at the foot and under eaves
 			sm.set_shader_parameter("vao_strength", 1.0)
 			# AAA pass 2: Meshy thatch and plaster glinted like crystal close up (spec + rim on faceted normals): matte houses
 			sm.set_shader_parameter("spec", 0.08)

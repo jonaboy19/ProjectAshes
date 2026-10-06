@@ -193,6 +193,8 @@ func _maybe_apex_encounter(p: Vector2) -> void:
 func _spawn_pack(den: Dictionary) -> void:
 	var list: Array = []
 	var count := mini(int(den["population"]), RAMonsterEcology.SPECIES[den["species"]]["pack"])
+	if Quality.tier <= 0:
+		count = mini(count, 2)      # AAA pass 13: LOW draw budget (the census showed 4-wolf packs in the town gate view)
 	for i in count:
 		# Apex and Rift-tainted dens reuse the closest body until they get their own models.
 		var sp := Frontier.ecology.variant_for(String(den["species"]), den["pos"])   # Region1 hook H4: Scar cells make rift variants

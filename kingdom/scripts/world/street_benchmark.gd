@@ -22,7 +22,7 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market
 	var dir := (e - a).normalized()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 90210 + int(s["id"])
-	var lists := {"woodpile": [], "washing_line": [], "water_trough": [], "barrel": [], "bench": [], "crate_stack": [], "sack_pile": [], "mf_lantern_wall_scroll": [], "flower_bed": [], "banner_pole": [], "market_stall_red": [], "mf_lamp_post_timber_cross": [], "mf_fence_picket_low": [], "mf_bush_raspberry": []}
+	var lists := {"woodpile": [], "washing_line": [], "water_trough": [], "barrel": [], "bench": [], "crate_stack": [], "sack_pile": [], "mf_lantern_wall_scroll": [], "flower_bed": [], "planter_box": [], "banner_pole": [], "market_stall_red": [], "mf_lamp_post_timber_cross": [], "mf_fence_picket_low": [], "mf_bush_raspberry": []}
 	var doors: Array = []          # [door point, out normal toward street, side sign, t along street]
 	for lot: Dictionary in plan["lots"]:
 		var lp: Vector2 = lot["pos"]
@@ -92,13 +92,13 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market
 					0:
 						_add(lists, "market_stall_red", edge + dir.orthogonal() * sg * 0.6, face, 0.0)
 					1:
-						_add(lists, "flower_bed", edge, face, 0.0)
+						_add(lists, "planter_box", edge, face, 0.0)
 						_add(lists, "banner_pole", edge + dir * 1.6, face, 0.0)
 					2:
 						_add(lists, "mf_lamp_post_timber_cross", edge, face, 0.0)
 						_add(lists, "barrel", edge + dir * 1.0, rng.randf() * TAU, 0.0)
 					3:
-						_add(lists, "flower_bed", edge, face, 0.0)
+						_add(lists, "planter_box", edge, face, 0.0)
 				# outer verge: low picket fence and bushes between the stall row and the house fronts (frame edges)
 				var outer := a + dir * (t3 + 3.5) + dir.orthogonal() * sg * (half + 1.4)
 				_add(lists, "mf_fence_picket_low", outer, atan2(dir.x, dir.y) + PI * 0.5, 0.0)
@@ -120,6 +120,16 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market
 			var gp := (s["pos"] as Vector2) + dir * (gwr - 3.5)
 			lg.global_transform = Transform3D(Basis(Vector3.UP, atan2(dir.x, dir.y) + PI), Vector3(gp.x, WorldGen.height(gp.x, gp.y) - 0.05, gp.y))
 			lg.call("_gatehouse", Vector3.ZERO)
+			# hide the ring's own wall-gate piece inside the new gatehouse (it showed as a pale inner arch)
+			var gate_pt := (s["pos"] as Vector2) + dir * gwr
+			for mmi in root.find_children("*", "MultiMeshInstance3D", true, false):
+				var mm: MultiMesh = (mmi as MultiMeshInstance3D).multimesh
+				if mm == null or mm.mesh == null or mm.mesh.get_aabb().size.y < 6.0:
+					continue
+				for ii in mm.instance_count:
+					var wt := (mmi as Node3D).global_transform * mm.get_instance_transform(ii)
+					if Vector2(wt.origin.x, wt.origin.z).distance_to(gate_pt) < 2.5:
+						mm.set_instance_transform(ii, Transform3D(Basis().scaled(Vector3.ONE * 0.0001), mm.get_instance_transform(ii).origin))
 			var StyleG := load("res://scripts/style_g.gd")
 			var tier: String = StyleG.current_tier()
 			for mi in lg.find_children("*", "MeshInstance3D", true, false):
@@ -127,6 +137,13 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market
 				if m.has_meta("role") and not m.has_meta("keep_material"):
 					m.material_override = StyleG.material_for(String(m.get_meta("role")), m.material_override, 1, tier)
 				m.layers |= TownDecals.WALL_LAYER
+		# overhanging trees framing the near edges of the gate view (camera stands ~40 m inside the wall), MEDIUM+
+		if not bool(b.call("_low")):
+			var trees: Array[Transform3D] = []
+			for tt: Array in [[-36.0, 1.0], [-30.0, -1.0], [-22.0, 1.0]]:
+				var tp2 := (s["pos"] as Vector2) + dir * (gwr + float(tt[0])) + dir.orthogonal() * float(tt[1]) * (half + 3.2)
+				trees.append(Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * 0.85), Vector3(tp2.x, WorldGen.height(tp2.x, tp2.y) - 0.1, tp2.y)))
+			TerrainStreamer.region_tree_chain(holder, "region/nature/oak_a", trees)
 		for sg2: float in [1.0, -1.0]:
 			var bp := gc + dir.orthogonal() * sg2 * 6.2
 			(lists["banner_pole"] as Array).append(Transform3D(Basis(Vector3.UP, atan2(-dir.x, -dir.y)).scaled(Vector3.ONE * 2.1), Vector3(bp.x, WorldGen.height(bp.x, bp.y) - 0.05, bp.y)))

@@ -152,6 +152,8 @@ func _update_group(g: Dictionary, p: Vector2) -> void:
 			if SMALL_FLOCK.has(pair[0]):
 				# Perf: fewer hens/doves on weaker tiers (each is a skinned, animated model).
 				want = maxi(1, roundi(want * clampf(float(Quality.value("scatter")) + 0.15, 0.3, 1.0)))
+			if Quality.tier <= 0:
+				want = mini(want, 1)      # AAA pass 13: LOW draw budget, one animal of each kind per group
 			for k in want:
 				if BEASTS.has(pair[0]):
 					_spawn_beast(g, String(pair[0]), nodes)
