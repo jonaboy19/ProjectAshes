@@ -69,3 +69,15 @@ Rating: about 6.5/10. Still not default.
   - The body is a bulky cloak block with a dark face.
   - The boots stretch into skis again (the boot was shifted 9.7 cm).
 - **Next:** pick the base-colour image by its material slot, then re-run `hero_fix` without `--keep_hands`.
+
+## Paid Meshy hero, pass 2 (2026-10-06): `n2_sheet.jpg`, `n2_clips.jpg`
+- **Texture:** the base colour is the material's baseColorTexture (image 2, not image 0). The Target 03 palette now reads: green tunic and cloak, leather vest and straps, hood.
+- **Hands:** the hand swap works, and the sword sits in the fist.
+- **Problems:**
+  - Hulking proportions: very broad shoulders and arms.
+  - The hood reads as shiny gold satin (the atlas classifier marks it leather/metal, so specular is too high).
+  - The ski soles are back on run and attack (the 9.7 cm boot shift is too large for this model).
+  - The face camera framing is too low for this head height.
+  - Harsh painted brows.
+
+Rating: about 5/10 (palette and silhouette at distance about 6, close-up 4). It loses to m13 (about 6.5), so it is not default. Benchmark street not run.
