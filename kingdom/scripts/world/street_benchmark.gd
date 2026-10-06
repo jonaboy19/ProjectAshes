@@ -12,7 +12,7 @@ const REACH := 17.0            # lots whose centre is within this of the street 
 const DOOR := 4.4              # lot centre -> door line (houses are fitted to ~10 m lots)
 
 
-static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary) -> int:
+static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market := false) -> int:
 	if (plan["streets"] as Array).size() <= STREET:
 		return 0
 	var st: Dictionary = plan["streets"][STREET]
@@ -22,7 +22,7 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary) -> int
 	var dir := (e - a).normalized()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 90210 + int(s["id"])
-	var lists := {"woodpile": [], "washing_line": [], "water_trough": [], "barrel": [], "bench": [], "crate_stack": [], "sack_pile": [], "mf_lantern_wall_scroll": []}
+	var lists := {"woodpile": [], "washing_line": [], "water_trough": [], "barrel": [], "bench": [], "crate_stack": [], "sack_pile": [], "mf_lantern_wall_scroll": [], "flower_bed": [], "banner_pole": [], "market_stall_red": [], "mf_lamp_post_timber_cross": []}
 	var doors: Array = []          # [door point, out normal toward street, side sign, t along street]
 	for lot: Dictionary in plan["lots"]:
 		var lp: Vector2 = lot["pos"]
@@ -78,6 +78,29 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary) -> int
 		var mid: Vector2 = ((d0[0] as Vector2) + (d1[0] as Vector2)) * 0.5 - (d0[1] as Vector2) * 2.4
 		var along: Vector2 = ((d1[0] as Vector2) - (d0[0] as Vector2)).normalized()
 		_add(lists, "washing_line", mid, atan2(along.x, along.y) + PI * 0.5, 0.0)
+	# Market edge (AAA pass 10, the Kingsreach gate market target): the street reads narrow and framed when its verges carry
+	# stalls, flower beds, banner poles and lamp posts in a rhythm, the middle left as cobbled road. Every ~7 m each side.
+	if market:
+		var len2 := a.distance_to(e)
+		var t3 := 5.0
+		var k3 := 0
+		while t3 < len2 - 6.0:
+			for sg: float in [1.0, -1.0]:
+				var edge := a + dir * (t3 + (1.8 if sg < 0.0 else 0.0)) + dir.orthogonal() * sg * (half - 1.1)
+				var face := atan2(-dir.orthogonal().x * sg, -dir.orthogonal().y * sg)
+				match (k3 + (1 if sg < 0.0 else 0)) % 4:
+					0:
+						_add(lists, "market_stall_red", edge + dir.orthogonal() * sg * 0.6, face, 0.0)
+					1:
+						_add(lists, "flower_bed", edge, face, 0.0)
+						_add(lists, "banner_pole", edge + dir * 1.6, face, 0.0)
+					2:
+						_add(lists, "mf_lamp_post_timber_cross", edge, face, 0.0)
+						_add(lists, "barrel", edge + dir * 1.0, rng.randf() * TAU, 0.0)
+					3:
+						_add(lists, "flower_bed", edge, face, 0.0)
+			t3 += 7.0
+			k3 += 1
 	# the road: puddles in the ruts and worn verges along both edges
 	if decals:
 		var len := a.distance_to(e)
@@ -101,7 +124,7 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary) -> int
 		var lp2: Vector2 = (d[0] as Vector2) + (d[1] as Vector2) * 0.35
 		_add(lists, "mf_lantern_wall_scroll", lp2, atan2((d[1] as Vector2).x, (d[1] as Vector2).y), 1.75)
 		lamps.append({"pos": Vector3(lp2.x, WorldGen.height(lp2.x, lp2.y) + 2.1, lp2.y), "color": Color(1.0, 0.66, 0.32), "range": 6.0, "size": 0.7})
-	if not lamps.is_empty():
+	if not lamps.is_empty() and not bool(b.call("_low")):
 		var lnodes: Array = LampGlow.build(holder, lamps)
 		# warm light spill on the facade around each door lantern (emission decal on the wall batches), parented to the
 		# glow batch so it only exists at night; MEDIUM+ only (decal budget rules)
@@ -130,6 +153,11 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary) -> int
 				batch.add_child(dec)
 				dec.top_level = true
 				dec.global_transform = Transform3D(TownDecals.wall_basis(out3), Vector3(wp.x, WorldGen.height(wp.x, wp.y) + 2.0, wp.y) + out3 * 0.6)
+	if bool(b.call("_low")):
+		# LOW draw budget (<= 135 in the gate view): keep only the kinds that carry the composition
+		for kk: String in lists.keys():
+			if kk != "market_stall_red":
+				lists[kk] = []
 	var placed := 0
 	for kind: String in lists:
 		var list: Array[Transform3D] = []
@@ -141,7 +169,7 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary) -> int
 			mesh = load("res://scripts/build/kit_meshes.gd").mesh("laundry_line")     # coloured cloth (washing_line.glb read as white boards)
 		if mesh == null:
 			continue
-		b.call("_multimesh", holder, mesh, list, true, false)
+		b.call("_multimesh", holder, mesh, list, not bool(b.call("_low")), false)
 		placed += list.size()
 	return placed
 

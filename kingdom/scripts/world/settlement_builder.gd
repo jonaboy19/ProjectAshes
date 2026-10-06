@@ -377,7 +377,9 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	_gate_outskirts(root, s, plan, gates)
 	_medieval_gates(root, s, plan, gates)      # Medieval pass (local): mud, cobble apron, hay cart, barrels, banners at the gates and market
 	if String(s.get("name", "")) == "Ashford":
-		preload("res://scripts/world/street_benchmark.gd").build(self, root, s, plan)     # AAA benchmark street (local, 2026-10-06)
+		preload("res://scripts/world/street_benchmark.gd").build(self, root, s, plan)
+	elif String(s.get("name", "")) == "Kingsreach":
+		preload("res://scripts/world/street_benchmark.gd").build(self, root, s, plan, true)     # gate market (AAA pass 10)     # AAA benchmark street (local, 2026-10-06)
 	_footprint_clutter(root, plan, rng)
 	TownView.yards(self, root, s, plan, _prof)     # outskirts of the town's industry: mine yard, granary, boatyard, watch towers ...
 	VillageFeatures.build(self, root, s, plan, _prof)     # villages and hamlets: their own set of green / chapel / mill / smithy / pond / orchard ...
