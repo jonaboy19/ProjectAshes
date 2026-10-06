@@ -129,6 +129,26 @@ func _run() -> void:
 	var tgt: Node = main.hud.get("target")
 	print("FEELVIEW focus ", tgt, " tag_visible=", (tgt.get("_tag") as Label3D).visible if tgt and tgt.get("_tag") else "n/a")
 	await shot("5_benchmark")
+	# 7. a conversation with whoever the talk target is (dialogue presentation)
+	var vbest: Node3D = null
+	for v in get_tree().get_nodes_in_group("villager"):
+		if v is Node3D and (vbest == null or (v as Node3D).global_position.distance_to(player.global_position) < vbest.global_position.distance_to(player.global_position)):
+			vbest = v
+	if vbest != null:
+		var vp := Vector2(vbest.global_position.x, vbest.global_position.z)
+		vbest.set_physics_process(false)
+		await _place(vp + Vector2(1.6, 0.6), Vector2(-1.6, -0.6))
+	if main.hud.get("target") != null:
+		var tg: Node = main.hud.get("target")
+		print("FEELVIEW talking to ", tg.name, " current=", tg.get("current"))
+		if tg.has_method("use"):
+			tg.call("use")
+		await frames(70)
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(out.path_join("%s_7_dialogue.png" % tag))
+		print("FEELVIEW saved dialogue")
+		main.hud.close_menu()
+		await frames(40)
 	for hr in [18.6, 22.0]:
 		WorldSim.time_of_day = hr
 		await frames(90)

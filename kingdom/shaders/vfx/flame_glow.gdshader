@@ -34,5 +34,7 @@ void fragment() {
 	float halo = pow(clamp(1.0 - d, 0.0, 1.0), 2.2);
 	vec3 hot = mix(v_col, vec3(1.0, 0.95, 0.75), 0.7);
 	vec3 col = v_col * halo * 0.9 + hot * max(flame, core);
-	ALBEDO = col * energy * v_flick * lit;
+	// AAA pass 7: a lamp right next to the lens blew out into a white slab: fade within ~3 m of the camera
+	float near_k = smoothstep(1.2, 3.2, length(VERTEX));
+	ALBEDO = col * energy * v_flick * lit * near_k;
 }
