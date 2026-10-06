@@ -57,6 +57,12 @@ static func _add(st: SurfaceTool, prim: PrimitiveMesh, xf: Transform3D) -> void:
 	st.append_from(prim, 0, xf)
 
 
+static func _low() -> bool:
+	var ml := Engine.get_main_loop()
+	var q: Node = (ml as SceneTree).root.get_node_or_null("Quality") if ml is SceneTree else null
+	return q != null and int(q.get("tier")) <= 0
+
+
 static func _flame_quad(size: Vector2) -> QuadMesh:
 	var q := QuadMesh.new()
 	q.size = size
@@ -134,9 +140,9 @@ static func mesh(kind: String) -> ArrayMesh:
 	fire.commit(am)
 	am.surface_set_material(0, _iron_mat())
 	am.surface_set_material(1, _flame_mat(kind))
-	if kind == "brazier":
+	if kind == "brazier" and not _low():
 		coals.commit(am)
-		am.surface_set_material(2, _coal_mat())
+		am.surface_set_material(2, _coal_mat())     # LOW: 2 surfaces, no coal heap (pass 12 draw census: 3 draws per brazier)
 	_meshes[kind] = am
 	return am
 

@@ -209,7 +209,7 @@ func test_budget_allows_at_most_three_scenes() -> void:
 func test_budget_caps_actors_by_tier_and_crowd() -> void:
 	# LOW tier (5 full NPCs): one scene's cast already exceeds the allowance
 	assert_bool(MicroEvents.budget_allows(0, 1, 2, 5)).is_false()
-	assert_bool(MicroEvents.budget_allows(0, 0, 2, 5)).is_true()
+	assert_bool(MicroEvents.budget_allows(0, 0, 2, 5)).is_false()      # AAA pass 12: LOW runs no vignettes (draw budget)
 	# a crowded street (24 villagers) leaves no room beyond the tier's NPC allowance + 6
 	assert_bool(MicroEvents.budget_allows(0, 0, 24, 24)).is_true()
 	assert_bool(MicroEvents.budget_allows(1, 8, 24, 24)).is_false()

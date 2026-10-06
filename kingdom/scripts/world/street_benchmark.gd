@@ -109,6 +109,24 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market
 		# tall red heraldic banners flanking the gate opening (the target's gate reads by its banners): banner poles at 2x
 		var gwr: float = float(plan["wall_radius"]) if plan["walls"] else float(s["radius"]) * 1.1
 		var gc := (s["pos"] as Vector2) + dir * (gwr - 2.2)
+		# the art target's gatehouse (Style Lab G, code-built twin round towers, pointed arch, portcullis, lion banners), set
+		# over the wall gate: its front face 3.5 m inside the wall line, 6 m deep, so it encloses the ring's own gate piece.
+		# Materials by role from StyleG, as the lab applies them. MEDIUM+ only (LOW draw budget keeps the plain wall gate).
+		if not bool(b.call("_low")):
+			var LabGate: GDScript = load("res://scripts/style_lab/lab_gate.gd")
+			var lg: Node3D = LabGate.new()
+			lg.name = "HeroGatehouse"
+			holder.add_child(lg)
+			var gp := (s["pos"] as Vector2) + dir * (gwr - 3.5)
+			lg.global_transform = Transform3D(Basis(Vector3.UP, atan2(dir.x, dir.y) + PI), Vector3(gp.x, WorldGen.height(gp.x, gp.y) - 0.05, gp.y))
+			lg.call("_gatehouse", Vector3.ZERO)
+			var StyleG := load("res://scripts/style_g.gd")
+			var tier: String = StyleG.current_tier()
+			for mi in lg.find_children("*", "MeshInstance3D", true, false):
+				var m := mi as MeshInstance3D
+				if m.has_meta("role") and not m.has_meta("keep_material"):
+					m.material_override = StyleG.material_for(String(m.get_meta("role")), m.material_override, 1, tier)
+				m.layers |= TownDecals.WALL_LAYER
 		for sg2: float in [1.0, -1.0]:
 			var bp := gc + dir.orthogonal() * sg2 * 6.2
 			(lists["banner_pole"] as Array).append(Transform3D(Basis(Vector3.UP, atan2(-dir.x, -dir.y)).scaled(Vector3.ONE * 2.1), Vector3(bp.x, WorldGen.height(bp.x, bp.y) - 0.05, bp.y)))
