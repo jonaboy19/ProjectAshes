@@ -29,6 +29,11 @@ var _last_food := -1.0
 var _last_rest := -1.0
 var _last_yaw := INF
 var _anchor_timer := 0.0
+var _ctx_acc := 0.0
+var _life: Node
+## CPU pass 2026-10-06: the context (interaction picker, group scans, providers) is built at this rate, not every frame;
+## the director gets the summed delta, so its timers are unchanged and a prompt shows at most this late.
+const CTX_RATE := 0.15
 
 
 func setup(p_player: Node3D, p_hud: Node) -> Region1TutorialBridge:
@@ -52,8 +57,16 @@ func _process(delta: float) -> void:
 	if director == null or not is_instance_valid(player):
 		return
 	_detect_actions(delta)
-	director.update(context(), delta)
-	_anchor_timer -= delta
+	_ctx_acc += delta
+	if _ctx_acc < CTX_RATE:
+		return
+	var step := _ctx_acc
+	_ctx_acc = 0.0
+	# Nothing left to teach (all done / skipped / switched off): no context to build at all.
+	if not director.enabled or (director.current == &"" and director.pending().is_empty()):
+		return
+	director.update(context(), step)
+	_anchor_timer -= step
 	if _anchor_timer <= 0.0:
 		_anchor_timer = 1.0
 		_place_anchors()
@@ -118,7 +131,9 @@ func _detect_actions(delta: float) -> void:
 		if near != null:
 			director.notify(&"talk" if near.is_in_group("villager") else &"interact")
 	# Eating and sleeping: whatever path the player used (key, menu, bed station).
-	var life := get_node_or_null("/root/Life")
+	if _life == null or not is_instance_valid(_life):
+		_life = get_node_or_null("/root/Life")
+	var life := _life
 	if life != null and life.get("needs") != null:
 		var food := float(life.needs.food)
 		var rest := float(life.needs.rest)

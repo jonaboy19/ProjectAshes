@@ -111,6 +111,7 @@ func show_prompt(_id: StringName, p: Dictionary) -> void:
 	_done_flash = 0.0
 	_t = 0.0
 	_pill.visible = true
+	set_process(true)
 	_layout()
 
 
@@ -118,6 +119,7 @@ func hide_prompt(_id: StringName, reason: StringName) -> void:
 	_target_alpha = 0.0
 	if reason == &"done":
 		_done_flash = 1.0
+	set_process(true)
 
 
 func _tr(key: String, fallback: String) -> String:
@@ -187,6 +189,9 @@ func _process(delta: float) -> void:
 	_skip.disabled = _alpha < 0.5
 	if _alpha <= 0.0 and _done_flash <= 0.0 and _target_alpha == 0.0:
 		_pill.visible = false
+		queue_redraw()      # one last clear, then asleep until the next prompt (CPU pass 2026-10-06: no redraw every frame while idle)
+		set_process(false)
+		return
 	queue_redraw()
 
 

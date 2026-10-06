@@ -402,12 +402,24 @@ static func stock_market(market: Object, shop_ids_: Array, tier: int, rng_seed :
 				continue
 			var stock := maxi(1, int(round(float(g["stock"]) * (0.8 + 0.4 * rng.randf()))))
 			market.call("add_good", item, int(g["price"]), stock, 0)
+			if is_durable(item):
+				(market.get("demand_scale") as Dictionary)[item] = DURABLE_DEMAND
 			if float(g["daily"]) > 0.0:
 				(market.get("produce") as Dictionary)[item] = float(g["daily"])
 			if float(g["import"]) > 0.0:
 				(market.get("imports") as Dictionary)[item] = float(g["import"])
 			added += 1
 	return added
+
+
+## Share of the food-rate demand a durable good (gear, tools) sees in a market (C13, see market.gd demand_scale).
+const DURABLE_DEMAND := 0.1
+
+
+## Armour, weapons, tools, tack and furniture are bought once and kept; food and materials are used up.
+static func is_durable(id: String) -> bool:
+	var inf: Dictionary = info(id)
+	return inf.has("slot") or String(inf.get("category", "")) in ["tool", "tack", "furniture"]
 
 
 ## A shop never stocks everything it could: the first ESSENTIAL goods (the cheap staples) always, then a random

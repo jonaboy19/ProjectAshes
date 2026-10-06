@@ -14,6 +14,7 @@ extends Node3D
 ## calls interact when the bar is full, which pays the wage.
 
 const SeasonsScript := preload("res://scripts/sim/seasons.gd")
+const CasualWork := preload("res://scripts/sim/casual_work.gd")
 const WORK_TIME := 4.0
 const WAGE := 6
 const MASTERY_XP := 1.0
@@ -79,9 +80,14 @@ func _stop(finished: bool) -> void:
 
 
 func _finish() -> void:
-	Game.add_gold(WAGE)
-	Life.record("farmed", MASTERY_XP)
-	Game.say("A day's field work: %d gold." % WAGE)
+	# C13: a flat-wage spot pays full for two shifts a day, a third for one more, then the farmer has no more work (casual_work.gd).
+	var pay: int = CasualWork.pay_for("farm_work", int(WorldSim.day), WAGE)
+	if pay > 0:
+		Game.add_gold(pay)
+		Life.record("farmed", MASTERY_XP)
+		Game.say("A day's field work: %d gold." % pay)
+	else:
+		Game.say("The farmer has no more work for you today.")
 	_stop(true)
 	if _ui:
 		_ui.queue_free()

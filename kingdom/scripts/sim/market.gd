@@ -19,9 +19,33 @@ var _purse_carry := 0.0
 ## season, festivals, war, a new mine). item id -> multiplier, missing = 1.0.
 ## Doesn't change base_price/stock, so old saves and RAMarket call sites are unaffected.
 var modifiers: Dictionary = {}
+## economy.gd skips recomputing `modifiers` while its inputs are unchanged (CPU pass 2026-10-06): the inputs it saw last time
+## (`mods_sig`) and a counter of goods changes (`_goods_rev`, bumped by add_good). deserialize() clears the signature.
+var mods_sig: Array = []
+var _goods_rev := 0
+
+
+func goods_rev() -> int:
+	return _goods_rev
+
+
+var _producers: Array = []
+var _producers_rev := -1
+
+
+## Goods this market makes (produce > 0), cached until the goods change. The daily surplus trade only needs these as donors.
+func producers() -> Array:
+	if _producers_rev != _goods_rev:
+		_producers = []
+		for item: String in base_price:
+			if int(produce.get(item, 0)) > 0:
+				_producers.append(item)
+		_producers_rev = _goods_rev
+	return _producers
 
 
 func add_good(item: String, price: int, normal_stock: int, made_per_day := 0) -> void:
+	_goods_rev += 1
 	base_price[item] = price
 	target[item] = normal_stock
 	stock[item] = normal_stock
@@ -90,6 +114,10 @@ func sell(item: String) -> int:
 ## Demand follows the stock (not the target) so a market settles where production meets demand instead of
 ## sliding to empty (Ashford's bread, 6 made vs 8 eaten a day) or piling up to the 3x cap (a village's wheat).
 const DEMAND_RATE := 0.15
+## Durable goods (armour, weapons, tools) are not used up by townsfolk the way bread is. C13 (docs/regions/BALANCE_R1.md): a shelf of
+## gear drained at the food rate, so the smith's stock sat at zero and the few pieces that arrived sold at the 3x ceiling (an iron
+## spear for 104 against a list price of 20). `demand_scale` (item -> factor, set by ItemsDB.stock_market) lowers their demand.
+var demand_scale: Dictionary = {}
 ## Stock changes smaller than one unit per tick carry over here instead of being rounded away (an hourly
 ## tick moves a typical good by 0.05 units, so the old int(round()) made regional markets completely static).
 var _carry: Dictionary = {}
@@ -112,7 +140,13 @@ func tick_hours(dh: float, population: int) -> void:
 	var k := clampf(population / 60.0, 0.3, 2.0)
 	for item: String in stock:
 		var cur := int(stock[item])
-		var acc := float(_carry.get(item, 0.0)) + (float(produce[item]) - DEMAND_RATE * k * float(cur)) * frac
+		if cur == 0 and int(produce[item]) == 0:
+			# Nothing on the shelf and nothing made: the step below is the identity (acc = carry < 1, whole = 0, the carry
+			# stays as it is), so only make sure the carry entry exists, as the full step would.
+			if not _carry.has(item):
+				_carry[item] = 0.0
+			continue
+		var acc := float(_carry.get(item, 0.0)) + (float(produce[item]) - DEMAND_RATE * float(demand_scale.get(item, 1.0)) * k * float(cur)) * frac
 		var whole := floori(acc)
 		var cap := int(target[item]) * 3
 		var nxt := clampi(cur + whole, 0, cap)
@@ -141,8 +175,15 @@ func add_stock(item: String, units: float) -> void:
 
 
 func serialize() -> Dictionary:
+	# A zero carry is the same as no entry (deserialize reads a missing one as 0): leaving them out is lossless and was
+	# most of the entries in a saved market (save pass 2026-10-06).
+	var carry := {}
+	for item: String in _carry:
+		var c := float(_carry[item])
+		if c != 0.0:
+			carry[item] = c
 	return {"stock": stock.duplicate(), "purse": purse, "modifiers": modifiers.duplicate(),
-		"carry": _carry.duplicate(), "purse_carry": _purse_carry}
+		"carry": carry, "purse_carry": _purse_carry}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -158,6 +199,7 @@ func deserialize(d: Dictionary) -> void:
 		if is_finite(purse_amount) and purse_amount >= 0.0 and purse_amount < 1.0:
 			_purse_carry = purse_amount
 	modifiers = (d.get("modifiers", {}) as Dictionary).duplicate()
+	mods_sig = []
 	_carry.clear()
 	var saved_carry: Variant = d.get("carry", {})
 	if not (saved_carry is Dictionary):

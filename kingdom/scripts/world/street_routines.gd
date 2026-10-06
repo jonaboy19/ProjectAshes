@@ -28,6 +28,7 @@ var _one: AudioStreamPlayer3D
 var _sfx_acc := 0.0
 var _sfx_next := 6.0
 var _micro: Node
+var _placed_at := Vector2(INF, INF)
 var _acc := 0.0
 var _turn := 0
 
@@ -59,9 +60,12 @@ func _ready() -> void:
 func _sound(delta: float, here: Vector2) -> void:
 	var h := float(WorldSim.time_of_day)
 	var day := h >= 7.0 and h < 19.5
-	_murmur.global_position = Vector3(centre.x, WorldGen.height(centre.x, centre.y) + 1.6, centre.y)
+	if centre != _placed_at:      # the street centre never moves: place the murmur once (WorldGen.height was sampled every frame)
+		_placed_at = centre
+		_murmur.global_position = Vector3(centre.x, WorldGen.height(centre.x, centre.y) + 1.6, centre.y)
 	var want := -14.0 if day and here.distance_to(centre) < NEAR else -60.0
-	_murmur.volume_db = move_toward(_murmur.volume_db, want, 12.0 * delta)
+	if _murmur.volume_db != want:
+		_murmur.volume_db = move_toward(_murmur.volume_db, want, 12.0 * delta)
 	if _murmur.volume_db > -55.0 and not _murmur.playing:
 		_murmur.play(randf() * 20.0)
 	elif _murmur.volume_db <= -59.0 and _murmur.playing:

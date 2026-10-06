@@ -23,6 +23,7 @@ extends RefCounted
 const RAMarket := preload("res://scripts/sim/market.gd")
 const RACaravans := preload("res://scripts/sim/caravans.gd")
 const ItemsDB := preload("res://scripts/sim/items_db.gd")
+const Probe := preload("res://scripts/core/perf_probe.gd")
 
 ## Settlement kind -> {item: [base_price, normal_stock, made_per_day]}.
 const GOODS_BY_KIND := {
@@ -112,6 +113,17 @@ var has_guard := false
 var trade_volume := 0
 
 var _mine_settlement_id := -2      # -2 = not looked up yet, -1 = none found
+## Markets ticked per queued job when the hour is spread over frames (queue_hour_jobs), and the pending jobs.
+const HOUR_CHUNK := 2
+## The daily surplus trade is split into this many jobs.
+const TRADE_JOBS := 6
+var _trade_items: Array = []
+var _trade_chunk := 1
+var _hour_jobs: Array = []
+var _orphan_lines: Array = []
+## id -> [population, is capital] of the settlement a market stands in (WorldGen.settlements never changes after setup).
+var _town_info: Dictionary = {}
+var _town_info_n := -1
 
 
 # --- setup -------------------------------------------------------------------------
@@ -344,69 +356,166 @@ func learn_price(settlement: int, item: String, day: float) -> void:
 ## caravan-arrival reports due this tick ({id, ok, ambushed, revenue, text}),
 ## for the caller to Game.say.
 func tick_hour(dh: float, ctx: Dictionary) -> Array[Dictionary]:
-	var season := String(ctx.get("season", "spring"))
-	var festival := bool(ctx.get("festival", false))
-	var at_war := bool(ctx.get("at_war", false))
-	var mine_opened := bool(ctx.get("mine_opened", false))
-	for id in markets:
-		var m: RAMarket = markets[id]
-		var pop := _population(id)
-		m.tick_hours(dh, pop)
-		if _is_capital(id):
-			_extra_capital_food_drain(m, dh)
-		_apply_modifiers(id, m, season, festival, at_war, mine_opened)
-	# Once a day (06:00) the merchants' wagons bring in what each place doesn't make; dangerous roads thin them out.
+	settle_hour_jobs()      # an earlier hour that was spread over frames finishes first, so the order never changes
+	var out: Array[Dictionary] = []
+	for job: Array in _hour_plan(dh, ctx):
+		out.append_array(_run_hour_job(job))
+	return out
+
+
+## CPU pass 2026-10-06: the same hourly tick, but spread over frames. The markets are ticked HOUR_CHUNK at a time (about
+## 0.3 ms each on the PC instead of one 17 ms hitch every game hour), then the 06:00 wagons, then the caravan arrivals,
+## in the order tick_hour uses. Returns one Callable per job for the realm hub's queue (RealmHub.queue_jobs); each runs the
+## next pending job and returns the lines to say (the caravan reports' text). `serialize()` and `flush_hour_jobs()` finish
+## whatever is still pending, so a save never misses a tick.
+func queue_hour_jobs(dh: float, ctx: Dictionary) -> Array[Callable]:
+	var jobs := _hour_plan(dh, ctx)
+	var out: Array[Callable] = []
+	for job: Array in jobs:
+		_hour_jobs.append(job)
+		out.append(_run_next_hour_job)
+	return out
+
+
+func _run_next_hour_job() -> Array:
+	var lines: Array = _orphan_lines      # lines of jobs a save finished early (serialize) are said by the next job to run
+	_orphan_lines = []
+	if _hour_jobs.is_empty():
+		return lines
+	for r: Dictionary in _run_hour_job(_hour_jobs.pop_front()):
+		lines.append(String(r["text"]))
+	return lines
+
+
+## Runs every pending spread-out job now. Returns the caravan reports' text lines.
+func flush_hour_jobs() -> Array:
+	var lines: Array = []
+	while not _hour_jobs.is_empty():
+		lines.append_array(_run_next_hour_job())
+	return lines
+
+
+## Finishes the pending jobs now and keeps their lines for the next job that runs (a save, or tick_hour, calls this).
+func settle_hour_jobs() -> void:
+	if not _hour_jobs.is_empty():
+		_orphan_lines.append_array(flush_hour_jobs())
+
+
+func has_pending_hour_jobs() -> bool:
+	return not _hour_jobs.is_empty()
+
+
+## Jobs of one hourly tick: [kind, payload...]; "m" = markets to tick (ids), "d" = the daily wagons + surplus trade, "c" = caravans.
+func _hour_plan(dh: float, ctx: Dictionary) -> Array:
+	var jobs: Array = []
+	var ids: Array = markets.keys()
+	var i := 0
+	while i < ids.size():
+		jobs.append(["m", ids.slice(i, i + HOUR_CHUNK), dh, ctx])
+		i += HOUR_CHUNK
 	if ctx.has("abs_hours") and int(float(ctx["abs_hours"])) % 24 == 6:
-		for id in markets:
-			var m2: RAMarket = markets[id]
-			var risk := clampf(float(road_risk.get(id, 0.0)), 0.0, 1.0)
-			for item: String in m2.imports:
-				m2.add_stock(item, float(m2.imports[item]) * (1.0 - IMPORT_RISK_CUT * risk))
-		_trade_surplus()
-	return caravans.tick(_abs_hours_placeholder(ctx), self)
+		jobs.append(["d", ctx])
+		for part in TRADE_JOBS:
+			jobs.append(["t", part])
+	jobs.append(["c", ctx])
+	return jobs
+
+
+func _run_hour_job(job: Array) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	match String(job[0]):
+		"m":
+			var ctx: Dictionary = job[3]
+			var season := String(ctx.get("season", "spring"))
+			var festival := bool(ctx.get("festival", false))
+			var at_war := bool(ctx.get("at_war", false))
+			var mine_opened := bool(ctx.get("mine_opened", false))
+			var _pe := Probe.t()
+			_refresh_town_info()
+			for id in job[1]:
+				if not markets.has(id):
+					continue
+				var m: RAMarket = markets[id]
+				m.tick_hours(float(job[2]), _population(id))
+				if _is_capital(id):
+					_extra_capital_food_drain(m, float(job[2]))
+				_apply_modifiers(id, m, season, festival, at_war, mine_opened)
+			Probe.add("economy.hour_markets_chunk", _pe)
+		"d":
+			# Once a day (06:00) the merchants' wagons bring in what each place doesn't make; dangerous roads thin them out.
+			var _pd := Probe.t()
+			for id in markets:
+				var m2: RAMarket = markets[id]
+				var risk := clampf(float(road_risk.get(id, 0.0)), 0.0, 1.0)
+				for item: String in m2.imports:
+					m2.add_stock(item, float(m2.imports[item]) * (1.0 - IMPORT_RISK_CUT * risk))
+			_trade_items = _trade_item_list()
+			_trade_chunk = ceili(float(_trade_items.size()) / TRADE_JOBS)
+			Probe.add("economy.hour_daily_imports", _pd)
+		"t":
+			var _pt := Probe.t()
+			for item: String in _trade_items.slice(int(job[1]) * _trade_chunk, (int(job[1]) + 1) * _trade_chunk):
+				_trade_item(item)
+			Probe.add("economy.hour_daily_trade", _pt)
+		"c":
+			var _pc := Probe.t()
+			out = caravans.tick(_abs_hours_placeholder(job[1]), self)
+			Probe.add("economy.hour_caravans", _pc)
+	return out
 
 
 ## Daily surplus trade between markets: places that make a good and hold well over their normal stock ship
 ## part of the excess to places that are running short, less what dangerous roads cost. Without it the
 ## producers sat at the 0.5x price floor and the importing towns at the 3x cap indefinitely.
 func _trade_surplus() -> void:
+	for item: String in _trade_item_list():
+		_trade_item(item)
+
+
+## The goods the daily trade looks at, in the order it always did.
+func _trade_item_list() -> Array:
 	var items := {}
 	for id in markets:
-		for item: String in (markets[id] as RAMarket).base_price:
+		# Only a good some market makes can have a donor; every other good ends the loop below at once (CPU pass 2026-10-06:
+		# this was a 22 ms walk over every good of every market once a day).
+		for item: String in (markets[id] as RAMarket).producers():
 			items[item] = true
-	for item: String in items:
-		var donors: Array = []
-		var needy: Array = []
-		for id in markets:
-			var m: RAMarket = markets[id]
-			var t := float(m.target.get(item, 0))
-			if t <= 0.0:
-				continue
-			var ratio := float(m.stock.get(item, 0)) / t
-			if ratio > TRADE_SURPLUS_RATIO and int(m.produce.get(item, 0)) > 0:
-				donors.append([id, ratio])
-			elif ratio < TRADE_SHORT_RATIO:
-				needy.append([id, ratio])
-		if donors.is_empty() or needy.is_empty():
+	return items.keys()
+
+
+func _trade_item(item: String) -> void:
+	var donors: Array = []
+	var needy: Array = []
+	for id in markets:
+		var m: RAMarket = markets[id]
+		var t := float(m.target.get(item, 0))
+		if t <= 0.0:
 			continue
-		donors.sort_custom(func(a: Array, b: Array) -> bool: return float(a[1]) > float(b[1]))
-		needy.sort_custom(func(a: Array, b: Array) -> bool: return float(a[1]) < float(b[1]))
-		var di := 0
-		for n: Array in needy:
-			var nm: RAMarket = markets[n[0]]
-			var want := (TRADE_SURPLUS_RATIO - 0.25 - float(n[1])) * float(nm.target[item]) * 0.5
-			var keep := 1.0 - IMPORT_RISK_CUT * clampf(float(road_risk.get(n[0], 0.0)), 0.0, 1.0)
-			while want >= 0.5 and di < donors.size():
-				var dm: RAMarket = markets[donors[di][0]]
-				var surplus := float(dm.stock[item]) - TRADE_SURPLUS_RATIO * float(dm.target[item]) * 0.9
-				var give := minf(want, surplus * 0.5)
-				if give < 0.5:
-					di += 1
-					continue
-				dm.add_stock(item, -give)
-				nm.add_stock(item, give * keep)
-				want -= give
-				donors[di][1] = float(dm.stock[item]) / float(dm.target[item])
+		var ratio := float(m.stock.get(item, 0)) / t
+		if ratio > TRADE_SURPLUS_RATIO and int(m.produce.get(item, 0)) > 0:
+			donors.append([id, ratio])
+		elif ratio < TRADE_SHORT_RATIO:
+			needy.append([id, ratio])
+	if donors.is_empty() or needy.is_empty():
+		return
+	donors.sort_custom(func(a: Array, b: Array) -> bool: return float(a[1]) > float(b[1]))
+	needy.sort_custom(func(a: Array, b: Array) -> bool: return float(a[1]) < float(b[1]))
+	var di := 0
+	for n: Array in needy:
+		var nm: RAMarket = markets[n[0]]
+		var want := (TRADE_SURPLUS_RATIO - 0.25 - float(n[1])) * float(nm.target[item]) * 0.5
+		var keep := 1.0 - IMPORT_RISK_CUT * clampf(float(road_risk.get(n[0], 0.0)), 0.0, 1.0)
+		while want >= 0.5 and di < donors.size():
+			var dm: RAMarket = markets[donors[di][0]]
+			var surplus := float(dm.stock[item]) - TRADE_SURPLUS_RATIO * float(dm.target[item]) * 0.9
+			var give := minf(want, surplus * 0.5)
+			if give < 0.5:
+				di += 1
+				continue
+			dm.add_stock(item, -give)
+			nm.add_stock(item, give * keep)
+			want -= give
+			donors[di][1] = float(dm.stock[item]) / float(dm.target[item])
 
 
 ## caravans.tick needs "now" in absolute in-game hours; callers pass it via
@@ -416,18 +525,28 @@ func _abs_hours_placeholder(ctx: Dictionary) -> float:
 	return float(ctx.get("abs_hours", 0.0))
 
 
-func _population(id: int) -> int:
+## Population and kind of the settlement a market stands in, from a table rebuilt whenever the settlement list changes
+## (size, ids and populations are its signature): the two lookups used to scan every settlement for every market, every hour.
+func _refresh_town_info() -> void:
+	var sig := WorldGen.settlements.size()
 	for s: Dictionary in WorldGen.settlements:
-		if int(s["id"]) == id:
-			return int(s.get("population", 100))
-	return 100
+		sig = sig * 31 + int(s["id"]) * 7 + int(s.get("population", 100))
+	if sig == _town_info_n and not _town_info.is_empty():
+		return
+	_town_info_n = sig
+	_town_info.clear()
+	for s: Dictionary in WorldGen.settlements:
+		_town_info[int(s["id"])] = [int(s.get("population", 100)), String(s.get("kind", "")) == "castle"]
+
+
+func _population(id: int) -> int:
+	var info: Variant = _town_info.get(id)
+	return int((info as Array)[0]) if info != null else 100
 
 
 func _is_capital(id: int) -> bool:
-	for s: Dictionary in WorldGen.settlements:
-		if int(s["id"]) == id:
-			return String(s.get("kind", "")) == "castle"
-	return false
+	var info: Variant = _town_info.get(id)
+	return bool((info as Array)[1]) if info != null else false
 
 
 func _extra_capital_food_drain(m: RAMarket, dh: float) -> void:
@@ -443,6 +562,12 @@ func _extra_capital_food_drain(m: RAMarket, dh: float) -> void:
 func _apply_modifiers(id: int, m: RAMarket, season: String, festival: bool, at_war: bool, mine_opened: bool) -> void:
 	var risk := clampf(float(road_risk.get(id, 0.0)), 0.0, 1.0)
 	var civ_mult := clampf(float(civ_price_mult.get(id, 1.0)), 0.5, 2.0)
+	# The multipliers are a pure function of these inputs and of the market's goods: when none changed since the last tick the
+	# 276-item loop would write the same values again (CPU pass 2026-10-06), so skip it.
+	var sig := [season, festival, at_war, mine_opened, risk, civ_mult, scar_price_mult, m.goods_rev()]
+	if m.mods_sig == sig:
+		return
+	m.mods_sig = sig
 	for item: String in m.base_price:
 		var mult := civ_mult
 		if int(m.produce.get(item, 0)) <= 0:
@@ -630,6 +755,7 @@ func ladder_ctx() -> Dictionary:
 # --- save / load ------------------------------------------------------------------------
 
 func serialize() -> Dictionary:
+	settle_hour_jobs()       # an hour still spread over frames is finished first: a save is never missing a tick
 	var m: Dictionary = {}
 	for id in markets:
 		m[str(id)] = (markets[id] as RAMarket).serialize()
@@ -650,6 +776,8 @@ func serialize() -> Dictionary:
 ## `home_id`/`home_market` re-binds Ashford's live market the same way setup()
 ## does, since a fresh RAEconomy is built before restore on load.
 func deserialize(d: Dictionary, home_id := 0, home_market: RAMarket = null) -> void:
+	_hour_jobs.clear()
+	_orphan_lines.clear()
 	setup(home_id)
 	if home_market != null:
 		bind_home_market(home_id, home_market)

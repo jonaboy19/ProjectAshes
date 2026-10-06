@@ -165,9 +165,28 @@ func _missing(order: Array[String]) -> Array:
 	return _all_ids().filter(func(id: String) -> bool: return not order.has(id))
 
 
+## C13 (the Rift gate, data/region1/progression_spine.json): the player the finale expects is Tempered (soul tier 3), in iron (gear tier 2)
+## and level 12 or more. The story test's fresh character is none of that, so it earns them before the Rift's Edge.
+func _ready_for_the_rift() -> void:
+	Life.soul.tier_index = 3
+	for pair: Array in [["head", "chain_coif"], ["body", "chain_hauberk"], ["legs", "chain_chausses"], ["feet", "chain_boots"],
+			["main_hand", "iron_spear"], ["off_hand", "iron_buckler"]]:
+		Life.equipment.equip(String(pair[1]))
+	var prog: Variant = Life.realm.mod("cultivation").prog
+	prog.grant_raw(prog.total_xp(12) - prog.xp + 1.0)
+
+
 func test_whole_story_plays_to_region_complete() -> void:
 	WorldSim.time_of_day = 8.0
 	var order: Array[String] = []
+	_autoplay("a4_five_hearts", order)
+	assert_bool(dir.story.is_done("a4_five_hearts")).is_true()
+	# The five hearts are lit but the player is not ready: the Rift's Edge stays shut.
+	for i in 3:
+		dir._on_tick()
+	assert_bool(dir.story.active_steps().has("a5_rifts_edge")).override_failure_message("the Rift opened to an unready player").is_false()
+	assert_bool(dir.story.is_done("a5_rifts_edge")).is_false()
+	_ready_for_the_rift()
 	_autoplay("a5_homecoming", order)
 	assert_array(_missing(order)).override_failure_message("steps never finished: %s (active: %s)" % [_missing(order), dir.story.active_steps()]).is_empty()
 	assert_bool(dir.story.is_complete()).is_true()

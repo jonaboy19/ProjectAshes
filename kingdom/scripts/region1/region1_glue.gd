@@ -365,10 +365,22 @@ func _mend(id: int) -> String:
 		return ""
 	if wl.day_f - wl.last_repair[id] < 0.4 and wl.condition[id] > 0.6:
 		return "It was mended not long ago."
+	var cond_before: float = wl.condition[id]
 	wl.repair(id)
 	Life.record("mended_stone", 1.0)
+	_pay_stone_work("mend", cond_before, 0.7)
 	_sfx_near("r1_ward_activate", _stone_world(id), 40.0)
 	return "You scrape the moss from the runes and re-cut what the weather took."
+
+
+## C13 (docs/regions/BALANCE_R1.md): Runeward Legion members are paid for stone work (career_trades.gd stone_work); nobody else is.
+func _pay_stone_work(kind: String, cond_before: float, q: float) -> void:
+	var tr: Variant = Life.realm.mod("trades")
+	if tr == null or not bool(tr.call("is_member", "wardwright")):
+		return
+	var r: Dictionary = tr.call("stone_work", kind, cond_before, q, int(WorldSim.day))
+	if int(r.get("gold", 0)) > 0:
+		Game.say(String(r.get("text", "")))
 
 
 # --- the carve canvas ------------------------------------------------------------------
@@ -404,6 +416,7 @@ func _on_carved(glyph: String, result: Dictionary) -> void:
 	var res := wl.carve(id, glyph)
 	var sp := _stone_world(id)
 	if bool(res.get("ok", false)):
+		_pay_stone_work("carve", 1.0, float(result.get("score", 0.7)))
 		Game.say("A %s glyph takes on %s." % [glyph, String(_net.stones[id]["name"])])
 		_sfx_near("r1_glyph_carve", sp, 40.0)
 		Region1TutorialDirector.tell(&"carve")

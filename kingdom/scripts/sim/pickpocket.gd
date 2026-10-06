@@ -18,16 +18,30 @@ const MAX_CHANCE := 0.92
 
 ## person -> day last robbed (a purse is only full once a day).
 static var _robbed := {}
+## C13 (docs/regions/BALANCE_R1.md): word gets round. Every purse lifted today makes the next harder (the chance falls to 1/(1 + 0.3 n))
+## and lighter (the purse to 1/(1 + 0.35 n)), so a day's pickpocketing tops out around twenty-five gold, not the hundred and eighty a
+## 40-purse run paid before. The count restarts with the day.
+const HEAT_CHANCE := 0.3
+const HEAT_PURSE := 0.35
+static var _heat_day := -1
+static var _heat_n := 0
 
 
 static func reset() -> void:
 	_robbed.clear()
+	_heat_day = -1
+	_heat_n = 0
+
+
+## Purses lifted on `day` so far.
+static func heat_today(day: int) -> int:
+	return _heat_n if _heat_day == day else 0
 
 
 ## Success probability 0..1. `stealth` skill 0..10, `acuity` the victim's (1 = ordinary), `light` 0..1 at the
 ## player, `behind` whether the player stands behind the victim's facing, `victim_class` perception class.
 ## Zero when the player is not crouched or the victim already noticed something.
-static func chance(stealth: float, acuity: float, light: float, behind: bool, victim_class := 0, crouching := true) -> float:
+static func chance(stealth: float, acuity: float, light: float, behind: bool, victim_class := 0, crouching := true, heat_n := 0) -> float:
 	if not crouching or victim_class > MAX_VICTIM_CLASS:
 		return 0.0
 	var c := BASE + 0.04 * clampf(stealth, 0.0, 10.0)
@@ -35,6 +49,7 @@ static func chance(stealth: float, acuity: float, light: float, behind: bool, vi
 	c += 0.18 * (1.0 - clampf(light, 0.0, 1.0))
 	c -= 0.0 if behind else 0.35
 	c -= 0.1 * float(victim_class)
+	c /= 1.0 + HEAT_CHANCE * float(heat_n)
 	return clampf(c, MIN_CHANCE, MAX_CHANCE)
 
 
@@ -63,8 +78,12 @@ static func resolve(ok: bool, person: int, day: int, give_gold: Callable) -> Dic
 	if already_robbed(person, day):
 		return {"ok": false, "gold": 0, "crime": "", "text": "Their pockets are already empty."}
 	if ok:
-		var g := purse_of(person, day)
+		var g := maxi(1, int(round(float(purse_of(person, day)) / (1.0 + HEAT_PURSE * float(heat_today(day))))))
 		mark_robbed(person, day)
+		if _heat_day != day:
+			_heat_day = day
+			_heat_n = 0
+		_heat_n += 1
 		if give_gold.is_valid():
 			give_gold.call(g)
 		return {"ok": true, "gold": g, "crime": "pickpocket", "text": "You lift %d gold without a sound." % g}
