@@ -63,7 +63,8 @@ const SITES := {
 	"highwatch_keep": {"r1id": "highwatch_keep"},
 	"highwatch_gate": {"near": "elder_highwatch", "off": [0, 8]},
 	"grimfen_pass": {"r1id": "grimfen_pass"},
-	"crownstead": {"r1id": "crownstead_estate"},
+	"crownstead": {"region1": "crownstead_mill_hill"},      # the hill crown (Elder Stone, Act IV step); the Steward's Hall stays crownstead_estate
+	"hollin_cut_stone": {"region1": "hollins_ruins", "off": [-40, 7]},   # the cut ward-stone at (-178, -471)
 	"elden_road": {"r1id": "elder_elden"},
 	"duskbriar_bandit_camp": {"name": "Bandit Camp"},
 	"rifts_edge_camp": {"name": "Rift's Edge Camp"},
@@ -83,7 +84,7 @@ const RADIUS := {
 	"kingsreach_council_hall": 35.0, "greyseam_seam": 30.0, "highwatch_gate": 40.0, "rift_mouth": 60.0,
 	"ashen_scar": 120.0, "rifts_edge_camp": 60.0, "stagborn_glade": 70.0, "elden_road": 70.0,
 	"duskbriar_bandit_camp": 60.0, "crownstead": 90.0, "greyseam_mine": 70.0, "silverford": 60.0, "greenhollow": 70.0,
-	"kingsreach": 80.0, "grimfen_pass": 80.0,
+	"kingsreach": 80.0, "grimfen_pass": 80.0, "hollin_cut_stone": 40.0,
 }
 const DEFAULT_RADIUS := 45.0
 ## Short names for text leads.

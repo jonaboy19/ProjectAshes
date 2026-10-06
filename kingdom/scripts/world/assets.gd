@@ -350,7 +350,9 @@ const USE_MAKEHUMAN := true
 static func character(file_name: String, height: float, keep: Array[String] = []) -> Node3D:
 	if USE_MAKEHUMAN and MH_LOOKS.has(file_name):
 		var files: Array = MH_LOOKS[file_name]
-		return mh_character(files[randi() % files.size()], height, keep, false, true)
+		var pick: String = files[randi() % files.size()]
+		# LOW: the re-rigged Meshy batch 3 looks (7.0k tris, 1024 px) use their LOD1 (2.9k tris, 512 px): cheaper than a UAL villager (6.8k)
+		return mh_character(pick, height, keep, pick.begins_with(MESHY3) and preload("res://scripts/world/low_budget.gd").low(), true)
 	if USE_REALISTIC and LOOKS.has(file_name):
 		return humanoid(LOOKS[file_name], height, keep)
 	var model: Node3D = Assets.scene(CHAR_DIR + file_name + ".glb").instantiate()
@@ -735,8 +737,23 @@ static func building_mesh(key: String) -> ArrayMesh:
 	# top of already-decimated meshes crumpled their walls and roofs at mid range.
 	mesh = _transformed(mesh, fit, not path.begins_with(MESHY))
 	StyleG.restyle_mesh(mesh, key)       # Style G: every building/prop surface gets its role material (atlas + tints kept)
+	if key.begins_with("lamp_post") or key.begins_with("street_lamp"):
+		_tame_lamp_glow(mesh)
 	_building_cache[key] = mesh
 	return mesh
+
+
+## The lantern pane of the street lamp GLBs is a white-albedo surface with a 3x amber emission: by day every lamp in every town showed a solid
+## white block (QA sweep, 20 towns). The pane keeps its glow but its albedo is amber glass and the emission 1.4x, so it reads as a warm lantern.
+static func _tame_lamp_glow(mesh: ArrayMesh) -> void:
+	for i in mesh.get_surface_count():
+		var b := mesh.surface_get_material(i) as BaseMaterial3D
+		if b == null or not b.emission_enabled or b.albedo_color.get_luminance() < 0.9:
+			continue
+		var g := b.duplicate() as BaseMaterial3D
+		g.albedo_color = Color(0.36, 0.22, 0.09)
+		g.emission_energy_multiplier = minf(g.emission_energy_multiplier, 1.4)
+		mesh.surface_set_material(i, g)
 
 
 static var _static_cache: Dictionary = {}

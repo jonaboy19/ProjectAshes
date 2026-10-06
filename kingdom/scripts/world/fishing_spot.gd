@@ -33,6 +33,7 @@ enum Phase { IDLE, CAST, WAIT, BITE, REEL, DONE }
 var water_point := Vector3.ZERO
 var river := false
 var water_name := "Emberglass Mere"
+var pool := ""                 # Gathering.POOLS key: a named pool with its own (rare) stock, "" = the lake or river table
 
 var phase := Phase.IDLE
 var fish := ""
@@ -174,7 +175,7 @@ func _enter(p: Phase) -> void:
 			_status.text = "Waiting for a bite..."
 			_hint.text = "Tap when the bobber dips."
 		Phase.BITE:
-			fish = Gathering.roll_fish(randf(), WorldSim.time_of_day, river)
+			fish = Gathering.roll_fish(randf(), WorldSim.time_of_day, river, pool)
 			_status.text = "A bite! Tap!"
 			_hint.text = ""
 		Phase.REEL:

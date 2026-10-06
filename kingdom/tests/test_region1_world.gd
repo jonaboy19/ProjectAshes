@@ -298,3 +298,85 @@ func test_bandit_rosters_cover_every_camp() -> void:
 			assert_int(int(r["n"])).is_between(3, 8)
 	assert_int(n).is_greater_equal(4)
 	assert_bool(camps.has("Bandit Camp")).is_true()
+
+
+# --- Region 1 look pass hooks (docs/regions/HOOKS_FOR_CLOUD.md) ----------------------------------------------------
+
+const Disc := preload("res://scripts/sim/discovery.gd")
+const TravelRules := preload("res://scripts/world/travel_rules.gd")
+const Director := preload("res://scripts/world/exploration_director.gd")
+const LOOK_KINDS := {"valley": "Valley", "waterfall": "Waterfall", "standing_stones": "Standing Stones", "ruins": "Ruins",
+	"lookout": "Lookout", "old_bridge": "Old Bridge", "ferry": "Ferry", "sunken_chapel": "Sunken Chapel",
+	"windmill_hill": "Windmill Hill", "glade": "Sacred Glade", "bones": "Giant's Bones"}
+
+
+func test_look_pass_site_kinds_have_labels() -> void:
+	for k: String in LOOK_KINDS:
+		assert_str(Disc.kind_label(k)).is_equal(String(LOOK_KINDS[k]))
+	# Every kind the landmark file plants has a label (so no "Standing_stones" ever reaches the banner).
+	var kinds := {}
+	for s in WorldGen.sites:
+		if String(s.get("region1", "")) != "":
+			kinds[String(s["kind"])] = true
+	for k: String in kinds:
+		assert_bool(Disc.KIND_LABELS.has(k)).override_failure_message("no label for site kind %s" % k).is_true()
+
+
+func _discovery() -> RefCounted:
+	var d := Disc.new()
+	d.build(WorldGen.settlements, WorldGen.sites, [], WorldGen.camp_grounds)
+	return d
+
+
+func test_emberglass_ferry_is_a_paid_travel_node() -> void:
+	assert_array(Disc.TRAVEL_KINDS).contains(["waystation", "ferry"])
+	var d := _discovery()
+	var landings: Array[Dictionary] = []
+	for pl: Dictionary in d.places:
+		if String(pl["kind"]) == "ferry":
+			landings.append(pl)
+	assert_int(landings.size()).is_equal(2)          # the west landing and the east jetty
+	for pl: Dictionary in landings:
+		assert_bool(bool(pl["travel"])).is_true()
+		var at: Vector2 = pl["travel_pos"]
+		assert_bool(WorldGen.is_water(at.x, at.y)).is_false()
+	# The two landings are on opposite shores of the Mere.
+	assert_float((landings[0]["pos"] as Vector2).distance_to(landings[1]["pos"])).is_between(150.0, 400.0)
+	# A ride may start at a ferry landing, pays the fare, and is refused with an empty purse.
+	var here: Vector2 = landings[0]["pos"]
+	var boarding := TravelRules.waystation_at(here, WorldGen.sites)
+	assert_str(String(boarding.get("kind", ""))).is_equal("ferry")
+	var fare := TravelRules.fare(here.distance_to(landings[1]["travel_pos"]))
+	assert_str(TravelRules.ride_block_reason(boarding, fare, fare)).is_equal("")
+	assert_str(TravelRules.ride_block_reason(boarding, fare, fare - 1)).contains("fare")
+	# Coaches still only run from waystations and landings, not from open country.
+	assert_bool(TravelRules.waystation_at(Vector2(0, 0), WorldGen.sites).is_empty()).is_true()
+
+
+func test_stone_gap_first_reveal_holds_the_camera_for_three_seconds() -> void:
+	var gap := {}
+	for s in WorldGen.sites:
+		if String(s.get("region1", "")) == "stone_gap":
+			gap = s
+	assert_bool(gap.is_empty()).is_false()
+	var player: Node3D = auto_free(Node3D.new())
+	add_child(player)
+	var p: Vector2 = gap["pos"]
+	player.global_position = Vector3(p.x + 30.0, WorldGen.height(p.x + 30.0, p.y), p.y)
+	var old: Variant = Life.player
+	Life.player = player
+	var dir: Node3D = auto_free(Director.new())
+	add_child(dir)
+	var done := {"skipped": null}
+	var vista: Node = dir._start_gap_hold(func(skipped: bool) -> void: done["skipped"] = skipped)
+	assert_object(vista).is_not_null()
+	assert_bool(dir.playing).is_true()
+	assert_int((vista.cut.shots as Array).size()).is_equal(1)
+	assert_float(float(vista.cut.shots[0]["duration"])).is_equal(3.0)
+	assert_bool(vista.cut.skippable).is_true()
+	assert_int(player.process_mode).is_equal(Node.PROCESS_MODE_DISABLED)      # frozen only while the hold plays
+	vista.advance(3.2)
+	assert_bool(dir.playing).is_false()
+	assert_bool(done["skipped"] != null).is_true()
+	assert_int(player.process_mode).is_equal(Node.PROCESS_MODE_INHERIT)
+	Life.player = old as Node3D

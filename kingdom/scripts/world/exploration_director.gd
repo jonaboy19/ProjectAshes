@@ -17,6 +17,9 @@ const MUSIC := "res://assets/audio/region1/music/mus_r1_forest_glade.ogg"
 const SPOT_NEAR := 70.0
 const SPOT_FAR := 95.0
 const POLL := 0.15
+const GAP_REGION1_ID := "stone_gap"    # data/region1/landmarks.json: the Stone Gap into Hollin's Reach
+const GAP_HOLD := 3.0                  # seconds of camera hold on its first reveal (skippable: tap twice or Esc)
+const GAP_LOOK := Vector2(-150.0, -658.0)   # the valley mouth beyond the gap (west)
 
 var focus := Vector3.ZERO
 var look: Node3D
@@ -24,6 +27,8 @@ var playing := false              # a discovery sequence is on
 var vista: Node                   # the running discovery_vista node
 
 var _timer := 0.0
+var _gap_id := ""                 # Discovery id of The Stone Gap (Region 1 look pass), "" when the site is not planned
+var _gap_disc: RefCounted         # the Discovery instance place_discovered is connected on
 var _shafts: MultiMeshInstance3D
 var _shaft_mat: ShaderMaterial
 var _spots: Dictionary = {}       # key -> Spot
@@ -58,6 +63,8 @@ func _ready() -> void:
 	for s: Dictionary in WorldGen.sites:
 		if String(s.get("poi", "")) != "":
 			_pois.append(s)
+		elif String(s.get("region1", "")) == GAP_REGION1_ID:
+			_gap_id = _site_id(s)
 	_build_shafts()
 
 
@@ -75,6 +82,7 @@ func _process(delta: float) -> void:
 	var pl := _player()
 	if pl == null:
 		return
+	_hook_gap_discovery()
 	var at := Vector2(pl.global_position.x, pl.global_position.z)
 	if _disc().places.is_empty():      # the HUD builds the place list lazily; do the same so secrets exist before they are found
 		_disc().build_from_world(Life.lore.places_in_region())
@@ -134,6 +142,53 @@ func _say(text: String) -> void:
 func _site_id(s: Dictionary) -> String:
 	var p: Vector2 = s["pos"]
 	return "site:%s:%d:%d" % [s["name"], roundi(p.x), roundi(p.y)]
+
+
+# --- the Stone Gap (Region 1 look pass) -----------------------------------------------------------------------------
+
+## Listens (once per Discovery instance, on the existing 0.15 s poll) for the Stone Gap's first reveal. The HUD discovers
+## it and shows the usual banner and "Location Discovered" ping; the 3 s camera hold starts right after that.
+func _hook_gap_discovery() -> void:
+	var d := _disc()
+	if _gap_id == "" or d == null or d == _gap_disc:
+		return
+	_gap_disc = d
+	d.place_discovered.connect(_on_place_found)
+
+
+func _on_place_found(pl: Dictionary) -> void:
+	if String(pl.get("id", "")) == _gap_id:
+		_start_gap_hold.call_deferred()
+
+
+## One 3 s shot from where the player stands, turning through the gap to the dark valley. Skippable, no title (the
+## banner is the ping), the player is frozen for its length only. Returns the vista node (tests) or null.
+func _start_gap_hold(on_done := Callable()) -> Node:
+	var pl := _player()
+	if pl == null or playing or InteriorDoor.active != null:
+		return null
+	var gap := Vector2(INF, INF)
+	for s: Dictionary in WorldGen.sites:
+		if _site_id(s) == _gap_id:
+			gap = s["pos"]
+			break
+	if gap.x == INF:
+		return null
+	playing = true
+	var eye := pl.global_position + Vector3(0, 2.2, 0)
+	var shot: Dictionary = Vista.shot(eye, eye + Vector3(0, 1.2, 0),
+		Vector3(gap.x, WorldGen.height(gap.x, gap.y) + 3.0, gap.y),
+		Vector3(GAP_LOOK.x, WorldGen.height(GAP_LOOK.x, GAP_LOOK.y) + 9.0, GAP_LOOK.y), GAP_HOLD, 52.0, 58.0, {"fade_in": 0.3, "fade_out": 0.4})
+	vista = Vista.new()
+	add_child(vista)
+	vista.finished.connect(func(skipped: bool) -> void:
+		playing = false
+		vista = null
+		_say("The Stone Gap. Beyond it, a valley the ward-lines left dark.")
+		if on_done.is_valid():
+			on_done.call(skipped))
+	vista.play({"shots": [shot], "freeze": [pl], "small": true})
+	return vista
 
 
 # --- the Hidden Vale -----------------------------------------------------------------------------------------------

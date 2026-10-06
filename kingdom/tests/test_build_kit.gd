@@ -6,6 +6,8 @@ const Hub := preload("res://scripts/realm/realm_hub.gd")
 const BuildKit := preload("res://scripts/realm/build_kit.gd")
 const RoadTool := preload("res://scripts/build/road_tool.gd")
 const Mastery := preload("res://scripts/sim/mastery.gd")
+const Crafting := preload("res://scripts/sim/crafting.gd")
+const LandClaim := preload("res://scripts/realm/land_claim.gd")
 const CTX := {"season": "summer", "at_war": false, "abs_hours": 0, "gold": 0, "life": null}
 
 
@@ -227,3 +229,191 @@ func test_place_check_is_fast() -> void:
 		k.check(gid, k.snap_local(gid, "wall_plaster", Vector3(n * 0.3, 0, 7), 0, 1))
 	var per := (Time.get_ticks_usec() - t0) / 100.0
 	assert_float(per).is_less(1000.0 * 4.0)          # < 1 ms target; loose for slow CI runners
+
+
+# --- hooks for the rest of the game (HOOKS_FOR_CLOUD.md, "Build kit hooks") ------------------------------------------
+
+func _valid_claims(n: int) -> Array[Vector3]:
+	var out: Array[Vector3] = []
+	var step := 450.0
+	for ix in range(-8, 9):
+		for iz in range(-8, 9):
+			var p := Vector2(ix * step, iz * step)
+			if LandClaim.block_reason(p) == "" and not WorldGen.is_water(p.x, p.y):
+				out.append(Vector3(p.x, 0, p.y))
+				if out.size() >= n:
+					return out
+	return out
+
+
+func test_claim_flow_founds_through_ensure_grid_with_land_rules_and_the_cap() -> void:
+	var k := _kit(_rich())
+	assert_bool(k.claim_rules).is_true()
+	# Ashford's own square is not claimable; the reason names the town and the gap.
+	var home: Vector2 = WorldGen.settlements[0]["pos"]
+	var refused: Dictionary = k.claim(Vector3(home.x + 20.0, 0, home.y))
+	assert_bool(bool(refused["ok"])).is_false()
+	assert_str(String(refused["reason"])).contains("Too close")
+	assert_int(k.grids.size()).is_equal(0)
+	# Open country is: three settlements, recorded as squats, then the cap (OWNER_DECISIONS: at most 3).
+	var spots := _valid_claims(4)
+	assert_int(spots.size()).is_equal(4)
+	for i in 3:
+		var r: Dictionary = k.claim(spots[i])
+		assert_bool(bool(r["ok"])).is_true()
+		assert_bool(bool(r["founded"])).is_true()
+		assert_str(String(k.grids[int(r["gid"])]["claim"])).is_equal("squat")
+	var fourth: Dictionary = k.claim(spots[3])
+	assert_bool(bool(fourth["ok"])).is_false()
+	assert_str(String(fourth["reason"])).contains("at most 3")
+	# Standing inside a claimed grid is always fine, even where the rules would now refuse a new claim.
+	var again: Dictionary = k.claim(Vector3(spots[0].x + 10.0, 0, spots[0].z))
+	assert_bool(bool(again["ok"])).is_true()
+	assert_bool(bool(again["founded"])).is_false()
+	assert_int(k.grids.size()).is_equal(3)
+	# The claim kind survives the save.
+	var k2 := _kit(_rich())
+	k2.deserialize(JSON.parse_string(JSON.stringify(k.serialize())))
+	assert_str(String(k2.grids[1]["claim"])).is_equal("squat")
+	# Water and the road centreline are refused too.
+	var wet := Vector2.INF
+	for x in range(-3000, 3000, 25):
+		if WorldGen.is_water(x, 100):
+			wet = Vector2(x, 100)
+			break
+	if wet != Vector2.INF:
+		assert_str(LandClaim.block_reason(wet)).is_not_empty()
+
+
+func test_built_stations_become_crafting_benches_and_construction_stations() -> void:
+	var crafting: RefCounted = Crafting.new()
+	var k := _kit(_rich())
+	k.crafting = crafting
+	var gid := int(k.ensure_grid(Vector3(3000, 0, 3000))["gid"])
+	var c: RefCounted = k.hub.mod("construction")
+	var at := {"forge": 0.0, "anvil": 2.0, "workbench": 4.0, "sawhorse_bench": 6.0, "loom": 8.0, "oven": 10.0}
+	var ids := {}
+	for kind: String in at:
+		var r: Dictionary = _put(k, gid, kind, float(at[kind]), 0.0)
+		assert_bool(bool(r["ok"])).override_failure_message("%s: %s" % [kind, r["reason"]]).is_true()
+		ids[kind] = int(r["id"])
+	var here: Vector3 = k.to_world(gid, Vector3(2.0, 0, 0))
+	# crafting benches: forge and anvil are "anvil", workbench and sawhorse are "workbench", plus loom and oven
+	for pair in [["forge", "anvil"], ["anvil", "anvil"], ["workbench", "workbench"], ["sawhorse_bench", "workbench"], ["loom", "loom"], ["oven", "oven"]]:
+		var w: Vector3 = k.to_world(gid, Vector3(float(at[pair[0]]), 0, 0))
+		assert_array(crafting.kinds_near(w)).override_failure_message("no %s bench at the %s" % [pair[1], pair[0]]).contains([pair[1]])
+	var forge_st: Array = crafting.stations_near(k.to_world(gid, Vector3(0, 0, 0)))
+	assert_bool(forge_st.any(func(st: Dictionary) -> bool: return String(st["ref"]).begins_with("kit:%d:%d" % [gid, ids["forge"]]))).is_true()
+	# construction: a kit sawhorse is a crew station, a kit workbench is a workbench (and teaches carpentry)
+	var kinds_built := {}
+	for sid: int in c.sites:
+		var s: Dictionary = c.sites[sid]
+		if s.has("kit_key"):
+			kinds_built[String(s["kind"])] = sid
+			assert_str(String(s["state"])).is_equal("done")
+	assert_bool(kinds_built.has("sawhorse")).is_true()
+	assert_bool(kinds_built.has("workbench")).is_true()
+	assert_bool(kinds_built.has("anvil")).is_false()
+	assert_bool(c.known.has("build:carpentry")).is_true()
+	# idempotent: another sync neither duplicates benches nor sites
+	var n_sites: int = c.sites.size()
+	var n_benches: int = crafting.all_stations().size()
+	k.sync_realm()
+	assert_int(c.sites.size()).is_equal(n_sites)
+	assert_int(crafting.all_stations().size()).is_equal(n_benches)
+	# removing the pieces takes the benches and sites away again
+	k.remove(gid, int(ids["sawhorse_bench"]))
+	k.remove(gid, int(ids["forge"]))
+	assert_bool(c.sites.values().any(func(s: Dictionary) -> bool: return String(s.get("kit_key", "")) == "%d:%d" % [gid, ids["sawhorse_bench"]])).is_false()
+	assert_bool(crafting.all_stations().any(func(st: Dictionary) -> bool: return String(st["ref"]).begins_with("kit:%d:%d:" % [gid, ids["forge"]]))).is_false()
+	assert_array(crafting.kinds_near(Vector3(here.x, here.y, here.z))).contains(["anvil"])      # the standalone anvil still stands
+	# a plan is not a bench until the crew has built it
+	var before: int = crafting.all_stations().size()
+	_put(k, gid, "loom", 12.0, 2.0, 0, 0, true)
+	assert_int(crafting.all_stations().size()).is_equal(before)
+
+
+func test_built_stations_survive_a_save_without_doubling() -> void:
+	var crafting: RefCounted = Crafting.new()
+	var k := _kit(_rich())
+	k.crafting = crafting
+	var gid := int(k.ensure_grid(Vector3(3000, 0, 3000))["gid"])
+	_put(k, gid, "workbench", 0.0, 0.0)
+	_put(k, gid, "oven", 2.0, 0.0)
+	var c: RefCounted = k.hub.mod("construction")
+	var data: Dictionary = k.serialize()
+	var cdata: Dictionary = c.serialize()
+	var crafting2: RefCounted = Crafting.new()
+	var k2 := _kit(_rich())
+	k2.crafting = crafting2
+	var c2: RefCounted = k2.hub.mod("construction")
+	c2.deserialize(JSON.parse_string(JSON.stringify(cdata)))
+	k2.deserialize(JSON.parse_string(JSON.stringify(data)))
+	assert_int(c2.sites.size()).is_equal(c.sites.size())          # the workbench site came back once, not twice
+	assert_int(crafting2.all_stations().size()).is_equal(crafting.all_stations().size())
+	assert_array(crafting2.kinds_near(k2.to_world(gid, Vector3(1, 0, 0)))).contains(["workbench", "oven"])
+
+
+func test_storage_and_beds_add_to_the_holding() -> void:
+	var k := _kit(_rich())
+	var gid := int(k.ensure_grid(Vector3(3000, 0, 3000))["gid"])
+	var c: RefCounted = k.hub.mod("construction")
+	var spot: Vector3 = k.to_world(gid, Vector3.ZERO)
+	var hid: int = c.holding_at(Vector2(spot.x, spot.z))
+	var cap0 := 40
+	var beds0 := 0
+	if hid > 0:
+		cap0 = c.store_cap(hid)
+		beds0 = c.beds_of(hid)
+	_put(k, gid, "storage_crates", 0.0, 0.0)
+	_put(k, gid, "meshy_chest_metal_wood", 2.0, 0.0)
+	_put(k, gid, "bed_simple", 4.0, 0.0)
+	_put(k, gid, "meshy_bed_canopy_red", 6.0, 0.0)
+	hid = c.holding_at(Vector2(spot.x, spot.z))
+	assert_int(hid).is_greater(0)
+	assert_int(c.store_cap(hid)).is_equal(cap0 + 40 + 30)
+	assert_int(c.beds_of(hid)).is_equal(beds0 + 1 + 2)
+	assert_int(int(c.holding_info(hid)["beds"])).is_equal(beds0 + 3)
+	# the pieces going away takes the capacity with them
+	for pid: int in k.grids[gid]["pieces"].keys():
+		if String(k.grids[gid]["pieces"][pid]["kind"]) == "storage_crates":
+			k.remove(gid, pid)
+	assert_int(c.store_cap(hid)).is_equal(cap0 + 30)
+
+
+func test_kit_roads_feed_route_speed_and_cart_traffic() -> void:
+	var bag := {"stone": 400, "log": 50}
+	var k := _kit(bag)
+	var gid := int(k.ensure_grid(Vector3(3000, 0, 3000))["gid"])
+	var c: RefCounted = k.hub.mod("construction")
+	assert_array(c.trail_segments()).is_empty()
+	var origin: Vector3 = k.to_world(gid, Vector3.ZERO)
+	var stroke: Array = []
+	for i in 12:
+		stroke.append(Vector3(origin.x + i * 5.0, 0, origin.z))
+	assert_bool(bool(k.add_road(gid, "cobble", stroke)["ok"])).is_true()
+	assert_bool(bool(k.add_road(gid, "dirt", stroke.map(func(p: Vector3) -> Vector3: return p + Vector3(0, 0, 8)))["ok"])).is_true()
+	var segs: Array = c.trail_segments()
+	assert_int(segs.size()).is_greater(4)
+	var speeds := {}
+	for sg: Array in segs:
+		speeds[sg[2]] = true
+	assert_bool(speeds.has(float(BuildKit.road_def("cobble")["speed"]))).is_true()
+	assert_bool(speeds.has(float(BuildKit.road_def("dirt")["speed"]))).is_true()
+	# the crews' route search prefers the road: a cell on the cobble is faster than open ground
+	var Nav := preload("res://scripts/realm/construction_nav.gd")
+	assert_float(Nav._trail_speed(segs, Vector2(origin.x + 20.0, origin.z))).is_equal(float(BuildKit.road_def("cobble")["speed"]))
+	assert_float(Nav._trail_speed(segs, Vector2(origin.x + 20.0, origin.z + 30.0))).is_equal(1.0)
+	# cart traffic: dirt and cobble yield chords near the player (footpaths none), at the road's speed
+	var near := Vector2(origin.x + 25.0, origin.z)
+	var carts: Array = k.traffic_segments(near, 130.0)
+	assert_int(carts.size()).is_greater(0)
+	for t: Dictionary in carts:
+		assert_float(float(t["speed"])).is_greater_equal(float(BuildKit.road_def("dirt")["speed"]))
+	assert_int((k.traffic_segments(Vector2(origin.x + 4000.0, origin.z), 130.0) as Array).size()).is_equal(0)
+	assert_bool(bool(k.add_road(gid, "path", stroke.map(func(p: Vector3) -> Vector3: return p + Vector3(0, 0, 20)))["ok"])).is_true()
+	assert_int((k.road_chords(24.0, ["path"]) as Array).size()).is_greater(0)
+	for t: Dictionary in k.traffic_segments(Vector2(origin.x + 25.0, origin.z + 20.0), 5.0):
+		assert_float(float(t["speed"])).is_greater(1.25)        # the footpath (speed 1.25) carries no carts
+	# the route segments are capped
+	assert_int((k.road_chords(BuildKit.ROUTE_STEP, [], Vector2.INF, INF, BuildKit.MAX_ROUTE_SEGMENTS) as Array).size()).is_less_equal(BuildKit.MAX_ROUTE_SEGMENTS)

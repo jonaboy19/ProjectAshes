@@ -761,3 +761,40 @@ func _add_raw(m: RefCounted, kind: String, pos: Vector2) -> int:
 	if m.holdings.is_empty():
 		m.holdings[1] = {"id": 1, "name": "Camp 1", "pos": [pos.x, pos.y], "camp": -1, "pop": 0.0, "level": "camp", "store": {}, "founded_day": 0, "road_done": false}
 	return id
+
+
+func test_kit_pieces_sync_into_beds_storage_stations_and_routes() -> void:
+	# Build-kit hook (build_kit.sync_realm -> construction.sync_kit).
+	var m := _mod(_rich())
+	var at := Vector2(900, 900)
+	var entries := [
+		{"key": "1:1", "pos": at, "kind": "sawhorse", "beds": 0, "store": 0},
+		{"key": "1:2", "pos": at + Vector2(3, 0), "kind": "", "beds": 2, "store": 0},
+		{"key": "1:3", "pos": at + Vector2(6, 0), "kind": "", "beds": 0, "store": 40},
+	]
+	var roads := [[at, at + Vector2(10, 0), 1.5]]
+	m.sync_kit(entries, roads)
+	var hid: int = m.holding_at(at)
+	assert_int(hid).is_greater(0)
+	assert_int(m.beds_of(hid)).is_equal(2)
+	assert_int(m.store_cap(hid)).is_equal(80)
+	var kit_site := 0
+	for id: int in m.sites:
+		if (m.sites[id] as Dictionary).has("kit_key"):
+			kit_site = id
+	assert_int(kit_site).is_greater(0)
+	assert_str(String(m.sites[kit_site]["kind"])).is_equal("sawhorse")
+	assert_str(String(m.sites[kit_site]["state"])).is_equal("done")
+	assert_bool(D.STATIONS.has("sawhorse")).is_true()
+	assert_int(m.trail_segments().size()).is_equal(1)
+	# it survives a save as one site, and a second sync adds nothing
+	var m2 := _mod(_rich())
+	m2.deserialize(JSON.parse_string(JSON.stringify(m.serialize())))
+	m2.sync_kit(entries, roads)
+	assert_int(m2.sites.size()).is_equal(m.sites.size())
+	# pieces gone: the site, the beds and the storage go with them
+	m.sync_kit([], [])
+	assert_bool(m.sites.has(kit_site)).is_false()
+	assert_int(m.beds_of(hid)).is_equal(0)
+	assert_int(m.store_cap(hid)).is_equal(40)
+	assert_array(m.trail_segments()).is_empty()

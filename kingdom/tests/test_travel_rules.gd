@@ -131,13 +131,18 @@ func test_only_waystations_are_fast_travel_points() -> void:
 	var d := Discovery.new()
 	d.build_from_world()
 	var n := 0
+	var ferries := 0
 	for pl: Dictionary in d.places:
 		if bool(pl["travel"]):
 			n += 1
-			assert_str(String(pl["kind"])).is_equal("waystation")
+			# Waystations, plus the Emberglass Ferry landings (Region 1 look pass, Discovery.TRAVEL_KINDS).
+			assert_array(["waystation", "ferry"]).contains([String(pl["kind"])])
+			if String(pl["kind"]) == "ferry":
+				ferries += 1
 		if String(pl["category"]) == "settlement":
 			assert_bool(bool(pl["travel"])).override_failure_message("%s is a settlement" % pl["name"]).is_false()
-	assert_int(n).is_greater_equal(20)
+	assert_int(n - ferries).is_greater_equal(20)
+	assert_int(ferries).is_equal(2)
 	assert_int(d.travel_points().size()).is_equal(0)       # nothing discovered yet
 
 
