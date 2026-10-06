@@ -36,6 +36,57 @@ func _ready() -> void:
 	set_meta("low_priority", true)   # player.nearest_interactable prefers doors and services
 	add_to_group("station")
 	set_process(true)
+	if OS.get_cmdline_user_args().has("--qa_talk"):
+		_qa_talk.call_deferred()
+
+
+## QA flag `-- --qa_talk` (AAA pass 8): once the world is up, walk-free, open a conversation with the nearest villager so
+## captures and phone checks can see the dialogue presentation without a touch. No effect without the flag.
+func _qa_talk() -> void:
+	for i in 1200:
+		await get_tree().process_frame
+		if hud == null or not is_instance_valid(hud):
+			return
+		var v := _nearest_any()
+		if v != null and i > 240:
+			_qa_step_in(v)
+			_retarget(v)
+			current = v
+			hud.call("show_menu", open)
+			return
+
+
+func qa_open() -> bool:
+	var v := _nearest_any()
+	if v == null or hud == null:
+		return false
+	_qa_step_in(v)
+	_retarget(v)
+	current = v
+	hud.call("show_menu", open)
+	return true
+
+
+## QA only: stand the player 1.7 m in front of the villager (a talk ends past TalkSession.END_DISTANCE).
+func _qa_step_in(v: Node3D) -> void:
+	var pl := get_tree().get_first_node_in_group("player") as Node3D
+	if pl == null:
+		return
+	var off := pl.global_position - v.global_position
+	off.y = 0.0
+	off = off.normalized() * 1.7 if off.length() > 0.1 else Vector3(1.7, 0, 0)
+	pl.global_position = v.global_position + off
+
+
+func _nearest_any() -> Node3D:
+	var pl := get_tree().get_first_node_in_group("player") as Node3D
+	if pl == null:
+		return null
+	var best: Node3D = null
+	for n in get_tree().get_nodes_in_group("villager"):
+		if n is Node3D and (best == null or (n as Node3D).global_position.distance_to(pl.global_position) < best.global_position.distance_to(pl.global_position)):
+			best = n
+	return best
 
 
 func _process(delta: float) -> void:

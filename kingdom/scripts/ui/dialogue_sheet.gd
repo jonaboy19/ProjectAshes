@@ -13,8 +13,8 @@ signal leave_requested
 const AF := preload("res://scripts/ui/ashes_frame.gd")
 const HudArt := preload("res://scripts/ui/hud_art.gd")
 
-const SHEET_TOP := 0.65          # fraction of the screen height where the sheet starts (lower 35%)
-const CHOICE_H := 52.0
+const SHEET_TOP := 0.72          # AAA pass 8: lower 28% (was 35%; the empty black half of the sheet hid the speaker)
+const CHOICE_H := 48.0      # touch target floor (test_talk_in_world)
 const MARGIN := 10.0
 
 var _panel: PanelContainer
@@ -53,7 +53,7 @@ func _build() -> void:
 	_panel.offset_right = -MARGIN
 	_panel.offset_bottom = -MARGIN
 	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	var sb := HudArt.card_box(0.93, 12)
+	var sb := HudArt.card_box(0.78, 12)      # AAA pass 8: lighter, the street shows through
 	sb.content_margin_top = 8
 	sb.content_margin_bottom = 8
 	_panel.add_theme_stylebox_override("panel", sb)
@@ -176,7 +176,7 @@ func _build_choices(options: Array) -> void:
 		b.focus_mode = Control.FOCUS_NONE
 		b.disabled = not ok
 		b.add_theme_font_override("font", AF.font())
-		b.add_theme_font_size_override("font_size", 18)
+		b.add_theme_font_size_override("font_size", 16)
 		b.add_theme_stylebox_override("normal", _row_box(false, false))
 		b.add_theme_stylebox_override("hover", _row_box(true, false))
 		b.add_theme_stylebox_override("pressed", _row_box(true, true))

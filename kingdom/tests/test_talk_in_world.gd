@@ -14,7 +14,7 @@ const VillagerScript := preload("res://scripts/population/villager.gd")
 class StubPlayer extends Node3D:
 	var touch_move := Vector2.ZERO
 	var framing := false
-	func set_talk_framing(on: bool) -> void:
+	func set_talk_framing(on: bool, _partner: Node3D = null) -> void:
 		framing = on
 
 
@@ -294,4 +294,4 @@ func test_sheet_shows_choices_and_picks_them() -> void:
 	assert_array(picked).is_equal([2])
 	for b in sheet._buttons:
 		assert_float((b as Button).custom_minimum_size.y).is_greater_equal(48.0)   # big tap targets
-	assert_float(DialogueSheet.SHEET_TOP).is_equal_approx(0.65, 0.001)           # the lower ~35%
+	assert_float(DialogueSheet.SHEET_TOP).is_equal_approx(0.72, 0.001)           # the lower ~28% (AAA pass 8)
