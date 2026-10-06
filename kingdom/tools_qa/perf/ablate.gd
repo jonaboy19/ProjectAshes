@@ -18,7 +18,7 @@ const NpcWorld := preload("res://scripts/population/npc_world.gd")
 func run(m: Node) -> void:
 	main = m
 	var where := "market"
-	for a in OS.get_cmdline_user_args():
+	for a in _args():
 		if a.begins_with("--where="):
 			where = a.get_slice("=", 1)
 	WorldSim.time_of_day = 15.0
@@ -28,7 +28,7 @@ func run(m: Node) -> void:
 	var p: Vector2 = c + Vector2(cos(gate), sin(gate)) * (float(s["plan"]["plaza_r"]) + 6.0)
 	main.call("_teleport", p, gate + PI * 0.5)
 	main.player.set_camera(atan2(-(c - p).x, -(c - p).y), -0.12)
-	if OS.get_cmdline_user_args().has("--groups"):
+	if _args().has("--groups"):
 		_group_targets()
 		return
 	for n in ["WorldSim", "Life", "Frontier", "Audio"]:
@@ -49,17 +49,22 @@ func _process(delta: float) -> void:
 	t += delta
 	match phase:
 		"settle":
+			for a in _args():
+				if String(a).begins_with("--physhz="):
+					Engine.physics_ticks_per_second = int(String(a).get_slice("=", 1))
 			if t > 15.0 and not NpcWorld.profile:
 				NpcWorld.profile = true
 				_f0 = Engine.get_process_frames()
+			if t > 15.0:
+				base.append(delta * 1000.0)
 			if t > 20.0:
 				var fr := maxi(1, Engine.get_process_frames() - _f0)
 				var pl: Node = main.population
-				print("ABLATE npc: villager_phys=%.2f ms/frame (%d calls) frame=%.2f lod=%.2f ms/frame full=%d sprites=%d soldiers=%d" % [
+				print("ABLATE hz=%d npc: villager_phys=%.2f ms/frame (%d calls) frame=%.2f lod=%.2f ms/frame full=%d sprites=%d soldiers=%d frame_med=%.2f" % [Engine.physics_ticks_per_second, 
 					NpcWorld.prof_usec / 1000.0 / fr, NpcWorld.prof_calls, NpcWorld.prof_frame_usec / 1000.0 / fr, NpcWorld.prof_lod_usec / 1000.0 / fr,
-					pl.full_count, pl.sprite_count, get_tree().get_nodes_in_group("soldier").size()])
+					pl.full_count, pl.sprite_count, get_tree().get_nodes_in_group("soldier").size(), _med(base)])
 				NpcWorld.profile = false
-				if OS.get_cmdline_user_args().has("--npconly"):
+				if _args().has("--npconly"):
 					get_tree().quit(0)
 				phase = "base"
 				t = 0.0
@@ -83,7 +88,7 @@ func _next() -> void:
 		print("ABLATE done base_median=%.2f" % _med(base))
 		get_tree().quit(0)
 		return
-	_set(targets[i], false)
+	_toggle(targets[i], false)
 	buf.clear()
 	phase = "off"
 	t = 0.0
@@ -99,11 +104,11 @@ func _report() -> void:
 	var label: String = ((n0 as Array)[0].get_script().resource_path.get_file() + "[]") if n == null and not (n0 as Array).is_empty() else (String(n.name) if n else "-")
 	print("ABLATE %-4s %-26s %-28s saves %6.2f ms (median %.2f -> %.2f) draws_off=%d" % [mode, label.left(26), sn.left(28), b - o, b, o,
 		int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))])
-	_set(targets[i], true)
+	_toggle(targets[i], true)
 	base.clear()
 
 
-func _set(tg: Array, on: bool) -> void:
+func _toggle(tg: Array, on: bool) -> void:
 	var nodes: Array = tg[0] if tg[0] is Array else [tg[0]]
 	for n: Node in nodes:
 		if not is_instance_valid(n):
@@ -145,3 +150,10 @@ func _group_targets() -> void:
 						targets.append([c, "hide"])
 					if c.is_processing() or c.is_physics_processing() or c.get_child_count() > 0:
 						targets.append([c, "proc"])
+
+
+static func _args() -> Array:
+	var out: Array = []
+	for a in Array(OS.get_cmdline_user_args()) + Array(Quality.qa_file_args()):
+		out.append(String(a).strip_edges())
+	return out
