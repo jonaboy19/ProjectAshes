@@ -1,0 +1,27 @@
+# Perfetto config (release QA perf): native heap of the game from launch (heapprofd, startup profiling) + CPU scheduling and
+# frequency + process memory counters. Start it BEFORE launching the game:
+#   adb push heap_cpu.pbtx /data/local/tmp/ ; adb shell perfetto --txt -c /data/local/tmp/heap_cpu.pbtx -o /data/misc/perfetto-traces/ra.pftrace --background
+buffers { size_kb: 131072 fill_policy: DISCARD }
+buffers { size_kb: 32768 fill_policy: RING_BUFFER }
+duration_ms: 150000
+data_sources {
+  config {
+    name: "android.heapprofd"
+    target_buffer: 0
+    heapprofd_config {
+      sampling_interval_bytes: 262144
+      process_cmdline: "com.risingashes.game"
+      shmem_size_bytes: 33554432
+      block_client: true
+      continuous_dump_config { dump_phase_ms: 60000 dump_interval_ms: 40000 }
+    }
+  }
+}
+data_sources { config { name: "linux.process_stats" target_buffer: 1 process_stats_config { proc_stats_poll_ms: 2000 } } }
+data_sources {
+  config {
+    name: "linux.ftrace"
+    target_buffer: 1
+    ftrace_config { ftrace_events: "sched/sched_switch" ftrace_events: "power/cpu_frequency" ftrace_events: "power/cpu_idle" ftrace_events: "sched/sched_waking" }
+  }
+}

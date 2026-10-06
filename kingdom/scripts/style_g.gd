@@ -237,6 +237,8 @@ static func apply_daylight(env: Environment, sun: DirectionalLight3D, fill: Dire
 		sun.rotation = Vector3(-float(p["sun_elev"]), az, 0.0)
 		sun.light_color = p["sun_color"]
 		sun.light_energy = float(p["sun_energy"])
+		if env != null and env.has_meta("game_look"):
+			sun.light_energy = maxf(sun.light_energy, 0.85)     # AAA pass 6: moonlight floor, so characters get a cool key/rim at night
 		if fill:
 			# the bounce travels back up toward the sun: mirror of the key's forward vector, flattened a little
 			var f := -sun.global_transform.basis.z if sun.is_inside_tree() else -Basis.from_euler(sun.rotation).z
