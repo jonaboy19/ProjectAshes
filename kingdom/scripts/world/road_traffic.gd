@@ -71,7 +71,7 @@ func _maybe_spawn(p: Vector2) -> void:
 	if kind != "patrol":
 		node.add_to_group("vehicle")     # NpcWorld.mover_push: villagers step out of a wagon's or rider's way
 	add_child(node)
-	_groups.append({"a": a, "b": b, "t": randf_range(0.0, 0.8), "speed": float(SPEED.get(kind, 1.6)), "node": node})
+	_groups.append({"a": a, "b": b, "t": randf_range(0.0, 0.8), "speed": float(SPEED.get(kind, 1.6)) * float(road.get("speed", 1.0)), "node": node})
 
 
 func _pick_road_near(p: Vector2) -> Dictionary:
@@ -84,7 +84,18 @@ func _pick_road_near(p: Vector2) -> Dictionary:
 		var b: Vector2 = WorldGen.settlements[r.y]["pos"]
 		if p.distance_to(Geometry2D.get_closest_point_to_segment(p, a, b)) < SPAWN:
 			out.append({"a": a, "b": b, "tier": tier})
+	out.append_array(_kit_roads(p))
 	return out[randi() % out.size()] if not out.is_empty() else {}
+
+
+## Build-kit hook: dirt and cobbled roads drawn in build mode carry carts too, at the road's `speed` field in
+## data/build_kit/pieces.json (build_kit.traffic_segments(): short chords near the player). Runs on the 5 s respawn check only.
+func _kit_roads(p: Vector2) -> Array:
+	var realm: Variant = Life.get("realm")
+	var kit: Variant = (realm as RefCounted).call("mod", "build_kit") if realm is RefCounted and (realm as RefCounted).has_method("mod") else null
+	if not (kit is RefCounted) or not (kit as RefCounted).has_method("traffic_segments"):
+		return []
+	return (kit as RefCounted).call("traffic_segments", p, SPAWN)
 
 
 func _pick_kind(tier: String) -> String:

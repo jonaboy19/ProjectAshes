@@ -1,0 +1,87 @@
+{
+ "id": "amberley_setting_the_lure",
+ "title": "Setting the Lure",
+ "summary": "Hamo Fothergill wants the giant wasps drawn out of the sheds past the last house with bait and put down at the edge of Amberley.",
+ "giver": {
+  "npc": "hamo_fothergill",
+  "name": "Hamo Fothergill",
+  "place": "amberley"
+ },
+ "requires": [
+  "amberley_godric_will_not_say_it_loud"
+ ],
+ "offer_text": "\"They will not come to a trap but they will come to a smell. Take jars of lamp oil, set it at the sheds past the last house, and see what turns up.\"",
+ "turn_in_text": "\"Cunning. I should have thought of it myself.\"",
+ "stages": [
+  {
+   "id": "lure",
+   "title": "Get the bait",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "bait",
+     "type": "collect",
+     "item": "lamp_oil",
+     "count": 2,
+     "text": "Take 2 jars of lamp oil"
+    }
+   ]
+  },
+  {
+   "id": "edge",
+   "title": "Set it out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "amberley_outskirts",
+     "text": "Go to the sheds past the last house and set the bait"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Wait for them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "giant_wasp",
+     "place": "amberley_outskirts",
+     "count": 2,
+     "text": "Kill 2 giant wasps that come for it"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Hamo",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "hamo_fothergill",
+     "text": "Tell Hamo Fothergill it worked"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 26,
+  "rep": {
+   "amberley": 5
+  },
+  "relationship": [
+   {
+    "npc": "hamo_fothergill",
+    "label": "Baited and dealt with the giant wasps",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

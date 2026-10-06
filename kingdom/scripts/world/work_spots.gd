@@ -9,9 +9,20 @@ extends Node3D
 ## Spot markers exist only for the workplace the player stands in and are freed on leaving.
 
 const Nameplates := preload("res://scripts/core/nameplates.gd")
+const HudLane := preload("res://scripts/ui/hud_lane.gd")
 const AF := preload("res://scripts/ui/ashes_frame.gd")
 const Widget := preload("res://scripts/ui/work_widget.gd")
 const CareerTasks := preload("res://scripts/ui/career_tasks.gd")
+## The off-shift job offer ("Saltwick: Guard", the day's work orders) is a compact card in the top HUD lane (hud_lane.gd id "offer"), shown
+## only once the player has stood still this long: it used to open a 620 px panel over the middle of the arrival view as soon as the
+## player came within 4 m of a work spot.
+## QA switch for before / after shots: `-- --legacy-offer` brings back the centred 620 px offer panel at once and the 28 px labels on every spot.
+static var legacy_offer := OS.get_cmdline_user_args().has("--legacy-offer")
+const MARKER_LABEL_NEAR := 6.0       # m a work spot's name is readable from (off shift)
+const MARKER_LABEL_TASK := 24.0      # m the current task's spot of a running shift can be read from
+const OFFER_STILL := 1.0
+const OFFER_STILL_MOVE := 0.6        # m a tick may move and still count as standing still
+const OFFER_W := 430.0
 const SLOW := 2.0
 const FAST := 0.5
 const ACCEL_STEP := 0.25
@@ -30,6 +41,11 @@ var _busy := false
 var _widget_open := false
 var _last_state := ""
 var _sid_cache := -1
+var _offer: PanelContainer           # the compact offer card (top HUD lane)
+var _offer_box: VBoxContainer
+var _offer_key := ""
+var _still := 0.0                    # seconds the player has stood (nearly) still
+var _last_p := Vector2.INF
 
 
 func setup(p_hud: Node) -> void:
@@ -96,6 +112,7 @@ func _on_tick() -> void:
 			_hide_panel()
 		return
 	var p := _p2(pl)
+	_track_still(p)
 	var sid := _nearest_sid(p)
 	var place: Dictionary = w.call("workplace_at", p, sid) if sid >= 0 else {}
 	if place.is_empty():
@@ -107,6 +124,14 @@ func _on_tick() -> void:
 	if _place.is_empty() or String(_place["id"]) != String(place["id"]):
 		_enter_place(place)
 	_refresh(w, p)
+
+
+func _track_still(p: Vector2) -> void:
+	if _last_p != Vector2.INF and p.distance_to(_last_p) <= OFFER_STILL_MOVE:
+		_still += _timer.wait_time
+	else:
+		_still = 0.0
+	_last_p = p
 
 
 func _enter_place(place: Dictionary) -> void:
@@ -165,12 +190,71 @@ func _ensure_ui() -> void:
 	_box = VBoxContainer.new()
 	_box.add_theme_constant_override("separation", 8)
 	_panel.add_child(_box)
+	_offer = PanelContainer.new()
+	_offer.theme = AF.theme()
+	_offer.add_theme_stylebox_override("panel", AF.panel(AF.PANEL, AF.GOLD, 3, 10))
+	_offer.anchor_left = 0.5
+	_offer.anchor_right = 0.5
+	_offer.offset_left = -OFFER_W * 0.5
+	_offer.offset_right = OFFER_W * 0.5
+	_offer.grow_vertical = Control.GROW_DIRECTION_END
+	_offer.visible = false
+	root.add_child(_offer)
+	_offer_box = VBoxContainer.new()
+	_offer_box.add_theme_constant_override("separation", 5)
+	_offer.add_child(_offer_box)
 
 
 func _hide_panel() -> void:
 	_last_state = ""
+	_hide_offer()
 	if _panel != null:
 		_panel.visible = false
+
+
+func _hide_offer() -> void:
+	_offer_key = ""
+	if _offer != null and _offer.visible:
+		_offer.visible = false
+	HudLane.report("offer", 0.0, 0.0)
+
+
+## The compact job-offer card: title, one line, two small buttons side by side, stacked in the top HUD lane under the toast / hint /
+## banner. Held back until the player stands still (OFFER_STILL) and while a menu is open; `key` avoids rebuilding an unchanged card.
+func _offer_card(title: String, line: String, buttons: Array, key: String, legacy_body := "") -> void:
+	if legacy_offer:
+		_prompt(title, legacy_body if legacy_body != "" else line, buttons, key)
+		return
+	if _still < OFFER_STILL or not HudLane.allowed("offer"):
+		_hide_offer()
+		return
+	_ensure_ui()
+	if _panel.visible:
+		_panel.visible = false
+	var k := "%s|%s" % [key, line]
+	if _offer_key != k or not _offer.visible:
+		_offer_key = k
+		for c in _offer_box.get_children():
+			_offer_box.remove_child(c)
+			c.queue_free()
+		_offer_box.add_child(AF.heading(title, 17))
+		_offer_box.add_child(AF.label(line, 14, AF.TEXT))
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		for b: Array in buttons:
+			var btn := AF.gold_button(String(b[0]))
+			btn.add_theme_font_size_override("font_size", 15)
+			btn.custom_minimum_size = Vector2(0, 40)
+			btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			btn.pressed.connect(b[1])
+			btn.disabled = b.size() > 2 and not bool(b[2])
+			row.add_child(btn)
+		_offer_box.add_child(row)
+	_offer.visible = true
+	var k_ui := clampf(get_viewport().get_visible_rect().size.y / 720.0, 0.75, 1.6)
+	var top := HudLane.y_for("offer", HudLane.OFFER_Y * k_ui)
+	_offer.offset_top = top
+	HudLane.report("offer", top, _offer.get_combined_minimum_size().y)
 
 
 func _clear() -> void:
@@ -182,6 +266,7 @@ func _clear() -> void:
 ## Shows a heading, body and buttons ([[text, Callable]]). `key` avoids rebuilding an unchanged prompt.
 func _prompt(title: String, body: String, buttons: Array, key := "") -> void:
 	_ensure_ui()
+	_hide_offer()
 	var k := key if key != "" else "%s|%s|%d" % [title, body, buttons.size()]
 	if k == _last_state and _panel.visible:
 		return
@@ -254,22 +339,26 @@ func _refresh_off_shift(w: RefCounted) -> void:
 			_hide_panel()
 			return
 	var who := String(w.call("employer_name", int(_place["sid"]), job, day)) if not mine else String(pw["employer"])
-	var body := ""
 	var board: Array = w.call("board", int(_place["sid"]), job, day)
+	var legacy_body := ""
 	if not board.is_empty():
-		body = "Work orders today:\n" + "\n".join((board.map(func(o: Dictionary) -> String: return "- " + String(o["text"]))))
-	body += "\n%s%s" % [who, " is expecting you." if mine else " will pay for a day's work by the task."]
+		legacy_body = "Work orders today:\n" + "\n".join((board.map(func(o: Dictionary) -> String: return "- " + String(o["text"]))))
+	legacy_body += "\n%s%s" % [who, " is expecting you." if mine else " will pay for a day's work by the task."]
 	if why != "":
-		body += "\n" + why
+		legacy_body += "\n" + why
+	var line := "%d work orders today. %s %s" % [board.size(), who, "is expecting you." if mine else "pays by the task."] if not board.is_empty() \
+			else "%s %s" % [who, "is expecting you." if mine else "pays for a day's work by the task."]
+	if why != "":
+		line = why
 	if _dismissed == String(_place["id"]):
 		_hide_panel()
 		return
-	var btns: Array = [[("Begin your shift" if mine else "Ask for a day's work"), _begin, why == ""], ["Not now", _dismiss]]
-	_prompt("%s: %s" % [_sname(int(_place["sid"])), String(jd["title"])], body, btns, "off:%s:%s" % [why, String(_place["id"])])
+	var btns: Array = [[("Begin shift" if mine else "Ask for work"), _begin, why == ""], ["Not now", _dismiss]]
+	_offer_card("%s: %s" % [_sname(int(_place["sid"])), String(jd["title"])], line, btns, "off:%s:%s" % [why, String(_place["id"])], legacy_body)
 
 
 func _sname(sid: int) -> String:
-	return String(WorldGen.settlements[sid]["name"]) if sid >= 0 and sid < WorldGen.settlements.size() else "the road"
+	return WorldGen.display_name(String(WorldGen.settlements[sid]["name"])) if sid >= 0 and sid < WorldGen.settlements.size() else "the road"
 
 
 func _dismiss() -> void:
@@ -446,7 +535,13 @@ func _build_markers() -> void:
 		root.add_child(mi)
 		var lab := Label3D.new()
 		lab.text = String(s["label"])
-		Nameplates.style(lab, Color("f0e0b0"), 28)
+		# World text stays out of the arrival view: a spot's name shows only within MARKER_LABEL_NEAR (the current task's spot of a shift
+		# is lifted to MARKER_LABEL_TASK in _highlight). It was a 28 px plate on every spot of the workplace from 40 m ("Archive shelves",
+		# "Shop counter" across the plaza in 20 of 30 towns).
+		if legacy_offer:
+			Nameplates.style(lab, Color("f0e0b0"), 28)
+		else:
+			Nameplates.style(lab, Color("f0e0b0"), 20, MARKER_LABEL_NEAR)
 		lab.position.y = 1.6
 		root.add_child(lab)
 		_markers.add_child(root)
@@ -458,6 +553,12 @@ func _highlight(kind: String) -> void:
 		var e: Dictionary = _marker_nodes[k]
 		var on := k == kind
 		(e["mat"] as StandardMaterial3D).albedo_color = Color(AF.GOLD_BRIGHT.r, AF.GOLD_BRIGHT.g, AF.GOLD_BRIGHT.b, 0.7) if on else Color(AF.GOLD.r, AF.GOLD.g, AF.GOLD.b, 0.2)
+		if legacy_offer:
+			continue
+		var lab: Label3D = e["label"]
+		var reach := MARKER_LABEL_TASK if on else MARKER_LABEL_NEAR
+		lab.visibility_range_end = reach
+		lab.set_meta("np_max", minf(reach, 30.0))
 
 
 func _free_markers() -> void:

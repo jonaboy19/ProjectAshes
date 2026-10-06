@@ -804,11 +804,11 @@ static func _outer_sites(out: Array[Dictionary], rng: RandomNumberGenerator, cor
 		if rlen < 1500.0:
 			continue
 		var far_end := road.x if a.distance_to(capital) > b.distance_to(capital) else road.y
-		var stops: Array = [[[0.5, 0.42, 0.58, 0.35, 0.65], "%s Roadhouse" % WorldGen.settlements[far_end]["name"]]]
+		var stops: Array = [[[0.5, 0.42, 0.58, 0.35, 0.65], "%s Roadhouse" % WorldGen.display_name(String(WorldGen.settlements[far_end]["name"]))]]
 		if rlen >= 2000.0:
-			stops.append([[0.2, 0.17, 0.23, 0.26], "%s Wayside Inn" % WorldGen.settlements[road.x]["name"]])
+			stops.append([[0.2, 0.17, 0.23, 0.26], "%s Wayside Inn" % WorldGen.display_name(String(WorldGen.settlements[road.x]["name"]))])
 		if rlen >= 2400.0:
-			stops.append([[0.8, 0.77, 0.83, 0.74], "%s Wayside Inn" % WorldGen.settlements[road.y]["name"]])
+			stops.append([[0.8, 0.77, 0.83, 0.74], "%s Wayside Inn" % WorldGen.display_name(String(WorldGen.settlements[road.y]["name"]))])
 		for stop: Array in stops:
 			for t: float in stop[0]:
 				var mid := a.lerp(b, t)

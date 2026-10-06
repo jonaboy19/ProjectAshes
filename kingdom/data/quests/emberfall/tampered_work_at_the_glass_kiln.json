@@ -1,0 +1,124 @@
+{
+ "id": "emberfall_tampered_work_at_the_glass_kiln",
+ "title": "Tampered Work at the Glass Kiln",
+ "summary": "Things at the glass kiln were moved, spoiled or broken in the night. Hugh Lensley wants to know if it was an accident or a person.",
+ "giver": {
+  "npc": "hugh_lensley",
+  "name": "Hugh Lensley",
+  "place": "emberfall"
+ },
+ "requires": [
+  "emberfall_glass_blanks_on_order"
+ ],
+ "offer_text": "\"Somebody has been at the glass kiln. Not a slip, I think. Walk the town, hear Alys Mattock, and tell me what you make of it.\"",
+ "stages": [
+  {
+   "id": "survey",
+   "title": "Survey the damage",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "emberfall/clue/c1",
+      "emberfall/clue/c2",
+      "emberfall/clue/c3"
+     ],
+     "count": 3,
+     "text": "Search around town for signs of tampering"
+    },
+    {
+     "id": "foreman",
+     "type": "talk_to",
+     "npc": "alys_mattock",
+     "text": "Hear Alys Mattock's side of it"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide who to believe",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "hugh_lensley",
+     "options": [
+      {
+       "id": "accuse",
+       "text": "Tell Hugh it was Jaren",
+       "say": "Hugh's jaw sets. \"I thought as much.\""
+      },
+      {
+       "id": "cover",
+       "text": "Tell Hugh it was an accident",
+       "say": "Hugh breathes out. \"Then it was.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "accuse": "accused",
+    "cover": "covered"
+   }
+  },
+  {
+   "id": "accused",
+   "title": "Face Jaren",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "face",
+     "type": "talk_to",
+     "npc": "jaren_plover",
+     "text": "Tell Jaren Plover what you told Hugh"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 22,
+    "rep": {
+     "emberfall": 4
+    },
+    "relationship": [
+     {
+      "npc": "hugh_lensley",
+      "label": "Found who tampered with the works",
+      "value": 10,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "covered",
+   "title": "Back to work",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "calm",
+     "type": "talk_to",
+     "npc": "hugh_lensley",
+     "text": "Tell Hugh Lensley it is over"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 12,
+    "rep": {
+     "emberfall": 2
+    },
+    "relationship": [
+     {
+      "npc": "jaren_plover",
+      "label": "Took the blame off me",
+      "value": 14,
+      "days": 120
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -324,6 +324,8 @@ func refresh() -> void:
 	for id: int in cons.sites:
 		var s: Dictionary = cons.sites[id]
 		var d := p.distance_to(cons.site_pos(s))
+		if s.has("kit_key"):
+			continue      # a finished build-kit piece stands for this site: the kit renderer draws it
 		if d < BUILD and not _nodes.has(id):
 			_nodes[id] = _make_site(s)
 		elif d > FREE and _nodes.has(id):

@@ -5,6 +5,8 @@ extends RefCounted
 ## pre-rendered sprite impostors for distant crowds.
 
 const StyleG := preload("res://scripts/style_g.gd")
+const BakedVao := preload("res://scripts/world/baked_vao.gd")
+const TownAtlas := preload("res://scripts/world/town_atlas.gd")
 const CHAR_DIR := "res://assets/kaykit/characters/"
 const MED_DIR := "res://assets/kaykit/medieval/"
 const WEAPON_DIR := "res://assets/kaykit/weapons/"
@@ -321,10 +323,14 @@ const ARMORED := "res://assets/incoming/ai3d/meshy/armored/"
 const CDMIR := "res://assets/incoming/characters/cdmir-ual/"
 ## Meshy batch 3 bipeds re-rigged onto the UAL skeleton (tools/meshy/armored_rig/meshy3_rerig.py, docs/art/meshy_dl3/README.md).
 const MESHY3 := "res://assets/incoming/meshy_dl3/characters_ual/"
+## Shirtless fix (2026-10-06): MESHY3 "villager_green_vest" is NOT in any villager pool. Its fur-collared vest is cut so wide that the
+## chest and shoulders are bare skin (about 40 % of its upper-chest texels are skin; every other look is under 20 %), so the town
+## villager who rolled it rendered shirtless on every tier. The model stays on disk (docs/art/hero_tier_a uses it as the Tier-A hero
+## candidate, which gets its own outfit pass). tests/test_villager_torso.gd measures every pooled look and LOD.
 const MH_LOOKS := {
 	"Rogue_Hooded": ["villager_man_a", "villager_man_b", "villager_woman_a", "villager_woman_b", "elder_man", "elder_woman",
 		G6 + "g6_m_villager_tunic", G6 + "g6_f_villager_tunic", G6 + "g6_f_worker_apron",
-		MESHY3 + "villager_green_vest", MESHY3 + "villager_white_shirt", MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
+		MESHY3 + "villager_white_shirt", MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
 	"Barbarian": ["villager_man_a", "villager_man_b", "father", "villager_farmer", G6 + "g6_m_worker_apron", G6 + "g6_m_hunter_leather",
 		MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
 	"Mage": ["villager_woman_a", "villager_woman_b", "mother", "elder_woman", "villager_baker", G6 + "g6_f_villager_tunic", G6 + "g6_f_blacksmith_apron"],
@@ -337,7 +343,7 @@ const MH_LOOKS := {
 	"Mercenary": [ARMORED + "mercenary"], "Bandit": [ARMORED + "bandit", MESHY3 + "guardian_hooded"], "Noble": [ARMORED + "noble"],
 	"Orc_Warchief": [ARMORED + "orc_warchief"],
 	# Meshy batch 3 (docs/art/meshy_dl3/README.md): named looks for Thornfield's stranger, travellers and extra villagers.
-	"Meshy_Villager": [MESHY3 + "villager_green_vest", MESHY3 + "villager_white_shirt", MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
+	"Meshy_Villager": [MESHY3 + "villager_white_shirt", MESHY3 + "villager_hat", MESHY3 + "peasant_hooded"],
 	"Meshy_Traveller": [MESHY3 + "guardian_hooded", MESHY3 + "merchant_cloaked"],
 	"Meshy_Knight": [MESHY3 + "knight_plate_a"],
 	"Mother": ["mother"], "Father": ["father"],
@@ -350,7 +356,9 @@ const USE_MAKEHUMAN := true
 static func character(file_name: String, height: float, keep: Array[String] = []) -> Node3D:
 	if USE_MAKEHUMAN and MH_LOOKS.has(file_name):
 		var files: Array = MH_LOOKS[file_name]
-		return mh_character(files[randi() % files.size()], height, keep, false, true)
+		var pick: String = files[randi() % files.size()]
+		# LOW: the re-rigged Meshy batch 3 looks (7.0k tris, 1024 px) use their LOD1 (2.9k tris, 512 px): cheaper than a UAL villager (6.8k)
+		return mh_character(pick, height, keep, pick.begins_with(MESHY3) and preload("res://scripts/world/low_budget.gd").low(), true)
 	if USE_REALISTIC and LOOKS.has(file_name):
 		return humanoid(LOOKS[file_name], height, keep)
 	var model: Node3D = Assets.scene(CHAR_DIR + file_name + ".glb").instantiate()
@@ -733,10 +741,28 @@ static func building_mesh(key: String) -> ArrayMesh:
 		Vector3(-(box.position.x + box.size.x * 0.5) * s, -box.position.y * s, -(box.position.z + box.size.z * 0.5) * s))
 	# Meshy buildings carry their own LOD chain (lod0/1/2 files): automatic LODs on
 	# top of already-decimated meshes crumpled their walls and roofs at mid range.
-	mesh = _transformed(mesh, fit, not path.begins_with(MESHY))
+	mesh = _transformed(mesh, fit, not path.begins_with(MESHY), key)
 	StyleG.restyle_mesh(mesh, key)       # Style G: every building/prop surface gets its role material (atlas + tints kept)
+	if mesh.has_meta("baked_vao"):
+		BakedVao.fix_materials(mesh)
+	TownAtlas.fold(mesh, key)           # far stages: shared texture page (see town_atlas.gd)
+	if key.begins_with("lamp_post") or key.begins_with("street_lamp"):
+		_tame_lamp_glow(mesh)
 	_building_cache[key] = mesh
 	return mesh
+
+
+## The lantern pane of the street lamp GLBs is a white-albedo surface with a 3x amber emission: by day every lamp in every town showed a solid
+## white block (QA sweep, 20 towns). The pane keeps its glow but its albedo is amber glass and the emission 1.4x, so it reads as a warm lantern.
+static func _tame_lamp_glow(mesh: ArrayMesh) -> void:
+	for i in mesh.get_surface_count():
+		var b := mesh.surface_get_material(i) as BaseMaterial3D
+		if b == null or not b.emission_enabled or b.albedo_color.get_luminance() < 0.9:
+			continue
+		var g := b.duplicate() as BaseMaterial3D
+		g.albedo_color = Color(0.36, 0.22, 0.09)
+		g.emission_energy_multiplier = minf(g.emission_energy_multiplier, 1.4)
+		mesh.surface_set_material(i, g)
 
 
 static var _static_cache: Dictionary = {}
@@ -772,6 +798,7 @@ static func static_model(path: String) -> Node3D:
 				var merged := merged_mesh(path)
 				if merged != null:
 					mesh = _transformed(merged, Transform3D.IDENTITY, true)   # keeps the automatic mesh LODs
+					_scenes.erase(path)      # perf: the merged copy is all that is drawn; don't keep the source scene's meshes too
 		_static_cache[path] = mesh
 	var m: ArrayMesh = _static_cache[path]
 	if m == null:
@@ -821,19 +848,27 @@ static func merged_mesh(path: String, style := true) -> ArrayMesh:
 	return out
 
 
-static func _transformed(mesh: ArrayMesh, xform: Transform3D, auto_lods := true) -> ArrayMesh:
+static func _transformed(mesh: ArrayMesh, xform: Transform3D, auto_lods := true, vao_key := "") -> ArrayMesh:
 	# Built through ImporterMesh so the merged mesh gets automatic LODs again
 	# (SurfaceTool merging drops the importer's LODs; without them every tree and
 	# building draws full detail at any distance).
 	var im := ImporterMesh.new()
+	var surfs := []
 	for surf in mesh.get_surface_count():
 		var st := SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 		st.append_from(mesh, surf, xform)
-		im.add_surface(Mesh.PRIMITIVE_TRIANGLES, st.commit_to_arrays(), [], {}, mesh.surface_get_material(surf))
+		surfs.append(st.commit_to_arrays())
+	if BakedVao.apply(vao_key, surfs):
+		im.set_meta("baked_vao", true)     # baked quality: offline AO + painterly light into COLOR (no-op without a blob)
+	for surf in surfs.size():
+		im.add_surface(Mesh.PRIMITIVE_TRIANGLES, surfs[surf], [], {}, mesh.surface_get_material(surf))
 	if auto_lods:
 		im.generate_lods(25.0, 60.0, [])
-	return im.get_mesh()
+	var out := im.get_mesh()
+	if im.has_meta("baked_vao"):
+		out.set_meta("baked_vao", true)
+	return out
 
 
 ## Static building node with a box collider (for landmarks placed individually).

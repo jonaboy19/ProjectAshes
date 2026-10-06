@@ -85,6 +85,13 @@ func on_hour(hour: int, day: int, ctx: Dictionary) -> void:
 				_queue.append([k, "tick_week", day / 7, ctx])
 
 
+## Adds spread-out jobs of another system (Callables returning an Array of lines to say), run by pump() in order after
+## what is already queued. Life uses it for the economy's hourly tick (RAEconomy.queue_hour_jobs).
+func queue_jobs(jobs: Array) -> void:
+	for cb: Callable in jobs:
+		_queue.append(["", cb, null, null])
+
+
 ## Runs queued jobs within the frame budget; at least one job per call so the
 ## queue always drains. Returns messages to show.
 func pump() -> Array:

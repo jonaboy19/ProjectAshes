@@ -1,0 +1,63 @@
+{
+ "id": "kingsreach_carry_it_over",
+ "title": "Carry It Over",
+ "summary": "Yorick Heraldson wants 2 casks of ale carried from the far end of Kingsreach to Tobin Wilmot at the Tourney Lists before the Council sits.",
+ "giver": {
+  "npc": "yorick_heraldson",
+  "name": "Yorick Heraldson",
+  "place": "kingsreach"
+ },
+ "offer_text": "\"The casks of ale are by my door and Tobin Wilmot is waiting at the Tourney Lists. It is a long walk and I have a bad knee. Take them over before the Council sits.\"",
+ "stages": [
+  {
+   "id": "load",
+   "title": "Collect the stock",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load",
+     "type": "collect",
+     "item": "ale",
+     "count": 2,
+     "text": "Take 2 casks of ale from outside Yorick's door"
+    }
+   ]
+  },
+  {
+   "id": "carry",
+   "title": "Carry it across town",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "cross",
+     "type": "goto",
+     "place": "kingsreach_works",
+     "text": "Walk to the Tourney Lists"
+    },
+    {
+     "id": "drop",
+     "type": "deliver",
+     "item": "ale",
+     "count": 2,
+     "to": "tobin_wilmot",
+     "text": "Hand the casks of ale to Tobin Wilmot"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 23,
+  "rep": {
+   "kingsreach": 3
+  },
+  "relationship": [
+   {
+    "npc": "yorick_heraldson",
+    "label": "Carried the load across town",
+    "value": 7,
+    "days": 45
+   }
+  ]
+ }
+}

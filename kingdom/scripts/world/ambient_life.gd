@@ -102,7 +102,7 @@ func _ready() -> void:
 			var a := TAU * i / 4.0 + 0.4
 			var p := lc + Vector2(cos(a), sin(a)) * (WorldGen.lake_radius + 4.0)
 			_group(p, [["duck", rng.randi_range(3, 5)], ["goose", rng.randi_range(0, 2)]], 6.0)
-	preload("res://scripts/world/thornfield/livestock.gd").add_groups(self)   # F8: Thornfield's pigs, hens, sheep, cows and yard dog
+	preload("res://scripts/world/town_kit/town_livestock.gd").add_groups(self)   # town kit: every kit town's livestock groups (Thornfield: pigs, hens, sheep, cows, yard dog)
 
 
 ## Meshy free pack farm animals stand in for part of the herd and the flock: every other cow wears one of three coats, every other
@@ -152,6 +152,8 @@ func _update_group(g: Dictionary, p: Vector2) -> void:
 			if SMALL_FLOCK.has(pair[0]):
 				# Perf: fewer hens/doves on weaker tiers (each is a skinned, animated model).
 				want = maxi(1, roundi(want * clampf(float(Quality.value("scatter")) + 0.15, 0.3, 1.0)))
+			if Quality.tier <= 0:
+				want = mini(want, 1)      # AAA pass 13: LOW draw budget, one animal of each kind per group
 			for k in want:
 				if BEASTS.has(pair[0]):
 					_spawn_beast(g, String(pair[0]), nodes)

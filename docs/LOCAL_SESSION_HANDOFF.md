@@ -629,3 +629,61 @@ Cloud placed the unused models through the data tables and builders (details: `d
 - **Region 2 reserve** (tagged "reserve", excluded, keep in the tree): `quaternius/pirate-kit`, `kaykit/dungeon-remastered`, `quaternius/medieval-village-megakit`, `styloo/the-company`, `modular-wooden-docks` (a 308-part kit sheet, needs a builder), the 11 `meshy_free/water/bridge_*` footbridges (Region 1 has no 3-9 m water crossing: `tools_qa/asset_use/probe_world.gd --crossings` finds 0), `maybe/` brutes, gargoyles, hellhounds, relics.
 - **Not touched** (other agents): animation libraries under `assets/incoming/animations_free*`, `ai3d/animations`, `characters/_library`, `kaykit/character-animations` is excluded from export only (clips are already merged into the `UAL_Kay_*` libraries).
 - New `.import` files were generated only for the packs the game now loads (KayKit skeletons, Ultimate Monsters); every other pack without a committed `.import` is still unimported, so the editor will import it on first open (they are excluded from export anyway).
+
+
+## 2026-10-06 Cloud LOW budget audit (cloud session; local performance agent: read before touching the same files)
+
+**Method.** `kingdom/tools_qa/perf/low_budget.gd` (new, run through `--qa=`): teleports to fixed views, lets the dressing queue drain, then counts every GeometryInstance3D the camera draws (frustum plus visibility range plus sun-shadow reach, like `town_route.gd`'s census) as surfaces (about the colour-pass draws), triangles (LOD0 index counts times MultiMesh instances) and sun-shadow surfaces, attributed to cloud-added content versus older content. It also audits unique materials and textures per source. Run headless (`$GODOT --headless --path kingdom -- --adult --quality=low --qa=res://tools_qa/perf/low_budget.gd --out=x.json [--views=ashford,...]`): the xvfb + llvmpipe Vulkan boot stalls in this container, and headless has no draw counter, so the numbers are census surfaces, not `RENDER_TOTAL_DRAW_CALLS`. **Please re-run it on the PC with the real counters** (the script prints `measured_draws/prims` there). Views: Ashford benchmark street, Thornfield plaza, Redwater plaza, the Ash Hand bandit camp, the Rift mouth, the Thornfield Millers' Lane Meshy3 yard.
+
+**Finding 1: the cloud's static additions are not why the phone is over budget.** At the plaza views (Ashford, Thornfield, Redwater) the cloud share is 0-6k tris and 0-4 surfaces. What every view carries, and is not cloud-added (yours): `HorizonGround` (region1_look) is **57,800 tris in every view** (a third to half of the whole view on LOW), SettlementBuilder buildings 16-46k, chars 20-64k (a single UAL villager is 6.8-7.8k tris, `armored/guard` 11.9k), terrain ground 8-14k. Static memory in the headless run grows 1.43 -> 1.60 GB across the six views.
+
+**Finding 2: three cloud sources were heavy; now cut (LOW only).**
+| source | before (LOW) | after (LOW) |
+|---|---|---|
+| Meshy3 re-rigged looks (7.0k tris, 1024 px) on embodied NPCs: Ashford / Thornfield / Redwater / camp | 14.0k / 11.0k / 11.0k / 14.0k tris | 2.9k / 0 / 5.8k / 2.9k (2.9k each, random look picks differ run to run) |
+| Fence sections in fill + Meshy3 yards (Meshy `fence_picket_*`, plank, palisade, rail: 2.5-3k tris, no LOD1, the engine cannot generate one: unique flat-shaded vertices; 8-15 per yard) | 92+ pieces at 2.5-3k | generated Style G picket / rail (60-190 tris), same length and height |
+| Wilds extras (Ash Hand camp, outpost, Rift): horse 7.0k, stall 4.5k, shields on every raider/soldier (4 surfaces each) | camp cloud 43 surf / 45.7k tris | camp cloud 22 surf / 26.5k tris |
+| Meshy3 yard (Millers' Lane) | 11 surf / 34.2k tris | 12 surf / 15.1k tris |
+
+Whole data set (`tests/test_low_budget.gd` prints it): fill_sites + meshy3_sites LOD0 triangles 1,613k all-tiers -> 1,071k on LOW (-34 %), worst single yard 49.9k (`fill_grimfen_gate`). Cloud share per benchmark view on LOW is now <= 6k tris / <= 4 surfaces at the three town views, 15k / 12 at the Meshy3 yard, 26k / 22 at the camp: inside 30 draws / 50k tris everywhere.
+
+**What changed (all behind `LowBudget.low()`, tier LOW only; MEDIUM and up are untouched):**
+- new `scripts/world/low_budget.gd` + `data/region1/world/model_tris.json` ([lod0, lod1] tris of every placed Meshy model, generated from the GLB headers).
+- `region_dressing.gd`: thins heavy loose clutter of fill/Meshy3 sites (bouquets 1 in 4, wall battlement blocks 1 in 3, kegs 1 in 3, banners, hay, bushes, bench sets 1 in 2; parts with a collider are never skipped), fence proxy, LOD0->LOD1 swap at half the distance for the kit pieces (55/85 m -> 27/42 m before the 0.55 range multiplier).
+- `thornfield/wilds_props.gd` (`model()`): LOD1 for wilds extras, small extras without sun shadow, heavy small extras with no LOD1 left out (stall). `bandit_camp.gd`, `outpost.gd`: no shield attachments on squads.
+- `assets.gd` (`character()`): the seven re-rigged Meshy looks use their LOD1 (2.9k tris, 512 px) on LOW. At 7.0k tris they were on par with the UAL villagers (6.8k, not over budget), so no embody cap was needed; LOD1 makes them 2.4x cheaper than a UAL villager.
+- Not changed because already cheap: town-kit pens (one MultiMesh per town, no shadows, 1 draw), clues and stashes (0-2 surfaces), livestock; shadows on small props are already dropped by `Quality._small_shadow` (3 m on LOW).
+
+**Memory.** FillStyle already shares materials (cache per source material + treatment), `tests/test_low_budget.gd` pins it: two instances of one treated model hold the same material objects. Audit of the built world (headless): Meshy3 yards 45 instances -> 27 materials / 27 textures (one bake texture per model, not per instance); wilds 53 -> 34 / 14; town kit 16 -> 14 / 3. Textures over 512 px from cloud assets: meshy3 12, wilds 7, town kit 2, all capped to 512 on the phone by `mobile_texture_limit` (`meshy_dl3/`, `meshy_free/` are not HERO paths); estimated at the cap: meshy3 9 MB, wilds 4 MB, town kit 1 MB, the seven characters 1 MB. Cloud content is about 15 MB of texture memory, nowhere near the 3.2 GB: look at SettlementBuilder (29 MB, 103 textures, 24 over 512), chars (11 MB), region_look (11 MB), terrain.
+
+**Still to do (local / Blender):**
+1. `HorizonGround` 57.8k tris in every view: the biggest single LOW cut left. A coarse far ring or a lower subdivision on LOW.
+2. 196 of the 287 Meshy models referenced by Region 1 data have no LOD1 (list: `model_tris.json`, entries with `[n, 0]`; worst: castle `wall_battlement_block` 4.0k, `wall_stone_railing` 3.0k, `bouquet_wild` 3.5k, `street_lantern_gothic` 3.0k, `stall_rug_wood` 4.5k, goblins/wolves/cows 6-7k). A Blender decimate pass producing `_lod1.glb` (about 25-30 %) would let the engine swap them everywhere instead of the thinning above (gltfpack/Instant Meshes in `ashes-external-tools`).
+3. Baked fill/Meshy3 sites (`RegionDressing._bake_site`) merge each range group into one mesh: while any part is in view, the whole group's triangles draw. A smaller bake radius on LOW (split groups by 30 m cell) would cut the near yard further.
+4. Re-run `low_budget.gd` on the PC and the S22 route after these changes; the S22 numbers are still owed.
+
+
+## 2026-10-06 Cloud CPU / memory / save pass (cloud session): scripts only, NOT rendering
+
+The cloud took **CPU, memory and save work only**. It did not touch models, LODs, textures, materials, shaders, lights, shadows, render
+resolution, draw distances, foliage density, crowd counts or animation quality; GPU and rendering performance stay with the local session
+(Perf pass 1-3, `docs/qa/RELEASE_READINESS.md`). Full numbers, method and file list: `docs/qa/CPU_MEMORY_SAVE.md`.
+
+- **CPU** (headless PC, per rendered frame, best-of runs): Ashford 6.9 -> 4.8 ms, Thornfield 7.3 -> 5.3 ms, wilds 4.6 -> 3.2 ms; script time in callbacks
+  3.9 -> 1.9 ms. Biggest: the tutorial bridge built a context every frame (0.94 -> 0.07 ms), WorldSim's far loop burned its whole 0.5 ms budget every frame
+  (0.60 -> 0.17 ms), `Life._on_hour` was a 26 ms hitch every game hour because the economy ticked 8 282 goods rows in it (now 1.5 ms plus 15 spread jobs).
+- **Edits near your files** (read before you merge): `ui/hud.gd` (`_ease_buttons` settles, same-value position writes skipped, `Probe` lines),
+  `world/weather.gd` (`_key()` cache for the base / wrote bookkeeping, same writes), `world/grass_interactors.gd` (a slot is only re-sent when its value
+  changed), `population/population_lod.gd` (only `Probe` timers), `world/exploration_director.gd` and `world/street_routines.gd` (throttles).
+  Values reaching the renderer are identical.
+- **Save**: schema 3. A save of 64 KB or more is stored zstd + base64 in the same JSON envelope (checksum, atomic write, `.bak` fallback unchanged);
+  2 years of play is 2.0 MB of JSON and 0.36 MB on disk (was 2.0 MB), day 1 175 KB. Schema 1 and 2 files still load (tests). Small saves stay plain JSON.
+- **Memory**: unchanged in the world (1.45-1.58 GB headless, dominated by nodes and resources, not scripts); scripted data is a few MB. Findings for you:
+  idle pooled creature bodies never shrink (113 critters with skeletons at the end of the route; `NodePool.trim_all` is only called after teleports),
+  and the headless dummy renderer keeps CPU copies of textures, so `MEMORY_STATIC` there is not the phone's number.
+- **Tools** you can run on the PC: `kingdom/tools_qa/cpu_mem/cpu_profile.gd` (per-script ms per frame, route in Ashford, Thornfield and the wilds),
+  `sim_save_probe.gd` (per-hour handlers, hub jobs, save sizes and times by game day), `mem_census.gd`, `ab_overlay.sh <git-ref> <dir>` (before / after without a second checkout).
+  Gotchas found: a headless window sleeps 6.9 ms per frame unless `OS.low_processor_usage_mode_sleep_usec = 0`, and `Performance.TIME_PROCESS` /
+  `TIME_PHYSICS_PROCESS` are the max of the last second, not a mean.
+- **Still the biggest CPU left** (not touched, gameplay-visible): the 30 Hz physics tick (villager, critter, soldier, player scripts: 3.5 ms per tick, the p95 / p99
+  frames) and `PopulationLOD` spawns (3.7-6 ms each). On the S22 these need a visual check of any rate change.

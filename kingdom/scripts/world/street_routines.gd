@@ -11,14 +11,24 @@ const NEAR := 70.0
 const SCHEDULE := [
 	[5.3, 8.0, ["farmers_out_dawn", "water_carriers"]],
 	[8.0, 11.0, ["delivery_to_shops", "street_sweeper", "wood_cart"]],
-	[11.0, 15.0, ["laundry_day", "cart_through", "water_carriers"]],
-	[15.0, 17.5, ["street_performer", "hay_wagon", "laundry_day"]],
+	[11.0, 15.0, ["laundry_day", "cart_through", "patrol_returning", "water_carriers"]],
+	[15.0, 17.5, ["street_performer", "patrol_returning", "hay_wagon", "caravan_arrival"]],
 	[17.5, 20.5, ["farmers_return_dusk", "couple_stroll"]],
 	[20.5, 29.3, ["night_watch_rounds"]],
 ]
 
 var centre := Vector2.ZERO
+var enabled_tier := true
+var doors: Array = []                 # door points (Vector2) for the work sounds
+## Street sound layer (AAA pass 7): a positional murmur of voices by day, work one-shots (hammer, well bucket, rope
+## creak of a cart) from the doors, birds by day and owls at night. Existing CC0 sounds only (assets/audio/ambience).
+const DIR := "res://assets/audio/ambience/"
+var _murmur: AudioStreamPlayer3D
+var _one: AudioStreamPlayer3D
+var _sfx_acc := 0.0
+var _sfx_next := 6.0
 var _micro: Node
+var _placed_at := Vector2(INF, INF)
 var _acc := 0.0
 var _turn := 0
 
@@ -31,8 +41,63 @@ static func ids_at(hour: float) -> Array:
 	return []
 
 
+func _ready() -> void:
+	_murmur = AudioStreamPlayer3D.new()
+	_murmur.stream = load(DIR + "amb_tavern.ogg")      # voices and mugs: far, low-passed it reads as a street murmur
+	_murmur.unit_size = 9.0
+	_murmur.max_distance = 45.0
+	_murmur.attenuation_filter_cutoff_hz = 2400.0
+	_murmur.volume_db = -60.0
+	_murmur.bus = &"Ambience" if AudioServer.get_bus_index("Ambience") >= 0 else &"Master"
+	add_child(_murmur)
+	_one = AudioStreamPlayer3D.new()
+	_one.unit_size = 6.0
+	_one.max_distance = 40.0
+	_one.bus = _murmur.bus
+	add_child(_one)
+
+
+func _sound(delta: float, here: Vector2) -> void:
+	var h := float(WorldSim.time_of_day)
+	var day := h >= 7.0 and h < 19.5
+	if centre != _placed_at:      # the street centre never moves: place the murmur once (WorldGen.height was sampled every frame)
+		_placed_at = centre
+		_murmur.global_position = Vector3(centre.x, WorldGen.height(centre.x, centre.y) + 1.6, centre.y)
+	var want := -14.0 if day and here.distance_to(centre) < NEAR else -60.0
+	if _murmur.volume_db != want:
+		_murmur.volume_db = move_toward(_murmur.volume_db, want, 12.0 * delta)
+	if _murmur.volume_db > -55.0 and not _murmur.playing:
+		_murmur.play(randf() * 20.0)
+	elif _murmur.volume_db <= -59.0 and _murmur.playing:
+		_murmur.stop()
+	_sfx_acc += delta
+	if _sfx_acc < _sfx_next or doors.is_empty() or here.distance_to(centre) > NEAR:
+		return
+	_sfx_acc = 0.0
+	_sfx_next = randf_range(4.0, 11.0)
+	var pick: String
+	if day:
+		pick = ["spots/hammer_distant_0%d.ogg" % randi_range(1, 3), "spots/well_bucket_0%d.ogg" % randi_range(1, 3),
+			"spots/rope_creak.ogg", "spots/bird_blackbird.ogg", "spots/mug_knock_0%d.ogg" % randi_range(1, 2)].pick_random()
+	else:
+		pick = ["spots/owl_0%d.ogg" % randi_range(1, 3), "spots/dog_distant_0%d.ogg" % randi_range(1, 3)].pick_random()
+	if not ResourceLoader.exists(DIR + pick):
+		return
+	var dp: Vector2 = doors.pick_random()
+	_one.stream = load(DIR + pick)
+	_one.volume_db = randf_range(-12.0, -6.0)
+	_one.pitch_scale = randf_range(0.94, 1.06)
+	_one.global_position = Vector3(dp.x, WorldGen.height(dp.x, dp.y) + 1.5, dp.y)
+	_one.play()
+
+
 func _process(delta: float) -> void:
+	var plr := get_tree().get_first_node_in_group("player") as Node3D
+	if plr != null:
+		_sound(delta, Vector2(plr.global_position.x, plr.global_position.z))
 	_acc += delta
+	if not enabled_tier:
+		return
 	if _acc < TICK:
 		return
 	_acc = 0.0

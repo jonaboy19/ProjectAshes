@@ -225,6 +225,9 @@ var _pitch := -0.32
 var _distance := 3.9
 var _cam_pulled := 0.0
 var _see_last := -1.0
+## AAA pass 8: the villager being talked to. The camera swings to a two-shot (hero foreground left, speaker right of
+## centre), the hero turns to face them and looks at their face; cleared when the talk ends.
+var _talk_partner: Node3D
 var _occluders = null
 var _pivot: Node3D
 var _camera_arm: SpringArm3D
@@ -1302,6 +1305,15 @@ func _update_camera(delta: float) -> void:
 		_pitch = rig[1]
 	if view == View.THIRD:
 		pitch += _chase.pitch_offset()
+	if is_instance_valid(_talk_partner) and view == View.THIRD and _chase.talk_enabled:
+		var tp := _talk_partner.global_position - global_position
+		var d2 := Vector2(tp.x, tp.z)
+		if d2.length() > 0.3:
+			d2 = d2.normalized()
+			var frame_dir := d2.rotated(0.78)          # pass 9: wide over-the-shoulder; the hero sits left, the speaker's face clear right of centre
+			_yaw = lerp_angle(_yaw, atan2(-frame_dir.x, -frame_dir.y), 1.0 - exp(-3.5 * delta))
+			if velocity.length() < 0.3:
+				_model.rotation.y = lerp_angle(_model.rotation.y, atan2(-d2.x, -d2.y) + PI, 1.0 - exp(-6.0 * delta))
 	_pivot.rotation = Vector3(lerp_angle(_pivot.rotation.x, pitch, 1.0 - exp(-6.0 * delta)), _yaw, 0)
 	_camera_arm.spring_length = _distance
 	var lens_tilt := _chase.talk_tilt() + (INTERIOR_LENS_TILT if InteriorDoor.active != null else 0.0)
@@ -1400,8 +1412,9 @@ func _step_chase(delta: float) -> void:
 
 ## FOV impulse from combat feel code: positive = outward punch. Decays on its own and rides above the base FOV.
 ## Conversation framing on/off (TalkSession): eases over ~0.4 s, off when the setting is off.
-func set_talk_framing(on: bool) -> void:
+func set_talk_framing(on: bool, partner: Node3D = null) -> void:
 	_chase.talk_enabled = bool(SettingsStore.get_value("talk_camera"))
+	_talk_partner = partner if on else null
 	if on:
 		_chase.begin_talk()
 	else:
@@ -1464,7 +1477,7 @@ func _screen_feedback_strength() -> float:
 func _update_look_target() -> void:
 	if _look_target == null:
 		return
-	var best: Node3D = _nearest_enemy(12.0, -1.0)
+	var best: Node3D = _talk_partner if is_instance_valid(_talk_partner) else _nearest_enemy(12.0, -1.0)
 	if best == null:
 		for v in get_tree().get_nodes_in_group("villager"):
 			if (v as Node3D).global_position.distance_to(global_position) < 5.0:

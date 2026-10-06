@@ -1,0 +1,76 @@
+{
+ "id": "ashford_wolves_near_ashford",
+ "title": "Wolves Near Ashford",
+ "summary": "Wolf sign has been found at the edge of Ashford: tracks too big for a dog and fences torn outward. Sander Stooks wants 2 of them dealt with.",
+ "giver": {
+  "npc": "sander_stooks",
+  "name": "Sander Stooks",
+  "place": "ashford"
+ },
+ "requires": [
+  "ashford_light_on_the_scales"
+ ],
+ "offer_text": "\"The wolves have come closer to Ashford each night: howling closer every night. Go to the edge and thin them out, before someone is hurt.\"",
+ "turn_in_text": "\"Quieter already. I will sleep tonight. A little.\"",
+ "stages": [
+  {
+   "id": "edge",
+   "title": "Go to the edge of town",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "ashford_outskirts",
+     "text": "Go to where the wolves were seen"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Thin them out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "ashford_outskirts",
+     "count": 2,
+     "text": "Kill 2 wolves near Ashford"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Sander",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "sander_stooks",
+     "text": "Tell Sander Stooks it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 25,
+  "rep": {
+   "ashford": 5
+  },
+  "relationship": [
+   {
+    "npc": "sander_stooks",
+    "label": "Kept the wolves from the edge",
+    "value": 10,
+    "days": 60
+   }
+  ],
+  "items": {
+   "bread": 2
+  }
+ }
+}

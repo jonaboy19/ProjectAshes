@@ -1,0 +1,63 @@
+{
+ "id": "highcliff_a_long_carry",
+ "title": "A Long Carry",
+ "summary": "Mags Rampart wants 4 planks carried from the far end of Highcliff to Tuck Copley at the stable yard before the road officer rides through.",
+ "giver": {
+  "npc": "mags_rampart",
+  "name": "Mags Rampart",
+  "place": "highcliff"
+ },
+ "offer_text": "\"The planks are by my door and Tuck Copley is waiting at the stable yard. It is a long walk and I have a bad knee. Take them over before the road officer rides through.\"",
+ "stages": [
+  {
+   "id": "load",
+   "title": "Collect the stock",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load",
+     "type": "collect",
+     "item": "plank",
+     "count": 4,
+     "text": "Take 4 planks from outside Mags's door"
+    }
+   ]
+  },
+  {
+   "id": "carry",
+   "title": "Carry it across town",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "cross",
+     "type": "goto",
+     "place": "highcliff_works",
+     "text": "Walk to the stable yard"
+    },
+    {
+     "id": "drop",
+     "type": "deliver",
+     "item": "plank",
+     "count": 4,
+     "to": "tuck_copley",
+     "text": "Hand the planks to Tuck Copley"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 20,
+  "rep": {
+   "highcliff": 3
+  },
+  "relationship": [
+   {
+    "npc": "mags_rampart",
+    "label": "Carried the load across town",
+    "value": 7,
+    "days": 45
+   }
+  ]
+ }
+}

@@ -112,6 +112,13 @@ func _stage() -> void:
 			load("res://scripts/ui/credits_screen.gd").open(main.hud)
 		else:
 			main.hud.show_menu(load("res://scripts/ui/settings_menu.gd").menu.bind(main.hud))
+	if args.has("noshadow"):
+		for dl in root.find_children("*", "DirectionalLight3D", true, false):
+			(dl as DirectionalLight3D).shadow_enabled = false
+	if args.has("hidetown"):
+		main.settlements.visible = false     # floor measurement: draws that are not the town (terrain, sky, NPCs, post)
+	if args.has("ui"):
+		pass
 	elif args.has("png"):
 		main.hud.visible = false
 
@@ -140,6 +147,7 @@ func _finish() -> void:
 		_draw_census()
 	var line := JSON.stringify(r)
 	print("BENCH ", line)
+	print("STATIC_MERGE ", load("res://scripts/world/static_merge.gd").get("stats"))
 	if args.has("csv"):
 		var path: String = args["csv"]
 		var exists := FileAccess.file_exists(path)
@@ -297,7 +305,7 @@ func _draw_census() -> void:
 				break
 			p = p.get_parent()
 		owner = owner.rstrip("0123456789")
-		var mname := (mesh.resource_path.get_file() if mesh and mesh.resource_path != "" else (mesh.get_class() if mesh else g.get_class()))
+		var mname := (mesh.resource_path.get_file() if mesh and mesh.resource_path != "" else (String(g.name).get_slice("@", 0) if mesh and mesh.get_class() == "ArrayMesh" else (mesh.get_class() if mesh else g.get_class())))
 		if mesh and names.has(mesh):
 			mname = names[mesh]
 		var inst := 1
@@ -307,11 +315,21 @@ func _draw_census() -> void:
 		var tris := 0
 		if mesh is ArrayMesh:
 			for si in mesh.get_surface_count():
-				var ia: PackedInt32Array = mesh.surface_get_arrays(si)[Mesh.ARRAY_INDEX]
-				tris += ia.size() / 3 if ia.size() > 0 else (mesh.surface_get_arrays(si)[Mesh.ARRAY_VERTEX] as PackedVector3Array).size() / 3
+				var ia = mesh.surface_get_arrays(si)[Mesh.ARRAY_INDEX]
+				tris += ia.size() / 3 if ia != null and ia.size() > 0 else (mesh.surface_get_arrays(si)[Mesh.ARRAY_VERTEX] as PackedVector3Array).size() / 3
 		var key := "%-14s %-22s %-34s %6d tris x%-4d" % [owner.left(14), g.get_class().left(22), mname.left(34), tris, inst]
 		groups[key] = groups.get(key, 0) + surf
 		tri_groups[key] = tri_groups.get(key, 0) + tris * inst
+		if args.has("matcensus") and mesh is ArrayMesh and surf >= 3 and not (g is MultiMeshInstance3D and names.has(mesh)):
+			for si in surf:
+				var mt: Material = (g as MeshInstance3D).get_active_material(si) if g is MeshInstance3D else mesh.surface_get_material(si)
+				var dsc := ""
+				if mt is ShaderMaterial:
+					var tx = (mt as ShaderMaterial).get_shader_parameter("albedo_tex")
+					dsc = "SM tex=%s col=%s" % [tx.resource_path.get_file() if tx is Texture2D else "-", str((mt as ShaderMaterial).get_shader_parameter("albedo_color"))]
+				elif mt is BaseMaterial3D:
+					dsc = "BM tex=%s col=%s" % [(mt as BaseMaterial3D).albedo_texture.resource_path.get_file() if (mt as BaseMaterial3D).albedo_texture else "-", str((mt as BaseMaterial3D).albedo_color)]
+				print("DRAWMAT ", mname, " s", si, " v", mesh.surface_get_array_len(si), " ", dsc)
 		by_owner[owner] = by_owner.get(owner, 0) + surf
 		total += surf
 	print("DRAWS total surfaces in view: %d" % total)
@@ -319,7 +337,7 @@ func _draw_census() -> void:
 		print("DRAWS owner %-14s %d" % [o, by_owner[o]])
 	var keys := groups.keys()
 	keys.sort_custom(func(a, b) -> bool: return groups[a] > groups[b])
-	for k in keys.slice(0, 30):
+	for k in keys.slice(0, int(args.get("census_n", "30"))):
 		print("DRAWS %4d  %s" % [groups[k], k])
 	keys.sort_custom(func(a, b) -> bool: return tri_groups[a] > tri_groups[b])
 	var tsum := 0

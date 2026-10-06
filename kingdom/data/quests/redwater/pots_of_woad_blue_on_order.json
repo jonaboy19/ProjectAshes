@@ -1,0 +1,70 @@
+{
+ "id": "redwater_pots_of_woad_blue_on_order",
+ "title": "Pots of Woad Blue on Order",
+ "summary": "Hamo Loomis says Flora Pickering has an order for 2 pots of woad blue that cannot wait. The stock is at the dye works, and the deadline is before the guild inspector arrives.",
+ "giver": {
+  "npc": "hamo_loomis",
+  "name": "Hamo Loomis",
+  "place": "redwater"
+ },
+ "offer_text": "\"Flora Pickering has an order and nobody to fetch it. Hear Flora out, then bring the goods from the dye works before the guild inspector arrives. I will vouch for you.\"",
+ "stages": [
+  {
+   "id": "order",
+   "title": "Hear the order",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hear",
+     "type": "talk_to",
+     "npc": "flora_pickering",
+     "text": "Hear what Flora Pickering needs"
+    }
+   ]
+  },
+  {
+   "id": "gather",
+   "title": "Gather the stock",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "dye_blue",
+     "count": 2,
+     "text": "Take 2 pots of woad blue from the dye works"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Fill the order",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "fill",
+     "type": "deliver",
+     "item": "dye_blue",
+     "count": 2,
+     "to": "flora_pickering",
+     "text": "Hand the pots of woad blue to Flora Pickering"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 20,
+  "rep": {
+   "redwater": 3
+  },
+  "relationship": [
+   {
+    "npc": "hamo_loomis",
+    "label": "Filled a standing order",
+    "value": 8,
+    "days": 45
+   }
+  ]
+ }
+}

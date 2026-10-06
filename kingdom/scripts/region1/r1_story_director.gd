@@ -22,6 +22,7 @@ extends Node
 const Places := preload("res://scripts/region1/region1_places.gd")
 const NPC := preload("res://scripts/region1/r1_quest_npc.gd")
 const DialogueRunner := preload("res://scripts/sim/dialogue_runner.gd")
+const Spine := preload("res://scripts/region1/progression_spine.gd")
 const QUEST_PATH := "res://data/region1/quests/r1_main.json"
 const CAST_PATH := "res://data/region1/quests/cast.json"
 const SS := preload("res://scripts/ui/frontend/settings_store.gd")
@@ -199,7 +200,8 @@ func ctx() -> Dictionary:
 	if wn != null and wn.get("_state") != null:
 		weather = String(wn.get("_state"))
 	var age: int = Life.age()
-	return {"age": age, "flags": flags, "items": items,
+	# The Rift gate (C13, progression_spine.gd): the power figures r1_main.json's "if" conditions read.
+	return {"age": age, "flags": flags, "items": items, "soul_tier": Life.soul.tier(), "gear_tier": Spine.player_gear_tier(Life.equipment), "level": Life.player_level(),
 		"vars": {"family": lp.family_name, "player": lp.given_name, "mother": mother, "father": father,
 			"ancestor": _ancestor_name if _ancestor_name != "" else "your ancestor", "stone_name": _stone_name},
 		"player": lp.given_name, "time": DialogueRunner.time_bucket(WorldSim.time_of_day), "weather": weather,
@@ -306,6 +308,8 @@ func _handle(events: Array) -> void:
 				var cid := String(e["step"])
 				_toast("quest", "Done: %s" % String(story.step(cid).get("title", cid)), "")
 				Life.award_progress("quest", {"id": "r1_" + cid})
+				if cid == "a4_five_hearts":
+					_rift_gate_hint()
 				_echo(cid)
 				step_completed.emit(cid)
 			"objective_done":
@@ -317,6 +321,13 @@ func _handle(events: Array) -> void:
 				quest_completed.emit()
 	if not events.is_empty():
 		changed.emit()
+
+
+## The five hearts are lit: if the power the Rift gate wants is missing, say what (progression_spine.gd, r1_main.json a5_rifts_edge).
+func _rift_gate_hint() -> void:
+	var g: Dictionary = Spine.rift_gate({"story_done": true, "soul_tier": Life.soul.tier(), "gear_tier": Spine.player_gear_tier(Life.equipment), "level": Life.player_level()})
+	if not bool(g["open"]):
+		_toast("quest", "The Rift road is shut", "%s Still needed: %s." % [String(g["hint"]), ", ".join(g["missing"])])
 
 
 func _toast(kind: String, title: String, sub: String) -> void:

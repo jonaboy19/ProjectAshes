@@ -451,17 +451,35 @@ func p_sun() -> float:
 ## Remembers the scene's own value of obj.prop: whatever is there now unless it is
 ## the value we wrote last (then nobody else touched it and the old base stands).
 func _base_of(obj: Object, prop: String) -> Variant:
-	var key := "%d:%s" % [obj.get_instance_id(), prop]
+	var key := _key(obj, prop)
 	var cur: Variant = obj.get(prop)
 	if not _base.has(key) or not _same(cur, _wrote.get(key)):
 		_base[key] = cur
 	return _base[key]
 
 
+## "<instance id>:<property>", built once per pair (CPU pass 2026-10-06: _apply_environment runs every frame and formatted
+## three of these strings for each of its dozen properties).
+var _keys: Dictionary = {}
+
+
+func _key(obj: Object, prop: String) -> String:
+	var id := obj.get_instance_id()
+	var per: Variant = _keys.get(id)
+	if per == null:
+		per = {}
+		_keys[id] = per
+	var k: Variant = (per as Dictionary).get(prop)
+	if k == null:
+		k = "%d:%s" % [id, prop]
+		(per as Dictionary)[prop] = k
+	return k
+
+
 func _write(obj: Object, prop: String, v: Variant) -> void:
 	_base_of(obj, prop)
 	obj.set(prop, v)
-	_wrote["%d:%s" % [obj.get_instance_id(), prop]] = obj.get(prop)
+	_wrote[_key(obj, prop)] = obj.get(prop)
 
 
 func _mul(obj: Object, prop: String, m: float, extra := 0.0) -> void:

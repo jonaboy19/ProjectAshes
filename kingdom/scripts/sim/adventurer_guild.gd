@@ -43,12 +43,12 @@ signal rank_changed(member: int, rank: int)
 const PLAYER := -1
 const RANKS := ["F", "E", "D", "C", "B", "A", "S"]
 ## Lifetime points needed for each rank.
-const RANK_POINTS := [0, 60, 180, 450, 1000, 2200, 5000]
+const RANK_POINTS := [0, 150, 450, 1100, 2400, 5200, 11000]      # C13: was [0, 60, 180, 450, 1000, 2200, 5000], S came on day 55
 ## Reward gold band per rank [min, max]. Guard wage 9/day, Captain 30/day:
 ## F = 1..2 days, E = 2..3.5 days, D = 3..6 days, C = about a week (6..10 days).
-const RANK_GOLD := [[9, 18], [16, 32], [28, 55], [55, 90], [100, 170], [180, 320], [350, 650]]
+const RANK_GOLD := [[9, 18], [16, 32], [28, 55], [55, 90], [80, 130], [130, 220], [220, 420]]      # C13: F to C kept (a Guard-wage scale), B to S were [[100,170],[180,320],[350,650]]
 ## Base points per rank (scaled 0.8..1.2 by difficulty inside the rank).
-const RANK_REWARD_POINTS := [10, 18, 30, 50, 80, 130, 220]
+const RANK_REWARD_POINTS := [6, 10, 16, 24, 38, 58, 95]      # C13: was [10, 18, 30, 50, 80, 130, 220]
 const MEMBERSHIP_FEE := 10
 ## A member may take commissions up to this many ranks above their own.
 const ACCEPT_ABOVE := 1

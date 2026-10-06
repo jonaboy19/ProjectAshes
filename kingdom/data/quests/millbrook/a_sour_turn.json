@@ -1,0 +1,95 @@
+{
+ "id": "millbrook_a_sour_turn",
+ "title": "A Sour Turn",
+ "summary": "Food and drink are turning in Millbrook, and people are sick. Hilde Harrow needs the cause found and Dalla Thackeray needs herbs.",
+ "giver": {
+  "npc": "hilde_harrow",
+  "name": "Hilde Harrow",
+  "place": "millbrook"
+ },
+ "requires": [
+  "millbrook_sacks_of_wheat_on_order"
+ ],
+ "offer_text": "\"Milk, wells, stores, something is turning in this town. Find the source, then take Dalla the herbs they need. I do not want to say poison yet.\"",
+ "turn_in_text": "\"You have done more than you know. I will see this is not forgotten.\"",
+ "stages": [
+  {
+   "id": "look",
+   "title": "Find the source",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "millbrook/clue/c1",
+      "millbrook/clue/c2",
+      "millbrook/clue/c3"
+     ],
+     "count": 3,
+     "text": "Look around town for what could have soured it"
+    }
+   ]
+  },
+  {
+   "id": "samples",
+   "title": "Fetch the remedy",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "herbs",
+     "type": "collect",
+     "item": "healing_herb",
+     "count": 3,
+     "text": "Take 3 bundles of herbs"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Bring it to Dalla",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "remedy",
+     "type": "deliver",
+     "item": "healing_herb",
+     "count": 3,
+     "to": "dalla_thackeray",
+     "text": "Hand the herbs to Dalla Thackeray"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Hilde",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "hilde_harrow",
+     "text": "Tell Hilde Harrow what you found"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 22,
+  "rep": {
+   "millbrook": 6
+  },
+  "relationship": [
+   {
+    "npc": "hilde_harrow",
+    "label": "Helped when folk fell ill",
+    "value": 12,
+    "days": 90
+   }
+  ],
+  "items": {
+   "bread": 2
+  }
+ }
+}

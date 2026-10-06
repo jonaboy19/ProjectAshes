@@ -140,7 +140,7 @@ func _ready() -> void:
 	if not ResourceLoader.exists(path):
 		queue_free()
 		return
-	if RIG_COATS.has(kind) and ResourceLoader.exists("res://assets/generated/horses/horse_riding.glb"):
+	if RIG_COATS.has(kind) and Quality.tier > 0 and ResourceLoader.exists("res://assets/generated/horses/horse_riding.glb"):     # LOW keeps the 1-draw Quaternius horse
 		_rig = HorseRig.new()
 		_rig.set("coat", RIG_COATS[kind])
 		var tack: Array[String] = ["bridle"]

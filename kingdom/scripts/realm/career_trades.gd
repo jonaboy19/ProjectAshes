@@ -22,10 +22,16 @@ extends "res://scripts/realm/realm_module.gd"
 const CareerLadders := preload("res://scripts/sim/career_ladders.gd")
 const Crafting := preload("res://scripts/sim/crafting.gd")
 
-const CAREERS := ["farmer", "soldier", "merchant", "blacksmith"]
-const DISCIPLINE := {"farmer": "farming", "soldier": "soldiering", "merchant": "trading", "blacksmith": "smithing"}
-const SPHERE := {"farmer": "farming", "soldier": "military", "merchant": "trade", "blacksmith": "craft"}
-const TITLE := {"farmer": "Farmer", "soldier": "Soldier", "merchant": "Merchant", "blacksmith": "Blacksmith"}
+const CAREERS := ["farmer", "soldier", "merchant", "blacksmith", "wardwright"]
+const DISCIPLINE := {"farmer": "farming", "soldier": "soldiering", "merchant": "trading", "blacksmith": "smithing", "wardwright": "masonry"}
+const SPHERE := {"farmer": "farming", "soldier": "military", "merchant": "trade", "blacksmith": "craft", "wardwright": "craft"}
+const TITLE := {"farmer": "Farmer", "soldier": "Soldier", "merchant": "Merchant", "blacksmith": "Blacksmith", "wardwright": "Wardwright"}
+## Soul Power (soul.gd) a finished task feeds, and how much at quality 1 (C13: no trade fed the soul before). Sources: farm, combat, forge, meditate.
+const SOUL_SOURCE := {"farmer": "farm", "soldier": "combat", "merchant": "forge", "blacksmith": "forge", "wardwright": "meditate"}
+const SOUL_PER_TASK := {"farmer": 1.8, "soldier": 1.8, "merchant": 3.0, "blacksmith": 2.0, "wardwright": 1.8}
+## The Runeward Legion's terms for the Wardwright trade (data/careers/wardwright.json): weekly stipend by rank, pay per stone mended
+## and glyph carved, scaled by how much the stone needed it so mending a sound stone pays nothing.
+const WARD_PATH := "res://data/careers/wardwright.json"
 const TENANT_COST := 80
 const TENANT_RENT := 4
 const XP := 1.4
@@ -509,12 +515,13 @@ func _finalize() -> Dictionary:
 	var res := {"ok": true, "done": true, "career": career, "kind": kind, "quality": q, "gold": 0, "texts": []}
 	var texts: Array = res["texts"]
 	_gain(career, XP * (0.4 + 0.6 * q), day)
+	_hook_progress(career, kind, q, day)
 	_spend(kind, day)
 	var lv := int(task["level"])
 	var gold := 0
 	match kind:
 		"sow":
-			var base := 10.0 + float(lv) / 3.0
+			var base := 4.0 + float(mini(lv, 40)) / 10.0       # C13: was 10 + level / 3, which doubled the wage by day 60
 			gold = int(round(base * (0.4 + q)))
 			var share := 0
 			if is_tenant():
@@ -557,13 +564,13 @@ func _finalize() -> Dictionary:
 			res["text"] = "%s: %s." % [String(meta["enemy"]).capitalize(), "victory" if q >= 0.6 else ("a costly day" if q >= 0.35 else "a rout")]
 			res["lost"] = lost
 		"haggle":
-			gold = int(round((8.0 + float(lv) * 0.4) * (0.3 + 1.2 * q)))
+			gold = int(round((8.0 + float(mini(lv, 40)) * 0.15) * (0.3 + 1.2 * q)))
 			if q >= 0.4:
 				bump(career, "deals")
 			_rep(career, 0.3 * q - (0.3 if q < 0.3 else 0.0))
 			res["text"] = "Deal: %dg at %d%% of the best price." % [gold, int(q * 100.0)]
 		"stall":
-			gold = int(round((14.0 + float(lv) * 0.5) * (0.3 + 1.2 * q)))
+			gold = int(round((11.0 + float(mini(lv, 40)) * 0.2) * (0.3 + 1.2 * q)))
 			if q >= 0.4:
 				bump(career, "stall_days")
 				bump(career, "deals", 1)
@@ -580,7 +587,7 @@ func _finalize() -> Dictionary:
 				bump(career, "good_pieces")
 			if tier >= 2:
 				bump(career, "fine_pieces")
-			gold = int(round((9.0 + float(lv) * 0.3) * (0.7 + 0.5 * float(tier))))
+			gold = int(round((9.0 + float(mini(lv, 40)) * 0.3) * (0.7 + 0.5 * float(tier))))
 			if kind == "commission":
 				if tier >= int(meta["min_tier"]):
 					gold += int(meta["reward"])
@@ -598,6 +605,82 @@ func _finalize() -> Dictionary:
 	res["gold"] = gold
 	task = {}
 	return res
+
+
+## C13 hooks: a finished task is a work shift of the trade for progression XP (PROGRESSION_R1.md section 5) and feeds the soul.
+func _hook_progress(career: String, kind: String, q: float, day: int) -> void:
+	if not sync_life or Life == null:
+		return
+	if Life.has_method("award_progress"):
+		Life.award_progress("job_shift", {"subject": "%s_%s" % [career, kind]})
+	var src := String(SOUL_SOURCE.get(career, ""))
+	if src != "" and Life.get("soul") != null:
+		(Life.soul as RefCounted).call("gain", src, float(SOUL_PER_TASK.get(career, 1.8)) * (0.4 + 0.6 * q), day)
+
+
+# ---------------------------------------------------------------- the Wardwright trade (Runeward Legion)
+
+var ward_days: Dictionary = {}          # str(day) -> true: days this week the player did stone work (the stipend needs enough of them)
+var carves_paid: Dictionary = {}        # str(day) -> paid carves that day (a few days are kept)
+static var _ward_data: Dictionary = {}
+
+
+static func ward_data() -> Dictionary:
+	if _ward_data.is_empty():
+		var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(WARD_PATH))
+		_ward_data = d if d is Dictionary else {}
+	return _ward_data
+
+
+## Pay for a stone's upkeep. kind "mend" (condition_before = the stone's condition 0..1 before the repair) or "carve" (a glyph cut on a
+## fed stone). Only Legion members are paid; `quality` 0..1 is the player's hand (tap timing, glyph score). Returns
+## {ok, gold, text}. The gold goes through the ledger like every trade (the presenter or Life drains take_pending_gold).
+func stone_work(kind: String, condition_before: float, quality: float, day: int) -> Dictionary:
+	if not ranks.has("wardwright"):
+		return {"ok": false, "gold": 0, "text": "Only the Runeward Legion pays for stone work."}
+	var wd := ward_data()
+	var q := clampf(quality, 0.0, 1.0)
+	var gold := 0
+	var first_today := not ward_days.has(str(day))
+	match kind:
+		"mend":
+			var m: Dictionary = wd["mend"]
+			var need := clampf((float(m["clean_above"]) - condition_before) / float(m["full_need"]), 0.0, 1.0)
+			if first_today:
+				gold += int(round(float(m["daily_base"]) * (0.4 + q)))
+				bump("wardwright", "rounds")
+			if need >= float(m["min_need"]):
+				gold += int(round(float(m["need_base"]) * need * (0.4 + q)))
+				bump("wardwright", "stones_mended")
+		"carve":
+			var c: Dictionary = wd["carve"]
+			var paid := int(carves_paid.get(str(day), 0))
+			if paid < int(c["max_paid_carves"]):
+				gold = int(round(float(c["base"]) * (0.4 + q)))
+				carves_paid[str(day)] = paid + 1
+			if first_today:
+				bump("wardwright", "rounds")
+			bump("wardwright", "glyphs_carved")
+		_:
+			return {"ok": false, "gold": 0, "text": "Nothing like that."}
+	ward_days[str(day)] = true
+	_gain("wardwright", XP * (0.4 + 0.6 * q) * (1.0 if kind == "mend" else 1.4), day)
+	_rep("wardwright", 0.25 * q)
+	_hook_progress("wardwright", kind, q, day)
+	pending_gold += gold
+	return {"ok": true, "gold": gold, "text": ("The Legion's clerk counts out %d gold." % gold) if gold > 0 else "The stone was sound; there is nothing to pay for."}
+
+
+## Weekly stipend of the Legion by rank, docked when fewer than `min_days` days of the week saw stone work.
+func ward_stipend(week_days: int) -> int:
+	if not ranks.has("wardwright"):
+		return 0
+	var wd := ward_data()
+	var idx := maxi(0, CareerLadders.rank_index("wardwright", rank_of("wardwright")))
+	var table: Array = wd["stipend_week"]
+	var full := int(table[clampi(idx, 0, table.size() - 1)])
+	var need := int(wd["min_days_week"])
+	return full if week_days >= need else int(round(float(full) * float(week_days) / float(maxi(need, 1))))
 
 
 # ---------------------------------------------------------------- tenancy, estate, muster
@@ -701,6 +784,13 @@ func tick_day(day: int, _ctx: Dictionary) -> Array:
 func tick_week(week: int, _ctx: Dictionary) -> Array:
 	var out: Array = []
 	var day := week * 7
+	if ranks.has("wardwright"):
+		var pay := ward_stipend(ward_days.size())
+		pending_gold += pay
+		bump("wardwright", "weeks_paid")
+		out.append("Runeward Legion pay day: %d gold." % pay)
+		ward_days.clear()
+		carves_paid.clear()
 	if not tenancy.is_empty():
 		if is_tenant():
 			tenancy["weeks"] = int(tenancy["weeks"]) + 1
@@ -738,7 +828,7 @@ func catch_up(days: int, _ctx: Dictionary) -> Array:
 func serialize() -> Dictionary:
 	return {"pending_gold": pending_gold, "ranks": ranks.duplicate(), "since": since.duplicate(), "stats": stats.duplicate(true), "tenancy": tenancy.duplicate(),
 		"estate": estate.duplicate(), "squad": squad.duplicate(), "task": task.duplicate(true), "hours_used": hours_used.duplicate(), "log": log_lines.duplicate(),
-		"day": _day, "counter": _counter}
+		"day": _day, "counter": _counter, "ward_days": ward_days.duplicate(), "carves_paid": carves_paid.duplicate()}
 
 
 func deserialize(d: Dictionary) -> void:
@@ -766,3 +856,7 @@ func deserialize(d: Dictionary) -> void:
 	log_lines = (d.get("log", []) as Array).duplicate()
 	_day = int(d.get("day", 0))
 	_counter = int(d.get("counter", 0))
+	ward_days = (d.get("ward_days", {}) as Dictionary).duplicate()
+	carves_paid = (d.get("carves_paid", {}) as Dictionary).duplicate()
+	for k5: String in carves_paid:
+		carves_paid[k5] = int(carves_paid[k5])

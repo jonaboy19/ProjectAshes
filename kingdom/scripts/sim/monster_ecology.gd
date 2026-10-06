@@ -51,7 +51,8 @@ const RIFT_DEN_MIN_INSTABILITY := 0.45
 const MAX_EVENTS := 200
 ## Hard ceiling on living dens. Migration only ever added dens (25 -> 118 alive in two simulated years, and
 ## pop doubling), so past this a crowded den simply stays put and stops growing at its species' max_pop.
-const MAX_ALIVE_DENS := 72      # was 48: Region 1 adds about 25 fixed dens (herds, ghouls, wasps, toads, rift) that never migrate
+const MAX_ALIVE_DENS := 102     # was 48, then 72 (Region 1's ~25 fixed dens: herds, ghouls, wasps, toads, rift), now +30: every kit town keeps a den of its threat
+## (town_threat.gd reuses a den within reach or adds one, so a fully visited region holds ~80 alive dens at the start: migration keeps the headroom it had)
 
 ## Den: {id, species, pos, territory, population, food 0..1, aggression 0..1,
 ## pressure 0..1, alive, apex: bool}

@@ -29,7 +29,8 @@ const VillageFeatures := preload("res://scripts/world/village_features.gd")   # 
 const LampGlow := preload("res://scripts/world/lamp_glow.gd")             # lamp light sources: billboard glow batch, omni only on HIGH+
 const TorchProps := preload("res://scripts/world/torch_props.gd")         # braziers / wall torches (emissive mesh, no omni light)
 const TownView := preload("res://scripts/world/town_identity_view.gd")     # wall styles and outskirts yards of that profile
-const ThornfieldRoster := preload("res://scripts/world/thornfield/roster.gd")   # slice lots: keeper name for the door label
+const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")   # kit town lots: keeper name for the door label
+const StaticMerge := preload("res://scripts/world/static_merge.gd")   # baked quality: per-cell merge of the MultiMesh batches
 
 const BUILD_RANGE := 650.0
 const FREE_RANGE := 850.0
@@ -47,6 +48,7 @@ const FIELD_MAX_SPREAD := 1.0
 
 ## Per-frame budget (ms on desktop, about 5x on a phone) for the time-sliced district props of a freshly streamed town.
 const DP_BUDGET_MS := 3.0
+const MERGE_BUDGET_MS := 3.0
 
 signal settlement_built(settlement: Dictionary, root: Node3D)
 
@@ -57,11 +59,13 @@ var _footprints: Dictionary = {} # asset -> Vector3 size at BUILDING_SCALE
 ## settlement id -> [[stall key, position, yaw, solid index], ...] of the gate-market stalls (QA shots, tests).
 var stalls_by_town: Dictionary = {}
 var _prop_jobs: Array = []       # unfinished DistrictProps jobs (time-sliced, drained in _process)
+var _merge_jobs: Array = []      # [{root, job}] StaticMerge jobs of finished towns (time-sliced)
 
 
 func _process(delta: float) -> void:
 	Breakable.tick(delta)   # breakable clutter: melee sweep + regrowth (once per frame)
 	_drain_prop_jobs(DP_BUDGET_MS)
+	_drain_merge_jobs(MERGE_BUDGET_MS)
 	_timer -= delta
 	if _timer > 0.0:
 		return
@@ -78,6 +82,7 @@ func _drain_prop_jobs(budget_ms: float) -> void:
 		_prop_jobs.pop_front()
 		return
 	if j.step(budget_ms):
+		_queue_merge(j.root)
 		_prop_jobs.pop_front()
 
 
@@ -85,7 +90,25 @@ func _drain_prop_jobs(budget_ms: float) -> void:
 func finish_prop_jobs() -> void:
 	for j in _prop_jobs:
 		j.step(0.0)
+		_queue_merge(j.root)
 	_prop_jobs.clear()
+	for mj in _merge_jobs:
+		StaticMerge.step(mj["job"], 0.0)
+	_merge_jobs.clear()
+
+
+## A finished town: plan its static merge (cheap) and let _process slice the work.
+func _queue_merge(root: Node3D) -> void:
+	if StaticMerge.enabled and is_instance_valid(root):
+		_merge_jobs.append({"root": root, "job": StaticMerge.begin(root)})
+
+
+func _drain_merge_jobs(budget_ms: float) -> void:
+	if _merge_jobs.is_empty():
+		return
+	var mj: Dictionary = _merge_jobs[0]
+	if not is_instance_valid(mj["root"]) or StaticMerge.step(mj["job"], budget_ms):
+		_merge_jobs.pop_front()
 
 
 func update_now() -> void:
@@ -354,7 +377,9 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	_gate_outskirts(root, s, plan, gates)
 	_medieval_gates(root, s, plan, gates)      # Medieval pass (local): mud, cobble apron, hay cart, barrels, banners at the gates and market
 	if String(s.get("name", "")) == "Ashford":
-		preload("res://scripts/world/street_benchmark.gd").build(self, root, s, plan)     # AAA benchmark street (local, 2026-10-06)
+		preload("res://scripts/world/street_benchmark.gd").build(self, root, s, plan)
+	elif String(s.get("name", "")) == "Kingsreach":
+		preload("res://scripts/world/street_benchmark.gd").build(self, root, s, plan, true)     # gate market (AAA pass 10)     # AAA benchmark street (local, 2026-10-06)
 	_footprint_clutter(root, plan, rng)
 	TownView.yards(self, root, s, plan, _prof)     # outskirts of the town's industry: mine yard, granary, boatyard, watch towers ...
 	VillageFeatures.build(self, root, s, plan, _prof)     # villages and hamlets: their own set of green / chapel / mill / smithy / pond / orchard ...
@@ -423,6 +448,11 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	GDressing.dress_town(root, s, plan, _footprint, StyleG.current_tier())    # Style G: ivy, flower boxes, tubs, baskets
 	_decals(root, s, plan)
 	_flush_contact_shadows(root)
+	if props_job == null or props_job.done:
+		if sync:
+			StaticMerge.merge_now(root)
+		else:
+			_queue_merge(root)
 	return root
 
 
@@ -464,10 +494,10 @@ func _interior_doors(root: Node3D, lots: Array) -> void:
 		var btype := String(lot.get("btype", ""))
 		door.interior_scene = BuildingProfiles.interior_scene(asset, BuildingProfiles.building_id(p), btype)
 		door.prompt_text = BuildingProfiles.prompt(asset)
-		if btype != "":       # Thornfield slice lot (SliceTown): its keeper, name and prompt come from the roster
+		if btype != "":       # town-kit lot (TownLots): its keeper, name and prompt come from the roster
 			door.set_meta("bid", String(lot.get("bid", "")))
 			door.set_meta("btype", btype)
-			var slice_name := ThornfieldRoster.building_name(String(lot.get("bid", "")))
+			var slice_name := TownRoster.building_name(String(lot.get("bid", "")))
 			if slice_name != "":
 				door.set_meta("building_name", slice_name)
 			if btype == "bakery":
@@ -487,6 +517,7 @@ func _interior_doors(root: Node3D, lots: Array) -> void:
 		if asset == "inn" or asset.contains("barrack") or asset.contains("guild"):
 			# Wall torch beside the door: emissive mesh + billboard glow, no omni light (TorchProps / LampGlow).
 			var tp := Vector3(at.x, gh + 0.9, at.y) + Vector3(cos(yaw), 0.0, -sin(yaw)) * 1.5 + Vector3(sin(yaw), 0.0, cos(yaw)) * 0.3
+			tp.y = maxf(tp.y, WorldGen.height(tp.x, tp.z) + 0.9)          # a door cut into a slope: the torch rides the wall above the uphill ground
 			var wt: Dictionary = TorchProps.wall_torch(root, tp, yaw)
 			torch_specs.append({"pos": wt["glow_pos"], "color": Color(1.0, 0.6, 0.25), "range": 6.0, "size": 1.3})
 	LampGlow.build(root, torch_specs)
@@ -750,6 +781,8 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 			mm.set_instance_color(i, colors[i])
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
+	if collide:
+		mmi.set_meta("keep", true)     # breakables hide single instances of this MultiMesh: not for StaticMerge
 	if use_cols and mesh.get_surface_count() == 1:
 		# Meshy buildings do not read vertex colour: a shared copy of their material that does (one per source material).
 		var m0 := mesh.surface_get_material(0)
@@ -1377,7 +1410,7 @@ func _medieval_gates(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array
 			var q2 := c + dir * uu + side * sg * (half * rng3.randf_range(0.2, 1.1))
 			if WorldGen.is_water(q2.x, q2.y) or absf(uu - wr) < 4.0:
 				continue
-			var ps := rng3.randf_range(0.8, 1.7)
+			var ps := rng3.randf_range(0.4, 0.8)          # puddles, not 4 m dark slabs (QA sweep: Coldharbor)
 			(lists["mud"] as Array).append(Transform3D(Basis(Vector3.UP, rng3.randf() * TAU).scaled(Vector3(ps, 1.0, ps)),
 				Vector3(q2.x, WorldGen.height(q2.x, q2.y) + 0.012, q2.y)))
 		# A hay cart parked outside the gate, barrel clusters beside the road, banner poles flanking the opening.
@@ -1407,7 +1440,7 @@ func _medieval_gates(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array
 		var pq := c + Vector2(cos(pa), sin(pa)) * pr * rng3.randf_range(0.55, 1.15)
 		if CityPlanner.landmark_clearance(plan, pq) < 3.0 or WorldGen.is_water(pq.x, pq.y):
 			continue
-		var pps := rng3.randf_range(0.7, 1.4)
+		var pps := rng3.randf_range(0.4, 0.75)
 		(lists["mud"] as Array).append(Transform3D(Basis(Vector3.UP, rng3.randf() * TAU).scaled(Vector3(pps, 1.0, pps)),
 			Vector3(pq.x, WorldGen.height(pq.x, pq.y) + 0.012, pq.y)))
 	# kit materials (textured, shared): the plain GLB colours read as flat green grass over the gate road (QA 2026-10-05)

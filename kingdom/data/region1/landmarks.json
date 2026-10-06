@@ -68,6 +68,21 @@
 					]
 				}
 			],
+			"fishing": [
+				{
+					"id": "hollin_pool",
+					"name": "Hollin Falls plunge pool",
+					"pool": "plunge",
+					"at": [
+						-156.9,
+						-918.1
+					],
+					"cast": [
+						-150.1,
+						-916.4
+					]
+				}
+			],
 			"waterfalls": [
 				{
 					"at": [
@@ -736,6 +751,16 @@
 						-446,
 						318
 					]
+				},
+				{
+					"id": "emberglass_east_landing",
+					"name": "Emberglass East Landing",
+					"kind": "ferry",
+					"pos": [
+						-322,
+						300
+					],
+					"clear": 6
 				}
 			],
 			"parts": [

@@ -2,6 +2,7 @@ class_name HUD
 extends CanvasLayer
 const GameMenu := preload("res://scripts/ui/gamemenu/game_menu.gd")
 const Nameplates := preload("res://scripts/core/nameplates.gd")
+const Probe := preload("res://scripts/core/perf_probe.gd")
 ## Full-resolution UI drawn over the low-resolution pixel render, in the user's
 ## dark-gold style: character card with portrait and crest, quest tracker, compass,
 ## minimap, place / day / time, hotbar, round action buttons, notification popups,
@@ -506,14 +507,27 @@ func _at(off: Vector2) -> Vector2:
 func _pose(b: TouchScreenButton, pos: Vector2, alpha := 1.0) -> void:
 	_goal[b] = pos
 	_fade_goal[b] = alpha
+	_ease_settled = false
 	if _snap:
 		b.position = pos
 		b.modulate.a = alpha
 		b.visible = alpha > 0.03
 
 
+## CPU pass 2026-10-06: once every button sits on its goal (position and alpha) nothing is written until a button gets a new goal
+## (`_pose`) or the dash cooldown flips; a settled HUD still re-asserts the values twice a second.
+var _ease_settled := false
+var _ease_recheck := 0.0
+
+
 func _ease_buttons(delta: float) -> void:
+	if _ease_settled:
+		_ease_recheck -= delta
+		if _ease_recheck > 0.0:
+			return
+	_ease_recheck = 0.5
 	var k := 1.0 - exp(-delta * 15.0)
+	var moving := false
 	for b: TouchScreenButton in _goal.keys():
 		if not is_instance_valid(b):
 			_goal.erase(b)
@@ -527,6 +541,9 @@ func _ease_buttons(delta: float) -> void:
 		var a := lerpf(b.modulate.a, ag, k)
 		b.modulate.a = ag if absf(a - ag) < 0.01 else a
 		b.visible = b.modulate.a > 0.03
+		if b.position != goal or b.modulate.a != ag:
+			moving = true
+	_ease_settled = not moving
 
 
 func _layout() -> void:
@@ -576,7 +593,9 @@ func _layout() -> void:
 
 func _place_pill() -> void:
 	var pr := _at(Vector2(40, 0)).x
-	_pill.position = Vector2(pr - _pill.size.x, _at(Vector2(0, 168)).y - _pill.size.y - 10.0 + (1.0 - _pill_a) * 12.0)
+	var at := Vector2(pr - _pill.size.x, _at(Vector2(0, 168)).y - _pill.size.y - 10.0 + (1.0 - _pill_a) * 12.0)
+	if _pill.position != at:
+		_pill.position = at
 
 
 ## The menu button and the radial fan of utility buttons that opens from it: Pack, Map, Skills, Look, Lock,
@@ -797,10 +816,11 @@ func update_status(soldiers: int, order_name: String, target_node: Node3D, perf:
 	var place := "Wilderness"
 	if not near.is_empty():
 		var d := p.distance_to(near["pos"])
-		place = near["name"] if d < near["radius"] * 1.6 else "Road to %s  (%dm)" % [near["name"], int(d)]
+		var town := town_label(near)      # the same poster name the discovery banner shows
+		place = town if d < near["radius"] * 1.6 else "Road to %s  (%dm)" % [town, int(d)]
 		var named := Life.place_at(p)
 		if d >= near["radius"] * 1.6 and not named.is_empty():
-			place = "%s  ·  %s %dm" % [named["name"], near["name"], int(d)]
+			place = "%s  ·  %s %dm" % [named["name"], town, int(d)]
 	var t := WorldSim.time_of_day
 	(info as HudCard.InfoBlock).show_realm = (card as HudCard.Card).expanded
 	(info as HudCard.InfoBlock).set_info(place, "Day %d · %s" % [WorldSim.day, String(WorldSim.season).capitalize()],
@@ -1291,17 +1311,24 @@ func open_photo_mode() -> void:
 
 func _process(delta: float) -> void:
 	# One top-centre stack for toast / hint / banner (hud_lane.gd); menus hold banners and hints back.
+	var _ph := Probe.t()
 	HudLane.set_menu_open(is_menu_open())
 	HudLane.report("toast", _toast_box.offset_top, _toast_box.get_combined_minimum_size().y if _toast_live else 0.0)
+	Probe.add("hud.lane", _ph)
 	_plate_timer -= delta
 	if _plate_timer <= 0.0:
 		_plate_timer = 0.1
+		_ph = Probe.t()
 		# In-world nameplates hide while a dialogue / menu / GameMenu is up.
 		Nameplates.set_suppressed(get_tree(), is_menu_open() or GameMenu.is_open(self))
+		Probe.add("hud.plates_suppress", _ph)
+		_ph = Probe.t()
 		if player != null and is_instance_valid(player) and player.get("camera") is Camera3D:
 			Nameplates.refresh(get_tree(), player.get("camera") as Camera3D)   # fade, nearest-6 cull, pixel snap, town board
+		Probe.add("hud.plates_refresh", _ph)
 	if not visible or _veil() or player == null or not player.is_inside_tree():
 		return
+	_ph = Probe.t()
 	_nav_timer -= delta
 	if _nav_timer <= 0.0:
 		_nav_timer = DISCOVERY_RATE
@@ -1314,12 +1341,17 @@ func _process(delta: float) -> void:
 	if _event_timer <= 0.0:
 		_event_timer = EVENT_RATE
 		_poll_events()
+	Probe.add("hud.polls", _ph)
+	_ph = Probe.t()
 	_update_dash_button()
 	_update_modes(delta)
 	_update_calm_fade(delta)
+	Probe.add("hud.modes", _ph)
+	_ph = Probe.t()
 	_world_icon.set("target", target)
 	Nameplates.focus = target.get("current") if target != null and target.get("current") != null else target     # TalkTarget proxies the villager
 	_world_icon.call("step", delta, player.get("camera") as Camera3D, not is_menu_open() and not GameMenu.is_open(self))
+	Probe.add("hud.world_icon", _ph)
 
 
 ## AAA pass 2026-10-06 (skill ashes-aaa-camera-hud): the HUD furniture (card, compass, tracker, minimap, clock) eases to
@@ -1388,7 +1420,9 @@ func _update_modes(delta: float) -> void:
 		_hb_a = 1.0 if want_hb else 0.0
 	hotbar.modulate.a = _hb_a
 	hotbar.mouse_filter = Control.MOUSE_FILTER_STOP if _hb_a > 0.5 else Control.MOUSE_FILTER_IGNORE
-	hotbar.position.y = _safe.end.y - hotbar.size.y + (1.0 - _hb_a) * 36.0
+	var hb_y := _safe.end.y - hotbar.size.y + (1.0 - _hb_a) * 36.0
+	if hotbar.position.y != hb_y:       # (a Control resolves layout on every position write, even to the same value)
+		hotbar.position.y = hb_y
 	hotbar.visible = _hb_a > 0.02
 	if not hotbar.visible:
 		_hb_refresh -= delta
@@ -1464,12 +1498,19 @@ func _on_fan_pressed(b: TouchScreenButton) -> void:
 ## recharges, like the technique slots' cooldown dim.
 func _update_dash_button() -> void:
 	var left: float = player.dash_cooldown
+	if (left > 0.05) != _dash_cooling:
+		_ease_settled = false          # the dash button's goal alpha follows the cooldown (_ease_buttons)
 	_dash_cooling = left > 0.05
 	_dash_cooldown_label.text = "%d" % ceili(left) if _dash_cooling else ""
 
 
 func _player_xz() -> Vector2:
 	return Vector2(player.global_position.x, player.global_position.z)
+
+
+## The name of a settlement as the HUD location line, the banner, the map and the town kit print it: one canonical name.
+static func town_label(settlement: Dictionary) -> String:
+	return WorldGen.display_name(String(settlement.get("name", "")))
 
 
 func _check_discovery() -> void:
@@ -1594,4 +1635,4 @@ func _on_travel_requested(pos: Vector2, hours: float, place: Dictionary) -> void
 	tw2.tween_property(_fade, "color:a", 0.0, 0.7)
 	await tw2.finished
 	_fade.visible = false
-	show_toast("Arrived at %s  ·  %s by coach  ·  %d gold" % [place.get("name", "your destination"), WorldMap.fmt_hours(hours), fare])
+	show_toast("Arrived at %s  ·  %s by %s  ·  %d gold" % [place.get("name", "your destination"), WorldMap.fmt_hours(hours), "ferry" if String(place.get("kind", "")) == "ferry" else "coach", fare])

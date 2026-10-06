@@ -1,0 +1,131 @@
+{
+ "id": "dunhallow_the_missing_bolt",
+ "title": "The Missing Bolt",
+ "summary": "The stores of Dunhallow are missing a bolt of good blue. Elfrida Shuttle wants to know whether it is carelessness or a person.",
+ "giver": {
+  "npc": "elfrida_shuttle",
+  "name": "Elfrida Shuttle",
+  "place": "dunhallow"
+ },
+ "requires": [
+  "dunhallow_bars_of_rim_iron_and_bolts_of_cloth"
+ ],
+ "offer_text": "\"I am missing a bolt of good blue from the stores and I have counted twice. Look around the doors in town. Someone was careless, or someone was not.\"",
+ "stages": [
+  {
+   "id": "look",
+   "title": "Look for signs",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "dunhallow/clue/c1",
+      "dunhallow/clue/c2",
+      "dunhallow/clue/c3"
+     ],
+     "count": 3,
+     "text": "Search the doors around town for signs"
+    }
+   ]
+  },
+  {
+   "id": "question",
+   "title": "Ask Sorrel",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "question",
+     "type": "talk_to",
+     "npc": "sorrel_tallis",
+     "text": "Ask Sorrel Tallis what they know"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide what to do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "elfrida_shuttle",
+     "options": [
+      {
+       "id": "report",
+       "text": "Tell Elfrida what you found",
+       "say": "Elfrida nods slowly. \"Then it is on the record.\""
+      },
+      {
+       "id": "quiet",
+       "text": "Take Sorrel's quiet word and say nothing",
+       "say": "Sorrel presses a few coins into your hand. \"Good sense.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "report": "reported",
+    "quiet": "hushed"
+   }
+  },
+  {
+   "id": "reported",
+   "title": "Elfrida hears it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "elfrida_shuttle",
+     "text": "Tell Elfrida Shuttle who it was"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 20,
+    "rep": {
+     "dunhallow": 6
+    },
+    "relationship": [
+     {
+      "npc": "elfrida_shuttle",
+      "label": "Told the truth about the theft",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "hushed",
+   "title": "Collect the hush money",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "quiet",
+     "type": "talk_to",
+     "npc": "sorrel_tallis",
+     "text": "Collect Sorrel's thanks"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 27,
+    "rep": {
+     "dunhallow": -6
+    },
+    "relationship": [
+     {
+      "npc": "elfrida_shuttle",
+      "label": "Heard you looked the other way",
+      "value": -12,
+      "days": 90
+     }
+    ]
+   }
+  }
+ ]
+}

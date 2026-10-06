@@ -48,6 +48,13 @@ Only the first ~12 issues per site are printed in the text; the JSON has all of 
 - Never allowlist to silence a fixable one-line snap bug. Thresholds (0.25 m float tolerance, 1 m severe, 25 % overlap, 40 % sink) are constants at the top of the same file.
 - A new builder that batches with `MultiMesh.set_instance_transform` must be added to `PATCH_SCRIPTS`, otherwise its props are invisible to the linter (the dummy renderer forgets instance transforms; `mm_shim.gd` records them). The report's `untracked_multimeshes` lists any that slipped through and should stay empty.
 
+## Town kit lint (all 30 towns)
+The settlement builder's buildings and props are covered by `--sites=settlement`. What the town hubs place afterwards (clues, stashes, livestock groups, rail-fence pens, the den of the local threat, the hub's own draws) is linted by `tools_qa/lint_world/kit_lint.gd`:
+```
+$G --headless --path . -s res://tools_qa/lint_world/kit_lint_cli.gd -- [--towns=a,b] [--draws] [--out=/tmp/x/kit.txt]   # ~15 s, exit 1 on a severe issue
+```
+Findings: `water` (severe: clue, stash, group, pen in water; major: den), `steep` (ground relief under the prop or pen above the limits in `scripts/world/town_kit/town_ground.gd`), `piece` (a fence piece whose ends are > 0.9 m apart in height), `road`, `building` (a clue or stash inside a house footprint), `draws` (the hub's props over 24 draws). The kit itself uses the same helper: `TownGround.settle` moves a prop or pen to the nearest level, dry ground (rings, clear of the town's lots); a clue or stash is never dropped (`settle_prop` takes the least bad spot), a pen with no level ground within 40 m is left out, a livestock group follows its pen. `tests/test_world_lint.gd` runs both lints for all 30 towns. A new kit placement must go through `TownGround` and keep the kit lint at 0.
+
 ## Gotchas
 - `-s` scripts compile before autoloads exist: never name autoload-dependent classes in `world_lint.gd`; the core is loaded at runtime (`lint_core.gd`).
 - The linter rewrites builder sources in memory and restores them at the end (`restore()`); a test that calls it must call `restore()` in `after()`.

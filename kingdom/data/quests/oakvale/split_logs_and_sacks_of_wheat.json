@@ -1,0 +1,89 @@
+{
+ "id": "oakvale_split_logs_and_sacks_of_wheat",
+ "title": "Split Logs and Sacks of Wheat",
+ "summary": "Two loads wait in Greenhollow: split logs for Tuck Shaw and sacks of wheat for Dorrit Merrow. Eorl Seedley wants them moved before the rain turns the lane to soup.",
+ "giver": {
+  "npc": "eorl_seedley",
+  "name": "Eorl Seedley",
+  "place": "oakvale"
+ },
+ "offer_text": "\"Two things are late and both are mine to answer for. Tuck Shaw waits on split logs and Dorrit Merrow on sacks of wheat. Fetch them in any order, before the rain turns the lane to soup.\"",
+ "turn_in_text": "\"Both in. I shall sleep tonight, which is rare.\"",
+ "stages": [
+  {
+   "id": "gather",
+   "title": "Gather both loads",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load1",
+     "type": "collect",
+     "item": "firewood",
+     "count": 4,
+     "text": "Take 4 split logs from the great oak"
+    },
+    {
+     "id": "load2",
+     "type": "collect",
+     "item": "wheat",
+     "count": 4,
+     "text": "Take 4 sacks of wheat from the second stack"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Deliver them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "to1",
+     "type": "deliver",
+     "item": "firewood",
+     "count": 4,
+     "to": "tuck_shaw",
+     "text": "Hand the split logs to Tuck Shaw"
+    },
+    {
+     "id": "to2",
+     "type": "deliver",
+     "item": "wheat",
+     "count": 4,
+     "to": "dorrit_merrow",
+     "text": "Hand the sacks of wheat to Dorrit Merrow"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Eorl",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "eorl_seedley",
+     "text": "Tell Eorl Seedley both are in"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 20,
+  "rep": {
+   "oakvale": 4
+  },
+  "relationship": [
+   {
+    "npc": "eorl_seedley",
+    "label": "Cleared two late loads",
+    "value": 9,
+    "days": 60
+   }
+  ],
+  "items": {
+   "bread": 2
+  }
+ }
+}

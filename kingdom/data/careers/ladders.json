@@ -1,9 +1,9 @@
 {
 	"farmer": [
 		{"id": "field_hand", "title": "Field Hand", "requires": {}},
-		{"id": "tenant_farmer", "title": "Tenant Farmer", "requires": {"mastery": {"farming": 10}, "property": "leased_plot", "days_in_rank": 24, "stats": {"harvests": 2}}},
-		{"id": "smallholder", "title": "Smallholder", "requires": {"mastery": {"farming": 22}, "property": "owns_plot", "days_in_rank": 60, "stats": {"harvests": 6, "rent_weeks": 6}}},
-		{"id": "employer", "title": "Employer", "requires": {"mastery": {"farming": 32}, "money": 300, "days_in_rank": 60, "stats": {"harvests": 10}}},
+		{"id": "tenant_farmer", "title": "Tenant Farmer", "requires": {"mastery": {"farming": 10}, "property": "leased_plot", "days_in_rank": 14, "stats": {"harvests": 2}}},
+		{"id": "smallholder", "title": "Smallholder", "requires": {"mastery": {"farming": 22}, "property": "owns_plot", "days_in_rank": 30, "stats": {"harvests": 6, "rent_weeks": 2}}},
+		{"id": "employer", "title": "Employer", "requires": {"mastery": {"farming": 32}, "money": 300, "days_in_rank": 30, "stats": {"harvests": 10}}},
 		{"id": "landholder", "title": "Landholder", "requires": {"mastery": {"farming": 42}, "reputation": {"farming": 20}, "money": 800, "days_in_rank": 90, "stats": {"harvests": 16}}},
 		{"id": "estate_owner", "title": "Estate Owner", "requires": {"mastery": {"farming": 55}, "reputation": {"farming": 35}, "money": 2000, "days_in_rank": 120, "stats": {"tenants": 3, "harvests": 24}}},
 		{"id": "regional_supplier", "title": "Regional Supplier", "requires": {"mastery": {"farming": 70}, "reputation": {"farming": 50}, "money": 5000, "days_in_rank": 150}}
@@ -21,9 +21,9 @@
 	],
 	"merchant": [
 		{"id": "peddler", "title": "Peddler", "requires": {}},
-		{"id": "cart_trader", "title": "Cart Trader", "requires": {"mastery": {"trading": 10}, "property": "owns_cart", "days_in_rank": 24, "stats": {"deals": 6}}},
-		{"id": "caravan_owner", "title": "Caravan Owner", "requires": {"mastery": {"trading": 24}, "money": 400, "days_in_rank": 48, "stats": {"deals": 16}}},
-		{"id": "shopkeeper", "title": "Shopkeeper", "requires": {"mastery": {"trading": 34}, "property": "owns_shop", "reputation": {"trade": 20}, "days_in_rank": 60, "stats": {"stall_days": 8}}},
+		{"id": "cart_trader", "title": "Cart Trader", "requires": {"mastery": {"trading": 10}, "property": "owns_cart", "days_in_rank": 14, "stats": {"deals": 6}}},
+		{"id": "caravan_owner", "title": "Caravan Owner", "requires": {"mastery": {"trading": 24}, "money": 400, "days_in_rank": 28, "stats": {"deals": 16}}},
+		{"id": "shopkeeper", "title": "Shopkeeper", "requires": {"mastery": {"trading": 34}, "property": "owns_shop", "reputation": {"trade": 20}, "days_in_rank": 36, "stats": {"stall_days": 8}}},
 		{"id": "trading_house", "title": "Trading House", "requires": {"mastery": {"trading": 50}, "reputation": {"trade": 40}, "money": 2500, "days_in_rank": 96, "stats": {"caravans_run": 1, "deals": 40}, "property": "owns_workshop"}},
 		{"id": "merchant_prince", "title": "Merchant Prince", "requires": {"mastery": {"trading": 72}, "reputation": {"trade": 60}, "money": 8000, "days_in_rank": 150, "sponsor": true}}
 	],
@@ -67,5 +67,12 @@
 		{"id": "stewards_secretary", "title": "Steward's Secretary", "requires": {"mastery": {"scholarship": 28}, "reputation": {"letters": 26}, "days_in_rank": 35, "sponsor": true, "clean": true, "stats": {"translations": 3, "restricted_reads": 1}}},
 		{"id": "steward", "title": "Steward", "requires": {"mastery": {"scholarship": 38}, "reputation": {"letters": 40}, "days_in_rank": 49, "sponsor": true, "clean": true, "exam": "steward_exam", "money": 120}},
 		{"id": "envoy", "title": "Envoy", "requires": {"mastery": {"scholarship": 50, "leadership": 8}, "reputation": {"letters": 55}, "days_in_rank": 70, "sponsor": true, "clean": true, "stats": {"estate_weeks": 6}}}
+	],
+	"wardwright": [
+		{"id": "stone_tender", "title": "Stone-Tender", "requires": {}},
+		{"id": "wardwright", "title": "Wardwright", "requires": {"mastery": {"masonry": 6}, "days_in_rank": 10, "stats": {"rounds": 8}}},
+		{"id": "stone_warden", "title": "Stone-Warden", "requires": {"mastery": {"masonry": 14}, "reputation": {"craft": 5}, "days_in_rank": 16, "stats": {"rounds": 22, "glyphs_carved": 4}}},
+		{"id": "senior_warden", "title": "Senior Warden", "requires": {"mastery": {"masonry": 24}, "reputation": {"craft": 12}, "days_in_rank": 24, "stats": {"rounds": 45, "glyphs_carved": 10}}},
+		{"id": "elder_warden", "title": "Elder Warden", "requires": {"mastery": {"masonry": 34}, "reputation": {"craft": 20}, "days_in_rank": 30, "stats": {"rounds": 75, "glyphs_carved": 18}}}
 	]
 }

@@ -1,0 +1,63 @@
+{
+ "id": "harrowgate_a_long_carry",
+ "title": "A Long Carry",
+ "summary": "Letty Bargain wants 2 sacks of salt carried from the far end of Harrowgate to Dena Harker at the caravan stage before the guild audit.",
+ "giver": {
+  "npc": "letty_bargain",
+  "name": "Letty Bargain",
+  "place": "harrowgate"
+ },
+ "offer_text": "\"The sacks of salt are by my door and Dena Harker is waiting at the caravan stage. It is a long walk and I have a bad knee. Take them over before the guild audit.\"",
+ "stages": [
+  {
+   "id": "load",
+   "title": "Collect the stock",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load",
+     "type": "collect",
+     "item": "salt_sack",
+     "count": 2,
+     "text": "Take 2 sacks of salt from outside Letty's door"
+    }
+   ]
+  },
+  {
+   "id": "carry",
+   "title": "Carry it across town",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "cross",
+     "type": "goto",
+     "place": "harrowgate_works",
+     "text": "Walk to the caravan stage"
+    },
+    {
+     "id": "drop",
+     "type": "deliver",
+     "item": "salt_sack",
+     "count": 2,
+     "to": "dena_harker",
+     "text": "Hand the sacks of salt to Dena Harker"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 15,
+  "rep": {
+   "harrowgate": 3
+  },
+  "relationship": [
+   {
+    "npc": "letty_bargain",
+    "label": "Carried the load across town",
+    "value": 7,
+    "days": 45
+   }
+  ]
+ }
+}

@@ -129,6 +129,16 @@ func _run() -> void:
 	var tgt: Node = main.hud.get("target")
 	print("FEELVIEW focus ", tgt, " tag_visible=", (tgt.get("_tag") as Label3D).visible if tgt and tgt.get("_tag") else "n/a")
 	await shot("5_benchmark")
+	# 7. a conversation with whoever the talk target is (dialogue presentation)
+	var tt: Node = main.services.get("talk_target") if main.get("services") != null else null
+	if tt != null and tt.call("qa_open"):
+		print("FEELVIEW talking partner=", WorldSim.person_name(int(player._talk_partner.get("person"))) if player._talk_partner and player._talk_partner.get("person") != null else "none")
+		await frames(90)
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(out.path_join("%s_7_dialogue.png" % tag))
+		print("FEELVIEW saved dialogue")
+		main.hud.close_menu()
+		await frames(40)
 	for hr in [18.6, 22.0]:
 		WorldSim.time_of_day = hr
 		await frames(90)

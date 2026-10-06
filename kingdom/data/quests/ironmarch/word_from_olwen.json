@@ -1,0 +1,86 @@
+{
+ "id": "ironmarch_word_from_olwen",
+ "title": "Word from Olwen",
+ "summary": "Olwen Stoker has seen wolves at the edge of Silverford, and Lanny Tollman wants someone to act before the town hears it from the wolves.",
+ "giver": {
+  "npc": "lanny_tollman",
+  "name": "Lanny Tollman",
+  "place": "ironmarch"
+ },
+ "requires": [
+  "ironmarch_off_the_books"
+ ],
+ "offer_text": "\"Olwen Stoker has been out past the last house and does not like what they saw. Hear it, go and look, and thin the pack out.\"",
+ "turn_in_text": "\"Good. Now the rest of the town can sleep.\"",
+ "stages": [
+  {
+   "id": "hear",
+   "title": "Hear the warning",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "warning",
+     "type": "talk_to",
+     "npc": "olwen_stoker",
+     "text": "Hear what Olwen Stoker has seen"
+    }
+   ]
+  },
+  {
+   "id": "edge",
+   "title": "Go and see",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "ironmarch_outskirts",
+     "text": "Go to the tree line"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Put them down",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "ironmarch_outskirts",
+     "count": 3,
+     "text": "Kill 3 wolves near Silverford"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Lanny",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "lanny_tollman",
+     "text": "Tell Lanny Tollman it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 28,
+  "rep": {
+   "ironmarch": 6
+  },
+  "relationship": [
+   {
+    "npc": "lanny_tollman",
+    "label": "Acted on the warning",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

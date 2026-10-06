@@ -42,7 +42,7 @@
 			"width_m": 9,
 			"path": [[-150, -900], [-230, -560], [-300, -300], [-330, -150], [-360, 60], [-385, 215], [-480, 380], [-700, 640], [-1000, 900], [-1500, 1200]],
 			"flows": "from the northern hills south into Emberglass Mere, out of its south-west shore and away toward the Westfen marshes",
-			"description": "A cold, clear river fed by snowmelt. It turns the Ashford mill by a cut channel and is crossed by the Ashrun Bridge on the Oakvale road."
+			"description": "A cold, clear river fed by snowmelt. It turns the Ashford mill by a cut channel and is crossed by the Ashrun Bridge on the Greenhollow road."
 		},
 		{
 			"id": "ashrun_bridge",
@@ -50,7 +50,7 @@
 			"kind": "bridge",
 			"pos": [-318, -214],
 			"radius": 8,
-			"description": "An old stone bridge where the Oakvale road crosses the Ashrun. Toll-free, but the guard sometimes posts a watch here."
+			"description": "An old stone bridge where the Greenhollow road crosses the Ashrun. Toll-free, but the guard sometimes posts a watch here."
 		},
 		{
 			"id": "duskbriar_wood",
@@ -156,7 +156,7 @@
 			"pos": [2908, -1820],
 			"radius": 480,
 			"danger": "high",
-			"description": "A thicket of black thorn beyond Ironmarch, east of the Silverrun. Poachers, outlaws and worse."
+			"description": "A thicket of black thorn beyond Silverford, east of the Silverrun. Poachers, outlaws and worse."
 		},
 		{
 			"id": "ratfang_warren",
@@ -176,7 +176,7 @@
 			"radius": 34,
 			"danger": "high",
 			"danger_tier": 2,
-			"description": "A goblin mining-warren in the north-eastern woods, grown fat on caravans that strayed from the Ironmarch road. Orc mercenaries sleep in its lower tunnels."
+			"description": "A goblin mining-warren in the north-eastern woods, grown fat on caravans that strayed from the Silverford road. Orc mercenaries sleep in its lower tunnels."
 		},
 		{
 			"id": "grimtusk_hold",

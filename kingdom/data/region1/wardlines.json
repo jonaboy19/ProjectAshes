@@ -81,7 +81,7 @@
 			{"name": "Kingsreach", "x": 560, "y": -420, "r": 90, "ring": 6, "elder": true},
 			{"name": "Silverford", "x": -640, "y": 480, "r": 75, "ring": 6, "elder": true},
 			{"name": "Highwatch", "x": 80, "y": -1300, "r": 60, "ring": 6, "elder": true},
-			{"name": "Stagborn Glade", "x": -980, "y": -760, "r": 50, "ring": 6, "elder": true},
+			{"name": "Stagborn Glade", "x": -1345, "y": -1062, "r": 50, "ring": 6, "elder": true},
 			{"name": "Millbrook", "x": -330, "y": -280, "r": 45, "ring": 4},
 			{"name": "Stonehollow", "x": -260, "y": -820, "r": 45, "ring": 4},
 			{"name": "Eastmere", "x": 960, "y": 180, "r": 48, "ring": 4},

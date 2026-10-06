@@ -185,7 +185,7 @@ func _player_pos() -> Vector2:
 
 func _node_name(n: int) -> String:
 	if n >= 0 and n < WorldGen.settlements.size():
-		return String(WorldGen.settlements[n]["name"])
+		return WorldGen.display_name(String(WorldGen.settlements[n]["name"]))
 	return "the wilds"
 
 

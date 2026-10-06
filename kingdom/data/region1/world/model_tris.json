@@ -1,0 +1,1150 @@
+{
+"banners/banner_crossbar": [
+2499,
+0
+],
+"banners/banner_gold_finials": [
+2451,
+0
+],
+"banners/banner_ragged_spear": [
+2370,
+0
+],
+"banners/banner_spear_top": [
+2496,
+0
+],
+"banners/banner_spiked_base": [
+2400,
+0
+],
+"banners/banner_stand_chains": [
+2431,
+0
+],
+"banners/banner_stand_hanging_chains": [
+2425,
+0
+],
+"banners/banner_stand_iron_frame": [
+2496,
+0
+],
+"banners/banner_stand_spear_flag": [
+2495,
+0
+],
+"banners/banner_stand_spiked_base": [
+2295,
+0
+],
+"banners/banner_stand_tall_narrow": [
+2500,
+0
+],
+"banners/banner_tall_cross": [
+2413,
+0
+],
+"buildings/blacksmith_thatch_stone": [
+8711,
+2612
+],
+"buildings/blacksmith_timber_thatch": [
+10936,
+3278
+],
+"buildings/butcher_house": [
+11936,
+3575
+],
+"buildings/cottage_small_thatch": [
+6000,
+1800
+],
+"buildings/house_cottage_chimney": [
+9999,
+2999
+],
+"buildings/house_dark_roof": [
+9999,
+2998
+],
+"buildings/house_ivy_damaged": [
+11986,
+3594
+],
+"buildings/house_stone_fantasy": [
+9000,
+2700
+],
+"buildings/house_timber_tall": [
+7998,
+2398
+],
+"buildings/house_two_story_shingle": [
+10000,
+3000
+],
+"buildings/house_two_story_tall_timber": [
+9999,
+2999
+],
+"buildings/hut_long_thatch": [
+6998,
+2098
+],
+"buildings/hut_wood_vine": [
+6000,
+1800
+],
+"buildings/lumber_mill": [
+9997,
+2998
+],
+"buildings/smithy_open_shed": [
+7995,
+2398
+],
+"buildings/smithy_tiled_house": [
+11997,
+3598
+],
+"buildings/tavern_wooden_long": [
+11995,
+3598
+],
+"camp/tent_camp_a": [
+2708,
+0
+],
+"camp/tent_camp_b": [
+2985,
+0
+],
+"camp/tent_conical_striped": [
+2897,
+0
+],
+"camp/tent_hide_hut": [
+2971,
+0
+],
+"carts/cart_apothecary": [
+5000,
+0
+],
+"carts/cart_barrels": [
+5000,
+0
+],
+"carts/cart_cargo_spoke": [
+3998,
+0
+],
+"carts/cart_hand_long": [
+3360,
+0
+],
+"carts/cart_open_wide": [
+3999,
+0
+],
+"carts/cart_plain_a": [
+3998,
+0
+],
+"carts/cart_plain_b": [
+4500,
+0
+],
+"carts/cart_thatched_roof": [
+4990,
+0
+],
+"carts/cart_two_wheel": [
+4000,
+0
+],
+"carts/wagon_covered": [
+6977,
+0
+],
+"castle/castle_sandstone_a": [
+14783,
+4431
+],
+"castle/castle_sandstone_b": [
+14997,
+4498
+],
+"castle/gate_dark_towers": [
+11998,
+3598
+],
+"castle/gate_small_towers": [
+9980,
+2993
+],
+"castle/gate_twin_towers_blue": [
+11999,
+3598
+],
+"castle/gate_wall_ivy": [
+11987,
+3592
+],
+"castle/gate_wall_long": [
+11995,
+3597
+],
+"castle/keep_small_on_plinth": [
+15000,
+4500
+],
+"castle/tower_octagon_wall": [
+8000,
+2400
+],
+"castle/tower_pink_flag": [
+7997,
+2399
+],
+"castle/tower_square_small": [
+9999,
+2998
+],
+"castle/wall_battlement_block": [
+3982,
+0
+],
+"castle/watchtower_stone_small": [
+8000,
+2400
+],
+"churches/chapel_island_small": [
+7421,
+2222
+],
+"churches/chapel_stone_small": [
+6989,
+2096
+],
+"churches/chapel_tan_tiled": [
+8993,
+2695
+],
+"churches/church_dark_small": [
+9000,
+2700
+],
+"churches/church_gothic_red": [
+11996,
+3598
+],
+"churches/church_old_brick": [
+8991,
+2693
+],
+"churches/church_spire_small": [
+11996,
+3598
+],
+"churches/church_spire_tan": [
+12000,
+3600
+],
+"churches/church_stone_island": [
+9819,
+2931
+],
+"churches/church_white_red_spire": [
+12000,
+3600
+],
+"creatures/dragon_fire_small": [
+6000,
+0
+],
+"creatures/dragon_green_armored": [
+7981,
+0
+],
+"creatures/goblin_a": [
+6998,
+0
+],
+"creatures/goblin_armored": [
+6977,
+0
+],
+"creatures/goblin_b": [
+6998,
+0
+],
+"creatures/goblin_knife": [
+6977,
+0
+],
+"creatures/goblin_ragged": [
+6943,
+0
+],
+"creatures/horse_saddled": [
+7962,
+0
+],
+"creatures/spirit_fox_blue": [
+6000,
+0
+],
+"creatures/treant_forest": [
+6996,
+0
+],
+"creatures/wolf_brown": [
+5999,
+0
+],
+"creatures/wolf_dark": [
+6000,
+0
+],
+"creatures/wolf_ghost": [
+6000,
+0
+],
+"creatures/wolf_grey": [
+5998,
+0
+],
+"dl3/buildings/cottage_blue_roof": [
+7943,
+2379
+],
+"dl3/buildings/cottage_orange_roof": [
+9997,
+2996
+],
+"dl3/buildings/cottage_slate_timber": [
+8976,
+2692
+],
+"dl3/buildings/cottage_thatch_timber": [
+9990,
+2996
+],
+"dl3/buildings/house_gable_porch_a": [
+8998,
+2698
+],
+"dl3/buildings/house_gable_porch_b": [
+8999,
+2699
+],
+"dl3/buildings/house_orange_thatch": [
+8996,
+2697
+],
+"dl3/buildings/house_straw_thatch": [
+8998,
+2698
+],
+"dl3/buildings/house_tudor_corner": [
+11999,
+3598
+],
+"dl3/buildings/house_tudor_stone_base": [
+12000,
+3600
+],
+"dl3/buildings/tavern_dark_roof": [
+10062,
+3015
+],
+"dl3/buildings/tavern_red_roof": [
+10031,
+3006
+],
+"dl3/camp/tent_shop_canopy": [
+3466,
+1706
+],
+"dl3/camp/tent_shop_conical": [
+2940,
+890
+],
+"dl3/carts/wagon_canvas_a": [
+4500,
+0
+],
+"dl3/carts/wagon_canvas_lanterns": [
+4500,
+0
+],
+"dl3/carts/wagon_shields_covered": [
+4497,
+0
+],
+"dl3/castle/castle_small_towers": [
+11962,
+3584
+],
+"dl3/castle/fortress_grey_blue": [
+14989,
+4493
+],
+"dl3/creatures/elemental_earth_golem": [
+6973,
+2090
+],
+"dl3/creatures/horse_saddled_brown": [
+6978,
+2084
+],
+"dl3/furniture/bench_lantern_posts": [
+2999,
+0
+],
+"dl3/furniture/table_bench_set": [
+2834,
+0
+],
+"dl3/furniture/table_long_wood": [
+1800,
+0
+],
+"dl3/magic/rack_elixirs": [
+3496,
+0
+],
+"dl3/market/stall_rug_wood": [
+4500,
+0
+],
+"dl3/props/chest_iron_banded": [
+1999,
+0
+],
+"dl3/props/firewood_stack_oven": [
+2497,
+0
+],
+"dl3/props/keg_big": [
+1998,
+0
+],
+"dl3/props/shield_round_wood": [
+1800,
+0
+],
+"dl3/props/swords_scabbards_trio": [
+2976,
+0
+],
+"farm/chicken_coop_fenced": [
+5000,
+0
+],
+"farm/chicken_coop_small": [
+3992,
+0
+],
+"farm/chicken_hen": [
+2492,
+0
+],
+"farm/chicken_rooster": [
+2383,
+0
+],
+"farm/cow_spotted": [
+5994,
+0
+],
+"farm/cows_pair": [
+6999,
+0
+],
+"farm/hay_bale_lowpoly": [
+1494,
+0
+],
+"farm/hay_bale_rect_a": [
+1372,
+0
+],
+"farm/hay_bale_round": [
+1789,
+0
+],
+"farm/hay_bale_yellow_large": [
+2665,
+0
+],
+"farm/shed_plank_low": [
+3976,
+0
+],
+"farm/shed_thatch_small": [
+3984,
+0
+],
+"farm/shed_wood_shingle": [
+3997,
+0
+],
+"farm/wheelbarrow_planter": [
+3898,
+0
+],
+"farm/wheelbarrow_wooden_old": [
+4499,
+0
+],
+"fences/fence_board_gate": [
+2500,
+0
+],
+"fences/fence_board_panel": [
+2000,
+0
+],
+"fences/fence_broken_rail": [
+2500,
+0
+],
+"fences/fence_farm_white": [
+2979,
+0
+],
+"fences/fence_gate_rail": [
+1798,
+0
+],
+"fences/fence_palisade": [
+2993,
+0
+],
+"fences/fence_picket_low": [
+2500,
+0
+],
+"fences/fence_picket_tall": [
+3000,
+0
+],
+"fences/fence_plank_panel": [
+2500,
+0
+],
+"fences/fence_rail_grass_a": [
+1886,
+0
+],
+"fences/fence_rail_grass_b": [
+1833,
+0
+],
+"fences/fence_rail_orange": [
+1500,
+0
+],
+"fences/fence_rail_rustic": [
+2000,
+0
+],
+"fences/fence_woven_wattle": [
+2985,
+0
+],
+"fences/wall_stone_railing": [
+3000,
+0
+],
+"flora/bellflower_purple": [
+2320,
+0
+],
+"flora/bouquet_bright": [
+3498,
+0
+],
+"flora/bouquet_wild": [
+3500,
+0
+],
+"flora/bush_raspberry": [
+3938,
+0
+],
+"flora/mushroom_bowl_orange": [
+2500,
+0
+],
+"flora/mushroom_brown": [
+1500,
+0
+],
+"flora/mushroom_glow_brown": [
+1992,
+0
+],
+"flora/mushroom_redcap": [
+1307,
+0
+],
+"flora/mushrooms_blue_glow": [
+2500,
+0
+],
+"flora/stump_dead_tall": [
+2999,
+0
+],
+"flora/stump_grass_rocks": [
+2675,
+0
+],
+"furniture/chair_armchair_wood": [
+2500,
+0
+],
+"furniture/chair_gothic_tall": [
+3000,
+0
+],
+"furniture/chair_high_back": [
+2500,
+0
+],
+"furniture/chair_ornate_red": [
+3000,
+0
+],
+"furniture/chair_simple_a": [
+1998,
+0
+],
+"furniture/chair_simple_b": [
+2000,
+0
+],
+"furniture/lectern_desk": [
+2500,
+0
+],
+"furniture/table_barrel_top": [
+1800,
+0
+],
+"furniture/table_bench_tavern": [
+3000,
+0
+],
+"furniture/table_tavern_feast": [
+2997,
+0
+],
+"furniture/table_tavern_thick": [
+2000,
+0
+],
+"furniture/table_tavern_trestle": [
+2052,
+0
+],
+"furniture/tavern_set_barrels_a": [
+3987,
+0
+],
+"furniture/tavern_set_barrels_b": [
+4000,
+0
+],
+"furniture/throne_carved_wood": [
+3000,
+0
+],
+"furniture/throne_dark_red_studded": [
+3000,
+0
+],
+"furniture/throne_gold_red": [
+3497,
+0
+],
+"furniture/throne_gothic_gold": [
+3491,
+0
+],
+"furniture/throne_leather_cushion": [
+2500,
+0
+],
+"furniture/throne_red_gothic": [
+2999,
+0
+],
+"interior/armour_stand_knight": [
+4997,
+0
+],
+"interior/bed_canopy_red": [
+4493,
+0
+],
+"interior/bookshelf_glass_cabinet": [
+2999,
+0
+],
+"interior/bookshelf_tall_rustic": [
+3490,
+0
+],
+"interior/bookshelf_wide_low": [
+3229,
+0
+],
+"interior/shelf_weapons_display": [
+3485,
+0
+],
+"interior/tapestry_hunt": [
+2000,
+0
+],
+"interior/wall_shield_heater": [
+2500,
+0
+],
+"interior/wall_shield_iron_studded": [
+2500,
+0
+],
+"interior/weapon_rack_swords": [
+3471,
+0
+],
+"interior/weapon_racks_spears": [
+4000,
+0
+],
+"lighting/lamp_post_purple_bracket": [
+3312,
+0
+],
+"lighting/lamp_post_timber_cross": [
+2997,
+0
+],
+"lighting/lantern_hanging_blue": [
+3365,
+0
+],
+"lighting/lantern_hanging_green": [
+1500,
+0
+],
+"lighting/lantern_post_purple": [
+2481,
+0
+],
+"lighting/lantern_post_wood": [
+2998,
+0
+],
+"lighting/lantern_wall_iron": [
+1998,
+0
+],
+"lighting/lantern_wall_scroll": [
+2413,
+0
+],
+"lighting/sconce_torch_bracket": [
+1496,
+0
+],
+"lighting/sconce_torch_ornate": [
+1998,
+0
+],
+"lighting/sconce_wall_bowl_a": [
+1800,
+0
+],
+"lighting/sconce_wall_bowl_b": [
+1778,
+0
+],
+"lighting/street_lamp_twin_gold": [
+3000,
+0
+],
+"lighting/street_lantern_gothic": [
+2995,
+0
+],
+"lighting/street_lantern_whimsical": [
+2500,
+0
+],
+"lighting/torch_dungeon_cage": [
+2500,
+0
+],
+"lighting/torch_hand_silver": [
+1496,
+0
+],
+"lighting/torch_stake": [
+1499,
+0
+],
+"loot/coin_gold_big": [
+1000,
+0
+],
+"loot/coin_silver_big": [
+999,
+0
+],
+"magic/crystal_blue_pedestal": [
+1998,
+0
+],
+"magic/crystal_cyan_pedestal": [
+2000,
+0
+],
+"magic/crystal_egg_purple": [
+1998,
+0
+],
+"magic/crystal_green_pedestal_a": [
+1999,
+0
+],
+"magic/crystal_green_pedestal_b": [
+1999,
+0
+],
+"magic/crystal_green_pedestal_c": [
+2000,
+0
+],
+"magic/crystal_purple_pedestal": [
+2000,
+0
+],
+"magic/crystal_red_pedestal": [
+1982,
+0
+],
+"magic/orb_purple_roots": [
+2496,
+0
+],
+"magic/orb_red_stand": [
+2000,
+0
+],
+"magic/portal_blue_arch": [
+4983,
+0
+],
+"magic/portal_dark_purple": [
+5000,
+0
+],
+"magic/portal_elf_mound": [
+4994,
+0
+],
+"magic/portal_ice_arch": [
+3867,
+0
+],
+"magic/portal_vine_arch": [
+5973,
+0
+],
+"magic/runestone_ember": [
+5000,
+0
+],
+"magic/runestone_face_moss": [
+3000,
+0
+],
+"magic/runestone_verdant": [
+2998,
+0
+],
+"market/shed_striped_awning": [
+4994,
+0
+],
+"market/stall_awning_red": [
+4847,
+0
+],
+"market/stall_blue_shields": [
+4975,
+0
+],
+"market/stall_cheese_awning": [
+4952,
+0
+],
+"market/stall_crates_cream": [
+4395,
+0
+],
+"market/stall_fruit_cream": [
+4930,
+0
+],
+"market/stall_market_sign_red": [
+4335,
+0
+],
+"market/stall_meat_shingle": [
+4876,
+0
+],
+"market/stall_open_roof": [
+3992,
+0
+],
+"market/stall_potatoes": [
+5040,
+0
+],
+"market/stall_potion": [
+4985,
+0
+],
+"market/stall_red_awning_goods": [
+3834,
+0
+],
+"market/stall_small_workshop": [
+3998,
+0
+],
+"market/stall_striped_shields": [
+4984,
+0
+],
+"maybe/buildings/hut_mossy_ruined_a": [
+8000,
+2394
+],
+"maybe/buildings/hut_mossy_ruined_b": [
+9000,
+2699
+],
+"nature/rock_blue_brown": [
+2000,
+0
+],
+"nature/rock_grey_plain": [
+1500,
+0
+],
+"nature/rock_limestone_tall": [
+2498,
+0
+],
+"nature/rocks_mossy_mushroom": [
+2500,
+0
+],
+"nature/tree_cartoon_green_a": [
+5997,
+1799
+],
+"nature/tree_cartoon_green_b": [
+4101,
+1230
+],
+"nature/tree_old_a": [
+5973,
+1791
+],
+"nature/tree_pine": [
+3999,
+1198
+],
+"props/axe_battle_upright": [
+1500,
+0
+],
+"props/axe_long_handle": [
+1500,
+0
+],
+"props/barrels_crates_stack": [
+3000,
+0
+],
+"props/chest_blue_iron": [
+1500,
+0
+],
+"props/chest_copper_lock": [
+1500,
+0
+],
+"props/chest_dark_iron": [
+1499,
+0
+],
+"props/chest_gold": [
+1500,
+0
+],
+"props/chest_iron_box": [
+1500,
+0
+],
+"props/chest_metal_wood": [
+1500,
+0
+],
+"props/chest_orange_metal": [
+1500,
+0
+],
+"props/chest_orange_riveted": [
+1500,
+0
+],
+"props/chest_orange_wood": [
+1485,
+0
+],
+"props/chest_pink": [
+1500,
+0
+],
+"props/chest_red_black": [
+1500,
+0
+],
+"props/chest_silver_lock": [
+1500,
+0
+],
+"props/crate_planks": [
+1200,
+0
+],
+"props/keg_iron_banded_side": [
+1998,
+0
+],
+"props/keg_iron_banded_upright": [
+1997,
+0
+],
+"props/shield_dragon_heraldic": [
+2498,
+0
+],
+"props/well_covered_planks": [
+3995,
+0
+],
+"props/well_stone_roofed": [
+2491,
+0
+],
+"props/well_stone_shingle": [
+2500,
+0
+],
+"props/well_wood_roof": [
+2485,
+0
+],
+"ruins/arch_baroque_old": [
+6235,
+0
+],
+"ruins/arch_dark_pedestal": [
+3914,
+0
+],
+"ruins/pillar_mossy_a": [
+2978,
+0
+],
+"ruins/pillar_mossy_b": [
+3000,
+0
+],
+"ruins/ruin_arch_pillars": [
+4974,
+0
+],
+"ruins/ruin_arch_side": [
+5000,
+0
+],
+"ruins/ruin_arch_wall": [
+5000,
+0
+],
+"ruins/ruin_pergola": [
+4998,
+0
+],
+"ruins/ruin_wall_broken_a": [
+5000,
+0
+],
+"ruins/ruin_wall_broken_b": [
+5000,
+0
+],
+"ruins/ruin_wall_corner": [
+5000,
+0
+],
+"signs/sign_blank_bracket": [
+2500,
+0
+],
+"signs/sign_blank_rope": [
+1434,
+0
+],
+"signs/sign_shop_lion": [
+2496,
+0
+],
+"water/boat_longship_sail": [
+4500,
+0
+],
+"water/boat_rowing": [
+3000,
+0
+],
+"water/bridge_serenity_steps": [
+4992,
+0
+],
+"water/dock_circular_wood": [
+2497,
+0
+],
+"water/dock_weathered_pier": [
+3996,
+0
+]
+}

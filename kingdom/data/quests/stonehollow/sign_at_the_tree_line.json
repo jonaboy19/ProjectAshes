@@ -1,0 +1,78 @@
+{
+ "id": "stonehollow_sign_at_the_tree_line",
+ "title": "Sign at the Tree Line",
+ "summary": "Elfrida Fletcher says something is out at the edge of Stonehollow: tracks too big for a dog and fences torn outward. Learn what it is, then put it down.",
+ "giver": {
+  "npc": "elfrida_fletcher",
+  "name": "Elfrida Fletcher",
+  "place": "stonehollow"
+ },
+ "requires": [
+  "stonehollow_tampered_work_at_the_quarry_yard"
+ ],
+ "offer_text": "\"There is sign at the tree line: tracks too big for a dog and fences torn outward. I cannot tell how many, or how bold. Read it for me, and then put them down.\"",
+ "turn_in_text": "\"Now we know what we are dealing with, and it is dealt with.\"",
+ "stages": [
+  {
+   "id": "read",
+   "title": "Read the sign",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "sign",
+     "type": "investigate",
+     "clues": [
+      "stonehollow/clue/t1",
+      "stonehollow/clue/t2",
+      "stonehollow/clue/t3"
+     ],
+     "count": 2,
+     "text": "Find two signs of the wolves around the edge of Stonehollow"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Deal with them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "stonehollow_outskirts",
+     "count": 2,
+     "text": "Kill 2 wolves near Stonehollow"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Elfrida",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "elfrida_fletcher",
+     "text": "Tell Elfrida Fletcher what you found"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 27,
+  "rep": {
+   "stonehollow": 5
+  },
+  "relationship": [
+   {
+    "npc": "elfrida_fletcher",
+    "label": "Read the sign and acted on it",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

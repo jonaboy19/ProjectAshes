@@ -13,6 +13,8 @@ Plan: `docs/regions/REGION_1_PLAN.md`. Hooks for the cloud session: `docs/region
 | `scripts/region1/wardlines.gd` | `Wardlines` (L7): Elder budgets, routing graph, glyphs, coverage for hook H3. Tuning: `data/region1/wardlines.json` |
 | `scripts/region1/rune_gesture.gd` | `RuneGesture` (L8): finger-stroke recognizer for ward / lure / alarm / bless. Shapes: `data/region1/glyphs.json` |
 | `data/region1/*.json` | module data (glyphs, mutation tables, stone budgets, ...) |
+| `data/region1/progression_spine.json` | **C13**: the end-of-region targets (soul tier 3-4, career rank 4-5, gear tier 2, level 13+, first house <= 25 days, top rank not before day 60) and the Rift gate (`scripts/region1/progression_spine.gd`; story step `a5_rifts_edge` carries it as an `if` condition) |
+| `tools_qa/region1/balance_run.tscn` | **L18**: 100 headless game days per archetype through the real systems (`balance_sim.gd`, probes in `balance_probe.gd`), CSV per run; report `docs/regions/BALANCE_R1.md`, test `tests/test_balance_r1.gd` |
 | `tools_qa/region1/region1_sandbox.tscn` | headless runner (below) |
 | `tools_qa/region1/wardlines_demo.gd` | headless story board: coverage PNGs of cut / carve / decay (`samples/`) |
 | `tools_qa/region1/rune_canvas.tscn` | windowed rune canvas: glowing trail, confidence, practice mode, `--demo` scripted strokes |

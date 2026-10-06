@@ -301,7 +301,7 @@ func road_event(ctx: Dictionary = {}) -> Dictionary:
 
 
 func _settlement_name(sid: int) -> String:
-	return String(WorldGen.settlements[sid]["name"]) if sid >= 0 and sid < WorldGen.settlements.size() else "the next town"
+	return WorldGen.display_name(String(WorldGen.settlements[sid]["name"])) if sid >= 0 and sid < WorldGen.settlements.size() else "the next town"
 
 
 func _near_square() -> bool:

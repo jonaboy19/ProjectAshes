@@ -1,0 +1,144 @@
+{
+ "id": "brackenmoor_off_the_books",
+ "title": "Off the Books",
+ "summary": "Goods are passing Brackenmoor at night without a count. Ingram Stannard knows, and Sander Kirby can show where it goes.",
+ "giver": {
+  "npc": "ingram_stannard",
+  "name": "Ingram Stannard",
+  "place": "brackenmoor"
+ },
+ "requires": [
+  "brackenmoor_a_table_for_neville"
+ ],
+ "offer_text": "\"Goods come through at night and nobody counts them. Sander Kirby says Sander can point at the road. See what is left on it, then decide what it is worth.\"",
+ "stages": [
+  {
+   "id": "tip",
+   "title": "Hear the tip",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "tip",
+     "type": "talk_to",
+     "npc": "sander_kirby",
+     "text": "Hear what Sander Kirby has to sell"
+    }
+   ]
+  },
+  {
+   "id": "watch",
+   "title": "Watch the edge",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "edge",
+     "type": "goto",
+     "place": "brackenmoor_outskirts",
+     "text": "Go to the edge of Brackenmoor where the carts do not stop"
+    }
+   ]
+  },
+  {
+   "id": "find",
+   "title": "Find what was left",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "brackenmoor/clue/o1",
+      "brackenmoor/clue/o2",
+      "brackenmoor/clue/c3"
+     ],
+     "count": 2,
+     "text": "Find two signs of what passed through"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide what it is worth",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "ingram_stannard",
+     "options": [
+      {
+       "id": "turn_in",
+       "text": "Tell Ingram what you found",
+       "say": "Ingram writes it down. \"This will matter.\""
+      },
+      {
+       "id": "cut",
+       "text": "Take Sander's cut and forget the road",
+       "say": "Sander pays you without counting. \"Obliged.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "turn_in": "filed",
+    "cut": "cut"
+   }
+  },
+  {
+   "id": "filed",
+   "title": "Ingram has it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "filed",
+     "type": "talk_to",
+     "npc": "ingram_stannard",
+     "text": "Tell Ingram Stannard who is behind it"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 32,
+    "rep": {
+     "brackenmoor": 6
+    },
+    "relationship": [
+     {
+      "npc": "ingram_stannard",
+      "label": "Reported the contraband",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "cut",
+   "title": "Take your share",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "share",
+     "type": "talk_to",
+     "npc": "sander_kirby",
+     "text": "Collect your share from Sander Kirby"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 42,
+    "rep": {
+     "brackenmoor": -7
+    },
+    "relationship": [
+     {
+      "npc": "ingram_stannard",
+      "label": "Heard you took a cut",
+      "value": -14,
+      "days": 90
+     }
+    ]
+   }
+  }
+ ]
+}

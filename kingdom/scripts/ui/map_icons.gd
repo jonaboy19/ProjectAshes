@@ -36,7 +36,7 @@ static func color_for(place: Dictionary) -> Color:
 	match String(place.get("kind", "")):
 		"village", "town", "castle", "capital", "frontier_town":
 			return SETTLEMENT
-		"waystation":
+		"waystation", "ferry":
 			return TRAVEL
 		"lake", "river", "bridge":
 			return WATER
@@ -74,7 +74,7 @@ static func glyph(ci: CanvasItem, kind: String, c: Vector2, g: float, col: Color
 			ci.draw_rect(Rect2(c + Vector2(-g * 0.68, -g * 0.05), Vector2(g * 1.36, g * 0.85)), col)
 			if kind == "town":
 				ci.draw_rect(Rect2(c + Vector2(g * 0.35, -g * 0.95), Vector2(g * 0.3, g * 0.6)), col)
-		"waystation":
+		"waystation", "ferry":
 			ci.draw_line(c + Vector2(-g * 0.6, g * 0.9), c + Vector2(-g * 0.6, -g * 0.9), col, w, true)
 			var flag := PackedVector2Array([c + Vector2(-g * 0.6, -g * 0.9), c + Vector2(g * 0.9, -g * 0.55), c + Vector2(-g * 0.6, -g * 0.15)])
 			ci.draw_colored_polygon(flag, col)
@@ -170,7 +170,7 @@ static func draw_marker(ci: CanvasItem, kind: String, c: Vector2, s: float, host
 			_tent(ci, c, g, RED, w, INK)
 		"goblin_warren", "orc_village":
 			_warren(ci, c, g, w)
-		"waystation":
+		"waystation", "ferry":
 			_signpost(ci, c, g, w)
 		"shrine", "ruined_shrine", "wayshrine":
 			_shrine(ci, c, g, w)

@@ -18,9 +18,14 @@ var workers: Dictionary = {}        # "w<n>" -> worker
 var holdings: Dictionary = {}       # int -> holding
 var known: Dictionary = {}          # fact -> true (learned from masters and finished buildings)
 var trails: Dictionary = {}         # "a|b" -> {a, b, uses}
+## Build-kit hook (build_kit.sync_realm): what finished kit pieces add. Rebuilt by the kit after every load and change, not saved here.
+var kit_extra: Dictionary = {}      # hid -> {"beds": n, "store": n}
+var kit_roads: Array = []           # [from: Vector2, to: Vector2, speed multiplier] segments of drawn kit roads
 var gathered: Dictionary = {}       # "cx,cz" -> {hp, day, t}
 var external: Dictionary = {}       # kind -> count finished through fief projects
 var pending_gold := 0
+var _street_queue_on := false       # catch_up queues street-graph registrations and flushes them once
+var _street_queue := {}             # settlement id -> [[pos, yaw, half, door], ...]
 var log_lines: Array = []
 
 ## Tests inject these; in the game they stay null and the player's Inventory/purse/mastery are used.
@@ -238,7 +243,7 @@ func store_cap(hid: int) -> int:
 		var s: Dictionary = sites[id]
 		if int(s["holding"]) == hid and String(s["state"]) == "done":
 			cap += int(D.CATALOG[String(s["kind"])].get("store", 0))
-	return cap
+	return cap + int(kit_extra.get(hid, {}).get("store", 0))      # Build-kit hook: storage crates and chests
 
 
 func store_used(hid: int) -> int:
@@ -514,6 +519,57 @@ func place_kit_plan(pos: Vector2, yaw: float, cost: Dictionary, hours: float, la
 		if from_store + from_pack > 0:
 			(s["have"] as Dictionary)[item] = from_store + from_pack
 	return {"ok": true, "reason": "", "id": id}
+
+## Build-kit hook (scripts/realm/build_kit.gd sync_realm; docs/regions/HOOKS_FOR_CLOUD.md): what the finished kit pieces stand for.
+## `entries`: [{key "gid:pid", pos Vector2, kind (a CATALOG kind such as "sawhorse" or "workbench", or ""), beds, store}].
+## A piece with a `kind` becomes a finished site of that kind (crew stations, prerequisites, know-how) marked `kit_key` so the
+## view does not draw a second building; beds and storage are added per holding; `roads` are routing segments for the crews.
+## Idempotent: call it again after any change. Returns messages (what the new buildings taught).
+func sync_kit(entries: Array, roads: Array) -> Array:
+	var out: Array = []
+	kit_roads = roads
+	kit_extra = {}
+	_trail_dirty = true
+	var have_keys := {}
+	for id: int in sites:
+		if (sites[id] as Dictionary).has("kit_key"):
+			have_keys[String(sites[id]["kit_key"])] = id
+	var want := {}
+	for e: Dictionary in entries:
+		var pos: Vector2 = e["pos"]
+		var hid := holding_at(pos)
+		if hid == 0:
+			hid = _new_holding(pos)
+		var ex: Dictionary = kit_extra.get(hid, {"beds": 0, "store": 0})
+		ex["beds"] = int(ex["beds"]) + int(e.get("beds", 0))
+		ex["store"] = int(ex["store"]) + int(e.get("store", 0))
+		kit_extra[hid] = ex
+		var kind := String(e.get("kind", ""))
+		if kind == "" or not D.CATALOG.has(kind) or bool(D.CATALOG[kind].get("hidden", false)):
+			continue
+		var key := String(e["key"])
+		want[key] = true
+		if have_keys.has(key):
+			continue
+		var id := _next_site
+		_next_site += 1
+		var s := {"id": id, "kind": kind, "pos": [pos.x, pos.y], "yaw": 0.0, "holding": hid, "state": "site",
+			"progress": 0.0, "total": 1.0, "need": {}, "have": {}, "workers": [],
+			"upgrade_of": 0, "started_day": _day, "done_day": -1, "carry": 0.0, "kit_key": key}
+		sites[id] = s
+		out.append_array(_complete(s))
+	for key: String in have_keys:
+		if want.has(key):
+			continue
+		var gone := int(have_keys[key])
+		for wid: String in (sites[gone]["workers"] as Array).duplicate():
+			unassign(wid)
+		sites.erase(gone)
+		for tk: String in trails.keys():
+			if int(trails[tk]["a"]) == gone or int(trails[tk]["b"]) == gone:
+				trails.erase(tk)
+	return out
+
 
 # ------------------------------------------------------------------ NPC development sites (realm/civilization.gd)
 ## A settlement's own project (houses, walls, a market...) shown as a normal staged site (foundation -> frame -> walls ->
@@ -1180,9 +1236,28 @@ func _register_world(s: Dictionary) -> void:
 			s["fed"] = int(near["id"])
 	var stl_near := WorldGen.nearest_settlement(pos)
 	if not stl_near.is_empty() and pos.distance_to(stl_near["pos"]) < float(stl_near["radius"]) * 3.0:
-		var sg: RefCounted = load("res://scripts/population/street_graph.gd").for_settlement(int(stl_near["id"]))
-		if sg != null and sg.has_method("register_building"):
-			sg.call("register_building", pos, float(s["yaw"]), D.half_size(kind), Nav.door_of(s))
+		var sid := int(stl_near["id"])
+		var entry := [pos, float(s["yaw"]), D.half_size(kind), Nav.door_of(s)]
+		if _street_queue_on:
+			# catch_up: queue, flush once per town (see _flush_street_queue)
+			if not _street_queue.has(sid):
+				_street_queue[sid] = []
+			(_street_queue[sid] as Array).append(entry)
+		else:
+			var sg: RefCounted = load("res://scripts/population/street_graph.gd").for_settlement(sid)
+			if sg != null and sg.has_method("register_building"):
+				sg.call("register_building", entry[0], entry[1], entry[2], entry[3])
+
+
+## Registers the buildings queued during catch_up with their towns' street graphs, in finish order.
+func _flush_street_queue() -> void:
+	_street_queue_on = false
+	var queue := _street_queue
+	_street_queue = {}
+	for sid: int in queue:
+		var sg: RefCounted = load("res://scripts/population/street_graph.gd").for_settlement(sid)
+		if sg != null and sg.has_method("register_buildings"):
+			sg.call("register_buildings", queue[sid])
 
 
 # ------------------------------------------------------------------ settlement levels
@@ -1197,7 +1272,7 @@ func _holding_sites(hid: int, done_only := true) -> Array:
 
 
 func beds_of(hid: int) -> int:
-	var n := 0
+	var n := int(kit_extra.get(hid, {}).get("beds", 0))      # Build-kit hook: kit beds count
 	for s: Dictionary in _holding_sites(hid):
 		n += int(D.CATALOG[String(s["kind"])].get("beds", 0))
 	return n
@@ -1371,6 +1446,7 @@ func trail_segments() -> Array:
 		if lv == "" or not sites.has(int(t["a"])) or not sites.has(int(t["b"])):
 			continue
 		_trail_cache.append([Nav.door_of(sites[int(t["a"])]), Nav.door_of(sites[int(t["b"])]), float(D.PATH_SPEED[lv])])
+	_trail_cache.append_array(kit_roads)      # Build-kit hook: drawn kit roads speed the crews up (pieces.json "speed")
 	_trail_dirty = false
 	return _trail_cache
 
@@ -1616,10 +1692,12 @@ func _day_upkeep(_ctx: Dictionary) -> Array:
 ## `days` passed unobserved: replay each day's working hours (early exit per site) and the daily upkeep.
 func catch_up(days: int, ctx: Dictionary) -> Array:
 	var out: Array = []
+	_street_queue_on = true
 	for _d in mini(days, D.CATCH_UP_CAP_DAYS):
 		out.append_array(advance(D.WORK_HOURS_PER_DAY, ctx))
 		_day += 1
 		out.append_array(_day_upkeep(ctx))
+	_flush_street_queue()
 	return out
 
 

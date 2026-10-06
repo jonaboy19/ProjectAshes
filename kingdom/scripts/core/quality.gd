@@ -50,28 +50,28 @@ const GROUPS := {
 ## undergrowth instances kept. `shadow`: 0 off, 1 one low-res split, 2 two splits, 4 four.
 const TIERS := [
 	{   # LOW: old phones (Mali-G52, Adreno 610, PowerVR, 2-3 GB RAM), Compatibility renderer
-		"max_3d_height": 720, "scaling": "bilinear", "fps": 30,
+		"max_3d_height": 720, "scaling": "bilinear", "fps": 30, "physics_hz": 30,
 		"shadow": 1, "shadow_size": 1024, "shadow_dist": 24.0, "soft_shadow": 0, "omni_shadows": false, "shadow_min": 3.0,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
 		"lod_threshold": 8.0, "range": 0.55, "scatter": 0.3, "particles": 0.35, "aniso": 0, "tex_bias": 1.0, "fog_mul": 1.5,
 		"msaa": 0, "fxaa": false, "npc_full": 5, "rig_budget": 0, "npc_sprites": 10, "view_radius": 2, "light_fade": 35.0, "town_far": 200.0,
 	},
 	{   # MEDIUM: mid-range phones (Adreno 618-650, Mali-G57..G77, Apple A11-A12)
-		"max_3d_height": 720, "scaling": "fsr", "fps": 60,
+		"max_3d_height": 720, "scaling": "fsr", "fps": 60, "physics_hz": 60,
 		"shadow": 1, "shadow_size": 2048, "shadow_dist": 50.0, "soft_shadow": 1, "omni_shadows": false, "shadow_min": 1.5,
 		"ssao": false, "ssil": false, "sdfgi": false, "glow": false, "vol_fog": false, "ssr": false,
 		"lod_threshold": 2.0, "range": 0.75, "scatter": 0.6, "particles": 0.6, "aniso": 1, "tex_bias": 0.5, "fog_mul": 1.2,
 		"msaa": 0, "fxaa": true, "npc_full": 8, "rig_budget": 3, "npc_sprites": 22, "view_radius": 3, "light_fade": 50.0, "town_far": 600.0,
 	},
 	{   # HIGH: recent phones (Adreno 7xx, Mali-G710+, Apple A13+), integrated PC GPUs
-		"max_3d_height": 1080, "scaling": "fsr", "fps": 60,
-		"shadow": 2, "shadow_size": 4096, "shadow_dist": 100.0, "soft_shadow": 2, "omni_shadows": true, "shadow_min": 1.0,
+		"max_3d_height": 1080, "scaling": "fsr", "fps": 60, "physics_hz": 60,
+		"shadow": 2, "shadow_size": 4096, "shadow_dist": 60.0, "soft_shadow": 2, "omni_shadows": true, "shadow_min": 2.5,
 		"ssao": true, "ssil": false, "sdfgi": false, "glow": true, "vol_fog": false, "ssr": false,
 		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 2, "tex_bias": 0.0, "fog_mul": 1.0,
-		"msaa": 0, "fxaa": true, "npc_full": 12, "rig_budget": 6, "npc_sprites": 32, "view_radius": 4, "light_fade": 80.0, "town_far": 0.0,
+		"msaa": 0, "fxaa": true, "npc_full": 14, "rig_budget": 6, "npc_sprites": 32, "view_radius": 4, "light_fade": 80.0, "town_far": 0.0,
 	},
 	{   # ULTRA: desktop GPUs; the full Forward+ look the game was lit for
-		"max_3d_height": 0, "scaling": "bilinear", "fps": 0,
+		"max_3d_height": 0, "scaling": "bilinear", "fps": 0, "physics_hz": 60,
 		"shadow": 4, "shadow_size": 4096, "shadow_dist": 140.0, "soft_shadow": 3, "omni_shadows": true, "shadow_min": 0.0,
 		"ssao": true, "ssil": true, "sdfgi": true, "glow": true, "vol_fog": true, "ssr": false,
 		"lod_threshold": 1.0, "range": 1.0, "scatter": 1.0, "particles": 1.0, "aniso": 3, "tex_bias": -0.3, "fog_mul": 1.0,
@@ -504,6 +504,9 @@ func _apply_globals() -> void:
 	if _thermal_level > 0:
 		_thermal_prev_fps = fps
 		Engine.max_fps = 30 if fps == 0 else mini(fps, 30)
+	# LOW renders at 30 fps: ticking physics at 60 ran every _physics_process (villagers, player, soldiers, Jolt) twice per
+	# frame on the phone. Physics interpolation (project setting) keeps 30 Hz motion smooth.
+	Engine.physics_ticks_per_second = int(value("physics_hz"))
 	npc_full = value("npc_full")
 	npc_sprites = value("npc_sprites")
 	view_radius = value("view_radius")

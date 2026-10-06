@@ -1,0 +1,76 @@
+{
+ "id": "harrowgate_wolves_at_the_tree_line",
+ "title": "Wolves at the Tree Line",
+ "summary": "Wolf sign has been found at the edge of Harrowgate: tracks too big for a dog and fences torn outward. Letty Bargain wants 2 of them dealt with.",
+ "giver": {
+  "npc": "letty_bargain",
+  "name": "Letty Bargain",
+  "place": "harrowgate"
+ },
+ "requires": [
+  "harrowgate_someone_has_been_at_the_caravan_stage"
+ ],
+ "offer_text": "\"The wolves have come closer to Harrowgate each night: howling closer every night. Go to the edge and thin them out, before someone is hurt.\"",
+ "turn_in_text": "\"Quieter already. I will sleep tonight. A little.\"",
+ "stages": [
+  {
+   "id": "edge",
+   "title": "Go to the edge of town",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "harrowgate_outskirts",
+     "text": "Go to where the wolves were seen"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Thin them out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "harrowgate_outskirts",
+     "count": 2,
+     "text": "Kill 2 wolves near Harrowgate"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Letty",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "letty_bargain",
+     "text": "Tell Letty Bargain it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 25,
+  "rep": {
+   "harrowgate": 5
+  },
+  "relationship": [
+   {
+    "npc": "letty_bargain",
+    "label": "Kept the wolves from the edge",
+    "value": 10,
+    "days": 60
+   }
+  ],
+  "items": {
+   "salt": 1
+  }
+ }
+}

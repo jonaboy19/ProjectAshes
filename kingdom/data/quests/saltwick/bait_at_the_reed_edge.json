@@ -1,0 +1,87 @@
+{
+ "id": "saltwick_bait_at_the_reed_edge",
+ "title": "Bait at the Reed Edge",
+ "summary": "Vera Fletcher wants the bog toads drawn out of the reed edge with bait and put down at the edge of Saltwick.",
+ "giver": {
+  "npc": "vera_fletcher",
+  "name": "Vera Fletcher",
+  "place": "saltwick"
+ },
+ "requires": [
+  "saltwick_a_cart_at_night"
+ ],
+ "offer_text": "\"They will not come to a trap but they will come to a smell. Take baskets of fish, set it at the reed edge, and see what turns up.\"",
+ "turn_in_text": "\"Cunning. I should have thought of it myself.\"",
+ "stages": [
+  {
+   "id": "lure",
+   "title": "Get the bait",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "bait",
+     "type": "collect",
+     "item": "fish",
+     "count": 3,
+     "text": "Take 3 baskets of fish"
+    }
+   ]
+  },
+  {
+   "id": "edge",
+   "title": "Set it out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "saltwick_outskirts",
+     "text": "Go to the reed edge and set the bait"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Wait for them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "bog_toad",
+     "place": "saltwick_outskirts",
+     "count": 3,
+     "text": "Kill 3 bog toads that come for it"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Vera",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "vera_fletcher",
+     "text": "Tell Vera Fletcher it worked"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 29,
+  "rep": {
+   "saltwick": 5
+  },
+  "relationship": [
+   {
+    "npc": "vera_fletcher",
+    "label": "Baited and dealt with the bog toads",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

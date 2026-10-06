@@ -1,0 +1,89 @@
+{
+ "id": "ironmarch_bolts_of_sample_cloth_and_sacks_of_salt",
+ "title": "Bolts of Sample Cloth and Sacks of Salt",
+ "summary": "Two loads wait in Silverford: bolts of sample cloth for Kell Keld and sacks of salt for Oswin Gilbey. Lanny Tollman wants them moved before the caravan rolls at dawn.",
+ "giver": {
+  "npc": "lanny_tollman",
+  "name": "Lanny Tollman",
+  "place": "ironmarch"
+ },
+ "offer_text": "\"Two things are late and both are mine to answer for. Kell Keld waits on bolts of sample cloth and Oswin Gilbey on sacks of salt. Fetch them in any order, before the caravan rolls at dawn.\"",
+ "turn_in_text": "\"Both in. I shall sleep tonight, which is rare.\"",
+ "stages": [
+  {
+   "id": "gather",
+   "title": "Gather both loads",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load1",
+     "type": "collect",
+     "item": "cloth",
+     "count": 3,
+     "text": "Take 3 bolts of sample cloth from the guild hall steps"
+    },
+    {
+     "id": "load2",
+     "type": "collect",
+     "item": "salt_sack",
+     "count": 2,
+     "text": "Take 2 sacks of salt from the second stack"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Deliver them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "to1",
+     "type": "deliver",
+     "item": "cloth",
+     "count": 3,
+     "to": "kell_keld",
+     "text": "Hand the bolts of sample cloth to Kell Keld"
+    },
+    {
+     "id": "to2",
+     "type": "deliver",
+     "item": "salt_sack",
+     "count": 2,
+     "to": "oswin_gilbey",
+     "text": "Hand the sacks of salt to Oswin Gilbey"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Lanny",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "lanny_tollman",
+     "text": "Tell Lanny Tollman both are in"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 23,
+  "rep": {
+   "ironmarch": 4
+  },
+  "relationship": [
+   {
+    "npc": "lanny_tollman",
+    "label": "Cleared two late loads",
+    "value": 9,
+    "days": 60
+   }
+  ],
+  "items": {
+   "salt": 1
+  }
+ }
+}

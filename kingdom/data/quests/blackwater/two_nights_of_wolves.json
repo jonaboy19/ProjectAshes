@@ -1,0 +1,91 @@
+{
+ "id": "blackwater_two_nights_of_wolves",
+ "title": "Two Nights of Wolves",
+ "summary": "The wolves come in waves: howling closer every night. Tegan Tyndall wants the first wave broken and then the second, with a word between them.",
+ "giver": {
+  "npc": "tegan_tyndall",
+  "name": "Tegan Tyndall",
+  "place": "blackwater"
+ },
+ "requires": [
+  "blackwater_someone_has_been_at_the_ferry_landing"
+ ],
+ "offer_text": "\"It is not one pack, it is two nights of them, howling closer every night. Break the first and come and tell me. Then we finish it.\"",
+ "turn_in_text": "\"That is two waves broken. I will not say it is over, but I will say it is quiet.\"",
+ "stages": [
+  {
+   "id": "first",
+   "title": "The first of them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "first",
+     "type": "kill",
+     "target": "wolf",
+     "place": "blackwater_outskirts",
+     "count": 3,
+     "text": "Kill 3 wolves near Blackwater"
+    }
+   ]
+  },
+  {
+   "id": "word",
+   "title": "Report and listen",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "word",
+     "type": "talk_to",
+     "npc": "tegan_tyndall",
+     "text": "Tell Tegan Tyndall the first are down"
+    }
+   ]
+  },
+  {
+   "id": "second",
+   "title": "The rest",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "second",
+     "type": "kill",
+     "target": "wolf",
+     "place": "blackwater_outskirts",
+     "count": 2,
+     "text": "Kill 2 more wolves at the edge"
+    }
+   ]
+  },
+  {
+   "id": "done",
+   "title": "Tell Tegan",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "done",
+     "type": "talk_to",
+     "npc": "tegan_tyndall",
+     "text": "Tell Tegan Tyndall the edge is clear"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 30,
+  "rep": {
+   "blackwater": 6
+  },
+  "relationship": [
+   {
+    "npc": "tegan_tyndall",
+    "label": "Held the line against the wolves",
+    "value": 12,
+    "days": 60
+   }
+  ],
+  "items": {
+   "bandage": 2
+  }
+ }
+}

@@ -28,6 +28,7 @@ extends RefCounted
 ##   flag: "spirit_seen" | [..]     no_flag: ..         event: "helped_recently" | [..]
 ##   no_event: ..                   min_op / max_op: opinion bounds
 ##   min_age / max_age              has: "rumour" | [..]  (ctx key must be truthy)
+##   min_soul_tier / min_gear_tier / min_level   progression gates (ctx soul_tier, gear_tier, level; absent = not gated)
 ##   not_has: ..                    chance: 0.3
 ##
 ## Choice "goto": a node id, "" to stay on the current line, "@end" to close.
@@ -170,6 +171,17 @@ static func check(cond: Dictionary, ctx: Dictionary, rng: RandomNumberGenerator 
 			"max_age":
 				if int(ctx.get("age", 0)) > int(v):
 					return false
+			# Progression gates (C13, data/region1/progression_spine.json). A context that carries no figure (tests, plain
+			# conversations) is not gated; the story director passes the real soul tier, gear tier and level.
+			"min_soul_tier":
+				if int(ctx.get("soul_tier", 1 << 20)) < int(v):
+					return false
+			"min_gear_tier":
+				if int(ctx.get("gear_tier", 1 << 20)) < int(v):
+					return false
+			"min_level":
+				if int(ctx.get("level", 1 << 20)) < int(v):
+					return false
 			"has":
 				for key: Variant in _as_list(v):
 					if not _truthy(ctx.get(String(key))):
@@ -233,7 +245,7 @@ static func choices(d: Dictionary, node: String, ctx: Dictionary) -> Array:
 ## lines, unknown condition keys. Empty when the file is sound (used by tests).
 static func validate(d: Dictionary) -> PackedStringArray:
 	var known := ["tier", "tier_not", "min_tier", "bond", "time", "weather", "child", "role", "flag", "no_flag",
-		"event", "no_event", "min_op", "max_op", "min_age", "max_age", "has", "not_has", "chance"]
+		"event", "no_event", "min_op", "max_op", "min_age", "max_age", "has", "not_has", "chance", "min_soul_tier", "min_gear_tier", "min_level"]
 	var out := PackedStringArray()
 	var nodes: Dictionary = d.get("nodes", {})
 	if not nodes.has(start_node(d)):

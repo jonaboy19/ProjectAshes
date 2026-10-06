@@ -13,8 +13,8 @@ signal leave_requested
 const AF := preload("res://scripts/ui/ashes_frame.gd")
 const HudArt := preload("res://scripts/ui/hud_art.gd")
 
-const SHEET_TOP := 0.65          # fraction of the screen height where the sheet starts (lower 35%)
-const CHOICE_H := 52.0
+const SHEET_TOP := 0.66          # AAA pass 8: lower 28% (was 35%; the empty black half of the sheet hid the speaker)
+const CHOICE_H := 48.0      # touch target floor (test_talk_in_world)
 const MARGIN := 10.0
 
 var _panel: PanelContainer
@@ -24,7 +24,7 @@ var _role_label: Label
 var _rel_label: Label
 var _line: Label
 var _line_scroll: ScrollContainer
-var _choices_box: VBoxContainer
+var _choices_box: Container
 var _choices_scroll: ScrollContainer
 var _leave: Button
 var _buttons: Array[Button] = []
@@ -53,7 +53,28 @@ func _build() -> void:
 	_panel.offset_right = -MARGIN
 	_panel.offset_bottom = -MARGIN
 	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	var sb := HudArt.card_box(0.93, 12)
+	# AAA pass 9: no slab; a soft dark-to-clear gradient behind the text, thin gold rule on top
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.04, 0.035, 0.03, 0.55)
+	sb.border_color = Color(HudArt.GOLD, 0.55)
+	sb.border_width_top = 1
+	sb.content_margin_left = 16
+	sb.content_margin_right = 16
+	var fade := TextureRect.new()
+	var gt := GradientTexture2D.new()
+	gt.fill_from = Vector2(0, 1)
+	gt.fill_to = Vector2(0, 0)
+	var gg := Gradient.new()
+	gg.set_color(0, Color(0.03, 0.025, 0.02, 0.75))
+	gg.set_color(1, Color(0.03, 0.025, 0.02, 0.0))
+	gt.gradient = gg
+	fade.texture = gt
+	fade.stretch_mode = TextureRect.STRETCH_SCALE
+	fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fade.anchor_top = SHEET_TOP - 0.12
+	fade.anchor_bottom = 1.0
+	fade.anchor_right = 1.0
+	add_child(fade)
 	sb.content_margin_top = 8
 	sb.content_margin_bottom = 8
 	_panel.add_theme_stylebox_override("panel", sb)
@@ -111,7 +132,10 @@ func _build() -> void:
 	_choices_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_choices_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	right.add_child(_choices_scroll)
-	_choices_box = VBoxContainer.new()
+	_choices_box = GridContainer.new()      # AAA pass 9: two columns, every choice visible without scrolling
+	(_choices_box as GridContainer).columns = 2
+	_choices_box.add_theme_constant_override("h_separation", 6)
+	_choices_box.add_theme_constant_override("v_separation", 5)
 	_choices_box.add_theme_constant_override("separation", 5)
 	_choices_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_choices_scroll.add_child(_choices_box)
@@ -173,10 +197,11 @@ func _build_choices(options: Array) -> void:
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.custom_minimum_size = Vector2(0, CHOICE_H)
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.focus_mode = Control.FOCUS_NONE
 		b.disabled = not ok
 		b.add_theme_font_override("font", AF.font())
-		b.add_theme_font_size_override("font_size", 18)
+		b.add_theme_font_size_override("font_size", 16)
 		b.add_theme_stylebox_override("normal", _row_box(false, false))
 		b.add_theme_stylebox_override("hover", _row_box(true, false))
 		b.add_theme_stylebox_override("pressed", _row_box(true, true))

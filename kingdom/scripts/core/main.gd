@@ -223,7 +223,7 @@ func _ready() -> void:
 	world.add_child(region1)
 	region1.setup(self)
 	world.add_child(preload("res://scripts/world/towers/tower_site.gd").new())   # towers hook (docs/design tower plan)
-	preload("res://scripts/world/thornfield/hub.gd").attach(world)   # F8: Thornfield's quest wiring, clues, cart, wolves, night figure
+	preload("res://scripts/world/town_kit/town_hub.gd").attach_all(world, true)   # town kit: one hub per town file (quest wiring, clues, threat, specials; Thornfield: cart, figure, wilds); gated = asleep outside the settlement tier of the cell streamer
 
 	hud.set_loading_text("Ready", 1.0)
 	hud.hide_loading()
@@ -547,7 +547,9 @@ func _maybe_spawn_war_battle() -> void:
 
 func _on_raiders_defeated(camp: Node3D) -> void:
 	_raids_cleared += 1
-	var reward := 120 + 60 * _raids_cleared
+	# C13: the camp bounty was 120 + 60 per camp cleared, without end (the 20th paid 1320). It now tops out at the fifth camp and
+	# falls to a token bounty after the eighth: camps still come, they stop being a gold mine.
+	var reward := 120 + 40 * mini(_raids_cleared, 5) if _raids_cleared <= 8 else 40
 	Game.add_gold(reward)
 	Game.say("The raiders are broken! +%d gold." % reward)
 	Game.promote()
@@ -1101,6 +1103,11 @@ func _screenshot(shot: String, path: String) -> void:
 			var spg: Vector2 = cpg + dirg * (float(capg["radius"]) - float(_user_args().get("gate_in", "42")))
 			_teleport(spg, 0.0)
 			player.set_camera(atan2(-dirg.x, -dirg.y), -0.05)
+			# fixed load-wait (AAA pass 14): finish the town's sliced prop jobs before counting draws, so runs compare
+			settlements.focus = player.global_position
+			for _i in 4:
+				settlements.update_now()
+			settlements.finish_prop_jobs()
 			warmup = 120
 		"academy":
 			# QA view of the Kingsreach Academy campus (--dist=60 --rot=0.5 rad off the front axis, --pitch=-0.12).

@@ -412,3 +412,37 @@ func test_the_discovery_banner_sits_in_the_top_band_not_the_screen_centre() -> v
 	assert_float(HudLane.BANNER_Y).is_less(120.0)
 	assert_float(HudLane.y_for("banner", HudLane.BANNER_Y)).is_equal(HudLane.BANNER_Y)
 	HudLane.reset()
+
+
+# --- the job-offer card sits in the top lane under the banner, never over the middle of the screen --------------------
+
+func test_job_offer_card_stacks_under_toast_hint_and_banner() -> void:
+	HudLane.reset()
+	assert_float(HudLane.y_for("offer", HudLane.OFFER_Y)).is_equal(HudLane.OFFER_Y)
+	HudLane.report("banner", 58.0, 80.0)
+	assert_float(HudLane.y_for("offer", HudLane.OFFER_Y)).is_greater_equal(58.0 + 80.0)
+	HudLane.report("banner", 0.0, 0.0)
+	HudLane.set_menu_open(true)
+	assert_bool(HudLane.allowed("offer")).is_false()                      # held back while a menu is open
+	HudLane.reset()
+
+
+func test_job_offer_waits_for_the_player_to_stand_still() -> void:
+	HudLane.reset()
+	var ws: Node3D = preload("res://scripts/world/work_spots.gd").new()
+	add_child(auto_free(ws))
+	var btns: Array = [["Ask for work", func() -> void: pass], ["Not now", func() -> void: pass]]
+	ws._still = 0.0                                                         # just arrived, still walking
+	ws._offer_card("Saltwick: Guard", "3 work orders today.", btns, "k")
+	assert_bool(ws._offer == null or not ws._offer.visible).is_true()
+	ws._still = ws.OFFER_STILL + 0.5                                        # stands still
+	ws._offer_card("Saltwick: Guard", "3 work orders today.", btns, "k")
+	assert_bool(ws._offer != null and ws._offer.visible).is_true()
+	# it is a compact card in the top lane: narrower than the old 620 px panel and clear of the screen centre
+	assert_float(ws._offer.offset_right - ws._offer.offset_left).is_less_equal(460.0)
+	assert_float(ws._offer.offset_top).is_less(160.0)
+	assert_bool(HudLane._rects.has("offer")).is_true()
+	ws._still = 0.0                                                         # walks on: the card goes away
+	ws._offer_card("Saltwick: Guard", "3 work orders today.", btns, "k")
+	assert_bool(ws._offer.visible).is_false()
+	HudLane.reset()

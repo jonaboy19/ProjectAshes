@@ -1,0 +1,76 @@
+{
+ "id": "oakvale_thinning_the_wolves",
+ "title": "Thinning the Wolves",
+ "summary": "Wolf sign has been found at the edge of Greenhollow: tracks too big for a dog and fences torn outward. Eorl Seedley wants 2 of them dealt with.",
+ "giver": {
+  "npc": "eorl_seedley",
+  "name": "Eorl Seedley",
+  "place": "oakvale"
+ },
+ "requires": [
+  "oakvale_light_on_the_scales"
+ ],
+ "offer_text": "\"The wolves have come closer to Greenhollow each night: howling closer every night. Go to the edge and thin them out, before someone is hurt.\"",
+ "turn_in_text": "\"Quieter already. I will sleep tonight. A little.\"",
+ "stages": [
+  {
+   "id": "edge",
+   "title": "Go to the edge of town",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "oakvale_outskirts",
+     "text": "Go to where the wolves were seen"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Thin them out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "oakvale_outskirts",
+     "count": 2,
+     "text": "Kill 2 wolves near Greenhollow"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Eorl",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "eorl_seedley",
+     "text": "Tell Eorl Seedley it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 25,
+  "rep": {
+   "oakvale": 5
+  },
+  "relationship": [
+   {
+    "npc": "eorl_seedley",
+    "label": "Kept the wolves from the edge",
+    "value": 10,
+    "days": 60
+   }
+  ],
+  "items": {
+   "bread": 2
+  }
+ }
+}

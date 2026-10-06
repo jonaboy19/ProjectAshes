@@ -1,0 +1,22 @@
+{
+ "_doc": "Region 1 progression spine (package C13). The end-of-region power targets the 100-day balance run is measured against (tools_qa/region1/balance_run.gd, report docs/regions/BALANCE_R1.md, test tests/test_balance_r1.gd), and the Rift gate: what a player must have before the main quest opens the Rift's Edge (step a5_rifts_edge). Read by scripts/region1/progression_spine.gd. Gear tier is the mean item tier, rounded to nearest with .5 going down, (data/items, tier 0..6) of the six core slots worn (main hand, body, head, legs, feet, off hand); an empty slot counts 0. Career rank is the 1-based position on the ladder the player follows (soldier ranks, Life.career_rank on ladders.json, guild rank F=1). Soul tier is soul.gd's tier index (0 Ember, 3 Tempered, 4 Forged).",
+ "horizon_days": 100,
+ "targets": {
+  "first_house_day_max": 25,
+  "top_rank_day_min": 60,
+  "soul_tier": [3, 4],
+  "career_rank": [4, 5],
+  "gear_tier": [2, 2],
+  "level_min": 13,
+  "fed_share_min": 0.9,
+  "money": {"growth_ratio_max": 1.6, "single_source_share_max": 0.55, "gold_per_day_max": 120}
+ },
+ "rift_gate": {
+  "story_step": "a4_five_hearts",
+  "opens_step": "a5_rifts_edge",
+  "min_soul_tier": 3,
+  "min_gear_tier": 2,
+  "min_level": 12,
+  "hint": "The Rift's Edge is no place to walk into half-ready. Warden Idra wants you Tempered, in iron, and past level 12 before she opens the road."
+ }
+}

@@ -365,10 +365,22 @@ func _mend(id: int) -> String:
 		return ""
 	if wl.day_f - wl.last_repair[id] < 0.4 and wl.condition[id] > 0.6:
 		return "It was mended not long ago."
+	var cond_before: float = wl.condition[id]
 	wl.repair(id)
 	Life.record("mended_stone", 1.0)
+	_pay_stone_work("mend", cond_before, 0.7)
 	_sfx_near("r1_ward_activate", _stone_world(id), 40.0)
 	return "You scrape the moss from the runes and re-cut what the weather took."
+
+
+## C13 (docs/regions/BALANCE_R1.md): Runeward Legion members are paid for stone work (career_trades.gd stone_work); nobody else is.
+func _pay_stone_work(kind: String, cond_before: float, q: float) -> void:
+	var tr: Variant = Life.realm.mod("trades")
+	if tr == null or not bool(tr.call("is_member", "wardwright")):
+		return
+	var r: Dictionary = tr.call("stone_work", kind, cond_before, q, int(WorldSim.day))
+	if int(r.get("gold", 0)) > 0:
+		Game.say(String(r.get("text", "")))
 
 
 # --- the carve canvas ------------------------------------------------------------------
@@ -404,6 +416,7 @@ func _on_carved(glyph: String, result: Dictionary) -> void:
 	var res := wl.carve(id, glyph)
 	var sp := _stone_world(id)
 	if bool(res.get("ok", false)):
+		_pay_stone_work("carve", 1.0, float(result.get("score", 0.7)))
 		Game.say("A %s glyph takes on %s." % [glyph, String(_net.stones[id]["name"])])
 		_sfx_near("r1_glyph_carve", sp, 40.0)
 		Region1TutorialDirector.tell(&"carve")
@@ -890,7 +903,7 @@ func _flag_sites() -> void:
 	for s: Dictionary in _net.stones:
 		AshMemory.flag_site_static(String(s["name"]), s["pos"])
 	# Story places the quest reads the ashes of.
-	for pid: String in ["miller_stone", "ashford_ring", "greenhollow_farm", "crownstead"]:
+	for pid: String in ["miller_stone", "ashford_ring", "greenhollow_farm", "crownstead", "hollin_cut_stone"]:
 		var r := Places.resolve(pid)
 		if not r.is_empty():
 			AshMemory.flag_site_static(Places.place_name(pid), r["pos"])
@@ -919,6 +932,17 @@ func _story_ash_site(pp: Vector2) -> String:
 			var r := Places.resolve(String(o.get("site", "")))
 			if not r.is_empty() and pp.distance_to(r["pos"]) <= maxf(float(r["radius"]), 50.0):
 				return String(o["site"])
+	# Optional memories (registry "ash_sites"): readable once their step's objective is done, never required.
+	var extra: Dictionary = Places.registry().get("ash_sites", {})
+	for sid: String in extra:
+		var spec: Variant = extra[sid]
+		if sid.begins_with("_") or not (spec is Dictionary):
+			continue
+		var r2 := Places.resolve(sid)
+		if r2.is_empty() or story.story.has_flag(String(spec["flag"])) or not story.story.objective_done(String(spec["step"]), String(spec["after"])):
+			continue
+		if pp.distance_to(r2["pos"]) <= maxf(float(r2["radius"]), 50.0):
+			return sid
 	return ""
 
 
@@ -935,6 +959,9 @@ func _ash_menu_stage(site: String) -> Dictionary:
 func _kneel_stage(site: String) -> String:
 	var r := Places.resolve(site)
 	var id := stage_memory(r["pos"], site)
+	var spec: Variant = (Places.registry().get("ash_sites", {}) as Dictionary).get(site)
+	if spec is Dictionary and id >= 0:
+		story.set_flag(String(spec["flag"]))     # an optional memory (hollin_cut_stone) is read once
 	return _kneel(id)
 
 

@@ -47,6 +47,8 @@ var _radii: Array[float] = []
 var _scan_timer := 0.0
 var _ambient: Node = null
 var _last_count := -1
+var _slot_last := PackedVector4Array()      # what each slot held when it was last sent (NaN = never)
+var _slot_names: Array[String] = []
 var _slow_timer := 0.0
 
 
@@ -140,7 +142,18 @@ func _process(delta: float) -> void:
 
 
 func _set_slot(i: int, p: Vector3, r: float) -> void:
-	RenderingServer.global_shader_parameter_set(SLOT % i, Vector4(p.x, p.y, p.z, r))
+	# CPU pass 2026-10-06: a slot whose value did not change since the last frame (a player standing still, a resting villager) is
+	# not sent to the renderer again, and the slot names are built once instead of formatting a string per slot per frame.
+	var v := Vector4(p.x, p.y, p.z, r)
+	if _slot_last.size() != MAX:
+		_slot_last.resize(MAX)
+		_slot_last.fill(Vector4(NAN, NAN, NAN, NAN))
+		for k in MAX:
+			_slot_names.append(SLOT % k)
+	if _slot_last[i] == v:
+		return
+	_slot_last[i] = v
+	RenderingServer.global_shader_parameter_set(_slot_names[i], v)
 
 
 func _publish_count(n: int) -> void:

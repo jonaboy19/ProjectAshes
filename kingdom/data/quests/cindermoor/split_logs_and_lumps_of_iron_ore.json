@@ -1,0 +1,89 @@
+{
+ "id": "cindermoor_split_logs_and_lumps_of_iron_ore",
+ "title": "Split Logs and Lumps of Iron Ore",
+ "summary": "Two loads wait in Cindermoor: split logs for Esmer Forrest and lumps of iron ore for Greta Crowther. Wystan Seam wants them moved before the carters leave for the forges.",
+ "giver": {
+  "npc": "wystan_seam",
+  "name": "Wystan Seam",
+  "place": "cindermoor"
+ },
+ "offer_text": "\"Two things are late and both are mine to answer for. Esmer Forrest waits on split logs and Greta Crowther on lumps of iron ore. Fetch them in any order, before the carters leave for the forges.\"",
+ "turn_in_text": "\"Both in. I shall sleep tonight, which is rare.\"",
+ "stages": [
+  {
+   "id": "gather",
+   "title": "Gather both loads",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load1",
+     "type": "collect",
+     "item": "firewood",
+     "count": 4,
+     "text": "Take 4 split logs from the kilns"
+    },
+    {
+     "id": "load2",
+     "type": "collect",
+     "item": "iron_ore",
+     "count": 4,
+     "text": "Take 4 lumps of iron ore from the second stack"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Deliver them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "to1",
+     "type": "deliver",
+     "item": "firewood",
+     "count": 4,
+     "to": "esmer_forrest",
+     "text": "Hand the split logs to Esmer Forrest"
+    },
+    {
+     "id": "to2",
+     "type": "deliver",
+     "item": "iron_ore",
+     "count": 4,
+     "to": "greta_crowther",
+     "text": "Hand the lumps of iron ore to Greta Crowther"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Wystan",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "wystan_seam",
+     "text": "Tell Wystan Seam both are in"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 20,
+  "rep": {
+   "cindermoor": 4
+  },
+  "relationship": [
+   {
+    "npc": "wystan_seam",
+    "label": "Cleared two late loads",
+    "value": 9,
+    "days": 60
+   }
+  ],
+  "items": {
+   "ale": 1
+  }
+ }
+}

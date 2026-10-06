@@ -1,0 +1,131 @@
+{
+ "id": "cindermoor_kit_will_not_say_it_loud",
+ "title": "Kit Will Not Say It Loud",
+ "summary": "Something went wrong at night in Cindermoor, and Maeve Swale says Kit Ingleby saw it. Maeve Swale wants it checked before names are said.",
+ "giver": {
+  "npc": "maeve_swale",
+  "name": "Maeve Swale",
+  "place": "cindermoor"
+ },
+ "requires": [
+  "cindermoor_split_logs_and_lumps_of_iron_ore"
+ ],
+ "offer_text": "\"Somebody was in my place after dark. Kit Ingleby saw something and will not say it loud. Hear Kit, then see if the story holds.\"",
+ "stages": [
+  {
+   "id": "ask",
+   "title": "Hear Kit out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hear",
+     "type": "talk_to",
+     "npc": "kit_ingleby",
+     "text": "Ask Kit Ingleby what they saw"
+    }
+   ]
+  },
+  {
+   "id": "look",
+   "title": "Check the story",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "cindermoor/clue/c1",
+      "cindermoor/clue/c2",
+      "cindermoor/clue/c3"
+     ],
+     "count": 2,
+     "text": "Find two signs that match what Kit said"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Say what you will do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "maeve_swale",
+     "options": [
+      {
+       "id": "name",
+       "text": "Name Sunniva to Maeve",
+       "say": "Maeve goes quiet. \"I will deal with it. Openly.\""
+      },
+      {
+       "id": "warn",
+       "text": "Warn Sunniva quietly and leave it",
+       "say": "Sunniva will owe you. You can see it in the shoulders."
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "name": "named",
+    "warn": "warned"
+   }
+  },
+  {
+   "id": "named",
+   "title": "Maeve hears it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "maeve_swale",
+     "text": "Tell Maeve Swale it is settled"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 18,
+    "rep": {
+     "cindermoor": 5
+    },
+    "relationship": [
+     {
+      "npc": "maeve_swale",
+      "label": "Named the culprit",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "warned",
+   "title": "Let Sunniva know",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "warned",
+     "type": "talk_to",
+     "npc": "sunniva_vickery",
+     "text": "Tell Sunniva Vickery you kept it quiet"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 24,
+    "rep": {
+     "cindermoor": -2
+    },
+    "relationship": [
+     {
+      "npc": "sunniva_vickery",
+      "label": "Kept quiet about it",
+      "value": 15,
+      "days": 120
+     }
+    ]
+   }
+  }
+ ]
+}
