@@ -218,7 +218,7 @@ func test_lamps_have_no_omni_on_low_and_medium_but_keep_the_group() -> void:
 	add_child(root)
 	auto_free(root)
 	var br := TorchProps.brazier(root, Vector3(4, 0, 4))
-	assert_int((br["node"] as MeshInstance3D).mesh.get_surface_count()).is_equal(2)
+	assert_int((br["node"] as MeshInstance3D).mesh.get_surface_count()).is_equal(3)   # iron, fire, coals (AAA pass 2 wrought basket with a coal heap)
 	var specs := [{"pos": Vector3(0, 3, 0), "range": 9.0}, {"pos": Vector3(6, 3, 0), "range": 8.0}, {"pos": br["glow_pos"], "range": 7.0}]
 	if q:
 		q.set("tier", 0)

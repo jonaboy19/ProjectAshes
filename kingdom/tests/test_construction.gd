@@ -50,6 +50,30 @@ func _flat() -> Vector2:
 	return Vector2.INF
 
 
+## Like _flat(), but the open ground around it must also be walkable and out in the wild: the perf test routes ~140 m across it,
+## and the first flat spot of a scan can sit under a cliff (new world sites change which spot that is), which made Nav.route
+## return no way through. It must also lie beyond 3 settlement radii of any town (+ the 150 m the test spreads over), because a
+## finished building within that range registers with the town's street graph (~10 ms each, not what this test measures).
+func _flat_walkable() -> Vector2:
+	var m := _mod()
+	for x in range(-900, 900, 60):
+		for z in range(-900, 900, 60):
+			var p := Vector2(x, z)
+			var ok := true
+			for st: Dictionary in WorldGen.settlements:
+				if (st["pos"] as Vector2).distance_to(p + Vector2(60, 60)) < float(st["radius"]) * 3.0 + 150.0:
+					ok = false
+					break
+			for i in 7:
+				if not ok:
+					break
+				if m.can_place_here("keep", p + Vector2(14.0 * i, 0.0), 0.0) != "":
+					ok = false
+			if ok and Nav.route(m, p + Vector2(-20, 20), p + Vector2(120, 100)).size() >= 2:
+				return p
+	return Vector2.INF
+
+
 func _at(i: int) -> Vector2:
 	return _flat() + Vector2(14.0 * i, 0.0)
 
@@ -561,7 +585,8 @@ func test_stage_names_follow_progress() -> void:
 func test_perf_many_sites_and_long_absence() -> void:
 	var m := _mod(_rich())
 	m.bag = {}
-	var base := _flat()
+	var base := _flat_walkable()
+	assert_bool(base != Vector2.INF).is_true()
 	for i in 60:
 		var pos := base + Vector2(float(i % 10) * 9.0, float(i / 10) * 9.0 + 40.0)
 		var id := _add_raw(m, "fence" if i % 2 == 0 else "hut", pos)

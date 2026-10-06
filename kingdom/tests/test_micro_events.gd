@@ -199,11 +199,11 @@ func test_nothing_to_pick_returns_empty() -> void:
 
 
 # ---------------------------------------------------------------- budget
-func test_budget_allows_at_most_two_scenes() -> void:
+func test_budget_allows_at_most_three_scenes() -> void:
 	assert_bool(MicroEvents.budget_allows(0, 0, 8, 24)).is_true()
 	assert_bool(MicroEvents.budget_allows(1, 4, 8, 24)).is_true()
 	assert_bool(MicroEvents.budget_allows(MicroEvents.MAX_ACTIVE, 0, 0, 24)).is_false()
-	assert_int(MicroEvents.MAX_ACTIVE).is_equal(2)
+	assert_int(MicroEvents.MAX_ACTIVE).is_equal(3)   # AAA pass 3 raised the cap from two to three vignettes
 
 
 func test_budget_caps_actors_by_tier_and_crowd() -> void:
