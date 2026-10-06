@@ -350,3 +350,7 @@ AAA-review backlog from this task:
 - Cloud POI renders: outdoor flat beige = harness stand-in heightfield, not the game. Rift box rooms with blurry stretched rock = real.
 - Oakvale aerial washout (fog/aerial perspective at altitude) and blurry house atlases up close: not addressed, owners Style G env / build-kit.
 - LOW tier: no LOW changes pushed (phone-perf agent unaffected).
+
+## Baked quality (2026-10-06, worktree PA_wt_baked)
+- Phase 1 shipped: offline vertex AO + painterly warm/cool light for 199 town building/prop meshes (BakedVao, assets/baked/vao, 1.4 MB). Skill ashes-baked-quality.
+- Results docs/art/baked_quality/ (LOW 3->3.5, HIGH 4->4.5 vs target; fps invalid: laptop on battery). Open: HIGH draws +25% from material duplicates (fix next), walls/gatehouse not baked, atlases/HLOD not started.
