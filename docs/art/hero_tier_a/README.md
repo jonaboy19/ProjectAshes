@@ -81,3 +81,20 @@ Rating: about 6.5/10. Still not default.
   - Harsh painted brows.
 
 Rating: about 5/10 (palette and silhouette at distance about 6, close-up 4). It loses to m13 (about 6.5), so it is not default. Benchmark street not run.
+
+## Paid Meshy hero, pass 3 (2026-10-06): `n4_sheet.jpg`, `n4_clips.jpg`
+- **Arms:** narrowed 18 % (`hero_fix.py --narrow=0.18`). Arms and shoulders only: the first try also caught the legs and made the hero float.
+- **Hood:** forced to matte wool by a vertex mask (COLOR.r), not by colour heuristics.
+- **Lips:** the lipstick red is muted in the shader.
+- **Noise:** mip bias 0.6 and detail normals at 0.5 calm the close-up texture.
+- **Face camera:** now aimed from the lid patch at the real eye height.
+- **Boot shift:** capped at 3 cm (`--maxshift`).
+
+Rating: about 5.5/10.
+- Better: the outfit read at distance and the matte hood.
+- Still wrong:
+  - The hulking cloak silhouette from behind.
+  - Run and attack soles still stretch backwards; this needs hand-painted foot weights.
+  - The low-poly face planes up close.
+
+It doesn't beat m13 (about 6.5), so it is not default. Benchmark street not run.

@@ -22,6 +22,8 @@ uniform vec3 scatter_color : source_color = vec3(1.0, 0.38, 0.24);
 uniform vec3 rim_color : source_color = vec3(1.0, 0.85, 0.68);
 uniform float ambient_lift = 0.26;          // hero readability in back-lit shadow (character fill)
 uniform float painterly = 0.7;
+uniform float detail_strength = 0.5;        // calmer normals (close-up noise)
+uniform bool use_mask = true;                // vertex COLOR.r = forced matte wool (hood), from hero_fix.py
 uniform float debug_classes = 0.0;           // 1 = show the class map (QA)
 
 varying vec3 v_pos;
@@ -37,7 +39,7 @@ vec3 rgb2hsv(vec3 c) {
 }
 
 void fragment() {
-	vec3 c = texture(albedo_tex, UV).rgb * tint.rgb;
+	vec3 c = texture(albedo_tex, UV, 0.6).rgb * tint.rgb;          // slight mip bias: calmer AI texture noise
 	vec3 c_soft = texture(albedo_tex, UV, 1.6).rgb * tint.rgb;      // painterly: skin uses a softer mip (Style G, not photo)
 	vec3 hsv = rgb2hsv(c);
 	float head = smoothstep(neck_y - 0.03, neck_y + 0.02, v_pos.y);
@@ -52,7 +54,11 @@ void fragment() {
 	float linen = (1.0 - head) * smoothstep(0.5, 0.65, hsv.z) * (1.0 - smoothstep(0.15, 0.3, hsv.y)) * (1.0 - metal);
 	skin *= 1.0 - wool;
 	c = mix(c, c_soft, skin * painterly);
+	// tame painted lipstick-red: very saturated red skin texels -> muted warm lip tone
+	float lipred = (1.0 - smoothstep(0.03, 0.06, abs(hsv.x - 0.0) * (hsv.x > 0.5 ? 0.0 : 1.0) + (hsv.x > 0.9 ? 0.0 : 0.0))) * smoothstep(0.5, 0.7, hsv.y);
+	c = mix(c, vec3(dot(c, vec3(0.333))) * vec3(1.12, 0.82, 0.74), clamp(lipred, 0.0, 1.0) * 0.6);
 	c *= vec3(1.04, 1.0, 0.95);                                     // Style G warm grade
+	if (use_mask && COLOR.r > 0.5) { skin = 0.0; hair = 0.0; leather = 0.0; metal = 0.0; linen = 0.0; wool = 1.0; }
 	float other = clamp(1.0 - skin - hair - leather - metal - wool - linen, 0.0, 1.0);
 
 	vec2 duv = UV * 2048.0 / 64.0 * detail_scale;          // ~1 noise tile per 64 atlas texels
@@ -81,7 +87,7 @@ void fragment() {
 	float l = dot(c, vec3(0.299, 0.587, 0.114));
 	c = mix(vec3(l), c, saturation);
 	ALBEDO = mix(c, skin * vec3(1, 0.6, 0.5) + hair * vec3(0.4, 0.25, 0.1) + leather * vec3(0.5, 0.3, 0.1) + metal * vec3(0.7) + wool * vec3(0.2, 0.6, 0.2) + linen * vec3(0.9, 0.9, 0.7), debug_classes);
-	NORMAL_MAP = normalize(vec3(nrm, 1.0)) * 0.5 + 0.5;
+	NORMAL_MAP = normalize(vec3(nrm * detail_strength, 1.0)) * 0.5 + 0.5;
 	ROUGHNESS = skin * mix(0.52, 0.42, smoothstep(0.55, 0.75, hsv.z)) + hair * 0.5 + leather * mix(0.5, 0.72, n1) + metal * 0.35
 		+ wool * 1.0 + linen * 0.92 + other * mix(0.85, 0.8, head);
 	METALLIC = metal * 0.8;
