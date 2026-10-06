@@ -326,6 +326,7 @@ func _run() -> void:
 	if want("26"): await _s26_pivot_directions()
 	if want("27"): await _s27_actor_contact()
 	if want("28"): await _s28_wolf_pack_close()
+	if want("29"): await _s29_casts_v2()
 	log_line("DONE")
 	# quit() is deferred; stop the next frame from writing the closed CSV.
 	set_process(false)
@@ -370,6 +371,35 @@ func _s28_wolf_pack_close() -> void:
 	for w in pack:
 		if is_instance_valid(w):
 			w.queue_free()
+
+
+## Casting v2 clips on elemental magic-path spells (fire / water / wind / earth), standing, with the effect spawn frame logged.
+func _s29_casts_v2() -> void:
+	var caster := player.get_node_or_null("TechniqueCaster")
+	if caster == null:
+		log_line("no TechniqueCaster on the player")
+		return
+	await teleport(_flat, 0.0, 30)
+	player.set_camera(player._yaw, -0.1)
+	player._model.rotation.y = player._yaw + 0.7     # turn the body toward the camera (three-quarter view of the cast)
+	begin("29_casts_v2")
+	var pp: Object = Life.realm.mod("power_paths")
+	if pp != null and not pp.call("knows", "magic"):
+		pp.call("learn", "magic", "academy")
+	caster.runner.hooks["known"] = func(_id: String) -> bool: return true     # QA: path-tree spells need not be learned
+	for id: String in ["mg_fire_ember", "mg_water_lance", "mg_wind_blade", "mg_stone_bullet"]:
+		player.stamina = 100.0
+		Life.magicules.max_pool = 400.0
+		Life.magicules.current = 400.0
+		await frames(20)
+		var r: Dictionary = caster.cast_technique(id, true)    # sealed: skips the seal pad
+		var d: Dictionary = r.get("def", {})
+		log_line("has Cast_Fire_Release=%s Charge=%s v2=%s" % [str(player._animator.player.has_animation("Cast_Fire_Release")), str(player._animator.player.has_animation("Cast_Fire_Charge")), str(caster._cast_v2_clip(preload("res://scripts/abilities/ability_def.gd").flat(caster._lookup_raw("mg_fire_ember"))))])
+		log_line("cast %s ok=%s reason=%s windup=%.2f el=%s" % [id, str(r.get("ok")), str(r.get("reason", "")), float(d.get("hit_time", 0.0)), str(d.get("element", ""))])
+		for i in 10:
+			await frames(8)
+			log_line("  t+%d cur=%s" % [(i + 1) * 8, str(player._animator.player.current_animation)])
+	finish()
 
 
 func _s27_actor_contact() -> void:

@@ -61,6 +61,11 @@ const DASH_DECEL := 12.0         # player.gd IMPULSE_DECEL: kick speed = sqrt(2 
 const DASH_WIDTH := 1.6
 const BURN_TICK := 0.5
 const CAST_LOCK := 0.3           # s between casts so taps do not stack (the runner's lockout)
+## Casting v2 clips (docs/anim/free_library/polish_casting.md): element -> [release frame at 30 fps]. The release frame is the
+## frame the effect must spawn on. v2 clips run at CAST_V2_SPEEDUP, so the effect windup of an elemental spell that has no bending
+## clip is floored to release / speedup (fire 0.41 s .. dark 0.64 s) and the hands blast out on the very frame the effect spawns.
+const CAST_V2_RELEASE := {"fire": 17, "water": 18, "earth": 18, "wind": 15, "lightning": 19, "ice": 17, "light": 23, "dark": 27}
+const CAST_V2_SPEEDUP := 1.4
 const ELEMENT_COLORS := {
 	"fire": Color(1.0, 0.45, 0.12), "water": Color(0.35, 0.75, 1.0), "wind": Color(0.85, 1.0, 0.95),
 	"earth": Color(0.75, 0.55, 0.3), "lightning": Color(0.7, 0.8, 1.0), "qi": Color(1.0, 0.85, 0.35),
@@ -85,6 +90,7 @@ var runner: RefCounted
 ## Effects on targets we hit (burns...): instance id -> {node, set}.
 var _boards: Dictionary = {}
 var _ability_cache: Dictionary = {}
+var _v2_cache: Dictionary = {}
 var _seal_target: Node3D
 var _seal_id := ""
 var _seal_seq: Array = []
@@ -405,6 +411,18 @@ func _blocked() -> String:
 
 ## The ability for an id: the live skills.gd trees first (so runtime add_tree works), else the path trees.
 func _lookup(id: String) -> Dictionary:
+	var raw := _lookup_raw(id)
+	if player == null or player.get("_animator") == null:
+		return raw
+	var hit: Variant = _v2_cache.get(id)
+	if hit != null and is_same((hit as Dictionary)["raw"], raw):
+		return (hit as Dictionary)["out"]
+	var out := _with_cast_v2(raw)
+	_v2_cache[id] = {"raw": raw, "out": out}
+	return out
+
+
+func _lookup_raw(id: String) -> Dictionary:
 	if skills != null and skills.techniques.has(id):
 		var t: Dictionary = skills.techniques[id]
 		var c: Variant = _ability_cache.get(id)
@@ -413,6 +431,40 @@ func _lookup(id: String) -> Dictionary:
 			_ability_cache[id] = c
 		return (c as Dictionary)["ab"]
 	return PowerTrees.ability(id)
+
+
+## Elemental spells without a bending clip play the v2 cast clip; the windup is floored so the clip's release frame and the
+## effect spawn coincide. Returns the ability itself when nothing changes, else a copy (the shared tables stay untouched).
+func _with_cast_v2(ab: Dictionary) -> Dictionary:
+	if ab.is_empty():
+		return ab
+	var clip := _cast_v2_clip(AbilityDef.flat(ab))
+	if clip == "":
+		return ab
+	var floor_s := float(CAST_V2_RELEASE[String(ab.get("element", ""))]) / 30.0 / CAST_V2_SPEEDUP
+	if float(ab["windup"]) >= floor_s:
+		return ab
+	var copy := ab.duplicate()
+	copy["windup"] = floor_s
+	var flat_copy: Dictionary = (ab.get("flat", {}) as Dictionary).duplicate()
+	flat_copy["hit_time"] = floor_s
+	copy["flat"] = flat_copy
+	if copy.has("cooldown"):
+		copy["cooldown"] = maxf(float(copy["cooldown"]), floor_s + float(copy.get("recover", 0.0)))
+	return copy
+
+
+## `Cast_<Element>_Release` for a spell of that element whose own clips are not bending clips, if the rig has it.
+func _cast_v2_clip(flat: Dictionary) -> String:
+	var element := String(flat.get("element", ""))
+	if not CAST_V2_RELEASE.has(element) or player == null or BendingLibrary.is_bending(flat):
+		return ""
+	var anim: Variant = player.get("_animator")
+	if anim == null:
+		return ""
+	var ap: Variant = (anim as Object).get("player")
+	var clip := "Cast_%s_Release" % element.capitalize()
+	return clip if ap is AnimationPlayer and (ap as AnimationPlayer).has_animation(clip) else ""
 
 
 func _is_legacy(def: Dictionary) -> bool:
@@ -572,6 +624,15 @@ func _play_clip(def: Dictionary) -> void:
 		return
 	var ap: Variant = (anim as Object).get("player")
 	if ap is AnimationPlayer:
+		var v2 := _cast_v2_clip(def)
+		if v2 != "":
+			# Standing: the whole body casts (hips lead, a foot steps); moving: arms and spine over the legs.
+			var speed_v2 := clampf(float(CAST_V2_RELEASE[String(def["element"])]) / 30.0 / maxf(float(def["hit_time"]), 0.05), 0.8, 2.0)
+			if float(player.get("_move_speed")) < 0.3:
+				anim.call("play_full", v2, speed_v2)
+			else:
+				anim.call("play_upper", v2, speed_v2)
+			return
 		# First clip of the preference list the rig has (bending clips install on demand, new imports first,
 		# stock UAL last). BendingLibrary.play_cast uses the same upper / full OneShot slots as before and
 		# only retimes the clip so its strike lands on the technique's windup.
