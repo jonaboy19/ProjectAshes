@@ -22,7 +22,7 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market
 	var dir := (e - a).normalized()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 90210 + int(s["id"])
-	var lists := {"woodpile": [], "washing_line": [], "water_trough": [], "barrel": [], "bench": [], "crate_stack": [], "sack_pile": [], "mf_lantern_wall_scroll": [], "flower_bed": [], "banner_pole": [], "market_stall_red": [], "mf_lamp_post_timber_cross": []}
+	var lists := {"woodpile": [], "washing_line": [], "water_trough": [], "barrel": [], "bench": [], "crate_stack": [], "sack_pile": [], "mf_lantern_wall_scroll": [], "flower_bed": [], "banner_pole": [], "market_stall_red": [], "mf_lamp_post_timber_cross": [], "mf_fence_picket_low": [], "mf_bush_raspberry": []}
 	var doors: Array = []          # [door point, out normal toward street, side sign, t along street]
 	for lot: Dictionary in plan["lots"]:
 		var lp: Vector2 = lot["pos"]
@@ -86,7 +86,7 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market
 		var k3 := 0
 		while t3 < len2 - 6.0:
 			for sg: float in [1.0, -1.0]:
-				var edge := a + dir * (t3 + (1.8 if sg < 0.0 else 0.0)) + dir.orthogonal() * sg * (half - 1.1)
+				var edge := a + dir * (t3 + (1.8 if sg < 0.0 else 0.0)) + dir.orthogonal() * sg * (half - 2.0)     # pass 11: stalls step in, the road reads narrow
 				var face := atan2(-dir.orthogonal().x * sg, -dir.orthogonal().y * sg)
 				match (k3 + (1 if sg < 0.0 else 0)) % 4:
 					0:
@@ -99,8 +99,19 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market
 						_add(lists, "barrel", edge + dir * 1.0, rng.randf() * TAU, 0.0)
 					3:
 						_add(lists, "flower_bed", edge, face, 0.0)
+				# outer verge: low picket fence and bushes between the stall row and the house fronts (frame edges)
+				var outer := a + dir * (t3 + 3.5) + dir.orthogonal() * sg * (half + 1.4)
+				_add(lists, "mf_fence_picket_low", outer, atan2(dir.x, dir.y) + PI * 0.5, 0.0)
+				if k3 % 2 == 0:
+					_add(lists, "mf_bush_raspberry", outer + dir * 2.0, rng.randf() * TAU, 0.0)
 			t3 += 7.0
 			k3 += 1
+		# tall red heraldic banners flanking the gate opening (the target's gate reads by its banners): banner poles at 2x
+		var gwr: float = float(plan["wall_radius"]) if plan["walls"] else float(s["radius"]) * 1.1
+		var gc := (s["pos"] as Vector2) + dir * (gwr - 2.2)
+		for sg2: float in [1.0, -1.0]:
+			var bp := gc + dir.orthogonal() * sg2 * 6.2
+			(lists["banner_pole"] as Array).append(Transform3D(Basis(Vector3.UP, atan2(-dir.x, -dir.y)).scaled(Vector3.ONE * 2.1), Vector3(bp.x, WorldGen.height(bp.x, bp.y) - 0.05, bp.y)))
 	# the road: puddles in the ruts and worn verges along both edges
 	if decals:
 		var len := a.distance_to(e)
@@ -113,6 +124,7 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market
 			t2 += rng.randf_range(9.0, 14.0)
 	# the street's daily work routine (dawn farmers .. night watch) and warm door lanterns at night
 	var routines: Node = preload("res://scripts/world/street_routines.gd").new()
+	routines.set("enabled_tier", not bool(b.call("_low")))     # LOW: no extra vignettes (skinned draw budget)
 	routines.set("centre", a + dir * a.distance_to(e) * 0.5)
 	var dpts: Array = []
 	for d: Array in doors:
