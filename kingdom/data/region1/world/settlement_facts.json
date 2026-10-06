@@ -1,0 +1,457 @@
+{
+ "version": 1,
+ "_doc": "The layout facts of each Region 1 settlement that only exist at runtime (WorldGen seed 1066, WorldSim.SEED): id = WorldGen NAMES index, kind (village | town | frontier_town | castle), population, radius and centre in metres. settlements.json has the identity (trade, landmark, named NPC) but not these, so tools/towns/gen_town.py reads both. Regenerate by dumping WorldGen.settlements after WorldGen.setup(1066) if the layout seed ever changes; tests/test_town_kit.gd checks the file against the live world. lots / house_lots / walled are the CityPlanner plan's lot count, house-lot count and wall flag measured before any town file forced lots (Thornfield is already forced: its house_lots is what was left). kid_rows is how many WorldSim rows of the settlement can bind a child roster entry (a laborer row whose hash marks it a child, see town_roster.gd _pick): the generator never writes more children than that.",
+ "seed": 1066,
+ "settlements": [
+  {
+   "id": 0,
+   "kind": "village",
+   "name": "Ashford",
+   "population": 210,
+   "pos": [
+    0.0,
+    0.0
+   ],
+   "radius": 60.0,
+   "lots": 20,
+   "house_lots": 17,
+   "walled": false,
+   "kid_rows": 6
+  },
+  {
+   "id": 1,
+   "kind": "castle",
+   "name": "Kingsreach",
+   "population": 1600,
+   "pos": [
+    560.0,
+    -420.0
+   ],
+   "radius": 175.0,
+   "lots": 275,
+   "house_lots": 252,
+   "walled": true,
+   "kid_rows": 35
+  },
+  {
+   "id": 2,
+   "kind": "village",
+   "name": "Millbrook",
+   "population": 210,
+   "pos": [
+    1050.8,
+    816.4
+   ],
+   "radius": 60.0,
+   "lots": 19,
+   "house_lots": 13,
+   "walled": false,
+   "kid_rows": 1
+  },
+  {
+   "id": 3,
+   "kind": "village",
+   "name": "Stonehollow",
+   "population": 210,
+   "pos": [
+    -453.7,
+    1156.4
+   ],
+   "radius": 60.0,
+   "lots": 21,
+   "house_lots": 17,
+   "walled": false,
+   "kid_rows": 1
+  },
+  {
+   "id": 4,
+   "kind": "village",
+   "name": "Eastmere",
+   "population": 210,
+   "pos": [
+    921.1,
+    1361.9
+   ],
+   "radius": 60.0,
+   "lots": 22,
+   "house_lots": 18,
+   "walled": false,
+   "kid_rows": 5
+  },
+  {
+   "id": 5,
+   "kind": "town",
+   "name": "Redwater",
+   "population": 720,
+   "pos": [
+    810.8,
+    -1387.8
+   ],
+   "radius": 115.0,
+   "lots": 65,
+   "house_lots": 56,
+   "walled": true,
+   "kid_rows": 18
+  },
+  {
+   "id": 6,
+   "kind": "town",
+   "name": "Thornfield",
+   "population": 720,
+   "pos": [
+    1499.4,
+    -211.4
+   ],
+   "radius": 115.0,
+   "lots": 80,
+   "house_lots": 71,
+   "walled": true,
+   "kid_rows": 20
+  },
+  {
+   "id": 7,
+   "kind": "village",
+   "name": "Greywatch",
+   "population": 210,
+   "pos": [
+    1449.5,
+    1561.9
+   ],
+   "radius": 60.0,
+   "lots": 28,
+   "house_lots": 22,
+   "walled": false,
+   "kid_rows": 4
+  },
+  {
+   "id": 8,
+   "kind": "village",
+   "name": "Oakvale",
+   "population": 210,
+   "pos": [
+    -942.1,
+    -633.4
+   ],
+   "radius": 60.0,
+   "lots": 20,
+   "house_lots": 16,
+   "walled": false,
+   "kid_rows": 3
+  },
+  {
+   "id": 9,
+   "kind": "town",
+   "name": "Highcliff",
+   "population": 720,
+   "pos": [
+    -20.7,
+    -1457.2
+   ],
+   "radius": 115.0,
+   "lots": 121,
+   "house_lots": 106,
+   "walled": true,
+   "kid_rows": 25
+  },
+  {
+   "id": 10,
+   "kind": "frontier_town",
+   "name": "Brackenmoor",
+   "population": 380,
+   "pos": [
+    377.7,
+    1144.6
+   ],
+   "radius": 75.0,
+   "lots": 53,
+   "house_lots": 48,
+   "walled": true,
+   "kid_rows": 9
+  },
+  {
+   "id": 11,
+   "kind": "frontier_town",
+   "name": "Westfen",
+   "population": 380,
+   "pos": [
+    34.5,
+    1136.0
+   ],
+   "radius": 75.0,
+   "lots": 54,
+   "house_lots": 50,
+   "walled": true,
+   "kid_rows": 11
+  },
+  {
+   "id": 12,
+   "kind": "town",
+   "name": "Ironmarch",
+   "population": 720,
+   "pos": [
+    2092.4,
+    -2007.3
+   ],
+   "radius": 115.0,
+   "lots": 125,
+   "house_lots": 115,
+   "walled": true,
+   "kid_rows": 23
+  },
+  {
+   "id": 13,
+   "kind": "frontier_town",
+   "name": "Saltwick",
+   "population": 380,
+   "pos": [
+    -3516.6,
+    3351.6
+   ],
+   "radius": 75.0,
+   "lots": 52,
+   "house_lots": 49,
+   "walled": true,
+   "kid_rows": 12
+  },
+  {
+   "id": 14,
+   "kind": "village",
+   "name": "Cindermoor",
+   "population": 210,
+   "pos": [
+    -2786.9,
+    857.1
+   ],
+   "radius": 60.0,
+   "lots": 22,
+   "house_lots": 19,
+   "walled": false,
+   "kid_rows": 1
+  },
+  {
+   "id": 15,
+   "kind": "village",
+   "name": "Dunhallow",
+   "population": 210,
+   "pos": [
+    -1834.4,
+    -2200.2
+   ],
+   "radius": 60.0,
+   "lots": 23,
+   "house_lots": 19,
+   "walled": false,
+   "kid_rows": 1
+  },
+  {
+   "id": 16,
+   "kind": "village",
+   "name": "Wolfsend",
+   "population": 210,
+   "pos": [
+    3288.1,
+    370.1
+   ],
+   "radius": 60.0,
+   "lots": 30,
+   "house_lots": 26,
+   "walled": false,
+   "kid_rows": 3
+  },
+  {
+   "id": 17,
+   "kind": "village",
+   "name": "Harrowgate",
+   "population": 210,
+   "pos": [
+    -85.5,
+    2935.1
+   ],
+   "radius": 60.0,
+   "lots": 26,
+   "house_lots": 23,
+   "walled": false,
+   "kid_rows": 1
+  },
+  {
+   "id": 18,
+   "kind": "village",
+   "name": "Emberfall",
+   "population": 90,
+   "pos": [
+    -1791.9,
+    2464.1
+   ],
+   "radius": 42.0,
+   "lots": 10,
+   "house_lots": 7,
+   "walled": false,
+   "kid_rows": 1
+  },
+  {
+   "id": 19,
+   "kind": "village",
+   "name": "Ravenscar",
+   "population": 90,
+   "pos": [
+    913.2,
+    -3304.1
+   ],
+   "radius": 42.0,
+   "lots": 14,
+   "house_lots": 10,
+   "walled": false,
+   "kid_rows": 2
+  },
+  {
+   "id": 20,
+   "kind": "town",
+   "name": "Longmeadow",
+   "population": 640,
+   "pos": [
+    3896.7,
+    2380.6
+   ],
+   "radius": 110.0,
+   "lots": 79,
+   "house_lots": 67,
+   "walled": true,
+   "kid_rows": 30
+  },
+  {
+   "id": 21,
+   "kind": "frontier_town",
+   "name": "Blackwater",
+   "population": 360,
+   "pos": [
+    -5006.2,
+    5359.8
+   ],
+   "radius": 75.0,
+   "lots": 52,
+   "house_lots": 45,
+   "walled": true,
+   "kid_rows": 9
+  },
+  {
+   "id": 22,
+   "kind": "village",
+   "name": "Frostmere",
+   "population": 200,
+   "pos": [
+    -3963.3,
+    -1283.0
+   ],
+   "radius": 60.0,
+   "lots": 32,
+   "house_lots": 27,
+   "walled": false,
+   "kid_rows": 1
+  },
+  {
+   "id": 23,
+   "kind": "village",
+   "name": "Amberley",
+   "population": 200,
+   "pos": [
+    2042.4,
+    3359.0
+   ],
+   "radius": 60.0,
+   "lots": 28,
+   "house_lots": 24,
+   "walled": false,
+   "kid_rows": 4
+  },
+  {
+   "id": 24,
+   "kind": "village",
+   "name": "Skarholm",
+   "population": 200,
+   "pos": [
+    -1618.7,
+    -4190.0
+   ],
+   "radius": 60.0,
+   "lots": 21,
+   "house_lots": 17,
+   "walled": false,
+   "kid_rows": 1
+  },
+  {
+   "id": 25,
+   "kind": "village",
+   "name": "Thistledown",
+   "population": 200,
+   "pos": [
+    616.4,
+    4545.6
+   ],
+   "radius": 60.0,
+   "lots": 18,
+   "house_lots": 13,
+   "walled": false,
+   "kid_rows": 4
+  },
+  {
+   "id": 26,
+   "kind": "village",
+   "name": "Marrowick",
+   "population": 200,
+   "pos": [
+    -3364.6,
+    -3405.1
+   ],
+   "radius": 60.0,
+   "lots": 28,
+   "house_lots": 21,
+   "walled": false,
+   "kid_rows": 5
+  },
+  {
+   "id": 27,
+   "kind": "village",
+   "name": "Coldharbor",
+   "population": 90,
+   "pos": [
+    3014.2,
+    -3609.6
+   ],
+   "radius": 42.0,
+   "lots": 10,
+   "house_lots": 7,
+   "walled": false,
+   "kid_rows": 1
+  },
+  {
+   "id": 28,
+   "kind": "village",
+   "name": "Hollowmere",
+   "population": 90,
+   "pos": [
+    3892.1,
+    -1278.5
+   ],
+   "radius": 42.0,
+   "lots": 8,
+   "house_lots": 5,
+   "walled": false,
+   "kid_rows": 0
+  },
+  {
+   "id": 29,
+   "kind": "village",
+   "name": "Duskwater",
+   "population": 90,
+   "pos": [
+    -1395.6,
+    4392.3
+   ],
+   "radius": 42.0,
+   "lots": 10,
+   "house_lots": 7,
+   "walled": false,
+   "kid_rows": 1
+  }
+ ]
+}

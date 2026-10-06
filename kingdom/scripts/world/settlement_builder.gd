@@ -29,7 +29,7 @@ const VillageFeatures := preload("res://scripts/world/village_features.gd")   # 
 const LampGlow := preload("res://scripts/world/lamp_glow.gd")             # lamp light sources: billboard glow batch, omni only on HIGH+
 const TorchProps := preload("res://scripts/world/torch_props.gd")         # braziers / wall torches (emissive mesh, no omni light)
 const TownView := preload("res://scripts/world/town_identity_view.gd")     # wall styles and outskirts yards of that profile
-const ThornfieldRoster := preload("res://scripts/world/thornfield/roster.gd")   # slice lots: keeper name for the door label
+const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")   # kit town lots: keeper name for the door label
 
 const BUILD_RANGE := 650.0
 const FREE_RANGE := 850.0
@@ -464,10 +464,10 @@ func _interior_doors(root: Node3D, lots: Array) -> void:
 		var btype := String(lot.get("btype", ""))
 		door.interior_scene = BuildingProfiles.interior_scene(asset, BuildingProfiles.building_id(p), btype)
 		door.prompt_text = BuildingProfiles.prompt(asset)
-		if btype != "":       # Thornfield slice lot (SliceTown): its keeper, name and prompt come from the roster
+		if btype != "":       # town-kit lot (TownLots): its keeper, name and prompt come from the roster
 			door.set_meta("bid", String(lot.get("bid", "")))
 			door.set_meta("btype", btype)
-			var slice_name := ThornfieldRoster.building_name(String(lot.get("bid", "")))
+			var slice_name := TownRoster.building_name(String(lot.get("bid", "")))
 			if slice_name != "":
 				door.set_meta("building_name", slice_name)
 			if btype == "bakery":

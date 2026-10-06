@@ -12,7 +12,7 @@ extends RefCounted
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const Districts := preload("res://scripts/world/districts.gd")
 const TownIdentity := preload("res://scripts/world/town_identity.gd")   # per-town layout shape + roof mix (data/world/town_identity.json)
-const SliceTown := preload("res://scripts/world/thornfield/slice_town.gd")   # F8: the slice town always has a smithy, shop, tavern, bakery, guard post, healer
+const TownLots := preload("res://scripts/world/town_kit/town_lots.gd")   # town kit: every town with a data/region1/towns file always has its smithy, shop, tavern (and bakery, guard post, healer)
 
 const LOT_SPACING := 10.5
 const LOT_CLEARANCE := 9.5
@@ -202,7 +202,7 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 		_infill(lots, blocked, streets, landmarks, c, r, plaza_r, result["inner_wall"], rng)
 	_civic_lots(lots, c, r, walled, result["inner_wall"], landmarks)
 	_zone_districts(result, kind, c, r, plaza_r, walled, seed_value, prof)
-	SliceTown.enforce(result, s, fits)   # F8: forces the lots the village life needs (no-op for every other town)
+	TownLots.enforce(result, s, fits)   # town kit: forces the lots the village life needs (no-op for a settlement without a town file)
 	result["paths"] = _door_paths(lots, streets)
 	return result
 

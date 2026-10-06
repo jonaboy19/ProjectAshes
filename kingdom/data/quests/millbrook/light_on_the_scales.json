@@ -1,0 +1,131 @@
+{
+ "id": "millbrook_light_on_the_scales",
+ "title": "Light on the Scales",
+ "summary": "Sacks of milled flour is gone from the stores of Millbrook. Hilde Harrow wants to know whether it is carelessness or a person.",
+ "giver": {
+  "npc": "hilde_harrow",
+  "name": "Hilde Harrow",
+  "place": "millbrook"
+ },
+ "requires": [
+  "millbrook_wheat_for_the_bakehouse"
+ ],
+ "offer_text": "\"Sacks of milled flour is gone from the stores and I have counted twice. Look around the doors in town. Someone was careless, or someone was not.\"",
+ "stages": [
+  {
+   "id": "look",
+   "title": "Look for signs",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "text": "Search the doors around town for signs",
+     "clues": [
+      "millbrook/clue/sack",
+      "millbrook/clue/tracks",
+      "millbrook/clue/ledger"
+     ],
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "question",
+   "title": "Ask Norah",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "question",
+     "type": "talk_to",
+     "npc": "norah_sparrow",
+     "text": "Ask Norah Sparrow what they know"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide what to do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "hilde_harrow",
+     "options": [
+      {
+       "id": "report",
+       "text": "Tell Hilde what you found",
+       "say": "Hilde nods slowly. \"Then it is on the record.\""
+      },
+      {
+       "id": "quiet",
+       "text": "Take Norah's quiet word and say nothing",
+       "say": "Norah presses a few coins into your hand. \"Good sense.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "report": "reported",
+    "quiet": "hushed"
+   }
+  },
+  {
+   "id": "reported",
+   "title": "Hilde hears it",
+   "mode": "all",
+   "end": true,
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "hilde_harrow",
+     "text": "Tell Hilde Harrow who it was"
+    }
+   ],
+   "rewards": {
+    "gold": 20,
+    "rep": {
+     "millbrook": 6
+    },
+    "relationship": [
+     {
+      "npc": "hilde_harrow",
+      "label": "Told the truth about the theft",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "hushed",
+   "title": "Collect the hush money",
+   "mode": "all",
+   "end": true,
+   "objectives": [
+    {
+     "id": "quiet",
+     "type": "talk_to",
+     "npc": "norah_sparrow",
+     "text": "Collect Norah's thanks"
+    }
+   ],
+   "rewards": {
+    "gold": 35,
+    "rep": {
+     "millbrook": -6
+    },
+    "relationship": [
+     {
+      "npc": "hilde_harrow",
+      "label": "Heard you looked the other way",
+      "value": -12,
+      "days": 90
+     }
+    ]
+   }
+  }
+ ]
+}

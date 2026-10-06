@@ -223,7 +223,7 @@ func _ready() -> void:
 	world.add_child(region1)
 	region1.setup(self)
 	world.add_child(preload("res://scripts/world/towers/tower_site.gd").new())   # towers hook (docs/design tower plan)
-	preload("res://scripts/world/thornfield/hub.gd").attach(world)   # F8: Thornfield's quest wiring, clues, cart, wolves, night figure
+	preload("res://scripts/world/town_kit/town_hub.gd").attach_all(world)   # town kit: one hub per town file (quest wiring, clues, threat, specials; Thornfield: cart, figure, wilds)
 
 	hud.set_loading_text("Ready", 1.0)
 	hud.hide_loading()

@@ -1,0 +1,73 @@
+{
+ "id": "redwater_wasps_in_the_drying_meadow",
+ "title": "Wasps in the Drying Meadow",
+ "summary": "Giant wasps sign at the edge of Redwater has grown bolder. Hamo Loomis wants 3 of them dealt with.",
+ "giver": {
+  "npc": "hamo_loomis",
+  "name": "Hamo Loomis",
+  "place": "redwater"
+ },
+ "requires": [
+  "redwater_the_missing_bolt"
+ ],
+ "offer_text": "\"The giant wasps have come closer to Redwater each night. Go to the edge and thin them out, before someone is hurt.\"",
+ "turn_in_text": "\"Quieter already. I will sleep tonight. A little.\"",
+ "stages": [
+  {
+   "id": "edge",
+   "title": "Go to the edge of town",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "redwater_outskirts",
+     "text": "Go to where the giant wasps were seen"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Thin them out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "giant_wasp",
+     "place": "redwater_outskirts",
+     "count": 3,
+     "text": "Kill 3 giant wasps near Redwater"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Hamo",
+   "mode": "all",
+   "end": true,
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "hamo_loomis",
+     "text": "Tell Hamo Loomis it is done"
+    }
+   ]
+  }
+ ],
+ "rewards": {
+  "gold": 25,
+  "rep": {
+   "redwater": 5
+  },
+  "relationship": [
+   {
+    "npc": "hamo_loomis",
+    "label": "Kept the giant wasps from the edge",
+    "value": 10,
+    "days": 60
+   }
+  ]
+ }
+}

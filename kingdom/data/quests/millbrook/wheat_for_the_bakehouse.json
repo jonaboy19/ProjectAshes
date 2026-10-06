@@ -1,0 +1,77 @@
+{
+ "id": "millbrook_wheat_for_the_bakehouse",
+ "title": "Wheat for the Bakehouse",
+ "summary": "Hilde Harrow wants 4 wheat from the mill yard for Leofric Woolcott, and then a word.",
+ "giver": {
+  "npc": "hilde_harrow",
+  "name": "Hilde Harrow",
+  "place": "millbrook"
+ },
+ "offer_text": "\"Millbrook's short of wheat again. The pile at the mill yard is ours to take. Bring it to Leofric Woolcott and tell me when it is done.\"",
+ "turn_in_text": "\"Good. That is one thing in Millbrook that goes right.\"",
+ "stages": [
+  {
+   "id": "fetch",
+   "title": "Fetch the wheat",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "millbrook_works",
+     "text": "Go to the mill yard"
+    },
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "wheat",
+     "count": 4,
+     "text": "Take 4 wheat from the pile"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Take it to Leofric Woolcott",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hand_over",
+     "type": "deliver",
+     "item": "wheat",
+     "count": 4,
+     "to": "leofric_woolcott",
+     "text": "Hand the wheat to Leofric Woolcott"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Hilde",
+   "mode": "all",
+   "end": true,
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "hilde_harrow",
+     "text": "Tell Hilde Harrow it is done"
+    }
+   ]
+  }
+ ],
+ "rewards": {
+  "gold": 14,
+  "rep": {
+   "millbrook": 3
+  },
+  "relationship": [
+   {
+    "npc": "hilde_harrow",
+    "label": "Ran an errand for the town",
+    "value": 8,
+    "days": 45
+   }
+  ]
+ }
+}

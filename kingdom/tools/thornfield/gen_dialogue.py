@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Writes dialogue/thornfield/<id>.json for every bound resident (and station residents such as Hesta) of data/region1/world/thornfield_people.json.
+"""Writes dialogue/thornfield/<id>.json for every bound resident (and station residents such as Hesta) of data/region1/towns/thornfield.json (the town kit file).
 Format: scripts/sim/dialogue_runner.gd. Run from kingdom/:  python3 tools/thornfield/gen_dialogue.py
 Wilm Garrow also gets the nodes the quest line needs ("confession", "bribe_paid"); the `has` keys are set by
-scripts/world/thornfield/thornfield_talk.gd (ctx["thornfield_confront"], ctx["thornfield_bribe_paid"])."""
+scripts/world/thornfield/special.gd (ctx["thornfield_confront"], ctx["thornfield_bribe_paid"])."""
 import json, os, sys
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
-people = json.load(open(os.path.join(ROOT, "data/region1/world/thornfield_people.json")))["residents"]
+people = json.load(open(os.path.join(ROOT, "data/region1/towns/thornfield.json")))["residents"]
 by_id = {p["id"]: p for p in people}
 OUT = os.path.join(ROOT, "dialogue/thornfield")
 os.makedirs(OUT, exist_ok=True)

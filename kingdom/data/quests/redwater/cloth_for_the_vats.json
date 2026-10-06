@@ -1,0 +1,77 @@
+{
+ "id": "redwater_cloth_for_the_vats",
+ "title": "Cloth for the Vats",
+ "summary": "Hamo Loomis wants 3 cloth from the dye works for Silas Charnock, and then a word.",
+ "giver": {
+  "npc": "hamo_loomis",
+  "name": "Hamo Loomis",
+  "place": "redwater"
+ },
+ "offer_text": "\"Redwater's short of cloth again. The pile at the dye works is ours to take. Bring it to Silas Charnock and tell me when it is done.\"",
+ "turn_in_text": "\"Good. That is one thing in Redwater that goes right.\"",
+ "stages": [
+  {
+   "id": "fetch",
+   "title": "Fetch the cloth",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "redwater_works",
+     "text": "Go to the dye works"
+    },
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "cloth",
+     "count": 3,
+     "text": "Take 3 cloth from the pile"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Take it to Silas Charnock",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hand_over",
+     "type": "deliver",
+     "item": "cloth",
+     "count": 3,
+     "to": "silas_charnock",
+     "text": "Hand the cloth to Silas Charnock"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Hamo",
+   "mode": "all",
+   "end": true,
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "hamo_loomis",
+     "text": "Tell Hamo Loomis it is done"
+    }
+   ]
+  }
+ ],
+ "rewards": {
+  "gold": 14,
+  "rep": {
+   "redwater": 3
+  },
+  "relationship": [
+   {
+    "npc": "hamo_loomis",
+    "label": "Ran an errand for the town",
+    "value": 8,
+    "days": 45
+   }
+  ]
+ }
+}
