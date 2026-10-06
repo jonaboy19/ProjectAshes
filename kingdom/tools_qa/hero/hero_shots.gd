@@ -58,7 +58,7 @@ func _run() -> void:
 		if not baseline:
 			(load("res://scripts/actors/hero_tier_a.gd") as GDScript).call("dress_meshy_hero", hero)
 	else:
-		hero = (load(CC) as GDScript).call("build_model", HERO_LOOK, 1.78, [] as Array[String])
+		hero = (load(CC) as GDScript).call("build_model", HERO_LOOK, 1.78, ["1H_Sword"] as Array[String])
 		root.add_child(hero)
 		var outfit: GDScript = load("res://scripts/actors/hero_outfit.gd")
 		outfit.call("tint_tunic", hero)
@@ -102,6 +102,9 @@ func _run() -> void:
 	# face close-up (front and 3/4) and dialogue framing (over the NPC's shoulder, chest-up, FOV 40)
 	cam.fov = 22
 	var face_p := head_p + Vector3(0, -0.05, 0.02)
+	for l in hero.find_children("*Lids*", "MeshInstance3D", true, false):    # real eye height (models differ)
+		var lm := l as MeshInstance3D
+		face_p = lm.global_transform * lm.get_aabb().get_center() + Vector3(0, 0.0, 0.02)
 	cam.position = face_p + Vector3(0.0, 0.02, 0.85)
 	cam.look_at(face_p)
 	await _shot("face_front")

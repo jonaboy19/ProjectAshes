@@ -262,10 +262,14 @@ static func dress_meshy_hero(model: Node3D) -> Node:
 		hm.set_shader_parameter("noise_tex", noise)
 		hm.set_shader_parameter("has_uv2", false)
 		hm.set_shader_parameter("asset_kind", 1)
-		hm.set_shader_parameter("use_vertex_color", true)
+		hm.set_shader_parameter("use_vertex_color", false)
+		hm.set_shader_parameter("base_color", Color(0.2, 0.13, 0.08))
+		hm.set_shader_parameter("flutter", 0.0)
 		(n as MeshInstance3D).material_override = hm
+		(n as MeshInstance3D).visible = SHOW_HOOD_SHELL
 	# hands: the Meshy mitts are cut at the wrist; the G6 hands (real finger bones) are retargeted onto this skeleton
 	attach_hands(sk, noise)
+	regrip(model, sk)
 	var parts := {}
 	for n in model.find_children("*Lids*", "MeshInstance3D", true, false):
 		parts["Lids"] = n
@@ -283,9 +287,11 @@ static func dress_meshy_hero(model: Node3D) -> Node:
 	return drv
 
 
+## The grown hood shell still shows slab edges at the front shoulders in close-up (m12): hidden until it is remodelled.
+const SHOW_HOOD_SHELL := false
 const G6_ALL := "res://assets/incoming/characters/g6-ual/g6_m_modular_all.glb"
 ## Retargets the G6 male hands (740 tris, 15 finger bones per hand) onto any UAL skeleton: clip finger curls = real grip.
-static func attach_hands(sk: Skeleton3D, noise: Texture2D, tint := Color(0.74, 0.64, 0.58)) -> MeshInstance3D:
+static func attach_hands(sk: Skeleton3D, noise: Texture2D, tint := Color(0.683, 0.688, 0.729)) -> MeshInstance3D:
 	if sk.has_node("TierA_human_male_hands_default"):
 		return sk.get_node("TierA_human_male_hands_default")
 	var src: Node = (load(G6_ALL) as PackedScene).instantiate()
@@ -293,16 +299,44 @@ static func attach_hands(sk: Skeleton3D, noise: Texture2D, tint := Color(0.74, 0
 	var mi: MeshInstance3D = null
 	for n in src.find_children("*hands_default*", "MeshInstance3D", true, false):
 		mi = _retarget(n as MeshInstance3D, src_sk, sk)
-		var hm := _mat("hero_skin", noise)
-		hm.set_shader_parameter("use_masks", false)
-		hm.set_shader_parameter("pore_scale", 40.0)
+		# same shader + grade as the Meshy body; tint = Meshy skin mean / G6 hand texture mean (measured on the atlases)
+		var hm := _mat("hero_character", noise)
 		var sm := (n as MeshInstance3D).get_active_material(0)
 		if sm is BaseMaterial3D:
 			hm.set_shader_parameter("albedo_tex", (sm as BaseMaterial3D).albedo_texture)
 		hm.set_shader_parameter("tint", tint)
-		hm.set_shader_parameter("flush_amount", 0.0)
-		hm.set_shader_parameter("scatter_color", Color(0.75, 0.45, 0.35))
+		hm.set_shader_parameter("neck_y", -10.0)
+		hm.set_shader_parameter("use_mask", false)          # whole mesh uses the head-band (lenient) skin classification
+		hm.set_shader_parameter("detail_scale", 0.5)
 		mi.material_override = hm
 		break
 	src.free()
 	return mi
+
+
+## Puts the handle of every prop on hand_r INTO the fist: grip point = midway between the curled middle finger and the
+## thumb in the Sword_Idle pose (hand-local), handle centre = 10 % of the prop length up from its lower end.
+static func regrip(model: Node3D, sk: Skeleton3D, clip := "Sword_Idle") -> void:
+	var hand := sk.find_bone("hand_r")
+	var m2 := sk.find_bone("middle_02_r")
+	var t2 := sk.find_bone("thumb_02_r")
+	if hand < 0 or m2 < 0 or t2 < 0:
+		return
+	var ap := Assets.animation_player(model)
+	if ap and ap.has_animation(clip):
+		ap.play(clip)
+		ap.seek(0.3, true)
+	var hx := sk.get_bone_global_pose(hand)
+	var g := hx.affine_inverse() * ((sk.get_bone_global_pose(m2).origin + sk.get_bone_global_pose(t2).origin) * 0.5)
+	if ap:
+		ap.stop()
+	for att in sk.get_children():
+		if not (att is BoneAttachment3D) or (att as BoneAttachment3D).bone_name != "hand_r":
+			continue
+		for prop in att.get_children():
+			var p3 := prop as Node3D
+			var box := Assets.visual_aabb(p3)
+			var lo := box.position.y
+			var ln := box.size.y
+			var centre := Vector3(0, lo + ln * 0.1, 0)
+			p3.position = g - p3.transform.basis * centre
