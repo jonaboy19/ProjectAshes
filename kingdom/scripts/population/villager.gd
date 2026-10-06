@@ -168,6 +168,7 @@ static var _last_step_ms := 0
 var person := -1
 ## Set by PopulationLOD for the single nearest villager.
 var show_tag := false
+var _dev_overlay := false
 ## Villagers PopulationLOD currently embodies (for spacing). Shared array.
 var neighbours: Array = []
 var _file := ""
@@ -373,6 +374,7 @@ func _ready() -> void:
 	_tag.position.y = 1.95
 	add_child(_tag)
 	_tag.text = WorldSim.person_name(person)
+	_dev_overlay = bool(SettingsStoreS.get_value("dev_sim_overlay"))
 	ContactBlobS.attach(self, 0.32 if _child else 0.42)
 	_brain = _make_brain()
 	_acuity = 1.3 if WorldSim.job[person] == 3 else (0.8 if _child else 1.0)
@@ -560,7 +562,8 @@ func _tick_body(delta: float) -> void:
 	else:
 		_update_animation(delta)
 	_update_head_look(delta)
-	_tag.visible = false if not bool(SettingsStoreS.get_value("dev_sim_overlay")) else (show_tag and not Nameplates.suppressed)     # AAA pass 5: the focused name is drawn by the HUD world icon
+	if _tag != null:     # AAA pass 5: the focused name is drawn by the HUD world icon; plates only with the dev overlay
+		_tag.visible = show_tag and not Nameplates.suppressed and _dev_overlay
 
 
 # ---------------------------------------------------------------- thinking

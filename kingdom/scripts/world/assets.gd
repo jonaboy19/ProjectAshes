@@ -789,6 +789,7 @@ static func static_model(path: String) -> Node3D:
 				var merged := merged_mesh(path)
 				if merged != null:
 					mesh = _transformed(merged, Transform3D.IDENTITY, true)   # keeps the automatic mesh LODs
+					_scenes.erase(path)      # perf: the merged copy is all that is drawn; don't keep the source scene's meshes too
 		_static_cache[path] = mesh
 	var m: ArrayMesh = _static_cache[path]
 	if m == null:

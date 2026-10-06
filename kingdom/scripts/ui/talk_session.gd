@@ -46,7 +46,7 @@ func begin(p_player: Node3D, p_npc: Node3D, p_menu_open := Callable(), p_sheet_o
 	if npc != null and is_instance_valid(npc) and npc.has_method("talk_begin"):
 		npc.call("talk_begin", player)
 	if player != null and is_instance_valid(player) and player.has_method("set_talk_framing"):
-		player.call("set_talk_framing", true)
+		player.call("set_talk_framing", true, npc)
 
 
 func end(reason := "closed") -> void:
