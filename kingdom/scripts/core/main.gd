@@ -1103,6 +1103,11 @@ func _screenshot(shot: String, path: String) -> void:
 			var spg: Vector2 = cpg + dirg * (float(capg["radius"]) - float(_user_args().get("gate_in", "42")))
 			_teleport(spg, 0.0)
 			player.set_camera(atan2(-dirg.x, -dirg.y), -0.05)
+			# fixed load-wait (AAA pass 14): finish the town's sliced prop jobs before counting draws, so runs compare
+			settlements.focus = player.global_position
+			for _i in 4:
+				settlements.update_now()
+			settlements.finish_prop_jobs()
 			warmup = 120
 		"academy":
 			# QA view of the Kingsreach Academy campus (--dist=60 --rot=0.5 rad off the front axis, --pitch=-0.12).

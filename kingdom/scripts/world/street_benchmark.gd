@@ -91,6 +91,10 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market
 				match (k3 + (1 if sg < 0.0 else 0)) % 4:
 					0:
 						_add(lists, "market_stall_red", edge + dir.orthogonal() * sg * 0.6, face, 0.0)
+						# goods piled at the stall (AAA pass 14): crates, sacks and a barrel at its front corners
+						_add(lists, "crate_stack", edge - dir * 1.3 - dir.orthogonal() * sg * 0.5, face + 0.2, 0.0)
+						_add(lists, "sack_pile", edge + dir * 1.4 - dir.orthogonal() * sg * 0.4, rng.randf() * TAU, 0.0)
+						_add(lists, "barrel", edge + dir * 2.2 + dir.orthogonal() * sg * 0.3, rng.randf() * TAU, 0.0)
 					1:
 						_add(lists, "planter_box", edge, face, 0.0)
 						_add(lists, "banner_pole", edge + dir * 1.6, face, 0.0)
@@ -203,7 +207,7 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market
 	if bool(b.call("_low")):
 		# LOW draw budget (<= 135 in the gate view): keep only the kinds that carry the composition
 		for kk: String in lists.keys():
-			if kk != "market_stall_red":
+			if true:     # pass 14: LOW adds no props (draw budget); the town's own stalls remain
 				lists[kk] = []
 	var placed := 0
 	for kind: String in lists:

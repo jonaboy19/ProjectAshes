@@ -583,6 +583,8 @@ func _lod_pair(lod0: String, lod1: String, dist: float, fit_height := 0.0) -> No
 	if fit_height > 0.0:
 		extent *= fit_height / maxf(raw.size.y, 0.01)
 	var far_end := 120.0 if extent < 3.0 else (260.0 if extent < 10.0 else 600.0)
+	if Quality.tier <= 0:
+		far_end = minf(far_end, 220.0)     # AAA pass 14: LOW draw budget (a 5-material windmill LOD1 drew from 600 m)
 	if dist > 0.0 and lod1 != "" and ResourceLoader.exists(lod1):
 		var far: Node3D = Assets.static_model(lod1) if merge else Assets.scene(lod1).instantiate()
 		holder.add_child(far)

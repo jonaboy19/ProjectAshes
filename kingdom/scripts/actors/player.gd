@@ -447,9 +447,9 @@ func _menu_open() -> bool:
 ## Procedural head tracking: the head turns toward the nearest enemy or person.
 ## The character model with its animation, ragdoll, head look, foot IK and weapon trail.
 ## `Life.appearance` (character creation) picks the modular G6 look; no appearance = the default hero.
-## Tier-A Meshy hero (docs/art/hero_tier_a). Off until it beats the G6 hero in the benchmark street; `--hero_tier_a` forces it.
-const TIER_A_HERO := false
-const TIER_A_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy"
+## Tier-A Meshy hero v2 (docs/art/hero_tier_a): DEFAULT since 10-06 (beat the G6 hero in the benchmark street). Set false to roll back.
+const TIER_A_HERO := true
+const TIER_A_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy3"
 
 
 func _build_body() -> void:
@@ -2195,4 +2195,4 @@ func _nearest_enemy(max_dist: float, min_dot: float) -> Node3D:
 
 func nearest_interactable() -> Node3D:
 	# The picker's choice (distance, facing, priority, mount rule); see scripts/interaction/interaction.gd.
-	return Interaction.best_node(self)
+	return Interaction.best_node(self)
