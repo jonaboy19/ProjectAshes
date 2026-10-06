@@ -1,17 +1,19 @@
 extends RefCounted
 ## Preload this script (no class_name: a new global class needs a class-cache rebuild).
 ## One top-centre layout stack for the transient HUD furniture: the message toast, the tutorial /
-## encounter hint pill and the LOCATION DISCOVERED style banners. They used to each pick their own
+## encounter hint pill, the LOCATION DISCOVERED style banners and the compact job-offer card. They used to each pick their own
 ## y and overprinted each other. Each element reports its height while it is on screen (`report`)
 ## and asks `y_for` where to sit: stacked in ORDER with a gap, never overlapping. While a menu or a
 ## conversation sheet is open (`set_menu_open`) banners and hints are held back (`allowed`).
 ##
 ## Pure static state + math, so the tests need no scene.
 
-const ORDER := ["toast", "hint", "banner"]
+const ORDER := ["toast", "hint", "banner", "offer"]
 const GAP := 8.0
 ## Preferred top y (720p px) of the banner: just under the compass, so the screen centre stays clear.
 const BANNER_Y := 58.0
+## Preferred top y (720p px) of the job-offer card (work_spots.gd): under the compass and the toast, nothing in the middle of the screen.
+const OFFER_Y := 96.0
 
 static var _rects: Dictionary = {}          # id -> Vector2(top y, height) while on screen
 static var _menu_open := false
@@ -42,6 +44,9 @@ static func menu_open() -> bool:
 
 ## Banners and hints wait while a menu / sheet is up (the toast stays: it is one short line).
 static func allowed(id: String) -> bool:
+	if enabled and id == "offer" and (_rects.has("banner") or _rects.has("toast")):
+		return false          # the job-offer card waits until the location banner and the toast above it are gone: the arrival view stays clear
+	# (a tutorial hint can stay for a long while, so it does not hold the card back: the lane stacks the card under it)
 	return not (enabled and _menu_open and id != "toast")
 
 

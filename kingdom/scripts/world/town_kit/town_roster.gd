@@ -26,6 +26,7 @@ static var _rows: Dictionary = {}           # town id -> {roster id -> WorldSim 
 static var _id_of: Dictionary = {}          # WorldSim row -> roster id (rows are unique across towns)
 static var _sched: Dictionary = {}          # row -> Array of {from, to, phase:int}
 static var _bound_for: Dictionary = {}      # town id -> WorldSim.population() the binding was made for
+static var _slots: Dictionary = {}          # "which|door id" -> sorted rows of the people who stand there (spot spreading)
 static var _outdoor: Dictionary = {}        # row -> true when the named person works at a yard, not inside a building
 
 
@@ -135,6 +136,7 @@ static func bind(tid: String, force := false) -> Dictionary:
 		ws.set("job", jobs)
 	_rows[tid] = rows
 	_bound_for[tid] = int(ws.call("population"))
+	_slots.clear()
 	return rows
 
 
@@ -145,6 +147,7 @@ static func _unbind(tid: String) -> void:
 		_sched.erase(row)
 	_rows.erase(tid)
 	_bound_for.erase(tid)
+	_slots.clear()
 
 
 ## One pass over a settlement's living rows: `lists[kid * 8 + job]` is the ascending rows of that age group and job (a child is a day
@@ -323,7 +326,25 @@ static func spot(row: int, which: int) -> Vector2:
 		0: bid = String(e.get("home", ""))
 		1: bid = String(e.get("work", ""))
 		_: return Vector2.INF
-	return TownLots.door_of(bid, row)
+	var slot := _slot(row, which, bid)
+	return TownLots.door_of(bid, row, slot.x, slot.y)
+
+
+## The place of `row` among everyone of its town who stands at door `bid` for `which` (home / work): (index, count), by ascending row, so a
+## yard or doorstep shared by several named people spreads them out instead of piling them up (TownLots.door_of). (-1, 0) = alone / unknown.
+static func _slot(row: int, which: int, bid: String) -> Vector2i:
+	var key := "%d|%s" % [which, bid]
+	if not _slots.has(key):
+		var rows: Array = []
+		for id: String in _id_of.values():
+			var e := entry(id)
+			if String(e.get("home" if which == 0 else "work", "")) == bid and _rows.get(String(_town_of.get(id, "")), {}).has(id):
+				rows.append(int(_rows[String(_town_of[id])][id]))
+		rows.sort()
+		_slots[key] = rows
+	var rows2: Array = _slots[key]
+	var i := rows2.find(row)
+	return Vector2i(i, rows2.size()) if i >= 0 else Vector2i(-1, 0)
 
 
 ## True for a named craftsman or merchant (job 1 / 2) of a town whose file says `outdoor_work` who works at a yard or gate (a work site door

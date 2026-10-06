@@ -14,6 +14,7 @@ extends Node
 
 const TownData := preload("res://scripts/world/town_kit/town_data.gd")
 const TownPlaces := preload("res://scripts/world/town_kit/town_places.gd")
+const Ground := preload("res://scripts/world/town_kit/town_ground.gd")
 const CreaturePool := preload("res://scripts/core/creature_pool.gd")
 ## Species the kit can raise as a local threat: both a wolf.gd body and an ecology den row exist for each.
 const SPECIES := ["wolf", "corrupted_wolf", "bog_toad", "giant_wasp", "ghoul"]
@@ -102,7 +103,8 @@ static func den_site(c: Vector2, ring := DEN_RING) -> Vector2:
 		var d := ring.x
 		while d <= ring.y:
 			var p := c + Vector2(cos(a), sin(a)) * d
-			if not WorldGen.near_water(p.x, p.y, 8.0) and WorldGen.road_distance(p.x, p.y) > 40.0:
+			if not WorldGen.near_water(p.x, p.y, 8.0) and WorldGen.road_distance(p.x, p.y) > 40.0 \
+					and Ground.relief_ring(p, 8.0) <= Ground.DEN_MAX_RELIEF:
 				var f := WorldGen.forest_density(p.x, p.y)
 				if Frontier.runestones.coverage(p) > 0.1:
 					f *= 0.4

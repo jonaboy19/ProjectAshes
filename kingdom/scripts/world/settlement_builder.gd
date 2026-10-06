@@ -487,6 +487,7 @@ func _interior_doors(root: Node3D, lots: Array) -> void:
 		if asset == "inn" or asset.contains("barrack") or asset.contains("guild"):
 			# Wall torch beside the door: emissive mesh + billboard glow, no omni light (TorchProps / LampGlow).
 			var tp := Vector3(at.x, gh + 0.9, at.y) + Vector3(cos(yaw), 0.0, -sin(yaw)) * 1.5 + Vector3(sin(yaw), 0.0, cos(yaw)) * 0.3
+			tp.y = maxf(tp.y, WorldGen.height(tp.x, tp.z) + 0.9)          # a door cut into a slope: the torch rides the wall above the uphill ground
 			var wt: Dictionary = TorchProps.wall_torch(root, tp, yaw)
 			torch_specs.append({"pos": wt["glow_pos"], "color": Color(1.0, 0.6, 0.25), "range": 6.0, "size": 1.3})
 	LampGlow.build(root, torch_specs)
@@ -1377,7 +1378,7 @@ func _medieval_gates(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array
 			var q2 := c + dir * uu + side * sg * (half * rng3.randf_range(0.2, 1.1))
 			if WorldGen.is_water(q2.x, q2.y) or absf(uu - wr) < 4.0:
 				continue
-			var ps := rng3.randf_range(0.8, 1.7)
+			var ps := rng3.randf_range(0.4, 0.8)          # puddles, not 4 m dark slabs (QA sweep: Coldharbor)
 			(lists["mud"] as Array).append(Transform3D(Basis(Vector3.UP, rng3.randf() * TAU).scaled(Vector3(ps, 1.0, ps)),
 				Vector3(q2.x, WorldGen.height(q2.x, q2.y) + 0.012, q2.y)))
 		# A hay cart parked outside the gate, barrel clusters beside the road, banner poles flanking the opening.
@@ -1407,7 +1408,7 @@ func _medieval_gates(root: Node3D, s: Dictionary, plan: Dictionary, gates: Array
 		var pq := c + Vector2(cos(pa), sin(pa)) * pr * rng3.randf_range(0.55, 1.15)
 		if CityPlanner.landmark_clearance(plan, pq) < 3.0 or WorldGen.is_water(pq.x, pq.y):
 			continue
-		var pps := rng3.randf_range(0.7, 1.4)
+		var pps := rng3.randf_range(0.4, 0.75)
 		(lists["mud"] as Array).append(Transform3D(Basis(Vector3.UP, rng3.randf() * TAU).scaled(Vector3(pps, 1.0, pps)),
 			Vector3(pq.x, WorldGen.height(pq.x, pq.y) + 0.012, pq.y)))
 	# kit materials (textured, shared): the plain GLB colours read as flat green grass over the gate road (QA 2026-10-05)

@@ -369,6 +369,39 @@ func test_every_roster_binds_to_distinct_worldsim_people_in_its_town() -> void:
 			assert_float(TownRoster.embody_weight(i)).is_equal(1.0)
 
 
+## The QA sweep found 6-8 named people shoulder to shoulder at a work yard: everyone who shares a door gets their own place on a spiral.
+func test_people_sharing_a_yard_or_doorstep_stand_apart() -> void:
+	TownRoster.bind_all(true)
+	var worst_yard := INF
+	var worst_step := INF
+	var checked := 0
+	for id: String in _generated():
+		for which in [0, 1]:
+			var by_door := {}
+			for e: Dictionary in TownData.residents(id):
+				var bid := String(e["home" if which == 0 else "work"])
+				var row := TownRoster.row_of(String(e["id"]))
+				if row < 0:
+					continue
+				if not by_door.has(bid):
+					by_door[bid] = []
+				(by_door[bid] as Array).append(TownRoster.spot(row, which))
+			for bid: String in by_door:
+				var spots: Array = by_door[bid]
+				for i in spots.size():
+					for j in range(i + 1, spots.size()):
+						var d := (spots[i] as Vector2).distance_to(spots[j])
+						if TownLots.building(bid).is_empty():
+							worst_yard = minf(worst_yard, d)
+						else:
+							worst_step = minf(worst_step, d)
+						checked += 1
+	assert_int(checked).is_greater(100)
+	# a yard (3.5 m radius) is for up to 11 people, a doorstep (1.15 m radius, the 1.2 m rule above) for up to 6
+	assert_float(worst_yard).override_failure_message("two named people stand %.2f m apart in a yard" % worst_yard).is_greater_equal(1.0)
+	assert_float(worst_step).override_failure_message("two named people stand %.2f m apart on a doorstep" % worst_step).is_greater_equal(0.55)
+
+
 func test_named_people_walk_to_their_own_doors_and_keep_their_schedules() -> void:
 	TownRoster.bind_all(true)
 	for id: String in _generated():
@@ -613,10 +646,9 @@ func test_farming_and_village_archetypes_have_settlement_relative_pens() -> void
 				var mm: MultiMesh = (root.get_child(0) as MultiMeshInstance3D).multimesh
 				assert_int(mm.instance_count).override_failure_message(id).is_greater(8)
 			else:
-				# a pen is only skipped on wet ground
+				# a pen is only left out when no level, dry ground lies within 40 m of where the file put it (town_ground.gd)
 				for p: Dictionary in pens:
-					var w := TownPlaces.resolve(id, p)
-					assert_bool(WorldGen.near_water(w.x, w.y, 3.0)).override_failure_message(id + ": pens missing on dry ground").is_true()
+					assert_bool(TownLivestock.pen_spot(id, p).is_empty()).override_failure_message(id + ": pens missing on level dry ground").is_true()
 	assert_int(with_pens).is_greater(12)
 	assert_int(built).is_greater(8)
 	# The rails stand around the animals, wherever the pen faces: every piece within the pen's half-diagonal of its centre (+ a rail).
@@ -628,7 +660,10 @@ func test_farming_and_village_archetypes_have_settlement_relative_pens() -> void
 		for piece: Transform3D in pieces:
 			var near := false
 			for p: Dictionary in pens2:
-				var c := TownPlaces.resolve(id, p)
+				var spot := TownLivestock.pen_spot(id, p)
+				if spot.is_empty():
+					continue
+				var c: Vector2 = spot["pos"]
 				var half := Vector2(float(p["size"][0]), float(p["size"][1])).length() * 0.5 + 2.0
 				if Vector2(piece.origin.x, piece.origin.z).distance_to(c) <= half:
 					near = true

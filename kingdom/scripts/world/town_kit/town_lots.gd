@@ -136,13 +136,48 @@ static func _convert(plan: Dictionary, lots: Array, asset: String, c: Vector2, u
 		var big := BuildingProfiles.size_of(asset)
 		if asset != "blacksmith" and asset != "inn" and maxf(big.x, big.z) > 10.6:
 			continue
-		if bool(fits.call(asset, lot["pos"], lot["yaw"], c, r, walled, inner, lms)):
+		if bool(fits.call(asset, lot["pos"], lot["yaw"], c, r, walled, inner, lms)) and not _clips_neighbour(lots, int(cd[1]), asset):
 			lot["asset"] = asset
 			return int(cd[1])
 	# Nothing bigger fits: the role keeps a house (still tagged, so the services and the interior pass find it).
 	for cd: Array in cands:
 		return int(cd[1])
 	return -1
+
+
+## Would `asset` standing on lot `idx` (its profile footprint, turned by the lot's yaw) overlap the footprint of any other lot?
+## (`fits` only knows the walls and the landmarks: a converted inn once ate a quarter of the adventurer guild next to it.)
+static func _clips_neighbour(lots: Array, idx: int, asset: String) -> bool:
+	var mine := _footprint(lots[idx]["pos"], float(lots[idx]["yaw"]), asset)
+	var reach := maxf(BuildingProfiles.size_of(asset).x, BuildingProfiles.size_of(asset).z) + 20.0
+	for j in lots.size():
+		if j == idx or (lots[j]["pos"] as Vector2).distance_to(lots[idx]["pos"]) > reach:
+			continue
+		var other := _footprint(lots[j]["pos"], float(lots[j]["yaw"]), String(lots[j]["asset"]))
+		var inter := Geometry2D.intersect_polygons(mine, other)
+		for poly: PackedVector2Array in inter:
+			if absf(_area(poly)) > 2.0:
+				return true
+	return false
+
+
+static func _footprint(pos: Vector2, yaw: float, asset: String) -> PackedVector2Array:
+	var size := BuildingProfiles.size_of(asset)
+	var wall := BuildingProfiles.HERO_WALL if BuildingProfiles.HERO.has(asset) else BuildingProfiles.HOUSE_WALL
+	var fwd := Vector2(sin(yaw), cos(yaw))
+	var side := Vector2(fwd.y, -fwd.x)
+	var hx := size.x * wall
+	var hz := size.z * wall
+	return PackedVector2Array([pos + side * hx + fwd * hz, pos - side * hx + fwd * hz, pos - side * hx - fwd * hz, pos + side * hx - fwd * hz])
+
+
+static func _area(poly: PackedVector2Array) -> float:
+	var a := 0.0
+	for i in poly.size():
+		var p: Vector2 = poly[i]
+		var q: Vector2 = poly[(i + 1) % poly.size()]
+		a += p.x * q.y - q.x * p.y
+	return a * 0.5
 
 
 # --- lookups ------------------------------------------------------------------------------------
@@ -204,17 +239,43 @@ static func door_pos(bid: String) -> Vector2:
 	return TownPlaces.door_of_any(bid)
 
 
+## An offset `at` (x = beside the door, y = out in front of it) from a lot's door, turned into world axes by the lot's yaw, so a clue or stash
+## "1.4 m left and 0.8 m out" stands in the street whichever way the house faces (in world axes it ended inside the walls of 11 towns).
+## A work site (no lot) keeps `at` as world axes.
+static func door_offset(bid: String, at: Vector2) -> Vector2:
+	var tid := tid_of_bid(bid)
+	var b := building_in(tid, bid) if tid != "" else {}
+	if b.is_empty():
+		return at
+	var plan_lots: Array = (town(tid)["plan"] as Dictionary)["lots"]
+	var idx := int(b["lot"])
+	if idx < 0 or idx >= plan_lots.size():
+		return at
+	var yaw: float = plan_lots[idx]["yaw"]
+	var fwd := Vector2(sin(yaw), cos(yaw))
+	var side := Vector2(fwd.y, -fwd.x)
+	return side * at.x + fwd * at.y
+
+
 ## The door-side spot of a building id (lot door, or the site door for a work site), nudged a little per person so a
 ## household does not stack on one pixel. A work site or the capital's keep gate is a yard, not a doorstep: ten workers share it, so
 ## their spots are spread over a 3.4 m disc (towns whose file says `outdoor_work`; Thornfield keeps its one-person doorsteps).
 ## Vector2.INF for an unknown id.
-static func door_of(bid: String, row := 0) -> Vector2:
+static func door_of(bid: String, row := 0, slot := -1, slots := 0) -> Vector2:
 	var p := door_pos(bid)
 	if p == Vector2.INF:
 		return p
 	var h := absi(hash(row * 31 + 7))
+	var yard := building(bid).is_empty() and bool(TownData.town(tid_of_bid(bid)).get("outdoor_work", false))
+	if slot >= 0 and slots > 1:
+		# Everyone who stands at this door gets their own place on a sunflower spiral (golden angle, equal area per person): the hashed
+		# disc piled up to six people shoulder to shoulder at a yard (QA sweep of the 30 towns). Within 1.2 m of a doorstep, 3.5 m of a yard.
+		var reach := minf(3.5, 1.2 + 0.8 * sqrt(float(slots))) if yard else minf(1.15, 0.7 + 0.2 * float(slots))
+		var ang := float(slot) * 2.399963 + float(h % 100) * 0.0063
+		var rad := reach * sqrt((float(slot) + 1.0) / float(slots))
+		return p + Vector2(cos(ang), sin(ang)) * rad
 	var a := float(h % 628) / 100.0
 	var r := 0.9
-	if building(bid).is_empty() and bool(TownData.town(tid_of_bid(bid)).get("outdoor_work", false)):
+	if yard:
 		r = 0.8 + 2.6 * sqrt(float((h / 628) % 100) / 100.0)
 	return p + Vector2(cos(a), sin(a)) * r

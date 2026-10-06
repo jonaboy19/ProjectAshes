@@ -10,7 +10,12 @@ extends RefCounted
 
 const TownData := preload("res://scripts/world/town_kit/town_data.gd")
 const TownPlaces := preload("res://scripts/world/town_kit/town_places.gd")
+const Ground := preload("res://scripts/world/town_kit/town_ground.gd")
 const FENCE_LEN := 3.1
+## QA switch for before / after shots: `-- --legacy-pens` puts every pen and animal group back where the town file says, steep or wet or not.
+static var legacy_pens := OS.get_cmdline_user_args().has("--legacy-pens")
+const PEN_SEARCH_STEP := 4.0         # m between rings when a pen has to move off a slope / out of water
+const PEN_SEARCH_RINGS := 10         # up to 40 m from where the file put it
 
 
 ## [{pos: Vector2, kinds: [[kind, n]], radius: float, tag: String}] in world XZ. Settlement-anchored groups that would stand in water are dropped.
@@ -20,11 +25,30 @@ static func groups(tid: String) -> Array:
 		var pos := TownPlaces.resolve(tid, g)
 		if pos == Vector2.INF:
 			continue
-		var frame: Dictionary = (TownData.town(tid).get("anchors", {}) as Dictionary).get(String(g.get("anchor", "")), {})
-		if String(frame.get("kind", "")) == "settlement" and WorldGen.near_water(pos.x, pos.y, 3.0):
-			continue          # offsets from the town centre are guesses: keep them out of water (site anchors are laid out dry)
+		# Offsets from an anchor are guesses: a group that would stand in water or on a steep slope moves to the nearest level, dry
+		# ground (town_ground.gd), and is dropped when there is none within 36 m.
+		if legacy_pens:
+			var fr: Dictionary = (TownData.town(tid).get("anchors", {}) as Dictionary).get(String(g.get("anchor", "")), {})
+			if not (String(fr.get("kind", "")) == "settlement" and WorldGen.near_water(pos.x, pos.y, 3.0)):
+				out.append({"pos": pos, "kinds": g["kinds"], "radius": float(g["radius"]), "tag": String(g.get("tag", ""))})
+			continue
+		var pen := _pen_of(tid, g)
+		if not pen.is_empty():
+			pos = (pen["pos"] as Vector2)          # the animals follow their pen
+		else:
+			pos = Ground.settle(tid, pos, Ground.group_ok, 0.0, 6.0, 6)
+			if pos == Vector2.INF:
+				continue
 		out.append({"pos": pos, "kinds": g["kinds"], "radius": float(g["radius"]), "tag": String(g.get("tag", ""))})
 	return out
+
+
+## The placed pen ({pos, yaw}) around group `g` (a pen with the same anchor and `at`), {} when it has none or the pen was left out.
+static func _pen_of(tid: String, g: Dictionary) -> Dictionary:
+	for p: Dictionary in (TownData.town(tid).get("livestock", {}) as Dictionary).get("pens", []):
+		if String(p.get("anchor", "")) == String(g.get("anchor", "")) and p.get("at") == g.get("at"):
+			return pen_spot(tid, p)
+	return {}
 
 
 ## AmbientLife._group for every group of town `tid` (or of every kit town when tid is ""). Returns how many were added.
@@ -43,14 +67,34 @@ static func add_groups(ambient: Node, tid := "") -> int:
 static func pen_transforms(tid: String) -> Array[Transform3D]:
 	var out: Array[Transform3D] = []
 	for p: Dictionary in (TownData.town(tid).get("livestock", {}) as Dictionary).get("pens", []):
-		var frame := TownPlaces.frame(tid, String(p.get("anchor", "")))
-		if frame.is_empty():
+		var spot := pen_spot(tid, p)
+		if spot.is_empty():
 			continue
-		var centre := TownPlaces.to_world(frame, Vector2(float(p["at"][0]), float(p["at"][1])))
-		if WorldGen.near_water(centre.x, centre.y, 3.0):
-			continue
-		_pen(out, {"pos": centre, "yaw": float(frame["yaw"]) + float(p.get("yaw", 0.0))}, Vector2(float(p["size"][0]), float(p["size"][1])))
+		_pen(out, spot, Vector2(float(p["size"][0]), float(p["size"][1])))
 	return out
+
+
+## Where pen `p` of town `tid` really stands: {pos, yaw}, or {} when the pen is left out. The file's spot is kept when the ground under the
+## whole footprint is level enough (town_ground.gd PEN_MAX_RELIEF), dry and off the road; otherwise the pen moves to the nearest spot that is
+## (rings of 4 m up to 32 m, clear of the town's buildings), and a pen with no such spot is skipped: a rail fence on a 10 m slope floats on
+## one side and is buried on the other (Skarholm).
+static func pen_spot(tid: String, p: Dictionary) -> Dictionary:
+	var frame := TownPlaces.frame(tid, String(p.get("anchor", "")))
+	if frame.is_empty():
+		return {}
+	var size := Vector2(float(p["size"][0]), float(p["size"][1]))
+	var yaw: float = float(frame["yaw"]) + float(p.get("yaw", 0.0))
+	var centre := TownPlaces.to_world(frame, Vector2(float(p["at"][0]), float(p["at"][1])))
+	if legacy_pens:
+		return {} if WorldGen.near_water(centre.x, centre.y, 3.0) else {"pos": centre, "yaw": yaw}
+	var ok := func(c: Vector2) -> bool:
+		return not WorldGen.near_water(c.x, c.y, Ground.WET) and Ground.pen_ok(c, size, yaw) and not Ground.rect_on_road(c, size, yaw) \
+				and pieces_ok(c, yaw, size)
+	var half := maxf(size.x, size.y) * 0.5
+	var at := Ground.settle(tid, centre, ok, half, PEN_SEARCH_STEP, PEN_SEARCH_RINGS)
+	if at == Vector2.INF:
+		return {}
+	return {"pos": at, "yaw": yaw}
 
 
 ## Rail-fence pens as one MultiMesh (one node, one draw call, whatever the number of rails). Returns the Node3D holding it (empty when
@@ -77,6 +121,22 @@ static func build_pens(tid: String, parent: Node) -> Node3D:
 	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(mmi)
 	return root
+
+
+## Every fence piece of a pen at `c` stands on level ground along its own length (ends within PEN_MAX_PIECE_DROP) and off the road.
+static func pieces_ok(c: Vector2, yaw: float, size: Vector2) -> bool:
+	var tmp: Array[Transform3D] = []
+	_pen(tmp, {"pos": c, "yaw": yaw}, size)
+	for xf: Transform3D in tmp:
+		if piece_drop(xf) > Ground.PEN_MAX_PIECE_DROP or Ground.on_road(Vector2(xf.origin.x, xf.origin.z), 0.0):
+			return false
+	return true
+
+
+## Height difference between the two ends of one fence piece.
+static func piece_drop(xf: Transform3D) -> float:
+	var along := xf.basis.x.normalized() * (FENCE_LEN * 0.5)
+	return absf(WorldGen.height(xf.origin.x - along.x, xf.origin.z - along.z) - WorldGen.height(xf.origin.x + along.x, xf.origin.z + along.z))
 
 
 ## The fence pieces of a pen centred on frame["pos"] and turned by frame["yaw"]: four sides, rails facing outwards, the front side

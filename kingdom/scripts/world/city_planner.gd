@@ -416,15 +416,11 @@ static func _civic_lots(lots: Array, c: Vector2, r: float, walled: bool, inner_w
 	var order := range(lots.size())
 	order.sort_custom(func(a: int, b: int) -> bool:
 		return (lots[a]["pos"] as Vector2).distance_to(c) < (lots[b]["pos"] as Vector2).distance_to(c))
-	var inn_pos := Vector2(INF, INF)
-	for lot: Dictionary in lots:
-		if lot["asset"] == "inn":
-			inn_pos = lot["pos"]
-			break
 	var guild: Dictionary = {}
+	# 17 m from the inn: the inn (13.5 m) and the guild (16 m wide) overlapped at the old 14 m (Longmeadow, world lint).
 	for i in order:
 		var cand: Dictionary = lots[i]
-		if cand["asset"] != "inn" and (cand["pos"] as Vector2).distance_to(inn_pos) > 14.0 \
+		if cand["asset"] != "inn" and _clear_of_inns(lots, cand["pos"]) \
 				and fits("adventurer_guild", cand["pos"], cand["yaw"], c, r, walled, inner_wall, landmarks):
 			guild = cand
 			break
@@ -442,6 +438,14 @@ static func _civic_lots(lots: Array, c: Vector2, r: float, walled: bool, inner_w
 		var lot: Dictionary = lots[i]
 		if lot != guild and lot["asset"] != "inn" and lot["asset"] != "healer_house" and (lot["pos"] as Vector2).distance_to(gp) < 12.5:
 			lots.remove_at(i)
+
+
+## No inn lot within 17 m of `p` (the guild is 16 m wide, an inn 13.5 m: any closer and their footprints overlap).
+static func _clear_of_inns(lots: Array, p: Vector2) -> bool:
+	for lot: Dictionary in lots:
+		if lot["asset"] == "inn" and (lot["pos"] as Vector2).distance_to(p) <= 17.0:
+			return false
+	return true
 
 
 static func _lot_ok(p: Vector2, c: Vector2, r: float, plaza_r: float, walled: bool, inner_wall: float,

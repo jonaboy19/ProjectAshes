@@ -531,7 +531,7 @@ func _run_all() -> void:
 		["tf_talk", _s_tf_talk], ["tf_barley", _s_tf_barley], ["tf_cart", _s_tf_cart], ["tf_wilm", _s_tf_wilm],
 		["tf_interior", _s_tf_interior], ["tf_theft", _s_tf_theft], ["tf_travel", _s_tf_travel], ["tf_combat", _s_tf_combat],
 		["tf_soldier", _s_tf_soldier], ["tf_rift", _s_tf_rift], ["tf_beast", _s_tf_beast], ["tf_save", _s_tf_save],
-		["towns", _s_towns],
+		["towns", _s_towns], ["townsweep", _s_townsweep],
 	]
 	for e: Array in list:
 		if not _want(String(e[0])) and String(e[0]) != "adult":
@@ -565,6 +565,7 @@ func _stage_limit(name: String) -> float:
 		"tf_beast": return 200.0
 		"tf_save": return 480.0
 		"towns": return 900.0 * float(maxi(1, _town_list().size()))
+		"townsweep": return 60.0 * float(maxi(1, _sweep_list().size())) + 120.0
 	return 150.0
 
 
@@ -1313,14 +1314,16 @@ func _s_job() -> void:
 		await shot("workplace_%s" % place["job"])
 		spots._enter_place(place)
 		await wait(1.0)
+		spots._still = spots.OFFER_STILL          # the offer card waits for the player to stand still: the bot has just teleported and waited
 		spots._refresh(w, p2())
 		await wait(0.5)
-		# a real click on the shift prompt ("Ask for a day's work"), as a player would
+		# a real click on the job-offer card ("Ask for work", top HUD lane), as a player would
 		var begun := false
-		if spots._panel != null and spots._panel.is_visible_in_tree():
-			var texts := buttons_in(spots._panel).map(func(b: Node) -> String: return button_text(b))
+		var card: Control = spots._offer if spots._offer != null and spots._offer.is_visible_in_tree() else spots._panel
+		if card != null and card.is_visible_in_tree():
+			var texts := buttons_in(card).map(func(b: Node) -> String: return button_text(b))
 			L("work prompt buttons: %s" % str(texts))
-			for b in buttons_in(spots._panel):
+			for b in buttons_in(card):
 				var bt := button_text(b).to_lower()
 				if "work" in bt and not "next" in bt:
 					await click(b, button_text(b))
@@ -3601,6 +3604,104 @@ func _town_list() -> Array:
 	return out
 
 
+## Every kit town (PLAYTEST_TOWNS=a,b limits it): one arrival view at the first gate looking at the plaza and one street view along
+## the longest street, with the people / nameplate / draw counts of each view written to <out>/townsweep_<first town>.json (a main-scene run grows about 2.5 GB per town:
+## run it three towns at a time, `tools_qa/playtest_bot/towns_sweep.sh` does). Used by the visual-bug
+## sweep (docs: tools_qa/playtest_bot, `PLAYTEST_STAGES=boot,townsweep`). Shots: <shots>/NN_townsweep_<tid>_arrive|street.png.
+func _sweep_list() -> Array:
+	var env := OS.get_environment("PLAYTEST_TOWNS")
+	return _town_list() if env != "" else KitData.ids()
+
+
+func _s_townsweep() -> void:
+	if Life.age() < 18:
+		set_age(18)
+	WorldSim.time_of_day = 11.0
+	var report := {}
+	for tid: String in _sweep_list():
+		var s: Dictionary = KitPlaces.settlement(tid)
+		if s.is_empty():
+			bug("townsweep", "%s has no settlement" % tid)
+			continue
+		var plan: Dictionary = s["plan"]
+		var c: Vector2 = s["pos"]
+		var gates: Array = plan["gates"]
+		var ga := float(gates[0]) if not gates.is_empty() else 0.0
+		var from := c + Vector2(cos(ga), sin(ga)) * (float(plan["plaza_r"]) + 16.0)
+		await teleport(from, yaw_to(from, c), 2.0)
+		(main.settlements as Node).call("finish_prop_jobs")
+		face(c, -0.15)
+		await wait(1.5)
+		var row := {"arrive": _sweep_metrics()}
+		await shot(tid + "_arrive")
+		# the longest street of the plan, from a quarter of the way along, looking down it
+		var best: Dictionary = {}
+		var best_len := 0.0
+		for st: Dictionary in plan["streets"]:
+			var l := (st["a"] as Vector2).distance_to(st["b"])
+			if l > best_len and l > 20.0:
+				best_len = l
+				best = st
+		if not best.is_empty():
+			var a: Vector2 = best["a"]
+			var b: Vector2 = best["b"]
+			if a.distance_to(c) < b.distance_to(c):
+				var tmp := a
+				a = b
+				b = tmp
+			var from2 := a.lerp(b, 0.3)
+			await teleport(from2, yaw_to(from2, b), 2.0)
+			(main.settlements as Node).call("finish_prop_jobs")
+			face(b, -0.12)
+			await wait(1.5)
+			row["street"] = _sweep_metrics()
+			await shot(tid + "_street")
+		report[tid] = row
+		L("townsweep %s %s" % [tid, JSON.stringify(row)])
+	var f := FileAccess.open(out_dir.path_join("townsweep_%s.json" % String(_sweep_list()[0])), FileAccess.WRITE)
+	if f != null:
+		f.store_string(JSON.stringify(report, "\t"))
+		f.close()
+
+
+## What the camera can see around the player: embodied people within 30 m, how many stand on top of each other (< 0.8 m) or inside a
+## building footprint, visible world nameplates, draw calls of the last frame, hud controls up top.
+func _sweep_metrics() -> Dictionary:
+	var Ground := load("res://scripts/world/town_kit/town_ground.gd") as GDScript
+	var me := p2()
+	var folks: Array[Vector2] = []
+	for n in get_tree().get_nodes_in_group("villager"):
+		if n is Node3D and (n as Node3D).is_visible_in_tree():
+			var q := Vector2((n as Node3D).global_position.x, (n as Node3D).global_position.z)
+			if q.distance_to(me) < 30.0:
+				folks.append(q)
+	var stacked := 0
+	var in_wall := 0
+	var tid := KitData.id_of_settlement(String(WorldGen.nearest_settlement(me).get("name", "")))
+	for i in folks.size():
+		for j in range(i + 1, folks.size()):
+			if folks[i].distance_to(folks[j]) < 0.8:
+				stacked += 1
+		if tid != "" and bool(Ground.call("inside_building", tid, folks[i], -0.3)):
+			in_wall += 1
+	var plates := 0
+	for n in get_tree().root.find_children("*", "Label3D", true, false):
+		if (n as Label3D).is_visible_in_tree() and (n as Label3D).global_position.distance_to(player.global_position) < 40.0:
+			plates += 1
+	var lane := {}
+	var HL := load("res://scripts/ui/hud_lane.gd") as GDScript
+	for k: Variant in (HL.get("_rects") as Dictionary):
+		lane[String(k)] = [snappedf((HL.get("_rects")[k] as Vector2).x, 0.1), snappedf((HL.get("_rects")[k] as Vector2).y, 0.1)]
+	var pill := ""
+	for n in get_tree().root.find_children("*", "Control", true, false):
+		var sc: Script = n.get_script()
+		if sc != null and String(sc.resource_path).ends_with("tutorial_prompt_view.gd") and n.get("_pill") != null:
+			pill = str((n.get("_pill") as Control).get_global_rect()) + " a=" + str((n.get("_pill") as Control).modulate.a) + " vis=" + str((n.get("_pill") as Control).visible)
+	return {"people": folks.size(), "stacked": stacked, "in_wall": in_wall, "plates": plates, "lane": lane, "hint_pill": pill,
+		"draws": int(RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME)),
+		"prims": int(RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME))}
+
+
 func _s_towns() -> void:
 	if Life.age() < 18:
 		set_age(18)
@@ -3726,7 +3827,7 @@ func _town_visit(tid: String) -> void:
 			var mmi := pen_root.get_child(0) as MultiMeshInstance3D
 			note("%s: pen rails: %d instances, aabb %s, visible in tree %s, first rail at %s" % [tid, mmi.multimesh.instance_count, str(mmi.get_aabb()), str(mmi.is_visible_in_tree()), str(mmi.multimesh.get_instance_transform(0).origin)])
 		else:
-			bug("towns", "%s has pens in its file but the hub built none" % tid)
+			bug("towns", "%s has pens in its file but the hub built none (pen_spot found no level dry ground)" % tid)
 		close_everything()
 		await shot(tid + "_pens")
 		face(pc, -0.55)

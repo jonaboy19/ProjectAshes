@@ -1594,4 +1594,4 @@ func _on_travel_requested(pos: Vector2, hours: float, place: Dictionary) -> void
 	tw2.tween_property(_fade, "color:a", 0.0, 0.7)
 	await tw2.finished
 	_fade.visible = false
-	show_toast("Arrived at %s  ·  %s by coach  ·  %d gold" % [place.get("name", "your destination"), WorldMap.fmt_hours(hours), fare])
+	show_toast("Arrived at %s  ·  %s by %s  ·  %d gold" % [place.get("name", "your destination"), WorldMap.fmt_hours(hours), "ferry" if String(place.get("kind", "")) == "ferry" else "coach", fare])

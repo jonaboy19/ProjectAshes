@@ -84,8 +84,9 @@ static func _vec(a: Variant) -> Vector2:
 static func resolve(tid: String, def: Dictionary) -> Vector2:
 	var at := _vec(def.get("at", [0, 0]))
 	if def.has("building"):
-		var door: Vector2 = (load("res://scripts/world/town_kit/town_lots.gd") as GDScript).call("door_pos", String(def["building"]))
-		return door + at if door != Vector2.INF else Vector2.INF
+		var lots := load("res://scripts/world/town_kit/town_lots.gd") as GDScript
+		var door: Vector2 = lots.call("door_pos", String(def["building"]))
+		return door + (lots.call("door_offset", String(def["building"]), at) as Vector2) if door != Vector2.INF else Vector2.INF
 	var a: Dictionary = (TownData.town(tid).get("anchors", {}) as Dictionary).get(String(def.get("anchor", "")), {})
 	var p := Vector2.INF
 	match String(a.get("kind", "")):

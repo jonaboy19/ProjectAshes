@@ -14,6 +14,7 @@ extends RefCounted
 
 const TownData := preload("res://scripts/world/town_kit/town_data.gd")
 const TownPlaces := preload("res://scripts/world/town_kit/town_places.gd")
+const Ground := preload("res://scripts/world/town_kit/town_ground.gd")
 
 
 static func clue_ids(tid: String) -> Array:
@@ -23,10 +24,19 @@ static func clue_ids(tid: String) -> Array:
 	return out
 
 
+## World XZ of a clue / stash definition, moved to the nearest dry, level-enough ground when the authored offset lands in water or on a
+## slope (Vector2.INF only when the anchor is missing; a quest prop is never dropped).
+static func spot(tid: String, def: Dictionary) -> Vector2:
+	var w := TownPlaces.resolve(tid, def)
+	if w == Vector2.INF:
+		return w
+	return Ground.settle_prop(tid, w)
+
+
 static func build_clues(tid: String, parent: Node) -> Array:
 	var out: Array = []
 	for c: Dictionary in TownData.town(tid).get("clues", []):
-		var w := TownPlaces.resolve(tid, c)
+		var w := spot(tid, c)
 		if w == Vector2.INF:
 			continue
 		var y := WorldGen.height(w.x, w.y) + float(c.get("h", 0.0))
@@ -41,7 +51,7 @@ static func build_clues(tid: String, parent: Node) -> Array:
 static func build_stashes(tid: String, parent: Node) -> Array:
 	var out: Array = []
 	for s: Dictionary in TownData.town(tid).get("stashes", []):
-		var w := TownPlaces.resolve(tid, s)
+		var w := spot(tid, s)
 		if w == Vector2.INF:
 			continue
 		var n := Node3D.new()
