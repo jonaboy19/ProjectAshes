@@ -20,6 +20,7 @@ const Extras := preload("res://scripts/world/region1_extras.gd")
 const FREE_PACK := "res://assets/incoming/meshy_free/"
 const DL3_PACK := "res://assets/incoming/meshy_dl3/"      # Meshy batch 3: asset keys "dl3:<cat>/<name>@H"
 const FillStyle := preload("res://scripts/world/fill_style.gd")      # Style G per-model treatment of the meshy_free pack
+const LowBudget := preload("res://scripts/world/low_budget.gd")      # LOW tier: decorative cloud clutter thinned / proxied / LOD1
 const R1 := "res://assets/incoming/region1/"
 const R1_KIT := "res://assets/incoming/region1/highwatch/highwatch_kit.tres"
 const R1_KIT_LOW := "res://assets/incoming/region1/highwatch/highwatch_kit_low.tres"
@@ -238,6 +239,8 @@ func _build_part(root: Node3D, site: Dictionary, part: Array) -> void:
 
 
 func _build_part_node(root: Node3D, site: Dictionary, part: Array) -> void:
+	if LowBudget.skip_part(site, part):
+		return          # LOW: heavy loose clutter of fill / Meshy3 yards is thinned (low_budget.gd); the bake counter still advances in _build_part
 	var basis := Basis(Vector3.UP, float(site["yaw"]))
 	var off: Vector2 = part[1]
 	var world := root.global_position + basis * Vector3(off.x, 0.0, off.y)
@@ -510,6 +513,9 @@ func _spawn(asset: String) -> Node3D:
 func _spawn_kit(asset: String) -> Node3D:
 	var is_dl3 := asset.begins_with("dl3:")
 	var is_free := asset.begins_with("free:") or is_dl3
+	var px := LowBudget.proxy_for(asset) if is_free else {}
+	if not px.is_empty():
+		return _spawn_fence_proxy(asset, px)
 	var spec := asset.substr(4 if is_dl3 else (5 if is_free else 3)).split("@")
 	var base := (DL3_PACK if is_dl3 else (FREE_PACK if is_free else R1)) + spec[0]
 	var lod0 := base + "_lod0.glb"
@@ -518,7 +524,8 @@ func _spawn_kit(asset: String) -> Node3D:
 		lod0 = base + ".glb"
 		lod1 = ""
 	var target := float(spec[1]) if spec.size() > 1 else 0.0
-	var n := _lod_pair(lod0, lod1, 55.0 if target < 6.0 else 85.0, target)
+	var lod_at := 55.0 if target < 6.0 else 85.0
+	var n := _lod_pair(lod0, lod1, LowBudget.lod_distance(lod_at) if is_free else lod_at, target)
 	if n == null:
 		return null
 	var box := Assets.visual_aabb(n)
@@ -535,6 +542,24 @@ func _spawn_kit(asset: String) -> Node3D:
 	holder.add_child(n)
 	n.scale = Vector3.ONE * k
 	n.position.y = -box.position.y * k
+	return holder
+
+
+## LOW stand-in for a Meshy fence section (2.5-3k tris each, no LOD1, no engine LOD): the generated Style G picket / rail fence (60-190
+## tris) stretched to the Meshy section's length and height. Same holder shape as _spawn_kit (the part's yaw and position apply to it).
+func _spawn_fence_proxy(asset: String, px: Dictionary) -> Node3D:
+	var path: String = REGION + String(px["path"])
+	var spec := asset.substr(asset.find(":") + 1).split("@")
+	var target := float(spec[1]) if spec.size() > 1 else 1.0
+	var n := _lod_pair(path + ".glb", path + "_lod1.glb", 40.0, 0.0)
+	if n == null:
+		return null
+	var box := Assets.visual_aabb(n)
+	var ky := target / maxf(box.size.y, 0.01)
+	var holder := Node3D.new()
+	holder.add_child(n)
+	n.scale = Vector3(float(px["length"]) / maxf(box.size.x, 0.01), ky, ky)
+	n.position.y = -box.position.y * ky
 	return holder
 
 

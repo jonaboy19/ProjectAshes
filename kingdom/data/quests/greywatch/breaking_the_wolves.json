@@ -1,0 +1,91 @@
+{
+ "id": "greywatch_breaking_the_wolves",
+ "title": "Breaking the Wolves",
+ "summary": "The wolves come in waves: howling closer every night. Amice Selby wants the first wave broken and then the second, with a word between them.",
+ "giver": {
+  "npc": "amice_selby",
+  "name": "Amice Selby",
+  "place": "greywatch"
+ },
+ "requires": [
+  "greywatch_tampered_work_at_the_spear_hall_yard"
+ ],
+ "offer_text": "\"It is not one pack, it is two nights of them, howling closer every night. Break the first and come and tell me. Then we finish it.\"",
+ "turn_in_text": "\"That is two waves broken. I will not say it is over, but I will say it is quiet.\"",
+ "stages": [
+  {
+   "id": "first",
+   "title": "The first of them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "first",
+     "type": "kill",
+     "target": "wolf",
+     "place": "greywatch_outskirts",
+     "count": 2,
+     "text": "Kill 2 wolves near Greywatch"
+    }
+   ]
+  },
+  {
+   "id": "word",
+   "title": "Report and listen",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "word",
+     "type": "talk_to",
+     "npc": "amice_selby",
+     "text": "Tell Amice Selby the first are down"
+    }
+   ]
+  },
+  {
+   "id": "second",
+   "title": "The rest",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "second",
+     "type": "kill",
+     "target": "wolf",
+     "place": "greywatch_outskirts",
+     "count": 2,
+     "text": "Kill 2 more wolves at the edge"
+    }
+   ]
+  },
+  {
+   "id": "done",
+   "title": "Tell Amice",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "done",
+     "type": "talk_to",
+     "npc": "amice_selby",
+     "text": "Tell Amice Selby the edge is clear"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 30,
+  "rep": {
+   "greywatch": 6
+  },
+  "relationship": [
+   {
+    "npc": "amice_selby",
+    "label": "Held the line against the wolves",
+    "value": 12,
+    "days": 60
+   }
+  ],
+  "items": {
+   "bandage": 2
+  }
+ }
+}

@@ -170,3 +170,33 @@ func test_greenhollow_road_has_stones_and_rifts_edge_has_three() -> void:
 	assert_float(best).is_less(260.0)
 	var el := _nearest(Places.position_of("elder_crownstead"), true)
 	assert_bool(el >= 0 and String(net.stones[el]["name"]).contains("elder_crownstead")).is_true()
+
+
+func test_look_pass_hooks_the_story_to_the_hill_the_glade_and_the_cut_stone() -> void:
+	# Crownstead Mill Hill: the Act IV Crownstead step and its Elder Stone are on the crown of the hill.
+	var hill := _site_pos("Crownstead Mill Hill")
+	assert_bool(hill == Vector2.INF).is_false()
+	assert_float((Places.position_of("crownstead") as Vector2).distance_to(hill)).is_less(1.0)
+	assert_float((Places.position_of("elder_crownstead") as Vector2).distance_to(hill)).is_less(6.0)
+	# Stagborn Glade: Glade Elder Stone at the landmark (-1345, -1062); the Warden's den is beside it.
+	assert_float((Places.position_of("elder_glade") as Vector2).distance_to(Vector2(-1345, -1062))).is_less(6.0)
+	assert_float((Vector2(-1345, -1062) as Vector2).distance_to(_site_pos("Stagborn Glade"))).is_less(1.0)
+	# Hollin's Reach: the optional "young Bram pulls the pin" Ashsight is staged at the cut ward-stone.
+	var cut := Places.resolve("hollin_cut_stone")
+	assert_bool(cut.is_empty()).is_false()
+	assert_float((cut["pos"] as Vector2).distance_to(Vector2(-178, -471))).is_less(3.0)
+	assert_bool(WorldGen.is_water(cut["pos"].x, cut["pos"].y)).is_false()
+	var spec: Dictionary = Places.registry()["ash_sites"]["hollin_cut_stone"]
+	var q: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/region1/quests/r1_main.json"))
+	var step: Dictionary = {}
+	for s: Dictionary in q["steps"]:
+		if String(s["id"]) == String(spec["step"]):
+			step = s
+	assert_bool(step.is_empty()).is_false()
+	var ids := []
+	for o: Dictionary in step["objectives"]:
+		ids.append(String(o["id"]))
+	assert_array(ids).contains([String(spec["after"])])          # the step has the objective the memory unlocks after
+	# It is never required: no objective names it.
+	for o: Dictionary in step["objectives"]:
+		assert_str(String(o.get("site", ""))).is_not_equal("hollin_cut_stone")

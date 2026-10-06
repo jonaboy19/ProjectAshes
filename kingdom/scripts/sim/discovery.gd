@@ -21,7 +21,7 @@ const MERGE_DISTANCE := 30.0     # a lore place this close to a known place is t
 const CAMP_KINDS := ["goblin_warren", "orc_village"]
 const HOSTILE_KINDS := ["goblin_warren", "orc_village", "bandit_camp", "rift", "hideout", "warren_tunnels"]
 ## Fast travel is a coach between discovered waystations only (travel_rules.gd); every settlement has a coach inn.
-const TRAVEL_KINDS := ["waystation"]
+const TRAVEL_KINDS := ["waystation", "ferry"]   # ferry: Emberglass Ferry landings (Region 1 look pass), a coach-like node over water
 
 const KIND_LABELS := {
 	"village": "Village", "town": "Market Town", "castle": "Royal Castle", "capital": "Royal Capital",
@@ -36,7 +36,10 @@ const KIND_LABELS := {
 	# Region 1 world packages (scripts/world/region1_world.gd)
 	"keep": "Knightly Keep", "elder_stone": "Elder Stone", "estate": "Crown Estate", "border_gate": "Closed Border",
 	"pass": "Snowed-shut Pass", "scar_arena": "Rift Mouth", "chapel": "Mission Chapel", "caravan_camp": "Caravan Camp",
-	"landmark": "Local Landmark", "glade": "Sacred Glade", "windmill_hill": "Crown Farms",
+	"landmark": "Local Landmark", "glade": "Sacred Glade", "windmill_hill": "Windmill Hill",
+	# Region 1 look pass landmarks (scripts/region1/region1_landmarks.gd, data/region1/landmarks.json)
+	"valley": "Valley", "waterfall": "Waterfall", "standing_stones": "Standing Stones", "ruins": "Ruins", "lookout": "Lookout",
+	"old_bridge": "Old Bridge", "ferry": "Ferry", "sunken_chapel": "Sunken Chapel", "bones": "Giant's Bones",
 	# Exploration secrets (scripts/world/hidden_valley.gd, region_pois.gd)
 	"hidden_vale": "Hidden Vale", "poi_vista": "Vista", "poi_shrine": "Hidden Shrine", "poi_lore": "Lore Stone",
 	"poi_camp": "Abandoned Camp", "poi_herbs": "Herb Patch", "poi_cache": "Buried Cache", "poi_battlefield": "Old Battlefield",

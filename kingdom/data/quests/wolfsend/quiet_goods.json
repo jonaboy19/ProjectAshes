@@ -1,0 +1,144 @@
+{
+ "id": "wolfsend_quiet_goods",
+ "title": "Quiet Goods",
+ "summary": "Goods are passing Wolfsend at night without a count. Lowen Nettle knows, and Wadsworth Wythe can show where it goes.",
+ "giver": {
+  "npc": "lowen_nettle",
+  "name": "Lowen Nettle",
+  "place": "wolfsend"
+ },
+ "requires": [
+  "wolfsend_fur_bundles_for_the_shopkeeper"
+ ],
+ "offer_text": "\"Goods come through at night and nobody counts them. Wadsworth Wythe says Wadsworth can point at the road. See what is left on it, then decide what it is worth.\"",
+ "stages": [
+  {
+   "id": "tip",
+   "title": "Hear the tip",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "tip",
+     "type": "talk_to",
+     "npc": "wadsworth_wythe",
+     "text": "Hear what Wadsworth Wythe has to sell"
+    }
+   ]
+  },
+  {
+   "id": "watch",
+   "title": "Watch the edge",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "edge",
+     "type": "goto",
+     "place": "wolfsend_outskirts",
+     "text": "Go to the edge of Wolfsend where the carts do not stop"
+    }
+   ]
+  },
+  {
+   "id": "find",
+   "title": "Find what was left",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "wolfsend/clue/o1",
+      "wolfsend/clue/o2",
+      "wolfsend/clue/c3"
+     ],
+     "count": 2,
+     "text": "Find two signs of what passed through"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide what it is worth",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "lowen_nettle",
+     "options": [
+      {
+       "id": "turn_in",
+       "text": "Tell Lowen what you found",
+       "say": "Lowen writes it down. \"This will matter.\""
+      },
+      {
+       "id": "cut",
+       "text": "Take Wadsworth's cut and forget the road",
+       "say": "Wadsworth pays you without counting. \"Obliged.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "turn_in": "filed",
+    "cut": "cut"
+   }
+  },
+  {
+   "id": "filed",
+   "title": "Lowen has it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "filed",
+     "type": "talk_to",
+     "npc": "lowen_nettle",
+     "text": "Tell Lowen Nettle who is behind it"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 26,
+    "rep": {
+     "wolfsend": 6
+    },
+    "relationship": [
+     {
+      "npc": "lowen_nettle",
+      "label": "Reported the contraband",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "cut",
+   "title": "Take your share",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "share",
+     "type": "talk_to",
+     "npc": "wadsworth_wythe",
+     "text": "Collect your share from Wadsworth Wythe"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 45,
+    "rep": {
+     "wolfsend": -7
+    },
+    "relationship": [
+     {
+      "npc": "lowen_nettle",
+      "label": "Heard you took a cut",
+      "value": -14,
+      "days": 90
+     }
+    ]
+   }
+  }
+ ]
+}

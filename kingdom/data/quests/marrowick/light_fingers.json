@@ -1,0 +1,131 @@
+{
+ "id": "marrowick_light_fingers",
+ "title": "Light Fingers",
+ "summary": "The stores of Marrowick are missing a bag of coin. Larkin Fenwick wants to know whether it is carelessness or a person.",
+ "giver": {
+  "npc": "larkin_fenwick",
+  "name": "Larkin Fenwick",
+  "place": "marrowick"
+ },
+ "requires": [
+  "marrowick_rolls_of_leather_and_coils_of_rope"
+ ],
+ "offer_text": "\"I am missing a bag of coin from the stores and I have counted twice. Look around the doors in town. Someone was careless, or someone was not.\"",
+ "stages": [
+  {
+   "id": "look",
+   "title": "Look for signs",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "marrowick/clue/c1",
+      "marrowick/clue/c2",
+      "marrowick/clue/c3"
+     ],
+     "count": 3,
+     "text": "Search the doors around town for signs"
+    }
+   ]
+  },
+  {
+   "id": "question",
+   "title": "Ask Vance",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "question",
+     "type": "talk_to",
+     "npc": "vance_thackeray",
+     "text": "Ask Vance Thackeray what they know"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide what to do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "larkin_fenwick",
+     "options": [
+      {
+       "id": "report",
+       "text": "Tell Larkin what you found",
+       "say": "Larkin nods slowly. \"Then it is on the record.\""
+      },
+      {
+       "id": "quiet",
+       "text": "Take Vance's quiet word and say nothing",
+       "say": "Vance presses a few coins into your hand. \"Good sense.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "report": "reported",
+    "quiet": "hushed"
+   }
+  },
+  {
+   "id": "reported",
+   "title": "Larkin hears it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "larkin_fenwick",
+     "text": "Tell Larkin Fenwick who it was"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 20,
+    "rep": {
+     "marrowick": 6
+    },
+    "relationship": [
+     {
+      "npc": "larkin_fenwick",
+      "label": "Told the truth about the theft",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "hushed",
+   "title": "Collect the hush money",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "quiet",
+     "type": "talk_to",
+     "npc": "vance_thackeray",
+     "text": "Collect Vance's thanks"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 35,
+    "rep": {
+     "marrowick": -6
+    },
+    "relationship": [
+     {
+      "npc": "larkin_fenwick",
+      "label": "Heard you looked the other way",
+      "value": -12,
+      "days": 90
+     }
+    ]
+   }
+  }
+ ]
+}

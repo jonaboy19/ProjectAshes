@@ -305,7 +305,8 @@ static func attach_hands(sk: Skeleton3D, noise: Texture2D, tint := Color(0.683, 
 		if sm is BaseMaterial3D:
 			hm.set_shader_parameter("albedo_tex", (sm as BaseMaterial3D).albedo_texture)
 		hm.set_shader_parameter("tint", tint)
-		hm.set_shader_parameter("neck_y", -10.0)          # whole mesh uses the head-band (lenient) skin classification
+		hm.set_shader_parameter("neck_y", -10.0)
+		hm.set_shader_parameter("use_mask", false)          # whole mesh uses the head-band (lenient) skin classification
 		hm.set_shader_parameter("detail_scale", 0.5)
 		mi.material_override = hm
 		break

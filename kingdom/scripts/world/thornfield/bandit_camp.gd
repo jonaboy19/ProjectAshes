@@ -11,6 +11,7 @@ const Wilds := preload("res://scripts/world/thornfield/wilds.gd")
 const Props := preload("res://scripts/world/thornfield/wilds_props.gd")
 const Squad := preload("res://scripts/army/squad.gd")
 const Ownership := preload("res://scripts/sim/ownership.gd")
+const LowBudget := preload("res://scripts/world/low_budget.gd")      # LOW tier: no shield attachments
 const KEEP: Array[String] = ["1H_Axe", "Barbarian_Round_Shield", "Barbarian_Hat"]
 
 var def: Dictionary = {}
@@ -132,7 +133,7 @@ func spawn_roster() -> Array:
 
 
 func _squad(anchor: Vector3, aggro: float) -> Node:
-	var sq := Squad.new().setup(1, "raider", "Barbarian", KEEP)
+	var sq := Squad.new().setup(1, "raider", "Barbarian", LowBudget.gear(KEEP))
 	sq.anchor = anchor
 	sq.aggro_radius = aggro
 	add_child(sq)

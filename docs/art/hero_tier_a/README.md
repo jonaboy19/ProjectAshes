@@ -69,3 +69,39 @@ Rating: about 6.5/10. Still not default.
   - The body is a bulky cloak block with a dark face.
   - The boots stretch into skis again (the boot was shifted 9.7 cm).
 - **Next:** pick the base-colour image by its material slot, then re-run `hero_fix` without `--keep_hands`.
+
+## Paid Meshy hero, pass 2 (2026-10-06): `n2_sheet.jpg`, `n2_clips.jpg`
+- **Texture:** the base colour is the material's baseColorTexture (image 2, not image 0). The Target 03 palette now reads: green tunic and cloak, leather vest and straps, hood.
+- **Hands:** the hand swap works, and the sword sits in the fist.
+- **Problems:**
+  - Hulking proportions: very broad shoulders and arms.
+  - The hood reads as shiny gold satin (the atlas classifier marks it leather/metal, so specular is too high).
+  - The ski soles are back on run and attack (the 9.7 cm boot shift is too large for this model).
+  - The face camera framing is too low for this head height.
+  - Harsh painted brows.
+
+Rating: about 5/10 (palette and silhouette at distance about 6, close-up 4). It loses to m13 (about 6.5), so it is not default. Benchmark street not run.
+
+## Paid Meshy hero, pass 3 (2026-10-06): `n4_sheet.jpg`, `n4_clips.jpg`
+- **Arms:** narrowed 18 % (`hero_fix.py --narrow=0.18`). Arms and shoulders only: the first try also caught the legs and made the hero float.
+- **Hood:** forced to matte wool by a vertex mask (COLOR.r), not by colour heuristics.
+- **Lips:** the lipstick red is muted in the shader.
+- **Noise:** mip bias 0.6 and detail normals at 0.5 calm the close-up texture.
+- **Face camera:** now aimed from the lid patch at the real eye height.
+- **Boot shift:** capped at 3 cm (`--maxshift`).
+
+Rating: about 5.5/10.
+- Better: the outfit read at distance and the matte hood.
+- Still wrong:
+  - The hulking cloak silhouette from behind.
+  - Run and attack soles still stretch backwards; this needs hand-painted foot weights.
+  - The low-poly face planes up close.
+
+It doesn't beat m13 (about 6.5), so it is not default. Benchmark street not run.
+
+## Paid Meshy hero, pass 4 (2026-10-06): `n5_clips_coat_fail.jpg`, `n6_sheet.jpg`
+I tried boot-only foot weights plus a shortened coat skirt (`hero_fix.py --coat`). It made things worse: the hero floats, the feet turn into stumps, and the hem is jagged. The flag stays off and the shipped asset is back to the pass 3 state (n6 = n4 plus stronger brow lightening).
+
+The "skis" and the cloak bulk are baked into the Meshy geometry, a single fused shell for coat, legs and boots. Fixing them needs manual separation of the coat in Blender, not more scripted heuristics.
+
+Verdict: m13 (about 6.5) stays the best candidate, the paid hero is about 5.5, and the current G6 hero stays the default. Benchmark street not run: neither candidate clearly wins in the sheets.

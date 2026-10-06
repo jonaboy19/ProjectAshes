@@ -18,6 +18,7 @@ const Wilds := preload("res://scripts/world/thornfield/wilds.gd")
 const Props := preload("res://scripts/world/thornfield/wilds_props.gd")
 const Squad := preload("res://scripts/army/squad.gd")
 const DrillYard := preload("res://scripts/world/drill_yard.gd")
+const LowBudget := preload("res://scripts/world/low_budget.gd")      # LOW tier: no shield attachments
 const KEEP: Array[String] = ["Knight_Helmet", "1H_Sword", "Round_Shield"]
 const SECTION := 4.1
 const WALL_H := 3.3
@@ -307,7 +308,7 @@ func spawn_garrison() -> Array:
 
 
 func _squad(anchor: Vector3) -> Node:
-	var sq := Squad.new().setup(0, "soldier", "Knight", KEEP)
+	var sq := Squad.new().setup(0, "soldier", "Knight", LowBudget.gear(KEEP))
 	sq.anchor = anchor
 	sq.aggro_radius = 22.0
 	add_child(sq)

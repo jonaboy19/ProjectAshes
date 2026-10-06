@@ -1,0 +1,70 @@
+{
+ "id": "emberfall_glass_blanks_on_order",
+ "title": "Glass Blanks on Order",
+ "summary": "Hugh Lensley says Bettany Marlowe has an order for 3 glass blanks that cannot wait. The stock is at the glass kiln, and the deadline is before the next firing.",
+ "giver": {
+  "npc": "hugh_lensley",
+  "name": "Hugh Lensley",
+  "place": "emberfall"
+ },
+ "offer_text": "\"Bettany Marlowe has an order and nobody to fetch it. Hear Bettany out, then bring the goods from the glass kiln before the next firing. I will vouch for you.\"",
+ "stages": [
+  {
+   "id": "order",
+   "title": "Hear the order",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hear",
+     "type": "talk_to",
+     "npc": "bettany_marlowe",
+     "text": "Hear what Bettany Marlowe needs"
+    }
+   ]
+  },
+  {
+   "id": "gather",
+   "title": "Gather the stock",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "glass",
+     "count": 3,
+     "text": "Take 3 glass blanks from the glass kiln"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Fill the order",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "fill",
+     "type": "deliver",
+     "item": "glass",
+     "count": 3,
+     "to": "bettany_marlowe",
+     "text": "Hand the glass blanks to Bettany Marlowe"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 16,
+  "rep": {
+   "emberfall": 3
+  },
+  "relationship": [
+   {
+    "npc": "hugh_lensley",
+    "label": "Filled a standing order",
+    "value": 8,
+    "days": 45
+   }
+  ]
+ }
+}

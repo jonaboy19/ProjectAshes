@@ -241,8 +241,9 @@ func test_the_lots_are_forced_for_any_seed() -> void:
 
 
 func test_other_towns_are_left_alone() -> void:
+	# The kit forces lots for every settlement with a town file (data/region1/towns/); the others are untouched.
 	for s in WorldGen.settlements:
-		if String(s["name"]) != "Thornfield":
+		if String(s["name"]) != "Thornfield" and not preload("res://scripts/world/town_kit/town_data.gd").has_town(String(s["name"])):
 			assert_bool((s["plan"] as Dictionary).has("slice")).is_false()
 
 

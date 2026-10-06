@@ -644,6 +644,17 @@ func add_station(kind: String, pos: Vector3, label := "", radius := -1.0, owner:
 	return st.duplicate(true)
 
 
+## Drops every registered station whose ref starts with `prefix` and returns how many went (the build kit re-registers the
+## benches that still stand with refs "kit:<grid>:<piece>:...", see build_kit.sync_realm).
+func remove_stations_by_prefix(prefix: String) -> int:
+	var n := 0
+	for i in range(_stations.size() - 1, -1, -1):
+		if String(_stations[i].get("ref", "")).begins_with(prefix):
+			_stations.remove_at(i)
+			n += 1
+	return n
+
+
 func clear_stations() -> void:
 	station_identity.invalidate_all()
 	_stations.clear()

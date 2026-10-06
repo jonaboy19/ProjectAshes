@@ -1,0 +1,131 @@
+{
+ "id": "duskwater_what_piers_saw",
+ "title": "What Piers Saw",
+ "summary": "Something went wrong at night in Duskwater, and Wilda Gaunt says Piers Forrest saw it. Wilda Gaunt wants it checked before names are said.",
+ "giver": {
+  "npc": "wilda_gaunt",
+  "name": "Wilda Gaunt",
+  "place": "duskwater"
+ },
+ "requires": [
+  "duskwater_glass_blanks_for_the_glasswright"
+ ],
+ "offer_text": "\"Somebody was in my place after dark. Piers Forrest saw something and will not say it loud. Hear Piers, then see if the story holds.\"",
+ "stages": [
+  {
+   "id": "ask",
+   "title": "Hear Piers out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hear",
+     "type": "talk_to",
+     "npc": "piers_forrest",
+     "text": "Ask Piers Forrest what they saw"
+    }
+   ]
+  },
+  {
+   "id": "look",
+   "title": "Check the story",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "duskwater/clue/c1",
+      "duskwater/clue/c2",
+      "duskwater/clue/c3"
+     ],
+     "count": 2,
+     "text": "Find two signs that match what Piers said"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Say what you will do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "wilda_gaunt",
+     "options": [
+      {
+       "id": "name",
+       "text": "Name Larkin to Wilda",
+       "say": "Wilda goes quiet. \"I will deal with it. Openly.\""
+      },
+      {
+       "id": "warn",
+       "text": "Warn Larkin quietly and leave it",
+       "say": "Larkin will owe you. You can see it in the shoulders."
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "name": "named",
+    "warn": "warned"
+   }
+  },
+  {
+   "id": "named",
+   "title": "Wilda hears it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "wilda_gaunt",
+     "text": "Tell Wilda Gaunt it is settled"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 18,
+    "rep": {
+     "duskwater": 5
+    },
+    "relationship": [
+     {
+      "npc": "wilda_gaunt",
+      "label": "Named the culprit",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "warned",
+   "title": "Let Larkin know",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "warned",
+     "type": "talk_to",
+     "npc": "larkin_cooper",
+     "text": "Tell Larkin Cooper you kept it quiet"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 25,
+    "rep": {
+     "duskwater": -2
+    },
+    "relationship": [
+     {
+      "npc": "larkin_cooper",
+      "label": "Kept quiet about it",
+      "value": 15,
+      "days": 120
+     }
+    ]
+   }
+  }
+ ]
+}

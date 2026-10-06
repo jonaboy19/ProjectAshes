@@ -1,0 +1,91 @@
+{
+ "id": "kingsreach_breaking_the_wolves",
+ "title": "Breaking the Wolves",
+ "summary": "The wolves come in waves: howling closer every night. Blythe Fletcher wants the first wave broken and then the second, with a word between them.",
+ "giver": {
+  "npc": "blythe_fletcher",
+  "name": "Blythe Fletcher",
+  "place": "kingsreach"
+ },
+ "requires": [
+  "kingsreach_the_word_of_bartle"
+ ],
+ "offer_text": "\"It is not one pack, it is two nights of them, howling closer every night. Break the first and come and tell me. Then we finish it.\"",
+ "turn_in_text": "\"That is two waves broken. I will not say it is over, but I will say it is quiet.\"",
+ "stages": [
+  {
+   "id": "first",
+   "title": "The first of them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "first",
+     "type": "kill",
+     "target": "wolf",
+     "place": "kingsreach_outskirts",
+     "count": 3,
+     "text": "Kill 3 wolves near Kingsreach"
+    }
+   ]
+  },
+  {
+   "id": "word",
+   "title": "Report and listen",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "word",
+     "type": "talk_to",
+     "npc": "blythe_fletcher",
+     "text": "Tell Blythe Fletcher the first are down"
+    }
+   ]
+  },
+  {
+   "id": "second",
+   "title": "The rest",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "second",
+     "type": "kill",
+     "target": "wolf",
+     "place": "kingsreach_outskirts",
+     "count": 2,
+     "text": "Kill 2 more wolves at the edge"
+    }
+   ]
+  },
+  {
+   "id": "done",
+   "title": "Tell Blythe",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "done",
+     "type": "talk_to",
+     "npc": "blythe_fletcher",
+     "text": "Tell Blythe Fletcher the edge is clear"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 48,
+  "rep": {
+   "kingsreach": 6
+  },
+  "relationship": [
+   {
+    "npc": "blythe_fletcher",
+    "label": "Held the line against the wolves",
+    "value": 12,
+    "days": 60
+   }
+  ],
+  "items": {
+   "bread": 2
+  }
+ }
+}

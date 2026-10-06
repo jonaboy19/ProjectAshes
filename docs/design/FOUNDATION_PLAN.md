@@ -61,3 +61,13 @@ Every package ships with gdUnit tests. Phone budgets follow `ashes-performance` 
 **F12 Pooling and streaming pass.** Pooled loot, critters and enemies. One cell manager over terrain, buildings and NPCs, with FULL, LOW and UNLOADED tiers.
 
 **Codex (animation owner):** run Codex's nine-step validation of jump, land, run-stop and pivot in the game. Wire walk/run starts, walk stop, sprint skid and idle turn. Add sword-stance locomotion and additive hit reactions. Make the traversal clip timing match F2.
+
+## Status 2026-10-06: all twelve packages landed
+All of F1–F12 are on `claude/focused-curie-m09hbd`. A playtest bot played the Thornfield slice through the real main scene and every stage passed: talk, the three brewery quests, interiors, witnessed and unwitnessed theft, shop hours, vault/mantle/ledge/ladder, heavy attack, bow and lock-on, enlisting and muster, the Rift, the Soulbeast's trust, and save/reload. Visual passes followed, checked in the real game. The full suite is 2243 test cases with 0 failures via `tools/qa/run_tests.sh`.
+
+Still open:
+- **Codex:** validate the jump, land, run-stop and pivot work in the game; work through the F2/F3 feel list in the handoff; add armed locomotion and additive hits.
+- **Local PC:** check touch layout and thumb reach on the S22; GPU look pass on the slice; release-size work (the debug APK is 964 MB).
+- **Performance:** 60 buildings finishing near a town in one `catch_up` cost about 600 ms, because each one registers with that town's `StreetGraph`. Batch the registration.
+- **Characters:** the noblewoman_cape and soldier_shield_sword Meshy rigs need hand-set landmarks.
+- **Rift:** the "indexing did not unpair geometries from light" engine error appears there.

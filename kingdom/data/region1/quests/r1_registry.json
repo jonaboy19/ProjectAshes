@@ -25,7 +25,8 @@
 		"highwatch_keep":          {"name": "Highwatch Keep", "status": "c0", "pos": [120, -1672]},
 		"highwatch_gate":          {"name": "Highwatch north gate", "status": "c1", "pos": [105, -1642]},
 		"grimfen_pass":            {"name": "Grimfen Pass", "status": "c0", "pos": [559, -3597]},
-		"crownstead":              {"name": "Crownstead", "status": "c0", "pos": [620, -80]},
+		"crownstead":              {"name": "Crownstead", "status": "c0", "pos": [430, -190]},
+		"hollin_cut_stone":        {"name": "The cut ward-stone, Hollin's Reach", "status": "c0", "pos": [-178, -471]},
 		"elden_road":              {"name": "The Elden Road", "status": "c0", "pos": [-1199, -91]},
 		"shrine_of_the_sleeping_flame": {"name": "Shrine of the Sleeping Flame", "status": "existing", "pos": [-700, -160]},
 		"rifts_edge_camp":         {"name": "Rift's Edge Camp", "status": "existing", "pos": [1069, 991]},
@@ -61,6 +62,11 @@
 		"antlered_warden":      {"what": "Stagborn guardian miniboss; subdue, never kill (X3)", "status": "x3"},
 		"stagborn_fawn":        {"what": "Thistle, the stagborn fawn the wolf hunts in Act I (L5 stagborn model scaled down; follow/nuzzle behaviour X3). Never a kill target", "status": "x3"},
 		"scarbound_troll":      {"what": "Finale boss at the Rift mouth (X6)", "status": "x6"}
+	},
+
+	"ash_sites": {
+		"_comment": "Optional Ashsight memories (never required, no objective): once `after` of `step` is done the player may kneel at the place and read it. Sets `flag` (exported). Handled by region1_glue.gd (_story_ash_site). hollin_cut_stone: the old layer under Crownstead, young Lieutenant Bram Hollis pulling the pin, played where it happened (HOOKS_FOR_CLOUD.md, Region 1 look pass).",
+		"hollin_cut_stone": {"step": "a4_crownstead", "after": "ash", "flag": "r1.a4.pin_seen"}
 	},
 
 	"cutscenes": {
@@ -116,6 +122,7 @@
 	"exported_flags": {
 		"_comment": "Story flags other systems read (so the lint does not call them unused).",
 		"r1.a1.first_glyph": "C8 onboarding metric: a new player reaches the first glyph in 20 minutes or less",
+		"r1.a4.pin_seen": "Optional Ashsight at the cut ward-stone of Hollin's Reach (ash_sites): young Bram pulls the pin; Tamsin's Act V lines may read it",
 		"r1.complete": "Region 1 complete: post-game unlock, achievements, C9 card",
 		"r1.a1.wren_joined": "Retinue (C20, RETINUE_SETTLEMENT_ASCENSION.md 2.8): Wren Coldbrook joins as the first companion (Follow/Standby)",
 		"r1.a1.thistle_named": "Taming (C20): Thistle the stagborn fawn is the player's first bonded beast",

@@ -1,0 +1,76 @@
+{
+ "id": "thistledown_thinning_the_wolves",
+ "title": "Thinning the Wolves",
+ "summary": "Wolf sign has been found at the edge of Thistledown: tracks too big for a dog and fences torn outward. Oswin Fleece wants 2 of them dealt with.",
+ "giver": {
+  "npc": "oswin_fleece",
+  "name": "Oswin Fleece",
+  "place": "thistledown"
+ },
+ "requires": [
+  "thistledown_a_wheel_short"
+ ],
+ "offer_text": "\"The wolves have come closer to Thistledown each night: howling closer every night. Go to the edge and thin them out, before someone is hurt.\"",
+ "turn_in_text": "\"Quieter already. I will sleep tonight. A little.\"",
+ "stages": [
+  {
+   "id": "edge",
+   "title": "Go to the edge of town",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "thistledown_outskirts",
+     "text": "Go to where the wolves were seen"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Thin them out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "thistledown_outskirts",
+     "count": 2,
+     "text": "Kill 2 wolves near Thistledown"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Oswin",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "oswin_fleece",
+     "text": "Tell Oswin Fleece it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 25,
+  "rep": {
+   "thistledown": 5
+  },
+  "relationship": [
+   {
+    "npc": "oswin_fleece",
+    "label": "Kept the wolves from the edge",
+    "value": 10,
+    "days": 60
+   }
+  ],
+  "items": {
+   "cheese": 1
+  }
+ }
+}

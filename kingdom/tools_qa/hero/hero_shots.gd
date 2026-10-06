@@ -102,6 +102,9 @@ func _run() -> void:
 	# face close-up (front and 3/4) and dialogue framing (over the NPC's shoulder, chest-up, FOV 40)
 	cam.fov = 22
 	var face_p := head_p + Vector3(0, -0.05, 0.02)
+	for l in hero.find_children("*Lids*", "MeshInstance3D", true, false):    # real eye height (models differ)
+		var lm := l as MeshInstance3D
+		face_p = lm.global_transform * lm.get_aabb().get_center() + Vector3(0, 0.0, 0.02)
 	cam.position = face_p + Vector3(0.0, 0.02, 0.85)
 	cam.look_at(face_p)
 	await _shot("face_front")

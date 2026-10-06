@@ -50,6 +50,30 @@ func _flat() -> Vector2:
 	return Vector2.INF
 
 
+## Like _flat(), but the open ground around it must also be walkable and out in the wild: the perf test routes ~140 m across it,
+## and the first flat spot of a scan can sit under a cliff (new world sites change which spot that is), which made Nav.route
+## return no way through. It must also lie beyond 3 settlement radii of any town (+ the 150 m the test spreads over), because a
+## finished building within that range registers with the town's street graph (~10 ms each, not what this test measures).
+func _flat_walkable() -> Vector2:
+	var m := _mod()
+	for x in range(-900, 900, 60):
+		for z in range(-900, 900, 60):
+			var p := Vector2(x, z)
+			var ok := true
+			for st: Dictionary in WorldGen.settlements:
+				if (st["pos"] as Vector2).distance_to(p + Vector2(60, 60)) < float(st["radius"]) * 3.0 + 150.0:
+					ok = false
+					break
+			for i in 7:
+				if not ok:
+					break
+				if m.can_place_here("keep", p + Vector2(14.0 * i, 0.0), 0.0) != "":
+					ok = false
+			if ok and Nav.route(m, p + Vector2(-20, 20), p + Vector2(120, 100)).size() >= 2:
+				return p
+	return Vector2.INF
+
+
 func _at(i: int) -> Vector2:
 	return _flat() + Vector2(14.0 * i, 0.0)
 
@@ -325,6 +349,151 @@ func test_new_buildings_register_in_the_street_graph() -> void:
 	assert_bool(sg.inside(c)).is_true()
 
 
+func test_catch_up_registers_many_buildings_near_a_town_cheaply() -> void:
+	var m := _mod(_rich())
+	m.bag = {}
+	var best := 0
+	for i in WorldGen.settlements.size():
+		if float(WorldGen.settlements[i]["radius"]) > float(WorldGen.settlements[best]["radius"]):
+			best = i
+	var st: Dictionary = WorldGen.settlements[best]
+	var sg: RefCounted = StreetGraph.for_settlement(best)
+	if sg == null:
+		return
+	sg.node_count()   # the lazy one-off graph build is not what this measures
+	var r := float(st["radius"])
+	var ids: Array[int] = []
+	for i in 60:
+		var pos: Vector2 = st["pos"] + Vector2(r * 1.05 + float(i % 10) * 14.0, -r * 0.5 + float(i / 10) * 14.0)
+		var id := _add_raw(m, "fence" if i % 2 == 0 else "hut", pos)
+		ids.append(id)
+		m._attach(m._new_worker("hired", "H", 0.3, 4, "build"), id)
+	var e0: int = sg._edges.size()
+	var boxes0: int = sg._box_c.size()
+	var t0 := Time.get_ticks_usec()
+	m.catch_up(30, CTX)
+	var ms := (Time.get_ticks_usec() - t0) / 1000.0
+	print("catch_up near town, 60 buildings: %.1f ms" % ms)
+	assert_float(ms).is_less(250.0)
+	for id in ids:
+		assert_str(String(m.sites[id]["state"])).is_equal("done")
+	var done := 0
+	var routed := 0
+	for id in ids:
+		if String(m.sites[id]["state"]) != "done":
+			continue
+		var pos: Vector2 = m.site_pos(m.sites[id])
+		if int(WorldGen.nearest_settlement(pos)["id"]) != best:
+			continue   # registered with a neighbouring town's graph
+		done += 1
+		assert_bool(sg.inside(pos)).is_true()
+		# a route across the footprint's row never enters any footprint
+		var a := pos + Vector2(-12, 0)
+		var b := pos + Vector2(12, 0)
+		if sg.inside(a) or sg.inside(b):
+			continue
+		routed += 1
+		var route: PackedVector2Array = sg.route(a, b)
+		var prev := a
+		for p in route:
+			assert_bool(sg.inside(p, 0.0)).is_false()
+			for k in range(boxes0, sg._box_c.size()):
+				assert_bool(sg._segment_hits_box(prev, p, k, 0.0)).is_false()
+			prev = p
+	assert_int(routed).is_greater(0)
+	assert_int(done).is_greater(15)   # the rest of the 60 stand nearer another town
+	assert_int(sg._edges.size()).is_greater(e0)
+	assert_int(sg._indexed_edges).is_equal(sg._edges.size() / 2)
+
+
+## Nodes reachable from `start` over the live edges.
+func _component(sg: RefCounted, start: int) -> Dictionary:
+	var seen := {start: true}
+	var queue: Array[int] = [start]
+	while not queue.is_empty():
+		var u: int = queue.pop_back()
+		for v: int in sg._adj[u]:
+			if not seen.has(v):
+				seen[v] = true
+				queue.append(v)
+	return seen
+
+
+func test_buildings_7m_apart_never_have_a_route_through_a_neighbour() -> void:
+	WorldGen.setup(2024)
+	# a bare settlement: one east-west street, no lots, no walls, so only the new buildings matter
+	var st := {"pos": Vector2.ZERO, "radius": 60.0, "kind": "village",
+		"plan": {"streets": [{"a": Vector2(-60, 0), "b": Vector2(60, 0)}], "lots": [], "landmarks": [],
+			"plaza_r": 12.0, "walls": false, "gates": []}}
+	var sg: RefCounted = StreetGraph.new()
+	sg._setup(st)
+	sg.node_count()   # build the graph
+	var base: int = sg._node_at(Vector2(60, 0))
+	assert_int(_component(sg, base).size()).is_greater(1)
+	var doors: Array[int] = []
+	var t0 := Time.get_ticks_usec()
+	# the far row first: its door paths run to the street straight through where the near row goes up later
+	for row in 2:
+		var y := 14.0 - 8.0 * row
+		for i in 6:
+			var c := Vector2(24.0 + 7.0 * i, y)
+			doors.append(sg.register_building(c, 0.0, Vector2(2.0, 2.0), c + Vector2(0.0, -3.3)))
+	print("12 buildings 7 m apart: %.1f ms" % ((Time.get_ticks_usec() - t0) / 1000.0))
+	# no live edge crosses any footprint
+	for e in sg._edges.size() / 2:
+		if sg._edges[e * 2] < 0:
+			continue
+		var a: Vector2 = sg._nodes[sg._edges[e * 2]]
+		var b: Vector2 = sg._nodes[sg._edges[e * 2 + 1]]
+		for k in sg._box_c.size():
+			assert_bool(sg._segment_hits_box(a, b, k, 0.0)).is_false()
+	# the incremental grid holds exactly the live edges
+	var grid_before: Dictionary = sg._edge_grid.duplicate(true)
+	sg._edge_grid.clear()
+	sg._indexed_edges = 0
+	sg._index_edges()
+	assert_bool(sg._edge_grid == grid_before).is_true()
+	# every door is still on the street network, and routes between doors clear every footprint
+	var comp := _component(sg, base)
+	for d in doors:
+		assert_bool(comp.has(d)).is_true()
+	for i in range(1, doors.size()):
+		var from: Vector2 = sg._nodes[doors[0]]
+		var route: PackedVector2Array = sg.route(from, sg._nodes[doors[i]])
+		assert_bool(sg.last_route_partial).is_false()
+		var prev := from
+		for p in route:
+			for k in sg._box_c.size():
+				assert_bool(sg._segment_hits_box(prev, p, k, 0.0)).is_false()
+			prev = p
+
+
+func test_batched_registration_matches_one_by_one() -> void:
+	WorldGen.setup(2024)
+	var st: Dictionary = WorldGen.settlements[0]
+	var r := float(st["radius"])
+	var batch: Array = []
+	for i in 12:
+		var c: Vector2 = st["pos"] + Vector2(r * 0.6 + float(i % 4) * 6.0, -r * 0.4 + float(i / 4) * 6.0)
+		batch.append([c, 0.3 * i, Vector2(2.0, 2.0), c + Vector2(0, 3.3)])
+	var a: RefCounted = StreetGraph.new()
+	a._setup(st)
+	for b: Array in batch:
+		a.register_building(b[0], b[1], b[2], b[3])
+	var c2: RefCounted = StreetGraph.new()
+	c2._setup(st)
+	c2.register_buildings(batch)
+	assert_array(c2._nodes).is_equal(a._nodes)
+	assert_array(c2._edges).is_equal(a._edges)
+	assert_int(c2._edge_grid.size()).is_equal(a._edge_grid.size())
+	# the incremental index equals a full re-index
+	var grid_before: Dictionary = c2._edge_grid.duplicate(true)
+	c2._edge_grid.clear()
+	c2._indexed_edges = 0
+	c2._index_edges()
+	assert_bool(c2._edge_grid == grid_before).is_true()
+
+
 func test_paths_wear_in_with_use_and_become_roads() -> void:
 	var m := _mod(_rich())
 	var a := _done(m, "storage_pile", 0)
@@ -561,7 +730,8 @@ func test_stage_names_follow_progress() -> void:
 func test_perf_many_sites_and_long_absence() -> void:
 	var m := _mod(_rich())
 	m.bag = {}
-	var base := _flat()
+	var base := _flat_walkable()
+	assert_bool(base != Vector2.INF).is_true()
 	for i in 60:
 		var pos := base + Vector2(float(i % 10) * 9.0, float(i / 10) * 9.0 + 40.0)
 		var id := _add_raw(m, "fence" if i % 2 == 0 else "hut", pos)
@@ -591,3 +761,40 @@ func _add_raw(m: RefCounted, kind: String, pos: Vector2) -> int:
 	if m.holdings.is_empty():
 		m.holdings[1] = {"id": 1, "name": "Camp 1", "pos": [pos.x, pos.y], "camp": -1, "pop": 0.0, "level": "camp", "store": {}, "founded_day": 0, "road_done": false}
 	return id
+
+
+func test_kit_pieces_sync_into_beds_storage_stations_and_routes() -> void:
+	# Build-kit hook (build_kit.sync_realm -> construction.sync_kit).
+	var m := _mod(_rich())
+	var at := Vector2(900, 900)
+	var entries := [
+		{"key": "1:1", "pos": at, "kind": "sawhorse", "beds": 0, "store": 0},
+		{"key": "1:2", "pos": at + Vector2(3, 0), "kind": "", "beds": 2, "store": 0},
+		{"key": "1:3", "pos": at + Vector2(6, 0), "kind": "", "beds": 0, "store": 40},
+	]
+	var roads := [[at, at + Vector2(10, 0), 1.5]]
+	m.sync_kit(entries, roads)
+	var hid: int = m.holding_at(at)
+	assert_int(hid).is_greater(0)
+	assert_int(m.beds_of(hid)).is_equal(2)
+	assert_int(m.store_cap(hid)).is_equal(80)
+	var kit_site := 0
+	for id: int in m.sites:
+		if (m.sites[id] as Dictionary).has("kit_key"):
+			kit_site = id
+	assert_int(kit_site).is_greater(0)
+	assert_str(String(m.sites[kit_site]["kind"])).is_equal("sawhorse")
+	assert_str(String(m.sites[kit_site]["state"])).is_equal("done")
+	assert_bool(D.STATIONS.has("sawhorse")).is_true()
+	assert_int(m.trail_segments().size()).is_equal(1)
+	# it survives a save as one site, and a second sync adds nothing
+	var m2 := _mod(_rich())
+	m2.deserialize(JSON.parse_string(JSON.stringify(m.serialize())))
+	m2.sync_kit(entries, roads)
+	assert_int(m2.sites.size()).is_equal(m.sites.size())
+	# pieces gone: the site, the beds and the storage go with them
+	m.sync_kit([], [])
+	assert_bool(m.sites.has(kit_site)).is_false()
+	assert_int(m.beds_of(hid)).is_equal(0)
+	assert_int(m.store_cap(hid)).is_equal(40)
+	assert_array(m.trail_segments()).is_empty()

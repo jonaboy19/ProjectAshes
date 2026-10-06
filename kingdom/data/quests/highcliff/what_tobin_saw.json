@@ -1,0 +1,131 @@
+{
+ "id": "highcliff_what_tobin_saw",
+ "title": "What Tobin Saw",
+ "summary": "Something went wrong at night in Highcliff, and Reda Kettle says Tobin Warrender saw it. Reda Kettle wants it checked before names are said.",
+ "giver": {
+  "npc": "reda_kettle",
+  "name": "Reda Kettle",
+  "place": "highcliff"
+ },
+ "requires": [
+  "highcliff_a_long_carry"
+ ],
+ "offer_text": "\"Somebody was in my place after dark. Tobin Warrender saw something and will not say it loud. Hear Tobin, then see if the story holds.\"",
+ "stages": [
+  {
+   "id": "ask",
+   "title": "Hear Tobin out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hear",
+     "type": "talk_to",
+     "npc": "tobin_warrender",
+     "text": "Ask Tobin Warrender what they saw"
+    }
+   ]
+  },
+  {
+   "id": "look",
+   "title": "Check the story",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "highcliff/clue/c1",
+      "highcliff/clue/c2",
+      "highcliff/clue/c3"
+     ],
+     "count": 2,
+     "text": "Find two signs that match what Tobin said"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Say what you will do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "reda_kettle",
+     "options": [
+      {
+       "id": "name",
+       "text": "Name Emmet to Reda",
+       "say": "Reda goes quiet. \"I will deal with it. Openly.\""
+      },
+      {
+       "id": "warn",
+       "text": "Warn Emmet quietly and leave it",
+       "say": "Emmet will owe you. You can see it in the shoulders."
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "name": "named",
+    "warn": "warned"
+   }
+  },
+  {
+   "id": "named",
+   "title": "Reda hears it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "reda_kettle",
+     "text": "Tell Reda Kettle it is settled"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 23,
+    "rep": {
+     "highcliff": 5
+    },
+    "relationship": [
+     {
+      "npc": "reda_kettle",
+      "label": "Named the culprit",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "warned",
+   "title": "Let Emmet know",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "warned",
+     "type": "talk_to",
+     "npc": "emmet_sheaf",
+     "text": "Tell Emmet Sheaf you kept it quiet"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 32,
+    "rep": {
+     "highcliff": -2
+    },
+    "relationship": [
+     {
+      "npc": "emmet_sheaf",
+      "label": "Kept quiet about it",
+      "value": 15,
+      "days": 120
+     }
+    ]
+   }
+  }
+ ]
+}

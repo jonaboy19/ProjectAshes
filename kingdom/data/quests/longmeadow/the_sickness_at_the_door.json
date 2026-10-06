@@ -1,0 +1,95 @@
+{
+ "id": "longmeadow_the_sickness_at_the_door",
+ "title": "The Sickness at the Door",
+ "summary": "Food and drink are turning in Longmeadow, and people are sick. Kestrel Crook needs the cause found and Vance Trevor needs herbs.",
+ "giver": {
+  "npc": "kestrel_crook",
+  "name": "Kestrel Crook",
+  "place": "longmeadow"
+ },
+ "requires": [
+  "longmeadow_fleeces_for_the_wool_buyer"
+ ],
+ "offer_text": "\"Milk, wells, stores, something is turning in this town. Find the source, then take Vance the herbs they need. I do not want to say poison yet.\"",
+ "turn_in_text": "\"You have done more than you know. I will see this is not forgotten.\"",
+ "stages": [
+  {
+   "id": "look",
+   "title": "Find the source",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "longmeadow/clue/c1",
+      "longmeadow/clue/c2",
+      "longmeadow/clue/c3"
+     ],
+     "count": 3,
+     "text": "Look around town for what could have soured it"
+    }
+   ]
+  },
+  {
+   "id": "samples",
+   "title": "Fetch the remedy",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "herbs",
+     "type": "collect",
+     "item": "healing_herb",
+     "count": 3,
+     "text": "Take 3 bundles of herbs"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Bring it to Vance",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "remedy",
+     "type": "deliver",
+     "item": "healing_herb",
+     "count": 3,
+     "to": "vance_trevor",
+     "text": "Hand the herbs to Vance Trevor"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Kestrel",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "kestrel_crook",
+     "text": "Tell Kestrel Crook what you found"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 29,
+  "rep": {
+   "longmeadow": 6
+  },
+  "relationship": [
+   {
+    "npc": "kestrel_crook",
+    "label": "Helped when folk fell ill",
+    "value": 12,
+    "days": 90
+   }
+  ],
+  "items": {
+   "cheese": 1
+  }
+ }
+}

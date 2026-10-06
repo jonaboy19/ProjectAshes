@@ -12,7 +12,7 @@ extends RefCounted
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
 const Districts := preload("res://scripts/world/districts.gd")
 const TownIdentity := preload("res://scripts/world/town_identity.gd")   # per-town layout shape + roof mix (data/world/town_identity.json)
-const SliceTown := preload("res://scripts/world/thornfield/slice_town.gd")   # F8: the slice town always has a smithy, shop, tavern, bakery, guard post, healer
+const TownLots := preload("res://scripts/world/town_kit/town_lots.gd")   # town kit: every town with a data/region1/towns file always has its smithy, shop, tavern (and bakery, guard post, healer)
 
 const LOT_SPACING := 10.5
 const LOT_CLEARANCE := 9.5
@@ -202,7 +202,7 @@ static func plan(s: Dictionary, gate_angles: Array[float], seed_value: int) -> D
 		_infill(lots, blocked, streets, landmarks, c, r, plaza_r, result["inner_wall"], rng)
 	_civic_lots(lots, c, r, walled, result["inner_wall"], landmarks)
 	_zone_districts(result, kind, c, r, plaza_r, walled, seed_value, prof)
-	SliceTown.enforce(result, s, fits)   # F8: forces the lots the village life needs (no-op for every other town)
+	TownLots.enforce(result, s, fits)   # town kit: forces the lots the village life needs (no-op for a settlement without a town file)
 	result["paths"] = _door_paths(lots, streets)
 	return result
 
@@ -416,15 +416,11 @@ static func _civic_lots(lots: Array, c: Vector2, r: float, walled: bool, inner_w
 	var order := range(lots.size())
 	order.sort_custom(func(a: int, b: int) -> bool:
 		return (lots[a]["pos"] as Vector2).distance_to(c) < (lots[b]["pos"] as Vector2).distance_to(c))
-	var inn_pos := Vector2(INF, INF)
-	for lot: Dictionary in lots:
-		if lot["asset"] == "inn":
-			inn_pos = lot["pos"]
-			break
 	var guild: Dictionary = {}
+	# 17 m from the inn: the inn (13.5 m) and the guild (16 m wide) overlapped at the old 14 m (Longmeadow, world lint).
 	for i in order:
 		var cand: Dictionary = lots[i]
-		if cand["asset"] != "inn" and (cand["pos"] as Vector2).distance_to(inn_pos) > 14.0 \
+		if cand["asset"] != "inn" and _clear_of_inns(lots, cand["pos"]) \
 				and fits("adventurer_guild", cand["pos"], cand["yaw"], c, r, walled, inner_wall, landmarks):
 			guild = cand
 			break
@@ -442,6 +438,14 @@ static func _civic_lots(lots: Array, c: Vector2, r: float, walled: bool, inner_w
 		var lot: Dictionary = lots[i]
 		if lot != guild and lot["asset"] != "inn" and lot["asset"] != "healer_house" and (lot["pos"] as Vector2).distance_to(gp) < 12.5:
 			lots.remove_at(i)
+
+
+## No inn lot within 17 m of `p` (the guild is 16 m wide, an inn 13.5 m: any closer and their footprints overlap).
+static func _clear_of_inns(lots: Array, p: Vector2) -> bool:
+	for lot: Dictionary in lots:
+		if lot["asset"] == "inn" and (lot["pos"] as Vector2).distance_to(p) <= 17.0:
+			return false
+	return true
 
 
 static func _lot_ok(p: Vector2, c: Vector2, r: float, plaza_r: float, walled: bool, inner_wall: float,

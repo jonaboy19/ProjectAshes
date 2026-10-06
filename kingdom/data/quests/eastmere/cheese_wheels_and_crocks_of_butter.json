@@ -1,0 +1,89 @@
+{
+ "id": "eastmere_cheese_wheels_and_crocks_of_butter",
+ "title": "Cheese Wheels and Crocks of Butter",
+ "summary": "Two loads wait in Eastmere: cheese wheels for Clem Yoxall and crocks of butter for Sunniva Hartwell. Dane Shearer wants them moved before the buyers come up the drove road.",
+ "giver": {
+  "npc": "dane_shearer",
+  "name": "Dane Shearer",
+  "place": "eastmere"
+ },
+ "offer_text": "\"Two things are late and both are mine to answer for. Clem Yoxall waits on cheese wheels and Sunniva Hartwell on crocks of butter. Fetch them in any order, before the buyers come up the drove road.\"",
+ "turn_in_text": "\"Both in. I shall sleep tonight, which is rare.\"",
+ "stages": [
+  {
+   "id": "gather",
+   "title": "Gather both loads",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load1",
+     "type": "collect",
+     "item": "cheese",
+     "count": 3,
+     "text": "Take 3 cheese wheels from the dairy yard"
+    },
+    {
+     "id": "load2",
+     "type": "collect",
+     "item": "butter",
+     "count": 3,
+     "text": "Take 3 crocks of butter from the second stack"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Deliver them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "to1",
+     "type": "deliver",
+     "item": "cheese",
+     "count": 3,
+     "to": "clem_yoxall",
+     "text": "Hand the cheese wheels to Clem Yoxall"
+    },
+    {
+     "id": "to2",
+     "type": "deliver",
+     "item": "butter",
+     "count": 3,
+     "to": "sunniva_hartwell",
+     "text": "Hand the crocks of butter to Sunniva Hartwell"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Dane",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "dane_shearer",
+     "text": "Tell Dane Shearer both are in"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 20,
+  "rep": {
+   "eastmere": 4
+  },
+  "relationship": [
+   {
+    "npc": "dane_shearer",
+    "label": "Cleared two late loads",
+    "value": 9,
+    "days": 60
+   }
+  ],
+  "items": {
+   "cheese": 1
+  }
+ }
+}

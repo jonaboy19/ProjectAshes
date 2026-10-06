@@ -342,7 +342,7 @@ func confirm() -> void:
 	if gid == 0 or not kit.grids.has(gid):
 		gid = kit.grid_at(aim)
 	if gid == 0:
-		var f: Dictionary = kit.ensure_grid(aim)
+		var f: Dictionary = kit.claim(aim)      # the claim flow: LandClaim rules, then ensure_grid (max 3 settlements)
 		if not bool(f["ok"]):
 			_say(String(f["reason"]), Color(1, 0.4, 0.35))
 			return
@@ -449,7 +449,7 @@ func _process(_delta: float) -> void:
 	if gid == 0 or not kit.grids.has(gid):
 		gid = kit.grid_at(aim)
 	if gid == 0:
-		_say("No settlement here: tap ✓ to found one (%d of %d)." % [kit.grids.size(), BuildKit.MAX_GRIDS])
+		_say("No settlement here: tap ✓ to claim land (%d of %d)." % [kit.grids.size(), BuildKit.MAX_GRIDS])
 		if _ghost:
 			_ghost.visible = false
 		return

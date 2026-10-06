@@ -3,6 +3,8 @@ extends RefCounted
 ## under the windows, flower tubs and baskets at the house feet, every repeat a MultiMesh (about 8 draws per town).
 ## Density follows the tier (vines 5/4/2 per house) and the town (Thornfield, the vertical slice, gets the full G density;
 ## other towns half, villages a third). Seeded by the town id: a rebuilt town looks identical, no two towns alike.
+## QA sweep 2026-10 (30 towns): the other 29 towns ARE plainer than the slice (half the vines and boxes), and that stays: the phone is over its
+## draw budget (S22 NO-GO on LOW), so no town gets more dressing until the Ashford block is polished. Not a bug, a budget decision.
 ## Preload this script; no class_name.
 
 const Extra := preload("res://scripts/style_lab/lab_gate_extra.gd")
