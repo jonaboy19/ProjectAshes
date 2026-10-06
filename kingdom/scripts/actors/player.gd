@@ -446,7 +446,7 @@ func _menu_open() -> bool:
 ## `Life.appearance` (character creation) picks the modular G6 look; no appearance = the default hero.
 ## Tier-A Meshy hero (docs/art/hero_tier_a). Off until it beats the G6 hero in the benchmark street; `--hero_tier_a` forces it.
 const TIER_A_HERO := false
-const TIER_A_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy"
+const TIER_A_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy3"
 
 
 func _build_body() -> void:
