@@ -23,6 +23,9 @@ uniform vec3 rim_color : source_color = vec3(1.0, 0.85, 0.68);
 uniform float ambient_lift = 0.26;          // hero readability in back-lit shadow (character fill)
 uniform float painterly = 0.7;
 uniform float detail_strength = 0.5;        // calmer normals (close-up noise)
+uniform vec4 skin_tint : source_color = vec4(1.0);   // character creator: ratio vs the baked skin
+uniform vec4 hair_tint : source_color = vec4(1.0);   // character creator: ratio vs the baked hair
+uniform float brow_lift = 0.6;                      // lightens the painted brows (UV rects of the hero atlas, hero_meshy3)
 uniform bool use_mask = true;                // vertex COLOR.r = forced matte wool (hood), from hero_fix.py
 uniform float debug_classes = 0.0;           // 1 = show the class map (QA)
 
@@ -41,6 +44,12 @@ vec3 rgb2hsv(vec3 c) {
 void fragment() {
 	vec3 c = texture(albedo_tex, UV, 0.6).rgb * tint.rgb;          // slight mip bias: calmer AI texture noise
 	vec3 c_soft = texture(albedo_tex, UV, 1.6).rgb * tint.rgb;      // painterly: skin uses a softer mip (Style G, not photo)
+	{
+		vec2 q = UV * 2048.0;
+		float inb = step(750.0, q.x) * step(q.x, 815.0) * step(510.0, q.y) * step(q.y, 610.0) + step(440.0, q.x) * step(q.x, 500.0) * step(1335.0, q.y) * step(q.y, 1372.0);
+		float dark = 1.0 - smoothstep(0.22, 0.5, dot(c, vec3(0.299, 0.587, 0.114)));
+		c = mix(c, vec3(0.80, 0.58, 0.50), clamp(inb, 0.0, 1.0) * dark * brow_lift);
+	}
 	vec3 hsv = rgb2hsv(c);
 	float head = smoothstep(neck_y - 0.03, neck_y + 0.02, v_pos.y);
 	float warm = 1.0 - smoothstep(0.08, 0.14, abs(hsv.x - 0.06));             // orange/red-brown hues
@@ -58,6 +67,8 @@ void fragment() {
 	float lipred = (1.0 - smoothstep(0.03, 0.06, abs(hsv.x - 0.0) * (hsv.x > 0.5 ? 0.0 : 1.0) + (hsv.x > 0.9 ? 0.0 : 0.0))) * smoothstep(0.5, 0.7, hsv.y);
 	c = mix(c, vec3(dot(c, vec3(0.333))) * vec3(1.12, 0.82, 0.74), clamp(lipred, 0.0, 1.0) * 0.6);
 	c *= vec3(1.04, 1.0, 0.95);                                     // Style G warm grade
+	c = mix(c, c * skin_tint.rgb, skin);
+	c = mix(c, c * hair_tint.rgb, hair * smoothstep(neck_y + 0.06, neck_y + 0.12, v_pos.y));     // not the mantle on the shoulders
 	if (use_mask && COLOR.r > 0.5) { skin = 0.0; hair = 0.0; leather = 0.0; metal = 0.0; linen = 0.0; wool = 1.0; }
 	float other = clamp(1.0 - skin - hair - leather - metal - wool - linen, 0.0, 1.0);
 

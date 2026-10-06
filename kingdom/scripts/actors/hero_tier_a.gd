@@ -249,9 +249,63 @@ static func upgrade_meshy(model: Node3D, saturation := 0.92) -> ShaderMaterial:
 	return out
 
 
+## LOD switch distances (metres from the camera) for the hero's skinned body: the shoulder cam sits at 3.9 m, dialogue and the
+## creator at 1-2 m, so LOD0 (17k) is kept to 12 m; LOD1 (3.4k) to 30 m; LOD2 (3k, simplest weights) beyond. No fade (two skinned draws
+## would cost more than the pop), 1.5-3 m hysteresis margins.
+const LOD_FAR := [12.0, 30.0]
+const LOD_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy3"
+
+
+## Moves the body meshes of hero_meshy3_lod1/_lod2 under the hero's skeleton (same bones, same clips) with visibility ranges.
+static func attach_lods(model: Node3D, sk: Skeleton3D) -> void:
+	var lod0 := model.find_children("*base_body*", "MeshInstance3D", true, false)
+	if lod0.is_empty() or sk.has_node("LOD1_body"):
+		return
+	_set_range(lod0[0] as MeshInstance3D, 0.0, LOD_FAR[0], 1.5)
+	for i in 2:
+		var path: String = "%s_lod%d.glb" % [LOD_PATH, i + 1]
+		if not ResourceLoader.exists(path):
+			continue
+		var src: Node = (load(path) as PackedScene).instantiate()
+		for n in src.find_children("*base_body*", "MeshInstance3D", true, false):
+			var mi := n as MeshInstance3D
+			mi.get_parent().remove_child(mi)
+			mi.name = "LOD%d_body" % (i + 1)
+			sk.add_child(mi)
+			mi.skeleton = NodePath("..")
+			_set_range(mi, LOD_FAR[i], LOD_FAR[i + 1] if i == 0 else 0.0, 3.0 if i == 0 else 5.0)
+		src.free()
+
+
+static func _set_range(mi: MeshInstance3D, from: float, to: float, margin: float) -> void:
+	mi.visibility_range_begin = from
+	mi.visibility_range_begin_margin = margin if from > 0.0 else 0.0
+	mi.visibility_range_end = to
+	mi.visibility_range_end_margin = margin if to > 0.0 else 0.0
+	mi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+
+
 ## Full Tier-A Meshy hero: material pass + hood/satchel/strap/belt from HeroOutfit + blink lids + sway driver.
-static func dress_meshy_hero(model: Node3D) -> Node:
-	upgrade_meshy(model)
+## `look` (character creator, optional): skin / hair_color indices tint the skin and hair texels, `hood` puts the hood up.
+static func dress_meshy_hero(model: Node3D, look := {}) -> Node:
+	var sk0 := model.find_children("*", "Skeleton3D", true, false)
+	if not sk0.is_empty():
+		attach_lods(model, sk0[0] as Skeleton3D)      # before the material pass: every LOD gets its atlas material
+	var body_mat := upgrade_meshy(model)
+	var hand_tint := HAND_TINT
+	if not look.is_empty() and body_mat != null:
+		var tints := _creator_tints(look)
+		hand_tint = Color(HAND_TINT.r * tints[0].r, HAND_TINT.g * tints[0].g, HAND_TINT.b * tints[0].b)
+		var seen := {}
+		for n in model.find_children("*", "MeshInstance3D", true, false):
+			var mo := (n as MeshInstance3D).material_override
+			if mo is ShaderMaterial and (mo as ShaderMaterial).shader == body_mat.shader:
+				if not seen.has(mo):
+					var dup := (mo as ShaderMaterial).duplicate() as ShaderMaterial      # the cached material is shared by every hero
+					dup.set_shader_parameter("skin_tint", tints[0])
+					dup.set_shader_parameter("hair_tint", tints[1])
+					seen[mo] = dup
+				(n as MeshInstance3D).material_override = seen[mo]
 	var outfit: MeshInstance3D = (load("res://scripts/actors/hero_outfit.gd") as GDScript).call("dress", model, ["satchel", "strap", "belt"])   # fitted hood: WIP (shards at the chest), off
 	var sk := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
 	var noise: Texture2D = (load("res://scripts/actors/hero_outfit.gd") as GDScript).call("noise_texture")
@@ -268,8 +322,10 @@ static func dress_meshy_hero(model: Node3D) -> Node:
 		(n as MeshInstance3D).material_override = hm
 		(n as MeshInstance3D).visible = SHOW_HOOD_SHELL
 	# hands: the Meshy mitts are cut at the wrist; the G6 hands (real finger bones) are retargeted onto this skeleton
-	attach_hands(sk, noise)
+	attach_hands(sk, noise, hand_tint)
 	regrip(model, sk)
+	if bool(look.get("hood", false)):
+		add_hood_up(sk, noise)
 	var parts := {}
 	for n in model.find_children("*Lids*", "MeshInstance3D", true, false):
 		parts["Lids"] = n
@@ -291,7 +347,8 @@ static func dress_meshy_hero(model: Node3D) -> Node:
 const SHOW_HOOD_SHELL := false
 const G6_ALL := "res://assets/incoming/characters/g6-ual/g6_m_modular_all.glb"
 ## Retargets the G6 male hands (740 tris, 15 finger bones per hand) onto any UAL skeleton: clip finger curls = real grip.
-static func attach_hands(sk: Skeleton3D, noise: Texture2D, tint := Color(0.683, 0.688, 0.729)) -> MeshInstance3D:
+const HAND_TINT := Color(0.765, 0.736, 0.838)    # measured in the turnaround (same light): hands were darker and yellower than the face
+static func attach_hands(sk: Skeleton3D, noise: Texture2D, tint := HAND_TINT) -> MeshInstance3D:
 	if sk.has_node("TierA_human_male_hands_default"):
 		return sk.get_node("TierA_human_male_hands_default")
 	var src: Node = (load(G6_ALL) as PackedScene).instantiate()
@@ -340,3 +397,88 @@ static func regrip(model: Node3D, sk: Skeleton3D, clip := "Sword_Idle") -> void:
 			var ln := box.size.y
 			var centre := Vector3(0, lo + ln * 0.1, 0)
 			p3.position = g - p3.transform.basis * centre
+
+
+## Character creator colours -> [skin ratio, hair ratio] against the baked Meshy skin / brown hair (index 1 of each list = untouched).
+static func _creator_tints(look: Dictionary) -> Array[Color]:
+	var cc := load("res://scripts/ui/character_creation.gd") as GDScript
+	var skins: Array = cc.get("SKINS")
+	var hairs: Array = cc.get("HAIR_TINTS")
+	var s: Color = skins[clampi(int(look.get("skin", 1)), 0, skins.size() - 1)]
+	var sb: Color = skins[1]
+	var h: Color = hairs[clampi(int(look.get("hair_color", 1)), 0, hairs.size() - 1)]
+	var hb: Color = hairs[1]
+	return [Color(s.r / sb.r, s.g / sb.g, s.b / sb.b), Color(minf(h.r / hb.r, 3.0), minf(h.g / hb.g, 3.0), minf(h.b / hb.b, 3.0))]
+
+
+const V2_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy3"
+## The v2 hero for the character creator (male looks with "v2": true): same body, rig, hands and blink as the default hero,
+## tinted by the creator's skin / hair colour, hood up when look["hood"].
+static func build_v2(look: Dictionary, height: float, keep: Array[String]) -> Node3D:
+	var body := Assets.mh_character(V2_PATH, height, keep)
+	dress_meshy_hero(body, look)
+	return body
+
+
+## Hood-up variant: a rigid cowl on the Head bone (ellipsoid shell with a face opening and a flared collar), wool material.
+static func add_hood_up(sk: Skeleton3D, noise: Texture2D) -> MeshInstance3D:
+	var head := sk.find_bone("Head")
+	if head < 0:
+		return null
+	var att := BoneAttachment3D.new()
+	att.name = "HoodUpAttach"
+	att.bone_name = "Head"
+	sk.add_child(att)
+	var rings := 24
+	var segs := 36
+	var verts := PackedVector3Array()
+	var idx := PackedInt32Array()
+	var ctr := Vector3(0, 0.108, 0.0)
+	var rad := Vector3(0.128, 0.148, 0.152)
+	for r in rings + 1:
+		var th := PI * float(r) / rings
+		for sgi in segs:
+			var ph := TAU * float(sgi) / segs
+			var p := Vector3(sin(th) * sin(ph), cos(th), sin(th) * cos(ph))     # unit sphere, +Z = forward
+			var v := ctr + p * rad
+			var low := 0.02 - v.y
+			if low > 0.0:                                  # collar: flares out and hangs onto the shoulders
+				v.x *= 1.0 + low * 2.6
+				v.z = (v.z + 0.01) * (1.0 + low * 1.6)
+				v.y -= low * 0.85
+			verts.append(v)
+	for r in rings:
+		for sgi in segs:
+			var a := r * segs + sgi
+			var b := r * segs + (sgi + 1) % segs
+			var c := (r + 1) * segs + sgi
+			var d := (r + 1) * segs + (sgi + 1) % segs
+			for tri in [[a, c, b], [b, c, d]]:
+				var cen := (verts[tri[0]] + verts[tri[1]] + verts[tri[2]]) / 3.0
+				var hole := pow(cen.x / 0.098, 2.0) + pow((cen.y - 0.075) / 0.135, 2.0) < 1.0 and cen.z > 0.0   # the face opening
+				if not hole:
+					idx.append_array(PackedInt32Array(tri))
+	var arr := []
+	arr.resize(Mesh.ARRAY_MAX)
+	arr[Mesh.ARRAY_VERTEX] = verts
+	arr[Mesh.ARRAY_INDEX] = idx
+	var am := ArrayMesh.new()
+	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	var st := SurfaceTool.new()
+	st.create_from(am, 0)
+	st.generate_normals()
+	var mesh := st.commit()
+	var mi := MeshInstance3D.new()
+	mi.name = "HoodUp"
+	mi.mesh = mesh
+	var hm := ShaderMaterial.new()
+	hm.shader = load(SH + "hero_garment.gdshader")
+	hm.set_shader_parameter("noise_tex", noise)
+	hm.set_shader_parameter("has_uv2", false)
+	hm.set_shader_parameter("asset_kind", 1)
+	hm.set_shader_parameter("use_vertex_color", false)
+	hm.set_shader_parameter("base_color", Color(0.36, 0.25, 0.16))
+	hm.set_shader_parameter("flutter", 0.0)
+	mi.material_override = hm
+	att.add_child(mi)
+	return mi
