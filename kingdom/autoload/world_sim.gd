@@ -16,6 +16,7 @@ const Schedule := preload("res://scripts/population/schedule.gd")
 const TownMood := preload("res://scripts/population/town_mood.gd")
 const TownIdentity := preload("res://scripts/world/town_identity.gd")   # guard density per town
 const NeedRules := preload("res://scripts/sim/npc_need_rules.gd")
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")   # town kit: the named residents of every town with a data/region1/towns file
 
 const SEED := 1066
@@ -26,6 +27,10 @@ const NEED_SCHEDULE_BOUNDARIES := [6.0, 21.0, 24.0]
 ## CPU budget for the whole-world sim per frame, and the radius around the player that is kept fresh.
 const BUDGET_US := 500
 const NEAR_RADIUS := 320.0
+## Seconds for one pass over the residents outside the near ring (see _simulate_slice).
+const FAR_PERIOD := 5.0
+## Passes per second over the residents of the settlements near the player.
+const NEAR_HZ := 6.0
 ## Keep schedule destinations local to the settlement; SmartObjects uses a
 ## per-settlement candidate list, so this range can include the outer farm rows.
 const SMART_TARGET_MAX_RADIUS := 256.0
@@ -71,6 +76,8 @@ var treasury := PackedInt32Array()
 var _cursor := 0
 var _clock := 0.0
 var _last_hour := -1
+var _near_credit := 0.0     # fractional steps owed to the near ring / the far loop (see _simulate_slice)
+var _far_credit := 0.0
 var dbg_slice_usec := 0   # QA: total _simulate_slice time, read by tools/qa/water_shots/water_prof.gd
 var dbg_frames := 0
 var _near_ids := PackedInt32Array()
@@ -321,11 +328,14 @@ func _process(delta: float) -> void:
 		_last_hour = hour
 		_mood_pending = _mood_flags.size()
 		_mood_cursor = 0
+		var _th := Probe.t()
 		hour_changed.emit(hour)
+		Probe.add("worldsim.hour_changed", _th)
 	_refresh_mood_step()
 	var _t0 := Time.get_ticks_usec()
-	_simulate_slice()
+	_simulate_slice(delta)
 	dbg_slice_usec += Time.get_ticks_usec() - _t0
+	Probe.add("worldsim.slice", _t0)
 	dbg_frames += 1
 
 
@@ -527,7 +537,7 @@ func _advance_offline_needs(i: int, now_hours: float) -> void:
 ## people near the player (the ones with sprites or bodies) are updated first and
 ## often; distant settlements get the leftover budget. Movement uses each
 ## person's own elapsed time (dt), so a slower cycle gives the same result.
-func _simulate_slice() -> void:
+func _simulate_slice(delta := 1.0 / 60.0) -> void:
 	var n := pos.size()
 	if n == 0:
 		return
@@ -537,8 +547,12 @@ func _simulate_slice() -> void:
 	var end := t0 + BUDGET_US
 	var m := _near_ids.size()
 	if m > 0:
-		# Every near person about every 4 frames (15 Hz at 60 fps).
-		var todo := maxi((m + 3) / 4, 32)
+		# Every near person about every 4 frames (15 Hz at 60 fps), but never faster than NEAR_HZ: the old per-frame count
+		# made the cost grow with the frame rate (CPU pass 2026-10-06). Sprites sample WorldSim.pos at 4 Hz and bodies
+		# integrate themselves, so 6 Hz is invisible (30 fps: one pass per ~5 frames, was 4).
+		_near_credit += float(m) * delta * NEAR_HZ
+		var todo := mini(int(_near_credit), maxi((m + 3) / 4, 32))
+		_near_credit = minf(_near_credit - float(todo), float(m))
 		var k := 0
 		while k < todo:
 			_step(_near_ids[_near_cursor])
@@ -548,8 +562,15 @@ func _simulate_slice() -> void:
 			k += 1
 			if (k & 31) == 0 and Time.get_ticks_usec() > near_end:
 				break
+	# CPU pass 2026-10-06: the far loop used to burn the whole BUDGET_US every frame (it looped until the clock ran out,
+	# ~0.6 ms of a 7 ms frame in the capital). Residents outside the near ring are data only (no body, no sprite), and
+	# every step integrates the person's own elapsed time, so a full pass about every FAR_PERIOD seconds gives the same
+	# positions, wages and treasury flows; the budget stays the ceiling after a long frame.
+	_far_credit += float(n) * delta / FAR_PERIOD
+	var far_n := int(_far_credit)
+	_far_credit -= float(far_n)
 	var c := 0
-	while true:
+	while c < far_n:
 		_step(_cursor)
 		_cursor += 1
 		if _cursor >= n:

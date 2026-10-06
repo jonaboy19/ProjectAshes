@@ -35,6 +35,8 @@ var _spots: Dictionary = {}       # key -> Spot
 var _stations: Dictionary = {}
 var _wildlife_done := false
 var _pois: Array[Dictionary] = []
+var _rift_pois: Array[Dictionary] = []      # the poi_rift subset of _pois (built in _ready)
+var _fx_acc := 0.0
 
 
 ## One interactable spot: an Interactable component (attached in _refresh_spots) over prompt()/use().
@@ -63,6 +65,8 @@ func _ready() -> void:
 	for s: Dictionary in WorldGen.sites:
 		if String(s.get("poi", "")) != "":
 			_pois.append(s)
+			if String(s["kind"]) == "poi_rift":
+				_rift_pois.append(s)
 		elif String(s.get("region1", "")) == GAP_REGION1_ID:
 			_gap_id = _site_id(s)
 	_build_shafts()
@@ -73,8 +77,13 @@ func _process(delta: float) -> void:
 	if p and "focus" in p:
 		focus = p.focus
 	look.set("focus", focus)
-	_update_shafts()
-	_update_rifts()
+	# CPU pass 2026-10-06: the light shafts and rift shimmers follow the hour and a 150 m / 330 m radius, so 5 Hz is plenty
+	# (they were re-evaluated every frame, with a String() per point of interest).
+	_fx_acc += delta
+	if _fx_acc >= 0.2:
+		_fx_acc = 0.0
+		_update_shafts()
+		_update_rifts()
 	_timer -= delta
 	if _timer > 0.0:
 		return
@@ -685,9 +694,7 @@ func _update_rifts() -> void:
 	var h := _hour()
 	var night := clampf((h - 19.0) / 1.5, 0.0, 1.0) if h >= 19.0 else clampf((6.0 - h) / 1.5, 0.0, 1.0)
 	var pp := Vector2(focus.x, focus.z)
-	for s: Dictionary in _pois:
-		if String(s["kind"]) != "poi_rift":
-			continue
+	for s: Dictionary in _rift_pois:
 		var id := String(s["poi"])
 		var near: bool = pp.distance_squared_to(s["pos"]) < 150.0 * 150.0 and night > 0.01
 		if near and not _rifts.has(id):

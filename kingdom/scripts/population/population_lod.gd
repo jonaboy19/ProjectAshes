@@ -19,6 +19,7 @@ const MicroEvents := preload("res://scripts/population/micro_events.gd")
 const NpcWorld := preload("res://scripts/population/npc_world.gd")
 const AlertGlyphs := preload("res://scripts/ui/alert_glyphs.gd")
 const Takedown := preload("res://scripts/combat/takedown.gd")
+const Probe := preload("res://scripts/core/perf_probe.gd")
 
 const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
 const FULL_RANGE := 45.0       # defaults; the live values come from CellStreamer profile "population"
@@ -126,6 +127,7 @@ func _process(delta: float) -> void:
 
 
 func refresh(step_delta := 0.25) -> void:
+	var _pt := Probe.t()
 	var skipped := _clock_skipped()
 	if skipped:
 		# WorldSim just placed everyone (advance_hours / load): it is the truth now.
@@ -139,6 +141,8 @@ func refresh(step_delta := 0.25) -> void:
 			(_full[id] as Villager).resync()
 	else:
 		_write_back()
+	Probe.add("pop.write_back", _pt)
+	_pt = Probe.t()
 	var p2 := Vector2(focus.x, focus.z)
 	_full_range = CellStreamer.shared().distance("population", "full")      # F12: the cell manager owns the bands
 	_sprite_range = CellStreamer.shared().distance("population", "load")
@@ -154,6 +158,8 @@ func refresh(step_delta := 0.25) -> void:
 	elif ids.size() < want_n / 2:
 		_query_r = minf(_sprite_range, _query_r * 1.15)
 	_update_holds(ids)
+	Probe.add("pop.query", _pt)
+	_pt = Probe.t()
 	var morning := WorldSim.time_of_day >= 6.0 and WorldSim.time_of_day < 6.0 + DailyRhythm.MAX_DELAY
 	var dists := []
 	for i in ids:
@@ -164,7 +170,11 @@ func refresh(step_delta := 0.25) -> void:
 		var d2: float = WorldSim.pos[i].distance_squared_to(p2)
 		# Named residents (the town kit's rosters) rank as if closer, so they are the ones who get bodies first.
 		dists.append([d2, i, (d2 * KEEP_BIAS if _full.has(i) else d2) * TownRoster.embody_weight(i)])
+	Probe.add("pop.dists", _pt)
+	_pt = Probe.t()
 	dists.sort_custom(func(a: Array, b: Array) -> bool: return a[2] < b[2])
+	Probe.add("pop.sort", _pt)
+	_pt = Probe.t()
 
 	var want_full := {}
 	# The near cap follows the tier (LOW 8, MEDIUM 11, HIGH+ 12): each full villager is ~0.5 ms of script on the S22.
@@ -203,11 +213,15 @@ func refresh(step_delta := 0.25) -> void:
 				var body := _spawn(did)
 				_full[did] = body
 				body.lie_restored(Takedown.kind_of(did))
+	Probe.add("pop.demote", _pt)
+	_pt = Probe.t()
 	var spawned := 0
 	for id in want_full:
 		if not _full.has(id) and spawned < MAX_SPAWNS_PER_TICK:
 			_full[id] = _spawn(id)
 			spawned += 1
+	Probe.add("pop.spawn", _pt)
+	_pt = Probe.t()
 	# Promotion transfers the same position-owner flag to the body. Discard any
 	# old visual route so demotion can plan again from the body's resolved point.
 	for id in _full:
@@ -239,6 +253,8 @@ func refresh(step_delta := 0.25) -> void:
 		var selected_id: int = physics_candidates[i][1]
 		(_full[selected_id] as Villager).physics_active = true
 
+	Probe.add("pop.physics_pick", _pt)
+	_pt = Probe.t()
 	var used := {}
 	for look in _multimeshes:
 		used[look] = 0
@@ -304,6 +320,7 @@ func refresh(step_delta := 0.25) -> void:
 	for look in _multimeshes:
 		(_multimeshes[look] as MultiMesh).visible_instance_count = used[look]
 		sprite_count += used[look]
+	Probe.add("pop.sprites", _pt)
 
 
 ## Use the home's street graph only while this resident is near that settlement.

@@ -623,7 +623,7 @@
 			"objective": "Confront the quartermaster at Rift's Edge",
 			"journal": "Tamsin Reeve paid for the cut stones. Her brother pulled the line from her village. Forty graves, one winter.",
 			"giver": "tamsin_reeve", "place": "rifts_edge_camp",
-			"requires": {"steps": ["a4_five_hearts"]},
+			"requires": {"steps": ["a4_five_hearts"], "if": {"min_soul_tier": 3, "min_gear_tier": 2, "min_level": 12}},
 			"dialogue": [{"node": "tamsin_meet", "after": "reach"}],
 			"objectives": [
 				{"id": "reach", "type": "enter_area", "place": "rifts_edge_camp"},

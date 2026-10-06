@@ -15,21 +15,21 @@
   "titles": ["Sergeant", "Sergeant", "Lieutenant"]
  },
  "ranks": [
-  {"id": "recruit", "title": "Recruit", "ladder_id": "recruit", "merit": 0, "min_days": 0, "wage": 35, "squad": 0,
+  {"id": "recruit", "title": "Recruit", "ladder_id": "recruit", "merit": 0, "min_days": 0, "wage": 56, "squad": 0,
    "ceremony": "The officer shoves a spear into your hands. \"Stand up straight, recruit. You will do.\"",
    "kit": {"head": "hide_cap", "body": "hide_vest", "feet": "hide_boots", "main_hand": "bronze_spear", "off_hand": "wooden_buckler"}},
-  {"id": "private", "title": "Private", "ladder_id": "soldier", "merit": 20, "min_days": 7, "wage": 56, "squad": 0,
+  {"id": "private", "title": "Private", "ladder_id": "soldier", "merit": 20, "min_days": 7, "wage": 91, "squad": 0,
    "ceremony": "The line is called to attention. \"Private,\" says your officer, and a plain grey tabard is yours.",
    "kit": {"legs": "leather_leggings", "cloak": "leather_cloak", "off_hand": "bronze_buckler", "main_hand": "iron_spear"}},
-  {"id": "corporal", "title": "Corporal", "ladder_id": "veteran", "merit": 60, "min_days": 14, "wage": 84, "squad": 2,
+  {"id": "corporal", "title": "Corporal", "ladder_id": "veteran", "merit": 60, "min_days": 14, "wage": 126, "squad": 2,
    "ceremony": "Two soldiers fall in behind you. \"Corporal. They are yours now, so keep them breathing.\"",
    "kit": {"head": "chain_coif", "body": "chain_hauberk", "feet": "chain_boots", "off_hand": "iron_buckler"}},
-  {"id": "sergeant", "title": "Sergeant", "ladder_id": "squad_leader", "merit": 130, "min_days": 21, "wage": 126, "squad": 3,
+  {"id": "sergeant", "title": "Sergeant", "ladder_id": "squad_leader", "merit": 130, "min_days": 21, "wage": 168, "squad": 3,
    "ceremony": "The captain pins a red knot to your shoulder. \"Sergeant. Three spears, one of you.\"",
    "kit": {"cloak": "chain_cloak", "off_hand": "iron_shield", "main_hand": "steel_sword"}},
-  {"id": "lieutenant", "title": "Lieutenant", "ladder_id": "junior_officer", "merit": 240, "min_days": 35, "wage": 196, "squad": 4,
+  {"id": "lieutenant", "title": "Lieutenant", "ladder_id": "junior_officer", "merit": 240, "min_days": 35, "wage": 231, "squad": 4,
    "ceremony": "The post falls silent as the captain salutes you first. \"Lieutenant. The squad is yours to spend wisely.\"",
-   "kit": {"head": "knight_helm", "body": "steelmail_hauberk", "main_hand": "finesteel_sword"}}
+   "kit": {"head": "steelmail_coif", "body": "steelmail_hauberk"}}
  ],
  "merit": {"kill": 1, "kill_cap_per_duty": 6, "commendation": 5, "commendation_chance_clean": 0.35, "duty_failed": -3, "duty_abandoned": -2},
  "pay": {"dock_per_missed_muster": 0.15, "leave_fraction": 0.5, "desertion_pays": 0},

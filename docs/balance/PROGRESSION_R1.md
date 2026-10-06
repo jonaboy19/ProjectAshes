@@ -89,3 +89,12 @@ Re-run: `/tmp/claude-0/cultivation/sim.sh hours=140 seeds=3` or
 * `Life.player_level()` should return `Life.realm.mod("cultivation").prog.level`.
 * Gear: pass the gear multiplier to `cult.combined_power(gear_mult)`; technique use should check `cult.technique_unlocked(id)`.
 * Tribulation: an encounter can pass its 0-1 score as `attempt_breakthrough(path, {"score": s})`; until then the UI uses `trial_score_estimate`.
+
+## 6. Hooks wired by the Region 1 balance pass (C13, 2026-10-06)
+The section 5 list was not wired for the career systems. Now (see `docs/regions/BALANCE_R1.md`):
+
+* Finished `career_trades` task (farmer, merchant, blacksmith, Wardwright stone work): `award("job_shift", {"subject": "<career>_<kind>"})` and Soul Power (`SOUL_SOURCE`: farm, forge, meditate).
+* Finished soldier duty: `award("job_shift", {"subject": "soldier_<kind>"})` and 3.2 Soul Power (combat).
+* Guild commission handed in: `award("quest", {"subject": "guild_commission"})` (no id, so repeated commissions decay like radiant quests).
+* Library quest completed (QuestRunner, the 90 town-kit quests): `award("quest", {"id": quest_id, "magnitude": 0.4})`. Errands pay 0.4 of a story step because the town kit alone has 90 of them (the design counted 45 quests); private runners (soldier duties) opt out with `awards_xp = false`.
+* Gear needs its level (`Equipment.ENFORCE_LEVEL`), so level 6 / 12 / 22 open tier 1 / 2 / 3 kit. With the story at about 0.36 steps a day and 0.4 discoveries a day every archetype is level 15 to 23 on day 100 (target 13+).

@@ -18,8 +18,8 @@ const SoldierUI := preload("res://scripts/ui/soldier_ui.gd")
 const SELF_PATH := "res://scripts/ui/career_tasks.gd"
 const OK_COL := Color("7be0a0")
 const BAD_COL := Color("ff7a6e")
-const CAREER_NAMES := {"scribe": "Scribe", "farmer": "Farmer", "soldier": "Soldier", "merchant": "Merchant", "blacksmith": "Blacksmith"}
-const CAREER_ORDER := ["scribe", "farmer", "soldier", "merchant", "blacksmith"]
+const CAREER_NAMES := {"scribe": "Scribe", "farmer": "Farmer", "soldier": "Soldier", "merchant": "Merchant", "blacksmith": "Blacksmith", "wardwright": "Wardwright"}
+const CAREER_ORDER := ["scribe", "farmer", "soldier", "merchant", "blacksmith", "wardwright"]
 
 signal task_done(quality: float, result: Dictionary)
 signal closed
@@ -903,6 +903,8 @@ func _show_trade_menu() -> void:
 			tr.join(career, day)
 			_refresh(), true)
 		return
+	if career == "wardwright":
+		_card("The Runeward Legion", "The Legion pays a weekly stipend by rank, and a fee for each stone you mend or glyph you carve on the road (career_trades.gd stone_work). Walk the road, mend what needs it, carve what is dim. Mending a sound stone pays nothing.")
 	for o: Dictionary in tr.offers(career, day):
 		var label := "%s  (%d h)" % [String(o["label"]), int(o["hours"])]
 		_btn(label if bool(o["available"]) else "%s  -  %s" % [label, String(o["why"])], _start_trade.bind(String(o["kind"])), bool(o["available"]))

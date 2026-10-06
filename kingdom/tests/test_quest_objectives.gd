@@ -505,7 +505,7 @@ func test_thornfield_bribe_ending_has_reputation_consequences() -> void:
 	assert_bool(r.is_done("thornfield_the_culprit")).is_true()
 	var rw := paid[paid.size() - 1] as Dictionary
 	assert_int(int(rw["rep"]["thornfield"])).is_less(0)
-	assert_int(int(rw["gold"])).is_equal(60)
+	assert_int(int(rw["gold"])).is_equal(27)        # C13 balance change: the bribe paid 60 against 20 for the honest ending; it is now at most 1.35x (tools/towns/balance_rewards.py)
 	assert_int(int((rw["relationship"] as Array)[0]["value"])).is_less(0)
 
 

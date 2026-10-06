@@ -24,6 +24,7 @@ const SPHERE := "military"
 const LOG_MAX := 24
 const XP_DUTY := 0.6
 const XP_MUSTER := 0.05
+const SOUL_PER_DUTY := 3.2
 
 var mastery_ref: RefCounted = null      # tests inject one; otherwise Life.mastery
 var bio_ref: RefCounted = null          # likewise Life.biography
@@ -242,7 +243,7 @@ func issue_kit(_day: int) -> Array:
 			life.call("give", id, 1)
 			var eq: Variant = life.get("equipment")
 			if eq is Object:
-				(eq as Object).call("equip_from", life, id)
+				(eq as Object).call("equip_from", life, id, -1, true)    # issued kit: exempt from the gear level rule (equipment.gd)
 	return issued
 
 
@@ -475,6 +476,7 @@ func request_leave(day: int, days: int) -> Dictionary:
 func runner() -> QuestRunner:
 	if _runner == null:
 		_runner = QuestRunner.new(bus_ref if bus_ref != null else QuestBus.shared())
+		_runner.awards_xp = false          # duties are job shifts (above), not unique quests
 		_runner.reward_fn = _reward
 		_runner.clock_fn = func() -> float: return float(_day)
 		_runner.quest_event.connect(_on_quest_event)
@@ -595,6 +597,11 @@ func _duty_done() -> void:
 		bump("patrols")
 	_gain(XP_DUTY, day)
 	_rep(0.5)
+	# Progression hook (docs/balance/PROGRESSION_R1.md section 5): a finished duty is a work shift of the soldier's trade.
+	if sync_life and Life != null and Life.has_method("award_progress"):
+		Life.award_progress("job_shift", {"subject": "soldier_" + String(duty["kind"])})
+		if Life.get("soul") != null:
+			(Life.soul as RefCounted).call("gain", "combat", SOUL_PER_DUTY, day)       # a duty is drilled, disciplined work for the soul too
 	var res := "done"
 	# A clean duty (nobody in the squad hurt) may earn a commendation.
 	if int(duty.get("casualties", 0)) == 0 and _rng("commend", day, duty["id"]).randf() < float(Career.data()["merit"]["commendation_chance_clean"]):

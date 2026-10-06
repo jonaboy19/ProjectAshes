@@ -44,6 +44,7 @@ var relationships := preload("res://scripts/sim/relationships.gd").new()
 var npc_social_graph := preload("res://scripts/sim/npc_social_graph.gd").new()
 var radiant := preload("res://scripts/sim/radiant_quests.gd").new()
 var crafting := preload("res://scripts/sim/crafting.gd").new()
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const ItemsDB := preload("res://scripts/sim/items_db.gd")
 const PathLearning := preload("res://scripts/abilities/path_learning.gd")
 const SaveContainers := preload("res://scripts/sim/save_containers.gd")
@@ -933,6 +934,8 @@ func turn_in(cid: int) -> String:
 	if r.get("ok", false):
 		Game.add_gold(int(r.get("gold", 0)))
 		record("adventured", 2.0)
+		# Progression hook (PROGRESSION_R1.md section 5): commissions repeat, so they decay like radiant quests (no unique id).
+		award_progress("quest", {"subject": "guild_commission"})
 		Audio.play_ui("quest_complete")
 	return String(r.get("text", ""))
 
@@ -985,7 +988,7 @@ func _setup_orgs() -> void:
 
 
 func _setup_market() -> void:
-	market.add_good("bread", 2, 30, 6)
+	market.add_good("bread", 2, 30, 12)   # C13: was 6 a day, the baker could not feed a village and the player (price pinned at 3x, food cost 14 gold a day)
 	market.add_good("apple", 1, 40, 8)
 	market.add_good("cheese", 4, 12, 2)
 	market.add_good("stew", 5, 8, 3)
@@ -1039,14 +1042,31 @@ func _abs_hours() -> float:
 	return WorldSim.day * 24.0 + WorldSim.time_of_day
 
 
+## Real seconds between the needs / mana / attendance integrations in _process.
+const LIFE_TICK := 0.1
+var _tick_dh := 0.0
+var _tick_wall := 0.0
+
+
 func _process(_delta: float) -> void:
 	var now := _abs_hours()
 	var dh := now - _last_abs
 	_last_abs = now
 	if dh <= 0.0 or dh > 2.0:
 		return
+	var _tp := Probe.t()
 	for msg: String in realm.pump():
 		Game.say(msg)
+	Probe.add("life.realm_pump", _tp)
+	# CPU pass 2026-10-06: hunger, mana, shift attendance and starvation only move by hundredths per frame, so they are
+	# integrated at LIFE_TICK with the summed game hours (the pump above still runs every frame for its budget).
+	_tick_dh += dh
+	_tick_wall += _delta
+	if _tick_wall < LIFE_TICK:
+		return
+	dh = _tick_dh
+	_tick_dh = 0.0
+	_tick_wall = 0.0
 	needs.tick(dh)
 	magicules.regenerate(dh)
 	if player and is_instance_valid(player):
@@ -1091,7 +1111,10 @@ func _realm_ctx() -> Dictionary:
 
 
 func _on_hour(hour: int) -> void:
+	var _ph := Probe.t()
 	realm.on_hour(hour, WorldSim.day, _realm_ctx())
+	Probe.add("life.hour.realm_on_hour", _ph)
+	_ph = Probe.t()
 	# War map authority follows the soldier career rank (none for civilians).
 	var cam: RefCounted = realm.mod("campaign")
 	if cam.has_method("set_player_rank"):
@@ -1103,6 +1126,8 @@ func _on_hour(hour: int) -> void:
 			var net := int(m.take_pending_gold())
 			if net != 0:
 				Game.add_gold(net)
+	Probe.add("life.hour.pending_gold", _ph)
+	_ph = Probe.t()
 	# Combat training is open to every career (education.training_options).
 	var gains: Dictionary = realm.mod("education").take_pending_gains()
 	if float(gains.get("combat", 0.0)) > 0.0:
@@ -1113,13 +1138,22 @@ func _on_hour(hour: int) -> void:
 				"rift_instability": Frontier.rift_instability, "season": WorldSim.season}):
 			Game.say(msg)
 		life_path.set_flag("at_war", war.is_at_war())
+	Probe.add("life.hour.war_day", _ph)
+	_ph = Probe.t()
 	economy.refresh_road_risk(Frontier.runestones)
-	for r: Dictionary in economy.tick_hour(1.0, {
+	Probe.add("life.hour.road_risk", _ph)
+	_ph = Probe.t()
+	# CPU pass 2026-10-06: spread over the next frames through the realm hub's pump (a 17 ms hitch every game hour on the PC);
+	# the same jobs in the same order as economy.tick_hour, and a save finishes what is pending (economy.serialize).
+	realm.queue_jobs(economy.queue_hour_jobs(1.0, {
 			"season": WorldSim.season, "festival": not WorldSim.seasons.festival_today().is_empty(),
 			"at_war": bool(life_path.flags.get("at_war", false)), "mine_opened": bool(life_path.flags.get("mine_opened", false)),
-			"abs_hours": _abs_hours()}):
-		Game.say(String(r["text"]))
+			"abs_hours": _abs_hours()}))
+	Probe.add("life.hour.economy_tick", _ph)
+	_ph = Probe.t()
 	_life_tick(hour)
+	Probe.add("life.hour.life_tick", _ph)
+	_ph = Probe.t()
 	if careers.is_employed():
 		var sh: Vector2 = careers.player_org()["shift"]
 		if hour == int(sh.y):
@@ -1130,6 +1164,8 @@ func _on_hour(hour: int) -> void:
 				Game.say(r["text"])
 			if not careers.is_employed():
 				employment_changed.emit()
+	Probe.add("life.hour.career_pay", _ph)
+	_ph = Probe.t()
 	if hour == 6:
 		for msg: String in property.daily(WorldSim.day):
 			Game.say(msg)
@@ -1139,8 +1175,12 @@ func _on_hour(hour: int) -> void:
 			Game.say(msg)
 		for msg: String in family.daily_tick(WorldSim.day):
 			Game.say(msg)
+		Probe.add("life.hour6.property_nobility_lordship_family", _ph)
+		_ph = Probe.t()
 		_contracts_daily()
 		_spoilage_tick()
+		Probe.add("life.hour6.contracts_spoilage", _ph)
+		_ph = Probe.t()
 		var threat := 0.0
 		if player and is_instance_valid(player):
 			var t: Dictionary = Frontier.threat_at(Vector2(player.global_position.x, player.global_position.z))
@@ -1148,6 +1188,7 @@ func _on_hour(hour: int) -> void:
 		for msg: String in life_courses.tick_day(WorldSim.day, {"at_war": war.is_at_war(),
 				"frontier_threat": clampf(threat, 0.0, 100.0), "careers": careers, "nobility": nobility}):
 			Game.say(msg)
+		Probe.add("life.hour6.life_courses", _ph)
 		if family.check_old_age_death(age(), WorldSim.day):
 			_on_old_age_death()
 	if hour == 5:
@@ -1294,9 +1335,10 @@ func on_wolf_killed(_where: Vector3, den_id := -1, variant := "") -> void:
 	elif den_id >= 0 and den_id < Frontier.ecology.dens.size() and String(Frontier.ecology.dens[den_id].get("species", "")) == "stagborn_warden":
 		r1_species = "stagborn_warden"      # Region 1 story: the Antlered Warden's defeat (r1_story_director.gd)
 	region1_kill.emit(r1_species, _where)
-	for c: Dictionary in guild.on_kill(RAAdventurerGuild.PLAYER, "wolf", den_id):
-		if guild.is_ready(int(c["id"])):
-			Game.say("Commission ready to turn in: %s" % c.get("title", ""))
+	# guild.on_kill returns the ids of the commissions now ready to hand in (ints, not dictionaries).
+	for cid: Variant in guild.on_kill(RAAdventurerGuild.PLAYER, "wolf", den_id):
+		if guild.is_ready(int(cid)):
+			Game.say("Commission ready to turn in: %s" % guild.commission(int(cid)).get("title", ""))
 	add_merit(5, "wolf slain")
 	record("hunted")
 	if den_id >= 0 and den_id < Frontier.ecology.dens.size():
@@ -1489,6 +1531,7 @@ func sell(item: String) -> String:
 # --- save / load -----------------------------------------------------------------
 
 func snapshot() -> Dictionary:
+	economy.settle_hour_jobs()        # the home market is saved twice (market, economy.markets): both must see the finished hour
 	var d := {
 		"version": SAVE_VERSION,
 		"world": WorldSim.serialize(),

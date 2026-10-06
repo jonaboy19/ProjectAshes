@@ -62,7 +62,7 @@ const QUEST_ACTIONS := ["flag", "give", "rep", "gold", "cutscene", "marker", "sp
 const DIALOGUE_ACTIONS := ["opinion", "rep", "bond", "flag", "record", "give", "chores", "gift", "quests",
 	"turn_in", "close", "tell_hint"]
 const CONDITIONS := ["tier", "tier_not", "min_tier", "bond", "time", "weather", "child", "role", "flag", "no_flag",
-	"event", "no_event", "min_op", "max_op", "min_age", "max_age", "has", "not_has", "chance"]
+	"event", "no_event", "min_op", "max_op", "min_age", "max_age", "has", "not_has", "chance", "min_soul_tier", "min_gear_tier", "min_level"]
 const BLESSINGS := ["blessing:fire", "blessing:water", "blessing:wind", "blessing:earth", "blessing:none", "blessing:lightning"]
 
 

@@ -76,16 +76,18 @@ func test_membership_fee() -> void:
 func test_rank_up_by_points() -> void:
 	var g := _guild()
 	var me := RAAdventurerGuild.PLAYER
-	assert_int(g.add_points(me, 59)).is_equal(-1)
+	# C13 balance change: the thresholds are [0, 150, 450, 1100, 2400, 5200, 11000] (were [0, 60, 180, 450, 1000, 2200, 5000]):
+	# S came on day 55 of the balance run, B on day 18.
+	assert_int(g.add_points(me, 149)).is_equal(-1)
 	assert_int(g.member(me)["rank"]).is_equal(0)
-	assert_int(g.add_points(me, 1)).is_equal(1)   # 60 points -> E
-	assert_int(g.add_points(me, 120)).is_equal(2)  # 180 -> D
-	assert_int(g.add_points(me, 900)).is_equal(4)  # 1080 -> B (skips C)
+	assert_int(g.add_points(me, 1)).is_equal(1)    # 150 points -> E
+	assert_int(g.add_points(me, 300)).is_equal(2)  # 450 -> D
+	assert_int(g.add_points(me, 2000)).is_equal(4) # 2450 -> B (skips C)
 	# Losing points never demotes.
-	g.add_points(me, -1000)
+	g.add_points(me, -2400)
 	assert_int(g.member(me)["rank"]).is_equal(4)
-	assert_int(g.member(me)["points"]).is_equal(80)
-	assert_int(RAAdventurerGuild.rank_for_points(5000)).is_equal(6)
+	assert_int(g.member(me)["points"]).is_equal(50)
+	assert_int(RAAdventurerGuild.rank_for_points(11000)).is_equal(6)
 
 
 func test_rewards_are_balanced_against_wages() -> void:
@@ -240,7 +242,7 @@ func test_guild_roundtrip() -> void:
 	var c := _find(g, "cull", 0)
 	g.accept(RAAdventurerGuild.PLAYER, int(c["id"]), 4)
 	g.on_kill(RAAdventurerGuild.PLAYER, "wolf", int(c["target"]["den"]))
-	g.add_points(RAAdventurerGuild.PLAYER, 70)
+	g.add_points(RAAdventurerGuild.PLAYER, 160)         # C13: E needs 150 points now (was 60)
 	var data: Variant = JSON.parse_string(JSON.stringify(g.serialize()))
 	var h := RAAdventurerGuild.new()
 	h.add_branch(0, "Ashford Guild Hall")

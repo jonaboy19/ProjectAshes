@@ -42,6 +42,7 @@ sys.path.insert(0, HERE)
 import town_text as T  # noqa: E402
 import town_lines as L  # noqa: E402
 import town_quests as Q  # noqa: E402
+import reward_balance as RB  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))       # kingdom/
 KINDS_TOWN = ("town", "frontier_town", "castle")
@@ -650,6 +651,7 @@ def build_town(world, name, names, seed, used):
     ctx = Q.Ctx(tid, shown(world, name), arch, kit, kind, people, doc, th_species, fy, rng, rank, T.ARCHS[arch]["authority"],
                 (s.get("landmark") or {}).get("name", shown(world, name)), {"village": 1.0, "frontier_town": 1.25, "town": 1.3, "castle": 1.6}.get(kind, 1.0))
     quests, clues, stashes, picks = Q.build_line(ctx)
+    RB.balance_town(quests, tid)       # C13: reward limits (reward_balance.py), the same ones balance_rewards.py applies to the files on disk
     doc["clues"] = clues
     doc["stashes"] = stashes
     doc["quests"] = ["res://data/quests/%s/%s.json" % (tid, q["id"][len(tid) + 1:]) for q in quests]

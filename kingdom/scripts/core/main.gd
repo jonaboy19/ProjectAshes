@@ -547,7 +547,9 @@ func _maybe_spawn_war_battle() -> void:
 
 func _on_raiders_defeated(camp: Node3D) -> void:
 	_raids_cleared += 1
-	var reward := 120 + 60 * _raids_cleared
+	# C13: the camp bounty was 120 + 60 per camp cleared, without end (the 20th paid 1320). It now tops out at the fifth camp and
+	# falls to a token bounty after the eighth: camps still come, they stop being a gold mine.
+	var reward := 120 + 40 * mini(_raids_cleared, 5) if _raids_cleared <= 8 else 40
 	Game.add_gold(reward)
 	Game.say("The raiders are broken! +%d gold." % reward)
 	Game.promote()

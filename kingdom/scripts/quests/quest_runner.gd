@@ -29,6 +29,11 @@ var runs: Dictionary = {}                 # quest id -> Run (active, done and fa
 var pinned: Array = []                    # quest ids the player pinned (the only source of markers)
 var reward_fn := Callable()
 var clock_fn := Callable()                # () -> float game day, for started/finished stamps
+## A finished quest pays progression XP once per quest id (Life.award_progress, "quest": PROGRESSION_R1.md section 5). Private runners
+## whose quests are generated work (the soldier's duties) turn it off.
+var awards_xp := true
+## Library quests are errands next to the story steps (which pay 1.0): 0.4 of a quest each, since the town kit alone has 90 of them.
+var xp_magnitude := 0.4
 var history_log: Array[Dictionary] = []
 
 
@@ -280,6 +285,10 @@ func _complete(r: Run) -> void:
 	var pay := _pay(d.rewards())
 	if pay != "":
 		r.paid = pay
+	if awards_xp:
+		var life: Object = Rewards._autoload("Life")
+		if life != null and life.has_method("award_progress"):
+			life.call("award_progress", "quest", {"id": r.id, "magnitude": xp_magnitude})
 	_emit({"type": "completed", "quest": r.id, "text": "Quest complete: %s%s" % [d.title, (" (%s)" % pay) if pay != "" else ""]})
 
 

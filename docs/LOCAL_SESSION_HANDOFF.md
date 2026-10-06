@@ -661,3 +661,29 @@ Whole data set (`tests/test_low_budget.gd` prints it): fill_sites + meshy3_sites
 2. 196 of the 287 Meshy models referenced by Region 1 data have no LOD1 (list: `model_tris.json`, entries with `[n, 0]`; worst: castle `wall_battlement_block` 4.0k, `wall_stone_railing` 3.0k, `bouquet_wild` 3.5k, `street_lantern_gothic` 3.0k, `stall_rug_wood` 4.5k, goblins/wolves/cows 6-7k). A Blender decimate pass producing `_lod1.glb` (about 25-30 %) would let the engine swap them everywhere instead of the thinning above (gltfpack/Instant Meshes in `ashes-external-tools`).
 3. Baked fill/Meshy3 sites (`RegionDressing._bake_site`) merge each range group into one mesh: while any part is in view, the whole group's triangles draw. A smaller bake radius on LOW (split groups by 30 m cell) would cut the near yard further.
 4. Re-run `low_budget.gd` on the PC and the S22 route after these changes; the S22 numbers are still owed.
+
+
+## 2026-10-06 Cloud CPU / memory / save pass (cloud session): scripts only, NOT rendering
+
+The cloud took **CPU, memory and save work only**. It did not touch models, LODs, textures, materials, shaders, lights, shadows, render
+resolution, draw distances, foliage density, crowd counts or animation quality; GPU and rendering performance stay with the local session
+(Perf pass 1-3, `docs/qa/RELEASE_READINESS.md`). Full numbers, method and file list: `docs/qa/CPU_MEMORY_SAVE.md`.
+
+- **CPU** (headless PC, per rendered frame, best-of runs): Ashford 6.9 -> 4.8 ms, Thornfield 7.3 -> 5.3 ms, wilds 4.6 -> 3.2 ms; script time in callbacks
+  3.9 -> 1.9 ms. Biggest: the tutorial bridge built a context every frame (0.94 -> 0.07 ms), WorldSim's far loop burned its whole 0.5 ms budget every frame
+  (0.60 -> 0.17 ms), `Life._on_hour` was a 26 ms hitch every game hour because the economy ticked 8 282 goods rows in it (now 1.5 ms plus 15 spread jobs).
+- **Edits near your files** (read before you merge): `ui/hud.gd` (`_ease_buttons` settles, same-value position writes skipped, `Probe` lines),
+  `world/weather.gd` (`_key()` cache for the base / wrote bookkeeping, same writes), `world/grass_interactors.gd` (a slot is only re-sent when its value
+  changed), `population/population_lod.gd` (only `Probe` timers), `world/exploration_director.gd` and `world/street_routines.gd` (throttles).
+  Values reaching the renderer are identical.
+- **Save**: schema 3. A save of 64 KB or more is stored zstd + base64 in the same JSON envelope (checksum, atomic write, `.bak` fallback unchanged);
+  2 years of play is 2.0 MB of JSON and 0.36 MB on disk (was 2.0 MB), day 1 175 KB. Schema 1 and 2 files still load (tests). Small saves stay plain JSON.
+- **Memory**: unchanged in the world (1.45-1.58 GB headless, dominated by nodes and resources, not scripts); scripted data is a few MB. Findings for you:
+  idle pooled creature bodies never shrink (113 critters with skeletons at the end of the route; `NodePool.trim_all` is only called after teleports),
+  and the headless dummy renderer keeps CPU copies of textures, so `MEMORY_STATIC` there is not the phone's number.
+- **Tools** you can run on the PC: `kingdom/tools_qa/cpu_mem/cpu_profile.gd` (per-script ms per frame, route in Ashford, Thornfield and the wilds),
+  `sim_save_probe.gd` (per-hour handlers, hub jobs, save sizes and times by game day), `mem_census.gd`, `ab_overlay.sh <git-ref> <dir>` (before / after without a second checkout).
+  Gotchas found: a headless window sleeps 6.9 ms per frame unless `OS.low_processor_usage_mode_sleep_usec = 0`, and `Performance.TIME_PROCESS` /
+  `TIME_PHYSICS_PROCESS` are the max of the last second, not a mean.
+- **Still the biggest CPU left** (not touched, gameplay-visible): the 30 Hz physics tick (villager, critter, soldier, player scripts: 3.5 ms per tick, the p95 / p99
+  frames) and `PopulationLOD` spawns (3.7-6 ms each). On the S22 these need a visual check of any rate change.

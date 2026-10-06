@@ -7,8 +7,13 @@ extends Node
 ## only then is the temp file renamed into place. A crash at any point leaves
 ## either the old save, the backup, or the new save intact, never half a file.
 ##
-## File envelope (schema 2):
-##   {"schema": 2, "meta": {...}, "checksum": "<md5 of the data text>", "data": {...}}
+## File envelope (schema 3; schema 2 files are the same without `enc`, schema 1 was the bare snapshot):
+##   {"schema": 3, "meta": {...}, "checksum": "<md5 of the data text>", "data": {...}}
+## A save whose data text is COMPRESS_MIN bytes or more is stored compressed (CPU/memory/save pass 2026-10-06: a 2-year save
+## is about 1.6 MB of JSON and 0.2 MB as zstd): the data text is zstd-compressed and base64-coded into a string,
+##   {"schema": 3, "meta": {...}, "checksum": "<md5 of that base64 text>", "enc": "zstd", "raw": <bytes of the data text>,
+##    "data": "<base64>"}
+## Small saves (and every test fixture) stay plain JSON. Both read back through `_read_valid`.
 ## `meta` (character name, age, title, day, time, location, playtime, game
 ## version, when, kind) is also cached in `<slot>.meta.json` so the save screen
 ## never parses a whole world, and `<slot>.png` holds a small thumbnail.
@@ -34,7 +39,9 @@ signal loaded(slot_id: String, ok: bool)
 ## A readable problem for the player (damaged file, backup used, disk full...).
 signal problem(text: String)
 
-const SCHEMA_VERSION := 2
+const SCHEMA_VERSION := 3
+## Data texts at least this long are stored compressed (see the envelope notes above).
+const COMPRESS_MIN := 65536
 const MANUAL_SLOTS := 3
 const AUTO_SLOTS := 3
 const QUICK := "quick"
@@ -57,6 +64,7 @@ const SETTLEMENT_EXIT_FACTOR := 1.25
 ## save layout changes; keep old steps so any save can climb to the current one.
 const MIGRATIONS := {
 	1: "_migrate_1_to_2",
+	2: "_migrate_2_to_3",
 }
 
 var root_dir := "user://saves/"
@@ -308,7 +316,13 @@ func write_envelope(id: String, data: Dictionary, meta: Dictionary) -> bool:
 	var data_text := JSON.stringify(data)
 	meta.erase("data")              # the data section must be the only "data" key
 	meta["schema"] = SCHEMA_VERSION
-	var text := _envelope_text(meta, data_text)
+	var text := ""
+	if data_text.length() >= COMPRESS_MIN:
+		var raw := data_text.to_utf8_buffer()
+		var packed := Marshalls.raw_to_base64(raw.compress(FileAccess.COMPRESSION_ZSTD))
+		text = _envelope_text_compressed(meta, packed, raw.size())
+	else:
+		text = _envelope_text(meta, data_text)
 	if not _atomic_write(path_of(id), text, true):
 		return false
 	_atomic_write(meta_path(id), JSON.stringify(meta, "\t"), false)
@@ -442,7 +456,21 @@ func _read_valid(path: String, why: Array = []) -> Dictionary:
 	var env: Dictionary = json.data
 	if env.has("schema"):
 		var sum := String(env.get("checksum", ""))
-		if sum != "":
+		if String(env.get("enc", "")) != "":
+			# Compressed data: the checksum covers the base64 text, then it is unpacked into the data dictionary.
+			if not env.get("data") is String:
+				why.append("compressed data missing")
+				return {}
+			if sum != "" and String(env["data"]).md5_text() != sum:
+				why.append("checksum mismatch (file corrupted)")
+				return {}
+			var unpacked: Variant = _unpack(String(env["data"]), String(env["enc"]), int(env.get("raw", 0)), why)
+			if unpacked == null:
+				return {}
+			env["data"] = unpacked
+			env.erase("enc")
+			env.erase("raw")
+		elif sum != "":
 			var data_text := _data_text(text)
 			if data_text.md5_text() != sum:
 				why.append("checksum mismatch (file corrupted)")
@@ -502,6 +530,29 @@ func _migrate_1_to_2(env: Dictionary) -> Dictionary:
 		"saved_at_text": "", "kind": "manual", "reason": "migrated", "serial": 0})
 	meta["schema"] = 2
 	return {"schema": 2, "meta": meta, "data": d}
+
+
+## v2 (plain JSON data) -> v3: the layout of `data` is unchanged; v3 only adds the optional compressed form.
+func _migrate_2_to_3(env: Dictionary) -> Dictionary:
+	var meta: Dictionary = (env.get("meta", {}) as Dictionary).duplicate() if env.get("meta") is Dictionary else {}
+	meta["schema"] = 3
+	return {"schema": 3, "meta": meta, "checksum": env.get("checksum", ""), "data": env.get("data")}
+
+
+## base64 + zstd text -> the parsed data dictionary (null, with the reason in `why`, when it is damaged or unknown).
+func _unpack(b64: String, enc: String, raw_size: int, why: Array) -> Variant:
+	if enc != "zstd" or raw_size <= 0:
+		why.append("unknown data encoding '%s'" % enc)
+		return null
+	var bytes := Marshalls.base64_to_raw(b64).decompress(raw_size, FileAccess.COMPRESSION_ZSTD)
+	if bytes.size() != raw_size:
+		why.append("compressed data is damaged")
+		return null
+	var json := JSON.new()
+	if json.parse(bytes.get_string_from_utf8()) != OK or not json.data is Dictionary:
+		why.append("compressed data is not a save")
+		return null
+	return json.data
 
 
 ## Moves the old single-file saves (user://save_N.json) into manual slot N once.
@@ -710,6 +761,11 @@ static func _abs(p: String) -> String:
 static func _envelope_text(meta: Dictionary, data_text: String) -> String:
 	return '{"schema":%d,"meta":%s,"checksum":"%s","data":%s}' % [SCHEMA_VERSION,
 		JSON.stringify(meta), data_text.md5_text(), data_text]
+
+
+static func _envelope_text_compressed(meta: Dictionary, packed_b64: String, raw_size: int) -> String:
+	return '{"schema":%d,"meta":%s,"checksum":"%s","enc":"zstd","raw":%d,"data":"%s"}' % [SCHEMA_VERSION,
+		JSON.stringify(meta), packed_b64.md5_text(), raw_size, packed_b64]
 
 
 static func _data_text(text: String) -> String:

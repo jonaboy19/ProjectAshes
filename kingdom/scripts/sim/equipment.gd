@@ -306,13 +306,20 @@ static func quality_of(item: Object) -> int:
 	return int(item.call("get_property", "quality", Crafting.Quality.FINE)) if item else Crafting.Quality.FINE
 
 
+## C13 (Region 1 balance): the "Requires Level N" line on a piece of gear is a rule, not a hint. Without it gold alone buys the best kit
+## in the region within weeks, and the gear tier of the end-of-region target (docs/regions/BALANCE_R1.md) could not hold. Issued
+## kit (the soldier's rank kit, `issued` true) is exempt: the army hands it out whatever the wearer's level.
+const ENFORCE_LEVEL := true
+
 ## Takes one `id` (of `quality`, or the best one carried when quality < 0) out of
 ## the pack and wears it; whatever the slot held goes back into the pack.
-func equip_from(life: Object, id: String, quality := -1) -> String:
+func equip_from(life: Object, id: String, quality := -1, issued := false) -> String:
 	if not is_equippable(id):
 		return "%s can't be worn." % Crafting.item_name(id)
 	if int(life.call("count", id)) <= 0:
 		return "You have no %s." % Crafting.item_name(id)
+	if ENFORCE_LEVEL and not issued and life.has_method("player_level") and not meets_requirements(id, int(life.call("player_level"))):
+		return "You need level %d to wear %s." % [ItemsDB.req_level(id), Crafting.item_name(id)]
 	var q := quality
 	var dur := -1
 	var g: Variant = life.get("inventory")

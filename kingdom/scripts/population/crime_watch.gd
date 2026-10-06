@@ -121,7 +121,7 @@ func _pickpocket(_p: Node) -> void:
 	var person := int(v.get("person"))
 	var behind := Takedown.can_takedown(pp, here, v.call("perception_facing"), 0, false)
 	var skill := float(Locks.player_holder().get("skill", 0.0))     # nimble fingers: the same 0..10 skill as lockpicking
-	var p := Pickpocket.chance(skill, float(v.call("perception_acuity")), Perception.light_at(pp), behind, int(v.call("alert_class")), true)
+	var p := Pickpocket.chance(skill, float(v.call("perception_acuity")), Perception.light_at(pp), behind, int(v.call("alert_class")), true, Pickpocket.heat_today(int(WorldSim.day)))
 	var res := Pickpocket.resolve(Pickpocket.attempt(p, randf())["ok"], person, int(WorldSim.day),
 		func(g: int) -> void: Game.add_gold(g))
 	Game.say(String(res["text"]))
