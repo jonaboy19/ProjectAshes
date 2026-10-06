@@ -1310,7 +1310,7 @@ func _update_camera(delta: float) -> void:
 		var d2 := Vector2(tp.x, tp.z)
 		if d2.length() > 0.3:
 			d2 = d2.normalized()
-			var frame_dir := d2.rotated(0.42)          # look past the hero's right shoulder, the speaker right of centre
+			var frame_dir := d2.rotated(0.78)          # pass 9: wide over-the-shoulder; the hero sits left, the speaker's face clear right of centre
 			_yaw = lerp_angle(_yaw, atan2(-frame_dir.x, -frame_dir.y), 1.0 - exp(-3.5 * delta))
 			if velocity.length() < 0.3:
 				_model.rotation.y = lerp_angle(_model.rotation.y, atan2(-d2.x, -d2.y) + PI, 1.0 - exp(-6.0 * delta))

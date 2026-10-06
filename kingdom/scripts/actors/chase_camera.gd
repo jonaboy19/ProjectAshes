@@ -51,7 +51,7 @@ const TALK_DIST := -0.5
 const TALK_LIFT := -0.2    # pivot sinks a little: the talkers ride higher in the frame
 const TALK_TILT := 0.13    # radians the lens tips DOWN on top of that (camera-local), so faces and upper bodies sit in the
 						   # top 60% of the screen and the bottom-sheet conversation UI never covers them
-const TALK_SHIFT := 0.55   # metres the pivot slides to the right (camera-local): over the shoulder
+const TALK_SHIFT := 0.9   # metres the pivot slides to the right (camera-local): over the shoulder
 const RISE := 4.5         # 1/s response when a boost builds
 const FALL := 2.6         # slower release, so a boost eases away instead of snapping
 

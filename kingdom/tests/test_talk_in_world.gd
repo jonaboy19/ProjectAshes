@@ -294,4 +294,4 @@ func test_sheet_shows_choices_and_picks_them() -> void:
 	assert_array(picked).is_equal([2])
 	for b in sheet._buttons:
 		assert_float((b as Button).custom_minimum_size.y).is_greater_equal(48.0)   # big tap targets
-	assert_float(DialogueSheet.SHEET_TOP).is_equal_approx(0.72, 0.001)           # the lower ~28% (AAA pass 8)
+	assert_float(DialogueSheet.SHEET_TOP).is_equal_approx(0.66, 0.001)           # 3 rows of 2 choices fit (AAA pass 9)

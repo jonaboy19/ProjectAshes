@@ -132,7 +132,7 @@ func _run() -> void:
 	# 7. a conversation with whoever the talk target is (dialogue presentation)
 	var tt: Node = main.services.get("talk_target") if main.get("services") != null else null
 	if tt != null and tt.call("qa_open"):
-		print("FEELVIEW talking")
+		print("FEELVIEW talking partner=", WorldSim.person_name(int(player._talk_partner.get("person"))) if player._talk_partner and player._talk_partner.get("person") != null else "none")
 		await frames(90)
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(out.path_join("%s_7_dialogue.png" % tag))
