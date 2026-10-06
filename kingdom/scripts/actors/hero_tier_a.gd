@@ -455,7 +455,7 @@ static func add_hood_up(sk: Skeleton3D, noise: Texture2D) -> MeshInstance3D:
 			var d := (r + 1) * segs + (sgi + 1) % segs
 			for tri in [[a, c, b], [b, c, d]]:
 				var cen := (verts[tri[0]] + verts[tri[1]] + verts[tri[2]]) / 3.0
-				var hole := pow(cen.x / 0.098, 2.0) + pow((cen.y - 0.075) / 0.135, 2.0) < 1.0 and cen.z > 0.0   # the face opening
+				var hole := pow(cen.x / 0.092, 2.0) + pow((cen.y - 0.05) / 0.1, 2.0) < 1.0 and cen.z > 0.0   # the face opening
 				if not hole:
 					idx.append_array(PackedInt32Array(tri))
 	var arr := []
