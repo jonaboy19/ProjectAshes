@@ -102,6 +102,7 @@ func _args() -> Dictionary:
 
 func _process(_delta: float) -> void:
 	frame += 1
+	_side_follow()
 	if player and is_instance_valid(player):
 		if _look_px != 0.0:
 			player.add_look(Vector2(_look_px, 0.0))
@@ -327,6 +328,7 @@ func _run() -> void:
 	if want("27"): await _s27_actor_contact()
 	if want("28"): await _s28_wolf_pack_close()
 	if want("29"): await _s29_casts_v2()
+	if want("30"): await _s30_traversal()
 	log_line("DONE")
 	# quit() is deferred; stop the next frame from writing the closed CSV.
 	set_process(false)
@@ -400,6 +402,105 @@ func _s29_casts_v2() -> void:
 			await frames(8)
 			log_line("  t+%d cur=%s" % [(i + 1) * 8, str(player._animator.player.current_animation)])
 	finish()
+
+
+## Traversal (F2 clips): vault (run at a 0.9 m box), low mantle (1.0 m wall), high mantle (1.7 m wall), ledge (2.2 m wall).
+## Boxes are real static bodies on layer 1 placed on the flat ground; the telemetry csv carries the capsule path.
+func _s30_traversal() -> void:
+	var cases := [
+		["vault", 0.9, 0.5, true, false],
+		["mantle_low", 1.0, 2.0, false, true],
+		["mantle_high", 1.7, 2.0, false, true],
+		["ledge", 2.1, 2.0, false, true],
+	]
+	var trav_only := String(_args().get("trav", ""))    # --trav=ledge runs one case
+	for c: Array in cases:
+		if trav_only != "" and trav_only != String(c[0]):
+			continue
+		await teleport(_flat, 0.0, 30)
+		var fwd := Vector3(-sin(player._yaw), 0.0, -cos(player._yaw))
+		var feet := player.global_position
+		var depth := float(c[2])
+		var box := StaticBody3D.new()
+		box.collision_layer = 1
+		var shape := CollisionShape3D.new()
+		var bs := BoxShape3D.new()
+		bs.size = Vector3(6.0, float(c[1]), depth)
+		shape.shape = bs
+		box.add_child(shape)
+		var mesh := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = bs.size
+		mesh.mesh = bm
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0.62, 0.58, 0.5)
+		mesh.material_override = mat
+		box.add_child(mesh)
+		main.world.add_child(box)
+		var ahead := 5.0 if bool(c[3]) else 1.4
+		box.global_position = feet + fwd * (ahead + depth * 0.5) + Vector3.UP * (float(c[1]) * 0.5)
+		player.set_camera(player._yaw, -0.22)
+		side_cam(true, Vector3(cos(player._yaw), 0.0, -sin(player._yaw)), 5.5)    # camera to the player's right (+X in model space)
+		begin("30_traversal_%s" % c[0])
+		await frames(10)
+		if bool(c[3]):
+			key(KEY_SHIFT, true)
+			key(KEY_W, true)
+			await frames(70)
+			key(KEY_W, false)
+			key(KEY_SHIFT, false)
+		else:
+			key(KEY_W, true)
+			await frames(14)
+			var pr: Dictionary = preload("res://scripts/actors/traversal.gd").probe(player.get_world_3d().direct_space_state, player.global_position, player.facing(), [player.get_rid()], true)
+			log_line("probe %s kind=%s h=%.2f depth=%.2f clear=%s dist=%.2f" % [c[0], str(pr.get("kind")), float(pr.get("height", -1.0)), float(pr.get("depth", -1.0)), str(pr.get("top_clear")), float(pr.get("dist", -1.0))])
+			log_line("trav state=%s can_start=%s stamina=%.1f" % [str(player._trav.state), str(player._trav.can_start()), player.stamina])
+			await tap(KEY_SPACE)
+			await frames(2)
+			key(KEY_W, false)
+			if String(c[0]) == "ledge":
+				await frames(60)      # grab, then hang for a moment
+				await tap(KEY_SPACE)  # pull up
+				await frames(70)
+			else:
+				await frames(70)
+		log_line("%s end: dy=%.2f dist=%.2f" % [c[0], player.global_position.y - feet.y, (player.global_position - feet).dot(fwd)])
+		await frames(25)
+		finish()
+		side_cam(false)
+		box.queue_free()
+
+
+
+## Side-on camera that follows the player (feet planted or sliding read much better than from behind).
+var _side_cam: Camera3D
+var _side_dir := Vector3.RIGHT
+var _side_dist := 5.0
+
+
+func side_cam(on: bool, dir := Vector3.RIGHT, dist := 5.0, fov := 38.0) -> void:
+	if not on:
+		if is_instance_valid(_side_cam):
+			_side_cam.queue_free()
+		_side_cam = null
+		if player.camera:
+			player.camera.make_current()
+		return
+	_side_dir = dir.normalized()
+	_side_dist = dist
+	if _side_cam == null:
+		_side_cam = Camera3D.new()
+		player.get_parent().add_child(_side_cam)    # same viewport as the player camera
+	_side_cam.fov = fov
+	_side_cam.current = true
+	_side_follow()
+
+
+func _side_follow() -> void:
+	if is_instance_valid(_side_cam) and is_instance_valid(player):
+		var at := player.global_position + Vector3.UP * 1.0
+		_side_cam.global_position = at + _side_dir * _side_dist
+		_side_cam.look_at(at, Vector3.UP)
 
 
 func _s27_actor_contact() -> void:
