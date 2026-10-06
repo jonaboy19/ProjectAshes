@@ -406,6 +406,68 @@ func test_catch_up_registers_many_buildings_near_a_town_cheaply() -> void:
 	assert_int(sg._indexed_edges).is_equal(sg._edges.size() / 2)
 
 
+## Nodes reachable from `start` over the live edges.
+func _component(sg: RefCounted, start: int) -> Dictionary:
+	var seen := {start: true}
+	var queue: Array[int] = [start]
+	while not queue.is_empty():
+		var u: int = queue.pop_back()
+		for v: int in sg._adj[u]:
+			if not seen.has(v):
+				seen[v] = true
+				queue.append(v)
+	return seen
+
+
+func test_buildings_7m_apart_never_have_a_route_through_a_neighbour() -> void:
+	WorldGen.setup(2024)
+	# a bare settlement: one east-west street, no lots, no walls, so only the new buildings matter
+	var st := {"pos": Vector2.ZERO, "radius": 60.0, "kind": "village",
+		"plan": {"streets": [{"a": Vector2(-60, 0), "b": Vector2(60, 0)}], "lots": [], "landmarks": [],
+			"plaza_r": 12.0, "walls": false, "gates": []}}
+	var sg: RefCounted = StreetGraph.new()
+	sg._setup(st)
+	sg.node_count()   # build the graph
+	var base: int = sg._node_at(Vector2(60, 0))
+	assert_int(_component(sg, base).size()).is_greater(1)
+	var doors: Array[int] = []
+	var t0 := Time.get_ticks_usec()
+	# the far row first: its door paths run to the street straight through where the near row goes up later
+	for row in 2:
+		var y := 14.0 - 8.0 * row
+		for i in 6:
+			var c := Vector2(24.0 + 7.0 * i, y)
+			doors.append(sg.register_building(c, 0.0, Vector2(2.0, 2.0), c + Vector2(0.0, -3.3)))
+	print("12 buildings 7 m apart: %.1f ms" % ((Time.get_ticks_usec() - t0) / 1000.0))
+	# no live edge crosses any footprint
+	for e in sg._edges.size() / 2:
+		if sg._edges[e * 2] < 0:
+			continue
+		var a: Vector2 = sg._nodes[sg._edges[e * 2]]
+		var b: Vector2 = sg._nodes[sg._edges[e * 2 + 1]]
+		for k in sg._box_c.size():
+			assert_bool(sg._segment_hits_box(a, b, k, 0.0)).is_false()
+	# the incremental grid holds exactly the live edges
+	var grid_before: Dictionary = sg._edge_grid.duplicate(true)
+	sg._edge_grid.clear()
+	sg._indexed_edges = 0
+	sg._index_edges()
+	assert_bool(sg._edge_grid == grid_before).is_true()
+	# every door is still on the street network, and routes between doors clear every footprint
+	var comp := _component(sg, base)
+	for d in doors:
+		assert_bool(comp.has(d)).is_true()
+	for i in range(1, doors.size()):
+		var from: Vector2 = sg._nodes[doors[0]]
+		var route: PackedVector2Array = sg.route(from, sg._nodes[doors[i]])
+		assert_bool(sg.last_route_partial).is_false()
+		var prev := from
+		for p in route:
+			for k in sg._box_c.size():
+				assert_bool(sg._segment_hits_box(prev, p, k, 0.0)).is_false()
+			prev = p
+
+
 func test_batched_registration_matches_one_by_one() -> void:
 	WorldGen.setup(2024)
 	var st: Dictionary = WorldGen.settlements[0]
