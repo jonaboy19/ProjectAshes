@@ -32,15 +32,19 @@ const THIN := {
 ## A wilds extra with no LOD1 and more than this many tris, shorter than SMALL_M, is left out on LOW.
 const EXTRA_MAX_TRIS := 3000
 const SMALL_M := 3.0
-## Test hook: -1 follow Quality, 0 force off, 1 force on.
+## Test hook: -1 follow `enabled` + Quality, 0 force off, 1 force on.
 static var force_low := -1
+## OFF by default (owner, 2026-10-06): "don't do anything that ruins the quality" - none of these cuts may change what the player sees.
+## Phone performance is the local PC session's job and is reached by quality-neutral means (real LODs, merging, baking, culling).
+## Kept only as an opt-in switch for that work.
+static var enabled := false
 static var _tris: Dictionary = {}
 
 
 static func low() -> bool:
 	if force_low >= 0:
 		return force_low == 1
-	return int(Quality.tier) <= Quality.LOW
+	return enabled and int(Quality.tier) <= Quality.LOW
 
 
 static func tris_table() -> Dictionary:
