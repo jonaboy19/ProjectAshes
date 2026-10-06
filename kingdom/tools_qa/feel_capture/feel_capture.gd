@@ -71,7 +71,7 @@ func _ready() -> void:
 		_pose_csv.store_line("frame,scenario,bone,x,y,z,qx,qy,qz,qw,terrain_gap,pivot_clip,pivot_time")
 		RenderingServer.frame_post_draw.connect(_pose_telemetry)
 	_csv = FileAccess.open(out_dir.path_join("telemetry.csv"), FileAccess.WRITE)
-	_csv.store_line("frame,scenario,x,y,z,real_speed,move_speed,anim_speed,model_yaw_deg,yaw_rate,loco_blend,gait_rate,cam_x,cam_y,cam_z,on_floor,process_ms,render_cam_dist,render_body_x,render_body_z")
+	_csv.store_line("frame,scenario,x,y,z,real_speed,move_speed,anim_speed,model_yaw_deg,yaw_rate,loco_blend,gait_rate,cam_x,cam_y,cam_z,on_floor,process_ms,render_cam_dist,render_body_x,render_body_z,loco_kind,turn_clip")
 	_index = FileAccess.open(out_dir.path_join("scenarios.txt"), FileAccess.WRITE)
 	get_window().size = Vector2i(W, H)
 	var layer := CanvasLayer.new()
@@ -123,10 +123,11 @@ func _telemetry() -> void:
 	# What is actually drawn this frame (physics interpolation applied).
 	var rb := player._model.get_global_transform_interpolated().origin
 	var rc := player.camera.get_global_transform_interpolated().origin if player.camera else rb
-	_csv.store_line("%d,%s,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.2f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.2f,%.3f,%.3f,%.3f" % [
+	_csv.store_line("%d,%s,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.2f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.2f,%.3f,%.3f,%.3f,%s,%s" % [
 		frame, scn, player.global_position.x, player.global_position.y, player.global_position.z,
 		rs, player._move_speed, anim.shown_speed() if anim else 0.0, yaw, player._yaw_rate, loco, rate,
-		cp.x, cp.y, cp.z, 1 if player.is_on_floor() else 0, pms, rb.distance_to(rc), rb.x, rb.z])
+		cp.x, cp.y, cp.z, 1 if player.is_on_floor() else 0, pms, rb.distance_to(rc), rb.x, rb.z,
+		str(player.get("_loco_kind")), str(player.get("_turn_clip"))])
 	_label.text = "FEEL %s  f%d  t%.2fs | body %.2f m/s  anim %.2f  loco %.2f  rate %.2f | face %.0f°" % [
 		scn, frame - _scn_start, (frame - _scn_start) / FPS, rs, anim.shown_speed() if anim else 0.0, loco, rate, yaw]
 
@@ -324,6 +325,7 @@ func _run() -> void:
 	if want("25"): await _s25_pivot_wall()
 	if want("26"): await _s26_pivot_directions()
 	if want("27"): await _s27_actor_contact()
+	if want("28"): await _s28_wolf_pack_close()
 	log_line("DONE")
 	# quit() is deferred; stop the next frame from writing the closed CSV.
 	set_process(false)
@@ -334,6 +336,40 @@ func _run() -> void:
 	_index.close()
 	_csv.close()
 	get_tree().quit(1 if _capture_failed else 0)
+
+
+## Close wolf pack for the P2b clips: two wolves 6-7 m away, facing away from the player (so they must turn in place),
+## provoked, while the player holds still; then the player steps back to draw a lunge. Logs the wolf's clip every 6 frames.
+func _s28_wolf_pack_close() -> void:
+	var wild := await _find_flat(160.0, true)
+	await teleport(wild, 0.0, 30)
+	var fwd := Vector2(-sin(player._yaw), -cos(player._yaw))
+	var pack: Array = []
+	for i in 2:
+		var w := Wolf.new()
+		w.species = "wolf"
+		var at: Vector2 = wild + fwd * 7.0 + fwd.orthogonal() * (i * 2.0 - 1.0) * 1.6
+		w.home = at
+		w.territory = 200.0
+		main.world.add_child(w)
+		w.global_position = ground(at)
+		w.rotation.y = atan2(fwd.x, fwd.y) + (0.0 if i == 0 else PI * 0.5)    # one faces away from the player, one sideways
+		w._provoked = 20.0
+		pack.append(w)
+	player.health = player.max_health
+	player.set_camera(yaw_to((pack[0] as Node3D).global_position) + 1.1, -0.2)
+	begin("28_wolf_pack_close")
+	for i in 60:
+		await frames(6)
+		for w in pack:
+			if is_instance_valid(w) and w._anim:
+				var to_p: Vector3 = player.global_position - w.global_position
+				log_line("wolf%d clip=%s state=%d spin=%d lunge=%.2f d=%.2f yaw_err=%.0f busy=%.2f wind=%.2f" % [pack.find(w), w._anim.current_animation, w.state, w._spin_deg, w._lunge_t, w.global_position.distance_to(player.global_position), rad_to_deg(angle_difference(w.rotation.y, atan2(to_p.x, to_p.z))), w._busy, w._winding])
+		player.health = player.max_health
+	finish()
+	for w in pack:
+		if is_instance_valid(w):
+			w.queue_free()
 
 
 func _s27_actor_contact() -> void:

@@ -277,7 +277,10 @@ func _attack() -> void:
 				# Duel numbers: table damage multiplier, with squad unit scaling kept (damage / 8).
 				dmg = maxi(int(round(float(_cur_move.damage) * float(_stats.get("dmg", 1.0)) * float(damage) / BASE_DAMAGE)), 1)
 	_busy = busy
-	_animator.play_upper(["1H_Melee_Attack_Chop", "1H_Melee_Attack_Slice_Diagonal", "1H_Melee_Attack_Slice_Horizontal"][randi() % 3], 1.4 / maxf(hit_delay / 0.3, 0.5))
+	# P9: rate = clip contact time / hit_delay lands the blade on the damage frame; a soldier standing still gets the full-body clip.
+	var swing_clip := "Sword_Light_%d" % (1 + randi() % 3)
+	var clip_hit := CombatMarkers.time_s(swing_clip, "hit", 1.0)
+	_animator.play_attack(swing_clip, clampf((clip_hit if clip_hit > 0.0 else 0.3) / maxf(hit_delay, 0.1), 0.6, 1.6), _velocity.length() < 0.3)
 	var move := _cur_move
 	Telegraph.begin(self, move, move.reach if move != null else ATTACK_RANGE, hit_delay)
 	get_tree().create_timer(hit_delay).timeout.connect(func() -> void:

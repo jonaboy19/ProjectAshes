@@ -31,17 +31,18 @@ const DEFAULT_CLIPS := {"idle": "idle", "walk": "walk", "run": "run", "attack": 
 	"hit": "hit", "death": "death"}
 
 ## kind -> {path (no extension), scale or fit_height, walk, run, impact, clips overrides}
+## Speeds and impact beats re-measured on the Codex-delivered clips: docs/anim/creatures/*/TABLE.txt (2026-10-06).
 const MODELS := {
-	"wolf": {"path": MESHY + "wolf", "scale": 1.0, "walk": 0.85, "run": 2.6, "impact": 0.27},
-	"boar": {"path": MESHY + "boar", "scale": 1.0, "walk": 0.45, "run": 2.7, "impact": 0.21},
-	"bear": {"path": MESHY + "bear", "scale": 1.0, "walk": 1.35, "run": 4.0, "impact": 0.27},
-	"goblin": {"path": MESHY + "goblin", "scale": 1.0, "walk": 0.87, "run": 2.64, "impact": 0.55,
+	"wolf": {"path": MESHY + "wolf", "scale": 1.0, "walk": 1.07, "run": 4.95, "impact": 0.27, "lunge_impact": 0.57},
+	"boar": {"path": MESHY + "boar", "scale": 1.0, "walk": 0.455, "run": 1.95, "impact": 0.53},
+	"bear": {"path": MESHY + "bear", "scale": 1.0, "walk": 1.4, "run": 4.05, "impact": 0.70},
+	"goblin": {"path": MESHY + "goblin", "scale": 1.0, "walk": 0.90, "run": 2.96, "impact": 0.60,
 		"kneel": true},
-	"orc": {"path": MESHY + "orc", "scale": 1.0, "walk": 1.7, "run": 5.2, "impact": 1.11,
+	"orc": {"path": MESHY + "orc", "scale": 1.0, "walk": 1.7, "run": 5.84, "impact": 0.90,
 		"kneel": true},
-	"troll": {"path": MESHY + "troll", "scale": 1.0, "walk": 2.4, "run": 6.9, "impact": 1.57,
+	"troll": {"path": MESHY + "troll", "scale": 1.0, "walk": 2.5, "run": 8.22, "impact": 1.20, "slam_impact": 1.77,
 		"kneel": true},
-	"spider": {"path": MESHY + "spider", "scale": 1.0, "walk": 0.26, "run": 0.26, "impact": 0.5,
+	"spider": {"path": MESHY + "spider", "scale": 1.0, "walk": 0.40, "run": 0.40, "impact": 0.47,
 		"clips": {"run": "walk"}},
 	"wyvern": {"path": MESHY + "wyvern", "scale": 1.0, "walk": 0.89, "run": 0.89, "impact": 0.47,
 		"clips": {"run": "walk"}},
@@ -54,7 +55,7 @@ const MODELS := {
 	# Region 1 creatures (package C11, docs/regions/REGION_1_PLAN.md). Speeds and impact beats are first estimates from the
 	# clip lengths (Quaternius clips: assets/incoming/monsters/README.md; Stagborn: stagborn_README.md): Codex tunes them (X3/X4).
 	"ghoul": {"path": QUAT + "ghoul", "scale": 1.0, "walk": 0.7, "run": 2.4, "impact": 1.3},
-	"giant_wasp": {"path": QUAT + "giant_wasp", "scale": 1.0, "walk": 1.4, "run": 3.6, "impact": 0.4,
+	"giant_wasp": {"path": QUAT + "giant_wasp", "scale": 1.0, "walk": 1.4, "run": 3.6, "impact": 0.47,
 		"clips": {"walk": "idle", "run": "idle"}},
 	"bog_toad": {"path": QUAT + "bog_toad", "scale": 1.0, "walk": 0.5, "run": 1.6, "impact": 0.4,
 		"clips": {"run": "walk"}},
