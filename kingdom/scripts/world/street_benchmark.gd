@@ -199,8 +199,8 @@ static func build(b: Node, root: Node3D, s: Dictionary, plan: Dictionary, market
 				dec.modulate = Color(1, 1, 1, 0.0)        # emission only, keep the wall albedo
 				dec.cull_mask = TownDecals.WALL_LAYER
 				dec.distance_fade_enabled = true
-				dec.distance_fade_begin = 35.0
-				dec.distance_fade_length = 10.0
+				dec.distance_fade_begin = TownDecals.FADE_BEGIN
+				dec.distance_fade_length = TownDecals.FADE_LEN
 				batch.add_child(dec)
 				dec.top_level = true
 				dec.global_transform = Transform3D(TownDecals.wall_basis(out3), Vector3(wp.x, WorldGen.height(wp.x, wp.y) + 2.0, wp.y) + out3 * 0.6)
@@ -232,6 +232,8 @@ static func _add(lists: Dictionary, kind: String, p: Vector2, yaw: float, lift: 
 
 
 static func _decal(holder: Node3D, kind: String, at: Vector2, yaw: float, size: Vector3, tint := Color.WHITE) -> void:
+	if not TownDecals.claim_ground(holder.get_parent(), at.x, at.y):
+		return
 	var d := TownDecals.make(kind, size, TownDecals.GROUND_LAYER, tint)
 	holder.add_child(d)
 	d.global_transform = Transform3D(Basis(Vector3.UP, yaw), Vector3(at.x, WorldGen.height(at.x, at.y) + 0.3, at.y))

@@ -966,7 +966,7 @@ static func _decal_unit(j: Job) -> void:
 	else:
 		var at: Vector3 = d[1]
 		var ck := Vector2i(floori(at.x / 64.0), floori(at.z / 64.0))
-		if int(j.chunks.get(ck, 0)) >= MUD_PER_CHUNK:
+		if int(j.chunks.get(ck, 0)) >= MUD_PER_CHUNK or not TownDecals.claim_ground(j.root, at.x, at.z):
 			return
 		j.chunks[ck] = int(j.chunks.get(ck, 0)) + 1
 	var dec := TownDecals.make(String(d[0]), d[3], int(d[5]), d[4])

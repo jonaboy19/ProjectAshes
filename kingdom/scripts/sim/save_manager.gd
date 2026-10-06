@@ -144,9 +144,9 @@ func handle_lifecycle(what: int) -> String:
 	match what:
 		NOTIFICATION_APPLICATION_PAUSED:
 			_last_bg_ms = now
-			return autosave("background", false, true)
+			return autosave("background", false, true, true)
 		NOTIFICATION_WM_CLOSE_REQUEST:
-			return autosave("quit", false, true)
+			return autosave("quit", false, true, true)
 		NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_WINDOW_FOCUS_OUT:
 			# A pause usually follows focus loss within the same moment: don't write twice.
 			if _last_bg_ms >= 0 and now - _last_bg_ms < FOCUS_DEBOUNCE_MS:
@@ -331,8 +331,9 @@ func write_envelope(id: String, data: Dictionary, meta: Dictionary) -> bool:
 
 ## Autosaves into the oldest of the rotating slots. Returns the slot id, or ""
 ## when skipped (in combat, cutscene, too soon after the last one, no game).
-func autosave(reason := "auto", thumb := true, force := false) -> String:
-	if not autosave_enabled or not can_autosave():
+func autosave(reason := "auto", thumb := true, force := false, ignore_hostiles := false) -> String:
+	# ignore_hostiles: app pause/quit saves must not be vetoed by a nearby enemy (the OS may kill the app right after).
+	if not autosave_enabled or not can_autosave(ignore_hostiles):
 		return ""
 	var now := Time.get_ticks_msec()
 	if not force and (now < _quiet_until_ms
@@ -362,8 +363,8 @@ func next_auto_id() -> String:
 
 
 ## True when an autosave is safe: a game is running, no cutscene, no hostile
-## ("team1") alive within HOSTILE_RADIUS of the player.
-func can_autosave() -> bool:
+## ("team1") alive within HOSTILE_RADIUS of the player (unless ignore_hostiles, used by pause/quit saves).
+func can_autosave(ignore_hostiles := false) -> bool:
 	var p := _player()
 	if p == null or not is_inside_tree():
 		return false
@@ -373,6 +374,8 @@ func can_autosave() -> bool:
 	var hp: Variant = p.get("health")
 	if hp != null and float(hp) <= 0.0:
 		return false
+	if ignore_hostiles:
+		return true
 	for e in tree.get_nodes_in_group("team1"):
 		if e == p or not e is Node3D or not is_instance_valid(e):
 			continue

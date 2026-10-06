@@ -1850,7 +1850,6 @@ func _decals(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 			if is_instance_valid(holder):
 				holder.visible = q.tier != q.LOW)
 	var blocks := {}        # Vector2i (32 m block) -> true: one wall decal per block
-	var chunks := {}        # Vector2i (64 m terrain chunk) -> ground decals placed
 	var lots: Array = plan["lots"]
 	var order := range(lots.size())
 	for i in range(order.size() - 1, 0, -1):     # shuffle: which lot of a block gets the decal varies
@@ -1953,10 +1952,8 @@ func _decals(root: Node3D, s: Dictionary, plan: Dictionary) -> void:
 	var c: Vector2 = s["pos"]
 	var pr: float = plan["plaza_r"]
 	var put_ground := func(kind: String, at: Vector2, yaw: float, dsize: Vector3, tint := Color.WHITE) -> void:
-		var ck := Vector2i(floori(at.x / 64.0), floori(at.y / 64.0))
-		if int(chunks.get(ck, 0)) >= TownDecals.CHUNK_CAP:
+		if not TownDecals.claim_ground(root, at.x, at.y):
 			return
-		chunks[ck] = int(chunks.get(ck, 0)) + 1
 		var d := TownDecals.make(kind, dsize, TownDecals.GROUND_LAYER, tint)
 		holder.add_child(d)
 		d.global_transform = Transform3D(Basis(Vector3.UP, yaw), Vector3(at.x, WorldGen.height(at.x, at.y) + 0.3, at.y))
