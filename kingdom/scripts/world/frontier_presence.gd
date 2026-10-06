@@ -59,7 +59,7 @@ func _build_stone(s: Dictionary) -> void:
 			for g in m.find_children("*", "GeometryInstance3D", true, false):
 				var gi := g as GeometryInstance3D
 				gi.visibility_range_begin = 0.0 if i == 0 else 60.0
-				gi.visibility_range_end = 60.0 if i == 0 else 500.0
+				gi.visibility_range_end = 60.0 if i == 0 else (160.0 if Quality.tier <= 0 else 500.0)     # LOW draw budget (pass 14)
 			root.add_child(m)
 	else:
 		var model: Node3D = Assets.scene(RUNESTONE).instantiate()
