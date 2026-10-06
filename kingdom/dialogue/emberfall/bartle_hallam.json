@@ -1,0 +1,187 @@
+{
+ "id": "emberfall/bartle_hallam",
+ "start": "greet",
+ "nodes": {
+  "greet": {
+   "lines": [
+    {
+     "text": "{first} looks you up and down and says nothing at all.",
+     "if": {
+      "tier": "enemy"
+     },
+     "p": 5
+    },
+    {
+     "text": "\"You again. Say what you want and be quick about it.\"",
+     "if": {
+      "tier": "rival"
+     },
+     "p": 5
+    },
+    {
+     "text": "\"Sit anywhere that is not wet. The wet ones are the regulars.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Emberfall is glass kilns and the fallen star. Nobody thinks to say it, but it is true.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Evening. The light is best now for reading and worst for remembering.\"",
+     "if": {
+      "time": "evening",
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"{greeting}\" {first} nods.",
+     "if": {
+      "tier": "stranger"
+     },
+     "p": 1
+    },
+    {
+     "text": "\"Argh! Oh, it is you. Sorry. The kettle and I had words. Sit.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
+    },
+    {
+     "text": "\"Well met, {player}.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 3
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Heard any news?\"",
+     "goto": "rumour",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Gwen?\"",
+     "goto": "op_gwen_radcliffe",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "Offer a gift…",
+     "goto": "",
+     "if": {
+      "has": "has_gift_items"
+     },
+     "do": [
+      [
+       "gift"
+      ]
+     ]
+    },
+    {
+     "text": "\"Good day to you.\"",
+     "goto": "@end"
+    }
+   ]
+  },
+  "rumour": {
+   "lines": [
+    {
+     "text": "\"Scholars pay in ideas, mostly. I accept coin. I even accept the odd formula.\"",
+     "p": 2
+    },
+    {
+     "text": "\"Travellers say the stones are dimmer on the east road. I water the ale, not the news.\"",
+     "p": 2
+    },
+    {
+     "text": "\"The crystal in the kiln hums at night. We measured it. It matches no known note.\"",
+     "p": 2
+    },
+    {
+     "text": "\"Every few years Emberfall has a winter nobody forgets. The old folk say this one is early.\"",
+     "p": 2
+    },
+    {
+     "text": "\"{rumour}\"",
+     "if": {
+      "has": "rumour"
+     },
+     "p": 1
+    },
+    {
+     "text": "\"Nothing I would repeat.\"",
+     "p": 0
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Anything else?\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks for telling me.\"",
+     "goto": "greet",
+     "do": [
+      [
+       "opinion",
+       "chat",
+       "Pleasant talk",
+       2,
+       5
+      ]
+     ]
+    }
+   ]
+  },
+  "op_gwen_radcliffe": {
+   "lines": [
+    {
+     "text": "\"Gwen keeps a tidy yard and an untidy mouth.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  }
+ }
+}

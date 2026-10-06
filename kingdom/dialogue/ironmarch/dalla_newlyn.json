@@ -1,0 +1,210 @@
+{
+ "id": "ironmarch/dalla_newlyn",
+ "start": "greet",
+ "nodes": {
+  "greet": {
+   "lines": [
+    {
+     "text": "{first} looks you up and down and says nothing at all.",
+     "if": {
+      "tier": "enemy"
+     },
+     "p": 5
+    },
+    {
+     "text": "\"You again. Say what you want and be quick about it.\"",
+     "if": {
+      "tier": "rival"
+     },
+     "p": 5
+    },
+    {
+     "text": "\"You are somebody's grandchild. I can tell by the walk.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"You will hear Ironmarch before you see it. Ask at the Silverford Guild Hall.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Stalls closing. Last chance for bargains and bad decisions.\"",
+     "if": {
+      "time": "evening",
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"{greeting}\" {first} nods.",
+     "if": {
+      "tier": "stranger"
+     },
+     "p": 1
+    },
+    {
+     "text": "\"Knock on wood, friend. Now touch iron. There. Safe, for a while.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
+    },
+    {
+     "text": "\"Well met, {player}.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 3
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Heard any news?\"",
+     "goto": "rumour",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Larkin?\"",
+     "goto": "op_larkin_newlyn",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Odell?\"",
+     "goto": "op_odell_wetherby",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "Offer a gift…",
+     "goto": "",
+     "if": {
+      "has": "has_gift_items"
+     },
+     "do": [
+      [
+       "gift"
+      ]
+     ]
+    },
+    {
+     "text": "\"Good day to you.\"",
+     "goto": "@end"
+    }
+   ]
+  },
+  "rumour": {
+   "lines": [
+    {
+     "text": "\"When I was young the stones sang at dusk. Now they hum, like someone ill.\"",
+     "p": 2
+    },
+    {
+     "text": "\"A rival house is undercutting us. By a little. A deliberate little.\"",
+     "p": 2
+    },
+    {
+     "text": "\"When Ironmarch is quiet we say it is peaceful. When it is very quiet we say nothing.\"",
+     "p": 2
+    },
+    {
+     "text": "\"{rumour}\"",
+     "if": {
+      "has": "rumour"
+     },
+     "p": 1
+    },
+    {
+     "text": "\"Nothing I would repeat.\"",
+     "p": 0
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Anything else?\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks for telling me.\"",
+     "goto": "greet",
+     "do": [
+      [
+       "opinion",
+       "chat",
+       "Pleasant talk",
+       2,
+       5
+      ]
+     ]
+    }
+   ]
+  },
+  "op_larkin_newlyn": {
+   "lines": [
+    {
+     "text": "\"Larkin is blood. That settles most arguments and starts the rest.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_odell_wetherby": {
+   "lines": [
+    {
+     "text": "\"Odell keeps a tidy yard and an untidy mouth.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  }
+ }
+}

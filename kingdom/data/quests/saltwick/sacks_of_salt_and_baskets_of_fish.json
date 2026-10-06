@@ -1,0 +1,89 @@
+{
+ "id": "saltwick_sacks_of_salt_and_baskets_of_fish",
+ "title": "Sacks of Salt and Baskets of Fish",
+ "summary": "Two loads wait in Saltwick: sacks of salt for Wendel Rawlin and baskets of fish for Piers Quarry. Jory Wherry wants them moved before the tide turns.",
+ "giver": {
+  "npc": "jory_wherry",
+  "name": "Jory Wherry",
+  "place": "saltwick"
+ },
+ "offer_text": "\"Two things are late and both are mine to answer for. Wendel Rawlin waits on sacks of salt and Piers Quarry on baskets of fish. Fetch them in any order, before the tide turns.\"",
+ "turn_in_text": "\"Both in. I shall sleep tonight, which is rare.\"",
+ "stages": [
+  {
+   "id": "gather",
+   "title": "Gather both loads",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load1",
+     "type": "collect",
+     "item": "salt_sack",
+     "count": 2,
+     "text": "Take 2 sacks of salt from the salt pans"
+    },
+    {
+     "id": "load2",
+     "type": "collect",
+     "item": "fish",
+     "count": 3,
+     "text": "Take 3 baskets of fish from the second stack"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Deliver them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "to1",
+     "type": "deliver",
+     "item": "salt_sack",
+     "count": 2,
+     "to": "wendel_rawlin",
+     "text": "Hand the sacks of salt to Wendel Rawlin"
+    },
+    {
+     "id": "to2",
+     "type": "deliver",
+     "item": "fish",
+     "count": 3,
+     "to": "piers_quarry",
+     "text": "Hand the baskets of fish to Piers Quarry"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Jory",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "jory_wherry",
+     "text": "Tell Jory Wherry both are in"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 25,
+  "rep": {
+   "saltwick": 4
+  },
+  "relationship": [
+   {
+    "npc": "jory_wherry",
+    "label": "Cleared two late loads",
+    "value": 9,
+    "days": 60
+   }
+  ],
+  "items": {
+   "smoked_fish": 2
+  }
+ }
+}

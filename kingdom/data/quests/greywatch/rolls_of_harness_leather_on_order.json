@@ -1,0 +1,70 @@
+{
+ "id": "greywatch_rolls_of_harness_leather_on_order",
+ "title": "Rolls of Harness Leather on Order",
+ "summary": "Zeb Garrison says Greta Kemble has an order for 3 rolls of harness leather that cannot wait. The stock is at the spear hall yard, and the deadline is before the next muster.",
+ "giver": {
+  "npc": "zeb_garrison",
+  "name": "Zeb Garrison",
+  "place": "greywatch"
+ },
+ "offer_text": "\"Greta Kemble has an order and nobody to fetch it. Hear Greta out, then bring the goods from the spear hall yard before the next muster. I will vouch for you.\"",
+ "stages": [
+  {
+   "id": "order",
+   "title": "Hear the order",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hear",
+     "type": "talk_to",
+     "npc": "greta_kemble",
+     "text": "Hear what Greta Kemble needs"
+    }
+   ]
+  },
+  {
+   "id": "gather",
+   "title": "Gather the stock",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "leather",
+     "count": 3,
+     "text": "Take 3 rolls of harness leather from the spear hall yard"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Fill the order",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "fill",
+     "type": "deliver",
+     "item": "leather",
+     "count": 3,
+     "to": "greta_kemble",
+     "text": "Hand the rolls of harness leather to Greta Kemble"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 16,
+  "rep": {
+   "greywatch": 3
+  },
+  "relationship": [
+   {
+    "npc": "zeb_garrison",
+    "label": "Filled a standing order",
+    "value": 8,
+    "days": 45
+   }
+  ]
+ }
+}

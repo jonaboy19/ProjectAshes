@@ -1,0 +1,183 @@
+{
+ "id": "saltwick/bede_farrow",
+ "start": "greet",
+ "nodes": {
+  "greet": {
+   "lines": [
+    {
+     "text": "{first} looks you up and down and says nothing at all.",
+     "if": {
+      "tier": "enemy"
+     },
+     "p": 5
+    },
+    {
+     "text": "\"You again. Say what you want and be quick about it.\"",
+     "if": {
+      "tier": "rival"
+     },
+     "p": 5
+    },
+    {
+     "text": "\"Bring iron or bring coin. Preferably iron.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Saltwick is salt pans and fisheries. Nobody thinks to say it, but it is true.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Night tide. Quiet water, loud thoughts.\"",
+     "if": {
+      "time": "night",
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"{greeting}\" {first} nods.",
+     "if": {
+      "tier": "stranger"
+     },
+     "p": 1
+    },
+    {
+     "text": "\"Look what the wind dragged in. Sit. Do not touch the pie.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
+    },
+    {
+     "text": "\"Well met, {player}.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 3
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Heard any news?\"",
+     "goto": "rumour",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Garth?\"",
+     "goto": "op_garth_carver",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "Offer a gift…",
+     "goto": "",
+     "if": {
+      "has": "has_gift_items"
+     },
+     "do": [
+      [
+       "gift"
+      ]
+     ]
+    },
+    {
+     "text": "\"Good day to you.\"",
+     "goto": "@end"
+    }
+   ]
+  },
+  "rumour": {
+   "lines": [
+    {
+     "text": "\"Hooks, gaffs and anchors. If it holds a boat, I forged it.\"",
+     "p": 2
+    },
+    {
+     "text": "\"Plough blades sell slow and spear heads sell fast. I do not like what that says.\"",
+     "p": 2
+    },
+    {
+     "text": "\"A boy swore he saw a ship at the mouth of the bay with no mast and no crew. The tide took it.\"",
+     "p": 2
+    },
+    {
+     "text": "\"{rumour}\"",
+     "if": {
+      "has": "rumour"
+     },
+     "p": 1
+    },
+    {
+     "text": "\"Nothing I would repeat.\"",
+     "p": 0
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Anything else?\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks for telling me.\"",
+     "goto": "greet",
+     "do": [
+      [
+       "opinion",
+       "chat",
+       "Pleasant talk",
+       2,
+       5
+      ]
+     ]
+    }
+   ]
+  },
+  "op_garth_carver": {
+   "lines": [
+    {
+     "text": "\"Garth undercuts me. I forgive Garth. Mostly.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  }
+ }
+}

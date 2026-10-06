@@ -1,0 +1,144 @@
+{
+ "id": "saltwick_a_cart_at_night",
+ "title": "A Cart at Night",
+ "summary": "Goods are passing Saltwick at night without a count. Vera Fletcher knows, and Tabby Yardley can show where it goes.",
+ "giver": {
+  "npc": "vera_fletcher",
+  "name": "Vera Fletcher",
+  "place": "saltwick"
+ },
+ "requires": [
+  "saltwick_sacks_of_salt_and_baskets_of_fish"
+ ],
+ "offer_text": "\"Goods come through at night and nobody counts them. Tabby Yardley says Tabby can point at the road. See what is left on it, then decide what it is worth.\"",
+ "stages": [
+  {
+   "id": "tip",
+   "title": "Hear the tip",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "tip",
+     "type": "talk_to",
+     "npc": "tabby_yardley",
+     "text": "Hear what Tabby Yardley has to sell"
+    }
+   ]
+  },
+  {
+   "id": "watch",
+   "title": "Watch the edge",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "edge",
+     "type": "goto",
+     "place": "saltwick_outskirts",
+     "text": "Go to the edge of Saltwick where the carts do not stop"
+    }
+   ]
+  },
+  {
+   "id": "find",
+   "title": "Find what was left",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "saltwick/clue/o1",
+      "saltwick/clue/o2",
+      "saltwick/clue/c3"
+     ],
+     "count": 2,
+     "text": "Find two signs of what passed through"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide what it is worth",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "vera_fletcher",
+     "options": [
+      {
+       "id": "turn_in",
+       "text": "Tell Vera what you found",
+       "say": "Vera writes it down. \"This will matter.\""
+      },
+      {
+       "id": "cut",
+       "text": "Take Tabby's cut and forget the road",
+       "say": "Tabby pays you without counting. \"Obliged.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "turn_in": "filed",
+    "cut": "cut"
+   }
+  },
+  {
+   "id": "filed",
+   "title": "Vera has it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "filed",
+     "type": "talk_to",
+     "npc": "vera_fletcher",
+     "text": "Tell Vera Fletcher who is behind it"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 32,
+    "rep": {
+     "saltwick": 6
+    },
+    "relationship": [
+     {
+      "npc": "vera_fletcher",
+      "label": "Reported the contraband",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "cut",
+   "title": "Take your share",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "share",
+     "type": "talk_to",
+     "npc": "tabby_yardley",
+     "text": "Collect your share from Tabby Yardley"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 56,
+    "rep": {
+     "saltwick": -7
+    },
+    "relationship": [
+     {
+      "npc": "vera_fletcher",
+      "label": "Heard you took a cut",
+      "value": -14,
+      "days": 90
+     }
+    ]
+   }
+  }
+ ]
+}

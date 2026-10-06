@@ -35,3 +35,25 @@ func test_fishing_stock_def() -> void:
 	var def: Dictionary = Fishing.dep_def()
 	assert_str(String(def["kind"])).is_equal("fish")
 	assert_int(int(def["cap"])).is_greater(0)
+
+
+func test_plunge_pool_is_a_rare_fish_spot() -> void:
+	# Hollin Falls (Region 1 look pass): no perch, the emberfin rise at any hour, other waters are unchanged.
+	var w: Dictionary = Gathering.fish_weights(9.0, true, "plunge")
+	assert_float(float(w["perch"])).is_equal(0.0)
+	assert_float(float(w["emberfin"])).is_greater(20.0)
+	assert_float(float(Gathering.fish_weights(9.0, true)["emberfin"])).is_equal(0.0)     # a river at 9:00 has none
+	var seen := {}
+	for i in 100:
+		seen[Gathering.roll_fish(i / 100.0, 9.0, true, "plunge")] = true
+	assert_bool(seen.has("emberfin")).is_true()
+	assert_bool(seen.has("perch")).is_false()
+	assert_str(Gathering.roll_fish(0.0, 9.0, true)).is_equal("perch")
+	# The spot data lives in the landmark file and names a known pool.
+	var lm: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/region1/landmarks.json"))
+	var found := false
+	for l: Dictionary in lm["landmarks"]:
+		for f: Dictionary in l.get("fishing", []):
+			found = true
+			assert_bool(Gathering.POOLS.has(String(f["pool"]))).is_true()
+	assert_bool(found).is_true()

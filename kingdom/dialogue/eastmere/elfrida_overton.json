@@ -1,0 +1,183 @@
+{
+ "id": "eastmere/elfrida_overton",
+ "start": "greet",
+ "nodes": {
+  "greet": {
+   "lines": [
+    {
+     "text": "{first} looks you up and down and says nothing at all.",
+     "if": {
+      "tier": "enemy"
+     },
+     "p": 5
+    },
+    {
+     "text": "\"You again. Say what you want and be quick about it.\"",
+     "if": {
+      "tier": "rival"
+     },
+     "p": 5
+    },
+    {
+     "text": "\"Come closer. My ears are old and your voice is young.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Folk come to Eastmere for dairy and cheese. Some stay for the quiet.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Morning. The flock is out and the dogs are bored.\"",
+     "if": {
+      "time": "morning",
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"{greeting}\" {first} nods.",
+     "if": {
+      "tier": "stranger"
+     },
+     "p": 1
+    },
+    {
+     "text": "\"Walk with me? I cannot stay still, and you are good company on the move.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
+    },
+    {
+     "text": "\"Well met, {player}.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 3
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Heard any news?\"",
+     "goto": "rumour",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Maeve?\"",
+     "goto": "op_maeve_netherby",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "Offer a gift…",
+     "goto": "",
+     "if": {
+      "has": "has_gift_items"
+     },
+     "do": [
+      [
+       "gift"
+      ]
+     ]
+    },
+    {
+     "text": "\"Good day to you.\"",
+     "goto": "@end"
+    }
+   ]
+  },
+  "rumour": {
+   "lines": [
+    {
+     "text": "\"I remember the Long Dark. Nobody asks. Nobody wants the answer.\"",
+     "p": 2
+    },
+    {
+     "text": "\"A line of cairns appeared on the ridge. We did not build them.\"",
+     "p": 2
+    },
+    {
+     "text": "\"Eastmere butter keeps three weeks in a cold cellar, four if a warden blesses it.\"",
+     "p": 2
+    },
+    {
+     "text": "\"{rumour}\"",
+     "if": {
+      "has": "rumour"
+     },
+     "p": 1
+    },
+    {
+     "text": "\"Nothing I would repeat.\"",
+     "p": 0
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Anything else?\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks for telling me.\"",
+     "goto": "greet",
+     "do": [
+      [
+       "opinion",
+       "chat",
+       "Pleasant talk",
+       2,
+       5
+      ]
+     ]
+    }
+   ]
+  },
+  "op_maeve_netherby": {
+   "lines": [
+    {
+     "text": "\"Maeve lives next door and hears everything I do.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,210 @@
+{
+ "id": "coldharbor/blythe_selby",
+ "start": "greet",
+ "nodes": {
+  "greet": {
+   "lines": [
+    {
+     "text": "{first} looks you up and down and says nothing at all.",
+     "if": {
+      "tier": "enemy"
+     },
+     "p": 5
+    },
+    {
+     "text": "\"You again. Say what you want and be quick about it.\"",
+     "if": {
+      "tier": "rival"
+     },
+     "p": 5
+    },
+    {
+     "text": "\"If it floats, I built it. If it sank, somebody else did.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Folk come to Coldharbor for boatwrights. Some stay for the quiet.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Boats are in. The catch is salted. Supper is fish.\"",
+     "if": {
+      "time": "evening",
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"{greeting}\" {first} nods.",
+     "if": {
+      "tier": "stranger"
+     },
+     "p": 1
+    },
+    {
+     "text": "\"I do not say this often. It is good to see a face I do not need to avoid.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
+    },
+    {
+     "text": "\"Well met, {player}.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 3
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Heard any news?\"",
+     "goto": "rumour",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Bede?\"",
+     "goto": "op_bede_tilley",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Osric?\"",
+     "goto": "op_osric_wicker",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "Offer a gift…",
+     "goto": "",
+     "if": {
+      "has": "has_gift_items"
+     },
+     "do": [
+      [
+       "gift"
+      ]
+     ]
+    },
+    {
+     "text": "\"Good day to you.\"",
+     "goto": "@end"
+    }
+   ]
+  },
+  "rumour": {
+   "lines": [
+    {
+     "text": "\"Someone ordered a boat with a shallow draft and no name. I built it for coin.\"",
+     "p": 2
+    },
+    {
+     "text": "\"The shoals went deep a month early. The old fishers say the cold comes from below.\"",
+     "p": 2
+    },
+    {
+     "text": "\"Ask in Coldharbor who built the Coldharbor Slip and you will get a different name each time.\"",
+     "p": 2
+    },
+    {
+     "text": "\"{rumour}\"",
+     "if": {
+      "has": "rumour"
+     },
+     "p": 1
+    },
+    {
+     "text": "\"Nothing I would repeat.\"",
+     "p": 0
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Anything else?\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks for telling me.\"",
+     "goto": "greet",
+     "do": [
+      [
+       "opinion",
+       "chat",
+       "Pleasant talk",
+       2,
+       5
+      ]
+     ]
+    }
+   ]
+  },
+  "op_bede_tilley": {
+   "lines": [
+    {
+     "text": "\"Bede works hard and talks harder.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_osric_wicker": {
+   "lines": [
+    {
+     "text": "\"Osric keeps a tidy yard and an untidy mouth.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  }
+ }
+}

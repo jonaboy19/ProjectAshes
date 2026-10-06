@@ -1,0 +1,87 @@
+{
+ "id": "duskwater_a_smell_for_the_bog_toads",
+ "title": "A Smell for the Bog Toads",
+ "summary": "Larkin Cooper wants the bog toads drawn out of the reed edge with bait and put down at the edge of Duskwater.",
+ "giver": {
+  "npc": "larkin_cooper",
+  "name": "Larkin Cooper",
+  "place": "duskwater"
+ },
+ "requires": [
+  "duskwater_what_piers_saw"
+ ],
+ "offer_text": "\"They will not come to a trap but they will come to a smell. Take baskets of fish, set it at the reed edge, and see what turns up.\"",
+ "turn_in_text": "\"Cunning. I should have thought of it myself.\"",
+ "stages": [
+  {
+   "id": "lure",
+   "title": "Get the bait",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "bait",
+     "type": "collect",
+     "item": "fish",
+     "count": 3,
+     "text": "Take 3 baskets of fish"
+    }
+   ]
+  },
+  {
+   "id": "edge",
+   "title": "Set it out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "duskwater_outskirts",
+     "text": "Go to the reed edge and set the bait"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Wait for them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "bog_toad",
+     "place": "duskwater_outskirts",
+     "count": 2,
+     "text": "Kill 2 bog toads that come for it"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Larkin",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "larkin_cooper",
+     "text": "Tell Larkin Cooper it worked"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 26,
+  "rep": {
+   "duskwater": 5
+  },
+  "relationship": [
+   {
+    "npc": "larkin_cooper",
+    "label": "Baited and dealt with the bog toads",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

@@ -24,6 +24,7 @@ const COACH_M_PER_HOUR := 1575.0
 const COACH_BOARDING_H := 0.5
 const FARE_BASE := 4
 const FARE_PER_200M := 1
+const BOARD_KINDS := ["waystation", "ferry"]   ## site kinds a ride may start from (a ferry landing is a coach stop over water)
 const WAYSTATION_REACH := 90.0    ## metres from a waystation site's centre that count as "at" it (its yard is ~22 m wide)
 
 const CAMP_FROM_HOUR := 17        ## camping opens at dusk ...
@@ -84,7 +85,7 @@ static func waystation_at(pos: Vector2, sites: Array) -> Dictionary:
 	var best := {}
 	var best_d := WAYSTATION_REACH
 	for s: Dictionary in sites:
-		if String(s.get("kind", "")) != "waystation":
+		if not (String(s.get("kind", "")) in BOARD_KINDS):
 			continue
 		var d := pos.distance_to(s["pos"])
 		if d < best_d:

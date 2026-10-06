@@ -1,0 +1,76 @@
+{
+ "id": "skarholm_ghouls_at_the_old_workings",
+ "title": "Ghouls at the Old Workings",
+ "summary": "Ghoul sign has been found at the edge of Skarholm: scratches in the spoil and frost where no frost should be. Kit Seam wants 2 of them dealt with.",
+ "giver": {
+  "npc": "kit_seam",
+  "name": "Kit Seam",
+  "place": "skarholm"
+ },
+ "requires": [
+  "skarholm_skimmed_from_the_pile"
+ ],
+ "offer_text": "\"The ghouls have come closer to Skarholm each night: knocking from where nothing lives. Go to the edge and thin them out, before someone is hurt.\"",
+ "turn_in_text": "\"Quieter already. I will sleep tonight. A little.\"",
+ "stages": [
+  {
+   "id": "edge",
+   "title": "Go to the edge of town",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "skarholm_outskirts",
+     "text": "Go to where the ghouls were seen"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Thin them out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "ghoul",
+     "place": "skarholm_outskirts",
+     "count": 2,
+     "text": "Kill 2 ghouls near Skarholm"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Kit",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "kit_seam",
+     "text": "Tell Kit Seam it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 25,
+  "rep": {
+   "skarholm": 5
+  },
+  "relationship": [
+   {
+    "npc": "kit_seam",
+    "label": "Kept the ghouls from the edge",
+    "value": 10,
+    "days": 60
+   }
+  ],
+  "items": {
+   "ale": 1
+  }
+ }
+}

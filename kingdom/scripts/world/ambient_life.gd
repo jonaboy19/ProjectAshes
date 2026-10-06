@@ -102,7 +102,7 @@ func _ready() -> void:
 			var a := TAU * i / 4.0 + 0.4
 			var p := lc + Vector2(cos(a), sin(a)) * (WorldGen.lake_radius + 4.0)
 			_group(p, [["duck", rng.randi_range(3, 5)], ["goose", rng.randi_range(0, 2)]], 6.0)
-	preload("res://scripts/world/thornfield/livestock.gd").add_groups(self)   # F8: Thornfield's pigs, hens, sheep, cows and yard dog
+	preload("res://scripts/world/town_kit/town_livestock.gd").add_groups(self)   # town kit: every kit town's livestock groups (Thornfield: pigs, hens, sheep, cows, yard dog)
 
 
 ## Meshy free pack farm animals stand in for part of the herd and the flock: every other cow wears one of three coats, every other

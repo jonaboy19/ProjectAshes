@@ -1,0 +1,144 @@
+{
+ "id": "ironmarch_off_the_books",
+ "title": "Off the Books",
+ "summary": "Goods are passing Ironmarch at night without a count. Dolan Trevor knows, and Rosamund Heron can show where it goes.",
+ "giver": {
+  "npc": "dolan_trevor",
+  "name": "Dolan Trevor",
+  "place": "ironmarch"
+ },
+ "requires": [
+  "ironmarch_bolts_of_sample_cloth_and_sacks_of_salt"
+ ],
+ "offer_text": "\"Goods come through at night and nobody counts them. Rosamund Heron says Rosamund can point at the road. See what is left on it, then decide what it is worth.\"",
+ "stages": [
+  {
+   "id": "tip",
+   "title": "Hear the tip",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "tip",
+     "type": "talk_to",
+     "npc": "rosamund_heron",
+     "text": "Hear what Rosamund Heron has to sell"
+    }
+   ]
+  },
+  {
+   "id": "watch",
+   "title": "Watch the edge",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "edge",
+     "type": "goto",
+     "place": "ironmarch_outskirts",
+     "text": "Go to the edge of Ironmarch where the carts do not stop"
+    }
+   ]
+  },
+  {
+   "id": "find",
+   "title": "Find what was left",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "ironmarch/clue/o1",
+      "ironmarch/clue/o2",
+      "ironmarch/clue/c3"
+     ],
+     "count": 2,
+     "text": "Find two signs of what passed through"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide what it is worth",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "dolan_trevor",
+     "options": [
+      {
+       "id": "turn_in",
+       "text": "Tell Dolan what you found",
+       "say": "Dolan writes it down. \"This will matter.\""
+      },
+      {
+       "id": "cut",
+       "text": "Take Rosamund's cut and forget the road",
+       "say": "Rosamund pays you without counting. \"Obliged.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "turn_in": "filed",
+    "cut": "cut"
+   }
+  },
+  {
+   "id": "filed",
+   "title": "Dolan has it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "filed",
+     "type": "talk_to",
+     "npc": "dolan_trevor",
+     "text": "Tell Dolan Trevor who is behind it"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 34,
+    "rep": {
+     "ironmarch": 6
+    },
+    "relationship": [
+     {
+      "npc": "dolan_trevor",
+      "label": "Reported the contraband",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "cut",
+   "title": "Take your share",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "share",
+     "type": "talk_to",
+     "npc": "rosamund_heron",
+     "text": "Collect your share from Rosamund Heron"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 58,
+    "rep": {
+     "ironmarch": -7
+    },
+    "relationship": [
+     {
+      "npc": "dolan_trevor",
+      "label": "Heard you took a cut",
+      "value": -14,
+      "days": 90
+     }
+    ]
+   }
+  }
+ ]
+}

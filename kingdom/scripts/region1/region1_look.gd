@@ -12,6 +12,7 @@ extends Node3D
 
 const Landmarks := preload("res://scripts/region1/region1_landmarks.gd")
 const Horizon := preload("res://scripts/region1/region1_horizon.gd")
+const FishingSpot := preload("res://scripts/world/fishing_spot.gd")   # landmark "fishing" entries (the Hollin Falls pool)
 const LampGlow := preload("res://scripts/world/lamp_glow.gd")   # lamp glow batch + LampNode (omni light only on HIGH+)
 const FREE := "res://assets/incoming/meshy_free/"
 const R1 := "res://assets/incoming/region1/"
@@ -86,6 +87,7 @@ func update_now() -> void:
 			_build_parts(root, lm, false)
 			_build_scatter(root, lm)
 			_build_lights(root, lm)
+			_build_fishing(root, lm)
 			_near[id] = root
 		elif d > reach + (NEAR_FREE - NEAR) and _near.has(id):
 			var n: Node3D = _near[id]
@@ -415,6 +417,25 @@ func _build_lights(root: Node3D, lm: Dictionary) -> void:
 		specs.append({"pos": Vector3(w.x, base + float(l.get("y", 2.5)), w.y), "color": Color(String(l.get("color", "ffb35c"))),
 			"range": float(l.get("range", 9.0))})
 	LampGlow.build(root, specs)
+
+
+## Fishing spots a landmark lists: {at: [x, z] (where you stand), cast: [x, z], pool: Gathering.POOLS key, name}. Streamed
+## with the landmark's near parts, so no node exists while the player is away (the fish stock is saved by position).
+func _build_fishing(root: Node3D, lm: Dictionary) -> void:
+	for f: Dictionary in lm.get("fishing", []):
+		var at := _v2(f["at"])
+		var cast := _v2(f["cast"])
+		var level := WorldGen.water_level_at(cast.x, cast.y)
+		if is_nan(level):
+			level = WorldGen.height(cast.x, cast.y) + 0.3      # the plunge pool disc sits on the foot of the falls
+		var s: Node3D = FishingSpot.new()
+		s.set("water_point", Vector3(cast.x, level, cast.y))
+		s.set("river", true)
+		s.set("pool", String(f.get("pool", "")))
+		s.set("water_name", String(f.get("name", "Fishing")))
+		s.name = "FishingSpot"
+		root.add_child(s, true)
+		s.global_position = Vector3(at.x, WorldGen.height(at.x, at.y), at.y)
 
 
 # --- Cliff kits -------------------------------------------------------------------

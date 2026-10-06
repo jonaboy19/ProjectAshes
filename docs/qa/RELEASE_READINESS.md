@@ -82,3 +82,42 @@ Until then the debug APK stays the owner/closed-test channel.
 1. LOW draw calls/triangles (153 placed Meshy models, town ranges) and memory 3.2 GB.
 2. Sustained heat: severe even at 30 fps + 75 %.
 3. Play needs AAB + asset packs (above).
+
+
+## Perf pass (2026-10-06, local perf agent, worktree PA_wt_perf)
+Repeatable route: `tools_qa/perf/town_route.gd` (Ashford plaza -> Kingsreach gate/market -> 3 Meshy sites, jogging, ROUTE lines + `--census`),
+`tools_qa/perf/ablate.gd` (median ablation), phone driver `tools/qa/phone/route.sh` (needs a QA APK with
+`command_line/extra_args="-- --adult --qa=res://tools_qa/perf/town_route.gd"`; tier/seconds via `user://qa_args.txt`). Use
+`C:/Users/Jonna/platform-tools/adb.exe` only: the Touch Portal adb restarts the shared server and kills logcat.
+
+### Real costs found
+- **CPU, not GPU.** PC Mobile LOW: GPU 2-4 ms, frame 13-16 ms. S22: GPU 20-28 ms, frame 60-220 ms. Perfetto: main thread (VkThread) 82 % busy on the prime core.
+- Kingsreach is the worst place: PopulationLOD refresh sorted ~1-2k residents 4x/s (~20 ms PC per call); physics at 60 Hz ran twice per 30 fps frame.
+- Draws: a long tail of per-cell town MultiMeshes (Kingsreach ~106-141 surfaces) + 70-110 shadow-pass surfaces at 40 m.
+- Memory: PSS 2.6-4.0 GB = GL 0.6-0.9 GB + ~1.9 GB native heap that Android swapped (SwapPss); Godot static only ~0.55 GB. kswapd burns ~18 % of a core (heat). Grows as towns load (no unload of Assets caches). Not fixed.
+- AAA lighting checked: lantern glow is one MultiMesh, OmniLights only HIGH+, glow/SSAO off on LOW: cheap.
+
+### Fixes (pushed)
+LOW shadow 24 m / 1024, MED 1 split 50 m, no shadows from static props < 3 m (LOW) / 1.5 m (MED); LOW towns 200 m, mid props 60 m;
+adaptive people_near radius (capital refresh 1.34 -> 0.34 ms/frame PC); LOW near-villager cap 8; **LOW physics 30 Hz** (Kingsreach median 14.5 -> 8-10 ms PC).
+
+### Results
+| | before | after |
+|---|---|---|
+| PC LOW route (uncapped) | 49.9 fps, p95 46.6 ms, draws avg 363 / max 520, tris avg 518k / max 806k | 73.3 fps, p95 25.1 ms, draws avg 308 / max 405, tris avg 430k / max 633k |
+| S22 LOW route | 13.0 fps, Kingsreach 7.7-8.3 fps | 13.5 fps (pass-1 build), Kingsreach 5-7 fps (hot, thermal 2-3) |
+| S22 PSS | 3.86 GB | 3.96 GB |
+| S22 heat | status 2 after ~4 min | status 3 after ~6 min |
+MEDIUM and the 15-min LOW / 5-min MED runs were NOT done: the phone dropped off adb at the end of the session.
+Saves backed up before testing: `C:/Users/Jonna/Documents/RisingAshes_phone_save_backup_2026-10-05/saves.tar` (restore with
+`adb exec-in run-as com.risingashes.game tar xf -`). **The phone has the QA APK installed (it auto-runs the route): reinstall a normal build.**
+
+### Verdict: NO-GO, unchanged. Next: memory (stop keeping every PackedScene + merged copy in Assets caches, unload far towns),
+town draw merging per district on LOW, and a phone CPU ablation (`route.sh ... "--ablate"`) to find why the S22 is ~9x the PC.
+
+### Perf pass 3 (2026-10-06, PC only: the S22 was off adb the whole pass)
+- Phones no longer preload every region scene at boot (RegionDressing); sites load their files when first built.
+- `Assets.static_model` drops the source PackedScene once its merged mesh exists (meshes were kept twice).
+- PC LOW route: resources 5169 -> 4307, mesh buffers 276 -> 235 MB, VRAM 1299 -> 1224 MB. Draws unchanged (308 avg); bigger LOW
+  town cells (LOW_CELL_MUL 2.5) did not cut draws and were reverted.
+- Still to do on the phone: reinstall a normal build, restore saves, measure PSS/fps, then the 15-min LOW / 5-min MED runs.

@@ -16,7 +16,7 @@ const Schedule := preload("res://scripts/population/schedule.gd")
 const TownMood := preload("res://scripts/population/town_mood.gd")
 const TownIdentity := preload("res://scripts/world/town_identity.gd")   # guard density per town
 const NeedRules := preload("res://scripts/sim/npc_need_rules.gd")
-const ThornfieldRoster := preload("res://scripts/world/thornfield/roster.gd")   # F8: named residents of the slice town
+const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")   # town kit: the named residents of every town with a data/region1/towns file
 
 const SEED := 1066
 const JOBS := ["Farmer", "Blacksmith", "Merchant", "Guard", "Laborer", "Woodcutter"]
@@ -99,7 +99,7 @@ func _ready() -> void:
 ## Back to the first morning of a new game: the whole population re-rolled from SEED, the clock and
 ## the calendar reset. (Life.reset calls this; the world scene is rebuilt afterwards.)
 func reset() -> void:
-	ThornfieldRoster.clear()      # F8: the named residents are bound to rows again after the new population exists
+	TownRoster.clear()      # F8: the named residents are bound to rows again after the new population exists
 	time_of_day = 8.0
 	day = 1
 	home = PackedInt32Array()
@@ -170,7 +170,7 @@ func kill_person(i: int, at := Vector2.INF) -> int:
 		money[heir] += money[i]
 		money[i] = 0
 	_mark_dead(i)
-	ThornfieldRoster.on_died(i)       # F8: the quest bus hears `died {actor}`
+	TownRoster.on_died(i)       # F8: the quest bus hears `died {actor}`
 	if at != Vector2.INF:
 		pos[i] = at
 		target[i] = at
@@ -189,7 +189,7 @@ func _mark_dead(i: int) -> void:
 
 
 func person_name(i: int) -> String:
-	var named := ThornfieldRoster.name_of(i)     # F8: a bound resident of Thornfield has a real name
+	var named := TownRoster.name_of(i)     # F8: a bound resident of Thornfield has a real name
 	if named != "":
 		return named
 	var h := hash(i * 7919 + SEED)
@@ -205,7 +205,7 @@ func is_indoors(i: int) -> bool:
 	# they've arrived (was 2 in 3), so fewer bodies are idling on the street at
 	# a given moment without changing where anyone actually is.
 	if phase[i] == 1 and (job[i] == 1 or job[i] == 2):
-		return i % 4 != 0 and pos[i].distance_squared_to(target[i]) < 1.0
+		return i % 4 != 0 and pos[i].distance_squared_to(target[i]) < 1.0 and not TownRoster.outdoor_work(i)
 	return false
 
 
@@ -300,7 +300,7 @@ func _populate() -> void:
 	_mood_flags = PackedInt32Array()
 	_mood_flags.resize(WorldGen.settlements.size())
 	_mood_flags.fill(0)
-	ThornfieldRoster.bind(true)      # F8: Thornfield's named residents take their rows (names, jobs, doors, schedules)
+	TownRoster.bind_all(true)      # town kit: the named residents of every kit town take their rows (names, jobs, doors, schedules)
 
 
 func _pick_job(rng: RandomNumberGenerator, kind: String) -> int:
@@ -439,7 +439,7 @@ func _current_phase(person_job: int, i := -1) -> int:
 	var flags := 0
 	if i >= 0 and i < home.size() and home[i] < _mood_flags.size():
 		flags = _mood_flags[home[i]]
-	return ThornfieldRoster.override_phase(i, time_of_day, Schedule.phase(person_job, time_of_day, flags, i, day))
+	return TownRoster.override_phase(i, time_of_day, Schedule.phase(person_job, time_of_day, flags, i, day))
 
 
 ## One settlement's circumstance mask per call (rest day, festival, war, shortages, mourning, curfew ...).
@@ -469,7 +469,7 @@ func _phase_at(person_job: int, h: float, i := -1) -> int:
 	var flags := 0
 	if i >= 0 and i < home.size() and home[i] < _mood_flags.size():
 		flags = _mood_flags[home[i]]
-	return ThornfieldRoster.override_phase(i, h, Schedule.phase(person_job, h, flags, i, day))
+	return TownRoster.override_phase(i, h, Schedule.phase(person_job, h, flags, i, day))
 
 
 ## Distant need state advances only when the resident's existing WorldSim row is
@@ -629,7 +629,7 @@ func release_activity_target(i: int) -> void:
 
 ## Deterministic point of interest for a person and phase.
 func _spot(s: Dictionary, which: int, i: int) -> Vector2:
-	var named_spot := ThornfieldRoster.spot(i, which)      # F8: a named resident's own door
+	var named_spot := TownRoster.spot(i, which)      # F8: a named resident's own door
 	if named_spot != Vector2.INF:
 		if which == 0 and smart != null:
 			smart.release(i)

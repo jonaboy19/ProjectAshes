@@ -1,0 +1,131 @@
+{
+ "id": "amberley_godric_will_not_say_it_loud",
+ "title": "Godric Will Not Say It Loud",
+ "summary": "Something went wrong at night in Amberley, and Gwen Thorpe says Godric Woolcott saw it. Gwen Thorpe wants it checked before names are said.",
+ "giver": {
+  "npc": "gwen_thorpe",
+  "name": "Gwen Thorpe",
+  "place": "amberley"
+ },
+ "requires": [
+  "amberley_split_logs_on_order"
+ ],
+ "offer_text": "\"Somebody was in my place after dark. Godric Woolcott saw something and will not say it loud. Hear Godric, then see if the story holds.\"",
+ "stages": [
+  {
+   "id": "ask",
+   "title": "Hear Godric out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hear",
+     "type": "talk_to",
+     "npc": "godric_woolcott",
+     "text": "Ask Godric Woolcott what they saw"
+    }
+   ]
+  },
+  {
+   "id": "look",
+   "title": "Check the story",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "amberley/clue/c1",
+      "amberley/clue/c2",
+      "amberley/clue/c3"
+     ],
+     "count": 2,
+     "text": "Find two signs that match what Godric said"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Say what you will do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "gwen_thorpe",
+     "options": [
+      {
+       "id": "name",
+       "text": "Name Wendel to Gwen",
+       "say": "Gwen goes quiet. \"I will deal with it. Openly.\""
+      },
+      {
+       "id": "warn",
+       "text": "Warn Wendel quietly and leave it",
+       "say": "Wendel will owe you. You can see it in the shoulders."
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "name": "named",
+    "warn": "warned"
+   }
+  },
+  {
+   "id": "named",
+   "title": "Gwen hears it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "gwen_thorpe",
+     "text": "Tell Gwen Thorpe it is settled"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 18,
+    "rep": {
+     "amberley": 5
+    },
+    "relationship": [
+     {
+      "npc": "gwen_thorpe",
+      "label": "Named the culprit",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "warned",
+   "title": "Let Wendel know",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "warned",
+     "type": "talk_to",
+     "npc": "wendel_kemble",
+     "text": "Tell Wendel Kemble you kept it quiet"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 25,
+    "rep": {
+     "amberley": -2
+    },
+    "relationship": [
+     {
+      "npc": "wendel_kemble",
+      "label": "Kept quiet about it",
+      "value": 15,
+      "days": 120
+     }
+    ]
+   }
+  }
+ ]
+}

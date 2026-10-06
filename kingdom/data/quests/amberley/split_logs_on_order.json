@@ -1,0 +1,73 @@
+{
+ "id": "amberley_split_logs_on_order",
+ "title": "Split Logs on Order",
+ "summary": "Halla Lauds says Hedda Greaves has an order for 4 split logs that cannot wait. The stock is at the apiary, and the deadline is before the pilgrims arrive for the feast.",
+ "giver": {
+  "npc": "halla_lauds",
+  "name": "Halla Lauds",
+  "place": "amberley"
+ },
+ "offer_text": "\"Hedda Greaves has an order and nobody to fetch it. Hear Hedda out, then bring the goods from the apiary before the pilgrims arrive for the feast. I will vouch for you.\"",
+ "stages": [
+  {
+   "id": "order",
+   "title": "Hear the order",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hear",
+     "type": "talk_to",
+     "npc": "hedda_greaves",
+     "text": "Hear what Hedda Greaves needs"
+    }
+   ]
+  },
+  {
+   "id": "gather",
+   "title": "Gather the stock",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "firewood",
+     "count": 4,
+     "text": "Take 4 split logs from the apiary"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Fill the order",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "fill",
+     "type": "deliver",
+     "item": "firewood",
+     "count": 4,
+     "to": "hedda_greaves",
+     "text": "Hand the split logs to Hedda Greaves"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 16,
+  "rep": {
+   "amberley": 3
+  },
+  "relationship": [
+   {
+    "npc": "halla_lauds",
+    "label": "Filled a standing order",
+    "value": 8,
+    "days": 45
+   }
+  ],
+  "items": {
+   "candle": 2
+  }
+ }
+}

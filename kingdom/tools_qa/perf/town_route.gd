@@ -45,6 +45,13 @@ func run(m: Node) -> void:
 			uncap = true
 		elif a == "--noquit":
 			quit_at_end = false
+	if Array(Quality.qa_file_args()).has("--ablate") or OS.get_cmdline_user_args().has("--ablate"):
+		var ab: Node = load("res://tools_qa/perf/ablate.gd").new()      # the S22 QA APK has this driver baked in
+		get_parent().add_child(ab)
+		ab.call("run", main)
+		set_process(false)
+		set_physics_process(false)
+		return
 	WorldSim.time_of_day = 15.0
 	RenderingServer.viewport_set_measure_render_time(main.viewport.get_viewport_rid(), true)
 	_build_route()
@@ -236,7 +243,7 @@ func _census(tag: String) -> void:
 		print("CENSUS  owner %-34s surf=%4d tris=%7d shadow=%4d" % [k, own[k][0], own[k][1], own[k][2]])
 	var mk := mesh_d.keys()
 	mk.sort_custom(func(a, b) -> bool: return mesh_d[a][0] + mesh_d[a][2] > mesh_d[b][0] + mesh_d[b][2])
-	for k in mk.slice(0, 14):
+	for k in mk.slice(0, 70):
 		print("CENSUS  mesh %s surf=%4d tris=%7d shadow=%4d" % [k, mesh_d[k][0], mesh_d[k][1], mesh_d[k][2]])
 	mk.sort_custom(func(a, b) -> bool: return mesh_d[a][1] > mesh_d[b][1])
 	for k in mk.slice(0, 8):

@@ -1,0 +1,124 @@
+{
+ "id": "blackwater_someone_has_been_at_the_ferry_landing",
+ "title": "Someone Has Been at the Ferry Landing",
+ "summary": "Things at the ferry landing were moved, spoiled or broken in the night. Mora Bulwark wants to know if it was an accident or a person.",
+ "giver": {
+  "npc": "mora_bulwark",
+  "name": "Mora Bulwark",
+  "place": "blackwater"
+ },
+ "requires": [
+  "blackwater_planks_and_iron_ingots"
+ ],
+ "offer_text": "\"Somebody has been at the ferry landing. Not a slip, I think. Walk the town, hear Gunnar Wainwright, and tell me what you make of it.\"",
+ "stages": [
+  {
+   "id": "survey",
+   "title": "Survey the damage",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "blackwater/clue/c1",
+      "blackwater/clue/c2",
+      "blackwater/clue/c3"
+     ],
+     "count": 3,
+     "text": "Search around town for signs of tampering"
+    },
+    {
+     "id": "foreman",
+     "type": "talk_to",
+     "npc": "gunnar_wainwright",
+     "text": "Hear Gunnar Wainwright's side of it"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide who to believe",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "mora_bulwark",
+     "options": [
+      {
+       "id": "accuse",
+       "text": "Tell Mora it was Colm",
+       "say": "Mora's jaw sets. \"I thought as much.\""
+      },
+      {
+       "id": "cover",
+       "text": "Tell Mora it was an accident",
+       "say": "Mora breathes out. \"Then it was.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "accuse": "accused",
+    "cover": "covered"
+   }
+  },
+  {
+   "id": "accused",
+   "title": "Face Colm",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "face",
+     "type": "talk_to",
+     "npc": "colm_gilbey",
+     "text": "Tell Colm Gilbey what you told Mora"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 28,
+    "rep": {
+     "blackwater": 4
+    },
+    "relationship": [
+     {
+      "npc": "mora_bulwark",
+      "label": "Found who tampered with the works",
+      "value": 10,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "covered",
+   "title": "Back to work",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "calm",
+     "type": "talk_to",
+     "npc": "mora_bulwark",
+     "text": "Tell Mora Bulwark it is over"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 15,
+    "rep": {
+     "blackwater": 2
+    },
+    "relationship": [
+     {
+      "npc": "colm_gilbey",
+      "label": "Took the blame off me",
+      "value": 14,
+      "days": 120
+     }
+    ]
+   }
+  }
+ ]
+}

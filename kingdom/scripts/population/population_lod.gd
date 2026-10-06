@@ -36,7 +36,7 @@ const NEAR_HARD_CAP := 12    # but never more than this many full models in tota
 const SPRITE_MIN_DIST := 20.0
 const SPRITE_MIN_DIST_RELEASE := 26.0
 const MAX_FULL := 24
-const ThornfieldRoster := preload("res://scripts/world/thornfield/roster.gd")
+const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")
 ## Ceiling on total sprites drawn (all job looks combined; see `refresh()`), not
 ## per look. Quality.npc_sprites narrows this further per tier.
 const MAX_SPRITES := 140
@@ -162,8 +162,8 @@ func refresh(step_delta := 0.25) -> void:
 		if Takedown.is_down(i):
 			continue            # a body on the ground (KO'd / dead): no sprite, no respawn; the node keeps lying below
 		var d2: float = WorldSim.pos[i].distance_squared_to(p2)
-		# Named residents (Thornfield's roster) rank as if closer, so they are the ones who get bodies first.
-		dists.append([d2, i, (d2 * KEEP_BIAS if _full.has(i) else d2) * ThornfieldRoster.embody_weight(i)])
+		# Named residents (the town kit's rosters) rank as if closer, so they are the ones who get bodies first.
+		dists.append([d2, i, (d2 * KEEP_BIAS if _full.has(i) else d2) * TownRoster.embody_weight(i)])
 	dists.sort_custom(func(a: Array, b: Array) -> bool: return a[2] < b[2])
 
 	var want_full := {}

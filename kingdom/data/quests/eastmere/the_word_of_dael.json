@@ -1,0 +1,131 @@
+{
+ "id": "eastmere_the_word_of_dael",
+ "title": "The Word of Dael",
+ "summary": "Something went wrong at night in Eastmere, and Sunniva Hartwell says Dael Netherby saw it. Sunniva Hartwell wants it checked before names are said.",
+ "giver": {
+  "npc": "sunniva_hartwell",
+  "name": "Sunniva Hartwell",
+  "place": "eastmere"
+ },
+ "requires": [
+  "eastmere_cheese_wheels_and_crocks_of_butter"
+ ],
+ "offer_text": "\"Somebody was in my place after dark. Dael Netherby saw something and will not say it loud. Hear Dael, then see if the story holds.\"",
+ "stages": [
+  {
+   "id": "ask",
+   "title": "Hear Dael out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hear",
+     "type": "talk_to",
+     "npc": "dael_netherby",
+     "text": "Ask Dael Netherby what they saw"
+    }
+   ]
+  },
+  {
+   "id": "look",
+   "title": "Check the story",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "eastmere/clue/c1",
+      "eastmere/clue/c2",
+      "eastmere/clue/c3"
+     ],
+     "count": 2,
+     "text": "Find two signs that match what Dael said"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Say what you will do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "sunniva_hartwell",
+     "options": [
+      {
+       "id": "name",
+       "text": "Name Sabin to Sunniva",
+       "say": "Sunniva goes quiet. \"I will deal with it. Openly.\""
+      },
+      {
+       "id": "warn",
+       "text": "Warn Sabin quietly and leave it",
+       "say": "Sabin will owe you. You can see it in the shoulders."
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "name": "named",
+    "warn": "warned"
+   }
+  },
+  {
+   "id": "named",
+   "title": "Sunniva hears it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "sunniva_hartwell",
+     "text": "Tell Sunniva Hartwell it is settled"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 18,
+    "rep": {
+     "eastmere": 5
+    },
+    "relationship": [
+     {
+      "npc": "sunniva_hartwell",
+      "label": "Named the culprit",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "warned",
+   "title": "Let Sabin know",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "warned",
+     "type": "talk_to",
+     "npc": "sabin_tupper",
+     "text": "Tell Sabin Tupper you kept it quiet"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 25,
+    "rep": {
+     "eastmere": -2
+    },
+    "relationship": [
+     {
+      "npc": "sabin_tupper",
+      "label": "Kept quiet about it",
+      "value": 15,
+      "days": 120
+     }
+    ]
+   }
+  }
+ ]
+}

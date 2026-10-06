@@ -1,0 +1,77 @@
+{
+ "id": "longmeadow_fleeces_for_the_wool_buyer",
+ "title": "Fleeces for the Wool Buyer",
+ "summary": "Kestrel Crook wants 4 fleeces from the fair green taken to Poppy Sparrow before the fair opens on the green, and then a word.",
+ "giver": {
+  "npc": "kestrel_crook",
+  "name": "Kestrel Crook",
+  "place": "longmeadow"
+ },
+ "offer_text": "\"We need fleeces, and what is stacked at the fair green is the town's to take. Carry it to Poppy Sparrow before the fair opens on the green, then come and tell me.\"",
+ "turn_in_text": "\"Good. That is one thing in Longmeadow that goes right.\"",
+ "stages": [
+  {
+   "id": "fetch",
+   "title": "Fetch the stock",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "longmeadow_works",
+     "text": "Go to the fair green"
+    },
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "wool",
+     "count": 4,
+     "text": "Take 4 fleeces from the pile"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Take it to Poppy Sparrow",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hand_over",
+     "type": "deliver",
+     "item": "wool",
+     "count": 4,
+     "to": "poppy_sparrow",
+     "text": "Hand the fleeces to Poppy Sparrow"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Kestrel",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "kestrel_crook",
+     "text": "Tell Kestrel Crook it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 18,
+  "rep": {
+   "longmeadow": 3
+  },
+  "relationship": [
+   {
+    "npc": "kestrel_crook",
+    "label": "Ran an errand for the town",
+    "value": 8,
+    "days": 45
+   }
+  ]
+ }
+}

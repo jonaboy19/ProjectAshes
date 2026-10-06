@@ -5,6 +5,7 @@ extends RefCounted
 ## `boxes_mesh` merges a few boxes into ONE mesh (one draw) for posts, decks and gates.
 
 const FillStyle := preload("res://scripts/world/fill_style.gd")
+const LowBudget := preload("res://scripts/world/low_budget.gd")      # LOW tier: LOD1 / no shadow / left out for decorative extras
 const GEN := "res://assets/generated/"
 const MODELS := {
 	"tent": GEN + "region/ruins/bandit_tent.glb",
@@ -77,7 +78,12 @@ static func model(parent: Node3D, model_key: String, at: Vector2, yaw := 0.0, he
 	var spec := key.split("@")
 	if spec.size() > 1 and height <= 0.0:
 		height = float(spec[1])
-	var path := FillStyle.dl3_path(spec[0], 0)
+	var mkey := FillStyle.model_of(spec[0])
+	if LowBudget.skip_extra(mkey, height):
+		return null          # LOW: a heavy small decorative extra with no LOD1 (stall: 4.5k tris) is left out
+	var path := FillStyle.dl3_path(spec[0], LowBudget.dl3_lod(mkey))      # LOW: the LOD1 (horse 7.0k -> 2.1k tris)
+	if not ResourceLoader.exists(path):
+		path = FillStyle.dl3_path(spec[0], 0)
 	if not ResourceLoader.exists(path):
 		return null
 	var n := Assets.static_model(path)
@@ -99,6 +105,9 @@ static func model(parent: Node3D, model_key: String, at: Vector2, yaw := 0.0, he
 	parent.add_child(holder)
 	holder.global_transform = Transform3D(Basis(Vector3.UP, yaw), Vector3(at.x, low - 0.05 + lift, at.y))
 	holder.set_meta("dl3", spec[0])
+	if LowBudget.low() and height > 0.0 and height < LowBudget.SMALL_M:
+		for gi: Node in holder.find_children("*", "MeshInstance3D", true, false):
+			(gi as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF      # small extras: no sun shadow on LOW
 	return holder
 
 

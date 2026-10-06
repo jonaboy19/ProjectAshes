@@ -1,0 +1,80 @@
+{
+ "id": "stonehollow_cut_blocks_for_the_mason",
+ "title": "Cut Blocks for the Mason",
+ "summary": "Colm Coalhill wants 4 cut blocks from the quarry yard taken to Tegan Rimmer before the next shift goes down, and then a word.",
+ "giver": {
+  "npc": "colm_coalhill",
+  "name": "Colm Coalhill",
+  "place": "stonehollow"
+ },
+ "offer_text": "\"We need cut blocks, and what is stacked at the quarry yard is the town's to take. Carry it to Tegan Rimmer before the next shift goes down, then come and tell me.\"",
+ "turn_in_text": "\"Good. That is one thing in Stonehollow that goes right.\"",
+ "stages": [
+  {
+   "id": "fetch",
+   "title": "Fetch the stock",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "stonehollow_works",
+     "text": "Go to the quarry yard"
+    },
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "stone",
+     "count": 4,
+     "text": "Take 4 cut blocks from the pile"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Take it to Tegan Rimmer",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hand_over",
+     "type": "deliver",
+     "item": "stone",
+     "count": 4,
+     "to": "tegan_rimmer",
+     "text": "Hand the cut blocks to Tegan Rimmer"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Colm",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "colm_coalhill",
+     "text": "Tell Colm Coalhill it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 14,
+  "rep": {
+   "stonehollow": 3
+  },
+  "relationship": [
+   {
+    "npc": "colm_coalhill",
+    "label": "Ran an errand for the town",
+    "value": 8,
+    "days": 45
+   }
+  ],
+  "items": {
+   "ale": 1
+  }
+ }
+}

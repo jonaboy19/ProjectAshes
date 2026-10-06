@@ -687,6 +687,8 @@ func _supported(g: Dictionary, u: Dictionary) -> bool:
 	var ab: AABB = u["aabb"]
 	var units: Array = g["units"]
 	var grid: Dictionary = g["grid"]
+	# A small prop (a 20 cm sconce on a wall top) can never overlap its support by a fixed 0.2 m: scale the minimum overlap down.
+	var need := minf(0.2, 0.6 * minf(ab.size.x, ab.size.z))
 	for cx in range(floori(ab.position.x / GRID), floori(ab.end.x / GRID) + 1):
 		for cz in range(floori(ab.position.z / GRID), floori(ab.end.z / GRID) + 1):
 			for i: int in grid.get(Vector2i(cx, cz), []):
@@ -695,7 +697,7 @@ func _supported(g: Dictionary, u: Dictionary) -> bool:
 					continue
 				var ob: AABB = o["aabb"]
 				if ob.end.y > ab.position.y - 0.4 and ob.position.y < ab.position.y - 0.05 and ob.size.y > 0.3 \
-						and minf(ob.end.x, ab.end.x) - maxf(ob.position.x, ab.position.x) > 0.2 and minf(ob.end.z, ab.end.z) - maxf(ob.position.z, ab.position.z) > 0.2:
+						and minf(ob.end.x, ab.end.x) - maxf(ob.position.x, ab.position.x) > need and minf(ob.end.z, ab.end.z) - maxf(ob.position.z, ab.position.z) > need:
 					return true
 	return false
 

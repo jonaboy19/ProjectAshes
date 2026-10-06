@@ -412,3 +412,7 @@ Other CPU consumers seen at the lake: MultiMeshInstance3D count (2400 nodes), cr
 (ripple ring and glints move; no flicker). Tree canopy is warmer and fluffier than before but still slightly cooler/less golden than the reference gate market.
 Mobile renderer note: forward_plus-only runs at HIGH/ULTRA print "Index p_mipmap out of bounds / All attachments unused" errors when the water shader's
 screen texture is used on Mobile at the ULTRA setting; not investigated.
+
+
+## 2026-10-06: release perf pass
+See `docs/qa/RELEASE_READINESS.md` "Perf pass" (route tools, costs, fixes, before/after). LOW now ticks physics at 30 Hz (`physics_hz` in quality.gd), shadows by `shadow_min` per tier.

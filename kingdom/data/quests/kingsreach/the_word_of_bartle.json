@@ -1,0 +1,131 @@
+{
+ "id": "kingsreach_the_word_of_bartle",
+ "title": "The Word of Bartle",
+ "summary": "Something went wrong at night in Kingsreach, and Madoc Kirby says Bartle Holloway saw it. Madoc Kirby wants it checked before names are said.",
+ "giver": {
+  "npc": "madoc_kirby",
+  "name": "Madoc Kirby",
+  "place": "kingsreach"
+ },
+ "requires": [
+  "kingsreach_carry_it_over"
+ ],
+ "offer_text": "\"Somebody was in my place after dark. Bartle Holloway saw something and will not say it loud. Hear Bartle, then see if the story holds.\"",
+ "stages": [
+  {
+   "id": "ask",
+   "title": "Hear Bartle out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hear",
+     "type": "talk_to",
+     "npc": "bartle_holloway",
+     "text": "Ask Bartle Holloway what they saw"
+    }
+   ]
+  },
+  {
+   "id": "look",
+   "title": "Check the story",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "kingsreach/clue/c1",
+      "kingsreach/clue/c2",
+      "kingsreach/clue/c3"
+     ],
+     "count": 2,
+     "text": "Find two signs that match what Bartle said"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Say what you will do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "madoc_kirby",
+     "options": [
+      {
+       "id": "name",
+       "text": "Name Quinn to Madoc",
+       "say": "Madoc goes quiet. \"I will deal with it. Openly.\""
+      },
+      {
+       "id": "warn",
+       "text": "Warn Quinn quietly and leave it",
+       "say": "Quinn will owe you. You can see it in the shoulders."
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "name": "named",
+    "warn": "warned"
+   }
+  },
+  {
+   "id": "named",
+   "title": "Madoc hears it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "madoc_kirby",
+     "text": "Tell Madoc Kirby it is settled"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 29,
+    "rep": {
+     "kingsreach": 5
+    },
+    "relationship": [
+     {
+      "npc": "madoc_kirby",
+      "label": "Named the culprit",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "warned",
+   "title": "Let Quinn know",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "warned",
+     "type": "talk_to",
+     "npc": "quinn_kettle",
+     "text": "Tell Quinn Kettle you kept it quiet"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 40,
+    "rep": {
+     "kingsreach": -2
+    },
+    "relationship": [
+     {
+      "npc": "quinn_kettle",
+      "label": "Kept quiet about it",
+      "value": 15,
+      "days": 120
+     }
+    ]
+   }
+  }
+ ]
+}

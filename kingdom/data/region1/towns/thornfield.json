@@ -1,6 +1,16 @@
 {
  "version": 1,
- "_doc": "Named residents of Thornfield (docs/design/FOUNDATION_PLAN.md F8). Source of truth for scripts/world/thornfield/roster.gd and tools/thornfield/gen_dialogue.py (dialogue/thornfield/<id>.json). job = WorldSim job index (0 farmer, 1 blacksmith, 2 merchant, 3 guard, 4 laborer, 5 woodcutter). home/work are building ids from SliceTown (thornfield_house_N, thornfield_smithy, ...) or site ids (thornfield_brewery, thornfield_farm, thornfield_mill, thornfield_barn). schedule overrides {from, to, phase} replace the baseline schedule phase (home work market inn temple train social) for hours in [from, to). bind=false people are not WorldSim rows (Hesta stands at the brewery as a station).",
+ "_doc": "Town kit file (scripts/world/town_kit/, scripts/world/town_kit/town_data.gd). One file per settlement: people, required lots, anchors, doors, places, quest files, threat, livestock, clues and an optional special script. Thornfield is the first user; its barn figure, grain cart and clue props stay in the special script. Format: scripts/world/town_kit/town_data.gd (validate). job = WorldSim job index (0 farmer, 1 blacksmith, 2 merchant, 3 guard, 4 laborer, 5 woodcutter). home/work are building ids from the forced lots (<id>_house_N, <id>_smithy, ...) or door ids listed under `doors`. schedule overrides {from, to, phase} replace the baseline schedule phase (home work market inn temple train social) for hours in [from, to). bind=false people are not WorldSim rows (Hesta stands at the brewery as a station).",
+ "id": "thornfield",
+ "settlement": "Thornfield",
+ "kind": "town",
+ "population": 720,
+ "hub_name": "ThornfieldHub",
+ "dialogue_dir": "thornfield",
+ "identity": {
+  "arch": "farming",
+  "flavour": "barley and brewery"
+ },
  "residents": [
   {
    "id": "hesta_thorne",
@@ -1212,5 +1222,275 @@
     }
    }
   }
- ]
+ ],
+ "lots": {
+  "required": [
+   {
+    "btype": "tavern",
+    "asset": "inn",
+    "bid": "thornfield_inn"
+   },
+   {
+    "btype": "smithy",
+    "asset": "blacksmith",
+    "bid": "thornfield_smithy"
+   },
+   {
+    "btype": "general_shop",
+    "asset": "mhouse_trader",
+    "bid": "thornfield_shop"
+   },
+   {
+    "btype": "bakery",
+    "asset": "house_town_b",
+    "bid": "thornfield_bakery"
+   },
+   {
+    "btype": "guard_post",
+    "asset": "house_13",
+    "bid": "thornfield_guard_post"
+   },
+   {
+    "btype": "healer",
+    "asset": "healer_house",
+    "bid": "thornfield_healer"
+   }
+  ],
+  "homes": 18,
+  "sites": {
+   "thornfield_brewery": "Thornfield Brewery",
+   "thornfield_farm": "Thornfield Farm",
+   "thornfield_mill": "Thornfield Farm windmill"
+  }
+ },
+ "anchors": {
+  "town": {
+   "kind": "settlement"
+  },
+  "brewery": {
+   "kind": "site",
+   "r1id": "landmark_thornfield"
+  },
+  "farm": {
+   "kind": "site",
+   "name": "Thornfield Farm"
+  }
+ },
+ "doors": {
+  "thornfield_brewery": {
+   "anchor": "brewery",
+   "at": [
+    8.0,
+    2.0
+   ]
+  },
+  "thornfield_barn": {
+   "anchor": "brewery",
+   "at": [
+    -3.0,
+    -5.2
+   ]
+  },
+  "thornfield_farm": {
+   "anchor": "farm",
+   "at": [
+    -6.0,
+    4.0
+   ]
+  },
+  "thornfield_mill": {
+   "anchor": "farm",
+   "at": [
+    -14.0,
+    -9.0
+   ]
+  }
+ },
+ "default_spots": [
+  "thornfield_temple"
+ ],
+ "places": [
+  {
+   "id": "thornfield",
+   "anchor": "town",
+   "at": [
+    0,
+    0
+   ],
+   "radius": 130
+  },
+  {
+   "id": "thornfield_barn",
+   "anchor": "brewery",
+   "at": [
+    -3.0,
+    -10.0
+   ],
+   "radius": 16
+  },
+  {
+   "id": "thornfield_fields",
+   "anchor": "brewery",
+   "at": [
+    -8.0,
+    -20.0
+   ],
+   "radius": 36
+  },
+  {
+   "id": "thornfield_mill",
+   "anchor": "farm",
+   "at": [
+    -14.0,
+    -14.0
+   ],
+   "radius": 18
+  }
+ ],
+ "quests": [
+  "res://data/quests/thornfield/spoiled_barley.json",
+  "res://data/quests/thornfield/the_culprit.json",
+  "res://data/quests/thornfield/grain_carts.json"
+ ],
+ "threat": {
+  "species": "wolf",
+  "spawner": "thornfield",
+  "group": "thornfield_wolf",
+  "den_ring": [
+   170,
+   330
+  ],
+  "night": [
+   22,
+   5
+  ],
+  "probe_chance": 55,
+  "probe_place": "thornfield_fields",
+  "probe_near": 240,
+  "probe_count": [
+   2,
+   3
+  ],
+  "probe_from": 60,
+  "probe_territory": 70,
+  "ambush_from": 22,
+  "ambush_territory": 120
+ },
+ "livestock": {
+  "groups": [
+   {
+    "anchor": "farm",
+    "at": [
+     -4.0,
+     1.5
+    ],
+    "kinds": [
+     [
+      "pig",
+      3
+     ]
+    ],
+    "radius": 3.2,
+    "tag": "pigs"
+   },
+   {
+    "anchor": "farm",
+    "at": [
+     15.0,
+     6.0
+    ],
+    "kinds": [
+     [
+      "chicken",
+      6
+     ],
+     [
+      "rooster",
+      1
+     ]
+    ],
+    "radius": 4.5,
+    "tag": "hens"
+   },
+   {
+    "anchor": "farm",
+    "at": [
+     23.0,
+     -15.0
+    ],
+    "kinds": [
+     [
+      "sheep",
+      6
+     ],
+     [
+      "sheepdog",
+      1
+     ]
+    ],
+    "radius": 8.0,
+    "tag": "sheep"
+   },
+   {
+    "anchor": "farm",
+    "at": [
+     23.0,
+     0.0
+    ],
+    "kinds": [
+     [
+      "cow",
+      3
+     ]
+    ],
+    "radius": 9.0,
+    "tag": "cows"
+   },
+   {
+    "anchor": "brewery",
+    "at": [
+     -8.0,
+     -1.2
+    ],
+    "kinds": [
+     [
+      "dog",
+      1
+     ],
+     [
+      "chicken",
+      3
+     ]
+    ],
+    "radius": 5.0,
+    "tag": "yard"
+   }
+  ],
+  "pens": [
+   {
+    "anchor": "farm",
+    "at": [
+     23.0,
+     -15.0
+    ],
+    "size": [
+     11.0,
+     8.0
+    ]
+   },
+   {
+    "anchor": "farm",
+    "at": [
+     -4.0,
+     3.0
+    ],
+    "size": [
+     7.0,
+     6.0
+    ]
+   }
+  ]
+ },
+ "special": "res://scripts/world/thornfield/special.gd",
+ "hub": "res://scripts/world/thornfield/hub.gd"
 }

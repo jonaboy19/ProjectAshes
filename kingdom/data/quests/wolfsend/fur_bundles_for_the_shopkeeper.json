@@ -1,0 +1,80 @@
+{
+ "id": "wolfsend_fur_bundles_for_the_shopkeeper",
+ "title": "Fur Bundles for the Shopkeeper",
+ "summary": "Tuck Pikeman wants 3 fur bundles from the watch post taken to Norah Tolliver before the watch changes at dusk, and then a word.",
+ "giver": {
+  "npc": "tuck_pikeman",
+  "name": "Tuck Pikeman",
+  "place": "wolfsend"
+ },
+ "offer_text": "\"We need fur bundles, and what is stacked at the watch post is the town's to take. Carry it to Norah Tolliver before the watch changes at dusk, then come and tell me.\"",
+ "turn_in_text": "\"Good. That is one thing in Wolfsend that goes right.\"",
+ "stages": [
+  {
+   "id": "fetch",
+   "title": "Fetch the stock",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "wolfsend_works",
+     "text": "Go to the watch post"
+    },
+    {
+     "id": "gather",
+     "type": "collect",
+     "item": "fur_bundle",
+     "count": 3,
+     "text": "Take 3 fur bundles from the pile"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Take it to Norah Tolliver",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hand_over",
+     "type": "deliver",
+     "item": "fur_bundle",
+     "count": 3,
+     "to": "norah_tolliver",
+     "text": "Hand the fur bundles to Norah Tolliver"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Tuck",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "tuck_pikeman",
+     "text": "Tell Tuck Pikeman it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 14,
+  "rep": {
+   "wolfsend": 3
+  },
+  "relationship": [
+   {
+    "npc": "tuck_pikeman",
+    "label": "Ran an errand for the town",
+    "value": 8,
+    "days": 45
+   }
+  ],
+  "items": {
+   "bandage": 2
+  }
+ }
+}

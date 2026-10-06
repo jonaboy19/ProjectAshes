@@ -32,11 +32,25 @@ const FREE_ROT_DEG := 15
 const SLOT_ID := {"c": 0, "ex": 1, "ez": 2, "free": 3}
 const SLOT_NAME := ["c", "ex", "ez", "free"]
 
+## Build-kit station pieces (pieces.json "station") -> the crafting bench kind in data/recipes.json they register as, and the
+## construction building kind (crew stations, prerequisites, know-how) a few of them stand for. See sync_realm().
+const CRAFT_BENCH := {"forge": "anvil", "anvil": "anvil", "workbench": "workbench", "sawhorse": "workbench", "loom": "loom", "oven": "oven"}
+const BUILDING_KIND := {"sawhorse": "sawhorse", "workbench": "workbench"}
+const STATION_PREFIX := "kit:"
+const MAX_ROUTE_SEGMENTS := 160         # road chords handed to the crews' route search (it scans them per cell)
+const ROUTE_STEP := 6.0                 # metres between route chords along a drawn road
+const TRAFFIC_STEP := 24.0              # metres per cart chord
+const LandClaim := preload("res://scripts/realm/land_claim.gd")
+
 static var _cat: Dictionary = {}
 
 var grids: Dictionary = {}              # gid -> grid
 var _next_grid := 1
 var cap := 2200
+## Crafting store the built benches register in (tests inject one; in the game it is Life.crafting, see _crafting()).
+var crafting: Variant = null
+## Claims must pass LandClaim (distance from settlements, water, road). The lab and tests switch it off.
+var claim_rules := true
 ## World ground height (x, z) -> y. The game sets WorldGen.height; tests use flat ground.
 var height_fn: Callable = func(_x: float, _z: float) -> float: return 0.0
 ## Inventory override for tests ({item: n}); otherwise construction's bag / Life inventory.
@@ -169,6 +183,26 @@ func ensure_grid(world: Vector3, name := "") -> Dictionary:
 	_index[gid] = {}
 	_integ[gid] = {}
 	return {"ok": true, "gid": gid, "reason": ""}
+
+
+## The claim / founding flow's entry point (C16): validates the ground (LandClaim) and founds the grid through ensure_grid, which
+## enforces MAX_GRIDS (OWNER_DECISIONS: at most 3 settlements). Standing inside an existing grid is always fine.
+## Returns {ok, gid, reason, founded}. `claim_kind` is recorded on the grid ("squat" until the charter / ward-claim ladder exists).
+func claim(world: Vector3, claim_kind := "squat", name := "") -> Dictionary:
+	var gid := grid_at(world)
+	if gid > 0:
+		return {"ok": true, "gid": gid, "reason": "", "founded": false}
+	if grids.size() >= MAX_GRIDS:
+		return {"ok": false, "gid": 0, "reason": "You can found at most %d settlements." % MAX_GRIDS, "founded": false}
+	if claim_rules:
+		var why := LandClaim.block_reason(Vector2(world.x, world.z))
+		if why != "":
+			return {"ok": false, "gid": 0, "reason": why, "founded": false}
+	var r := ensure_grid(world, name)
+	if bool(r["ok"]):
+		grids[int(r["gid"])]["claim"] = claim_kind
+	r["founded"] = bool(r["ok"])
+	return r
 
 
 func _origin(gid: int) -> Vector3:
@@ -513,6 +547,8 @@ func place(gid: int, s: Dictionary, plan := false) -> Dictionary:
 		_index[gid][key] = pid
 	_integ[gid][pid] = integrity_of(gid, rec)
 	rev += 1
+	if not as_plan:
+		sync_realm()
 	return {"ok": true, "reason": "", "id": pid, "plan": as_plan}
 
 
@@ -538,6 +574,7 @@ func remove(gid: int, pid: int, share := REFUND_REMOVE) -> Dictionary:
 	rev += 1
 	for item: String in refund:
 		_give(item, int(refund[item]))
+	sync_realm()
 	return {"ok": true, "refund": refund, "collapsed": collapsed}
 
 
@@ -698,6 +735,8 @@ func _settle_plans() -> Array:
 			rev += 1
 			if n > 0:
 				out.append("%s: the crew finished %d pieces." % [String(grids[gid]["name"]), n])
+	if not out.is_empty():
+		sync_realm()
 	return out
 
 
@@ -747,7 +786,93 @@ func add_road(gid: int, tier: String, world_pts: Array) -> Dictionary:
 		local.append([snappedf(l.x, 0.01), snappedf(l.y, 0.01), snappedf(l.z, 0.01)])
 	(grids[gid]["roads"] as Array).append({"tier": tier, "pts": local})
 	rev += 1
+	sync_realm()
 	return {"ok": true, "reason": "", "index": (grids[gid]["roads"] as Array).size() - 1}
+
+
+## Drawn roads as chords [from Vector2, to Vector2, speed] (world x, z), at most every `step` metres along each stroke, with the
+## road's `speed` field from pieces.json. `tiers`: which road tiers to include ([] = all). `near`/`reach`: only chords whose middle is
+## within `reach` of `near` (Vector2.INF = anywhere). `limit` caps the list.
+func road_chords(step: float, tiers: Array = [], near := Vector2.INF, reach := INF, limit := 100000) -> Array:
+	var out: Array = []
+	for gid: int in grids:
+		for road: Dictionary in grids[gid]["roads"]:
+			var tier := String(road["tier"])
+			if not tiers.is_empty() and not (tier in tiers):
+				continue
+			var speed := float(road_def(tier).get("speed", 1.0))
+			var pts: Array = road["pts"]
+			var anchor := Vector2.INF
+			for i in pts.size():
+				var l := Vector3(float(pts[i][0]), float(pts[i][1]), float(pts[i][2]))
+				var w := to_world(gid, l)
+				var q := Vector2(w.x, w.z)
+				if anchor == Vector2.INF:
+					anchor = q
+					continue
+				if anchor.distance_to(q) < step and i < pts.size() - 1:
+					continue
+				if near == Vector2.INF or anchor.lerp(q, 0.5).distance_to(near) <= reach:
+					out.append([anchor, q, speed])
+					if out.size() >= limit:
+						return out
+				anchor = q
+	return out
+
+
+## Cart chords for scripts/world/road_traffic.gd: dirt and cobbled roads near `p` (footpaths carry no wagons).
+func traffic_segments(p: Vector2, reach: float) -> Array:
+	var out: Array = []
+	for c: Array in road_chords(TRAFFIC_STEP, ["dirt", "cobble"], p, reach, 12):
+		out.append({"a": c[0], "b": c[1], "tier": "rural", "speed": c[2]})
+	return out
+
+
+## What the finished pieces mean to the rest of the game, pushed (idempotently) after every change that adds or removes a
+## finished piece, a road, or loads a save:
+##   * crafting benches: forge/anvil -> "anvil", workbench/sawhorse -> "workbench", loom, oven register as crafting stations
+##     (ref "kit:<grid>:<piece>"), so the crafting screen finds them within STATION_RADIUS;
+##   * construction: sawhorse and workbench become finished sites of those kinds (crew stations, prerequisites, carpentry
+##     know-how), `store` pieces add holding storage, `beds` count in beds_of (construction.sync_kit);
+##   * routing: drawn roads become speed chords (PATH_SPEED idea, the road's `speed` field) for the crews' route search.
+func sync_realm() -> void:
+	var benches: Array = []
+	var entries: Array = []
+	for gid: int in grids:
+		var pieces: Dictionary = grids[gid]["pieces"]
+		for pid: int in pieces:
+			var rec: Dictionary = pieces[pid]
+			if String(rec["state"]) != "done":
+				continue
+			var d := def(String(rec["kind"]))
+			var st := String(d.get("station", ""))
+			var beds := int(d.get("beds", 0))
+			var store := int(d.get("store", 0))
+			if st == "" and beds == 0 and store == 0:
+				continue
+			var w := to_world(gid, _pv(rec))
+			if CRAFT_BENCH.has(st):
+				benches.append({"ref": "%s%d:%d" % [STATION_PREFIX, gid, pid], "kind": String(CRAFT_BENCH[st]), "pos": w, "name": String(d.get("name", st))})
+			entries.append({"key": "%d:%d" % [gid, pid], "pos": Vector2(w.x, w.z), "kind": String(BUILDING_KIND.get(st, "")), "beds": beds, "store": store})
+	var cr: Variant = _crafting()
+	if cr != null:
+		cr.call("remove_stations_by_prefix", STATION_PREFIX)
+		for b: Dictionary in benches:
+			cr.call("add_station", String(b["kind"]), b["pos"], String(b["name"]), -1.0, null, String(b["ref"]), 0)
+	var c := _cons()
+	if c != null and c.has_method("sync_kit"):
+		c.call("sync_kit", entries, road_chords(ROUTE_STEP, [], Vector2.INF, INF, MAX_ROUTE_SEGMENTS))
+
+
+## The crafting store to register benches in: an injected one, else the player's (Life.crafting) when this module runs on the real
+## inventory (construction.bag is null), never in sandboxes and tests that hand construction a bag.
+func _crafting() -> Variant:
+	if crafting != null:
+		return crafting
+	var c := _cons()
+	if c != null and c.get("bag") == null:
+		return Life.crafting
+	return null
 
 
 # ------------------------------------------------------------------ save (16 bytes per piece)
@@ -815,7 +940,7 @@ func serialize() -> Dictionary:
 	for gid: int in grids:
 		var g: Dictionary = grids[gid]
 		gg[str(gid)] = {"id": gid, "name": g["name"], "origin": g["origin"], "roads": (g["roads"] as Array).duplicate(true),
-			"packed": Marshalls.raw_to_base64(pack_pieces(gid))}
+			"claim": String(g.get("claim", "squat")), "packed": Marshalls.raw_to_base64(pack_pieces(gid))}
 	return {"grids": gg, "next_grid": _next_grid, "log": log_lines.duplicate()}
 
 
@@ -827,7 +952,7 @@ func deserialize(d: Dictionary) -> void:
 		var src: Dictionary = d["grids"][key]
 		var gid := int(src["id"])
 		grids[gid] = {"id": gid, "name": String(src["name"]), "origin": src["origin"], "pieces": {}, "next": 1,
-			"roads": (src.get("roads", []) as Array).duplicate(true), "plans": {}}
+			"roads": (src.get("roads", []) as Array).duplicate(true), "plans": {}, "claim": String(src.get("claim", "squat"))}
 		_index[gid] = {}
 		_integ[gid] = {}
 		unpack_pieces(gid, Marshalls.base64_to_raw(String(src.get("packed", ""))))
@@ -835,3 +960,4 @@ func deserialize(d: Dictionary) -> void:
 	_next_grid = int(d.get("next_grid", grids.size() + 1))
 	log_lines = (d.get("log", []) as Array).duplicate()
 	rev += 1
+	sync_realm()

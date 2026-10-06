@@ -420,3 +420,56 @@ Requests for the cloud (not done locally):
 2. Crafting stations (`station` field: forge, anvil, workbench, sawhorse, loom, oven) should register as `construction.STATIONS` / crafting benches when built; `store` pieces should add holding storage; `beds` should count in `beds_of`.
 3. Build camera (top-down 55 deg orbit, pinch zoom) and haptic snap tick on device; lasso/save-as-blueprint not done.
 4. Kit roads should feed `PATH_SPEED` / road_traffic (speed field in pieces.json roads).
+
+---
+
+# Cloud status (2026-10-06)
+Applied from the two requests above ("Region 1 look pass" and "Build kit hooks"). Mobile budget: no new per-frame work, no new meshes or lights; the only
+scene additions are one Node3D (the Hollin Falls fishing spot, streamed with Hollin's Reach) and one 3 s cutscene on a first reveal.
+
+## Region 1 look pass
+Applied:
+- `Discovery.KIND_LABELS`: valley, waterfall, standing_stones, ruins, lookout, old_bridge, ferry, sunken_chapel, bones added; glade ("Sacred Glade") was there;
+  `windmill_hill` changed from "Crown Farms" to the suggested "Windmill Hill". A test asserts every kind the landmark file plants has a label.
+- **The Stone Gap:** `ExplorationDirector` listens (on its existing 0.15 s poll, one signal connection per Discovery instance) for the Gap's first
+  `place_discovered`. The HUD shows the normal banner and "Location Discovered" ping, then a 3 s `DiscoveryVista` shot (letterbox, player frozen, turns
+  through the gap to the valley mouth) plays, skippable with Esc or two taps (CutscenePlayer). No title card; one line of text after it.
+- **Hollin Falls:** `Gathering.POOLS["plunge"]` (no perch, emberfin at any hour: 35 percent) and `FishingSpot.pool`; the spot is a `fishing` entry on the landmark in
+  `landmarks.json` (stand (-156.9, -918.1), cast into the pool), spawned by `Region1Look._build_fishing` with the landmark's near parts, so no node exists away from it.
+- **Emberglass Ferry:** `Discovery.TRAVEL_KINDS` += "ferry"; `TravelRules.BOARD_KINDS` lets a ride start at a ferry landing as well as a waystation; the map card button
+  reads "Ferry" and the arrival toast says "by ferry" (hud.gd, one line). The east jetty did not exist: added the site **Emberglass East Landing**
+  (kind ferry, (-322, 300), dry shore across the Mere) as a sub-site of the landmark; map icon is the waystation signpost. The fare is the coach fare (about 6 gold
+  across the Mere), so the map and HUD agree. test_travel_rules now expects the two landings.
+- **Crownstead Mill Hill:** the Elder Stone already sat on the crown ((430, -192) via `first_region.json` and `Places`). The Act IV Crownstead step place `crownstead`
+  now resolves to the hill (`Places.SITES`, registry pos (430, -190)), so `enter_area`, the Ashsight staging, the gate stone and the compass are on the hill;
+  the Steward's Hall stays `crownstead_estate`. The synthetic `wardlines.json` layout has no Crownstead hub (Kingsreach carries that line), so nothing to move there.
+- **Stagborn Glade:** the Glade Elder Stone (-1345, -1060), the Warden and the herd were already at the landmark (-1345, -1062) through `Places` and
+  `creatures.json` (`near: site:Stagborn Glade`). Moved the sandbox hub in `wardlines.json` from (-980, -760) to (-1345, -1062).
+- **Hollin's Reach, young Bram pulls the pin:** the Act IV step exists (a4_crownstead). Staged as an **optional** memory, never an objective: registry place
+  `hollin_cut_stone` ((-178, -471), 40 m) plus an `ash_sites` entry; once the `ash` objective is done the player can kneel there
+  (`region1_glue._story_ash_site`), it sets the exported flag `r1.a4.pin_seen`.
+- Tests: test_region1_world (labels, ferry node, Stone Gap hold), test_region1_story_world (hill, glade, cut stone), test_gather_nodes (pool).
+
+Deviations and not done:
+- The Ashsight at the cut stone is optional, not gating: the tracker and compass lead use the step's `place` only, so a required objective 700 m away would have no guidance.
+  The memory replayed is the generic staged raid (`AshFakeRaid`); the real choreography (young Bram, the pin, the ward-stone flare) is content for local/Codex.
+- **Kindling Night lanterns on the graves: not done.** The festival exists (`seasons.gd`, day 28 of autumn, the story's `festival` objective) but the forty graves
+  are not placed anywhere in `landmarks.json`, and a lantern per grave would be 40 LampNodes (omni lights on HIGH+). Needs grave placement first and a
+  light-free emissive MultiMesh lit only on that night; the same applies to the Drowned Bell lanterns.
+- **The Wyrm's Ribs oath site: not done.** No Highwatch oath step exists in `r1_main.json` or the dialogue (a4_highwatch is the gate defence), so there is nothing to mark.
+- The east landing has no pier or boat yet (a bare landing with the lantern posts of the west side would be new meshes); art for local.
+
+## Build kit hooks
+Applied (tests in test_build_kit.gd, test_construction.gd):
+1. **Claim flow:** `BuildKit.claim(world, claim_kind, name)` validates the ground with the new `scripts/realm/land_claim.gd` (350 m from villages, 600 m from towns and the
+   capital, not in water, not on the road centreline) and founds through `ensure_grid` (max 3). Standing inside a grid is always fine. `build_mode.confirm()` now calls it
+   instead of `ensure_grid`. `claim_rules = false` switches the rules off (lab, tests). The claim kind is saved per grid ("squat" until the charter and ward-claim ladder exist).
+2. **Stations, storage, beds:** `BuildKit.sync_realm()` runs after every finished placement, removal, crew completion, road and load. Forge and anvil register as the "anvil" crafting bench,
+   workbench and sawhorse as "workbench", loom and oven as themselves (`Crafting.add_station`, refs `kit:<grid>:<piece>`, new `Crafting.remove_stations_by_prefix`).
+   `construction.sync_kit` turns a kit sawhorse and workbench into finished sites of those kinds (crew station `STATIONS["sawhorse"]`, prerequisites, carpentry know-how; marked
+   `kit_key` and skipped by `construction_view`), adds `store` to `store_cap` and `beds` to `beds_of` per holding. Plans are not benches until the crew has built them.
+3. **Build camera and haptics:** skipped on purpose (device work for the local PC).
+4. **Roads:** drawn roads become route chords `[from, to, speed]` (the road's `speed` field) appended to `construction.trail_segments()` (the crews' route search, capped at 160), and
+   dirt and cobbled roads give `road_traffic.gd` short cart chords near the player at that speed (the 5 s respawn check only). Footpaths carry no carts.
+Deviations: the forge, anvil and loom do not become construction buildings (smithy needs tier 3 prerequisites; there is no loom building kind); they are crafting benches only.
+Left for local: the kit renderer and build lab could show benches/beds counts; the Freehold plots as a grid, the Squat bailiff and charter flow (C16 proper) are not built.

@@ -74,6 +74,7 @@ const BLURBS := {
 	"rift": "A wound in the world. Nothing good comes out of it.",
 	"tower_ruin": "Crumbled stones of an older age.",
 	"waystation": "A coach inn or roadhouse: a noticeboard, a tied horse, and a coach to any waystation you have found, for a fare.",
+	"ferry": "A lantern-lit landing. The ferryman rows to the other jetty and on to any landing or waystation you have found, for a fare.",
 	"bandit_camp": "Brigands watch the road from here.",
 	"goblin_warren": "A goblin warren. Best avoided.",
 	"orc_village": "An orc stronghold on the frontier.",
@@ -1654,7 +1655,7 @@ func _select(pl: Dictionary) -> void:
 		if reason == "":
 			reason = TravelRules.ride_block_reason(TravelRules.waystation_at(_player_pos(), WorldGen.sites), fare, Game.gold)
 		_travel_btn.disabled = reason != ""
-		_travel_btn.text = "Coach  ·  %s  ·  %d gold" % [fmt_hours(hours), fare]
+		_travel_btn.text = "%s  ·  %s  ·  %d gold" % ["Ferry" if kind == "ferry" else "Coach", fmt_hours(hours), fare]
 		if reason != "":
 			info += "\n" + reason
 	_card_info.text = info
