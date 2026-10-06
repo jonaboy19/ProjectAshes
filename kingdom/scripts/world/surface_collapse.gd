@@ -1,7 +1,7 @@
 extends RefCounted
 const StyleG := preload("res://scripts/style_g.gd")
 
-## Draw-call cut for multi-surface meshes on LOW/MEDIUM (HIGH is untouched): surfaces are folded into the MAIN surface
+## Draw-call cut for multi-surface meshes on LOW/MEDIUM (HIGH folds everything but the lit windows/lamps of the near LOD0 stage (keep_extras)): surfaces are folded into the MAIN surface
 ## (the biggest Style G material) so a house / prop is ONE surface = one draw (and one shadow draw) per LOD stage.
 ## Folded surfaces:
 ##  1. kept-material extras (lit window, lamp, glass, water: 1-14 triangles): UV = brightest texel of the atlas,
@@ -21,8 +21,8 @@ static var _avg := {}             # texture id -> Color (sRGB average)
 static var _white_copy := {}      # material id -> ShaderMaterial (albedo_color white)
 
 
-static func collapse(mesh: ArrayMesh, tier: String) -> ArrayMesh:
-	if mesh == null or tier == "high" or mesh.get_surface_count() < 2 or mesh.has_meta("surf_collapsed"):
+static func collapse(mesh: ArrayMesh, tier: String, keep_extras := false) -> ArrayMesh:
+	if mesh == null or mesh.get_surface_count() < 2 or mesh.has_meta("surf_collapsed"):
 		return mesh
 	var main := -1
 	var main_n := -1
@@ -51,6 +51,8 @@ static func collapse(mesh: ArrayMesh, tier: String) -> ArrayMesh:
 		if arr[Mesh.ARRAY_INDEX] == null:
 			continue
 		if not StyleG.is_styled(fm):
+			if keep_extras:
+				continue            # HIGH near stage: lit windows and lamps keep their own emissive material
 			plan[i] = 0
 			continue
 		var sm := fm as ShaderMaterial

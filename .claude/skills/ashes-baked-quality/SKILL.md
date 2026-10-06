@@ -34,3 +34,12 @@ NPC/stall streaming differs run to run, so draw deltas under ~10 % are noise; co
 3. Per-district atlas + static merge of props (MultiMesh cells already exist; target <=150 draws LOW).
 4. Painted grime/edge-highlight into building atlases (Material Maker), ETC2/ASTC 1k atlases.
 5. Skyline HLOD via kingdom/tools/impostors/ + fog gradient.
+
+## Phase 2 (2026-10-06)
+- `scripts/world/town_atlas.gd` + `tools_qa/baked_quality/bake_town_atlas.gd`: far stages (LOD2/3, 256 px LOD1) share one 2048 page
+  (`assets/baked/atlas/`), UVs moved at load in `Assets.building_mesh`. Re-bake + `--import` after texture changes. NO_TOWN_ATLAS=1 disables.
+- `scripts/world/static_merge.gd`: LOW only, merges atlas stages per 40 m cell (time-sliced from SettlementBuilder). LOW 172 -> 131 draws. NO_STATIC_MERGE=1 disables.
+- Surface collapse runs on HIGH too; HIGH shadow_min 2.5 / dist 60 (shadow passes were ~290 of 700 draws).
+- Bench flags: `--noshadow`, `--hidetown` (floor), `--drawcensus --census_n=300 --matcensus`.
+- Lessons: merging plain props or merging on HIGH is not worth it; the 557->701 jump was noise, not material copies. Bench segfaults at exit are harmless.
+- Still open: gatehouse/walls, haze + skyline impostors, HIGH <300 needs merged near stages (needs a near atlas and a cheaper merge).

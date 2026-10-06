@@ -779,8 +779,9 @@ static func restyle_mesh(mesh: ArrayMesh, key: String, tier := "", role := "") -
 			m = _cache[dk]
 		if m != null:
 			mesh.surface_set_material(i, m)
-	if tier != "high":
-		load("res://scripts/world/surface_collapse.gd").collapse(mesh, tier)      # LOW/MEDIUM: fewer surfaces = fewer draws
+	if tier != "high" or not key.begins_with("nature/"):      # trees keep their bark/leaf split on HIGH
+		# fewer surfaces = fewer draws; HIGH near stage keeps lit windows and lamps
+		load("res://scripts/world/surface_collapse.gd").collapse(mesh, tier, tier == "high" and not key.contains(":lod"))
 	return mesh
 
 

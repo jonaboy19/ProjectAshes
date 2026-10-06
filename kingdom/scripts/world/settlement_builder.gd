@@ -30,6 +30,7 @@ const LampGlow := preload("res://scripts/world/lamp_glow.gd")             # lamp
 const TorchProps := preload("res://scripts/world/torch_props.gd")         # braziers / wall torches (emissive mesh, no omni light)
 const TownView := preload("res://scripts/world/town_identity_view.gd")     # wall styles and outskirts yards of that profile
 const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")   # kit town lots: keeper name for the door label
+const StaticMerge := preload("res://scripts/world/static_merge.gd")   # baked quality: per-cell merge of the MultiMesh batches
 
 const BUILD_RANGE := 650.0
 const FREE_RANGE := 850.0
@@ -47,6 +48,7 @@ const FIELD_MAX_SPREAD := 1.0
 
 ## Per-frame budget (ms on desktop, about 5x on a phone) for the time-sliced district props of a freshly streamed town.
 const DP_BUDGET_MS := 3.0
+const MERGE_BUDGET_MS := 3.0
 
 signal settlement_built(settlement: Dictionary, root: Node3D)
 
@@ -57,11 +59,13 @@ var _footprints: Dictionary = {} # asset -> Vector3 size at BUILDING_SCALE
 ## settlement id -> [[stall key, position, yaw, solid index], ...] of the gate-market stalls (QA shots, tests).
 var stalls_by_town: Dictionary = {}
 var _prop_jobs: Array = []       # unfinished DistrictProps jobs (time-sliced, drained in _process)
+var _merge_jobs: Array = []      # [{root, job}] StaticMerge jobs of finished towns (time-sliced)
 
 
 func _process(delta: float) -> void:
 	Breakable.tick(delta)   # breakable clutter: melee sweep + regrowth (once per frame)
 	_drain_prop_jobs(DP_BUDGET_MS)
+	_drain_merge_jobs(MERGE_BUDGET_MS)
 	_timer -= delta
 	if _timer > 0.0:
 		return
@@ -78,6 +82,7 @@ func _drain_prop_jobs(budget_ms: float) -> void:
 		_prop_jobs.pop_front()
 		return
 	if j.step(budget_ms):
+		_queue_merge(j.root)
 		_prop_jobs.pop_front()
 
 
@@ -85,7 +90,25 @@ func _drain_prop_jobs(budget_ms: float) -> void:
 func finish_prop_jobs() -> void:
 	for j in _prop_jobs:
 		j.step(0.0)
+		_queue_merge(j.root)
 	_prop_jobs.clear()
+	for mj in _merge_jobs:
+		StaticMerge.step(mj["job"], 0.0)
+	_merge_jobs.clear()
+
+
+## A finished town: plan its static merge (cheap) and let _process slice the work.
+func _queue_merge(root: Node3D) -> void:
+	if StaticMerge.enabled and is_instance_valid(root):
+		_merge_jobs.append({"root": root, "job": StaticMerge.begin(root)})
+
+
+func _drain_merge_jobs(budget_ms: float) -> void:
+	if _merge_jobs.is_empty():
+		return
+	var mj: Dictionary = _merge_jobs[0]
+	if not is_instance_valid(mj["root"]) or StaticMerge.step(mj["job"], budget_ms):
+		_merge_jobs.pop_front()
 
 
 func update_now() -> void:
@@ -423,6 +446,11 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	GDressing.dress_town(root, s, plan, _footprint, StyleG.current_tier())    # Style G: ivy, flower boxes, tubs, baskets
 	_decals(root, s, plan)
 	_flush_contact_shadows(root)
+	if props_job == null or props_job.done:
+		if sync:
+			StaticMerge.merge_now(root)
+		else:
+			_queue_merge(root)
 	return root
 
 
@@ -751,6 +779,8 @@ func _multimesh(parent: Node3D, mesh: Mesh, transforms: Array[Transform3D], blob
 			mm.set_instance_color(i, colors[i])
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
+	if collide:
+		mmi.set_meta("keep", true)     # breakables hide single instances of this MultiMesh: not for StaticMerge
 	if use_cols and mesh.get_surface_count() == 1:
 		# Meshy buildings do not read vertex colour: a shared copy of their material that does (one per source material).
 		var m0 := mesh.surface_get_material(0)

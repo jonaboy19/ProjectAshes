@@ -354,3 +354,6 @@ AAA-review backlog from this task:
 ## Baked quality (2026-10-06, worktree PA_wt_baked)
 - Phase 1 shipped: offline vertex AO + painterly warm/cool light for 199 town building/prop meshes (BakedVao, assets/baked/vao, 1.4 MB). Skill ashes-baked-quality.
 - Results docs/art/baked_quality/ (LOW 3->3.5, HIGH 4->4.5 vs target; fps invalid: laptop on battery). Open: HIGH draws +25% from material duplicates (fix next), walls/gatehouse not baked, atlases/HLOD not started.
+
+## 2026-10-06 baked quality phase 2
+LOW draws 172 -> 131, HIGH ~700 -> ~530 in the gate-market bench (targets 120 / 300 not met). See docs/art/baked_quality/README.md and skill ashes-baked-quality.

@@ -6,6 +6,7 @@ extends RefCounted
 
 const StyleG := preload("res://scripts/style_g.gd")
 const BakedVao := preload("res://scripts/world/baked_vao.gd")
+const TownAtlas := preload("res://scripts/world/town_atlas.gd")
 const CHAR_DIR := "res://assets/kaykit/characters/"
 const MED_DIR := "res://assets/kaykit/medieval/"
 const WEAPON_DIR := "res://assets/kaykit/weapons/"
@@ -744,6 +745,7 @@ static func building_mesh(key: String) -> ArrayMesh:
 	StyleG.restyle_mesh(mesh, key)       # Style G: every building/prop surface gets its role material (atlas + tints kept)
 	if mesh.has_meta("baked_vao"):
 		BakedVao.fix_materials(mesh)
+	TownAtlas.fold(mesh, key)           # far stages: shared texture page (see town_atlas.gd)
 	if key.begins_with("lamp_post") or key.begins_with("street_lamp"):
 		_tame_lamp_glow(mesh)
 	_building_cache[key] = mesh

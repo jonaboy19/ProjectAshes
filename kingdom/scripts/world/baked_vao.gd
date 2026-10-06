@@ -16,7 +16,7 @@ const WARM := Color(1.0, 0.95, 0.84)
 const GRIME := Color(0.80, 0.72, 0.62)
 const STRENGTH := 0.9
 
-static var enabled := true
+static var enabled := not OS.has_environment("NO_BAKED_VAO")
 static var bake_mode := false      # tools: compute + save the blob instead of loading it
 
 
