@@ -65,6 +65,10 @@ func _ready() -> void:
 			if not seen_assets.has(asset):
 				seen_assets[asset] = true
 				paths.append_array(_paths(asset))
+	# Phones (perf pass 2026-10-06): no boot preload of every region scene (hundreds of MB kept for the session, most of it
+	# swapped out on the S22). Sites load their files when first built; the build queue stays time-sliced.
+	if OS.has_feature("mobile"):
+		paths = paths.slice(0, 3)
 	for path: String in paths:
 		if path != "" and ResourceLoader.exists(path) and Assets.scene(path) != null:
 			n += 1

@@ -114,3 +114,10 @@ Saves backed up before testing: `C:/Users/Jonna/Documents/RisingAshes_phone_save
 
 ### Verdict: NO-GO, unchanged. Next: memory (stop keeping every PackedScene + merged copy in Assets caches, unload far towns),
 town draw merging per district on LOW, and a phone CPU ablation (`route.sh ... "--ablate"`) to find why the S22 is ~9x the PC.
+
+### Perf pass 3 (2026-10-06, PC only: the S22 was off adb the whole pass)
+- Phones no longer preload every region scene at boot (RegionDressing); sites load their files when first built.
+- `Assets.static_model` drops the source PackedScene once its merged mesh exists (meshes were kept twice).
+- PC LOW route: resources 5169 -> 4307, mesh buffers 276 -> 235 MB, VRAM 1299 -> 1224 MB. Draws unchanged (308 avg); bigger LOW
+  town cells (LOW_CELL_MUL 2.5) did not cut draws and were reverted.
+- Still to do on the phone: reinstall a normal build, restore saves, measure PSS/fps, then the 15-min LOW / 5-min MED runs.
