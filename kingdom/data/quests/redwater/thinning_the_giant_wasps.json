@@ -1,0 +1,76 @@
+{
+ "id": "redwater_thinning_the_giant_wasps",
+ "title": "Thinning the Giant Wasps",
+ "summary": "Giant wasp sign has been found at the edge of Redwater: paper nests under the eaves and stung livestock. Hamo Loomis wants 3 of them dealt with.",
+ "giver": {
+  "npc": "hamo_loomis",
+  "name": "Hamo Loomis",
+  "place": "redwater"
+ },
+ "requires": [
+  "redwater_moved_in_the_night_at_the_dye_works"
+ ],
+ "offer_text": "\"The giant wasps have come closer to Redwater each night: a drone that carries across the yards. Go to the edge and thin them out, before someone is hurt.\"",
+ "turn_in_text": "\"Quieter already. I will sleep tonight. A little.\"",
+ "stages": [
+  {
+   "id": "edge",
+   "title": "Go to the edge of town",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "redwater_outskirts",
+     "text": "Go to where the giant wasps were seen"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Thin them out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "giant_wasp",
+     "place": "redwater_outskirts",
+     "count": 3,
+     "text": "Kill 3 giant wasps near Redwater"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Hamo",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "hamo_loomis",
+     "text": "Tell Hamo Loomis it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 32,
+  "rep": {
+   "redwater": 5
+  },
+  "relationship": [
+   {
+    "npc": "hamo_loomis",
+    "label": "Kept the giant wasps from the edge",
+    "value": 10,
+    "days": 60
+   }
+  ],
+  "items": {
+   "linen": 1
+  }
+ }
+}

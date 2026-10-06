@@ -1,0 +1,87 @@
+{
+ "id": "longmeadow_bait_at_the_tree_line",
+ "title": "Bait at the Tree Line",
+ "summary": "Kit Yoxall wants the wolves drawn out of the tree line with bait and put down at the edge of Longmeadow.",
+ "giver": {
+  "npc": "kit_yoxall",
+  "name": "Kit Yoxall",
+  "place": "longmeadow"
+ },
+ "requires": [
+  "longmeadow_the_sickness_at_the_door"
+ ],
+ "offer_text": "\"They will not come to a trap but they will come to a smell. Take cuts of venison, set it at the tree line, and see what turns up.\"",
+ "turn_in_text": "\"Cunning. I should have thought of it myself.\"",
+ "stages": [
+  {
+   "id": "lure",
+   "title": "Get the bait",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "bait",
+     "type": "collect",
+     "item": "venison",
+     "count": 3,
+     "text": "Take 3 cuts of venison"
+    }
+   ]
+  },
+  {
+   "id": "edge",
+   "title": "Set it out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "longmeadow_outskirts",
+     "text": "Go to the tree line and set the bait"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Wait for them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "longmeadow_outskirts",
+     "count": 3,
+     "text": "Kill 3 wolves that come for it"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Kit",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "kit_yoxall",
+     "text": "Tell Kit Yoxall it worked"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 34,
+  "rep": {
+   "longmeadow": 5
+  },
+  "relationship": [
+   {
+    "npc": "kit_yoxall",
+    "label": "Baited and dealt with the wolves",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

@@ -19,8 +19,19 @@
      "p": 5
     },
     {
-     "text": "\"Feel that. Go on. That is a week of someone's life.\"",
+     "text": "\"Best prices in the row. Do not ask about the other rows.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Closing up. Come back tomorrow and bring coin.\"",
+     "if": {
+      "time": "evening",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +45,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"Welcome. Wipe your boots. Please. Soap is dear and floors are dearer.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -88,11 +109,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Silverford pays double for the good batch and then complains.\"",
+     "text": "\"A thief works the market. He steals things nobody misses until they need them.\"",
      "p": 2
     },
     {
-     "text": "\"A bolt of Highwatch blue went missing. The thief should be easy to spot.\"",
+     "text": "\"Whatever you hear about Redwater, half of it is true. We argue about which half.\"",
      "p": 2
     },
     {

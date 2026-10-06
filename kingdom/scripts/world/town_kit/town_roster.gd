@@ -26,6 +26,7 @@ static var _rows: Dictionary = {}           # town id -> {roster id -> WorldSim 
 static var _id_of: Dictionary = {}          # WorldSim row -> roster id (rows are unique across towns)
 static var _sched: Dictionary = {}          # row -> Array of {from, to, phase:int}
 static var _bound_for: Dictionary = {}      # town id -> WorldSim.population() the binding was made for
+static var _outdoor: Dictionary = {}        # row -> true when the named person works at a yard, not inside a building
 
 
 ## WorldSim is an autoload that preloads this script, so it is reached through the tree, not by its global name.
@@ -73,6 +74,7 @@ static func clear() -> void:
 	_id_of.clear()
 	_sched.clear()
 	_bound_for.clear()
+	_outdoor.clear()
 
 
 static func settlement_id(tid: String) -> int:
@@ -107,28 +109,30 @@ static func bind(tid: String, force := false) -> Dictionary:
 		return _rows[tid]
 	_unbind(tid)
 	var range_i: Vector2i = ranges[sid]
-	var taken := {}
 	var rows := {}
 	var order := residents(tid).duplicate()
 	# Children first: only a stable slice of the day labourers count as children, so they pick before everyone else.
 	order.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return (0 if bool(a.get("child", false)) else 1) < (0 if bool(b.get("child", false)) else 1))
+	var pools := _pools(ws, range_i)
+	var jobs: PackedByteArray = ws.get("job")
+	var jobs_changed := false
 	for e: Dictionary in order:
 		if not bool(e.get("bind", true)):
 			continue
 		var id := String(e["id"])
 		var want_job := int(e.get("job", 4))
-		var row := _pick(ws, range_i, id, want_job, bool(e.get("child", false)), taken)
+		var row := _pick(pools, id, want_job, bool(e.get("child", false)))
 		if row < 0:
 			continue
-		taken[row] = true
 		rows[id] = row
 		_id_of[row] = id
-		var jobs: PackedByteArray = ws.get("job")
 		if int(jobs[row]) != want_job:
 			jobs[row] = want_job
-			ws.set("job", jobs)
+			jobs_changed = true
 		_sched[row] = _compile(e.get("schedule", []))
+	if jobs_changed:
+		ws.set("job", jobs)
 	_rows[tid] = rows
 	_bound_for[tid] = int(ws.call("population"))
 	return rows
@@ -143,24 +147,41 @@ static func _unbind(tid: String) -> void:
 	_bound_for.erase(tid)
 
 
-static func _pick(ws: Node, r: Vector2i, id: String, want_job: int, child: bool, taken: Dictionary) -> int:
-	var cands: Array[int] = []
-	var any: Array[int] = []
+## One pass over a settlement's living rows: `lists[kid * 8 + job]` is the ascending rows of that age group and job (a child is a day
+## labourer in a stable tenth of the crowd, as NpcWorld.is_child says). Classifying every row once (not once per resident), with
+## integer keys, keeps the binding of all 30 kit towns to a few milliseconds.
+static func _pools(ws: Node, r: Vector2i) -> Array:
 	var jobs: PackedByteArray = ws.get("job")
 	var health: PackedByteArray = ws.get("health")
+	var lists: Array = []
+	for k in 16:
+		lists.append([])
 	for i in range(r.x, r.y):
-		if taken.has(i) or health[i] == 0:
+		if health[i] == 0:
 			continue
-		var is_kid := int(jobs[i]) == 4 and absi(hash(i * 977 + 3)) % 10 == 0
-		if child != is_kid:
-			continue
-		any.append(i)
-		if int(jobs[i]) == want_job:
-			cands.append(i)
-	var pool := cands if not cands.is_empty() else any
+		var j := int(jobs[i])
+		var kid := 8 if (j == 4 and absi(hash(i * 977 + 3)) % 10 == 0) else 0
+		(lists[kid + j] as Array).append(i)
+	return lists
+
+
+## The row for roster entry `id`: among the free rows of the right age group, those with the wanted job first; the choice is a
+## hash of the id. The row leaves the pools.
+static func _pick(pools: Array, id: String, want_job: int, child: bool) -> int:
+	var base := 8 if child else 0
+	var cands: Array = pools[base + want_job]
+	var pool: Array = cands
+	if cands.is_empty():
+		pool = []
+		for j in 8:
+			pool.append_array(pools[base + j])
+		pool.sort()
 	if pool.is_empty():
 		return -1
-	return pool[absi(hash(id)) % pool.size()]
+	var row := int(pool[absi(hash(id)) % pool.size()])
+	for j in 8:
+		(pools[base + j] as Array).erase(row)
+	return row
 
 
 static func _compile(list: Array) -> Array:
@@ -303,6 +324,23 @@ static func spot(row: int, which: int) -> Vector2:
 		1: bid = String(e.get("work", ""))
 		_: return Vector2.INF
 	return TownLots.door_of(bid, row)
+
+
+## True for a named craftsman or merchant (job 1 / 2) of a town whose file says `outdoor_work` who works at a yard or gate (a work site door
+## such as the capital's keep gate), not in a shop of the plan: WorldSim.is_indoors keeps 3 in 4 of such people inside their building, and
+## a yard has no inside to find them in.
+static func outdoor_work(row: int) -> bool:
+	if not _id_of.has(row):
+		return false
+	if _outdoor.has(row):
+		return bool(_outdoor[row])
+	var id := String(_id_of[row])
+	var tid := String(_town_of.get(id, ""))
+	var bid := String(entry(id).get("work", ""))
+	var doc := TownData.town(tid)
+	var yes := bool(doc.get("outdoor_work", false)) and (doc.get("doors", {}) as Dictionary).has(bid) and TownLots.building(bid).is_empty()
+	_outdoor[row] = yes
+	return yes
 
 
 ## Distance-squared multiplier for who gets a body (named people are preferred over the crowd).

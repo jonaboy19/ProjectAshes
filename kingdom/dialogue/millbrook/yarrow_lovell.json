@@ -19,8 +19,29 @@
      "p": 5
     },
     {
-     "text": "\"Rain tomorrow. My knee says so.\"",
+     "text": "\"Soil does not care who you are. It cares what you do on Tuesdays.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"You will hear Millbrook before you see it. Ask at the Millbrook Great Mill.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Early start. The field has been awake an hour.\"",
+     "if": {
+      "time": "morning",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +55,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"Take your time, friend. I am in no hurry. I am, in fact, very good at waiting.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -58,8 +89,18 @@
      }
     },
     {
-     "text": "\"What do you make of Brannoc?\"",
-     "goto": "op_brannoc_blackmore",
+     "text": "\"What do you make of Hadley?\"",
+     "goto": "op_hadley_wythe",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Isolt?\"",
+     "goto": "op_isolt_charnock",
      "if": {
       "tier_not": [
        "enemy",
@@ -92,7 +133,7 @@
      "p": 2
     },
     {
-     "text": "\"The mill sails turned backward on their own last Tuesday. Flour everywhere.\"",
+     "text": "\"Crows gather on the east field in a ring. Not feeding. Standing.\"",
      "p": 2
     },
     {
@@ -127,10 +168,27 @@
     }
    ]
   },
-  "op_brannoc_blackmore": {
+  "op_hadley_wythe": {
    "lines": [
     {
-     "text": "\"Brannoc knows the trade. I will say that for Brannoc.\""
+     "text": "\"Hadley works hard and talks harder.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_isolt_charnock": {
+   "lines": [
+    {
+     "text": "\"Isolt knows the trade. I will say that for Isolt.\""
     }
    ],
    "choices": [

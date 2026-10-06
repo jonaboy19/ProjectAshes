@@ -19,8 +19,29 @@
      "p": 5
     },
     {
-     "text": "\"Tithe day is never early and always too soon.\"",
+     "text": "\"Bring me a problem with a name and a number. Then we can talk.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"First time in Millbrook? The Millbrook Great Mill is the place to start.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Early start. The field has been awake an hour.\"",
+     "if": {
+      "time": "morning",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +55,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"A friend is a rare coin. I have spent worse.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -58,8 +89,18 @@
      }
     },
     {
-     "text": "\"What do you make of Yorick?\"",
-     "goto": "op_yorick_nettle",
+     "text": "\"What do you make of Orrin?\"",
+     "goto": "op_orrin_dobbin",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Osric?\"",
+     "goto": "op_osric_dalby",
      "if": {
       "tier_not": [
        "enemy",
@@ -92,7 +133,11 @@
      "p": 2
     },
     {
-     "text": "\"The mill sails turned backward on their own last Tuesday. Flour everywhere.\"",
+     "text": "\"A well on the east road runs dry every dusk and fills by dawn. Nobody wants to ask why.\"",
+     "p": 2
+    },
+    {
+     "text": "\"A sack of Millbrook flour is said to be good luck on a stoneless road.\"",
      "p": 2
     },
     {
@@ -127,10 +172,27 @@
     }
    ]
   },
-  "op_yorick_nettle": {
+  "op_orrin_dobbin": {
    "lines": [
     {
-     "text": "\"I would trust Yorick with a purse. A small one.\""
+     "text": "\"Orrin lives next door and hears everything I do.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_osric_dalby": {
+   "lines": [
+    {
+     "text": "\"I would trust Osric with a purse. A small one.\""
     }
    ],
    "choices": [

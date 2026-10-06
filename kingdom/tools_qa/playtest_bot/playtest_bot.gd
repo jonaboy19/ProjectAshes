@@ -531,6 +531,7 @@ func _run_all() -> void:
 		["tf_talk", _s_tf_talk], ["tf_barley", _s_tf_barley], ["tf_cart", _s_tf_cart], ["tf_wilm", _s_tf_wilm],
 		["tf_interior", _s_tf_interior], ["tf_theft", _s_tf_theft], ["tf_travel", _s_tf_travel], ["tf_combat", _s_tf_combat],
 		["tf_soldier", _s_tf_soldier], ["tf_rift", _s_tf_rift], ["tf_beast", _s_tf_beast], ["tf_save", _s_tf_save],
+		["towns", _s_towns],
 	]
 	for e: Array in list:
 		if not _want(String(e[0])) and String(e[0]) != "adult":
@@ -563,6 +564,7 @@ func _stage_limit(name: String) -> float:
 		"tf_rift": return 480.0
 		"tf_beast": return 200.0
 		"tf_save": return 480.0
+		"towns": return 900.0 * float(maxi(1, _town_list().size()))
 	return 150.0
 
 
@@ -3577,3 +3579,238 @@ func _s_tf_save() -> void:
 	await wait(0.5)
 	check("a taken item does not respawn after the reload", not is_instance_valid(gi3) or gi3.is_queued_for_deletion() or bool(gi3.get("_gone")), str(gi3))
 	await shot("slice_after_reload")
+
+
+# ============================================================================================ stage towns (S2)
+## The generated kit towns played through the real main scene: teleport there, check the hub woke and the roster is bound, talk to two
+## named residents through the in-world sheet, start the town's first quest from its giver, enter one building and check its keeper.
+## PLAYTEST_TOWNS=kingsreach,saltwick,skarholm (the default) names the towns. Stage list: PLAYTEST_STAGES=boot,intro,towns.
+
+const KitRoster := preload("res://scripts/world/town_kit/town_roster.gd")
+const KitData := preload("res://scripts/world/town_kit/town_data.gd")
+const KitLots := preload("res://scripts/world/town_kit/town_lots.gd")
+const KitPlaces := preload("res://scripts/world/town_kit/town_places.gd")
+
+
+func _town_list() -> Array:
+	var env := OS.get_environment("PLAYTEST_TOWNS")
+	var out: Array = []
+	for t: String in (env if env != "" else "kingsreach,saltwick,skarholm").split(","):
+		if t.strip_edges() != "":
+			out.append(t.strip_edges())
+	return out
+
+
+func _s_towns() -> void:
+	if Life.age() < 18:
+		set_age(18)
+	for tid: String in _town_list():
+		await _town_visit(tid)
+
+
+## The embodied body of a kit resident, or null.
+func kit_body(id: String) -> Node3D:
+	var row := KitRoster.row_of(id)
+	if row < 0:
+		return null
+	for n in get_tree().get_nodes_in_group("villager"):
+		if n is Node3D and n.get("person") != null and int(n.get("person")) == row and (n as Node3D).is_visible_in_tree():
+			return n
+	return null
+
+
+## Teleports to where the resident's schedule has them and waits for their body; null (and a note) when they have none.
+func kit_go_to(id: String) -> Node3D:
+	var row := KitRoster.row_of(id)
+	if row < 0:
+		bug("towns", "%s is not bound to a WorldSim row" % id)
+		return null
+	var p: Vector2 = WorldSim.pos[row]
+	L("%s (row %d) is at %s, %.0f m away (phase %d, hour %.1f)" % [id, row, str(p.snappedf(0.1)), p2().distance_to(p), WorldSim.phase[row], WorldSim.time_of_day])
+	if p2().distance_to(p) > 15.0:
+		await teleport(p + Vector2(2.5, 1.5), 0.0, 1.0)
+	var ok := await wait_until(func() -> bool: return kit_body(id) != null, 8.0)
+	if not ok:
+		L("[HOOK] population refresh to embody %s" % id)
+		main.population.focus = player.global_position
+		main.population.refresh()
+		await wait_until(func() -> bool: return kit_body(id) != null, 6.0)
+	return kit_body(id)
+
+
+func kit_door_for(bid: String) -> InteriorDoor:
+	var bd: Dictionary = KitLots.building(bid)
+	if bd.is_empty():
+		return null
+	var lp: Vector2 = bd["pos"]
+	for n in get_tree().root.find_children("*", "Area3D", true, false):
+		if n is InteriorDoor and not (n as InteriorDoor).is_exit and n.has_meta("lot_pos") and (n.get_meta("lot_pos") as Vector2).distance_to(lp) < 0.05:
+			return n
+	return null
+
+
+## Walks to a kit building's door and enters with E. Returns the interior root, or null (with a bug).
+func kit_enter(bid: String, centre: Vector2) -> Node3D:
+	var bd: Dictionary = KitLots.building(bid)
+	if bd.is_empty():
+		bug("towns", "no building %s in the plan" % bid)
+		return null
+	var dp: Vector2 = bd["door"]
+	await teleport(dp + (centre - dp).normalized() * 3.0, 0.0, 1.0)
+	var door := kit_door_for(bid)
+	if door == null:
+		bug("towns", "no InteriorDoor was built for %s (door point %s)" % [bid, str(dp)])
+		return null
+	var dpos := Vector2(door.global_position.x, door.global_position.z)
+	var out_dir := (Vector2(door.global_transform.basis.z.x, door.global_transform.basis.z.z)).normalized()
+	var stand := dpos + out_dir * 1.0
+	await teleport(stand, yaw_to(stand, dpos), 0.4)
+	await wait(0.8)
+	var near: Node3D = player.nearest_interactable()
+	check("%s: the door is the interact prompt target" % bid, near == door, "nearest %s" % str(near.name if near != null else "-"))
+	var t_enter := now()
+	await key(KEY_E)
+	await wait_until(func() -> bool: return InteriorDoor.active != null, 90.0)
+	await wait(2.0)
+	note("%s entered in %.1f s" % [bid, now() - t_enter])
+	if InteriorDoor.active == null:
+		bug("towns", "E at the %s door did not enter the building" % bid)
+		return null
+	return InteriorDoor.active.interior
+
+
+func _town_visit(tid: String) -> void:
+	var doc: Dictionary = KitData.town(tid)
+	if doc.is_empty():
+		bug("towns", "no town file for %s" % tid)
+		return
+	var s: Dictionary = KitPlaces.settlement(tid)
+	var centre: Vector2 = s["pos"]
+	note("--- %s (%s, %s, %d residents)" % [tid, doc["kind"], (doc["identity"] as Dictionary)["arch"], (doc["residents"] as Array).size()])
+	set_hour(11.0, "named residents are out at market hour")
+	close_everything()
+	await teleport(centre + Vector2(0, 14), PI, 1.5)
+	var hub: Node = main.world.get_node_or_null("TownHub_" + tid)
+	await wait_until(func() -> bool: return hub != null and bool(hub.call("is_awake")), 8.0)
+	check("%s: the town hub is in the world and woke when the player arrived" % tid, hub != null and bool(hub.call("is_awake")) and bool(hub.call("is_active")))
+	var want := 0
+	for e: Dictionary in doc["residents"]:
+		if bool(e.get("bind", true)):
+			want += 1
+	check("%s: the roster is bound to WorldSim rows" % tid, KitRoster.rows_of(tid).size() == want, "%d of %d" % [KitRoster.rows_of(tid).size(), want])
+	close_everything()           # a first-visit work board can pop up beside the guard post
+	beat("arrived")
+	await shot(tid + "_arrive")
+	for k in 3:
+		player.set_camera(PI * (0.5 + 0.5 * float(k)), -0.12)
+		close_everything()
+		await wait(0.5)
+		beat("look %d" % k)
+		if k != 1:
+			await shot("%s_look_%d" % [tid, k])
+	# the livestock pen on the settlement frame (farming, pastoral, religious, mining, fortress, merchant, fishing, craft places)
+	var pens: Array = (doc.get("livestock", {}) as Dictionary).get("pens", [])
+	if not pens.is_empty():
+		var pc: Vector2 = KitPlaces.resolve(tid, pens[0])
+		var from := pc + (centre - pc).normalized() * 13.0
+		await teleport(from, yaw_to(from, pc), 1.5)
+		face(pc, -0.18)
+		await wait(1.0)
+		var near_animals := 0
+		for n in get_tree().root.find_children("*", "Node3D", true, false):
+			if n is Critter and Vector2((n as Node3D).global_position.x, (n as Node3D).global_position.z).distance_to(pc) < 14.0:
+				near_animals += 1
+		note("%s: %d farm animals within 14 m of the first pen" % [tid, near_animals])
+		var pen_root: Node3D = hub.get("pens")
+		if pen_root != null and pen_root.get_child_count() > 0:
+			var mmi := pen_root.get_child(0) as MultiMeshInstance3D
+			note("%s: pen rails: %d instances, aabb %s, visible in tree %s, first rail at %s" % [tid, mmi.multimesh.instance_count, str(mmi.get_aabb()), str(mmi.is_visible_in_tree()), str(mmi.multimesh.get_instance_transform(0).origin)])
+		else:
+			bug("towns", "%s has pens in its file but the hub built none" % tid)
+		close_everything()
+		await shot(tid + "_pens")
+		face(pc, -0.55)
+		await wait(0.5)
+		await shot(tid + "_pens_down")
+	# the keepers of the three lots every town has
+	for t: String in ["tavern", "smithy", "general_shop"]:
+		var lots: Array = KitLots.lots_of_type(tid, t)
+		if lots.is_empty():
+			bug("towns", "%s has no %s lot" % [tid, t])
+			continue
+		var keeper: Dictionary = KitRoster.keeper_of(String(lots[0]))
+		check("%s: the %s has a named keeper of the right trade" % [tid, t], not keeper.is_empty() and String(keeper["role"]) == String(KitRoster.KEEPER_ROLES[t]), "%s" % String(keeper.get("role", "-")))
+	# two named residents, through the in-world sheet
+	var talked := 0
+	var talked_names: Array = []
+	for e: Dictionary in doc["residents"]:
+		if talked >= 2:
+			break
+		if String(e["role"]) in ["child", "innkeeper", "herbalist", "guard captain"]:
+			continue
+		var rid := String(e["id"])
+		var body := await kit_go_to(rid)
+		if body == null:
+			continue
+		if not await tf_reach(body, rid, centre):
+			continue
+		close_everything()
+		await key(KEY_E)
+		await wait_until(func() -> bool: return hud.dialogue_sheet.visible, 14.0)
+		await wait(0.8)
+		check("%s: E opens the in-world sheet for %s" % [tid, rid], hud.dialogue_sheet.visible)
+		var shown := String(hud.dialogue_sheet._name_label.text)
+		check("%s: the sheet shows the roster name of %s" % [tid, rid], shown == String(e["name"]), "'%s' vs '%s'" % [shown, e["name"]])
+		check("%s: the sheet shows the role" % tid, String(hud.dialogue_sheet._role_label.text).to_lower().contains(String(e["role"]).split(" ")[0].to_lower()) or String(hud.dialogue_sheet._role_label.text) != "", String(hud.dialogue_sheet._role_label.text))
+		L("sheet options: %s" % str(menu_texts()).left(300))
+		await shot("%s_talk_%s" % [tid, rid.left(14)])
+		var opts := menu_texts()
+		var picked := false
+		for o: Variant in opts:
+			if String(o).contains("news"):
+				picked = await click_option("news")
+				break
+		if not picked and not opts.is_empty():
+			await click_option(String(opts[0]).left(12))
+		await wait(0.5)
+		await shot("%s_line_%s" % [tid, rid.left(14)])
+		close_everything()
+		talked += 1
+		talked_names.append(String(e["name"]))
+	check("%s: talked to two named residents (%s)" % [tid, ", ".join(talked_names)], talked == 2)
+	# the town's first quest from its giver
+	var q1 := QuestDef.load_json(String((doc["quests"] as Array)[0]))
+	var gid := q1.giver_npc()
+	var gbody := await kit_go_to(gid)
+	if gbody != null and await tf_reach(gbody, gid, centre):
+		close_everything()
+		await key(KEY_E)
+		await wait_until(func() -> bool: return hud.is_menu_open(), 6.0)
+		await wait(0.5)
+		var texts := menu_texts()
+		L("giver options: %s" % str(texts).left(300))
+		check("%s: the giver offers work (%s)" % [tid, q1.title], texts.any(func(t: Variant) -> bool: return String(t).contains("Ask about work")))
+		await click_option("Ask about work")
+		await wait(0.8)
+		check("%s: the first quest is active: %s" % [tid, q1.title], qrun().is_active(q1.id), qrun().stage_of(q1.id))
+		await shot("%s_quest_started" % tid)
+		close_everything()
+	else:
+		bug("towns", "%s: could not reach the quest giver %s" % [tid, gid])
+	# one building, with its keeper in it
+	set_hour(12.0, "midday: the inn is open")
+	var inn_bid := String(KitLots.lots_of_type(tid, "tavern")[0])
+	var interior := await kit_enter(inn_bid, centre)
+	if interior != null:
+		check("%s: the inn interior is a modular room" % tid, interior.has_method("light_report") and not (interior.get("layout") as Dictionary).is_empty())
+		await wait(2.0)
+		var keeper: Dictionary = KitRoster.keeper_of(inn_bid)
+		var found := false
+		for st in interior.find_children("Service_*", "Station", true, false):
+			if st.has_meta("npc_id") and String(st.get_meta("npc_id")) == String(keeper["id"]):
+				found = true
+		L("%s inn: keeper %s runs the bar: %s; household bodies %d" % [tid, String(keeper["name"]), str(found), (interior.get("bodies") as Dictionary).size()])
+		check("%s: the inn's keeper %s runs the bar (the Service station carries the roster id)" % [tid, keeper["name"]], found)
+		await shot("%s_inn_inside" % tid)
+		await tf_leave_by_exit(tid + " inn")
+	close_everything()

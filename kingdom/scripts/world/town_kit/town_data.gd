@@ -8,7 +8,8 @@ extends RefCounted
 ##   residents [{id, name, age, role, job, home, work, traits[], schedule[], dialogue{greeting[], rumour[], opinions{}},
 ##               relationships{}, child?, bind?, station?, ...}]
 ##   lots      {required [{btype, asset, bid}], homes N, sites {site id: label}}
-##   anchors   {name: {kind: "settlement"} | {kind: "site", r1id | name}}      reference frames for places, doors, livestock
+##   anchors   {name: {kind: "settlement"} | {kind: "site", r1id | name} | {kind: "landmark", asset}}   reference frames for places, doors, livestock
+##             (landmark = a building of the settlement's plan by asset, local metres like a site: "castle" is Kingsreach's keep)
 ##   doors     {door id: {anchor, at [x, y]}}                                  where a work site's door is (a resident's `work`)
 ##   default_spots [id, ...]   ids a resident's home/work may name that deliberately have no door: they use the settlement's shared spot
 ##   places    [{id, anchor | building, at [x, y], radius, dry?}]              quest places (enter_area / kill places)
@@ -17,14 +18,17 @@ extends RefCounted
 ##   stashes   [{id, item, count, anchor | building, at, quest, stage, target, say, prop}]   goods a Collect stage lets you take
 ##   threat    {species, spawner, group, den_ring [near, far], night [from, to], probe_chance, probe_place, probe_near,
 ##              probe_count [n, n_every_third_day], probe_from, probe_territory, ambush_from, ambush_territory}
-##   livestock {groups [{anchor, at, kinds [[kind, n]], radius, tag}], pens [{anchor, at, size [x, y]}]}
+##   livestock {groups [{anchor, at, kinds [[kind, n]], radius, tag}], pens [{anchor, at, size [x, y], yaw?}]}   a pen on the settlement
+##             anchor lies along the world axes turned by `yaw` (radians; its gate side faces local +y), and is skipped on wet ground
+##   outdoor_work true   named craftsmen and merchants whose `work` is a door (a work site, the keep gate) stand outside there all day
+##             (WorldSim.is_indoors would hide 3 in 4 of them "inside the shop": a yard has no inside)
 ##   special   "res://scripts/.../special.gd"   the town's one-off code (see town_hub.gd for the hooks)
 ## `anchor` frames: settlement = world metres from the settlement centre; site = site-local metres (x right, y front).
 ## Preload this script (no class_name); every function is static.
 
 const DIR := "res://data/region1/towns"
 const BTYPES := ["tavern", "smithy", "general_shop", "bakery", "guard_post", "healer"]
-const ANCHOR_KINDS := ["settlement", "site"]
+const ANCHOR_KINDS := ["settlement", "site", "landmark"]
 const PHASES := ["home", "work", "market", "inn", "temple", "train", "social"]
 
 static var _docs: Dictionary = {}          # id -> parsed file
@@ -157,6 +161,8 @@ static func validate(d: Dictionary, check_files := true) -> PackedStringArray:
 			errs.append("%s: anchor '%s' has an unknown kind" % [id, a])
 		if String(def.get("kind", "")) == "site" and String(def.get("r1id", def.get("name", ""))) == "":
 			errs.append("%s: site anchor '%s' needs r1id or name" % [id, a])
+		if String(def.get("kind", "")) == "landmark" and String(def.get("asset", "")) == "":
+			errs.append("%s: landmark anchor '%s' needs an asset" % [id, a])
 	var doors: Dictionary = d.get("doors", {})
 	var defaults: Array = d.get("default_spots", [])
 	for k: String in doors:
@@ -168,7 +174,7 @@ static func validate(d: Dictionary, check_files := true) -> PackedStringArray:
 		if pid == "" or place_ids.has(pid):
 			errs.append("%s: place '%s' missing or duplicated" % [id, pid])
 		place_ids[pid] = true
-		if not _located(p, anchors, bids):
+		if not _located(p, anchors, bids, doors):
 			errs.append("%s: place '%s' has no valid anchor or building" % [id, pid])
 		if float(p.get("radius", 0.0)) <= 0.0:
 			errs.append("%s: place '%s' has no radius" % [id, pid])
@@ -184,10 +190,10 @@ static func validate(d: Dictionary, check_files := true) -> PackedStringArray:
 			if not ids_seen.has(other2):
 				errs.append("%s/%s: opinion of unknown '%s'" % [id, e.get("id", ""), other2])
 	for c: Dictionary in d.get("clues", []):
-		if String(c.get("id", "")) == "" or not _located(c, anchors, bids):
+		if String(c.get("id", "")) == "" or not _located(c, anchors, bids, doors):
 			errs.append("%s: clue '%s' has no id or location" % [id, c.get("id", "")])
 	for s: Dictionary in d.get("stashes", []):
-		if String(s.get("id", "")) == "" or String(s.get("item", "")) == "" or not _located(s, anchors, bids):
+		if String(s.get("id", "")) == "" or String(s.get("item", "")) == "" or not _located(s, anchors, bids, doors):
 			errs.append("%s: stash '%s' needs id, item and a location" % [id, s.get("id", "")])
 	var th: Dictionary = d.get("threat", {})
 	if not th.is_empty():
@@ -198,6 +204,9 @@ static func validate(d: Dictionary, check_files := true) -> PackedStringArray:
 	for g: Dictionary in (d.get("livestock", {}) as Dictionary).get("groups", []):
 		if not anchors.has(String(g.get("anchor", ""))):
 			errs.append("%s: livestock group '%s' has an unknown anchor" % [id, g.get("tag", "")])
+	for pen: Dictionary in (d.get("livestock", {}) as Dictionary).get("pens", []):
+		if not anchors.has(String(pen.get("anchor", ""))) or (pen.get("at", []) as Array).size() < 2 or (pen.get("size", []) as Array).size() < 2:
+			errs.append("%s: a livestock pen needs a known anchor, at [x, y] and size [x, y]" % id)
 	if check_files:
 		for path: String in d.get("quests", []):
 			if not FileAccess.file_exists(path):
@@ -212,9 +221,9 @@ static func validate(d: Dictionary, check_files := true) -> PackedStringArray:
 	return errs
 
 
-static func _located(def: Dictionary, anchors: Dictionary, bids: Dictionary) -> bool:
+static func _located(def: Dictionary, anchors: Dictionary, bids: Dictionary, doors := {}) -> bool:
 	if def.has("building"):
-		return bids.has(String(def["building"]))
+		return bids.has(String(def["building"])) or doors.has(String(def["building"]))
 	return anchors.has(String(def.get("anchor", ""))) and (def.get("at", []) as Array).size() >= 2
 
 

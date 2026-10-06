@@ -1,0 +1,89 @@
+{
+ "id": "blackwater_planks_and_iron_ingots",
+ "title": "Planks and Iron Ingots",
+ "summary": "Two loads wait in Blackwater: planks for Hanne Buckley and iron ingots for Hedda Coldwell. Mora Bulwark wants them moved before the next muster.",
+ "giver": {
+  "npc": "mora_bulwark",
+  "name": "Mora Bulwark",
+  "place": "blackwater"
+ },
+ "offer_text": "\"Two things are late and both are mine to answer for. Hanne Buckley waits on planks and Hedda Coldwell on iron ingots. Fetch them in any order, before the next muster.\"",
+ "turn_in_text": "\"Both in. I shall sleep tonight, which is rare.\"",
+ "stages": [
+  {
+   "id": "gather",
+   "title": "Gather both loads",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load1",
+     "type": "collect",
+     "item": "plank",
+     "count": 4,
+     "text": "Take 4 planks from the ferry landing"
+    },
+    {
+     "id": "load2",
+     "type": "collect",
+     "item": "iron_ingot",
+     "count": 3,
+     "text": "Take 3 iron ingots from the second stack"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Deliver them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "to1",
+     "type": "deliver",
+     "item": "plank",
+     "count": 4,
+     "to": "hanne_buckley",
+     "text": "Hand the planks to Hanne Buckley"
+    },
+    {
+     "id": "to2",
+     "type": "deliver",
+     "item": "iron_ingot",
+     "count": 3,
+     "to": "hedda_coldwell",
+     "text": "Hand the iron ingots to Hedda Coldwell"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Mora",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "mora_bulwark",
+     "text": "Tell Mora Bulwark both are in"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 25,
+  "rep": {
+   "blackwater": 4
+  },
+  "relationship": [
+   {
+    "npc": "mora_bulwark",
+    "label": "Cleared two late loads",
+    "value": 9,
+    "days": 60
+   }
+  ],
+  "items": {
+   "bandage": 2
+  }
+ }
+}

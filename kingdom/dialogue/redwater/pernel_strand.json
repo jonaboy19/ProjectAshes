@@ -19,8 +19,19 @@
      "p": 5
     },
     {
-     "text": "\"Mind the vat. It looks like water. It is not.\"",
+     "text": "\"My back says no. My purse says yes.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Lamps are lit. Craft does not end at dusk, only the pay does.\"",
+     "if": {
+      "time": "night",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +45,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"You look tired, friend. I will not lie. Rest.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -68,6 +89,16 @@
      }
     },
     {
+     "text": "\"What do you make of Lanny?\"",
+     "goto": "op_lanny_holloway",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
      "text": "Offer a gift…",
      "goto": "",
      "if": {
@@ -88,11 +119,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"A bolt of good blue went missing. The thief is easy to spot: the man not wearing it.\"",
+     "text": "\"Dug a drain and hit a flat stone with marks on it. The foreman said fill it in. I did.\"",
      "p": 2
     },
     {
-     "text": "\"Silverford pays double for the good woad batch, and complains the price.\"",
+     "text": "\"When Redwater is quiet we say it is peaceful. When it is very quiet we say nothing.\"",
      "p": 2
     },
     {
@@ -131,6 +162,23 @@
    "lines": [
     {
      "text": "\"Flora keeps a tidy yard and an untidy mouth.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_lanny_holloway": {
+   "lines": [
+    {
+     "text": "\"Lanny works hard and talks harder.\""
     }
    ],
    "choices": [

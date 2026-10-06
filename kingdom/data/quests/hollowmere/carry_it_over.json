@@ -1,0 +1,63 @@
+{
+ "id": "hollowmere_carry_it_over",
+ "title": "Carry It Over",
+ "summary": "Una Saltmarsh wants 2 sacks of salt carried from the far end of Hollowmere to Milo Ledger at the reed landing before the weather breaks.",
+ "giver": {
+  "npc": "una_saltmarsh",
+  "name": "Una Saltmarsh",
+  "place": "hollowmere"
+ },
+ "offer_text": "\"The sacks of salt are by my door and Milo Ledger is waiting at the reed landing. It is a long walk and I have a bad knee. Take them over before the weather breaks.\"",
+ "stages": [
+  {
+   "id": "load",
+   "title": "Collect the stock",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load",
+     "type": "collect",
+     "item": "salt_sack",
+     "count": 2,
+     "text": "Take 2 sacks of salt from outside Una's door"
+    }
+   ]
+  },
+  {
+   "id": "carry",
+   "title": "Carry it across town",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "cross",
+     "type": "goto",
+     "place": "hollowmere_works",
+     "text": "Walk to the reed landing"
+    },
+    {
+     "id": "drop",
+     "type": "deliver",
+     "item": "salt_sack",
+     "count": 2,
+     "to": "milo_ledger",
+     "text": "Hand the sacks of salt to Milo Ledger"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 15,
+  "rep": {
+   "hollowmere": 3
+  },
+  "relationship": [
+   {
+    "npc": "una_saltmarsh",
+    "label": "Carried the load across town",
+    "value": 7,
+    "days": 45
+   }
+  ]
+ }
+}

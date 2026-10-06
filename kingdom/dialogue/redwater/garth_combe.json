@@ -19,8 +19,29 @@
      "p": 5
     },
     {
-     "text": "\"Sit. Tongue out. No, the other way.\"",
+     "text": "\"If it hurts it is working. If it does not hurt, you overpaid.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"The Redwater Dye Works is not much to look at. It is, however, ours.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Closing up. Come back tomorrow and bring coin.\"",
+     "if": {
+      "time": "evening",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +55,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"A friend is a rare coin. I have spent worse.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -88,11 +119,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Fever in two households. Nothing the stones can mend.\"",
+     "text": "\"A child asked me for something to keep the dark away. I gave her mint. It worked.\"",
      "p": 2
     },
     {
-     "text": "\"A bolt of Highwatch blue went missing. The thief should be easy to spot.\"",
+     "text": "\"The big order came with a seal nobody recognised. The pay was real. We did not ask.\"",
      "p": 2
     },
     {

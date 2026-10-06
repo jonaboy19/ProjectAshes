@@ -7,6 +7,7 @@ extends RefCounted
 ##   place_pos(tid, id)    Vector2.INF when unknown
 ##   door_of_site(tid, id) the door-side spot of a work site (`doors`), Vector2.INF for anything else
 ##   resolve(tid, def)     world XZ of any {anchor | building, at} definition (clues, stashes, livestock)
+##   frame(tid, anchor)    {pos, yaw} of an anchor frame (settlement: yaw 0, world axes; site; landmark of the plan), {} when unresolved
 
 const TownData := preload("res://scripts/world/town_kit/town_data.gd")
 
@@ -50,6 +51,31 @@ static func anchor_site(tid: String, anchor: String) -> Dictionary:
 	return site_of(def)
 
 
+## The plan landmark of settlement `tid` whose asset is `def["asset"]` ("castle" = Kingsreach's keep): {pos, yaw} or {}.
+static func landmark_of(tid: String, def: Dictionary) -> Dictionary:
+	var s := settlement(tid)
+	if s.is_empty():
+		return {}
+	for lm: Dictionary in (s["plan"] as Dictionary).get("landmarks", []):
+		if String(lm.get("asset", "")) == String(def.get("asset", "")):
+			return {"pos": lm["pos"], "yaw": float(lm.get("yaw", 0.0))}
+	return {}
+
+
+## {pos, yaw} of a named anchor (see town_data.gd `anchors`); {} when the world has no such place. Site-local x is right, y is front.
+static func frame(tid: String, anchor: String) -> Dictionary:
+	var a: Dictionary = (TownData.town(tid).get("anchors", {}) as Dictionary).get(anchor, {})
+	match String(a.get("kind", "")):
+		"settlement":
+			var s := settlement(tid)
+			return {"pos": s["pos"], "yaw": 0.0} if not s.is_empty() else {}
+		"site":
+			return site_of(a)
+		"landmark":
+			return landmark_of(tid, a)
+	return {}
+
+
 static func _vec(a: Variant) -> Vector2:
 	return Vector2(float((a as Array)[0]), float((a as Array)[1])) if a is Array and (a as Array).size() >= 2 else Vector2.ZERO
 
@@ -69,6 +95,9 @@ static func resolve(tid: String, def: Dictionary) -> Vector2:
 		"site":
 			var site := site_of(a)
 			p = to_world(site, at) if not site.is_empty() else Vector2.INF
+		"landmark":
+			var lm := landmark_of(tid, a)
+			p = to_world(lm, at) if not lm.is_empty() else Vector2.INF
 	if p != Vector2.INF and bool(def.get("dry", false)):
 		p = dry_near(p)
 	return p

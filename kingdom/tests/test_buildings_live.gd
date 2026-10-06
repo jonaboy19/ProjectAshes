@@ -230,6 +230,8 @@ func test_outer_walls_are_separate_meshes_that_fade_when_the_camera_is_on_their_
 # ---- household roster -----------------------------------------------------------------------------------
 
 func test_home_lot_formula_matches_worldsim() -> void:
+	# Every settlement's named residents (town kit) walk to their own doors; the hash formula is for everyone else.
+	preload("res://scripts/world/town_kit/town_roster.gd").clear()
 	var lots: Array = []
 	for i in 9:
 		lots.append({"pos": Vector2(i * 20.0, i * 5.0), "yaw": 0.0, "asset": "house_1"})
@@ -238,6 +240,7 @@ func test_home_lot_formula_matches_worldsim() -> void:
 		var spot: Vector2 = WorldSim._spot(s, 0, person)
 		var lot: Vector2 = lots[Household.home_lot(person, lots.size())]["pos"]
 		assert_vector(spot).is_equal_approx(lot + Vector2(0, 4.6), Vector2(0.001, 0.001))
+	preload("res://scripts/world/town_kit/town_roster.gd").bind_all(true)
 
 
 func test_household_roster_matches_schedule_hours() -> void:

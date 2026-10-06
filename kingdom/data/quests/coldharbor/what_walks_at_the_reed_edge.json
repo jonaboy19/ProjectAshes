@@ -1,0 +1,78 @@
+{
+ "id": "coldharbor_what_walks_at_the_reed_edge",
+ "title": "What Walks at the Reed Edge",
+ "summary": "Sidony Yoxall says something is out at the edge of Coldharbor: slime trails through flattened reeds. Learn what it is, then put it down.",
+ "giver": {
+  "npc": "sidony_yoxall",
+  "name": "Sidony Yoxall",
+  "place": "coldharbor"
+ },
+ "requires": [
+  "coldharbor_something_in_the_water"
+ ],
+ "offer_text": "\"There is sign at the reed edge: slime trails through flattened reeds. I cannot tell how many, or how bold. Read it for me, and then put them down.\"",
+ "turn_in_text": "\"Now we know what we are dealing with, and it is dealt with.\"",
+ "stages": [
+  {
+   "id": "read",
+   "title": "Read the sign",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "sign",
+     "type": "investigate",
+     "clues": [
+      "coldharbor/clue/t1",
+      "coldharbor/clue/t2",
+      "coldharbor/clue/t3"
+     ],
+     "count": 2,
+     "text": "Find two signs of the bog toads around the edge of Coldharbor"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Deal with them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "bog_toad",
+     "place": "coldharbor_outskirts",
+     "count": 2,
+     "text": "Kill 2 bog toads near Coldharbor"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Sidony",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "sidony_yoxall",
+     "text": "Tell Sidony Yoxall what you found"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 27,
+  "rep": {
+   "coldharbor": 5
+  },
+  "relationship": [
+   {
+    "npc": "sidony_yoxall",
+    "label": "Read the sign and acted on it",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

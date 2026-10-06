@@ -1,0 +1,86 @@
+{
+ "id": "brackenmoor_a_warning_from_jaren",
+ "title": "A Warning from Jaren",
+ "summary": "Jaren Whitlock has seen wolves at the edge of Brackenmoor, and Lorne Snare wants someone to act before the town hears it from the wolves.",
+ "giver": {
+  "npc": "lorne_snare",
+  "name": "Lorne Snare",
+  "place": "brackenmoor"
+ },
+ "requires": [
+  "brackenmoor_off_the_books"
+ ],
+ "offer_text": "\"Jaren Whitlock has been out past the last house and does not like what they saw. Hear it, go and look, and thin the pack out.\"",
+ "turn_in_text": "\"Good. Now the rest of the town can sleep.\"",
+ "stages": [
+  {
+   "id": "hear",
+   "title": "Hear the warning",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "warning",
+     "type": "talk_to",
+     "npc": "jaren_whitlock",
+     "text": "Hear what Jaren Whitlock has seen"
+    }
+   ]
+  },
+  {
+   "id": "edge",
+   "title": "Go and see",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "brackenmoor_outskirts",
+     "text": "Go to the tree line"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Put them down",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "brackenmoor_outskirts",
+     "count": 3,
+     "text": "Kill 3 wolves near Brackenmoor"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Lorne",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "lorne_snare",
+     "text": "Tell Lorne Snare it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 35,
+  "rep": {
+   "brackenmoor": 6
+  },
+  "relationship": [
+   {
+    "npc": "lorne_snare",
+    "label": "Acted on the warning",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

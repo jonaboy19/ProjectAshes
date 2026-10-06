@@ -29,11 +29,42 @@
      "p": 2
     },
     {
+     "text": "\"Welcome to Redwater. Mind the Redwater Dye Works. Everyone does, eventually.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Lamps are lit. Craft does not end at dusk, only the pay does.\"",
+     "if": {
+      "time": "night",
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
      "text": "\"{greeting}\" {first} nods.",
      "if": {
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"Take your time, friend. I am in no hurry. I am, in fact, very good at waiting.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -68,6 +99,16 @@
      }
     },
     {
+     "text": "\"What do you make of Silas?\"",
+     "goto": "op_silas_charnock",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
      "text": "Offer a gift…",
      "goto": "",
      "if": {
@@ -88,11 +129,15 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Good steel is dear. Bad steel is dearer, the day it breaks.\"",
+     "text": "\"Hooks, needles, hasps. A craftsman wants a small tool made well.\"",
      "p": 2
     },
     {
-     "text": "\"Silverford pays double for the good woad batch, and complains the price.\"",
+     "text": "\"The forge hums when the stones dim. Not loud. Enough to notice.\"",
+     "p": 2
+    },
+    {
+     "text": "\"Somebody is copying our patterns and selling them downriver. Cheaper, and worse.\"",
      "p": 2
     },
     {
@@ -131,6 +176,23 @@
    "lines": [
     {
      "text": "\"Oswin and I share a roof and a temper. Mostly the temper.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_silas_charnock": {
+   "lines": [
+    {
+     "text": "\"Silas undercuts me. I forgive Silas. Mostly.\""
     }
    ],
    "choices": [

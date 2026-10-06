@@ -19,8 +19,29 @@
      "p": 5
     },
     {
-     "text": "\"Bring iron or bring coin. Preferably iron.\"",
+     "text": "\"Quick job or good job? I charge for both.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Harvest is the only holiday we keep. The rest is work.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Shouldn't you be inside? The fields are quiet, but the dark has ears.\"",
+     "if": {
+      "time": "night",
       "tier_not": [
        "enemy",
        "rival"
@@ -58,8 +79,8 @@
      }
     },
     {
-     "text": "\"What do you make of Orrin?\"",
-     "goto": "op_orrin_dobbin",
+     "text": "\"What do you make of Hilde?\"",
+     "goto": "op_hilde_harrow",
      "if": {
       "tier_not": [
        "enemy",
@@ -88,11 +109,15 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Good steel is dear. Bad steel is dearer, the day it breaks.\"",
+     "text": "\"Plough blades, sickles, hinges. Honest iron for honest mud.\"",
      "p": 2
     },
     {
-     "text": "\"A sack of Millbrook flour is said to be good luck on a stoneless road.\"",
+     "text": "\"The forge hums when the stones dim. Not loud. Enough to notice.\"",
+     "p": 2
+    },
+    {
+     "text": "\"Barn cats bring in too many rats and too few mice. Odd, that.\"",
      "p": 2
     },
     {
@@ -127,10 +152,10 @@
     }
    ]
   },
-  "op_orrin_dobbin": {
+  "op_hilde_harrow": {
    "lines": [
     {
-     "text": "\"Orrin lives next door and hears everything I do.\""
+     "text": "\"Hilde is good company and better at keeping quiet.\""
     }
    ],
    "choices": [

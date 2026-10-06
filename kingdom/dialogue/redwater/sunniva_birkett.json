@@ -96,7 +96,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Our dog knows something and will not say what.\"",
+     "text": "\"Mum says do not go past the last post. I am only going to the one before it.\"",
+     "p": 2
+    },
+    {
+     "text": "\"A rival workshop in the next valley pays double for our apprentices. The apprentices are listening.\"",
      "p": 2
     },
     {

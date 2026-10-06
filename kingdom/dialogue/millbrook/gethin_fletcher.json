@@ -19,8 +19,19 @@
      "p": 5
     },
     {
-     "text": "\"Rain tomorrow. My knee says so.\"",
+     "text": "\"Mud is honest. Walk on it.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Shouldn't you be inside? The fields are quiet, but the dark has ears.\"",
+     "if": {
+      "time": "night",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +45,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"Excuse the dust. Work does not stop for friends, though it does pause.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -58,8 +79,18 @@
      }
     },
     {
-     "text": "\"What do you make of Gavin?\"",
-     "goto": "op_gavin_swale",
+     "text": "\"What do you make of Freya?\"",
+     "goto": "op_freya_brook",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Isolt?\"",
+     "goto": "op_isolt_charnock",
      "if": {
       "tier_not": [
        "enemy",
@@ -88,11 +119,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Crows are thick this year. They knew about the harvest before I did.\"",
+     "text": "\"Seed is dear and wheat is cheap. Somebody is laughing and it is not me.\"",
      "p": 2
     },
     {
-     "text": "\"A sack of Millbrook flour is said to be good luck on a stoneless road.\"",
+     "text": "\"The Millbrook Great Mill has seen odder days than this. Nobody remembers when.\"",
      "p": 2
     },
     {
@@ -127,10 +158,27 @@
     }
    ]
   },
-  "op_gavin_swale": {
+  "op_freya_brook": {
    "lines": [
     {
-     "text": "\"Gavin knows the trade. I will say that for Gavin.\""
+     "text": "\"Freya knows the trade. I will say that for Freya.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_isolt_charnock": {
+   "lines": [
+    {
+     "text": "\"Isolt works hard and talks harder.\""
     }
    ],
    "choices": [

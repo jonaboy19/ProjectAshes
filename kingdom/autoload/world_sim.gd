@@ -205,7 +205,7 @@ func is_indoors(i: int) -> bool:
 	# they've arrived (was 2 in 3), so fewer bodies are idling on the street at
 	# a given moment without changing where anyone actually is.
 	if phase[i] == 1 and (job[i] == 1 or job[i] == 2):
-		return i % 4 != 0 and pos[i].distance_squared_to(target[i]) < 1.0
+		return i % 4 != 0 and pos[i].distance_squared_to(target[i]) < 1.0 and not TownRoster.outdoor_work(i)
 	return false
 
 

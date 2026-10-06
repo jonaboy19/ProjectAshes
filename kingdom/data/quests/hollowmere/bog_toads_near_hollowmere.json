@@ -1,0 +1,76 @@
+{
+ "id": "hollowmere_bog_toads_near_hollowmere",
+ "title": "Bog Toads Near Hollowmere",
+ "summary": "Bog toad sign has been found at the edge of Hollowmere: slime trails through flattened reeds. Una Saltmarsh wants 2 of them dealt with.",
+ "giver": {
+  "npc": "una_saltmarsh",
+  "name": "Una Saltmarsh",
+  "place": "hollowmere"
+ },
+ "requires": [
+  "hollowmere_cut_lines"
+ ],
+ "offer_text": "\"The bog toads have come closer to Hollowmere each night: croaking that stops when anyone comes near. Go to the edge and thin them out, before someone is hurt.\"",
+ "turn_in_text": "\"Quieter already. I will sleep tonight. A little.\"",
+ "stages": [
+  {
+   "id": "edge",
+   "title": "Go to the edge of town",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "hollowmere_outskirts",
+     "text": "Go to where the bog toads were seen"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Thin them out",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "bog_toad",
+     "place": "hollowmere_outskirts",
+     "count": 2,
+     "text": "Kill 2 bog toads near Hollowmere"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Una",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "una_saltmarsh",
+     "text": "Tell Una Saltmarsh it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 25,
+  "rep": {
+   "hollowmere": 5
+  },
+  "relationship": [
+   {
+    "npc": "una_saltmarsh",
+    "label": "Kept the bog toads from the edge",
+    "value": 10,
+    "days": 60
+   }
+  ],
+  "items": {
+   "smoked_fish": 2
+  }
+ }
+}

@@ -1,0 +1,131 @@
+{
+ "id": "thistledown_a_wheel_short",
+ "title": "A Wheel Short",
+ "summary": "The stores of Thistledown are missing two cheese wheels. Oswin Fleece wants to know whether it is carelessness or a person.",
+ "giver": {
+  "npc": "oswin_fleece",
+  "name": "Oswin Fleece",
+  "place": "thistledown"
+ },
+ "requires": [
+  "thistledown_a_table_for_radley"
+ ],
+ "offer_text": "\"I am missing two cheese wheels from the stores and I have counted twice. Look around the doors in town. Someone was careless, or someone was not.\"",
+ "stages": [
+  {
+   "id": "look",
+   "title": "Look for signs",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "thistledown/clue/c1",
+      "thistledown/clue/c2",
+      "thistledown/clue/c3"
+     ],
+     "count": 3,
+     "text": "Search the doors around town for signs"
+    }
+   ]
+  },
+  {
+   "id": "question",
+   "title": "Ask Flora",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "question",
+     "type": "talk_to",
+     "npc": "flora_lambert",
+     "text": "Ask Flora Lambert what they know"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide what to do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "oswin_fleece",
+     "options": [
+      {
+       "id": "report",
+       "text": "Tell Oswin what you found",
+       "say": "Oswin nods slowly. \"Then it is on the record.\""
+      },
+      {
+       "id": "quiet",
+       "text": "Take Flora's quiet word and say nothing",
+       "say": "Flora presses a few coins into your hand. \"Good sense.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "report": "reported",
+    "quiet": "hushed"
+   }
+  },
+  {
+   "id": "reported",
+   "title": "Oswin hears it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "oswin_fleece",
+     "text": "Tell Oswin Fleece who it was"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 20,
+    "rep": {
+     "thistledown": 6
+    },
+    "relationship": [
+     {
+      "npc": "oswin_fleece",
+      "label": "Told the truth about the theft",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "hushed",
+   "title": "Collect the hush money",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "quiet",
+     "type": "talk_to",
+     "npc": "flora_lambert",
+     "text": "Collect Flora's thanks"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 35,
+    "rep": {
+     "thistledown": -6
+    },
+    "relationship": [
+     {
+      "npc": "oswin_fleece",
+      "label": "Heard you looked the other way",
+      "value": -12,
+      "days": 90
+     }
+    ]
+   }
+  }
+ ]
+}

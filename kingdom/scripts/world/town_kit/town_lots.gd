@@ -65,7 +65,7 @@ static func enforce(plan: Dictionary, s: Dictionary, fits: Callable) -> void:
 	# Named homes: the houses nearest the plaza, numbered in a stable order.
 	var homes: Array = []
 	for i in lots.size():
-		if not used.has(i) and BuildingProfiles.is_house(String(lots[i]["asset"])) and String((lots[i] as Dictionary).get("btype", "")) == "":
+		if not used.has(i) and BuildingProfiles.is_house(String(lots[i]["asset"])) and _free(lots[i]):
 			homes.append(i)
 	homes.sort_custom(func(a: int, b: int) -> bool:
 		var da := (lots[a]["pos"] as Vector2).distance_to(c)
@@ -75,6 +75,11 @@ static func enforce(plan: Dictionary, s: Dictionary, fits: Callable) -> void:
 		_tag(lots[homes[k]], "house", "%s_house_%d" % [tid, k + 1], buildings, homes[k])
 	plan["slice"] = {"town": String(doc["settlement"]), "tid": tid, "buildings": buildings, "sites": (lots_def.get("sites", {}) as Dictionary).duplicate()}
 	_plans[int(s["id"])] = plan["slice"]
+
+
+## A lot the kit may take: not already a kit building, and not one the planner gave a civic role (the courthouse, a workshop).
+static func _free(lot: Dictionary) -> bool:
+	return String(lot.get("btype", "")) == "" and String(lot.get("role", "")) == ""
 
 
 static func _tag(lot: Dictionary, btype: String, bid: String, buildings: Dictionary, idx: int) -> void:
@@ -113,7 +118,7 @@ static func _convert(plan: Dictionary, lots: Array, asset: String, c: Vector2, u
 	var gate_pos := c + Vector2(cos(float(gates[0])), sin(float(gates[0]))) * r * 0.85 if not gates.is_empty() else c
 	var cands: Array = []
 	for i in lots.size():
-		if used.has(i) or String((lots[i] as Dictionary).get("btype", "")) != "":
+		if used.has(i) or not _free(lots[i]):
 			continue
 		var a := String(lots[i]["asset"])
 		if not BuildingProfiles.is_house(a):
@@ -200,10 +205,16 @@ static func door_pos(bid: String) -> Vector2:
 
 
 ## The door-side spot of a building id (lot door, or the site door for a work site), nudged a little per person so a
-## household does not stack on one pixel. Vector2.INF for an unknown id.
+## household does not stack on one pixel. A work site or the capital's keep gate is a yard, not a doorstep: ten workers share it, so
+## their spots are spread over a 3.4 m disc (towns whose file says `outdoor_work`; Thornfield keeps its one-person doorsteps).
+## Vector2.INF for an unknown id.
 static func door_of(bid: String, row := 0) -> Vector2:
 	var p := door_pos(bid)
 	if p == Vector2.INF:
 		return p
-	var a := float(absi(hash(row * 31 + 7)) % 628) / 100.0
-	return p + Vector2(cos(a), sin(a)) * 0.9
+	var h := absi(hash(row * 31 + 7))
+	var a := float(h % 628) / 100.0
+	var r := 0.9
+	if building(bid).is_empty() and bool(TownData.town(tid_of_bid(bid)).get("outdoor_work", false)):
+		r = 0.8 + 2.6 * sqrt(float((h / 628) % 100) / 100.0)
+	return p + Vector2(cos(a), sin(a)) * r

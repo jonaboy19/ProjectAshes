@@ -19,8 +19,29 @@
      "p": 5
     },
     {
-     "text": "\"Quiet town. Good. Do not make it noisy.\"",
+     "text": "\"State your business and keep your hands where I can see them.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Strangers in Redwater get one warning and one welcome. You are on the welcome.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Lamps are lit. Craft does not end at dusk, only the pay does.\"",
+     "if": {
+      "time": "night",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +55,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"Evening already? Good. My day is just starting.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -68,6 +99,16 @@
      }
     },
     {
+     "text": "\"What do you make of Eadric?\"",
+     "goto": "op_eadric_quarry",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
      "text": "Offer a gift…",
      "goto": "",
      "if": {
@@ -88,11 +129,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Giant wasp sign at the edge again. I wrote it in the ledger. Nobody reads the ledger.\"",
+     "text": "\"My night watch wants a second lantern each. I want a second night watch.\"",
      "p": 2
     },
     {
-     "text": "\"Silverford pays double for the good woad batch, and complains the price.\"",
+     "text": "\"Prices at the market are off. Our work is the same. Our wages are not.\"",
      "p": 2
     },
     {
@@ -131,6 +172,23 @@
    "lines": [
     {
      "text": "\"Barda knows the trade. I will say that for Barda.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_eadric_quarry": {
+   "lines": [
+    {
+     "text": "\"Eadric works hard and talks harder.\""
     }
    ],
    "choices": [

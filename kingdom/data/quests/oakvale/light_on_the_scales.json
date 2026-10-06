@@ -1,0 +1,131 @@
+{
+ "id": "oakvale_light_on_the_scales",
+ "title": "Light on the Scales",
+ "summary": "The stores of Oakvale are missing a few sacks of milled flour. Eorl Seedley wants to know whether it is carelessness or a person.",
+ "giver": {
+  "npc": "eorl_seedley",
+  "name": "Eorl Seedley",
+  "place": "oakvale"
+ },
+ "requires": [
+  "oakvale_split_logs_and_sacks_of_wheat"
+ ],
+ "offer_text": "\"I am missing a few sacks of milled flour from the stores and I have counted twice. Look around the doors in town. Someone was careless, or someone was not.\"",
+ "stages": [
+  {
+   "id": "look",
+   "title": "Look for signs",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "oakvale/clue/c1",
+      "oakvale/clue/c2",
+      "oakvale/clue/c3"
+     ],
+     "count": 3,
+     "text": "Search the doors around town for signs"
+    }
+   ]
+  },
+  {
+   "id": "question",
+   "title": "Ask Sorrel",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "question",
+     "type": "talk_to",
+     "npc": "sorrel_tolliver",
+     "text": "Ask Sorrel Tolliver what they know"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide what to do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "eorl_seedley",
+     "options": [
+      {
+       "id": "report",
+       "text": "Tell Eorl what you found",
+       "say": "Eorl nods slowly. \"Then it is on the record.\""
+      },
+      {
+       "id": "quiet",
+       "text": "Take Sorrel's quiet word and say nothing",
+       "say": "Sorrel presses a few coins into your hand. \"Good sense.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "report": "reported",
+    "quiet": "hushed"
+   }
+  },
+  {
+   "id": "reported",
+   "title": "Eorl hears it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "eorl_seedley",
+     "text": "Tell Eorl Seedley who it was"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 20,
+    "rep": {
+     "oakvale": 6
+    },
+    "relationship": [
+     {
+      "npc": "eorl_seedley",
+      "label": "Told the truth about the theft",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "hushed",
+   "title": "Collect the hush money",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "quiet",
+     "type": "talk_to",
+     "npc": "sorrel_tolliver",
+     "text": "Collect Sorrel's thanks"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 35,
+    "rep": {
+     "oakvale": -6
+    },
+    "relationship": [
+     {
+      "npc": "eorl_seedley",
+      "label": "Heard you looked the other way",
+      "value": -12,
+      "days": 90
+     }
+    ]
+   }
+  }
+ ]
+}

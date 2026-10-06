@@ -2,21 +2,31 @@
 """Generates a town-kit file for a Region 1 settlement (scripts/world/town_kit/town_data.gd), deterministically.
 
   python3 tools/towns/gen_town.py Millbrook Redwater          # write data/region1/towns/<id>.json, data/quests/<id>/*.json, dialogue/<id>/*.json
+  python3 tools/towns/gen_town.py --all                       # every settlement but Thornfield (hand-made, never rewritten)
   python3 tools/towns/gen_town.py --all --dry-run             # build every settlement in memory (what the name allocator needs) and print a summary
-  python3 tools/towns/gen_town.py Millbrook --check           # exit 1 when the files on disk differ from what the generator makes now
+  python3 tools/towns/gen_town.py --all --check               # exit 1 when the files on disk differ from what the generator makes now
+  python3 tools/towns/gen_town.py --all --report              # a readable sample per town: roles, a line of dialogue, the quest line
   Run from kingdom/. Options: --seed N (default 1066, the world seed).
 
-Inputs:  data/world/town_identity.json (archetype + flavour per settlement), data/region1/world/settlements.json (trade, landmark,
-         named NPC, rumours), data/region1/world/settlement_facts.json (kind, population, radius, house lots: runtime layout facts).
+Inputs:  data/world/town_identity.json (archetype, flavour, trade kits, terrain per settlement), data/region1/world/settlements.json (trade,
+         landmark, named NPC, rumours), data/region1/world/settlement_facts.json (kind, population, radius, house lots: runtime layout facts).
+Modules: town_text.py (names, roles, archetype tables), town_roles.py (more roles: authorities, trade kits, the capital's court),
+         town_lines.py (archetype and town-specific dialogue), town_quests.py (the quest templates).
 Output per town:
-  * a roster of 10-25 named residents (role by archetype, traits, ties, 3-4 dialogue lines each) whose names are unique across the whole
-    region (the allocator builds every settlement in id order, so a town's names never depend on which towns were asked for);
-  * the required lots by kind (village: tavern, smithy, general shop; town: plus bakery, healer, guard post; a village whose identity says
-    bakehouse/herbs/watch gets that lot too);
-  * a local threat from the region plan's creature list (scripts/world/town_kit/town_threat.gd SPECIES), a den ring and night probes;
-  * a three-quest line from the quest library (TalkTo, GoTo, Collect, Deliver, Investigate, Choose, Kill) the kit can wire by itself:
-    kit-placed clues and a stash for the Collect stage, places for the GoTo and Kill stages;
-  * dialogue files in dialogue_runner format (scripts/sim/dialogue_runner.gd), one per resident.
+  * a roster of 10-25 named residents whose names are unique across the whole region (the allocator builds every settlement in id
+    order, so a town's names never depend on which towns were asked for). Roles come from the archetype (workers), the identity's trade
+    kits (one of each, up to four), the authority of that archetype (reeve, yard-boss, huntmaster, harbourmaster, chamberlain ...) and
+    the lots the town has (keepers). Kingsreach gets the court: marshal, knights, court scribe, falconer, master of horse, courtiers,
+    cook, treasury clerk, and a chamberlain as its authority (no steward, no lord: those belong to the keep and the nobility system);
+  * the required lots by kind (village: tavern, smithy, general shop; town: plus bakery, healer, guard post; a village whose identity
+    says bakehouse/herbs/watch gets that lot too);
+  * a local threat that fits the place (toads at the mere and the marsh, wasps at the hives and the crater, ghouls on the moor and in the
+    deep workings, wolves elsewhere), a den ring and night probes (scripts/world/town_kit/town_threat.gd);
+  * livestock the archetype keeps and, for farming, pastoral, religious, mining, fortress, merchant, fishing and craft places, rail-fence
+    pens laid on the settlement frame around them;
+  * a three-quest chain drawn from fifteen templates (town_quests.py) with only objective types the kit wires by itself;
+  * dialogue files in dialogue_runner format (scripts/sim/dialogue_runner.gd), one per resident, whose lines are drawn without repeating
+    a line inside a town: role lines, archetype lines, lines about the town itself, time-of-day and rain remarks, what a friend hears.
 Everything is a pure function of (seed, settlement), so re-running changes nothing."""
 import argparse
 import hashlib
@@ -30,6 +40,8 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import town_text as T  # noqa: E402
+import town_lines as L  # noqa: E402
+import town_quests as Q  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))       # kingdom/
 KINDS_TOWN = ("town", "frontier_town", "castle")
@@ -68,6 +80,12 @@ class World:
         self.facts = {f["name"]: f for f in jload("data/region1/world/settlement_facts.json")["settlements"]}
         self.by_name = {s["name"]: s for s in self.settlements}
         self.order = [f["name"] for f in sorted(self.facts.values(), key=lambda f: f["id"])]
+        self.rank = {}                       # settlement -> its index among the settlements of its archetype (in id order, Thornfield counts)
+        seen = {}
+        for n in self.order:
+            a = self.identity[n]["arch"]
+            self.rank[n] = seen.get(a, 0)
+            seen[a] = seen.get(a, 0) + 1
         self.reserved_names, self.reserved_first, self.reserved_last = self._reserved()
 
     def _reserved(self):
@@ -143,6 +161,25 @@ def roster_size(f):
     return max(10, min(25, 9 + f["population"] // 30))
 
 
+COURT = ["tourney marshal", "household knight", "court scribe", "falconer", "courtier", "master of horse", "royal cook", "treasury clerk", "courtier"]
+
+
+def signature_roles(ident, arch, count):
+    """The roles that make this town this town: the capital's court, or one of each role of the identity's trade kits."""
+    if count <= 0:
+        return []
+    out = []
+    if arch == "royal":
+        out = list(COURT)
+    else:
+        for kit in ident.get("kits") or []:
+            for r in T.KIT_ROLES.get(kit, []):
+                if r not in out:
+                    out.append(r)
+        out = out[:4]
+    return out[:count]
+
+
 def worker_roles(arch, count, rng):
     pool = []
     for role, w in T.ARCHS[arch]["workers"]:
@@ -175,6 +212,8 @@ def schedule_for(kind, rng, night=False):
     if kind == "dawn":
         a, b = r(4, 5), r(14, 15.5)
         return [{"from": a, "to": b, "phase": "work"}, {"from": b, "to": r(18, 19), "phase": "inn" if ev < 0.5 else "social"}]
+    if kind == "night":
+        return [{"from": 21, "to": 5, "phase": "work"}, {"from": 7, "to": 11, "phase": "home"}, {"from": 17, "to": 21, "phase": "social" if ev < 0.5 else "inn"}]
     if kind == "early":
         return [{"from": 3.5, "to": 12.5, "phase": "work"}, {"from": 12.5, "to": 14, "phase": "market"}]
     if kind == "shop":
@@ -182,7 +221,11 @@ def schedule_for(kind, rng, night=False):
     if kind == "inn":
         return [{"from": 10, "to": 24, "phase": "work"}, {"from": 0, "to": 10, "phase": "home"}]
     if kind == "reeve":
-        return [{"from": 8, "to": 17, "phase": "work"}]
+        # the authority is the town's first quest giver: after the morning's business they hold audience in the market square
+        return [{"from": 8, "to": 11, "phase": "work"}, {"from": 11, "to": 14, "phase": "market"}, {"from": 14, "to": 17, "phase": "work"}]
+    if kind == "audience_temple":
+        return [{"from": 6, "to": 8, "phase": "temple"}, {"from": 8, "to": 11, "phase": "work"}, {"from": 11, "to": 14, "phase": "market"},
+                {"from": 14, "to": 17.5, "phase": "work"}, {"from": 17.5, "to": 18.5, "phase": "temple"}]
     if kind == "elder":
         return [{"from": 9, "to": 12, "phase": "social"}, {"from": 14, "to": 17, "phase": "temple" if ev < 0.5 else "social"}]
     if kind == "kid":
@@ -203,9 +246,12 @@ def build_roster(world, name, names, rng, lots, used):
     elders = 2 if town else 1
     keepers = [LOT_KEEPER[t] for t in lots]
     guards = 2 if "guard_post" in lots else 0
-    roles = ["reeve" if T.ARCHS[arch]["authority"] == "reeve" else "reeve"] + keepers + ["guard"] * guards + ["elder"] * elders
+    authority = T.ARCHS[arch]["authority"]
+    roles = [authority] + keepers + ["guard"] * guards + ["elder"] * elders
     fill = n - len(roles) - kids
-    roles += worker_roles(arch, max(fill, 0), rng)
+    sig = signature_roles(ident, arch, fill)
+    roles += sig
+    roles += worker_roles(arch, max(fill - len(sig), 0), rng)
     roles += ["child"] * kids
     roles = roles[:n]
     # work and home assignment
@@ -255,7 +301,7 @@ def build_roster(world, name, names, rng, lots, used):
             par = residents[e["_parent"]]
             e["home"] = par.get("home") or home_of.get(e["_parent"]) or "%s_house_1" % tid
             e["work"] = e["home"]
-        elif role in ("reeve", "elder"):
+        elif (role == authority and arch != "royal") or role == "elder":
             e["home"] = home_of.get(i, "%s_house_1" % tid)
             e["work"] = e["home"]
         elif role == "guard":
@@ -264,6 +310,8 @@ def build_roster(world, name, names, rng, lots, used):
         else:
             e["home"] = home_of.get(i, "%s_house_1" % tid)
             e["work"] = "%s_works" % tid
+            if T.ROLE_WORK.get(role) == "keep" and arch == "royal":
+                e["work"] = "%s_keep" % tid
         if role in work_for and work_for[role] not in lots:
             e["work"] = "%s_works" % tid
             e["home"] = home_of.get(i, "%s_house_1" % tid)
@@ -283,6 +331,8 @@ def build_roster(world, name, names, rng, lots, used):
         e["age"] = rng.randint(7, 12) if role == "child" else (rng.randint(64, 82) if role == "elder" else rng.randint(23, 58))
         tr = rng.sample(T.TRAITS, 3 if rng.random() < 0.5 else 2)
         e["traits"] = [t.replace("-", " ") for t in tr]
+        if i == 0:
+            kind = "audience_temple" if role == "chaplain" else "reeve"      # the authority holds audience in the market at midday
         e["schedule"] = schedule_for(kind, rng, night)
         if role == "child":
             e["child"] = True
@@ -334,9 +384,41 @@ def build_ties(residents, rng):
     return edges
 
 
+class LineBank:
+    """Draws lines for one town without repeating one while a fresh line is left (pools are shuffled by the town's own rng)."""
+
+    def __init__(self, rng):
+        self.rng = rng
+        self.used = set()
+
+    def take(self, pool):
+        pool = [x for x in pool if x]
+        fresh = [x for x in pool if x not in self.used]
+        pick = self.rng.choice(fresh if fresh else pool)
+        self.used.add(pick)
+        return pick
+
+    def fresh(self, pool):
+        """A line nobody in the town says yet, or "" when the pool is used up."""
+        fresh = [x for x in pool if x and x not in self.used]
+        if not fresh:
+            return ""
+        pick = self.rng.choice(fresh)
+        self.used.add(pick)
+        return pick
+
+
 def finish_people(world, name, residents, edges, rng, threat_noun="wolf"):
     s = world.by_name[name]
-    town_rumours = list(s.get("rumours", []))
+    arch = world.identity[name]["arch"]
+    ident = world.identity[name]
+    al = L.ARCH_LINES[arch]
+    landmark = (s.get("landmark") or {}).get("name", name + " works")
+    fmt = {"town": name, "landmark": landmark, "flavour": ident.get("flavour", "its trade"), "tagline": (s.get("tagline") or "a place of its own").lower()}
+    town_greets = [t.format(**fmt) for t in L.TOWN_GREETS]
+    town_rumours = list(s.get("rumours", [])) + [t.format(**fmt) for t in L.TOWN_RUMOURS]
+    own = len(s.get("rumours", []))
+    bank = LineBank(rng)
     by_id = {r["id"]: r for r in residents}
     rel = {r["id"]: {} for r in residents}
     for a, b, kind, v in edges:
@@ -344,24 +426,43 @@ def finish_people(world, name, residents, edges, rng, threat_noun="wolf"):
         rel[b][a] = {"kind": kind if kind != "mentor" else "student", "value": v}
     for i, r in enumerate(residents):
         r["relationships"] = {k: rel[r["id"]][k] for k in sorted(rel[r["id"]])}
+    slots = ["morning", "evening", "night", "rain"]
     people = []
+
+    def fill(t):
+        return t.replace("{town}", name).replace("{Threat}", threat_noun.capitalize()).replace("{threat}", threat_noun)
+
     for i, r in enumerate(residents):
         greet = r.pop("_greet")
         rum = r.pop("_rum")
         r.pop("_kind", None)
         r.pop("_parent", None)
-        first_rel = next(iter(r["relationships"]))
-        other = by_id[first_rel]
-        kind = r["relationships"][first_rel]["kind"]
-        pool = T.RELATIONS.get(kind, T.RELATIONS["friend"])[1]
-        opinion = pool[(i + len(first_rel)) % len(pool)].format(o=first_of(other["name"]))
-        def fill(t):
-            return t.replace("{town}", name).replace("{Threat}", threat_noun.capitalize()).replace("{threat}", threat_noun)
-        greeting = [fill(greet[(i * 3 + 1) % 2])]
-        rumour = [fill(rum[(i + 1) % 2])]
-        if r["role"] != "child" and town_rumours:
-            rumour.append(town_rumours[i % len(town_rumours)])
-        r["dialogue"] = {"greeting": greeting, "rumour": rumour, "opinions": {first_rel: opinion}}
+        ties = list(r["relationships"])
+        opinions = {}
+        for k, other_id in enumerate(ties[:2]):
+            kind = r["relationships"][other_id]["kind"]
+            pool = T.RELATIONS.get(kind, T.RELATIONS["friend"])[1]
+            opinions[other_id] = pool[(i + len(ties[0]) + k) % len(pool)].format(o=first_of(by_id[other_id]["name"]))
+        child = r["role"] == "child"
+        g1 = bank.fresh([fill(x) for x in greet])
+        greeting = [g1 or fill(bank.take(greet))]
+        g2 = bank.fresh(al["greets"] if child else al["greets"] + town_greets)
+        if g2:
+            greeting.append(g2)
+        rumour = []
+        for pool in ([fill(x) for x in rum], al["rumours"], [] if child else (town_rumours[:own] if (own and i % 2 == 0) else town_rumours)):
+            r1 = bank.fresh(pool)
+            if r1 and (len(rumour) < 2 or i % 3 != 2):
+                rumour.append(r1)
+        while len(rumour) < 2:
+            rumour.append(bank.take(al["rumours"] if child else al["rumours"] + town_rumours))
+        ka = L.KEEPER_ARCH.get(r["role"], {}).get(arch)
+        if ka:
+            rumour.insert(0, ka)
+            bank.used.add(ka)
+        aside = "" if child else next((L.TRAIT_ASIDES[t.replace(" ", "-")] for t in r["traits"] if t.replace(" ", "-") in L.TRAIT_ASIDES), "")
+        slot = slots[i % 4]
+        r["dialogue"] = {"greeting": greeting, "rumour": rumour, "opinions": opinions, "time": {} if child else {slot: al[slot]}, "aside": aside}
         people.append(r)
     return people
 
@@ -383,9 +484,16 @@ def build_dialogue(tid, by_id, p):
     ]
     for g in d["greeting"]:
         greet_lines.append({"text": q(g), "if": {"tier_not": ["enemy", "rival"]}, "p": 2})
+    for slot, line in (d.get("time") or {}).items():
+        if slot == "rain":
+            greet_lines.append({"text": q(line), "if": {"weather": "rain", "tier_not": ["enemy", "rival"]}, "p": 3})
+        else:
+            greet_lines.append({"text": q(line), "if": {"time": slot, "tier_not": ["enemy", "rival"]}, "p": 2})
     if p.get("child"):
         greet_lines.append({"text": q("Hm? Oh. Hello. Does your mother know where you are?"), "if": {"tier": "stranger", "child": False}, "p": 1})
     greet_lines.append({"text": q("{greeting}") + " {first} nods.", "if": {"tier": "stranger"}, "p": 1})
+    if d.get("aside"):
+        greet_lines.append({"text": q(d["aside"]), "if": {"tier": ["friend", "close_friend"]}, "p": 4})
     greet_lines.append({"text": q("Well met, {player}."), "if": {"tier": ["friend", "close_friend"]}, "p": 3})
     greet = {"lines": greet_lines, "choices": [{"text": q("Heard any news?"), "goto": "rumour", "if": {"tier_not": ["enemy", "rival"]}}]}
     for oid in d["opinions"]:
@@ -405,12 +513,77 @@ def build_dialogue(tid, by_id, p):
     return {"id": "%s/%s" % (tid, p["id"]), "start": "greet", "nodes": nodes}
 
 
-# ----------------------------------------------------------------------------------------------- places, quests
+# ----------------------------------------------------------------------------------------------- places, species, livestock
 
 def landmark_front(world, name):
     lm = world.by_name[name].get("landmark") or {}
     ys = [float(p[2]) for p in lm.get("parts", []) if isinstance(p, list) and len(p) > 2 and not str(p[0]).startswith("r1:")]
     return max(10.0, min(20.0, (max(ys) if ys else 8.0) + 3.0))
+
+
+def pick_species(ident):
+    """The local threat that fits the place: toads where it is wet, wasps at the hives and the warm crater, ghouls on the moor and in the
+    deep workings, wolves everywhere else (the forests, the downs, the passes)."""
+    hint = set(ident.get("hint") or [])
+    terr = set(ident.get("terrain") or [])
+    kits = set(ident.get("kits") or [])
+    arch = ident["arch"]
+    if "crater" in terr or "bees" in kits or "candles" in kits:
+        return "giant_wasp"
+    if arch == "craft" and "river" in hint:
+        return "giant_wasp"
+    if arch == "fishing" or (hint & {"mere", "marsh", "coast"} and arch not in ("hunting", "fortress")):
+        return "bog_toad"
+    if arch == "mining" and terr & {"moor", "hill"}:
+        return "ghoul"
+    return "wolf"
+
+
+def works_label(ident, arch):
+    for kit in ident.get("kits") or []:
+        if kit in T.WORKS_BY_KIT:
+            return T.WORKS_BY_KIT[kit]
+    return T.ARCHS[arch]["works"]
+
+
+# archetype -> [(kind, count, tag, pen?)]; a pen is a rail-fence yard around the group on the settlement frame
+LIVESTOCK = {
+    "farming": [("cow", 3, "cows", True), ("chicken", 5, "hens", True), ("pig", 2, "pigs", True)],
+    "pastoral": [("sheep", 6, "sheep", True), ("sheepdog", 1, "dog", False)],
+    "religious": [("sheep", 3, "sheep", True), ("chicken", 4, "hens", True)],
+    "hunting": [("dog", 2, "hounds", False)],
+    "craft": [("chicken", 4, "hens", True)],
+    "mining": [("donkey", 2, "ponies", True), ("goat", 2, "goats", False)],
+    "fortress": [("horse_grey", 2, "horses", True)],
+    "merchant": [("donkey", 2, "pack animals", True)],
+    "fishing": [("goat", 2, "goats", True), ("chicken", 3, "hens", False)],
+    "scholarly": [("cat", 1, "cat", False)],
+    "criminal": [("dog", 1, "dog", False)],
+    "royal": [("dog", 2, "hounds", False)],
+}
+PEN_SIZE = {"cow": [16, 12], "chicken": [8, 6], "pig": [9, 7], "sheep": [16, 12], "donkey": [11, 8], "horse_grey": [14, 10], "goat": [9, 7]}
+
+
+def livestock_for(ident, arch, radius, ang, rng):
+    """Groups and pens on the settlement frame: a ring around the town at 1.2 x its radius, each group a pen facing the town."""
+    spec = list(LIVESTOCK.get(arch, []))
+    if "dairy" in (ident.get("kits") or []) and arch == "pastoral":
+        spec.append(("cow", 3, "cows", True))
+    if not spec:
+        return None
+    groups, pens = [], []
+    r = radius * 1.2
+    for k, (kind, n, tag, pen) in enumerate(spec):
+        a = ang + math.tau * k / max(3, len(spec)) + 0.35 * k
+        at = [round(r * math.cos(a)), round(r * math.sin(a))]
+        kinds = [[kind, n]]
+        if kind == "chicken":
+            kinds.append(["rooster", 1])
+        groups.append({"anchor": "town", "at": at, "kinds": kinds, "radius": 4.0 if kind in ("chicken", "pig", "goat") else 6.0, "tag": tag})
+        if pen:
+            size = PEN_SIZE.get(kind, [12, 9])
+            pens.append({"anchor": "town", "at": at, "size": list(size), "yaw": round(math.atan2(-at[0], -at[1]), 3)})
+    return {"groups": groups, "pens": pens}
 
 
 def build_town(world, name, names, seed, used):
@@ -419,177 +592,111 @@ def build_town(world, name, names, seed, used):
     ident = world.identity[name]
     s = world.by_name[name]
     arch = ident["arch"] if ident["arch"] in T.ARCHS else "farming"
-    kit = T.ARCHS[arch]
+    kit = dict(T.ARCHS[arch])
+    kit["works"] = works_label(ident, arch)
     tid = town_id(name)
     lots = lots_for(world, name)
-    th_species = kit["threat"][rng.randrange(len(kit["threat"]))]
+    th_species = pick_species(ident)
     residents = build_roster(world, name, names, rng, lots, used)
     edges = build_ties(residents, rng)
     people = finish_people(world, name, residents, edges, rng, T.THREAT_NAMES[th_species][0])
-    by_id = {p["id"]: p for p in people}
     fy = landmark_front(world, name)
-    lm_id = "landmark_" + name.lower()
     radius = f["radius"]
     ang = rng.uniform(0, math.tau)
     r_out = round(radius * 1.35)
     out_at = [round(r_out * math.cos(ang)), round(r_out * math.sin(ang))]
     homes = max(int(re.search(r"_house_(\d+)$", p["home"]).group(1)) for p in people if re.search(r"_house_(\d+)$", p["home"]))
+    lot_bid = {"tavern": "inn", "smithy": "smithy", "general_shop": "shop", "bakery": "bakery", "healer": "healer", "guard_post": "guard_post"}
+    doors = {"%s_works" % tid: {"anchor": "landmark", "at": [0.0, round(fy, 1)]}}
+    anchors = {"town": {"kind": "settlement"}, "landmark": {"kind": "site", "r1id": "landmark_" + name.lower()}}
+    if arch == "royal":
+        # the keep gate: the capital's castle is a plan landmark, its court lives and works behind it
+        anchors["keep"] = {"kind": "landmark", "asset": "castle"}
+        doors["%s_keep" % tid] = {"anchor": "keep", "at": [0.0, 14.5]}
+    kind = f["kind"]
+    probe_chance = 65 if kind == "frontier_town" else (25 if arch == "royal" else (35 if arch == "fortress" else 55))
     doc = {
         "version": 1,
         "_doc": "Generated by tools/towns/gen_town.py (seed %d) for %s. Edit freely or re-run; format: scripts/world/town_kit/town_data.gd." % (SEED_USED[0], name),
-        "id": tid, "settlement": name, "kind": f["kind"], "population": f["population"],
-        "dialogue_dir": tid,
-        "identity": {"arch": arch, "flavour": ident.get("flavour", ""), "trade": s.get("trade", ""), "tagline": s.get("tagline", "")},
+        "id": tid, "settlement": name, "kind": kind, "population": f["population"],
+        "dialogue_dir": tid, "outdoor_work": True,
+        "identity": {"arch": arch, "flavour": ident.get("flavour", ""), "trade": s.get("trade", ""), "tagline": s.get("tagline", ""), "kits": ident.get("kits") or [], "terrain": ident.get("terrain") or [], "hint": ident.get("hint") or []},
         "residents": people,
-        "lots": {"required": [{"btype": t, "asset": LOT_ASSET[t], "bid": "%s_%s" % (tid, {"tavern": "inn", "smithy": "smithy", "general_shop": "shop", "bakery": "bakery", "healer": "healer", "guard_post": "guard_post"}[t])} for t in lots],
+        "lots": {"required": [{"btype": t, "asset": LOT_ASSET[t], "bid": "%s_%s" % (tid, lot_bid[t])} for t in lots],
                  "homes": homes, "sites": {"%s_works" % tid: s["landmark"]["name"] if s.get("landmark") else name + " works"}},
-        "anchors": {"town": {"kind": "settlement"}, "landmark": {"kind": "site", "r1id": lm_id}},
-        "doors": {"%s_works" % tid: {"anchor": "landmark", "at": [0.0, round(fy, 1)]}},
+        "anchors": anchors,
+        "doors": doors,
         "places": [
             {"id": tid, "anchor": "town", "at": [0, 0], "radius": round(radius * 1.15)},
             {"id": "%s_works" % tid, "anchor": "landmark", "at": [0.0, round(fy - 3.0, 1)], "radius": 26},
             {"id": "%s_outskirts" % tid, "anchor": "town", "at": out_at, "radius": 40, "dry": True},
         ],
         "threat": {"species": th_species, "spawner": tid, "group": "%s_threat" % tid, "den_ring": [round(radius + 60), round(radius + 220)], "night": [22, 5],
-                   "probe_chance": 55, "probe_place": "%s_outskirts" % tid, "probe_near": 240, "probe_count": THREAT_COUNT[th_species], "probe_from": 60,
+                   "probe_chance": probe_chance, "probe_place": "%s_outskirts" % tid, "probe_near": 240, "probe_count": THREAT_COUNT[th_species], "probe_from": 60,
                    "probe_territory": 70, "ambush_from": 22, "ambush_territory": 120},
     }
-    lv = livestock_for(arch, radius, ang, rng)
+    lv = livestock_for(ident, arch, radius, ang, rng)
     if lv:
-        doc["livestock"] = {"groups": lv, "pens": []}
-    quests, clues, stash = build_quests(world, name, tid, arch, kit, people, by_id, doc, th_species, fy, rng)
+        doc["livestock"] = lv
+    rank = world.rank[name]
+    ctx = Q.Ctx(tid, name, arch, kit, kind, people, doc, th_species, fy, rng, rank, T.ARCHS[arch]["authority"],
+                (s.get("landmark") or {}).get("name", name), {"village": 1.0, "frontier_town": 1.25, "town": 1.3, "castle": 1.6}.get(kind, 1.0))
+    quests, clues, stashes, picks = Q.build_line(ctx)
     doc["clues"] = clues
-    doc["stashes"] = [stash]
+    doc["stashes"] = stashes
     doc["quests"] = ["res://data/quests/%s/%s.json" % (tid, q["id"][len(tid) + 1:]) for q in quests]
+    doc["identity"]["quest_templates"] = picks
     return doc, quests
-
-
-def livestock_for(arch, radius, ang, rng):
-    kinds = {"farming": [["cow", 2], ["chicken", 5]], "pastoral": [["sheep", 6], ["sheepdog", 1]], "religious": [["sheep", 3]], "hunting": [["dog", 2]]}.get(arch)
-    if not kinds:
-        return []
-    out = []
-    for k, grp in enumerate(kinds):
-        a = ang + math.pi * (0.7 + 0.35 * k)
-        r = radius * 1.2
-        out.append({"anchor": "town", "at": [round(r * math.cos(a)), round(r * math.sin(a))], "kinds": [grp], "radius": 6.0, "tag": "%s" % grp[0]})
-    return out
-
-
-def pick(people, roles, rng, avoid=()):
-    c = [p for p in people if p["role"] in roles and p["id"] not in avoid and p["role"] != "child"]
-    if not c:
-        c = [p for p in people if p["role"] not in ("child", "elder") and p["id"] not in avoid]
-    return rng.choice(c)
-
-
-def build_quests(world, name, tid, arch, kit, people, by_id, doc, species, fy, rng):
-    giver = next(p for p in people if p["role"] == "reeve")
-    gname = giver["name"]
-    gfirst = first_of(gname)
-    item, item_name, count = kit["item"]
-    receiver = pick(people, [kit["deliver_role"], "shopkeeper", "baker"], rng, (giver["id"],))
-    suspect = pick(people, kit["suspect"], rng, (giver["id"], receiver["id"]))
-    sing, plur = T.THREAT_NAMES[species]
-    works = kit["works"]
-    thing = kit["thing"]
-    n_kill = 3 if doc["kind"] in KINDS_TOWN else 2
-    outskirts = "%s_outskirts" % tid
-    reach_works = "%s_works" % tid
-
-    def reward(gold, rep, rel, label, days=60):
-        return {"gold": gold, "rep": {tid: rep}, "relationship": [{"npc": giver["id"], "label": label, "value": rel, "days": days}]}
-
-    # --- A: errand (GoTo, Collect, Deliver, TalkTo)
-    a_id = "%s_%s" % (tid, slug(kit["a_title"]))
-    qa = {
-        "id": a_id, "title": kit["a_title"],
-        "summary": "%s wants %d %s from %s for %s, and then a word." % (gname, count, item_name, works, receiver["name"]),
-        "giver": {"npc": giver["id"], "name": gname, "place": tid},
-        "offer_text": "\"%s's short of %s again. The pile at %s is ours to take. Bring it to %s and tell me when it is done.\"" % (name, item_name, works, receiver["name"]),
-        "turn_in_text": "\"Good. That is one thing in %s that goes right.\"" % name,
-        "stages": [
-            {"id": "fetch", "title": "Fetch the %s" % item_name, "mode": "sequence", "objectives": [
-                {"id": "reach", "type": "goto", "place": reach_works, "text": "Go to %s" % works},
-                {"id": "gather", "type": "collect", "item": item, "count": count, "text": "Take %d %s from the pile" % (count, item_name)}]},
-            {"id": "deliver", "title": "Take it to %s" % receiver["name"], "mode": "all", "objectives": [
-                {"id": "hand_over", "type": "deliver", "item": item, "count": count, "to": receiver["id"], "text": "Hand the %s to %s" % (item_name, receiver["name"])}]},
-            {"id": "report", "title": "Tell %s" % gfirst, "mode": "all", "end": True, "objectives": [
-                {"id": "report", "type": "talk_to", "npc": giver["id"], "text": "Tell %s it is done" % gname}]},
-        ],
-        "rewards": reward(14, 3, 8, "Ran an errand for the town", 45),
-    }
-    stash = {"id": "%s/stash/%s" % (tid, item), "item": item, "count": count, "anchor": "landmark", "at": [-4.0, round(fy - 4.0, 1)],
-             "quest": a_id, "stage": "fetch", "target": kit["stash"][1], "say": kit["stash"][2], "prop": kit["stash"][0]}
-
-    # --- B: investigation (Investigate, TalkTo, Choose)
-    b_id = "%s_%s" % (tid, slug(kit["b_title"]))
-    props = kit["theft"]
-    notes = {
-        "sack": "A sack by the door has been slit and sewn back up. It is lighter than it should be.",
-        "tracks": "Boot prints, one heel worn down, coming and going. They stop where the lane meets %s." % works,
-        "ledger": "Someone has re-inked a line of the count. The ink is newer than the page.",
-        "lock": "The hasp was prised off and set back almost straight. The lock only looks shut.",
-        "crate": "A crate lid, nailed back crooked. The nails are bright.",
-    }
-    targets = {"sack": "Slit sack", "tracks": "Muddy prints", "ledger": "Altered count", "lock": "Forced hasp", "crate": "Crooked crate"}
-    spots = [("%s_shop" % tid, [1.4, 0.8]), ("%s_smithy" % tid, [-1.4, 0.8]), ("%s_inn" % tid, [1.4, -0.8])]
-    lot_bids = {r["bid"] for r in doc["lots"]["required"]}
-    spots = [sp for sp in spots if sp[0] in lot_bids]
-    while len(spots) < 3:
-        spots.append(("%s_house_%d" % (tid, len(spots) + 1), [1.2, 0.8]))
-    clues = []
-    for k, prop in enumerate(props):
-        clues.append({"id": "%s/clue/%s" % (tid, prop), "building": spots[k][0], "at": spots[k][1], "h": 0.0, "target": targets[prop], "note": notes[prop], "prop": prop})
-    sfirst = first_of(suspect["name"])
-    qb = {
-        "id": b_id, "title": kit["b_title"],
-        "summary": "%s is gone from the stores of %s. %s wants to know whether it is carelessness or a person." % (thing.capitalize(), name, gname),
-        "giver": {"npc": giver["id"], "name": gname, "place": tid}, "requires": [a_id],
-        "offer_text": "\"%s is gone from the stores and I have counted twice. Look around the doors in town. Someone was careless, or someone was not.\"" % thing.capitalize(),
-        "stages": [
-            {"id": "look", "title": "Look for signs", "mode": "all", "objectives": [
-                {"id": "clues", "type": "investigate", "text": "Search the doors around town for signs", "clues": [c["id"] for c in clues], "count": 3}]},
-            {"id": "question", "title": "Ask %s" % sfirst, "mode": "all", "objectives": [
-                {"id": "question", "type": "talk_to", "npc": suspect["id"], "text": "Ask %s what they know" % suspect["name"]}]},
-            {"id": "decide", "title": "Decide what to do", "mode": "all", "objectives": [
-                {"id": "verdict", "type": "choose", "npc": giver["id"], "options": [
-                    {"id": "report", "text": "Tell %s what you found" % gfirst, "say": "%s nods slowly. \"Then it is on the record.\"" % gfirst},
-                    {"id": "quiet", "text": "Take %s's quiet word and say nothing" % sfirst, "say": "%s presses a few coins into your hand. \"Good sense.\"" % sfirst}]}],
-             "branches": {"report": "reported", "quiet": "hushed"}},
-            {"id": "reported", "title": "%s hears it" % gfirst, "mode": "all", "end": True, "objectives": [
-                {"id": "told", "type": "talk_to", "npc": giver["id"], "text": "Tell %s who it was" % gname}],
-             "rewards": reward(20, 6, 12, "Told the truth about the theft", 90)},
-            {"id": "hushed", "title": "Collect the hush money", "mode": "all", "end": True, "objectives": [
-                {"id": "quiet", "type": "talk_to", "npc": suspect["id"], "text": "Collect %s's thanks" % sfirst}],
-             "rewards": {"gold": 35, "rep": {tid: -6}, "relationship": [{"npc": giver["id"], "label": "Heard you looked the other way", "value": -12, "days": 90}]}},
-        ],
-    }
-
-    # --- C: the threat (GoTo, Kill, TalkTo)
-    c_id = "%s_%s" % (tid, slug(kit["c_title"]))
-    qc = {
-        "id": c_id, "title": kit["c_title"],
-        "summary": "%s sign at the edge of %s has grown bolder. %s wants %d of them dealt with." % (plur.capitalize(), name, gname, n_kill),
-        "giver": {"npc": giver["id"], "name": gname, "place": tid}, "requires": [b_id],
-        "offer_text": "\"The %s have come closer to %s each night. Go to the edge and thin them out, before someone is hurt.\"" % (plur, name),
-        "turn_in_text": "\"Quieter already. I will sleep tonight. A little.\"",
-        "stages": [
-            {"id": "edge", "title": "Go to the edge of town", "mode": "all", "objectives": [
-                {"id": "reach", "type": "goto", "place": outskirts, "text": "Go to where the %s were seen" % plur}]},
-            {"id": "hunt", "title": "Thin them out", "mode": "all", "objectives": [
-                {"id": "hunt", "type": "kill", "target": species, "place": outskirts, "count": n_kill, "text": "Kill %d %s near %s" % (n_kill, plur, name)}]},
-            {"id": "report", "title": "Tell %s" % gfirst, "mode": "all", "end": True, "objectives": [
-                {"id": "report", "type": "talk_to", "npc": giver["id"], "text": "Tell %s it is done" % gname}]},
-        ],
-        "rewards": reward(25, 5, 10, "Kept the %s from the edge" % plur, 60),
-    }
-    return [qa, qb, qc], clues, stash
 
 
 # ----------------------------------------------------------------------------------------------- driver
 
 SEED_USED = [1066]
+
+
+def sanity(doc, quests):
+    """The invariants the kit relies on, checked at generation time (the gdUnit test checks them again in the engine)."""
+    tid = doc["id"]
+    people = {p["id"]: p for p in doc["residents"]}
+    homes = {"%s_house_%d" % (tid, k + 1) for k in range(doc["lots"]["homes"])}
+    doors = set(doc["doors"])
+    bids = {r["bid"] for r in doc["lots"]["required"]} | homes | doors
+    places = {p["id"] for p in doc["places"]}
+    clues = {c["id"] for c in doc["clues"]}
+    qids = {q["id"] for q in quests}
+    assert len(qids) == len(quests), tid + ": duplicate quest ids"
+    assert len(clues) == len(doc["clues"]), tid + ": duplicate clue ids"
+    for e in doc["residents"]:
+        assert e["home"] in bids or e["home"] in doc.get("default_spots", []), "%s: %s home %s" % (tid, e["id"], e["home"])
+        assert e["work"] in bids, "%s: %s work %s" % (tid, e["id"], e["work"])
+    for c in doc["clues"] + doc["stashes"]:
+        assert ("building" in c and c["building"] in bids) or c.get("anchor") in doc["anchors"], "%s: %s has no location (%s)" % (tid, c["id"], c)
+    stash_for = {}
+    for st in doc["stashes"]:
+        assert st["quest"] in qids, "%s: stash %s names quest %s" % (tid, st["id"], st["quest"])
+        q = next(q for q in quests if q["id"] == st["quest"])
+        assert st["stage"] in [s["id"] for s in q["stages"]], "%s: stash %s stage %s" % (tid, st["id"], st["stage"])
+        stash_for[(st["quest"], st["item"])] = st
+    for q in quests:
+        assert q["giver"]["npc"] in people, "%s: giver of %s" % (tid, q["id"])
+        for st in q["stages"]:
+            for o in st["objectives"]:
+                t = o["type"]
+                if t in ("talk_to", "choose") and o.get("npc"):
+                    assert o["npc"] in people, "%s: %s npc %s" % (tid, q["id"], o["npc"])
+                if t == "deliver":
+                    assert o["to"] in people, "%s: %s deliver to %s" % (tid, q["id"], o["to"])
+                if t == "goto" or t == "kill":
+                    assert o["place"] in places, "%s: %s place %s" % (tid, q["id"], o["place"])
+                if t == "investigate":
+                    assert all(c in clues for c in o["clues"]) and o["count"] <= len(o["clues"]), "%s: %s clues" % (tid, q["id"])
+                if t == "collect":
+                    sx = stash_for.get((q["id"], o["item"]))
+                    assert sx is not None and sx["stage"] == st["id"] and sx["count"] == o["count"], "%s: %s collect %s has no stash on its stage" % (tid, q["id"], o["item"])
+            for b in (st.get("branches") or {}).values():
+                assert b in [x["id"] for x in q["stages"]], "%s: %s branch %s" % (tid, q["id"], b)
+    names = [p["name"] for p in doc["residents"]]
+    assert len(set(names)) == len(names), tid + ": duplicate names"
 
 
 def build_all(world, seed):
@@ -601,6 +708,7 @@ def build_all(world, seed):
     out = {}
     for name in world.order:
         out[name] = build_town(world, name, allocated[name], seed, used)
+        sanity(*out[name])
     return out
 
 
@@ -635,6 +743,27 @@ def dump(obj):
     return json.dumps(obj, indent=1, ensure_ascii=False) + "\n"
 
 
+def report(doc, quests):
+    """A readable sample of one town: identity, roles, a few lines, the quest line."""
+    print("=== %s (%s, %s, pop %d) arch=%s threat=%s templates=%s" % (doc["settlement"], doc["kind"], ",".join(doc["identity"]["kits"]) or "-", doc["population"],
+                                                               doc["identity"]["arch"], doc["threat"]["species"], doc["identity"]["quest_templates"]))
+    roles = {}
+    for p in doc["residents"]:
+        roles[p["role"]] = roles.get(p["role"], 0) + 1
+    print("  roles: " + ", ".join("%s%s" % (r, " x%d" % n if n > 1 else "") for r, n in sorted(roles.items())))
+    for p in doc["residents"][:2]:
+        print("  %s (%s): \"%s\" / \"%s\"" % (p["name"], p["role"], p["dialogue"]["greeting"][0], p["dialogue"]["rumour"][0]))
+    lv = doc.get("livestock")
+    if lv:
+        print("  livestock: %s; %d pens" % (", ".join("%s x%d" % (g["kinds"][0][0], g["kinds"][0][1]) for g in lv["groups"]), len(lv["pens"])))
+    for q in quests:
+        types = []
+        for st in q["stages"]:
+            types.append("/".join(o["type"] for o in st["objectives"]))
+        print("  quest %s [giver %s]: %s" % (q["title"], q["giver"]["name"], " > ".join(types)))
+        print("      %s" % q["summary"])
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("towns", nargs="*", help="settlement names (Millbrook ...)")
@@ -642,10 +771,11 @@ def main():
     ap.add_argument("--seed", type=int, default=1066)
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--report", action="store_true")
     a = ap.parse_args()
     world = World()
     built = build_all(world, a.seed)
-    want = world.order if a.all else []
+    want = [n for n in world.order if n != "Thornfield"] if a.all else []
     for t in a.towns:
         match = [n for n in world.order if n.lower() == t.lower() or town_id(n) == t.lower()]
         if not match:
@@ -655,10 +785,15 @@ def main():
         ap.error("name at least one settlement (or --all)")
     bad = 0
     for name in want:
-        if name == "Thornfield" and not a.dry_run:
+        if name == "Thornfield" and not (a.dry_run or a.report or a.check):
             sys.exit("Thornfield is the hand-written first user of the kit (data/region1/towns/thornfield.json); the generator never rewrites it")
+        if name == "Thornfield" and a.check:
+            continue
         doc, quests = built[name]
         files = files_for(doc, quests)
+        if a.report:
+            report(doc, quests)
+            continue
         if a.dry_run:
             print("%-12s %-13s pop %4d  %2d residents, %d lots, threat %s, %d quests, %d dialogue files" % (
                 name, doc["kind"], doc["population"], len(doc["residents"]), len(doc["lots"]["required"]), doc["threat"]["species"], len(quests), len(doc["residents"])))
@@ -678,7 +813,7 @@ def main():
             if a.check:
                 print("stale: " + rel)
                 bad += 1
-            elif not a.dry_run:
+            else:
                 os.remove(os.path.join(ROOT, rel))
                 print("removed stale " + rel)
         if not a.check:

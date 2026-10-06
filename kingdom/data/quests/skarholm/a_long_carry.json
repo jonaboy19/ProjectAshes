@@ -1,0 +1,63 @@
+{
+ "id": "skarholm_a_long_carry",
+ "title": "A Long Carry",
+ "summary": "Kit Seam wants 4 cut blocks carried from the far end of Skarholm to Helm Tallis at the ore yard before the foreman files his tally.",
+ "giver": {
+  "npc": "kit_seam",
+  "name": "Kit Seam",
+  "place": "skarholm"
+ },
+ "offer_text": "\"The cut blocks are by my door and Helm Tallis is waiting at the ore yard. It is a long walk and I have a bad knee. Take them over before the foreman files his tally.\"",
+ "stages": [
+  {
+   "id": "load",
+   "title": "Collect the stock",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "load",
+     "type": "collect",
+     "item": "stone",
+     "count": 4,
+     "text": "Take 4 cut blocks from outside Kit's door"
+    }
+   ]
+  },
+  {
+   "id": "carry",
+   "title": "Carry it across town",
+   "mode": "sequence",
+   "objectives": [
+    {
+     "id": "cross",
+     "type": "goto",
+     "place": "skarholm_works",
+     "text": "Walk to the ore yard"
+    },
+    {
+     "id": "drop",
+     "type": "deliver",
+     "item": "stone",
+     "count": 4,
+     "to": "helm_tallis",
+     "text": "Hand the cut blocks to Helm Tallis"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 15,
+  "rep": {
+   "skarholm": 3
+  },
+  "relationship": [
+   {
+    "npc": "kit_seam",
+    "label": "Carried the load across town",
+    "value": 7,
+    "days": 45
+   }
+  ]
+ }
+}

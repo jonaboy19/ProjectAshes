@@ -29,11 +29,42 @@
      "p": 2
     },
     {
+     "text": "\"Millbrook is mill and bakehouse. Nobody thinks to say it, but it is true.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Early start. The field has been awake an hour.\"",
+     "if": {
+      "time": "morning",
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
      "text": "\"{greeting}\" {first} nods.",
      "if": {
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"Forgive me. It has been a long week and a longer day. Still, it is good to see you.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -68,6 +99,16 @@
      }
     },
     {
+     "text": "\"What do you make of Odell?\"",
+     "goto": "op_odell_tyndall",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
      "text": "Offer a gift…",
      "goto": "",
      "if": {
@@ -88,7 +129,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Half the loaves go to the watch. The rest go to whoever asks nicely.\"",
+     "text": "\"The oven runs hot because the town runs hungry.\"",
+     "p": 2
+    },
+    {
+     "text": "\"The hedgerows grow faster than the hedger can trim. I trimmed twice this month.\"",
      "p": 2
     },
     {
@@ -131,6 +176,23 @@
    "lines": [
     {
      "text": "\"Leofric undercuts me. I forgive Leofric. Mostly.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_odell_tyndall": {
+   "lines": [
+    {
+     "text": "\"Odell keeps a tidy yard and an untidy mouth.\""
     }
    ],
    "choices": [

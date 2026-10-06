@@ -19,8 +19,19 @@
      "p": 5
     },
     {
-     "text": "\"Wool does not shear itself. More is the pity.\"",
+     "text": "\"Do not stand between a ewe and her lamb. She will not read the sign.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Early start. The field has been awake an hour.\"",
+     "if": {
+      "time": "morning",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +45,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"Up before dawn, friend? Then you saw the best of the day. I saw it first.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -68,6 +89,16 @@
      }
     },
     {
+     "text": "\"What do you make of Isolt?\"",
+     "goto": "op_isolt_charnock",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
      "text": "Offer a gift…",
      "goto": "",
      "if": {
@@ -92,7 +123,7 @@
      "p": 2
     },
     {
-     "text": "\"The mill sails turned backward on their own last Tuesday. Flour everywhere.\"",
+     "text": "\"The Millbrook Great Mill was busy last week. Something is stirring, or somebody is.\"",
      "p": 2
     },
     {
@@ -130,7 +161,24 @@
   "op_brannoc_blackmore": {
    "lines": [
     {
-     "text": "\"Brannoc knows the trade. I will say that for Brannoc.\""
+     "text": "\"Brannoc keeps a tidy yard and an untidy mouth.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_isolt_charnock": {
+   "lines": [
+    {
+     "text": "\"Isolt works hard and talks harder.\""
     }
    ],
    "choices": [

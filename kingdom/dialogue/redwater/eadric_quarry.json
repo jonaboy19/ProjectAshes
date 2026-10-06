@@ -29,6 +29,27 @@
      "p": 2
     },
     {
+     "text": "\"Redwater is dyers and cloth. Nobody thinks to say it, but it is true.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Morning. The shop is open if you are.\"",
+     "if": {
+      "time": "morning",
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
      "text": "\"{greeting}\" {first} nods.",
      "if": {
       "tier": "stranger"
@@ -68,6 +89,16 @@
      }
     },
     {
+     "text": "\"What do you make of Hilde?\"",
+     "goto": "op_hilde_birkett",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
      "text": "Offer a gift…",
      "goto": "",
      "if": {
@@ -88,11 +119,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Captain says it is nothing. Captain also says that about rain.\"",
+     "text": "\"A stone by the gate flickered at midnight. I wrote it down. Nobody reads it.\"",
      "p": 2
     },
     {
-     "text": "\"The stream runs red on dye days. Children downstream think it is an omen.\"",
+     "text": "\"Wood is up, iron is up, and the market will not pay more. Craft is a squeeze.\"",
      "p": 2
     },
     {
@@ -131,6 +162,23 @@
    "lines": [
     {
      "text": "\"Drystan works hard and talks harder.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_hilde_birkett": {
+   "lines": [
+    {
+     "text": "\"Hilde keeps a tidy yard and an untidy mouth.\""
     }
    ],
    "choices": [

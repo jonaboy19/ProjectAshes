@@ -217,6 +217,15 @@ func _dawn() -> void:
 	probe_wolves.clear()
 
 
+## The hub fell asleep (the player is far away): probe creatures still out are released.
+func sleep() -> void:
+	_prune()
+	for w: Variant in probe_wolves:
+		if is_instance_valid(w):
+			CreaturePool.give_back(w)
+	probe_wolves.clear()
+
+
 func clear_ambush() -> void:
 	for w: Variant in ambush_wolves:
 		if is_instance_valid(w) and not bool(w.dead):

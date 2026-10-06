@@ -19,8 +19,19 @@
      "p": 5
     },
     {
-     "text": "\"Do not shake my hand. You will be blue until Tuesday.\"",
+     "text": "\"Road is long, axle is short.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Closing up. Come back tomorrow and bring coin.\"",
+     "if": {
+      "time": "evening",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +45,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"Ah. You. I would say nice day, but it is not, and you would know.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -68,6 +89,16 @@
      }
     },
     {
+     "text": "\"What do you make of Hamo?\"",
+     "goto": "op_hamo_loomis",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
      "text": "Offer a gift…",
      "goto": "",
      "if": {
@@ -88,11 +119,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"The stream ran red on dye day. Children upstream think it is an omen. We let them.\"",
+     "text": "\"Toll at the ford has gone up. So has my temper.\"",
      "p": 2
     },
     {
-     "text": "\"A bolt of Highwatch blue went missing. The thief should be easy to spot.\"",
+     "text": "\"A stranger asked at the Redwater Dye Works for the oldest person in Redwater. We sent him to the wrong house, on purpose.\"",
      "p": 2
     },
     {
@@ -131,6 +162,23 @@
    "lines": [
     {
      "text": "\"Amice works hard and talks harder.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_hamo_loomis": {
+   "lines": [
+    {
+     "text": "\"I would trust Hamo with a purse. A small one.\""
     }
    ],
    "choices": [

@@ -19,7 +19,7 @@
      "p": 5
     },
     {
-     "text": "\"Are you a soldier? You look like a soldier.\"",
+     "text": "\"I am not lost. I am exploring.\"",
      "if": {
       "tier_not": [
        "enemy",
@@ -97,6 +97,10 @@
    "lines": [
     {
      "text": "\"I saw a light in the hedge last night. Do not tell Mum.\"",
+     "p": 2
+    },
+    {
+     "text": "\"The scarecrow by the north field has moved twice. The farmer says he did not touch it.\"",
      "p": 2
     },
     {

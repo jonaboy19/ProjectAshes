@@ -19,8 +19,19 @@
      "p": 5
     },
     {
-     "text": "\"Warp, weft, patience. Two out of three will do.\"",
+     "text": "\"Gloves are by the door. Hands stay blue for days without them.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Morning. The shop is open if you are.\"",
+     "if": {
+      "time": "morning",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +45,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"Smell the air, friend. Rain by supper. Bring a cloak, or come in.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -68,6 +89,16 @@
      }
     },
     {
+     "text": "\"What do you make of Lorne?\"",
+     "goto": "op_lorne_burrow",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
      "text": "Offer a gift…",
      "goto": "",
      "if": {
@@ -88,11 +119,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Shuttle went missing off the loom. Nobody takes a shuttle. Someone did.\"",
+     "text": "\"A bolt of good blue went missing. The thief is easy to spot: the man not wearing it.\"",
      "p": 2
     },
     {
-     "text": "\"The stream runs red on dye days. Children downstream think it is an omen.\"",
+     "text": "\"If trade slows, Redwater feels it first. If it speeds up, Redwater feels it last.\"",
      "p": 2
     },
     {
@@ -131,6 +162,23 @@
    "lines": [
     {
      "text": "\"Flora knows the trade. I will say that for Flora.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_lorne_burrow": {
+   "lines": [
+    {
+     "text": "\"Lorne lives next door and hears everything I do.\""
     }
    ],
    "choices": [

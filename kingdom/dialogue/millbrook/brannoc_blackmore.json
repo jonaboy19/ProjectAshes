@@ -19,8 +19,19 @@
      "p": 5
     },
     {
-     "text": "\"Timber! Well, soon. Stand back.\"",
+     "text": "\"Quiet work, wood. I like the quiet.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Last light. The work is done or it is dark. Both are fine.\"",
+     "if": {
+      "time": "evening",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +45,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"You have a new scar, and fewer coins than last time. Sit.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -68,6 +89,16 @@
      }
     },
     {
+     "text": "\"What do you make of Isolt?\"",
+     "goto": "op_isolt_charnock",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
      "text": "Offer a gift…",
      "goto": "",
      "if": {
@@ -88,11 +119,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Trees past the ward-line grow wrong. Too straight. Too quiet.\"",
+     "text": "\"Found an axe head grown into a trunk, old as my grandmother. Nobody here owns it.\"",
      "p": 2
     },
     {
-     "text": "\"Thornfield's brewer pays for barley in ale. The miller prefers that.\"",
+     "text": "\"Every few years Millbrook has a winter nobody forgets. The old folk say this one is early.\"",
      "p": 2
     },
     {
@@ -130,7 +161,24 @@
   "op_gavin_swale": {
    "lines": [
     {
-     "text": "\"Gavin works hard and talks harder.\""
+     "text": "\"Gavin lives next door and hears everything I do.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_isolt_charnock": {
+   "lines": [
+    {
+     "text": "\"Isolt knows the trade. I will say that for Isolt.\""
     }
    ],
    "choices": [

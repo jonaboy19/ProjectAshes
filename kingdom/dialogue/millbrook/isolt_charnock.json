@@ -29,11 +29,42 @@
      "p": 2
     },
     {
+     "text": "\"The Millbrook Great Mill is not much to look at. It is, however, ours.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Shouldn't you be inside? The fields are quiet, but the dark has ears.\"",
+     "if": {
+      "time": "night",
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
      "text": "\"{greeting}\" {first} nods.",
      "if": {
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"I dreamed of you last night. You were a heron. It suited you.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -58,8 +89,18 @@
      }
     },
     {
-     "text": "\"What do you make of Hadley?\"",
-     "goto": "op_hadley_wythe",
+     "text": "\"What do you make of Brannoc?\"",
+     "goto": "op_brannoc_blackmore",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
+     "text": "\"What do you make of Gavin?\"",
+     "goto": "op_gavin_swale",
      "if": {
       "tier_not": [
        "enemy",
@@ -92,7 +133,7 @@
      "p": 2
     },
     {
-     "text": "\"A sack of Millbrook flour is said to be good luck on a stoneless road.\"",
+     "text": "\"The Millbrook Great Mill drew a stranger last month. He asked questions and bought nothing.\"",
      "p": 2
     },
     {
@@ -127,10 +168,27 @@
     }
    ]
   },
-  "op_hadley_wythe": {
+  "op_brannoc_blackmore": {
    "lines": [
     {
-     "text": "\"Hadley works hard and talks harder.\""
+     "text": "\"Brannoc knows the trade. I will say that for Brannoc.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_gavin_swale": {
+   "lines": [
+    {
+     "text": "\"Gavin works hard and talks harder.\""
     }
    ],
    "choices": [

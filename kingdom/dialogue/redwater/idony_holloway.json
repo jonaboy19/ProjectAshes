@@ -100,6 +100,10 @@
      "p": 2
     },
     {
+     "text": "\"A rival workshop in the next valley pays double for our apprentices. The apprentices are listening.\"",
+     "p": 2
+    },
+    {
      "text": "\"{rumour}\"",
      "if": {
       "has": "rumour"

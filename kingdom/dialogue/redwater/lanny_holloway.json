@@ -19,8 +19,19 @@
      "p": 5
     },
     {
-     "text": "\"Mind the vat. It looks like water. It is not.\"",
+     "text": "\"Feel that. Go on. That is a week of someone's life.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Morning. The shop is open if you are.\"",
+     "if": {
+      "time": "morning",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +45,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"Forgive me. It has been a long week and a longer day. Still, it is good to see you.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -68,6 +89,16 @@
      }
     },
     {
+     "text": "\"What do you make of Elfrida?\"",
+     "goto": "op_elfrida_elder",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
      "text": "Offer a gift…",
      "goto": "",
      "if": {
@@ -88,11 +119,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"A bolt of good blue went missing. The thief is easy to spot: the man not wearing it.\"",
+     "text": "\"Bolts from Silverford come folded wrong. Someone opens them and refolds them. Who has the time?\"",
      "p": 2
     },
     {
-     "text": "\"The stream runs red on dye days. Children downstream think it is an omen.\"",
+     "text": "\"The Redwater Dye Works has seen odder days than this. Nobody remembers when.\"",
      "p": 2
     },
     {
@@ -131,6 +162,23 @@
    "lines": [
     {
      "text": "\"Amice knows the trade. I will say that for Amice.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_elfrida_elder": {
+   "lines": [
+    {
+     "text": "\"Elfrida is good company and better at keeping quiet.\""
     }
    ],
    "choices": [

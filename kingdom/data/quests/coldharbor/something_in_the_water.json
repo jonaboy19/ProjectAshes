@@ -1,0 +1,95 @@
+{
+ "id": "coldharbor_something_in_the_water",
+ "title": "Something in the Water",
+ "summary": "Food and drink are turning in Coldharbor, and people are sick. Fulk Brine needs the cause found and Kit Overton needs herbs.",
+ "giver": {
+  "npc": "fulk_brine",
+  "name": "Fulk Brine",
+  "place": "coldharbor"
+ },
+ "requires": [
+  "coldharbor_coils_of_rope_for_the_boatwright"
+ ],
+ "offer_text": "\"Milk, wells, stores, something is turning in this town. Find the source, then take Kit the herbs they need. I do not want to say poison yet.\"",
+ "turn_in_text": "\"You have done more than you know. I will see this is not forgotten.\"",
+ "stages": [
+  {
+   "id": "look",
+   "title": "Find the source",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "coldharbor/clue/c1",
+      "coldharbor/clue/c2",
+      "coldharbor/clue/c3"
+     ],
+     "count": 3,
+     "text": "Look around town for what could have soured it"
+    }
+   ]
+  },
+  {
+   "id": "samples",
+   "title": "Fetch the remedy",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "herbs",
+     "type": "collect",
+     "item": "healing_herb",
+     "count": 3,
+     "text": "Take 3 bundles of herbs"
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "title": "Bring it to Kit",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "remedy",
+     "type": "deliver",
+     "item": "healing_herb",
+     "count": 3,
+     "to": "kit_overton",
+     "text": "Hand the herbs to Kit Overton"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Fulk",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "fulk_brine",
+     "text": "Tell Fulk Brine what you found"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 22,
+  "rep": {
+   "coldharbor": 6
+  },
+  "relationship": [
+   {
+    "npc": "fulk_brine",
+    "label": "Helped when folk fell ill",
+    "value": 12,
+    "days": 90
+   }
+  ],
+  "items": {
+   "smoked_fish": 2
+  }
+ }
+}

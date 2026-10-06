@@ -19,8 +19,19 @@
      "p": 5
     },
     {
-     "text": "\"Feel that. Go on. That is a week of someone's life.\"",
+     "text": "\"Mind the vat. It looks like water. It is not.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Closing up. Come back tomorrow and bring coin.\"",
+     "if": {
+      "time": "evening",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +45,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"Welcome. Wipe your boots. Please. Soap is dear and floors are dearer.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -68,6 +89,16 @@
      }
     },
     {
+     "text": "\"What do you make of Larkin?\"",
+     "goto": "op_larkin_brook",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
      "text": "Offer a gift…",
      "goto": "",
      "if": {
@@ -88,11 +119,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Silverford pays double for the good batch and then complains.\"",
+     "text": "\"The stream ran red on dye day. Children upstream think it is an omen. We let them.\"",
      "p": 2
     },
     {
-     "text": "\"A bolt of Highwatch blue went missing. The thief should be easy to spot.\"",
+     "text": "\"Ask anyone in Redwater about the Redwater Dye Works. You will get four stories and one fact.\"",
      "p": 2
     },
     {
@@ -131,6 +162,23 @@
    "lines": [
     {
      "text": "\"Derwin knows the trade. I will say that for Derwin.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_larkin_brook": {
+   "lines": [
+    {
+     "text": "\"Larkin works hard and talks harder.\""
     }
    ],
    "choices": [

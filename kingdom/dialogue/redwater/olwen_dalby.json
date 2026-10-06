@@ -19,8 +19,29 @@
      "p": 5
     },
     {
-     "text": "\"Mind the flour. It gets everywhere, opinions included.\"",
+     "text": "\"Loaf, bun, or the heel nobody wants? The heel is free.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Folk come to Redwater for dyers and cloth. Some stay for the quiet.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Morning. The shop is open if you are.\"",
+     "if": {
+      "time": "morning",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +55,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"No fear when you are here. Or little. Or I hide it better.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -68,6 +99,16 @@
      }
     },
     {
+     "text": "\"What do you make of Silas?\"",
+     "goto": "op_silas_charnock",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
      "text": "Offer a gift…",
      "goto": "",
      "if": {
@@ -88,11 +129,15 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Half the loaves go to the watch. The rest go to whoever asks nicely.\"",
+     "text": "\"The oven draws better in cold weather. So does the queue.\"",
      "p": 2
     },
     {
-     "text": "\"The stream runs red on dye days. Children downstream think it is an omen.\"",
+     "text": "\"A guild inspector came last month and left a list. We are still decoding it.\"",
+     "p": 2
+    },
+    {
+     "text": "\"A bolt of Highwatch blue went missing. The thief should be easy to spot.\"",
      "p": 2
     },
     {
@@ -131,6 +176,23 @@
    "lines": [
     {
      "text": "\"Garth keeps a tidy yard and an untidy mouth.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Go on.\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
+    }
+   ]
+  },
+  "op_silas_charnock": {
+   "lines": [
+    {
+     "text": "\"Silas undercuts me. I forgive Silas. Mostly.\""
     }
    ],
    "choices": [

@@ -19,8 +19,29 @@
      "p": 5
     },
     {
-     "text": "\"Sit by me. My knees insist.\"",
+     "text": "\"You are somebody's grandchild. I can tell by the walk.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Folk come to Millbrook for mill and bakehouse. Some stay for the quiet.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Last light. The work is done or it is dark. Both are fine.\"",
+     "if": {
+      "time": "evening",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +55,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"You look rough. Eat something. That is not advice, it is an order.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -58,8 +89,8 @@
      }
     },
     {
-     "text": "\"What do you make of Gavin?\"",
-     "goto": "op_gavin_swale",
+     "text": "\"What do you make of Dalla?\"",
+     "goto": "op_dalla_thackeray",
      "if": {
       "tier_not": [
        "enemy",
@@ -92,7 +123,7 @@
      "p": 2
     },
     {
-     "text": "\"Thornfield's brewer pays for barley in ale. The miller prefers that.\"",
+     "text": "\"Wolves keep to the hedge line and never cross it. As if the hedge were a wall.\"",
      "p": 2
     },
     {
@@ -127,10 +158,10 @@
     }
    ]
   },
-  "op_gavin_swale": {
+  "op_dalla_thackeray": {
    "lines": [
     {
-     "text": "\"Gavin is good company and better at keeping quiet.\""
+     "text": "\"Dalla lives next door and hears everything I do.\""
     }
    ],
    "choices": [

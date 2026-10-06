@@ -19,8 +19,29 @@
      "p": 5
     },
     {
-     "text": "\"Tithe day is never early and always too soon.\"",
+     "text": "\"Reeve here. Yes, it is as dull as it sounds. Ask anyway.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Good tools, good timber, good time. Pick any two.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Morning. The shop is open if you are.\"",
+     "if": {
+      "time": "morning",
       "tier_not": [
        "enemy",
        "rival"
@@ -92,7 +113,11 @@
      "p": 2
     },
     {
-     "text": "\"The stream runs red on dye days. Children downstream think it is an omen.\"",
+     "text": "\"Apprentices are fewer every year. The ones who stay learn fast and leave faster.\"",
+     "p": 2
+    },
+    {
+     "text": "\"Silverford pays double for the good woad batch, and complains the price.\"",
      "p": 2
     },
     {

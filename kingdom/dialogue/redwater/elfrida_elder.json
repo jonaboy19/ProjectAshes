@@ -19,8 +19,29 @@
      "p": 5
     },
     {
-     "text": "\"Sit anywhere that is not wet. The wet ones are the regulars.\"",
+     "text": "\"Rooms are clean. The beds are honest about their age.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"You will hear Redwater before you see it. Ask at the Redwater Dye Works.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Closing up. Come back tomorrow and bring coin.\"",
+     "if": {
+      "time": "evening",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +55,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"Sit. I have news. Three pieces, one of them true, I think.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -88,11 +119,19 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Travellers say the stones are dimmer on the east road. I water the ale, not the news.\"",
+     "text": "\"Half my regulars have coloured hands. The mugs gave up showing it.\"",
      "p": 2
     },
     {
-     "text": "\"A bolt of Highwatch blue went missing. The thief should be easy to spot.\"",
+     "text": "\"The cellar is cold and the cellar is empty. I ordered more. The order came back as promises.\"",
+     "p": 2
+    },
+    {
+     "text": "\"Orders are good and the deadlines are cruel. The festival is early and the work is late.\"",
+     "p": 2
+    },
+    {
+     "text": "\"The Solkar traders want a yellow we don't know how to make.\"",
      "p": 2
     },
     {

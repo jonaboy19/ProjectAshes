@@ -19,8 +19,19 @@
      "p": 5
     },
     {
-     "text": "\"Hold the mule. He is not as bad as he looks.\"",
+     "text": "\"Mind the loom. It has a temper, and so do I.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Lamps are lit. Craft does not end at dusk, only the pay does.\"",
+     "if": {
+      "time": "night",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +45,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"What did you see on the road? Tell me every bit. I will keep the details.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -88,11 +109,11 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"Toll at the ford has gone up. So has my temper.\"",
+     "text": "\"A good cloth outlasts a bad king. I have the cloth.\"",
      "p": 2
     },
     {
-     "text": "\"Silverford pays double for the good woad batch, and complains the price.\"",
+     "text": "\"Ask anyone in Redwater about the Redwater Dye Works. You will get four stories and one fact.\"",
      "p": 2
     },
     {

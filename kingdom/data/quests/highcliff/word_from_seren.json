@@ -1,0 +1,86 @@
+{
+ "id": "highcliff_word_from_seren",
+ "title": "Word from Seren",
+ "summary": "Seren Goodrich has seen wolves at the edge of Highcliff, and Mags Rampart wants someone to act before the town hears it from the wolves.",
+ "giver": {
+  "npc": "mags_rampart",
+  "name": "Mags Rampart",
+  "place": "highcliff"
+ },
+ "requires": [
+  "highcliff_what_tobin_saw"
+ ],
+ "offer_text": "\"Seren Goodrich has been out past the last house and does not like what they saw. Hear it, go and look, and thin the pack out.\"",
+ "turn_in_text": "\"Good. Now the rest of the town can sleep.\"",
+ "stages": [
+  {
+   "id": "hear",
+   "title": "Hear the warning",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "warning",
+     "type": "talk_to",
+     "npc": "seren_goodrich",
+     "text": "Hear what Seren Goodrich has seen"
+    }
+   ]
+  },
+  {
+   "id": "edge",
+   "title": "Go and see",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "reach",
+     "type": "goto",
+     "place": "highcliff_outskirts",
+     "text": "Go to the tree line"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Put them down",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "highcliff_outskirts",
+     "count": 3,
+     "text": "Kill 3 wolves near Highcliff"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Mags",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "mags_rampart",
+     "text": "Tell Mags Rampart it is done"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 36,
+  "rep": {
+   "highcliff": 6
+  },
+  "relationship": [
+   {
+    "npc": "mags_rampart",
+    "label": "Acted on the warning",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

@@ -6,7 +6,7 @@ extends RefCounted
 ## Collect stage: it is available while its quest is on its stage and pays out once per run of that quest, then the Collect
 ## objective counts them through the hub's inventory poll.
 ##
-##   clue  {id, anchor | building, at, h, target, note, prop}      prop: sack | ledger | lock | tracks | crate | stone
+##   clue  {id, anchor | building, at, h, target, note, prop}      prop: sack | ledger | lock | tracks | crate | stone | scorch | bones | rag
 ##   stash {id, item, count, anchor | building, at, quest, stage, target, say, prop}
 ##
 ## `build_clues(tid, parent)` / `build_stashes(tid, parent)` return the nodes; tests call `take(node)` / `Clue.examine()`.
@@ -103,6 +103,16 @@ static func _dress(node: Node3D, prop: String) -> void:
 			node.add_child(_stain(Color(0.10, 0.07, 0.04, 0.55), 0.8))
 		"stone":
 			node.add_child(_box(Vector3(0.5, 0.3, 0.4), Color(0.42, 0.42, 0.40), Vector3(0, 0.15, 0), 0.0, 0.5))
+		"scorch":
+			node.add_child(_stain(Color(0.05, 0.045, 0.04, 0.7), 0.9))
+			node.add_child(_box(Vector3(0.22, 0.08, 0.16), Color(0.09, 0.08, 0.07), Vector3(0.1, 0.05, 0.0), 0.0, 0.7))
+		"bones":
+			node.add_child(_box(Vector3(0.32, 0.05, 0.06), Color(0.80, 0.77, 0.68), Vector3(0, 0.04, 0), 0.0, 0.4))
+			node.add_child(_box(Vector3(0.22, 0.05, 0.06), Color(0.78, 0.75, 0.66), Vector3(0.12, 0.04, 0.1), 0.0, -0.9))
+			node.add_child(_stain(Color(0.14, 0.09, 0.06, 0.45), 0.7))
+		"rag":
+			node.add_child(_box(Vector3(0.42, 0.015, 0.2), Color(0.30, 0.22, 0.34), Vector3(0, 0.02, 0), 0.0, 0.3))
+			node.add_child(_box(Vector3(0.12, 0.03, 0.12), Color(0.34, 0.26, 0.38), Vector3(0.1, 0.035, 0.06), 0.0, 1.0))
 		_:
 			node.add_child(_box(Vector3(0.5, 0.4, 0.4), Color(0.36, 0.26, 0.16), Vector3(0, 0.2, 0), 0.0, 0.3))
 

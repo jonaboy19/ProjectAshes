@@ -154,11 +154,11 @@ ROLES = {
 ARCHS = {
     "farming": {"workers": [("farmer", 4), ("miller", 1), ("carter", 1), ("shepherd", 1), ("woodcutter", 1)], "authority": "reeve", "threat": ["wolf"],
                 "works": "the mill yard", "item": ["wheat", "wheat", 4], "stash": ["sack", "Wheat sacks", "You shoulder four sacks of wheat from the pile."],
-                "deliver_role": "baker", "thing": "sacks of milled flour", "theft": ["sack", "tracks", "ledger"], "suspect": ["carter", "laborer"],
+                "deliver_role": "baker", "thing": "a few sacks of milled flour", "theft": ["sack", "tracks", "ledger"], "suspect": ["carter", "laborer"],
                 "a_title": "Wheat for the Bakehouse", "b_title": "Light on the Scales", "c_title": "Wolves at the Millrace"},
     "pastoral": {"workers": [("shepherd", 3), ("dairymaid", 2), ("cheesemaker", 1), ("wool buyer", 1), ("carter", 1)], "authority": "reeve", "threat": ["wolf"],
                  "works": "the fold", "item": ["wool", "wool", 4], "stash": ["sack", "Fleece bundles", "You tie four fleeces into a bundle."],
-                 "deliver_role": "wool buyer", "thing": "cheese wheels", "theft": ["crate", "tracks", "ledger"], "suspect": ["carter", "laborer"],
+                 "deliver_role": "wool buyer", "thing": "two cheese wheels", "theft": ["crate", "tracks", "ledger"], "suspect": ["carter", "laborer"],
                  "a_title": "Fleece for the Buyer", "b_title": "A Wheel Short", "c_title": "Wolves on the Downs"},
     "craft": {"workers": [("dyer", 3), ("weaver", 2), ("cloth merchant", 1), ("carter", 1), ("laborer", 1)], "authority": "reeve", "threat": ["giant_wasp"],
               "works": "the dye works", "item": ["cloth", "cloth", 3], "stash": ["crate", "Bolts of cloth", "You lift three bolts of undyed cloth from the rack."],
@@ -166,9 +166,9 @@ ARCHS = {
               "a_title": "Cloth for the Vats", "b_title": "The Missing Bolt", "c_title": "Wasps in the Drying Meadow"},
     "mining": {"workers": [("miner", 4), ("ore sorter", 1), ("smelter", 1), ("carter", 1), ("laborer", 1)], "authority": "yard-boss", "threat": ["ghoul", "wolf"],
                "works": "the ore yard", "item": ["iron_ore", "iron ore", 4], "stash": ["stone", "Ore pile", "You fill a sack with four lumps of good ore."],
-               "deliver_role": "smelter", "thing": "marked ore sacks", "theft": ["sack", "tracks", "lock"], "suspect": ["carter", "ore sorter", "laborer"],
+               "deliver_role": "smelter", "thing": "a few marked ore sacks", "theft": ["sack", "tracks", "lock"], "suspect": ["carter", "ore sorter", "laborer"],
                "a_title": "Ore for the Furnace", "b_title": "Skimmed from the Pile", "c_title": "Something in the Spoil Heap"},
-    "fortress": {"workers": [("soldier", 3), ("armourer", 1), ("stablehand", 1), ("drillmaster", 1), ("carter", 1)], "authority": "watch captain", "threat": ["wolf"],
+    "fortress": {"workers": [("soldier", 3), ("armourer", 1), ("stablehand", 1), ("drillmaster", 1), ("carter", 1)], "authority": "watch-commander", "threat": ["wolf"],
                  "works": "the drill yard", "item": ["iron_ingot", "iron ingots", 3], "stash": ["crate", "Ingot crate", "You lift three ingots from the stores crate."],
                  "deliver_role": "armourer", "thing": "a set of spear heads", "theft": ["lock", "tracks", "ledger"], "suspect": ["stablehand", "carter", "laborer"],
                  "a_title": "Iron for the Armoury", "b_title": "Short of Spear Heads", "c_title": "Wolves at the Line"},
@@ -176,7 +176,7 @@ ARCHS = {
                 "works": "the lodge yard", "item": ["hides", "hides", 4], "stash": ["sack", "Drying hides", "You roll four dry hides into a bundle."],
                 "deliver_role": "tanner", "thing": "a bundle of prime pelts", "theft": ["tracks", "lock", "sack"], "suspect": ["trapper", "carter", "laborer"],
                 "a_title": "Hides for the Tanner", "b_title": "Pelts Gone from the Rack", "c_title": "A Den Too Close"},
-    "religious": {"workers": [("chaplain", 1), ("beekeeper", 1), ("farmer", 2), ("pilgrim guide", 1), ("laborer", 1)], "authority": "elder", "threat": ["wolf"],
+    "religious": {"workers": [("chaplain", 1), ("beekeeper", 1), ("farmer", 2), ("pilgrim guide", 1), ("laborer", 1)], "authority": "chaplain", "threat": ["wolf"],
                   "works": "the shrine garden", "item": ["firewood", "firewood", 4], "stash": ["crate", "Woodpile", "You carry four split logs from the woodpile."],
                   "deliver_role": "chaplain", "thing": "the shrine's offering bowl", "theft": ["tracks", "lock", "ledger"], "suspect": ["pilgrim guide", "laborer"],
                   "a_title": "Wood for the Vigil", "b_title": "The Empty Bowl", "c_title": "Wolves Along the Pilgrim Road"},
@@ -188,17 +188,17 @@ ARCHS = {
                   "works": "the kiln yard", "item": ["coal", "coal", 4], "stash": ["sack", "Coal sacks", "You fill a sack with four lumps of kiln coal."],
                   "deliver_role": "glasswright", "thing": "a case of finished glass", "theft": ["crate", "tracks", "lock"], "suspect": ["scribe", "carter", "laborer"],
                   "a_title": "Coal for the Kiln", "b_title": "A Case Gone Cold", "c_title": "Something at the Edge of the Light"},
-    "criminal": {"workers": [("trapper", 2), ("tanner", 2), ("trader", 1), ("carter", 1), ("laborer", 1)], "authority": "reeve", "threat": ["wolf"],
+    "criminal": {"workers": [("trapper", 2), ("tanner", 2), ("trader", 1), ("carter", 1), ("laborer", 1)], "authority": "headman", "threat": ["wolf"],
                  "works": "the skin yard", "item": ["hides", "hides", 4], "stash": ["sack", "Raw hides", "You bundle four raw hides, and wish you had not."],
                  "deliver_role": "tanner", "thing": "a bag of coin", "theft": ["lock", "tracks", "ledger"], "suspect": ["trader", "carter", "laborer"],
                  "a_title": "Hides, No Questions", "b_title": "Light Fingers", "c_title": "Teeth Below the Pass"},
-    "fishing": {"workers": [("fisher", 4), ("net mender", 1), ("boatwright", 1), ("salter", 1), ("carter", 1)], "authority": "reeve", "threat": ["bog_toad"],
+    "fishing": {"workers": [("fisher", 4), ("net mender", 1), ("boatwright", 1), ("salter", 1), ("carter", 1)], "authority": "harbourmaster", "threat": ["bog_toad"],
                 "works": "the drying racks", "item": ["flax", "flax", 4], "stash": ["sack", "Flax bales", "You bind four bundles of flax for the nets."],
                 "deliver_role": "net mender", "thing": "a coil of good rope", "theft": ["tracks", "lock", "sack"], "suspect": ["carter", "fisher", "salter"],
                 "a_title": "Flax for the Nets", "b_title": "Cut Lines", "c_title": "Toads in the Reeds"},
-    "royal": {"workers": [("soldier", 2), ("scribe", 1), ("trader", 1), ("carter", 1), ("laborer", 1)], "authority": "reeve", "threat": ["wolf"],
-              "works": "the herald's yard", "item": ["cloth", "cloth", 3], "stash": ["crate", "Banner cloth", "You take three bolts of banner cloth."],
-              "deliver_role": "scribe", "thing": "a sealed letter", "theft": ["ledger", "lock", "tracks"], "suspect": ["scribe", "carter", "laborer"],
+    "royal": {"workers": [("household knight", 2), ("trader", 2), ("carter", 1), ("laborer", 1), ("falconer", 1)], "authority": "chamberlain", "threat": ["wolf"],
+              "works": "the Tourney Lists", "item": ["cloth", "cloth", 3], "stash": ["crate", "Banner cloth", "You take three bolts of banner cloth."],
+              "deliver_role": "court scribe", "thing": "a sealed letter", "theft": ["ledger", "lock", "tracks"], "suspect": ["courtier", "treasury clerk", "carter", "laborer"],
               "a_title": "Cloth for the Banners", "b_title": "A Letter Gone Astray", "c_title": "Wolves at the Court Road"},
 }
 
@@ -215,4 +215,23 @@ RELATIONS = {
     "rival": (-5, ["{o} undercuts me. I forgive {o}. Mostly.", "{o} has opinions about my prices. I have opinions about {o}."]),
     "debtor": (-8, ["{o} owes me and keeps promising. Promises are not coin.", "{o} will pay at harvest. I have heard which harvest."]),
     "neighbour": (5, ["{o} lives next door and hears everything I do.", "{o} keeps a tidy yard and an untidy mouth."]),
+}
+
+
+# --------------------------------------------------------------------------------------------- more roles and lines (town_roles.py)
+from town_roles import EXTRA, NEW_ROLES, KIT_ROLES, ROLE_WORK  # noqa: E402,F401
+
+for _role, (_g, _r) in EXTRA.items():
+    _job, _kind, _greet, _rum = ROLES[_role]
+    ROLES[_role] = (_job, _kind, list(_greet) + list(_g), list(_rum) + list(_r))
+ROLES.update(NEW_ROLES)
+
+# Where an identity's work happens: the first of the town's trade kits that has a place name here (else the archetype's own `works`).
+WORKS_BY_KIT = {
+    "quarry": "the quarry yard", "kilns": "the kilns", "wagons": "the wagon yard", "ferry": "the ferry landing", "boats": "the boat slip",
+    "reeds": "the reed landing", "hunters": "the lodge yard", "caravan": "the caravan stage", "smokehouse": "the smokehouse yard",
+    "bees": "the apiary", "candles": "the apiary", "forge_smoke": "the ore yard", "tannery": "the tannery yard", "ravens": "the raven tower yard",
+    "glass": "the glass kiln", "lanterns": "the lamp pier", "salt": "the salt pans", "mills": "the mill yard", "dairy": "the dairy yard",
+    "dyers": "the dye works", "guild": "the guild hall steps", "fair_green": "the fair green", "wool": "the fold", "stables": "the stable yard",
+    "barracks": "the spear hall yard", "watch": "the watch post", "great_oak": "the great oak", "big_fields": "the south meadow", "herbs": "the herb walk",
 }

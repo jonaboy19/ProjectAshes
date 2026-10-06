@@ -1,0 +1,78 @@
+{
+ "id": "millbrook_prints_near_millbrook",
+ "title": "Prints Near Millbrook",
+ "summary": "Norah Sparrow says something is out at the edge of Millbrook: tracks too big for a dog and fences torn outward. Learn what it is, then put it down.",
+ "giver": {
+  "npc": "norah_sparrow",
+  "name": "Norah Sparrow",
+  "place": "millbrook"
+ },
+ "requires": [
+  "millbrook_a_sour_turn"
+ ],
+ "offer_text": "\"There is sign at the tree line: tracks too big for a dog and fences torn outward. I cannot tell how many, or how bold. Read it for me, and then put them down.\"",
+ "turn_in_text": "\"Now we know what we are dealing with, and it is dealt with.\"",
+ "stages": [
+  {
+   "id": "read",
+   "title": "Read the sign",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "sign",
+     "type": "investigate",
+     "clues": [
+      "millbrook/clue/t1",
+      "millbrook/clue/t2",
+      "millbrook/clue/t3"
+     ],
+     "count": 2,
+     "text": "Find two signs of the wolves around the edge of Millbrook"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Deal with them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "wolf",
+     "place": "millbrook_outskirts",
+     "count": 2,
+     "text": "Kill 2 wolves near Millbrook"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Norah",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "norah_sparrow",
+     "text": "Tell Norah Sparrow what you found"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 27,
+  "rep": {
+   "millbrook": 5
+  },
+  "relationship": [
+   {
+    "npc": "norah_sparrow",
+    "label": "Read the sign and acted on it",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

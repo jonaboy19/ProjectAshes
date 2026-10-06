@@ -1,0 +1,131 @@
+{
+ "id": "skarholm_skimmed_from_the_pile",
+ "title": "Skimmed from the Pile",
+ "summary": "The stores of Skarholm are missing a few marked ore sacks. Kit Seam wants to know whether it is carelessness or a person.",
+ "giver": {
+  "npc": "kit_seam",
+  "name": "Kit Seam",
+  "place": "skarholm"
+ },
+ "requires": [
+  "skarholm_a_long_carry"
+ ],
+ "offer_text": "\"I am missing a few marked ore sacks from the stores and I have counted twice. Look around the doors in town. Someone was careless, or someone was not.\"",
+ "stages": [
+  {
+   "id": "look",
+   "title": "Look for signs",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "clues",
+     "type": "investigate",
+     "clues": [
+      "skarholm/clue/c1",
+      "skarholm/clue/c2",
+      "skarholm/clue/c3"
+     ],
+     "count": 3,
+     "text": "Search the doors around town for signs"
+    }
+   ]
+  },
+  {
+   "id": "question",
+   "title": "Ask Helm",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "question",
+     "type": "talk_to",
+     "npc": "helm_tallis",
+     "text": "Ask Helm Tallis what they know"
+    }
+   ]
+  },
+  {
+   "id": "decide",
+   "title": "Decide what to do",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "verdict",
+     "type": "choose",
+     "npc": "kit_seam",
+     "options": [
+      {
+       "id": "report",
+       "text": "Tell Kit what you found",
+       "say": "Kit nods slowly. \"Then it is on the record.\""
+      },
+      {
+       "id": "quiet",
+       "text": "Take Helm's quiet word and say nothing",
+       "say": "Helm presses a few coins into your hand. \"Good sense.\""
+      }
+     ]
+    }
+   ],
+   "branches": {
+    "report": "reported",
+    "quiet": "hushed"
+   }
+  },
+  {
+   "id": "reported",
+   "title": "Kit hears it",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "told",
+     "type": "talk_to",
+     "npc": "kit_seam",
+     "text": "Tell Kit Seam who it was"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 20,
+    "rep": {
+     "skarholm": 6
+    },
+    "relationship": [
+     {
+      "npc": "kit_seam",
+      "label": "Told the truth about the theft",
+      "value": 12,
+      "days": 90
+     }
+    ]
+   }
+  },
+  {
+   "id": "hushed",
+   "title": "Collect the hush money",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "quiet",
+     "type": "talk_to",
+     "npc": "helm_tallis",
+     "text": "Collect Helm's thanks"
+    }
+   ],
+   "end": true,
+   "rewards": {
+    "gold": 35,
+    "rep": {
+     "skarholm": -6
+    },
+    "relationship": [
+     {
+      "npc": "kit_seam",
+      "label": "Heard you looked the other way",
+      "value": -12,
+      "days": 90
+     }
+    ]
+   }
+  }
+ ]
+}

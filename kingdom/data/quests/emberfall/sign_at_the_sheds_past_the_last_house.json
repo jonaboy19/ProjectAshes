@@ -1,0 +1,78 @@
+{
+ "id": "emberfall_sign_at_the_sheds_past_the_last_house",
+ "title": "Sign at the Sheds Past the Last House",
+ "summary": "Alys Mattock says something is out at the edge of Emberfall: paper nests under the eaves and stung livestock. Learn what it is, then put it down.",
+ "giver": {
+  "npc": "alys_mattock",
+  "name": "Alys Mattock",
+  "place": "emberfall"
+ },
+ "requires": [
+  "emberfall_tampered_work_at_the_glass_kiln"
+ ],
+ "offer_text": "\"There is sign at the sheds past the last house: paper nests under the eaves and stung livestock. I cannot tell how many, or how bold. Read it for me, and then put them down.\"",
+ "turn_in_text": "\"Now we know what we are dealing with, and it is dealt with.\"",
+ "stages": [
+  {
+   "id": "read",
+   "title": "Read the sign",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "sign",
+     "type": "investigate",
+     "clues": [
+      "emberfall/clue/t1",
+      "emberfall/clue/t2",
+      "emberfall/clue/t3"
+     ],
+     "count": 2,
+     "text": "Find two signs of the giant wasps around the edge of Emberfall"
+    }
+   ]
+  },
+  {
+   "id": "hunt",
+   "title": "Deal with them",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "hunt",
+     "type": "kill",
+     "target": "giant_wasp",
+     "place": "emberfall_outskirts",
+     "count": 2,
+     "text": "Kill 2 giant wasps near Emberfall"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Tell Alys",
+   "mode": "all",
+   "objectives": [
+    {
+     "id": "report",
+     "type": "talk_to",
+     "npc": "alys_mattock",
+     "text": "Tell Alys Mattock what you found"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "rewards": {
+  "gold": 27,
+  "rep": {
+   "emberfall": 5
+  },
+  "relationship": [
+   {
+    "npc": "alys_mattock",
+    "label": "Read the sign and acted on it",
+    "value": 11,
+    "days": 60
+   }
+  ]
+ }
+}

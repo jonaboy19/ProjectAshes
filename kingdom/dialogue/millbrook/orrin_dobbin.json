@@ -19,8 +19,29 @@
      "p": 5
     },
     {
-     "text": "\"Sit anywhere that is not wet. The wet ones are the regulars.\"",
+     "text": "\"Ale is fair, stew is hot, and I do not do credit.\"",
      "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Strangers in Millbrook get one warning and one welcome. You are on the welcome.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"Last light. The work is done or it is dark. Both are fine.\"",
+     "if": {
+      "time": "evening",
       "tier_not": [
        "enemy",
        "rival"
@@ -34,6 +55,16 @@
       "tier": "stranger"
      },
      "p": 1
+    },
+    {
+     "text": "\"Mind the order of things, friend. There. Now we can talk.\"",
+     "if": {
+      "tier": [
+       "friend",
+       "close_friend"
+      ]
+     },
+     "p": 4
     },
     {
      "text": "\"Well met, {player}.\"",
@@ -58,8 +89,8 @@
      }
     },
     {
-     "text": "\"What do you make of Osric?\"",
-     "goto": "op_osric_dalby",
+     "text": "\"What do you make of Hilde?\"",
+     "goto": "op_hilde_harrow",
      "if": {
       "tier_not": [
        "enemy",
@@ -88,7 +119,15 @@
   "rumour": {
    "lines": [
     {
+     "text": "\"Harvest crews drink the barley they cut. Somebody should tax that circle.\"",
+     "p": 2
+    },
+    {
      "text": "\"Travellers say the stones are dimmer on the east road. I water the ale, not the news.\"",
+     "p": 2
+    },
+    {
+     "text": "\"The scarecrow by the north field has moved twice. The farmer says he did not touch it.\"",
      "p": 2
     },
     {
@@ -127,10 +166,10 @@
     }
    ]
   },
-  "op_osric_dalby": {
+  "op_hilde_harrow": {
    "lines": [
     {
-     "text": "\"Osric lives next door and hears everything I do.\""
+     "text": "\"Hilde keeps a tidy yard and an untidy mouth.\""
     }
    ],
    "choices": [
