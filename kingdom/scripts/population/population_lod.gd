@@ -86,6 +86,14 @@ var micro: Node
 var _sprite_routes: Dictionary = {}  # visible sprite id -> bounded StreetGraph route state
 var _refresh_elapsed := 0.0
 var _query_r := 0.0             # adaptive people_near radius (see refresh)
+## Living world (docs/anim/patches/P13_population_lod_vat.md). CrowdAnimLOD gives embodied villagers an animation LOD
+## (NEAR full rate / MID stepped / FAR VAT twin). VatResidents draws residents WITHOUT a body inside VAT_RANGE as
+## vertex-animated instances (no nodes); it replaces the sprite there and also fills the 20 m hole around the
+## player. LOW tier keeps sprites only (VAT looks and far twins would add MultiMesh draw calls) and keeps the
+## animation LOD, which only removes work.
+const VAT_RANGE := 120.0
+var _vat: VatResidents
+var _anim_lod: CrowdAnimLOD
 
 
 func setup(baker: ImpostorBaker) -> void:
@@ -105,12 +113,22 @@ func setup(baker: ImpostorBaker) -> void:
 		mmi.custom_aabb = AABB(Vector3(-5000, -500, -5000), Vector3(10000, 1500, 10000))
 		add_child(mmi)
 		_multimeshes[look] = mm
+	_anim_lod = CrowdAnimLOD.new()
+	if int(Quality.tier) >= 1:
+		_vat = VatResidents.new()
+		_vat.name = "VatResidents"
+		_vat.height_fn = WorldGen.height
+		add_child(_vat)
+		_anim_lod.vat = _vat.crowd
+	add_child(_anim_lod)
 	micro = MicroEvents.new()
 	add_child(micro)
 	add_child(AlertGlyphs.new())        # ?/! above the heads of the few who are watching the player
 
 
 func _process(delta: float) -> void:
+	if _anim_lod.camera == null or not is_instance_valid(_anim_lod.camera):
+		_anim_lod.camera = get_viewport().get_camera_3d()
 	_timer -= delta
 	_refresh_elapsed += delta
 	if _timer <= 0.0:
@@ -200,6 +218,7 @@ func refresh(step_delta := 0.25) -> void:
 		if not WorldSim.is_indoors(id) and v.global_position.distance_squared_to(focus) < CONTACT_KEEP * CONTACT_KEEP:
 			want_full[id] = true
 			continue
+		_anim_lod.unregister(id)
 		_villagers.erase(v)
 		v.queue_free()
 		_full.erase(id)
@@ -261,6 +280,9 @@ func refresh(step_delta := 0.25) -> void:
 	var sprite_budget: int = mini(MAX_SPRITES, Quality.npc_sprites)
 	var sprite_total := 0
 	var active_sprite_ids := {}
+	var vat_r2 := VAT_RANGE * VAT_RANGE
+	if _vat:
+		_vat.begin()
 	if _sprite_hidden.size() > 4000:
 		_sprite_hidden.clear()
 	var enter_r2 := SPRITE_MIN_DIST * SPRITE_MIN_DIST
@@ -268,22 +290,25 @@ func refresh(step_delta := 0.25) -> void:
 	for entry in dists:
 		# dists is sorted nearest-first, so once the budget is spent everyone
 		# further away is skipped: the crowd is capped in total, not per look.
-		if sprite_total >= sprite_budget:
-			break
 		var id: int = entry[1]
+		var vat_ok: bool = _vat != null and entry[0] < vat_r2
+		if sprite_total >= sprite_budget and not vat_ok:
+			break
 		if _full.has(id):
 			_sprite_hidden.erase(id)
 			_sprite_routes.erase(id)
 			continue
 		# Nobody without a full model is drawn as a sprite this close (see
 		# SPRITE_MIN_DIST above); hysteresis keeps the on/off edge from chattering.
-		if _sprite_hidden.get(id, false):
-			if entry[0] < release_r2:
+		# VAT residents are drawn instead (below), so they skip this test unless the VAT cap is reached.
+		if not vat_ok:
+			if _sprite_hidden.get(id, false):
+				if entry[0] < release_r2:
+					continue
+				_sprite_hidden.erase(id)
+			elif entry[0] < enter_r2:
+				_sprite_hidden[id] = true
 				continue
-			_sprite_hidden.erase(id)
-		elif entry[0] < enter_r2:
-			_sprite_hidden[id] = true
-			continue
 		active_sprite_ids[id] = true
 		var raw := WorldSim.pos[id]
 		var graph := _sprite_route_graph(id, raw, WorldSim.target[id])
@@ -309,10 +334,26 @@ func refresh(step_delta := 0.25) -> void:
 				pp = ground_graph.push_out(pp, 0.3)
 			ground = Vector3(pp.x, WorldGen.height(pp.x, pp.y), pp.y)
 			_sprite_cache[id] = [ground_raw, ground]
+		if vat_ok:
+			if _vat.want(id, pp, WorldSim.target[id], WorldSim.job[id], WorldSim.phase[id], ground.y):
+				_sprite_hidden.erase(id)
+				continue
+			# VAT cap reached: the old sprite rules apply
+			if sprite_total >= sprite_budget:
+				continue
+			if _sprite_hidden.get(id, false):
+				if entry[0] < release_r2:
+					continue
+				_sprite_hidden.erase(id)
+			elif entry[0] < enter_r2:
+				_sprite_hidden[id] = true
+				continue
 		var t := Transform3D(Basis(Vector3.UP, yaw), ground)
 		(_multimeshes[look] as MultiMesh).set_instance_transform(n, t)
 		used[look] = n + 1
 		sprite_total += 1
+	if _vat:
+		_vat.end()
 	for id in _sprite_routes.keys():
 		if not active_sprite_ids.has(id) and not _full.has(id):
 			_release_sprite_route(int(id))
@@ -492,4 +533,5 @@ func _spawn(id: int) -> Villager:
 	v.neighbours = _villagers
 	_villagers.append(v)
 	add_child(v)
+	v.register_anim_lod(_anim_lod)
 	return v

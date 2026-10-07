@@ -215,6 +215,16 @@ var _clip_cache := {}
 
 # Smart object use (SmartObjects.Session driven at SESSION_HZ; see _so_*).
 var _props: LifeProps.Holder
+## LifeAmbience (docs/anim/patches/P13_villager_life_clips.md section 6): stable personality, idle fidgets, glances, walk style, rain hunch.
+var _amb: LifeAmbience
+var _amb_look: Variant = null     # world point the head glances at (or null)
+var _amb_walk := ""               # walk clip for this person right now ("" = the plain walk)
+var _amb_upper := ""              # upper-body layer over the walk (rain hunch)
+var _fidget := ""                 # idle fidget clip playing now
+var _fidget_until := 0
+var _lod_ctl: CrowdAnimLOD
+## CrowdAnimLOD writes this (0 NEAR, 1 MID, 2 FAR, 3 OUT); beyond NEAR the head look is skipped, beyond MID the ambience.
+var lod_tier := 0
 var _so: SmartObjects.Session
 var _so_acc := 0.0
 var _so_clip := ""
@@ -348,6 +358,7 @@ func _ready() -> void:
 	if not skeletons.is_empty():
 		_skeleton = skeletons[0] as Skeleton3D
 		_props = LifeProps.Holder.new(_skeleton)
+	_amb = LifeAmbience.new(person, _child, 0.9 if _file.begins_with("elder") else 0.4)
 	_attach_components(model)
 	if WorldSim.job[person] == 3:
 		GuardLantern.attach(self)      # F6: lit lanterns at night, the nearest few get a real light
@@ -366,6 +377,8 @@ func _ready() -> void:
 	# Stable per-person variation: pace, think phase, gait phase.
 	var h := hash(person * 2654435761 + 7)
 	_walk_speed = WALK_SPEED * (0.9 + float(h % 200) / 1000.0) * (1.12 if _child else 1.0)
+	if _amb.walk_style == "Life_Walk_Cane" or _amb.walk_style == "Life_Walk_Elder":
+		_walk_speed *= 0.8      # an elder's walk clip is slow; the body keeps pace with it
 	_think = float((h / 200) % 1000) / 1000.0 * THINK_INTERVAL
 	_stuck_from = p
 	_tag = Label3D.new()
@@ -388,6 +401,8 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	if _lod_ctl != null and is_instance_valid(_lod_ctl):
+		_lod_ctl.unregister(person)
 	NpcWorld.queue_leave(WorldSim.home[person], person)
 	_interrupt_activity()
 	_so_release()
@@ -587,6 +602,7 @@ func _think_tick() -> void:
 	if _indoors:
 		return
 	_update_facing(here)
+	_ambience_tick(here)
 	_activity_want = _activity_for_person()
 	if _needs_route and _yield_time <= 0.0 and _wait <= 0.0 and StreetGraph.take_route_budget():
 		_plan_route(here)
@@ -1076,6 +1092,8 @@ func _set_contact(on: bool) -> void:
 ## refreshed. Contact-range villagers (about to be touched or stepped around)
 ## are excluded from both, so nothing changes for anyone the player can reach.
 func _apply_distance_lod(player_distance: float) -> void:
+	if _lod_ctl != null:
+		return      # CrowdAnimLOD owns animation rate, modifiers and shadows (P13a section 7)
 	var want_anim := player_distance > LOD_ANIM_DIST and not _contact
 	if want_anim != _anim_lod:
 		_anim_lod = want_anim
@@ -1090,6 +1108,48 @@ func _apply_distance_lod(player_distance: float) -> void:
 		for m in _meshes:
 			if is_instance_valid(m):
 				m.cast_shadow = mode
+
+
+## LifeAmbience think (once per think tick, skipped beyond MID where nobody sees the glance): fidget over a plain
+## idle, glance target, walk style and rain layer. It only decides; _update_activity / _update_animation play.
+func _ambience_tick(here: Vector2) -> void:
+	if _amb == null or _anim == null:
+		return
+	if lod_tier >= (1 if int(Quality.tier) == 0 else 2):      # LOW: only the NEAR villagers think (no extra script cost)
+		_amb_look = null
+		return
+	var idle := not _walking and _so == null and not _talk.active and _activity_name == "" and _oneshot == "" \
+		and _yield_time <= 0.0 and _act != Act.SLEEP and _act != Act.FLEE and _act != Act.FIREFIGHT
+	var raining := UtilityBrain.is_raining(get_tree())
+	var d := _amb.think(THINK_INTERVAL, {"idle": idle, "walking": _walking, "pos": global_position,
+		"fwd": Vector3(sin(_heading), 0.0, cos(_heading)), "hour": DailyRhythm.local_time(person),
+		"weather": "rain" if raining else "clear",
+		"player_pos": _player.global_position if _player != null and is_instance_valid(_player) else null,
+		"partner_pos": _partner_node.global_position if _act == Act.SOCIAL and _arrived and _partner_node != null and is_instance_valid(_partner_node) else null})
+	_amb_look = d["look"]
+	_amb_upper = String(d["upper"])
+	var w := String(d["walk"])
+	_amb_walk = w if w != "Walk" and _anim.has_animation(w) and float(LifeLibrary.info(w).get("speed_mps", 0.0)) > 0.3 else ""
+	if _amb_upper != "" and not _anim.has_animation(_amb_upper):
+		_amb_upper = ""
+	var f := String(d["fidget"])
+	if f != "" and idle and _fidget == "" and _anim.has_animation(f):
+		_fidget = f
+		_fidget_until = Time.get_ticks_msec() + int(minf(_anim.get_animation(f).length, 6.0) * 1000.0)
+		_anim.play(f, 0.3)
+		_anim.speed_scale = _amb.anim_rate
+
+
+## PopulationLOD hands the body to CrowdAnimLOD (animation rate, look-at, shadows and the VAT twin beyond MID).
+func register_anim_lod(lod: CrowdAnimLOD) -> void:
+	if lod == null or _anim == null or _skeleton == null or _model_node == null:
+		return
+	_lod_ctl = lod
+	# The throttled-manual path of _apply_distance_lod is replaced (MANUAL advance() costs ~13x the engine's own step).
+	_anim_lod = false
+	_anim.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_IDLE
+	var mods := _skeleton.find_children("*", "LookAtModifier3D", false, false)
+	lod.register(person, self, _model_node, _anim, mods[0] if not mods.is_empty() else null, VatResidents.look_of_model(_model_node))
 
 
 func _neighbour_push(here: Vector2) -> Vector2:
@@ -1347,11 +1407,17 @@ func _update_animation(delta: float) -> void:
 	if not _walking:
 		_update_activity(delta)
 		return
+	_fidget = ""
 	_interrupt_activity()
 	_oneshot_started = false
 	var running := _resolved_speed > 2.2
 	var clip := "Running_A" if running else "Walking_A"
 	var clip_speed := RUN_CLIP_SPEED if running else WALK_CLIP_SPEED
+	if not running and _amb_walk != "":
+		clip = _amb_walk       # LifeAmbience: happy / sad / brisk / elder / cane gait, matched by its own speed_mps
+		clip_speed = float(LifeLibrary.info(clip).get("speed_mps", WALK_CLIP_SPEED))
+	if not running and _amb_upper != "":
+		clip = LifeLibrary.composite(_anim, clip, _amb_upper)      # legs from the walk, spine and arms from the rain hunch
 	var cycle_seconds := RUN_CYCLE_SECONDS if running else WALK_CYCLE_SECONDS
 	if _anim:
 		if _anim.current_animation != clip:
@@ -1410,7 +1476,7 @@ func _add_head_look(model: Node3D) -> void:
 
 
 func _update_head_look(delta: float) -> void:
-	if _look_target == null:
+	if _look_target == null or lod_tier >= 1:
 		return
 	_look_timer -= delta
 	if _look_timer > 0.0:
@@ -1424,6 +1490,8 @@ func _update_head_look(delta: float) -> void:
 		target = _partner_node.global_position + Vector3(0, 1.45, 0)
 	elif _look_point != Vector2.INF:
 		target = Vector3(_look_point.x, WorldGen.height(_look_point.x, _look_point.y) + 1.3, _look_point.y)
+	elif _amb_look != null:
+		target = _amb_look
 	_look_target.global_position = _look_target.global_position.lerp(target, 1.0 - exp(-7.0 * delta))
 
 
@@ -1448,6 +1516,10 @@ func _update_activity(delta: float) -> void:
 		_activity_needs_start = true
 		_activity_pause = 0.0
 	if activity == "" or not _anim.has_animation(activity):
+		if _fidget != "":
+			if _anim.current_animation == _fidget and Time.get_ticks_msec() < _fidget_until and _anim.is_playing():
+				return      # a fidget (LifeAmbience) plays out before the idle resumes
+			_fidget = ""
 		_play("Idle")
 		return
 	if _activity_pause > 0.0:
