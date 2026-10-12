@@ -172,7 +172,7 @@ const DAY_KEYS := [
 	[15.0, SUN_COLOR, SUN_ENERGY, AMBIENT_HEX, 0.56, FOG_HEX, "2563d8", "d8e6ff", "8a9a6a", "ffffff", "b4c4e8", 0.30, 1.0, 0.5, 0.70],
 	[17.0, "ffb064", 2.3, "b0a8e0", 0.58, "f4cc90", "2c58cc", "f8d4a0", "8a9060", "fff0dc", "c0b4dc", 0.30, 1.0, 0.7, 0.42],
 	[18.0, "ff8c48", 1.2, "9a8cd0", 0.50, "f0a070", "35459a", "ff9a60", "6a5a4a", "ffb488", "8a6ca4", 0.18, 0.95, 1.0, 0.14],
-	[18.8, "ff6a40", 0.45, "5e5aa8", 0.40, "b4688a", "1e2868", "d0627a", "3a3446", "e08a8a", "4e4488", 0.04, 0.80, 0.8, 0.07],
+	[18.8, "ff6a40", 0.45, "5e5aa8", 0.40, "b4688a", "1e2868", "d0627a", "3a3446", "e08a8a", "4e4488", 0.08, 0.80, 0.8, 0.07],
 	[19.8, "8fa4ff", 0.42, "3e4e9c", 0.34, "26305a", "0a1238", "2a346a", "10152c", "7a86b8", "2a3466", 0.0, 0.55, 0.0, 0.40],
 	[24.0, "7f98e8", 0.40, "3a4a9a", 0.34, "1a2142", "060b22", "141c44", "0a0f22", "6f7fb0", "232d5a", 0.0, 0.45, 0.0, 0.62],
 ]
@@ -238,7 +238,7 @@ static func apply_daylight(env: Environment, sun: DirectionalLight3D, fill: Dire
 		sun.light_color = p["sun_color"]
 		sun.light_energy = float(p["sun_energy"])
 		if env != null and env.has_meta("game_look"):
-			sun.light_energy = maxf(sun.light_energy, 0.85)     # AAA pass 6: moonlight floor, so characters get a cool key/rim at night
+			sun.light_energy = maxf(sun.light_energy, 0.55)     # AAA pass 6 moonlight floor; audit 2: 0.85 -> 0.55 so dusk/night are not a dim day
 		if fill:
 			# the bounce travels back up toward the sun: mirror of the key's forward vector, flattened a little
 			var f := -sun.global_transform.basis.z if sun.is_inside_tree() else -Basis.from_euler(sun.rotation).z
@@ -253,7 +253,7 @@ static func apply_daylight(env: Environment, sun: DirectionalLight3D, fill: Dire
 		env.ambient_light_energy = float(p["ambient_energy"])
 		if env.has_meta("game_look"):
 			# AAA pass 5: night read murky on the phone (NPCs black silhouettes): a moonlit floor for the ambient
-			env.ambient_light_energy = maxf(float(p["ambient_energy"]), 0.85)
+			env.ambient_light_energy = maxf(float(p["ambient_energy"]), 0.5)
 		env.fog_light_color = p["fog"]
 		env.background_energy_multiplier = float(p["bg_energy"])
 		var sm := env.sky.sky_material as ShaderMaterial if env.sky else null
