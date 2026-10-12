@@ -132,6 +132,8 @@ func _process(delta: float) -> void:
 			int(Quality.tier), sorted[sorted.size() / 2], sorted[int(sorted.size() * 0.95)], _mean(buf), int(dsorted[dsorted.size() / 2]),
 			NpcWorld.prof_usec / 1000.0 / fr, NpcWorld.prof_calls, pl.full_count, pl.sprite_count])
 		_print_state()
+		print("PLAZA_FACES cards=%d visible=%d" % [get_tree().root.find_children("FaceCard", "BoneAttachment3D", true, false).size(),
+			get_tree().root.find_children("*", "MeshInstance3D", true, false).filter(func(m: Node) -> bool: return (m as MeshInstance3D).mesh is QuadMesh and m.get_parent().name == "FaceCard" and (m as MeshInstance3D).visible).size()])
 		get_tree().quit(0)
 
 

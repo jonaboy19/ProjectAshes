@@ -446,6 +446,7 @@ static func mh_character(file: String, height: float, keep: Array[String] = [], 
 	# lands near the requested height (ratios from ai3d/meshy/armored/README.md).
 	var k := 0.9 if armored else 1.0
 	root.scale = Vector3.ONE * (height * k / maxf(native, 0.01))
+	root.set_meta("mh_look", file.get_file())      # which GLB was picked (face card placement, docs/art/FACES.md)
 	return root
 
 

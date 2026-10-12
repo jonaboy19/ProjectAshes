@@ -488,7 +488,7 @@ def build_dialogue(tid, by_id, p):
         return by_id[pid]["name"].split(" ")[0] if pid in by_id else pid
 
     greet_lines = [
-        {"text": "{first} looks you up and down and says nothing at all.", "if": {"tier": "enemy"}, "p": 5},
+        {"text": "{first} looks you up and down and says nothing at all.", "if": {"tier": "enemy"}, "p": 5, "mood": "angry"},
         {"text": q("You again. Say what you want and be quick about it."), "if": {"tier": "rival"}, "p": 5},
     ]
     for g in d["greeting"]:
@@ -502,8 +502,8 @@ def build_dialogue(tid, by_id, p):
         greet_lines.append({"text": q("Hm? Oh. Hello. Does your mother know where you are?"), "if": {"tier": "stranger", "child": False}, "p": 1})
     greet_lines.append({"text": q("{greeting}") + " {first} nods.", "if": {"tier": "stranger"}, "p": 1})
     if d.get("aside"):
-        greet_lines.append({"text": q(d["aside"]), "if": {"tier": ["friend", "close_friend"]}, "p": 4})
-    greet_lines.append({"text": q("Well met, {player}."), "if": {"tier": ["friend", "close_friend"]}, "p": 3})
+        greet_lines.append({"text": q(d["aside"]), "if": {"tier": ["friend", "close_friend"]}, "p": 4, "mood": "happy"})
+    greet_lines.append({"text": q("Well met, {player}."), "if": {"tier": ["friend", "close_friend"]}, "p": 3, "mood": "happy"})
     greet = {"lines": greet_lines, "choices": [{"text": q("Heard any news?"), "goto": "rumour", "if": {"tier_not": ["enemy", "rival"]}}]}
     for oid in d["opinions"]:
         if oid in by_id:

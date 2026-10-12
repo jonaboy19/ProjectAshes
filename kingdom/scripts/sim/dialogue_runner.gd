@@ -19,7 +19,8 @@ extends RefCounted
 ## default 0) are candidates and one is chosen with the rng, so a specific line
 ## ("you helped me yesterday", p 3) beats a tier greeting (p 1) beats a generic one.
 ## A line may carry its own "do" (applied when it is shown, e.g. a gossip line
-## that marks a hint as told).
+## that marks a hint as told), and face tags: "mood" (the speaker's expression) and "hero_mood" (the hero's), each one of
+## FaceState.MOODS: neutral happy sad angry fear surprise (docs/art/FACES.md).
 ##
 ## Conditions ("if"), all must hold:
 ##   tier: "friend" | [..]          tier_not: ..        bond: "mother" | [..] | "" (none)
@@ -48,6 +49,7 @@ extends RefCounted
 ##   var line := DialogueRunner.pick_line(d, "greet", ctx, rng)   # {text, do}
 ##   var opts := DialogueRunner.choices(d, "greet", ctx)          # [{text, goto, do}]
 
+const FaceState := preload("res://scripts/living_world/face_state.gd")
 const DIR := "res://dialogue"
 const TIERS := ["enemy", "rival", "stranger", "acquaintance", "friend", "close_friend"]
 
@@ -227,7 +229,8 @@ static func pick_line(d: Dictionary, node: String, ctx: Dictionary, rng: RandomN
 	if best.is_empty():
 		return {}
 	var pick: Dictionary = best[rng.randi() % best.size()] if rng else best[0]
-	return {"text": fill(String(pick.get("text", "")), ctx), "do": pick.get("do", [])}
+	return {"text": fill(String(pick.get("text", "")), ctx), "do": pick.get("do", []),
+		"mood": String(pick.get("mood", "")), "hero_mood": String(pick.get("hero_mood", ""))}
 
 
 ## [{text, goto, do}] for the node's choices whose conditions hold.
@@ -258,6 +261,9 @@ static func validate(d: Dictionary) -> PackedStringArray:
 			for k: String in l.get("if", {}):
 				if not known.has(k):
 					out.append("%s: unknown condition '%s'" % [id, k])
+			for mk in ["mood", "hero_mood"]:
+				if l.has(mk) and not FaceState.MOODS.has(String(l[mk])):
+					out.append("%s: bad mood '%s'" % [id, String(l[mk])])
 		for c: Dictionary in n.get("choices", []):
 			var g := String(c.get("goto", ""))
 			if g != "" and g != "@end" and not nodes.has(g):

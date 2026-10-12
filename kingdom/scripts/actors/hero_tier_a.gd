@@ -327,6 +327,13 @@ static func dress_meshy_hero(model: Node3D, look := {}) -> Node:
 	if bool(look.get("hood", false)):
 		add_hood_up(sk, noise)
 	var parts := {}
+	# face: the LOD0 body gets its OWN material copy so the brow uniform never reaches the shared _char_mats cache
+	for n in model.find_children("*base_body*", "MeshInstance3D", true, false):
+		var bm := n as MeshInstance3D
+		if bm.visibility_range_begin == 0.0 and bm.material_override is ShaderMaterial:
+			bm.material_override = (bm.material_override as ShaderMaterial).duplicate()
+			parts["BodyMat"] = bm.material_override
+			break
 	for n in model.find_children("*Lids*", "MeshInstance3D", true, false):
 		parts["Lids"] = n
 		var lm := ShaderMaterial.new()

@@ -1402,6 +1402,16 @@ func _enter(node: String) -> void:
 	TownTalk.on_node(info, node)      # F8: `talk {npc, node}` for the quest bus
 
 
+## Faces (docs/art/FACES.md): the NPC mouths the line with the tagged / derived mood, the hero reacts with `hero_mood`.
+func _face_line(info: Dictionary, line: Dictionary) -> void:
+	var body := _npc_node(info)
+	if body != null and body.has_method("face_say"):
+		body.call("face_say", String(_talk["line"]), String(line.get("mood", "")), int(relationships().opinion(String(info.get("id", "")), _now())))
+	var player := get_tree().get_first_node_in_group("player")
+	if player != null and player.has_method("face_mood"):
+		player.call("face_mood", String(line.get("hero_mood", "")) if String(line.get("hero_mood", "")) != "" else "neutral")
+
+
 func _talk_page() -> Dictionary:
 	var info: Dictionary = _talk["info"]
 	var rel := relationships()
@@ -1499,6 +1509,9 @@ func _add_courtship_options(opts: Array, info: Dictionary) -> void:
 
 
 func _choose(c: Dictionary) -> String:
+	var hero := get_tree().get_first_node_in_group("player")
+	if hero != null and hero.has_method("face_say"):
+		hero.call("face_say", String(c.get("text", "")), "neutral")
 	var msg := _do_actions(c.get("do", []))
 	if not hud.is_menu_open() or _talk.is_empty():
 		return msg

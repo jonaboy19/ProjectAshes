@@ -468,6 +468,23 @@ const TIER_A_HERO := true
 const TIER_A_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy3"
 
 
+## Hero face driver (Tier-A Meshy hero only; null for the G6 / creator bodies). docs/art/FACES.md
+var _face: Node
+
+
+## The hero speaks `text` (mouth flap for FaceState.say_seconds) with an optional mood tag.
+func face_say(text: String, mood := "neutral") -> void:
+	if _face == null or not is_instance_valid(_face):
+		return
+	_face.call("set_mood", mood)
+	_face.call("say", text)
+
+
+func face_mood(m: String) -> void:
+	if _face != null and is_instance_valid(_face):
+		_face.call("set_mood", m)
+
+
 func _build_body() -> void:
 	var props: Array[String] = ["1H_Sword", "Round_Shield"]
 	var look: Variant = Life.get("appearance")
@@ -478,7 +495,7 @@ func _build_body() -> void:
 	if body == null and (TIER_A_HERO or "--hero_tier_a" in OS.get_cmdline_user_args()) and ResourceLoader.exists(TIER_A_PATH + ".glb"):
 		# Tier-A hero (skill ashes-hero-character): Meshy villager on UAL + hood/satchel/strap + G6 hands + blink lids
 		body = Assets.mh_character(TIER_A_PATH, 1.8, props)
-		(load("res://scripts/actors/hero_tier_a.gd") as GDScript).call("dress_meshy_hero", body)
+		_face = (load("res://scripts/actors/hero_tier_a.gd") as GDScript).call("dress_meshy_hero", body)
 	if body == null:
 		# Style G default hero (target 03 hooded traveller): G6 villager tunic tinted green + skinned HeroOutfit
 		var hero_look: Dictionary = (load("res://scripts/style_lab/lab_chars.gd") as GDScript).get("HERO_LOOK")
@@ -524,6 +541,7 @@ func apply_appearance() -> void:
 		remove_child(_look_target)
 		_look_target.queue_free()
 		_look_target = null
+	_face = null
 	if _body_node and is_instance_valid(_body_node):
 		_model.remove_child(_body_node)
 		_body_node.queue_free()    # also frees the rig, trail, look-at modifier and animator nodes
@@ -1444,6 +1462,7 @@ func set_talk_framing(on: bool, partner: Node3D = null) -> void:
 		_chase.begin_talk()
 	else:
 		_chase.end_talk()
+		face_mood("neutral")
 
 
 func add_fov_impulse(degrees: float) -> void:

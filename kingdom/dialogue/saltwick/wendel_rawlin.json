@@ -9,7 +9,8 @@
      "if": {
       "tier": "enemy"
      },
-     "p": 5
+     "p": 5,
+     "mood": "angry"
     },
     {
      "text": "\"You again. Say what you want and be quick about it.\"",
@@ -54,7 +55,8 @@
        "close_friend"
       ]
      },
-     "p": 3
+     "p": 3,
+     "mood": "happy"
     }
    ],
    "choices": [
