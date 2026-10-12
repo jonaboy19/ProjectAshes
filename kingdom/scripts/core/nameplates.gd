@@ -119,6 +119,22 @@ static func snapped_pixel_size(font_size: int, viewport_h: float, fov_deg: float
 	return roundf(want) / (float(font_size) * px_per_unit)
 
 
+## Approximate on-screen rectangle of a plate centred at `at` (text width ~0.55 em per character). Pure.
+static func screen_rect(at: Vector2, text: String, font_size: int, viewport_h: float, fov_deg: float) -> Rect2:
+	var px_per_unit := viewport_h / (2.0 * tan(deg_to_rad(fov_deg) * 0.5))
+	var h := maxf(MIN_PX * viewport_h / 720.0, font_size * PX * px_per_unit)
+	var w := h * 0.55 * float(maxi(text.length(), 1))
+	return Rect2(at - Vector2(w, h) * 0.5, Vector2(w, h))
+
+
+## True when `rect` intersects any of `others`. Pure.
+static func overlaps_any(rect: Rect2, others: Array) -> bool:
+	for o: Rect2 in others:
+		if rect.intersects(o):
+			return true
+	return false
+
+
 ## True when the screen point lies inside any of the rects (each grown by SIGN_MARGIN). Pure.
 static func hidden_by_sign(at: Vector2, rects: Array) -> bool:
 	for r: Rect2 in rects:
@@ -180,12 +196,21 @@ static func refresh(tree: SceneTree, cam: Camera3D) -> void:
 			for pt in pts:
 				box = box.expand(pt)
 			rects.append(box)
+	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["dist"]) < float(b["dist"]))
+	var taken: Array = []      # screen rects of the plates already drawn this pass (nearest first)
 	for r: Dictionary in rows:
 		var t := instance_from_id(int(r["id"])) as Label3D
 		if t == null:
 			continue
 		var d := float(r["dist"])
 		var show := keep.has(r["id"]) and not cam.is_position_behind(t.global_position)
+		if show:
+			# De-overlap: a plate whose rectangle meets a nearer plate's is hidden (the farther one loses).
+			var rect := screen_rect(cam.unproject_position(t.global_position), t.text, t.font_size, vh, cam.fov)
+			if overlaps_any(rect, taken):
+				show = false
+			else:
+				taken.append(rect)
 		var owner_node := t.get_parent()
 		if show and owner_node != null and bool(owner_node.get_meta("np_hide", false)):
 			show = false      # this owner already wears a threat plate (ui/threat_plates.gd)

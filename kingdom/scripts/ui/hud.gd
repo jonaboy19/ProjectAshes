@@ -1414,7 +1414,8 @@ func _update_modes(delta: float) -> void:
 	if _techniques:
 		_techniques.fade = mode.eased()
 	# Hotbar: only in combat, while building, pinned from the menu, or just after a slot key.
-	var want_hb := mode.hotbar_wanted()
+	# An empty bar (no techniques bound, at most the one default consumable) is never drawn unless pinned / building.
+	var want_hb: bool = mode.hotbar_wanted() and (int(hotbar.call("filled_slots")) >= 2 or mode.hotbar_pinned or mode.building)
 	_hb_a = lerpf(_hb_a, 1.0 if want_hb else 0.0, k)
 	if absf(_hb_a - (1.0 if want_hb else 0.0)) < 0.01:
 		_hb_a = 1.0 if want_hb else 0.0
