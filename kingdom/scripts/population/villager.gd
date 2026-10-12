@@ -435,6 +435,9 @@ func _attach_components(_model: Node3D) -> void:
 			var card := NpcFaceCard.new(_skeleton, Vector3(off[0], off[1], off[2]) if off.size() == 3 else NpcFaceCard.DEFAULT_OFFSET,
 				Vector2(sz[0], sz[1]) if sz.size() == 2 else NpcFaceCard.DEFAULT_SIZE, false, NpcFaceCard.layout_of(o))
 			if card.is_valid():
+				var skin: Array = o.get("skin", [])
+				if skin.size() == 3:
+					card.set_skin(Color(skin[0], skin[1], skin[2]))
 				_face = card
 
 

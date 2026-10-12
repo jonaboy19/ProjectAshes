@@ -1,5 +1,6 @@
 extends RefCounted
 ## Procedural ink face (brows, lids, mouth) on one 2-triangle quad parented to the Head bone. docs/art/FACES.md
+## Draws only deviations from the painted face (see face_card_common.gdshaderinc).
 ## Villagers: one shared ShaderMaterial + per-instance uniforms (Mobile / Forward+ only, NEAR tier only, created on MEDIUM+).
 ## Hero (`hero = true`): own material with plain uniforms (works in Compatibility too), draws the mouth only (brows live in
 ## hero_character.gdshader, lids in the Lids patch); created on every tier, always visible.
@@ -104,6 +105,16 @@ func set_hero_lids(on: bool) -> void:
 	_hero_lids = on
 	if _own:
 		_own.set_shader_parameter("lids_on", 1.0 if on else 0.0)
+
+
+## Eyelid cap colour (the look's skin tone, sRGB); the shader converts it.
+func set_skin(c: Color) -> void:
+	if mesh == null:
+		return
+	if _hero:
+		_own.set_shader_parameter("skin", c)
+	else:
+		mesh.set_instance_shader_parameter("skin", c)
 
 
 func set_debug(on: bool) -> void:

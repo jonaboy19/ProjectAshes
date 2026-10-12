@@ -75,19 +75,24 @@ func _run() -> void:
 			var v3 := lay_s.split_floats(",")
 			lay = Vector4(v3[0], v3[1], v3[2], v3[3])
 		var card := NpcFaceCard.new(sk, offv, szv, false, lay)
+		var sj: Array = o.get("skin", [])
+		var skin_col := Color(sj[0], sj[1], sj[2]) if sj.size() == 3 else Color(0.85, 0.65, 0.55)
 		for i in 10:
 			await process_frame
 		var hp := (sk.global_transform * sk.get_bone_global_pose(sk.find_bone("Head"))).origin + Vector3(0, 0.08 * body.scale.y, 0)
 		cam.position = hp + Vector3(0, -0.03, 1.6)
 		cam.look_at(hp + Vector3(0, -0.03, 0))
-		for m in ["neutral", "angry", "happy", "debug"]:
+		for m in ["neutral", "angry", "happy", "surprise", "debug"]:
 			card.set_debug(m == "debug")
 			card.set_mood("angry" if m == "debug" else m)
+			card.set_skin(skin_col)
 			for i in 20:
 				card.tick(1.0 / 60.0, true)
 				await process_frame
 			await RenderingServer.frame_post_draw
-			get_root().get_texture().get_image().save_png("%s/%s_%s.png" % [out, short, m])
+			var img := get_root().get_texture().get_image()
+			img.save_png("%s/%s_%s.png" % [out, short, m])
+
 		print("LOOK ", short, " disabled=", o.get("disabled", false), " valid=", card.is_valid())
 		body.queue_free()
 		await process_frame
