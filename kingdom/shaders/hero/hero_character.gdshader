@@ -26,6 +26,8 @@ uniform float detail_strength = 0.5;        // calmer normals (close-up noise)
 uniform vec4 skin_tint : source_color = vec4(1.0);   // character creator: ratio vs the baked skin
 uniform vec4 hair_tint : source_color = vec4(1.0);   // character creator: ratio vs the baked hair
 uniform float brow_lift = 0.6;                      // lightens the painted brows (UV rects of the hero atlas, hero_meshy3)
+uniform float face_brow = 0.0;                      // -1 lowered/darker .. +1 raised/lighter brows (HeroFaceDriver, docs/art/FACES.md)
+uniform float debug_face = 0.0;                     // 1 = paint the brow rects magenta (QA)
 uniform bool use_mask = true;                // vertex COLOR.r = forced matte wool (hood), from hero_fix.py
 uniform float debug_classes = 0.0;           // 1 = show the class map (QA)
 
@@ -48,7 +50,12 @@ void fragment() {
 		vec2 q = UV * 2048.0;
 		float inb = step(750.0, q.x) * step(q.x, 815.0) * step(510.0, q.y) * step(q.y, 610.0) + step(440.0, q.x) * step(q.x, 500.0) * step(1335.0, q.y) * step(q.y, 1372.0);
 		float dark = 1.0 - smoothstep(0.22, 0.5, dot(c, vec3(0.299, 0.587, 0.114)));
-		c = mix(c, vec3(0.80, 0.58, 0.50), clamp(inb, 0.0, 1.0) * dark * brow_lift);
+		float ib = clamp(inb, 0.0, 1.0);
+		float lowered = max(-face_brow, 0.0);
+		float lift = clamp(brow_lift * (1.0 - lowered) + 0.3 * max(face_brow, 0.0), 0.0, 1.0);
+		c = mix(c, vec3(0.80, 0.58, 0.50), ib * dark * lift);
+		c = mix(c, c * 0.3, ib * lowered);
+		c = mix(c, vec3(1.0, 0.0, 1.0), ib * debug_face);
 	}
 	vec3 hsv = rgb2hsv(c);
 	float head = smoothstep(neck_y - 0.03, neck_y + 0.02, v_pos.y);

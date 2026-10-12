@@ -134,6 +134,8 @@ const MOURN_KNEEL := ["Life_Social_Mourn_Kneel", "Life_Pray_Kneel"]
 const FESTIVE_DANCE := ["Dance", "Life_Tavern_Cheer", "Life_Social_Laugh", "Life_Mocap_Happy"]
 const POOR_MEAL := ["Life_Mocap_Eat_Soup", "Life_Eat_Bread_Stand", "Consume_Item"]
 const WAKE_CLIPS := ["Life_Ambient_Stretch_Morning", "Life_Ambient_Yawn", "Life_Mocap_Stretch_Yawn", "Idle_Subtle"]
+const FaceState := preload("res://scripts/living_world/face_state.gd")
+const NpcFaceCard := preload("res://scripts/living_world/npc_face_card.gd")
 const TALK_CLIPS := ["Life_Talk_Casual", "Life_Talk_Explain", "Life_Talk_Gossip", "Life_Talk_Emphatic", "Idle_Talking"]
 const LISTEN_CLIPS := ["Life_Talk_Listen_Nod", "Life_Talk_Listen_Hips", "Idle_Listening", "Head_Nod", "Idle_Talking"]
 const ALONE_CLIPS := ["Life_Ambient_Shift_Weight", "Idle_Subtle"]
@@ -225,6 +227,7 @@ var _fidget_until := 0
 var _lod_ctl: CrowdAnimLOD
 ## CrowdAnimLOD writes this (0 NEAR, 1 MID, 2 FAR, 3 OUT); beyond NEAR the head look is skipped, beyond MID the ambience.
 var lod_tier := 0
+var _face: NpcFaceCard       # ink face card (MEDIUM+, NEAR only); null on LOW
 var _so: SmartObjects.Session
 var _so_acc := 0.0
 var _so_clip := ""
@@ -423,7 +426,19 @@ func _attach_components(_model: Node3D) -> void:
 	# NPC foot IK via ProceduralRig was tried here and measured at -14..-22 fps on HIGH in
 	# the village bench (rig modifiers keep every resident's skeleton updating each frame);
 	# see docs/anim/patches/P6_npc_foot_ik_cost.md before re-enabling.
-	pass
+	# Face card (brows / lids / mouth): MEDIUM+ on Mobile / Forward+ only, so LOW creates nothing (docs/art/FACES.md).
+	if _skeleton != null and FaceState.cards_enabled(int(Quality.tier), Quality.renderer()):
+		var o: Dictionary = NpcFaceCard.offsets_for(String(_model_node.get_meta("mh_look", _file)) if _model_node != null else _file)
+		if not bool(o.get("disabled", false)):
+			var off: Array = o.get("offset", [])
+			var sz: Array = o.get("size", [])
+			var card := NpcFaceCard.new(_skeleton, Vector3(off[0], off[1], off[2]) if off.size() == 3 else NpcFaceCard.DEFAULT_OFFSET,
+				Vector2(sz[0], sz[1]) if sz.size() == 2 else NpcFaceCard.DEFAULT_SIZE, false, NpcFaceCard.layout_of(o))
+			if card.is_valid():
+				var skin: Array = o.get("skin", [])
+				if skin.size() == 3:
+					card.set_skin(Color(skin[0], skin[1], skin[2]))
+				_face = card
 
 
 ## Brain for this person: seeded personality, career shift if they hold a seat,
@@ -1476,6 +1491,10 @@ func _add_head_look(model: Node3D) -> void:
 
 
 func _update_head_look(delta: float) -> void:
+	if _face != null:
+		# chatting pair: the mouth flaps only while a talk clip plays; the card hides past the NEAR tier
+		_face.say_loop(lod_tier == 0 and _anim != null and _partner_node != null and is_instance_valid(_partner_node) 			and TALK_CLIPS.has(_anim.current_animation))
+		_face.tick(delta, lod_tier == 0)
 	if _look_target == null or lod_tier >= 1:
 		return
 	_look_timer -= delta
@@ -1786,6 +1805,8 @@ func talk_begin(player: Node3D = null) -> void:
 	if _talk.active:
 		return
 	_talk.begin(Time.get_ticks_msec())
+	if _face != null:
+		_face.set_mood(FaceState.mood_for(_act, _mood, 0, ""))
 	_oneshot_until = 0
 	_look_timer = 0.0
 	if _bubble != null and _bubble.visible:
@@ -1796,12 +1817,24 @@ func talk_end() -> void:
 	if not _talk.active:
 		return
 	_talk.end()
+	if _face != null:
+		_face.set_mood("neutral")
+		_face.say_seconds(0.0)
 	_greet_cd = maxi(_greet_cd, Time.get_ticks_msec() + 30000)   # no instant re-greeting
 	_activity_needs_start = true
 
 
 func is_talking() -> bool:
 	return _talk.active
+
+
+## The NPC says `text` in a conversation: mouth flaps for FaceState.say_seconds(text), expression from the line tag / what they
+## are doing / the town / their opinion of the hero (village_services passes it).
+func face_say(text: String, line_mood := "", opinion := 0) -> void:
+	if _face == null:
+		return
+	_face.set_mood(FaceState.mood_for(_act, _mood, opinion, line_mood))
+	_face.say(text)
 
 
 ## Short floating line for a villager who thinks well of the player walking by (talk_bark.gd rate limits it).
