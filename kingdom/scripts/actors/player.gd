@@ -414,6 +414,7 @@ func _ready() -> void:
 	_viewmodel.visible = false
 	spawn_point = global_position
 	_ensure_actions()
+	_setup_pc_input()
 	_build_lock_marker()
 	_feedback = CombatFeedback.new()
 	_feedback.bind(self)
@@ -446,7 +447,77 @@ func _ensure_actions() -> void:
 		InputMap.action_add_event(action, jb)
 
 
+## PC mouse look: relative motion x App.look_scale x MOUSE_K while the cursor is captured (touch is unchanged).
+const MOUSE_K := 0.6
+const PAD_LOOK_SPEED := 900.0
+const PAD_LOOK_DEADZONE := 0.15
+var _pc_input := false
+var _was_ui_open := false
+
+
+func _setup_pc_input() -> void:
+	_pc_input = not ("--touch" in OS.get_cmdline_user_args() or OS.has_feature("mobile") or OS.has_feature("web_android") 			or OS.has_feature("web_ios")) and DisplayServer.get_name() != "headless" 			and not ("--no-mouse-capture" in OS.get_cmdline_user_args())
+	if _pc_input:
+		call_deferred("_capture_mouse")
+
+
+func _ui_blocking() -> bool:
+	if _menu_open():
+		return true
+	var scene := get_tree().current_scene
+	var hud: Variant = scene.get("hud") if scene else null
+	var wheel: Variant = (hud as Object).get("technique_wheel") if hud is Object else null
+	return wheel is CanvasItem and (wheel as CanvasItem).visible
+
+
+func _capture_mouse() -> void:
+	if _pc_input and not _ui_blocking() and DisplayServer.window_is_focused():
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _release_mouse() -> void:
+	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func _notification(what: int) -> void:
+	if not _pc_input:
+		return
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+		_release_mouse()
+	elif what == NOTIFICATION_APPLICATION_FOCUS_IN or what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
+		_capture_mouse()
+
+
+func _process(delta: float) -> void:
+	if not _pc_input:
+		return
+	var blocking := _ui_blocking()
+	if blocking != _was_ui_open:
+		_was_ui_open = blocking
+		if blocking:
+			_release_mouse()
+		else:
+			_capture_mouse()
+	if blocking:
+		return
+	var v := Input.get_vector("look_left", "look_right", "look_up", "look_down")
+	if v.length() > PAD_LOOK_DEADZONE:
+		add_look(v * PAD_LOOK_SPEED * delta * App.look_scale)
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if _pc_input:
+		if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+			if not _ui_blocking():
+				add_look((event as InputEventMouseMotion).relative * App.look_scale * MOUSE_K)
+			return
+		if event.is_action_pressed("ui_cancel"):
+			_release_mouse()
+		elif event is InputEventMouseButton and event.pressed and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED 				and not _ui_blocking():
+			_capture_mouse()
+			get_viewport().set_input_as_handled()
+			return
 	if event.is_action_pressed("lock_on"):
 		toggle_lock()
 	elif event.is_action_pressed("crouch"):
