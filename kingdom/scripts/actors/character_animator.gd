@@ -83,7 +83,12 @@ var rig: Node
 var _root: AnimationNodeBlendTree
 var _upper_anim: AnimationNodeAnimation
 var _full_anim: AnimationNodeAnimation
+var _atk_up: Array[AnimationNodeAnimation] = []
+var _atk_full: Array[AnimationNodeAnimation] = []
+var _atk_slot := 0
+var _stand := 0.0
 var _loco_anim: AnimationNodeAnimation
+var _loco_shot: AnimationNodeOneShot
 var _block_target := 0.0
 var _block := 0.0
 var _speed := 0.0
@@ -211,6 +216,28 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 	_filter_upper(upper)
 	_root.add_node("upper", upper, Vector2(550, 0))
 
+	# P9 attack layering: two upper-body slots (moving) and two full-body slots (standing), alternated so a
+	# new swing fades in over the previous one instead of restarting it. A node output can feed only one
+	# input, so standing vs moving is chosen when the swing starts (see play_attack).
+	for s in ["a", "b"]:
+		var up := _anim("1H_Melee_Attack_Chop")
+		_atk_up.append(up)
+		_root.add_node("atk_%s_anim" % s, up, Vector2(700, 300))
+		_root.add_node("atk_%s_speed" % s, AnimationNodeTimeScale.new(), Vector2(800, 300))
+		var os := AnimationNodeOneShot.new()
+		os.fadein_time = 0.06
+		os.fadeout_time = 0.2
+		_filter_upper(os)
+		_root.add_node("atk_" + s, os, Vector2(900, 0))
+		var fl := _anim("1H_Melee_Attack_Chop")
+		_atk_full.append(fl)
+		_root.add_node("stand_%s_anim" % s, fl, Vector2(700, 500))
+		_root.add_node("stand_%s_speed" % s, AnimationNodeTimeScale.new(), Vector2(800, 500))
+		var fos := AnimationNodeOneShot.new()
+		fos.fadein_time = 0.06
+		fos.fadeout_time = 0.2
+		_root.add_node("stand_" + s, fos, Vector2(1000, 0))
+
 	_full_anim = _anim("Dodge_Forward")
 	_root.add_node("full_anim", _full_anim, Vector2(550, 200))
 	var full_speed := AnimationNodeTimeScale.new()
@@ -226,7 +253,19 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 	_root.connect_node("upper", 0, "block")
 	_root.connect_node("upper", 1, "upper_speed")
 	_root.connect_node("full_speed", 0, "full_anim")
-	_root.connect_node("full", 0, "upper")
+	_root.connect_node("atk_a_speed", 0, "atk_a_anim")
+	_root.connect_node("atk_b_speed", 0, "atk_b_anim")
+	_root.connect_node("stand_a_speed", 0, "stand_a_anim")
+	_root.connect_node("stand_b_speed", 0, "stand_b_anim")
+	_root.connect_node("atk_a", 0, "upper")
+	_root.connect_node("atk_a", 1, "atk_a_speed")
+	_root.connect_node("atk_b", 0, "atk_a")
+	_root.connect_node("atk_b", 1, "atk_b_speed")
+	_root.connect_node("stand_a", 0, "atk_b")
+	_root.connect_node("stand_a", 1, "stand_a_speed")
+	_root.connect_node("stand_b", 0, "stand_a")
+	_root.connect_node("stand_b", 1, "stand_b_speed")
+	_root.connect_node("full", 0, "stand_b")
 	_root.connect_node("full", 1, "full_speed")
 	var output := "full"
 	var air_output := ""
@@ -241,6 +280,7 @@ func _init(model: Node3D, run_speed: float, _walk_speed := -1.0, walk_anim := "W
 		loco.fadein_time = 0.14
 		loco.fadeout_time = 0.18
 		_filter_lower(loco)
+		_loco_shot = loco
 		_root.add_node("loco_transition", loco)
 		_root.connect_node("loco_rate", 0, "loco_anim")
 		_root.connect_node("loco_transition", 0, output)
@@ -397,7 +437,7 @@ func update(delta: float, speed: float, move_dir := Vector3.ZERO) -> void:
 		_update_stance(delta)
 	if rig:
 		var off := not tree.active or _stance == "swim" or _stance == "ride"
-		rig.call("set_state", maxf(speed, 0.0), true, off, is_full_busy())
+		rig.call("set_state", maxf(speed, 0.0), true, off, is_full_busy() or is_stand_attack())
 
 
 func _update_stance(delta: float) -> void:
@@ -493,6 +533,42 @@ func play_upper(anim_name: String, time_scale := 1.0) -> void:
 	tree["parameters/upper/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
 
 
+## P9: a melee swing. `standing` plays the full-body clip (hips lead, the lead foot steps in) on the
+## unfiltered slots; otherwise the `<clip>_Upper` variant plays on the upper-body slots over the running legs.
+## Clips without an `_Upper` twin keep the arms-only path (spear, bow, staff). Chosen when the swing starts.
+func play_attack(clip: String, time_scale := 1.0, standing := true) -> void:
+	var base := _clip(clip).trim_suffix("_Upper")
+	var up_name := base + "_Upper"
+	if not player.has_animation(up_name) or not player.has_animation(base):
+		play_upper(clip, time_scale)
+		return
+	var old := "a" if _atk_slot == 0 else "b"
+	_atk_slot = 1 - _atk_slot
+	var s := "a" if _atk_slot == 0 else "b"
+	var kind := "stand" if standing else "atk"
+	if standing:
+		_atk_full[_atk_slot].animation = base
+	else:
+		_atk_up[_atk_slot].animation = up_name
+	_stand = 1.0 if standing else 0.0
+	tree["parameters/%s_%s_speed/scale" % [kind, s]] = time_scale
+	tree["parameters/%s_%s/request" % [kind, s]] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
+	# the previous swing (either kind) keeps playing under the new one's fade-in, then leaves
+	for k in ["atk", "stand"]:
+		tree["parameters/%s_%s/request" % [k, old]] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT
+	tree["parameters/%s_%s/request" % ["atk" if standing else "stand", s]] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT
+
+
+func stop_attack() -> void:
+	for s in ["a", "b"]:
+		tree["parameters/atk_%s/request" % s] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT
+		tree["parameters/stand_%s/request" % s] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT
+
+
+func is_stand_attack() -> bool:
+	return _stand > 0.5 and (tree["parameters/stand_a/active"] or tree["parameters/stand_b/active"])
+
+
 ## Whole-body action (dodge roll, stagger) that overrides locomotion.
 func play_full(anim_name: String, time_scale := 1.0) -> void:
 	_full_anim.animation = _clip(anim_name)
@@ -526,9 +602,11 @@ func finish_air() -> void:
 	_air_target = 0.0
 
 
-func play_locomotion_transition(anim_name: String, time_scale: float) -> void:
+func play_locomotion_transition(anim_name: String, time_scale: float, fade_in := 0.14, fade_out := 0.18) -> void:
 	if _loco_anim == null:
 		return
+	_loco_shot.fadein_time = fade_in
+	_loco_shot.fadeout_time = fade_out
 	_loco_anim.animation = _clip(anim_name)
 	tree["parameters/loco_rate/scale"] = time_scale
 	tree["parameters/loco_transition/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
@@ -537,6 +615,10 @@ func play_locomotion_transition(anim_name: String, time_scale: float) -> void:
 func finish_locomotion_transition() -> void:
 	if _loco_anim != null:
 		tree["parameters/loco_transition/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT
+
+
+func has_clip(anim_name: String) -> bool:
+	return player.has_animation(_clip(anim_name))
 
 
 func clip_length(anim_name: String) -> float:
@@ -610,6 +692,7 @@ func stop_full() -> void:
 
 ## Cut an arms-only action short (e.g. a dodge cancelling a swing's recovery).
 func stop_upper() -> void:
+	stop_attack()
 	if tree["parameters/upper/active"]:
 		tree["parameters/upper/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT
 

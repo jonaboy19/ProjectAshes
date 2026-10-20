@@ -160,6 +160,13 @@ var _soldiers := 0
 var _stack_sig := ""
 var _portrait_ready := false
 var _touch := false
+## PC (desktop, no --touch): no virtual stick / action buttons, mouse look is captured by the player, and a keybind hint strip
+## (keyboard text, switching to gamepad text after the last pad event) sits bottom right.
+var _pc := false
+var _hint: Label
+var _hint_pad := false
+const HINT_KB := "LMB attack   |   RMB block   |   Space jump   |   K dodge   |   E interact   |   Tab pack"
+const HINT_PAD := "X attack   |   LT block   |   A jump   |   B dodge   |   Y interact   |   Back pack"
 ## Anything with active_objective_position() -> Vector2|null (e.g. the radiant
 ## quest tracker: `hud.quest_source = services.radiant()`). Life.radiant is used
 ## automatically when Life owns one.
@@ -177,6 +184,9 @@ func _init(p: Player) -> void:
 
 func _ready() -> void:
 	_touch = HudArt.touch_mode()
+	_pc = not _touch
+	if _pc:
+		Input.emulate_touch_from_mouse = false
 	debug_stats = "--debug-hud" in OS.get_cmdline_user_args() or bool(ProjectSettings.get_setting("ashes/debug/show_stats", false))
 	var root := Control.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -192,6 +202,7 @@ func _ready() -> void:
 	look.anchor_left = 0.4
 	look.anchor_right = 1.0
 	look.anchor_bottom = 1.0
+	look.mouse_filter = Control.MOUSE_FILTER_IGNORE if _pc else Control.MOUSE_FILTER_STOP
 	look.gui_input.connect(func(e: InputEvent) -> void:
 		if e is InputEventScreenDrag:
 			player.add_look(e.relative * App.look_scale))
@@ -203,6 +214,7 @@ func _ready() -> void:
 	stick.size_scale = App.joystick_scale
 	stick.moved.connect(func(v: Vector2) -> void: player.touch_move = v)
 	controls.add_child(stick)
+	stick.visible = not _pc
 
 	_buttons["attack"] = _button("attack", "", 128, UITheme.ACTION_ATTACK, "broadsword")
 	_buttons["jump"] = _button("jump", "Jump", 72, UITheme.ACTION_UTIL, "")
@@ -278,6 +290,8 @@ func _ready() -> void:
 	_chrome.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_chrome.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(_chrome)
+	if _pc:
+		_build_hint()
 
 	# Character card top left (portrait, crest, title, job, gold / merit, bars), quest tracker,
 	# danger badge and the popup stack hang below it.
@@ -511,7 +525,7 @@ func _pose(b: TouchScreenButton, pos: Vector2, alpha := 1.0) -> void:
 	if _snap:
 		b.position = pos
 		b.modulate.a = alpha
-		b.visible = alpha > 0.03
+		b.visible = alpha > 0.03 and not _pc
 
 
 ## CPU pass 2026-10-06: once every button sits on its goal (position and alpha) nothing is written until a button gets a new goal
@@ -540,7 +554,7 @@ func _ease_buttons(delta: float) -> void:
 		b.position = goal if b.position.distance_squared_to(goal) < 0.25 else b.position.lerp(goal, k)
 		var a := lerpf(b.modulate.a, ag, k)
 		b.modulate.a = ag if absf(a - ag) < 0.01 else a
-		b.visible = b.modulate.a > 0.03
+		b.visible = b.modulate.a > 0.03 and not _pc     # PC: built (code looks buttons up by name) but never shown
 		if b.position != goal or b.modulate.a != ag:
 			moving = true
 	_ease_settled = not moving
@@ -589,6 +603,48 @@ func _layout() -> void:
 		stick.offset_left = maxf(0.0, _safe.position.x - LEFT)
 		stick.offset_bottom = -maxf(0.0, s.y - _safe.end.y - LEFT)
 	_layout_left()
+	_place_hint()
+
+
+func _build_hint() -> void:
+	_hint = Label.new()
+	_hint.text = HINT_KB
+	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hint.add_theme_font_size_override("font_size", 15)
+	_hint.add_theme_color_override("font_color", Color(0.96, 0.93, 0.86, 0.92))
+	_hint.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+	_hint.add_theme_constant_override("shadow_outline_size", 4)
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.05, 0.04, 0.06, 0.45)
+	bg.set_corner_radius_all(6)
+	bg.content_margin_left = 12.0
+	bg.content_margin_right = 12.0
+	bg.content_margin_top = 5.0
+	bg.content_margin_bottom = 5.0
+	_hint.add_theme_stylebox_override("normal", bg)
+	_chrome.add_child(_hint)
+
+
+func _place_hint() -> void:
+	if _hint == null:
+		return
+	_hint.reset_size()
+	_hint.position = Vector2(_safe.end.x - _hint.size.x, _safe.end.y - _hint.size.y)
+
+
+func _input(event: InputEvent) -> void:
+	if not _pc or _hint == null:
+		return
+	var pad := event is InputEventJoypadButton or (event is InputEventJoypadMotion and absf((event as InputEventJoypadMotion).axis_value) > 0.5)
+	var kb := event is InputEventKey or event is InputEventMouseButton or (event is InputEventMouseMotion and (event as InputEventMouseMotion).relative.length() > 2.0)
+	if pad and not _hint_pad:
+		_hint_pad = true
+		_hint.text = HINT_PAD
+		_place_hint()
+	elif kb and _hint_pad:
+		_hint_pad = false
+		_hint.text = HINT_KB
+		_place_hint()
 
 
 func _place_pill() -> void:
@@ -829,7 +885,7 @@ func update_status(soldiers: int, order_name: String, target_node: Node3D, perf:
 	_perf.text = perf
 	_set_target(target_node)
 	for b in _order_buttons:
-		b.visible = soldiers > 0
+		b.visible = soldiers > 0 and not _pc
 	_update_tracker()
 
 
@@ -1417,7 +1473,8 @@ func _update_modes(delta: float) -> void:
 	if _techniques:
 		_techniques.fade = mode.eased()
 	# Hotbar: only in combat, while building, pinned from the menu, or just after a slot key.
-	var want_hb := mode.hotbar_wanted()
+	# An empty bar (no techniques bound, at most the one default consumable) is never drawn unless pinned / building.
+	var want_hb: bool = mode.hotbar_wanted() and (int(hotbar.call("filled_slots")) >= 2 or mode.hotbar_pinned or mode.building)
 	_hb_a = lerpf(_hb_a, 1.0 if want_hb else 0.0, k)
 	if absf(_hb_a - (1.0 if want_hb else 0.0)) < 0.01:
 		_hb_a = 1.0 if want_hb else 0.0

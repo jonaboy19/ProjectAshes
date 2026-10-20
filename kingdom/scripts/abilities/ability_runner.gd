@@ -307,9 +307,11 @@ func _commit(ev: Dictionary, opts: Dictionary, sealed: bool) -> Dictionary:
 # --- update / execute -------------------------------------------------------------------
 
 ## Advance the lifecycle by `dt`. Returns the events of the caster's own effects (buff expiry, ticks).
-func update(dt: float) -> Array:
+func update(dt: float, action_dt: float = -1.0) -> Array:
+	# Freeze animation-bound phases independently of cooldowns and effects.
+	var step := dt if action_dt < 0.0 else maxf(action_dt, 0.0)
 	clock += dt
-	_lock = maxf(0.0, _lock - dt)
+	_lock = maxf(0.0, _lock - step)
 	for id: String in cooldowns.keys():
 		var left := float(cooldowns[id]) - dt
 		if left <= 0.0:
@@ -322,10 +324,10 @@ func update(dt: float) -> Array:
 			chant_complete(true, false)
 	if not _pending.is_empty():
 		for w: Dictionary in _pending:
-			w["t"] = float(w["t"]) - dt
+			w["t"] = float(w["t"]) - step
 		_run_pending()
 	if _rec > 0.0:
-		_rec -= dt
+		_rec -= step
 	if phase != Phase.CHANT:
 		phase = Phase.WINDUP if not _pending.is_empty() else (Phase.RECOVER if _rec > 0.0 else Phase.IDLE)
 	return effects.tick(dt)
@@ -386,6 +388,21 @@ func interrupt(reason := "interrupted") -> bool:
 
 
 # --- apply ------------------------------------------------------------------------
+
+## A body-level interruption replaces every pending cast animation, including
+## overlapping windups. Use the ordinary interruption rules for each payment.
+func interrupt_all(reason := "interrupted") -> bool:
+	var changed := _rec > 0.0
+	if phase == Phase.CHANT:
+		changed = interrupt(reason) or changed
+	while not _pending.is_empty():
+		phase = Phase.WINDUP
+		changed = interrupt(reason) or changed
+	_lock = 0.0
+	_rec = 0.0
+	phase = Phase.IDLE
+	return changed
+
 
 ## Puts the ability's riders for `which` ("enemy" or "self") onto `eset` by family and stacking rule.
 ## `amount` is the damage dealt (burn strength scales with it); `power` scales wards and heals.

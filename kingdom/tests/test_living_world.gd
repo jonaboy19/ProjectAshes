@@ -111,3 +111,33 @@ func test_ambience_is_stable_per_person() -> void:
 	assert_float(a.walk_speed).is_equal(b.walk_speed)
 	assert_float(a.anim_rate).is_between(0.93, 1.07)
 	assert_bool(a.walk_speed != c.walk_speed or a.anim_rate != c.anim_rate).is_true()
+
+
+## A new body with no clip playing must be posed (Idle) before CrowdAnimLOD may freeze it, never left at bind pose.
+func test_anim_lod_never_freezes_a_bind_pose() -> void:
+	var lod := CrowdAnimLOD.new()
+	lod.camera = Camera3D.new()
+	add_child(lod)
+	lod.add_child(lod.camera)
+	var body := Node3D.new()
+	var model := Node3D.new()
+	model.add_child(Node3D.new())
+	body.add_child(model)
+	lod.add_child(body)
+	var ap := AnimationPlayer.new()
+	var lib := AnimationLibrary.new()
+	var idle := Animation.new()
+	idle.length = 1.0
+	lib.add_animation("Idle", idle)
+	ap.add_animation_library("", lib)
+	body.add_child(ap)
+	var a := lod.register(7, body, model, ap)
+	assert_int(a.pose_wait).is_greater(0)
+	lod._process(0.016)
+	assert_str(ap.current_animation).is_equal("Idle")
+	assert_bool(a.on).is_true()
+	lod._process(0.016)
+	lod._process(0.016)
+	assert_int(a.pose_wait).is_equal(0)
+	body.queue_free()
+	lod.queue_free()

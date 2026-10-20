@@ -49,7 +49,10 @@ const UAL_FILES := [
 	# Authored combat set (docs/anim/COMBAT_AUDIT.md): target-aimed light combo (+ _Upper layer variants),
 	# directional hit reactions, staggers, parry/riposte, finishers, heavy/run/2H/spear/bow, deaths.
 	# Timing markers: animations/combat/combat_markers.json (CombatMarkers). Root track disabled like the rest.
-	UAL_ANIM_DIR + "combat/UAL_Combat.glb"]
+	UAL_ANIM_DIR + "combat/UAL_Combat.glb",
+	# Elemental casting v2 (docs/anim/free_library/polish_casting.md): Cast_<Element>_Charge / _Release, Cast_AoE_Slam,
+	# Cast_Channel_Beam. In place, so no root handling is needed.
+	"res://assets/incoming/animations_free/casting/UAL_Free_CastingElements.glb"]
 const WEAPONS := Q + "fantasy-props-megakit/Exports/glTF/"
 const HELMET := Q + "lowpoly-animated-knight/FBX/Helmet1.fbx"
 ## Old KayKit clip names -> UAL clips, so gameplay code keeps using one vocabulary.
@@ -468,6 +471,7 @@ static func mh_character(file: String, height: float, keep: Array[String] = [], 
 	# lands near the requested height (ratios from ai3d/meshy/armored/README.md).
 	var k := 0.9 if armored else 1.0
 	root.scale = Vector3.ONE * (height * k / maxf(native, 0.01))
+	root.set_meta("mh_look", file.get_file())      # which GLB was picked (face card placement, docs/art/FACES.md)
 	return root
 
 

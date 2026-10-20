@@ -101,7 +101,11 @@ static func open(parent: Node, on_done_cb: Callable) -> Control:
 
 
 static func default_appearance(sex := "male") -> Dictionary:
-	return {"sex": sex, "head": 0, "hair": 1, "hair_color": 1, "beard": 0, "body": 0, "scars": 0, "voice": 1, "skin": 1}
+	var d := {"sex": sex, "head": 0, "hair": 1, "hair_color": 1, "beard": 0, "body": 0, "scars": 0, "voice": 1, "skin": 1}
+	if sex == "male":
+		d["v2"] = true      # the Tier-A Meshy hero body (HeroTierA.build_v2); head/hair/outfit are baked in
+		d["hood"] = false
+	return d
 
 
 static func _n_heads(sex: String) -> int:
@@ -115,6 +119,8 @@ static func _n_hairs(sex: String) -> int:
 ## The chosen character as a rigged, animated model (`height` metres). Cosmetic-only choices do not change it.
 static func build_model(look: Dictionary, height := 1.75, keep: Array[String] = []) -> Node3D:
 	var sex := String(look.get("sex", "male"))
+	if sex == "male" and bool(look.get("v2", false)):
+		return (load("res://scripts/actors/hero_tier_a.gd") as GDScript).call("build_v2", look, height, keep)
 	var g := "male" if sex == "male" else "female"
 	var file := G6 + ("g6_m_modular_all" if sex == "male" else "g6_f_modular_all")
 	var model := Assets.mh_character(file, height, keep)
@@ -440,9 +446,10 @@ func _page_appearance() -> Control:
 		sexes.add_child(b)
 		_sex_buttons.append(b)
 	left.add_child(Control.new())
-	for def: Array in [["Head", "head", false], ["Hair", "hair", false], ["Beard", "beard", true], ["Body", "body", false],
-			["Scars", "scars", true], ["Voice", "voice", true]]:
+	for def: Array in _selector_defs():
 		left.add_child(_selector(def[0], def[1], def[2]))
+	if _v2():
+		left.add_child(_hood_toggle())
 	# Middle: the preview.
 	row.add_child(_preview_frame)
 	# Right: face presets, skin, hair colour, randomize.
@@ -450,7 +457,8 @@ func _page_appearance() -> Control:
 	right.custom_minimum_size = Vector2(290, 0)
 	right.add_theme_constant_override("separation", 10)
 	row.add_child(right)
-	right.add_child(_caption("Face presets"))
+	if not _v2():
+		right.add_child(_caption("Face presets"))
 	_grid_holder = GridContainer.new()
 	_grid_holder.columns = 3
 	_grid_holder.add_theme_constant_override("h_separation", 10)
@@ -565,6 +573,8 @@ func _fill_grid() -> void:
 		_grid_holder.remove_child(c)
 		c.queue_free()
 	_thumb_cells.clear()
+	if _v2():
+		return
 	var presets := _presets()
 	for i in presets.size():
 		var b := Button.new()
@@ -756,7 +766,10 @@ func _review_text() -> String:
 	lines.append("[font_size=26][color=%s]%s %s[/color][/font_size]" % [gold, r["given_name"], r["family_name"] if r["family_name"] != "" else "(family as born)"])
 	lines.append("[color=%s]%s  ·  %s culture[/color]" % [dim, sex.capitalize(), _culture_name()])
 	lines.append("")
-	lines.append("[color=%s]Appearance[/color]  Face %d, %s hair, %s skin, %s" % [gold, int(ap["head"]) + 1,
+	if _v2():
+		lines.append("[color=%s]Appearance[/color]  %s hair, %s skin, hood %s" % [gold, HAIR_TINT_NAMES[int(ap["hair_color"])].to_lower(), SKIN_NAMES[int(ap["skin"])].to_lower(), "up" if bool(ap.get("hood", false)) else "down"])
+	else:
+		lines.append("[color=%s]Appearance[/color]  Face %d, %s hair, %s skin, %s" % [gold, int(ap["head"]) + 1,
 		"no" if int(ap["hair"]) == 0 else HAIR_TINT_NAMES[int(ap["hair_color"])].to_lower(), SKIN_NAMES[int(ap["skin"])].to_lower(), OUTFITS[int(ap["body"])]["name"]])
 	lines.append("[color=%s]Cosmetic only[/color]  %s, scars: %s, voice: %s" % [dim, BEARDS[int(ap["beard"])].to_lower() if sex == "male" else "no beard",
 		SCARS[int(ap["scars"])].to_lower(), VOICES[int(ap["voice"])].to_lower()])
@@ -770,3 +783,31 @@ func _review_text() -> String:
 	lines.append("")
 	lines.append("[color=%s]You begin as a child of four in Ashford.[/color]" % dim)
 	return "\n".join(lines)
+
+
+## The v2 hero (male) has its head, hair and outfit baked in: only skin, hair colour, hood and the cosmetic rows apply.
+func _v2() -> bool:
+	return String(ap.get("sex", "male")) == "male" and bool(ap.get("v2", false))
+
+
+func _selector_defs() -> Array:
+	if _v2():
+		return [["Beard", "beard", true], ["Scars", "scars", true], ["Voice", "voice", true]]
+	return [["Head", "head", false], ["Hair", "hair", false], ["Beard", "beard", true], ["Body", "body", false],
+		["Scars", "scars", true], ["Voice", "voice", true]]
+
+
+func _hood_toggle() -> Control:
+	var b := Button.new()
+	b.text = "Hood up"
+	b.toggle_mode = true
+	b.focus_mode = Control.FOCUS_NONE
+	b.custom_minimum_size = Vector2(0, 40)
+	b.button_pressed = bool(ap.get("hood", false))
+	b.add_theme_stylebox_override("normal", AF.slot(false))
+	b.add_theme_stylebox_override("hover", AF.slot(true))
+	b.add_theme_stylebox_override("pressed", AF.row(true))
+	b.toggled.connect(func(on: bool) -> void:
+		ap["hood"] = on
+		_changed())
+	return b

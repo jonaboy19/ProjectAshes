@@ -89,16 +89,56 @@ const KEYS := {
 	"technique_wheel": [KEY_T], "technique_1": [KEY_U], "technique_2": [KEY_Y], "technique_3": [KEY_O], "technique_4": [KEY_H],
 	"seal_1": [KEY_4], "seal_2": [KEY_5], "seal_3": [KEY_6], "seal_4": [KEY_7], "seal_5": [KEY_8], "seal_6": [KEY_9],
 }
-## Mouse and gamepad defaults: action -> [[mouse buttons], [joypad buttons]].
+## Mouse and gamepad defaults: action -> [[mouse buttons], [joypad buttons], [[joypad axis, sign], ...]].
+## Xbox layout: A jump, B dodge, X attack, Y interact, LB dash, RB technique wheel, LT block, RT sprint,
+## L3 crouch, R3 lock-on, Back journal, D-pad up/down/left/right map / pack / zoom out / zoom in.
 const PADS := {
-	"zoom_in": [[MOUSE_BUTTON_WHEEL_UP], []], "zoom_out": [[MOUSE_BUTTON_WHEEL_DOWN], []],
-	"lock_on": [[MOUSE_BUTTON_MIDDLE], [JOY_BUTTON_RIGHT_STICK]],
-	"crouch": [[], [JOY_BUTTON_LEFT_STICK]], "ability_dash": [[], [JOY_BUTTON_LEFT_SHOULDER]],
-	"technique_wheel": [[], [JOY_BUTTON_RIGHT_SHOULDER]],
+	"move_forward": [[], [], [[JOY_AXIS_LEFT_Y, -1.0]]], "move_back": [[], [], [[JOY_AXIS_LEFT_Y, 1.0]]],
+	"move_left": [[], [], [[JOY_AXIS_LEFT_X, -1.0]]], "move_right": [[], [], [[JOY_AXIS_LEFT_X, 1.0]]],
+	"look_left": [[], [], [[JOY_AXIS_RIGHT_X, -1.0]]], "look_right": [[], [], [[JOY_AXIS_RIGHT_X, 1.0]]],
+	"look_up": [[], [], [[JOY_AXIS_RIGHT_Y, -1.0]]], "look_down": [[], [], [[JOY_AXIS_RIGHT_Y, 1.0]]],
+	"attack": [[MOUSE_BUTTON_LEFT], [JOY_BUTTON_X], []],
+	"block": [[MOUSE_BUTTON_RIGHT], [], [[JOY_AXIS_TRIGGER_LEFT, 1.0]]],
+	"jump": [[], [JOY_BUTTON_A], []], "dodge": [[], [JOY_BUTTON_B], []], "interact": [[], [JOY_BUTTON_Y], []],
+	"sprint": [[], [], [[JOY_AXIS_TRIGGER_RIGHT, 1.0]]],
+	"journal": [[], [JOY_BUTTON_BACK], []],
+	"world_map": [[], [JOY_BUTTON_DPAD_UP], []], "menu_inventory": [[], [JOY_BUTTON_DPAD_DOWN], []],
+	"zoom_in": [[MOUSE_BUTTON_WHEEL_UP], [JOY_BUTTON_DPAD_RIGHT], []],
+	"zoom_out": [[MOUSE_BUTTON_WHEEL_DOWN], [JOY_BUTTON_DPAD_LEFT], []],
+	"lock_on": [[MOUSE_BUTTON_MIDDLE], [JOY_BUTTON_RIGHT_STICK], []],
+	"crouch": [[], [JOY_BUTTON_LEFT_STICK], []], "ability_dash": [[], [JOY_BUTTON_LEFT_SHOULDER], []],
+	"technique_wheel": [[], [JOY_BUTTON_RIGHT_SHOULDER], []],
 }
+## Actions with no keyboard key (mouse look uses relative motion, not an action).
+const AXIS_ONLY := ["look_left", "look_right", "look_up", "look_down"]
+
+
+func _add_pad_events(action: String) -> void:
+	var extra: Array = PADS.get(action, [[], [], []])
+	for b: int in extra[0]:
+		var mb := InputEventMouseButton.new()
+		mb.button_index = b
+		InputMap.action_add_event(action, mb)
+	for b: int in extra[1]:
+		var jb := InputEventJoypadButton.new()
+		jb.button_index = b
+		InputMap.action_add_event(action, jb)
+	if extra.size() > 2:
+		for ax: Array in extra[2]:
+			var jm := InputEventJoypadMotion.new()
+			jm.axis = int(ax[0])
+			jm.axis_value = float(ax[1])
+			InputMap.action_add_event(action, jm)
 
 
 func _setup_input() -> void:
+	for action: String in AXIS_ONLY:
+		if not InputMap.has_action(action):
+			InputMap.add_action(action, 0.2)
+		else:
+			InputMap.action_erase_events(action)
+			InputMap.action_set_deadzone(action, 0.2)
+		_add_pad_events(action)
 	for action: String in KEYS:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
@@ -108,15 +148,7 @@ func _setup_input() -> void:
 			var ev := InputEventKey.new()
 			ev.physical_keycode = key
 			InputMap.action_add_event(action, ev)
-		var extra: Array = PADS.get(action, [[], []])
-		for b: int in extra[0]:
-			var mb := InputEventMouseButton.new()
-			mb.button_index = b
-			InputMap.action_add_event(action, mb)
-		for b: int in extra[1]:
-			var jb := InputEventJoypadButton.new()
-			jb.button_index = b
-			InputMap.action_add_event(action, jb)
+		_add_pad_events(action)
 	# The legacy skills screen has no key of its own: F2 opens the Skills tab of the Pack menu.
 	if not InputMap.has_action("skills_screen"):
 		InputMap.add_action("skills_screen")

@@ -53,18 +53,23 @@ func setup(px: Vector2i, frame_kind := "bust", is_live := false) -> void:
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0.5, 0.5, 0.62)
 	env.ambient_light_energy = 0.95
+	var firelit := frame == "half"     # audit 2: the creator preview reads as a firelit room; HUD portrait / dialogue bust unchanged
+	if firelit:
+		env.background_mode = Environment.BG_COLOR
+		env.background_color = Color("2a2320")
+		env.ambient_light_energy = 0.7
 	var we := WorldEnvironment.new()
 	we.environment = env
 	_stage.add_child(we)
 	var key := DirectionalLight3D.new()
-	key.light_color = Color(1.0, 0.86, 0.66)
-	key.light_energy = 1.7
+	key.light_color = Color(1.0, 0.82, 0.58) if firelit else Color(1.0, 0.86, 0.66)
+	key.light_energy = 1.85 if firelit else 1.7
 	key.rotation_degrees = Vector3(-32, -34, 0)
 	key.shadow_enabled = false
 	_stage.add_child(key)
 	var rim := DirectionalLight3D.new()
 	rim.light_color = Color(0.62, 0.72, 1.0)
-	rim.light_energy = 0.9
+	rim.light_energy = 1.1 if firelit else 0.9
 	rim.rotation_degrees = Vector3(-18, 155, 0)
 	rim.shadow_enabled = false
 	_stage.add_child(rim)

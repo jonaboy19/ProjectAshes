@@ -159,7 +159,7 @@ func _tab_graphics() -> void:
 		_row("resolution", "Resolution", "opt", SS.RES_OPTIONS)
 		_row("display_mode", "Display Mode", "opt", ["Windowed", "Fullscreen", "Borderless"])
 	_row("vsync", "VSync", "opt", ["Off", "On", "Adaptive"])
-	_row("aa", "Anti-Aliasing", "opt", ["Off", "FXAA", "MSAA 2x", "MSAA 4x"])
+	_row("aa", "Anti-Aliasing", "opt", ["Auto", "FXAA", "TAA", "FSR 2"] if Quality.is_pc() else ["Off", "FXAA", "MSAA 2x", "MSAA 4x"])
 	_row("view_distance", "View Distance", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")
 	_row("shadows", "Shadows", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")
 	_row("textures", "Textures", "opt", SS.LEVEL_OPTIONS, "Auto follows the graphics preset.")

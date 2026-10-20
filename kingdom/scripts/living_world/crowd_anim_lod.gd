@@ -80,6 +80,7 @@ class Agent:
 	var base_speed := 1.0            # the controller's speed_scale (restored after a step frame)
 	var written := -1.0              # the speed_scale this node wrote on the last step frame (-1 = none)
 	var on := true                   # player process_mode currently INHERIT
+	var pose_wait := 2               # frames the player must run un-throttled so the first real pose lands (never freeze at bind pose)
 
 
 func _ready() -> void:
@@ -157,6 +158,18 @@ func _process(delta: float) -> void:
 	for a: Agent in _agents:
 		if not is_instance_valid(a.anim):
 			continue
+		if a.pose_wait > 0:
+			# A new body must be sampled once before it may be frozen: a player with no clip (smart-object session,
+			# fresh spawn) would leave the skeleton at its bind pose (T-pose) while stepped or disabled.
+			if a.anim.current_animation == "" and a.anim.has_animation("Idle"):
+				a.anim.play("Idle")
+				a.anim.seek(float(absi(hash(a.id * 13)) % 100) * 0.01 * a.anim.current_animation_length)
+			if a.anim.current_animation != "":
+				a.pose_wait -= 1
+				_pulse(a, true)
+				skeleton_updates += 1
+				continue
+			a.pose_wait = 0
 		match a.tier:
 			Tier.NEAR:
 				skeleton_updates += 1

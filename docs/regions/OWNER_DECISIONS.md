@@ -25,3 +25,6 @@
 
   Where that touches Codex-owned controllers, the local side writes patches and notes in `docs/anim/` rather than editing them directly.
 - Region 1 packages already in progress locally (L3, L4, L7, L8, L10, L11, L14, L16) will be finished and pushed. Everything after that in `REGION_1_PLAN.md` is open for the cloud.
+
+## 2026-10-06: animation behaviour ownership
+- **Animation BEHAVIOUR (controllers, state machines, wiring clips into gameplay) moved from Codex to the local session.** Local now owns `player.gd`, `character_animator.gd`, `villager.gd`, `soldier.gd`, `wolf.gd`, `monster.gd`, `critter.gd` and `mount_controller.gd` together with the animation code. The cloud session keeps feature work and should avoid restructuring those files; small hooks are fine.

@@ -39,6 +39,34 @@ No two world actions share a key, and "Reset controls" in Settings re-creates ev
 C, J, K and L used to be both combat keys and menu-tab keys (and K opened a second, older skills
 screen). Now **J, K, L and C are only ever combat keys**; F2 opens the Skills tab.
 
+## PC: mouse and gamepad
+
+Desktop (no `--touch`) has no virtual stick or action buttons. The mouse is captured in the world (click the 3D view to
+re-capture; Esc, any menu, the technique wheel or losing focus frees it). Look = mouse x `App.look_scale` x 0.6, or the right
+stick. The HUD shows a bottom-right hint strip that switches to gamepad text after the last pad input. `--touch` restores
+the phone HUD; `--no-mouse-capture` keeps the cursor free.
+
+| Action | Keyboard / mouse | Gamepad (Xbox) |
+|---|---|---|
+| move | W A S D / arrows | left stick |
+| look | mouse | right stick |
+| attack | J, left mouse | X |
+| block | L, right mouse | LT |
+| jump | Space | A |
+| dodge | K | B |
+| interact | E | Y |
+| sprint | Shift | RT |
+| lock on | Q, middle mouse | R3 |
+| crouch | C | L3 |
+| shadow dash | R | LB |
+| technique wheel | T | RB |
+| journal / Pack | Tab | Back |
+| world map | M | D-pad up |
+| inventory | I | D-pad down |
+| zoom in / out | wheel, = / - | D-pad right / left |
+
+Defaults live in `Game.PADS` as `[[mouse buttons], [joy buttons], [[axis, sign], ...]]`; `tests/test_input_pc.gd` checks them.
+
 ## Inside the Pack menu (Tab / I / F2)
 
 The menu pauses the game and owns the keyboard, so its keys are page-local and never reach the world.

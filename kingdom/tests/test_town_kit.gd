@@ -320,17 +320,26 @@ func test_every_bindable_resident_has_a_dialogue_file_in_the_runner_format() -> 
 
 
 ## `gen_town.py --all --check` exits 0 when every file on disk (town, quests, dialogue) is exactly what the generator makes now (and
-## nothing stale is left behind). Skipped quietly when python3 is not installed.
+## nothing stale is left behind). Skipped quietly when no working Python is installed (Windows reports a missing interpreter as
+## exit code 9009 or -1, and the Store "python3" alias counts as missing).
 func test_the_generator_reproduces_every_generated_file() -> void:
+	var script := ProjectSettings.globalize_path("res://tools/towns/gen_town.py")
 	var out: Array = []
-	var code := OS.execute("python3", [ProjectSettings.globalize_path("res://tools/towns/gen_town.py"), "--all", "--check"], out, true)
-	if code == -1:
-		push_warning("python3 not available: generator check skipped")
+	var py := ""
+	var code := -1
+	for cand: String in ["python3", "python", "py"]:
+		out.clear()
+		code = OS.execute(cand, [script, "--all", "--check"], out, true)
+		if code != -1 and code != 9009:
+			py = cand
+			break
+	if py == "":
+		push_warning("python not available: generator check skipped")
 		return
 	assert_int(code).override_failure_message("gen_town.py --all --check: " + "\n".join(out)).is_equal(0)
 	# the dry run builds every settlement, Thornfield included, and the sanity pass of the generator agrees with the engine's validator
 	var dry: Array = []
-	assert_int(OS.execute("python3", [ProjectSettings.globalize_path("res://tools/towns/gen_town.py"), "--all", "--dry-run"], dry, true)).is_equal(0)
+	assert_int(OS.execute(py, [script, "--all", "--dry-run"], dry, true)).is_equal(0)
 	assert_int(String("\n".join(dry)).count("\n")).is_greater_equal(29)
 
 

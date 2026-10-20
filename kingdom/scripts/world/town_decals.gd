@@ -73,3 +73,15 @@ static func make(kind: String, size: Vector3, mask: int, tint := Color.WHITE) ->
 ## decal looks into the wall), image up = world up, image right = the viewer's right.
 static func wall_basis(n: Vector3) -> Basis:
 	return Basis(Vector3.UP.cross(n), n, Vector3.DOWN)
+
+
+## One ground-decal budget per settlement root, shared by every builder that paints the terrain (SettlementBuilder, the
+## district mud, the benchmark street): at most CHUNK_CAP per 64 m terrain chunk. Returns true and takes a slot when free.
+static func claim_ground(root: Node, x: float, z: float) -> bool:
+	var counts: Dictionary = root.get_meta("ground_decal_chunks", {})
+	var ck := Vector2i(floori(x / 64.0), floori(z / 64.0))
+	if int(counts.get(ck, 0)) >= CHUNK_CAP:
+		return false
+	counts[ck] = int(counts.get(ck, 0)) + 1
+	root.set_meta("ground_decal_chunks", counts)
+	return true

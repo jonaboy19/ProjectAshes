@@ -80,6 +80,14 @@ const STOP_BRAKE_RUN := 15.0      # m/s² from a run (6.5 m/s -> 0.43 s, ~1.4 m)
 const PIVOT_BRAKE := 42.0        # m/s² when reversing out of a run: plant, then go
 const PIVOT_ANGLE := 2.3         # rad (~130°) between travel and stick that triggers a pivot
 const PIVOT_EXIT_SPEED := 1.2    # a pivot sets off in the new direction below this speed
+## P5 locomotion clips: idle turns start above 63 degrees (180 clip above 135), walk stops brake gently so the planted feet match.
+const IDLE_TURN_MIN := 1.1
+const IDLE_TURN_BIG := 2.35
+const IDLE_TURN_RATE := 2.0
+const IDLE_TURN_RATE_BIG := 2.0
+const SKID_ENTRY_SPEED := 7.5
+const WALK_STOP_RATE := 2.0
+const WALK_STOP_BRAKE := 5.5
 ## Travel direction swings toward the stick at a bounded rate; facing turns
 ## faster than travel, so the body leads a turn instead of sliding sideways.
 const TRAVEL_TURN_WALK := 16.0   # rad/s
@@ -298,6 +306,14 @@ var _land_fov := 0.0
 var _impact_fov := 0.0
 var _impact_roll := 0.0       # radians; short camera roll on heavy hits (combat_feel.gd limits it)
 var _loco_transition_time := 0.0
+var _loco_kind := ""
+var _idle_time := 0.0
+var _turn_clip := ""
+var _turn_elapsed := 0.0
+var _turn_length := 0.0
+var _turn_rate := 1.0
+var _turn_start_yaw := 0.0
+var _turn_scale := 1.0
 var _impact_pause: Node
 var _camera_fade_visual: GeometryInstance3D
 ## Responsive framing model (scripts/actors/chase_camera.gd): sprint/dash/gallop FOV + distance, open-ground and
@@ -398,6 +414,7 @@ func _ready() -> void:
 	_viewmodel.visible = false
 	spawn_point = global_position
 	_ensure_actions()
+	_setup_pc_input()
 	_build_lock_marker()
 	_feedback = CombatFeedback.new()
 	_feedback.bind(self)
@@ -430,7 +447,77 @@ func _ensure_actions() -> void:
 		InputMap.action_add_event(action, jb)
 
 
+## PC mouse look: relative motion x App.look_scale x MOUSE_K while the cursor is captured (touch is unchanged).
+const MOUSE_K := 0.6
+const PAD_LOOK_SPEED := 900.0
+const PAD_LOOK_DEADZONE := 0.15
+var _pc_input := false
+var _was_ui_open := false
+
+
+func _setup_pc_input() -> void:
+	_pc_input = not ("--touch" in OS.get_cmdline_user_args() or OS.has_feature("mobile") or OS.has_feature("web_android") 			or OS.has_feature("web_ios")) and DisplayServer.get_name() != "headless" 			and not ("--no-mouse-capture" in OS.get_cmdline_user_args())
+	if _pc_input:
+		call_deferred("_capture_mouse")
+
+
+func _ui_blocking() -> bool:
+	if _menu_open():
+		return true
+	var scene := get_tree().current_scene
+	var hud: Variant = scene.get("hud") if scene else null
+	var wheel: Variant = (hud as Object).get("technique_wheel") if hud is Object else null
+	return wheel is CanvasItem and (wheel as CanvasItem).visible
+
+
+func _capture_mouse() -> void:
+	if _pc_input and not _ui_blocking() and DisplayServer.window_is_focused():
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _release_mouse() -> void:
+	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func _notification(what: int) -> void:
+	if not _pc_input:
+		return
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+		_release_mouse()
+	elif what == NOTIFICATION_APPLICATION_FOCUS_IN or what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
+		_capture_mouse()
+
+
+func _process(delta: float) -> void:
+	if not _pc_input:
+		return
+	var blocking := _ui_blocking()
+	if blocking != _was_ui_open:
+		_was_ui_open = blocking
+		if blocking:
+			_release_mouse()
+		else:
+			_capture_mouse()
+	if blocking:
+		return
+	var v := Input.get_vector("look_left", "look_right", "look_up", "look_down")
+	if v.length() > PAD_LOOK_DEADZONE:
+		add_look(v * PAD_LOOK_SPEED * delta * App.look_scale)
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if _pc_input:
+		if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+			if not _ui_blocking():
+				add_look((event as InputEventMouseMotion).relative * App.look_scale * MOUSE_K)
+			return
+		if event.is_action_pressed("ui_cancel"):
+			_release_mouse()
+		elif event is InputEventMouseButton and event.pressed and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED 				and not _ui_blocking():
+			_capture_mouse()
+			get_viewport().set_input_as_handled()
+			return
 	if event.is_action_pressed("lock_on"):
 		toggle_lock()
 	elif event.is_action_pressed("crouch"):
@@ -447,9 +534,26 @@ func _menu_open() -> bool:
 ## Procedural head tracking: the head turns toward the nearest enemy or person.
 ## The character model with its animation, ragdoll, head look, foot IK and weapon trail.
 ## `Life.appearance` (character creation) picks the modular G6 look; no appearance = the default hero.
-## Tier-A Meshy hero (docs/art/hero_tier_a). Off until it beats the G6 hero in the benchmark street; `--hero_tier_a` forces it.
-const TIER_A_HERO := false
-const TIER_A_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy"
+## Tier-A Meshy hero v2 (docs/art/hero_tier_a): DEFAULT since 10-06 (beat the G6 hero in the benchmark street). Set false to roll back.
+const TIER_A_HERO := true
+const TIER_A_PATH := "res://assets/generated/characters/hero_tier_a/hero_meshy3"
+
+
+## Hero face driver (Tier-A Meshy hero only; null for the G6 / creator bodies). docs/art/FACES.md
+var _face: Node
+
+
+## The hero speaks `text` (mouth flap for FaceState.say_seconds) with an optional mood tag.
+func face_say(text: String, mood := "neutral") -> void:
+	if _face == null or not is_instance_valid(_face):
+		return
+	_face.call("set_mood", mood)
+	_face.call("say", text)
+
+
+func face_mood(m: String) -> void:
+	if _face != null and is_instance_valid(_face):
+		_face.call("set_mood", m)
 
 
 func _build_body() -> void:
@@ -462,7 +566,7 @@ func _build_body() -> void:
 	if body == null and (TIER_A_HERO or "--hero_tier_a" in OS.get_cmdline_user_args()) and ResourceLoader.exists(TIER_A_PATH + ".glb"):
 		# Tier-A hero (skill ashes-hero-character): Meshy villager on UAL + hood/satchel/strap + G6 hands + blink lids
 		body = Assets.mh_character(TIER_A_PATH, 1.8, props)
-		(load("res://scripts/actors/hero_tier_a.gd") as GDScript).call("dress_meshy_hero", body)
+		_face = (load("res://scripts/actors/hero_tier_a.gd") as GDScript).call("dress_meshy_hero", body)
 	if body == null:
 		# Style G default hero (target 03 hooded traveller): G6 villager tunic tinted green + skinned HeroOutfit
 		var hero_look: Dictionary = (load("res://scripts/style_lab/lab_chars.gd") as GDScript).get("HERO_LOOK")
@@ -508,6 +612,7 @@ func apply_appearance() -> void:
 		remove_child(_look_target)
 		_look_target.queue_free()
 		_look_target = null
+	_face = null
 	if _body_node and is_instance_valid(_body_node):
 		_model.remove_child(_body_node)
 		_body_node.queue_free()    # also frees the rig, trail, look-at modifier and animator nodes
@@ -726,12 +831,12 @@ func _physics_process(delta: float) -> void:
 	_update_facing(dir, delta)
 	var real := get_real_velocity()
 	var travel := Vector3(real.x, 0.0, real.z)
-	_update_locomotion_transition(dir, floor_before, speed_before_steer)
+	_update_locomotion_transition(dir, floor_before, speed_before_steer, running)
 	_animator.update(delta, travel.length() if _dodge <= 0.0 else 0.0, travel)
 	if _rig:
 		# Feet off the ground: airborne, swimming, rolling, dead. Big hits ease the IK off.
 		_rig.call("set_state", travel.length(), is_on_floor(), swimming or dead or _dodge > 0.0,
-				_animator.is_full_busy())
+				_animator.is_full_busy() or _animator.is_stand_attack())
 	_update_lean(delta)
 	_update_footsteps(delta, dir, grounded and not swimming and not _jump_starting and not _jump_active \
 			and _land_time <= 0.0)
@@ -1130,6 +1235,9 @@ func _parry(from: Node, grade := "knockaway", refund := 8.0, riposte := 1.5) -> 
 ## Body response: speed and travel direction are tuned separately. `control`
 ## scales every rate (reduced in the air).
 func _steer(target: Vector3, delta: float, control: float) -> void:
+	if _turn_clip != "":
+		_move_speed = 0.0
+		return
 	if _pivot_clip != "":
 		if target.length() < 0.05 or not is_on_floor() or swimming or dead or _stunned > 0.0 \
 				or crouching or blocking or _strafing or view == View.FIRST:
@@ -1141,6 +1249,8 @@ func _steer(target: Vector3, delta: float, control: float) -> void:
 	if want_speed < 0.05:
 		_pivoting = false
 		var stop_brake := lerpf(STOP_BRAKE_WALK, STOP_BRAKE_RUN, clampf((_move_speed - WALK) / (RUN - WALK), 0.0, 1.0))
+		if _move_speed > 1.0 and _move_speed < 4.0 and _loco_clip_ok(is_on_floor()) and _animator.has_clip("Loco_WalkStop"):
+			stop_brake = WALK_STOP_BRAKE   # the walk-stop clip covers 0.5 m; a 0.15 s brake would slide the feet
 		_move_speed = move_toward(_move_speed, 0.0, stop_brake * control * delta)
 		return
 	var want_dir := target / want_speed
@@ -1198,6 +1308,10 @@ func _resolve_contacts() -> void:
 
 func _update_facing(dir: Vector3, delta: float) -> void:
 	var before := _model.rotation.y
+	if _turn_clip != "":
+		_advance_idle_turn(delta)
+		_yaw_rate = angle_difference(before, _model.rotation.y) / maxf(delta, 0.0001)
+		return
 	if _pivot_clip != "":
 		_model.rotation.y = _pivot_start_yaw + _animator.pivot_yaw(_pivot_clip, _pivot_elapsed) * _pivot_yaw_scale
 		_yaw_rate = angle_difference(before, _model.rotation.y) / maxf(delta, 0.0001)
@@ -1396,7 +1510,7 @@ func _step_chase(delta: float) -> void:
 	var gallop := _mount != null and _gallop_time > 0.0
 	var ctx := {
 		"speed_k": speed / RUN, "sprinting": Input.is_action_pressed("sprint") and speed > WALK * 1.4 and not blocking,
-		"dashing": _dodge > 0.0 or _dodging_ability, "gallop": gallop, "combat": _chase_combat,
+		"dashing": _dodge > 0.0, "gallop": gallop, "combat": _chase_combat,
 		"locked": is_instance_valid(_lock), "open": _chase_open, "rooftop": _chase_roof,
 		"strength": 1.0 if view == View.THIRD else 0.0,
 	}
@@ -1419,6 +1533,7 @@ func set_talk_framing(on: bool, partner: Node3D = null) -> void:
 		_chase.begin_talk()
 	else:
 		_chase.end_talk()
+		face_mood("neutral")
 
 
 func add_fov_impulse(degrees: float) -> void:
@@ -1529,6 +1644,7 @@ func _begin_jump(running: bool, grounded_at_press: bool) -> void:
 		return
 	_spend(cost)
 	_jump_buffer = 0.0
+	_interrupt_technique("jump")
 	_jump_starting = true
 	# On a ledge, honor coyote input immediately instead of letting the start
 	# anticipation spend the grace window falling below the take-off point.
@@ -1574,28 +1690,130 @@ func _update_jump_after_move(floor_before: bool, impact_speed: float, dir: Vecto
 		_land_jump(maxf(impact_speed, 0.0), dir)
 
 
-## A measured run-stop clip replaces the abrupt idle pose at high speed. Its
-## root translation is disabled, and the capsule keeps the audited 15 m/s² brake.
-func _update_locomotion_transition(dir: Vector3, grounded: bool, entry_speed: float) -> void:
+## Measured locomotion clips (docs/anim/patches/P5): run stop, walk stop, sprint skid, walk/run starts and
+## idle turns play on the lower-body loco_transition OneShot (root translation and rotation are disabled in
+## the clips; the capsule owns the motion). Starts are cancelled if the stick is released, stops if it is
+## pressed again, so a tap never leaves legs walking in place.
+func _loco_clip_ok(grounded: bool) -> bool:
+	return grounded and not dead and not swimming and not blocking and not _jump_starting and not _jump_active \
+		and _land_time <= 0.0 and _dodge <= 0.0 and _swing <= 0.0 and _stunned <= 0.0 \
+		and not crouching and not _strafing and view != View.FIRST and _mount == null
+
+
+func _update_locomotion_transition(dir: Vector3, grounded: bool, entry_speed: float, running := false) -> void:
+	var dt := get_physics_process_delta_time()
+	_idle_time = _idle_time + dt if entry_speed < 0.3 and _move_speed < 0.3 else 0.0
+	var ok := _loco_clip_ok(grounded)
+	if _turn_clip != "":
+		if not ok or dir.length() < 0.05:
+			_cancel_turn()
 	if _loco_transition_time > 0.0:
+		# a start is dropped when the stick is released, a stop when it is pressed again
+		if (_loco_kind == "start" and dir.length() < 0.05) or (_loco_kind == "stop" and dir.length() > 0.3) or not ok:
+			_loco_transition_time = 0.0
+			_loco_kind = ""
+			_animator.finish_locomotion_transition()
 		return
-	if not grounded or dead or swimming or blocking or _jump_starting or _jump_active \
-			or _land_time > 0.0 or _dodge > 0.0 or _swing > 0.0 or _stunned > 0.0:
+	_loco_kind = ""
+	if not ok:
 		return
-	if dir.length() >= 0.05 or entry_speed < 4.0:
+	if dir.length() >= 0.05:
+		if entry_speed >= 0.3 or _idle_time < 0.06 or _turn_clip != "":
+			return
+		var want := atan2(dir.x, dir.z)
+		var diff := angle_difference(_model.rotation.y, want)
+		if absf(diff) > IDLE_TURN_MIN:
+			_begin_idle_turn(diff)
+			return
+		var start := "Loco_RunStart_F" if running else "Loco_WalkStart_F"
+		var natural_out := 3.8 if running else 1.5
+		var goal := RUN if running else WALK
+		var rate := clampf(goal * Life.needs.speed() / natural_out, 1.0, 2.2)
+		_fire_loco_clip(start, rate, "start", 0.05 if running else 0.06, 0.12 if running else 0.15)
+		return
+	if entry_speed < 1.0:
 		return
 	var clip := "Loco_RunStop_L" if _animator.gait_phase() < 0.5 else "Loco_RunStop_R"
 	var natural_entry := 3.1 if clip.ends_with("_L") else 3.6
-	var rate := clampf(entry_speed / natural_entry, 0.8, 2.5)
-	var length := _animator.clip_length(clip)
-	if length <= 0.0:
+	var fin := 0.06
+	if entry_speed >= SKID_ENTRY_SPEED:
+		clip = "Loco_Sprint_Stop_Skid"
+		natural_entry = 4.6
+	elif entry_speed < 4.0:
+		clip = "Loco_WalkStop"
+		natural_entry = 1.1
+	var is_skid := clip == "Loco_Sprint_Stop_Skid"
+	_fire_loco_clip(clip, clampf(entry_speed / natural_entry, 0.8, 2.5) if clip != "Loco_WalkStop" else WALK_STOP_RATE, "stop", fin, 0.2)
+	if is_skid:
+		var skid_rate := clampf(entry_speed / 4.6, 0.8, 2.5)
+		for frame in [11.0, 15.0, 19.0]:
+			get_tree().create_timer(frame / 30.0 / skid_rate).timeout.connect(_skid_dust)
+
+
+## One small dust puff per braking foot (clip frames 11-20 have the soles sliding on the ground).
+func _skid_dust() -> void:
+	if dead or not is_inside_tree() or _loco_kind != "stop":
 		return
-	_animator.play_locomotion_transition(clip, rate)
+	VFXSpells._dust(get_parent(), Vector3(global_position.x, WorldGen.height(global_position.x, global_position.z), global_position.z), 0.3)
+
+
+func _fire_loco_clip(clip: String, rate: float, kind: String, fade_in: float, fade_out: float) -> void:
+	var length := _animator.clip_length(clip)
+	if length <= 0.0 or not _animator.has_clip(clip):
+		return
+	_animator.play_locomotion_transition(clip, rate, fade_in, fade_out)
 	_loco_transition_time = length / rate
+	_loco_kind = kind
+
+
+func _begin_idle_turn(diff: float) -> void:
+	var big := absf(diff) > IDLE_TURN_BIG
+	var clip := "Loco_TurnInPlace_180" if big else "Loco_TurnInPlace_90_L"
+	var end_yaw := _animator.pivot_yaw(clip, _animator.clip_length(clip))
+	if signf(end_yaw) != signf(diff):
+		clip = "Loco_TurnInPlace_180_R" if big else "Loco_TurnInPlace_90_R"
+		end_yaw = _animator.pivot_yaw(clip, _animator.clip_length(clip))
+	var length := _animator.clip_length(clip)
+	if length <= 0.0 or absf(end_yaw) < 0.8 or signf(end_yaw) != signf(diff):
+		return
+	var scale := diff / end_yaw
+	if scale < 0.6 or scale > 1.8:
+		return
+	_turn_clip = clip
+	_turn_length = length
+	_turn_elapsed = 0.0
+	_turn_rate = IDLE_TURN_RATE_BIG if big else IDLE_TURN_RATE
+	_turn_start_yaw = _model.rotation.y
+	_turn_scale = scale
+	_fire_loco_clip(clip, _turn_rate, "turn", 0.05, 0.12)
+
+
+func _cancel_turn() -> void:
+	if _turn_clip == "":
+		return
+	_turn_clip = ""
+	if _loco_kind == "turn":
+		_loco_transition_time = 0.0
+		_loco_kind = ""
+		_animator.finish_locomotion_transition()
+
+
+## Drives the capsule yaw from the turn clip's root rotation (measured, not the nominal 90/180).
+func _advance_idle_turn(delta: float) -> void:
+	_turn_elapsed = minf(_turn_elapsed + delta * _turn_rate, _turn_length)
+	_model.rotation.y = _turn_start_yaw + _animator.pivot_yaw(_turn_clip, _turn_elapsed) * _turn_scale
+	if _turn_elapsed >= _turn_length * 0.92:
+		_model.rotation.y = _turn_start_yaw + _animator.pivot_yaw(_turn_clip, _turn_length) * _turn_scale
+		_turn_clip = ""
+		_loco_transition_time = 0.0   # hand over so the start clip can fire on this very step
+		_loco_kind = ""
+		_animator.finish_locomotion_transition()
 
 
 func _cancel_locomotion_transition() -> void:
 	_cancel_pivot()
+	_turn_clip = ""
+	_loco_kind = ""
 	if _loco_transition_time <= 0.0:
 		return
 	_loco_transition_time = 0.0
@@ -1792,6 +2010,7 @@ func _consume_buffers() -> void:
 
 
 func _start_swing() -> void:
+	_interrupt_technique("melee attack")
 	_cancel_locomotion_transition()
 	if _dodge > 0.0:
 		_dodge = 0.0                 # roll attack: the swing takes over the roll's tail
@@ -1814,9 +2033,25 @@ func _start_swing() -> void:
 		# Magnetism: a small capped step toward the target (combat_feel.gd), ending at the standoff.
 		var flat := Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length()
 		lunge = CombatFeel.lunge_speed(flat, IMPULSE_DECEL, action.finisher, ATTACK_LUNGE * 1.6)
-	if action.root_motion:
-		_kick(facing() * lunge)
 	_swing_id += 1
+	var standing := _move_speed < 0.3
+	var mk := CombatMarkers.get_clip(String(action.anim).trim_suffix("_Upper"))
+	var step_m := float(mk.get("step_in_m", 0.0))
+	var gap_to_standoff := 0.0
+	if target:
+		gap_to_standoff = Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length() - LUNGE_STANDOFF
+	if action.root_motion and standing and step_m > 0.0 and gap_to_standoff <= 0.6:
+		# P9: a standing swing lunges by the clip's authored step, starting on its step frame, so the lead foot plants where the capsule stops.
+		if target:
+			step_m = minf(step_m, maxf(Vector2(target.global_position.x - global_position.x, target.global_position.z - global_position.z).length() - LUNGE_STANDOFF, 0.0))
+		var kick_v := sqrt(2.0 * IMPULSE_DECEL * step_m)
+		var sf: Array = mk.get("step_frames", [0, 0])
+		var sid := _swing_id
+		get_tree().create_timer(float(sf[0]) / 30.0 / maxf(action.anim_speed, 0.1)).timeout.connect(func() -> void:
+			if sid == _swing_id and not dead:
+				_kick(facing() * kick_v))
+	elif action.root_motion:
+		_kick(facing() * lunge)
 	_swing = action.total()
 	_swing_elapsed = 0.0
 	_swing_hit = hit_t
@@ -1825,7 +2060,7 @@ func _start_swing() -> void:
 	if action.finisher:
 		_combo_window = 0.0     # finisher ends the chain
 	var rate: float = action.anim_speed * (0.7 if weak else 1.0)
-	_animator.play_upper(action.anim, rate)
+	_animator.play_attack(action.anim, rate, standing)
 	var riposte := _parry_bonus > 0.0
 	_parry_bonus = 0.0
 	var damage: int = int(action.damage * (0.5 if weak else 1.0) * (_riposte_mult if riposte else 1.0) * _arms.take_charge_mult())
@@ -1899,6 +2134,7 @@ func _resolve_hit(damage: int, knockback: float, finisher: bool, id := -1) -> vo
 
 
 func _start_dodge(is_ability: bool) -> void:
+	_interrupt_technique("dodge")
 	_cancel_locomotion_transition()
 	_dodging_ability = is_ability
 	if is_ability:
@@ -2007,6 +2243,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 					away = ((from as Node3D).global_position - global_position) * Vector3(1, 0, 1)
 				from.call_deferred("take_damage", 0, self, away.normalized() * float(res["push"]) * 2.0)
 			if lost:
+				_interrupt_technique("clash")
 				_stunned = maxf(_stunned, float(res["defender_stun"]))
 				_swing = 0.0
 				_swing_id += 1
@@ -2027,6 +2264,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 			if amount == 0:
 				return
 		HitResolver.Outcome.GUARD_BROKEN:
+			_interrupt_technique("guard broken")
 			_spend(float(res["guard_cost"]))
 			_kick(-facing() * BLOCK_PUSH)
 			_stunned = float(res["defender_stun"])
@@ -2042,6 +2280,7 @@ func take_damage(amount: int, from: Node = null, knockback := Vector3.ZERO, forc
 	if health == 0:
 		_die()
 	elif not blocking:
+		_interrupt_technique("hit reaction")
 		_flinch = FLINCH_TIME
 		var heavy := amount >= max_health * 0.12 or knockback.length() >= 4.0
 		var clip := "Hit_%s_%s" % ["Heavy" if heavy else "Light", _hit_side(from)]
@@ -2071,7 +2310,15 @@ func _hit_side(from: Node) -> String:
 	return "Right" if right > 0.0 else "Left"
 
 
+func _interrupt_technique(reason: String) -> void:
+	_chase.cancel_cast()
+	var caster := get_node_or_null("TechniqueCaster")
+	if caster != null and caster.has_method("interrupt_cast"):
+		caster.call("interrupt_cast", reason)
+
+
 func _die() -> void:
+	_interrupt_technique("death")
 	if _mount:
 		_dismount()
 	_release_lock()

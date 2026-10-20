@@ -83,7 +83,6 @@ static func install(anim: AnimationPlayer) -> int:
 	var key := lib.get_instance_id()
 	if _installed.has(key):
 		return 0
-	_installed[key] = true
 	var sk := _skeleton_path(lib)
 	if sk == "":
 		return 0
@@ -93,6 +92,8 @@ static func install(anim: AnimationPlayer) -> int:
 		if not lib.has_animation(n):
 			lib.add_animation(n, clips[n])
 			added += 1
+	if not clips.is_empty():
+		_installed[key] = true
 	return added
 
 

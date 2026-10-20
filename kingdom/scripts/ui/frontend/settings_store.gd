@@ -85,6 +85,9 @@ static func read_all(tree: SceneTree) -> Dictionary:
 	var q := tree.root.get_node_or_null("Quality")
 	if q:
 		out["preset"] = int(q.get("choice")) + 1     # 0 Auto, 1..4 Low..Ultra
+		# PC: the AA row is Auto/FXAA/TAA/FSR 2. Saves from before it (default 1 = FXAA, 2/3 = MSAA) read as Auto.
+		if bool(q.call("is_pc")) and not bool(cf.get_value("display", "aa_pc", false)):
+			out["aa"] = 0
 	else:
 		out["preset"] = 0
 	return out
@@ -97,6 +100,7 @@ static func write_all(vals: Dictionary) -> void:
 		if vals.has(k):
 			cf.set_value(section_of(k), k, vals[k])
 	cf.set_value("display", "levels_v2", true)
+	cf.set_value("display", "aa_pc", true)
 	cf.set_value("display", "fps_v2", true)
 	cf.save(PATH)
 
@@ -139,10 +143,13 @@ static func apply_all(tree: SceneTree, vals := {}, with_preset := false) -> void
 			Engine.max_fps = 0
 	# Anti-aliasing on any 3D viewport.
 	var aa := int(vals["aa"])
-	for v in tree.root.find_children("*", "SubViewport", true, false):
-		var sv := v as SubViewport
-		sv.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if aa == 1 else Viewport.SCREEN_SPACE_AA_DISABLED
-		sv.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][clampi(aa, 0, 3)]
+	if q and bool(q.call("is_pc")):
+		q.call("set_aa_mode", aa)     # PC: FSR2 / TAA / FXAA live in Quality; never write MSAA over FSR 2
+	else:
+		for v in tree.root.find_children("*", "SubViewport", true, false):
+			var sv := v as SubViewport
+			sv.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if aa == 1 else Viewport.SCREEN_SPACE_AA_DISABLED
+			sv.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][clampi(aa, 0, 3)]
 	apply_controls()
 	var app := tree.root.get_node_or_null("App")
 	if app:

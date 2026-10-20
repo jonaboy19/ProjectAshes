@@ -1,5 +1,7 @@
 # P5 - Start / stop / pivot / turn clips (FEEL_AUDIT F1, F2, F7): DELIVERED, wire them
 
+**Status 2026-10-06: APPLIED by the local session (animation behaviour owner) and checked in the real game; sheets in `docs/anim/local_wiring/`, notes in `docs/STATUS_LOCAL.md`.**
+
 Status: the clips exist. Library `kingdom/assets/incoming/animations_free2/loco_transitions/UAL_Loco_Transitions.glb` (20 clips, 30 fps, UAL skeleton, 0.68 MB)
 plus sidecar `UAL_Loco_Transitions.glb.contacts.json` (foot contacts, root motion, loop hand-off phases, events). Frame sheets (side + front, every clip) are in
 `docs/anim/free_library/frames/locomotion_v1/<clip>/`. Codex owns the wiring in `player.gd` / `character_animator.gd`; this note is the contract.

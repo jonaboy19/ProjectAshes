@@ -211,11 +211,13 @@ func test_people_tint_follows_town() -> void:
 	assert_float(float(TownIdentity.person_tint(_town("Kingsreach")["id"], 12, false)[1])).is_equal(0.0)
 
 
+## House batches only (the ones that receive wall decals): ivy and market goods carry a per-instance colour jitter in every town
+## (Style G), tinted by the profile or not.
 func _tinted_batches(root: Node3D) -> int:
 	var n := 0
 	for m in root.find_children("*", "MultiMeshInstance3D", true, false):
-		var mm := (m as MultiMeshInstance3D).multimesh
-		if mm != null and mm.use_colors:
+		var mmi := m as MultiMeshInstance3D
+		if mmi.multimesh != null and mmi.multimesh.use_colors and (mmi.layers & TownDecals.WALL_LAYER) != 0:
 			n += 1
 	return n
 

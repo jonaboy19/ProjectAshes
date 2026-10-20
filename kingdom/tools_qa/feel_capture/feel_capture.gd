@@ -71,7 +71,7 @@ func _ready() -> void:
 		_pose_csv.store_line("frame,scenario,bone,x,y,z,qx,qy,qz,qw,terrain_gap,pivot_clip,pivot_time")
 		RenderingServer.frame_post_draw.connect(_pose_telemetry)
 	_csv = FileAccess.open(out_dir.path_join("telemetry.csv"), FileAccess.WRITE)
-	_csv.store_line("frame,scenario,x,y,z,real_speed,move_speed,anim_speed,model_yaw_deg,yaw_rate,loco_blend,gait_rate,cam_x,cam_y,cam_z,on_floor,process_ms,render_cam_dist,render_body_x,render_body_z")
+	_csv.store_line("frame,scenario,x,y,z,real_speed,move_speed,anim_speed,model_yaw_deg,yaw_rate,loco_blend,gait_rate,cam_x,cam_y,cam_z,on_floor,process_ms,render_cam_dist,render_body_x,render_body_z,loco_kind,turn_clip")
 	_index = FileAccess.open(out_dir.path_join("scenarios.txt"), FileAccess.WRITE)
 	get_window().size = Vector2i(W, H)
 	var layer := CanvasLayer.new()
@@ -102,6 +102,7 @@ func _args() -> Dictionary:
 
 func _process(_delta: float) -> void:
 	frame += 1
+	_side_follow()
 	if player and is_instance_valid(player):
 		if _look_px != 0.0:
 			player.add_look(Vector2(_look_px, 0.0))
@@ -123,10 +124,11 @@ func _telemetry() -> void:
 	# What is actually drawn this frame (physics interpolation applied).
 	var rb := player._model.get_global_transform_interpolated().origin
 	var rc := player.camera.get_global_transform_interpolated().origin if player.camera else rb
-	_csv.store_line("%d,%s,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.2f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.2f,%.3f,%.3f,%.3f" % [
+	_csv.store_line("%d,%s,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.2f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.2f,%.3f,%.3f,%.3f,%s,%s" % [
 		frame, scn, player.global_position.x, player.global_position.y, player.global_position.z,
 		rs, player._move_speed, anim.shown_speed() if anim else 0.0, yaw, player._yaw_rate, loco, rate,
-		cp.x, cp.y, cp.z, 1 if player.is_on_floor() else 0, pms, rb.distance_to(rc), rb.x, rb.z])
+		cp.x, cp.y, cp.z, 1 if player.is_on_floor() else 0, pms, rb.distance_to(rc), rb.x, rb.z,
+		str(player.get("_loco_kind")), str(player.get("_turn_clip"))])
 	_label.text = "FEEL %s  f%d  t%.2fs | body %.2f m/s  anim %.2f  loco %.2f  rate %.2f | face %.0f°" % [
 		scn, frame - _scn_start, (frame - _scn_start) / FPS, rs, anim.shown_speed() if anim else 0.0, loco, rate, yaw]
 
@@ -324,6 +326,9 @@ func _run() -> void:
 	if want("25"): await _s25_pivot_wall()
 	if want("26"): await _s26_pivot_directions()
 	if want("27"): await _s27_actor_contact()
+	if want("28"): await _s28_wolf_pack_close()
+	if want("29"): await _s29_casts_v2()
+	if want("30"): await _s30_traversal()
 	log_line("DONE")
 	# quit() is deferred; stop the next frame from writing the closed CSV.
 	set_process(false)
@@ -334,6 +339,168 @@ func _run() -> void:
 	_index.close()
 	_csv.close()
 	get_tree().quit(1 if _capture_failed else 0)
+
+
+## Close wolf pack for the P2b clips: two wolves 6-7 m away, facing away from the player (so they must turn in place),
+## provoked, while the player holds still; then the player steps back to draw a lunge. Logs the wolf's clip every 6 frames.
+func _s28_wolf_pack_close() -> void:
+	var wild := await _find_flat(160.0, true)
+	await teleport(wild, 0.0, 30)
+	var fwd := Vector2(-sin(player._yaw), -cos(player._yaw))
+	var pack: Array = []
+	for i in 2:
+		var w := Wolf.new()
+		w.species = "wolf"
+		var at: Vector2 = wild + fwd * 7.0 + fwd.orthogonal() * (i * 2.0 - 1.0) * 1.6
+		w.home = at
+		w.territory = 200.0
+		main.world.add_child(w)
+		w.global_position = ground(at)
+		w.rotation.y = atan2(fwd.x, fwd.y) + (0.0 if i == 0 else PI * 0.5)    # one faces away from the player, one sideways
+		w._provoked = 20.0
+		pack.append(w)
+	player.health = player.max_health
+	player.set_camera(yaw_to((pack[0] as Node3D).global_position) + 1.1, -0.2)
+	begin("28_wolf_pack_close")
+	for i in 60:
+		await frames(6)
+		for w in pack:
+			if is_instance_valid(w) and w._anim:
+				var to_p: Vector3 = player.global_position - w.global_position
+				log_line("wolf%d clip=%s state=%d spin=%d lunge=%.2f d=%.2f yaw_err=%.0f busy=%.2f wind=%.2f" % [pack.find(w), w._anim.current_animation, w.state, w._spin_deg, w._lunge_t, w.global_position.distance_to(player.global_position), rad_to_deg(angle_difference(w.rotation.y, atan2(to_p.x, to_p.z))), w._busy, w._winding])
+		player.health = player.max_health
+	finish()
+	for w in pack:
+		if is_instance_valid(w):
+			w.queue_free()
+
+
+## Casting v2 clips on elemental magic-path spells (fire / water / wind / earth), standing, with the effect spawn frame logged.
+func _s29_casts_v2() -> void:
+	var caster := player.get_node_or_null("TechniqueCaster")
+	if caster == null:
+		log_line("no TechniqueCaster on the player")
+		return
+	await teleport(_flat, 0.0, 30)
+	player.set_camera(player._yaw, -0.1)
+	player._model.rotation.y = player._yaw + 0.7     # turn the body toward the camera (three-quarter view of the cast)
+	begin("29_casts_v2")
+	var pp: Object = Life.realm.mod("power_paths")
+	if pp != null and not pp.call("knows", "magic"):
+		pp.call("learn", "magic", "academy")
+	caster.runner.hooks["known"] = func(_id: String) -> bool: return true     # QA: path-tree spells need not be learned
+	for id: String in ["mg_fire_ember", "mg_water_lance", "mg_wind_blade", "mg_stone_bullet"]:
+		player.stamina = 100.0
+		Life.magicules.max_pool = 400.0
+		Life.magicules.current = 400.0
+		await frames(20)
+		var r: Dictionary = caster.cast_technique(id, true)    # sealed: skips the seal pad
+		var d: Dictionary = r.get("def", {})
+		log_line("has Cast_Fire_Release=%s Charge=%s v2=%s" % [str(player._animator.player.has_animation("Cast_Fire_Release")), str(player._animator.player.has_animation("Cast_Fire_Charge")), str(caster._cast_v2_clip(preload("res://scripts/abilities/ability_def.gd").flat(caster._lookup_raw("mg_fire_ember"))))])
+		log_line("cast %s ok=%s reason=%s windup=%.2f el=%s" % [id, str(r.get("ok")), str(r.get("reason", "")), float(d.get("hit_time", 0.0)), str(d.get("element", ""))])
+		for i in 10:
+			await frames(8)
+			log_line("  t+%d cur=%s" % [(i + 1) * 8, str(player._animator.player.current_animation)])
+	finish()
+
+
+## Traversal (F2 clips): vault (run at a 0.9 m box), low mantle (1.0 m wall), high mantle (1.7 m wall), ledge (2.2 m wall).
+## Boxes are real static bodies on layer 1 placed on the flat ground; the telemetry csv carries the capsule path.
+func _s30_traversal() -> void:
+	var cases := [
+		["vault", 0.9, 0.5, true, false],
+		["mantle_low", 1.0, 2.0, false, true],
+		["mantle_high", 1.7, 2.0, false, true],
+		["ledge", 2.1, 2.0, false, true],
+	]
+	var trav_only := String(_args().get("trav", ""))    # --trav=ledge runs one case
+	for c: Array in cases:
+		if trav_only != "" and trav_only != String(c[0]):
+			continue
+		await teleport(_flat, 0.0, 30)
+		var fwd := Vector3(-sin(player._yaw), 0.0, -cos(player._yaw))
+		var feet := player.global_position
+		var depth := float(c[2])
+		var box := StaticBody3D.new()
+		box.collision_layer = 1
+		var shape := CollisionShape3D.new()
+		var bs := BoxShape3D.new()
+		bs.size = Vector3(6.0, float(c[1]), depth)
+		shape.shape = bs
+		box.add_child(shape)
+		var mesh := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = bs.size
+		mesh.mesh = bm
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0.62, 0.58, 0.5)
+		mesh.material_override = mat
+		box.add_child(mesh)
+		main.world.add_child(box)
+		var ahead := 5.0 if bool(c[3]) else 1.4
+		box.global_position = feet + fwd * (ahead + depth * 0.5) + Vector3.UP * (float(c[1]) * 0.5)
+		player.set_camera(player._yaw, -0.22)
+		side_cam(true, Vector3(cos(player._yaw), 0.0, -sin(player._yaw)), 5.5)    # camera to the player's right (+X in model space)
+		begin("30_traversal_%s" % c[0])
+		await frames(10)
+		if bool(c[3]):
+			key(KEY_SHIFT, true)
+			key(KEY_W, true)
+			await frames(70)
+			key(KEY_W, false)
+			key(KEY_SHIFT, false)
+		else:
+			key(KEY_W, true)
+			await frames(14)
+			var pr: Dictionary = preload("res://scripts/actors/traversal.gd").probe(player.get_world_3d().direct_space_state, player.global_position, player.facing(), [player.get_rid()], true)
+			log_line("probe %s kind=%s h=%.2f depth=%.2f clear=%s dist=%.2f" % [c[0], str(pr.get("kind")), float(pr.get("height", -1.0)), float(pr.get("depth", -1.0)), str(pr.get("top_clear")), float(pr.get("dist", -1.0))])
+			log_line("trav state=%s can_start=%s stamina=%.1f" % [str(player._trav.state), str(player._trav.can_start()), player.stamina])
+			await tap(KEY_SPACE)
+			await frames(2)
+			key(KEY_W, false)
+			if String(c[0]) == "ledge":
+				await frames(60)      # grab, then hang for a moment
+				await tap(KEY_SPACE)  # pull up
+				await frames(70)
+			else:
+				await frames(70)
+		log_line("%s end: dy=%.2f dist=%.2f" % [c[0], player.global_position.y - feet.y, (player.global_position - feet).dot(fwd)])
+		await frames(25)
+		finish()
+		side_cam(false)
+		box.queue_free()
+
+
+
+## Side-on camera that follows the player (feet planted or sliding read much better than from behind).
+var _side_cam: Camera3D
+var _side_dir := Vector3.RIGHT
+var _side_dist := 5.0
+
+
+func side_cam(on: bool, dir := Vector3.RIGHT, dist := 5.0, fov := 38.0) -> void:
+	if not on:
+		if is_instance_valid(_side_cam):
+			_side_cam.queue_free()
+		_side_cam = null
+		if player.camera:
+			player.camera.make_current()
+		return
+	_side_dir = dir.normalized()
+	_side_dist = dist
+	if _side_cam == null:
+		_side_cam = Camera3D.new()
+		player.get_parent().add_child(_side_cam)    # same viewport as the player camera
+	_side_cam.fov = fov
+	_side_cam.current = true
+	_side_follow()
+
+
+func _side_follow() -> void:
+	if is_instance_valid(_side_cam) and is_instance_valid(player):
+		var at := player.global_position + Vector3.UP * 1.0
+		_side_cam.global_position = at + _side_dir * _side_dist
+		_side_cam.look_at(at, Vector3.UP)
 
 
 func _s27_actor_contact() -> void:

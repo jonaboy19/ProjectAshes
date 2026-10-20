@@ -1,5 +1,7 @@
 # P9 — Attack layering: full-body at a standstill, upper-body while moving, and no pop between combo hits
 
+**Status 2026-10-06: APPLIED by the local session (animation behaviour owner) and checked in the real game; sheets in `docs/anim/local_wiring/`, notes in `docs/STATUS_LOCAL.md`.**
+
 Owner: Codex (`kingdom/scripts/actors/character_animator.gd`, `player.gd`; `army/soldier.gd` likewise).
 Evidence: `docs/anim/COMBAT_AUDIT.md` issues C1, C3, C6.
 **Status: tested in game (local trial, reverted, not committed).** The diff below is exactly what ran:

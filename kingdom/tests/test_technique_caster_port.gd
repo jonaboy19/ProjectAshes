@@ -117,17 +117,21 @@ func test_failures_keep_the_legacy_reasons() -> void:
 	assert_float(w["player"].stamina).is_equal(100.0)                              # a failed cast pays nothing
 
 
-func test_global_lockout_and_overlapping_windups_like_before() -> void:
+func test_global_lockout_and_single_pending_windup() -> void:
+	# Codex (bending-current): the player's runner no longer overlaps windups (runner.overlap_windups = false), so a second
+	# technique is refused until the first has released and recovered. The 0.3 s global lockout is unchanged.
 	var w := _setup([_tree_row("t_slow", {"hit_time": 0.8, "cost": 5}), _tree_row("t_fast", {"hit_time": 0.1, "cost": 5})])
 	var c: Node = w["caster"]
 	var e: StubEnemy = w["enemy"]
 	assert_bool(c.cast_technique("t_slow")["ok"]).is_true()
 	assert_str(c.cast_technique("t_fast")["reason"]).is_equal("Busy.")             # inside the 0.3 s lockout
 	_run(c, 0.35)
-	assert_bool(c.cast_technique("t_fast")["ok"]).is_true()                        # the slow windup is still pending
-	_run(c, 0.2)
-	assert_int(e.hits.size()).is_equal(1)                                          # the fast one resolved first
-	_run(c, 0.4)
+	assert_bool(c.cast_technique("t_fast")["ok"]).is_false()                       # the slow windup is still unreleased
+	_run(c, 0.6)
+	assert_int(e.hits.size()).is_equal(1)                                          # only the slow one resolved
+	_run(c, 1.2)
+	assert_bool(c.cast_technique("t_fast")["ok"]).is_true()                        # free again after the recovery
+	_run(c, 0.3)
 	assert_int(e.hits.size()).is_equal(2)
 
 

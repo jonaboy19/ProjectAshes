@@ -45,6 +45,15 @@ func _ready() -> void:
 		Life.inventory_changed.connect(func() -> void: _acc = 1.0)
 
 
+## Slots that hold something (a bound technique or a consumable). The HUD hides the bar unless there are at least two.
+func filled_slots() -> int:
+	var n := 0
+	for i in 8:
+		if not _slot_info(i).is_empty():
+			n += 1
+	return n
+
+
 func slot_rect(i: int) -> Rect2:
 	return Rect2(Vector2(i * (SLOT + GAP), 12), Vector2(SLOT, SLOT))
 

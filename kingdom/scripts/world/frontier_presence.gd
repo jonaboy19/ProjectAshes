@@ -59,7 +59,7 @@ func _build_stone(s: Dictionary) -> void:
 			for g in m.find_children("*", "GeometryInstance3D", true, false):
 				var gi := g as GeometryInstance3D
 				gi.visibility_range_begin = 0.0 if i == 0 else 60.0
-				gi.visibility_range_end = 60.0 if i == 0 else 500.0
+				gi.visibility_range_end = 60.0 if i == 0 else (160.0 if Quality.tier <= 0 else 500.0)     # LOW draw budget (pass 14)
 			root.add_child(m)
 	else:
 		var model: Node3D = Assets.scene(RUNESTONE).instantiate()
@@ -193,6 +193,8 @@ func _maybe_apex_encounter(p: Vector2) -> void:
 func _spawn_pack(den: Dictionary) -> void:
 	var list: Array = []
 	var count := mini(int(den["population"]), RAMonsterEcology.SPECIES[den["species"]]["pack"])
+	if Quality.tier <= 0:
+		count = mini(count, 2)      # AAA pass 13: LOW draw budget (the census showed 4-wolf packs in the town gate view)
 	for i in count:
 		# Apex and Rift-tainted dens reuse the closest body until they get their own models.
 		var sp := Frontier.ecology.variant_for(String(den["species"]), den["pos"])   # Region1 hook H4: Scar cells make rift variants

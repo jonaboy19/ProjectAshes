@@ -1,5 +1,7 @@
 # P2b: wolf turn clips, run turns and pack clips (Codex patch notes for `wolf.gd`)
 
+**Status 2026-10-06: APPLIED by the local session (animation behaviour owner) and checked in the real game; sheets in `docs/anim/local_wiring/`, notes in `docs/STATUS_LOCAL.md`.**
+
 Companion to `P2_quadruped_no_crab_walk.diff` (which bends the velocity toward the heading). This patch adds the clips that
 make the feet match that motion. Assets are done: `wolf.glb` and `wolf_lod1.glb` (same clip names, same 51-bone skeleton,
 30 fps, wolf scale 1.3 baked in, so `creature_models.gd` keeps `"scale": 1.0`). Numbers are in `docs/anim/creatures/wolf/TABLE.txt`,

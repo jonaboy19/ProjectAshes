@@ -27,7 +27,6 @@ const LIB := "bending"
 static var _meta: Dictionary = {}
 static var _meta_loaded := false
 static var _libs: Dictionary = {}        # skeleton path -> AnimationLibrary
-static var _installed: Dictionary = {}   # AnimationPlayer instance id -> true
 
 
 ## Sidecar of every bending clip: {name: {mode, hit, trim, lift, blend_out, element}}.
@@ -62,17 +61,18 @@ static func clip_names() -> PackedStringArray:
 static func install(anim: AnimationPlayer) -> int:
 	if anim == null or not is_instance_valid(anim):
 		return 0
-	var key := anim.get_instance_id()
-	if _installed.has(key) or anim.has_animation_library(LIB):
+	# The live player already owns installation state; no permanent instance-id
+	# registry is needed as streamed NPCs are spawned and freed.
+	if anim.has_animation_library(LIB):
 		return 0
 	var sk := _skeleton_path(anim)
 	if sk == "":
 		return 0
-	_installed[key] = true
 	var lib := _library_for(sk)
 	if lib == null:
 		return 0
-	anim.add_animation_library(LIB, lib)
+	if anim.add_animation_library(LIB, lib) != OK:
+		return 0
 	return lib.get_animation_list().size()
 
 
@@ -120,7 +120,10 @@ static func play_cast(animator: Object, def: Dictionary, fallback := "") -> Dict
 		hit = float(meta_row.get("hit", 0.0))
 		var windup := float(def.get("windup", def.get("hit_time", 0.25)))
 		if hit > 0.0 and windup > 0.05:
-			speed *= clampf(hit / windup, 0.75, 1.8)
+			# hit / windup is the absolute rate, not a multiplier of data speed.
+			# Retain the authored speed's permitted range without applying it twice.
+			var base_speed := maxf(speed, 0.01)
+			speed = clampf(hit / windup, base_speed * 0.75, base_speed * 1.8)
 	if mode == "full":
 		animator.call("play_full", clip, speed)
 	else:

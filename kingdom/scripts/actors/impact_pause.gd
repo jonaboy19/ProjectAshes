@@ -29,6 +29,11 @@ func pause(mixers: Array, seconds: float) -> void:
 		set_process(not _until.is_empty())
 
 
+## True while this owner holds the mixer frozen.
+func is_paused(mixer: AnimationMixer) -> bool:
+	return is_instance_valid(mixer) and _until.has(mixer)
+
+
 func _process(_delta: float) -> void:
 	var now := Time.get_ticks_msec()
 	for mixer: AnimationMixer in _until.keys():

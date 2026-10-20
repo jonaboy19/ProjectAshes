@@ -2,16 +2,11 @@
 
 The user runs **two Claude sessions on this branch at the same time**: the cloud session and a local PC session (with GPU, Blender GUI access and the Meshy MCP). This file keeps them from stepping on each other. **Read it after every pull.**
 
-## OWNER DECISION 2026-10-20: PC FIRST (phone later)
-The owner switched the target to PC. The phone build is kept for a later port, and the settlement limit stays at 3.
-- **Local PC (GPU), please lead a PC graphics tier above HIGH:**
-  - Forward+ renderer with SDFGI or VoxelGI bounce light
-  - volumetric fog and god rays, SSR and SSAO
-  - full-resolution textures (no 512 px cap on PC)
-  - soft shadows at a longer distance
-  - higher NPC full-body counts and draw distance
-- The LOW and phone work stays for the later port and is no longer the priority.
-- **Cloud:** gameplay and systems only. The cloud's LOW visual cuts are already off by default (LowBudget.enabled = false).
+## Animation behaviour now owned by local session (owner decision 2026-10-06); Codex branches merged up to 83535327 (living-world-integration), fa4b483e (bending-current), 06871693 (character-feel-finish)
+- `gpt/living-world-integration` and `gpt/character-feel-finish` were already ancestors of the Claude branch. `gpt/bending-current` (21 commits: casting ownership, hit-pause sync, gather cancel, camera lifecycle) merged cleanly. `test_technique_caster_port` now asserts the single-owner windup rule (`overlap_windups = false`).
+- Failing on the pre-merge base too, so not from the merge: boot_flow "no save written on NOTIFICATION_APPLICATION_PAUSED", `test_market_dressing`, `test_town_identity`, `test_town_kit`.
+- `player.gd` was converted to CRLF upstream (cd01c726); keep it CRLF (a whole-file conflict otherwise).
+- What was wired afterwards: `docs/STATUS_LOCAL.md`.
 
 ## FOUNDATION FREEZE (user decision, 2026-10-05): read docs/design/FOUNDATION_PLAN.md first
 The big simulation features (13 kingdoms, politics, wars, settlement founding, civilization pressure, Soulbeast evolution, economy simulation) are frozen until the first milestone is done: Thornfield, the wilderness, one town, one Rift and one outpost, all fully playable. They get bug fixes only.
