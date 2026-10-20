@@ -2,6 +2,17 @@
 
 The user runs **two Claude sessions on this branch at the same time**: the cloud session and a local PC session (with GPU, Blender GUI access and the Meshy MCP). This file keeps them from stepping on each other. **Read it after every pull.**
 
+## OWNER DECISION 2026-10-20: PC FIRST (phone later)
+The owner switched the target to PC. The phone build is kept for a later port, and the settlement limit stays at 3.
+- **Local PC (GPU), please lead a PC graphics tier above HIGH:**
+  - Forward+ renderer with SDFGI or VoxelGI bounce light
+  - volumetric fog and god rays, SSR and SSAO
+  - full-resolution textures (no 512 px cap on PC)
+  - soft shadows at a longer distance
+  - higher NPC full-body counts and draw distance
+- The LOW and phone work stays for the later port and is no longer the priority.
+- **Cloud:** gameplay and systems only. The cloud's LOW visual cuts are already off by default (LowBudget.enabled = false).
+
 ## FOUNDATION FREEZE (user decision, 2026-10-05): read docs/design/FOUNDATION_PLAN.md first
 The big simulation features (13 kingdoms, politics, wars, settlement founding, civilization pressure, Soulbeast evolution, economy simulation) are frozen until the first milestone is done: Thornfield, the wilderness, one town, one Rift and one outpost, all fully playable. They get bug fixes only.
 - **Cloud is doing now:** F1 interaction framework, F3 combat basics (heavy attack, spear/bow/staff, knockdown and get-up, pooled projectiles, touch lock-on), F4 in-world conversation. Next: F2 traversal, F5 ownership/theft.
