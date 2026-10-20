@@ -14,6 +14,7 @@ extends Node3D
 ## drop pork and a tusk. A ForageNodes child keeps a few herbs, mushrooms,
 ## berries and firewood to pick around the player.
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const Gathering := preload("res://scripts/sim/gathering_items.gd")
 const ForageNodes := preload("res://scripts/world/forage_nodes.gd")
 const CreaturePool := preload("res://scripts/core/creature_pool.gd")
@@ -126,15 +127,23 @@ func _group(pos: Vector2, kinds: Array, radius: float) -> void:
 
 
 func _process(delta: float) -> void:
+	_drain_spawn_jobs()
 	_timer -= delta
 	if _timer > 0.0:
 		return
 	_timer = 1.0
 	forage.set("focus", focus)
 	var p := Vector2(focus.x, focus.z)
+	var _pg := Probe.t()
 	for g in _groups:
 		_update_group(g, p)
+	Probe.add("ambient.groups", _pg)
+	_pg = Probe.t()
 	_update_wild(p)
+	Probe.add("ambient.wild", _pg)
+
+
+var _spawn_jobs: Array = []        # [group, kind, index] bodies waiting for their frame
 
 
 func _update_group(g: Dictionary, p: Vector2) -> void:
@@ -146,27 +155,73 @@ func _update_group(g: Dictionary, p: Vector2) -> void:
 	var tier: int = cs.spawner_tier("ambient", g, g["pos"], p)
 	var wake: bool = d < cs.distance("ambient", "load") if tier < 0 else tier >= CellStreamer.Tier.LOW
 	var sleep: bool = d > cs.distance("ambient", "free") if tier < 0 else tier == CellStreamer.Tier.UNLOADED
-	if wake and nodes.is_empty():
+	if wake and nodes.is_empty() and not bool(g.get("woken", false)):
+		# The bodies are queued and built one per frame by _drain_spawn_jobs (a group of five used to be 30-130 ms in one frame).
+		g["woken"] = true
 		for pair: Array in g["kinds"]:
 			var want := int(pair[1])
 			if SMALL_FLOCK.has(pair[0]):
 				# Perf: fewer hens/doves on weaker tiers (each is a skinned, animated model).
 				want = maxi(1, roundi(want * clampf(float(Quality.value("scatter")) + 0.15, 0.3, 1.0)))
 			for k in want:
-				if BEASTS.has(pair[0]):
-					_spawn_beast(g, String(pair[0]), nodes)
-					continue
-				var cr: Critter = CreaturePool.critter("ambient", _variant(String(pair[0]), k, g["pos"]))
-				cr.home = g["pos"]
-				add_child(cr)
-				var r: float = g["radius"]
-				var q: Vector2 = g["pos"] + Vector2(randf_range(-r, r), randf_range(-r, r)) * 0.6
-				cr.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
-				nodes.append(cr)
-	elif sleep and not nodes.is_empty():
+				_spawn_jobs.append([g, String(pair[0]), k])
+	elif sleep and (not nodes.is_empty() or bool(g.get("woken", false))):
+		g["woken"] = false         # queued bodies of this group are dropped when their turn comes
 		for n in nodes:
 			CreaturePool.give_back(n)
 		nodes.clear()
+
+
+## Behind the loading screen: loads the model scene of every kind the groups can spawn (and the wild kinds), so the first critter of
+## a kind does not read its GLB in the middle of play (a first cow or deer was 30-700 ms). Returns how many scenes were loaded.
+func warm_models() -> int:
+	var kinds := {}
+	for g: Dictionary in _groups:
+		for pair: Array in g["kinds"]:
+			kinds[String(pair[0])] = true
+	for k: String in ["deer", "stag", "rabbit", "fox", "crow"]:
+		kinds[k] = true
+	if kinds.has("cow"):
+		for c: String in COW_COATS:
+			kinds[c] = true
+	if kinds.has("chicken"):
+		kinds["hen_meshy"] = true
+	if kinds.has("rooster"):
+		kinds["rooster_meshy"] = true
+	var n := 0
+	for k: String in kinds:
+		if BEASTS.has(k) or not Critter.KINDS.has(k):
+			continue
+		var path := String((Critter.KINDS[k] as Array)[0])
+		if not path.begins_with("res://"):
+			path = Critter.DIR + path
+		if ResourceLoader.exists(path) and Assets.scene(path) != null:
+			n += 1
+	return n
+
+
+## One queued ambient body per frame.
+func _drain_spawn_jobs() -> void:
+	var _pj := Probe.t()
+	while not _spawn_jobs.is_empty():
+		var job: Array = _spawn_jobs.pop_front()
+		var g: Dictionary = job[0]
+		if not bool(g.get("woken", false)):
+			continue
+		var nodes: Array = g["nodes"]
+		var kind: String = job[1]
+		if BEASTS.has(kind):
+			_spawn_beast(g, kind, nodes)
+		else:
+			var cr: Critter = CreaturePool.critter("ambient", _variant(kind, int(job[2]), g["pos"]))
+			cr.home = g["pos"]
+			add_child(cr)
+			var r: float = g["radius"]
+			var q: Vector2 = g["pos"] + Vector2(randf_range(-r, r), randf_range(-r, r)) * 0.6
+			cr.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
+			nodes.append(cr)
+		break
+	Probe.add("ambient.spawn", _pj)
 
 
 ## Wildlife: a few groups in woodland around the player, re-rolled as they move.
@@ -176,6 +231,7 @@ func _update_wild(p: Vector2) -> void:
 			for n in g["nodes"]:
 				CreaturePool.give_back(n)
 			CellStreamer.shared().release_spawner("ambient", g)
+			g["woken"] = false
 			_wild.erase(g)
 	var tries := 6
 	while _wild.size() < WILD_RINGS and tries > 0:

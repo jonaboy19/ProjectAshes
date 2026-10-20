@@ -248,7 +248,7 @@ func _spawn_roster(site: Dictionary, n: int) -> Squad:
 	squad.anchor = base
 	squad.aggro_radius = 26.0
 	add_child(squad)
-	squad.add_soldiers(n, base, CasterSpawns.mix("bandit_camp", n, hash(String(site.get("name", ""))) + int(WorldSim.day)))
+	squad.add_soldiers(n, base, CasterSpawns.mix("bandit_camp", n, hash(String(site.get("name", ""))) + int(WorldSim.day)), true)
 	return squad
 
 

@@ -122,8 +122,11 @@ func test_a_hub_wakes_in_the_settlement_tier_builds_itself_once_and_sleeps_again
 	player.global_position = Vector3(c.x, 0.0, c.y)
 	_focus(cs, c)
 	assert_bool(mill.call("is_awake")).is_true()
-	assert_bool(mill.call("is_active")).is_true()
 	assert_bool(mill.is_processing()).is_true()
+	assert_bool(mill.call("is_active")).is_false()           # the build is spread over frames (one step per frame)
+	for _i in 8:
+		await get_tree().process_frame
+	assert_bool(mill.call("is_active")).is_true()
 	var clues: Array = mill.get("clues")
 	assert_int(clues.size()).is_greater(0)
 	var stash: Node = (mill.get("stashes") as Array)[0]

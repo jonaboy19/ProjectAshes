@@ -1530,68 +1530,93 @@ func sell(item: String) -> String:
 
 # --- save / load -----------------------------------------------------------------
 
+var _snap_waits := 0
+const SNAP_MAX_WAITS := 40
+
+
 func snapshot() -> Dictionary:
-	economy.settle_hour_jobs()        # the home market is saved twice (market, economy.markets): both must see the finished hour
-	var d := {
-		"version": SAVE_VERSION,
-		"world": WorldSim.serialize(),
-		"game": Game.serialize(),
-		"careers": careers.serialize(),
-		"needs": needs.serialize(),
-		"market": market.serialize(),
-		"economy": economy.serialize(),
-		"inventory": save_containers.snapshot()["inventory"],
-		"spoil_abs": _spoil_abs,
-		"frontier": Frontier.serialize(),
-		"life_path": life_path.serialize(),
-		"titles": titles.serialize(),
-		"triggers": triggers.serialize(),
-		"guild": guild.serialize(),
-		"magicules": magicules.serialize(),
-		"naming": naming.serialize(),
-		"injuries": injuries.serialize(),
-		"scouts": scouts.serialize(),
-		"discovery": discovery.serialize(),
-		"relationships": relationships.serialize(),
-		"npc_social_graph": npc_social_graph.serialize(),
-		"mastery": mastery.serialize(),
-		"biography": biography.serialize(),
-		"property": property.serialize(),
-		"nobility": nobility.serialize(),
-		"lordship": lordship.serialize(),
-		"family": family.serialize(),
-		"life_courses": life_courses.serialize(),
-		"war": war.serialize(),
-		"realm": realm.serialize(),
-		"soul": soul.serialize(),
-		"skill_evolution": skill_evolution.serialize(),
-		"echoes": echoes.serialize(),
-		"appearance": appearance,
-		"career": {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier},
-		"radiant": radiant.serialize(),
-		"crafting": crafting.serialize(),
-		"world_events": world_events.serialize(),
-		"equipment": equipment.serialize(),
-		"skills": skills.serialize(),
-		"homestead": homestead.serialize(),
-		"tendencies": tendencies.serialize(),
-		"childhood_events": childhood_events.serialize(),
-		"awakening": awakening.serialize(),
-	}
-	# Region1 hook (docs/regions/REGION_1_PLAN.md)
-	d["region1"] = Region1State.snapshot()
-	var interactives: Dictionary = world_state.call("snapshot")
-	interactives["evidence"] = preload("res://scripts/population/evidence.gd").serialize()
-	# Search, knocked-out / killed people and the town's guard alert (all clock-relative).
-	var now_ms := Time.get_ticks_msec()
-	interactives["search"] = preload("res://scripts/population/search.gd").serialize(now_ms)
-	interactives["takedown"] = preload("res://scripts/combat/takedown.gd").serialize(now_ms)
-	interactives["guard_alert"] = preload("res://scripts/population/alert_net.gd").serialize(now_ms)
-	d["interactives"] = interactives
-	if player and is_instance_valid(player):
-		d["player"] = {"x": player.global_position.x, "y": player.global_position.y,
-			"z": player.global_position.z, "health": player.get("health")}
+	var d := {}
+	_snap_waits = SNAP_MAX_WAITS            # a synchronous snapshot never waits for the pump
+	for step: Array in snapshot_steps(false):
+		var v: Variant = (step[1] as Callable).call()
+		if v != null:             # a step with nothing to save (no player body yet) leaves its key out
+			SaveManager.put(d, String(step[0]), v)
 	return d
+
+
+## The snapshot as a list of [key, Callable() -> value] steps, in save order. `snapshot()` runs them all in one go; the
+## SaveManager's autosave runs a few per frame (a budget of ms) and hands the finished dictionary to a worker thread, so
+## the 70 ms a two-year game takes to serialise never lands in one frame. Every step returns a fresh value that nothing
+## in the game still references (a worker thread stringifies it later): with `detach` every small section is deep-copied here
+## (tools_qa/cpu_mem/snapshot_alias_probe.gd found `careers` handing out its live dictionary), except the three big ones,
+## `world`, `realm` and `economy` (1.4 of the 1.5 MB), which the probe shows build fresh containers; it checks that again.
+func snapshot_steps(detach := true) -> Array:
+	var steps: Array = _snapshot_steps_raw()
+	if not detach:
+		return steps
+	var out: Array = []
+	for st: Array in steps:
+		var key: String = st[0]
+		var fn: Callable = st[1]
+		if key in ["world", "realm", "economy"] or key.begins_with("realm/") or key.begins_with("economy/markets/"):
+			out.append(st)
+		else:
+			out.append([key, func() -> Variant:
+				var v: Variant = fn.call()
+				return v.duplicate(true) if v is Dictionary or v is Array else v])
+	return out
+
+
+func _snapshot_steps_raw() -> Array:
+	var steps: Array = []
+	steps.append(["version", func() -> Variant:
+		# The home market is saved twice (market, economy.markets): both must see the finished hour. The jobs of an hour that
+		# just ticked are drained by the realm pump (a few hundred microseconds a frame): an async autosave waits for that
+		# for up to 40 frames instead of finishing them in one 20-50 ms step; then (or in a synchronous save) it settles them.
+		if economy.has_pending_hour_jobs() and _snap_waits < SNAP_MAX_WAITS:
+			_snap_waits += 1
+			return SaveManager.RETRY
+		_snap_waits = 0
+		economy.settle_hour_jobs()
+		return SAVE_VERSION])
+	steps.append(["game", func() -> Variant: return Game.serialize()])
+	steps.append(["inventory", func() -> Variant: return save_containers.snapshot()["inventory"]])
+	steps.append(["spoil_abs", func() -> Variant: return _spoil_abs])
+	steps.append(["appearance", func() -> Variant: return appearance])
+	steps.append(["career", func() -> Variant: return {"id": career_id, "rank": career_rank, "since_day": career_since_day, "sponsor_tier": career_sponsor_tier}])
+	steps.append(["world", func() -> Variant: return WorldSim.serialize()])
+	for key: String in ["careers", "needs", "market"]:
+		steps.append([key, func() -> Variant: return get(key).serialize()])
+	# The economy (30 markets, 7-10 ms in one go) is collected a market per step, then its loose fields.
+	for mid: Variant in economy.markets.keys():
+		steps.append(["economy/markets/%s" % str(mid), func() -> Variant: return economy.serialize_market(mid)])
+	steps.append(["economy/*", func() -> Variant: return economy.serialize_rest()])
+	steps.append(["frontier", func() -> Variant: return Frontier.serialize()])
+	for key: String in ["life_path", "titles", "triggers", "guild", "magicules", "naming", "injuries", "scouts", "discovery",
+			"relationships", "npc_social_graph", "mastery", "biography", "property", "nobility", "lordship", "family",
+			"life_courses", "war", "soul", "skill_evolution", "echoes", "radiant", "crafting", "world_events",
+			"equipment", "skills", "homestead", "tendencies", "childhood_events", "awakening"]:
+		steps.append([key, func() -> Variant: return get(key).serialize()])
+	# The realm (532 KB, 9-13 ms in one go) is collected a module per step.
+	for rk: String in realm.ORDER:
+		steps.append(["realm/%s" % rk, func() -> Variant: return realm.mods[rk].serialize()])
+	# Region1 hook (docs/regions/REGION_1_PLAN.md)
+	steps.append(["region1", func() -> Variant: return Region1State.snapshot()])
+	steps.append(["interactives", func() -> Variant:
+		var interactives: Dictionary = world_state.call("snapshot")
+		interactives["evidence"] = preload("res://scripts/population/evidence.gd").serialize()
+		# Search, knocked-out / killed people and the town's guard alert (all clock-relative).
+		var now_ms := Time.get_ticks_msec()
+		interactives["search"] = preload("res://scripts/population/search.gd").serialize(now_ms)
+		interactives["takedown"] = preload("res://scripts/combat/takedown.gd").serialize(now_ms)
+		interactives["guard_alert"] = preload("res://scripts/population/alert_net.gd").serialize(now_ms)
+		return interactives])
+	steps.append(["player", func() -> Variant:
+		if player and is_instance_valid(player):
+			return {"x": player.global_position.x, "y": player.global_position.y,
+				"z": player.global_position.z, "health": player.get("health")}
+		return null])
+	return steps
 
 
 func restore(d: Dictionary) -> void:
@@ -1675,6 +1700,7 @@ var saves: Node = _make_save_manager()
 func _make_save_manager() -> Node:
 	var m: Node = SaveManager.new()
 	m.name = "SaveManager"
+	m.async_autosave = true          # timer / settlement / rest autosaves: snapshot over frames, written by a worker (save_manager.gd)
 	add_child(m)
 	# Focus-loss autosaves skip a clean game (scripts/sim/save_manager.gd is_dirty).
 	inventory_changed.connect(m.mark_dirty)

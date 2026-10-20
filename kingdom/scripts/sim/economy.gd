@@ -117,6 +117,8 @@ var _mine_settlement_id := -2      # -2 = not looked up yet, -1 = none found
 const HOUR_CHUNK := 2
 ## The daily surplus trade is split into this many jobs.
 const TRADE_JOBS := 6
+## Markets whose daily import wagons arrive in one job (the 06:00 wagons used to be a single 12 ms job over all 30).
+const IMPORT_CHUNK := 5
 var _trade_items: Array = []
 var _trade_chunk := 1
 var _hour_jobs: Array = []
@@ -414,6 +416,10 @@ func _hour_plan(dh: float, ctx: Dictionary) -> Array:
 		jobs.append(["m", ids.slice(i, i + HOUR_CHUNK), dh, ctx])
 		i += HOUR_CHUNK
 	if ctx.has("abs_hours") and int(float(ctx["abs_hours"])) % 24 == 6:
+		var j := 0
+		while j < ids.size():                 # the wagons, a few markets per job (one job for all 30 was 12 ms)
+			jobs.append(["i", ids.slice(j, j + IMPORT_CHUNK)])
+			j += IMPORT_CHUNK
 		jobs.append(["d", ctx])
 		for part in TRADE_JOBS:
 			jobs.append(["t", part])
@@ -441,17 +447,22 @@ func _run_hour_job(job: Array) -> Array[Dictionary]:
 					_extra_capital_food_drain(m, float(job[2]))
 				_apply_modifiers(id, m, season, festival, at_war, mine_opened)
 			Probe.add("economy.hour_markets_chunk", _pe)
-		"d":
+		"i":
 			# Once a day (06:00) the merchants' wagons bring in what each place doesn't make; dangerous roads thin them out.
 			var _pd := Probe.t()
-			for id in markets:
+			for id in job[1]:
+				if not markets.has(id):
+					continue
 				var m2: RAMarket = markets[id]
 				var risk := clampf(float(road_risk.get(id, 0.0)), 0.0, 1.0)
 				for item: String in m2.imports:
 					m2.add_stock(item, float(m2.imports[item]) * (1.0 - IMPORT_RISK_CUT * risk))
+			Probe.add("economy.hour_daily_imports", _pd)
+		"d":
+			var _pl := Probe.t()
 			_trade_items = _trade_item_list()
 			_trade_chunk = ceili(float(_trade_items.size()) / TRADE_JOBS)
-			Probe.add("economy.hour_daily_imports", _pd)
+			Probe.add("economy.hour_daily_list", _pl)
 		"t":
 			var _pt := Probe.t()
 			for item: String in _trade_items.slice(int(job[1]) * _trade_chunk, (int(job[1]) + 1) * _trade_chunk):
@@ -758,7 +769,19 @@ func serialize() -> Dictionary:
 	settle_hour_jobs()       # an hour still spread over frames is finished first: a save is never missing a tick
 	var m: Dictionary = {}
 	for id in markets:
-		m[str(id)] = (markets[id] as RAMarket).serialize()
+		m[str(id)] = serialize_market(id)
+	var d := serialize_rest()
+	d["markets"] = m
+	return d
+
+
+## One market's save data (the async autosave collects the economy a market per step: Life.snapshot_steps).
+func serialize_market(id: Variant) -> Dictionary:
+	return (markets[id] as RAMarket).serialize()
+
+
+## Everything but the markets.
+func serialize_rest() -> Dictionary:
 	var risk: Dictionary = {}
 	for id in road_risk:
 		risk[str(id)] = float(road_risk[id])
@@ -766,7 +789,7 @@ func serialize() -> Dictionary:
 	for id in known_prices:
 		known[str(id)] = (known_prices[id] as Dictionary).duplicate(true)
 	return {
-		"markets": m, "road_risk": risk, "known_prices": known,
+		"road_risk": risk, "known_prices": known,
 		"owns_cart": owns_cart, "owns_caravan": owns_caravan, "has_shop": has_shop, "has_guard": has_guard,
 		"trade_volume": trade_volume, "contracts": contracts.duplicate(true), "next_contract_id": _next_contract_id,
 		"caravans": caravans.serialize(),

@@ -129,6 +129,14 @@ func night_now() -> bool:
 ## One poll (the hub calls this twice a second): starts a probe on a night that has one, once the player is near.
 func tick(player_pos: Vector2) -> void:
 	_prune()
+	_hour = int(WorldSim.time_of_day)
+	# The clock can jump over the dawn (the birth cutscene stages a night shot and then sets the morning back): hour_changed never says 5,
+	# so a probe that came out in that "night" would be waiting at the family door at 8 o'clock. By day nothing prowls the town.
+	if not probe_wolves.is_empty() and not night_now() and _hour != night_to:
+		for w: Variant in probe_wolves:
+			if is_instance_valid(w):
+				CreaturePool.give_back(w)
+		probe_wolves.clear()
 	if night_now() and probe_wolves.is_empty() and _probe_day != WorldSim.day and probe_place != "":
 		var fields := TownPlaces.place_pos(tid, probe_place)
 		if fields != Vector2.INF and player_pos.distance_to(fields) < probe_near:

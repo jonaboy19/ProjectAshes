@@ -58,6 +58,7 @@ var _awake_sites := {}           # profile -> {id: true}               (sites wh
 var _next_watch := 1
 var _dirty := true
 var _last_key := ""
+var _next_trim_ms := 0
 
 
 static func shared() -> RefCounted:
@@ -277,6 +278,7 @@ func site_count(profile: String) -> int:
 
 ## Per frame from main.gd. Returns true when a recompute ran.
 func update(world_focus: Vector3) -> bool:
+	_trim_tick()
 	var f := Vector2(world_focus.x, world_focus.z)
 	var key := "%d/%d/%d" % [_qt(), view_radius(), 0]
 	if not _dirty and key == _last_key and f.distance_to(focus) < MOVE_EPS:
@@ -294,9 +296,19 @@ func update(world_focus: Vector3) -> bool:
 			_update_sites(profile)
 	if jumped:
 		teleports += 1
-		(load("res://scripts/core/node_pool.gd") as GDScript).call("trim_all", IDLE_KEEP_AFTER_TELEPORT)   # the bodies of the place we left
+		(load("res://scripts/core/node_pool.gd") as GDScript).call("request_trim", IDLE_KEEP_AFTER_TELEPORT)   # the bodies of the place we left: freed one per step (update -> _trim_tick), not in this frame
 		teleported.emit(from, f)
 	return true
+
+
+## Frees one idle pooled body now and then (NodePool.trim_step): every 100 ms while a teleport's trim is draining, else once a second.
+func _trim_tick() -> void:
+	var now := Time.get_ticks_msec()
+	if now < _next_trim_ms:
+		return
+	var np := load("res://scripts/core/node_pool.gd") as GDScript
+	_next_trim_ms = now + (100 if bool(np.call("trim_pending")) else 1000)
+	np.call("trim_step")
 
 
 func _update_cells(profile: String) -> void:

@@ -27,6 +27,12 @@ extends Node
 ## or going to the background. Never in combat (a live "team1" node near the
 ## player) or while any node is in the "cutscene_active" group.
 ##
+## Frame-spike pass (2026-10-06): an autosave never lands in one frame. It collects the snapshot a few ms per frame
+## (`SNAPSHOT_BUDGET_US`, Life.snapshot_steps), then JSON text, zstd, base64, md5 and the atomic write (tmp, verify, .bak, rename)
+## run on a WorkerThreadPool task; the result is finished on the main thread (dirty flag, thumbnail, `saved` signal). If the worker
+## fails (or never reports) the same state is written synchronously instead. Manual saves, quicksave, quit / pause / focus
+## saves stay synchronous (the app may be killed right after), and any load, delete or sync save first `flush()`es a running one.
+##
 ## Ideas (named slots, checkpoints, autosave, recovery, migration) follow
 ## youssof20/savestate (MIT); this is an independent rewrite for Rising Ashes.
 ##
@@ -39,6 +45,7 @@ signal loaded(slot_id: String, ok: bool)
 ## A readable problem for the player (damaged file, backup used, disk full...).
 signal problem(text: String)
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const SCHEMA_VERSION := 3
 ## Data texts at least this long are stored compressed (see the envelope notes above).
 const COMPRESS_MIN := 65536
@@ -46,6 +53,14 @@ const MANUAL_SLOTS := 3
 const AUTO_SLOTS := 3
 const QUICK := "quick"
 const AUTOSAVE_INTERVAL := 600.0        # real seconds
+## Main-thread time one frame may spend collecting an async autosave's snapshot (a step is never split: the biggest is ~20 ms).
+const SNAPSHOT_BUDGET_US := 2500
+## Autosave reasons that must be on disk before the function returns (the app may be killed right after).
+const SYNC_REASONS := ["background", "quit", "focus"]
+## A snapshot step may return this instead of its value: "not yet, run me again next frame" (Life's first step waits for the realm pump to
+## drain the economy's pending hour jobs instead of finishing them itself). Steps that keep answering it are run anyway by Life after a
+## few dozen frames, so a save can never wait forever.
+const RETRY := "\u0001retry"
 ## Two autosaves closer than this collapse into one (except on quit / background).
 const AUTOSAVE_MIN_GAP := 30.0
 const FOCUS_DEBOUNCE_MS := 1500
@@ -79,6 +94,13 @@ var player_override: Node3D
 ## Top-level keys the data must carry to count as a real save (empty = any).
 var required_keys: Array = ["world", "game"]
 var autosave_enabled := true
+## True: timer / settlement / rest autosaves are collected over frames and written by a worker thread. Life turns it on;
+## a bare SaveManager (tests, tools) stays synchronous.
+var async_autosave := false
+## () -> Array of [key, Callable]: the snapshot as steps (tests); Life's snapshot_steps() is the default source.
+var steps_fn: Callable
+## Test hook: the worker reports a failure without writing, so the synchronous fallback runs.
+var test_fail_worker := false
 var capture_thumbnails := true
 ## Real seconds played in this run of the character (carried in every save).
 var playtime := 0.0
@@ -88,6 +110,8 @@ var last_error := ""
 var last_slot := ""
 
 var _auto_timer := 0.0
+var _job: Dictionary = {}          # the async autosave in flight ({} = none): id, reason, thumb, meta, steps, i, data, clock, tries, task
+var _dirty_gen := 0                # bumped by mark_dirty(): an async save clears `dirty` only if nothing changed while it ran
 ## Set by mark_dirty(), cleared by every successful save.
 var dirty := false
 ## Optional dirty-flagged containers (scripts/sim/save_containers.gd). When set and no snapshot_fn is given,
@@ -110,6 +134,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if not _job.is_empty():
+		pump_autosave()
 	var p := _player()
 	if p == null:
 		return
@@ -161,6 +187,7 @@ func handle_lifecycle(what: int) -> String:
 ## Marks state as changed since the last save (cheap; call from anything that mutates saveable state).
 func mark_dirty() -> void:
 	dirty = true
+	_dirty_gen += 1
 
 
 ## True when something changed since the last successful save: the manual flag, any dirty container, or
@@ -275,6 +302,7 @@ func load_thumbnail(id: String) -> Texture2D:
 
 
 func delete_slot(id: String) -> bool:
+	flush()
 	if not is_valid_id(id):
 		return false
 	var any := false
@@ -288,10 +316,13 @@ func delete_slot(id: String) -> bool:
 
 ## Saves the current game into `id`. `thumb` grabs a small viewport screenshot.
 func save_slot(id: String, reason := "manual", thumb := true) -> bool:
+	flush()
 	last_error = ""
 	if not is_valid_id(id):
 		return _fail("Unknown save slot '%s'." % id)
+	var _ps := Probe.t()
 	var data: Dictionary = _snapshot()
+	Probe.add("save.snapshot", _ps)
 	if data.is_empty():
 		return _fail("Nothing to save yet.")
 	var ok := write_envelope(id, data, _build_meta(id, reason))
@@ -313,20 +344,31 @@ func quick_save() -> bool:
 func write_envelope(id: String, data: Dictionary, meta: Dictionary) -> bool:
 	if not _ensure_dir():
 		return _fail("Could not create the save folder.")
+	var _ps := Probe.t()
+	var text := compose_text(data, meta)
+	Probe.add("save.stringify_pack", _ps)
+	_ps = Probe.t()
+	var err := _atomic_write_err(path_of(id), text, true)
+	if err != "":
+		return _fail(err)
+	Probe.add("save.write", _ps)
+	err = _atomic_write_err(meta_path(id), JSON.stringify(meta, "\t"), false)
+	if err != "":
+		_fail(err)
+	return true
+
+
+## The file text of a save: JSON of `data` (zstd + base64 from COMPRESS_MIN on) inside the envelope. Pure and thread-safe
+## (no signals, no scene tree): the async autosave runs it on a worker. Fills `meta["schema"]`.
+static func compose_text(data: Dictionary, meta: Dictionary) -> String:
 	var data_text := JSON.stringify(data)
 	meta.erase("data")              # the data section must be the only "data" key
 	meta["schema"] = SCHEMA_VERSION
-	var text := ""
 	if data_text.length() >= COMPRESS_MIN:
 		var raw := data_text.to_utf8_buffer()
 		var packed := Marshalls.raw_to_base64(raw.compress(FileAccess.COMPRESSION_ZSTD))
-		text = _envelope_text_compressed(meta, packed, raw.size())
-	else:
-		text = _envelope_text(meta, data_text)
-	if not _atomic_write(path_of(id), text, true):
-		return false
-	_atomic_write(meta_path(id), JSON.stringify(meta, "\t"), false)
-	return true
+		return _envelope_text_compressed(meta, packed, raw.size())
+	return _envelope_text(meta, data_text)
 
 
 ## Autosaves into the oldest of the rotating slots. Returns the slot id, or ""
@@ -338,12 +380,137 @@ func autosave(reason := "auto", thumb := true, force := false) -> String:
 	if not force and (now < _quiet_until_ms
 			or (_last_autosave_ms >= 0 and now - _last_autosave_ms < AUTOSAVE_MIN_GAP * 1000.0)):
 		return ""
+	if not _job.is_empty():
+		if not force:
+			return ""            # the previous autosave is still being collected / written
+		flush()
 	var id := next_auto_id()
+	if async_autosave and not (reason in SYNC_REASONS) and _begin_job(id, reason, thumb):
+		_last_autosave_ms = now
+		_auto_timer = 0.0
+		return id
 	if not save_slot(id, reason, thumb):
 		return ""
 	_last_autosave_ms = now
 	_auto_timer = 0.0
 	return id
+
+
+# --- async autosave ---------------------------------------------------------------
+
+## True while an async autosave is being collected or written.
+func busy() -> bool:
+	return not _job.is_empty()
+
+
+## Starts an async autosave into `id`. False when the snapshot has no steps (the caller then saves synchronously).
+func _begin_job(id: String, reason: String, thumb: bool) -> bool:
+	if not _ensure_dir():
+		return false
+	var steps := _snapshot_steps()
+	if steps.is_empty():
+		return false
+	last_error = ""
+	_job = {"id": id, "reason": reason, "thumb": thumb, "meta": _build_meta(id, reason), "steps": steps, "i": 0, "data": {},
+		"clock": _clock_key(), "tries": 0, "gen": _dirty_gen, "result": [], "task": -1}
+	return true
+
+
+## A minute of game time: if it changes while the snapshot is being collected, the collection restarts once (the sections
+## would otherwise come from two different hours).
+func _clock_key() -> String:
+	var ws := get_node_or_null("/root/WorldSim") if is_inside_tree() else null
+	return "" if ws == null else "%s/%s" % [str(ws.get("day")), str(int(float(ws.get("time_of_day")) * 2.0))]
+
+
+## Advances the async autosave: snapshot steps within `budget_us` (-1: all of them), then the worker, then the finish.
+## Called every frame by _process; public so tests and tools can drive it.
+func pump_autosave(budget_us := SNAPSHOT_BUDGET_US) -> void:
+	if _job.is_empty():
+		return
+	if int(_job["task"]) >= 0:
+		if WorkerThreadPool.is_task_completed(int(_job["task"])):
+			_finish_job()
+		return
+	var steps: Array = _job["steps"]
+	var t_end := Time.get_ticks_usec() + budget_us
+	while int(_job["i"]) < steps.size():
+		var st: Array = steps[int(_job["i"])]
+		_job["i"] = int(_job["i"]) + 1
+		var _ps := Probe.t()
+		var v: Variant = (st[1] as Callable).call()
+		Probe.add("save.step." + String(st[0]), _ps)
+		if v is String and String(v) == RETRY:
+			if budget_us >= 0:
+				_job["i"] = int(_job["i"]) - 1          # next frame, same step
+				return
+			_job["i"] = int(_job["i"]) - 1              # a flush: ask again at once (the step gives up by itself after a few tries)
+			continue
+		if v != null:
+			put(_job["data"], String(st[0]), v)
+		if budget_us >= 0 and Time.get_ticks_usec() >= t_end:
+			return
+	if _clock_key() != String(_job["clock"]) and int(_job["tries"]) < 1:
+		_job["tries"] = 1
+		_job["i"] = 0
+		_job["data"] = {}
+		_job["clock"] = _clock_key()
+		_job["steps"] = _snapshot_steps()
+		return
+	var data: Dictionary = _job["data"]
+	if data.is_empty():
+		var id := String(_job["id"])
+		_job = {}
+		_fail("Nothing to save yet.")
+		saved.emit(id, false)
+		return
+	_job["task"] = WorkerThreadPool.add_task(_worker_write.bind(data, _job["meta"], path_of(String(_job["id"])),
+		meta_path(String(_job["id"])), _job["result"]), false, "autosave write")
+
+
+## Worker thread: text, compression, checksum and the atomic write. Touches nothing but its arguments and the files.
+func _worker_write(data: Dictionary, meta: Dictionary, path: String, mpath: String, result: Array) -> void:
+	if test_fail_worker:
+		result.append("injected failure")
+		return
+	var text := compose_text(data, meta)
+	var err := _atomic_write_err(path, text, true)
+	if err == "":
+		_atomic_write_err(mpath, JSON.stringify(meta, "\t"), false)
+	result.append(err)         # the last thing the worker does: an empty result means it never got here
+
+
+func _finish_job() -> void:
+	var job := _job
+	_job = {}
+	WorkerThreadPool.wait_for_task_completion(int(job["task"]))
+	var id := String(job["id"])
+	var res: Array = job["result"]
+	var ok := not res.is_empty() and String(res[0]) == ""
+	if not ok:
+		# The worker failed or never reported: write the same state again on the main thread (this also reports the error).
+		push_warning("[save] async autosave failed (%s), writing synchronously" % (String(res[0]) if not res.is_empty() else "no result"))
+		ok = write_envelope(id, job["data"], job["meta"])
+	if ok:
+		if int(job["gen"]) == _dirty_gen:
+			dirty = false
+		last_slot = id
+		if bool(job["thumb"]) and capture_thumbnails:
+			_save_thumbnail(id)
+	saved.emit(id, ok)
+
+
+## Finishes a running async autosave right now (remaining snapshot steps, then waits for the worker). No-op when idle.
+func flush() -> void:
+	if _job.is_empty():
+		return
+	pump_autosave(-1)
+	if not _job.is_empty():
+		_finish_job()
+
+
+func _exit_tree() -> void:
+	flush()
 
 
 ## The rotating slot the next autosave overwrites: an empty one, else the oldest.
@@ -410,6 +577,7 @@ func quick_load() -> bool:
 ## The validated, migrated envelope of `id` without restoring it ({} on failure,
 ## with `last_error` set). Falls back to `.bak`, then to a complete `.tmp`.
 func read_slot(id: String) -> Dictionary:
+	flush()
 	last_error = ""
 	if not is_valid_id(id):
 		_fail("Unknown save slot '%s'." % id)
@@ -723,6 +891,40 @@ func _player() -> Node3D:
 	return p if is_instance_valid(p) and p is Node3D and (p as Node3D).is_inside_tree() else null
 
 
+## Stores a step's value in the snapshot. A plain key sets `data[key]`; "a/b/c" sets `data.a.b.c`, creating the dictionaries on the way
+## (a big section is collected as several steps); a key ending in "/*" (or just "*") merges the returned dictionary into that node
+## (snapshot_fn and containers hand over a whole snapshot, a section's loose fields come last). Values are copied only for "*".
+static func put(data: Dictionary, key: String, v: Variant) -> void:
+	var merge := key == "*" or key.ends_with("/*")
+	var parts := key.trim_suffix("/*").split("/") if key != "*" else PackedStringArray()
+	var node := data
+	for i in parts.size() - (0 if merge else 1):
+		var nxt: Variant = node.get(parts[i])
+		if not (nxt is Dictionary):
+			nxt = {}
+			node[parts[i]] = nxt
+		node = nxt
+	if merge:
+		if v is Dictionary:
+			node.merge((v as Dictionary).duplicate(true))
+	else:
+		node[parts[parts.size() - 1]] = v
+
+
+## [[key, Callable() -> value], ...] (keys as for `put`).
+func _snapshot_steps() -> Array:
+	if steps_fn.is_valid():
+		return steps_fn.call()
+	if snapshot_fn.is_valid():
+		return [["*", snapshot_fn]]
+	if containers != null:
+		return [["*", func() -> Variant: return containers.call("snapshot")]]
+	var life := get_node_or_null("/root/Life")
+	if life != null and life.has_method("snapshot_steps"):
+		return life.call("snapshot_steps")
+	return [["*", func() -> Variant: return life.call("snapshot") if life else {}]]
+
+
 func _snapshot() -> Dictionary:
 	if snapshot_fn.is_valid():
 		return snapshot_fn.call()
@@ -779,10 +981,16 @@ static func _data_text(text: String) -> String:
 ## tmp -> verify -> (old -> .bak) -> rename. Returns false and leaves the old
 ## file (or its backup) in place on any failure.
 func _atomic_write(path: String, text: String, keep_backup: bool) -> bool:
+	var err := _atomic_write_err(path, text, keep_backup)
+	return err == "" or _fail(err)
+
+
+## `_atomic_write` without side effects on the node: "" on success, else the readable error. Thread-safe.
+static func _atomic_write_err(path: String, text: String, keep_backup: bool) -> String:
 	var tmp := path + ".tmp"
 	var f := FileAccess.open(tmp, FileAccess.WRITE)
 	if f == null:
-		return _fail("Could not write the save (%s)." % error_string(FileAccess.get_open_error()))
+		return "Could not write the save (%s)." % error_string(FileAccess.get_open_error())
 	f.store_string(text)
 	f.flush()
 	var err := f.get_error()
@@ -790,7 +998,7 @@ func _atomic_write(path: String, text: String, keep_backup: bool) -> bool:
 	var expect := text.to_utf8_buffer().size()
 	if err != OK or FileAccess.get_file_as_bytes(tmp).size() != expect:
 		DirAccess.remove_absolute(_abs(tmp))
-		return _fail("The save did not finish writing (disk full?). Your previous save is untouched.")
+		return "The save did not finish writing (disk full?). Your previous save is untouched."
 	var bak := path + ".bak"
 	var had_old := FileAccess.file_exists(path)
 	if had_old:
@@ -799,14 +1007,14 @@ func _atomic_write(path: String, text: String, keep_backup: bool) -> bool:
 				DirAccess.remove_absolute(_abs(bak))
 			if DirAccess.rename_absolute(_abs(path), _abs(bak)) != OK:
 				DirAccess.remove_absolute(_abs(tmp))
-				return _fail("Could not keep a backup of the previous save.")
+				return "Could not keep a backup of the previous save."
 		else:
 			DirAccess.remove_absolute(_abs(path))
 	if DirAccess.rename_absolute(_abs(tmp), _abs(path)) != OK:
 		if had_old and keep_backup:
 			DirAccess.copy_absolute(_abs(bak), _abs(path))
-		return _fail("Could not finish the save (rename failed).")
-	return true
+		return "Could not finish the save (rename failed)."
+	return ""
 
 
 func _read_json(path: String) -> Variant:

@@ -9,6 +9,7 @@ extends Node3D
 const REGION := "res://assets/generated/region/"
 const GEN := "res://assets/generated/"
 const MESHY := "res://assets/incoming/ai3d/meshy/"
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
 const BUILD := 240.0       # defaults; live values: CellStreamer profile "dressing"
 const FREE := 330.0
@@ -123,7 +124,9 @@ func _drain_queue() -> void:
 			var part: Array = site["parts"][item[3]]
 			if not _ready_to_spawn(String(part[0])):
 				return          # still loading from disk: try again next frame
+			var _pp := Probe.t()
 			_build_part(root, site, part)
+			Probe.add("region.part", _pp)
 		else:
 			_build_light(root, site["lights"][item[3]])
 		_queue.pop_front()
@@ -143,6 +146,7 @@ func _process(delta: float) -> void:
 func _process_inner(delta: float) -> void:
 	Breakable.tick(delta)   # breakable props: melee sweep + regrowth (once per frame)
 	_drain_queue()
+	_bake_drain()
 	_t += delta
 	for s in _sails:
 		if is_instance_valid(s):
@@ -165,7 +169,9 @@ func _process_inner(delta: float) -> void:
 		if not _in_season(site):
 			d = INF      # seasonal pieces (the Solkar caravans) exist only in their season
 		if d < build_dist and not _built.has(id):
+			var _pb := Probe.t()
 			_built[id] = _build(site)
+			Probe.add("region.build_site", _pb)
 		elif d > free_dist and _built.has(id):
 			var n: Node3D = _built[id]
 			_built.erase(id)
@@ -179,6 +185,7 @@ func _process_inner(delta: float) -> void:
 
 ## Builds every site at once (screenshots, tests, teleports): blocks on purpose.
 func build_all_now() -> void:
+	sync_bake = true
 	for site in WorldGen.sites:
 		if not _built.has(site["id"]) and _in_season(site):
 			_built[site["id"]] = _build(site)
@@ -190,6 +197,9 @@ func build_all_now() -> void:
 			_build_part(item[0], item[1], item[1]["parts"][item[3]])
 		else:
 			_build_light(item[0], item[1]["lights"][item[3]])
+	while not _bake_jobs.is_empty():            # merges that were already waiting: finish them too
+		_bake_step(_bake_jobs.pop_front(), -1.0)
+	sync_bake = false
 
 
 ## Sites may name a season ("season": "summer"); everything else is always there.
@@ -308,7 +318,32 @@ func trim_bake_cache() -> int:
 ## farm draws ~20 surfaces. Colliders, sails, breakables and wind-shaded nature stay their own nodes; the look is the
 ## same geometry with the same materials, ranges and shadow flags.
 func _bake_site(root: Node3D) -> void:
-	var inv := root.global_transform.affine_inverse()
+	var _pk := Probe.t()
+	var job := _bake_begin(root)
+	Probe.add("region.bake_begin", _pk)
+	if sync_bake:
+		while not _bake_step(job, -1.0):
+			pass
+	else:
+		_bake_jobs.append(job)       # merged a few ms per frame by _bake_drain (one site's merge used to be 60-200 ms in one frame)
+
+
+## True: a finished site is merged at once (teleports, tests). Otherwise the merge is a job drained within BAKE_BUDGET_MS per frame.
+var sync_bake := false
+const BAKE_BUDGET_MS := 2.5
+var _bake_jobs: Array = []
+
+
+func _bake_drain() -> void:
+	if _bake_jobs.is_empty():
+		return
+	var _pk := Probe.t()
+	if _bake_step(_bake_jobs[0], BAKE_BUDGET_MS):
+		_bake_jobs.pop_front()
+	Probe.add("region.bake", _pk)
+
+
+func _bake_begin(root: Node3D) -> Dictionary:
 	var groups := {}        # range key -> [MeshInstance3D]
 	for n in root.get_children():
 		if not (n is Node3D) or not n.has_meta("bakeable") or not bool(n.get_meta("bakeable")):
@@ -323,46 +358,97 @@ func _bake_site(root: Node3D) -> void:
 			(groups[key] as Array).append(g)
 	var sid: Variant = root.get_meta("site_id", -1)
 	var cached: Dictionary = _bake_cache.get(sid, {})
-	var first_bake := cached.is_empty()
-	for key: String in groups:
-		var list: Array = groups[key]
-		var mesh: ArrayMesh = cached.get(key)
-		if mesh == null:
-			var by_look := {}     # material look -> SurfaceTool
-			var mats := {}
-			for g: MeshInstance3D in list:
-				var xf: Transform3D = inv * g.global_transform
-				for i in g.mesh.get_surface_count():
-					var mat: Material = g.get_active_material(i)
-					var look := _material_look(mat)
-					if not by_look.has(look):
-						var st := SurfaceTool.new()
-						st.begin(Mesh.PRIMITIVE_TRIANGLES)
-						by_look[look] = st
-						mats[look] = mat
-					(by_look[look] as SurfaceTool).append_from(g.mesh, i, xf)
-			mesh = ArrayMesh.new()
-			for look: String in by_look:
-				var st: SurfaceTool = by_look[look]
-				st.commit(mesh)
-				mesh.surface_set_material(mesh.get_surface_count() - 1, mats[look])
-			cached[key] = mesh
-		var ref: MeshInstance3D = list[0]
-		var baked := MeshInstance3D.new()
-		baked.name = "Baked_" + key.replace("|", "_").replace(".", "")      # unique per range group (the linter skips names containing "baked"; a second "Baked" would be auto-renamed)
-		baked.mesh = mesh
-		baked.cast_shadow = ref.cast_shadow
-		baked.visibility_range_begin = ref.visibility_range_begin
-		baked.visibility_range_begin_margin = ref.visibility_range_begin_margin
-		baked.visibility_range_end = ref.visibility_range_end
-		baked.visibility_range_end_margin = ref.visibility_range_end_margin
-		baked.visibility_range_fade_mode = ref.visibility_range_fade_mode
-		root.add_child(baked)
-		for g: MeshInstance3D in list:
-			g.get_parent().remove_child(g)
-			g.free()
-	if first_bake:
-		_bake_cache[sid] = cached
+	return {"root": root, "inv": root.global_transform.affine_inverse(), "groups": groups, "keys": groups.keys(), "ki": 0,
+		"sid": sid, "cached": cached, "first": cached.is_empty(), "phase": 0, "i": 0, "by_look": {}, "mats": {}, "mesh": null}
+
+
+## Merges a site's static parts, one range group at a time and within `budget_ms` per call (negative: no limit). The same
+## surfaces, materials and ranges as the old one-shot bake; the originals are freed when their group's merged mesh is in, so
+## nothing is ever missing or doubled on screen. Returns true when the site is done (or was freed meanwhile).
+func _bake_step(job: Dictionary, budget_ms: float) -> bool:
+	var root: Node3D = job["root"] if is_instance_valid(job["root"]) else null
+	if root == null:
+		return true
+	var t_end := Time.get_ticks_usec() + int(budget_ms * 1000.0)
+	var keys: Array = job["keys"]
+	var cached: Dictionary = job["cached"]
+	while int(job["ki"]) < keys.size():
+		var key: String = keys[int(job["ki"])]
+		var list: Array = (job["groups"] as Dictionary)[key]
+		if int(job["phase"]) == 0:
+			var mesh: ArrayMesh = cached.get(key)
+			if mesh != null:
+				job["mesh"] = mesh
+				job["phase"] = 1
+			else:
+				var by_look: Dictionary = job["by_look"]
+				var mats: Dictionary = job["mats"]
+				while int(job["i"]) < list.size():
+					var g := list[int(job["i"])] as MeshInstance3D
+					job["i"] = int(job["i"]) + 1
+					if not is_instance_valid(g):
+						continue
+					var xf: Transform3D = (job["inv"] as Transform3D) * g.global_transform
+					for si in g.mesh.get_surface_count():
+						var mat: Material = g.get_active_material(si)
+						var look := _material_look(mat)
+						if not by_look.has(look):
+							var st := SurfaceTool.new()
+							st.begin(Mesh.PRIMITIVE_TRIANGLES)
+							by_look[look] = st
+							mats[look] = mat
+						(by_look[look] as SurfaceTool).append_from(g.mesh, si, xf)
+					if budget_ms >= 0.0 and Time.get_ticks_usec() >= t_end:
+						return false
+				var merged := ArrayMesh.new()
+				for look: String in by_look:
+					var st2: SurfaceTool = by_look[look]
+					st2.commit(merged)
+					merged.surface_set_material(merged.get_surface_count() - 1, mats[look])
+				cached[key] = merged
+				job["mesh"] = merged
+				job["phase"] = 1
+				job["by_look"] = {}
+				job["mats"] = {}
+				job["i"] = 0
+				if budget_ms >= 0.0 and Time.get_ticks_usec() >= t_end:
+					return false
+		if int(job["phase"]) == 1:
+			var ref: MeshInstance3D = list[0]
+			var baked := MeshInstance3D.new()
+			baked.name = "Baked_" + key.replace("|", "_").replace(".", "")      # unique per range group (the linter skips names containing "baked"; a second "Baked" would be auto-renamed)
+			baked.mesh = job["mesh"]
+			baked.cast_shadow = ref.cast_shadow
+			baked.visibility_range_begin = ref.visibility_range_begin
+			baked.visibility_range_begin_margin = ref.visibility_range_begin_margin
+			baked.visibility_range_end = ref.visibility_range_end
+			baked.visibility_range_end_margin = ref.visibility_range_end_margin
+			baked.visibility_range_fade_mode = ref.visibility_range_fade_mode
+			root.add_child(baked)
+			job["phase"] = 2
+			job["i"] = 0
+		if int(job["phase"]) == 2:
+			while int(job["i"]) < list.size():
+				var g2 := list[int(job["i"])] as MeshInstance3D
+				job["i"] = int(job["i"]) + 1
+				if is_instance_valid(g2):
+					g2.get_parent().remove_child(g2)
+					g2.free()
+				if budget_ms >= 0.0 and Time.get_ticks_usec() >= t_end:
+					return false
+			job["phase"] = 0
+			job["i"] = 0
+			job["ki"] = int(job["ki"]) + 1
+			if budget_ms >= 0.0 and Time.get_ticks_usec() >= t_end:
+				return int(job["ki"]) >= keys.size() and _bake_done(job)
+	return _bake_done(job)
+
+
+func _bake_done(job: Dictionary) -> bool:
+	if bool(job["first"]):
+		_bake_cache[job["sid"]] = job["cached"]
+		job["first"] = false
+	return true
 
 
 ## Two materials with the same name, texture, colour and class render the same: one surface serves both.

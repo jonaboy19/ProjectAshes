@@ -55,6 +55,7 @@ signal exit_requested
 ## Force the third-person view while inside (the town/command zooms don't fit a room).
 @export var force_third_person := true
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const DoorModel := preload("res://scripts/world/door_model.gd")
 const Locks := preload("res://scripts/world/locks.gd")
 const Perception := preload("res://scripts/population/perception.gd")
@@ -84,6 +85,7 @@ var _paused: Array[Node] = []
 var _cam: Camera3D = null
 var _saved_env: Environment = null
 var _saved_view := -1
+var _entering := false          # the room is instanced and waits one frame to be put into the world (see enter)
 
 
 func _ready() -> void:
@@ -299,7 +301,7 @@ func use() -> void:
 			if not bool(res.get("ok", false)):
 				_deny(String(res.get("reason", "")))
 				return
-		enter(_player if _player else get_tree().get_first_node_in_group("player") as Node3D)
+		enter(_player if _player else get_tree().get_first_node_in_group("player") as Node3D, true)
 
 
 ## The door will not open: say why (Game.say message pill when the autoload exists).
@@ -309,13 +311,18 @@ func _deny(reason: String) -> void:
 		g.call("say", reason)
 
 
-func enter(player: Node3D) -> void:
-	if player == null or active != null or not _can_enter():
+## `spread` (the player pressed the door): the room is instanced in this frame and put into the world in the next one, behind the
+## door's opening swing, so the two heavy halves (the scene's instantiation, then its `_ready` building the furniture) are two
+## small frames instead of one 40-180 ms one. Tests and tools enter at once.
+func enter(player: Node3D, spread := false) -> void:
+	if player == null or active != null or _entering or not _can_enter():
 		return
 	if model != null and bool(model.call("is_locked")):
 		return
 	_player = player
+	var _pi := Probe.t()
 	interior = _make_interior()
+	Probe.add("interior.make", _pi)
 	if interior == null:
 		return
 	# Standalone-only nodes: the preview camera and the scene's own WorldEnvironment
@@ -329,8 +336,25 @@ func enter(player: Node3D) -> void:
 		c.get_parent().remove_child(c)
 		c.free()
 	interior.set_meta("embedded", true)
+	if spread and is_inside_tree():
+		_entering = true
+		get_tree().process_frame.connect(_enter_finish.bind(player, env), CONNECT_ONE_SHOT)
+		return
+	_enter_finish(player, env)
+
+
+func _enter_finish(player: Node3D, env: Environment) -> void:
+	_entering = false
+	if not is_instance_valid(player) or not is_instance_valid(interior) or active != null:
+		if is_instance_valid(interior):
+			interior.free()
+		interior = null
+		return
+	var _pf := Probe.t()
 	var host := player.get_parent()
 	host.add_child(interior)
+	Probe.add("interior.add_child", _pf)
+	_pf = Probe.t()
 	interior.global_transform = Transform3D(Basis.IDENTITY, global_position + interior_offset)
 	active = self
 	set_physics_process(camera_collision)
@@ -366,7 +390,20 @@ func enter(player: Node3D) -> void:
 		if d is InteriorDoor and (d as InteriorDoor).is_exit:
 			(d as InteriorDoor).exit_requested.connect(leave)
 			(d as InteriorDoor).cover_point(at.origin)
+	Probe.add("interior.place", _pf)
 	interior_entered.emit(interior)
+
+
+## Loads the hand-made interior scenes (scenes/interiors/*.tscn) into the Assets cache. Called once behind the loading screen, so
+## the first door of a session does not also pay for reading the scene and its furniture from disk.
+static func warm_scenes() -> int:
+	var n := 0
+	for dir: String in ["res://scenes/interiors", "res://scenes/interiors/modular"]:     # the hand-made rooms and the generated layouts' scenes
+		for f: String in DirAccess.get_files_at(dir):
+			if f.ends_with(".tscn"):
+				if Assets.scene(dir + "/" + f) != null:
+					n += 1
+	return n
 
 
 ## Hook for doors whose room is built in code (scripts/interiors/dungeon_door.gd): can this door open now?

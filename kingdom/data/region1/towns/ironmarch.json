@@ -592,8 +592,8 @@
   {
    "id": "edlin_aylward",
    "name": "Edlin Aylward",
-   "role": "guild clerk",
-   "job": 2,
+   "role": "wardwright recruiter",
+   "job": 4,
    "home": "ironmarch_house_9",
    "work": "ironmarch_works",
    "age": 58,
@@ -620,11 +620,13 @@
    },
    "dialogue": {
     "greeting": [
-     "Guild seal, guild stamp, guild fee. The fee is not optional."
+     "Stones do not carve themselves. Ask about the roll.",
+     "A hand for the chisel? The Legion is always short of one."
     ],
     "rumour": [
-     "A contract got lost between two rooms in the same building. Nobody saw it leave.",
-     "The Silverford Guild Hall has seen odder days than this. Nobody remembers when."
+     "A recruit who can draw a clean diamond is worth three who can swing a spear.",
+     "Every mile of road has a stone and every stone has a day it goes dark. We keep the tally.",
+     "A contract got lost between two rooms in the same building. Nobody saw it leave."
     ],
     "opinions": {
      "drystan_goodrich": "Drystan knows the trade. I will say that for Drystan.",

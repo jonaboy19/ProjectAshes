@@ -41,7 +41,8 @@ const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")
 ## Ceiling on total sprites drawn (all job looks combined; see `refresh()`), not
 ## per look. Quality.npc_sprites narrows this further per tier.
 const MAX_SPRITES := 140
-const MAX_SPAWNS_PER_TICK := 3
+## Full bodies built per rendered frame (see `_drain_spawns`). The refresh only queues; this is the whole spawn budget.
+const MAX_SPAWNS_PER_FRAME := 1
 ## Contact-range villagers that use the multi-slide controller each physics
 ## frame, nearest-to-player first. A crowd event can put more into contact at
 ## once; overflow uses one swept collision query (see Villager.physics_active)
@@ -85,6 +86,12 @@ var _sprite_hidden: Dictionary = {}  # person id -> true while suppressed inside
 var micro: Node
 var _sprite_routes: Dictionary = {}  # visible sprite id -> bounded StreetGraph route state
 var _refresh_elapsed := 0.0
+## Spawn queue (person ids, nearest first) and the want_full set of the last refresh it is drained against.
+var _spawn_queue: Array[int] = []
+var _spawn_queued: Dictionary = {}
+var _want_full: Dictionary = {}
+## False: refresh() builds its bodies at once (tests, screenshot tools) instead of one per frame.
+var queue_spawns := true
 var _query_r := 0.0             # adaptive people_near radius (see refresh)
 
 
@@ -111,6 +118,7 @@ func setup(baker: ImpostorBaker) -> void:
 
 
 func _process(delta: float) -> void:
+	_drain_spawns()
 	_timer -= delta
 	_refresh_elapsed += delta
 	if _timer <= 0.0:
@@ -124,6 +132,39 @@ func _process(delta: float) -> void:
 			NpcWorld.prof_lod_calls += 1
 		else:
 			refresh(step)
+
+
+## Builds the next queued body (at most MAX_SPAWNS_PER_FRAME per call). A queued person who is no longer wanted by the last
+## refresh (walked out of range, went indoors, got a body some other way) is dropped without a body.
+func _drain_spawns() -> void:
+	if _spawn_queue.is_empty():
+		return
+	var _pt := Probe.t()
+	var built := 0
+	while not _spawn_queue.is_empty() and built < MAX_SPAWNS_PER_FRAME:
+		var id: int = _spawn_queue.pop_front()
+		_spawn_queued.erase(id)
+		if _full.has(id) or not _want_full.has(id) or WorldSim.is_indoors(id):
+			continue
+		_full[id] = _spawn(id)
+		full_count = _full.size()
+		built += 1
+	Probe.add("pop.spawn", _pt)
+
+
+## Builds every queued body now.
+func flush_spawns() -> void:
+	while not _spawn_queue.is_empty():
+		var id: int = _spawn_queue.pop_front()
+		_spawn_queued.erase(id)
+		if _full.has(id) or not _want_full.has(id) or WorldSim.is_indoors(id):
+			continue
+		_full[id] = _spawn(id)
+	full_count = _full.size()
+
+
+func queued_spawns() -> int:
+	return _spawn_queue.size()
 
 
 func refresh(step_delta := 0.25) -> void:
@@ -215,12 +256,17 @@ func refresh(step_delta := 0.25) -> void:
 				body.lie_restored(Takedown.kind_of(did))
 	Probe.add("pop.demote", _pt)
 	_pt = Probe.t()
-	var spawned := 0
+	# Bodies are queued (nearest first, the order of want_full) and built ONE per frame by _drain_spawns(): a Villager costs
+	# 3.7-6 ms to build (about 20-30 ms on the S22), and three in one refresh was a visible hitch. They still appear, a frame apart,
+	# at the edge of the full-model band or where a teleport put the player.
+	_want_full = want_full
 	for id in want_full:
-		if not _full.has(id) and spawned < MAX_SPAWNS_PER_TICK:
-			_full[id] = _spawn(id)
-			spawned += 1
-	Probe.add("pop.spawn", _pt)
+		if not _full.has(id) and not _spawn_queued.has(id):
+			_spawn_queue.append(id)
+			_spawn_queued[id] = true
+	if not queue_spawns:
+		flush_spawns()
+	Probe.add("pop.spawn_queue", _pt)
 	_pt = Probe.t()
 	# Promotion transfers the same position-owner flag to the body. Discard any
 	# old visual route so demotion can plan again from the body's resolved point.

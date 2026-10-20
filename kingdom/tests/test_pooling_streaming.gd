@@ -393,8 +393,14 @@ func test_a_teleport_trims_every_pools_idle_bodies() -> void:
 	cs.update(Vector3(5000, 0, 5000))                        # a teleport
 	assert_int(jumps.size()).is_equal(1)
 	assert_int(cs.teleports).is_equal(1)
+	assert_int(a.idle_count()).is_equal(30)                  # the trim is requested, not done in the teleport frame
+	assert_bool(NodePool.trim_pending()).is_true()
+	var freed := 0
+	while NodePool.trim_pending() and freed < 200:           # a body per step
+		freed += NodePool.trim_step()
 	assert_int(a.idle_count()).is_equal(CellStreamer.IDLE_KEEP_AFTER_TELEPORT)
 	assert_int(b.idle_count()).is_equal(CellStreamer.IDLE_KEEP_AFTER_TELEPORT)
+	assert_int(freed).is_greater_equal(2 * (30 - CellStreamer.IDLE_KEEP_AFTER_TELEPORT))
 
 
 func test_the_dressing_bake_cache_lets_far_sites_go() -> void:

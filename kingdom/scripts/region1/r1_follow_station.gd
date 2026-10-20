@@ -52,6 +52,12 @@ func _process(delta: float) -> void:
 		return
 	var p: Vector2 = found["pos"]
 	global_position = Vector3(p.x, _player.global_position.y if bool(found.get("at_player_height", false)) else WorldGen.height(p.x, p.y), p.y)
+	# A prompt that sits on the player (the ashes to kneel at, the Scar's edge) is always at distance 0 and would beat the person standing
+	# next to them: Mother at the family door could not be talked to while a death or a memory lay warm there. It ranks as a passer-by instead.
+	if bool(found.get("at_player_height", false)):
+		set_meta("low_priority", true)
+	elif has_meta("low_priority"):
+		remove_meta("low_priority")
 	verb = String(found.get("verb", "Use"))
 	title = String(found.get("title", ""))
 	menu = found["menu"]

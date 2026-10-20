@@ -532,10 +532,12 @@ func _run_all() -> void:
 		["tf_interior", _s_tf_interior], ["tf_theft", _s_tf_theft], ["tf_travel", _s_tf_travel], ["tf_combat", _s_tf_combat],
 		["tf_soldier", _s_tf_soldier], ["tf_rift", _s_tf_rift], ["tf_beast", _s_tf_beast], ["tf_save", _s_tf_save],
 		["towns", _s_towns], ["townsweep", _s_townsweep],
+		["st_load", _s_st_load], ["st_birth", _s_st_birth], ["st_a1", _s_st_a1], ["st_a2", _s_st_a2], ["st_a3", _s_st_a3],
+		["st_a4", _s_st_a4], ["st_a5", _s_st_a5], ["st_save", _s_st_save],
 	]
 	for e: Array in list:
-		if not _want(String(e[0])) and String(e[0]) != "adult":
-			continue
+		if not _want(String(e[0])) and (String(e[0]) != "adult" or only.contains("st_")):
+			continue      # (the adult stage ages the player to 18: the story stages play from birth, so they skip it)
 		await _run_stage(String(e[0]), e[1], _stage_limit(String(e[0])))
 		_write_report()
 	stage_name = "end"
@@ -566,6 +568,9 @@ func _stage_limit(name: String) -> float:
 		"tf_save": return 480.0
 		"towns": return 900.0 * float(maxi(1, _town_list().size()))
 		"townsweep": return 60.0 * float(maxi(1, _sweep_list().size())) + 120.0
+		"st_load": return 400.0
+		"st_save": return 200.0
+		"st_birth", "st_a1", "st_a2", "st_a3", "st_a4", "st_a5": return 1500.0
 	return 150.0
 
 
@@ -1689,6 +1694,9 @@ func _fight(e: Node3D, label: String, limit: float) -> bool:
 		else:
 			hold("move_forward", false)
 			hold("sprint", false)
+			if float(player.stamina) < 14.0:
+				await wait(1.5)         # a player lets the stamina bar refill: swinging on empty does nothing
+				continue
 			await key(KEY_J, 1)         # one frame is a light tap: at 1-2 fps three frames would read as a charged heavy (0.3 s of game time)
 			hits += 1
 		if bool(player.get("dead")):
@@ -3915,3 +3923,1021 @@ func _town_visit(tid: String) -> void:
 		await shot("%s_inn_inside" % tid)
 		await tf_leave_by_exit(tid + " inn")
 	close_everything()
+
+
+# ============================================================================================ story stages (st_*)
+## "The Stones Are Dimming" (Region 1 main quest) played in the real main scene from a new life: birth and the tutorial,
+## Act I to the Blessing, Acts II-V to the finale and the "Region 1 complete" card. Run them in several runs, chaining a save:
+##   PLAYTEST_STAGES=boot,st_birth,st_a1,st_save           first run (a new life)
+##   PLAYTEST_STAGES=boot,st_load,st_a2,st_save            later runs (st_load reloads the chain slot, st_save writes it)
+## Real interactions: the in-world sheet for every conversation (walk up, E, click the option), the stone menu for
+## carving (the glyph is DRAWN with mouse events on the carve canvas), relight, link, the Scar's edge, kneeling at the
+## ashes, the parley menu, real melee against the spawned creatures, walking short legs and a coach ride for long ones.
+## [HOOK] lines mark what a bot cannot play: ageing (the years pass), the Kindling Night date, a teleport when the walk is
+## blocked or a leg is far from any waystation, healing during a fight, the Rift gate's power (soul tier, iron gear, level).
+
+const StPlaces := preload("res://scripts/region1/region1_places.gd")
+const StSpine := preload("res://scripts/region1/progression_spine.gd")
+const ST_SLOT := 5
+const ST_WALK_MAX := 360.0        ## a leg up to this far is walked; longer legs ride the coach (or are hooked)
+var st_hooks: Array[String] = []
+var st_tries: Dictionary = {}     ## "npc|step|objective" -> conversations held without progress
+var st_blockers: Array[String] = []
+var st_tut: Array[String] = []    ## tutorial prompts seen / done in the birth stage
+
+
+func st_dir() -> Node:
+	return main.region1.story
+
+
+func st_q() -> Region1StoryQuest:
+	return st_dir().story
+
+
+func st_hook(s: String) -> void:
+	st_hooks.append(s)
+	L("[HOOK] " + s)
+
+
+func st_blocker(s: String) -> void:
+	st_blockers.append(s)
+	bug("blocker", s)
+
+
+func st_place(id: String) -> Vector2:
+	var r: Dictionary = StPlaces.resolve(id)
+	return r["pos"] if not r.is_empty() else Vector2.INF
+
+
+# ---------------------------------------------------------------------------------------- moving
+
+## Real movement input; game time is sped up while walking (software GL runs at 1-2 fps), then restored for fights and sheets.
+func st_walk(target: Vector2, tol := 3.0, timeout := 200.0) -> bool:
+	Engine.max_physics_steps_per_frame = 24
+	var ok := await walk_to(target, tol, timeout, true, 12.0)
+	if not ok and p2().distance_to(target) > tol:
+		# a tree, a wall or a fence: step round it (two side legs) before giving up
+		var dir := (target - p2()).normalized()
+		for side: float in [1.0, -1.0]:
+			var via := p2() + dir.rotated(side * 1.2) * 14.0
+			await walk_to(via, 3.0, 20.0, true, 6.0)
+			ok = await walk_to(target, tol, timeout * 0.5, true, 10.0)
+			if ok:
+				break
+	Engine.max_physics_steps_per_frame = 8
+	return ok
+
+
+## The waystation (coach stop) nearest to `pos`: {pos, name} or {}.
+func st_waystation_near(pos: Vector2) -> Dictionary:
+	var best: Dictionary = {}
+	var bd := INF
+	for s: Dictionary in WorldGen.sites:
+		if not (String(s.get("kind", "")) in TravelRules.BOARD_KINDS):
+			continue
+		var d: float = (s["pos"] as Vector2).distance_to(pos)
+		if d < bd:
+			bd = d
+			best = {"pos": s["pos"], "name": String(s.get("name", "waystation")), "kind": String(s.get("kind", "")), "d": d}
+	return best
+
+
+## Gets the player to `dest` the way a player would: walks a short leg; for a long one walks to the waystation, rides the
+## coach (the real fare and hours) to the waystation nearest the goal and walks on. A far end with no waystation near is hooked.
+func st_travel(dest: Vector2, label: String, tol := 4.0) -> void:
+	var d0 := p2().distance_to(dest)
+	if d0 <= tol + 2.0:
+		return
+	if d0 <= ST_WALK_MAX:
+		L("travel %s: walking %.0f m" % [label, d0])
+		if not await st_walk(dest, tol, 120.0 + d0 * 0.9):
+			if p2().distance_to(dest) > 25.0:
+				st_hook("teleport the last %.0f m to %s (the walk was blocked at %s)" % [p2().distance_to(dest), label, _pos2s()])
+				await teleport(dest + Vector2(2.0, 2.0), 0.0, 0.6)
+		return
+	var from_ws := st_waystation_near(p2())
+	var to_ws := st_waystation_near(dest)
+	if not from_ws.is_empty() and not to_ws.is_empty() and float(to_ws["d"]) < d0 * 0.7 and float(from_ws["d"]) < ST_WALK_MAX \
+			and (to_ws["pos"] as Vector2).distance_to(from_ws["pos"]) > 400.0:
+		L("travel %s: %.0f m. Coach from %s to %s" % [label, d0, String(from_ws["name"]), String(to_ws["name"])])
+		await st_walk(from_ws["pos"], 20.0, 150.0 + float(from_ws["d"]))
+		if TravelRules.waystation_at(p2(), WorldGen.sites).is_empty():
+			st_hook("teleport onto the waystation %s (the walk did not arrive)" % String(from_ws["name"]))
+			await teleport((from_ws["pos"] as Vector2) + Vector2(3, 3), 0.0, 0.6)
+		var dist := p2().distance_to(to_ws["pos"])
+		var fare := TravelRules.fare(dist)
+		if Game.gold < fare:
+			st_hook("gold %d -> %d for the coach fare" % [Game.gold, fare + 20])
+			Game.gold = fare + 20
+		var g0 := Game.gold
+		var h0: float = WorldSim.time_of_day
+		L("[HOOK-lite] coach ride through hud._on_travel_requested (the world-map click is skipped): %s, %.1f km, fare %d" % [String(to_ws["name"]), dist / 1000.0, fare])
+		hud._on_travel_requested(to_ws["pos"], TravelRules.coach_hours(dist), {"name": String(to_ws["name"]), "kind": String(to_ws["kind"])})
+		await wait(2.0)
+		await wait_until(func() -> bool: return not hud._fade.visible, 40.0)
+		await wait(1.5)
+		check("coach ride to %s took the fare and moved the player" % String(to_ws["name"]), Game.gold < g0 and p2().distance_to(to_ws["pos"]) < 60.0,
+			"gold %d -> %d, hour %.1f -> %.1f, %.0f m from the stop" % [g0, Game.gold, h0, WorldSim.time_of_day, p2().distance_to(to_ws["pos"])])
+		await st_travel(dest, label, tol)     # the rest of the way (walk, or the next hop)
+		return
+	st_hook("teleport to %s, %.0f m (no coach stop near both ends: from-stop %.0f m away, goal-stop %.0f m)" % [label, d0,
+		float(from_ws.get("d", -1.0)), float(to_ws.get("d", -1.0))])
+	await teleport(dest + Vector2(2.0, 2.0), 0.0, 0.8)
+
+
+func st_go_place(place: String, tol := 8.0) -> void:
+	var p := st_place(place)
+	if p == Vector2.INF:
+		st_blocker("place %s does not resolve in the world" % place)
+		return
+	await st_travel(p, place, tol)
+	st_dir()._on_tick()
+
+
+# ---------------------------------------------------------------------------------------- conversations
+
+func st_find_npc(npc_id: String) -> Node3D:
+	for n in get_tree().get_nodes_in_group("station"):
+		if n is Node3D and n.get("npc_id") != null and String(n.get("npc_id")) == npc_id and (n as Node3D).is_inside_tree() and (n as Node3D).visible:
+			return n
+	return null
+
+
+## Clicks the sheet button of option `i` (rows read "1.  text"): by its number, falling back to the text with typographic quotes folded.
+func st_click_choice(i: int, txt: String) -> bool:
+	for r: Node in menu_roots():
+		for b in buttons_in(r):
+			var t := button_text(b).strip_edges()
+			if t.begins_with("%d." % (i + 1)):
+				await click(b, "option %d" % (i + 1))
+				await wait(0.7)
+				return true
+	var fold := func(x: String) -> String: return x.replace("\u2019", "'").replace("\u2018", "'").replace("\u201c", "\"").replace("\u201d", "\"")
+	for r: Node in menu_roots():
+		for b in buttons_in(r):
+			if String(fold.call(button_text(b))).contains(String(fold.call(txt)).left(24)):
+				await click(b, txt.left(20))
+				await wait(0.7)
+				return true
+	return false
+
+
+## Walks up to a character until the interact prompt picks them.
+func st_reach(npc: Node3D, label: String) -> bool:
+	var tp := Vector2(npc.global_position.x, npc.global_position.z)
+	if p2().distance_to(tp) > 3.0:
+		await st_walk(tp + (p2() - tp).normalized() * 1.8, 1.4, 90.0)
+	face(tp, -0.1)
+	await wait(0.5)
+	if player.nearest_interactable() == npc:
+		return true
+	# the prompt may belong to something that sits on the player (ashes, the Scar's edge): step closer and face them squarely
+	await st_walk(tp + (p2() - tp).normalized() * 1.0, 0.7, 30.0)
+	face(tp, -0.1)
+	await wait(0.5)
+	if player.nearest_interactable() == npc:
+		return true
+	L("reach %s: nearest interactable is %s; stepping round" % [label, str(player.nearest_interactable())])
+	return await tf_reach(npc, label, p2(), 1.0)
+
+
+## Real conversation: go to the place, wait for the character, walk up, E, then click the option the bot's picker chooses, to the end.
+func st_talk(npc_id: String, place: String) -> bool:
+	var dir := st_dir()
+	if npc_id in ["mother", "father"] and place in ["ashford", "ashford_ring"]:
+		var hp: Vector2 = Life.life_path.home_pos + Vector2(2.5 if npc_id == "father" else -2.5, 8.0)   # they wait outside the family door
+		await st_travel(hp, "the family door", 3.0)
+		dir._on_tick()
+	else:
+		await st_go_place(place)
+	var npc: Node3D = null
+	for i in 10:
+		dir._on_tick()
+		npc = st_find_npc(npc_id)
+		if npc != null:
+			break
+		await wait(0.6)
+	if npc == null:
+		st_blocker("%s never appeared at %s (player %s, place %s)" % [npc_id, place, _pos2s(), str(st_place(place))])
+		return false
+	if not await st_reach(npc, npc_id):
+		st_blocker("could not get the interact prompt on %s at %s" % [npc_id, place])
+		return false
+	close_everything()
+	await key(KEY_E)
+	var opened := await wait_until(func() -> bool: return hud.is_menu_open(), 8.0)
+	await wait(0.4)
+	if not opened:
+		st_blocker("E at %s opened no sheet (prompt target %s)" % [npc_id, str(player.nearest_interactable())])
+		return false
+	var turns := 0
+	var lines: Array[String] = []
+	while hud.is_menu_open() and dir.in_conversation() and turns < 32:
+		turns += 1
+		var conv: Dictionary = dir._conv
+		var opts: Array = conv["options"]
+		lines.append(String(conv["line"]).left(60))
+		if turns == 1:
+			await shot("talk_%s" % npc_id)
+		var i := _story_pick(opts)
+		var txt := String((opts[i] as Dictionary)["text"])
+		var ok := await st_click_choice(i, txt)
+		if not ok:
+			st_blocker("the sheet has no button for the option '%s' (buttons: %s)" % [txt.left(40), str(menu_texts()).left(160)])
+			break
+	L("talk %s: %d turns, first line '%s'" % [npc_id, turns, lines[0] if not lines.is_empty() else "-"])
+	close_everything()
+	await wait(0.3)
+	return turns > 0
+
+
+# ---------------------------------------------------------------------------------------- stones, ashes, the Scar
+
+func st_stand_at(world_pos: Vector2, label: String, tol := 2.2) -> void:
+	await st_travel(world_pos, label, tol)
+
+
+func st_press_e_menu(label: String) -> bool:
+	close_everything()
+	var cand: Dictionary = Interaction.best(player)
+	L("E at %s: best candidate %s" % [label, str(Interaction.node_of(cand))])
+	await key(KEY_E)
+	var opened := await wait_until(func() -> bool: return hud.is_menu_open(), 6.0)
+	await wait(0.4)
+	return opened
+
+
+## Draws a glyph on the open carve canvas with real mouse events (a finger or mouse stroke), the way a player does.
+func st_draw_glyph(glyph: String) -> void:
+	var view: Control = st_glue_view()
+	var rec: RuneGesture = view.recognizer
+	var r: Rect2 = view._stone_rect
+	var inner := Rect2(r.position + r.size * 0.12, r.size * 0.76)
+	for stroke: PackedVector2Array in rec.glyph_strokes(glyph):
+		var pts: Array[Vector2] = []
+		var n := stroke.size()
+		var step := maxi(1, n / 12)
+		for k in range(0, n, step):
+			pts.append(inner.position + stroke[k] * inner.size)
+		if pts.size() < 2 or (stroke.size() - 1) % step != 0:
+			pts.append(inner.position + stroke[n - 1] * inner.size)
+		for k in pts.size():
+			var pos: Vector2 = pts[k]
+			if k == 0:
+				var mm := InputEventMouseMotion.new()
+				mm.position = pos
+				mm.global_position = pos
+				Input.parse_input_event(mm)
+				await frames(1)
+			var ev: InputEvent
+			if k == 0 or k == pts.size() - 1:
+				var mb := InputEventMouseButton.new()
+				mb.button_index = MOUSE_BUTTON_LEFT
+				mb.pressed = (k == 0)
+				mb.position = pos
+				mb.global_position = pos
+				mb.button_mask = MOUSE_BUTTON_MASK_LEFT if k == 0 else 0
+				ev = mb
+				if k == pts.size() - 1:
+					var mm2 := InputEventMouseMotion.new()
+					mm2.position = pos
+					mm2.global_position = pos
+					mm2.button_mask = MOUSE_BUTTON_MASK_LEFT
+					Input.parse_input_event(mm2)
+					await frames(1)
+			else:
+				var mv := InputEventMouseMotion.new()
+				mv.position = pos
+				mv.global_position = pos
+				mv.relative = pos - pts[k - 1]
+				mv.button_mask = MOUSE_BUTTON_MASK_LEFT
+				ev = mv
+			Input.parse_input_event(ev)
+			await frames(1)
+
+
+func st_glue_view() -> Control:
+	return st_glue_node().carve_view
+
+
+func st_glue_node() -> Node:
+	return main.region1
+
+
+## Stone menu -> "Carve a glyph" -> the canvas -> the glyph drawn -> the stone takes it. True when the glyph took.
+func st_carve_at_stone(net_id: int, glyph: String, label: String, via := "Carve a glyph") -> bool:
+	var g: Node = st_glue_node()
+	var sp: Vector3 = g._stone_world(net_id)
+	await st_stand_at(Vector2(sp.x, sp.z) + Vector2(1.6, 0.8), label, 1.6)
+	face(Vector2(sp.x, sp.z), -0.1)
+	if not await st_press_e_menu(label):
+		st_blocker("E at %s opened no stone menu (best %s, %.1f m from the stone)" % [label, str(Interaction.node_of(Interaction.best(player))), p2().distance_to(Vector2(sp.x, sp.z))])
+		return false
+	if not await click_option(via):
+		st_blocker("the stone menu at %s has no '%s' (%s)" % [label, via, str(menu_texts()).left(160)])
+		close_everything()
+		return false
+	await wait(0.5)
+	var view: Control = st_glue_view()
+	if not view.visible:
+		st_blocker("the carve canvas did not open at %s" % label)
+		return false
+	var took := false
+	for attempt in 3:
+		await st_draw_glyph(glyph)
+		took = await wait_until(func() -> bool: return not view.visible, 25.0)
+		if took:
+			break
+		L("carve attempt %d: '%s' (%s)" % [attempt + 1, str(view._message), str(view.last_result).left(120)])
+		view._strokes.clear()
+	if not took:
+		st_blocker("the %s glyph drawn from its own template was not accepted at %s (%s)" % [glyph, label, str(view.last_result).left(160)])
+		st_hook("carve %s via the canvas's own 'Choose a glyph' fallback" % glyph)
+		view._choose(glyph)
+		await wait_until(func() -> bool: return not view.visible, 10.0)
+	await wait(0.8)
+	return true
+
+
+## All network stones that count as the registry's `story_stone`, nearest the player first.
+func st_stones_for(story_id: String) -> Array[int]:
+	var g: Node = main.region1
+	var found: Array[Array] = []
+	for s: Dictionary in Frontier.runestones.stones:
+		if story_id in g.story_stone_ids(int(s["id"])):
+			found.append([(s["pos"] as Vector2).distance_to(p2()), int(s["id"])])
+	found.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
+	var out: Array[int] = []
+	for f: Array in found:
+		out.append(int(f[1]))
+	return out
+
+
+func st_stone_menu_option(net_id: int, needle: String, label: String) -> bool:
+	var g: Node = st_glue_node()
+	var sp: Vector3 = g._stone_world(net_id)
+	await st_stand_at(Vector2(sp.x, sp.z) + Vector2(1.6, 0.8), label, 1.6)
+	face(Vector2(sp.x, sp.z), -0.1)
+	if not await st_press_e_menu(label):
+		st_blocker("E at %s opened no stone menu" % label)
+		return false
+	var ok := await click_option(needle)
+	if not ok:
+		st_blocker("the stone menu at %s has no '%s' (%s)" % [label, needle, str(menu_texts()).left(180)])
+	return ok
+
+
+func st_do_kneel(site: String) -> bool:
+	var p := st_place(site)
+	await st_travel(p, "ashes of " + site, 6.0)
+	await wait(0.6)
+	if not await st_press_e_menu("the ashes at " + site):
+		st_blocker("no 'Kneel at the ashes' prompt at %s (best %s)" % [site, str(Interaction.node_of(Interaction.best(player)))])
+		return false
+	if not await click_option("Kneel"):
+		st_blocker("the ashes menu at %s has no Kneel option (%s)" % [site, str(menu_texts()).left(120)])
+		return false
+	await wait(1.0)
+	var ash: AshsightController = main.region1.ash
+	await wait_until(func() -> bool: return ash.active, 6.0)
+	await shot("ashsight_%s" % site)
+	var done := await wait_until(func() -> bool: return not ash.active, 60.0)
+	if not done:
+		st_hook("end the Ashsight replay early (still playing after 60 s)")
+		ash.stop()
+	await wait(1.0)
+	return true
+
+
+# ---------------------------------------------------------------------------------------- fights
+
+func st_hostiles_near(maxd: float, tag := "") -> Array:
+	var out: Array = []
+	for n in get_tree().get_nodes_in_group("team1"):
+		if not (n is Node3D) or not is_instance_valid(n) or bool(n.get("dead")):
+			continue
+		var d: float = (n as Node3D).global_position.distance_to(player.global_position)
+		if d > maxd:
+			continue
+		if tag == "rift" and not n.has_meta("rift"):
+			continue
+		out.append(n)
+	out.sort_custom(func(a: Node3D, b: Node3D) -> bool: return a.global_position.distance_to(player.global_position) < b.global_position.distance_to(player.global_position))
+	return out
+
+
+## Real melee against everything hostile near the player until `want` have fallen or the time is up. The player is healed (logged).
+func st_fight_group(label: String, want: int, max_s: float, tag := "") -> int:
+	var t_start := now()
+	var fell := 0
+	var seen: Dictionary = {}
+	while fell < want and now() - t_start < max_s:
+		var foes := st_hostiles_near(120.0, tag)
+		if foes.is_empty():
+			st_dir()._on_tick()
+			await wait(1.0)
+			if now() - t_start > 25.0 and fell == 0:
+				break
+			continue
+		var e: Node3D = foes[0]
+		if not seen.has(e.get_instance_id()):
+			seen[e.get_instance_id()] = true
+		var dead := await _fight(e, "%s#%d" % [label, fell + 1], minf(70.0, max_s - (now() - t_start)))
+		if dead:
+			fell += 1
+		await ensure_alive()
+		await wait(0.4)
+	L("fight %s: %d of %d fell (%d seen) in %.0f s" % [label, fell, want, seen.size(), now() - t_start])
+	return fell
+
+
+# ---------------------------------------------------------------------------------------- the story loop
+
+func _st_sig() -> String:
+	var q := st_q()
+	var parts: Array[String] = []
+	for sid: String in q.active_steps():
+		parts.append("%s:%s" % [sid, String(q.current_objective(sid).get("id", "-"))])
+	var done_n := 0
+	for s: Dictionary in q.steps:
+		if q.is_done(String(s["id"])):
+			done_n += 1
+	return "%s|%d|%d|%d" % [",".join(parts), done_n, q.flags.size(), st_dir()._talked.size()]
+
+
+func _st_objective(sid: String, o: Dictionary) -> bool:
+	var q := st_q()
+	var dir := st_dir()
+	var st := q.step(sid)
+	var g: Node = main.region1
+	match String(o.get("type", "")):
+		"enter_area":
+			await st_go_place(String(o["place"]))
+			return true
+		"carve":
+			var stones := st_stones_for(String(o["stone"]))
+			if stones.is_empty():
+				st_blocker("story stone %s maps to no runestone in the world" % String(o["stone"]))
+				return false
+			await st_go_place(String(st["place"]), 40.0)
+			stones = st_stones_for(String(o["stone"]))
+			var need := int(o.get("count", 1))
+			var tried := 0
+			# a group stone (the Greenhollow road) takes its carves on stones within a short walk of each other, else on the nearest one again
+			var plan: Array[int] = []
+			for k in need:
+				var cand: int = stones[0]
+				if k > 0 and stones.size() > 1:
+					var a: Vector2 = Frontier.runestones.stones[stones[0]]["pos"]
+					for sid_i in stones.slice(1):
+						if k < stones.size() and (Frontier.runestones.stones[sid_i]["pos"] as Vector2).distance_to(a) < 120.0 and not plan.has(sid_i):
+							cand = sid_i
+							break
+				plan.append(cand)
+			for k in need:
+				var id: int = plan[k]
+				if await st_carve_at_stone(id, String(o["glyph"]), "%s (%d)" % [String(o["stone"]), id]):
+					tried += 1
+				dir._on_tick()
+				if q.current_objective(sid).get("id", "") != o["id"]:
+					break
+			return tried > 0
+		"kill":
+			var place := String(o.get("place", st["place"]))
+			await st_go_place(place, 25.0)
+			dir._on_tick()
+			await wait(1.5)
+			var t := String(o["target"])
+			var tag := "rift" if t == "rift_wolf" else ""
+			var fell := await st_fight_group(t, int(o.get("count", 1)), 260.0, tag)
+			return fell > 0
+		"festival":
+			st_hook("Kindling Night: the festival signal (the calendar date is %d days away)" % 0)
+			WorldSim.seasons.festival_started.emit({"id": "kindling_night", "name": "Kindling Night"})
+			await wait(0.5)
+			return true
+		"age":
+			var want := int(o["min"])
+			st_hook("age %d -> %d (the years pass)" % [Life.age(), want])
+			WorldSim.time_of_day = 7.4
+			Life.life_path.set_age(want, WorldSim.day, WorldSim.time_of_day)
+			player.apply_age()
+			await wait(1.0)
+			return true
+		"cutscene_done":
+			dismiss_popups()
+			await wait(2.5)
+			dismiss_popups()
+			if String(o["cutscene"]) == "blessing":
+				await shot("blessing")
+			return true
+		"ashsight":
+			return await st_do_kneel(String(o["site"]))
+		"relight_elder":
+			var el := st_stones_for(String(o["stone"]))
+			if el.is_empty():
+				st_blocker("elder stone %s maps to no runestone" % String(o["stone"]))
+				return false
+			await st_go_place(String(st["place"]), 30.0)
+			var ok := await st_stone_menu_option(el[0], "Relight", String(o["stone"]))
+			await wait(1.0)
+			await shot("relight_%s" % String(o["stone"]))
+			return ok
+		"wardline_link":
+			return await st_do_link(o)
+		"scar_contain", "scar_harvest":
+			return await st_do_scar(o, st)
+		"defeat":
+			return await st_do_defeat(o, st)
+		"ember_choice":
+			return false     # offered through the talk sheet (Rowan's extra options)
+		"any":
+			for sub: Dictionary in o["of"]:
+				var t2 := String(sub.get("type", ""))
+				if t2 in ["scar_contain", "scar_harvest"]:
+					return await st_do_scar(sub, st)
+			return false
+	return false
+
+
+func st_do_link(o: Dictionary) -> bool:
+	var g: Node = main.region1
+	var q := st_q()
+	var from_id := String(o.get("from", ""))
+	var to := String(o["to"])
+	var wl: Wardlines = g.wl
+	# the stone to link from: the named one, or any stone near the target place
+	var cands: Array[int] = []
+	if from_id != "":
+		cands = st_stones_for(from_id)
+	else:
+		var tp := st_place(to)
+		var best := INF
+		var order: Array = []
+		for i in wl.n:
+			var d: float = (wl.st_pos[i] as Vector2).distance_to(tp) if tp != Vector2.INF else 1.0e9
+			order.append([d, i])
+		order.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
+		for a: Array in order.slice(0, 5):
+			cands.append(int(a[1]))
+	if cands.is_empty():
+		st_blocker("no stone to link from for %s" % str(o))
+		return false
+	var acted := false
+	for id in cands:
+		var before_links: int = wl.links.size() if wl.get("links") != null else 0
+		if not await st_stone_menu_option(id, "Link to a nearby", "link from %s" % wl.st_name[id]):
+			continue
+		await wait(0.6)
+		# the candidate rows: the nearest unlinked stones. Prefer one that helps the objective (the target's own stone).
+		var texts := menu_texts()
+		L("link menu: %s" % str(texts).left(200))
+		var clicked := false
+		for t in texts:
+			if String(t).begins_with("Back") or String(t).begins_with("No stone"):
+				continue
+			if await click_option(String(t).left(20)):
+				clicked = true
+				break
+		close_everything()
+		if clicked:
+			acted = true
+			break
+	return acted
+
+
+func st_do_scar(o: Dictionary, st: Dictionary) -> bool:
+	var g: Node = main.region1
+	var scar: Region1Sim = g.scar
+	var place := String(o["place"])
+	var p := st_place(place)
+	await st_travel(p, place, 20.0)
+	g._seed_outbreaks_for_step(String(st["id"]))
+	await wait(0.5)
+	var front: Vector2 = scar.nearest_front(p2(), 220.0)
+	if front == Vector2.INF:
+		front = scar.nearest_front(p, 300.0)
+	if front == Vector2.INF:
+		st_blocker("no Scar front near %s even after the step seeded one" % place)
+		return false
+	await st_stand_at(front, "the Scar's edge at " + place, 4.0)
+	var is_harvest := String(o["type"]) == "scar_harvest"
+	if not is_harvest and Life.count("sunstone_oil") <= 0 and Life.count("firewood") < g.FIREWOOD_FOR_FIRE:
+		st_hook("give firewood x%d (a player gathers it at the woodpile)" % g.FIREWOOD_FOR_FIRE)
+		Life.give("firewood", g.FIREWOOD_FOR_FIRE)
+	if not await st_press_e_menu("the Scar's edge"):
+		st_blocker("no 'Face the Scar' prompt at the front near %s (best %s, %.1f m from the front)" % [place, str(Interaction.node_of(Interaction.best(player))), p2().distance_to(front)])
+		return false
+	var ok := await click_option("Cut crystals" if is_harvest else "Burn it back")
+	await wait(1.0)
+	close_everything()
+	return ok
+
+
+func st_do_defeat(o: Dictionary, st: Dictionary) -> bool:
+	var target := String(o["target"])
+	var place := String(st["place"])
+	await st_go_place(place, 30.0)
+	await wait(1.0)
+	st_dir()._on_tick()
+	if target == "scarbound_troll":
+		var troll := st_hostiles_near(150.0)
+		if troll.is_empty():
+			await wait(3.0)
+			troll = st_hostiles_near(150.0)
+		if not troll.is_empty():
+			var e: Node3D = troll[0]
+			L("the Scarbound Troll: %s at %.0f m, hp %s" % [str(e), e.global_position.distance_to(player.global_position), str(e.get("health"))])
+			await shot("troll")
+			var dead := await _fight(e, "troll", 200.0)
+			if dead:
+				await wait(1.0)
+				return true
+			st_hook("the troll was not beaten in 200 s: the parley route (gift of food) is used instead")
+		else:
+			st_blocker("the Scarbound Troll did not spawn at %s" % place)
+	# the parley route: gift of food at the place
+	if Life.count("venison_roast") < 1 and Life.count("bread") < 3:
+		st_hook("give bread x3 (the parley gift; a player carries bread)")
+		Life.give("bread", 3)
+	if not await st_press_e_menu("the parley with %s" % target):
+		st_blocker("no 'Parley' prompt at %s for %s (best %s)" % [place, target, str(Interaction.node_of(Interaction.best(player)))])
+		return false
+	var ok := await click_option("Offer a gift")
+	await wait(1.0)
+	close_everything()
+	return ok
+
+
+## Hosts: [{npc, step, place}] who have something to say that moves the story (an unseen node, or a blocking talk objective).
+func _st_wanted_talks() -> Array[Dictionary]:
+	var dir := st_dir()
+	var q := st_q()
+	var out: Array[Dictionary] = []
+	for sid: String in q.active_steps():
+		var s := q.step(sid)
+		var o := q.current_objective(sid)
+		var blocking := String(o.get("type", "")) in ["flag", "choice", "talk", "ember_choice"] or (String(o.get("type", "")) == "any" and false)
+		var unseen_row: Dictionary = {}
+		var blocking_rows: Array[Dictionary] = []
+		for e: Dictionary in q.dialogue_entries(sid):
+			var host := String(dir._entry_host(s, e))
+			var unseen: bool = not dir._talked.has(String(e["node"]))
+			var key := "%s|%s|%s" % [host, sid, String(o.get("id", ""))]
+			if int(st_tries.get(key, 0)) >= 4:
+				continue
+			var row := {"npc": host, "step": sid, "place": String(s.get("place", "")), "key": key}
+			if unseen and unseen_row.is_empty():
+				unseen_row = row
+			elif blocking:
+				blocking_rows.append(row)
+		# a node nobody has heard comes first; when everything was heard and the objective still waits for a talk, try each host in turn
+		if not unseen_row.is_empty():
+			out.append(unseen_row)
+		elif not blocking_rows.is_empty():
+			out.append(blocking_rows[0])
+	return out
+
+
+## PLAYTEST_ST_UNTIL=<step id>: stop a run early at that step (a short run, then st_save; the next run st_load-s and goes on).
+func _st_play(target: String, budget: float, label: String) -> bool:
+	var dir := st_dir()
+	var q := st_q()
+	var until := OS.get_environment("PLAYTEST_ST_UNTIL")
+	if until != "" and not q.step(until).is_empty() and not q.is_done(target):
+		L("run limited by PLAYTEST_ST_UNTIL: %s instead of %s" % [until, target])
+		target = until
+	var t_end := now() + budget
+	var last_sig := ""
+	var same := 0
+	var rounds := 0
+	var done_log: Array[String] = []
+	while not q.is_done(target) and now() < t_end:
+		rounds += 1
+		await ensure_alive()
+		close_everything()
+		dir._on_tick()
+		if rounds % 3 == 0:
+			heal_player("(story round)")
+		var sig := _st_sig()
+		same = same + 1 if sig == last_sig else 0
+		last_sig = sig
+		for s: Dictionary in q.steps:
+			var id := String(s["id"])
+			if q.is_done(id) and not done_log.has(id):
+				done_log.append(id)
+				beat("done " + id)
+				L("STEP DONE %s (t=%.0f)" % [id, now() - stage_t0])
+		if q.is_done(target):
+			break
+		if same >= 4:
+			var why := "story stuck for %d rounds at %s (flags %d, talked %d)" % [same, str(q.active_steps()), q.flags.size(), dir._talked.size()]
+			for sid2: String in q.active_steps():
+				why += " | %s -> %s" % [sid2, JSON.stringify(q.current_objective(sid2)).left(140)]
+			st_blocker(why)
+			await shot("stuck_%d" % rounds)
+			if not await _st_force():
+				break
+			same = 0
+			continue
+		var acted := false
+		# 0. anything hostile at the player's heels is dealt with first (a real fight), and logged: who, what, how far
+		var near := st_hostiles_near(45.0)
+		if not near.is_empty():
+			L("hostiles within 45 m at round %d: %s" % [rounds, str(near.map(func(n: Node3D) -> String: return "%s %s %.0fm %s" % [n.name, str(n.get("species")), n.global_position.distance_to(player.global_position), str(n.get_groups())]).slice(0, 4))])
+			await st_fight_group("defence", near.size(), 120.0)
+			acted = true
+		# 1. what the objectives ask of the world
+		for sid3: String in q.active_steps().duplicate():
+			var o := q.current_objective(sid3)
+			if o.is_empty():
+				continue
+			L("round %d: %s objective %s (%s)" % [rounds, sid3, String(o.get("id", "")), String(o.get("type", ""))])
+			if await _st_objective(sid3, o):
+				acted = true
+			dir._on_tick()
+			if q.is_done(target):
+				break
+		# 2. who has something to say
+		for h: Dictionary in _st_wanted_talks():
+			if q.is_done(target):
+				break
+			st_tries[h["key"]] = int(st_tries.get(h["key"], 0)) + 1
+			if await st_talk(String(h["npc"]), String(h["place"])):
+				acted = true
+			dir._on_tick()
+		if not acted:
+			await wait(1.0)
+	var ok := q.is_done(target)
+	L("story to %s: %s after %d rounds, %.0f s" % [target, "DONE" if ok else "NOT REACHED", rounds, now() - stage_t0])
+	return ok
+
+
+## Last resort when the loop is stuck on an objective nothing in the world could complete: the original headless
+## autoplay's hook (a story event posted as the world's own system would), logged as a blocker, so later acts still get played.
+func _st_force() -> bool:
+	var q := st_q()
+	var dir := st_dir()
+	var acted := false
+	for sid: String in q.active_steps().duplicate():
+		var o := q.current_objective(sid)
+		var st := q.step(sid)
+		match String(o.get("type", "")):
+			"enter_area":
+				dir.notify(&"enter_area", {"place": o["place"]})
+			"carve":
+				dir.notify(&"carve", {"glyph": o["glyph"], "stone": o["stone"], "amount": int(o.get("count", 1))})
+			"kill":
+				for n in int(o.get("count", 1)):
+					Life.region1_kill.emit(String(o["target"]), Vector3(st_place(String(o.get("place", st["place"]))).x, 0, st_place(String(o.get("place", st["place"]))).y))
+			"ashsight":
+				dir.notify(&"ashsight", {"site": o["site"]})
+			"relight_elder":
+				dir.notify(&"relight_elder", {"stone": o["stone"]})
+			"wardline_link":
+				for n in int(o.get("count", 1)):
+					dir.notify(&"wardline_link", {"from": o.get("from", ""), "to": o["to"], "amount": 1})
+			"scar_contain":
+				dir.notify(&"scar_contain", {"place": o["place"], "amount": int(o["cells"])})
+			"scar_harvest":
+				dir.notify(&"scar_harvest", {"place": o["place"], "amount": int(o["crystals"])})
+			"defeat":
+				dir.parley(String(o["target"]))
+			"item":
+				Life.give(String(o["item"]), int(o.get("count", 1)))
+			"flag":
+				dir.set_flag(String(o["flag"]))
+			"choice", "talk", "any", "ember_choice", "cutscene_done", "festival", "age":
+				if String(o.get("type", "")) == "ember_choice":
+					dir.notify(&"ember_choice", {"who": o["who"], "choice": "stone"})
+				elif String(o.get("type", "")) == "cutscene_done":
+					dir.notify(&"cutscene_done", {"cutscene": o["cutscene"]})
+				elif String(o.get("type", "")) == "talk":
+					dir.notify(&"talk", {"node": o["node"]})
+				elif String(o.get("type", "")) == "any":
+					var sub: Dictionary = (o["of"] as Array)[0]
+					dir.set_flag(String(sub.get("sets", "r1.forced")))
+					if String(sub.get("type", "")) == "scar_contain":
+						dir.notify(&"scar_contain", {"place": sub["place"], "amount": int(sub["cells"])})
+				else:
+					return false
+		st_hook("FORCED %s objective %s (%s) by posting its event: a blocker the bot could not play past" % [sid, String(o.get("id", "")), String(o.get("type", ""))])
+		acted = true
+	dir._on_tick()
+	return acted
+
+
+# ---------------------------------------------------------------------------------------- stages
+
+func st_act_result(label: String, step: String, extra := "") -> void:
+	var q := st_q()
+	var until := OS.get_environment("PLAYTEST_ST_UNTIL")
+	if until != "" and not q.is_done(step) and q.is_done(until):
+		note("%s: stopped at %s on purpose (PLAYTEST_ST_UNTIL); %s is for a later run" % [label, until, step])
+		return
+	var done_n := 0
+	for s: Dictionary in q.steps:
+		if q.is_done(String(s["id"])):
+			done_n += 1
+	check("%s: the story reached %s in the real game" % [label, step], q.is_done(step), "%d of %d steps done, active %s, age %d, gold %d, level %d. %s" % [done_n, q.steps.size(), str(q.active_steps()), Life.age(), Game.gold, Life.player_level(), extra])
+
+
+func _st_ready() -> void:
+	WorldSim.time_of_day = clampf(WorldSim.time_of_day, 8.0, 17.0)
+	player.health = player.max_health
+	close_everything()
+	await frames(2)
+
+
+func _s_st_birth() -> void:
+	# The real new-life intro (the same as stage intro), then the tutorial prompts, then home, then Mother.
+	var tut: Region1TutorialBridge = main.region1.tutorial
+	if tut != null and tut.director != null:
+		tut.director.prompt_shown.connect(func(id: StringName, _p: Dictionary) -> void: st_tut.append("shown:" + String(id)))
+		tut.director.prompt_done.connect(func(id: StringName) -> void: st_tut.append("done:" + String(id)))
+	var fin: Variant = main.call("_play_birth")
+	await wait(3.5)
+	var cut: Node = null
+	for c in main.world.get_children():
+		if c is CutscenePlayer:
+			cut = c
+	check("birth: the cutscene plays", cut != null and bool(cut.get("playing")))
+	await shot("birth")
+	for i in 2:
+		var mb := InputEventMouseButton.new()
+		mb.button_index = MOUSE_BUTTON_LEFT
+		mb.position = Vector2(640, 360)
+		for pr in [true, false]:
+			mb.pressed = pr
+			Input.parse_input_event(mb)
+			await frames(2)
+		await wait(0.4)
+	await wait_until(func() -> bool:
+		for c in main.world.get_children():
+			if c is CutscenePlayer:
+				return false
+		return true, 15.0)
+	await wait(1.5)
+	check("birth: a child of %d wakes at home" % Life.START_AGE, Life.age() == Life.START_AGE, "age %d at %s" % [Life.age(), _pos2s()])
+	await shot("woke")
+	# the tutorial: real walking (the move prompt is dismissed only by the real action)
+	await wait(2.0)
+	await shot("tutorial_prompt")
+	var home: Vector2 = Life.life_path.home_pos
+	var out := home + Vector2(0, 12)
+	await st_walk(out, 3.0, 90.0)
+	var look_to := out + Vector2(40, 40)
+	face(look_to, -0.1)
+	await wait(1.5)
+	L("tutorial prompts so far: %s" % str(st_tut))
+	check("tutorial: the move prompt came up and was dismissed by walking", st_tut.has("done:move") or not st_tut.has("shown:move"), str(st_tut))
+	note("tutorial prompts seen: %s" % str(st_tut))
+	await shot("tutorial_after_walk")
+	# the years pass (four of them to the story's age 8)
+	if Life.age() < 8:
+		st_hook("age %d -> 8 (four years pass; the story opens at eight)" % Life.age())
+		Life.life_path.set_age(8, WorldSim.day, WorldSim.time_of_day)
+		player.apply_age()
+		WorldSim.advance_hours(0.1)
+		Life.realm.drain()
+	await _st_ready()
+	st_dir()._on_tick()
+	check("a1: Mother's step opens at age 8", st_q().is_active("a1_dark_stone") or st_q().is_done("a1_dark_stone"), str(st_q().active_steps()))
+	var ok := await _st_play("a1_dark_stone", 240.0, "birth")
+	st_act_result("birth", "a1_dark_stone", "tutorial %s" % str(st_tut))
+	await shot("mother_done")
+
+
+func _s_st_a1() -> void:
+	await _st_ready()
+	if Life.age() < 8:
+		st_hook("age %d -> 8" % Life.age())
+		Life.life_path.set_age(8, WorldSim.day, WorldSim.time_of_day)
+		player.apply_age()
+		st_dir()._on_tick()
+	var ok := await _st_play("a1_after_blessing", 1300.0, "act I")
+	await shot("act1_end")
+	st_act_result("Act I", "a1_after_blessing", "blessing happened %s" % str(Life.awakening.has_happened()))
+	if st_q().is_done("a1_after_blessing"):
+		check("Act I: the Blessing ceremony ran (the age-12 awakening)", Life.awakening.has_happened())
+
+
+func _s_st_a2() -> void:
+	await _st_ready()
+	if String(Life.equipment.call("item_in", "main_hand")) == "":
+		st_hook("a wooden spear in hand for the fights (a player buys one at the smithy; fists do not scratch a 170 hp bandit)")
+		tf_equip("wooden_spear")
+	var ok := await _st_play("a2_thief_truth", 1300.0, "act II")
+	await shot("act2_end")
+	st_act_result("Act II", "a2_thief_truth")
+
+
+func _s_st_a3() -> void:
+	await _st_ready()
+	var ok := await _st_play("a3_the_ledger", 1400.0, "act III")
+	await shot("act3_end")
+	st_act_result("Act III", "a3_the_ledger")
+
+
+func _s_st_a4() -> void:
+	await _st_ready()
+	var ok := await _st_play("a4_five_hearts", 1400.0, "act IV")
+	await shot("act4_end")
+	st_act_result("Act IV", "a4_five_hearts")
+
+
+func _s_st_a5() -> void:
+	await _st_ready()
+	var q := st_q()
+	var dir := st_dir()
+	# the Rift gate (progression_spine.json): Tempered soul, iron, level 12
+	var gate: Dictionary = StSpine.rift_gate({"story_done": q.is_done("a4_five_hearts"), "soul_tier": Life.soul.tier(), "gear_tier": StSpine.player_gear_tier(Life.equipment), "level": Life.player_level()})
+	L("Rift gate before: %s" % JSON.stringify(gate))
+	if q.is_done("a4_five_hearts") and not bool(gate["open"]):
+		for i in 3:
+			dir._on_tick()
+		check("Act V: the Rift's Edge stays shut to an unready player", not q.is_active("a5_rifts_edge") and not q.is_done("a5_rifts_edge"), str(q.active_steps()))
+		await shot("rift_gate_shut")
+		st_hook("the Rift gate's power: soul tier %d -> 3, iron kit (gear tier 2), level %d -> 12 (the real route is the balance run's 100 days)" % [Life.soul.tier(), Life.player_level()])
+		Life.soul.tier_index = maxi(Life.soul.tier_index, 3)
+		for item: String in ["chain_coif", "chain_hauberk", "chain_chausses", "chain_boots", "iron_spear", "iron_buckler"]:
+			Life.give(item, 1)
+			Life.equipment.call("equip_from", Life, item)
+		var prog: Variant = Life.realm.mod("cultivation").prog
+		if Life.player_level() < 12:
+			prog.grant_raw(prog.total_xp(12) - prog.xp + 1.0)
+		var g2: Dictionary = StSpine.rift_gate({"story_done": true, "soul_tier": Life.soul.tier(), "gear_tier": StSpine.player_gear_tier(Life.equipment), "level": Life.player_level()})
+		check("Act V: the Rift gate opens once the power is there", bool(g2["open"]), JSON.stringify(g2))
+	var ok := await _st_play("a5_homecoming", 1500.0, "act V")
+	await wait(4.0)
+	await shot("region_complete")
+	st_act_result("Act V", "a5_homecoming", "complete %s, flag %s" % [str(q.is_complete()), str(q.has_flag("r1.complete"))])
+	check("the story is complete and the 'Region 1 complete' flag is set", q.is_complete() and q.has_flag("r1.complete"))
+
+
+func st_digest() -> Dictionary:
+	var q := st_q()
+	var status: Dictionary = {}
+	for s: Dictionary in q.steps:
+		var id := String(s["id"])
+		status[id] = "done" if q.is_done(id) else ("active" if q.is_active(id) else "-")
+	return {"status": status, "flags": q.flags.keys(), "age": Life.age(), "gold": Game.gold, "name": String(Life.life_path.given_name), "talked": st_dir()._talked.keys()}
+
+
+func _s_st_save() -> void:
+	close_everything()
+	await _st_ready()
+	var before := st_digest()
+	var f := FileAccess.open(out_dir.path_join("st_digest.json"), FileAccess.WRITE)
+	f.store_string(JSON.stringify(before))
+	f.close()
+	var ok := Life.save_game(ST_SLOT)
+	check("chain save: save_game(%d) succeeds" % ST_SLOT, ok, "err %s; steps done %d, active %s" % [str(Life.saves.last_error), (before["status"] as Dictionary).values().count("done"), str(st_q().active_steps())])
+	await shot("chain_saved")
+	L("hooks used so far this run: %d; blockers %d" % [st_hooks.size(), st_blockers.size()])
+	for h in st_hooks:
+		L("  hook: " + h)
+
+
+func _s_st_load() -> void:
+	var path := out_dir.path_join("st_digest.json")
+	var before: Dictionary = {}
+	if FileAccess.file_exists(path):
+		before = JSON.parse_string(FileAccess.get_file_as_string(path))
+	var slot_id: String = Life._slot_id(ST_SLOT)
+	var tree := get_tree()
+	if get_parent() == main:
+		main.remove_child(self)
+		tree.root.add_child(self)
+	Flow.world_dirty = true
+	Flow.pending_load = slot_id
+	Flow.reset_world_state(tree)
+	Flow.enter_game(tree)
+	L("chain load: back to main.tscn with pending_load=%s" % slot_id)
+	tree.paused = false
+	var old_main := main
+	tree.change_scene_to_file(Flow.MAIN_SCENE)
+	var got: bool = await await_sig(reloaded, 300.0)
+	if not got:
+		bug("reload", "the reloaded main scene never started the QA hook")
+		return
+	main = await _take_new_main()
+	_grab_refs()
+	await wait_until(func() -> bool: return Flow.pending_load == "", 150.0)
+	await wait(6.0)
+	var after := st_digest()
+	if not before.is_empty():
+		var diffs: Array = []
+		for k: String in ["status", "flags", "age", "name"]:
+			var a: Variant = before[k]
+			var b: Variant = after[k]
+			if k == "flags":
+				(a as Array).sort()
+				(b as Array).sort()
+			if k == "age":
+				a = int(a)
+				b = int(b)
+			if JSON.stringify(a) != JSON.stringify(b):
+				diffs.append("%s: %s -> %s" % [k, JSON.stringify(a).left(100), JSON.stringify(b).left(100)])
+		check("chain load: the story (steps, flags, age, name) is what the last run saved", diffs.is_empty(), "; ".join(diffs))
+	await shot("chain_loaded")

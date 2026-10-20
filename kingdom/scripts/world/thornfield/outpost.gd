@@ -77,41 +77,63 @@ static func along_yaw(dir: Vector2) -> float:
 
 # --- build ---------------------------------------------------------------------------------------------
 
-func build() -> void:
+## `spread`: the fort goes up in four steps over four frames (palisade and gates, towers, barracks, yard) instead of one 100-350 ms
+## frame when the player comes within build range; each step is guarded against the fort having been freed meanwhile.
+func build(spread := false) -> void:
 	if built or center == Vector2.INF:
 		return
 	built = true
 	_root = Node3D.new()
 	_root.name = "Fort"
 	add_child(_root)
-	_build_palisade()
-	_build_gates()
-	var perp := Vector2(heading.y, -heading.x)
-	var tower_i := 0
-	for t: Array in cfg["watchtower"]:
-		tower_i += 1
-		var tp := local_v(t)
-		var tm := Assets.building_mesh("watchtower")
-		var mi := MeshInstance3D.new()
-		mi.name = "Watchtower_%d" % tower_i
-		mi.mesh = tm
-		_root.add_child(mi)
-		var low := WorldGen.height(tp.x, tp.y)
-		for k in 4:
-			low = minf(low, WorldGen.height(tp.x + cos(k * TAU / 4.0) * 2.5, tp.y + sin(k * TAU / 4.0) * 2.5))
-		mi.global_transform = Transform3D(Basis(Vector3.UP, front_yaw(center - tp)).scaled(Vector3.ONE * 0.85), Vector3(tp.x, low - 0.08, tp.y))
-		Props.solid(mi, Vector3(4.0, 8.0, 4.0))
-	_build_barracks()
-	_build_captain()
-	_build_muster()
-	var fire := local_v(cfg["campfire"])
-	Props.prop(_root, "campfire", fire, 0.0, 0.8, 0.0, false)
-	Props.fire_light(_root, Wilds.ground(fire, 1.2), 1.3, 11.0)
-	Props.prop(_root, "notice_board", local(-2.5, -9.0), front_yaw(perp), 0.9)
-	Props.prop(_root, "weapon_rack", local(-12.5, -3.0), front_yaw(perp), 1.0)
-	# Meshy batch 3 yard dressing (data "outpost.extras": [model, x, z, yaw_deg, height, lift] in the road frame; yaw 0 faces along the road).
-	for e: Array in cfg.get("extras", []):
-		Props.model(_root, String(e[0]), local(float(e[1]), float(e[2])), front_yaw(heading) + deg_to_rad(float(e[3])), float(e[4]), float(e[5]) if e.size() > 5 else 0.0)
+	_build_gen += 1
+	_build_step(0, spread, _build_gen)
+
+
+var _build_gen := 0         # a step chain that outlived its fort (freed and rebuilt meanwhile) stops
+
+
+func _build_step(step: int, spread: bool, gen: int) -> void:
+	if not is_instance_valid(_root) or not built or gen != _build_gen:
+		return
+	match step:
+		0:
+			_build_palisade()
+			_build_gates()
+		1:
+			var tower_i := 0
+			for t: Array in cfg["watchtower"]:
+				tower_i += 1
+				var tp := local_v(t)
+				var tm := Assets.building_mesh("watchtower")
+				var mi := MeshInstance3D.new()
+				mi.name = "Watchtower_%d" % tower_i
+				mi.mesh = tm
+				_root.add_child(mi)
+				var low := WorldGen.height(tp.x, tp.y)
+				for k in 4:
+					low = minf(low, WorldGen.height(tp.x + cos(k * TAU / 4.0) * 2.5, tp.y + sin(k * TAU / 4.0) * 2.5))
+				mi.global_transform = Transform3D(Basis(Vector3.UP, front_yaw(center - tp)).scaled(Vector3.ONE * 0.85), Vector3(tp.x, low - 0.08, tp.y))
+				Props.solid(mi, Vector3(4.0, 8.0, 4.0))
+			_build_barracks()
+		2:
+			_build_captain()
+			_build_muster()
+			var perp := Vector2(heading.y, -heading.x)
+			var fire := local_v(cfg["campfire"])
+			Props.prop(_root, "campfire", fire, 0.0, 0.8, 0.0, false)
+			Props.fire_light(_root, Wilds.ground(fire, 1.2), 1.3, 11.0)
+			Props.prop(_root, "notice_board", local(-2.5, -9.0), front_yaw(perp), 0.9)
+			Props.prop(_root, "weapon_rack", local(-12.5, -3.0), front_yaw(perp), 1.0)
+		3:
+			# Meshy batch 3 yard dressing (data "outpost.extras": [model, x, z, yaw_deg, height, lift] in the road frame; yaw 0 faces along the road).
+			for e: Array in cfg.get("extras", []):
+				Props.model(_root, String(e[0]), local(float(e[1]), float(e[2])), front_yaw(heading) + deg_to_rad(float(e[3])), float(e[4]), float(e[5]) if e.size() > 5 else 0.0)
+			return
+	if spread and is_inside_tree():
+		get_tree().process_frame.connect(_build_step.bind(step + 1, true, gen), CONNECT_ONE_SHOT)
+	else:
+		_build_step(step + 1, false, gen)
 
 
 func _ground_low(p: Vector2, r: float) -> float:
@@ -288,7 +310,8 @@ func muster_pos() -> Vector2:
 
 # --- soldiers -------------------------------------------------------------------------------------------
 
-func spawn_garrison() -> Array:
+## `spread`: the soldiers are built one per frame (see Squad.add_soldiers); refresh() does it that way while walking.
+func spawn_garrison(spread := false) -> Array:
 	if center == Vector2.INF or not soldiers().is_empty():
 		return soldiers()
 	var total := int(cfg["soldiers"])
@@ -296,11 +319,11 @@ func spawn_garrison() -> Array:
 	var gate := total - patrol
 	var gp := Wilds.ground(local(float(-3.0), float((cfg["gates"] as Array)[0][1]) + 2.5))
 	gate_squad = _squad(gp)
-	gate_squad.call("add_soldiers", gate, gp)
+	gate_squad.call("add_soldiers", gate, gp, [], spread)
 	var route: Array = cfg["route"]
 	var start := Wilds.ground(local_v(route[0]))
 	patrol_squad = _squad(start)
-	patrol_squad.call("add_soldiers", patrol, start)
+	patrol_squad.call("add_soldiers", patrol, start, [], spread)
 	_route_i = 0
 	for s: Variant in soldiers():
 		(s as Node).set_meta("outpost", String(post.get("id", "")))
@@ -371,13 +394,13 @@ func refresh(pp: Vector2, dt := 2.0) -> void:
 		return
 	var d := pp.distance_to(center)
 	if not built and d < float(cfg["build_range"]):
-		build()
+		build(true)
 	elif built and d > float(cfg["free_range"]) and InteriorDoor.active == null:
 		free_fort()
 		return
 	if built and d < float(cfg["build_range"]) * 0.8:
 		if soldiers().is_empty() and (gate_squad == null):
-			spawn_garrison()
+			spawn_garrison(true)
 		patrol_tick(dt)
 	elif built and gate_squad != null and d > float(cfg["build_range"]):
 		despawn_garrison()

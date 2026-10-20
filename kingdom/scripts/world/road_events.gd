@@ -106,7 +106,7 @@ func _spawn_ambush(near_p: Vector2, count := 0) -> void:
 	squad.aggro_radius = 28.0
 	add_child(squad)
 	var n_amb := count if count > 0 else randi_range(2, 4)
-	squad.add_soldiers(n_amb, base, CasterSpawns.mix("road_ambush", n_amb, randi()))
+	squad.add_soldiers(n_amb, base, CasterSpawns.mix("road_ambush", n_amb, randi()), true)
 	_active.append({"squad": squad, "camp": camp})
 	# Region1 hook C6 (docs/regions/REGION_1_PLAN.md): the ambush spot is a flagged site, the raid an Ashsight incident
 	AshMemory.flag_site_static("Roadside ambush", Vector2(base.x, base.z))

@@ -450,6 +450,8 @@ func _attack_move(player: Node3D, delta: float) -> float:
 
 func _decide(player: Node3D, cov: float) -> void:
 	var flee_below := int(_sp["flee_below"])
+	if has_meta("r1_safe"):
+		flee_below = 0     # Region1 C8: Act I's lone wolf fights to the end (it cannot kill); a hurt one that ran off left the child's "kill the wolf" step unwinnable
 	if flee_below > 0 and health < flee_below and state != State.RETREAT:
 		if state != State.FLEE:
 			state = State.FLEE

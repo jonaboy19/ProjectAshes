@@ -202,3 +202,40 @@ tools_qa/cpu_mem/ab_overlay.sh <git-ref-before-this-pass> /tmp/kbase       # the
 2. `PopulationLOD.refresh` spawns (3.7 to 6 ms each, one per refresh at most): pre-build the next body one frame earlier, or pool bodies per look.
 3. Idle creature-pool bodies (section 3).
 4. On the S22: run `cpu_profile.gd` through `tools/qa/phone/route.sh` (not forwarded on the phone: bake `--qa=res://tools_qa/cpu_mem/cpu_profile.gd` in a QA APK) to confirm the 4-6x factor and look at thermal status.
+
+## 8. Hitch pass (2026-10-20): before and after worst frames
+
+Fixes (all quality-neutral, nothing visual changed): autosave snapshot collected a few ms per frame, then JSON, zstd, base64, md5 and the
+atomic write (tmp, verify, `.bak`, rename) on a `WorkerThreadPool` task, with a synchronous fallback when the worker fails and flush before any
+load, delete or manual save (`save_manager.gd`, `Life.snapshot_steps`, `economy.serialize_market/serialize_rest`); at most one `PopulationLOD` body
+built per frame from a nearest-first queue; the interior room instanced on the press and put into the world a frame later (`interior_door.gd`);
+the town hub wake built one step per frame, with its dialogue files parsed on a worker; idle `NodePool` bodies trimmed one per step (60 s idle,
+keep 6; a teleport drains its trim a body per 100 ms); characters, interiors and ambient models warmed behind the loading screen. Tests:
+`tests/test_hitch_pass.gd` (24 cases: worker round trip and `.bak`, failed-worker and unwritable-folder fallbacks, sync reasons, flush, dirty flag,
+snapshot steps equal `snapshot()`, spawn queue, trim, spread settlement/squad/door/outpost, sliced region bake).
+
+Measured with `tools_qa/cpu_mem/hitch_route.gd` (the ~10 minute headless route, same machine, run back to back, "before" = `HEAD` scripts through
+`ab_overlay.sh`, "after" = working tree). Worst frame per route step (ms; boot-time and teleport load frames of 2-12 s are the same in both and are
+loading-screen cost, not play):
+
+| step | before | after |
+|---|--:|--:|
+| ashford_plaza (settlement build) | 462 | 62 |
+| ashford_autosave | 298 | 67 |
+| ashford_interior (door press) | 350 | 32 |
+| thornfield_interior | 661 | 128 |
+| thornfield_plaza | 123 | 33 |
+| town_interior | 209 | 38 |
+| town_plaza | 81 | 26 |
+| town_autosave | 19 | 13 |
+| thornfield_autosave | 52 | 47 (a `world_sim` slice, not the save) |
+
+Whole route: frames over 50 ms 117 -> 71, over 33 ms 217 -> 163, p999 35.4 -> 30.9 ms. The share of frames over 8 ms is not lower in this headless
+run (6242 -> 7787 of 195k / 184k frames; p50 2.0 -> 2.1 ms, p95 6.7 -> 7.5 ms): the second run shared a loaded 4-core container, and the
+warm-up and queued spawns move work into many small frames. The autosave's main-thread part is now a set of steps, each
+timed by the probe: all but three are under 6 ms; the worst are `region1` 14.6 ms, `realm/city_life` 12.3 ms and `realm/society` 7.2 ms (a step is never split,
+so those three can still push one autosave frame over 8 ms; splitting them is the next cut). Stringify, zstd, md5 and the write are off the main thread.
+
+Still over 8 ms (not in this pass): the region-dressing bake on a teleport or road approach (`region_dressing.gd`, 100-300 ms, now sliced so
+the old 600-950 ms frames are gone), `vale_look`/`weather` first builds, and the first frames of a scene's shader/mesh creation, which
+need a GPU run on the phone to judge.

@@ -508,6 +508,8 @@ def build_dialogue(tid, by_id, p):
     for oid in d["opinions"]:
         if oid in by_id:
             greet["choices"].append({"text": q("What do you make of %s?" % first(oid)), "goto": "op_" + oid, "if": {"tier_not": ["enemy", "rival"]}})
+    if p["role"] == RECRUITER_ROLE:
+        greet["choices"].append({"text": q("Tell me about the Runeward Legion."), "goto": "legion", "if": {"tier_not": ["enemy", "rival"]}})
     greet["choices"].append({"text": "Offer a gift…", "goto": "", "if": {"has": "has_gift_items"}, "do": [["gift"]]})
     greet["choices"].append({"text": "\"Good day to you.\"", "goto": "@end"})
     nodes = {"greet": greet}
@@ -517,6 +519,10 @@ def build_dialogue(tid, by_id, p):
     nodes["rumour"] = {"lines": rum_lines, "choices": [
         {"text": q("Anything else?"), "goto": "rumour"},
         {"text": q("Thanks for telling me."), "goto": "greet", "do": [["opinion", "chat", "Pleasant talk", 2, 5]]}]}
+    if p["role"] == RECRUITER_ROLE:
+        nodes["legion"] = {"lines": [{"text": q("The Legion walks the roads and keeps the stones lit: we mend what the weather took and carve what has gone dark. "
+                                                "A stipend by rank, a fee per stone. Take up the work and your name goes on the roll.")}],
+                           "choices": [{"text": q("Anything else?"), "goto": "rumour"}, {"text": q("Thanks."), "goto": "greet"}]}
     for oid, line in d["opinions"].items():
         nodes["op_" + oid] = {"lines": [{"text": q(line)}], "choices": [{"text": q("Go on."), "goto": "rumour"}, {"text": q("Thanks."), "goto": "greet"}]}
     return {"id": "%s/%s" % (tid, p["id"]), "start": "greet", "nodes": nodes}
@@ -595,6 +601,35 @@ def livestock_for(ident, arch, radius, ang, rng):
     return {"groups": groups, "pens": pens}
 
 
+# Region 1: the Runeward Legion's recruiter (the Wardwright career, data/careers/wardwright.json). The post goes to an existing resident of the
+# Silverford (Ironmarch) Runecarvers' Guild, the guild clerk of the guild kit: a role, a job and their lines change, drawn from a stream of
+# their own, so no other resident, name or quest of any town moves. The talk menu adds "Join the Runeward Legion" (scripts/ui/wardwright_ui.gd).
+RECRUITER_ROLE = "wardwright recruiter"
+RECRUITERS = {"Ironmarch": "guild clerk"}
+
+
+def assign_recruiter(world, name, people, seed):
+    old = RECRUITERS.get(name)
+    if not old:
+        return people
+    pick = next((p for p in people if p["role"] == old), None)
+    if pick is None:
+        raise RuntimeError("%s has no %s to take the recruiter's post" % (name, old))
+    rng = seeded(seed, "recruiter", name)
+    job, kind, greet, rum = T.ROLES[RECRUITER_ROLE]
+    pick["role"] = RECRUITER_ROLE
+    pick["job"] = job
+    pick["work"] = "%s_works" % town_id(name)
+    d = pick["dialogue"]
+    g = list(greet)
+    rng.shuffle(g)
+    r = list(rum)
+    rng.shuffle(r)
+    d["greeting"] = g[:2]
+    d["rumour"] = r[:2] + [x for x in d["rumour"][:1]]
+    return people
+
+
 def build_town(world, name, names, seed, used):
     rng = seeded(seed, "town", name)
     f = world.facts[name]
@@ -609,6 +644,7 @@ def build_town(world, name, names, seed, used):
     residents = build_roster(world, name, names, rng, lots, used)
     edges = build_ties(residents, rng)
     people = finish_people(world, name, residents, edges, rng, T.THREAT_NAMES[th_species][0])
+    people = assign_recruiter(world, name, people, seed)
     fy = landmark_front(world, name)
     radius = f["radius"]
     ang = rng.uniform(0, math.tau)

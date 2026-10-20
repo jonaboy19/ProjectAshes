@@ -30,6 +30,7 @@ const LampGlow := preload("res://scripts/world/lamp_glow.gd")             # lamp
 const TorchProps := preload("res://scripts/world/torch_props.gd")         # braziers / wall torches (emissive mesh, no omni light)
 const TownView := preload("res://scripts/world/town_identity_view.gd")     # wall styles and outskirts yards of that profile
 const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")   # kit town lots: keeper name for the door label
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const StaticMerge := preload("res://scripts/world/static_merge.gd")   # baked quality: per-cell merge of the MultiMesh batches
 
 const BUILD_RANGE := 650.0
@@ -48,6 +49,8 @@ const FIELD_MAX_SPREAD := 1.0
 
 ## Per-frame budget (ms on desktop, about 5x on a phone) for the time-sliced district props of a freshly streamed town.
 const DP_BUDGET_MS := 3.0
+## Lots turned into batches and colliders per frame by a spread build (settlement phase "lots").
+const LOTS_PER_FRAME := 24
 const MERGE_BUDGET_MS := 3.0
 
 signal settlement_built(settlement: Dictionary, root: Node3D)
@@ -58,19 +61,28 @@ var _timer := 0.0
 var _footprints: Dictionary = {} # asset -> Vector3 size at BUILDING_SCALE
 ## settlement id -> [[stall key, position, yaw, solid index], ...] of the gate-market stalls (QA shots, tests).
 var stalls_by_town: Dictionary = {}
+var _spreading_root: Node3D       # the town a spread _build is still adding phases to (null when none)
 var _prop_jobs: Array = []       # unfinished DistrictProps jobs (time-sliced, drained in _process)
 var _merge_jobs: Array = []      # [{root, job}] StaticMerge jobs of finished towns (time-sliced)
 
 
 func _process(delta: float) -> void:
+	var _pb := Probe.t()
 	Breakable.tick(delta)   # breakable clutter: melee sweep + regrowth (once per frame)
+	Probe.add("settle.breakable_tick", _pb)
+	_pb = Probe.t()
 	_drain_prop_jobs(DP_BUDGET_MS)
+	Probe.add("settle.props_step", _pb)
+	_pb = Probe.t()
 	_drain_merge_jobs(MERGE_BUDGET_MS)
+	Probe.add("settle.merge_step", _pb)
 	_timer -= delta
 	if _timer > 0.0:
 		return
 	_timer = 0.5
-	update_now()
+	_pb = Probe.t()
+	update_now(true)
+	Probe.add("settle.update_now", _pb)
 
 
 ## Advance the oldest unfinished district-props job within `budget_ms`; finished or orphaned jobs are dropped.
@@ -111,16 +123,44 @@ func _drain_merge_jobs(budget_ms: float) -> void:
 		_merge_jobs.pop_front()
 
 
-func update_now() -> void:
+func update_now(spread := false) -> void:
+	if _spreading_root != null and is_instance_valid(_spreading_root):
+		if spread:
+			spread_guard()
+			return
+		_abandon_spread()       # a synchronous caller (a teleport, a tool) wants towns NOW: the half-built one is dropped and rebuilt if still in range
+	_spreading_root = null
 	var p := Vector2(focus.x, focus.z)
 	for s in WorldGen.settlements:
 		var d: float = p.distance_to(s["pos"]) - s["radius"]
 		var id: int = s["id"]
 		if d < CellStreamer.shared().distance("settlement", "load") and not _built.has(id):
+			if spread:
+				call("_build_co", s, false, true)   # (dynamic call: _build_co is a coroutine) the first phase now, the rest one per frame; settlement_built fires at the end
+				_built[id] = _spreading_root
+				return
 			_built[id] = _build(s, false)
 			settlement_built.emit(s, _built[id])
 			return          # one per tick keeps frame times smooth
 		elif d > CellStreamer.shared().distance("settlement", "free") and _built.has(id):
+			_built[id].queue_free()
+			_built.erase(id)
+
+
+func _abandon_spread() -> void:
+	for id: int in _built.keys():
+		if _built[id] == _spreading_root:
+			_built.erase(id)
+	_spreading_root.queue_free()          # the build coroutine ends at its next checkpoint (the root is gone)
+	_spreading_root = null
+
+
+## A town being spread over frames blocks the next one, but never the freeing of towns the player has left.
+func spread_guard() -> void:
+	var p := Vector2(focus.x, focus.z)
+	for s in WorldGen.settlements:
+		var id: int = s["id"]
+		if _built.has(id) and _built[id] != _spreading_root and p.distance_to(s["pos"]) - s["radius"] > CellStreamer.shared().distance("settlement", "free"):
 			_built[id].queue_free()
 			_built.erase(id)
 
@@ -136,14 +176,25 @@ func _town_mesh(key: String) -> Mesh:
 	return v if v != null else Assets.building_mesh(key)
 
 
+## `_build_co` with `spread`: the build is a coroutine that yields a frame after each phase (settle.* probes), so a town streaming in costs several
+## small frames instead of one 80-300 ms one. The root exists from the first call (`_spreading_root`), `settlement_built` is emitted
+## by the build itself when the last phase is in, and nothing else may start a town meanwhile. Without it (tests, tools, teleports)
+## the build never yields and returns the finished root.
 func _build(s: Dictionary, sync := true) -> Node3D:
+	return call("_build_co", s, sync, false) as Node3D        # the coroutine below without `spread` never yields: the finished root
+
+
+func _build_co(s: Dictionary, sync: bool, spread: bool) -> Node3D:
 	_prof = TownIdentity.profile(s)
 	var root := Node3D.new()
 	root.name = s["name"]
 	add_child(root)
+	if spread:
+		_spreading_root = root
 	var plan: Dictionary = s["plan"]
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 9001 + s["id"]
+	var _bp := Probe.t()
 
 	# Houses and shops, batched by model and LOD_CELL: a MultiMesh switches LOD as a
 	# whole (by its bounds' centre), so one town-wide batch drew every house at the
@@ -164,7 +215,16 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	var bcolors := {}         # batch key -> per-instance colours (the town palette; empty for the legacy look)
 	var tinted := not bool(_prof.get("legacy", false))
 	var plinths: Array = []   # [pos, yaw, size, ground_y] for _plinths() below
+	var lot_i := 0
 	for lot in plan["lots"]:
+		lot_i += 1
+		if spread and lot_i % LOTS_PER_FRAME == 0:
+			# A capital has ~300 lots, each a compound collider the physics server inserts on its next step: a slice per frame.
+			Probe.add("settle.lots_slice", _bp)
+			await get_tree().process_frame
+			if not is_instance_valid(root):
+				return root
+			_bp = Probe.t()
 		var p: Vector2 = lot["pos"]
 		var asset: String = lot["asset"]
 		# (Only models with a LOD chain gain from cells; the rest stay one batch per town.)
@@ -202,7 +262,20 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 		plinths.append([p, lot["yaw"], size, gh, asset])
 	_plinths(root, plinths)
 	_seal_gaps(root, plinths)
+	Probe.add("settle.lots", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	for bkey: String in batches:
+		if spread:
+			# One model's batches per frame: each key loads up to four LOD meshes the first time a model is seen (20-40 ms each).
+			Probe.add("settle.batch_slice", _bp)
+			await get_tree().process_frame
+			if not is_instance_valid(root):
+				return root
+			_bp = Probe.t()
 		var asset := bkey.get_slice("@", 0)
 		var list: Array[Transform3D] = []
 		list.assign(batches[bkey])
@@ -244,7 +317,19 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 				hm.layers |= TownDecals.WALL_LAYER
 		_chimney_smoke(root, asset, list, rng)
 
+	Probe.add("settle.batches", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	_interior_doors(root, plan["lots"])
+	Probe.add("settle.doors", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 
 	# Lived-in door_clutter by the doors: painted crates, barrels and sacks.
 	# Small props (< 4 sqm), so _ground_snap point-samples under each one instead of
@@ -269,6 +354,12 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 		# Round 2: per 40 m cell (was one town-wide MultiMesh: ~190 crates/barrels/sacks drawn from anywhere).
 		_multimesh_cells(root, Assets.building_mesh(kind), list2, LOD_CELL)
 
+	Probe.add("settle.door_clutter", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	for lm in plan["landmarks"]:
 		var lm_size := _footprint(lm["asset"])
 		var lm_y := _ground_snap(lm["pos"], lm["yaw"], lm_size)
@@ -283,6 +374,12 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 				var visuals := landmark.find_children("*", "GeometryInstance3D", true, false)
 				var fade_target: GeometryInstance3D = visuals[0] if not visuals.is_empty() else null
 				_add_camera_blockers(root, well_mesh, well_proxy, fade_target)
+	Probe.add("settle.landmarks", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	# Market stalls and carts ringing the plaza. Plaza-radius footprint estimate
 	# (real stall assets are ~3-4 m): close enough for a per-instance ground snap,
 	# and cheap since it only samples the 4 corners once per stall at build time.
@@ -341,6 +438,12 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	_add_camera_blockers(root, Assets.building_mesh("market_stand_2"), stand_2_b)
 	_add_camera_blockers(root, Assets.building_mesh("market_stand_4"), stand_4_b)
 
+	Probe.add("settle.stalls", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	var c: Vector2 = s["pos"]
 	if plan["inner_wall"] > 0.0:
 		_wall_ring(root, c, plan["inner_wall"], plan["gates"], 16, 4)
@@ -369,26 +472,80 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 			continue   # two mills never share a hill (lint: mill inside mill)
 		mill_spots.append(p)
 		_piece(root, "mill", p, _ground_snap(p, mill_yaw, _footprint("mill")), mill_yaw)   # lint: corner snap, not centre height
+	Probe.add("settle.mills", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	plan["mill_spots"] = mill_spots     # town_identity_view.gd keeps its yards off the windmills
 	plan["field_stacks"] = []
 	_fields(root, s, plan, rng, gates, mill_spots)
+	Probe.add("settle.fields", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	TownView.walls(self, root, s, plan, _prof)     # stone / low / palisade / hedge / runestones / none (after mills and fields: it keeps off them)
+	Probe.add("settle.walls", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	_homesteads(root, s, plan, rng)
+	Probe.add("settle.homesteads", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	_gate_outskirts(root, s, plan, gates)
 	_medieval_gates(root, s, plan, gates)      # Medieval pass (local): mud, cobble apron, hay cart, barrels, banners at the gates and market
+	Probe.add("settle.gates", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	if String(s.get("name", "")) == "Ashford":
 		preload("res://scripts/world/street_benchmark.gd").build(self, root, s, plan)
 	elif String(s.get("name", "")) == "Kingsreach":
 		preload("res://scripts/world/street_benchmark.gd").build(self, root, s, plan, true)     # gate market (AAA pass 10)     # AAA benchmark street (local, 2026-10-06)
+	Probe.add("settle.benchmark", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	_footprint_clutter(root, plan, rng)
 	TownView.yards(self, root, s, plan, _prof)     # outskirts of the town's industry: mine yard, granary, boatyard, watch towers ...
 	VillageFeatures.build(self, root, s, plan, _prof)     # villages and hamlets: their own set of green / chapel / mill / smithy / pond / orchard ...
+	Probe.add("settle.yards_features", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	_square_lamps(root, s, plan)
 	if s["kind"] != "village":
 		_gate_market(root, s, plan, rng)
 	else:
 		_village_square(root, s, plan, rng)
+	Probe.add("settle.square_market", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	_greenery(root, s, plan, rng)
+	Probe.add("settle.greenery", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	# Street clutter.
 	# Slots 0-9 barrels, 10-17 crates, 18-23 sacks, 24-29 carts. A spot is dropped (not moved, so the
 	# rng stream is unchanged) when it lands on a landmark, a lot, a plaza stall or another cart.
@@ -426,6 +583,12 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 			cart_spots.append(p)
 		street_clutter[0 if i < 10 else (1 if i < 18 else (2 if i < 24 else 3))].append(
 			Transform3D(Basis(Vector3.UP, cyaw), Vector3(p.x, WorldGen.height(p.x, p.y) - 0.03, p.y)))
+	Probe.add("settle.street_clutter_plan", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	# Barrels, crates and baskets break when struck (see breakable.gd); carts stay solid.
 	var sc_barrels: Array[Transform3D] = []
 	var sc_crates: Array[Transform3D] = []
@@ -442,17 +605,32 @@ func _build(s: Dictionary, sync := true) -> Node3D:
 	_multimesh(root, cart_mesh, sc_carts, true, true)
 	# Codex: the NPC street graph gets the carts' fitted footprints so routed residents avoid them.
 	plan["npc_nav_obstacles"] = _cart_nav_obstacles(cart_mesh, sc_carts)
+	Probe.add("settle.street_clutter_mm", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	var props_job = DistrictProps.build(self, root, s, plan, sync)
 	if props_job != null and not props_job.done:
 		_prop_jobs.append(props_job)
 	GDressing.dress_town(root, s, plan, _footprint, StyleG.current_tier())    # Style G: ivy, flower boxes, tubs, baskets
 	_decals(root, s, plan)
 	_flush_contact_shadows(root)
+	Probe.add("settle.props_dressing", _bp)
+	if spread:
+		await get_tree().process_frame      # spread over frames (update_now(true)); the town finishes a few frames later
+		if not is_instance_valid(root):
+			return root
+	_bp = Probe.t()
 	if props_job == null or props_job.done:
 		if sync:
 			StaticMerge.merge_now(root)
 		else:
 			_queue_merge(root)
+	if spread:
+		_spreading_root = null
+		settlement_built.emit(s, root)
 	return root
 
 

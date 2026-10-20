@@ -7,6 +7,7 @@ extends Node
 ##   the Rift     rift_entrance.gd     the outpost    outpost.gd (the Soldier career's post)
 ## Everything is built by distance from a 2 s timer; no per-frame work here.
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const Wilds := preload("res://scripts/world/thornfield/wilds.gd")
 const BanditCamp := preload("res://scripts/world/thornfield/bandit_camp.gd")
 const HiddenPlaces := preload("res://scripts/world/thornfield/hidden_places.gd")
@@ -69,11 +70,21 @@ func poll(dt: float) -> void:
 	var pp := Vector2(player.global_position.x, player.global_position.z)
 	if InteriorDoor.active != null:
 		return             # inside a Rift or a barracks: the world is paused around you
+	var _pw := Probe.t()
 	camp.call("refresh", pp)
+	Probe.add("wilds.camp", _pw)
+	_pw = Probe.t()
 	hidden.call("refresh", pp)
+	Probe.add("wilds.hidden", _pw)
+	_pw = Probe.t()
 	gather.call("refresh", pp)
+	Probe.add("wilds.gather", _pw)
+	_pw = Probe.t()
 	rift.call("refresh", pp)
+	Probe.add("wilds.rift", _pw)
+	_pw = Probe.t()
 	outpost.call("refresh", pp, dt)
+	Probe.add("wilds.outpost", _pw)
 	_line_cd -= dt
 	_wolf_cd -= dt
 	_ambush_cd -= dt

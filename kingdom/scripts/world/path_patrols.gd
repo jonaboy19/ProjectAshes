@@ -108,5 +108,5 @@ func _spawn(e: Dictionary) -> Squad:
 	squad.anchor = base
 	squad.aggro_radius = 22.0
 	add_child(squad)
-	squad.add_soldiers(int(e["n"]), base, casters)
+	squad.add_soldiers(int(e["n"]), base, casters, true)
 	return squad

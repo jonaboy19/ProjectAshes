@@ -11,6 +11,7 @@ extends RefCounted
 ## the plaza ring, the wall, the gate-market stalls and everything already claimed, so nothing overlaps or blocks a door.
 ## Own RNG streams (8101 + town id): the town's other random layout is untouched.
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const Districts := preload("res://scripts/world/districts.gd")
 const HouseDetails := preload("res://scripts/world/house_details.gd")
 const BuildingProfiles := preload("res://scripts/world/building_profiles.gd")
@@ -500,6 +501,7 @@ static func _run(j: Job, budget_ms: float) -> void:
 		var ph := j.phase
 		_unit(j)
 		var now := Time.get_ticks_usec()
+		Probe.add_us("district.phase%d" % ph, now - u0)       # QA: which unit of the sliced job overshoots its budget (zero cost while off)
 		j.phase_worst[ph] = maxf(float(j.phase_worst.get(ph, 0.0)), (now - u0) / 1000.0)
 		if budget_ms > 0.0 and now - t0 >= lim:
 			break

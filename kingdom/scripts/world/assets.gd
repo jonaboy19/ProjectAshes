@@ -4,6 +4,7 @@ extends RefCounted
 ## scale, part visibility, colliders, animation looping, MultiMesh meshes and
 ## pre-rendered sprite impostors for distant crowds.
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const StyleG := preload("res://scripts/style_g.gd")
 const BakedVao := preload("res://scripts/world/baked_vao.gd")
 const TownAtlas := preload("res://scripts/world/town_atlas.gd")
@@ -246,7 +247,9 @@ static var _scenes: Dictionary = {}   # path -> PackedScene
 static func scene(path: String) -> PackedScene:
 	var s: PackedScene = _scenes.get(path)
 	if s == null:
+		var _pl := Probe.t()
 		s = load(path) as PackedScene
+		Probe.add("assets.scene_load", _pl)
 		if s != null:
 			_scenes[path] = s
 	return s
@@ -375,6 +378,28 @@ static func character(file_name: String, height: float, keep: Array[String] = []
 				looping = looping or anim_name.contains(key)
 			anim.get_animation(anim_name).loop_mode = Animation.LOOP_LINEAR if looping else Animation.LOOP_NONE
 	return model
+
+
+## Behind the loading screen: builds (and throws away) one body of every look PopulationLOD can give a resident, so the first
+## villager of each look in the game does not pay for reading its GLB, building the merged atlas (character_merge.gd caches it per
+## outfit) and the animation library in the middle of play (a first body was 20-100 ms; the rest 3-5 ms). Nothing is added to the
+## tree; the PackedScenes and the merge cache stay. Returns how many looks were built.
+static func warm_characters(looks: Array = ["Rogue_Hooded", "Barbarian", "Mage", "Knight"]) -> int:
+	var n := 0
+	var seen := {}          # the same outfit file serves several looks: one body each
+	for look: String in looks:
+		if not MH_LOOKS.has(look):
+			continue
+		for pick: String in MH_LOOKS[look]:
+			if seen.has(pick):
+				continue
+			seen[pick] = true
+			var low1: bool = pick.begins_with(MESHY3) and preload("res://scripts/world/low_budget.gd").low()
+			var body := mh_character(pick, 1.7, [], low1, true)
+			if body != null:
+				body.free()
+				n += 1
+	return n
 
 
 static func animation_player(model: Node) -> AnimationPlayer:

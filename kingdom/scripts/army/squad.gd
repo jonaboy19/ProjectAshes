@@ -150,23 +150,47 @@ func _ready() -> void:
 
 
 ## `casters`: NpcCaster ids (CasterSpawns.mix) for the first soldiers; the rest are plain fighters.
-func add_soldiers(count: int, near: Vector3, casters: Array = []) -> void:
+## `spread`: the bodies are built one per frame (a Soldier is 4-6 ms to build, 20-30 ms on the S22: a camp's or a garrison's eight
+## in one frame was a visible hitch); they appear a frame apart where the squad stands. Without it, all at once.
+func add_soldiers(count: int, near: Vector3, casters: Array = [], spread := false) -> void:
+	if spread and count > 1 and is_inside_tree():
+		for i in count:
+			_pending_adds.append([near, String(casters[i]) if i < casters.size() else ""])
+		return
 	for i in count:
-		var s := Soldier.create(team, _look, _file, _keep)
-		if i < casters.size():
-			s.caster_id = String(casters[i])
-		s.squad = self
-		get_parent().add_child(s)
-		var p := near + Vector3(randf_range(-3, 3), 0, randf_range(-3, 3))
-		p.y = WorldGen.height(p.x, p.z)
-		s.global_position = p
-		s.died.connect(_on_soldier_died)
-		soldiers.append(s)
-		_apply_stats(s)
+		_add_one(near, String(casters[i]) if i < casters.size() else "")
+	_finish_adds(count)
+
+
+var _pending_adds: Array = []      # [near, caster id] bodies waiting for their frame (add_soldiers(spread))
+
+
+func _add_one(near: Vector3, caster: String) -> void:
+	var s := Soldier.create(team, _look, _file, _keep)
+	if caster != "":
+		s.caster_id = caster
+	s.squad = self
+	get_parent().add_child(s)
+	var p := near + Vector3(randf_range(-3, 3), 0, randf_range(-3, 3))
+	p.y = WorldGen.height(p.x, p.z)
+	s.global_position = p
+	s.died.connect(_on_soldier_died)
+	soldiers.append(s)
+	_apply_stats(s)
+
+
+func _finish_adds(count: int) -> void:
 	_peak += count
 	_cols = Formation.default_cols(formation, soldiers.size())
 	_request_assign(true)
 	strength_changed.emit(soldiers.size())
+
+
+## Builds the next queued body (one per frame).
+func _drain_adds() -> void:
+	var a: Array = _pending_adds.pop_front()
+	_add_one(a[0], a[1])
+	_finish_adds(1)
 
 
 func alive() -> int:
@@ -420,6 +444,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
+	if not _pending_adds.is_empty():
+		_drain_adds()
 	if banner.visible:
 		var k := clampf(delta * 6.0, 0.0, 1.0)
 		_standard.global_position = _standard.global_position.lerp(_banner_pos, k)

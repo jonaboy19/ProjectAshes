@@ -225,6 +225,13 @@ func _ready() -> void:
 	world.add_child(preload("res://scripts/world/towers/tower_site.gd").new())   # towers hook (docs/design tower plan)
 	preload("res://scripts/world/town_kit/town_hub.gd").attach_all(world, true)   # town kit: one hub per town file (quest wiring, clues, threat, specials; Thornfield: cart, figure, wilds); gated = asleep outside the settlement tier of the cell streamer
 
+	hud.set_loading_text("Gathering the townsfolk...", 0.93)
+	await get_tree().process_frame
+	var warm_t0 := Time.get_ticks_msec()
+	Assets.warm_characters()        # one throw-away body per resident look: GLB read, merged atlas and clips are cached before play
+	InteriorDoor.warm_scenes()      # the rooms are read from disk now, behind the loading screen, not at the first door
+	ambient.warm_models()           # and the village animals' and wildlife's model scenes, not at the first critter
+	print("[boot] warmed characters and interiors in %d ms" % (Time.get_ticks_msec() - warm_t0))
 	hud.set_loading_text("Ready", 1.0)
 	hud.hide_loading()
 	Quality.start_adaptive()

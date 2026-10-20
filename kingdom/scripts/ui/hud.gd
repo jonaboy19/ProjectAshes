@@ -893,10 +893,12 @@ func _menu_style() -> StyleBoxFlat:
 ## it is called again after every choice so prices and stock stay current. A dict that also
 ## has "speaker" is shown as a conversation (dialogue_ui.gd).
 func show_menu(source: Callable) -> void:
+	var _pm := Probe.t()
 	if not is_menu_open():
 		Audio.play_ui("open")
 	_menu_source = source
 	_rebuild_menu()
+	Probe.add("hud.show_menu", _pm)
 
 
 func close_menu() -> void:
@@ -1349,7 +1351,8 @@ func _process(delta: float) -> void:
 	Probe.add("hud.modes", _ph)
 	_ph = Probe.t()
 	_world_icon.set("target", target)
-	Nameplates.focus = target.get("current") if target != null and target.get("current") != null else target     # TalkTarget proxies the villager
+	var plate_focus: Variant = target.get("current") if is_instance_valid(target) and target.get("current") != null else target     # TalkTarget proxies the villager
+	Nameplates.focus = plate_focus if is_instance_valid(plate_focus) else null      # a target freed this frame (an interior just left) must not be assigned
 	_world_icon.call("step", delta, player.get("camera") as Camera3D, not is_menu_open() and not GameMenu.is_open(self))
 	Probe.add("hud.world_icon", _ph)
 

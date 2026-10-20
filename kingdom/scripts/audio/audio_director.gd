@@ -40,6 +40,7 @@ extends Node
 ## music base + stem (2), wind or rain (1, 2 briefly), so ~4 decoding at once.
 ## Streams are OGG Vorbis (decoded on the fly); silence is a 4 KB WAV.
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const AudioBuses := preload("res://scripts/audio/audio_buses.gd")
 const MusicBank := preload("res://scripts/audio/music_bank.gd")
 const AdaptiveMusic := preload("res://scripts/audio/adaptive_music.gd")
@@ -448,8 +449,12 @@ func _process(delta: float) -> void:
 	_ctx_timer -= delta
 	if _ctx_timer <= 0.0:
 		_ctx_timer = 0.5
+		var _pa := Probe.t()
 		_update_context()
+		Probe.add("audio.context", _pa)
+		_pa = Probe.t()
 		_env.nature_tick(0.5, _is_night(), WorldSim.time_of_day, _forest, _in_town)
+		Probe.add("audio.nature_tick", _pa)
 	_water_timer -= delta
 	if _water_timer <= 0.0:
 		_water_timer = 0.1
@@ -458,11 +463,15 @@ func _process(delta: float) -> void:
 	_spot_timer -= delta
 	if _spot_timer <= 0.0:
 		_spot_timer = randf_range(4.0, 12.0)
+		var _ps := Probe.t()
 		_play_spot()
+		Probe.add("audio.spot", _ps)
 	_creature_timer -= delta
 	if _creature_timer <= 0.0:
 		_creature_timer = 0.15
+		var _pc := Probe.t()
 		_poll_creatures()
+		Probe.add("audio.creatures", _pc)
 	if _log:
 		_log_timer -= delta
 		if _log_timer <= 0.0:

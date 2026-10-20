@@ -19,7 +19,17 @@
      "p": 5
     },
     {
-     "text": "\"Guild seal, guild stamp, guild fee. The fee is not optional.\"",
+     "text": "\"Stones do not carve themselves. Ask about the roll.\"",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     },
+     "p": 2
+    },
+    {
+     "text": "\"A hand for the chisel? The Legion is always short of one.\"",
      "if": {
       "tier_not": [
        "enemy",
@@ -99,6 +109,16 @@
      }
     },
     {
+     "text": "\"Tell me about the Runeward Legion.\"",
+     "goto": "legion",
+     "if": {
+      "tier_not": [
+       "enemy",
+       "rival"
+      ]
+     }
+    },
+    {
      "text": "Offer a gift…",
      "goto": "",
      "if": {
@@ -119,11 +139,15 @@
   "rumour": {
    "lines": [
     {
-     "text": "\"A contract got lost between two rooms in the same building. Nobody saw it leave.\"",
+     "text": "\"A recruit who can draw a clean diamond is worth three who can swing a spear.\"",
      "p": 2
     },
     {
-     "text": "\"The Silverford Guild Hall has seen odder days than this. Nobody remembers when.\"",
+     "text": "\"Every mile of road has a stone and every stone has a day it goes dark. We keep the tally.\"",
+     "p": 2
+    },
+    {
+     "text": "\"A contract got lost between two rooms in the same building. Nobody saw it leave.\"",
      "p": 2
     },
     {
@@ -155,6 +179,23 @@
        5
       ]
      ]
+    }
+   ]
+  },
+  "legion": {
+   "lines": [
+    {
+     "text": "\"The Legion walks the roads and keeps the stones lit: we mend what the weather took and carve what has gone dark. A stipend by rank, a fee per stone. Take up the work and your name goes on the roll.\""
+    }
+   ],
+   "choices": [
+    {
+     "text": "\"Anything else?\"",
+     "goto": "rumour"
+    },
+    {
+     "text": "\"Thanks.\"",
+     "goto": "greet"
     }
    ]
   },

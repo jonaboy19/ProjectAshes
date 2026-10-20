@@ -29,6 +29,8 @@ const TownClues := preload("res://scripts/world/town_kit/town_clues.gd")
 const TownThreat := preload("res://scripts/world/town_kit/town_threat.gd")
 const TownSpecial := preload("res://scripts/world/town_kit/town_special.gd")
 const CellStreamer := preload("res://scripts/core/cell_streamer.gd")
+const DialogueRunner := preload("res://scripts/sim/dialogue_runner.gd")
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const TICK := 0.5
 const REENTER := 2.0
 const PROFILE := "settlement"
@@ -47,7 +49,9 @@ var stashes: Array = []
 
 var _acc := 0.0
 var _awake := true
-var _active := false                # activated: the town's nodes exist
+var _active := false                # activated: its build has started
+var _built := false                 # the build is finished (all steps run): the poll and the specials may be used
+var _build_step := 0
 var _centre := Vector2.INF          # settlement centre and the reach of its places (kill gate), resolved on first use
 var _reach := 0.0
 var _inside: Dictionary = {}        # place id -> seconds until the next enter_area
@@ -109,26 +113,54 @@ func _exit_tree() -> void:
 		CellStreamer.shared().remove_site(PROFILE, "town:" + tid)
 
 
-## The town's nodes, built once (immediately for an ungated hub, on the first wake for a gated one).
+## The town's nodes, built once (immediately for an ungated hub; for a gated one on its first wake, a step per frame:
+## the whole build was 4.8 ms on average and 7.4 ms at worst in the frame the town came into range).
 func _activate() -> void:
 	if _active:
 		return
 	_active = true
-	TownRoster.bind(tid)
-	pump = load("res://scripts/quests/quest_pump.gd").attach(self)
-	_register_quests(QuestHub.runner())
-	var sp := String(doc.get("special", ""))
-	special = (load(sp) as GDScript).new() if sp != "" else TownSpecial.new()
-	clues = TownClues.build_clues(tid, self)
-	stashes = TownClues.build_stashes(tid, self)
-	pens = TownLivestock.build_pens(tid, self)
-	special.build(self)
-	if Life != null:
-		TownRoster.seed_social_graph(Life.get("npc_social_graph"), WorldSim.SEED, tid)
 	if gated:
-		_build_threat.call_deferred()          # the den search (a few ms of terrain samples) takes the next frame, not this one
-	else:
-		_build_threat()
+		_build_step = 0           # _process runs the steps while the hub is awake
+		return
+	while not _built:
+		_build_next()
+
+
+## One build step (see _activate); the last one marks the hub built.
+func _build_next() -> void:
+	var _ph := Probe.t()
+	var step := _build_step
+	_build_step_run()
+	Probe.add("hub.step%d" % step, _ph)
+
+
+func _build_step_run() -> void:
+	match _build_step:
+		0:
+			DialogueRunner.warm_async("")          # the shared files (villager, gossip, innkeeper ...) and this town's people: read and
+			DialogueRunner.warm_async(tid)         # parsed on a worker, so the first conversation costs a dictionary lookup
+			TownRoster.bind(tid)
+			pump = load("res://scripts/quests/quest_pump.gd").attach(self)
+			_register_quests(QuestHub.runner())
+		1:
+			var sp := String(doc.get("special", ""))
+			special = (load(sp) as GDScript).new() if sp != "" else TownSpecial.new()
+			clues = TownClues.build_clues(tid, self)
+		2:
+			stashes = TownClues.build_stashes(tid, self)
+			pens = TownLivestock.build_pens(tid, self)
+		3:
+			special.build(self)
+		4:
+			if Life != null:
+				TownRoster.seed_social_graph(Life.get("npc_social_graph"), WorldSim.SEED, tid)
+			if gated:
+				_build_threat.call_deferred()          # the den search (a few ms of terrain samples) takes the next frame, not this one
+			else:
+				_build_threat()
+			_built = true
+			_props_on(_awake)                          # parts built while the hub was asleep again must not show
+	_build_step += 1
 
 
 ## The threat node: it places (or finds) the town's den, which scans the country around the town once.
@@ -147,7 +179,7 @@ func is_awake() -> bool:
 
 
 func is_active() -> bool:
-	return _active
+	return _active and _built
 
 
 ## CellStreamer site callback: the settlement tier of this town changed.
@@ -199,6 +231,9 @@ func _get(property: StringName) -> Variant:
 
 func _process(delta: float) -> void:
 	var t0 := Time.get_ticks_usec() if prof else 0
+	if _active and not _built:
+		_build_next()                                  # one build step per frame
+		return
 	_acc += delta
 	if _acc >= TICK:
 		var dt := _acc
@@ -211,7 +246,7 @@ func _process(delta: float) -> void:
 
 ## One poll step (tests call it directly with a stand-in player in group "player").
 func poll(dt: float) -> void:
-	if not _active:
+	if not _active or not _built:
 		return
 	var player := get_tree().get_first_node_in_group("player") as Node3D
 	if player != null:

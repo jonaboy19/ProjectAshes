@@ -20,9 +20,17 @@ extends RefCounted
 ## that made it (queue_free for anything else); clear_all() frees every shared pool.
 
 const META := "_npool"
+## Background trim (the idle-body pass of 2026-10-06): a pooled body that has been idle this long is freed, one per step, while the
+## pool holds more than BG_KEEP idle bodies. Freeing a skinned rig is a few ms, so it is never done in bulk; needing one again
+## costs a normal (queued) spawn.
+const IDLE_META := "_npool_idle_ms"
+const BG_KEEP := 6
+const BG_IDLE_MS := 60000
 
 static var _shared := {}
 static var _hooked := false
+## >= 0: a teleport asked for the idle bodies of every pool to be trimmed to this many; `trim_step` drains it one body at a time.
+static var _pending_keep := -1
 ## Test / QA switch: false makes shared pools behave like plain new() / queue_free() (the "before" numbers).
 static var enabled := true
 ## Bodies allocated the plain way while `enabled` is false (the "before" run counts these as its allocations).
@@ -99,6 +107,27 @@ static func trim_all(keep := 4) -> int:
 	return freed
 
 
+## Asks for every pool to be trimmed to `keep` idle bodies, a body per `trim_step` (instead of freeing dozens in one frame).
+static func request_trim(keep := 4) -> void:
+	_pending_keep = maxi(keep, 0)
+
+
+static func trim_pending() -> bool:
+	return _pending_keep >= 0
+
+
+## Frees at most ONE idle body: from a pool above the requested keep (after a teleport), else the oldest long-idle body of a pool
+## above BG_KEEP. Returns how many were freed (0 or 1). Call it from a timer.
+static func trim_step() -> int:
+	var keep := _pending_keep if _pending_keep >= 0 else BG_KEEP
+	var min_idle := 0 if _pending_keep >= 0 else BG_IDLE_MS
+	for k: String in _shared:
+		if _shared[k].trim_one(keep, min_idle):
+			return 1
+	_pending_keep = -1
+	return 0
+
+
 static func _hook_exit() -> void:
 	if _hooked:
 		return
@@ -116,6 +145,7 @@ func prewarm(count: int) -> void:
 		var n := _make()
 		if n == null:
 			return
+		n.set_meta(IDLE_META, Time.get_ticks_msec())
 		_idle.append(n)
 
 
@@ -159,6 +189,7 @@ func release(node: Node) -> bool:
 	var parent := node.get_parent()
 	if parent != null:
 		parent.remove_child(node)
+	node.set_meta(IDLE_META, Time.get_ticks_msec())
 	_idle.append(node)
 	return true
 
@@ -173,6 +204,19 @@ func trim_idle(keep := 0) -> int:
 			node.free()
 			n += 1
 	return n
+
+
+## Frees the oldest idle body when more than `keep` are idle and it has been idle for `min_idle_ms`. True when one was freed.
+func trim_one(keep: int, min_idle_ms: int) -> bool:
+	_purge()
+	if _idle.size() <= maxi(keep, 0):
+		return false
+	var node: Node = _idle[0]                       # idle bodies are reused from the back: the front is the oldest
+	if Time.get_ticks_msec() - int(node.get_meta(IDLE_META, 0)) < min_idle_ms:
+		return false
+	_idle.pop_front()
+	node.free()
+	return true
 
 
 func release_all() -> void:

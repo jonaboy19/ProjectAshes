@@ -1,5 +1,6 @@
 class_name Villager
 extends CharacterBody3D
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const ContactBlobS := preload("res://scripts/actors/contact_blob.gd")
 const SettingsStoreS := preload("res://scripts/ui/frontend/settings_store.gd")
 ## The embodied form of one WorldSim person near the player.
@@ -333,7 +334,10 @@ func _ready() -> void:
 	_shape.disabled = true
 	add_child(_shape)
 	_child = NpcWorld.is_child(person)
+	var _pm := Probe.t()
 	var model := Assets.character(_file, 1.7 * (0.78 if _child else 1.0), _keep)
+	Probe.add("villager.ready_model", _pm)
+	_pm = Probe.t()
 	# Colour language: this town's guard uniform / clothing palette (culture + archetype) as a tint of the shared materials.
 	var tt: Array = TownIdentity.person_tint(WorldSim.home[person], person, WorldSim.job[person] == 3)
 	TownIdentity.tint_model(model, tt[0], float(tt[1]))
@@ -343,7 +347,11 @@ func _ready() -> void:
 	LifeLibrary.install(_anim)      # idempotent: the life clips are added to the shared rig library once
 	for n in model.find_children("*", "MeshInstance3D", true, false):
 		_meshes.append(n as GeometryInstance3D)
+	Probe.add("villager.ready_tint_anim", _pm)
+	_pm = Probe.t()
 	_add_head_look(model)
+	Probe.add("villager.ready_headlook", _pm)
+	_pm = Probe.t()
 	var skeletons := model.find_children("*", "Skeleton3D", true, false)
 	if not skeletons.is_empty():
 		_skeleton = skeletons[0] as Skeleton3D
@@ -351,8 +359,12 @@ func _ready() -> void:
 	_attach_components(model)
 	if WorldSim.job[person] == 3:
 		GuardLantern.attach(self)      # F6: lit lanterns at night, the nearest few get a real light
+	Probe.add("villager.ready_components", _pm)
+	_pm = Probe.t()
 	_graph = StreetGraph.for_person(person) as StreetGraph
 	NpcWorld.ensure_spots(WorldSim.home[person], get_parent())
+	Probe.add("villager.ready_graph_spots", _pm)
+	_pm = Probe.t()
 	# Promotion: start where the simulation had this person, moved out of any
 	# footprint it cut through, facing the way they were heading.
 	var p: Vector2 = WorldSim.pos[person]
@@ -385,6 +397,7 @@ func _ready() -> void:
 	_decide = 0.0
 	_think_tick()
 	_decide = float((h / 7) % 1000) / 1000.0 * DECIDE_INTERVAL
+	Probe.add("villager.ready_tail", _pm)
 
 
 func _exit_tree() -> void:
@@ -560,7 +573,9 @@ func _tick_body(delta: float) -> void:
 			if _anim:
 				_anim.advance(step)
 	else:
+		var _pa := Probe.t()
 		_update_animation(delta)
+		Probe.add("villager.anim", _pa)
 	_update_head_look(delta)
 	if _tag != null:     # AAA pass 5: the focused name is drawn by the HUD world icon; plates only with the dev overlay
 		_tag.visible = show_tag and not Nameplates.suppressed and _dev_overlay
@@ -581,7 +596,9 @@ func _think_tick() -> void:
 	# one stays due and is taken on the next think tick.
 	if _decide <= 0.0 and NpcWorld.take_decide_budget():
 		_decide = maxf(_decide, -DECIDE_INTERVAL) + DECIDE_INTERVAL
+		var _pv := Probe.t()
 		_decide_act(here)
+		Probe.add("villager.decide", _pv)
 	var now_ms := Time.get_ticks_msec()
 	_bubble_tick(now_ms)
 	if _indoors:
@@ -589,16 +606,24 @@ func _think_tick() -> void:
 	_update_facing(here)
 	_activity_want = _activity_for_person()
 	if _needs_route and _yield_time <= 0.0 and _wait <= 0.0 and StreetGraph.take_route_budget():
+		var _pr := Probe.t()
 		_plan_route(here)
+		Probe.add("villager.plan_route", _pr)
 	var travelling := _path_i < _path.size()
 	_avoid = _graph.repulse(here, 1.0) if _graph and travelling else Vector2.ZERO
 	if travelling:
 		_avoid += _extra_steering(here)
+	var _pn := Probe.t()
 	_separation = _neighbour_push(here)
+	Probe.add("villager.neighbours", _pn)
+	_pn = Probe.t()
 	_perceive(here, now_ms, player_distance)
+	Probe.add("villager.perceive", _pn)
+	_pn = Probe.t()
 	_maybe_greet(here, player_distance, now_ms)
 	_maybe_friend_bark(player_distance, now_ms)
 	_reaction_tick(here, now_ms)
+	Probe.add("villager.greet_react", _pn)
 	if travelling and _yield_time <= 0.0:
 		_check_stuck(here)
 	else:

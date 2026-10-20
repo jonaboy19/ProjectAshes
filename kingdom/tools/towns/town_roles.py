@@ -223,6 +223,13 @@ NEW_ROLES = {
                     ["Guild seal, guild stamp, guild fee. The fee is not optional.", "Take a number. Do not take two. Do not take mine.", "Contracts, copies, counter-copies. We run on paper."],
                     ["A contract got lost between two rooms in the same building. Nobody saw it leave.", "The guild raised its dues. It raised its voice when we asked why.",
                      "Apprentices are fewer. The ones who stay want more pay."]),
+    # Region 1: the Runeward Legion's recruiter at the Silverford (Ironmarch) Runecarvers' Guild. gen_town.py RECRUITERS gives the post to the
+    # guild clerk of that town; the talk menu offers the Wardwright career (scripts/ui/wardwright_ui.gd).
+    "wardwright recruiter": (4, "shop",
+                             ["The Runeward Legion keeps a roll. A steady hand and a patient eye will do for a start.", "Stones do not carve themselves. Ask about the roll.",
+                              "A hand for the chisel? The Legion is always short of one."],
+                             ["Every mile of road has a stone and every stone has a day it goes dark. We keep the tally.", "The Legion pays by the stone and by the week. Dull work, honest coin.",
+                              "A recruit who can draw a clean diamond is worth three who can swing a spear."]),
     "caravan guard": (3, "day",
                       ["Hands off the crates. Eyes off the cargo.", "Watch the verge. Not me. The verge.", "The caravan leaves at dawn. Be ready or be gone."],
                       ["Dust on the south road, heavy, and not trade. Something is moving that is not a caravan.", "A guide stopped coming. Another took his place. Same horse, different hat.",

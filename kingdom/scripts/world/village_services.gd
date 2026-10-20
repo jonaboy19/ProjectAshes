@@ -7,6 +7,7 @@ extends Node3D
 ## the same menus are offered inside: wire_settlement() hooks every InteriorDoor
 ## so the innkeeper, smith, receptionist and healer in a room get a Station.
 
+const Probe := preload("res://scripts/core/perf_probe.gd")
 const DistanceCull := preload("res://scripts/core/distance_cull.gd")
 const FarmLedger := preload("res://scripts/ui/farm_ledger.gd")
 const TradeScreen := preload("res://scripts/ui/trade_screen.gd")
@@ -39,6 +40,7 @@ const CrimeWatch := preload("res://scripts/population/crime_watch.gd")
 const Theft := preload("res://scripts/sim/theft.gd")
 const TownRoster := preload("res://scripts/world/town_kit/town_roster.gd")
 const TownTalk := preload("res://scripts/world/town_kit/town_talk.gd")
+const WardwrightUI := preload("res://scripts/ui/wardwright_ui.gd")
 ## NPC marker role -> ShopHours kind (the service shuts outside these hours; the inn never does).
 const ROLE_HOURS := {"blacksmith": "blacksmith", "healer": "healer", "receptionist": "guild"}
 const SOCIAL_TICK := 0.5
@@ -1337,14 +1339,20 @@ func talk_menu(npc: Dictionary) -> Dictionary:
 
 
 func _begin_talk(info: Dictionary) -> void:
+	var _pt := Probe.t()
 	_sync(info)
 	_talk = {"id": info["id"], "info": info, "file": info["file"], "node": "", "line": ""}
 	var d := DialogueRunner.load_file(info["file"])
+	Probe.add("talk.load_file", _pt)
+	_pt = Probe.t()
 	_enter(DialogueRunner.start_node(d))
+	Probe.add("talk.enter", _pt)
 	var rel := relationships()
 	if rel.note_talk(info["id"], _now()):
 		rel.add_modifier(info["id"], "talked", "Chatted recently", 3.0, _now(), 4.0)
+	var _ps := Probe.t()
 	_start_talk_session(info)
+	Probe.add("talk.session", _ps)
 
 
 ## In-world conversation: the NPC stops and faces you, the camera eases over the shoulder, and walking
@@ -1403,6 +1411,13 @@ func _enter(node: String) -> void:
 
 
 func _talk_page() -> Dictionary:
+	var _pp := Probe.t()
+	var page := _talk_page_inner()
+	Probe.add("talk.page", _pp)
+	return page
+
+
+func _talk_page_inner() -> Dictionary:
 	var info: Dictionary = _talk["info"]
 	var rel := relationships()
 	var now := _now()
@@ -1414,6 +1429,7 @@ func _talk_page() -> Dictionary:
 	_add_courtship_options(opts, info)
 	preload("res://scripts/quests/quest_talk.gd").add_options(opts, info, hud)   # library quests (F7)
 	TownTalk.add_options(opts, info)      # F8: hand over goods (Deliver) to the miller and friends
+	WardwrightUI.add_options(opts, info)  # Region 1: the Runeward Legion's recruiter enlists Wardwrights
 	if Life.soul.tier() >= RANaming.MIN_SOUL_TIER and String(info.get("id", "")) != "" \
 			and rel.opinion(info["id"], now) >= RANaming.PERSON_TRUST_MIN \
 			and Life.naming.soul_bonds.size() < RANaming.bond_limit(Life.soul.tier()):

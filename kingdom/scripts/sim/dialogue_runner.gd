@@ -60,6 +60,10 @@ static func load_file(id: String, dir := DIR) -> Dictionary:
 	if _cache.has(path):
 		return _cache[path]
 	var out := {}
+	var staged := _take_staged(path)
+	if not staged.is_empty():
+		_cache[path] = staged
+		return staged
 	if FileAccess.file_exists(path):
 		var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 		if data is Dictionary:
@@ -72,6 +76,44 @@ static func load_file(id: String, dir := DIR) -> Dictionary:
 
 static func clear_cache() -> void:
 	_cache.clear()
+
+
+## Frame-spike pass: reads and parses the dialogue files of a folder (`res://dialogue/<sub>`) on a worker thread, so the first
+## conversation with someone does not pay for the file read and JSON parse (7-35 ms). Pure data (no meshes or materials), so it
+## is safe on a thread. `load_file` takes a staged result over the cache. Idempotent per folder.
+static var _staged: Dictionary = {}
+static var _stage_mutex := Mutex.new()
+static var _staged_dirs: Dictionary = {}
+
+
+static func warm_async(sub: String, dir := DIR) -> void:
+	var folder := "%s/%s" % [dir, sub] if sub != "" else dir
+	if _staged_dirs.has(folder) or not DirAccess.dir_exists_absolute(folder):
+		return
+	_staged_dirs[folder] = true
+	WorkerThreadPool.add_task(_stage_folder.bind(folder), false, "dialogue warm")
+
+
+static func _stage_folder(folder: String) -> void:
+	for f: String in DirAccess.get_files_at(folder):
+		if not f.ends_with(".json"):
+			continue
+		var path := "%s/%s" % [folder, f]
+		var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+		if data is Dictionary:
+			_stage_mutex.lock()
+			_staged[path] = data
+			_stage_mutex.unlock()
+
+
+static func _take_staged(path: String) -> Dictionary:
+	if _staged.is_empty():
+		return {}
+	_stage_mutex.lock()
+	var d: Variant = _staged.get(path)
+	_staged.erase(path)
+	_stage_mutex.unlock()
+	return d if d is Dictionary else {}
 
 
 static func start_node(d: Dictionary) -> String:

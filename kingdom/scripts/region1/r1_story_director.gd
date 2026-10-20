@@ -496,6 +496,11 @@ func _spawn_wolf(ring: Vector2) -> void:
 	w.territory = 60.0
 	w.set_meta("r1_safe", true)
 	world.add_child(w)
+	# The ring is warded (the player has just carved its stones): a wolf that "won't follow prey into protected land" and retreats to heal
+	# inside the cover never fights, and the kill step could not be played. Like the town threats and the rift wolves it ignores the ward.
+	var sp: Dictionary = (w.get("_sp") as Dictionary).duplicate()
+	sp["ward"] = "ignore"
+	w.set("_sp", sp)
 	var away := (ring - _pp()).normalized() if (ring - _pp()).length() > 1.0 else Vector2(0, -1)
 	var q := ring + away * 32.0
 	w.global_position = Vector3(q.x, WorldGen.height(q.x, q.y), q.y)
@@ -591,6 +596,10 @@ func _manage_npcs() -> void:
 				_spawn_npc(key, host, apos, pp)
 	for key: String in _npcs.keys():
 		if not wanted.has(key):
+			# Never free the person the player is talking to: a choice can finish their step mid-conversation, and the open sheet
+			# would call the freed Station's menu on every rebuild (a script error per frame, a dead sheet).
+			if not _conv.is_empty() and String(_conv.get("npc", "")) == String(key).get_slice("@", 0):
+				continue
 			_free_npc(key)
 
 
