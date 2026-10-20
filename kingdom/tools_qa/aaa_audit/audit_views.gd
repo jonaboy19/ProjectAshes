@@ -4,6 +4,10 @@ extends Node
 ##   Godot_console.exe --path kingdom --rendering-method mobile --resolution 2340x1080 res://tools_qa/aaa_audit/audit_views.tscn \
 ##       -- --adult --skipintro --quality=high --out=C:/.../before --tag=high [--only=gate,night] [--hud=0|1]
 ## Prints "AUDIT <scene> draws=N prims=P fps=F" per shot. Movie Maker: add --write-movie ... and --only=dialogue.
+## PC Forward+ (RTX capture, never --headless; log must name the NVIDIA adapter):
+##   Godot_console.exe --path kingdom --rendering-method forward_plus --resolution 2560x1440 res://tools_qa/aaa_audit/audit_views.tscn ##       -- --adult --skipintro --quality=high --out=C:/.../aaa_feel --pattern=pc1_{scene}_{tag} --tag=high_before ##       --only=gate,dusk,night --hud=0 --bench=20
+## --pattern= uses {tag} and {scene} (default "{tag}_{scene}"). --bench=SECONDS holds each main shot N s with vsync off and
+## uncapped fps, then prints "AUDITPERF <scene> tier= profile= renderer= fps_avg= ft_p50/p95/p99= vram_mb= tex_mb= draws= prims= gpu=".
 
 const MAIN := "res://scenes/main.tscn"
 const ALL := ["first_exterior", "road", "gate", "dialogue", "wolf", "dusk", "night"]
@@ -14,6 +18,8 @@ var out := "user://audit_views"
 var tag := "shot"
 var only: Array = []
 var hud_on := true
+var pattern := "{tag}_{scene}"
+var bench := 0.0
 var _pin := -1.0
 
 
@@ -26,8 +32,15 @@ func _ready() -> void:
 			tag = arg.substr(6)
 		elif arg.begins_with("--only="):
 			only = arg.substr(7).split(",", false)
+		elif arg.begins_with("--pattern="):
+			pattern = arg.substr(10)
+		elif arg.begins_with("--bench="):
+			bench = float(arg.substr(8))
 		elif arg == "--hud=0":
 			hud_on = false
+	if bench > 0.0:
+		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+		Engine.max_fps = 0
 	DirAccess.make_dir_recursive_absolute(out)
 	main = (load(MAIN) as PackedScene).instantiate()
 	add_child(main)
@@ -55,15 +68,49 @@ func shot(name: String, hud_override := -1) -> void:
 	await frames(8)
 	await RenderingServer.frame_post_draw
 	var img := get_viewport().get_texture().get_image()
-	var path := out.path_join("%s_%s.jpg" % [tag, name])
+	var path := out.path_join(pattern.replace("{tag}", tag).replace("{scene}", name) + ".jpg")
 	img.save_jpg(path, 0.92)
 	var rv: Callable = main.viewport.get_render_info
 	print("AUDIT %s draws=%d prims=%d fps=%d" % [name,
 		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
 		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME),
 		Engine.get_frames_per_second()])
+	if bench > 0.0 and not name.ends_with("_nohud") and not name.ends_with("_lock"):
+		await _bench(name)
 	if hide_hud:
 		main.hud.visible = true
+
+
+func _bench(name: String) -> void:
+	var deltas: Array = []
+	var t0 := Time.get_ticks_usec()
+	var last := t0
+	var vram_peak := 0.0
+	while (Time.get_ticks_usec() - t0) / 1e6 < bench + 2.0:
+		await get_tree().process_frame
+		var now := Time.get_ticks_usec()
+		if (now - t0) / 1e6 >= 2.0:
+			deltas.append(float(now - last) / 1000.0)
+		last = now
+		vram_peak = maxf(vram_peak, Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED))
+	if deltas.is_empty():
+		return
+	var total := 0.0
+	for d: float in deltas:
+		total += d
+	deltas.sort()
+	var n := deltas.size()
+	var rv: Callable = main.viewport.get_render_info
+	var q: Node = get_node_or_null("/root/Quality")
+	print("AUDITPERF %s tier=%s profile=%s renderer=%s fps_avg=%.1f ft_p50=%.2fms ft_p95=%.2fms ft_p99=%.2fms vram_mb=%.0f tex_mb=%.0f draws=%d prims=%d gpu=%s" % [name,
+		str(q.call("tier_name")) if q != null and q.has_method("tier_name") else "n/a",
+		str(q.get("profile")) if q != null and q.get("profile") != null else "n/a",
+		RenderingServer.get_current_rendering_method(),
+		1000.0 * n / total, deltas[int(n * 0.5)], deltas[mini(n - 1, int(n * 0.95))], deltas[mini(n - 1, int(n * 0.99))],
+		vram_peak / 1048576.0, Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0,
+		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
+		rv.call(Viewport.RENDER_INFO_TYPE_VISIBLE, Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME),
+		RenderingServer.get_video_adapter_name()])
 
 
 static func yaw_for(d: Vector2) -> float:
