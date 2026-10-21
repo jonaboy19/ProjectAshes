@@ -76,6 +76,9 @@ func _make_scatter(role: String, origin: Vector2) -> ProtonScatter:
 	s.global_seed = hash(key) ^ int(SALT[role])
 	s.enable_updates_in_game = false
 	s.use_chunks = false
+	# Run the modifier stack on the main thread: the threaded path touches the scene tree/RenderingDevice off-thread (signal 11 when rendering).
+	s.dbg_disable_thread = true
+	s.force_rebuild_on_load = false   # we drive the stack ourselves (_start): ProtonScatter's own output stage builds throw-away MultiMeshes
 	s.show_output_in_tree = false
 	var items: Array = spec["items"]
 	for i in items.size():
@@ -106,16 +109,30 @@ func _make_scatter(role: String, origin: Vector2) -> ProtonScatter:
 	stack.add(create)
 	stack.add(rules)
 	s.modifier_stack = stack
-	s.build_completed.connect(_on_built.bind(s, role), CONNECT_ONE_SHOT)
 	add_child(s)
+	_start.call_deferred(s, role)
 	return s
 
 
-func _on_built(s: ProtonScatter, role: String) -> void:
+## Runs the modifier stack on the main thread and takes the transforms directly (no ProtonScatter MultiMesh/collision output,
+## which hit RenderingDevice buffers and the scene tree and crashed the renderer).
+func _start(s: ProtonScatter, role: String) -> void:
+	if not is_instance_valid(s) or not s.is_inside_tree():
+		return
+	var stack := s.modifier_stack
+	if stack.transforms_ready.is_connected(s._on_transforms_ready):
+		stack.transforms_ready.disconnect(s._on_transforms_ready)
+	s._discover_items()
+	s.domain.discover_shapes(s)
+	stack.transforms_ready.connect(_on_built.bind(s, role), CONNECT_ONE_SHOT)
+	stack.start_update(s, s.domain)
+
+
+func _on_built(tl, s: ProtonScatter, role: String) -> void:
 	# ProtonScatter hands transform i of the final list to the item whose proportion block it falls in (same rule as its own
 	# _update_multimeshes); read the list itself, not the MultiMesh (a headless/dummy renderer does not keep instance data).
 	var by_kind: Dictionary = {}
-	var all: Array = s.transforms.list if s.transforms else []
+	var all: Array = tl.list if tl else []
 	var offset := 0
 	for item in s.items:
 		var count := int(round(float(item.proportion) / s.total_item_proportion * all.size()))
@@ -127,7 +144,6 @@ func _on_built(s: ProtonScatter, role: String) -> void:
 			list.append(item.process_transform(all[offset + i]))
 		by_kind[kind] = list
 		offset += count
-	s.clear_output()           # the marker MultiMeshes are only a vehicle: the real meshes are added below
 	var holder: Node3D = get_parent() if get_parent() else self
 	for kind: String in by_kind:
 		var list: Array[Transform3D] = by_kind[kind]
